@@ -1,88 +1,59 @@
-From: Julia Lawall <Julia.Lawall@lip6.fr>
-Subject: [PATCH 07/12] i2c: rk3x: account for const type of of_device_id.data
-Date: Tue,  2 Jan 2018 14:28:03 +0100
-Message-ID: <1514899688-27844-8-git-send-email-Julia.Lawall@lip6.fr>
-References: <1514899688-27844-1-git-send-email-Julia.Lawall@lip6.fr>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1514899688-27844-1-git-send-email-Julia.Lawall@lip6.fr>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Heiko Stuebner <heiko@sntech.de>
-Cc: kernel-janitors@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH RFC 2/7] soc: qcom: Add device tree binding for GENI SE
+Date: Tue, 2 Jan 2018 09:46:29 -0600
+Message-ID: <20180102154629.s6rni5r3big2g5sv@rob-hp-laptop>
+References: <1514392046-30602-1-git-send-email-kramasub@codeaurora.org>
+ <1514392046-30602-3-git-send-email-kramasub@codeaurora.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1514392046-30602-3-git-send-email-kramasub@codeaurora.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org, linux-doc@vger.kernel.org, devicetree@vger.kernel.org, andy.gross@linaro.org, david.brown@linaro.org, mark.rutland@arm.com, corbet@lwn.net, wsa@the-dreams.de, gregkh@linuxfoundation.org, jslaby@suse.com
 List-Id: linux-i2c@vger.kernel.org
 
-This driver creates a number of const structures that it stores in
-the data field of an of_device_id array.
+On Wed, Dec 27, 2017 at 09:27:21AM -0700, Karthikeyan Ramasubramanian wrote:
+> Add device tree binding support for the QCOM GENI SE driver.
+> 
+> Signed-off-by: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
+> ---
+>  .../devicetree/bindings/soc/qcom/qcom,geni-se.txt         | 15 +++++++++++++++
+>  1 file changed, 15 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt b/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
+> new file mode 100644
+> index 0000000..5108b62
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
+> @@ -0,0 +1,15 @@
+> +Qualcomm Technologies, Inc. GENI Serial Engine Driver
+> +
+> +GENI Serial Engine Driver manages the GENI firmware based Qualcomm Universal
+> +Peripheral (QUP) Wrapper. GENI SE Driver also manages the common aspects of
+> +individual Serial Engines that composes the QUP Wrapper.
 
-The data field of an of_device_id structure has type const void *, so
-there is no need for a const-discarding cast when putting const values
-into such a structure.
+Bindings describe h/w, not drivers.
 
-Furthermore, adding const to the declaration of the location that
-receives a const value from such a field ensures that the compiler
-will continue to check that the value is not modified.  The
-const-discarding cast on the extraction from the data field is thus
-no longer needed.
+> +
+> +Required properties:
+> +- compatible:		Must be "qcom,geni-se-qup".
 
-Done using Coccinelle.
+Only one version of the h/w?
 
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+> +- reg:			Must contain QUP register address and length.
+> +
+> +Example:
+> +	qup_0: qcom,geni_se_qup_0@8c0000 {
 
----
- drivers/i2c/busses/i2c-rk3x.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+Don't use '_' in node names.
 
-diff -u -p a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -194,7 +194,7 @@ struct rk3x_i2c_soc_data {
- struct rk3x_i2c {
- 	struct i2c_adapter adap;
- 	struct device *dev;
--	struct rk3x_i2c_soc_data *soc_data;
-+	const struct rk3x_i2c_soc_data *soc_data;
- 
- 	/* Hardware resources */
- 	void __iomem *regs;
-@@ -1164,27 +1164,27 @@ static const struct rk3x_i2c_soc_data rk
- static const struct of_device_id rk3x_i2c_match[] = {
- 	{
- 		.compatible = "rockchip,rv1108-i2c",
--		.data = (void *)&rv1108_soc_data
-+		.data = &rv1108_soc_data
- 	},
- 	{
- 		.compatible = "rockchip,rk3066-i2c",
--		.data = (void *)&rk3066_soc_data
-+		.data = &rk3066_soc_data
- 	},
- 	{
- 		.compatible = "rockchip,rk3188-i2c",
--		.data = (void *)&rk3188_soc_data
-+		.data = &rk3188_soc_data
- 	},
- 	{
- 		.compatible = "rockchip,rk3228-i2c",
--		.data = (void *)&rk3228_soc_data
-+		.data = &rk3228_soc_data
- 	},
- 	{
- 		.compatible = "rockchip,rk3288-i2c",
--		.data = (void *)&rk3288_soc_data
-+		.data = &rk3288_soc_data
- 	},
- 	{
- 		.compatible = "rockchip,rk3399-i2c",
--		.data = (void *)&rk3399_soc_data
-+		.data = &rk3399_soc_data
- 	},
- 	{},
- };
-@@ -1207,7 +1207,7 @@ static int rk3x_i2c_probe(struct platfor
- 		return -ENOMEM;
- 
- 	match = of_match_node(rk3x_i2c_match, np);
--	i2c->soc_data = (struct rk3x_i2c_soc_data *)match->data;
-+	i2c->soc_data = match->data;
- 
- 	/* use common interface to get I2C timing properties */
- 	i2c_parse_fw_timings(&pdev->dev, &i2c->t, true);
+> +		compatible = "qcom,geni-se-qup";
+> +		reg = <0x8c0000 0x6000>;
+> +	}
+> -- 
+> Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+> a Linux Foundation Collaborative Project
+> 
