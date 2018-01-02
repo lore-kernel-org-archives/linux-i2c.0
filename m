@@ -1,33 +1,47 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v4 3/4] dt-bindings: at24: extend the list of supported
- chips
-Date: Tue, 2 Jan 2018 10:03:55 -0600
-Message-ID: <20180102160355.xllnymodcfccvia7@rob-hp-laptop>
-References: <20171228104913.29873-1-brgl@bgdev.pl>
- <20171228104913.29873-4-brgl@bgdev.pl>
+From: Sinan Kaya <okaya@codeaurora.org>
+Subject: Re: [PATCH] i2c: fix ACPI_I2C_OPREGION dependency
+Date: Tue, 2 Jan 2018 13:07:03 -0500
+Message-ID: <ea62b24e-a77b-f52e-46f2-ed38dfebd792@codeaurora.org>
+References: <1511370357-17184-1-git-send-email-eric.auger@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20171228104913.29873-4-brgl-ARrdPY/1zhM@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bartosz Golaszewski <brgl-ARrdPY/1zhM@public.gmane.org>
-Cc: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Javier Martinez Canillas <javier-0uQlZySMnqxg9hUCZPvPmw@public.gmane.org>, David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>, Divagar Mohandass <divagar.mohandass-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1511370357-17184-1-git-send-email-eric.auger@redhat.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Eric Auger <eric.auger@redhat.com>, eric.auger.pro@gmail.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Dec 28, 2017 at 11:49:12AM +0100, Bartosz Golaszewski wrote:
-> Add other variants of at24 EEPROMs we support in the driver to the
-> list of allowed compatible fallbacks.
++linux-acpi
+
+On 11/22/2017 12:05 PM, Eric Auger wrote:
+> If CONFIG_I2C=m we fail getting ACPI_I2C_OPREGION set. Let's
+> make ACPI_I2C_OPREGION depend on I2C.
 > 
-> Signed-off-by: Bartosz Golaszewski <brgl-ARrdPY/1zhM@public.gmane.org>
-> Reviewed-by: Javier Martinez Canillas <javierm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> Signed-off-by: Eric Auger <eric.auger@redhat.com>
 > ---
->  Documentation/devicetree/bindings/eeprom/at24.txt | 9 +++++++++
->  1 file changed, 9 insertions(+)
+>  drivers/i2c/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+> index efc3354..5951e9d 100644
+> --- a/drivers/i2c/Kconfig
+> +++ b/drivers/i2c/Kconfig
+> @@ -26,7 +26,7 @@ config I2C
+>  
+>  config ACPI_I2C_OPREGION
+>  	bool "ACPI I2C Operation region support"
+> -	depends on I2C=y && ACPI
+> +	depends on I2C && ACPI
+>  	default y
+>  	help
+>  	  Say Y here if you want to enable ACPI I2C operation region support.
+> 
 
-Reviewed-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Anybody picking this up?
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Sinan Kaya
+Qualcomm Datacenter Technologies, Inc. as an affiliate of Qualcomm Technologies, Inc.
+Qualcomm Technologies, Inc. is a member of the Code Aurora Forum, a Linux Foundation Collaborative Project.
