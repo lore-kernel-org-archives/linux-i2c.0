@@ -1,45 +1,62 @@
-From: Sinan Kaya <okaya@codeaurora.org>
-Subject: Re: [PATCH] i2c: fix ACPI_I2C_OPREGION dependency
-Date: Tue, 2 Jan 2018 13:19:49 -0500
-Message-ID: <cad432e6-1722-3080-0266-18629be56e83@codeaurora.org>
-References: <1511370357-17184-1-git-send-email-eric.auger@redhat.com>
- <ea62b24e-a77b-f52e-46f2-ed38dfebd792@codeaurora.org>
- <48ff2e75-5ee0-5ac9-8d47-58c3c691ad6e@infradead.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: gpio: add fault injector
+Date: Tue, 2 Jan 2018 23:34:04 +0100
+Message-ID: <20180102223404.llvuybdtceoln4ks@ninjato>
+References: <20170825153918.7544-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="f7wrtpgyryjzf6yk"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:50986 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751026AbeABSTw (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 2 Jan 2018 13:19:52 -0500
-In-Reply-To: <48ff2e75-5ee0-5ac9-8d47-58c3c691ad6e@infradead.org>
-Content-Language: en-US
+Received: from sauhun.de ([88.99.104.3]:43833 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750865AbeABWeF (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 2 Jan 2018 17:34:05 -0500
+Content-Disposition: inline
+In-Reply-To: <20170825153918.7544-1-wsa+renesas@sang-engineering.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Randy Dunlap <rdunlap@infradead.org>, Eric Auger <eric.auger@redhat.com>, eric.auger.pro@gmail.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
 
-On 1/2/2018 1:10 PM, Randy Dunlap wrote:
->>>  config ACPI_I2C_OPREGION
->>>  	bool "ACPI I2C Operation region support"
->>> -	depends on I2C=y && ACPI
->>> +	depends on I2C && ACPI
->>>  	default y
->>>  	help
->>>  	  Say Y here if you want to enable ACPI I2C operation region support.
->>>
->> Anybody picking this up?
-> Well.  It looks to me like the patch is reversed or the patch description
-> needs some improvement.  Or I just don't understand it.
 
-I'll let Eric improve the description. 
+--f7wrtpgyryjzf6yk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Issue is that if you compile I2C as a module, ACPI_I2C_OPREGION doesn't get selected.
-Therefore, any ACPI opregion calls targeting I2C fail with no opregion found.
+On Fri, Aug 25, 2017 at 05:39:18PM +0200, Wolfram Sang wrote:
+> Add fault injection capabilities to the i2c-gpio driver. When connected to
+> another I2C bus, it can create unusual states which the other I2C bus mas=
+ter
+> driver needs to handle. Only for debugging!
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-The goal is to select ACPI_I2C_OPREGION independent of the I2C module type selection.
+To be more precise:
 
--- 
-Sinan Kaya
-Qualcomm Datacenter Technologies, Inc. as an affiliate of Qualcomm Technologies, Inc.
-Qualcomm Technologies, Inc. is a member of the Code Aurora Forum, a Linux Foundation Collaborative Project.
+Applied to for-next after fixing checkpatch warnings about parenthesis
+in macros, improper 'inline' usage, and octal values for file
+permissions.
+
+
+--f7wrtpgyryjzf6yk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpMCNsACgkQFA3kzBSg
+KbZwRw//fIlb1kJwwqCp85nvCjPQHrzY3AueLs3J99xTeAZkTa40AZqkDenqwhwj
+CfZIt0AsVwNfV4RnqefpZNgH+tJHPYFkCgIxTKBlZG3RzSTGaHHQ5nX6xmmNLzGH
+jhKqUBCesrdVTmrP/tqTk0cTAP1il/R6MVjGH+zNzKT/2gk8w+P9SlHJdUtSLBDI
+r8NSQBH9F0nSKGi3ZNgJCfdGivqqUEMYK27kSrURyBgiZCtkn4XkfjRNot7nKATK
+Ye0leBhhXDk2J5wn7bIctKXpAgVM/cErCsymHpQg6+MkuIV9LQIiqdSX39pX9iId
+JVMfyUvf0olpHfhpUJ5n54bijK7/u6QEYLS1jYUqwyQKbyqezp1UHPhhro4jFqy+
+WDItk0Ew2DdaFeKHn0OFjBIdkHq0maZo9rBLJY89LpmqjRqF4PuwuSHYiXrTjmpN
+Y9Xe1awaeaLddWs6moMTW0bWdJCCfY4OHq0ovM/CluaT9D6ZsBpKtfoj2Y/kxnnC
+pO/u214gp9zhRkvkBQO1RX0e2JpjY58Jo6p2K0neVr8grDECxvgLKGkHK1X5p55C
+Je0I1bOmKnBQdxaxfz4VUWZMhZN5gF1n6j/BwPwrqlhAsDwfATKLIi5tt8uVEcyR
+ugkWNmn4DZUZb59oiqxcfjn0aiXVfpJXmXFXlbxLYvaI95L07N0=
+=pUgP
+-----END PGP SIGNATURE-----
+
+--f7wrtpgyryjzf6yk--
