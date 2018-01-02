@@ -1,192 +1,117 @@
-From: Fugang Duan <fugang.duan@nxp.com>
-Subject: [PATCH 1/1] i2c: imx-lpi2c: add runtime pm support
-Date: Tue, 2 Jan 2018 17:11:52 +0800
-Message-ID: <1514884312-8535-1-git-send-email-fugang.duan@nxp.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: Re: [PATCH] eeprom: at24: check the return value of
+ nvmem_unregister()
+Date: Tue, 2 Jan 2018 11:17:56 +0000
+Message-ID: <1dff0754-e5cb-bda3-4ffb-16182752ca62@linaro.org>
+References: <20171227141038.31646-1-brgl@bgdev.pl>
+ <20171228112845.GB3729@localhost>
+ <CAMRc=MfQvQ+PEcQZRcs8baHPgyrXQ_=m6YXCtbqDseYHMGOZtw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-bn3nam01on0068.outbound.protection.outlook.com ([104.47.33.68]:47968
-        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751216AbeABJPk (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 2 Jan 2018 04:15:40 -0500
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:43408 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751286AbeABLR7 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 2 Jan 2018 06:17:59 -0500
+Received: by mail-wm0-f66.google.com with SMTP id n138so60556690wmg.2
+        for <linux-i2c@vger.kernel.org>; Tue, 02 Jan 2018 03:17:58 -0800 (PST)
+In-Reply-To: <CAMRc=MfQvQ+PEcQZRcs8baHPgyrXQ_=m6YXCtbqDseYHMGOZtw@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, u.kleine-koenig@pengutronix.de, bhumirks@gmail.com, vz@mleia.com, fugang.duan@nxp.com
+To: Bartosz Golaszewski <brgl@bgdev.pl>, Johan Hovold <johan@kernel.org>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-Add runtime pm support to dynamically manage the clock to avoid enable/disable
-clock in frequently that can improve the i2c bus transfer performance.
+Thanks Bartosz fo adding me in to the loop!!
 
-And use pm_runtime_force_suspend/resume() instead of lpi2c_imx_suspend/resume().
+On 28/12/17 21:42, Bartosz Golaszewski wrote:
+> 2017-12-28 12:28 GMT+01:00 Johan Hovold <johan@kernel.org>:
+>> On Wed, Dec 27, 2017 at 03:10:38PM +0100, Bartosz Golaszewski wrote:
+>>> This function can fail with -EBUSY, but we don't check its return
+>>> value in at24_remove(). Bail-out of remove() if nvmem_unregister()
+>>> doesn't succeed.
+>>>
+>>> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+>>> ---
+>>>   drivers/misc/eeprom/at24.c | 6 ++++--
+>>>   1 file changed, 4 insertions(+), 2 deletions(-)
+>>>
+>>> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+>>> index e79833d62284..fb21e1c45115 100644
+>>> --- a/drivers/misc/eeprom/at24.c
+>>> +++ b/drivers/misc/eeprom/at24.c
+>>> @@ -684,11 +684,13 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>>>   static int at24_remove(struct i2c_client *client)
+>>>   {
+>>>        struct at24_data *at24;
+>>> -     int i;
+>>> +     int i, ret;
+>>>
+>>>        at24 = i2c_get_clientdata(client);
+>>>
+>>> -     nvmem_unregister(at24->nvmem);
+>>> +     ret = nvmem_unregister(at24->nvmem);
+>>> +     if (ret)
+>>> +             return ret;
+>>
+>> I don't this makes much sense as a driver cannot refuse an unbind by
+>> returning an errno from remove(). The return value is simply ignored,
+>> remove() will never be called again, and you'd leave everything in an
+>> inconsistent state.
+>>
+> 
+> Cc: Srinivas
+> 
+> Hi Johan,
+> 
+> I blindly assumed that if there's a return value in remove() then
+> someone cares about it. In that case all users of nvmem_unregister()
+> that check the return value and bail-out of remove() on failure are
+> wrong and in the (very unlikely) event that this routine fails, we
+> leak all resources.
+> 
 
-Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
----
- drivers/i2c/busses/i2c-imx-lpi2c.c | 68 ++++++++++++++++++++++++++++----------
- 1 file changed, 51 insertions(+), 17 deletions(-)
+Yes, you are correct, returning error from driver remove is issue, as 
+driver core ignores returns from remove().
 
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index e86801a..e6da2c7 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -30,6 +30,7 @@
- #include <linux/of_device.h>
- #include <linux/pinctrl/consumer.h>
- #include <linux/platform_device.h>
-+#include <linux/pm_runtime.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
- 
-@@ -90,6 +91,8 @@
- #define FAST_PLUS_MAX_BITRATE	3400000
- #define HIGHSPEED_MAX_BITRATE	5000000
- 
-+#define I2C_PM_TIMEOUT		10 /* ms */
-+
- enum lpi2c_imx_mode {
- 	STANDARD,	/* 100+Kbps */
- 	FAST,		/* 400+Kbps */
-@@ -274,8 +277,8 @@ static int lpi2c_imx_master_enable(struct lpi2c_imx_struct *lpi2c_imx)
- 	unsigned int temp;
- 	int ret;
- 
--	ret = clk_enable(lpi2c_imx->clk);
--	if (ret)
-+	ret = pm_runtime_get_sync(lpi2c_imx->adapter.dev.parent);
-+	if (ret < 0)
- 		return ret;
- 
- 	temp = MCR_RST;
-@@ -284,7 +287,7 @@ static int lpi2c_imx_master_enable(struct lpi2c_imx_struct *lpi2c_imx)
- 
- 	ret = lpi2c_imx_config(lpi2c_imx);
- 	if (ret)
--		goto clk_disable;
-+		goto rpm_put;
- 
- 	temp = readl(lpi2c_imx->base + LPI2C_MCR);
- 	temp |= MCR_MEN;
-@@ -292,8 +295,9 @@ static int lpi2c_imx_master_enable(struct lpi2c_imx_struct *lpi2c_imx)
- 
- 	return 0;
- 
--clk_disable:
--	clk_disable(lpi2c_imx->clk);
-+rpm_put:
-+	pm_runtime_mark_last_busy(lpi2c_imx->adapter.dev.parent);
-+	pm_runtime_put_autosuspend(lpi2c_imx->adapter.dev.parent);
- 
- 	return ret;
- }
-@@ -306,7 +310,8 @@ static int lpi2c_imx_master_disable(struct lpi2c_imx_struct *lpi2c_imx)
- 	temp &= ~MCR_MEN;
- 	writel(temp, lpi2c_imx->base + LPI2C_MCR);
- 
--	clk_disable(lpi2c_imx->clk);
-+	pm_runtime_mark_last_busy(lpi2c_imx->adapter.dev.parent);
-+	pm_runtime_put_autosuspend(lpi2c_imx->adapter.dev.parent);
- 
- 	return 0;
- }
-@@ -606,22 +611,31 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
-+	pm_runtime_set_autosuspend_delay(&pdev->dev, I2C_PM_TIMEOUT);
-+	pm_runtime_use_autosuspend(&pdev->dev);
-+	pm_runtime_get_noresume(&pdev->dev);
-+	pm_runtime_set_active(&pdev->dev);
-+	pm_runtime_enable(&pdev->dev);
-+
- 	temp = readl(lpi2c_imx->base + LPI2C_PARAM);
- 	lpi2c_imx->txfifosize = 1 << (temp & 0x0f);
- 	lpi2c_imx->rxfifosize = 1 << ((temp >> 8) & 0x0f);
- 
--	clk_disable(lpi2c_imx->clk);
--
- 	ret = i2c_add_adapter(&lpi2c_imx->adapter);
- 	if (ret)
--		goto clk_unprepare;
-+		goto rpm_disable;
-+
-+	pm_runtime_mark_last_busy(&pdev->dev);
-+	pm_runtime_put_autosuspend(&pdev->dev);
- 
- 	dev_info(&lpi2c_imx->adapter.dev, "LPI2C adapter registered\n");
- 
- 	return 0;
- 
--clk_unprepare:
--	clk_unprepare(lpi2c_imx->clk);
-+rpm_disable:
-+	pm_runtime_put(&pdev->dev);
-+	pm_runtime_disable(&pdev->dev);
-+	pm_runtime_dont_use_autosuspend(&pdev->dev);
- 
- 	return ret;
- }
-@@ -632,28 +646,48 @@ static int lpi2c_imx_remove(struct platform_device *pdev)
- 
- 	i2c_del_adapter(&lpi2c_imx->adapter);
- 
--	clk_unprepare(lpi2c_imx->clk);
-+	pm_runtime_disable(&pdev->dev);
-+	pm_runtime_dont_use_autosuspend(&pdev->dev);
- 
- 	return 0;
- }
- 
- #ifdef CONFIG_PM_SLEEP
--static int lpi2c_imx_suspend(struct device *dev)
-+static int lpi2c_runtime_suspend(struct device *dev)
- {
-+	struct lpi2c_imx_struct *lpi2c_imx = dev_get_drvdata(dev);
-+
-+	clk_disable_unprepare(lpi2c_imx->clk);
- 	pinctrl_pm_select_sleep_state(dev);
- 
- 	return 0;
- }
- 
--static int lpi2c_imx_resume(struct device *dev)
-+static int lpi2c_runtime_resume(struct device *dev)
- {
-+	struct lpi2c_imx_struct *lpi2c_imx = dev_get_drvdata(dev);
-+	int ret;
-+
- 	pinctrl_pm_select_default_state(dev);
-+	ret = clk_prepare_enable(lpi2c_imx->clk);
-+	if (ret) {
-+		dev_err(dev, "failed to enable I2C clock, ret=%d\n", ret);
-+		return ret;
-+	}
- 
- 	return 0;
- }
--#endif
- 
--static SIMPLE_DEV_PM_OPS(imx_lpi2c_pm, lpi2c_imx_suspend, lpi2c_imx_resume);
-+static const struct dev_pm_ops lpi2c_pm_ops = {
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
-+				      pm_runtime_force_resume)
-+	SET_RUNTIME_PM_OPS(lpi2c_runtime_suspend,
-+			   lpi2c_runtime_resume, NULL)
-+};
-+#define IMX_LPI2C_PM      (&lpi2c_pm_ops)
-+#else
-+#define IMX_LPI2C_PM      NULL
-+#endif
- 
- static struct platform_driver lpi2c_imx_driver = {
- 	.probe = lpi2c_imx_probe,
-@@ -661,7 +695,7 @@ static int lpi2c_imx_resume(struct device *dev)
- 	.driver = {
- 		.name = DRIVER_NAME,
- 		.of_match_table = lpi2c_imx_of_match,
--		.pm = &imx_lpi2c_pm,
-+		.pm = IMX_LPI2C_PM,
- 	},
- };
- 
--- 
-1.9.1
+Just to make it clear on some assumptions made in 
+nvmem_register/unregister(). nvmem providers could be part of the other 
+drivers which can dynamically register and unregister nvmem providers, 
+so it's not totally necessary for it to be associated with its own 
+device driver.
+
+
+>> It looks like the nvmem code grabs a reference to the owning module
+>> in __nvmem_device_get() which would at least prevent a module unload
+>> while another driver is using the device. And the (sysfs) userspace
+>> interface should be fine as device removal is handled by the kernfs
+>> code.
+> 
+> Indeed. I believe we should remove the -EBUSY return case from
+> nvmem_register() and just do what gpiolib does - scream loud
+
+I think you meant nvmem_unregister().
+
+I don't agree with removing -EBUSY from core, it should be rather 
+handled by the provider drivers which can do dev_crit or something 
+similar to shout loud!
+
+> (dev_crit()) when someone forces a module unload or otherwise
+> unregisters the device if some cells are still requested. This would
+> also allow us to eventually add a devres variant for nvmem_register().
+
+There is already a patchset [1] from Andrey which seems to be what you need.
+
+
+[1]: https://lkml.org/lkml/2018/1/1/522
+
+Thanks,
+Srini
+
+> 
+> What do you think Srinivas?
+> 
+> Best regards,
+> Bartosz Golaszewski
+> 
