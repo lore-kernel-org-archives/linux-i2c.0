@@ -1,62 +1,62 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v1] i2c: ismt: Use %pad specifier for dma_addr_t variables
-Date: Wed, 3 Jan 2018 23:00:25 +0100
-Message-ID: <20180103220025.oblie43et576yafr@ninjato>
-References: <20171110183358.86100-1-andriy.shevchenko@linux.intel.com>
- <1514474511.7000.422.camel@linux.intel.com>
- <20171230232201.fzh6l4tqxvvagyi4@ninjato>
- <20171231154852.GA20616@neilslaptop.think-freely.org>
+Subject: Re: [PATCH 1/3] dt-bindings: i2c: Add MediaTek MT2712 i2c binding
+Date: Thu, 4 Jan 2018 00:55:50 +0100
+Message-ID: <20180103235550.vh6adlqtkb4zmpsu@ninjato>
+References: <1513666263-6443-1-git-send-email-jun.gao@mediatek.com>
+ <1513666263-6443-2-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="yqodbk5sxh3mutce"
+        protocol="application/pgp-signature"; boundary="x4cdoa5faojlax7k"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:48007 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:48347 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751014AbeACWA1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 3 Jan 2018 17:00:27 -0500
+        id S1750913AbeACXzw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 3 Jan 2018 18:55:52 -0500
 Content-Disposition: inline
-In-Reply-To: <20171231154852.GA20616@neilslaptop.think-freely.org>
+In-Reply-To: <1513666263-6443-2-git-send-email-jun.gao@mediatek.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Neil Horman <nhorman@tuxdriver.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Seth Heasley <seth.heasley@intel.com>, linux-i2c@vger.kernel.org
+To: Jun Gao <jun.gao@mediatek.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>, srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
 
 
---yqodbk5sxh3mutce
+--x4cdoa5faojlax7k
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Dec 19, 2017 at 02:51:01PM +0800, Jun Gao wrote:
+> From: Jun Gao <jun.gao@mediatek.com>
+>=20
+> Add MT2712 i2c binding to binding file. Compare to MT8173 i2c
+> controller, MT2712 has timing adjust registers which can adjust
+> the internal divider of i2c source clock, SCL duty cycle, SCL
+> compare point, start(repeated start) and stop time, SDA change
+> time.
+>=20
+> Signed-off-by: Jun Gao <jun.gao@mediatek.com>
+
+Applied to for-next, thanks!
 
 
-> Sorry for the delay, I was on holiday.  FWIW
-> Acked-by: Neil Horman <nhorman@tuxdriver.com>
-
-Ah, nice you are back, hopefully relaxed ;)
-
-There are two more ismt patches pending:
-
-http://patchwork.ozlabs.org/project/linux-i2c/list/?series=&submitter=&state=&q=ismt&archive=&delegate=
-
-Could you check them?
-
-
---yqodbk5sxh3mutce
+--x4cdoa5faojlax7k
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpNUnkACgkQFA3kzBSg
-Kba+mg//WG8BqfFKjp7zneRZayvkoZPmDw3nMGlE6LtRmtl4MReHXuzmwwAK1V+W
-5LnmAzc1R5wziePvpOheiNUgw8oeTeCN1v7aiG7ke9h5P5fb0HyY/ZSsbueiAtkl
-OsTtkzUaxua0IlqUbHMUnNQclZNhSiWX5ICy5DSxuZ8X35gISNblghXOjdv43Pr0
-jgbUx3JI35awTq+hJzCWTQy7gp+Pqhyrb9OOQGi8lxwpQzNn9Rj5Ppmmeown4gdt
-yssPcchaA4rY7GpUmvfh4LWr0Bo+vKW0sJFJZanLcmKKJYmSu8Y0on3fPPJSksU0
-JhCbVIdJAj8qTO24yK8lbY355kDE3ZZARfJAtloIUdPX6R0kAIBCRWmX95TfYkyi
-qYC6+1Hs4NDHXgBovMUeqcHj4UHeQFjee6Z2afUGqxrnevLtdkYwkO3PlJu2g+EQ
-mxqo2anAWrgv6UBTGI1HXEEODPcs8EdzBDF/FS5sX82Ft2DIihtvutrTtC142POn
-4izqrTO+hJ3O6g9qL3YIV8QDDPuespQ2jjHFcfALnSHQiR/PdLbF63kmMP0azQF9
-f49ER1BS/5PoD/8Olkq2gyhMeSR8xbXdjn2OwNjaSe/bXOc+6dwC8Zds0WLAlnRg
-Uq9HCkIvgHpM63EN9ofNnVvYODUJ+v930vIl1O5ubb5UZtJyCx4=
-=u5cr
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpNbYIACgkQFA3kzBSg
+KbbWPhAAtjuUknLUJKKCHQ/nN+RxtslbEnrUWILgsC8/o4+X7uU6e/deREsWA1A6
+jzs4h/Yu5eWNlnMnBaeQcWjEExKx9byxB75x6KrIFzuAmyz1+m/HblVCgHPoUR0z
+ggcFK1P07EImhy+FxcTS2+9hVCbnRlk2TynAC8V1PLHFDoql7EbadUmg1HnmN2QP
+Xfzco5urRFqZqoJKcyvsY792WXAKr7AjQaqm0DeqXjVJoVTGHDDkuCpwfW06Az0D
+D4CJaBOsjqqk2g44/3H/r72tt/qQJW+h8hrAGwP5ph51YlcFS1Qa/r1w94Bv6kBk
+bD9EKtGiNJm+7QUmxk+JGH2sTFg/WfmvW95MAsa7kp3+bptYURQi5MxkT5RPuyb4
+7eTH4hDaMExyca+l4fgGFDsu0+F1FhqqVbNMA6nNQib6y8+89O9DX6t5YlGEFMKn
+SI2CXXHMdjSdwzC2TtOUUuPqV1B39aacEbFFzK0+S4NP930ozr4r9qlRKXHXrmnS
+Nr/Np5apemwD1P2hizLR7NvJk6NDU8yaLYjirlSRdvYY+w7s9PX7q0aJzCQA8zgi
+fAXPca/ZeJH+0RZaw1y9r15FImieKhSjMfZP1xQ8EmzyeGwwODAcPZu3bdsbs3dg
+37avtiahRjUO9mrg08wkPf54lMnaYhQgt0BBYOMelwL9LGGPiEw=
+=L+ij
 -----END PGP SIGNATURE-----
 
---yqodbk5sxh3mutce--
+--x4cdoa5faojlax7k--
