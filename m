@@ -1,66 +1,62 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [GIT PULL REQUEST] at24 updates for 4.16
-Date: Wed, 3 Jan 2018 22:54:33 +0100
-Message-ID: <20180103215433.n5lmyzzgc5auub2m@ninjato>
-References: <20180103160113.28561-1-brgl@bgdev.pl>
+Subject: Re: [PATCH v1] i2c: ismt: Use %pad specifier for dma_addr_t variables
+Date: Wed, 3 Jan 2018 23:00:25 +0100
+Message-ID: <20180103220025.oblie43et576yafr@ninjato>
+References: <20171110183358.86100-1-andriy.shevchenko@linux.intel.com>
+ <1514474511.7000.422.camel@linux.intel.com>
+ <20171230232201.fzh6l4tqxvvagyi4@ninjato>
+ <20171231154852.GA20616@neilslaptop.think-freely.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="2d7gut7hlckg6yxv"
+        protocol="application/pgp-signature"; boundary="yqodbk5sxh3mutce"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:47982 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:48007 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751207AbeACVyf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 3 Jan 2018 16:54:35 -0500
+        id S1751014AbeACWA1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 3 Jan 2018 17:00:27 -0500
 Content-Disposition: inline
-In-Reply-To: <20180103160113.28561-1-brgl@bgdev.pl>
+In-Reply-To: <20171231154852.GA20616@neilslaptop.think-freely.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Neil Horman <nhorman@tuxdriver.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Seth Heasley <seth.heasley@intel.com>, linux-i2c@vger.kernel.org
 
 
---2d7gut7hlckg6yxv
+--yqodbk5sxh3mutce
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Jan 03, 2018 at 05:01:13PM +0100, Bartosz Golaszewski wrote:
-> Hi Wolfram,
->=20
-> The following changes since commit 30a7acd573899fd8b8ac39236eff6468b195ac=
-7d:
->=20
->   Linux 4.15-rc6 (2017-12-31 14:47:43 -0800)
->=20
-> are available in the Git repository at:
->=20
->   git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git tags/at24-=
-4.16-updates-for-wolfram
-
-Thanks, pulled!
-
-Note: patchwork still doesn't recognize your pull requests, but I don't
-understand why :( So, please ping me if I don't pull within a few days.
 
 
---2d7gut7hlckg6yxv
+> Sorry for the delay, I was on holiday.  FWIW
+> Acked-by: Neil Horman <nhorman@tuxdriver.com>
+
+Ah, nice you are back, hopefully relaxed ;)
+
+There are two more ismt patches pending:
+
+http://patchwork.ozlabs.org/project/linux-i2c/list/?series=&submitter=&state=&q=ismt&archive=&delegate=
+
+Could you check them?
+
+
+--yqodbk5sxh3mutce
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpNURUACgkQFA3kzBSg
-Kbavog//aXzJRVCqxA8wO+klb7xwxFDUHsDbz+6hIpk9Zsth391raL8WFWQVVqX/
-guYB2iMgi1U0Q/a29LNHQKcofG1p14x70mD/8Oo2oOlH5JR+40kmsTNLd4slcUKC
-Fm9Vkur1z4uNMmsYAFM4cCaHb8b4t8ZTl3C/UayvdyZ4g5/JsNscGyRhquh0aDLP
-fy7ZfbQz0QwW1xTfs70u2DVtpROLgDunXHTcEB9vLhmULolQXdK1RaJdI7urwxA5
-i4zF/NcObQz8b1Kk6mc3CeJM5rW9QygHIZd0Va6gIdyyCUvpk8PedjjmOjXm+QOe
-j/3D0Y6VVTT1pXNgI62SQqP0BrSTHjm8CSwPN8Qb8POOxF3hcmprfZQyi0jaIk2I
-Sjd3+Jofl5aIs+ts0hIOPIUdgOha7yI+grPTSnkpQFQb7qfFjEFZSd3kblIY1g+m
-7ypnLSRid2PqUdmHaqeLhvnFIlLUjMICKrkUwBnLNpnu9DuLM+7NsPk2W7R+5XGF
-1YhGPcE1Er6qOAoZ3aHctedMI2cUSHzQnEdpf60SGnpy66QiZjY0dEjlqBTFPgYg
-lFnhTZPjRFRPWbQN2UwdJ/etxySWVv72/6VsdE8e+zdLSNhWOiZtUUmYMtGL9A45
-aJE5BdHkLObR5HvAGKMU+kS+x+S3YCwv8MXPQf93QYFVKj6vtvw=
-=lZfa
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpNUnkACgkQFA3kzBSg
+Kba+mg//WG8BqfFKjp7zneRZayvkoZPmDw3nMGlE6LtRmtl4MReHXuzmwwAK1V+W
+5LnmAzc1R5wziePvpOheiNUgw8oeTeCN1v7aiG7ke9h5P5fb0HyY/ZSsbueiAtkl
+OsTtkzUaxua0IlqUbHMUnNQclZNhSiWX5ICy5DSxuZ8X35gISNblghXOjdv43Pr0
+jgbUx3JI35awTq+hJzCWTQy7gp+Pqhyrb9OOQGi8lxwpQzNn9Rj5Ppmmeown4gdt
+yssPcchaA4rY7GpUmvfh4LWr0Bo+vKW0sJFJZanLcmKKJYmSu8Y0on3fPPJSksU0
+JhCbVIdJAj8qTO24yK8lbY355kDE3ZZARfJAtloIUdPX6R0kAIBCRWmX95TfYkyi
+qYC6+1Hs4NDHXgBovMUeqcHj4UHeQFjee6Z2afUGqxrnevLtdkYwkO3PlJu2g+EQ
+mxqo2anAWrgv6UBTGI1HXEEODPcs8EdzBDF/FS5sX82Ft2DIihtvutrTtC142POn
+4izqrTO+hJ3O6g9qL3YIV8QDDPuespQ2jjHFcfALnSHQiR/PdLbF63kmMP0azQF9
+f49ER1BS/5PoD/8Olkq2gyhMeSR8xbXdjn2OwNjaSe/bXOc+6dwC8Zds0WLAlnRg
+Uq9HCkIvgHpM63EN9ofNnVvYODUJ+v930vIl1O5ubb5UZtJyCx4=
+=u5cr
 -----END PGP SIGNATURE-----
 
---2d7gut7hlckg6yxv--
+--yqodbk5sxh3mutce--
