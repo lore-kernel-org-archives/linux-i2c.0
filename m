@@ -1,89 +1,66 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [GIT PULL REQUEST] at24 updates for 4.16
-Date: Wed,  3 Jan 2018 17:01:13 +0100
-Message-ID: <20180103160113.28561-1-brgl@bgdev.pl>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [GIT PULL REQUEST] at24 updates for 4.16
+Date: Wed, 3 Jan 2018 22:54:33 +0100
+Message-ID: <20180103215433.n5lmyzzgc5auub2m@ninjato>
+References: <20180103160113.28561-1-brgl@bgdev.pl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="2d7gut7hlckg6yxv"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f51.google.com ([74.125.82.51]:44420 "EHLO
-        mail-wm0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750864AbeACQB3 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 3 Jan 2018 11:01:29 -0500
-Received: by mail-wm0-f51.google.com with SMTP id t8so3448096wmc.3
-        for <linux-i2c@vger.kernel.org>; Wed, 03 Jan 2018 08:01:28 -0800 (PST)
+Received: from sauhun.de ([88.99.104.3]:47982 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751207AbeACVyf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 3 Jan 2018 16:54:35 -0500
+Content-Disposition: inline
+In-Reply-To: <20180103160113.28561-1-brgl@bgdev.pl>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Wolfram,
 
-The following changes since commit 30a7acd573899fd8b8ac39236eff6468b195ac7d:
+--2d7gut7hlckg6yxv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-  Linux 4.15-rc6 (2017-12-31 14:47:43 -0800)
+On Wed, Jan 03, 2018 at 05:01:13PM +0100, Bartosz Golaszewski wrote:
+> Hi Wolfram,
+>=20
+> The following changes since commit 30a7acd573899fd8b8ac39236eff6468b195ac=
+7d:
+>=20
+>   Linux 4.15-rc6 (2017-12-31 14:47:43 -0800)
+>=20
+> are available in the Git repository at:
+>=20
+>   git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git tags/at24-=
+4.16-updates-for-wolfram
 
-are available in the Git repository at:
+Thanks, pulled!
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git tags/at24-4.16-updates-for-wolfram
+Note: patchwork still doesn't recognize your pull requests, but I don't
+understand why :( So, please ping me if I don't pull within a few days.
 
-for you to fetch changes up to 0f30aca72c3b68f4b6a443193b574f14106cd61e:
 
-  eeprom: at24: extend the list of chips supported in DT (2018-01-02 17:52:45 +0100)
+--2d7gut7hlckg6yxv
+Content-Type: application/pgp-signature; name="signature.asc"
 
-----------------------------------------------------------------
-AT24 updates for 4.16 merge window
+-----BEGIN PGP SIGNATURE-----
 
-The driver has been converted to using regmap instead of raw i2c and smbus
-calls which shrank the code significantly.
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpNURUACgkQFA3kzBSg
+Kbavog//aXzJRVCqxA8wO+klb7xwxFDUHsDbz+6hIpk9Zsth391raL8WFWQVVqX/
+guYB2iMgi1U0Q/a29LNHQKcofG1p14x70mD/8Oo2oOlH5JR+40kmsTNLd4slcUKC
+Fm9Vkur1z4uNMmsYAFM4cCaHb8b4t8ZTl3C/UayvdyZ4g5/JsNscGyRhquh0aDLP
+fy7ZfbQz0QwW1xTfs70u2DVtpROLgDunXHTcEB9vLhmULolQXdK1RaJdI7urwxA5
+i4zF/NcObQz8b1Kk6mc3CeJM5rW9QygHIZd0Va6gIdyyCUvpk8PedjjmOjXm+QOe
+j/3D0Y6VVTT1pXNgI62SQqP0BrSTHjm8CSwPN8Qb8POOxF3hcmprfZQyi0jaIk2I
+Sjd3+Jofl5aIs+ts0hIOPIUdgOha7yI+grPTSnkpQFQb7qfFjEFZSd3kblIY1g+m
+7ypnLSRid2PqUdmHaqeLhvnFIlLUjMICKrkUwBnLNpnu9DuLM+7NsPk2W7R+5XGF
+1YhGPcE1Er6qOAoZ3aHctedMI2cUSHzQnEdpf60SGnpy66QiZjY0dEjlqBTFPgYg
+lFnhTZPjRFRPWbQN2UwdJ/etxySWVv72/6VsdE8e+zdLSNhWOiZtUUmYMtGL9A45
+aJE5BdHkLObR5HvAGKMU+kS+x+S3YCwv8MXPQf93QYFVKj6vtvw=
+=lZfa
+-----END PGP SIGNATURE-----
 
-Device tree binding document has been cleaned up. Device tree support in the
-driver has been improved and we now support all at24 models as well as two new
-DT properties (no-read-rollover and wp-gpios).
-
-We no longer user unreadable magic values for driver data as the way it was
-implemented caused problems for some EEPROM models - we switched to regular
-structs.
-
-Aside from that, there's a bunch of coding style fixes and minor improvements
-all over the place.
-
-----------------------------------------------------------------
-Bartosz Golaszewski (11):
-      MAINTAINERS: add git URL for at24
-      eeprom: at24: fix coding style issues
-      eeprom: at24: use a common prefix for all symbols in at24.c
-      eeprom: at24: code shrink
-      dt-bindings: at24: new optional property - wp-gpios
-      eeprom: at24: add support for the write-protect pin
-      eeprom: at24: fix a whitespace error in platform data
-      dt-bindings: at24: consistently document the compatible property
-      dt-bindings: at24: fix formatting and style
-      dt-bindings: at24: extend the list of supported chips
-      eeprom: at24: extend the list of chips supported in DT
-
-Heiner Kallweit (7):
-      eeprom: at24: add basic regmap_i2c support
-      eeprom: at24: change at24_translate_offset return type
-      eeprom: at24: add regmap-based write function
-      eeprom: at24: remove old write functions
-      eeprom: at24: add regmap-based read function
-      eeprom: at24: remove old read functions
-      eeprom: at24: remove now unneeded smbus-related code
-
-Sven Van Asbroeck (4):
-      dt-bindings: add eeprom "no-read-rollover" property
-      eeprom: at24: support eeproms that do not auto-rollover reads
-      eeprom: at24: convert magic numbers to structs
-      eeprom: at24: remove temporary fix for at24mac402 size
-
-Wolfram Sang (2):
-      dt-bindings: eeprom: rename to at24.txt
-      MAINTAINERS: add DT binding docs for AT24
-
- Documentation/devicetree/bindings/eeprom/at24.txt   |  78 ++++++++++++++++
- Documentation/devicetree/bindings/eeprom/eeprom.txt |  47 ----------
- MAINTAINERS                                         |   2 +
- drivers/misc/eeprom/Kconfig                         |   1 +
- drivers/misc/eeprom/at24.c                          | 731 ++++++++++++++++++++++++++++++++++++++++++++++++++++--------------------------------------------------------------------------------------------------
- include/linux/platform_data/at24.h                  |   2 +
- 6 files changed, 337 insertions(+), 524 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/eeprom/at24.txt
- delete mode 100644 Documentation/devicetree/bindings/eeprom/eeprom.txt
+--2d7gut7hlckg6yxv--
