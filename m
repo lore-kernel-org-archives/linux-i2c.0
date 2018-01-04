@@ -1,51 +1,32 @@
-From: Bjorn Helgaas <helgaas@kernel.org>
-Subject: Re: [PATCH 7/7] PCI / PM: Use SMART_SUSPEND and LEAVE_SUSPENDED
- flags for PCIe ports
-Date: Thu, 4 Jan 2018 16:14:48 -0600
-Message-ID: <20180104221448.GH189897@bhelgaas-glaptop.roam.corp.google.com>
-References: <7742130.AaJQIxeI1n@aspire.rjw.lan>
- <2436726.ykYRzVD45y@aspire.rjw.lan>
- <33674270.0PFIgc82r6@aspire.rjw.lan>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH 7/7] PCI / PM: Use SMART_SUSPEND and LEAVE_SUSPENDED flags
+ for PCIe ports
+Date: Fri, 5 Jan 2018 00:28:39 +0100
+Message-ID: <CAJZ5v0jqQGM0KdUQ4x4bky+uXpKM90Aw7GLSFNWYW+9FppdmBw@mail.gmail.com>
+References: <7742130.AaJQIxeI1n@aspire.rjw.lan> <2436726.ykYRzVD45y@aspire.rjw.lan>
+ <33674270.0PFIgc82r6@aspire.rjw.lan> <20180104221448.GH189897@bhelgaas-glaptop.roam.corp.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pci-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <33674270.0PFIgc82r6@aspire.rjw.lan>
-Sender: linux-pci-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Linux PM <linux-pm@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Alan Stern <stern@rowland.harvard.edu>, Kevin Hilman <khilman@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20180104221448.GH189897@bhelgaas-glaptop.roam.corp.google.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: Bjorn Helgaas <helgaas@kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Linux PM <linux-pm@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Alan Stern <stern@rowland.harvard.edu>, Kevin Hilman <khilman@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jan 03, 2018 at 01:38:27AM +0100, Rafael J. Wysocki wrote:
-> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> 
-> Make the PCIe port driver set DPM_FLAG_SMART_SUSPEND and
-> DPM_FLAG_LEAVE_SUSPENDED for the devices handled by it to benefit
-> from the opportunistic optimizations in the PCI layer enabled by
-> these flags.
-> 
-> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+On Thu, Jan 4, 2018 at 11:14 PM, Bjorn Helgaas <helgaas@kernel.org> wrote:
+> On Wed, Jan 03, 2018 at 01:38:27AM +0100, Rafael J. Wysocki wrote:
+>> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+>>
+>> Make the PCIe port driver set DPM_FLAG_SMART_SUSPEND and
+>> DPM_FLAG_LEAVE_SUSPENDED for the devices handled by it to benefit
+>> from the opportunistic optimizations in the PCI layer enabled by
+>> these flags.
+>>
+>> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+>
+> Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+>
+> Please merge this along with the rest of the series.
 
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-
-Please merge this along with the rest of the series.
-
-> ---
->  drivers/pci/pcie/portdrv_pci.c |    3 +++
->  1 file changed, 3 insertions(+)
-> 
-> Index: linux-pm/drivers/pci/pcie/portdrv_pci.c
-> ===================================================================
-> --- linux-pm.orig/drivers/pci/pcie/portdrv_pci.c
-> +++ linux-pm/drivers/pci/pcie/portdrv_pci.c
-> @@ -150,6 +150,9 @@ static int pcie_portdrv_probe(struct pci
->  
->  	pci_save_state(dev);
->  
-> +	dev_pm_set_driver_flags(&dev->dev, DPM_FLAG_SMART_SUSPEND |
-> +					   DPM_FLAG_LEAVE_SUSPENDED);
-> +
->  	if (pci_bridge_d3_possible(dev)) {
->  		/*
->  		 * Keep the port resumed 100ms to make sure things like
-> 
+I will, thank you!
