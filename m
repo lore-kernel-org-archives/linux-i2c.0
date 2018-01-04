@@ -1,49 +1,110 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [GIT PULL REQUEST] at24 updates for 4.16
-Date: Thu, 4 Jan 2018 10:04:57 +0100
-Message-ID: <CAMRc=MfNKbykgAvhRpuk=x8PFM2JvgK6rwpPvhc+tjRbzA=f_g@mail.gmail.com>
-References: <20180103160113.28561-1-brgl@bgdev.pl> <20180103215433.n5lmyzzgc5auub2m@ninjato>
+Subject: Re: [PATCH v6 3/3] eeprom: at24: switch to device-managed version of i2c_new_dummy
+Date: Thu, 4 Jan 2018 10:06:22 +0100
+Message-ID: <CAMRc=Mdd=rj4vWxoT+Nkpn20a2dZ6yczvKJeTdJt8tg0L9ABWg@mail.gmail.com>
+References: <5a66eaa1-9735-4b63-be66-b640f993bd21@gmail.com> <d8a5aeef-cc14-5b80-3434-8991d3f57000@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ot0-f196.google.com ([74.125.82.196]:44645 "EHLO
-        mail-ot0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751931AbeADJE7 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 4 Jan 2018 04:04:59 -0500
-Received: by mail-ot0-f196.google.com with SMTP id g59so793635otg.11
-        for <linux-i2c@vger.kernel.org>; Thu, 04 Jan 2018 01:04:59 -0800 (PST)
-In-Reply-To: <20180103215433.n5lmyzzgc5auub2m@ninjato>
+Received: from mail-oi0-f68.google.com ([209.85.218.68]:38391 "EHLO
+        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751908AbeADJGX (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 4 Jan 2018 04:06:23 -0500
+Received: by mail-oi0-f68.google.com with SMTP id r65so622813oie.5
+        for <linux-i2c@vger.kernel.org>; Thu, 04 Jan 2018 01:06:23 -0800 (PST)
+In-Reply-To: <d8a5aeef-cc14-5b80-3434-8991d3f57000@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-2018-01-03 22:54 GMT+01:00 Wolfram Sang <wsa@the-dreams.de>:
-> On Wed, Jan 03, 2018 at 05:01:13PM +0100, Bartosz Golaszewski wrote:
->> Hi Wolfram,
->>
->> The following changes since commit 30a7acd573899fd8b8ac39236eff6468b195ac7d:
->>
->>   Linux 4.15-rc6 (2017-12-31 14:47:43 -0800)
->>
->> are available in the Git repository at:
->>
->>   git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git tags/at24-4.16-updates-for-wolfram
+2017-12-20 7:24 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
+> Make use of recently introduced device-managed version of
+> i2c_new_dummy to simplify the code.
 >
-> Thanks, pulled!
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> ---
+> v2:
+> - small improvements regarding code readability
+> v3:
+> - no changes
+> v4:
+> - no changes
+> v5:
+> - no changes
+> v6:
+> - rebased
+> ---
+>  drivers/misc/eeprom/at24.c | 32 +++++++++++---------------------
+>  1 file changed, 11 insertions(+), 21 deletions(-)
 >
-> Note: patchwork still doesn't recognize your pull requests, but I don't
-> understand why :( So, please ping me if I don't pull within a few days.
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index b44a3d2b2..6232765bb 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -626,21 +626,19 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>
+>         /* use dummy devices for multiple-address chips */
+>         for (i = 1; i < num_addresses; i++) {
+> -               at24->client[i].client = i2c_new_dummy(client->adapter,
+> -                                                      client->addr + i);
+> -               if (!at24->client[i].client) {
+> +               struct at24_client *cl;
+> +
+> +               cl = &at24->client[i];
+> +               cl->client = devm_i2c_new_dummy(&client->dev, client->adapter,
+> +                                               client->addr + i);
+> +               if (IS_ERR(cl->client)) {
+>                         dev_err(&client->dev, "address 0x%02x unavailable\n",
+> -                                       client->addr + i);
+> -                       err = -EADDRINUSE;
+> -                       goto err_clients;
+> -               }
+> -               at24->client[i].regmap = devm_regmap_init_i2c(
+> -                                               at24->client[i].client,
+> -                                               &regmap_config);
+> -               if (IS_ERR(at24->client[i].regmap)) {
+> -                       err = PTR_ERR(at24->client[i].regmap);
+> -                       goto err_clients;
+> +                               client->addr + i);
+> +                       return PTR_ERR(cl->client);
+>                 }
+> +               cl->regmap = devm_regmap_init_i2c(cl->client, &regmap_config);
+> +               if (IS_ERR(cl->regmap))
+> +                       return PTR_ERR(cl->regmap);
+>         }
+>
+>         i2c_set_clientdata(client, at24);
+> @@ -692,10 +690,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>         return 0;
+>
+>  err_clients:
+> -       for (i = 1; i < num_addresses; i++)
+> -               if (at24->client[i].client)
+> -                       i2c_unregister_device(at24->client[i].client);
+> -
+>         pm_runtime_disable(&client->dev);
+>
+>         return err;
+> @@ -704,15 +698,11 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  static int at24_remove(struct i2c_client *client)
+>  {
+>         struct at24_data *at24;
+> -       int i;
+>
+>         at24 = i2c_get_clientdata(client);
+>
+>         nvmem_unregister(at24->nvmem);
+>
+> -       for (i = 1; i < at24->num_addresses; i++)
+> -               i2c_unregister_device(at24->client[i].client);
+> -
+>         pm_runtime_disable(&client->dev);
+>         pm_runtime_set_suspended(&client->dev);
+>
+> --
+> 2.15.1
+>
 >
 
-Strange indeed. Is feeding the output of 'git request-pull' to 'mail'
-the correct way of sending pull requests?
-
-While we're at it - if you'll choose to pick up the series from
-Heiner[1] for 4.16, you can take all three patches in, I'll leave my
-Reviewed-by in patch 3/3.
-
-Best regards,
-Bartosz Golaszewski
-
-[1] http://patchwork.ozlabs.org/project/linux-i2c/list/?series=19586
+Reviewed-by: Bartosz Golaszewski <brgl@bgdev.pl>
