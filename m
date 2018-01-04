@@ -1,46 +1,65 @@
-From: Neil Horman <nhorman@tuxdriver.com>
-Subject: Re: [2/2] i2c: ismt: dump registers at the end of transactions
-Date: Thu, 4 Jan 2018 08:52:47 -0500
-Message-ID: <20180104135247.GC919@hmswarspite.think-freely.org>
-References: <20170818160128.21228-3-radu.rendec@gmail.com>
+From: Radu Rendec <radu.rendec@gmail.com>
+Subject: Re: [1/2] i2c: ismt: 16-byte align the DMA buffer address
+Date: Thu, 04 Jan 2018 15:42:09 +0000
+Message-ID: <1515080529.3062.26.camel@gmail.com>
+References: <20170818160128.21228-2-radu.rendec@gmail.com>
+         <20180104134606.GB919@hmswarspite.think-freely.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from charlotte.tuxdriver.com ([70.61.120.58]:54272 "EHLO
-        smtp.tuxdriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752801AbeADNx1 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 4 Jan 2018 08:53:27 -0500
-Content-Disposition: inline
-In-Reply-To: <20170818160128.21228-3-radu.rendec@gmail.com>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:40063 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753120AbeADPmO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 4 Jan 2018 10:42:14 -0500
+Received: by mail-wm0-f67.google.com with SMTP id f206so4122883wmf.5
+        for <linux-i2c@vger.kernel.org>; Thu, 04 Jan 2018 07:42:13 -0800 (PST)
+In-Reply-To: <20180104134606.GB919@hmswarspite.think-freely.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Radu Rendec <radu.rendec@gmail.com>
+To: Neil Horman <nhorman@tuxdriver.com>
 Cc: linux-i2c@vger.kernel.org
 
-On Fri, Aug 18, 2017 at 05:01:28PM +0100, Radu Rendec wrote:
-> This patch dumps general and master registers at the end of transactions
-> when debugging is enabled. Previously, registers were only dumped before
-> submitting new descriptors (at the beginning of transactions).
+On Thu, 2018-01-04 at 08:46 -0500, Neil Horman wrote:
+> On Fri, Aug 18, 2017 at 05:01:27PM +0100, Radu Rendec wrote:
+> > Use only a portion of the data buffer for DMA transfers, which is always
+> > 16-byte aligned. This makes the DMA buffer address 16-byte aligned and
+> > compensates for spurious hardware parity errors that may appear when the
+> > DMA buffer address is not 16-byte aligned.
+> > 
+> > The data buffer is enlarged in order to accommodate any possible 16-byte
+> > alignment offset and changes the DMA code to only use a portion of the
+> > data buffer, which is 16-byte aligned.
+> > 
+> > The symptom of the hardware issue is the same as the one addressed in
+> > v3.12-rc2-5-gbf41691 and manifests by transfers failing with EIO, with
+> > bit 9 being set in the ERRSTS register.
+> > 
+> > Signed-off-by: Radu Rendec <radu.rendec@gmail.com>
 > 
-> This helps debugging if some registers change as result of a failed
-> transaction (e.g. bits are set in the ERRSTS general register).
+> Why not just use the alligned attribute here for buffer? 
 > 
-> Signed-off-by: Radu Rendec <radu.rendec@gmail.com>
-> ---
->  drivers/i2c/busses/i2c-ismt.c | 2 ++
->  1 file changed, 2 insertions(+)
+> https://gcc.gnu.org/onlinedocs/gcc-3.3/gcc/Type-Attributes.html
 > 
-> diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-> index ccce0ca..003ea53 100644
-> --- a/drivers/i2c/busses/i2c-ismt.c
-> +++ b/drivers/i2c/busses/i2c-ismt.c
-> @@ -324,6 +324,8 @@ static int ismt_process_desc(const struct ismt_desc *desc,
->  
->  	dev_dbg(&priv->pci_dev->dev, "Processing completed descriptor\n");
->  	__ismt_desc_dump(&priv->pci_dev->dev, desc);
-> +	ismt_gen_reg_dump(priv);
-> +	ismt_mstr_reg_dump(priv);
->  
->  	if (desc->status & ISMT_DESC_SCS) {
->  		if (read_write == I2C_SMBUS_WRITE &&
-Acked-by: Neil Horman <nhorman@tuxdriver.com>
+> That would save you over allocation when possible and keep you from needing to
+> create a private aligned variable.
+
+First of all, thanks for reviewing this!
+
+I believe the aligned() attribute cannot be used here because the whole
+ismt_priv structure is dynamically allocated (the allocation is done at
+the beginning of the ismt_probe() function).
+
+Even with a statically allocated structure, aligning the whole
+structure does not guarantee the alignment of the dma_buffer field,
+because the field offset within the structure can change (e.g. if other
+fields are added, removed, moved around etc.).
+
+On the other hand, I realized I could have used the PTR_ALIGN macro to
+calculate the aligned address. That would probably make the code less
+ugly and more intuitive. So I would at least resubmit the patch using
+PTR_ALIGN instead of ALIGN and explicit casts - if you agree to the
+current solution, of course.
+
+Thanks,
+Radu
