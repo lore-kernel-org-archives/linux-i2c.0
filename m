@@ -1,110 +1,164 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v6 3/3] eeprom: at24: switch to device-managed version of i2c_new_dummy
-Date: Thu, 4 Jan 2018 10:06:22 +0100
-Message-ID: <CAMRc=Mdd=rj4vWxoT+Nkpn20a2dZ6yczvKJeTdJt8tg0L9ABWg@mail.gmail.com>
-References: <5a66eaa1-9735-4b63-be66-b640f993bd21@gmail.com> <d8a5aeef-cc14-5b80-3434-8991d3f57000@gmail.com>
+From: Neil Horman <nhorman@tuxdriver.com>
+Subject: Re: [1/2] i2c: ismt: 16-byte align the DMA buffer address
+Date: Thu, 4 Jan 2018 08:46:06 -0500
+Message-ID: <20180104134606.GB919@hmswarspite.think-freely.org>
+References: <20170818160128.21228-2-radu.rendec@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:38391 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751908AbeADJGX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 4 Jan 2018 04:06:23 -0500
-Received: by mail-oi0-f68.google.com with SMTP id r65so622813oie.5
-        for <linux-i2c@vger.kernel.org>; Thu, 04 Jan 2018 01:06:23 -0800 (PST)
-In-Reply-To: <d8a5aeef-cc14-5b80-3434-8991d3f57000@gmail.com>
+Received: from charlotte.tuxdriver.com ([70.61.120.58]:54222 "EHLO
+        smtp.tuxdriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752895AbeADNqv (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 4 Jan 2018 08:46:51 -0500
+Content-Disposition: inline
+In-Reply-To: <20170818160128.21228-2-radu.rendec@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Radu Rendec <radu.rendec@gmail.com>
+Cc: linux-i2c@vger.kernel.org
 
-2017-12-20 7:24 GMT+01:00 Heiner Kallweit <hkallweit1@gmail.com>:
-> Make use of recently introduced device-managed version of
-> i2c_new_dummy to simplify the code.
->
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+On Fri, Aug 18, 2017 at 05:01:27PM +0100, Radu Rendec wrote:
+> Use only a portion of the data buffer for DMA transfers, which is always
+> 16-byte aligned. This makes the DMA buffer address 16-byte aligned and
+> compensates for spurious hardware parity errors that may appear when the
+> DMA buffer address is not 16-byte aligned.
+> 
+> The data buffer is enlarged in order to accommodate any possible 16-byte
+> alignment offset and changes the DMA code to only use a portion of the
+> data buffer, which is 16-byte aligned.
+> 
+> The symptom of the hardware issue is the same as the one addressed in
+> v3.12-rc2-5-gbf41691 and manifests by transfers failing with EIO, with
+> bit 9 being set in the ERRSTS register.
+> 
+> Signed-off-by: Radu Rendec <radu.rendec@gmail.com>
+Why not just use the alligned attribute here for buffer? 
+
+https://gcc.gnu.org/onlinedocs/gcc-3.3/gcc/Type-Attributes.html
+
+That would save you over allocation when possible and keep you from needing to
+create a private aligned variable.
+
+Neil
+
 > ---
-> v2:
-> - small improvements regarding code readability
-> v3:
-> - no changes
-> v4:
-> - no changes
-> v5:
-> - no changes
-> v6:
-> - rebased
-> ---
->  drivers/misc/eeprom/at24.c | 32 +++++++++++---------------------
->  1 file changed, 11 insertions(+), 21 deletions(-)
->
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index b44a3d2b2..6232765bb 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -626,21 +626,19 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->
->         /* use dummy devices for multiple-address chips */
->         for (i = 1; i < num_addresses; i++) {
-> -               at24->client[i].client = i2c_new_dummy(client->adapter,
-> -                                                      client->addr + i);
-> -               if (!at24->client[i].client) {
-> +               struct at24_client *cl;
-> +
-> +               cl = &at24->client[i];
-> +               cl->client = devm_i2c_new_dummy(&client->dev, client->adapter,
-> +                                               client->addr + i);
-> +               if (IS_ERR(cl->client)) {
->                         dev_err(&client->dev, "address 0x%02x unavailable\n",
-> -                                       client->addr + i);
-> -                       err = -EADDRINUSE;
-> -                       goto err_clients;
-> -               }
-> -               at24->client[i].regmap = devm_regmap_init_i2c(
-> -                                               at24->client[i].client,
-> -                                               &regmap_config);
-> -               if (IS_ERR(at24->client[i].regmap)) {
-> -                       err = PTR_ERR(at24->client[i].regmap);
-> -                       goto err_clients;
-> +                               client->addr + i);
-> +                       return PTR_ERR(cl->client);
->                 }
-> +               cl->regmap = devm_regmap_init_i2c(cl->client, &regmap_config);
-> +               if (IS_ERR(cl->regmap))
-> +                       return PTR_ERR(cl->regmap);
->         }
->
->         i2c_set_clientdata(client, at24);
-> @@ -692,10 +690,6 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->         return 0;
->
->  err_clients:
-> -       for (i = 1; i < num_addresses; i++)
-> -               if (at24->client[i].client)
-> -                       i2c_unregister_device(at24->client[i].client);
-> -
->         pm_runtime_disable(&client->dev);
->
->         return err;
-> @@ -704,15 +698,11 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  static int at24_remove(struct i2c_client *client)
+>  drivers/i2c/busses/i2c-ismt.c | 37 +++++++++++++++++++------------------
+>  1 file changed, 19 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+> index e98e44e..ccce0ca 100644
+> --- a/drivers/i2c/busses/i2c-ismt.c
+> +++ b/drivers/i2c/busses/i2c-ismt.c
+> @@ -172,7 +172,7 @@ struct ismt_priv {
+>  	dma_addr_t io_rng_dma;			/* descriptor HW base addr */
+>  	u8 head;				/* ring buffer head pointer */
+>  	struct completion cmp;			/* interrupt completion */
+> -	u8 dma_buffer[I2C_SMBUS_BLOCK_MAX + 1];	/* temp R/W data buffer */
+> +	u8 buffer[I2C_SMBUS_BLOCK_MAX + 16];	/* temp R/W data buffer */
+>  };
+>  
+>  /**
+> @@ -320,7 +320,7 @@ static int ismt_process_desc(const struct ismt_desc *desc,
+>  			     struct ismt_priv *priv, int size,
+>  			     char read_write)
 >  {
->         struct at24_data *at24;
-> -       int i;
->
->         at24 = i2c_get_clientdata(client);
->
->         nvmem_unregister(at24->nvmem);
->
-> -       for (i = 1; i < at24->num_addresses; i++)
-> -               i2c_unregister_device(at24->client[i].client);
-> -
->         pm_runtime_disable(&client->dev);
->         pm_runtime_set_suspended(&client->dev);
->
-> --
-> 2.15.1
->
->
-
-Reviewed-by: Bartosz Golaszewski <brgl@bgdev.pl>
+> -	u8 *dma_buffer = priv->dma_buffer;
+> +	u8 *dma_buffer = (u8*)ALIGN((unsigned long)&priv->buffer[0], 16);
+>  
+>  	dev_dbg(&priv->pci_dev->dev, "Processing completed descriptor\n");
+>  	__ismt_desc_dump(&priv->pci_dev->dev, desc);
+> @@ -388,11 +388,12 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+>  	struct ismt_desc *desc;
+>  	struct ismt_priv *priv = i2c_get_adapdata(adap);
+>  	struct device *dev = &priv->pci_dev->dev;
+> +	u8 *dma_buffer = (u8*)ALIGN((unsigned long)&priv->buffer[0], 16);
+>  
+>  	desc = &priv->hw[priv->head];
+>  
+>  	/* Initialize the DMA buffer */
+> -	memset(priv->dma_buffer, 0, sizeof(priv->dma_buffer));
+> +	memset(priv->buffer, 0, sizeof(priv->buffer));
+>  
+>  	/* Initialize the descriptor */
+>  	memset(desc, 0, sizeof(struct ismt_desc));
+> @@ -441,8 +442,8 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+>  			desc->wr_len_cmd = 2;
+>  			dma_size = 2;
+>  			dma_direction = DMA_TO_DEVICE;
+> -			priv->dma_buffer[0] = command;
+> -			priv->dma_buffer[1] = data->byte;
+> +			dma_buffer[0] = command;
+> +			dma_buffer[1] = data->byte;
+>  		} else {
+>  			/* Read Byte */
+>  			dev_dbg(dev, "I2C_SMBUS_BYTE_DATA:  READ\n");
+> @@ -461,9 +462,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+>  			desc->wr_len_cmd = 3;
+>  			dma_size = 3;
+>  			dma_direction = DMA_TO_DEVICE;
+> -			priv->dma_buffer[0] = command;
+> -			priv->dma_buffer[1] = data->word & 0xff;
+> -			priv->dma_buffer[2] = data->word >> 8;
+> +			dma_buffer[0] = command;
+> +			dma_buffer[1] = data->word & 0xff;
+> +			dma_buffer[2] = data->word >> 8;
+>  		} else {
+>  			/* Read Word */
+>  			dev_dbg(dev, "I2C_SMBUS_WORD_DATA:  READ\n");
+> @@ -481,9 +482,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+>  		desc->rd_len = 2;
+>  		dma_size = 3;
+>  		dma_direction = DMA_BIDIRECTIONAL;
+> -		priv->dma_buffer[0] = command;
+> -		priv->dma_buffer[1] = data->word & 0xff;
+> -		priv->dma_buffer[2] = data->word >> 8;
+> +		dma_buffer[0] = command;
+> +		dma_buffer[1] = data->word & 0xff;
+> +		dma_buffer[2] = data->word >> 8;
+>  		break;
+>  
+>  	case I2C_SMBUS_BLOCK_DATA:
+> @@ -494,8 +495,8 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+>  			dma_direction = DMA_TO_DEVICE;
+>  			desc->wr_len_cmd = dma_size;
+>  			desc->control |= ISMT_DESC_BLK;
+> -			priv->dma_buffer[0] = command;
+> -			memcpy(&priv->dma_buffer[1], &data->block[1], dma_size - 1);
+> +			dma_buffer[0] = command;
+> +			memcpy(&dma_buffer[1], &data->block[1], dma_size - 1);
+>  		} else {
+>  			/* Block Read */
+>  			dev_dbg(dev, "I2C_SMBUS_BLOCK_DATA:  READ\n");
+> @@ -522,8 +523,8 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+>  			dma_direction = DMA_TO_DEVICE;
+>  			desc->wr_len_cmd = dma_size;
+>  			desc->control |= ISMT_DESC_I2C;
+> -			priv->dma_buffer[0] = command;
+> -			memcpy(&priv->dma_buffer[1], &data->block[1], dma_size - 1);
+> +			dma_buffer[0] = command;
+> +			memcpy(&dma_buffer[1], &data->block[1], dma_size - 1);
+>  		} else {
+>  			/* i2c Block Read */
+>  			dev_dbg(dev, "I2C_SMBUS_I2C_BLOCK_DATA:  READ\n");
+> @@ -552,18 +553,18 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+>  	if (dma_size != 0) {
+>  		dev_dbg(dev, " dev=%p\n", dev);
+>  		dev_dbg(dev, " data=%p\n", data);
+> -		dev_dbg(dev, " dma_buffer=%p\n", priv->dma_buffer);
+> +		dev_dbg(dev, " dma_buffer=%p\n", dma_buffer);
+>  		dev_dbg(dev, " dma_size=%d\n", dma_size);
+>  		dev_dbg(dev, " dma_direction=%d\n", dma_direction);
+>  
+>  		dma_addr = dma_map_single(dev,
+> -				      priv->dma_buffer,
+> +				      dma_buffer,
+>  				      dma_size,
+>  				      dma_direction);
+>  
+>  		if (dma_mapping_error(dev, dma_addr)) {
+>  			dev_err(dev, "Error in mapping dma buffer %p\n",
+> -				priv->dma_buffer);
+> +				dma_buffer);
+>  			return -EIO;
+>  		}
+>  
