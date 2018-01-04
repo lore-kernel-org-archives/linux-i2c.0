@@ -1,153 +1,169 @@
-From: Radu Rendec <radu.rendec@gmail.com>
-Subject: [PATCH v2] i2c: ismt: 16-byte align the DMA buffer address
-Date: Thu,  4 Jan 2018 18:18:13 +0000
-Message-ID: <20180104181813.25474-1-radu.rendec@gmail.com>
+From: Baruch Siach <baruch@tkos.co.il>
+Subject: Re: xps 15 9560 touchpad high interrupts
+Date: Thu, 4 Jan 2018 21:01:11 +0200
+Message-ID: <20180104190111.b6xs2vzfvkqklsfx@tarshish>
+References: <CAEOHGO=GYr4NCnwNXf=it6WFVRQ0d-eYTVKoZSiuhYhumnBK5A@mail.gmail.com>
+ <20171231062520.qlcijf32eoqhdksf@sapphire.tkos.co.il>
+ <CAEOHGOks90Am19G4-YALXq6vL8GOM9V0Mmf65-rUNYOvf5Rhyw@mail.gmail.com>
+ <20180101061441.mi3fxata4prkt4eu@sapphire.tkos.co.il>
+ <CAEOHGOkWni9J_abVidDgvyQj0ae7UNUOwmfxHWBTTcaNQ7LNAw@mail.gmail.com>
+ <20180102134605.km5plmeef7nqmpwg@tarshish>
+ <CAEOHGOkZBGuu5mXjyRYQ0jpRhYKkoenqYv+_r1_M2kq0xwtbLg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:44640 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751870AbeADSSh (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 4 Jan 2018 13:18:37 -0500
-Received: by mail-wm0-f68.google.com with SMTP id t8so5048079wmc.3
-        for <linux-i2c@vger.kernel.org>; Thu, 04 Jan 2018 10:18:36 -0800 (PST)
+Received: from guitar.tcltek.co.il ([192.115.133.116]:59421 "EHLO
+        mx.tkos.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751679AbeADTBV (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 4 Jan 2018 14:01:21 -0500
+Content-Disposition: inline
+In-Reply-To: <CAEOHGOkZBGuu5mXjyRYQ0jpRhYKkoenqYv+_r1_M2kq0xwtbLg@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Neil Horman <nhorman@tuxdriver.com>
-Cc: linux-i2c@vger.kernel.org
+To: Javad Karabi <karabijavad@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
-Use only a portion of the data buffer for DMA transfers, which is always
-16-byte aligned. This makes the DMA buffer address 16-byte aligned and
-compensates for spurious hardware parity errors that may appear when the
-DMA buffer address is not 16-byte aligned.
+Hi Javad Karabi,
 
-The data buffer is enlarged in order to accommodate any possible 16-byte
-alignment offset and changes the DMA code to only use a portion of the
-data buffer, which is 16-byte aligned.
+On Tue, Jan 02, 2018 at 06:24:54PM -0600, Javad Karabi wrote:
+> On Tue, Jan 2, 2018 at 7:46 AM, Baruch Siach <baruch@tkos.co.il> wrote:
+> > On Mon, Jan 01, 2018 at 05:18:00PM -0600, Javad Karabi wrote:
+> >> On Mon, Jan 1, 2018 at 12:14 AM, Baruch Siach <baruch@tkos.co.il> wrote:
+> >> > On Sun, Dec 31, 2017 at 03:58:57PM -0600, Javad Karabi wrote:
+> >> >> On Sun, Dec 31, 2017 at 12:25 AM, Baruch Siach <baruch@tkos.co.il> wrote:
+> >> >> > Added linux-input list to Cc.
+> >> >> >
+> >> >> > On Sat, Dec 30, 2017 at 05:10:06PM -0600, Javad Karabi wrote:
+> >> >> > > im trying to figure out why i get like 7000 interrupts a second simply by
+> >> >> > > resting my finger on the touchpad (not even moving it)
+> >> >> > > this is on a xps 15 9560
+> >> >> > > and the touchpad is at
+> >> >> > > DLL07BE:01 06CB:7A13 Touchpad as
+> >> >> > > /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-7/
+> >> >> > i2c-DLL07BE:01/0018:06CB:7A13.0009/input/input58
+> >> >> > >
+> >> >> > > could you provide me with any advice as to where i should look to figure
+> >> >> > > this out?
+> >> >> > > i have already tried adding code to i2c-designware-platdrv.c
+> >> >> > > i added
+> >> >> > > dev->clk_freq = 100000;
+> >> >> > > in dw_i2c_plat_probe, but it still shoots off thousands of interrupts a
+> >> >> > > second (and they are apparently spurious interrupts, atleast accoding
+> >> >> > > to /proc/irq/17/spurious
+> >> >> > >
+> >> >> > > could you provide any guidance at all? would be much appreciated.. i
+> >> >> > > would love to fix this issue and get it upstreamed in the kernel if
+> >> >> > > possible.
+> >> >> > > thank you
+> >> >> >
+> >> >> > i2c_designware is a I2C bus master driver. It allows the host to
+> >> >> > communicate with various devices. Your touchpad is apparently one such
+> >> >> > device. But each device on the I2C bus needs its own driver. I have no
+> >> >> > idea which driver handles your touchpad device. Maybe someone on the
+> >> >> > linux-input list knows.
+> >> >> >
+> >> >> > Specifically, the interrupts handling has nothing to do with the I2C bus.
+> >> >> > Unlike PCIe, I2C provides no in-bus interrupt delivery facility. I2C
+> >> >> > devices usually use a separate dedicated interrupt line. So the spurious
+> >> >> > interrupts that you see must be handled at the touchpad input driver
+> >> >> > level.
+> >> >> >
+> >> >> > One thing that might help others help you is the version of the kernel you
+> >> >> > are running. Please provide the output of 'uname -rv' on your machine.
+> >> >>
+> >> >> uname -rv
+> >> >> 4.15.0-rc5 #2 SMP Thu Dec 28 18:21:06 CST 2017
+> >> >>
+> >> >> for what its worth, i think it might be hid_multitouch that is handling the
+> >> >> touchpad, since when i rmmod it, my touchpad is no longer active.
+> >> >
+> >> > The hid-multitouch driver handles USB devices, not I2C. The code at
+> >> > drivers/hid/hid-multitouch.c shows a few supported USB_VENDOR_ID_SYNAPTICS
+> >> > (0x06cb) devices, but the 0x7a13 device ID does not appear there as of
+> >> > v4.15-rc6. Maybe your kernel is patched to add support for that device.
+> >> >
+> >> > I guess that i2c_designware appears on the device hierarchy because the
+> >> > "smart" USB hub on your system is controlled over the I2C bus.
+> >> >
+> >> >> when you say that the touchpad driver handles the irq stuff... i am a
+> >> >> little confused because i2c-designware-platdrv.c contains this line:
+> >> >> irq = platform_get_irq(pdev, 0);
+> >> >
+> >> > Do you have an indication that irq 17 belongs to i2c-designware?
+> >> >
+> >> > The i2c-designware driver uses an interrupt to handle its hardware buffer, and
+> >> > to receive transactions status. I2C is a slow protocol, so most controller
+> >> > implementations are asynchronous. If this irq misbehaves, then there is most
+> >> > likely a problem with the i2c-designware driver.
+> >> >
+> >> >> i would assume that hid_multitouch would contain irq related code if i am
+> >> >> understanding you correctly?
+> >> >> am i misunderstanding?
+> >> >
+> >> > Since hid-multitouch is a USB driver, the irq handle itself is in the USB bus
+> >> > driver.
+> >>
+> >> uname -rv:
+> >> 4.15.0-rc5-00248-gf39d7d78b70e #2 SMP Sun Dec 31 18:17:25 CST 2017
+> >>
+> >> the git commit i am at is f39d7d78b70e0f39facb1e4fab77ad3df5c52a35
+> >>
+> >> > Do you have an indication that irq 17 belongs to i2c-designware?
+> >> from /proc/interrupts:
+> >>   17:   47105193          0          0          0          0
+> >> 0          0          0  IR-IO-APIC   17-fasteoi   idma64.1,
+> >> i2c_designware.1
+> >>
+> >> if i rmmod idma64, the behavior remains the same, so im assuming this
+> >> is all i2c_designware thats causing this problem.
+> >>
+> >> > then there is most likely a problem with the i2c-designware driver.
+> >> do you have any idea what the problem might be? i know i should look
+> >> in the code for i2c-designware, but why would a touchpad be shooting
+> >> off interrupts like that with my finger simply resting on it?
+> >
+> > It is not the touchpad that shoots the interrupts. It is the i2c-designware
+> > hardware module.
+> >
+> >> i have a theory, could you tell me if this makes sense?
+> >> perhaps the touchpad hardware is configured with a very high
+> >> sensitivity. so in theory if the sensitivity was decreased, then
+> >> resting my finger would not trigger interrupts until i move it a
+> >> larger amount?
+> >
+> > I don't think that the touchpad sensitivity has anything to do with this
+> > interrupts storm.
+> >
+> > There is another possibility. The USB hub controller driver might be shooting
+> > i2c transactions at the USB hub. In this case the bug is not in the i2c master
+> > driver.
+> >
+> > Can you identify the driver that initiates the i2c transactions?
 
-The symptom of the hardware issue is the same as the one addressed in
-v3.12-rc2-5-gbf41691 and manifests by transfers failing with EIO, with
-bit 9 being set in the ERRSTS register.
+> > The USB hub controller driver might be shooting
+> > i2c transactions at the USB hub. In this case the bug is not in the i2c master
+> > driver.
+> im still rather confused about the relationship between the i2c bus
+> and the usb bus.
+> from what i understand, you have the i2c bus, which has a touchpad,
+> and the touchpad sends i2c transactions
+> when an event has occured, e.g. i moved my finger on the touchpad...
+> is that correct?
 
-Signed-off-by: Radu Rendec <radu.rendec@gmail.com>
----
- drivers/i2c/busses/i2c-ismt.c | 37 +++++++++++++++++++------------------
- 1 file changed, 19 insertions(+), 18 deletions(-)
+No. On the I2C bus only the master initiates transactions. Slaves can only 
+respond to master queries. But there might be a bug in the USB hub driver that 
+results in a flood of I2C transactions.
 
-diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-index b51adffa4841..f4f806135119 100644
---- a/drivers/i2c/busses/i2c-ismt.c
-+++ b/drivers/i2c/busses/i2c-ismt.c
-@@ -172,7 +172,7 @@ struct ismt_priv {
- 	dma_addr_t io_rng_dma;			/* descriptor HW base addr */
- 	u8 head;				/* ring buffer head pointer */
- 	struct completion cmp;			/* interrupt completion */
--	u8 dma_buffer[I2C_SMBUS_BLOCK_MAX + 1];	/* temp R/W data buffer */
-+	u8 buffer[I2C_SMBUS_BLOCK_MAX + 16];	/* temp R/W data buffer */
- };
- 
- /**
-@@ -320,7 +320,7 @@ static int ismt_process_desc(const struct ismt_desc *desc,
- 			     struct ismt_priv *priv, int size,
- 			     char read_write)
- {
--	u8 *dma_buffer = priv->dma_buffer;
-+	u8 *dma_buffer = PTR_ALIGN(&priv->buffer[0], 16);
- 
- 	dev_dbg(&priv->pci_dev->dev, "Processing completed descriptor\n");
- 	__ismt_desc_dump(&priv->pci_dev->dev, desc);
-@@ -393,11 +393,12 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
- 	struct ismt_desc *desc;
- 	struct ismt_priv *priv = i2c_get_adapdata(adap);
- 	struct device *dev = &priv->pci_dev->dev;
-+	u8 *dma_buffer = PTR_ALIGN(&priv->buffer[0], 16);
- 
- 	desc = &priv->hw[priv->head];
- 
- 	/* Initialize the DMA buffer */
--	memset(priv->dma_buffer, 0, sizeof(priv->dma_buffer));
-+	memset(priv->buffer, 0, sizeof(priv->buffer));
- 
- 	/* Initialize the descriptor */
- 	memset(desc, 0, sizeof(struct ismt_desc));
-@@ -446,8 +447,8 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
- 			desc->wr_len_cmd = 2;
- 			dma_size = 2;
- 			dma_direction = DMA_TO_DEVICE;
--			priv->dma_buffer[0] = command;
--			priv->dma_buffer[1] = data->byte;
-+			dma_buffer[0] = command;
-+			dma_buffer[1] = data->byte;
- 		} else {
- 			/* Read Byte */
- 			dev_dbg(dev, "I2C_SMBUS_BYTE_DATA:  READ\n");
-@@ -466,9 +467,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
- 			desc->wr_len_cmd = 3;
- 			dma_size = 3;
- 			dma_direction = DMA_TO_DEVICE;
--			priv->dma_buffer[0] = command;
--			priv->dma_buffer[1] = data->word & 0xff;
--			priv->dma_buffer[2] = data->word >> 8;
-+			dma_buffer[0] = command;
-+			dma_buffer[1] = data->word & 0xff;
-+			dma_buffer[2] = data->word >> 8;
- 		} else {
- 			/* Read Word */
- 			dev_dbg(dev, "I2C_SMBUS_WORD_DATA:  READ\n");
-@@ -486,9 +487,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
- 		desc->rd_len = 2;
- 		dma_size = 3;
- 		dma_direction = DMA_BIDIRECTIONAL;
--		priv->dma_buffer[0] = command;
--		priv->dma_buffer[1] = data->word & 0xff;
--		priv->dma_buffer[2] = data->word >> 8;
-+		dma_buffer[0] = command;
-+		dma_buffer[1] = data->word & 0xff;
-+		dma_buffer[2] = data->word >> 8;
- 		break;
- 
- 	case I2C_SMBUS_BLOCK_DATA:
-@@ -499,8 +500,8 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
- 			dma_direction = DMA_TO_DEVICE;
- 			desc->wr_len_cmd = dma_size;
- 			desc->control |= ISMT_DESC_BLK;
--			priv->dma_buffer[0] = command;
--			memcpy(&priv->dma_buffer[1], &data->block[1], dma_size - 1);
-+			dma_buffer[0] = command;
-+			memcpy(&dma_buffer[1], &data->block[1], dma_size - 1);
- 		} else {
- 			/* Block Read */
- 			dev_dbg(dev, "I2C_SMBUS_BLOCK_DATA:  READ\n");
-@@ -527,8 +528,8 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
- 			dma_direction = DMA_TO_DEVICE;
- 			desc->wr_len_cmd = dma_size;
- 			desc->control |= ISMT_DESC_I2C;
--			priv->dma_buffer[0] = command;
--			memcpy(&priv->dma_buffer[1], &data->block[1], dma_size - 1);
-+			dma_buffer[0] = command;
-+			memcpy(&dma_buffer[1], &data->block[1], dma_size - 1);
- 		} else {
- 			/* i2c Block Read */
- 			dev_dbg(dev, "I2C_SMBUS_I2C_BLOCK_DATA:  READ\n");
-@@ -557,18 +558,18 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
- 	if (dma_size != 0) {
- 		dev_dbg(dev, " dev=%p\n", dev);
- 		dev_dbg(dev, " data=%p\n", data);
--		dev_dbg(dev, " dma_buffer=%p\n", priv->dma_buffer);
-+		dev_dbg(dev, " dma_buffer=%p\n", dma_buffer);
- 		dev_dbg(dev, " dma_size=%d\n", dma_size);
- 		dev_dbg(dev, " dma_direction=%d\n", dma_direction);
- 
- 		dma_addr = dma_map_single(dev,
--				      priv->dma_buffer,
-+				      dma_buffer,
- 				      dma_size,
- 				      dma_direction);
- 
- 		if (dma_mapping_error(dev, dma_addr)) {
- 			dev_err(dev, "Error in mapping dma buffer %p\n",
--				priv->dma_buffer);
-+				dma_buffer);
- 			return -EIO;
- 		}
- 
+> > Can you identify the driver that initiates the i2c transactions?
+> i would be more than happy to identify that driver if you could point
+> me in the right direction to figure that out
+
+You can add a rate limited dump_stack() call in i2c_dw_xfer(). This would tell 
+you where transactions are coming from, and whether their rate is too high.
+
+baruch
+
 -- 
-2.13.6
+     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
