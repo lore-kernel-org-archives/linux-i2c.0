@@ -1,97 +1,153 @@
 From: Radu Rendec <radu.rendec@gmail.com>
-Subject: Re: [1/2] i2c: ismt: 16-byte align the DMA buffer address
-Date: Thu, 04 Jan 2018 17:01:16 +0000
-Message-ID: <1515085276.3062.37.camel@gmail.com>
-References: <20170818160128.21228-2-radu.rendec@gmail.com>
-         <20180104134606.GB919@hmswarspite.think-freely.org>
-         <1515080529.3062.26.camel@gmail.com>
-         <20180104162207.GD919@hmswarspite.think-freely.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v2] i2c: ismt: 16-byte align the DMA buffer address
+Date: Thu,  4 Jan 2018 18:18:13 +0000
+Message-ID: <20180104181813.25474-1-radu.rendec@gmail.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:43968 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751294AbeADRBT (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 4 Jan 2018 12:01:19 -0500
-Received: by mail-wm0-f67.google.com with SMTP id n138so4666309wmg.2
-        for <linux-i2c@vger.kernel.org>; Thu, 04 Jan 2018 09:01:19 -0800 (PST)
-In-Reply-To: <20180104162207.GD919@hmswarspite.think-freely.org>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:44640 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751870AbeADSSh (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 4 Jan 2018 13:18:37 -0500
+Received: by mail-wm0-f68.google.com with SMTP id t8so5048079wmc.3
+        for <linux-i2c@vger.kernel.org>; Thu, 04 Jan 2018 10:18:36 -0800 (PST)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Neil Horman <nhorman@tuxdriver.com>
 Cc: linux-i2c@vger.kernel.org
 
-On Thu, 2018-01-04 at 11:22 -0500, Neil Horman wrote:
-> On Thu, Jan 04, 2018 at 03:42:09PM +0000, Radu Rendec wrote:
-> > I believe the aligned() attribute cannot be used here because the whole
-> > ismt_priv structure is dynamically allocated (the allocation is done at
-> > the beginning of the ismt_probe() function).
-> > 
-> > Even with a statically allocated structure, aligning the whole
-> > structure does not guarantee the alignment of the dma_buffer field,
-> > because the field offset within the structure can change (e.g. if other
-> > fields are added, removed, moved around etc.).
-> 
-> For reference, you can do it like this:
-> 
-> #include <stdlib.h>
-> #include <stdio.h>
-> 
-> 
-> struct buffer_type { char b[3]; };
-> struct ubuffer_type { char b[3]; } __attribute__((aligned(16)));
-> 
-> struct s1 {
->         char foo;
->         struct buffer_type bar;
-> };
-> 
-> struct s2 {
->         char foo;
->         struct ubuffer_type bar;
-> };
-> 
-> int main(int argc, char **argv)
-> {
->         struct s1 *p1;
->         struct s2 *p2;
-> 
->         p1 = malloc(sizeof(struct s1));
->         p2 = malloc(sizeof(struct s2));
-> 
->         printf("addr of p1->bar = %p\n", &p1->bar);
->         printf("addr of p2->bar = %p\n", &p2->bar);
-> 
->         free(p1);
->         free(p2);
-> 
->         return 0;
-> }
+Use only a portion of the data buffer for DMA transfers, which is always
+16-byte aligned. This makes the DMA buffer address 16-byte aligned and
+compensates for spurious hardware parity errors that may appear when the
+DMA buffer address is not 16-byte aligned.
 
-Hmm... I just tried this on my workstation (x86, 32bit):
+The data buffer is enlarged in order to accommodate any possible 16-byte
+alignment offset and changes the DMA code to only use a portion of the
+data buffer, which is 16-byte aligned.
 
-[rrendec@rrendec ~]$ gcc -o align align.c
-[rrendec@rrendec ~]$ ./align 
-addr of p1->bar = 0x9358009
-addr of p2->bar = 0x9358028
-[rrendec@rrendec ~]$ ./align 
-addr of p1->bar = 0x856b009
-addr of p2->bar = 0x856b028
+The symptom of the hardware issue is the same as the one addressed in
+v3.12-rc2-5-gbf41691 and manifests by transfers failing with EIO, with
+bit 9 being set in the ERRSTS register.
 
-The most significant 4 digits are always different (probably due to
-address randomization), but the least significant 3 are consistently
-0x009 and 0x028, neither of which is 16 byte aligned.
+Signed-off-by: Radu Rendec <radu.rendec@gmail.com>
+---
+ drivers/i2c/busses/i2c-ismt.c | 37 +++++++++++++++++++------------------
+ 1 file changed, 19 insertions(+), 18 deletions(-)
 
-But I think this is normal, because malloc() gets just a size parameter
-and has no knowledge of the intended data type of the memory area that
-it allocates. It's probably the same with kmalloc() and friends.
-
-> Though as I look at that, you're probably right, using PTR_ALIGN would probably
-> be prettier.  I'd be ok with that approach
-
-That's great. I'll prepare an updated patch with PTR_ALIGN and post it
-shortly.
-
-Thanks,
-Radu
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index b51adffa4841..f4f806135119 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -172,7 +172,7 @@ struct ismt_priv {
+ 	dma_addr_t io_rng_dma;			/* descriptor HW base addr */
+ 	u8 head;				/* ring buffer head pointer */
+ 	struct completion cmp;			/* interrupt completion */
+-	u8 dma_buffer[I2C_SMBUS_BLOCK_MAX + 1];	/* temp R/W data buffer */
++	u8 buffer[I2C_SMBUS_BLOCK_MAX + 16];	/* temp R/W data buffer */
+ };
+ 
+ /**
+@@ -320,7 +320,7 @@ static int ismt_process_desc(const struct ismt_desc *desc,
+ 			     struct ismt_priv *priv, int size,
+ 			     char read_write)
+ {
+-	u8 *dma_buffer = priv->dma_buffer;
++	u8 *dma_buffer = PTR_ALIGN(&priv->buffer[0], 16);
+ 
+ 	dev_dbg(&priv->pci_dev->dev, "Processing completed descriptor\n");
+ 	__ismt_desc_dump(&priv->pci_dev->dev, desc);
+@@ -393,11 +393,12 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 	struct ismt_desc *desc;
+ 	struct ismt_priv *priv = i2c_get_adapdata(adap);
+ 	struct device *dev = &priv->pci_dev->dev;
++	u8 *dma_buffer = PTR_ALIGN(&priv->buffer[0], 16);
+ 
+ 	desc = &priv->hw[priv->head];
+ 
+ 	/* Initialize the DMA buffer */
+-	memset(priv->dma_buffer, 0, sizeof(priv->dma_buffer));
++	memset(priv->buffer, 0, sizeof(priv->buffer));
+ 
+ 	/* Initialize the descriptor */
+ 	memset(desc, 0, sizeof(struct ismt_desc));
+@@ -446,8 +447,8 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 			desc->wr_len_cmd = 2;
+ 			dma_size = 2;
+ 			dma_direction = DMA_TO_DEVICE;
+-			priv->dma_buffer[0] = command;
+-			priv->dma_buffer[1] = data->byte;
++			dma_buffer[0] = command;
++			dma_buffer[1] = data->byte;
+ 		} else {
+ 			/* Read Byte */
+ 			dev_dbg(dev, "I2C_SMBUS_BYTE_DATA:  READ\n");
+@@ -466,9 +467,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 			desc->wr_len_cmd = 3;
+ 			dma_size = 3;
+ 			dma_direction = DMA_TO_DEVICE;
+-			priv->dma_buffer[0] = command;
+-			priv->dma_buffer[1] = data->word & 0xff;
+-			priv->dma_buffer[2] = data->word >> 8;
++			dma_buffer[0] = command;
++			dma_buffer[1] = data->word & 0xff;
++			dma_buffer[2] = data->word >> 8;
+ 		} else {
+ 			/* Read Word */
+ 			dev_dbg(dev, "I2C_SMBUS_WORD_DATA:  READ\n");
+@@ -486,9 +487,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 		desc->rd_len = 2;
+ 		dma_size = 3;
+ 		dma_direction = DMA_BIDIRECTIONAL;
+-		priv->dma_buffer[0] = command;
+-		priv->dma_buffer[1] = data->word & 0xff;
+-		priv->dma_buffer[2] = data->word >> 8;
++		dma_buffer[0] = command;
++		dma_buffer[1] = data->word & 0xff;
++		dma_buffer[2] = data->word >> 8;
+ 		break;
+ 
+ 	case I2C_SMBUS_BLOCK_DATA:
+@@ -499,8 +500,8 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 			dma_direction = DMA_TO_DEVICE;
+ 			desc->wr_len_cmd = dma_size;
+ 			desc->control |= ISMT_DESC_BLK;
+-			priv->dma_buffer[0] = command;
+-			memcpy(&priv->dma_buffer[1], &data->block[1], dma_size - 1);
++			dma_buffer[0] = command;
++			memcpy(&dma_buffer[1], &data->block[1], dma_size - 1);
+ 		} else {
+ 			/* Block Read */
+ 			dev_dbg(dev, "I2C_SMBUS_BLOCK_DATA:  READ\n");
+@@ -527,8 +528,8 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 			dma_direction = DMA_TO_DEVICE;
+ 			desc->wr_len_cmd = dma_size;
+ 			desc->control |= ISMT_DESC_I2C;
+-			priv->dma_buffer[0] = command;
+-			memcpy(&priv->dma_buffer[1], &data->block[1], dma_size - 1);
++			dma_buffer[0] = command;
++			memcpy(&dma_buffer[1], &data->block[1], dma_size - 1);
+ 		} else {
+ 			/* i2c Block Read */
+ 			dev_dbg(dev, "I2C_SMBUS_I2C_BLOCK_DATA:  READ\n");
+@@ -557,18 +558,18 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 	if (dma_size != 0) {
+ 		dev_dbg(dev, " dev=%p\n", dev);
+ 		dev_dbg(dev, " data=%p\n", data);
+-		dev_dbg(dev, " dma_buffer=%p\n", priv->dma_buffer);
++		dev_dbg(dev, " dma_buffer=%p\n", dma_buffer);
+ 		dev_dbg(dev, " dma_size=%d\n", dma_size);
+ 		dev_dbg(dev, " dma_direction=%d\n", dma_direction);
+ 
+ 		dma_addr = dma_map_single(dev,
+-				      priv->dma_buffer,
++				      dma_buffer,
+ 				      dma_size,
+ 				      dma_direction);
+ 
+ 		if (dma_mapping_error(dev, dma_addr)) {
+ 			dev_err(dev, "Error in mapping dma buffer %p\n",
+-				priv->dma_buffer);
++				dma_buffer);
+ 			return -EIO;
+ 		}
+ 
+-- 
+2.13.6
