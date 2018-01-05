@@ -1,32 +1,108 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH 7/7] PCI / PM: Use SMART_SUSPEND and LEAVE_SUSPENDED flags
- for PCIe ports
-Date: Fri, 5 Jan 2018 00:28:39 +0100
-Message-ID: <CAJZ5v0jqQGM0KdUQ4x4bky+uXpKM90Aw7GLSFNWYW+9FppdmBw@mail.gmail.com>
-References: <7742130.AaJQIxeI1n@aspire.rjw.lan> <2436726.ykYRzVD45y@aspire.rjw.lan>
- <33674270.0PFIgc82r6@aspire.rjw.lan> <20180104221448.GH189897@bhelgaas-glaptop.roam.corp.google.com>
+From: Neil Horman <nhorman@tuxdriver.com>
+Subject: Re: [1/2] i2c: ismt: 16-byte align the DMA buffer address
+Date: Thu, 4 Jan 2018 20:47:27 -0500
+Message-ID: <20180105014727.GA18052@neilslaptop.think-freely.org>
+References: <20170818160128.21228-2-radu.rendec@gmail.com>
+ <20180104134606.GB919@hmswarspite.think-freely.org>
+ <1515080529.3062.26.camel@gmail.com>
+ <20180104162207.GD919@hmswarspite.think-freely.org>
+ <1515085276.3062.37.camel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <20180104221448.GH189897@bhelgaas-glaptop.roam.corp.google.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Linux PM <linux-pm@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Alan Stern <stern@rowland.harvard.edu>, Kevin Hilman <khilman@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from charlotte.tuxdriver.com ([70.61.120.58]:34550 "EHLO
+        smtp.tuxdriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751155AbeAEBsI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 4 Jan 2018 20:48:08 -0500
+Content-Disposition: inline
+In-Reply-To: <1515085276.3062.37.camel@gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Radu Rendec <radu.rendec@gmail.com>
+Cc: linux-i2c@vger.kernel.org
 
-On Thu, Jan 4, 2018 at 11:14 PM, Bjorn Helgaas <helgaas@kernel.org> wrote:
-> On Wed, Jan 03, 2018 at 01:38:27AM +0100, Rafael J. Wysocki wrote:
->> From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
->>
->> Make the PCIe port driver set DPM_FLAG_SMART_SUSPEND and
->> DPM_FLAG_LEAVE_SUSPENDED for the devices handled by it to benefit
->> from the opportunistic optimizations in the PCI layer enabled by
->> these flags.
->>
->> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
->
-> Acked-by: Bjorn Helgaas <bhelgaas@google.com>
->
-> Please merge this along with the rest of the series.
+On Thu, Jan 04, 2018 at 05:01:16PM +0000, Radu Rendec wrote:
+> On Thu, 2018-01-04 at 11:22 -0500, Neil Horman wrote:
+> > On Thu, Jan 04, 2018 at 03:42:09PM +0000, Radu Rendec wrote:
+> > > I believe the aligned() attribute cannot be used here because the whole
+> > > ismt_priv structure is dynamically allocated (the allocation is done at
+> > > the beginning of the ismt_probe() function).
+> > > 
+> > > Even with a statically allocated structure, aligning the whole
+> > > structure does not guarantee the alignment of the dma_buffer field,
+> > > because the field offset within the structure can change (e.g. if other
+> > > fields are added, removed, moved around etc.).
+> > 
+> > For reference, you can do it like this:
+> > 
+> > #include <stdlib.h>
+> > #include <stdio.h>
+> > 
+> > 
+> > struct buffer_type { char b[3]; };
+> > struct ubuffer_type { char b[3]; } __attribute__((aligned(16)));
+> > 
+> > struct s1 {
+> >         char foo;
+> >         struct buffer_type bar;
+> > };
+> > 
+> > struct s2 {
+> >         char foo;
+> >         struct ubuffer_type bar;
+> > };
+> > 
+> > int main(int argc, char **argv)
+> > {
+> >         struct s1 *p1;
+> >         struct s2 *p2;
+> > 
+> >         p1 = malloc(sizeof(struct s1));
+> >         p2 = malloc(sizeof(struct s2));
+> > 
+> >         printf("addr of p1->bar = %p\n", &p1->bar);
+> >         printf("addr of p2->bar = %p\n", &p2->bar);
+> > 
+> >         free(p1);
+> >         free(p2);
+> > 
+> >         return 0;
+> > }
+> 
+> Hmm... I just tried this on my workstation (x86, 32bit):
+> 
+> [rrendec@rrendec ~]$ gcc -o align align.c
+> [rrendec@rrendec ~]$ ./align 
+> addr of p1->bar = 0x9358009
+> addr of p2->bar = 0x9358028
+> [rrendec@rrendec ~]$ ./align 
+> addr of p1->bar = 0x856b009
+> addr of p2->bar = 0x856b028
+> 
+> The most significant 4 digits are always different (probably due to
+> address randomization), but the least significant 3 are consistently
+> 0x009 and 0x028, neither of which is 16 byte aligned.
+> 
+> But I think this is normal, because malloc() gets just a size parameter
+> and has no knowledge of the intended data type of the memory area that
+> it allocates. It's probably the same with kmalloc() and friends.
+> 
+Yeah, I was under the impression that malloc provided memory in blocks aligned
+to a maximum arch specific alignment, and then gcc could just pad the struct
+size to guarantee a more granular alignment, but on doing some more reading,
+alignment support only applies to bss and data storage, at least for the gcc
+linker.  PTR_ALIGN is the way to go here.
 
-I will, thank you!
+> > Though as I look at that, you're probably right, using PTR_ALIGN would probably
+> > be prettier.  I'd be ok with that approach
+> 
+> That's great. I'll prepare an updated patch with PTR_ALIGN and post it
+> shortly.
+> 
+Thanks!
+Neil
+
+> Thanks,
+> Radu
+> 
+> 
