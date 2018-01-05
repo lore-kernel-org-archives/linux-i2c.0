@@ -1,108 +1,202 @@
-From: Neil Horman <nhorman@tuxdriver.com>
-Subject: Re: [1/2] i2c: ismt: 16-byte align the DMA buffer address
-Date: Thu, 4 Jan 2018 20:47:27 -0500
-Message-ID: <20180105014727.GA18052@neilslaptop.think-freely.org>
-References: <20170818160128.21228-2-radu.rendec@gmail.com>
- <20180104134606.GB919@hmswarspite.think-freely.org>
- <1515080529.3062.26.camel@gmail.com>
- <20180104162207.GD919@hmswarspite.think-freely.org>
- <1515085276.3062.37.camel@gmail.com>
+From: Romain Porte <romain.porte@nokia.com>
+Subject: [PATCH 1/3] Add risky_addr option for i2c tools
+Date: Fri, 5 Jan 2018 16:02:46 +0100
+Message-ID: <20180105150248.3170-2-romain.porte@nokia.com>
+References: <20180105150248.3170-1-romain.porte@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from charlotte.tuxdriver.com ([70.61.120.58]:34550 "EHLO
-        smtp.tuxdriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751155AbeAEBsI (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 4 Jan 2018 20:48:08 -0500
-Content-Disposition: inline
-In-Reply-To: <1515085276.3062.37.camel@gmail.com>
+Received: from mail-eopbgr00114.outbound.protection.outlook.com ([40.107.0.114]:45234
+        "EHLO EUR02-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751514AbeAEPDg (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 5 Jan 2018 10:03:36 -0500
+In-Reply-To: <20180105150248.3170-1-romain.porte@nokia.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Radu Rendec <radu.rendec@gmail.com>
-Cc: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: jdelvare@suse.de, Romain Porte <romain.porte@nokia.com>
 
-On Thu, Jan 04, 2018 at 05:01:16PM +0000, Radu Rendec wrote:
-> On Thu, 2018-01-04 at 11:22 -0500, Neil Horman wrote:
-> > On Thu, Jan 04, 2018 at 03:42:09PM +0000, Radu Rendec wrote:
-> > > I believe the aligned() attribute cannot be used here because the whole
-> > > ismt_priv structure is dynamically allocated (the allocation is done at
-> > > the beginning of the ismt_probe() function).
-> > > 
-> > > Even with a statically allocated structure, aligning the whole
-> > > structure does not guarantee the alignment of the dma_buffer field,
-> > > because the field offset within the structure can change (e.g. if other
-> > > fields are added, removed, moved around etc.).
-> > 
-> > For reference, you can do it like this:
-> > 
-> > #include <stdlib.h>
-> > #include <stdio.h>
-> > 
-> > 
-> > struct buffer_type { char b[3]; };
-> > struct ubuffer_type { char b[3]; } __attribute__((aligned(16)));
-> > 
-> > struct s1 {
-> >         char foo;
-> >         struct buffer_type bar;
-> > };
-> > 
-> > struct s2 {
-> >         char foo;
-> >         struct ubuffer_type bar;
-> > };
-> > 
-> > int main(int argc, char **argv)
-> > {
-> >         struct s1 *p1;
-> >         struct s2 *p2;
-> > 
-> >         p1 = malloc(sizeof(struct s1));
-> >         p2 = malloc(sizeof(struct s2));
-> > 
-> >         printf("addr of p1->bar = %p\n", &p1->bar);
-> >         printf("addr of p2->bar = %p\n", &p2->bar);
-> > 
-> >         free(p1);
-> >         free(p2);
-> > 
-> >         return 0;
-> > }
-> 
-> Hmm... I just tried this on my workstation (x86, 32bit):
-> 
-> [rrendec@rrendec ~]$ gcc -o align align.c
-> [rrendec@rrendec ~]$ ./align 
-> addr of p1->bar = 0x9358009
-> addr of p2->bar = 0x9358028
-> [rrendec@rrendec ~]$ ./align 
-> addr of p1->bar = 0x856b009
-> addr of p2->bar = 0x856b028
-> 
-> The most significant 4 digits are always different (probably due to
-> address randomization), but the least significant 3 are consistently
-> 0x009 and 0x028, neither of which is 16 byte aligned.
-> 
-> But I think this is normal, because malloc() gets just a size parameter
-> and has no knowledge of the intended data type of the memory area that
-> it allocates. It's probably the same with kmalloc() and friends.
-> 
-Yeah, I was under the impression that malloc provided memory in blocks aligned
-to a maximum arch specific alignment, and then gcc could just pad the struct
-size to guarantee a more granular alignment, but on doing some more reading,
-alignment support only applies to bss and data storage, at least for the gcc
-linker.  PTR_ALIGN is the way to go here.
+If the user is sure that the reserved 0x77 - 0x7f range is not needed by
+its devices, then he can pass the "-a" option for allowing so called
+"risky addresses". It is then possible to access devices in this
+address range.
 
-> > Though as I look at that, you're probably right, using PTR_ALIGN would probably
-> > be prettier.  I'd be ok with that approach
-> 
-> That's great. I'll prepare an updated patch with PTR_ALIGN and post it
-> shortly.
-> 
-Thanks!
-Neil
+Signed-off-by: Romain Porte <romain.porte@nokia.com>
+---
+ tools/i2cbusses.c   | 12 +++++++++---
+ tools/i2cbusses.h   |  2 +-
+ tools/i2cdump.c     |  5 +++--
+ tools/i2cget.c      |  5 +++--
+ tools/i2cset.c      |  5 +++--
+ tools/i2ctransfer.c |  5 +++--
+ 6 files changed, 22 insertions(+), 12 deletions(-)
 
-> Thanks,
-> Radu
-> 
-> 
+diff --git a/tools/i2cbusses.c b/tools/i2cbusses.c
+index 41f5b6b..b0bcb26 100644
+--- a/tools/i2cbusses.c
++++ b/tools/i2cbusses.c
+@@ -377,19 +377,25 @@ int lookup_i2c_bus(const char *i2cbus_arg)
+  * Parse a CHIP-ADDRESS command line argument and return the corresponding
+  * chip address, or a negative value if the address is invalid.
+  */
+-int parse_i2c_address(const char *address_arg)
++int parse_i2c_address(const char *address_arg, int risky_addr)
+ {
+ 	long address;
+ 	char *end;
++	long max_addr = 0x77;
+ 
+ 	address = strtol(address_arg, &end, 0);
+ 	if (*end || !*address_arg) {
+ 		fprintf(stderr, "Error: Chip address is not a number!\n");
+ 		return -1;
+ 	}
+-	if (address < 0x03 || address > 0x77) {
++
++	if (risky_addr) {
++		max_addr = 0x7f;
++	}
++
++	if (address < 0x03 || address > max_addr) {
+ 		fprintf(stderr, "Error: Chip address out of range "
+-			"(0x03-0x77)!\n");
++			"(0x03-0x%02x)!\n", max_addr);
+ 		return -2;
+ 	}
+ 
+diff --git a/tools/i2cbusses.h b/tools/i2cbusses.h
+index 26143a5..81ff983 100644
+--- a/tools/i2cbusses.h
++++ b/tools/i2cbusses.h
+@@ -35,7 +35,7 @@ struct i2c_adap *gather_i2c_busses(void);
+ void free_adapters(struct i2c_adap *adapters);
+ 
+ int lookup_i2c_bus(const char *i2cbus_arg);
+-int parse_i2c_address(const char *address_arg);
++int parse_i2c_address(const char *address_arg, int risky_addr);
+ int open_i2c_dev(int i2cbus, char *filename, size_t size, int quiet);
+ int set_slave_addr(int file, int address, int force);
+ 
+diff --git a/tools/i2cdump.c b/tools/i2cdump.c
+index a7bba72..be0d93f 100644
+--- a/tools/i2cdump.c
++++ b/tools/i2cdump.c
+@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
+ 	int block[256], s_length = 0;
+ 	int pec = 0, even = 0;
+ 	int flags = 0;
+-	int force = 0, yes = 0, version = 0;
++	int force = 0, yes = 0, version = 0, risky_addr = 0;
+ 	const char *range = NULL;
+ 	int first = 0x00, last = 0xff;
+ 
+@@ -130,6 +130,7 @@ int main(int argc, char *argv[])
+ 		case 'f': force = 1; break;
+ 		case 'r': range = argv[1+(++flags)]; break;
+ 		case 'y': yes = 1; break;
++		case 'a': risky_addr = 1; break;
+ 		default:
+ 			fprintf(stderr, "Error: Unsupported option "
+ 				"\"%s\"!\n", argv[1+flags]);
+@@ -160,7 +161,7 @@ int main(int argc, char *argv[])
+ 		help();
+ 		exit(1);
+ 	}
+-	address = parse_i2c_address(argv[flags+2]);
++	address = parse_i2c_address(argv[flags+2], risky_addr);
+ 	if (address < 0) {
+ 		help();
+ 		exit(1);
+diff --git a/tools/i2cget.c b/tools/i2cget.c
+index 2503942..acc5236 100644
+--- a/tools/i2cget.c
++++ b/tools/i2cget.c
+@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
+ 	char filename[20];
+ 	int pec = 0;
+ 	int flags = 0;
+-	int force = 0, yes = 0, version = 0;
++	int force = 0, yes = 0, version = 0, risky_addr = 0;
+ 
+ 	/* handle (optional) flags first */
+ 	while (1+flags < argc && argv[1+flags][0] == '-') {
+@@ -166,6 +166,7 @@ int main(int argc, char *argv[])
+ 		case 'V': version = 1; break;
+ 		case 'f': force = 1; break;
+ 		case 'y': yes = 1; break;
++		case 'a': risky_addr = 1; break;
+ 		default:
+ 			fprintf(stderr, "Error: Unsupported option "
+ 				"\"%s\"!\n", argv[1+flags]);
+@@ -187,7 +188,7 @@ int main(int argc, char *argv[])
+ 	if (i2cbus < 0)
+ 		help();
+ 
+-	address = parse_i2c_address(argv[flags+2]);
++	address = parse_i2c_address(argv[flags+2], risky_addr);
+ 	if (address < 0)
+ 		help();
+ 
+diff --git a/tools/i2cset.c b/tools/i2cset.c
+index 0ccc1a0..87c8cf3 100644
+--- a/tools/i2cset.c
++++ b/tools/i2cset.c
+@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
+ 	char filename[20];
+ 	int pec = 0;
+ 	int flags = 0;
+-	int force = 0, yes = 0, version = 0, readback = 0;
++	int force = 0, yes = 0, version = 0, readback = 0, risky_addr = 0;
+ 	unsigned char block[I2C_SMBUS_BLOCK_MAX];
+ 	int len;
+ 
+@@ -179,6 +179,7 @@ int main(int argc, char *argv[])
+ 			flags++;
+ 			break;
+ 		case 'r': readback = 1; break;
++		case 'a': risky_addr = 1; break;
+ 		default:
+ 			fprintf(stderr, "Error: Unsupported option "
+ 				"\"%s\"!\n", argv[1+flags]);
+@@ -200,7 +201,7 @@ int main(int argc, char *argv[])
+ 	if (i2cbus < 0)
+ 		help();
+ 
+-	address = parse_i2c_address(argv[flags+2]);
++	address = parse_i2c_address(argv[flags+2], risky_addr);
+ 	if (address < 0)
+ 		help();
+ 
+diff --git a/tools/i2ctransfer.c b/tools/i2ctransfer.c
+index 38b6b4a..e6e9f0a 100644
+--- a/tools/i2ctransfer.c
++++ b/tools/i2ctransfer.c
+@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
+ {
+ 	char filename[20];
+ 	int i2cbus, address = -1, file, arg_idx = 1, nmsgs = 0, nmsgs_sent, i;
+-	int force = 0, yes = 0, version = 0, verbose = 0;
++	int force = 0, yes = 0, version = 0, verbose = 0, risky_addr = 0;
+ 	struct i2c_msg msgs[I2C_RDRW_IOCTL_MAX_MSGS];
+ 	enum parse_state state = PARSE_GET_DESC;
+ 	unsigned buf_idx = 0;
+@@ -139,6 +139,7 @@ int main(int argc, char *argv[])
+ 		case 'v': verbose = 1; break;
+ 		case 'f': force = 1; break;
+ 		case 'y': yes = 1; break;
++		case 'a': risky_addr = 1; break;
+ 		default:
+ 			fprintf(stderr, "Error: Unsupported option \"%s\"!\n",
+ 				argv[arg_idx]);
+@@ -210,7 +211,7 @@ int main(int argc, char *argv[])
+ 				 */
+ 
+ 				if (!force) {
+-					address = parse_i2c_address(arg_ptr);
++					address = parse_i2c_address(arg_ptr, risky_addr);
+ 					if (address < 0)
+ 						goto err_out_with_arg;
+ 
+-- 
+2.11.0
