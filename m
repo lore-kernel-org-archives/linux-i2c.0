@@ -1,60 +1,55 @@
-From: 59775033@mylife.unisa.ac.za
-Subject: Hallo mein lieber Freund,
-Date: Sat, 06 Jan 2018 11:23:53 +0530
-Message-ID: <DB6PR0101MB22933EC78446CF76B573C3A0B61D0@DB6PR0101MB2293.eurprd01.prod.exchangelabs.com>
-Reply-To: verahollin88@gmail.com
+From: Javier Martinez Canillas <javier@dowhile0.org>
+Subject: Re: [PATCH] i2c: core: report OF style module alias for devices
+ registered via OF
+Date: Sun, 7 Jan 2018 14:17:14 +0100
+Message-ID: <CABxcv=nQpd-RPPzWbCpdWQjK7VzZyXtWSCTB3JHBA-uLygoC+A@mail.gmail.com>
+References: <20171203214050.11482-1-javierm@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-he1eur01hn0201.outbound.protection.outlook.com ([104.47.0.201]:21135
-        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750859AbeAFFwD (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 6 Jan 2018 00:52:03 -0500
-Content-Description: Mail message body
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171203214050.11482-1-javierm@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Javier Martinez Canillas <javierm@redhat.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Recipients <59775033@mylife.unisa.ac.za>
 
-Hallo mein lieber Freund,
+Hello Wolfram,
 
-Ich schreibe dir diese Post mit schweren Tr=E4nen In meinen Augen und gro=
-=DFem Kummer in meinem Herzen, Mein Name ist Vera Hollin Kvan, und ich kont=
-aktiere dich aus meinem Land Indien Ich m=F6chte dir das sagen, weil ich ke=
-ine habe Eine andere M=F6glichkeit, als Ihnen zu sagen, wie ich ber=FChrt w=
-ar, um Sie zu =F6ffnen, heiratete ich mit Herrn Hollin Kvan, der f=FCr neun=
- Jahre mit der tunesischen Botschaft in Madrid Spanien arbeitete, bevor er =
-im Jahr 2005 starb. Wir waren elf Jahre ohne verheiratet Kind.
+On Sun, Dec 3, 2017 at 10:40 PM, Javier Martinez Canillas
+<javierm@redhat.com> wrote:
+> The buses should honor the firmware interface used to register the device,
+> but the I2C core reports a MODALIAS of the form i2c:<device> even for I2C
+> devices registered via OF.
+>
+> This means that user-space will never get an OF stype uevent MODALIAS even
+> when the drivers modules contain aliases exported from both the I2C and OF
+> device ID tables. For example, an Atmel maXTouch Touchscreen registered by
+> a DT node with compatible "atmel,maxtouch" has the following module alias:
+>
+> $ cat /sys/class/i2c-adapter/i2c-8/8-004b/modalias
+> i2c:maxtouch
+>
+> So udev won't be able to auto-load a module for an OF-only device driver.
+> Many OF-only drivers duplicate the OF device ID table entries in an I2C ID
+> table only has a workaround for how the I2C core reports the module alias.
+>
+> This patch changes the I2C core to report an OF related MODALIAS uevent if
+> the device was registered via OF. So for the previous example, after this
+> patch, the reported MODALIAS for the Atmel maXTouch will be the following:
+>
+> $ cat /sys/class/i2c-adapter/i2c-8/8-004b/modalias
+> of:NtrackpadT<NULL>Catmel,maxtouch
+>
+> NOTE: This patch may break out-of-tree drivers that were relying on this
+>       behavior, and only had an I2C device ID table even when the device
+>       was registered via OF. There are no remaining drivers in mainline
+>       that do this, but out-of-tree drivers have to be fixed and define
+>       a proper OF device ID table to have module auto-loading working.
+>
+> Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+> ---
 
-Er starb nach einer kurzen Krankheit, die nur f=FCnf Tage dauerte. Seit sei=
-nem Tod entschied ich mich, nicht wieder zu heiraten. Als mein verstorbener=
- Mann noch am Leben war, hinterlegte er die Summe von $ 4.850.000,00USD (Vi=
-er Millionen achthundertundf=FCnfzigtausend Dollar) in einer Bank hier in I=
-ndien Neu-Delhi, der Hauptstadt Indiens, gegenw=E4rtig dieses Geld ist imme=
-r noch in der Bank.
+Any comments on this patch?
 
-Er stellte dieses Geld f=FCr den Export von Gold aus dem Minenfactory in Ma=
-drid Spanien zur Verf=FCgung. In letzter Zeit sagte mir mein Doktor, dass i=
-ch wegen der Krebserkrankung f=FCr die Dauer von sieben Monaten nicht =FCbe=
-rleben w=FCrde. Derjenige, der mich am meisten st=F6rt, ist meine Schlaganf=
-all-Krankheit. Nachdem ich meinen Zustand gekannt habe, habe ich beschlosse=
-n, dir dieses Geld auszuh=E4ndigen, um auf die weniger privilegierten Mensc=
-hen aufzupassen, du wirst dieses Geld auf die Art und Weise benutzen, wie i=
-ch es hier unterrichten werde.
-
-Ich m=F6chte, dass Sie 30 Prozent des gesamten Geldes f=FCr Ihren pers=F6nl=
-ichen Gebrauch aufwenden, w=E4hrend 70% des Geldes an wohlt=E4tige Zwecke g=
-ehen, Menschen auf der Stra=DFe und dem Waisenhaus helfen. Ich bin als Wais=
-e aufgewachsen und habe keinen K=F6rper als mein Familienmitglied, nur um z=
-u beenden, dass das Haus Gottes auch erhalten wird. Mache dies, damit Gott =
-meine S=FCnden vergibt und meine Seele akzeptiert, weil diese Krankheiten m=
-ich so sehr leiden. Sobald ich Ihre Antwort erhalten habe, werde ich Ihnen =
-den Kontakt der Bank hier in Delhi Indien geben und ich werde auch den Bank=
-manager beauftragen, Ihnen einen Vollmachtenbrief auszustellen, der Ihnen d=
-en gegenw=E4rtigen Beg=FCnstigten des Geldes in der Bank beweisen wird, wen=
-n Sie versichern mir, dass Sie entsprechend handeln werden, wie ich hier an=
-gegeben habe.
-
-Ich hoffe auf Ihre Antwort.
-Von Vera Hollin kVan
+Best regards,
+Javier
