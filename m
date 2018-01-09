@@ -1,40 +1,114 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH 0/7] PM / core: Direct handling of DPM_FLAG_SMART_SUSPEND and DPM_FLAG_LEAVE_SUSPENDED
-Date: Tue, 09 Jan 2018 01:29:52 +0100
-Message-ID: <2583612.BQJmMQYPBC@aspire.rjw.lan>
-References: <7742130.AaJQIxeI1n@aspire.rjw.lan> <2436726.ykYRzVD45y@aspire.rjw.lan> <0c8bf7c3-1aa4-e5fb-74e4-7117d6d43444@linux.intel.com>
+From: Karthik Ramasubramanian <kramasub@codeaurora.org>
+Subject: Re: [PATCH RFC 4/7] i2c: Add device tree bindings for GENI I2C
+ Controller
+Date: Mon, 8 Jan 2018 17:33:12 -0700
+Message-ID: <1d741169-e6e6-1896-d8d4-4f580f5d497d@codeaurora.org>
+References: <1514392046-30602-1-git-send-email-kramasub@codeaurora.org>
+ <1514392046-30602-5-git-send-email-kramasub@codeaurora.org>
+ <20180102155149.f2wzjvdhoi6cne4x@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <0c8bf7c3-1aa4-e5fb-74e4-7117d6d43444@linux.intel.com>
-Sender: linux-pm-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Linux PM <linux-pm@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Alan Stern <stern@rowland.harvard.edu>, Kevin Hilman <khilman@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Ulf Hansson <ulf.hansson@linaro.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20180102155149.f2wzjvdhoi6cne4x@rob-hp-laptop>
+Content-Language: en-US
+Sender: linux-doc-owner@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org, linux-doc@vger.kernel.org, devicetree@vger.kernel.org, andy.gross@linaro.org, david.brown@linaro.org, mark.rutland@arm.com, corbet@lwn.net, wsa@the-dreams.de, gregkh@linuxfoundation.org, jslaby@suse.com, Sagar Dharia <sdharia@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday, January 8, 2018 3:33:07 PM CET Jarkko Nikula wrote:
-> On 01/03/2018 02:29 AM, Rafael J. Wysocki wrote:
-> > Resending the original series (except for the first patch that has been
-> > applied already) along with some driver code changes based on them as
-> > requested by Ulf.
-> > 
-> > The driver patches are an intel-lpss change (already reviewed), two
-> > modifications of i2c-designware-platdrv (posted previously but slightly
-> > changed since then) and a PCIe port driver change.
-> > 
-> > At this point patches [1-3/7] are pretty much on the way in and the driver
-> > material depends on review comments (it is pointless to apply [4/7] without
-> > [5-6/7], so it depends on them in my view).
-> > 
-> > I'm sending this from a system running with all of the series applied, although
-> > admittedly not using i2c-designware-platdrv.  However, one of my test machines
-> > has this one and I haven't seen any adverse effects of these changes on it so
-> > far.
-> > 
-> Both i2cdetect and hexdump from touchscreen and touchpad devices were 
-> working fine. I used linux-next next-20180108 and patches 4-7/7.
-> 
-> Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Thank you!
+
+On 1/2/2018 8:51 AM, Rob Herring wrote:
+> On Wed, Dec 27, 2017 at 09:27:23AM -0700, Karthikeyan Ramasubramanian wrote:
+>> Add device tree binding support for I2C Controller in GENI based
+>> QUP Wrapper.
+>>
+>> Signed-off-by: Sagar Dharia <sdharia@codeaurora.org>
+>> Signed-off-by: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
+>> ---
+>>   .../devicetree/bindings/i2c/i2c-qcom-geni.txt      | 39 ++++++++++++++++++++++
+>>   1 file changed, 39 insertions(+)
+>>   create mode 100644 Documentation/devicetree/bindings/i2c/i2c-qcom-geni.txt
+>>
+>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-qcom-geni.txt b/Documentation/devicetree/bindings/i2c/i2c-qcom-geni.txt
+>> new file mode 100644
+>> index 0000000..d2fa9ce
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/i2c/i2c-qcom-geni.txt
+>> @@ -0,0 +1,39 @@
+>> +Qualcomm Technologies Inc. GENI based I2C Controller driver
+>> +
+>> +Required properties:
+>> + - compatible: Should be:
+>> +   * "qcom,i2c-geni.
+> 
+> Only 1 version?
+The Serial Engine used by I2C protocol has the same version as the QUP 
+h/w version. The QUP Wrapper driver exposes an interface function to get 
+the h/w version so that I2C controller driver can support 
+version-specific operations, if any.
+> 
+>> + - reg: Should contain QUP register address and length.
+>> + - interrupts: Should contain I2C interrupt.
+>> + - clocks: Serial engine core clock, and AHB clocks needed by the device.
+> 
+> Are there really clocks for a firmware based device or these are just
+> clocks in the parent serial engine?
+The clocks are required to derive the protocol clock. The clocks are 
+also required by the Serial Engine to access the System Memory during 
+DMA mode of operation.
+> 
+>> + - pinctrl-names/pinctrl-0/1: The GPIOs assigned to this core. The names
+>> +   should be "active" and "sleep" for the pin confuguration when core is active
+>> +   or when entering sleep state.
+>> + - #address-cells: Should be <1> Address cells for i2c device address
+>> + - #size-cells: Should be <0> as i2c addresses have no size component
+>> + - qcom,wrapper-core: Wrapper QUP core containing this I2C controller.
+> 
+> Probably these devices should be child nodes of the QUP core node.
+I will update it in the next patch.
+> 
+>> +
+>> +Optional property:
+>> + - qcom,clk-freq-out : Desired I2C bus clock frequency in Hz.
+>> +   When missing default to 400000Hz.
+> 
+> There's a standard property for this.
+I will update to use the standard property.
+> 
+>> +
+>> +Child nodes should conform to i2c bus binding.
+>> +
+>> +Example:
+>> +
+>> +i2c@a94000 {
+>> +	compatible = "qcom,i2c-geni";
+>> +	reg = <0xa94000 0x4000>;
+>> +	interrupts = <GIC_SPI 358 0>;
+>> +	clock-names = "se-clk", "m-ahb", "s-ahb";
+>> +	clocks = <&clock_gcc GCC_QUPV3_WRAP0_S5_CLK>,
+>> +		<&clock_gcc GCC_QUPV3_WRAP_0_M_AHB_CLK>,
+>> +		<&clock_gcc GCC_QUPV3_WRAP_0_S_AHB_CLK>;
+>> +	pinctrl-names = "default", "sleep";
+>> +	pinctrl-0 = <&qup_1_i2c_5_active>;
+>> +	pinctrl-1 = <&qup_1_i2c_5_sleep>;
+>> +	#address-cells = <1>;
+>> +	#size-cells = <0>;
+>> +	qcom,wrapper-core = <&qup_0>;
+>> +	qcom,clk-freq-out = <400000>;
+>> +};
+>> -- 
+>> Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+>> a Linux Foundation Collaborative Project
+>>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-arm-msm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+Regards,
+Karthik.
+-- 
+Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
