@@ -1,96 +1,100 @@
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH] gpio: Add missing open drain/source handling to gpiod_set_value_cansleep()
-Date: Tue,  9 Jan 2018 19:08:21 +0100
-Message-ID: <1515521301-4375-1-git-send-email-geert+renesas@glider.be>
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, =?UTF-8?q?Jan=20Kundr=C3=A1t?= <jan.kundrat@cesnet.cz>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
+From: Karthik Ramasubramanian <kramasub@codeaurora.org>
+Subject: Re: [PATCH RFC 6/7] serial: Add device tree bindings for GENI based
+ UART Controller
+Date: Tue, 9 Jan 2018 11:36:30 -0700
+Message-ID: <068baf4d-963e-f177-311d-d2c76d27a6f9@codeaurora.org>
+References: <1514392046-30602-1-git-send-email-kramasub@codeaurora.org>
+ <1514392046-30602-7-git-send-email-kramasub@codeaurora.org>
+ <20180102155517.j4sqhdtamybtgta4@rob-hp-laptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <20180102155517.j4sqhdtamybtgta4@rob-hp-laptop>
+Content-Language: en-US
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org, linux-doc@vger.kernel.org, devicetree@vger.kernel.org, andy.gross@linaro.org, david.brown@linaro.org, mark.rutland@arm.com, corbet@lwn.net, wsa@the-dreams.de, gregkh@linuxfoundation.org, jslaby@suse.com, Girish Mahadevan <girishm@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Since commit f11a04464ae57e8d ("i2c: gpio: Enable working over slow
-can_sleep GPIOs"), probing the i2c RTC connected to an i2c-gpio bus on
-r8a7740/armadillo fails with:
 
-    rtc-s35390a 0-0030: error resetting chip
-    rtc-s35390a: probe of 0-0030 failed with error -5
 
-More debug code reveals:
-
-    i2c i2c-0: master_xfer[0] R, addr=0x30, len=1
-    i2c i2c-0: NAK from device addr 0x30 msg #0
-    s35390a_get_reg: ret = -6
-
-Commit 02e479808b5d62f8 ("gpio: Alter semantics of *raw* operations to
-actually be raw") moved open drain/source handling from
-gpiod_set_raw_value_commit() to gpiod_set_value(), but forgot to take
-into account that gpiod_set_value_cansleep() also needs this handling.
-The i2c protocol mandates that i2c signals are open drain, hence i2c
-communication fails.
-
-Fix this by adding the missing handling to gpiod_set_value_cansleep(),
-using a new common helper __gpiod_set_value_nocheck().
-
-Fixes: 02e479808b5d62f8 ("gpio: Alter semantics of *raw* operations to actually be raw")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
-The bad gpio commit is in v4.15-rc1 and later.
-The i2c commit exposing this is not yet upstream, but in i2c/for-next.
----
- drivers/gpio/gpiolib.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 358bce6e798b476c..7761d632a5b0dd20 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -2927,6 +2927,18 @@ void gpiod_set_raw_value(struct gpio_desc *desc, int value)
- }
- EXPORT_SYMBOL_GPL(gpiod_set_raw_value);
- 
-+static void __gpiod_set_value_nocheck(struct gpio_desc *desc, int value)
-+{
-+	if (test_bit(FLAG_ACTIVE_LOW, &desc->flags))
-+		value = !value;
-+	if (test_bit(FLAG_OPEN_DRAIN, &desc->flags))
-+		gpio_set_open_drain_value_commit(desc, value);
-+	else if (test_bit(FLAG_OPEN_SOURCE, &desc->flags))
-+		gpio_set_open_source_value_commit(desc, value);
-+	else
-+		gpiod_set_raw_value_commit(desc, value);
-+}
-+
- /**
-  * gpiod_set_value() - assign a gpio's value
-  * @desc: gpio whose value will be assigned
-@@ -2941,16 +2953,8 @@ EXPORT_SYMBOL_GPL(gpiod_set_raw_value);
- void gpiod_set_value(struct gpio_desc *desc, int value)
- {
- 	VALIDATE_DESC_VOID(desc);
--	/* Should be using gpiod_set_value_cansleep() */
- 	WARN_ON(desc->gdev->chip->can_sleep);
--	if (test_bit(FLAG_ACTIVE_LOW, &desc->flags))
--		value = !value;
--	if (test_bit(FLAG_OPEN_DRAIN, &desc->flags))
--		gpio_set_open_drain_value_commit(desc, value);
--	else if (test_bit(FLAG_OPEN_SOURCE, &desc->flags))
--		gpio_set_open_source_value_commit(desc, value);
--	else
--		gpiod_set_raw_value_commit(desc, value);
-+	__gpiod_set_value_nocheck(desc, value);
- }
- EXPORT_SYMBOL_GPL(gpiod_set_value);
- 
-@@ -3277,9 +3281,7 @@ void gpiod_set_value_cansleep(struct gpio_desc *desc, int value)
- {
- 	might_sleep_if(extra_checks);
- 	VALIDATE_DESC_VOID(desc);
--	if (test_bit(FLAG_ACTIVE_LOW, &desc->flags))
--		value = !value;
--	gpiod_set_raw_value_commit(desc, value);
-+	__gpiod_set_value_nocheck(desc, value);
- }
- EXPORT_SYMBOL_GPL(gpiod_set_value_cansleep);
- 
+On 1/2/2018 8:55 AM, Rob Herring wrote:
+> On Wed, Dec 27, 2017 at 09:27:25AM -0700, Karthikeyan Ramasubramanian wrote:
+>> Add device tree binding support for GENI based UART Controller in the
+>> QUP Wrapper.
+>>
+>> Signed-off-by: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
+>> Signed-off-by: Girish Mahadevan <girishm@codeaurora.org>
+>> ---
+>>   .../devicetree/bindings/serial/qcom,geni-uart.txt  | 31 ++++++++++++++++++++++
+>>   1 file changed, 31 insertions(+)
+>>   create mode 100644 Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
+>>
+>> diff --git a/Documentation/devicetree/bindings/serial/qcom,geni-uart.txt b/Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
+>> new file mode 100644
+>> index 0000000..e60ec6a
+>> --- /dev/null
+>> +++ b/Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
+>> @@ -0,0 +1,31 @@
+>> +Qualcomm Technologies Inc. GENI based Serial UART Controller driver
+>> +
+>> +This serial UART driver supports console use-cases. This driver is meant
+>> +only for Generic Interface (GENI) based Qualcomm Universal Peripheral (QUP)
+>> +cores and isn't backwards compatible.
+>> +
+>> +Required properties:
+>> +- compatible: should contain "qcom,geni-uart, qcom,geni-console"
+> 
+> Is console different programming model or just how you are using the
+> h/w? for the latter, drop it as we have stdout-path to select a console.
+The console programming model is different from a regular UART port and 
+hence the compatible field contains console in it.
+> 
+>> +- reg: Should contain UART register location and length.
+>> +- interrupts: Should contain UART core interrupts.
+>> +- clocks: clocks needed for UART, includes the core and AHB clock.
+>> +- pinctrl-names/pinctrl-0/1: The GPIOs assigned to this core. The names
+>> +  Should be "active" and "sleep" for the pin confuguration when core is active
+>> +  or when entering sleep state.
+>> +- qcom,wrapper-core: Wrapper QUP core containing this UART controller.
+>> +
+>> +Example:
+>> +qup_uart11: qcom,qup_uart@0xa88000 {
+> 
+> Use generic node names and no '0x':
+> 
+> serial@a88000
+I will update as per the recommendation.
+> 
+>> +	compatible = "qcom,geni-uart";
+>> +	reg = <0xa88000 0x7000>;
+>> +	reg-names = "se_phys";
+>> +	clock-names = "se-clk", "m-ahb", "s-ahb";
+> 
+> Not documented.
+I will add the documentation for the missing element.
+> 
+>> +	clocks = <&clock_gcc GCC_QUPV3_WRAP0_S0_CLK>,
+>> +		<&clock_gcc GCC_QUPV3_WRAP_0_M_AHB_CLK>,
+>> +		<&clock_gcc GCC_QUPV3_WRAP_0_S_AHB_CLK>;
+>> +	pinctrl-names = "default", "sleep";
+>> +	pinctrl-0 = <&qup_1_uart_3_active>;
+>> +	pinctrl-1 = <&qup_1_uart_3_sleep>;
+>> +	interrupts = <0 355 0>;
+>> +	qcom,wrapper-core = <&qup_0>;
+>> +};
+>> -- 
+>> Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+>> a Linux Foundation Collaborative Project
+>>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-arm-msm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+Regards,
+Karthik.
 -- 
-2.7.4
+Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
