@@ -1,69 +1,82 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/6] i2c: add identifier in declarations for
- i2c_bus_recovery
-Date: Tue, 9 Jan 2018 12:17:39 +0100
-Message-ID: <20180109111738.4owgwmndd7bqmvbn@ninjato>
+Subject: Re: [PATCH 3/6] i2c: add 'set_sda' to bus_recovery_info
+Date: Tue, 9 Jan 2018 12:23:58 +0100
+Message-ID: <20180109112358.3enbi2fxt6fniasm@ninjato>
 References: <20171204123640.3382-1-wsa+renesas@sang-engineering.com>
- <20171204123640.3382-3-wsa+renesas@sang-engineering.com>
- <1513178582.7000.38.camel@linux.intel.com>
+ <20171204123640.3382-4-wsa+renesas@sang-engineering.com>
+ <CACRpkdZzwo9UhT08VDHXg6=eXdK80Pt1omZ4Xda_HFwguyNpaw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="mzybk2sxdmi4y3g7"
+        protocol="application/pgp-signature"; boundary="5qntr2zkxlsjb4up"
 Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1513178582.7000.38.camel@linux.intel.com>
+In-Reply-To: <CACRpkdZzwo9UhT08VDHXg6=eXdK80Pt1omZ4Xda_HFwguyNpaw@mail.gmail.com>
 Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Phil Reid <preid@electromag.com.au>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Claudio Foellmi <claudio.foellmi@ergon.ch>, Andrzej Hajda <a.hajda@samsung.com>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Phil Reid <preid@electromag.com.au>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Claudio Foellmi <claudio.foellmi@ergon.ch>, Andrzej Hajda <a.hajda@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---mzybk2sxdmi4y3g7
+--5qntr2zkxlsjb4up
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 13, 2017 at 05:23:02PM +0200, Andy Shevchenko wrote:
-> On Mon, 2017-12-04 at 13:36 +0100, Wolfram Sang wrote:
-> > No reason to have them undefined, so let's add them.
-> >=20
+On Tue, Dec 05, 2017 at 09:39:48AM +0100, Linus Walleij wrote:
+> On Mon, Dec 4, 2017 at 1:36 PM, Wolfram Sang
+> <wsa+renesas@sang-engineering.com> wrote:
 >=20
-> >  	int (*recover_bus)(struct i2c_adapter *);
-> > =20
-> > -	int (*get_scl)(struct i2c_adapter *);
-> > -	void (*set_scl)(struct i2c_adapter *, int val);
-> > -	int (*get_sda)(struct i2c_adapter *);
-> > +	int (*get_scl)(struct i2c_adapter *adap);
-> > +	void (*set_scl)(struct i2c_adapter *adap, int val);
-> > +	int (*get_sda)(struct i2c_adapter *adap);
-> > =20
-> >  	void (*prepare_recovery)(struct i2c_adapter *);
-> >  	void (*unprepare_recovery)(struct i2c_adapter *);
+> > This will be needed when we want to create STOP conditions, too, later.
+> > Create the needed fields and populate them for the GPIO case if the GPIO
+> > is set to output.
+> >
+> > Cc: Phil Reid <preid@electromag.com.au>
+> > Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> > Cc: Claudio Foellmi <claudio.foellmi@ergon.ch>
+> > Cc: Andrzej Hajda <a.hajda@samsung.com>
+> > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 >=20
-> It seems inconsistent with the rest of the members even from this
-> visible piece.
+> (...)
+> >  #include <linux/errno.h>
+> > +#include <linux/gpio.h>
+>=20
+> Please no.
+>=20
+> > +                       if (gpiod_get_direction(bri->sda_gpiod) =3D=3D =
+GPIOF_DIR_OUT)
+> > +                               bri->set_sda =3D set_sda_gpio_value;
+>=20
+> Just compare it to zero. if (!gpiod_get_direction())
 
-Agreed. Either overlooked, or lost during rebase. Any way, will fix!
+Okay, for now, I'll do:
+
+	/* FIXME: add proper flag once provided by GPIO core */
+	if (gpiod_get_direction(bri->sda_gpiod) =3D=3D 0)
+
+Thanks!
+
+   Wolfram
 
 
---mzybk2sxdmi4y3g7
+--5qntr2zkxlsjb4up
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpUpNIACgkQFA3kzBSg
-KbYImw//fJ22BUIChPdXWvG7pUnvOQP2E17h6wzjOpq/sC/w5YFD+i5kYiXNUgzw
-TEHrnD4MzpMKY+/M6qYdwBam4b/B1jFPRQqTuEokrxSV998vaA8wE8Rvqj6xp1tu
-7CGtsISdDmqgUlza57x5K+G27shB3cm4uvt3PxiZab3aaoBWqBmmz9A9kdWdPyX5
-TVFa+2e4AcFRXat+CV/kU+Sb6ASNuRamHTNX/ESALlfXA9q/2oqCQt9a/u91ztmb
-W/aXxdobH7ircQhS39YH0YKNMaIb9Hu5d0+bTI+dZGbxHrY3UxTwl/2pUDZsZY2N
-3aDdu4nJtlmenhTd0OWljLz7VfKD6+tDhaaIclInVEjYA5rW2DNcraCdDVDJYETE
-q2ZJKPvw4Y3Qq5O6dfuRKT52CERDgacV3STje8a7vQT7k21SadN1q3j6EdB3sZjd
-0qb485oCDhva8/u85Yd7s3+ufBwsozllEDObuPLT/Ds5ZnQrd31r4+7pQInDfIOm
-4wffPq7NTN+4lraV+BQYXhGsy6BOFOy/BNCHRRzrMqCL9Fr4gvBX4aejIbkaNApa
-wWhIDs60xETntg5bVli7PzDHcbIReGFyLMVypszN5OAmeGUiyGTzRmGjevxGKzHC
-fyJqUJPsvxQZifROWmmltXsAJ1Mo4dabhyyIwCWuKE8Aapw4SRE=
-=FK+L
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpUpk4ACgkQFA3kzBSg
+KbawlQ//SYS+r3JX007+ioa5xlwm47bOnD/+GJDN1T928JPbxKy2OkJEJVoyidiJ
+MEvZ4OEyvjXjzvVTrJQwPLjFC15lgcGrFUWqHbhLMK/iMnOZTXb7Si2faEaUi4WM
+3HDnnN60HqjtPOY6zn0wlHOkSNHT02Sf5V89CZmdiyNAMdoH/oMSfQU7FGb63cyw
+WpiK+vbkbo3xNR9A482xb9W93O4XNgtRVm5YOyGXMusNXHzwkMIsLfVLewbbdGa+
+D9Gn1YpEM6VcIepy0pJZDhh/jCPyAirKV2VvxmbczvKzAoDhyiYsVaQYwIYL1vjq
+yc4YSQN4AEOYGAdn3TGwTh/0D5hdWzKfUX/8nrLl4d4CBAX9y5AL/CMVPe7zNjqE
+aCxhPQ2/33dD4ZKm6PBAr5ihRkSCiWlIwoiWnRTRVKFv8mdYFN/AC0Qktn2TA1bE
+oPDZAHVCnGoyWcSTrnIbQqEtXi/RkZUM2LcpzH/iOkAL9p3u/I4p/uWa1HURiB4A
+hWG5MMHP5FKSa0GkqXfA/2DnHnH1F3vj/yTR6fn7Nej1JMdS49AW0aoxkvLu9vSa
+qTq209ZM7B/5BQGhLHBCl1F7yo5h4f8KRF3+4+lufZmn7d8b8gwmKA8nRJOX97jp
+le+Xcc/2FJNLto0gEoUk19NAh0fW3iSDu842FL4dtbpjbIe5PDY=
+=nSqe
 -----END PGP SIGNATURE-----
 
---mzybk2sxdmi4y3g7--
+--5qntr2zkxlsjb4up--
