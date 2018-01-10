@@ -1,100 +1,68 @@
-From: Karthik Ramasubramanian <kramasub@codeaurora.org>
-Subject: Re: [PATCH RFC 6/7] serial: Add device tree bindings for GENI based
- UART Controller
-Date: Tue, 9 Jan 2018 11:36:30 -0700
-Message-ID: <068baf4d-963e-f177-311d-d2c76d27a6f9@codeaurora.org>
-References: <1514392046-30602-1-git-send-email-kramasub@codeaurora.org>
- <1514392046-30602-7-git-send-email-kramasub@codeaurora.org>
- <20180102155517.j4sqhdtamybtgta4@rob-hp-laptop>
+From: Arseny Solokha <asolokha@kb.kras.ru>
+Subject: Re: [RESEND, 4/4] i2c: mpc: always determine I2C clock prescaler at
+ runtime
+Date: Wed, 10 Jan 2018 18:36:00 +0700
+Message-ID: <a218a553-4d6b-be21-389e-037fd7838277@kb.kras.ru>
+References: <20171207102003.23496-5-asolokha@kb.kras.ru>
+ <20171230181446.bxongiaogcqjrbos@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <20180102155517.j4sqhdtamybtgta4@rob-hp-laptop>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171230181446.bxongiaogcqjrbos@ninjato>
 Content-Language: en-US
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org, linux-doc@vger.kernel.org, devicetree@vger.kernel.org, andy.gross@linaro.org, david.brown@linaro.org, mark.rutland@arm.com, corbet@lwn.net, wsa@the-dreams.de, gregkh@linuxfoundation.org, jslaby@suse.com, Girish Mahadevan <girishm@codeaurora.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Arseny Solokha <asolokha@kb.kras.ru>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Valentin Longchamp <valentin.longchamp@keymile.com>
 List-Id: linux-i2c@vger.kernel.org
 
+>>  			/*
+>>  			 * Map and check POR Device Status Register 2
+>> -			 * (PORDEVSR2) at 0xE0014
+>> +			 * (PORDEVSR2) at 0xE0014. Note than while MPC8533
+>> +			 * and MPC8544 indicate SEC frequency ratio
+>> +			 * configuration as bit 26 in PORDEVSR2, other MPC8xxx
+>> +			 * parts may store it differently or may not have it
+>> +			 * at all.
+>
+> So given this comment which you added...
+>
+>>  			 */
+>>  			reg = ioremap(get_immrbase() + *prop + 0x14, 0x4);
+>>  			if (!reg)
+>>  				printk(KERN_ERR
+>>  				       "Error: couldn't map PORDEVSR2\n");
+>>  			else
+>> -				val = in_be32(reg) & 0x00000080; /* sec-cfg */
+>> +				val = in_be32(reg) & 0x00000020; /* sec-cfg */
+>
+> ... are you really sure there is no ancient device which needs the
+> 0x00000080?
 
+Various MPC SoCs indeed have different bit layout of
+PORDEVSR2. Obviously not all of them indicate SEC frequency ratio
+configuration at all, either in PORDEVSR2 or in some other register, as
+not all SoCs contain SEC engine. In this regard,
+mpc_i2c_get_sec_cfg_8xxx() is poorly named as it in its current form is
+only applicable to a few SoCs from the whole MPC8xxx family.
 
-On 1/2/2018 8:55 AM, Rob Herring wrote:
-> On Wed, Dec 27, 2017 at 09:27:25AM -0700, Karthikeyan Ramasubramanian wrote:
->> Add device tree binding support for GENI based UART Controller in the
->> QUP Wrapper.
->>
->> Signed-off-by: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
->> Signed-off-by: Girish Mahadevan <girishm@codeaurora.org>
->> ---
->>   .../devicetree/bindings/serial/qcom,geni-uart.txt  | 31 ++++++++++++++++++++++
->>   1 file changed, 31 insertions(+)
->>   create mode 100644 Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
->>
->> diff --git a/Documentation/devicetree/bindings/serial/qcom,geni-uart.txt b/Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
->> new file mode 100644
->> index 0000000..e60ec6a
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
->> @@ -0,0 +1,31 @@
->> +Qualcomm Technologies Inc. GENI based Serial UART Controller driver
->> +
->> +This serial UART driver supports console use-cases. This driver is meant
->> +only for Generic Interface (GENI) based Qualcomm Universal Peripheral (QUP)
->> +cores and isn't backwards compatible.
->> +
->> +Required properties:
->> +- compatible: should contain "qcom,geni-uart, qcom,geni-console"
-> 
-> Is console different programming model or just how you are using the
-> h/w? for the latter, drop it as we have stdout-path to select a console.
-The console programming model is different from a regular UART port and 
-hence the compatible field contains console in it.
-> 
->> +- reg: Should contain UART register location and length.
->> +- interrupts: Should contain UART core interrupts.
->> +- clocks: clocks needed for UART, includes the core and AHB clock.
->> +- pinctrl-names/pinctrl-0/1: The GPIOs assigned to this core. The names
->> +  Should be "active" and "sleep" for the pin confuguration when core is active
->> +  or when entering sleep state.
->> +- qcom,wrapper-core: Wrapper QUP core containing this UART controller.
->> +
->> +Example:
->> +qup_uart11: qcom,qup_uart@0xa88000 {
-> 
-> Use generic node names and no '0x':
-> 
-> serial@a88000
-I will update as per the recommendation.
-> 
->> +	compatible = "qcom,geni-uart";
->> +	reg = <0xa88000 0x7000>;
->> +	reg-names = "se_phys";
->> +	clock-names = "se-clk", "m-ahb", "s-ahb";
-> 
-> Not documented.
-I will add the documentation for the missing element.
-> 
->> +	clocks = <&clock_gcc GCC_QUPV3_WRAP0_S0_CLK>,
->> +		<&clock_gcc GCC_QUPV3_WRAP_0_M_AHB_CLK>,
->> +		<&clock_gcc GCC_QUPV3_WRAP_0_S_AHB_CLK>;
->> +	pinctrl-names = "default", "sleep";
->> +	pinctrl-0 = <&qup_1_uart_3_active>;
->> +	pinctrl-1 = <&qup_1_uart_3_sleep>;
->> +	interrupts = <0 355 0>;
->> +	qcom,wrapper-core = <&qup_0>;
->> +};
->> -- 
->> Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
->> a Linux Foundation Collaborative Project
->>
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-arm-msm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-Regards,
-Karthik.
--- 
-Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project
+mpc_i2c_get_sec_cfg_8xxx() is only called from the following snippet:
+
+  else if ((SVR_SOC_VER(svr) == SVR_8533)
+          || (SVR_SOC_VER(svr) == SVR_8544))
+          /* the above 85xx SoCs have prescaler 3 or 2 */
+          prescaler = mpc_i2c_get_sec_cfg_8xxx() ? 3 : 2;
+
+Both MPC8533 and MPC8544 do in fact indicate SEC frequency ratio
+configuration as bit 26 in PORDEVSR2 according to [1,2], so I've added
+the comment as a precaution for future uses. I can also rename the
+function to something like mpc_i2c_get_sec_cfg_8533_8544(), which looks
+ugly and doesn't scale.
+
+AFAICS, mask 0x00000080 in the code clearly contradicts to what I read
+in the docs.
+
+[1] https://www.nxp.com/docs/en/reference-manual/MPC8533ERM.pdf
+[2] https://www.nxp.com/docs/en/reference-manual/MPC8544ERM.pdf
+
+Arsény
