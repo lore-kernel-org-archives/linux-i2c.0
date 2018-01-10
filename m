@@ -1,69 +1,46 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] gpio: Add missing open drain/source handling to gpiod_set_value_cansleep()
-Date: Wed, 10 Jan 2018 14:29:51 +0100
-Message-ID: <CAMuHMdWT9PZHfJtNmAkTSmkodT9AsMKggvFyXi0jmw8YVw6hCQ@mail.gmail.com>
-References: <1515521301-4375-1-git-send-email-geert+renesas@glider.be> <CACRpkdaa4qvCu4tX_ZhbWTGquDjMXm-7FFDZ489LSdx2kM-tRQ@mail.gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v2 3/6] i2c: add 'set_sda' to bus_recovery_info
+Date: Wed, 10 Jan 2018 14:43:10 +0100
+Message-ID: <CACRpkdYZZ+KtpxxDzFdYqXT+2Gj4B4T-FwVzNw-J+Hj6f3UQEA@mail.gmail.com>
+References: <20180109135859.20771-1-wsa@the-dreams.de> <20180109135859.20771-4-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdaa4qvCu4tX_ZhbWTGquDjMXm-7FFDZ489LSdx2kM-tRQ@mail.gmail.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Wolfram Sang <wsa@the-dreams.de>, =?UTF-8?B?SmFuIEt1bmRyw6F0?= <jan.kundrat@cesnet.cz>, =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, linux-gpio@vger.kernel.org, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-io0-f196.google.com ([209.85.223.196]:32875 "EHLO
+        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932800AbeAJNnL (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 10 Jan 2018 08:43:11 -0500
+Received: by mail-io0-f196.google.com with SMTP id t63so22489052iod.0
+        for <linux-i2c@vger.kernel.org>; Wed, 10 Jan 2018 05:43:11 -0800 (PST)
+In-Reply-To: <20180109135859.20771-4-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Phil Reid <preid@electromag.com.au>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Hi Linus,
+On Tue, Jan 9, 2018 at 2:58 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
 
-On Wed, Jan 10, 2018 at 2:17 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
-> On Tue, Jan 9, 2018 at 7:08 PM, Geert Uytterhoeven
-> <geert+renesas@glider.be> wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 >
->> Since commit f11a04464ae57e8d ("i2c: gpio: Enable working over slow
->> can_sleep GPIOs"), probing the i2c RTC connected to an i2c-gpio bus on
->> r8a7740/armadillo fails with:
->>
->>     rtc-s35390a 0-0030: error resetting chip
->>     rtc-s35390a: probe of 0-0030 failed with error -5
->>
->> More debug code reveals:
->>
->>     i2c i2c-0: master_xfer[0] R, addr=0x30, len=1
->>     i2c i2c-0: NAK from device addr 0x30 msg #0
->>     s35390a_get_reg: ret = -6
->>
->> Commit 02e479808b5d62f8 ("gpio: Alter semantics of *raw* operations to
->> actually be raw") moved open drain/source handling from
->> gpiod_set_raw_value_commit() to gpiod_set_value(), but forgot to take
->> into account that gpiod_set_value_cansleep() also needs this handling.
->> The i2c protocol mandates that i2c signals are open drain, hence i2c
->> communication fails.
->>
->> Fix this by adding the missing handling to gpiod_set_value_cansleep(),
->> using a new common helper __gpiod_set_value_nocheck().
->>
->> Fixes: 02e479808b5d62f8 ("gpio: Alter semantics of *raw* operations to actually be raw")
->> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
->> ---
->> The bad gpio commit is in v4.15-rc1 and later.
->> The i2c commit exposing this is not yet upstream, but in i2c/for-next.
+> This will be needed when we want to create STOP conditions, too, later.
+> Create the needed fields and populate them for the GPIO case if the GPIO
+> is set to output.
 >
-> Whoops!
->
-> It appears Meltdown and Spectre saves my ass because now I have
-> time to get this upstream before v4.15...
->
-> Applied for fixes with the following tweaks: I removed the __prefix (I don't
-> like them) and added kerneldoc.
+> Tested-by: Phil Reid <preid@electromag.com.au>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Looks good to me (also in git). Thanks!
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-Gr{oetje,eeting}s,
+Geert pointed out a bug in *_cansleep() so I have merged his fix
+for v4.15.
 
-                        Geert
+Everything "should be smooth".
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> +                       /* FIXME: add proper flag instead of '0' once available */
+> +                       if (gpiod_get_direction(bri->sda_gpiod) == 0)
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Yeah I should fix ... I suspect I need to do something kernel-wide
+to shape this up.
+
+Yours,
+Linus Walleij
