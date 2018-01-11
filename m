@@ -1,88 +1,118 @@
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Subject: Re: [PATCH v2 2/2] i2c: mv64xxx: Fix clock resource by adding an optional bus clock
-Date: Thu, 11 Jan 2018 09:16:11 +0100
-Message-ID: <87lgh47qus.fsf@free-electrons.com>
-References: <20180110170743.27082-1-gregory.clement@free-electrons.com>
-        <20180110170743.27082-3-gregory.clement@free-electrons.com>
-        <20180110203243.GC11260@lunn.ch>
+From: =?iso-8859-1?Q?Jan_Kundr=E1t?= <jan.kundrat@cesnet.cz>
+Subject: Re: [PATCH] gpio: Add missing open drain/source handling to =?iso-8859-1?Q?gpiod=5Fset=5Fvalue=5Fcansleep()?=
+Date: Thu, 11 Jan 2018 11:29:42 +0100
+Message-ID: <02320234-166e-42a2-b076-2c08284d3c99@cesnet.cz>
+References: <1515521301-4375-1-git-send-email-geert+renesas@glider.be>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:44726 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754280AbeAKIQX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 11 Jan 2018 03:16:23 -0500
-In-Reply-To: <20180110203243.GC11260@lunn.ch> (Andrew Lunn's message of "Wed,
-        10 Jan 2018 21:32:43 +0100")
+Received: from office2.cesnet.cz ([195.113.144.244]:41416 "EHLO
+        office2.cesnet.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754112AbeAKK3p (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 11 Jan 2018 05:29:45 -0500
+In-Reply-To: <1515521301-4375-1-git-send-email-geert+renesas@glider.be>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Antoine Tenart <antoine.tenart@free-electrons.com>, =?utf-8?Q?Miqu=C3=A8l?= Raynal <miquel.raynal@free-electrons.com>, Nadav Haklai <nadavh@marvell.com>, Shadi Ammouri <shadi@marvell.com>, Yehuda Yitschak <yehuday@marvell.com>, Omri Itach <omrii@marvell.com>, Hanna Hawa <hannah@marvell.com>, Igal Liberman <igall@marvell.com>, Marcin Wojtas <mw@semihalf.com>
+To: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, =?iso-8859-1?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Andrew,
- 
- On mer., janv. 10 2018, Andrew Lunn <andrew@lunn.ch> wrote:
+On =C3=BAter=C3=BD 9. ledna 2018 19:08:21 CET, Geert Uytterhoeven wrote:
+> Since commit f11a04464ae57e8d ("i2c: gpio: Enable working over slow
+> can_sleep GPIOs"), probing the i2c RTC connected to an i2c-gpio bus on
+> r8a7740/armadillo fails with:
+>
+>     rtc-s35390a 0-0030: error resetting chip
+>     rtc-s35390a: probe of 0-0030 failed with error -5
+>
+> More debug code reveals:
+>
+>     i2c i2c-0: master_xfer[0] R, addr=3D0x30, len=3D1
+>     i2c i2c-0: NAK from device addr 0x30 msg #0
+>     s35390a_get_reg: ret =3D -6
+>
+> Commit 02e479808b5d62f8 ("gpio: Alter semantics of *raw* operations to
+> actually be raw") moved open drain/source handling from
+> gpiod_set_raw_value_commit() to gpiod_set_value(), but forgot to take
+> into account that gpiod_set_value_cansleep() also needs this handling.
+> The i2c protocol mandates that i2c signals are open drain, hence i2c
+> communication fails.
+>
+> Fix this by adding the missing handling to gpiod_set_value_cansleep(),
+> using a new common helper __gpiod_set_value_nocheck().
+>
+> Fixes: 02e479808b5d62f8 ("gpio: Alter semantics of *raw*=20
+> operations to actually be raw")
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> ---
+> The bad gpio commit is in v4.15-rc1 and later.
+> The i2c commit exposing this is not yet upstream, but in i2c/for-next.
+> ---
+>  drivers/gpio/gpiolib.c | 26 ++++++++++++++------------
+>  1 file changed, 14 insertions(+), 12 deletions(-)
+>
+> diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+> index 358bce6e798b476c..7761d632a5b0dd20 100644
+> --- a/drivers/gpio/gpiolib.c
+> +++ b/drivers/gpio/gpiolib.c
+> @@ -2927,6 +2927,18 @@ void gpiod_set_raw_value(struct=20
+> gpio_desc *desc, int value)
+>  }
+>  EXPORT_SYMBOL_GPL(gpiod_set_raw_value);
+> =20
+> +static void __gpiod_set_value_nocheck(struct gpio_desc *desc, int value)
+> +{
+> +=09if (test_bit(FLAG_ACTIVE_LOW, &desc->flags))
+> +=09=09value =3D !value;
+> +=09if (test_bit(FLAG_OPEN_DRAIN, &desc->flags))
+> +=09=09gpio_set_open_drain_value_commit(desc, value);
+> +=09else if (test_bit(FLAG_OPEN_SOURCE, &desc->flags))
+> +=09=09gpio_set_open_source_value_commit(desc, value);
+> +=09else
+> +=09=09gpiod_set_raw_value_commit(desc, value);
+> +}
+> +
+>  /**
+>   * gpiod_set_value() - assign a gpio's value
+>   * @desc: gpio whose value will be assigned
+> @@ -2941,16 +2953,8 @@ EXPORT_SYMBOL_GPL(gpiod_set_raw_value);
+>  void gpiod_set_value(struct gpio_desc *desc, int value)
+>  {
+>  =09VALIDATE_DESC_VOID(desc);
+> -=09/* Should be using gpiod_set_value_cansleep() */
+>  =09WARN_ON(desc->gdev->chip->can_sleep);
+> -=09if (test_bit(FLAG_ACTIVE_LOW, &desc->flags))
+> -=09=09value =3D !value;
+> -=09if (test_bit(FLAG_OPEN_DRAIN, &desc->flags))
+> -=09=09gpio_set_open_drain_value_commit(desc, value);
+> -=09else if (test_bit(FLAG_OPEN_SOURCE, &desc->flags))
+> -=09=09gpio_set_open_source_value_commit(desc, value);
+> -=09else
+> -=09=09gpiod_set_raw_value_commit(desc, value);
+> +=09__gpiod_set_value_nocheck(desc, value);
+>  }
+>  EXPORT_SYMBOL_GPL(gpiod_set_value);
+> =20
+> @@ -3277,9 +3281,7 @@ void gpiod_set_value_cansleep(struct=20
+> gpio_desc *desc, int value)
+>  {
+>  =09might_sleep_if(extra_checks);
+>  =09VALIDATE_DESC_VOID(desc);
+> -=09if (test_bit(FLAG_ACTIVE_LOW, &desc->flags))
+> -=09=09value =3D !value;
+> -=09gpiod_set_raw_value_commit(desc, value);
+> +=09__gpiod_set_value_nocheck(desc, value);
+>  }
+>  EXPORT_SYMBOL_GPL(gpiod_set_value_cansleep);
+> =20
 
-> On Wed, Jan 10, 2018 at 06:07:43PM +0100, Gregory CLEMENT wrote:
->> On Armada 7K/8K we need to explicitly enable the bus clock. The bus clock
->> is optional because not all the SoCs need them but at least for Armada
->> 7K/8K it is actually mandatory.
->> 
->> The binding documentation is updating accordingly.
->> 
->> Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
->> ---
->>  .../devicetree/bindings/i2c/i2c-mv64xxx.txt          | 20 ++++++++++++++++++++
->>  drivers/i2c/busses/i2c-mv64xxx.c                     | 12 +++++++++++-
->>  2 files changed, 31 insertions(+), 1 deletion(-)
->> 
->> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
->> index 5c30026921ae..a835b724c738 100644
->> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
->> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
->> @@ -25,6 +25,15 @@ default frequency is 100kHz
->>                       whenever you're using the "allwinner,sun6i-a31-i2c"
->>                       compatible.
->>  
->> + - clocks:	   : pointers to the reference clocks for this device, the first
->> +		     one is the one used for the clock on the i2c bus, the second
->> +		     one is the clock used for the functional part of the
->> +		     controller
->> +
->> + - clock-names	   : names of used clocks, mandatory if the second clock is
->> +		   : used, the name must be "core", and "axi_clk" (the latter is
->> +		     only for Armada 7K/8K).
->
-> Hi Gregory
->
-> Are these two clocks related?
->
-> Ethernet on Dove needs two clocks enabled. 
->
-> static const struct clk_gating_soc_desc dove_gating_desc[] __initconst = {
->        { "usb0", NULL, 0, 0 },
->        { "usb1", NULL, 1, 0 },
->        { "ge",	 "gephy", 2, 0 },
->        { "sata", NULL, 3, 0 },
->
-> ge has a parent clock gephy. When you enable ge, the common clock code
-> walks up the tree of clocks, so will also turn on gephy.
->
-> Does this child/parent relationship exist with these i2c clocks?
+I realize that I'm late to the party (a merge request has been sent), but I=20=
 
-The child/parent relationship was the wrong assumption we made when we
-wrote the clock driver for Armada 7K/8K. But now with more
-documentation, it turned out that these 2 clocks are independant but
-both are needed for i2c on Armada 7K/8K.
+can confirm that I tested that this still works for a bitbang I2C over GPIO=20=
 
-Gregory
+pins connected to MAX14830 managed by max310x.
 
+Tested-By: Jan Kundr=C3=A1t <jan.kundrat@cesnet.cz>
 
->
->      Andrew
-
--- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+Cheers,
+Jan
