@@ -1,36 +1,66 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH] i2c: acorn: add MODULE_LICENSE tag
-Date: Thu, 11 Jan 2018 11:37:45 +0100
-Message-ID: <20180111103751.1506236-1-arnd@arndb.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH RFC 6/7] serial: Add device tree bindings for GENI based
+ UART Controller
+Date: Thu, 11 Jan 2018 09:12:26 -0600
+Message-ID: <CAL_JsqL1=NAn1T_HaetO5hT+fdgxmkcNwtOr1+XaxGzSh-n6Sg@mail.gmail.com>
+References: <1514392046-30602-1-git-send-email-kramasub@codeaurora.org>
+ <1514392046-30602-7-git-send-email-kramasub@codeaurora.org>
+ <20180102155517.j4sqhdtamybtgta4@rob-hp-laptop> <068baf4d-963e-f177-311d-d2c76d27a6f9@codeaurora.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <068baf4d-963e-f177-311d-d2c76d27a6f9@codeaurora.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Karthik Ramasubramanian <kramasub@codeaurora.org>
+Cc: linux-arm-msm <linux-arm-msm@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, linux-serial@vger.kernel.org, linux-doc@vger.kernel.org, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Corbet <corbet@lwn.net>, Wolfram Sang <wsa@the-dreams.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Girish Mahadevan <girishm@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-As of v4.15, Kbuild warns about missing MODULE_LICENSE tags:
+On Tue, Jan 9, 2018 at 12:36 PM, Karthik Ramasubramanian
+<kramasub@codeaurora.org> wrote:
+>
+>
+> On 1/2/2018 8:55 AM, Rob Herring wrote:
+>>
+>> On Wed, Dec 27, 2017 at 09:27:25AM -0700, Karthikeyan Ramasubramanian
+>> wrote:
+>>>
+>>> Add device tree binding support for GENI based UART Controller in the
+>>> QUP Wrapper.
+>>>
+>>> Signed-off-by: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
+>>> Signed-off-by: Girish Mahadevan <girishm@codeaurora.org>
+>>> ---
+>>>   .../devicetree/bindings/serial/qcom,geni-uart.txt  | 31
+>>> ++++++++++++++++++++++
+>>>   1 file changed, 31 insertions(+)
+>>>   create mode 100644
+>>> Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
+>>>
+>>> diff --git a/Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
+>>> b/Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
+>>> new file mode 100644
+>>> index 0000000..e60ec6a
+>>> --- /dev/null
+>>> +++ b/Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
+>>> @@ -0,0 +1,31 @@
+>>> +Qualcomm Technologies Inc. GENI based Serial UART Controller driver
+>>> +
+>>> +This serial UART driver supports console use-cases. This driver is meant
+>>> +only for Generic Interface (GENI) based Qualcomm Universal Peripheral
+>>> (QUP)
+>>> +cores and isn't backwards compatible.
+>>> +
+>>> +Required properties:
+>>> +- compatible: should contain "qcom,geni-uart, qcom,geni-console"
+>>
+>>
+>> Is console different programming model or just how you are using the
+>> h/w? for the latter, drop it as we have stdout-path to select a console.
+>
+> The console programming model is different from a regular UART port and
+> hence the compatible field contains console in it.
 
-WARNING: modpost: missing MODULE_LICENSE() in drivers/i2c/busses/i2c-acorn.o
+And "console" is what the h/w reference manual calls it? If so, then
+it is fine. If not, sounds like a Linuxism.
 
-This adds a license, author and description tag, matching the
-comment at the start of the acorn i2c driver.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/i2c/busses/i2c-acorn.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-acorn.c b/drivers/i2c/busses/i2c-acorn.c
-index 9d7be5af2bf2..6463189ca183 100644
---- a/drivers/i2c/busses/i2c-acorn.c
-+++ b/drivers/i2c/busses/i2c-acorn.c
-@@ -94,3 +94,7 @@ static int __init i2c_ioc_init(void)
- }
- 
- module_init(i2c_ioc_init);
-+
-+MODULE_AUTHOR("Russell King <rmk@arm.linux.org.uk>");
-+MODULE_DESCRIPTION("ARM IOC/IOMD i2c driver");
-+MODULE_LICENSE("GPL v2");
--- 
-2.9.0
+Rob
