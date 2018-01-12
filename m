@@ -1,92 +1,89 @@
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Subject: Re: [PATCH v3 2/2] i2c: mv64xxx: Fix clock resource by adding an optional bus clock
-Date: Fri, 12 Jan 2018 12:15:26 +0100
-Message-ID: <87wp0n5nw1.fsf@free-electrons.com>
-References: <20180112103956.4875-1-gregory.clement@free-electrons.com>
-        <20180112103956.4875-3-gregory.clement@free-electrons.com>
-        <20180112105434.juefp2apuber3zti@flea.lan>
+From: Karthik Ramasubramanian <kramasub-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Subject: Re: [PATCH RFC 6/7] serial: Add device tree bindings for GENI based
+ UART Controller
+Date: Fri, 12 Jan 2018 14:24:31 -0700
+Message-ID: <51610a55-7198-a0ff-4dae-4b4b2922e865@codeaurora.org>
+References: <1514392046-30602-1-git-send-email-kramasub@codeaurora.org>
+ <1514392046-30602-7-git-send-email-kramasub@codeaurora.org>
+ <20180102155517.j4sqhdtamybtgta4@rob-hp-laptop>
+ <068baf4d-963e-f177-311d-d2c76d27a6f9@codeaurora.org>
+ <CAL_JsqL1=NAn1T_HaetO5hT+fdgxmkcNwtOr1+XaxGzSh-n6Sg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:48216 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933279AbeALLPj (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 12 Jan 2018 06:15:39 -0500
-In-Reply-To: <20180112105434.juefp2apuber3zti@flea.lan> (Maxime Ripard's
-        message of "Fri, 12 Jan 2018 11:54:34 +0100")
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAL_JsqL1=NAn1T_HaetO5hT+fdgxmkcNwtOr1+XaxGzSh-n6Sg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-msm <linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Andy Gross <andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, David Brown <david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Corbet <corbet-T1hC0tSOHrs@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Girish Mahadevan <girishm-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Andrew Lunn <andrew@lunn.ch>, Yehuda Yitschak <yehuday@marvell.com>, Jason Cooper <jason@lakedaemon.net>, Antoine Tenart <antoine.tenart@free-electrons.com>, Omri Itach <omrii@marvell.com>, Nadav Haklai <nadavh@marvell.com>, Shadi Ammouri <shadi@marvell.com>, Igal Liberman <igall@marvell.com>, =?utf-8?Q?Miqu=C3=A8l?= Raynal <miquel.raynal@free-electrons.com>, Marcin Wojtas <mw@semihalf.com>, Hanna Hawa <hannah@marvell.com>, linux-arm-kernel@lists.infradead.org, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 
-Hi Maxime,
- 
- On ven., janv. 12 2018, Maxime Ripard <maxime.ripard@free-electrons.com> wrote:
 
-> Hi,
->
-> On Fri, Jan 12, 2018 at 11:39:56AM +0100, Gregory CLEMENT wrote:
->> On Armada 7K/8K we need to explicitly enable the bus clock. The bus clock
->> is optional because not all the SoCs need them but at least for Armada
->> 7K/8K it is actually mandatory.
->> 
->> The binding documentation is updating accordingly.
->> 
->> Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
->> ---
->>  .../devicetree/bindings/i2c/i2c-mv64xxx.txt          | 20 ++++++++++++++++++++
->>  drivers/i2c/busses/i2c-mv64xxx.c                     | 12 +++++++++++-
->>  2 files changed, 31 insertions(+), 1 deletion(-)
->> 
->> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
->> index 5c30026921ae..3d76bb19492f 100644
->> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
->> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
->> @@ -25,6 +25,15 @@ default frequency is 100kHz
->>                       whenever you're using the "allwinner,sun6i-a31-i2c"
->>                       compatible.
->>  
->> + - clocks:	   : pointers to the reference clocks for this device, the
->> +		     first one is the one used for the clock on the i2c bus,
->> +		     the second one is the clock used for the functional part
->> +		     of the controller
->
-> This documentation is confusing, as usually the functional clock is
-> the clock driving the bus, as opposed to the interface clock clocking
-> the bus interface.
 
-I don't find it less confusing, for my point of view the interface of a
-bus is the lines interfacing the bus with the devices on this bus. But I
-don't mind modifying it, as I clearly state that the first clock is the
-one used to generate the clock of the i2c bus, so we can change the
-name.
-
->
->> + - clock-names	   : names of used clocks, mandatory if the second clock is
->> +		     used, the name must be "core", and "axi" (the latter is
->> +		     only for Armada 7K/8K).
->> +
->
-> Are you sure the i2c controller is on the AXI bus? It seems more
-> likely to be on an APB bus.
-
-No I am not sure :)
-Actually I don't have this information, so lets call it "reg" for
-register clock.
-
-Gregory
-
->
-> Maxime
->
-> -- 
-> Maxime Ripard, Free Electrons
-> Embedded Linux and Kernel engineering
-> http://free-electrons.com
->
+On 1/11/2018 8:12 AM, Rob Herring wrote:
+> On Tue, Jan 9, 2018 at 12:36 PM, Karthik Ramasubramanian
+> <kramasub-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org> wrote:
+>>
+>>
+>> On 1/2/2018 8:55 AM, Rob Herring wrote:
+>>>
+>>> On Wed, Dec 27, 2017 at 09:27:25AM -0700, Karthikeyan Ramasubramanian
+>>> wrote:
+>>>>
+>>>> Add device tree binding support for GENI based UART Controller in the
+>>>> QUP Wrapper.
+>>>>
+>>>> Signed-off-by: Karthikeyan Ramasubramanian <kramasub-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+>>>> Signed-off-by: Girish Mahadevan <girishm-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+>>>> ---
+>>>>    .../devicetree/bindings/serial/qcom,geni-uart.txt  | 31
+>>>> ++++++++++++++++++++++
+>>>>    1 file changed, 31 insertions(+)
+>>>>    create mode 100644
+>>>> Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
+>>>>
+>>>> diff --git a/Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
+>>>> b/Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
+>>>> new file mode 100644
+>>>> index 0000000..e60ec6a
+>>>> --- /dev/null
+>>>> +++ b/Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
+>>>> @@ -0,0 +1,31 @@
+>>>> +Qualcomm Technologies Inc. GENI based Serial UART Controller driver
+>>>> +
+>>>> +This serial UART driver supports console use-cases. This driver is meant
+>>>> +only for Generic Interface (GENI) based Qualcomm Universal Peripheral
+>>>> (QUP)
+>>>> +cores and isn't backwards compatible.
+>>>> +
+>>>> +Required properties:
+>>>> +- compatible: should contain "qcom,geni-uart, qcom,geni-console"
+>>>
+>>>
+>>> Is console different programming model or just how you are using the
+>>> h/w? for the latter, drop it as we have stdout-path to select a console.
+>>
+>> The console programming model is different from a regular UART port and
+>> hence the compatible field contains console in it.
+> 
+> And "console" is what the h/w reference manual calls it? If so, then
+> it is fine. If not, sounds like a Linuxism.
+>The hardware reference manual calls it Debug UART. I can change the 
+compatible string to contain "qcom,geni-debug-uart".
+> Rob
+Regards,
+Karthik.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-arm-msm" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
 -- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
