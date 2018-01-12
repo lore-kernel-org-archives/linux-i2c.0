@@ -1,78 +1,52 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH RFC 4/7] i2c: Add device tree bindings for GENI I2C Controller
-Date: Thu, 11 Jan 2018 09:19:28 -0600
-Message-ID: <CAL_Jsq+2w280okNbUxVqzm2oXWRc81RnMwBaM6utXqg_+fvMkg@mail.gmail.com>
-References: <1514392046-30602-1-git-send-email-kramasub@codeaurora.org>
- <1514392046-30602-5-git-send-email-kramasub@codeaurora.org>
- <20180102155149.f2wzjvdhoi6cne4x@rob-hp-laptop> <1d741169-e6e6-1896-d8d4-4f580f5d497d@codeaurora.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1d741169-e6e6-1896-d8d4-4f580f5d497d@codeaurora.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: Karthik Ramasubramanian <kramasub@codeaurora.org>
-Cc: linux-arm-msm <linux-arm-msm@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, linux-serial@vger.kernel.org, linux-doc@vger.kernel.org, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Jonathan Corbet <corbet@lwn.net>, Wolfram Sang <wsa@the-dreams.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Sagar Dharia <sdharia@codeaurora.org>
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Subject: [PATCH v3 1/2] i2c: mv64xxx: Remove useless test before clk_disable_unprepare
+Date: Fri, 12 Jan 2018 11:39:55 +0100
+Message-ID: <20180112103956.4875-2-gregory.clement@free-electrons.com>
+References: <20180112103956.4875-1-gregory.clement@free-electrons.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.free-electrons.com ([62.4.15.54]:47397 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933096AbeALKkA (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 12 Jan 2018 05:40:00 -0500
+In-Reply-To: <20180112103956.4875-1-gregory.clement@free-electrons.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory CLEMENT <gregory.clement@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Antoine Tenart <antoine.tenart@free-electrons.com>, =?UTF-8?q?Miqu=C3=A8l=20Raynal?= <miquel.raynal@free-electrons.com>, Nadav Haklai <nadavh@marvell.com>, Shadi Ammouri <shadi@marvell.com>, Yehuda Yitschak <yehuday@marvell.com>, Omri Itach <omrii@marvell.com>, Hanna Hawa <hannah@marvell.com>, Igal Liberman <igall@marvell.com>, Marcin Wojtas <mw@semihalf.com>
 
-On Mon, Jan 8, 2018 at 6:33 PM, Karthik Ramasubramanian
-<kramasub@codeaurora.org> wrote:
->
->
-> On 1/2/2018 8:51 AM, Rob Herring wrote:
->>
->> On Wed, Dec 27, 2017 at 09:27:23AM -0700, Karthikeyan Ramasubramanian
->> wrote:
->>>
->>> Add device tree binding support for I2C Controller in GENI based
->>> QUP Wrapper.
->>>
->>> Signed-off-by: Sagar Dharia <sdharia@codeaurora.org>
->>> Signed-off-by: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
->>> ---
->>>   .../devicetree/bindings/i2c/i2c-qcom-geni.txt      | 39
->>> ++++++++++++++++++++++
->>>   1 file changed, 39 insertions(+)
->>>   create mode 100644
->>> Documentation/devicetree/bindings/i2c/i2c-qcom-geni.txt
->>>
->>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-qcom-geni.txt
->>> b/Documentation/devicetree/bindings/i2c/i2c-qcom-geni.txt
->>> new file mode 100644
->>> index 0000000..d2fa9ce
->>> --- /dev/null
->>> +++ b/Documentation/devicetree/bindings/i2c/i2c-qcom-geni.txt
->>> @@ -0,0 +1,39 @@
->>> +Qualcomm Technologies Inc. GENI based I2C Controller driver
->>> +
->>> +Required properties:
->>> + - compatible: Should be:
->>> +   * "qcom,i2c-geni.
->>
->>
->> Only 1 version?
->
-> The Serial Engine used by I2C protocol has the same version as the QUP h/w
-> version. The QUP Wrapper driver exposes an interface function to get the h/w
-> version so that I2C controller driver can support version-specific
-> operations, if any.
->>
->>
->>> + - reg: Should contain QUP register address and length.
->>> + - interrupts: Should contain I2C interrupt.
->>> + - clocks: Serial engine core clock, and AHB clocks needed by the
->>> device.
->>
->>
->> Are there really clocks for a firmware based device or these are just
->> clocks in the parent serial engine?
->
-> The clocks are required to derive the protocol clock. The clocks are also
-> required by the Serial Engine to access the System Memory during DMA mode of
-> operation.
+The 2 functions called from clk_disable_unprepare() already check that
+the clock pointer is valid: no need to test it before calling it.
 
-You can get the QUP core (or Serial engine?) node and then get its
-clocks if you need to know the frequency. Put the clocks in DT in the
-h/w block they belong to. If you don't really have an I2C clock in the
-h/w, don't put one in the DT.
+Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
+---
+ drivers/i2c/busses/i2c-mv64xxx.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-Rob
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index a832c45276a4..f69066266faa 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -950,9 +950,7 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+ exit_reset:
+ 	reset_control_assert(drv_data->rstc);
+ exit_clk:
+-	/* Not all platforms have a clk */
+-	if (!IS_ERR(drv_data->clk))
+-		clk_disable_unprepare(drv_data->clk);
++	clk_disable_unprepare(drv_data->clk);
+ 
+ 	return rc;
+ }
+@@ -965,9 +963,7 @@ mv64xxx_i2c_remove(struct platform_device *dev)
+ 	i2c_del_adapter(&drv_data->adapter);
+ 	free_irq(drv_data->irq, drv_data);
+ 	reset_control_assert(drv_data->rstc);
+-	/* Not all platforms have a clk */
+-	if (!IS_ERR(drv_data->clk))
+-		clk_disable_unprepare(drv_data->clk);
++	clk_disable_unprepare(drv_data->clk);
+ 
+ 	return 0;
+ }
+-- 
+2.15.1
