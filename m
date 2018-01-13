@@ -1,7 +1,7 @@
 From: Marc CAPDEVILLE <m.capdeville@no-log.org>
-Subject: [PATCH v7 2/4] i2c-acpi : exclude ARA address for smbus device
-Date: Sat, 13 Jan 2018 14:37:03 +0100
-Message-ID: <20180113133705.25044-2-m.capdeville@no-log.org>
+Subject: [PATCH v7 4/4] iio : cm32181 : cosmetic cleanup
+Date: Sat, 13 Jan 2018 14:37:05 +0100
+Message-ID: <20180113133705.25044-4-m.capdeville@no-log.org>
 References: <20180113133705.25044-1-m.capdeville@no-log.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180113133705.25044-1-m.capdeville@no-log.org>
@@ -10,83 +10,109 @@ To: Kevin Tsai <ktsai@capellamicro.com>
 Cc: Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Marc CAPDEVILLE <m.capdeville@no-log.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Somme ACPI enumerated devices are known to support smbus alert protocol.
-Theses devices may be miss-enumerated with the reserved smbus ARA address.
+Somme cosmetic cleanup suggested by Peter Meerwald-Stadler.
 
-This is the case on Asus T100 tablet where cm3218 ambiant light sensor
-expose two i2c serial bus connections, with the first one being the alert
-response address.
+Macro name :
+   MLUX_PER_LUX => CM32181_MLUX_PER_LUX
 
-This patch make a match on known ACPI ids for which devices are smbus ARA
-capable, then skip the connection if it has the reserved 0x0c address and
-mark it with I2C_CLIENT_ALERT flag. So device is enumerated with the
-correct address.
+Constante name :
+   als_it_bits => cm32181_als_it_bits
+   als_it_value => cm32181_als_it_value
 
+Comment :
+   Registers Address => Register Addresses
+
+Suggested-by: Peter Meerwald-Stadler <pmeerw@pmeerw.net>
 Signed-off-by: Marc CAPDEVILLE <m.capdeville@no-log.org>
+Acked-by: Jonathan Cameron <jic23@kernel.org>
 ---
- drivers/i2c/i2c-core-acpi.c | 23 +++++++++++++++++++++--
- include/linux/i2c.h         |  1 +
- 2 files changed, 22 insertions(+), 2 deletions(-)
+ drivers/iio/light/cm32181.c | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index a9126b3cda61..5a8886f14329 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -59,8 +59,14 @@ static int i2c_acpi_fill_info(struct acpi_resource *ares, void *data)
- 	if (sb->type != ACPI_RESOURCE_SERIAL_TYPE_I2C)
- 		return 1;
+diff --git a/drivers/iio/light/cm32181.c b/drivers/iio/light/cm32181.c
+index eae5b7cc6878..8fc01c8d4522 100644
+--- a/drivers/iio/light/cm32181.c
++++ b/drivers/iio/light/cm32181.c
+@@ -22,7 +22,7 @@
+ #include <linux/acpi.h>
+ #include <linux/of_device.h>
  
--	if (lookup->index != -1 && lookup->n++ != lookup->index)
--		return 1;
-+	if (lookup->index != -1) {
-+		if (lookup->n++ != lookup->index)
-+			return 1;
-+	} else {
-+		if (lookup->info->flags & I2C_CLIENT_ALERT &&
-+		    sb->slave_address == 0x0c)
-+			return 1;
-+	}
+-/* Registers Address */
++/* Register Addresses */
+ #define CM32181_REG_ADDR_CMD		0x00
+ #define CM32181_REG_ADDR_ALS		0x04
+ #define CM32181_REG_ADDR_STATUS		0x06
+@@ -48,7 +48,7 @@
+ #define CM32181_MLUX_PER_BIT_BASE_IT	800000	/* Based on IT=800ms */
+ #define	CM32181_CALIBSCALE_DEFAULT	1000
+ #define CM32181_CALIBSCALE_RESOLUTION	1000
+-#define MLUX_PER_LUX			1000
++#define CM32181_MLUX_PER_LUX		1000
  
- 	status = acpi_get_handle(lookup->device_handle,
- 				 sb->resource_source.string_ptr,
-@@ -85,6 +91,15 @@ static const struct acpi_device_id i2c_acpi_ignored_device_ids[] = {
- 	{}
+ #define CM32181_ID			0x81
+ #define CM3218_ID			0x18
+@@ -57,8 +57,8 @@ static const u8 cm32181_reg[CM32181_CONF_REG_NUM] = {
+ 	CM32181_REG_ADDR_CMD,
  };
  
-+static const struct acpi_device_id i2c_acpi_alert_device_ids[] = {
-+	/*
-+	 * Smbus alert capable device which may have the reserved ARA address
-+	 * in their serial bus resources list.
-+	 */
-+	{ "CPLM3218", 0 },
-+	{}
-+};
-+
- static int i2c_acpi_do_lookup(struct acpi_device *adev,
- 			      struct i2c_acpi_lookup *lookup)
+-static const int als_it_bits[] = {12, 8, 0, 1, 2, 3};
+-static const int als_it_value[] = {25000, 50000, 100000, 200000, 400000,
++static const int cm32181_als_it_bits[] = {12, 8, 0, 1, 2, 3};
++static const int cm32181_als_it_value[] = {25000, 50000, 100000, 200000, 400000,
+ 	800000};
+ 
+ struct cm32181_chip {
+@@ -124,9 +124,9 @@ static int cm32181_read_als_it(struct cm32181_chip *cm32181, int *val2)
+ 	als_it = cm32181->conf_regs[CM32181_REG_ADDR_CMD];
+ 	als_it &= CM32181_CMD_ALS_IT_MASK;
+ 	als_it >>= CM32181_CMD_ALS_IT_SHIFT;
+-	for (i = 0; i < ARRAY_SIZE(als_it_bits); i++) {
+-		if (als_it == als_it_bits[i]) {
+-			*val2 = als_it_value[i];
++	for (i = 0; i < ARRAY_SIZE(cm32181_als_it_bits); i++) {
++		if (als_it == cm32181_als_it_bits[i]) {
++			*val2 = cm32181_als_it_value[i];
+ 			return IIO_VAL_INT_PLUS_MICRO;
+ 		}
+ 	}
+@@ -149,14 +149,14 @@ static int cm32181_write_als_it(struct cm32181_chip *cm32181, int val)
+ 	u16 als_it;
+ 	int ret, i, n;
+ 
+-	n = ARRAY_SIZE(als_it_value);
++	n = ARRAY_SIZE(cm32181_als_it_value);
+ 	for (i = 0; i < n; i++)
+-		if (val <= als_it_value[i])
++		if (val <= cm32181_als_it_value[i])
+ 			break;
+ 	if (i >= n)
+ 		i = n - 1;
+ 
+-	als_it = als_it_bits[i];
++	als_it = cm32181_als_it_bits[i];
+ 	als_it <<= CM32181_CMD_ALS_IT_SHIFT;
+ 
+ 	mutex_lock(&cm32181->lock);
+@@ -202,7 +202,7 @@ static int cm32181_get_lux(struct cm32181_chip *cm32181)
+ 	lux *= ret;
+ 	lux *= cm32181->calibscale;
+ 	lux /= CM32181_CALIBSCALE_RESOLUTION;
+-	lux /= MLUX_PER_LUX;
++	lux /= CM32181_MLUX_PER_LUX;
+ 
+ 	if (lux > 0xFFFF)
+ 		lux = 0xFFFF;
+@@ -270,9 +270,9 @@ static ssize_t cm32181_get_it_available(struct device *dev,
  {
-@@ -100,6 +115,10 @@ static int i2c_acpi_do_lookup(struct acpi_device *adev,
- 		return -ENODEV;
+ 	int i, n, len;
  
- 	memset(info, 0, sizeof(*info));
-+
-+	if (acpi_match_device_ids(adev, i2c_acpi_alert_device_ids) == 0)
-+		info->flags |= I2C_CLIENT_ALERT;
-+
- 	lookup->device_handle = acpi_device_handle(adev);
- 
- 	/* Look up for I2cSerialBus resource */
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 7592dce12923..b0d6f1333442 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -743,6 +743,7 @@ i2c_unlock_adapter(struct i2c_adapter *adapter)
- #define I2C_CLIENT_SLAVE	0x20	/* we are the slave */
- #define I2C_CLIENT_HOST_NOTIFY	0x40	/* We want to use I2C host notify */
- #define I2C_CLIENT_WAKE		0x80	/* for board_info; true iff can wake */
-+#define I2C_CLIENT_ALERT	0x100	/* Client use SMBUS alert protocol */
- #define I2C_CLIENT_SCCB		0x9000	/* Use Omnivision SCCB protocol */
- 					/* Must match I2C_M_STOP|IGNORE_NAK */
+-	n = ARRAY_SIZE(als_it_value);
++	n = ARRAY_SIZE(cm32181_als_it_value);
+ 	for (i = 0, len = 0; i < n; i++)
+-		len += sprintf(buf + len, "0.%06u ", als_it_value[i]);
++		len += sprintf(buf + len, "0.%06u ", cm32181_als_it_value[i]);
+ 	return len + sprintf(buf + len, "\n");
+ }
  
 -- 
 2.11.0
