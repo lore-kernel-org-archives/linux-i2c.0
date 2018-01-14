@@ -1,255 +1,382 @@
 From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v7 3/4] iio : Add cm3218 smbus ARA and ACPI support
-Date: Sun, 14 Jan 2018 11:45:10 +0000
-Message-ID: <20180114114510.1207b191@archlinux>
+Subject: Re: [PATCH v7 1/4] i2c-smbus : Add client discovered ARA support
+Date: Sun, 14 Jan 2018 11:45:26 +0000
+Message-ID: <20180114114526.1ca2f5ff@archlinux>
 References: <20180113133705.25044-1-m.capdeville@no-log.org>
-        <20180113133705.25044-3-m.capdeville@no-log.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20180113133705.25044-3-m.capdeville@no-log.org>
-Sender: linux-acpi-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180113133705.25044-1-m.capdeville@no-log.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Marc CAPDEVILLE <m.capdeville@no-log.org>
 Cc: Kevin Tsai <ktsai@capellamicro.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 13 Jan 2018 14:37:04 +0100
+On Sat, 13 Jan 2018 14:37:02 +0100
 Marc CAPDEVILLE <m.capdeville@no-log.org> wrote:
 
-> On asus T100, Capella cm3218 chip is implemented as ambiant light
-> sensor. This chip expose an smbus ARA protocol device on standard
-> address 0x0c. The chip is not functional before all alerts are
-> acknowledged.
+> This is from rfc by Alan Cox : https://patchwork.ozlabs.org/patch/381773
 > 
-> The driver call i2c_require_smbus_alert() to set the smbus alert
-> protocol driver on its adapter. If an interrupt resource is given,
-> we register this irq with the smbus alert driver.
-> If no irq is given, the driver call i2c_smbus_alert_event() to trigger
-> the alert process to clear the initial alert event before initializing
-> cm3218 registers.
+> The idea is as follows (extract from above rfc) :
+> - If an adapter knows about its ARA and smbus alerts then the adapter
+>   creates its own interrupt handler as before
 > 
-> Signed-off-by: Marc CAPDEVILLE <m.capdeville@no-log.org>
+> - If a client knows it needs smbus alerts it calls
+>   i2c_require_smbus_alert(). This ensures that there is an ARA handler
+>   registered and tells the client whether the adapter is handling it
+>   anyway or not.
+> 
+> - When the client learns that an ARA event has occurred it calls
+>   i2c_smbus_alert_event() which uses the existing ARA mechanism to kick
+>   things off.
+> 
+> In addition, if a client have an irq line to trigger smbus alert, client
+> driver register its irq with i2c_smbus_alert_add_irq() to the smbus alert
+> driver to use the generic alert interrupt handler. On detach, the client
+> must unregister its irq from the smbus alert driver with
+> i2c_smbus_alert_free_irq().
 
-Ultimately I think we can move most of the logic here into the i2c core,
-but that can be a job for another day.
+A trivial comment inline...
 
-I'm not sure there isn't a nasty mess with this device if we have
-a bus master created ara.  I raised it below.  Not sure there is
-much we can do about it though.
+Also, I think this whole thing could do with some documentation as it is
+a little 'unusual'  :)
+
+Perhaps put a cover letter explaining how whole series has changed as
+well.
 
 Jonathan
 
-> ---
->  drivers/iio/light/cm32181.c | 94 +++++++++++++++++++++++++++++++++++++++++++--
->  1 file changed, 91 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/iio/light/cm32181.c b/drivers/iio/light/cm32181.c
-> index aebf7dd071af..eae5b7cc6878 100644
-> --- a/drivers/iio/light/cm32181.c
-> +++ b/drivers/iio/light/cm32181.c
-> @@ -18,6 +18,9 @@
->  #include <linux/iio/sysfs.h>
->  #include <linux/iio/events.h>
->  #include <linux/init.h>
-> +#include <linux/i2c-smbus.h>
-> +#include <linux/acpi.h>
-> +#include <linux/of_device.h>
+> Signed-off-by: Marc CAPDEVILLE <m.capdeville@no-log.org>
+> ---
+>  drivers/i2c/i2c-core-smbus.c |  42 +++++++++++
+>  drivers/i2c/i2c-smbus.c      | 171 +++++++++++++++++++++++++++++++++++++++++--
+>  include/linux/i2c-smbus.h    |  22 ++++++
+>  include/linux/i2c.h          |   2 +
+>  4 files changed, 232 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
+> index 1238c94fe5a1..0d84ac9669e9 100644
+> --- a/drivers/i2c/i2c-core-smbus.c
+> +++ b/drivers/i2c/i2c-core-smbus.c
+> @@ -659,6 +659,48 @@ struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
+>  }
+>  EXPORT_SYMBOL_GPL(i2c_setup_smbus_alert);
 >  
->  /* Registers Address */
->  #define CM32181_REG_ADDR_CMD		0x00
-> @@ -47,6 +50,9 @@
->  #define CM32181_CALIBSCALE_RESOLUTION	1000
->  #define MLUX_PER_LUX			1000
->  
-> +#define CM32181_ID			0x81
-> +#define CM3218_ID			0x18
-> +
->  static const u8 cm32181_reg[CM32181_CONF_REG_NUM] = {
->  	CM32181_REG_ADDR_CMD,
->  };
-> @@ -57,6 +63,7 @@ static const int als_it_value[] = {25000, 50000, 100000, 200000, 400000,
->  
->  struct cm32181_chip {
->  	struct i2c_client *client;
-> +	int chip_id;
->  	struct mutex lock;
->  	u16 conf_regs[CM32181_CONF_REG_NUM];
->  	int calibscale;
-> @@ -81,7 +88,7 @@ static int cm32181_reg_init(struct cm32181_chip *cm32181)
->  		return ret;
->  
->  	/* check device ID */
-> -	if ((ret & 0xFF) != 0x81)
-> +	if ((ret & 0xFF) != cm32181->chip_id)
->  		return -ENODEV;
->  
->  	/* Default Values */
-> @@ -297,12 +304,23 @@ static const struct iio_info cm32181_info = {
->  	.attrs			= &cm32181_attribute_group,
->  };
->  
-> +static void cm3218_alert(struct i2c_client *client,
-> +			 enum i2c_alert_protocol type,
-> +			 unsigned int data)
+> +/**
+> + * i2c_require_smbus_alert - Client discovered SMBus alert
+> + * @client: client requiring ARA support
+> + *
+> + * When a client needs an ARA it calls this method. If the bus adapter
+> + * supports ARA and already knows how to do so then it will already have
+> + * configured for ARA and this is a no-op. If not then we set up an ARA
+> + * on the adapter.
+> + *
+> + * Return:
+> + *	0 if ARA support already registered
+> + *	1 if call register a new smbus_alert device
+> + *	<0 on error
+> + */
+> +int i2c_require_smbus_alert(struct i2c_client *client)
 > +{
-> +	/*
-> +	 * nothing to do for now.
-> +	 * This is just here to acknownledge the cm3218 alert.
-> +	 */
-> +}
+> +	struct i2c_adapter *adapter = client->adapter;
+> +	struct i2c_smbus_alert_setup setup;
+> +	struct i2c_client *ara;
+> +	int ret;
 > +
->  static int cm32181_probe(struct i2c_client *client,
->  			const struct i2c_device_id *id)
->  {
->  	struct cm32181_chip *cm32181;
->  	struct iio_dev *indio_dev;
->  	int ret;
-> +	const struct acpi_device_id *a_id;
->  
->  	indio_dev = devm_iio_device_alloc(&client->dev, sizeof(*cm32181));
->  	if (!indio_dev) {
-> @@ -322,11 +340,55 @@ static int cm32181_probe(struct i2c_client *client,
->  	indio_dev->name = id->name;
->  	indio_dev->modes = INDIO_DIRECT_MODE;
->  
-> +	/* Lookup for chip ID from platform, ACPI or of device table */
-> +	if (id) {
-> +		cm32181->chip_id = id->driver_data;
-> +	} else if (ACPI_COMPANION(&client->dev)) {
-> +		a_id = acpi_match_device(client->dev.driver->acpi_match_table,
-> +					 &client->dev);
-> +		if (!a_id)
-> +			return -ENODEV;
-> +
-> +		cm32181->chip_id = (int)a_id->driver_data;
-> +	} else if (client->dev.of_node) {
-> +		cm32181->chip_id = (int)of_device_get_match_data(&client->dev);
-> +		if (!cm32181->chip_id)
-> +			return -ENODEV;
+> +	if (adapter->smbus_ara) {
+> +		/*
+> +		 * ARA is already known and handled by the adapter (ideal case)
+> +		 * or another client has specified ARA is needed
+> +		 */
+> +		ret = 0;
 > +	} else {
-> +		return -ENODEV;
+> +		/* First client requesting alert and no adapter has
+> +		 * has setup one
+> +		 */
+> +		setup.irq = 0;
+> +		ara = i2c_setup_smbus_alert(adapter, &setup);
+> +		if (!ara)
+> +			return -ENODEV;
+> +		ret = 1;
 > +	}
 > +
-> +	if (cm32181->chip_id == CM3218_ID) {
-> +		/* cm3218 chip require an ARA device on his adapter */
-> +		ret = i2c_require_smbus_alert(client);
-> +		if (ret < 0)
-> +			return ret;
-
-This should be apparent to the core as we have an alert callback set.
-I suppose there may be nasty corner cases where the alert can be cleared
-without acknowledging explicitly (I think some of the Maxim parts do
-this).
-
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_require_smbus_alert);
 > +
-> +		/* If irq is given, register it with the smbus alert driver */
-> +		if (client->irq > 0) {
-> +			ret = i2c_smbus_alert_add_irq(client, client->irq);
-> +			if (ret < 0)
-> +				return ret;
-> +		} else {
-> +			/*
-> +			 * if no irq is given, acknownledge initial ARA
-> +			 * event so cm32181_reg_init() will not fail.
-
-Logic here has me a bit confused.  If we don't have an irq then it
-could be the i2c master already registered the relevant support.
-Now smbalert is IIRC a level interrupt (stays high until all sources
-have been dealt with) so it should have fired when enabled and be
-continuously firing until someone deals with it (which is decidedly nasty)
-
-Anyhow to my mind that core irq should be masked until someone says
-they are ready to handle it.
-
-Upshot I think is that any device which can send ARA before driver
-is loaded is inherently horribly broken if that alert line is shared
-with other devices as then even enabling only on first
-device saying it handles an ARA doesn't work. Oh goody.
-
-Anyhow, is this path tested?  I.e. did you make your master
-driver register the ara support?
-
+>  #if IS_ENABLED(CONFIG_I2C_SMBUS) && IS_ENABLED(CONFIG_OF)
+>  int of_i2c_setup_smbus_alert(struct i2c_adapter *adapter)
+>  {
+> diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+> index 5a1dd7f13bac..1699333ac950 100644
+> --- a/drivers/i2c/i2c-smbus.c
+> +++ b/drivers/i2c/i2c-smbus.c
+> @@ -25,9 +25,16 @@
+>  #include <linux/slab.h>
+>  #include <linux/workqueue.h>
+>  
+> +struct i2c_smbus_irq_usage {
+> +	struct list_head	list;
+> +	int			irq;
+> +	int			count;
+> +};
+> +
+>  struct i2c_smbus_alert {
+>  	struct work_struct	alert;
+>  	struct i2c_client	*ara;		/* Alert response address */
+> +	struct list_head	irq_usage;	/* irq usage list */
+>  };
+>  
+>  struct alert_data {
+> @@ -126,6 +133,124 @@ static void smbalert_work(struct work_struct *work)
+>  
+>  }
+>  
+> +/**
+> + * i2c_smbus_alert_add_irq - Add a new irq handler to ARA client
+> + * @client: The client which want to add an smbus alert irq handler
+> + * @irq: The irq number to be added to the smbus alert device
+> + * return: 0 if irq handler already exist, 1 if a new handler has been
+> + *	   registered, <0 on error
+> + *
+> + * This is used by the smbalert_probe and by smbus client to check if an
+> + * irq handler already exist for that irq and if not register a new one
+> + * Clients must free their irq with i2c_smbus_alert_free_irq() on driver
+> + * detach.
+> + */
+> +int i2c_smbus_alert_add_irq(struct i2c_client *client, int irq)
+> +{
+> +	int res;
+> +	struct i2c_smbus_irq_usage *irq_usage;
+> +	struct i2c_client *ara;
+> +	struct i2c_smbus_alert *alert;
+> +
+> +	ara = client->adapter->smbus_ara;
+> +	if (!ara)
+> +		return -EINVAL;
+> +
+> +	alert = i2c_get_clientdata(client->adapter->smbus_ara);
+> +	if (!alert)
+> +		return -EINVAL;
+> +
+> +	if (!irq)
+> +		return 0;
+> +
+> +	/* Check if handler exist for that irq */
+> +	list_for_each_entry(irq_usage, &alert->irq_usage, list)
+> +		if (irq_usage->irq == irq)
+> +			break;
+> +
+> +	if (irq_usage->irq == irq) {
+> +		irq_usage->count++;
+> +	} else {
+> +		/* setup a new handler for that irq */
+> +		res = devm_request_threaded_irq(&ara->dev, irq,
+> +						NULL, smbus_alert,
+> +						IRQF_SHARED | IRQF_ONESHOT,
+> +						"smbus_alert", alert);
+> +		if (res)
+> +			return res;
+> +
+> +		/* Add adapter irq number to used irq list with a count of 1 */
+> +		irq_usage = devm_kmalloc(&ara->dev,
+> +					 sizeof(struct i2c_smbus_irq_usage),
+> +					 GFP_KERNEL);
+> +		INIT_LIST_HEAD(&irq_usage->list);
+> +		irq_usage->irq = irq;
+> +		irq_usage->count = 1;
+> +		list_add(&irq_usage->list, &alert->irq_usage);
+> +
+> +		return 0;
+> +	}
+> +
+> +	return 1;
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_smbus_alert_add_irq);
+> +
+> +/**
+> + * i2c_smbus_alert_free_irq - free irq added with i2c_smbus_alert_add_irq()
+> + * @client: The client which want to free its smbus alert irq
+> + * @irq: The irq number to be freed
+> + * return: 0 if irq handler still exist for other client,
+> + *	   1 if client is the last one using this handler and handler have been
+> + *	     removed,
+> + *	   <0 on error.
+> + *
+> + * This is used by smbus clients to free their irq usage from smbus alert
+> + * device.
+> + */
+> +int i2c_smbus_alert_free_irq(struct i2c_client *client, int irq)
+> +{
+> +	struct i2c_smbus_irq_usage *irq_usage;
+> +	struct i2c_client *ara;
+> +	struct i2c_smbus_alert *alert;
+> +
+> +	ara = client->adapter->smbus_ara;
+> +	if (!ara)
+> +		return -EINVAL;
+> +
+> +	alert = i2c_get_clientdata(client->adapter->smbus_ara);
+> +	if (!alert)
+> +		return -EINVAL;
+> +
+> +	if (!irq)
+> +		return 0;
+> +
+> +	/* Check if handler exist for that irq */
+> +	list_for_each_entry(irq_usage, &alert->irq_usage, list)
+> +		if (irq_usage->irq == irq)
+> +			break;
+> +
+> +	if (irq_usage->irq == irq) {
+> +		irq_usage->count--;
+> +		if (!irq_usage->count) {
+/* 
+ * usage
+> +			/* usage count goes to 0
+> +			 * so remove irq_usage from list
 > +			 */
-> +			ret = i2c_smbus_alert_event(client);
-> +			if (ret)
-> +				return ret;
+> +			list_del(&irq_usage->list);
+> +			devm_kfree(&ara->dev, irq_usage);
+> +
+> +			/* remove irq handler */
+> +			devm_free_irq(&ara->dev, irq, alert);
+> +
+> +			return 1;
 > +		}
+> +
+> +		return 0;
 > +	}
 > +
->  	ret = cm32181_reg_init(cm32181);
->  	if (ret) {
->  		dev_err(&client->dev,
->  			"%s: register init failed\n",
->  			__func__);
+> +	return -EINVAL;
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_smbus_alert_free_irq);
 > +
-I would use a goto and unify the unwind of this in an erro rblock at
-the end fo the driver.
-> +		if (cm32181->chip_id == CM3218_ID && client->irq)
-> +			i2c_smbus_alert_free_irq(client, client->irq);
+>  /* Setup SMBALERT# infrastructure */
+>  static int smbalert_probe(struct i2c_client *ara,
+>  			  const struct i2c_device_id *id)
+> @@ -151,16 +276,18 @@ static int smbalert_probe(struct i2c_client *ara,
+>  	INIT_WORK(&alert->alert, smbalert_work);
+>  	alert->ara = ara;
+>  
+> +	INIT_LIST_HEAD(&alert->irq_usage);
 > +
->  		return ret;
+> +	i2c_set_clientdata(ara, alert);
+> +
+> +	ara->adapter->smbus_ara = ara;
+> +
+>  	if (irq > 0) {
+> -		res = devm_request_threaded_irq(&ara->dev, irq,
+> -						NULL, smbus_alert,
+> -						IRQF_SHARED | IRQF_ONESHOT,
+> -						"smbus_alert", alert);
+> +		res = i2c_smbus_alert_add_irq(ara, irq);
+>  		if (res)
+>  			return res;
 >  	}
 >  
-> @@ -335,32 +397,58 @@ static int cm32181_probe(struct i2c_client *client,
->  		dev_err(&client->dev,
->  			"%s: regist device failed\n",
->  			__func__);
-> +
-> +		if (cm32181->chip_id == CM3218_ID && client->irq)
-> +			i2c_smbus_alert_free_irq(client, client->irq);
-> +
->  		return ret;
->  	}
+> -	i2c_set_clientdata(ara, alert);
+>  	dev_info(&adapter->dev, "supports SMBALERT#\n");
 >  
+>  	return 0;
+> @@ -172,6 +299,9 @@ static int smbalert_remove(struct i2c_client *ara)
+>  	struct i2c_smbus_alert *alert = i2c_get_clientdata(ara);
+>  
+>  	cancel_work_sync(&alert->alert);
+> +
+> +	ara->adapter->smbus_ara = NULL;
+> +
 >  	return 0;
 >  }
 >  
-> +static int cm32181_remove(struct i2c_client *client)
+> @@ -210,6 +340,37 @@ int i2c_handle_smbus_alert(struct i2c_client *ara)
+>  }
+>  EXPORT_SYMBOL_GPL(i2c_handle_smbus_alert);
+>  
+> +/**
+> + * i2c_smbus_alert_event
+> + * @client: the client who known of a probable ARA event
+> + * Context: can't sleep
+> + *
+> + * Helper function to be called from an I2C device driver's interrupt
+> + * handler. It will schedule the alert work, in turn calling the
+> + * corresponding I2C device driver's alert function.
+> + *
+> + * It is assumed that client is an i2c client who previously call
+> + * i2c_require_smbus_alert().
+> + *
+> + * return: <0 on error
+> + */
+> +int i2c_smbus_alert_event(struct i2c_client *client)
 > +{
-> +	struct cm32181_chip *cm32181 = i2c_get_clientdata(client);
+> +	struct i2c_client *ara;
+> +	struct i2c_smbus_alert *alert;
 > +
-> +	if (cm32181->chip_id == CM3218_ID && client->irq)
-> +		i2c_smbus_alert_free_irq(client, client->irq);
+> +	ara = client->adapter->smbus_ara;
+> +	if (!ara)
+> +		return -EINVAL;
 > +
-> +	return 0;
+> +	alert = i2c_get_clientdata(ara);
+> +	if (!alert)
+> +		return -EINVAL;
+> +
+> +	return schedule_work(&alert->alert);
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_smbus_alert_event);
+> +
+>  module_i2c_driver(smbalert_driver);
+>  
+>  MODULE_AUTHOR("Jean Delvare <jdelvare@suse.de>");
+> diff --git a/include/linux/i2c-smbus.h b/include/linux/i2c-smbus.h
+> index fb0e040b1abb..cf777f29cc79 100644
+> --- a/include/linux/i2c-smbus.h
+> +++ b/include/linux/i2c-smbus.h
+> @@ -47,6 +47,7 @@ struct i2c_smbus_alert_setup {
+>  
+>  struct i2c_client *i2c_setup_smbus_alert(struct i2c_adapter *adapter,
+>  					 struct i2c_smbus_alert_setup *setup);
+> +int i2c_require_smbus_alert(struct i2c_client *client);
+>  int i2c_handle_smbus_alert(struct i2c_client *ara);
+>  
+>  #if IS_ENABLED(CONFIG_I2C_SMBUS) && IS_ENABLED(CONFIG_OF)
+> @@ -58,4 +59,25 @@ static inline int of_i2c_setup_smbus_alert(struct i2c_adapter *adap)
+>  }
+>  #endif
+>  
+> +#if IS_ENABLED(CONFIG_I2C_SMBUS)
+> +int i2c_smbus_alert_add_irq(struct i2c_client *client, int irq);
+> +int i2c_smbus_alert_free_irq(struct i2c_client *client, int irq);
+> +int i2c_smbus_alert_event(struct i2c_client *client);
+> +#else
+> +static inline int i2c_smbus_alert_add_irq(struct i2c_client *client, int irq)
+> +{
+> +	return -EINVAL;
 > +}
 > +
->  static const struct i2c_device_id cm32181_id[] = {
-> -	{ "cm32181", 0 },
-> +	{ "cm32181", CM32181_ID },
-> +	{ "cm3218", CM3218_ID },
->  	{ }
->  };
->  
->  MODULE_DEVICE_TABLE(i2c, cm32181_id);
->  
->  static const struct of_device_id cm32181_of_match[] = {
-> -	{ .compatible = "capella,cm32181" },
-> +	{ .compatible = "capella,cm32181", (void *)CM32181_ID },
-> +	{ .compatible = "capella,cm3218",  (void *)CM3218_ID },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(of, cm32181_of_match);
->  
-> +static const struct acpi_device_id cm32181_acpi_match[] = {
-> +	{ "CPLM3218", CM3218_ID },
-> +	{ }
-> +};
+> +static inline int i2c_smbus_alert_free_irq(struct i2c_client *client, int irq)
+> +{
+> +	return -EINVAL;
+> +}
 > +
-> +MODULE_DEVICE_TABLE(acpi, cm32181_acpi_match);
+> +static inline int i2c_smbus_alert_event(struct i2c_client *client)
+> +{
+> +	return -EINVAL;
+> +}
+> +#endif
 > +
->  static struct i2c_driver cm32181_driver = {
->  	.driver = {
->  		.name	= "cm32181",
->  		.of_match_table = of_match_ptr(cm32181_of_match),
-> +		.acpi_match_table = ACPI_PTR(cm32181_acpi_match),
->  	},
->  	.id_table       = cm32181_id,
->  	.probe		= cm32181_probe,
-> +	.remove		= cm32181_remove,
-> +	.alert		= cm3218_alert,
->  };
+>  #endif /* _LINUX_I2C_SMBUS_H */
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 5d7f3c1853ae..7592dce12923 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -652,6 +652,8 @@ struct i2c_adapter {
+>  	const struct i2c_adapter_quirks *quirks;
 >  
->  module_i2c_driver(cm32181_driver);
-
+>  	struct irq_domain *host_notify_domain;
+> +
+> +	struct i2c_client *smbus_ara;	/* ARA client address if any or NULL */
+>  };
+>  #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
+>  
