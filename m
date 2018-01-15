@@ -1,131 +1,127 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 07/12] i2c: rk3x: account for const type of
- of_device_id.data
-Date: Mon, 15 Jan 2018 19:24:56 +0100
-Message-ID: <20180115182456.zkx2ehdlxzrc2scu@ninjato>
-References: <1514899688-27844-1-git-send-email-Julia.Lawall@lip6.fr>
- <1514899688-27844-8-git-send-email-Julia.Lawall@lip6.fr>
+From: Neil Horman <nhorman@tuxdriver.com>
+Subject: Re: [1/2] i2c: ismt: 16-byte align the DMA buffer address
+Date: Mon, 15 Jan 2018 13:53:04 -0500
+Message-ID: <20180115185304.GC24317@hmswarspite.think-freely.org>
+References: <20170818160128.21228-2-radu.rendec@gmail.com>
+ <20180104134606.GB919@hmswarspite.think-freely.org>
+ <1515080529.3062.26.camel@gmail.com>
+ <20180104162207.GD919@hmswarspite.think-freely.org>
+ <1515085276.3062.37.camel@gmail.com>
+ <20180105014727.GA18052@neilslaptop.think-freely.org>
+ <1516019600.11739.3.camel@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="emwm4gsssaxoraj4"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:40978 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750714AbeAOSY6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 15 Jan 2018 13:24:58 -0500
+Received: from charlotte.tuxdriver.com ([70.61.120.58]:57299 "EHLO
+        smtp.tuxdriver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751438AbeAOSxI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 15 Jan 2018 13:53:08 -0500
 Content-Disposition: inline
-In-Reply-To: <1514899688-27844-8-git-send-email-Julia.Lawall@lip6.fr>
+In-Reply-To: <1516019600.11739.3.camel@gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Julia Lawall <Julia.Lawall@lip6.fr>
-Cc: Heiko Stuebner <heiko@sntech.de>, kernel-janitors@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Radu Rendec <radu.rendec@gmail.com>
+Cc: linux-i2c@vger.kernel.org
 
+On Mon, Jan 15, 2018 at 12:33:20PM +0000, Radu Rendec wrote:
+> On Thu, 2018-01-04 at 20:47 -0500, Neil Horman wrote:
+> > On Thu, Jan 04, 2018 at 05:01:16PM +0000, Radu Rendec wrote:
+> > > On Thu, 2018-01-04 at 11:22 -0500, Neil Horman wrote:
+> > > > On Thu, Jan 04, 2018 at 03:42:09PM +0000, Radu Rendec wrote:
+> > > > > I believe the aligned() attribute cannot be used here because the whole
+> > > > > ismt_priv structure is dynamically allocated (the allocation is done at
+> > > > > the beginning of the ismt_probe() function).
+> > > > > 
+> > > > > Even with a statically allocated structure, aligning the whole
+> > > > > structure does not guarantee the alignment of the dma_buffer field,
+> > > > > because the field offset within the structure can change (e.g. if other
+> > > > > fields are added, removed, moved around etc.).
+> > > > 
+> > > > For reference, you can do it like this:
+> > > > 
+> > > > #include <stdlib.h>
+> > > > #include <stdio.h>
+> > > > 
+> > > > 
+> > > > struct buffer_type { char b[3]; };
+> > > > struct ubuffer_type { char b[3]; } __attribute__((aligned(16)));
+> > > > 
+> > > > struct s1 {
+> > > >         char foo;
+> > > >         struct buffer_type bar;
+> > > > };
+> > > > 
+> > > > struct s2 {
+> > > >         char foo;
+> > > >         struct ubuffer_type bar;
+> > > > };
+> > > > 
+> > > > int main(int argc, char **argv)
+> > > > {
+> > > >         struct s1 *p1;
+> > > >         struct s2 *p2;
+> > > > 
+> > > >         p1 = malloc(sizeof(struct s1));
+> > > >         p2 = malloc(sizeof(struct s2));
+> > > > 
+> > > >         printf("addr of p1->bar = %p\n", &p1->bar);
+> > > >         printf("addr of p2->bar = %p\n", &p2->bar);
+> > > > 
+> > > >         free(p1);
+> > > >         free(p2);
+> > > > 
+> > > >         return 0;
+> > > > }
+> > > 
+> > > Hmm... I just tried this on my workstation (x86, 32bit):
+> > > 
+> > > [rrendec@rrendec ~]$ gcc -o align align.c
+> > > [rrendec@rrendec ~]$ ./align 
+> > > addr of p1->bar = 0x9358009
+> > > addr of p2->bar = 0x9358028
+> > > [rrendec@rrendec ~]$ ./align 
+> > > addr of p1->bar = 0x856b009
+> > > addr of p2->bar = 0x856b028
+> > > 
+> > > The most significant 4 digits are always different (probably due to
+> > > address randomization), but the least significant 3 are consistently
+> > > 0x009 and 0x028, neither of which is 16 byte aligned.
+> > > 
+> > > But I think this is normal, because malloc() gets just a size parameter
+> > > and has no knowledge of the intended data type of the memory area that
+> > > it allocates. It's probably the same with kmalloc() and friends.
+> > > 
+> > 
+> > Yeah, I was under the impression that malloc provided memory in blocks aligned
+> > to a maximum arch specific alignment, and then gcc could just pad the struct
+> > size to guarantee a more granular alignment, but on doing some more reading,
+> > alignment support only applies to bss and data storage, at least for the gcc
+> > linker.  PTR_ALIGN is the way to go here.
+> > 
+> > > > Though as I look at that, you're probably right, using PTR_ALIGN would probably
+> > > > be prettier.  I'd be ok with that approach
+> > > 
+> 
+> Glad that we sorted this out.
+> 
+> > > That's great. I'll prepare an updated patch with PTR_ALIGN and post it
+> > > shortly.
+> > > 
+> > 
+> > Thanks!
+> 
+> I sent the updated patch with PTR_ALIGN on Jan/4. Have you had a chance
+> to look at it? Is there anything that can be further improved?
+> 
+hmm, I didn't see it, and I can't seem to find it on the i2c list archives here:
+https://marc.info/?l=linux-i2c&r=1&b=201801&w=2
 
---emwm4gsssaxoraj4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Can you point it out or resend it please?
 
-On Tue, Jan 02, 2018 at 02:28:03PM +0100, Julia Lawall wrote:
-> This driver creates a number of const structures that it stores in
-> the data field of an of_device_id array.
->=20
-> The data field of an of_device_id structure has type const void *, so
-> there is no need for a const-discarding cast when putting const values
-> into such a structure.
->=20
-> Furthermore, adding const to the declaration of the location that
-> receives a const value from such a field ensures that the compiler
-> will continue to check that the value is not modified.  The
-> const-discarding cast on the extraction from the data field is thus
-> no longer needed.
->=20
-> Done using Coccinelle.
->=20
-> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+Best
+Neil
 
-Heiko, you okay with the patch?
-
->=20
-> ---
->  drivers/i2c/busses/i2c-rk3x.c |   16 ++++++++--------
->  1 file changed, 8 insertions(+), 8 deletions(-)
->=20
-> diff -u -p a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-> --- a/drivers/i2c/busses/i2c-rk3x.c
-> +++ b/drivers/i2c/busses/i2c-rk3x.c
-> @@ -194,7 +194,7 @@ struct rk3x_i2c_soc_data {
->  struct rk3x_i2c {
->  	struct i2c_adapter adap;
->  	struct device *dev;
-> -	struct rk3x_i2c_soc_data *soc_data;
-> +	const struct rk3x_i2c_soc_data *soc_data;
-> =20
->  	/* Hardware resources */
->  	void __iomem *regs;
-> @@ -1164,27 +1164,27 @@ static const struct rk3x_i2c_soc_data rk
->  static const struct of_device_id rk3x_i2c_match[] =3D {
->  	{
->  		.compatible =3D "rockchip,rv1108-i2c",
-> -		.data =3D (void *)&rv1108_soc_data
-> +		.data =3D &rv1108_soc_data
->  	},
->  	{
->  		.compatible =3D "rockchip,rk3066-i2c",
-> -		.data =3D (void *)&rk3066_soc_data
-> +		.data =3D &rk3066_soc_data
->  	},
->  	{
->  		.compatible =3D "rockchip,rk3188-i2c",
-> -		.data =3D (void *)&rk3188_soc_data
-> +		.data =3D &rk3188_soc_data
->  	},
->  	{
->  		.compatible =3D "rockchip,rk3228-i2c",
-> -		.data =3D (void *)&rk3228_soc_data
-> +		.data =3D &rk3228_soc_data
->  	},
->  	{
->  		.compatible =3D "rockchip,rk3288-i2c",
-> -		.data =3D (void *)&rk3288_soc_data
-> +		.data =3D &rk3288_soc_data
->  	},
->  	{
->  		.compatible =3D "rockchip,rk3399-i2c",
-> -		.data =3D (void *)&rk3399_soc_data
-> +		.data =3D &rk3399_soc_data
->  	},
->  	{},
->  };
-> @@ -1207,7 +1207,7 @@ static int rk3x_i2c_probe(struct platfor
->  		return -ENOMEM;
-> =20
->  	match =3D of_match_node(rk3x_i2c_match, np);
-> -	i2c->soc_data =3D (struct rk3x_i2c_soc_data *)match->data;
-> +	i2c->soc_data =3D match->data;
-> =20
->  	/* use common interface to get I2C timing properties */
->  	i2c_parse_fw_timings(&pdev->dev, &i2c->t, true);
->=20
-
---emwm4gsssaxoraj4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpc8fgACgkQFA3kzBSg
-KbZhJxAAoy2fQHMfVVvlwVplaox+UGqMx/gpuWRW1MwhXiSz/e01BWeWyM0bCKgt
-IYRsphQkJaRKU+92K/wHtRgNNDZLfRnzkinbNMFBH62PXls6Qo7i0gqB08xBxUsp
-vbpVwPxDTvJ36lelY5rcK2/ysrRIx5j097GIcLAv6f0EIgiei34OPBw9rYSIkT1n
-C1nNXc734fCwfaIGxqGiaseZsg97l0rqJ7vKmFtve0XRU9kCNQG7vQ4eNhI6y4n0
-h3JkjZyuAtDEybMP5omMZqx6GwGmnJKtbNzHpcPvrMxN2KZ2clmzeWuK6rlF52Wo
-b7KHBLrC7OGdzUJrZvUY9QKA/tcxoI1ipyXHG60K6sACtLJSBNcoMn9jK/I6kS2Y
-obeaXrqtHZE4gfrOY5/QwPcAdGmXMrE4aoAfz0sJUqSXYMb5sc7tk6pcCjxU0gLl
-m6p4cclaVmEBNxsBd/r8CRKWJL/sJH+KGd5LKtVLKi9X3jdjBbBcbkGDxVb8rkZJ
-XAh2TMu5PFnwLOZwR00/CQDKQvN34msfFgs65ISQ9DwtSZ08hiNYqhA95N4BfimF
-5IZ0GKpcbg7MwFV8AK31qUagg0YCVQDQOVQS/qwPoJoId9S46syjGsJX6Lt8DdSC
-tFKe38lR3GeH1mNZtjeKoMPwvDLISFME1NGGUrmf24VLL8D5Rjc=
-=RPfk
------END PGP SIGNATURE-----
-
---emwm4gsssaxoraj4--
+> Thanks,
+> Radu
+> 
+> 
