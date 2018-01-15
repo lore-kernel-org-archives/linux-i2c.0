@@ -1,63 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RESEND, 2/4] i2c: mpc: unify obtaining the MPC8533/44 I2C clock
- prescaler w/ MPC8xxx
-Date: Mon, 15 Jan 2018 19:21:51 +0100
-Message-ID: <20180115182151.wvynwprpeev22yhi@ninjato>
-References: <20171207102003.23496-3-asolokha@kb.kras.ru>
+Subject: Re: [RESEND,3/4] i2c: mpc: fix PORDEVSR2 mask for MPC8533/44
+Date: Mon, 15 Jan 2018 19:22:01 +0100
+Message-ID: <20180115182201.oz2ii2vrmmrujokd@ninjato>
+References: <20171207102003.23496-4-asolokha@kb.kras.ru>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="krn5gyrssjb76h6f"
+        protocol="application/pgp-signature"; boundary="gy75m3hkps2mvzo4"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20171207102003.23496-3-asolokha@kb.kras.ru>
+In-Reply-To: <20171207102003.23496-4-asolokha@kb.kras.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Arseny Solokha <asolokha@kb.kras.ru>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Valentin Longchamp <valentin.longchamp@keymile.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---krn5gyrssjb76h6f
+--gy75m3hkps2mvzo4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 07, 2017 at 05:20:01PM +0700, Arseny Solokha wrote:
-> Commit 8ce795cb0c6b ("i2c: mpc: assign the correct prescaler from SVR")
-> introduced the common helper function for obtaining the actual clock
-> prescaler value for MPC85xx. However, getting the prescaler for MPC8544
-> which depends on the SEC frequency ratio on this platform, has been always
-> performed separately based on the corresponding Device Tree configuration.
->=20
-> Move special handling of MPC8544 into that common helper. Make it depende=
-nt
-> on the SoC version and not on Device Tree compatible node, as is the case
-> with all other SoCs. Handle MPC8533 the same way which is similar
-> to MPC8544 in this regard, according to AN2919 "Determining the I2C
-> Frequency Divider Ratio for SCL".
+On Thu, Dec 07, 2017 at 05:20:02PM +0700, Arseny Solokha wrote:
+> According to the reference manuals for the corresponding SoCs, SEC
+> frequency ratio configuration is indicated by bit 26 of the POR Device
+> Status Register 2. Consequently, SEC_CFG bit should be tested by mask 0x2=
+0,
+> not 0x80. Testing the wrong bit leads to selection of wrong I2C clock
+> prescaler on those SoCs.
 >=20
 > Signed-off-by: Arseny Solokha <asolokha@kb.kras.ru>
 
 Applied to for-next, thanks!
 
 
---krn5gyrssjb76h6f
+--gy75m3hkps2mvzo4
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpc8T8ACgkQFA3kzBSg
-KbZZ8A//SPo07P/TWqKCoDtUuTEdyef+OrDpiCR46pyf5TTFWku21b3tp2CibGU0
-kd5yQq0lyRyUHm06Qc8z14A4YPyt6470K2ac1asVLTAlHb3xzx5KAi+XcbQprKHI
-K4tMcDWMB4acz27beoqfowZK17TMJieHe85096BfVOqmf4fiBUEGfbqbqQIlrZtP
-FvLre4DSqIKwm7/3HKCauWqQlQdZll5e0xZCcLbxFAPOpjAv/+UZPmSRJigG5+lc
-FjuWizavaP3JJLfympWScjABOkEuXq9qPSg3yV9jc0GUMy1db/TuzgrNkWFzs/4y
-/6tZf86zcBmAJn0qDmovS+esgAXAZ9iyGdvrweP61GJjBKYXoaj3oydJpF/ZmrHp
-49JjTieCkFntRmPr3h+2Pyx/pQyf3aijrVH26WoTxEzzvkP4YzmCWbsN6ZU65TrT
-pk89H73rh0JI+QMIZYdh5HZIFfe8ufiqZFQZRhtLGAMNeEjXkTu5LwSSvxZkRRpM
-3/9I5OiKyRdgsSL3LW8JxPI1+rBftAOk75FhfJ9GSdGmi8Ff0qPMs8CpvfbG0Sas
-+Rge1HKICVtU6JBzShtU9F8zsxR7XSE+Y1X7KOkRjUtivfWKTQpAsHyHE3CFALma
-sXP082SvvJi3pktwJnLJP72TBk+bG6JE4YscZDObQQtyEYHLyz0=
-=F6Vc
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpc8UkACgkQFA3kzBSg
+KbbleQ//cXKZTZ/p/UHPzu8QZH+iLEXLJJOq4YxrfXIqbEH8umyTXx7DFsYMxf3g
+asggh9TXjOn/5Bj5c7zmmGEKRWtewR8Cm7MdsVcHreRTVZxtz3UF1zwKaE3c5Lb2
+wy8UZYsIUPy0mg0aNZxJlvTSM54wriIjR+UbXbbZCTEZuVl5DIsVhvqTCFP/Jk7r
+0QR9z4UvvkF+IHHWcYvc0oB0GaikTlTISzmHj/A5iSQsVDene4ZAXeZLbVL/aY3F
+DTlLLQQlhEgOTA1rvjWoGfRy4eKC/zHdUM5DEDFX+2s9aSI0YtjKJQK+rH/nJ1mZ
+EMMO66wLiBa8En1kmyZJ3XJLiMXr9ajvjPQaIAYGzchyX+iqp0FbqpICgcK/BaD7
+T8BXFLnSOqfDkLc47ZK+KjjbaY45JtpdzoQRGE3d1o++p8OJgBrANQfMg8KuBnpM
+h9aoMxSdO/Lo9BgzQvg3bBnJQ7Fj7lXb+nQWDUwruUp8hVSmT+L/XbqkfGeXX4/3
+rL+p/JgIBn8vZtuBlD/wJcvzFv5uLMJ6t6nhmSQIceQ6acuUT3BCUd1rPFooljW3
+NXqCzcWg0DqNV/JgaaaImPT8qiSWe0RSCvge7oJMzCnJho+Hl/RDRiKFQ7eL5Ywq
+kj0UXEGP2Lt2c5ZqtiHTX/JSOr9Zj52pomGl98s6nvlrDCGIkWQ=
+=Z5N5
 -----END PGP SIGNATURE-----
 
---krn5gyrssjb76h6f--
+--gy75m3hkps2mvzo4--
