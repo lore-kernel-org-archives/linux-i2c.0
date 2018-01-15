@@ -1,109 +1,70 @@
-From: "Marc CAPDEVILLE" <m.capdeville-n+LsquliYkMdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v7 2/4] i2c-acpi : exclude ARA address for smbus device
-Date: Sun, 14 Jan 2018 15:41:20 +0100
-Message-ID: <d2d75cd20b6f3b3e08e245c1c48dfbb4.squirrel@webmail.no-log.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Marc CAPDEVILLE <m.capdeville-n+LsquliYkMdnm+yROfE0A@public.gmane.org>, Kevin Tsai <ktsai-GubuWUlQtMwciDkP5Hr2oA@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Nicholas Mc Guire <hofrat@osadl.org>
+Subject: [PATCH] Documentation: i2c: drop unnecessary .owner field in examples
+Date: Mon, 15 Jan 2018 12:08:46 +0000
+Message-ID: <1516018126-16119-1-git-send-email-hofrat@osadl.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Jonathan Corbet <corbet@lwn.net>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.at>
 List-Id: linux-i2c@vger.kernel.org
 
-> On Sat, 13 Jan 2018 14:37:03 +0100
-> Marc CAPDEVILLE <m.capdeville-n+LsquliYkMdnm+yROfE0A@public.gmane.org> wrote:
->> Somme ACPI enumerated devices are known to support smbus alert
-protocol.
->> Theses devices may be miss-enumerated with the reserved smbus ARA address.
->> This is the case on Asus T100 tablet where cm3218 ambiant light sensor
-expose two i2c serial bus connections, with the first one being the
-alert
->> response address.
->> This patch make a match on known ACPI ids for which devices are smbus ARA
->> capable, then skip the connection if it has the reserved 0x0c address and
->> mark it with I2C_CLIENT_ALERT flag. So device is enumerated with the
-correct address.
-> I wonder if we are safe to always skip 0x0c address whether or not we
-know the device supports ARA.  The exception may be for devices that do
-support ARA but are rolling their own support the hard way...
+From: Nicholas Mc Guire <hofrat@osadl.at>
 
-The device is only flagged with I2C_CLIENT_ALERT if its ID is in the
-i2c_acpi_alert_device_ids. IF a driver want to be enumerated with the
-reserved Ox0c address, It just have to not put its Id in this table. But
-this may break with registering the smbus_alert device as the address will
-be marked as busy for this adapter.
-> I suppose it's possible there are i2c devices (not smbus where the spec
-says you must not use 0x0c for normal address IIRC) that use this
-address.  Does anyone know of any?
+ Currently there are a few drivers that still set the .owner
+ in the i2c_driver structure - all of which are reported by
+ coccinelle (scripts/coccinelle/api/platform_no_drv_owner.cocci)
+ and there are no cases that set the .onwer and do not call any
+ of the functions that set the .owner field anyway in any of the
+ drivers (checked by a modified coccinelle script based on the
+ above) so it seems that the examples are no longer valid and
+ .owner = THIS_MODULE, can be removed here.
 
-I think this possible, but a such device can't share the bus with a smbus
-alert capable device.
-> Jonathan
->> Signed-off-by: Marc CAPDEVILLE <m.capdeville-n+LsquliYkMdnm+yROfE0A@public.gmane.org>
->> ---
->>  drivers/i2c/i2c-core-acpi.c | 23 +++++++++++++++++++++--
->>  include/linux/i2c.h         |  1 +
->>  2 files changed, 22 insertions(+), 2 deletions(-)
->> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index a9126b3cda61..5a8886f14329 100644
->> --- a/drivers/i2c/i2c-core-acpi.c
->> +++ b/drivers/i2c/i2c-core-acpi.c
->> @@ -59,8 +59,14 @@ static int i2c_acpi_fill_info(struct acpi_resource
-*ares, void *data)
->>  	if (sb->type != ACPI_RESOURCE_SERIAL_TYPE_I2C)
->>  		return 1;
->> -	if (lookup->index != -1 && lookup->n++ != lookup->index)
->> -		return 1;
->> +	if (lookup->index != -1) {
->> +		if (lookup->n++ != lookup->index)
->> +			return 1;
->> +	} else {
->> +		if (lookup->info->flags & I2C_CLIENT_ALERT &&
->> +		    sb->slave_address == 0x0c)
->> +			return 1;
->> +	}
->>  	status = acpi_get_handle(lookup->device_handle,
->>  				 sb->resource_source.string_ptr,
->> @@ -85,6 +91,15 @@ static const struct acpi_device_id
->> i2c_acpi_ignored_device_ids[] = {
->>  	{}
->>  };
->> +static const struct acpi_device_id i2c_acpi_alert_device_ids[] = { +	/*
->> +	 * Smbus alert capable device which may have the reserved ARA address
-+	 * in their serial bus resources list.
->> +	 */
->> +	{ "CPLM3218", 0 },
->> +	{}
->> +};
->> +
->>  static int i2c_acpi_do_lookup(struct acpi_device *adev,
->>  			      struct i2c_acpi_lookup *lookup)
->>  {
->> @@ -100,6 +115,10 @@ static int i2c_acpi_do_lookup(struct acpi_device
-*adev,
->>  		return -ENODEV;
->>  	memset(info, 0, sizeof(*info));
->> +
->> +	if (acpi_match_device_ids(adev, i2c_acpi_alert_device_ids) == 0)
-+		info->flags |= I2C_CLIENT_ALERT;
->> +
->>  	lookup->device_handle = acpi_device_handle(adev);
->>  	/* Look up for I2cSerialBus resource */
->> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
->> index 7592dce12923..b0d6f1333442 100644
->> --- a/include/linux/i2c.h
->> +++ b/include/linux/i2c.h
->> @@ -743,6 +743,7 @@ i2c_unlock_adapter(struct i2c_adapter *adapter)
->>  #define I2C_CLIENT_SLAVE	0x20	/* we are the slave */
->>  #define I2C_CLIENT_HOST_NOTIFY	0x40	/* We want to use I2C host notify
->> */
->>  #define I2C_CLIENT_WAKE		0x80	/* for board_info; true iff can wake */
->> +#define I2C_CLIENT_ALERT	0x100	/* Client use SMBUS alert protocol */
->>  #define I2C_CLIENT_SCCB		0x9000	/* Use Omnivision SCCB protocol */
->>  					/* Must match I2C_M_STOP|IGNORE_NAK */
+ While at it an obvious typo (new new) was also fixed.
 
+Signed-off-by: Nicholas Mc Guire <hofrat@osadl.at>
+---
 
+Patch is against 4.15-rc7 (localversion-next is -next-20180112)
+
+ Documentation/i2c/upgrading-clients | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/Documentation/i2c/upgrading-clients b/Documentation/i2c/upgrading-clients
+index ccba3ff..d5e51ae 100644
+--- a/Documentation/i2c/upgrading-clients
++++ b/Documentation/i2c/upgrading-clients
+@@ -7,7 +7,7 @@ Introduction
+ ------------
+ 
+ This guide outlines how to alter existing Linux 2.6 client drivers from
+-the old to the new new binding methods.
++the old to the new binding methods.
+ 
+ 
+ Example old-style driver
+@@ -77,7 +77,6 @@ static int example_attach_adapter(struct i2c_adapter *adap)
+ 
+ static struct i2c_driver example_driver = {
+  	.driver		= {
+-		.owner		= THIS_MODULE,
+ 		.name		= "example",
+ 		.pm		= &example_pm_ops,
+ 	},
+@@ -217,7 +216,6 @@ and other utilities:
+ 
+ static struct i2c_driver example_driver = {
+  	.driver		= {
+-		.owner		= THIS_MODULE,
+ 		.name		= "example",
+ 	},
+ +	.id_table	= example_ids,
+@@ -269,7 +267,6 @@ MODULE_DEVICE_TABLE(i2c, example_idtable);
+ 
+ static struct i2c_driver example_driver = {
+  	.driver		= {
+-		.owner		= THIS_MODULE,
+ 		.name		= "example",
+ 		.pm		= &example_pm_ops,
+ 	},
 -- 
-Marc CAPDEVILLE
-<m.capdeville-n+LsquliYkMdnm+yROfE0A@public.gmane.org>
+2.1.4
