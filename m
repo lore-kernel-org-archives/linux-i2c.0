@@ -1,53 +1,39 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH] i2c: acorn: add MODULE_LICENSE tag
-Date: Mon, 15 Jan 2018 21:31:51 +0100
-Message-ID: <CAK8P3a1M1szCGm4TQSePvZR95zR6zLmNRNHOpUajW9P=pogfDA@mail.gmail.com>
-References: <20180111103751.1506236-1-arnd@arndb.de> <20180115171027.ynorej3x7nal7ttj@ninjato>
- <20180115171920.GA32698@flint.armlinux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180115171920.GA32698@flint.armlinux.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Russell King <linux@armlinux.org.uk>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH i2c-tools] i2c-dev.h: copy over typo fix from kernel include
+Date: Mon, 15 Jan 2018 21:40:30 +0100
+Message-ID: <20180115204030.26400-1-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:41572 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750737AbeAOUkf (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 15 Jan 2018 15:40:35 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@the-dreams.de>
 
-On Mon, Jan 15, 2018 at 6:19 PM, Russell King <linux@armlinux.org.uk> wrote:
-> On Mon, Jan 15, 2018 at 06:10:28PM +0100, Wolfram Sang wrote:
->> On Thu, Jan 11, 2018 at 11:37:45AM +0100, Arnd Bergmann wrote:
->> > As of v4.15, Kbuild warns about missing MODULE_LICENSE tags:
->> >
->> > WARNING: modpost: missing MODULE_LICENSE() in drivers/i2c/busses/i2c-acorn.o
->> >
->> > This adds a license, author and description tag, matching the
->> > comment at the start of the acorn i2c driver.
->> >
->> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
->>
->> Looks good, but since rmk is still around, let's add him to CC...
+We had a typo in a define which got fixed in the kernel. Fix it here,
+too!
 
-Oops, I just went with the default from scripts/get_maintainer.pl and
-forgot to ensure the author was listed there.
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ include/linux/i2c-dev.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
->> >  drivers/i2c/busses/i2c-acorn.c | 4 ++++
->> >  1 file changed, 4 insertions(+)
->> >
->> > diff --git a/drivers/i2c/busses/i2c-acorn.c b/drivers/i2c/busses/i2c-acorn.c
->> > index 9d7be5af2bf2..6463189ca183 100644
->> > --- a/drivers/i2c/busses/i2c-acorn.c
->> > +++ b/drivers/i2c/busses/i2c-acorn.c
->> > @@ -94,3 +94,7 @@ static int __init i2c_ioc_init(void)
->> >  }
->> >
->> >  module_init(i2c_ioc_init);
->> > +
->> > +MODULE_AUTHOR("Russell King <rmk@arm.linux.org.uk>");
->
-> linux@armlinux.org.uk please - dspam on _this_ account files such mails
-> into the spam mailbox.
-
-Ok, resent now. I think what I did there was to check which address you
-use most commonly in the other MODULE_AUTHOR entries.
-
-       Arnd
+diff --git a/include/linux/i2c-dev.h b/include/linux/i2c-dev.h
+index 839d25a..bbb50e8 100644
+--- a/include/linux/i2c-dev.h
++++ b/include/linux/i2c-dev.h
+@@ -66,7 +66,9 @@ struct i2c_rdwr_ioctl_data {
+ 	__u32 nmsgs;			/* number of i2c_msgs */
+ };
+ 
+-#define  I2C_RDRW_IOCTL_MAX_MSGS	42
++#define  I2C_RDWR_IOCTL_MAX_MSGS	42
++/* Originally defined with a typo, keep it for compatibility */
++#define  I2C_RDRW_IOCTL_MAX_MSGS	I2C_RDWR_IOCTL_MAX_MSGS
+ 
+ 
+ #endif /* _LINUX_I2C_DEV_H */
+-- 
+2.11.0
