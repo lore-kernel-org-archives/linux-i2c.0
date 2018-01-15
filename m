@@ -1,66 +1,36 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: ismt: 16-byte align the DMA buffer address
-Date: Mon, 15 Jan 2018 21:03:59 +0100
-Message-ID: <20180115200358.zmenw7bvit3v5se5@ninjato>
-References: <20180104181813.25474-1-radu.rendec@gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH] Documentation: i2c: drop unnecessary .owner field in examples
+Date: Mon, 15 Jan 2018 22:24:52 +0200
+Message-ID: <CAHp75VeamZDS=-bwGYn41y0pwKEptRE02W3bRe326Q34i68=yg@mail.gmail.com>
+References: <1516018126-16119-1-git-send-email-hofrat@osadl.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="mcjdgmpvguphiauf"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:41408 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750714AbeAOUEA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 15 Jan 2018 15:04:00 -0500
-Content-Disposition: inline
-In-Reply-To: <20180104181813.25474-1-radu.rendec@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1516018126-16119-1-git-send-email-hofrat@osadl.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nicholas Mc Guire <hofrat@osadl.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Documentation List <linux-doc@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Nicholas Mc Guire <hofrat@osadl.at>
 List-Id: linux-i2c@vger.kernel.org
-To: Radu Rendec <radu.rendec@gmail.com>
-Cc: Neil Horman <nhorman@tuxdriver.com>, linux-i2c@vger.kernel.org
+
+On Mon, Jan 15, 2018 at 2:08 PM, Nicholas Mc Guire <hofrat@osadl.org> wrote:
+> From: Nicholas Mc Guire <hofrat@osadl.at>
+>
+>  Currently there are a few drivers that still set the .owner
+>  in the i2c_driver structure - all of which are reported by
+>  coccinelle (scripts/coccinelle/api/platform_no_drv_owner.cocci)
+>  and there are no cases that set the .onwer and do not call any
+>  of the functions that set the .owner field anyway in any of the
+>  drivers (checked by a modified coccinelle script based on the
+>  above) so it seems that the examples are no longer valid and
+>  .owner = THIS_MODULE, can be removed here.
+>
+>  While at it an obvious typo (new new) was also fixed.
+
+AFAIU It is right only in case when someone does this, e.g.
+module_i2c_driver() macro. Otherwise the field is pretty valid and
+must be filled.
 
 
---mcjdgmpvguphiauf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Jan 04, 2018 at 06:18:13PM +0000, Radu Rendec wrote:
-> Use only a portion of the data buffer for DMA transfers, which is always
-> 16-byte aligned. This makes the DMA buffer address 16-byte aligned and
-> compensates for spurious hardware parity errors that may appear when the
-> DMA buffer address is not 16-byte aligned.
->=20
-> The data buffer is enlarged in order to accommodate any possible 16-byte
-> alignment offset and changes the DMA code to only use a portion of the
-> data buffer, which is 16-byte aligned.
->=20
-> The symptom of the hardware issue is the same as the one addressed in
-> v3.12-rc2-5-gbf41691 and manifests by transfers failing with EIO, with
-> bit 9 being set in the ERRSTS register.
->=20
-> Signed-off-by: Radu Rendec <radu.rendec@gmail.com>
-
-Applied to for-next with Neil's ack, thanks!
-
-
---mcjdgmpvguphiauf
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpdCSoACgkQFA3kzBSg
-Kbbr2A//Z5Q/tX6rVORKp+SZTYzIeoZwAB24W3ewfTI0b033kCmvnaN1uSiR7hiL
-6H/deg2g1PBYOQP9Kbxe1dOsw48JR7zUNwKHZkjpM4LMk5yRC00NRzweGRK0gPvR
-NiOgfLpz3JLnuAEaZJagnI4oDWxBHSl24VoVkSuK6YGz6xsQP9iBRTRkybKwbSOC
-LpjRYf7g0pT1rXbN1w50Bh+vUw4b7eIdl+wmrJWMbOLsI/opZMWSHNwXpweA5MQ2
-azPAq8Eo5O45pj5wsRM0Pn2vHfGBqiUs2VKyBvEIV/hrVfVHcUtwR5g31mlfgi/l
-iXdVRkTBfDrH6pRehuyFhUxzfck3NTcNadbANd/Ns9KuFY+9fsp4L5otzGrG+gzk
-DOYfEfxBOB3LWoIXTPCiQmBVLmyB/05TpQn0ISY0Wzn1ASwsEri6kS7VMKNi7NI2
-4PF8nGH+fx5CzgvueP4UfjrudBh7wz8a1p6x8XW49PDHV9reH52RhKCouNeQfKxN
-9BuGGXnkqv8xBcOlt4IJ5VIyIKFWKB1DVllyRxPCaGOp2DL2TikNI/L2+JNWxOux
-wNYQhdKo8teJ0wrHzWFt0cqDiA+DDxjYcmAf34sWMmia2QBt0QMuOCRmL9Rsh20m
-24yl84DDEYf5q8dCp0bv6fwtg63lMdERhHhqymwWEM6t20JG2HY=
-=KZsP
------END PGP SIGNATURE-----
-
---mcjdgmpvguphiauf--
+-- 
+With Best Regards,
+Andy Shevchenko
