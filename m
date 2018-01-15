@@ -1,55 +1,66 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [1/3] i2c: exynos5: change internal transmission timeout to 100ms
-Date: Mon, 15 Jan 2018 21:54:46 +0100
-Message-ID: <20180115205445.i2ghkhj5btjymlh6@ninjato>
-References: <20171130143007.30258-2-a.hajda@samsung.com>
+Subject: Re: i2c: core: decrease reference count of device node in
+ i2c_unregister_device
+Date: Tue, 16 Jan 2018 00:02:09 +0100
+Message-ID: <20180115230209.6atseekh5r7a2zd6@ninjato>
+References: <1511766415-3732-1-git-send-email-alan.1.wang@nokia-sbell.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="z2we2tscg2jax7kd"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="jzd7at6szcexiiki"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:42246 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750750AbeAOXCM (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 15 Jan 2018 18:02:12 -0500
 Content-Disposition: inline
-In-Reply-To: <20171130143007.30258-2-a.hajda@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Andrzej Hajda <a.hajda@samsung.com>
-Cc: Andi Shyti <andi.shyti@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/SAMSUNG EXYNOS ARM ARCHITECTURES" <linux-samsung-soc@vger.kernel.org>
+In-Reply-To: <1511766415-3732-1-git-send-email-alan.1.wang@nokia-sbell.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Lixin Wang <alan.1.wang@nokia-sbell.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---z2we2tscg2jax7kd
+--jzd7at6szcexiiki
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 30, 2017 at 03:30:05PM +0100, Andrzej Hajda wrote:
-> Exynos-I2C uses default timeout of 1 second for the whole transaction,
-> including re-transmissions due to arbitration lost errors (-EAGAIN).
-> To allow re-transmissions driver's internal timeout should be significant=
-ly
-> lower, 100ms seems to be good candidate.
+On Mon, Nov 27, 2017 at 03:06:55PM +0800, Lixin Wang wrote:
+> Reference count of device node was increased in of_i2c_register_device,
+> but without decreasing it in i2c_unregister_device. Then the dynamically
+> added device node will never be released.
+> Fix this by adding the of_node_put.
 >=20
-> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+> Signed-off-by: Lixin Wang <alan.1.wang@nokia-sbell.com>
 
-Applied to for-next, thanks!
+Yes you are right! In my previous review, I mixed up
+of_i2c_register_devices (with plural 's') with of_i2c_register_device
+(without plural 's'). I could now verify your findings by rebinding an
+adapter which had DT bindings for clients attached. With every rebind
+cycle, the refcount for the client increased.
+
+I did some rebasing, because your patch didn't apply to a v4.15
+codebase. Now, applied to for-current, thanks!
 
 
---z2we2tscg2jax7kd
+--jzd7at6szcexiiki
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpdFRUACgkQFA3kzBSg
-KbZk4xAAgci3EdTigPn1CwMwf8gx6AKnEczPgrF+zMWIgYU6nW3Iz4vIjjkc44Vd
-MLhmUXrRWHV1mUb191YIW0ycCSpdiIpHYwcs3lxImtAuTB5dFLEI9qVU6cTWL8+4
-J4azeK9XF2TVYcpZOYCX1yo/w2NecTvplOT50cF4Da+wr3/XTeJ0uvRn25YMaZdH
-MTdsyUZ5LxTjgDBOdpn4B+nx11ZNxR9fQr1uJqffQFeDj+W5JckbYDuoAn9yuhKy
-aaQieVh2mfLQEt2XfZjCK5Ji8w4vG2umOCJunEFvffuY/BtJq38dLdqjQ77aRfo7
-ptF/i0vtO4EtHCn4+lRHNpJJJIv1jmRSXVN1FDtmzOXFGta1NX4rdZY5MRalnM9a
-k5fb8WKsTZrV1MpD4vmFs/7hJ+xt02hon7WSGJLfi4NOGo2n50gGYHDR9EAgO24r
-8vzuP4TGziBsjRyIDwWVscqwqItQtRJh7XReNjR+YeQ7S1mCXYeBgWjK7B3T/ssv
-LHb2/3gD8PFYT9IKj3EG+L7QLHxoHmnk7i+KLJINOOIt2xgVZvYjSqSMnPafH5Yd
-M11/u7kJaRtpu0noPg33MAMyB78EYVcb4Jjh8vB3mwE+GwtiqXF9fTtczLskJdEg
-XeC1uftQr3PYfanP3Moaf1+RFSEA9ltylP8J1SFdew6Hpizt5vM=
-=MuHU
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpdMu0ACgkQFA3kzBSg
+KbYkUg//Xqj7oM/qBV+0s0ancLA6qbuI5hxhCpHqGxKKtl/8lN8WHyn1ACNt7B5g
+edFqOwHrJy2AZEnO1JExn+KLAvD8ZPz7bu4KeaWBWbjZYOVCTsfhC+AArbCccqte
+I+bPhCWizEXQGvub336G4uWbtn78CRvwHs/xn0LrKrt+kd7XPVm89Xk+pP0ulrx0
+43ITgD3Iao8f76KKBwx/GIS0PwjZBKoxNgEHjwk6jSJ50abZt/Rr4amp7d0mdKGW
+/ianubfZzHEgGmaApQPtvyt1DcY6YX6UblsbUF+cqWxEFB4sGDKtyv3CpoLUotUx
+Vn9QspmI9HHrHFNGvN3AI79XfWPmrnHzuI/v076Ptxjg0xl0vAGX6J+pS0gszDRh
+OH6J6JoVb8bu7dYl6TXGyJYZi9IZ7fHgGtTUXKkdTNSfqYzNSbrqEgQTcPnSpWy3
+L51C/AN+u8D3uUYmh0mYzOy+QmIEOJx6M3irg3CuokfQ4jGt37L3WlhlFS8dsFRG
+gP4fQM23teGO8Mt58XVgpLmsE6o22FtL49SIZH+ZJ6YOch2jUluhOBmQsDA2ysMl
+dWvV7QrfPdH3VS8MKfSadpEEcq47G8k6z9+s5JkIoJUvlc760nLtxwUdJ/iwaR+g
+/9n4/qXOiqwKeVxy/P2FVVCabzoyf2SCBbS2L8dsCypQ5tLRLhI=
+=I1Ae
 -----END PGP SIGNATURE-----
 
---z2we2tscg2jax7kd--
+--jzd7at6szcexiiki--
