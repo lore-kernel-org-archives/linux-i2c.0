@@ -1,71 +1,63 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RESEND, 1/4] i2c: mpc: get MPC8xxx I2C clock prescaler before
- using it in calculations
-Date: Mon, 15 Jan 2018 19:21:45 +0100
-Message-ID: <20180115182145.vfic2xo6cyx5etl5@ninjato>
-References: <20171207102003.23496-2-asolokha@kb.kras.ru>
- <20171230181814.4ppgyqg6mcfahkdh@ninjato>
+Subject: Re: [RESEND, 2/4] i2c: mpc: unify obtaining the MPC8533/44 I2C clock
+ prescaler w/ MPC8xxx
+Date: Mon, 15 Jan 2018 19:21:51 +0100
+Message-ID: <20180115182151.wvynwprpeev22yhi@ninjato>
+References: <20171207102003.23496-3-asolokha@kb.kras.ru>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="434jjmcjaccae2qk"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:40952 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750773AbeAOSVr (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 15 Jan 2018 13:21:47 -0500
+        protocol="application/pgp-signature"; boundary="krn5gyrssjb76h6f"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20171230181814.4ppgyqg6mcfahkdh@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+In-Reply-To: <20171207102003.23496-3-asolokha@kb.kras.ru>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Arseny Solokha <asolokha@kb.kras.ru>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Valentin Longchamp <valentin.longchamp@keymile.com>
+List-Id: linux-i2c@vger.kernel.org
 
 
---434jjmcjaccae2qk
+--krn5gyrssjb76h6f
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Dec 30, 2017 at 07:18:14PM +0100, Wolfram Sang wrote:
-> On Thu, Dec 07, 2017 at 05:20:00PM +0700, Arseny Solokha wrote:
-> > Obtaining the actual I2C clock prescaler value in mpc_i2c_setup_8xxx() =
-only
-> > happens when the clock parameter is set to something other than
-> > MPC_I2C_CLOCK_LEGACY. When the clock parameter is exactly
-> > MPC_I2C_CLOCK_LEGACY, the prescaler parameter is used in arithmetic
-> > division as provided by the caller, resulting in a division by zero
-> > for the majority of processors supported by the module.
-> >=20
-> > Avoid division by zero by obtaining the actual I2C clock prescaler
-> > in mpc_i2c_setup_8xxx() unconditionally regardless of the passed clock
-> > value.
-> >=20
-> > Signed-off-by: Arseny Solokha <asolokha@kb.kras.ru>
+On Thu, Dec 07, 2017 at 05:20:01PM +0700, Arseny Solokha wrote:
+> Commit 8ce795cb0c6b ("i2c: mpc: assign the correct prescaler from SVR")
+> introduced the common helper function for obtaining the actual clock
+> prescaler value for MPC85xx. However, getting the prescaler for MPC8544
+> which depends on the SEC frequency ratio on this platform, has been always
+> performed separately based on the corresponding Device Tree configuration.
 >=20
-> Applied to for-current, thanks!
+> Move special handling of MPC8544 into that common helper. Make it depende=
+nt
+> on the SoC version and not on Device Tree compatible node, as is the case
+> with all other SoCs. Handle MPC8533 the same way which is similar
+> to MPC8544 in this regard, according to AN2919 "Determining the I2C
+> Frequency Divider Ratio for SCL".
+>=20
+> Signed-off-by: Arseny Solokha <asolokha@kb.kras.ru>
 
-Reconsidered and moved to for-next.
+Applied to for-next, thanks!
 
 
-
---434jjmcjaccae2qk
+--krn5gyrssjb76h6f
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpc8TkACgkQFA3kzBSg
-KbaOPQ/+J9VAJztN3VH0yWqHHl1Lxps5CmwlIx61iclEVVugB+4TlsvSZi//58pI
-Nl2ZAy7hqPOwdNW34xJebef7m9UNSgFjOehj8W2Hkeo9KQSFiceN8HHRrwnL79Kf
-Jno3g6x51gypdWHLUHG/N95+Y+vp69gtRdee4gvDRhvmOIj+LkvusgSd6LBd+MEI
-WK3XOl4Yb+rpYmaH13snllvFJ6KZxCTIabzZbyDUYE+VJQhUG6zgqp10WIWyWyft
-n95tmuTY3C/qrMnP3D0GyPpAZRoznIx1U6EVQqokeuJy4qA32Fm0VyUvQb+9YzJI
-5wF8lqdCvnVzfHotiDEvK0nxrdUtmrNCF9fhwWlcNwXJDBM+yqQS8tkxWCtopiSO
-tvj/VlqU4XBYI0NLCM6pvE6n0m6iK4FDW2pwwlwVBqUOxa/FWAqSoQLtrCl84hF1
-Oh/q+IeF/TC07j1g0nbXNnJTOIIqyZSImATfV0YTGuLsxlMzsRsJxqrO2n96wcOx
-HLL+OXDFHyRVuutvVPtDyT053jxsFDrEGn3ZDPNhiHz750vQVipd3EePnE51PlI/
-RWA9dhZA77enIliW3FwO9crmCCJLb4n9dAyp/J16zo4BDkbz1aDZBamQpaWaL9rK
-c+U+uUnryMrMmeZufotkOoCeSWcxGYcXe1TiyNMUpElf6ez3FJY=
-=eRsM
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpc8T8ACgkQFA3kzBSg
+KbZZ8A//SPo07P/TWqKCoDtUuTEdyef+OrDpiCR46pyf5TTFWku21b3tp2CibGU0
+kd5yQq0lyRyUHm06Qc8z14A4YPyt6470K2ac1asVLTAlHb3xzx5KAi+XcbQprKHI
+K4tMcDWMB4acz27beoqfowZK17TMJieHe85096BfVOqmf4fiBUEGfbqbqQIlrZtP
+FvLre4DSqIKwm7/3HKCauWqQlQdZll5e0xZCcLbxFAPOpjAv/+UZPmSRJigG5+lc
+FjuWizavaP3JJLfympWScjABOkEuXq9qPSg3yV9jc0GUMy1db/TuzgrNkWFzs/4y
+/6tZf86zcBmAJn0qDmovS+esgAXAZ9iyGdvrweP61GJjBKYXoaj3oydJpF/ZmrHp
+49JjTieCkFntRmPr3h+2Pyx/pQyf3aijrVH26WoTxEzzvkP4YzmCWbsN6ZU65TrT
+pk89H73rh0JI+QMIZYdh5HZIFfe8ufiqZFQZRhtLGAMNeEjXkTu5LwSSvxZkRRpM
+3/9I5OiKyRdgsSL3LW8JxPI1+rBftAOk75FhfJ9GSdGmi8Ff0qPMs8CpvfbG0Sas
++Rge1HKICVtU6JBzShtU9F8zsxR7XSE+Y1X7KOkRjUtivfWKTQpAsHyHE3CFALma
+sXP082SvvJi3pktwJnLJP72TBk+bG6JE4YscZDObQQtyEYHLyz0=
+=F6Vc
 -----END PGP SIGNATURE-----
 
---434jjmcjaccae2qk--
+--krn5gyrssjb76h6f--
