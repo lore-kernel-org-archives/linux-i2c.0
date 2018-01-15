@@ -1,62 +1,35 @@
-From: Russell King <linux@armlinux.org.uk>
-Subject: Re: [PATCH] i2c: acorn: add MODULE_LICENSE tag
-Date: Mon, 15 Jan 2018 17:19:20 +0000
-Message-ID: <20180115171920.GA32698@flint.armlinux.org.uk>
-References: <20180111103751.1506236-1-arnd@arndb.de>
- <20180115171027.ynorej3x7nal7ttj@ninjato>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH i2c-tools] CHANGES: add i2ctransfer
+Date: Mon, 15 Jan 2018 18:36:44 +0100
+Message-ID: <20180115173644.12342-1-wsa+renesas@sang-engineering.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:51880 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932872AbeAORTb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 15 Jan 2018 12:19:31 -0500
-Content-Disposition: inline
-In-Reply-To: <20180115171027.ynorej3x7nal7ttj@ninjato>
+Received: from sauhun.de ([88.99.104.3]:40718 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755445AbeAORgw (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 15 Jan 2018 12:36:52 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-On Mon, Jan 15, 2018 at 06:10:28PM +0100, Wolfram Sang wrote:
-> On Thu, Jan 11, 2018 at 11:37:45AM +0100, Arnd Bergmann wrote:
-> > As of v4.15, Kbuild warns about missing MODULE_LICENSE tags:
-> > 
-> > WARNING: modpost: missing MODULE_LICENSE() in drivers/i2c/busses/i2c-acorn.o
-> > 
-> > This adds a license, author and description tag, matching the
-> > comment at the start of the acorn i2c driver.
-> > 
-> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> 
-> Looks good, but since rmk is still around, let's add him to CC...
-> 
-> > ---
-> >  drivers/i2c/busses/i2c-acorn.c | 4 ++++
-> >  1 file changed, 4 insertions(+)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-acorn.c b/drivers/i2c/busses/i2c-acorn.c
-> > index 9d7be5af2bf2..6463189ca183 100644
-> > --- a/drivers/i2c/busses/i2c-acorn.c
-> > +++ b/drivers/i2c/busses/i2c-acorn.c
-> > @@ -94,3 +94,7 @@ static int __init i2c_ioc_init(void)
-> >  }
-> >  
-> >  module_init(i2c_ioc_init);
-> > +
-> > +MODULE_AUTHOR("Russell King <rmk@arm.linux.org.uk>");
+So people know from CHANGES when it has been added.
 
-linux@armlinux.org.uk please - dspam on _this_ account files such mails
-into the spam mailbox.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ CHANGES | 1 +
+ 1 file changed, 1 insertion(+)
 
-Thanks.
-
-> > +MODULE_DESCRIPTION("ARM IOC/IOMD i2c driver");
-> > +MODULE_LICENSE("GPL v2");
-> > -- 
-> > 2.9.0
-> > 
-
+diff --git a/CHANGES b/CHANGES
+index 1ddaa9c..7ad9e21 100644
+--- a/CHANGES
++++ b/CHANGES
+@@ -63,6 +63,7 @@ master
+             Marked as deprecated
+   i2cdetect: Do a best effort detection if functionality is missing
+              Clarify the SMBus commands used for probing by default
++  i2ctransfer: new tool to send user-defined I2C messages in one transfer
+   i2c-dev.h: Minimize differences with kernel flavor
+              Move SMBus helper functions to include/i2c/smbus.h
+   i2c-stub-from-dump: Be more tolerant on input dump format
 -- 
-Russell King
-ARM architecture Linux Kernel maintainer
+2.11.0
