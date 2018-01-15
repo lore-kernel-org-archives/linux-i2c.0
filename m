@@ -1,117 +1,111 @@
-From: Radu Rendec <radu.rendec@gmail.com>
-Subject: Re: [1/2] i2c: ismt: 16-byte align the DMA buffer address
-Date: Mon, 15 Jan 2018 12:33:20 +0000
-Message-ID: <1516019600.11739.3.camel@gmail.com>
-References: <20170818160128.21228-2-radu.rendec@gmail.com>
-         <20180104134606.GB919@hmswarspite.think-freely.org>
-         <1515080529.3062.26.camel@gmail.com>
-         <20180104162207.GD919@hmswarspite.think-freely.org>
-         <1515085276.3062.37.camel@gmail.com>
-         <20180105014727.GA18052@neilslaptop.think-freely.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 1/2] fbdev: don't select I2C directly
+Date: Mon, 15 Jan 2018 17:14:04 +0100
+Message-ID: <20180115161431.803248-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f47.google.com ([74.125.82.47]:46275 "EHLO
-        mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753291AbeAOMda (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 15 Jan 2018 07:33:30 -0500
-Received: by mail-wm0-f47.google.com with SMTP id 143so1554754wma.5
-        for <linux-i2c@vger.kernel.org>; Mon, 15 Jan 2018 04:33:30 -0800 (PST)
-In-Reply-To: <20180105014727.GA18052@neilslaptop.think-freely.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Rob Clark <robdclark@gmail.com>
+Cc: linux-fbdev@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Neil Horman <nhorman@tuxdriver.com>
-Cc: linux-i2c@vger.kernel.org
 
-On Thu, 2018-01-04 at 20:47 -0500, Neil Horman wrote:
-> On Thu, Jan 04, 2018 at 05:01:16PM +0000, Radu Rendec wrote:
-> > On Thu, 2018-01-04 at 11:22 -0500, Neil Horman wrote:
-> > > On Thu, Jan 04, 2018 at 03:42:09PM +0000, Radu Rendec wrote:
-> > > > I believe the aligned() attribute cannot be used here because the whole
-> > > > ismt_priv structure is dynamically allocated (the allocation is done at
-> > > > the beginning of the ismt_probe() function).
-> > > > 
-> > > > Even with a statically allocated structure, aligning the whole
-> > > > structure does not guarantee the alignment of the dma_buffer field,
-> > > > because the field offset within the structure can change (e.g. if other
-> > > > fields are added, removed, moved around etc.).
-> > > 
-> > > For reference, you can do it like this:
-> > > 
-> > > #include <stdlib.h>
-> > > #include <stdio.h>
-> > > 
-> > > 
-> > > struct buffer_type { char b[3]; };
-> > > struct ubuffer_type { char b[3]; } __attribute__((aligned(16)));
-> > > 
-> > > struct s1 {
-> > >         char foo;
-> > >         struct buffer_type bar;
-> > > };
-> > > 
-> > > struct s2 {
-> > >         char foo;
-> > >         struct ubuffer_type bar;
-> > > };
-> > > 
-> > > int main(int argc, char **argv)
-> > > {
-> > >         struct s1 *p1;
-> > >         struct s2 *p2;
-> > > 
-> > >         p1 = malloc(sizeof(struct s1));
-> > >         p2 = malloc(sizeof(struct s2));
-> > > 
-> > >         printf("addr of p1->bar = %p\n", &p1->bar);
-> > >         printf("addr of p2->bar = %p\n", &p2->bar);
-> > > 
-> > >         free(p1);
-> > >         free(p2);
-> > > 
-> > >         return 0;
-> > > }
-> > 
-> > Hmm... I just tried this on my workstation (x86, 32bit):
-> > 
-> > [rrendec@rrendec ~]$ gcc -o align align.c
-> > [rrendec@rrendec ~]$ ./align 
-> > addr of p1->bar = 0x9358009
-> > addr of p2->bar = 0x9358028
-> > [rrendec@rrendec ~]$ ./align 
-> > addr of p1->bar = 0x856b009
-> > addr of p2->bar = 0x856b028
-> > 
-> > The most significant 4 digits are always different (probably due to
-> > address randomization), but the least significant 3 are consistently
-> > 0x009 and 0x028, neither of which is 16 byte aligned.
-> > 
-> > But I think this is normal, because malloc() gets just a size parameter
-> > and has no knowledge of the intended data type of the memory area that
-> > it allocates. It's probably the same with kmalloc() and friends.
-> > 
-> 
-> Yeah, I was under the impression that malloc provided memory in blocks aligned
-> to a maximum arch specific alignment, and then gcc could just pad the struct
-> size to guarantee a more granular alignment, but on doing some more reading,
-> alignment support only applies to bss and data storage, at least for the gcc
-> linker.  PTR_ALIGN is the way to go here.
-> 
-> > > Though as I look at that, you're probably right, using PTR_ALIGN would probably
-> > > be prettier.  I'd be ok with that approach
-> > 
-
-Glad that we sorted this out.
-
-> > That's great. I'll prepare an updated patch with PTR_ALIGN and post it
-> > shortly.
-> > 
-> 
-> Thanks!
-
-I sent the updated patch with PTR_ALIGN on Jan/4. Have you had a chance
-to look at it? Is there anything that can be further improved?
-
-Thanks,
-Radu
+VXNpbmcgYSBLY29uZmlnICdzZWxlY3QnIHN0YXRlbWVudCBmb3IgYSB1c2VyLXZpc2libGUgc3lt
+Ym9sIHRoYXQgb3RoZXIKZHJpdmVycyBkZXBlbmQgb24gb2Z0ZW4gY2F1c2VzIGNpcmN1bGFyIGRl
+cGVuZGVuY2llcy4gQSBuZXcgb25lIHNob3dlZAp1cCB3aGVuIEkgd2FudGVkIHRvIGFkZCBhbiBO
+Vk1FTSBkZXBlbmRlbmN5IHRvIHRoZSBEUk1fTVNNIGRyaXZlcjoKCmRyaXZlcnMvaTJjL0tjb25m
+aWc6NzplcnJvcjogcmVjdXJzaXZlIGRlcGVuZGVuY3kgZGV0ZWN0ZWQhCmRyaXZlcnMvaTJjL0tj
+b25maWc6NzoJc3ltYm9sIEkyQyBpcyBzZWxlY3RlZCBieSBGQl9EREMKZHJpdmVycy92aWRlby9m
+YmRldi9LY29uZmlnOjYzOglzeW1ib2wgRkJfRERDIGlzIHNlbGVjdGVkIGJ5IEZCX0NZQkVSMjAw
+MF9EREMKZHJpdmVycy92aWRlby9mYmRldi9LY29uZmlnOjM5MDoJc3ltYm9sIEZCX0NZQkVSMjAw
+MF9EREMgZGVwZW5kcyBvbiBGQl9DWUJFUjIwMDAKZHJpdmVycy92aWRlby9mYmRldi9LY29uZmln
+OjM3ODoJc3ltYm9sIEZCX0NZQkVSMjAwMCBkZXBlbmRzIG9uIEZCCmRyaXZlcnMvdmlkZW8vZmJk
+ZXYvS2NvbmZpZzo1OglzeW1ib2wgRkIgaXMgc2VsZWN0ZWQgYnkgRFJNX0tNU19GQl9IRUxQRVIK
+ZHJpdmVycy9ncHUvZHJtL0tjb25maWc6Nzc6CXN5bWJvbCBEUk1fS01TX0ZCX0hFTFBFUiBkZXBl
+bmRzIG9uIERSTV9LTVNfSEVMUEVSCmRyaXZlcnMvZ3B1L2RybS9LY29uZmlnOjcxOglzeW1ib2wg
+RFJNX0tNU19IRUxQRVIgaXMgc2VsZWN0ZWQgYnkgRFJNX01TTQpkcml2ZXJzL2dwdS9kcm0vbXNt
+L0tjb25maWc6MjoJc3ltYm9sIERSTV9NU00gZGVwZW5kcyBvbiBOVk1FTQpkcml2ZXJzL252bWVt
+L0tjb25maWc6MToJc3ltYm9sIE5WTUVNIGlzIHNlbGVjdGVkIGJ5IEVFUFJPTV9BVDI0CmRyaXZl
+cnMvbWlzYy9lZXByb20vS2NvbmZpZzozOglzeW1ib2wgRUVQUk9NX0FUMjQgZGVwZW5kcyBvbiBJ
+MkMKCkhlcmUsIHRoZSBwcm9ibGVtIGlzIHRoYXQgbWFueSBmYmRldiBkcml2ZXJzIGhhdmUgYW4g
+aTJjIGJhc2VkIGludGVyZmFjZQphbmQganVzdCAnc2VsZWN0IGkyYycgZm9yIHRoYXQsIHdoaWxl
+IHdlIGFsc28gc2VsZWN0IHRoZSBmcmFtZWJ1ZmZlcgpzdWJzeXN0ZW0gaW5kaXJlY3RseSBmcm9t
+IGEgRFJNIGRyaXZlciB0aGF0IG5vdyBkZXBlbmRzIG9uIGkyYy4KClRoaXMgZG9lcyBhd2F5IHdp
+dGggdGhlICdzZWxlY3QnIHN0YXRlbWVudCBhbmQgaW5zdGVhZCB1c2VzICdkZXBlbmRzIG9uJywK
+bGlrZSBhbG1vc3QgYWxsIEkyQyB1c2Vycy4KClNpZ25lZC1vZmYtYnk6IEFybmQgQmVyZ21hbm4g
+PGFybmRAYXJuZGIuZGU+Ci0tLQogZHJpdmVycy92aWRlby9mYmRldi9LY29uZmlnIHwgMTkgKysr
+KysrKysrKysrKysrLS0tLQogMSBmaWxlIGNoYW5nZWQsIDE1IGluc2VydGlvbnMoKyksIDQgZGVs
+ZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy92aWRlby9mYmRldi9LY29uZmlnIGIvZHJp
+dmVycy92aWRlby9mYmRldi9LY29uZmlnCmluZGV4IDY5NjJiNDU4M2ZkNy4uODkyZWIxODYzMTAw
+IDEwMDY0NAotLS0gYS9kcml2ZXJzL3ZpZGVvL2ZiZGV2L0tjb25maWcKKysrIGIvZHJpdmVycy92
+aWRlby9mYmRldi9LY29uZmlnCkBAIC02NCw3ICs2NCw2IEBAIGNvbmZpZyBGQl9EREMKICAgICAg
+ICB0cmlzdGF0ZQogICAgICAgIGRlcGVuZHMgb24gRkIKICAgICAgICBzZWxlY3QgSTJDX0FMR09C
+SVQKLSAgICAgICBzZWxlY3QgSTJDCiAgICAgICAgZGVmYXVsdCBuCiAKIGNvbmZpZyBGQl9CT09U
+X1ZFU0FfU1VQUE9SVApAQCAtMzkwLDYgKzM4OSw3IEBAIGNvbmZpZyBGQl9DWUJFUjIwMDAKIGNv
+bmZpZyBGQl9DWUJFUjIwMDBfRERDCiAJYm9vbCAiRERDIGZvciBDeWJlclBybyBzdXBwb3J0Igog
+CWRlcGVuZHMgb24gRkJfQ1lCRVIyMDAwCisJZGVwZW5kcyBvbiBJMkM9eSB8fCBJMkM9RkJfQ1lC
+RVIyMDAwCiAJc2VsZWN0IEZCX0REQwogCWRlZmF1bHQgeQogCWhlbHAKQEAgLTYzNCw3ICs2MzQs
+NyBAQCBjb25maWcgRkJfQkY1MzdfTFEwMzUKIGNvbmZpZyBGQl9CRklOXzczOTMKIAl0cmlzdGF0
+ZSAiQmxhY2tmaW4gQURWNzM5MyBWaWRlbyBlbmNvZGVyIgogCWRlcGVuZHMgb24gRkIgJiYgQkxB
+Q0tGSU4KLQlzZWxlY3QgSTJDCisJZGVwZW5kcyBvbiBJMkMKIAlzZWxlY3QgRkJfQ0ZCX0ZJTExS
+RUNUCiAJc2VsZWN0IEZCX0NGQl9DT1BZQVJFQQogCXNlbGVjdCBGQl9DRkJfSU1BR0VCTElUCkBA
+IC0xMDI2LDYgKzEwMjYsNyBAQCBjb25maWcgRkJfTlZJRElBCiBjb25maWcgRkJfTlZJRElBX0ky
+QwogICAgICAgIGJvb2wgIkVuYWJsZSBEREMgU3VwcG9ydCIKICAgICAgICBkZXBlbmRzIG9uIEZC
+X05WSURJQQorICAgICAgIGRlcGVuZHMgb24gSTJDPXkgfHwgSTJDPUZCX05WSURJQQogICAgICAg
+IHNlbGVjdCBGQl9EREMKICAgICAgICBoZWxwCiAJICBUaGlzIGVuYWJsZXMgSTJDIHN1cHBvcnQg
+Zm9yIG5WaWRpYSBDaGlwc2V0cy4gIFRoaXMgaXMgdXNlZApAQCAtMTA3Myw2ICsxMDc0LDcgQEAg
+Y29uZmlnIEZCX1JJVkEKIGNvbmZpZyBGQl9SSVZBX0kyQwogICAgICAgIGJvb2wgIkVuYWJsZSBE
+REMgU3VwcG9ydCIKICAgICAgICBkZXBlbmRzIG9uIEZCX1JJVkEKKyAgICAgICBkZXBlbmRzIG9u
+IEkyQz15IHx8IEkyQz1GQl9SSVZBCiAgICAgICAgc2VsZWN0IEZCX0REQwogICAgICAgIGhlbHAK
+IAkgIFRoaXMgZW5hYmxlcyBJMkMgc3VwcG9ydCBmb3IgblZpZGlhIENoaXBzZXRzLiAgVGhpcyBp
+cyB1c2VkCkBAIC0xMTAyLDYgKzExMDQsNyBAQCBjb25maWcgRkJfUklWQV9CQUNLTElHSFQKIGNv
+bmZpZyBGQl9JNzQwCiAJdHJpc3RhdGUgIkludGVsNzQwIHN1cHBvcnQiCiAJZGVwZW5kcyBvbiBG
+QiAmJiBQQ0kKKwlkZXBlbmRzIG9uIEkyQwogCXNlbGVjdCBGQl9NT0RFX0hFTFBFUlMKIAlzZWxl
+Y3QgRkJfQ0ZCX0ZJTExSRUNUCiAJc2VsZWN0IEZCX0NGQl9DT1BZQVJFQQpAQCAtMTE1NSw2ICsx
+MTU4LDcgQEAgY29uZmlnIEZCX0k4MTBfR1RGCiBjb25maWcgRkJfSTgxMF9JMkMKIAlib29sICJF
+bmFibGUgRERDIFN1cHBvcnQiCiAJZGVwZW5kcyBvbiBGQl9JODEwICYmIEZCX0k4MTBfR1RGCisJ
+ZGVwZW5kcyBvbiBJMkM9eSB8fCBJMkM9RkJfSTgxMAogCXNlbGVjdCBGQl9EREMKIAloZWxwCiAK
+QEAgLTEyMDYsNiArMTIxMCw3IEBAIGNvbmZpZyBGQl9JTlRFTF9ERUJVRwogY29uZmlnIEZCX0lO
+VEVMX0kyQwogCWJvb2wgIkREQy9JMkMgZm9yIEludGVsIGZyYW1lYnVmZmVyIHN1cHBvcnQiCiAJ
+ZGVwZW5kcyBvbiBGQl9JTlRFTAorCWRlcGVuZHMgb24gSTJDPXkgfHwgSTJDPUZCX0lOVEVMCiAJ
+c2VsZWN0IEZCX0REQwogCWRlZmF1bHQgeQogCWhlbHAKQEAgLTEyODUsNiArMTI5MCw3IEBAIGNv
+bmZpZyBGQl9NQVRST1hfRwogY29uZmlnIEZCX01BVFJPWF9JMkMKIAl0cmlzdGF0ZSAiTWF0cm94
+IEkyQyBzdXBwb3J0IgogCWRlcGVuZHMgb24gRkJfTUFUUk9YCisJZGVwZW5kcyBvbiBJMkMKIAlz
+ZWxlY3QgRkJfRERDCiAJLS0taGVscC0tLQogCSAgVGhpcyBkcml2ZXJzIGNyZWF0ZXMgSTJDIGJ1
+c2VzIHdoaWNoIGFyZSBuZWVkZWQgZm9yIGFjY2Vzc2luZyB0aGUKQEAgLTEzNTAsNiArMTM1Niw3
+IEBAIGNvbmZpZyBGQl9SQURFT04KIGNvbmZpZyBGQl9SQURFT05fSTJDCiAJYm9vbCAiRERDL0ky
+QyBmb3IgQVRJIFJhZGVvbiBzdXBwb3J0IgogCWRlcGVuZHMgb24gRkJfUkFERU9OCisJZGVwZW5k
+cyBvbiBJMkM9eSB8fCBJMkM9RkJfUkFERU9OCiAJc2VsZWN0IEZCX0REQwogCWRlZmF1bHQgeQog
+CWhlbHAKQEAgLTE0NjAsNiArMTQ2Nyw3IEBAIGNvbmZpZyBGQl9TMwogY29uZmlnIEZCX1MzX0RE
+QwogCWJvb2wgIkREQyBmb3IgUzMgc3VwcG9ydCIKIAlkZXBlbmRzIG9uIEZCX1MzCisJZGVwZW5k
+cyBvbiBJMkM9eSB8fCBJMkM9RkJfUzMKIAlzZWxlY3QgRkJfRERDCiAJZGVmYXVsdCB5CiAJaGVs
+cApAQCAtMTQ4NSw2ICsxNDkzLDcgQEAgY29uZmlnIEZCX1NBVkFHRQogY29uZmlnIEZCX1NBVkFH
+RV9JMkMKICAgICAgICBib29sICJFbmFibGUgRERDMiBTdXBwb3J0IgogICAgICAgIGRlcGVuZHMg
+b24gRkJfU0FWQUdFCisgICAgICAgZGVwZW5kcyBvbiBJMkM9eSB8fCBJMkM9RkJfU0FWQUdFCiAg
+ICAgICAgc2VsZWN0IEZCX0REQwogICAgICAgIGhlbHAKIAkgIFRoaXMgZW5hYmxlcyBJMkMgc3Vw
+cG9ydCBmb3IgUzMgU2F2YWdlIENoaXBzZXRzLiAgVGhpcyBpcyB1c2VkCkBAIC0xNjI5LDYgKzE2
+MzgsNyBAQCBjb25maWcgRkJfM0RGWF9BQ0NFTAogY29uZmlnIEZCXzNERlhfSTJDCiAJYm9vbCAi
+RW5hYmxlIEREQy9JMkMgc3VwcG9ydCIKIAlkZXBlbmRzIG9uIEZCXzNERlgKKwlkZXBlbmRzIG9u
+IEkyQz15IHx8IEkyQz1GQl8zREZYCiAJc2VsZWN0IEZCX0REQwogCWRlZmF1bHQgeQogCWhlbHAK
+QEAgLTE2NjksNiArMTY3OSw3IEBAIGNvbmZpZyBGQl9WVDg2MjMKIGNvbmZpZyBGQl9UUklERU5U
+CiAJdHJpc3RhdGUgIlRyaWRlbnQvQ3liZXJYWFgvQ3liZXJCbGFkZSBzdXBwb3J0IgogCWRlcGVu
+ZHMgb24gRkIgJiYgUENJCisJZGVwZW5kcyBvbiBJMkMKIAlzZWxlY3QgRkJfQ0ZCX0ZJTExSRUNU
+CiAJc2VsZWN0IEZCX0NGQl9DT1BZQVJFQQogCXNlbGVjdCBGQl9DRkJfSU1BR0VCTElUCkBAIC0y
+Mjk5LDggKzIzMTAsOCBAQCBlbmRjaG9pY2UKIAogY29uZmlnIEZCX01CODYyWFhfSTJDCiAJYm9v
+bCAiU3VwcG9ydCBJMkMgYnVzIG9uIE1CODYyWFggR0RDIgotCWRlcGVuZHMgb24gRkJfTUI4NjJY
+WCAmJiBJMkMKLQlkZXBlbmRzIG9uIEZCX01CODYyWFg9bSB8fCBJMkM9eQorCWRlcGVuZHMgb24g
+RkJfTUI4NjJYWAorCWRlcGVuZHMgb24gSTJDPXkgfHwgSTJDPUZCX01CODYyWFgKIAlkZWZhdWx0
+IHkKIAloZWxwCiAJICBTZWxlY3RpbmcgdGhpcyBvcHRpb24gYWRkcyBDb3JhbC1QKEEpL0xpbWUg
+R0RDIEkyQyBidXMgYWRhcHRlcgotLSAKMi45LjAKCl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxp
+c3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL2RyaS1kZXZlbAo=
