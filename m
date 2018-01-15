@@ -1,113 +1,81 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC PATCH 0/7] i2c: sh_mobile: support per-SoC frequency
- calculation
-Date: Mon, 15 Jan 2018 18:02:48 +0100
-Message-ID: <20180115170248.lwxc6wy7ktrlc3xf@ninjato>
-References: <20171218215802.28591-1-wsa+renesas@sang-engineering.com>
+Subject: Re: [PATCH] i2c: acorn: add MODULE_LICENSE tag
+Date: Mon, 15 Jan 2018 18:10:28 +0100
+Message-ID: <20180115171027.ynorej3x7nal7ttj@ninjato>
+References: <20180111103751.1506236-1-arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="qnregg4s6khibxxt"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="u2ejlrlilorcyerl"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:40583 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S965441AbeAORK3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 15 Jan 2018 12:10:29 -0500
 Content-Disposition: inline
-In-Reply-To: <20171218215802.28591-1-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+In-Reply-To: <20180111103751.1506236-1-arnd@arndb.de>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>, Russell King <rmk@arm.linux.org.uk>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---qnregg4s6khibxxt
+--u2ejlrlilorcyerl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 18, 2017 at 10:57:55PM +0100, Wolfram Sang wrote:
-> The current calculation for I2C bus speeds does not match the datasheet a=
-nd is,
-> in deed, a little too fast for 100kHz settings (~107kHz have been measure=
-d).
+On Thu, Jan 11, 2018 at 11:37:45AM +0100, Arnd Bergmann wrote:
+> As of v4.15, Kbuild warns about missing MODULE_LICENSE tags:
 >=20
-> This series implements a second calculation according to the datasheet. In
-> order to not cause regressions on the various old SoCs, using this new fo=
-rmula
-> is opt-in per SoC. Once the new formula has been verified to work, we can
-> switch over. By default, the old behaviour is retained.
+> WARNING: modpost: missing MODULE_LICENSE() in drivers/i2c/busses/i2c-acor=
+n.o
 >=20
-> So, the first patches are refactoring the driver to support per-SoC frequ=
-ency
-> calculations. This is done by making the already existing per-SoC
-> setup()-callback mandatory and let the frequency calculation be done in t=
-here.
+> This adds a license, author and description tag, matching the
+> comment at the start of the acorn i2c driver.
 >=20
-> This series has been tested on a R-Car H2 Lager board (r8a7790). The comp=
-uted
-> values match the suggested values in the datasheet. Also, measurements sh=
-owed
-> that the bus frequency is now 100kHz. For 400 kHz, the overall bus speed =
-did
-> not change much, but the low-to-high relationship is now matching the
-> datasheet, too.
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+
+Looks good, but since rmk is still around, let's add him to CC...
+
+> ---
+>  drivers/i2c/busses/i2c-acorn.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 >=20
-> This series is RFC because I think we need to discuss when to enable a So=
-C to
-> the new formula. For Lager, I did some basic checking but did not run a f=
-ull
-> V4L testsuite or other complex configurations making use of I2C clients. =
-Gen3,
-> in theory, should be easier to test because only the PMIC and an EEPROM a=
-re
-> connected to IIC_DVFS. However, there are no testpoints available for mea=
-suring
-> on Salvator-X(S). And the suggested values in the datasheet do not match =
-the
-> module clock we have. Do ULCB boards maybe have testpoints for IIC_DVFS? =
-For
-> Lager, it could be argued that the resulting speed is slower than before =
-which
-> should not introduce regressions. But I am open to discussion here.
->=20
-> A branch can be found here:
->=20
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/iic-r=
-efactor
->=20
-> Thanks, and looking forward to comments
->=20
->    Wolfram
->=20
->=20
-> Wolfram Sang (7):
->   i2c: sh_mobile: move type detection upwards
->   i2c: sh_mobile: allow setup callback to return errno
->   i2c: sh_mobile: require setup callback
->   i2c: sh_mobile: let RuntimePM do the clock handling
->   i2c: sh_mobile: add helper to check frequency calculations
->   i2c: sh_mobile: add new frequency calculation for later SoC
->   i2c: sh_mobile: let r8a7790 (R-Car H2) use the new formula
+> diff --git a/drivers/i2c/busses/i2c-acorn.c b/drivers/i2c/busses/i2c-acor=
+n.c
+> index 9d7be5af2bf2..6463189ca183 100644
+> --- a/drivers/i2c/busses/i2c-acorn.c
+> +++ b/drivers/i2c/busses/i2c-acorn.c
+> @@ -94,3 +94,7 @@ static int __init i2c_ioc_init(void)
+>  }
+> =20
+>  module_init(i2c_ioc_init);
+> +
+> +MODULE_AUTHOR("Russell King <rmk@arm.linux.org.uk>");
+> +MODULE_DESCRIPTION("ARM IOC/IOMD i2c driver");
+> +MODULE_LICENSE("GPL v2");
+> --=20
+> 2.9.0
 >=20
 
-Fixed a spelling mistake in the patch description of patch 5 and applied
-to for-next.
-
-
---qnregg4s6khibxxt
+--u2ejlrlilorcyerl
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpc3rQACgkQFA3kzBSg
-KbaZJQ/+KjxMJYkXM16hqiKWyISDgvh+phRnEdwQ+2rqeFufffz6Fo9bMbUq+dap
-WDbwHgolgh2GJ+eoYz4YSxav1Gjw9hYLKRrOrHpXXY/97aHcjoAgzVhejreDR4Qn
-kH3r4QPVnLplv1orJ/9UDAhjjErR8P+1pzJFNMXgbl+ZF350K6hJFQQFCJYphQe8
-69sL0qfgSp2+DoqiC5roWSPqj8wu/Kc9I2Xea1VZFoC6zTbqul1btf2TzaJHi0aO
-WHRNdw/31sUVFtjblTFE8yL5TBK2HQxqJHeQ3fRFiyJa4xOvklpsc3P+ALFwPdaA
-OoYWZB1LxGcKVXTgTlLE2qd+mYxDowZZJcY3N2+zpSHDZQgeDCZ20EnmgC+rF7iJ
-jgp2Kh9uOf9D1WXgkgJBfNPY24dPD5nobPUp4zhBhC05qDVYoheZfP3sHNaZ+CL5
-VNuXXjlY0xx0a4gIchpdO/s2LLsfCsNRatlh1U1n/jpzi/TadR+HSlEpgPsdIS+G
-3cADbUS3FbbLO4F/WW+2iEJI68D/Mx8p1aysdSX0OxSsgC2T9naTAJPwdY7gNCAU
-ZEoif7z6IVykVOGvl60jqKlRXvE6Nhn/HpNzc5PAHpdznYBLFsKzF+P6wz8c4Q3r
-6AtHrUCTmvks8gxl2uQR/nNHXTv/atJXkZFajhV9q/RsvQiLCS4=
-=3+n5
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpc4IMACgkQFA3kzBSg
+KbZEzw/+POHGbdQIAeZ4YrB/q/YFsyhLWnABFTw0ac3MR6r7SjL+s1JQ1Omy3xPV
+f83epBlwigtcUONzUJsCJyRlRyywO2Cv3crNo/5ibszMtd3jcVyKtUtKSvDL8vvF
+PSbaLdVUJdm+pfxNDQaaFVsSqA7heSXmDX8Iw3N927FtmhwIRc59Qo1aGkIqvx+A
+yLte+dIIT0KjQ9sR3va5ek5Fl14Wl/0WMhM2ageirPgyvASioVDcZcgUNFZYRJco
+go92eDzqQpx+GfOgux6S7G1FJa0HoYoSsqIbQ2x2QMPVHmq0t2ctJSszLWlBHYMt
+SyYgbU2XI9DjKH9h6SzqOQJhLxIZcaw1D8WEswMp0HfDoaXR5x48E3+EWTQHtXSD
+KjWjhZyWSSc718Y699/yk7hmYwbf/D//E3oxMLQZHhS9ty2cAb9Qhr61uv6jOvNC
+BZfD7ONMh4SqAYnOpuTog+Yd9Cir9dr4uJ4G5AFgfwL9y4e8DbOY0LeCbwtnM9pJ
+byk40AqZKqQC9T0qzH+n2e5RksTF23FP6P3Fp5izClTMn5wcxdZr+24n320RoLne
+xjzIpMUN9XHoFXm2cxAmxAFSHro50lcQ/xO0fC8r2MDUFMiJ4yBX82Xgge/4QLNl
+VP5z9d7FVnOwdGqFrMKDv86jEAlIce5HYvn1oyC9E+L6e+DSZPQ=
+=1GQl
 -----END PGP SIGNATURE-----
 
---qnregg4s6khibxxt--
+--u2ejlrlilorcyerl--
