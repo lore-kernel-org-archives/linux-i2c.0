@@ -1,48 +1,113 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: [PATCH 2/2] drm/msm/adreno: fix nvmem related link error
-Date: Mon, 15 Jan 2018 17:14:05 +0100
-Message-ID: <20180115161431.803248-2-arnd@arndb.de>
-References: <20180115161431.803248-1-arnd@arndb.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC PATCH 0/7] i2c: sh_mobile: support per-SoC frequency
+ calculation
+Date: Mon, 15 Jan 2018 18:02:48 +0100
+Message-ID: <20180115170248.lwxc6wy7ktrlc3xf@ninjato>
+References: <20171218215802.28591-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <freedreno-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-In-Reply-To: <20180115161431.803248-1-arnd-r2nGTMty4D4@public.gmane.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/freedreno>,
- <mailto:freedreno-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/freedreno>
-List-Post: <mailto:freedreno-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-List-Help: <mailto:freedreno-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/freedreno>,
- <mailto:freedreno-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=subscribe>
-Errors-To: freedreno-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
-Sender: "Freedreno" <freedreno-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-To: Rob Clark <robdclark-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bartlomiej Zolnierkiewicz <b.zolnierkie-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Archit Taneja <architt-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jordan Crouse <jcrouse-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, freedreno-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="qnregg4s6khibxxt"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20171218215802.28591-1-wsa+renesas@sang-engineering.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 List-Id: linux-i2c@vger.kernel.org
 
-V2hlbiBOVk1FTSBpcyBjb25maWd1cmVkIGFzIGEgbG9hZGFibGUgbW9kdWxlLCBhbmQgYWRyZW5v
-CmlzIGJ1aWx0LWluLCB3ZSBnZXQgYSBsaW5rIGZhaWx1cmU6Cgpkcml2ZXJzL2dwdS9kcm0vbXNt
-L2FkcmVuby9hNXh4X2dwdS5vOiBJbiBmdW5jdGlvbiBgYTV4eF9ncHVfaW5pdCc6CmE1eHhfZ3B1
-LmM6KC50ZXh0KzB4MTVjYyk6IHVuZGVmaW5lZCByZWZlcmVuY2UgdG8gYG52bWVtX2NlbGxfZ2V0
-JwphNXh4X2dwdS5jOigudGV4dCsweDE1ZGEpOiB1bmRlZmluZWQgcmVmZXJlbmNlIHRvIGBudm1l
-bV9jZWxsX3JlYWQnCmE1eHhfZ3B1LmM6KC50ZXh0KzB4MTVlNCk6IHVuZGVmaW5lZCByZWZlcmVu
-Y2UgdG8gYG52bWVtX2NlbGxfcHV0JwoKVGhpcyBhZGRzIGEgS2NvbmZpZyBkZXBlbmRlbmN5IHRv
-IGVuZm9yY2UgdmFsaWQgY29uZmlndXJhdGlvbnMsCndoZW4gTlZNRU0gaXMgYSBsb2FkYWJsZSBt
-b2R1bGUsIGFkcmVubyBub3cgaGFzIHRvIGFsc28gYmUgb25lLgpUaGUgY29kZSBzZWVtcyB0byBk
-ZWFsIGZpbmUgd2l0aCBudm1lbSBiZWluZyBjb21wbGV0ZWx5IGRpc2FibGVkLAppdCB3aWxsIGp1
-c3Qgbm90IHNldCB0aGUgcmlnaHQgc3BlZWQgYmluIHRoZW4sIHNvIHdlIGRvbid0IG5lZWQKYSBo
-YXJkIGRlcGVuZGVuY3kuCgpGaXhlczogZjU2ZDlkZjY1NmM0ICgiZHJtL21zbS9hZHJlbm86IFJl
-YWQgdGhlIHNwZWVkIGJpbnMgZm9yIGE1eHggdGFyZ2V0cyIpClNpZ25lZC1vZmYtYnk6IEFybmQg
-QmVyZ21hbm4gPGFybmRAYXJuZGIuZGU+Ci0tLQogZHJpdmVycy9ncHUvZHJtL21zbS9LY29uZmln
-IHwgMSArCiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKykKCmRpZmYgLS1naXQgYS9kcml2
-ZXJzL2dwdS9kcm0vbXNtL0tjb25maWcgYi9kcml2ZXJzL2dwdS9kcm0vbXNtL0tjb25maWcKaW5k
-ZXggOTlkMzliMmFlZmE2Li43NGZiMWM4MTZkYTkgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2Ry
-bS9tc20vS2NvbmZpZworKysgYi9kcml2ZXJzL2dwdS9kcm0vbXNtL0tjb25maWcKQEAgLTQsNiAr
-NCw3IEBAIGNvbmZpZyBEUk1fTVNNCiAJZGVwZW5kcyBvbiBEUk0KIAlkZXBlbmRzIG9uIEFSQ0hf
-UUNPTSB8fCAoQVJNICYmIENPTVBJTEVfVEVTVCkKIAlkZXBlbmRzIG9uIE9GICYmIENPTU1PTl9D
-TEsKKwlkZXBlbmRzIG9uIE5WTUVNIHx8ICFOVk1FTQogCWRlcGVuZHMgb24gTU1VCiAJc2VsZWN0
-IFFDT01fTURUX0xPQURFUiBpZiBBUkNIX1FDT00KIAlzZWxlY3QgUkVHVUxBVE9SCi0tIAoyLjku
-MAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KRnJlZWRy
-ZW5vIG1haWxpbmcgbGlzdApGcmVlZHJlbm9AbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8v
-bGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZnJlZWRyZW5vCg==
+
+--qnregg4s6khibxxt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Dec 18, 2017 at 10:57:55PM +0100, Wolfram Sang wrote:
+> The current calculation for I2C bus speeds does not match the datasheet a=
+nd is,
+> in deed, a little too fast for 100kHz settings (~107kHz have been measure=
+d).
+>=20
+> This series implements a second calculation according to the datasheet. In
+> order to not cause regressions on the various old SoCs, using this new fo=
+rmula
+> is opt-in per SoC. Once the new formula has been verified to work, we can
+> switch over. By default, the old behaviour is retained.
+>=20
+> So, the first patches are refactoring the driver to support per-SoC frequ=
+ency
+> calculations. This is done by making the already existing per-SoC
+> setup()-callback mandatory and let the frequency calculation be done in t=
+here.
+>=20
+> This series has been tested on a R-Car H2 Lager board (r8a7790). The comp=
+uted
+> values match the suggested values in the datasheet. Also, measurements sh=
+owed
+> that the bus frequency is now 100kHz. For 400 kHz, the overall bus speed =
+did
+> not change much, but the low-to-high relationship is now matching the
+> datasheet, too.
+>=20
+> This series is RFC because I think we need to discuss when to enable a So=
+C to
+> the new formula. For Lager, I did some basic checking but did not run a f=
+ull
+> V4L testsuite or other complex configurations making use of I2C clients. =
+Gen3,
+> in theory, should be easier to test because only the PMIC and an EEPROM a=
+re
+> connected to IIC_DVFS. However, there are no testpoints available for mea=
+suring
+> on Salvator-X(S). And the suggested values in the datasheet do not match =
+the
+> module clock we have. Do ULCB boards maybe have testpoints for IIC_DVFS? =
+For
+> Lager, it could be argued that the resulting speed is slower than before =
+which
+> should not introduce regressions. But I am open to discussion here.
+>=20
+> A branch can be found here:
+>=20
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/iic-r=
+efactor
+>=20
+> Thanks, and looking forward to comments
+>=20
+>    Wolfram
+>=20
+>=20
+> Wolfram Sang (7):
+>   i2c: sh_mobile: move type detection upwards
+>   i2c: sh_mobile: allow setup callback to return errno
+>   i2c: sh_mobile: require setup callback
+>   i2c: sh_mobile: let RuntimePM do the clock handling
+>   i2c: sh_mobile: add helper to check frequency calculations
+>   i2c: sh_mobile: add new frequency calculation for later SoC
+>   i2c: sh_mobile: let r8a7790 (R-Car H2) use the new formula
+>=20
+
+Fixed a spelling mistake in the patch description of patch 5 and applied
+to for-next.
+
+
+--qnregg4s6khibxxt
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpc3rQACgkQFA3kzBSg
+KbaZJQ/+KjxMJYkXM16hqiKWyISDgvh+phRnEdwQ+2rqeFufffz6Fo9bMbUq+dap
+WDbwHgolgh2GJ+eoYz4YSxav1Gjw9hYLKRrOrHpXXY/97aHcjoAgzVhejreDR4Qn
+kH3r4QPVnLplv1orJ/9UDAhjjErR8P+1pzJFNMXgbl+ZF350K6hJFQQFCJYphQe8
+69sL0qfgSp2+DoqiC5roWSPqj8wu/Kc9I2Xea1VZFoC6zTbqul1btf2TzaJHi0aO
+WHRNdw/31sUVFtjblTFE8yL5TBK2HQxqJHeQ3fRFiyJa4xOvklpsc3P+ALFwPdaA
+OoYWZB1LxGcKVXTgTlLE2qd+mYxDowZZJcY3N2+zpSHDZQgeDCZ20EnmgC+rF7iJ
+jgp2Kh9uOf9D1WXgkgJBfNPY24dPD5nobPUp4zhBhC05qDVYoheZfP3sHNaZ+CL5
+VNuXXjlY0xx0a4gIchpdO/s2LLsfCsNRatlh1U1n/jpzi/TadR+HSlEpgPsdIS+G
+3cADbUS3FbbLO4F/WW+2iEJI68D/Mx8p1aysdSX0OxSsgC2T9naTAJPwdY7gNCAU
+ZEoif7z6IVykVOGvl60jqKlRXvE6Nhn/HpNzc5PAHpdznYBLFsKzF+P6wz8c4Q3r
+6AtHrUCTmvks8gxl2uQR/nNHXTv/atJXkZFajhV9q/RsvQiLCS4=
+=3+n5
+-----END PGP SIGNATURE-----
+
+--qnregg4s6khibxxt--
