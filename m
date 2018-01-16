@@ -1,37 +1,41 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: Re: [3/3] i2c: exynos5: do not check TRANS_STATUS in case of
- Exynos7 variant
-Date: Tue, 16 Jan 2018 10:40:36 +0100
-Message-ID: <bddb6ff4-22cd-9f01-7a63-295b19eaef90@samsung.com>
-References: <20171130143007.30258-4-a.hajda@samsung.com>
-        <CGME20180115205339epcas1p24810c38f964d43cc1b8589d3c3cc3c73@epcas1p2.samsung.com>
-        <20180115205334.6ciwq5pouthtj3kx@ninjato>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: i2c: Include GPIO consumer header in main include
+Date: Tue, 16 Jan 2018 10:47:29 +0100
+Message-ID: <CACRpkdZr=fZSE3iNvfBBp0tZC+LftCr5YajqpoGQJB8ycDgDUw@mail.gmail.com>
+References: <20171208133934.18038-1-linus.walleij@linaro.org> <20180115180303.pdax5amdj2rtytih@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <20180115205334.6ciwq5pouthtj3kx@ninjato>
-Content-language: en-US
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Andi Shyti <andi.shyti@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/SAMSUNG EXYNOS ARM ARCHITECTURES" <linux-samsung-soc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-it0-f67.google.com ([209.85.214.67]:37517 "EHLO
+        mail-it0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751503AbeAPJra (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 Jan 2018 04:47:30 -0500
+Received: by mail-it0-f67.google.com with SMTP id q8so4149514itb.2
+        for <linux-i2c@vger.kernel.org>; Tue, 16 Jan 2018 01:47:30 -0800 (PST)
+In-Reply-To: <20180115180303.pdax5amdj2rtytih@ninjato>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Linux ARM <linux-arm-kernel@lists.infradead.org>
 
-On 15.01.2018 21:53, Wolfram Sang wrote:
-> On Thu, Nov 30, 2017 at 03:30:07PM +0100, Andrzej Hajda wrote:
->> HSI2C_MASTER_ST_LOSE state is not documented properly, extensive tests
->> show that hardware is usually able to recover from this state without
->> interrupting the transfer. On the other side enforcing transfer repetition
->> in such case does not help in many situations, especially on busy systems
->> and causes -EAGAIN and -ETIMEOUT errors. Moreover documentation says that
->> such state can be caused by slave clock stretching, and should not be treated
->> as an error.
+On Mon, Jan 15, 2018 at 7:03 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> On Fri, Dec 08, 2017 at 02:39:34PM +0100, Linus Walleij wrote:
+>> It seems most users of <linux/i2c.h> pick up their
+>> dependency of <linux/gpio/consumer.h> from other paths but
+>> that is not a universal law, so include the header
+>> explicitly so we have struct gpio_desc available.
 >>
->> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
-> Can this be applied independently of my comments to patch 2?
+>> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 >
-Yes, please apply it alone. I will continue work on patch 2.
+> I still think drivers needing GPIO should include it explicitly.
+> So, NAK until further arguments arrive...
 
---
-Regards
-Andrzej
+What I mean is that they must be doing that currently since this
+file uses struct gpio_desc (for recovert), else the build would fail.
+
+So that is why I think it should be made explicit.
+
+Another option is to just forward-declare struct gpio_desc;
+
+Yours,
+Linus Walleij
