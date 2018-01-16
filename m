@@ -1,39 +1,45 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 3/4] ARM: dts: at91: nattis: use the correct compatible for the eeprom
-Date: Tue, 16 Jan 2018 17:06:17 +0100
-Message-ID: <20180116160618.27859-4-peda@axentia.se>
+Subject: [PATCH 2/4] dt-bindings: at24: add compatible for nxp,se97b
+Date: Tue, 16 Jan 2018 17:06:16 +0100
+Message-ID: <20180116160618.27859-3-peda@axentia.se>
 References: <20180116160618.27859-1-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <20180116160618.27859-1-peda@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Nicolas Ferre <nicolas.ferre@microchip.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>, Russell King <linux@armlinux.org.uk>, Rob Herring <robh+dt@kernel.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-i2c@vger.kernel.org, Peter Rosin <peda@axentia.se>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-The used part does contain an eeprom compatible with an Atmel 24c02
-chip and it is from NXP, but it is not called 24c02. It's actually a
-se97b chip. Adjust the compatible accordingly.
+The datasheet talks about the chip being an spd, but the chip is writable
+so atmel,24c02 is more appropriate as fallback.
 
-Fixes: 0e4323899973 ("ARM: dts: at91: add devicetree for the Axentia Nattis with Natte power")
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- arch/arm/boot/dts/at91-nattis-2-natte-2.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/eeprom/at24.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/at91-nattis-2-natte-2.dts b/arch/arm/boot/dts/at91-nattis-2-natte-2.dts
-index 3ea1d26e1c68..c457eff25911 100644
---- a/arch/arm/boot/dts/at91-nattis-2-natte-2.dts
-+++ b/arch/arm/boot/dts/at91-nattis-2-natte-2.dts
-@@ -146,7 +146,7 @@
- 	};
+diff --git a/Documentation/devicetree/bindings/eeprom/at24.txt b/Documentation/devicetree/bindings/eeprom/at24.txt
+index abfae1beca2b..edf9247613f6 100644
+--- a/Documentation/devicetree/bindings/eeprom/at24.txt
++++ b/Documentation/devicetree/bindings/eeprom/at24.txt
+@@ -46,6 +46,7 @@ Required properties:
+                 Some vendors use different model names for chips which are just
+                 variants of the above. Known such exceptions are listed below:
  
- 	eeprom@50 {
--		compatible = "nxp,24c02";
-+		compatible = "nxp,se97b", "atmel,24c02";
- 		reg = <0x50>;
- 		pagesize = <16>;
- 	};
++                "nxp,se97b" - the fallback is "atmel,24c02",
+                 "renesas,r1ex24002" - the fallback is "atmel,24c02"
+ 
+   - reg: The I2C address of the EEPROM.
 -- 
 2.11.0
