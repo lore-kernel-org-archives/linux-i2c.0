@@ -1,71 +1,51 @@
-From: Javier Martinez Canillas <javierm@redhat.com>
-Subject: Re: i2c: core: report OF style module alias for devices registered
- via OF
-Date: Tue, 16 Jan 2018 15:11:32 +0100
-Message-ID: <a81cf234-f103-1787-6a4a-fc59bb50cb4d@redhat.com>
-References: <CALieaeczi5iZPgKVdHw1B3ouyWcd2U_cqPzEYqvT+8JW4Uwi3A@mail.gmail.com>
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Subject: Re: [PATCH v3 2/2] i2c: mv64xxx: Fix clock resource by adding an optional bus clock
+Date: Tue, 16 Jan 2018 15:40:00 +0100
+Message-ID: <87mv1d7tq7.fsf@free-electrons.com>
+References: <20180112103956.4875-1-gregory.clement@free-electrons.com>
+        <20180112103956.4875-3-gregory.clement@free-electrons.com>
+        <20180112105434.juefp2apuber3zti@flea.lan>
+        <87wp0n5nw1.fsf@free-electrons.com>
+        <20180115171859.nukvtrez5yun4564@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CALieaeczi5iZPgKVdHw1B3ouyWcd2U_cqPzEYqvT+8JW4Uwi3A@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Mastykin <mastichi@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.free-electrons.com ([62.4.15.54]:53389 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750796AbeAPOkD (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 Jan 2018 09:40:03 -0500
+In-Reply-To: <20180115171859.nukvtrez5yun4564@ninjato> (Wolfram Sang's message
+        of "Mon, 15 Jan 2018 18:19:00 +0100")
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Maxime Ripard <maxime.ripard@free-electrons.com>, linux-i2c@vger.kernel.org, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Andrew Lunn <andrew@lunn.ch>, Yehuda Yitschak <yehuday@marvell.com>, Jason Cooper <jason@lakedaemon.net>, Antoine Tenart <antoine.tenart@free-electrons.com>, Omri Itach <omrii@marvell.com>, Nadav Haklai <nadavh@marvell.com>, Shadi Ammouri <shadi@marvell.com>, Igal Liberman <igall@marvell.com>, =?utf-8?Q?Miqu=C3=A8l?= Raynal <miquel.raynal@free-electrons.com>, Marcin Wojtas <mw@semihalf.com>, Hanna Hawa <hannah@marvell.com>, linux-arm-kernel@lists.infradead.org, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 
-Hello Dmitry,
+Hi Wolfram,
+ 
+ On lun., janv. 15 2018, Wolfram Sang <wsa@the-dreams.de> wrote:
 
-On 01/16/2018 02:55 PM, Dmitry Mastykin wrote:
-> On Sun, 3 Dec 2017 22:40:50 +0100, Javier Martinez Canillas
-> <javierm@redhat.com> wrote:
-> 
->> The buses should honor the firmware interface used to register the device,
->> but the I2C core reports a MODALIAS of the form i2c:<device> even for I2C
->> devices registered via OF.
->>
->> This means that user-space will never get an OF stype uevent MODALIAS even
->> when the drivers modules contain aliases exported from both the I2C and OF
->> device ID tables. For example, an Atmel maXTouch Touchscreen registered by
->> a DT node with compatible "atmel,maxtouch" has the following module alias:
->>
->> $ cat /sys/class/i2c-adapter/i2c-8/8-004b/modalias
->> i2c:maxtouch
->>
->> So udev won't be able to auto-load a module for an OF-only device driver.
->> Many OF-only drivers duplicate the OF device ID table entries in an I2C ID
->> table only has a workaround for how the I2C core reports the module alias.
->>
->> This patch changes the I2C core to report an OF related MODALIAS uevent if
->> the device was registered via OF. So for the previous example, after this
->> patch, the reported MODALIAS for the Atmel maXTouch will be the following:
->>
->> $ cat /sys/class/i2c-adapter/i2c-8/8-004b/modalias
->> of:NtrackpadT<NULL>Catmel,maxtouch
->>
->> NOTE: This patch may break out-of-tree drivers that were relying on this
->>       behavior, and only had an I2C device ID table even when the device
->>       was registered via OF. There are no remaining drivers in mainline
->>       that do this, but out-of-tree drivers have to be fixed and define
->>       a proper OF device ID table to have module auto-loading working.
->>
-> 
-> Hello Javier,
-> thank you for your patch!
+>> > Are you sure the i2c controller is on the AXI bus? It seems more
+>> > likely to be on an APB bus.
+>> 
+>> No I am not sure :)
+>> Actually I don't have this information, so lets call it "reg" for
+>> register clock.
+>
+> So, I assume a V4 is needed for this series.
+>
+> BTW would be someone from FreeElectrons be up to maintaining this
+> driver?
+
+So I am going to add a patch adding myself as maintainer to the series
+in the v4.
+
+Gregory
+
 >
 
-Thanks a lot for testing!
-
-Hopefully Wolfram will review/merge this soon, otherwise in the meantime drivers
-are going to add I2C device ID tables just as a workaround or new drivers won't
-include a OF device ID tables since these aren't really required today.
-
-I made sure that all the drivers in mainline were fixed before posting this, but
-haven't checked since then.
-
-Best regards,
 -- 
-Javier Martinez Canillas
-Software Engineer - Desktop Hardware Enablement
-Red Hat
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
