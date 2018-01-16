@@ -1,52 +1,38 @@
-From: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Subject: [PATCH v4 1/3] i2c: mv64xxx: Remove useless test before clk_disable_unprepare
-Date: Tue, 16 Jan 2018 17:35:38 +0100
-Message-ID: <20180116163540.1092-2-gregory.clement@free-electrons.com>
-References: <20180116163540.1092-1-gregory.clement@free-electrons.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: Re: [PATCH v2 1/7] qcom-geni-se: Add QCOM GENI SE Driver summary
+Date: Tue, 16 Jan 2018 08:55:15 -0800
+Message-ID: <20180116165515.GF478@tuxbook>
+References: <1515805547-22816-1-git-send-email-kramasub@codeaurora.org>
+ <1515805547-22816-2-git-send-email-kramasub@codeaurora.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:57603 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751031AbeAPQfz (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 Jan 2018 11:35:55 -0500
-In-Reply-To: <20180116163540.1092-1-gregory.clement@free-electrons.com>
+Received: from mail-pl0-f66.google.com ([209.85.160.66]:38830 "EHLO
+        mail-pl0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751530AbeAPQzT (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 Jan 2018 11:55:19 -0500
+Received: by mail-pl0-f66.google.com with SMTP id 13so6595333plb.5
+        for <linux-i2c@vger.kernel.org>; Tue, 16 Jan 2018 08:55:18 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <1515805547-22816-2-git-send-email-kramasub@codeaurora.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory CLEMENT <gregory.clement@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Antoine Tenart <antoine.tenart@free-electrons.com>, =?UTF-8?q?Miqu=C3=A8l=20Raynal?= <miquel.raynal@free-electrons.com>, Nadav Haklai <nadavh@marvell.com>, Shadi Ammouri <shadi@marvell.com>, Omri Itach <omrii@marvell.com>, Hanna Hawa <hannah@marvell.com>, Igal Liberman <igall@marvell.com>, Marcin Wojtas <mw@semihalf.com>
+To: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
+Cc: corbet@lwn.net, andy.gross@linaro.org, david.brown@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, gregkh@linuxfoundation.org, linux-doc@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org, jslaby@suse.com
 
-The 2 functions called from clk_disable_unprepare() already check that
-the clock pointer is valid: no need to test it before calling it.
+On Fri 12 Jan 17:05 PST 2018, Karthikeyan Ramasubramanian wrote:
 
-Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
----
- drivers/i2c/busses/i2c-mv64xxx.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+> Generic Interface (GENI) firmware based Qualcomm Universal Peripheral (QUP)
+> Wrapper is a programmable module that is composed of multiple Serial
+> Engines (SE) and can support various Serial Interfaces like UART, SPI,
+> I2C, I3C, etc. This document provides a high level overview of the GENI
+> based QUP Wrapper.
+> 
+> Signed-off-by: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
 
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index a832c45276a4..f69066266faa 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -950,9 +950,7 @@ mv64xxx_i2c_probe(struct platform_device *pd)
- exit_reset:
- 	reset_control_assert(drv_data->rstc);
- exit_clk:
--	/* Not all platforms have a clk */
--	if (!IS_ERR(drv_data->clk))
--		clk_disable_unprepare(drv_data->clk);
-+	clk_disable_unprepare(drv_data->clk);
- 
- 	return rc;
- }
-@@ -965,9 +963,7 @@ mv64xxx_i2c_remove(struct platform_device *dev)
- 	i2c_del_adapter(&drv_data->adapter);
- 	free_irq(drv_data->irq, drv_data);
- 	reset_control_assert(drv_data->rstc);
--	/* Not all platforms have a clk */
--	if (!IS_ERR(drv_data->clk))
--		clk_disable_unprepare(drv_data->clk);
-+	clk_disable_unprepare(drv_data->clk);
- 
- 	return 0;
- }
--- 
-2.15.1
+Rather than adding a disconnected chunk of documentation move this into
+the driver(s), using the format described in
+https://www.kernel.org/doc/html/latest/doc-guide/kernel-doc.html?highlight=kernel%20doc#overview-documentation-comments 
+
+Regards,
+Bjorn
