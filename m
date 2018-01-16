@@ -1,45 +1,42 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 2/4] dt-bindings: at24: add compatible for nxp,se97b
-Date: Tue, 16 Jan 2018 17:06:16 +0100
-Message-ID: <20180116160618.27859-3-peda@axentia.se>
-References: <20180116160618.27859-1-peda@axentia.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180116160618.27859-1-peda@axentia.se>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>, Russell King <linux@armlinux.org.uk>, Rob Herring <robh+dt@kernel.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-i2c@vger.kernel.org, Peter Rosin <peda@axentia.se>, linux-arm-kernel@lists.infradead.org
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Subject: [PATCH v4 3/3] i2c: mv64xxx: Add myslef as maintainer for this driver
+Date: Tue, 16 Jan 2018 17:35:40 +0100
+Message-ID: <20180116163540.1092-4-gregory.clement@free-electrons.com>
+References: <20180116163540.1092-1-gregory.clement@free-electrons.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.free-electrons.com ([62.4.15.54]:57622 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751474AbeAPQfz (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 Jan 2018 11:35:55 -0500
+In-Reply-To: <20180116163540.1092-1-gregory.clement@free-electrons.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Gregory CLEMENT <gregory.clement@free-electrons.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Antoine Tenart <antoine.tenart@free-electrons.com>, =?UTF-8?q?Miqu=C3=A8l=20Raynal?= <miquel.raynal@free-electrons.com>, Nadav Haklai <nadavh@marvell.com>, Shadi Ammouri <shadi@marvell.com>, Omri Itach <omrii@marvell.com>, Hanna Hawa <hannah@marvell.com>, Igal Liberman <igall@marvell.com>, Marcin Wojtas <mw@semihalf.com>
 
-The datasheet talks about the chip being an spd, but the chip is writable
-so atmel,24c02 is more appropriate as fallback.
+As requested by Wolfram Sang add myslef as maintainer of this driver.
 
-Signed-off-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
 ---
- Documentation/devicetree/bindings/eeprom/at24.txt | 1 +
- 1 file changed, 1 insertion(+)
+ MAINTAINERS | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/eeprom/at24.txt b/Documentation/devicetree/bindings/eeprom/at24.txt
-index abfae1beca2b..edf9247613f6 100644
---- a/Documentation/devicetree/bindings/eeprom/at24.txt
-+++ b/Documentation/devicetree/bindings/eeprom/at24.txt
-@@ -46,6 +46,7 @@ Required properties:
-                 Some vendors use different model names for chips which are just
-                 variants of the above. Known such exceptions are listed below:
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 6d176abafcc4..108fb5cae988 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -6649,6 +6649,12 @@ L:	linux-i2c@vger.kernel.org
+ S:	Maintained
+ F:	drivers/i2c/i2c-stub.c
  
-+                "nxp,se97b" - the fallback is "atmel,24c02",
-                 "renesas,r1ex24002" - the fallback is "atmel,24c02"
- 
-   - reg: The I2C address of the EEPROM.
++I2C MV64XXX MARVELL AND ALLWINNER DRIVER
++M:	Gregory CLEMENT <gregory.clement@free-electrons.com>
++L:	linux-i2c@vger.kernel.org
++S:	Maintained
++F:	drivers/i2c/busses/i2c-mv64xxx.c
++
+ i386 BOOT CODE
+ M:	"H. Peter Anvin" <hpa@zytor.com>
+ S:	Maintained
 -- 
-2.11.0
+2.15.1
