@@ -1,92 +1,134 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH v2 6/7] dt-bindings: serial: Add bindings for GENI based
- UART Controller
-Date: Tue, 16 Jan 2018 22:35:06 -0800
-Message-ID: <20180117063506.GD6620@minitux>
-References: <1515805547-22816-1-git-send-email-kramasub@codeaurora.org>
- <1515805547-22816-7-git-send-email-kramasub@codeaurora.org>
+From: CAPDEVILLE Marc <m.capdeville@no-log.org>
+Subject: Re: [PATCH v7 2/4] i2c-acpi : exclude ARA address for smbus device
+Date: Wed, 17 Jan 2018 11:28:01 +0100
+Message-ID: <1516184881.13570.1.camel@no-log.org>
+References: <20180113133705.25044-1-m.capdeville@no-log.org>
+         <20180113133705.25044-2-m.capdeville@no-log.org>
+         <20180114112829.2c12f705@archlinux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1515805547-22816-7-git-send-email-kramasub@codeaurora.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
-Cc: corbet@lwn.net, andy.gross@linaro.org, david.brown@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, gregkh@linuxfoundation.org, linux-doc@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org, jslaby@suse.com, Girish Mahadevan <girishm@codeaurora.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp13.smtpout.orange.fr ([80.12.242.135]:50094 "EHLO
+        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1750810AbeAQK2L (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 17 Jan 2018 05:28:11 -0500
+In-Reply-To: <20180114112829.2c12f705@archlinux>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Kevin Tsai <ktsai@capellamicro.com>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri 12 Jan 17:05 PST 2018, Karthikeyan Ramasubramanian wrote:
-
-> Add device tree binding support for GENI based UART Controller in the
-> QUP Wrapper.
+Le dimanche 14 janvier 2018 à 11:28 +0000, Jonathan Cameron a écrit :
+> On Sat, 13 Jan 2018 14:37:03 +0100
+> Marc CAPDEVILLE <m.capdeville@no-log.org> wrote:
 > 
-> Signed-off-by: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
-> Signed-off-by: Girish Mahadevan <girishm@codeaurora.org>
-> ---
->  .../devicetree/bindings/serial/qcom,geni-uart.txt  | 29 ++++++++++++++++++++++
->  .../devicetree/bindings/soc/qcom/qcom,geni-se.txt  | 13 ++++++++++
->  2 files changed, 42 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
+> > Somme ACPI enumerated devices are known to support smbus alert protocol.
+> > Theses devices may be miss-enumerated with the reserved smbus ARA address.
+> > 
+> > This is the case on Asus T100 tablet where cm3218 ambiant light sensor
+> > expose two i2c serial bus connections, with the first one being the alert
+> > response address.
+> > 
+> > This patch make a match on known ACPI ids for which devices are smbus ARA
+> > capable, then skip the connection if it has the reserved 0x0c address and
+> > mark it with I2C_CLIENT_ALERT flag. So device is enumerated with the
+> > correct address.
 > 
-> diff --git a/Documentation/devicetree/bindings/serial/qcom,geni-uart.txt b/Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
-> new file mode 100644
-> index 0000000..e7b9e24
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/serial/qcom,geni-uart.txt
-> @@ -0,0 +1,29 @@
-> +Qualcomm Technologies Inc. GENI Serial Engine based UART Controller
-> +
-> +The Generic Interface (GENI) Serial Engine based UART controller supports
-> +console use-cases and is supported only by GENI based Qualcomm Universal
-> +Peripheral (QUP) cores.
-> +
-> +Required properties:
-> +- compatible: should contain "qcom,geni-debug-uart".
+> I wonder if we are safe to always skip 0x0c address whether or not
+> we know the device supports ARA.  The exception may be for devices
+> that do support ARA but are rolling their own support the hard way...
 
-Why is this uart a _debug_ uart? Is there a separate binding for the
-geni-uart?
+The device is only flagged with I2C_CLIENT_ALERT if its ID is in the
+i2c_acpi_alert_device_ids. IF a driver want to be enumerated with the
+reserved Ox0c address, It just have to not put its Id in this table. But
+this may break with registering the smbus_alert device as the address will
+be marked as busy for this adapter.
 
-I like that your naming here matches my suggestion with qcom,geni-i2c.
+> I suppose it's possible there are i2c devices (not smbus where the
+> spec says you must not use 0x0c for normal address IIRC) that use
+> this address.  Does anyone know of any?
 
-> +- reg: Should contain UART register location and length.
-> +- reg-names: Should contain "se-phys".
-
-No need to specify reg-names for a single reg.
-
-> +- interrupts: Should contain UART core interrupts.
-> +- clock-names: Should contain "se-clk".
-
-Omit the "clk"
-
-> +- clocks: clocks needed for UART, includes the core clock.
-
-Be more specific.
-
-> +- pinctrl-names/pinctrl-0/1: The GPIOs assigned to this core. The names
-> +  Should be "active" and "sleep" for the pin confuguration when core is active
-> +  or when entering sleep state.
-
-Omit pinctrl information.
-
-> +
-> +Example:
-> +uart0: qcom,serial@a88000 {
-
-Don't use qcom, in node name. This should be named "serial".
-
-> +	compatible = "qcom,geni-debug-uart";
-> +	reg = <0xa88000 0x7000>;
-> +	reg-names = "se-phys";
-> +	interrupts = <0 355 0>;
-
-<GIC_SPI 355 IRQ_TYPE_LEVEL_HIGH>
-
-> +	clock-names = "se-clk";
-> +	clocks = <&clock_gcc GCC_QUPV3_WRAP0_S0_CLK>;
-> +	pinctrl-names = "default", "sleep";
-> +	pinctrl-0 = <&qup_1_uart_3_active>;
-> +	pinctrl-1 = <&qup_1_uart_3_sleep>;
-> +};
-
-Regards,
-Bjorn
+I think this possible, but a such device can't share the bus with a smbus
+alert capable device.
+> 
+> 
+> Jonathan
+> 
+> > 
+> > Signed-off-by: Marc CAPDEVILLE <m.capdeville@no-log.org>
+> > ---
+> >  drivers/i2c/i2c-core-acpi.c | 23 +++++++++++++++++++++--
+> >  include/linux/i2c.h         |  1 +
+> >  2 files changed, 22 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+> > index a9126b3cda61..5a8886f14329 100644
+> > --- a/drivers/i2c/i2c-core-acpi.c
+> > +++ b/drivers/i2c/i2c-core-acpi.c
+> > @@ -59,8 +59,14 @@ static int i2c_acpi_fill_info(struct acpi_resource *ares,
+> > void *data)
+> >  	if (sb->type != ACPI_RESOURCE_SERIAL_TYPE_I2C)
+> >  		return 1;
+> >  
+> > -	if (lookup->index != -1 && lookup->n++ != lookup->index)
+> > -		return 1;
+> > +	if (lookup->index != -1) {
+> > +		if (lookup->n++ != lookup->index)
+> > +			return 1;
+> > +	} else {
+> > +		if (lookup->info->flags & I2C_CLIENT_ALERT &&
+> > +		    sb->slave_address == 0x0c)
+> > +			return 1;
+> > +	}
+> >  
+> >  	status = acpi_get_handle(lookup->device_handle,
+> >  				 sb->resource_source.string_ptr,
+> > @@ -85,6 +91,15 @@ static const struct acpi_device_id
+> > i2c_acpi_ignored_device_ids[] = {
+> >  	{}
+> >  };
+> >  
+> > +static const struct acpi_device_id i2c_acpi_alert_device_ids[] = {
+> > +	/*
+> > +	 * Smbus alert capable device which may have the reserved ARA
+> > address
+> > +	 * in their serial bus resources list.
+> > +	 */
+> > +	{ "CPLM3218", 0 },
+> > +	{}
+> > +};
+> > +
+> >  static int i2c_acpi_do_lookup(struct acpi_device *adev,
+> >  			      struct i2c_acpi_lookup *lookup)
+> >  {
+> > @@ -100,6 +115,10 @@ static int i2c_acpi_do_lookup(struct acpi_device *adev,
+> >  		return -ENODEV;
+> >  
+> >  	memset(info, 0, sizeof(*info));
+> > +
+> > +	if (acpi_match_device_ids(adev, i2c_acpi_alert_device_ids) == 0)
+> > +		info->flags |= I2C_CLIENT_ALERT;
+> > +
+> >  	lookup->device_handle = acpi_device_handle(adev);
+> >  
+> >  	/* Look up for I2cSerialBus resource */
+> > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> > index 7592dce12923..b0d6f1333442 100644
+> > --- a/include/linux/i2c.h
+> > +++ b/include/linux/i2c.h
+> > @@ -743,6 +743,7 @@ i2c_unlock_adapter(struct i2c_adapter *adapter)
+> >  #define I2C_CLIENT_SLAVE	0x20	/* we are the slave */
+> >  #define I2C_CLIENT_HOST_NOTIFY	0x40	/* We want to use I2C
+> > host notify */
+> >  #define I2C_CLIENT_WAKE		0x80	/* for board_info; true
+> > iff can wake */
+> > +#define I2C_CLIENT_ALERT	0x100	/* Client use SMBUS alert
+> > protocol */
+> >  #define I2C_CLIENT_SCCB		0x9000	/* Use Omnivision SCCB
+> > protocol */
+> >  					/* Must match I2C_M_STOP|IGNORE_NAK
+> > */
+> >  
+> 
+> 
