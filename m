@@ -1,56 +1,51 @@
-From: Austin Christ <austinwc@codeaurora.org>
-Subject: [PATCH] i2c: qup: Add shutdown method
-Date: Tue, 16 Jan 2018 14:35:33 -0700
-Message-ID: <1516138534-30842-1-git-send-email-austinwc@codeaurora.org>
+From: Kevin Hilman <khilman@baylibre.com>
+Subject: Re: [PATCH v2 0/5]  i2c: meson-axg: add I2C controller driver
+Date: Tue, 16 Jan 2018 16:28:43 -0800
+Message-ID: <7ho9ltba6c.fsf@baylibre.com>
+References: <20171120145415.6581-1-yixun.lan@amlogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from smtp.codeaurora.org ([198.145.29.96]:56314 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750790AbeAPVfl (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 Jan 2018 16:35:41 -0500
+Received: from mail-pg0-f43.google.com ([74.125.83.43]:40484 "EHLO
+        mail-pg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751438AbeAQA24 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 16 Jan 2018 19:28:56 -0500
+Received: by mail-pg0-f43.google.com with SMTP id g16so3740860pgn.7
+        for <linux-i2c@vger.kernel.org>; Tue, 16 Jan 2018 16:28:56 -0800 (PST)
+In-Reply-To: <20171120145415.6581-1-yixun.lan@amlogic.com> (Yixun Lan's
+        message of "Mon, 20 Nov 2017 22:54:10 +0800")
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org
-Cc: Austin Christ <austinwc@codeaurora.org>
+To: Wolfram Sang <wsa@the-dreams.de>, Yixun Lan <yixun.lan@amlogic.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, Carlo Caione <carlo@caione.org>, Jian Hu <jian.hu@amlogic.com>, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
-This shutdown method disables I2C to avoid corrupting a new kernel
-started with kexec.
+Hi Wolfram,
 
-Signed-off-by: Austin Christ <austinwc@codeaurora.org>
----
- drivers/i2c/busses/i2c-qup.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+Yixun Lan <yixun.lan@amlogic.com> writes:
 
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index 08f8e01..b96f01a 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -1651,12 +1651,16 @@ static int qup_i2c_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static void qup_i2c_shutdown(struct platform_device *pdev)
-+{
-+	qup_i2c_remove(pdev);
-+}
-+
- #ifdef CONFIG_PM
- static int qup_i2c_pm_suspend_runtime(struct device *device)
- {
- 	struct qup_i2c_dev *qup = dev_get_drvdata(device);
- 
--	dev_dbg(device, "pm_runtime: suspending...\n");
- 	qup_i2c_disable_clocks(qup);
- 	return 0;
- }
-@@ -1717,6 +1721,7 @@ static int qup_i2c_resume(struct device *device)
- static struct platform_driver qup_i2c_driver = {
- 	.probe  = qup_i2c_probe,
- 	.remove = qup_i2c_remove,
-+	.shutdown = qup_i2c_shutdown,
- 	.driver = {
- 		.name = "i2c_qup",
- 		.pm = &qup_i2c_qup_pm_ops,
--- 
-Qualcomm Datacenter Technologies as an affiliate of Qualcomm Technologies, Inc.
-Qualcomm Technologies, Inc. is a member of the
-Code Aurora Forum, a Linux Foundation Collaborative Project.
+> This patch set try to add I2C controller driver for
+> the Amlogic's Meson-AXG SoC.
+>
+> Changes since v1 [1]
+>  - update dt-bindings doc (Neil Armstrong)
+>  - make meson_i2c_data const (Martin Blumenstingl)
+>  - DTS: adjust naming, change from the 'i2c_m0' to 'i2c0' style
+>
+> [1] http://lkml.kernel.org/r/20171117080236.32504-1-yixun.lan@amlogic.com
+>
+> Jian Hu (5):
+>   dt-bindings: i2c: update documentation for the Meson-AXG
+>   i2c: meson: add configurable divider factors
+
+Could you have a look at these two patches?  They've been
+acked/reviewed/tested and are just waiting your review/merge.
+
+>   ARM64: dts: meson-axg: add I2C DT info for Meson-AXG SoC
+>   ARM64: dts: meson-axg: describe pin DT info for I2C controller
+>   ARM64: dts: meson-axg: enable I2C Master-1 for the audio speaker
+
+Once you've merged, I'll take the DT patches through my amlogic tree.
+
+Thanks,
+
+Kevin
