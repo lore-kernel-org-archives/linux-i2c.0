@@ -1,86 +1,119 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: i2c: core-smbus: prevent stack corruption on read I2C_BLOCK_DATA
-Date: Wed, 17 Jan 2018 15:37:43 +0100
-Message-ID: <20180117143743.mnsmhsbydyp3gv7r@ninjato>
-References: <871skzpbby.fsf@jcompost-mobl.amr.corp.intel.com>
- <20180115175906.4ezync7thrqvqjcu@ninjato>
- <87k1whpp4b.fsf@jcompost-mobl.amr.corp.intel.com>
+From: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Subject: Re: [PATCH 3/6] arm64: renesas: r8a77995: add I2C support
+Date: Wed, 17 Jan 2018 17:21:33 +0000
+Message-ID: <ba3b094e-91f3-fa4d-7dbb-ab7741c5470c@ideasonboard.com>
+References: <1510759526-30346-1-git-send-email-ulrich.hecht+renesas@gmail.com>
+ <1510759526-30346-4-git-send-email-ulrich.hecht+renesas@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="5yffpxfjt5p22d7q"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:51875 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753397AbeAQOhp (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 17 Jan 2018 09:37:45 -0500
-Content-Disposition: inline
-In-Reply-To: <87k1whpp4b.fsf@jcompost-mobl.amr.corp.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <1510759526-30346-4-git-send-email-ulrich.hecht+renesas@gmail.com>
+Content-Language: en-GB
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>, linux-renesas-soc@vger.kernel.org, horms@verge.net.au, wsa@the-dreams.de, geert@linux-m68k.org
+Cc: magnus.damm@gmail.com, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: "Compostella, Jeremy" <jeremy.compostella@intel.com>
-Cc: linux-i2c@vger.kernel.org
+
+Hi Ulrich, Wolfram,
+
+Is there any update to this patch series?
+This seems to be the latest I could find for D3.
+
+I need I2C on D3 for my current additional task, so I'll try to use these
+patches as the base for now.
+
+(Patch 3, 4, 5 apply on top of renesas-drivers-2018-01-09-v4.15-rc7, so if it
+works - that's enough for me for the moment)
+
+Please let me know if there is a newer series or branch that I should be
+considering as a base.
+
+--
+Kieran
 
 
---5yffpxfjt5p22d7q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Jeremy,
-
->        unsigned char msgbuf1[I2C_SMBUS_BLOCK_MAX+2];
->=20
-> It uses the first element to store the requested length.  Therefore,
-> in practice, we hit the issue with "greater than I2C_SMBUS_BLOCK_MAX +
-> 1".
-
-Right, there is one extra byte reserved for PEC. So, the actual buffer
-overflow will happen at I2C_SMBUS_BLOCK_MAX + 1 since
-I2C_SMBUS_I2C_BLOCK_DATA does not have PEC.
-
-> I have a added a little c ternary instruction to keep the same level
-> of debug/error information.  If you don't like it we can remove it.
-
-I like it. I just didn't include it in my proof of concept.
-
-> I have updated, tested and attached the new version to this email.  I
-
-Very good, thank you!
-
-> also improved the commit message by adding some information about what
-> is expected by the documentation. I don't know what is the process to
-> update the patch to the mailing list.  Should I send a new email with
-> the new patch instead ?
-
-Technically, yes. Usually, resend it as [PATCH v2] with a small
-changelog what changed since last version. Just dig the mail archive for
-examples. However, since I really want this in v4.15, I picked this
-patch from the attachment and have applied it to i2c/for-current and
-attached the stable-tag.
-
-Thank you very much!
-
-   Wolfram
-
-
---5yffpxfjt5p22d7q
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpfX7MACgkQFA3kzBSg
-KbbSDQ//V+gkfXmTOdZybjQ5FmWtbZCgCp8rwyjcsTQ5WVfs8wtDcmVS1HVKosBw
-AFSS423Yr3XH/iSG7V5pR+VB1rH0ye1CddffUXFhZHzOpnhNbiSD73rVrwQ9v/G2
-4dCHp+LWvMNTjR1DMSruvIuiEcPjRyJQz3JJK0vIgf9tUm9CbmfBI99E1cHq+MRv
-pFUm4TNdl/OCjkJt3pxAIBdZXhivUzUu2GEVruvtt7nXAEM6uSE2Mpc9uCHkRGnX
-Strq0yb7faVjeci0ghp4gG+TJ4N+iUIgKEQ8jtfaw76orMrlvsZ1FPn8O/wFVg/g
-EmG6Okn7M6SICPQ4Im2914rHrUaEutTueoqx/bm3/Tql34GNzKzsE03ow9WyGkXw
-LEWcQmZw0XZd7m9wxrcYbaacd6CsgpuXjhQS8zKVV/mXNJhpvJhOILHdpHPMlYD1
-5sJGOIK3jGgj1aLAYAeawOFcGMidR+JeA95pdvWKiuElwABU16iWPrrwpLAES0j4
-A93i5Y3ywfTsNVgx8aH12P8kWNqT06nZt+fRj4NfEkAQ2kFHnv25irnV/D3m2/Jl
-xfUyOoirF/MO+VjdWtrVt0NlkQ1ahy4f5kgMLAlD6+zm78w43+xZEoDI/H6YDT1r
-M4m52SPwT0Z5fUkf0SsDD6adIszsYc3aoIL/IZptv0H8AIfLa3M=
-=WMsE
------END PGP SIGNATURE-----
-
---5yffpxfjt5p22d7q--
+On 15/11/17 15:25, Ulrich Hecht wrote:
+> Defines R-Car D3 I2C controllers 0-3.
+> 
+> Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+> ---
+>  arch/arm64/boot/dts/renesas/r8a77995.dtsi | 64 +++++++++++++++++++++++++++++++
+>  1 file changed, 64 insertions(+)
+> 
+> diff --git a/arch/arm64/boot/dts/renesas/r8a77995.dtsi b/arch/arm64/boot/dts/renesas/r8a77995.dtsi
+> index 5fa7572..b3113003 100644
+> --- a/arch/arm64/boot/dts/renesas/r8a77995.dtsi
+> +++ b/arch/arm64/boot/dts/renesas/r8a77995.dtsi
+> @@ -400,6 +400,70 @@
+>  			status = "disabled";
+>  		};
+>  
+> +		i2c0: i2c@e6500000 {
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			compatible = "renesas,i2c-r8a77995",
+> +				     "renesas,rcar-gen3-i2c";
+> +			reg = <0 0xe6500000 0 0x40>;
+> +			interrupts = <GIC_SPI 287 IRQ_TYPE_LEVEL_HIGH>;
+> +			clocks = <&cpg CPG_MOD 931>;
+> +			power-domains = <&sysc R8A77995_PD_ALWAYS_ON>;
+> +			resets = <&cpg 931>;
+> +			dmas = <&dmac1 0x91>, <&dmac1 0x90>;
+> +			dma-names = "tx", "rx";
+> +			i2c-scl-internal-delay-ns = <110>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c1: i2c@e6508000 {
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			compatible = "renesas,i2c-r8a77995",
+> +				     "renesas,rcar-gen3-i2c";
+> +			reg = <0 0xe6508000 0 0x40>;
+> +			interrupts = <GIC_SPI 288 IRQ_TYPE_LEVEL_HIGH>;
+> +			clocks = <&cpg CPG_MOD 930>;
+> +			power-domains = <&sysc R8A77995_PD_ALWAYS_ON>;
+> +			resets = <&cpg 930>;
+> +			dmas = <&dmac1 0x93>, <&dmac1 0x92>;
+> +			dma-names = "tx", "rx";
+> +			i2c-scl-internal-delay-ns = <6>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c2: i2c@e6510000 {
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			compatible = "renesas,i2c-r8a77995",
+> +				     "renesas,rcar-gen3-i2c";
+> +			reg = <0 0xe6510000 0 0x40>;
+> +			interrupts = <GIC_SPI 286 IRQ_TYPE_LEVEL_HIGH>;
+> +			clocks = <&cpg CPG_MOD 929>;
+> +			power-domains = <&sysc R8A77995_PD_ALWAYS_ON>;
+> +			resets = <&cpg 929>;
+> +			dmas = <&dmac1 0x95>, <&dmac1 0x94>;
+> +			dma-names = "tx", "rx";
+> +			i2c-scl-internal-delay-ns = <6>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c3: i2c@e66d0000 {
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			compatible = "renesas,i2c-r8a77995",
+> +				     "renesas,rcar-gen3-i2c";
+> +			reg = <0 0xe66d0000 0 0x40>;
+> +			interrupts = <GIC_SPI 290 IRQ_TYPE_LEVEL_HIGH>;
+> +			clocks = <&cpg CPG_MOD 928>;
+> +			power-domains = <&sysc R8A77995_PD_ALWAYS_ON>;
+> +			resets = <&cpg 928>;
+> +			dmas = <&dmac0 0x97>, <&dmac0 0x96>;
+> +			dma-names = "tx", "rx";
+> +			i2c-scl-internal-delay-ns = <110>;
+> +			status = "disabled";
+> +		};
+> +
+>  		pwm0: pwm@e6e30000 {
+>  			compatible = "renesas,pwm-r8a77995", "renesas,pwm-rcar";
+>  			reg = <0 0xe6e30000 0 0x8>;
+> 
