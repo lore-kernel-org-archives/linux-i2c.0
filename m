@@ -1,60 +1,58 @@
-From: Rob Clark <robdclark@gmail.com>
-Subject: Re: [PATCH 2/2] drm/msm/adreno: fix nvmem related link error
-Date: Wed, 17 Jan 2018 16:52:45 -0500
-Message-ID: <CAF6AEGsTe7-1FP5zrDDVyYuBw8ZVXH=TObzU+a1bNV7TH0n66w@mail.gmail.com>
-References: <20180115161431.803248-1-arnd@arndb.de> <20180115161431.803248-2-arnd@arndb.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] [v2] i2c: acorn: add MODULE_LICENSE tag
+Date: Thu, 18 Jan 2018 00:07:39 +0100
+Message-ID: <20180117230739.omogtvl4bev4zwjk@ninjato>
+References: <20180115202942.1858432-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="hk2kmikknukfc6k3"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180115161431.803248-2-arnd@arndb.de>
+Content-Disposition: inline
+In-Reply-To: <20180115202942.1858432-1-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Arnd Bergmann <arnd@arndb.de>
-Cc: Jordan Crouse <jcrouse@codeaurora.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, dri-devel <dri-devel@lists.freedesktop.org>, Linux Fbdev development list <linux-fbdev@vger.kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, David Airlie <airlied@linux.ie>, Bjorn Andersson <bjorn.andersson@linaro.org>, Archit Taneja <architt@codeaurora.org>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, freedreno <freedreno@lists.freedesktop.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jan 15, 2018 at 11:14 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> When NVMEM is configured as a loadable module, and adreno
-> is built-in, we get a link failure:
->
-> drivers/gpu/drm/msm/adreno/a5xx_gpu.o: In function `a5xx_gpu_init':
-> a5xx_gpu.c:(.text+0x15cc): undefined reference to `nvmem_cell_get'
-> a5xx_gpu.c:(.text+0x15da): undefined reference to `nvmem_cell_read'
-> a5xx_gpu.c:(.text+0x15e4): undefined reference to `nvmem_cell_put'
->
-> This adds a Kconfig dependency to enforce valid configurations,
-> when NVMEM is a loadable module, adreno now has to also be one.
-> The code seems to deal fine with nvmem being completely disabled,
-> it will just not set the right speed bin then, so we don't need
-> a hard dependency.
->
-> Fixes: f56d9df656c4 ("drm/msm/adreno: Read the speed bins for a5xx targets")
+
+--hk2kmikknukfc6k3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Jan 15, 2018 at 09:28:39PM +0100, Arnd Bergmann wrote:
+> As of v4.15, Kbuild warns about missing MODULE_LICENSE tags:
+>=20
+> WARNING: modpost: missing MODULE_LICENSE() in drivers/i2c/busses/i2c-acor=
+n.o
+>=20
+> This adds a license, author and description tag, matching the
+> comment at the start of the acorn i2c driver.
+>=20
 > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Arnd, beyond randconfig, I guess there are probably two real-world
-scenarios, both =m (distro) and both =y (android/oe/etc)..
-
-Is there a kconfig way to say if nvmem=m then drm_msm must be =n or =m?
-
-BR,
--R
+Since you addressed Russell's comment from V1: applied to for-next,
+thanks!
 
 
-> ---
->  drivers/gpu/drm/msm/Kconfig | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/gpu/drm/msm/Kconfig b/drivers/gpu/drm/msm/Kconfig
-> index 99d39b2aefa6..74fb1c816da9 100644
-> --- a/drivers/gpu/drm/msm/Kconfig
-> +++ b/drivers/gpu/drm/msm/Kconfig
-> @@ -4,6 +4,7 @@ config DRM_MSM
->         depends on DRM
->         depends on ARCH_QCOM || (ARM && COMPILE_TEST)
->         depends on OF && COMMON_CLK
-> +       depends on NVMEM || !NVMEM
->         depends on MMU
->         select QCOM_MDT_LOADER if ARCH_QCOM
->         select REGULATOR
-> --
-> 2.9.0
->
+--hk2kmikknukfc6k3
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpf1zcACgkQFA3kzBSg
+KbYQoA/8CJbB53Ch4TNbgdO0lyqbhbCiorz81O0RkinvBusGLzN8FYKz4lFWDwfH
+UyY7ot3Z4cEkWAalWvhp5RV2VjXlKB6WvFf14VDA4PenHBhuMD19si77QyZFrlhR
+ZZjbpY+1cdv0+mdk3diV6NZDzdyLCTsa+2hFyAXrvjQSsRP/i5HW1fjncXCXx2fh
+iRV0o29NRi0NQZAVrmUzUo9a/YqZF4iSAE9GQu0XW/BaBTIWcvoudappEwYSGBs6
+K0FRy1x21bF5iByIYUs2mlzfeCYFXtY5unnrB8l8kcwvHOS7xv0n5EDDd1Ikj7AW
+vdqN+5vEhAAMd7ODpdgzaPeyQEGW0HVZ5twW3yRKkKN/IFmFJ/oFG9YQBAo4LBEA
+cHk1962ez2BZfan72Bql+dCCyiwXFbH8N0T0SuY+5GZiLY3kKxw6ZTYoY9oSNRyJ
+KWf82ZVx4V6lfdpmwbBzYJitKhjyNCVLECQSElH4MYpAKeEBrGxwhlO2YPoNa6PA
+hdBKbLkEqKES8Dph9gVXdDk1iVrWqbENmzERCr7yHwqe+mTvq+mOUxQfERz/yUYC
+RWOqESSpElukUPmWFLLYRzG+vFir1VM6QbeWTGZtYZshaFNB5F4EFs8sMK2ejL0x
+m4B/SWiX5qvZzw7G2Ode+oaO/ockQA8mr8Bvp8hAMy82NCg30nE=
+=CjEj
+-----END PGP SIGNATURE-----
+
+--hk2kmikknukfc6k3--
