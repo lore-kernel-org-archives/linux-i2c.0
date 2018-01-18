@@ -1,43 +1,61 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1 04/15] ipmi_ssif: Remove duplicate NULL check
-Date: Thu, 18 Jan 2018 18:46:12 +0200
-Message-ID: <1516293972.7000.1098.camel@linux.intel.com>
-References: <20171031142149.32512-1-andriy.shevchenko@linux.intel.com>
-         <20171031142149.32512-4-andriy.shevchenko@linux.intel.com>
-         <1516289388.7000.1092.camel@linux.intel.com>
-         <9a4c8dda-2a5c-14f3-559f-f4d5260fbdb0@acm.org>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: Re: [PATCH v2 3/7] soc: qcom: Add GENI based QUP Wrapper driver
+Date: Thu, 18 Jan 2018 08:57:45 -0800
+Message-ID: <20180118165745.GE6620@minitux>
+References: <1515805547-22816-1-git-send-email-kramasub@codeaurora.org>
+ <1515805547-22816-4-git-send-email-kramasub@codeaurora.org>
+ <20180117062002.GA6620@minitux>
+ <29ed5b45-dd70-fb70-3aa4-4e1a0006d57e@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:55948 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753406AbeARQqR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 18 Jan 2018 11:46:17 -0500
-In-Reply-To: <9a4c8dda-2a5c-14f3-559f-f4d5260fbdb0@acm.org>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <29ed5b45-dd70-fb70-3aa4-4e1a0006d57e@codeaurora.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Rajendra Nayak <rnayak@codeaurora.org>
+Cc: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, corbet@lwn.net, andy.gross@linaro.org, david.brown@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, gregkh@linuxfoundation.org, linux-doc@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org, jslaby@suse.com, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
-To: minyard@acm.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
-Cc: openipmi-developer@lists.sourceforge.net
 
-On Thu, 2018-01-18 at 09:41 -0600, Corey Minyard wrote:
-> On 01/18/2018 09:29 AM, Andy Shevchenko wrote:
-> > On Tue, 2017-10-31 at 16:21 +0200, Andy Shevchenko wrote:
-> > > Since i2c_unregister_device() became NULL-aware we may remove
-> > > duplicate
-> > > NULL check.
-> > 
-> > Anyone?
-> > 
-> > Wolfram, I think if no one picks this soon it's quite safe to push
-> > it
-> > through i2c tree.
-> > 
+On Thu 18 Jan 01:13 PST 2018, Rajendra Nayak wrote:
+
+> []..
 > 
-> I'll pick this up for the next release.
+> >> diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
+> >> new file mode 100644
+> >> index 0000000..3f43582
+> >> --- /dev/null
+> >> +++ b/drivers/soc/qcom/qcom-geni-se.c
+> >> @@ -0,0 +1,1016 @@
+> >> +/*
+> >> + * Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
+> >> + *
+> >> + * This program is free software; you can redistribute it and/or modify
+> >> + * it under the terms of the GNU General Public License version 2 and
+> >> + * only version 2 as published by the Free Software Foundation.
+> >> + *
+> >> + * This program is distributed in the hope that it will be useful,
+> >> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> >> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> >> + * GNU General Public License for more details.
+> >> + *
+> >> + */
+> > 
+> > Please use SPDX style license header, i.e. this file should start with:
+> > 
+> > // SPDX-License-Identifier: GPL-2.0
+> > /*
+> >  * Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
+> >  */
+> 
+> Looks like Mark Brown commented elsewhere [1] that we should use the C++
+> commenting style even for the Linux Foundation copyright?
+> 
+> [1] https://marc.info/?l=linux-clk&m=151497978626135&w=2 
+> 
 
-Thanks!
+While I can agree with Mark on the ugliness of the mixed commenting
+style, this is the style that I found communicated and is what you find
+in other files.
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Regards,
+Bjorn
