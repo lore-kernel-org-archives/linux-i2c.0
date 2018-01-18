@@ -1,55 +1,82 @@
-From: Rajendra Nayak <rnayak@codeaurora.org>
-Subject: Re: [PATCH v2 3/7] soc: qcom: Add GENI based QUP Wrapper driver
-Date: Thu, 18 Jan 2018 14:43:58 +0530
-Message-ID: <29ed5b45-dd70-fb70-3aa4-4e1a0006d57e@codeaurora.org>
-References: <1515805547-22816-1-git-send-email-kramasub@codeaurora.org>
- <1515805547-22816-4-git-send-email-kramasub@codeaurora.org>
- <20180117062002.GA6620@minitux>
+From: Lucas Stach <l.stach@pengutronix.de>
+Subject: Re: [PATCH 2/2] drm/msm/adreno: fix nvmem related link error
+Date: Thu, 18 Jan 2018 11:15:18 +0100
+Message-ID: <1516270518.19307.5.camel@pengutronix.de>
+References: <20180115161431.803248-1-arnd@arndb.de>
+         <20180115161431.803248-2-arnd@arndb.de>
+         <CAF6AEGsTe7-1FP5zrDDVyYuBw8ZVXH=TObzU+a1bNV7TH0n66w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20180117062002.GA6620@minitux>
-Content-Language: en-US
-Sender: linux-doc-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
-Cc: corbet@lwn.net, andy.gross@linaro.org, david.brown@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, gregkh@linuxfoundation.org, linux-doc@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org, jslaby@suse.com, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:58709 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754765AbeARKPa (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 18 Jan 2018 05:15:30 -0500
+In-Reply-To: <CAF6AEGsTe7-1FP5zrDDVyYuBw8ZVXH=TObzU+a1bNV7TH0n66w@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Rob Clark <robdclark@gmail.com>, Arnd Bergmann <arnd@arndb.de>
+Cc: Linux Fbdev development list <linux-fbdev@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, dri-devel <dri-devel@lists.freedesktop.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, linux-i2c@vger.kernel.org, freedreno <freedreno@lists.freedesktop.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-[]..
-
->> diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
->> new file mode 100644
->> index 0000000..3f43582
->> --- /dev/null
->> +++ b/drivers/soc/qcom/qcom-geni-se.c
->> @@ -0,0 +1,1016 @@
->> +/*
->> + * Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
->> + *
->> + * This program is free software; you can redistribute it and/or modify
->> + * it under the terms of the GNU General Public License version 2 and
->> + * only version 2 as published by the Free Software Foundation.
->> + *
->> + * This program is distributed in the hope that it will be useful,
->> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
->> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->> + * GNU General Public License for more details.
->> + *
->> + */
+Am Mittwoch, den 17.01.2018, 16:52 -0500 schrieb Rob Clark:
+> On Mon, Jan 15, 2018 at 11:14 AM, Arnd Bergmann <arnd@arndb.de>
+> wrote:
+> > When NVMEM is configured as a loadable module, and adreno
+> > is built-in, we get a link failure:
+> > 
+> > drivers/gpu/drm/msm/adreno/a5xx_gpu.o: In function `a5xx_gpu_init':
+> > a5xx_gpu.c:(.text+0x15cc): undefined reference to `nvmem_cell_get'
+> > a5xx_gpu.c:(.text+0x15da): undefined reference to `nvmem_cell_read'
+> > a5xx_gpu.c:(.text+0x15e4): undefined reference to `nvmem_cell_put'
+> > 
+> > This adds a Kconfig dependency to enforce valid configurations,
+> > when NVMEM is a loadable module, adreno now has to also be one.
+> > The code seems to deal fine with nvmem being completely disabled,
+> > it will just not set the right speed bin then, so we don't need
+> > a hard dependency.
+> > 
+> > Fixes: f56d9df656c4 ("drm/msm/adreno: Read the speed bins for a5xx
+> > targets")
+> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > 
-> Please use SPDX style license header, i.e. this file should start with:
+> Arnd, beyond randconfig, I guess there are probably two real-world
+> scenarios, both =m (distro) and both =y (android/oe/etc)..
 > 
-> // SPDX-License-Identifier: GPL-2.0
-> /*
->  * Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
->  */
+> Is there a kconfig way to say if nvmem=m then drm_msm must be =n or
+> =m?
 
-Looks like Mark Brown commented elsewhere [1] that we should use the C++
-commenting style even for the Linux Foundation copyright?
+That's exactly what the below patch does.
 
-[1] https://marc.info/?l=linux-clk&m=151497978626135&w=2 
+Regards,
+Lucas
 
--- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by The Linux Foundation
+> BR,
+> -R
+> 
+> 
+> > ---
+> >  drivers/gpu/drm/msm/Kconfig | 1 +
+> >  1 file changed, 1 insertion(+)
+> > 
+> > diff --git a/drivers/gpu/drm/msm/Kconfig
+> > b/drivers/gpu/drm/msm/Kconfig
+> > index 99d39b2aefa6..74fb1c816da9 100644
+> > --- a/drivers/gpu/drm/msm/Kconfig
+> > +++ b/drivers/gpu/drm/msm/Kconfig
+> > @@ -4,6 +4,7 @@ config DRM_MSM
+> >         depends on DRM
+> >         depends on ARCH_QCOM || (ARM && COMPILE_TEST)
+> >         depends on OF && COMMON_CLK
+> > +       depends on NVMEM || !NVMEM
+> >         depends on MMU
+> >         select QCOM_MDT_LOADER if ARCH_QCOM
+> >         select REGULATOR
+> > --
+> > 2.9.0
+> > 
+> 
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
