@@ -1,8 +1,8 @@
 From: Bjorn Andersson <bjorn.andersson@linaro.org>
 Subject: Re: [PATCH v2 7/7] tty: serial: msm_geni_serial: Add serial driver
  support for GENI based QUP
-Date: Thu, 18 Jan 2018 11:43:39 -0800
-Message-ID: <20180118194339.GF6620@minitux>
+Date: Thu, 18 Jan 2018 23:12:13 -0800
+Message-ID: <20180119071213.GB30353@minitux>
 References: <1515805547-22816-1-git-send-email-kramasub@codeaurora.org>
  <1515805547-22816-8-git-send-email-kramasub@codeaurora.org>
 Mime-Version: 1.0
@@ -25,6 +25,10 @@ On Fri 12 Jan 17:05 PST 2018, Karthikeyan Ramasubramanian wrote:
 > Signed-off-by: Girish Mahadevan <girishm@codeaurora.org>
 > Signed-off-by: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
 > Signed-off-by: Sagar Dharia <sdharia@codeaurora.org>
+
+Please disregard my previous answer to this patch, I hit the wrong key
+combo while stashing my reply.
+
 > ---
 >  drivers/tty/serial/Kconfig            |   10 +
 >  drivers/tty/serial/Makefile           |    1 +
@@ -46,28 +50,7 @@ On Fri 12 Jan 17:05 PST 2018, Karthikeyan Ramasubramanian wrote:
 
 depend on the GENI wrapper as well.
 
-> +	select SERIAL_CORE
-> +	select SERIAL_CORE_CONSOLE
-> +	select SERIAL_EARLYCON
-> +	help
-> +	  Serial driver for Qualcomm Technologies Inc's GENI based QUP
-> +	  hardware.
-> +
->  config SERIAL_VT8500
->  	bool "VIA VT8500 on-chip serial port support"
->  	depends on ARCH_VT8500
-> diff --git a/drivers/tty/serial/Makefile b/drivers/tty/serial/Makefile
-> index 842d185..64a8d82 100644
-> --- a/drivers/tty/serial/Makefile
-> +++ b/drivers/tty/serial/Makefile
-> @@ -63,6 +63,7 @@ obj-$(CONFIG_SERIAL_SGI_IOC3) += ioc3_serial.o
->  obj-$(CONFIG_SERIAL_ATMEL) += atmel_serial.o
->  obj-$(CONFIG_SERIAL_UARTLITE) += uartlite.o
->  obj-$(CONFIG_SERIAL_MSM) += msm_serial.o
-> +obj-$(CONFIG_SERIAL_QCOM_GENI) += qcom_geni_serial.o
->  obj-$(CONFIG_SERIAL_NETX) += netx-serial.o
->  obj-$(CONFIG_SERIAL_KS8695) += serial_ks8695.o
->  obj-$(CONFIG_SERIAL_OMAP) += omap-serial.o
+[..]
 > diff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c
 > new file mode 100644
 > index 0000000..0dbd329
@@ -117,69 +100,7 @@ Unused?
 
 Drop the parenthesis
 
-> +#define SE_UART_TX_WORD_LEN		(0x268)
-> +#define SE_UART_TX_STOP_BIT_LEN		(0x26C)
-> +#define SE_UART_TX_TRANS_LEN		(0x270)
-> +#define SE_UART_RX_TRANS_CFG		(0x280)
-> +#define SE_UART_RX_WORD_LEN		(0x28C)
-> +#define SE_UART_RX_STALE_CNT		(0x294)
-> +#define SE_UART_TX_PARITY_CFG		(0x2A4)
-> +#define SE_UART_RX_PARITY_CFG		(0x2A8)
-> +
-> +/* SE_UART_TRANS_CFG */
-> +#define UART_TX_PAR_EN		(BIT(0))
-> +#define UART_CTS_MASK		(BIT(1))
-> +
-> +/* SE_UART_TX_WORD_LEN */
-> +#define TX_WORD_LEN_MSK		(GENMASK(9, 0))
-> +
-> +/* SE_UART_TX_STOP_BIT_LEN */
-> +#define TX_STOP_BIT_LEN_MSK	(GENMASK(23, 0))
-> +#define TX_STOP_BIT_LEN_1	(0)
-> +#define TX_STOP_BIT_LEN_1_5	(1)
-> +#define TX_STOP_BIT_LEN_2	(2)
-> +
-> +/* SE_UART_TX_TRANS_LEN */
-> +#define TX_TRANS_LEN_MSK	(GENMASK(23, 0))
-> +
-> +/* SE_UART_RX_TRANS_CFG */
-> +#define UART_RX_INS_STATUS_BIT	(BIT(2))
-> +#define UART_RX_PAR_EN		(BIT(3))
-> +
-> +/* SE_UART_RX_WORD_LEN */
-> +#define RX_WORD_LEN_MASK	(GENMASK(9, 0))
-> +
-> +/* SE_UART_RX_STALE_CNT */
-> +#define RX_STALE_CNT		(GENMASK(23, 0))
-> +
-> +/* SE_UART_TX_PARITY_CFG/RX_PARITY_CFG */
-> +#define PAR_CALC_EN		(BIT(0))
-> +#define PAR_MODE_MSK		(GENMASK(2, 1))
-> +#define PAR_MODE_SHFT		(1)
-> +#define PAR_EVEN		(0x00)
-> +#define PAR_ODD			(0x01)
-> +#define PAR_SPACE		(0x10)
-> +#define PAR_MARK		(0x11)
-> +
-> +/* UART M_CMD OP codes */
-> +#define UART_START_TX		(0x1)
-> +#define UART_START_BREAK	(0x4)
-> +#define UART_STOP_BREAK		(0x5)
-> +/* UART S_CMD OP codes */
-> +#define UART_START_READ		(0x1)
-> +#define UART_PARAM		(0x1)
-> +
-> +#define UART_OVERSAMPLING	(32)
-> +#define STALE_TIMEOUT		(16)
-> +#define DEFAULT_BITS_PER_CHAR	(10)
-> +#define GENI_UART_NR_PORTS	(15)
-> +#define GENI_UART_CONS_PORTS	(1)
-> +#define DEF_FIFO_DEPTH_WORDS	(16)
-> +#define DEF_TX_WM		(2)
-> +#define DEF_FIFO_WIDTH_BITS	(32)
-> +#define UART_CORE2X_VOTE	(10000)
-> +#define UART_CONSOLE_RX_WM	(2)
-> +
+[..]
 > +static int owr;
 > +module_param(owr, int, 0644);
 
@@ -217,25 +138,15 @@ used as a local variable in handle_rx_console() so drop this.
 > +	struct geni_se_rsc serial_rsc;
 > +	unsigned int xmit_size;
 
-size_t for sizes.
+In other drivers we read bytes of the xmit buffer at xmit->tail, write
+to hardware FIFO and update xmit->tail. Why do you keep a going delta
+between the tail and our real tail?
 
 > +	void *rx_buf;
 > +	unsigned int cur_baud;
 > +};
 > +
-> +static const struct uart_ops qcom_geni_serial_pops;
-> +static struct uart_driver qcom_geni_console_driver;
-> +static int handle_rx_console(struct uart_port *uport,
-> +			unsigned int rx_fifo_wc,
-> +			unsigned int rx_last_byte_valid,
-> +			unsigned int rx_last,
-> +			bool drop_rx);
-> +static unsigned int qcom_geni_serial_tx_empty(struct uart_port *port);
-> +static int qcom_geni_serial_poll_bit(struct uart_port *uport,
-> +				int offset, int bit_field, bool set);
-> +static void qcom_geni_serial_stop_rx(struct uart_port *uport);
-> +
-> +static atomic_t uart_line_id = ATOMIC_INIT(0);
+[..]
 > +
 > +#define GET_DEV_PORT(uport) \
 > +	container_of(uport, struct qcom_geni_serial_port, uport)
@@ -246,30 +157,7 @@ The use of "uport" as macro parameter makes this only work if the
 parameter is "uport", otherwise the macro will replace the last part of
 the container_of as well.
 
-> +
-> +static struct qcom_geni_serial_port qcom_geni_console_port;
-> +
-> +static void qcom_geni_serial_config_port(struct uart_port *uport, int cfg_flags)
-> +{
-> +	if (cfg_flags & UART_CONFIG_TYPE)
-> +		uport->type = PORT_MSM;
-> +}
-> +
-> +static unsigned int qcom_geni_cons_get_mctrl(struct uart_port *uport)
-> +{
-> +	return TIOCM_DSR | TIOCM_CAR | TIOCM_CTS;
-> +}
-> +
-> +static void qcom_geni_cons_set_mctrl(struct uart_port *uport,
-> +							unsigned int mctrl)
-> +{
-> +}
-> +
-> +static const char *qcom_geni_serial_get_type(struct uart_port *uport)
-> +{
-> +	return "MSM";
-> +}
-> +
+[..]
 > +static struct qcom_geni_serial_port *get_port_from_line(int line)
 > +{
 > +	struct qcom_geni_serial_port *port = NULL;
@@ -307,8 +195,15 @@ Don't initialize things that will be assigned directly again.
 > +
 > +
 > +	if (uport->private_data) {
+
+When is this function being called on a non-initialized uport?
+
 > +		port = GET_DEV_PORT(uport);
 > +		baud = (port->cur_baud ? port->cur_baud : 115200);
+
+Drop the parenthesis, and consider initializing baud = port->cur_baud
+and then give it 115200 if it's zero separately.
+
 > +		fifo_bits = port->tx_fifo_depth * port->tx_fifo_width;
 > +		/*
 > +		 * Total polling iterations based on FIFO worth of bytes to be
@@ -384,6 +279,9 @@ What's owr?
 > +	}
 > +	geni_status = geni_read_reg_nolog(uport->membase,
 > +						  SE_GENI_STATUS);
+
+Why is this line wrapped?
+
 > +	if (geni_status & M_GENI_CMD_ACTIVE)
 > +		owr++;
 > +	geni_write_reg_nolog(irq_clear, uport->membase, SE_GENI_M_IRQ_CLEAR);
@@ -395,6 +293,9 @@ What's owr?
 > +
 > +	geni_se_abort_s_cmd(uport->membase);
 > +	/* Ensure this goes through before polling. */
+
+Move the mb() to the qcom_geni_serial_poll_bit()
+
 > +	mb();
 > +	irq_clear |= S_CMD_ABORT_EN;
 > +	qcom_geni_serial_poll_bit(uport, SE_GENI_S_CMD_CTRL_REG,
@@ -444,6 +345,9 @@ clear S? I.e. have a single variable named "status".
 > +	/*
 > +	 * Read the Rx FIFO only after clearing the interrupt registers and
 > +	 * getting valid RX fifo status.
+
+Use non-_relaxed readl and you wouldn't have to do this explicitly.
+
 > +	 */
 > +	mb();
 > +	rx_fifo = geni_read_reg_nolog(uport->membase, SE_GENI_RX_FIFOn);
@@ -491,6 +395,10 @@ into the poll function then - or just stop using _relaxed()
 > +#endif
 > +
 > +#if defined(CONFIG_SERIAL_CORE_CONSOLE) || defined(CONFIG_CONSOLE_POLL)
+
+The Kconfig specifies that we depend on CONFIG_SERIAL_CORE_CONSOLE, so
+no need to check that.
+
 > +static void qcom_geni_serial_wr_char(struct uart_port *uport, int ch)
 > +{
 > +	geni_write_reg_nolog(ch, uport->membase, SE_GENI_TX_FIFOn);
@@ -602,6 +510,11 @@ port can't be NULL.
 > +			unsigned int rx_fifo_wc,
 > +			unsigned int rx_last_byte_valid,
 > +			unsigned int rx_last,
+
+You should be able to have a single parameter with a better name stating
+that "this is the last chunk and it's only N bytes", rather than
+encoding this in a bool and a count with obscure names.
+
 > +			bool drop_rx)
 > +{
 > +	int i, c;
@@ -625,6 +538,9 @@ lines down.
 > +
 > +		if (i == (rx_fifo_wc - 1)) {
 > +			if (rx_last && rx_last_byte_valid)
+
+Also, shouldn't rx_last be redundant to the check against rx_fifo_wc?
+
 > +				bytes = rx_last_byte_valid;
 > +		}
 > +		for (c = 0; c < bytes; c++) {
@@ -744,6 +660,9 @@ Drop the _nolog from all of these to make code easier to read.
 > +static void qcom_geni_serial_stop_tx(struct uart_port *uport)
 > +{
 > +	stop_tx_sequencer(uport);
+
+Inline stop_tx_sequencer here...
+
 > +}
 > +
 > +static void start_rx_sequencer(struct uart_port *uport)
@@ -772,6 +691,10 @@ Drop the _nolog from all of these to make code easier to read.
 > +							SE_GENI_S_IRQ_EN);
 > +		geni_write_reg_nolog(geni_m_irq_en, uport->membase,
 > +							SE_GENI_M_IRQ_EN);
+
+Do you need to do have these two operations interlaced? Can't you take
+care of M and then S using a single variable?
+
 > +	}
 > +	/*
 > +	 * Ensure the writes to the secondary sequencer and interrupt enables
@@ -787,6 +710,9 @@ This is not what mb() does.
 > +static void qcom_geni_serial_start_rx(struct uart_port *uport)
 > +{
 > +	start_rx_sequencer(uport);
+
+Inline start_rx_sequencer
+
 > +}
 > +
 > +static void stop_rx_sequencer(struct uart_port *uport)
@@ -814,6 +740,9 @@ This is not what mb() does.
 > +
 > +	geni_status = geni_read_reg_nolog(uport->membase, SE_GENI_STATUS);
 > +	/* Possible stop rx is called multiple times. */
+
+Shouldn't this be checked before above writes?
+
 > +	if (!(geni_status & S_GENI_CMD_ACTIVE))
 > +		return;
 > +	geni_se_cancel_s_cmd(uport->membase);
@@ -827,6 +756,10 @@ This is not what mb() does.
 > +	geni_status = geni_read_reg_nolog(uport->membase, SE_GENI_STATUS);
 > +	geni_write_reg_nolog(irq_clear, uport->membase, SE_GENI_S_IRQ_CLEAR);
 > +	if ((geni_status & S_GENI_CMD_ACTIVE))
+
+Drop the extra parenthesis. Is this checking if we're still active after
+the cancel, or is this redundant?
+
 > +		qcom_geni_serial_abort_rx(uport);
 > +}
 > +
@@ -879,6 +812,9 @@ return 0 anyways, so make the function void.
 > +	int ret = 0;
 > +	struct qcom_geni_serial_port *qcom_port = GET_DEV_PORT(uport);
 > +	struct circ_buf *xmit = &uport->state->xmit;
+
+Use size_t for sizes.
+
 > +	unsigned int avail_fifo_bytes = 0;
 
 Naming avail_fifo_bytes just "avail" is carrying the same information
@@ -888,6 +824,11 @@ but is shorter.
 > +	int i = 0;
 > +	unsigned int tx_fifo_status;
 > +	unsigned int xmit_size;
+
+This is "the number of bytes we're going to take from the uart xmit
+buffer and push to the hardware FIFO. Call it "chunk" or something,
+because it's not the size of the xmit.
+
 > +	unsigned int fifo_width_bytes = 1;
 
 If this really is constantly 1 you can remove the variable and remove a
@@ -895,7 +836,8 @@ bit of the complexity in this function.
 
 > +	int temp_tail = 0;
 
-Use size_t for sizes.
+Local variables are temporary in nature, so no need to name the variable
+temp_tail, it is the "tail" we operate on here.
 
 > +
 > +	xmit_size = uart_circ_chars_pending(xmit);
@@ -903,9 +845,6 @@ Use size_t for sizes.
 > +					SE_GENI_TX_FIFO_STATUS);
 > +	/* Both FIFO and framework buffer are drained */
 > +	if ((xmit_size == qcom_port->xmit_size) && !tx_fifo_status) {
-
-Drop the parenthesis.
-
 > +		qcom_port->xmit_size = 0;
 > +		uart_circ_clear(xmit);
 > +		qcom_geni_serial_stop_tx(uport);
@@ -921,7 +860,19 @@ Drop the parenthesis.
 > +	if (xmit_size > avail_fifo_bytes)
 > +		xmit_size = avail_fifo_bytes;
 
+This section is confusing me, in other drivers we update xmit->tail and
+the uart_circ_chars_pending() returns the number of bytes left to be
+written. But in your driver we maintain qcom_port->xmit_size as a delta
+between the tail and the next byte in the ring buffer to consume.
 
+I find no place were you're actually updating the tail, so I'm wondering
+how setting qcom_port->xmit_size to zero above will actually work, as it
+doesn't consider that xmit->head might be elsewhere.
+
+The math that you need to come up with is "how much data is there to be
+written" and "how much FIFO space do I have" and then take the min() of
+those. The prior should be the return value of uart_circ_chars_pending()
+straight off.
 
 > +
 > +	if (!xmit_size)
@@ -940,15 +891,27 @@ Drop the parenthesis.
 
 		tx_bytes = min(remaining, fifo_width);
 
+But fifo_width_bytes is 1, so this can be simplified.
+
 > +
 > +		for (c = 0; c < tx_bytes ; c++)
 > +			buf |= (xmit->buf[temp_tail + c] << (c * 8));
+
+As bytes_remaining shouldn't be able to reach 0, tx_bytes should always
+be 1 and as such this is just a matter of writing
+xmit->buf[xmit->tail++] to SE_GENI_TX_FIFOn.
+
 > +		geni_write_reg_nolog(buf, uport->membase, SE_GENI_TX_FIFOn);
 > +		i += tx_bytes;
 > +		temp_tail = (temp_tail + tx_bytes) & (UART_XMIT_SIZE - 1);
 > +		uport->icount.tx += tx_bytes;
 > +		bytes_remaining -= tx_bytes;
 > +		/* Ensure FIFO write goes through */
+
+Writes to the same register isn't expected to be reordered, so you
+shouldn't need this wmb(). Perhaps it's the same barrier that's needed
+for other polls?
+
 > +		wmb();
 > +	}
 > +	qcom_geni_serial_poll_cancel_tx(uport);
@@ -971,6 +934,13 @@ Drop the parenthesis.
 > +	spin_lock_irqsave(&uport->lock, flags);
 > +	if (uport->suspended)
 > +		goto exit_geni_serial_isr;
+
+Do you need to check this within the spinlock?
+
+Name your labels based on their action, not the function they are in. So
+a better name would be "out_unlock". But if this can be done outside the
+lock just returning would be better.
+
 > +	m_irq_status = geni_read_reg_nolog(uport->membase,
 > +						SE_GENI_M_IRQ_STATUS);
 > +	s_irq_status = geni_read_reg_nolog(uport->membase,
@@ -980,6 +950,12 @@ Drop the parenthesis.
 > +	geni_write_reg_nolog(s_irq_status, uport->membase, SE_GENI_S_IRQ_CLEAR);
 > +
 > +	if ((m_irq_status & M_ILLEGAL_CMD_EN)) {
+
+Extra parenthesis, and you can better write this:
+
+	if (WARN_ON(m_irq_status & M_ILLEGAL_CMD_EN))
+		goto out_unlock;
+
 > +		WARN_ON(1);
 > +		goto exit_geni_serial_isr;
 > +	}
@@ -990,20 +966,33 @@ Drop the parenthesis.
 > +	}
 > +
 > +	if ((m_irq_status & m_irq_en) &
+
+Is M_ILLEGAL_CMD_EN part of m_irq_en? Can you mask the m_irq_status
+based on the irq_en above instead of doing it like this?
+
 > +	    (M_TX_FIFO_WATERMARK_EN | M_CMD_DONE_EN))
 > +		qcom_geni_serial_handle_tx(uport);
 > +
 > +	if ((s_irq_status & S_GP_IRQ_0_EN) || (s_irq_status & S_GP_IRQ_1_EN)) {
+
+Drop the parenthesis.
+
 > +		if (s_irq_status & S_GP_IRQ_0_EN)
 > +			uport->icount.parity++;
 > +		drop_rx = true;
 > +	} else if ((s_irq_status & S_GP_IRQ_2_EN) ||
 > +		(s_irq_status & S_GP_IRQ_3_EN)) {
+
+Ditto.
+
 > +		uport->icount.brk++;
 > +	}
 > +
 > +	if ((s_irq_status & S_RX_FIFO_WATERMARK_EN) ||
 > +		(s_irq_status & S_RX_FIFO_LAST_EN))
+
+Ditto.
+
 > +		qcom_geni_serial_handle_rx(uport, drop_rx);
 > +
 > +exit_geni_serial_isr:
@@ -1042,6 +1031,11 @@ Drop the parenthesis.
 > +
 > +	uport->fifosize =
 > +		((port->tx_fifo_depth * port->tx_fifo_width) >> 3);
+
+This line wrap isn't necessary, use division rather than shifting and
+describe why the fifosize is 1/8 of the depth * width (is the width
+expressed in bits perhaps?)
+
 > +	return 0;
 > +}
 > +
@@ -1097,6 +1091,9 @@ Drop the parenthesis.
 > +					SE_GENI_RX_PACKING_CFG0);
 > +	geni_write_reg_nolog(cfg1, uport->membase,
 > +					SE_GENI_RX_PACKING_CFG1);
+
+These aren't above 80 chars, why are you line breaking?
+
 > +	ret = geni_se_init(uport->membase, qcom_port->rx_wm, qcom_port->rx_rfr);
 > +	if (ret) {
 > +		dev_err(uport->dev, "%s: Fail\n", __func__);
@@ -1105,12 +1102,19 @@ Drop the parenthesis.
 > +
 > +	ret = geni_se_select_mode(uport->membase, qcom_port->xfer_mode);
 > +	if (ret)
+
+Do you need to roll back any init done in the wrapper code? How about
+passing the mode to the init function?
+
 > +		goto exit_portsetup;
 > +
 > +	qcom_port->port_setup = true;
 > +	/*
 > +	 * Ensure Port setup related IO completes before returning to
 > +	 * framework.
+
+That's not what mb does.
+
 > +	 */
 > +	mb();
 > +exit_portsetup:
@@ -1190,7 +1194,15 @@ Drop the __func__
 > +		*ser_clk = root_freq[match];
 > +	else
 > +		pr_err("clk_freq %ld\n", clk_freq);
+
+Errors are for humans to consume, so make the message useful for a
+human.
+
 > +	return match;
+
+The index isn't used, so return the frequency instead of filling in the
+ser_clk reference.
+
 > +}
 > +
 > +static void geni_serial_write_term_regs(struct uart_port *uport,
@@ -1214,6 +1226,9 @@ Drop the __func__
 > +						SE_UART_TX_STOP_BIT_LEN);
 > +	geni_write_reg_nolog(s_clk_cfg, uport->membase, GENI_SER_M_CLK_CFG);
 > +	geni_write_reg_nolog(s_clk_cfg, uport->membase, GENI_SER_S_CLK_CFG);
+
+Drop the _nolog and you should be able to fit these within 80 chars.
+
 > +}
 > +
 > +static int get_clk_div_rate(unsigned int baud, unsigned long *desired_clk_rate)
@@ -1228,6 +1243,9 @@ Drop the __func__
 > +		pr_err("%s: Can't find matching DFS entry for baud %d\n",
 > +								__func__, baud);
 > +		clk_div = -EINVAL;
+
+Just return -EINVAL here, instead of using goto.
+
 > +		goto exit_get_clk_div_rate;
 > +	}
 > +
@@ -1235,6 +1253,10 @@ Drop the __func__
 > +	*desired_clk_rate = ser_clk;
 > +exit_get_clk_div_rate:
 > +	return clk_div;
+
+Clock functions typically return a frequency, so I think it's better to
+return that and pass the divider by reference.
+
 > +}
 > +
 > +static void qcom_geni_serial_set_termios(struct uart_port *uport,
@@ -1334,14 +1356,25 @@ Drop the _nolog and you don't need to line wrap
 > +		tx_trans_cfg |= UART_CTS_MASK;
 > +
 > +	if (likely(baud))
+
+Don't do likely/unlikely.
+
 > +		uart_update_timeout(uport, termios->c_cflag, baud);
 > +
 > +	geni_serial_write_term_regs(uport, tx_trans_cfg, tx_parity_cfg,
 > +		rx_trans_cfg, rx_parity_cfg, bits_per_char, stop_bit_len,
 > +								ser_clk_cfg);
+
+It would likely be fine to just inline the register writes here, instead
+of this long list of parameters.
+
 > +exit_set_termios:
 > +	qcom_geni_serial_start_rx(uport);
 > +	return;
+
+No need to keep an empty return last in the function, and drop the empty
+line following it.
+
 > +
 > +}
 > +
@@ -1389,9 +1422,15 @@ Drop the unlikely.
 > +
 > +	dev_port = get_port_from_line(co->index);
 > +	if (IS_ERR_OR_NULL(dev_port)) {
+
+port can't be NULL.
+
 > +		ret = PTR_ERR(dev_port);
 > +		pr_err("Invalid line %d(%d)\n", co->index, ret);
 > +		return ret;
+
+Just return PTR_ERR(dev_port);
+
 > +	}
 > +
 > +	uport = &dev_port->uport;
@@ -1401,99 +1440,27 @@ Drop the unlikely.
 > +
 > +	if (geni_se_resources_on(&dev_port->serial_rsc))
 > +		WARN_ON(1);
+
+If this fails we're likely to access unclocked resources causing the
+system to restart, so we should probably not continue here.
+
 > +
 > +	if (unlikely(geni_se_get_proto(uport->membase) != UART)) {
 > +		geni_se_resources_off(&dev_port->serial_rsc);
 > +		return -ENXIO;
 > +	}
 > +
-> +	if (!dev_port->port_setup) {
-> +		qcom_geni_serial_stop_rx(uport);
-> +		qcom_geni_serial_port_setup(uport);
-> +	}
-> +
-> +	if (options)
-> +		uart_parse_options(options, &baud, &parity, &bits, &flow);
-> +
-> +	return uart_set_options(uport, co, baud, parity, bits, flow);
-> +}
-> +
-> +static int console_register(struct uart_driver *drv)
-> +{
-> +	return uart_register_driver(drv);
-> +}
-> +static void console_unregister(struct uart_driver *drv)
-> +{
-> +	uart_unregister_driver(drv);
-> +}
-> +
-> +static struct console cons_ops = {
-> +	.name = "ttyMSM",
-> +	.write = qcom_geni_serial_console_write,
-> +	.device = uart_console_device,
-> +	.setup = qcom_geni_console_setup,
-> +	.flags = CON_PRINTBUFFER,
-> +	.index = -1,
-> +	.data = &qcom_geni_console_driver,
-> +};
-> +
-> +static struct uart_driver qcom_geni_console_driver = {
-> +	.owner = THIS_MODULE,
-> +	.driver_name = "qcom_geni_console",
-> +	.dev_name = "ttyMSM",
-> +	.nr =  GENI_UART_NR_PORTS,
-> +	.cons = &cons_ops,
-> +};
-> +#else
-> +static int console_register(struct uart_driver *drv)
-> +{
-> +	return 0;
-> +}
-> +
-> +static void console_unregister(struct uart_driver *drv)
-> +{
-> +}
-> +#endif /* defined(CONFIG_SERIAL_CORE_CONSOLE) || defined(CONFIG_CONSOLE_POLL) */
-> +
-> +static void qcom_geni_serial_cons_pm(struct uart_port *uport,
-> +		unsigned int new_state, unsigned int old_state)
-> +{
-> +	struct qcom_geni_serial_port *qcom_port = GET_DEV_PORT(uport);
-> +
-> +	if (unlikely(!uart_console(uport)))
-> +		return;
-> +
-> +	if (new_state == UART_PM_STATE_ON && old_state == UART_PM_STATE_OFF)
-> +		geni_se_resources_on(&qcom_port->serial_rsc);
-> +	else if (new_state == UART_PM_STATE_OFF &&
-> +			old_state == UART_PM_STATE_ON)
-> +		geni_se_resources_off(&qcom_port->serial_rsc);
-> +}
-> +
-> +static const struct uart_ops qcom_geni_console_pops = {
-> +	.tx_empty = qcom_geni_serial_tx_empty,
-> +	.stop_tx = qcom_geni_serial_stop_tx,
-> +	.start_tx = qcom_geni_serial_start_tx,
-> +	.stop_rx = qcom_geni_serial_stop_rx,
-> +	.set_termios = qcom_geni_serial_set_termios,
-> +	.startup = qcom_geni_serial_startup,
-> +	.config_port = qcom_geni_serial_config_port,
-> +	.shutdown = qcom_geni_serial_shutdown,
-> +	.type = qcom_geni_serial_get_type,
-> +	.set_mctrl = qcom_geni_cons_set_mctrl,
-> +	.get_mctrl = qcom_geni_cons_get_mctrl,
-> +#ifdef CONFIG_CONSOLE_POLL
-> +	.poll_get_char	= qcom_geni_serial_get_char,
-> +	.poll_put_char	= qcom_geni_serial_poll_put_char,
-> +#endif
-> +	.pm = qcom_geni_serial_cons_pm,
-> +};
+[..]
 > +
 > +static const struct of_device_id qcom_geni_serial_match_table[] = {
 > +	{ .compatible = "qcom,geni-debug-uart",
 > +			.data = (void *)&qcom_geni_console_driver},
 
 Shouldn't need this typecast.
+
+Is it necessary to treat the console uart differently and will there be
+a patch adding support for non-console instances? How will this differ
+and why would that be a different compatible?
 
 > +};
 > +
@@ -1521,6 +1488,9 @@ Use of_device_get_match_data()
 > +
 > +	if (pdev->dev.of_node) {
 > +		if (drv->cons)
+
+The one and only uart_driver has a cons.
+
 > +			line = of_alias_get_id(pdev->dev.of_node, "serial");
 > +	} else {
 > +		line = pdev->id;
@@ -1533,10 +1503,18 @@ Use of_device_get_match_data()
 > +		return -ENXIO;
 > +	dev_port = get_port_from_line(line);
 > +	if (IS_ERR_OR_NULL(dev_port)) {
+
+port can't be NULL.
+
 > +		ret = PTR_ERR(dev_port);
 > +		dev_err(&pdev->dev, "Invalid line %d(%d)\n",
 > +					line, ret);
 > +		goto exit_geni_serial_probe;
+
+You're not doing anything other than returning in
+exit_geni_serial_probe, if you just return here I don't need to jump to
+the bottom of the function to figure this out...
+
 > +	}
 > +
 > +	uport = &dev_port->uport;
@@ -1590,29 +1568,15 @@ Drop all of the pinctrl stuff.
 > +		ret = PTR_ERR(dev_port->serial_rsc.geni_pinctrl);
 > +		goto exit_geni_serial_probe;
 > +	}
-> +	dev_port->serial_rsc.geni_gpio_active =
-> +		pinctrl_lookup_state(dev_port->serial_rsc.geni_pinctrl,
-> +							PINCTRL_DEFAULT);
-> +	if (IS_ERR_OR_NULL(dev_port->serial_rsc.geni_gpio_active)) {
-> +		dev_err(&pdev->dev, "No default config specified!\n");
-> +		ret = PTR_ERR(dev_port->serial_rsc.geni_gpio_active);
-> +		goto exit_geni_serial_probe;
-> +	}
-> +
-> +	dev_port->serial_rsc.geni_gpio_sleep =
-> +		pinctrl_lookup_state(dev_port->serial_rsc.geni_pinctrl,
-> +							PINCTRL_SLEEP);
-> +	if (IS_ERR_OR_NULL(dev_port->serial_rsc.geni_gpio_sleep)) {
-> +		dev_err(&pdev->dev, "No sleep config specified!\n");
-> +		ret = PTR_ERR(dev_port->serial_rsc.geni_gpio_sleep);
-> +		goto exit_geni_serial_probe;
-> +	}
-> +
+[..]
 > +	dev_port->tx_fifo_depth = DEF_FIFO_DEPTH_WORDS;
 > +	dev_port->rx_fifo_depth = DEF_FIFO_DEPTH_WORDS;
 > +	dev_port->tx_fifo_width = DEF_FIFO_WIDTH_BITS;
 > +	uport->fifosize =
 > +		((dev_port->tx_fifo_depth * dev_port->tx_fifo_width) >> 3);
+
+qcom_geni_serial_startup() sets this as well.
+
 > +
 > +	uport->irq = platform_get_irq(pdev, 0);
 > +	if (uport->irq < 0) {
@@ -1622,6 +1586,9 @@ Drop all of the pinctrl stuff.
 > +	}
 > +
 > +	uport->private_data = (void *)drv;
+
+No need to explicitly typecast to void*
+
 > +	platform_set_drvdata(pdev, dev_port);
 > +	dev_port->handle_rx = handle_rx_console;
 
@@ -1647,6 +1614,9 @@ any error handling...
 > +	struct qcom_geni_serial_port *port = platform_get_drvdata(pdev);
 > +	struct uart_driver *drv =
 > +			(struct uart_driver *)port->uport.private_data;
+
+No need to typecast private_data.
+
 > +
 > +	uart_remove_one_port(drv, &port->uport);
 > +	return 0;
@@ -1654,6 +1624,9 @@ any error handling...
 > +
 > +
 > +#ifdef CONFIG_PM
+
+Drop this and mark the functions __maybe_unused.
+
 > +static int qcom_geni_serial_sys_suspend_noirq(struct device *dev)
 > +{
 > +	struct platform_device *pdev = to_platform_device(dev);
@@ -1662,6 +1635,9 @@ any error handling...
 > +
 > +	uart_suspend_port((struct uart_driver *)uport->private_data,
 > +				uport);
+
+No need to typecast private_data.
+
 > +	return 0;
 > +}
 > +
@@ -1674,43 +1650,23 @@ any error handling...
 > +	if (console_suspend_enabled && uport->suspended) {
 > +		uart_resume_port((struct uart_driver *)uport->private_data,
 > +									uport);
+
+No need to typecast private_data.
+
 > +		disable_irq(uport->irq);
 > +	}
 > +	return 0;
 > +}
-> +#else
-> +static int qcom_geni_serial_sys_suspend_noirq(struct device *dev)
-> +{
-> +	return 0;
-> +}
-> +
-> +static int qcom_geni_serial_sys_resume_noirq(struct device *dev)
-> +{
-> +	return 0;
-> +}
-> +#endif
-> +
-> +static const struct dev_pm_ops qcom_geni_serial_pm_ops = {
-> +	.suspend_noirq = qcom_geni_serial_sys_suspend_noirq,
-> +	.resume_noirq = qcom_geni_serial_sys_resume_noirq,
-> +};
-> +
-> +static struct platform_driver qcom_geni_serial_platform_driver = {
-> +	.remove = qcom_geni_serial_remove,
-> +	.probe = qcom_geni_serial_probe,
-> +	.driver = {
-> +		.name = "qcom_geni_serial",
-> +		.of_match_table = qcom_geni_serial_match_table,
-> +		.pm = &qcom_geni_serial_pm_ops,
-> +	},
-> +};
-> +
+[..]
 > +static int __init qcom_geni_serial_init(void)
 > +{
 > +	int ret = 0;
 > +	int i;
 > +
 > +	for (i = 0; i < GENI_UART_CONS_PORTS; i++) {
+
+Don't loop over [0,1) to update the one global variable.
+
 > +		qcom_geni_console_port.uport.iotype = UPIO_MEM;
 > +		qcom_geni_console_port.uport.ops = &qcom_geni_console_pops;
 > +		qcom_geni_console_port.uport.flags = UPF_BOOT_AUTOCONF;
@@ -1727,6 +1683,10 @@ any error handling...
 > +		return ret;
 > +	}
 > +	return ret;
+
+ret is 0 here, drop the return from within the if statement or just
+return 0 for clarity.
+
 > +}
 > +module_init(qcom_geni_serial_init);
 > +
@@ -1740,11 +1700,8 @@ any error handling...
 > +MODULE_DESCRIPTION("Serial driver for GENI based QUP cores");
 > +MODULE_LICENSE("GPL v2");
 > +MODULE_ALIAS("tty:qcom_geni_serial");
-> -- 
-> Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-> a Linux Foundation Collaborative Project
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-arm-msm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+What will request the kernel module by this alias?
+
+Regards,
+Bjorn
