@@ -1,66 +1,74 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH i2c-tools] i2c-dev.h: copy over typo fix from kernel
- include
-Date: Fri, 19 Jan 2018 10:21:58 +0100
-Message-ID: <20180119092158.o6x7wy4epnzddv5y@katana>
-References: <20180115204030.26400-1-wsa@the-dreams.de>
- <20180119093753.71e9457f@endymion>
+From: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Subject: Re: [PATCH 3/6] arm64: renesas: r8a77995: add I2C support
+Date: Fri, 19 Jan 2018 10:32:19 +0000
+Message-ID: <787354f2-4b76-37fd-4570-e73657b2854c@ideasonboard.com>
+References: <1510759526-30346-1-git-send-email-ulrich.hecht+renesas@gmail.com>
+ <1510759526-30346-4-git-send-email-ulrich.hecht+renesas@gmail.com>
+ <CAMuHMdV4pBYPTrnCCU8BU1Lr8t2ejcKwWpXWzp-PuBgT2DfVSg@mail.gmail.com>
+ <20171117142850.iht5qonmfscl47sp@verge.net.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="vxz3y7orgjwr4zj3"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:35444 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750841AbeASJWA (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 19 Jan 2018 04:22:00 -0500
-Content-Disposition: inline
-In-Reply-To: <20180119093753.71e9457f@endymion>
+Received: from galahad.ideasonboard.com ([185.26.127.97]:44503 "EHLO
+        galahad.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750841AbeASKcX (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 19 Jan 2018 05:32:23 -0500
+In-Reply-To: <20171117142850.iht5qonmfscl47sp@verge.net.au>
+Content-Language: en-GB
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: linux-i2c@vger.kernel.org
+To: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+Cc: Simon Horman <horms@verge.net.au>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>
 
+Hi Ulrich,
 
---vxz3y7orgjwr4zj3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On 17/11/17 14:28, Simon Horman wrote:
+> On Thu, Nov 16, 2017 at 10:10:27AM +0100, Geert Uytterhoeven wrote:
+>> Hi Ulrich,
+>>
+>> On Wed, Nov 15, 2017 at 4:25 PM, Ulrich Hecht
+>> <ulrich.hecht+renesas@gmail.com> wrote:
+>>> Defines R-Car D3 I2C controllers 0-3.
+>>>
+>>> Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+>>
+>> Thanks for your patch!
+>>
+>>> --- a/arch/arm64/boot/dts/renesas/r8a77995.dtsi
+>>> +++ b/arch/arm64/boot/dts/renesas/r8a77995.dtsi
+>>> @@ -400,6 +400,70 @@
+>>>                         status = "disabled";
+>>>                 };
+>>>
+>>> +               i2c0: i2c@e6500000 {
+>>> +                       #address-cells = <1>;
+>>> +                       #size-cells = <0>;
+>>> +                       compatible = "renesas,i2c-r8a77995",
+>>> +                                    "renesas,rcar-gen3-i2c";
+>>> +                       reg = <0 0xe6500000 0 0x40>;
+>>> +                       interrupts = <GIC_SPI 287 IRQ_TYPE_LEVEL_HIGH>;
+>>> +                       clocks = <&cpg CPG_MOD 931>;
+>>> +                       power-domains = <&sysc R8A77995_PD_ALWAYS_ON>;
+>>> +                       resets = <&cpg 931>;
+>>> +                       dmas = <&dmac1 0x91>, <&dmac1 0x90>;
+>>> +                       dma-names = "tx", "rx";
+>>
+>> Missing set for dmac2? (for all four interfaces)
+>>
+>>> +                       i2c-scl-internal-delay-ns = <110>;
+>>
+>> According to Table 57.1, all i2c interfaces on R-Car D3 have LVTTL
+>> output buffers,
+>> so this should be <6> for all four interfaces.
+>>
+>> With the above fixed:
+>> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> 
+> Hi Ulrich,
+> 
+> I would like Geert's review addressed before I consider applying this patch.
 
+I am dependant upon this patch for my Draak-D3 work.
 
-> 652619121974 ("i2c-dev.h: Minimize differences with kernel flavor".) At
-> this point i2c-tools' i2c-dev.h and the kernel's i2c-dev.h are exactly
-> the same file, modulo the difference you just pointed out.
-
-Exactly. I wanted to follow up in minimizing the differences. But I was
-unaware of the master plan...
-
-> So the right thing to do is to delete include/linux/i2c-dev.h from
-> i2c-tools altogether. We no longer use it and we no longer install it,
-> so it should be a straightforward change. I simply forgot to do it
-> after the library conversion.
-
-... which I super like very much!
-
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-
-
---vxz3y7orgjwr4zj3
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlphuLYACgkQFA3kzBSg
-KbbZgw/+LDs65Pj0UiM8rfnJPpYRJemZwAAb5hc4ZTal28YQvN49/pcPsrLa59G/
-upI9ayTk4EP+xXktttUJ5OQkdodU/YI37XiU+TFC3W6kRZ8N7PCbvTglQrl9bA0k
-sDYjWXtPMZgCb0PqWOMg2GyxDeedSXV004MjDUNq8To7xNtfr+VKk1GaFPns0Noy
-AknawdYUcyuxLCmCsBuv3kLldjStj9jXaZO4KMHqRyzpi67CpEdc2m+2aI0W0tux
-J5Q/HJmT/Fc72ZfLdmPqcz557Tuj++ND+IlRKdtAh7Vx3UbrmEpZkkKxn03TK1TQ
-tAs/Z8e4E2K6k2T7IBOgeUJuCcv5swtQ8coBvK6IEUpOW6Z3FAI55BFrGfrrKHZG
-8xJ9FdNuesqdidnIfMQNDYobmpTVav9A5oRYATbA2fEVlCJejjlNgqPZgMhSPxqw
-jo+NHTz3T6vkwnsk8vwnLxhDAZDn6qn/TTuKEjwJzYJIW9iy8mCizYPGrxB2KCvv
-FspzgSwOqeWM83P1JVOi2mvzTi752dOpOwlbYMiEr2d4jRnDgA7dI48tzh7ffCCu
-VRIyx3iqHYgpoHfWiPSkth961fs0AiTyBLf/HwIGrQqnmYji0BU8Or+ChRna0Qh2
-CMaSZFBQZqqNflfYLKCo9F3zhNvLoUpDj7OcWQraRVU9IrPBJSo=
-=g9IT
------END PGP SIGNATURE-----
-
---vxz3y7orgjwr4zj3--
+Would you be able to consider the comments mentioned to progress this patch please?
