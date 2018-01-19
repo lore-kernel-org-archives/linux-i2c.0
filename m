@@ -1,63 +1,61 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH i2c-tools] i2c-dev.h: copy over typo fix from kernel
- include
-Date: Fri, 19 Jan 2018 09:37:53 +0100
-Message-ID: <20180119093753.71e9457f@endymion>
-References: <20180115204030.26400-1-wsa@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH i2c-tools] CHANGES: add i2ctransfer
+Date: Fri, 19 Jan 2018 10:19:29 +0100
+Message-ID: <20180119091929.unxyczdyrwle2psa@katana>
+References: <20180115173644.12342-1-wsa+renesas@sang-engineering.com>
+ <20180119092252.6eaa32c6@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="pdmjyivbae3y7sox"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:36145 "EHLO mx2.suse.de"
+Received: from www.zeus03.de ([194.117.254.33]:35036 "EHLO mail.zeus03.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754070AbeASIh4 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 19 Jan 2018 03:37:56 -0500
-In-Reply-To: <20180115204030.26400-1-wsa@the-dreams.de>
+        id S1750841AbeASJTb (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 19 Jan 2018 04:19:31 -0500
+Content-Disposition: inline
+In-Reply-To: <20180119092252.6eaa32c6@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On Mon, 15 Jan 2018 21:40:30 +0100, Wolfram Sang wrote:
-> We had a typo in a define which got fixed in the kernel. Fix it here,
-> too!
-> 
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> ---
->  include/linux/i2c-dev.h | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/include/linux/i2c-dev.h b/include/linux/i2c-dev.h
-> index 839d25a..bbb50e8 100644
-> --- a/include/linux/i2c-dev.h
-> +++ b/include/linux/i2c-dev.h
-> @@ -66,7 +66,9 @@ struct i2c_rdwr_ioctl_data {
->  	__u32 nmsgs;			/* number of i2c_msgs */
->  };
->  
-> -#define  I2C_RDRW_IOCTL_MAX_MSGS	42
-> +#define  I2C_RDWR_IOCTL_MAX_MSGS	42
-> +/* Originally defined with a typo, keep it for compatibility */
-> +#define  I2C_RDRW_IOCTL_MAX_MSGS	I2C_RDWR_IOCTL_MAX_MSGS
->  
->  
->  #endif /* _LINUX_I2C_DEV_H */
+--pdmjyivbae3y7sox
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hmm, no. As part of the libi2c plan, we were supposed to get rid of
-kernel header files duplication in i2c-tools. See commits 93caf007f4cb
-("i2c-dev: Move SMBus helper functions to include/i2c/smbus.h") and
-652619121974 ("i2c-dev.h: Minimize differences with kernel flavor".) At
-this point i2c-tools' i2c-dev.h and the kernel's i2c-dev.h are exactly
-the same file, modulo the difference you just pointed out.
+> > +  i2ctransfer: new tool to send user-defined I2C messages in one trans=
+fer
+>=20
+> Good idea. A leading capital would be appreciated for consistency.
 
-So the right thing to do is to delete include/linux/i2c-dev.h from
-i2c-tools altogether. We no longer use it and we no longer install it,
-so it should be a straightforward change. I simply forgot to do it
-after the library conversion.
+Ack. Shall I resend or could you fix locally?
 
-Thanks,
--- 
-Jean Delvare
-SUSE L3 Support
+> Speaking of i2ctransfer, would you agree to remove it from the
+> i2c-tools-3.1 branch? As I recall, the only reason why it was added
+
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+
+
+--pdmjyivbae3y7sox
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlphuCEACgkQFA3kzBSg
+KbZGbBAArHmas2YwU+8FWenKZHoGQrDjWg+G/wxT5chEDbXnOk/dHf1WxnpXwjzC
+RDFXgbnRmAYCjpsyiCCLnTgu4iSQnXjIHpIs5cdvADcGiKBOT4rRqil0wSqM/GHx
+1XB5ctvo+0sB6DsJ15I4977vUFnVixxRRN2aHfZFmmoUKdZf+yPJeK0GhaipszgA
+6Pbs/cT6Hav3GO2iHvu+50U4GfJQC2KVfJi0dm8VnUKEBQ6/xtFPsm0brZy6GWLb
+jQG6qpKsUDGRvYejbvy4BD9n8mJG+FfUKCw4giR2B1Y6mSspPTaoFtDQXTwNCbal
+4CRQF/dAckOgKkHWGHrThIGtGsSxqSVMRYzmi5QO/rw6cLZelnyHP4gX4boDlo4D
+q1DBT5GGxuctg5PZ5lrol0UhbdzxCZJdx7QYo0tnuhO4U8a6clu2aGitOBsuviC1
+y3uuWb5eiuoGGONg8EVT6oKNnvGd/8DivL2kj+AK4l2PKbCaQntjqAAHAWanh27D
+PEbop3F9QLEhUbqi1SY2JAe/ADl9JUYgPdeV6QJmWdVSoowHZ3ROwfKGRtEvkh/B
+MW7dObAxvX+cdUjWIm+6l6RXUt2OXmmnwZ9c0lPwAyABe+hsV1n7KLkjuhJmNyxu
+If87C7LNyRcPsyzcF9R0YABVs2Kd5DNS2DmqJ2Uk8AJwJTMRE+A=
+=wqkD
+-----END PGP SIGNATURE-----
+
+--pdmjyivbae3y7sox--
