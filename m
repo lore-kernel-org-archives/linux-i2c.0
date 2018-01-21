@@ -1,58 +1,54 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH i2c-tools] CHANGES: add i2ctransfer
-Date: Sat, 20 Jan 2018 20:38:17 +0100
-Message-ID: <20180120193816.pi7efemtobqocgsd@katana>
-References: <20180115173644.12342-1-wsa+renesas@sang-engineering.com>
- <20180119092252.6eaa32c6@endymion>
- <20180119091929.unxyczdyrwle2psa@katana>
- <20180120203521.1722869f@endymion>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="sbsk6stf7qtxnqe7"
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH] i2c: rcar: fix some trivial typos in comments
+Date: Sun, 21 Jan 2018 15:45:11 +0100
+Message-ID: <20180121144511.20350-1-wsa+renesas@sang-engineering.com>
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:53268 "EHLO mail.zeus03.de"
+Received: from sauhun.de ([88.99.104.3]:41415 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756422AbeATTiU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 20 Jan 2018 14:38:20 -0500
-Content-Disposition: inline
-In-Reply-To: <20180120203521.1722869f@endymion>
+        id S1750825AbeAUOpU (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sun, 21 Jan 2018 09:45:20 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
+Nothing big, but they get annoying after a while ;)
 
---sbsk6stf7qtxnqe7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-rcar.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-
-> > Ack. Shall I resend or could you fix locally?
->=20
-> Why me? You have write access to the repository, you might as well do
-
-I keep forgetting that :) Will do!
-
-
---sbsk6stf7qtxnqe7
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpjmqQACgkQFA3kzBSg
-KbZPhRAAq4tzhSKt4/0FEJ/y6nlzBMJwpGd1l7ID7EJvUeX4blcMhIwDHbsXp/cs
-NQf+C59dLqnq5ECkNvzaUbTxpI1gNeo1jiaUAs9DGIwBX4R3rINe4ZdrLURMC+J2
-XSwS4+L5RN7AWNYjnwU6A+2S1YR6FE3hxZ/63NHpTiT1sa/NpNT3mWykX9o4eBhc
-7bOzdTxCYfbIaW3Y222Ap2F4BnrsZpk9OQY3RYm9NynVfPqHShcgpgPKkPfrb+SD
-AzUQD1NVFowvIDjYfzyiBzH0kyWoS4pwX0Dk9yb90gATgmkxqjWoEUpT2HDbb9zA
-u4sqk8y0nv8zIOtlOlRPrcHBL6P/QDP3sgNa6+ChBIpugmDXsCjvLh+opgPnLsDz
-qQBU26nowNkenM7owS3IeQ59Dj3eqSL+2l8hLr0KGtmh1+zPwBlfNplhTr8MR8bo
-Gqimv5aOVgWYDl+WRnlmGkjDQf8+D2RKXlqzn9wXJ5r217sOzhNfn3TNslILL09B
-J+5SFwYDY0gPOOaYTvFg7BwSyrp3LHWR1vyiQW1V+ipFURC913ZqlEZQAlOw80f1
-Rirb3/CA8xe/NGbS8MkCZaVdOlXHqGNpBYLXIANA8AIK2pyMaWgI3WZS87xh3xhF
-W1M/Bn21PvBwbeuXoFmWWi//EreKPUheX0b12o8gj+Krn3AbYQ0=
-=3UI7
------END PGP SIGNATURE-----
-
---sbsk6stf7qtxnqe7--
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index d4b7b5380c2983..4159ebcec2bb61 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -62,7 +62,7 @@
+ #define MIE	(1 << 3)	/* master if enable */
+ #define TSBE	(1 << 2)
+ #define FSB	(1 << 1)	/* force stop bit */
+-#define ESG	(1 << 0)	/* en startbit gen */
++#define ESG	(1 << 0)	/* enable start bit gen */
+ 
+ /* ICSSR (also for ICSIER) */
+ #define GCAR	(1 << 6)	/* general call received */
+@@ -331,7 +331,7 @@ static void rcar_i2c_prepare_msg(struct rcar_i2c_priv *priv)
+ 
+ 	rcar_i2c_write(priv, ICMAR, (priv->msg->addr << 1) | read);
+ 	/*
+-	 * We don't have a testcase but the HW engineers say that the write order
++	 * We don't have a test case but the HW engineers say that the write order
+ 	 * of ICMSR and ICMCR depends on whether we issue START or REP_START. Since
+ 	 * it didn't cause a drawback for me, let's rather be safe than sorry.
+ 	 */
+@@ -489,7 +489,7 @@ static void rcar_i2c_irq_send(struct rcar_i2c_priv *priv, u32 msr)
+ 
+ 		/*
+ 		 * Try to use DMA to transmit the rest of the data if
+-		 * address transfer pashe just finished.
++		 * address transfer phase just finished.
+ 		 */
+ 		if (msr & MAT)
+ 			rcar_i2c_dma(priv);
+-- 
+2.11.0
