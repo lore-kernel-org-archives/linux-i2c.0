@@ -1,100 +1,41 @@
-From: Biju Das <biju.das@bp.renesas.com>
-Subject: [PATCH vY 2/2] ARM: dts: iwg22d-sodimm: use demuxer for I2C5
-Date: Mon, 22 Jan 2018 11:29:23 +0000
-Message-ID: <1516620563-7965-3-git-send-email-biju.das@bp.renesas.com>
-References: <1516620563-7965-1-git-send-email-biju.das@bp.renesas.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from relmlor3.renesas.com ([210.160.252.173]:44872 "EHLO
-        relmlie2.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1751058AbeAVLcZ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 22 Jan 2018 06:32:25 -0500
-In-Reply-To: <1516620563-7965-1-git-send-email-biju.das@bp.renesas.com>
-Sender: linux-i2c-owner@vger.kernel.org
+From: Peter Rosin <peda@axentia.se>
+Subject: [RFC PATCH 0/2] check I2C device id for pca984x chips
+Date: Mon, 22 Jan 2018 12:36:55 +0100
+Message-ID: <20180122113657.32094-1-peda@axentia.se>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Adrian Fiergolski <adrian.fiergolski@cern.ch>
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>, Chris Paterson <chris.paterson2@renesas.com>, devicetree@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org, Biju Das <biju.das@bp.renesas.com>
 
-Create a separate bus for audiocodec related I2C5 and provide fallback to GPIO.
+Hi!
 
-Based on work for r8a7794/Alt by Wolfram Sang: "ARM: dts: alt: use demuxer
-for I2C1"
+This series tries to check the I2C device id, but instead of open
+coding the check in the pca954x driver, I have a new function in
+the core doing the work.
 
-Signed-off-by: Biju Das <biju.das@bp.renesas.com>
-Reviewed-by: Chris Paterson <chris.paterson2@renesas.com>
----
- arch/arm/boot/dts/r8a7745-iwg22d-sodimm.dts | 44 +++++++++++++++++++++--------
- 1 file changed, 33 insertions(+), 11 deletions(-)
+The code is only compile-tested, hence the RFC, and I would really
+like a Tested-by: tag from Adrian who presumably have one of these
+chips.
 
-diff --git a/arch/arm/boot/dts/r8a7745-iwg22d-sodimm.dts b/arch/arm/boot/dts/r8a7745-iwg22d-sodimm.dts
-index a4058f4..b2ea43f 100644
---- a/arch/arm/boot/dts/r8a7745-iwg22d-sodimm.dts
-+++ b/arch/arm/boot/dts/r8a7745-iwg22d-sodimm.dts
-@@ -42,6 +42,8 @@
- 		ethernet0 = &avb;
- 		serial3 = &scif4;
- 		serial5 = &hscif1;
-+		i2c9 = &gpioi2c5;
-+		i2c11 = &i2caudiocodec;
- 	};
- 
- 	chosen {
-@@ -55,6 +57,36 @@
- 		clock-frequency = <26000000>;
- 	};
- 
-+	gpioi2c5: i2c-9 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "i2c-gpio";
-+		status = "disabled";
-+		scl-gpios = <&gpio0 14 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-+		sda-gpios = <&gpio0 15 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-+		i2c-gpio,delay-us = <5>;
-+	};
-+
-+	/*
-+	 * A fallback to GPIO is provided for I2C5.
-+	 */
-+	i2caudiocodec: i2c-11 {
-+		compatible = "i2c-demux-pinctrl";
-+		i2c-parent = <&i2c5>, <&gpioi2c5>;
-+		i2c-bus-name = "i2c-audiocodec";
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		sgtl5000: codec@a {
-+			compatible = "fsl,sgtl5000";
-+			#sound-dai-cells = <0>;
-+			reg = <0x0a>;
-+			clocks = <&audio_clock>;
-+			VDDA-supply = <&reg_3p3v>;
-+			VDDIO-supply = <&reg_3p3v>;
-+		};
-+	};
-+
- 	rsnd_sgtl5000: sound {
- 		compatible = "simple-audio-card";
- 		simple-audio-card,format = "i2s";
-@@ -126,19 +158,9 @@
- 
- &i2c5 {
- 	pinctrl-0 = <&i2c5_pins>;
--	pinctrl-names = "default";
-+	pinctrl-names = "i2c-audiocodec";
- 
--	status = "okay";
- 	clock-frequency = <400000>;
--
--	sgtl5000: codec@a {
--		compatible = "fsl,sgtl5000";
--		#sound-dai-cells = <0>;
--		reg = <0x0a>;
--		clocks = <&audio_clock>;
--		VDDA-supply = <&reg_3p3v>;
--		VDDIO-supply = <&reg_3p3v>;
--	};
- };
- 
- &pci1 {
+Also, I'm not sure if I should list all manufacturers that I know
+about in the header, or if I should settle for the one that is
+actually used and leave the others to be added by whomever needs
+them...
+
+Cheers,
+peda
+
+Peter Rosin (2):
+  i2c: add i2c_get_device_id() to get the standard i2c device id
+  i2c: mux: pca954x: verify the device id of the pca984x chips
+
+ drivers/i2c/i2c-core-base.c         | 33 ++++++++++++++++++++++++++++
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 43 +++++++++++++++++++++++++++++++++++++
+ include/linux/i2c.h                 | 30 ++++++++++++++++++++++++++
+ 3 files changed, 106 insertions(+)
+
 -- 
-2.7.4
+2.11.0
