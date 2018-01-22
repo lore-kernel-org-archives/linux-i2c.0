@@ -1,41 +1,150 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [RFC PATCH 0/2] check I2C device id for pca984x chips
-Date: Mon, 22 Jan 2018 12:36:55 +0100
-Message-ID: <20180122113657.32094-1-peda@axentia.se>
+Subject: [RFC PATCH 2/2] i2c: mux: pca954x: verify the device id of the pca984x chips
+Date: Mon, 22 Jan 2018 12:36:57 +0100
+Message-ID: <20180122113657.32094-3-peda@axentia.se>
+References: <20180122113657.32094-1-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-eopbgr10097.outbound.protection.outlook.com ([40.107.1.97]:27111
+        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751137AbeAVLhR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 22 Jan 2018 06:37:17 -0500
+In-Reply-To: <20180122113657.32094-1-peda@axentia.se>
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: Adrian Fiergolski <adrian.fiergolski@cern.ch>
 Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
 
-Hi!
+Make sure to not disallow the chips on adapters that are not capable
+of reading the device id.
 
-This series tries to check the I2C device id, but instead of open
-coding the check in the pca954x driver, I have a new function in
-the core doing the work.
-
-The code is only compile-tested, hence the RFC, and I would really
-like a Tested-by: tag from Adrian who presumably have one of these
-chips.
-
-Also, I'm not sure if I should list all manufacturers that I know
-about in the header, or if I should settle for the one that is
-actually used and leave the others to be added by whomever needs
-them...
-
-Cheers,
-peda
-
-Peter Rosin (2):
-  i2c: add i2c_get_device_id() to get the standard i2c device id
-  i2c: mux: pca954x: verify the device id of the pca984x chips
-
- drivers/i2c/i2c-core-base.c         | 33 ++++++++++++++++++++++++++++
+Signed-off-by: Peter Rosin <peda@axentia.se>
+---
  drivers/i2c/muxes/i2c-mux-pca954x.c | 43 +++++++++++++++++++++++++++++++++++++
- include/linux/i2c.h                 | 30 ++++++++++++++++++++++++++
- 3 files changed, 106 insertions(+)
+ 1 file changed, 43 insertions(+)
 
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index fbb84c7ef282..ff0c7a144fbb 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -77,6 +77,7 @@ struct chip_desc {
+ 		pca954x_ismux = 0,
+ 		pca954x_isswi
+ 	} muxtype;
++	struct i2c_device_identity id;
+ };
+ 
+ struct pca954x {
+@@ -97,59 +98,83 @@ static const struct chip_desc chips[] = {
+ 		.nchans = 2,
+ 		.enable = 0x4,
+ 		.muxtype = pca954x_ismux,
++		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
+ 	},
+ 	[pca_9542] = {
+ 		.nchans = 2,
+ 		.enable = 0x4,
+ 		.has_irq = 1,
+ 		.muxtype = pca954x_ismux,
++		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
+ 	},
+ 	[pca_9543] = {
+ 		.nchans = 2,
+ 		.has_irq = 1,
+ 		.muxtype = pca954x_isswi,
++		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
+ 	},
+ 	[pca_9544] = {
+ 		.nchans = 4,
+ 		.enable = 0x4,
+ 		.has_irq = 1,
+ 		.muxtype = pca954x_ismux,
++		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
+ 	},
+ 	[pca_9545] = {
+ 		.nchans = 4,
+ 		.has_irq = 1,
+ 		.muxtype = pca954x_isswi,
++		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
+ 	},
+ 	[pca_9546] = {
+ 		.nchans = 4,
+ 		.muxtype = pca954x_isswi,
++		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
+ 	},
+ 	[pca_9547] = {
+ 		.nchans = 8,
+ 		.enable = 0x8,
+ 		.muxtype = pca954x_ismux,
++		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
+ 	},
+ 	[pca_9548] = {
+ 		.nchans = 8,
+ 		.muxtype = pca954x_isswi,
++		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
+ 	},
+ 	[pca_9846] = {
+ 		.nchans = 4,
+ 		.muxtype = pca954x_isswi,
++		.id = {
++			.manufacturer_id = I2C_DEVICE_ID_NXP_SEMICONDUCTORS,
++			.part_id = 0x10b,
++		},
+ 	},
+ 	[pca_9847] = {
+ 		.nchans = 8,
+ 		.enable = 0x8,
+ 		.muxtype = pca954x_ismux,
++		.id = {
++			.manufacturer_id = I2C_DEVICE_ID_NXP_SEMICONDUCTORS,
++			.part_id = 0x108,
++		},
+ 	},
+ 	[pca_9848] = {
+ 		.nchans = 8,
+ 		.muxtype = pca954x_isswi,
++		.id = {
++			.manufacturer_id = I2C_DEVICE_ID_NXP_SEMICONDUCTORS,
++			.part_id = 0x10a,
++		},
+ 	},
+ 	[pca_9849] = {
+ 		.nchans = 4,
+ 		.enable = 0x4,
+ 		.muxtype = pca954x_ismux,
++		.id = {
++			.manufacturer_id = I2C_DEVICE_ID_NXP_SEMICONDUCTORS,
++			.part_id = 0x109,
++		},
+ 	},
+ };
+ 
+@@ -384,6 +409,24 @@ static int pca954x_probe(struct i2c_client *client,
+ 	else
+ 		data->chip = &chips[id->driver_data];
+ 
++	if (data->chip->id.manufacturer_id != I2C_DEVICE_ID_NONE) {
++		struct i2c_device_identity id;
++
++		ret = i2c_get_device_id(client, &id);
++		if (ret && ret != -EOPNOTSUPP)
++			return ret;
++
++		if (!ret &&
++		    (id.manufacturer_id != data->chip->id.manufacturer_id ||
++		     id.part_id != data->chip->id.part_id)) {
++			dev_warn(&client->dev,
++				 "unexpected device id %03x-%03x-%x\n",
++				 id.manufacturer_id, id.part_id,
++				 id.die_revision);
++			return -ENODEV;
++		}
++	}
++
+ 	data->last_chan = 0;		   /* force the first selection */
+ 
+ 	idle_disconnect_dt = of_node &&
 -- 
 2.11.0
