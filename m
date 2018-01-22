@@ -1,61 +1,54 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/2] Use demuxer for i2c1 and i2c5
-Date: Mon, 22 Jan 2018 13:22:04 +0100
-Message-ID: <20180122122204.n25jf2rtaoxmi2yq@katana>
+From: Biju Das <biju.das-kTT6dE0pTRh9uiUsa/gSgQ@public.gmane.org>
+Subject: RE: [PATCH 0/2] Use demuxer for i2c1 and i2c5
+Date: Mon, 22 Jan 2018 14:03:28 +0000
+Message-ID: <KL1PR06MB170262934FD5C3B9D422A134B8EC0@KL1PR06MB1702.apcprd06.prod.outlook.com>
 References: <1516620563-7965-1-git-send-email-biju.das@bp.renesas.com>
  <20180122114026.uqozk4cbhfrjwqmd@katana>
  <KL1PR06MB170270EA30591C7636941361B8EC0@KL1PR06MB1702.apcprd06.prod.outlook.com>
+ <20180122122204.n25jf2rtaoxmi2yq@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="endxsjuhdqhrhiw3"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <KL1PR06MB170270EA30591C7636941361B8EC0@KL1PR06MB1702.apcprd06.prod.outlook.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Biju Das <biju.das@bp.renesas.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>, Chris Paterson <Chris.Paterson2@renesas.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20180122122204.n25jf2rtaoxmi2yq@katana>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Chris Paterson <Chris.Paterson2-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+> Subject: Re: [PATCH 0/2] Use demuxer for i2c1 and i2c5
 
---endxsjuhdqhrhiw3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[>]
+> > How do i2c-bus gets details of gpio lines associated with i2c bus for b=
+us
+> recovery?
+>
+> As you can see in the code, you don't need GPIOs if you can control SDA a=
+nd SCL
+> directly. The I2C IP can do this.
+
+I agree. Thanks for correcting me.
+
+> > On top of renesas-dev branch, I am using the below i2c-rcar driver rela=
+ted
+> patches.
+> >
+> > https://www.mail-archive.com/linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org/msg2227
+> > 8.html
+>
+> Those should be enough. They are not?
+
+Yes. I have tested without demuxer patches, I confirm, it can recover the b=
+us.
 
 
-> How do i2c-bus gets details of gpio lines associated with i2c bus for bus=
- recovery?
-
-As you can see in the code, you don't need GPIOs if you can control SDA
-and SCL directly. The I2C IP can do this.
-
-> On top of renesas-dev branch, I am using the below i2c-rcar driver relate=
-d patches.
->=20
-> https://www.mail-archive.com/linux-renesas-soc@vger.kernel.org/msg22278.h=
-tml
-
-Those should be enough. They are not?
 
 
---endxsjuhdqhrhiw3
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpl12gACgkQFA3kzBSg
-KbYI5BAAgmXrxBBASKj4al3twXgcIqptQksef0iIX/eT346Sb9oguGAdvdDDuZXs
-mmSYtA9dLJdRZvG0u/Jyqp3zzEdcty+fyF0o98KpgYbKqcsd9QqiQ3AF+nCibd6S
-eqeH113Xdu/FcdhkLCzkpmgz8ZRRlTZ7ybXE21BYaOlL+C+KpR3NAIUwMiTmBwpE
-hk4esGtzANK7rClIrU9Wbnwyv+R3sNN/ZJDgBCe5kHtq+ntoQMJ823m2KRnhAYhD
-1s+ld+/D+0NeRwmERJmJGEHTCFfC5Ms+h22V7Xc2JQWukMEOOS5Dqbs8YWf2FEm6
-vmEbw2apOcbKM5NGcEV1hgp3FRTufV5Z9tpLTfwxRPVmE8PKNMutPLTwAgCjTSHX
-WY1WJTynOBIoX4mIP/T+6iTfrNLdTc/+kgC7pzpiS7EkR7aa3UCHaSBslkxEuBvK
-MTXhgfafSE5x/xgr2x6331EPcZFO/ExLxSWwS9bSJkaB5FMU1QDV0O/fLHH/exxO
-v8wGLF6+D1XdES/UAb3Oiu5L4a6/2XLxV0LZu3SZ8XvytmQj8v8GnUG1q5CmH+H+
-E3tE1shSHWDLGZ70yD1HA4gRw8+YfMhOcw+MUkpFCIg+Rrx0D6CErP0zLAeZV5Xj
-G5nJsbzk08fkEvmxsWUqUVKMYaXe0D2qUPfX2uSQGfQSmdF9jxo=
-=2kgH
------END PGP SIGNATURE-----
-
---endxsjuhdqhrhiw3--
+Renesas Electronics Europe Ltd, Dukes Meadow, Millboard Road, Bourne End, B=
+uckinghamshire, SL8 5FH, UK. Registered in England & Wales under Registered=
+ No. 04586709.
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
