@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [RFC PATCH 2/2] i2c: mux: pca954x: verify the device id of the pca984x chips
-Date: Mon, 22 Jan 2018 12:36:57 +0100
-Message-ID: <20180122113657.32094-3-peda@axentia.se>
+Subject: [RFC PATCH 1/2] i2c: add i2c_get_device_id() to get the standard i2c device id
+Date: Mon, 22 Jan 2018 12:36:56 +0100
+Message-ID: <20180122113657.32094-2-peda@axentia.se>
 References: <20180122113657.32094-1-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -9,142 +9,125 @@ Return-path: <linux-i2c-owner@vger.kernel.org>
 Received: from mail-eopbgr10097.outbound.protection.outlook.com ([40.107.1.97]:27111
         "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751137AbeAVLhR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 22 Jan 2018 06:37:17 -0500
+        id S1751116AbeAVLhP (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 22 Jan 2018 06:37:15 -0500
 In-Reply-To: <20180122113657.32094-1-peda@axentia.se>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: Adrian Fiergolski <adrian.fiergolski@cern.ch>
 Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Make sure to not disallow the chips on adapters that are not capable
-of reading the device id.
+Can be used during probe to double check that the probed device is
+what is expected.
+
+Loosely based on code from Adrian Fiergolski <adrian.fiergolski@cern.ch>.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/i2c/muxes/i2c-mux-pca954x.c | 43 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
+ drivers/i2c/i2c-core-base.c | 33 +++++++++++++++++++++++++++++++++
+ include/linux/i2c.h         | 30 ++++++++++++++++++++++++++++++
+ 2 files changed, 63 insertions(+)
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index fbb84c7ef282..ff0c7a144fbb 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -77,6 +77,7 @@ struct chip_desc {
- 		pca954x_ismux = 0,
- 		pca954x_isswi
- 	} muxtype;
-+	struct i2c_device_identity id;
- };
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 5a00bf443d06..f496b917529d 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -58,6 +58,8 @@
+ #define I2C_ADDR_7BITS_MAX	0x77
+ #define I2C_ADDR_7BITS_COUNT	(I2C_ADDR_7BITS_MAX + 1)
  
- struct pca954x {
-@@ -97,59 +98,83 @@ static const struct chip_desc chips[] = {
- 		.nchans = 2,
- 		.enable = 0x4,
- 		.muxtype = pca954x_ismux,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
- 	},
- 	[pca_9542] = {
- 		.nchans = 2,
- 		.enable = 0x4,
- 		.has_irq = 1,
- 		.muxtype = pca954x_ismux,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
- 	},
- 	[pca_9543] = {
- 		.nchans = 2,
- 		.has_irq = 1,
- 		.muxtype = pca954x_isswi,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
- 	},
- 	[pca_9544] = {
- 		.nchans = 4,
- 		.enable = 0x4,
- 		.has_irq = 1,
- 		.muxtype = pca954x_ismux,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
- 	},
- 	[pca_9545] = {
- 		.nchans = 4,
- 		.has_irq = 1,
- 		.muxtype = pca954x_isswi,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
- 	},
- 	[pca_9546] = {
- 		.nchans = 4,
- 		.muxtype = pca954x_isswi,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
- 	},
- 	[pca_9547] = {
- 		.nchans = 8,
- 		.enable = 0x8,
- 		.muxtype = pca954x_ismux,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
- 	},
- 	[pca_9548] = {
- 		.nchans = 8,
- 		.muxtype = pca954x_isswi,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
- 	},
- 	[pca_9846] = {
- 		.nchans = 4,
- 		.muxtype = pca954x_isswi,
-+		.id = {
-+			.manufacturer_id = I2C_DEVICE_ID_NXP_SEMICONDUCTORS,
-+			.part_id = 0x10b,
-+		},
- 	},
- 	[pca_9847] = {
- 		.nchans = 8,
- 		.enable = 0x8,
- 		.muxtype = pca954x_ismux,
-+		.id = {
-+			.manufacturer_id = I2C_DEVICE_ID_NXP_SEMICONDUCTORS,
-+			.part_id = 0x108,
-+		},
- 	},
- 	[pca_9848] = {
- 		.nchans = 8,
- 		.muxtype = pca954x_isswi,
-+		.id = {
-+			.manufacturer_id = I2C_DEVICE_ID_NXP_SEMICONDUCTORS,
-+			.part_id = 0x10a,
-+		},
- 	},
- 	[pca_9849] = {
- 		.nchans = 4,
- 		.enable = 0x4,
- 		.muxtype = pca954x_ismux,
-+		.id = {
-+			.manufacturer_id = I2C_DEVICE_ID_NXP_SEMICONDUCTORS,
-+			.part_id = 0x109,
-+		},
- 	},
- };
- 
-@@ -384,6 +409,24 @@ static int pca954x_probe(struct i2c_client *client,
- 	else
- 		data->chip = &chips[id->driver_data];
- 
-+	if (data->chip->id.manufacturer_id != I2C_DEVICE_ID_NONE) {
-+		struct i2c_device_identity id;
++#define I2C_ADDR_DEVICE_ID	0x7c
 +
-+		ret = i2c_get_device_id(client, &id);
-+		if (ret && ret != -EOPNOTSUPP)
-+			return ret;
-+
-+		if (!ret &&
-+		    (id.manufacturer_id != data->chip->id.manufacturer_id ||
-+		     id.part_id != data->chip->id.part_id)) {
-+			dev_warn(&client->dev,
-+				 "unexpected device id %03x-%03x-%x\n",
-+				 id.manufacturer_id, id.part_id,
-+				 id.die_revision);
-+			return -ENODEV;
-+		}
-+	}
-+
- 	data->last_chan = 0;		   /* force the first selection */
+ /*
+  * core_lock protects i2c_adapter_idr, and guarantees that device detection,
+  * deletion of detected devices, and attach_adapter calls are serialized
+@@ -1968,6 +1970,37 @@ int i2c_transfer_buffer_flags(const struct i2c_client *client, char *buf,
+ }
+ EXPORT_SYMBOL(i2c_transfer_buffer_flags);
  
- 	idle_disconnect_dt = of_node &&
++/**
++ * i2c_get_device_id - get manufacturer, part id and die revision of a device
++ * @client: The device to query
++ * @id: The queried information
++ *
++ * Returns negative errno on error, zero on success.
++ */
++int i2c_get_device_id(const struct i2c_client *client,
++		      struct i2c_device_identity *id)
++{
++	struct i2c_adapter *adap = client->adapter;
++	union i2c_smbus_data raw_id;
++	int ret;
++
++	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_READ_I2C_BLOCK))
++		return -EOPNOTSUPP;
++
++	raw_id.block[0] = 3;
++	ret = i2c_smbus_xfer(adap, I2C_ADDR_DEVICE_ID, client->flags,
++			     I2C_SMBUS_READ, client->addr << 1,
++			     I2C_SMBUS_I2C_BLOCK_DATA, &raw_id);
++	if (ret)
++		return ret;
++
++	id->manufacturer_id = (raw_id.block[1] << 4) | (raw_id.block[2] >> 4);
++	id->part_id = ((raw_id.block[2] & 0xf) << 5) | (raw_id.block[3] >> 3);
++	id->die_revision = raw_id.block[3] & 0x7;
++	return 0;
++}
++EXPORT_SYMBOL_GPL(i2c_get_device_id);
++
+ /* ----------------------------------------------------
+  * the i2c address scanning function
+  * Will not work for 10-bit addresses!
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 419a38e7c315..44ad14e016b5 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -47,6 +47,7 @@ struct i2c_algorithm;
+ struct i2c_adapter;
+ struct i2c_client;
+ struct i2c_driver;
++struct i2c_device_identity;
+ union i2c_smbus_data;
+ struct i2c_board_info;
+ enum i2c_slave_event;
+@@ -186,8 +187,37 @@ extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
+ extern s32
+ i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+ 					  u8 command, u8 length, u8 *values);
++int i2c_get_device_id(const struct i2c_client *client,
++		      struct i2c_device_identity *id);
+ #endif /* I2C */
+ 
++/**
++ * struct i2c_device_identity - i2c client device identification
++ * @manufacturer_id: 0 - 4095, database maintained by NXP
++ * @part_id: 0 - 511, according to manufacturer
++ * @die_revision: 0 - 7, according to manufacturer
++ */
++struct i2c_device_identity {
++	u16 manufacturer_id;
++#define I2C_DEVICE_ID_NXP_SEMICONDUCTORS                0
++#define I2C_DEVICE_ID_NXP_SEMICONDUCTORS_1              1
++#define I2C_DEVICE_ID_NXP_SEMICONDUCTORS_2              2
++#define I2C_DEVICE_ID_NXP_SEMICONDUCTORS_3              3
++#define I2C_DEVICE_ID_RAMTRON_INTERNATIONAL             4
++#define I2C_DEVICE_ID_ANALOG_DEVICES                    5
++#define I2C_DEVICE_ID_STMICROELECTRONICS                6
++#define I2C_DEVICE_ID_ON_SEMICONDUCTOR                  7
++#define I2C_DEVICE_ID_SPRINTEK_CORPORATION              8
++#define I2C_DEVICE_ID_ESPROS_PHOTONICS_AG               9
++#define I2C_DEVICE_ID_FUJITSU_SEMICONDUCTOR            10
++#define I2C_DEVICE_ID_FLIR                             11
++#define I2C_DEVICE_ID_O2MICRO                          12
++#define I2C_DEVICE_ID_ATMEL                            13
++#define I2C_DEVICE_ID_NONE                         0xffff
++	u16 part_id;
++	u8 die_revision;
++};
++
+ enum i2c_alert_protocol {
+ 	I2C_PROTOCOL_SMBUS_ALERT,
+ 	I2C_PROTOCOL_SMBUS_HOST_NOTIFY,
 -- 
 2.11.0
