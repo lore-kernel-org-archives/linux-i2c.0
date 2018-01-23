@@ -1,63 +1,46 @@
-From: Biju Das <biju.das@bp.renesas.com>
-Subject: RE: [PATCH 0/2] Use demuxer for i2c1 and i2c5
-Date: Tue, 23 Jan 2018 13:39:46 +0000
-Message-ID: <KL1PR06MB1702A0E39B6D488E907BA7A9B8E30@KL1PR06MB1702.apcprd06.prod.outlook.com>
-References: <1516620563-7965-1-git-send-email-biju.das@bp.renesas.com>
- <20180122114026.uqozk4cbhfrjwqmd@katana>
- <KL1PR06MB170270EA30591C7636941361B8EC0@KL1PR06MB1702.apcprd06.prod.outlook.com>
- <20180122122204.n25jf2rtaoxmi2yq@katana>
- <KL1PR06MB170262934FD5C3B9D422A134B8EC0@KL1PR06MB1702.apcprd06.prod.outlook.com>
- <20180122140824.ox2ljc3kvrkgipq7@ninjato>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] i2c: mxs: use true and false for boolean values
+Date: Tue, 23 Jan 2018 11:38:27 -0600
+Message-ID: <20180123173827.GA24756@embeddedgus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20180122140824.ox2ljc3kvrkgipq7@ninjato>
-Content-Language: en-US
-Sender: linux-renesas-soc-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>, Chris Paterson <Chris.Paterson2@renesas.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <garsilva@embeddedor.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Assign true or false to boolean variables instead of an integer value.
 
-> Subject: Re: [PATCH 0/2] Use demuxer for i2c1 and i2c5
->
->
-> > > > On top of renesas-dev branch, I am using the below i2c-rcar driver
-> > > > related
-> > > patches.
-> > > >
-> > > > https://www.mail-archive.com/linux-renesas-soc@vger.kernel.org/msg
-> > > > 2227
-> > > > 8.html
-> > >
-> > > Those should be enough. They are not?
-> >
-> > Yes. I have tested without demuxer patches, I confirm, it can recover t=
-he bus.
->
-> That is great news! Thanks for the additional testing. I was a little wor=
-ried that
-> the 'bus stalled' detection might have failed for you, but it seems it wo=
-rks for
-> your case as well.
->
-> With that put aside, it is still valid, to add the demuxer to the DTS fil=
-e in case you
-> want to switch to bitbanged GPIO at runtime for some reason. Only the com=
-mit
-> message would need updating then, however, because it is not relevant for=
- bus
-> recovery.
+This issue was detected with the help of Coccinelle.
 
-Ok. I will fix the commit message and send v2.
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ drivers/i2c/busses/i2c-mxs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Regards,
-Biju
-
-
-
-Renesas Electronics Europe Ltd, Dukes Meadow, Millboard Road, Bourne End, B=
-uckinghamshire, SL8 5FH, UK. Registered in England & Wales under Registered=
- No. 04586709.
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index d4e8f19..e617bd6 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -181,7 +181,7 @@ static int mxs_i2c_dma_setup_xfer(struct i2c_adapter *adap,
+ 	struct mxs_i2c_dev *i2c = i2c_get_adapdata(adap);
+ 
+ 	if (msg->flags & I2C_M_RD) {
+-		i2c->dma_read = 1;
++		i2c->dma_read = true;
+ 		i2c->addr_data = (msg->addr << 1) | I2C_SMBUS_READ;
+ 
+ 		/*
+@@ -239,7 +239,7 @@ static int mxs_i2c_dma_setup_xfer(struct i2c_adapter *adap,
+ 			goto read_init_dma_fail;
+ 		}
+ 	} else {
+-		i2c->dma_read = 0;
++		i2c->dma_read = false;
+ 		i2c->addr_data = (msg->addr << 1) | I2C_SMBUS_WRITE;
+ 
+ 		/*
+-- 
+2.7.4
