@@ -1,81 +1,61 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH] i2c: davinci: fix the cpufreq transition
-Date: Mon, 22 Jan 2018 15:42:58 +0100
-Message-ID: <20180122144258.13627-1-brgl@bgdev.pl>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, David Lechner <david@lechnology.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+From: Sekhar Nori <nsekhar@ti.com>
+Subject: Re: [PATCH] i2c: davinci: fix the cpufreq transition
+Date: Tue, 23 Jan 2018 18:08:57 +0530
+Message-ID: <8323a87f-93fb-c1fd-4098-e47f0fcf5859@ti.com>
+References: <20180122144258.13627-1-brgl@bgdev.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180122144258.13627-1-brgl@bgdev.pl>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>, Kevin Hilman <khilman@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, David Lechner <david@lechnology.com>
+Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+On Monday 22 January 2018 08:12 PM, Bartosz Golaszewski wrote:
+> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> 
+> i2c_davinci_cpufreq_transition() is implemented in a way that will
+> block if it ever gets called while no transfer is in progress.
 
-i2c_davinci_cpufreq_transition() is implemented in a way that will
-block if it ever gets called while no transfer is in progress.
+true!
 
-Not only that, but reinit_completion() is never called for xfr_complete.
+> 
+> Not only that, but reinit_completion() is never called for xfr_complete.
 
-Use the fact that cpufreq uses an srcu_notifier (running in process
-context) for transitions and that the bus_lock is taken during the call
-to master_xfer() and simplify the code by removing the transfer
-completion entirely and protecting i2c_davinci_cpufreq_transition()
-with i2c_lock/unlock_adapter().
+reinit_completion() use is must only with complete_all(). At least that
+bug is not obvious so needs more detail to be added here.
 
-Reported-by: David Lechner <david@lechnology.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- drivers/i2c/busses/i2c-davinci.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+> Use the fact that cpufreq uses an srcu_notifier (running in process
+> context) for transitions and that the bus_lock is taken during the call
+> to master_xfer() and simplify the code by removing the transfer
+> completion entirely and protecting i2c_davinci_cpufreq_transition()
+> with i2c_lock/unlock_adapter().
+> 
+> Reported-by: David Lechner <david@lechnology.com>
+> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 2ead9b9eebb7..53ebf0dec1ad 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -139,7 +139,6 @@ struct davinci_i2c_dev {
- 	u8			terminate;
- 	struct i2c_adapter	adapter;
- #ifdef CONFIG_CPU_FREQ
--	struct completion	xfr_complete;
- 	struct notifier_block	freq_transition;
- #endif
- 	struct davinci_i2c_platform_data *pdata;
-@@ -567,9 +566,6 @@ i2c_davinci_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 	}
- 
- 	ret = num;
--#ifdef CONFIG_CPU_FREQ
--	complete(&dev->xfr_complete);
--#endif
- 
- out:
- 	pm_runtime_mark_last_busy(dev->dev);
-@@ -717,13 +713,15 @@ static int i2c_davinci_cpufreq_transition(struct notifier_block *nb,
- 	struct davinci_i2c_dev *dev;
- 
- 	dev = container_of(nb, struct davinci_i2c_dev, freq_transition);
-+
-+	i2c_lock_adapter(&dev->adapter);
- 	if (val == CPUFREQ_PRECHANGE) {
--		wait_for_completion(&dev->xfr_complete);
- 		davinci_i2c_reset_ctrl(dev, 0);
- 	} else if (val == CPUFREQ_POSTCHANGE) {
- 		i2c_davinci_calc_clk_dividers(dev);
- 		davinci_i2c_reset_ctrl(dev, 1);
- 	}
-+	i2c_unlock_adapter(&dev->adapter);
- 
- 	return 0;
- }
-@@ -789,9 +787,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- 	}
- 
- 	init_completion(&dev->cmd_complete);
--#ifdef CONFIG_CPU_FREQ
--	init_completion(&dev->xfr_complete);
--#endif
-+
- 	dev->dev = &pdev->dev;
- 	dev->irq = irq;
- 	dev->pdata = dev_get_platdata(&pdev->dev);
--- 
-2.15.1
+I assume you tested this on a board where I2C-controlled PMIC changes
+voltage during CPUfreq (DA850 LogicPD EVM should have this hardware
+support).
+
+Perhaps also add:
+
+Fixes: 82c0de11b734 ("i2c: davinci: Add cpufreq support")
+
+Apart from that:
+
+Reviewed-by: Sekhar Nori <nsekhar@ti.com>
+
+Thanks,
+Sekhar
