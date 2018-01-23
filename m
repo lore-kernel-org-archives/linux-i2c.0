@@ -1,46 +1,63 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH i2c-tools] i2c-dev.h: copy over typo fix from kernel
- include
-Date: Tue, 23 Jan 2018 14:34:27 +0100
-Message-ID: <20180123143427.08069ff9@endymion>
-References: <20180115204030.26400-1-wsa@the-dreams.de>
-        <20180119093753.71e9457f@endymion>
-        <20180119092158.o6x7wy4epnzddv5y@katana>
+From: Biju Das <biju.das@bp.renesas.com>
+Subject: RE: [PATCH 0/2] Use demuxer for i2c1 and i2c5
+Date: Tue, 23 Jan 2018 13:39:46 +0000
+Message-ID: <KL1PR06MB1702A0E39B6D488E907BA7A9B8E30@KL1PR06MB1702.apcprd06.prod.outlook.com>
+References: <1516620563-7965-1-git-send-email-biju.das@bp.renesas.com>
+ <20180122114026.uqozk4cbhfrjwqmd@katana>
+ <KL1PR06MB170270EA30591C7636941361B8EC0@KL1PR06MB1702.apcprd06.prod.outlook.com>
+ <20180122122204.n25jf2rtaoxmi2yq@katana>
+ <KL1PR06MB170262934FD5C3B9D422A134B8EC0@KL1PR06MB1702.apcprd06.prod.outlook.com>
+ <20180122140824.ox2ljc3kvrkgipq7@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:43885 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751633AbeAWNea (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 23 Jan 2018 08:34:30 -0500
-In-Reply-To: <20180119092158.o6x7wy4epnzddv5y@katana>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <20180122140824.ox2ljc3kvrkgipq7@ninjato>
+Content-Language: en-US
+Sender: linux-renesas-soc-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Simon Horman <horms@verge.net.au>, Magnus Damm <magnus.damm@gmail.com>, Chris Paterson <Chris.Paterson2@renesas.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 19 Jan 2018 10:21:58 +0100, Wolfram Sang wrote:
-> > 652619121974 ("i2c-dev.h: Minimize differences with kernel flavor".) At
-> > this point i2c-tools' i2c-dev.h and the kernel's i2c-dev.h are exactly
-> > the same file, modulo the difference you just pointed out.  
-> 
-> Exactly. I wanted to follow up in minimizing the differences. But I was
-> unaware of the master plan...
-> 
-> > So the right thing to do is to delete include/linux/i2c-dev.h from
-> > i2c-tools altogether. We no longer use it and we no longer install it,
-> > so it should be a straightforward change. I simply forgot to do it
-> > after the library conversion.  
-> 
-> ... which I super like very much!
-> 
-> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+Hi,
 
-Thanks, done.
+> Subject: Re: [PATCH 0/2] Use demuxer for i2c1 and i2c5
+>
+>
+> > > > On top of renesas-dev branch, I am using the below i2c-rcar driver
+> > > > related
+> > > patches.
+> > > >
+> > > > https://www.mail-archive.com/linux-renesas-soc@vger.kernel.org/msg
+> > > > 2227
+> > > > 8.html
+> > >
+> > > Those should be enough. They are not?
+> >
+> > Yes. I have tested without demuxer patches, I confirm, it can recover t=
+he bus.
+>
+> That is great news! Thanks for the additional testing. I was a little wor=
+ried that
+> the 'bus stalled' detection might have failed for you, but it seems it wo=
+rks for
+> your case as well.
+>
+> With that put aside, it is still valid, to add the demuxer to the DTS fil=
+e in case you
+> want to switch to bitbanged GPIO at runtime for some reason. Only the com=
+mit
+> message would need updating then, however, because it is not relevant for=
+ bus
+> recovery.
 
-https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/commit/?id=226bc03acca44cf4b300597308064c44676b6f4b
+Ok. I will fix the commit message and send v2.
 
--- 
-Jean Delvare
-SUSE L3 Support
+Regards,
+Biju
+
+
+
+Renesas Electronics Europe Ltd, Dukes Meadow, Millboard Road, Bourne End, B=
+uckinghamshire, SL8 5FH, UK. Registered in England & Wales under Registered=
+ No. 04586709.
