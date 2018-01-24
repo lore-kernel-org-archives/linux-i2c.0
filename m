@@ -1,60 +1,59 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/1] i2c: imx-lpi2c: add runtime pm support
-Date: Wed, 24 Jan 2018 07:21:11 +0100
-Message-ID: <20180124062111.vi5zhtkyrdwdjg4z@ninjato>
-References: <1514884312-8535-1-git-send-email-fugang.duan@nxp.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [v2,1/5] dt-bindings: i2c: update documentation for the Meson-AXG
+Date: Wed, 24 Jan 2018 07:26:53 +0100
+Message-ID: <20180124062653.dietsdhvproltho6@ninjato>
+References: <20171120145415.6581-2-yixun.lan@amlogic.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="wghir24fq54uruo4"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:53911 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752234AbeAXGVN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 24 Jan 2018 01:21:13 -0500
+        protocol="application/pgp-signature"; boundary="uuhfazoat7oghdhc"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1514884312-8535-1-git-send-email-fugang.duan@nxp.com>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20171120145415.6581-2-yixun.lan-LpR1jeaWuhtBDgjK7y7TUQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Yixun Lan <yixun.lan-LpR1jeaWuhtBDgjK7y7TUQ@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Hilman <khilman-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Jerome Brunet <jbrunet-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, Jian Hu <jian.hu-LpR1jeaWuhtBDgjK7y7TUQ@public.gmane.org>, linux-amlogic-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Fugang Duan <fugang.duan@nxp.com>
-Cc: linux-i2c@vger.kernel.org, u.kleine-koenig@pengutronix.de, bhumirks@gmail.com, vz@mleia.com
 
 
---wghir24fq54uruo4
+--uuhfazoat7oghdhc
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 02, 2018 at 05:11:52PM +0800, Fugang Duan wrote:
-> Add runtime pm support to dynamically manage the clock to avoid enable/di=
-sable
-> clock in frequently that can improve the i2c bus transfer performance.
+On Mon, Nov 20, 2017 at 10:54:11PM +0800, Yixun Lan wrote:
+> From: Jian Hu <jian.hu-LpR1jeaWuhtBDgjK7y7TUQ@public.gmane.org>
 >=20
-> And use pm_runtime_force_suspend/resume() instead of lpi2c_imx_suspend/re=
-sume().
+> Update the doc to explicitly add Meson-AXG to support list
 >=20
-> Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+> Signed-off-by: Jian Hu <jian.hu-LpR1jeaWuhtBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Yixun Lan <yixun.lan-LpR1jeaWuhtBDgjK7y7TUQ@public.gmane.org>
+> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---wghir24fq54uruo4
+--uuhfazoat7oghdhc
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpoJdcACgkQFA3kzBSg
-KbbXBg//Z8LXoKaS/hdkRJJVKIer2nlBb1/yHrVjBBVWNS/TpQf0gqC4CG+uNvJZ
-K+D9M32Z6yogmr8IMsm60Hj+oUaIflW0OzLHbh8/KHsjIfRCMI0XL58alueNhiO+
-Y4Lr8V33nkdJSwsFtYXZEeVLRWeKdtqDV3TGcpjcjTplHu7kpbrLDPlVWrjbN7lu
-2fqDNAQIC68yuYaf8QMpumSWke0WthuQY6sUGL7BM+22+IrDmTq2eKSWixXZJtlp
-9yz6t4SGicGgAZnkLjrk2EbIKxpjdX91jyfXRc2EnsSxvaMOC+P0kSh+Lh8+ZbO7
-D1ycn2SDVzky/uPx+6nb3CEOoksNouCy9Be0rqMIww5H78NmnTQeKxMiXdocZhO+
-XUnpCOaAlAA999LoAe01AcFwyLcibNHMVDWIBH1Y+H+M7IY6WLrqyeSj1h5n7c9A
-oBd9Dni6kswXNnAR3COYiD0ru0oeVoxcVBn+lusdVxrThfX+GKOfNLBONW6na26B
-etiLfBPslkhvPCyCMLFaLncVTqhPBaSlO4XXoHvY8RHF1AZVcN6qWsyHrh6FBagG
-Lqo0lnEg/88ZhqEYLNPCbHGYGECLmT9EzBLaBpHbmHxRUTgc2qYueMR95rO0jKn+
-qR9nGUcH22GkRJXhI01hynK4RwIcP2S86I5CNxEcVVWiJb9WGIE=
-=CtS3
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpoJygACgkQFA3kzBSg
+Kbaq0hAAhXTbjGN+hyZN7rRTJOH9SnTiZ6knRiOUmZB00qL4+BwiCjU98l0BKGBJ
+ZVHGcaKMjIp0Cj3o7K+Co5HGYc+FwyaMTZFD67RIS7rln9pprah0mJIOi7PKi/O1
+pUc91k8CXPs/+dytkUDgVI6WgjvfAYxcL+lNN6CH622bcPEAgkps2eH8UoxXviz9
+ILMJtGKBvYaPVv7Cco2+n+w3DoEQ+fcbHz5CIswEkC9TC3weeSrM+BHoSR9YxJmQ
+6WbkLBsNpkfWlCadEZJc+bHO95MwAbsS3qIC/ZsOjiDwXZj1rs/aqP6B4cggEesj
+adcr/C5C7YsMJtwrmyc9r4h2AAjTH0/a60gIYKlrnjt8UlvFxqyPmO6sKojCxlK+
+7K9TDhcne9WnONI7BIznk0uDSQ32SUsEEFGTZPwbXgW7asXIvIVhczrzXy5TgHMQ
+ZlxGmosDoCaJ+w1m2DmMzlenB3VBcoSRDk2F/hFoEA2NvmbrCOTVFxKQC2hs6O6/
+zD4ZQKZNMlVmnjnJEPAc61nUHZVpBVNWjZSr3tRPPGEGYkHwJkKqxUlWFnONl1KC
+jrvDOfe1puTQDcXhXD1AQWU2INe/BBDxhgs294lTFP/s1nc2fAw16DwaGOmT19fe
+oGOg/0Y6S1r6H6h1dhd45u8BYnBnTGP6THpmzE/ZW3iATVJvqZ4=
+=gy1U
 -----END PGP SIGNATURE-----
 
---wghir24fq54uruo4--
+--uuhfazoat7oghdhc--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
