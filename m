@@ -1,75 +1,51 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 0/3] i2c: mv64xxx: Fix clock resource for Armada 7K/8K
-Date: Wed, 24 Jan 2018 07:35:07 +0100
-Message-ID: <20180124063507.swvhh3cy5au2bfbu@ninjato>
-References: <20180116163540.1092-1-gregory.clement@free-electrons.com>
+From: Yixun Lan <yixun.lan-LpR1jeaWuhtBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [v2,2/5] i2c: meson: add configurable divider factors
+Date: Wed, 24 Jan 2018 14:51:30 +0800
+Message-ID: <600c932f-59d6-d7ec-ec02-b92b275049d5@amlogic.com>
+References: <20171120145415.6581-3-yixun.lan@amlogic.com>
+ <20180124062830.vi52rtlgglryq3xz@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="x5eavt4rbk2pasnt"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:53993 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752206AbeAXGfJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 24 Jan 2018 01:35:09 -0500
-Content-Disposition: inline
-In-Reply-To: <20180116163540.1092-1-gregory.clement@free-electrons.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20180124062830.vi52rtlgglryq3xz@ninjato>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: yixun.lan-LpR1jeaWuhtBDgjK7y7TUQ@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Hilman <khilman-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Jerome Brunet <jbrunet-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, Jian Hu <jian.hu-LpR1jeaWuhtBDgjK7y7TUQ@public.gmane.org>, linux-amlogic-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-To: Gregory CLEMENT <gregory.clement@free-electrons.com>
-Cc: linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Antoine Tenart <antoine.tenart@free-electrons.com>, =?utf-8?Q?Miqu=C3=A8l?= Raynal <miquel.raynal@free-electrons.com>, Nadav Haklai <nadavh@marvell.com>, Shadi Ammouri <shadi@marvell.com>, Omri Itach <omrii@marvell.com>, Hanna Hawa <hannah@marvell.com>, Igal Liberman <igall@marvell.com>, Marcin Wojtas <mw@semihalf.com>
+
+Hi Wolfram：
 
 
---x5eavt4rbk2pasnt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 16, 2018 at 05:35:37PM +0100, Gregory CLEMENT wrote:
+On 01/24/18 14:28, Wolfram Sang wrote:
+> On Mon, Nov 20, 2017 at 10:54:12PM +0800, Yixun Lan wrote:
+>> From: Jian Hu <jian.hu-LpR1jeaWuhtBDgjK7y7TUQ@public.gmane.org>
+>>
+>> This patch try to add support for I2C controller in Meson-AXG SoC,
+>> Due to the IP changes between I2C controller, we need to introduce
+>> a compatible data to make the divider factor configurable.
+>>
+>> Reviewed-by: Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+>> Signed-off-by: Jian Hu <jian.hu-LpR1jeaWuhtBDgjK7y7TUQ@public.gmane.org>
+>> Signed-off-by: Yixun Lan <yixun.lan-LpR1jeaWuhtBDgjK7y7TUQ@public.gmane.org>
+> 
+> Applied to for-next, thanks!
+> 
+> But I got two build warnings, please fix them with an incremental patch:
+> 
+> drivers/i2c/busses/i2c-meson.c:103: warning: No description found for parameter 'data'
+> drivers/i2c/busses/i2c-meson.c:103: warning: Excess struct member 'irq' description in 'meson_i2c'
+> 
+first, many thanks for pushing this..
 
-> This short series fixes the way the clocks are used for the mv64xxx
-> controller embedded in the Marvell Armada 7K/8K SoCs. On these SoCs a
-> second one is needed in order to clock the registers. It was not
-> noticed until now because we relied on the bootloader and also because
-> the clock driver was wrong.
->=20
-> Thanks to this fix, it would be possible to fix the clock driver
-> without introducing a regression.
->=20
-> The first patch is just a small cleanup found when I wrote the main
-> patch.
->=20
-> The last patch is not related to the series but as Wolfram to have a
-> maintainer for this driver I added the patch here.
+I understand from above warnings, and can compose a patch to fix this.
 
-Thomas, Andrew, Maxime, any tags you'd like to donate?
+but, I didn't get this build warnings while test locally, so is there
+any specific compiler option that I need to pass to?
 
->  - Add a maintainer for the i2c-mv64xxx driver, requested
-
-Well, I'd say "asked for"...
-
-> by Woflram Sang
-
-=2E.. whoever that guy is ;)
-
-
---x5eavt4rbk2pasnt
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpoKRsACgkQFA3kzBSg
-KbYfEw/8CjbhjwVrGLb0PQrLZ9135NdZppRLgNZqmZtfOKz1H7JPzB/ZDLjHzqr6
-b3/MQlUhzVUB71tzHsOgtZV+j7QVfpl/TFc3yp11A7/9EYIGtbfdLwvYUKzQpx00
-Iu2ilASmkxuuJ4DYJKoLMniqx9K2d3RkfQYtEhDON+s2WFlRZnYybvCg+E49a6H1
-uyN8fd7H7RtCbKtemLcWD9h/tEJLSnyz5lHajaDFqMuRvghVnMUXrO5VqlSu8eQa
-Fw46XTdSIt45ea4jQlU5IFH/+zUmzaIwTft5OscfqBIQY8gu730jVOZi1tomr0kk
-WRUNp6QmVSyQ7Yf0kG0F78IsTlSOrvfeTRW+Ld9pbGuTGXFkTmoNC7G7cM84J4Yj
-sn1W1tGV8+wBijbuI8FlZbjgJSED+aT4XMwZVcaffcESWvcsPrNgEUhBC2+nSH5u
-+W8m9xDkjeNhKXIuNandIv01m762IpUiwmUgPrD4ryo+aLBUVU82M2/8VCbqOtG5
-Hs/5yKJwwhjp5/LovRgsZCDdX0WQ0t15/QO1f7KRxFQGsNUAuLv8ui1w02O03NCu
-xAafsaDpX2bsli7QC2gUfJIzPp5JEOXYp4UQQ4jdWsHQ8Z+vNiFYXvE4Hk5/HmRV
-GoxmqWJFayPqTLLDksg6YV19SZoQkLXwGuWjBl7cIA5cHiDAg0A=
-=jg98
------END PGP SIGNATURE-----
-
---x5eavt4rbk2pasnt--
+Yixun
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
