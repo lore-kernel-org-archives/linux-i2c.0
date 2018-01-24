@@ -1,52 +1,75 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [v2,2/5] i2c: meson: add configurable divider factors
-Date: Wed, 24 Jan 2018 12:46:26 +0100
-Message-ID: <20180124114626.mfckwbcacoyjzsin@katana>
-References: <20171120145415.6581-3-yixun.lan@amlogic.com>
- <20180124062830.vi52rtlgglryq3xz@ninjato>
- <600c932f-59d6-d7ec-ec02-b92b275049d5@amlogic.com>
+From: Sinan Kaya <okaya@codeaurora.org>
+Subject: Re: [PATCH v2] i2c: Allow ACPI_I2C_OPREGION if I2C is built as a
+ module
+Date: Wed, 24 Jan 2018 08:29:44 -0500
+Message-ID: <f498c1ef-0e15-3956-8e70-bca53ec2cac4@codeaurora.org>
+References: <1514988151-12248-1-git-send-email-eric.auger@redhat.com>
+ <20180124055615.c3qwhwnj7spmcr3w@ninjato>
+ <20180124062725.GK27654@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="3aq6b34umpzpsxmi"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <600c932f-59d6-d7ec-ec02-b92b275049d5@amlogic.com>
+In-Reply-To: <20180124062725.GK27654@lahna.fi.intel.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Yixun Lan <yixun.lan@amlogic.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Kevin Hilman <khilman@baylibre.com>, Neil Armstrong <narmstrong@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, Carlo Caione <carlo@caione.org>, Jian Hu <jian.hu@amlogic.com>, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Eric Auger <eric.auger@redhat.com>, eric.auger.pro@gmail.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
++linux-acpi
 
---3aq6b34umpzpsxmi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On 1/24/2018 1:27 AM, Mika Westerberg wrote:
+> On Wed, Jan 24, 2018 at 06:56:16AM +0100, Wolfram Sang wrote:
+>> On Wed, Jan 03, 2018 at 03:02:31PM +0100, Eric Auger wrote:
+>>> If I2C is built as a module, ACPI_I2C_OPREGION cannot be set
+>>> and any ACPI opregion calls targeting I2C fail with no opregion found.
+>>>
+>>> This patch allows ACPI_I2C_OPREGION to be enabled both if I2C is
+>>> built into the kernel or built as a module.
+>>>
+>>> Signed-off-by: Eric Auger <eric.auger@redhat.com>
+>>
+>> I recall that we had some discussion until ending up with the current
+>> solution. And I finally found it again:
+>>
+>> http://www.serverphorums.com/read.php?12,1001402
+>>
+>> In any case, I surely want Mika's ack on any change to ACPI related
+>> Kconfig symbols. Adding him to CC...
+> 
+> So the problem is/was that what happens if you are in a middle of BIOS
+> AML code touching the opregion and someone unloads the opregion handler?
+> If you can quarantee nothing bad happens, then I'm fine with the patch :)
+> 
 
-> but, I didn't get this build warnings while test locally, so is there
-> any specific compiler option that I need to pass to?
+Rafael to correct me if I got this right.
 
-I used "W=1 C=1" when compiling. My gcc version is:
+The behavior of the operating system is well defined in the ACPI specification.
 
-(Debian 6.3.0-18) 6.3.0 20170516
+Here is what I tested recently:
 
+ACPI defines _REG method to inform firmware of presence/removal of an operating
+region.
 
---3aq6b34umpzpsxmi
-Content-Type: application/pgp-signature; name="signature.asc"
+When driver gets loaded, ACPI calls the _REG method with 1 argument. When driver
+gets unloaded, ACPI call the _REG method with 0 argument. 
 
------BEGIN PGP SIGNATURE-----
+Firmware can use this notification to its advantage to determine when an I2C
+related functionality should be accessed or not.
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpocg0ACgkQFA3kzBSg
-KbYQxg/+IHS7qKJGUy0BVutSN89Ne3OdUMNFo6p3C2Xy0bI/71m3l0iXQOINMP6Q
-tuXCt9V/95NDlMKT72b5XxuRexKziq3gfz00wr75Jv4gqURigY1a/dCYS+er0xhS
-jquc+PUEflmDoB864U76eRsv/psb/LXVjd+aPHiqJOkzV6LAZ09BFN0hHSL2hF09
-+AZ0XjTSZPC92EfDsD9zT0cdwbH2rCRCjrQANfkaBnc9w0arQpEe+O0fQD84tgH6
-m2qzeKu+sjno5Ti4aTgrM7YKJdFJE1XT4cAj1GPDn9UEGRKbNolHIVTRIZ6kJ0AJ
-dLLu7yO4gnjwAGgyh5UXEuuevvb1yCcnkdahjF1GiyV7I1v4qpQtg5sGK1tbV9ym
-Bx3CfRQCsZtWRo/POVDoXAgQ+hrPqrZAPEXUHaVCuR4MLwiozULG8AHEnJgBxSIx
-1iBc80SC/1OO+XhrHNBSh/+E3olKXt2onyMGCpfEOSj7SM8bs540WFcyWhXa9kFa
-urLotlS95d0UgMdPwd85ORh4fzCc6+fwtX4g0vN9uB4FXA2/MZYsMASzxnt7Bh54
-3BkWSp+hLVwIm44/7KMua9a2euUeNw7ppyM1e+mGhZ4gDmUO2ldwtOlWvOLjOzG+
-nmk2uv3CLtOVuK7zr69TO54SQgJ2ARDCxRdj7t0iKToGW1tzNkQ=
-=ITpd
------END PGP SIGNATURE-----
+If firmware doesn't use the _REG method, ACPI defines that AML statements
+accessing the operating region are ignored.
 
---3aq6b34umpzpsxmi--
+You'll also see a warning from ACPICA saying the OperatingRegion 9 is no longer
+accessible and AML code execution failed.
+
+Also note that someone can always unbind an I2C driver from ACPI even with built-in
+module.
+
+I think we are talking about an orthogonal issue here.
+
+-- 
+Sinan Kaya
+Qualcomm Datacenter Technologies, Inc. as an affiliate of Qualcomm Technologies, Inc.
+Qualcomm Technologies, Inc. is a member of the Code Aurora Forum, a Linux Foundation Collaborative Project.
