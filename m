@@ -1,42 +1,68 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v2] i2c: Allow ACPI_I2C_OPREGION if I2C is built as a
- module
-Date: Wed, 24 Jan 2018 08:27:25 +0200
-Message-ID: <20180124062725.GK27654@lahna.fi.intel.com>
-References: <1514988151-12248-1-git-send-email-eric.auger@redhat.com>
- <20180124055615.c3qwhwnj7spmcr3w@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [v2,2/5] i2c: meson: add configurable divider factors
+Date: Wed, 24 Jan 2018 07:28:30 +0100
+Message-ID: <20180124062830.vi52rtlgglryq3xz@ninjato>
+References: <20171120145415.6581-3-yixun.lan@amlogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="7wcuf7vtxhqk5s57"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:27542 "EHLO mga14.intel.com"
+Received: from sauhun.de ([88.99.104.3]:53952 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932074AbeAXG13 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 24 Jan 2018 01:27:29 -0500
+        id S1752262AbeAXG2c (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 24 Jan 2018 01:28:32 -0500
 Content-Disposition: inline
-In-Reply-To: <20180124055615.c3qwhwnj7spmcr3w@ninjato>
+In-Reply-To: <20171120145415.6581-3-yixun.lan@amlogic.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Eric Auger <eric.auger@redhat.com>, eric.auger.pro@gmail.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, okaya@codeaurora.org
+To: Yixun Lan <yixun.lan@amlogic.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Kevin Hilman <khilman@baylibre.com>, Neil Armstrong <narmstrong@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, Carlo Caione <carlo@caione.org>, Jian Hu <jian.hu@amlogic.com>, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 
-On Wed, Jan 24, 2018 at 06:56:16AM +0100, Wolfram Sang wrote:
-> On Wed, Jan 03, 2018 at 03:02:31PM +0100, Eric Auger wrote:
-> > If I2C is built as a module, ACPI_I2C_OPREGION cannot be set
-> > and any ACPI opregion calls targeting I2C fail with no opregion found.
-> > 
-> > This patch allows ACPI_I2C_OPREGION to be enabled both if I2C is
-> > built into the kernel or built as a module.
-> > 
-> > Signed-off-by: Eric Auger <eric.auger@redhat.com>
-> 
-> I recall that we had some discussion until ending up with the current
-> solution. And I finally found it again:
-> 
-> http://www.serverphorums.com/read.php?12,1001402
-> 
-> In any case, I surely want Mika's ack on any change to ACPI related
-> Kconfig symbols. Adding him to CC...
 
-So the problem is/was that what happens if you are in a middle of BIOS
-AML code touching the opregion and someone unloads the opregion handler?
-If you can quarantee nothing bad happens, then I'm fine with the patch :)
+--7wcuf7vtxhqk5s57
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Nov 20, 2017 at 10:54:12PM +0800, Yixun Lan wrote:
+> From: Jian Hu <jian.hu@amlogic.com>
+>=20
+> This patch try to add support for I2C controller in Meson-AXG SoC,
+> Due to the IP changes between I2C controller, we need to introduce
+> a compatible data to make the divider factor configurable.
+>=20
+> Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+> Signed-off-by: Jian Hu <jian.hu@amlogic.com>
+> Signed-off-by: Yixun Lan <yixun.lan@amlogic.com>
+
+Applied to for-next, thanks!
+
+But I got two build warnings, please fix them with an incremental patch:
+
+drivers/i2c/busses/i2c-meson.c:103: warning: No description found for param=
+eter 'data'
+drivers/i2c/busses/i2c-meson.c:103: warning: Excess struct member 'irq' des=
+cription in 'meson_i2c'
+
+
+--7wcuf7vtxhqk5s57
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpoJ44ACgkQFA3kzBSg
+KbYFyg//Z3MrMGgZzDZ5BFvOUFiMXZAfrZQTM4+hJlECvMtChjJ1lS+/z52YG9Xr
+6LoER7/1zNNDfnsrEe3T3HQrIBvrkXcHlwJ68xG8pX/YwwomLdgXFwSmZ12tChso
+pXuYKg3WKlyWoxQx6cYHhyP4M9RfNAqUDQIG8qn0Qhov4M2tU/ESD/oBR8bAZ7N7
+qHyC4mKqUX7SKrZ1vlbSV9TWIcmXAA0YFaunMoWFGa52AVnzD2msGebXLqsQ/soM
+Nq6Q9XAjrDsHJDJA+2vXibWjUdrzX700kz1wtzEtq9I/NqQTb+o8q758sq2HHCmp
+mXOUolEelLSYSEedJ7NOyB9k93GkvR/dIjeH1T0aoTG4jhT1XSWwIIWE/1UvYfAj
+C09VwfD1k+obEsqbnMdDt4zWJ3oFViDRbF6GqaohqcbJLcMCEYybb7cYe5/o7shZ
+iBqVR9ZhVclYVrlmdYA2HgLq0F6hcCT46E542JsvyUONB09Qwf5ay55rq9xQiu2M
+kT2wiPNx3RQIqzWHyGx8PryEvW73lwvhlGJDGEQMTKbcw7Xu7AhcytiXNaSE71B/
+DVzCy96OmpCxoex8Oj63TYwB7fWI/fKOxiOUlDkTsu+v6J/Y+r7iZ64f0RgO/ufg
+98MrqdhbxDccgHB54Cv8Rtuemmtd0LL4j/hyvC5OdM1f4qcLODI=
+=PLdw
+-----END PGP SIGNATURE-----
+
+--7wcuf7vtxhqk5s57--
