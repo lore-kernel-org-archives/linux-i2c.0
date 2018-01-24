@@ -1,58 +1,75 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 0/5]  i2c: meson-axg: add I2C controller driver
-Date: Wed, 24 Jan 2018 07:30:19 +0100
-Message-ID: <20180124063019.mzq7egwotn2uakr5@ninjato>
-References: <20171120145415.6581-1-yixun.lan@amlogic.com>
- <7ho9ltba6c.fsf@baylibre.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v4 0/3] i2c: mv64xxx: Fix clock resource for Armada 7K/8K
+Date: Wed, 24 Jan 2018 07:35:07 +0100
+Message-ID: <20180124063507.swvhh3cy5au2bfbu@ninjato>
+References: <20180116163540.1092-1-gregory.clement@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="pp2gncesjil73pzj"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+        protocol="application/pgp-signature"; boundary="x5eavt4rbk2pasnt"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:53993 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752206AbeAXGfJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 24 Jan 2018 01:35:09 -0500
 Content-Disposition: inline
-In-Reply-To: <7ho9ltba6c.fsf-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Cc: Yixun Lan <yixun.lan-LpR1jeaWuhtBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Neil Armstrong <narmstrong-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Jerome Brunet <jbrunet-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Carlo Caione <carlo-KA+7E9HrN00dnm+yROfE0A@public.gmane.org>, Jian Hu <jian.hu-LpR1jeaWuhtBDgjK7y7TUQ@public.gmane.org>, linux-amlogic-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20180116163540.1092-1-gregory.clement@free-electrons.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Cc: linux-i2c@vger.kernel.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, linux-arm-kernel@lists.infradead.org, Antoine Tenart <antoine.tenart@free-electrons.com>, =?utf-8?Q?Miqu=C3=A8l?= Raynal <miquel.raynal@free-electrons.com>, Nadav Haklai <nadavh@marvell.com>, Shadi Ammouri <shadi@marvell.com>, Omri Itach <omrii@marvell.com>, Hanna Hawa <hannah@marvell.com>, Igal Liberman <igall@marvell.com>, Marcin Wojtas <mw@semihalf.com>
 
 
---pp2gncesjil73pzj
+--x5eavt4rbk2pasnt
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
+On Tue, Jan 16, 2018 at 05:35:37PM +0100, Gregory CLEMENT wrote:
 
-> >   ARM64: dts: meson-axg: add I2C DT info for Meson-AXG SoC
-> >   ARM64: dts: meson-axg: describe pin DT info for I2C controller
-> >   ARM64: dts: meson-axg: enable I2C Master-1 for the audio speaker
+> This short series fixes the way the clocks are used for the mv64xxx
+> controller embedded in the Marvell Armada 7K/8K SoCs. On these SoCs a
+> second one is needed in order to clock the registers. It was not
+> noticed until now because we relied on the bootloader and also because
+> the clock driver was wrong.
 >=20
-> Once you've merged, I'll take the DT patches through my amlogic tree.
+> Thanks to this fix, it would be possible to fix the clock driver
+> without introducing a regression.
+>=20
+> The first patch is just a small cleanup found when I wrote the main
+> patch.
+>=20
+> The last patch is not related to the series but as Wolfram to have a
+> maintainer for this driver I added the patch here.
 
-Done now! Have fun with the patches...
+Thomas, Andrew, Maxime, any tags you'd like to donate?
+
+>  - Add a maintainer for the i2c-mv64xxx driver, requested
+
+Well, I'd say "asked for"...
+
+> by Woflram Sang
+
+=2E.. whoever that guy is ;)
 
 
---pp2gncesjil73pzj
+--x5eavt4rbk2pasnt
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpoJ/sACgkQFA3kzBSg
-KbaI/BAAqeM7n25l9YdafqFZkno6NXRXD2B551gktmmngavhiRPM4ZKVrKZ0k4De
-G1T5KR47bI65h8FtS1t7Ncu6qw+3tOzthKhOoRLKeeAowLqbPfYUN2+/wECcsQkF
-gbS7paVGjwCtC457/P6nAMPCQAJU5ire1ozvm3c9EXe087JxNHC98wQkxzXHcKgo
-l9XMxWQdXP9D4az08On1jkXIdLjNhpL7eC8KdLE1HivS/HXH9M12pbDFkAB4q62p
-yhO3hPJPy682rdylU+iGUvOdP/46BvG41Oec/K9HLO54fMcK6D1+x9G1yqELYxjg
-0TCNRFH4XTeglOh3GhiDt30hjLT1cGKccphX9Z2TYp+5NNIhzxwEbGoJFzDFpKiV
-GvLTXEfzBwhDu9Eqf7Tn6UTXbd2ov1imgr8kfXPJ7dSKhvtffYX1H0ojem099XHr
-V4MesH7wrwlCVJScWIRVS+JJKE0NPwPQ8kcn1SZx1PtRriXAfZOdBIp8Q+cIa7kw
-ln+6sMHjwSOHWOpxd+JJ6rm84okujA5H+v/yXjpB6pjwXNOsSkQ66mWXX0nbSYFx
-tWezNmf3uW0W5FajFuprDJxIBaeeC/5Ee3oCW3vNlKgoRS0yPIPkmz/Bp3Esm549
-M5/4gQgejT739T475+BZCMFbWjaL7GEaVcjglssk99/UvjS8DHI=
-=QTEw
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpoKRsACgkQFA3kzBSg
+KbYfEw/8CjbhjwVrGLb0PQrLZ9135NdZppRLgNZqmZtfOKz1H7JPzB/ZDLjHzqr6
+b3/MQlUhzVUB71tzHsOgtZV+j7QVfpl/TFc3yp11A7/9EYIGtbfdLwvYUKzQpx00
+Iu2ilASmkxuuJ4DYJKoLMniqx9K2d3RkfQYtEhDON+s2WFlRZnYybvCg+E49a6H1
+uyN8fd7H7RtCbKtemLcWD9h/tEJLSnyz5lHajaDFqMuRvghVnMUXrO5VqlSu8eQa
+Fw46XTdSIt45ea4jQlU5IFH/+zUmzaIwTft5OscfqBIQY8gu730jVOZi1tomr0kk
+WRUNp6QmVSyQ7Yf0kG0F78IsTlSOrvfeTRW+Ld9pbGuTGXFkTmoNC7G7cM84J4Yj
+sn1W1tGV8+wBijbuI8FlZbjgJSED+aT4XMwZVcaffcESWvcsPrNgEUhBC2+nSH5u
++W8m9xDkjeNhKXIuNandIv01m762IpUiwmUgPrD4ryo+aLBUVU82M2/8VCbqOtG5
+Hs/5yKJwwhjp5/LovRgsZCDdX0WQ0t15/QO1f7KRxFQGsNUAuLv8ui1w02O03NCu
+xAafsaDpX2bsli7QC2gUfJIzPp5JEOXYp4UQQ4jdWsHQ8Z+vNiFYXvE4Hk5/HmRV
+GoxmqWJFayPqTLLDksg6YV19SZoQkLXwGuWjBl7cIA5cHiDAg0A=
+=jg98
 -----END PGP SIGNATURE-----
 
---pp2gncesjil73pzj--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--x5eavt4rbk2pasnt--
