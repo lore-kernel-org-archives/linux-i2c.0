@@ -1,55 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: rcar: fix some trivial typos in comments
-Date: Wed, 24 Jan 2018 07:17:27 +0100
-Message-ID: <20180124061727.phyq2ra5pj73jmua@ninjato>
-References: <20180121144511.20350-1-wsa+renesas@sang-engineering.com>
+Subject: Re: [PATCH 1/1] i2c: imx-lpi2c: add runtime pm support
+Date: Wed, 24 Jan 2018 07:21:11 +0100
+Message-ID: <20180124062111.vi5zhtkyrdwdjg4z@ninjato>
+References: <1514884312-8535-1-git-send-email-fugang.duan@nxp.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="wf6r4vxwhho2do46"
+        protocol="application/pgp-signature"; boundary="wghir24fq54uruo4"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:53893 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:53911 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752589AbeAXGR3 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 24 Jan 2018 01:17:29 -0500
+        id S1752234AbeAXGVN (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 24 Jan 2018 01:21:13 -0500
 Content-Disposition: inline
-In-Reply-To: <20180121144511.20350-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <1514884312-8535-1-git-send-email-fugang.duan@nxp.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+To: Fugang Duan <fugang.duan@nxp.com>
+Cc: linux-i2c@vger.kernel.org, u.kleine-koenig@pengutronix.de, bhumirks@gmail.com, vz@mleia.com
 
 
---wf6r4vxwhho2do46
+--wghir24fq54uruo4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jan 21, 2018 at 03:45:11PM +0100, Wolfram Sang wrote:
-> Nothing big, but they get annoying after a while ;)
+On Tue, Jan 02, 2018 at 05:11:52PM +0800, Fugang Duan wrote:
+> Add runtime pm support to dynamically manage the clock to avoid enable/di=
+sable
+> clock in frequently that can improve the i2c bus transfer performance.
 >=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> And use pm_runtime_force_suspend/resume() instead of lpi2c_imx_suspend/re=
+sume().
+>=20
+> Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
 
 Applied to for-next, thanks!
 
 
---wf6r4vxwhho2do46
+--wghir24fq54uruo4
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpoJPcACgkQFA3kzBSg
-KbZ4fg//Ul2o4sTIM35fhvk7bXFVMVydegmZhFQK67q15t4jw6r+QxkjGrdeXLC/
-lTX5CK5SN0sXcYsyd13Q7U6nS0nDzHBXsHb5WQeE1FG+euxQMdiepI7IwJkmApuf
-3Jn8O6yoe1Tf09f3NqMKaKjnQRY99cJBtwrW44B0DjtNNVXPgib7QoD4uIcDW7mz
-wSKBJT6ox41cQ61d0Jelj9EaW2H9E+56hcPcJLgunr0WrIcIyBBTDECRWctg7ku0
-Typ8PhtdrDs14BNI7N0tHij8wa488OWnTT1vlkQV4DwzaDD7miU5aLxX2Rmv0d80
-Du4y0/uXZsV2g3zWjhafcoOliG0KjPvpGtr/b7YXvzhZ3riDZqv+8ueHv1jlIpYx
-QZ0TW3jz5eKIVG2UhZNiBpOiV0lw1WFSoHaDOlx5XZume6R1LjkwyeOGHPz3PbrR
-IXGmG1PfuMw2yhuxmosDPLcaCxRKo11LecSo8WHSTxN5/TgSinVt+j/+QiIm+v6z
-2HwnuK6P4cjy/XsERz9+/qFG7mA1zC41QPtXG3pB5F9wzdyvI3mZ/W4bzm2/3uQU
-ETUMfhW42BupxJH8c9/X0oAHa7AtDa+ZUy9fBmmopKc/9GWfS6SEiEJxuFidptOH
-IL409Q5jjB5BXl6CayaHUMExBlA+RN5tXjyZ6Z9Bntb82EObbnk=
-=04UI
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpoJdcACgkQFA3kzBSg
+KbbXBg//Z8LXoKaS/hdkRJJVKIer2nlBb1/yHrVjBBVWNS/TpQf0gqC4CG+uNvJZ
+K+D9M32Z6yogmr8IMsm60Hj+oUaIflW0OzLHbh8/KHsjIfRCMI0XL58alueNhiO+
+Y4Lr8V33nkdJSwsFtYXZEeVLRWeKdtqDV3TGcpjcjTplHu7kpbrLDPlVWrjbN7lu
+2fqDNAQIC68yuYaf8QMpumSWke0WthuQY6sUGL7BM+22+IrDmTq2eKSWixXZJtlp
+9yz6t4SGicGgAZnkLjrk2EbIKxpjdX91jyfXRc2EnsSxvaMOC+P0kSh+Lh8+ZbO7
+D1ycn2SDVzky/uPx+6nb3CEOoksNouCy9Be0rqMIww5H78NmnTQeKxMiXdocZhO+
+XUnpCOaAlAA999LoAe01AcFwyLcibNHMVDWIBH1Y+H+M7IY6WLrqyeSj1h5n7c9A
+oBd9Dni6kswXNnAR3COYiD0ru0oeVoxcVBn+lusdVxrThfX+GKOfNLBONW6na26B
+etiLfBPslkhvPCyCMLFaLncVTqhPBaSlO4XXoHvY8RHF1AZVcN6qWsyHrh6FBagG
+Lqo0lnEg/88ZhqEYLNPCbHGYGECLmT9EzBLaBpHbmHxRUTgc2qYueMR95rO0jKn+
+qR9nGUcH22GkRJXhI01hynK4RwIcP2S86I5CNxEcVVWiJb9WGIE=
+=CtS3
 -----END PGP SIGNATURE-----
 
---wf6r4vxwhho2do46--
+--wghir24fq54uruo4--
