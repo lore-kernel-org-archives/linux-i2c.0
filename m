@@ -1,63 +1,42 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [v2,3/7] soc: qcom: Add GENI based QUP Wrapper driver
-Date: Fri, 26 Jan 2018 11:38:51 -0800
-Message-ID: <CAD=FV=XRvf+LYzrc8FX11dTG5KKbRyp5mTaP-39nC7SgjkZV_w@mail.gmail.com>
-References: <1515805547-22816-4-git-send-email-kramasub@codeaurora.org>
+From: Radu Rendec <rrendec@arista.com>
+Subject: Calling i2c_transfer() from NMI context
+Date: Fri, 26 Jan 2018 19:43:48 +0000
+Message-ID: <1516995828.8854.12.camel@arista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ua0-f195.google.com ([209.85.217.195]:46971 "EHLO
-        mail-ua0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752047AbeAZTiy (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 26 Jan 2018 14:38:54 -0500
-Received: by mail-ua0-f195.google.com with SMTP id j23so993749uak.13
-        for <linux-i2c@vger.kernel.org>; Fri, 26 Jan 2018 11:38:54 -0800 (PST)
-In-Reply-To: <1515805547-22816-4-git-send-email-kramasub@codeaurora.org>
+Received: from mail-wm0-f43.google.com ([74.125.82.43]:55097 "EHLO
+        mail-wm0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752221AbeAZTnv (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 26 Jan 2018 14:43:51 -0500
+Received: by mail-wm0-f43.google.com with SMTP id i186so3387455wmi.4
+        for <linux-i2c@vger.kernel.org>; Fri, 26 Jan 2018 11:43:50 -0800 (PST)
+Received: from rrendec.ire.aristanetworks.com ([217.173.96.166])
+        by smtp.gmail.com with ESMTPSA id s5sm3023358eda.60.2018.01.26.11.43.49
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 26 Jan 2018 11:43:49 -0800 (PST)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jonathan Corbet <corbet@lwn.net>, andy.gross@linaro.org, david.brown@linaro.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa@the-dreams.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, linux-doc@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org, Jiri Slaby <jslaby@suse.com>, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>, evgreen@chromium.org
+To: linux-i2c@vger.kernel.org
 
-Hi,
+Hi i2c developers,
 
-On Fri, Jan 12, 2018 at 5:05 PM, Karthikeyan Ramasubramanian
-<kramasub@codeaurora.org> wrote:
-> This driver manages the Generic Interface (GENI) firmware based Qualcomm
-> Universal Peripheral (QUP) Wrapper. GENI based QUP is the next generation
-> programmable module composed of multiple Serial Engines (SE) and supports
-> a wide range of serial interfaces like UART, SPI, I2C, I3C, etc. This
-> driver also enables managing the serial interface independent aspects of
-> Serial Engines.
->
-> Signed-off-by: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
-> Signed-off-by: Sagar Dharia <sdharia@codeaurora.org>
-> Signed-off-by: Girish Mahadevan <girishm@codeaurora.org>
-> ---
->  drivers/soc/qcom/Kconfig        |    8 +
->  drivers/soc/qcom/Makefile       |    1 +
->  drivers/soc/qcom/qcom-geni-se.c | 1016 +++++++++++++++++++++++++++++++++++++++
->  include/linux/qcom-geni-se.h    |  807 +++++++++++++++++++++++++++++++
->  4 files changed, 1832 insertions(+)
->  create mode 100644 drivers/soc/qcom/qcom-geni-se.c
->  create mode 100644 include/linux/qcom-geni-se.h
->
-> diff --git a/drivers/soc/qcom/Kconfig b/drivers/soc/qcom/Kconfig
-> index b81374b..b306d51 100644
-> --- a/drivers/soc/qcom/Kconfig
-> +++ b/drivers/soc/qcom/Kconfig
-> @@ -3,6 +3,14 @@
->  #
->  menu "Qualcomm SoC drivers"
->
-> +config QCOM_GENI_SE
-> +       tristate "QCOM GENI Serial Engine Driver"
+I have a weird use case where I need to call i2c_transfer() from NMI
+context. The idea is to save some useful information in an i2c flash
+memory before crashing the system (the NMI is triggered by a hardware
+watchdog).
 
-One tiny nit here: maybe it makes sense to add:
+The problem is that i2c_transfer() ends up calling i2c_trylock_bus()
+when in NMI context and the latter is basically just a wrapper around
+rt_mutex_trylock(&adapter->bus_lock), which is not supposed to be
+called from NMI context as per commit 6ce47fd961fa.
 
-depends on ARCH_QCOM
+Since I'm not familiar with the overall i2c subsystem design, I'd like
+to ask if what I'm trying to do is fundamentally wrong or is simply an
+atypical use case that hasn't been considered in the design (and could
+be worked around).
 
-...like all the other stuff in this file?  Otherwise this ends up
-polluting .config files for non-Qualcomm architectures.
-
-
--Doug
+Thanks,
+Radu Rendec
