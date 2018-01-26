@@ -1,67 +1,57 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH v3] ACPI: Force I2C to be selected as a built-in module
-Date: Thu, 25 Jan 2018 09:36:47 -0800
-Message-ID: <30a108bc-c85f-55d9-67c5-586534a987c0@infradead.org>
-References: <1516895011-17588-1-git-send-email-okaya@codeaurora.org>
- <CAJZ5v0h2TOvoNGx5nYU0yVp_GJCxLTStSY=mp2YMbazhfq3x9g@mail.gmail.com>
+From: Andrzej Hajda <a.hajda@samsung.com>
+Subject: Re: [3/3] i2c: exynos5: do not check TRANS_STATUS in case of
+ Exynos7 variant
+Date: Fri, 26 Jan 2018 08:17:24 +0100
+Message-ID: <5e27b754-17fa-3a98-0a99-ba93c16e5c0e@samsung.com>
+References: <20171130143007.30258-4-a.hajda@samsung.com>
+        <CGME20180115205339epcas1p24810c38f964d43cc1b8589d3c3cc3c73@epcas1p2.samsung.com>
+        <20180115205334.6ciwq5pouthtj3kx@ninjato>
+        <bddb6ff4-22cd-9f01-7a63-295b19eaef90@samsung.com>
+        <20180117232307.aigvkl564p4jzms3@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAJZ5v0h2TOvoNGx5nYU0yVp_GJCxLTStSY=mp2YMbazhfq3x9g@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>, Sinan Kaya <okaya@codeaurora.org>
-Cc: ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Timur Tabi <timur@codeaurora.org>, Eric Auger <eric.auger@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, open list <linux-kernel@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mailout1.w1.samsung.com ([210.118.77.11]:50511 "EHLO
+        mailout1.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751679AbeAZHRa (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 26 Jan 2018 02:17:30 -0500
+In-reply-to: <20180117232307.aigvkl564p4jzms3@ninjato>
+Content-language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Andi Shyti <andi.shyti@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/SAMSUNG EXYNOS ARM ARCHITECTURES" <linux-samsung-soc@vger.kernel.org>
 
-On 01/25/2018 08:25 AM, Rafael J. Wysocki wrote:
-> On Thu, Jan 25, 2018 at 4:43 PM, Sinan Kaya <okaya@codeaurora.org> wrote:
->> From: Auger Eric <eric.auger@redhat.com>
->>
->> If I2C is built as a module, ACPI_I2C_OPREGION cannot be set
->> and any ACPI opregion calls targeting I2C fail with no opregion found.
->>
->> Commit da3c6647ee08 ("I2C/ACPI: Clean up I2C ACPI code and Add
->> CONFIG_I2C_ACPI config") says following:
->>
->> "Current there is a race between removing I2C ACPI operation region
->> and ACPI AML code accessing."
->>
->> This patch forces core I2C support to be compiled as a built-in
->> module if ACPI is selected as code is not ready for dynamic module
->> removal.
->>
->> Signed-off-by: Eric Auger <eric.auger@redhat.com>
->> Signed-off-by: Sinan Kaya <okaya@codeaurora.org>
->> ---
->>  drivers/acpi/Kconfig | 2 ++
->>  1 file changed, 2 insertions(+)
->>
->> diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
->> index 4650539..5b48098 100644
->> --- a/drivers/acpi/Kconfig
->> +++ b/drivers/acpi/Kconfig
->> @@ -9,6 +9,8 @@ menuconfig ACPI
->>         depends on IA64 || X86 || ARM64
->>         depends on PCI
->>         select PNP
->> +       # force building I2C in on ACPI systems, for opregion availability
->> +       imply I2C
->>         default y if (IA64 || X86)
->>         help
->>           Advanced Configuration and Power Interface (ACPI) support for
->> --
-> 
-> I'm not sure how much this helps.
-> 
-> I2C opregions will only work if the requisite I2C controller driver is
-> present anyway and this change doesn't guarantee that AFAICS.
-> 
-> OTOH, there are systems using ACPI without I2C opregions, so are we
-> really better off by forcing everybody using ACPI to also build I2C?
+On 18.01.2018 00:23, Wolfram Sang wrote:
+> On Tue, Jan 16, 2018 at 10:40:36AM +0100, Andrzej Hajda wrote:
+>> On 15.01.2018 21:53, Wolfram Sang wrote:
+>>> On Thu, Nov 30, 2017 at 03:30:07PM +0100, Andrzej Hajda wrote:
+>>>> HSI2C_MASTER_ST_LOSE state is not documented properly, extensive tests
+>>>> show that hardware is usually able to recover from this state without
+>>>> interrupting the transfer. On the other side enforcing transfer repetition
+>>>> in such case does not help in many situations, especially on busy systems
+>>>> and causes -EAGAIN and -ETIMEOUT errors. Moreover documentation says that
+>>>> such state can be caused by slave clock stretching, and should not be treated
+>>>> as an error.
+>>>>
+>>>> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+>>> Can this be applied independently of my comments to patch 2?
+>>>
+>> Yes, please apply it alone. I will continue work on patch 2.
+> I just thought it might be nice to have a comment where you removed the
+> code summarizing your findings. So we will remember about this in the
+> future. Makes sense?
+>
+Forgive me delayed response - holiday.
 
-Definitely not.
+The code removed was something extra, so I am not sure if it is
+necessary to add comment to the code, git log should be enough.
 
--- 
-~Randy
+Anyway I will post patches dealing with HSI2C_MASTER_ST_LOSE on
+transaction start very soon, so I can add relevant comment there.
+
+
+Regards
+
+Andrzej
