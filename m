@@ -1,151 +1,140 @@
-From: =?UTF-8?Q?Johannes_P=c3=b6hlmann?= <johannes.poehlmann@izt-labs.de>
-Subject: Model is M24M01-D* ( was [PATCH alpha] eeprom: at24: new DT property
- "address-width")
-Date: Fri, 26 Jan 2018 11:13:07 +0100
-Message-ID: <7c3a9b70-a04b-464e-2632-b0d757f780e1@izt-labs.de>
-References: <20180125134016.GA21654@ppcx2.izt.loc>
- <CAMRc=MdvhkZaMnR_G8UERdRgDa_8GchrrVUgwEE04aMMHtBOAw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.izt-labs.de ([82.135.25.162]:59750 "EHLO mail.izt-labs.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751738AbeAZKNS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 26 Jan 2018 05:13:18 -0500
-In-Reply-To: <CAMRc=MdvhkZaMnR_G8UERdRgDa_8GchrrVUgwEE04aMMHtBOAw@mail.gmail.com>
-Content-Language: de-DE
-Sender: linux-i2c-owner@vger.kernel.org
+From: Andrzej Hajda <a.hajda@samsung.com>
+Subject: [PATCH] i2c: exynos5: rework HSI2C_MASTER_ST_LOSE state handling
+Date: Fri, 26 Jan 2018 13:09:50 +0100
+Message-ID: <20180126120950.9934-1-a.hajda@samsung.com>
+References: <CGME20180126121001eucas1p2931738af133ad3e5bf1cd824058ba8d0@eucas1p2.samsung.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Andi Shyti <andi.shyti@samsung.com>
+Cc: Andrzej Hajda <a.hajda@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/SAMSUNG EXYNOS
+        ARM ARCHITECTURES" <linux-samsung-soc@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>
 
-Am 25.01.2018 um 17:07 schrieb Bartosz Golaszewski:
-> 2018-01-25 14:40 GMT+01:00 Johannes Poehlmann <johannes.poehlmann@izt-labs.de>:
->> Hi Bartosz,
->>
->> The patch was build against recent linus master
->>    commit 5b7d27967dabfb17c21b0d98b29153b9e3ee71e5
->>    Merge: f165495 624ca9c
->>    Author: Linus Torvalds <torvalds@linux-foundation.org>
->>    Date:   Wed Jan 24 17:24:30 2018 -0800
->>
->> checkpatch.pl run to 0 Errors
->> tested on powerpc 32bit
->>
->> Any recommendations/comments ?
->>
->>
->> -------------------------------------------------------------------
->>
->> Signed-off-by: Johannes Poehlmann <johannes.poehlmann@izt-labs.de>
->>
->> needed with some eeprom chips
->> modelled after at25
->> ---
->>  .../devicetree/bindings/eeprom/eeprom.txt          |  3 +++
->>  drivers/misc/eeprom/at24.c                         | 24 ++++++++++++++++++++--
->>  2 files changed, 25 insertions(+), 2 deletions(-)
->>
->> diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt b/Documentation/devicetree/bindings/eeprom/eeprom.txt
->> index 27f2bc1..8f3293c 100644
->> --- a/Documentation/devicetree/bindings/eeprom/eeprom.txt
->> +++ b/Documentation/devicetree/bindings/eeprom/eeprom.txt
->> @@ -38,10 +38,13 @@ Optional properties:
->>
->>    - size: total eeprom size in bytes
->>
->> +  - address-width : number of address bits (8 or 16)
->> +
->>  Example:
->>
->>  eeprom@52 {
->>         compatible = "atmel,24c32";
->>         reg = <0x52>;
->>         pagesize = <32>;
->> +       address-width = <16>;
->>  };
->> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
->> index 4d63ac8..2a6d476 100644
->> --- a/drivers/misc/eeprom/at24.c
->> +++ b/drivers/misc/eeprom/at24.c
->> @@ -651,11 +651,27 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
->>         return 0;
->>  }
->>
->> -static void at24_get_pdata(struct device *dev, struct at24_platform_data *chip)
->> +static int at24_get_pdata(struct device *dev, struct at24_platform_data *chip)
->>  {
->>         int err;
->>         u32 val;
->>
->> +       if (device_property_read_u32(dev, "address-width", &val) == 0) {
->> +               switch (val) {
->> +               case 8:
->> +                       chip->flags &= ~AT24_FLAG_ADDR16;
->> +                       break;
->> +               case 16:
->> +                       chip->flags |= AT24_FLAG_ADDR16;
->> +                       break;
->> +               default:
->> +                       dev_err(dev,
->> +                               "Error: bad \"address-width\" property: %u\n",
->> +                               val);
->> +                       return -ENODEV;
->> +               }
->> +       }
->> +
->>         if (device_property_present(dev, "read-only"))
->>                 chip->flags |= AT24_FLAG_READONLY;
->>
->> @@ -674,6 +690,7 @@ static void at24_get_pdata(struct device *dev, struct at24_platform_data *chip)
->>                  */
->>                 chip->page_size = 1;
->>         }
->> +       return 0;
->>  }
->>
->>  static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->> @@ -716,7 +733,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
->>                 magic >>= AT24_SIZE_BYTELEN;
->>                 chip.flags = magic & AT24_BITMASK(AT24_SIZE_FLAGS);
->>
->> -               at24_get_pdata(&client->dev, &chip);
->> +               err = at24_get_pdata(&client->dev, &chip);
->> +               if (err)
->> +                       return err;
->> +
->>
->>                 chip.setup = NULL;
->>                 chip.context = NULL;
->> --
->> 2.1.4
->>
-> 
-> What EEPROM model do you need that for? Is it not covered by all the
-> standard types we already support in the driver?
-> 
-> Thanks,
-> Bartosz
-> 
-Hi Bartosz,
+HSI2C_MASTER_ST_LOSE state is not documented properly, extensive tests
+show that hardware is usually able to recover from this state without
+interrupting the transfer. Moreover documentation says that
+such state can be caused by slave clock stretching, and should not be
+treated as an error during transaction. The only place it indicates
+an error is just before starting transaction. In such case bus recovery
+procedure should be performed - master should pulse SCL line nine times
+and then send STOP condition, it can be repeated until SDA goes high.
+The procedure can be performed using manual commands HSI2C_CMD_READ_DATA
+and HSI2C_CMD_SEND_STOP.
 
-I need this for a M24M01-D* eeprom.
-(http://www.st.com/content/ccc/resource/technical/document/datasheet/group0/cb/91/ba/7d/0b/c1/4d/f6/CD00147128/files/CD00147128.pdf/jcr:content/translations/en.CD00147128.pdf)
+Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+---
+Hi Wolfram,
 
-It is 1 Mbit sized and has 2 byte addresses.
+This patch integrates and invalidates my previous patches [1][2].
+I hope inline comments are sufficient.
 
-Under another I2C address it offers a additional write lockable page 
-of 256 Byte, but with _2 byte addresses_. I could not correctly read 
-this "second eeprom" with one of the standard eeprom at24* models. 
+[1]: i2c: exynos5: implement bus recovery functionality
+[2]: i2c: exynos5: do not check TRANS_STATUS in case of Exynos7 variant
 
-With the patch and using a device tree entry of 
-			compatible = "at,24c02";
-			address-width = <16>;
- 			reg = <0x5C>; 
- 			pagesize = <256>; 
-gave me a 256 Byte "eeprom" file in sysfs with no errors.
- 
 Regards
+Andrzej
 
-Johannes
+ drivers/i2c/busses/i2c-exynos5.c | 67 ++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 61 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+index b02428498f6d..8dcc36835a1a 100644
+--- a/drivers/i2c/busses/i2c-exynos5.c
++++ b/drivers/i2c/busses/i2c-exynos5.c
+@@ -128,6 +128,10 @@
+ #define HSI2C_TIMEOUT_EN			(1u << 31)
+ #define HSI2C_TIMEOUT_MASK			0xff
+ 
++/* I2C_MANUAL_CMD register bits */
++#define HSI2C_CMD_READ_DATA			(1u << 4)
++#define HSI2C_CMD_SEND_STOP			(1u << 2)
++
+ /* I2C_TRANS_STATUS register bits */
+ #define HSI2C_MASTER_BUSY			(1u << 17)
+ #define HSI2C_SLAVE_BUSY			(1u << 16)
+@@ -441,12 +445,6 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
+ 			i2c->state = -ETIMEDOUT;
+ 			goto stop;
+ 		}
+-
+-		trans_status = readl(i2c->regs + HSI2C_TRANS_STATUS);
+-		if ((trans_status & HSI2C_MASTER_ST_MASK) == HSI2C_MASTER_ST_LOSE) {
+-			i2c->state = -EAGAIN;
+-			goto stop;
+-		}
+ 	} else if (int_status & HSI2C_INT_I2C) {
+ 		trans_status = readl(i2c->regs + HSI2C_TRANS_STATUS);
+ 		if (trans_status & HSI2C_NO_DEV_ACK) {
+@@ -544,6 +542,61 @@ static int exynos5_i2c_wait_bus_idle(struct exynos5_i2c *i2c)
+ 	return -EBUSY;
+ }
+ 
++static void exynos5_i2c_bus_recover(struct exynos5_i2c *i2c)
++{
++	u32 val;
++
++	dev_dbg(i2c->dev, "%s: start\n", __func__);
++
++	val = readl(i2c->regs + HSI2C_CTL) | HSI2C_RXCHON;
++	writel(val, i2c->regs + HSI2C_CTL);
++	val = readl(i2c->regs + HSI2C_CONF) & ~HSI2C_AUTO_MODE;
++	writel(val, i2c->regs + HSI2C_CONF);
++
++	/*
++	 * Specification says master should send nine clock pulses. It can be
++	 * emulated by sending manual read command (nine pulses for read eight
++	 * bits + one pulse for NACK).
++	 */
++	writel(HSI2C_CMD_READ_DATA, i2c->regs + HSI2C_MANUAL_CMD);
++	exynos5_i2c_wait_bus_idle(i2c);
++	writel(HSI2C_CMD_SEND_STOP, i2c->regs + HSI2C_MANUAL_CMD);
++	exynos5_i2c_wait_bus_idle(i2c);
++
++	val = readl(i2c->regs + HSI2C_CTL) & ~HSI2C_RXCHON;
++	writel(val, i2c->regs + HSI2C_CTL);
++	val = readl(i2c->regs + HSI2C_CONF) | HSI2C_AUTO_MODE;
++	writel(val, i2c->regs + HSI2C_CONF);
++
++	dev_dbg(i2c->dev, "%s: end\n", __func__);
++}
++
++static void exynos5_i2c_bus_check(struct exynos5_i2c *i2c)
++{
++	unsigned long timeout;
++
++	if (i2c->variant->hw != HSI2C_EXYNOS7)
++		return;
++
++	/*
++	 * HSI2C_MASTER_ST_LOSE state in EXYNOS7 variant before transaction
++	 * indicates that bus is stuck (SDA is low). In such case bus recovery
++	 * can be performed.
++	 */
++	timeout = jiffies + msecs_to_jiffies(100);
++	for (;;) {
++		u32 st = readl(i2c->regs + HSI2C_TRANS_STATUS);
++
++		if ((st & HSI2C_MASTER_ST_MASK) != HSI2C_MASTER_ST_LOSE)
++			return;
++
++		if (time_is_before_jiffies(timeout))
++			return;
++
++		exynos5_i2c_bus_recover(i2c);
++	}
++}
++
+ /*
+  * exynos5_i2c_message_start: Configures the bus and starts the xfer
+  * i2c: struct exynos5_i2c pointer for the current bus
+@@ -598,6 +651,8 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
+ 	writel(fifo_ctl, i2c->regs + HSI2C_FIFO_CTL);
+ 	writel(i2c_ctl, i2c->regs + HSI2C_CTL);
+ 
++	exynos5_i2c_bus_check(i2c);
++
+ 	/*
+ 	 * Enable interrupts before starting the transfer so that we don't
+ 	 * miss any INT_I2C interrupts.
+-- 
+2.15.1
