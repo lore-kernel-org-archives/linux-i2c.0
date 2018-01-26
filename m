@@ -1,76 +1,151 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [3/3] i2c: exynos5: do not check TRANS_STATUS in case of Exynos7
- variant
-Date: Fri, 26 Jan 2018 10:30:31 +0100
-Message-ID: <20180126093030.4uhpnpyzz3hccptz@katana>
-References: <20171130143007.30258-4-a.hajda@samsung.com>
- <CGME20180115205339epcas1p24810c38f964d43cc1b8589d3c3cc3c73@epcas1p2.samsung.com>
- <20180115205334.6ciwq5pouthtj3kx@ninjato>
- <bddb6ff4-22cd-9f01-7a63-295b19eaef90@samsung.com>
- <20180117232307.aigvkl564p4jzms3@ninjato>
- <5e27b754-17fa-3a98-0a99-ba93c16e5c0e@samsung.com>
+From: =?UTF-8?Q?Johannes_P=c3=b6hlmann?= <johannes.poehlmann@izt-labs.de>
+Subject: Model is M24M01-D* ( was [PATCH alpha] eeprom: at24: new DT property
+ "address-width")
+Date: Fri, 26 Jan 2018 11:13:07 +0100
+Message-ID: <7c3a9b70-a04b-464e-2632-b0d757f780e1@izt-labs.de>
+References: <20180125134016.GA21654@ppcx2.izt.loc>
+ <CAMRc=MdvhkZaMnR_G8UERdRgDa_8GchrrVUgwEE04aMMHtBOAw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="474z2ib753a27p5g"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:54550 "EHLO mail.zeus03.de"
+Received: from mail.izt-labs.de ([82.135.25.162]:59750 "EHLO mail.izt-labs.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752643AbeAZJae (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 26 Jan 2018 04:30:34 -0500
-Content-Disposition: inline
-In-Reply-To: <5e27b754-17fa-3a98-0a99-ba93c16e5c0e@samsung.com>
+        id S1751738AbeAZKNS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 26 Jan 2018 05:13:18 -0500
+In-Reply-To: <CAMRc=MdvhkZaMnR_G8UERdRgDa_8GchrrVUgwEE04aMMHtBOAw@mail.gmail.com>
+Content-Language: de-DE
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andrzej Hajda <a.hajda@samsung.com>
-Cc: Andi Shyti <andi.shyti@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/SAMSUNG EXYNOS ARM ARCHITECTURES" <linux-samsung-soc@vger.kernel.org>
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>
 
+Am 25.01.2018 um 17:07 schrieb Bartosz Golaszewski:
+> 2018-01-25 14:40 GMT+01:00 Johannes Poehlmann <johannes.poehlmann@izt-labs.de>:
+>> Hi Bartosz,
+>>
+>> The patch was build against recent linus master
+>>    commit 5b7d27967dabfb17c21b0d98b29153b9e3ee71e5
+>>    Merge: f165495 624ca9c
+>>    Author: Linus Torvalds <torvalds@linux-foundation.org>
+>>    Date:   Wed Jan 24 17:24:30 2018 -0800
+>>
+>> checkpatch.pl run to 0 Errors
+>> tested on powerpc 32bit
+>>
+>> Any recommendations/comments ?
+>>
+>>
+>> -------------------------------------------------------------------
+>>
+>> Signed-off-by: Johannes Poehlmann <johannes.poehlmann@izt-labs.de>
+>>
+>> needed with some eeprom chips
+>> modelled after at25
+>> ---
+>>  .../devicetree/bindings/eeprom/eeprom.txt          |  3 +++
+>>  drivers/misc/eeprom/at24.c                         | 24 ++++++++++++++++++++--
+>>  2 files changed, 25 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt b/Documentation/devicetree/bindings/eeprom/eeprom.txt
+>> index 27f2bc1..8f3293c 100644
+>> --- a/Documentation/devicetree/bindings/eeprom/eeprom.txt
+>> +++ b/Documentation/devicetree/bindings/eeprom/eeprom.txt
+>> @@ -38,10 +38,13 @@ Optional properties:
+>>
+>>    - size: total eeprom size in bytes
+>>
+>> +  - address-width : number of address bits (8 or 16)
+>> +
+>>  Example:
+>>
+>>  eeprom@52 {
+>>         compatible = "atmel,24c32";
+>>         reg = <0x52>;
+>>         pagesize = <32>;
+>> +       address-width = <16>;
+>>  };
+>> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+>> index 4d63ac8..2a6d476 100644
+>> --- a/drivers/misc/eeprom/at24.c
+>> +++ b/drivers/misc/eeprom/at24.c
+>> @@ -651,11 +651,27 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
+>>         return 0;
+>>  }
+>>
+>> -static void at24_get_pdata(struct device *dev, struct at24_platform_data *chip)
+>> +static int at24_get_pdata(struct device *dev, struct at24_platform_data *chip)
+>>  {
+>>         int err;
+>>         u32 val;
+>>
+>> +       if (device_property_read_u32(dev, "address-width", &val) == 0) {
+>> +               switch (val) {
+>> +               case 8:
+>> +                       chip->flags &= ~AT24_FLAG_ADDR16;
+>> +                       break;
+>> +               case 16:
+>> +                       chip->flags |= AT24_FLAG_ADDR16;
+>> +                       break;
+>> +               default:
+>> +                       dev_err(dev,
+>> +                               "Error: bad \"address-width\" property: %u\n",
+>> +                               val);
+>> +                       return -ENODEV;
+>> +               }
+>> +       }
+>> +
+>>         if (device_property_present(dev, "read-only"))
+>>                 chip->flags |= AT24_FLAG_READONLY;
+>>
+>> @@ -674,6 +690,7 @@ static void at24_get_pdata(struct device *dev, struct at24_platform_data *chip)
+>>                  */
+>>                 chip->page_size = 1;
+>>         }
+>> +       return 0;
+>>  }
+>>
+>>  static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>> @@ -716,7 +733,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>>                 magic >>= AT24_SIZE_BYTELEN;
+>>                 chip.flags = magic & AT24_BITMASK(AT24_SIZE_FLAGS);
+>>
+>> -               at24_get_pdata(&client->dev, &chip);
+>> +               err = at24_get_pdata(&client->dev, &chip);
+>> +               if (err)
+>> +                       return err;
+>> +
+>>
+>>                 chip.setup = NULL;
+>>                 chip.context = NULL;
+>> --
+>> 2.1.4
+>>
+> 
+> What EEPROM model do you need that for? Is it not covered by all the
+> standard types we already support in the driver?
+> 
+> Thanks,
+> Bartosz
+> 
+Hi Bartosz,
 
---474z2ib753a27p5g
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I need this for a M24M01-D* eeprom.
+(http://www.st.com/content/ccc/resource/technical/document/datasheet/group0/cb/91/ba/7d/0b/c1/4d/f6/CD00147128/files/CD00147128.pdf/jcr:content/translations/en.CD00147128.pdf)
 
-Hi Andrzej,
+It is 1 Mbit sized and has 2 byte addresses.
 
-> Forgive me delayed response - holiday.
+Under another I2C address it offers a additional write lockable page 
+of 256 Byte, but with _2 byte addresses_. I could not correctly read 
+this "second eeprom" with one of the standard eeprom at24* models. 
 
-No worries!
+With the patch and using a device tree entry of 
+			compatible = "at,24c02";
+			address-width = <16>;
+ 			reg = <0x5C>; 
+ 			pagesize = <256>; 
+gave me a 256 Byte "eeprom" file in sysfs with no errors.
+ 
+Regards
 
-> The code removed was something extra, so I am not sure if it is
-> necessary to add comment to the code, git log should be enough.
-
-If somebody later discovers this "new bit" and implements support for
-it, I am not sure this person will check git log to see if there has
-ever been support added and later removed. Also, it helps me reviewing
-when gory details are explicitly mentioned in the code.
-
-> Anyway I will post patches dealing with HSI2C_MASTER_ST_LOSE on
-> transaction start very soon, so I can add relevant comment there.
-
-Please do.
-
-Kind regards,
-
-   Wolfram
-
-
---474z2ib753a27p5g
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpq9TEACgkQFA3kzBSg
-KbY2/w//ZMZgTwzU0oWuUTGHHC2qyXPwutKa/0HOfizEnPFeE8dfyA0C21d1jv4N
-MHMLVBZvfI9UpmtggbhJYLxV8JhENuFeeascQxqZLIeq3v1zuL1yJEbuvhzrclBC
-Voq9m2HQ8nvt+MeW/jfDB2sB/F/eK4FKoSSAqXoWubl4dCLHbQ00oVZ4JGJ9uRob
-r+v6WUmGlhBIemnuW45ymQdxFHL6nU+YKWHOsKPo81HI7yjBQAT+ZlngtMu42uas
-S1HNDjMpmaSTZxaSIUG7ikE+9hpBCoqZGddp2gKfAs/e2wyM9R9J1rgJPFQIBJ5+
-10amyIYQymrBLrKkzXZThR3aVxsH9r8t/eU/r8XLIXSMjZ9fA46e7vMeAZX6YNMs
-jQqoJTIdmkgQH/1IEs1fghecBGaxXtV5voTyDz7VZ48lYSZ3pg6B8rKlh0JLXLo2
-no+7UZQqE1rZs9nYP4iM4Gqp5AC2lLLwoE6F3eZEm2LhmCYXlcPgAA0B9nKuqBZx
-KyfRr3F2XWgdHrxjrcwAOSsD/9/mBkc69yPzv+6KMPtCFDM+3e7l0KnRG0b+MoYw
-9EB8DzityqimBL1wso59aeRvDNlNYMbiV5JVQFNSxYl8uSU41aFy/i26i+EbFhma
-4C4/dkFq+8oMijnJe8Y5dcXjG6s68d7WFoo8N/LF0Fv4ApdqKdI=
-=2GQX
------END PGP SIGNATURE-----
-
---474z2ib753a27p5g--
+Johannes
