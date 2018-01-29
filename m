@@ -1,58 +1,99 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: Re: Patch proposal for risky i2c addresses in i2c-tools
-Date: Mon, 29 Jan 2018 14:39:37 +0100
-Message-ID: <41030382-9a57-81bb-d7da-f7c853817dc1@axentia.se>
+Subject: Re: [PATCH v2 2/3] Update help message for risky_addr option
+Date: Mon, 29 Jan 2018 14:45:40 +0100
+Message-ID: <c16bd2a4-f4bf-43ec-5429-5b01966b1e4c@axentia.se>
 References: <20180105150248.3170-1-romain.porte@nokia.com>
- <20180126180330.3ep65ongfdgffbmu@ninjato>
- <f81d1aa9-39c0-20d9-c4a4-4a00fd9b891f@nokia.com>
+ <20180129124010.4044-1-romain.porte@nokia.com>
+ <20180129124010.4044-3-romain.porte@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-db5eur01on0124.outbound.protection.outlook.com ([104.47.2.124]:45281
+Received: from mail-db5eur01on0101.outbound.protection.outlook.com ([104.47.2.101]:2092
         "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751909AbeA2Njs (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 29 Jan 2018 08:39:48 -0500
-In-Reply-To: <f81d1aa9-39c0-20d9-c4a4-4a00fd9b891f@nokia.com>
+        id S1751298AbeA2Nps (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 29 Jan 2018 08:45:48 -0500
+In-Reply-To: <20180129124010.4044-3-romain.porte@nokia.com>
 Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Romain Porte <romain.porte@nokia.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, jdelvare@suse.de
+To: Romain Porte <romain.porte@nokia.com>, wsa@the-dreams.de
+Cc: jdelvare@suse.de, linux-i2c@vger.kernel.org
 
-On 2018-01-29 13:26, Romain Porte wrote:
-> Hello Wolfram,
+On 2018-01-29 13:40, Romain Porte wrote:
+> Add [-a] option to short help message of i2c tools. This is the option
+> that the user needs to activate for using the risky_addr feature.
 > 
-> On 26/01/2018 19:03, Wolfram Sang wrote:
->> This handles only part of the risky addresses. I once worked on a device
->> having an EEPROM using 32(!) addresses in the range from 0x00(!!)-0x1f.
->> And yes, because it was the only device on the bus, that actually worked.
->>
->> So, the lower boundary should also be removed IMO.
+> Signed-off-by: Romain Porte <romain.porte@nokia.com>
+> ---
+>  tools/i2cdump.c     | 2 +-
+>  tools/i2cget.c      | 2 +-
+>  tools/i2cset.c      | 2 +-
+>  tools/i2ctransfer.c | 2 +-
+>  4 files changed, 4 insertions(+), 4 deletions(-)
 > 
-> Good to know, I will send a new patchset which takes the lower bound 
-> into account.
-> 
->> And I'd much prefer a flag like 'R' which represents 'risky' better.
-> 
-> I disagree here, the i2cdetect program is already using the '-a' option 
-> for scanning risky addresses. I think we should keep consistency between 
-> options and keep this option named '-a' for the other tools. As per 
-> i2cdetect's man page:
-> 
-> -a    Force scanning of non-regular addresses. Not recommended
+> diff --git a/tools/i2cdump.c b/tools/i2cdump.c
+> index be0d93f..733edaa 100644
+> --- a/tools/i2cdump.c
+> +++ b/tools/i2cdump.c
+> @@ -36,7 +36,7 @@
+>  static void help(void)
+>  {
+>  	fprintf(stderr,
+> -		"Usage: i2cdump [-f] [-y] [-r first-last] I2CBUS ADDRESS [MODE [BANK [BANKREG]]]\n"
+> +		"Usage: i2cdump [-f] [-y] [-r first-last] [-a] I2CBUS ADDRESS [MODE [BANK [BANKREG]]]\n"
+>  		"  I2CBUS is an integer or an I2C bus name\n"
+>  		"  ADDRESS is an integer (0x03 - 0x77)\n"
 
-However, you could rename the variables and rewrite the docs to put
-more emphasis on "all" rather than "risky". Then it would be easier
-to remember the short option.
+This is no longer entirely true; you might want to squeeze in something
+about -a here. E.g.
 
-$.02
+		"  ADDRESS is an integer (0x03 - 0x77, or 0x00 - 0x7f if -a is given)\n"
+
+And below for the other instances of course...
 
 Cheers,
 Peter
 
-> Best regards,
-> 
-> Romain.
+>  		"  MODE is one of:\n"
+> diff --git a/tools/i2cget.c b/tools/i2cget.c
+> index acc5236..6660991 100644
+> --- a/tools/i2cget.c
+> +++ b/tools/i2cget.c
+> @@ -41,7 +41,7 @@ static void help(void) __attribute__ ((noreturn));
+>  static void help(void)
+>  {
+>  	fprintf(stderr,
+> -		"Usage: i2cget [-f] [-y] I2CBUS CHIP-ADDRESS [DATA-ADDRESS [MODE]]\n"
+> +		"Usage: i2cget [-f] [-y] [-a] I2CBUS CHIP-ADDRESS [DATA-ADDRESS [MODE]]\n"
+>  		"  I2CBUS is an integer or an I2C bus name\n"
+>  		"  ADDRESS is an integer (0x03 - 0x77)\n"
+>  		"  MODE is one of:\n"
+> diff --git a/tools/i2cset.c b/tools/i2cset.c
+> index 87c8cf3..5c3d6d7 100644
+> --- a/tools/i2cset.c
+> +++ b/tools/i2cset.c
+> @@ -38,7 +38,7 @@ static void help(void) __attribute__ ((noreturn));
+>  static void help(void)
+>  {
+>  	fprintf(stderr,
+> -		"Usage: i2cset [-f] [-y] [-m MASK] [-r] I2CBUS CHIP-ADDRESS DATA-ADDRESS [VALUE] ... [MODE]\n"
+> +		"Usage: i2cset [-f] [-y] [-m MASK] [-r] [-a] I2CBUS CHIP-ADDRESS DATA-ADDRESS [VALUE] ... [MODE]\n"
+>  		"  I2CBUS is an integer or an I2C bus name\n"
+>  		"  ADDRESS is an integer (0x03 - 0x77)\n"
+>  		"  MODE is one of:\n"
+> diff --git a/tools/i2ctransfer.c b/tools/i2ctransfer.c
+> index e6e9f0a..256fca7 100644
+> --- a/tools/i2ctransfer.c
+> +++ b/tools/i2ctransfer.c
+> @@ -42,7 +42,7 @@ enum parse_state {
+>  static void help(void)
+>  {
+>  	fprintf(stderr,
+> -		"Usage: i2ctransfer [-f] [-y] [-v] [-V] I2CBUS DESC [DATA] [DESC [DATA]]...\n"
+> +		"Usage: i2ctransfer [-f] [-y] [-v] [-V] [-a] I2CBUS DESC [DATA] [DESC [DATA]]...\n"
+>  		"  I2CBUS is an integer or an I2C bus name\n"
+>  		"  DESC describes the transfer in the form: {r|w}LENGTH[@address]\n"
+>  		"    1) read/write-flag 2) LENGTH (range 0-65535) 3) I2C address (use last one if omitted)\n"
 > 
