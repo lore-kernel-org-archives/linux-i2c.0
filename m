@@ -1,7 +1,7 @@
 From: Andrew Cooks <andrew.cooks@opengear.com>
-Subject: [PATCH 3/3] i2c: add ACPI support for i2c-piix4
-Date: Mon, 29 Jan 2018 13:54:20 +1000
-Message-ID: <f6b7e8e5dc31d294c08d1c218b59e1afce820b37.1517195327.git.andrew.cooks@opengear.com>
+Subject: [PATCH 2/3] i2c: piix4: fix number of ports on Family 16h Model 30h
+Date: Mon, 29 Jan 2018 13:54:19 +1000
+Message-ID: <93dea47498cbd29e9d37edd234122cd49252374c.1517195327.git.andrew.cooks@opengear.com>
 References: <cover.1517195327.git.andrew.cooks@opengear.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -13,43 +13,91 @@ To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, "open li
 Cc: Andrew Cooks <andrew.cooks@opengear.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This enables the i2c-piix4 SMBus controller driver to enumerate I2C
-slave devices using ACPI. It builds on the related I2C mux device work
-in commit 8eb5c87a92c0 ("i2c: add ACPI support for I2C mux ports")
+Prevent bus timeouts and resets on Family 16h Model 30h), by not
+probing reserved Ports 3 and 4.
 
-In the i2c-piix4 driver the adapters are enumerated as:
- Main SMBus adapter Port 0, Port 2, ..., aux port (i.e., ASF adapter)
-
-However, in the AMD BKDG documentation[1], the implied order of ports is:
- Main SMBus adapter Port 0, ASF adapter, Port 2, Port 3, ...
-
-This ordering difference is unfortunate, and we assume that ACPI
-developers will use the Linux ordering.
-
-[1] 52740 BIOS and Kernel Developer's Guide (BKDG) for AMD Family 16h
-Models 30h-3Fh Processors
+According to the AMD BIOS and Kernel Developer's Guides (BKDG), Port 3
+and Port 4 are reserved on the following devices:
+ - Family 15h Model 60h-6Fh,
+ - Family 15h Model 70h-7Fh,
+ - Family 16h Models 30h-3Fh,
 
 Signed-off-by: Andrew Cooks <andrew.cooks@opengear.com>
 ---
- drivers/i2c/busses/i2c-piix4.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/i2c/busses/i2c-piix4.c | 31 ++++++++++++++++++++++---------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 9763241..97eb6ae 100644
+index 89692f4..9763241 100644
 --- a/drivers/i2c/busses/i2c-piix4.c
 +++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -843,6 +843,12 @@ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
- 	/* set up the sysfs linkage to our parent device */
- 	adap->dev.parent = &dev->dev;
+@@ -82,6 +82,13 @@
+ /* Multi-port constants */
+ #define PIIX4_MAX_ADAPTERS 4
  
-+	if (has_acpi_companion(&dev->dev)) {
-+		acpi_preset_companion(&adap->dev,
-+				      ACPI_COMPANION(&dev->dev),
-+				      piix4_adapter_count++);
++/*
++ * Main adapter port count. At least one (Port 0) plus up to 3 additional
++ * (Ports 2-4)
++ */
++#define SB800_MAIN_PORTS 4
++#define HUDSON2_MAIN_PORTS 2 /* HUDSON2, reserves Port 3 and Port 4 */
++
+ /* SB800 constants */
+ #define SB800_PIIX4_SMB_IDX		0xcd6
+ 
+@@ -800,6 +807,7 @@ MODULE_DEVICE_TABLE (pci, piix4_ids);
+ 
+ static struct i2c_adapter *piix4_main_adapters[PIIX4_MAX_ADAPTERS];
+ static struct i2c_adapter *piix4_aux_adapter;
++static int piix4_adapter_count;
+ 
+ static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
+ 			     bool sb800_main, u8 port, bool notify_imc,
+@@ -856,10 +864,17 @@ static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba,
+ 				    bool notify_imc)
+ {
+ 	struct i2c_piix4_adapdata *adapdata;
+-	int port;
++	int port, port_count;
+ 	int retval;
+ 
+-	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
++	if (dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS ||
++	    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
++		port_count = HUDSON2_MAIN_PORTS;
++	} else {
++		port_count = SB800_MAIN_PORTS;
 +	}
 +
- 	snprintf(adap->name, sizeof(adap->name),
- 		"SMBus PIIX4 adapter%s at %04x", name, smba);
++	for (port = 0; port < port_count; port++) {
+ 		retval = piix4_add_adapter(dev, smba, true, port, notify_imc,
+ 					   piix4_main_port_names_sb800[port],
+ 					   &piix4_main_adapters[port]);
+@@ -872,7 +887,7 @@ static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba,
+ error:
+ 	dev_err(&dev->dev,
+ 		"Error setting up SB800 adapters. Unregistering!\n");
+-	while (--port >= 0) {
++	while (--piix4_adapter_count >= 0) {
+ 		adapdata = i2c_get_adapdata(piix4_main_adapters[port]);
+ 		if (adapdata->smba) {
+ 			i2c_del_adapter(piix4_main_adapters[port]);
+@@ -993,12 +1008,10 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
+ 
+ static void piix4_remove(struct pci_dev *dev)
+ {
+-	int port = PIIX4_MAX_ADAPTERS;
+-
+-	while (--port >= 0) {
+-		if (piix4_main_adapters[port]) {
+-			piix4_adap_remove(piix4_main_adapters[port]);
+-			piix4_main_adapters[port] = NULL;
++	while (--piix4_adapter_count >= 0) {
++		if (piix4_main_adapters[piix4_adapter_count]) {
++			piix4_adap_remove(piix4_main_adapters[piix4_adapter_count]);
++			piix4_main_adapters[piix4_adapter_count] = NULL;
+ 		}
+ 	}
  
 -- 
 2.7.4
