@@ -1,45 +1,33 @@
 From: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
-Subject: [PATCH v2 5/5] dt-bindings: at24: add bindings for Rohm BR24T01
-Date: Mon, 29 Jan 2018 16:45:48 +0100
-Message-ID: <1517240748-14780-6-git-send-email-ulrich.hecht+renesas@gmail.com>
-References: <1517240748-14780-1-git-send-email-ulrich.hecht+renesas@gmail.com>
+Subject: Re: [PATCH 5/6] arm64: renesas: draak: enable I2C controller 1
+Date: Mon, 29 Jan 2018 16:46:52 +0100
+Message-ID: <CAO3366w0GA+MsL-vyUsDtVAhNnHuX9zEy2KaZxQh_YQ4uJsL0Q@mail.gmail.com>
+References: <1510759526-30346-1-git-send-email-ulrich.hecht+renesas@gmail.com>
+ <1510759526-30346-6-git-send-email-ulrich.hecht+renesas@gmail.com> <CAMuHMdX1iitObng0nvhmP4r5yb1CnqBwbchu6qDQLtqjPLbDQg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:38833 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751412AbeA2PqO (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Jan 2018 10:46:14 -0500
-In-Reply-To: <1517240748-14780-1-git-send-email-ulrich.hecht+renesas@gmail.com>
+Received: from mail-oi0-f47.google.com ([209.85.218.47]:35557 "EHLO
+        mail-oi0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751378AbeA2Pqy (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Jan 2018 10:46:54 -0500
+In-Reply-To: <CAMuHMdX1iitObng0nvhmP4r5yb1CnqBwbchu6qDQLtqjPLbDQg@mail.gmail.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-renesas-soc@vger.kernel.org, horms@verge.net.au, geert@linux-m68k.org, kieran.bingham@ideasonboard.com
-Cc: wsa@the-dreams.de, magnus.damm@gmail.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Wolfram Sang <wsa@the-dreams.de>, Magnus Damm <magnus.damm@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>
 
-Both manufacturer and name variant.
+On Thu, Nov 16, 2017 at 10:31 AM, Geert Uytterhoeven
+<geert@linux-m68k.org> wrote:
+> If no devices are connected, perhaps it's wise to defer the status update
+> to e.g. an overlay that describes what's connected to CN23?
+>
+> Or do you want it enabled to allow adding devices manually using
+> /sys/bus/i2c/devices/i2c-1/new_device?
 
-Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
----
- Documentation/devicetree/bindings/eeprom/at24.txt | 2 ++
- 1 file changed, 2 insertions(+)
+Indeed. It's an unpopulated bus on a development board with an
+external connector, so I think it's valid to assume that it is
+intended to be used for experimentation.
 
-diff --git a/Documentation/devicetree/bindings/eeprom/at24.txt b/Documentation/devicetree/bindings/eeprom/at24.txt
-index 1812c84..dd29937 100644
---- a/Documentation/devicetree/bindings/eeprom/at24.txt
-+++ b/Documentation/devicetree/bindings/eeprom/at24.txt
-@@ -40,6 +40,7 @@ Required properties:
-                 "microchip",
-                 "ramtron",
-                 "renesas",
-+                "rohm",
-                 "nxp",
-                 "st",
- 
-@@ -47,6 +48,7 @@ Required properties:
-                 variants of the above. Known such exceptions are listed below:
- 
-                 "renesas,r1ex24002" - the fallback is "atmel,24c02"
-+                "rohm,br24t01" - the fallback is "atmel,24c01"
- 
-   - reg: The I2C address of the EEPROM.
- 
--- 
-2.7.4
+CU
+Uli
