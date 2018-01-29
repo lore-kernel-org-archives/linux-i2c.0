@@ -1,41 +1,84 @@
-From: Bartosz Golaszewski <brgl-ARrdPY/1zhM@public.gmane.org>
-Subject: Re: [PATCH 1/4] dt-bindings: at24: sort manufacturers alphabetically
-Date: Mon, 29 Jan 2018 17:56:52 +0100
-Message-ID: <CAMRc=Mcqj36KP7dG71dzSn_7cxw-Tru5kNtXdr5-SiH=jbCfMA@mail.gmail.com>
-References: <20180116160618.27859-1-peda@axentia.se> <20180116160618.27859-2-peda@axentia.se>
- <20180129161727.g4kdrr5sih22vs5a@rob-hp-laptop>
+From: Adrian Fiergolski <Adrian.Fiergolski@cern.ch>
+Subject: Re: [RFC PATCH 0/2] check I2C device id for pca984x chips
+Date: Mon, 29 Jan 2018 18:38:38 +0100
+Message-ID: <318dc907-c091-a883-bf0c-346f32a66723@cern.ch>
+References: <20180122113657.32094-1-peda@axentia.se>
+ <04535e9d-9ba4-2f27-e94c-12d877d26cda@cern.ch>
+ <8549b310-ecfe-e60b-c7fc-fab7db2fd2f2@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20180129161727.g4kdrr5sih22vs5a@rob-hp-laptop>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <8549b310-ecfe-e60b-c7fc-fab7db2fd2f2@axentia.se>
+Content-Language: en-GB
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-2018-01-29 17:17 GMT+01:00 Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>:
-> On Tue, Jan 16, 2018 at 05:06:15PM +0100, Peter Rosin wrote:
->> Makes them easier to find.
+On 27.01.2018 at 09:37, Peter Rosin wrote:
+> On 2018-01-26 17:33, Adrian Fiergolski wrote:
+>> Hi Peter,
 >>
->> Signed-off-by: Peter Rosin <peda-koto5C5qi+TLoDKTGw+V6w@public.gmane.org>
->> ---
->>  Documentation/devicetree/bindings/eeprom/at24.txt | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
+>> Sorry for the late reply.
+> No problem.
 >
-> This one should go into 4.16. I can apply after rc1 or apply to tree
-> with at24.txt changes queued.
+>> Yes, it's true I have one of the chip. However, my yocto based build system
+>> depends on https://github.com/Xilinx/linux-xlnx and it's in version
+>> 4.9.0-xilinx-v2017.3.
+>> Apparently, there were some bigger changes in i2c core between this
+>> version and
+>> upstream, thus your patches don't apply.
+> I think the core changes fail to apply mostly because of the file renaming
+> that has been going on, and that it should be fairly trivial to adapt.
+> But I don't know for certain...
 >
-> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+>> Next week I will try to align only me i2c subdirectory with upstream.
+>> Provided it compiles, I will
+>> try then to apply and confirm your patches.
+> I'm looking forward to feedback, thanks!
 >
-> Rob
+> Cheers,
+> Peter
+>
+>> Regards,
+>> Adrian
+>>
+>> On 22.01.2018 at 12:36, Peter Rosin wrote:
+>>> Hi!
+>>>
+>>> This series tries to check the I2C device id, but instead of open
+>>> coding the check in the pca954x driver, I have a new function in
+>>> the core doing the work.
+>>>
+>>> The code is only compile-tested, hence the RFC, and I would really
+>>> like a Tested-by: tag from Adrian who presumably have one of these
+>>> chips.
+>>>
+>>> Also, I'm not sure if I should list all manufacturers that I know
+>>> about in the header, or if I should settle for the one that is
+>>> actually used and leave the others to be added by whomever needs
+>>> them...
+>>>
+>>> Cheers,
+>>> peda
+>>>
+>>> Peter Rosin (2):
+>>>   i2c: add i2c_get_device_id() to get the standard i2c device id
+>>>   i2c: mux: pca954x: verify the device id of the pca984x chips
+>>>
+>>>  drivers/i2c/i2c-core-base.c         | 33 ++++++++++++++++++++++++++++
+>>>  drivers/i2c/muxes/i2c-mux-pca954x.c | 43 +++++++++++++++++++++++++++++++++++++
+>>>  include/linux/i2c.h                 | 30 ++++++++++++++++++++++++++
+>>>  3 files changed, 106 insertions(+)
+>>>
+Hi Peter,
 
-Wolfram,
+I have tested your patch with the pca9846 device and I confirm it works.
+Moreover, after short debugging, I can confirm that all read ids
+(manufacture, part and die) seem to be correct. Moreover, in case of
+misconfiguration, the probe function return a proper message and fails
+as expected.
 
-can you take this via the i2c tree for 4.16?
-
-Thanks,
-Bartosz
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Regards,
+Adrian
