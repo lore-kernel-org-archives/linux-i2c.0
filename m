@@ -1,123 +1,46 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [2/3] i2c: piix4: fix number of ports on Family 16h Model 30h
-Date: Sun, 28 Jan 2018 21:58:24 -0800
-Message-ID: <20180129055824.GA15395@roeck-us.net>
-References: <93dea47498cbd29e9d37edd234122cd49252374c.1517195327.git.andrew.cooks@opengear.com>
+From: Romain Porte <romain.porte@nokia.com>
+Subject: Re: Patch proposal for risky i2c addresses in i2c-tools
+Date: Mon, 29 Jan 2018 13:26:48 +0100
+Message-ID: <f81d1aa9-39c0-20d9-c4a4-4a00fd9b891f@nokia.com>
+References: <20180105150248.3170-1-romain.porte@nokia.com>
+ <20180126180330.3ep65ongfdgffbmu@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:40859 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750957AbeA2F60 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 29 Jan 2018 00:58:26 -0500
-Content-Disposition: inline
-In-Reply-To: <93dea47498cbd29e9d37edd234122cd49252374c.1517195327.git.andrew.cooks@opengear.com>
+Received: from mail-eopbgr40118.outbound.protection.outlook.com ([40.107.4.118]:18624
+        "EHLO EUR03-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751297AbeA2M04 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 29 Jan 2018 07:26:56 -0500
+In-Reply-To: <20180126180330.3ep65ongfdgffbmu@ninjato>
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Andrew Cooks <andrew.cooks@opengear.com>
-Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, "open list:I2C/SMBUS CONTROLLER DRIVERS FOR PC" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, jdelvare@suse.de
 
-On Mon, Jan 29, 2018 at 01:54:19PM +1000, Andrew Cooks wrote:
-> Prevent bus timeouts and resets on Family 16h Model 30h), by not
-> probing reserved Ports 3 and 4.
-> 
-> According to the AMD BIOS and Kernel Developer's Guides (BKDG), Port 3
-> and Port 4 are reserved on the following devices:
->  - Family 15h Model 60h-6Fh,
->  - Family 15h Model 70h-7Fh,
->  - Family 16h Models 30h-3Fh,
-> 
-> Signed-off-by: Andrew Cooks <andrew.cooks@opengear.com>
-> ---
->  drivers/i2c/busses/i2c-piix4.c | 31 ++++++++++++++++++++++---------
->  1 file changed, 22 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> index 89692f4..9763241 100644
-> --- a/drivers/i2c/busses/i2c-piix4.c
-> +++ b/drivers/i2c/busses/i2c-piix4.c
-> @@ -82,6 +82,13 @@
->  /* Multi-port constants */
->  #define PIIX4_MAX_ADAPTERS 4
->  
-> +/*
-> + * Main adapter port count. At least one (Port 0) plus up to 3 additional
-> + * (Ports 2-4)
-> + */
+Hello Wolfram,
 
-This is a bit misleading. Which adapter has only one port ?
+On 26/01/2018 19:03, Wolfram Sang wrote:
+> This handles only part of the risky addresses. I once worked on a device
+> having an EEPROM using 32(!) addresses in the range from 0x00(!!)-0x1f.
+> And yes, because it was the only device on the bus, that actually worked.
+>
+> So, the lower boundary should also be removed IMO.
 
-> +#define SB800_MAIN_PORTS 4
-> +#define HUDSON2_MAIN_PORTS 2 /* HUDSON2, reserves Port 3 and Port 4 */
-> +
-A tab between define and value might be helpful. 
-Not sure though why both PIIX4_MAX_ADAPTERS and SB800_MAIN_PORTS
-are needed.
+Good to know, I will send a new patchset which takes the lower bound 
+into account.
 
->  /* SB800 constants */
->  #define SB800_PIIX4_SMB_IDX		0xcd6
->  
-> @@ -800,6 +807,7 @@ MODULE_DEVICE_TABLE (pci, piix4_ids);
->  
->  static struct i2c_adapter *piix4_main_adapters[PIIX4_MAX_ADAPTERS];
->  static struct i2c_adapter *piix4_aux_adapter;
-> +static int piix4_adapter_count;
+> And I'd much prefer a flag like 'R' which represents 'risky' better.
 
-This variable is never set, only decreased.
+I disagree here, the i2cdetect program is already using the '-a' option 
+for scanning risky addresses. I think we should keep consistency between 
+options and keep this option named '-a' for the other tools. As per 
+i2cdetect's man page:
 
->  
->  static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
->  			     bool sb800_main, u8 port, bool notify_imc,
-> @@ -856,10 +864,17 @@ static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba,
->  				    bool notify_imc)
->  {
->  	struct i2c_piix4_adapdata *adapdata;
-> -	int port;
-> +	int port, port_count;
->  	int retval;
->  
-> -	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
-> +	if (dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS ||
-> +	    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
-> +		port_count = HUDSON2_MAIN_PORTS;
-> +	} else {
-> +		port_count = SB800_MAIN_PORTS;
-> +	}
-> +
-> +	for (port = 0; port < port_count; port++) {
->  		retval = piix4_add_adapter(dev, smba, true, port, notify_imc,
->  					   piix4_main_port_names_sb800[port],
->  					   &piix4_main_adapters[port]);
-> @@ -872,7 +887,7 @@ static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba,
->  error:
->  	dev_err(&dev->dev,
->  		"Error setting up SB800 adapters. Unregistering!\n");
-> -	while (--port >= 0) {
-> +	while (--piix4_adapter_count >= 0) {
+-a    Force scanning of non-regular addresses. Not recommended
 
-This is wrong, even if piix4_adapter_count was initialized.
+Best regards,
 
->  		adapdata = i2c_get_adapdata(piix4_main_adapters[port]);
->  		if (adapdata->smba) {
->  			i2c_del_adapter(piix4_main_adapters[port]);
-> @@ -993,12 +1008,10 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
->  
->  static void piix4_remove(struct pci_dev *dev)
->  {
-> -	int port = PIIX4_MAX_ADAPTERS;
-
-A one line change would do it just as well.
-	int port = piix4_adapter_count;
-
-> -
-> -	while (--port >= 0) {
-> -		if (piix4_main_adapters[port]) {
-> -			piix4_adap_remove(piix4_main_adapters[port]);
-> -			piix4_main_adapters[port] = NULL;
-> +	while (--piix4_adapter_count >= 0) {
-> +		if (piix4_main_adapters[piix4_adapter_count]) {
-> +			piix4_adap_remove(piix4_main_adapters[piix4_adapter_count]);
-> +			piix4_main_adapters[piix4_adapter_count] = NULL;
->  		}
->  	}
->  
+Romain.
