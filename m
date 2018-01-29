@@ -1,103 +1,81 @@
 From: Andrew Cooks <andrew.cooks@opengear.com>
-Subject: [PATCH 2/3] i2c: piix4: fix number of ports on Family 16h Model 30h
-Date: Mon, 29 Jan 2018 13:54:19 +1000
-Message-ID: <93dea47498cbd29e9d37edd234122cd49252374c.1517195327.git.andrew.cooks@opengear.com>
-References: <cover.1517195327.git.andrew.cooks@opengear.com>
+Subject: Re: [PATCH] gpio-pca953x: fall back to byte-at-a-time for 24-bit io
+Date: Mon, 29 Jan 2018 14:11:35 +1000
+Message-ID: <0f82783e-3f78-34dd-4f80-8e21328f9c91@opengear.com>
+References: <1512440242-8983-1-git-send-email-andrew.cooks@opengear.com>
+ <CAHp75Vcpdh36yjXCCOQthYKdY3vPi5EDrqFWauyv9WDgjcZPYQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1517195327.git.andrew.cooks@opengear.com>
+In-Reply-To: <CAHp75Vcpdh36yjXCCOQthYKdY3vPi5EDrqFWauyv9WDgjcZPYQ@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, "open list:I2C/SMBUS CONTROLLER DRIVERS FOR
-        PC" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
-Cc: Andrew Cooks <andrew.cooks@opengear.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, platypus-sw@opengear.com, Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Prevent bus timeouts and resets on Family 16h Model 30h), by not
-probing reserved Ports 3 and 4.
+Hi Andy
 
-According to the AMD BIOS and Kernel Developer's Guides (BKDG), Port 3
-and Port 4 are reserved on the following devices:
- - Family 15h Model 60h-6Fh,
- - Family 15h Model 70h-7Fh,
- - Family 16h Models 30h-3Fh,
+On 29/12/17 19:44, Andy Shevchenko wrote:
+> On Tue, Dec 5, 2017 at 4:17 AM, Andrew Cooks <andrew.cooks@opengear.com> wrote:
+>> Using TCA6424A with i2c-piix4 bus driver requires byte-at-a-time IO,
+>> because the i2c-piix4 driver (and probably some SMBus controllers) don't
+>> support I2C_SMBUS_I2C_BLOCK_DATA.
+> 
+> Why not to fix piix4 for now?
 
-Signed-off-by: Andrew Cooks <andrew.cooks@opengear.com>
----
- drivers/i2c/busses/i2c-piix4.c | 31 ++++++++++++++++++++++---------
- 1 file changed, 22 insertions(+), 9 deletions(-)
+The piix4 driver applies to so many chips and has been around for such a long time, that I don't know if this kind of change is safe to make. Do you think it's safe to assume that all the implementations that use this driver can handle the 3byte block writes?
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 89692f4..9763241 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -82,6 +82,13 @@
- /* Multi-port constants */
- #define PIIX4_MAX_ADAPTERS 4
- 
-+/*
-+ * Main adapter port count. At least one (Port 0) plus up to 3 additional
-+ * (Ports 2-4)
-+ */
-+#define SB800_MAIN_PORTS 4
-+#define HUDSON2_MAIN_PORTS 2 /* HUDSON2, reserves Port 3 and Port 4 */
-+
- /* SB800 constants */
- #define SB800_PIIX4_SMB_IDX		0xcd6
- 
-@@ -800,6 +807,7 @@ MODULE_DEVICE_TABLE (pci, piix4_ids);
- 
- static struct i2c_adapter *piix4_main_adapters[PIIX4_MAX_ADAPTERS];
- static struct i2c_adapter *piix4_aux_adapter;
-+static int piix4_adapter_count;
- 
- static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
- 			     bool sb800_main, u8 port, bool notify_imc,
-@@ -856,10 +864,17 @@ static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba,
- 				    bool notify_imc)
- {
- 	struct i2c_piix4_adapdata *adapdata;
--	int port;
-+	int port, port_count;
- 	int retval;
- 
--	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
-+	if (dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS ||
-+	    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
-+		port_count = HUDSON2_MAIN_PORTS;
-+	} else {
-+		port_count = SB800_MAIN_PORTS;
-+	}
-+
-+	for (port = 0; port < port_count; port++) {
- 		retval = piix4_add_adapter(dev, smba, true, port, notify_imc,
- 					   piix4_main_port_names_sb800[port],
- 					   &piix4_main_adapters[port]);
-@@ -872,7 +887,7 @@ static int piix4_add_adapters_sb800(struct pci_dev *dev, unsigned short smba,
- error:
- 	dev_err(&dev->dev,
- 		"Error setting up SB800 adapters. Unregistering!\n");
--	while (--port >= 0) {
-+	while (--piix4_adapter_count >= 0) {
- 		adapdata = i2c_get_adapdata(piix4_main_adapters[port]);
- 		if (adapdata->smba) {
- 			i2c_del_adapter(piix4_main_adapters[port]);
-@@ -993,12 +1008,10 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
- 
- static void piix4_remove(struct pci_dev *dev)
- {
--	int port = PIIX4_MAX_ADAPTERS;
--
--	while (--port >= 0) {
--		if (piix4_main_adapters[port]) {
--			piix4_adap_remove(piix4_main_adapters[port]);
--			piix4_main_adapters[port] = NULL;
-+	while (--piix4_adapter_count >= 0) {
-+		if (piix4_main_adapters[piix4_adapter_count]) {
-+			piix4_adap_remove(piix4_main_adapters[piix4_adapter_count]);
-+			piix4_main_adapters[piix4_adapter_count] = NULL;
- 		}
- 	}
- 
--- 
-2.7.4
+I've added Jean to the CC list to get the piix4 maintainer's perspective.
+
+> 
+>>  static int pca953x_write_regs_24(struct pca953x_chip *chip, int reg, u8 *val)
+>>  {
+>> +       int ret, i;
+>>         int bank_shift = fls((chip->gpio_chip.ngpio - 1) / BANK_SZ);
+>>
+>> -       return i2c_smbus_write_i2c_block_data(chip->client,
+>> +       if (i2c_check_functionality(chip->client->adapter,
+>> +                                   I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
+>> +               return i2c_smbus_write_i2c_block_data(chip->client,
+>>                                               (reg << bank_shift) | REG_ADDR_AI,
+>>                                               NBANK(chip), val);
+> 
+>> +       } else {
+> 
+> Redundant and makes useless indentation level below.
+
+Thanks, will fix this.
+
+> 
+>> +               for (i = 0; i < NBANK(chip); i++) {
+>> +                       ret = i2c_smbus_write_byte_data(chip->client,
+>> +                                                       (reg << 1) + i, val[i]);
+>> +                       if (ret < 0)
+>> +                               return ret;
+>> +               }
+>> +               return ret;
+>> +       }
+>>  }
+>>
+>>  static int pca953x_write_regs(struct pca953x_chip *chip, int reg, u8 *val)
+>> @@ -249,7 +261,7 @@ static int pca953x_read_regs_24(struct pca953x_chip *chip, int reg, u8 *val)
+>>  {
+>>         int bank_shift = fls((chip->gpio_chip.ngpio - 1) / BANK_SZ);
+>>
+>> -       return i2c_smbus_read_i2c_block_data(chip->client,
+>> +       return i2c_smbus_read_i2c_block_data_or_emulated(chip->client,
+>>                                              (reg << bank_shift) | REG_ADDR_AI,
+>>                                              NBANK(chip), val);
+> 
+> Don't we have a counter part for writing?
+> 
+> Perhaps, it might be another option.
+> 
+
+Again, I don't know if it's safe to assume that the i2c controllers can do this and would appreciate comments.
+
+Thanks for your review!
+
+a.
