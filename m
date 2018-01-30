@@ -1,53 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 1/5] arm64: renesas: r8a77995: add I2C support
-Date: Tue, 30 Jan 2018 11:42:44 +0100
-Message-ID: <20180130104243.wui3okjqoxrws4cb@ninjato>
+Subject: Re: [PATCH v2 2/5] arm64: renesas: draak: enable I2C controller 0
+ and EEPROM
+Date: Tue, 30 Jan 2018 11:43:16 +0100
+Message-ID: <20180130104314.wttl5wzddz75qmi4@ninjato>
 References: <1517240748-14780-1-git-send-email-ulrich.hecht+renesas@gmail.com>
- <1517240748-14780-2-git-send-email-ulrich.hecht+renesas@gmail.com>
+ <1517240748-14780-3-git-send-email-ulrich.hecht+renesas@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="apzmgxdnlwuapemr"
+        protocol="application/pgp-signature"; boundary="njph3ojqjfipt7td"
 Return-path: <linux-renesas-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1517240748-14780-2-git-send-email-ulrich.hecht+renesas@gmail.com>
+In-Reply-To: <1517240748-14780-3-git-send-email-ulrich.hecht+renesas@gmail.com>
 Sender: linux-renesas-soc-owner@vger.kernel.org
 To: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
 Cc: linux-renesas-soc@vger.kernel.org, horms@verge.net.au, geert@linux-m68k.org, kieran.bingham@ideasonboard.com, magnus.damm@gmail.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---apzmgxdnlwuapemr
+--njph3ojqjfipt7td
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 29, 2018 at 04:45:44PM +0100, Ulrich Hecht wrote:
-> Defines R-Car D3 I2C controllers 0-3.
+On Mon, Jan 29, 2018 at 04:45:45PM +0100, Ulrich Hecht wrote:
+> Enables EEPROM on I2C0 on the Draak board.
 >=20
 > Signed-off-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
 > Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 
---apzmgxdnlwuapemr
+--njph3ojqjfipt7td
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpwTB8ACgkQFA3kzBSg
-Kbaadw/9FvVRYEJtyYHNclMFRqmeK0FTOS1LEoljZrZLXDrj/oBUwILi5x9K7H2i
-XQPQq/PWnADdLNhjtC1wz83whJd5aQnC41NvyPh/8JQzdNsgALSAp4OJYPUDxqW1
-EY/NT67AVM2OyUMi05s1ch3J+G/0wMlEjTPSfcR5O7shL9k0rMl3cEhgUmtdiH6o
-qgYBZGcj+QsYg8ldsM6egAZUaE82GU/0X4jpq9H4zhN60NMDJ8b3/hDjMj3zGz91
-tcJ1RzDKJe4U/Sz1paB+SIl8nwp3cv3AlzY9RJbmyN7N0sGYVbiiTEccDBNsBWmm
-NiIXEn3DeSSkdTUE/T9u1Q4IKbLRLRjkGXHD69odIlGpg/QxJ/m5kbRHAoHn4KV0
-4vWzHWjU5bO1+nUmvm1IPhbIu8T2fdidWjrAVpASa/ycsueKrToUWSFKYuNIFmzw
-pth2gTcRs0ZixPb+35hw5ZCKO5NM2ED43bwKPgSjark4aZw879PRPZkgoj/7E7rp
-HjVcuMvkxFt8VQpznpFFLt+qsa0HDjSh0NVfTHvAdcMv1ftfUXewNG/K9DmIw4a3
-ejrnVmJ97ihtTGZcM/SY3SZM4TsK7/+7itKIULQUZeRF6WKCwqz5nFDYwPeRZ43v
-VR7F8Bi/HxCSWUOMLUEMUTiMw25c5hRqT1lhmoODcdsZD4Rn0/E=
-=IO8B
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlpwTEIACgkQFA3kzBSg
+Kbak9g//TE/AAqpeHCVft4/FDUAx9kSAPMZgAWM2hAk9apYPYS/sgycwxlXxDOJ9
+uQ1UsCrB4AS0T72FxdzjI4m2kWZnTALCpq7EYljPpbDPiVmR7ZPG1+PjPqidDZw5
+JNMgSOW3+NP3oxyZlB5qxgmgSfOIcI6Bv69n79aijGMD7H0erzluUNEcatAKjANg
+n4FoePGTGHhOd4E0gxQWkrCbSkio7qA3rRLqr/79E0Fvx69EHOToI0lx97zJxFzu
+E4nO0rN26IIa5TXSNacEXhUimg+oLBXDAzYJ69PfDCtU4tB8TWlvea++WGfaMeu3
+Z4/BfD8qsU67pm78vGYRLVmTNyi38J+J0v5eDAv0VBMcBPqGc96mIYlqqbFjemNq
+5CoxgUTC9d7MPHhYnALNUSOKTaaoLZCcFvoIB8TVfN7QSWolGRUieLPo/LNFZrzc
+0DYv3e66UPPmwgXEau7/ZsRNspCA3gqMKBAZ2m1ooM57YuqXt+EFNfa0y1TWuTIO
+37N2NPHWpSB40YYLcdrrOz7ZMRLz5e3witccslLvQAVmGaIaDLj+3s1w8gfnmRXS
+AA2qoljFxqO1zcqtyNw5bsjYKvTCj7+99kLusi7ez4HDkpc3jDJ1gneQEApMl3Wl
+OJZ5jfKmMlM2q2cSv6fIw13ozHzJIOiOwH+Ih8A0nfBtmVINRkA=
+=adcL
 -----END PGP SIGNATURE-----
 
---apzmgxdnlwuapemr--
+--njph3ojqjfipt7td--
