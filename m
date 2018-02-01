@@ -1,187 +1,49 @@
-From: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: Re: [PATCH 1/2] fbdev: don't select I2C directly
-Date: Thu, 01 Feb 2018 17:14:09 +0100
-Message-ID: <1737876.npfVsP8Sog@amdc3058>
-References: <CGME20180115161439epcas3p1006f02c4e49f58c30c4aec1b0b11b0a7@epcas3p1.samsung.com>
-        <20180115161431.803248-1-arnd@arndb.de>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH] i2c-mux-reg: Delete an error message for a failed memory
+ allocation in i2c_mux_reg_probe_dt()
+Date: Thu, 1 Feb 2018 17:24:10 +0100
+Message-ID: <224a8918-f882-9ab1-218c-83df93d4cb2f@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:39306 "EHLO
-        mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751718AbeBAQOP (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 1 Feb 2018 11:14:15 -0500
-In-reply-to: <20180115161431.803248-1-arnd@arndb.de>
+Received: from mout.web.de ([212.227.15.4]:58943 "EHLO mout.web.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751567AbeBAQY1 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Thu, 1 Feb 2018 11:24:27 -0500
+Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Rob Clark <robdclark@gmail.com>, Jordan Crouse <jcrouse@codeaurora.org>, dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, linux-kernel@vger.kernel.org
+To: linux-i2c@vger.kernel.org, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, York Sun <yorksun@freescale.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-On Monday, January 15, 2018 05:14:04 PM Arnd Bergmann wrote:
-> Using a Kconfig 'select' statement for a user-visible symbol that other
-> drivers depend on often causes circular dependencies. A new one showed
-> up when I wanted to add an NVMEM dependency to the DRM_MSM driver:
-> 
-> drivers/i2c/Kconfig:7:error: recursive dependency detected!
-> drivers/i2c/Kconfig:7:	symbol I2C is selected by FB_DDC
-> drivers/video/fbdev/Kconfig:63:	symbol FB_DDC is selected by FB_CYBER2000_DDC
-> drivers/video/fbdev/Kconfig:390:	symbol FB_CYBER2000_DDC depends on FB_CYBER2000
-> drivers/video/fbdev/Kconfig:378:	symbol FB_CYBER2000 depends on FB
-> drivers/video/fbdev/Kconfig:5:	symbol FB is selected by DRM_KMS_FB_HELPER
-> drivers/gpu/drm/Kconfig:77:	symbol DRM_KMS_FB_HELPER depends on DRM_KMS_HELPER
-> drivers/gpu/drm/Kconfig:71:	symbol DRM_KMS_HELPER is selected by DRM_MSM
-> drivers/gpu/drm/msm/Kconfig:2:	symbol DRM_MSM depends on NVMEM
-> drivers/nvmem/Kconfig:1:	symbol NVMEM is selected by EEPROM_AT24
-> drivers/misc/eeprom/Kconfig:3:	symbol EEPROM_AT24 depends on I2C
-> 
-> Here, the problem is that many fbdev drivers have an i2c based interface
-> and just 'select i2c' for that, while we also select the framebuffer
-> subsystem indirectly from a DRM driver that now depends on i2c.
-> 
-> This does away with the 'select' statement and instead uses 'depends on',
-> like almost all I2C users.
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Thu, 1 Feb 2018 17:17:19 +0100
 
-I worry that this change may cause various driver options to no longer
-be visible to people configuring their kernels and not having I2C already
-selected.
+Omit an extra message for a memory allocation failure in this function.
 
-DRM somehow manages to select I2C and I would prefer to be it the same
-way for fbdev (also looking at the current next tree there are still
-some drivers that 'select I2C')..
+This issue was detected by using the Coccinelle software.
 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  drivers/video/fbdev/Kconfig | 19 +++++++++++++++----
->  1 file changed, 15 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/video/fbdev/Kconfig b/drivers/video/fbdev/Kconfig
-> index 6962b4583fd7..892eb1863100 100644
-> --- a/drivers/video/fbdev/Kconfig
-> +++ b/drivers/video/fbdev/Kconfig
-> @@ -64,7 +64,6 @@ config FB_DDC
->         tristate
->         depends on FB
->         select I2C_ALGOBIT
-> -       select I2C
->         default n
->  
->  config FB_BOOT_VESA_SUPPORT
-> @@ -390,6 +389,7 @@ config FB_CYBER2000
->  config FB_CYBER2000_DDC
->  	bool "DDC for CyberPro support"
->  	depends on FB_CYBER2000
-> +	depends on I2C=y || I2C=FB_CYBER2000
->  	select FB_DDC
->  	default y
->  	help
-> @@ -634,7 +634,7 @@ config FB_BF537_LQ035
->  config FB_BFIN_7393
->  	tristate "Blackfin ADV7393 Video encoder"
->  	depends on FB && BLACKFIN
-> -	select I2C
-> +	depends on I2C
->  	select FB_CFB_FILLRECT
->  	select FB_CFB_COPYAREA
->  	select FB_CFB_IMAGEBLIT
-> @@ -1026,6 +1026,7 @@ config FB_NVIDIA
->  config FB_NVIDIA_I2C
->         bool "Enable DDC Support"
->         depends on FB_NVIDIA
-> +       depends on I2C=y || I2C=FB_NVIDIA
->         select FB_DDC
->         help
->  	  This enables I2C support for nVidia Chipsets.  This is used
-> @@ -1073,6 +1074,7 @@ config FB_RIVA
->  config FB_RIVA_I2C
->         bool "Enable DDC Support"
->         depends on FB_RIVA
-> +       depends on I2C=y || I2C=FB_RIVA
->         select FB_DDC
->         help
->  	  This enables I2C support for nVidia Chipsets.  This is used
-> @@ -1102,6 +1104,7 @@ config FB_RIVA_BACKLIGHT
->  config FB_I740
->  	tristate "Intel740 support"
->  	depends on FB && PCI
-> +	depends on I2C
->  	select FB_MODE_HELPERS
->  	select FB_CFB_FILLRECT
->  	select FB_CFB_COPYAREA
-> @@ -1155,6 +1158,7 @@ config FB_I810_GTF
->  config FB_I810_I2C
->  	bool "Enable DDC Support"
->  	depends on FB_I810 && FB_I810_GTF
-> +	depends on I2C=y || I2C=FB_I810
->  	select FB_DDC
->  	help
->  
-> @@ -1206,6 +1210,7 @@ config FB_INTEL_DEBUG
->  config FB_INTEL_I2C
->  	bool "DDC/I2C for Intel framebuffer support"
->  	depends on FB_INTEL
-> +	depends on I2C=y || I2C=FB_INTEL
->  	select FB_DDC
->  	default y
->  	help
-> @@ -1285,6 +1290,7 @@ config FB_MATROX_G
->  config FB_MATROX_I2C
->  	tristate "Matrox I2C support"
->  	depends on FB_MATROX
-> +	depends on I2C
->  	select FB_DDC
->  	---help---
->  	  This drivers creates I2C buses which are needed for accessing the
-> @@ -1350,6 +1356,7 @@ config FB_RADEON
->  config FB_RADEON_I2C
->  	bool "DDC/I2C for ATI Radeon support"
->  	depends on FB_RADEON
-> +	depends on I2C=y || I2C=FB_RADEON
->  	select FB_DDC
->  	default y
->  	help
-> @@ -1460,6 +1467,7 @@ config FB_S3
->  config FB_S3_DDC
->  	bool "DDC for S3 support"
->  	depends on FB_S3
-> +	depends on I2C=y || I2C=FB_S3
->  	select FB_DDC
->  	default y
->  	help
-> @@ -1485,6 +1493,7 @@ config FB_SAVAGE
->  config FB_SAVAGE_I2C
->         bool "Enable DDC2 Support"
->         depends on FB_SAVAGE
-> +       depends on I2C=y || I2C=FB_SAVAGE
->         select FB_DDC
->         help
->  	  This enables I2C support for S3 Savage Chipsets.  This is used
-> @@ -1629,6 +1638,7 @@ config FB_3DFX_ACCEL
->  config FB_3DFX_I2C
->  	bool "Enable DDC/I2C support"
->  	depends on FB_3DFX
-> +	depends on I2C=y || I2C=FB_3DFX
->  	select FB_DDC
->  	default y
->  	help
-> @@ -1669,6 +1679,7 @@ config FB_VT8623
->  config FB_TRIDENT
->  	tristate "Trident/CyberXXX/CyberBlade support"
->  	depends on FB && PCI
-> +	depends on I2C
->  	select FB_CFB_FILLRECT
->  	select FB_CFB_COPYAREA
->  	select FB_CFB_IMAGEBLIT
-> @@ -2299,8 +2310,8 @@ endchoice
->  
->  config FB_MB862XX_I2C
->  	bool "Support I2C bus on MB862XX GDC"
-> -	depends on FB_MB862XX && I2C
-> -	depends on FB_MB862XX=m || I2C=y
-> +	depends on FB_MB862XX
-> +	depends on I2C=y || I2C=FB_MB862XX
->  	default y
->  	help
->  	  Selecting this option adds Coral-P(A)/Lime GDC I2C bus adapter
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ drivers/i2c/muxes/i2c-mux-reg.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-Best regards,
+diff --git a/drivers/i2c/muxes/i2c-mux-reg.c b/drivers/i2c/muxes/i2c-mux-reg.c
+index c948e5a4cb04..f624ed64a47b 100644
+--- a/drivers/i2c/muxes/i2c-mux-reg.c
++++ b/drivers/i2c/muxes/i2c-mux-reg.c
+@@ -127,10 +127,8 @@ static int i2c_mux_reg_probe_dt(struct regmux *mux,
+ 	values = devm_kzalloc(&pdev->dev,
+ 			      sizeof(*mux->data.values) * mux->data.n_values,
+ 			      GFP_KERNEL);
+-	if (!values) {
+-		dev_err(&pdev->dev, "Cannot allocate values array");
++	if (!values)
+ 		return -ENOMEM;
+-	}
+ 
+ 	for_each_child_of_node(np, child) {
+ 		of_property_read_u32(child, "reg", values + i);
+-- 
+2.16.1
