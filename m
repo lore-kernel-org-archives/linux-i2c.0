@@ -1,33 +1,47 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 0/2] i2c-tiny-usb: Adjustments for i2c_tiny_usb_probe()
-Date: Thu, 1 Feb 2018 17:55:05 +0100
-Message-ID: <5ab52458-e334-bb06-8d7d-66b48ac3f30b@users.sourceforge.net>
+Subject: [PATCH 1/2] i2c-tiny-usb: Delete an error message for a failed memory
+ allocation in i2c_tiny_usb_probe()
+Date: Thu, 1 Feb 2018 17:57:00 +0100
+Message-ID: <39c40369-48ef-e245-4e19-4caf12e9f06b@users.sourceforge.net>
+References: <5ab52458-e334-bb06-8d7d-66b48ac3f30b@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mout.web.de ([212.227.15.14]:50894 "EHLO mout.web.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751783AbeBAQzK (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 1 Feb 2018 11:55:10 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <5ab52458-e334-bb06-8d7d-66b48ac3f30b@users.sourceforge.net>
 Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org, Till Harbaum <till@harbaum.org>, Wolfram Sang <wsa@the-dreams.de>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Thu, 1 Feb 2018 17:51:23 +0100
+Date: Thu, 1 Feb 2018 17:36:50 +0100
 
-Two update suggestions were taken into account
-from static source code analysis.
+Omit an extra message for a memory allocation failure in this function.
 
-Markus Elfring (2):
-  Delete an error message for a failed memory allocation
-  Return an error code only as a constant
+This issue was detected by using the Coccinelle software.
 
- drivers/i2c/busses/i2c-tiny-usb.c | 17 ++++-------------
- 1 file changed, 4 insertions(+), 13 deletions(-)
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ drivers/i2c/busses/i2c-tiny-usb.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
+index a2e3dd715380..e210e36df123 100644
+--- a/drivers/i2c/busses/i2c-tiny-usb.c
++++ b/drivers/i2c/busses/i2c-tiny-usb.c
+@@ -230,10 +230,8 @@ static int i2c_tiny_usb_probe(struct usb_interface *interface,
+ 
+ 	/* allocate memory for our device state and initialize it */
+ 	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+-	if (dev == NULL) {
+-		dev_err(&interface->dev, "Out of memory\n");
++	if (!dev)
+ 		goto error;
+-	}
+ 
+ 	dev->usb_dev = usb_get_dev(interface_to_usbdev(interface));
+ 	dev->interface = interface;
 -- 
 2.16.1
