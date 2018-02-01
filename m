@@ -1,76 +1,46 @@
-From: Corey Minyard <minyard@acm.org>
-Subject: Re: Please pick up i2c-xlp9xx driver patches
-Date: Wed, 31 Jan 2018 15:41:15 -0600
-Message-ID: <2dc0cbda-2e49-7e10-c619-c69fb4aef061@acm.org>
-References: <CAAek22FfKtt3QzXjcR1WatkFvLuTO5QWSKqCmE7mUGzTG0tZFQ@mail.gmail.com>
- <CAAek22EEs_mHcKg80Ei=FRNH88KVjWJNHHVZ3cU204c0fW8v2w@mail.gmail.com>
-Reply-To: minyard@acm.org
+From: Andi Shyti <andi.shyti@samsung.com>
+Subject: Re: [PATCH] i2c: exynos5: rework HSI2C_MASTER_ST_LOSE state
+ handling
+Date: Thu, 01 Feb 2018 16:51:23 +0900
+Message-ID: <20180201075123.GH7575@gangnam.samsung>
+References: <CGME20180126121001eucas1p2931738af133ad3e5bf1cd824058ba8d0@eucas1p2.samsung.com>
+        <20180126120950.9934-1-a.hajda@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <openipmi-developer-bounces@lists.sourceforge.net>
-In-Reply-To: <CAAek22EEs_mHcKg80Ei=FRNH88KVjWJNHHVZ3cU204c0fW8v2w@mail.gmail.com>
-Content-Language: en-GB
-List-Unsubscribe: <https://lists.sourceforge.net/lists/options/openipmi-developer>,
- <mailto:openipmi-developer-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=openipmi-developer>
-List-Post: <mailto:openipmi-developer@lists.sourceforge.net>
-List-Help: <mailto:openipmi-developer-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/openipmi-developer>,
- <mailto:openipmi-developer-request@lists.sourceforge.net?subject=subscribe>
-Errors-To: openipmi-developer-bounces@lists.sourceforge.net
-To: Phil Pokorny <ppokorny@penguincomputing.com>, openipmi-developer@lists.sourceforge.net, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mailout2.samsung.com ([203.254.224.25]:50490 "EHLO
+        mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751172AbeBAHv0 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 1 Feb 2018 02:51:26 -0500
+Content-disposition: inline
+In-reply-to: <20180126120950.9934-1-a.hajda@samsung.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Andrzej Hajda <a.hajda@samsung.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/SAMSUNG EXYNOS ARM ARCHITECTURES" <linux-samsung-soc@vger.kernel.org>
 
-On 01/31/2018 03:06 PM, Phil Pokorny wrote:
-> Cross-posting to openipmi and linux-i2c... (in plain text this time...
-> my apologies.)
-> There are four patches from Cavium starting with
-> https://lkml.org/lkml/2018/1/18/12 that fix an issue with the xlp9xx
-> driver that causes ipmi_ssif not to be able to detect a platform BMC.
->
-> I have two different pre-production hardware chassis that are affected
-> by this issue and I don't see that the patches were included in v4.15.
->
-> I wonder if either Corey or Jean could/should pick these up and submit
-> upstream?
+Hi Andrzej,
 
-It is all I2C changes, so it's outside my realm.
+On Fri, Jan 26, 2018 at 01:09:50PM +0100, Andrzej Hajda wrote:
+> HSI2C_MASTER_ST_LOSE state is not documented properly, extensive tests
+> show that hardware is usually able to recover from this state without
+> interrupting the transfer. Moreover documentation says that
+> such state can be caused by slave clock stretching, and should not be
+> treated as an error during transaction. The only place it indicates
+> an error is just before starting transaction. In such case bus recovery
+> procedure should be performed - master should pulse SCL line nine times
+> and then send STOP condition, it can be repeated until SDA goes high.
+> The procedure can be performed using manual commands HSI2C_CMD_READ_DATA
+> and HSI2C_CMD_SEND_STOP.
+> 
+> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
 
--corey
+Thank you, looks good to me.
 
->   There doesn't seem to be a MAINTAINERS entry for the
-> i2c-xlp9xx  The driver was submitted Cavium (was Broadcom at the time)
->   The posts don't seem to have gotten any comments on LKML.
->
-> I tested the patches and they fix the ipmi_ssif detection issue I had.
-> So I'm willing to add "Tested-by" to the patches if that helps.
->
-> Would like to see these patches make it up-stream so I can they ask
-> that they be included in the Red Hat and SuSE distro kernels for
-> ARM64.
->
-> Thanks,
-> Phil P.
->
-> --
-> Philip Pokorny, RHCE
-> Chief Technology Officer
-> PENGUIN COMPUTING, Inc
-> www.penguincomputing.com
->
-> Changing the world through technical innovation
->
-> ------------------------------------------------------------------------------
-> Check out the vibrant tech community on one of the world's most
-> engaging tech sites, Slashdot.org! http://sdm.link/slashdot
-> _______________________________________________
-> Openipmi-developer mailing list
-> Openipmi-developer@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/openipmi-developer
+Please add:
 
+Reviewed-by: Andi Shyti <andi.shyti@samsung.com>
+Tested-by: Andi Shyti <andi.shyti@samsung.com>
 
-
-------------------------------------------------------------------------------
-Check out the vibrant tech community on one of the world's most
-engaging tech sites, Slashdot.org! http://sdm.link/slashdot
+Thanks,
+Andi
