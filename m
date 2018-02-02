@@ -1,81 +1,203 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 2/2] i2c-tiny-usb: Return an error code only as a constant in
- i2c_tiny_usb_probe()
-Date: Thu, 1 Feb 2018 17:58:27 +0100
-Message-ID: <b6a54fdf-eb83-cf33-b3f9-d26d9be14d03@users.sourceforge.net>
-References: <5ab52458-e334-bb06-8d7d-66b48ac3f30b@users.sourceforge.net>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: [PATCH 1/2] fbdev: don't select I2C directly
+Date: Thu, 1 Feb 2018 16:21:08 -0800
+Message-ID: <faff816c-d9d6-cb75-fe24-ba19fa92bd7e@infradead.org>
+References: <CGME20180115161439epcas3p1006f02c4e49f58c30c4aec1b0b11b0a7@epcas3p1.samsung.com>
+ <20180115161431.803248-1-arnd@arndb.de> <1737876.npfVsP8Sog@amdc3058>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mout.web.de ([212.227.15.3]:53175 "EHLO mout.web.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752693AbeBAQ6a (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 1 Feb 2018 11:58:30 -0500
-In-Reply-To: <5ab52458-e334-bb06-8d7d-66b48ac3f30b@users.sourceforge.net>
+Received: from merlin.infradead.org ([205.233.59.134]:58306 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751582AbeBBAVT (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 1 Feb 2018 19:21:19 -0500
+In-Reply-To: <1737876.npfVsP8Sog@amdc3058>
 Content-Language: en-US
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Till Harbaum <till@harbaum.org>, Wolfram Sang <wsa@the-dreams.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Arnd Bergmann <arnd@arndb.de>
+Cc: Rob Clark <robdclark@gmail.com>, Jordan Crouse <jcrouse@codeaurora.org>, dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, linux-kernel@vger.kernel.org
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Thu, 1 Feb 2018 17:45:21 +0100
+On 02/01/2018 08:14 AM, Bartlomiej Zolnierkiewicz wrote:
+> On Monday, January 15, 2018 05:14:04 PM Arnd Bergmann wrote:
+>> Using a Kconfig 'select' statement for a user-visible symbol that other
+>> drivers depend on often causes circular dependencies. A new one showed
+>> up when I wanted to add an NVMEM dependency to the DRM_MSM driver:
+>>
+>> drivers/i2c/Kconfig:7:error: recursive dependency detected!
+>> drivers/i2c/Kconfig:7:	symbol I2C is selected by FB_DDC
+>> drivers/video/fbdev/Kconfig:63:	symbol FB_DDC is selected by FB_CYBER2000_DDC
+>> drivers/video/fbdev/Kconfig:390:	symbol FB_CYBER2000_DDC depends on FB_CYBER2000
+>> drivers/video/fbdev/Kconfig:378:	symbol FB_CYBER2000 depends on FB
+>> drivers/video/fbdev/Kconfig:5:	symbol FB is selected by DRM_KMS_FB_HELPER
+>> drivers/gpu/drm/Kconfig:77:	symbol DRM_KMS_FB_HELPER depends on DRM_KMS_HELPER
+>> drivers/gpu/drm/Kconfig:71:	symbol DRM_KMS_HELPER is selected by DRM_MSM
+>> drivers/gpu/drm/msm/Kconfig:2:	symbol DRM_MSM depends on NVMEM
+>> drivers/nvmem/Kconfig:1:	symbol NVMEM is selected by EEPROM_AT24
+>> drivers/misc/eeprom/Kconfig:3:	symbol EEPROM_AT24 depends on I2C
+>>
+>> Here, the problem is that many fbdev drivers have an i2c based interface
+>> and just 'select i2c' for that, while we also select the framebuffer
+>> subsystem indirectly from a DRM driver that now depends on i2c.
+>>
+>> This does away with the 'select' statement and instead uses 'depends on',
+>> like almost all I2C users.
+> 
+> I worry that this change may cause various driver options to no longer
+> be visible to people configuring their kernels and not having I2C already
+> selected.
+> 
+> DRM somehow manages to select I2C and I would prefer to be it the same
+> way for fbdev (also looking at the current next tree there are still
+> some drivers that 'select I2C')..
 
-* Return an error code without storing it in an intermediate variable.
+a. Linus has stated that a driver should not enable an entire subsystem,
+   so depends on would be better than select.
+   If I had the email/patch, I would be glad to Ack it.
 
-* Delete the label "error" and local variable "retval"
-  which became unnecessary with this refactoring.
+b. DRM configuration is a mess. You shouldn't want to follow their model. :)
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/i2c/busses/i2c-tiny-usb.c | 13 +++----------
- 1 file changed, 3 insertions(+), 10 deletions(-)
+c. If I2C is not enabled in the FB menu, someone could just add something like this:
 
-diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
-index e210e36df123..2416bb0d8a88 100644
---- a/drivers/i2c/busses/i2c-tiny-usb.c
-+++ b/drivers/i2c/busses/i2c-tiny-usb.c
-@@ -223,7 +223,6 @@ static int i2c_tiny_usb_probe(struct usb_interface *interface,
- 			      const struct usb_device_id *id)
- {
- 	struct i2c_tiny_usb *dev;
--	int retval = -ENOMEM;
- 	u16 version;
- 
- 	dev_dbg(&interface->dev, "probing usb device\n");
-@@ -231,7 +230,7 @@ static int i2c_tiny_usb_probe(struct usb_interface *interface,
- 	/* allocate memory for our device state and initialize it */
- 	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
- 	if (!dev)
--		goto error;
-+		return -ENOMEM;
- 
- 	dev->usb_dev = usb_get_dev(interface_to_usbdev(interface));
- 	dev->interface = interface;
-@@ -257,8 +256,8 @@ static int i2c_tiny_usb_probe(struct usb_interface *interface,
- 	if (usb_write(&dev->adapter, CMD_SET_DELAY, delay, 0, NULL, 0) != 0) {
- 		dev_err(&dev->adapter.dev,
- 			"failure setting delay to %dus\n", delay);
--		retval = -EIO;
--		goto error;
-+		i2c_tiny_usb_free(dev);
-+		return -EIO;
- 	}
- 
- 	dev->adapter.dev.parent = &dev->interface->dev;
-@@ -270,12 +269,6 @@ static int i2c_tiny_usb_probe(struct usb_interface *interface,
- 	dev_info(&dev->adapter.dev, "connected i2c-tiny-usb device\n");
- 
- 	return 0;
--
-- error:
--	if (dev)
--		i2c_tiny_usb_free(dev);
--
--	return retval;
- }
- 
- static void i2c_tiny_usb_disconnect(struct usb_interface *interface)
+comment "Enable I2C to see more driver choices"
+	depends on !I2C
+
+
+>> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+>> ---
+>>  drivers/video/fbdev/Kconfig | 19 +++++++++++++++----
+>>  1 file changed, 15 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/video/fbdev/Kconfig b/drivers/video/fbdev/Kconfig
+>> index 6962b4583fd7..892eb1863100 100644
+>> --- a/drivers/video/fbdev/Kconfig
+>> +++ b/drivers/video/fbdev/Kconfig
+>> @@ -64,7 +64,6 @@ config FB_DDC
+>>         tristate
+>>         depends on FB
+>>         select I2C_ALGOBIT
+>> -       select I2C
+>>         default n
+>>  
+>>  config FB_BOOT_VESA_SUPPORT
+>> @@ -390,6 +389,7 @@ config FB_CYBER2000
+>>  config FB_CYBER2000_DDC
+>>  	bool "DDC for CyberPro support"
+>>  	depends on FB_CYBER2000
+>> +	depends on I2C=y || I2C=FB_CYBER2000
+>>  	select FB_DDC
+>>  	default y
+>>  	help
+>> @@ -634,7 +634,7 @@ config FB_BF537_LQ035
+>>  config FB_BFIN_7393
+>>  	tristate "Blackfin ADV7393 Video encoder"
+>>  	depends on FB && BLACKFIN
+>> -	select I2C
+>> +	depends on I2C
+>>  	select FB_CFB_FILLRECT
+>>  	select FB_CFB_COPYAREA
+>>  	select FB_CFB_IMAGEBLIT
+>> @@ -1026,6 +1026,7 @@ config FB_NVIDIA
+>>  config FB_NVIDIA_I2C
+>>         bool "Enable DDC Support"
+>>         depends on FB_NVIDIA
+>> +       depends on I2C=y || I2C=FB_NVIDIA
+>>         select FB_DDC
+>>         help
+>>  	  This enables I2C support for nVidia Chipsets.  This is used
+>> @@ -1073,6 +1074,7 @@ config FB_RIVA
+>>  config FB_RIVA_I2C
+>>         bool "Enable DDC Support"
+>>         depends on FB_RIVA
+>> +       depends on I2C=y || I2C=FB_RIVA
+>>         select FB_DDC
+>>         help
+>>  	  This enables I2C support for nVidia Chipsets.  This is used
+>> @@ -1102,6 +1104,7 @@ config FB_RIVA_BACKLIGHT
+>>  config FB_I740
+>>  	tristate "Intel740 support"
+>>  	depends on FB && PCI
+>> +	depends on I2C
+>>  	select FB_MODE_HELPERS
+>>  	select FB_CFB_FILLRECT
+>>  	select FB_CFB_COPYAREA
+>> @@ -1155,6 +1158,7 @@ config FB_I810_GTF
+>>  config FB_I810_I2C
+>>  	bool "Enable DDC Support"
+>>  	depends on FB_I810 && FB_I810_GTF
+>> +	depends on I2C=y || I2C=FB_I810
+>>  	select FB_DDC
+>>  	help
+>>  
+>> @@ -1206,6 +1210,7 @@ config FB_INTEL_DEBUG
+>>  config FB_INTEL_I2C
+>>  	bool "DDC/I2C for Intel framebuffer support"
+>>  	depends on FB_INTEL
+>> +	depends on I2C=y || I2C=FB_INTEL
+>>  	select FB_DDC
+>>  	default y
+>>  	help
+>> @@ -1285,6 +1290,7 @@ config FB_MATROX_G
+>>  config FB_MATROX_I2C
+>>  	tristate "Matrox I2C support"
+>>  	depends on FB_MATROX
+>> +	depends on I2C
+>>  	select FB_DDC
+>>  	---help---
+>>  	  This drivers creates I2C buses which are needed for accessing the
+>> @@ -1350,6 +1356,7 @@ config FB_RADEON
+>>  config FB_RADEON_I2C
+>>  	bool "DDC/I2C for ATI Radeon support"
+>>  	depends on FB_RADEON
+>> +	depends on I2C=y || I2C=FB_RADEON
+>>  	select FB_DDC
+>>  	default y
+>>  	help
+>> @@ -1460,6 +1467,7 @@ config FB_S3
+>>  config FB_S3_DDC
+>>  	bool "DDC for S3 support"
+>>  	depends on FB_S3
+>> +	depends on I2C=y || I2C=FB_S3
+>>  	select FB_DDC
+>>  	default y
+>>  	help
+>> @@ -1485,6 +1493,7 @@ config FB_SAVAGE
+>>  config FB_SAVAGE_I2C
+>>         bool "Enable DDC2 Support"
+>>         depends on FB_SAVAGE
+>> +       depends on I2C=y || I2C=FB_SAVAGE
+>>         select FB_DDC
+>>         help
+>>  	  This enables I2C support for S3 Savage Chipsets.  This is used
+>> @@ -1629,6 +1638,7 @@ config FB_3DFX_ACCEL
+>>  config FB_3DFX_I2C
+>>  	bool "Enable DDC/I2C support"
+>>  	depends on FB_3DFX
+>> +	depends on I2C=y || I2C=FB_3DFX
+>>  	select FB_DDC
+>>  	default y
+>>  	help
+>> @@ -1669,6 +1679,7 @@ config FB_VT8623
+>>  config FB_TRIDENT
+>>  	tristate "Trident/CyberXXX/CyberBlade support"
+>>  	depends on FB && PCI
+>> +	depends on I2C
+>>  	select FB_CFB_FILLRECT
+>>  	select FB_CFB_COPYAREA
+>>  	select FB_CFB_IMAGEBLIT
+>> @@ -2299,8 +2310,8 @@ endchoice
+>>  
+>>  config FB_MB862XX_I2C
+>>  	bool "Support I2C bus on MB862XX GDC"
+>> -	depends on FB_MB862XX && I2C
+>> -	depends on FB_MB862XX=m || I2C=y
+>> +	depends on FB_MB862XX
+>> +	depends on I2C=y || I2C=FB_MB862XX
+>>  	default y
+>>  	help
+>>  	  Selecting this option adds Coral-P(A)/Lime GDC I2C bus adapter
+
+
 -- 
-2.16.1
+~Randy
