@@ -1,77 +1,103 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH V2] eeprom: at24: support second page of M24M01
-Date: Fri, 2 Feb 2018 10:34:29 +0100
-Message-ID: <CAMRc=McmD2ZyHxbQAsOJwjaHZkU-cLX-aEBbdZ1zrN=H3heo6g@mail.gmail.com>
-References: <20180125134016.GA21654@ppcx2.izt.loc> <CAMRc=MdvhkZaMnR_G8UERdRgDa_8GchrrVUgwEE04aMMHtBOAw@mail.gmail.com>
- <7c3a9b70-a04b-464e-2632-b0d757f780e1@izt-labs.de> <CAMRc=Me8M3P4vKeZgnr0wyqPTnZEyJxUQ0LyqQoyHQyK_gMGLg@mail.gmail.com>
- <20180130141031.36e6x6fb5svtub4i@pp184.izt.loc> <CAMRc=MdiNRmRo7FHM5s-1gAWVE0s9sNQTtKswHVzUg=eC_-deA@mail.gmail.com>
- <20180130165033.cab653gbq7b7gass@pp184.izt.loc>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 1/2] fbdev: don't select I2C directly
+Date: Fri, 2 Feb 2018 12:59:52 +0100
+Message-ID: <CAK8P3a2bQzn39cFSspJKP6HoUuV7cxSw4AZpVRVvD=FMAYfp5Q@mail.gmail.com>
+References: <CGME20180115161439epcas3p1006f02c4e49f58c30c4aec1b0b11b0a7@epcas3p1.samsung.com>
+ <20180115161431.803248-1-arnd@arndb.de> <1737876.npfVsP8Sog@amdc3058>
+ <faff816c-d9d6-cb75-fe24-ba19fa92bd7e@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f41.google.com ([209.85.218.41]:46009 "EHLO
-        mail-oi0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751180AbeBBJea (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 2 Feb 2018 04:34:30 -0500
-Received: by mail-oi0-f41.google.com with SMTP id c189so14882294oib.12
-        for <linux-i2c@vger.kernel.org>; Fri, 02 Feb 2018 01:34:30 -0800 (PST)
-In-Reply-To: <20180130165033.cab653gbq7b7gass@pp184.izt.loc>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <faff816c-d9d6-cb75-fe24-ba19fa92bd7e@infradead.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: linux-fbdev@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, dri-devel <dri-devel@lists.freedesktop.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Johannes Poehlmann <johannes.poehlmann@izt-labs.de>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>
 
-2018-01-30 17:50 GMT+01:00 Johannes Poehlmann <johannes.poehlmann@izt-labs.de>:
-> The M24M01-D* eeproms are in effect 2 eeproms under 2 I2C addresses:
->
-> 1. a standard 1Mbit eeprom (driver model 24c1024 is working)
->
-> 2. a 256 Byte "ID page" that is a write lockable page.
->    As the ID page demands 2 byte addresses, the 24c02 driver model
->    can not be used.
->
-> I was thinking about not to pollute the name space of chip names
-> with a made up name that is not the name of a real chip.
->
-> I would propose to name it "24cb02", thus making clear
-> that we have a kind of 24c02 but with 2 byte address.
-> (The "b" ist meant to say this)
-
-If anything, this is just super confusing.
-
->
-> Signed-off-by: Johannes Poehlmann <Johannes.Poehlmann@izt-labs.de>
-> ---
->  drivers/misc/eeprom/at24.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index 4d63ac8..debc8e3 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -139,6 +139,7 @@ static const struct i2c_device_id at24_ids[] = {
->         { "24cs01",     AT24_DEVICE_MAGIC(16,
->                                 AT24_FLAG_SERIAL | AT24_FLAG_READONLY) },
->         { "24c02",      AT24_DEVICE_MAGIC(2048 / 8,     0) },
-> +       { "24cb02",     AT24_DEVICE_MAGIC(2048 / 8,     AT24_FLAG_ADDR16) },
-
-Please add the device tree support as well.
-
->         { "24cs02",     AT24_DEVICE_MAGIC(16,
->                                 AT24_FLAG_SERIAL | AT24_FLAG_READONLY) },
->         { "24mac402",   AT24_DEVICE_MAGIC(48 / 8,
-> --
-> 2.1.4
->
-
-Take a look at what we do with at24cs* and at24mac* models: at24cs32
-stands for the serial number block, while for the regular memory area
-we use at24c32.
-
-Analogously in your case: the 'regular' memory block of this EEPROM is
-compatible with 'atmel,24c1024', so this is the compatible you'll use
-to access it. For the write-lockable page, it's OK to use
-'atmel,24cm01'.
-
-Best regards,
-Bartosz Golaszewski
+T24gRnJpLCBGZWIgMiwgMjAxOCBhdCAxOjIxIEFNLCBSYW5keSBEdW5sYXAgPHJkdW5sYXBAaW5m
+cmFkZWFkLm9yZz4gd3JvdGU6Cj4gT24gMDIvMDEvMjAxOCAwODoxNCBBTSwgQmFydGxvbWllaiBa
+b2xuaWVya2lld2ljeiB3cm90ZToKPj4gT24gTW9uZGF5LCBKYW51YXJ5IDE1LCAyMDE4IDA1OjE0
+OjA0IFBNIEFybmQgQmVyZ21hbm4gd3JvdGU6Cj4+PiBVc2luZyBhIEtjb25maWcgJ3NlbGVjdCcg
+c3RhdGVtZW50IGZvciBhIHVzZXItdmlzaWJsZSBzeW1ib2wgdGhhdCBvdGhlcgo+Pj4gZHJpdmVy
+cyBkZXBlbmQgb24gb2Z0ZW4gY2F1c2VzIGNpcmN1bGFyIGRlcGVuZGVuY2llcy4gQSBuZXcgb25l
+IHNob3dlZAo+Pj4gdXAgd2hlbiBJIHdhbnRlZCB0byBhZGQgYW4gTlZNRU0gZGVwZW5kZW5jeSB0
+byB0aGUgRFJNX01TTSBkcml2ZXI6Cj4+Pgo+Pj4gZHJpdmVycy9pMmMvS2NvbmZpZzo3OmVycm9y
+OiByZWN1cnNpdmUgZGVwZW5kZW5jeSBkZXRlY3RlZCEKPj4+IGRyaXZlcnMvaTJjL0tjb25maWc6
+NzogICAgICAgc3ltYm9sIEkyQyBpcyBzZWxlY3RlZCBieSBGQl9EREMKPj4+IGRyaXZlcnMvdmlk
+ZW8vZmJkZXYvS2NvbmZpZzo2MzogICAgICBzeW1ib2wgRkJfRERDIGlzIHNlbGVjdGVkIGJ5IEZC
+X0NZQkVSMjAwMF9EREMKPj4+IGRyaXZlcnMvdmlkZW8vZmJkZXYvS2NvbmZpZzozOTA6ICAgICBz
+eW1ib2wgRkJfQ1lCRVIyMDAwX0REQyBkZXBlbmRzIG9uIEZCX0NZQkVSMjAwMAo+Pj4gZHJpdmVy
+cy92aWRlby9mYmRldi9LY29uZmlnOjM3ODogICAgIHN5bWJvbCBGQl9DWUJFUjIwMDAgZGVwZW5k
+cyBvbiBGQgo+Pj4gZHJpdmVycy92aWRlby9mYmRldi9LY29uZmlnOjU6ICAgICAgIHN5bWJvbCBG
+QiBpcyBzZWxlY3RlZCBieSBEUk1fS01TX0ZCX0hFTFBFUgo+Pj4gZHJpdmVycy9ncHUvZHJtL0tj
+b25maWc6Nzc6ICBzeW1ib2wgRFJNX0tNU19GQl9IRUxQRVIgZGVwZW5kcyBvbiBEUk1fS01TX0hF
+TFBFUgo+Pj4gZHJpdmVycy9ncHUvZHJtL0tjb25maWc6NzE6ICBzeW1ib2wgRFJNX0tNU19IRUxQ
+RVIgaXMgc2VsZWN0ZWQgYnkgRFJNX01TTQo+Pj4gZHJpdmVycy9ncHUvZHJtL21zbS9LY29uZmln
+OjI6ICAgICAgIHN5bWJvbCBEUk1fTVNNIGRlcGVuZHMgb24gTlZNRU0KPj4+IGRyaXZlcnMvbnZt
+ZW0vS2NvbmZpZzoxOiAgICAgc3ltYm9sIE5WTUVNIGlzIHNlbGVjdGVkIGJ5IEVFUFJPTV9BVDI0
+Cj4+PiBkcml2ZXJzL21pc2MvZWVwcm9tL0tjb25maWc6MzogICAgICAgc3ltYm9sIEVFUFJPTV9B
+VDI0IGRlcGVuZHMgb24gSTJDCj4+Pgo+Pj4gSGVyZSwgdGhlIHByb2JsZW0gaXMgdGhhdCBtYW55
+IGZiZGV2IGRyaXZlcnMgaGF2ZSBhbiBpMmMgYmFzZWQgaW50ZXJmYWNlCj4+PiBhbmQganVzdCAn
+c2VsZWN0IGkyYycgZm9yIHRoYXQsIHdoaWxlIHdlIGFsc28gc2VsZWN0IHRoZSBmcmFtZWJ1ZmZl
+cgo+Pj4gc3Vic3lzdGVtIGluZGlyZWN0bHkgZnJvbSBhIERSTSBkcml2ZXIgdGhhdCBub3cgZGVw
+ZW5kcyBvbiBpMmMuCj4+Pgo+Pj4gVGhpcyBkb2VzIGF3YXkgd2l0aCB0aGUgJ3NlbGVjdCcgc3Rh
+dGVtZW50IGFuZCBpbnN0ZWFkIHVzZXMgJ2RlcGVuZHMgb24nLAo+Pj4gbGlrZSBhbG1vc3QgYWxs
+IEkyQyB1c2Vycy4KPj4KPj4gSSB3b3JyeSB0aGF0IHRoaXMgY2hhbmdlIG1heSBjYXVzZSB2YXJp
+b3VzIGRyaXZlciBvcHRpb25zIHRvIG5vIGxvbmdlcgo+PiBiZSB2aXNpYmxlIHRvIHBlb3BsZSBj
+b25maWd1cmluZyB0aGVpciBrZXJuZWxzIGFuZCBub3QgaGF2aW5nIEkyQyBhbHJlYWR5Cj4+IHNl
+bGVjdGVkLgo+Pgo+PiBEUk0gc29tZWhvdyBtYW5hZ2VzIHRvIHNlbGVjdCBJMkMgYW5kIEkgd291
+bGQgcHJlZmVyIHRvIGJlIGl0IHRoZSBzYW1lCj4+IHdheSBmb3IgZmJkZXYgKGFsc28gbG9va2lu
+ZyBhdCB0aGUgY3VycmVudCBuZXh0IHRyZWUgdGhlcmUgYXJlIHN0aWxsCj4+IHNvbWUgZHJpdmVy
+cyB0aGF0ICdzZWxlY3QgSTJDJykuLgo+Cj4gYS4gTGludXMgaGFzIHN0YXRlZCB0aGF0IGEgZHJp
+dmVyIHNob3VsZCBub3QgZW5hYmxlIGFuIGVudGlyZSBzdWJzeXN0ZW0sCj4gICAgc28gZGVwZW5k
+cyBvbiB3b3VsZCBiZSBiZXR0ZXIgdGhhbiBzZWxlY3QuCj4gICAgSWYgSSBoYWQgdGhlIGVtYWls
+L3BhdGNoLCBJIHdvdWxkIGJlIGdsYWQgdG8gQWNrIGl0Lgo+Cj4gYi4gRFJNIGNvbmZpZ3VyYXRp
+b24gaXMgYSBtZXNzLiBZb3Ugc2hvdWxkbid0IHdhbnQgdG8gZm9sbG93IHRoZWlyIG1vZGVsLiA6
+KQoKUmlnaHQsIHRoYXQgc2hvdWxkIGFsc28gYmUgZml4ZWQsIHNvIERSTSBubyBsb25nZXIgaW5j
+bHVkZXMgSTJDIDstKQoKQXQgdGhlIG1vbWVudCwgRFJNIGlzIHRoZSBtb3N0IGNvbW1vbiBjYXVz
+ZSBmb3IgY2lyY3VsYXIgZGVwZW5kZW5jaWVzCmJlY2F1c2UgaXQgaGFzIGEgbnVtYmVyIG9mICdz
+ZWxlY3QnIHN0YXRlbWVudHMgZm9yIHN5bWJvbHMgdGhhdCBvdGhlcndpc2UKYXJlIHVzZWQgd2l0
+aCAnZGVwZW5kcyBvbicuIFdlIHNob3VsZCBwcm9iYWJseSBhZGRyZXNzIHRoZSAnc2VsZWN0IEky
+QycKcG9ydGlvbiBpbiB0aGVyZSwgYnV0IGFsc28gc29tZSBvZiB0aGUgb3RoZXJzIGxpa2U6Cgpk
+cml2ZXJzL2dwdS9kcm0vS2NvbmZpZzogICAgICAgIHNlbGVjdCBQT1dFUl9TVVBQTFkKZHJpdmVy
+cy9ncHUvZHJtL0tjb25maWc6ICAgICAgICBzZWxlY3QgSFdNT04KZHJpdmVycy9ncHUvZHJtL0tj
+b25maWc6ICAgICAgICBzZWxlY3QgRkIKZHJpdmVycy9ncHUvZHJtL3VkbC9LY29uZmlnOiBzZWxl
+Y3QgVVNCCmRyaXZlcnMvZ3B1L2RybS9zdGkvS2NvbmZpZzogc2VsZWN0IE9GCmRyaXZlcnMvZ3B1
+L2RybS9zdGkvS2NvbmZpZzogc2VsZWN0IFJFU0VUX0NPTlRST0xMRVIKZHJpdmVycy9ncHUvZHJt
+L2V0bmF2aXYvS2NvbmZpZzogICAgICAgIHNlbGVjdCBDTUEgaWYgSEFWRV9ETUFfQ09OVElHVU9V
+Uwpkcml2ZXJzL2dwdS9kcm0vZXRuYXZpdi9LY29uZmlnOiAgICAgICAgc2VsZWN0IFRNUEZTCmRy
+aXZlcnMvZ3B1L2RybS9pOTE1L0tjb25maWcuZGVidWc6ICAgICAgICBzZWxlY3QgREVCVUdfRlMK
+ZHJpdmVycy9ncHUvZHJtL2k5MTUvS2NvbmZpZy5kZWJ1ZzogICAgICAgIHNlbGVjdCBQUkVFTVBU
+X0NPVU5UCmRyaXZlcnMvZ3B1L2RybS9pOTE1L0tjb25maWcuZGVidWc6ICAgICBzZWxlY3QgVFJB
+Q0lORwpkcml2ZXJzL2dwdS9kcm0vaTkxNS9LY29uZmlnLmRlYnVnOiAgICAgc2VsZWN0IEZBVUxU
+X0lOSkVDVElPTgpkcml2ZXJzL2dwdS9kcm0vbWVkaWF0ZWsvS2NvbmZpZzogICAgICAgc2VsZWN0
+IE1FTU9SWQpkcml2ZXJzL2dwdS9kcm0vbWVkaWF0ZWsvS2NvbmZpZzogICAgICAgc2VsZWN0IEdF
+TkVSSUNfUEhZCmRyaXZlcnMvZ3B1L2RybS9tc20vS2NvbmZpZzogICAgc2VsZWN0IFJFR1VMQVRP
+UgoKPiBjLiBJZiBJMkMgaXMgbm90IGVuYWJsZWQgaW4gdGhlIEZCIG1lbnUsIHNvbWVvbmUgY291
+bGQganVzdCBhZGQgc29tZXRoaW5nIGxpa2UgdGhpczoKPgo+IGNvbW1lbnQgIkVuYWJsZSBJMkMg
+dG8gc2VlIG1vcmUgZHJpdmVyIGNob2ljZXMiCj4gICAgICAgICBkZXBlbmRzIG9uICFJMkMKCkkg
+ZG9uJ3QgdGhpbmsgdGhhdCB3b3VsZCBhZGRyZXNzIHRoZSBpc3N1ZSBvZiAnZGVmY29uZmlnJyBi
+dWlsZHMgbG9zaW5nCkkyQyBzdXBwb3J0IHdoZW4gaXQncyBubyBsb25nZXIgYXV0b21hdGljYWxs
+eSBzZWxlY3Rpb24uIE9uIHg4NiwgdGhpcwppcyBub3QgYW4gaXNzdWUsIGFzIFg4NiBhbHdheXMg
+ZW5hYmxlcyBJMkMuIEZvciB0aGUgcmVzdCwgd2UgY291bGQKZG8gYSBoYWNrIGxpa2UgdGhpczoK
+Ci0tLSBhL2RyaXZlcnMvaTJjL0tjb25maWcKKysrIGIvZHJpdmVycy9pMmMvS2NvbmZpZwpAQCAt
+OCw2ICs4LDcgQEAgY29uZmlnIEkyQwogICAgICAgIHRyaXN0YXRlICJJMkMgc3VwcG9ydCIKICAg
+ICAgICBzZWxlY3QgUlRfTVVURVhFUwogICAgICAgIHNlbGVjdCBJUlFfRE9NQUlOCisgICAgICAg
+ZGVmYXVsdCBEUk0gfHwgRkIKICAgICAgICAtLS1oZWxwLS0tCiAgICAgICAgICBJMkMgKHByb25v
+dW5jZTogSS1zcXVhcmVkLUMpIGlzIGEgc2xvdyBzZXJpYWwgYnVzIHByb3RvY29sIHVzZWQgaW4K
+ICAgICAgICAgIG1hbnkgbWljcm8gY29udHJvbGxlciBhcHBsaWNhdGlvbnMgYW5kIGRldmVsb3Bl
+ZCBieSBQaGlsaXBzLiAgU01CdXMsCgp3aGljaCB3b3VsZCBsZXQgYWxsICdkZWZjb25maWcnIHZl
+cnNpb25zIGtlZXAgd29ya2luZy4gSXQncyBhIGJpdCB1Z2x5LCBidXQKYXQgbGVhc3Qgd291bGRu
+J3QgY2F1c2Ugb3RoZXIgY2lyY3VsYXIgZGVwZW5kZW5jaWVzLgoKICAgICBBcm5kCl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5n
+IGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVk
+ZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
