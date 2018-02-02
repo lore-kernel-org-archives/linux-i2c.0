@@ -1,103 +1,205 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 1/2] fbdev: don't select I2C directly
-Date: Fri, 2 Feb 2018 12:59:52 +0100
-Message-ID: <CAK8P3a2bQzn39cFSspJKP6HoUuV7cxSw4AZpVRVvD=FMAYfp5Q@mail.gmail.com>
-References: <CGME20180115161439epcas3p1006f02c4e49f58c30c4aec1b0b11b0a7@epcas3p1.samsung.com>
- <20180115161431.803248-1-arnd@arndb.de> <1737876.npfVsP8Sog@amdc3058>
- <faff816c-d9d6-cb75-fe24-ba19fa92bd7e@infradead.org>
+From: Romain Porte <romain.porte@nokia.com>
+Subject: [PATCH v4 1/3] Add all_addrs option for i2c tools
+Date: Fri, 2 Feb 2018 13:45:16 +0100
+Message-ID: <20180202124518.2663-2-romain.porte@nokia.com>
+References: <20180105150248.3170-1-romain.porte@nokia.com>
+ <20180202124518.2663-1-romain.porte@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <faff816c-d9d6-cb75-fe24-ba19fa92bd7e@infradead.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: linux-fbdev@vger.kernel.org, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Wolfram Sang <wsa@the-dreams.de>, dri-devel <dri-devel@lists.freedesktop.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-eopbgr30123.outbound.protection.outlook.com ([40.107.3.123]:50336
+        "EHLO EUR03-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751740AbeBBMqn (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 2 Feb 2018 07:46:43 -0500
+In-Reply-To: <20180202124518.2663-1-romain.porte@nokia.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: jdelvare@suse.de, peda@axentia.se, linux-i2c@vger.kernel.org, Romain Porte <romain.porte@nokia.com>
 
-T24gRnJpLCBGZWIgMiwgMjAxOCBhdCAxOjIxIEFNLCBSYW5keSBEdW5sYXAgPHJkdW5sYXBAaW5m
-cmFkZWFkLm9yZz4gd3JvdGU6Cj4gT24gMDIvMDEvMjAxOCAwODoxNCBBTSwgQmFydGxvbWllaiBa
-b2xuaWVya2lld2ljeiB3cm90ZToKPj4gT24gTW9uZGF5LCBKYW51YXJ5IDE1LCAyMDE4IDA1OjE0
-OjA0IFBNIEFybmQgQmVyZ21hbm4gd3JvdGU6Cj4+PiBVc2luZyBhIEtjb25maWcgJ3NlbGVjdCcg
-c3RhdGVtZW50IGZvciBhIHVzZXItdmlzaWJsZSBzeW1ib2wgdGhhdCBvdGhlcgo+Pj4gZHJpdmVy
-cyBkZXBlbmQgb24gb2Z0ZW4gY2F1c2VzIGNpcmN1bGFyIGRlcGVuZGVuY2llcy4gQSBuZXcgb25l
-IHNob3dlZAo+Pj4gdXAgd2hlbiBJIHdhbnRlZCB0byBhZGQgYW4gTlZNRU0gZGVwZW5kZW5jeSB0
-byB0aGUgRFJNX01TTSBkcml2ZXI6Cj4+Pgo+Pj4gZHJpdmVycy9pMmMvS2NvbmZpZzo3OmVycm9y
-OiByZWN1cnNpdmUgZGVwZW5kZW5jeSBkZXRlY3RlZCEKPj4+IGRyaXZlcnMvaTJjL0tjb25maWc6
-NzogICAgICAgc3ltYm9sIEkyQyBpcyBzZWxlY3RlZCBieSBGQl9EREMKPj4+IGRyaXZlcnMvdmlk
-ZW8vZmJkZXYvS2NvbmZpZzo2MzogICAgICBzeW1ib2wgRkJfRERDIGlzIHNlbGVjdGVkIGJ5IEZC
-X0NZQkVSMjAwMF9EREMKPj4+IGRyaXZlcnMvdmlkZW8vZmJkZXYvS2NvbmZpZzozOTA6ICAgICBz
-eW1ib2wgRkJfQ1lCRVIyMDAwX0REQyBkZXBlbmRzIG9uIEZCX0NZQkVSMjAwMAo+Pj4gZHJpdmVy
-cy92aWRlby9mYmRldi9LY29uZmlnOjM3ODogICAgIHN5bWJvbCBGQl9DWUJFUjIwMDAgZGVwZW5k
-cyBvbiBGQgo+Pj4gZHJpdmVycy92aWRlby9mYmRldi9LY29uZmlnOjU6ICAgICAgIHN5bWJvbCBG
-QiBpcyBzZWxlY3RlZCBieSBEUk1fS01TX0ZCX0hFTFBFUgo+Pj4gZHJpdmVycy9ncHUvZHJtL0tj
-b25maWc6Nzc6ICBzeW1ib2wgRFJNX0tNU19GQl9IRUxQRVIgZGVwZW5kcyBvbiBEUk1fS01TX0hF
-TFBFUgo+Pj4gZHJpdmVycy9ncHUvZHJtL0tjb25maWc6NzE6ICBzeW1ib2wgRFJNX0tNU19IRUxQ
-RVIgaXMgc2VsZWN0ZWQgYnkgRFJNX01TTQo+Pj4gZHJpdmVycy9ncHUvZHJtL21zbS9LY29uZmln
-OjI6ICAgICAgIHN5bWJvbCBEUk1fTVNNIGRlcGVuZHMgb24gTlZNRU0KPj4+IGRyaXZlcnMvbnZt
-ZW0vS2NvbmZpZzoxOiAgICAgc3ltYm9sIE5WTUVNIGlzIHNlbGVjdGVkIGJ5IEVFUFJPTV9BVDI0
-Cj4+PiBkcml2ZXJzL21pc2MvZWVwcm9tL0tjb25maWc6MzogICAgICAgc3ltYm9sIEVFUFJPTV9B
-VDI0IGRlcGVuZHMgb24gSTJDCj4+Pgo+Pj4gSGVyZSwgdGhlIHByb2JsZW0gaXMgdGhhdCBtYW55
-IGZiZGV2IGRyaXZlcnMgaGF2ZSBhbiBpMmMgYmFzZWQgaW50ZXJmYWNlCj4+PiBhbmQganVzdCAn
-c2VsZWN0IGkyYycgZm9yIHRoYXQsIHdoaWxlIHdlIGFsc28gc2VsZWN0IHRoZSBmcmFtZWJ1ZmZl
-cgo+Pj4gc3Vic3lzdGVtIGluZGlyZWN0bHkgZnJvbSBhIERSTSBkcml2ZXIgdGhhdCBub3cgZGVw
-ZW5kcyBvbiBpMmMuCj4+Pgo+Pj4gVGhpcyBkb2VzIGF3YXkgd2l0aCB0aGUgJ3NlbGVjdCcgc3Rh
-dGVtZW50IGFuZCBpbnN0ZWFkIHVzZXMgJ2RlcGVuZHMgb24nLAo+Pj4gbGlrZSBhbG1vc3QgYWxs
-IEkyQyB1c2Vycy4KPj4KPj4gSSB3b3JyeSB0aGF0IHRoaXMgY2hhbmdlIG1heSBjYXVzZSB2YXJp
-b3VzIGRyaXZlciBvcHRpb25zIHRvIG5vIGxvbmdlcgo+PiBiZSB2aXNpYmxlIHRvIHBlb3BsZSBj
-b25maWd1cmluZyB0aGVpciBrZXJuZWxzIGFuZCBub3QgaGF2aW5nIEkyQyBhbHJlYWR5Cj4+IHNl
-bGVjdGVkLgo+Pgo+PiBEUk0gc29tZWhvdyBtYW5hZ2VzIHRvIHNlbGVjdCBJMkMgYW5kIEkgd291
-bGQgcHJlZmVyIHRvIGJlIGl0IHRoZSBzYW1lCj4+IHdheSBmb3IgZmJkZXYgKGFsc28gbG9va2lu
-ZyBhdCB0aGUgY3VycmVudCBuZXh0IHRyZWUgdGhlcmUgYXJlIHN0aWxsCj4+IHNvbWUgZHJpdmVy
-cyB0aGF0ICdzZWxlY3QgSTJDJykuLgo+Cj4gYS4gTGludXMgaGFzIHN0YXRlZCB0aGF0IGEgZHJp
-dmVyIHNob3VsZCBub3QgZW5hYmxlIGFuIGVudGlyZSBzdWJzeXN0ZW0sCj4gICAgc28gZGVwZW5k
-cyBvbiB3b3VsZCBiZSBiZXR0ZXIgdGhhbiBzZWxlY3QuCj4gICAgSWYgSSBoYWQgdGhlIGVtYWls
-L3BhdGNoLCBJIHdvdWxkIGJlIGdsYWQgdG8gQWNrIGl0Lgo+Cj4gYi4gRFJNIGNvbmZpZ3VyYXRp
-b24gaXMgYSBtZXNzLiBZb3Ugc2hvdWxkbid0IHdhbnQgdG8gZm9sbG93IHRoZWlyIG1vZGVsLiA6
-KQoKUmlnaHQsIHRoYXQgc2hvdWxkIGFsc28gYmUgZml4ZWQsIHNvIERSTSBubyBsb25nZXIgaW5j
-bHVkZXMgSTJDIDstKQoKQXQgdGhlIG1vbWVudCwgRFJNIGlzIHRoZSBtb3N0IGNvbW1vbiBjYXVz
-ZSBmb3IgY2lyY3VsYXIgZGVwZW5kZW5jaWVzCmJlY2F1c2UgaXQgaGFzIGEgbnVtYmVyIG9mICdz
-ZWxlY3QnIHN0YXRlbWVudHMgZm9yIHN5bWJvbHMgdGhhdCBvdGhlcndpc2UKYXJlIHVzZWQgd2l0
-aCAnZGVwZW5kcyBvbicuIFdlIHNob3VsZCBwcm9iYWJseSBhZGRyZXNzIHRoZSAnc2VsZWN0IEky
-QycKcG9ydGlvbiBpbiB0aGVyZSwgYnV0IGFsc28gc29tZSBvZiB0aGUgb3RoZXJzIGxpa2U6Cgpk
-cml2ZXJzL2dwdS9kcm0vS2NvbmZpZzogICAgICAgIHNlbGVjdCBQT1dFUl9TVVBQTFkKZHJpdmVy
-cy9ncHUvZHJtL0tjb25maWc6ICAgICAgICBzZWxlY3QgSFdNT04KZHJpdmVycy9ncHUvZHJtL0tj
-b25maWc6ICAgICAgICBzZWxlY3QgRkIKZHJpdmVycy9ncHUvZHJtL3VkbC9LY29uZmlnOiBzZWxl
-Y3QgVVNCCmRyaXZlcnMvZ3B1L2RybS9zdGkvS2NvbmZpZzogc2VsZWN0IE9GCmRyaXZlcnMvZ3B1
-L2RybS9zdGkvS2NvbmZpZzogc2VsZWN0IFJFU0VUX0NPTlRST0xMRVIKZHJpdmVycy9ncHUvZHJt
-L2V0bmF2aXYvS2NvbmZpZzogICAgICAgIHNlbGVjdCBDTUEgaWYgSEFWRV9ETUFfQ09OVElHVU9V
-Uwpkcml2ZXJzL2dwdS9kcm0vZXRuYXZpdi9LY29uZmlnOiAgICAgICAgc2VsZWN0IFRNUEZTCmRy
-aXZlcnMvZ3B1L2RybS9pOTE1L0tjb25maWcuZGVidWc6ICAgICAgICBzZWxlY3QgREVCVUdfRlMK
-ZHJpdmVycy9ncHUvZHJtL2k5MTUvS2NvbmZpZy5kZWJ1ZzogICAgICAgIHNlbGVjdCBQUkVFTVBU
-X0NPVU5UCmRyaXZlcnMvZ3B1L2RybS9pOTE1L0tjb25maWcuZGVidWc6ICAgICBzZWxlY3QgVFJB
-Q0lORwpkcml2ZXJzL2dwdS9kcm0vaTkxNS9LY29uZmlnLmRlYnVnOiAgICAgc2VsZWN0IEZBVUxU
-X0lOSkVDVElPTgpkcml2ZXJzL2dwdS9kcm0vbWVkaWF0ZWsvS2NvbmZpZzogICAgICAgc2VsZWN0
-IE1FTU9SWQpkcml2ZXJzL2dwdS9kcm0vbWVkaWF0ZWsvS2NvbmZpZzogICAgICAgc2VsZWN0IEdF
-TkVSSUNfUEhZCmRyaXZlcnMvZ3B1L2RybS9tc20vS2NvbmZpZzogICAgc2VsZWN0IFJFR1VMQVRP
-UgoKPiBjLiBJZiBJMkMgaXMgbm90IGVuYWJsZWQgaW4gdGhlIEZCIG1lbnUsIHNvbWVvbmUgY291
-bGQganVzdCBhZGQgc29tZXRoaW5nIGxpa2UgdGhpczoKPgo+IGNvbW1lbnQgIkVuYWJsZSBJMkMg
-dG8gc2VlIG1vcmUgZHJpdmVyIGNob2ljZXMiCj4gICAgICAgICBkZXBlbmRzIG9uICFJMkMKCkkg
-ZG9uJ3QgdGhpbmsgdGhhdCB3b3VsZCBhZGRyZXNzIHRoZSBpc3N1ZSBvZiAnZGVmY29uZmlnJyBi
-dWlsZHMgbG9zaW5nCkkyQyBzdXBwb3J0IHdoZW4gaXQncyBubyBsb25nZXIgYXV0b21hdGljYWxs
-eSBzZWxlY3Rpb24uIE9uIHg4NiwgdGhpcwppcyBub3QgYW4gaXNzdWUsIGFzIFg4NiBhbHdheXMg
-ZW5hYmxlcyBJMkMuIEZvciB0aGUgcmVzdCwgd2UgY291bGQKZG8gYSBoYWNrIGxpa2UgdGhpczoK
-Ci0tLSBhL2RyaXZlcnMvaTJjL0tjb25maWcKKysrIGIvZHJpdmVycy9pMmMvS2NvbmZpZwpAQCAt
-OCw2ICs4LDcgQEAgY29uZmlnIEkyQwogICAgICAgIHRyaXN0YXRlICJJMkMgc3VwcG9ydCIKICAg
-ICAgICBzZWxlY3QgUlRfTVVURVhFUwogICAgICAgIHNlbGVjdCBJUlFfRE9NQUlOCisgICAgICAg
-ZGVmYXVsdCBEUk0gfHwgRkIKICAgICAgICAtLS1oZWxwLS0tCiAgICAgICAgICBJMkMgKHByb25v
-dW5jZTogSS1zcXVhcmVkLUMpIGlzIGEgc2xvdyBzZXJpYWwgYnVzIHByb3RvY29sIHVzZWQgaW4K
-ICAgICAgICAgIG1hbnkgbWljcm8gY29udHJvbGxlciBhcHBsaWNhdGlvbnMgYW5kIGRldmVsb3Bl
-ZCBieSBQaGlsaXBzLiAgU01CdXMsCgp3aGljaCB3b3VsZCBsZXQgYWxsICdkZWZjb25maWcnIHZl
-cnNpb25zIGtlZXAgd29ya2luZy4gSXQncyBhIGJpdCB1Z2x5LCBidXQKYXQgbGVhc3Qgd291bGRu
-J3QgY2F1c2Ugb3RoZXIgY2lyY3VsYXIgZGVwZW5kZW5jaWVzLgoKICAgICBBcm5kCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5n
-IGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVk
-ZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
+If the user is sure that the reserved 0x00 - 0x02 and 0x77 - 0x7f ranges are
+not needed by its devices, then he can pass the "-a" option for allowing all
+theorical addresses to be used. It is then possible to access devices in this
+address range.
+
+Signed-off-by: Romain Porte <romain.porte@nokia.com>
+---
+ tools/i2cbusses.c   | 14 +++++++++++---
+ tools/i2cbusses.h   |  2 +-
+ tools/i2cdump.c     |  5 +++--
+ tools/i2cget.c      |  5 +++--
+ tools/i2cset.c      |  5 +++--
+ tools/i2ctransfer.c |  5 +++--
+ 6 files changed, 24 insertions(+), 12 deletions(-)
+
+diff --git a/tools/i2cbusses.c b/tools/i2cbusses.c
+index 41f5b6b..ad06332 100644
+--- a/tools/i2cbusses.c
++++ b/tools/i2cbusses.c
+@@ -377,19 +377,27 @@ int lookup_i2c_bus(const char *i2cbus_arg)
+  * Parse a CHIP-ADDRESS command line argument and return the corresponding
+  * chip address, or a negative value if the address is invalid.
+  */
+-int parse_i2c_address(const char *address_arg)
++int parse_i2c_address(const char *address_arg, int all_addrs)
+ {
+ 	long address;
+ 	char *end;
++	long min_addr = 0x03;
++	long max_addr = 0x77;
+ 
+ 	address = strtol(address_arg, &end, 0);
+ 	if (*end || !*address_arg) {
+ 		fprintf(stderr, "Error: Chip address is not a number!\n");
+ 		return -1;
+ 	}
+-	if (address < 0x03 || address > 0x77) {
++
++	if (all_addrs) {
++		min_addr = 0x00;
++		max_addr = 0x7f;
++	}
++
++	if (address < min_addr || address > max_addr) {
+ 		fprintf(stderr, "Error: Chip address out of range "
+-			"(0x03-0x77)!\n");
++			"(0x%02lx-0x%02lx)!\n", min_addr, max_addr);
+ 		return -2;
+ 	}
+ 
+diff --git a/tools/i2cbusses.h b/tools/i2cbusses.h
+index 26143a5..a192c7f 100644
+--- a/tools/i2cbusses.h
++++ b/tools/i2cbusses.h
+@@ -35,7 +35,7 @@ struct i2c_adap *gather_i2c_busses(void);
+ void free_adapters(struct i2c_adap *adapters);
+ 
+ int lookup_i2c_bus(const char *i2cbus_arg);
+-int parse_i2c_address(const char *address_arg);
++int parse_i2c_address(const char *address_arg, int all_addrs);
+ int open_i2c_dev(int i2cbus, char *filename, size_t size, int quiet);
+ int set_slave_addr(int file, int address, int force);
+ 
+diff --git a/tools/i2cdump.c b/tools/i2cdump.c
+index a7bba72..567ef03 100644
+--- a/tools/i2cdump.c
++++ b/tools/i2cdump.c
+@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
+ 	int block[256], s_length = 0;
+ 	int pec = 0, even = 0;
+ 	int flags = 0;
+-	int force = 0, yes = 0, version = 0;
++	int force = 0, yes = 0, version = 0, all_addrs = 0;
+ 	const char *range = NULL;
+ 	int first = 0x00, last = 0xff;
+ 
+@@ -130,6 +130,7 @@ int main(int argc, char *argv[])
+ 		case 'f': force = 1; break;
+ 		case 'r': range = argv[1+(++flags)]; break;
+ 		case 'y': yes = 1; break;
++		case 'a': all_addrs = 1; break;
+ 		default:
+ 			fprintf(stderr, "Error: Unsupported option "
+ 				"\"%s\"!\n", argv[1+flags]);
+@@ -160,7 +161,7 @@ int main(int argc, char *argv[])
+ 		help();
+ 		exit(1);
+ 	}
+-	address = parse_i2c_address(argv[flags+2]);
++	address = parse_i2c_address(argv[flags+2], all_addrs);
+ 	if (address < 0) {
+ 		help();
+ 		exit(1);
+diff --git a/tools/i2cget.c b/tools/i2cget.c
+index 2503942..34b4af1 100644
+--- a/tools/i2cget.c
++++ b/tools/i2cget.c
+@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
+ 	char filename[20];
+ 	int pec = 0;
+ 	int flags = 0;
+-	int force = 0, yes = 0, version = 0;
++	int force = 0, yes = 0, version = 0, all_addrs = 0;
+ 
+ 	/* handle (optional) flags first */
+ 	while (1+flags < argc && argv[1+flags][0] == '-') {
+@@ -166,6 +166,7 @@ int main(int argc, char *argv[])
+ 		case 'V': version = 1; break;
+ 		case 'f': force = 1; break;
+ 		case 'y': yes = 1; break;
++		case 'a': all_addrs = 1; break;
+ 		default:
+ 			fprintf(stderr, "Error: Unsupported option "
+ 				"\"%s\"!\n", argv[1+flags]);
+@@ -187,7 +188,7 @@ int main(int argc, char *argv[])
+ 	if (i2cbus < 0)
+ 		help();
+ 
+-	address = parse_i2c_address(argv[flags+2]);
++	address = parse_i2c_address(argv[flags+2], all_addrs);
+ 	if (address < 0)
+ 		help();
+ 
+diff --git a/tools/i2cset.c b/tools/i2cset.c
+index 0ccc1a0..e250837 100644
+--- a/tools/i2cset.c
++++ b/tools/i2cset.c
+@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
+ 	char filename[20];
+ 	int pec = 0;
+ 	int flags = 0;
+-	int force = 0, yes = 0, version = 0, readback = 0;
++	int force = 0, yes = 0, version = 0, readback = 0, all_addrs = 0;
+ 	unsigned char block[I2C_SMBUS_BLOCK_MAX];
+ 	int len;
+ 
+@@ -179,6 +179,7 @@ int main(int argc, char *argv[])
+ 			flags++;
+ 			break;
+ 		case 'r': readback = 1; break;
++		case 'a': all_addrs = 1; break;
+ 		default:
+ 			fprintf(stderr, "Error: Unsupported option "
+ 				"\"%s\"!\n", argv[1+flags]);
+@@ -200,7 +201,7 @@ int main(int argc, char *argv[])
+ 	if (i2cbus < 0)
+ 		help();
+ 
+-	address = parse_i2c_address(argv[flags+2]);
++	address = parse_i2c_address(argv[flags+2], all_addrs);
+ 	if (address < 0)
+ 		help();
+ 
+diff --git a/tools/i2ctransfer.c b/tools/i2ctransfer.c
+index 38b6b4a..0dce067 100644
+--- a/tools/i2ctransfer.c
++++ b/tools/i2ctransfer.c
+@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
+ {
+ 	char filename[20];
+ 	int i2cbus, address = -1, file, arg_idx = 1, nmsgs = 0, nmsgs_sent, i;
+-	int force = 0, yes = 0, version = 0, verbose = 0;
++	int force = 0, yes = 0, version = 0, verbose = 0, all_addrs = 0;
+ 	struct i2c_msg msgs[I2C_RDRW_IOCTL_MAX_MSGS];
+ 	enum parse_state state = PARSE_GET_DESC;
+ 	unsigned buf_idx = 0;
+@@ -139,6 +139,7 @@ int main(int argc, char *argv[])
+ 		case 'v': verbose = 1; break;
+ 		case 'f': force = 1; break;
+ 		case 'y': yes = 1; break;
++		case 'a': all_addrs = 1; break;
+ 		default:
+ 			fprintf(stderr, "Error: Unsupported option \"%s\"!\n",
+ 				argv[arg_idx]);
+@@ -210,7 +211,7 @@ int main(int argc, char *argv[])
+ 				 */
+ 
+ 				if (!force) {
+-					address = parse_i2c_address(arg_ptr);
++					address = parse_i2c_address(arg_ptr, all_addrs);
+ 					if (address < 0)
+ 						goto err_out_with_arg;
+ 
+-- 
+2.11.0
