@@ -1,120 +1,30 @@
-From: Romain Porte <romain.porte@nokia.com>
-Subject: [PATCH v4 3/3] Update man pages for all_addrs
-Date: Fri, 2 Feb 2018 13:45:18 +0100
-Message-ID: <20180202124518.2663-4-romain.porte@nokia.com>
-References: <20180105150248.3170-1-romain.porte@nokia.com>
- <20180202124518.2663-1-romain.porte@nokia.com>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH 0/2] i2c-sh7760: Adjustments for sh7760_i2c_probe()
+Date: Fri, 2 Feb 2018 15:20:43 +0100
+Message-ID: <3f4a9053-5518-61ab-2cdf-e400f6b35ce3@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-ve1eur01on0092.outbound.protection.outlook.com ([104.47.1.92]:64320
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751735AbeBBMqm (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 2 Feb 2018 07:46:42 -0500
-In-Reply-To: <20180202124518.2663-1-romain.porte@nokia.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <kernel-janitors-owner@vger.kernel.org>
+Content-Language: en-US
+Sender: kernel-janitors-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: jdelvare@suse.de, peda@axentia.se, linux-i2c@vger.kernel.org, Romain Porte <romain.porte@nokia.com>
 
-Describe the new -a option in man pages of modified tools.
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Fri, 2 Feb 2018 15:18:29 +0100
 
-Signed-off-by: Romain Porte <romain.porte@nokia.com>
----
- tools/i2cdump.8     | 4 ++++
- tools/i2cget.8      | 4 ++++
- tools/i2cset.8      | 4 ++++
- tools/i2ctransfer.8 | 4 ++++
- 4 files changed, 16 insertions(+)
+Two update suggestions were taken into account
+from static source code analysis.
 
-diff --git a/tools/i2cdump.8 b/tools/i2cdump.8
-index fb7217e..2240f3c 100644
---- a/tools/i2cdump.8
-+++ b/tools/i2cdump.8
-@@ -7,6 +7,7 @@ i2cdump \- examine I2C registers
- .RB [ -f ]
- .RB [ "-r first-last" ]
- .RB [ -y ]
-+.RB [ -a ]
- .I i2cbus
- .I address
- .RI [ "mode " [ "bank " [ bankreg ]]]
-@@ -40,6 +41,9 @@ Disable interactive mode. By default, i2cdump will wait for a confirmation
- from the user before messing with the I2C bus. When this flag is used, it
- will perform the operation directly. This is mainly meant to be used in
- scripts.
-+.TP
-+.B -a
-+Allow using addresses between 0x00 - 0x02 and 0x78 - 0x7f. Not recommended.
- .PP
- At least two options must be provided to i2cdump. \fIi2cbus\fR indicates the
- number or name of the I2C bus to be scanned. This number should correspond to one
-diff --git a/tools/i2cget.8 b/tools/i2cget.8
-index a1a1276..8b48ad7 100644
---- a/tools/i2cget.8
-+++ b/tools/i2cget.8
-@@ -6,6 +6,7 @@ i2cget \- read from I2C/SMBus chip registers
- .B i2cget
- .RB [ -f ]
- .RB [ -y ]
-+.RB [ -a ]
- .I i2cbus
- .I chip-address
- .RI [ "data-address " [ mode ]]
-@@ -34,6 +35,9 @@ Disable interactive mode. By default, i2cget will wait for a confirmation
- from the user before messing with the I2C bus. When this flag is used, it
- will perform the operation directly. This is mainly meant to be used in
- scripts. Use with caution.
-+.TP
-+.B -a
-+Allow using addresses between 0x00 - 0x02 and 0x78 - 0x7f. Not recommended.
- .PP
- There are two required options to i2cget. \fIi2cbus\fR indicates the number
- or name of the I2C bus to be scanned.  This number should correspond to one of
-diff --git a/tools/i2cset.8 b/tools/i2cset.8
-index 19887bd..cd53aba 100644
---- a/tools/i2cset.8
-+++ b/tools/i2cset.8
-@@ -8,6 +8,7 @@ i2cset \- set I2C registers
- .RB [ -y ]
- .RB [ "-m mask" ]
- .RB [ -r ]
-+.RB [ -a ]
- .I i2cbus
- .I chip-address
- .I data-address
-@@ -54,6 +55,9 @@ be the case, as neither I2C nor SMBus guarantees this.
- Read back the value right after writing it, and compare the result with the
- value written. This used to be the default behavior. The same limitations
- apply as those of option \fB-m\fR.
-+.TP
-+.B -a
-+Allow using addresses between 0x00 - 0x02 and 0x78 - 0x7f. Not recommended.
- .PP
- There are three required options to i2cset. \fIi2cbus\fR indicates the number
- or name of the I2C bus to be scanned.  This number should correspond to one of
-diff --git a/tools/i2ctransfer.8 b/tools/i2ctransfer.8
-index 0dd43c9..99123fa 100644
---- a/tools/i2ctransfer.8
-+++ b/tools/i2ctransfer.8
-@@ -7,6 +7,7 @@ i2ctransfer \- send user-defined I2C messages in one transfer
- .RB [ -f ]
- .RB [ -y ]
- .RB [ -v ]
-+.RB [ -a ]
- .I i2cbus desc
- .RI [ data ]
- .RI [ desc
-@@ -61,6 +62,9 @@ It will print infos about all messages sent, i.e. not only for read messages but
- .TP
- .B -V
- Display the version and exit.
-+.TP
-+.B -a
-+Allow using addresses between 0x00 - 0x02 and 0x78 - 0x7f. Not recommended.
- 
- .SH ARGUMENTS
- .PP
+Markus Elfring (2):
+  Delete an error message for a failed memory allocation
+  Improve a size determination
+
+ drivers/i2c/busses/i2c-sh7760.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
 -- 
-2.11.0
+2.16.1
+
