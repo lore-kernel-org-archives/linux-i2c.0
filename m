@@ -1,78 +1,45 @@
 From: Abhishek Sahu <absahu@codeaurora.org>
-Subject: [PATCH 07/12] i2c: qup: use the complete transfer length to choose DMA mode
-Date: Sat,  3 Feb 2018 13:28:12 +0530
-Message-ID: <1517644697-30806-8-git-send-email-absahu@codeaurora.org>
+Subject: [PATCH 05/12] i2c: qup: fix the transfer length for BAM rx EOT FLUSH tags
+Date: Sat,  3 Feb 2018 13:28:10 +0530
+Message-ID: <1517644697-30806-6-git-send-email-absahu@codeaurora.org>
 References: <1517644697-30806-1-git-send-email-absahu@codeaurora.org>
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from smtp.codeaurora.org ([198.145.29.96]:35538 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751912AbeBCH6q (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 3 Feb 2018 02:58:46 -0500
 In-Reply-To: <1517644697-30806-1-git-send-email-absahu@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 To: Andy Gross <andy.gross@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
 Cc: David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Abhishek Sahu <absahu@codeaurora.org>
-List-Id: linux-i2c@vger.kernel.org
 
-Currently each message length in complete transfer is being
-checked for determining DMA mode and if any of the message length
-is less than FIFO length then non DMA mode is being used which
-will increase overhead. DMA can be used for any length and it
-should be determined with complete transfer length. Now, this
-patch introduces DMA threshold length and the transfer will be
-done in DMA mode if the total length is greater than this
-threshold length.
+In case of FLUSH operation, BAM copies INPUT EOT FLUSH (0x94)
+instead of normal EOT (0x93) tag in input data stream when an
+input EOT tag is received during flush operation. So only one tag
+will be written instead of 2 separate tags.
 
 Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
 ---
- drivers/i2c/busses/i2c-qup.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-qup.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index 6227a5c..a91fc70 100644
+index 6357aff..094be6a 100644
 --- a/drivers/i2c/busses/i2c-qup.c
 +++ b/drivers/i2c/busses/i2c-qup.c
-@@ -192,6 +192,8 @@ struct qup_i2c_dev {
- 	bool			is_dma;
- 	/* To check if the current transfer is using DMA */
- 	bool			use_dma;
-+	/* The threshold length above which DMA will be used */
-+	unsigned int		dma_threshold;
- 	struct			dma_pool *dpool;
- 	struct			qup_i2c_tag start_tag;
- 	struct			qup_i2c_bam brx;
-@@ -1294,7 +1296,8 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
- 			   int num)
- {
- 	struct qup_i2c_dev *qup = i2c_get_adapdata(adap);
--	int ret, len, idx = 0;
-+	int ret, idx = 0;
-+	unsigned int total_len = 0;
+@@ -768,10 +768,10 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+ 		qup->btx.tag.start[0] = QUP_BAM_INPUT_EOT;
+ 		len++;
  
- 	qup->bus_err = 0;
- 	qup->qup_err = 0;
-@@ -1320,14 +1323,13 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
- 				goto out;
- 			}
- 
--			len = (msgs[idx].len > qup->out_fifo_sz) ||
--			      (msgs[idx].len > qup->in_fifo_sz);
--
--			if (is_vmalloc_addr(msgs[idx].buf) || !len)
-+			if (is_vmalloc_addr(msgs[idx].buf))
- 				break;
-+
-+			total_len += msgs[idx].len;
- 		}
- 
--		if (idx == num)
-+		if (idx == num && total_len > qup->dma_threshold)
- 			qup->use_dma = true;
+-		/* scratch buf to read the BAM EOT and FLUSH tags */
++		/* scratch buf to read the BAM EOT FLUSH tags */
+ 		ret = qup_sg_set_buf(&qup->brx.sg[rx_buf++],
+ 				     &qup->brx.tag.start[0],
+-				     2, qup, DMA_FROM_DEVICE);
++				     1, qup, DMA_FROM_DEVICE);
+ 		if (ret)
+ 			return ret;
  	}
- 
-@@ -1587,6 +1589,7 @@ static int qup_i2c_probe(struct platform_device *pdev)
- 
- 	size = QUP_INPUT_FIFO_SIZE(io_mode);
- 	qup->in_fifo_sz = qup->in_blk_sz * (2 << size);
-+	qup->dma_threshold = min(qup->out_fifo_sz, qup->in_fifo_sz);
- 
- 	fs_div = ((src_clk_freq / clk_freq) / 2) - 3;
- 	hs_div = 3;
 -- 
 QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
