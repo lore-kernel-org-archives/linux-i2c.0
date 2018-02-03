@@ -1,8 +1,11 @@
 From: Abhishek Sahu <absahu@codeaurora.org>
-Subject: [PATCH 03/12] i2c: qup: remove redundant variables for BAM SG count
-Date: Sat,  3 Feb 2018 13:28:08 +0530
-Message-ID: <1517644697-30806-4-git-send-email-absahu@codeaurora.org>
+Subject: [PATCH 01/12] i2c: qup: fixed releasing dma without flush operation completion
+Date: Sat,  3 Feb 2018 13:28:06 +0530
+Message-ID: <1517644697-30806-2-git-send-email-absahu@codeaurora.org>
 References: <1517644697-30806-1-git-send-email-absahu@codeaurora.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-arm-msm-owner@vger.kernel.org>
 In-Reply-To: <1517644697-30806-1-git-send-email-absahu@codeaurora.org>
 Sender: linux-arm-msm-owner@vger.kernel.org
@@ -10,114 +13,45 @@ To: Andy Gross <andy.gross@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
 Cc: David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Abhishek Sahu <absahu@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The rx_nents and tx_nents are redundant. rx_buf and tx_buf can
-be used for total number of SG entries.
+The QUP BSLP BAM generates the following error sometimes if the
+current I2C DMA transfer fails and the flush operation has been
+scheduled
+
+    “bam-dma-engine 7884000.dma: Cannot free busy channel”
+
+If any I2C error comes during BAM DMA transfer, then the QUP I2C
+interrupt will be generated and the flush operation will be
+carried out to make i2c consume all scheduled DMA transfer.
+Currently, the same completion structure is being used for BAM
+transfer which has already completed without reinit. It will make
+flush operation wait_for_completion_timeout completed immediately
+and will proceed for freeing the DMA resources where the
+descriptors are still in process.
 
 Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
 ---
- drivers/i2c/busses/i2c-qup.c | 26 ++++++++++----------------
- 1 file changed, 10 insertions(+), 16 deletions(-)
+ drivers/i2c/busses/i2c-qup.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index c68f433..bb83a2967 100644
+index 08f8e01..9faa26c41a 100644
 --- a/drivers/i2c/busses/i2c-qup.c
 +++ b/drivers/i2c/busses/i2c-qup.c
-@@ -692,7 +692,7 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
- 	struct dma_async_tx_descriptor *txd, *rxd = NULL;
- 	int ret = 0, idx = 0, limit = QUP_READ_LIMIT;
- 	dma_cookie_t cookie_rx, cookie_tx;
--	u32 rx_nents = 0, tx_nents = 0, len, blocks, rem;
-+	u32 len, blocks, rem;
- 	u32 i, tlen, tx_len, tx_buf = 0, rx_buf = 0, off = 0;
- 	u8 *tags;
- 
-@@ -707,9 +707,6 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
- 		rem = msg->len - (blocks - 1) * limit;
- 
- 		if (msg->flags & I2C_M_RD) {
--			rx_nents += (blocks * 2) + 1;
--			tx_nents += 1;
--
- 			while (qup->blk.pos < blocks) {
- 				tlen = (i == (blocks - 1)) ? rem : limit;
- 				tags = &qup->start_tag.start[off + len];
-@@ -748,8 +745,6 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
- 			if (ret)
- 				return ret;
- 		} else {
--			tx_nents += (blocks * 2);
--
- 			while (qup->blk.pos < blocks) {
- 				tlen = (i == (blocks - 1)) ? rem : limit;
- 				tags = &qup->start_tag.start[off + tx_len];
-@@ -775,7 +770,7 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
- 
- 			if (idx == (num - 1)) {
- 				len = 1;
--				if (rx_nents) {
-+				if (rx_buf) {
- 					qup->btx.tag.start[0] =
- 							QUP_BAM_INPUT_EOT;
- 					len++;
-@@ -787,14 +782,13 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
- 						     len, qup, DMA_TO_DEVICE);
- 				if (ret)
- 					return ret;
--				tx_nents += 1;
- 			}
- 		}
- 		idx++;
- 		msg++;
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2009-2013, The Linux Foundation. All rights reserved.
++ * Copyright (c) 2009-2013, 2016-2018, The Linux Foundation. All rights reserved.
+  * Copyright (c) 2014, Sony Mobile Communications AB.
+  *
+  *
+@@ -844,6 +844,8 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
  	}
  
--	txd = dmaengine_prep_slave_sg(qup->btx.dma, qup->btx.sg, tx_nents,
-+	txd = dmaengine_prep_slave_sg(qup->btx.dma, qup->btx.sg, tx_buf,
- 				      DMA_MEM_TO_DEV,
- 				      DMA_PREP_INTERRUPT | DMA_PREP_FENCE);
- 	if (!txd) {
-@@ -803,7 +797,7 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
- 		goto desc_err;
- 	}
- 
--	if (!rx_nents) {
-+	if (!rx_buf) {
- 		txd->callback = qup_i2c_bam_cb;
- 		txd->callback_param = qup;
- 	}
-@@ -816,9 +810,9 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
- 
- 	dma_async_issue_pending(qup->btx.dma);
- 
--	if (rx_nents) {
-+	if (rx_buf) {
- 		rxd = dmaengine_prep_slave_sg(qup->brx.dma, qup->brx.sg,
--					      rx_nents, DMA_DEV_TO_MEM,
-+					      rx_buf, DMA_DEV_TO_MEM,
- 					      DMA_PREP_INTERRUPT);
- 		if (!rxd) {
- 			dev_err(qup->dev, "failed to get rx desc\n");
-@@ -853,7 +847,7 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+ 	if (ret || qup->bus_err || qup->qup_err) {
++		reinit_completion(&qup->xfer);
++
+ 		if (qup_i2c_change_state(qup, QUP_RUN_STATE)) {
+ 			dev_err(qup->dev, "change to run state timed out");
  			goto desc_err;
- 		}
- 
--		if (rx_nents)
-+		if (rx_buf)
- 			writel(QUP_BAM_INPUT_EOT,
- 			       qup->base + QUP_OUT_FIFO_BASE);
- 
-@@ -871,10 +865,10 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
- 	}
- 
- desc_err:
--	dma_unmap_sg(qup->dev, qup->btx.sg, tx_nents, DMA_TO_DEVICE);
-+	dma_unmap_sg(qup->dev, qup->btx.sg, tx_buf, DMA_TO_DEVICE);
- 
--	if (rx_nents)
--		dma_unmap_sg(qup->dev, qup->brx.sg, rx_nents,
-+	if (rx_buf)
-+		dma_unmap_sg(qup->dev, qup->brx.sg, rx_buf,
- 			     DMA_FROM_DEVICE);
- 
- 	return ret;
 -- 
 QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
