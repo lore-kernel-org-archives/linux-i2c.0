@@ -1,33 +1,58 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH] i2c: qup: Add shutdown method
-Date: Fri, 2 Feb 2018 15:36:26 -0800
-Message-ID: <20180202233626.GA9465@builder>
-References: <1516138534-30842-1-git-send-email-austinwc@codeaurora.org>
+From: Abhishek Sahu <absahu@codeaurora.org>
+Subject: [PATCH 00/12] Major code reorganization to make all i2c transfers working
+Date: Sat,  3 Feb 2018 13:28:05 +0530
+Message-ID: <1517644697-30806-1-git-send-email-absahu@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-pl0-f67.google.com ([209.85.160.67]:46041 "EHLO
-        mail-pl0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751699AbeBBXg3 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 2 Feb 2018 18:36:29 -0500
-Received: by mail-pl0-f67.google.com with SMTP id p5so7323089plo.12
-        for <linux-i2c@vger.kernel.org>; Fri, 02 Feb 2018 15:36:28 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <1516138534-30842-1-git-send-email-austinwc@codeaurora.org>
+Received: from smtp.codeaurora.org ([198.145.29.96]:35208 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750725AbeBCH6b (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 3 Feb 2018 02:58:31 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Austin Christ <austinwc@codeaurora.org>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org
+To: Andy Gross <andy.gross@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Abhishek Sahu <absahu@codeaurora.org>
 
-On Tue 16 Jan 13:35 PST 2018, Austin Christ wrote:
+The current driver is failing in following test case
+1. Handling of failure cases is not working in long run for BAM
+   mode. It generates error message “bam-dma-engine 7884000.dma: Cannot
+   free busy channel” sometimes.
+2. Following I2C transfers are failing
+   a. Single transfer with multiple read messages
+   b. Single transfer with multiple read/write message with maximum
+      allowed length per message (65K) in BAM mode
+   c. Single transfer with write greater than 32 bytes in QUP v1 and
+      write greater than 64 bytes in QUP v2 for non-DMA mode.
+3. No handling is present for Block/FIFO interrupts. Any non-error
+   interrupts are being treated as the transfer completion and then
+   polling is being done for available/free bytes in FIFO.
 
-> This shutdown method disables I2C to avoid corrupting a new kernel
-> started with kexec.
-> 
+To fix all these issues, major code changes are required. This patch
+series fixes all the above issues and makes the driver interrupt based
+instead of polling based. After these changes, all the mentioned test
+cases are working properly.
 
-Can you elaborate on the issue you're seeing here? In what way is the
-i2c-qup driver special, will there be similar patches for all other
-drivers in the system?
+The code changes have been tested for QUP v1 (IPQ8064) and QUP
+v2 (IPQ8074) with sample application written over i2c-dev.
 
-Regards,
-Bjorn
+Abhishek Sahu (12):
+  i2c: qup: fixed releasing dma without flush operation completion
+  i2c: qup: minor code reorganization for use_dma
+  i2c: qup: remove redundant variables for BAM SG count
+  i2c: qup: schedule EOT and FLUSH tags at the end of transfer
+  i2c: qup: fix the transfer length for BAM rx EOT FLUSH tags
+  i2c: qup: proper error handling for i2c error in BAM mode
+  i2c: qup: use the complete transfer length to choose DMA mode
+  i2c: qup: change completion timeout according to transfer length
+  i2c: qup: fix buffer overflow for multiple msg of maximum xfer len
+  i2c: qup: send NACK for last read sub transfers
+  i2c: qup: reorganization of driver code to remove polling for qup v1
+  i2c: qup: reorganization of driver code to remove polling for qup v2
+
+ drivers/i2c/busses/i2c-qup.c | 1538 +++++++++++++++++++++++++-----------------
+ 1 file changed, 924 insertions(+), 614 deletions(-)
+
+-- 
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
