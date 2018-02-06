@@ -1,61 +1,80 @@
-From: Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 3/7] soc: qcom: Add GENI based QUP Wrapper driver
-Date: Mon, 5 Feb 2018 15:53:01 -0800
-Message-ID: <20180205235301.GI9465@builder>
-References: <1515805547-22816-1-git-send-email-kramasub@codeaurora.org>
- <1515805547-22816-4-git-send-email-kramasub@codeaurora.org>
- <20180117062002.GA6620@minitux>
- <29ed5b45-dd70-fb70-3aa4-4e1a0006d57e@codeaurora.org>
- <20180118165745.GE6620@minitux>
- <20180119225708.4mo6fiy5zyd6kscj@rob-hp-laptop>
- <1abb0679-1997-9b70-30bd-d3472cea7053@codeaurora.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 1/2] fbdev: don't select I2C directly
+Date: Tue, 6 Feb 2018 12:07:00 +0100
+Message-ID: <CAMuHMdUdagXOG=v-xsLBoTb=rjS0HgAxZJE92NZsyqFzG=CVaQ@mail.gmail.com>
+References: <CGME20180115161439epcas3p1006f02c4e49f58c30c4aec1b0b11b0a7@epcas3p1.samsung.com>
+ <20180115161431.803248-1-arnd@arndb.de> <1737876.npfVsP8Sog@amdc3058>
+ <faff816c-d9d6-cb75-fe24-ba19fa92bd7e@infradead.org> <CAK8P3a2bQzn39cFSspJKP6HoUuV7cxSw4AZpVRVvD=FMAYfp5Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1abb0679-1997-9b70-30bd-d3472cea7053-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Karthik Ramasubramanian <kramasub-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Cc: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rajendra Nayak <rnayak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, corbet-T1hC0tSOHrs@public.gmane.org, andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jslaby-IBi9RG/b67k@public.gmane.org, Sagar Dharia <sdharia-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Girish Mahadevan <girishm-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-qt0-f193.google.com ([209.85.216.193]:33911 "EHLO
+        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752183AbeBFLHB (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 6 Feb 2018 06:07:01 -0500
+In-Reply-To: <CAK8P3a2bQzn39cFSspJKP6HoUuV7cxSw4AZpVRVvD=FMAYfp5Q@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Randy Dunlap <rdunlap@infradead.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Rob Clark <robdclark@gmail.com>, Jordan Crouse <jcrouse@codeaurora.org>, dri-devel <dri-devel@lists.freedesktop.org>, Linux Fbdev development list <linux-fbdev@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-On Wed 31 Jan 11:02 PST 2018, Karthik Ramasubramanian wrote:
-> On 1/19/2018 3:57 PM, Rob Herring wrote:
-> > On Thu, Jan 18, 2018 at 08:57:45AM -0800, Bjorn Andersson wrote:
-> > > On Thu 18 Jan 01:13 PST 2018, Rajendra Nayak wrote:
-[..]
-> > > > > 
-> > > > > Please use SPDX style license header, i.e. this file should start with:
-> > > > > 
-> > > > > // SPDX-License-Identifier: GPL-2.0
-> > > > > /*
-> > > > >   * Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
-> > > > >   */
-> > > > 
-> > > > Looks like Mark Brown commented elsewhere [1] that we should use the C++
-> > > > commenting style even for the Linux Foundation copyright?
-> > > > 
-> > > > [1] https://marc.info/?l=linux-clk&m=151497978626135&w=2
-> > > > 
-> > > 
-> > > While I can agree with Mark on the ugliness of the mixed commenting
-> > > style, this is the style that I found communicated and is what you find
-> > > in other files.
-> > 
-> > Well, that's pretty new guidance. Moving target...
-> > 
-> > Given that Linus said '//' comments are the only thing C++ got right, I
-> > expect to see more of them.
-> I believe that in the source file I have to use C++ style comments(as per
-> this discussion) and in the header file I have to use C-style comments (as
-> per https://lwn.net/Articles/739183/ for reasons related to tooling). Please
-> correct me otherwise.
+On Fri, Feb 2, 2018 at 12:59 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Fri, Feb 2, 2018 at 1:21 AM, Randy Dunlap <rdunlap@infradead.org> wrote:
+>> b. DRM configuration is a mess. You shouldn't want to follow their model. :)
+>
+> Right, that should also be fixed, so DRM no longer includes I2C ;-)
+>
+> At the moment, DRM is the most common cause for circular dependencies
+> because it has a number of 'select' statements for symbols that otherwise
+> are used with 'depends on'. We should probably address the 'select I2C'
+> portion in there, but also some of the others like:
+>
+> drivers/gpu/drm/Kconfig:        select POWER_SUPPLY
+> drivers/gpu/drm/Kconfig:        select HWMON
+> drivers/gpu/drm/Kconfig:        select FB
+> drivers/gpu/drm/udl/Kconfig: select USB
 
-I had missed that detail, you're right.
+USB? Seriously?
 
-Thanks,
-Bjorn
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> drivers/gpu/drm/sti/Kconfig: select OF
+> drivers/gpu/drm/sti/Kconfig: select RESET_CONTROLLER
+> drivers/gpu/drm/etnaviv/Kconfig:        select CMA if HAVE_DMA_CONTIGUOUS
+> drivers/gpu/drm/etnaviv/Kconfig:        select TMPFS
+> drivers/gpu/drm/i915/Kconfig.debug:        select DEBUG_FS
+> drivers/gpu/drm/i915/Kconfig.debug:        select PREEMPT_COUNT
+> drivers/gpu/drm/i915/Kconfig.debug:     select TRACING
+> drivers/gpu/drm/i915/Kconfig.debug:     select FAULT_INJECTION
+> drivers/gpu/drm/mediatek/Kconfig:       select MEMORY
+> drivers/gpu/drm/mediatek/Kconfig:       select GENERIC_PHY
+> drivers/gpu/drm/msm/Kconfig:    select REGULATOR
+>
+>> c. If I2C is not enabled in the FB menu, someone could just add something like this:
+>>
+>> comment "Enable I2C to see more driver choices"
+>>         depends on !I2C
+>
+> I don't think that would address the issue of 'defconfig' builds losing
+> I2C support when it's no longer automatically selection. On x86, this
+> is not an issue, as X86 always enables I2C. For the rest, we could
+> do a hack like this:
+>
+> --- a/drivers/i2c/Kconfig
+> +++ b/drivers/i2c/Kconfig
+> @@ -8,6 +8,7 @@ config I2C
+>         tristate "I2C support"
+>         select RT_MUTEXES
+>         select IRQ_DOMAIN
+> +       default DRM || FB
+>         ---help---
+>           I2C (pronounce: I-squared-C) is a slow serial bus protocol used in
+>           many micro controller applications and developed by Philips.  SMBus,
+>
+> which would let all 'defconfig' versions keep working. It's a bit ugly, but
+> at least wouldn't cause other circular dependencies.
+
+And then we'll have to refresh all defconfigs for machines with FB and
+without I2C?
+
+Gr{oetje,eeting}s,
+
+                        Geert
