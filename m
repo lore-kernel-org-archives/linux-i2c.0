@@ -1,103 +1,75 @@
-From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: [PATCH 6/6] i2c: i2c-stm32f7: Implement I2C recovery mechanism
-Date: Wed, 7 Feb 2018 16:35:17 +0100
-Message-ID: <1518017717-10351-7-git-send-email-pierre-yves.mordret@st.com>
-References: <1518017717-10351-1-git-send-email-pierre-yves.mordret@st.com>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH v3] ACPI: Force I2C to be selected as a built-in module
+Date: Thu, 08 Feb 2018 10:52:57 +0100
+Message-ID: <1702559.i3Y6HFQMvP@aspire.rjw.lan>
+References: <1516895011-17588-1-git-send-email-okaya@codeaurora.org> <30a108bc-c85f-55d9-67c5-586534a987c0@infradead.org> <2902c0aa-b7d4-ea2f-e687-bc5cd19631e1@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1518017717-10351-1-git-send-email-pierre-yves.mordret@st.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <2902c0aa-b7d4-ea2f-e687-bc5cd19631e1@codeaurora.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Sinan Kaya <okaya@codeaurora.org>
+Cc: Randy Dunlap <rdunlap@infradead.org>, "Rafael J. Wysocki" <rafael@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Timur Tabi <timur@codeaurora.org>, Eric Auger <eric.auger@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Len Brown <lenb@kernel.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Feature prevents I2C lock-ups. Mechanism resets I2C state machine
-and releases SCL/SDA signals but preserves I2C registers.
+On Tuesday, February 6, 2018 3:25:58 PM CET Sinan Kaya wrote:
+> Hi Rafael,
+> 
+> On 1/25/2018 12:36 PM, Randy Dunlap wrote:
+> > On 01/25/2018 08:25 AM, Rafael J. Wysocki wrote:
+> >> On Thu, Jan 25, 2018 at 4:43 PM, Sinan Kaya <okaya@codeaurora.org> wrote:
+> >>> From: Auger Eric <eric.auger@redhat.com>
+> >>>
+> >>> If I2C is built as a module, ACPI_I2C_OPREGION cannot be set
+> >>> and any ACPI opregion calls targeting I2C fail with no opregion found.
+> >>>
+> >>> Commit da3c6647ee08 ("I2C/ACPI: Clean up I2C ACPI code and Add
+> >>> CONFIG_I2C_ACPI config") says following:
+> >>>
+> >>> "Current there is a race between removing I2C ACPI operation region
+> >>> and ACPI AML code accessing."
+> >>>
+> >>> This patch forces core I2C support to be compiled as a built-in
+> >>> module if ACPI is selected as code is not ready for dynamic module
+> >>> removal.
+> >>>
+> >>> Signed-off-by: Eric Auger <eric.auger@redhat.com>
+> >>> Signed-off-by: Sinan Kaya <okaya@codeaurora.org>
+> >>> ---
+> >>>  drivers/acpi/Kconfig | 2 ++
+> >>>  1 file changed, 2 insertions(+)
+> >>>
+> >>> diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+> >>> index 4650539..5b48098 100644
+> >>> --- a/drivers/acpi/Kconfig
+> >>> +++ b/drivers/acpi/Kconfig
+> >>> @@ -9,6 +9,8 @@ menuconfig ACPI
+> >>>         depends on IA64 || X86 || ARM64
+> >>>         depends on PCI
+> >>>         select PNP
+> >>> +       # force building I2C in on ACPI systems, for opregion availability
+> >>> +       imply I2C
+> >>>         default y if (IA64 || X86)
+> >>>         help
+> >>>           Advanced Configuration and Power Interface (ACPI) support for
+> >>> --
+> >>
+> >> I'm not sure how much this helps.
+> >>
+> >> I2C opregions will only work if the requisite I2C controller driver is
+> >> present anyway and this change doesn't guarantee that AFAICS.
+> >>
+> >> OTOH, there are systems using ACPI without I2C opregions, so are we
+> >> really better off by forcing everybody using ACPI to also build I2C?
+> > 
+> > Definitely not.
+> > 
+> 
+> Where do we stand on this? Do you have a better suggestion?
 
-Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
----
-  Version history:
-    v1:
-       * Initial
----
----
- drivers/i2c/busses/i2c-stm32f7.c | 32 +++++++++++++++++++++++++++++---
- 1 file changed, 29 insertions(+), 3 deletions(-)
+Not at the moment, but I also don't think that this approach is valid.
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 593efa5..428bf96 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -718,6 +718,20 @@ static void stm32f7_i2c_smbus_reload(struct stm32f7_i2c_dev *i2c_dev)
- 	writel_relaxed(cr2, i2c_dev->base + STM32F7_I2C_CR2);
- }
- 
-+static int stm32f7_i2c_recover_bus(struct i2c_adapter *i2c_adap)
-+{
-+	struct stm32f7_i2c_dev *i2c_dev = i2c_get_adapdata(i2c_adap);
-+
-+	dev_info(i2c_dev->dev, "Trying to recover bus\n");
-+
-+	stm32f7_i2c_clr_bits(i2c_dev->base + STM32F7_I2C_CR1,
-+			     STM32F7_I2C_CR1_PE);
-+
-+	stm32f7_i2c_hw_config(i2c_dev);
-+
-+	return 0;
-+}
-+
- static int stm32f7_i2c_wait_free_bus(struct stm32f7_i2c_dev *i2c_dev)
- {
- 	u32 status;
-@@ -727,12 +741,18 @@ static int stm32f7_i2c_wait_free_bus(struct stm32f7_i2c_dev *i2c_dev)
- 					 status,
- 					 !(status & STM32F7_I2C_ISR_BUSY),
- 					 10, 1000);
-+	if (!ret)
-+		return 0;
-+
-+	dev_info(i2c_dev->dev, "bus busy\n");
-+
-+	ret = i2c_recover_bus(&i2c_dev->adap);
- 	if (ret) {
--		dev_dbg(i2c_dev->dev, "bus busy\n");
--		ret = -EBUSY;
-+		dev_err(i2c_dev->dev, "Failed to recover the bus (%d)\n", ret);
-+		return ret;
- 	}
- 
--	return ret;
-+	return -EBUSY;
- }
- 
- static void stm32f7_i2c_xfer_msg(struct stm32f7_i2c_dev *i2c_dev,
-@@ -1476,6 +1496,7 @@ static irqreturn_t stm32f7_i2c_isr_error(int irq, void *data)
- 	if (status & STM32F7_I2C_ISR_BERR) {
- 		dev_err(dev, "<%s>: Bus error\n", __func__);
- 		writel_relaxed(STM32F7_I2C_ICR_BERRCF, base + STM32F7_I2C_ICR);
-+		i2c_recover_bus(&i2c_dev->adap);
- 		f7_msg->result = -EIO;
- 	}
- 
-@@ -1760,6 +1781,10 @@ static struct i2c_algorithm stm32f7_i2c_algo = {
- 	.unreg_slave = stm32f7_i2c_unreg_slave,
- };
- 
-+static struct i2c_bus_recovery_info stm32f7_i2c_recovery_info = {
-+	.recover_bus = stm32f7_i2c_recover_bus,
-+};
-+
- static int stm32f7_i2c_probe(struct platform_device *pdev)
- {
- 	struct device_node *np = pdev->dev.of_node;
-@@ -1879,6 +1904,7 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 	adap->algo = &stm32f7_i2c_algo;
- 	adap->dev.parent = &pdev->dev;
- 	adap->dev.of_node = pdev->dev.of_node;
-+	adap->bus_recovery_info = &stm32f7_i2c_recovery_info;
- 
- 	init_completion(&i2c_dev->complete);
- 
--- 
-2.7.4
+Thanks,
+Rafael
+
