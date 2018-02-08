@@ -1,68 +1,92 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] gpio-pca953x: fall back to byte-at-a-time for 24-bit io
-Date: Thu, 8 Feb 2018 13:10:50 +0100
-Message-ID: <20180208131050.7c26717d@endymion>
-References: <1512440242-8983-1-git-send-email-andrew.cooks@opengear.com>
-        <CAHp75Vcpdh36yjXCCOQthYKdY3vPi5EDrqFWauyv9WDgjcZPYQ@mail.gmail.com>
-        <0f82783e-3f78-34dd-4f80-8e21328f9c91@opengear.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <0f82783e-3f78-34dd-4f80-8e21328f9c91@opengear.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Cooks <andrew.cooks@opengear.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, platypus-sw@opengear.com, linux-i2c@vger.kernel.org
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Subject: [PATCH] i2c: bcm2835: Set up the rising/falling edge delays
+Date: Thu,  8 Feb 2018 14:54:05 +0100
+Message-ID: <20180208135405.25446-1-boris.brezillon@bootlin.com>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.free-electrons.com ([62.4.15.54]:44557 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752013AbeBHNyS (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 8 Feb 2018 08:54:18 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, bcm-kernel-feedback-list@broadcom.com, Stephen Warren <swarren@wwwdotorg.org>, Lee Jones <lee@kernel.org>, Eric Anholt <eric@anholt.net>, linux-rpi-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Boris Brezillon <boris.brezillon@bootlin.com>, Gerd Hoffmann <kraxel@redhat.com>
 
-On Mon, 29 Jan 2018 14:11:35 +1000, Andrew Cooks wrote:
-> On 29/12/17 19:44, Andy Shevchenko wrote:
-> > On Tue, Dec 5, 2017 at 4:17 AM, Andrew Cooks <andrew.cooks@opengear.com> wrote:  
-> >> Using TCA6424A with i2c-piix4 bus driver requires byte-at-a-time IO,
-> >> because the i2c-piix4 driver (and probably some SMBus controllers) don't
-> >> support I2C_SMBUS_I2C_BLOCK_DATA.  
-> > 
-> > Why not to fix piix4 for now?  
-> 
-> The piix4 driver applies to so many chips and has been around for such a long time, that I don't know if this kind of change is safe to make. Do you think it's safe to assume that all the implementations that use this driver can handle the 3byte block writes?
-> 
-> I've added Jean to the CC list to get the piix4 maintainer's perspective.
+From: Eric Anholt <eric@anholt.net>
 
-This is a hardware limitation, not a driver deficiency. The original
-Intel PIIX4 SMBus implementation did not support I2C Block transfers,
-only SMBus Block transfers. I2C Block transfer support was added by
-Intel to the 82801 (ICH5) only.
+We were leaving them in the power on state (or the state the firmware
+had set up for some client, if we were taking over from them).  The
+boot state was 30 core clocks, when we actually want to sample some
+time after (to make sure that the new input bit has actually arrived).
 
-I have checked the few AMD datasheets I have here and it doesn't seem
-that AMD implemented I2C Block transfers support either.
+Signed-off-by: Eric Anholt <eric@anholt.net>
+Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+---
+Hello,
 
-> >> @@ -249,7 +261,7 @@ static int pca953x_read_regs_24(struct pca953x_chip *chip, int reg, u8 *val)
-> >>  {
-> >>         int bank_shift = fls((chip->gpio_chip.ngpio - 1) / BANK_SZ);
-> >>
-> >> -       return i2c_smbus_read_i2c_block_data(chip->client,
-> >> +       return i2c_smbus_read_i2c_block_data_or_emulated(chip->client,
-> >>                                              (reg << bank_shift) | REG_ADDR_AI,
-> >>                                              NBANK(chip), val);  
-> > 
-> > Don't we have a counter part for writing?
-> > 
-> > Perhaps, it might be another option.
-> 
-> Again, I don't know if it's safe to assume that the i2c controllers can do this and would appreciate comments.
-> 
-> Thanks for your review!
+I'm reviving this patch that has been posted a while ago by Gerd.
+It fixes EDID retrieval on some (broken?) HDMI displays, but I'm pretty
+sure it will fix other I2C setup.
 
-I would be very cautious with
-i2c_smbus_read_i2c_block_data_or_emulated(). There are no official
-semantics attached to I2C transfers, each device can have its own
-idea of how it should react to a given transfer.
-i2c_smbus_read_i2c_block_data_or_emulated() was implemented with
-EEPROMs in mind and there is absolutely no guarantee that the
-"emulation" will do the right thing. Before calling it, you must check
-all the code paths in i2c_smbus_read_i2c_block_data_or_emulated() and
-ensure that all will do the right thing for your device.
+Note that I also tested the change with a regular I2C device and it
+worked just fine.
 
+Regards,
+
+Boris
+
+Changes in v2:
+- rebase on 4.15
+---
+ drivers/i2c/busses/i2c-bcm2835.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index cd07a69e2e93..44deae78913e 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -50,6 +50,9 @@
+ #define BCM2835_I2C_S_CLKT	BIT(9)
+ #define BCM2835_I2C_S_LEN	BIT(10) /* Fake bit for SW error reporting */
+ 
++#define BCM2835_I2C_FEDL_SHIFT	16
++#define BCM2835_I2C_REDL_SHIFT	0
++
+ #define BCM2835_I2C_CDIV_MIN	0x0002
+ #define BCM2835_I2C_CDIV_MAX	0xFFFE
+ 
+@@ -81,7 +84,7 @@ static inline u32 bcm2835_i2c_readl(struct bcm2835_i2c_dev *i2c_dev, u32 reg)
+ 
+ static int bcm2835_i2c_set_divider(struct bcm2835_i2c_dev *i2c_dev)
+ {
+-	u32 divider;
++	u32 divider, redl, fedl;
+ 
+ 	divider = DIV_ROUND_UP(clk_get_rate(i2c_dev->clk),
+ 			       i2c_dev->bus_clk_rate);
+@@ -100,6 +103,22 @@ static int bcm2835_i2c_set_divider(struct bcm2835_i2c_dev *i2c_dev)
+ 
+ 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DIV, divider);
+ 
++	/*
++	 * Number of core clocks to wait after falling edge before
++	 * outputting the next data bit.  Note that both FEDL and REDL
++	 * can't be greater than CDIV/2.
++	 */
++	fedl = max(divider / 16, 1u);
++
++	/*
++	 * Number of core clocks to wait after rising edge before
++	 * sampling the next incoming data bit.
++	 */
++	redl = max(divider / 4, 1u);
++
++	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DEL,
++			   (fedl << BCM2835_I2C_FEDL_SHIFT) |
++			   (redl << BCM2835_I2C_REDL_SHIFT));
+ 	return 0;
+ }
+ 
 -- 
-Jean Delvare
-SUSE L3 Support
+2.14.1
