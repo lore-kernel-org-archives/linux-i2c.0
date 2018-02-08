@@ -1,75 +1,68 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v3] ACPI: Force I2C to be selected as a built-in module
-Date: Thu, 08 Feb 2018 10:52:57 +0100
-Message-ID: <1702559.i3Y6HFQMvP@aspire.rjw.lan>
-References: <1516895011-17588-1-git-send-email-okaya@codeaurora.org> <30a108bc-c85f-55d9-67c5-586534a987c0@infradead.org> <2902c0aa-b7d4-ea2f-e687-bc5cd19631e1@codeaurora.org>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] gpio-pca953x: fall back to byte-at-a-time for 24-bit io
+Date: Thu, 8 Feb 2018 13:10:50 +0100
+Message-ID: <20180208131050.7c26717d@endymion>
+References: <1512440242-8983-1-git-send-email-andrew.cooks@opengear.com>
+        <CAHp75Vcpdh36yjXCCOQthYKdY3vPi5EDrqFWauyv9WDgjcZPYQ@mail.gmail.com>
+        <0f82783e-3f78-34dd-4f80-8e21328f9c91@opengear.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <2902c0aa-b7d4-ea2f-e687-bc5cd19631e1@codeaurora.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Sinan Kaya <okaya@codeaurora.org>
-Cc: Randy Dunlap <rdunlap@infradead.org>, "Rafael J. Wysocki" <rafael@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Timur Tabi <timur@codeaurora.org>, Eric Auger <eric.auger@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Len Brown <lenb@kernel.org>, open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <0f82783e-3f78-34dd-4f80-8e21328f9c91@opengear.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Cooks <andrew.cooks@opengear.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, platypus-sw@opengear.com, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday, February 6, 2018 3:25:58 PM CET Sinan Kaya wrote:
-> Hi Rafael,
-> 
-> On 1/25/2018 12:36 PM, Randy Dunlap wrote:
-> > On 01/25/2018 08:25 AM, Rafael J. Wysocki wrote:
-> >> On Thu, Jan 25, 2018 at 4:43 PM, Sinan Kaya <okaya@codeaurora.org> wrote:
-> >>> From: Auger Eric <eric.auger@redhat.com>
-> >>>
-> >>> If I2C is built as a module, ACPI_I2C_OPREGION cannot be set
-> >>> and any ACPI opregion calls targeting I2C fail with no opregion found.
-> >>>
-> >>> Commit da3c6647ee08 ("I2C/ACPI: Clean up I2C ACPI code and Add
-> >>> CONFIG_I2C_ACPI config") says following:
-> >>>
-> >>> "Current there is a race between removing I2C ACPI operation region
-> >>> and ACPI AML code accessing."
-> >>>
-> >>> This patch forces core I2C support to be compiled as a built-in
-> >>> module if ACPI is selected as code is not ready for dynamic module
-> >>> removal.
-> >>>
-> >>> Signed-off-by: Eric Auger <eric.auger@redhat.com>
-> >>> Signed-off-by: Sinan Kaya <okaya@codeaurora.org>
-> >>> ---
-> >>>  drivers/acpi/Kconfig | 2 ++
-> >>>  1 file changed, 2 insertions(+)
-> >>>
-> >>> diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
-> >>> index 4650539..5b48098 100644
-> >>> --- a/drivers/acpi/Kconfig
-> >>> +++ b/drivers/acpi/Kconfig
-> >>> @@ -9,6 +9,8 @@ menuconfig ACPI
-> >>>         depends on IA64 || X86 || ARM64
-> >>>         depends on PCI
-> >>>         select PNP
-> >>> +       # force building I2C in on ACPI systems, for opregion availability
-> >>> +       imply I2C
-> >>>         default y if (IA64 || X86)
-> >>>         help
-> >>>           Advanced Configuration and Power Interface (ACPI) support for
-> >>> --
-> >>
-> >> I'm not sure how much this helps.
-> >>
-> >> I2C opregions will only work if the requisite I2C controller driver is
-> >> present anyway and this change doesn't guarantee that AFAICS.
-> >>
-> >> OTOH, there are systems using ACPI without I2C opregions, so are we
-> >> really better off by forcing everybody using ACPI to also build I2C?
+On Mon, 29 Jan 2018 14:11:35 +1000, Andrew Cooks wrote:
+> On 29/12/17 19:44, Andy Shevchenko wrote:
+> > On Tue, Dec 5, 2017 at 4:17 AM, Andrew Cooks <andrew.cooks@opengear.com> wrote:  
+> >> Using TCA6424A with i2c-piix4 bus driver requires byte-at-a-time IO,
+> >> because the i2c-piix4 driver (and probably some SMBus controllers) don't
+> >> support I2C_SMBUS_I2C_BLOCK_DATA.  
 > > 
-> > Definitely not.
-> > 
+> > Why not to fix piix4 for now?  
 > 
-> Where do we stand on this? Do you have a better suggestion?
+> The piix4 driver applies to so many chips and has been around for such a long time, that I don't know if this kind of change is safe to make. Do you think it's safe to assume that all the implementations that use this driver can handle the 3byte block writes?
+> 
+> I've added Jean to the CC list to get the piix4 maintainer's perspective.
 
-Not at the moment, but I also don't think that this approach is valid.
+This is a hardware limitation, not a driver deficiency. The original
+Intel PIIX4 SMBus implementation did not support I2C Block transfers,
+only SMBus Block transfers. I2C Block transfer support was added by
+Intel to the 82801 (ICH5) only.
 
-Thanks,
-Rafael
+I have checked the few AMD datasheets I have here and it doesn't seem
+that AMD implemented I2C Block transfers support either.
 
+> >> @@ -249,7 +261,7 @@ static int pca953x_read_regs_24(struct pca953x_chip *chip, int reg, u8 *val)
+> >>  {
+> >>         int bank_shift = fls((chip->gpio_chip.ngpio - 1) / BANK_SZ);
+> >>
+> >> -       return i2c_smbus_read_i2c_block_data(chip->client,
+> >> +       return i2c_smbus_read_i2c_block_data_or_emulated(chip->client,
+> >>                                              (reg << bank_shift) | REG_ADDR_AI,
+> >>                                              NBANK(chip), val);  
+> > 
+> > Don't we have a counter part for writing?
+> > 
+> > Perhaps, it might be another option.
+> 
+> Again, I don't know if it's safe to assume that the i2c controllers can do this and would appreciate comments.
+> 
+> Thanks for your review!
+
+I would be very cautious with
+i2c_smbus_read_i2c_block_data_or_emulated(). There are no official
+semantics attached to I2C transfers, each device can have its own
+idea of how it should react to a given transfer.
+i2c_smbus_read_i2c_block_data_or_emulated() was implemented with
+EEPROMs in mind and there is absolutely no guarantee that the
+"emulation" will do the right thing. Before calling it, you must check
+all the code paths in i2c_smbus_read_i2c_block_data_or_emulated() and
+ensure that all will do the right thing for your device.
+
+-- 
+Jean Delvare
+SUSE L3 Support
