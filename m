@@ -1,71 +1,57 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: Re: i2c: core: report OF style module alias for devices registered
- via OF
-Date: Fri, 9 Feb 2018 18:22:19 +0100
-Message-ID: <CABxcv=mT2T-FJqR=WzfW-woN0Q4gusZ6H_83vkkGWc4Km-qQDQ@mail.gmail.com>
-References: <CALieaeczi5iZPgKVdHw1B3ouyWcd2U_cqPzEYqvT+8JW4Uwi3A@mail.gmail.com>
- <a81cf234-f103-1787-6a4a-fc59bb50cb4d@redhat.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: Re: i2c_new_{secondary_device,dummy,device}() return type.
+Date: Fri, 9 Feb 2018 18:59:40 +0100
+Message-ID: <19f18d1d-efba-a6ca-32f4-0b55f284f27e@gmail.com>
+References: <6f03d1e1-b542-99cb-7cfe-8eae9addd8d9@ideasonboard.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a81cf234-f103-1787-6a4a-fc59bb50cb4d@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Dmitry Mastykin <mastichi@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Javier Martinez Canillas <javierm@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-wm0-f54.google.com ([74.125.82.54]:50455 "EHLO
+        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753133AbeBIR7t (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 9 Feb 2018 12:59:49 -0500
+In-Reply-To: <6f03d1e1-b542-99cb-7cfe-8eae9addd8d9@ideasonboard.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Kieran Bingham <kieran.bingham@ideasonboard.com>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, "open list:MEDIA DRIVERS FOR RENESAS - FCP" <linux-renesas-soc@vger.kernel.org>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-Hi Wolfram,
+Am 09.02.2018 um 11:01 schrieb Kieran Bingham:
+> Hi Wolfram,
+> 
+> As part of my work looking at using i2c_new_secondary_device() to move address
+> mappings into the device tree, it has become evident that the return code of the
+> i2c_new_secondary_device() is obfuscated, and is simply a valid client - or NULL.
+> 
+> This means that we must 'guess' as to whether the device failed due to a memory
+> allocation, or if the device address was already in use (perhaps a more common
+> failure).
+> 
+> Because of this - I would like to see the return codes of
+> i2c_new_secondary_device(), ic2_new_dummy(), and therefore i2c_new_device()
+> support returning ERR_PTR()s rather than a client or NULL.
+> 
+> These functions are used fairly extensively - thus it will be a fair bit of work
+> (or a good coccinelle script) - So I'd like to ask your opinion on the validity
+> of this task before I commence anything down that rabbit hole!
+> 
+> Any comments? Pre-ack/nack? (from anyone?)
+> 
 
-On Tue, Jan 16, 2018 at 3:11 PM, Javier Martinez Canillas
-<javierm@redhat.com> wrote:
-> Hello Dmitry,
->
-> On 01/16/2018 02:55 PM, Dmitry Mastykin wrote:
->> On Sun, 3 Dec 2017 22:40:50 +0100, Javier Martinez Canillas
->> <javierm@redhat.com> wrote:
->>
->>> The buses should honor the firmware interface used to register the device,
->>> but the I2C core reports a MODALIAS of the form i2c:<device> even for I2C
->>> devices registered via OF.
->>>
->>> This means that user-space will never get an OF stype uevent MODALIAS even
->>> when the drivers modules contain aliases exported from both the I2C and OF
->>> device ID tables. For example, an Atmel maXTouch Touchscreen registered by
->>> a DT node with compatible "atmel,maxtouch" has the following module alias:
->>>
->>> $ cat /sys/class/i2c-adapter/i2c-8/8-004b/modalias
->>> i2c:maxtouch
->>>
->>> So udev won't be able to auto-load a module for an OF-only device driver.
->>> Many OF-only drivers duplicate the OF device ID table entries in an I2C ID
->>> table only has a workaround for how the I2C core reports the module alias.
->>>
->>> This patch changes the I2C core to report an OF related MODALIAS uevent if
->>> the device was registered via OF. So for the previous example, after this
->>> patch, the reported MODALIAS for the Atmel maXTouch will be the following:
->>>
->>> $ cat /sys/class/i2c-adapter/i2c-8/8-004b/modalias
->>> of:NtrackpadT<NULL>Catmel,maxtouch
->>>
->>> NOTE: This patch may break out-of-tree drivers that were relying on this
->>>       behavior, and only had an I2C device ID table even when the device
->>>       was registered via OF. There are no remaining drivers in mainline
->>>       that do this, but out-of-tree drivers have to be fixed and define
->>>       a proper OF device ID table to have module auto-loading working.
->>>
->>
->> Hello Javier,
->> thank you for your patch!
->>
->
-> Thanks a lot for testing!
->
-> Hopefully Wolfram will review/merge this soon, otherwise in the meantime drivers
-> are going to add I2C device ID tables just as a workaround or new drivers won't
-> include a OF device ID tables since these aren't really required today.
->
+This has been addressed as part of adding a devm_i2c_new_dummy().
+Related patches are in status "under review" since end of December.
+See also here:
+https://marc.info/?l=linux-i2c&m=151375074832371&w=2
+https://patchwork.ozlabs.org/patch/851268/
 
-Another gentle ping for this.
+Maybe these patches cover already what you need.
 
-Best regards,
-Javier
+Rgds, Heiner
+
+> --
+> Regards
+> 
+> Kieran Bingham
+> .
+> 
