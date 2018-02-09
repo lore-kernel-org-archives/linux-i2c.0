@@ -1,66 +1,37 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: Fix failure on baytrail
-Date: Fri, 9 Feb 2018 11:25:47 +0200
-Message-ID: <945d4119-5aaf-520f-de2c-a9293f236f13@linux.intel.com>
-References: <1518113569-19991-1-git-send-email-gardner.ben@gmail.com>
+From: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Subject: i2c_new_{secondary_device,dummy,device}() return type.
+Date: Fri, 9 Feb 2018 10:01:09 +0000
+Message-ID: <6f03d1e1-b542-99cb-7cfe-8eae9addd8d9@ideasonboard.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:9658 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751052AbeBIJZa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Fri, 9 Feb 2018 04:25:30 -0500
-In-Reply-To: <1518113569-19991-1-git-send-email-gardner.ben@gmail.com>
-Content-Language: en-US
+Received: from galahad.ideasonboard.com ([185.26.127.97]:60705 "EHLO
+        galahad.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750830AbeBIKBO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 9 Feb 2018 05:01:14 -0500
+Content-Language: en-GB
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ben Gardner <gardner.ben@gmail.com>, linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, "open list:MEDIA DRIVERS FOR RENESAS - FCP" <linux-renesas-soc@vger.kernel.org>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-Hi
+Hi Wolfram,
 
-On 02/08/2018 08:12 PM, Ben Gardner wrote:
-> The I2C driver for my Atom E3845 board has been broken since 4.9.
-> 
-> These kernel logs show up whenever am I2C transaction is attempted.
-> i2c-designware-pci 0000:00:18.3: timeout in disabling adapter
-> i2c-designware-pci 0000:00:18.3: timeout waiting for bus ready
-> 
-> The root issue is that the I2C port takes a while to enable and somewhere
-> along the way, the 'enable-and-wait' approach to enabling the adapter
-> was changed to 'enable'.
-> That caused the driver and hardware to get out of sync and fail.
-> 
-> I have tested this patch on 4.14 and 4.15.
-> 
-> Signed-off-by: Ben Gardner <gardner.ben@gmail.com>
-> ---
->   drivers/i2c/busses/i2c-designware-master.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-> index ae69188..55926ef 100644
-> --- a/drivers/i2c/busses/i2c-designware-master.c
-> +++ b/drivers/i2c/busses/i2c-designware-master.c
-> @@ -209,7 +209,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
->   	i2c_dw_disable_int(dev);
->   
->   	/* Enable the adapter */
-> -	__i2c_dw_enable(dev, true);
-> +	__i2c_dw_enable_and_wait(dev, true);
->   
->   	/* Clear and enable interrupts */
->   	dw_readl(dev, DW_IC_CLR_INTR);
+As part of my work looking at using i2c_new_secondary_device() to move address
+mappings into the device tree, it has become evident that the return code of the
+i2c_new_secondary_device() is obfuscated, and is simply a valid client - or NULL.
 
-It seems commit 2702ea7dbec5 ("i2c: designware: wait for disable/enable 
-only if necessary") is most likely reason for regression. Are you able 
-to test some version between v4.9 and v4.12 and revert that commit does 
-it fix the issue for you? Can you also test your fix on the same kernel 
-version but apply to drivers/i2c/busses/i2c-designware-core.c?
+This means that we must 'guess' as to whether the device failed due to a memory
+allocation, or if the device address was already in use (perhaps a more common
+failure).
 
-i2c-designware-master.c was renamed from i2c-designware-core.c in v4.13 
-and thus we need to have the separate fix for kernels v4.9-v4.12.
+Because of this - I would like to see the return codes of
+i2c_new_secondary_device(), ic2_new_dummy(), and therefore i2c_new_device()
+support returning ERR_PTR()s rather than a client or NULL.
 
--- 
-Jarkko
+These functions are used fairly extensively - thus it will be a fair bit of work
+(or a good coccinelle script) - So I'd like to ask your opinion on the validity
+of this task before I commence anything down that rabbit hole!
+
+Any comments? Pre-ack/nack? (from anyone?)
