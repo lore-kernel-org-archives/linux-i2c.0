@@ -1,45 +1,103 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: i2c_new_{secondary_device,dummy,device}() return type.
-Date: Fri, 09 Feb 2018 14:26:36 +0200
-Message-ID: <9433176.auEORrE3aR@avalon>
-References: <6f03d1e1-b542-99cb-7cfe-8eae9addd8d9@ideasonboard.com>
+From: Ben Gardner <gardner.ben@gmail.com>
+Subject: Re: [PATCH] i2c: designware: Fix failure on baytrail
+Date: Fri, 9 Feb 2018 09:07:44 -0600
+Message-ID: <CAE7DoPbMMMbTV5i-fmfhrzKTVoj8Up8aXRYZU9jMh7hKNkkejQ@mail.gmail.com>
+References: <1518113569-19991-1-git-send-email-gardner.ben@gmail.com> <945d4119-5aaf-520f-de2c-a9293f236f13@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <6f03d1e1-b542-99cb-7cfe-8eae9addd8d9@ideasonboard.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, "open list:MEDIA DRIVERS FOR RENESAS - FCP" <linux-renesas-soc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-io0-f170.google.com ([209.85.223.170]:44674 "EHLO
+        mail-io0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751038AbeBIPHq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 9 Feb 2018 10:07:46 -0500
+Received: by mail-io0-f170.google.com with SMTP id z6so9924282iob.11
+        for <linux-i2c@vger.kernel.org>; Fri, 09 Feb 2018 07:07:46 -0800 (PST)
+In-Reply-To: <945d4119-5aaf-520f-de2c-a9293f236f13@linux.intel.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Hi Kieran,
+Hi Jarkko,
 
-On Friday, 9 February 2018 12:01:09 EET Kieran Bingham wrote:
-> Hi Wolfram,
-> 
-> As part of my work looking at using i2c_new_secondary_device() to move
-> address mappings into the device tree, it has become evident that the
-> return code of the i2c_new_secondary_device() is obfuscated, and is simply
-> a valid client - or NULL.
-> 
-> This means that we must 'guess' as to whether the device failed due to a
-> memory allocation, or if the device address was already in use (perhaps a
-> more common failure).
-> 
-> Because of this - I would like to see the return codes of
-> i2c_new_secondary_device(), ic2_new_dummy(), and therefore i2c_new_device()
-> support returning ERR_PTR()s rather than a client or NULL.
-> 
-> These functions are used fairly extensively - thus it will be a fair bit of
-> work (or a good coccinelle script) - So I'd like to ask your opinion on the
-> validity of this task before I commence anything down that rabbit hole!
-> 
-> Any comments? Pre-ack/nack? (from anyone?)
+I'm out of the office until Monday and I don't have access to my
+notes, so this is from memory.
 
-Pre-ack from me :-)
+My board uses 3 of the i2c buses. Two have only 1 device, the
+problematic one has two devices.
+All devices are declared via ACPI, so they all load their drivers right away.
+The first i2c transaction always worked. I didn't see any issues with
+the two i2c buses that only have 1 device.
+The second i2c transaction, which immediately followed, would fail.
+The bus no longer worked after that.
 
--- 
-Regards,
+I bisected the kernel to try to find where this broke, but the answer
+I kept on getting didn't make any sense.
+I think t was this commit:
 
-Laurent Pinchart
+4d6d5f1d08d2138dc43b28966eb6200e3db2e623 i2c: designware: fix rx fifo
+depth tracking
+
+Of course, reverting that one commit didn't fix anything.
+So I added a log to the dw_readl() and dw_writel() functions in both a
+working and broken kernel and compared.
+
+In the working kernel, the enable sequence wrote 1 to enable, read
+back 0, write 1 again, read back 1.
+
+The non-working kernel just wrote the 1 to then enable register and
+then went on.
+I assume it ignored some subsequent register writes and ended up with
+a broken bus.
+I'd see weird stuff like an abort interrupt. I do find it odd that the
+bus never recovered.
+
+I suspect that if there was a delay between the two transactions, it
+would not have failed.
+
+>> The I2C driver for my Atom E3845 board has been broken since 4.9.
+>>
+>> These kernel logs show up whenever am I2C transaction is attempted.
+>> i2c-designware-pci 0000:00:18.3: timeout in disabling adapter
+>> i2c-designware-pci 0000:00:18.3: timeout waiting for bus ready
+>>
+>> The root issue is that the I2C port takes a while to enable and somewhere
+>> along the way, the 'enable-and-wait' approach to enabling the adapter
+>> was changed to 'enable'.
+>> That caused the driver and hardware to get out of sync and fail.
+>>
+>> I have tested this patch on 4.14 and 4.15.
+>>
+>> Signed-off-by: Ben Gardner <gardner.ben@gmail.com>
+>> ---
+>>   drivers/i2c/busses/i2c-designware-master.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-designware-master.c
+>> b/drivers/i2c/busses/i2c-designware-master.c
+>> index ae69188..55926ef 100644
+>> --- a/drivers/i2c/busses/i2c-designware-master.c
+>> +++ b/drivers/i2c/busses/i2c-designware-master.c
+>> @@ -209,7 +209,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+>>         i2c_dw_disable_int(dev);
+>>         /* Enable the adapter */
+>> -       __i2c_dw_enable(dev, true);
+>> +       __i2c_dw_enable_and_wait(dev, true);
+>>         /* Clear and enable interrupts */
+>>         dw_readl(dev, DW_IC_CLR_INTR);
+>
+>
+> It seems commit 2702ea7dbec5 ("i2c: designware: wait for disable/enable only
+> if necessary") is most likely reason for regression. Are you able to test
+> some version between v4.9 and v4.12 and revert that commit does it fix the
+> issue for you? Can you also test your fix on the same kernel version but
+> apply to drivers/i2c/busses/i2c-designware-core.c?
+
+I will test a similar change on 4.9 on Monday.
+
+> i2c-designware-master.c was renamed from i2c-designware-core.c in v4.13 and
+> thus we need to have the separate fix for kernels v4.9-v4.12.
+
+I will also create a similar patch for v4.9.
+
+Ben
