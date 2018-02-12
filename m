@@ -1,79 +1,38 @@
-From: Johannes Poehlmann <johannes.poehlmann@izt-labs.de>
-Subject: [PATCH V3] eeprom: at24: support second page of ST M24M01-D*
-Date: Mon, 12 Feb 2018 12:18:12 +0100
-Message-ID: <20180212111812.nsiy6rpkbpwuckc6@pp184.izt.loc>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v2] i2c: i801: Register optional lis3lv02d i2c device on
+ Dell machines
+Date: Mon, 12 Feb 2018 17:25:23 +0200
+Message-ID: <CAHp75Ve6dCgX+ophyh8M2SzVvpMoDSpwYyiNo=QStht=1G8n+Q@mail.gmail.com>
+References: <20180127133209.28995-1-pali.rohar@gmail.com> <20180211220317.GA833@kmp-mobile.hq.kempniu.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.izt-labs.de ([82.135.25.162]:55695 "EHLO mail.izt-labs.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754091AbeBLLSW (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 12 Feb 2018 06:18:22 -0500
-Content-Disposition: inline
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180211220317.GA833@kmp-mobile.hq.kempniu.pl>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?UTF-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>
+Cc: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis Kletnieks <Valdis.Kletnieks@vt.edu>, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <Mario_Limonciello@dell.com>, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Johannes =?iso-8859-1?Q?P=F6hlmann?= <johannes.poehlmann@izt-labs.de>, linux-i2c <linux-i2c@vger.kernel.org>
 
-The M24M01-D* eeproms are in effect 2 eeproms under 2 I2C addresses:
+On Mon, Feb 12, 2018 at 12:03 AM, Micha=C5=82 K=C4=99pie=C5=84 <kernel@kemp=
+niu.pl> wrote:
 
-1. a standard 1Mbit eeprom (driver model 24c1024 is working)
+>> Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+>> ---
+>> Changes since v1:
+>>  * Added Dell Vostro V131 based on Micha=C5=82 K=C4=99pie=C5=84 testing
+>
+> I tested this patch on a Vostro V131 and it seems to work as expected:
+> "lis3lv02d: 8 bits sensor found" is logged during boot, an input device
+> gets registered and its axis values seem to be consistent with laptop's
+> movements.
+>
+> Tested-by: Micha=C5=82 K=C4=99pie=C5=84 <kernel@kempniu.pl>
 
-2. a 256 Byte write lockable "ID page".
-   As the ID page demands 2 byte addresses, the 24c02 driver model
-   can not be used.
+Thanks! I'm waiting for Pali to address my concern.
 
-So a new model 24cm02 is introduced.
+> I did not review the contents of the patch this time, sorry.
 
-In the device tree, refer to the ID page of the eeprom as
-
-	compatible = "st,m24m01-d", "atmel,24cm02";
-
-Signed-off-by: Johannes Poehlmann <Johannes.Poehlmann@izt-labs.de>
----
- Documentation/devicetree/bindings/eeprom/at24.txt | 1 +
- drivers/misc/eeprom/at24.c                        | 3 +++
- 2 files changed, 4 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/eeprom/at24.txt b/Documentation/devicetree/bindings/eeprom/at24.txt
-index 1812c84..c62c960 100644
---- a/Documentation/devicetree/bindings/eeprom/at24.txt
-+++ b/Documentation/devicetree/bindings/eeprom/at24.txt
-@@ -10,6 +10,7 @@ Required properties:
-                 "atmel,24cs01",
-                 "atmel,24c02",
-                 "atmel,24cs02",
-+                "atmel,24cm02",
-                 "atmel,24mac402",
-                 "atmel,24mac602",
-                 "atmel,spd",
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 01f9c49..5afeb1a 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -146,6 +146,7 @@ AT24_CHIP_DATA(at24_data_24c01, 1024 / 8, 0);
- AT24_CHIP_DATA(at24_data_24cs01, 16,
- 	AT24_FLAG_SERIAL | AT24_FLAG_READONLY);
- AT24_CHIP_DATA(at24_data_24c02, 2048 / 8, 0);
-+AT24_CHIP_DATA(at24_data_24cm02, 2048 / 8, AT24_FLAG_ADDR16);
- AT24_CHIP_DATA(at24_data_24cs02, 16,
- 	AT24_FLAG_SERIAL | AT24_FLAG_READONLY);
- AT24_CHIP_DATA(at24_data_24mac402, 48 / 8,
-@@ -184,6 +185,7 @@ static const struct i2c_device_id at24_ids[] = {
- 	{ "24cs01",	(kernel_ulong_t)&at24_data_24cs01 },
- 	{ "24c02",	(kernel_ulong_t)&at24_data_24c02 },
- 	{ "24cs02",	(kernel_ulong_t)&at24_data_24cs02 },
-+	{ "24cm02",	(kernel_ulong_t)&at24_data_24cm02 },
- 	{ "24mac402",	(kernel_ulong_t)&at24_data_24mac402 },
- 	{ "24mac602",	(kernel_ulong_t)&at24_data_24mac602 },
- 	{ "spd",	(kernel_ulong_t)&at24_data_spd },
-@@ -212,6 +214,7 @@ static const struct of_device_id at24_of_match[] = {
- 	{ .compatible = "atmel,24cs01",		.data = &at24_data_24cs01 },
- 	{ .compatible = "atmel,24c02",		.data = &at24_data_24c02 },
- 	{ .compatible = "atmel,24cs02",		.data = &at24_data_24cs02 },
-+	{ .compatible = "atmel,24cm02",		.data = &at24_data_24cm02 },
- 	{ .compatible = "atmel,24mac402",	.data = &at24_data_24mac402 },
- 	{ .compatible = "atmel,24mac602",	.data = &at24_data_24mac602 },
- 	{ .compatible = "atmel,spd",		.data = &at24_data_spd },
--- 
-2.1.4
+--=20
+With Best Regards,
+Andy Shevchenko
