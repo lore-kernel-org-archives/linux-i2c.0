@@ -1,159 +1,198 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: Re: [PATCH] i2c: exynos5: rework HSI2C_MASTER_ST_LOSE state
- handling
-Date: Mon, 12 Feb 2018 09:04:46 +0100
-Message-ID: <f1921b61-136e-4b43-4b2f-1cc27b1710ff@samsung.com>
-References: <CGME20180126121001eucas1p2931738af133ad3e5bf1cd824058ba8d0@eucas1p2.samsung.com>
-        <20180126120950.9934-1-a.hajda@samsung.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 1/2] i2c: piix4: Use request_muxed_region
+Date: Mon, 12 Feb 2018 11:10:41 +0100
+Message-ID: <20180212111041.027edd85@endymion>
+References: <1514652658-6228-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mailout2.w1.samsung.com ([210.118.77.12]:57542 "EHLO
-        mailout2.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753986AbeBLIEx (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Feb 2018 03:04:53 -0500
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-        by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20180212080451euoutp023fce366ad81774cafec4218af595e166~ShWSM9X0I2095220952euoutp02J
-        for <linux-i2c@vger.kernel.org>; Mon, 12 Feb 2018 08:04:51 +0000 (GMT)
-In-Reply-To: <20180126120950.9934-1-a.hajda@samsung.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1514652658-6228-1-git-send-email-linux@roeck-us.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wolfram Sang <wsa@the-dreams.de>, =?UTF-8?B?Wm9sdMOhbiBCw7ZzesO2cm0=?= =?UTF-8?B?w6lueWk=?= <zboszor@pr.hu>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Andi Shyti <andi.shyti@samsung.com>
-Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, "moderated list:ARM/SAMSUNG EXYNOS ARM ARCHITECTURES" <linux-samsung-soc@vger.kernel.org>
 
-On 26.01.2018 13:09, Andrzej Hajda wrote:
-> HSI2C_MASTER_ST_LOSE state is not documented properly, extensive tests
-> show that hardware is usually able to recover from this state without
-> interrupting the transfer. Moreover documentation says that
-> such state can be caused by slave clock stretching, and should not be
-> treated as an error during transaction. The only place it indicates
-> an error is just before starting transaction. In such case bus recovery
-> procedure should be performed - master should pulse SCL line nine times
-> and then send STOP condition, it can be repeated until SDA goes high.
-> The procedure can be performed using manual commands HSI2C_CMD_READ_DATA
-> and HSI2C_CMD_SEND_STOP.
->
-> Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+Hi Guneter,
+
+Sorry for the delay :(
+
+On Sat, 30 Dec 2017 08:50:57 -0800, Guenter Roeck wrote:
+> Accesses to SB800_PIIX4_SMB_IDX can occur from multiple drivers.
+> Use request_muxed_region() to ensure synchronization.
+
+Which ones? Documenting it, at least in the commit message, would seem
+useful. Out of curiosity, have these other drivers been converted to
+use request_muxed_region already?
+
+> 
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 > ---
-> Hi Wolfram,
->
-> This patch integrates and invalidates my previous patches [1][2].
-> I hope inline comments are sufficient.
-
-Gentle ping.
-
---
-Regards
-Andrzej
-
->
-> [1]: i2c: exynos5: implement bus recovery functionality
-> [2]: i2c: exynos5: do not check TRANS_STATUS in case of Exynos7 variant
->
-> Regards
-> Andrzej
->
->  drivers/i2c/busses/i2c-exynos5.c | 67 ++++++++++++++++++++++++++++++++++++----
->  1 file changed, 61 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-> index b02428498f6d..8dcc36835a1a 100644
-> --- a/drivers/i2c/busses/i2c-exynos5.c
-> +++ b/drivers/i2c/busses/i2c-exynos5.c
-> @@ -128,6 +128,10 @@
->  #define HSI2C_TIMEOUT_EN			(1u << 31)
->  #define HSI2C_TIMEOUT_MASK			0xff
+>  drivers/i2c/busses/i2c-piix4.c | 50 ++++++++++++++++++------------------------
+>  1 file changed, 21 insertions(+), 29 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+> index 462948e2c535..78dd5951d6e7 100644
+> --- a/drivers/i2c/busses/i2c-piix4.c
+> +++ b/drivers/i2c/busses/i2c-piix4.c
+> @@ -153,10 +153,7 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
 >  
-> +/* I2C_MANUAL_CMD register bits */
-> +#define HSI2C_CMD_READ_DATA			(1u << 4)
-> +#define HSI2C_CMD_SEND_STOP			(1u << 2)
+>  /*
+>   * SB800 globals
+> - * piix4_mutex_sb800 protects piix4_port_sel_sb800 and the pair
+> - * of I/O ports at SB800_PIIX4_SMB_IDX.
+>   */
+> -static DEFINE_MUTEX(piix4_mutex_sb800);
+
+With this gone, you can remove #include <linux/mutex.h>.
+
+>  static u8 piix4_port_sel_sb800;
+>  static u8 piix4_port_mask_sb800;
+>  static u8 piix4_port_shift_sb800;
+> @@ -298,12 +295,15 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+>  	else
+>  		smb_en = (aux) ? 0x28 : 0x2c;
+>  
+> -	mutex_lock(&piix4_mutex_sb800);
+> +	if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2, "sb800_piix4_smb"))
+> +		return -EBUSY;
+
+This would happen if and only if another driver has requested the
+region already but without IORESOURCE_MUXED, right? Don't you want to
+write an error message then? I don't think request_muxed_region() will
+do, and probe failing with -EBUSY but no error message logged would be
+hard to diagnose.
+
 > +
->  /* I2C_TRANS_STATUS register bits */
->  #define HSI2C_MASTER_BUSY			(1u << 17)
->  #define HSI2C_SLAVE_BUSY			(1u << 16)
-> @@ -441,12 +445,6 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
->  			i2c->state = -ETIMEDOUT;
->  			goto stop;
+>  	outb_p(smb_en, SB800_PIIX4_SMB_IDX);
+>  	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
+>  	outb_p(smb_en + 1, SB800_PIIX4_SMB_IDX);
+>  	smba_en_hi = inb_p(SB800_PIIX4_SMB_IDX + 1);
+> -	mutex_unlock(&piix4_mutex_sb800);
+> +
+> +	release_region(SB800_PIIX4_SMB_IDX, 2);
+>  
+>  	if (!smb_en) {
+>  		smb_en_status = smba_en_lo & 0x10;
+> @@ -373,7 +373,12 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+>  			break;
 >  		}
+>  	} else {
+> -		mutex_lock(&piix4_mutex_sb800);
+> +		if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2,
+> +					  "sb800_piix4_smb")) {
+> +			release_region(piix4_smba, SMBIOSIZE);
+> +			return -EBUSY;
+> +		}
+> +
+>  		outb_p(SB800_PIIX4_PORT_IDX_SEL, SB800_PIIX4_SMB_IDX);
+>  		port_sel = inb_p(SB800_PIIX4_SMB_IDX + 1);
+>  		piix4_port_sel_sb800 = (port_sel & 0x01) ?
+> @@ -381,7 +386,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+>  				       SB800_PIIX4_PORT_IDX;
+>  		piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
+>  		piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
+> -		mutex_unlock(&piix4_mutex_sb800);
+> +		release_region(SB800_PIIX4_SMB_IDX, 2);
+>  	}
+>  
+>  	dev_info(&PIIX4_dev->dev,
+> @@ -679,7 +684,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+>  	u8 port;
+>  	int retval;
+>  
+> -	mutex_lock(&piix4_mutex_sb800);
+> +	if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2, "sb800_piix4_smb"))
+> +		return -EBUSY;
+
+Did you check the performance cost? I thought that
+request_muxed_region() was meant for driver setup, I did not expect it
+to be used at driver run-time. Requesting the region again for every
+transaction seems quite costly?
+
+That being said, being slow is certainly better than failing, as is
+currently the case, so I'm fine with this change anyway. Just curious.
+
+>  
+>  	/* Request the SMBUS semaphore, avoid conflicts with the IMC */
+>  	smbslvcnt  = inb_p(SMBSLVCNT);
+> @@ -695,8 +701,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+>  	} while (--retries);
+>  	/* SMBus is still owned by the IMC, we give up */
+>  	if (!retries) {
+> -		mutex_unlock(&piix4_mutex_sb800);
+> -		return -EBUSY;
+> +		retval = -EBUSY;
+> +		goto release;
+>  	}
+>  
+>  	/*
+> @@ -753,8 +759,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+>  	if ((size == I2C_SMBUS_BLOCK_DATA) && adapdata->notify_imc)
+>  		piix4_imc_wakeup();
+>  
+> -	mutex_unlock(&piix4_mutex_sb800);
 > -
-> -		trans_status = readl(i2c->regs + HSI2C_TRANS_STATUS);
-> -		if ((trans_status & HSI2C_MASTER_ST_MASK) == HSI2C_MASTER_ST_LOSE) {
-> -			i2c->state = -EAGAIN;
-> -			goto stop;
-> -		}
->  	} else if (int_status & HSI2C_INT_I2C) {
->  		trans_status = readl(i2c->regs + HSI2C_TRANS_STATUS);
->  		if (trans_status & HSI2C_NO_DEV_ACK) {
-> @@ -544,6 +542,61 @@ static int exynos5_i2c_wait_bus_idle(struct exynos5_i2c *i2c)
->  	return -EBUSY;
+> +release:
+> +	release_region(SB800_PIIX4_SMB_IDX, 2);
+>  	return retval;
 >  }
 >  
-> +static void exynos5_i2c_bus_recover(struct exynos5_i2c *i2c)
-> +{
-> +	u32 val;
-> +
-> +	dev_dbg(i2c->dev, "%s: start\n", __func__);
-> +
-> +	val = readl(i2c->regs + HSI2C_CTL) | HSI2C_RXCHON;
-> +	writel(val, i2c->regs + HSI2C_CTL);
-> +	val = readl(i2c->regs + HSI2C_CONF) & ~HSI2C_AUTO_MODE;
-> +	writel(val, i2c->regs + HSI2C_CONF);
-> +
-> +	/*
-> +	 * Specification says master should send nine clock pulses. It can be
-> +	 * emulated by sending manual read command (nine pulses for read eight
-> +	 * bits + one pulse for NACK).
-> +	 */
-> +	writel(HSI2C_CMD_READ_DATA, i2c->regs + HSI2C_MANUAL_CMD);
-> +	exynos5_i2c_wait_bus_idle(i2c);
-> +	writel(HSI2C_CMD_SEND_STOP, i2c->regs + HSI2C_MANUAL_CMD);
-> +	exynos5_i2c_wait_bus_idle(i2c);
-> +
-> +	val = readl(i2c->regs + HSI2C_CTL) & ~HSI2C_RXCHON;
-> +	writel(val, i2c->regs + HSI2C_CTL);
-> +	val = readl(i2c->regs + HSI2C_CONF) | HSI2C_AUTO_MODE;
-> +	writel(val, i2c->regs + HSI2C_CONF);
-> +
-> +	dev_dbg(i2c->dev, "%s: end\n", __func__);
-> +}
-> +
-> +static void exynos5_i2c_bus_check(struct exynos5_i2c *i2c)
-> +{
-> +	unsigned long timeout;
-> +
-> +	if (i2c->variant->hw != HSI2C_EXYNOS7)
-> +		return;
-> +
-> +	/*
-> +	 * HSI2C_MASTER_ST_LOSE state in EXYNOS7 variant before transaction
-> +	 * indicates that bus is stuck (SDA is low). In such case bus recovery
-> +	 * can be performed.
-> +	 */
-> +	timeout = jiffies + msecs_to_jiffies(100);
-> +	for (;;) {
-> +		u32 st = readl(i2c->regs + HSI2C_TRANS_STATUS);
-> +
-> +		if ((st & HSI2C_MASTER_ST_MASK) != HSI2C_MASTER_ST_LOSE)
-> +			return;
-> +
-> +		if (time_is_before_jiffies(timeout))
-> +			return;
-> +
-> +		exynos5_i2c_bus_recover(i2c);
-> +	}
-> +}
-> +
->  /*
->   * exynos5_i2c_message_start: Configures the bus and starts the xfer
->   * i2c: struct exynos5_i2c pointer for the current bus
-> @@ -598,6 +651,8 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
->  	writel(fifo_ctl, i2c->regs + HSI2C_FIFO_CTL);
->  	writel(i2c_ctl, i2c->regs + HSI2C_CTL);
+> @@ -899,13 +905,6 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>  		bool notify_imc = false;
+>  		is_sb800 = true;
 >  
-> +	exynos5_i2c_bus_check(i2c);
-> +
->  	/*
->  	 * Enable interrupts before starting the transfer so that we don't
->  	 * miss any INT_I2C interrupts.
+> -		if (!request_region(SB800_PIIX4_SMB_IDX, 2, "smba_idx")) {
+> -			dev_err(&dev->dev,
+> -			"SMBus base address index region 0x%x already in use!\n",
+> -			SB800_PIIX4_SMB_IDX);
+> -			return -EBUSY;
+> -		}
+> -
+>  		if (dev->vendor == PCI_VENDOR_ID_AMD &&
+>  		    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
+>  			u8 imc;
+> @@ -922,20 +921,16 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>  
+>  		/* base address location etc changed in SB800 */
+>  		retval = piix4_setup_sb800(dev, id, 0);
+> -		if (retval < 0) {
+> -			release_region(SB800_PIIX4_SMB_IDX, 2);
+> +		if (retval < 0)
+>  			return retval;
+> -		}
+>  
+>  		/*
+>  		 * Try to register multiplexed main SMBus adapter,
+>  		 * give up if we can't
+>  		 */
+>  		retval = piix4_add_adapters_sb800(dev, retval, notify_imc);
+> -		if (retval < 0) {
+> -			release_region(SB800_PIIX4_SMB_IDX, 2);
+> +		if (retval < 0)
+>  			return retval;
+> -		}
+>  	} else {
+>  		retval = piix4_setup(dev, id);
+>  		if (retval < 0)
+> @@ -983,11 +978,8 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
+>  
+>  	if (adapdata->smba) {
+>  		i2c_del_adapter(adap);
+> -		if (adapdata->port == (0 << piix4_port_shift_sb800)) {
+> +		if (adapdata->port == (0 << piix4_port_shift_sb800))
+>  			release_region(adapdata->smba, SMBIOSIZE);
+> -			if (adapdata->sb800_main)
+> -				release_region(SB800_PIIX4_SMB_IDX, 2);
+> -		}
+>  		kfree(adapdata);
+>  		kfree(adap);
+>  	}
+
+Everything else looks good to me, thanks.
+
+I assume you have tested this patch on real hardware?
+
+-- 
+Jean Delvare
+SUSE L3 Support
