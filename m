@@ -1,67 +1,219 @@
-From: Ben Gardner <gardner.ben@gmail.com>
-Subject: Re: [PATCH] i2c: designware: Fix failure on baytrail
-Date: Mon, 12 Feb 2018 09:56:41 -0600
-Message-ID: <CAE7DoPZmS8S8TD7+jM-ipcMMKx+6eZ=N7qwHS73NshXf0YY5kw@mail.gmail.com>
-References: <1518450764-6652-1-git-send-email-gardner.ben@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH 1/2] i2c: piix4: Use request_muxed_region
+Date: Mon, 12 Feb 2018 10:51:52 -0800
+Message-ID: <20180212185152.GA20877@roeck-us.net>
+References: <1514652658-6228-1-git-send-email-linux@roeck-us.net>
+ <20180212111041.027edd85@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-io0-f195.google.com ([209.85.223.195]:37020 "EHLO
-        mail-io0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932457AbeBLP4n (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 12 Feb 2018 10:56:43 -0500
-Received: by mail-io0-f195.google.com with SMTP id f89so17741988ioj.4
-        for <linux-i2c@vger.kernel.org>; Mon, 12 Feb 2018 07:56:43 -0800 (PST)
-In-Reply-To: <1518450764-6652-1-git-send-email-gardner.ben@gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180212111041.027edd85@endymion>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, =?iso-8859-1?B?Wm9sdOFuIEL2c3r2cm3pbnlp?= <zboszor@pr.hu>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Linux I2C <linux-i2c@vger.kernel.org>
-Cc: Ben Gardner <gardner.ben@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-I didn't make it clear in the subject line, but this patch is intended
-for the 4.9 kernel.
-The earlier patch (Feb 9, 2018) was for 4.14, 4.15 and future.
+On Mon, Feb 12, 2018 at 11:10:41AM +0100, Jean Delvare wrote:
+> Hi Guneter,
+> 
+> Sorry for the delay :(
+> 
+> On Sat, 30 Dec 2017 08:50:57 -0800, Guenter Roeck wrote:
+> > Accesses to SB800_PIIX4_SMB_IDX can occur from multiple drivers.
+> > Use request_muxed_region() to ensure synchronization.
+> 
+> Which ones? Documenting it, at least in the commit message, would seem
+> useful. Out of curiosity, have these other drivers been converted to
+> use request_muxed_region already?
+> 
+Primarily watchdog, but there is also unprotected initialization code
+in several locations. I did convert the watchdog driver, and the changes
+will be in v4.16. I did not touch the other code since none of the calls
+has an error return.
 
-On Mon, Feb 12, 2018 at 9:52 AM, Ben Gardner <gardner.ben@gmail.com> wrote:
-> The I2C driver for my Atom E3845 board has been broken since 4.9.
-> My board has two I2C devices on a bus that are declared via ACPI.
-> At startup, both drivers attempt to access the devices at the same time,
-> resulting in two back-to-back I2C transactions initiated by the kernel.
-> The second transaction fails.
->
-> The root issue is that the I2C port takes a while to enable and somewhere
-> along the way, the 'enable-and-wait' approach to enabling the adapter
-> was changed to 'enable'.
-> That caused the driver and hardware to get out of sync and fail.
->
-> These kernel logs show up whenever an I2C transaction is attempted after
-> this failure.
-> i2c-designware-pci 0000:00:18.3: timeout in disabling adapter
-> i2c-designware-pci 0000:00:18.3: timeout waiting for bus ready
->
-> The driver is unable to recover the bus at this point, but that is a
-> separate issue.
->
-> This patch has been tested on 4.9.
->
-> Signed-off-by: Ben Gardner <gardner.ben@gmail.com>
-> ---
->  drivers/i2c/busses/i2c-designware-core.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-> index b403fa5..980e5a1 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.c
-> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> @@ -509,7 +509,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
->         i2c_dw_disable_int(dev);
->
->         /* Enable the adapter */
-> -       __i2c_dw_enable(dev, true);
-> +       __i2c_dw_enable_and_wait(dev, true);
->
->         /* Clear and enable interrupts */
->         dw_readl(dev, DW_IC_CLR_INTR);
-> --
-> 2.7.4
->
+> > 
+> > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> > ---
+> >  drivers/i2c/busses/i2c-piix4.c | 50 ++++++++++++++++++------------------------
+> >  1 file changed, 21 insertions(+), 29 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+> > index 462948e2c535..78dd5951d6e7 100644
+> > --- a/drivers/i2c/busses/i2c-piix4.c
+> > +++ b/drivers/i2c/busses/i2c-piix4.c
+> > @@ -153,10 +153,7 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
+> >  
+> >  /*
+> >   * SB800 globals
+> > - * piix4_mutex_sb800 protects piix4_port_sel_sb800 and the pair
+> > - * of I/O ports at SB800_PIIX4_SMB_IDX.
+> >   */
+> > -static DEFINE_MUTEX(piix4_mutex_sb800);
+> 
+> With this gone, you can remove #include <linux/mutex.h>.
+> 
+> >  static u8 piix4_port_sel_sb800;
+> >  static u8 piix4_port_mask_sb800;
+> >  static u8 piix4_port_shift_sb800;
+> > @@ -298,12 +295,15 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+> >  	else
+> >  		smb_en = (aux) ? 0x28 : 0x2c;
+> >  
+> > -	mutex_lock(&piix4_mutex_sb800);
+> > +	if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2, "sb800_piix4_smb"))
+> > +		return -EBUSY;
+> 
+> This would happen if and only if another driver has requested the
+> region already but without IORESOURCE_MUXED, right? Don't you want to
+
+Or if its call to alloc_resource() fails.
+
+> write an error message then? I don't think request_muxed_region() will
+> do, and probe failing with -EBUSY but no error message logged would be
+> hard to diagnose.
+> 
+NP, though the analysis is quite simple - /proc/iomem will show the culprit.
+
+> > +
+> >  	outb_p(smb_en, SB800_PIIX4_SMB_IDX);
+> >  	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
+> >  	outb_p(smb_en + 1, SB800_PIIX4_SMB_IDX);
+> >  	smba_en_hi = inb_p(SB800_PIIX4_SMB_IDX + 1);
+> > -	mutex_unlock(&piix4_mutex_sb800);
+> > +
+> > +	release_region(SB800_PIIX4_SMB_IDX, 2);
+> >  
+> >  	if (!smb_en) {
+> >  		smb_en_status = smba_en_lo & 0x10;
+> > @@ -373,7 +373,12 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+> >  			break;
+> >  		}
+> >  	} else {
+> > -		mutex_lock(&piix4_mutex_sb800);
+> > +		if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2,
+> > +					  "sb800_piix4_smb")) {
+> > +			release_region(piix4_smba, SMBIOSIZE);
+> > +			return -EBUSY;
+> > +		}
+> > +
+> >  		outb_p(SB800_PIIX4_PORT_IDX_SEL, SB800_PIIX4_SMB_IDX);
+> >  		port_sel = inb_p(SB800_PIIX4_SMB_IDX + 1);
+> >  		piix4_port_sel_sb800 = (port_sel & 0x01) ?
+> > @@ -381,7 +386,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+> >  				       SB800_PIIX4_PORT_IDX;
+> >  		piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
+> >  		piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
+> > -		mutex_unlock(&piix4_mutex_sb800);
+> > +		release_region(SB800_PIIX4_SMB_IDX, 2);
+> >  	}
+> >  
+> >  	dev_info(&PIIX4_dev->dev,
+> > @@ -679,7 +684,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+> >  	u8 port;
+> >  	int retval;
+> >  
+> > -	mutex_lock(&piix4_mutex_sb800);
+> > +	if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2, "sb800_piix4_smb"))
+> > +		return -EBUSY;
+> 
+> Did you check the performance cost? I thought that
+> request_muxed_region() was meant for driver setup, I did not expect it
+> to be used at driver run-time. Requesting the region again for every
+> transaction seems quite costly?
+> 
+I did check why the driver has such a bad performance, which is why
+I submitted the other patch to change msleep() to usleep_range().
+
+Evaulating the actual per-call overhead seems to be quite pointless, unless
+someone volunteers to introduce a specific access API for situations like this.
+It is definitely not a unique situation - I have to do something similar
+in the out-of-tree it87 driver, for example.
+
+> That being said, being slow is certainly better than failing, as is
+> currently the case, so I'm fine with this change anyway. Just curious.
+> 
+> >  
+> >  	/* Request the SMBUS semaphore, avoid conflicts with the IMC */
+> >  	smbslvcnt  = inb_p(SMBSLVCNT);
+> > @@ -695,8 +701,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+> >  	} while (--retries);
+> >  	/* SMBus is still owned by the IMC, we give up */
+> >  	if (!retries) {
+> > -		mutex_unlock(&piix4_mutex_sb800);
+> > -		return -EBUSY;
+> > +		retval = -EBUSY;
+> > +		goto release;
+> >  	}
+> >  
+> >  	/*
+> > @@ -753,8 +759,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+> >  	if ((size == I2C_SMBUS_BLOCK_DATA) && adapdata->notify_imc)
+> >  		piix4_imc_wakeup();
+> >  
+> > -	mutex_unlock(&piix4_mutex_sb800);
+> > -
+> > +release:
+> > +	release_region(SB800_PIIX4_SMB_IDX, 2);
+> >  	return retval;
+> >  }
+> >  
+> > @@ -899,13 +905,6 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+> >  		bool notify_imc = false;
+> >  		is_sb800 = true;
+> >  
+> > -		if (!request_region(SB800_PIIX4_SMB_IDX, 2, "smba_idx")) {
+> > -			dev_err(&dev->dev,
+> > -			"SMBus base address index region 0x%x already in use!\n",
+> > -			SB800_PIIX4_SMB_IDX);
+> > -			return -EBUSY;
+> > -		}
+> > -
+> >  		if (dev->vendor == PCI_VENDOR_ID_AMD &&
+> >  		    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
+> >  			u8 imc;
+> > @@ -922,20 +921,16 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+> >  
+> >  		/* base address location etc changed in SB800 */
+> >  		retval = piix4_setup_sb800(dev, id, 0);
+> > -		if (retval < 0) {
+> > -			release_region(SB800_PIIX4_SMB_IDX, 2);
+> > +		if (retval < 0)
+> >  			return retval;
+> > -		}
+> >  
+> >  		/*
+> >  		 * Try to register multiplexed main SMBus adapter,
+> >  		 * give up if we can't
+> >  		 */
+> >  		retval = piix4_add_adapters_sb800(dev, retval, notify_imc);
+> > -		if (retval < 0) {
+> > -			release_region(SB800_PIIX4_SMB_IDX, 2);
+> > +		if (retval < 0)
+> >  			return retval;
+> > -		}
+> >  	} else {
+> >  		retval = piix4_setup(dev, id);
+> >  		if (retval < 0)
+> > @@ -983,11 +978,8 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
+> >  
+> >  	if (adapdata->smba) {
+> >  		i2c_del_adapter(adap);
+> > -		if (adapdata->port == (0 << piix4_port_shift_sb800)) {
+> > +		if (adapdata->port == (0 << piix4_port_shift_sb800))
+> >  			release_region(adapdata->smba, SMBIOSIZE);
+> > -			if (adapdata->sb800_main)
+> > -				release_region(SB800_PIIX4_SMB_IDX, 2);
+> > -		}
+> >  		kfree(adapdata);
+> >  		kfree(adap);
+> >  	}
+> 
+> Everything else looks good to me, thanks.
+> 
+> I assume you have tested this patch on real hardware?
+> 
+I have been running the code on several systems since I submitted
+the patch, together with the related changes in the watchdog driver.
+
+Guenter
