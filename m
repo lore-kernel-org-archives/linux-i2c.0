@@ -1,53 +1,53 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 1/2] i2c: piix4: Use request_muxed_region
-Date: Tue, 13 Feb 2018 06:11:48 -0800
-Message-ID: <d9ed7023-84b3-366c-ac6b-74194aeffc78@roeck-us.net>
-References: <1514652658-6228-1-git-send-email-linux@roeck-us.net>
- <20180212111041.027edd85@endymion> <20180212185152.GA20877@roeck-us.net>
- <ca8f74c0-c249-7698-21f7-e3ee49cd5516@pr.hu>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH] i2c: designware: Fix failure on baytrail
+Date: Tue, 13 Feb 2018 16:35:50 +0200
+Message-ID: <c5d4a7fc-2d52-9ab5-2a6f-5a5d4e20055c@linux.intel.com>
+References: <1518113569-19991-1-git-send-email-gardner.ben@gmail.com>
+ <945d4119-5aaf-520f-de2c-a9293f236f13@linux.intel.com>
+ <CAE7DoPbMMMbTV5i-fmfhrzKTVoj8Up8aXRYZU9jMh7hKNkkejQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <ca8f74c0-c249-7698-21f7-e3ee49cd5516@pr.hu>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mga04.intel.com ([192.55.52.120]:54884 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933651AbeBMOfa (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 13 Feb 2018 09:35:30 -0500
+In-Reply-To: <CAE7DoPbMMMbTV5i-fmfhrzKTVoj8Up8aXRYZU9jMh7hKNkkejQ@mail.gmail.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?B?QsO2c3rDtnJtw6lueWkgWm9sdMOhbg==?= <zboszor@pr.hu>, Jean Delvare <jdelvare@suse.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Ben Gardner <gardner.ben@gmail.com>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 
-On 02/13/2018 03:48 AM, Böszörményi Zoltán wrote:
-> 2018-02-12 19:51 keltezéssel, Guenter Roeck írta:
->> On Mon, Feb 12, 2018 at 11:10:41AM +0100, Jean Delvare wrote:
->>> Hi Guneter,
->>>
->>> Sorry for the delay :(
->>>
->>> On Sat, 30 Dec 2017 08:50:57 -0800, Guenter Roeck wrote:
->>>> Accesses to SB800_PIIX4_SMB_IDX can occur from multiple drivers.
->>>> Use request_muxed_region() to ensure synchronization.
->>>
->>> Which ones? Documenting it, at least in the commit message, would seem
->>> useful. Out of curiosity, have these other drivers been converted to
->>> use request_muxed_region already?
->>>
->> Primarily watchdog, but there is also unprotected initialization code
->> in several locations.
+Hi
+
+On 02/09/2018 05:07 PM, Ben Gardner wrote:
+> I bisected the kernel to try to find where this broke, but the answer
+> I kept on getting didn't make any sense.
+> I think t was this commit:
 > 
-> There are three locations touching the same I/O ports:
-> the PCI-USB quirks code (still doesn't use locking AFAIK), i2c-piix4 and
-> the sp5100_tco watchdog drivers.
+> 4d6d5f1d08d2138dc43b28966eb6200e3db2e623 i2c: designware: fix rx fifo
+> depth tracking
+> > Of course, reverting that one commit didn't fix anything.
+> So I added a log to the dw_readl() and dw_writel() functions in both a
+> working and broken kernel and compared.
 > 
+Yeah, it's not unusual that bisect diverts into wrong commit especially 
+with issues that don't reproduce easily or if some unrelated thing is 
+causing also failure at certain step leading to a wrong good/bad guess.
 
-There are a few more in arch code, though probably not all of those (or maybe none ?)
-are relevant.
+Can you test does reverting my guessed commit 2702ea7dbec5 ("i2c: 
+designware: wait for disable/enable only if necessary") fix it?
 
-arch/x86/kernel/quirks.c
-arch/x86/kernel/early-quirks.c
-arch/x86/pci/fixup.c
-arch/mips/loongson64/loongson-3/acpi_init.c
-drivers/usb/host/pci-quirks.c
-drivers/watchdog/sp5100_tco.[ch]
-drivers/i2c/busses/i2c-piix4.c
+For linux-stable it is good info to know exactly the commit causing 
+regression and mark that in your changelog. It allows linux-stable folks 
+to apply fix to earlier kernels and know versions this fix will still 
+apply if cannot apply where regression was introduced. Fox example:
 
-Guenter
+Fixes: commit 2702ea7dbec5 ("i2c: designware: wait for disable/enable 
+only if necessary")
+Cc: linux-stable <stable@vger.kernel.org> # 4.13+
+
+-- 
+Jarkko
