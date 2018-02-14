@@ -1,51 +1,56 @@
-From: Amit Kucheria <amit.kucheria@verdurent.com>
-Subject: Re: [PATCH v2 3/7] soc: qcom: Add GENI based QUP Wrapper driver
-Date: Wed, 14 Feb 2018 16:37:05 +0530
-Message-ID: <CAHLCerOf3WMUind8-5Z+c6iXyyYvdjS7MaMbO8WzNU2-VaREPg@mail.gmail.com>
-References: <1515805547-22816-1-git-send-email-kramasub@codeaurora.org> <1515805547-22816-4-git-send-email-kramasub@codeaurora.org>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 1/2] i2c: piix4: Use request_muxed_region
+Date: Wed, 14 Feb 2018 15:23:05 +0100
+Message-ID: <20180214152305.57b76ea5@endymion>
+References: <1514652658-6228-1-git-send-email-linux@roeck-us.net>
+        <20180212111041.027edd85@endymion>
+        <20180212185152.GA20877@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-oi0-f50.google.com ([209.85.218.50]:40703 "EHLO
-        mail-oi0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S967255AbeBNLHG (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 14 Feb 2018 06:07:06 -0500
-Received: by mail-oi0-f50.google.com with SMTP id 8so16189250oix.7
-        for <linux-i2c@vger.kernel.org>; Wed, 14 Feb 2018 03:07:06 -0800 (PST)
-In-Reply-To: <1515805547-22816-4-git-send-email-kramasub@codeaurora.org>
+Received: from mx2.suse.de ([195.135.220.15]:33119 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1030363AbeBNOXJ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 14 Feb 2018 09:23:09 -0500
+In-Reply-To: <20180212185152.GA20877@roeck-us.net>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
-Cc: corbet@lwn.net, Andy Gross <andy.gross@linaro.org>, david.brown@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, gregkh@linuxfoundation.org, linux-doc@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org, jslaby@suse.com, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wolfram Sang <wsa@the-dreams.de>, =?UTF-8?B?Wm9sdMOhbiBCw7ZzesO2cm0=?= =?UTF-8?B?w6lueWk=?= <zboszor@pr.hu>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, Jan 13, 2018 at 6:35 AM, Karthikeyan Ramasubramanian
-<kramasub@codeaurora.org> wrote:
-> This driver manages the Generic Interface (GENI) firmware based Qualcomm
-> Universal Peripheral (QUP) Wrapper. GENI based QUP is the next generation
-> programmable module composed of multiple Serial Engines (SE) and supports
-> a wide range of serial interfaces like UART, SPI, I2C, I3C, etc. This
-> driver also enables managing the serial interface independent aspects of
-> Serial Engines.
+On Mon, 12 Feb 2018 10:51:52 -0800, Guenter Roeck wrote:
+> On Mon, Feb 12, 2018 at 11:10:41AM +0100, Jean Delvare wrote:
+> > On Sat, 30 Dec 2017 08:50:57 -0800, Guenter Roeck wrote:  
+> > > @@ -298,12 +295,15 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+> > >  	else
+> > >  		smb_en = (aux) ? 0x28 : 0x2c;
+> > >  
+> > > -	mutex_lock(&piix4_mutex_sb800);
+> > > +	if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2, "sb800_piix4_smb"))
+> > > +		return -EBUSY;  
+> > 
+> > This would happen if and only if another driver has requested the
+> > region already but without IORESOURCE_MUXED, right? Don't you want to  
+> 
+> Or if its call to alloc_resource() fails.
+
+OK, two things which are not supposed to happen, so failing is the
+right thing to do.
+
+> > write an error message then? I don't think request_muxed_region() will
+> > do, and probe failing with -EBUSY but no error message logged would be
+> > hard to diagnose.
 >
-> Signed-off-by: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
-> Signed-off-by: Sagar Dharia <sdharia@codeaurora.org>
-> Signed-off-by: Girish Mahadevan <girishm@codeaurora.org>
+> NP, though the analysis is quite simple - /proc/iomem will show the culprit.
 
+I'm confused. How would the user know what to look for in /proc/iomem
+(or, I believe, /proc/ioports actually) if the driver does not print
+which resource allocation failed?
 
-> +int geni_se_resources_off(struct geni_se_rsc *rsc)
-> +{
-> +       int ret = 0;
-> +       struct geni_se_device *geni_se_dev;
-> +
-> +       if (unlikely(!rsc || !rsc->wrapper_dev))
-> +               return -EINVAL;
-> +
-> +       geni_se_dev = dev_get_drvdata(rsc->wrapper_dev);
-> +       if (unlikely(!geni_se_dev))
-> +               return -ENODEV;
-> +
-> +       ret = pinctrl_select_state(rsc->geni_pinctrl, rsc->geni_gpio_sleep);
+If the information is already printed somewhere, then I agree there's no
+point adding a message. But from the code I could not find it.
 
-You need to include linux/pinctrl/consumer.h for devm_pinctrl_get
-
-I couldn't compile test it w/o it.
+-- 
+Jean Delvare
+SUSE L3 Support
