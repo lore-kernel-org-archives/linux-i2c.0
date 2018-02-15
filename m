@@ -1,62 +1,153 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: must wait for enable
-Date: Thu, 15 Feb 2018 13:06:12 +0200
-Message-ID: <debe23b7-9609-0433-a8e2-814937e2c753@linux.intel.com>
-References: <1518622192-19700-1-git-send-email-gardner.ben@gmail.com>
+From: Sricharan R <sricharan@codeaurora.org>
+Subject: Re: [PATCH 04/12] i2c: qup: schedule EOT and FLUSH tags at the end of
+ transfer
+Date: Thu, 15 Feb 2018 20:01:04 +0530
+Message-ID: <dcb7b543-3474-e573-cdc0-010cda5c2d67@codeaurora.org>
+References: <1517644697-30806-1-git-send-email-absahu@codeaurora.org>
+ <1517644697-30806-5-git-send-email-absahu@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga12.intel.com ([192.55.52.136]:31089 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755336AbeBOLFx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Thu, 15 Feb 2018 06:05:53 -0500
-In-Reply-To: <1518622192-19700-1-git-send-email-gardner.ben@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <1517644697-30806-5-git-send-email-absahu@codeaurora.org>
 Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Abhishek Sahu <absahu@codeaurora.org>, Andy Gross <andy.gross@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: David Brown <david.brown@linaro.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Ben Gardner <gardner.ben@gmail.com>, linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, =?UTF-8?Q?Jos=c3=a9_Roberto_de_Souza?= <jose.souza@intel.com>, "linux-stable #4 . 13+" <stable@vger.kernel.org>
 
-On 02/14/2018 05:29 PM, Ben Gardner wrote:
-> One I2C bus on my Atom E3845 board has been broken since 4.9.
-> It has two devices, both declared by ACPI and with built-in drivers.
+Hi Abhishek,
+
+On 2/3/2018 1:28 PM, Abhishek Sahu wrote:
+> A single BAM transfer can have multiple read and write messages.
+> The EOT and FLUSH tags should be scheduled at the end of BAM HW
+> descriptors. Since the READ and WRITE can be present in any order
+> so for some of the cases, these tags are not being written
+> correctly.
 > 
-> There are two back-to-back transactions originating from the kernel, one
-> targeting each device. The first transaction works, the second one locks
-> up the I2C controller. The controller never recovers.
-> 
-> These kernel logs show up whenever an I2C transaction is attempted after
-> this failure.
-> i2c-designware-pci 0000:00:18.3: timeout in disabling adapter
-> i2c-designware-pci 0000:00:18.3: timeout waiting for bus ready
-> 
-> Waiting for the I2C controller status to indicate that it is enabled
-> before programming it fixes the issue.
-> 
-> I have tested this patch on 4.14 and 4.15.
-> 
-> Fixes: commit 2702ea7dbec5 ("i2c: designware: wait for disable/enable only if necessary")
-> Cc: linux-stable <stable@vger.kernel.org> #4.13+
-> Cc: José Roberto de Souza <jose.souza@intel.com>
-> Signed-off-by: Ben Gardner <gardner.ben@gmail.com>
+> Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
 > ---
->   drivers/i2c/busses/i2c-designware-master.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/i2c/busses/i2c-qup.c | 54 ++++++++++++++++++++------------------------
+>  1 file changed, 24 insertions(+), 30 deletions(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-> index ae69188..55926ef 100644
-> --- a/drivers/i2c/busses/i2c-designware-master.c
-> +++ b/drivers/i2c/busses/i2c-designware-master.c
-> @@ -209,7 +209,7 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
->   	i2c_dw_disable_int(dev);
->   
->   	/* Enable the adapter */
-> -	__i2c_dw_enable(dev, true);
-> +	__i2c_dw_enable_and_wait(dev, true);
->   
-I believe this conversion was missing from commit 2702ea7dbec5 and 
-regression is better to fix this way than reverting. We'll provide 
-similar fix for for v4.9..v4.12. Code have had changes and renaming.
+> diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+> index bb83a2967..6357aff 100644
+> --- a/drivers/i2c/busses/i2c-qup.c
+> +++ b/drivers/i2c/busses/i2c-qup.c
+> @@ -560,7 +560,7 @@ static int qup_i2c_set_tags_smb(u16 addr, u8 *tags, struct qup_i2c_dev *qup,
+>  }
+>  
+>  static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
+> -			    struct i2c_msg *msg,  int is_dma)
+> +			    struct i2c_msg *msg)
+>  {
+>  	u16 addr = i2c_8bit_addr_from_msg(msg);
+>  	int len = 0;
+> @@ -601,11 +601,6 @@ static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
+>  	else
+>  		tags[len++] = data_len;
+>  
+> -	if ((msg->flags & I2C_M_RD) && last && is_dma) {
+> -		tags[len++] = QUP_BAM_INPUT_EOT;
+> -		tags[len++] = QUP_BAM_FLUSH_STOP;
+> -	}
+> -
+>  	return len;
+>  }
+>  
+> @@ -614,7 +609,7 @@ static int qup_i2c_issue_xfer_v2(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+>  	int data_len = 0, tag_len, index;
+>  	int ret;
+>  
+> -	tag_len = qup_i2c_set_tags(qup->blk.tags, qup, msg, 0);
+> +	tag_len = qup_i2c_set_tags(qup->blk.tags, qup, msg);
+>  	index = msg->len - qup->blk.data_len;
+>  
+>  	/* only tags are written for read */
+> @@ -710,7 +705,7 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+>  			while (qup->blk.pos < blocks) {
+>  				tlen = (i == (blocks - 1)) ? rem : limit;
+>  				tags = &qup->start_tag.start[off + len];
+> -				len += qup_i2c_set_tags(tags, qup, msg, 1);
+> +				len += qup_i2c_set_tags(tags, qup, msg);
+>  				qup->blk.data_len -= tlen;
+>  
+>  				/* scratch buf to read the start and len tags */
+> @@ -738,17 +733,11 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+>  				return ret;
+>  
+>  			off += len;
+> -			/* scratch buf to read the BAM EOT and FLUSH tags */
+> -			ret = qup_sg_set_buf(&qup->brx.sg[rx_buf++],
+> -					     &qup->brx.tag.start[0],
+> -					     2, qup, DMA_FROM_DEVICE);
+> -			if (ret)
+> -				return ret;
+>  		} else {
+>  			while (qup->blk.pos < blocks) {
+>  				tlen = (i == (blocks - 1)) ? rem : limit;
+>  				tags = &qup->start_tag.start[off + tx_len];
+> -				len = qup_i2c_set_tags(tags, qup, msg, 1);
+> +				len = qup_i2c_set_tags(tags, qup, msg);
+>  				qup->blk.data_len -= tlen;
+>  
+>  				ret = qup_sg_set_buf(&qup->btx.sg[tx_buf++],
+> @@ -768,26 +757,31 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+>  			}
+>  			off += tx_len;
+>  
+> -			if (idx == (num - 1)) {
+> -				len = 1;
+> -				if (rx_buf) {
+> -					qup->btx.tag.start[0] =
+> -							QUP_BAM_INPUT_EOT;
+> -					len++;
+> -				}
+> -				qup->btx.tag.start[len - 1] =
+> -							QUP_BAM_FLUSH_STOP;
+> -				ret = qup_sg_set_buf(&qup->btx.sg[tx_buf++],
+> -						     &qup->btx.tag.start[0],
+> -						     len, qup, DMA_TO_DEVICE);
+> -				if (ret)
+> -					return ret;
+> -			}
+>  		}
+>  		idx++;
+>  		msg++;
+>  	}
 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+ While here, can you please split above the if, else in to two separate functions ?
+ and probably one more function for handling the NACK case down below. The function
+ size at the moment is too big.
+
+>  
+> +	/* schedule the EOT and FLUSH I2C tags */
+> +	len = 1;
+> +	if (rx_buf) {
+> +		qup->btx.tag.start[0] = QUP_BAM_INPUT_EOT;
+> +		len++;
+> +
+> +		/* scratch buf to read the BAM EOT and FLUSH tags */
+> +		ret = qup_sg_set_buf(&qup->brx.sg[rx_buf++],
+> +				     &qup->brx.tag.start[0],
+> +				     2, qup, DMA_FROM_DEVICE);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	qup->btx.tag.start[len - 1] = QUP_BAM_FLUSH_STOP;
+> +	ret = qup_sg_set_buf(&qup->btx.sg[tx_buf++], &qup->btx.tag.start[0],
+> +			     len, qup, DMA_TO_DEVICE);
+> +	if (ret)
+> +		return ret;
+> +
+
+  May be you can change the commit to make it explicit to say what is being
+  fixed, like "current code is broken when there is sequence of wr,rd,wr" like that.
+  Agree on this fix otherwise.
+
+Regards,
+ Sricharan
+
+-- 
+"QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
