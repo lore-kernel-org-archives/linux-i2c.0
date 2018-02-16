@@ -1,150 +1,110 @@
 From: Sricharan R <sricharan@codeaurora.org>
-Subject: Re: [PATCH 04/12] i2c: qup: schedule EOT and FLUSH tags at the end of
- transfer
-Date: Thu, 15 Feb 2018 20:01:04 +0530
-Message-ID: <dcb7b543-3474-e573-cdc0-010cda5c2d67@codeaurora.org>
+Subject: Re: [PATCH 06/12] i2c: qup: proper error handling for i2c error in
+ BAM mode
+Date: Fri, 16 Feb 2018 10:03:11 +0530
+Message-ID: <067d1b54-76a8-06ba-b7b7-e496d8f1e7db@codeaurora.org>
 References: <1517644697-30806-1-git-send-email-absahu@codeaurora.org>
- <1517644697-30806-5-git-send-email-absahu@codeaurora.org>
+ <1517644697-30806-7-git-send-email-absahu@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <1517644697-30806-5-git-send-email-absahu@codeaurora.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1517644697-30806-7-git-send-email-absahu@codeaurora.org>
 Content-Language: en-US
-Sender: linux-arm-msm-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Abhishek Sahu <absahu@codeaurora.org>, Andy Gross <andy.gross@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
 Cc: David Brown <david.brown@linaro.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Abhishek,
+
 
 On 2/3/2018 1:28 PM, Abhishek Sahu wrote:
-> A single BAM transfer can have multiple read and write messages.
-> The EOT and FLUSH tags should be scheduled at the end of BAM HW
-> descriptors. Since the READ and WRITE can be present in any order
-> so for some of the cases, these tags are not being written
-> correctly.
+> Currently the i2c error handling in BAM mode is not working
+> properly in stress condition.
+> 
+> 1. After an error, the FIFO are being written with FLUSH and
+>    EOT tags which should not be required since already these tags
+>    have been written in BAM descriptor itself.
+> 
+> 2. QUP state is being moved to RESET in IRQ handler in case
+>    of error. When QUP HW encounters an error in BAM mode then it
+>    moves the QUP STATE to PAUSE state. In this case, I2C_FLUSH
+>    command needs to be executed while moving to RUN_STATE by writing
+>    to the QUP_STATE register with the I2C_FLUSH bit set to 1.
+> 
+> 3. In Error case, sometimes, QUP generates more than one
+>    interrupt which will trigger the complete again. After an error,
+>    the flush operation will be scheduled after doing
+>    reinit_completion which should be triggered by BAM IRQ callback.
+>    If the second QUP IRQ comes during this time then it will call
+>    the complete and the transfer function will assume the all the
+>    BAM HW descriptors have been completed.
+> 
+> 4. The release DMA is being called after each error which
+>    will free the DMA tx and rx channels. The error like NACK is very
+>    common in I2C transfer and every time this will be overhead. Now,
+>    since the error handling is proper so this release channel can be
+>    completely avoided.
 > 
 > Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
 > ---
->  drivers/i2c/busses/i2c-qup.c | 54 ++++++++++++++++++++------------------------
->  1 file changed, 24 insertions(+), 30 deletions(-)
+>  drivers/i2c/busses/i2c-qup.c | 25 ++++++++++++++++---------
+>  1 file changed, 16 insertions(+), 9 deletions(-)
 > 
 > diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-> index bb83a2967..6357aff 100644
+> index 094be6a..6227a5c 100644
 > --- a/drivers/i2c/busses/i2c-qup.c
 > +++ b/drivers/i2c/busses/i2c-qup.c
-> @@ -560,7 +560,7 @@ static int qup_i2c_set_tags_smb(u16 addr, u8 *tags, struct qup_i2c_dev *qup,
->  }
+> @@ -228,9 +228,24 @@ static irqreturn_t qup_i2c_interrupt(int irq, void *dev)
+>  	if (bus_err)
+>  		writel(bus_err, qup->base + QUP_I2C_STATUS);
 >  
->  static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
-> -			    struct i2c_msg *msg,  int is_dma)
-> +			    struct i2c_msg *msg)
->  {
->  	u16 addr = i2c_8bit_addr_from_msg(msg);
->  	int len = 0;
-> @@ -601,11 +601,6 @@ static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
->  	else
->  		tags[len++] = data_len;
->  
-> -	if ((msg->flags & I2C_M_RD) && last && is_dma) {
-> -		tags[len++] = QUP_BAM_INPUT_EOT;
-> -		tags[len++] = QUP_BAM_FLUSH_STOP;
-> -	}
-> -
->  	return len;
->  }
->  
-> @@ -614,7 +609,7 @@ static int qup_i2c_issue_xfer_v2(struct qup_i2c_dev *qup, struct i2c_msg *msg)
->  	int data_len = 0, tag_len, index;
->  	int ret;
->  
-> -	tag_len = qup_i2c_set_tags(qup->blk.tags, qup, msg, 0);
-> +	tag_len = qup_i2c_set_tags(qup->blk.tags, qup, msg);
->  	index = msg->len - qup->blk.data_len;
->  
->  	/* only tags are written for read */
-> @@ -710,7 +705,7 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
->  			while (qup->blk.pos < blocks) {
->  				tlen = (i == (blocks - 1)) ? rem : limit;
->  				tags = &qup->start_tag.start[off + len];
-> -				len += qup_i2c_set_tags(tags, qup, msg, 1);
-> +				len += qup_i2c_set_tags(tags, qup, msg);
->  				qup->blk.data_len -= tlen;
->  
->  				/* scratch buf to read the start and len tags */
-> @@ -738,17 +733,11 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
->  				return ret;
->  
->  			off += len;
-> -			/* scratch buf to read the BAM EOT and FLUSH tags */
-> -			ret = qup_sg_set_buf(&qup->brx.sg[rx_buf++],
-> -					     &qup->brx.tag.start[0],
-> -					     2, qup, DMA_FROM_DEVICE);
-> -			if (ret)
-> -				return ret;
->  		} else {
->  			while (qup->blk.pos < blocks) {
->  				tlen = (i == (blocks - 1)) ? rem : limit;
->  				tags = &qup->start_tag.start[off + tx_len];
-> -				len = qup_i2c_set_tags(tags, qup, msg, 1);
-> +				len = qup_i2c_set_tags(tags, qup, msg);
->  				qup->blk.data_len -= tlen;
->  
->  				ret = qup_sg_set_buf(&qup->btx.sg[tx_buf++],
-> @@ -768,26 +757,31 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
->  			}
->  			off += tx_len;
->  
-> -			if (idx == (num - 1)) {
-> -				len = 1;
-> -				if (rx_buf) {
-> -					qup->btx.tag.start[0] =
-> -							QUP_BAM_INPUT_EOT;
-> -					len++;
-> -				}
-> -				qup->btx.tag.start[len - 1] =
-> -							QUP_BAM_FLUSH_STOP;
-> -				ret = qup_sg_set_buf(&qup->btx.sg[tx_buf++],
-> -						     &qup->btx.tag.start[0],
-> -						     len, qup, DMA_TO_DEVICE);
-> -				if (ret)
-> -					return ret;
-> -			}
->  		}
->  		idx++;
->  		msg++;
+> +	/*
+> +	 * Check for BAM mode and returns if already error has come for current
+> +	 * transfer. In Error case, sometimes, QUP generates more than one
+> +	 * interrupt.
+> +	 */
+> +	if (qup->use_dma && (qup->qup_err || qup->bus_err))
+> +		return IRQ_HANDLED;
+> +
+>  	/* Reset the QUP State in case of error */
+>  	if (qup_err || bus_err) {
+> -		writel(QUP_RESET_STATE, qup->base + QUP_STATE);
+> +		/*
+> +		 * Don’t reset the QUP state in case of BAM mode. The BAM
+> +		 * flush operation needs to be scheduled in transfer function
+> +		 * which will clear the remaining schedule descriptors in BAM
+> +		 * HW FIFO and generates the BAM interrupt.
+> +		 */
+> +		if (!qup->use_dma)
+> +			writel(QUP_RESET_STATE, qup->base + QUP_STATE);
+>  		goto done;
 >  	}
-
- While here, can you please split above the if, else in to two separate functions ?
- and probably one more function for handling the NACK case down below. The function
- size at the moment is too big.
-
 >  
-> +	/* schedule the EOT and FLUSH I2C tags */
-> +	len = 1;
-> +	if (rx_buf) {
-> +		qup->btx.tag.start[0] = QUP_BAM_INPUT_EOT;
-> +		len++;
-> +
-> +		/* scratch buf to read the BAM EOT and FLUSH tags */
-> +		ret = qup_sg_set_buf(&qup->brx.sg[rx_buf++],
-> +				     &qup->brx.tag.start[0],
-> +				     2, qup, DMA_FROM_DEVICE);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	qup->btx.tag.start[len - 1] = QUP_BAM_FLUSH_STOP;
-> +	ret = qup_sg_set_buf(&qup->btx.sg[tx_buf++], &qup->btx.tag.start[0],
-> +			     len, qup, DMA_TO_DEVICE);
-> +	if (ret)
-> +		return ret;
-> +
+> @@ -841,20 +856,12 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+>  			goto desc_err;
+>  		}
+>  
+> -		if (rx_buf)
+> -			writel(QUP_BAM_INPUT_EOT,
+> -			       qup->base + QUP_OUT_FIFO_BASE);
+> -
+> -		writel(QUP_BAM_FLUSH_STOP, qup->base + QUP_OUT_FIFO_BASE);
+> -
+>  		qup_i2c_flush(qup);
+>  
+>  		/* wait for remaining interrupts to occur */
+>  		if (!wait_for_completion_timeout(&qup->xfer, HZ))
+>  			dev_err(qup->dev, "flush timed out\n");
+>  
+> -		qup_i2c_rel_dma(qup);
+> -
+>  		ret =  (qup->bus_err & QUP_I2C_NACK_FLAG) ? -ENXIO : -EIO;
+>  	}
+>  
+> 
 
-  May be you can change the commit to make it explicit to say what is being
-  fixed, like "current code is broken when there is sequence of wr,rd,wr" like that.
-  Agree on this fix otherwise.
+ Reviewed-by: Sricharan R <sricharan@codeaurora.org>
 
 Regards,
  Sricharan
