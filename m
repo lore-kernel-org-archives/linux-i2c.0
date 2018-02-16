@@ -1,17 +1,17 @@
 From: Sricharan R <sricharan@codeaurora.org>
-Subject: Re: [PATCH 07/12] i2c: qup: use the complete transfer length to
- choose DMA mode
-Date: Fri, 16 Feb 2018 10:05:42 +0530
-Message-ID: <4a3d98e2-c340-1a13-eaa4-dde07768e7d8@codeaurora.org>
+Subject: Re: [PATCH 08/12] i2c: qup: change completion timeout according to
+ transfer length
+Date: Fri, 16 Feb 2018 10:18:40 +0530
+Message-ID: <7dcbac1f-edaf-aecf-8e58-04d243384758@codeaurora.org>
 References: <1517644697-30806-1-git-send-email-absahu@codeaurora.org>
- <1517644697-30806-8-git-send-email-absahu@codeaurora.org>
+ <1517644697-30806-9-git-send-email-absahu@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <1517644697-30806-8-git-send-email-absahu@codeaurora.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1517644697-30806-9-git-send-email-absahu@codeaurora.org>
 Content-Language: en-US
-Sender: linux-arm-msm-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Abhishek Sahu <absahu@codeaurora.org>, Andy Gross <andy.gross@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
 Cc: David Brown <david.brown@linaro.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -19,74 +19,65 @@ List-Id: linux-i2c@vger.kernel.org
 
 
 On 2/3/2018 1:28 PM, Abhishek Sahu wrote:
-> Currently each message length in complete transfer is being
-> checked for determining DMA mode and if any of the message length
-> is less than FIFO length then non DMA mode is being used which
-> will increase overhead. DMA can be used for any length and it
-> should be determined with complete transfer length. Now, this
-> patch introduces DMA threshold length and the transfer will be
-> done in DMA mode if the total length is greater than this
-> threshold length.
+> Currently the completion timeout is being taken according to
+> maximum transfer length which is too high if SCL is operating in
+> high frequency. This patch calculates timeout on the basis of
+> one-byte transfer time and uses the same for completion timeout.
 > 
 > Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
 > ---
->  drivers/i2c/busses/i2c-qup.c | 15 +++++++++------
->  1 file changed, 9 insertions(+), 6 deletions(-)
+>  drivers/i2c/busses/i2c-qup.c | 9 ++++++---
+>  1 file changed, 6 insertions(+), 3 deletions(-)
 > 
 > diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-> index 6227a5c..a91fc70 100644
+> index a91fc70..6df65ea 100644
 > --- a/drivers/i2c/busses/i2c-qup.c
 > +++ b/drivers/i2c/busses/i2c-qup.c
-> @@ -192,6 +192,8 @@ struct qup_i2c_dev {
->  	bool			is_dma;
->  	/* To check if the current transfer is using DMA */
->  	bool			use_dma;
-> +	/* The threshold length above which DMA will be used */
-> +	unsigned int		dma_threshold;
->  	struct			dma_pool *dpool;
->  	struct			qup_i2c_tag start_tag;
->  	struct			qup_i2c_bam brx;
-> @@ -1294,7 +1296,8 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
->  			   int num)
->  {
->  	struct qup_i2c_dev *qup = i2c_get_adapdata(adap);
-> -	int ret, len, idx = 0;
-> +	int ret, idx = 0;
-> +	unsigned int total_len = 0;
+> @@ -130,8 +130,8 @@
+>  #define MX_TX_RX_LEN			SZ_64K
+>  #define MX_BLOCKS			(MX_TX_RX_LEN / QUP_READ_LIMIT)
 >  
->  	qup->bus_err = 0;
->  	qup->qup_err = 0;
-> @@ -1320,14 +1323,13 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
->  				goto out;
->  			}
+> -/* Max timeout in ms for 32k bytes */
+> -#define TOUT_MAX			300
+> +/* Min timeout for i2c transfers */
+> +#define TOUT_MIN			2
 >  
-> -			len = (msgs[idx].len > qup->out_fifo_sz) ||
-> -			      (msgs[idx].len > qup->in_fifo_sz);
-> -
-> -			if (is_vmalloc_addr(msgs[idx].buf) || !len)
-> +			if (is_vmalloc_addr(msgs[idx].buf))
->  				break;
-> +
-> +			total_len += msgs[idx].len;
->  		}
->  
-> -		if (idx == num)
-> +		if (idx == num && total_len > qup->dma_threshold)
->  			qup->use_dma = true;
->  	}
->  
-> @@ -1587,6 +1589,7 @@ static int qup_i2c_probe(struct platform_device *pdev)
->  
->  	size = QUP_INPUT_FIFO_SIZE(io_mode);
->  	qup->in_fifo_sz = qup->in_blk_sz * (2 << size);
-> +	qup->dma_threshold = min(qup->out_fifo_sz, qup->in_fifo_sz);
 
-  The patch is fine. small nit, you can avoid this global dma_threshold. Instead
-  have it locally in qup_i2c_xfer_v2 itself.
+ may be you can mention, why is this 2 ?
 
 Regards,
  Sricharan
 
+
+>  /* Default values. Use these if FW query fails */
+>  #define DEFAULT_CLK_FREQ 100000
+> @@ -172,6 +172,7 @@ struct qup_i2c_dev {
+>  	int			in_blk_sz;
+>  
+>  	unsigned long		one_byte_t;
+> +	unsigned long		xfer_timeout;
+>  	struct qup_i2c_block	blk;
+>  
+>  	struct i2c_msg		*msg;
+> @@ -845,7 +846,7 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+>  		dma_async_issue_pending(qup->brx.dma);
+>  	}
+>  
+> -	if (!wait_for_completion_timeout(&qup->xfer, TOUT_MAX * HZ)) {
+> +	if (!wait_for_completion_timeout(&qup->xfer, qup->xfer_timeout)) {
+>  		dev_err(qup->dev, "normal trans timed out\n");
+>  		ret = -ETIMEDOUT;
+>  	}
+> @@ -1601,6 +1602,8 @@ static int qup_i2c_probe(struct platform_device *pdev)
+>  	 */
+>  	one_bit_t = (USEC_PER_SEC / clk_freq) + 1;
+>  	qup->one_byte_t = one_bit_t * 9;
+> +	qup->xfer_timeout = TOUT_MIN * HZ +
+> +			    usecs_to_jiffies(MX_TX_RX_LEN * qup->one_byte_t);
+>  
+>  	dev_dbg(qup->dev, "IN:block:%d, fifo:%d, OUT:block:%d, fifo:%d\n",
+>  		qup->in_blk_sz, qup->in_fifo_sz,
+> 
 
 -- 
 "QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
