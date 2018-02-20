@@ -1,90 +1,249 @@
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: Re: i2c-designware: sound and s2ram broken on Broadwell-U system
- since commit ca382f5b38f367b6 (add i2c gpio recovery option)
-Date: Sun, 18 Feb 2018 10:41:35 +0100
-Message-ID: <20180218094135.GA2459@light.dominikbrodowski.net>
-References: <20180217132543.GA21571@light.dominikbrodowski.net>
- <1518879773.22495.378.camel@linux.intel.com>
- <1518880180.22495.379.camel@linux.intel.com>
- <20180217165815.GA1854@light.dominikbrodowski.net>
- <1518901021.22495.383.camel@linux.intel.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH 2/2] i2c: add support for Socionext SynQuacer I2C
+ controller
+Date: Tue, 20 Feb 2018 16:02:18 +0200
+Message-ID: <CAHp75VeUJpXLpL55erp+uoMH4jqppoG5zTt1DcffqNYPsJMdUQ@mail.gmail.com>
+References: <20180220090827.913-1-ard.biesheuvel@linaro.org>
+ <20180220090827.913-3-ard.biesheuvel@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from isilmar-4.linta.de ([136.243.71.142]:46518 "EHLO
-        isilmar-4.linta.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751285AbeBRJsQ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 18 Feb 2018 04:48:16 -0500
-Content-Disposition: inline
-In-Reply-To: <1518901021.22495.383.camel@linux.intel.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180220090827.913-3-ard.biesheuvel@linaro.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Jassi Brar <jassisinghbrar@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: tim@krieglstein.org, jarkko.nikula@linux.intel.com, preid@electromag.com.au, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, Feb 17, 2018 at 10:57:01PM +0200, Andy Shevchenko wrote:
-> On Sat, 2018-02-17 at 17:58 +0100, Dominik Brodowski wrote:
-> > On Sat, Feb 17, 2018 at 05:09:40PM +0200, Andy Shevchenko wrote:
-> 
-> > This patch fixes the issue, thanks.
-> 
-> I will send it soon out.
-> 
-> >  Do you still need the DEBUG_GPIO output?
-> 
-> It would be nice to have, though if it makes difficulties to you, then
-> don't bother.
+On Tue, Feb 20, 2018 at 11:08 AM, Ard Biesheuvel
+<ard.biesheuvel@linaro.org> wrote:
+> This is a cleaned up version of the I2C controller driver for
+> the Fujitsu F_I2C IP, which was never supported upstream, and
+> has now been incorporated into the Socionext SynQuacer SoC.
+>
 
-Note that I have to enable CONFIG_GPIOLIB before I can enable DEBUG_GPIO;
-CONFIG_PINCTRL was off as well. Maybe some "SELECT" is missing for
-CONFIG_I2C_DESIGNWARE_BAYTRAIL ?
+Typical issues below.
 
-The following output is with your patch applied. Do you need it without
-your fixup patch as well?
+> +/* SPDX-License-Identifier: GPL-2.0 */
 
-$ dmesg | egrep -i "(gpio|pinctrl|i2c|broadw)"
-[    0.591578] calling  dw_i2c_init_driver+0x0/0x13 @ 1
-[    0.625040] i2c_designware INT3432:00: GPIO lookup for consumer scl
-[    0.625073] i2c_designware INT3432:00: using ACPI for GPIO lookup
-[    0.625102] acpi INT3432:00: GPIO: looking up scl-gpios
-[    0.625129] acpi INT3432:00: GPIO: looking up scl-gpio
-[    0.625154] i2c_designware INT3432:00: using lookup tables for GPIO lookup
-[    0.625202] i2c_designware INT3432:00: lookup for GPIO scl failed
-[    0.678297] i2c_designware INT3433:00: GPIO lookup for consumer scl
-[    0.678326] i2c_designware INT3433:00: using ACPI for GPIO lookup
-[    0.678353] acpi INT3433:00: GPIO: looking up scl-gpios
-[    0.678376] acpi INT3433:00: GPIO: looking up scl-gpio
-[    0.678398] i2c_designware INT3433:00: using lookup tables for GPIO lookup
-[    0.678427] i2c_designware INT3433:00: lookup for GPIO scl failed
-[    0.701403] initcall dw_i2c_init_driver+0x0/0x13 returned 0 after 107421 usecs
-[    1.711543] calling  gpio_clk_driver_init+0x0/0x13 @ 1
-[    1.712419] initcall gpio_clk_driver_init+0x0/0x13 returned 0 after 44 usecs
-[    1.933569] calling  synaptics_i2c_driver_init+0x0/0x13 @ 1
-[    1.933602] initcall synaptics_i2c_driver_init+0x0/0x13 returned 0 after 30 usecs
-[    1.933996] calling  rmi_i2c_driver_init+0x0/0x13 @ 1
-[    1.934060] initcall rmi_i2c_driver_init+0x0/0x13 returned 0 after 59 usecs
-[    1.935852] calling  i2c_i801_init+0x0/0xc9 @ 1
-[    1.957452] initcall i2c_i801_init+0x0/0xc9 returned 0 after 21089 usecs
-[    1.977716] calling  i2c_hid_driver_init+0x0/0x13 @ 1
-[    2.025330] input: DLL0665:01 06CB:76AD Touchpad as /devices/pci0000:00/INT3433:00/i2c-1/i2c-DLL0665:01/0018:06CB:76AD.0001/input/input9
-[    2.025853] hid-multitouch 0018:06CB:76AD.0001: input: I2C HID v1.00 Mouse [DLL0665:01 06CB:76AD] on i2c-DLL0665:01
-[    2.026376] initcall i2c_hid_driver_init+0x0/0x13 returned 0 after 47514 usecs
-[    2.065027] calling  max98090_i2c_driver_init+0x0/0x13 @ 1
-[    2.065075] initcall max98090_i2c_driver_init+0x0/0x13 returned 0 after 44 usecs
-[    2.065077] calling  rt286_i2c_driver_init+0x0/0x13 @ 1
-[    2.118805] initcall rt286_i2c_driver_init+0x0/0x13 returned 0 after 52461 usecs
-[    2.118809] calling  rt5640_i2c_driver_init+0x0/0x13 @ 1
-[    2.118853] initcall rt5640_i2c_driver_init+0x0/0x13 returned 0 after 38 usecs
-[    2.118856] calling  rt5651_i2c_driver_init+0x0/0x13 @ 1
-[    2.118894] initcall rt5651_i2c_driver_init+0x0/0x13 returned 0 after 34 usecs
-[    2.165208] calling  broadwell_audio_init+0x0/0x13 @ 1
-[    2.167941] broadwell-audio broadwell-audio: snd-soc-dummy-dai <-> System Pin mapping ok
-[    2.168171] broadwell-audio broadwell-audio: snd-soc-dummy-dai <-> Offload0 Pin mapping ok
-[    2.168377] broadwell-audio broadwell-audio: snd-soc-dummy-dai <-> Offload1 Pin mapping ok
-[    2.168575] broadwell-audio broadwell-audio: snd-soc-dummy-dai <-> Loopback Pin mapping ok
-[    2.170833] broadwell-audio broadwell-audio: rt286-aif1 <-> snd-soc-dummy-dai mapping ok
-[    2.179624] input: broadwell-rt286 Headset as /devices/pci0000:00/INT3438:00/broadwell-audio/sound/card1/input15
-[    2.180363] initcall broadwell_audio_init+0x0/0x13 returned 0 after 14793 usecs
+Shouldn't be // ?
 
-Thanks,
-	Dominik
+> +#include <linux/init.h>
+
+> +#include <linux/module.h>
+
+Supposed to be one of them, not both.
+
+> +#define WAIT_PCLK(n, rate)     ndelay((((1000000000 +  (rate) - 1) / \
+> +                                        (rate) + n - 1) / n) + 10)
+
+This split makes it harder to catch the calculus.
+Also, you can use DIV_ROUND_UP(), though it longer, but adds a bit of
+clarity to the calculus.
+
+> +#define SYNQUACER_I2C_TIMEOUT(x) (msecs_to_jiffies(x))
+
+Isn't shorter to use original function in place?
+
+> +static inline unsigned long calc_timeout_ms(struct synquacer_i2c *i2c,
+> +                                           struct i2c_msg *msgs,
+> +                                           int num)
+> +{
+> +       unsigned long bit_count = 0;
+> +       int i;
+> +
+> +       for (i = 0; i < num; i++, msgs++)
+> +               bit_count += msgs->len;
+> +
+> +       return DIV_ROUND_UP(((bit_count * 9) + (10 * num)) * 3, 200) + 10;
+
+Redundant parens surrounding multiplications.
+
+bit_count * 9 + num * 10 ?
+
+> +}
+
+> +static void synquacer_i2c_stop(struct synquacer_i2c *i2c, int ret)
+> +{
+> +       dev_dbg(i2c->dev, "STOP\n");
+
+Hmm... Can't use FTRACE ?
+
+> +
+> +       /*
+> +        * clear IRQ (INT=0, BER=0)
+> +        * set Stop Condition (MSS=0)
+> +        * Interrupt Disable
+> +        */
+> +       writeb(0, i2c->base + SYNQUACER_I2C_REG_BCR);
+> +
+> +       i2c->state = STATE_IDLE;
+> +
+> +       i2c->msg_ptr = 0;
+> +       i2c->msg = NULL;
+> +       i2c->msg_idx++;
+> +       i2c->msg_num = 0;
+> +       if (ret)
+> +               i2c->msg_idx = ret;
+> +
+> +       complete(&i2c->completion);
+> +}
+
+> +       default:
+> +               BUG();
+
+Oh, oh. What is the strong argument to have this kind of crash here?
+
+> +static int synquacer_i2c_master_start(struct synquacer_i2c *i2c,
+> +                                     struct i2c_msg *pmsg)
+> +{
+> +       unsigned char bsr, bcr;
+
+> +       dev_dbg(i2c->dev, "%s slave:0x%02x\n", __func__, pmsg->addr);
+
+__func__ is redundant (See dynamic debug manual how to enable run-time).
+
+> +       /* Force to make one clock pulse */
+
+> +       count = 0;
+> +       for (;;) {
+
+> +               if (++count > 9) {
+> +                       dev_err(i2c->dev, "%s: count: %i, bc2r: 0x%x\n",
+> +                               __func__, count, bc2r);
+> +                       return -EIO;
+> +               }
+> +       }
+
+Personally I think for iterations do {} while approach looks cleaner
+and more understandable:
+
+unsigned int count = 10;
+
+do {
+...
+} while (--count);
+
+> +static int synquacer_i2c_doxfer(struct synquacer_i2c *i2c,
+> +                               struct i2c_msg *msgs, int num)
+> +{
+> +       unsigned char bsr;
+> +       unsigned long timeout, bb_timeout;
+
+> +       int ret = 0;
+
+Redundant assignment.
+
+> +       ret = synquacer_i2c_master_start(i2c, i2c->msg);
+> +       if (ret < 0) {
+> +               dev_dbg(i2c->dev, "Address failed: (0x%08x)\n", ret);
+
+ret as a hex?!?!
+So confusing.
+
+A side note, %#08x will print 0x.
+
+> +out:
+> +       return ret;
+
+Useless label since there is nothing except returning an error code.
+
+> +static int synquacer_i2c_probe(struct platform_device *pdev)
+> +{
+> +       struct synquacer_i2c *i2c;
+> +       struct resource *r;
+> +       int speed_khz;
+> +       int ret;
+
+> +       if (dev_of_node(&pdev->dev)) {
+> +               i2c->clk = devm_clk_get(&pdev->dev, "pclk");
+> +               if (IS_ERR(i2c->clk)) {
+> +                       dev_err(&pdev->dev, "cannot get clock\n");
+> +                       return PTR_ERR(i2c->clk);
+> +               }
+> +               dev_dbg(&pdev->dev, "clock source %p\n", i2c->clk);
+> +
+> +               i2c->clkrate = clk_get_rate(i2c->clk);
+> +               dev_dbg(&pdev->dev, "clock rate %d\n", i2c->clkrate);
+> +               clk_prepare_enable(i2c->clk);
+> +       } else {
+
+> +               ret = device_property_read_u32(&pdev->dev,
+> +                                              "socionext,pclk-rate",
+> +                                              &i2c->clkrate);
+
+I suppose for ACPI we just register a fixed rate clock and use it in
+the driver in the same way as in OF case.
+I guess at some point we even can provide a generic clock provider for
+ACPI based on rate property.
+
+> +               if (ret)
+> +                       return ret;
+> +       }
+
+> +       i2c->state = STATE_IDLE;
+> +       i2c->dev = &pdev->dev;
+
+> +       i2c->msg = NULL;
+
+Isn't it done by z letter in allocation?
+
+
+> +#ifdef CONFIG_PM_SLEEP
+
+__maybe_unused instead of ugly #ifdef:s.
+
+> +static int synquacer_i2c_suspend(struct device *dev)
+
+> +static int synquacer_i2c_resume(struct device *dev)
+
+> +#else
+> +#define SYNQUACER_I2C_PM       NULL
+> +#endif
+
+> +#ifdef CONFIG_OF
+
+OK, this is fine since we have an ACPI ID for it.
+
+> +static const struct of_device_id synquacer_i2c_dt_ids[] = {
+> +       { .compatible = "socionext,synquacer-i2c" },
+> +       { /* sentinel */ }
+> +};
+> +MODULE_DEVICE_TABLE(of, synquacer_i2c_dt_ids);
+> +#endif
+> +
+> +#ifdef CONFIG_ACPI
+> +static const struct acpi_device_id synquacer_i2c_acpi_ids[] = {
+> +       { "SCX0003" },
+> +       { /* sentinel */ }
+> +};
+> +#endif
+
+> +static struct platform_driver synquacer_i2c_driver = {
+> +       .probe  = synquacer_i2c_probe,
+> +       .remove = synquacer_i2c_remove,
+> +       .driver = {
+
+> +               .owner = THIS_MODULE,
+
+Macro below will fill this for you.
+
+> +               .name = "synquacer_i2c",
+> +               .of_match_table = of_match_ptr(synquacer_i2c_dt_ids),
+> +               .acpi_match_table = ACPI_PTR(synquacer_i2c_acpi_ids),
+> +               .pm = SYNQUACER_I2C_PM,
+> +       },
+> +};
+> +module_platform_driver(synquacer_i2c_driver);
+
+-- 
+With Best Regards,
+Andy Shevchenko
