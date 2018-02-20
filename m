@@ -1,40 +1,38 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1] i2c: designware: Consider SCL GPIO optional
-Date: Sat, 17 Feb 2018 22:58:43 +0200
-Message-ID: <20180217205843.17680-1-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:5746 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751131AbeBQU6s (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sat, 17 Feb 2018 15:58:48 -0500
-Sender: linux-i2c-owner@vger.kernel.org
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH 0/2] add support for Socionext SynQuacer I2C controller
+Date: Tue, 20 Feb 2018 09:08:25 +0000
+Message-ID: <20180220090827.913-1-ard.biesheuvel@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
+Cc: jassisinghbrar@gmail.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Tim Sander <tim@krieglstein.org>
 
-GPIO library can return -ENOSYS for the failed request.
-Instead of failing ->probe() in this case override error code to 0.
+Add a binding and a driver for the I2C IP found in the Socionext SynQuacer
+SoC, which is essentially a rebranded version of the Fujitsu F_I2C controller.
 
-Fixes: ca382f5b38f3 ("i2c: designware: add i2c gpio recovery option")
-Reported-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: Tim Sander <tim@krieglstein.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/busses/i2c-designware-master.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Ard Biesheuvel (2):
+  dt-bindings: i2c: add binding for Socionext SynQuacer I2C
+  i2c: add support for Socionext SynQuacer I2C controller
 
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index ae691884d071..5778908351a2 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -644,7 +644,7 @@ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
- 	gpio = devm_gpiod_get(dev->dev, "scl", GPIOD_OUT_HIGH);
- 	if (IS_ERR(gpio)) {
- 		r = PTR_ERR(gpio);
--		if (r == -ENOENT)
-+		if (r == -ENOENT || r == -ENOSYS)
- 			return 0;
- 		return r;
- 	}
+ Documentation/devicetree/bindings/i2c/i2c-synquacer.txt |  29 +
+ drivers/i2c/busses/Kconfig                              |  11 +
+ drivers/i2c/busses/Makefile                             |   1 +
+ drivers/i2c/busses/i2c-synquacer.c                      | 817 ++++++++++++++++++++
+ 4 files changed, 858 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-synquacer.txt
+ create mode 100644 drivers/i2c/busses/i2c-synquacer.c
+
 -- 
-2.15.1
+2.11.0
