@@ -1,14 +1,14 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 03/16] of: dynamic: Add __of_node_dupv()
-Date: Wed, 21 Feb 2018 17:16:52 -0600
-Message-ID: <CAL_JsqKjsaH1Obyt_kYkvq78q0AU1fnGswa7G2bybH3FSTexgA@mail.gmail.com>
+Subject: Re: [PATCH v4 05/16] of: changeset: Add of_changeset_node_move method
+Date: Wed, 21 Feb 2018 17:20:36 -0600
+Message-ID: <CAL_JsqKv6YvXbpkGbNezTb=C7_kgd8R8NBOSc15PuDrLuMxK1Q@mail.gmail.com>
 References: <20180220231046.32638-1-laurent.pinchart+renesas@ideasonboard.com>
- <20180220231046.32638-4-laurent.pinchart+renesas@ideasonboard.com>
+ <20180220231046.32638-6-laurent.pinchart+renesas@ideasonboard.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20180220231046.32638-4-laurent.pinchart+renesas@ideasonboard.com>
+In-Reply-To: <20180220231046.32638-6-laurent.pinchart+renesas@ideasonboard.com>
 List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
  <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
 List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
@@ -24,15 +24,12 @@ List-Id: linux-i2c@vger.kernel.org
 
 T24gVHVlLCBGZWIgMjAsIDIwMTggYXQgNToxMCBQTSwgTGF1cmVudCBQaW5jaGFydAo8bGF1cmVu
 dC5waW5jaGFydCtyZW5lc2FzQGlkZWFzb25ib2FyZC5jb20+IHdyb3RlOgo+IEZyb206IFBhbnRl
-bGlzIEFudG9uaW91IDxwYW50ZWxpcy5hbnRvbmlvdUBrb25zdWxrby5jb20+Cj4KPiBBZGQgYW4g
-X19vZl9ub2RlX2R1cHYoKSBwcml2YXRlIG1ldGhvZCBhbmQgbWFrZSBfX29mX25vZGVfZHVwKCkg
-dXNlIGl0Lgo+IFRoaXMgaXMgcmVxdWlyZWQgZm9yIHRoZSBzdWJzZXF1ZW50IGNoYW5nZXNldCBh
-Y2Nlc3NvcnMgd2hpY2ggd2lsbAo+IG1ha2UgdXNlIG9mIGl0Lgo+Cj4gU2lnbmVkLW9mZi1ieTog
-UGFudGVsaXMgQW50b25pb3UgPHBhbnRlbGlzLmFudG9uaW91QGtvbnN1bGtvLmNvbT4KPiBTaWdu
-ZWQtb2ZmLWJ5OiBMYXVyZW50IFBpbmNoYXJ0IDxsYXVyZW50LnBpbmNoYXJ0K3JlbmVzYXNAaWRl
-YXNvbmJvYXJkLmNvbT4KPiAtLS0KPiAgZHJpdmVycy9vZi9keW5hbWljLmMgfCAyOSArKysrKysr
-KysrKysrKysrKysrKysrKy0tLS0tLQo+ICAxIGZpbGUgY2hhbmdlZCwgMjMgaW5zZXJ0aW9ucygr
-KSwgNiBkZWxldGlvbnMoLSkKClJldmlld2VkLWJ5OiBSb2IgSGVycmluZyA8cm9iaEBrZXJuZWwu
-b3JnPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpkcmkt
-ZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6
-Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK
+bGlzIEFudG9uaW91IDxwYW50ZWxpcy5hbnRvbmlvdUBrb25zdWxrby5jb20+Cj4KPiBBZGRzIGEg
+Y2hhbmdlc2V0IGhlbHBlciBmb3IgbW92aW5nIGEgc3VidHJlZSB0byBhIGRpZmZlcmVudCBwbGFj
+ZQo+IGluIHRoZSBydW5uaW5nIHRyZWUuIFRoaXMgaXMgdXNlZnVsIGluIGFkdmFuY2VzIGNhc2Vz
+IG9mIGR5bmFtaWMKPiBkZXZpY2UgdHJlZSBjb25zdHJ1Y3Rpb24uCgpUaGlzIG9uZSBJJ20gbm90
+IHJlYWwgY2xlYXIgb24gd2hlbiB3ZSdkIHVzZSB0aGlzIGFuZCB3ZSBkb24ndCBoYXZlCmFueSB1
+c2VyLCBzbyBsZXRzIGRyb3AgaXQgZm9yIG5vdy4KClJvYgpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZl
+bEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFp
+bG1hbi9saXN0aW5mby9kcmktZGV2ZWwK
