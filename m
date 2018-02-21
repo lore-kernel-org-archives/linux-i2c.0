@@ -1,61 +1,95 @@
-From: Ludovic Desroches <ludovic.desroches@microchip.com>
-Subject: Re: [PATCH v3 0/3] i2c: at91: slave mode support
-Date: Mon, 30 Jul 2018 09:14:43 +0200
-Message-ID: <20180730071443.clib3swtsommj7jk@M43218.corp.atmel.com>
-References: <20180716094037.1843-1-ludovic.desroches@microchip.com>
- <20180720224141.lawanibd7v4hmbym@ninjato>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: bcm2835: Set up the rising/falling edge delays
+Date: Wed, 21 Feb 2018 09:42:59 +0100
+Message-ID: <20180221084259.o6754bfe4k2hcwhj@ninjato>
+References: <20180208135405.25446-1-boris.brezillon@bootlin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180720224141.lawanibd7v4hmbym@ninjato>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, me@jue.yt, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============5389298864436729333=="
+Return-path: <linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <20180208135405.25446-1-boris.brezillon-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rpi-kernel>,
+ <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-rpi-kernel/>
+List-Post: <mailto:linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rpi-kernel>,
+ <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "linux-rpi-kernel" <linux-rpi-kernel-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Boris Brezillon <boris.brezillon-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>
+Cc: Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Lee Jones <lee-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Jul 21, 2018 at 12:41:41AM +0200, Wolfram Sang wrote:
-> > [Ludovic Desroches]
-> > Changes in v3:
-> >  - rebase (cherry-pick was enough)
-> 
-> Thanks for the rebase. I wonder, though, I recall to had more
-> complicated issues. However...
-> 
-> >  - fix checkpatch errors
-> >  - tests:
-> >    - hangs with a SAMA5D4 (master and slave on different busses) after about
-> >    100 transfers. It's the firs time I do this test.
-> >    - some mismatches with a SAMA5D4 as slave and a SAMA5D2 as master
-> >    I don't know if it's a regression. I don't remember having seen this
-> >    behavior previously.
-> >    I think it's worth taking those patches even if there are some possible
-> >    bugs. It'll allow to get more people using it and so to consolidate the
-> >    slave mode support.
-> 
-> I really want to see those patches go upstream, too. But I am also not a
-> big fan of delivering the user something with known issues. Especially
-> not when they affect the main feature to be added. My rationale here is
-> that someone who is able to fix the issues remaining will also be able
-> to pick up and apply patches.
-> 
-> Maybe, maybe if it was to be enabled by a special
-> I2C_AT91_SLAVE_EXPERIMANTEL symbol with lots of explanations. I need to
-> think twice about that, though.
-> 
 
-I understand your point. The experimental mentionning could be a good
-trade-off. Let me know once you make up your mind.
+--===============5389298864436729333==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="fe4w5l7zjwdsjedb"
+Content-Disposition: inline
 
-> Speaking of Kconfig, I think this series needs to place a
-> 
-> 	select I2C_SLAVE
-> 
-> somewhere.
-> 
 
-Ok I'll update it if we go further with this set of patches.
+--fe4w5l7zjwdsjedb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Regards
+On Thu, Feb 08, 2018 at 02:54:05PM +0100, Boris Brezillon wrote:
+> From: Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
+>=20
+> We were leaving them in the power on state (or the state the firmware
+> had set up for some client, if we were taking over from them).  The
+> boot state was 30 core clocks, when we actually want to sample some
+> time after (to make sure that the new input bit has actually arrived).
+>=20
+> Signed-off-by: Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
+> Signed-off-by: Boris Brezillon <boris.brezillon-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>
+> Cc: Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> ---
+> Hello,
+>=20
+> I'm reviving this patch that has been posted a while ago by Gerd.
+> It fixes EDID retrieval on some (broken?) HDMI displays, but I'm pretty
+> sure it will fix other I2C setup.
+>=20
+> Note that I also tested the change with a regular I2C device and it
+> worked just fine.
 
-Ludovic
+Applied to for-current, thanks!
+
+Could you provide a Fixes tag if you think this should go to stable?
+
+
+--fe4w5l7zjwdsjedb
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqNMRMACgkQFA3kzBSg
+KbZ/CA/+KqTtEPeLBCC+tUOol9+4roQFWOv3vSpe5uKKsUaiuAuDOmPLmZ7LzK8D
+CExQU5+uua/nSVf++EZXkzzsOA7gDUPOVgDwCpfqs873cgxHu6Lvk19oi1+HRHhn
+teYIn67JKQ0KF5M1kwet8Mgr1f0yoadG1Yd6aIhrJY+GlR1vnlDdkkqSnp7TIa77
+W/E9bPTJB1kLUyMXILOBoSNQfFJFlNFvTDS/FMrzkL6gRN7Ve9XLKArLW8j841oo
+3k/grWtbtJMETKToK5BQmJS7IgGMEqwvvIaEC8fs4mG34J9LMCFQiPux4pl6kj++
+BEDzoC7ylYIzwHadj+fc8lKkETLFb+GMPkmeuDFQlJgkHd7q+jcXrMvg/bBWkd2E
+YMO9/qxeVz1yAnOkffRC75QPov/UOqx1iRa41QlLy+963nXhkq/YxKn00OdMHD+B
+KVXGzYKfL/g/hGz9ZLbi7dCFeKBUIS2qVA+2xNOtFgjJKVLYgNGGPScFabh+/dxN
+6Z2BuD7itmpfiwPx4+fT+nhl127UAS1xYchA4ugLhaMDeUyI5H7f0hRtHg+h6yRJ
+MHA7GRYvJ209wBJOqO5v7e0LR+pIAopitdcJ7m10W6DWLImpvkbthbkGOneawj7J
+DPX4kdjYZ8zzpTFvqyCEF+1X9pbv8IqnZghd/iLnkao1jvPA1n0=
+=Eyy9
+-----END PGP SIGNATURE-----
+
+--fe4w5l7zjwdsjedb--
+
+
+--===============5389298864436729333==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-rpi-kernel mailing list
+linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+http://lists.infradead.org/mailman/listinfo/linux-rpi-kernel
+
+--===============5389298864436729333==--
