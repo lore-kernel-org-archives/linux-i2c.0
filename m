@@ -1,80 +1,81 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 07/16] i2c: demux: Use changeset helpers for clarity
-Date: Wed, 21 Feb 2018 09:06:50 +0100
-Message-ID: <20180221080650.t5hshljcnfsxeget@ninjato>
-References: <20180220231046.32638-1-laurent.pinchart+renesas@ideasonboard.com>
- <20180220231046.32638-8-laurent.pinchart+renesas@ideasonboard.com>
+Subject: Re: [PATCH] i2c: busses: i2c-sirf: Fix spelling: "formular" ->
+ "formula".
+Date: Wed, 21 Feb 2018 09:55:26 +0100
+Message-ID: <20180221085526.xjx2fhgrsmydvkfn@ninjato>
+References: <20180126201926.18804-1-patryk@kocielnik.pl>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1999631169=="
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20180220231046.32638-8-laurent.pinchart+renesas@ideasonboard.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Cc: Marek Vasut <marex@denx.de>, devicetree@vger.kernel.org, Koen Kooi <koen@dominion.thruhere.net>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org, Matt Porter <mporter@konsulko.com>, Frank Rowand <frowand.list@gmail.com>, Guenter Roeck <linux@roeck-us.net>
+Content-Type: multipart/mixed; boundary="===============2775262391449334610=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180126201926.18804-1-patryk@kocielnik.pl>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Patryk Kocielnik <pkocieln@mion.elka.pw.edu.pl>
+Cc: baohua@kernel.org, Patryk Kocielnik <patryk@kocielnik.pl>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Patryk Kocielnik <patryk.kocielnik@gmail.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============1999631169==
+--===============2775262391449334610==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="czmofhikde4js2ho"
+	protocol="application/pgp-signature"; boundary="w7l4whywwedpccya"
 Content-Disposition: inline
 
 
---czmofhikde4js2ho
+--w7l4whywwedpccya
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 21, 2018 at 01:10:37AM +0200, Laurent Pinchart wrote:
-> From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+On Fri, Jan 26, 2018 at 09:19:26PM +0100, Patryk Kocielnik wrote:
+> Fix spelling.
 >=20
-> The changeset helpers are easier to use, use them instead of
-> using the static property.
->=20
-> Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
-> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+> Signed-off-by: Patryk Kocielnik <patryk.kocielnik@gmail.com>
 
-My ack still holds. Good luck pushing this series!
+Applied to for-current, thanks!
+
+Please check for surrounding typos, too, to reduce the amount of
+patches. There was another typo in "Initalisation". I fixed that now.
 
 
---czmofhikde4js2ho
+--w7l4whywwedpccya
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqNKJYACgkQFA3kzBSg
-KbaY9w/8DjlK+c4m1pGIjK9b+aJ57FGBmxbKpzTuuR1gW5zd0+WH5hFGRXorwWI6
-mAXfPyTmWuTT4D27irtoLSt8y88REkyX55D63CmGqDrKKEMWAIHc0r2U+4F/uuHm
-MRaow8tdfs84Xp/UBLBG0W4okGMfnU6h+9b6gfwMLx3eDk5GlLxqz9lsNEbn6BWE
-GI+ZGPgvBf6T4jY62gDiqGEH2QqLcrV/HgJ/GXgcx0lHt6+rSsZD2f1QbAzYne6G
-6vQVE44y273s0fMdQy5KAoxhXLG4pzQ3JI/ajlmetWXmEE3bm5XrcOVVzBS3zkiI
-NE19TC15j26yKLr+3LkaNLKQDLbzlW2CKjXi6AlL5NDEZBw98y8QYlBXXS4idPC7
-bn5+lfVtjnCQ4eEj/BYl8Vqexv4QyfsqFp86muex/hF70jrhtlIpCIlz1hAtUVVR
-rNRXm8hhMRFOrqSZV6U0XNzpnP0/u8zWE/cB4L5hTFo3xXKAkKHPi74kxmuml1L0
-j1b4ZHdCx9PvbSJQZSoPkQz0uGDywOvp5LejUBnjzq3B7uy025y0qG04nH+jO9AV
-snUm68Du0bb/LpmbbWEgN46E4s8U8SWgvoJnDO5I2xcYLUwcOoG9DD1A0/Mc2WxN
-+PfzYueF9s9mEhsTCPFUApuCPDKIdqXJlq2MJdDZHnrnQy9TvRM=
-=Zf7u
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqNM/4ACgkQFA3kzBSg
+Kbbvmw//doSXKdJuMFmGDpOVSIY7lC40H/PMTEQKLmwHITABvhVRT4LE9CgLp6qY
+sdNWiIEWOhuyv/gs1uQKuvM7Fa2a9TOklcLeId5HqqjD49tM3xDFjC/29wSm2DDc
+RGdnA80yNK7rD1+cRxfNloM+pxrVlQi+Cws/yTn0GLa7WsP97RUkpooW5tWJsZEX
+oBIbC0r1YlLFpIfPSt/nxjzC5/vzQVz+B74qM6wAExsDUblwfqmL9XLDZVmtdRHe
+naKWK67CTikMawRBGqD1vtJVSaHOm6t82EjazGy4wsMNFFo/ouL3DcKTRxHhomxi
+FfPbwpLrKYpg4G/6+LITy97FGh8a3mo02a6TAnYSCV0o0/ziEvZ5awkxW8fPdu3s
+EIJqPT5HlnavvOhv9hM2+V+4AggxdDg+Q+x/7e+LnCX/jHySCSX2IBF1U8gQ4EO1
+Tn3c64KmYoryyLvhsS0ZqPIKmb71wckjGZvTRZckxQYYm6C5zz7tHIu1LyczOc9r
+s6dU9REjRx60V4XJoBjgSMGuijBNlCijFwXZNEXqtL3Usz3cLG/F4roOcr/ujjn1
+sw6mCLKY18uL/5ID1NNGD7Pmx+ZaweO/FxV9wXZ7L57yto0Q3Eljl5SoedYEegiv
+IK5nu4kSG+7oTW6fJkq6JS1CSvHeokqEDc5aJwmDLM8zs7TIO6k=
+=ICWu
 -----END PGP SIGNATURE-----
 
---czmofhikde4js2ho--
+--w7l4whywwedpccya--
 
---===============1999631169==
-Content-Type: text/plain; charset="utf-8"
+
+--===============2775262391449334610==
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
-IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
-dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
---===============1999631169==--
+--===============2775262391449334610==--
