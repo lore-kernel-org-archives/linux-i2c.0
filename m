@@ -1,64 +1,44 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH 2/2] i2c: add support for Socionext SynQuacer I2C
- controller
-Date: Wed, 21 Feb 2018 20:54:16 +0200
-Message-ID: <CAHp75VepC+gch+st16FA8Bzisg7+X_oZg2Ua83QpHyZ43Pd5ow@mail.gmail.com>
-References: <20180220090827.913-1-ard.biesheuvel@linaro.org>
- <20180220090827.913-3-ard.biesheuvel@linaro.org>
- <CAHp75VeUJpXLpL55erp+uoMH4jqppoG5zTt1DcffqNYPsJMdUQ@mail.gmail.com>
- <CAKv+Gu8A1YKr5t0B=Fe2sF6+QT9iCVeRW+99K37g22viEoismA@mail.gmail.com>
- <CAHp75Vd=dww8AQM4tC5Z38i4PNaV4vxMFsTf=ozJ1Yw3Gd9DWg@mail.gmail.com>
- <CAKv+Gu_5N3bTAasc5Gt0pTo-s3mMdqmvt-C=GM0ACkkptyrN-Q@mail.gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v4 06/16] of: unittest: changeset helpers
+Date: Wed, 21 Feb 2018 17:10:25 -0600
+Message-ID: <CAL_Jsq+D4wwPSZbSXrJpwcNvB1Xth=Cn-bTyXL2RkSOb9s+d_A@mail.gmail.com>
+References: <20180220231046.32638-1-laurent.pinchart+renesas@ideasonboard.com>
+ <20180220231046.32638-7-laurent.pinchart+renesas@ideasonboard.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <CAKv+Gu_5N3bTAasc5Gt0pTo-s3mMdqmvt-C=GM0ACkkptyrN-Q@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Jassi Brar <jassisinghbrar@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20180220231046.32638-7-laurent.pinchart+renesas@ideasonboard.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Cc: Marek Vasut <marex@denx.de>, devicetree@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Koen Kooi <koen@dominion.thruhere.net>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:MEDIA DRIVERS FOR RENESAS - FCP" <linux-renesas-soc@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Matt Porter <mporter@konsulko.com>, Frank Rowand <frowand.list@gmail.com>, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Feb 21, 2018 at 8:20 PM, Ard Biesheuvel
-<ard.biesheuvel@linaro.org> wrote:
-> On 20 February 2018 at 19:39, Andy Shevchenko <andy.shevchenko@gmail.com> wrote:
->> On Tue, Feb 20, 2018 at 8:04 PM, Ard Biesheuvel
->> <ard.biesheuvel@linaro.org> wrote:
->>> On 20 February 2018 at 14:02, Andy Shevchenko <andy.shevchenko@gmail.com> wrote:
-
->>>>> +               ret = device_property_read_u32(&pdev->dev,
->>>>> +                                              "socionext,pclk-rate",
->>>>> +                                              &i2c->clkrate);
->>>>
->>>> I suppose for ACPI we just register a fixed rate clock and use it in
->>>> the driver in the same way as in OF case.
->>>> I guess at some point we even can provide a generic clock provider for
->>>> ACPI based on rate property.
->>
->>> Is there a question here? Do you want me to change anything?
->>
->> Is it opener for discussion. At least in the drivers we have done for
->> x86 we do the way I described.
->>
->> See, for example, drivers/mfd/intel-lpss.c
-
-> OK, I see what you mean now. But for this driver, creating a fixed
-> rate clock with no controls whatsoever, only to interrogate it for its
-> rate (which we retrieved from the ACPI device node in the first place)
-> seems rather pointless to me. Am I missing something here?
-
-Somehow you are right. That's why I'm thinking that we need to provide
-a generic clock provider for such cases.
-It's really not a driver business to know the details of resource provider.
-
--- 
-With Best Regards,
-Andy Shevchenko
+T24gVHVlLCBGZWIgMjAsIDIwMTggYXQgNToxMCBQTSwgTGF1cmVudCBQaW5jaGFydAo8bGF1cmVu
+dC5waW5jaGFydCtyZW5lc2FzQGlkZWFzb25ib2FyZC5jb20+IHdyb3RlOgo+IEZyb206IFBhbnRl
+bGlzIEFudG9uaW91IDxwYW50ZWxpcy5hbnRvbmlvdUBrb25zdWxrby5jb20+Cj4KPiBBZGQgYSB1
+bml0ZXN0IHNwZWNpZmljIGZvciB0aGUgbmV3IGNoYW5nZXNldCBoZWxwZXJzLgo+Cj4gU2lnbmVk
+LW9mZi1ieTogUGFudGVsaXMgQW50b25pb3UgPHBhbnRlbGlzLmFudG9uaW91QGtvbnN1bGtvLmNv
+bT4KPiBTaWduZWQtb2ZmLWJ5OiBMYXVyZW50IFBpbmNoYXJ0IDxsYXVyZW50LnBpbmNoYXJ0K3Jl
+bmVzYXNAaWRlYXNvbmJvYXJkLmNvbT4KPiAtLS0KPiAgZHJpdmVycy9vZi91bml0dGVzdC5jIHwg
+NTQgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrCj4g
+IDEgZmlsZSBjaGFuZ2VkLCA1NCBpbnNlcnRpb25zKCspCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVy
+cy9vZi91bml0dGVzdC5jIGIvZHJpdmVycy9vZi91bml0dGVzdC5jCj4gaW5kZXggN2E5YWJhYWU4
+NzRkLi4xYjIxZDJjNTQ5YTggMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9vZi91bml0dGVzdC5jCj4g
+KysrIGIvZHJpdmVycy9vZi91bml0dGVzdC5jCj4gQEAgLTYwOSw2ICs2MDksNTkgQEAgc3RhdGlj
+IHZvaWQgX19pbml0IG9mX3VuaXR0ZXN0X2NoYW5nZXNldCh2b2lkKQo+ICAjZW5kaWYKPiAgfQo+
+Cj4gK3N0YXRpYyB2b2lkIF9faW5pdCBvZl91bml0dGVzdF9jaGFuZ2VzZXRfaGVscGVyKHZvaWQp
+Cj4gK3sKPiArI2lmZGVmIENPTkZJR19PRl9EWU5BTUlDCgpJIHRoaW5rIHRoaXMgY2FuIGJlOgoK
+aWYgKCFJU19FTkFCTEVEKENPTkZJR19PRl9EWU5BTUlDKSkKICByZXR1cm47CgpPdGhlcndpc2Us
+CgpSZXZpZXdlZC1ieTogUm9iIEhlcnJpbmcgPHJvYmhAa2VybmVsLm9yZz4KX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlz
+dApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0
+b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
