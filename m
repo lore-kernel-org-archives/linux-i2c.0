@@ -1,13 +1,13 @@
-From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Subject: [PATCH v4 07/16] i2c: demux: Use changeset helpers for clarity
-Date: Wed, 21 Feb 2018 01:10:37 +0200
-Message-ID: <20180220231046.32638-8-laurent.pinchart+renesas@ideasonboard.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v4 07/16] i2c: demux: Use changeset helpers for clarity
+Date: Wed, 21 Feb 2018 09:06:50 +0100
+Message-ID: <20180221080650.t5hshljcnfsxeget@ninjato>
 References: <20180220231046.32638-1-laurent.pinchart+renesas@ideasonboard.com>
+ <20180220231046.32638-8-laurent.pinchart+renesas@ideasonboard.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============1999631169=="
 Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20180220231046.32638-1-laurent.pinchart+renesas@ideasonboard.com>
+In-Reply-To: <20180220231046.32638-8-laurent.pinchart+renesas@ideasonboard.com>
 List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
  <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
 List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
@@ -17,40 +17,64 @@ List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
  <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
 Errors-To: dri-devel-bounces@lists.freedesktop.org
 Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: dri-devel@lists.freedesktop.org
-Cc: Marek Vasut <marex@denx.de>, Wolfram Sang <wsa@the-dreams.de>, Koen Kooi <koen@dominion.thruhere.net>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, Matt Porter <mporter@konsulko.com>, Frank Rowand <frowand.list@gmail.com>, Guenter Roeck <linux@roeck-us.net>
+To: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Cc: Marek Vasut <marex@denx.de>, devicetree@vger.kernel.org, Koen Kooi <koen@dominion.thruhere.net>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org, Matt Porter <mporter@konsulko.com>, Frank Rowand <frowand.list@gmail.com>, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-i2c@vger.kernel.org
 
-RnJvbTogUGFudGVsaXMgQW50b25pb3UgPHBhbnRlbGlzLmFudG9uaW91QGtvbnN1bGtvLmNvbT4K
-ClRoZSBjaGFuZ2VzZXQgaGVscGVycyBhcmUgZWFzaWVyIHRvIHVzZSwgdXNlIHRoZW0gaW5zdGVh
-ZCBvZgp1c2luZyB0aGUgc3RhdGljIHByb3BlcnR5LgoKU2lnbmVkLW9mZi1ieTogUGFudGVsaXMg
-QW50b25pb3UgPHBhbnRlbGlzLmFudG9uaW91QGtvbnN1bGtvLmNvbT4KQWNrZWQtYnk6IFdvbGZy
-YW0gU2FuZyA8d3NhQHRoZS1kcmVhbXMuZGU+Clsib2theSIgLT4gIm9rIl0KU2lnbmVkLW9mZi1i
-eTogTGF1cmVudCBQaW5jaGFydCA8bGF1cmVudC5waW5jaGFydCtyZW5lc2FzQGlkZWFzb25ib2Fy
-ZC5jb20+Ci0tLQogZHJpdmVycy9pMmMvbXV4ZXMvaTJjLWRlbXV4LXBpbmN0cmwuYyB8IDEyICsr
-Ky0tLS0tLS0tLQogMSBmaWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKSwgOSBkZWxldGlvbnMo
-LSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9tdXhlcy9pMmMtZGVtdXgtcGluY3RybC5jIGIv
-ZHJpdmVycy9pMmMvbXV4ZXMvaTJjLWRlbXV4LXBpbmN0cmwuYwppbmRleCAzM2NlMDMyY2I3MDEu
-LjBmMDA0NjgzMTQ5MiAxMDA2NDQKLS0tIGEvZHJpdmVycy9pMmMvbXV4ZXMvaTJjLWRlbXV4LXBp
-bmN0cmwuYworKysgYi9kcml2ZXJzL2kyYy9tdXhlcy9pMmMtZGVtdXgtcGluY3RybC5jCkBAIC0y
-MjAsMTAgKzIyMCw3IEBAIHN0YXRpYyBpbnQgaTJjX2RlbXV4X3BpbmN0cmxfcHJvYmUoc3RydWN0
-IHBsYXRmb3JtX2RldmljZSAqcGRldikKIAogCXByaXYgPSBkZXZtX2t6YWxsb2MoJnBkZXYtPmRl
-diwgc2l6ZW9mKCpwcml2KQogCQkJICAgKyBudW1fY2hhbiAqIHNpemVvZihzdHJ1Y3QgaTJjX2Rl
-bXV4X3BpbmN0cmxfY2hhbiksIEdGUF9LRVJORUwpOwotCi0JcHJvcHMgPSBkZXZtX2tjYWxsb2Mo
-JnBkZXYtPmRldiwgbnVtX2NoYW4sIHNpemVvZigqcHJvcHMpLCBHRlBfS0VSTkVMKTsKLQotCWlm
-ICghcHJpdiB8fCAhcHJvcHMpCisJaWYgKCFwcml2KQogCQlyZXR1cm4gLUVOT01FTTsKIAogCWVy
-ciA9IG9mX3Byb3BlcnR5X3JlYWRfc3RyaW5nKG5wLCAiaTJjLWJ1cy1uYW1lIiwgJnByaXYtPmJ1
-c19uYW1lKTsKQEAgLTI0MSwxMiArMjM4LDkgQEAgc3RhdGljIGludCBpMmNfZGVtdXhfcGluY3Ry
-bF9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQogCQl9CiAJCXByaXYtPmNoYW5b
-aV0ucGFyZW50X25wID0gYWRhcF9ucDsKIAotCQlwcm9wc1tpXS5uYW1lID0gZGV2bV9rc3RyZHVw
-KCZwZGV2LT5kZXYsICJzdGF0dXMiLCBHRlBfS0VSTkVMKTsKLQkJcHJvcHNbaV0udmFsdWUgPSBk
-ZXZtX2tzdHJkdXAoJnBkZXYtPmRldiwgIm9rIiwgR0ZQX0tFUk5FTCk7Ci0JCXByb3BzW2ldLmxl
-bmd0aCA9IDM7Ci0KIAkJb2ZfY2hhbmdlc2V0X2luaXQoJnByaXYtPmNoYW5baV0uY2hnc2V0KTsK
-LQkJb2ZfY2hhbmdlc2V0X3VwZGF0ZV9wcm9wZXJ0eSgmcHJpdi0+Y2hhbltpXS5jaGdzZXQsIGFk
-YXBfbnAsICZwcm9wc1tpXSk7CisJCW9mX2NoYW5nZXNldF91cGRhdGVfcHJvcGVydHlfc3RyaW5n
-KCZwcml2LT5jaGFuW2ldLmNoZ3NldCwKKwkJCQkJCSAgICBhZGFwX25wLCAic3RhdHVzIiwgIm9r
-Iik7CiAJfQogCiAJcHJpdi0+bnVtX2NoYW4gPSBudW1fY2hhbjsKLS0gClJlZ2FyZHMsCgpMYXVy
-ZW50IFBpbmNoYXJ0CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5v
-cmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2
-ZWwK
+
+--===============1999631169==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="czmofhikde4js2ho"
+Content-Disposition: inline
+
+
+--czmofhikde4js2ho
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Feb 21, 2018 at 01:10:37AM +0200, Laurent Pinchart wrote:
+> From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+>=20
+> The changeset helpers are easier to use, use them instead of
+> using the static property.
+>=20
+> Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+
+My ack still holds. Good luck pushing this series!
+
+
+--czmofhikde4js2ho
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqNKJYACgkQFA3kzBSg
+KbaY9w/8DjlK+c4m1pGIjK9b+aJ57FGBmxbKpzTuuR1gW5zd0+WH5hFGRXorwWI6
+mAXfPyTmWuTT4D27irtoLSt8y88REkyX55D63CmGqDrKKEMWAIHc0r2U+4F/uuHm
+MRaow8tdfs84Xp/UBLBG0W4okGMfnU6h+9b6gfwMLx3eDk5GlLxqz9lsNEbn6BWE
+GI+ZGPgvBf6T4jY62gDiqGEH2QqLcrV/HgJ/GXgcx0lHt6+rSsZD2f1QbAzYne6G
+6vQVE44y273s0fMdQy5KAoxhXLG4pzQ3JI/ajlmetWXmEE3bm5XrcOVVzBS3zkiI
+NE19TC15j26yKLr+3LkaNLKQDLbzlW2CKjXi6AlL5NDEZBw98y8QYlBXXS4idPC7
+bn5+lfVtjnCQ4eEj/BYl8Vqexv4QyfsqFp86muex/hF70jrhtlIpCIlz1hAtUVVR
+rNRXm8hhMRFOrqSZV6U0XNzpnP0/u8zWE/cB4L5hTFo3xXKAkKHPi74kxmuml1L0
+j1b4ZHdCx9PvbSJQZSoPkQz0uGDywOvp5LejUBnjzq3B7uy025y0qG04nH+jO9AV
+snUm68Du0bb/LpmbbWEgN46E4s8U8SWgvoJnDO5I2xcYLUwcOoG9DD1A0/Mc2WxN
++PfzYueF9s9mEhsTCPFUApuCPDKIdqXJlq2MJdDZHnrnQy9TvRM=
+=Zf7u
+-----END PGP SIGNATURE-----
+
+--czmofhikde4js2ho--
+
+--===============1999631169==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
+
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
+IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+
+--===============1999631169==--
