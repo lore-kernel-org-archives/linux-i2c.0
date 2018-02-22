@@ -1,12 +1,14 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Subject: Re: [PATCH] i2c: bcm2835: Set up the rising/falling edge delays
-Date: Wed, 21 Feb 2018 09:42:59 +0100
-Message-ID: <20180221084259.o6754bfe4k2hcwhj@ninjato>
+Date: Thu, 22 Feb 2018 12:21:12 +0100
+Message-ID: <20180222112112.ctjfibmk6vppbrcp@ninjato>
 References: <20180208135405.25446-1-boris.brezillon@bootlin.com>
+ <20180221084259.o6754bfe4k2hcwhj@ninjato>
+ <87h8qayp8v.fsf@anholt.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5389298864436729333=="
+Content-Type: multipart/mixed; boundary="===============7183272451520095996=="
 Return-path: <linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <20180208135405.25446-1-boris.brezillon-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <87h8qayp8v.fsf-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rpi-kernel>,
  <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-rpi-kernel/>
@@ -16,72 +18,61 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rpi-kernel>,
  <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
 Sender: "linux-rpi-kernel" <linux-rpi-kernel-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 Errors-To: linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Boris Brezillon <boris.brezillon-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>
-Cc: Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Lee Jones <lee-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
+Cc: Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Lee Jones <lee-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Boris Brezillon <boris.brezillon-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============5389298864436729333==
+--===============7183272451520095996==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="fe4w5l7zjwdsjedb"
+	protocol="application/pgp-signature"; boundary="54zjhqvur63ajoqj"
 Content-Disposition: inline
 
 
---fe4w5l7zjwdsjedb
+--54zjhqvur63ajoqj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 08, 2018 at 02:54:05PM +0100, Boris Brezillon wrote:
-> From: Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
->=20
-> We were leaving them in the power on state (or the state the firmware
-> had set up for some client, if we were taking over from them).  The
-> boot state was 30 core clocks, when we actually want to sample some
-> time after (to make sure that the new input bit has actually arrived).
->=20
-> Signed-off-by: Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
-> Signed-off-by: Boris Brezillon <boris.brezillon-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>
-> Cc: Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> ---
-> Hello,
->=20
-> I'm reviving this patch that has been posted a while ago by Gerd.
-> It fixes EDID retrieval on some (broken?) HDMI displays, but I'm pretty
-> sure it will fix other I2C setup.
->=20
-> Note that I also tested the change with a regular I2C device and it
-> worked just fine.
 
-Applied to for-current, thanks!
+> > Could you provide a Fixes tag if you think this should go to stable?
+>=20
+> It would be a fix back to the start of the driver, but should apply
+> cleanly back to:
+>=20
+> Fixes: 9446f62e8e18 ("i2c: bcm2835: Add support for dynamic clock")
+>=20
+> and over a year ago seems like plenty of backport.
 
-Could you provide a Fixes tag if you think this should go to stable?
+Thanks for the input. I simply added stable now, so people can apply it as
+long as it fits. I didn't use the above Fixes because it did not really
+introduce the issue.
 
 
---fe4w5l7zjwdsjedb
+--54zjhqvur63ajoqj
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqNMRMACgkQFA3kzBSg
-KbZ/CA/+KqTtEPeLBCC+tUOol9+4roQFWOv3vSpe5uKKsUaiuAuDOmPLmZ7LzK8D
-CExQU5+uua/nSVf++EZXkzzsOA7gDUPOVgDwCpfqs873cgxHu6Lvk19oi1+HRHhn
-teYIn67JKQ0KF5M1kwet8Mgr1f0yoadG1Yd6aIhrJY+GlR1vnlDdkkqSnp7TIa77
-W/E9bPTJB1kLUyMXILOBoSNQfFJFlNFvTDS/FMrzkL6gRN7Ve9XLKArLW8j841oo
-3k/grWtbtJMETKToK5BQmJS7IgGMEqwvvIaEC8fs4mG34J9LMCFQiPux4pl6kj++
-BEDzoC7ylYIzwHadj+fc8lKkETLFb+GMPkmeuDFQlJgkHd7q+jcXrMvg/bBWkd2E
-YMO9/qxeVz1yAnOkffRC75QPov/UOqx1iRa41QlLy+963nXhkq/YxKn00OdMHD+B
-KVXGzYKfL/g/hGz9ZLbi7dCFeKBUIS2qVA+2xNOtFgjJKVLYgNGGPScFabh+/dxN
-6Z2BuD7itmpfiwPx4+fT+nhl127UAS1xYchA4ugLhaMDeUyI5H7f0hRtHg+h6yRJ
-MHA7GRYvJ209wBJOqO5v7e0LR+pIAopitdcJ7m10W6DWLImpvkbthbkGOneawj7J
-DPX4kdjYZ8zzpTFvqyCEF+1X9pbv8IqnZghd/iLnkao1jvPA1n0=
-=Eyy9
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqOp6gACgkQFA3kzBSg
+KbYQQhAAgjNQ6AORocI7Q5DTdaa4hiXZHLTk7iPaJwNlTdyo4TH5UKplop93qoVJ
+2xvcnxpaF1RNPffUXl4BhPM7iai6BbW2pquvmldhKnyL+RF7rF1vuogjoDFeH9bc
+18TEFHrNb3aK4PKXaIsvXAKYx+CJexKIKgqT33xSzfUXgSATqOzw28iPVuQfeaIw
+63i1CABXKe4qaOHBxNaoHOTvdmF9LDkHpHFqtd0Gio4CQ92Xc74Xe4dH0ZnY+GFP
+vv0MFwWKra8fRl97DAUI3c6K5xFzdg38VkNuQkVsIZDV/+mdovZ8468V3Q6dlKLe
+ldvu5i4zK/jcGuRSlCiObnNf503U+QRkrMGzoMSiVJCeED/axz3jCICH7xhjZ9gt
+V7907PRagl36UY9B6BRn6Udg7l4EGkqYaZOuT6fGj4bXz5xAewZtrufiWIa+9I2r
+lBlem1QBOGO4/of3C2fQomLuPeeRY8RuJqrgiWDVB9e3YASs0XPlcBzqboF+dt15
+4vez5vXOgMAYTUVGveKjylZaF6zt40H7Z5wDgbABiGEArlJxOGlzOW7XZpmsyoOF
+NdLILS0eOt9g1ZhkJSntCYzaKhkYPO5fd9nwFAGk5i+65bXB5ESAhipOiA8gi8OC
+ukw4guNSj/e6i5N1SL7fClwce7Hnf0SJOMHQXg5CoK80lyFzoeA=
+=HQo0
 -----END PGP SIGNATURE-----
 
---fe4w5l7zjwdsjedb--
+--54zjhqvur63ajoqj--
 
 
---===============5389298864436729333==
+--===============7183272451520095996==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -92,4 +83,4 @@ linux-rpi-kernel mailing list
 linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 http://lists.infradead.org/mailman/listinfo/linux-rpi-kernel
 
---===============5389298864436729333==--
+--===============7183272451520095996==--
