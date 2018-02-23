@@ -1,149 +1,71 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v2 2/2] i2c: add support for Socionext SynQuacer I2C
- controller
-Date: Fri, 23 Feb 2018 15:12:26 +0200
-Message-ID: <CAHp75VfFKDkQQ9-vdjzDfE2Cdk2Cb93+kdceYQgEqt3hti=Wkg@mail.gmail.com>
-References: <20180222191647.4727-1-ard.biesheuvel@linaro.org>
- <20180222191647.4727-3-ard.biesheuvel@linaro.org>
- <CAHp75Vc1AGzdgTB281XVo=FmZerkU1vijLih3JUO=_wNPjxgfA@mail.gmail.com>
- <CAKv+Gu9XkmSPHZf+jVKOm-SX1GCWJUc7y3zTCuaHBwk8O3OC3Q@mail.gmail.com>
+From: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
+Subject: [PATCH] i2c: bcm2835: Avoid clock stretching timeouts
+Date: Fri, 23 Feb 2018 22:42:31 +0100
+Message-ID: <1519422151-6218-1-git-send-email-stefan.wahren@i2se.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <CAKv+Gu9XkmSPHZf+jVKOm-SX1GCWJUc7y3zTCuaHBwk8O3OC3Q@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Jassi Brar <jassisinghbrar@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>
+Return-path: <linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rpi-kernel>,
+ <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-rpi-kernel/>
+List-Post: <mailto:linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rpi-kernel>,
+ <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "linux-rpi-kernel" <linux-rpi-kernel-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
+Cc: =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf-L59+Z2yzLopAfugRpC6u6w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Feb 23, 2018 at 2:40 PM, Ard Biesheuvel
-<ard.biesheuvel@linaro.org> wrote:
-> On 23 February 2018 at 12:27, Andy Shevchenko <andy.shevchenko@gmail.com> wrote:
->> On Thu, Feb 22, 2018 at 9:16 PM, Ard Biesheuvel
->> <ard.biesheuvel@linaro.org> wrote:
->>> This is a cleaned up version of the I2C controller driver for
->>> the Fujitsu F_I2C IP, which was never supported upstream, and
->>> has now been incorporated into the Socionext SynQuacer SoC.
+From: Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
 
->>> +       return DIV_ROUND_UP((bit_count * 9 + 10 * num) * 3, 200) + 10;
->>
->> When I suggested to drop parens, I also suggested to swap second pair
->> arguments (b/c I was thinking that parens to prevent confusion + vs
->> *), like
->>
->> 9 * bit_count + 10 * num, or
->> bit_count * 9 + num * 10.
->>
->> Though, it is up to you, I still consider that + vs. * operator
->> precedence is quite obvious.
+The CLKT register contains at poweron 0x40, which at our typical 100kHz
+bus rate means .64ms. But there is no specified limit to how long devices
+should be able to stretch the clocks, so just disable the timeout. We
+still have a timeout wrapping the entire transfer.
 
-> I can change it if you like.
-
-I guess slightly better to change, thanks.
+Signed-off-by: Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
+Signed-off-by: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
+---
+Hi,
+just like "i2c: bcm2835: Set up the rising/falling edge delays" this is a
+outstanding bugfix. Unfortunately i only have I2C slaves, which doesn't
+stretch the clock. So test feedback is very welcome.
 
 
->>> +       ret = device_property_read_u32(&pdev->dev, "clock-frequency",
->>> +                                      &speed_khz);
->>> +       if (ret) {
->>> +               dev_err(&pdev->dev,
->>> +                       "Missing clock-frequency property\n");
->>> +               return -EINVAL;
->>> +       }
->>> +       speed_khz /= 1000;
+ drivers/i2c/busses/i2c-bcm2835.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
->>> +       if (dev_of_node(&pdev->dev)) {
->>> +               i2c->clk = devm_clk_get(&pdev->dev, "pclk");
->>> +               if (IS_ERR(i2c->clk)) {
->>> +                       dev_err(&pdev->dev, "cannot get clock\n");
->>> +                       return PTR_ERR(i2c->clk);
->>> +               }
->>> +               dev_dbg(&pdev->dev, "clock source %p\n", i2c->clk);
->>> +
->>> +               i2c->clkrate = clk_get_rate(i2c->clk);
->>> +               dev_dbg(&pdev->dev, "clock rate %d\n", i2c->clkrate);
->>> +               clk_prepare_enable(i2c->clk);
->>> +       } else {
->>> +               ret = device_property_read_u32(&pdev->dev,
->>> +                                              "socionext,pclk-rate",
->>> +                                              &i2c->clkrate);
->>> +               if (ret)
->>> +                       return ret;
->>> +       }
->>
->> Okay, I got this case. It's more likely the one in 8250_dw.c.
->>
->> Can you do the similar way?
-
-> Could you elaborate?
-
---- 8< --- 8< --- 8< ---
-        device_property_read_u32(dev, "clock-frequency", &p->uartclk);
-
-       /* If there is separate baudclk, get the rate from it. */
-       data->clk = devm_clk_get(dev, "baudclk");
-...
-       if (IS_ERR(data->clk) && PTR_ERR(data->clk) == -EPROBE_DEFER)
-               return -EPROBE_DEFER;
-       if (!IS_ERR_OR_NULL(data->clk)) {
-               err = clk_prepare_enable(data->clk);
-               if (err)
-                       dev_warn(dev, "could not enable optional baudclk: %d\n",
-                                err);
-               else
-                       p->uartclk = clk_get_rate(data->clk);
-       }
-
-       /* If no clock rate is defined, fail. */
-       if (!p->uartclk) {
-               dev_err(dev, "clock rate not defined\n");
-               err = -EINVAL;
-               goto err_clk;
---- 8< --- 8< --- 8< ---
-
-Replace 'baudclk' with 'pclk' and p->uartclk with i2c->clkrate in
-above and you are almost done.
-
->>> +       i2c->irq = platform_get_irq(pdev, 0);
->>> +       if (i2c->irq <= 0) {
->>
->> < 0 ?
->>
->> On some platforms IRQ == 0 might be valid.
-
-> Are you sure about that?
-
-Yes. I fixed some cases on one of a such.
-
-> http://yarchive.net/comp/linux/no_irq.html
-
-I agree with Linus from software IRQ (and nowadays luckily we are
-using IRQ descriptors), but I disagree with him from hardware
-prospective.
-0 is totally valid HW IRQ line. In hardware there is no descriptor
-(except, yes, MSI and alike cases), it's just a wire with an index.
-
-So, while drivers are getting better in code prospective (though I
-don't see many of them comparing this to 0), the IRQ framework is
-changing itself as well.
-
-At which circumstances we might get 0 in the first place?
-
-Second question, doesn't request_irq() fail on irq==0 if it's not
-supported as valid by platform?
-
->>> +               dev_err(&pdev->dev, "no IRQ resource found\n");
->>> +               return -ENODEV;
->>> +       }
-
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index 44deae7..ccd2565 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -28,6 +28,11 @@
+ #define BCM2835_I2C_FIFO	0x10
+ #define BCM2835_I2C_DIV		0x14
+ #define BCM2835_I2C_DEL		0x18
++/*
++ * 16-bit field for the number of SCL cycles to wait after rising SCL
++ * before deciding the slave is not responding.  0 disables the
++ * timeout detection.
++ */
+ #define BCM2835_I2C_CLKT	0x1c
+ 
+ #define BCM2835_I2C_C_READ	BIT(0)
+@@ -386,6 +391,12 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 	adap->dev.of_node = pdev->dev.of_node;
+ 	adap->quirks = &bcm2835_i2c_quirks;
+ 
++	/*
++	 * Disable the hardware clock stretching timeout.  SMBUS
++	 * specifies a limit for how long the device can stretch the
++	 * clock, but core I2C doesn't.
++	 */
++	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_CLKT, 0);
+ 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
+ 
+ 	ret = i2c_add_adapter(adap);
 -- 
-With Best Regards,
-Andy Shevchenko
+2.7.4
