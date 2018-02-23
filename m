@@ -1,48 +1,126 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH 1/4] dt-bindings: at24: sort manufacturers alphabetically
-Date: Fri, 23 Feb 2018 08:52:20 +0100
-Message-ID: <CAMRc=MdE_LX276mjXCHaNgAthKyzaKPW-eWBfEuCcG187X7wvQ@mail.gmail.com>
-References: <20180116160618.27859-1-peda@axentia.se>
- <20180116160618.27859-2-peda@axentia.se>
- <20180129161727.g4kdrr5sih22vs5a@rob-hp-laptop>
- <CAMRc=Mcqj36KP7dG71dzSn_7cxw-Tru5kNtXdr5-SiH=jbCfMA@mail.gmail.com>
- <20180221091130.4sdfnalrng4sd77i@ninjato>
- <CAMRc=Mfcvh3PoF46DvU8RiVZ2bnQPkRm=pmv9MPEux1sHpnAOw@mail.gmail.com>
- <20180221094009.2zql6gbzkcklbakk@ninjato>
+From: Frank Rowand <frowand.list@gmail.com>
+Subject: Re: [PATCH v4 00/16] R-Car DU: Convert LVDS code to bridge driver
+Date: Thu, 22 Feb 2018 19:20:43 -0800
+Message-ID: <050fa0bb-2157-8796-1bce-354f1da67e24@gmail.com>
+References: <20180220231046.32638-1-laurent.pinchart+renesas@ideasonboard.com>
+ <d6b14861-68c9-eacb-469a-219745badb9f@gmail.com> <6129743.3Euq8y3YuW@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180221094009.2zql6gbzkcklbakk@ninjato>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh@kernel.org>, devicetree <devicetree@vger.kernel.org>, Russell King <linux@armlinux.org.uk>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-i2c <linux-i2c@vger.kernel.org>, Peter Rosin <peda@axentia.se>, Linux ARM <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <6129743.3Euq8y3YuW@avalon>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Marek Vasut <marex@denx.de>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, Wolfram Sang <wsa@the-dreams.de>, Koen Kooi <koen@dominion.thruhere.net>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, Matt Porter <mporter@konsulko.com>, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-i2c@vger.kernel.org
 
-2018-02-21 10:40 GMT+01:00 Wolfram Sang <wsa@the-dreams.de>:
->
->> Will do. What about this (http://patchwork.ozlabs.org/patch/867169/)
->> one? It's part of a bigger series, do you want me to apply it to my
->> tree and provide you with an immutable branch?
->
-> Well, I would accept it for 4.16 using the "plain new id" rule. So, if
-> you add it on top of Peter's sorting patch, totally fine by me.
->
-> If you want it in v4.17, ok, too. I'd think an immutable branch is not
-> needed. There is a fallback property in the DTS. So at worst, there will
-> be a DTS warning during the merge window which will be fixed at rc1 time.
->
-> Unless I overlooked something.
->
-
-Ok, I'll have some time during the weekend, so I'll send a PR for rc3.
-
-Bart
+SGkgTGF1cmVudCwKCk9uIDAyLzIyLzE4IDAyOjI1LCBMYXVyZW50IFBpbmNoYXJ0IHdyb3RlOgo+
+IEhpIEZyYW5rLAo+IAo+IE9uIFRodXJzZGF5LCAyMiBGZWJydWFyeSAyMDE4IDA4OjA3OjE0IEVF
+VCBGcmFuayBSb3dhbmQgd3JvdGU6Cj4+IE9uIDAyLzIwLzE4IDE1OjEwLCBMYXVyZW50IFBpbmNo
+YXJ0IHdyb3RlOgo+Pj4gSGVsbG8sCj4+Pgo+Pj4gVGhpcyBwYXRjaCBzZXJpZXMgYWRkcmVzc2Vz
+IGEgZGVzaWduIG1pc3Rha2UgdGhhdCBkYXRlcyBiYWNrIGZyb20gdGhlCj4+PiBpbml0aWFsIERV
+IHN1cHBvcnQuIFN1cHBvcnQgZm9yIHRoZSBMVkRTIGVuY29kZXJzLCB3aGljaCBhcmUgSVAgY29y
+ZXMKPj4+IHNlcGFyYXRlIGZyb20gdGhlIERVLCB3YXMgYnVuZGxlZCBpbiB0aGUgRFUgZHJpdmVy
+LiBXb3JzZSwgYm90aCB0aGUgRFUKPj4+IGFuZCBMVkRTIHdlcmUgZGVzY3JpYmVkIHRocm91Z2gg
+YSBzaW5nbGUgRFQgbm9kZS4KPj4+Cj4+PiBUbyBmaXggdGhlLCBwYXRjaGVzIDAxLzE2IGFuZCAw
+Mi8xNiBkZWZpbmUgbmV3IERUIGJpbmRpbmdzIGZvciB0aGUgTFZEUwo+Pj4gZW5jb2RlcnMsIGFu
+ZCBkZXByZWNhdGUgdGhlaXIgZGVzY3JpcHRpb24gaW5zaWRlIHRoZSBEVSBiaW5kaW5ncy4gVG8K
+Pj4+IHJldGFpbiBiYWNrd2FyZCBjb21wYXRpYmlsaXR5IHdpdGggZXhpc3RpbmcgRFQsIHBhdGNo
+ZXMgMDMvMTYgdG8gMDgvMTYKPj4+IHRoZW4gcGF0Y2ggdGhlIGRldmljZSB0cmVlIGF0IHJ1bnRp
+bWUgdG8gY29udmVydCB0aGUgbGVnYWN5IGJpbmRpbmdzIHRvCj4+PiB0aGUgbmV3IG9uZXMuCj4+
+Pgo+Pj4gV2l0aCB0aGUgRFQgc2lkZSBhZGRyZXNzZWQsIHBhdGNoIDA5LzE2IGNvbnZlcnRzIHRo
+ZSBMVkRTIHN1cHBvcnQgY29kZSB0bwo+Pj4gYSBzZXBhcmF0ZSBicmlkZ2UgZHJpdmVyLiBQYXRj
+aGVzIDExLzE2IHRvIDE2LzE2IHRoZW4gdXBkYXRlIGFsbCB0aGUKPj4+IGRldmljZSB0cmVlIHNv
+dXJjZXMgdG8gdGhlIG5ldyBEVSBhbmQgTFZEUyBlbmNvZGVycyBiaW5kaW5ncy4KPj4+Cj4+PiBJ
+IGRlY2lkZWQgdG8gZ28gZm9yIGxpdmUgRFQgcGF0Y2hpbmcgaW4gcGF0Y2ggMDgvMTYgYmVjYXVz
+ZSBpbXBsZW1lbnRpbmcKPj4+IHN1cHBvcnQgZm9yIGJvdGggdGhlIGxlZ2FjeSBhbmQgbmV3IGJp
+bmRpbmdzIGluIHRoZSBkcml2ZXIgd291bGQgaGF2ZSBiZWVuCj4+PiB2ZXJ5IGludHJ1c2l2ZSwg
+YW5kIHByZXZlbnRlZCBmdXJ0aGVyIGNsZWFudXBzLiBUaGlzIHZlcnNpb24gcmVsaWVzIG1vcmUK
+Pj4+IGhlYXZpbHkgb24gb3ZlcmxheXMgdG8gYXZvaWQgdG91Y2hpbmcgdGhlIGludGVybmFscyBv
+ZiB0aGUgT0YgY29yZQo+Pj4gY29tcGFyZWQgdG8gdjIsIGV2ZW4gaWYgbWFudWFsIGZpeGVzIHRv
+IHRoZSBkZXZpY2UgdHJlZSBhcmUgc3RpbGwgbmVlZGVkLgo+Pj4KPj4+IENvbXBhcmVkIHRvIHYz
+LCB0aGlzIHNlcmllcyB1c2VzIHRoZSBPRiBjaGFuZ2VzZXQgQVBJIHRvIHVwZGF0ZSBwcm9wZXJ0
+aWVzCj4+PiBpbnN0ZWFkIG9mIGFjY2Vzc2luZyB0aGUgaW50ZXJuYWxzIG9mIHRoZSBwcm9wZXJ0
+eSBzdHJ1Y3R1cmUuIFRoaXMgcmVtb3Zlcwo+Pj4gdGhlIGxvY2FsIGltcGxlbWVudGF0aW9uIG9m
+IGZ1bmN0aW9ucyB0byBsb29rIHVwIG5vZGVzIGJ5IHBhdGggYW5kIHVwZGF0ZQo+Pj4gcHJvcGVy
+dGllcy4gSW4gb3JkZXIgdG8gZG8gdGhpcywgSSBwdWxsZWQgaW4gUGFudGVsaXMnIHBhdGNoIHNl
+cmllcwo+Pj4gdGl0bGVkICJbUEFUQ0ggdjIgMC81XSBvZjogZHluYW1pYzogQ2hhbmdlc2V0cyBo
+ZWxwZXJzICYgZml4ZXMiIGF0IFJvYidzCj4+PiByZXF1ZXN0LCBhbmQgcmViYXNlZCBpdCB3aGls
+ZSB0YWtpbmcgdHdvIHNtYWxsIHJldmlldyBjb21tZW50cyBpbnRvCj4+PiBhY2NvdW50Lgo+Pgo+
+PiBXYWl0IGEgbWludXRlISAgV2h5IGFyZSB5b3UgcHV0dGluZyBhIHBhdGNoIHNldCB0byBtb2Rp
+ZnkgY29yZSBkZXZpY2V0cmVlCj4+IGluIHRoZSBtaWRkbGUgb2YgYSBkcml2ZXIgc2VyaWVzLiAg
+UGxlYXNlIHB1bGwgaXQgb3V0IHRvIGEgc2VwYXJhdGUgc2VyaWVzLgo+IAo+IEJlY2F1c2UgUm9i
+IGFza2VkIGZvciB0aGUgZHJpdmVyLWxvY2FsIGltcGxlbWVudGF0aW9uIG9mIHRoZSBwcm9wZXJ0
+eSBhZGQgCj4gZnVuY3Rpb24gdG8gYmUgcmVwbGFjZWQgYnkgUGFudGVsaXMnIHNlcmllcy4gSSB3
+YW50IHRvIGdldCB0aGUgTFZEUyBjaGFuZ2VzIGluIAo+IHY0LjE3IGFuZCBhc2tlZCBSb2Igd2hl
+dGhlciBJIGNvdWxkIHRoZW4gdGFrZSB0aGUgT0YgY2hhbmdlc2V0IHBhdGNoZXMgbWVyZ2VkIAo+
+IHRocm91Z2ggdGhlIERSTSB0cmVlLCBhbmQgaGUgZGlkbid0IG9iamVjdC4gSWYgdGhhdCBjYXVz
+ZXMgYW4gaXNzdWUgSSdsbCAKPiBzd2l0Y2ggYmFjayB0byB0aGUgZHJpdmVyLWxvY2FsIGltcGxl
+bWVudGF0aW9uIHRvIGdldCB0aGUgZHJpdmVyIGNoYW5nZXMgCj4gbWVyZ2VkLCBzcGxpdCB0aGUg
+T0YgY2hhbmdlc2V0IHNlcmllcyBvdXQsIGFuZCB0aGVuIG1vdmUgdG8gdGhlIE9GIGNoYW5nZXNl
+dCAKPiBBUEkgb25jZSBtZXJnZWQuIFdvdWxkIHlvdSBwcmVmZXIgdGhhdCA/CgpZb3UgaGF2ZSBh
+bHJlYWR5IGNyZWF0ZWQgYSBuZXcgdmVyc2lvbiBvZiB0aGUgUi1DYXIgcGF0Y2hlcyB3aXRob3V0
+IHRoZQpzZXQgb2YgcGF0Y2hlcyB0aGF0IEkgd2FzIG9iamVjdGluZyB0byBoZXJlLiAgU28gdGhp
+cyBpcyBzb21ld2hhdCBqdXN0CmFuIGFjYWRlbWljIGNvbW1lbnQuCgpBcyBJIG1lbnRpb25lZCBp
+biB0aGUgdjYgdGhyZWFkLCBJIGFtIGNvbWluZyBiYWNrIGhlcmUgdG8gY2xlYW4gdXAgbG9vc2UK
+ZW5kcywgYW5kIGV4cGxhaW4gd2h5IEkgaGFkIHRoZSByZWFjdGlvbiBJIGhhZC4gIEJhc2ljYWxs
+eSwgdGhpcyBpcyBhCnByb2Nlc3MgaXNzdWUgdG8gbWUuCgooMSkgVGhlIHBhdGNoIHNldCBmcm9t
+IFBhbnRlbGlzIGlzICJoaWRkZW4iIGluIHRoZSBkcml2ZXIgcGF0Y2ggc2VyaWVzLgpXaGVuIHZp
+ZXdpbmcgY29sbGFwc2VkIHRocmVhZHMgKHdoaWNoIGlzIG15IG5vcm1hbCBtb2RlIHRvIGF2b2lk
+IGdldHRpbmcKb3ZlcndoZWxtZWQgYnkgdGhlIHZhc3Qgdm9sdW1lIG9mIGVtYWlsIEkgc2Nhbiks
+IHRoZSBQYW50ZWxpcyBwYXRjaCBzZXQKaXMgdG90YWxseSBpbnZpc2libGUuICBJZiB0aGUgUi1D
+YXIgZHJpdmVyIHBhdGNoIHNlcmllcyBoYWQgbm90IGhhZCBtZQpvbiB0aGUgdG86IGxpc3QsIHRo
+ZXJlIGlzIGEgdmVyeSBnb29kIGNoYW5jZSBJIHdvdWxkIG5vdCBoYXZlIG5vdGljZWQKaXQuICBP
+ciBub3RpY2VkIGluIGEgbW9yZSBkZWxheWVkIHRpbWUgZnJhbWUuICBBbmQgdGhlIHNhbWUgYXBw
+bGllcyB0bwphbnlvbmUgZWxzZSB3aG8gbWlnaHQgYmUgc3Vic2NyaWJlZCB0byB0aGUgZGV2aWNl
+dHJlZSBtYWlsIGxpc3QuICBJZgp0aGUgUGFudGVsaXMgcGF0Y2ggc2VyaWVzIHdhcyBzcGxpdCBv
+dXQgaW50byBhIHNlcGFyYXRlIHBhdGNoIHNldCB0aGVuCml0IHdvdWxkIGJlIG1vcmUgdmlzaWJs
+ZSBvbiB0aGUgbGlzdC4KCigyKSBUaGVyZSBpcyBubyBnb29kIHdheSB0byBpbmRpY2F0ZSBpbiB0
+aGUgZW1haWwgc3ViamVjdCBsaW5lcyBmb3IKdGhlIFBhbnRlbGlzIHBhdGNoZXMgdGhhdCB0aGV5
+IGFyZSB2ZXJzaW9uIDMgb2YgdGhlIHNlcmllcywgc2luY2UKdGhleSBhcmUgYWxzbyB2ZXJzaW9u
+IDQgb2YgdGhlIFItQ2FyIHBhdGNoIHNlcmllcy4gIElmIG9uZSByZWFkcyB0aGUKcGF0Y2ggMC8w
+IGhlYWRlciBjYXJlZnVsbHksIGFuZC9vciB0aGUgb3RoZXIgUGFudGVsaXMgcGF0Y2ggY29tbWVu
+dApoZWFkZXJzIGNhcmVmdWxseSwgYW5kIHRoZW4gZG9lcyBhIGxpdHRsZSBkZXRlY3RpdmUgd29y
+aywgaXQgaXMKcG9zc2libGUgdG8gZmluZCB2ZXJzaW9uIDIgb2YgdGhlIFBhbnRlbGlzIHBhdGNo
+IHNlcmllcywgYW5kIHRodXMKYmUgYWJsZSB0byB0cmFjayB0aGUgZnVsbCBoaXN0b3J5LiAgSWYg
+anVzdCBnbGFuY2luZyBhdCBlYWNoCmluZGl2aWR1YWwgcGF0Y2ggZW1haWwgc3ViamVjdCwgc2Nh
+bm5pbmcgdGhlIHBhdGNoIGNvbW1lbnQsIGFuZApzcGVuZGluZyBtb3JlIHRpbWUgcmVhZGluZyB0
+aGUgYm9keSBvZiB0aGUgcGF0Y2gsIGl0IHdvdWxkIGJlCnZlcnkgZWFzeSB0byBvdmVybG9vayB0
+aGUgZXhpc3RlbmNlIG9mIHRoZSBwcmV2aW91cyB2ZXJzaW9ucyBvbgp0aGUgbWFpbCBsaXN0LgoK
+KDJiKSBTbWFsbCBxdWliYmxlOiAgaWYgdGhlIFBhbnRlbGlzIHBhdGNoZXMgd2VyZSBpbiBhIHNl
+cGFyYXRlIHNlcmllcywKd2l0aCB2MyBpbiB0aGUgc3ViamVjdCBoZWFkZXIsIHRoZW4geW91IHdv
+dWxkIGhhdmUgbm9ybWFsbHkgcHV0CmEgImNoYW5nZXMgc2luY2UgdjIiIHNlY3Rpb24gaW4gdGhl
+IHBhdGNoIGNvbW1lbnQgaGVhZGVyLCB3aGljaCB3b3VsZApoYXZlIGJlZW4gbW9yZSB2aXNpYmxl
+IGFuZCBsZXNzIGNyeXB0aWMgdGhhbiB3aGF0IHlvdSB3cm90ZSwgd2hpY2ggd2FzOgoKICAgLi4u
+CgogICBTaWduZWQtb2ZmLWJ5OiBQYW50ZWxpcyBBbnRvbmlvdSA8cGFudGVsaXMuYW50b25pb3VA
+a29uc3Vsa28uY29tPgogICBbRml4ZWQgbWVtb3J5IGxlYWsgaW4gX19vZl9jaGFuZ2VzZXRfYWRk
+X3VwZGF0ZV9wcm9wZXJ0eV9jb3B5KCldCiAgIFNpZ25lZC1vZmYtYnk6IExhdXJlbnQgUGluY2hh
+cnQgPGxhdXJlbnQucGluY2hhcnQrcmVuZXNhc0BpZGVhc29uYm9hcmQuY29tPgogICAtLS0KICAg
+IGRyaXZlcnMvb2YvZHluYW1pYy5jIHwgMjIyICsrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysKICAgIGluY2x1ZGUvbGludXgvb2YuaCAgIHwgMzI4ICsrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwogICAgMiBmaWxlcyBjaGFuZ2VkLCA1NTAg
+aW5zZXJ0aW9ucygrKQoKTXkgb3JpZ2luYWwgc2NhbiBvZiB2ZXJzaW9uIDIgYW5kIHRoZW4gdGhl
+IGVtYWlsIGluIHRoaXMgc2VyaWVzIGhhZCBtZQpxdWVzdGlvbmluZyB3aGV0aGVyIHRoZSB0d28g
+b3BlbiBpc3N1ZXMgZnJvbSBwYXRjaCAyIGhhZCBiZWVuIGFkZHJlc3NlZAooeWVzLCBwYXRjaCAw
+LzE2IGRpZCBleHBsaWNpdGx5IG1lbnRpb24gdGhhdCAyIHJldmlldyBjb21tZW50cyBoYWQgYmVl
+bgp0YWtlbiBpbnRvIGFjY291bnQsIHNvIHlvdSBjYW4gcG9pbnQgYXQgbXkgcG9vciByZWFkaW5n
+IGNvbXByZWhlbnNpb24pLgoKKDMpIFRoaXMgaXMgdG90YWxseSB1bnJlbGF0ZWQgdG8geW91ciBw
+YXRjaCBzZXJpZXMsIGJ1dCBJJ20gbGVhdmluZyBhIGJyZWFkCmNydW1iIHRyYWlsIGhlcmUuICBS
+b2IgcG9pbnRlZCB5b3UgYXQgYSBwYXRjaCBzZXJpZXMgdGhhdCB3YXMgbm90IHRoZSBtb3N0CnJl
+Y2VudCB2ZXJzaW9uLiAgV2hlbiB0aGlzIHBhdGNoIHNlcmllcyBhcHBlYXJzIGFnYWluLCB0aGVy
+ZSBhbHJlYWR5IGlzCmEgdmVyc2lvbiAzIHN1YnNldCBvZiBpdCwgYnV0IGl0IGlzIHN0aWxsIGxh
+YmVsZWQgYXMgYmVpbmcgdmVyc2lvbiAyLCBhbmQKYWxzbyBoYXMgb3V0c3RhbmRpbmcgdW4tYWRk
+cmVzc2VkIGlzc3Vlcy4gICgiW1BBVENIIHYyIDEvMl0gb2Y6IGR5bmFtaWM6CkFkZCBfX29mX25v
+ZGVfZHVwdigpIiwgMTEvMDQvMTYpCgotRnJhbmsKX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4v
+bGlzdGluZm8vZHJpLWRldmVsCg==
