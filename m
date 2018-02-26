@@ -1,59 +1,131 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 1/2] i2c: piix4: Use request_muxed_region
-Date: Mon, 26 Feb 2018 12:37:29 -0800
-Message-ID: <20180226203729.GA28554@roeck-us.net>
-References: <1514652658-6228-1-git-send-email-linux@roeck-us.net>
- <20180212111041.027edd85@endymion>
- <20180212185152.GA20877@roeck-us.net>
- <20180214152305.57b76ea5@endymion>
- <20180226195521.vs32bemg7iopkjvd@ninjato>
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Subject: Re: [PATCH v2 2/7] i3c: Add core I3C infrastructure
+Date: Mon, 26 Feb 2018 21:40:32 +0100
+Message-ID: <20180226214032.1c3f929a@bbrezillon>
+References: <20171214151610.19153-1-boris.brezillon@free-electrons.com>
+        <20171214151610.19153-3-boris.brezillon@free-electrons.com>
+        <b39f9016-b2ff-6d8d-96b3-945f32ab2b67@synopsys.com>
+        <20180223213000.407461d2@bbrezillon>
+        <1b8fe82f-079b-6f55-0e59-5773027faa8e@synopsys.com>
+        <20180226213607.7161bb0a@bbrezillon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180226195521.vs32bemg7iopkjvd@ninjato>
+In-Reply-To: <20180226213607.7161bb0a@bbrezillon>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jean Delvare <jdelvare@suse.de>, =?iso-8859-1?B?Wm9sdOFuIEL2c3r2cm3pbnlp?= <zboszor@pr.hu>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Vitor Soares <Vitor.Soares@synopsys.com>
+Cc: Boris Brezillon <boris.brezillon@free-electrons.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 26, 2018 at 08:55:21PM +0100, Wolfram Sang wrote:
-> On Wed, Feb 14, 2018 at 03:23:05PM +0100, Jean Delvare wrote:
-> > On Mon, 12 Feb 2018 10:51:52 -0800, Guenter Roeck wrote:
-> > > On Mon, Feb 12, 2018 at 11:10:41AM +0100, Jean Delvare wrote:
-> > > > On Sat, 30 Dec 2017 08:50:57 -0800, Guenter Roeck wrote:  
-> > > > > @@ -298,12 +295,15 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
-> > > > >  	else
-> > > > >  		smb_en = (aux) ? 0x28 : 0x2c;
-> > > > >  
-> > > > > -	mutex_lock(&piix4_mutex_sb800);
-> > > > > +	if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2, "sb800_piix4_smb"))
-> > > > > +		return -EBUSY;  
-> > > > 
-> > > > This would happen if and only if another driver has requested the
-> > > > region already but without IORESOURCE_MUXED, right? Don't you want to  
-> > > 
-> > > Or if its call to alloc_resource() fails.
-> > 
-> > OK, two things which are not supposed to happen, so failing is the
-> > right thing to do.
-> > 
-> > > > write an error message then? I don't think request_muxed_region() will
-> > > > do, and probe failing with -EBUSY but no error message logged would be
-> > > > hard to diagnose.
-> > >
-> > > NP, though the analysis is quite simple - /proc/iomem will show the culprit.
-> > 
-> > I'm confused. How would the user know what to look for in /proc/iomem
-> > (or, I believe, /proc/ioports actually) if the driver does not print
-> > which resource allocation failed?
-> > 
-> > If the information is already printed somewhere, then I agree there's no
-> > point adding a message. But from the code I could not find it.
-> 
-> I don't see any ack or rev from Jean, so I guess there are open issues?
-> 
-I was suppopsed to send v2, and I had prepared it, but it looks like I forgot
-to actually send it out. I'll try to do that today.
+On Mon, 26 Feb 2018 21:36:07 +0100
+Boris Brezillon <boris.brezillon@bootlin.com> wrote:
 
-Guenter
+> > >>> +
+> > >>> +/**
+> > >>> + * struct i3c_master_controller_ops - I3C master methods
+> > >>> + * @bus_init: hook responsible for the I3C bus initialization. This
+> > >>> + *	      initialization should follow the steps described in the I3C
+> > >>> + *	      specification. This hook is called with the bus lock held in
+> > >>> + *	      write mode, which means all _locked() helpers can safely be
+> > >>> + *	      called from there
+> > >>> + * @bus_cleanup: cleanup everything done in
+> > >>> + *		 &i3c_master_controller_ops->bus_init(). This function is
+> > >>> + *		 optional and should only be implemented if
+> > >>> + *		 &i3c_master_controller_ops->bus_init() attached private data
+> > >>> + *		 to I3C/I2C devices. This hook is called with the bus lock
+> > >>> + *		 held in write mode, which means all _locked() helpers can
+> > >>> + *		 safely be called from there
+> > >>> + * @supports_ccc_cmd: should return true if the CCC command is supported, false
+> > >>> + *		      otherwise
+> > >>> + * @send_ccc_cmd: send a CCC command
+> > >>> + * @send_hdr_cmds: send one or several HDR commands. If there is more than one
+> > >>> + *		   command, they should ideally be sent in the same HDR
+> > >>> + *		   transaction
+> > >>> + * @priv_xfers: do one or several private I3C SDR transfers
+> > >>> + * @i2c_xfers: do one or several I2C transfers
+> > >>> + * @request_ibi: attach an IBI handler to an I3C device. This implies defining
+> > >>> + *		 an IBI handler and the constraints of the IBI (maximum payload
+> > >>> + *		 length and number of pre-allocated slots).
+> > >>> + *		 Some controllers support less IBI-capable devices than regular
+> > >>> + *		 devices, so this method might return -%EBUSY if there's no
+> > >>> + *		 more space for an extra IBI registration
+> > >>> + * @free_ibi: free an IBI previously requested with ->request_ibi(). The IBI
+> > >>> + *	      should have been disabled with ->disable_irq() prior to that
+> > >>> + * @enable_ibi: enable the IBI. Only valid if ->request_ibi() has been called
+> > >>> + *		prior to ->enable_ibi(). The controller should first enable
+> > >>> + *		the IBI on the controller end (for example, unmask the hardware
+> > >>> + *		IRQ) and then send the ENEC CCC command (with the IBI flag set)
+> > >>> + *		to the I3C device
+> > >>> + * @disable_ibi: disable an IBI. First send the DISEC CCC command with the IBI
+> > >>> + *		 flag set and then deactivate the hardware IRQ on the
+> > >>> + *		 controller end
+> > >>> + * @recycle_ibi_slot: recycle an IBI slot. Called every time an IBI has been
+> > >>> + *		      processed by its handler. The IBI slot should be put back
+> > >>> + *		      in the IBI slot pool so that the controller can re-use it
+> > >>> + *		      for a future IBI
+> > >>> + *
+> > >>> + * One of the most important hooks in these ops is
+> > >>> + * &i3c_master_controller_ops->bus_init(). Here is a non-exhaustive list of
+> > >>> + * things that should be done in &i3c_master_controller_ops->bus_init():
+> > >>> + *
+> > >>> + * 1) call i3c_master_set_info() with all information describing the master
+> > >>> + * 2) ask all slaves to drop their dynamic address by sending the RSTDAA CCC
+> > >>> + *    with i3c_master_rstdaa_locked()
+> > >>> + * 3) ask all slaves to disable IBIs using i3c_master_disec_locked()
+> > >>> + * 4) start a DDA procedure by sending the ENTDAA CCC with
+> > >>> + *    i3c_master_entdaa_locked(), or using the internal DAA logic provided by
+> > >>> + *    your controller      
+> > >> You mean SETDASA CCC command?    
+> > > No, I really mean ENTDAA and DAA. By internal DAA logic I mean that
+> > > some controllers are probably automating the whole DAA procedure, while
+> > > others may let the SW control every step.    
+> > My understanding is that i3c_master_entdaa_locked() will trigger the DAA process
+> > and DAA can be done by SETDASA, ENTDAA and later after the bus initialization
+> > with SETNEWDA.  
+> 
+> No. Only ENTDAA can trigger a DAA procedure. SETDASA is here to assign
+> a single dynamic address to a device that already has a static address
+> but no dynamic address yet, and SETNEWDA is here to modify the dynamic
+> address of a device that already has one.
+> 
+> > 
+> > I think the DAA process should be more generic, right now is only made through
+> > the ENTDAA command with (cmd.ndests = 1).
+> > I mean, shouldn't this be made by the core? First doing DAA for the devices
+> > declared and them try do discover the rest of devices on the bus.  
+> 
+> Can you detail a bit more? If the only part you're complaining about is
+> pre-assignment of dynamic addresses with SETDASA when a device is
+> declared in the DT with a reg and dynamic-address property, then yes, I
+> think I can provide an helper for that. But this helper would still have
+> to be called from the master controller driver (from ->bus_init() or
+> after a Hot-Join).
+> 
+> Now, if the question is, is there a way we can automate things even more
+> and completely implement DAA from the core? I doubt it, because the way
+> the core will trigger DAA, expose discovered devices or allow you to
+> declare manually assigned addresses is likely to be
+> controller-dependent.
+> When I designed the framework I took the decision to base my work on the
+> spec rather than focusing on the I3C master controller I had to support
+> (Cadence). This is the reason I decided to keep the interface as simple
+> as possible at the risk of encouraging code-duplication (at first)
+> rather than coming up with an interface that is designed with a single
+> controller in mind and having to break things every time a new
+> controller comes out.
+> 
+> Thank you for you comments, but I'd like to know if some of my design
+> choices are blocking you to support your controller. What I've seen so
+> far is a collection of things that might be relevant to fix (though
+> most of them are subject to interpretation and/or a matter of taste),
+> but nothing that should really block you.
+
+Well, that's not entirely true: I agree that something is missing in
+->priv_xfers() to let the controller know about the device limitations,
+and this could be a blocking aspect.
+
+-- 
+Boris Brezillon, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
