@@ -1,64 +1,121 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH] i2c: imx: Fix PM device usage count
-Date: Mon, 26 Feb 2018 11:08:29 +0100
-Message-ID: <31679751.ihdXrgd1zD@aspire.rjw.lan>
-References: <20180224224328.2pfki7rqcxqetmlz@agrajag.zerfleddert.de> <20180225195748.5itrchj36wz5mquu@pengutronix.de>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v2 2/2] i2c: add support for Socionext SynQuacer I2C controller
+Date: Mon, 26 Feb 2018 13:35:16 +0200
+Message-ID: <CAHp75VcjUey4K1xOkjKjn_ppPKC0bktcBK2p9NjcPYG1ed7X0g@mail.gmail.com>
+References: <20180222191647.4727-1-ard.biesheuvel@linaro.org>
+ <20180222191647.4727-3-ard.biesheuvel@linaro.org> <CAHp75Vc1AGzdgTB281XVo=FmZerkU1vijLih3JUO=_wNPjxgfA@mail.gmail.com>
+ <CAKv+Gu9XkmSPHZf+jVKOm-SX1GCWJUc7y3zTCuaHBwk8O3OC3Q@mail.gmail.com>
+ <CAHp75VfFKDkQQ9-vdjzDfE2Cdk2Cb93+kdceYQgEqt3hti=Wkg@mail.gmail.com> <CAKv+Gu__HiajW5fWvRnDft3+ef+gOowijxEd8wrF4U5Vu=3o0Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180225195748.5itrchj36wz5mquu@pengutronix.de>
+In-Reply-To: <CAKv+Gu__HiajW5fWvRnDft3+ef+gOowijxEd8wrF4U5Vu=3o0Q@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Uwe =?ISO-8859-1?Q?Kleine=2DK=F6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Tobias Jordan <Tobias.Jordan@elektrobit.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, Jassi Brar <jassisinghbrar@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sunday, February 25, 2018 8:57:48 PM CET Uwe Kleine-König wrote:
-> On Sat, Feb 24, 2018 at 11:43:28PM +0100, Tobias Jordan wrote:
-> > pm_runtime_get_sync() increases the device's usage count even when
-> > reporting an error, so add a call to pm_runtime_put_noidle() in the
-> > related error branches.
-> > 
-> > Fixes: 588eb93ea49f ("i2c: imx: add runtime pm support to improve the
-> >   performance")
-> > Signed-off-by: Tobias Jordan <Tobias.Jordan@elektrobit.com>
-> > ---
-> > In i2c_imx_xfer(), one could also move the "out" label up (in front of
-> > the call to pm_runtime_put_autosuspend()), but I'm not sure what the
-> > underlying error scenario is; calling _put_noidle() seems to be the
-> > safer bet.
-> > 
-> > This is one of a number of patches for problems found using coccinelle 
-> > scripting in the SIL2LinuxMP project. The patch has been compile-tested;
-> > it's based on linux-next-20180223.
-> > 
-> > For a discussion of the corresponding issue, see
-> > https://marc.info/?l=linux-pm&m=151904483924999&w=2
-> 
-> I don't get the original mail, so reply here. In reply to the question I
-> would have asked here, too:
-> 
-> > Why isn't ...get_sync() directly calling ...put_noidle() but relies on
-> > the driver implementation to do it? It seems unintuitive for a _get_
-> > function to increase the usage count although returning an error.
-> 
-> Rafael replied:
-> 
-> > Because ...get_sync() returns an error when runtime PM is disabled and
-> > we wanted that case to be transparent for the users of it.
-> > 
-> > In the majority of cases (if not always) errors returned by
-> > ...get_sync()
-> > mean disabled runtime PM or flaky hardware and the latter is much less
-> > common (and generally there's not much to do about them in the kernel
-> > anyway).
-> 
-> If pm_runtime_get_sync() should be transparent for the users if PM is
-> disable, why not simply return success then?
+On Mon, Feb 26, 2018 at 11:59 AM, Ard Biesheuvel
+<ard.biesheuvel@linaro.org> wrote:
+> On 23 February 2018 at 13:12, Andy Shevchenko <andy.shevchenko@gmail.com>=
+ wrote:
+>> On Fri, Feb 23, 2018 at 2:40 PM, Ard Biesheuvel
+>> <ard.biesheuvel@linaro.org> wrote:
+>>> On 23 February 2018 at 12:27, Andy Shevchenko <andy.shevchenko@gmail.co=
+m> wrote:
+>>>> On Thu, Feb 22, 2018 at 9:16 PM, Ard Biesheuvel
+>>>> <ard.biesheuvel@linaro.org> wrote:
+> ...
+>>>>> +       ret =3D device_property_read_u32(&pdev->dev, "clock-frequency=
+",
+>>>>> +                                      &speed_khz);
+>>>>> +       if (ret) {
+>>>>> +               dev_err(&pdev->dev,
+>>>>> +                       "Missing clock-frequency property\n");
+>>>>> +               return -EINVAL;
+>>>>> +       }
+>>>>> +       speed_khz /=3D 1000;
+>>
+>>>>> +       if (dev_of_node(&pdev->dev)) {
+>>>>> +               i2c->clk =3D devm_clk_get(&pdev->dev, "pclk");
+>>>>> +               if (IS_ERR(i2c->clk)) {
+>>>>> +                       dev_err(&pdev->dev, "cannot get clock\n");
+>>>>> +                       return PTR_ERR(i2c->clk);
+>>>>> +               }
+>>>>> +               dev_dbg(&pdev->dev, "clock source %p\n", i2c->clk);
+>>>>> +
+>>>>> +               i2c->clkrate =3D clk_get_rate(i2c->clk);
+>>>>> +               dev_dbg(&pdev->dev, "clock rate %d\n", i2c->clkrate);
+>>>>> +               clk_prepare_enable(i2c->clk);
+>>>>> +       } else {
+>>>>> +               ret =3D device_property_read_u32(&pdev->dev,
+>>>>> +                                              "socionext,pclk-rate",
+>>>>> +                                              &i2c->clkrate);
+>>>>> +               if (ret)
+>>>>> +                       return ret;
+>>>>> +       }
+>>>>
+>>>> Okay, I got this case. It's more likely the one in 8250_dw.c.
+>>>>
+>>>> Can you do the similar way?
+>>
+>>> Could you elaborate?
+>>
+>> --- 8< --- 8< --- 8< ---
+>>         device_property_read_u32(dev, "clock-frequency", &p->uartclk);
+>>
+>>        /* If there is separate baudclk, get the rate from it. */
+>>        data->clk =3D devm_clk_get(dev, "baudclk");
+>> ...
+>>        if (IS_ERR(data->clk) && PTR_ERR(data->clk) =3D=3D -EPROBE_DEFER)
+>>                return -EPROBE_DEFER;
+>>        if (!IS_ERR_OR_NULL(data->clk)) {
+>>                err =3D clk_prepare_enable(data->clk);
+>>                if (err)
+>>                        dev_warn(dev, "could not enable optional baudclk:=
+ %d\n",
+>>                                 err);
+>>                else
+>>                        p->uartclk =3D clk_get_rate(data->clk);
+>>        }
+>>
+>>        /* If no clock rate is defined, fail. */
+>>        if (!p->uartclk) {
+>>                dev_err(dev, "clock rate not defined\n");
+>>                err =3D -EINVAL;
+>>                goto err_clk;
+>> --- 8< --- 8< --- 8< ---
+>>
+>> Replace 'baudclk' with 'pclk' and p->uartclk with i2c->clkrate in
+>> above and you are almost done.
+>>
+>
+> I don't think this is better.
 
-Because *some* users of it want to get the error.
+It's a pattern over ACPI vs. clk cases at least for now.
+But hold on. We have already an example of dealing with ACPI /
+non-ACPI cases for I2C controllers =E2=80=94 i2c-designware-platdrv.c.
+Check how it's done there.
 
-They generally need to handle the rumtime PM disabled situation differently.
+I actually totally forgot about ACPI slaves described in the table. We
+need to take into account the ones with lowest bus speed.
 
-Thanks,
-Rafael
+>  The generic DT I2C 'clock-frequency'
+> property denotes the bus clock rate not the rate of the clock that
+> feeds the IP block. This is rather different from the UART bindings.
+
+> Also, I don't want to support 'socionext,pclk-rate' for DT platforms,
+> only for ACPI platforms.
+
+Unfortunately, we are strong against deviations between DT and ACPI in
+case of device properties.
+You may provide a clock and use devm_clk_get() without any concerns
+from where this comes from.
+
+You won't find any deviation in DW I2C driver since there is none,
+while driver works for non-ACPI platforms as well.
+
+--=20
+With Best Regards,
+Andy Shevchenko
