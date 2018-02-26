@@ -1,53 +1,82 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: piix4: Use usleep_range()
-Date: Mon, 26 Feb 2018 20:56:23 +0100
-Message-ID: <20180226195623.wivl3h6eyl3s7n3a@ninjato>
-References: <1514652658-6228-1-git-send-email-linux@roeck-us.net>
- <1514652658-6228-2-git-send-email-linux@roeck-us.net>
- <20180212115336.4b828ab8@endymion>
+Subject: Re: [PATCH] i2c-stm32f4: remove redundant initialization of pointer
+ reg
+Date: Mon, 26 Feb 2018 21:06:39 +0100
+Message-ID: <20180226200639.tfll2y4efepm2sos@ninjato>
+References: <20180116174404.19464-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="wzhdeftkab4zgqpa"
+        protocol="application/pgp-signature"; boundary="gaftrawcsqg2fuwf"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180212115336.4b828ab8@endymion>
+In-Reply-To: <20180116174404.19464-1-colin.king@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Guenter Roeck <linux@roeck-us.net>, =?utf-8?B?Wm9sdMOhbiBCw7ZzesO2cm3DqW55aQ==?= <zboszor@pr.hu>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Colin King <colin.king@canonical.com>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---wzhdeftkab4zgqpa
+--gaftrawcsqg2fuwf
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-> >  	/* If the SMBus is still busy, we give up */
-> >  	if (timeout =3D=3D MAX_TIMEOUT) {
+On Tue, Jan 16, 2018 at 05:44:04PM +0000, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
 >=20
-> Reviewed-by: Jean Delvare <jdelvare@suse.de>
+> The pointer reg is assigned a value that is never read, it is later
+> overwritten with a new value, hence the redundant initialization can
+> be removed.
+>=20
+> Cleans up clang warning:
+> drivers/i2c/busses/i2c-stm32f4.c:352:16: warning: Value stored to 'reg'
+> during its initialization is never read
+>=20
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
 
-Does this still hold given despite the discussion in this thread?
+Maxime? Alexandre? Are you OK with this patch?
 
+> ---
+>  drivers/i2c/busses/i2c-stm32f4.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-st=
+m32f4.c
+> index 47c8d00de53f..ba600d77a3f8 100644
+> --- a/drivers/i2c/busses/i2c-stm32f4.c
+> +++ b/drivers/i2c/busses/i2c-stm32f4.c
+> @@ -349,7 +349,7 @@ static void stm32f4_i2c_read_msg(struct stm32f4_i2c_d=
+ev *i2c_dev)
+>  static void stm32f4_i2c_terminate_xfer(struct stm32f4_i2c_dev *i2c_dev)
+>  {
+>  	struct stm32f4_i2c_msg *msg =3D &i2c_dev->msg;
+> -	void __iomem *reg =3D i2c_dev->base + STM32F4_I2C_CR2;
+> +	void __iomem *reg;
+> =20
+>  	stm32f4_i2c_disable_irq(i2c_dev);
+> =20
+> --=20
+> 2.15.1
+>=20
 
---wzhdeftkab4zgqpa
+--gaftrawcsqg2fuwf
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqUZmcACgkQFA3kzBSg
-KbYsexAAkOqUByGSk66nZtntXHYBA9hkIVOI9ZbDu48AMOcehWu0qt9kV6+e4Cv8
-x4RsX0Ur5VPvK/we3j278nThJbp2uOUDC2Xm3xpCyKeMMMvUXJcHhIGhYbHEhlP6
-uPzjzq8sjWYuw3a+ic4V2tO2+MOug78oOxxqd+36R82wS4QpVLasFe5YWhwT1v5U
-ecyp0+VetSLOelnsVN51DIOBUVj/5osGfGJ5ugq6j3PXdkkW8nIv0KUmRrB0Zd8O
-pH2AIOgpFLWo8wjGsZRcibYafa5aC9aBDf06PVcbGx6X/2Y7NvnqN5vYp+j3jTcy
-xy0tKQlElk1uvoyTEoqZOwC07e1dgcN6waJieZct5kqR97/ejW/SRdb+bBXVR55D
-PQ9HUlliU9KNkaS9mFw5azFF9nX1w4IkPfaqV6/n5cpNv2/ajkyYnAzU/T+8LE8V
-PH5GvN2po98eM87NldAGIGFtlasZwarSlTKxJcMoS6kMjgrFVGPhNldU1p2lj0i4
-m7Ci5ghQwSlM8+tqeHPL3VMZSQUvaIqP+H5+fHQr9C1xdg8YC0UjNNexro1uA0N8
-MtLfdkMobcc/kFnz/yNN9svSu9416nTyPhD7oRQMAfjlmbMoGxH05Y/hqIpNtMjQ
-O5y6GhrcD5KxhNGEHQvAb5ulLXTRwiKWLk0xl6u3tGBktgwNF5k=
-=Q+cZ
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqUaM8ACgkQFA3kzBSg
+KbY3Jw//QM2G4a6D4QNOxRGDhRKPIh9hajC5jWNaWm+Kf0UdcCVQsO2QMWE2A1AM
+N1rVUqoVXXnI9pxXfylMIER68eNwuZ/LskzJqKhv5DRjIZS5ctYGWt20e/GzslWB
+Ox2gchqdtgVsEWglDKE4/eEAurUD7QHUfrl4RjSjGUJLCwYiUzEz7BNik20iFcDQ
+XxadpIWmtt+rp9wCwVKucX6mYV3uIi/VpPVpjuU0tThGx27M3/IRh+FklGX5sKBd
+pNoIGyrJggnC+1hnz8eXdbH2kQpmu3oLxNnjc2K0kR1P3PeR4njw0ESLs/WUmsib
+qfLWhYRapUdgFs8NLjYtxHJ7T6aZwRM7bMSD+FOX7NrnxelwR+YA37a4qZJqxgyf
+MvwLaTTJUJbquOgPG+xLEO5AyAcneJGb8cflSZw6WccmoC76xYX4Alxsr5YFeguJ
+UA28r2/UR/Vch3ve/JWiazfQLGpKX4b3qxyMF3bQaJPPdxQ1LraMSI8ZcmIedIiJ
+NJm8aewhUQNCIFUzhKgnmrnBjY6p/NmpoboZTkiNNfCOBzBee+8M7kyxuilzmUbr
+qJFoMlr2LlCvET0/3NyOjbhxX5r0sD0+onjcm8r0MuMYBxdzw7YJ3bLVI7eJNyzM
+bTZz6sJshSqlhkGc3sfC8MNpZwH9SlrVIDO0pivViimnI9V9pRg=
+=7mwh
 -----END PGP SIGNATURE-----
 
---wzhdeftkab4zgqpa--
+--gaftrawcsqg2fuwf--
