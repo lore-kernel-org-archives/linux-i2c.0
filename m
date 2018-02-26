@@ -1,82 +1,55 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c-stm32f4: remove redundant initialization of pointer
- reg
-Date: Mon, 26 Feb 2018 21:06:39 +0100
-Message-ID: <20180226200639.tfll2y4efepm2sos@ninjato>
-References: <20180116174404.19464-1-colin.king@canonical.com>
+Subject: Re: [PATCH 1/4] i2c: xlp9xx: return ENXIO on slave address NACK
+Date: Mon, 26 Feb 2018 21:20:08 +0100
+Message-ID: <20180226202008.w4r2aevpdlpc5bpb@ninjato>
+References: <1516253964-4615-1-git-send-email-george.cherian@cavium.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="gaftrawcsqg2fuwf"
+        protocol="application/pgp-signature"; boundary="4mbufeim6zwk2esu"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180116174404.19464-1-colin.king@canonical.com>
+In-Reply-To: <1516253964-4615-1-git-send-email-george.cherian@cavium.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Colin King <colin.king@canonical.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: George Cherian <george.cherian@cavium.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Dmitry Bazhenov <dmitry.bazhenov@auriga.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---gaftrawcsqg2fuwf
+--4mbufeim6zwk2esu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 16, 2018 at 05:44:04PM +0000, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
+On Thu, Jan 18, 2018 at 05:39:21AM +0000, George Cherian wrote:
+> From: Dmitry Bazhenov <dmitry.bazhenov@auriga.com>
 >=20
-> The pointer reg is assigned a value that is never read, it is later
-> overwritten with a new value, hence the redundant initialization can
-> be removed.
+> Fix the driver violation of the common practice to return
+> ENXIO error on a slave address NACK.
 >=20
-> Cleans up clang warning:
-> drivers/i2c/busses/i2c-stm32f4.c:352:16: warning: Value stored to 'reg'
-> during its initialization is never read
->=20
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> Signed-off-by: Dmitry Bazhenov <dmitry.bazhenov@auriga.com>
+> Signed-off-by: George Cherian <george.cherian@cavium.com>
 
-Maxime? Alexandre? Are you OK with this patch?
+Applied to for-next, thanks!
 
-> ---
->  drivers/i2c/busses/i2c-stm32f4.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-st=
-m32f4.c
-> index 47c8d00de53f..ba600d77a3f8 100644
-> --- a/drivers/i2c/busses/i2c-stm32f4.c
-> +++ b/drivers/i2c/busses/i2c-stm32f4.c
-> @@ -349,7 +349,7 @@ static void stm32f4_i2c_read_msg(struct stm32f4_i2c_d=
-ev *i2c_dev)
->  static void stm32f4_i2c_terminate_xfer(struct stm32f4_i2c_dev *i2c_dev)
->  {
->  	struct stm32f4_i2c_msg *msg =3D &i2c_dev->msg;
-> -	void __iomem *reg =3D i2c_dev->base + STM32F4_I2C_CR2;
-> +	void __iomem *reg;
-> =20
->  	stm32f4_i2c_disable_irq(i2c_dev);
-> =20
-> --=20
-> 2.15.1
->=20
 
---gaftrawcsqg2fuwf
+--4mbufeim6zwk2esu
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqUaM8ACgkQFA3kzBSg
-KbY3Jw//QM2G4a6D4QNOxRGDhRKPIh9hajC5jWNaWm+Kf0UdcCVQsO2QMWE2A1AM
-N1rVUqoVXXnI9pxXfylMIER68eNwuZ/LskzJqKhv5DRjIZS5ctYGWt20e/GzslWB
-Ox2gchqdtgVsEWglDKE4/eEAurUD7QHUfrl4RjSjGUJLCwYiUzEz7BNik20iFcDQ
-XxadpIWmtt+rp9wCwVKucX6mYV3uIi/VpPVpjuU0tThGx27M3/IRh+FklGX5sKBd
-pNoIGyrJggnC+1hnz8eXdbH2kQpmu3oLxNnjc2K0kR1P3PeR4njw0ESLs/WUmsib
-qfLWhYRapUdgFs8NLjYtxHJ7T6aZwRM7bMSD+FOX7NrnxelwR+YA37a4qZJqxgyf
-MvwLaTTJUJbquOgPG+xLEO5AyAcneJGb8cflSZw6WccmoC76xYX4Alxsr5YFeguJ
-UA28r2/UR/Vch3ve/JWiazfQLGpKX4b3qxyMF3bQaJPPdxQ1LraMSI8ZcmIedIiJ
-NJm8aewhUQNCIFUzhKgnmrnBjY6p/NmpoboZTkiNNfCOBzBee+8M7kyxuilzmUbr
-qJFoMlr2LlCvET0/3NyOjbhxX5r0sD0+onjcm8r0MuMYBxdzw7YJ3bLVI7eJNyzM
-bTZz6sJshSqlhkGc3sfC8MNpZwH9SlrVIDO0pivViimnI9V9pRg=
-=7mwh
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqUa/MACgkQFA3kzBSg
+KbbppBAAj/RMyChsrGlNbBLXeRx9TZIfanFiWWx6UDpayEd2Ot1Uy16ikQGNtDkP
+MoUmAG/S8XN2JGI6B73JgtlWuSCTRZnSi03Dx7c2i40sHf9k+uw0dJ5cjHjWI99j
++FzZpppNRQHGp3Y85ZZmE+IUemXrSdtudWbu0szDUSUwISLwUxk1VzPwkeCaWe1f
+sNKKCc0QnarxKKhGhGiwA7uTY1GY6cgUqL2VjoOFMC2gKckxwvzSJmEbfVrbf5KE
+MjVjj+9Hu6SaLMx2r2SNu4/v1FygoaiqfW1K7ERBkBeOZBSnEV0cgUXkt9D5Vd/h
+iyytqr5B/LpQdp7mvoNB2lsx7gL2It1lqoyrXsTLLv0UMrVzyuFMLJIBRveFx9td
+MO/eteBTc5P5rbM5Nu5XTGlDXbmsMN1u48t/NDGs2VPfJFpM8ztFVf5xspOQsIZC
+6DfToU8gGexZ8MT26l78nAX8ZbR6Jbzcpv1/UBOXGKlmQ6P/GG156sCgzXFlthe+
+m6hRlo2PqQrvUmO3ujR6WzBNp2XOWSfiftyS+5zEmHN4F8qeXs3Cd3eDfJcPjjHY
+Bk0rEv4/WhFoQb0LCiBFUw2yPZ9iYuDrPhLYb7riM6ncRumqn6+nsQilLkyaOfeU
+mbb33zGXT83aM7UMo5UVhf6AP0U4z/Nm2EJ5W3hPHehT8sBuLU8=
+=/msg
 -----END PGP SIGNATURE-----
 
---gaftrawcsqg2fuwf--
+--4mbufeim6zwk2esu--
