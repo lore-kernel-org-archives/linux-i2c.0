@@ -1,164 +1,98 @@
-From: Frank Rowand <frowand.list@gmail.com>
-Subject: Re: [PATCH v4 00/16] R-Car DU: Convert LVDS code to bridge driver
-Date: Fri, 23 Feb 2018 11:35:12 -0800
-Message-ID: <ce1dec01-4053-6aac-9ed7-4898ae2bade1@gmail.com>
-References: <20180220231046.32638-1-laurent.pinchart+renesas@ideasonboard.com>
- <6129743.3Euq8y3YuW@avalon> <050fa0bb-2157-8796-1bce-354f1da67e24@gmail.com>
- <5155593.q1p5eQX8Bt@avalon>
+From: Andrew Cooks <andrew.cooks@opengear.com>
+Subject: [RESEND][PATCH v4 1/3] i2c: piix4: Fix port selection for AMD Family 16h Model 30h
+Date: Mon, 26 Feb 2018 10:28:43 +1000
+Message-ID: <be68c29f603153cf047cd893c6b9d6423073632d.1519601860.git.andrew.cooks@opengear.com>
+References: <cover.1519601860.git.andrew.cooks@opengear.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <5155593.q1p5eQX8Bt@avalon>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Marek Vasut <marex@denx.de>, Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>, Wolfram Sang <wsa@the-dreams.de>, Koen Kooi <koen@dominion.thruhere.net>, Pantelis Antoniou <pantelis.antoniou@konsulko.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, Matt Porter <mporter@konsulko.com>, Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1519601860.git.andrew.cooks@opengear.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, "open list:I2C/SMBUS CONTROLLER DRIVERS FOR
+        PC" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+Cc: Andrew Cooks <acooks@rationali.st>, linux-acpi@vger.kernel.org, platypus-sw@opengear.com, "Tobin C . Harding" <me@tobin.cc>, Andrew Cooks <andrew.cooks@opengear.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMDIvMjMvMTggMDE6MjUsIExhdXJlbnQgUGluY2hhcnQgd3JvdGU6Cj4gSGkgRnJhbmssCj4g
-Cj4gT24gRnJpZGF5LCAyMyBGZWJydWFyeSAyMDE4IDA1OjIwOjQzIEVFVCBGcmFuayBSb3dhbmQg
-d3JvdGU6Cj4+IE9uIDAyLzIyLzE4IDAyOjI1LCBMYXVyZW50IFBpbmNoYXJ0IHdyb3RlOgo+Pj4g
-T24gVGh1cnNkYXksIDIyIEZlYnJ1YXJ5IDIwMTggMDg6MDc6MTQgRUVUIEZyYW5rIFJvd2FuZCB3
-cm90ZToKPj4+PiBPbiAwMi8yMC8xOCAxNToxMCwgTGF1cmVudCBQaW5jaGFydCB3cm90ZToKPj4+
-Pj4gSGVsbG8sCj4+Pj4+Cj4+Pj4+IFRoaXMgcGF0Y2ggc2VyaWVzIGFkZHJlc3NlcyBhIGRlc2ln
-biBtaXN0YWtlIHRoYXQgZGF0ZXMgYmFjayBmcm9tIHRoZQo+Pj4+PiBpbml0aWFsIERVIHN1cHBv
-cnQuIFN1cHBvcnQgZm9yIHRoZSBMVkRTIGVuY29kZXJzLCB3aGljaCBhcmUgSVAgY29yZXMKPj4+
-Pj4gc2VwYXJhdGUgZnJvbSB0aGUgRFUsIHdhcyBidW5kbGVkIGluIHRoZSBEVSBkcml2ZXIuIFdv
-cnNlLCBib3RoIHRoZSBEVQo+Pj4+PiBhbmQgTFZEUyB3ZXJlIGRlc2NyaWJlZCB0aHJvdWdoIGEg
-c2luZ2xlIERUIG5vZGUuCj4+Pj4+Cj4+Pj4+IFRvIGZpeCB0aGUsIHBhdGNoZXMgMDEvMTYgYW5k
-IDAyLzE2IGRlZmluZSBuZXcgRFQgYmluZGluZ3MgZm9yIHRoZSBMVkRTCj4+Pj4+IGVuY29kZXJz
-LCBhbmQgZGVwcmVjYXRlIHRoZWlyIGRlc2NyaXB0aW9uIGluc2lkZSB0aGUgRFUgYmluZGluZ3Mu
-IFRvCj4+Pj4+IHJldGFpbiBiYWNrd2FyZCBjb21wYXRpYmlsaXR5IHdpdGggZXhpc3RpbmcgRFQs
-IHBhdGNoZXMgMDMvMTYgdG8gMDgvMTYKPj4+Pj4gdGhlbiBwYXRjaCB0aGUgZGV2aWNlIHRyZWUg
-YXQgcnVudGltZSB0byBjb252ZXJ0IHRoZSBsZWdhY3kgYmluZGluZ3MgdG8KPj4+Pj4gdGhlIG5l
-dyBvbmVzLgo+Pj4+Pgo+Pj4+PiBXaXRoIHRoZSBEVCBzaWRlIGFkZHJlc3NlZCwgcGF0Y2ggMDkv
-MTYgY29udmVydHMgdGhlIExWRFMgc3VwcG9ydCBjb2RlCj4+Pj4+IHRvIGEgc2VwYXJhdGUgYnJp
-ZGdlIGRyaXZlci4gUGF0Y2hlcyAxMS8xNiB0byAxNi8xNiB0aGVuIHVwZGF0ZSBhbGwgdGhlCj4+
-Pj4+IGRldmljZSB0cmVlIHNvdXJjZXMgdG8gdGhlIG5ldyBEVSBhbmQgTFZEUyBlbmNvZGVycyBi
-aW5kaW5ncy4KPj4+Pj4KPj4+Pj4gSSBkZWNpZGVkIHRvIGdvIGZvciBsaXZlIERUIHBhdGNoaW5n
-IGluIHBhdGNoIDA4LzE2IGJlY2F1c2UgaW1wbGVtZW50aW5nCj4+Pj4+IHN1cHBvcnQgZm9yIGJv
-dGggdGhlIGxlZ2FjeSBhbmQgbmV3IGJpbmRpbmdzIGluIHRoZSBkcml2ZXIgd291bGQgaGF2ZQo+
-Pj4+PiBiZWVuIHZlcnkgaW50cnVzaXZlLCBhbmQgcHJldmVudGVkIGZ1cnRoZXIgY2xlYW51cHMu
-IFRoaXMgdmVyc2lvbiByZWxpZXMKPj4+Pj4gbW9yZSBoZWF2aWx5IG9uIG92ZXJsYXlzIHRvIGF2
-b2lkIHRvdWNoaW5nIHRoZSBpbnRlcm5hbHMgb2YgdGhlIE9GIGNvcmUKPj4+Pj4gY29tcGFyZWQg
-dG8gdjIsIGV2ZW4gaWYgbWFudWFsIGZpeGVzIHRvIHRoZSBkZXZpY2UgdHJlZSBhcmUgc3RpbGwK
-Pj4+Pj4gbmVlZGVkLgo+Pj4+Pgo+Pj4+PiBDb21wYXJlZCB0byB2MywgdGhpcyBzZXJpZXMgdXNl
-cyB0aGUgT0YgY2hhbmdlc2V0IEFQSSB0byB1cGRhdGUKPj4+Pj4gcHJvcGVydGllcyBpbnN0ZWFk
-IG9mIGFjY2Vzc2luZyB0aGUgaW50ZXJuYWxzIG9mIHRoZSBwcm9wZXJ0eSBzdHJ1Y3R1cmUuCj4+
-Pj4+IFRoaXMgcmVtb3ZlcyB0aGUgbG9jYWwgaW1wbGVtZW50YXRpb24gb2YgZnVuY3Rpb25zIHRv
-IGxvb2sgdXAgbm9kZXMgYnkKPj4+Pj4gcGF0aCBhbmQgdXBkYXRlIHByb3BlcnRpZXMuIEluIG9y
-ZGVyIHRvIGRvIHRoaXMsIEkgcHVsbGVkIGluIFBhbnRlbGlzJwo+Pj4+PiBwYXRjaCBzZXJpZXMg
-dGl0bGVkICJbUEFUQ0ggdjIgMC81XSBvZjogZHluYW1pYzogQ2hhbmdlc2V0cyBoZWxwZXJzICYK
-Pj4+Pj4gZml4ZXMiIGF0IFJvYidzIHJlcXVlc3QsIGFuZCByZWJhc2VkIGl0IHdoaWxlIHRha2lu
-ZyB0d28gc21hbGwgcmV2aWV3Cj4+Pj4+IGNvbW1lbnRzIGludG8gYWNjb3VudC4KPj4+Pgo+Pj4+
-IFdhaXQgYSBtaW51dGUhICBXaHkgYXJlIHlvdSBwdXR0aW5nIGEgcGF0Y2ggc2V0IHRvIG1vZGlm
-eSBjb3JlIGRldmljZXRyZWUKPj4+PiBpbiB0aGUgbWlkZGxlIG9mIGEgZHJpdmVyIHNlcmllcy4g
-IFBsZWFzZSBwdWxsIGl0IG91dCB0byBhIHNlcGFyYXRlCj4+Pj4gc2VyaWVzLgo+Pj4KPj4+IEJl
-Y2F1c2UgUm9iIGFza2VkIGZvciB0aGUgZHJpdmVyLWxvY2FsIGltcGxlbWVudGF0aW9uIG9mIHRo
-ZSBwcm9wZXJ0eSBhZGQKPj4+IGZ1bmN0aW9uIHRvIGJlIHJlcGxhY2VkIGJ5IFBhbnRlbGlzJyBz
-ZXJpZXMuIEkgd2FudCB0byBnZXQgdGhlIExWRFMKPj4+IGNoYW5nZXMgaW4gdjQuMTcgYW5kIGFz
-a2VkIFJvYiB3aGV0aGVyIEkgY291bGQgdGhlbiB0YWtlIHRoZSBPRiBjaGFuZ2VzZXQKPj4+IHBh
-dGNoZXMgbWVyZ2VkIHRocm91Z2ggdGhlIERSTSB0cmVlLCBhbmQgaGUgZGlkbid0IG9iamVjdC4g
-SWYgdGhhdCBjYXVzZXMKPj4+IGFuIGlzc3VlIEknbGwgc3dpdGNoIGJhY2sgdG8gdGhlIGRyaXZl
-ci1sb2NhbCBpbXBsZW1lbnRhdGlvbiB0byBnZXQgdGhlCj4+PiBkcml2ZXIgY2hhbmdlcyBtZXJn
-ZWQsIHNwbGl0IHRoZSBPRiBjaGFuZ2VzZXQgc2VyaWVzIG91dCwgYW5kIHRoZW4gbW92ZQo+Pj4g
-dG8gdGhlIE9GIGNoYW5nZXNldCBBUEkgb25jZSBtZXJnZWQuIFdvdWxkIHlvdSBwcmVmZXIgdGhh
-dCA/Cj4+Cj4+IFlvdSBoYXZlIGFscmVhZHkgY3JlYXRlZCBhIG5ldyB2ZXJzaW9uIG9mIHRoZSBS
-LUNhciBwYXRjaGVzIHdpdGhvdXQgdGhlCj4+IHNldCBvZiBwYXRjaGVzIHRoYXQgSSB3YXMgb2Jq
-ZWN0aW5nIHRvIGhlcmUuICBTbyB0aGlzIGlzIHNvbWV3aGF0IGp1c3QKPj4gYW4gYWNhZGVtaWMg
-Y29tbWVudC4KPj4KPj4gQXMgSSBtZW50aW9uZWQgaW4gdGhlIHY2IHRocmVhZCwgSSBhbSBjb21p
-bmcgYmFjayBoZXJlIHRvIGNsZWFuIHVwIGxvb3NlCj4+IGVuZHMsIGFuZCBleHBsYWluIHdoeSBJ
-IGhhZCB0aGUgcmVhY3Rpb24gSSBoYWQuICBCYXNpY2FsbHksIHRoaXMgaXMgYQo+PiBwcm9jZXNz
-IGlzc3VlIHRvIG1lLgo+Pgo+PiAoMSkgVGhlIHBhdGNoIHNldCBmcm9tIFBhbnRlbGlzIGlzICJo
-aWRkZW4iIGluIHRoZSBkcml2ZXIgcGF0Y2ggc2VyaWVzLgo+PiBXaGVuIHZpZXdpbmcgY29sbGFw
-c2VkIHRocmVhZHMgKHdoaWNoIGlzIG15IG5vcm1hbCBtb2RlIHRvIGF2b2lkIGdldHRpbmcKPj4g
-b3ZlcndoZWxtZWQgYnkgdGhlIHZhc3Qgdm9sdW1lIG9mIGVtYWlsIEkgc2NhbiksIHRoZSBQYW50
-ZWxpcyBwYXRjaCBzZXQKPj4gaXMgdG90YWxseSBpbnZpc2libGUuICBJZiB0aGUgUi1DYXIgZHJp
-dmVyIHBhdGNoIHNlcmllcyBoYWQgbm90IGhhZCBtZQo+PiBvbiB0aGUgdG86IGxpc3QsIHRoZXJl
-IGlzIGEgdmVyeSBnb29kIGNoYW5jZSBJIHdvdWxkIG5vdCBoYXZlIG5vdGljZWQKPj4gaXQuICBP
-ciBub3RpY2VkIGluIGEgbW9yZSBkZWxheWVkIHRpbWUgZnJhbWUuICBBbmQgdGhlIHNhbWUgYXBw
-bGllcyB0bwo+PiBhbnlvbmUgZWxzZSB3aG8gbWlnaHQgYmUgc3Vic2NyaWJlZCB0byB0aGUgZGV2
-aWNldHJlZSBtYWlsIGxpc3QuICBJZgo+PiB0aGUgUGFudGVsaXMgcGF0Y2ggc2VyaWVzIHdhcyBz
-cGxpdCBvdXQgaW50byBhIHNlcGFyYXRlIHBhdGNoIHNldCB0aGVuCj4+IGl0IHdvdWxkIGJlIG1v
-cmUgdmlzaWJsZSBvbiB0aGUgbGlzdC4KPj4KPj4gKDIpIFRoZXJlIGlzIG5vIGdvb2Qgd2F5IHRv
-IGluZGljYXRlIGluIHRoZSBlbWFpbCBzdWJqZWN0IGxpbmVzIGZvcgo+PiB0aGUgUGFudGVsaXMg
-cGF0Y2hlcyB0aGF0IHRoZXkgYXJlIHZlcnNpb24gMyBvZiB0aGUgc2VyaWVzLCBzaW5jZQo+PiB0
-aGV5IGFyZSBhbHNvIHZlcnNpb24gNCBvZiB0aGUgUi1DYXIgcGF0Y2ggc2VyaWVzLiAgSWYgb25l
-IHJlYWRzIHRoZQo+PiBwYXRjaCAwLzAgaGVhZGVyIGNhcmVmdWxseSwgYW5kL29yIHRoZSBvdGhl
-ciBQYW50ZWxpcyBwYXRjaCBjb21tZW50Cj4+IGhlYWRlcnMgY2FyZWZ1bGx5LCBhbmQgdGhlbiBk
-b2VzIGEgbGl0dGxlIGRldGVjdGl2ZSB3b3JrLCBpdCBpcwo+PiBwb3NzaWJsZSB0byBmaW5kIHZl
-cnNpb24gMiBvZiB0aGUgUGFudGVsaXMgcGF0Y2ggc2VyaWVzLCBhbmQgdGh1cwo+PiBiZSBhYmxl
-IHRvIHRyYWNrIHRoZSBmdWxsIGhpc3RvcnkuICBJZiBqdXN0IGdsYW5jaW5nIGF0IGVhY2gKPj4g
-aW5kaXZpZHVhbCBwYXRjaCBlbWFpbCBzdWJqZWN0LCBzY2FubmluZyB0aGUgcGF0Y2ggY29tbWVu
-dCwgYW5kCj4+IHNwZW5kaW5nIG1vcmUgdGltZSByZWFkaW5nIHRoZSBib2R5IG9mIHRoZSBwYXRj
-aCwgaXQgd291bGQgYmUKPj4gdmVyeSBlYXN5IHRvIG92ZXJsb29rIHRoZSBleGlzdGVuY2Ugb2Yg
-dGhlIHByZXZpb3VzIHZlcnNpb25zIG9uCj4+IHRoZSBtYWlsIGxpc3QuCj4+Cj4+ICgyYikgU21h
-bGwgcXVpYmJsZTogIGlmIHRoZSBQYW50ZWxpcyBwYXRjaGVzIHdlcmUgaW4gYSBzZXBhcmF0ZSBz
-ZXJpZXMsCj4+IHdpdGggdjMgaW4gdGhlIHN1YmplY3QgaGVhZGVyLCB0aGVuIHlvdSB3b3VsZCBo
-YXZlIG5vcm1hbGx5IHB1dAo+PiBhICJjaGFuZ2VzIHNpbmNlIHYyIiBzZWN0aW9uIGluIHRoZSBw
-YXRjaCBjb21tZW50IGhlYWRlciwgd2hpY2ggd291bGQKPj4gaGF2ZSBiZWVuIG1vcmUgdmlzaWJs
-ZSBhbmQgbGVzcyBjcnlwdGljIHRoYW4gd2hhdCB5b3Ugd3JvdGUsIHdoaWNoIHdhczoKPj4KPj4g
-ICAgLi4uCj4+Cj4+ICAgIFNpZ25lZC1vZmYtYnk6IFBhbnRlbGlzIEFudG9uaW91IDxwYW50ZWxp
-cy5hbnRvbmlvdUBrb25zdWxrby5jb20+Cj4+ICAgIFtGaXhlZCBtZW1vcnkgbGVhayBpbiBfX29m
-X2NoYW5nZXNldF9hZGRfdXBkYXRlX3Byb3BlcnR5X2NvcHkoKV0KPj4gICAgU2lnbmVkLW9mZi1i
-eTogTGF1cmVudCBQaW5jaGFydAo+PiA8bGF1cmVudC5waW5jaGFydCtyZW5lc2FzQGlkZWFzb25i
-b2FyZC5jb20+Cj4+ICAgIC0tLQo+PiAgICAgZHJpdmVycy9vZi9keW5hbWljLmMgfCAyMjIgKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKwo+PiAgICAgaW5jbHVkZS9saW51eC9vZi5o
-ICAgfCAzMjggKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrCj4+
-ICAgICAyIGZpbGVzIGNoYW5nZWQsIDU1MCBpbnNlcnRpb25zKCspCj4+Cj4+IE15IG9yaWdpbmFs
-IHNjYW4gb2YgdmVyc2lvbiAyIGFuZCB0aGVuIHRoZSBlbWFpbCBpbiB0aGlzIHNlcmllcyBoYWQg
-bWUKPj4gcXVlc3Rpb25pbmcgd2hldGhlciB0aGUgdHdvIG9wZW4gaXNzdWVzIGZyb20gcGF0Y2gg
-MiBoYWQgYmVlbiBhZGRyZXNzZWQKPj4gKHllcywgcGF0Y2ggMC8xNiBkaWQgZXhwbGljaXRseSBt
-ZW50aW9uIHRoYXQgMiByZXZpZXcgY29tbWVudHMgaGFkIGJlZW4KPj4gdGFrZW4gaW50byBhY2Nv
-dW50LCBzbyB5b3UgY2FuIHBvaW50IGF0IG15IHBvb3IgcmVhZGluZyBjb21wcmVoZW5zaW9uKS4K
-PiAKPiBBbGwgcG9pbnRzIGR1bGx5IG5vdGVkLCBJJ2xsIG1ha2Ugc3VyZSBub3QgdG8gaW5jbHVk
-ZSBzaW1pbGFyIHBhdGNoZXMgaW4gdGhlIAo+IG1pZGRsZSBvZiBhIGRyaXZlciBzZXJpZXMgc2hv
-dWxkIEkgbmVlZCB0byByZXdvcmsgYSBwYXRjaCBzZXJpZXMgcHJldmlvdXNseSAKPiBwb3N0ZWQg
-Ynkgc29tZW9uZSBlbHNlLgo+IAo+IEkgYXNzdW1lIHlvdXIgY29tbWVudHMgYWxzbyBhcHBseSB0
-byBwYXRjaGVzIHRvIGRyaXZlcnMvb2YvIHRoYXQgYXJlIGRldmVsb3BlZCAKPiBhcyBwYXJ0IG9m
-IGEgZHJpdmVycyBzZXJpZXMsIG5vdCBtZXJlbHkgcHVsbGVkIGluIGl0ID8KClllcywgYXMgYSBu
-b3JtYWwgcHJvY2Vzcy4gIE9mIGNvdXJzZSB3ZSBmaW5kIGNhc2VzIHdoZXJlIGZvbGxvd2luZyBu
-b3JtYWwgcHJvY2VzcwpjYXVzZXMgcHJvYmxlbXMsIGFuZCBpdCBjYW4gYmUgYmV0dGVyIHRvIGRv
-IHNvbWV0aGluZyBkaWZmZXJlbnQgaW4gdGhvc2UgY2FzZXMuCgoKPiBJIGhhdmUgbWl4ZWQgZmVl
-bGluZ3MgCj4gYWJvdXQgdGhpcywgYXMgaW4gbWFueSBzdWJzeXN0ZW1zIGNoYW5nZXMgdG8gdGhl
-IGNvcmUgcmVxdWlyZSBhdCBsZWFzdCBvbmUgCj4gdXNlci4gQWx3YXlzIHNwbGl0dGluZyBjb3Jl
-IGFuZCBkcml2ZXIgY2hhbmdlcyBpbiBzZXBhcmF0ZSBzZXJpZXMgd291bGQgdGh1cyAKPiBvZnRl
-biBiZSBpbXByYWN0aWNhbC4KCklmIGF0IGFsbCByZWFzb25hYmxlLCBJIHdvdWxkIHN0aWxsIHBy
-ZWZlciB0byBzZWUgdHdvIHBhdGNoIHNlcmllcyBmb3IgdGhpcwpjYXNlLiAgSSB3b3VsZCBleHBl
-Y3QgYm90aCBzZXJpZXMgdG8gYmUgdXBzdHJlYW1lZCBieSBhIHNpbmdsZSBtYWludGFpbmVyCih3
-aXRoIHRoZSB0d28gaW52b2x2ZWQgbWFpbnRhaW5lcnMgY29vcmRpbmF0aW5nIHRoaXMgcHJvY2Vz
-cykuICBJIGhhdmUgbm90CnRob3VnaHQgdGhpcyB0aHJvdWdoIGluIGFueSBkZXRhaWwsIHNvIEkg
-ZG9uJ3Qga25vdyBpZiBJJ20gbWlzc2luZyBhIGJ1bmNoCm9mIGlzc3Vlcy4gIE9uZSBpc3N1ZSB0
-aGF0IEkgY2FuIHRoaW5rIG9mIGlzIGNsZWFybHkgZG9jdW1lbnRpbmcgd2hpY2gKdmVyc2lvbiBv
-ZiB0aGUgc3Vic3lzdGVtIHBhdGNoIHNlcmllcyBhbnkgZ2l2ZW4gdmVyc2lvbiBvZiB0aGUgZHJp
-dmVyIHBhdGNoCnNlcmllcyBkZXBlbmRzIHVwb24uICBUaGF0IHNob3VsZCBiZSBlYXN5IHRvIG5v
-dGUgaW4gcGF0Y2ggMCBvZiB0aGUgZHJpdmVyCnNlcmllcy4gIERvIHlvdSBoYXZlIGV4cGVyaWVu
-Y2Ugd2l0aCBhbnkgb3RoZXIgaXNzdWVzIGluIHRoaXMgc2NlbmFyaW8/CgpUaGlzIHNvdW5kcyBs
-aWtlIGEgZ29vZCB0b3BpYyB0byBpbmNsdWRlIGluIHRoZSAiR3VpZGUgdG8gQmVpbmcgQSBMaW51
-eCBLZXJuZWwKTWFpbnRhaW5lciIuCgoKPiBJIGRvdWJ0IHdlIHdpbGwgZmluZCBhIHNpbmdsZSBw
-cm9jZXNzIHRoYXQgd2lsbCBzdWl0IGFsbCBzdWJzeXN0ZW0gCj4gbWFpbnRhaW5lcnMsIHNvIG1h
-eWJlIHRoaXMgc2hvdWxkIGJlIGEgcGVyLXN1YnN5c3RlbSBkZWNpc2lvbiA/CgpUb3RhbGx5IGFn
-cmVlLiAgQW5kIGV2ZW4gZm9yIG1lLCBJIHNlZSBpdCBhcyBhIGd1aWRlbGluZSBvciBub3JtYWwg
-cHJvY2VzcywKd2l0aCBleGNlcHRpb25zIG1hZGUgd2hlcmUgaXQgbWFrZXMgc2Vuc2UuCgoKPj4g
-KDMpIFRoaXMgaXMgdG90YWxseSB1bnJlbGF0ZWQgdG8geW91ciBwYXRjaCBzZXJpZXMsIGJ1dCBJ
-J20gbGVhdmluZyBhIGJyZWFkCj4+IGNydW1iIHRyYWlsIGhlcmUuICBSb2IgcG9pbnRlZCB5b3Ug
-YXQgYSBwYXRjaCBzZXJpZXMgdGhhdCB3YXMgbm90IHRoZSBtb3N0Cj4+IHJlY2VudCB2ZXJzaW9u
-LiAgV2hlbiB0aGlzIHBhdGNoIHNlcmllcyBhcHBlYXJzIGFnYWluLCB0aGVyZSBhbHJlYWR5IGlz
-Cj4+IGEgdmVyc2lvbiAzIHN1YnNldCBvZiBpdCwgYnV0IGl0IGlzIHN0aWxsIGxhYmVsZWQgYXMg
-YmVpbmcgdmVyc2lvbiAyLCBhbmQKPj4gYWxzbyBoYXMgb3V0c3RhbmRpbmcgdW4tYWRkcmVzc2Vk
-IGlzc3Vlcy4gICgiW1BBVENIIHYyIDEvMl0gb2Y6IGR5bmFtaWM6Cj4+IEFkZCBfX29mX25vZGVf
-ZHVwdigpIiwgMTEvMDQvMTYpCj4gCj4gQWgsIHRoYW5rIHlvdSBmb3IgdGhlIGluZm9ybWF0aW9u
-LiBJIHdhcyBsb29raW5nIGZvciBhIHYzIGJ1dCBtaXNzZWQgdGhhdCBvbmUgCj4gYXMgaXQgd2Fz
-IGxhYmVsZWQgdjIuCj4gCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3Rv
-cC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmkt
-ZGV2ZWwK
+Family 16h Model 30h SMBus controller needs the same port selection fix
+as described and fixed in commit 0fe16195f891 ("i2c: piix4: Fix SMBus port
+selection for AMD Family 17h chips")
+
+commit 6befa3fde65f ("i2c: piix4: Support alternative port selection
+register") also fixed the port selection for Hudson2, but unfortunately
+this is not the exact same device and the AMD naming and PCI Device IDs
+aren't particularly helpful here.
+
+The SMBus port selection register is common to the following Families
+and models, as documented in AMD's publicly available BIOS and Kernel
+Developer Guides:
+
+ 50742 - Family 15h Model 60h-6Fh (PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)
+ 55072 - Family 15h Model 70h-7Fh (PCI_DEVICE_ID_AMD_KERNCZ_SMBUS)
+ 52740 - Family 16h Model 30h-3Fh (PCI_DEVICE_ID_AMD_HUDSON2_SMBUS)
+
+The Hudson2 PCI Device ID (PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) is shared
+between Bolton FCH and Family 16h Model 30h, but the location of the
+SmBus0Sel port selection bits are different:
+
+ 51192 - Bolton Register Reference Guide
+
+We distinguish between Bolton and Family 16h Model 30h using the PCI
+Revision ID:
+
+  Bolton is device 0x780b, revision 0x15
+  Family 16h Model 30h is device 0x780b, revision 0x1F
+  Family 15h Model 60h and 70h are both device 0x790b, revision 0x4A.
+
+The following additional public AMD BKDG documents were checked and do
+not share the same port selection register:
+
+ 42301 - Family 15h Model 00h-0Fh doesn't mention any
+ 42300 - Family 15h Model 10h-1Fh doesn't mention any
+ 49125 - Family 15h Model 30h-3Fh doesn't mention any
+
+ 48751 - Family 16h Model 00h-0Fh uses the previously supported
+         index register SB800_PIIX4_PORT_IDX_ALT at 0x2e
+
+Signed-off-by: Andrew Cooks <andrew.cooks@opengear.com>
+---
+ drivers/i2c/busses/i2c-piix4.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 174579d..5c90a44 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -99,7 +99,7 @@
+ #define SB800_PIIX4_PORT_IDX_MASK	0x06
+ #define SB800_PIIX4_PORT_IDX_SHIFT	1
+ 
+-/* On kerncz, SmBus0Sel is at bit 20:19 of PMx00 DecodeEn */
++/* On kerncz and Hudson2, SmBus0Sel is at bit 20:19 of PMx00 DecodeEn */
+ #define SB800_PIIX4_PORT_IDX_KERNCZ		0x02
+ #define SB800_PIIX4_PORT_IDX_MASK_KERNCZ	0x18
+ #define SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ	3
+@@ -359,18 +359,16 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 
+ 	/* Find which register is used for port selection */
+ 	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD) {
+-		switch (PIIX4_dev->device) {
+-		case PCI_DEVICE_ID_AMD_KERNCZ_SMBUS:
++		if ((PIIX4_dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) ||
++		    (PIIX4_dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS &&
++			   PIIX4_dev->revision >= 0x1F)) {
+ 			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_KERNCZ;
+ 			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK_KERNCZ;
+ 			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT_KERNCZ;
+-			break;
+-		case PCI_DEVICE_ID_AMD_HUDSON2_SMBUS:
+-		default:
++		} else {
+ 			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_ALT;
+ 			piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
+ 			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
+-			break;
+ 		}
+ 	} else {
+ 		mutex_lock(&piix4_mutex_sb800);
+-- 
+2.7.4
