@@ -1,67 +1,124 @@
-From: Nicholas Mc Guire <der.herr@hofr.at>
-Subject: Re: [SIL2review] [PATCH] i2c: cadence: Fix PM device usage count
-Date: Mon, 26 Feb 2018 09:20:07 +0000
-Message-ID: <20180226092007.GC6152@osadl.at>
-References: <20180224224238.nlr3mrifwngjzkrz@agrajag.zerfleddert.de>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: Re: [PATCH v2 2/2] i2c: add support for Socionext SynQuacer I2C controller
+Date: Mon, 26 Feb 2018 09:59:33 +0000
+Message-ID: <CAKv+Gu__HiajW5fWvRnDft3+ef+gOowijxEd8wrF4U5Vu=3o0Q@mail.gmail.com>
+References: <20180222191647.4727-1-ard.biesheuvel@linaro.org>
+ <20180222191647.4727-3-ard.biesheuvel@linaro.org> <CAHp75Vc1AGzdgTB281XVo=FmZerkU1vijLih3JUO=_wNPjxgfA@mail.gmail.com>
+ <CAKv+Gu9XkmSPHZf+jVKOm-SX1GCWJUc7y3zTCuaHBwk8O3OC3Q@mail.gmail.com> <CAHp75VfFKDkQQ9-vdjzDfE2Cdk2Cb93+kdceYQgEqt3hti=Wkg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180224224238.nlr3mrifwngjzkrz@agrajag.zerfleddert.de>
+In-Reply-To: <CAHp75VfFKDkQQ9-vdjzDfE2Cdk2Cb93+kdceYQgEqt3hti=Wkg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tobias Jordan <Tobias.Jordan@elektrobit.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>, Wolfram Sang <wsa@the-dreams.de>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, Jassi Brar <jassisinghbrar@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Feb 24, 2018 at 11:42:38PM +0100, Tobias Jordan wrote:
-> pm_runtime_get_sync() increases the device's usage count even when
-> reporting an error, so add a call to pm_runtime_put_noidle() in the
-> error branch.
-> 
-> Fixes: 7fa32329ca03 ("i2c: cadence: Move to sensible power management")
-> Signed-off-by: Tobias Jordan <Tobias.Jordan@elektrobit.com>
-> ---
-> This is one of a number of patches for problems found using coccinelle
-> scripting in the SIL2LinuxMP project. The patch has been compile-tested;
-> it's based on linux-next-20180223.
-> 
-> For a discussion of the corresponding issue, see
-> https://marc.info/?l=linux-pm&m=151904483924999&w=2
+On 23 February 2018 at 13:12, Andy Shevchenko <andy.shevchenko@gmail.com> wrote:
+> On Fri, Feb 23, 2018 at 2:40 PM, Ard Biesheuvel
+> <ard.biesheuvel@linaro.org> wrote:
+>> On 23 February 2018 at 12:27, Andy Shevchenko <andy.shevchenko@gmail.com> wrote:
+>>> On Thu, Feb 22, 2018 at 9:16 PM, Ard Biesheuvel
+>>> <ard.biesheuvel@linaro.org> wrote:
+...
+>>>> +       ret = device_property_read_u32(&pdev->dev, "clock-frequency",
+>>>> +                                      &speed_khz);
+>>>> +       if (ret) {
+>>>> +               dev_err(&pdev->dev,
+>>>> +                       "Missing clock-frequency property\n");
+>>>> +               return -EINVAL;
+>>>> +       }
+>>>> +       speed_khz /= 1000;
+>
+>>>> +       if (dev_of_node(&pdev->dev)) {
+>>>> +               i2c->clk = devm_clk_get(&pdev->dev, "pclk");
+>>>> +               if (IS_ERR(i2c->clk)) {
+>>>> +                       dev_err(&pdev->dev, "cannot get clock\n");
+>>>> +                       return PTR_ERR(i2c->clk);
+>>>> +               }
+>>>> +               dev_dbg(&pdev->dev, "clock source %p\n", i2c->clk);
+>>>> +
+>>>> +               i2c->clkrate = clk_get_rate(i2c->clk);
+>>>> +               dev_dbg(&pdev->dev, "clock rate %d\n", i2c->clkrate);
+>>>> +               clk_prepare_enable(i2c->clk);
+>>>> +       } else {
+>>>> +               ret = device_property_read_u32(&pdev->dev,
+>>>> +                                              "socionext,pclk-rate",
+>>>> +                                              &i2c->clkrate);
+>>>> +               if (ret)
+>>>> +                       return ret;
+>>>> +       }
+>>>
+>>> Okay, I got this case. It's more likely the one in 8250_dw.c.
+>>>
+>>> Can you do the similar way?
+>
+>> Could you elaborate?
+>
+> --- 8< --- 8< --- 8< ---
+>         device_property_read_u32(dev, "clock-frequency", &p->uartclk);
+>
+>        /* If there is separate baudclk, get the rate from it. */
+>        data->clk = devm_clk_get(dev, "baudclk");
+> ...
+>        if (IS_ERR(data->clk) && PTR_ERR(data->clk) == -EPROBE_DEFER)
+>                return -EPROBE_DEFER;
+>        if (!IS_ERR_OR_NULL(data->clk)) {
+>                err = clk_prepare_enable(data->clk);
+>                if (err)
+>                        dev_warn(dev, "could not enable optional baudclk: %d\n",
+>                                 err);
+>                else
+>                        p->uartclk = clk_get_rate(data->clk);
+>        }
+>
+>        /* If no clock rate is defined, fail. */
+>        if (!p->uartclk) {
+>                dev_err(dev, "clock rate not defined\n");
+>                err = -EINVAL;
+>                goto err_clk;
+> --- 8< --- 8< --- 8< ---
+>
+> Replace 'baudclk' with 'pclk' and p->uartclk with i2c->clkrate in
+> above and you are almost done.
+>
 
-just wondering if that should not be above the --- as:
+I don't think this is better. The generic DT I2C 'clock-frequency'
+property denotes the bus clock rate not the rate of the clock that
+feeds the IP block. This is rather different from the UART bindings.
 
-Link: https://marc.info/?l=linux-pm&m=151904483924999&w=2
+Also, I don't want to support 'socionext,pclk-rate' for DT platforms,
+only for ACPI platforms.
 
-notably as the discussion about why not to fix it in __pm_runtime_resume
-would seem reasonable to carry into the mainline logs.
+>>>> +       i2c->irq = platform_get_irq(pdev, 0);
+>>>> +       if (i2c->irq <= 0) {
+>>>
+>>> < 0 ?
+>>>
+>>> On some platforms IRQ == 0 might be valid.
+>
+>> Are you sure about that?
+>
+> Yes. I fixed some cases on one of a such.
+>
+>> http://yarchive.net/comp/linux/no_irq.html
+>
+> I agree with Linus from software IRQ (and nowadays luckily we are
+> using IRQ descriptors), but I disagree with him from hardware
+> prospective.
+> 0 is totally valid HW IRQ line. In hardware there is no descriptor
+> (except, yes, MSI and alike cases), it's just a wire with an index.
+>
+> So, while drivers are getting better in code prospective (though I
+> don't see many of them comparing this to 0), the IRQ framework is
+> changing itself as well.
+>
+> At which circumstances we might get 0 in the first place?
+>
+> Second question, doesn't request_irq() fail on irq==0 if it's not
+> supported as valid by platform?
+>
 
-thx!
-hforat
+Yes, I suppose it does.
 
-> 
->  drivers/i2c/busses/i2c-cadence.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-> index b13605718291..898faa7fbac5 100644
-> --- a/drivers/i2c/busses/i2c-cadence.c
-> +++ b/drivers/i2c/busses/i2c-cadence.c
-> @@ -574,8 +574,10 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->  	bool hold_quirk;
->  
->  	ret = pm_runtime_get_sync(id->dev);
-> -	if (ret < 0)
-> +	if (ret < 0) {
-> +		pm_runtime_put_noidle(id->dev);
->  		return ret;
-> +	}
->  	/* Check if the bus is free */
->  	if (cdns_i2c_readreg(CDNS_I2C_SR_OFFSET) & CDNS_I2C_SR_BA) {
->  		ret = -EAGAIN;
-> -- 
-> 2.11.0
-> 
-> _______________________________________________
-> SIL2review mailing list
-> SIL2review@lists.osadl.org
-> https://lists.osadl.org/mailman/listinfo/sil2review
+I'll change it to '< 0'
