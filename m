@@ -1,140 +1,68 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v2 2/7] i3c: Add core I3C infrastructure
-Date: Mon, 26 Feb 2018 22:38:53 +0100
-Message-ID: <20180226223853.53163adc@bbrezillon>
-References: <20171214151610.19153-1-boris.brezillon@free-electrons.com>
-        <20171214151610.19153-3-boris.brezillon@free-electrons.com>
-        <b39f9016-b2ff-6d8d-96b3-945f32ab2b67@synopsys.com>
-        <20180223213000.407461d2@bbrezillon>
-        <1b8fe82f-079b-6f55-0e59-5773027faa8e@synopsys.com>
-        <20180226213607.7161bb0a@bbrezillon>
-        <20180226214032.1c3f929a@bbrezillon>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 2/2] i2c: piix4: Use request_muxed_region
+Date: Mon, 26 Feb 2018 22:43:07 +0100
+Message-ID: <20180226214307.irourq2svpd7ok7e@ninjato>
+References: <1519678013-32749-1-git-send-email-linux@roeck-us.net>
+ <1519678013-32749-2-git-send-email-linux@roeck-us.net>
+ <20180226205204.p37lf7dcl5k7az37@ninjato>
+ <20180226213406.GB2211@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="s4l73sjh4hth2fsg"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180226214032.1c3f929a@bbrezillon>
+Content-Disposition: inline
+In-Reply-To: <20180226213406.GB2211@roeck-us.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vitor Soares <Vitor.Soares@synopsys.com>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 26 Feb 2018 21:40:32 +0100
-Boris Brezillon <boris.brezillon@bootlin.com> wrote:
 
-> On Mon, 26 Feb 2018 21:36:07 +0100
-> Boris Brezillon <boris.brezillon@bootlin.com> wrote:
-> 
-> > > >>> +
-> > > >>> +/**
-> > > >>> + * struct i3c_master_controller_ops - I3C master methods
-> > > >>> + * @bus_init: hook responsible for the I3C bus initialization. This
-> > > >>> + *	      initialization should follow the steps described in the I3C
-> > > >>> + *	      specification. This hook is called with the bus lock held in
-> > > >>> + *	      write mode, which means all _locked() helpers can safely be
-> > > >>> + *	      called from there
-> > > >>> + * @bus_cleanup: cleanup everything done in
-> > > >>> + *		 &i3c_master_controller_ops->bus_init(). This function is
-> > > >>> + *		 optional and should only be implemented if
-> > > >>> + *		 &i3c_master_controller_ops->bus_init() attached private data
-> > > >>> + *		 to I3C/I2C devices. This hook is called with the bus lock
-> > > >>> + *		 held in write mode, which means all _locked() helpers can
-> > > >>> + *		 safely be called from there
-> > > >>> + * @supports_ccc_cmd: should return true if the CCC command is supported, false
-> > > >>> + *		      otherwise
-> > > >>> + * @send_ccc_cmd: send a CCC command
-> > > >>> + * @send_hdr_cmds: send one or several HDR commands. If there is more than one
-> > > >>> + *		   command, they should ideally be sent in the same HDR
-> > > >>> + *		   transaction
-> > > >>> + * @priv_xfers: do one or several private I3C SDR transfers
-> > > >>> + * @i2c_xfers: do one or several I2C transfers
-> > > >>> + * @request_ibi: attach an IBI handler to an I3C device. This implies defining
-> > > >>> + *		 an IBI handler and the constraints of the IBI (maximum payload
-> > > >>> + *		 length and number of pre-allocated slots).
-> > > >>> + *		 Some controllers support less IBI-capable devices than regular
-> > > >>> + *		 devices, so this method might return -%EBUSY if there's no
-> > > >>> + *		 more space for an extra IBI registration
-> > > >>> + * @free_ibi: free an IBI previously requested with ->request_ibi(). The IBI
-> > > >>> + *	      should have been disabled with ->disable_irq() prior to that
-> > > >>> + * @enable_ibi: enable the IBI. Only valid if ->request_ibi() has been called
-> > > >>> + *		prior to ->enable_ibi(). The controller should first enable
-> > > >>> + *		the IBI on the controller end (for example, unmask the hardware
-> > > >>> + *		IRQ) and then send the ENEC CCC command (with the IBI flag set)
-> > > >>> + *		to the I3C device
-> > > >>> + * @disable_ibi: disable an IBI. First send the DISEC CCC command with the IBI
-> > > >>> + *		 flag set and then deactivate the hardware IRQ on the
-> > > >>> + *		 controller end
-> > > >>> + * @recycle_ibi_slot: recycle an IBI slot. Called every time an IBI has been
-> > > >>> + *		      processed by its handler. The IBI slot should be put back
-> > > >>> + *		      in the IBI slot pool so that the controller can re-use it
-> > > >>> + *		      for a future IBI
-> > > >>> + *
-> > > >>> + * One of the most important hooks in these ops is
-> > > >>> + * &i3c_master_controller_ops->bus_init(). Here is a non-exhaustive list of
-> > > >>> + * things that should be done in &i3c_master_controller_ops->bus_init():
-> > > >>> + *
-> > > >>> + * 1) call i3c_master_set_info() with all information describing the master
-> > > >>> + * 2) ask all slaves to drop their dynamic address by sending the RSTDAA CCC
-> > > >>> + *    with i3c_master_rstdaa_locked()
-> > > >>> + * 3) ask all slaves to disable IBIs using i3c_master_disec_locked()
-> > > >>> + * 4) start a DDA procedure by sending the ENTDAA CCC with
-> > > >>> + *    i3c_master_entdaa_locked(), or using the internal DAA logic provided by
-> > > >>> + *    your controller        
-> > > >> You mean SETDASA CCC command?      
-> > > > No, I really mean ENTDAA and DAA. By internal DAA logic I mean that
-> > > > some controllers are probably automating the whole DAA procedure, while
-> > > > others may let the SW control every step.      
-> > > My understanding is that i3c_master_entdaa_locked() will trigger the DAA process
-> > > and DAA can be done by SETDASA, ENTDAA and later after the bus initialization
-> > > with SETNEWDA.    
-> > 
-> > No. Only ENTDAA can trigger a DAA procedure. SETDASA is here to assign
-> > a single dynamic address to a device that already has a static address
-> > but no dynamic address yet, and SETNEWDA is here to modify the dynamic
-> > address of a device that already has one.
-> >   
-> > > 
-> > > I think the DAA process should be more generic, right now is only made through
-> > > the ENTDAA command with (cmd.ndests = 1).
-> > > I mean, shouldn't this be made by the core? First doing DAA for the devices
-> > > declared and them try do discover the rest of devices on the bus.    
-> > 
-> > Can you detail a bit more? If the only part you're complaining about is
-> > pre-assignment of dynamic addresses with SETDASA when a device is
-> > declared in the DT with a reg and dynamic-address property, then yes, I
-> > think I can provide an helper for that. But this helper would still have
-> > to be called from the master controller driver (from ->bus_init() or
-> > after a Hot-Join).
-> > 
-> > Now, if the question is, is there a way we can automate things even more
-> > and completely implement DAA from the core? I doubt it, because the way
-> > the core will trigger DAA, expose discovered devices or allow you to
-> > declare manually assigned addresses is likely to be
-> > controller-dependent.
-> > When I designed the framework I took the decision to base my work on the
-> > spec rather than focusing on the I3C master controller I had to support
-> > (Cadence). This is the reason I decided to keep the interface as simple
-> > as possible at the risk of encouraging code-duplication (at first)
-> > rather than coming up with an interface that is designed with a single
-> > controller in mind and having to break things every time a new
-> > controller comes out.
-> > 
-> > Thank you for you comments, but I'd like to know if some of my design
-> > choices are blocking you to support your controller. What I've seen so
-> > far is a collection of things that might be relevant to fix (though
-> > most of them are subject to interpretation and/or a matter of taste),
-> > but nothing that should really block you.  
-> 
-> Well, that's not entirely true: I agree that something is missing in
-> ->priv_xfers() to let the controller know about the device limitations,  
-> and this could be a blocking aspect.
-> 
+--s4l73sjh4hth2fsg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-And I2C functionalities might differ between I3C master controllers, so
-that's also something we should transfer to the I3C master driver
-instead of imposing it in the core.
 
--- 
-Boris Brezillon, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+> It is an alternate and somewhat simpler solution which does not
+> attempt to change the kernel API. My primary goal was to find
+> a solution for the immediate problem between the watchdog and
+> i2c drivers. My solution does not attempt to fix the access problem
+> for (initialization) functions with no return code. At the same time,
+> I prefer to use functions which _do_ return an error if that is possible
+> since it _may_ after all be that there are other users calling
+> request_region().
+>=20
+> Having said that, I'll be just as happy if Zoltan's series is accepted
+> instead of this patch (except for patch #5; the watchdog driver has
+> already been converted to use request_muxed_region).
+
+Thanks for the explanation!
+
+So, as I understand: I can apply this patch to fix the immediate (and
+long standing) problem and decouple it from the API change. The latter
+can then still be worked on and the changes for the piix driver should
+then be minimal. Correct?
+
+
+--s4l73sjh4hth2fsg
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqUf2cACgkQFA3kzBSg
+Kba3LxAAsobSsNiTDRldEyuRL/J4kp5qQQ/GpWp2s85qh24XH5N+1zcDQ3cpZ10c
+PAevGlg41l2vB4jz4qhAwW8PPBKYAvhRIutg06Nynci2Ic0pxGxKkKNdBfJKaaik
+qaCh9PnVbGtwBJOR3GbnpgOUS7ZZIOBZ6vh56phEtXNqRZV9Vpa+GlLFt3Xyp6jv
+KkRBUcqck3V3Lnbe3wZmLSU8n11B3AzhDFcIluKXT1zmiZA/klPdDg38H2WMwAHK
+mXhcT/2fk6mCbhoFnTzsgq5l3C8a3ihtknzhcV0F4oaX4nQ2m41lG//zZOksn6uu
+4NcCvXdR9IcbI4rFc1d1D6air9MFQFW9q4iWa0Qix95BV7alj/hvU7TqcgsrEQ98
+gZZow6YTGJGs7pFXK5oZ/XHKTJ2UHRUUzdOVXJlET9MI+2oom5giAtVzlN8f56O7
+HYABkn8edwkeBaVYVoBkkxMS/Mk6UqmPyVYNGuqRNt/jCLsU3Te3PM4oL3YGZ0c2
+DoAq61fgENXt6ytnv7eh44XHnBNDJOh0YIWjfZOaFx/3Ty+H65FOGmxwmD2w+b2q
+eku1Le5+9dFVN5Mr/Oen0PbvfvSSV33J4DFB1Bc7qKn+vgPVpg/ZB3m6t3rZLQyP
+cyROzqhvAhpgcTx6KQR0wNQufAYL3/wbxmSeChDfdKNBYpUYGy8=
+=Ids+
+-----END PGP SIGNATURE-----
+
+--s4l73sjh4hth2fsg--
