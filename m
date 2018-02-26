@@ -1,131 +1,182 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v2 2/7] i3c: Add core I3C infrastructure
-Date: Mon, 26 Feb 2018 21:40:32 +0100
-Message-ID: <20180226214032.1c3f929a@bbrezillon>
-References: <20171214151610.19153-1-boris.brezillon@free-electrons.com>
-        <20171214151610.19153-3-boris.brezillon@free-electrons.com>
-        <b39f9016-b2ff-6d8d-96b3-945f32ab2b67@synopsys.com>
-        <20180223213000.407461d2@bbrezillon>
-        <1b8fe82f-079b-6f55-0e59-5773027faa8e@synopsys.com>
-        <20180226213607.7161bb0a@bbrezillon>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH v2 2/2] i2c: piix4: Use request_muxed_region
+Date: Mon, 26 Feb 2018 12:46:53 -0800
+Message-ID: <1519678013-32749-2-git-send-email-linux@roeck-us.net>
+References: <1519678013-32749-1-git-send-email-linux@roeck-us.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180226213607.7161bb0a@bbrezillon>
+In-Reply-To: <1519678013-32749-1-git-send-email-linux@roeck-us.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vitor Soares <Vitor.Soares@synopsys.com>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian
+To: Jean Delvare <jdelvare@suse.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 26 Feb 2018 21:36:07 +0100
-Boris Brezillon <boris.brezillon@bootlin.com> wrote:
+Accesses to SB800_PIIX4_SMB_IDX can occur from multiple drivers.
+One example for another driver is the sp5100_tco driver.
 
-> > >>> +
-> > >>> +/**
-> > >>> + * struct i3c_master_controller_ops - I3C master methods
-> > >>> + * @bus_init: hook responsible for the I3C bus initialization. This
-> > >>> + *	      initialization should follow the steps described in the I3C
-> > >>> + *	      specification. This hook is called with the bus lock held in
-> > >>> + *	      write mode, which means all _locked() helpers can safely be
-> > >>> + *	      called from there
-> > >>> + * @bus_cleanup: cleanup everything done in
-> > >>> + *		 &i3c_master_controller_ops->bus_init(). This function is
-> > >>> + *		 optional and should only be implemented if
-> > >>> + *		 &i3c_master_controller_ops->bus_init() attached private data
-> > >>> + *		 to I3C/I2C devices. This hook is called with the bus lock
-> > >>> + *		 held in write mode, which means all _locked() helpers can
-> > >>> + *		 safely be called from there
-> > >>> + * @supports_ccc_cmd: should return true if the CCC command is supported, false
-> > >>> + *		      otherwise
-> > >>> + * @send_ccc_cmd: send a CCC command
-> > >>> + * @send_hdr_cmds: send one or several HDR commands. If there is more than one
-> > >>> + *		   command, they should ideally be sent in the same HDR
-> > >>> + *		   transaction
-> > >>> + * @priv_xfers: do one or several private I3C SDR transfers
-> > >>> + * @i2c_xfers: do one or several I2C transfers
-> > >>> + * @request_ibi: attach an IBI handler to an I3C device. This implies defining
-> > >>> + *		 an IBI handler and the constraints of the IBI (maximum payload
-> > >>> + *		 length and number of pre-allocated slots).
-> > >>> + *		 Some controllers support less IBI-capable devices than regular
-> > >>> + *		 devices, so this method might return -%EBUSY if there's no
-> > >>> + *		 more space for an extra IBI registration
-> > >>> + * @free_ibi: free an IBI previously requested with ->request_ibi(). The IBI
-> > >>> + *	      should have been disabled with ->disable_irq() prior to that
-> > >>> + * @enable_ibi: enable the IBI. Only valid if ->request_ibi() has been called
-> > >>> + *		prior to ->enable_ibi(). The controller should first enable
-> > >>> + *		the IBI on the controller end (for example, unmask the hardware
-> > >>> + *		IRQ) and then send the ENEC CCC command (with the IBI flag set)
-> > >>> + *		to the I3C device
-> > >>> + * @disable_ibi: disable an IBI. First send the DISEC CCC command with the IBI
-> > >>> + *		 flag set and then deactivate the hardware IRQ on the
-> > >>> + *		 controller end
-> > >>> + * @recycle_ibi_slot: recycle an IBI slot. Called every time an IBI has been
-> > >>> + *		      processed by its handler. The IBI slot should be put back
-> > >>> + *		      in the IBI slot pool so that the controller can re-use it
-> > >>> + *		      for a future IBI
-> > >>> + *
-> > >>> + * One of the most important hooks in these ops is
-> > >>> + * &i3c_master_controller_ops->bus_init(). Here is a non-exhaustive list of
-> > >>> + * things that should be done in &i3c_master_controller_ops->bus_init():
-> > >>> + *
-> > >>> + * 1) call i3c_master_set_info() with all information describing the master
-> > >>> + * 2) ask all slaves to drop their dynamic address by sending the RSTDAA CCC
-> > >>> + *    with i3c_master_rstdaa_locked()
-> > >>> + * 3) ask all slaves to disable IBIs using i3c_master_disec_locked()
-> > >>> + * 4) start a DDA procedure by sending the ENTDAA CCC with
-> > >>> + *    i3c_master_entdaa_locked(), or using the internal DAA logic provided by
-> > >>> + *    your controller      
-> > >> You mean SETDASA CCC command?    
-> > > No, I really mean ENTDAA and DAA. By internal DAA logic I mean that
-> > > some controllers are probably automating the whole DAA procedure, while
-> > > others may let the SW control every step.    
-> > My understanding is that i3c_master_entdaa_locked() will trigger the DAA process
-> > and DAA can be done by SETDASA, ENTDAA and later after the bus initialization
-> > with SETNEWDA.  
-> 
-> No. Only ENTDAA can trigger a DAA procedure. SETDASA is here to assign
-> a single dynamic address to a device that already has a static address
-> but no dynamic address yet, and SETNEWDA is here to modify the dynamic
-> address of a device that already has one.
-> 
-> > 
-> > I think the DAA process should be more generic, right now is only made through
-> > the ENTDAA command with (cmd.ndests = 1).
-> > I mean, shouldn't this be made by the core? First doing DAA for the devices
-> > declared and them try do discover the rest of devices on the bus.  
-> 
-> Can you detail a bit more? If the only part you're complaining about is
-> pre-assignment of dynamic addresses with SETDASA when a device is
-> declared in the DT with a reg and dynamic-address property, then yes, I
-> think I can provide an helper for that. But this helper would still have
-> to be called from the master controller driver (from ->bus_init() or
-> after a Hot-Join).
-> 
-> Now, if the question is, is there a way we can automate things even more
-> and completely implement DAA from the core? I doubt it, because the way
-> the core will trigger DAA, expose discovered devices or allow you to
-> declare manually assigned addresses is likely to be
-> controller-dependent.
-> When I designed the framework I took the decision to base my work on the
-> spec rather than focusing on the I3C master controller I had to support
-> (Cadence). This is the reason I decided to keep the interface as simple
-> as possible at the risk of encouraging code-duplication (at first)
-> rather than coming up with an interface that is designed with a single
-> controller in mind and having to break things every time a new
-> controller comes out.
-> 
-> Thank you for you comments, but I'd like to know if some of my design
-> choices are blocking you to support your controller. What I've seen so
-> far is a collection of things that might be relevant to fix (though
-> most of them are subject to interpretation and/or a matter of taste),
-> but nothing that should really block you.
+Use request_muxed_region() to ensure synchronization.
 
-Well, that's not entirely true: I agree that something is missing in
-->priv_xfers() to let the controller know about the device limitations,
-and this could be a blocking aspect.
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+v2: Dropped now unnecessary include of linux/mutex.h
+    Added error message if request_muxed_region() fails
+    Spell out affected driver in commit message
 
+Note that I did not try to do a performance analysis.
+Doing so seemed excessive, even more so in the context of
+piix4_imc_sleep() already using request_muxed_region(). 
+
+ drivers/i2c/busses/i2c-piix4.c | 55 +++++++++++++++++++-----------------------
+ 1 file changed, 25 insertions(+), 30 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 4c1f6aaec0fc..90946a8b9a75 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -40,7 +40,6 @@
+ #include <linux/dmi.h>
+ #include <linux/acpi.h>
+ #include <linux/io.h>
+-#include <linux/mutex.h>
+ 
+ 
+ /* PIIX4 SMBus address offsets */
+@@ -153,10 +152,7 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
+ 
+ /*
+  * SB800 globals
+- * piix4_mutex_sb800 protects piix4_port_sel_sb800 and the pair
+- * of I/O ports at SB800_PIIX4_SMB_IDX.
+  */
+-static DEFINE_MUTEX(piix4_mutex_sb800);
+ static u8 piix4_port_sel_sb800;
+ static u8 piix4_port_mask_sb800;
+ static u8 piix4_port_shift_sb800;
+@@ -298,12 +294,19 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 	else
+ 		smb_en = (aux) ? 0x28 : 0x2c;
+ 
+-	mutex_lock(&piix4_mutex_sb800);
++	if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2, "sb800_piix4_smb")) {
++		dev_err(&PIIX4_dev->dev,
++			"SMB base address index region 0x%x already in use.\n",
++			SB800_PIIX4_SMB_IDX);
++		return -EBUSY;
++	}
++
+ 	outb_p(smb_en, SB800_PIIX4_SMB_IDX);
+ 	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
+ 	outb_p(smb_en + 1, SB800_PIIX4_SMB_IDX);
+ 	smba_en_hi = inb_p(SB800_PIIX4_SMB_IDX + 1);
+-	mutex_unlock(&piix4_mutex_sb800);
++
++	release_region(SB800_PIIX4_SMB_IDX, 2);
+ 
+ 	if (!smb_en) {
+ 		smb_en_status = smba_en_lo & 0x10;
+@@ -373,7 +376,12 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 			break;
+ 		}
+ 	} else {
+-		mutex_lock(&piix4_mutex_sb800);
++		if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2,
++					  "sb800_piix4_smb")) {
++			release_region(piix4_smba, SMBIOSIZE);
++			return -EBUSY;
++		}
++
+ 		outb_p(SB800_PIIX4_PORT_IDX_SEL, SB800_PIIX4_SMB_IDX);
+ 		port_sel = inb_p(SB800_PIIX4_SMB_IDX + 1);
+ 		piix4_port_sel_sb800 = (port_sel & 0x01) ?
+@@ -381,7 +389,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 				       SB800_PIIX4_PORT_IDX;
+ 		piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
+ 		piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
+-		mutex_unlock(&piix4_mutex_sb800);
++		release_region(SB800_PIIX4_SMB_IDX, 2);
+ 	}
+ 
+ 	dev_info(&PIIX4_dev->dev,
+@@ -679,7 +687,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+ 	u8 port;
+ 	int retval;
+ 
+-	mutex_lock(&piix4_mutex_sb800);
++	if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2, "sb800_piix4_smb"))
++		return -EBUSY;
+ 
+ 	/* Request the SMBUS semaphore, avoid conflicts with the IMC */
+ 	smbslvcnt  = inb_p(SMBSLVCNT);
+@@ -695,8 +704,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+ 	} while (--retries);
+ 	/* SMBus is still owned by the IMC, we give up */
+ 	if (!retries) {
+-		mutex_unlock(&piix4_mutex_sb800);
+-		return -EBUSY;
++		retval = -EBUSY;
++		goto release;
+ 	}
+ 
+ 	/*
+@@ -753,8 +762,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+ 	if ((size == I2C_SMBUS_BLOCK_DATA) && adapdata->notify_imc)
+ 		piix4_imc_wakeup();
+ 
+-	mutex_unlock(&piix4_mutex_sb800);
+-
++release:
++	release_region(SB800_PIIX4_SMB_IDX, 2);
+ 	return retval;
+ }
+ 
+@@ -899,13 +908,6 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 		bool notify_imc = false;
+ 		is_sb800 = true;
+ 
+-		if (!request_region(SB800_PIIX4_SMB_IDX, 2, "smba_idx")) {
+-			dev_err(&dev->dev,
+-			"SMBus base address index region 0x%x already in use!\n",
+-			SB800_PIIX4_SMB_IDX);
+-			return -EBUSY;
+-		}
+-
+ 		if (dev->vendor == PCI_VENDOR_ID_AMD &&
+ 		    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
+ 			u8 imc;
+@@ -922,20 +924,16 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 
+ 		/* base address location etc changed in SB800 */
+ 		retval = piix4_setup_sb800(dev, id, 0);
+-		if (retval < 0) {
+-			release_region(SB800_PIIX4_SMB_IDX, 2);
++		if (retval < 0)
+ 			return retval;
+-		}
+ 
+ 		/*
+ 		 * Try to register multiplexed main SMBus adapter,
+ 		 * give up if we can't
+ 		 */
+ 		retval = piix4_add_adapters_sb800(dev, retval, notify_imc);
+-		if (retval < 0) {
+-			release_region(SB800_PIIX4_SMB_IDX, 2);
++		if (retval < 0)
+ 			return retval;
+-		}
+ 	} else {
+ 		retval = piix4_setup(dev, id);
+ 		if (retval < 0)
+@@ -983,11 +981,8 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
+ 
+ 	if (adapdata->smba) {
+ 		i2c_del_adapter(adap);
+-		if (adapdata->port == (0 << piix4_port_shift_sb800)) {
++		if (adapdata->port == (0 << piix4_port_shift_sb800))
+ 			release_region(adapdata->smba, SMBIOSIZE);
+-			if (adapdata->sb800_main)
+-				release_region(SB800_PIIX4_SMB_IDX, 2);
+-		}
+ 		kfree(adapdata);
+ 		kfree(adap);
+ 	}
 -- 
-Boris Brezillon, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.7.4
