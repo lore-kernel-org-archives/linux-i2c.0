@@ -1,47 +1,62 @@
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH v3 0/2] add support for Socionext SynQuacer I2C controller
-Date: Tue, 27 Feb 2018 11:01:05 +0000
-Message-ID: <20180227110107.30259-1-ard.biesheuvel@linaro.org>
+From: George Cherian <george.cherian@cavium.com>
+Subject: [PATCH 2/3] i2c: xlp9xx: Handle NACK on DATA properly
+Date: Tue, 27 Feb 2018 13:26:19 +0000
+Message-ID: <1519737980-27997-2-git-send-email-george.cherian@cavium.com>
+References: <1519737980-27997-1-git-send-email-george.cherian@cavium.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
-Cc: andy.shevchenko@gmail.com, jassisinghbrar@gmail.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1519737980-27997-1-git-send-email-george.cherian@cavium.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: wsa@the-dreams.de, George Cherian <george.cherian@cavium.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Add a binding and a driver for the I2C IP found in the Socionext SynQuacer
-SoC, which is essentially a rebranded version of the Fujitsu F_I2C controller.
+In case we receive NACK on DATA we shouldn't be resetting the controller,
+rather we should issue STOP command. This will terminate the current
+transaction and -EIO is returned.
 
-v3:
-- incorporate more of Andy's review comments (#2), especially regarding the
-  bus speed and clock source handling for ACPI
-- patch #1 unchanged.
+While at that handle the SMBus Quick Command properly.
+We shouldn't be setting the XLP9XX_I2C_CMD_READ/WRITE for such
+transactions.
 
-v2:
-- incorporate Andy's review comments (#2)
-- patch #1 unchanged.
+Signed-off-by: George Cherian <george.cherian@cavium.com>
+---
+ drivers/i2c/busses/i2c-xlp9xx.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-Ard Biesheuvel (2):
-  dt-bindings: i2c: add binding for Socionext SynQuacer I2C
-  i2c: add support for Socionext SynQuacer I2C controller
-
- Documentation/devicetree/bindings/i2c/i2c-synquacer.txt |  29 +
- drivers/i2c/busses/Kconfig                              |  10 +
- drivers/i2c/busses/Makefile                             |   1 +
- drivers/i2c/busses/i2c-synquacer.c                      | 787 ++++++++++++++++++++
- 4 files changed, 827 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-synquacer.txt
- create mode 100644 drivers/i2c/busses/i2c-synquacer.c
-
+diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
+index 42dd1fa..eb8913e 100644
+--- a/drivers/i2c/busses/i2c-xlp9xx.c
++++ b/drivers/i2c/busses/i2c-xlp9xx.c
+@@ -352,7 +352,9 @@ static int xlp9xx_i2c_xfer_msg(struct xlp9xx_i2c_dev *priv, struct i2c_msg *msg,
+ 
+ 	/* set cmd reg */
+ 	cmd = XLP9XX_I2C_CMD_START;
+-	cmd |= (priv->msg_read ? XLP9XX_I2C_CMD_READ : XLP9XX_I2C_CMD_WRITE);
++	if (msg->len)
++		cmd |= (priv->msg_read ?
++			XLP9XX_I2C_CMD_READ : XLP9XX_I2C_CMD_WRITE);
+ 	if (last_msg)
+ 		cmd |= XLP9XX_I2C_CMD_STOP;
+ 
+@@ -361,12 +363,12 @@ static int xlp9xx_i2c_xfer_msg(struct xlp9xx_i2c_dev *priv, struct i2c_msg *msg,
+ 	timeleft = msecs_to_jiffies(XLP9XX_I2C_TIMEOUT_MS);
+ 	timeleft = wait_for_completion_timeout(&priv->msg_complete, timeleft);
+ 
+-	if (priv->msg_err) {
++	if (priv->msg_err & XLP9XX_I2C_INTEN_BUSERR) {
+ 		dev_dbg(priv->dev, "transfer error %x!\n", priv->msg_err);
+-		if (priv->msg_err & XLP9XX_I2C_INTEN_BUSERR)
+-			xlp9xx_i2c_init(priv);
+-		return (priv->msg_err & XLP9XX_I2C_INTEN_NACKADDR) ?
+-			-ENXIO : -EIO;
++		xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_CMD, XLP9XX_I2C_CMD_STOP);
++		return -EIO;
++	} else if (priv->msg_err & XLP9XX_I2C_INTEN_NACKADDR) {
++		return -ENXIO;
+ 	}
+ 
+ 	if (timeleft == 0) {
 -- 
-2.11.0
+2.1.4
