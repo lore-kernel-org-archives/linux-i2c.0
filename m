@@ -1,90 +1,57 @@
-From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: [RESEND PATCH v1 1/6] i2c: i2c-stm32f7: Add 10-bit address support
-Date: Tue, 27 Feb 2018 10:48:09 +0100
-Message-ID: <1519724894-21363-2-git-send-email-pierre-yves.mordret@st.com>
-References: <1519724894-21363-1-git-send-email-pierre-yves.mordret@st.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH v3 1/2] dt-bindings: i2c: add binding for Socionext SynQuacer I2C
+Date: Tue, 27 Feb 2018 11:01:06 +0000
+Message-ID: <20180227110107.30259-2-ard.biesheuvel@linaro.org>
+References: <20180227110107.30259-1-ard.biesheuvel@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1519724894-21363-1-git-send-email-pierre-yves.mordret@st.com>
+In-Reply-To: <20180227110107.30259-1-ard.biesheuvel@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jassisinghbrar@gmail.com, andy.shevchenko@gmail.com, Ard Biesheuvel <ard.biesheuvel@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds support for 10-bit device address for STM32F7 I2C
+Add a binding for the I2C controller that can be found in the Socionext
+SynQuacer SoC. Note that this is the exact same IP as the Fujitsu F_I2C.
 
-Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
-Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 ---
-  Version history:
-     v1:
-        * Initial
----
----
- drivers/i2c/busses/i2c-stm32f7.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ Documentation/devicetree/bindings/i2c/i2c-synquacer.txt | 29 ++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 16c7d77..31bfa00 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -65,7 +65,12 @@
- #define STM32F7_I2C_CR2_NACK			BIT(15)
- #define STM32F7_I2C_CR2_STOP			BIT(14)
- #define STM32F7_I2C_CR2_START			BIT(13)
-+#define STM32F7_I2C_CR2_HEAD10R			BIT(12)
-+#define STM32F7_I2C_CR2_ADD10			BIT(11)
- #define STM32F7_I2C_CR2_RD_WRN			BIT(10)
-+#define STM32F7_I2C_CR2_SADD10_MASK		GENMASK(9, 0)
-+#define STM32F7_I2C_CR2_SADD10(n)		(((n) & \
-+						STM32F7_I2C_CR2_SADD10_MASK))
- #define STM32F7_I2C_CR2_SADD7_MASK		GENMASK(7, 1)
- #define STM32F7_I2C_CR2_SADD7(n)		(((n) & 0x7f) << 1)
- 
-@@ -176,14 +181,14 @@ struct stm32f7_i2c_timings {
- 
- /**
-  * struct stm32f7_i2c_msg - client specific data
-- * @addr: 8-bit slave addr, including r/w bit
-+ * @addr: 8-bit or 10-bit slave addr, including r/w bit
-  * @count: number of bytes to be transferred
-  * @buf: data buffer
-  * @result: result of the transfer
-  * @stop: last I2C msg to be sent, i.e. STOP to be generated
-  */
- struct stm32f7_i2c_msg {
--	u8 addr;
-+	u16 addr;
- 	u32 count;
- 	u8 *buf;
- 	int result;
-@@ -629,8 +634,15 @@ static void stm32f7_i2c_xfer_msg(struct stm32f7_i2c_dev *i2c_dev,
- 		cr2 |= STM32F7_I2C_CR2_RD_WRN;
- 
- 	/* Set slave address */
--	cr2 &= ~STM32F7_I2C_CR2_SADD7_MASK;
--	cr2 |= STM32F7_I2C_CR2_SADD7(f7_msg->addr);
-+	cr2 &= ~(STM32F7_I2C_CR2_HEAD10R | STM32F7_I2C_CR2_ADD10);
-+	if (msg->flags & I2C_M_TEN) {
-+		cr2 &= ~STM32F7_I2C_CR2_SADD10_MASK;
-+		cr2 |= STM32F7_I2C_CR2_SADD10(f7_msg->addr);
-+		cr2 |= STM32F7_I2C_CR2_ADD10;
-+	} else {
-+		cr2 &= ~STM32F7_I2C_CR2_SADD7_MASK;
-+		cr2 |= STM32F7_I2C_CR2_SADD7(f7_msg->addr);
-+	}
- 
- 	/* Set nb bytes to transfer and reload if needed */
- 	cr2 &= ~(STM32F7_I2C_CR2_NBYTES_MASK | STM32F7_I2C_CR2_RELOAD);
-@@ -798,7 +810,7 @@ static int stm32f7_i2c_xfer(struct i2c_adapter *i2c_adap,
- 
- static u32 stm32f7_i2c_func(struct i2c_adapter *adap)
- {
--	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR;
- }
- 
- static struct i2c_algorithm stm32f7_i2c_algo = {
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-synquacer.txt b/Documentation/devicetree/bindings/i2c/i2c-synquacer.txt
+new file mode 100644
+index 000000000000..4d0bb6a71211
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-synquacer.txt
+@@ -0,0 +1,29 @@
++Socionext SynQuacer I2C
++
++Required properties:
++- compatible      : Must be "socionext,synquacer-i2c"
++- reg             : Offset and length of the register set for the device
++- interrupts      : the interrupt specifier
++- #address-cells  : Must be <1>;
++- #size-cells     : Must be <0>;
++- clock-names     : Must contain "pclk".
++- clocks          : Must contain an entry for each name in clock-names.
++                    (See the common clock bindings.)
++
++Optional properties:
++- clock-frequency : Desired I2C bus clock frequency in Hz. As only Normal and
++                    Fast modes are supported, possible values are 100000 and
++                    400000.
++
++Example :
++
++    i2c@51210000 {
++        compatible = "socionext,synquacer-i2c";
++        reg = <0x51210000 0x1000>;
++        interrupts = <GIC_SPI 165 IRQ_TYPE_LEVEL_HIGH>;
++        #address-cells = <1>;
++        #size-cells = <0>;
++        clock-names = "pclk";
++        clocks = <&clk_i2c>;
++        clock-frequency = <400000>;
++    };
 -- 
-2.7.4
+2.11.0
