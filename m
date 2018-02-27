@@ -1,68 +1,70 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v2 2/7] i3c: Add core I3C infrastructure
-Date: Tue, 27 Feb 2018 22:14:07 +0100
-Message-ID: <20180227221407.0cd7f8a9@bbrezillon>
-References: <20171214151610.19153-1-boris.brezillon@free-electrons.com>
-        <20171214151610.19153-3-boris.brezillon@free-electrons.com>
-        <b39f9016-b2ff-6d8d-96b3-945f32ab2b67@synopsys.com>
-        <20180223213000.407461d2@bbrezillon>
-        <1b8fe82f-079b-6f55-0e59-5773027faa8e@synopsys.com>
-        <20180226213607.7161bb0a@bbrezillon>
-        <b9c057ad-47a0-fa35-0f30-8d465d40b6f0@synopsys.com>
-        <MWHPR07MB27833F0CAD2597BFDD37CE6CCAC00@MWHPR07MB2783.namprd07.prod.outlook.com>
-        <20180227211302.26f76427@bbrezillon>
-        <MWHPR07MB278357B74A7D7E31EB109DC5CAC00@MWHPR07MB2783.namprd07.prod.outlook.com>
+From: "Christ, Austin" <austinwc@codeaurora.org>
+Subject: Re: [PATCH 01/12] i2c: qup: fixed releasing dma without flush
+ operation completion
+Date: Tue, 27 Feb 2018 14:46:53 -0700
+Message-ID: <789b2136-da54-b1d5-385d-71b36b368247@codeaurora.org>
+References: <1517644697-30806-1-git-send-email-absahu@codeaurora.org>
+ <1517644697-30806-2-git-send-email-absahu@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <MWHPR07MB278357B74A7D7E31EB109DC5CAC00@MWHPR07MB2783.namprd07.prod.outlook.com>
+In-Reply-To: <1517644697-30806-2-git-send-email-absahu@codeaurora.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Przemyslaw Sroka <psroka@cadence.com>
-Cc: Vitor Soares <Vitor.Soares@synopsys.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.m>
+To: Abhishek Sahu <absahu@codeaurora.org>, Andy Gross <andy.gross@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 27 Feb 2018 20:24:43 +0000
-Przemyslaw Sroka <psroka@cadence.com> wrote:
+Tested on Centriq 2400
 
+Reviewed-by: Austin Christ <austinwc@codeaurora.org>
 
-> > > SETDASA is simply faster than ENTDAA, but only if there is no
-> > > need to collect BCR/DCR/PID of such devices. I think most
-> > > applications would like to have them as an status information so
-> > > after all ENTDAA can be regarded as an generic approach (unless
-> > > I'm mistaken).  
-> > 
-> > Actually, we could retrieve BCR/DCR/PID (and all other relevant
-> > information, like MAXDS) even with the SETDASA approach. We just
-> > need to send the according CCC commands after SETDASA.
-> >   
-> I agree, what I meant by "SETDASA is simply faster than ENTDAA, but
-> only if there is no need to collect BCR/DCR/PID of such devices." Is
-> that it is faster than DAA but only if not followed by GET CCC
-> commands to gather BCR/DCR/PID. I think we are on the same page here.
-
-Yes, but right now it's not the case, see my other reply ;-).
-
+On 2/3/2018 12:58 AM, Abhishek Sahu wrote:
+> The QUP BSLP BAM generates the following error sometimes if the
+> current I2C DMA transfer fails and the flush operation has been
+> scheduled
 > 
-> > But that's also my understanding that ENTDAA should always work, and
-> > SETDASA usage is only needed if you want to reserve a dynamic
-> > address and assign it to a device before DAA takes place. This way
-> > you can enforce the device priority (WRT IBIs). But honestly,
-> > that's the only use case I can think of, and to me, it sounds like
-> > an advanced feature we may want to support at some point, but don't
-> > need in the initial implementation. 
-> Still ENTDAA seems to be sufficient for IBI prioritization but I can
-> imagine some use cases where people would like to use it for such
-> purposes. Note that SETDASA is applicable only for devices with SA so
-> it is self-explanatory that it cannot be considered as utility to
-> define priorities for all devices before ENTDAA. 
-
-We have SETNEWDA for other use cases: say you want one of your device to
-have an higher priority, you can just manually set a new dynamic
-address that is lower than any other devices on the bus (I plan to
-expose that through sysfs, by making the address file writable).
+>      “bam-dma-engine 7884000.dma: Cannot free busy channel”
+> 
+> If any I2C error comes during BAM DMA transfer, then the QUP I2C
+> interrupt will be generated and the flush operation will be
+> carried out to make i2c consume all scheduled DMA transfer.
+> Currently, the same completion structure is being used for BAM
+> transfer which has already completed without reinit. It will make
+> flush operation wait_for_completion_timeout completed immediately
+> and will proceed for freeing the DMA resources where the
+> descriptors are still in process.
+> 
+> Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
+> ---
+>   drivers/i2c/busses/i2c-qup.c | 4 +++-
+>   1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+> index 08f8e01..9faa26c41a 100644
+> --- a/drivers/i2c/busses/i2c-qup.c
+> +++ b/drivers/i2c/busses/i2c-qup.c
+> @@ -1,5 +1,5 @@
+>   /*
+> - * Copyright (c) 2009-2013, The Linux Foundation. All rights reserved.
+> + * Copyright (c) 2009-2013, 2016-2018, The Linux Foundation. All rights reserved.
+>    * Copyright (c) 2014, Sony Mobile Communications AB.
+>    *
+>    *
+> @@ -844,6 +844,8 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+>   	}
+>   
+>   	if (ret || qup->bus_err || qup->qup_err) {
+> +		reinit_completion(&qup->xfer);
+> +
+>   		if (qup_i2c_change_state(qup, QUP_RUN_STATE)) {
+>   			dev_err(qup->dev, "change to run state timed out");
+>   			goto desc_err;
+> 
 
 -- 
-Boris Brezillon, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Qualcomm Datacenter Technologies as an affiliate of Qualcomm 
+Technologies, Inc.
+Qualcomm Technologies, Inc. is a member of the
+Code Aurora Forum, a Linux Foundation Collaborative Project.
