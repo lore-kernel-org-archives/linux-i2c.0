@@ -1,58 +1,53 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: George Cherian <gcherian@caviumnetworks.com>
 Subject: Re: [PATCH 4/4] i2c: xlp9xx: Check for Bus state after every transfer
-Date: Tue, 27 Feb 2018 10:05:08 +0100
-Message-ID: <20180227090507.bke37b7loz3vlh5e@katana>
+Date: Tue, 27 Feb 2018 15:02:01 +0530
+Message-ID: <b3f7a353-7d04-bdb9-0d68-176c38a0b9a3@caviumnetworks.com>
 References: <1516253964-4615-1-git-send-email-george.cherian@cavium.com>
  <1516253964-4615-4-git-send-email-george.cherian@cavium.com>
  <20180226202248.ej3bt5o7sam6qljv@ninjato>
  <a96c4bb2-fbc5-3e21-f6b5-4da75fac3c01@caviumnetworks.com>
- <a2016717-82b1-2802-877b-f947f349f792@caviumnetworks.com>
+ <20180227090416.gxgof6fyzdeshtmf@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="4oawlbmlsduao4fe"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <a2016717-82b1-2802-877b-f947f349f792@caviumnetworks.com>
+In-Reply-To: <20180227090416.gxgof6fyzdeshtmf@katana>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: George Cherian <gcherian@caviumnetworks.com>
+To: Wolfram Sang <wsa@the-dreams.de>
 Cc: George Cherian <george.cherian@cavium.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---4oawlbmlsduao4fe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On 02/27/2018 02:34 PM, Wolfram Sang wrote:
+> On Tue, Feb 27, 2018 at 10:30:31AM +0530, George Cherian wrote:
+>> Hi Wolfram,
+>>
+>> Thanks for the review.
+>>
+>> On 02/27/2018 01:52 AM, Wolfram Sang wrote:
+>>>
+>>> On Thu, Jan 18, 2018 at 05:39:24AM +0000, George Cherian wrote:
+>>>> I2C bus enters the STOP condition after the DATA_DONE interrupt is raised.
+>>>> Essentially the driver should be checking the bus state before sending
+>>>> the next transaction.
+>>>
+>>> Yes.
+>>>
+>>>> In case the next transaction is initiated while the
+>>>> bus is busy, the prior transactions stop condition is not achieved.
+>>>
+>>> I didn't fully get why you can't check the BUSY bit and wait a little
+>>> just before you push out the next message?
+>> Yes, I am checking for the BUSY bit and looping.
+> 
+> Yes, but *after* the STOP, not *before* the next message. I haven't
+> fully understood why you don't do this before the next message is about
+> to be sent. That might save you some busy looping, or?
+Yes, Thanks for the clarification. You are right It is better to
+check before next message. I will make required changes and post the patch.
+>
 
-
-> Since you raised concern on the patch I thought of reworking this patch.
-> But I can see that this patch is already applied for i2c/for-next.
-> Kindly let me know whether I should be sending follow-up patches on top
-> of i2c/for-next ?
-
-Oops, that was a mistake on my side. I'll revert that patch. Please
-think of the patch as not-applied-yet.
-
-Thanks!
-
-
---4oawlbmlsduao4fe
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqVH0MACgkQFA3kzBSg
-Kbbe8A//XNNoHEtcS6Oitp/gKDjMxhnrPQwu4s1ZjgJnBi99EAslKtae8d4+vZ4f
-m3rYsPfxiAsRNm8Q0PgWp31Jrd6bWDBlyiiwA9MLYgbS9FrRRhWBSP/TP4RLHS2k
-qnt41Qqj5yZr42T137VByUZ7Tw1AUU3firOwutR+KUYCeziUPQJA0Ou8u3bcDhSt
-7X/95SO+Y5zgC5XA/Qoc0f47ufjf6wJZGIZQNj9HerxUJ9UE4z7CDTE/izQ5zMnZ
-4MTmVuOEqFCokkwlc8sZmZxf5kxyv0N7j1pRIeba7H57FkJ9OCDeIhwQcejgnUQY
-Vtvx3oZPRBhRxgeBxPNgeXadxCJtMT6FyQavTY4dXNm2K6SaFVJO0oKeLSZnzOns
-WYPLatcGGsTkrefIqrw8wwQ1VJKem3z4A0rdw5xagTyHlC+SIAzbMb2/rmpvZUZR
-7xgrYrMkLnaPQHu879mNdtHgqDbl8o94e3Yk0tD5GlzWZJRhdZLBzb4kwRS5uA9l
-p77RzHSEIfQTIRgZk98UvdP/nQeFZfSS8zegkw0vziuxU3zDg2XCRHEBNYCoS55e
-qx6f9YX6U52ceE4HO8C2/SurCwFBfWNdbNFNjXt0oGFIY37nbgIe3H96f6MWn2ao
-NfQHmY3MQIbd2jcOKvOZFDUYvLsleCrxeFUIvkuvLE5NQrIRkRI=
-=yTFl
------END PGP SIGNATURE-----
-
---4oawlbmlsduao4fe--
+Regards
+-George
