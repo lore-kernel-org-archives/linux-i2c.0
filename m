@@ -1,77 +1,72 @@
-From: George Cherian <gcherian@caviumnetworks.com>
-Subject: Re: [PATCH 4/4] i2c: xlp9xx: Check for Bus state after every transfer
-Date: Tue, 27 Feb 2018 10:41:06 +0530
-Message-ID: <a2016717-82b1-2802-877b-f947f349f792@caviumnetworks.com>
-References: <1516253964-4615-1-git-send-email-george.cherian@cavium.com>
- <1516253964-4615-4-git-send-email-george.cherian@cavium.com>
- <20180226202248.ej3bt5o7sam6qljv@ninjato>
- <a96c4bb2-fbc5-3e21-f6b5-4da75fac3c01@caviumnetworks.com>
+From: Alexandre Torgue <alexandre.torgue@st.com>
+Subject: Re: [PATCH] i2c-stm32f4: remove redundant initialization of pointer
+ reg
+Date: Tue, 27 Feb 2018 08:44:55 +0100
+Message-ID: <25b0397b-5df3-2f5c-a18f-238db83205da@st.com>
+References: <20180116174404.19464-1-colin.king@canonical.com>
+ <20180226200639.tfll2y4efepm2sos@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a96c4bb2-fbc5-3e21-f6b5-4da75fac3c01@caviumnetworks.com>
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180226200639.tfll2y4efepm2sos@ninjato>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, George Cherian <george.cherian@cavium.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Colin King <colin.king@canonical.com>
+Cc: linux-arm-kernel@lists.infradead.org, kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Hi,
 
+On 02/26/2018 09:06 PM, Wolfram Sang wrote:
+> On Tue, Jan 16, 2018 at 05:44:04PM +0000, Colin King wrote:
+>> From: Colin Ian King <colin.king@canonical.com>
+>>
+>> The pointer reg is assigned a value that is never read, it is later
+>> overwritten with a new value, hence the redundant initialization can
+>> be removed.
+>>
+>> Cleans up clang warning:
+>> drivers/i2c/busses/i2c-stm32f4.c:352:16: warning: Value stored to 'reg'
+>> during its initialization is never read
+>>
+>> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> 
+> Maxime? Alexandre? Are you OK with this patch?
 
-On 02/27/2018 10:30 AM, George Cherian wrote:
-> Hi Wolfram,
-> 
-> Thanks for the review.
-> 
-> On 02/27/2018 01:52 AM, Wolfram Sang wrote:
->>
->> On Thu, Jan 18, 2018 at 05:39:24AM +0000, George Cherian wrote:
->>> I2C bus enters the STOP condition after the DATA_DONE interrupt is 
->>> raised.
->>> Essentially the driver should be checking the bus state before sending
->>> the next transaction.
->>
->> Yes.
->>
->>> In case the next transaction is initiated while the
->>> bus is busy, the prior transactions stop condition is not achieved.
->>
->> I didn't fully get why you can't check the BUSY bit and wait a little
->> just before you push out the next message?
-> Yes, I am checking for the BUSY bit and looping.
-> Here for reference
-> 
-> +    while (last_msg && busy_timeout) {
-> +        status = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_STATUS);
-> +        if ((status & XLP9XX_I2C_STATUS_BUSY) == 0)
-> +            break;
-> +
-> +        busy_timeout--;
-> +        udelay(1);
-> +    }
-> +
-> +    if (!busy_timeout) {
-> +        dev_dbg(priv->dev, "i2c bus busy for too long after transfer\n");
-> +        return -EIO;
-> +    }
-> 
-> Did you mean to eliminate the udelay and use msleep?
-> In any case I will re-post another version of the patch, since
-> I have found some more issues and need to be fixed.
+Sorry for delay.
 
-Since you raised concern on the patch I thought of reworking this patch.
-But I can see that this patch is already applied for i2c/for-next.
-Kindly let me know whether I should be sending follow-up patches on top
-of i2c/for-next ?
-> 
->>
->>> Add the check to make sure the bus is not busy before next transaction.
->>>
-> 
-> Regards,
-> -George
+Acked-by: Alexandre TORGUE <alexandre.torgue@st.com>
 
-Regards,
--George
+regards
+alex
+
+> 
+>> ---
+>>   drivers/i2c/busses/i2c-stm32f4.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-stm32f4.c b/drivers/i2c/busses/i2c-stm32f4.c
+>> index 47c8d00de53f..ba600d77a3f8 100644
+>> --- a/drivers/i2c/busses/i2c-stm32f4.c
+>> +++ b/drivers/i2c/busses/i2c-stm32f4.c
+>> @@ -349,7 +349,7 @@ static void stm32f4_i2c_read_msg(struct stm32f4_i2c_dev *i2c_dev)
+>>   static void stm32f4_i2c_terminate_xfer(struct stm32f4_i2c_dev *i2c_dev)
+>>   {
+>>   	struct stm32f4_i2c_msg *msg = &i2c_dev->msg;
+>> -	void __iomem *reg = i2c_dev->base + STM32F4_I2C_CR2;
+>> +	void __iomem *reg;
+>>   
+>>   	stm32f4_i2c_disable_irq(i2c_dev);
+>>   
+>> -- 
+>> 2.15.1
+>>
