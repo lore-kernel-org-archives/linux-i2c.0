@@ -1,42 +1,191 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH 1/4] dt-bindings: at24: sort manufacturers alphabetically
-Date: Wed, 28 Feb 2018 10:28:07 +0100
-Message-ID: <CAMRc=Md4mBhHXn5_vR4rB5vzvx5_27e8ArvvVocWRWHVxGKLfw@mail.gmail.com>
-References: <20180116160618.27859-1-peda@axentia.se> <20180116160618.27859-2-peda@axentia.se>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v2 2/2] i2c: piix4: Use request_muxed_region
+Date: Thu, 1 Mar 2018 11:57:37 +0100
+Message-ID: <20180301115737.5aa2288f@endymion>
+References: <1519678013-32749-1-git-send-email-linux@roeck-us.net>
+        <1519678013-32749-2-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180116160618.27859-2-peda@axentia.se>
+In-Reply-To: <1519678013-32749-2-git-send-email-linux@roeck-us.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Nicolas Ferre <nicolas.ferre@microchip.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Russell King <linux@armlinux.org.uk>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-2018-01-16 17:06 GMT+01:00 Peter Rosin <peda@axentia.se>:
-> Makes them easier to find.
->
-> Signed-off-by: Peter Rosin <peda@axentia.se>
+On Mon, 26 Feb 2018 12:46:53 -0800, Guenter Roeck wrote:
+> Accesses to SB800_PIIX4_SMB_IDX can occur from multiple drivers.
+> One example for another driver is the sp5100_tco driver.
+> 
+> Use request_muxed_region() to ensure synchronization.
+> 
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 > ---
->  Documentation/devicetree/bindings/eeprom/at24.txt | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/Documentation/devicetree/bindings/eeprom/at24.txt b/Documentation/devicetree/bindings/eeprom/at24.txt
-> index 1812c848e369..abfae1beca2b 100644
-> --- a/Documentation/devicetree/bindings/eeprom/at24.txt
-> +++ b/Documentation/devicetree/bindings/eeprom/at24.txt
-> @@ -38,9 +38,9 @@ Required properties:
->
->                  "catalyst",
->                  "microchip",
-> +                "nxp",
->                  "ramtron",
->                  "renesas",
-> -                "nxp",
->                  "st",
->
->                  Some vendors use different model names for chips which are just
-> --
-> 2.11.0
->
+> v2: Dropped now unnecessary include of linux/mutex.h
+>     Added error message if request_muxed_region() fails
+>     Spell out affected driver in commit message
+> 
+> Note that I did not try to do a performance analysis.
+> Doing so seemed excessive, even more so in the context of
+> piix4_imc_sleep() already using request_muxed_region(). 
+> 
+>  drivers/i2c/busses/i2c-piix4.c | 55 +++++++++++++++++++-----------------------
+>  1 file changed, 25 insertions(+), 30 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+> index 4c1f6aaec0fc..90946a8b9a75 100644
+> --- a/drivers/i2c/busses/i2c-piix4.c
+> +++ b/drivers/i2c/busses/i2c-piix4.c
+> @@ -40,7 +40,6 @@
+>  #include <linux/dmi.h>
+>  #include <linux/acpi.h>
+>  #include <linux/io.h>
+> -#include <linux/mutex.h>
+>  
+>  
+>  /* PIIX4 SMBus address offsets */
+> @@ -153,10 +152,7 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
+>  
+>  /*
+>   * SB800 globals
+> - * piix4_mutex_sb800 protects piix4_port_sel_sb800 and the pair
+> - * of I/O ports at SB800_PIIX4_SMB_IDX.
+>   */
+> -static DEFINE_MUTEX(piix4_mutex_sb800);
+>  static u8 piix4_port_sel_sb800;
+>  static u8 piix4_port_mask_sb800;
+>  static u8 piix4_port_shift_sb800;
+> @@ -298,12 +294,19 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+>  	else
+>  		smb_en = (aux) ? 0x28 : 0x2c;
+>  
+> -	mutex_lock(&piix4_mutex_sb800);
+> +	if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2, "sb800_piix4_smb")) {
+> +		dev_err(&PIIX4_dev->dev,
+> +			"SMB base address index region 0x%x already in use.\n",
+> +			SB800_PIIX4_SMB_IDX);
+> +		return -EBUSY;
+> +	}
+> +
+>  	outb_p(smb_en, SB800_PIIX4_SMB_IDX);
+>  	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
+>  	outb_p(smb_en + 1, SB800_PIIX4_SMB_IDX);
+>  	smba_en_hi = inb_p(SB800_PIIX4_SMB_IDX + 1);
+> -	mutex_unlock(&piix4_mutex_sb800);
+> +
+> +	release_region(SB800_PIIX4_SMB_IDX, 2);
+>  
+>  	if (!smb_en) {
+>  		smb_en_status = smba_en_lo & 0x10;
+> @@ -373,7 +376,12 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+>  			break;
+>  		}
+>  	} else {
+> -		mutex_lock(&piix4_mutex_sb800);
+> +		if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2,
+> +					  "sb800_piix4_smb")) {
+> +			release_region(piix4_smba, SMBIOSIZE);
+> +			return -EBUSY;
+> +		}
+> +
+>  		outb_p(SB800_PIIX4_PORT_IDX_SEL, SB800_PIIX4_SMB_IDX);
+>  		port_sel = inb_p(SB800_PIIX4_SMB_IDX + 1);
+>  		piix4_port_sel_sb800 = (port_sel & 0x01) ?
+> @@ -381,7 +389,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+>  				       SB800_PIIX4_PORT_IDX;
+>  		piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
+>  		piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
+> -		mutex_unlock(&piix4_mutex_sb800);
+> +		release_region(SB800_PIIX4_SMB_IDX, 2);
+>  	}
+>  
+>  	dev_info(&PIIX4_dev->dev,
+> @@ -679,7 +687,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+>  	u8 port;
+>  	int retval;
+>  
+> -	mutex_lock(&piix4_mutex_sb800);
+> +	if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2, "sb800_piix4_smb"))
+> +		return -EBUSY;
+>  
+>  	/* Request the SMBUS semaphore, avoid conflicts with the IMC */
+>  	smbslvcnt  = inb_p(SMBSLVCNT);
+> @@ -695,8 +704,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+>  	} while (--retries);
+>  	/* SMBus is still owned by the IMC, we give up */
+>  	if (!retries) {
+> -		mutex_unlock(&piix4_mutex_sb800);
+> -		return -EBUSY;
+> +		retval = -EBUSY;
+> +		goto release;
+>  	}
+>  
+>  	/*
+> @@ -753,8 +762,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
+>  	if ((size == I2C_SMBUS_BLOCK_DATA) && adapdata->notify_imc)
+>  		piix4_imc_wakeup();
+>  
+> -	mutex_unlock(&piix4_mutex_sb800);
+> -
+> +release:
+> +	release_region(SB800_PIIX4_SMB_IDX, 2);
+>  	return retval;
+>  }
+>  
+> @@ -899,13 +908,6 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>  		bool notify_imc = false;
+>  		is_sb800 = true;
+>  
+> -		if (!request_region(SB800_PIIX4_SMB_IDX, 2, "smba_idx")) {
+> -			dev_err(&dev->dev,
+> -			"SMBus base address index region 0x%x already in use!\n",
+> -			SB800_PIIX4_SMB_IDX);
+> -			return -EBUSY;
+> -		}
+> -
+>  		if (dev->vendor == PCI_VENDOR_ID_AMD &&
+>  		    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
+>  			u8 imc;
+> @@ -922,20 +924,16 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>  
+>  		/* base address location etc changed in SB800 */
+>  		retval = piix4_setup_sb800(dev, id, 0);
+> -		if (retval < 0) {
+> -			release_region(SB800_PIIX4_SMB_IDX, 2);
+> +		if (retval < 0)
+>  			return retval;
+> -		}
+>  
+>  		/*
+>  		 * Try to register multiplexed main SMBus adapter,
+>  		 * give up if we can't
+>  		 */
+>  		retval = piix4_add_adapters_sb800(dev, retval, notify_imc);
+> -		if (retval < 0) {
+> -			release_region(SB800_PIIX4_SMB_IDX, 2);
+> +		if (retval < 0)
+>  			return retval;
+> -		}
+>  	} else {
+>  		retval = piix4_setup(dev, id);
+>  		if (retval < 0)
+> @@ -983,11 +981,8 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
+>  
+>  	if (adapdata->smba) {
+>  		i2c_del_adapter(adap);
+> -		if (adapdata->port == (0 << piix4_port_shift_sb800)) {
+> +		if (adapdata->port == (0 << piix4_port_shift_sb800))
+>  			release_region(adapdata->smba, SMBIOSIZE);
+> -			if (adapdata->sb800_main)
+> -				release_region(SB800_PIIX4_SMB_IDX, 2);
+> -		}
+>  		kfree(adapdata);
+>  		kfree(adap);
+>  	}
 
-Applied to for-current. Thanks.
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+
+-- 
+Jean Delvare
+SUSE L3 Support
