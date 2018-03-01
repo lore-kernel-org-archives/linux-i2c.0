@@ -1,188 +1,55 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v2 2/2] i2c: piix4: Use request_muxed_region
-Date: Thu, 1 Mar 2018 11:57:37 +0100
-Message-ID: <20180301115737.5aa2288f@endymion>
+Subject: Re: [PATCH v2 1/2] i2c: piix4: Use usleep_range()
+Date: Thu, 1 Mar 2018 12:04:04 +0100
+Message-ID: <20180301120404.42f10064@endymion>
 References: <1519678013-32749-1-git-send-email-linux@roeck-us.net>
-        <1519678013-32749-2-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1519678013-32749-2-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1519678013-32749-1-git-send-email-linux@roeck-us.net>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Guenter Roeck <linux@roeck-us.net>
 Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 26 Feb 2018 12:46:53 -0800, Guenter Roeck wrote:
-> Accesses to SB800_PIIX4_SMB_IDX can occur from multiple drivers.
-> One example for another driver is the sp5100_tco driver.
-> 
-> Use request_muxed_region() to ensure synchronization.
+On Mon, 26 Feb 2018 12:46:52 -0800, Guenter Roeck wrote:
+> The piix4 i2c driver is extremely slow. Replacing msleep()
+> with usleep_range() increases its speed substantially.
+> Use sleep ranges similar to those used in the i2c-801 driver
+> to keep things simple.
 > 
 > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 > ---
-> v2: Dropped now unnecessary include of linux/mutex.h
->     Added error message if request_muxed_region() fails
->     Spell out affected driver in commit message
+> v2: Changed timeout values for usleep_range()
+>     2000/2000 -> 2000/2100
+>     500/1000 -> 250/500
+>     200/500 -> 250/500
 > 
-> Note that I did not try to do a performance analysis.
-> Doing so seemed excessive, even more so in the context of
-> piix4_imc_sleep() already using request_muxed_region(). 
-> 
->  drivers/i2c/busses/i2c-piix4.c | 55 +++++++++++++++++++-----------------------
->  1 file changed, 25 insertions(+), 30 deletions(-)
+>  drivers/i2c/busses/i2c-piix4.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 > 
 > diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> index 4c1f6aaec0fc..90946a8b9a75 100644
+> index 462948e2c535..4c1f6aaec0fc 100644
 > --- a/drivers/i2c/busses/i2c-piix4.c
 > +++ b/drivers/i2c/busses/i2c-piix4.c
-> @@ -40,7 +40,6 @@
->  #include <linux/dmi.h>
->  #include <linux/acpi.h>
->  #include <linux/io.h>
-> -#include <linux/mutex.h>
+> @@ -462,13 +462,13 @@ static int piix4_transaction(struct i2c_adapter *piix4_adapter)
 >  
->  
->  /* PIIX4 SMBus address offsets */
-> @@ -153,10 +152,7 @@ static const struct dmi_system_id piix4_dmi_ibm[] = {
->  
->  /*
->   * SB800 globals
-> - * piix4_mutex_sb800 protects piix4_port_sel_sb800 and the pair
-> - * of I/O ports at SB800_PIIX4_SMB_IDX.
->   */
-> -static DEFINE_MUTEX(piix4_mutex_sb800);
->  static u8 piix4_port_sel_sb800;
->  static u8 piix4_port_mask_sb800;
->  static u8 piix4_port_shift_sb800;
-> @@ -298,12 +294,19 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+>  	/* We will always wait for a fraction of a second! (See PIIX4 docs errata) */
+>  	if (srvrworks_csb5_delay) /* Extra delay for SERVERWORKS_CSB5 */
+> -		msleep(2);
+> +		usleep_range(2000, 2100);
 >  	else
->  		smb_en = (aux) ? 0x28 : 0x2c;
+> -		msleep(1);
+> +		usleep_range(250, 500);
 >  
-> -	mutex_lock(&piix4_mutex_sb800);
-> +	if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2, "sb800_piix4_smb")) {
-> +		dev_err(&PIIX4_dev->dev,
-> +			"SMB base address index region 0x%x already in use.\n",
-> +			SB800_PIIX4_SMB_IDX);
-> +		return -EBUSY;
-> +	}
-> +
->  	outb_p(smb_en, SB800_PIIX4_SMB_IDX);
->  	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
->  	outb_p(smb_en + 1, SB800_PIIX4_SMB_IDX);
->  	smba_en_hi = inb_p(SB800_PIIX4_SMB_IDX + 1);
-> -	mutex_unlock(&piix4_mutex_sb800);
-> +
-> +	release_region(SB800_PIIX4_SMB_IDX, 2);
+>  	while ((++timeout < MAX_TIMEOUT) &&
+>  	       ((temp = inb_p(SMBHSTSTS)) & 0x01))
+> -		msleep(1);
+> +		usleep_range(250, 500);
 >  
->  	if (!smb_en) {
->  		smb_en_status = smba_en_lo & 0x10;
-> @@ -373,7 +376,12 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
->  			break;
->  		}
->  	} else {
-> -		mutex_lock(&piix4_mutex_sb800);
-> +		if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2,
-> +					  "sb800_piix4_smb")) {
-> +			release_region(piix4_smba, SMBIOSIZE);
-> +			return -EBUSY;
-> +		}
-> +
->  		outb_p(SB800_PIIX4_PORT_IDX_SEL, SB800_PIIX4_SMB_IDX);
->  		port_sel = inb_p(SB800_PIIX4_SMB_IDX + 1);
->  		piix4_port_sel_sb800 = (port_sel & 0x01) ?
-> @@ -381,7 +389,7 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
->  				       SB800_PIIX4_PORT_IDX;
->  		piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
->  		piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
-> -		mutex_unlock(&piix4_mutex_sb800);
-> +		release_region(SB800_PIIX4_SMB_IDX, 2);
->  	}
->  
->  	dev_info(&PIIX4_dev->dev,
-> @@ -679,7 +687,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
->  	u8 port;
->  	int retval;
->  
-> -	mutex_lock(&piix4_mutex_sb800);
-> +	if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2, "sb800_piix4_smb"))
-> +		return -EBUSY;
->  
->  	/* Request the SMBUS semaphore, avoid conflicts with the IMC */
->  	smbslvcnt  = inb_p(SMBSLVCNT);
-> @@ -695,8 +704,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
->  	} while (--retries);
->  	/* SMBus is still owned by the IMC, we give up */
->  	if (!retries) {
-> -		mutex_unlock(&piix4_mutex_sb800);
-> -		return -EBUSY;
-> +		retval = -EBUSY;
-> +		goto release;
->  	}
->  
->  	/*
-> @@ -753,8 +762,8 @@ static s32 piix4_access_sb800(struct i2c_adapter *adap, u16 addr,
->  	if ((size == I2C_SMBUS_BLOCK_DATA) && adapdata->notify_imc)
->  		piix4_imc_wakeup();
->  
-> -	mutex_unlock(&piix4_mutex_sb800);
-> -
-> +release:
-> +	release_region(SB800_PIIX4_SMB_IDX, 2);
->  	return retval;
->  }
->  
-> @@ -899,13 +908,6 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
->  		bool notify_imc = false;
->  		is_sb800 = true;
->  
-> -		if (!request_region(SB800_PIIX4_SMB_IDX, 2, "smba_idx")) {
-> -			dev_err(&dev->dev,
-> -			"SMBus base address index region 0x%x already in use!\n",
-> -			SB800_PIIX4_SMB_IDX);
-> -			return -EBUSY;
-> -		}
-> -
->  		if (dev->vendor == PCI_VENDOR_ID_AMD &&
->  		    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
->  			u8 imc;
-> @@ -922,20 +924,16 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
->  
->  		/* base address location etc changed in SB800 */
->  		retval = piix4_setup_sb800(dev, id, 0);
-> -		if (retval < 0) {
-> -			release_region(SB800_PIIX4_SMB_IDX, 2);
-> +		if (retval < 0)
->  			return retval;
-> -		}
->  
->  		/*
->  		 * Try to register multiplexed main SMBus adapter,
->  		 * give up if we can't
->  		 */
->  		retval = piix4_add_adapters_sb800(dev, retval, notify_imc);
-> -		if (retval < 0) {
-> -			release_region(SB800_PIIX4_SMB_IDX, 2);
-> +		if (retval < 0)
->  			return retval;
-> -		}
->  	} else {
->  		retval = piix4_setup(dev, id);
->  		if (retval < 0)
-> @@ -983,11 +981,8 @@ static void piix4_adap_remove(struct i2c_adapter *adap)
->  
->  	if (adapdata->smba) {
->  		i2c_del_adapter(adap);
-> -		if (adapdata->port == (0 << piix4_port_shift_sb800)) {
-> +		if (adapdata->port == (0 << piix4_port_shift_sb800))
->  			release_region(adapdata->smba, SMBIOSIZE);
-> -			if (adapdata->sb800_main)
-> -				release_region(SB800_PIIX4_SMB_IDX, 2);
-> -		}
->  		kfree(adapdata);
->  		kfree(adap);
->  	}
+>  	/* If the SMBus is still busy, we give up */
+>  	if (timeout == MAX_TIMEOUT) {
 
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
