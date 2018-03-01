@@ -1,42 +1,38 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v4 2/2] i2c: add support for Socionext SynQuacer I2C controller
-Date: Thu, 1 Mar 2018 20:32:21 +0200
-Message-ID: <CAHp75VcJ4+4-yCm6sKf+Q80FwRMjkjSGMZd5X3hecHQZ9nV7Rw@mail.gmail.com>
-References: <20180301163815.30595-1-ard.biesheuvel@linaro.org> <20180301163815.30595-3-ard.biesheuvel@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH] i2c: s3c2410: Properly handle interrupts of number 0
+Date: Thu,  1 Mar 2018 21:34:44 +0100
+Message-ID: <1519936484-23132-1-git-send-email-krzk@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180301163815.30595-3-ard.biesheuvel@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, Jassi Brar <jassisinghbrar@gmail.com>
+To: Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dan Carpenter <dan.carpenter@oracle.com>, Ben Dooks <ben-linux@fluff.org>, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Mar 1, 2018 at 6:38 PM, Ard Biesheuvel
-<ard.biesheuvel@linaro.org> wrote:
-> This is a cleaned up version of the I2C controller driver for
-> the Fujitsu F_I2C IP, which was never supported upstream, and
-> has now been incorporated into the Socionext SynQuacer SoC.
+Interrupt number 0 (returned by platform_get_irq()) might be a valid IRQ
+so do not treat it as an error.  If interrupt 0 was configured, the driver
+would exit the probe early, before finishing initialization, but with
+0-exit status.
 
-> +static int synquacer_i2c_remove(struct platform_device *pdev)
-> +{
-> +       struct synquacer_i2c *i2c = platform_get_drvdata(pdev);
-> +
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable@vger.kernel.org
+Fixes: e0d1ec97853f ("i2c-s3c2410: Change IRQ to be plain integer.")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+---
+ drivers/i2c/busses/i2c-s3c2410.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> +       platform_set_drvdata(pdev, NULL);
-
-Just noticed, this is redundant for many years since driver core does
-it for every device on removal.
-
-It can be fixed by followup though.
-
-> +       i2c_del_adapter(&i2c->adapter);
-> +       if (!IS_ERR(i2c->pclk))
-> +               clk_disable_unprepare(i2c->pclk);
-> +
-> +       return 0;
-> +};
-
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 5d97510ee48b..783a93404f47 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -1178,7 +1178,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	 */
+ 	if (!(i2c->quirks & QUIRK_POLL)) {
+ 		i2c->irq = ret = platform_get_irq(pdev, 0);
+-		if (ret <= 0) {
++		if (ret < 0) {
+ 			dev_err(&pdev->dev, "cannot find IRQ\n");
+ 			clk_unprepare(i2c->clk);
+ 			return ret;
 -- 
-With Best Regards,
-Andy Shevchenko
+2.7.4
