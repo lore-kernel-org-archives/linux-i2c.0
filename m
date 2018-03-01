@@ -1,58 +1,68 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v2 1/2] i2c: piix4: Use usleep_range()
-Date: Thu, 1 Mar 2018 12:04:04 +0100
-Message-ID: <20180301120404.42f10064@endymion>
-References: <1519678013-32749-1-git-send-email-linux@roeck-us.net>
+From: Rob Herring <robh+dt@kernel.org>
+Subject: Re: [PATCH v3 1/2] dt-bindings: i2c: add binding for Socionext
+ SynQuacer I2C
+Date: Thu, 1 Mar 2018 08:28:23 -0600
+Message-ID: <CAL_JsqJL9idphGUyZ8M4MuF2oTUC0hNYaVsbLu4ec+=s90qJ1w@mail.gmail.com>
+References: <20180227110107.30259-1-ard.biesheuvel@linaro.org> <20180227110107.30259-2-ard.biesheuvel@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1519678013-32749-1-git-send-email-linux@roeck-us.net>
+In-Reply-To: <20180227110107.30259-2-ard.biesheuvel@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Linux I2C <linux-i2c@vger.kernel.org>, devicetree@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, Jassi Brar <jassisinghbrar@gmail.com>, Andy Shevchenko <andy.shevchenko@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 26 Feb 2018 12:46:52 -0800, Guenter Roeck wrote:
-> The piix4 i2c driver is extremely slow. Replacing msleep()
-> with usleep_range() increases its speed substantially.
-> Use sleep ranges similar to those used in the i2c-801 driver
-> to keep things simple.
-> 
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+On Tue, Feb 27, 2018 at 5:01 AM, Ard Biesheuvel
+<ard.biesheuvel@linaro.org> wrote:
+> Add a binding for the I2C controller that can be found in the Socionext
+> SynQuacer SoC. Note that this is the exact same IP as the Fujitsu F_I2C.
+
+Is there a binding for that? Should be the same doc if so.
+
+> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 > ---
-> v2: Changed timeout values for usleep_range()
->     2000/2000 -> 2000/2100
->     500/1000 -> 250/500
->     200/500 -> 250/500
-> 
->  drivers/i2c/busses/i2c-piix4.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> index 462948e2c535..4c1f6aaec0fc 100644
-> --- a/drivers/i2c/busses/i2c-piix4.c
-> +++ b/drivers/i2c/busses/i2c-piix4.c
-> @@ -462,13 +462,13 @@ static int piix4_transaction(struct i2c_adapter *piix4_adapter)
->  
->  	/* We will always wait for a fraction of a second! (See PIIX4 docs errata) */
->  	if (srvrworks_csb5_delay) /* Extra delay for SERVERWORKS_CSB5 */
-> -		msleep(2);
-> +		usleep_range(2000, 2100);
->  	else
-> -		msleep(1);
-> +		usleep_range(250, 500);
->  
->  	while ((++timeout < MAX_TIMEOUT) &&
->  	       ((temp = inb_p(SMBHSTSTS)) & 0x01))
-> -		msleep(1);
-> +		usleep_range(250, 500);
->  
->  	/* If the SMBus is still busy, we give up */
->  	if (timeout == MAX_TIMEOUT) {
+>  Documentation/devicetree/bindings/i2c/i2c-synquacer.txt | 29 ++++++++++++++++++++
+>  1 file changed, 29 insertions(+)
+>
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-synquacer.txt b/Documentation/devicetree/bindings/i2c/i2c-synquacer.txt
+> new file mode 100644
+> index 000000000000..4d0bb6a71211
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-synquacer.txt
+> @@ -0,0 +1,29 @@
+> +Socionext SynQuacer I2C
+> +
+> +Required properties:
+> +- compatible      : Must be "socionext,synquacer-i2c"
+> +- reg             : Offset and length of the register set for the device
+> +- interrupts      : the interrupt specifier
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+How many?
 
--- 
-Jean Delvare
-SUSE L3 Support
+> +- #address-cells  : Must be <1>;
+> +- #size-cells     : Must be <0>;
+> +- clock-names     : Must contain "pclk".
+> +- clocks          : Must contain an entry for each name in clock-names.
+> +                    (See the common clock bindings.)
+> +
+> +Optional properties:
+> +- clock-frequency : Desired I2C bus clock frequency in Hz. As only Normal and
+> +                    Fast modes are supported, possible values are 100000 and
+> +                    400000.
+> +
+> +Example :
+> +
+> +    i2c@51210000 {
+> +        compatible = "socionext,synquacer-i2c";
+> +        reg = <0x51210000 0x1000>;
+> +        interrupts = <GIC_SPI 165 IRQ_TYPE_LEVEL_HIGH>;
+> +        #address-cells = <1>;
+> +        #size-cells = <0>;
+> +        clock-names = "pclk";
+> +        clocks = <&clk_i2c>;
+> +        clock-frequency = <400000>;
+> +    };
+> --
+> 2.11.0
+>
