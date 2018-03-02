@@ -1,55 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/2] i2c: piix4: Use request_muxed_region
-Date: Fri, 2 Mar 2018 11:17:54 +0100
-Message-ID: <20180302101754.npxrbagl74jvveza@ninjato>
-References: <1519678013-32749-1-git-send-email-linux@roeck-us.net>
- <1519678013-32749-2-git-send-email-linux@roeck-us.net>
+Subject: Re: [PATCH] i2c: s3c2410: Properly handle interrupts of number 0
+Date: Fri, 2 Mar 2018 11:29:26 +0100
+Message-ID: <20180302102926.fuqmfyaxiujjwill@ninjato>
+References: <1519936484-23132-1-git-send-email-krzk@kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="2ahtyt3gc37mx6sh"
+        protocol="application/pgp-signature"; boundary="ar6xsfpbsx22zbj5"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1519678013-32749-2-git-send-email-linux@roeck-us.net>
+In-Reply-To: <1519936484-23132-1-git-send-email-krzk@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Kukjin Kim <kgene@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>, Ben Dooks <ben-linux@fluff.org>, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---2ahtyt3gc37mx6sh
+--ar6xsfpbsx22zbj5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 26, 2018 at 12:46:53PM -0800, Guenter Roeck wrote:
-> Accesses to SB800_PIIX4_SMB_IDX can occur from multiple drivers.
-> One example for another driver is the sp5100_tco driver.
+On Thu, Mar 01, 2018 at 09:34:44PM +0100, Krzysztof Kozlowski wrote:
+> Interrupt number 0 (returned by platform_get_irq()) might be a valid IRQ
+> so do not treat it as an error.  If interrupt 0 was configured, the driver
+> would exit the probe early, before finishing initialization, but with
+> 0-exit status.
 >=20
-> Use request_muxed_region() to ensure synchronization.
->=20
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+> Cc: stable@vger.kernel.org
+> Fixes: e0d1ec97853f ("i2c-s3c2410: Change IRQ to be plain integer.")
 
-Applied to for-next, thanks!
+Please configure git to use 14 digits here.
+
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+
+Applied to for-current, thanks!
 
 
---2ahtyt3gc37mx6sh
+--ar6xsfpbsx22zbj5
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqZJNIACgkQFA3kzBSg
-Kbb9XQ/+LlJzoGswBqBtRDTdormIAS+xaF4vhJb4UTt/S3zNLmx350Mg4NSdudSC
-3xz4Uhp49ofOTyr+QR0k/mqJ+4nQrMs+GlZg5OFAefZhijG4qPjkZnMYGqgTlCMo
-hpoil1+T/OR4d594S3x3LnliXhTrFFAgNU1uXTyw3dp+ZDpqYwnt3bTfgIm5tFCG
-qgS8gxGtACk3Y0pZUWGV9l1yJMiqIoGo5U0LfJ7A9f5IF679O0k+nokXTTxGuNiQ
-3wUVLKg8oF8DGo33DPVo1yUHwGVwgGpkbFIh0S/M4sO6NFuiaO99OarwUt05ZcHJ
-5v64vn2akcO7l+FRaD8xtGM4LwO9lxCl3SY+JhYdV49tI7K3U1/oIbA5TjzWvyZE
-lpZdG3FCbScMR5dT8WoqEmYfc309+tZfsEuERVlr2wE2d40RcouEc4O1t5Ai/c73
-aUY25TCimotssWbEngSqwH/fP7u/qFWD/msD6OK7p8Yq+VWhkcTMKBcpeLlpx+mw
-bOoKmDx7QNC2iqoZJSeTDKsNmdgLsMu8kAB+5At0K5z0937/IRKDHnYTGbq/gBpK
-w9W7ajjYPeLi+kF0iUXVZMHbT0UCgDLzFdkLD6yu+1XaCFf8G1eugW7IWdfxhpmX
-z4z8aembq/dVUc/iEeK+Dmsf5XC7lQQrveQOoSBjZ06r/SP94y0=
-=acS/
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqZJ4YACgkQFA3kzBSg
+KbbOnhAAmMlAdAzlGNkDGU4DRpbMpAkScrAh9An4rjaRRPrAso5ZswfLGwlYrLMn
+dH7cDirRv8FDSApDeISwdESGWgJeseDv6R2CRnDiOOUGTmSLOe3DeAtIPgASh4QI
+drm83VyHB6/0fZu8vFCmQvZmQH7VHypFJkCgsRIwAIO3fECvKlWZbHz9Q+JEfak7
+D6H/eHP8d4Pwd7uoCOrg+PPke3wpo+8/1chJWfmM4GUSv8CPHu92T7N2nlm8+60R
+tKUx0IQp2hkUtG1blr3X3n8ILwC9cD2911iCv8izQpSAbtIgCDxT0LcNtgvhCPFo
+0oJ7uUqLnGmeNgQyciTjPhIcS5avLl+1EVlwIUPO6xnsDAYImgniIxbu957KSfjr
+VCm/e7QE8lL8RTrHQu5zoPoCLacwnPVWSqoX/PVThgMkyW18SRwXo5DjTuHFbtsc
+Q+crYiMJIW1eooWEaBWqCuZ4e14/lAXxzDLGj/2JF1A3AjjvBMbXGSmIxThvv+gW
+DDovRCigD5+L5LKKUfDvdjpZ0TLXlJmzhgL4kfu+f237paHvz/NE5f9k9wM9oyZB
+tcJU9GPsIqmtvZFDMX64yJkjw5IksApXGWmCBt0Fs/ENf916c9ns//a/GhbmuyCO
+4+SdQ5XMLyBrHF6IWyJdhAva1b2IpuDjMcdYDDYHyjkn2a9Gjmw=
+=BRy3
 -----END PGP SIGNATURE-----
 
---2ahtyt3gc37mx6sh--
+--ar6xsfpbsx22zbj5--
