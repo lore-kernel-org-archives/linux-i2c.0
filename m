@@ -1,58 +1,58 @@
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH v5 0/2] add support for Socionext SynQuacer I2C controller
-Date: Fri,  2 Mar 2018 08:31:21 +0000
-Message-ID: <20180302083123.7259-1-ard.biesheuvel@linaro.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: octeon: Prevent error message on bus error
+Date: Fri, 2 Mar 2018 11:11:50 +0100
+Message-ID: <20180302101150.4mrrms3sn6spnicu@ninjato>
+References: <20180227154213.3023-1-jglauber@cavium.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
-Cc: andy.shevchenko@gmail.com, jassisinghbrar@gmail.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="xe6jzn6iqr7jy6zr"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180227154213.3023-1-jglauber@cavium.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jan Glauber <jglauber@cavium.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add a binding and a driver for the I2C IP found in the Socionext SynQuacer
-SoC, which is essentially a rebranded version of the Fujitsu F_I2C controller.
 
-I think this is good to go now. Wolfram?
+--xe6jzn6iqr7jy6zr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-v5:
-- add Rob's ack to #1
-- drop unnecessary 'platform_set_drvdata(pdev, NULL)' in remove path (#2)
+On Tue, Feb 27, 2018 at 04:42:13PM +0100, Jan Glauber wrote:
+> The error message:
+>=20
+> [Fri Feb 16 13:42:13 2018] i2c-thunderx 0000:01:09.4: unhandled state: 0
+>=20
+> is mis-leading as state 0 (bus error) is not an unknown state.
+>=20
+> Return -EIO as before but avoid printing the message. Also rename
+> STAT_ERROR to STATE_BUS_ERROR.
+>=20
+> Signed-off-by: Jan Glauber <jglauber@cavium.com>
 
-v4:
-- clarify binding that only a single interrupt specifier is expected (#1)
-- check return value of clk_prepare_enable() on probe path (#2)
-- add Andy's R-b to patch #2
+Applied to for-current, thanks!
 
-v3:
-- incorporate more of Andy's review comments (#2), especially regarding the
-  bus speed and clock source handling for ACPI
-- patch #1 unchanged.
 
-v2:
-- incorporate Andy's review comments (#2)
-- patch #1 unchanged.
+--xe6jzn6iqr7jy6zr
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Ard Biesheuvel (2):
-  dt-bindings: i2c: add binding for Socionext SynQuacer I2C
-  i2c: add support for Socionext SynQuacer I2C controller
+-----BEGIN PGP SIGNATURE-----
 
- Documentation/devicetree/bindings/i2c/i2c-synquacer.txt |  29 +
- drivers/i2c/busses/Kconfig                              |  10 +
- drivers/i2c/busses/Makefile                             |   1 +
- drivers/i2c/busses/i2c-synquacer.c                      | 791 ++++++++++++++++++++
- 4 files changed, 831 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-synquacer.txt
- create mode 100644 drivers/i2c/busses/i2c-synquacer.c
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqZI2YACgkQFA3kzBSg
+KbbGtQ/6A8bag+g61PFe5EHMFbgzl0hvvxcAUpPCd/zIUO7RvR4pw9vaWTGRGC6B
+eeeUhfAqtAsjj681WuP+/KcL7RLBhHDOjAj3SJIQpfTIICrsY34zyuEZqjjVOzib
+zevR1sZWA80O7doGH++zBPSWAVU5mtaFuxEKXJtfjL+PNa65CFcXcoxgCl3J1RRv
+Zmfvzy94VKyyfAshHp3iy2VuifE+ttmQvH9QGJRPyi/ZdMKNiGn6R0uXVYPGveua
+l7ikNeDylHNlcla5I9SOvOBC6qMivouKLfGHVf9QEljwopScrjawacV3L0/3V60U
+eVjl89GEmOi0dcXwiveLH1QItmDtJwPCtH3OqC6UH2202JYYVS9Q5nZHWvrPqenx
+NQTPkfW9A5g+pJDJs38v2Wq4fuC9j1U4wazt/iGB3KFha99qkUlU91H+cVraxLE2
+gda2Z/i4lhCff0JStagu/xi+hs21CYn3q41i1tmj/vDoniGvTrX8edoV6gT4xT3w
+C0IHFVBuYFKAYK9YsOCzHhIOcUsJXV270Q92z5rfqDFMh33ZLyM1QwrUgBM14YaH
+/80f7Cw8Hk72Epj//sD1yE5vy5O6KXfR2eomJYpOqpSSe86YzdLBhjnjvVb9bVgq
+VSf9lLekdRkeUpo2Vt/JuygxrCdqU3VuGns7gqOzCBFNKOjppvk=
+=KaWi
+-----END PGP SIGNATURE-----
 
--- 
-2.11.0
+--xe6jzn6iqr7jy6zr--
