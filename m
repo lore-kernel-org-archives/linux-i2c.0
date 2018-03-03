@@ -1,52 +1,51 @@
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
-Subject: Re: [PATCH] i2c: s3c2410: Properly handle interrupts of number 0
-Date: Sat, 3 Mar 2018 18:36:14 +0000
-Message-ID: <20180303183613.GE9418@n2100.armlinux.org.uk>
-References: <1519936484-23132-1-git-send-email-krzk@kernel.org>
- <20180302111931.GX9418@n2100.armlinux.org.uk>
- <20180302124647.sfhnto77wgdh5sv6@katana>
- <20180302125907.GA9418@n2100.armlinux.org.uk>
- <20180302135854.76ue5jzsg7lvxjxw@katana>
- <20180302140901.lrjqiaa2k4nxkqco@mwanda>
- <20180302153221.GB9418@n2100.armlinux.org.uk>
- <20180302162821.bmsxgrqqaginjooo@lakrids.cambridge.arm.com>
- <CAHp75VcPMmATbCCczm3NqNDGCda6J5vga-FDW4SFABaqBKe4iw@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: octeon: Prevent error message on bus error
+Date: Sat, 3 Mar 2018 20:37:04 +0100
+Message-ID: <20180303193704.2idvbyguecpdipyl@katana>
+References: <20180227154213.3023-1-jglauber@cavium.com>
+ <20180302101150.4mrrms3sn6spnicu@ninjato>
+ <CAAek22H_WBejypWH=GCV7iCFCaJ46HZZ=NdPtj-iaFipqATAFA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="7ji42srnyjijs24v"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAHp75VcPMmATbCCczm3NqNDGCda6J5vga-FDW4SFABaqBKe4iw@mail.gmail.com>
+In-Reply-To: <CAAek22H_WBejypWH=GCV7iCFCaJ46HZZ=NdPtj-iaFipqATAFA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, Dan Carpenter <dan.carpenter@oracle.com>, linux-samsung-soc@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Kukjin Kim <kgene@kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Ben Dooks <ben-linux@fluff.org>, Stable <stable@vger.kernel.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>
+To: Phil Pokorny <ppokorny@penguincomputing.com>
+Cc: Jan Glauber <jglauber@cavium.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Mar 03, 2018 at 06:25:17PM +0200, Andy Shevchenko wrote:
-> On Fri, Mar 2, 2018 at 6:28 PM, Mark Rutland <mark.rutland@arm.com> wrote:
-> > On Fri, Mar 02, 2018 at 03:32:22PM +0000, Russell King - ARM Linux wrote:
-> >> How do we break this status quo and finally solve the IRQ 0 and
-> >> NO_IRQ issue?
-> 
-> Guys, the question: Wouldn't be request_irq() failed when it gets a
-> wrong number on input?
 
-Unfortunately not - IRQ 0 is kind of valid on x86 (it's the i8253 PIT)
-and an exception is made for x86 arch code with regard to this.  It
-gets setup using setup_irq() rather than request_irq() (see
-arch/x86/kernel/time.c::setup_default_timer_irq()).
+--7ji42srnyjijs24v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-request_irq() doesn't deny IRQ 0 - it denies IRQ_NOTCONNECTED and
-anything that irq_to_desc() returns NULL for, which can be a radix
-tree lookup or simply any unsigned IRQ number less than NR_IRQS for
-legacy platforms.
 
-If you're on a DT platform, then the IRQ subsystem avoids allocating
-IRQ0 for any DT IRQ controller, so DT platforms should be fine.  It's
-just the legacy platforms that continue to be an ongoing issue wrt
-the IRQ 0 / NO_IRQ business, and those will generally be using the
-non-radix tree version of irq_to_desc().
+> Did you also pick up the i2c-xlp9xx patches for current?
 
--- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line in suburbia: sync at 8.8Mbps down 630kbps up
-According to speedtest.net: 8.21Mbps down 510kbps up
+Dunno which one of those you mean, but I reply to every patch to which
+branch I applied it to so you can check it easily.
+
+
+--7ji42srnyjijs24v
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqa+VsACgkQFA3kzBSg
+KbZVUw//XFUVJu06GdPOapSqUcUJTVsN5FkkF+QCMwCZJATEbDS2WJFD9aP/YYNz
+7YR92BI3DThfCS12kjQpsZrA1LKEPeWWtD0dZ26zhG7/xCp5e4e6H1UwE25DRHP8
+MsIEW9DqOe6JRO8ET/CLV04C7V3k7vbeJwuNCcHkFD2nhX9TVIQ3tYLe11pWEI+3
+nEeD5q+awuQHNhjZtlJh6OKL3VM3FqcxDeNj6NfEQaetbdvLxksPBLB63mH7Ek+S
+vz/K7w4r44xT/5WudZlONMXLebfBcoO2qoaMM2ylSvfkW5XQoGRGHw0k9UrKG+D8
+aHuTNhMfIpvVN1P9blvbZU3Ebk9ghnM5yifWiVPwRPLd0OKtCugdJexhikuviD6G
+qSi+MhFabLK5XS3pnOq4AUOBDkZI6cUthit0FhhmagtHM2tepjwu9MnvEjOuaY3v
+jRPICy7I7kjd1IDt4rEcWCZQH2ZpV/e2L6oe7Z2CuAuyi9Np7GiWu/ONjNtQZnTH
+ZfB8uGJVCaCHas9M98ZEziGjmPGkHwiN1VQceMNLu01r7zzcHUzcHU5kLlOjG1dN
+YOye88QMOjXF66+9EXfNmjAOuA+7QMatvhK73sqEsCsQOwADykcoMCORMQ2vqfsR
+YWnrxReOILI4dMGulRc+FyfUZBASjQ9gA45s12FHQWFccFDm3Xk=
+=pZ/0
+-----END PGP SIGNATURE-----
+
+--7ji42srnyjijs24v--
