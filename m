@@ -1,79 +1,143 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.16
-Date: Sat, 3 Mar 2018 23:32:57 +0100
-Message-ID: <20180303223240.q3xmnxasstin4tfh@ninjato>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [RFC PATCH 1/2] i2c: add i2c_get_device_id() to get the standard
+ i2c device id
+Date: Sun, 4 Mar 2018 22:47:59 +0100
+Message-ID: <29c55bcc-8d14-dcff-d407-33cfb402af8a@axentia.se>
+References: <20180122113657.32094-1-peda@axentia.se>
+ <20180122113657.32094-2-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="477lwxfjb7h2czfk"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <20180122113657.32094-2-peda@axentia.se>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Adrian Fiergolski <adrian.fiergolski@cern.ch>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---477lwxfjb7h2czfk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Did you have an opinion on this patch?
 
-Linus,
+In case you like it, do you which to take it (don't forget to add a
+Tested-by-tag from Adrian in that case), or should I take it and you
+then get it in a pull request?
 
-here is a driver fix and a documentation fix (which makes dependency
-handling for the next cycle easier) from I2C.
+Cheers,
+Peter
 
-Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit 4a3928c6f8a53fa1aed28ccba227742486e8ddcb:
-
-  Linux 4.16-rc3 (2018-02-25 18:50:41 -0800)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
-
-for you to fetch changes up to 7c4246797b84e55e2dfaaf8a18033de9df7c18c1:
-
-  i2c: octeon: Prevent error message on bus error (2018-03-02 11:11:15 +0100)
-
-----------------------------------------------------------------
-Jan Glauber (1):
-      i2c: octeon: Prevent error message on bus error
-
-Peter Rosin (1):
-      dt-bindings: at24: sort manufacturers alphabetically
-
-Wolfram Sang (1):
-      Merge tag 'at24-4.16-rc4-for-wolfram' of git://git.kernel.org/.../brgl/linux into i2c/for-current
-
- Documentation/devicetree/bindings/eeprom/at24.txt | 2 +-
- drivers/i2c/busses/i2c-octeon-core.c              | 1 +
- drivers/i2c/busses/i2c-octeon-core.h              | 2 +-
- 3 files changed, 3 insertions(+), 2 deletions(-)
-
---477lwxfjb7h2czfk
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqbIoQACgkQFA3kzBSg
-KbYBPhAAnZ0oENmfbmSKS3NZO4Cpvqsn2nlvW1IXj+oJhYfOa2VsMj4FApJs/g5S
-Tc+1/O1IkgYce3Rc/zhJqwM2ZoANkPNK609BPu28opkj4YVyZW5Nyuk8AyIMIt73
-kFizFz9KcNniHpOXnD3VhOmHBiqSnDepRqeQBTNBniFL6pKCVji99MllRx0OJHF7
-mFdONhU+2wEr2+RGVRpXiFw4qEW4xx2K35BluvKLDcmrGUMlPFj27kpPLeVbc2Rn
-HkFp5+TQh3jfw3yQeeOk9QeVEq8aUQ8FcngB84iHD7FQHGkp9G/5zzrMvHybzRsq
-Ej/ZK7X44b9n3szqI7EKNH02uRJnwV8aeSnR5GFOimOWpgnBSOX0kYa7Z4c0ubEk
-222KQyse/VVwj5RVDsHlFKhgv7yUwLPEb85ZBOR7dmwv+0Q+Dn4Gtp+dupIJ/vZx
-pKgoAu2/MForu9TEkIpLobMtB+eD59KP0ne8KHS5HZhvH3EaVs7ckB7K3E5qyZSg
-4jB2BhNMMdIZAdvlQsL6xozFnt43d/U/ag/QM6dE9loWmyXS1cy+5D5C4D6pVoTy
-crOv/Km11F9DpMTMqi1QZQ9gKBW55zRDcrBJtzbsn5qMCamGlURlkkoEvQOhCRyQ
-6mLxeVCEOnsBeQj+IwObLhhptUuXqKi4FIveTa3P6xbKUe1BROQ=
-=Bk5S
------END PGP SIGNATURE-----
-
---477lwxfjb7h2czfk--
+On 2018-01-22 12:36, Peter Rosin wrote:
+> Can be used during probe to double check that the probed device is
+> what is expected.
+> 
+> Loosely based on code from Adrian Fiergolski <adrian.fiergolski@cern.ch>.
+> 
+> Signed-off-by: Peter Rosin <peda@axentia.se>
+> ---
+>  drivers/i2c/i2c-core-base.c | 33 +++++++++++++++++++++++++++++++++
+>  include/linux/i2c.h         | 30 ++++++++++++++++++++++++++++++
+>  2 files changed, 63 insertions(+)
+> 
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index 5a00bf443d06..f496b917529d 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -58,6 +58,8 @@
+>  #define I2C_ADDR_7BITS_MAX	0x77
+>  #define I2C_ADDR_7BITS_COUNT	(I2C_ADDR_7BITS_MAX + 1)
+>  
+> +#define I2C_ADDR_DEVICE_ID	0x7c
+> +
+>  /*
+>   * core_lock protects i2c_adapter_idr, and guarantees that device detection,
+>   * deletion of detected devices, and attach_adapter calls are serialized
+> @@ -1968,6 +1970,37 @@ int i2c_transfer_buffer_flags(const struct i2c_client *client, char *buf,
+>  }
+>  EXPORT_SYMBOL(i2c_transfer_buffer_flags);
+>  
+> +/**
+> + * i2c_get_device_id - get manufacturer, part id and die revision of a device
+> + * @client: The device to query
+> + * @id: The queried information
+> + *
+> + * Returns negative errno on error, zero on success.
+> + */
+> +int i2c_get_device_id(const struct i2c_client *client,
+> +		      struct i2c_device_identity *id)
+> +{
+> +	struct i2c_adapter *adap = client->adapter;
+> +	union i2c_smbus_data raw_id;
+> +	int ret;
+> +
+> +	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_READ_I2C_BLOCK))
+> +		return -EOPNOTSUPP;
+> +
+> +	raw_id.block[0] = 3;
+> +	ret = i2c_smbus_xfer(adap, I2C_ADDR_DEVICE_ID, client->flags,
+> +			     I2C_SMBUS_READ, client->addr << 1,
+> +			     I2C_SMBUS_I2C_BLOCK_DATA, &raw_id);
+> +	if (ret)
+> +		return ret;
+> +
+> +	id->manufacturer_id = (raw_id.block[1] << 4) | (raw_id.block[2] >> 4);
+> +	id->part_id = ((raw_id.block[2] & 0xf) << 5) | (raw_id.block[3] >> 3);
+> +	id->die_revision = raw_id.block[3] & 0x7;
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_get_device_id);
+> +
+>  /* ----------------------------------------------------
+>   * the i2c address scanning function
+>   * Will not work for 10-bit addresses!
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 419a38e7c315..44ad14e016b5 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -47,6 +47,7 @@ struct i2c_algorithm;
+>  struct i2c_adapter;
+>  struct i2c_client;
+>  struct i2c_driver;
+> +struct i2c_device_identity;
+>  union i2c_smbus_data;
+>  struct i2c_board_info;
+>  enum i2c_slave_event;
+> @@ -186,8 +187,37 @@ extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
+>  extern s32
+>  i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+>  					  u8 command, u8 length, u8 *values);
+> +int i2c_get_device_id(const struct i2c_client *client,
+> +		      struct i2c_device_identity *id);
+>  #endif /* I2C */
+>  
+> +/**
+> + * struct i2c_device_identity - i2c client device identification
+> + * @manufacturer_id: 0 - 4095, database maintained by NXP
+> + * @part_id: 0 - 511, according to manufacturer
+> + * @die_revision: 0 - 7, according to manufacturer
+> + */
+> +struct i2c_device_identity {
+> +	u16 manufacturer_id;
+> +#define I2C_DEVICE_ID_NXP_SEMICONDUCTORS                0
+> +#define I2C_DEVICE_ID_NXP_SEMICONDUCTORS_1              1
+> +#define I2C_DEVICE_ID_NXP_SEMICONDUCTORS_2              2
+> +#define I2C_DEVICE_ID_NXP_SEMICONDUCTORS_3              3
+> +#define I2C_DEVICE_ID_RAMTRON_INTERNATIONAL             4
+> +#define I2C_DEVICE_ID_ANALOG_DEVICES                    5
+> +#define I2C_DEVICE_ID_STMICROELECTRONICS                6
+> +#define I2C_DEVICE_ID_ON_SEMICONDUCTOR                  7
+> +#define I2C_DEVICE_ID_SPRINTEK_CORPORATION              8
+> +#define I2C_DEVICE_ID_ESPROS_PHOTONICS_AG               9
+> +#define I2C_DEVICE_ID_FUJITSU_SEMICONDUCTOR            10
+> +#define I2C_DEVICE_ID_FLIR                             11
+> +#define I2C_DEVICE_ID_O2MICRO                          12
+> +#define I2C_DEVICE_ID_ATMEL                            13
+> +#define I2C_DEVICE_ID_NONE                         0xffff
+> +	u16 part_id;
+> +	u8 die_revision;
+> +};
+> +
+>  enum i2c_alert_protocol {
+>  	I2C_PROTOCOL_SMBUS_ALERT,
+>  	I2C_PROTOCOL_SMBUS_HOST_NOTIFY,
+> 
