@@ -1,61 +1,59 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH] i2c: core: report OF style module alias for devices
  registered via OF
-Date: Mon, 5 Mar 2018 12:00:03 +0100
-Message-ID: <CABxcv=myJZw1zVtbkSW-5xhxeK71YtV3jOvBdGgoB92m67R4bw@mail.gmail.com>
-References: <20171203214050.11482-1-javierm@redhat.com> <CABxcv=nQpd-RPPzWbCpdWQjK7VzZyXtWSCTB3JHBA-uLygoC+A@mail.gmail.com>
+Date: Mon, 5 Mar 2018 16:30:51 +0100
+Message-ID: <20180305153051.w3b7ern7u4e4fy23@ninjato>
+References: <20171203214050.11482-1-javierm@redhat.com>
+ <CABxcv=nQpd-RPPzWbCpdWQjK7VzZyXtWSCTB3JHBA-uLygoC+A@mail.gmail.com>
+ <CABxcv=myJZw1zVtbkSW-5xhxeK71YtV3jOvBdGgoB92m67R4bw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="tiovcelid4cmgb57"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CABxcv=nQpd-RPPzWbCpdWQjK7VzZyXtWSCTB3JHBA-uLygoC+A@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <CABxcv=myJZw1zVtbkSW-5xhxeK71YtV3jOvBdGgoB92m67R4bw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+To: Javier Martinez Canillas <javier@dowhile0.org>
 Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Javier Martinez Canillas <javierm@redhat.com>
 List-Id: linux-i2c@vger.kernel.org
 
- Hello Wolfram,
 
-On Sun, Jan 7, 2018 at 2:17 PM, Javier Martinez Canillas
-<javier@dowhile0.org> wrote:
->
-> On Sun, Dec 3, 2017 at 10:40 PM, Javier Martinez Canillas
-> <javierm@redhat.com> wrote:
->> The buses should honor the firmware interface used to register the device,
->> but the I2C core reports a MODALIAS of the form i2c:<device> even for I2C
->> devices registered via OF.
->>
->> This means that user-space will never get an OF stype uevent MODALIAS even
->> when the drivers modules contain aliases exported from both the I2C and OF
->> device ID tables. For example, an Atmel maXTouch Touchscreen registered by
->> a DT node with compatible "atmel,maxtouch" has the following module alias:
->>
->> $ cat /sys/class/i2c-adapter/i2c-8/8-004b/modalias
->> i2c:maxtouch
->>
->> So udev won't be able to auto-load a module for an OF-only device driver.
->> Many OF-only drivers duplicate the OF device ID table entries in an I2C ID
->> table only has a workaround for how the I2C core reports the module alias.
->>
->> This patch changes the I2C core to report an OF related MODALIAS uevent if
->> the device was registered via OF. So for the previous example, after this
->> patch, the reported MODALIAS for the Atmel maXTouch will be the following:
->>
->> $ cat /sys/class/i2c-adapter/i2c-8/8-004b/modalias
->> of:NtrackpadT<NULL>Catmel,maxtouch
->>
->> NOTE: This patch may break out-of-tree drivers that were relying on this
->>       behavior, and only had an I2C device ID table even when the device
->>       was registered via OF. There are no remaining drivers in mainline
->>       that do this, but out-of-tree drivers have to be fixed and define
->>       a proper OF device ID table to have module auto-loading working.
->>
->> Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
->> ---
->
-> Any comments on this patch?
->
+--tiovcelid4cmgb57
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Is this patch under your radar? Should I keep pushing for it or just give up?
 
-Best regards,
-Javier
+> Is this patch under your radar? Should I keep pushing for it or just give up?
+
+Applied to for-next, thanks for your patience and your preparational
+work needed to get this upstream!
+
+We will see in linux-next if there slipped in some new drivers which
+need fixing, but we have a full cycle to get them adapted.
+
+And hopefully the benefits will shine through right away.
+
+Thanks again!
+
+
+--tiovcelid4cmgb57
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqdYqcACgkQFA3kzBSg
+KbZi5g//VOXpZz31mrqXxCY3f1K366PhyfmiYs7mJKsUTkS21hnHVyviSv4LOgQS
+XmaDFY7uXuDey37z2KxW7AkrwjbUd+B2kxOkdwwJ8z9K6bu4VRsUoCZ4pM32SQuQ
+XPptjScEKRyXMO0SbHwgihBrQDhuHCpGWccy63AgyhCQfpxI6hgx8ZYMEu108llU
+YzQTTzUvYUxrxuWxFQMhSPxO6Irmpu85It5ttD2OECDDWODf9NfdrkdS/iPiYz5G
+oOLirpI+FzN7CXYNU1kCybbkVEE7byGzb2Ux1LrAKBuJU+TRlRgmVb9ZcdBtwbQn
+IIr3EQF7FqKNYWlOfGJvKsEkwds/vugVJ+KIEv6uw9dSVUhwB2BSSyZwboBooPVI
+AEh5xcqPx0r9SQrXa1kAOoNm33M+l5mJ6oro0wpJpg9Qq4aAWSSG6MKTRTZLo8AS
+97ksHkzkW8ozTG/zGsjnhZPYSjfbdN81t+mNcX1ZkFMFM4Vl6rYMEueUfkDKaFfk
+vaDTKUzJr1uL4uc6BmtBnekXBeJSP7bBzGMwJnZFG7veuyNlosrsSyaw2gGcnjoZ
+sxhCvERGyJdTFECVGwG9tqGBgcIdDQkprqT3AbMmyovDUbhQwDrqIYVy7fecy2lS
+0t4eQOaFFBn17e81tRv6q9g/mRhzs9360RWR2CMfiLEseGHdFEY=
+=1N9I
+-----END PGP SIGNATURE-----
+
+--tiovcelid4cmgb57--
