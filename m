@@ -1,81 +1,55 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC PATCH 1/2] i2c: add i2c_get_device_id() to get the standard
- i2c device id
-Date: Mon, 5 Mar 2018 16:51:11 +0100
-Message-ID: <20180305155111.ihlt4hn4yz3igo3z@ninjato>
+Subject: Re: [RFC PATCH 2/2] i2c: mux: pca954x: verify the device id of the
+ pca984x chips
+Date: Mon, 5 Mar 2018 16:53:04 +0100
+Message-ID: <20180305155303.i4zut6wtwckdes7z@ninjato>
 References: <20180122113657.32094-1-peda@axentia.se>
- <20180122113657.32094-2-peda@axentia.se>
+ <20180122113657.32094-3-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="76qguvvlfacja55i"
+        protocol="application/pgp-signature"; boundary="lg4msgmpcqno4vgt"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180122113657.32094-2-peda@axentia.se>
+In-Reply-To: <20180122113657.32094-3-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Peter Rosin <peda@axentia.se>
 Cc: Adrian Fiergolski <adrian.fiergolski@cern.ch>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---76qguvvlfacja55i
+--lg4msgmpcqno4vgt
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jan 22, 2018 at 12:36:56PM +0100, Peter Rosin wrote:
-> Can be used during probe to double check that the probed device is
-> what is expected.
->=20
-> Loosely based on code from Adrian Fiergolski <adrian.fiergolski@cern.ch>.
->=20
-> Signed-off-by: Peter Rosin <peda@axentia.se>
-
-In general, nice! I wanted to have such a function in the core but never
-had a device to test it with. So, much appreciated.
-
-Looks mostly good, except...
-
-> +	ret =3D i2c_smbus_xfer(adap, I2C_ADDR_DEVICE_ID, client->flags,
-
-We shouldn't pass the flag of the clients (like PEC) here. I'd think it
-could be plain 0 but please double-check.
-
-> +/**
-> + * struct i2c_device_identity - i2c client device identification
-> + * @manufacturer_id: 0 - 4095, database maintained by NXP
-> + * @part_id: 0 - 511, according to manufacturer
-> + * @die_revision: 0 - 7, according to manufacturer
-> + */
-
-All is nicely documented, very good!
-
-About the upstreaming procedure: Could you just make a seperate
-pull-request out of this feature? I'll pull that in to have it in my
-tree and you can still collect patches in your usual for-next branch.
-
-When the above is fixed you can add my:
-
-Reviewed-by: Wolfram Sang <wsa@the-dreams.de>
 
 
---76qguvvlfacja55i
+> @@ -97,59 +98,83 @@ static const struct chip_desc chips[] = {
+>  		.nchans = 2,
+>  		.enable = 0x4,
+>  		.muxtype = pca954x_ismux,
+> +		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
+
+Can't we just leave this empty and add a NULL pointer check below when
+testing for the device id?
+
+
+--lg4msgmpcqno4vgt
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqdZ28ACgkQFA3kzBSg
-KbYp5hAAiiDMCn08MkxFAFb8OR9MNmjNtCJM1vH3kH0rDLf/+wGL/hUk1VQ5rnHY
-b1bJA7qTHwT6j/1eVcOdKuGPrNf7KFXdjFWdEmHfv58cC2cRDO3pvG118C0Wlpkx
-/0viYHI3HHnApd0xNto7zCcpsTZZbwJ1v5F3yIyh3QGJpzj7f9gXhTnKQV4GGpxG
-fv19daq3UYQdpiZYxLR6vGKdEEuVNhbR2byL4BB71uu1FmYpa7aE3gthZ3pPpJcd
-kNAcP59i//USpjylLgwRCAW3gAwJKPc3vl+8y8khk51w9ibg4cZ0+d5fNFo6b4lj
-+SLxbvFZSpFO6A9nXg/At1L9PxTRfIGCU8MoAxK/HSTEU/rrDesaW33NaqKnaYo9
-jyMQ2y5BQj/FtrkFcQ6DHiiK94tcaeq180Mbcn9lfVRMbaWstacxMDJmhhUVY7Ot
-RO6iHmAgVDeGoOIbupW1uKdL739ayePTbaoxiNFmFp+FPYqcxiZQCA8x9XKro/GL
-yI2wyGD6Zmq/vaTQ9/zgPkiqubLPyRZvWPWlP9Savuwn1d1sVfyC+WW5oYyRtzgQ
-yMNn24/E9Zb4T8O1/mdY+X8iMsTLMxEkdoojQ9V8TabLOeKsmay/W8fPaHJlAoY/
-rtlKOJcgM0uJNkWRH/8vbzmybGoDLjv5tnOmODquSLg4JAfheYU=
-=hWtI
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqdZ98ACgkQFA3kzBSg
+Kbb3UBAAkk/sUqKBYyLi0vkh+bNs5VLdNwz50/grqmYBaneuYV99d8m81UB9wNHM
+PdPzycuPQzqQhB2yLXnQGNYLSq0NVl6iazm3N8lqTZZccvvqE8d3Ld2zYb/50huN
+DYD3x+M4rlxkt6pY2lAdexyC9KLGJJSSSysVqmGJHGlYJcIr7AMm7Ue/jLIpwU6T
+ObDVsXVwUOGJf+ilas+4fvZJMHund7pa3Z5xHG2YHylLzTMfpt6WnrYJzFcTpQf3
+sGqL1APiJUEWOuOo158Tvjvbdor9/LocZUYzq/HjzNg1sn9zkQne8zL4zot07viN
+E7Qt/uFLiiTWm1vSx6TBqf44ZycCXMytofe1+kK664YxfavnSHjxqZjmDq44kBYl
+C5lpcfIMID68m611WaTcelYDUKmU4WKMX7Cm/PYyGfuQHpDxObF+oqq+zJ74VXNB
+TVXQZmH3Hg8mi9zGn5P6h6c8qhnipY4wI82NX4X3mDLdNTPTFtRzNF45kWT5Etso
+bnbFFyqkMMznKIiFBLzX4ETlbUto8byfxvkGaQDTPxF5XdKg8cfTZhA4H1vyCAUT
+UzNIGBoeniAdljFZ/hvpqS9DS+U9UBzuIH9kvUOsxks7x7VVDHGMUXx3Yag9LDgt
+LNVfikc7VHq+qW0P9yOmRodOl7X5UmmATHvh29+Ji02Nw7AQRNo=
+=KPVr
 -----END PGP SIGNATURE-----
 
---76qguvvlfacja55i--
+--lg4msgmpcqno4vgt--
