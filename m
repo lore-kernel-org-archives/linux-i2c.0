@@ -1,166 +1,102 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v2 2/2] i2c: mux: pca954x: verify the device id of the pca984x chips
-Date: Mon,  5 Mar 2018 21:58:22 +0100
-Message-ID: <20180305205822.951-3-peda@axentia.se>
-References: <20180305205822.951-1-peda@axentia.se>
+From: Jan Glauber <jglauber@cavium.com>
+Subject: Re: [PATCH 3/3] i2c: xlp9xx: Add support for SMBAlert
+Date: Tue, 6 Mar 2018 09:36:47 +0100
+Message-ID: <20180306083647.GA11729@wintermute>
+References: <1519737980-27997-1-git-send-email-george.cherian@cavium.com>
+ <1519737980-27997-3-git-send-email-george.cherian@cavium.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180305205822.951-1-peda@axentia.se>
+Content-Disposition: inline
+In-Reply-To: <1519737980-27997-3-git-send-email-george.cherian@cavium.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Adrian Fiergolski <adrian.fiergolski@cern.ch>, linux-i2c@vger.kernel.org
+To: George Cherian <george.cherian@cavium.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, Kamlakant Patel <kamlakant.patel@cavium.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Make sure to not disallow the chips on adapters that are not capable
-of reading the device id, but also make sure to check the device id
-before writing to the chip.
+On Tue, Feb 27, 2018 at 01:26:20PM +0000, George Cherian wrote:
+> Add support for SMBus alert mechanism to i2c-xlp9xx driver.
+> The second interrupt is parsed to use for SMBus alert.
+> The first interrupt is the i2c controller main interrupt.
+> 
+> Signed-off-by: Kamlakant Patel <kamlakant.patel@cavium.com>
+> Signed-off-by: George Cherian <george.cherian@cavium.com>
+> ---
+>  drivers/i2c/busses/i2c-xlp9xx.c | 26 ++++++++++++++++++++++++++
+>  1 file changed, 26 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
+> index eb8913e..9462eab 100644
+> --- a/drivers/i2c/busses/i2c-xlp9xx.c
+> +++ b/drivers/i2c/busses/i2c-xlp9xx.c
+> @@ -10,6 +10,7 @@
+>  #include <linux/clk.h>
+>  #include <linux/completion.h>
+>  #include <linux/i2c.h>
+> +#include <linux/i2c-smbus.h>
+>  #include <linux/init.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/io.h>
+> @@ -84,6 +85,8 @@ struct xlp9xx_i2c_dev {
+>  	struct device *dev;
+>  	struct i2c_adapter adapter;
+>  	struct completion msg_complete;
+> +	struct i2c_smbus_alert_setup alert_data;
+> +	struct i2c_client *ara;
+>  	int irq;
+>  	bool msg_read;
+>  	bool len_recv;
+> @@ -447,6 +450,21 @@ static int xlp9xx_i2c_get_frequency(struct platform_device *pdev,
+>  	return 0;
+>  }
+>  
+> +static int xlp9xx_i2c_smbus_setup(struct xlp9xx_i2c_dev *priv,
+> +				  struct platform_device *pdev)
+> +{
+> +	if (!priv->alert_data.irq)
+> +		return -EINVAL;
+> +
+> +	priv->alert_data.alert_edge_triggered = 0;
 
-Tested-by: Adrian Fiergolski <adrian.fiergolski@cern.ch>
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- drivers/i2c/muxes/i2c-mux-pca954x.c | 55 +++++++++++++++++++++++++++++++++----
- 1 file changed, 49 insertions(+), 6 deletions(-)
+Hi George,
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index fbb84c7ef282..09bafd3e68fa 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -77,6 +77,7 @@ struct chip_desc {
- 		pca954x_ismux = 0,
- 		pca954x_isswi
- 	} muxtype;
-+	struct i2c_device_identity id;
- };
- 
- struct pca954x {
-@@ -97,59 +98,83 @@ static const struct chip_desc chips[] = {
- 		.nchans = 2,
- 		.enable = 0x4,
- 		.muxtype = pca954x_ismux,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
- 	},
- 	[pca_9542] = {
- 		.nchans = 2,
- 		.enable = 0x4,
- 		.has_irq = 1,
- 		.muxtype = pca954x_ismux,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
- 	},
- 	[pca_9543] = {
- 		.nchans = 2,
- 		.has_irq = 1,
- 		.muxtype = pca954x_isswi,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
- 	},
- 	[pca_9544] = {
- 		.nchans = 4,
- 		.enable = 0x4,
- 		.has_irq = 1,
- 		.muxtype = pca954x_ismux,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
- 	},
- 	[pca_9545] = {
- 		.nchans = 4,
- 		.has_irq = 1,
- 		.muxtype = pca954x_isswi,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
- 	},
- 	[pca_9546] = {
- 		.nchans = 4,
- 		.muxtype = pca954x_isswi,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
- 	},
- 	[pca_9547] = {
- 		.nchans = 8,
- 		.enable = 0x8,
- 		.muxtype = pca954x_ismux,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
- 	},
- 	[pca_9548] = {
- 		.nchans = 8,
- 		.muxtype = pca954x_isswi,
-+		.id = { .manufacturer_id = I2C_DEVICE_ID_NONE },
- 	},
- 	[pca_9846] = {
- 		.nchans = 4,
- 		.muxtype = pca954x_isswi,
-+		.id = {
-+			.manufacturer_id = I2C_DEVICE_ID_NXP_SEMICONDUCTORS,
-+			.part_id = 0x10b,
-+		},
- 	},
- 	[pca_9847] = {
- 		.nchans = 8,
- 		.enable = 0x8,
- 		.muxtype = pca954x_ismux,
-+		.id = {
-+			.manufacturer_id = I2C_DEVICE_ID_NXP_SEMICONDUCTORS,
-+			.part_id = 0x108,
-+		},
- 	},
- 	[pca_9848] = {
- 		.nchans = 8,
- 		.muxtype = pca954x_isswi,
-+		.id = {
-+			.manufacturer_id = I2C_DEVICE_ID_NXP_SEMICONDUCTORS,
-+			.part_id = 0x10a,
-+		},
- 	},
- 	[pca_9849] = {
- 		.nchans = 4,
- 		.enable = 0x4,
- 		.muxtype = pca954x_ismux,
-+		.id = {
-+			.manufacturer_id = I2C_DEVICE_ID_NXP_SEMICONDUCTORS,
-+			.part_id = 0x109,
-+		},
- 	},
- };
- 
-@@ -369,6 +394,30 @@ static int pca954x_probe(struct i2c_client *client,
- 	if (IS_ERR(gpio))
- 		return PTR_ERR(gpio);
- 
-+	match = of_match_device(of_match_ptr(pca954x_of_match), &client->dev);
-+	if (match)
-+		data->chip = of_device_get_match_data(&client->dev);
-+	else
-+		data->chip = &chips[id->driver_data];
-+
-+	if (data->chip->id.manufacturer_id != I2C_DEVICE_ID_NONE) {
-+		struct i2c_device_identity id;
-+
-+		ret = i2c_get_device_id(client, &id);
-+		if (ret && ret != -EOPNOTSUPP)
-+			return ret;
-+
-+		if (!ret &&
-+		    (id.manufacturer_id != data->chip->id.manufacturer_id ||
-+		     id.part_id != data->chip->id.part_id)) {
-+			dev_warn(&client->dev,
-+				 "unexpected device id %03x-%03x-%x\n",
-+				 id.manufacturer_id, id.part_id,
-+				 id.die_revision);
-+			return -ENODEV;
-+		}
-+	}
-+
- 	/* Write the mux register at addr to verify
- 	 * that the mux is in fact present. This also
- 	 * initializes the mux to disconnected state.
-@@ -378,12 +427,6 @@ static int pca954x_probe(struct i2c_client *client,
- 		return -ENODEV;
- 	}
- 
--	match = of_match_device(of_match_ptr(pca954x_of_match), &client->dev);
--	if (match)
--		data->chip = of_device_get_match_data(&client->dev);
--	else
--		data->chip = &chips[id->driver_data];
--
- 	data->last_chan = 0;		   /* force the first selection */
- 
- 	idle_disconnect_dt = of_node &&
--- 
-2.11.0
+I think this is not needed anymore, see:
+9b9f2b8bc2ac i2c: i2c-smbus: Use threaded irq for smbalert
+
+--Jan
+
+> +
+> +	priv->ara = i2c_setup_smbus_alert(&priv->adapter, &priv->alert_data);
+> +	if (!priv->ara)
+> +		return -ENODEV;
+> +
+> +	return 0;
+> +}
+> +
+>  static int xlp9xx_i2c_probe(struct platform_device *pdev)
+>  {
+>  	struct xlp9xx_i2c_dev *priv;
+> @@ -467,6 +485,10 @@ static int xlp9xx_i2c_probe(struct platform_device *pdev)
+>  		dev_err(&pdev->dev, "invalid irq!\n");
+>  		return priv->irq;
+>  	}
+> +	/* SMBAlert irq */
+> +	priv->alert_data.irq = platform_get_irq(pdev, 1);
+> +	if (priv->alert_data.irq <= 0)
+> +		priv->alert_data.irq = 0;
+>  
+>  	xlp9xx_i2c_get_frequency(pdev, priv);
+>  	xlp9xx_i2c_init(priv);
+> @@ -493,6 +515,10 @@ static int xlp9xx_i2c_probe(struct platform_device *pdev)
+>  	if (err)
+>  		return err;
+>  
+> +	err = xlp9xx_i2c_smbus_setup(priv, pdev);
+> +	if (err)
+> +		dev_info(&pdev->dev, "No active SMBus alert %d\n", err);
+> +
+>  	platform_set_drvdata(pdev, priv);
+>  	dev_dbg(&pdev->dev, "I2C bus:%d added\n", priv->adapter.nr);
+>  
+> -- 
+> 2.1.4
