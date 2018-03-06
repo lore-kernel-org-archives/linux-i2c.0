@@ -1,87 +1,58 @@
-From: George Cherian <george.cherian@cavium.com>
-Subject: [PATCH v2] i2c: xlp9xx: Add support for SMBAlert
-Date: Tue,  6 Mar 2018 06:46:34 -0800
-Message-ID: <1520347594-184146-1-git-send-email-george.cherian@cavium.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCHv2 1/3] i2c: xlp9xx: Check for Bus state before every
+ transfer
+Date: Tue, 6 Mar 2018 16:40:59 +0100
+Message-ID: <20180306154056.p3vapgvctxpijitm@ninjato>
+References: <1519737980-27997-1-git-send-email-george.cherian@cavium.com>
+ <20180306084829.GB11729@wintermute>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="mvkl5gyybjujn7rj"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180306084829.GB11729@wintermute>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: wsa@the-dreams.de, George Cherian <george.cherian@cavium.com>, Kamlakant Patel <kamlakant.patel@cavium.com>
+To: Jan Glauber <jglauber@cavium.com>
+Cc: George Cherian <george.cherian@cavium.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add support for SMBus alert mechanism to i2c-xlp9xx driver.
-The second interrupt is parsed to use for SMBus alert.
-The first interrupt is the i2c controller main interrupt.
 
-Signed-off-by: Kamlakant Patel <kamlakant.patel@cavium.com>
-Signed-off-by: George Cherian <george.cherian@cavium.com>
----
- drivers/i2c/busses/i2c-xlp9xx.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+--mvkl5gyybjujn7rj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
-index eb8913e..d5cadb6 100644
---- a/drivers/i2c/busses/i2c-xlp9xx.c
-+++ b/drivers/i2c/busses/i2c-xlp9xx.c
-@@ -10,6 +10,7 @@
- #include <linux/clk.h>
- #include <linux/completion.h>
- #include <linux/i2c.h>
-+#include <linux/i2c-smbus.h>
- #include <linux/init.h>
- #include <linux/interrupt.h>
- #include <linux/io.h>
-@@ -84,6 +85,8 @@ struct xlp9xx_i2c_dev {
- 	struct device *dev;
- 	struct i2c_adapter adapter;
- 	struct completion msg_complete;
-+	struct i2c_smbus_alert_setup alert_data;
-+	struct i2c_client *ara;
- 	int irq;
- 	bool msg_read;
- 	bool len_recv;
-@@ -447,6 +450,19 @@ static int xlp9xx_i2c_get_frequency(struct platform_device *pdev,
- 	return 0;
- }
- 
-+static int xlp9xx_i2c_smbus_setup(struct xlp9xx_i2c_dev *priv,
-+				  struct platform_device *pdev)
-+{
-+	if (!priv->alert_data.irq)
-+		return -EINVAL;
-+
-+	priv->ara = i2c_setup_smbus_alert(&priv->adapter, &priv->alert_data);
-+	if (!priv->ara)
-+		return -ENODEV;
-+
-+	return 0;
-+}
-+
- static int xlp9xx_i2c_probe(struct platform_device *pdev)
- {
- 	struct xlp9xx_i2c_dev *priv;
-@@ -467,6 +483,10 @@ static int xlp9xx_i2c_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "invalid irq!\n");
- 		return priv->irq;
- 	}
-+	/* SMBAlert irq */
-+	priv->alert_data.irq = platform_get_irq(pdev, 1);
-+	if (priv->alert_data.irq <= 0)
-+		priv->alert_data.irq = 0;
- 
- 	xlp9xx_i2c_get_frequency(pdev, priv);
- 	xlp9xx_i2c_init(priv);
-@@ -493,6 +513,10 @@ static int xlp9xx_i2c_probe(struct platform_device *pdev)
- 	if (err)
- 		return err;
- 
-+	err = xlp9xx_i2c_smbus_setup(priv, pdev);
-+	if (err)
-+		dev_info(&pdev->dev, "No active SMBus alert %d\n", err);
-+
- 	platform_set_drvdata(pdev, priv);
- 	dev_dbg(&pdev->dev, "I2C bus:%d added\n", priv->adapter.nr);
- 
--- 
-1.8.3.1
+
+> I don't know how valuable same-company reviewed-by's are in the end,=20
+
+Case by case. And in your case, I trust you.
+
+> but the patches look good to me with the small change in SMBalert, so you
+> could add:
+>=20
+> Reviewed-by: Jan Glauber <jglauber@cavium.com>
+
+Thanks.
+
+
+--mvkl5gyybjujn7rj
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqetoMACgkQFA3kzBSg
+Kba1Iw/+Mxxuy/sbxjLZb4Jl02YQHBneo6jdbOunV16Ucg9v3JQa8OAqUFgLyVnJ
+hiTCFki8XsM9tCbBlenxb/h3pSKkNXivOXnM/P5tyNetg9cL/vu/zAIpdFHuQYi2
+NmkKxraGgTDjRZTyVSwzrURgUOu517H6q9tl4djXEMCN3rLgWFKjO4NaZEtwkf0y
+z09ra51C6ARCbCeRyn1B7+BARVcCr4rJjWR+H2yZIsRJC82ChC6nvAVuBJErcqcC
+sVVG/3wkxp3JUpuQnQDPfxy43zROx595pc+hYkGL9usi+ioZQWTnYO58XqG/6QaP
+Wo1wLZz+R+T6CyOOiQs0sNZZ5QibtMWgIrAYstzZgVL2/k/9b3yXEsTP7o2Y3q6c
+R+1OhPhOPRMHXvMXeJWdw4BIYM/3DlG73HyVYq8zkmTh/7EnmgyUd3qebUjI5wVu
+rMfaPhecNnWm1iHsrweKHtOxdvNZhVXR7TuGR9IT2Q03apSYOrnvPYMHJyRaXJ+X
+nzriEWOWGlWIBxjAnH9HZsE9UT97ZcihBSzCUK5KrArqvMZwtptsIvIQg8HgZm3v
+fewdL78VWVkgiKt/pbatuvgBcUbS49pZJTUpQ7D4gL2MRa+ugc9xNS9pCcan7Bvn
+atAp1U+/gsc+1rItOnTke3QynuWegjTYADURFq1pt4VQxgHz5mI=
+=RVGg
+-----END PGP SIGNATURE-----
+
+--mvkl5gyybjujn7rj--
