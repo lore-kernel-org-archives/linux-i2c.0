@@ -1,109 +1,123 @@
-From: Jan Glauber <jglauber@cavium.com>
-Subject: Re: [PATCHv2 1/3] i2c: xlp9xx: Check for Bus state before every
- transfer
-Date: Tue, 6 Mar 2018 09:48:29 +0100
-Message-ID: <20180306084829.GB11729@wintermute>
+From: Phil Reid <preid@electromag.com.au>
+Subject: Re: [PATCH 3/3] i2c: xlp9xx: Add support for SMBAlert
+Date: Tue, 6 Mar 2018 17:18:43 +0800
+Message-ID: <b78f0a77-403d-a5e5-e274-8c4f08a2cd20@electromag.com.au>
 References: <1519737980-27997-1-git-send-email-george.cherian@cavium.com>
+ <1519737980-27997-3-git-send-email-george.cherian@cavium.com>
+ <20180306083647.GA11729@wintermute>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1519737980-27997-1-git-send-email-george.cherian@cavium.com>
+In-Reply-To: <20180306083647.GA11729@wintermute>
+Content-Language: en-AU
 Sender: linux-kernel-owner@vger.kernel.org
-To: George Cherian <george.cherian@cavium.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de
+To: Jan Glauber <jglauber@cavium.com>, George Cherian <george.cherian@cavium.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, wsa@the-dreams.de, Kamlakant Patel <kamlakant.patel@cavium.com>
 List-Id: linux-i2c@vger.kernel.org
 
-I don't know how valuable same-company reviewed-by's are in the end, 
-but the patches look good to me with the small change in SMBalert, so you
-could add:
-
-Reviewed-by: Jan Glauber <jglauber@cavium.com>
-
---Jan
-
-On Tue, Feb 27, 2018 at 01:26:18PM +0000, George Cherian wrote:
-> I2C bus enters the STOP condition after the DATA_DONE interrupt is raised.
-> Essentially the driver should be checking the bus state before sending
-> any transaction. In case a transaction is initiated while the
-> bus is busy, the prior transaction's stop condition is not achieved.
-> Add the check to make sure the bus is not busy before every transaction.
+On 6/03/2018 16:36, Jan Glauber wrote:
+> On Tue, Feb 27, 2018 at 01:26:20PM +0000, George Cherian wrote:
+>> Add support for SMBus alert mechanism to i2c-xlp9xx driver.
+>> The second interrupt is parsed to use for SMBus alert.
+>> The first interrupt is the i2c controller main interrupt.
+>>
+>> Signed-off-by: Kamlakant Patel <kamlakant.patel@cavium.com>
+>> Signed-off-by: George Cherian <george.cherian@cavium.com>
+>> ---
+>>   drivers/i2c/busses/i2c-xlp9xx.c | 26 ++++++++++++++++++++++++++
+>>   1 file changed, 26 insertions(+)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
+>> index eb8913e..9462eab 100644
+>> --- a/drivers/i2c/busses/i2c-xlp9xx.c
+>> +++ b/drivers/i2c/busses/i2c-xlp9xx.c
+>> @@ -10,6 +10,7 @@
+>>   #include <linux/clk.h>
+>>   #include <linux/completion.h>
+>>   #include <linux/i2c.h>
+>> +#include <linux/i2c-smbus.h>
+>>   #include <linux/init.h>
+>>   #include <linux/interrupt.h>
+>>   #include <linux/io.h>
+>> @@ -84,6 +85,8 @@ struct xlp9xx_i2c_dev {
+>>   	struct device *dev;
+>>   	struct i2c_adapter adapter;
+>>   	struct completion msg_complete;
+>> +	struct i2c_smbus_alert_setup alert_data;
+>> +	struct i2c_client *ara;
+>>   	int irq;
+>>   	bool msg_read;
+>>   	bool len_recv;
+>> @@ -447,6 +450,21 @@ static int xlp9xx_i2c_get_frequency(struct platform_device *pdev,
+>>   	return 0;
+>>   }
+>>   
+>> +static int xlp9xx_i2c_smbus_setup(struct xlp9xx_i2c_dev *priv,
+>> +				  struct platform_device *pdev)
+>> +{
+>> +	if (!priv->alert_data.irq)
+>> +		return -EINVAL;
+>> +
+>> +	priv->alert_data.alert_edge_triggered = 0;
 > 
-> Signed-off-by: George Cherian <george.cherian@cavium.com>
-> ---
->  drivers/i2c/busses/i2c-xlp9xx.c | 32 ++++++++++++++++++++++++++++++++
->  1 file changed, 32 insertions(+)
+> Hi George,
 > 
-> diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
-> index 1f6d780..42dd1fa 100644
-> --- a/drivers/i2c/busses/i2c-xlp9xx.c
-> +++ b/drivers/i2c/busses/i2c-xlp9xx.c
-> @@ -16,6 +16,7 @@
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/platform_device.h>
-> +#include <linux/delay.h>
->  
->  #define XLP9XX_I2C_DIV			0x0
->  #define XLP9XX_I2C_CTRL			0x1
-> @@ -36,6 +37,8 @@
->  #define XLP9XX_I2C_TIMEOUT		0X10
->  #define XLP9XX_I2C_GENCALLADDR		0x11
->  
-> +#define XLP9XX_I2C_STATUS_BUSY		BIT(0)
-> +
->  #define XLP9XX_I2C_CMD_START		BIT(7)
->  #define XLP9XX_I2C_CMD_STOP		BIT(6)
->  #define XLP9XX_I2C_CMD_READ		BIT(5)
-> @@ -71,6 +74,7 @@
->  #define XLP9XX_I2C_HIGH_FREQ		400000
->  #define XLP9XX_I2C_FIFO_SIZE		0x80U
->  #define XLP9XX_I2C_TIMEOUT_MS		1000
-> +#define XLP9XX_I2C_BUSY_TIMEOUT		50
->  
->  #define XLP9XX_I2C_FIFO_WCNT_MASK	0xff
->  #define XLP9XX_I2C_STATUS_ERRMASK	(XLP9XX_I2C_INTEN_ARLOST | \
-> @@ -241,6 +245,26 @@ static irqreturn_t xlp9xx_i2c_isr(int irq, void *dev_id)
->  	return IRQ_HANDLED;
->  }
->  
-> +static int xlp9xx_i2c_check_bus_status(struct xlp9xx_i2c_dev *priv)
-> +{
-> +	u32 status;
-> +	u32 busy_timeout = XLP9XX_I2C_BUSY_TIMEOUT;
-> +
-> +	while (busy_timeout) {
-> +		status = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_STATUS);
-> +		if ((status & XLP9XX_I2C_STATUS_BUSY) == 0)
-> +			break;
-> +
-> +		busy_timeout--;
-> +		usleep_range(1000, 1100);
-> +	}
-> +
-> +	if (!busy_timeout)
-> +		return -EIO;
-> +
-> +	return 0;
-> +}
-> +
->  static int xlp9xx_i2c_init(struct xlp9xx_i2c_dev *priv)
->  {
->  	u32 prescale;
-> @@ -363,6 +387,14 @@ static int xlp9xx_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->  	int i, ret;
->  	struct xlp9xx_i2c_dev *priv = i2c_get_adapdata(adap);
->  
-> +	ret = xlp9xx_i2c_check_bus_status(priv);
-> +	if (ret) {
-> +		xlp9xx_i2c_init(priv);
-> +		ret = xlp9xx_i2c_check_bus_status(priv);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
->  	for (i = 0; i < num; i++) {
->  		ret = xlp9xx_i2c_xfer_msg(priv, &msgs[i], i == num - 1);
->  		if (ret != 0)
-> -- 
-> 2.1.4
+> I think this is not needed anymore, see:
+> 9b9f2b8bc2ac i2c: i2c-smbus: Use threaded irq for smbalert
+> 
+> --Jan
+
+Yes.
+
+And also all of this is not needed if named interrupts.
+- interrupt-names
+	"irq", "wakeup" and "smbus_alert" names are recognized by I2C core,
+	other names are	left to individual drivers.
+
+presence of named irq smbus_alert should result in alert handler being
+created for that bus by the core
+
+> 
+>> +
+>> +	priv->ara = i2c_setup_smbus_alert(&priv->adapter, &priv->alert_data);
+>> +	if (!priv->ara)
+>> +		return -ENODEV;
+>> +
+>> +	return 0;
+>> +}
+>> +
+>>   static int xlp9xx_i2c_probe(struct platform_device *pdev)
+>>   {
+>>   	struct xlp9xx_i2c_dev *priv;
+>> @@ -467,6 +485,10 @@ static int xlp9xx_i2c_probe(struct platform_device *pdev)
+>>   		dev_err(&pdev->dev, "invalid irq!\n");
+>>   		return priv->irq;
+>>   	}
+>> +	/* SMBAlert irq */
+>> +	priv->alert_data.irq = platform_get_irq(pdev, 1);
+>> +	if (priv->alert_data.irq <= 0)
+>> +		priv->alert_data.irq = 0;
+>>   
+>>   	xlp9xx_i2c_get_frequency(pdev, priv);
+>>   	xlp9xx_i2c_init(priv);
+>> @@ -493,6 +515,10 @@ static int xlp9xx_i2c_probe(struct platform_device *pdev)
+>>   	if (err)
+>>   		return err;
+>>   
+>> +	err = xlp9xx_i2c_smbus_setup(priv, pdev);
+>> +	if (err)
+>> +		dev_info(&pdev->dev, "No active SMBus alert %d\n", err);
+>> +
+>>   	platform_set_drvdata(pdev, priv);
+>>   	dev_dbg(&pdev->dev, "I2C bus:%d added\n", priv->adapter.nr);
+>>   
+>> -- 
+>> 2.1.4
+> 
+> 
+
+
+-- 
+Regards
+Phil Reid
