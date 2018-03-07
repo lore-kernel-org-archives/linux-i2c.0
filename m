@@ -1,58 +1,51 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCHv2 1/3] i2c: xlp9xx: Check for Bus state before every
- transfer
-Date: Tue, 6 Mar 2018 16:40:59 +0100
-Message-ID: <20180306154056.p3vapgvctxpijitm@ninjato>
-References: <1519737980-27997-1-git-send-email-george.cherian@cavium.com>
- <20180306084829.GB11729@wintermute>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 00/13] Remove metag architecture
+Date: Wed, 7 Mar 2018 22:24:23 +0100
+Message-ID: <CAK8P3a2qV5n57f7=FC0nYZWfeXCVaOaK4R_7Wr74p3ZMyuwJNQ@mail.gmail.com>
+References: <20180221233825.10024-1-jhogan@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="mvkl5gyybjujn7rj"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180306084829.GB11729@wintermute>
+In-Reply-To: <20180221233825.10024-1-jhogan@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jan Glauber <jglauber@cavium.com>
-Cc: George Cherian <george.cherian@cavium.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: James Hogan <jhogan@kernel.org>
+Cc: "open list:METAG ARCHITECTURE" <linux-metag@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Guenter Roeck <linux@roeck-us.net>, Jonathan Corbet <corbet@lwn.net>, Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Arnaldo Carvalho de Melo <acme@kernel.org>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Marc Zyngier <marc.zyngier@arm.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, Linus Walleij <linus.walleij@linaro.org>, Wim
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Feb 22, 2018 at 12:38 AM, James Hogan <jhogan@kernel.org> wrote:
+> These patches remove the metag architecture and tightly dependent
+> drivers from the kernel. With the 4.16 kernel the ancient gcc 4.2.4
+> based metag toolchain we have been using is hitting compiler bugs, so
+> now seems a good time to drop it altogether.
+>
+> Quoting from patch 1:
+>
+> The earliest Meta architecture port of Linux I have a record of was an
+> import of a Meta port of Linux v2.4.1 in February 2004, which was worked
+> on significantly over the next few years by Graham Whaley, Will Newton,
+> Matt Fleming, myself and others.
+>
+> Eventually the port was merged into mainline in v3.9 in March 2013, not
+> long after Imagination Technologies bought MIPS Technologies and shifted
+> its CPU focus over to the MIPS architecture.
+>
+> As a result, though the port was maintained for a while, kept on life
+> support for a while longer, and useful for testing a few specific
+> drivers for which I don't have ready access to the equivalent MIPS
+> hardware, it is now essentially dead with no users.
+>
+> It is also stuck using an out-of-tree toolchain based on GCC 4.2.4 which
+> is no longer maintained, now struggles to build modern kernels due to
+> toolchain bugs, and doesn't itself build with a modern GCC. The latest
+> buildroot port is still using an old uClibc snapshot which is no longer
+> served, and the latest uClibc doesn't build with GCC 4.2.4.
+>
+> So lets call it a day and drop the Meta architecture port from the
+> kernel. RIP Meta.
 
---mvkl5gyybjujn7rj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I've pulled it into my asm-generic tree now, which is also part of linux-next,
+and followed up with patches removing frv, m32r, score, unicore32
+and blackfin. I have not removed the device drivers yet, but I'm working
+on that.
 
-
-> I don't know how valuable same-company reviewed-by's are in the end,=20
-
-Case by case. And in your case, I trust you.
-
-> but the patches look good to me with the small change in SMBalert, so you
-> could add:
->=20
-> Reviewed-by: Jan Glauber <jglauber@cavium.com>
-
-Thanks.
-
-
---mvkl5gyybjujn7rj
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqetoMACgkQFA3kzBSg
-Kba1Iw/+Mxxuy/sbxjLZb4Jl02YQHBneo6jdbOunV16Ucg9v3JQa8OAqUFgLyVnJ
-hiTCFki8XsM9tCbBlenxb/h3pSKkNXivOXnM/P5tyNetg9cL/vu/zAIpdFHuQYi2
-NmkKxraGgTDjRZTyVSwzrURgUOu517H6q9tl4djXEMCN3rLgWFKjO4NaZEtwkf0y
-z09ra51C6ARCbCeRyn1B7+BARVcCr4rJjWR+H2yZIsRJC82ChC6nvAVuBJErcqcC
-sVVG/3wkxp3JUpuQnQDPfxy43zROx595pc+hYkGL9usi+ioZQWTnYO58XqG/6QaP
-Wo1wLZz+R+T6CyOOiQs0sNZZ5QibtMWgIrAYstzZgVL2/k/9b3yXEsTP7o2Y3q6c
-R+1OhPhOPRMHXvMXeJWdw4BIYM/3DlG73HyVYq8zkmTh/7EnmgyUd3qebUjI5wVu
-rMfaPhecNnWm1iHsrweKHtOxdvNZhVXR7TuGR9IT2Q03apSYOrnvPYMHJyRaXJ+X
-nzriEWOWGlWIBxjAnH9HZsE9UT97ZcihBSzCUK5KrArqvMZwtptsIvIQg8HgZm3v
-fewdL78VWVkgiKt/pbatuvgBcUbS49pZJTUpQ7D4gL2MRa+ugc9xNS9pCcan7Bvn
-atAp1U+/gsc+1rItOnTke3QynuWegjTYADURFq1pt4VQxgHz5mI=
-=RVGg
------END PGP SIGNATURE-----
-
---mvkl5gyybjujn7rj--
+       Arnd
