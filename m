@@ -1,113 +1,101 @@
-From: Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>
-Subject: Re: [PATCH v3 2/4] soc: qcom: Add GENI based QUP Wrapper driver
-Date: Thu, 8 Mar 2018 13:24:45 +0000
-Message-ID: <8567be1b-1431-4f1d-cb41-6a7eaa434438@arm.com>
-References: <1519781889-16117-1-git-send-email-kramasub@codeaurora.org>
-	<1519781889-16117-3-git-send-email-kramasub@codeaurora.org>
-	<152002326567.108663.16836885081217739460@swboyd.mtv.corp.google.com>
-	<4ac213a6-081f-72c1-c9c8-6994786285c9@codeaurora.org>
-	<152037339742.218381.11498404122038956963@swboyd.mtv.corp.google.com>
-	<945b6c00-dde6-6ec7-4577-4cc0d034796b@codeaurora.org>
+From: Abhishek Sahu <absahu@codeaurora.org>
+Subject: Re: [PATCH 04/12] i2c: qup: schedule EOT and FLUSH tags at the end of
+ transfer
+Date: Thu, 08 Mar 2018 19:10:47 +0530
+Message-ID: <bc9c8dced56448f69ebad0848f5c0f34@codeaurora.org>
+References: <1517644697-30806-1-git-send-email-absahu@codeaurora.org>
+ <1517644697-30806-5-git-send-email-absahu@codeaurora.org>
+ <20180227223654.GE20901@hector.attlocal.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <945b6c00-dde6-6ec7-4577-4cc0d034796b-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Content-Language: en-GB
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: Karthik Ramasubramanian <kramasub-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Stephen Boyd <swboyd-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Stephen Boyd <sboyd-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, corbet-T1hC0tSOHrs@public.gmane.org, david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, hch-jcswGhMUV9g@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Girish Mahadevan <girishm-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, acourbot-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, evgreen-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jslaby-IBi9RG/b67k@public.gmane.org, Sagar Dharia <sdharia-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180227223654.GE20901@hector.attlocal.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Gross <andy.gross@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMDgvMDMvMTggMDY6NDYsIEthcnRoaWsgUmFtYXN1YnJhbWFuaWFuIHdyb3RlOgo+IAo+IAo+
-IE9uIDMvNi8yMDE4IDI6NTYgUE0sIFN0ZXBoZW4gQm95ZCB3cm90ZToKPj4gUXVvdGluZyBLYXJ0
-aGlrIFJhbWFzdWJyYW1hbmlhbiAoMjAxOC0wMy0wMiAxNjo1ODoyMykKPj4KPj4+Pj4gK8KgwqDC
-oMKgwqDCoCByZXR1cm4gaW92YTsKPj4+Pj4gK30KPj4+Pj4gK0VYUE9SVF9TWU1CT0woZ2VuaV9z
-ZV90eF9kbWFfcHJlcCk7Cj4+Pj4+ICsKPj4+Pj4gKy8qKgo+Pj4+PiArICogZ2VuaV9zZV9yeF9k
-bWFfcHJlcCgpIC0gUHJlcGFyZSB0aGUgU2VyaWFsIEVuZ2luZSBmb3IgUlggRE1BIAo+Pj4+PiB0
-cmFuc2Zlcgo+Pj4+PiArICogQHNlOsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqAgUG9pbnRlciB0byB0aGUgY29uY2VybmVkIFNlcmlhbCAKPj4+Pj4gRW5naW5l
-Lgo+Pj4+PiArICogQGJ1ZjrCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIFBvaW50ZXIgdG8g
-dGhlIFJYIGJ1ZmZlci4KPj4+Pj4gKyAqIEBsZW46wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oCBMZW5ndGggb2YgdGhlIFJYIGJ1ZmZlci4KPj4+Pj4gKyAqCj4+Pj4+ICsgKiBUaGlzIGZ1bmN0
-aW9uIGlzIHVzZWQgdG8gcHJlcGFyZSB0aGUgYnVmZmVycyBmb3IgRE1BIFJYLgo+Pj4+PiArICoK
-Pj4+Pj4gKyAqIFJldHVybjogTWFwcGVkIERNQSBBZGRyZXNzIG9mIHRoZSBidWZmZXIgb24gc3Vj
-Y2VzcywgTlVMTCBvbiAKPj4+Pj4gZmFpbHVyZS4KPj4+Pj4gKyAqLwo+Pj4+PiArZG1hX2FkZHJf
-dCBnZW5pX3NlX3J4X2RtYV9wcmVwKHN0cnVjdCBnZW5pX3NlICpzZSwgdm9pZCAqYnVmLCAKPj4+
-Pj4gc2l6ZV90IGxlbikKPj4+Pj4gK3sKPj4+Pj4gK8KgwqDCoMKgwqDCoCBkbWFfYWRkcl90IGlv
-dmE7Cj4+Pj4+ICvCoMKgwqDCoMKgwqAgc3RydWN0IGdlbmlfd3JhcHBlciAqd3JhcHBlciA9IHNl
-LT53cmFwcGVyOwo+Pj4+PiArwqDCoMKgwqDCoMKgIHUzMiB2YWw7Cj4+Pj4+ICsKPj4+Pj4gK8Kg
-wqDCoMKgwqDCoCBpb3ZhID0gZG1hX21hcF9zaW5nbGUod3JhcHBlci0+ZGV2LCBidWYsIGxlbiwg
-Cj4+Pj4+IERNQV9GUk9NX0RFVklDRSk7Cj4+Pj4+ICvCoMKgwqDCoMKgwqAgaWYgKGRtYV9tYXBw
-aW5nX2Vycm9yKHdyYXBwZXItPmRldiwgaW92YSkpCj4+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgIHJldHVybiAoZG1hX2FkZHJfdClOVUxMOwo+Pj4+Cj4+Pj4gQ2FuJ3QgcmV0dXJu
-IGEgZG1hX21hcHBpbmdfZXJyb3IgYWRkcmVzcyB0byB0aGUgY2FsbGVyIGFuZCBoYXZlIHRoZW0K
-Pj4+PiBmaWd1cmUgaXQgb3V0Pwo+Pj4gRWFybGllciB3ZSB1c2VkIHRvIHJldHVybiB0aGUgRE1B
-X0VSUk9SX0NPREUgd2hpY2ggaGFzIGJlZW4gcmVtb3ZlZAo+Pj4gcmVjZW50bHkgaW4gYXJtNjQg
-YXJjaGl0ZWN0dXJlLiBJZiB3ZSByZXR1cm4gdGhlIGRtYV9tYXBwaW5nX2Vycm9yLCB0aGVuCj4+
-PiB0aGUgY2FsbGVyIGFsc28gbmVlZHMgdGhlIGRldmljZSB3aGljaCBlbmNvdW50ZXJlZCB0aGUg
-bWFwcGluZyBlcnJvci4KPj4+IFRoZSBzZXJpYWwgaW50ZXJmYWNlIGRyaXZlcnMgY2FuIHVzZSB0
-aGVpciBwYXJlbnQgY3VycmVudGx5IHRvIHJlc29sdmUKPj4+IHRoZSBtYXBwaW5nIGVycm9yLiBP
-bmNlIHRoZSB3cmFwcGVyIHN0YXJ0cyBtYXBwaW5nIHVzaW5nIElPTU1VIGNvbnRleHQKPj4+IGJh
-bmssIHRoZW4gdGhlIHNlcmlhbCBpbnRlcmZhY2UgZHJpdmVycyBkbyBub3Qga25vdyB3aGljaCBk
-ZXZpY2UgdG8gdXNlCj4+PiB0byBrbm93IGlmIHRoZXJlIGlzIGFuIGVycm9yLgo+Pj4KPj4+IEhh
-dmluZyBzYWlkIHRoYXQsIHRoZSBkbWFfb3BzIHN1Z2dlc3Rpb24gbWlnaHQgaGVscCB3aXRoIGhh
-bmRsaW5nIHRoaXMKPj4+IHNpdHVhdGlvbi4gSSB3aWxsIGxvb2sgaW50byBpdCBmdXJ0aGVyLgo+
-Pgo+PiBPaywgdGhhbmtzLgo+Pgo+Pj4+PiArewo+Pj4+PiArwqDCoMKgwqDCoMKgIHN0cnVjdCBn
-ZW5pX3dyYXBwZXIgKndyYXBwZXIgPSBzZS0+d3JhcHBlcjsKPj4+Pj4gKwo+Pj4+PiArwqDCoMKg
-wqDCoMKgIGlmIChpb3ZhKQo+Pj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBkbWFf
-dW5tYXBfc2luZ2xlKHdyYXBwZXItPmRldiwgaW92YSwgbGVuLCAKPj4+Pj4gRE1BX0ZST01fREVW
-SUNFKTsKPj4+Pj4gK30KPj4+Pj4gK0VYUE9SVF9TWU1CT0woZ2VuaV9zZV9yeF9kbWFfdW5wcmVw
-KTsKPj4+Pgo+Pj4+IEluc3RlYWQgb2YgaGF2aW5nIHRoZSBmdW5jdGlvbnMgZXhwb3J0ZWQsIGNv
-dWxkIHdlIHNldCB0aGUgZG1hX29wcyBvbgo+Pj4+IGFsbCBjaGlsZCBkZXZpY2VzIG9mIHRoZSB3
-cmFwcGVyIHRoYXQgdGhpcyBkcml2ZXIgcG9wdWxhdGVzIGFuZCB0aGVuCj4+Pj4gaW1wbGVtZW50
-IHRoZSBETUEgb3BzIGZvciB0aG9zZSBkZXZpY2VzIGhlcmU/IEkgYXNzdW1lIHRoYXQgdGhlcmUn
-cwo+Pj4+IG5ldmVyIGFub3RoZXIgRE1BIG1hc3RlciBiZXR3ZWVuIHRoZSB3cmFwcGVyIGFuZCB0
-aGUgc2VyaWFsIGVuZ2luZSwgCj4+Pj4gc28gSQo+Pj4+IHRoaW5rIGl0IHdvdWxkIHdvcmsuCj4+
-PiBUaGlzIHN1Z2dlc3Rpb24gbG9va3MgbGlrZSBpdCB3aWxsIHdvcmsuCj4+Cj4+IEl0IHdvdWxk
-IGJlIGEgZ29vZCBpZGVhIHRvIGNoZWNrIHdpdGggc29tZSBvdGhlciBwZW9wbGUgb24gdGhlIGRt
-YV9vcHMKPj4gc3VnZ2VzdGlvbi4gTWF5YmUgYWRkIHRoZSBETUEgbWFwcGluZyBzdWJzeXN0ZW0g
-Zm9sa3MgdG8gaGVscCBvdXQgaGVyZQo+IEkgaGF2ZSBhZGRlZCB0aGUgRE1BIG1hcHBpbmcgc3Vi
-c3lzdGVtIGZvbGtzIHRvIGhlbHAgb3V0IGhlcmUuCj4gCj4gVG8gcHJlc2VudCBhbiBvdmVydmll
-dywgd2UgaGF2ZSBhIHdyYXBwZXIgY29udHJvbGxlciB3aGljaCBpcyBjb21wb3NlZCAKPiBvZiBz
-ZXZlcmFsIHNlcmlhbCBlbmdpbmVzLiBUaGUgc2VyaWFsIGVuZ2luZXMgYXJlIHByb2dyYW1tZWQg
-d2l0aCBVQVJULCAKPiBJMkMgb3IgU1BJIHByb3RvY29sIGFuZCBzdXBwb3J0IERNQSB0cmFuc2Zl
-ci4gV2hlbiB0aGUgc2VyaWFsIGVuZ2luZXMgCj4gcGVyZm9ybSBETUEgdHJhbnNmZXIsIHRoZSB3
-cmFwcGVyIGNvbnRyb2xsZXIgZGV2aWNlIGlzIHVzZWQgdG8gcGVyZm9ybSAKPiB0aGUgbWFwcGlu
-Zy4gVGhlIHJlYXNvbiB3cmFwcGVyIGRldmljZSBpcyB1c2VkIGlzIGJlY2F1c2Ugb2YgSU9NTVUg
-YW5kIAo+IHRoZXJlIGlzIG9ubHkgb25lIElPTU1VIGNvbnRleHQgYmFuayB0byBwZXJmb3JtIHRo
-ZSB0cmFuc2xhdGlvbiBmb3IgdGhlIAo+IGVudGlyZSB3cmFwcGVyIGNvbnRyb2xsZXIuIFNvIHRo
-ZSB3cmFwcGVyIGNvbnRyb2xsZXIgZXhwb3J0cyBtYXAgYW5kIAo+IHVubWFwIGZ1bmN0aW9ucyB0
-byB0aGUgaW5kaXZpZHVhbCBwcm90b2NvbCBkcml2ZXJzLgo+IAo+IFRoZXJlIGlzIGEgc3VnZ2Vz
-dGlvbiB0byBtYWtlIHRoZSBwYXJlbnQgd3JhcHBlciBjb250cm9sbGVyIGltcGxlbWVudCAKPiB0
-aGUgZG1hX21hcF9vcHMsIGluc3RlYWQgb2YgZXhwb3J0ZWQgbWFwL3VubWFwIGZ1bmN0aW9ucyBh
-bmQgcG9wdWxhdGUgCj4gdGhvc2UgZG1hX21hcF9vcHMgb24gYWxsIHRoZSBjaGlsZHJlbiBzZXJp
-YWwgZW5naW5lcy4gQ2FuIHlvdSBwbGVhc2UgCj4gcHJvdmlkZSB5b3VyIGlucHV0cyByZWdhcmRp
-bmcgdGhpcyBzdWdnZXN0aW9uPwoKSW1wbGVtZW50aW5nIGRtYV9tYXBfb3BzIGluc2lkZSBhIGRy
-aXZlciBmb3IgcmVhbCBoYXJkd2FyZSBpcyBhbG1vc3QgCmFsd2F5cyB0aGUgd3JvbmcgdGhpbmcg
-dG8gZG8uCgpCYXNlZCBvbiB3aGF0IEkgY291bGQgaW5mZXIgYWJvdXQgdGhlIGhhcmR3YXJlIGZy
-b20gbG9va2luZyB0aHJvdWdoIHRoZSAKd2hvbGUgc2VyaWVzIGluIHRoZSBsaW51eC1hcm0tbXNt
-IGFyY2hpdmUsIHRoaXMgaXMgcHJvYmFibHkgbW9yZSBsaWtlIGEgCm11bHRpLWNoYW5uZWwgRE1B
-IGNvbnRyb2xsZXIgd2hlcmUgZWFjaCAiY2hhbm5lbCIgaGFzIGEgY29uZmlndXJhYmxlIApzZXJp
-YWwgaW50ZXJmYWNlIG9uIHRoZSBvdGhlciBlbmQsIGFzIG9wcG9zZWQgdG8gYW4gYWN0dWFsIGJ1
-cyB3aGVyZSB0aGUgCnNlcmlhbCBlbmdpbmVzIGFyZSBpbmRpdmlkdWFsbHkgZGlzdGluY3QgQUhC
-IG1hc3RlcnMgcm91dGVkIHRocm91Z2ggdGhlIAp3cmFwcGVyLiBJZiB0aGF0J3MgdHJ1ZSwgdGhl
-biB1c2luZyB0aGUgUVVQIHBsYXRmb3JtIGRldmljZSBmb3IgRE1BIEFQSSAKY2FsbHMgaXMgdGhl
-IGFwcHJvcHJpYXRlIHRoaW5nIHRvIGRvLiBQZXJzb25hbGx5IEknZCBiZSBpbmNsaW5lZCBub3Qg
-dG8gCmFic3RyYWN0IHRoZSBkbWFfe21hcCx1bm1hcH0gY2FsbHMgYXQgYWxsLCBhbmQganVzdCBo
-YXZlIHRoZSBwcm90b2NvbCAKZHJpdmVycyBtYWtlIHRoZW0gZGlyZWN0bHkgdXNpbmcgZGV2LT5w
-YXJlbnQvd3JhcHBlci0+ZGV2L3doYXRldmVyLCBidXQgCmlmIHlvdSBkbyB3YW50IHRvIGFic3Ry
-YWN0IHRob3NlIHRoZW4ganVzdCBnaXZlIHRoZSBhYnN0cmFjdGlvbiBhIHNhbmVyIAppbnRlcmZh
-Y2UsIGkuZS4gcGFzcyB0aGUgRE1BIGhhbmRsZSBieSByZWZlcmVuY2UgYW5kIHJldHVybiBhIHJl
-Z3VsYXIgCmludCBmb3IgZXJyb3Ivc3VjY2VzcyBzdGF0dXMuCgpSb2Jpbi4KX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KaW9tbXUgbWFpbGluZyBsaXN0Cmlv
-bW11QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2lvbW11
+On 2018-02-28 04:06, Andy Gross wrote:
+> On Sat, Feb 03, 2018 at 01:28:09PM +0530, Abhishek Sahu wrote:
+>> A single BAM transfer can have multiple read and write messages.
+>> The EOT and FLUSH tags should be scheduled at the end of BAM HW
+>> descriptors. Since the READ and WRITE can be present in any order
+>> so for some of the cases, these tags are not being written
+>> correctly.
+>> 
+>> Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
+>> ---
+>>  drivers/i2c/busses/i2c-qup.c | 54 
+>> ++++++++++++++++++++------------------------
+>>  1 file changed, 24 insertions(+), 30 deletions(-)
+>> 
+>> diff --git a/drivers/i2c/busses/i2c-qup.c 
+>> b/drivers/i2c/busses/i2c-qup.c
+>> index bb83a2967..6357aff 100644
+>> --- a/drivers/i2c/busses/i2c-qup.c
+>> +++ b/drivers/i2c/busses/i2c-qup.c
+>> @@ -560,7 +560,7 @@ static int qup_i2c_set_tags_smb(u16 addr, u8 
+>> *tags, struct qup_i2c_dev *qup,
+>>  }
+>> 
+>>  static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
+>> -			    struct i2c_msg *msg,  int is_dma)
+>> +			    struct i2c_msg *msg)
+>>  {
+>>  	u16 addr = i2c_8bit_addr_from_msg(msg);
+>>  	int len = 0;
+>> @@ -601,11 +601,6 @@ static int qup_i2c_set_tags(u8 *tags, struct 
+>> qup_i2c_dev *qup,
+>>  	else
+>>  		tags[len++] = data_len;
+>> 
+>> -	if ((msg->flags & I2C_M_RD) && last && is_dma) {
+>> -		tags[len++] = QUP_BAM_INPUT_EOT;
+>> -		tags[len++] = QUP_BAM_FLUSH_STOP;
+>> -	}
+>> -
+> 
+> So lets say you have multiple read and 1 write message.  These changes 
+> will send
+> a EOT/FLUSH for all reads.  I think the intent here was that the last 
+> read
+> message (not the last message) would have the EOT+FLUSH.  Can there be 
+> an issue
+> with sending EOT/FLUSH for all reads?  And how does this mesh up with 
+> the BAM
+> signaling?
+> 
+
+  Thanks Andy and Austin for reviewing these patches.
+
+  The role of FLUSH and EOT tag is to flush already scheduled descriptors
+  in HW. EOT is required only when descriptors are scheduled in RX FIFO.
+  If all the messages are WRITE, then only FLUSH tag will be used.
+
+  Let’s take following example
+
+  READ, READ, READ, READ
+
+  Currently EOT and FLUSH tags are being written after each READ. If we
+  get the NACK for first READ itself, then flush will be triggered. It
+  will look for first FLUSH tag in TX FIFO and will stop there so only
+  descriptors for first READ will be flushed. We need to clear all
+  scheduled descriptors to generate the completion.
+
+  Now this patch is scheduling FLUSH and EOT only once after all the
+  descriptors. So, flush will clear all the scheduled descriptors and
+  BAM will generate the completion interrupt. For multiple READ and
+  single WRITE also, this will work fine.
+
+  I tested with
+  - single xfer with multiple read messages
+  - single xfer with multiple write messages
+  - single xfer with multiple alternate read and write messages
+
+  for non-connected address in forceful DMA mode which will generate
+  the NACK for first byte itself.
+
+  Thanks,
+  Abhishek
