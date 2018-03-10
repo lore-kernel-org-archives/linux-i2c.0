@@ -1,56 +1,53 @@
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: Re: [PATCH v5 0/2] add support for Socionext SynQuacer I2C controller
-Date: Sat, 10 Mar 2018 15:01:14 +0000
-Message-ID: <CAKv+Gu_hRsJGT-inrzXmAmabaZiUTL7BowdUrxwSWHJecjeVsg@mail.gmail.com>
-References: <20180302083123.7259-1-ard.biesheuvel@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Moritz Fischer <mdf@kernel.org>
+Subject: [PATCH] i2c: xiic: Make suspend function names consistent
+Date: Sat, 10 Mar 2018 09:40:56 -0800
+Message-ID: <20180310174056.16572-1-mdf@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180302083123.7259-1-ard.biesheuvel@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c <linux-i2c@vger.kernel.org>, Devicetree List <devicetree@vger.kernel.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Jassi Brar <jassisinghbrar@gmail.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, wsa@the-dreams.de, Moritz Fischer <mdf@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2 March 2018 at 08:31, Ard Biesheuvel <ard.biesheuvel@linaro.org> wrote:
-> Add a binding and a driver for the I2C IP found in the Socionext SynQuacer
-> SoC, which is essentially a rebranded version of the Fujitsu F_I2C controller.
->
-> I think this is good to go now. Wolfram?
->
+Suspend functions seem to have been copied from i2c-cadence driver.
+Rename the functions to match the rest of the driver.
 
-Ping?
+Signed-off-by: Moritz Fischer <mdf@kernel.org>
+---
+ drivers/i2c/busses/i2c-xiic.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-> v5:
-> - add Rob's ack to #1
-> - drop unnecessary 'platform_set_drvdata(pdev, NULL)' in remove path (#2)
->
-> v4:
-> - clarify binding that only a single interrupt specifier is expected (#1)
-> - check return value of clk_prepare_enable() on probe path (#2)
-> - add Andy's R-b to patch #2
->
-> v3:
-> - incorporate more of Andy's review comments (#2), especially regarding the
->   bus speed and clock source handling for ACPI
-> - patch #1 unchanged.
->
-> v2:
-> - incorporate Andy's review comments (#2)
-> - patch #1 unchanged.
->
-> Ard Biesheuvel (2):
->   dt-bindings: i2c: add binding for Socionext SynQuacer I2C
->   i2c: add support for Socionext SynQuacer I2C controller
->
->  Documentation/devicetree/bindings/i2c/i2c-synquacer.txt |  29 +
->  drivers/i2c/busses/Kconfig                              |  10 +
->  drivers/i2c/busses/Makefile                             |   1 +
->  drivers/i2c/busses/i2c-synquacer.c                      | 791 ++++++++++++++++++++
->  4 files changed, 831 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-synquacer.txt
->  create mode 100644 drivers/i2c/busses/i2c-synquacer.c
->
-> --
-> 2.11.0
->
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index ae6ed254e01d..c80527816ad0 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -851,7 +851,7 @@ static const struct of_device_id xiic_of_match[] = {
+ MODULE_DEVICE_TABLE(of, xiic_of_match);
+ #endif
+ 
+-static int __maybe_unused cdns_i2c_runtime_suspend(struct device *dev)
++static int __maybe_unused xiic_i2c_runtime_suspend(struct device *dev)
+ {
+ 	struct xiic_i2c *i2c = dev_get_drvdata(dev);
+ 
+@@ -860,7 +860,7 @@ static int __maybe_unused cdns_i2c_runtime_suspend(struct device *dev)
+ 	return 0;
+ }
+ 
+-static int __maybe_unused cdns_i2c_runtime_resume(struct device *dev)
++static int __maybe_unused xiic_i2c_runtime_resume(struct device *dev)
+ {
+ 	struct xiic_i2c *i2c = dev_get_drvdata(dev);
+ 	int ret;
+@@ -875,8 +875,8 @@ static int __maybe_unused cdns_i2c_runtime_resume(struct device *dev)
+ }
+ 
+ static const struct dev_pm_ops xiic_dev_pm_ops = {
+-	SET_RUNTIME_PM_OPS(cdns_i2c_runtime_suspend,
+-			   cdns_i2c_runtime_resume, NULL)
++	SET_RUNTIME_PM_OPS(xiic_i2c_runtime_suspend,
++			   xiic_i2c_runtime_resume, NULL)
+ };
+ static struct platform_driver xiic_i2c_driver = {
+ 	.probe   = xiic_i2c_probe,
+-- 
+2.16.2
