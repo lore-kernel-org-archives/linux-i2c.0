@@ -1,35 +1,56 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v2 0/2] check I2C device id for pca984x chips
-Date: Sat, 10 Mar 2018 01:05:43 +0100
-Message-ID: <7fdb753f-2330-e93c-bbe3-e59fd96a253d@axentia.se>
-References: <20180305205822.951-1-peda@axentia.se>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: Re: [PATCH v5 0/2] add support for Socionext SynQuacer I2C controller
+Date: Sat, 10 Mar 2018 15:01:14 +0000
+Message-ID: <CAKv+Gu_hRsJGT-inrzXmAmabaZiUTL7BowdUrxwSWHJecjeVsg@mail.gmail.com>
+References: <20180302083123.7259-1-ard.biesheuvel@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180305205822.951-1-peda@axentia.se>
-Content-Language: en-US
+In-Reply-To: <20180302083123.7259-1-ard.biesheuvel@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Adrian Fiergolski <adrian.fiergolski@cern.ch>, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c <linux-i2c@vger.kernel.org>, Devicetree List <devicetree@vger.kernel.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Jassi Brar <jassisinghbrar@gmail.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-03-05 21:58, Peter Rosin wrote:
-> Hi!
-> 
-> This series tries to check the I2C device id, but instead of open
-> coding the check in the pca954x driver, I have a new function in
-> the core doing the work.
-> 
-> Changes since v1:
-> - Added Tested-by tag from Adrian
-> - Added Reviewed-by tag from Wolfram
-> - Replaced client->flags with a zero in the i2c_smbus_xfer call
-> 
-> Wolfram: I'll send a pull with the first patch in a few days, to
-> allow for a second round of feedback now that the RFC marker is gone.
+On 2 March 2018 at 08:31, Ard Biesheuvel <ard.biesheuvel@linaro.org> wrote:
+> Add a binding and a driver for the I2C IP found in the Socionext SynQuacer
+> SoC, which is essentially a rebranded version of the Fujitsu F_I2C controller.
+>
+> I think this is good to go now. Wolfram?
+>
 
-Both patches pushed to i2c-mux/for-next.
+Ping?
 
-Cheers,
-Peter
+> v5:
+> - add Rob's ack to #1
+> - drop unnecessary 'platform_set_drvdata(pdev, NULL)' in remove path (#2)
+>
+> v4:
+> - clarify binding that only a single interrupt specifier is expected (#1)
+> - check return value of clk_prepare_enable() on probe path (#2)
+> - add Andy's R-b to patch #2
+>
+> v3:
+> - incorporate more of Andy's review comments (#2), especially regarding the
+>   bus speed and clock source handling for ACPI
+> - patch #1 unchanged.
+>
+> v2:
+> - incorporate Andy's review comments (#2)
+> - patch #1 unchanged.
+>
+> Ard Biesheuvel (2):
+>   dt-bindings: i2c: add binding for Socionext SynQuacer I2C
+>   i2c: add support for Socionext SynQuacer I2C controller
+>
+>  Documentation/devicetree/bindings/i2c/i2c-synquacer.txt |  29 +
+>  drivers/i2c/busses/Kconfig                              |  10 +
+>  drivers/i2c/busses/Makefile                             |   1 +
+>  drivers/i2c/busses/i2c-synquacer.c                      | 791 ++++++++++++++++++++
+>  4 files changed, 831 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-synquacer.txt
+>  create mode 100644 drivers/i2c/busses/i2c-synquacer.c
+>
+> --
+> 2.11.0
+>
