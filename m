@@ -1,53 +1,40 @@
-From: Moritz Fischer <mdf@kernel.org>
-Subject: [PATCH] i2c: xiic: Make suspend function names consistent
-Date: Sat, 10 Mar 2018 09:40:56 -0800
-Message-ID: <20180310174056.16572-1-mdf@kernel.org>
+From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: [RESEND PATCH v1 0/6] Add different features for I2C
+Date: Mon, 12 Mar 2018 11:53:37 +0100
+Message-ID: <1520852023-27083-1-git-send-email-pierre-yves.mordret@st.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, wsa@the-dreams.de, Moritz Fischer <mdf@kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Suspend functions seem to have been copied from i2c-cadence driver.
-Rename the functions to match the rest of the driver.
+Append new I2C STM32F7 feature set. This includes 10 bit support, slave
+support, SMBBus protocols support, DMA Support and eventually an I2C recovery
+mechanism.
+resend after rebasing on last kernel.
 
-Signed-off-by: Moritz Fischer <mdf@kernel.org>
 ---
- drivers/i2c/busses/i2c-xiic.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+  Version history:
+    v1:
+        * Initial
+---
+Pierre-Yves MORDRET (6):
+  i2c: i2c-stm32f7: Add 10-bit address support
+  i2c: i2c-stm32f7: Add slave support
+  i2c: i2c-stm32f7: Add initial SMBus protocols support
+  i2c: i2c-stm32: Add generic DMA API
+  i2c: i2c-stm32f7: Add DMA support
+  i2c: i2c-stm32f7: Implement I2C recovery mechanism
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index ae6ed254e01d..c80527816ad0 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -851,7 +851,7 @@ static const struct of_device_id xiic_of_match[] = {
- MODULE_DEVICE_TABLE(of, xiic_of_match);
- #endif
- 
--static int __maybe_unused cdns_i2c_runtime_suspend(struct device *dev)
-+static int __maybe_unused xiic_i2c_runtime_suspend(struct device *dev)
- {
- 	struct xiic_i2c *i2c = dev_get_drvdata(dev);
- 
-@@ -860,7 +860,7 @@ static int __maybe_unused cdns_i2c_runtime_suspend(struct device *dev)
- 	return 0;
- }
- 
--static int __maybe_unused cdns_i2c_runtime_resume(struct device *dev)
-+static int __maybe_unused xiic_i2c_runtime_resume(struct device *dev)
- {
- 	struct xiic_i2c *i2c = dev_get_drvdata(dev);
- 	int ret;
-@@ -875,8 +875,8 @@ static int __maybe_unused cdns_i2c_runtime_resume(struct device *dev)
- }
- 
- static const struct dev_pm_ops xiic_dev_pm_ops = {
--	SET_RUNTIME_PM_OPS(cdns_i2c_runtime_suspend,
--			   cdns_i2c_runtime_resume, NULL)
-+	SET_RUNTIME_PM_OPS(xiic_i2c_runtime_suspend,
-+			   xiic_i2c_runtime_resume, NULL)
- };
- static struct platform_driver xiic_i2c_driver = {
- 	.probe   = xiic_i2c_probe,
+ drivers/i2c/busses/Kconfig       |    1 +
+ drivers/i2c/busses/Makefile      |    3 +-
+ drivers/i2c/busses/i2c-stm32.c   |  153 ++++++
+ drivers/i2c/busses/i2c-stm32.h   |   37 ++
+ drivers/i2c/busses/i2c-stm32f7.c | 1047 +++++++++++++++++++++++++++++++++++++-
+ 5 files changed, 1214 insertions(+), 27 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-stm32.c
+
 -- 
-2.16.2
+2.7.4
