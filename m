@@ -1,7 +1,7 @@
 From: Abhishek Sahu <absahu@codeaurora.org>
-Subject: [PATCH v2 04/13] i2c: qup: remove redundant variables for BAM SG count
-Date: Mon, 12 Mar 2018 18:44:53 +0530
-Message-ID: <1520860502-14886-5-git-send-email-absahu@codeaurora.org>
+Subject: [PATCH v2 05/13] i2c: qup: schedule EOT and FLUSH tags at the end of transfer
+Date: Mon, 12 Mar 2018 18:44:54 +0530
+Message-ID: <1520860502-14886-6-git-send-email-absahu@codeaurora.org>
 References: <1520860502-14886-1-git-send-email-absahu@codeaurora.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1520860502-14886-1-git-send-email-absahu@codeaurora.org>
@@ -10,181 +10,130 @@ To: Andy Gross <andy.gross@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
 Cc: David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, Austin Christ <austinwc@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Abhishek Sahu <absahu@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The rx_nents and tx_nents are redundant. rx_buf and tx_buf can
-be used for total number of SG entries. Since rx_buf and tx_buf
-give the impression that it is buffer instead of count so rename
-it to tx_cnt and rx_cnt for giving it more meaningful variable
-name.
+The role of FLUSH and EOT tag is to flush already scheduled
+descriptors in BAM HW in case of error. EOT is required only
+when descriptors are scheduled in RX FIFO. If all the messages
+are WRITE, then only FLUSH tag will be used.
+
+A single BAM transfer can have multiple read and write messages.
+The EOT and FLUSH tags should be scheduled at the end of BAM HW
+descriptors. Since the READ and WRITE can be present in any order
+so for some of the cases, these tags are not being written
+correctly.
+
+Following is one of the example
+
+   READ, READ, READ, READ
+
+Currently EOT and FLUSH tags are being written after each READ.
+If QUP gets NACK for first READ itself, then flush will be
+triggered. It will look for first FLUSH tag in TX FIFO and will
+stop there so only descriptors for first READ descriptors be
+flushed. All the scheduled descriptors should be cleared to
+generate BAM DMA completion.
+
+Now this patch is scheduling FLUSH and EOT only once after all the
+descriptors. So, flush will clear all the scheduled descriptors and
+BAM will generate the completion interrupt.
 
 Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
-Reviewed-by: Austin Christ <austinwc@codeaurora.org>
-Reviewed-by: Andy Gross <andy.gross@linaro.org>
 ---
 
 * Changes from v1:
 
-1. Changed rx_buf/tx_buf to tx_cnt/rx_cnt
-2. Modified commit message for the same
+1. Modified commit message with more details
 
- drivers/i2c/busses/i2c-qup.c | 42 ++++++++++++++++++------------------------
- 1 file changed, 18 insertions(+), 24 deletions(-)
+ drivers/i2c/busses/i2c-qup.c | 39 ++++++++++++++++++++++++---------------
+ 1 file changed, 24 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index f6ea074..d970458 100644
+index d970458..b2e8f57 100644
 --- a/drivers/i2c/busses/i2c-qup.c
 +++ b/drivers/i2c/busses/i2c-qup.c
-@@ -683,8 +683,8 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
- 	struct dma_async_tx_descriptor *txd, *rxd = NULL;
- 	int ret = 0, idx = 0, limit = QUP_READ_LIMIT;
- 	dma_cookie_t cookie_rx, cookie_tx;
--	u32 rx_nents = 0, tx_nents = 0, len, blocks, rem;
--	u32 i, tlen, tx_len, tx_buf = 0, rx_buf = 0, off = 0;
-+	u32 len, blocks, rem;
-+	u32 i, tlen, tx_len, tx_cnt = 0, rx_cnt = 0, off = 0;
- 	u8 *tags;
+@@ -551,7 +551,7 @@ static int qup_i2c_set_tags_smb(u16 addr, u8 *tags, struct qup_i2c_dev *qup,
+ }
  
- 	while (idx < num) {
-@@ -698,9 +698,6 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
- 		rem = msg->len - (blocks - 1) * limit;
+ static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
+-			    struct i2c_msg *msg,  int is_dma)
++			    struct i2c_msg *msg)
+ {
+ 	u16 addr = i2c_8bit_addr_from_msg(msg);
+ 	int len = 0;
+@@ -592,11 +592,6 @@ static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
+ 	else
+ 		tags[len++] = data_len;
  
- 		if (msg->flags & I2C_M_RD) {
--			rx_nents += (blocks * 2) + 1;
--			tx_nents += 1;
+-	if ((msg->flags & I2C_M_RD) && last && is_dma) {
+-		tags[len++] = QUP_BAM_INPUT_EOT;
+-		tags[len++] = QUP_BAM_FLUSH_STOP;
+-	}
 -
+ 	return len;
+ }
+ 
+@@ -605,7 +600,7 @@ static int qup_i2c_issue_xfer_v2(struct qup_i2c_dev *qup, struct i2c_msg *msg)
+ 	int data_len = 0, tag_len, index;
+ 	int ret;
+ 
+-	tag_len = qup_i2c_set_tags(qup->blk.tags, qup, msg, 0);
++	tag_len = qup_i2c_set_tags(qup->blk.tags, qup, msg);
+ 	index = msg->len - qup->blk.data_len;
+ 
+ 	/* only tags are written for read */
+@@ -701,7 +696,7 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
  			while (qup->blk.pos < blocks) {
  				tlen = (i == (blocks - 1)) ? rem : limit;
  				tags = &qup->start_tag.start[off + len];
-@@ -708,14 +705,14 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+-				len += qup_i2c_set_tags(tags, qup, msg, 1);
++				len += qup_i2c_set_tags(tags, qup, msg);
  				qup->blk.data_len -= tlen;
  
  				/* scratch buf to read the start and len tags */
--				ret = qup_sg_set_buf(&qup->brx.sg[rx_buf++],
-+				ret = qup_sg_set_buf(&qup->brx.sg[rx_cnt++],
- 						     &qup->brx.tag.start[0],
- 						     2, qup, DMA_FROM_DEVICE);
- 
- 				if (ret)
- 					return ret;
- 
--				ret = qup_sg_set_buf(&qup->brx.sg[rx_buf++],
-+				ret = qup_sg_set_buf(&qup->brx.sg[rx_cnt++],
- 						     &msg->buf[limit * i],
- 						     tlen, qup,
- 						     DMA_FROM_DEVICE);
-@@ -725,7 +722,7 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
- 				i++;
- 				qup->blk.pos = i;
- 			}
--			ret = qup_sg_set_buf(&qup->btx.sg[tx_buf++],
-+			ret = qup_sg_set_buf(&qup->btx.sg[tx_cnt++],
- 					     &qup->start_tag.start[off],
- 					     len, qup, DMA_TO_DEVICE);
- 			if (ret)
-@@ -733,28 +730,26 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+@@ -729,17 +724,11 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
+ 				return ret;
  
  			off += len;
- 			/* scratch buf to read the BAM EOT and FLUSH tags */
--			ret = qup_sg_set_buf(&qup->brx.sg[rx_buf++],
-+			ret = qup_sg_set_buf(&qup->brx.sg[rx_cnt++],
- 					     &qup->brx.tag.start[0],
- 					     2, qup, DMA_FROM_DEVICE);
- 			if (ret)
- 				return ret;
+-			/* scratch buf to read the BAM EOT and FLUSH tags */
+-			ret = qup_sg_set_buf(&qup->brx.sg[rx_cnt++],
+-					     &qup->brx.tag.start[0],
+-					     2, qup, DMA_FROM_DEVICE);
+-			if (ret)
+-				return ret;
  		} else {
--			tx_nents += (blocks * 2);
--
  			while (qup->blk.pos < blocks) {
  				tlen = (i == (blocks - 1)) ? rem : limit;
  				tags = &qup->start_tag.start[off + tx_len];
- 				len = qup_i2c_set_tags(tags, qup, msg, 1);
+-				len = qup_i2c_set_tags(tags, qup, msg, 1);
++				len = qup_i2c_set_tags(tags, qup, msg);
  				qup->blk.data_len -= tlen;
  
--				ret = qup_sg_set_buf(&qup->btx.sg[tx_buf++],
-+				ret = qup_sg_set_buf(&qup->btx.sg[tx_cnt++],
- 						     tags, len,
- 						     qup, DMA_TO_DEVICE);
- 				if (ret)
- 					return ret;
- 
- 				tx_len += len;
--				ret = qup_sg_set_buf(&qup->btx.sg[tx_buf++],
-+				ret = qup_sg_set_buf(&qup->btx.sg[tx_cnt++],
- 						     &msg->buf[limit * i],
- 						     tlen, qup, DMA_TO_DEVICE);
- 				if (ret)
-@@ -766,26 +761,25 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
- 
- 			if (idx == (num - 1)) {
- 				len = 1;
--				if (rx_nents) {
-+				if (rx_cnt) {
- 					qup->btx.tag.start[0] =
- 							QUP_BAM_INPUT_EOT;
- 					len++;
- 				}
- 				qup->btx.tag.start[len - 1] =
- 							QUP_BAM_FLUSH_STOP;
--				ret = qup_sg_set_buf(&qup->btx.sg[tx_buf++],
-+				ret = qup_sg_set_buf(&qup->btx.sg[tx_cnt++],
- 						     &qup->btx.tag.start[0],
- 						     len, qup, DMA_TO_DEVICE);
- 				if (ret)
- 					return ret;
--				tx_nents += 1;
- 			}
- 		}
- 		idx++;
+ 				ret = qup_sg_set_buf(&qup->btx.sg[tx_cnt++],
+@@ -779,6 +768,26 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
  		msg++;
  	}
  
--	txd = dmaengine_prep_slave_sg(qup->btx.dma, qup->btx.sg, tx_nents,
-+	txd = dmaengine_prep_slave_sg(qup->btx.dma, qup->btx.sg, tx_cnt,
++	/* schedule the EOT and FLUSH I2C tags */
++	len = 1;
++	if (rx_cnt) {
++		qup->btx.tag.start[0] = QUP_BAM_INPUT_EOT;
++		len++;
++
++		/* scratch buf to read the BAM EOT and FLUSH tags */
++		ret = qup_sg_set_buf(&qup->brx.sg[rx_cnt++],
++				     &qup->brx.tag.start[0],
++				     2, qup, DMA_FROM_DEVICE);
++		if (ret)
++			return ret;
++	}
++
++	qup->btx.tag.start[len - 1] = QUP_BAM_FLUSH_STOP;
++	ret = qup_sg_set_buf(&qup->btx.sg[tx_cnt++], &qup->btx.tag.start[0],
++			     len, qup, DMA_TO_DEVICE);
++	if (ret)
++		return ret;
++
+ 	txd = dmaengine_prep_slave_sg(qup->btx.dma, qup->btx.sg, tx_cnt,
  				      DMA_MEM_TO_DEV,
  				      DMA_PREP_INTERRUPT | DMA_PREP_FENCE);
- 	if (!txd) {
-@@ -794,7 +788,7 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
- 		goto desc_err;
- 	}
- 
--	if (!rx_nents) {
-+	if (!rx_cnt) {
- 		txd->callback = qup_i2c_bam_cb;
- 		txd->callback_param = qup;
- 	}
-@@ -807,9 +801,9 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
- 
- 	dma_async_issue_pending(qup->btx.dma);
- 
--	if (rx_nents) {
-+	if (rx_cnt) {
- 		rxd = dmaengine_prep_slave_sg(qup->brx.dma, qup->brx.sg,
--					      rx_nents, DMA_DEV_TO_MEM,
-+					      rx_cnt, DMA_DEV_TO_MEM,
- 					      DMA_PREP_INTERRUPT);
- 		if (!rxd) {
- 			dev_err(qup->dev, "failed to get rx desc\n");
-@@ -844,7 +838,7 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
- 			goto desc_err;
- 		}
- 
--		if (rx_nents)
-+		if (rx_cnt)
- 			writel(QUP_BAM_INPUT_EOT,
- 			       qup->base + QUP_OUT_FIFO_BASE);
- 
-@@ -862,10 +856,10 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
- 	}
- 
- desc_err:
--	dma_unmap_sg(qup->dev, qup->btx.sg, tx_nents, DMA_TO_DEVICE);
-+	dma_unmap_sg(qup->dev, qup->btx.sg, tx_cnt, DMA_TO_DEVICE);
- 
--	if (rx_nents)
--		dma_unmap_sg(qup->dev, qup->brx.sg, rx_nents,
-+	if (rx_cnt)
-+		dma_unmap_sg(qup->dev, qup->brx.sg, rx_cnt,
- 			     DMA_FROM_DEVICE);
- 
- 	return ret;
 -- 
 QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
