@@ -1,68 +1,51 @@
-From: Abhishek Sahu <absahu@codeaurora.org>
-Subject: Re: [PATCH 06/12] i2c: qup: proper error handling for i2c error in
- BAM mode
-Date: Mon, 12 Mar 2018 18:04:40 +0530
-Message-ID: <b485110614fd77e15c319b8b3f00e69e@codeaurora.org>
-References: <1517644697-30806-1-git-send-email-absahu@codeaurora.org>
- <1517644697-30806-7-git-send-email-absahu@codeaurora.org>
- <20180227225856.GG20901@hector.attlocal.net>
+From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: [RESEND PATCH v1] i2c: i2c-stm32f7: fix no check on returned setup
+Date: Mon, 12 Mar 2018 13:53:21 +0100
+Message-ID: <1520859201-30549-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180227225856.GG20901@hector.attlocal.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Gross <andy.gross@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-02-28 04:28, Andy Gross wrote:
-> On Sat, Feb 03, 2018 at 01:28:11PM +0530, Abhishek Sahu wrote:
-> 
-> <snip>
-> 
->> @@ -841,20 +856,12 @@ static int qup_i2c_bam_do_xfer(struct 
->> qup_i2c_dev *qup, struct i2c_msg *msg,
->>  			goto desc_err;
->>  		}
->> 
->> -		if (rx_buf)
->> -			writel(QUP_BAM_INPUT_EOT,
->> -			       qup->base + QUP_OUT_FIFO_BASE);
->> -
->> -		writel(QUP_BAM_FLUSH_STOP, qup->base + QUP_OUT_FIFO_BASE);
->> -
->>  		qup_i2c_flush(qup);
->> 
->>  		/* wait for remaining interrupts to occur */
->>  		if (!wait_for_completion_timeout(&qup->xfer, HZ))
->>  			dev_err(qup->dev, "flush timed out\n");
->> 
->> -		qup_i2c_rel_dma(qup);
->> -
-> 
-> So this really only works due to the previous patch that adds the 
-> flush/eot tags
-> to all of the read messages.  If the answer to the previous question is 
-> that
-> only the last read message gets the eot/flush, then this code needs to 
-> remain in
-> place.  Otherwise, it's fine.
-> 
-> 
-> Andy
+Before assigning returned setup structure check if not null
 
-   Thanks Andy,
+Fixes: 463a9215f3ca7600b5ff ("i2c: stm32f7: fix setup structure")
+Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+---
+  Version history:
+     v1:
+         * Initial
+---
+---
+ drivers/i2c/busses/i2c-stm32f7.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-   We need to schedule EOT/FLUSH after last message.
-   For following transfer
-
-   READ, READ, WRITE (FLUSH + EOT tags after that)
-
-   In this case, FLUSH will clear all the descriptors till WRITE and 
-trigger TX
-   completion. EOT will be copied in RX FIFO and trigger RX completion.
-
-   Thanks,
-   Abhishek
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index b445b3b..16c7d77 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -888,6 +888,10 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	setup = of_device_get_match_data(&pdev->dev);
++	if (!setup) {
++		dev_err(&pdev->dev, "Can't get device data\n");
++		goto clk_free;
++	}
+ 	i2c_dev->setup = *setup;
+ 
+ 	ret = device_property_read_u32(i2c_dev->dev, "i2c-scl-rising-time-ns",
+-- 
+2.7.4
