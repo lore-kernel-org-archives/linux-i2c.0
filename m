@@ -1,89 +1,65 @@
 From: Abhishek Sahu <absahu@codeaurora.org>
-Subject: [PATCH v2 03/13] i2c: qup: minor code reorganization for use_dma
-Date: Mon, 12 Mar 2018 18:44:52 +0530
-Message-ID: <1520860502-14886-4-git-send-email-absahu@codeaurora.org>
-References: <1520860502-14886-1-git-send-email-absahu@codeaurora.org>
+Subject: Re: [PATCH 09/12] i2c: qup: fix buffer overflow for multiple msg of
+ maximum xfer len
+Date: Mon, 12 Mar 2018 19:25:05 +0530
+Message-ID: <732eadb6cf4304c6fb963f7b901ca4bf@codeaurora.org>
+References: <1517644697-30806-1-git-send-email-absahu@codeaurora.org>
+ <1517644697-30806-10-git-send-email-absahu@codeaurora.org>
+ <99d007e0-7983-f0bf-1ca0-d37f2ea4d8fa@codeaurora.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1520860502-14886-1-git-send-email-absahu@codeaurora.org>
+In-Reply-To: <99d007e0-7983-f0bf-1ca0-d37f2ea4d8fa@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Gross <andy.gross@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
-Cc: David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, Austin Christ <austinwc@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Abhishek Sahu <absahu@codeaurora.org>
+To: "Christ, Austin" <austinwc@codeaurora.org>
+Cc: Andy Gross <andy.gross@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-1. Assigns use_dma in qup_dev structure itself which will
-   help in subsequent patches to determine the mode in IRQ handler.
-2. Does minor code reorganization for loops to reduce the
-   unnecessary comparison and assignment.
+On 2018-02-28 03:36, Christ, Austin wrote:
+> Hey Abhishek,
+> 
+> 
+> On 2/3/2018 12:58 AM, Abhishek Sahu wrote:
+>> The BAM mode requires buffer for start tag data and tx, rx SG
+>> list. Currently, this is being taken for maximum transfer length
+>> (65K). But an I2C transfer can have multiple messages and each
+>> message can be of this maximum length so the buffer overflow will
+>> happen in this case. Since increasing buffer length won’t be
+>> feasible since an I2C transfer can contain any number of messages
+>> so this patch does following changes to make i2c transfers working
+>> for multiple messages case.
+>> 
+>> 1. Calculate the required buffers for 2 maximum length messages
+>>     (65K * 2).
+>> 2. Split the descriptor formation and descriptor scheduling.
+>>     The idea is to fit as many messages in one DMA transfers for 65K
+>>     threshold value (max_xfer_sg_len). Whenever the sg_cnt is
+>>     crossing this, then schedule the BAM transfer and subsequent
+>>     transfer will again start from zero.
+>> 
 
-Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
-Reviewed-by: Austin Christ <austinwc@codeaurora.org>
-Reviewed-by: Andy Gross <andy.gross@linaro.org>
----
+<snip>
 
-* Changes from v1: None
+>> @@ -1603,7 +1640,7 @@ static int qup_i2c_probe(struct platform_device 
+>> *pdev)
+>>   	one_bit_t = (USEC_PER_SEC / clk_freq) + 1;
+>>   	qup->one_byte_t = one_bit_t * 9;
+>>   	qup->xfer_timeout = TOUT_MIN * HZ +
+>> -			    usecs_to_jiffies(MX_TX_RX_LEN * qup->one_byte_t);
+>> +		usecs_to_jiffies(2 * MX_TX_RX_LEN * qup->one_byte_t);
+> 
+> Maybe it would make sense to add a comment here explaining why the
+> magic number 2 has been added.
 
- drivers/i2c/busses/i2c-qup.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+  Thanks Austin for reviewing the patches.
 
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index 75e9819..f6ea074 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -181,6 +181,8 @@ struct qup_i2c_dev {
- 
- 	/* dma parameters */
- 	bool			is_dma;
-+	/* To check if the current transfer is using DMA */
-+	bool			use_dma;
- 	struct			dma_pool *dpool;
- 	struct			qup_i2c_tag start_tag;
- 	struct			qup_i2c_bam brx;
-@@ -1288,7 +1290,7 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
- 			   int num)
- {
- 	struct qup_i2c_dev *qup = i2c_get_adapdata(adap);
--	int ret, len, idx = 0, use_dma = 0;
-+	int ret, len, idx = 0;
- 
- 	qup->bus_err = 0;
- 	qup->qup_err = 0;
-@@ -1317,13 +1319,12 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
- 			len = (msgs[idx].len > qup->out_fifo_sz) ||
- 			      (msgs[idx].len > qup->in_fifo_sz);
- 
--			if ((!is_vmalloc_addr(msgs[idx].buf)) && len) {
--				use_dma = 1;
--			 } else {
--				use_dma = 0;
-+			if (is_vmalloc_addr(msgs[idx].buf) || !len)
- 				break;
--			}
- 		}
-+
-+		if (idx == num)
-+			qup->use_dma = true;
- 	}
- 
- 	idx = 0;
-@@ -1347,15 +1348,17 @@ static int qup_i2c_xfer_v2(struct i2c_adapter *adap,
- 
- 		reinit_completion(&qup->xfer);
- 
--		if (use_dma) {
-+		if (qup->use_dma) {
- 			ret = qup_i2c_bam_xfer(adap, &msgs[idx], num);
-+			qup->use_dma = false;
-+			break;
- 		} else {
- 			if (msgs[idx].flags & I2C_M_RD)
- 				ret = qup_i2c_read_one_v2(qup, &msgs[idx]);
- 			else
- 				ret = qup_i2c_write_one_v2(qup, &msgs[idx]);
- 		}
--	} while ((idx++ < (num - 1)) && !use_dma && !ret);
-+	} while ((idx++ < (num - 1)) && !ret);
- 
- 	if (!ret)
- 		ret = qup_i2c_change_state(qup, QUP_RESET_STATE);
--- 
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
+  Now in v2, I have used the new macro MX_DMA_TX_RX_LEN  which will make
+  this multiplication by 2 more clear. This 2 is for allocating memory
+  by taking 2 maximum length messages.
+
+  https://lkml.org/lkml/2018/3/12/423
+
+  Thanks,
+  Abhishek
