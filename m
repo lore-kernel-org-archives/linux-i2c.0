@@ -1,84 +1,53 @@
-From: "Christ, Austin" <austinwc@codeaurora.org>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v2 00/13] Major code reorganization to make all i2c
  transfers working
-Date: Tue, 13 Mar 2018 15:09:00 -0600
-Message-ID: <2a092d8f-6d1a-27e4-01f6-49790f767ae6@codeaurora.org>
+Date: Tue, 13 Mar 2018 22:17:58 +0100
+Message-ID: <20180313211758.kv5voneg4akm3rqo@ninjato>
 References: <1520860502-14886-1-git-send-email-absahu@codeaurora.org>
+ <2a092d8f-6d1a-27e4-01f6-49790f767ae6@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="estlfzz3vgzqxlx7"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1520860502-14886-1-git-send-email-absahu@codeaurora.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <2a092d8f-6d1a-27e4-01f6-49790f767ae6@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Abhishek Sahu <absahu@codeaurora.org>, Andy Gross <andy.gross@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
-Cc: David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Christ, Austin" <austinwc@codeaurora.org>
+Cc: Abhishek Sahu <absahu@codeaurora.org>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-I've tested this v2 series on Centriq 2400. Looks good to me.
 
-Reviewed-by: Austin Christ <austinwc@codeaurora.org>
+--estlfzz3vgzqxlx7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 3/12/2018 7:14 AM, Abhishek Sahu wrote:
-> * v2:
-> 
-> 1. Address review comments in v1
-> 2. Changed the license to SPDX
-> 3. Changed commit messages for some of the patch having more detail
-> 4. Removed event-based completion and changed transfer completion
->     detection logic in interrupt handler
-> 5. Removed dma_threshold and blk_mode_threshold from global structure
-> 6. Improved determine mode logic for QUP v2 transfers
-> 7. Fixed function comments
-> 8. Fixed auto build test WARNING ‘idx' may be used uninitialized
->     in this function
-> 9. Renamed tx/rx_buf to tx/rx_cnt
-> 
-> * v1:
-> 
-> The current driver is failing in following test case
-> 1. Handling of failure cases is not working in long run for BAM
->     mode. It generates error message “bam-dma-engine 7884000.dma: Cannot
->     free busy channel” sometimes.
-> 2. Following I2C transfers are failing
->     a. Single transfer with multiple read messages
->     b. Single transfer with multiple read/write message with maximum
->        allowed length per message (65K) in BAM mode
->     c. Single transfer with write greater than 32 bytes in QUP v1 and
->        write greater than 64 bytes in QUP v2 for non-DMA mode.
-> 3. No handling is present for Block/FIFO interrupts. Any non-error
->     interrupts are being treated as the transfer completion and then
->     polling is being done for available/free bytes in FIFO.
-> 
-> To fix all these issues, major code changes are required. This patch
-> series fixes all the above issues and makes the driver interrupt based
-> instead of polling based. After these changes, all the mentioned test
-> cases are working properly.
-> 
-> The code changes have been tested for QUP v1 (IPQ8064) and QUP
-> v2 (IPQ8074) with sample application written over i2c-dev.
-> 
-> Abhishek Sahu (13):
->    i2c: qup: fix copyrights and update to SPDX identifier
->    i2c: qup: fixed releasing dma without flush operation completion
->    i2c: qup: minor code reorganization for use_dma
->    i2c: qup: remove redundant variables for BAM SG count
->    i2c: qup: schedule EOT and FLUSH tags at the end of transfer
->    i2c: qup: fix the transfer length for BAM RX EOT FLUSH tags
->    i2c: qup: proper error handling for i2c error in BAM mode
->    i2c: qup: use the complete transfer length to choose DMA mode
->    i2c: qup: change completion timeout according to transfer length
->    i2c: qup: fix buffer overflow for multiple msg of maximum xfer len
->    i2c: qup: send NACK for last read sub transfers
->    i2c: qup: reorganization of driver code to remove polling for qup v1
->    i2c: qup: reorganization of driver code to remove polling for qup v2
-> 
->   drivers/i2c/busses/i2c-qup.c | 1507 ++++++++++++++++++++++++------------------
->   1 file changed, 880 insertions(+), 627 deletions(-)
-> 
+On Tue, Mar 13, 2018 at 03:09:00PM -0600, Christ, Austin wrote:
+> I've tested this v2 series on Centriq 2400. Looks good to me.
+>=20
+> Reviewed-by: Austin Christ <austinwc@codeaurora.org>
 
--- 
-Qualcomm Datacenter Technologies as an affiliate of Qualcomm 
-Technologies, Inc.
-Qualcomm Technologies, Inc. is a member of the
-Code Aurora Forum, a Linux Foundation Collaborative Project.
+I am a little confused. Do you mean Tested-by or Reviewed-by?
+
+
+--estlfzz3vgzqxlx7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqoQAIACgkQFA3kzBSg
+Kbb3sRAAhoVs4VwqxYhK2LTlhbBJWX3NZexA22TmwCxlsSXxlqbbs259Wqk+MZaV
+DjHWqt3xOc04wbkIS6qCe45jtfjPt4A1FYFD+1mgRdKDxeKjsrUSpo8al0WOgVR2
+dGsFV63xSeYASbSzziWnz4MVO6iTsK0ea+HRkVJWZlbFE80/3iRyE3kobyAB6Vcq
+UiJbleLMCwiylg4dvxyX5C6Cax8pdNy+2oAA8K8vrRN6z5yQJS0gD8Ezn586Lwsr
+7Sc77TYv6l/wEsm78UQWeCbWw3tvw+iOo6BrlCqcsjjPwTXV9AsS0P+97jim1fJR
+/CLUEwQxnnBiJrY6RCxAhU6ZUGfCxhK7cPizZqk/YfqD6V9sNkqOf+6Y04OwVWnj
+MsnT/JAJo2sTqIbOdus4YMK///1tLqiNZ7UGJCfkRCDQyO2uYEqeK8ekjctjqQog
+kIhZiOOdFFGP71C8HG0LgoWztAzw6/JtHHvVzlEnMxUyqK3o4hFKx18m176cU7LE
+yxG5PycL3oTfY+gI1LzkOC84vPLbUUU3HDT++DOGDPLZcDYqvBepvs6vzGA33pGF
+QVH5i3vDzOxiembm4+2xoM+csK+ATVro25kd5gfQ5KjI1m1Ish2cU/AgA3kDp0uf
+gcTxlwbcy1Bjj2A3XXaPMKzlQ7uA6WD3fUFG56BHbB6gfJ3V4DI=
+=go3g
+-----END PGP SIGNATURE-----
+
+--estlfzz3vgzqxlx7--
