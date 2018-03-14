@@ -1,69 +1,60 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 35/47] i2c: remove bfin-twi driver
-Date: Wed, 14 Mar 2018 16:35:48 +0100
-Message-ID: <20180314153603.3127932-36-arnd@arndb.de>
-References: <20180314153603.3127932-1-arnd@arndb.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180314153603.3127932-1-arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+From: Gregory CLEMENT <gregory.clement@bootlin.com>
+Subject: [PATCH] i2c: mv64xxx: Apply errata delay only in standard mode
+Date: Wed, 14 Mar 2018 18:03:40 +0100
+Message-ID: <20180314170340.11951-1-gregory.clement@bootlin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Andrew Lunn <andrew@lunn.ch>, Jason Cooper <jason@lakedaemon.net>, Antoine Tenart <antoine.tenart@bootlin.com>, Gregory CLEMENT <gregory.clement@bootlin.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, =?UTF-8?q?Miqu=C3=A8l=20Raynal?= <miquel.raynal@bootlin.com>, linux-arm-kernel@lists.infradead.org, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The blackfin architecture is getting removed, so the
-twi driver can also be removed.
+The errata FE-8471889 description has been updated. There is still a
+timing violation for repeated start. But the errata now states that it
+was only the case for the Standard mode (100 kHz), in Fast mode (400 kHz)
+there is no issue.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+This patch limit the errata fix to the Standard mode.
+
+It has been tesed successfully on the clearfog (Aramda 388 based board).
+
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 ---
- drivers/i2c/busses/Kconfig        |  18 -
- drivers/i2c/busses/Makefile       |   1 -
- drivers/i2c/busses/i2c-bfin-twi.c | 737 --------------------------------------
- 3 files changed, 756 deletions(-)
- delete mode 100644 drivers/i2c/busses/i2c-bfin-twi.c
+ drivers/i2c/busses/i2c-mv64xxx.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 68ceac7617ff..4c0895165727 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -445,24 +445,6 @@ config I2C_BRCMSTB
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index 440fe4a96e68..a5a95ea5b81a 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -845,12 +845,16 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+ 	 */
+ 	if (of_device_is_compatible(np, "marvell,mv78230-i2c")) {
+ 		drv_data->offload_enabled = true;
+-		drv_data->errata_delay = true;
++		/* The delay is only needed in standard mode (100kHz) */
++		if (bus_freq <= 100000)
++			drv_data->errata_delay = true;
+ 	}
  
- 	  If you do not need I2C interface, say N.
+ 	if (of_device_is_compatible(np, "marvell,mv78230-a0-i2c")) {
+ 		drv_data->offload_enabled = false;
+-		drv_data->errata_delay = true;
++		/* The delay is only needed in standard mode (100kHz) */
++		if (bus_freq <= 100000)
++			drv_data->errata_delay = true;
+ 	}
  
--config I2C_BLACKFIN_TWI
--	tristate "Blackfin TWI I2C support"
--	depends on BLACKFIN
--	depends on !BF561 && !BF531 && !BF532 && !BF533
--	help
--	  This is the I2C bus driver for Blackfin on-chip TWI interface.
--
--	  This driver can also be built as a module.  If so, the module
--	  will be called i2c-bfin-twi.
--
--config I2C_BLACKFIN_TWI_CLK_KHZ
--	int "Blackfin TWI I2C clock (kHz)"
--	depends on I2C_BLACKFIN_TWI
--	range 21 400
--	default 50
--	help
--	  The unit of the TWI clock is kHz.
--
- config I2C_CADENCE
- 	tristate "Cadence I2C Controller"
- 	depends on ARCH_ZYNQ || ARM64 || XTENSA
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 2ce8576540a2..9e475a54e36e 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -38,7 +38,6 @@ obj-$(CONFIG_I2C_AU1550)	+= i2c-au1550.o
- obj-$(CONFIG_I2C_AXXIA)		+= i2c-axxia.o
- obj-$(CONFIG_I2C_BCM2835)	+= i2c-bcm2835.o
- obj-$(CONFIG_I2C_BCM_IPROC)	+= i2c-bcm-iproc.o
--obj-$(CONFIG_I2C_BLACKFIN_TWI)	+= i2c-bfin-twi.o
- obj-$(CONFIG_I2C_CADENCE)	+= i2c-cadence.o
- obj-$(CONFIG_I2C_CBUS_GPIO)	+= i2c-cbus-gpio.o
- obj-$(CONFIG_I2C_CPM)		+= i2c-cpm.o
-diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-deleted file mode 100644
-index ff3343186a82..000000000000
+ 	if (of_device_is_compatible(np, "allwinner,sun6i-a31-i2c"))
 -- 
-2.9.0
+2.16.1
