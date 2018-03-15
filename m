@@ -1,67 +1,49 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 00/47] arch-removal: device drivers
-Date: Thu, 15 Mar 2018 10:09:43 +0100
-Message-ID: <CAK8P3a151M35ywHyABt2KFypPaiZROYuL10ztChwjSwqS9haHg@mail.gmail.com>
-References: <20180314153603.3127932-1-arnd@arndb.de>
- <20180315063238.3303b8d1@bbrezillon>
+From: Abhishek Sahu <absahu@codeaurora.org>
+Subject: Re: [PATCH v2 00/13] Major code reorganization to make all i2c
+ transfers working
+Date: Thu, 15 Mar 2018 18:16:04 +0530
+Message-ID: <14ad40fa8443f443326601695d711b77@codeaurora.org>
+References: <1520860502-14886-1-git-send-email-absahu@codeaurora.org>
+ <2a092d8f-6d1a-27e4-01f6-49790f767ae6@codeaurora.org>
+ <20180313211758.kv5voneg4akm3rqo@ninjato>
+ <cf4b43fc-8051-77d1-c4f0-e46cb209fa49@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org>
-In-Reply-To: <20180315063238.3303b8d1@bbrezillon>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
-List-Post: <mailto:linux-mtd@lists.infradead.org>
-List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-mtd" <linux-mtd-bounces@lists.infradead.org>
-Errors-To: linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>
-Cc: Ulf Hansson <ulf.hansson@linaro.org>, linux-usb@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Belloni <alexandre.belloni@bootlin.com>, IDE-ML <linux-ide@vger.kernel.org>, Networking <netdev@vger.kernel.org>, linux-mtd <linux-mtd@lists.infradead.org>, linux-i2c@vger.kernel.org, linux-rtc@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Herbert Xu <herbert@gondor.apana.org.au>, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Alan Stern <stern@rowland.harvard.edu>, linux-serial@vger.kernel.org, Jiri Slaby <jslaby@suse.com>, linux-mmc <linux-mmc@vger.kernel.org>, Shaohua Li <shli@kernel.org>, wg@grandegger.com, "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" <linux-crypto@vger.kernel.org>, linux-pwm@vger
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cf4b43fc-8051-77d1-c4f0-e46cb209fa49@codeaurora.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Christ, Austin" <austinwc@codeaurora.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Mar 15, 2018 at 6:32 AM, Boris Brezillon
-<boris.brezillon@bootlin.com> wrote:
-> Hi Arnd,
->
-> On Wed, 14 Mar 2018 16:35:13 +0100
-> Arnd Bergmann <arnd@arndb.de> wrote:
->
->> Hi driver maintainers,
->>
->> I just posted one series with the removal of eight architectures,
->> see https://lkml.org/lkml/2018/3/14/505 for details, or
->> https://lwn.net/Articles/748074/ for more background.
->>
->> These are the device drivers that go along with them. I have already
->> picked up the drivers for arch/metag/ into my tree, they were reviewed
->> earlier.
->>
->> Please let me know if you have any concerns with the patch, or if you
->> prefer to pick up the patches in your respective trees.  I created
->> the patches with 'git format-patch -D', so they will not apply without
->> manually removing those files.
->>
->> For anything else, I'd keep the removal patches in my asm-generic tree
->> and will send a pull request for 4.17 along with the actual arch removal.
->>
+On 2018-03-14 03:42, Christ, Austin wrote:
+> Sorry for the miscommunication. I reviewed the patches and tested them
+> on the Centriq 2400 platform.
+> 
+> Perhaps the following is the most appropriate.
+> 
+> Acked-by: Austin Christ <austinwc@codeaurora.org>
+> 
 
->
-> If you don't mind, I'd like to take the mtd patches through the MTD
-> tree. As you've probably noticed, nand code has been moved around and
-> it's easier for me to carry those 2 simple changes in my tree than
-> creating an immutable branch.
->
-> Let me know if this is a problem.
+  Thanks Austin for reviewing and testing the code changes.
 
-Sounds good, I've removed the two patches from my tree now.
-I've already sent a version of those that is based on your latest tree to
-you for inclusion.
+  It would be more helpful if you provide your 'Tested-by'
+  for last 2 changes. Sricharan has already given 'Reviewed-by'
+  for last 2 major changes and your 'Tested-by' will help
+  in confirming that these changes are working fine in
+  other platforms also.
 
-      Arnd
+  Thanks,
+  Abhishek
 
-______________________________________________________
-Linux MTD discussion mailing list
-http://lists.infradead.org/mailman/listinfo/linux-mtd/
+> 
+> On 3/13/2018 3:17 PM, Wolfram Sang wrote:
+>> On Tue, Mar 13, 2018 at 03:09:00PM -0600, Christ, Austin wrote:
+>>> I've tested this v2 series on Centriq 2400. Looks good to me.
+>>> 
+>>> Reviewed-by: Austin Christ <austinwc@codeaurora.org>
+>> 
+>> I am a little confused. Do you mean Tested-by or Reviewed-by?
+>> 
