@@ -1,160 +1,67 @@
-From: Sricharan R <sricharan@codeaurora.org>
-Subject: Re: [PATCH v2 05/13] i2c: qup: schedule EOT and FLUSH tags at the end
- of transfer
-Date: Thu, 15 Mar 2018 12:23:30 +0530
-Message-ID: <2411c3ca-5da2-de43-f2dc-a74930a49a22@codeaurora.org>
-References: <1520860502-14886-1-git-send-email-absahu@codeaurora.org>
- <1520860502-14886-6-git-send-email-absahu@codeaurora.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 00/47] arch-removal: device drivers
+Date: Thu, 15 Mar 2018 10:09:43 +0100
+Message-ID: <CAK8P3a151M35ywHyABt2KFypPaiZROYuL10ztChwjSwqS9haHg@mail.gmail.com>
+References: <20180314153603.3127932-1-arnd@arndb.de>
+ <20180315063238.3303b8d1@bbrezillon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1520860502-14886-6-git-send-email-absahu@codeaurora.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Abhishek Sahu <absahu@codeaurora.org>, Andy Gross <andy.gross@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
-Cc: David Brown <david.brown@linaro.org>, Austin Christ <austinwc@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org>
+In-Reply-To: <20180315063238.3303b8d1@bbrezillon>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
+ <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
+List-Post: <mailto:linux-mtd@lists.infradead.org>
+List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
+ <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-mtd" <linux-mtd-bounces@lists.infradead.org>
+Errors-To: linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org
+To: Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>, linux-usb@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Belloni <alexandre.belloni@bootlin.com>, IDE-ML <linux-ide@vger.kernel.org>, Networking <netdev@vger.kernel.org>, linux-mtd <linux-mtd@lists.infradead.org>, linux-i2c@vger.kernel.org, linux-rtc@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Herbert Xu <herbert@gondor.apana.org.au>, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Alan Stern <stern@rowland.harvard.edu>, linux-serial@vger.kernel.org, Jiri Slaby <jslaby@suse.com>, linux-mmc <linux-mmc@vger.kernel.org>, Shaohua Li <shli@kernel.org>, wg@grandegger.com, "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" <linux-crypto@vger.kernel.org>, linux-pwm@vger
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Mar 15, 2018 at 6:32 AM, Boris Brezillon
+<boris.brezillon@bootlin.com> wrote:
+> Hi Arnd,
+>
+> On Wed, 14 Mar 2018 16:35:13 +0100
+> Arnd Bergmann <arnd@arndb.de> wrote:
+>
+>> Hi driver maintainers,
+>>
+>> I just posted one series with the removal of eight architectures,
+>> see https://lkml.org/lkml/2018/3/14/505 for details, or
+>> https://lwn.net/Articles/748074/ for more background.
+>>
+>> These are the device drivers that go along with them. I have already
+>> picked up the drivers for arch/metag/ into my tree, they were reviewed
+>> earlier.
+>>
+>> Please let me know if you have any concerns with the patch, or if you
+>> prefer to pick up the patches in your respective trees.  I created
+>> the patches with 'git format-patch -D', so they will not apply without
+>> manually removing those files.
+>>
+>> For anything else, I'd keep the removal patches in my asm-generic tree
+>> and will send a pull request for 4.17 along with the actual arch removal.
+>>
 
+>
+> If you don't mind, I'd like to take the mtd patches through the MTD
+> tree. As you've probably noticed, nand code has been moved around and
+> it's easier for me to carry those 2 simple changes in my tree than
+> creating an immutable branch.
+>
+> Let me know if this is a problem.
 
-On 3/12/2018 6:44 PM, Abhishek Sahu wrote:
-> The role of FLUSH and EOT tag is to flush already scheduled
-> descriptors in BAM HW in case of error. EOT is required only
-> when descriptors are scheduled in RX FIFO. If all the messages
-> are WRITE, then only FLUSH tag will be used.
-> 
-> A single BAM transfer can have multiple read and write messages.
-> The EOT and FLUSH tags should be scheduled at the end of BAM HW
-> descriptors. Since the READ and WRITE can be present in any order
-> so for some of the cases, these tags are not being written
-> correctly.
-> 
-> Following is one of the example
-> 
->    READ, READ, READ, READ
-> 
-> Currently EOT and FLUSH tags are being written after each READ.
-> If QUP gets NACK for first READ itself, then flush will be
-> triggered. It will look for first FLUSH tag in TX FIFO and will
-> stop there so only descriptors for first READ descriptors be
-> flushed. All the scheduled descriptors should be cleared to
-> generate BAM DMA completion.
-> 
-> Now this patch is scheduling FLUSH and EOT only once after all the
-> descriptors. So, flush will clear all the scheduled descriptors and
-> BAM will generate the completion interrupt.
-> 
-> Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
-> ---
-> 
+Sounds good, I've removed the two patches from my tree now.
+I've already sent a version of those that is based on your latest tree to
+you for inclusion.
 
-Reviewed-by: Sricharan R <sricharan@codeaurora.org>
+      Arnd
 
-Regards,
- Sricharan
-
-
-
-
-
-> * Changes from v1:
-> 
-> 1. Modified commit message with more details
-> 
->  drivers/i2c/busses/i2c-qup.c | 39 ++++++++++++++++++++++++---------------
->  1 file changed, 24 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-> index d970458..b2e8f57 100644
-> --- a/drivers/i2c/busses/i2c-qup.c
-> +++ b/drivers/i2c/busses/i2c-qup.c
-> @@ -551,7 +551,7 @@ static int qup_i2c_set_tags_smb(u16 addr, u8 *tags, struct qup_i2c_dev *qup,
->  }
->  
->  static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
-> -			    struct i2c_msg *msg,  int is_dma)
-> +			    struct i2c_msg *msg)
->  {
->  	u16 addr = i2c_8bit_addr_from_msg(msg);
->  	int len = 0;
-> @@ -592,11 +592,6 @@ static int qup_i2c_set_tags(u8 *tags, struct qup_i2c_dev *qup,
->  	else
->  		tags[len++] = data_len;
->  
-> -	if ((msg->flags & I2C_M_RD) && last && is_dma) {
-> -		tags[len++] = QUP_BAM_INPUT_EOT;
-> -		tags[len++] = QUP_BAM_FLUSH_STOP;
-> -	}
-> -
->  	return len;
->  }
->  
-> @@ -605,7 +600,7 @@ static int qup_i2c_issue_xfer_v2(struct qup_i2c_dev *qup, struct i2c_msg *msg)
->  	int data_len = 0, tag_len, index;
->  	int ret;
->  
-> -	tag_len = qup_i2c_set_tags(qup->blk.tags, qup, msg, 0);
-> +	tag_len = qup_i2c_set_tags(qup->blk.tags, qup, msg);
->  	index = msg->len - qup->blk.data_len;
->  
->  	/* only tags are written for read */
-> @@ -701,7 +696,7 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
->  			while (qup->blk.pos < blocks) {
->  				tlen = (i == (blocks - 1)) ? rem : limit;
->  				tags = &qup->start_tag.start[off + len];
-> -				len += qup_i2c_set_tags(tags, qup, msg, 1);
-> +				len += qup_i2c_set_tags(tags, qup, msg);
->  				qup->blk.data_len -= tlen;
->  
->  				/* scratch buf to read the start and len tags */
-> @@ -729,17 +724,11 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
->  				return ret;
->  
->  			off += len;
-> -			/* scratch buf to read the BAM EOT and FLUSH tags */
-> -			ret = qup_sg_set_buf(&qup->brx.sg[rx_cnt++],
-> -					     &qup->brx.tag.start[0],
-> -					     2, qup, DMA_FROM_DEVICE);
-> -			if (ret)
-> -				return ret;
->  		} else {
->  			while (qup->blk.pos < blocks) {
->  				tlen = (i == (blocks - 1)) ? rem : limit;
->  				tags = &qup->start_tag.start[off + tx_len];
-> -				len = qup_i2c_set_tags(tags, qup, msg, 1);
-> +				len = qup_i2c_set_tags(tags, qup, msg);
->  				qup->blk.data_len -= tlen;
->  
->  				ret = qup_sg_set_buf(&qup->btx.sg[tx_cnt++],
-> @@ -779,6 +768,26 @@ static int qup_i2c_bam_do_xfer(struct qup_i2c_dev *qup, struct i2c_msg *msg,
->  		msg++;
->  	}
->  
-> +	/* schedule the EOT and FLUSH I2C tags */
-> +	len = 1;
-> +	if (rx_cnt) {
-> +		qup->btx.tag.start[0] = QUP_BAM_INPUT_EOT;
-> +		len++;
-> +
-> +		/* scratch buf to read the BAM EOT and FLUSH tags */
-> +		ret = qup_sg_set_buf(&qup->brx.sg[rx_cnt++],
-> +				     &qup->brx.tag.start[0],
-> +				     2, qup, DMA_FROM_DEVICE);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	qup->btx.tag.start[len - 1] = QUP_BAM_FLUSH_STOP;
-> +	ret = qup_sg_set_buf(&qup->btx.sg[tx_cnt++], &qup->btx.tag.start[0],
-> +			     len, qup, DMA_TO_DEVICE);
-> +	if (ret)
-> +		return ret;
-> +
->  	txd = dmaengine_prep_slave_sg(qup->btx.dma, qup->btx.sg, tx_cnt,
->  				      DMA_MEM_TO_DEV,
->  				      DMA_PREP_INTERRUPT | DMA_PREP_FENCE);
-> 
-
--- 
-"QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum, hosted by The Linux Foundation
+______________________________________________________
+Linux MTD discussion mailing list
+http://lists.infradead.org/mailman/listinfo/linux-mtd/
