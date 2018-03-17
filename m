@@ -1,53 +1,84 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 35/47] i2c: remove bfin-twi driver
-Date: Sat, 17 Mar 2018 21:19:04 +0100
-Message-ID: <20180317201903.ii4aiefgcxs6dzow@ninjato>
-References: <20180314153603.3127932-1-arnd@arndb.de>
- <20180314153603.3127932-36-arnd@arndb.de>
+Subject: Re: [PATCH] i2c: mv64xxx: Apply errata delay only in standard mode
+Date: Sat, 17 Mar 2018 21:20:57 +0100
+Message-ID: <20180317202057.da5jyueigjjom5oz@ninjato>
+References: <20180314170340.11951-1-gregory.clement@bootlin.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="qqu3qz442oagv6g6"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180314153603.3127932-36-arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============5803059655258115420=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180314170340.11951-1-gregory.clement@bootlin.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Gregory CLEMENT <gregory.clement@bootlin.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Jason Cooper <jason@lakedaemon.net>, Antoine Tenart <antoine.tenart@bootlin.com>, linux-i2c@vger.kernel.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, =?utf-8?Q?Miqu=C3=A8l?= Raynal <miquel.raynal@bootlin.com>, linux-arm-kernel@lists.infradead.org, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---qqu3qz442oagv6g6
+--===============5803059655258115420==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="n3jf4bpcppfbcwwy"
+Content-Disposition: inline
+
+
+--n3jf4bpcppfbcwwy
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 14, 2018 at 04:35:48PM +0100, Arnd Bergmann wrote:
-> The blackfin architecture is getting removed, so the
-> twi driver can also be removed.
+On Wed, Mar 14, 2018 at 06:03:40PM +0100, Gregory CLEMENT wrote:
+> The errata FE-8471889 description has been updated. There is still a
+> timing violation for repeated start. But the errata now states that it
+> was only the case for the Standard mode (100 kHz), in Fast mode (400 kHz)
+> there is no issue.
 >=20
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> This patch limit the errata fix to the Standard mode.
+>=20
+> It has been tesed successfully on the clearfog (Aramda 388 based board).
+>=20
+> Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
+Applied to for-next, thanks!
 
 
---qqu3qz442oagv6g6
+--n3jf4bpcppfbcwwy
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqteDcACgkQFA3kzBSg
-Kbbi8RAAiEb6dCViOvLtYVhr+SgvklfKU1hgJ4SlE/+ZWR/Ho2F2tkhg15FthK6R
-yIRH+VNWP281bHkNir8R0hrRaLmVZAnNAaHtXrQ5HzX/51XxCI8jZ0X2QnKTePkE
-RaDzNg5hc2Peb5+/siHYpGzbkTg4U9CN/31+RyRyyRXtFfNB4aIW0ZkTjjIk9xHJ
-a/OXJKjS1TPU8AinVgQVAQpTgpPd8UXnmC1I22BxC6eLRYW3TbmPFEJO6QW79D/a
-GRIY7BmY9NzsM3qETB868j1GxitTygPTHQeEN+BwHN9uWf2nQUARGyGWmI1Px2Uq
-GkQZUvVEffyHabLpoHYA3u9+rcblswsDR/Bip418KaGb1PA9lddZ+W3XRG5QrB1n
-lbnNZGxsEs1uimGOwGOwTumkgShVpyfFFNEDqK477y5yoIsTesQJBCF5Uy53D3T+
-9vIBfVGB1Lyh0bRnHTCfNZwyoeG569NBvFmwB3hP3mTgbhk7jfy616ES/rve7kDM
-tGgEax6/6BULeDQZ59ZVLwpI5p4CVKKYvPyxfxNhf3jvehwAWfV0NjTtYQsSlcg5
-bcP1g2eWfID7T8g6zLJ4kIXLQMXerCJRgs5hjb6VmrnTX13ud21z/iSPFnRPR8NV
-8p6qIae9tvUegdm3X/0o+XDaPCR+KKuSYh3kCrztC5mm+WsfOSQ=
-=FvHd
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqteKkACgkQFA3kzBSg
+Kbbtkg//ec5kuA2r1/YJF4ON7wc5bWgpPmExSVchPwoiiNvtWFG/weWxZHdw1TXv
+FKSKLGARwi1jJ8vgSi2PtgSlo7U6OA94lhNRpP1wQzGNJJxNW3rGwIJ60BPG4/0O
+0y0DIGsZx0LlZbtJmsLvAVF1PERCJ1b7VPCe4gXMiJMlLNzoq3uBgYVlYzWaJtuo
+iKaQ8Ffmb1aZjXmco5c+JUPFaynDYUraigD1pJ26+XF19ubS9IolBpBwLjeG6iqk
+SDT4rTAMCb/lEpsym53lpHTPZ9rpoGdZKnG2mEqPwzE/iSMM2OR5vP4Y6yKk3SoY
+cWSCn7taYdwj8SEloz43ftmIj70UP8OFqtvf2zJUbMByDNtqePvKb+addW0heDE7
+uBZ3GnFDITaIyP3Jo6yOER0wVlEObochJyCvwcfa+aMZkM/u+v/DyE03AxyWPKpG
+HBX/thEKX2kCy1HT3S1Ld5HzUmzY93Y7RsalwLczlq8TW7h/g0c5Okpj1CV3wVia
+dNt5SzYcE6rP+wjmWWQu7r0K6AITP/IoBOQGfOUJ4MNEJ/OXLxJxKh6bBZavqpEv
+38tfBcXYRKz74+Pi/64SIyMOieKOHMq/NBWDTFGhNnf/79/3jyZfkFJT+kzNb6Q5
+AB8vGpZSzdeZ8uFx835UUwyAMyQ8iF5Z4msRyFPRkHo+WWWKMUk=
+=0eIg
 -----END PGP SIGNATURE-----
 
---qqu3qz442oagv6g6--
+--n3jf4bpcppfbcwwy--
+
+
+--===============5803059655258115420==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============5803059655258115420==--
