@@ -1,53 +1,52 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RESEND PATCH v1] i2c: i2c-stm32f7: fix no check on returned
- setup
-Date: Sat, 17 Mar 2018 21:44:18 +0100
-Message-ID: <20180317204417.xwfl32lr7zt3dy25@ninjato>
-References: <1520859201-30549-1-git-send-email-pierre-yves.mordret@st.com>
+Subject: Re: [RESEND PATCH v1 6/6] i2c: i2c-stm32f7: Implement I2C recovery
+ mechanism
+Date: Sat, 17 Mar 2018 21:47:20 +0100
+Message-ID: <20180317204720.mclh4jw5owobbtww@ninjato>
+References: <1520852023-27083-1-git-send-email-pierre-yves.mordret@st.com>
+ <1520852023-27083-7-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="boro3g3wgwwiedfk"
+        protocol="application/pgp-signature"; boundary="uxgcnuvhy2xifurm"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1520859201-30549-1-git-send-email-pierre-yves.mordret@st.com>
+In-Reply-To: <1520852023-27083-7-git-send-email-pierre-yves.mordret@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---boro3g3wgwwiedfk
+--uxgcnuvhy2xifurm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 12, 2018 at 01:53:21PM +0100, Pierre-Yves MORDRET wrote:
-> Before assigning returned setup structure check if not null
->=20
-> Fixes: 463a9215f3ca7600b5ff ("i2c: stm32f7: fix setup structure")
-> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+On Mon, Mar 12, 2018 at 11:53:43AM +0100, Pierre-Yves MORDRET wrote:
+> Feature prevents I2C lock-ups. Mechanism resets I2C state machine
+> and releases SCL/SDA signals but preserves I2C registers.
 
-Maxime? Alexandre?
+Does it release SDA when held down by the slave? Because that is what
+the recovery mechanism is for.
 
 
---boro3g3wgwwiedfk
+--uxgcnuvhy2xifurm
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqtfhUACgkQFA3kzBSg
-KbZ9KxAAgF+tTQhdC/Xp5XrvoN/ChJ//Y8jLjHtHEdjHUeEjMFNsZwkB0GIx/g2k
-RhOTtVCHiAwzdMo1fy9Slg1qDayIvTZmpu7pjPZLhE3NJVi3eiXaTYe12fDCI+u9
-qUYyFBnTNINB0nSGUO+H4ngCtWqemPRQ+uJLE2ULhhMEQPbRzLaSfoGW5r7wAAuc
-aza9vb+4grLItFdZhsJcWNUPwIykNqy8Mpzt722SQ/uEbX4sE54sD29eelb2W5nK
-5RjymZPvDw34gPkn2BfidB8JClg+o7v61VzipM4MAOQ5I/zKEZ/fjXQ1FXNnb5Yt
-3lfqCzkNQxstw5/s5dzskGxPasB3zcBCcnEKYJW2TGNVQgEJ32SvnGu4gIjFOZvv
-yAJXzlGx6z2StPBrqCqXPB9NwMYE7nUosZD1JncIfbJbKYpg+zWkrye1b+ebPIym
-ktso021XdIW81rCZByvC0UN/WXxXMF0CbdD0bTilu7veoCGKB1LUDzspNyMTNUdc
-Jusn/38RkSYErLOaezBUr5imFMRefHqHrx6wd2g5IhoZqsbPVPAjCXxGvq1N1mb4
-X476qDRy7tGjumzHea0E8bzbb/+XGYXenJLmWEUYdWLeBYorrmoXD/GRKP+Nw6nW
-l52a0DvICsvhZq7T/XiY4pseWirFPCzANO2pcEZ2MKaxowB2bi8=
-=7u4G
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqtftgACgkQFA3kzBSg
+KbYrdw//XZdl/P3FOgH3x96OLT+VRWIUUpDyDavmmJayw6YlACwYEy9KbfwBBwfG
+2CvOWh4UEXKw4dhzQxsnAkX16RecExQakBO1Fh4TFjd1y/34iqtOX0s6HrocXFYw
+PvVo/ysFYpkb08C4+8zXgCtD7VzjiRuSO0n5TvAkN4THrZ/jje8sv3eSnWLug+uq
+3N4fVaxE0tshoesuOWozZ2L6qsFSeLM2ykcVfnwbJWzuFHVFCvzF0/kAsK77uvUI
+sIoGxOLJK4gcIduojRs0jrKMxOBbUP3XqS3DTW7nVYSfRpZmDrnWkdv2HdIab3BP
+TIQotg31GsxTVcU5JgwPZeM4HbA4pHkR3V1U5HvwYIu+siilETaywTChS6shxvpf
+6uA7ulOhmfRxjZcmcbLzz+y29hEUMU1GIfPpAWM83xnm9kwdEWa6RxqPJN/sXZw6
+Qbw9iktBCTaz8riNkYceJ4di/XfVIUP7BNtNu0Fb94e2n8ln+FaUGSsJcYPhPFnp
+RCB14Ijl/jPXH7pyl7nTDA0SKoDr8RjtTSK8BaIqRvMC7h5lirdbpkX9fVaATvxU
+kqgEkstl9uh3L2W3yA2KgdP9VlPYGi2Z44DYsCwug8YKgNCN8hxOJND/s8k+oNiB
+mtw4E3HgD3rjRerhtdfZhDP9vAfe5iUS7a2DwuiD+tYl6ld4g74=
+=PcnA
 -----END PGP SIGNATURE-----
 
---boro3g3wgwwiedfk--
+--uxgcnuvhy2xifurm--
