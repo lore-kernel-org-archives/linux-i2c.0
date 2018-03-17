@@ -1,84 +1,88 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: mv64xxx: Apply errata delay only in standard mode
-Date: Sat, 17 Mar 2018 21:20:57 +0100
-Message-ID: <20180317202057.da5jyueigjjom5oz@ninjato>
-References: <20180314170340.11951-1-gregory.clement@bootlin.com>
+Subject: Re: [PATCH v2 01/13] i2c: qup: fix copyrights and update to SPDX
+ identifier
+Date: Sat, 17 Mar 2018 21:33:49 +0100
+Message-ID: <20180317203349.gfgwex3x3jaswuo5@ninjato>
+References: <1520860502-14886-1-git-send-email-absahu@codeaurora.org>
+ <1520860502-14886-2-git-send-email-absahu@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5803059655258115420=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180314170340.11951-1-gregory.clement@bootlin.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Jason Cooper <jason@lakedaemon.net>, Antoine Tenart <antoine.tenart@bootlin.com>, linux-i2c@vger.kernel.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, =?utf-8?Q?Miqu=C3=A8l?= Raynal <miquel.raynal@bootlin.com>, linux-arm-kernel@lists.infradead.org, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="kntaycu4ovlh74bp"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1520860502-14886-2-git-send-email-absahu@codeaurora.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Abhishek Sahu <absahu@codeaurora.org>
+Cc: Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, Austin Christ <austinwc@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============5803059655258115420==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="n3jf4bpcppfbcwwy"
-Content-Disposition: inline
-
-
---n3jf4bpcppfbcwwy
+--kntaycu4ovlh74bp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 14, 2018 at 06:03:40PM +0100, Gregory CLEMENT wrote:
-> The errata FE-8471889 description has been updated. There is still a
-> timing violation for repeated start. But the errata now states that it
-> was only the case for the Standard mode (100 kHz), in Fast mode (400 kHz)
-> there is no issue.
+On Mon, Mar 12, 2018 at 06:44:50PM +0530, Abhishek Sahu wrote:
+> The file has been updated from 2016 to 2018 so fixed the
+> copyright years.
 >=20
-> This patch limit the errata fix to the Standard mode.
+> Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
+> ---
+>  drivers/i2c/busses/i2c-qup.c | 13 ++-----------
+>  1 file changed, 2 insertions(+), 11 deletions(-)
 >=20
-> It has been tesed successfully on the clearfog (Aramda 388 based board).
+> diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+> index 08f8e01..ac5edfa 100644
+> --- a/drivers/i2c/busses/i2c-qup.c
+> +++ b/drivers/i2c/busses/i2c-qup.c
+> @@ -1,17 +1,8 @@
+> +// SPDX-License-Identifier: GPL-2.0
+>  /*
+> - * Copyright (c) 2009-2013, The Linux Foundation. All rights reserved.
+> + * Copyright (c) 2009-2013, 2016-2018, The Linux Foundation. All rights =
+reserved.
+
+Can we do this? I know that CodeAurora is hosted by LF, but can you
+extend their copyright when working for Qualcomm?
+
+>   * Copyright (c) 2014, Sony Mobile Communications AB.
+>   *
+> - *
+> - * This program is free software; you can redistribute it and/or modify
+> - * it under the terms of the GNU General Public License version 2 and
+> - * only version 2 as published by the Free Software Foundation.
+> - *
+> - * This program is distributed in the hope that it will be useful,
+> - * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> - * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> - * GNU General Public License for more details.
+> - *
+>   */
+> =20
+>  #include <linux/acpi.h>
+> --=20
+> QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member=
+ of Code Aurora Forum, hosted by The Linux Foundation
 >=20
-> Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 
-Applied to for-next, thanks!
-
-
---n3jf4bpcppfbcwwy
+--kntaycu4ovlh74bp
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqteKkACgkQFA3kzBSg
-Kbbtkg//ec5kuA2r1/YJF4ON7wc5bWgpPmExSVchPwoiiNvtWFG/weWxZHdw1TXv
-FKSKLGARwi1jJ8vgSi2PtgSlo7U6OA94lhNRpP1wQzGNJJxNW3rGwIJ60BPG4/0O
-0y0DIGsZx0LlZbtJmsLvAVF1PERCJ1b7VPCe4gXMiJMlLNzoq3uBgYVlYzWaJtuo
-iKaQ8Ffmb1aZjXmco5c+JUPFaynDYUraigD1pJ26+XF19ubS9IolBpBwLjeG6iqk
-SDT4rTAMCb/lEpsym53lpHTPZ9rpoGdZKnG2mEqPwzE/iSMM2OR5vP4Y6yKk3SoY
-cWSCn7taYdwj8SEloz43ftmIj70UP8OFqtvf2zJUbMByDNtqePvKb+addW0heDE7
-uBZ3GnFDITaIyP3Jo6yOER0wVlEObochJyCvwcfa+aMZkM/u+v/DyE03AxyWPKpG
-HBX/thEKX2kCy1HT3S1Ld5HzUmzY93Y7RsalwLczlq8TW7h/g0c5Okpj1CV3wVia
-dNt5SzYcE6rP+wjmWWQu7r0K6AITP/IoBOQGfOUJ4MNEJ/OXLxJxKh6bBZavqpEv
-38tfBcXYRKz74+Pi/64SIyMOieKOHMq/NBWDTFGhNnf/79/3jyZfkFJT+kzNb6Q5
-AB8vGpZSzdeZ8uFx835UUwyAMyQ8iF5Z4msRyFPRkHo+WWWKMUk=
-=0eIg
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqte60ACgkQFA3kzBSg
+KbZ2/hAAin+9+AFQNTYeVJrIykxGnfwt6e2ypvzlosRgckZHi4NnfVyXToVUNn0D
+MX5+/+Qm5JPcMxuL5kSoUxuiJO5IZVdvlQbtrobIjYwnNnchRuT9FIp6tEzAFaIf
+VCnogIobv4fbBAWnQiztjoikd/GF9ctx4yXdYc7aFvATW8Wb5oGcvX6PcCsPm9kD
+6As0/t0/rfQv52E5T6ajeBK1OpAXiF8OnftsIGOH7k8sEBkRpj3dvqmGoZxpf9Iy
+4M444riccoH+R4/FP5u2gCe/yYYrMfgrFRxLUIpOGqIhJaVqIR9htidrxFtssLwg
+R2kdkWRqVQ0nnnqSiTJRS6pmVgwq/RD715mj6b4hCP67dsVG40YaRtlzjkvTKQJr
+ApL1im4p1/0kqulRdg7ZpPm3WT217dWpU2Z1XG/fp5xjUucRIBFbl8EjfLRBAfnA
+VAKMctaGOD5Sv4B7HtD5Nc+mW2E2ZDa5L8m46oK5qwC9z4sCgWON4B7SZA7SzbDR
+2E18ksA2KU1NZh8Cxfqx3W1RYvQDvMy/fjzb6j4xYzVH9Ii4mWoByndGhb0OcbRW
+EhpLb9GH830DeRtKz7s/O5gvyzjunO8SxkXUDFuKa/iXbw9PfdpJdmqq46XSfVQI
+MPa9Vhw7Eq1eBKv2fPuvpx65pb2d6srajd01j5QYnp/7EXRyIK4=
+=umKK
 -----END PGP SIGNATURE-----
 
---n3jf4bpcppfbcwwy--
-
-
---===============5803059655258115420==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============5803059655258115420==--
+--kntaycu4ovlh74bp--
