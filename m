@@ -1,135 +1,68 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: xlp9xx: Add support for SMBAlert
-Date: Sat, 17 Mar 2018 22:03:00 +0100
-Message-ID: <20180317210300.yyft3errf3opj2t3@ninjato>
-References: <1520347594-184146-1-git-send-email-george.cherian@cavium.com>
+From: =?UTF-8?Q?Matias_Bj=c3=b8rling?= <mb@lightnvm.io>
+Subject: Re: [PATCH v2 10/21] lightnvm: Remove depends on HAS_DMA in case of
+ platform dependency
+Date: Sun, 18 Mar 2018 19:46:11 +0100
+Message-ID: <319a2b17-f08e-7219-cf5d-08e2df81d55c@lightnvm.io>
+References: <1521208314-4783-1-git-send-email-geert@linux-m68k.org>
+ <1521208314-4783-11-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="gqocpd2od3bxsp7n"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1520347594-184146-1-git-send-email-george.cherian@cavium.com>
+In-Reply-To: <1521208314-4783-11-git-send-email-geert@linux-m68k.org>
+Content-Language: en-GB
 Sender: linux-kernel-owner@vger.kernel.org
-To: George Cherian <george.cherian@cavium.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Kamlakant Patel <kamlakant.patel@cavium.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Felipe Balbi <balbi@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>, Andrew Morton <akpm@linux-foundation.org>, Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Tejun Heo <tj@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, "David S . Miller" <davem@davemloft.net>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Stefan Richter <stefanr@s5r6.in-berlin.de>, Alan Tull <atull@kernel.org>, Moritz Fischer <mdf@kernel.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: iommu@lists.linux-foundation.org, linux-usb@vger.kernel.org, linux-scsi@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-crypto@vger.kernel.org, linux-fbdev@vger.kernel.org, linux1394-devel@lists.sourceforge.net, linux-fpga@vger.kernel.org, linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org, linux-block@vger.kernel.org, linux-media@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org, netdev@vger.kernel.org, linux-remoteproc@vger.kernel.org, linux-serial@vger.kernel.org, linux-spi@vger.kernel.org, devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-
---gqocpd2od3bxsp7n
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Mar 06, 2018 at 06:46:34AM -0800, George Cherian wrote:
-> Add support for SMBus alert mechanism to i2c-xlp9xx driver.
-> The second interrupt is parsed to use for SMBus alert.
-> The first interrupt is the i2c controller main interrupt.
->=20
-> Signed-off-by: Kamlakant Patel <kamlakant.patel@cavium.com>
-> Signed-off-by: George Cherian <george.cherian@cavium.com>
-
-Are the previous reviewers happy now?
-
+On 03/16/2018 02:51 PM, Geert Uytterhoeven wrote:
+> Remove dependencies on HAS_DMA where a Kconfig symbol depends on another
+> symbol that implies HAS_DMA, and, optionally, on "|| COMPILE_TEST".
+> In most cases this other symbol is an architecture or platform specific
+> symbol, or PCI.
+> 
+> Generic symbols and drivers without platform dependencies keep their
+> dependencies on HAS_DMA, to prevent compiling subsystems or drivers that
+> cannot work anyway.
+> 
+> This simplifies the dependencies, and allows to improve compile-testing.
+> 
+> Notes:
+>    - FSL_FMAN keeps its dependency on HAS_DMA, as it calls set_dma_ops(),
+>      which does not exist if HAS_DMA=n (Do we need a dummy? The use of
+>      set_dma_ops() in this driver is questionable),
+>    - SND_SOC_LPASS_IPQ806X and SND_SOC_LPASS_PLATFORM loose their
+>      dependency on HAS_DMA, as they are selected from
+>      SND_SOC_APQ8016_SBC.
+> 
+> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Reviewed-by: Mark Brown <broonie@kernel.org>
+> Acked-by: Robin Murphy <robin.murphy@arm.com>
 > ---
->  drivers/i2c/busses/i2c-xlp9xx.c | 24 ++++++++++++++++++++++++
->  1 file changed, 24 insertions(+)
->=20
-> diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp=
-9xx.c
-> index eb8913e..d5cadb6 100644
-> --- a/drivers/i2c/busses/i2c-xlp9xx.c
-> +++ b/drivers/i2c/busses/i2c-xlp9xx.c
-> @@ -10,6 +10,7 @@
->  #include <linux/clk.h>
->  #include <linux/completion.h>
->  #include <linux/i2c.h>
-> +#include <linux/i2c-smbus.h>
->  #include <linux/init.h>
->  #include <linux/interrupt.h>
->  #include <linux/io.h>
-> @@ -84,6 +85,8 @@ struct xlp9xx_i2c_dev {
->  	struct device *dev;
->  	struct i2c_adapter adapter;
->  	struct completion msg_complete;
-> +	struct i2c_smbus_alert_setup alert_data;
-> +	struct i2c_client *ara;
->  	int irq;
->  	bool msg_read;
->  	bool len_recv;
-> @@ -447,6 +450,19 @@ static int xlp9xx_i2c_get_frequency(struct platform_=
-device *pdev,
->  	return 0;
->  }
-> =20
-> +static int xlp9xx_i2c_smbus_setup(struct xlp9xx_i2c_dev *priv,
-> +				  struct platform_device *pdev)
-> +{
-> +	if (!priv->alert_data.irq)
-> +		return -EINVAL;
-> +
-> +	priv->ara =3D i2c_setup_smbus_alert(&priv->adapter, &priv->alert_data);
-> +	if (!priv->ara)
-> +		return -ENODEV;
-> +
-> +	return 0;
-> +}
-> +
->  static int xlp9xx_i2c_probe(struct platform_device *pdev)
->  {
->  	struct xlp9xx_i2c_dev *priv;
-> @@ -467,6 +483,10 @@ static int xlp9xx_i2c_probe(struct platform_device *=
-pdev)
->  		dev_err(&pdev->dev, "invalid irq!\n");
->  		return priv->irq;
->  	}
-> +	/* SMBAlert irq */
-> +	priv->alert_data.irq =3D platform_get_irq(pdev, 1);
-> +	if (priv->alert_data.irq <=3D 0)
+> v2:
+>    - Add Reviewed-by, Acked-by,
+>    - Drop RFC state,
+>    - Split per subsystem.
+> ---
+>   drivers/lightnvm/Kconfig | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/lightnvm/Kconfig b/drivers/lightnvm/Kconfig
+> index 10c08982185a572f..9c03f35d9df113c6 100644
+> --- a/drivers/lightnvm/Kconfig
+> +++ b/drivers/lightnvm/Kconfig
+> @@ -4,7 +4,7 @@
+>   
+>   menuconfig NVM
+>   	bool "Open-Channel SSD target support"
+> -	depends on BLOCK && HAS_DMA && PCI
+> +	depends on BLOCK && PCI
+>   	select BLK_DEV_NVME
+>   	help
+>   	  Say Y here to get to enable Open-channel SSDs.
+> 
 
-'< 0' should do, or?
+Looks good.
 
-> +		priv->alert_data.irq =3D 0;
-> =20
->  	xlp9xx_i2c_get_frequency(pdev, priv);
->  	xlp9xx_i2c_init(priv);
-> @@ -493,6 +513,10 @@ static int xlp9xx_i2c_probe(struct platform_device *=
-pdev)
->  	if (err)
->  		return err;
-> =20
-> +	err =3D xlp9xx_i2c_smbus_setup(priv, pdev);
-> +	if (err)
-> +		dev_info(&pdev->dev, "No active SMBus alert %d\n", err);
-> +
-
-Do you really want to print this info every time SMBus alert is not
-used? Is it common on this platform
-
->  	platform_set_drvdata(pdev, priv);
->  	dev_dbg(&pdev->dev, "I2C bus:%d added\n", priv->adapter.nr);
-> =20
-> --=20
-> 1.8.3.1
->=20
-
---gqocpd2od3bxsp7n
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqtgoMACgkQFA3kzBSg
-KbY67A/+NMz9SSfbt6tHhA8S37QIb3QRg0JNE/zcBhcJ4pKb8GaFDbCpvDSV33WR
-+9lXFJCKndoALgPUTh0wkR2cNKecX8FKNo81CROzquzhZ8EizcqEHNK5Wnixci+7
-BDSY4fks5FN51Lly85o37PJWgHRRJZ9ZL+Bv9Jh3oFWgjXH83dZONyHqgxK2XoP1
-ARnTvuho/gWnv/VSWNx40mOXv53WxLSG4Xe4yZRLg5mG7h2YPFldIZk/ppfuGWdK
-ldLnRU943jOPp8Q036tBM4msT+Pa/0uXQcGz5Th/ALHDbDatvIhvaBavYF9TXOaR
-QQiupJN+KjZ9d3EYHYSWUfMWq3jngsA6gEPF1EShDApEskqsOklitnkUTYhwmGMC
-hUkqYJS6xNcmWr9fBt90MK5/rK3ALPVnxL1D6BfJxXyGR8+t+5YTj09L/KzR25Tn
-M3z+dSGOFZDNY/2fplAEsVpr5ynNOeD97m7Q441xjVgpSMadiz0VmYfUXszwX8JJ
-VPQZDaeLWfgWhbZ1BIdz2qOzJ57STmgkoRQCDZw/7G7kfRr2fgI103NWK756B5Eh
-f4kYcrAmew5a+nyyI1X08z9c3kued+glUJeHLd4r7omxZSb81j94M32bM6bWZNn+
-lavbG+LzEA8UVtI8HeWknZkdIGi2eTL4bNLcd3EdBoICGOV9EFs=
-=g3yx
------END PGP SIGNATURE-----
-
---gqocpd2od3bxsp7n--
+Reviewed-by: Matias Bjørling <mb@lightnvm.io>
