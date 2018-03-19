@@ -1,72 +1,87 @@
-From: Guenter Roeck <linux@roeck-us.net>
+From: Peter Rosin <peda@axentia.se>
 Subject: Re: [RFC PATCH 1/2] i2c: Add i2c_verify_device_id() to verify device
  id
-Date: Mon, 19 Mar 2018 13:50:56 -0700
-Message-ID: <20180319205056.GA11941@roeck-us.net>
+Date: Tue, 20 Mar 2018 00:09:55 +0100
+Message-ID: <c0d428e6-c141-1f9e-3fbe-42ade73a0f3b@axentia.se>
 References: <1521475859-16765-1-git-send-email-linux@roeck-us.net>
  <99548eb6-1958-b2a1-1f2c-ba995f8965ee@axentia.se>
  <20180319184850.GB23774@roeck-us.net>
  <11684f49-dee5-7037-f5c9-5bb8becf114f@axentia.se>
+ <20180319205056.GA11941@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <11684f49-dee5-7037-f5c9-5bb8becf114f@axentia.se>
+In-Reply-To: <20180319205056.GA11941@roeck-us.net>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
+To: Guenter Roeck <linux@roeck-us.net>
 Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Adrian Fiergolski <adrian.fiergolski@cern.ch>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Mar 19, 2018 at 08:55:55PM +0100, Peter Rosin wrote:
-> On 2018-03-19 19:48, Guenter Roeck wrote:
-> > On Mon, Mar 19, 2018 at 05:47:05PM +0100, Peter Rosin wrote:
-> >> I also wonder if NXP will ever release a chip with part-id 0 and
-> >> die-revision 0? If not, an all zero struct i2c_device_identity
-> >> could be used instead of manufacturer_id 0xffff and that would
-> >> simplify the pca954x driver code a bit more. But I guess we can
-> >> never know the answer to that question. And even if we did, the
-> >> answer might change later. But it would be nice...
-> >>
-> > 
-> > That would be nice. You could ask at i2c.support@nxp.com, but I guess
-> > it would always be somewhat risky since the standard doesn't restrict
-> > its use, and some product manager at NXP might decide in the future
-> > that a device ID of 0x00 would be "cool".
+On 2018-03-19 21:50, Guenter Roeck wrote:
+> On Mon, Mar 19, 2018 at 08:55:55PM +0100, Peter Rosin wrote:
+>> On 2018-03-19 19:48, Guenter Roeck wrote:
+>>> On Mon, Mar 19, 2018 at 05:47:05PM +0100, Peter Rosin wrote:
+>>>> I also wonder if NXP will ever release a chip with part-id 0 and
+>>>> die-revision 0? If not, an all zero struct i2c_device_identity
+>>>> could be used instead of manufacturer_id 0xffff and that would
+>>>> simplify the pca954x driver code a bit more. But I guess we can
+>>>> never know the answer to that question. And even if we did, the
+>>>> answer might change later. But it would be nice...
+>>>>
+>>>
+>>> That would be nice. You could ask at i2c.support@nxp.com, but I guess
+>>> it would always be somewhat risky since the standard doesn't restrict
+>>> its use, and some product manager at NXP might decide in the future
+>>> that a device ID of 0x00 would be "cool".
+>>
+>> No need to bother NXP, PCA9848 has already claimed 0-0-0. Sigh.
+>>
+>> But while I googled that I found old datasheets for the chips PCA9672
+>> through PCA9675 which use a different layout for the three bytes in
+>> the device id. They have 8 manufacturer bits, 7 category bits, 6 bits
+>> of feature indication and then 3 bits of revision. The top category
+>> bits are zero so it is compatible for NXP chips. But since noone else
+>> has implemented this, it is probably safe, but still a little bit
+>> disturbing.
+>>
 > 
-> No need to bother NXP, PCA9848 has already claimed 0-0-0. Sigh.
+> The PCA9570 datasheet is especially interesting.
 > 
-> But while I googled that I found old datasheets for the chips PCA9672
-> through PCA9675 which use a different layout for the three bytes in
-> the device id. They have 8 manufacturer bits, 7 category bits, 6 bits
-> of feature indication and then 3 bits of revision. The top category
-> bits are zero so it is compatible for NXP chips. But since noone else
-> has implemented this, it is probably safe, but still a little bit
-> disturbing.
+> "9 bits with the part identification, assigned by manufacturer, the 7 MSBs with
+> the category ID and the 6 LSBs with the feature ID (for example PCA9570 4-bit I/O
+> expander)"
 > 
+> Maybe there is a magic compression scheme to squash 7 MSBs and 6 LSBs into
+> a 9-bit field, or the category and feature IDs have quite some overlap,
+> or the document would benefit from some proof-reading.
 
-The PCA9570 datasheet is especially interesting.
+Hmm, I think I'll put my money on the compression thing.
 
-"9 bits with the part identification, assigned by manufacturer, the 7 MSBs with
-the category ID and the 6 LSBs with the feature ID (for example PCA9570 4-bit I/O
-expander)"
-
-Maybe there is a magic compression scheme to squash 7 MSBs and 6 LSBs into
-a 9-bit field, or the category and feature IDs have quite some overlap,
-or the document would benefit from some proof-reading.
-
-> I also found that NXP apparently uses the same part id (0x100) and die
-> revision (0) for PCA9570 and PCA9670. That seems odd.
+>> I also found that NXP apparently uses the same part id (0x100) and die
+>> revision (0) for PCA9570 and PCA9670. That seems odd.
+>>
+> ... especially since one has 4 channels and the other has 8 channels.
+> It would be interesting to see if reality and datasheets match; this might
+> as well be a curt-and-paste error. Of course, it might as well be that both
+> chips use the same die and that some pins are just not exposed on the 4 channel
+> version.
 > 
-... especially since one has 4 channels and the other has 8 channels.
-It would be interesting to see if reality and datasheets match; this might
-as well be a curt-and-paste error. Of course, it might as well be that both
-chips use the same die and that some pins are just not exposed on the 4 channel
-version.
+>> Example old datasheet (2006):
+>> https://www.digchip.com/datasheets/download_datasheet.php?id=1098812&part-number=PCA9672
+>>
+> On the other side this has been corrected in more recent datasheet versions,
+> so I would not be too concerned about that.
 
-> Example old datasheet (2006):
-> https://www.digchip.com/datasheets/download_datasheet.php?id=1098812&part-number=PCA9672
-> 
-On the other side this has been corrected in more recent datasheet versions,
-so I would not be too concerned about that.
+PCA9671 is still using the old bit field layout in its most recent
+datasheet (2011). I couldn't find anything newer anyway, and the
+link seems canonical enough...
 
-Guenter
+https://www.nxp.com/docs/en/data-sheet/PCA9671.pdf
+
+Enough of this, but I'm going to send a note to NXP about the issues
+we did find.
+
+Cheers,
+Peter
