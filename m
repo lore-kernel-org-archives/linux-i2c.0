@@ -1,72 +1,54 @@
-From: "Ng, Angela" <sock-chan.ng@hpe.com>
-Subject: RE: Upstream of minor i2c enhancement of i2c kernel driver code
-Date: Mon, 19 Mar 2018 09:09:18 +0000
-Message-ID: <TU4PR8401MB0909EF5EBF389C17E775E834D2D40@TU4PR8401MB0909.NAMPRD84.PROD.OUTLOOK.COM>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH 00/21] eeprom: at24: driver refactoring
+Date: Mon, 19 Mar 2018 10:17:00 +0100
+Message-ID: <20180319091721.18193-1-brgl@bgdev.pl>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-QWRkaW5nICAgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZyBhbmQgd3NhQHRoZS1kcmVhbXMu
-ZGUgIGZvciB0aGUgcmVjaXBpZW50cyBvZiB0aGUgcGF0Y2hlcy4gDQoNClRoYW5rcyAmIEJlc3Qg
-UmVnYXJkcywNCk5nIFNvY2sgQ2hhbiAoQW5nZWxhKQ0KzuLmrdXpDQpTb2Z0d2FyZSBFbmdpbmVl
-ciAoSFBOKSANCg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogTmcsIEFuZ2Vs
-YSANClNlbnQ6IE1vbmRheSwgTWFyY2ggMTksIDIwMTggMTozMiBQTQ0KVG86ICdsaW51eC1pMmNA
-dmdlci5rZXJuZWwub3JnJyA8bGludXgtaTJjQHZnZXIua2VybmVsLm9yZz4NClN1YmplY3Q6IFJF
-OiBVcHN0cmVhbSBvZiBtaW5vciBpMmMgZW5oYW5jZW1lbnQgb2YgaTJjIGtlcm5lbCBkcml2ZXIg
-Y29kZQ0KDQoNCg0KSGVsbG8gTGludXgtaTJjIGNvbW11bml0eSwgDQoNCldlIHdvdWxkIGxpa2Ug
-dG8gdXBzdHJlYW0gYSBtaW5vciBlbmhhbmNlbWVudCBmb3IgaTJjLWk4MDEuYy4NClRoaXMgcGF0
-Y2ggYWRkcyAgSTJDX0ZVTkNfU01CVVNfUFJPQ19DQUxMIGZ1bmN0aW9uYWxpdHkgdG8gaTJjLWk4
-MDEuYy4gDQoNCg0KZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaTgwMS5jIGIv
-ZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pODAxLmMgPT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0tIGEvZHJpdmVycy9p
-MmMvYnVzc2VzL2kyYy1pODAxLmMNCisrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaTgwMS5j
-DQpAQCAtNzgzLDYgKzc4MywxNCBAQA0KIAkJCW91dGJfcChjb21tYW5kLCBTTUJIU1RDTUQocHJp
-dikpOw0KIAkJYmxvY2sgPSAxOw0KIAkJYnJlYWs7DQorCWNhc2UgSTJDX1NNQlVTX1BST0NfQ0FM
-TDoNCisJCW91dGJfcCgoKGFkZHIgJiAweDdmKSA8PCAxKXwgKEkyQ19TTUJVU19XUklURSAmIDB4
-MDEpLA0KKwkJCVNNQkhTVEFERChwcml2KSk7DQorCQlvdXRiX3AoY29tbWFuZCwgU01CSFNUQ01E
-KHByaXYpKTsNCisJCW91dGJfcChkYXRhLT53b3JkICYgMHhmZiwgU01CSFNUREFUMChwcml2KSk7
-DQorCQlvdXRiX3AoKGRhdGEtPndvcmQgJiAweGZmMDApID4+IDgsIFNNQkhTVERBVDEocHJpdikp
-Ow0KKwkJeGFjdCA9IEk4MDFfUFJPQ19DQUxMOw0KKwkJYnJlYWs7DQogCWRlZmF1bHQ6DQogCQlk
-ZXZfZXJyKCZwcml2LT5wY2lfZGV2LT5kZXYsICJVbnN1cHBvcnRlZCB0cmFuc2FjdGlvbiAlZFxu
-IiwNCiAJCQlzaXplKTsNCkBAIC03OTksOSArODA3LDIxIEBADQogCWlmIChibG9jaykNCiAJCXJl
-dCA9IGk4MDFfYmxvY2tfdHJhbnNhY3Rpb24ocHJpdiwgZGF0YSwgcmVhZF93cml0ZSwgc2l6ZSwN
-CiAJCQkJCSAgICAgaHdwZWMpOw0KLQllbHNlDQorCWVsc2Ugew0KKwkJdW5zaWduZWQgY2hhciBo
-b3N0YyA9IDA7DQorDQorCQlpZiAoeGFjdCA9PSBJODAxX1BST0NfQ0FMTCkgew0KKwkJCS8qIGNs
-ZWFyIEkyQ19FTiBiaXQgaW4gY29uZmlndXJhdGlvbiByZWdpc3RlciBmb3IgcHJvYyBjYWxscyAq
-Lw0KKwkJCXBjaV9yZWFkX2NvbmZpZ19ieXRlKHByaXYtPnBjaV9kZXYsIFNNQkhTVENGRywgJmhv
-c3RjKTsNCisJCQlwY2lfd3JpdGVfY29uZmlnX2J5dGUocHJpdi0+cGNpX2RldiwgU01CSFNUQ0ZH
-LA0KKwkJCQkoaG9zdGMgJiAoflNNQkhTVENGR19JMkNfRU4pKSk7DQorCQl9DQogCQlyZXQgPSBp
-ODAxX3RyYW5zYWN0aW9uKHByaXYsIHhhY3QpOw0KLQ0KKwkJaWYgKHhhY3QgPT0gSTgwMV9QUk9D
-X0NBTEwpIHsNCisJCQkvKiByZXN0b3JlIHNhdmVkIGNvbmZpZ3VyYXRpb24gcmVnaXN0ZXIgdmFs
-dWUgKi8NCisJCQlwY2lfd3JpdGVfY29uZmlnX2J5dGUocHJpdi0+cGNpX2RldiwgU01CSFNUQ0ZH
-LCBob3N0Yyk7DQorCQl9DQorCX0NCiAJLyogU29tZSBCSU9TZXMgZG9uJ3QgbGlrZSBpdCB3aGVu
-IFBFQyBpcyBlbmFibGVkIGF0IHJlYm9vdCBvciByZXN1bWUNCiAJICAgdGltZSwgc28gd2UgZm9y
-Y2libHkgZGlzYWJsZSBpdCBhZnRlciBldmVyeSB0cmFuc2FjdGlvbi4gVHVybiBvZmYNCiAJICAg
-RTMyQiBmb3IgdGhlIHNhbWUgcmVhc29uLiAqLw0KQEAgLTgxMyw3ICs4MzMsMTQgQEANCiAJCWdv
-dG8gb3V0Ow0KIAlpZiAocmV0KQ0KIAkJZ290byBvdXQ7DQotCWlmICgocmVhZF93cml0ZSA9PSBJ
-MkNfU01CVVNfV1JJVEUpIHx8ICh4YWN0ID09IEk4MDFfUVVJQ0spKQ0KKw0KKwkvKiBpMmMtZGV2
-LmggaGFzIGRlZmluZWQgaTJjX3NtYnVzX3Byb2NfY2FsbCB0byBwYXNzIEkyQ19TTUJVU19XUklU
-RQ0KKwkgICB0byB0aGUgbmRlcmx5aW5nIGRyaXZlci4gSG93ZXZlciwgcHJvY2VzcyBjYWxsIGlz
-IG9ubHkgZGVmaW5lZCBmb3INCisJICAgcmVhZCB0cmFuc2FjdGlvbnMuIFByb2Nlc3MgY2FsbCB3
-cml0ZXMgd2lsbCBiZSB1c2luZw0KKwkgICBpMmNfc21idXNfd3JpdGVfaTJjX2Jsb2NrX2RhdGEg
-ZHJpdmVyIGFwaS4NCisJKi8NCisJaWYgKCgocmVhZF93cml0ZSA9PSBJMkNfU01CVVNfV1JJVEUp
-IHx8ICh4YWN0ID09IEk4MDFfUVVJQ0spKSAmJg0KKwkJKHhhY3QgIT0gSTgwMV9QUk9DX0NBTEwp
-KQ0KIAkJZ290byBvdXQ7DQogDQogCXN3aXRjaCAoeGFjdCAmIDB4N2YpIHsNCkBAIC04MjEsNiAr
-ODQ4LDcgQEANCiAJY2FzZSBJODAxX0JZVEVfREFUQToNCiAJCWRhdGEtPmJ5dGUgPSBpbmJfcChT
-TUJIU1REQVQwKHByaXYpKTsNCiAJCWJyZWFrOw0KKwljYXNlIEk4MDFfUFJPQ19DQUxMOg0KIAlj
-YXNlIEk4MDFfV09SRF9EQVRBOg0KIAkJZGF0YS0+d29yZCA9IGluYl9wKFNNQkhTVERBVDAocHJp
-dikpICsNCiAJCQkgICAgIChpbmJfcChTTUJIU1REQVQxKHByaXYpKSA8PCA4KTsgQEAgLTg0MCw2
-ICs4NjgsNyBAQA0KIAlyZXR1cm4gSTJDX0ZVTkNfU01CVVNfUVVJQ0sgfCBJMkNfRlVOQ19TTUJV
-U19CWVRFIHwNCiAJICAgICAgIEkyQ19GVU5DX1NNQlVTX0JZVEVfREFUQSB8IEkyQ19GVU5DX1NN
-QlVTX1dPUkRfREFUQSB8DQogCSAgICAgICBJMkNfRlVOQ19TTUJVU19CTE9DS19EQVRBIHwgSTJD
-X0ZVTkNfU01CVVNfV1JJVEVfSTJDX0JMT0NLIHwNCisJICAgICAgIEkyQ19GVU5DX1NNQlVTX1BS
-T0NfQ0FMTCB8DQogCSAgICAgICAoKHByaXYtPmZlYXR1cmVzICYgRkVBVFVSRV9TTUJVU19QRUMp
-ID8gSTJDX0ZVTkNfU01CVVNfUEVDIDogMCkgfA0KIAkgICAgICAgKChwcml2LT5mZWF0dXJlcyAm
-IEZFQVRVUkVfSTJDX0JMT0NLX1JFQUQpID8NCiAJCUkyQ19GVU5DX1NNQlVTX1JFQURfSTJDX0JM
-T0NLIDogMCk7DQoNCiANCg0KDQpUaGFua3MgJiBCZXN0IFJlZ2FyZHMsDQpOZyBTb2NrIENoYW4g
-KEFuZ2VsYSkNCs7i5q3V6Q0KU29mdHdhcmUgRW5naW5lZXIgKEhQTikgDQoNCg0K
+This series contains what I hope to be a non-controversial refactoring
+of the at24 eeprom driver.
+
+Most changes revolve around at24_probe() which became quite complicated
+and hard to read.
+
+The only functional changes are: disabling the internal locking
+mechanisms of regmap (since we already take care of that in the driver)
+and removing an if checking if byte_len is a power of 2 (as we do
+support models for which it's not true).
+
+All other patches affect readability and code structure.
+
+Tested with a couple models and different both for device tree and
+platform data modes.
+
+Bartosz Golaszewski (21):
+  eeprom: at24: disable regmap locking
+  eeprom: at24: remove nvmem_config from at24_data
+  eeprom: at24: arrange local variables
+  eeprom: at24: use SPDX identifier instead of GPL boiler-plate
+  eeprom: at24: remove code separators
+  eeprom: at24: drop redundant variable in at24_read()
+  eeprom: at24: drop redundant variable in at24_write()
+  eeprom: at24: make struct initialization uniform in at24_probe()
+  eeprom: at24: don't check if byte_len is a power of 2
+  eeprom: at24: rename at24_get_pdata()
+  eeprom: at24: rename chip to pdata in at24_probe()
+  eeprom: at24: use a helper variable for dev
+  eeprom: at24: readability tweak in at24_probe()
+  eeprom: at24: provide and use at24_base_client_dev()
+  eeprom: at24: switch to using probe_new() from the i2c framework
+  eeprom: at24: move platform data processing into a separate routine
+  eeprom: at24: remove at24_platform_data from at24_data
+  eeprom: at24: refactor at24_probe()
+  eeprom: at24: tweak newlines
+  eeprom: at24: fix a line break
+  eeprom: at24: simplify the i2c functionality checking
+
+ drivers/misc/eeprom/at24.c | 293 ++++++++++++++++++++++++---------------------
+ 1 file changed, 156 insertions(+), 137 deletions(-)
+
+-- 
+2.16.1
