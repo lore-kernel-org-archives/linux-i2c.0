@@ -1,82 +1,39 @@
-From: Abhishek Sahu <absahu@codeaurora.org>
-Subject: Re: [PATCH v2 01/13] i2c: qup: fix copyrights and update to SPDX
- identifier
-Date: Mon, 19 Mar 2018 11:51:26 +0530
-Message-ID: <15dd51f21a42504bdff810704adb97ac@codeaurora.org>
-References: <1520860502-14886-1-git-send-email-absahu@codeaurora.org>
- <1520860502-14886-2-git-send-email-absahu@codeaurora.org>
- <20180317203349.gfgwex3x3jaswuo5@ninjato>
+From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: Re: [RESEND PATCH v1 2/6] i2c: i2c-stm32f7: Add slave support
+Date: Mon, 19 Mar 2018 09:41:20 +0100
+Message-ID: <5a3c5b21-bc66-ce73-a997-f686ecc275f3@st.com>
+References: <1520852023-27083-1-git-send-email-pierre-yves.mordret@st.com>
+ <1520852023-27083-3-git-send-email-pierre-yves.mordret@st.com>
+ <20180317205109.gocf5wemtjkyomct@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180317203349.gfgwex3x3jaswuo5@ninjato>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180317205109.gocf5wemtjkyomct@ninjato>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, Austin Christ <austinwc@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Alexandre Torgue <alexandre.torgue@st.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-03-18 02:03, Wolfram Sang wrote:
-> On Mon, Mar 12, 2018 at 06:44:50PM +0530, Abhishek Sahu wrote:
->> The file has been updated from 2016 to 2018 so fixed the
->> copyright years.
->> 
->> Signed-off-by: Abhishek Sahu <absahu@codeaurora.org>
->> ---
->>  drivers/i2c/busses/i2c-qup.c | 13 ++-----------
->>  1 file changed, 2 insertions(+), 11 deletions(-)
->> 
->> diff --git a/drivers/i2c/busses/i2c-qup.c 
->> b/drivers/i2c/busses/i2c-qup.c
->> index 08f8e01..ac5edfa 100644
->> --- a/drivers/i2c/busses/i2c-qup.c
->> +++ b/drivers/i2c/busses/i2c-qup.c
->> @@ -1,17 +1,8 @@
->> +// SPDX-License-Identifier: GPL-2.0
->>  /*
->> - * Copyright (c) 2009-2013, The Linux Foundation. All rights 
->> reserved.
->> + * Copyright (c) 2009-2013, 2016-2018, The Linux Foundation. All 
->> rights reserved.
+I do believe the hw can support it, even it looks odd to me having the same I2C
+in slave and master mode at the same time.
+Nevertheless the driver is devised to support either master or slave more but
+not at the same time.
+
+Regards
+On 03/17/2018 09:51 PM, Wolfram Sang wrote:
 > 
-> Can we do this? I know that CodeAurora is hosted by LF, but can you
-> extend their copyright when working for Qualcomm?
+>> + * @master_mode: boolean to know in which mode the I2C is running (master or
+>> + * slave)
 > 
-
-  Thanks Wolfram.
-
-  Qualcomm does not uses its own copyright for open source and uses
-  LF copyright only.
-
-  Following is the downstream version available in CAF
-  for the same i2c-qup.c file in which the LF copyright has
-  already extended.
-
-  
-https://source.codeaurora.org/quic/qsdk/oss/kernel/linux-msm/tree/drivers/i2c/busses/i2c-qup.c?h=eggplant
-
-  Regards,
-  Abhishek
-
-
->>   * Copyright (c) 2014, Sony Mobile Communications AB.
->>   *
->> - *
->> - * This program is free software; you can redistribute it and/or 
->> modify
->> - * it under the terms of the GNU General Public License version 2 and
->> - * only version 2 as published by the Free Software Foundation.
->> - *
->> - * This program is distributed in the hope that it will be useful,
->> - * but WITHOUT ANY WARRANTY; without even the implied warranty of
->> - * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
->> - * GNU General Public License for more details.
->> - *
->>   */
->> 
->>  #include <linux/acpi.h>
->> --
->> QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a 
->> member of Code Aurora Forum, hosted by The Linux Foundation
->> 
+> It can't do both at the same time?
+> 
