@@ -1,92 +1,125 @@
-From: Alan Tull <atull@kernel.org>
-Subject: Re: [PATCH v2 06/21] fpga: Remove depends on HAS_DMA in case of
- platform dependency
-Date: Mon, 19 Mar 2018 11:06:29 -0500
-Message-ID: <CANk1AXR3sv2=G-KsQh1p0rdcvy-3XZs6qVy5EMbcAMS6OSVzeQ@mail.gmail.com>
-References: <1521208314-4783-1-git-send-email-geert@linux-m68k.org>
- <1521208314-4783-7-git-send-email-geert@linux-m68k.org>
+From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: Re: [RESEND PATCH v1 6/6] i2c: i2c-stm32f7: Implement I2C recovery
+ mechanism
+Date: Mon, 19 Mar 2018 17:25:20 +0100
+Message-ID: <ceeba3e9-7912-c47a-02e2-f22cdaef5041@st.com>
+References: <1520852023-27083-1-git-send-email-pierre-yves.mordret@st.com>
+ <1520852023-27083-7-git-send-email-pierre-yves.mordret@st.com>
+ <c9b7a9c9-4924-cadc-c539-0775aab23368@electromag.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1521208314-4783-7-git-send-email-geert@linux-m68k.org>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Ulf Hansson <ulf.hansson@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, linux-fpga@vger.kernel.org, linux-remoteproc@vger.kernel.org, alsa-devel@alsa-project.org, Bjorn Andersson <bjorn.andersson@linaro.org>, Eric Anholt <eric@anholt.net>, netdev@vger.kernel.org, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, linux1394-devel@lists.sourceforge.net, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Stefan Wahren <stefan.wahren@i2se.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, linux-scsi@vger.kernel.org, Richard Weinberger <richard@nod.at>, Joerg Roedel <joro@8bytes.org>, Jassi Brar <jassisinghbrar@gmail.com>, Marek Vasut <marek.vasut@gmail.com>, linux-serial@vger.kernel.org, Matias Bjorling <mb@lightn>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <c9b7a9c9-4924-cadc-c539-0775aab23368@electromag.com.au>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Phil Reid <preid@electromag.com.au>, Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Mar 16, 2018 at 8:51 AM, Geert Uytterhoeven
-<geert@linux-m68k.org> wrote:
 
-Hi Geert,
 
-This essentially removes this commit
+On 03/19/2018 10:36 AM, Phil Reid wrote:
+> On 12/03/2018 18:53, Pierre-Yves MORDRET wrote:
+>> Feature prevents I2C lock-ups. Mechanism resets I2C state machine
+>> and releases SCL/SDA signals but preserves I2C registers.
+>>
+>> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+>> ---
+>>    Version history:
+>>      v1:
+>>         * Initial
+>> ---
+>> ---
+>>   drivers/i2c/busses/i2c-stm32f7.c | 32 +++++++++++++++++++++++++++++---
+>>   1 file changed, 29 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+>> index 69a2e5e..3808bc9 100644
+>> --- a/drivers/i2c/busses/i2c-stm32f7.c
+>> +++ b/drivers/i2c/busses/i2c-stm32f7.c
+>> @@ -718,6 +718,20 @@ static void stm32f7_i2c_smbus_reload(struct stm32f7_i2c_dev *i2c_dev)
+>>   	writel_relaxed(cr2, i2c_dev->base + STM32F7_I2C_CR2);
+>>   }
+>>   
+>> +static int stm32f7_i2c_recover_bus(struct i2c_adapter *i2c_adap)
+>> +{
+>> +	struct stm32f7_i2c_dev *i2c_dev = i2c_get_adapdata(i2c_adap);
+>> +
+>> +	dev_info(i2c_dev->dev, "Trying to recover bus\n");
+>> +
+>> +	stm32f7_i2c_clr_bits(i2c_dev->base + STM32F7_I2C_CR1,
+>> +			     STM32F7_I2C_CR1_PE);
+> 
+> This only "releases" the scl / sda on the stm32f7 end (outputs are hiz I guess).
+> It doesn't trigger the scl clocking needed to recover a stuck device  via i2c recovery
+> from what I can see in the data sheet.
+> 
 
-commit 1c8cb409491403036919dd1c6b45013dc8835a44
-Author: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Date:   Wed Aug 3 13:45:46 2016 -0700
+Correct. This mechanism resets the core IP and not the slave.
 
-    drivers/fpga/Kconfig: fix build failure
-
-    While building m32r allmodconfig the build is failing with the error:
-
-      ERROR: "bad_dma_ops" [drivers/fpga/zynq-fpga.ko] undefined!
-
-    Xilinx Zynq FPGA is using DMA but there was no dependency while
-    building.
-
-    Link: http://lkml.kernel.org/r/1464346526-13913-1-git-send-email-sudipm.mukherjee@gmail.com
-    Signed-off-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-    Acked-by: Moritz Fischer <moritz.fischer@ettus.com>
-    Cc: Alan Tull <atull@opensource.altera.com>
-    Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-    Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-Alan
-
-> Remove dependencies on HAS_DMA where a Kconfig symbol depends on another
-> symbol that implies HAS_DMA, and, optionally, on "|| COMPILE_TEST".
-> In most cases this other symbol is an architecture or platform specific
-> symbol, or PCI.
->
-> Generic symbols and drivers without platform dependencies keep their
-> dependencies on HAS_DMA, to prevent compiling subsystems or drivers that
-> cannot work anyway.
->
-> This simplifies the dependencies, and allows to improve compile-testing.
->
-> Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Reviewed-by: Mark Brown <broonie@kernel.org>
-> Acked-by: Robin Murphy <robin.murphy@arm.com>
-> ---
-> v2:
->   - Add Reviewed-by, Acked-by,
->   - Drop RFC state,
->   - Split per subsystem.
-> ---
->  drivers/fpga/Kconfig | 1 -
->  1 file changed, 1 deletion(-)
->
-> diff --git a/drivers/fpga/Kconfig b/drivers/fpga/Kconfig
-> index f47ef848bcd056d5..fd539132542e30ee 100644
-> --- a/drivers/fpga/Kconfig
-> +++ b/drivers/fpga/Kconfig
-> @@ -53,7 +53,6 @@ config FPGA_MGR_ALTERA_CVP
->  config FPGA_MGR_ZYNQ_FPGA
->         tristate "Xilinx Zynq FPGA"
->         depends on ARCH_ZYNQ || COMPILE_TEST
-> -       depends on HAS_DMA
->         help
->           FPGA manager driver support for Xilinx Zynq FPGAs.
->
-> --
-> 2.7.4
->
+> 
+>> +
+>> +	stm32f7_i2c_hw_config(i2c_dev);
+> 
+> Nothing in here either I think.
+> 
+> 
+>> +
+>> +	return 0;
+>> +}
+>> +
+>>   static int stm32f7_i2c_wait_free_bus(struct stm32f7_i2c_dev *i2c_dev)
+>>   {
+>>   	u32 status;
+>> @@ -727,12 +741,18 @@ static int stm32f7_i2c_wait_free_bus(struct stm32f7_i2c_dev *i2c_dev)
+>>   					 status,
+>>   					 !(status & STM32F7_I2C_ISR_BUSY),
+>>   					 10, 1000);
+>> +	if (!ret)
+>> +		return 0;
+>> +
+>> +	dev_info(i2c_dev->dev, "bus busy\n");
+>> +
+>> +	ret = i2c_recover_bus(&i2c_dev->adap);
+>>   	if (ret) {
+>> -		dev_dbg(i2c_dev->dev, "bus busy\n");
+>> -		ret = -EBUSY;
+>> +		dev_err(i2c_dev->dev, "Failed to recover the bus (%d)\n", ret);
+>> +		return ret;
+>>   	}
+>>   
+>> -	return ret;
+>> +	return -EBUSY;
+>>   }
+>>   
+>>   static void stm32f7_i2c_xfer_msg(struct stm32f7_i2c_dev *i2c_dev,
+>> @@ -1476,6 +1496,7 @@ static irqreturn_t stm32f7_i2c_isr_error(int irq, void *data)
+>>   	if (status & STM32F7_I2C_ISR_BERR) {
+>>   		dev_err(dev, "<%s>: Bus error\n", __func__);
+>>   		writel_relaxed(STM32F7_I2C_ICR_BERRCF, base + STM32F7_I2C_ICR);
+>> +		i2c_recover_bus(&i2c_dev->adap);
+>>   		f7_msg->result = -EIO;
+>>   	}
+>>   
+>> @@ -1760,6 +1781,10 @@ static struct i2c_algorithm stm32f7_i2c_algo = {
+>>   	.unreg_slave = stm32f7_i2c_unreg_slave,
+>>   };
+>>   
+>> +static struct i2c_bus_recovery_info stm32f7_i2c_recovery_info = {
+>> +	.recover_bus = stm32f7_i2c_recover_bus,
+>> +};
+>> +
+>>   static int stm32f7_i2c_probe(struct platform_device *pdev)
+>>   {
+>>   	struct device_node *np = pdev->dev.of_node;
+>> @@ -1879,6 +1904,7 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
+>>   	adap->algo = &stm32f7_i2c_algo;
+>>   	adap->dev.parent = &pdev->dev;
+>>   	adap->dev.of_node = pdev->dev.of_node;
+>> +	adap->bus_recovery_info = &stm32f7_i2c_recovery_info;
+>>   
+>>   	init_completion(&i2c_dev->complete);
+>>   
+>>
+> 
+> 
