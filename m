@@ -1,125 +1,135 @@
-From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: Re: [RESEND PATCH v1 6/6] i2c: i2c-stm32f7: Implement I2C recovery
- mechanism
-Date: Mon, 19 Mar 2018 17:25:20 +0100
-Message-ID: <ceeba3e9-7912-c47a-02e2-f22cdaef5041@st.com>
-References: <1520852023-27083-1-git-send-email-pierre-yves.mordret@st.com>
- <1520852023-27083-7-git-send-email-pierre-yves.mordret@st.com>
- <c9b7a9c9-4924-cadc-c539-0775aab23368@electromag.com.au>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [RFC PATCH 1/2] i2c: Add i2c_verify_device_id() to verify device
+ id
+Date: Mon, 19 Mar 2018 17:47:05 +0100
+Message-ID: <99548eb6-1958-b2a1-1f2c-ba995f8965ee@axentia.se>
+References: <1521475859-16765-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <c9b7a9c9-4924-cadc-c539-0775aab23368@electromag.com.au>
+In-Reply-To: <1521475859-16765-1-git-send-email-linux@roeck-us.net>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Phil Reid <preid@electromag.com.au>, Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Adrian Fiergolski <adrian.fiergolski@cern.ch>
 List-Id: linux-i2c@vger.kernel.org
 
+On 2018-03-19 17:10, Guenter Roeck wrote:
+> Commit dde67eb1beeb ("i2c: add i2c_get_device_id() to get the standard
+> I2C device id") added a function to return the standard I2C device ID.
+> Use that function to verify the device ID of a given device.
 
+Yeah, you're moving complexity from the driver to the core, reducing
+the indentation level and generally make things look neater. In fact,
+I thought about adding something like this, but didn't since I only had
+the one user.
 
-On 03/19/2018 10:36 AM, Phil Reid wrote:
-> On 12/03/2018 18:53, Pierre-Yves MORDRET wrote:
->> Feature prevents I2C lock-ups. Mechanism resets I2C state machine
->> and releases SCL/SDA signals but preserves I2C registers.
->>
->> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
->> ---
->>    Version history:
->>      v1:
->>         * Initial
->> ---
->> ---
->>   drivers/i2c/busses/i2c-stm32f7.c | 32 +++++++++++++++++++++++++++++---
->>   1 file changed, 29 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
->> index 69a2e5e..3808bc9 100644
->> --- a/drivers/i2c/busses/i2c-stm32f7.c
->> +++ b/drivers/i2c/busses/i2c-stm32f7.c
->> @@ -718,6 +718,20 @@ static void stm32f7_i2c_smbus_reload(struct stm32f7_i2c_dev *i2c_dev)
->>   	writel_relaxed(cr2, i2c_dev->base + STM32F7_I2C_CR2);
->>   }
->>   
->> +static int stm32f7_i2c_recover_bus(struct i2c_adapter *i2c_adap)
->> +{
->> +	struct stm32f7_i2c_dev *i2c_dev = i2c_get_adapdata(i2c_adap);
->> +
->> +	dev_info(i2c_dev->dev, "Trying to recover bus\n");
->> +
->> +	stm32f7_i2c_clr_bits(i2c_dev->base + STM32F7_I2C_CR1,
->> +			     STM32F7_I2C_CR1_PE);
-> 
-> This only "releases" the scl / sda on the stm32f7 end (outputs are hiz I guess).
-> It doesn't trigger the scl clocking needed to recover a stuck device  via i2c recovery
-> from what I can see in the data sheet.
-> 
+The only negative is the added line count, but I suppose more drivers
+will call this function down the line so it should be a net win in the
+long run. There was the PCA9641 chip earlier today e.g., but maybe we
+should wait for more device id users?
 
-Correct. This mechanism resets the core IP and not the slave.
+I wonder when other manufacturers will get on board?
 
+I also wonder if NXP will ever release a chip with part-id 0 and
+die-revision 0? If not, an all zero struct i2c_device_identity
+could be used instead of manufacturer_id 0xffff and that would
+simplify the pca954x driver code a bit more. But I guess we can
+never know the answer to that question. And even if we did, the
+answer might change later. But it would be nice...
+
+> Cc: Peter Rosin <peda@axentia.se>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> ---
+> RFC:
+> - Compile tested only
+
+Can't test either since I have no chips, but the code looks good.
+
+Adrian have HW, but maybe he's getting tried of testing?
+
+Hmmm, for testing purposes it would be nice if a linux slave device
+implemented this. But I don't have HW that supports that either so it
+wouldn't help *me* anyway...
+
+Anyway, ack from me for both patches. But maybe I'm the one
+picking them up? Wolfram?
+
+Cheers,
+Peter
+
+> - Should there also be I2C_DEVICE_PART_ID_ANY to enable maching
+>   against all parts from a given manufacturer ?
 > 
->> +
->> +	stm32f7_i2c_hw_config(i2c_dev);
+>  drivers/i2c/i2c-core-base.c | 34 ++++++++++++++++++++++++++++++++++
+>  include/linux/i2c.h         |  3 +++
+>  2 files changed, 37 insertions(+)
 > 
-> Nothing in here either I think.
-> 
-> 
->> +
->> +	return 0;
->> +}
->> +
->>   static int stm32f7_i2c_wait_free_bus(struct stm32f7_i2c_dev *i2c_dev)
->>   {
->>   	u32 status;
->> @@ -727,12 +741,18 @@ static int stm32f7_i2c_wait_free_bus(struct stm32f7_i2c_dev *i2c_dev)
->>   					 status,
->>   					 !(status & STM32F7_I2C_ISR_BUSY),
->>   					 10, 1000);
->> +	if (!ret)
->> +		return 0;
->> +
->> +	dev_info(i2c_dev->dev, "bus busy\n");
->> +
->> +	ret = i2c_recover_bus(&i2c_dev->adap);
->>   	if (ret) {
->> -		dev_dbg(i2c_dev->dev, "bus busy\n");
->> -		ret = -EBUSY;
->> +		dev_err(i2c_dev->dev, "Failed to recover the bus (%d)\n", ret);
->> +		return ret;
->>   	}
->>   
->> -	return ret;
->> +	return -EBUSY;
->>   }
->>   
->>   static void stm32f7_i2c_xfer_msg(struct stm32f7_i2c_dev *i2c_dev,
->> @@ -1476,6 +1496,7 @@ static irqreturn_t stm32f7_i2c_isr_error(int irq, void *data)
->>   	if (status & STM32F7_I2C_ISR_BERR) {
->>   		dev_err(dev, "<%s>: Bus error\n", __func__);
->>   		writel_relaxed(STM32F7_I2C_ICR_BERRCF, base + STM32F7_I2C_ICR);
->> +		i2c_recover_bus(&i2c_dev->adap);
->>   		f7_msg->result = -EIO;
->>   	}
->>   
->> @@ -1760,6 +1781,10 @@ static struct i2c_algorithm stm32f7_i2c_algo = {
->>   	.unreg_slave = stm32f7_i2c_unreg_slave,
->>   };
->>   
->> +static struct i2c_bus_recovery_info stm32f7_i2c_recovery_info = {
->> +	.recover_bus = stm32f7_i2c_recover_bus,
->> +};
->> +
->>   static int stm32f7_i2c_probe(struct platform_device *pdev)
->>   {
->>   	struct device_node *np = pdev->dev.of_node;
->> @@ -1879,6 +1904,7 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
->>   	adap->algo = &stm32f7_i2c_algo;
->>   	adap->dev.parent = &pdev->dev;
->>   	adap->dev.of_node = pdev->dev.of_node;
->> +	adap->bus_recovery_info = &stm32f7_i2c_recovery_info;
->>   
->>   	init_completion(&i2c_dev->complete);
->>   
->>
-> 
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index 16a3b73375a6..4e4372b064f6 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -2009,6 +2009,40 @@ int i2c_get_device_id(const struct i2c_client *client,
+>  }
+>  EXPORT_SYMBOL_GPL(i2c_get_device_id);
+>  
+> +/**
+> + * i2c_verify_device_id - verify device ID
+> + * @client: The device to query
+> + * @id: Expected device ID
+> + *
+> + * Returns negative errno on error, zero on success.
+> + */
+> +int i2c_verify_device_id(const struct i2c_client *client,
+> +			 const struct i2c_device_identity *id)
+> +{
+> +	struct i2c_device_identity real_id;
+> +	int ret;
+> +
+> +	if (id->manufacturer_id == I2C_DEVICE_ID_NONE)
+> +		return 0;
+> +
+> +	ret = i2c_get_device_id(client, &real_id);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	if (id->manufacturer_id != real_id.manufacturer_id ||
+> +	    id->part_id != real_id.part_id ||
+> +	    (id->die_revision != I2C_DEVICE_DIE_REVISION_ANY &&
+> +	     id->die_revision != real_id.die_revision)) {
+> +		dev_err(&client->dev, "unexpected device id %03x-%03x-%x\n",
+> +			real_id.manufacturer_id, real_id.part_id,
+> +			real_id.die_revision);
+> +		return -ENODEV;
+> +	}
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_verify_device_id);
+> +
+>  /* ----------------------------------------------------
+>   * the i2c address scanning function
+>   * Will not work for 10-bit addresses!
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 44ad14e016b5..45bae9717ecb 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -189,6 +189,8 @@ i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+>  					  u8 command, u8 length, u8 *values);
+>  int i2c_get_device_id(const struct i2c_client *client,
+>  		      struct i2c_device_identity *id);
+> +int i2c_verify_device_id(const struct i2c_client *client,
+> +			 const struct i2c_device_identity *id);
+>  #endif /* I2C */
+>  
+>  /**
+> @@ -216,6 +218,7 @@ struct i2c_device_identity {
+>  #define I2C_DEVICE_ID_NONE                         0xffff
+>  	u16 part_id;
+>  	u8 die_revision;
+> +#define I2C_DEVICE_DIE_REVISION_ANY		     0xff
+>  };
+>  
+>  enum i2c_alert_protocol {
 > 
