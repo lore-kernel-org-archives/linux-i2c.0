@@ -1,33 +1,121 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 01/21] eeprom: at24: disable regmap locking
-Date: Mon, 19 Mar 2018 10:17:01 +0100
-Message-ID: <20180319091721.18193-2-brgl@bgdev.pl>
-References: <20180319091721.18193-1-brgl@bgdev.pl>
+From: Phil Reid <preid@electromag.com.au>
+Subject: Re: [RESEND PATCH v1 6/6] i2c: i2c-stm32f7: Implement I2C recovery
+ mechanism
+Date: Mon, 19 Mar 2018 17:36:30 +0800
+Message-ID: <c9b7a9c9-4924-cadc-c539-0775aab23368@electromag.com.au>
+References: <1520852023-27083-1-git-send-email-pierre-yves.mordret@st.com>
+ <1520852023-27083-7-git-send-email-pierre-yves.mordret@st.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180319091721.18193-1-brgl@bgdev.pl>
+In-Reply-To: <1520852023-27083-7-git-send-email-pierre-yves.mordret@st.com>
+Content-Language: en-AU
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-We use our own mutex for locking. Disable the regmap-specific locking.
+On 12/03/2018 18:53, Pierre-Yves MORDRET wrote:
+> Feature prevents I2C lock-ups. Mechanism resets I2C state machine
+> and releases SCL/SDA signals but preserves I2C registers.
+> 
+> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+> ---
+>    Version history:
+>      v1:
+>         * Initial
+> ---
+> ---
+>   drivers/i2c/busses/i2c-stm32f7.c | 32 +++++++++++++++++++++++++++++---
+>   1 file changed, 29 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+> index 69a2e5e..3808bc9 100644
+> --- a/drivers/i2c/busses/i2c-stm32f7.c
+> +++ b/drivers/i2c/busses/i2c-stm32f7.c
+> @@ -718,6 +718,20 @@ static void stm32f7_i2c_smbus_reload(struct stm32f7_i2c_dev *i2c_dev)
+>   	writel_relaxed(cr2, i2c_dev->base + STM32F7_I2C_CR2);
+>   }
+>   
+> +static int stm32f7_i2c_recover_bus(struct i2c_adapter *i2c_adap)
+> +{
+> +	struct stm32f7_i2c_dev *i2c_dev = i2c_get_adapdata(i2c_adap);
+> +
+> +	dev_info(i2c_dev->dev, "Trying to recover bus\n");
+> +
+> +	stm32f7_i2c_clr_bits(i2c_dev->base + STM32F7_I2C_CR1,
+> +			     STM32F7_I2C_CR1_PE);
 
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
----
- drivers/misc/eeprom/at24.c | 1 +
- 1 file changed, 1 insertion(+)
+This only "releases" the scl / sda on the stm32f7 end (outputs are hiz I guess).
+It doesn't trigger the scl clocking needed to recover a stuck device  via i2c recovery
+from what I can see in the data sheet.
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 01f9c4921c50..73af6c5a2d73 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -577,6 +577,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 	regmap_config.val_bits = 8;
- 	regmap_config.reg_bits = (chip.flags & AT24_FLAG_ADDR16) ? 16 : 8;
-+	regmap_config.disable_locking = true;
- 
- 	at24 = devm_kzalloc(&client->dev, sizeof(struct at24_data) +
- 		num_addresses * sizeof(struct at24_client), GFP_KERNEL);
+
+> +
+> +	stm32f7_i2c_hw_config(i2c_dev);
+
+Nothing in here either I think.
+
+
+> +
+> +	return 0;
+> +}
+> +
+>   static int stm32f7_i2c_wait_free_bus(struct stm32f7_i2c_dev *i2c_dev)
+>   {
+>   	u32 status;
+> @@ -727,12 +741,18 @@ static int stm32f7_i2c_wait_free_bus(struct stm32f7_i2c_dev *i2c_dev)
+>   					 status,
+>   					 !(status & STM32F7_I2C_ISR_BUSY),
+>   					 10, 1000);
+> +	if (!ret)
+> +		return 0;
+> +
+> +	dev_info(i2c_dev->dev, "bus busy\n");
+> +
+> +	ret = i2c_recover_bus(&i2c_dev->adap);
+>   	if (ret) {
+> -		dev_dbg(i2c_dev->dev, "bus busy\n");
+> -		ret = -EBUSY;
+> +		dev_err(i2c_dev->dev, "Failed to recover the bus (%d)\n", ret);
+> +		return ret;
+>   	}
+>   
+> -	return ret;
+> +	return -EBUSY;
+>   }
+>   
+>   static void stm32f7_i2c_xfer_msg(struct stm32f7_i2c_dev *i2c_dev,
+> @@ -1476,6 +1496,7 @@ static irqreturn_t stm32f7_i2c_isr_error(int irq, void *data)
+>   	if (status & STM32F7_I2C_ISR_BERR) {
+>   		dev_err(dev, "<%s>: Bus error\n", __func__);
+>   		writel_relaxed(STM32F7_I2C_ICR_BERRCF, base + STM32F7_I2C_ICR);
+> +		i2c_recover_bus(&i2c_dev->adap);
+>   		f7_msg->result = -EIO;
+>   	}
+>   
+> @@ -1760,6 +1781,10 @@ static struct i2c_algorithm stm32f7_i2c_algo = {
+>   	.unreg_slave = stm32f7_i2c_unreg_slave,
+>   };
+>   
+> +static struct i2c_bus_recovery_info stm32f7_i2c_recovery_info = {
+> +	.recover_bus = stm32f7_i2c_recover_bus,
+> +};
+> +
+>   static int stm32f7_i2c_probe(struct platform_device *pdev)
+>   {
+>   	struct device_node *np = pdev->dev.of_node;
+> @@ -1879,6 +1904,7 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
+>   	adap->algo = &stm32f7_i2c_algo;
+>   	adap->dev.parent = &pdev->dev;
+>   	adap->dev.of_node = pdev->dev.of_node;
+> +	adap->bus_recovery_info = &stm32f7_i2c_recovery_info;
+>   
+>   	init_completion(&i2c_dev->complete);
+>   
+> 
+
+
 -- 
-2.16.1
+Regards
+Phil
