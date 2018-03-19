@@ -1,104 +1,59 @@
-From: Jan Glauber <jglauber@cavium.com>
-Subject: Re: [PATCH v2] i2c: xlp9xx: Add support for SMBAlert
-Date: Mon, 19 Mar 2018 11:50:35 +0100
-Message-ID: <20180319105035.GA10534@wintermute>
-References: <1520347594-184146-1-git-send-email-george.cherian@cavium.com>
- <20180317210300.yyft3errf3opj2t3@ninjato>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH 04/21] eeprom: at24: use SPDX identifier instead of GPL
+ boiler-plate
+Date: Mon, 19 Mar 2018 12:03:14 +0100
+Message-ID: <b1602ac6-04cd-a415-ee66-79533a5af4a3@axentia.se>
+References: <20180319091721.18193-1-brgl@bgdev.pl>
+ <20180319091721.18193-5-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180317210300.yyft3errf3opj2t3@ninjato>
+In-Reply-To: <20180319091721.18193-5-brgl@bgdev.pl>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: George Cherian <george.cherian@cavium.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Kamlakant Patel <kamlakant.patel@cavium.com>
+To: Bartosz Golaszewski <brgl@bgdev.pl>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Mar 17, 2018 at 10:03:00PM +0100, Wolfram Sang wrote:
-> On Tue, Mar 06, 2018 at 06:46:34AM -0800, George Cherian wrote:
-> > Add support for SMBus alert mechanism to i2c-xlp9xx driver.
-> > The second interrupt is parsed to use for SMBus alert.
-> > The first interrupt is the i2c controller main interrupt.
-> > 
-> > Signed-off-by: Kamlakant Patel <kamlakant.patel@cavium.com>
-> > Signed-off-by: George Cherian <george.cherian@cavium.com>
-> 
-> Are the previous reviewers happy now?
+On 2018-03-19 10:17, Bartosz Golaszewski wrote:
+> Replace the GPL header with an SPDX identifier for GPL-2.0.
 
-Reviewed-by: Jan Glauber <jglauber@cavium.com>
+Great care should be exercised when dealing with copyrights of others.
 
-> > ---
-> >  drivers/i2c/busses/i2c-xlp9xx.c | 24 ++++++++++++++++++++++++
-> >  1 file changed, 24 insertions(+)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
-> > index eb8913e..d5cadb6 100644
-> > --- a/drivers/i2c/busses/i2c-xlp9xx.c
-> > +++ b/drivers/i2c/busses/i2c-xlp9xx.c
-> > @@ -10,6 +10,7 @@
-> >  #include <linux/clk.h>
-> >  #include <linux/completion.h>
-> >  #include <linux/i2c.h>
-> > +#include <linux/i2c-smbus.h>
-> >  #include <linux/init.h>
-> >  #include <linux/interrupt.h>
-> >  #include <linux/io.h>
-> > @@ -84,6 +85,8 @@ struct xlp9xx_i2c_dev {
-> >  	struct device *dev;
-> >  	struct i2c_adapter adapter;
-> >  	struct completion msg_complete;
-> > +	struct i2c_smbus_alert_setup alert_data;
-> > +	struct i2c_client *ara;
-> >  	int irq;
-> >  	bool msg_read;
-> >  	bool len_recv;
-> > @@ -447,6 +450,19 @@ static int xlp9xx_i2c_get_frequency(struct platform_device *pdev,
-> >  	return 0;
-> >  }
-> >  
-> > +static int xlp9xx_i2c_smbus_setup(struct xlp9xx_i2c_dev *priv,
-> > +				  struct platform_device *pdev)
-> > +{
-> > +	if (!priv->alert_data.irq)
-> > +		return -EINVAL;
-> > +
-> > +	priv->ara = i2c_setup_smbus_alert(&priv->adapter, &priv->alert_data);
-> > +	if (!priv->ara)
-> > +		return -ENODEV;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> >  static int xlp9xx_i2c_probe(struct platform_device *pdev)
-> >  {
-> >  	struct xlp9xx_i2c_dev *priv;
-> > @@ -467,6 +483,10 @@ static int xlp9xx_i2c_probe(struct platform_device *pdev)
-> >  		dev_err(&pdev->dev, "invalid irq!\n");
-> >  		return priv->irq;
-> >  	}
-> > +	/* SMBAlert irq */
-> > +	priv->alert_data.irq = platform_get_irq(pdev, 1);
-> > +	if (priv->alert_data.irq <= 0)
 > 
-> '< 0' should do, or?
+> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+> ---
+>  drivers/misc/eeprom/at24.c | 7 ++-----
+>  1 file changed, 2 insertions(+), 5 deletions(-)
 > 
-> > +		priv->alert_data.irq = 0;
-> >  
-> >  	xlp9xx_i2c_get_frequency(pdev, priv);
-> >  	xlp9xx_i2c_init(priv);
-> > @@ -493,6 +513,10 @@ static int xlp9xx_i2c_probe(struct platform_device *pdev)
-> >  	if (err)
-> >  		return err;
-> >  
-> > +	err = xlp9xx_i2c_smbus_setup(priv, pdev);
-> > +	if (err)
-> > +		dev_info(&pdev->dev, "No active SMBus alert %d\n", err);
-> > +
-> 
-> Do you really want to print this info every time SMBus alert is not
-> used? Is it common on this platform
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index 2a4154eeb1bd..0e06201d33c9 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -1,14 +1,11 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
 
-We do the same thing in the ThunderX driver and thought it is useful to
-have the info print.
+This should be 2.0+
 
---Jan
+Also, use a // style comment for the SPDX line in C files.
+
+Cheers,
+Peter
+
+>  /*
+>   * at24.c - handle most I2C EEPROMs
+>   *
+>   * Copyright (C) 2005-2007 David Brownell
+>   * Copyright (C) 2008 Wolfram Sang, Pengutronix
+> - *
+> - * This program is free software; you can redistribute it and/or modify
+> - * it under the terms of the GNU General Public License as published by
+> - * the Free Software Foundation; either version 2 of the License, or
+> - * (at your option) any later version.
+>   */
+> +
+>  #include <linux/kernel.h>
+>  #include <linux/init.h>
+>  #include <linux/module.h>
+> 
