@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 12/21] eeprom: at24: use a helper variable for dev
-Date: Mon, 19 Mar 2018 10:17:12 +0100
-Message-ID: <20180319091721.18193-13-brgl@bgdev.pl>
+Subject: [PATCH 11/21] eeprom: at24: rename chip to pdata in at24_probe()
+Date: Mon, 19 Mar 2018 10:17:11 +0100
+Message-ID: <20180319091721.18193-12-brgl@bgdev.pl>
 References: <20180319091721.18193-1-brgl@bgdev.pl>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180319091721.18193-1-brgl@bgdev.pl>
@@ -10,167 +10,135 @@ To: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.or
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-We use the &client->dev construct all over in at24_probe(). Use
-a helper variable which is more readable and allows to avoid a couple
-unnecessary line breaks.
+Reflect the purpose of this variable: it contains platform data so name
+it such.
 
 Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 ---
- drivers/misc/eeprom/at24.c | 48 ++++++++++++++++++++++------------------------
- 1 file changed, 23 insertions(+), 25 deletions(-)
+ drivers/misc/eeprom/at24.c | 42 +++++++++++++++++++++---------------------
+ 1 file changed, 21 insertions(+), 21 deletions(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 93431d1296d9..e4c1997c2b56 100644
+index dad5b0f0606e..93431d1296d9 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -517,29 +517,29 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+@@ -516,7 +516,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	struct regmap_config regmap_config = { };
  	struct nvmem_config nvmem_config = { };
  	const struct at24_chip_data *cd = NULL;
- 	struct at24_platform_data pdata = { };
-+	struct device *dev = &client->dev;
+-	struct at24_platform_data chip = { };
++	struct at24_platform_data pdata = { };
  	unsigned int i, num_addresses;
  	struct at24_data *at24;
  	bool writable;
- 	u8 test_byte;
+@@ -524,7 +524,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  	int err;
  
--	if (client->dev.platform_data) {
--		pdata = *(struct at24_platform_data *)client->dev.platform_data;
-+	if (dev->platform_data) {
-+		pdata = *(struct at24_platform_data *)dev->platform_data;
+ 	if (client->dev.platform_data) {
+-		chip = *(struct at24_platform_data *)client->dev.platform_data;
++		pdata = *(struct at24_platform_data *)client->dev.platform_data;
  	} else {
  		/*
  		 * The I2C core allows OF nodes compatibles to match against the
- 		 * I2C device ID table as a fallback, so check not only if an OF
- 		 * node is present but also if it matches an OF device ID entry.
- 		 */
--		if (client->dev.of_node &&
--		    of_match_device(at24_of_match, &client->dev)) {
--			cd = of_device_get_match_data(&client->dev);
-+		if (dev->of_node && of_match_device(at24_of_match, dev)) {
-+			cd = of_device_get_match_data(dev);
- 		} else if (id) {
- 			cd = (void *)id->driver_data;
- 		} else {
- 			const struct acpi_device_id *aid;
+@@ -546,32 +546,32 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		if (!cd)
+ 			return -ENODEV;
  
--			aid = acpi_match_device(at24_acpi_ids, &client->dev);
-+			aid = acpi_match_device(at24_acpi_ids, dev);
- 			if (aid)
- 				cd = (void *)aid->driver_data;
- 		}
-@@ -548,16 +548,15 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 		pdata.byte_len = cd->byte_len;
- 		pdata.flags = cd->flags;
--		at24_properties_to_pdata(&client->dev, &pdata);
-+		at24_properties_to_pdata(dev, &pdata);
+-		chip.byte_len = cd->byte_len;
+-		chip.flags = cd->flags;
+-		at24_properties_to_pdata(&client->dev, &chip);
++		pdata.byte_len = cd->byte_len;
++		pdata.flags = cd->flags;
++		at24_properties_to_pdata(&client->dev, &pdata);
  	}
  
- 	if (!pdata.page_size) {
--		dev_err(&client->dev, "page_size must not be 0!\n");
-+		dev_err(dev, "page_size must not be 0!\n");
+-	if (!chip.page_size) {
++	if (!pdata.page_size) {
+ 		dev_err(&client->dev, "page_size must not be 0!\n");
  		return -EINVAL;
  	}
- 	if (!is_power_of_2(pdata.page_size))
--		dev_warn(&client->dev,
--			"page_size looks suspicious (no power of 2)!\n");
-+		dev_warn(dev, "page_size looks suspicious (no power of 2)!\n");
+-	if (!is_power_of_2(chip.page_size))
++	if (!is_power_of_2(pdata.page_size))
+ 		dev_warn(&client->dev,
+ 			"page_size looks suspicious (no power of 2)!\n");
  
  	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C) &&
  	    !i2c_check_functionality(client->adapter,
-@@ -574,8 +573,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	regmap_config.reg_bits = (pdata.flags & AT24_FLAG_ADDR16) ? 16 : 8;
+ 				     I2C_FUNC_SMBUS_WRITE_I2C_BLOCK))
+-		chip.page_size = 1;
++		pdata.page_size = 1;
+ 
+-	if (chip.flags & AT24_FLAG_TAKE8ADDR)
++	if (pdata.flags & AT24_FLAG_TAKE8ADDR)
+ 		num_addresses = 8;
+ 	else
+-		num_addresses =	DIV_ROUND_UP(chip.byte_len,
+-			(chip.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
++		num_addresses =	DIV_ROUND_UP(pdata.byte_len,
++			(pdata.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
+ 
+ 	regmap_config.val_bits = 8;
+-	regmap_config.reg_bits = (chip.flags & AT24_FLAG_ADDR16) ? 16 : 8;
++	regmap_config.reg_bits = (pdata.flags & AT24_FLAG_ADDR16) ? 16 : 8;
  	regmap_config.disable_locking = true;
  
--	at24 = devm_kzalloc(&client->dev, sizeof(struct at24_data) +
--		num_addresses * sizeof(struct at24_client), GFP_KERNEL);
-+	at24 = devm_kzalloc(dev, sizeof(struct at24_data) + num_addresses *
-+			    sizeof(struct at24_client), GFP_KERNEL);
- 	if (!at24)
+ 	at24 = devm_kzalloc(&client->dev, sizeof(struct at24_data) +
+@@ -580,9 +580,9 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  		return -ENOMEM;
  
-@@ -584,8 +583,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	mutex_init(&at24->lock);
+-	at24->chip = chip;
++	at24->chip = pdata;
  	at24->num_addresses = num_addresses;
- 	at24->offset_adj = at24_get_offset_adj(pdata.flags, pdata.byte_len);
+-	at24->offset_adj = at24_get_offset_adj(chip.flags, chip.byte_len);
++	at24->offset_adj = at24_get_offset_adj(pdata.flags, pdata.byte_len);
  
--	at24->wp_gpio = devm_gpiod_get_optional(&client->dev,
--						"wp", GPIOD_OUT_HIGH);
-+	at24->wp_gpio = devm_gpiod_get_optional(dev, "wp", GPIOD_OUT_HIGH);
- 	if (IS_ERR(at24->wp_gpio))
- 		return PTR_ERR(at24->wp_gpio);
- 
-@@ -595,7 +593,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	at24->wp_gpio = devm_gpiod_get_optional(&client->dev,
+ 						"wp", GPIOD_OUT_HIGH);
+@@ -594,16 +594,16 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	if (IS_ERR(at24->client[0].regmap))
  		return PTR_ERR(at24->client[0].regmap);
  
- 	if ((pdata.flags & AT24_FLAG_SERIAL) && (pdata.flags & AT24_FLAG_MAC)) {
--		dev_err(&client->dev,
-+		dev_err(dev,
+-	if ((chip.flags & AT24_FLAG_SERIAL) && (chip.flags & AT24_FLAG_MAC)) {
++	if ((pdata.flags & AT24_FLAG_SERIAL) && (pdata.flags & AT24_FLAG_MAC)) {
+ 		dev_err(&client->dev,
  			"invalid device data - cannot have both AT24_FLAG_SERIAL & AT24_FLAG_MAC.");
  		return -EINVAL;
  	}
-@@ -614,8 +612,8 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		at24->client[i].client = i2c_new_dummy(client->adapter,
- 						       client->addr + i);
- 		if (!at24->client[i].client) {
--			dev_err(&client->dev, "address 0x%02x unavailable\n",
--					client->addr + i);
-+			dev_err(dev, "address 0x%02x unavailable\n",
-+				client->addr + i);
- 			err = -EADDRINUSE;
- 			goto err_clients;
- 		}
-@@ -631,27 +629,27 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	i2c_set_clientdata(client, at24);
  
- 	/* enable runtime pm */
--	pm_runtime_set_active(&client->dev);
--	pm_runtime_enable(&client->dev);
-+	pm_runtime_set_active(dev);
-+	pm_runtime_enable(dev);
- 
- 	/*
- 	 * Perform a one-byte test read to verify that the
- 	 * chip is functional.
- 	 */
- 	err = at24_read(at24, 0, &test_byte, 1);
--	pm_runtime_idle(&client->dev);
-+	pm_runtime_idle(dev);
- 	if (err) {
- 		err = -ENODEV;
- 		goto err_clients;
- 	}
- 
--	nvmem_config.name = dev_name(&client->dev);
--	nvmem_config.dev = &client->dev;
-+	nvmem_config.name = dev_name(dev);
-+	nvmem_config.dev = dev;
- 	nvmem_config.read_only = !writable;
- 	nvmem_config.root_only = true;
- 	nvmem_config.owner = THIS_MODULE;
- 	nvmem_config.compat = true;
--	nvmem_config.base_dev = &client->dev;
-+	nvmem_config.base_dev = dev;
- 	nvmem_config.reg_read = at24_read;
- 	nvmem_config.reg_write = at24_write;
+-	writable = !(chip.flags & AT24_FLAG_READONLY);
++	writable = !(pdata.flags & AT24_FLAG_READONLY);
+ 	if (writable) {
+ 		at24->write_max = min_t(unsigned int,
+-					chip.page_size, at24_io_limit);
++					pdata.page_size, at24_io_limit);
+ 		if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C) &&
+ 		    at24->write_max > I2C_SMBUS_BLOCK_MAX)
+ 			at24->write_max = I2C_SMBUS_BLOCK_MAX;
+@@ -657,7 +657,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  	nvmem_config.priv = at24;
-@@ -666,7 +664,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		goto err_clients;
+ 	nvmem_config.stride = 1;
+ 	nvmem_config.word_size = 1;
+-	nvmem_config.size = chip.byte_len;
++	nvmem_config.size = pdata.byte_len;
+ 
+ 	at24->nvmem = nvmem_register(&nvmem_config);
+ 
+@@ -667,12 +667,12 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  	}
  
--	dev_info(&client->dev, "%u byte %s EEPROM, %s, %u bytes/write\n",
-+	dev_info(dev, "%u byte %s EEPROM, %s, %u bytes/write\n",
- 		pdata.byte_len, client->name,
+ 	dev_info(&client->dev, "%u byte %s EEPROM, %s, %u bytes/write\n",
+-		chip.byte_len, client->name,
++		pdata.byte_len, client->name,
  		writable ? "writable" : "read-only", at24->write_max);
  
-@@ -681,7 +679,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		if (at24->client[i].client)
- 			i2c_unregister_device(at24->client[i].client);
+ 	/* export data to kernel code */
+-	if (chip.setup)
+-		chip.setup(at24->nvmem, chip.context);
++	if (pdata.setup)
++		pdata.setup(at24->nvmem, pdata.context);
  
--	pm_runtime_disable(&client->dev);
-+	pm_runtime_disable(dev);
+ 	return 0;
  
- 	return err;
- }
 -- 
 2.16.1
