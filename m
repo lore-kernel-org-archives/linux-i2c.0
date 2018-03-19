@@ -1,39 +1,33 @@
 From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: Re: [RESEND PATCH v1 2/6] i2c: i2c-stm32f7: Add slave support
-Date: Mon, 19 Mar 2018 09:41:20 +0100
-Message-ID: <5a3c5b21-bc66-ce73-a997-f686ecc275f3@st.com>
+Subject: Re: [RESEND PATCH v1 6/6] i2c: i2c-stm32f7: Implement I2C recovery
+ mechanism
+Date: Mon, 19 Mar 2018 09:51:07 +0100
+Message-ID: <2672947b-46b2-7bd7-ac13-501db8bde72b@st.com>
 References: <1520852023-27083-1-git-send-email-pierre-yves.mordret@st.com>
- <1520852023-27083-3-git-send-email-pierre-yves.mordret@st.com>
- <20180317205109.gocf5wemtjkyomct@ninjato>
+ <1520852023-27083-7-git-send-email-pierre-yves.mordret@st.com>
+ <20180317204720.mclh4jw5owobbtww@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="windows-1252"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180317205109.gocf5wemtjkyomct@ninjato>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180317204720.mclh4jw5owobbtww@ninjato>
 Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Alexandre Torgue <alexandre.torgue@st.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-i2c@vger.kernel.org
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-I do believe the hw can support it, even it looks odd to me having the same I2C
-in slave and master mode at the same time.
-Nevertheless the driver is devised to support either master or slave more but
-not at the same time.
+Yes. Recovery mechanism is triggered whenever a busy line is detected.
+This busy state can be checked by sw when either SDA or SCL is low: a bit is set
+by Hw for this purpose.
+On busy state I2C is reconfigured and lines are released the time of recovery.
 
 Regards
-On 03/17/2018 09:51 PM, Wolfram Sang wrote:
+On 03/17/2018 09:47 PM, Wolfram Sang wrote:
+> On Mon, Mar 12, 2018 at 11:53:43AM +0100, Pierre-Yves MORDRET wrote:
+>> Feature prevents I2C lock-ups. Mechanism resets I2C state machine
+>> and releases SCL/SDA signals but preserves I2C registers.
 > 
->> + * @master_mode: boolean to know in which mode the I2C is running (master or
->> + * slave)
-> 
-> It can't do both at the same time?
+> Does it release SDA when held down by the slave? Because that is what
+> the recovery mechanism is for.
 > 
