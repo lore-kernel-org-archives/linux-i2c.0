@@ -1,15 +1,15 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 1/3] i2c: mux: pca9541: use the BIT macro
-Date: Tue, 20 Mar 2018 06:18:51 -0700
-Message-ID: <9bbbe799-da7c-8e3c-7fe5-af5923e92255@roeck-us.net>
+Subject: Re: [PATCH 2/3] i2c: mux: pca9541: namespace cleanup
+Date: Tue, 20 Mar 2018 06:20:37 -0700
+Message-ID: <e92c5457-20fd-1e6e-ab59-5ff53e647e89@roeck-us.net>
 References: <20180320061909.5775-1-chen.kenyy@inventec.com>
  <20180320093200.19179-1-peda@axentia.se>
- <20180320093200.19179-2-peda@axentia.se>
+ <20180320093200.19179-3-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180320093200.19179-2-peda@axentia.se>
+In-Reply-To: <20180320093200.19179-3-peda@axentia.se>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
@@ -17,61 +17,90 @@ Cc: Wolfram Sang <wsa@the-dreams.de>, Ken Chen <chen.kenyy@inventec.com>, joel@j
 List-Id: linux-i2c@vger.kernel.org
 
 On 03/20/2018 02:31 AM, Peter Rosin wrote:
-> Because it looks nice!
+> In preparation for PCA9641 support, convert the mybus and busoff macros
+> to functions, and in the process prefix them with pca9541_. Also prefix
+> remaining chip specific macros with PCA9541_.
 > 
 > Signed-off-by: Peter Rosin <peda@axentia.se>
-
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-
 > ---
->   drivers/i2c/muxes/i2c-mux-pca9541.c | 29 +++++++++++++++--------------
->   1 file changed, 15 insertions(+), 14 deletions(-)
+>   drivers/i2c/muxes/i2c-mux-pca9541.c | 26 +++++++++++++++++++-------
+>   1 file changed, 19 insertions(+), 7 deletions(-)
 > 
 > diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
-> index 6a39adaf433f..ad168125d23d 100644
+> index ad168125d23d..47685eb4e0e9 100644
 > --- a/drivers/i2c/muxes/i2c-mux-pca9541.c
 > +++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
-> @@ -16,6 +16,7 @@
->    * warranty of any kind, whether express or implied.
->    */
+> @@ -59,10 +59,8 @@
+>   #define PCA9541_ISTAT_MYTEST	BIT(6)
+>   #define PCA9541_ISTAT_NMYTEST	BIT(7)
 >   
-> +#include <linux/bitops.h>
->   #include <linux/delay.h>
->   #include <linux/device.h>
->   #include <linux/i2c.h>
-> @@ -43,20 +44,20 @@
->   #define PCA9541_CONTROL		0x01
->   #define PCA9541_ISTAT		0x02
+> -#define BUSON		(PCA9541_CTL_BUSON | PCA9541_CTL_NBUSON)
+> -#define MYBUS		(PCA9541_CTL_MYBUS | PCA9541_CTL_NMYBUS)
+> -#define mybus(x)	(!((x) & MYBUS) || ((x) & MYBUS) == MYBUS)
+> -#define busoff(x)	(!((x) & BUSON) || ((x) & BUSON) == BUSON)
+> +#define PCA9541_BUSON	(PCA9541_CTL_BUSON | PCA9541_CTL_NBUSON)
+> +#define PCA9541_MYBUS	(PCA9541_CTL_MYBUS | PCA9541_CTL_NMYBUS)
 >   
-> -#define PCA9541_CTL_MYBUS	(1 << 0)
-> -#define PCA9541_CTL_NMYBUS	(1 << 1)
-> -#define PCA9541_CTL_BUSON	(1 << 2)
-> -#define PCA9541_CTL_NBUSON	(1 << 3)
-> -#define PCA9541_CTL_BUSINIT	(1 << 4)
-> -#define PCA9541_CTL_TESTON	(1 << 6)
-> -#define PCA9541_CTL_NTESTON	(1 << 7)
-> -
-> -#define PCA9541_ISTAT_INTIN	(1 << 0)
-> -#define PCA9541_ISTAT_BUSINIT	(1 << 1)
-> -#define PCA9541_ISTAT_BUSOK	(1 << 2)
-> -#define PCA9541_ISTAT_BUSLOST	(1 << 3)
-> -#define PCA9541_ISTAT_MYTEST	(1 << 6)
-> -#define PCA9541_ISTAT_NMYTEST	(1 << 7)
-> +#define PCA9541_CTL_MYBUS	BIT(0)
-> +#define PCA9541_CTL_NMYBUS	BIT(1)
-> +#define PCA9541_CTL_BUSON	BIT(2)
-> +#define PCA9541_CTL_NBUSON	BIT(3)
-> +#define PCA9541_CTL_BUSINIT	BIT(4)
-> +#define PCA9541_CTL_TESTON	BIT(6)
-> +#define PCA9541_CTL_NTESTON	BIT(7)
+>   /* arbitration timeouts, in jiffies */
+>   #define ARB_TIMEOUT	(HZ / 8)	/* 125 ms until forcing bus ownership */
+> @@ -93,6 +91,20 @@ static const struct of_device_id pca9541_of_match[] = {
+>   MODULE_DEVICE_TABLE(of, pca9541_of_match);
+>   #endif
+>   
+> +static int pca9541_mybus(int ctl)
+
+bool ?
+
+> +{
+> +	if (!(ctl & PCA9541_MYBUS))
+> +		return 1;
+
+true ?
+
+> +	return (ctl & PCA9541_MYBUS) == PCA9541_MYBUS;
+> +}
 > +
-> +#define PCA9541_ISTAT_INTIN	BIT(0)
-> +#define PCA9541_ISTAT_BUSINIT	BIT(1)
-> +#define PCA9541_ISTAT_BUSOK	BIT(2)
-> +#define PCA9541_ISTAT_BUSLOST	BIT(3)
-> +#define PCA9541_ISTAT_MYTEST	BIT(6)
-> +#define PCA9541_ISTAT_NMYTEST	BIT(7)
+> +static int pca9541_busoff(int ctl)
+
+bool ?
+
+> +{
+> +	if (!(ctl & PCA9541_BUSON))
+> +		return 1;
+
+true ?
+
+> +	return (ctl & PCA9541_BUSON) == PCA9541_BUSON;
+> +}
+> +
+>   /*
+>    * Write to chip register. Don't use i2c_transfer()/i2c_smbus_xfer()
+>    * as they will try to lock the adapter a second time.
+> @@ -181,7 +193,7 @@ static void pca9541_release_bus(struct i2c_client *client)
+>   	int reg;
 >   
->   #define BUSON		(PCA9541_CTL_BUSON | PCA9541_CTL_NBUSON)
->   #define MYBUS		(PCA9541_CTL_MYBUS | PCA9541_CTL_NMYBUS)
+>   	reg = pca9541_reg_read(client, PCA9541_CONTROL);
+> -	if (reg >= 0 && !busoff(reg) && mybus(reg))
+> +	if (reg >= 0 && !pca9541_busoff(reg) && pca9541_mybus(reg))
+>   		pca9541_reg_write(client, PCA9541_CONTROL,
+>   				  (reg & PCA9541_CTL_NBUSON) >> 1);
+>   }
+> @@ -233,7 +245,7 @@ static int pca9541_arbitrate(struct i2c_client *client)
+>   	if (reg < 0)
+>   		return reg;
+>   
+> -	if (busoff(reg)) {
+> +	if (pca9541_busoff(reg)) {
+>   		int istat;
+>   		/*
+>   		 * Bus is off. Request ownership or turn it on unless
+> @@ -258,7 +270,7 @@ static int pca9541_arbitrate(struct i2c_client *client)
+>   			 */
+>   			data->select_timeout = SELECT_DELAY_LONG * 2;
+>   		}
+> -	} else if (mybus(reg)) {
+> +	} else if (pca9541_mybus(reg)) {
+>   		/*
+>   		 * Bus is on, and we own it. We are done with acquisition.
+>   		 * Reset NTESTON and BUSINIT, then return success.
 > 
