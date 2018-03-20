@@ -1,74 +1,58 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: [PATCH v2 10/21] lightnvm: Remove depends on HAS_DMA in case of
-	platform dependency
-Date: Tue, 20 Mar 2018 11:09:06 +0100
-Message-ID: <CAMuHMdXZNqO0NDESs9Y3uJs0kmQSXY05ei0xJE9uT9EUixuxAQ@mail.gmail.com>
-References: <1521208314-4783-1-git-send-email-geert@linux-m68k.org>
-	<1521208314-4783-11-git-send-email-geert@linux-m68k.org>
-	<AM5PR04MB3267989AB6A81639F61AB165ECD40@AM5PR04MB3267.eurprd04.prod.outlook.com>
+From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: Re: [RESEND PATCH v1 2/6] i2c: i2c-stm32f7: Add slave support
+Date: Tue, 20 Mar 2018 11:17:21 +0100
+Message-ID: <c7fa1cc2-a298-967c-6006-942fd631b4f0@st.com>
+References: <1520852023-27083-1-git-send-email-pierre-yves.mordret@st.com>
+ <1520852023-27083-3-git-send-email-pierre-yves.mordret@st.com>
+ <20180317205109.gocf5wemtjkyomct@ninjato>
+ <5a3c5b21-bc66-ce73-a997-f686ecc275f3@st.com>
+ <20180320095242.tedafu5wphsx55qx@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <AM5PR04MB3267989AB6A81639F61AB165ECD40-cEGzClBroOnsqXY5KrYE589NdZoXdze2vxpqHgZTriW3zl9H0oFU5g@public.gmane.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: Madalin-cristian Bucur <madalin.bucur-3arQi8VN3Tc@public.gmane.org>
-Cc: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-fpga-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-fpga-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-remoteproc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-remoteproc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org" <alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>, "netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux1394-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org" <linux1394-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>, Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, "James E . J . Bottomley" <jejb-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, Herbert Xu <herbert-lOAM2aK0SrRLBo1qDEOMRrpzq4S04n8Q@public.gmane.org>, linux-s
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180320095242.tedafu5wphsx55qx@katana>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Alexandre Torgue <alexandre.torgue@st.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Madalin-cristian,
 
-On Mon, Mar 19, 2018 at 6:27 AM, Madalin-cristian Bucur
-<madalin.bucur-3arQi8VN3Tc@public.gmane.org> wrote:
->> -----Original Message-----
->> From: netdev-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:netdev-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org]
->> On Behalf Of Geert Uytterhoeven
->> Remove dependencies on HAS_DMA where a Kconfig symbol depends on
->> another
->> symbol that implies HAS_DMA, and, optionally, on "|| COMPILE_TEST".
->> In most cases this other symbol is an architecture or platform specific
->> symbol, or PCI.
->>
->> Generic symbols and drivers without platform dependencies keep their
->> dependencies on HAS_DMA, to prevent compiling subsystems or drivers that
->> cannot work anyway.
->>
->> This simplifies the dependencies, and allows to improve compile-testing.
->>
->> Notes:
->>   - FSL_FMAN keeps its dependency on HAS_DMA, as it calls set_dma_ops(),
->>     which does not exist if HAS_DMA=n (Do we need a dummy? The use of
->>     set_dma_ops() in this driver is questionable),
->
-> Hi,
->
-> The set_dma_ops() is no longer required in the fsl/fman, I'll send a patch to remove it.
 
-Thank you, looking forward to it!
+On 03/20/2018 10:52 AM, Wolfram Sang wrote:
+> 
+>> I do believe the hw can support it, even it looks odd to me having the same I2C
+>> in slave and master mode at the same time.
+> 
+> I2C is multi-master, so it is perfectly valid for a device to be master
+> and slave. I do have seen designs making use of that more than once.
+> 
+>> Nevertheless the driver is devised to support either master or slave more but
+>> not at the same time.
+> 
+> Why should we limit ourselves here? Also, why should we have an
+> unnecessary configuration option?
+> 
+> Unless the HW is broken and does not support it, I usually don't accept
+> slave-only solutions. If the needs for master and slave arises later,
+> this is hard to refactor and better done properly right away.
+> 
+> Is it so hard? Usually you have irqs for master and for slave seperated,
+> so you can code things quite orthogonal. Check de20d1857dd6 ("i2c: rcar:
+> add slave support") as an example.
+> 
 
->>   - SND_SOC_LPASS_IPQ806X and SND_SOC_LPASS_PLATFORM loose their
->>     dependency on HAS_DMA, as they are selected from
->>     SND_SOC_APQ8016_SBC.
->>
->> Signed-off-by: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
->> Reviewed-by: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
->> Acked-by: Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+I need to check at my end but status bits are shared between master and slave in
+my IP: i.e. Tx Empty, Rx Empty, NAxk, Stop.
+Both bits have a meaning in either master and slave mode. In your case status
+bits are separated between master and slave.
+BTW I need to think about it.
