@@ -1,58 +1,77 @@
-From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: Re: [RESEND PATCH v1 2/6] i2c: i2c-stm32f7: Add slave support
-Date: Tue, 20 Mar 2018 11:17:21 +0100
-Message-ID: <c7fa1cc2-a298-967c-6006-942fd631b4f0@st.com>
-References: <1520852023-27083-1-git-send-email-pierre-yves.mordret@st.com>
- <1520852023-27083-3-git-send-email-pierre-yves.mordret@st.com>
- <20180317205109.gocf5wemtjkyomct@ninjato>
- <5a3c5b21-bc66-ce73-a997-f686ecc275f3@st.com>
- <20180320095242.tedafu5wphsx55qx@katana>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH 1/3] i2c: mux: pca9541: use the BIT macro
+Date: Tue, 20 Mar 2018 06:18:51 -0700
+Message-ID: <9bbbe799-da7c-8e3c-7fe5-af5923e92255@roeck-us.net>
+References: <20180320061909.5775-1-chen.kenyy@inventec.com>
+ <20180320093200.19179-1-peda@axentia.se>
+ <20180320093200.19179-2-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180320095242.tedafu5wphsx55qx@katana>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180320093200.19179-2-peda@axentia.se>
 Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Alexandre Torgue <alexandre.torgue@st.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Ken Chen <chen.kenyy@inventec.com>, joel@jms.id.au, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 03/20/2018 02:31 AM, Peter Rosin wrote:
+> Because it looks nice!
+> 
+> Signed-off-by: Peter Rosin <peda@axentia.se>
 
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-On 03/20/2018 10:52 AM, Wolfram Sang wrote:
+> ---
+>   drivers/i2c/muxes/i2c-mux-pca9541.c | 29 +++++++++++++++--------------
+>   1 file changed, 15 insertions(+), 14 deletions(-)
 > 
->> I do believe the hw can support it, even it looks odd to me having the same I2C
->> in slave and master mode at the same time.
+> diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+> index 6a39adaf433f..ad168125d23d 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pca9541.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+> @@ -16,6 +16,7 @@
+>    * warranty of any kind, whether express or implied.
+>    */
+>   
+> +#include <linux/bitops.h>
+>   #include <linux/delay.h>
+>   #include <linux/device.h>
+>   #include <linux/i2c.h>
+> @@ -43,20 +44,20 @@
+>   #define PCA9541_CONTROL		0x01
+>   #define PCA9541_ISTAT		0x02
+>   
+> -#define PCA9541_CTL_MYBUS	(1 << 0)
+> -#define PCA9541_CTL_NMYBUS	(1 << 1)
+> -#define PCA9541_CTL_BUSON	(1 << 2)
+> -#define PCA9541_CTL_NBUSON	(1 << 3)
+> -#define PCA9541_CTL_BUSINIT	(1 << 4)
+> -#define PCA9541_CTL_TESTON	(1 << 6)
+> -#define PCA9541_CTL_NTESTON	(1 << 7)
+> -
+> -#define PCA9541_ISTAT_INTIN	(1 << 0)
+> -#define PCA9541_ISTAT_BUSINIT	(1 << 1)
+> -#define PCA9541_ISTAT_BUSOK	(1 << 2)
+> -#define PCA9541_ISTAT_BUSLOST	(1 << 3)
+> -#define PCA9541_ISTAT_MYTEST	(1 << 6)
+> -#define PCA9541_ISTAT_NMYTEST	(1 << 7)
+> +#define PCA9541_CTL_MYBUS	BIT(0)
+> +#define PCA9541_CTL_NMYBUS	BIT(1)
+> +#define PCA9541_CTL_BUSON	BIT(2)
+> +#define PCA9541_CTL_NBUSON	BIT(3)
+> +#define PCA9541_CTL_BUSINIT	BIT(4)
+> +#define PCA9541_CTL_TESTON	BIT(6)
+> +#define PCA9541_CTL_NTESTON	BIT(7)
+> +
+> +#define PCA9541_ISTAT_INTIN	BIT(0)
+> +#define PCA9541_ISTAT_BUSINIT	BIT(1)
+> +#define PCA9541_ISTAT_BUSOK	BIT(2)
+> +#define PCA9541_ISTAT_BUSLOST	BIT(3)
+> +#define PCA9541_ISTAT_MYTEST	BIT(6)
+> +#define PCA9541_ISTAT_NMYTEST	BIT(7)
+>   
+>   #define BUSON		(PCA9541_CTL_BUSON | PCA9541_CTL_NBUSON)
+>   #define MYBUS		(PCA9541_CTL_MYBUS | PCA9541_CTL_NMYBUS)
 > 
-> I2C is multi-master, so it is perfectly valid for a device to be master
-> and slave. I do have seen designs making use of that more than once.
-> 
->> Nevertheless the driver is devised to support either master or slave more but
->> not at the same time.
-> 
-> Why should we limit ourselves here? Also, why should we have an
-> unnecessary configuration option?
-> 
-> Unless the HW is broken and does not support it, I usually don't accept
-> slave-only solutions. If the needs for master and slave arises later,
-> this is hard to refactor and better done properly right away.
-> 
-> Is it so hard? Usually you have irqs for master and for slave seperated,
-> so you can code things quite orthogonal. Check de20d1857dd6 ("i2c: rcar:
-> add slave support") as an example.
-> 
-
-I need to check at my end but status bits are shared between master and slave in
-my IP: i.e. Tx Empty, Rx Empty, NAxk, Stop.
-Both bits have a meaning in either master and slave mode. In your case status
-bits are separated between master and slave.
-BTW I need to think about it.
