@@ -1,56 +1,163 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 2/3] i2c: mux: pca9541: namespace cleanup
-Date: Tue, 20 Mar 2018 14:57:31 -0700
-Message-ID: <20180320215731.GA29962@roeck-us.net>
+From: Vladimir Zapolskiy <vz@mleia.com>
+Subject: Re: [PATCH 3/3] i2c: mux: pca9541: prepare for PCA9641 support
+Date: Wed, 21 Mar 2018 01:17:39 +0200
+Message-ID: <bc464354-660a-00ed-e713-eec987407695@mleia.com>
 References: <20180320061909.5775-1-chen.kenyy@inventec.com>
  <20180320093200.19179-1-peda@axentia.se>
- <20180320093200.19179-3-peda@axentia.se>
- <e92c5457-20fd-1e6e-ab59-5ff53e647e89@roeck-us.net>
- <23103b1d-8f33-7885-379b-384382953a42@axentia.se>
+ <20180320093200.19179-4-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <23103b1d-8f33-7885-379b-384382953a42@axentia.se>
+In-Reply-To: <20180320093200.19179-4-peda@axentia.se>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Ken Chen <chen.kenyy@inventec.com>, joel@jms.id.au, linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org, Ken Chen <chen.kenyy@inventec.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>, joel@jms.id.au, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Mar 20, 2018 at 10:48:40PM +0100, Peter Rosin wrote:
-> On 2018-03-20 14:20, Guenter Roeck wrote:
-> > On 03/20/2018 02:31 AM, Peter Rosin wrote:
-> >> +static int pca9541_mybus(int ctl)
-> > 
-> > bool ?
-> > 
-> >> +{
-> >> +	if (!(ctl & PCA9541_MYBUS))
-> >> +		return 1;
-> > 
-> > true ?
-> > 
-> >> +	return (ctl & PCA9541_MYBUS) == PCA9541_MYBUS;
-> >> +}
-> >> +
-> >> +static int pca9541_busoff(int ctl)
-> > 
-> > bool ?
-> > 
-> >> +{
-> >> +	if (!(ctl & PCA9541_BUSON))
-> >> +		return 1;
-> > 
-> > true ?
-> 
-> bool? true? Isn't that C++? Sigh, but you're right, and old habits
-> die hard...
-> 
-> Would it be ok to add your reviewed-by tag as I fix that?
-> 
-Sure.
+Hi Peter, Ken,
 
-Guenter
+On 03/20/2018 11:32 AM, Peter Rosin wrote:
+> Make the arbitrate and release_bus implementation chip specific.
+> 
 
-> Cheers,
-> Peter
+by chance I took a look at the original implementation done by Ken, and
+I would say that this 3/3 change is an overkill as a too generic one.
+Is there any next observable extension? And do two abstracted (*arbitrate)
+and (*release_bus) cover it well? Probably no.
+
+At first it would be simpler to add a new chip id field into struct pca9541
+(struct rename would be needed of course), and do a selection of specific
+pca9x41_arbitrate() and pca9x41_release_bus() depending on it:
+
+----8<----
+diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+index 47685eb..a40e6d8 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca9541.c
++++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+@@ -70,8 +70,13 @@
+ #define SELECT_DELAY_SHORT	50
+ #define SELECT_DELAY_LONG	1000
+ 
++enum chip_id {
++	pca9541,
++};
++
+ struct pca9541 {
+ 	struct i2c_client *client;
++	enum chip_id id;
+ 	unsigned long select_timeout;
+ 	unsigned long arb_timeout;
+ };
+@@ -188,10 +193,13 @@ static int pca9541_reg_read(struct i2c_client *client, u8 command)
+  */
+ 
+ /* Release bus. Also reset NTESTON and BUSINIT if it was set. */
+-static void pca9541_release_bus(struct i2c_client *client)
++static void pca9541_release_bus(struct i2c_client *client, enum chip_id id)
+ {
+ 	int reg;
+ 
++	if (id != pca9541)
++		return;
++
+ 	reg = pca9541_reg_read(client, PCA9541_CONTROL);
+ 	if (reg >= 0 && !pca9541_busoff(reg) && pca9541_mybus(reg))
+ 		pca9541_reg_write(client, PCA9541_CONTROL,
+@@ -235,12 +243,15 @@ static const u8 pca9541_control[16] = {
+  *  0 : bus not acquired
+  *  1 : bus acquired
+  */
+-static int pca9541_arbitrate(struct i2c_client *client)
++static int pca9541_arbitrate(struct i2c_client *client, enum chip_id id)
+ {
+ 	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
+ 	struct pca9541 *data = i2c_mux_priv(muxc);
+ 	int reg;
+ 
++	if (id != pca9541)
++		return -EOPNOTSUPP;
++
+ 	reg = pca9541_reg_read(client, PCA9541_CONTROL);
+ 	if (reg < 0)
+ 		return reg;
+@@ -318,7 +329,7 @@ static int pca9541_select_chan(struct i2c_mux_core *muxc, u32 chan)
+ 		/* force bus ownership after this time */
+ 
+ 	do {
+-		ret = pca9541_arbitrate(client);
++		ret = pca9541_arbitrate(client, data->id);
+ 		if (ret)
+ 			return ret < 0 ? ret : 0;
+ 
+@@ -336,7 +347,7 @@ static int pca9541_release_chan(struct i2c_mux_core *muxc, u32 chan)
+ 	struct pca9541 *data = i2c_mux_priv(muxc);
+ 	struct i2c_client *client = data->client;
+ 
+-	pca9541_release_bus(client);
++	pca9541_release_bus(client, data->id);
+ 	return 0;
+ }
+ 
+@@ -361,7 +372,7 @@ static int pca9541_probe(struct i2c_client *client,
+ 	 * We have to lock the adapter before releasing the bus.
+ 	 */
+ 	i2c_lock_adapter(adap);
+-	pca9541_release_bus(client);
++	pca9541_release_bus(client, pca9541);
+ 	i2c_unlock_adapter(adap);
+ 
+ 	/* Create mux adapter */
+@@ -377,6 +388,7 @@ static int pca9541_probe(struct i2c_client *client,
+ 
+ 	data = i2c_mux_priv(muxc);
+ 	data->client = client;
++	data->id = pca9541;
+ 
+ 	i2c_set_clientdata(client, muxc);
+ 
+----8<----
+
+
+> Signed-off-by: Peter Rosin <peda@axentia.se>
+> ---
+>  drivers/i2c/muxes/i2c-mux-pca9541.c | 62 +++++++++++++++++++++++++++----------
+>  1 file changed, 45 insertions(+), 17 deletions(-)
+> 
+
+The change above is trivial and it does not cancel any further
+extensions similar to your idea, the open question is if there
+is a demand right at the moment.
+
+> diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+> index 47685eb4e0e9..cac629e36bf8 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pca9541.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+> @@ -23,6 +23,7 @@
+>  #include <linux/i2c-mux.h>
+>  #include <linux/jiffies.h>
+>  #include <linux/module.h>
+> +#include <linux/of_device.h>
+>  #include <linux/platform_data/pca954x.h>
+>  #include <linux/slab.h>
+>  
+> @@ -70,26 +71,22 @@
+>  #define SELECT_DELAY_SHORT	50
+>  #define SELECT_DELAY_LONG	1000
+>  
+> -struct pca9541 {
+> -	struct i2c_client *client;
+> -	unsigned long select_timeout;
+> -	unsigned long arb_timeout;
+> +enum chip_name {
+
+chip_name sound like a string storage, chip_id might be better here.
+
+> +	pca9541,
+>  };
+>  
+
+--
+With best wishes,
+Vladimir
