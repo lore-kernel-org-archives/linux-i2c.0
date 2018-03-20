@@ -1,67 +1,54 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RESEND PATCH v1 2/6] i2c: i2c-stm32f7: Add slave support
-Date: Tue, 20 Mar 2018 10:52:42 +0100
-Message-ID: <20180320095242.tedafu5wphsx55qx@katana>
-References: <1520852023-27083-1-git-send-email-pierre-yves.mordret@st.com>
- <1520852023-27083-3-git-send-email-pierre-yves.mordret@st.com>
- <20180317205109.gocf5wemtjkyomct@ninjato>
- <5a3c5b21-bc66-ce73-a997-f686ecc275f3@st.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v2 00/21] Allow compile-testing NO_DMA (drivers)
+Date: Tue, 20 Mar 2018 10:57:28 +0100
+Message-ID: <CAMuHMdUUKMngcyajm_s==KbhL3ZjMNHVxhNNGkPWkpnePE2rMw@mail.gmail.com>
+References: <1521208314-4783-1-git-send-email-geert@linux-m68k.org>
+ <20180316212317.7d5rri3p25hpmx44@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="5jxnagqpgmadd775"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <5a3c5b21-bc66-ce73-a997-f686ecc275f3@st.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20180316212317.7d5rri3p25hpmx44@ninjato>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>, linux-iio@vger.kernel.org, linux-fpga@vger.kernel.org, linux-remoteproc@vger.kernel.org, ALSA Development Mailing List <alsa-devel@alsa-project.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Eric Anholt <eric@anholt.net>, netdev <netdev@vger.kernel.org>, MTD Maling List <linux-mtd@lists.infradead.org>, Linux I2C <linux-i2c@vger.kernel.org>, linux1394-devel@lists.sourceforge.net, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Stefan Wahren <stefan.wahren@i2se.com>, Boris Brezillon <boris.brezillon@free-electrons.com>, "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>, Herbert Xu <herbert@gondor.apana.org.au>, scsi <linux-scsi@vger.kernel.org>, Richard Weinberger <richard@nod.at>, Joerg Roedel <joro@8bytes.org>, Jassi Brar <jassisinghbrar@gmail.com>, Marek Vasut <marek.vasut@gmail.com>, linux-seria
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---5jxnagqpgmadd775
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Fri, Mar 16, 2018 at 10:23 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+>> To avoid allmodconfig/allyesconfig regressions on NO_DMA=y platforms,
+>> this (drivers) series should be applied after the previous (core)
+>> series (but not many people may notice/care ;-)
+>
+> I still don't get if there is a dependency on the core patches. I.e.
+> shall I apply the subsystem patch now by myself or do you want to push
+> the series after the core patch and need my ack here?
 
+Yes, there is a dependency. Without the core patches, enabling COMPILE_TEST,
+and compile-testing drivers irrelevant on obscure NO_DMA=y platforms will
+cause build failures.
 
-> I do believe the hw can support it, even it looks odd to me having the same I2C
-> in slave and master mode at the same time.
+To play it safe, you want to postpone the subsystem patches until the core
+part has landed upstream. I will rebase and resubmit after v4.17-rc1.
 
-I2C is multi-master, so it is perfectly valid for a device to be master
-and slave. I do have seen designs making use of that more than once.
+Thanks, and sorry for being unclear.
 
-> Nevertheless the driver is devised to support either master or slave more but
-> not at the same time.
+Gr{oetje,eeting}s,
 
-Why should we limit ourselves here? Also, why should we have an
-unnecessary configuration option?
+                        Geert
 
-Unless the HW is broken and does not support it, I usually don't accept
-slave-only solutions. If the needs for master and slave arises later,
-this is hard to refactor and better done properly right away.
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Is it so hard? Usually you have irqs for master and for slave seperated,
-so you can code things quite orthogonal. Check de20d1857dd6 ("i2c: rcar:
-add slave support") as an example.
-
-
---5jxnagqpgmadd775
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqw2eoACgkQFA3kzBSg
-KbYyDRAAjXCW/pmeZcMJjdvfYFoNwGZsP22j3BZeEZItjKNlwS5wh8dXRqCHxHkZ
-XY3c0gph1dMRtw8hvKZwVKhX6s4rQkDs2o7QaNgI1rvgm5i8iZQo23sAjvrsC2cm
-FKjavVHfwXwarR5Va/5AzZCFHCCPjXt4hKO/7Fs3FbpCi/aw+T2D0q9EUQp6V+f1
-ifdzbBKwSaxF3QVSCNRlwQ2s++MU5jq0iwAKB/CWKrFzJ3sZkimIvRdugQ/0PpyG
-7gGTon6SCIZNHv68zGX2Iv4FiNmhJCBc2jEjXnUr0eVw/wh0R5guL9Yg+XJe67uT
-bGVODYb4p/jD4myVy9WGll2DwJhCltHcl+wE/+3TFd+vr2pghsgN0UL9SIhOM+R2
-1R9U1a1puIBK5HFTwJTVH3531+2QopOojneoHI9zsjBCpt6Sr0yYZdf8NWP9jk3e
-+boQuEfr4dUnVazCPpyKwaM5EsdWn4pEysmcCqnePgFd7MVXQ5sB2njx8PA5VEi2
-Lhje8MmjKuj7LImLZvp6mEyU5C3V6pBnFNueWKuAxGCHTxSzS+PYq+gAUPLVXUXb
-fAeouu4ttp3xgURU9Oeq38hAqZjbWYpmriq9ktMOvrZK6NMNp3ncK198qmuZXr7x
-WxAo04uSBia+ydp8rklNY27v0PH2ZAfCeXTNL6wRPSJkM6HjxDI=
-=CXbC
------END PGP SIGNATURE-----
-
---5jxnagqpgmadd775--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
