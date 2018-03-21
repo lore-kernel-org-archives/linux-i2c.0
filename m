@@ -1,52 +1,45 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH 00/21] eeprom: at24: driver refactoring
-Date: Wed, 21 Mar 2018 16:52:19 +0200
-Message-ID: <CAHp75VfLzE===+4LpjyP5Zjzg7TCDiwf5udQEq-TtxjCbYXFpw@mail.gmail.com>
-References: <20180319091721.18193-1-brgl@bgdev.pl> <CAHp75VevXq6NwpmvTU_2GzSdLjUQ47RLM__M3jNLBjZ1YoeQHw@mail.gmail.com>
- <CAMRc=MdKor4Hb-VWqczVgiatLU+HKW-u6D-1=b_xnvz_QJhO9g@mail.gmail.com>
+From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: [PATCH v2] i2c: i2c-stm32f7: fix no check on returned setup
+Date: Wed, 21 Mar 2018 17:48:40 +0100
+Message-ID: <1521650920-11578-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMRc=MdKor4Hb-VWqczVgiatLU+HKW-u6D-1=b_xnvz_QJhO9g@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Mar 19, 2018 at 5:21 PM, Bartosz Golaszewski <brgl@bgdev.pl> wrote:
-> 2018-03-19 15:43 GMT+01:00 Andy Shevchenko <andy.shevchenko@gmail.com>:
->> On Mon, Mar 19, 2018 at 11:17 AM, Bartosz Golaszewski <brgl@bgdev.pl> wrote:
->>> This series contains what I hope to be a non-controversial refactoring
->>> of the at24 eeprom driver.
->>>
->>> Most changes revolve around at24_probe() which became quite complicated
->>> and hard to read.
->>>
->>> The only functional changes are: disabling the internal locking
->>> mechanisms of regmap (since we already take care of that in the driver)
->>> and removing an if checking if byte_len is a power of 2 (as we do
->>> support models for which it's not true).
->>>
->>> All other patches affect readability and code structure.
->>>
->>> Tested with a couple models and different both for device tree and
->>> platform data modes.
->>
->> Is there any available tree with that series applied?
->> I would test it on Intel Galileo Gen 2 which has ACPI enumerated AT24
->> EEPROM attached.
->>
->
-> Yes, it's in my github tree:
->
->     https://github.com/brgl/linux    topic/at24/refactoring
->
-> Thanks in advance for testing it!
+Before assigning returned setup structure check if not null
 
-At least this didn't break AT24 on Intel Galileo Gen 2 board in ACPI mode.
+Fixes: 463a9215f3ca7600b5ff ("i2c: stm32f7: fix setup structure")
+Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+---
+  Version history:
+     v1:
+         * Initial
+     v2:
+         * fill "ret" with error statement before go to "clk_free"
+---
+---
+ drivers/i2c/busses/i2c-stm32f7.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-Tested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index b445b3b..f273e28 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -888,6 +888,11 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	setup = of_device_get_match_data(&pdev->dev);
++	if (!setup) {
++		dev_err(&pdev->dev, "Can't get device data\n");
++		ret = -ENODEV;
++		goto clk_free;
++	}
+ 	i2c_dev->setup = *setup;
+ 
+ 	ret = device_property_read_u32(i2c_dev->dev, "i2c-scl-rising-time-ns",
 -- 
-With Best Regards,
-Andy Shevchenko
+2.7.4
