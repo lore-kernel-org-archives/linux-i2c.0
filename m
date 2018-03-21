@@ -1,96 +1,245 @@
 From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: [PATCH v2 6/6] i2c: i2c-stm32f7: Implement I2C recovery mechanism
-Date: Wed, 21 Mar 2018 17:49:00 +0100
-Message-ID: <1521650940-11651-7-git-send-email-pierre-yves.mordret@st.com>
+Subject: [PATCH v2 4/6] i2c: i2c-stm32: Add generic DMA API
+Date: Wed, 21 Mar 2018 17:48:58 +0100
+Message-ID: <1521650940-11651-5-git-send-email-pierre-yves.mordret@st.com>
 References: <1521650940-11651-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1521650940-11651-1-git-send-email-pierre-yves.mordret@st.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Feature prevents I2C lock-ups. Mechanism resets I2C state machine
-and releases SCL/SDA signals but preserves I2C registers.
+This patch adds a generic DMA API to implement DMA support for i2c-stm32fx
+drivers
 
+Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
 Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 ---
   Version history:
     v1:
        * Initial
     v2:
-       * Don't use i2c engine recovery mechanism since driver
-         procedure only recover master and not the slave.
 ---
 ---
- drivers/i2c/busses/i2c-stm32f7.c | 27 ++++++++++++++++++++++++---
- 1 file changed, 24 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-stm32.c | 153 +++++++++++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-stm32.h |  37 ++++++++++
+ 2 files changed, 190 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-stm32.c
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 91f73e0..9a9c469 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -718,6 +718,20 @@ static void stm32f7_i2c_smbus_reload(struct stm32f7_i2c_dev *i2c_dev)
- 	writel_relaxed(cr2, i2c_dev->base + STM32F7_I2C_CR2);
- }
- 
-+static int stm32f7_i2c_recover_bus(struct i2c_adapter *i2c_adap)
+diff --git a/drivers/i2c/busses/i2c-stm32.c b/drivers/i2c/busses/i2c-stm32.c
+new file mode 100644
+index 0000000..d75fbcb
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-stm32.c
+@@ -0,0 +1,153 @@
++/*
++ * i2c-stm32.c
++ *
++ * Copyright (C) M'boumba Cedric Madianga 2017
++ * Author: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
++ *
++ * License terms:  GNU General Public License (GPL), version 2
++ */
++
++#include "i2c-stm32.h"
++
++/* Functions for DMA support */
++struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
++					    dma_addr_t phy_addr,
++					    u32 txdr_offset,
++					    u32 rxdr_offset)
 +{
-+	struct stm32f7_i2c_dev *i2c_dev = i2c_get_adapdata(i2c_adap);
++	struct stm32_i2c_dma *dma;
++	struct dma_slave_config dma_sconfig;
++	int ret;
 +
-+	dev_info(i2c_dev->dev, "Trying to recover bus\n");
++	dma = devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
++	if (!dma)
++		return NULL;
 +
-+	stm32f7_i2c_clr_bits(i2c_dev->base + STM32F7_I2C_CR1,
-+			     STM32F7_I2C_CR1_PE);
++	/* Request and configure I2C TX dma channel */
++	dma->chan_tx = dma_request_slave_channel(dev, "tx");
++	if (!dma->chan_tx) {
++		dev_dbg(dev, "can't request DMA tx channel\n");
++		ret = -EINVAL;
++		goto fail_al;
++	}
 +
-+	stm32f7_i2c_hw_config(i2c_dev);
++	memset(&dma_sconfig, 0, sizeof(dma_sconfig));
++	dma_sconfig.dst_addr = phy_addr + txdr_offset;
++	dma_sconfig.dst_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
++	dma_sconfig.dst_maxburst = 1;
++	dma_sconfig.direction = DMA_MEM_TO_DEV;
++	ret = dmaengine_slave_config(dma->chan_tx, &dma_sconfig);
++	if (ret < 0) {
++		dev_err(dev, "can't configure tx channel\n");
++		goto fail_tx;
++	}
 +
-+	return 0;
++	/* Request and configure I2C RX dma channel */
++	dma->chan_rx = dma_request_slave_channel(dev, "rx");
++	if (!dma->chan_rx) {
++		dev_err(dev, "can't request DMA rx channel\n");
++		ret = -EINVAL;
++		goto fail_tx;
++	}
++
++	memset(&dma_sconfig, 0, sizeof(dma_sconfig));
++	dma_sconfig.src_addr = phy_addr + rxdr_offset;
++	dma_sconfig.src_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
++	dma_sconfig.src_maxburst = 1;
++	dma_sconfig.direction = DMA_DEV_TO_MEM;
++	ret = dmaengine_slave_config(dma->chan_rx, &dma_sconfig);
++	if (ret < 0) {
++		dev_err(dev, "can't configure rx channel\n");
++		goto fail_rx;
++	}
++
++	init_completion(&dma->dma_complete);
++
++	dev_info(dev, "using %s (tx) and %s (rx) for DMA transfers\n",
++		 dma_chan_name(dma->chan_tx), dma_chan_name(dma->chan_rx));
++
++	return dma;
++
++fail_rx:
++	dma_release_channel(dma->chan_rx);
++fail_tx:
++	dma_release_channel(dma->chan_tx);
++fail_al:
++	devm_kfree(dev, dma);
++	dev_info(dev, "can't use DMA\n");
++
++	return NULL;
 +}
 +
- static int stm32f7_i2c_wait_free_bus(struct stm32f7_i2c_dev *i2c_dev)
- {
- 	u32 status;
-@@ -727,12 +741,18 @@ static int stm32f7_i2c_wait_free_bus(struct stm32f7_i2c_dev *i2c_dev)
- 					 status,
- 					 !(status & STM32F7_I2C_ISR_BUSY),
- 					 10, 1000);
-+	if (!ret)
-+		return 0;
++void stm32_i2c_dma_free(struct stm32_i2c_dma *dma)
++{
++	dma->dma_buf = 0;
++	dma->dma_len = 0;
 +
-+	dev_info(i2c_dev->dev, "bus busy\n");
++	dma_release_channel(dma->chan_tx);
++	dma->chan_tx = NULL;
 +
-+	ret = stm32f7_i2c_recover_bus(&i2c_dev->adap);
- 	if (ret) {
--		dev_dbg(i2c_dev->dev, "bus busy\n");
--		ret = -EBUSY;
-+		dev_err(i2c_dev->dev, "Failed to recover the bus (%d)\n", ret);
-+		return ret;
- 	}
++	dma_release_channel(dma->chan_rx);
++	dma->chan_rx = NULL;
++
++	dma->chan_using = NULL;
++}
++
++int stm32_i2c_prep_dma_xfer(struct device *dev, struct stm32_i2c_dma *dma,
++			    bool rd_wr, u32 len, u8 *buf,
++			    dma_async_tx_callback callback,
++			    void *dma_async_param)
++{
++	struct dma_async_tx_descriptor *txdesc;
++	struct device *chan_dev;
++	int ret;
++
++	if (rd_wr) {
++		dma->chan_using = dma->chan_rx;
++		dma->dma_transfer_dir = DMA_DEV_TO_MEM;
++		dma->dma_data_dir = DMA_FROM_DEVICE;
++	} else {
++		dma->chan_using = dma->chan_tx;
++		dma->dma_transfer_dir = DMA_MEM_TO_DEV;
++		dma->dma_data_dir = DMA_TO_DEVICE;
++	}
++
++	dma->dma_len = len;
++	chan_dev = dma->chan_using->device->dev;
++
++	dma->dma_buf = dma_map_single(chan_dev, buf, dma->dma_len,
++				      dma->dma_data_dir);
++	if (dma_mapping_error(chan_dev, dma->dma_buf)) {
++		dev_err(dev, "DMA mapping failed\n");
++		return -EINVAL;
++	}
++
++	txdesc = dmaengine_prep_slave_single(dma->chan_using, dma->dma_buf,
++					     dma->dma_len,
++					     dma->dma_transfer_dir,
++					     DMA_PREP_INTERRUPT);
++	if (!txdesc) {
++		dev_err(dev, "Not able to get desc for DMA xfer\n");
++		ret = -EINVAL;
++		goto err;
++	}
++
++	reinit_completion(&dma->dma_complete);
++
++	txdesc->callback = callback;
++	txdesc->callback_param = dma_async_param;
++	ret = dma_submit_error(dmaengine_submit(txdesc));
++	if (ret < 0) {
++		dev_err(dev, "DMA submit failed\n");
++		goto err;
++	}
++
++	dma_async_issue_pending(dma->chan_using);
++
++	return 0;
++
++err:
++	dma_unmap_single(chan_dev, dma->dma_buf, dma->dma_len,
++			 dma->dma_data_dir);
++	return ret;
++}
+diff --git a/drivers/i2c/busses/i2c-stm32.h b/drivers/i2c/busses/i2c-stm32.h
+index d4f9cef..868755f 100644
+--- a/drivers/i2c/busses/i2c-stm32.h
++++ b/drivers/i2c/busses/i2c-stm32.h
+@@ -11,6 +11,10 @@
+ #ifndef _I2C_STM32_H
+ #define _I2C_STM32_H
  
--	return ret;
-+	return -EBUSY;
- }
++#include <linux/dma-direction.h>
++#include <linux/dmaengine.h>
++#include <linux/dma-mapping.h>
++
+ enum stm32_i2c_speed {
+ 	STM32_I2C_SPEED_STANDARD, /* 100 kHz */
+ 	STM32_I2C_SPEED_FAST, /* 400 kHz */
+@@ -18,4 +22,37 @@ enum stm32_i2c_speed {
+ 	STM32_I2C_SPEED_END,
+ };
  
- static void stm32f7_i2c_xfer_msg(struct stm32f7_i2c_dev *i2c_dev,
-@@ -1474,6 +1494,7 @@ static irqreturn_t stm32f7_i2c_isr_error(int irq, void *data)
- 	if (status & STM32F7_I2C_ISR_BERR) {
- 		dev_err(dev, "<%s>: Bus error\n", __func__);
- 		writel_relaxed(STM32F7_I2C_ICR_BERRCF, base + STM32F7_I2C_ICR);
-+		stm32f7_i2c_recover_bus(&i2c_dev->adap);
- 		f7_msg->result = -EIO;
- 	}
- 
++/**
++ * struct stm32_i2c_dma - DMA specific data
++ * @chan_tx: dma channel for TX transfer
++ * @chan_rx: dma channel for RX transfer
++ * @chan_using: dma channel used for the current transfer (TX or RX)
++ * @dma_buf: dma buffer
++ * @dma_len: dma buffer len
++ * @dma_transfer_dir: dma transfer direction indicator
++ * @dma_data_dir: dma transfer mode indicator
++ * @dma_complete: dma transfer completion
++ */
++struct stm32_i2c_dma {
++	struct dma_chan *chan_tx;
++	struct dma_chan *chan_rx;
++	struct dma_chan *chan_using;
++	dma_addr_t dma_buf;
++	unsigned int dma_len;
++	enum dma_transfer_direction dma_transfer_dir;
++	enum dma_data_direction dma_data_dir;
++	struct completion dma_complete;
++};
++
++struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
++					    dma_addr_t phy_addr,
++					    u32 txdr_offset, u32 rxdr_offset);
++
++void stm32_i2c_dma_free(struct stm32_i2c_dma *dma);
++
++int stm32_i2c_prep_dma_xfer(struct device *dev, struct stm32_i2c_dma *dma,
++			    bool rd_wr, u32 len, u8 *buf,
++			    dma_async_tx_callback callback,
++			    void *dma_async_param);
++
+ #endif /* _I2C_STM32_H */
 -- 
 2.7.4
