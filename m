@@ -1,95 +1,68 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 2/3] i2c: mux: pca9541: namespace cleanup
-Date: Wed, 21 Mar 2018 08:35:16 +0100
-Message-ID: <9e7acbcc-f9e2-581d-d02d-3c026e52b3ed@axentia.se>
+Subject: Re: [PATCH 3/3] i2c: mux: pca9541: prepare for PCA9641 support
+Date: Wed, 21 Mar 2018 09:09:50 +0100
+Message-ID: <7ad08be1-fe73-061f-b0ad-e29a4a074506@axentia.se>
 References: <20180320061909.5775-1-chen.kenyy@inventec.com>
  <20180320093200.19179-1-peda@axentia.se>
- <20180320093200.19179-3-peda@axentia.se>
- <b472b2e4-8360-6f5a-b753-fa8fc7083d04@mleia.com>
- <d683d542-3def-9156-2628-2fa1c1830a12@axentia.se>
- <93631639-eefd-cd1c-48de-451662ce8de7@mleia.com>
+ <20180320093200.19179-4-peda@axentia.se>
+ <bc464354-660a-00ed-e713-eec987407695@mleia.com>
+ <3cfc6e53-a86d-8ef1-b83d-9f3c1b3d7b9c@roeck-us.net>
+ <67f0b5fb-5df7-0354-bfd6-5969b6fc7bb1@mleia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <93631639-eefd-cd1c-48de-451662ce8de7@mleia.com>
+In-Reply-To: <67f0b5fb-5df7-0354-bfd6-5969b6fc7bb1@mleia.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vladimir Zapolskiy <vz@mleia.com>, linux-kernel@vger.kernel.org
-Cc: Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>, Ken Chen <chen.kenyy@inventec.com>, joel@jms.id.au, linux-i2c@vger.kernel.org
+To: Vladimir Zapolskiy <vz@mleia.com>, Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org, Ken Chen <chen.kenyy@inventec.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, joel@jms.id.au, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-03-21 07:54, Vladimir Zapolskiy wrote:
-> Hi Peter,
-> 
-> On 03/21/2018 07:53 AM, Peter Rosin wrote:
->> On 2018-03-21 00:24, Vladimir Zapolskiy wrote:
->>> Hi Peter,
+On 2018-03-21 08:01, Vladimir Zapolskiy wrote:
+> On 03/21/2018 03:19 AM, Guenter Roeck wrote:
+>> On 03/20/2018 04:17 PM, Vladimir Zapolskiy wrote:
+>>> Hi Peter, Ken,
 >>>
->>> On 03/20/2018 11:31 AM, Peter Rosin wrote:
->>>> In preparation for PCA9641 support, convert the mybus and busoff macros
->>>> to functions, and in the process prefix them with pca9541_. Also prefix
->>>> remaining chip specific macros with PCA9541_.
+>>> On 03/20/2018 11:32 AM, Peter Rosin wrote:
+>>>> Make the arbitrate and release_bus implementation chip specific.
 >>>>
->>>> Signed-off-by: Peter Rosin <peda@axentia.se>
->>>> ---
->>>>  drivers/i2c/muxes/i2c-mux-pca9541.c | 26 +++++++++++++++++++-------
->>>>  1 file changed, 19 insertions(+), 7 deletions(-)
->>>>
->>>> diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
->>>> index ad168125d23d..47685eb4e0e9 100644
->>>> --- a/drivers/i2c/muxes/i2c-mux-pca9541.c
->>>> +++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
->>>> @@ -59,10 +59,8 @@
->>>>  #define PCA9541_ISTAT_MYTEST	BIT(6)
->>>>  #define PCA9541_ISTAT_NMYTEST	BIT(7)
->>>>  
->>>> -#define BUSON		(PCA9541_CTL_BUSON | PCA9541_CTL_NBUSON)
->>>> -#define MYBUS		(PCA9541_CTL_MYBUS | PCA9541_CTL_NMYBUS)
->>>> -#define mybus(x)	(!((x) & MYBUS) || ((x) & MYBUS) == MYBUS)
->>>> -#define busoff(x)	(!((x) & BUSON) || ((x) & BUSON) == BUSON)
->>>> +#define PCA9541_BUSON	(PCA9541_CTL_BUSON | PCA9541_CTL_NBUSON)
->>>> +#define PCA9541_MYBUS	(PCA9541_CTL_MYBUS | PCA9541_CTL_NMYBUS)
->>>>  
->>>>  /* arbitration timeouts, in jiffies */
->>>>  #define ARB_TIMEOUT	(HZ / 8)	/* 125 ms until forcing bus ownership */
->>>> @@ -93,6 +91,20 @@ static const struct of_device_id pca9541_of_match[] = {
->>>>  MODULE_DEVICE_TABLE(of, pca9541_of_match);
->>>>  #endif
->>>>  
->>>> +static int pca9541_mybus(int ctl)
 >>>
->>> static inline?
+>>> by chance I took a look at the original implementation done by Ken, and
+>>> I would say that this 3/3 change is an overkill as a too generic one.
+>>> Is there any next observable extension? And do two abstracted (*arbitrate)
+>>> and (*release_bus) cover it well? Probably no.
+>>>
+>>> At first it would be simpler to add a new chip id field into struct pca9541
+>>> (struct rename would be needed of course), and do a selection of specific
+>>> pca9x41_arbitrate() and pca9x41_release_bus() depending on it:
+>>>
 >>
->> No, "inline" is only used in header files in the kernel. 
+>> FWIW, I very much prefer Peter's code. I think it is much cleaner.
 > 
-> No, it is an incorrect statement, you should be aware of that.
-
-Yeah, that was sloppy wording on my part. Let's say I meant useful
-instead of used. My point is that inline is quite useless (in a C
-file), the compiler will do its thing anyway. Rhetorical question:
-what is the point of having both noinline and __always_inline?
-Because plain old inline is overridden by the compiler, just like
-the register keyword.
-
->> The compiler is free to inline whatever function it likes anyway, and
->> in this case we do not know better than the compiler. We don't care
+> Peter's code is generic, and it makes the change about 3 times longer in lines
+> of code, and the following pca9641 change on top of it will be larger as well,
+> because generalization requires service.
 > 
-> That's a candidate case, when we could know better than the compiler.
+> My main concern is that if such generalization is really needed in the driver.
 
-Could we? Maybe for specific compilers and architectures, but
-probably not for all cases. And the future is in the cards etc. And
-we don't actually know even for current compilers. Also, quoting
-Documentation/process/4.Coding
+I just did a comparison of what would happen if I took the same shortcuts
+you did, and I got 18 new lines and 3 changed lines (and some moved lines
+that could have been a separate patch). You have 12 new lines and 5 changed
+lines.
 
-	More recent compilers take an increasingly active role in deciding
-	whether a given function should actually be inlined or not.  So the
-	liberal placement of "inline" keywords may not just be excessive; it
-	could also be irrelevant.
+So, the big difference is that I add the of_match_device call while you
+do not. So, it looks like you are comparing apples and oranges. Do you
+have a reason for not calling of_match_device? Or were you punting that
+for the patch adding PCA9641 support? That's odd, because the point of
+the patch is to prepare for smooth addition of that support.
 
-> But "don't care" argument is still valid :)
+Also, I think my code allows adding support for PCA9641 with only new
+lines, while your version requires changing of code.
 
-Yes :-)
+So, I'm rejecting your arguments that your patch is significantly simpler.
+And while I'm obviously a tad bit biased, I do agree with Guenter that
+my structure is cleaner.
 
 Cheers,
 Peter
