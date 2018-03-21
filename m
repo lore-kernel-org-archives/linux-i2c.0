@@ -1,76 +1,52 @@
-From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: Re: [RESEND PATCH v1 2/6] i2c: i2c-stm32f7: Add slave support
-Date: Wed, 21 Mar 2018 11:47:27 +0100
-Message-ID: <f5389af1-257d-2887-531c-d3bd67b20524@st.com>
-References: <1520852023-27083-1-git-send-email-pierre-yves.mordret@st.com>
- <1520852023-27083-3-git-send-email-pierre-yves.mordret@st.com>
- <20180317205109.gocf5wemtjkyomct@ninjato>
- <5a3c5b21-bc66-ce73-a997-f686ecc275f3@st.com>
- <20180320095242.tedafu5wphsx55qx@katana>
- <c7fa1cc2-a298-967c-6006-942fd631b4f0@st.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH 00/21] eeprom: at24: driver refactoring
+Date: Wed, 21 Mar 2018 16:52:19 +0200
+Message-ID: <CAHp75VfLzE===+4LpjyP5Zjzg7TCDiwf5udQEq-TtxjCbYXFpw@mail.gmail.com>
+References: <20180319091721.18193-1-brgl@bgdev.pl> <CAHp75VevXq6NwpmvTU_2GzSdLjUQ47RLM__M3jNLBjZ1YoeQHw@mail.gmail.com>
+ <CAMRc=MdKor4Hb-VWqczVgiatLU+HKW-u6D-1=b_xnvz_QJhO9g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <c7fa1cc2-a298-967c-6006-942fd631b4f0@st.com>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Alexandre Torgue <alexandre.torgue@st.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAMRc=MdKor4Hb-VWqczVgiatLU+HKW-u6D-1=b_xnvz_QJhO9g@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram
+On Mon, Mar 19, 2018 at 5:21 PM, Bartosz Golaszewski <brgl@bgdev.pl> wrote:
+> 2018-03-19 15:43 GMT+01:00 Andy Shevchenko <andy.shevchenko@gmail.com>:
+>> On Mon, Mar 19, 2018 at 11:17 AM, Bartosz Golaszewski <brgl@bgdev.pl> wrote:
+>>> This series contains what I hope to be a non-controversial refactoring
+>>> of the at24 eeprom driver.
+>>>
+>>> Most changes revolve around at24_probe() which became quite complicated
+>>> and hard to read.
+>>>
+>>> The only functional changes are: disabling the internal locking
+>>> mechanisms of regmap (since we already take care of that in the driver)
+>>> and removing an if checking if byte_len is a power of 2 (as we do
+>>> support models for which it's not true).
+>>>
+>>> All other patches affect readability and code structure.
+>>>
+>>> Tested with a couple models and different both for device tree and
+>>> platform data modes.
+>>
+>> Is there any available tree with that series applied?
+>> I would test it on Intel Galileo Gen 2 which has ACPI enumerated AT24
+>> EEPROM attached.
+>>
+>
+> Yes, it's in my github tree:
+>
+>     https://github.com/brgl/linux    topic/at24/refactoring
+>
+> Thanks in advance for testing it!
 
-STM32 I2C F7 can be both Master and Slave mode.
-Whenever a master command (I2C or SMBus) a START condition is generated and the
-master flag (master_mode) is set and managed accordingly : sw and ITs/
-Now if a slave is registered it's managed accordingly as long as there is no
-master command on going.
-IRqs are not separated neither Regs bits. The routing is done though out START
-condition.
-This driver is not slave-only driver and can act as master if a master command
-is issued and slave if registered as such.
+At least this didn't break AT24 on Intel Galileo Gen 2 board in ACPI mode.
 
-Hope it clarifies
-Regards
+Tested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-On 03/20/2018 11:17 AM, Pierre Yves MORDRET wrote:
-> 
-> 
-> On 03/20/2018 10:52 AM, Wolfram Sang wrote:
->>
->>> I do believe the hw can support it, even it looks odd to me having the same I2C
->>> in slave and master mode at the same time.
->>
->> I2C is multi-master, so it is perfectly valid for a device to be master
->> and slave. I do have seen designs making use of that more than once.
->>
->>> Nevertheless the driver is devised to support either master or slave more but
->>> not at the same time.
->>
->> Why should we limit ourselves here? Also, why should we have an
->> unnecessary configuration option?
->>
->> Unless the HW is broken and does not support it, I usually don't accept
->> slave-only solutions. If the needs for master and slave arises later,
->> this is hard to refactor and better done properly right away.
->>
->> Is it so hard? Usually you have irqs for master and for slave seperated,
->> so you can code things quite orthogonal. Check de20d1857dd6 ("i2c: rcar:
->> add slave support") as an example.
->>
-> 
-> I need to check at my end but status bits are shared between master and slave in
-> my IP: i.e. Tx Empty, Rx Empty, NAxk, Stop.
-> Both bits have a meaning in either master and slave mode. In your case status
-> bits are separated between master and slave.
-> BTW I need to think about it.
-> 
+-- 
+With Best Regards,
+Andy Shevchenko
