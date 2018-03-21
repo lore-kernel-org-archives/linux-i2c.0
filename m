@@ -1,72 +1,92 @@
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: Re: [PATCH v5 0/2] add support for Socionext SynQuacer I2C controller
-Date: Wed, 21 Mar 2018 09:48:02 +0800
-Message-ID: <CAKv+Gu-SEYwM1CF3-9YPVK4xNMy8hUt=JNTCA4GbP5j1Ts3_2w@mail.gmail.com>
-References: <20180302083123.7259-1-ard.biesheuvel@linaro.org>
- <CAKv+Gu_hRsJGT-inrzXmAmabaZiUTL7BowdUrxwSWHJecjeVsg@mail.gmail.com> <CAKv+Gu-7MP9OqsQpR+AKzn=yHTH5qv5pa4THy0X5JGr-O+XLDg@mail.gmail.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH 2/3] i2c: mux: pca9541: namespace cleanup
+Date: Wed, 21 Mar 2018 06:53:12 +0100
+Message-ID: <d683d542-3def-9156-2628-2fa1c1830a12@axentia.se>
+References: <20180320061909.5775-1-chen.kenyy@inventec.com>
+ <20180320093200.19179-1-peda@axentia.se>
+ <20180320093200.19179-3-peda@axentia.se>
+ <b472b2e4-8360-6f5a-b753-fa8fc7083d04@mleia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAKv+Gu-7MP9OqsQpR+AKzn=yHTH5qv5pa4THy0X5JGr-O+XLDg@mail.gmail.com>
+In-Reply-To: <b472b2e4-8360-6f5a-b753-fa8fc7083d04@mleia.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c <linux-i2c@vger.kernel.org>, Devicetree List <devicetree@vger.kernel.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Jassi Brar <jassisinghbrar@gmail.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, Ard Biesheuvel <ard.biesheuvel@linaro.org>
+To: Vladimir Zapolskiy <vz@mleia.com>, linux-kernel@vger.kernel.org
+Cc: Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>, Ken Chen <chen.kenyy@inventec.com>, joel@jms.id.au, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 17 March 2018 at 00:19, Ard Biesheuvel <ard.biesheuvel@linaro.org> wrote:
-> On 10 March 2018 at 15:01, Ard Biesheuvel <ard.biesheuvel@linaro.org> wrote:
->> On 2 March 2018 at 08:31, Ard Biesheuvel <ard.biesheuvel@linaro.org> wrote:
->>> Add a binding and a driver for the I2C IP found in the Socionext SynQuacer
->>> SoC, which is essentially a rebranded version of the Fujitsu F_I2C controller.
->>>
->>> I think this is good to go now. Wolfram?
->>>
+On 2018-03-21 00:24, Vladimir Zapolskiy wrote:
+> Hi Peter,
+> 
+> On 03/20/2018 11:31 AM, Peter Rosin wrote:
+>> In preparation for PCA9641 support, convert the mybus and busoff macros
+>> to functions, and in the process prefix them with pca9541_. Also prefix
+>> remaining chip specific macros with PCA9541_.
 >>
->> Ping?
+>> Signed-off-by: Peter Rosin <peda@axentia.se>
+>> ---
+>>  drivers/i2c/muxes/i2c-mux-pca9541.c | 26 +++++++++++++++++++-------
+>>  1 file changed, 19 insertions(+), 7 deletions(-)
 >>
->
-> Ping?
->
+>> diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+>> index ad168125d23d..47685eb4e0e9 100644
+>> --- a/drivers/i2c/muxes/i2c-mux-pca9541.c
+>> +++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+>> @@ -59,10 +59,8 @@
+>>  #define PCA9541_ISTAT_MYTEST	BIT(6)
+>>  #define PCA9541_ISTAT_NMYTEST	BIT(7)
+>>  
+>> -#define BUSON		(PCA9541_CTL_BUSON | PCA9541_CTL_NBUSON)
+>> -#define MYBUS		(PCA9541_CTL_MYBUS | PCA9541_CTL_NMYBUS)
+>> -#define mybus(x)	(!((x) & MYBUS) || ((x) & MYBUS) == MYBUS)
+>> -#define busoff(x)	(!((x) & BUSON) || ((x) & BUSON) == BUSON)
+>> +#define PCA9541_BUSON	(PCA9541_CTL_BUSON | PCA9541_CTL_NBUSON)
+>> +#define PCA9541_MYBUS	(PCA9541_CTL_MYBUS | PCA9541_CTL_NMYBUS)
+>>  
+>>  /* arbitration timeouts, in jiffies */
+>>  #define ARB_TIMEOUT	(HZ / 8)	/* 125 ms until forcing bus ownership */
+>> @@ -93,6 +91,20 @@ static const struct of_device_id pca9541_of_match[] = {
+>>  MODULE_DEVICE_TABLE(of, pca9541_of_match);
+>>  #endif
+>>  
+>> +static int pca9541_mybus(int ctl)
+> 
+> static inline?
 
-Hello Wolfram,
+No, "inline" is only used in header files in the kernel. The compiler
+is free to inline whatever function it likes anyway, and in this case
+we do not know better than the compiler. We don't care either. At least,
+that is my understanding of the situation regarding the "inline"
+keyword.
 
-Do you intend to queue this for v4.17? Or are there any issues that
-need to be addressed first?
+> 
+>> +{
+>> +	if (!(ctl & PCA9541_MYBUS))
+>> +		return 1;
+>> +	return (ctl & PCA9541_MYBUS) == PCA9541_MYBUS;
+>> +}
+>> +
+>> +static int pca9541_busoff(int ctl)
+> 
+> static inline?
+> 
+>> +{
+>> +	if (!(ctl & PCA9541_BUSON))
+>> +		return 1;
+>> +	return (ctl & PCA9541_BUSON) == PCA9541_BUSON;
+>> +}
+> 
+> Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
 
-Thanks,
-Ard.
+Thanks!
 
+Cheers,
+Peter
 
->>> v5:
->>> - add Rob's ack to #1
->>> - drop unnecessary 'platform_set_drvdata(pdev, NULL)' in remove path (#2)
->>>
->>> v4:
->>> - clarify binding that only a single interrupt specifier is expected (#1)
->>> - check return value of clk_prepare_enable() on probe path (#2)
->>> - add Andy's R-b to patch #2
->>>
->>> v3:
->>> - incorporate more of Andy's review comments (#2), especially regarding the
->>>   bus speed and clock source handling for ACPI
->>> - patch #1 unchanged.
->>>
->>> v2:
->>> - incorporate Andy's review comments (#2)
->>> - patch #1 unchanged.
->>>
->>> Ard Biesheuvel (2):
->>>   dt-bindings: i2c: add binding for Socionext SynQuacer I2C
->>>   i2c: add support for Socionext SynQuacer I2C controller
->>>
->>>  Documentation/devicetree/bindings/i2c/i2c-synquacer.txt |  29 +
->>>  drivers/i2c/busses/Kconfig                              |  10 +
->>>  drivers/i2c/busses/Makefile                             |   1 +
->>>  drivers/i2c/busses/i2c-synquacer.c                      | 791 ++++++++++++++++++++
->>>  4 files changed, 831 insertions(+)
->>>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-synquacer.txt
->>>  create mode 100644 drivers/i2c/busses/i2c-synquacer.c
->>>
->>> --
->>> 2.11.0
->>>
+> 
+> --
+> With best wishes,
+> Vladimir
+> 
