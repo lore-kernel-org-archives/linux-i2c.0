@@ -1,42 +1,39 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v2] eeprom: at24: use SPDX identifier instead of GPL boiler-plate
-Date: Fri, 23 Mar 2018 17:15:02 +0100
-Message-ID: <20180323161502.28623-1-brgl@bgdev.pl>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 03/21] eeprom: at24: arrange local variables
+Date: Fri, 23 Mar 2018 17:37:00 +0100
+Message-ID: <20180323163700.GA5063@kroah.com>
+References: <20180319091721.18193-1-brgl@bgdev.pl>
+ <20180319091721.18193-4-brgl@bgdev.pl>
+ <20180323152157.GA6934@kroah.com>
+ <CAMRc=Mce2SV+JHqFvm66H-FnuGvH6PSg=cgrtxzoR+xZgkzg+A@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAMRc=Mce2SV+JHqFvm66H-FnuGvH6PSg=cgrtxzoR+xZgkzg+A@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Replace the GPL (or later) header with the SPDX identifier
-for GPL-2.0+.
+On Fri, Mar 23, 2018 at 05:06:30PM +0100, Bartosz Golaszewski wrote:
+> 2018-03-23 16:21 GMT+01:00 Greg Kroah-Hartman <gregkh@linuxfoundation.org>:
+> > On Mon, Mar 19, 2018 at 10:17:03AM +0100, Bartosz Golaszewski wrote:
+> >> Arrange declarations of local variables by line length as visually
+> >> it's easier to read.
+> >
+> > That's the craziest thing I've seen in a while...
+> >
+> > ok, if it makes it easier for you :)
+> >
+> > greg k-h
+> 
+> Hi Greg,
+> 
+> this isn't something unusual, see for example:
+> 
+> bef6b1b7a6ff ("nfp: reorder variables in nfp_net_tx()")
+> 5318c53d5b4b ("crypto: s5p-sss - Use consistent indentation for
+> variables and members")
 
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Tested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
----
- drivers/misc/eeprom/at24.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 01f9c4921c50..a9a6cde23be9 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -1,14 +1,11 @@
-+// SPDX-License-Identifier: GPL-2.0+
- /*
-  * at24.c - handle most I2C EEPROMs
-  *
-  * Copyright (C) 2005-2007 David Brownell
-  * Copyright (C) 2008 Wolfram Sang, Pengutronix
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-  */
-+
- #include <linux/kernel.h>
- #include <linux/init.h>
- #include <linux/module.h>
--- 
-2.16.1
+I still say it is crazy :)
