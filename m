@@ -1,57 +1,25 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v3 09/11] dt-bindings: i3c: Document Cadence I3C master
- bindings
-Date: Fri, 23 Mar 2018 14:59:26 +0100
-Message-ID: <20180323145926.29fa0ff8@bbrezillon>
-References: <20180323110020.19080-1-boris.brezillon@bootlin.com>
-        <20180323110020.19080-10-boris.brezillon@bootlin.com>
-        <20180323121035.7dc27356@windsurf>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 03/21] eeprom: at24: arrange local variables
+Date: Fri, 23 Mar 2018 16:21:57 +0100
+Message-ID: <20180323152157.GA6934@kroah.com>
+References: <20180319091721.18193-1-brgl@bgdev.pl>
+ <20180319091721.18193-4-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180323121035.7dc27356@windsurf>
+Content-Disposition: inline
+In-Reply-To: <20180319091721.18193-4-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@>
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 23 Mar 2018 12:10:35 +0100
-Thomas Petazzoni <thomas.petazzoni@bootlin.com> wrote:
+On Mon, Mar 19, 2018 at 10:17:03AM +0100, Bartosz Golaszewski wrote:
+> Arrange declarations of local variables by line length as visually
+> it's easier to read.
 
-> Hello,
-> 
-> On Fri, 23 Mar 2018 12:00:18 +0100, Boris Brezillon wrote:
-> 
-> > +Optional properties defined by the generic binding (see
-> > +Documentation/devicetree/bindings/i3c/i3c.txt for more details):
-> > +
-> > +- i2c-scl-frequency
-> > +- i3c-scl-frequency  
-> 
-> These properties are now named *-scl-hz.
-> 
-> > +Example:
-> > +
-> > +	i3c-master@0d040000 {
-> > +		compatible = "cdns,i3c-master";
-> > +		clocks = <&coreclock>, <&i3csysclock>;
-> > +		clock-names = "pclk", "sysclk";
-> > +		interrupts = <3 0>;
-> > +		reg = <0x0d040000 0x1000>;
-> > +		#address-cells = <1>;
-> > +		#size-cells = <0>;
-> > +		i2c-scl-frequency = <100000>;  
-> 
-> Ditto.
+That's the craziest thing I've seen in a while...
 
-I'll fix that in v4.
+ok, if it makes it easier for you :)
 
-Thanks for the review.
-
-Boris
-
--- 
-Boris Brezillon, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+greg k-h
