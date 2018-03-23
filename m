@@ -1,162 +1,180 @@
 From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: [PATCH v3 00/11] Add the I3C subsystem
-Date: Fri, 23 Mar 2018 12:00:09 +0100
-Message-ID: <20180323110020.19080-1-boris.brezillon@bootlin.com>
+Subject: [PATCH v3 01/11] i2c: Export of_i2c_get_board_info()
+Date: Fri, 23 Mar 2018 12:00:10 +0100
+Message-ID: <20180323110020.19080-2-boris.brezillon@bootlin.com>
+References: <20180323110020.19080-1-boris.brezillon@bootlin.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180323110020.19080-1-boris.brezillon@bootlin.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
 Cc: Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vitor Soares <Vitor.Soares@synopsys.com>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch series is a proposal for a new I3C [1] subsystem.
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
 
-This infrastructure is not complete yet and will be extended over
-time.
+I3C busses have to know about all I2C devices connected on the I3C bus
+to properly initialize the I3C master, and I2C frames can't be sent on
+the bus until this initialization is done.
 
-There are a few design choices that are worth mentioning because they
-impact the way I3C device drivers can interact with their devices:
+We can't let the I2C core parse the DT and instantiate I2C devices as
+part of its i2c_add_adapter() procedure because, when done this way,
+I2C devices are directly registered to the device-model and might be
+attached to drivers which could in turn start sending frames on the bus,
+which won't work since, as said above, the bus is not yet initialized.
 
-- all functions used to send I3C/I2C frames must be called in
-  non-atomic context. Mainly done this way to ease implementation, but
-  this is still open to discussion. Please let me know if you think it's
-  worth considering an asynchronous model here
-- the bus element is a separate object and is not implicitly described
-  by the master (as done in I2C). The reason is that I want to be able
-  to handle multiple master connected to the same bus and visible to
-  Linux.
-  In this situation, we should only have one instance of the device and
-  not one per master, and sharing the bus object would be part of the
-  solution to gracefully handle this case.
-  I'm not sure if we will ever need to deal with multiple masters
-  controlling the same bus and exposed under Linux, but separating the
-  bus and master concept is pretty easy, hence the decision to do it
-  now, just in case we need it some day.
-  The other benefit of separating the bus and master concepts is that
-  master devices appear under the bus directory in sysfs.
-- I2C backward compatibility has been designed to be transparent to I2C
-  drivers and the I2C subsystem. The I3C master just registers an I2C
-  adapter which creates a new I2C bus. I'd say that, from a
-  representation PoV it's not ideal because what should appear as a
-  single I3C bus exposing I3C and I2C devices here appears as 2
-  different busses connected to each other through the parenting (the
-  I3C master is the parent of the I2C and I3C busses).
-  On the other hand, I don't see a better solution if we want something
-  that is not invasive.
+Export of_i2c_register_device() in order to let the I3C core parse the
+I2C device nodes by itself and initialize the bus.
 
-Missing features in this preliminary version:
-- support for HDR modes (has been removed because of lack of real users)
-- no support for multi-master and the associated concepts (mastership
-  handover, support for secondary masters, ...)
-- I2C devices can only be described using DT because this is the only
-  use case I have. However, the framework can easily be extended with
-  ACPI and board info support
-- I3C slave framework. This has been completely omitted, but shouldn't
-  have a huge impact on the I3C framework because I3C slaves don't see
-  the whole bus, it's only about handling master requests and generating
-  IBIs. Some of the struct, constant and enum definitions could be
-  shared, but most of the I3C slave framework logic will be different
+Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+---
+Changes in v2:
+- fix memset() call
+- rebase on v4.15-rc1
+---
+ drivers/i2c/i2c-core-base.c |  2 +-
+ drivers/i2c/i2c-core-of.c   | 66 ++++++++++++++++++++++++++-------------------
+ include/linux/i2c.h         | 10 +++++++
+ 3 files changed, 49 insertions(+), 29 deletions(-)
 
-Main changes between v2 and v3 are:
-- Reworked the DT bindings as suggested by Rob
-- Reworked the bus initialization step as suggested by Vitor
-- Added a driver for an I3C GPIO expander
-
-Main changes between the initial RFC and this v2 are:
-- Add a generic infrastructure to support IBIs. It's worth mentioning
-  that I tried exposing IBIs as a regular IRQs, but after several
-  attempts and a discussion with Mark Zyngier, it appeared that it was
-  not really fitting in the Linux IRQ model (the fact that you have
-  payload attached to IBIs, the fact that most of the time an IBI will
-  generate a transfer on the bus which has to be done in an atomic
-  context, ...)
-  The counterpart of this decision is the latency induced by the
-  workqueue approach, but since I don't have real use cases, I don't
-  know if this can be a problem or not. 
-- Add helpers to support Hot Join
-- Add support for IBIs and Hot Join in Cadence I3C master driver
-- Address several issues in how I was using the device model
-
-I'll finish on a good news: this week the MIPI alliance opened the I3C
-spec. So everyone can now review the patches (no need to be member of
-the MIPI I3C group).
-I'll let you find the link in the doc, this way maybe I'll have reviews
-on the doc itself :-).
-
-Thanks,
-
-Boris
-
-Boris Brezillon (11):
-  i2c: Export of_i2c_get_board_info()
-  i3c: Add core I3C infrastructure
-  docs: driver-api: Add I3C documentation
-  i3c: Add sysfs ABI spec
-  dt-bindings: i3c: Document core bindings
-  dt-bindings: i3c: Add macros to help fill I3C/I2C device's reg
-    property
-  MAINTAINERS: Add myself as the I3C subsystem maintainer
-  i3c: master: Add driver for Cadence IP
-  dt-bindings: i3c: Document Cadence I3C master bindings
-  gpio: Add a driver for Cadence I3C GPIO expander
-  dt-bindings: gpio: Add bindings for Cadence I3C gpio expander
-
- Documentation/ABI/testing/sysfs-bus-i3c            |   95 ++
- .../devicetree/bindings/gpio/gpio-cdns-i3c.txt     |   38 +
- .../devicetree/bindings/i3c/cdns,i3c-master.txt    |   45 +
- Documentation/devicetree/bindings/i3c/i3c.txt      |  140 ++
- Documentation/driver-api/i3c/conf.py               |   10 +
- Documentation/driver-api/i3c/device-driver-api.rst |    7 +
- Documentation/driver-api/i3c/index.rst             |    9 +
- Documentation/driver-api/i3c/master-driver-api.rst |    8 +
- Documentation/driver-api/i3c/protocol.rst          |  201 +++
- Documentation/driver-api/index.rst                 |    1 +
- MAINTAINERS                                        |    9 +
- drivers/Kconfig                                    |    2 +
- drivers/Makefile                                   |    2 +-
- drivers/gpio/Kconfig                               |   11 +
- drivers/gpio/Makefile                              |    1 +
- drivers/gpio/gpio-cdns-i3c.c                       |  380 +++++
- drivers/i2c/i2c-core-base.c                        |    2 +-
- drivers/i2c/i2c-core-of.c                          |   66 +-
- drivers/i3c/Kconfig                                |   24 +
- drivers/i3c/Makefile                               |    4 +
- drivers/i3c/core.c                                 |  620 +++++++
- drivers/i3c/device.c                               |  294 ++++
- drivers/i3c/internals.h                            |   28 +
- drivers/i3c/master.c                               | 1723 ++++++++++++++++++++
- drivers/i3c/master/Kconfig                         |    5 +
- drivers/i3c/master/Makefile                        |    1 +
- drivers/i3c/master/i3c-master-cdns.c               | 1648 +++++++++++++++++++
- include/dt-bindings/i3c/i3c.h                      |   28 +
- include/linux/i2c.h                                |   10 +
- include/linux/i3c/ccc.h                            |  382 +++++
- include/linux/i3c/device.h                         |  305 ++++
- include/linux/i3c/master.h                         |  587 +++++++
- include/linux/mod_devicetable.h                    |   17 +
- 33 files changed, 6673 insertions(+), 30 deletions(-)
- create mode 100644 Documentation/ABI/testing/sysfs-bus-i3c
- create mode 100644 Documentation/devicetree/bindings/gpio/gpio-cdns-i3c.txt
- create mode 100644 Documentation/devicetree/bindings/i3c/cdns,i3c-master.txt
- create mode 100644 Documentation/devicetree/bindings/i3c/i3c.txt
- create mode 100644 Documentation/driver-api/i3c/conf.py
- create mode 100644 Documentation/driver-api/i3c/device-driver-api.rst
- create mode 100644 Documentation/driver-api/i3c/index.rst
- create mode 100644 Documentation/driver-api/i3c/master-driver-api.rst
- create mode 100644 Documentation/driver-api/i3c/protocol.rst
- create mode 100644 drivers/gpio/gpio-cdns-i3c.c
- create mode 100644 drivers/i3c/Kconfig
- create mode 100644 drivers/i3c/Makefile
- create mode 100644 drivers/i3c/core.c
- create mode 100644 drivers/i3c/device.c
- create mode 100644 drivers/i3c/internals.h
- create mode 100644 drivers/i3c/master.c
- create mode 100644 drivers/i3c/master/Kconfig
- create mode 100644 drivers/i3c/master/Makefile
- create mode 100644 drivers/i3c/master/i3c-master-cdns.c
- create mode 100644 include/dt-bindings/i3c/i3c.h
- create mode 100644 include/linux/i3c/ccc.h
- create mode 100644 include/linux/i3c/device.h
- create mode 100644 include/linux/i3c/master.h
-
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 5a00bf443d06..e57715f5064c 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -736,7 +736,7 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+ 	client->dev.parent = &client->adapter->dev;
+ 	client->dev.bus = &i2c_bus_type;
+ 	client->dev.type = &i2c_client_type;
+-	client->dev.of_node = info->of_node;
++	client->dev.of_node = of_node_get(info->of_node);
+ 	client->dev.fwnode = info->fwnode;
+ 
+ 	i2c_dev_set_name(adap, client, info);
+diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
+index 8d474bb1dc15..7470bc418a3b 100644
+--- a/drivers/i2c/i2c-core-of.c
++++ b/drivers/i2c/i2c-core-of.c
+@@ -22,56 +22,66 @@
+ 
+ #include "i2c-core.h"
+ 
+-static struct i2c_client *of_i2c_register_device(struct i2c_adapter *adap,
+-						 struct device_node *node)
++int of_i2c_get_board_info(struct device *dev, struct device_node *node,
++			  struct i2c_board_info *info)
+ {
+-	struct i2c_client *result;
+-	struct i2c_board_info info = {};
+-	struct dev_archdata dev_ad = {};
+-	const __be32 *addr_be;
+ 	u32 addr;
+-	int len;
++	int ret;
+ 
+-	dev_dbg(&adap->dev, "of_i2c: register %pOF\n", node);
++	memset(info, 0, sizeof(*info));
+ 
+-	if (of_modalias_node(node, info.type, sizeof(info.type)) < 0) {
+-		dev_err(&adap->dev, "of_i2c: modalias failure on %pOF\n",
+-			node);
+-		return ERR_PTR(-EINVAL);
++	if (of_modalias_node(node, info->type, sizeof(info->type)) < 0) {
++		dev_err(dev, "of_i2c: modalias failure on %pOF\n", node);
++		return -EINVAL;
+ 	}
+ 
+-	addr_be = of_get_property(node, "reg", &len);
+-	if (!addr_be || (len < sizeof(*addr_be))) {
+-		dev_err(&adap->dev, "of_i2c: invalid reg on %pOF\n", node);
+-		return ERR_PTR(-EINVAL);
++	ret = of_property_read_u32(node, "reg", &addr);
++	if (ret) {
++		dev_err(dev, "of_i2c: invalid reg on %pOF\n", node);
++		return ret;
+ 	}
+ 
+-	addr = be32_to_cpup(addr_be);
+ 	if (addr & I2C_TEN_BIT_ADDRESS) {
+ 		addr &= ~I2C_TEN_BIT_ADDRESS;
+-		info.flags |= I2C_CLIENT_TEN;
++		info->flags |= I2C_CLIENT_TEN;
+ 	}
+ 
+ 	if (addr & I2C_OWN_SLAVE_ADDRESS) {
+ 		addr &= ~I2C_OWN_SLAVE_ADDRESS;
+-		info.flags |= I2C_CLIENT_SLAVE;
++		info->flags |= I2C_CLIENT_SLAVE;
+ 	}
+ 
+-	if (i2c_check_addr_validity(addr, info.flags)) {
+-		dev_err(&adap->dev, "of_i2c: invalid addr=%x on %pOF\n",
+-			addr, node);
+-		return ERR_PTR(-EINVAL);
++	ret = i2c_check_addr_validity(addr, info->flags);
++	if (ret) {
++		dev_err(dev, "of_i2c: invalid addr=%x on %pOF\n", addr, node);
++		return ret;
+ 	}
+ 
+-	info.addr = addr;
+-	info.of_node = of_node_get(node);
+-	info.archdata = &dev_ad;
++	info->addr = addr;
++	info->of_node = node;
+ 
+ 	if (of_property_read_bool(node, "host-notify"))
+-		info.flags |= I2C_CLIENT_HOST_NOTIFY;
++		info->flags |= I2C_CLIENT_HOST_NOTIFY;
+ 
+ 	if (of_get_property(node, "wakeup-source", NULL))
+-		info.flags |= I2C_CLIENT_WAKE;
++		info->flags |= I2C_CLIENT_WAKE;
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(of_i2c_get_board_info);
++
++static struct i2c_client *of_i2c_register_device(struct i2c_adapter *adap,
++						 struct device_node *node)
++{
++	struct i2c_client *result;
++	struct i2c_board_info info;
++	int ret;
++
++	dev_dbg(&adap->dev, "of_i2c: register %pOF\n", node);
++
++	ret = of_i2c_get_board_info(&adap->dev, node, &info);
++	if (ret)
++		return ERR_PTR(ret);
+ 
+ 	result = i2c_new_device(adap, &info);
+ 	if (result == NULL) {
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 419a38e7c315..3e38c10748e3 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -873,6 +873,9 @@ extern const struct of_device_id
+ *i2c_of_match_device(const struct of_device_id *matches,
+ 		     struct i2c_client *client);
+ 
++int of_i2c_get_board_info(struct device *dev, struct device_node *node,
++			  struct i2c_board_info *info);
++
+ #else
+ 
+ static inline struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
+@@ -897,6 +900,13 @@ static inline const struct of_device_id
+ 	return NULL;
+ }
+ 
++static inline int of_i2c_get_board_info(struct device *dev,
++					struct device_node *node,
++					struct i2c_board_info *info)
++{
++	return -ENOTSUPP;
++}
++
+ #endif /* CONFIG_OF */
+ 
+ #if IS_ENABLED(CONFIG_ACPI)
 -- 
 2.14.1
