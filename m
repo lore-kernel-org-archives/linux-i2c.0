@@ -1,195 +1,46 @@
-From: Peter Rosin <peda@axentia.se>
+From: Boris Brezillon <boris.brezillon@bootlin.com>
 Subject: Re: [PATCH v3 05/11] dt-bindings: i3c: Document core bindings
-Date: Fri, 23 Mar 2018 13:47:49 +0100
-Message-ID: <beba0248-1a41-e39a-75fb-a1aa94337008@axentia.se>
+Date: Fri, 23 Mar 2018 14:58:51 +0100
+Message-ID: <20180323145851.64997945@bbrezillon>
 References: <20180323110020.19080-1-boris.brezillon@bootlin.com>
- <20180323110020.19080-6-boris.brezillon@bootlin.com>
+        <20180323110020.19080-6-boris.brezillon@bootlin.com>
+        <beba0248-1a41-e39a-75fb-a1aa94337008@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180323110020.19080-6-boris.brezillon@bootlin.com>
-Content-Language: en-US
+In-Reply-To: <beba0248-1a41-e39a-75fb-a1aa94337008@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
-Cc: Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vitor Soares <Vitor.Soares@synopsys.com>, Geert Uytterhoeven <geert@linux-m68k.org>
+To: Peter Rosin <peda@axentia.se>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-03-23 12:00, Boris Brezillon wrote:
-> From: Boris Brezillon <boris.brezillon@free-electrons.com>
-> 
-> A new I3C subsystem has been added and a generic description has been
-> created to represent the I3C bus and the devices connected on it.
-> 
-> Document this generic representation.
-> 
-> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
-> ---
-> Changes in v3:
-> - Rename {i2c,i3c}-scl-frequency DT prop into {i2c,i3c}-scl-hz
-> - Rework the way we expose the provisional ID and LVR information
-> - Rename dynamic-address into assigned-address
-> - Enforce the I3C master node name
-> 
-> Changes in v2:
-> - Define how to describe I3C devices in the DT and when it should be
->   used. Note that the parsing of I3C devices is not yet implemented in
->   the framework. Will be added when someone really needs it.
-> ---
->  Documentation/devicetree/bindings/i3c/i3c.txt | 140 ++++++++++++++++++++++++++
->  1 file changed, 140 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i3c/i3c.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/i3c/i3c.txt b/Documentation/devicetree/bindings/i3c/i3c.txt
-> new file mode 100644
-> index 000000000000..ed858228d26b
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i3c/i3c.txt
-> @@ -0,0 +1,140 @@
-> +Generic device tree bindings for I3C busses
-> +===========================================
-> +
-> +This document describes generic bindings that should be used to describe I3C
-> +busses in a device tree.
-> +
-> +Required properties
-> +-------------------
-> +
-> +- #address-cells  - should be <3>. Read more about addresses below.
-> +- #size-cells     - should be <0>.
-> +- compatible      - name of the I3C master controller driving the I3C bus
-> +
-> +For other required properties e.g. to describe register sets,
-> +clocks, etc. check the binding documentation of the specific driver.
-> +The node describing an I3C bus should be named i3c-master.
-> +
-> +Optional properties
-> +-------------------
-> +
-> +These properties may not be supported by all I3C master drivers. Each I3C
-> +master bindings should specify which of them are supported.
-> +
-> +- i3c-scl-hz: frequency of the SCL signal used for I3C transfers.
-> +	      When undefined the core sets it to 12.5MHz.
-> +
-> +- i2c-scl-hz: frequency of the SCL signal used for I2C transfers.
-> +	      When undefined, the core looks at LVR (Legacy Virtual Register)
-> +	      values of I2C devices described in the device tree to determine
-> +	      the maximum I2C frequency.
-> +
-> +I2C devices
-> +===========
-> +
-> +Each I2C device connected to the bus should be described in a subnode. All
-> +properties described in Documentation/devicetree/bindings/i2c/i2c.txt are
-> +valid here, but several new properties have been added.
-> +
-> +New constraint on existing properties:
-> +--------------------------------------
-> +- reg: contains 3 cells
-> +  + first cell : still encoding the I2C address
-> +
-> +  + second cell: should have bit 31 set to 1 signify that this is an I2C
-> +		 device. Bits 0 to 7 encode the I3C LVR (Legacy Virtual
-> +		 Register):
-> +
-> +	bit[7:5]: I2C device index. Possible values
-> +	* 0: I2C device has a 50 ns spike filter
-> +	* 1: I2C device does not have a 50 ns spike filter but supports high
-> +	     frequency on SCL
-> +	* 2: I2C device does not have a 50 ns spike filter and is not tolerant
-> +	     to high frequencies
-> +	* 3-7: reserved
-> +
-> +	bit[4]: tell whether the device operates in FM (Fast Mode) or FM+ mode
-> +	* 0: FM+ mode
-> +	* 1: FM mode
-> +
-> +	bit[3:0]: device type
-> +	* 0-15: reserved
-> +
-> +  + third cell: should be 0
-> +
-> +I3C devices
-> +===========
-> +
-> +All I3C devices are supposed to support DAA (Dynamic Address Assignment), and
-> +are thus discoverable. So, by default, I3C devices do not have to be described
-> +in the device tree.
-> +This being said, one might want to attach extra resources to these devices,
-> +and those resources may have to be described in the device tree, which in turn
-> +means we have to describe I3C devices.
-> +
-> +Another use case for describing an I3C device in the device tree is when this
-> +I3C device has a static address and we want to assign it a specific dynamic
-> +address before the DAA takes place (so that other devices on the bus can't
-> +take this dynamic address).
-> +
-> +The I3C device should be names <device-type>@<static-address>,<i3c-pid>,
-> +where device-type is describing the type of device connected on the bus
-> +(gpio-controller, sensor, ...).
-> +
-> +Required properties
-> +-------------------
-> +- reg: contains 3 cells
-> +  + first cell : encodes the I2C address. Should be 0 if the device does not
-> +		 have one (0 is not a valid I3C address).
-> +
-> +  + second and third cells: should encode the ProvisionalID. The second cell
-> +			    contains the manufacturer ID left-shifted by 1.
-> +			    The third cell contains ORing of the part ID
-> +			    left-shifted by 16, the instance ID left-shifted
-> +			    by 12 and the extra information. This encoding is
-> +			    following the PID definition provided by the I3C
-> +			    specification.
-> +
-> +Optional properties
-> +-------------------
-> +- assigned-address: dynamic address to be assigned to this device. This
-> +		    property is only valid if the I3C device has a static
-> +		    address (first cell of the reg property != 0).
-> +
-> +
-> +Example:
-> +
-> +	i3c-master@d040000 {
-> +		compatible = "cdns,i3c-master";
-> +		clocks = <&coreclock>, <&i3csysclock>;
-> +		clock-names = "pclk", "sysclk";
-> +		interrupts = <3 0>;
-> +		reg = <0x0d040000 0x1000>;
-> +		#address-cells = <3>;
-> +		#size-cells = <0>;
-> +
-> +		status = "okay";
-> +		i2c-scl-frequency = <100000>;
+On Fri, 23 Mar 2018 13:47:49 +0100
+Peter Rosin <peda@axentia.se> wrote:
 
-Another s/frequency/hz/ instance, similar to those reported by Thomas.
-
-Cheers,
-Peter
-
-> +
-> +		/* I2C device. */
-> +		nunchuk: nunchuk@52 {
-> +			compatible = "nintendo,nunchuk";
-> +			reg = <0x52 0x80000010 0x0>;
-> +		};
-> +
-> +		/* I3C device with a static address. */
-> +		thermal_sensor: sensor@68,39200144004 {
-> +			reg = <0x68 0x392 0x144004>;
-> +			assigned-address = <0xa>;
-> +		};
-> +
-> +		/*
-> +		 * I3C device without a static address but requiring resources
-> +		 * described in the DT.
-> +		 */
-> +		sensor@0,39200154004 {
-> +			reg = <0x0 0x392 0x154004>;
-> +			clocks = <&clock_provider 0>;
-> +		};
-> +	};
-> +
+> > +Example:
+> > +
+> > +	i3c-master@d040000 {
+> > +		compatible = "cdns,i3c-master";
+> > +		clocks = <&coreclock>, <&i3csysclock>;
+> > +		clock-names = "pclk", "sysclk";
+> > +		interrupts = <3 0>;
+> > +		reg = <0x0d040000 0x1000>;
+> > +		#address-cells = <3>;
+> > +		#size-cells = <0>;
+> > +
+> > +		status = "okay";
+> > +		i2c-scl-frequency = <100000>;  
 > 
+> Another s/frequency/hz/ instance, similar to those reported by Thomas.
+
+Will fix it in v4.
+
+Thanks,
+
+Boris
+
+-- 
+Boris Brezillon, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
