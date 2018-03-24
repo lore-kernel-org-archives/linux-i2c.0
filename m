@@ -1,39 +1,63 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 03/21] eeprom: at24: arrange local variables
-Date: Fri, 23 Mar 2018 17:37:00 +0100
-Message-ID: <20180323163700.GA5063@kroah.com>
-References: <20180319091721.18193-1-brgl@bgdev.pl>
- <20180319091721.18193-4-brgl@bgdev.pl>
- <20180323152157.GA6934@kroah.com>
- <CAMRc=Mce2SV+JHqFvm66H-FnuGvH6PSg=cgrtxzoR+xZgkzg+A@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 01/13] i2c: qup: fix copyrights and update to SPDX
+ identifier
+Date: Sat, 24 Mar 2018 13:17:18 +0100
+Message-ID: <20180324121718.thd5zwc5kafy3d2j@ninjato>
+References: <1520860502-14886-1-git-send-email-absahu@codeaurora.org>
+ <1520860502-14886-2-git-send-email-absahu@codeaurora.org>
+ <20180317203349.gfgwex3x3jaswuo5@ninjato>
+ <15dd51f21a42504bdff810704adb97ac@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="okbgnjhgwskx64q6"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAMRc=Mce2SV+JHqFvm66H-FnuGvH6PSg=cgrtxzoR+xZgkzg+A@mail.gmail.com>
+In-Reply-To: <15dd51f21a42504bdff810704adb97ac@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Abhishek Sahu <absahu@codeaurora.org>
+Cc: Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, Austin Christ <austinwc@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Mar 23, 2018 at 05:06:30PM +0100, Bartosz Golaszewski wrote:
-> 2018-03-23 16:21 GMT+01:00 Greg Kroah-Hartman <gregkh@linuxfoundation.org>:
-> > On Mon, Mar 19, 2018 at 10:17:03AM +0100, Bartosz Golaszewski wrote:
-> >> Arrange declarations of local variables by line length as visually
-> >> it's easier to read.
-> >
-> > That's the craziest thing I've seen in a while...
-> >
-> > ok, if it makes it easier for you :)
-> >
-> > greg k-h
-> 
-> Hi Greg,
-> 
-> this isn't something unusual, see for example:
-> 
-> bef6b1b7a6ff ("nfp: reorder variables in nfp_net_tx()")
-> 5318c53d5b4b ("crypto: s5p-sss - Use consistent indentation for
-> variables and members")
 
-I still say it is crazy :)
+--okbgnjhgwskx64q6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+>  Qualcomm does not uses its own copyright for open source and uses
+>  LF copyright only.
+
+Didn't know that. Strange, but ok.
+
+>  Following is the downstream version available in CAF
+>  for the same i2c-qup.c file in which the LF copyright has
+>  already extended.
+>=20
+> https://source.codeaurora.org/quic/qsdk/oss/kernel/linux-msm/tree/drivers=
+/i2c/busses/i2c-qup.c?h=3Deggplant
+
+Thanks, this is good enough for me.
+
+
+--okbgnjhgwskx64q6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlq2QcoACgkQFA3kzBSg
+KbY6hg//T4M670ZxaA21gPaTnzBJ0RHk+uF8UwI2qvLlKEyt4z4ls12NmkjO/60n
+2Yya6nf2LjRkdVZ0bPqQuWlH8+Vri7PKkrEhdbaBo+yYvyDY5LKuYkT6dlNY8hbv
+BRhRA5jfe58S1Tuf5on593P4ohRlaIso1O0AtxbOad165dEZp1xrBH2QbSAC5wDF
+q+Q72MVe34uxc9SUUVTqd7KtEyfXc3t3tVZbKQcshuNXF+r9LzfVmgc2CpYFe7va
+rYFummD0PQJbALeU9gRTWmaNiyGqoqXs0wXbLFi077n1XtKzNeUgmxXguOFLys7d
+NRdkOQtY9JmYrxcLHA8UsBZmP6lE1Wpye1syKZIfhO7RFChwOIHb6PVXgifVl0Sy
+JgOKIfJTwB2SOsdkyd3MPY/sMARsO5D02rIJ8ppVXNczTx/3xgC7ZfEW6SBPSeNn
+L5Y9WA5ckO9P1z0Vh7OHi5qjjh0rPjtz3p5uUmC28DJ0OIgHYSH8e3N3k7nUZ6Oj
+Cwe8rqB1Cfg6phAoP24rv9gbbgrrSTu0AbwP9OfAAa7gqcArpzZB2EOTtkzJNpkX
+6Psrx9/52S8SHyyhj26Fcne5N01bhQDtTbWfmCHC0NhJ6GB38fX4eFczzM6MJEj1
+6a0Ndx18I7npTPIxcOjR/L1dIyMGMlYPsEyZuY8UHMx5v8n2NYE=
+=0tv2
+-----END PGP SIGNATURE-----
+
+--okbgnjhgwskx64q6--
