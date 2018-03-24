@@ -1,53 +1,131 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 01/11] i2c: Export of_i2c_get_board_info()
-Date: Sat, 24 Mar 2018 23:38:32 +0100
-Message-ID: <20180324223832.7wvhghw77ech4orn@ninjato>
-References: <20180323110020.19080-1-boris.brezillon@bootlin.com>
- <20180323110020.19080-2-boris.brezillon@bootlin.com>
- <20180324223518.g5jsi5zvoxa75psy@ninjato>
+Subject: Re: [PATCH v2 1/6] i2c: i2c-stm32f7: Add 10-bit address support
+Date: Sat, 24 Mar 2018 23:43:32 +0100
+Message-ID: <20180324224332.apsixpklrgtelak7@ninjato>
+References: <1521650940-11651-1-git-send-email-pierre-yves.mordret@st.com>
+ <1521650940-11651-2-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="o4bfgnh3t6tv5z4f"
+        protocol="application/pgp-signature"; boundary="qyhavai5wehuyvdj"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180324223518.g5jsi5zvoxa75psy@ninjato>
+In-Reply-To: <1521650940-11651-2-git-send-email-pierre-yves.mordret@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>
-Cc: linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
+To: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---o4bfgnh3t6tv5z4f
+--qyhavai5wehuyvdj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> > -	info.archdata =3D &dev_ad;
+On Wed, Mar 21, 2018 at 05:48:55PM +0100, Pierre-Yves MORDRET wrote:
+> This patch adds support for 10-bit device address for STM32F7 I2C
 >=20
-> Why did you drop this?
+> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 
-If the removal is safe, it should be a seperate patch, I mean.
+Out of curiosity: how did you test this patch? I never managed to find a
+10-bit client (except for an SoC with 10-bit slave mode).
 
+> ---
+>   Version history:
+>      v1:
+>         * Initial
+>      v2:
+> ---
+> ---
+>  drivers/i2c/busses/i2c-stm32f7.c | 22 +++++++++++++++++-----
+>  1 file changed, 17 insertions(+), 5 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-st=
+m32f7.c
+> index f273e28..ae0d15c 100644
+> --- a/drivers/i2c/busses/i2c-stm32f7.c
+> +++ b/drivers/i2c/busses/i2c-stm32f7.c
+> @@ -65,7 +65,12 @@
+>  #define STM32F7_I2C_CR2_NACK			BIT(15)
+>  #define STM32F7_I2C_CR2_STOP			BIT(14)
+>  #define STM32F7_I2C_CR2_START			BIT(13)
+> +#define STM32F7_I2C_CR2_HEAD10R			BIT(12)
+> +#define STM32F7_I2C_CR2_ADD10			BIT(11)
+>  #define STM32F7_I2C_CR2_RD_WRN			BIT(10)
+> +#define STM32F7_I2C_CR2_SADD10_MASK		GENMASK(9, 0)
+> +#define STM32F7_I2C_CR2_SADD10(n)		(((n) & \
+> +						STM32F7_I2C_CR2_SADD10_MASK))
+>  #define STM32F7_I2C_CR2_SADD7_MASK		GENMASK(7, 1)
+>  #define STM32F7_I2C_CR2_SADD7(n)		(((n) & 0x7f) << 1)
+> =20
+> @@ -176,14 +181,14 @@ struct stm32f7_i2c_timings {
+> =20
+>  /**
+>   * struct stm32f7_i2c_msg - client specific data
+> - * @addr: 8-bit slave addr, including r/w bit
+> + * @addr: 8-bit or 10-bit slave addr, including r/w bit
+>   * @count: number of bytes to be transferred
+>   * @buf: data buffer
+>   * @result: result of the transfer
+>   * @stop: last I2C msg to be sent, i.e. STOP to be generated
+>   */
+>  struct stm32f7_i2c_msg {
+> -	u8 addr;
+> +	u16 addr;
+>  	u32 count;
+>  	u8 *buf;
+>  	int result;
+> @@ -629,8 +634,15 @@ static void stm32f7_i2c_xfer_msg(struct stm32f7_i2c_=
+dev *i2c_dev,
+>  		cr2 |=3D STM32F7_I2C_CR2_RD_WRN;
+> =20
+>  	/* Set slave address */
+> -	cr2 &=3D ~STM32F7_I2C_CR2_SADD7_MASK;
+> -	cr2 |=3D STM32F7_I2C_CR2_SADD7(f7_msg->addr);
+> +	cr2 &=3D ~(STM32F7_I2C_CR2_HEAD10R | STM32F7_I2C_CR2_ADD10);
+> +	if (msg->flags & I2C_M_TEN) {
+> +		cr2 &=3D ~STM32F7_I2C_CR2_SADD10_MASK;
+> +		cr2 |=3D STM32F7_I2C_CR2_SADD10(f7_msg->addr);
+> +		cr2 |=3D STM32F7_I2C_CR2_ADD10;
+> +	} else {
+> +		cr2 &=3D ~STM32F7_I2C_CR2_SADD7_MASK;
+> +		cr2 |=3D STM32F7_I2C_CR2_SADD7(f7_msg->addr);
+> +	}
+> =20
+>  	/* Set nb bytes to transfer and reload if needed */
+>  	cr2 &=3D ~(STM32F7_I2C_CR2_NBYTES_MASK | STM32F7_I2C_CR2_RELOAD);
+> @@ -798,7 +810,7 @@ static int stm32f7_i2c_xfer(struct i2c_adapter *i2c_a=
+dap,
+> =20
+>  static u32 stm32f7_i2c_func(struct i2c_adapter *adap)
+>  {
+> -	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR;
+>  }
+> =20
+>  static struct i2c_algorithm stm32f7_i2c_algo =3D {
+> --=20
+> 2.7.4
+>=20
 
---o4bfgnh3t6tv5z4f
+--qyhavai5wehuyvdj
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlq202gACgkQFA3kzBSg
-KbZS0A/+Lxx+NqaVVtw4RxyUPhSWqMVhhNa7swJZTt0ufwzzE9KofdnKTTx04CT5
-spVxRVG8F6vb2fg2bzzEUGlj34ZZsdoN7cno1Y5jybrrumyrUj5n4FFrn8bbG21D
-uOZanhBrEsRR10OPB+hQTNo/O7zX6d3akaqhfzxMmFRZoAJFHIKeJgokXAscv0A1
-/AV//KCOx1vBHAKQdOBnRYDi8SuK210Zi3DNs2i6k3IOsFQZiCeNMFiFCrEgOGii
-DJx6sc84xtZLHJz4F80wG2hYMH6eT1cLN2l91H2P4hqoHj6dxJIp7WZrKJZM8Q2a
-3Ps09Rsar5Bkb1O0r4PCatjJeRqizKY4FfeswIE0npGTPD9FKKgvD21k9FYHut/c
-59XvhVtFVsfER3D0pXstnlj2Amqs9fDrorhEKY5VqoFpSdkVuA5Ff60PwPsu2IJs
-CszhIxfgB0DvLj9dsMTwLrjbI2tD5EjPIytUeG/wru+B7vwCJ1Y4jLY8zVWtVnhv
-qQtGJFTcq48NEex834+nGynGGPryLN7pvMpTx8Z5wUEZ4Dzm7WBiElqkVUUthaVO
-FxtlK2yz/E1p6Kvk3Hnes2VEpjuhFKqQURLpbejEVxpDSeyqcyu7WGvHBETg2G/+
-SC08ebAJVGkUQn5FVcheAZ7t2qcZFrrIBCUoF6f7C1JHH2aZ0VI=
-=3Qtg
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlq21JQACgkQFA3kzBSg
+KbbTfA/+NyOduO5HWmywdlcLg1bw0BTUzMhsljNhgtDIbbfTQFzNBPCwFV4kImwB
+5VY1rCTwdMJJ1qo8Lp66tqb0ifSRngB+r/MKsyuYc597cemP0pH72trqBVmW6RJN
+Eiad24F7xI5JkOEfwAhuBbnulPwWMmYyE8nJSMHG6wGU3PfsnMAyyNydNkCl6yxq
+yHlDZMy8wWhGNc5IV2FVrXL5owWWmezETL/lLKKylRHTZYQHiuqaOayJVPAIQyE3
+ZZCkJnvGf9cm/kes1C5UE5Ncu7MRUETzUsSarVT+MHnz5iY8mj7TKr12B/gcHrOb
+U5fzZJ2fOBCo6Sv0gjZM/hC2TEEewhEZlojVPsa/cyxAypuacmqHF/E4PD2oBAfC
+dTdI85YjCbOzpkPiqoa7NaXN9vEQKWYGbFSSqIZwE2TEkcZEJto90xuzDDIBLqmm
+/LHByutuJEGlaBz4OV7rUU1kTtYkynbKBRAR7jPRcX6J33/rVc0K4kktFxo/xEz4
+VFABvJBpJlJ6rFSCdcGfY+Wx8xN1HMS8bmdpIf4GNYEazJy/ZPvcbqSB5U1Sp0o+
+0VJnYvL0VRTBQJsXgDGkgEKQ5lqe+xQhKRrcFD8dQhsNV5Ns/nnG3fT1HwILM0FJ
+axrdQuYnI//6o2lyygreBjOZbxGCRLPc6rdi5H0NUmpSuIrvEF8=
+=1AhT
 -----END PGP SIGNATURE-----
 
---o4bfgnh3t6tv5z4f--
+--qyhavai5wehuyvdj--
