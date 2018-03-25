@@ -1,61 +1,52 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 2/2] i2c: add support for Socionext SynQuacer I2C
- controller
-Date: Sun, 25 Mar 2018 00:25:21 +0100
-Message-ID: <20180324232521.ofzk3fikda42ywep@ninjato>
-References: <20180302083123.7259-1-ard.biesheuvel@linaro.org>
- <20180302083123.7259-3-ard.biesheuvel@linaro.org>
- <20180324231910.unzvwty3xia4mqu2@ninjato>
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Subject: Re: [PATCH v3 01/11] i2c: Export of_i2c_get_board_info()
+Date: Sun, 25 Mar 2018 12:19:32 +0200
+Message-ID: <20180325121932.6b0e5e5f@bbrezillon>
+References: <20180323110020.19080-1-boris.brezillon@bootlin.com>
+        <20180323110020.19080-2-boris.brezillon@bootlin.com>
+        <20180324223518.g5jsi5zvoxa75psy@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="wyihmnao436dfmvi"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180324231910.unzvwty3xia4mqu2@ninjato>
+In-Reply-To: <20180324223518.g5jsi5zvoxa75psy@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, jassisinghbrar@gmail.com, andy.shevchenko@gmail.com
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---wyihmnao436dfmvi
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sat, 24 Mar 2018 23:35:18 +0100
+Wolfram Sang <wsa@the-dreams.de> wrote:
 
-My code checkers mention this:
+> Hi Boris,
+> 
+> > - rebase on v4.15-rc1  
+> 
+> This code has changed a little meanwhile. Please check my for-next
+> branch. Some changes are identical, some similar.
 
-    CPPCHECK
-drivers/i2c/busses/i2c-synquacer.c:422: style: Checking if unsigned variabl=
-e 'timeout' is less than zero.
+Actually it was rebased on top of v4.16-rc1, but I'll check if this
+patch applies correctly on top of your for-next branch.
 
+> 
+> > -	info.archdata = &dev_ad;  
+> 
+> Why did you drop this?
 
-  CC      drivers/i2c/busses/i2c-synquacer.o
-drivers/i2c/busses/i2c-synquacer.c: In function =E2=80=98synquacer_i2c_prob=
-e=E2=80=99:
-drivers/i2c/busses/i2c-synquacer.c:678:15: warning: comparison of unsigned =
-expression < 0 is always false [-Wtype-limits]
-  if (i2c->irq < 0) {
-               ^
+Well, this line could have been moved in of_i2c_register_device(), but
+I realized dev_ad was zero initialized without any further
+modification, and leaving info->archdata to NULL has the exact same
+effect (see [1]).
 
---wyihmnao436dfmvi
-Content-Type: application/pgp-signature; name="signature.asc"
+Regards,
 
------BEGIN PGP SIGNATURE-----
+Boris
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlq23mEACgkQFA3kzBSg
-KbaCSA/+O7XpntYVfmQJehXglIPajwoNqQSgW2U5sGGrtAbwqBhUa71E+bA1IcOH
-usumkWUvH9c6Vf1s9oaWlF0B5LrIKmqfBA369rOTIGOXtMOHZQvaOPdUlS7czhR0
-dvrI206HhJIL8rmmpgUUz4kAuCGMxdZUzH1MrsqkjM6md3xjLPeedCxG0WHCXu9K
-WqXKxwJGUM/rkJGQfqedvQA7lXIZrWyEPh3DmSijJed2sSWzGuRcJnSswcH6ZNR3
-q8NHIotOkU6GeB5/8W5F412w5vYYhhBGPAPpI4AJywhWho2+ZRZI8F2D83JjiQMs
-tb/9ps8Jp3aP4qXxeUk4uyIVF4crkbqJJrODcHiZbYi1H/k8a1YP2sBjM3ax57xK
-0a6YuRISLvlo1YtmVnubLDDxzyihidq8IvllaP7iWGgXiCHHfM+Gu1/roqgsRBnS
-N+VJFY9TJlwUtX7/XSKdHu/gaLUys95kz0QN1WxWULHhdSxv9NvDCAUhqhDQtKLF
-oSeZgwwUBJXt2sNJH/7xgLBmKGCkWJWScdn3PJSS8nDYTadW09HX1HjzwJ5d+TWk
-RSYOSxEq5PFb6FH+JywJjr20Bh0nGlkeXb9xFycKykLsz0jL4+S7QD43N8whu8U0
-Hk/p1YdEjwcRzr/lasUWZqMv8ZPYgokkKPnFMTP7ntL46tyYmqU=
-=mnKS
------END PGP SIGNATURE-----
+[1]https://elixir.bootlin.com/linux/v4.16-rc6/source/drivers/i2c/i2c-core-base.c#L711
 
---wyihmnao436dfmvi--
+-- 
+Boris Brezillon, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
