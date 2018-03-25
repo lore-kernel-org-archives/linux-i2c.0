@@ -1,78 +1,49 @@
-From: Davidlohr Bueso <dave@stgolabs.net>
-Subject: [PATCH 1/3] i2c: update i2c_trace_msg static key to modern api
-Date: Sun, 25 Mar 2018 12:10:54 -0700
-Message-ID: <20180325191056.24598-2-dave@stgolabs.net>
-References: <20180325191056.24598-1-dave@stgolabs.net>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180325191056.24598-1-dave@stgolabs.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: peterz@infradead.org, akpm@linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Davidlohr Bueso <dbueso@suse.de>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH v6 3/3] i2c: add param sanity check to i2c_transfer()
+Date: Sun, 25 Mar 2018 12:07:47 +0100
+Message-ID: <20180325110747.8852-4-ard.biesheuvel@linaro.org>
+References: <20180325110747.8852-1-ard.biesheuvel@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180325110747.8852-1-ard.biesheuvel@linaro.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: wsa@the-dreams.de
+Cc: andy.shevchenko@gmail.com, jassisinghbrar@gmail.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-No changes in refcount semantics -- key init is false; replace
+The API docs describe i2c_transfer() as taking a pointer to an array
+of i2c_msg containing at least 1 entry, but leaves it to the individual
+drivers to sanity check the msgs and num parameters. Let's do this in
+core code instead.
 
-static_key_slow_inc|dec   with   static_branch_inc|dec
-static_key_false          with   static_branch_unlikely
-
-Added a '_key' suffix to i2c_trace_msg, for better self
-documentation.
-
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
-Signed-off-by: Davidlohr Bueso <dbueso@suse.de>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 ---
- drivers/i2c/i2c-core-base.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/i2c/i2c-core-base.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 16a3b73375a6..c8461fb26c0d 100644
+index c8bfe008f208..dfc549cf0ac2 100644
 --- a/drivers/i2c/i2c-core-base.c
 +++ b/drivers/i2c/i2c-core-base.c
-@@ -69,18 +69,18 @@ static DEFINE_IDR(i2c_adapter_idr);
+@@ -1845,6 +1845,9 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 	unsigned long orig_jiffies;
+ 	int ret, try;
  
- static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver);
- 
--static struct static_key i2c_trace_msg = STATIC_KEY_INIT_FALSE;
-+DEFINE_STATIC_KEY_FALSE(i2c_trace_msg_key);
- static bool is_registered;
- 
- int i2c_transfer_trace_reg(void)
- {
--	static_key_slow_inc(&i2c_trace_msg);
-+	static_branch_inc(&i2c_trace_msg_key);
- 	return 0;
- }
- 
- void i2c_transfer_trace_unreg(void)
- {
--	static_key_slow_dec(&i2c_trace_msg);
-+	static_branch_dec(&i2c_trace_msg_key);
- }
- 
- const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
-@@ -1848,11 +1848,11 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
++	if (!msgs || num < 1)
++		return -EINVAL;
++
  	if (adap->quirks && i2c_check_for_quirks(adap, msgs, num))
  		return -EOPNOTSUPP;
  
--	/* i2c_trace_msg gets enabled when tracepoint i2c_transfer gets
-+	/* i2c_trace_msg_key gets enabled when tracepoint i2c_transfer gets
- 	 * enabled.  This is an efficient way of keeping the for-loop from
- 	 * being executed when not needed.
- 	 */
--	if (static_key_false(&i2c_trace_msg)) {
-+	if (static_branch_unlikely(&i2c_trace_msg_key)) {
- 		int i;
- 		for (i = 0; i < num; i++)
- 			if (msgs[i].flags & I2C_M_RD)
-@@ -1871,7 +1871,7 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 			break;
- 	}
- 
--	if (static_key_false(&i2c_trace_msg)) {
-+	if (static_branch_unlikely(&i2c_trace_msg_key)) {
- 		int i;
- 		for (i = 0; i < ret; i++)
- 			if (msgs[i].flags & I2C_M_RD)
 -- 
-2.13.6
+2.15.1
