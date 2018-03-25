@@ -1,36 +1,115 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v3 01/11] i2c: Export of_i2c_get_board_info()
-Date: Sun, 25 Mar 2018 12:21:09 +0200
-Message-ID: <20180325122109.31c8e904@bbrezillon>
-References: <20180323110020.19080-1-boris.brezillon@bootlin.com>
-        <20180323110020.19080-2-boris.brezillon@bootlin.com>
-        <20180324223518.g5jsi5zvoxa75psy@ninjato>
-        <20180324223832.7wvhghw77ech4orn@ninjato>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: Re: [PATCH v5 2/2] i2c: add support for Socionext SynQuacer I2C controller
+Date: Sun, 25 Mar 2018 11:30:21 +0100
+Message-ID: <CAKv+Gu_ERB+nhhrWJ6=mLRPFvjTZD5NutgX5JDzWfS8tHiDx7Q@mail.gmail.com>
+References: <20180302083123.7259-1-ard.biesheuvel@linaro.org>
+ <20180302083123.7259-3-ard.biesheuvel@linaro.org> <20180324231910.unzvwty3xia4mqu2@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180324223832.7wvhghw77ech4orn@ninjato>
+In-Reply-To: <20180324231910.unzvwty3xia4mqu2@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c <linux-i2c@vger.kernel.org>, Devicetree List <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Jassi Brar <jassisinghbrar@gmail.com>, Andy Shevchenko <andy.shevchenko@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 24 Mar 2018 23:38:32 +0100
-Wolfram Sang <wsa@the-dreams.de> wrote:
+On 24 March 2018 at 23:19, Wolfram Sang <wsa@the-dreams.de> wrote:
+> Hi Ard,
+>
+>> +static int synquacer_i2c_master_start(struct synquacer_i2c *i2c,
+>> +                                   struct i2c_msg *pmsg)
+>> +{
+>> +     unsigned char bsr, bcr;
+>> +
+>> +     if (pmsg->flags & I2C_M_RD)
+>> +             writeb((pmsg->addr << 1) | 1,
+>> +                    i2c->base + SYNQUACER_I2C_REG_DAR);
+>> +     else
+>> +             writeb(pmsg->addr << 1,
+>> +                    i2c->base + SYNQUACER_I2C_REG_DAR);
+>
+> writeb(i2c_8bit_addr_from_msg(pmsg), i2c->base + SYNQUACER_I2C_REG_DAR);
+>
+> ?
+>
+>> +static int synquacer_i2c_master_recover(struct synquacer_i2c *i2c)
+>> +{
+>
+> This is the bus recovery mechanism with toggling SCL pulses, right?
+> That should be implemented using a 'struct i2c_bus_recovery_info' and
+> the core helpers.
+>
+>> +static int synquacer_i2c_doxfer(struct synquacer_i2c *i2c,
+>> +                             struct i2c_msg *msgs, int num)
+>> +{
+>> +     unsigned char bsr;
+>> +     unsigned long timeout, bb_timeout;
+>> +     int ret;
+>> +
+>> +     if (i2c->is_suspended)
+>> +             return -EBUSY;
+>> +
+>> +     synquacer_i2c_hw_init(i2c);
+>> +     bsr = readb(i2c->base + SYNQUACER_I2C_REG_BSR);
+>> +     if (bsr & SYNQUACER_I2C_BSR_BB) {
+>> +             dev_err(i2c->dev, "cannot get bus (bus busy)\n");
+>> +             return -EBUSY;
+>> +     }
+>> +
+>> +     init_completion(&i2c->completion);
+>
+> reinit_completion? And init_completion() in probe()?
+>
+>> +     /* ensure the stop has been through the bus */
+>> +     bb_timeout = jiffies + HZ;
+>> +     do {
+>> +             bsr = readb(i2c->base + SYNQUACER_I2C_REG_BSR);
+>> +             if (!(bsr & SYNQUACER_I2C_BSR_BB))
+>> +                     return 0;
+>> +     } while (time_before(jiffies, bb_timeout));
+>
+> Busy looping for one second? And won't the bus_free detection at the
+> beginning of a transfer do?
+>
+>> +static int synquacer_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>> +                           int num)
+>> +{
+>> +     struct synquacer_i2c *i2c;
+>> +     int retry;
+>> +     int ret;
+>> +
+>> +     if (!msgs)
+>> +             return -EINVAL;
+>> +     if (num <= 0)
+>> +             return -EINVAL;
+>
+> Hmm, this should be done by the core. I am surprised it doesn't do that yet :/
+>
+>> +
+>> +     i2c = i2c_get_adapdata(adap);
+>> +     i2c->timeout_ms = calc_timeout_ms(i2c, msgs, num);
+>> +
+>> +     dev_dbg(i2c->dev, "calculated timeout %d ms\n", i2c->timeout_ms);
+>> +
+>> +     for (retry = 0; retry < adap->retries; retry++) {
+>> +
+>> +             ret = synquacer_i2c_doxfer(i2c, msgs, num);
+>> +             if (ret != -EAGAIN)
+>> +                     return ret;
+>> +
+>> +             dev_dbg(i2c->dev, "Retrying transmission (%d)\n", retry);
+>> +
+>> +             synquacer_i2c_master_recover(i2c);
+>
+> Recovery is only when SDA is stuck low, held by a client. That is
+> nothing you should do just on any error.
+>
+> If you want the driver in v4.17, I'd suggest to drop
+> synquacer_i2c_master_recover() now and add it incrementally later, using
+> the existing recovery infrastructure. The rest is only minor stuff and
+> needs not much further discussion IMO.
+>
 
-> > > -	info.archdata = &dev_ad;  
-> > 
-> > Why did you drop this?  
-> 
-> If the removal is safe, it should be a seperate patch, I mean.
-> 
+Thanks Wolfram.
 
-Sure, I'll move that in a separate patch. Actually, I had a closer look
-and it seems the only user of info->archdata is i2c-core-of.c, so we
-can even remove the info->archdata field.
-
--- 
-Boris Brezillon, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+I have fixed all these up and am about to send out the v6.
