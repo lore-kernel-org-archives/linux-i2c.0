@@ -1,84 +1,108 @@
-From: Abhishek Sahu <absahu@codeaurora.org>
-Subject: Re: [PATCH v2 00/13] Major code reorganization to make all i2c
- transfers working
-Date: Mon, 26 Mar 2018 10:11:39 +0530
-Message-ID: <b766f9c42c1aef2404d4636ca10843bd@codeaurora.org>
-References: <1520860502-14886-1-git-send-email-absahu@codeaurora.org>
- <20180324122206.c4loxtob5o3lm7al@ninjato>
+From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: Re: [PATCH v2 1/6] i2c: i2c-stm32f7: Add 10-bit address support
+Date: Mon, 26 Mar 2018 09:56:40 +0200
+Message-ID: <fd463a3d-354c-d4e9-16a8-2829ccc04adc@st.com>
+References: <1521650940-11651-1-git-send-email-pierre-yves.mordret@st.com>
+ <1521650940-11651-2-git-send-email-pierre-yves.mordret@st.com>
+ <20180324224332.apsixpklrgtelak7@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180324122206.c4loxtob5o3lm7al@ninjato>
+In-Reply-To: <20180324224332.apsixpklrgtelak7@ninjato>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, Austin Christ <austinwc@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-03-24 17:52, Wolfram Sang wrote:
-> On Mon, Mar 12, 2018 at 06:44:49PM +0530, Abhishek Sahu wrote:
->> * v2:
->> 
->> 1. Address review comments in v1
->> 2. Changed the license to SPDX
->> 3. Changed commit messages for some of the patch having more detail
->> 4. Removed event-based completion and changed transfer completion
->>    detection logic in interrupt handler
->> 5. Removed dma_threshold and blk_mode_threshold from global structure
->> 6. Improved determine mode logic for QUP v2 transfers
->> 7. Fixed function comments
->> 8. Fixed auto build test WARNING ‘idx' may be used uninitialized
->>    in this function
->> 9. Renamed tx/rx_buf to tx/rx_cnt
->> 
->> * v1:
->> 
->> The current driver is failing in following test case
->> 1. Handling of failure cases is not working in long run for BAM
->>    mode. It generates error message “bam-dma-engine 7884000.dma: 
->> Cannot
->>    free busy channel” sometimes.
->> 2. Following I2C transfers are failing
->>    a. Single transfer with multiple read messages
->>    b. Single transfer with multiple read/write message with maximum
->>       allowed length per message (65K) in BAM mode
->>    c. Single transfer with write greater than 32 bytes in QUP v1 and
->>       write greater than 64 bytes in QUP v2 for non-DMA mode.
->> 3. No handling is present for Block/FIFO interrupts. Any non-error
->>    interrupts are being treated as the transfer completion and then
->>    polling is being done for available/free bytes in FIFO.
->> 
->> To fix all these issues, major code changes are required. This patch
->> series fixes all the above issues and makes the driver interrupt based
->> instead of polling based. After these changes, all the mentioned test
->> cases are working properly.
->> 
->> The code changes have been tested for QUP v1 (IPQ8064) and QUP
->> v2 (IPQ8074) with sample application written over i2c-dev.
->> 
->> Abhishek Sahu (13):
->>   i2c: qup: fix copyrights and update to SPDX identifier
->>   i2c: qup: fixed releasing dma without flush operation completion
->>   i2c: qup: minor code reorganization for use_dma
->>   i2c: qup: remove redundant variables for BAM SG count
->>   i2c: qup: schedule EOT and FLUSH tags at the end of transfer
->>   i2c: qup: fix the transfer length for BAM RX EOT FLUSH tags
->>   i2c: qup: proper error handling for i2c error in BAM mode
->>   i2c: qup: use the complete transfer length to choose DMA mode
->>   i2c: qup: change completion timeout according to transfer length
->>   i2c: qup: fix buffer overflow for multiple msg of maximum xfer len
->>   i2c: qup: send NACK for last read sub transfers
->>   i2c: qup: reorganization of driver code to remove polling for qup v1
->>   i2c: qup: reorganization of driver code to remove polling for qup v2
+
+
+On 03/24/2018 11:43 PM, Wolfram Sang wrote:
+> On Wed, Mar 21, 2018 at 05:48:55PM +0100, Pierre-Yves MORDRET wrote:
+>> This patch adds support for 10-bit device address for STM32F7 I2C
+>>
+>> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+>> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 > 
-> Applied to for-next, thanks! Also thanks to the reviewers!
+> Out of curiosity: how did you test this patch? I never managed to find a
+> 10-bit client (except for an SoC with 10-bit slave mode).
 
-  Thanks Wolfram for your help in getting this big
-  patch series applied to for-next.
+I don't have a 10-bit device either. For testing 10-bit I'm using 2 I2C
+instances from the SoC, one in master mode and the other in slave mode.
 
-  Thanks to Andy, Sricharan, Austin and other reviewers for
-  reviewing/testing the patches.
-
-  Regards,
-  Abhishek
+> 
+>> ---
+>>   Version history:
+>>      v1:
+>>         * Initial
+>>      v2:
+>> ---
+>> ---
+>>  drivers/i2c/busses/i2c-stm32f7.c | 22 +++++++++++++++++-----
+>>  1 file changed, 17 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+>> index f273e28..ae0d15c 100644
+>> --- a/drivers/i2c/busses/i2c-stm32f7.c
+>> +++ b/drivers/i2c/busses/i2c-stm32f7.c
+>> @@ -65,7 +65,12 @@
+>>  #define STM32F7_I2C_CR2_NACK			BIT(15)
+>>  #define STM32F7_I2C_CR2_STOP			BIT(14)
+>>  #define STM32F7_I2C_CR2_START			BIT(13)
+>> +#define STM32F7_I2C_CR2_HEAD10R			BIT(12)
+>> +#define STM32F7_I2C_CR2_ADD10			BIT(11)
+>>  #define STM32F7_I2C_CR2_RD_WRN			BIT(10)
+>> +#define STM32F7_I2C_CR2_SADD10_MASK		GENMASK(9, 0)
+>> +#define STM32F7_I2C_CR2_SADD10(n)		(((n) & \
+>> +						STM32F7_I2C_CR2_SADD10_MASK))
+>>  #define STM32F7_I2C_CR2_SADD7_MASK		GENMASK(7, 1)
+>>  #define STM32F7_I2C_CR2_SADD7(n)		(((n) & 0x7f) << 1)
+>>  
+>> @@ -176,14 +181,14 @@ struct stm32f7_i2c_timings {
+>>  
+>>  /**
+>>   * struct stm32f7_i2c_msg - client specific data
+>> - * @addr: 8-bit slave addr, including r/w bit
+>> + * @addr: 8-bit or 10-bit slave addr, including r/w bit
+>>   * @count: number of bytes to be transferred
+>>   * @buf: data buffer
+>>   * @result: result of the transfer
+>>   * @stop: last I2C msg to be sent, i.e. STOP to be generated
+>>   */
+>>  struct stm32f7_i2c_msg {
+>> -	u8 addr;
+>> +	u16 addr;
+>>  	u32 count;
+>>  	u8 *buf;
+>>  	int result;
+>> @@ -629,8 +634,15 @@ static void stm32f7_i2c_xfer_msg(struct stm32f7_i2c_dev *i2c_dev,
+>>  		cr2 |= STM32F7_I2C_CR2_RD_WRN;
+>>  
+>>  	/* Set slave address */
+>> -	cr2 &= ~STM32F7_I2C_CR2_SADD7_MASK;
+>> -	cr2 |= STM32F7_I2C_CR2_SADD7(f7_msg->addr);
+>> +	cr2 &= ~(STM32F7_I2C_CR2_HEAD10R | STM32F7_I2C_CR2_ADD10);
+>> +	if (msg->flags & I2C_M_TEN) {
+>> +		cr2 &= ~STM32F7_I2C_CR2_SADD10_MASK;
+>> +		cr2 |= STM32F7_I2C_CR2_SADD10(f7_msg->addr);
+>> +		cr2 |= STM32F7_I2C_CR2_ADD10;
+>> +	} else {
+>> +		cr2 &= ~STM32F7_I2C_CR2_SADD7_MASK;
+>> +		cr2 |= STM32F7_I2C_CR2_SADD7(f7_msg->addr);
+>> +	}
+>>  
+>>  	/* Set nb bytes to transfer and reload if needed */
+>>  	cr2 &= ~(STM32F7_I2C_CR2_NBYTES_MASK | STM32F7_I2C_CR2_RELOAD);
+>> @@ -798,7 +810,7 @@ static int stm32f7_i2c_xfer(struct i2c_adapter *i2c_adap,
+>>  
+>>  static u32 stm32f7_i2c_func(struct i2c_adapter *adap)
+>>  {
+>> -	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+>> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR;
+>>  }
+>>  
+>>  static struct i2c_algorithm stm32f7_i2c_algo = {
+>> -- 
+>> 2.7.4
+>>
