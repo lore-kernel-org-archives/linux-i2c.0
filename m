@@ -1,79 +1,76 @@
-From: Davidlohr Bueso <dave@stgolabs.net>
-Subject: [PATCH 1/6] drivers/i2c: Update i2c_trace_msg static key to modern api
-Date: Mon, 26 Mar 2018 14:09:24 -0700
-Message-ID: <20180326210929.5244-2-dave@stgolabs.net>
-References: <20180326210929.5244-1-dave@stgolabs.net>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v3 11/11] dt-bindings: gpio: Add bindings for Cadence I3C
+ gpio expander
+Date: Mon, 26 Mar 2018 17:25:01 -0500
+Message-ID: <20180326222501.exvvdjb6fbrtsvkv@rob-hp-laptop>
+References: <20180323110020.19080-1-boris.brezillon@bootlin.com>
+ <20180323110020.19080-12-boris.brezillon@bootlin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180326210929.5244-1-dave@stgolabs.net>
+Content-Disposition: inline
+In-Reply-To: <20180323110020.19080-12-boris.brezillon@bootlin.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: peterz@infradead.org, mingo@kernel.org, akpm@linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, Davidlohr Bueso <dave@stgolabs.net>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Davidlohr Bueso <dbueso@suse.de>
+To: Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak>
 List-Id: linux-i2c@vger.kernel.org
 
-No changes in refcount semantics -- key init is false; replace
+On Fri, Mar 23, 2018 at 12:00:20PM +0100, Boris Brezillon wrote:
+> Document the Cadence I3C gpio expander bindings.
+> 
+> Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
+> ---
+>  .../devicetree/bindings/gpio/gpio-cdns-i3c.txt     | 38 ++++++++++++++++++++++
+>  1 file changed, 38 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/gpio/gpio-cdns-i3c.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/gpio/gpio-cdns-i3c.txt b/Documentation/devicetree/bindings/gpio/gpio-cdns-i3c.txt
+> new file mode 100644
+> index 000000000000..634b1f268215
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/gpio/gpio-cdns-i3c.txt
+> @@ -0,0 +1,38 @@
+> +* Cadence I3C GPIO expander
+> +
+> +The Cadence I3C GPIO expander provides 8 GPIOs controllable over I3C.
+> +This GPIOs can be configured in output or input mode and if they are in input
+> +mode they can generate IBIs (In Band Interrupts).
+> +
+> +Required properties for GPIO node:
+> +- reg : 3 cells encoding the I3C static address (none in our case) and the I3C
+> +	Provisional ID. See Documentation/devicetree/bindings/i3c/i3c.txt for
+> +	more details.
+> +	Should be <0x0 0x392 0x0>.
+> +- gpio-controller : Marks the device node as a gpio controller.
+> +- #gpio-cells : Should be two. The first cell is the pin number and
+> +  the second cell is used to specify the gpio polarity:
+> +      0 = active high
+> +      1 = active low
+> +- interrupt-controller: Marks the device node as an interrupt controller.
+> +- #interrupt-cells : Should be 2.  The first cell is the GPIO number.
+> +  The second cell bits[3:0] is used to specify trigger type and level flags:
+> +      1 = low-to-high edge triggered.
+> +      2 = high-to-low edge triggered.
+> +      3 = triggered on both edges.
+> +      4 = active high level-sensitive.
+> +      8 = active low level-sensitive.
+> +
+> +Example:
+> +
+> +	i3c-master@xxx {
+> +		...
+> +		i3c_gpio_expander: gpio@0,1c9,0 {
 
-static_key_slow_inc|dec   with   static_branch_inc|dec
-static_key_false          with   static_branch_unlikely
+The unit address is wrong here.
 
-Added a '_key' suffix to i2c_trace_msg, for better self
-documentation.
-
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
-Signed-off-by: Davidlohr Bueso <dbueso@suse.de>
----
- drivers/i2c/i2c-core-base.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 16a3b73375a6..bfcff2a6f0a3 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -69,18 +69,18 @@ static DEFINE_IDR(i2c_adapter_idr);
- 
- static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver);
- 
--static struct static_key i2c_trace_msg = STATIC_KEY_INIT_FALSE;
-+static DEFINE_STATIC_KEY_FALSE(i2c_trace_msg_key);
- static bool is_registered;
- 
- int i2c_transfer_trace_reg(void)
- {
--	static_key_slow_inc(&i2c_trace_msg);
-+	static_branch_inc(&i2c_trace_msg_key);
- 	return 0;
- }
- 
- void i2c_transfer_trace_unreg(void)
- {
--	static_key_slow_dec(&i2c_trace_msg);
-+	static_branch_dec(&i2c_trace_msg_key);
- }
- 
- const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
-@@ -1848,11 +1848,12 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 	if (adap->quirks && i2c_check_for_quirks(adap, msgs, num))
- 		return -EOPNOTSUPP;
- 
--	/* i2c_trace_msg gets enabled when tracepoint i2c_transfer gets
-+	/*
-+	 * i2c_trace_msg_key gets enabled when tracepoint i2c_transfer gets
- 	 * enabled.  This is an efficient way of keeping the for-loop from
- 	 * being executed when not needed.
- 	 */
--	if (static_key_false(&i2c_trace_msg)) {
-+	if (static_branch_unlikely(&i2c_trace_msg_key)) {
- 		int i;
- 		for (i = 0; i < num; i++)
- 			if (msgs[i].flags & I2C_M_RD)
-@@ -1871,7 +1872,7 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 			break;
- 	}
- 
--	if (static_key_false(&i2c_trace_msg)) {
-+	if (static_branch_unlikely(&i2c_trace_msg_key)) {
- 		int i;
- 		for (i = 0; i < ret; i++)
- 			if (msgs[i].flags & I2C_M_RD)
--- 
-2.13.6
+> +			reg = <0 0x392 0x0>;
+> +			gpio-controller;
+> +			#gpio-cells = <2>;
+> +			interrupt-controller;
+> +			#interrupt-cells = <2>;
+> +		};
+> +		...
+> +	};
+> -- 
+> 2.14.1
+> 
