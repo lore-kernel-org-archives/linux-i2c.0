@@ -1,48 +1,158 @@
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
-Subject: [RFC PATCH 2/2] i2c: at91: provide bus_freq_hz
-Date: Mon, 26 Mar 2018 14:19:27 +0300
-Message-ID: <20180326111927.16040-2-tudor.ambarus@microchip.com>
-References: <20180326111927.16040-1-tudor.ambarus@microchip.com>
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Subject: Re: [PATCH v3 05/11] dt-bindings: i3c: Document core bindings
+Date: Mon, 26 Mar 2018 13:19:46 +0200
+Message-ID: <20180326131946.5513c6e2@bbrezillon>
+References: <20180323110020.19080-1-boris.brezillon@bootlin.com>
+        <20180323110020.19080-6-boris.brezillon@bootlin.com>
+        <CAMuHMdV9xW8o6zuOmOxB+=h1XTdi-VFq2mp897SUjZKtRMOWOw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180326111927.16040-1-tudor.ambarus@microchip.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: wsa@the-dreams.de, ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: Tudor Ambarus <tudor.ambarus@microchip.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAMuHMdV9xW8o6zuOmOxB+=h1XTdi-VFq2mp897SUjZKtRMOWOw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian
 List-Id: linux-i2c@vger.kernel.org
 
-The clock-frequency property is not mandatory for the i2c buses. If it's
-not present in device tree, the buses usually assume that is 100kHZ.
-There are i2c clients that need to know the clock frequency in order to
-compute their wake token. Spare the clients of making (wrong) assumptions
-and provide the bus frequency in adapter.
+Hi Geert,
 
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
----
- drivers/i2c/busses/i2c-at91.c | 1 +
- 1 file changed, 1 insertion(+)
+On Mon, 26 Mar 2018 12:22:24 +0200
+Geert Uytterhoeven <geert@linux-m68k.org> wrote:
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index bfd1fdf..d3cd84e 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -1116,6 +1116,7 @@ static int at91_twi_probe(struct platform_device *pdev)
- 	dev->adapter.quirks = &at91_twi_quirks;
- 	dev->adapter.dev.parent = dev->dev;
- 	dev->adapter.nr = pdev->id;
-+	dev->adapter.bus_freq_hz = bus_clk_rate;
- 	dev->adapter.timeout = AT91_I2C_TIMEOUT;
- 	dev->adapter.dev.of_node = pdev->dev.of_node;
- 
+> Hi Boris,
+> 
+> On Fri, Mar 23, 2018 at 12:00 PM, Boris Brezillon
+> <boris.brezillon@bootlin.com> wrote:
+> > From: Boris Brezillon <boris.brezillon@free-electrons.com>
+> >
+> > A new I3C subsystem has been added and a generic description has been
+> > created to represent the I3C bus and the devices connected on it.
+> >
+> > Document this generic representation.
+> >
+> > Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>  
+> 
+> Thanks for your patch!
+> 
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/i3c/i3c.txt
+> > @@ -0,0 +1,140 @@  
+> 
+> > +I3C devices
+> > +===========
+> > +
+> > +All I3C devices are supposed to support DAA (Dynamic Address Assignment), and
+> > +are thus discoverable. So, by default, I3C devices do not have to be described
+> > +in the device tree.  
+> 
+> But if they're described, they should have a compatible value, no?
+
+What's the point of having a compatible here? I mean, I3C devices are
+already attached to the relevant drivers using the Provisional ID, why
+would we need a compatible if we don't parse it?
+
+> 
+> > +This being said, one might want to attach extra resources to these devices,
+> > +and those resources may have to be described in the device tree, which in turn
+> > +means we have to describe I3C devices.
+> > +
+> > +Another use case for describing an I3C device in the device tree is when this
+> > +I3C device has a static address and we want to assign it a specific dynamic
+> > +address before the DAA takes place (so that other devices on the bus can't
+> > +take this dynamic address).
+> > +
+> > +The I3C device should be names <device-type>@<static-address>,<i3c-pid>,  
+> 
+> named
+
+Oops. Will fix the typo.
+
+> 
+> So the i3c-pid in the unit address is represented as a 64-bit number, not as two
+> comma-separated 32-bit numbers?
+
+Right. I've changed my mind so many times that I ended up mixing the 2
+representations I have considered.
+
+Here are the choices we have:
+
+1/ expose the raw ProvisionalID which is a 48-bit integer formed by the
+   concatenation of the vendor ID, part ID and instance ID:
+   ProvisionalID = VendorID << 33 | PartID << 16 | InstanceID << 12 |
+		   ExtraInfo
+   The I3C dev node name should in this case be something like
+   <device-type>@<static-address>,<i3c-pid>
+
+2/ split the fields we are really interested in in different cells:
+   2nd cell: vendorID
+   3rd cell: partID
+   4th cell: instanceID
+   In this case, the node name should be
+   <device-type>@<static-address>,<i3c-vendor>,<i3c-partid>,<i3c-instanceid>
+
+Note that we can still change for the second representation if Rob is
+okay.
+
+> 
+> > +Example:
+> > +
+> > +       i3c-master@d040000 {
+> > +               compatible = "cdns,i3c-master";
+> > +               clocks = <&coreclock>, <&i3csysclock>;
+> > +               clock-names = "pclk", "sysclk";
+> > +               interrupts = <3 0>;
+> > +               reg = <0x0d040000 0x1000>;
+> > +               #address-cells = <3>;
+> > +               #size-cells = <0>;
+> > +
+> > +               status = "okay";
+> > +               i2c-scl-frequency = <100000>;
+> > +
+> > +               /* I2C device. */
+> > +               nunchuk: nunchuk@52 {  
+> 
+> @52,8000001000000000?
+
+Well, I2C devs is a special case, and I'm not sure we want to add the
+extra LVR information + the IS_I2C_DEV bit in the node name.
+
+> 
+> > +                       compatible = "nintendo,nunchuk";
+> > +                       reg = <0x52 0x80000010 0x0>;
+
+One more detail: people are unlikely to define reg using raw values: I
+provide macros to do that in patch 6.
+
+> > +               };
+> > +
+> > +               /* I3C device with a static address. */
+> > +               thermal_sensor: sensor@68,39200144004 {  
+> 
+> No compatible value?
+
+No, as said above, it's not needed.
+
+> 
+> > +                       reg = <0x68 0x392 0x144004>;
+> > +                       assigned-address = <0xa>;
+> > +               };
+> > +
+> > +               /*
+> > +                * I3C device without a static address but requiring resources
+> > +                * described in the DT.
+> > +                */
+> > +               sensor@0,39200154004 {  
+> 
+> No compatible value?
+
+Ditto.
+
+Thanks for your review.
+
+Boris
+
 -- 
-2.9.4
+Boris Brezillon, Bootlin (formerly Free Electrons)
+Embedded Linux and Kernel engineering
+https://bootlin.com
