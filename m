@@ -1,70 +1,84 @@
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH v6 1/3] dt-bindings: i2c: add binding for Socionext SynQuacer
- I2C
-Date: Sun, 25 Mar 2018 12:07:45 +0100
-Message-ID: <20180325110747.8852-2-ard.biesheuvel@linaro.org>
-References: <20180325110747.8852-1-ard.biesheuvel@linaro.org>
+From: Abhishek Sahu <absahu@codeaurora.org>
+Subject: Re: [PATCH v2 00/13] Major code reorganization to make all i2c
+ transfers working
+Date: Mon, 26 Mar 2018 10:11:39 +0530
+Message-ID: <b766f9c42c1aef2404d4636ca10843bd@codeaurora.org>
+References: <1520860502-14886-1-git-send-email-absahu@codeaurora.org>
+ <20180324122206.c4loxtob5o3lm7al@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180325110747.8852-1-ard.biesheuvel@linaro.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: wsa@the-dreams.de
-Cc: andy.shevchenko@gmail.com, jassisinghbrar@gmail.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180324122206.c4loxtob5o3lm7al@ninjato>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Sricharan R <sricharan@codeaurora.org>, Austin Christ <austinwc@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add a binding for the I2C controller that can be found in the Socionext
-SynQuacer SoC.
+On 2018-03-24 17:52, Wolfram Sang wrote:
+> On Mon, Mar 12, 2018 at 06:44:49PM +0530, Abhishek Sahu wrote:
+>> * v2:
+>> 
+>> 1. Address review comments in v1
+>> 2. Changed the license to SPDX
+>> 3. Changed commit messages for some of the patch having more detail
+>> 4. Removed event-based completion and changed transfer completion
+>>    detection logic in interrupt handler
+>> 5. Removed dma_threshold and blk_mode_threshold from global structure
+>> 6. Improved determine mode logic for QUP v2 transfers
+>> 7. Fixed function comments
+>> 8. Fixed auto build test WARNING ‘idx' may be used uninitialized
+>>    in this function
+>> 9. Renamed tx/rx_buf to tx/rx_cnt
+>> 
+>> * v1:
+>> 
+>> The current driver is failing in following test case
+>> 1. Handling of failure cases is not working in long run for BAM
+>>    mode. It generates error message “bam-dma-engine 7884000.dma: 
+>> Cannot
+>>    free busy channel” sometimes.
+>> 2. Following I2C transfers are failing
+>>    a. Single transfer with multiple read messages
+>>    b. Single transfer with multiple read/write message with maximum
+>>       allowed length per message (65K) in BAM mode
+>>    c. Single transfer with write greater than 32 bytes in QUP v1 and
+>>       write greater than 64 bytes in QUP v2 for non-DMA mode.
+>> 3. No handling is present for Block/FIFO interrupts. Any non-error
+>>    interrupts are being treated as the transfer completion and then
+>>    polling is being done for available/free bytes in FIFO.
+>> 
+>> To fix all these issues, major code changes are required. This patch
+>> series fixes all the above issues and makes the driver interrupt based
+>> instead of polling based. After these changes, all the mentioned test
+>> cases are working properly.
+>> 
+>> The code changes have been tested for QUP v1 (IPQ8064) and QUP
+>> v2 (IPQ8074) with sample application written over i2c-dev.
+>> 
+>> Abhishek Sahu (13):
+>>   i2c: qup: fix copyrights and update to SPDX identifier
+>>   i2c: qup: fixed releasing dma without flush operation completion
+>>   i2c: qup: minor code reorganization for use_dma
+>>   i2c: qup: remove redundant variables for BAM SG count
+>>   i2c: qup: schedule EOT and FLUSH tags at the end of transfer
+>>   i2c: qup: fix the transfer length for BAM RX EOT FLUSH tags
+>>   i2c: qup: proper error handling for i2c error in BAM mode
+>>   i2c: qup: use the complete transfer length to choose DMA mode
+>>   i2c: qup: change completion timeout according to transfer length
+>>   i2c: qup: fix buffer overflow for multiple msg of maximum xfer len
+>>   i2c: qup: send NACK for last read sub transfers
+>>   i2c: qup: reorganization of driver code to remove polling for qup v1
+>>   i2c: qup: reorganization of driver code to remove polling for qup v2
+> 
+> Applied to for-next, thanks! Also thanks to the reviewers!
 
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
----
- Documentation/devicetree/bindings/i2c/i2c-synquacer.txt | 29 ++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+  Thanks Wolfram for your help in getting this big
+  patch series applied to for-next.
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-synquacer.txt b/Documentation/devicetree/bindings/i2c/i2c-synquacer.txt
-new file mode 100644
-index 000000000000..72f4a2f0fedc
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-synquacer.txt
-@@ -0,0 +1,29 @@
-+Socionext SynQuacer I2C
-+
-+Required properties:
-+- compatible      : Must be "socionext,synquacer-i2c"
-+- reg             : Offset and length of the register set for the device
-+- interrupts      : A single interrupt specifier
-+- #address-cells  : Must be <1>;
-+- #size-cells     : Must be <0>;
-+- clock-names     : Must contain "pclk".
-+- clocks          : Must contain an entry for each name in clock-names.
-+                    (See the common clock bindings.)
-+
-+Optional properties:
-+- clock-frequency : Desired I2C bus clock frequency in Hz. As only Normal and
-+                    Fast modes are supported, possible values are 100000 and
-+                    400000.
-+
-+Example :
-+
-+    i2c@51210000 {
-+        compatible = "socionext,synquacer-i2c";
-+        reg = <0x51210000 0x1000>;
-+        interrupts = <GIC_SPI 165 IRQ_TYPE_LEVEL_HIGH>;
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+        clock-names = "pclk";
-+        clocks = <&clk_i2c>;
-+        clock-frequency = <400000>;
-+    };
--- 
-2.15.1
+  Thanks to Andy, Sricharan, Austin and other reviewers for
+  reviewing/testing the patches.
+
+  Regards,
+  Abhishek
