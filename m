@@ -1,8 +1,8 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Subject: Re: [PATCH v3 11/11] dt-bindings: gpio: Add bindings for Cadence I3C
  gpio expander
-Date: Mon, 26 Mar 2018 12:12:54 +0200
-Message-ID: <CAMuHMdX3TLmaN14gM4fTgzXwy1dgsMxCFBs_3wCFWM8rX=+8vA@mail.gmail.com>
+Date: Mon, 26 Mar 2018 12:17:26 +0200
+Message-ID: <CAMuHMdUH3iB6ngF-0Zkij-oNN-Oms=EwXgoceLp06xbdcq1S=w@mail.gmail.com>
 References: <20180323110020.19080-1-boris.brezillon@bootlin.com> <20180323110020.19080-12-boris.brezillon@bootlin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
@@ -25,7 +25,27 @@ Thanks for your patch!
 
 > --- /dev/null
 > +++ b/Documentation/devicetree/bindings/gpio/gpio-cdns-i3c.txt
+> @@ -0,0 +1,38 @@
+> +* Cadence I3C GPIO expander
+> +
+> +The Cadence I3C GPIO expander provides 8 GPIOs controllable over I3C.
+> +This GPIOs can be configured in output or input mode and if they are in input
+> +mode they can generate IBIs (In Band Interrupts).
+> +
+> +Required properties for GPIO node:
+> +- reg : 3 cells encoding the I3C static address (none in our case) and the I3C
+> +       Provisional ID. See Documentation/devicetree/bindings/i3c/i3c.txt for
+> +       more details.
+> +       Should be <0x0 0x392 0x0>.
 
+No compatible value?
+
+> +- gpio-controller : Marks the device node as a gpio controller.
+> +- #gpio-cells : Should be two. The first cell is the pin number and
+> +  the second cell is used to specify the gpio polarity:
+> +      0 = active high
+> +      1 = active low
+> +- interrupt-controller: Marks the device node as an interrupt controller.
 > +- #interrupt-cells : Should be 2.  The first cell is the GPIO number.
 > +  The second cell bits[3:0] is used to specify trigger type and level flags:
 > +      1 = low-to-high edge triggered.
@@ -33,10 +53,23 @@ Thanks for your patch!
 > +      3 = triggered on both edges.
 > +      4 = active high level-sensitive.
 > +      8 = active low level-sensitive.
+> +
+> +Example:
+> +
+> +       i3c-master@xxx {
+> +               ...
+> +               i3c_gpio_expander: gpio@0,1c9,0 {
 
-These are identical to the values in <dt-bindings/interrupt-controller/irq.h>.
-Perhaps you can refer to those definitions?
-I don't think we want to see the hardcoded numbers in DTS files.
+gpio@0,392,0?
+
+> +                       reg = <0 0x392 0x0>;
+> +                       gpio-controller;
+> +                       #gpio-cells = <2>;
+> +                       interrupt-controller;
+> +                       #interrupt-cells = <2>;
+> +               };
+> +               ...
+> +       };
 
 Gr{oetje,eeting}s,
 
