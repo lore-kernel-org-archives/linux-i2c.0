@@ -1,15 +1,16 @@
 From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v3 05/11] dt-bindings: i3c: Document core bindings
-Date: Mon, 26 Mar 2018 13:19:46 +0200
-Message-ID: <20180326131946.5513c6e2@bbrezillon>
+Subject: Re: [PATCH v3 11/11] dt-bindings: gpio: Add bindings for Cadence
+ I3C gpio expander
+Date: Mon, 26 Mar 2018 13:21:50 +0200
+Message-ID: <20180326132150.31dda65f@bbrezillon>
 References: <20180323110020.19080-1-boris.brezillon@bootlin.com>
-        <20180323110020.19080-6-boris.brezillon@bootlin.com>
-        <CAMuHMdV9xW8o6zuOmOxB+=h1XTdi-VFq2mp897SUjZKtRMOWOw@mail.gmail.com>
+        <20180323110020.19080-12-boris.brezillon@bootlin.com>
+        <CAMuHMdUH3iB6ngF-0Zkij-oNN-Oms=EwXgoceLp06xbdcq1S=w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMuHMdV9xW8o6zuOmOxB+=h1XTdi-VFq2mp897SUjZKtRMOWOw@mail.gmail.com>
+In-Reply-To: <CAMuHMdUH3iB6ngF-0Zkij-oNN-Oms=EwXgoceLp06xbdcq1S=w@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Geert Uytterhoeven <geert@linux-m68k.org>
 Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian
@@ -17,138 +18,64 @@ List-Id: linux-i2c@vger.kernel.org
 
 Hi Geert,
 
-On Mon, 26 Mar 2018 12:22:24 +0200
+On Mon, 26 Mar 2018 12:17:26 +0200
 Geert Uytterhoeven <geert@linux-m68k.org> wrote:
 
 > Hi Boris,
 > 
 > On Fri, Mar 23, 2018 at 12:00 PM, Boris Brezillon
 > <boris.brezillon@bootlin.com> wrote:
-> > From: Boris Brezillon <boris.brezillon@free-electrons.com>
+> > Document the Cadence I3C gpio expander bindings.
 > >
-> > A new I3C subsystem has been added and a generic description has been
-> > created to represent the I3C bus and the devices connected on it.
-> >
-> > Document this generic representation.
-> >
-> > Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>  
+> > Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>  
 > 
 > Thanks for your patch!
 > 
 > > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/i3c/i3c.txt
-> > @@ -0,0 +1,140 @@  
-> 
-> > +I3C devices
-> > +===========
+> > +++ b/Documentation/devicetree/bindings/gpio/gpio-cdns-i3c.txt
+> > @@ -0,0 +1,38 @@
+> > +* Cadence I3C GPIO expander
 > > +
-> > +All I3C devices are supposed to support DAA (Dynamic Address Assignment), and
-> > +are thus discoverable. So, by default, I3C devices do not have to be described
-> > +in the device tree.  
-> 
-> But if they're described, they should have a compatible value, no?
-
-What's the point of having a compatible here? I mean, I3C devices are
-already attached to the relevant drivers using the Provisional ID, why
-would we need a compatible if we don't parse it?
-
-> 
-> > +This being said, one might want to attach extra resources to these devices,
-> > +and those resources may have to be described in the device tree, which in turn
-> > +means we have to describe I3C devices.
+> > +The Cadence I3C GPIO expander provides 8 GPIOs controllable over I3C.
+> > +This GPIOs can be configured in output or input mode and if they are in input
+> > +mode they can generate IBIs (In Band Interrupts).
 > > +
-> > +Another use case for describing an I3C device in the device tree is when this
-> > +I3C device has a static address and we want to assign it a specific dynamic
-> > +address before the DAA takes place (so that other devices on the bus can't
-> > +take this dynamic address).
+> > +Required properties for GPIO node:
+> > +- reg : 3 cells encoding the I3C static address (none in our case) and the I3C
+> > +       Provisional ID. See Documentation/devicetree/bindings/i3c/i3c.txt for
+> > +       more details.
+> > +       Should be <0x0 0x392 0x0>.  
+> 
+> No compatible value?
+
+See my other reply.
+
+> 
+> > +- gpio-controller : Marks the device node as a gpio controller.
+> > +- #gpio-cells : Should be two. The first cell is the pin number and
+> > +  the second cell is used to specify the gpio polarity:
+> > +      0 = active high
+> > +      1 = active low
+> > +- interrupt-controller: Marks the device node as an interrupt controller.
+> > +- #interrupt-cells : Should be 2.  The first cell is the GPIO number.
+> > +  The second cell bits[3:0] is used to specify trigger type and level flags:
+> > +      1 = low-to-high edge triggered.
+> > +      2 = high-to-low edge triggered.
+> > +      3 = triggered on both edges.
+> > +      4 = active high level-sensitive.
+> > +      8 = active low level-sensitive.
 > > +
-> > +The I3C device should be names <device-type>@<static-address>,<i3c-pid>,  
-> 
-> named
-
-Oops. Will fix the typo.
-
-> 
-> So the i3c-pid in the unit address is represented as a 64-bit number, not as two
-> comma-separated 32-bit numbers?
-
-Right. I've changed my mind so many times that I ended up mixing the 2
-representations I have considered.
-
-Here are the choices we have:
-
-1/ expose the raw ProvisionalID which is a 48-bit integer formed by the
-   concatenation of the vendor ID, part ID and instance ID:
-   ProvisionalID = VendorID << 33 | PartID << 16 | InstanceID << 12 |
-		   ExtraInfo
-   The I3C dev node name should in this case be something like
-   <device-type>@<static-address>,<i3c-pid>
-
-2/ split the fields we are really interested in in different cells:
-   2nd cell: vendorID
-   3rd cell: partID
-   4th cell: instanceID
-   In this case, the node name should be
-   <device-type>@<static-address>,<i3c-vendor>,<i3c-partid>,<i3c-instanceid>
-
-Note that we can still change for the second representation if Rob is
-okay.
-
-> 
 > > +Example:
 > > +
-> > +       i3c-master@d040000 {
-> > +               compatible = "cdns,i3c-master";
-> > +               clocks = <&coreclock>, <&i3csysclock>;
-> > +               clock-names = "pclk", "sysclk";
-> > +               interrupts = <3 0>;
-> > +               reg = <0x0d040000 0x1000>;
-> > +               #address-cells = <3>;
-> > +               #size-cells = <0>;
-> > +
-> > +               status = "okay";
-> > +               i2c-scl-frequency = <100000>;
-> > +
-> > +               /* I2C device. */
-> > +               nunchuk: nunchuk@52 {  
+> > +       i3c-master@xxx {
+> > +               ...
+> > +               i3c_gpio_expander: gpio@0,1c9,0 {  
 > 
-> @52,8000001000000000?
+> gpio@0,392,0?
 
-Well, I2C devs is a special case, and I'm not sure we want to add the
-extra LVR information + the IS_I2C_DEV bit in the node name.
+Actually, if I follow the DT bindings, it should be gpio@0,39200000000
 
-> 
-> > +                       compatible = "nintendo,nunchuk";
-> > +                       reg = <0x52 0x80000010 0x0>;
-
-One more detail: people are unlikely to define reg using raw values: I
-provide macros to do that in patch 6.
-
-> > +               };
-> > +
-> > +               /* I3C device with a static address. */
-> > +               thermal_sensor: sensor@68,39200144004 {  
-> 
-> No compatible value?
-
-No, as said above, it's not needed.
-
-> 
-> > +                       reg = <0x68 0x392 0x144004>;
-> > +                       assigned-address = <0xa>;
-> > +               };
-> > +
-> > +               /*
-> > +                * I3C device without a static address but requiring resources
-> > +                * described in the DT.
-> > +                */
-> > +               sensor@0,39200154004 {  
-> 
-> No compatible value?
-
-Ditto.
-
-Thanks for your review.
+Thanks,
 
 Boris
 
