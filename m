@@ -1,424 +1,314 @@
-From: Haiyue Wang <haiyue.wang@linux.intel.com>
-Subject: [PATCH i2c/slave-mqueue v3] i2c: slave-mqueue: add a slave backend to receive and queue messages
-Date: Thu, 29 Mar 2018 09:28:21 +0800
-Message-ID: <1522286901-2749-1-git-send-email-haiyue.wang@linux.intel.com>
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Subject: [PATCH v4 02/10] docs: driver-api: Add I3C documentation
+Date: Fri, 30 Mar 2018 09:47:43 +0200
+Message-ID: <20180330074751.25987-3-boris.brezillon@bootlin.com>
+References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180330074751.25987-1-boris.brezillon@bootlin.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, brendanhiggins@google.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org
-Cc: Haiyue Wang <haiyue.wang@linux.intel.com>, jarkko.nikula@linux.intel.com, andriy.shevchenko@intel.com, jae.hyun.yoo@linux.intel.com
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
+Cc: Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vitor Soares <Vitor.Soares@synopsys.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linus
 List-Id: linux-i2c@vger.kernel.org
 
-Some protocols over I2C are designed for bi-directional transferring
-messages by using I2C Master Write protocol. Like the MCTP (Management
-Component Transport Protocol) and IPMB (Intelligent Platform Management
-Bus), they both require that the userspace can receive messages from
-I2C dirvers under slave mode.
+Add the I3C documentation describing the protocol, the master driver API
+and the device driver API.
 
-This new slave mqueue backend is used to receive and queue messages, it
-will exposes these messages to userspace by sysfs bin file.
-
-Signed-off-by: Haiyue Wang <haiyue.wang@linux.intel.com>
+Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
 ---
-v2 -> v3:
- - Just remove the ';' after the end '}' of i2c_slave_mqueue_probe().
-
-v1 -> v2:
- - Change MQ_MSGBUF_SIZE and MQ_QUEUE_SIZE to be configurable by Kconfig.
+Changes in v2:
+- Moved out of patch "i3c: Add core I3C infrastructure"
+- Add link to the I3C spec
+- Move rst files in Documentation/driver-api/i3c/
 ---
- Documentation/i2c/slave-mqueue-backend.rst | 125 ++++++++++++++++++
- drivers/i2c/Kconfig                        |  25 ++++
- drivers/i2c/Makefile                       |   1 +
- drivers/i2c/i2c-slave-mqueue.c             | 202 +++++++++++++++++++++++++++++
- 4 files changed, 353 insertions(+)
- create mode 100644 Documentation/i2c/slave-mqueue-backend.rst
- create mode 100644 drivers/i2c/i2c-slave-mqueue.c
+ Documentation/driver-api/i3c/conf.py               |  10 +
+ Documentation/driver-api/i3c/device-driver-api.rst |   7 +
+ Documentation/driver-api/i3c/index.rst             |   9 +
+ Documentation/driver-api/i3c/master-driver-api.rst |   8 +
+ Documentation/driver-api/i3c/protocol.rst          | 201 +++++++++++++++++++++
+ Documentation/driver-api/index.rst                 |   1 +
+ 6 files changed, 236 insertions(+)
+ create mode 100644 Documentation/driver-api/i3c/conf.py
+ create mode 100644 Documentation/driver-api/i3c/device-driver-api.rst
+ create mode 100644 Documentation/driver-api/i3c/index.rst
+ create mode 100644 Documentation/driver-api/i3c/master-driver-api.rst
+ create mode 100644 Documentation/driver-api/i3c/protocol.rst
 
-diff --git a/Documentation/i2c/slave-mqueue-backend.rst b/Documentation/i2c/slave-mqueue-backend.rst
+diff --git a/Documentation/driver-api/i3c/conf.py b/Documentation/driver-api/i3c/conf.py
 new file mode 100644
-index 0000000..69d6437
+index 000000000000..5a20832d59a7
 --- /dev/null
-+++ b/Documentation/i2c/slave-mqueue-backend.rst
-@@ -0,0 +1,125 @@
-+.. SPDX-License-Identifier: GPL-2.0
++++ b/Documentation/driver-api/i3c/conf.py
+@@ -0,0 +1,10 @@
++# -*- coding: utf-8; mode: python -*-
 +
-+=====================================
-+Linux I2C slave message queue backend
-+=====================================
++project = "Linux I3C Subsystem"
 +
-+:Author: Haiyue Wang <haiyue.wang@linux.intel.com>
++tags.add("subproject")
 +
-+Some protocols over I2C/SMBus are designed for bi-directional transferring
-+messages by using I2C Master Write protocol. This requires that both sides
-+of the communication have slave addresses.
-+
-+Like MCTP (Management Component Transport Protocol) and IPMB (Intelligent
-+Platform Management Bus), they both require that the userspace can receive
-+messages from i2c dirvers under slave mode.
-+
-+This I2C slave mqueue (message queue) backend is used to receive and queue
-+messages from the remote i2c intelligent device; and it will add the target
-+slave address (with R/W# bit is always 0) into the message at the first byte,
-+so that userspace can use this byte to dispatch the messages into different
-+handling modules. Also, like IPMB, the address byte is in its message format,
-+it needs it to do checksum.
-+
-+For messages are time related, so this backend will flush the oldest message
-+to queue the newest one.
-+
-+Link
-+----
-+`Intelligent Platform Management Bus
-+Communications Protocol Specification
-+<https://www.intel.com/content/dam/www/public/us/en/documents/product-briefs/ipmp-spec-v1.0.pdf>`_
-+
-+`Management Component Transport Protocol (MCTP)
-+SMBus/I2C Transport Binding Specification
-+<https://www.dmtf.org/sites/default/files/standards/documents/DSP0237_1.1.0.pdf>`_
-+
-+How to use
-+----------
-+For example, the I2C5 bus has slave address 0x10, bellowing command will create
-+the related message queue interface:
-+
-+    echo slave-mqueue 0x1010 > /sys/bus/i2c/devices/i2c-5/new_device
-+
-+Then you can dump the messages like this:
-+
-+    hexdump -C /sys/bus/i2c/devices/5-1010/slave-mqueue
-+
-+Code Example
-+------------
-+*Note: call 'lseek' before 'read', this is a requirement from kernfs' design.*
-+
-+::
-+
-+  #include <sys/types.h>
-+  #include <sys/stat.h>
-+  #include <unistd.h>
-+  #include <poll.h>
-+  #include <time.h>
-+  #include <fcntl.h>
-+  #include <stdio.h>
-+
-+  int main(int argc, char *argv[])
-+  {
-+          int i, r;
-+          struct pollfd pfd;
-+          struct timespec ts;
-+          unsigned char data[256];
-+
-+          pfd.fd = open(argv[1], O_RDONLY | O_NONBLOCK);
-+          if (pfd.fd < 0)
-+                  return -1;
-+
-+          pfd.events = POLLPRI;
-+
-+          while (1) {
-+                  r = poll(&pfd, 1, 5000);
-+
-+                  if (r < 0)
-+                          break;
-+
-+                  if (r == 0 || !(pfd.revents & POLLPRI))
-+                          continue;
-+
-+                  lseek(pfd.fd, 0, SEEK_SET);
-+                  r = read(pfd.fd, data, sizeof(data));
-+                  if (r <= 0)
-+                          continue;
-+
-+                  clock_gettime(CLOCK_MONOTONIC, &ts);
-+                  printf("[%ld.%.9ld] :", ts.tv_sec, ts.tv_nsec);
-+                  for (i = 0; i < r; i++)
-+                          printf(" %02x", data[i]);
-+                  printf("\n");
-+          }
-+
-+          close(pfd.fd);
-+
-+          return 0;
-+  }
-+
-+Result
-+------
-+*./a.out "/sys/bus/i2c/devices/5-1010/slave-mqueue"*
-+
-+::
-+
-+  [10183.232500449] : 20 18 c8 2c 78 01 5b
-+  [10183.479358348] : 20 18 c8 2c 78 01 5b
-+  [10183.726556812] : 20 18 c8 2c 78 01 5b
-+  [10183.972605863] : 20 18 c8 2c 78 01 5b
-+  [10184.220124772] : 20 18 c8 2c 78 01 5b
-+  [10184.467764166] : 20 18 c8 2c 78 01 5b
-+  [10193.233421784] : 20 18 c8 2c 7c 01 57
-+  [10193.480273460] : 20 18 c8 2c 7c 01 57
-+  [10193.726788733] : 20 18 c8 2c 7c 01 57
-+  [10193.972781945] : 20 18 c8 2c 7c 01 57
-+  [10194.220487360] : 20 18 c8 2c 7c 01 57
-+  [10194.468089259] : 20 18 c8 2c 7c 01 57
-+  [10203.233433099] : 20 18 c8 2c 80 01 53
-+  [10203.481058715] : 20 18 c8 2c 80 01 53
-+  [10203.727610472] : 20 18 c8 2c 80 01 53
-+  [10203.974044856] : 20 18 c8 2c 80 01 53
-+  [10204.220734634] : 20 18 c8 2c 80 01 53
-+  [10204.468461664] : 20 18 c8 2c 80 01 53
-+
-diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
-index efc3354..20fa3e9 100644
---- a/drivers/i2c/Kconfig
-+++ b/drivers/i2c/Kconfig
-@@ -118,6 +118,31 @@ if I2C_SLAVE
- config I2C_SLAVE_EEPROM
- 	tristate "I2C eeprom slave driver"
- 
-+config I2C_SLAVE_MQUEUE_MESSAGE_SIZE
-+	int "The message size of I2C mqueue slave"
-+	default 128
-+
-+config I2C_SLAVE_MQUEUE_QUEUE_SIZE
-+	int "The queue size of I2C mqueue slave"
-+	default 32
-+	help
-+	  This number MUST be power of 2.
-+
-+config I2C_SLAVE_MQUEUE
-+	tristate "I2C mqueue (message queue) slave driver"
-+	select I2C_SLAVE_MQUEUE_MESSAGE_SIZE
-+	select I2C_SLAVE_MQUEUE_QUEUE_SIZE
-+	help
-+	  Some protocols over I2C are designed for bi-directional transferring
-+	  messages by using I2C Master Write protocol. This driver is used to
-+	  receive and queue messages from the remote I2C device.
-+
-+	  Userspace can get the messages by reading sysfs file that this driver
-+	  exposes.
-+
-+	  This support is also available as a module. If so, the module will be
-+	  called i2c-slave-mqueue.
-+
- endif
- 
- config I2C_DEBUG_CORE
-diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
-index 72c94c6..7ec287b 100644
---- a/drivers/i2c/Makefile
-+++ b/drivers/i2c/Makefile
-@@ -16,6 +16,7 @@ obj-$(CONFIG_I2C_MUX)		+= i2c-mux.o
- obj-y				+= algos/ busses/ muxes/
- obj-$(CONFIG_I2C_STUB)		+= i2c-stub.o
- obj-$(CONFIG_I2C_SLAVE_EEPROM)	+= i2c-slave-eeprom.o
-+obj-$(CONFIG_I2C_SLAVE_MQUEUE)	+= i2c-slave-mqueue.o
- 
- ccflags-$(CONFIG_I2C_DEBUG_CORE) := -DDEBUG
- CFLAGS_i2c-core-base.o := -Wno-deprecated-declarations
-diff --git a/drivers/i2c/i2c-slave-mqueue.c b/drivers/i2c/i2c-slave-mqueue.c
++latex_documents = [
++    ('index', 'i3c.tex', project,
++     'The kernel development community', 'manual'),
++]
+diff --git a/Documentation/driver-api/i3c/device-driver-api.rst b/Documentation/driver-api/i3c/device-driver-api.rst
 new file mode 100644
-index 0000000..addbb9c
+index 000000000000..63c843f148a6
 --- /dev/null
-+++ b/drivers/i2c/i2c-slave-mqueue.c
-@@ -0,0 +1,202 @@
-+// SPDX-License-Identifier: GPL-2.0
-+// Copyright (c) 2017 - 2018, Intel Corporation.
++++ b/Documentation/driver-api/i3c/device-driver-api.rst
+@@ -0,0 +1,7 @@
++=====================
++I3C device driver API
++=====================
 +
-+#include <linux/i2c.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/slab.h>
-+#include <linux/spinlock.h>
-+#include <linux/sysfs.h>
++.. kernel-doc:: include/linux/i3c/device.h
 +
-+#define MQ_MSGBUF_SIZE		CONFIG_I2C_SLAVE_MQUEUE_MESSAGE_SIZE
-+#define MQ_QUEUE_SIZE		CONFIG_I2C_SLAVE_MQUEUE_QUEUE_SIZE
-+#define MQ_QUEUE_NEXT(x)	(((x) + 1) & (MQ_QUEUE_SIZE - 1))
++.. kernel-doc:: drivers/i3c/device.c
+diff --git a/Documentation/driver-api/i3c/index.rst b/Documentation/driver-api/i3c/index.rst
+new file mode 100644
+index 000000000000..9c439220439d
+--- /dev/null
++++ b/Documentation/driver-api/i3c/index.rst
+@@ -0,0 +1,9 @@
++=============
++I3C subsystem
++=============
 +
-+struct mq_msg {
-+	int	len;
-+	u8	*buf;
-+};
++.. toctree::
 +
-+struct mq_queue {
-+	struct bin_attribute	bin;
-+	struct kernfs_node	*kn;
++   protocol
++   device-driver-api
++   master-driver-api
+diff --git a/Documentation/driver-api/i3c/master-driver-api.rst b/Documentation/driver-api/i3c/master-driver-api.rst
+new file mode 100644
+index 000000000000..017e7711cdf7
+--- /dev/null
++++ b/Documentation/driver-api/i3c/master-driver-api.rst
+@@ -0,0 +1,8 @@
++================================
++I3C master controller driver API
++================================
 +
-+	spinlock_t		lock; /* spinlock for queue index handling */
-+	int			in;
-+	int			out;
++.. kernel-doc:: drivers/i3c/master.c
 +
-+	struct mq_msg		*curr;
-+	int			truncated; /* drop current if truncated */
-+	struct mq_msg		queue[MQ_QUEUE_SIZE];
-+};
++.. kernel-doc:: include/linux/i3c/master.h
 +
-+static int i2c_slave_mqueue_callback(struct i2c_client *client,
-+				     enum i2c_slave_event event, u8 *val)
-+{
-+	struct mq_queue *mq = i2c_get_clientdata(client);
-+	struct mq_msg *msg = mq->curr;
-+	int ret = 0;
+diff --git a/Documentation/driver-api/i3c/protocol.rst b/Documentation/driver-api/i3c/protocol.rst
+new file mode 100644
+index 000000000000..9c704d596ae3
+--- /dev/null
++++ b/Documentation/driver-api/i3c/protocol.rst
+@@ -0,0 +1,201 @@
++============
++I3C protocol
++============
 +
-+	switch (event) {
-+	case I2C_SLAVE_WRITE_REQUESTED:
-+		mq->truncated = 0;
++Disclaimer
++==========
 +
-+		msg->len = 1;
-+		msg->buf[0] = client->addr << 1;
-+		break;
++This chapter will focus on aspects that matter to software developers. For
++everything hardware related (like how things are transmitted on the bus, how
++collisions are prevented, ...) please have a look at the I3C specification.
 +
-+	case I2C_SLAVE_WRITE_RECEIVED:
-+		if (msg->len < MQ_MSGBUF_SIZE) {
-+			msg->buf[msg->len++] = *val;
-+		} else {
-+			dev_err(&client->dev, "message is truncated!\n");
-+			mq->truncated = 1;
-+			ret = -EINVAL;
-+		}
-+		break;
++This document is just a brief introduction to the I3C protocol and the concepts
++it brings on the table. If you need more information, please refer to the MIPI
++I3C specification (can be downloaded here
++http://resources.mipi.org/mipi-i3c-v1-download).
 +
-+	case I2C_SLAVE_STOP:
-+		if (unlikely(mq->truncated))
-+			break;
++Introduction
++============
 +
-+		spin_lock(&mq->lock);
-+		mq->in = MQ_QUEUE_NEXT(mq->in);
-+		mq->curr = &mq->queue[mq->in];
++The I3C (pronounced 'eye-three-see') is a MIPI standardized protocol designed
++to overcome I2C limitations (limited speed, external signals needed for
++interrupts, no automatic detection of the devices connected to the bus, ...)
++while remaining power-efficient.
 +
-+		/* Flush the oldest message */
-+		if (mq->out == mq->in)
-+			mq->out = MQ_QUEUE_NEXT(mq->out);
-+		spin_unlock(&mq->lock);
++I3C Bus
++=======
 +
-+		kernfs_notify(mq->kn);
-+		break;
++An I3C bus is made of several I3C devices and possibly some I2C devices as
++well, but let's focus on I3C devices for now.
 +
-+	default:
-+		*val = 0xFF;
-+		break;
-+	}
++An I3C device on the I3C bus can have one of the following roles:
 +
-+	return ret;
-+}
++* Master: the device is driving the bus. It's the one in charge of initiating
++  transactions or deciding who is allowed to talk on the bus (slave generated
++  events are possible in I3C, see below).
++* Slave: the device acts as a slave, and is not able to send frames to another
++  slave on the bus. The device can still send events to the master on
++  its own initiative if the master allowed it.
 +
-+static ssize_t i2c_slave_mqueue_bin_read(struct file *filp,
-+					 struct kobject *kobj,
-+					 struct bin_attribute *attr,
-+					 char *buf, loff_t pos, size_t count)
-+{
-+	struct mq_queue *mq;
-+	struct mq_msg *msg;
-+	unsigned long flags;
-+	bool more = false;
-+	ssize_t ret = 0;
++I3C is a multi-master protocol, so there might be several masters on a bus,
++though only one device can act as a master at a given time. In order to gain
++bus ownership, a master has to follow a specific procedure.
 +
-+	mq = dev_get_drvdata(container_of(kobj, struct device, kobj));
++Each device on the I3C bus has to be assigned a dynamic address to be able to
++communicate. Until this is done, the device should only respond to a limited
++set of commands. If it has a static address (also called legacy I2C address),
++the device can reply to I2C transfers.
 +
-+	spin_lock_irqsave(&mq->lock, flags);
-+	if (mq->out != mq->in) {
-+		msg = &mq->queue[mq->out];
++In addition to these per-device addresses, the protocol defines a broadcast
++address in order to address all devices on the bus.
 +
-+		if (msg->len <= count) {
-+			ret = msg->len;
-+			memcpy(buf, msg->buf, ret);
-+		} else {
-+			ret = -EOVERFLOW; /* Drop this HUGE one. */
-+		}
++Once a dynamic address has been assigned to a device, this address will be used
++for any direct communication with the device. Note that even after being
++assigned a dynamic address, the device should still process broadcast messages.
 +
-+		mq->out = MQ_QUEUE_NEXT(mq->out);
-+		if (mq->out != mq->in)
-+			more = true;
-+	}
-+	spin_unlock_irqrestore(&mq->lock, flags);
++I3C Device discovery
++====================
 +
-+	if (more)
-+		kernfs_notify(mq->kn);
++The I3C protocol defines a mechanism to automatically discover devices present
++on the bus, their capabilities and the functionalities they provide. In this
++regard I3C is closer to a discoverable bus like USB than it is to I2C or SPI.
 +
-+	return ret;
-+}
++The discovery mechanism is called DAA (Dynamic Address Assignment), because it
++not only discovers devices but also assigns them a dynamic address.
 +
-+static int i2c_slave_mqueue_probe(struct i2c_client *client,
-+				  const struct i2c_device_id *id)
-+{
-+	struct device *dev = &client->dev;
-+	struct mq_queue *mq;
-+	int ret, i;
-+	void *buf;
++During DAA, each I3C device reports 3 important things:
 +
-+	mq = devm_kzalloc(dev, sizeof(*mq), GFP_KERNEL);
-+	if (!mq)
-+		return -ENOMEM;
++* BCR: Bus Characteristic Register. This 8-bit register describes the device bus
++  related capabilities
++* DCR: Device Characteristic Register. This 8-bit register describes the
++  functionalities provided by the device
++* Provisional ID: A 48-bit unique identifier. On a given bus there should be no
++  Provisional ID collision, otherwise the discovery mechanism may fail.
 +
-+	BUILD_BUG_ON(!is_power_of_2(MQ_QUEUE_SIZE));
++I3C slave events
++================
 +
-+	buf = devm_kmalloc_array(dev, MQ_QUEUE_SIZE, MQ_MSGBUF_SIZE,
-+				 GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
++The I3C protocol allows slaves to generate events on their own, and thus allows
++them to take temporary control of the bus.
 +
-+	for (i = 0; i < MQ_QUEUE_SIZE; i++)
-+		mq->queue[i].buf = buf + i * MQ_MSGBUF_SIZE;
++This mechanism is called IBI for In Band Interrupts, and as stated in the name,
++it allows devices to generate interrupts without requiring an external signal.
 +
-+	i2c_set_clientdata(client, mq);
++During DAA, each device on the bus has been assigned an address, and this
++address will serve as a priority identifier to determine who wins if 2 different
++devices are generating an interrupt at the same moment on the bus (the lower the
++dynamic address the higher the priority).
 +
-+	spin_lock_init(&mq->lock);
-+	mq->curr = &mq->queue[0];
++Masters are allowed to inhibit interrupts if they want to. This inhibition
++request can be broadcasted (applies to all devices) or sent to a specific
++device.
 +
-+	sysfs_bin_attr_init(&mq->bin);
-+	mq->bin.attr.name = "slave-mqueue";
-+	mq->bin.attr.mode = 0400;
-+	mq->bin.read = i2c_slave_mqueue_bin_read;
-+	mq->bin.size = MQ_MSGBUF_SIZE * MQ_QUEUE_SIZE;
++I3C Hot-Join
++============
 +
-+	ret = sysfs_create_bin_file(&dev->kobj, &mq->bin);
-+	if (ret)
-+		return ret;
++The Hot-Join mechanism is similart to USB hotplug. This mechanism allows
++slaves to join the bus after it has been initialized by the master.
 +
-+	mq->kn = kernfs_find_and_get(dev->kobj.sd, mq->bin.attr.name);
-+	if (!mq->kn) {
-+		sysfs_remove_bin_file(&dev->kobj, &mq->bin);
-+		return -EFAULT;
-+	}
++This covers the following use cases:
 +
-+	ret = i2c_slave_register(client, i2c_slave_mqueue_callback);
-+	if (ret) {
-+		kernfs_put(mq->kn);
-+		sysfs_remove_bin_file(&dev->kobj, &mq->bin);
-+		return ret;
-+	}
++* the device is not powered when the bus is probed
++* the device is hotplugged on the bus through an extension board
 +
-+	return 0;
-+}
++This mechanism is relying on slave events to inform the master that a new
++device joined the bus and is waiting for a dynamic address.
 +
-+static int i2c_slave_mqueue_remove(struct i2c_client *client)
-+{
-+	struct mq_queue *mq = i2c_get_clientdata(client);
++The master is then free to address the request as it wishes: ignore it or
++assign a dynamic address to the slave.
 +
-+	i2c_slave_unregister(client);
++I3C transfer types
++==================
 +
-+	kernfs_put(mq->kn);
-+	sysfs_remove_bin_file(&client->dev.kobj, &mq->bin);
++If you omit SMBus (which is just a standardization on how to access registers
++exposed by I2C devices), I2C has only one transfer type.
 +
-+	return 0;
-+}
++I3C defines 3 different classes of transfer in addition to I2C transfers which
++are here for backward compatibility with I2C devices.
 +
-+static const struct i2c_device_id i2c_slave_mqueue_id[] = {
-+	{ "slave-mqueue", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, i2c_slave_mqueue_id);
++I3C CCC commands
++----------------
 +
-+static struct i2c_driver i2c_slave_mqueue_driver = {
-+	.driver = {
-+		.name	= "i2c-slave-mqueue",
-+	},
-+	.probe		= i2c_slave_mqueue_probe,
-+	.remove		= i2c_slave_mqueue_remove,
-+	.id_table	= i2c_slave_mqueue_id,
-+};
-+module_i2c_driver(i2c_slave_mqueue_driver);
++CCC (Common Command Code) commands are meant to be used for anything that is
++related to bus management and all features that are common to a set of devices.
 +
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR("Haiyue Wang <haiyue.wang@linux.intel.com>");
-+MODULE_DESCRIPTION("I2C slave mode for receiving and queuing messages");
++CCC commands contain an 8-bit CCC id describing the command that is executed.
++The MSB of this id specifies whether this is a broadcast command (bit7 = 0) or a
++unicast one (bit7 = 1).
++
++The command ID can be followed by a payload. Depending on the command, this
++payload is either sent by the master sending the command (write CCC command),
++or sent by the slave receiving the command (read CCC command). Of course, read
++accesses only apply to unicast commands.
++Note that, when sending a CCC command to a specific device, the device address
++is passed in the first byte of the payload.
++
++The payload length is not explicitly passed on the bus, and should be extracted
++from the CCC id.
++
++Note that vendors can use a dedicated range of CCC ids for their own commands
++(0x61-0x7f and 0xe0-0xef).
++
++I3C Private SDR transfers
++-------------------------
++
++Private SDR (Single Data Rate) transfers should be used for anything that is
++device specific and does not require high transfer speed.
++
++It is the equivalent of I2C transfers but in the I3C world. Each transfer is
++passed the device address (dynamic address assigned during DAA), a payload
++and a direction.
++
++The only difference with I2C is that the transfer is much faster (typical SCL
++frequency is 12.5MHz).
++
++I3C HDR commands
++----------------
++
++HDR commands should be used for anything that is device specific and requires
++high transfer speed.
++
++The first thing attached to an HDR command is the HDR mode. There are currently
++3 different modes defined by the I3C specification (refer to the specification
++for more details):
++
++* HDR-DDR: Double Data Rate mode
++* HDR-TSP: Ternary Symbol Pure. Only usable on busses with no I2C devices
++* HDR-TSL: Ternary Symbol Legacy. Usable on busses with I2C devices
++
++When sending an HDR command, the whole bus has to enter HDR mode, which is done
++using a broadcast CCC command.
++Once the bus has entered a specific HDR mode, the master sends the HDR command.
++An HDR command is made of:
++
++* one 16-bits command word
++* N 16-bits data words
++
++Those words may be wrapped with specific preambles/post-ambles which depend on
++the chosen HDR mode and are detailed here (see the specification for more
++details).
++
++The 16-bits command word is made of:
++
++* bit[15]: direction bit, read is 1 write is 0
++* bit[14:8]: command code. Identifies the command being executed, the amount of
++  data words and their meaning
++* bit[7:1]: I3C address of the device this command is addressed to
++* bit[0]: reserved/parity-bit
++
++Backward compatibility with I2C devices
++=======================================
++
++The I3C protocol has been designed to be backward compatible with I2C devices.
++This backward compatibility allows one to connect a mix of I2C and I3C devices
++on the same bus, though, in order to be really efficient, I2C devices should
++be equipped with 50 ns spike filters.
++
++I2C devices can't be discovered like I3C ones and have to be statically
++declared. In order to let the master know what these devices are capable of
++(both in terms of bus related limitations and functionalities), the software
++has to provide some information, which is done through the LVR (Legacy I2C
++Virtual Register).
+diff --git a/Documentation/driver-api/index.rst b/Documentation/driver-api/index.rst
+index e9b41b1634f3..2563a4e19e08 100644
+--- a/Documentation/driver-api/index.rst
++++ b/Documentation/driver-api/index.rst
+@@ -30,6 +30,7 @@ available subsections can be seen below.
+    pci
+    spi
+    i2c
++   i3c/index
+    hsi
+    edac
+    scsi
 -- 
-2.7.4
+2.14.1
