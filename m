@@ -1,7 +1,7 @@
 From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: [PATCH v4 06/10] MAINTAINERS: Add myself as the I3C subsystem maintainer
-Date: Fri, 30 Mar 2018 09:47:47 +0200
-Message-ID: <20180330074751.25987-7-boris.brezillon@bootlin.com>
+Subject: [PATCH v4 03/10] i3c: Add sysfs ABI spec
+Date: Fri, 30 Mar 2018 09:47:44 +0200
+Message-ID: <20180330074751.25987-4-boris.brezillon@bootlin.com>
 References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180330074751.25987-1-boris.brezillon@bootlin.com>
@@ -10,35 +10,117 @@ To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet
 Cc: Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vitor Soares <Vitor.Soares@synopsys.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linus
 List-Id: linux-i2c@vger.kernel.org
 
-Create an entry for the I3C subsystem and mark it as maintained by me.
-There's no official git repository, patchwork instance, mailing list or
-website yet, but this will be added after the subsystem has been
-accepted.
+Document sysfs files/directories/symlinks exposed by the I3C subsystem.
 
 Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
 ---
- MAINTAINERS | 9 +++++++++
- 1 file changed, 9 insertions(+)
+Changes in v2:
+- new patch
+---
+ Documentation/ABI/testing/sysfs-bus-i3c | 95 +++++++++++++++++++++++++++++++++
+ 1 file changed, 95 insertions(+)
+ create mode 100644 Documentation/ABI/testing/sysfs-bus-i3c
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 3bdc260e36b7..f323864131ed 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -6669,6 +6669,15 @@ L:	linux-i2c@vger.kernel.org
- S:	Maintained
- F:	drivers/i2c/i2c-stub.c
- 
-+I3C SUBSYSTEM
-+M:	Boris Brezillon <boris.brezillon@bootlin.com>
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/i3c/
-+F:	Documentation/driver-api/i3c
-+F:	drivers/i3c/
-+F:	include/linux/i3c/
-+F:	include/dt-bindings/i3c/
+diff --git a/Documentation/ABI/testing/sysfs-bus-i3c b/Documentation/ABI/testing/sysfs-bus-i3c
+new file mode 100644
+index 000000000000..5e88cc093e0e
+--- /dev/null
++++ b/Documentation/ABI/testing/sysfs-bus-i3c
+@@ -0,0 +1,95 @@
++What:		/sys/bus/i3c/devices/i3c-<bus-id>
++KernelVersion:  4.16
++Contact:	linux-i3c@vger.kernel.org
++Description:
++		An I3C bus. This directory will contain one sub-directory per
++		I3C device present on the bus.
 +
- IA64 (Itanium) PLATFORM
- M:	Tony Luck <tony.luck@intel.com>
- M:	Fenghua Yu <fenghua.yu@intel.com>
++What:		/sys/bus/i3c/devices/i3c-<bus-id>/current_master
++KernelVersion:  4.16
++Contact:	linux-i3c@vger.kernel.org
++Description:
++		Expose the master that owns the bus (<bus-id>-<master-pid>) at
++		the time this file is read. Note that bus ownership can change
++		overtime, so there's no guarantee that when the read() call
++		returns, the value returned is still valid.
++
++What:		/sys/bus/i3c/devices/i3c-<bus-id>/mode
++KernelVersion:  4.16
++Contact:	linux-i3c@vger.kernel.org
++Description:
++		I3C bus mode. Can be "pure", "mixed-fast" or "mixed-slow". See
++		the I3C specification for a detailed description of what each
++		of these modes implies.
++
++What:		/sys/bus/i3c/devices/i3c-<bus-id>/i3c_scl_frequency
++KernelVersion:  4.16
++Contact:	linux-i3c@vger.kernel.org
++Description:
++		The frequency (expressed in Hz) of the SCL signal when
++		operating in I3C SDR mode.
++
++What:		/sys/bus/i3c/devices/i3c-<bus-id>/i2c_scl_frequency
++KernelVersion:  4.16
++Contact:	linux-i3c@vger.kernel.org
++Description:
++		The frequency (expressed in Hz) of the SCL signal when
++		operating in I2C mode.
++
++What:		/sys/bus/i3c/devices/i3c-<bus-id>/<bus-id>-<device-pid>
++KernelVersion:  4.16
++Contact:	linux-i3c@vger.kernel.org
++Description:
++		An I3C device present on I3C bus identified by <bus-id>. Note
++		that all devices are represented including the master driving
++		the bus.
++
++What:		/sys/bus/i3c/devices/i3c-<bus-id>/<bus-id>-<device-pid>/address
++KernelVersion:  4.16
++Contact:	linux-i3c@vger.kernel.org
++Description:
++		Dynamic address assigned to device <bus-id>-<device-pid>. This
++		address may change if the bus is re-initialized.
++
++What:		/sys/bus/i3c/devices/i3c-<bus-id>/<bus-id>-<device-pid>/bcr
++KernelVersion:  4.16
++Contact:	linux-i3c@vger.kernel.org
++Description:
++		BCR stands for Bus Characteristics Register and express the
++		device capabilities in term of speed, maximum read/write
++		length, etc. See the I3C specification for more details.
++
++What:		/sys/bus/i3c/devices/i3c-<bus-id>/<bus-id>-<device-pid>/dcr
++KernelVersion:  4.16
++Contact:	linux-i3c@vger.kernel.org
++Description:
++		DCR stands for Device Characteristics Register and express the
++		device capabilities in term of exposed features. See the I3C
++		specification for more details.
++
++What:		/sys/bus/i3c/devices/i3c-<bus-id>/<bus-id>-<device-pid>/pid
++KernelVersion:  4.16
++Contact:	linux-i3c@vger.kernel.org
++Description:
++		PID stands for Provisional ID and is used to uniquely identify
++		a device on a bus. This PID contains information about the
++		vendor, the part and an instance ID so that several devices of
++		the same type can be connected on the same bus.
++		See the I3C specification for more details.
++
++What:		/sys/bus/i3c/devices/i3c-<bus-id>/<bus-id>-<device-pid>/hdrcap
++KernelVersion:  4.16
++Contact:	linux-i3c@vger.kernel.org
++Description:
++		Expose the HDR (High Data Rate) capabilities of a device.
++		Returns a list of supported HDR mode, each element is separated
++		by space. Modes can be "hdr-ddr", "hdr-tsp" and "hdr-tsl".
++		See the I3C specification for more details about these HDR
++		modes.
++
++What:		/sys/bus/i3c/devices/<bus-id>-<device-pid>
++KernelVersion:  4.16
++Contact:	linux-i3c@vger.kernel.org
++Description:
++		These directories are just symbolic links to
++		/sys/bus/i3c/devices/i3c-<bus-id>/<bus-id>-<device-pid>.
 -- 
 2.14.1
