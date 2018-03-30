@@ -1,82 +1,70 @@
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: Re: [PATCH v6 0/3] add support for Socionext SynQuacer I2C controller
-Date: Fri, 30 Mar 2018 15:13:17 +0100
-Message-ID: <CAKv+Gu_7pRffEnoghf1926xzYmw2UWZx1_dLD4xy29emmW6_vQ@mail.gmail.com>
-References: <20180325110747.8852-1-ard.biesheuvel@linaro.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.16
+Date: Fri, 30 Mar 2018 19:07:13 +0200
+Message-ID: <20180330170707.6nmjytx4e2s7azrz@tetsubishi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180325110747.8852-1-ard.biesheuvel@linaro.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Jassi Brar <jassisinghbrar@gmail.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="gqjwnvvepfxmhigw"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 25 March 2018 at 12:07, Ard Biesheuvel <ard.biesheuvel@linaro.org> wrote:
-> Add a binding and a driver for the I2C IP found in the Socionext SynQuacer
-> SoC, which is essentially a rebranded version of the Fujitsu F_I2C controller.
->
-> v6:
-> - use i2c_8bit_addr_from_msg() instead of open coding the address generation
-> - switch to generic recovery using minimal helpers to drive the SDA/SCL lines
->   directly
-> - use reinit_completion() and move init_completion() to probe function
-> - replace bus free detection at the end of a transfer with a simple udelay()
->   for 2 clock periods
-> - don't recover on every error
-> - don't call synquacer_i2c_hw_init() from synquacer_i2c_hw_reset(), since it
->   will be always called twice in that case
-> - add patch to sanity check i2c_transfer() arguments in core code (#3)
->
 
-Hello Wolfram,
+--gqjwnvvepfxmhigw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Any comments on this v6? Time is running out quickly for v4.17.
+Linus,
+
+here is a simple but worthwhile I2C driver fix for 4.16.
+
+Please pull.
 
 Thanks,
-Ard.
 
-> v5:
-> - add Rob's ack to #1
-> - drop unnecessary 'platform_set_drvdata(pdev, NULL)' in remove path (#2)
->
-> v4:
-> - clarify binding that only a single interrupt specifier is expected (#1)
-> - check return value of clk_prepare_enable() on probe path (#2)
-> - add Andy's R-b to patch #2
->
-> v3:
-> - incorporate more of Andy's review comments (#2), especially regarding the
->   bus speed and clock source handling for ACPI
-> - patch #1 unchanged.
->
-> v2:
-> - incorporate Andy's review comments (#2)
-> - patch #1 unchanged.
->
-> Ard Biesheuvel (3):
->   dt-bindings: i2c: add binding for Socionext SynQuacer I2C
->   i2c: add support for Socionext SynQuacer I2C controller
->   i2c: add param sanity check to i2c_transfer()
->
->  Documentation/devicetree/bindings/i2c/i2c-synquacer.txt |  29 +
->  drivers/i2c/busses/Kconfig                              |  10 +
->  drivers/i2c/busses/Makefile                             |   1 +
->  drivers/i2c/busses/i2c-synquacer.c                      | 739 ++++++++++++++++++++
->  drivers/i2c/i2c-core-base.c                             |   3 +
->  5 files changed, 782 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-synquacer.txt
->  create mode 100644 drivers/i2c/busses/i2c-synquacer.c
->
-> --
-> 2.15.1
->
+   Wolfram
+
+
+The following changes since commit c698ca5278934c0ae32297a8725ced2e27585d7f:
+
+  Linux 4.16-rc6 (2018-03-18 17:48:42 -0700)
+
+are available in the git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 771b7bf05339081019d22452ebcab6929372e13e:
+
+  i2c: i2c-stm32f7: fix no check on returned setup (2018-03-24 13:37:41 +0100)
+
+----------------------------------------------------------------
+Pierre-Yves MORDRET (1):
+      i2c: i2c-stm32f7: fix no check on returned setup
+
+ drivers/i2c/busses/i2c-stm32f7.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+--gqjwnvvepfxmhigw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlq+brQACgkQFA3kzBSg
+KbalyxAAqQBlQfQZvL03T7q0iF/3UJ8d+d2ixlDZGKwxS7C24VhaB+hWBU0tBPhe
+FMNCFEmqTdC0UvBgiaQQxfe173KuJFmt94d0Hpm+7lvkHBB1wkGsm8Jy7yAwpbQ3
+pn96leWsp44SdTanZZ2S/746MyX1Fvjhltry/vWa6H35FJk3XwOcEePun1bv1ptR
+Frnr3aYpId+hH/NlpTsKVLNC2Znlbb9BE6FBoarGGiVUU8+75VP2weDKUavEc/pM
+r3DyCQjigr1s/PODPqtZqrGYLltmlzqT9DYlGUPtDK14O7IfXTNDveZ7C1RlOPiz
+iJlMnY10sKcdyRD/i0Q30yWt1mYQ1YHEDKMAvQOtc0fjIxHVTtyZdU/lse8lXJJj
+tgx2Y4Ojcfl1gL4IJoT4K5cCmNko8L/gw0HK0rwKQVpU7twvPwq6JCc1+v0F0FYr
+dku7gjbNcyjb8fx/Iwb5HGN1dia77TmXJTrzMeLeYXyhUb2+V0IAuDnCO1PxlrgP
+5lcTbzm5/R6cfdgglIaLFKn71wYWoPQeUKwxswr0inMlh5xt5A281/4iz0ezrTDe
+r90O8dhW4ES/UUGkBiCMqcBIansLPZZLLDw529yhYaOf5nXHdwbblY7xyOQk++Tr
+HI54mEq8IX6O5Y2SEa+iWQF1sL6SGITbZNLM29cbI8RnBv6su5g=
+=B/6q
+-----END PGP SIGNATURE-----
+
+--gqjwnvvepfxmhigw--
