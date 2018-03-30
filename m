@@ -1,52 +1,82 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v4 04/10] dt-bindings: i3c: Document core bindings
-Date: Fri, 30 Mar 2018 09:59:02 +0200
-Message-ID: <20180330095902.00f75106@bbrezillon>
-References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
-        <20180330074751.25987-5-boris.brezillon@bootlin.com>
-        <CAMuHMdW-MhzaW-bWL25Y+--UHxLB+Mm5+SmhwA+PiezUEg0Ycw@mail.gmail.com>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: Re: [PATCH v6 0/3] add support for Socionext SynQuacer I2C controller
+Date: Fri, 30 Mar 2018 15:13:17 +0100
+Message-ID: <CAKv+Gu_7pRffEnoghf1926xzYmw2UWZx1_dLD4xy29emmW6_vQ@mail.gmail.com>
+References: <20180325110747.8852-1-ard.biesheuvel@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMuHMdW-MhzaW-bWL25Y+--UHxLB+Mm5+SmhwA+PiezUEg0Ycw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ij>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180325110747.8852-1-ard.biesheuvel@linaro.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Jassi Brar <jassisinghbrar@gmail.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Ard Biesheuvel <ard.biesheuvel@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 30 Mar 2018 09:55:22 +0200
-Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+On 25 March 2018 at 12:07, Ard Biesheuvel <ard.biesheuvel@linaro.org> wrote:
+> Add a binding and a driver for the I2C IP found in the Socionext SynQuacer
+> SoC, which is essentially a rebranded version of the Fujitsu F_I2C controller.
+>
+> v6:
+> - use i2c_8bit_addr_from_msg() instead of open coding the address generation
+> - switch to generic recovery using minimal helpers to drive the SDA/SCL lines
+>   directly
+> - use reinit_completion() and move init_completion() to probe function
+> - replace bus free detection at the end of a transfer with a simple udelay()
+>   for 2 clock periods
+> - don't recover on every error
+> - don't call synquacer_i2c_hw_init() from synquacer_i2c_hw_reset(), since it
+>   will be always called twice in that case
+> - add patch to sanity check i2c_transfer() arguments in core code (#3)
+>
 
-> Hi Boris,
-> 
-> On Fri, Mar 30, 2018 at 9:47 AM, Boris Brezillon
-> <boris.brezillon@bootlin.com> wrote:
-> > A new I3C subsystem has been added and a generic description has been
-> > created to represent the I3C bus and the devices connected on it.
-> >
-> > Document this generic representation.
-> >
-> > Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
-> > ---
-> > Changes in v4:
-> > - Clarify the fact that static address == I3C address and dynamic  
-> 
-> static address == I2C address?
+Hello Wolfram,
 
-hehe, indeed.
+Any comments on this v6? Time is running out quickly for v4.17.
 
-> 
-> >   address == I3C address  
-> 
-> Gr{oetje,eeting}s,
-> 
->                         Geert
-> 
+Thanks,
+Ard.
 
-
-
--- 
-Boris Brezillon, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+> v5:
+> - add Rob's ack to #1
+> - drop unnecessary 'platform_set_drvdata(pdev, NULL)' in remove path (#2)
+>
+> v4:
+> - clarify binding that only a single interrupt specifier is expected (#1)
+> - check return value of clk_prepare_enable() on probe path (#2)
+> - add Andy's R-b to patch #2
+>
+> v3:
+> - incorporate more of Andy's review comments (#2), especially regarding the
+>   bus speed and clock source handling for ACPI
+> - patch #1 unchanged.
+>
+> v2:
+> - incorporate Andy's review comments (#2)
+> - patch #1 unchanged.
+>
+> Ard Biesheuvel (3):
+>   dt-bindings: i2c: add binding for Socionext SynQuacer I2C
+>   i2c: add support for Socionext SynQuacer I2C controller
+>   i2c: add param sanity check to i2c_transfer()
+>
+>  Documentation/devicetree/bindings/i2c/i2c-synquacer.txt |  29 +
+>  drivers/i2c/busses/Kconfig                              |  10 +
+>  drivers/i2c/busses/Makefile                             |   1 +
+>  drivers/i2c/busses/i2c-synquacer.c                      | 739 ++++++++++++++++++++
+>  drivers/i2c/i2c-core-base.c                             |   3 +
+>  5 files changed, 782 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-synquacer.txt
+>  create mode 100644 drivers/i2c/busses/i2c-synquacer.c
+>
+> --
+> 2.15.1
+>
