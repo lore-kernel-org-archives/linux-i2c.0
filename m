@@ -1,70 +1,78 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.16
-Date: Fri, 30 Mar 2018 19:07:13 +0200
-Message-ID: <20180330170707.6nmjytx4e2s7azrz@tetsubishi>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="gqjwnvvepfxmhigw"
+From: Jason Andryuk <jandryuk@gmail.com>
+Subject: [PATCH] i2c: i801: blacklist Host Notify on HP EliteBook G3 850
+Date: Mon,  2 Apr 2018 08:25:36 -0400
+Message-ID: <20180402122536.5083-1-jandryuk@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: benjamin.tissoires@redhat.com, andyrtr@archlinux.org, aduggan@synaptics.com, Jason Andryuk <jandryuk@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+The HP EliteBook G3 850 has a weird bug where a subsequent cold boot
+hangs while plugged in if Linux enables the Host Notify features of
+i2c-i801.  The cold boot hang depends on how the system boots.  It does
+not hang on UEFI Grub text boot or legacy Grub text boot.  But it does
+hang on legacy Grub graphical boot and Intel Boot Agent PXE text boot.
+Booting unplugged is not affected.
 
---gqjwnvvepfxmhigw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Disabling the Host Notify feature with disable_feature=0x20 works around
+the bug, so automatically do so based on DMI information.
 
-Linus,
+More information can be found here:
+https://www.spinics.net/lists/linux-i2c/msg33938.html
 
-here is a simple but worthwhile I2C driver fix for 4.16.
+Signed-off-by: Jason Andryuk <jandryuk@gmail.com>
+---
+I only added my machine to the blacklist, since it's the only one I've
+tested.  More systems can be added when identified and tested.
 
-Please pull.
+ drivers/i2c/busses/i2c-i801.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit c698ca5278934c0ae32297a8725ced2e27585d7f:
-
-  Linux 4.16-rc6 (2018-03-18 17:48:42 -0700)
-
-are available in the git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to 771b7bf05339081019d22452ebcab6929372e13e:
-
-  i2c: i2c-stm32f7: fix no check on returned setup (2018-03-24 13:37:41 +0100)
-
-----------------------------------------------------------------
-Pierre-Yves MORDRET (1):
-      i2c: i2c-stm32f7: fix no check on returned setup
-
- drivers/i2c/busses/i2c-stm32f7.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
---gqjwnvvepfxmhigw
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlq+brQACgkQFA3kzBSg
-KbalyxAAqQBlQfQZvL03T7q0iF/3UJ8d+d2ixlDZGKwxS7C24VhaB+hWBU0tBPhe
-FMNCFEmqTdC0UvBgiaQQxfe173KuJFmt94d0Hpm+7lvkHBB1wkGsm8Jy7yAwpbQ3
-pn96leWsp44SdTanZZ2S/746MyX1Fvjhltry/vWa6H35FJk3XwOcEePun1bv1ptR
-Frnr3aYpId+hH/NlpTsKVLNC2Znlbb9BE6FBoarGGiVUU8+75VP2weDKUavEc/pM
-r3DyCQjigr1s/PODPqtZqrGYLltmlzqT9DYlGUPtDK14O7IfXTNDveZ7C1RlOPiz
-iJlMnY10sKcdyRD/i0Q30yWt1mYQ1YHEDKMAvQOtc0fjIxHVTtyZdU/lse8lXJJj
-tgx2Y4Ojcfl1gL4IJoT4K5cCmNko8L/gw0HK0rwKQVpU7twvPwq6JCc1+v0F0FYr
-dku7gjbNcyjb8fx/Iwb5HGN1dia77TmXJTrzMeLeYXyhUb2+V0IAuDnCO1PxlrgP
-5lcTbzm5/R6cfdgglIaLFKn71wYWoPQeUKwxswr0inMlh5xt5A281/4iz0ezrTDe
-r90O8dhW4ES/UUGkBiCMqcBIansLPZZLLDw529yhYaOf5nXHdwbblY7xyOQk++Tr
-HI54mEq8IX6O5Y2SEa+iWQF1sL6SGITbZNLM29cbI8RnBv6su5g=
-=B/6q
------END PGP SIGNATURE-----
-
---gqjwnvvepfxmhigw--
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 692b34125866..2ff10c41ccad 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1042,6 +1042,24 @@ static const struct pci_device_id i801_ids[] = {
+ MODULE_DEVICE_TABLE(pci, i801_ids);
+ 
+ #if defined CONFIG_X86 && defined CONFIG_DMI
++static const struct dmi_system_id host_notify_dmi_blacklist[] = {
++	{
++		.ident = "HP EliteBook G3 850",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "HP"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "HP EliteBook 850 G3"),
++		},
++	},
++};
++
++static void blacklist_features(struct i801_priv *priv) {
++	if (dmi_check_system(host_notify_dmi_blacklist)) {
++		dev_warn(&priv->pci_dev->dev,
++			 "SMBus Host Notify disabled on this system");
++		priv->features &= ~FEATURE_HOST_NOTIFY;
++	}
++}
++
+ static unsigned char apanel_addr;
+ 
+ /* Scan the system ROM for the signature "FJKEYINF" */
+@@ -1159,6 +1177,7 @@ static void i801_probe_optional_slaves(struct i801_priv *priv)
+ #else
+ static void __init input_apanel_init(void) {}
+ static void i801_probe_optional_slaves(struct i801_priv *priv) {}
++static void blacklist_features(struct i801_priv *priv) {}
+ #endif	/* CONFIG_X86 && CONFIG_DMI */
+ 
+ #if IS_ENABLED(CONFIG_I2C_MUX_GPIO) && defined CONFIG_DMI
+@@ -1562,6 +1581,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 				   i801_feature_names[i]);
+ 	}
+ 	priv->features &= ~disable_features;
++	blacklist_features(priv);
+ 
+ 	err = pcim_enable_device(dev);
+ 	if (err) {
+-- 
+2.14.3
