@@ -1,121 +1,120 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/6] drivers/i2c: Update i2c_trace_msg static key to
- modern api
-Date: Tue, 3 Apr 2018 15:20:32 +0200
-Message-ID: <20180403132032.bseezddmd6rrka6g@ninjato>
-References: <20180326210929.5244-1-dave@stgolabs.net>
- <20180326210929.5244-2-dave@stgolabs.net>
+From: Andrew Worsley <amworsley@gmail.com>
+Subject: i2c-cadence.c receive buffer overrun bug fix patches
+Date: Tue, 3 Apr 2018 23:28:39 +1000
+Message-ID: <CA+Y=x3=vwp61x+iEJXe0+LBEaY+3uQ6n6j8+AbRN7=aTTOiziw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="xxl2fqw3fz72krmp"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180326210929.5244-2-dave@stgolabs.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Davidlohr Bueso <dave@stgolabs.net>, David Howells <dhowells@redhat.com>
-Cc: peterz@infradead.org, mingo@kernel.org, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Davidlohr Bueso <dbueso@suse.de>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Harini Katakam <harinik@xilinx.com>, Ajay Yugalkishore Pandey <APANDEY@xilinx.com>, Arindam Sarkar <asarkar@xilinx.com>, Soren Brinkmann <soren.brinkmann@xilinx.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+I just sent 2 patches to fix the buffer overrun bug I reported earlier.
+They should apply against the current xilinx kernel i2c-cadence driver.
 
---xxl2fqw3fz72krmp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The first is the original patch which traps the overrun and aborts the
+transfer with out overruning the receive buffer.
 
-On Mon, Mar 26, 2018 at 02:09:24PM -0700, Davidlohr Bueso wrote:
-> No changes in refcount semantics -- key init is false; replace
->=20
-> static_key_slow_inc|dec   with   static_branch_inc|dec
-> static_key_false          with   static_branch_unlikely
->=20
-> Added a '_key' suffix to i2c_trace_msg, for better self
-> documentation.
->=20
+The 2nd patch fixes the actual bug - so the first patch is perhaps
+just a safety measure and could be left out. But I would feel safer if
+it does check
+the transfer rather than trusting the hardware transfer register which
+was wrapping in the bug.
 
-CCing David who wrote the original code
+I have verified the fix on my hardware with over 60 faultless boot ups
+where before it would crash about 1 in three boot ups.
 
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: linux-i2c@vger.kernel.org
-> Signed-off-by: Davidlohr Bueso <dbueso@suse.de>
-> ---
->  drivers/i2c/i2c-core-base.c | 13 +++++++------
->  1 file changed, 7 insertions(+), 6 deletions(-)
->=20
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 16a3b73375a6..bfcff2a6f0a3 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -69,18 +69,18 @@ static DEFINE_IDR(i2c_adapter_idr);
-> =20
->  static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *dr=
-iver);
-> =20
-> -static struct static_key i2c_trace_msg =3D STATIC_KEY_INIT_FALSE;
-> +static DEFINE_STATIC_KEY_FALSE(i2c_trace_msg_key);
->  static bool is_registered;
-> =20
->  int i2c_transfer_trace_reg(void)
->  {
-> -	static_key_slow_inc(&i2c_trace_msg);
-> +	static_branch_inc(&i2c_trace_msg_key);
->  	return 0;
->  }
-> =20
->  void i2c_transfer_trace_unreg(void)
->  {
-> -	static_key_slow_dec(&i2c_trace_msg);
-> +	static_branch_dec(&i2c_trace_msg_key);
->  }
-> =20
->  const struct i2c_device_id *i2c_match_id(const struct i2c_device_id *id,
-> @@ -1848,11 +1848,12 @@ int __i2c_transfer(struct i2c_adapter *adap, stru=
-ct i2c_msg *msgs, int num)
->  	if (adap->quirks && i2c_check_for_quirks(adap, msgs, num))
->  		return -EOPNOTSUPP;
-> =20
-> -	/* i2c_trace_msg gets enabled when tracepoint i2c_transfer gets
-> +	/*
-> +	 * i2c_trace_msg_key gets enabled when tracepoint i2c_transfer gets
->  	 * enabled.  This is an efficient way of keeping the for-loop from
->  	 * being executed when not needed.
->  	 */
-> -	if (static_key_false(&i2c_trace_msg)) {
-> +	if (static_branch_unlikely(&i2c_trace_msg_key)) {
->  		int i;
->  		for (i =3D 0; i < num; i++)
->  			if (msgs[i].flags & I2C_M_RD)
-> @@ -1871,7 +1872,7 @@ int __i2c_transfer(struct i2c_adapter *adap, struct=
- i2c_msg *msgs, int num)
->  			break;
->  	}
-> =20
-> -	if (static_key_false(&i2c_trace_msg)) {
-> +	if (static_branch_unlikely(&i2c_trace_msg_key)) {
->  		int i;
->  		for (i =3D 0; i < ret; i++)
->  			if (msgs[i].flags & I2C_M_RD)
-> --=20
-> 2.13.6
->=20
+Below I show the trace of such a buffer over run prevented by the
+first patch with extra debug showing the outstanding bytes of the
+transfer (recv_count), CR (Control Register) and the transfer register
+size. It shows the transfer register size going down to zero and then
+wrapping and transfering another 16 bytes (256-16=240 ?)
+The 0x10 bit in the CR was set when the transfer size register was
+zero allowing further i2c data to be read in before it was detected
+and the transfer aborted with the message "buffer overruning..."
 
---xxl2fqw3fz72krmp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrDf6AACgkQFA3kzBSg
-KbazIw/9H4eSlFdejqiccIT8tWvw2+Uz4pKkFtrtGrq3SK08rxVjpqYyBykk5m3O
-5GTxFLENW2copdyMPDuXV1j1fgnR3aWEi5jzNOwpmJJNi8uqjIscYuCbpkfAo+q0
-fWMGcCMympf1Qln/Ss4WVci2OYROOpfbPMyQsjecV2XdKfsWUz/kWoP75K+LCcI/
-bqNKAQK8WwrccOYTU0bfGhdI2PCcSupsAFio+pdKtiUXasV9WuklXUa+Madp7r9Q
-fO2W91QZ7AFt/nWBfvD8ngy38fGAPxigazM/n1y7XQw4RkEHSxM0DinlfYJGTz/H
-6zK+TYgU0HgFFzzL1leyXa3N5i7fOJ4rgENV/Df9jozcvYRtSJKuOuWGIUcM16ts
-/KIabp+VfU7kgj/cjve2c3qYPsoqD+MKXGmupAC3GP4bbr1am+P+uP97PGcYnf/5
-GKHgcR8XOs5T6m2nAzYcylN117KesQ/JfLtByu7BksBOnHGKgMkxAB3A1STxobOk
-uT36xkfAL1o96fNGKU0Az5nWVqxnNp3b0dUYo+gz8RQulDVzz4omrMQln5x8BQcm
-mx4IwDgSzeZl2EcbLoDSolNfkh9rttmouTiEqW9FaEJ1Bo4NC+CPmP+Iau8gqcU1
-T2Kbc/YqWevbSEnRNS+9dkWrCsH1cJAu9laegvssTyxknyXu3oU=
-=GKb6
------END PGP SIGNATURE-----
-
---xxl2fqw3fz72krmp--
+[    9.963519] hostname kernel: cdns_i2c_process_msg: transfer from 0x29 len=35
+[    9.963524] hostname kernel: cdns_i2c_mrecv:cdns_i2c_writereg(35,
+CDNS_I2C_XFER_SIZE_OFFSET) #6
+[    9.964924] hostname kernel: cdns_i2c_isr: status 0x2 1352ns
+recv_count=35 xfer_size=21 CR=0x321f
+[    9.966189] hostname kernel: cdns_i2c_isr: status 0x2 2594ns
+recv_count=21 xfer_size=7 CR=0x321f
+[    9.966840] hostname kernel: cdns_i2c_isr: status 0x1 3230ns
+recv_count=7 xfer_size=0 CR=0x320f
+[    9.966898] hostname kernel: cdns_i2c_process_msg: cnt=349 Rd 29
+len=35 completed 3369426ns
+[    9.966904] hostname kernel: cdns_i2c_process_msg: err_status=0x0 - ok
+[    9.966922] hostname kernel: cdns_i2c_process_msg: transfer from 0x29 len=142
+[    9.966931] hostname kernel: cdns_i2c_mrecv:cdns_i2c_writereg(142,
+CDNS_I2C_XFER_SIZE_OFFSET) #6
+[    9.977951] hostname kernel: cdns_i2c_isr: status 0xa 10752ns
+recv_count=142 xfer_size=126 CR=0x321f
+[    9.985414] hostname kernel: cdns_i2c_isr: status 0xa 18043ns
+recv_count=126 xfer_size=110 CR=0x321f
+[    9.992783] hostname kernel: cdns_i2c_isr: status 0xa 25237ns
+recv_count=110 xfer_size=94 CR=0x321f
+[   10.000158] hostname kernel: cdns_i2c_isr: status 0xa 32439ns
+recv_count=94 xfer_size=78 CR=0x321f
+[   10.007547] hostname kernel: cdns_i2c_isr: status 0xa 39657ns
+recv_count=78 xfer_size=62 CR=0x321f
+[   10.015016] hostname kernel: cdns_i2c_isr: status 0xa 46950ns
+recv_count=62 xfer_size=46 CR=0x321f
+[   10.022488] hostname kernel: cdns_i2c_isr: status 0xa 54247ns
+recv_count=46 xfer_size=30 CR=0x321f
+[   10.023779] hostname kernel: cdns_i2c_isr: status 0x2 55507ns
+recv_count=30 xfer_size=16 CR=0x321f
+[   10.034019] hostname kernel: cdns_i2c_isr: status 0xa 65503ns
+recv_count=16 xfer_size=0 CR=0x321f
+[   10.041025] hostname kernel: cdns_i2c_isr: status 0x22 72344ns
+recv_count=0 xfer_size=240 CR=0x320f
+[   10.041039] hostname kernel: cdns_i2c_isr: buffer overrunning !!!-
+transfer-size=240 ctrl=0x320f status=0xa0=>Overflow<= int-status=0x0
+[   10.041042] hostname kernel: cdns_i2c_isr:Aborting transfer...
+[   10.981934] hostname kernel: cdns_i2c_process_msg: cnt=350 Rd 29
+len=142 completed 1014997572ns
+[   10.981947] hostname kernel: cdns-i2c e0004000.i2c: timeout waiting
+on completion
+[   10.981970] hostname kernel: tpm tpm0: i2c_atmel_recv reread(buf=00
+c4 00 00 00 8e 00 00 00 00 00 00 00 80 d6 19 c3 0a 3b ff b5 2e 13 20
+7d 51 56 0e 40 c7 7c d6 c7 07 e2 79 2f 5e 0a d9 f5 80 92 35 8b 71 bf
+6d 26 7d ac 95 40 25 cc 60 55 5f 94 e2 64 bf c4 d2 count=92)
+expected_len=142-> ret=-110
+[   10.981978] hostname kernel: **buf:da151d06: 00 c4 00 00 00 8e 00
+00 00 00 00 00 00 80 d6 19  ................
+[   10.981983] hostname kernel: **buf:da151d16: c3 0a 3b ff b5 2e 13
+20 7d 51 56 0e 40 c7 7c d6  ..;.... }QV.@.|.
+[   10.981987] hostname kernel: **buf:da151d26: c7 07 e2 79 2f 5e 0a
+d9 f5 80 92 35 8b 71 bf 6d  ...y/^.....5.q.m
+[   10.981991] hostname kernel: **buf:da151d36: 26 7d ac 95 40 25 cc
+60 55 5f 94 e2 64 bf c4 d2  &}..@%.`U_..d...
+[   10.981996] hostname kernel: **buf:da151d46: 21 5d 20 e8 a4 2b aa
+79 63 ae 3d 88 4d a9 2b 7c  !] ..+.yc.=.M.+|
+[   10.982000] hostname kernel: **buf:da151d56: b2 c9 c7 0e b1 5f f0
+3c 32 b8 85 4f 3f 2a 07 06  ....._.<2..O?*..
+[   10.982004] hostname kernel: **buf:da151d66: 30 ea b0 fc 53 ec 13
+d6 18 73 f1 81 41 f8 5e fb  0...S....s..A.^.
+[   10.982008] hostname kernel: **buf:da151d76: a8 77 c4 9b 7e 28 ee
+27 74 6a d6 ed f6 db 83 a7  .w..~(.'tj......
+[   10.982012] hostname kernel: **buf:da151d86: 2e 9a c1 fa 2a 4d c6
+bc 4a 6b e8 1e 76 9d 38 dd  ....*M..Jk..v.8.
+[   10.982016] hostname kernel: **buf:da151d96: 22 c0 03 00 00 00 02
+00 00 00 00 00 00 00 d0 1e  "...............
+[   10.982020] hostname kernel: **buf:da151da6: 15 da 01 00 00 00 00
+00 00 00 04 05 57 3e        ............W>
+[   10.982030] hostname kernel: CPU: 1 PID: 283 Comm: rngd Tainted: G
+         O    4.9.25-zynq+ #45
+[   10.982033] hostname kernel: Hardware name: Xilinx Zynq hostname
+[   10.982066] hostname kernel: [<c0110374>] (unwind_backtrace) from
+[<c010b80c>] (show_stack+0x10/0x14)
+[   10.982085] hostname kernel: [<c010b80c>] (show_stack) from
+[<c03bd97c>] (dump_stack+0x88/0x9c)
