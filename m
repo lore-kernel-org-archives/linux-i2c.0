@@ -1,51 +1,104 @@
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH v7 4/4] MAINTAINERS: add Ard as Socionext SynQuacer I2C driver
- maintainer
-Date: Tue,  3 Apr 2018 21:11:51 +0200
-Message-ID: <20180403191151.14924-5-ard.biesheuvel@linaro.org>
-References: <20180403191151.14924-1-ard.biesheuvel@linaro.org>
+From: Andreas Radke <andyrtr@archlinux.org>
+Subject: Re: [PATCH v2] i2c: i801: blacklist Host Notify on HP EliteBook G3
+ 850
+Date: Tue, 3 Apr 2018 21:13:26 +0200
+Message-ID: <20180403211326.4907f1bc@laptop64.home>
+References: <20180402122536.5083-1-jandryuk@gmail.com>
+        <20180402123435.5587-1-jandryuk@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180403191151.14924-1-ard.biesheuvel@linaro.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: wsa@the-dreams.de
-Cc: andy.shevchenko@gmail.com, jassisinghbrar@gmail.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/XkH6mZ7UDh1Kx7tGm5D5AYv"; protocol="application/pgp-signature"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180402123435.5587-1-jandryuk@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Andryuk <jandryuk@gmail.com>
+Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, benjamin.tissoires@redhat.com, aduggan@synaptics.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add myself as maintainer for the newly added Socionext SynQuacer I2C
-driver.
+--Sig_/XkH6mZ7UDh1Kx7tGm5D5AYv
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
----
- MAINTAINERS | 6 ++++++
- 1 file changed, 6 insertions(+)
+Am Mon,  2 Apr 2018 08:34:35 -0400
+schrieb Jason Andryuk <jandryuk@gmail.com>:
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2d3f847cdc8d..6b3e60a6d282 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -12816,6 +12816,12 @@ F:	include/media/soc*
- F:	drivers/media/i2c/soc_camera/
- F:	drivers/media/platform/soc_camera/
- 
-+SOCIONEXT SYNQUACER I2C DRIVER
-+M:	Ard Biesheuvel <ard.biesheuvel@linaro.org>
-+L:	linux-i2c@vger.kernel.org
-+S:	Maintained
-+F:	drivers/i2c/busses/i2c-synquacer.c
-+
- SOCIONEXT UNIPHIER SOUND DRIVER
- M:	Katsuhiro Suzuki <suzuki.katsuhiro@socionext.com>
- L:	alsa-devel@alsa-project.org (moderated for non-subscribers)
--- 
-2.15.1
+> The HP EliteBook G3 850 has a weird bug where a subsequent cold boot
+> hangs while plugged in if Linux enables the Host Notify features of
+> i2c-i801.  The cold boot hang depends on how the system boots.  It
+> does not hang on UEFI Grub text boot or legacy Grub text boot.  But
+> it does hang on legacy Grub graphical boot and Intel Boot Agent PXE
+> text boot. Booting unplugged is not affected.
+>=20
+> Disabling the Host Notify feature with disable_feature=3D0x20 works
+> around the bug, so automatically do so based on DMI information.
+>=20
+> More information can be found here:
+> https://www.spinics.net/lists/linux-i2c/msg33938.html
+
+I'm faced with similar cold boot issues on my HP ProBook 430 G4 model.
+Trying your hint with adding=20
+"options i2c_i801 disable_features=3D0x20"
+to /etc/modprobe.d/i2c_i801.conf doesn't seem to solve it for me.
+
+root@laptop64:/root # systool -v -m
+i2c_i801 Module =3D "i2c_i801"
+
+  Attributes:
+    coresize            =3D "28672"
+    initsize            =3D "0"
+    initstate           =3D "live"
+    refcnt              =3D "0"
+    srcversion          =3D "A40BF457CFB8C7887EB2045"
+    taint               =3D ""
+    uevent              =3D <store method only>
+
+  Parameters:
+    disable_features    =3D "32"
+
+  Sections:
+    .bss                =3D "0xffffffffc0801800"
+    .data               =3D "0xffffffffc0801120"
+    .exit.text          =3D "0xffffffffc07fe463"
+    .gnu.linkonce.this_module=3D "0xffffffffc08014c0"
+    .init.text          =3D "0xffffffffc070b000"
+    .note.gnu.build-id  =3D "0xffffffffc07ff000"
+    .orc_unwind         =3D "0xffffffffc0800140"
+    .orc_unwind_ip      =3D "0xffffffffc07ffe38"
+    .parainstructions   =3D "0xffffffffc07ff548"
+    .rodata.str1.1      =3D "0xffffffffc07ff284"
+    .rodata.str1.8      =3D "0xffffffffc07ff028"
+    .rodata             =3D "0xffffffffc07ff560"
+    .smp_locks          =3D "0xffffffffc07ff280"
+    .strtab             =3D "0xffffffffc070d350"
+    .symtab             =3D "0xffffffffc070c000"
+    .text               =3D "0xffffffffc07fc000"
+    __jump_table        =3D "0xffffffffc0801000"
+    __mcount_loc        =3D "0xffffffffc08005d0"
+    __param             =3D "0xffffffffc07ffe10"
+    __verbose           =3D "0xffffffffc0801220"
+
+My system boots legacy grub in text mode (KMS) and seems to keep hanging
+even with that option set.
+
+Do you have any further idea?
+
+-Andy
+Arch linux
+
+--Sig_/XkH6mZ7UDh1Kx7tGm5D5AYv
+Content-Type: application/pgp-signature
+Content-Description: Digitale Signatur von OpenPGP
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEErcih/MFeAdRTEEGelGV6sg8qCSsFAlrD0lYACgkQlGV6sg8q
+CSunBgf9G0ZF5xVjIXBZjMfIMKUqK+VLld0BTZno+Jzap92K2pKItGP6iuXi1u//
+zTtFGUIF4NckPL3ZeumR9DPtash1O2LC+h13BEPnN/8lH7kNfqWSYvysKeUiOMeY
+FQn+fu/SktwxRK9SCE+5hY1a6lb1/qc+paSLTKs82dBRBz0ObvFPWpO/P2rU9rYD
+W9hZpa8w2E6nsXeADHepk4PtW4Tl4rnje8qdKScxChUBH7tGDNCmUDjSaI+93pZw
+8gaddKvh9y17R8bHWmIM2RLLaA0aGY+HUK/bVwgJBy34kGbp2gELLsQVyXn/KDaG
+RLfRpqw8SdXMUCJHxZRAp8wUkwmN1g==
+=v6cn
+-----END PGP SIGNATURE-----
+
+--Sig_/XkH6mZ7UDh1Kx7tGm5D5AYv--
