@@ -1,12 +1,13 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v6 0/3] add support for Socionext SynQuacer I2C controller
-Date: Tue, 3 Apr 2018 17:01:39 +0200
-Message-ID: <20180403150139.l7oec4doafmsidfp@ninjato>
+Subject: Re: [PATCH v6 3/3] i2c: add param sanity check to i2c_transfer()
+Date: Tue, 3 Apr 2018 17:03:11 +0200
+Message-ID: <20180403150311.7gpvcga33eivlyms@ninjato>
 References: <20180325110747.8852-1-ard.biesheuvel@linaro.org>
+ <20180325110747.8852-4-ard.biesheuvel@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============9147165970046067010=="
+Content-Type: multipart/mixed; boundary="===============2882548356858760168=="
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180325110747.8852-1-ard.biesheuvel@linaro.org>
+In-Reply-To: <20180325110747.8852-4-ard.biesheuvel@linaro.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -21,56 +22,46 @@ Cc: andy.shevchenko@gmail.com, jassisinghbrar@gmail.com, linux-i2c@vger.kernel.o
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============9147165970046067010==
+--===============2882548356858760168==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="nsfyatgpqm7a6nes"
+	protocol="application/pgp-signature"; boundary="ut2qzodcgzk5o5az"
 Content-Disposition: inline
 
 
---nsfyatgpqm7a6nes
+--ut2qzodcgzk5o5az
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
+> +	if (!msgs || num < 1)
+> +		return -EINVAL;
 
-> - switch to generic recovery using minimal helpers to drive the SDA/SCL lines
->   directly
-
-If you had added this incrementally, reviewing would have been easier (=
-faster). The callbacks look okay...
-
-> - don't recover on every error
-
-... but you are now never recovering. You don't call i2c_recover_bus().
-
-> - add patch to sanity check i2c_transfer() arguments in core code (#3)
-
-See small comment there.
+I think this case justifies WARN (or WARN_ON, I always mix them up).
 
 
---nsfyatgpqm7a6nes
+--ut2qzodcgzk5o5az
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrDl1MACgkQFA3kzBSg
-KbbHhw//Zpf1v0NYoiMaDpdWR/XBIUH6tOLcUk5nUIy3SHgQrnRqTe5UKjdALscf
-H5cYseyJIYBtwmoPcYLp8BX7K2SpfyoU/59AMfgz1FhBg10dBWp8J3ataFAHuxpp
-eoHuc5odvBv8+t73/eTZZmmSaQ0yB9CPGxCh5vrvftcCb4JIfVhfOdk8iRLzej11
-1f498KQsxrVj5RVMfkll2BvTJ6MWjDJWAIElrva8OLsCXE9Gia1rj9QXYGAb3phk
-6cJll507TeIYwTguGEQZicfqb49BUxcXATtjbSDoQ8POwRHIq2lwryWO54Xj0XBV
-ff0+rAHNp7o94B02a0opIUClt0lfuZMy51Cfo19342PYm28/aFmI4nKVlCv2+7Ro
-ESyMj4fQrrNjruiQHumX+l1efgWN5ApKDCI0GN+bujA3Jq1CJQZMGKHRx6p41XXI
-XKyc+tfXnSlCZF6s5+TPdqxE/+o6xWEuOfFcB+/YypyzsUK4HQW6FZHLSuFHL4k/
-qQ2OIMo7BhUHUatJ3Fkvg885YjSYk+76BVqwUFi/uAxWboiBUskrtRkjAzJlRGK+
-vhMZMc/jAHbYtN3sQdv+pgZ2xkZLXzG+jKnRMzsv4scxG11gPnqsvdxOQi9TVX4x
-D90BmH/2aIobT2x9Azn1gTZmQLjFMPKYOHR7rQzIM+dF9hyBeSA=
-=dZ+W
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrDl68ACgkQFA3kzBSg
+Kbak3w//aFK+W6GBWFFJ56MT10C+BWjYTSIbEbIEfzqXWVAAgLJlLuBZWc5VsmWT
+8lAyOpDjWTLZJG9cWFfn/j66j18Iozky7JlywsuUxhm3OqkfhUdd/WWo4Zopjkgp
+ZdHzM8Vmx6GHpX9ApUzon/hwG1ktepyQLpJLxEd1khbpdaHQQDePA5cUf6sQn9dq
+gU2dnt0twI85E8YklHeddJGIou1F9MXuisDmb4zkGiuDnbe3d/4sRnOV9/43l0k3
+VvFJQKDQcptLGGeaacVa4slykW8pytOKynKeffg0Ub3VY3n6qBozrH1kfHwYuXW8
+SMO48zMONCxRP8/Rjg0zCTRZKSHfSe32nqG2tiGyi6VfR6Z1XJl/A78VMnSaPkvO
+B2Z2PnA7lTLBeGENawJhj3whw+8fhlc5LjIHzgSmhKYRgwvXddL/Yd21+nCNyZT5
+dDALQ5TGMTzVzPptbQUoJjkiRgvniX8Vk2KnCeKEjeXmub+Vyl20wWrPPdGghf2F
+4A82VNNgcFGlIdRl0doJ/JWnb5bMTjLh5HNrniN7l7+d9L3q+3yyKkXn/m6a+eT0
+KUN0Tfiqhu/ADl3G+Hd1Bp1VKtRh4Eeu1BEq9VtHoVF9C92vd1+EQwJhlhhIy/ub
+j7msSTq2pEPRqVcQ6rsZvhYx1yupSSeUZ8qY0MCvxrQGBS4v5nQ=
+=g/GO
 -----END PGP SIGNATURE-----
 
---nsfyatgpqm7a6nes--
+--ut2qzodcgzk5o5az--
 
 
---===============9147165970046067010==
+--===============2882548356858760168==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -81,4 +72,4 @@ linux-arm-kernel mailing list
 linux-arm-kernel@lists.infradead.org
 http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
---===============9147165970046067010==--
+--===============2882548356858760168==--
