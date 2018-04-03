@@ -1,75 +1,69 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v6 3/3] i2c: add param sanity check to i2c_transfer()
-Date: Tue, 3 Apr 2018 17:03:11 +0200
-Message-ID: <20180403150311.7gpvcga33eivlyms@ninjato>
-References: <20180325110747.8852-1-ard.biesheuvel@linaro.org>
- <20180325110747.8852-4-ard.biesheuvel@linaro.org>
+Subject: Re: [PATCH v2 2/6] i2c: i2c-stm32f7: Add slave support
+Date: Tue, 3 Apr 2018 17:26:04 +0200
+Message-ID: <20180403152604.udgh4v2erpsupgo3@ninjato>
+References: <1521650940-11651-1-git-send-email-pierre-yves.mordret@st.com>
+ <1521650940-11651-3-git-send-email-pierre-yves.mordret@st.com>
+ <20180325181600.vehqe3xcx55qxtd7@katana>
+ <94737125-c0b7-08ca-c2f7-feb4e5d0498c@st.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2882548356858760168=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180325110747.8852-4-ard.biesheuvel@linaro.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: andy.shevchenko@gmail.com, jassisinghbrar@gmail.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="qfvqwuivg7flquuk"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <94737125-c0b7-08ca-c2f7-feb4e5d0498c@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============2882548356858760168==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="ut2qzodcgzk5o5az"
-Content-Disposition: inline
-
-
---ut2qzodcgzk5o5az
+--qfvqwuivg7flquuk
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> +	if (!msgs || num < 1)
-> +		return -EINVAL;
+On Mon, Mar 26, 2018 at 10:41:51AM +0200, Pierre Yves MORDRET wrote:
+>=20
+>=20
+> On 03/25/2018 08:16 PM, Wolfram Sang wrote:
+> > On Wed, Mar 21, 2018 at 05:48:56PM +0100, Pierre-Yves MORDRET wrote:
+> >> This patch adds slave support for I2C controller embedded in STM32F7 S=
+oC
+> >>
+> >> Signed-off-by: M'boumba Cedric Madianga <cedric.madianga@gmail.com>
+> >> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+> >=20
+> > Looks OK from a first look. What kind of tests did you do?
+>=20
+> As mentioned for 10-bit, I'm using 2 I2C instances from the SoC.
+> Here are the tests I dit:
+>  - Master/slave send in 7 and 10 bits
+>  - master/slave recv in 7 and 10 bits
+>  - E2PROM Read/Write
 
-I think this case justifies WARN (or WARN_ON, I always mix them up).
+As far as I understand the code now, both instances can be master /
+slave simultanously on the same bus?
 
 
---ut2qzodcgzk5o5az
+--qfvqwuivg7flquuk
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrDl68ACgkQFA3kzBSg
-Kbak3w//aFK+W6GBWFFJ56MT10C+BWjYTSIbEbIEfzqXWVAAgLJlLuBZWc5VsmWT
-8lAyOpDjWTLZJG9cWFfn/j66j18Iozky7JlywsuUxhm3OqkfhUdd/WWo4Zopjkgp
-ZdHzM8Vmx6GHpX9ApUzon/hwG1ktepyQLpJLxEd1khbpdaHQQDePA5cUf6sQn9dq
-gU2dnt0twI85E8YklHeddJGIou1F9MXuisDmb4zkGiuDnbe3d/4sRnOV9/43l0k3
-VvFJQKDQcptLGGeaacVa4slykW8pytOKynKeffg0Ub3VY3n6qBozrH1kfHwYuXW8
-SMO48zMONCxRP8/Rjg0zCTRZKSHfSe32nqG2tiGyi6VfR6Z1XJl/A78VMnSaPkvO
-B2Z2PnA7lTLBeGENawJhj3whw+8fhlc5LjIHzgSmhKYRgwvXddL/Yd21+nCNyZT5
-dDALQ5TGMTzVzPptbQUoJjkiRgvniX8Vk2KnCeKEjeXmub+Vyl20wWrPPdGghf2F
-4A82VNNgcFGlIdRl0doJ/JWnb5bMTjLh5HNrniN7l7+d9L3q+3yyKkXn/m6a+eT0
-KUN0Tfiqhu/ADl3G+Hd1Bp1VKtRh4Eeu1BEq9VtHoVF9C92vd1+EQwJhlhhIy/ub
-j7msSTq2pEPRqVcQ6rsZvhYx1yupSSeUZ8qY0MCvxrQGBS4v5nQ=
-=g/GO
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrDnQgACgkQFA3kzBSg
+KbaRKA/8DwUMYUgeaNpboD15JOfVpRCDDVJIphlon3oRKvBxH4ryR4xkQT7fsueH
+xvCnK0w+C10pjKDWIf52iIzcsnjDtvGYb5b4ZZCeGhC+5bnuit3pgXg9pmbWVFmH
+POBTVxBsB+gyhNACSNsahZ2QyHOyy6wLreaQlJHtbOAU3s7mCHWSsmb9cyeElq6v
+V9JNyiuI+3rcWUQy2oqtmZ4GoJ0Rs3doCHIE9YjxXSQS/dNuSdJ+mbgMX2Qe4lCf
+KLqyUaxERuAiMgbEURXn+MAp7+nTJ3QZJekyrXE+DwvXI/zsdbLjcDoCN+l85hcc
+GmB+/CpIos7XkEM+QYq8lPfNk7yUeRp6j8U3qt6tgiLIh02f6RhXc9MvXssqCl6k
+/4SkeccuyP0Sapft/it16D/bQU23skuZMhu84k49TV5fAHfNGovIVa8kLQ6o2g+A
+NspD0GxObOPqIbwh3lPXkgStmTneZvzw5Y2rPkUjC7KlEiLgmItGybOJfnR6c2Dr
+byni7FmvZ1OGNHFiTINZVFU6AVRV18+HdYlO2sejkVjHDdiB7XKmJ6EAutPDqHzk
+lefYT9/29ePoL3M5zNxXS13tKAdMJlaKW6q2HEii1fvAiV2n2aHyClPZOMVzCHHk
+fcQhjoJFHnrb61qHYlfFO1kYAfn59cdrfalMF7phvx0ZHrsSV8w=
+=y8Qs
 -----END PGP SIGNATURE-----
 
---ut2qzodcgzk5o5az--
-
-
---===============2882548356858760168==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============2882548356858760168==--
+--qfvqwuivg7flquuk--
