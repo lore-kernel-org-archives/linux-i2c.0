@@ -1,15 +1,14 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v6 2/3] i2c: add support for Socionext SynQuacer I2C
- controller
-Date: Wed, 4 Apr 2018 20:35:01 +0200
-Message-ID: <20180404183501.objbi4egz4qdu6hs@ninjato>
-References: <20180325110747.8852-1-ard.biesheuvel@linaro.org>
- <20180325110747.8852-3-ard.biesheuvel@linaro.org>
- <20180404183411.rrukznuwmtbwwyjd@ninjato>
+Subject: Re: [PATCH v7 1/4] dt-bindings: i2c: add binding for Socionext
+ SynQuacer I2C
+Date: Wed, 4 Apr 2018 20:35:34 +0200
+Message-ID: <20180404183533.k5h64cl6z4hjrc4i@ninjato>
+References: <20180403191151.14924-1-ard.biesheuvel@linaro.org>
+ <20180403191151.14924-2-ard.biesheuvel@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7140379720709646456=="
+Content-Type: multipart/mixed; boundary="===============4455436404458412292=="
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180404183411.rrukznuwmtbwwyjd@ninjato>
+In-Reply-To: <20180403191151.14924-2-ard.biesheuvel@linaro.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -24,56 +23,51 @@ Cc: andy.shevchenko@gmail.com, jassisinghbrar@gmail.com, linux-i2c@vger.kernel.o
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============7140379720709646456==
+--===============4455436404458412292==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="buiogc4zymqs2qf7"
+	protocol="application/pgp-signature"; boundary="tjsctell5yzspiuj"
 Content-Disposition: inline
 
 
---buiogc4zymqs2qf7
+--tjsctell5yzspiuj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 04, 2018 at 08:34:11PM +0200, Wolfram Sang wrote:
-> On Sun, Mar 25, 2018 at 12:07:46PM +0100, Ard Biesheuvel wrote:
-> > This is a cleaned up version of the I2C controller driver for
-> > the Fujitsu F_I2C IP, which was never supported upstream, and
-> > has now been incorporated into the Socionext SynQuacer SoC.
-> >=20
-> > Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> > Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+On Tue, Apr 03, 2018 at 09:11:48PM +0200, Ard Biesheuvel wrote:
+> Add a binding for the I2C controller that can be found in the Socionext
+> SynQuacer SoC.
 >=20
-> Removed two empty lines found by 'checkpatch --strict' and applied to
-> for-next, thanks!
+> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+> Reviewed-by: Rob Herring <robh@kernel.org>
 
-Again, this applies to v7 of this patchset...
+Applied to for-next, thanks!
 
 
---buiogc4zymqs2qf7
+--tjsctell5yzspiuj
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrFGtUACgkQFA3kzBSg
-KbZk2Q//Q2AQJpSxcCOSJ9lVCst+xC8XMkUBE3RyD8eNZyC+8p5pOiclwMkYXoCL
-c+4n4WtrtIQVm2AWmfNfP+TInvJBnuL5prFbXu6GfFjKODwfIpHBStT9DHW2zjvF
-CokGOQxIi12Cfs4VxFqHurLRvMHmcN+5NZgzqSGkOkqOFBmgkBULUrRxNrU16Sdd
-jGQoLGzHWAnNexC17TqwkFTpD2/7I8TGggeduwKL7uoYapxnAtczzJUW+KgJSWWl
-343hOFKNkjv9T8ZsusR4uaGS2b8PVe8XNhe44xXAr7OcoGEI0V8XviCV4ToxxOL6
-A5bixhP4ZA3kcYOu/ZaTmxKyzsYgcoSrhnhoVhhpYXEoaSIZ3YNLSr3UKC2PstGj
-Ysvf+1i6oDJs3cZTdqBIOZo0RE3n3d2qAGJC56TCUudm7IHFhrg5r0su2/WwJBIz
-UeiN6gKV7bRd2VdyJWhUtC+EZtpBtulJ/Q27uuiOxx1rrXyyPrrPL39cpDB1pbM7
-vXyaXt0CBY6FiGZRns1wQcb6EQzQrOFkWGFCnJtwrby5yKV1xjCoBtImE6Kc6cMY
-CxPduJkAeI/1MMepKbbuW/lNPjNewUdLvPNAajdSXQIzY+qd+Ste6oensFGuIth3
-4xdMQIsq7GXCxdlE7HjY5jW5nwKaXFJTcdiyG3um/G0yBs2WdUU=
-=x2vf
+iQIyBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrFGvUACgkQFA3kzBSg
+KbatWw/4gPkEhrpgkt8IxCWVknYqN1KmtOfUSz7Icq1UQF/4MPsCibbYMTTxwcyl
+ZEumLxkpyE7jWebS4VPXuK1kNc1m5EyCr2W4R495VATmAOYmKVBLMtQ+1iKouVY6
+KnsDTywD5Sz6RDdITou4kQ7cbty1uVklLBXlc16ZiA+SU5m8eQ5mum4sN3RYl2j6
+AcUpYEi5PAbq5ZhsJ02LE8Bx+agcg44zkDDshCyykqlbCgzI0vZMov+uKSiZZmUB
+KZaP8stgTH1PDZnuTT+bru1xL0wbivz6q1yuQnTspMCqkCWcu9Qxj2UoVArEPyk3
+sd3PGHuK4k+F0s3680SvuQpXQBNgQcFS3T7uLOk6GD2jHGloxcV3gPE0UnOoHapd
+euDeAHOK33BeeP+DqmCR4G4qqe7J1eJozoFaaXSOt7/xwuF1ZS+26cqY7EwnqqZf
+R0e64no672QM2ppFq3jM52Q3zftByEkKA8WXGZLBbPgUWxR22kY3+iV1MmZWsPBD
+AM/4X+z3gHmeQzGuJx40x1+zW2WnVahYITwGulWUsZu5FU0FNZFjE3PFc2kH8JPZ
+MY9n/ytO6i/4zw2/QEPnopquCT8Oti8IgclzpD9yPyGvUjHO2D6JDPVV2aPXFBgf
+vM6NBmUq3BcQV2W1r803eV0Lygf8YKU52U6u8oMOOplU0C4v6w==
+=s5Lc
 -----END PGP SIGNATURE-----
 
---buiogc4zymqs2qf7--
+--tjsctell5yzspiuj--
 
 
---===============7140379720709646456==
+--===============4455436404458412292==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -84,4 +78,4 @@ linux-arm-kernel mailing list
 linux-arm-kernel@lists.infradead.org
 http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
---===============7140379720709646456==--
+--===============4455436404458412292==--
