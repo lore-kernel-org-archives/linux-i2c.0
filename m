@@ -1,67 +1,54 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v2] i2c: i801: blacklist Host Notify on HP EliteBook G3
- 850
-Date: Wed, 4 Apr 2018 16:02:11 +0200
-Message-ID: <20180404160211.57ae77ea@endymion>
-References: <20180402122536.5083-1-jandryuk@gmail.com>
-        <20180402123435.5587-1-jandryuk@gmail.com>
-        <20180403211326.4907f1bc@laptop64.home>
-        <CAKf6xpu4=kLuqZqFsxqFCzLMyLBZyi3C9W_yyssEt=56dhF6RA@mail.gmail.com>
+From: Ludovic Desroches <ludovic.desroches@microchip.com>
+Subject: Re: [RFC PATCH 2/2] i2c: at91: provide bus_freq_hz
+Date: Wed, 4 Apr 2018 17:34:12 +0200
+Message-ID: <20180404153412.GL2574@rfolt0960.corp.atmel.com>
+References: <20180326111927.16040-1-tudor.ambarus@microchip.com>
+ <20180326111927.16040-2-tudor.ambarus@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAKf6xpu4=kLuqZqFsxqFCzLMyLBZyi3C9W_yyssEt=56dhF6RA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Andryuk <jandryuk@gmail.com>
-Cc: Andreas Radke <andyrtr@archlinux.org>, Wolfram Sang <wsa@the-dreams.de>, benjamin.tissoires@redhat.com, aduggan@synaptics.com, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <20180326111927.16040-2-tudor.ambarus@microchip.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Tudor Ambarus <tudor.ambarus@microchip.com>
+Cc: alexandre.belloni@bootlin.com, wsa@the-dreams.de, ludovic.desroches@microchip.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jason, Andreas,
-
-On Wed, 4 Apr 2018 08:55:20 -0400, Jason Andryuk wrote:
-> On Tue, Apr 3, 2018 at 3:13 PM, Andreas Radke <andyrtr@archlinux.org> wrote:
-> > I'm faced with similar cold boot issues on my HP ProBook 430 G4 model.
-> > Trying your hint with adding
-> > "options i2c_i801 disable_features=0x20"
-> > to /etc/modprobe.d/i2c_i801.conf doesn't seem to solve it for me.  
+On Mon, Mar 26, 2018 at 02:19:27PM +0300, Tudor Ambarus wrote:
+> The clock-frequency property is not mandatory for the i2c buses. If it's
+> not present in device tree, the buses usually assume that is 100kHZ.
+> There are i2c clients that need to know the clock frequency in order to
+> compute their wake token. Spare the clients of making (wrong) assumptions
+> and provide the bus frequency in adapter.
 > 
-> Maybe verify the option is set by checking
-> /sys/module/i2c_i801/parameters/disable_features ?  Looks like dmesg
-> should also report "SMBus Host Notify disabled by user" when disabled.
-> I run with i801 built-in, so I was specifying the option on the kernel
-> command line.
+> Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
 
-Another thing to think of is that you may have to rebuild the
-initrd/initramfs after editing /etc/modprobe.d/i2c_i801.conf if
-i2c-i801 happens to be part of it (and make sure
-that /etc/modprobe.d/i2c_i801.conf is indeed included in
-initrd/initramfs then.)
-
-> > My system boots legacy grub in text mode (KMS) and seems to keep hanging
-> > even with that option set.  
+> ---
+>  drivers/i2c/busses/i2c-at91.c | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> Your cold boot hang is in legacy grub itself?  Legacy grub text mode
-> actually doesn't hang my G3 850 - it was switching to the graphical
-> splash screen that seemed to do it.  PXE booting via F12 was another
-> consistent way to hang.  It was very early in the PXE boot code -
-> before it checked the link status.  So you could try that with it just
-> plugged into a switch even if you don't have a PXE boot setup.
+> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> index bfd1fdf..d3cd84e 100644
+> --- a/drivers/i2c/busses/i2c-at91.c
+> +++ b/drivers/i2c/busses/i2c-at91.c
+> @@ -1116,6 +1116,7 @@ static int at91_twi_probe(struct platform_device *pdev)
+>  	dev->adapter.quirks = &at91_twi_quirks;
+>  	dev->adapter.dev.parent = dev->dev;
+>  	dev->adapter.nr = pdev->id;
+> +	dev->adapter.bus_freq_hz = bus_clk_rate;
+>  	dev->adapter.timeout = AT91_I2C_TIMEOUT;
+>  	dev->adapter.dev.of_node = pdev->dev.of_node;
+>  
+> -- 
+> 2.9.4
 > 
-> From my previous post:
-> """
-> The Boot Agent hang prints "Client Mac Addr 00-11-22-33-44-55<cursor>"
-> and hangs.  A normal boot prints a GUID on the same line and
-> continues.
-> """
-> 
-> Otherwise, unfortunately, it might just be a different issue.
-
-I recall reports about hangs when we first added support for
-interrupts. I think we addressed all the bugs in this area since then
-but maybe not. So you may want to try disable_features=0x30 to disable
-both interrupts and SMBus Host Notify.
-
--- 
-Jean Delvare
-SUSE L3 Support
