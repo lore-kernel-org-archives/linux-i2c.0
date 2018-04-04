@@ -1,57 +1,73 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/6] i2c: i2c-stm32f7: Add slave support
-Date: Wed, 4 Apr 2018 13:07:56 +0200
-Message-ID: <20180404110756.pxrmyjaiasp2c35n@ninjato>
-References: <1521650940-11651-1-git-send-email-pierre-yves.mordret@st.com>
- <1521650940-11651-3-git-send-email-pierre-yves.mordret@st.com>
- <20180325181600.vehqe3xcx55qxtd7@katana>
- <94737125-c0b7-08ca-c2f7-feb4e5d0498c@st.com>
- <20180403152604.udgh4v2erpsupgo3@ninjato>
- <a6218454-d44c-7888-2688-d24bf5bc97f4@st.com>
+From: Jason Andryuk <jandryuk@gmail.com>
+Subject: Re: [PATCH v2] i2c: i801: blacklist Host Notify on HP EliteBook G3 850
+Date: Wed, 4 Apr 2018 08:55:20 -0400
+Message-ID: <CAKf6xpu4=kLuqZqFsxqFCzLMyLBZyi3C9W_yyssEt=56dhF6RA@mail.gmail.com>
+References: <20180402122536.5083-1-jandryuk@gmail.com> <20180402123435.5587-1-jandryuk@gmail.com>
+ <20180403211326.4907f1bc@laptop64.home>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="keh27gkv2uxr773f"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <a6218454-d44c-7888-2688-d24bf5bc97f4@st.com>
+In-Reply-To: <20180403211326.4907f1bc@laptop64.home>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Andreas Radke <andyrtr@archlinux.org>
+Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, benjamin.tissoires@redhat.com, aduggan@synaptics.com, linux-i2c@vger.kernel.org, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, Apr 3, 2018 at 3:13 PM, Andreas Radke <andyrtr@archlinux.org> wrote:
+> Am Mon,  2 Apr 2018 08:34:35 -0400
+> schrieb Jason Andryuk <jandryuk@gmail.com>:
+>
+>> The HP EliteBook G3 850 has a weird bug where a subsequent cold boot
+>> hangs while plugged in if Linux enables the Host Notify features of
+>> i2c-i801.  The cold boot hang depends on how the system boots.  It
+>> does not hang on UEFI Grub text boot or legacy Grub text boot.  But
+>> it does hang on legacy Grub graphical boot and Intel Boot Agent PXE
+>> text boot. Booting unplugged is not affected.
+>>
+>> Disabling the Host Notify feature with disable_feature=0x20 works
+>> around the bug, so automatically do so based on DMI information.
+>>
+>> More information can be found here:
+>> https://www.spinics.net/lists/linux-i2c/msg33938.html
+>
+> I'm faced with similar cold boot issues on my HP ProBook 430 G4 model.
+> Trying your hint with adding
+> "options i2c_i801 disable_features=0x20"
+> to /etc/modprobe.d/i2c_i801.conf doesn't seem to solve it for me.
 
---keh27gkv2uxr773f
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Maybe verify the option is set by checking
+/sys/module/i2c_i801/parameters/disable_features ?  Looks like dmesg
+should also report "SMBus Host Notify disabled by user" when disabled.
+I run with i801 built-in, so I was specifying the option on the kernel
+command line.
 
+> My system boots legacy grub in text mode (KMS) and seems to keep hanging
+> even with that option set.
 
-> > As far as I understand the code now, both instances can be master /
-> > slave simultanously on the same bus?
->=20
-> Correct.
+Your cold boot hang is in legacy grub itself?  Legacy grub text mode
+actually doesn't hang my G3 850 - it was switching to the graphical
+splash screen that seemed to do it.  PXE booting via F12 was another
+consistent way to hang.  It was very early in the PXE boot code -
+before it checked the link status.  So you could try that with it just
+plugged into a switch even if you don't have a PXE boot setup.
 
-Very nice! :)
+>From my previous post:
+"""
+The Boot Agent hang prints "Client Mac Addr 00-11-22-33-44-55<cursor>"
+and hangs.  A normal boot prints a GUID on the same line and
+continues.
+"""
 
+Otherwise, unfortunately, it might just be a different issue.
 
---keh27gkv2uxr773f
-Content-Type: application/pgp-signature; name="signature.asc"
+> Do you have any further idea?
 
------BEGIN PGP SIGNATURE-----
+For the G3 850, I bisected to the commit introducing i801 Host Notify
+support.  It's time consuming, but you could do the same.  I first
+noticed the issue when I moved from a working stable 4.4 to stable
+4.14.  I tried some fedora kernels in between which narrowed down the
+bisect range.  You could similarly grab and test pre-compiled kernels
+to more quickly hone in on the regression range.
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrEsggACgkQFA3kzBSg
-KbbfuBAAnfzFZGy+3e08dObsETvGRpqa9AUzIxNgU9PmC3SCW2CZG9QYHFnpWTpn
-8/Tf+a01z0pwX8wcRXTle6FvCnRRwEmSNzzTy0qmi9BNRXOhnqHzl8/KaAtHzotI
-D9X16k8OETWlkfO0eD4mfwM63A2KXkMedR1X9KtUJFaFGr+cT79bIRYP13kRRnca
-/Ikpre28zFJtMS8xsPeyWoLo644Fnm0opk1eAXpF5iRVNYMxOx6ElyyyXzZRvrRm
-Vb98vGCgftpeFW7YCqnGzFBz6MZXFKFVN7/iz/+KZv4A4GE2fUfpZCtA4C5pUKsR
-iwn+hBLUiNHFEBVV7f2HAEtOD/uctdOLsncbASYWcJooiIoOLxSjNCmuV2Hh0uCo
-Jc/vHrfxH3XBP+yC0Tc49BpEwirU7A7Bx8G6qmquIXIKlFUQ663mDMo4d4WvvaT4
-EBkasujYS7aod6YCOUxdeOkxIsExu/eOnW8FushHbaPRahive9En2sg/Ez2Ft60X
-5fwG7FX5D5FKrFffmGwWu6Ft21fV9Ji/Aa00ed+m4EFPlJnD+QLAezYTX63qH1mz
-ZWMCV7zhqlAH8wXZTTcGYGkPwqWk4gtbDwFj66dNA7b6HHX/8iw2Rm5KecrQ9GAC
-9ajQEF5TZKFlxKYi4kj6HSkOnFk1S4oOp2yBzzF0EnU9UkjlCuU=
-=S8CE
------END PGP SIGNATURE-----
-
---keh27gkv2uxr773f--
+Regards,
+Jason
