@@ -1,15 +1,14 @@
-From: Ludovic Desroches <ludovic.desroches@microchip.com>
-Subject: Re: [RFC PATCH 2/2] i2c: at91: provide bus_freq_hz
-Date: Wed, 4 Apr 2018 17:34:12 +0200
-Message-ID: <20180404153412.GL2574@rfolt0960.corp.atmel.com>
-References: <20180326111927.16040-1-tudor.ambarus@microchip.com>
- <20180326111927.16040-2-tudor.ambarus@microchip.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v6 1/3] dt-bindings: i2c: add binding for Socionext
+ SynQuacer I2C
+Date: Wed, 4 Apr 2018 20:33:40 +0200
+Message-ID: <20180404183340.43s4ikutyg444vhq@ninjato>
+References: <20180325110747.8852-1-ard.biesheuvel@linaro.org>
+ <20180325110747.8852-2-ard.biesheuvel@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5309562762055115287=="
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20180326111927.16040-2-tudor.ambarus@microchip.com>
+In-Reply-To: <20180325110747.8852-2-ard.biesheuvel@linaro.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -19,36 +18,64 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Tudor Ambarus <tudor.ambarus@microchip.com>
-Cc: alexandre.belloni@bootlin.com, wsa@the-dreams.de, ludovic.desroches@microchip.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: andy.shevchenko@gmail.com, jassisinghbrar@gmail.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Mar 26, 2018 at 02:19:27PM +0300, Tudor Ambarus wrote:
-> The clock-frequency property is not mandatory for the i2c buses. If it's
-> not present in device tree, the buses usually assume that is 100kHZ.
-> There are i2c clients that need to know the clock frequency in order to
-> compute their wake token. Spare the clients of making (wrong) assumptions
-> and provide the bus frequency in adapter.
-> 
-> Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
 
-> ---
->  drivers/i2c/busses/i2c-at91.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> index bfd1fdf..d3cd84e 100644
-> --- a/drivers/i2c/busses/i2c-at91.c
-> +++ b/drivers/i2c/busses/i2c-at91.c
-> @@ -1116,6 +1116,7 @@ static int at91_twi_probe(struct platform_device *pdev)
->  	dev->adapter.quirks = &at91_twi_quirks;
->  	dev->adapter.dev.parent = dev->dev;
->  	dev->adapter.nr = pdev->id;
-> +	dev->adapter.bus_freq_hz = bus_clk_rate;
->  	dev->adapter.timeout = AT91_I2C_TIMEOUT;
->  	dev->adapter.dev.of_node = pdev->dev.of_node;
->  
-> -- 
-> 2.9.4
-> 
+--===============5309562762055115287==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="dbthidb3667fhnf5"
+Content-Disposition: inline
+
+
+--dbthidb3667fhnf5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sun, Mar 25, 2018 at 12:07:45PM +0100, Ard Biesheuvel wrote:
+> Add a binding for the I2C controller that can be found in the Socionext
+> SynQuacer SoC.
+>=20
+> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+> Reviewed-by: Rob Herring <robh@kernel.org>
+
+Applied to for-next, thanks!
+
+
+--dbthidb3667fhnf5
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrFGoQACgkQFA3kzBSg
+KbbCLQ/+MO244wY2F7GT5TafvHL9q/nCj21qTk8CMR6pdDafJgq3eBX0wRVCLXxO
+ESjc4Dv3MjgS4mVz7oRxNUhyNgnQw0aMCgaZwSCK3fGOtEAF5edIBECWKKZtZ6U4
+An2amkbjvff8F/PKvU/p2fHue6Ea24AhxawXR/iQI5YpGrmuaUKblDh8fVftvJ4Y
+QE5IMPP50lyxf+6kbDGZnCxy10Guhn2nOtEvacFeoTDFPNUwK8np9vRa5bhiVGd2
+xWgvtskruZkGsXWSPstTPQzHHEz6SW5CHX1Osk8TyX9pF/XVlWDZ/T7QktxhgvKs
+6qwQzz5f4gBNP7WLwZlNyoGcZyjDM+okxlR4TlWMve/B8SIPQ5aoun7P2bm9opyg
+URS0x2PzmymW/i8FLFmCeOqN4wlaySinvqfKCoxSjWAwwEhBllpNYzOhhb1T8ZR9
+qLflpkN8H9oAEUGWmq/GfsDj+LwS/ZfL6iNn3ybBE9mgGNyuJCWJy3kiSmFpyxKy
+CHZIGIhe9vxmhRDNy0XvADN5yPZaVk4SQmbc+jCYB+292zBz1dbJYH0bKePdr4f5
+XbVFN9C6X7y7ssuupcpIRJdavG5dP87QHboYvXIS2uxHwt2AIhsjw5puVtZJF2m/
+GoezQlXey03+lnIitSBiFam0Q0Rf8eDYUH5Ur5qzrrYcVlN7UXg=
+=+r71
+-----END PGP SIGNATURE-----
+
+--dbthidb3667fhnf5--
+
+
+--===============5309562762055115287==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============5309562762055115287==--
