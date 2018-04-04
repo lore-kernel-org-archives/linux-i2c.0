@@ -1,14 +1,13 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v7 4/4] MAINTAINERS: add Ard as Socionext SynQuacer I2C
- driver maintainer
-Date: Wed, 4 Apr 2018 20:37:50 +0200
-Message-ID: <20180404183750.a7uklovkpcc27pdi@ninjato>
+Subject: Re: [PATCH v7 3/4] i2c: add param sanity check to i2c_transfer()
+Date: Wed, 4 Apr 2018 20:38:23 +0200
+Message-ID: <20180404183823.ejewg6ran5li2vt5@ninjato>
 References: <20180403191151.14924-1-ard.biesheuvel@linaro.org>
- <20180403191151.14924-5-ard.biesheuvel@linaro.org>
+ <20180403191151.14924-4-ard.biesheuvel@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6342287449641762413=="
+Content-Type: multipart/mixed; boundary="===============6411490724304243865=="
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180403191151.14924-5-ard.biesheuvel@linaro.org>
+In-Reply-To: <20180403191151.14924-4-ard.biesheuvel@linaro.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -23,50 +22,53 @@ Cc: andy.shevchenko@gmail.com, jassisinghbrar@gmail.com, linux-i2c@vger.kernel.o
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============6342287449641762413==
+--===============6411490724304243865==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="d7aotdamvpomseg7"
+	protocol="application/pgp-signature"; boundary="pufwapz7u3rjr266"
 Content-Disposition: inline
 
 
---d7aotdamvpomseg7
+--pufwapz7u3rjr266
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 03, 2018 at 09:11:51PM +0200, Ard Biesheuvel wrote:
-> Add myself as maintainer for the newly added Socionext SynQuacer I2C
-> driver.
+On Tue, Apr 03, 2018 at 09:11:50PM +0200, Ard Biesheuvel wrote:
+> The API docs describe i2c_transfer() as taking a pointer to an array
+> of i2c_msg containing at least 1 entry, but leaves it to the individual
+> drivers to sanity check the msgs and num parameters. Let's do this in
+> core code instead.
 >=20
 > Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-Squashed into patch 2 and applied to for-next, thanks!
+Looks good but I want to test it myself, so I will include it in my
+second pull request later.
 
 
---d7aotdamvpomseg7
+--pufwapz7u3rjr266
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrFG34ACgkQFA3kzBSg
-Kbbpiw/9EkTcZ/tls7xHBKAM7MmxEHQNFeS2qaRL/3TWglPlCaeTzvs+g4e2Vsko
-VgJczgzMSUz3uoGGOjndEB1ls4J9r+wUiHQl1svLHGvemREvji3+RE6e8uFlZ/YX
-HtH+IoD52Dx7ZY2ASPCANBJ9TtN2fW3Ckku7awit6RMs+y+udiNg84TFU/BjTpie
-75j6B1FyFK2rlorA8dIIsZ+cd48aLlP2Xz4BIAhsE5rv9wjG3G5unnxVLeTf6HnP
-T3fCpJQ8si2o5loXmtdbaPE8XuFlOcr4I43r9N+P6BDEVj8kuTblXAZ+rIDcqTbG
-0MikQ7w5oiXf/55lsRfOZzL+MbvTDkXR7LVvAf0ip8hYmTK7fLaV0AAQlAbzCeWV
-KmvxQthkcryd7/QcqF2r5nkbEfogWZc7mSnpMZypRpncrSxrAAYAN2ZtQyYjfVHy
-fAuEz0UGiRzdzxB2JzHo9meOeVThHKfXRRZOJ8OnpE9IBYNSWHwB0liHpE4VV3RQ
-f9sOLcW2KRy7Ai1ijYGe0wUMWAC9CGeQjGalHrS/ZRxtFMPuleVncz0XfUTxE1Hi
-Y2sfFfUXIoSZgwIE1UL/fE1MjwCmM4A1/SNSvJK7biloD6i7LlM+pHrpFvtfjDFR
-k69qwF1AkTE9IQfarjDJmN+8ZtM2eIpsFbjVkW4BpPUbMWiVroU=
-=4u/Q
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrFG58ACgkQFA3kzBSg
+Kbaf8w//TDMgGV9BsbskxVheLOG/pVkazlsfvKwXJTPzI3Sl32R7oE5VOG00bPWg
+SgAFnpC7kfK7aZc5lBG5AELpCcHB+TV5bzE0Ka6KcCxm6pLev2KOZ9OS1a11jv29
+LU35pzHs1BqrGdmDfyDhHk2+QtzsZvcxIrWGe8it/c59xyYZfkyeWHN2SUBxwdhF
+VyI1CFqxfxIrlR9zh4qf5Zh9SsfXboEp1239nL+Ow1Qd9nrmNeNynByVXupG5YBt
+p54R+aP2zJLpITuLpAA3zQi2cyHvlMtwkV8wwr6DhrQDihRgRnyxjs/VWpJhNc0K
+srRNzDifthZDEU/pFrfi59smpVqBxfVv5CysYwqZ5IqfyZA1N+NGEKeFxNRiy4ml
+VMv8qxyYVnhkaN988HhVbEZ4x/Rf6Hv0/2HdazEXJiNEljd0jUreWtANvFE+LhSr
+MwJTSIg+AJGbJiQQy8e6p5ZSCelTJ7UV/8GHgwFN+nnjzghYFbnLjah0CQ17I707
+VzUXxv0YtShUCCZ5nIInomeL//L1NuDFTk7sVaQ1a9VIm9U1XjjRaDjPr1dwwRo1
+W57PBo974UK0lGhq0pCPPNcPENIACeuMTsT9Ew3wmEK7lKL2iN5Bz1/88IAjGpBV
+X4p9JK/IJ1/nnapxWpdiu3PZDztukyhH0D4zkK8lHYlshBQWW5U=
+=R/4Y
 -----END PGP SIGNATURE-----
 
---d7aotdamvpomseg7--
+--pufwapz7u3rjr266--
 
 
---===============6342287449641762413==
+--===============6411490724304243865==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -77,4 +79,4 @@ linux-arm-kernel mailing list
 linux-arm-kernel@lists.infradead.org
 http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
---===============6342287449641762413==--
+--===============6411490724304243865==--
