@@ -1,47 +1,84 @@
-From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 00/21] Allow compile-testing NO_DMA (drivers)
-Date: Wed, 4 Apr 2018 19:32:53 -0500
-Message-ID: <CAL_JsqJMppYaz31Gg8BH2OaAxs56dnjZ4y+nzBBp-Tt2odaqCw@mail.gmail.com>
-References: <1521208314-4783-1-git-send-email-geert@linux-m68k.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <1521208314-4783-1-git-send-email-geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Cc: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fpga-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "open list:REMOTE PROCESSOR (REMOTEPROC) SUBSYSTEM" <linux-remoteproc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-ALSA <alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>, netdev <netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux1394-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>, Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, "James E . J . Bottomley" <jejb-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, Herbert Xu <herbert-lOAM2aK0SrRLBo1qDEOMRrpzq4S04n8Q@public.gmane.org>, linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Richard Weinberger <richard-/L3Ra7n9ekc@public.gmane.org>, Jassi Brar <jassisinghbrar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "open list:SERIAL DRIVERS" <linux-serial@>
+From: Jason Andryuk <jandryuk@gmail.com>
+Subject: [PATCH v3] i2c: i801: blacklist Host Notify on HP EliteBook G3 850
+Date: Thu,  5 Apr 2018 14:38:24 -0400
+Message-ID: <20180405183824.13333-1-jandryuk@gmail.com>
+References: <20180404225643.6b40782f@endymion>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20180404225643.6b40782f@endymion>
+Sender: stable-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: benjamin.tissoires@redhat.com, andyrtr@archlinux.org, aduggan@synaptics.com, Jason Andryuk <jandryuk@gmail.com>, stable@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Mar 16, 2018 at 8:51 AM, Geert Uytterhoeven
-<geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org> wrote:
->         Hi all,
->
-> If NO_DMA=y, get_dma_ops() returns a reference to the non-existing
-> symbol bad_dma_ops, thus causing a link failure if it is ever used.
->
-> The intention of this is twofold:
->   1. To catch users of the DMA API on systems that do no support the DMA
->      mapping API,
->   2. To avoid building drivers that cannot work on such systems anyway.
->
-> However, the disadvantage is that we have to keep on adding dependencies
-> on HAS_DMA all over the place.
->
-> Thanks to the COMPILE_TEST symbol, lots of drivers now depend on one or
-> more platform dependencies (that imply HAS_DMA) || COMPILE_TEST, thus
-> already covering intention #2.  Having to add an explicit dependency on
-> HAS_DMA here is cumbersome, and hinders compile-testing.
+The HP EliteBook G3 850 has a weird bug where a subsequent cold boot
+hangs while plugged in if Linux enables the Host Notify features of
+i2c-i801.  The cold boot hang depends on how the system boots.  It does
+not hang on UEFI Grub text boot or legacy Grub text boot.  But it does
+hang on legacy Grub graphical boot and Intel Boot Agent PXE text boot.
+Booting unplugged is not affected.
 
-The same can be said for CONFIG_IOMEM and CONFIG_OF. Any plans to
-remove those too? CONFIG_IOMEM is mostly just a !CONFIG_UM option.
+Disabling the Host Notify feature with disable_feature=0x20 works around
+the bug, so automatically do so based on DMI information.
 
-Rob
+More information can be found here:
+https://www.spinics.net/lists/linux-i2c/msg33938.html
+
+Signed-off-by: Jason Andryuk <jandryuk@gmail.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Cc: stable@vger.kernel.org
+---
+v3: Switch to DMI_EXACT_MATCH and add empty element to array
+
+ drivers/i2c/busses/i2c-i801.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 692b34125866..11149ddae745 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1042,6 +1042,27 @@ static const struct pci_device_id i801_ids[] = {
+ MODULE_DEVICE_TABLE(pci, i801_ids);
+ 
+ #if defined CONFIG_X86 && defined CONFIG_DMI
++static const struct dmi_system_id host_notify_dmi_blacklist[] = {
++	{
++		.ident = "HP EliteBook G3 850",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "HP"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME,
++					"HP EliteBook 850 G3"),
++		},
++	},
++	{}
++};
++
++static void blacklist_features(struct i801_priv *priv)
++{
++	if (dmi_check_system(host_notify_dmi_blacklist)) {
++		dev_warn(&priv->pci_dev->dev,
++			 "SMBus Host Notify disabled on this system");
++		priv->features &= ~FEATURE_HOST_NOTIFY;
++	}
++}
++
+ static unsigned char apanel_addr;
+ 
+ /* Scan the system ROM for the signature "FJKEYINF" */
+@@ -1159,6 +1180,7 @@ static void i801_probe_optional_slaves(struct i801_priv *priv)
+ #else
+ static void __init input_apanel_init(void) {}
+ static void i801_probe_optional_slaves(struct i801_priv *priv) {}
++static void blacklist_features(struct i801_priv *priv) {}
+ #endif	/* CONFIG_X86 && CONFIG_DMI */
+ 
+ #if IS_ENABLED(CONFIG_I2C_MUX_GPIO) && defined CONFIG_DMI
+@@ -1562,6 +1584,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 				   i801_feature_names[i]);
+ 	}
+ 	priv->features &= ~disable_features;
++	blacklist_features(priv);
+ 
+ 	err = pcim_enable_device(dev);
+ 	if (err) {
+-- 
+2.14.3
