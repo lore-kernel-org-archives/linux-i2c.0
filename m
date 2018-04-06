@@ -1,84 +1,55 @@
-From: Jason Andryuk <jandryuk@gmail.com>
-Subject: [PATCH v3] i2c: i801: blacklist Host Notify on HP EliteBook G3 850
-Date: Thu,  5 Apr 2018 14:38:24 -0400
-Message-ID: <20180405183824.13333-1-jandryuk@gmail.com>
-References: <20180404225643.6b40782f@endymion>
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20180404225643.6b40782f@endymion>
-Sender: stable-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: benjamin.tissoires@redhat.com, andyrtr@archlinux.org, aduggan@synaptics.com, Jason Andryuk <jandryuk@gmail.com>, stable@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Andreas Radke <andyrtr@archlinux.org>
+Subject: Re: [PATCH v2] i2c: i801: blacklist Host Notify on HP EliteBook G3
+ 850
+Date: Fri, 6 Apr 2018 17:23:42 +0200
+Message-ID: <20180406172342.4a2a3f15@laptop64.home>
+References: <20180402122536.5083-1-jandryuk@gmail.com>
+        <20180402123435.5587-1-jandryuk@gmail.com>
+        <20180403211326.4907f1bc@laptop64.home>
+        <CAKf6xpu4=kLuqZqFsxqFCzLMyLBZyi3C9W_yyssEt=56dhF6RA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/fi_D3D4OqpIVx+/SseD5T6."; protocol="application/pgp-signature"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAKf6xpu4=kLuqZqFsxqFCzLMyLBZyi3C9W_yyssEt=56dhF6RA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Andryuk <jandryuk@gmail.com>
+Cc: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, benjamin.tissoires@redhat.com, aduggan@synaptics.com, linux-i2c@vger.kernel.org, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The HP EliteBook G3 850 has a weird bug where a subsequent cold boot
-hangs while plugged in if Linux enables the Host Notify features of
-i2c-i801.  The cold boot hang depends on how the system boots.  It does
-not hang on UEFI Grub text boot or legacy Grub text boot.  But it does
-hang on legacy Grub graphical boot and Intel Boot Agent PXE text boot.
-Booting unplugged is not affected.
+--Sig_/fi_D3D4OqpIVx+/SseD5T6.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Disabling the Host Notify feature with disable_feature=0x20 works around
-the bug, so automatically do so based on DMI information.
+My boot issue happens right after the BIOS when the initrd should be
+loaded and then no grub (v2.0) menu appears.
 
-More information can be found here:
-https://www.spinics.net/lists/linux-i2c/msg33938.html
+It seems I could fix it for me disabling  Host Notify + Interrupts with
+options i2c_i801 disable_features=3D0x30 and then rebuilding initrd.
+The touchpad is still working. Still testing more days if it will hang
+again.
 
-Signed-off-by: Jason Andryuk <jandryuk@gmail.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Cc: stable@vger.kernel.org
----
-v3: Switch to DMI_EXACT_MATCH and add empty element to array
+Is there anything further I can do to help? I can't tell when this hang
+was introduced. When I received the HP Arch was running 4.9 lts kernel
+and it already hung there.
 
- drivers/i2c/busses/i2c-i801.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+-Andy
+Arch linux
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 692b34125866..11149ddae745 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -1042,6 +1042,27 @@ static const struct pci_device_id i801_ids[] = {
- MODULE_DEVICE_TABLE(pci, i801_ids);
- 
- #if defined CONFIG_X86 && defined CONFIG_DMI
-+static const struct dmi_system_id host_notify_dmi_blacklist[] = {
-+	{
-+		.ident = "HP EliteBook G3 850",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "HP"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME,
-+					"HP EliteBook 850 G3"),
-+		},
-+	},
-+	{}
-+};
-+
-+static void blacklist_features(struct i801_priv *priv)
-+{
-+	if (dmi_check_system(host_notify_dmi_blacklist)) {
-+		dev_warn(&priv->pci_dev->dev,
-+			 "SMBus Host Notify disabled on this system");
-+		priv->features &= ~FEATURE_HOST_NOTIFY;
-+	}
-+}
-+
- static unsigned char apanel_addr;
- 
- /* Scan the system ROM for the signature "FJKEYINF" */
-@@ -1159,6 +1180,7 @@ static void i801_probe_optional_slaves(struct i801_priv *priv)
- #else
- static void __init input_apanel_init(void) {}
- static void i801_probe_optional_slaves(struct i801_priv *priv) {}
-+static void blacklist_features(struct i801_priv *priv) {}
- #endif	/* CONFIG_X86 && CONFIG_DMI */
- 
- #if IS_ENABLED(CONFIG_I2C_MUX_GPIO) && defined CONFIG_DMI
-@@ -1562,6 +1584,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 				   i801_feature_names[i]);
- 	}
- 	priv->features &= ~disable_features;
-+	blacklist_features(priv);
- 
- 	err = pcim_enable_device(dev);
- 	if (err) {
--- 
-2.14.3
+--Sig_/fi_D3D4OqpIVx+/SseD5T6.
+Content-Type: application/pgp-signature
+Content-Description: Digitale Signatur von OpenPGP
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEErcih/MFeAdRTEEGelGV6sg8qCSsFAlrHkP4ACgkQlGV6sg8q
+CSsIXQgAnnpv888Kyxh5T47Tb/5TqjrmL/yqssN9AgfmKtZgOgl6O66OhwwKRNnN
+8iDT1OFw/kDHMwcElbq3yw1cxF2PUOsaaAwliATaNhJhg9ilqs5WNqiYcqqVluIa
+QrP6cealS03I99a/N1KMNKjE9K52xjCSXi1xQjYYigARyXpzEP7vKsFB0zjm8EeM
+wvjlSYY5zsrwbS9Q7Y7Io8pz37lBj+VIU9M1efz0kjKdcoLo1B4JthhGS6fGAwhm
+/hlUZUcINs9N959aaCx/2/OUtC+vNYxtPgh0f61YcQhXAs4rZZgF2Sl9SPG59uYj
+Sv34OUzq89u5kGVzHNtwpPNXe+LUjg==
+=DiOx
+-----END PGP SIGNATURE-----
+
+--Sig_/fi_D3D4OqpIVx+/SseD5T6.--
