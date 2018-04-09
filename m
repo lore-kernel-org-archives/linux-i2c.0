@@ -1,66 +1,45 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [RFC PATCH 1/2] i2c: Add i2c_verify_device_id() to verify device
- id
-Date: Mon, 9 Apr 2018 11:29:17 -0700
-Message-ID: <20180409182917.GA20731@roeck-us.net>
-References: <1521475859-16765-1-git-send-email-linux@roeck-us.net>
- <20180408073435.i5nq2ngx2fslaz6a@katana>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v4 04/10] dt-bindings: i3c: Document core bindings
+Date: Mon, 9 Apr 2018 15:24:26 -0500
+Message-ID: <20180409202426.grl62ydysfse27ly@rob-hp-laptop>
+References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
+ <20180330074751.25987-5-boris.brezillon@bootlin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180408073435.i5nq2ngx2fslaz6a@katana>
+In-Reply-To: <20180330074751.25987-5-boris.brezillon@bootlin.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeau>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Apr 08, 2018 at 09:34:36AM +0200, Wolfram Sang wrote:
-> Hi,
+On Fri, Mar 30, 2018 at 09:47:45AM +0200, Boris Brezillon wrote:
+> A new I3C subsystem has been added and a generic description has been
+> created to represent the I3C bus and the devices connected on it.
 > 
-> On Mon, Mar 19, 2018 at 09:10:58AM -0700, Guenter Roeck wrote:
-> > Commit dde67eb1beeb ("i2c: add i2c_get_device_id() to get the standard
-> > I2C device id") added a function to return the standard I2C device ID.
-> > Use that function to verify the device ID of a given device.
+> Document this generic representation.
 > 
-> I am very open to these patches, just...
+> Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
+> ---
+> Changes in v4:
+> - Clarify the fact that static address == I3C address and dynamic
+>   address == I3C address
+> - Use i2c-scl-hz in the example
 > 
-> > 
-> > Cc: Peter Rosin <peda@axentia.se>
-> > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> > ---
-> > RFC:
-> > - Compile tested only
+> Changes in v3:
+> - Rename {i2c,i3c}-scl-frequency DT prop into {i2c,i3c}-scl-hz
+> - Rework the way we expose the provisional ID and LVR information
+> - Rename dynamic-address into assigned-address
+> - Enforce the I3C master node name
 > 
-> ... I would really like to have them tested. After that happened, Peter
-> and I can figure out who should apply them for seamless upstreaming.
-> 
+> Changes in v2:
+> - Define how to describe I3C devices in the DT and when it should be
+>   used. Note that the parsing of I3C devices is not yet implemented in
+>   the framework. Will be added when someone really needs it.
+> ---
+>  Documentation/devicetree/bindings/i3c/i3c.txt | 140 ++++++++++++++++++++++++++
+>  1 file changed, 140 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i3c/i3c.txt
 
-Patch 2/2 was for real HW. I don't have access to such HW right now.
-Guess we'll have to wait until someone does, unless Adrian is willing
-to test it.
-
-> > - Should there also be I2C_DEVICE_PART_ID_ANY to enable maching
-> >   against all parts from a given manufacturer ?
-> 
-> Can't we just add it when we need it?
-> 
-Perfectly fine with me.
-
-> > +		dev_err(&client->dev, "unexpected device id %03x-%03x-%x\n",
-> > +			real_id.manufacturer_id, real_id.part_id,
-> > +			real_id.die_revision);
-> > +		return -ENODEV;
-> 
-> I wonder about the ERR loglevel. ENODEV is not an error, I'd think?
-> 
-2d74187d5b4e, where this is derived from, uses dev_warn() instead,
-so that may be a better choice.
-
-Thanks,
-Guenter
-
-> Regards,
-> 
->    Wolfram
-> 
+Reviewed-by: Rob Herring <robh@kernel.org>
