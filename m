@@ -1,31 +1,87 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 10/10] dt-bindings: gpio: Add bindings for Cadence I3C
- gpio expander
-Date: Mon, 9 Apr 2018 15:26:10 -0500
-Message-ID: <20180409202610.2ckwi4ekswiaumym@rob-hp-laptop>
-References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
- <20180330074751.25987-11-boris.brezillon@bootlin.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Subject: Re: [PATCH 1/2] i2c: sprd: Prevent i2c accesses after suspend is
+ called
+Date: Mon, 9 Apr 2018 15:56:52 -0500
+Message-ID: <557074eb-e988-8ff5-bec0-c85bb9dcb8ec@ti.com>
+References: <99031524fa147e72451d26f54b24f36093c0d3fa.1523255712.git.baolin.wang@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180330074751.25987-11-boris.brezillon@bootlin.com>
+In-Reply-To: <99031524fa147e72451d26f54b24f36093c0d3fa.1523255712.git.baolin.wang@linaro.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeau>
+To: Baolin Wang <baolin.wang@linaro.org>, wsa@the-dreams.de
+Cc: broonie@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Mar 30, 2018 at 09:47:51AM +0200, Boris Brezillon wrote:
-> Document the Cadence I3C gpio expander bindings.
-> 
-> Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
-> ---
-> Changes in v4:
-> - Use GPIO_ and IRQ_TYPE_ macros instead of raw numbers
-> - Fix the unit-address in the example
-> ---
->  .../devicetree/bindings/gpio/gpio-cdns-i3c.txt     | 39 ++++++++++++++++++++++
->  1 file changed, 39 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/gpio/gpio-cdns-i3c.txt
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+
+On 04/09/2018 01:40 AM, Baolin Wang wrote:
+> Add one flag to indicate if the i2c controller has been in suspend state,
+> which can prevent i2c accesses after i2c controller is suspended following
+> system suspend.
+
+This usually indicates some bigger problem - there should be no i2c access to
+ the I2C driver once it's suspended. But if happens - 
+it means suspend dependencies between drivers are broken or there some 
+scheduling primitives are not disabled properly.
+(possible sources - kthreads, delayed works, timers or even threaded irqs)
+
+> 
+> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+> ---
+>   drivers/i2c/busses/i2c-sprd.c |   16 ++++++++++++++++
+>   1 file changed, 16 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-sprd.c b/drivers/i2c/busses/i2c-sprd.c
+> index 25fcc3c..2fdad63 100644
+> --- a/drivers/i2c/busses/i2c-sprd.c
+> +++ b/drivers/i2c/busses/i2c-sprd.c
+> @@ -86,6 +86,7 @@ struct sprd_i2c {
+>   	u32 count;
+>   	int irq;
+>   	int err;
+> +	bool is_suspended;
+>   };
+>   
+>   static void sprd_i2c_set_count(struct sprd_i2c *i2c_dev, u32 count)
+> @@ -283,6 +284,9 @@ static int sprd_i2c_master_xfer(struct i2c_adapter *i2c_adap,
+>   	struct sprd_i2c *i2c_dev = i2c_adap->algo_data;
+>   	int im, ret;
+>   
+> +	if (i2c_dev->is_suspended)
+> +		return -EBUSY;
+> +
+>   	ret = pm_runtime_get_sync(i2c_dev->dev);
+>   	if (ret < 0)
+>   		return ret;
+> @@ -586,11 +590,23 @@ static int sprd_i2c_remove(struct platform_device *pdev)
+>   
+>   static int __maybe_unused sprd_i2c_suspend_noirq(struct device *pdev)
+>   {
+> +	struct sprd_i2c *i2c_dev = dev_get_drvdata(pdev);
+> +
+> +	i2c_lock_adapter(&i2c_dev->adap);
+> +	i2c_dev->is_suspended = true;
+> +	i2c_unlock_adapter(&i2c_dev->adap);
+> +
+>   	return pm_runtime_force_suspend(pdev);
+>   }
+>   
+>   static int __maybe_unused sprd_i2c_resume_noirq(struct device *pdev)
+>   {
+> +	struct sprd_i2c *i2c_dev = dev_get_drvdata(pdev);
+> +
+> +	i2c_lock_adapter(&i2c_dev->adap);
+> +	i2c_dev->is_suspended = false;
+> +	i2c_unlock_adapter(&i2c_dev->adap);
+> +
+>   	return pm_runtime_force_resume(pdev);
+>   }
+>   
+> 
+
+-- 
+regards,
+-grygorii
