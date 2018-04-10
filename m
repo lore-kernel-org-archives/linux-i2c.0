@@ -1,44 +1,26 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 2/4] eeprom: at24: use devm_nvmem_register()
-Date: Tue, 10 Apr 2018 15:12:04 +0200
-Message-ID: <20180410131206.25760-3-brgl@bgdev.pl>
-References: <20180410131206.25760-1-brgl@bgdev.pl>
+Subject: [PATCH 0/4] eeprom: at24: last bits of the big refactoring
+Date: Tue, 10 Apr 2018 15:12:02 +0200
+Message-ID: <20180410131206.25760-1-brgl@bgdev.pl>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180410131206.25760-1-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Andy Shevchenko <andy.shevchenko@gmail.com>, Peter Rosin <peda@axentia.se>, Sven Van Asbroeck <svendev@arcx.com>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-We now have a managed variant of nvmem_register(). Use it
-in at24_probe().
+This is a follow-up to the big series merged for 4.17. The patches
+contain some bits and pieces that were missing in the last submission
+or depend on some new features merged this merge window.
 
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
----
- drivers/misc/eeprom/at24.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Bartosz Golaszewski (4):
+  eeprom: at24: don't assign the i2c ID table to at24_driver
+  eeprom: at24: use devm_nvmem_register()
+  eeprom: at24: provide and use a helper for releasing dummy i2c clients
+  eeprom: at24: provide a separate routine for creating dummy i2c
+    clients
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 2310f26ac4f3..5e56a99435c6 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -685,7 +685,7 @@ static int at24_probe(struct i2c_client *client)
- 	nvmem_config.word_size = 1;
- 	nvmem_config.size = pdata.byte_len;
- 
--	at24->nvmem = nvmem_register(&nvmem_config);
-+	at24->nvmem = devm_nvmem_register(dev, &nvmem_config);
- 	if (IS_ERR(at24->nvmem)) {
- 		err = PTR_ERR(at24->nvmem);
- 		goto err_clients;
-@@ -718,8 +718,6 @@ static int at24_remove(struct i2c_client *client)
- 
- 	at24 = i2c_get_clientdata(client);
- 
--	nvmem_unregister(at24->nvmem);
--
- 	for (i = 1; i < at24->num_addresses; i++)
- 		i2c_unregister_device(at24->client[i].client);
- 
+ drivers/misc/eeprom/at24.c | 70 ++++++++++++++++++++++++--------------
+ 1 file changed, 44 insertions(+), 26 deletions(-)
+
 -- 
 2.17.0
