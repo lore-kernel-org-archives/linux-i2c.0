@@ -1,71 +1,61 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] MAINTAINERS: remove me as maintainer for I2C host drivers
-Date: Tue, 10 Apr 2018 16:46:54 +0200
-Message-ID: <20180410144654.fg2pbvh4d2y3rucv@katana>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH] MAINTAINERS: remove me as maintainer for I2C host
+ drivers
+Date: Tue, 10 Apr 2018 08:14:33 -0700
+Message-ID: <a3ffaea6a161e667854127d2e021a04034985a97.camel@perches.com>
 References: <20180410141125.4477-1-wsa@the-dreams.de>
- <f0ce07bdb69602450ea1681936706b16962ce41f.camel@perches.com>
+         <f0ce07bdb69602450ea1681936706b16962ce41f.camel@perches.com>
+         <20180410144654.fg2pbvh4d2y3rucv@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="zbllqjolnqtxdax7"
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <f0ce07bdb69602450ea1681936706b16962ce41f.camel@perches.com>
+In-Reply-To: <20180410144654.fg2pbvh4d2y3rucv@katana>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
+To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, 2018-04-10 at 16:46 +0200, Wolfram Sang wrote:
+> > As far as I understand, all this seems correct to me.
+> 
+> Good. Thank you, Joe!
+> /
+> > You want to maintain the core files in drivers/i2c/
+> > but not any files in any of algos/, busses/, or muxes/.
+> 
+> More specific: I don't want get_maintainer.pl to print me as a
+> maintainer for these drivers.
 
---zbllqjolnqtxdax7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I believe get_maintainer.pl is still going to do that for
+awhile as you are a commit signer for several of these driver
+files.  Files that are not either "supported" or "maintained"
+by default add the --git-fallback option.
 
+For instance, With your patch:
+$ ./scripts/get_maintainer.pl -f drivers/i2c/algos/i2c-algo-bit.c
+Wolfram Sang <wsa+renesas@sang-engineering.com> (commit_signer:3/2=100%,authored:1/2=50%,added_lines:5/15=33%)
+Jean Delvare <jdelvare@suse.de> (commit_signer:1/2=50%,authored:1/2=50%,added_lines:10/15=67%,removed_lines:3/3=100%)
+linux-i2c@vger.kernel.org (open list:I2C SUBSYSTEM DRIVERS)
+linux-kernel@vger.kernel.org (open list)
 
-> As far as I understand, all this seems correct to me.
+Your name should not be shown after a year or so unless you
+actually sign-off on patches to those subdirectories.
 
-Good. Thank you, Joe!
+btw: You signed-off using 2 different addresses on one
+of those patches.  I think that's odd.
 
-> You want to maintain the core files in drivers/i2c/
-> but not any files in any of algos/, busses/, or muxes/.
+commit 3e5f06bed72fe72166a6778f630241a893f67799
+Author: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Date:   Mon Dec 4 09:16:18 2017 +0100
 
-More specific: I don't want get_maintainer.pl to print me as a
-maintainer for these drivers. This gives a wrong impression to users. I
-am not actively maintaining these drivers, I am collecting the odd
-fixes (and also review some of them as time permits).
-
-> You might also want to specify which of the
-> include/linux/i2c-*.h files you actually want to oversee
-> as well.  It seems some are driver specific.
-
-I am just now working on that. Most of them can easily be moved to
-platform_data.
-
-> But the git entry for the drivers seems maybe a bit of an issue.  Are
-> you intending to somehow pick up patches approved by the i2c
-> community?
-
-Yes, I will still be doing that. I think I will also be the one doing
-most review for those odd fixes nonetheless.
-
-
---zbllqjolnqtxdax7
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrMzloACgkQFA3kzBSg
-KbYzKBAApv1Ex0A54fCqYM629/6Rxw/k7yU+dFeYBPuss+YUFYgnVINRdgSI9n8E
-pmLiFkTImNwVlMozVD9AxJO6FukuWKyapG/amBwU6E8b90eLD8bg0ZZHXeIFoTxc
-rXXxMNBUm3nCu1a2I30PM3D/2I+Mz9sO6Fbyww2hc7q7ithFBjIJ+RjOuBb5EwnZ
-WSTHbZKsZujKL8CErDL8Y8qWwdlnCYFQsZhlsY0gHeftldMbzXT5IHPmneRjg003
-DJmviVkwNBm27ogwRki339OPp6hOotVhJV6e5ZImgmpy0xYjPrQRS+pqkyQ68oLs
-BywyIXNB4QSz26MxNqF2sIypZy+fe+8TMg3zXLFgxunT6tID4GzGFEhpAQwxXglt
-RHsN8zA6uvkszCkDVnX5hMG5y1kENbjX5KSpC882gyyqpzQaqgg/W/1vb7jfylBF
-FzOJiUoQP8uVk6rEzDXvskR+GHGzvVwOAembCKu3QqUCjnfa7Q0HLOr1Gv+0KnMG
-WlfbrTsW0/PYg3Qp2GV2duueg+NhlYfM5CC8bO+GBJjqtTHMC8XZqZq0dQkVc5AK
-gbFb14avPkGjbH/Mvf5t1RcwiRW5IoxzoL6M8Ln81E+Rt7GkNH7E5dKvwNqQ2lZJ
-da64Ofik65/ktyUdvDMnISjJw4tuhcSSNzzsej9rZVlPHSTIY58=
-=Giub
------END PGP SIGNATURE-----
-
---zbllqjolnqtxdax7--
+    i2c: algo-bit: init the bus to a known state
+    
+    Ensure the bus is free when we register the adapter. Before the SCL/SDA
+    wires were in an unknown state. It used to work because sending a byte
+    has a retry mechanism which was triggered if the bus was initially in a
+    non-free state. But the graceful way to do it is to initialize
+    correctly.
+    
+    Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+    Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
