@@ -1,67 +1,75 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Peter Rosin <peda@axentia.se>
 Subject: Re: [PATCH] MAINTAINERS: remove me as maintainer for I2C host drivers
-Date: Tue, 10 Apr 2018 17:25:26 +0200
-Message-ID: <20180410152526.grfhc7n4glj62yt3@ninjato>
+Date: Tue, 10 Apr 2018 17:40:52 +0200
+Message-ID: <68529743-2df6-f07f-b3db-720e09b765c3@axentia.se>
 References: <20180410141125.4477-1-wsa@the-dreams.de>
- <f0ce07bdb69602450ea1681936706b16962ce41f.camel@perches.com>
- <20180410144654.fg2pbvh4d2y3rucv@katana>
- <a3ffaea6a161e667854127d2e021a04034985a97.camel@perches.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="h4qyxy44mnw2iw54"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <a3ffaea6a161e667854127d2e021a04034985a97.camel@perches.com>
+In-Reply-To: <20180410141125.4477-1-wsa@the-dreams.de>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Joe Perches <joe@perches.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On 2018-04-10 16:11, Wolfram Sang wrote:
+> The number of I2C host controller drivers keeps increasing, and although
+> I had some success acquiring specific driver maintainers, my bandwidth
+> is by far not enough to act as a fallback for the rest of the drivers.
+> To reflect this status-quo in MAINTAINERS, add a seperate entry for I2C
+> host drivers, let the I2C list (= community) be the contact point, and
+> mark this section as "Odd fixes".
+> 
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+> 
+> Joe: my tests worked fine with the file patterns; yet I'd appreciate if you
+> had time to double check them. Thanks!
+> 
+>  MAINTAINERS | 14 +++++++++++---
+>  1 file changed, 11 insertions(+), 3 deletions(-)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 6d296bdce328..2f7ccdcf76f7 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -6580,15 +6580,23 @@ W:	https://i2c.wiki.kernel.org/
+>  Q:	https://patchwork.ozlabs.org/project/linux-i2c/list/
+>  T:	git git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git
+>  S:	Maintained
+> -F:	Documentation/devicetree/bindings/i2c/
+> +F:	Documentation/devicetree/bindings/i2c/i2c.txt
+>  F:	Documentation/i2c/
+> -F:	drivers/i2c/
+> -F:	drivers/i2c/*/
+> +F:	drivers/i2c/*
+>  F:	include/linux/i2c.h
+>  F:	include/linux/i2c-*.h
+>  F:	include/uapi/linux/i2c.h
+>  F:	include/uapi/linux/i2c-*.h
 
---h4qyxy44mnw2iw54
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hmm, I think you are ducking out from the i2c-mux-pinctrl driver as well.
+Was that the intent?
 
+> +I2C SUBSYSTEM DRIVERS
+> +L:	linux-i2c@vger.kernel.org
+> +W:	https://i2c.wiki.kernel.org/
+> +Q:	https://patchwork.ozlabs.org/project/linux-i2c/list/
+> +T:	git git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git
+> +S:	Odd Fixes
+> +F:	Documentation/devicetree/bindings/i2c/
+> +F:	drivers/i2c/*/
+> +
 
-> I believe get_maintainer.pl is still going to do that for
-> awhile as you are a commit signer for several of these driver
-> files.
+And this includes all the other muxes, i.e. those that are "mine". Maybe
+not a problem, but what do I know?
 
-Okay, I forgot that I use "--no-git" in the config file. Still, while
-not perfect, it is one step better.
+Cheers,
+Peter
 
-> btw: You signed-off using 2 different addresses on one
-> of those patches.  I think that's odd.
-...
->     Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-I created this patch during work time.
-
->     Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-
-But I applied it in my spare time.
-
-I didn't find a better way to encode that.
-
-
---h4qyxy44mnw2iw54
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrM12IACgkQFA3kzBSg
-KbZfgg/9HNQfp+JsF4ORr1Gyhl4UWMuy4xzs9q4FhwGH4WaMkgNPUHgAN2Xlen6E
-if3kQOQLKAN5x9UlQwNMwOK+jA2ghIQZo9TEbGIxyFtVA8+R1Y6+fnGi3mBwNuhB
-geEQyF2y69s5TR3nuBMQYweq/rn4L3N03Rk19YFZU104Wkp2pxFFInDDsO3X+7D7
-QXd2uvItW3MJP9QeS8VXVlXcd2nH+uEB5PONH0y+DoVfCw5YsfiOG0S5fwj6lxeq
-iYOUYos8wXVxThrm7uUGVwP9oz55FGFu4scGJ5U5yLkl2ODvX57iknFe8lK/w9q3
-eA7iTzENS37dNELf1xUTj+x/yaTT8F8YbnE6NC9AdHSK2hZ1dffwnFKRyll5erYs
-pUcGNM+OOTTXK6TkISe4A+zRTXt2d+L60qLuJNgZ6+fVblUjnnWyrbSLnlO048zB
-vnzjo7Y8BvZw9IhfpArmKbEVh993Tl3FAMPj5ytERJn9Lka2DfyBURz+5z4a0zzp
-2z1TnuEFW6r1/laOkY+23k95meFwElNBII/BgETkgldrHLjvD2rkbTdUq+l+UuIs
-ZIt1iItVXPIweHPlz2q2720yvt+waEUa2FQIh5u74svwnQJtiRz8BVjRq8AYmbTC
-OE8h+H6FI7R9YLnJf7NkS11ajf17NekFyMt7TBAws5txOon+WDo=
-=PUdp
------END PGP SIGNATURE-----
-
---h4qyxy44mnw2iw54--
+>  I2C-TAOS-EVM DRIVER
+>  M:	Jean Delvare <jdelvare@suse.com>
+>  L:	linux-i2c@vger.kernel.org
+> 
