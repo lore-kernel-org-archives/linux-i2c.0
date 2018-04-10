@@ -1,61 +1,67 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH] MAINTAINERS: remove me as maintainer for I2C host
- drivers
-Date: Tue, 10 Apr 2018 08:14:33 -0700
-Message-ID: <a3ffaea6a161e667854127d2e021a04034985a97.camel@perches.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] MAINTAINERS: remove me as maintainer for I2C host drivers
+Date: Tue, 10 Apr 2018 17:25:26 +0200
+Message-ID: <20180410152526.grfhc7n4glj62yt3@ninjato>
 References: <20180410141125.4477-1-wsa@the-dreams.de>
-         <f0ce07bdb69602450ea1681936706b16962ce41f.camel@perches.com>
-         <20180410144654.fg2pbvh4d2y3rucv@katana>
+ <f0ce07bdb69602450ea1681936706b16962ce41f.camel@perches.com>
+ <20180410144654.fg2pbvh4d2y3rucv@katana>
+ <a3ffaea6a161e667854127d2e021a04034985a97.camel@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="h4qyxy44mnw2iw54"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180410144654.fg2pbvh4d2y3rucv@katana>
+Content-Disposition: inline
+In-Reply-To: <a3ffaea6a161e667854127d2e021a04034985a97.camel@perches.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+To: Joe Perches <joe@perches.com>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2018-04-10 at 16:46 +0200, Wolfram Sang wrote:
-> > As far as I understand, all this seems correct to me.
-> 
-> Good. Thank you, Joe!
-> /
-> > You want to maintain the core files in drivers/i2c/
-> > but not any files in any of algos/, busses/, or muxes/.
-> 
-> More specific: I don't want get_maintainer.pl to print me as a
-> maintainer for these drivers.
 
-I believe get_maintainer.pl is still going to do that for
-awhile as you are a commit signer for several of these driver
-files.  Files that are not either "supported" or "maintained"
-by default add the --git-fallback option.
+--h4qyxy44mnw2iw54
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-For instance, With your patch:
-$ ./scripts/get_maintainer.pl -f drivers/i2c/algos/i2c-algo-bit.c
-Wolfram Sang <wsa+renesas@sang-engineering.com> (commit_signer:3/2=100%,authored:1/2=50%,added_lines:5/15=33%)
-Jean Delvare <jdelvare@suse.de> (commit_signer:1/2=50%,authored:1/2=50%,added_lines:10/15=67%,removed_lines:3/3=100%)
-linux-i2c@vger.kernel.org (open list:I2C SUBSYSTEM DRIVERS)
-linux-kernel@vger.kernel.org (open list)
 
-Your name should not be shown after a year or so unless you
-actually sign-off on patches to those subdirectories.
+> I believe get_maintainer.pl is still going to do that for
+> awhile as you are a commit signer for several of these driver
+> files.
 
-btw: You signed-off using 2 different addresses on one
-of those patches.  I think that's odd.
+Okay, I forgot that I use "--no-git" in the config file. Still, while
+not perfect, it is one step better.
 
-commit 3e5f06bed72fe72166a6778f630241a893f67799
-Author: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Date:   Mon Dec 4 09:16:18 2017 +0100
+> btw: You signed-off using 2 different addresses on one
+> of those patches.  I think that's odd.
+...
+>     Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-    i2c: algo-bit: init the bus to a known state
-    
-    Ensure the bus is free when we register the adapter. Before the SCL/SDA
-    wires were in an unknown state. It used to work because sending a byte
-    has a retry mechanism which was triggered if the bus was initially in a
-    non-free state. But the graceful way to do it is to initialize
-    correctly.
-    
-    Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-    Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+I created this patch during work time.
+
+>     Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+
+But I applied it in my spare time.
+
+I didn't find a better way to encode that.
+
+
+--h4qyxy44mnw2iw54
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrM12IACgkQFA3kzBSg
+KbZfgg/9HNQfp+JsF4ORr1Gyhl4UWMuy4xzs9q4FhwGH4WaMkgNPUHgAN2Xlen6E
+if3kQOQLKAN5x9UlQwNMwOK+jA2ghIQZo9TEbGIxyFtVA8+R1Y6+fnGi3mBwNuhB
+geEQyF2y69s5TR3nuBMQYweq/rn4L3N03Rk19YFZU104Wkp2pxFFInDDsO3X+7D7
+QXd2uvItW3MJP9QeS8VXVlXcd2nH+uEB5PONH0y+DoVfCw5YsfiOG0S5fwj6lxeq
+iYOUYos8wXVxThrm7uUGVwP9oz55FGFu4scGJ5U5yLkl2ODvX57iknFe8lK/w9q3
+eA7iTzENS37dNELf1xUTj+x/yaTT8F8YbnE6NC9AdHSK2hZ1dffwnFKRyll5erYs
+pUcGNM+OOTTXK6TkISe4A+zRTXt2d+L60qLuJNgZ6+fVblUjnnWyrbSLnlO048zB
+vnzjo7Y8BvZw9IhfpArmKbEVh993Tl3FAMPj5ytERJn9Lka2DfyBURz+5z4a0zzp
+2z1TnuEFW6r1/laOkY+23k95meFwElNBII/BgETkgldrHLjvD2rkbTdUq+l+UuIs
+ZIt1iItVXPIweHPlz2q2720yvt+waEUa2FQIh5u74svwnQJtiRz8BVjRq8AYmbTC
+OE8h+H6FI7R9YLnJf7NkS11ajf17NekFyMt7TBAws5txOon+WDo=
+=PUdp
+-----END PGP SIGNATURE-----
+
+--h4qyxy44mnw2iw54--
