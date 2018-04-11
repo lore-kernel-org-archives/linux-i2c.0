@@ -1,52 +1,45 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/2] MAINTAINERS: add maintainer for Renesas I2C
- related drivers
-Date: Wed, 11 Apr 2018 09:18:20 +0200
-Message-ID: <20180411071820.trambxjrcofufqq3@katana>
-References: <20180410194914.7268-1-wsa@the-dreams.de>
- <20180410194914.7268-2-wsa@the-dreams.de>
- <CAMuHMdUv2obJHjEZO0d+P=mM8GtGi3g4YCCjxoGBwKeHyXxNLA@mail.gmail.com>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH] MAINTAINERS: I'll maintain Renesas R-Car I2C host drivers
+Date: Wed, 11 Apr 2018 10:08:21 +0200
+Message-ID: <20180411080821.gmq6g667k7ubdmst@verge.net.au>
+References: <20180410141347.5014-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="qsbxz54sdqua4e6h"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdUv2obJHjEZO0d+P=mM8GtGi3g4YCCjxoGBwKeHyXxNLA@mail.gmail.com>
+In-Reply-To: <20180410141347.5014-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Peter Rosin <peda@axentia.se>, Joe Perches <joe@perches.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+There seems to be some room to enhance the subject, but otherwise:
 
---qsbxz54sdqua4e6h
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
 
-
-> I guess that's why you're not adding a catch-all "RENESAS I2C DRIVERS"
-> section?
-
-Yes.
-
-
---qsbxz54sdqua4e6h
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrNtrIACgkQFA3kzBSg
-Kbaqog/+PzGDoOtS/TkRh9kA3mgT746Xi3XyPhgBKajxKjfOFVed7U+06/w3rBeg
-zn4/K5NR//Ci15/9Vw/JGTnYmaFinNaUdWJRX20aGQiaVWDqD36wSlASdyH68pch
-e2ygMSY8tT3Rk4OssVbbQkMRweZl0ua4yTJevow2wjoK86n/jTEKb7wJaUD3J5+5
-2/mQAb8D+dT30TNv4RcnyE/37uPcAvPsn5J1Gh55GVq/JZRtNOKABoLoS8iK80Wn
-tjoFx5R0MQnCQ3hwAarKMlTNBzXLcfPmSwOmm5D3voFGo38emF1ZXkzcXpmA+eTu
-bqkTyxbaCiIBspP7rEf6Amd1PDWHL/Zl21Z1yNn+9tEhpExsR5sxLwc51esom3jH
-z/Z9LyzwP3UYtR5a1tzjlP/PRGAhyACs7IbuuLkglDhQztiAhsJa4iWSx1DQLPNB
-oTXea5OI6W9PHrBg3Hx1rr6KC2GR89PPCs4f/4NG2SzMIMOi/D89Suk0imvbB8aV
-QG3fuGlHEXp+HsgDVlDSCsp6NMvAs+OtBTzznymc4fR9o9iNFB4zvaLHgkz3TDRd
-0Ogat+z900Afrs9CV/OEUtu7UNRGRoXGwMzBFWf6Bv5+Uc7kQWkk6FZkq5Hqiecz
-nCe3FYEUFZ/5RNemoQhhasUObyf5CK418tHkGUnkB2RUSkXptfM=
-=Us4q
------END PGP SIGNATURE-----
-
---qsbxz54sdqua4e6h--
+On Tue, Apr 10, 2018 at 04:13:47PM +0200, Wolfram Sang wrote:
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  MAINTAINERS | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 2f7ccdcf76f7..3bb87e65889c 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -11897,6 +11897,12 @@ L:	linux-iio@vger.kernel.org
+>  S:	Supported
+>  F:	drivers/iio/adc/rcar_gyro_adc.c
+>  
+> +RENESAS R-CAR I2C DRIVERS
+> +M:	Wolfram Sang <wsa+renesas@sang-engineering.com>
+> +S:	Supported
+> +F:	drivers/i2c/busses/i2c-rcar.c
+> +F:	drivers/i2c/busses/i2c-sh_mobile.c
+> +
+>  RENESAS USB PHY DRIVER
+>  M:	Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+>  L:	linux-renesas-soc@vger.kernel.org
+> -- 
+> 2.11.0
+> 
