@@ -1,64 +1,36 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH v2 1/2] MAINTAINERS: remove me as maintainer for I2C host drivers
-Date: Tue, 10 Apr 2018 21:49:13 +0200
-Message-ID: <20180410194914.7268-1-wsa@the-dreams.de>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v2 2/2] MAINTAINERS: add maintainer for Renesas I2C
+ related drivers
+Date: Wed, 11 Apr 2018 09:09:50 +0200
+Message-ID: <CAMuHMdUv2obJHjEZO0d+P=mM8GtGi3g4YCCjxoGBwKeHyXxNLA@mail.gmail.com>
+References: <20180410194914.7268-1-wsa@the-dreams.de> <20180410194914.7268-2-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180410194914.7268-2-wsa@the-dreams.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Peter Rosin <peda@axentia.se>, Joe Perches <joe@perches.com>, Wolfram Sang <wsa@the-dreams.de>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Peter Rosin <peda@axentia.se>, Joe Perches <joe@perches.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The number of I2C host controller drivers keeps increasing, and although
-I had some success acquiring specific driver maintainers, my bandwidth
-is by far not enough to act as a fallback for the rest of the drivers.
-To reflect this status-quo in MAINTAINERS, add a seperate entry for I2C
-host drivers, let the I2C list (= community) be the contact point, and
-mark this section as "Odd fixes".
+Hi Wolfram,
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
+On Tue, Apr 10, 2018 at 9:49 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
+> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>
+> Intentionally missing i2c-riic here, Chris Brandt will add himself for
+> that one later.
 
-Changes since v1:
-* explicitly state which files from include/linux I keep maintaining
-* rename the new section to HOST DRIVERS instead of just DRIVERS
-* explicitly state which subdirs belong to the HOST DRIVERS section
+I guess that's why you're not adding a catch-all "RENESAS I2C DRIVERS"
+section?
 
- MAINTAINERS | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+Gr{oetje,eeting}s,
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 342895717506..1fe9149fa062 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -6580,15 +6580,25 @@ W:	https://i2c.wiki.kernel.org/
- Q:	https://patchwork.ozlabs.org/project/linux-i2c/list/
- T:	git git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git
- S:	Maintained
--F:	Documentation/devicetree/bindings/i2c/
-+F:	Documentation/devicetree/bindings/i2c/i2c.txt
- F:	Documentation/i2c/
--F:	drivers/i2c/
--F:	drivers/i2c/*/
-+F:	drivers/i2c/*
- F:	include/linux/i2c.h
--F:	include/linux/i2c-*.h
-+F:	include/linux/i2c-dev.h
-+F:	include/linux/i2c-smbus.h
- F:	include/uapi/linux/i2c.h
- F:	include/uapi/linux/i2c-*.h
- 
-+I2C SUBSYSTEM HOST DRIVERS
-+L:	linux-i2c@vger.kernel.org
-+W:	https://i2c.wiki.kernel.org/
-+Q:	https://patchwork.ozlabs.org/project/linux-i2c/list/
-+T:	git git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git
-+S:	Odd Fixes
-+F:	Documentation/devicetree/bindings/i2c/
-+F:	drivers/i2c/algos/
-+F:	drivers/i2c/busses/
-+
- I2C-TAOS-EVM DRIVER
- M:	Jean Delvare <jdelvare@suse.com>
- L:	linux-i2c@vger.kernel.org
+                        Geert
+
 -- 
-2.11.0
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
