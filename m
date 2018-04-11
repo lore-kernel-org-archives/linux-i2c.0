@@ -1,48 +1,90 @@
 From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: [PATCH v3 0/6] Add different features for I2C
-Date: Wed, 11 Apr 2018 15:24:52 +0200
-Message-ID: <1523453098-3758-1-git-send-email-pierre-yves.mordret@st.com>
+Subject: [PATCH v3 6/6] i2c: i2c-stm32f7: Implement I2C release mechanism
+Date: Wed, 11 Apr 2018 15:24:58 +0200
+Message-ID: <1523453098-3758-7-git-send-email-pierre-yves.mordret@st.com>
+References: <1523453098-3758-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1523453098-3758-1-git-send-email-pierre-yves.mordret@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Append new I2C STM32F7 feature set. This includes 10 bit support, slave
-support, SMBBus protocols support, DMA Support and eventually an I2C release
-mechanism.
+Feature prevents I2C lock-ups. Mechanism resets I2C state machine
+and releases SCL/SDA signals but preserves I2C registers.
 
+Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 ---
   Version history:
     v1:
-        * Initial
+       * Initial
     v2:
-        * Kbuild test robot issue
-        * I2C master recovery mechanism
+       * Don't use i2c engine recovery mechanism since driver
+         procedure only recover master and not the slave.
     v3:
-        * Provide more details on what have already been implemented and
-          not implemented for SMBus protocols
-        * Raise DMA usage threshold
-        * s/recovery/release/ throughout the patch. Recovery is really
-          something else.
+       * s/recovery/release/ throughout the patch. Recovery is really
+         something else
 ---
-Pierre-Yves MORDRET (6):
-  i2c: i2c-stm32f7: Add 10-bit address support
-  i2c: i2c-stm32f7: Add slave support
-  i2c: i2c-stm32f7: Add initial SMBus protocols support
-  i2c: i2c-stm32: Add generic DMA API
-  i2c: i2c-stm32f7: Add DMA support
-  i2c: i2c-stm32f7: Implement I2C release mechanism
+---
+ drivers/i2c/busses/i2c-stm32f7.c | 27 ++++++++++++++++++++++++---
+ 1 file changed, 24 insertions(+), 3 deletions(-)
 
- drivers/i2c/busses/Kconfig       |    1 +
- drivers/i2c/busses/Makefile      |    3 +-
- drivers/i2c/busses/i2c-stm32.c   |  153 ++++++
- drivers/i2c/busses/i2c-stm32.h   |   37 ++
- drivers/i2c/busses/i2c-stm32f7.c | 1040 +++++++++++++++++++++++++++++++++++++-
- 5 files changed, 1207 insertions(+), 27 deletions(-)
- create mode 100644 drivers/i2c/busses/i2c-stm32.c
-
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index 63ea71c..0f87449 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -718,6 +718,20 @@ static void stm32f7_i2c_smbus_reload(struct stm32f7_i2c_dev *i2c_dev)
+ 	writel_relaxed(cr2, i2c_dev->base + STM32F7_I2C_CR2);
+ }
+ 
++static int stm32f7_i2c_release_bus(struct i2c_adapter *i2c_adap)
++{
++	struct stm32f7_i2c_dev *i2c_dev = i2c_get_adapdata(i2c_adap);
++
++	dev_info(i2c_dev->dev, "Trying to recover bus\n");
++
++	stm32f7_i2c_clr_bits(i2c_dev->base + STM32F7_I2C_CR1,
++			     STM32F7_I2C_CR1_PE);
++
++	stm32f7_i2c_hw_config(i2c_dev);
++
++	return 0;
++}
++
+ static int stm32f7_i2c_wait_free_bus(struct stm32f7_i2c_dev *i2c_dev)
+ {
+ 	u32 status;
+@@ -727,12 +741,18 @@ static int stm32f7_i2c_wait_free_bus(struct stm32f7_i2c_dev *i2c_dev)
+ 					 status,
+ 					 !(status & STM32F7_I2C_ISR_BUSY),
+ 					 10, 1000);
++	if (!ret)
++		return 0;
++
++	dev_info(i2c_dev->dev, "bus busy\n");
++
++	ret = stm32f7_i2c_release_bus(&i2c_dev->adap);
+ 	if (ret) {
+-		dev_dbg(i2c_dev->dev, "bus busy\n");
+-		ret = -EBUSY;
++		dev_err(i2c_dev->dev, "Failed to recover the bus (%d)\n", ret);
++		return ret;
+ 	}
+ 
+-	return ret;
++	return -EBUSY;
+ }
+ 
+ static void stm32f7_i2c_xfer_msg(struct stm32f7_i2c_dev *i2c_dev,
+@@ -1474,6 +1494,7 @@ static irqreturn_t stm32f7_i2c_isr_error(int irq, void *data)
+ 	if (status & STM32F7_I2C_ISR_BERR) {
+ 		dev_err(dev, "<%s>: Bus error\n", __func__);
+ 		writel_relaxed(STM32F7_I2C_ICR_BERRCF, base + STM32F7_I2C_ICR);
++		stm32f7_i2c_release_bus(&i2c_dev->adap);
+ 		f7_msg->result = -EIO;
+ 	}
+ 
 -- 
 2.7.4
