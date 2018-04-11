@@ -1,36 +1,52 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v2 2/2] MAINTAINERS: add maintainer for Renesas I2C
  related drivers
-Date: Wed, 11 Apr 2018 09:09:50 +0200
-Message-ID: <CAMuHMdUv2obJHjEZO0d+P=mM8GtGi3g4YCCjxoGBwKeHyXxNLA@mail.gmail.com>
-References: <20180410194914.7268-1-wsa@the-dreams.de> <20180410194914.7268-2-wsa@the-dreams.de>
+Date: Wed, 11 Apr 2018 09:18:20 +0200
+Message-ID: <20180411071820.trambxjrcofufqq3@katana>
+References: <20180410194914.7268-1-wsa@the-dreams.de>
+ <20180410194914.7268-2-wsa@the-dreams.de>
+ <CAMuHMdUv2obJHjEZO0d+P=mM8GtGi3g4YCCjxoGBwKeHyXxNLA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="qsbxz54sdqua4e6h"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180410194914.7268-2-wsa@the-dreams.de>
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdUv2obJHjEZO0d+P=mM8GtGi3g4YCCjxoGBwKeHyXxNLA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
 Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Peter Rosin <peda@axentia.se>, Joe Perches <joe@perches.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On Tue, Apr 10, 2018 at 9:49 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> From: Wolfram Sang <wsa+renesas@sang-engineering.com>
->
-> Intentionally missing i2c-riic here, Chris Brandt will add himself for
-> that one later.
+--qsbxz54sdqua4e6h
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I guess that's why you're not adding a catch-all "RENESAS I2C DRIVERS"
-section?
 
-Gr{oetje,eeting}s,
+> I guess that's why you're not adding a catch-all "RENESAS I2C DRIVERS"
+> section?
 
-                        Geert
+Yes.
 
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+--qsbxz54sdqua4e6h
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrNtrIACgkQFA3kzBSg
+Kbaqog/+PzGDoOtS/TkRh9kA3mgT746Xi3XyPhgBKajxKjfOFVed7U+06/w3rBeg
+zn4/K5NR//Ci15/9Vw/JGTnYmaFinNaUdWJRX20aGQiaVWDqD36wSlASdyH68pch
+e2ygMSY8tT3Rk4OssVbbQkMRweZl0ua4yTJevow2wjoK86n/jTEKb7wJaUD3J5+5
+2/mQAb8D+dT30TNv4RcnyE/37uPcAvPsn5J1Gh55GVq/JZRtNOKABoLoS8iK80Wn
+tjoFx5R0MQnCQ3hwAarKMlTNBzXLcfPmSwOmm5D3voFGo38emF1ZXkzcXpmA+eTu
+bqkTyxbaCiIBspP7rEf6Amd1PDWHL/Zl21Z1yNn+9tEhpExsR5sxLwc51esom3jH
+z/Z9LyzwP3UYtR5a1tzjlP/PRGAhyACs7IbuuLkglDhQztiAhsJa4iWSx1DQLPNB
+oTXea5OI6W9PHrBg3Hx1rr6KC2GR89PPCs4f/4NG2SzMIMOi/D89Suk0imvbB8aV
+QG3fuGlHEXp+HsgDVlDSCsp6NMvAs+OtBTzznymc4fR9o9iNFB4zvaLHgkz3TDRd
+0Ogat+z900Afrs9CV/OEUtu7UNRGRoXGwMzBFWf6Bv5+Uc7kQWkk6FZkq5Hqiecz
+nCe3FYEUFZ/5RNemoQhhasUObyf5CK418tHkGUnkB2RUSkXptfM=
+=Us4q
+-----END PGP SIGNATURE-----
+
+--qsbxz54sdqua4e6h--
