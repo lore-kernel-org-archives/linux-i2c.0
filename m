@@ -1,38 +1,114 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v2 0/3] eeprom: at24: last bits of the big refactoring
-Date: Thu, 12 Apr 2018 17:08:58 +0200
-Message-ID: <fe2654fb-8c46-0a29-541a-71850c01b64b@axentia.se>
-References: <20180411143828.1046-1-brgl@bgdev.pl>
+From: Sam Hansen <hansens@google.com>
+Subject: [PATCH] Documentation/i2c: sync docs with current state of i2c-tools.
+Date: Thu, 12 Apr 2018 14:33:42 -0700
+Message-ID: <20180412213342.138010-1-hansens@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180411143828.1046-1-brgl@bgdev.pl>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>, Andy Shevchenko <andy.shevchenko@gmail.com>, Sven Van Asbroeck <svendev@arcx.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Sam Hansen <hansens@google.com>, wsa@the-dreams.de, corbet@lwn.net, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-04-11 16:38, Bartosz Golaszewski wrote:
-> This is a follow-up to the big series merged for 4.17. The patches
-> contain some bits and pieces that were missing in the last submission
-> or depend on some new features merged this merge window.
-> 
-> v1 -> v2:
-> - dropped patch 1/4 because id_table is still needed as pointed out by
->   Peter Rosin
-> - fixed patch 3/3: we need to free the dummy client if regmap_init fails
-> 
-> Bartosz Golaszewski (3):
->   eeprom: at24: use devm_nvmem_register()
->   eeprom: at24: provide and use a helper for releasing dummy i2c clients
->   eeprom: at24: provide a separate routine for creating dummy i2c
->     clients
+Currently, Documentation/i2c/dev-interface describes the use of i2c_smbus_*
+helper routines as static inlined functions provided by linux/i2c-dev.h.  Work
+has been done to refactor the linux/i2c-dev.h file in the i2c-tools project
+out into its own library.  As a result, these docs have become stale.
 
-For all three:
+This patch corrects the discrepancy and directs the reader to the i2c-tools
+project for more information.  Additionally, some trailing-whitespace cleanups
+were made.
 
-Reviewed-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Sam Hansen <hansens@google.com>
+---
+ Documentation/i2c/dev-interface | 28 +++++++++++-----------------
+ 1 file changed, 11 insertions(+), 17 deletions(-)
 
-Cheers,
-Peter
+diff --git a/Documentation/i2c/dev-interface b/Documentation/i2c/dev-interface
+index d04e6e4964ee..5323588fe99d 100644
+--- a/Documentation/i2c/dev-interface
++++ b/Documentation/i2c/dev-interface
+@@ -9,8 +9,8 @@ i2c adapters present on your system at a given time. i2cdetect is part of
+ the i2c-tools package.
+ 
+ I2C device files are character device files with major device number 89
+-and a minor device number corresponding to the number assigned as 
+-explained above. They should be called "i2c-%d" (i2c-0, i2c-1, ..., 
++and a minor device number corresponding to the number assigned as
++explained above. They should be called "i2c-%d" (i2c-0, i2c-1, ...,
+ i2c-10, ...). All 256 minor device numbers are reserved for i2c.
+ 
+ 
+@@ -23,11 +23,6 @@ First, you need to include these two headers:
+   #include <linux/i2c-dev.h>
+   #include <i2c/smbus.h>
+ 
+-(Please note that there are two files named "i2c-dev.h" out there. One is
+-distributed with the Linux kernel and the other one is included in the
+-source tree of i2c-tools. They used to be different in content but since 2012
+-they're identical. You should use "linux/i2c-dev.h").
+-
+ Now, you have to decide which adapter you want to access. You should
+ inspect /sys/class/i2c-dev/ or run "i2cdetect -l" to decide this.
+ Adapter numbers are assigned somewhat dynamically, so you can not
+@@ -38,7 +33,7 @@ Next thing, open the device file, as follows:
+   int file;
+   int adapter_nr = 2; /* probably dynamically determined */
+   char filename[20];
+-  
++
+   snprintf(filename, 19, "/dev/i2c-%d", adapter_nr);
+   file = open(filename, O_RDWR);
+   if (file < 0) {
+@@ -72,7 +67,7 @@ the device supports them. Both are illustrated below.
+     /* res contains the read word */
+   }
+ 
+-  /* Using I2C Write, equivalent of 
++  /* Using I2C Write, equivalent of
+      i2c_smbus_write_word_data(file, reg, 0x6543) */
+   buf[0] = reg;
+   buf[1] = 0x43;
+@@ -140,14 +135,14 @@ ioctl(file, I2C_RDWR, struct i2c_rdwr_ioctl_data *msgset)
+   set in each message, overriding the values set with the above ioctl's.
+ 
+ ioctl(file, I2C_SMBUS, struct i2c_smbus_ioctl_data *args)
+-  Not meant to be called  directly; instead, use the access functions
+-  below.
++  If possible, use the provided i2c_smbus_* methods described below in favor
++  of issuing direct ioctls.
+ 
+ You can do plain i2c transactions by using read(2) and write(2) calls.
+ You do not need to pass the address byte; instead, set it through
+ ioctl I2C_SLAVE before you try to access the device.
+ 
+-You can do SMBus level transactions (see documentation file smbus-protocol 
++You can do SMBus level transactions (see documentation file smbus-protocol
+ for details) through the following functions:
+   __s32 i2c_smbus_write_quick(int file, __u8 value);
+   __s32 i2c_smbus_read_byte(int file);
+@@ -158,7 +153,7 @@ for details) through the following functions:
+   __s32 i2c_smbus_write_word_data(int file, __u8 command, __u16 value);
+   __s32 i2c_smbus_process_call(int file, __u8 command, __u16 value);
+   __s32 i2c_smbus_read_block_data(int file, __u8 command, __u8 *values);
+-  __s32 i2c_smbus_write_block_data(int file, __u8 command, __u8 length, 
++  __s32 i2c_smbus_write_block_data(int file, __u8 command, __u8 length,
+                                    __u8 *values);
+ All these transactions return -1 on failure; you can read errno to see
+ what happened. The 'write' transactions return 0 on success; the
+@@ -166,10 +161,9 @@ what happened. The 'write' transactions return 0 on success; the
+ returns the number of values read. The block buffers need not be longer
+ than 32 bytes.
+ 
+-The above functions are all inline functions, that resolve to calls to
+-the i2c_smbus_access function, that on its turn calls a specific ioctl
+-with the data in a specific format. Read the source code if you
+-want to know what happens behind the screens.
++The above functions are made available by linking against the libi2c library,
++which is provided by the i2c-tools project.  See:
++https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/.
+ 
+ 
+ Implementation details
+-- 
+2.17.0.484.g0c8726318c-goog
