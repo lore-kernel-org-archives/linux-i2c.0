@@ -1,73 +1,47 @@
-From: Sam Hansen <hansens@google.com>
-Subject: [PATCH v3 2/3] Documentation/i2c: sync docs with current state of i2c-tools
-Date: Fri, 13 Apr 2018 10:42:56 -0700
-Message-ID: <20180413174257.139182-2-hansens@google.com>
-References: <20180413174257.139182-1-hansens@google.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] Documentation/i2c: sync docs with current state of
+ i2c-tools.
+Date: Fri, 13 Apr 2018 20:49:37 +0200
+Message-ID: <20180413204937.440437e9@endymion>
+References: <20180412213342.138010-1-hansens@google.com>
+        <20180412222457.x4jdwt27ylgi74o3@katana>
+        <20180413141359.793919fb@endymion>
+        <CAP9bUy7rONNHYeRkYtaWHcfqoZcGKXJz-JocED26zBj9n+-ZbQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180413174257.139182-1-hansens@google.com>
+In-Reply-To: <CAP9bUy7rONNHYeRkYtaWHcfqoZcGKXJz-JocED26zBj9n+-ZbQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Sam Hansen <hansens@google.com>, wsa@the-dreams.de, corbet@lwn.net, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Sam Hansen <hansens@google.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Currently, Documentation/i2c/dev-interface describes the use of
-i2c_smbus_* helper routines as static inlined functions provided by
-linux/i2c-dev.h.  Work has been done to refactor the linux/i2c-dev.h file
-in the i2c-tools project out into its own library.  As a result, these
-docs have become stale.
+On Fri, 13 Apr 2018 09:02:03 -0700, Sam Hansen wrote:
+> On Fri, Apr 13, 2018 at 5:13 AM, Jean Delvare <jdelvare@suse.de> wrote:
+> > On Fri, 13 Apr 2018 00:24:57 +0200, Wolfram Sang wrote:  
+> >> On Thu, Apr 12, 2018 at 02:33:42PM -0700, Sam Hansen wrote:  
+> >> > -  Not meant to be called  directly; instead, use the access functions
+> >> > -  below.
+> >> > +  If possible, use the provided i2c_smbus_* methods described below in favor
+> >> > +  of issuing direct ioctls.  
+> >>
+> >> Why this change?  
+> >
+> > I'm also not sure if "in favor of" is right. "instead of" would sound
+> > better to me, but I'm no native English speaker, I could be wrong.  
+> 
+> Sounds good, I'll adopt "instead of".  Regarding Wolfram's earlier
+> comment, as an engineer, requiring an out-of-tree library to build
+> drivers felt a little off.  I can revert this section if you want,
+> just let me know.
 
-This patch corrects the discrepancy and directs the reader to the
-i2c-tools project for more information.
+The i2c dev interface, and the overlaying library, are used by
+user-space applications. This has nothing to do with "building
+drivers", and makes your "out-of-tree" objection irrelevant. I doubt
+libi2c is the only user-space library building on top of a kernel
+interface.
 
-Signed-off-by: Sam Hansen <hansens@google.com>
----
-No changes from v2.
-
- Documentation/i2c/dev-interface | 16 +++++-----------
- 1 file changed, 5 insertions(+), 11 deletions(-)
-
-diff --git a/Documentation/i2c/dev-interface b/Documentation/i2c/dev-interface
-index c8737d502791..f92ee1f59914 100644
---- a/Documentation/i2c/dev-interface
-+++ b/Documentation/i2c/dev-interface
-@@ -23,11 +23,6 @@ First, you need to include these two headers:
-   #include <linux/i2c-dev.h>
-   #include <i2c/smbus.h>
- 
--(Please note that there are two files named "i2c-dev.h" out there. One is
--distributed with the Linux kernel and the other one is included in the
--source tree of i2c-tools. They used to be different in content but since 2012
--they're identical. You should use "linux/i2c-dev.h").
--
- Now, you have to decide which adapter you want to access. You should
- inspect /sys/class/i2c-dev/ or run "i2cdetect -l" to decide this.
- Adapter numbers are assigned somewhat dynamically, so you can not
-@@ -140,8 +135,8 @@ ioctl(file, I2C_RDWR, struct i2c_rdwr_ioctl_data *msgset)
-   set in each message, overriding the values set with the above ioctl's.
- 
- ioctl(file, I2C_SMBUS, struct i2c_smbus_ioctl_data *args)
--  Not meant to be called  directly; instead, use the access functions
--  below.
-+  If possible, use the provided i2c_smbus_* methods described below instead
-+  of issuing direct ioctls.
- 
- You can do plain i2c transactions by using read(2) and write(2) calls.
- You do not need to pass the address byte; instead, set it through
-@@ -166,10 +161,9 @@ what happened. The 'write' transactions return 0 on success; the
- returns the number of values read. The block buffers need not be longer
- than 32 bytes.
- 
--The above functions are all inline functions, that resolve to calls to
--the i2c_smbus_access function, that on its turn calls a specific ioctl
--with the data in a specific format. Read the source code if you
--want to know what happens behind the screens.
-+The above functions are made available by linking against the libi2c library,
-+which is provided by the i2c-tools project.  See:
-+https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/.
- 
- 
- Implementation details
 -- 
-2.17.0.484.g0c8726318c-goog
+Jean Delvare
+SUSE L3 Support
