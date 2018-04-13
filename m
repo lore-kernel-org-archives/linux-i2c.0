@@ -1,36 +1,68 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH linux dev-4.16 v2] i2c: muxes: pca9641: new driver
-Date: Fri, 13 Apr 2018 09:27:50 +0200
-Message-ID: <3dc71810-a743-9fe0-c8b0-7e42d8167685@axentia.se>
-References: <20180320061909.5775-1-chen.kenyy@inventec.com>
- <20180320093200.19179-1-peda@axentia.se>
- <5053d0d0-e4c5-733e-051d-b5900d05ea2b@axentia.se>
- <CADo_Z40fZaT8iRSALDv7-YaK0YD-WFph5RwmrngFbC4FzFAp9Q@mail.gmail.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] Documentation/i2c: sync docs with current state of
+ i2c-tools.
+Date: Fri, 13 Apr 2018 14:13:59 +0200
+Message-ID: <20180413141359.793919fb@endymion>
+References: <20180412213342.138010-1-hansens@google.com>
+        <20180412222457.x4jdwt27ylgi74o3@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CADo_Z40fZaT8iRSALDv7-YaK0YD-WFph5RwmrngFbC4FzFAp9Q@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <20180412222457.x4jdwt27ylgi74o3@katana>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?B?Q2hlbktlbllZIOmZs+awuOeHnyBUQU8=?= <chen.kenyy@inventec.com>
-Cc: linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>, Joel Stanley <joel@jms.id.au>, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Sam Hansen <hansens@google.com>, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-04-13 08:59, ChenKenYY 陳永營 TAO wrote:
-> Hi Peter,
+Hi Wolfram, Sam,
+
+On Fri, 13 Apr 2018 00:24:57 +0200, Wolfram Sang wrote:
+> On Thu, Apr 12, 2018 at 02:33:42PM -0700, Sam Hansen wrote:
+> > Currently, Documentation/i2c/dev-interface describes the use of i2c_smbus_*
+> > helper routines as static inlined functions provided by linux/i2c-dev.h.  Work
+> > has been done to refactor the linux/i2c-dev.h file in the i2c-tools project
+> > out into its own library.  As a result, these docs have become stale.  
 > 
-> Sorry for late. Here has some event at my company which needs to pause
-> this work.
+> Thanks for fixing this!
 > 
-> If the status changed, I will update my patch.
+> > This patch corrects the discrepancy and directs the reader to the i2c-tools
+> > project for more information.  Additionally, some trailing-whitespace cleanups
+> > were made.  
+> 
+> Minor nit: Having the whitespace changes in a seperate patch is a tad
+> easier to review.
+> 
+> > -  /* Using I2C Write, equivalent of 
+> > +  /* Using I2C Write, equivalent of
+> >       i2c_smbus_write_word_data(file, reg, 0x6543) */  
+> 
+> Maybe change to Kernel coding style comments while here?
+> 
+> > -  Not meant to be called  directly; instead, use the access functions
+> > -  below.
+> > +  If possible, use the provided i2c_smbus_* methods described below in favor
+> > +  of issuing direct ioctls.  
+> 
+> Why this change?
 
-No worries, I just want to know how to handle my preparatory patches. If
-nothing changes, I think I'll push the first two anyway, but will hold
-off the third until there is some real need from it.
+I'm also not sure if "in favor of" is right. "instead of" would sound
+better to me, but I'm no native English speaker, I could be wrong.
 
-Or can you perhaps make time to test a patch adding pca9641 if I adapt
-your code to my 3/3 patch? Then I can put these patches behind me.
+> > -The above functions are all inline functions, that resolve to calls to
+> > -the i2c_smbus_access function, that on its turn calls a specific ioctl
+> > -with the data in a specific format. Read the source code if you
+> > -want to know what happens behind the screens.
+> > +The above functions are made available by linking against the libi2c library,
+> > +which is provided by the i2c-tools project.  See:
+> > +https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/.  
+> 
+> This is fine with me. Maybe Jean has a comment on this?
 
-Cheers,
-Peter
+Fixing the documentation is always welcome, thanks Sam for stepping in.
+However we really want separate patches for whitespace fixes and actual
+contents change, as Wolfram already mentioned above.
+
+-- 
+Jean Delvare
+SUSE L3 Support
