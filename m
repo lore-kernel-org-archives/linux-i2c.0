@@ -1,76 +1,74 @@
 From: Sam Hansen <hansens@google.com>
-Subject: Re: [PATCH] Documentation/i2c: sync docs with current state of i2c-tools.
-Date: Fri, 13 Apr 2018 09:02:03 -0700
-Message-ID: <CAP9bUy7rONNHYeRkYtaWHcfqoZcGKXJz-JocED26zBj9n+-ZbQ@mail.gmail.com>
-References: <20180412213342.138010-1-hansens@google.com> <20180412222457.x4jdwt27ylgi74o3@katana>
- <20180413141359.793919fb@endymion>
+Subject: [PATCH v2 1/3] Documentation/i2c: whitespace cleanup
+Date: Fri, 13 Apr 2018 09:44:03 -0700
+Message-ID: <20180413164405.127522-1-hansens@google.com>
+References: <CAP9bUy7rONNHYeRkYtaWHcfqoZcGKXJz-JocED26zBj9n+-ZbQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180413141359.793919fb@endymion>
+In-Reply-To: <CAP9bUy7rONNHYeRkYtaWHcfqoZcGKXJz-JocED26zBj9n+-ZbQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Sam Hansen <hansens@google.com>, wsa@the-dreams.de, corbet@lwn.net, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Apr 13, 2018 at 5:13 AM, Jean Delvare <jdelvare@suse.de> wrote:
-> Hi Wolfram, Sam,
->
-> On Fri, 13 Apr 2018 00:24:57 +0200, Wolfram Sang wrote:
->> On Thu, Apr 12, 2018 at 02:33:42PM -0700, Sam Hansen wrote:
->> > Currently, Documentation/i2c/dev-interface describes the use of i2c_smbus_*
->> > helper routines as static inlined functions provided by linux/i2c-dev.h.  Work
->> > has been done to refactor the linux/i2c-dev.h file in the i2c-tools project
->> > out into its own library.  As a result, these docs have become stale.
->>
->> Thanks for fixing this!
->>
->> > This patch corrects the discrepancy and directs the reader to the i2c-tools
->> > project for more information.  Additionally, some trailing-whitespace cleanups
->> > were made.
->>
->> Minor nit: Having the whitespace changes in a seperate patch is a tad
->> easier to review.
->>
->> > -  /* Using I2C Write, equivalent of
->> > +  /* Using I2C Write, equivalent of
->> >       i2c_smbus_write_word_data(file, reg, 0x6543) */
->>
->> Maybe change to Kernel coding style comments while here?
->>
->> > -  Not meant to be called  directly; instead, use the access functions
->> > -  below.
->> > +  If possible, use the provided i2c_smbus_* methods described below in favor
->> > +  of issuing direct ioctls.
->>
->> Why this change?
->
-> I'm also not sure if "in favor of" is right. "instead of" would sound
-> better to me, but I'm no native English speaker, I could be wrong.
+This strips trailing whitespace in Documentation/i2c/dev-interface.
 
-Sounds good, I'll adopt "instead of".  Regarding Wolfram's earlier
-comment, as an engineer, requiring an out-of-tree library to build
-drivers felt a little off.  I can revert this section if you want,
-just let me know.
+Signed-off-by: Sam Hansen <hansens@google.com>
+---
+ Documentation/i2c/dev-interface | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
->
->> > -The above functions are all inline functions, that resolve to calls to
->> > -the i2c_smbus_access function, that on its turn calls a specific ioctl
->> > -with the data in a specific format. Read the source code if you
->> > -want to know what happens behind the screens.
->> > +The above functions are made available by linking against the libi2c library,
->> > +which is provided by the i2c-tools project.  See:
->> > +https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/.
->>
->> This is fine with me. Maybe Jean has a comment on this?
->
-> Fixing the documentation is always welcome, thanks Sam for stepping in.
-> However we really want separate patches for whitespace fixes and actual
-> contents change, as Wolfram already mentioned above.
-
-Will do!  I'll send a v2 patch set, thanks.
-
->
-> --
-> Jean Delvare
-> SUSE L3 Support
+diff --git a/Documentation/i2c/dev-interface b/Documentation/i2c/dev-interface
+index d04e6e4964ee..c8737d502791 100644
+--- a/Documentation/i2c/dev-interface
++++ b/Documentation/i2c/dev-interface
+@@ -9,8 +9,8 @@ i2c adapters present on your system at a given time. i2cdetect is part of
+ the i2c-tools package.
+ 
+ I2C device files are character device files with major device number 89
+-and a minor device number corresponding to the number assigned as 
+-explained above. They should be called "i2c-%d" (i2c-0, i2c-1, ..., 
++and a minor device number corresponding to the number assigned as
++explained above. They should be called "i2c-%d" (i2c-0, i2c-1, ...,
+ i2c-10, ...). All 256 minor device numbers are reserved for i2c.
+ 
+ 
+@@ -38,7 +38,7 @@ Next thing, open the device file, as follows:
+   int file;
+   int adapter_nr = 2; /* probably dynamically determined */
+   char filename[20];
+-  
++
+   snprintf(filename, 19, "/dev/i2c-%d", adapter_nr);
+   file = open(filename, O_RDWR);
+   if (file < 0) {
+@@ -72,7 +72,7 @@ the device supports them. Both are illustrated below.
+     /* res contains the read word */
+   }
+ 
+-  /* Using I2C Write, equivalent of 
++  /* Using I2C Write, equivalent of
+      i2c_smbus_write_word_data(file, reg, 0x6543) */
+   buf[0] = reg;
+   buf[1] = 0x43;
+@@ -147,7 +147,7 @@ You can do plain i2c transactions by using read(2) and write(2) calls.
+ You do not need to pass the address byte; instead, set it through
+ ioctl I2C_SLAVE before you try to access the device.
+ 
+-You can do SMBus level transactions (see documentation file smbus-protocol 
++You can do SMBus level transactions (see documentation file smbus-protocol
+ for details) through the following functions:
+   __s32 i2c_smbus_write_quick(int file, __u8 value);
+   __s32 i2c_smbus_read_byte(int file);
+@@ -158,7 +158,7 @@ for details) through the following functions:
+   __s32 i2c_smbus_write_word_data(int file, __u8 command, __u16 value);
+   __s32 i2c_smbus_process_call(int file, __u8 command, __u16 value);
+   __s32 i2c_smbus_read_block_data(int file, __u8 command, __u8 *values);
+-  __s32 i2c_smbus_write_block_data(int file, __u8 command, __u8 length, 
++  __s32 i2c_smbus_write_block_data(int file, __u8 command, __u8 length,
+                                    __u8 *values);
+ All these transactions return -1 on failure; you can read errno to see
+ what happened. The 'write' transactions return 0 on success; the
+-- 
+2.17.0.484.g0c8726318c-goog
