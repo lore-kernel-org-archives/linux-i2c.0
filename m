@@ -1,130 +1,64 @@
-From: Sam Hansen <hansens@google.com>
-Subject: [PATCH v2 3/3] Documentation/i2c: adopt kernel commenting style in examples
-Date: Fri, 13 Apr 2018 09:44:05 -0700
-Message-ID: <20180413164405.127522-3-hansens@google.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 3/3] Documentation/i2c: adopt kernel commenting style
+ in examples
+Date: Fri, 13 Apr 2018 18:50:00 +0200
+Message-ID: <20180413165000.2svg2j5ozdd2egbd@ninjato>
 References: <CAP9bUy7rONNHYeRkYtaWHcfqoZcGKXJz-JocED26zBj9n+-ZbQ@mail.gmail.com>
  <20180413164405.127522-1-hansens@google.com>
+ <20180413164405.127522-3-hansens@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="pttm4h4pxs432wix"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180413164405.127522-1-hansens@google.com>
+Content-Disposition: inline
+In-Reply-To: <20180413164405.127522-3-hansens@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Sam Hansen <hansens@google.com>, wsa@the-dreams.de, corbet@lwn.net, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Sam Hansen <hansens@google.com>
+Cc: linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The example I2C code is rewritten to adopt the preferred kernel block
-commenting style.
 
-Signed-off-by: Sam Hansen <hansens@google.com>
----
- Documentation/i2c/dev-interface | 57 +++++++++++++++++++++++++--------
- 1 file changed, 43 insertions(+), 14 deletions(-)
+--pttm4h4pxs432wix
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/Documentation/i2c/dev-interface b/Documentation/i2c/dev-interface
-index f92ee1f59914..e17f5814c199 100644
---- a/Documentation/i2c/dev-interface
-+++ b/Documentation/i2c/dev-interface
-@@ -30,24 +30,34 @@ assume much about them. They can even change from one boot to the next.
- 
- Next thing, open the device file, as follows:
- 
-+  /*
-+   * The adapter is probably dynamically determined.
-+   */
-   int file;
--  int adapter_nr = 2; /* probably dynamically determined */
-+  int adapter_nr = 2;
-   char filename[20];
- 
-   snprintf(filename, 19, "/dev/i2c-%d", adapter_nr);
-   file = open(filename, O_RDWR);
-   if (file < 0) {
--    /* ERROR HANDLING; you can check errno to see what went wrong */
-+    /*
-+     * ERROR HANDLING; you can check errno to see what went wrong.
-+     */
-     exit(1);
-   }
- 
- When you have opened the device, you must specify with what device
- address you want to communicate:
- 
--  int addr = 0x40; /* The I2C address */
-+  /*
-+   * The I2C address.
-+   */
-+  int addr = 0x40;
- 
-   if (ioctl(file, I2C_SLAVE, addr) < 0) {
--    /* ERROR HANDLING; you can check errno to see what went wrong */
-+    /*
-+     * ERROR HANDLING; you can check errno to see what went wrong.
-+     */
-     exit(1);
-   }
- 
-@@ -55,32 +65,51 @@ Well, you are all set up now. You can now use SMBus commands or plain
- I2C to communicate with your device. SMBus commands are preferred if
- the device supports them. Both are illustrated below.
- 
--  __u8 reg = 0x10; /* Device register to access */
-+  /*
-+   * The device register to access.
-+   */
-+  __u8 reg = 0x10;
-   __s32 res;
-   char buf[10];
- 
--  /* Using SMBus commands */
-+  /*
-+   * Using SMBus commands.
-+   */
-   res = i2c_smbus_read_word_data(file, reg);
-   if (res < 0) {
--    /* ERROR HANDLING: i2c transaction failed */
-+    /*
-+     * ERROR HANDLING: i2c transaction failed.
-+     */
-   } else {
--    /* res contains the read word */
-+    /*
-+     * res contains the read word.
-+     */
-   }
- 
--  /* Using I2C Write, equivalent of
--     i2c_smbus_write_word_data(file, reg, 0x6543) */
-+  /*
-+   * Using I2C Write, equivalent of
-+   * i2c_smbus_write_word_data(file, reg, 0x6543).
-+   */
-   buf[0] = reg;
-   buf[1] = 0x43;
-   buf[2] = 0x65;
-   if (write(file, buf, 3) != 3) {
--    /* ERROR HANDLING: i2c transaction failed */
-+    /*
-+     * ERROR HANDLING: i2c transaction failed.
-+     */
-   }
- 
--  /* Using I2C Read, equivalent of i2c_smbus_read_byte(file) */
-+  /*
-+   * Using I2C Read, equivalent of i2c_smbus_read_byte(file).
-+   */
-   if (read(file, buf, 1) != 1) {
--    /* ERROR HANDLING: i2c transaction failed */
-+    /*
-+     * ERROR HANDLING: i2c transaction failed.
-+     */
-   } else {
--    /* buf[0] contains the read byte */
-+    /*
-+     * buf[0] contains the read byte.
-+     */
-   }
- 
- Note that only a subset of the I2C and SMBus protocols can be achieved by
--- 
-2.17.0.484.g0c8726318c-goog
+
+> -  int adapter_nr = 2; /* probably dynamically determined */
+
+Such comments are actually OK.
+
+> -    /* ERROR HANDLING; you can check errno to see what went wrong */
+
+Such as well.
+
+> -  /* Using I2C Write, equivalent of
+> -     i2c_smbus_write_word_data(file, reg, 0x6543) */
+> +  /*
+> +   * Using I2C Write, equivalent of
+> +   * i2c_smbus_write_word_data(file, reg, 0x6543).
+> +   */
+
+This is the only broken one AFAICT.
+
+
+--pttm4h4pxs432wix
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrQ37QACgkQFA3kzBSg
+Kbb8phAAlunAC0S+3NuaC4xXkaJGt/5gM4CKXPpL7LyauKyz5J4MD1fPAYDgLwBM
+VWFbr9/MRB57unWdYw5/0qCKq/X+R8wPm+05cP7V1hSxUk2aTexKjPDRAfsA0rH4
+1/wygiCybrBKXf5Bcado2jTxPYhRBNarLlhiAPsvGIyYqY0cf8Y2CZsAony9fssa
+trCLbaljHWm2EEiZVIp5Uvt5nOJ5dSkNppA+dv1Uxx74Lo9/3Blj6GvSYqtJkwek
+qNqCTIcLw7QuDVb2qPlGpJ1wxpaXt9HPQsJu2RIuY31qIC2NbIw6HPDYJm7cLGul
+X9rhSZZFX3MjI2pulkQ23ofEY7OfHCVZ/g0JkPAl3AgEMnRejc0DDfkL4cqp7D/y
+QKICf/jMW52mvfDqtFahAQCezgXxrB9j19Bw9RRVyJmGJudvP3J4GJZes6If1BSc
+NJL6ya8p0vqgToRwQPBdYKMrX3HM0hkrpzjV4UX02YhrArInHDb0DR0cd4+2dRHI
+9P0ZwYqQ8HhqAFek9VrsLPbroaoJ6Ff3et6gIddObCzHEHhtAVJ46UIlIhzWNvGC
+Q336caSDFht0+IXuFZ9RUom0DMMzoKXA6KfydsHTigAJzm4dExXz/HaF4nRWgS0/
+vMO8q+5hhGo/XIB183F2zzgj0YYnnB1yQGhmFY8Es8phD802xMo=
+=HnGa
+-----END PGP SIGNATURE-----
+
+--pttm4h4pxs432wix--
