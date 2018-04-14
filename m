@@ -1,50 +1,57 @@
-From: Sam Hansen <hansens@google.com>
-Subject: Re: [PATCH] Documentation/i2c: sync docs with current state of i2c-tools.
-Date: Fri, 13 Apr 2018 16:32:47 -0700
-Message-ID: <CAP9bUy6Hf+cQzAAckou3QPTk0mJM4xJ4xq-hf+RwyVmD3Le+qg@mail.gmail.com>
-References: <20180412213342.138010-1-hansens@google.com> <20180412222457.x4jdwt27ylgi74o3@katana>
- <20180413141359.793919fb@endymion> <CAP9bUy7rONNHYeRkYtaWHcfqoZcGKXJz-JocED26zBj9n+-ZbQ@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] Documentation/i2c: sync docs with current state of
+ i2c-tools.
+Date: Sat, 14 Apr 2018 08:27:18 +0200
+Message-ID: <20180414062718.3tbsdb6jhjurpfta@katana>
+References: <20180412213342.138010-1-hansens@google.com>
+ <20180412222457.x4jdwt27ylgi74o3@katana>
+ <20180413141359.793919fb@endymion>
+ <CAP9bUy7rONNHYeRkYtaWHcfqoZcGKXJz-JocED26zBj9n+-ZbQ@mail.gmail.com>
  <20180413204937.440437e9@endymion>
+ <CAP9bUy6Hf+cQzAAckou3QPTk0mJM4xJ4xq-hf+RwyVmD3Le+qg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="63ldwbganmqjq6vv"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180413204937.440437e9@endymion>
+Content-Disposition: inline
+In-Reply-To: <CAP9bUy6Hf+cQzAAckou3QPTk0mJM4xJ4xq-hf+RwyVmD3Le+qg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Sam Hansen <hansens@google.com>
+Cc: Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Apr 13, 2018 at 11:49 AM, Jean Delvare <jdelvare@suse.de> wrote:
-> On Fri, 13 Apr 2018 09:02:03 -0700, Sam Hansen wrote:
->> On Fri, Apr 13, 2018 at 5:13 AM, Jean Delvare <jdelvare@suse.de> wrote:
->> > On Fri, 13 Apr 2018 00:24:57 +0200, Wolfram Sang wrote:
->> >> On Thu, Apr 12, 2018 at 02:33:42PM -0700, Sam Hansen wrote:
->> >> > -  Not meant to be called  directly; instead, use the access functions
->> >> > -  below.
->> >> > +  If possible, use the provided i2c_smbus_* methods described below in favor
->> >> > +  of issuing direct ioctls.
->> >>
->> >> Why this change?
->> >
->> > I'm also not sure if "in favor of" is right. "instead of" would sound
->> > better to me, but I'm no native English speaker, I could be wrong.
->>
->> Sounds good, I'll adopt "instead of".  Regarding Wolfram's earlier
->> comment, as an engineer, requiring an out-of-tree library to build
->> drivers felt a little off.  I can revert this section if you want,
->> just let me know.
->
-> The i2c dev interface, and the overlaying library, are used by
-> user-space applications. This has nothing to do with "building
-> drivers", and makes your "out-of-tree" objection irrelevant. I doubt
-> libi2c is the only user-space library building on top of a kernel
-> interface.
 
-Ok, sounds good.  I'll send a revised patch set reverting this block.
+--63ldwbganmqjq6vv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-(also, did I send the v3 patch series threaded correctly?)
 
->
-> --
-> Jean Delvare
-> SUSE L3 Support
+> (also, did I send the v3 patch series threaded correctly?)
+
+Yes, that worked. Thanks!
+
+Things to improve there: I was both in To: and CC: field, so I got mails
+twice. Jean was missing completely.
+
+
+--63ldwbganmqjq6vv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrRn0EACgkQFA3kzBSg
+KbaO5w//W/3a7z6XYo+5KE+Nek2G6K49ZDoMt/c9w4xbvL354cxoh9xzTcuPWJH2
+Nbowz9VejPic0ZtoIdZ+PO+OYj/s3G8KrnKLIUQxW1GwKzE9b13s33TUhICCXqkH
+SI6/U81YUOlOASNvDmIa/SUugZK0AEW7Q1AwnRQurGzNaJ9XjEkCJHzy9QZqEQbp
+7lJDh0qCjSrJpSvYsl1RLMnaQcKrIQ7SiFCCAPH+ilBaho7xfbdFRFgUBDq4O9o2
+y397ZU7Y3npsTP08SL5el3H25DmAaj4sjgiFL/tEsYdNyuqDkC0jBtX8tKT7vv6k
+T+ychYVyNvNFuS9RUBYPWYhhlUPt6eqjq9/jHWz+N2AXNqr1sRHMBMan1hPdww/H
+49niaLHYLuihrvPHSMcJPExusIQpSIyC/xf45xK6fXqdBjOFYoV7CAGBOQy4AUiI
+nhq+MHrJGZHvn/sahlhNG9ZdCIGXtcFj9tBLQX40JjrfVJ7X2g9vvS2kDtpOnnZ8
+JwxXMJupI86FcjiSqsr1cdnQypX4bmLEpNaiFftdDFzegDtB36mBOzlf1y35b0bF
+FNvYIptegwdZLmHHoodDDNmtuLUIT8RRKekXACwS8YNb8GLvLJqjydgv2kD4RODp
+k9B3h0Ee1UybDXrqQc0ShE6vhHf7/SJ7PXuZ2Ew+6NCUVovchYE=
+=Qg3j
+-----END PGP SIGNATURE-----
+
+--63ldwbganmqjq6vv--
