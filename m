@@ -1,57 +1,41 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] Documentation/i2c: sync docs with current state of
- i2c-tools.
-Date: Sat, 14 Apr 2018 08:27:18 +0200
-Message-ID: <20180414062718.3tbsdb6jhjurpfta@katana>
-References: <20180412213342.138010-1-hansens@google.com>
- <20180412222457.x4jdwt27ylgi74o3@katana>
- <20180413141359.793919fb@endymion>
- <CAP9bUy7rONNHYeRkYtaWHcfqoZcGKXJz-JocED26zBj9n+-ZbQ@mail.gmail.com>
- <20180413204937.440437e9@endymion>
- <CAP9bUy6Hf+cQzAAckou3QPTk0mJM4xJ4xq-hf+RwyVmD3Le+qg@mail.gmail.com>
+From: Andrew Worsley <amworsley@gmail.com>
+Subject: (unknown)
+Date: Mon, 16 Apr 2018 11:22:47 +1000
+Message-ID: <20180416012248.25891-1-amworsley@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="63ldwbganmqjq6vv"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAP9bUy6Hf+cQzAAckou3QPTk0mJM4xJ4xq-hf+RwyVmD3Le+qg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sam Hansen <hansens@google.com>
-Cc: Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Subject: 
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: harinik@xilinx.com, APANDEY@xilinx.com, asarkar@xilinx.com, soren.brinkmann@xilinx.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---63ldwbganmqjq6vv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+  This patch clears the remaining i2c buffer overrun problems that I see in my
+hardware.  When run at 200kHz over 2 days and 17 hours there were *NO* faults seen
+despite continously accessing the all the i2c devices. I feel the remaining issues
+are related to the TPM not behaving properly at clock speeds of 285kHz or higher.
+The other i2c hardware is fine up to maximum 400khz.  At these higher clock speeds
+the TPM appears to fall behind and I see SDA held low after the TPM read and the
+driver report bus arbitration lost errors.  Eventually the TPM completely stops
+responding and SDA is held low. But accessing the other i2c hardware causes more
+i2c clock pulses which lets the SDA go high again then the other i2c devices work
+with out problems which further confirms our thinking that the TPM is source of the
+remaining i2c problems.
 
+  With the additional i2c fixes in the attached patch the Xilinx i2c driver
+is working with out problems on our hardware. I recommend you consider adding these
+changes which apply on top of the previous fixes that I sent.
 
-> (also, did I send the v3 patch series threaded correctly?)
+  Thanks
 
-Yes, that worked. Thanks!
-
-Things to improve there: I was both in To: and CC: field, so I got mails
-twice. Jean was missing completely.
-
-
---63ldwbganmqjq6vv
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrRn0EACgkQFA3kzBSg
-KbaO5w//W/3a7z6XYo+5KE+Nek2G6K49ZDoMt/c9w4xbvL354cxoh9xzTcuPWJH2
-Nbowz9VejPic0ZtoIdZ+PO+OYj/s3G8KrnKLIUQxW1GwKzE9b13s33TUhICCXqkH
-SI6/U81YUOlOASNvDmIa/SUugZK0AEW7Q1AwnRQurGzNaJ9XjEkCJHzy9QZqEQbp
-7lJDh0qCjSrJpSvYsl1RLMnaQcKrIQ7SiFCCAPH+ilBaho7xfbdFRFgUBDq4O9o2
-y397ZU7Y3npsTP08SL5el3H25DmAaj4sjgiFL/tEsYdNyuqDkC0jBtX8tKT7vv6k
-T+ychYVyNvNFuS9RUBYPWYhhlUPt6eqjq9/jHWz+N2AXNqr1sRHMBMan1hPdww/H
-49niaLHYLuihrvPHSMcJPExusIQpSIyC/xf45xK6fXqdBjOFYoV7CAGBOQy4AUiI
-nhq+MHrJGZHvn/sahlhNG9ZdCIGXtcFj9tBLQX40JjrfVJ7X2g9vvS2kDtpOnnZ8
-JwxXMJupI86FcjiSqsr1cdnQypX4bmLEpNaiFftdDFzegDtB36mBOzlf1y35b0bF
-FNvYIptegwdZLmHHoodDDNmtuLUIT8RRKekXACwS8YNb8GLvLJqjydgv2kD4RODp
-k9B3h0Ee1UybDXrqQc0ShE6vhHf7/SJ7PXuZ2Ew+6NCUVovchYE=
-=Qg3j
------END PGP SIGNATURE-----
-
---63ldwbganmqjq6vv--
+        Andrew Worsley
