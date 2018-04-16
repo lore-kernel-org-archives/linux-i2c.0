@@ -1,41 +1,65 @@
-From: =?UTF-8?B?Q2hlbktlbllZIOmZs+awuOeHnyBUQU8=?=
-        <chen.kenyy@inventec.com>
-Subject: Re: [PATCH linux dev-4.16 v2] i2c: muxes: pca9641: new driver
-Date: Mon, 16 Apr 2018 15:37:58 +0800
-Message-ID: <CADo_Z40NYhLNLmLDPrOGoAyqvOkchpjnJZmx6sYpbEXUroC7Qw@mail.gmail.com>
-References: <20180320061909.5775-1-chen.kenyy@inventec.com>
- <20180320093200.19179-1-peda@axentia.se> <5053d0d0-e4c5-733e-051d-b5900d05ea2b@axentia.se>
- <CADo_Z40fZaT8iRSALDv7-YaK0YD-WFph5RwmrngFbC4FzFAp9Q@mail.gmail.com> <3dc71810-a743-9fe0-c8b0-7e42d8167685@axentia.se>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [SIL2review] [PATCH] i2c: img-scb: fix PM device usage count
+Date: Mon, 16 Apr 2018 18:18:45 +0200
+Message-ID: <20180416161845.hxizpjituo6mpvbm@ninjato>
+References: <20180224224303.3mpwhal2axcr6aos@agrajag.zerfleddert.de>
+ <20180225132014.GA8844@osadl.at>
+ <20180225172730.2b443978@denkmatte>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="oa5a7cavjqb53muk"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <3dc71810-a743-9fe0-c8b0-7e42d8167685@axentia.se>
+Content-Disposition: inline
+In-Reply-To: <20180225172730.2b443978@denkmatte>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>, Joel Stanley <joel@jms.id.au>, linux-i2c@vger.kernel.org
+To: Tobias Jordan <Tobias.Jordan@elektrobit.com>
+Cc: Nicholas Mc Guire <der.herr@hofr.at>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-2018-04-13 15:27 GMT+08:00 Peter Rosin <peda@axentia.se>:
-> On 2018-04-13 08:59, ChenKenYY 陳永營 TAO wrote:
->> Hi Peter,
->>
->> Sorry for late. Here has some event at my company which needs to pause
->> this work.
->>
->> If the status changed, I will update my patch.
->
-> No worries, I just want to know how to handle my preparatory patches. If
-> nothing changes, I think I'll push the first two anyway, but will hold
-> off the third until there is some real need from it.
->
-> Or can you perhaps make time to test a patch adding pca9641 if I adapt
-> your code to my 3/3 patch? Then I can put these patches behind me.
->
-I think you can push code first, I will test and update when I ready.
 
-Thanks,
-Ken
+--oa5a7cavjqb53muk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Cheers,
-> Peter
+
+> As far as I've understood the idea is that most "error" return values
+> actually are a result of disabled runtime PM, and that should be
+> transparent to the caller. Looking at the code, that's what the vast
+> majority of callers do - they just ignore the return value of
+> pm_runtime_get_sync, and somewhere later have an
+> unconditional pm_runtime_put_... call.
+>=20
+> So the only issue are callers that don't ignore the pm_runtime_get_sync
+> return value, probably because they're having some kind of special
+> requirements for error handling. For those, they need to ensure that a
+> proper _put_ is done somewhere in the error path.
+
+Is it easily recognizable if the drivers check the error code because
+there is a reason or if they do it "out of habit"? For the latter, I
+agree that the better fix would be to remove the error check altogether.
+Otherwise the code becomes more complex for no reason and even less
+people are then brave enough to simplify it later.
+
+
+--oa5a7cavjqb53muk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrUzOUACgkQFA3kzBSg
+KbZZQg//ViwCEDxliCtxLvHWNN1uGRydGEKWymuZTgzvED+kjbWXFWJA1swsaRHZ
+zPTPHYg3FnPQLCVfhj+PMoNbHX8PZYc6zo+vtS6mfIEtq4OyLkQmW78wtyeW1uOL
+n5SUfqWh6havgHoa6+E16M2dzrQXTz4Th4IzBid2IDbcp61rvq39SEhZmybxiA7A
+D6SqG7g+Jo5IwD9S4sa3QXDfeHPvja6Ld3Z2nc0KUlyRPW7m6ds+OQpYklWbhnIC
+HilN+Sk6AbPSbVuBfXxLV4xaKBVTLmm7kniUHJAEScfOZsPbX8LXYvv/yaFalbJP
+VnRB/Uapfc3DqSZ2dBOXSsgFBGxPmTsrgN3oerVVx/yh4VCeVR2TKt1XxRmlRQ0m
+ldGcxE+8FaW9UQRP4PkHD3tekiUiJGQRbhEPULpkLtjswck5TetXE3lvIB6RTvxc
+btUtQTCv3/NmDVzORYFGKpWSP9MM3MYuN/mkkW4e3g3zr3nB4zMi/41ZXxeJFxPr
+nmN3/JTKM7GaAnEHnESLb/1/pViOTMqjF38RXXFy9QqiufpE3hri2EwC+zruXDLv
+kDsCvkhRMa0f4ABRbmh2jAg40p1zIacK1NvUKTgzhVYpU1Gbyfpp5Ym1Xl1hrLyq
+uQsF0+iBQ+Yl7y6rpycKzba45CIwHKd5LywzxvxU+2MHa3DDpCg=
+=SvGp
+-----END PGP SIGNATURE-----
+
+--oa5a7cavjqb53muk--
