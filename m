@@ -1,57 +1,41 @@
-From: Ryder Lee <ryder.lee@mediatek.com>
-Subject: [PATCH] i2c: mediatek: use of_device_get_match_data()
-Date: Mon, 16 Apr 2018 10:32:52 +0800
-Message-ID: <31f944ab8dfcc1d7b6f03b35657a2a34825b5246.1523347340.git.ryder.lee@mediatek.com>
+From: =?UTF-8?B?Q2hlbktlbllZIOmZs+awuOeHnyBUQU8=?=
+        <chen.kenyy@inventec.com>
+Subject: Re: [PATCH linux dev-4.16 v2] i2c: muxes: pca9641: new driver
+Date: Mon, 16 Apr 2018 15:37:58 +0800
+Message-ID: <CADo_Z40NYhLNLmLDPrOGoAyqvOkchpjnJZmx6sYpbEXUroC7Qw@mail.gmail.com>
+References: <20180320061909.5775-1-chen.kenyy@inventec.com>
+ <20180320093200.19179-1-peda@axentia.se> <5053d0d0-e4c5-733e-051d-b5900d05ea2b@axentia.se>
+ <CADo_Z40fZaT8iRSALDv7-YaK0YD-WFph5RwmrngFbC4FzFAp9Q@mail.gmail.com> <3dc71810-a743-9fe0-c8b0-7e42d8167685@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <3dc71810-a743-9fe0-c8b0-7e42d8167685@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jun Gao <jun.gao@mediatek.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, Ryder Lee <ryder.lee@mediatek.com>
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>, Joel Stanley <joel@jms.id.au>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The usage of of_device_get_match_data() reduce the code size a bit.
+2018-04-13 15:27 GMT+08:00 Peter Rosin <peda@axentia.se>:
+> On 2018-04-13 08:59, ChenKenYY 陳永營 TAO wrote:
+>> Hi Peter,
+>>
+>> Sorry for late. Here has some event at my company which needs to pause
+>> this work.
+>>
+>> If the status changed, I will update my patch.
+>
+> No worries, I just want to know how to handle my preparatory patches. If
+> nothing changes, I think I'll push the first two anyway, but will hold
+> off the third until there is some real need from it.
+>
+> Or can you perhaps make time to test a patch adding pca9641 if I adapt
+> your code to my 3/3 patch? Then I can put these patches behind me.
+>
+I think you can push code first, I will test and update when I ready.
 
-Also, the only way to call mtk_i2c_probe() is to match an entry in
-mtk_i2c_of_match[], so of_id cannot be NULL.
+Thanks,
+Ken
 
-Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
----
- drivers/i2c/busses/i2c-mt65xx.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index cf23a74..1e57f58 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -27,6 +27,7 @@
- #include <linux/mm.h>
- #include <linux/module.h>
- #include <linux/of_address.h>
-+#include <linux/of_device.h>
- #include <linux/of_irq.h>
- #include <linux/platform_device.h>
- #include <linux/scatterlist.h>
-@@ -734,7 +735,6 @@ static int mtk_i2c_parse_dt(struct device_node *np, struct mtk_i2c *i2c)
- 
- static int mtk_i2c_probe(struct platform_device *pdev)
- {
--	const struct of_device_id *of_id;
- 	int ret = 0;
- 	struct mtk_i2c *i2c;
- 	struct clk *clk;
-@@ -761,11 +761,7 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 
- 	init_completion(&i2c->msg_complete);
- 
--	of_id = of_match_node(mtk_i2c_of_match, pdev->dev.of_node);
--	if (!of_id)
--		return -EINVAL;
--
--	i2c->dev_comp = of_id->data;
-+	i2c->dev_comp = of_device_get_match_data(&pdev->dev);
- 	i2c->adap.dev.of_node = pdev->dev.of_node;
- 	i2c->dev = &pdev->dev;
- 	i2c->adap.dev.parent = &pdev->dev;
--- 
-1.9.1
+> Cheers,
+> Peter
