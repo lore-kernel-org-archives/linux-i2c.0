@@ -1,101 +1,57 @@
-From: Andrew Worsley <amworsley@gmail.com>
-Subject: [PATCH] Further cadence i2c buffer overrun fixes
-Date: Mon, 16 Apr 2018 11:22:48 +1000
-Message-ID: <20180416012248.25891-2-amworsley@gmail.com>
-References: <20180416012248.25891-1-amworsley@gmail.com>
+From: Ryder Lee <ryder.lee@mediatek.com>
+Subject: [PATCH] i2c: mediatek: use of_device_get_match_data()
+Date: Mon, 16 Apr 2018 10:32:52 +0800
+Message-ID: <31f944ab8dfcc1d7b6f03b35657a2a34825b5246.1523347340.git.ryder.lee@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180416012248.25891-1-amworsley@gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: harinik@xilinx.com, APANDEY@xilinx.com, asarkar@xilinx.com, soren.brinkmann@xilinx.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
-Cc: Andrew Worsley <amworsley@gmail.com>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Jun Gao <jun.gao@mediatek.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, Ryder Lee <ryder.lee@mediatek.com>
 List-Id: linux-i2c@vger.kernel.org
 
-After this set of changes ran over 2 days 17 hours with no i2c failures
-at 200kHz. Previously would lock up with BA (Bus Active) bit set
-continously with in a few hours
+The usage of of_device_get_match_data() reduce the code size a bit.
 
-Set the transfer size register *before* triggering the operation by
-setting the i2c address register with the slave address.
+Also, the only way to call mtk_i2c_probe() is to match an entry in
+mtk_i2c_of_match[], so of_id cannot be NULL.
 
-If the transfer is less than one FIFO length clear the hold bit before
-starting the transfer by writing to the i2c address register.
-
-Finally for transfer larger than a FIFO in size clear the hold bit
-just before removing the byte that allows the rest of the transfer
-to fit into the FIFO and then complete.
+Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
 ---
- drivers/i2c/busses/i2c-cadence.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-mt65xx.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 925f77dfded8..260bd6c67e1f 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -449,10 +449,10 @@ static irqreturn_t cdns_i2c_master_isr(void *ptr)
- 				break;
- 			}
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index cf23a74..1e57f58 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -27,6 +27,7 @@
+ #include <linux/mm.h>
+ #include <linux/module.h>
+ #include <linux/of_address.h>
++#include <linux/of_device.h>
+ #include <linux/of_irq.h>
+ #include <linux/platform_device.h>
+ #include <linux/scatterlist.h>
+@@ -734,7 +735,6 @@ static int mtk_i2c_parse_dt(struct device_node *np, struct mtk_i2c *i2c)
  
--			*(id->p_recv_buf)++ =
--				cdns_i2c_readreg(CDNS_I2C_DATA_OFFSET);
- 			if (check_hold && id->recv_count == CDNS_I2C_FIFO_DEPTH + 1)
- 				cdns_i2c_clear_bus_hold(id);
-+			*(id->p_recv_buf)++ =
-+				cdns_i2c_readreg(CDNS_I2C_DATA_OFFSET);
- 			id->recv_count--;
- 			id->curr_recv_count--;
+ static int mtk_i2c_probe(struct platform_device *pdev)
+ {
+-	const struct of_device_id *of_id;
+ 	int ret = 0;
+ 	struct mtk_i2c *i2c;
+ 	struct clk *clk;
+@@ -761,11 +761,7 @@ static int mtk_i2c_probe(struct platform_device *pdev)
  
-@@ -492,10 +492,6 @@ static irqreturn_t cdns_i2c_master_isr(void *ptr)
- 		} else if (id->recv_count && !hold_quirk &&
- 						!id->curr_recv_count) {
+ 	init_completion(&i2c->msg_complete);
  
--			/* Set the slave address in address register*/
--			cdns_i2c_writereg(id->p_msg->addr & CDNS_I2C_ADDR_MASK,
--						CDNS_I2C_ADDR_OFFSET);
+-	of_id = of_match_node(mtk_i2c_of_match, pdev->dev.of_node);
+-	if (!of_id)
+-		return -EINVAL;
 -
- 			if (id->recv_count > CDNS_I2C_TRANSFER_SIZE) {
- 				cdns_i2c_writereg(CDNS_I2C_TRANSFER_SIZE,
- 						CDNS_I2C_XFER_SIZE_OFFSET);
-@@ -505,6 +501,10 @@ static irqreturn_t cdns_i2c_master_isr(void *ptr)
- 						CDNS_I2C_XFER_SIZE_OFFSET);
- 				id->curr_recv_count = id->recv_count;
- 			}
-+
-+			/* write the address register - triggers operation */
-+			cdns_i2c_writereg(id->p_msg->addr & CDNS_I2C_ADDR_MASK,
-+						CDNS_I2C_ADDR_OFFSET);
- 		}
- 
- 		/* Clear hold (if not repeated start) and signal completion */
-@@ -661,15 +661,15 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
- 		cdns_i2c_writereg(id->recv_count, CDNS_I2C_XFER_SIZE_OFFSET);
- 	}
- 
--	/* Set the slave address in address register - triggers operation */
--	cdns_i2c_writereg(CDNS_I2C_ENABLED_INTR_MASK, CDNS_I2C_IER_OFFSET);
--	cdns_i2c_writereg(id->p_msg->addr & CDNS_I2C_ADDR_MASK,
--						CDNS_I2C_ADDR_OFFSET);
- 	/* Clear the bus hold flag if bytes to receive is less than FIFO size */
- 	if (!id->bus_hold_flag &&
- 		((id->p_msg->flags & I2C_M_RECV_LEN) != I2C_M_RECV_LEN) &&
- 		(id->recv_count <= CDNS_I2C_FIFO_DEPTH))
- 			cdns_i2c_clear_bus_hold(id);
-+	/* Set the slave address in address register - triggers operation */
-+	cdns_i2c_writereg(CDNS_I2C_ENABLED_INTR_MASK, CDNS_I2C_IER_OFFSET);
-+	cdns_i2c_writereg(id->p_msg->addr & CDNS_I2C_ADDR_MASK,
-+						CDNS_I2C_ADDR_OFFSET);
- }
- 
- /**
+-	i2c->dev_comp = of_id->data;
++	i2c->dev_comp = of_device_get_match_data(&pdev->dev);
+ 	i2c->adap.dev.of_node = pdev->dev.of_node;
+ 	i2c->dev = &pdev->dev;
+ 	i2c->adap.dev.parent = &pdev->dev;
 -- 
-2.11.0
+1.9.1
