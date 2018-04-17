@@ -1,37 +1,34 @@
-From: <Tobias.Jordan@elektrobit.com>
-Subject: RE: [SIL2review] [PATCH] i2c: img-scb: fix PM device usage count
-Date: Tue, 17 Apr 2018 08:03:07 +0000
-Message-ID: <84353cd0444f41c4aebbc1b6eb2eeae3@denue6es008.ebgroup.elektrobit.com>
-References: <20180224224303.3mpwhal2axcr6aos@agrajag.zerfleddert.de>
- <20180225132014.GA8844@osadl.at> <20180225172730.2b443978@denkmatte>
- <20180416161845.hxizpjituo6mpvbm@ninjato>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH 0/4] i2c: mux: switch to using .probe_new
+Date: Tue, 17 Apr 2018 16:32:29 +0200
+Message-ID: <20180417143233.25145-1-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180416161845.hxizpjituo6mpvbm@ninjato>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: der.herr@hofr.at, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Michael Hennerich <michael.hennerich@analog.com>, Wolfram Sang <wsa@the-dreams.de>, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, Guenter Roeck <linux@roeck-us.net>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Hi!
 
-> Is it easily recognizable if the drivers check the error code because
-> there is a reason or if they do it "out of habit"?
+4 trivial patches that switches the existing i2c-mux drivers
+that are also i2c clients over to the new probe style.
 
-Probably by looking closely at the implementation of the PM callouts
-for the driver, but I couldn't find a pattern that would be easy to
-recognize. Maybe I didn't look close enough ;-)
+Cheers,
+Peter
 
-I concur that removing the check would be a better approach if it's
-clear that it's just done "out of habit".
+Peter Rosin (4):
+  i2c: mux: ltc4306: switch to using .probe_new
+  i2c: mux: mlxcpld: switch to using .probe_new
+  i2c: mux: pca9541: switch to using .probe_new
+  i2c: mux: pca954x: switch to using .probe_new
 
-Actually, the real problem is to find the drivers that need to have
-the check in, add/fix it for them, and remove it for all others.
+ drivers/i2c/muxes/i2c-mux-ltc4306.c | 7 +++----
+ drivers/i2c/muxes/i2c-mux-mlxcpld.c | 5 ++---
+ drivers/i2c/muxes/i2c-mux-pca9541.c | 5 ++---
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 7 +++----
+ 4 files changed, 10 insertions(+), 14 deletions(-)
 
-Unfortunately, all I'm currently able to do is finding the parts that
-are inconsistent.
-
-Tobias
+-- 
+2.11.0
