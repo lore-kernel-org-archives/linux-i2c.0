@@ -1,77 +1,43 @@
-From: Michael Hennerich <michael.hennerich@analog.com>
-Subject: Re: [PATCH 1/4] i2c: mux: ltc4306: switch to using .probe_new
-Date: Wed, 18 Apr 2018 11:26:16 +0200
-Message-ID: <bc5637c3-5e09-b01f-8b9d-f7dcb3b578e1@analog.com>
-References: <20180417143233.25145-1-peda@axentia.se>
- <20180417143233.25145-2-peda@axentia.se>
-Reply-To: <michael.hennerich@analog.com>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH v2] i2c: i801: Register optional lis3lv02d i2c device on
+ Dell machines
+Date: Wed, 18 Apr 2018 13:46:10 +0200
+Message-ID: <20180418114610.rohdk5mnzv4km4z2@pali>
+References: <CAHp75VdU1OMTqLcDuzhQMHuX9rMhjw6p3CkSWaW5Y4kOy8ggqg@mail.gmail.com>
+ <20180131120348.azy25aqvn5wrdkeh@pali>
+ <CAHp75Vf=-RQvCtS684Q5+X=YKmZXgP_1kr0to8BGZX0jQAsuZw@mail.gmail.com>
+ <20180212153012.vffvjmz26ifyxbj5@pali>
+ <CAHp75VfF+qwCXcr3yuayE-Z+UG9wuMOKfGzLhdyPk79daEi9gQ@mail.gmail.com>
+ <20180213150004.5d2v7y7wwuure4io@pali>
+ <CAHp75VfxgbFiDxyrqyMRE8s85L1_EzkVvrA1NGYA5_su=5oGVQ@mail.gmail.com>
+ <20180213165023.xmzovx7fd3gdljxw@pali>
+ <20180226203255.lnnzipipjz5l2itz@ninjato>
+ <20180308225330.5ywfokfhxcl5j3ju@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180417143233.25145-2-peda@axentia.se>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180308225330.5ywfokfhxcl5j3ju@pali>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, Guenter Roeck <linux@roeck-us.net>, linux-i2c@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis Kletnieks <Valdis.Kletnieks@vt.edu>, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <Mario_Limonciello@dell.com>, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 17.04.2018 16:32, Peter Rosin wrote:
-> Use the new probe style for i2c drivers.
+On Thursday 08 March 2018 23:53:30 Pali Rohár wrote:
+> On Monday 26 February 2018 21:32:55 Wolfram Sang wrote:
+> > 
+> > > I'm not maintainer of i2c-i801.ko, Jean Delvare & Wolfram Sang are.
+> > > Therefore instructing future contributors would be up to them.
+> > 
+> > This is really Jean's realm.
+> > 
 > 
-> Signed-off-by: Peter Rosin <peda@axentia.se>
+> Jean, ping.
 
-Thanks Peter,
-
-Don't know why i2c needs a new probe style to save one function parameter...
-But this patch looks otherwise good to me.
-
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
-
-> ---
->   drivers/i2c/muxes/i2c-mux-ltc4306.c | 7 +++----
->   1 file changed, 3 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/muxes/i2c-mux-ltc4306.c b/drivers/i2c/muxes/i2c-mux-ltc4306.c
-> index 311b1cced0c0..a9af93259b19 100644
-> --- a/drivers/i2c/muxes/i2c-mux-ltc4306.c
-> +++ b/drivers/i2c/muxes/i2c-mux-ltc4306.c
-> @@ -206,8 +206,7 @@ static const struct of_device_id ltc4306_of_match[] = {
->   };
->   MODULE_DEVICE_TABLE(of, ltc4306_of_match);
->   
-> -static int ltc4306_probe(struct i2c_client *client,
-> -			 const struct i2c_device_id *id)
-> +static int ltc4306_probe(struct i2c_client *client)
->   {
->   	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
->   	const struct chip_desc *chip;
-> @@ -221,7 +220,7 @@ static int ltc4306_probe(struct i2c_client *client,
->   	chip = of_device_get_match_data(&client->dev);
->   
->   	if (!chip)
-> -		chip = &chips[id->driver_data];
-> +		chip = &chips[i2c_match_id(ltc4306_id, client)->driver_data];
->   
->   	idle_disc = device_property_read_bool(&client->dev,
->   					      "i2c-mux-idle-disconnect");
-> @@ -310,7 +309,7 @@ static struct i2c_driver ltc4306_driver = {
->   		.name	= "ltc4306",
->   		.of_match_table = of_match_ptr(ltc4306_of_match),
->   	},
-> -	.probe		= ltc4306_probe,
-> +	.probe_new	= ltc4306_probe,
->   	.remove		= ltc4306_remove,
->   	.id_table	= ltc4306_id,
->   };
-> 
-
+Jean, gently ping again. Waiting for your maintainer response/decision
+on this problem.
 
 -- 
-Greetings,
-Michael
-
---
-Analog Devices GmbH      Otl-Aicher Strasse 60-64      80807 München
-Sitz der Gesellschaft München, Registergericht München HRB 40368,
-Geschäftsführer: Peter Kolberg, Ali Raza Husain, Eileen Wynne
+Pali Rohár
+pali.rohar@gmail.com
