@@ -1,54 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 3/3] Documentation/i2c: adopt kernel commenting style
- in examples
-Date: Wed, 18 Apr 2018 10:10:45 +0200
-Message-ID: <20180418081045.btkr3cdfdka34ph6@ninjato>
+Subject: Re: [PATCH v3 2/3] Documentation/i2c: sync docs with current state
+ of i2c-tools
+Date: Wed, 18 Apr 2018 10:21:30 +0200
+Message-ID: <20180418082130.5oqgy7xsja5qucov@ninjato>
 References: <20180413174257.139182-1-hansens@google.com>
- <20180413174257.139182-3-hansens@google.com>
+ <20180413174257.139182-2-hansens@google.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="h7p3f5dcjag6inyh"
+        protocol="application/pgp-signature"; boundary="2uix42vfbp2u3fyn"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180413174257.139182-3-hansens@google.com>
+In-Reply-To: <20180413174257.139182-2-hansens@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Sam Hansen <hansens@google.com>
 Cc: linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---h7p3f5dcjag6inyh
+--2uix42vfbp2u3fyn
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Apr 13, 2018 at 10:42:57AM -0700, Sam Hansen wrote:
-> The example I2C code is rewritten to adopt the preferred kernel block
-> commenting style.
->=20
-> Signed-off-by: Sam Hansen <hansens@google.com>
-
-Applied to for-current, thanks!
 
 
---h7p3f5dcjag6inyh
+> +The above functions are made available by linking against the libi2c library,
+> +which is provided by the i2c-tools project.  See:
+> +https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/.
+
+In the beginning, we say that '#include <i2c/smbus.h>' is needed.
+Shouldn't we mention i2c-tools there already and in what case it is
+needed (only for SMBus)? I'd think so.
+
+Sam, would you be open to do this as an incremental patch?
+
+
+--2uix42vfbp2u3fyn
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrW/YUACgkQFA3kzBSg
-KbYIFg/+LjKEfIdoy/XaK6bFryLQ+mF+9Wmt7LmGsWUm3i0bUtfkwfY5qvgergCo
-sX1gwvFeBzGkMpLspO1vcv3/uV37eKJpotlQ8SP6wb0ucB/YZNtmCkrfcGZofwdB
-8lLfeJ8wMkU2Y7RxahXmCkRqCbvh7uKtHj37fu8gEhnErvWbB3o0njGkJSOyv36x
-EfQOFIYIhuaxA2W2JV2l4v/AiZqUQ1HeKmRXKsqYdrdzbeiwSdGEa+LsiQprC10f
-ZoyPhaoFIWzDOjnqTvGga3swdIG0mVz4N1OaeiECvzfl0E+9UvuuyPwdQb6WHSLg
-DJzNtE5JvyajdAIOey618LmyFR/3GEJJJtzViXizpnzk2inTUNkeXAlJ95dlA5ez
-iWsI0J8Sl3tDO/QbrdDXp9V8pt4FC53sF5VB7/pVNIyZ5UZcuDsyLjsBAueGkD21
-bTKoxSOUW4CNS7ZmdMl4m0ID8K4D751IBE0ql0sZJEVLt75szMljNYnEU7nV4M7K
-5KPfxiAq4Kxv++4z47g/O5TZxshBfkHAL/rKX4PgDnpoqmNquKB2cp21WOQYd4+a
-w7zQ+d9+vO7ayHxkJzuQWWcDtG/wIcCJssIy4/D26O/tdw2qiznA70ncv5MMvafy
-Oo9OeXwC+Kuf+cswT/vF9BYjL//DVNyXWC4XW7KE+je2mfoG4Hk=
-=kUkQ
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrXAAoACgkQFA3kzBSg
+KbZ/yg/+KCc2z1il/rqkOGxwBeDcTjX3PxWle+xEi5fNCYWfGDHXsmCx5M3khhej
+f/EEkvROKdZD6KScYTqNXZibY+D8GwBCmBuxdSmyp/wEdfo/+KXwtWHQb+pHIR0f
++y3/5oym9O3TiBd8bc4h+8AGtqPjm06Gur9Io8Ejy4CQMNe/WL1pZVN5PvIJn9as
+RheNO6F7Bot7Pj1VPfmjvwQpWBem8iMST7+gsAsBi3+PRzIC911jcWK/xBHVlOM/
+SpnWfVN2D/50SwgebhlIsvLnH7eaRx5O8Ei5h8j01bCkJR+NHlOygQSjmhV3OFaE
+c2bajtRV6aEkN0GHicp2GO2/R+PL6I3BTvti9/3RHb9TTK+cui1EfbchnKHG+JgN
+A+F/abCtYmWwmNEeHUasbHqLXLqS6QUgrkb2FXPxOOcs6voF8XhATGHqVwYm9EOd
+aGuLL+cdAOUGAENSUU9mhKMZZLBGLE9KF2yQE6noKuiWVjBP6PUFw3N3g4VOeaum
+wMWsvl1QG2wFJv6BCUJd6UK9tPSx2ET57KKctpOXuSuTWmxtI6x5h/HIrSJpvKfJ
+4dKvHrFDr60FcQHfcKErL5etXIIJ9ntdgU8MqQbWpV0++KqGU8StD10SJbQgWuFh
+tJkz1OaC+co+fC36D0aAkcfgzL+l+SE3Mm/L8d7WUS8nPWbnZ+U=
+=hrrX
 -----END PGP SIGNATURE-----
 
---h7p3f5dcjag6inyh--
+--2uix42vfbp2u3fyn--
