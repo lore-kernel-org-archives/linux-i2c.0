@@ -1,30 +1,39 @@
-From: Sam Hansen <hansens@google.com>
-Subject: Re: [PATCH v3 2/3] Documentation/i2c: sync docs with current state of i2c-tools
-Date: Wed, 18 Apr 2018 11:17:55 -0700
-Message-ID: <CAP9bUy4vZB1LVjLdm7WvrebBF4tSB32WjC+h0PEoyaCFjdfhUg@mail.gmail.com>
-References: <20180413174257.139182-1-hansens@google.com> <20180413174257.139182-2-hansens@google.com>
- <20180418082130.5oqgy7xsja5qucov@ninjato>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Alexander Popov <alex.popov@linux.com>
+Subject: [v2 1/1] i2c: dev: prevent ZERO_SIZE_PTR deref in i2cdev_ioctl_rdwr()
+Date: Thu, 19 Apr 2018 15:29:22 +0300
+Message-ID: <1524140962-25639-1-git-send-email-alex.popov@linux.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180418082130.5oqgy7xsja5qucov@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, sil2review@lists.osadl.org, Dmitry Vyukov <dvyukov@google.com>, syzkaller@googlegroups.com, Alexander Popov <alex.popov@linux.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Apr 18, 2018 at 1:21 AM, Wolfram Sang <wsa@the-dreams.de> wrote:
->
->> +The above functions are made available by linking against the libi2c library,
->> +which is provided by the i2c-tools project.  See:
->> +https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/.
->
-> In the beginning, we say that '#include <i2c/smbus.h>' is needed.
-> Shouldn't we mention i2c-tools there already and in what case it is
-> needed (only for SMBus)? I'd think so.
->
-> Sam, would you be open to do this as an incremental patch?
+i2cdev_ioctl_rdwr() allocates i2c_msg.buf using memdup_user(), which
+returns ZERO_SIZE_PTR if i2c_msg.len is zero.
 
-Yup, I'll send an incremental patch touching this up, thanks.
+Currently i2cdev_ioctl_rdwr() always dereferences the buf pointer in case
+of I2C_M_RD | I2C_M_RECV_LEN transfer. That causes a kernel oops in
+case of zero len.
 
->
+Let's check the len against zero before dereferencing buf pointer.
+
+This issue was triggered by syzkaller.
+
+Signed-off-by: Alexander Popov <alex.popov@linux.com>
+---
+ drivers/i2c/i2c-dev.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index 036a03f..5790bc8 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -280,6 +280,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+ 		 */
+ 		if (msgs[i].flags & I2C_M_RECV_LEN) {
+ 			if (!(msgs[i].flags & I2C_M_RD) ||
++			    !msgs[i].len ||
+ 			    msgs[i].buf[0] < 1 ||
+ 			    msgs[i].len < msgs[i].buf[0] +
+ 					     I2C_SMBUS_BLOCK_MAX) {
+-- 
+2.7.4
