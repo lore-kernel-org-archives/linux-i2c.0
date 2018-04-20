@@ -1,50 +1,29 @@
-From: Sam Hansen <hansens@google.com>
-Subject: [PATCH] Documentation/i2c: direct users to i2c-tools regarding i2c/smbus.h
-Date: Thu, 19 Apr 2018 15:23:56 -0700
-Message-ID: <20180419222356.242535-1-hansens@google.com>
+From: Peter Korsgaard <peter.korsgaard@barco.com>
+Subject: Re: [PATCH 2/7] i2c: i2c-mux-gpio: move header to platform_data
+Date: Fri, 20 Apr 2018 07:25:37 +0200
+Message-ID: <85fu3qzbxq.fsf@lists.barco.com>
+References: <20180419200015.15095-1-wsa@the-dreams.de>
+        <20180419200015.15095-3-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180419200015.15095-3-wsa@the-dreams.de> (Wolfram Sang's
+        message of "Thu, 19 Apr 2018 22:00:08 +0200")
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: jdelvare@suse.de, Sam Hansen <hansens@google.com>, wsa@the-dreams.de, corbet@lwn.net, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Peter Rosin <peda@axentia.se>, Jonathan Corbet <corbet@lwn.net>, Jean Delvare <jdelvare@suse.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The current examples reference i2c/smbus.h, which is the first reference
-in Documentation/i2c/dev-interface to anything related to the i2c-tools
-project.  This moves the existing reference to i2c-tools up into the
-C-example, directing the user to the project's git repository.
+>>>>> "WS" == Wolfram Sang <wsa@the-dreams.de> writes:
 
-Signed-off-by: Sam Hansen <hansens@google.com>
----
- Documentation/i2c/dev-interface | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+WS> This header only contains platform_data. Move it to the proper directory.
+WS> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
-diff --git a/Documentation/i2c/dev-interface b/Documentation/i2c/dev-interface
-index fbed645ccd75..ed20f7b7851a 100644
---- a/Documentation/i2c/dev-interface
-+++ b/Documentation/i2c/dev-interface
-@@ -23,6 +23,10 @@ First, you need to include these two headers:
-   #include <linux/i2c-dev.h>
-   #include <i2c/smbus.h>
- 
-+The i2c/smbus header file is provided by the i2c-tools project.  For more info
-+about i2c-tools, see:
-+https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/
-+
- Now, you have to decide which adapter you want to access. You should
- inspect /sys/class/i2c-dev/ or run "i2cdetect -l" to decide this.
- Adapter numbers are assigned somewhat dynamically, so you can not
-@@ -163,10 +167,6 @@ what happened. The 'write' transactions return 0 on success; the
- returns the number of values read. The block buffers need not be longer
- than 32 bytes.
- 
--The above functions are made available by linking against the libi2c library,
--which is provided by the i2c-tools project.  See:
--https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/.
--
- 
- Implementation details
- ======================
--- 
-2.17.0.484.g0c8726318c-goog
+Thanks,
+
+Acked-by: Peter Korsgaard <peter.korsgaard@barco.com>
+
+--
+Bye, Peter Korsgaard
+This message is subject to the following terms and conditions: MAIL DISCLAIMER<http://www.barco.com/en/maildisclaimer>
