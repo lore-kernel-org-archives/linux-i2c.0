@@ -1,65 +1,44 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Subject: Re: [v2 1/1] i2c: dev: prevent ZERO_SIZE_PTR deref in
- i2cdev_ioctl_rdwr()
-Date: Fri, 20 Apr 2018 07:58:22 +0200
-Message-ID: <20180420055822.qjs2hpkik5dr2fnp@pengutronix.de>
-References: <1524140962-25639-1-git-send-email-alex.popov@linux.com>
- <20180419134902.6l5jsf4wpqfiaskj@pengutronix.de>
- <22fe9bbe-f1d7-3a92-9528-df66c34816a5@linux.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 1/7] i2c: i2c-gpio: move header to platform_data
+Date: Fri, 20 Apr 2018 09:05:16 +0100
+Message-ID: <20180420080516.hoa2wlubrnpnkl5z@dell>
+References: <20180419200015.15095-1-wsa@the-dreams.de>
+ <20180419200015.15095-2-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <22fe9bbe-f1d7-3a92-9528-df66c34816a5@linux.com>
+In-Reply-To: <20180419200015.15095-2-wsa@the-dreams.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alexander Popov <alex.popov@linux.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, sil2review@lists.osadl.org, Dmitry Vyukov <dvyukov@google.com>, syzkaller@googlegroups.com
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Greg Ungerer <gerg@uclinux.org>, Russell King <linux@armlinux.org.uk>, Aaro Koskinen <aaro.koskinen@iki.fi>, Tony Lindgren <tony@atomide.com>, Sergey Lapin <slapin@ossfans.org>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Ralf Baechle <ralf@linux-mips.org>, James Hogan <jhogan@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-mips@linux-mips.org, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+On Thu, 19 Apr 2018, Wolfram Sang wrote:
 
-On Thu, Apr 19, 2018 at 08:01:46PM +0300, Alexander Popov wrote:
-> On 19.04.2018 16:49, Uwe Kleine-K�nig wrote:
-> >> @@ -280,6 +280,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
-> >>  		 */
-> >>  		if (msgs[i].flags & I2C_M_RECV_LEN) {
-> >>  			if (!(msgs[i].flags & I2C_M_RD) ||
-> >> +			    !msgs[i].len ||
-> > 
-> > I'd prefer
-> > 
-> > 			msgs[i].len > 0
+> This header only contains platform_data. Move it to the proper directory.
 > 
-> Excuse me, it will be wrong. We stop if len is 0 to avoid the following
-> ZERO_SIZE_PTR dereference.
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+>  MAINTAINERS                                      | 2 +-
+>  arch/arm/mach-ks8695/board-acs5k.c               | 2 +-
+>  arch/arm/mach-omap1/board-htcherald.c            | 2 +-
+>  arch/arm/mach-pxa/palmz72.c                      | 2 +-
+>  arch/arm/mach-pxa/viper.c                        | 2 +-
+>  arch/arm/mach-sa1100/simpad.c                    | 2 +-
+>  arch/mips/alchemy/board-gpr.c                    | 2 +-
+>  drivers/i2c/busses/i2c-gpio.c                    | 2 +-
+>  drivers/media/platform/marvell-ccic/mmp-driver.c | 2 +-
+>  drivers/mfd/sm501.c                              | 2 +-
+>  include/linux/{ => platform_data}/i2c-gpio.h     | 0
+>  11 files changed, 10 insertions(+), 10 deletions(-)
+>  rename include/linux/{ => platform_data}/i2c-gpio.h (100%)
 
-right you are. I missed the negation.
- 
-> > here instead of
-> > 
-> > 			!msgs[i].len
-> 
-> I can change it to "msgs[i].len == 0". But is it really important?
-> 
-> I've carefully tested the current version with the original repro. It works correct.
-
-I don't doubt it, and the code generated is maybe even the same. The
-point I wanted to make is that
-
-	!len
-
-is harder to read for a human than
-
-	len < 1
-
-(or another suitable arithmetic expression). But feel free to disagree
-and keep the code as is.
-
-Best regards
-Uwe
+Acked-by: Lee Jones <lee.jones@linaro.org>
 
 -- 
-Pengutronix e.K.                           | Uwe Kleine-K�nig            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
