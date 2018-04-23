@@ -1,32 +1,66 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v4 00/10] Add the I3C subsystem
-Date: Mon, 23 Apr 2018 19:56:46 +0200
-Message-ID: <20180423175646.GA23210@kroah.com>
-References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
- <20180423193814.5c8ca75a@bbrezillon>
+From: Alexander Popov <alex.popov@linux.com>
+Subject: Re: [v2 1/1] i2c: dev: prevent ZERO_SIZE_PTR deref in
+ i2cdev_ioctl_rdwr()
+Date: Mon, 23 Apr 2018 23:18:58 +0300
+Message-ID: <6e93f567-1497-3dfa-4261-fcc9719ce869@linux.com>
+References: <1524140962-25639-1-git-send-email-alex.popov@linux.com>
+ <20180419134902.6l5jsf4wpqfiaskj@pengutronix.de>
+Reply-To: alex.popov@linux.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180423193814.5c8ca75a@bbrezillon>
+In-Reply-To: <20180419134902.6l5jsf4wpqfiaskj@pengutronix.de>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>devi
+To: =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, sil2review@lists.osadl.org, Dmitry Vyukov <dvyukov@google.com>, syzkaller@googlegroups.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 23, 2018 at 07:38:14PM +0200, Boris Brezillon wrote:
-> Hi,
+On 19.04.2018 16:49, Uwe Kleine-König wrote:
+> On Thu, Apr 19, 2018 at 03:29:22PM +0300, Alexander Popov wrote:
+>> i2cdev_ioctl_rdwr() allocates i2c_msg.buf using memdup_user(), which
+>> returns ZERO_SIZE_PTR if i2c_msg.len is zero.
+>>
+>> Currently i2cdev_ioctl_rdwr() always dereferences the buf pointer in case
+>> of I2C_M_RD | I2C_M_RECV_LEN transfer. That causes a kernel oops in
+>> case of zero len.
+>>
+>> Let's check the len against zero before dereferencing buf pointer.
+>>
+>> This issue was triggered by syzkaller.
+>>
+>> Signed-off-by: Alexander Popov <alex.popov@linux.com>
+>> ---
+>>  drivers/i2c/i2c-dev.c | 1 +
+>>  1 file changed, 1 insertion(+)
+>>
+>> diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+>> index 036a03f..5790bc8 100644
+>> --- a/drivers/i2c/i2c-dev.c
+>> +++ b/drivers/i2c/i2c-dev.c
+>> @@ -280,6 +280,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+>>  		 */
+>>  		if (msgs[i].flags & I2C_M_RECV_LEN) {
+>>  			if (!(msgs[i].flags & I2C_M_RD) ||
+>> +			    !msgs[i].len ||
 > 
-> On Fri, 30 Mar 2018 09:47:41 +0200
-> Boris Brezillon <boris.brezillon@bootlin.com> wrote:
+> I'd prefer
 > 
-> > This patch series is a proposal for a new I3C subsystem.
+> 			msgs[i].len > 0
 > 
-> This v4 has been sent almost a month ago and I didn't get any feedback
-> so far apart from Rob's R-b. Greg, is there any chance we can get these
-> patches merged in 4.18? If not, could you tell me what should be
-> addressed/improved/reworked?
+> here instead of
+> 
+> 			!msgs[i].len
+> 
+> because I can parse that more easily. Semantically the patch is fine and
+> can have my
+> 
+> Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-I'll look over it later this week, thanks.
+Friendly ping!
 
-greg k-h
+Wolfram, would you like to take this patch?
+
+Best regards,
+Alexander
