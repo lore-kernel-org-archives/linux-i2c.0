@@ -1,66 +1,59 @@
-From: Alexander Popov <alex.popov@linux.com>
-Subject: Re: [v2 1/1] i2c: dev: prevent ZERO_SIZE_PTR deref in
- i2cdev_ioctl_rdwr()
-Date: Mon, 23 Apr 2018 23:18:58 +0300
-Message-ID: <6e93f567-1497-3dfa-4261-fcc9719ce869@linux.com>
-References: <1524140962-25639-1-git-send-email-alex.popov@linux.com>
- <20180419134902.6l5jsf4wpqfiaskj@pengutronix.de>
-Reply-To: alex.popov@linux.com
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [RFC 00/10] ARM: Remove support for Exynos5440
+Date: Tue, 24 Apr 2018 22:50:58 +0200
+Message-ID: <CAK8P3a2CZU1CYFt0fdVSFFnj2Wg=mUcC=yuWAW7zDO0u2Q2dUQ@mail.gmail.com>
+References: <20180424203239.21885-1-krzk@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180419134902.6l5jsf4wpqfiaskj@pengutronix.de>
-Content-Language: en-US
+In-Reply-To: <20180424203239.21885-1-krzk@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, sil2review@lists.osadl.org, Dmitry Vyukov <dvyukov@google.com>, syzkaller@googlegroups.com
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Kukjin Kim <kgene@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Tejun Heo <tj@kernel.org>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Chanwoo Choi <cw00.choi@samsung.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Viresh Kumar <viresh.kumar@linaro.org>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Russell King <linux@armlinux.org.uk>, Hans de Goede <hdegoede@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Andi Shyti <andi@etezian.org>, Mark Brown <broonie@kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Alan Stern <stern@rowland.harvard.edu>, Greg
 List-Id: linux-i2c@vger.kernel.org
 
-On 19.04.2018 16:49, Uwe Kleine-König wrote:
-> On Thu, Apr 19, 2018 at 03:29:22PM +0300, Alexander Popov wrote:
->> i2cdev_ioctl_rdwr() allocates i2c_msg.buf using memdup_user(), which
->> returns ZERO_SIZE_PTR if i2c_msg.len is zero.
->>
->> Currently i2cdev_ioctl_rdwr() always dereferences the buf pointer in case
->> of I2C_M_RD | I2C_M_RECV_LEN transfer. That causes a kernel oops in
->> case of zero len.
->>
->> Let's check the len against zero before dereferencing buf pointer.
->>
->> This issue was triggered by syzkaller.
->>
->> Signed-off-by: Alexander Popov <alex.popov@linux.com>
->> ---
->>  drivers/i2c/i2c-dev.c | 1 +
->>  1 file changed, 1 insertion(+)
->>
->> diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
->> index 036a03f..5790bc8 100644
->> --- a/drivers/i2c/i2c-dev.c
->> +++ b/drivers/i2c/i2c-dev.c
->> @@ -280,6 +280,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
->>  		 */
->>  		if (msgs[i].flags & I2C_M_RECV_LEN) {
->>  			if (!(msgs[i].flags & I2C_M_RD) ||
->> +			    !msgs[i].len ||
-> 
-> I'd prefer
-> 
-> 			msgs[i].len > 0
-> 
-> here instead of
-> 
-> 			!msgs[i].len
-> 
-> because I can parse that more easily. Semantically the patch is fine and
-> can have my
-> 
-> Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+On Tue, Apr 24, 2018 at 10:32 PM, Krzysztof Kozlowski <krzk@kernel.org> wrote:
+> Hi,
+>
+>
+> Overview
+> ========
+> Let's continue the removal of old platforms. We already get rid of Exynos4212.
+> Now it's time for Exynos5440.
+>
+> The Exynos5440 (quad-core A15 with GMAC, PCIe, SATA) was targeting
+> server platforms but it did not make it to the market really.  There are
+> no development boards with it and probably there are no real products
+> neither.  The development for Exynos5440 ended in 2013 and since then
+> the platform is in maintenance mode.
+>
+> The only development happening around it is the PCIe driver for Exynos5433
+> (ARMv8). [1]
+>
+> Removing Exynos5440, makes our life slightly easier:
+> 1. Less maintenance,
+> 2. Smaller code, less quirks,
+> 3. No need to preserve (imaginary) backward-compatibility for Exynos PCIe
+>    driver (so it is easier to add support for Exynos5433).
+>
+>
+> Because of point (3) above - I left the PCIe and PCIe PHY drivers intact.
+>
+>
+> Dependencies
+> ============
+> I think about starting with removal of DTS in some kernel release (patch 1/10).
+> Then all drivers can be removed/updated - subsystem maintainers can pick their
+> patches freely.
+>
+> Finally, after getting rid of all Exynos5440 symbols, the last patch (10/10) will
+> end in arm-soc tree.
+>
+>
+> Any comments?
 
-Friendly ping!
+I don't see any hard dependency here, if this is all unused, I think we
+can apply both patches 1 and 10 into arm-soc at the same time as merging
+the other patches through the respective subsystem trees.
 
-Wolfram, would you like to take this patch?
-
-Best regards,
-Alexander
+      Arnd
