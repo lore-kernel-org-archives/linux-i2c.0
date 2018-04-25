@@ -1,57 +1,71 @@
-From: Ludovic Desroches <ludovic.desroches@microchip.com>
+From: David Engraf <david.engraf@sysgo.com>
 Subject: Re: [PATCH] i2c: at91: Read all available bytes at once
-Date: Wed, 25 Apr 2018 17:08:53 +0200
-Message-ID: <20180425150853.GU13305@rfolt0960.corp.atmel.com>
+Date: Wed, 25 Apr 2018 17:43:09 +0200
+Message-ID: <cab9e509-a506-5852-6b0d-ed3e4751eeb6@sysgo.com>
 References: <20180418124055.21333-1-david.engraf@sysgo.com>
+ <20180425150853.GU13305@rfolt0960.corp.atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180418124055.21333-1-david.engraf@sysgo.com>
+In-Reply-To: <20180425150853.GU13305@rfolt0960.corp.atmel.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: David Engraf <david.engraf@sysgo.com>
-Cc: ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi David,
+Hi Ludovic,
 
-On Wed, Apr 18, 2018 at 02:40:55PM +0200, David Engraf wrote:
-> With FIFO enabled it is possible to read multiple bytes
-> at once in the interrupt handler as long as RXRDY is
-> set. This may also reduce the number of interrupts.
+Am 25.04.2018 um 17:08 schrieb Ludovic Desroches:
+> Hi David,
 > 
-> Signed-off-by: David Engraf <david.engraf@sysgo.com>
-> ---
->  drivers/i2c/busses/i2c-at91.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
+> On Wed, Apr 18, 2018 at 02:40:55PM +0200, David Engraf wrote:
+>> With FIFO enabled it is possible to read multiple bytes
+>> at once in the interrupt handler as long as RXRDY is
+>> set. This may also reduce the number of interrupts.
+>>
+>> Signed-off-by: David Engraf <david.engraf@sysgo.com>
+>> ---
+>>   drivers/i2c/busses/i2c-at91.c | 8 ++++++--
+>>   1 file changed, 6 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+>> index bfd1fdff64a9..d01c2b2384bd 100644
+>> --- a/drivers/i2c/busses/i2c-at91.c
+>> +++ b/drivers/i2c/busses/i2c-at91.c
+>> @@ -518,8 +518,12 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
+>>   	 * the RXRDY interrupt first in order to not keep garbage data in the
+>>   	 * Receive Holding Register for the next transfer.
+>>   	 */
+>> -	if (irqstatus & AT91_TWI_RXRDY)
+>> -		at91_twi_read_next_byte(dev);
+>> +	if (irqstatus & AT91_TWI_RXRDY) {
+>> +		/* read all available bytes at once when FIFO is used */
+>> +		do {
+>> +			at91_twi_read_next_byte(dev);
+>> +		} while (at91_twi_read(dev, AT91_TWI_SR) & AT91_TWI_RXRDY);
 > 
-> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> index bfd1fdff64a9..d01c2b2384bd 100644
-> --- a/drivers/i2c/busses/i2c-at91.c
-> +++ b/drivers/i2c/busses/i2c-at91.c
-> @@ -518,8 +518,12 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
->  	 * the RXRDY interrupt first in order to not keep garbage data in the
->  	 * Receive Holding Register for the next transfer.
->  	 */
-> -	if (irqstatus & AT91_TWI_RXRDY)
-> -		at91_twi_read_next_byte(dev);
-> +	if (irqstatus & AT91_TWI_RXRDY) {
-> +		/* read all available bytes at once when FIFO is used */
-> +		do {
-> +			at91_twi_read_next_byte(dev);
-> +		} while (at91_twi_read(dev, AT91_TWI_SR) & AT91_TWI_RXRDY);
+> You can avoid this check by using the RXFL field to know the number of
+> data you can read. Did you try to use it? If yes, did you notice some issues?
 
-You can avoid this check by using the RXFL field to know the number of
-data you can read. Did you try to use it? If yes, did you notice some issues?
+I did a quick test by reading RXFL and it worked as well but I decided 
+to use the more readable solution by polling RXRDY. Also I don't need to 
+check if the FIFO has been enabled.
 
-Regards
+If you prefer using RXFL I can create a new patch.
 
-Ludovic
+Best regards
+- David
 
-> +	}
->  
->  	/*
->  	 * When a NACK condition is detected, the I2C controller sets the NACK,
-> -- 
-> 2.14.1
+
+> Regards
 > 
+> Ludovic
+> 
+>> +	}
+>>   
+>>   	/*
+>>   	 * When a NACK condition is detected, the I2C controller sets the NACK,
+>> -- 
+>> 2.14.1
+>>
