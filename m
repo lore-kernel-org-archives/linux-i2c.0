@@ -1,57 +1,35 @@
-From: Sam Hansen <hansens@google.com>
-Subject: Re: [PATCH] Documentation/i2c: direct users to i2c-tools regarding i2c/smbus.h
-Date: Tue, 24 Apr 2018 17:00:19 -0700
-Message-ID: <CAP9bUy4aPPn=FdU1ZoFshK0dGpVuuaHt=M_YdHnSGLB63Q8Z+Q@mail.gmail.com>
-References: <20180419222356.242535-1-hansens@google.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
+Subject: Re: [RFC 03/10] cpufreq: exynos: Remove support for Exynos5440
+Date: Wed, 25 Apr 2018 08:18:24 +0530
+Message-ID: <20180425024824.7ej2sz5jlbiuqeqh@vireshk-i7>
+References: <20180424203239.21885-1-krzk@kernel.org>
+ <20180424203239.21885-4-krzk@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180419222356.242535-1-hansens@google.com>
+Content-Disposition: inline
+In-Reply-To: <20180424203239.21885-4-krzk@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, Sam Hansen <hansens@google.com>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Kukjin Kim <kgene@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Tejun Heo <tj@kernel.org>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Chanwoo Choi <cw00.choi@samsung.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Russell King <linux@armlinux.org.uk>, Hans de Goede <hdegoede@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Andi Shyti <andi@etezian.org>, Mark Brown <broonie@kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-Id: linux-i2c@vger.kernel.org
 
-friendly ping :)
-
-This was an incremental patch requested by Wolfram.
-
-On Thu, Apr 19, 2018 at 3:23 PM, Sam Hansen <hansens@google.com> wrote:
-> The current examples reference i2c/smbus.h, which is the first reference
-> in Documentation/i2c/dev-interface to anything related to the i2c-tools
-> project.  This moves the existing reference to i2c-tools up into the
-> C-example, directing the user to the project's git repository.
->
-> Signed-off-by: Sam Hansen <hansens@google.com>
+On 24-04-18, 22:32, Krzysztof Kozlowski wrote:
+> The Exynos5440 is not actively developed, there are no development
+> boards available and probably there are no real products with it.
+> Remove wide-tree support for Exynos5440.
+> 
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 > ---
->  Documentation/i2c/dev-interface | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/Documentation/i2c/dev-interface b/Documentation/i2c/dev-interface
-> index fbed645ccd75..ed20f7b7851a 100644
-> --- a/Documentation/i2c/dev-interface
-> +++ b/Documentation/i2c/dev-interface
-> @@ -23,6 +23,10 @@ First, you need to include these two headers:
->    #include <linux/i2c-dev.h>
->    #include <i2c/smbus.h>
->
-> +The i2c/smbus header file is provided by the i2c-tools project.  For more info
-> +about i2c-tools, see:
-> +https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/
-> +
->  Now, you have to decide which adapter you want to access. You should
->  inspect /sys/class/i2c-dev/ or run "i2cdetect -l" to decide this.
->  Adapter numbers are assigned somewhat dynamically, so you can not
-> @@ -163,10 +167,6 @@ what happened. The 'write' transactions return 0 on success; the
->  returns the number of values read. The block buffers need not be longer
->  than 32 bytes.
->
-> -The above functions are made available by linking against the libi2c library,
-> -which is provided by the i2c-tools project.  See:
-> -https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/.
-> -
->
->  Implementation details
->  ======================
-> --
-> 2.17.0.484.g0c8726318c-goog
->
+>  .../bindings/cpufreq/cpufreq-exynos5440.txt        |  28 --
+>  drivers/cpufreq/Kconfig.arm                        |  14 -
+>  drivers/cpufreq/Makefile                           |   1 -
+>  drivers/cpufreq/exynos5440-cpufreq.c               | 452 ---------------------
+>  4 files changed, 495 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/cpufreq/cpufreq-exynos5440.txt
+>  delete mode 100644 drivers/cpufreq/exynos5440-cpufreq.c
+
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+
+-- 
+viresh
