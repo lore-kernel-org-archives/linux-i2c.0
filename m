@@ -1,29 +1,57 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [RFC 00/10] ARM: Remove support for Exynos5440
-Date: Tue, 24 Apr 2018 23:12:15 +0200
-Message-ID: <CAK8P3a1Az9acSZwdhPz+Gwy6nSL=WAB6-z6Cq9m=nPLzF240_A@mail.gmail.com>
-References: <20180424203239.21885-1-krzk@kernel.org> <CAK8P3a2CZU1CYFt0fdVSFFnj2Wg=mUcC=yuWAW7zDO0u2Q2dUQ@mail.gmail.com>
- <20180424205636.cdp4czq6hhs5gu5a@kozik-lap>
+From: Sam Hansen <hansens@google.com>
+Subject: Re: [PATCH] Documentation/i2c: direct users to i2c-tools regarding i2c/smbus.h
+Date: Tue, 24 Apr 2018 17:00:19 -0700
+Message-ID: <CAP9bUy4aPPn=FdU1ZoFshK0dGpVuuaHt=M_YdHnSGLB63Q8Z+Q@mail.gmail.com>
+References: <20180419222356.242535-1-hansens@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180424205636.cdp4czq6hhs5gu5a@kozik-lap>
+In-Reply-To: <20180419222356.242535-1-hansens@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Kukjin Kim <kgene@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Tejun Heo <tj@kernel.org>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Chanwoo Choi <cw00.choi@samsung.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Viresh Kumar <viresh.kumar@linaro.org>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Russell King <linux@armlinux.org.uk>, Hans de Goede <hdegoede@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Andi Shyti <andi@etezian.org>, Mark Brown <broonie@kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Alan Stern <stern@rowland.harvard.edu>, Greg
+To: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, Sam Hansen <hansens@google.com>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 24, 2018 at 10:56 PM, Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> On Tue, Apr 24, 2018 at 10:50:58PM +0200, Arnd Bergmann wrote:
->> On Tue, Apr 24, 2018 at 10:32 PM, Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> The only dependency is through Kconfig symbol (SOC_EXYNOS5440).  After
-> applying 10/10, which removes SOC_EXYNOS5440, some automatic code
-> testers can complain about non-existing Kconfig option.  That's not big
-> issue because all this will go away so indeed we could take everything
-> in one release.
+friendly ping :)
 
-Right, I wouldn't worry about that. Kbuild itself doesn't warn about missing
-symbols, so this is only for helpful automated checks that tell us that there
-is still some pending work.
+This was an incremental patch requested by Wolfram.
 
-       Arnd
+On Thu, Apr 19, 2018 at 3:23 PM, Sam Hansen <hansens@google.com> wrote:
+> The current examples reference i2c/smbus.h, which is the first reference
+> in Documentation/i2c/dev-interface to anything related to the i2c-tools
+> project.  This moves the existing reference to i2c-tools up into the
+> C-example, directing the user to the project's git repository.
+>
+> Signed-off-by: Sam Hansen <hansens@google.com>
+> ---
+>  Documentation/i2c/dev-interface | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/Documentation/i2c/dev-interface b/Documentation/i2c/dev-interface
+> index fbed645ccd75..ed20f7b7851a 100644
+> --- a/Documentation/i2c/dev-interface
+> +++ b/Documentation/i2c/dev-interface
+> @@ -23,6 +23,10 @@ First, you need to include these two headers:
+>    #include <linux/i2c-dev.h>
+>    #include <i2c/smbus.h>
+>
+> +The i2c/smbus header file is provided by the i2c-tools project.  For more info
+> +about i2c-tools, see:
+> +https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/
+> +
+>  Now, you have to decide which adapter you want to access. You should
+>  inspect /sys/class/i2c-dev/ or run "i2cdetect -l" to decide this.
+>  Adapter numbers are assigned somewhat dynamically, so you can not
+> @@ -163,10 +167,6 @@ what happened. The 'write' transactions return 0 on success; the
+>  returns the number of values read. The block buffers need not be longer
+>  than 32 bytes.
+>
+> -The above functions are made available by linking against the libi2c library,
+> -which is provided by the i2c-tools project.  See:
+> -https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/.
+> -
+>
+>  Implementation details
+>  ======================
+> --
+> 2.17.0.484.g0c8726318c-goog
+>
