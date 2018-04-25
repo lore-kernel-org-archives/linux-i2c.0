@@ -1,33 +1,57 @@
-From: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: Re: [RFC 06/10] thermal: samsung: Remove support for Exynos5440
-Date: Wed, 25 Apr 2018 15:18:51 +0200
-Message-ID: <1951102.VLysaozMLK@amdc3058>
-References: <20180424203239.21885-1-krzk@kernel.org>
-        <CGME20180424203356epcas4p44b884a8d409d0faa188a0ecdf4945c11@epcas4p4.samsung.com>
-        <20180424203239.21885-7-krzk@kernel.org>
+From: Ludovic Desroches <ludovic.desroches@microchip.com>
+Subject: Re: [PATCH] i2c: at91: Read all available bytes at once
+Date: Wed, 25 Apr 2018 17:08:53 +0200
+Message-ID: <20180425150853.GU13305@rfolt0960.corp.atmel.com>
+References: <20180418124055.21333-1-david.engraf@sysgo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <20180424203239.21885-7-krzk@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180418124055.21333-1-david.engraf@sysgo.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Kukjin Kim <kgene@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Tejun Heo <tj@kernel.org>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Chanwoo Choi <cw00.choi@samsung.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Viresh Kumar <viresh.kumar@linaro.org>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Russell King <linux@armlinux.org.uk>, Hans de Goede <hdegoede@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Andi Shyti <andi@etezian.org>, Mark Brown <broonie@kernel.org>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-arm
+To: David Engraf <david.engraf@sysgo.com>
+Cc: ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday, April 24, 2018 10:32:35 PM Krzysztof Kozlowski wrote:
-> The Exynos5440 is not actively developed, there are no development
-> boards available and probably there are no real products with it.
-> Remove wide-tree support for Exynos5440.
+Hi David,
 
-Thanks for doing this.
+On Wed, Apr 18, 2018 at 02:40:55PM +0200, David Engraf wrote:
+> With FIFO enabled it is possible to read multiple bytes
+> at once in the interrupt handler as long as RXRDY is
+> set. This may also reduce the number of interrupts.
+> 
+> Signed-off-by: David Engraf <david.engraf@sysgo.com>
+> ---
+>  drivers/i2c/busses/i2c-at91.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> index bfd1fdff64a9..d01c2b2384bd 100644
+> --- a/drivers/i2c/busses/i2c-at91.c
+> +++ b/drivers/i2c/busses/i2c-at91.c
+> @@ -518,8 +518,12 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
+>  	 * the RXRDY interrupt first in order to not keep garbage data in the
+>  	 * Receive Holding Register for the next transfer.
+>  	 */
+> -	if (irqstatus & AT91_TWI_RXRDY)
+> -		at91_twi_read_next_byte(dev);
+> +	if (irqstatus & AT91_TWI_RXRDY) {
+> +		/* read all available bytes at once when FIFO is used */
+> +		do {
+> +			at91_twi_read_next_byte(dev);
+> +		} while (at91_twi_read(dev, AT91_TWI_SR) & AT91_TWI_RXRDY);
 
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+You can avoid this check by using the RXFL field to know the number of
+data you can read. Did you try to use it? If yes, did you notice some issues?
 
-Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Regards
 
-Best regards,
---
-Bartlomiej Zolnierkiewicz
-Samsung R&D Institute Poland
-Samsung Electronics
+Ludovic
+
+> +	}
+>  
+>  	/*
+>  	 * When a NACK condition is detected, the I2C controller sets the NACK,
+> -- 
+> 2.14.1
+> 
