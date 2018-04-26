@@ -1,71 +1,45 @@
-From: David Engraf <david.engraf@sysgo.com>
-Subject: Re: [PATCH] i2c: at91: Read all available bytes at once
-Date: Wed, 25 Apr 2018 17:43:09 +0200
-Message-ID: <cab9e509-a506-5852-6b0d-ed3e4751eeb6@sysgo.com>
-References: <20180418124055.21333-1-david.engraf@sysgo.com>
- <20180425150853.GU13305@rfolt0960.corp.atmel.com>
+From: andi@etezian.org
+Subject: Re: [RFC 01/10] ARM: dts: exynos: Remove Exynos5440
+Date: Thu, 26 Apr 2018 13:31:11 +0900
+Message-ID: <66d27b987846172e290cbc587b9909ac@etezian.org>
+References: <20180424203239.21885-1-krzk@kernel.org>
+ <20180424203239.21885-2-krzk@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180425150853.GU13305@rfolt0960.corp.atmel.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180424203239.21885-2-krzk@kernel.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Viresh Kumar <viresh.kumar@linaro.org>, Michael Turquette <mturquette@baylibre.com>, Tomasz Figa <tomasz.figa@gmail.com>, linux-ide@vger.kernel.org, linux-i2c@vger.kernel.org, Sylwester Nawrocki <s.nawrocki@samsung.com>, linux-clk@vger.kernel.org, Marek Szyprowski <m.szyprowski@samsung.com>, linux-samsung-soc@vger.kernel.org, linux-pm@vger.kernel.org, Russell King <linux@armlinux.org.uk>, Jaehoon Chung <jh80.chung@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, Kukjin Kim <kgene@kernel.org>, Alan Stern <stern@rowland.harvard.edu>, Olof Johansson <olof@lixom.net>, Zhang Rui <rui.zhang@intel.com>, Linus Walleij <linus.walleij@linaro.org>, devicetree@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Eduardo Valentin <edubezval@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Rob
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ludovic,
+Hi Krzysztof,
 
-Am 25.04.2018 um 17:08 schrieb Ludovic Desroches:
-> Hi David,
+On 25.04.2018 05:32, Krzysztof Kozlowski wrote:
+> The Exynos5440 (quad-core A15 with GMAC, PCIe, SATA) was targeting
+> server platforms but it did not make it to the market really.  There 
+> are
+> no development boards with it and probably there are no real products
+> neither.  The development for Exynos5440 ended in 2013 and since then
+> the platform is in maintenance mode.
 > 
-> On Wed, Apr 18, 2018 at 02:40:55PM +0200, David Engraf wrote:
->> With FIFO enabled it is possible to read multiple bytes
->> at once in the interrupt handler as long as RXRDY is
->> set. This may also reduce the number of interrupts.
->>
->> Signed-off-by: David Engraf <david.engraf@sysgo.com>
->> ---
->>   drivers/i2c/busses/i2c-at91.c | 8 ++++++--
->>   1 file changed, 6 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
->> index bfd1fdff64a9..d01c2b2384bd 100644
->> --- a/drivers/i2c/busses/i2c-at91.c
->> +++ b/drivers/i2c/busses/i2c-at91.c
->> @@ -518,8 +518,12 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
->>   	 * the RXRDY interrupt first in order to not keep garbage data in the
->>   	 * Receive Holding Register for the next transfer.
->>   	 */
->> -	if (irqstatus & AT91_TWI_RXRDY)
->> -		at91_twi_read_next_byte(dev);
->> +	if (irqstatus & AT91_TWI_RXRDY) {
->> +		/* read all available bytes at once when FIFO is used */
->> +		do {
->> +			at91_twi_read_next_byte(dev);
->> +		} while (at91_twi_read(dev, AT91_TWI_SR) & AT91_TWI_RXRDY);
+> Remove all Device Tree sources for Exynos5440, as first step of removal
+> of the platform to simplify the code and drivers.
 > 
-> You can avoid this check by using the RXFL field to know the number of
-> data you can read. Did you try to use it? If yes, did you notice some issues?
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 
-I did a quick test by reading RXFL and it worked as well but I decided 
-to use the more readable solution by polling RXRDY. Also I don't need to 
-check if the FIFO has been enabled.
+makes sense, please feel free to add:
 
-If you prefer using RXFL I can create a new patch.
+Reviewed-by: Andi Shyti <andi@etezian.org>
 
-Best regards
-- David
-
-
-> Regards
-> 
-> Ludovic
-> 
->> +	}
->>   
->>   	/*
->>   	 * When a NACK condition is detected, the I2C controller sets the NACK,
->> -- 
->> 2.14.1
->>
+Thanks,
+Andi
