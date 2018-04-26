@@ -1,30 +1,97 @@
-From: andi@etezian.org
-Subject: Re: [RFC 08/10] spi: s3c64xx: samsung: Remove support for Exynos5440
-Date: Thu, 26 Apr 2018 13:35:03 +0900
-Message-ID: <f47ea49afb9301d33383143056ed11a7@etezian.org>
-References: <20180424203239.21885-1-krzk@kernel.org>
- <20180424203239.21885-9-krzk@kernel.org>
+From: David Engraf <david.engraf@sysgo.com>
+Subject: Re: [PATCH] i2c: at91: Read all available bytes at once
+Date: Thu, 26 Apr 2018 07:52:17 +0200
+Message-ID: <ddc4beb3-5620-dc69-5b16-bce2737fb59f@sysgo.com>
+References: <20180418124055.21333-1-david.engraf@sysgo.com>
+ <20180425150853.GU13305@rfolt0960.corp.atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180424203239.21885-9-krzk@kernel.org>
+In-Reply-To: <20180425150853.GU13305@rfolt0960.corp.atmel.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Kukjin Kim <kgene@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Tejun Heo <tj@kernel.org>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Chanwoo Choi <cw00.choi@samsung.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Viresh Kumar <viresh.kumar@linaro.org>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Russell King <linux@armlinux.org.uk>, Hans de Goede <hdegoede@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Mark Brown <broonie@kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfou>
+To: Ludovic Desroches <ludovic.desroches@microchip.com>
+Cc: nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Krzysztof,
+Hi Ludovic,
 
-On 25.04.2018 05:32, Krzysztof Kozlowski wrote:
-> The Exynos5440 is not actively developed, there are no development
-> boards available and probably there are no real products with it.
-> Remove wide-tree support for Exynos5440.
+Am 25.04.2018 um 17:08 schrieb Ludovic Desroches:
+> Hi David,
 > 
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> On Wed, Apr 18, 2018 at 02:40:55PM +0200, David Engraf wrote:
+>> With FIFO enabled it is possible to read multiple bytes
+>> at once in the interrupt handler as long as RXRDY is
+>> set. This may also reduce the number of interrupts.
+>>
+>> Signed-off-by: David Engraf <david.engraf@sysgo.com>
+>> ---
+>>   drivers/i2c/busses/i2c-at91.c | 8 ++++++--
+>>   1 file changed, 6 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+>> index bfd1fdff64a9..d01c2b2384bd 100644
+>> --- a/drivers/i2c/busses/i2c-at91.c
+>> +++ b/drivers/i2c/busses/i2c-at91.c
+>> @@ -518,8 +518,12 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
+>>   	 * the RXRDY interrupt first in order to not keep garbage data in the
+>>   	 * Receive Holding Register for the next transfer.
+>>   	 */
+>> -	if (irqstatus & AT91_TWI_RXRDY)
+>> -		at91_twi_read_next_byte(dev);
+>> +	if (irqstatus & AT91_TWI_RXRDY) {
+>> +		/* read all available bytes at once when FIFO is used */
+>> +		do {
+>> +			at91_twi_read_next_byte(dev);
+>> +		} while (at91_twi_read(dev, AT91_TWI_SR) & AT91_TWI_RXRDY);
+> 
+> You can avoid this check by using the RXFL field to know the number of
+> data you can read. Did you try to use it? If yes, did you notice some issues?
 
-Reviewed-by: Andi Shyti <andi@etezian.org>
+I did a quick test by reading RXFL and it worked as well but I decided 
+to use the more readable solution by polling RXRDY. Also I don't need to 
+check if the FIFO has been enabled.
 
-Thanks,
-Andi
+If you prefer using RXFL I can create a new patch.
+
+Best regards
+- David
+
+
+> Regards
+> 
+> Ludovic
+> 
+>> +	}
+>>   
+>>   	/*
+>>   	 * When a NACK condition is detected, the I2C controller sets the NACK,
+>> -- 
+>> 2.14.1
+>>
+
+-- 
+Mit freundlichen Grüßen/Best regards,
+
+David Engraf
+Product Engineer
+
+SYSGO AG
+Office Mainz
+Am Pfaffenstein 14 / D-55270 Klein-Winternheim / Germany
+
+Phone: +49-6136-9948-0 / Fax: +49-6136-9948-10
+E-mail: david.engraf@sysgo.com
+_________________________________________________________________________________
+
+Web: https://www.sysgo.com
+Blog: https://www.sysgo.com/blog
+Events: https://www.sysgo.com/events
+Newsletter: https://www.sysgo.com/newsletter
+_________________________________________________________________________________
+
+Handelsregister/Commercial Registry: HRB Mainz 90 HRB 8066
+Vorstand/Executive Board: Etienne Butery (CEO), Kai Sablotny (COO)
+Aufsichtsratsvorsitzender/Supervisory Board Chairman: Marc Darmon
+USt-Id-Nr./VAT-Id-No.: DE 149062328
