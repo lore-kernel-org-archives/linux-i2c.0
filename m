@@ -1,57 +1,93 @@
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: Re: [RFC 06/10] thermal: samsung: Remove support for Exynos5440
-Date: Thu, 26 Apr 2018 09:59:15 +0200
-Message-ID: <CAJKOXPc4oDAFThxVszOrCr+yEaK85W3AeYTcLFyGm0-6TLyZyw@mail.gmail.com>
-References: <20180424203239.21885-1-krzk@kernel.org> <CGME20180424203603epcas5p4cdd2039eabe7039e4daf286ed4c1ecc0@epcas5p4.samsung.com>
- <20180424203239.21885-7-krzk@kernel.org> <5AE12E4A.90907@samsung.com>
+From: Ludovic Desroches <ludovic.desroches@microchip.com>
+Subject: Re: [PATCH] i2c: at91: Read all available bytes at once
+Date: Thu, 26 Apr 2018 10:25:58 +0200
+Message-ID: <20180426082558.GX13305@rfolt0960.corp.atmel.com>
+References: <20180418124055.21333-1-david.engraf@sysgo.com>
+ <20180425150853.GU13305@rfolt0960.corp.atmel.com>
+ <cab9e509-a506-5852-6b0d-ed3e4751eeb6@sysgo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5AE12E4A.90907@samsung.com>
+Content-Disposition: inline
+In-Reply-To: <cab9e509-a506-5852-6b0d-ed3e4751eeb6@sysgo.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Chanwoo Choi <cw00.choi@samsung.com>
-Cc: Kukjin Kim <kgene@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Tejun Heo <tj@kernel.org>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Viresh Kumar <viresh.kumar@linaro.org>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Russell King <linux@armlinux.org.uk>, Hans de Goede <hdegoede@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Andi Shyti <andi@etezian.org>, Mark Brown <broonie@kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: David Engraf <david.engraf@sysgo.com>
+Cc: nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Apr 26, 2018 at 3:41 AM, Chanwoo Choi <cw00.choi@samsung.com> wrote:
-> Hi Krzysztof,
->
-> On 2018년 04월 25일 05:32, Krzysztof Kozlowski wrote:
->> The Exynos5440 is not actively developed, there are no development
->> boards available and probably there are no real products with it.
->> Remove wide-tree support for Exynos5440.
->>
->> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
->> ---
->>  .../devicetree/bindings/thermal/exynos-thermal.txt |  14 +-
->>  drivers/thermal/samsung/exynos_tmu.c               | 155 +--------------------
->>  drivers/thermal/samsung/exynos_tmu.h               |   1 -
->>  3 files changed, 4 insertions(+), 166 deletions(-)
->
->
-> After applied this patch, I tested the build and found out
-> 'exynos5440' keyword. There is one comment including 'exynos5440' as following:
->
-> diff --git a/drivers/thermal/samsung/exynos_tmu.c b/drivers/thermal/samsung/exynos_tmu.c
-> index f92f470bce21..cb525228cfe1 100644
-> --- a/drivers/thermal/samsung/exynos_tmu.c
-> +++ b/drivers/thermal/samsung/exynos_tmu.c
-> @@ -943,7 +943,7 @@ static void exynos4210_tmu_clear_irqs(struct exynos_tmu_data *data)
->          * Exynos3250, Exynos4412, Exynos5250 and Exynos5260 incorrectly
->          * states that INTCLEAR register has a different placing of bits
->          * responsible for FALL IRQs than INTSTAT register.  Exynos5420
-> -        * and Exynos5440 documentation is correct (Exynos4210 doesn't
-> +        * documentation is correct (Exynos4210 doesn't
->          * support FALL IRQs at all).
->          */
->         writel(val_irq, data->base + tmu_intclear);
->
-> After removing it, looks good to me.
-> Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Hi David,
 
-Thanks, I left this comment intentionally as it has some meaning even
-when Exynos5440 is not supported.
+On Wed, Apr 25, 2018 at 05:43:09PM +0200, David Engraf wrote:
+> Hi Ludovic,
+> 
+> Am 25.04.2018 um 17:08 schrieb Ludovic Desroches:
+> > Hi David,
+> > 
+> > On Wed, Apr 18, 2018 at 02:40:55PM +0200, David Engraf wrote:
+> > > With FIFO enabled it is possible to read multiple bytes
+> > > at once in the interrupt handler as long as RXRDY is
+> > > set. This may also reduce the number of interrupts.
+> > > 
+> > > Signed-off-by: David Engraf <david.engraf@sysgo.com>
+> > > ---
+> > >   drivers/i2c/busses/i2c-at91.c | 8 ++++++--
+> > >   1 file changed, 6 insertions(+), 2 deletions(-)
+> > > 
+> > > diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> > > index bfd1fdff64a9..d01c2b2384bd 100644
+> > > --- a/drivers/i2c/busses/i2c-at91.c
+> > > +++ b/drivers/i2c/busses/i2c-at91.c
+> > > @@ -518,8 +518,12 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
+> > >   	 * the RXRDY interrupt first in order to not keep garbage data in the
+> > >   	 * Receive Holding Register for the next transfer.
+> > >   	 */
+> > > -	if (irqstatus & AT91_TWI_RXRDY)
+> > > -		at91_twi_read_next_byte(dev);
+> > > +	if (irqstatus & AT91_TWI_RXRDY) {
+> > > +		/* read all available bytes at once when FIFO is used */
+> > > +		do {
+> > > +			at91_twi_read_next_byte(dev);
+> > > +		} while (at91_twi_read(dev, AT91_TWI_SR) & AT91_TWI_RXRDY);
+> > 
+> > You can avoid this check by using the RXFL field to know the number of
+> > data you can read. Did you try to use it? If yes, did you notice some issues?
+> 
+> I did a quick test by reading RXFL and it worked as well but I decided to
+> use the more readable solution by polling RXRDY. Also I don't need to check
+> if the FIFO has been enabled.
+> 
+> If you prefer using RXFL I can create a new patch.
 
-Best regards,
-Krzysztof
+Honestly, I have no strong opinion about it. As you said you approach is
+simple and easy to read.
+
+About performances, I assume that both solutions are pretty the same for
+small number of data. If the number increases, using the RXFL field
+should give better results.
+
+So I would say, maybe add a note in the commit log or in the code to
+keep in mind there is this solution to go further.
+
+Otherwise
+Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+
+Regards
+
+Ludovic
+
+> 
+> Best regards
+> - David
+> 
+> 
+> > Regards
+> > 
+> > Ludovic
+> > 
+> > > +	}
+> > >   	/*
+> > >   	 * When a NACK condition is detected, the I2C controller sets the NACK,
+> > > -- 
+> > > 2.14.1
+> > > 
+> 
