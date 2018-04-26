@@ -1,85 +1,49 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v4 09/10] gpio: Add a driver for Cadence I3C GPIO expander
-Date: Thu, 26 Apr 2018 10:44:26 +0200
-Message-ID: <CACRpkdY_7mi8GPiopZ9Yg4Y0-AV_SriZe=1yN5is6eH6FUm6Qg@mail.gmail.com>
-References: <20180330074751.25987-1-boris.brezillon@bootlin.com> <20180330074751.25987-10-boris.brezillon@bootlin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: David Engraf <david.engraf@sysgo.com>
+Subject: [PATCH v2] i2c: at91: Read all available bytes at once
+Date: Thu, 26 Apr 2018 11:53:14 +0200
+Message-ID: <20180426095314.12758-1-david.engraf@sysgo.com>
+References: <20180426082558.GX13305@rfolt0960.corp.atmel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180330074751.25987-10-boris.brezillon@bootlin.com>
+In-Reply-To: <20180426082558.GX13305@rfolt0960.corp.atmel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion>
+To: ludovic.desroches@microchip.com
+Cc: nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, David Engraf <david.engraf@sysgo.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Mar 30, 2018 at 9:47 AM, Boris Brezillon
-<boris.brezillon@bootlin.com> wrote:
+With FIFO enabled it is possible to read multiple bytes
+at once in the interrupt handler as long as RXRDY is
+set. This may also reduce the number of interrupts.
 
-> Add a driver for Cadence I3C GPIO expander.
->
-> Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
+This patch polls RXRDY and reads all available bytes at
+once.
 
-This is pretty much OK, and I don't want to raise the bar
-even higher for you to get this code into the kernel, so:
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: David Engraf <david.engraf@sysgo.com>
+---
+ drivers/i2c/busses/i2c-at91.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-The following is an observation for future improvement:
-
-> +static int cdns_i3c_gpio_read_reg(struct cdns_i3c_gpio *gpioc, u8 reg,
-> +                                 u8 *val)
-> +{
-> +       struct i3c_priv_xfer xfers[] = {
-> +               {
-> +                       .len = sizeof(reg),
-> +                       .data.out = &reg,
-> +               },
-> +               {
-> +                       .rnw = true,
-> +                       .len = sizeof(*val),
-> +                       .data.in = val,
-> +               },
-> +       };
-> +
-> +       return i3c_device_do_priv_xfers(gpioc->i3cdev, xfers,
-> +                                       ARRAY_SIZE(xfers));
-> +}
-> +
-> +static int cdns_i3c_gpio_write_reg(struct cdns_i3c_gpio *gpioc, u8 reg,
-> +                                  u8 val)
-> +{
-> +       struct i3c_priv_xfer xfers[] = {
-> +               {
-> +                       .len = sizeof(reg),
-> +                       .data.out = &reg,
-> +               },
-> +               {
-> +                       .len = sizeof(val),
-> +                       .data.out = &val,
-> +               },
-> +       };
-> +
-> +       return i3c_device_do_priv_xfers(gpioc->i3cdev, xfers,
-> +                                       ARRAY_SIZE(xfers));
-> +}
-
-This is starting to resemble
-drivers/base/regmap/regmap-i2c.c
-
-Maybe we should very quickly add regmap-i3c.c as this
-infrastructre has had a great positive effect on may kernel
-subsystems.
-
-> +static int cdns_i3c_gpio_get_direction(struct gpio_chip *g, unsigned offset)
-> +{
-> +       struct cdns_i3c_gpio *gpioc = gpioc_to_cdns_gpioc(g);
-> +
-> +       return gpioc->dir & BIT(offset);
-
-I would:
-
-return !!(gpioc->dir & BIT(offset));
-
-So you clamp it to bit 0.
-
-Yours,
-Linus Walleij
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index bfd1fdff64a9..9caee5b79eac 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -518,8 +518,16 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
+ 	 * the RXRDY interrupt first in order to not keep garbage data in the
+ 	 * Receive Holding Register for the next transfer.
+ 	 */
+-	if (irqstatus & AT91_TWI_RXRDY)
+-		at91_twi_read_next_byte(dev);
++	if (irqstatus & AT91_TWI_RXRDY) {
++		/*
++		 * Read all available bytes at once by polling RXRDY usable w/ and w/o
++		 * FIFO. With FIFO enabled we could also read RXFL and avoid polling
++		 * RXRDY.
++		 */
++		do {
++			at91_twi_read_next_byte(dev);
++		} while (at91_twi_read(dev, AT91_TWI_SR) & AT91_TWI_RXRDY);
++	}
+ 
+ 	/*
+ 	 * When a NACK condition is detected, the I2C controller sets the NACK,
+-- 
+2.14.1
