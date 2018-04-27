@@ -1,54 +1,55 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: sprd: Fix the i2c count issue
-Date: Fri, 27 Apr 2018 14:14:21 +0200
-Message-ID: <20180427121421.fsh44y7gq3ehiqvx@ninjato>
-References: <99031524fa147e72451d26f54b24f36093c0d3fa.1523255712.git.baolin.wang@linaro.org>
- <e42cc3e001d612e811166b8d21f44802ff20069e.1523255712.git.baolin.wang@linaro.org>
+Subject: Re: [PATCH v2 3/6] i2c: i2c-stm32f7: Add initial SMBus protocols
+ support
+Date: Fri, 27 Apr 2018 22:48:20 +0200
+Message-ID: <20180427204820.wvns5e4ejwy6oujy@ninjato>
+References: <1521650940-11651-1-git-send-email-pierre-yves.mordret@st.com>
+ <1521650940-11651-4-git-send-email-pierre-yves.mordret@st.com>
+ <20180324224911.xz3fz2jojcdrovb4@ninjato>
+ <2fadcd7f-3bfc-997e-a30e-808f6d854f2c@st.com>
+ <20180403153122.ux6hnnmexwmq3soz@ninjato>
+ <07e24b50-0f6e-2960-8543-92d5a2668373@st.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ugy5rrwuo6qde57z"
+        protocol="application/pgp-signature"; boundary="hsjx2haesploqags"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <e42cc3e001d612e811166b8d21f44802ff20069e.1523255712.git.baolin.wang@linaro.org>
+In-Reply-To: <07e24b50-0f6e-2960-8543-92d5a2668373@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Baolin Wang <baolin.wang@linaro.org>
-Cc: broonie@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---ugy5rrwuo6qde57z
+--hsjx2haesploqags
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Apr 09, 2018 at 02:40:55PM +0800, Baolin Wang wrote:
-> We found the I2C controller count register is unreliable sometimes,
-> that will cause I2C to lose data. Thus we can read the data count
-> from 'i2c_dev->count' instead of the I2C controller count register.
->=20
-> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-
-Applied to for-current, thanks!
 
 
---ugy5rrwuo6qde57z
+> I am the maintainer. So yes I keep it as such ... with this complexity ;)
+
+BTW you are not listed as such. Can you send an incremental patch for
+MAINTAINERS?
+
+
+--hsjx2haesploqags
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrjFB0ACgkQFA3kzBSg
-KbYf8w/5AaXaBbCybjPFXvDVtzfKs8JtAeQR9+HfsZTtacUA9HmceyH6MddwzvKh
-Ho0wOi44ZqcCTWURId7fq1Au9bscjlqk01NbCiDso/lctZgckWtFRPjlcLxr03NH
-Y/5fD8q2dSnrqyzG3kTAXjK7yEyzHiV9dYPJD+vqy8+ZaOAxWLw2v5xbZG8UkGfs
-T9yzbTBv03QOkQNNeBvNXa+axOG/nvXjOUEJ15dmVKG947X5IJ0JlO1bcQuUa6Y8
-1iz7kO8B8IODEiOhv2sLdIZSkerN8fxoEPBfJpYJpZUCmGXHCYZlA9rqAAN+V8dj
-p4CnyiEk6Tbfif6XMRIBNgRCcw4kmcJrxppL2eZMr18RDiQJisEQ0Os47bkRrBcj
-KW7f4+rLYt7bPvIGj3urol6+RxvQpVKn70Z08IQ5DfieppJ8qHrQEbQBwj7MP4WU
-Xjt6etO5gOHB6yqy2/kgRT0OXVClVmXNguPwsWNm7/y49YYwIcU6nznTOcr20D3t
-pCKTu3jzLVOSHDw6dX18rcJD7UxcSRZykjlTg0BORnMUKyc7bI63dpY/uF8OgilN
-MX482FL+758v6fmmDUMDXFV2WksZHikEnE2UQS3gJsykaY1pueuIo91e9e5bBowm
-3bkBCp7w/RymH2qHV0k+bCHIPZ2VN+UPJIqFyX8s3ahz/H6qnhc=
-=mHRI
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrjjJAACgkQFA3kzBSg
+KbYwgQ//TVNI7YlwO21ni40tfY3KGTS2CNRVd/sM9TpEQ145+BnL9P1J1X8B78JL
+klY1Xinv/oyLfhK/CSUO+dOrwKr6kGe5V4t/MqusA8ukPiM9VB6DEmbx/ZlrnoG4
+M4XwwczSk06XAP+6LDGgOmo6dUmIfx5WW3YYKniS7hIljcgRQXuOFQCiTlqFpJGg
+ppnGjyCksMXRKDbY4k2riF8GBXg/mUlqd65L7xQor61P18gs7ERVrbfyLx0mogQq
+4qBB0+1fNHXDx27WZ/Eq5w0pJ+HLlSViucu8fc6MIn580EVMp3AMhIrD4GVVK7gp
+yu3LLSjWTvqK7GOKyaRsoPUNNfI6GRmhV/HmCIgec502zjsc9EZGv3z/nWlVSbdM
+2QSHMBjx7/CkilP4C1jijWHCz+eWfbDSqCDJCUC1f2ekH7ogJuXDGiftmTu5JuQO
+0ZgbSGgBIn6OdUf+RqYzMh4mkjQORwdW8ac85D8WS4fG4o8yLvqbjpbzO/Ad9joj
+ZBAAwGW2QIQNhozuoJWGmD5BaMSzu2wZAetqaA7D3llDmOwkZqYn84D0rQBT0HT2
+ycBZGLXQO81SmxaGorPbmqMINViWdZq+EjEDehQSO+qd0BXkAUC95XJF8/amO/sm
+PA8s5VbsZ+w11aJ2cQM1wxh39ZfdjMITthbrPAu0zWOHIwVG+wk=
+=iuOs
 -----END PGP SIGNATURE-----
 
---ugy5rrwuo6qde57z--
+--hsjx2haesploqags--
