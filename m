@@ -1,97 +1,62 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.17
-Date: Sat, 28 Apr 2018 14:26:40 +0200
-Message-ID: <20180428122636.zq3e5zwgb6aekupp@ninjato>
+Subject: Re: [PATCH v3 0/6] Add different features for I2C
+Date: Sat, 28 Apr 2018 14:31:36 +0200
+Message-ID: <20180428123136.hxcg4njtbrykuisi@ninjato>
+References: <1523453098-3758-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rd5xnnsjfm6asq43"
+        protocol="application/pgp-signature"; boundary="eeyigs6324u43jku"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <1523453098-3758-1-git-send-email-pierre-yves.mordret@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---rd5xnnsjfm6asq43
-Content-Type: text/plain; charset=utf-8
+--eeyigs6324u43jku
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Linus,
+On Wed, Apr 11, 2018 at 03:24:52PM +0200, Pierre-Yves MORDRET wrote:
+> Append new I2C STM32F7 feature set. This includes 10 bit support, slave
+> support, SMBBus protocols support, DMA Support and eventually an I2C release
+> mechanism.
 
-I2C has two driver fixes, one better parameter check for the core,
-Documentation updates, and part of a tree-wide HAS_DMA cleanup for you.
+Applied to for-next, thanks!
 
-Please pull.
+While building, I saw this. While this is mostly not related to your
+patch series, maybe you want to have a look at it?
 
-Thanks,
+drivers/i2c/busses/i2c-stm32f7.c:227: warning: Function parameter or member 'node' not described in 'stm32f7_i2c_timings'
+drivers/i2c/busses/i2c-stm32f7.c:227: warning: Function parameter or member 'presc' not described in 'stm32f7_i2c_timings'
+drivers/i2c/busses/i2c-stm32f7.c:227: warning: Function parameter or member 'scll' not described in 'stm32f7_i2c_timings'
+drivers/i2c/busses/i2c-stm32f7.c:255: warning: Function parameter or member 'smbus_buf' not described in 'stm32f7_i2c_msg'
+drivers/i2c/busses/i2c-stm32f7.c:307: warning: cannot understand function prototype: 'struct stm32f7_i2c_spec i2c_specs[] = '
 
-   Wolfram
-
-
-The following changes since commit 60cc43fc888428bb2f18f08997432d426a243338:
-
-  Linux 4.17-rc1 (2018-04-15 18:24:20 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-curre=
-nt
-
-for you to fetch changes up to 2a010461207cc96bee5ab81748325dec1972976f:
-
-  i2c: sprd: Fix the i2c count issue (2018-04-27 14:12:43 +0200)
-
-----------------------------------------------------------------
-Alexander Popov (1):
-      i2c: dev: prevent ZERO_SIZE_PTR deref in i2cdev_ioctl_rdwr()
-
-Baolin Wang (2):
-      i2c: sprd: Prevent i2c accesses after suspend is called
-      i2c: sprd: Fix the i2c count issue
-
-Geert Uytterhoeven (1):
-      i2c: Remove depends on HAS_DMA in case of platform dependency
-
-Sam Hansen (3):
-      Documentation/i2c: whitespace cleanup
-      Documentation/i2c: sync docs with current state of i2c-tools
-      Documentation/i2c: adopt kernel commenting style in examples
+And don't forget to add yourself as MAINTAINER as I mentioned in the old
+thread.
 
 
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Mark Brown (1):
-      (Rev.) i2c: Remove depends on HAS_DMA in case of platform dependency
-
-Uwe Kleine-K=C3=B6nig (1):
-      (Rev.) i2c: dev: prevent ZERO_SIZE_PTR deref in i2cdev_ioctl_rdwr()
-
- Documentation/i2c/dev-interface | 32 ++++++++++++++------------------
- drivers/i2c/busses/Kconfig      |  3 ---
- drivers/i2c/busses/i2c-sprd.c   | 22 ++++++++++++++++++----
- drivers/i2c/i2c-dev.c           |  2 +-
- 4 files changed, 33 insertions(+), 26 deletions(-)
-
---rd5xnnsjfm6asq43
+--eeyigs6324u43jku
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrkaHgACgkQFA3kzBSg
-KbZVBBAAp6Hj2xdziR81Amwv7g09AGyf/hiWlHP+UPPvvcKpWF5J4HMOKO3tFkRt
-TLGUsJJg5D9wF297W2L+pj+l8RS2Svo5b84mNaLL8/ghUtwRX+yiPDT5vh7bzoX4
-JpZ96g3jrXCv/KpPlz/KV/Iwzs2QsKeDMHAhAbcKUgmhd2lC3LmBaANL3KH8lrIL
-PEKNLY1QEWRVTHjD8uQeMuHYKZottSr5Mkj6Cds6+U+sE9/3/osozzoGe1tQqV8i
-CTkh3kI0cEYOHLlHO3IngfffVy0a4ampfD54dI3bjAMBw3HJmWfdl6kzLSKEv165
-/Zh6n08feSHTlIFBuLozlKs7jBEyWXSeY8ptym32GhzHUl/mPcyX3ya4/C0puCdo
-DcdusMk7yq61rXXF+/fqn2G35N1e4PoHWwgsL6xvZNNip/HLan7q+MdwveiKXBn1
-K2aY+ccjU/k8JUjGYOGOHFU9VB60dJmlZ8ijUme8jIrsgXTNZQ5QFnQnM560wqLT
-INKyI4RhN/TzsqVYuThGH8/NbRQyC4BmjfmpjkJLELSDfdKWWKhyd0L9QoqdKvJB
-pAqjovmB2P7mtkQxZSi0E1heRzd1ky/v7Qq9osFLef5HhgGq6wEAVHXzw//2v6cx
-KQs7bhSMQbWYVmiA21UfSy2eD6FAMSu/51uHmkK5Usufk2+4j1s=
-=iM47
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrkaacACgkQFA3kzBSg
+Kba/xg/+PdVh9QyKMTk2bG07qvDoqop+JIVBryGtiKBsU4iMdMOrUVEE0Xhvj1dZ
+SDJqFF2GWPrDVn0fRcWd7bupF0OvxAH7CLmz9s+52obwTu9Dm4zSv42XKfEPkGm4
+/gcZ0qyCTN5t4nBvZiQmcy+pTm8L3KmqpM41rWnV+uCLnA3thyre3rPq7RAY27it
+nKawHzZHVnJ6SDpSsaF/BIBflj2CrVqZ4RYtIh7oL8V5HViHiW6ohFavgAQsNZe6
+ymgtAzK28PBquMDMRBRzvRwDp9MDkB7rfooxvaj2ZfcAu9Zu1sKJbd0J70MIwLVV
+uLEMfLe8hU+3YAEqf4tPgXmDxsyhIbbB+jhZKKCwi6HVv/z3L0BWo0TYPsNr15CV
+lcZ31PBhuhVVGVFCBLtTKFPfnkZ4sr0qJh9ADqJXfnsPBPYKrcTwUE8E9sSiZzfE
+B1gu9dAMtaLI5PHAnAUnxC5aqpUwdjBbYtZPQqzJBRI/vUlgThJcbEgY1YlmwZ/u
+smkZlRbOMIhRODmBLALlWdmobUYyQAlrUKyzJJZvpTN4YboDEpLTg3n9FKP7gJw/
+6fymIeB39n9iWZEgw4r1BcI0veVuW4Vq2s2npTveAGCeLxMqgREf8izptIGpPCdX
+YfaSnjyVEFqDdcFcn6lAprILV46SxCsfNwDCxNOJyQNeLC7iakw=
+=TWxI
 -----END PGP SIGNATURE-----
 
---rd5xnnsjfm6asq43--
+--eeyigs6324u43jku--
