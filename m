@@ -1,66 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: at91: Read all available bytes at once
-Date: Sat, 28 Apr 2018 14:38:38 +0200
-Message-ID: <20180428123838.abxiht7k4egv7iel@ninjato>
-References: <20180426082558.GX13305@rfolt0960.corp.atmel.com>
- <20180426095314.12758-1-david.engraf@sysgo.com>
+Subject: Re: [RFC 05/10] i2c: s3c2410: Remove support for Exynos5440
+Date: Sat, 28 Apr 2018 14:44:07 +0200
+Message-ID: <20180428124407.bpc47bo7ojebahpz@ninjato>
+References: <20180424203239.21885-1-krzk@kernel.org>
+ <20180424203239.21885-6-krzk@kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="nzns2kqhetuwit6p"
+        protocol="application/pgp-signature"; boundary="2ub5o5uu6wk62jsg"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180426095314.12758-1-david.engraf@sysgo.com>
+In-Reply-To: <20180424203239.21885-6-krzk@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: David Engraf <david.engraf@sysgo.com>
-Cc: ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Kukjin Kim <kgene@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Tejun Heo <tj@kernel.org>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Chanwoo Choi <cw00.choi@samsung.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Viresh Kumar <viresh.kumar@linaro.org>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Russell King <linux@armlinux.org.uk>, Hans de Goede <hdegoede@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Andi Shyti <andi@etezian.org>, Mark Brown <broonie@kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Alan Stern <stern@rowland.harvard.edu>, Greg
 List-Id: linux-i2c@vger.kernel.org
 
 
---nzns2kqhetuwit6p
+--2ub5o5uu6wk62jsg
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Apr 26, 2018 at 11:53:14AM +0200, David Engraf wrote:
-> With FIFO enabled it is possible to read multiple bytes
-> at once in the interrupt handler as long as RXRDY is
-> set. This may also reduce the number of interrupts.
+On Tue, Apr 24, 2018 at 10:32:34PM +0200, Krzysztof Kozlowski wrote:
+> The Exynos5440 is not actively developed, there are no development
+> boards available and probably there are no real products with it.
+> Remove wide-tree support for Exynos5440.
 >=20
-> This patch polls RXRDY and reads all available bytes at
-> once.
->=20
-> Signed-off-by: David Engraf <david.engraf@sysgo.com>
-
-checkpatch said twice:
-
-WARNING: line over 80 characters
-
-While I am not super-strict with this limit, it makes sense here IMO.
-The comment stays readable, and we don't even lose a line.
-
-Fixed it this time for you.
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 
 Applied to for-next, thanks!
 
 
---nzns2kqhetuwit6p
+--2ub5o5uu6wk62jsg
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrka00ACgkQFA3kzBSg
-KbZmOg/+IhlsJDzcKMB5N2UOolGljf8oOYDLSslHRZRLb8EjJM5TzbpUA/LzV8lA
-fyH29EKFbh3Z4MWKzTn4+KnLsgy7q4ZhMsuyc2jBbX1/SblkeeyXRAjnpXln+APW
-Us77mNu4wU04/q6Tlzs1rg+WWhoLOPbFo8VlTywQQPbE9YtABZpxcDSAVZQcl6sI
-w38GoKR6mdLZKKQA7ZoSAh9YG8jvqTa4NRHYnF5I1YTLRCsrcje9cAFyASNYd04s
-pZrYaBzlOeKwlI8hPC1rxtHAm3nwHFTUhS2Oib8c1p7xFM5hjkX54sxFn/BUuwGx
-R1WOw+UUcuI0IUtKiMHhsEerKuAI7ZM6xkNy9hYtjR675bYNz6a4BK1gxwKEo0Sf
-jACqmKtBtf5mFbc8F2pQRWhbSHcJInnbmTbfnjJyALFZdFG3jLXdVBUqUc9vSLNK
-GY1rR4HDlJyCSbiwnSU6hN3uBFarMLvOdorwlS6DfUk0dgvhAzE9XFg/YOQi3SxY
-n1CNWgPIYXHvf50pL7QwGzPIfCcT+X2+F20KKcvvR4x8CSYS3nNrkSNSz5i79+ea
-rBaXe1Nqu+v8VO4fkqo4AlTKFYpdeimVEnVKMeEUuPb9l0IUjOMLlqW69fYmmODN
-xVWEx0TARtm2Kpo+CbdUjWXdKuOJKx4RT2QfNRFW/cHqDWr74VY=
-=pn8i
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrkbJcACgkQFA3kzBSg
+KbY0oBAAp5AZ22Iwc3g476LI/homGu6AP+TvzJ14ZHvvKXmBhKLST+eTqjibgy8y
+ezyaVsMGoTAqZXpFAoPhMWB/ktsDNOM6QhshTyAR5EI634GhnTZ8j5quAXYwgPsL
+Iugkw/DxGYGz+0iaPwvd7L4OnCHpufRomudIkx7wO5IObmbuFIAYiAvZIp6873Hq
+UFWUlW4k67D+BcoYc+uVcvTteewzffXS/qyRim6TF4Xg2FKTPp9KRUjmL86xLHvl
+FXDKa4djARTZz+HD0aQ27aOuv+g7yxLS9mfL4wSckymohGCtmDhHI6xdw3hyCDwM
+yPElg4JICJDm4EuDjzYdYrcZlFjsXeuHN3RGaJfIRFnIhwC/CxiUnwtMosGCuWSK
+BDU+esBF7qEXxherzLPJEJVPYW1z3XqLphkxoJ8Ma/9DpLDmItGythWIuMblLHWP
+jWpb3DOgATifO3ZLkyNEp/6m4GMEZN29Xc81BLRgy+NMzaNPofgSflzW1QAHz8H8
+qMtjIHp9zH9h4jn7LoUng1AsEBs4AW/xv5Bul8l4FhrfjSpzTCfb1+kF7QKAr8IW
+0xuLrzW3GSd1/WC7BTnQMDD41d8sgd8YL8RyfFBYsst0L0TXvhgWLCLt7M40X42q
+pUXIKPw/t0MR4uIsD8nQ9ZnWhb4chO2pzGSMabmZQDLeZQvGRBI=
+=ObTl
 -----END PGP SIGNATURE-----
 
---nzns2kqhetuwit6p--
+--2ub5o5uu6wk62jsg--
