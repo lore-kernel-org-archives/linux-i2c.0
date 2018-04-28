@@ -1,54 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC 05/10] i2c: s3c2410: Remove support for Exynos5440
-Date: Sat, 28 Apr 2018 14:44:07 +0200
-Message-ID: <20180428124407.bpc47bo7ojebahpz@ninjato>
-References: <20180424203239.21885-1-krzk@kernel.org>
- <20180424203239.21885-6-krzk@kernel.org>
+Subject: Re: [PATCH] i2c: mediatek: use of_device_get_match_data()
+Date: Sat, 28 Apr 2018 15:12:27 +0200
+Message-ID: <20180428131227.u7cuvdhuo3dahsdt@ninjato>
+References: <31f944ab8dfcc1d7b6f03b35657a2a34825b5246.1523347340.git.ryder.lee@mediatek.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="2ub5o5uu6wk62jsg"
+        protocol="application/pgp-signature"; boundary="elwt6h2lmsgibred"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180424203239.21885-6-krzk@kernel.org>
+In-Reply-To: <31f944ab8dfcc1d7b6f03b35657a2a34825b5246.1523347340.git.ryder.lee@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Kukjin Kim <kgene@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Tejun Heo <tj@kernel.org>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Chanwoo Choi <cw00.choi@samsung.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Viresh Kumar <viresh.kumar@linaro.org>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Russell King <linux@armlinux.org.uk>, Hans de Goede <hdegoede@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Andi Shyti <andi@etezian.org>, Mark Brown <broonie@kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Alan Stern <stern@rowland.harvard.edu>, Greg
+To: Ryder Lee <ryder.lee@mediatek.com>
+Cc: Jun Gao <jun.gao@mediatek.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---2ub5o5uu6wk62jsg
+--elwt6h2lmsgibred
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 24, 2018 at 10:32:34PM +0200, Krzysztof Kozlowski wrote:
-> The Exynos5440 is not actively developed, there are no development
-> boards available and probably there are no real products with it.
-> Remove wide-tree support for Exynos5440.
+On Mon, Apr 16, 2018 at 10:32:52AM +0800, Ryder Lee wrote:
+> The usage of of_device_get_match_data() reduce the code size a bit.
 >=20
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> Also, the only way to call mtk_i2c_probe() is to match an entry in
+> mtk_i2c_of_match[], so of_id cannot be NULL.
+>=20
+> Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
 
 Applied to for-next, thanks!
 
+Does somebody from Mediatek maybe want to maintain this driver?
 
---2ub5o5uu6wk62jsg
+
+--elwt6h2lmsgibred
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrkbJcACgkQFA3kzBSg
-KbY0oBAAp5AZ22Iwc3g476LI/homGu6AP+TvzJ14ZHvvKXmBhKLST+eTqjibgy8y
-ezyaVsMGoTAqZXpFAoPhMWB/ktsDNOM6QhshTyAR5EI634GhnTZ8j5quAXYwgPsL
-Iugkw/DxGYGz+0iaPwvd7L4OnCHpufRomudIkx7wO5IObmbuFIAYiAvZIp6873Hq
-UFWUlW4k67D+BcoYc+uVcvTteewzffXS/qyRim6TF4Xg2FKTPp9KRUjmL86xLHvl
-FXDKa4djARTZz+HD0aQ27aOuv+g7yxLS9mfL4wSckymohGCtmDhHI6xdw3hyCDwM
-yPElg4JICJDm4EuDjzYdYrcZlFjsXeuHN3RGaJfIRFnIhwC/CxiUnwtMosGCuWSK
-BDU+esBF7qEXxherzLPJEJVPYW1z3XqLphkxoJ8Ma/9DpLDmItGythWIuMblLHWP
-jWpb3DOgATifO3ZLkyNEp/6m4GMEZN29Xc81BLRgy+NMzaNPofgSflzW1QAHz8H8
-qMtjIHp9zH9h4jn7LoUng1AsEBs4AW/xv5Bul8l4FhrfjSpzTCfb1+kF7QKAr8IW
-0xuLrzW3GSd1/WC7BTnQMDD41d8sgd8YL8RyfFBYsst0L0TXvhgWLCLt7M40X42q
-pUXIKPw/t0MR4uIsD8nQ9ZnWhb4chO2pzGSMabmZQDLeZQvGRBI=
-=ObTl
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrkczcACgkQFA3kzBSg
+KbbwoQ/+KCYGO5O5SkhaWxtb6akUXQgTnvnsoBHa66kJugWnzMyHIVwxCS6hBhRw
+qMtiZ2kiaoQfg+2JNhr2va1a7k+sQBV7xNjMkVJjKwvXEiYsFqOjSMOkf9q+8nAZ
+eTegPYX4f4lcdW5ObBP0GlekMywa29/I7VjfqjPjL462XeCp38aO3dATUomuZcmz
+770Ndja8cEfzO/PCulmGvF9ca/nC8Z1edsxo9YWcWL9+ylGMEfHdByk7njBrmVL1
+4nGkPhLq3sRssrjXKxiHT3S6QcJVSwJAd+zU7vq/kBm16ddpQEacAyeCGghr9RUt
+Kttd1THKLeYdYoamim/I//9UCNZG8eiuQxYNQbYIu1III3QYoxh6hpIqcUS8rene
+o9mKokCxLjEfD8ukzorO/+MbXfFdkUHbQUcnUkYrHGitDpg4fCILFovf9DNJWuO4
++F9PijySeWCD3sEQ/xZR/zm5dVcUe/N4K4p5QIZZSq+ZFFrcbooMSN4JmceUn/E1
+wexz+hBVcsa3h2S6CspDWt7yCZIRoRRiB2TBQo4NswaUX60okf8A+4mpu6ndqFau
+x8FOOk6INLThEvLDxjfuAgxw98piC944eWx3T6oLnT3qz6m+lNKynWOgIhWR2b2w
+QBF+IcqJJFowGzu3hlwcCk2ET5ha2j0PAj78iPZfUUxS8OSlSDM=
+=9Ftn
 -----END PGP SIGNATURE-----
 
---2ub5o5uu6wk62jsg--
+--elwt6h2lmsgibred--
