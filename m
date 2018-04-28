@@ -1,56 +1,74 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: mediatek: use of_device_get_match_data()
-Date: Sat, 28 Apr 2018 15:12:27 +0200
-Message-ID: <20180428131227.u7cuvdhuo3dahsdt@ninjato>
-References: <31f944ab8dfcc1d7b6f03b35657a2a34825b5246.1523347340.git.ryder.lee@mediatek.com>
+Subject: Re: [PATCH v1 - resent 0/5] Add capabilities to i2c-mlxcpld
+Date: Sat, 28 Apr 2018 15:22:40 +0200
+Message-ID: <20180428132240.zyztrixveu6kx22y@ninjato>
+References: <1522159286-41779-1-git-send-email-michaelsh@mellanox.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="elwt6h2lmsgibred"
+        protocol="application/pgp-signature"; boundary="ncvtkuoyl4fjv5nb"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <31f944ab8dfcc1d7b6f03b35657a2a34825b5246.1523347340.git.ryder.lee@mediatek.com>
+In-Reply-To: <1522159286-41779-1-git-send-email-michaelsh@mellanox.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ryder Lee <ryder.lee@mediatek.com>
-Cc: Jun Gao <jun.gao@mediatek.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
+To: michaelsh@mellanox.com
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---elwt6h2lmsgibred
+--ncvtkuoyl4fjv5nb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 16, 2018 at 10:32:52AM +0800, Ryder Lee wrote:
-> The usage of of_device_get_match_data() reduce the code size a bit.
+On Tue, Mar 27, 2018 at 02:01:21PM +0000, michaelsh@mellanox.com wrote:
+> From: Michael Shych <michaelsh@mellanox.com>
 >=20
-> Also, the only way to call mtk_i2c_probe() is to match an entry in
-> mtk_i2c_of_match[], so of_id cannot be NULL.
+> This series is resent (original series has been sent at 5/3/2018).
 >=20
-> Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
+> PATCH1
+>   It adds support for extended length of read and write transactions.
+>=20
+> PATCH2
+>   It adds support for smbus block read transaction.
+>=20
+> PATCH3
+>   Fix report about supported functionality.
+>=20
+> PATCH4
+>   It allows mlxcpld driver to be connected to pre-defined adapter number.
+>=20
+> PATCH5
+>   It adds capability register description to documentation.
+>=20
+> Michael Shych (5):
+>   i2c: busses: Add support for extended transaction length for
+>     i2c-mlxcpld
+>   i2c: busses: Add support for smbus block read transaction
+>   i2c: busses: Fix adapter functionality support callback
+>   i2c: busses: Allow configurable adapter id for mlxcpld
+>   i2c: busses: Add capability register description to documentation
 
 Applied to for-next, thanks!
 
-Does somebody from Mediatek maybe want to maintain this driver?
 
-
---elwt6h2lmsgibred
+--ncvtkuoyl4fjv5nb
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrkczcACgkQFA3kzBSg
-KbbwoQ/+KCYGO5O5SkhaWxtb6akUXQgTnvnsoBHa66kJugWnzMyHIVwxCS6hBhRw
-qMtiZ2kiaoQfg+2JNhr2va1a7k+sQBV7xNjMkVJjKwvXEiYsFqOjSMOkf9q+8nAZ
-eTegPYX4f4lcdW5ObBP0GlekMywa29/I7VjfqjPjL462XeCp38aO3dATUomuZcmz
-770Ndja8cEfzO/PCulmGvF9ca/nC8Z1edsxo9YWcWL9+ylGMEfHdByk7njBrmVL1
-4nGkPhLq3sRssrjXKxiHT3S6QcJVSwJAd+zU7vq/kBm16ddpQEacAyeCGghr9RUt
-Kttd1THKLeYdYoamim/I//9UCNZG8eiuQxYNQbYIu1III3QYoxh6hpIqcUS8rene
-o9mKokCxLjEfD8ukzorO/+MbXfFdkUHbQUcnUkYrHGitDpg4fCILFovf9DNJWuO4
-+F9PijySeWCD3sEQ/xZR/zm5dVcUe/N4K4p5QIZZSq+ZFFrcbooMSN4JmceUn/E1
-wexz+hBVcsa3h2S6CspDWt7yCZIRoRRiB2TBQo4NswaUX60okf8A+4mpu6ndqFau
-x8FOOk6INLThEvLDxjfuAgxw98piC944eWx3T6oLnT3qz6m+lNKynWOgIhWR2b2w
-QBF+IcqJJFowGzu3hlwcCk2ET5ha2j0PAj78iPZfUUxS8OSlSDM=
-=9Ftn
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrkdaAACgkQFA3kzBSg
+KbbFtxAAgYTinU5rcXbSnY2zlnpP5OGdXatWYN098wCL79QFEf5z/x0LIE7seAeG
+NrCZghVXkNpsaiW4OAvR0sE+GfaaQlopoTgmccU0vwjXNKim6nLHBGXqMYwLYCCI
+VjEOUg/eBywD1IVDKWlXmDT6l4w2YFwFBfQzWbpzyx9t/AM9jYSOTUAQqmlp0KGC
+T2qwT2ei1u5PpesY0lYlNH3tMBPHwYeRkYDNiSjqXTQV3jzoVuX88Tclnz8fhnxh
+Cs8pa3x+VhxI1axf4RTvvO8tAdk/KTtQx61VCNBuOcLcBpkJfBBxp4t4aq+ipOOi
+qMyo/Nhte/VB+m3cbv+md9Eyeeux2Cry/pZYiyLbYCHFNghWGb2GM+ZnM2f+gyPT
+QCCH4F6DEYPD+/ZFdFCevoXZCYxZC+bradcnWBSEAqOPyKxv4qolEePPP0v4ynb/
+DKhCvF53eky2Ns7Wxs9tDKJyPug2cLKB0m67k78Bw0MZXVeAarzN+WoxF3UUw3ME
+wpDZm/YyCqwn11VVUtHIU6Za8ko7Ol/2h7cuE9zEVmtSTyJf5TfMHkY9QDE09EKQ
+NPlZ2ciE0w22UVpK/ZKT9PfF2uNUM++6yYZ/qFB4wthqI73Fy/eRdyhc/+liPqEF
+0Ig8g+S0/Wdj0a8NuFRZTif1KDWZpE9dNplIQlQYxkfrI+okQLw=
+=VOov
 -----END PGP SIGNATURE-----
 
---elwt6h2lmsgibred--
+--ncvtkuoyl4fjv5nb--
