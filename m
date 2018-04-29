@@ -1,74 +1,38 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v1 - resent 0/5] Add capabilities to i2c-mlxcpld
-Date: Sat, 28 Apr 2018 15:22:40 +0200
-Message-ID: <20180428132240.zyztrixveu6kx22y@ninjato>
-References: <1522159286-41779-1-git-send-email-michaelsh@mellanox.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v4 03/10] i3c: Add sysfs ABI spec
+Date: Sun, 29 Apr 2018 15:37:00 +0200
+Message-ID: <20180429133700.GD28913@kroah.com>
+References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
+ <20180330074751.25987-4-boris.brezillon@bootlin.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ncvtkuoyl4fjv5nb"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1522159286-41779-1-git-send-email-michaelsh@mellanox.com>
+In-Reply-To: <20180330074751.25987-4-boris.brezillon@bootlin.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: michaelsh@mellanox.com
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>devi
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri, Mar 30, 2018 at 09:47:44AM +0200, Boris Brezillon wrote:
+> Document sysfs files/directories/symlinks exposed by the I3C subsystem.
+> 
+> Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
+> ---
+> Changes in v2:
+> - new patch
+> ---
+>  Documentation/ABI/testing/sysfs-bus-i3c | 95 +++++++++++++++++++++++++++++++++
+>  1 file changed, 95 insertions(+)
+>  create mode 100644 Documentation/ABI/testing/sysfs-bus-i3c
+> 
+> diff --git a/Documentation/ABI/testing/sysfs-bus-i3c b/Documentation/ABI/testing/sysfs-bus-i3c
+> new file mode 100644
+> index 000000000000..5e88cc093e0e
+> --- /dev/null
+> +++ b/Documentation/ABI/testing/sysfs-bus-i3c
+> @@ -0,0 +1,95 @@
+> +What:		/sys/bus/i3c/devices/i3c-<bus-id>
+> +KernelVersion:  4.16
 
---ncvtkuoyl4fjv5nb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Mar 27, 2018 at 02:01:21PM +0000, michaelsh@mellanox.com wrote:
-> From: Michael Shych <michaelsh@mellanox.com>
->=20
-> This series is resent (original series has been sent at 5/3/2018).
->=20
-> PATCH1
->   It adds support for extended length of read and write transactions.
->=20
-> PATCH2
->   It adds support for smbus block read transaction.
->=20
-> PATCH3
->   Fix report about supported functionality.
->=20
-> PATCH4
->   It allows mlxcpld driver to be connected to pre-defined adapter number.
->=20
-> PATCH5
->   It adds capability register description to documentation.
->=20
-> Michael Shych (5):
->   i2c: busses: Add support for extended transaction length for
->     i2c-mlxcpld
->   i2c: busses: Add support for smbus block read transaction
->   i2c: busses: Fix adapter functionality support callback
->   i2c: busses: Allow configurable adapter id for mlxcpld
->   i2c: busses: Add capability register description to documentation
-
-Applied to for-next, thanks!
-
-
---ncvtkuoyl4fjv5nb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrkdaAACgkQFA3kzBSg
-KbbFtxAAgYTinU5rcXbSnY2zlnpP5OGdXatWYN098wCL79QFEf5z/x0LIE7seAeG
-NrCZghVXkNpsaiW4OAvR0sE+GfaaQlopoTgmccU0vwjXNKim6nLHBGXqMYwLYCCI
-VjEOUg/eBywD1IVDKWlXmDT6l4w2YFwFBfQzWbpzyx9t/AM9jYSOTUAQqmlp0KGC
-T2qwT2ei1u5PpesY0lYlNH3tMBPHwYeRkYDNiSjqXTQV3jzoVuX88Tclnz8fhnxh
-Cs8pa3x+VhxI1axf4RTvvO8tAdk/KTtQx61VCNBuOcLcBpkJfBBxp4t4aq+ipOOi
-qMyo/Nhte/VB+m3cbv+md9Eyeeux2Cry/pZYiyLbYCHFNghWGb2GM+ZnM2f+gyPT
-QCCH4F6DEYPD+/ZFdFCevoXZCYxZC+bradcnWBSEAqOPyKxv4qolEePPP0v4ynb/
-DKhCvF53eky2Ns7Wxs9tDKJyPug2cLKB0m67k78Bw0MZXVeAarzN+WoxF3UUw3ME
-wpDZm/YyCqwn11VVUtHIU6Za8ko7Ol/2h7cuE9zEVmtSTyJf5TfMHkY9QDE09EKQ
-NPlZ2ciE0w22UVpK/ZKT9PfF2uNUM++6yYZ/qFB4wthqI73Fy/eRdyhc/+liPqEF
-0Ig8g+S0/Wdj0a8NuFRZTif1KDWZpE9dNplIQlQYxkfrI+okQLw=
-=VOov
------END PGP SIGNATURE-----
-
---ncvtkuoyl4fjv5nb--
+Wrong kernel versions :)
