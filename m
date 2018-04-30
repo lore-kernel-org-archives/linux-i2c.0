@@ -1,48 +1,50 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Subject: Re: [v2 1/1] i2c: dev: prevent ZERO_SIZE_PTR deref in
- i2cdev_ioctl_rdwr()
-Date: Mon, 30 Apr 2018 09:13:10 +0200
-Message-ID: <20180430071310.7s7glgig3cilw4dj@pengutronix.de>
-References: <1524140962-25639-1-git-send-email-alex.popov@linux.com>
- <20180427120658.wi32f7margtfazzp@ninjato>
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Subject: Re: [PATCH v4 03/10] i3c: Add sysfs ABI spec
+Date: Mon, 30 Apr 2018 11:10:14 +0200
+Message-ID: <20180430111014.49083a77@bbrezillon>
+References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
+        <20180330074751.25987-4-boris.brezillon@bootlin.com>
+        <20180429133700.GD28913@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180427120658.wi32f7margtfazzp@ninjato>
+In-Reply-To: <20180429133700.GD28913@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Alexander Popov <alex.popov@linux.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, sil2review@lists.osadl.org, Dmitry Vyukov <dvyukov@google.com>, syzkaller@googlegroups.com
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>devi
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Apr 27, 2018 at 02:06:58PM +0200, Wolfram Sang wrote:
-> On Thu, Apr 19, 2018 at 03:29:22PM +0300, Alexander Popov wrote:
-> > i2cdev_ioctl_rdwr() allocates i2c_msg.buf using memdup_user(), which
-> > returns ZERO_SIZE_PTR if i2c_msg.len is zero.
+Hi Greg,
+
+On Sun, 29 Apr 2018 15:37:00 +0200
+Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+
+> On Fri, Mar 30, 2018 at 09:47:44AM +0200, Boris Brezillon wrote:
+> > Document sysfs files/directories/symlinks exposed by the I3C subsystem.
 > > 
-> > Currently i2cdev_ioctl_rdwr() always dereferences the buf pointer in case
-> > of I2C_M_RD | I2C_M_RECV_LEN transfer. That causes a kernel oops in
-> > case of zero len.
+> > Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
+> > ---
+> > Changes in v2:
+> > - new patch
+> > ---
+> >  Documentation/ABI/testing/sysfs-bus-i3c | 95 +++++++++++++++++++++++++++++++++
+> >  1 file changed, 95 insertions(+)
+> >  create mode 100644 Documentation/ABI/testing/sysfs-bus-i3c
 > > 
-> > Let's check the len against zero before dereferencing buf pointer.
-> > 
-> > This issue was triggered by syzkaller.
-> > 
-> > Signed-off-by: Alexander Popov <alex.popov@linux.com>
+> > diff --git a/Documentation/ABI/testing/sysfs-bus-i3c b/Documentation/ABI/testing/sysfs-bus-i3c
+> > new file mode 100644
+> > index 000000000000..5e88cc093e0e
+> > --- /dev/null
+> > +++ b/Documentation/ABI/testing/sysfs-bus-i3c
+> > @@ -0,0 +1,95 @@
+> > +What:		/sys/bus/i3c/devices/i3c-<bus-id>
+> > +KernelVersion:  4.16  
 > 
-> Applied to for-current with the arithmetic expression changed to '< 1'
-> to keep in sync with the previous one. Will push out soon, so you can
-> double check if you are interested.
+> Wrong kernel versions :)
 
-Thanks, I like it. An added bonus is also that you don't need to think
-about the type of msgs[i].len and what happens if it is negative.
+I'll fix that.
 
-Best regards
-Uwe
+Thanks,
 
-
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Boris
