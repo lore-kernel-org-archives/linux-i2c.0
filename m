@@ -1,54 +1,57 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v4 00/10] Add the I3C subsystem
-Date: Mon, 30 Apr 2018 11:37:50 +0200
-Message-ID: <20180430113750.002d384f@bbrezillon>
-References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
-        <20180423193814.5c8ca75a@bbrezillon>
-        <20180423175646.GA23210@kroah.com>
-        <20180429133642.GC28913@kroah.com>
+From: Tobias Jordan <Tobias.Jordan@elektrobit.com>
+Subject: [PATCH] i2c: axxia: enable clock before calling clk_get_rate()
+Date: Mon, 30 Apr 2018 15:52:44 +0200
+Message-ID: <20180430135244.kud5hf5xjfxg4ufn@agrajag.zerfleddert.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180429133642.GC28913@kroah.com>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Wolfram Sang <wsa@the-dreams.de>, Arnd Bergmann <arnd@arndb.de>
-Cc: linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vitor
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Greg,
+axxia_i2c_init() uses clk_get_rate() for idev->i2c_clk. clk_get_rate()
+should only be called if the clock is enabled, so ensure that by moving
+the clk_prepare_enable() call before the call to axxia_i2c_init().
 
-On Sun, 29 Apr 2018 15:36:42 +0200
-Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+Found by Linux Driver Verification project (linuxtesting.org).
 
-> On Mon, Apr 23, 2018 at 07:56:46PM +0200, Greg Kroah-Hartman wrote:
-> > On Mon, Apr 23, 2018 at 07:38:14PM +0200, Boris Brezillon wrote:  
-> > > Hi,
-> > > 
-> > > On Fri, 30 Mar 2018 09:47:41 +0200
-> > > Boris Brezillon <boris.brezillon@bootlin.com> wrote:
-> > >   
-> > > > This patch series is a proposal for a new I3C subsystem.  
-> > > 
-> > > This v4 has been sent almost a month ago and I didn't get any feedback
-> > > so far apart from Rob's R-b. Greg, is there any chance we can get these
-> > > patches merged in 4.18? If not, could you tell me what should be
-> > > addressed/improved/reworked?  
-> > 
-> > I'll look over it later this week, thanks.  
-> 
-> At first glance, it would be great to have at least one other
-> reviewed-by or signed-off-by on the main code here.  I don't want to be
-> the only one to have to review it :)
+Fixes: 08678b850cd0 ("i2c: axxia: Add I2C driver for AXM55xx")
+Signed-off-by: Tobias Jordan <Tobias.Jordan@elektrobit.com>
+---
+ drivers/i2c/busses/i2c-axxia.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-I understand. Arnd, Wolfram, any chance you could spend some time
-reviewing this patch series? I know Arnd is in vacation for the next few
-weeks, so I don't expect him to be able to do that immediately. Also,
-Wolfram stated that he didn't have time to review the series in details
-when I submitted the v1, I don't know if things have changed since then.
-
-Anyway, I'll keep searching for people to review the code.
-
-Regards,
-
-Boris
+diff --git a/drivers/i2c/busses/i2c-axxia.c b/drivers/i2c/busses/i2c-axxia.c
+index 13f07482ec68..51338c48d193 100644
+--- a/drivers/i2c/busses/i2c-axxia.c
++++ b/drivers/i2c/busses/i2c-axxia.c
+@@ -532,6 +532,12 @@ static int axxia_i2c_probe(struct platform_device *pdev)
+ 	if (idev->bus_clk_rate == 0)
+ 		idev->bus_clk_rate = 100000;	/* default clock rate */
+ 
++	ret = clk_prepare_enable(idev->i2c_clk);
++	if (ret) {
++		dev_err(&pdev->dev, "failed to enable clock\n");
++		return ret;
++	}
++
+ 	ret = axxia_i2c_init(idev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to initialize\n");
+@@ -545,12 +551,6 @@ static int axxia_i2c_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	ret = clk_prepare_enable(idev->i2c_clk);
+-	if (ret) {
+-		dev_err(&pdev->dev, "failed to enable clock\n");
+-		return ret;
+-	}
+-
+ 	i2c_set_adapdata(&idev->adapter, idev);
+ 	strlcpy(idev->adapter.name, pdev->name, sizeof(idev->adapter.name));
+ 	idev->adapter.owner = THIS_MODULE;
+-- 
+2.11.0
