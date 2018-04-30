@@ -1,7 +1,7 @@
 From: Tobias Jordan <Tobias.Jordan@elektrobit.com>
-Subject: [PATCH] i2c: axxia: enable clock before calling clk_get_rate()
-Date: Mon, 30 Apr 2018 15:52:44 +0200
-Message-ID: <20180430135244.kud5hf5xjfxg4ufn@agrajag.zerfleddert.de>
+Subject: [PATCH v2] i2c: axxia: enable clock before calling clk_get_rate()
+Date: Mon, 30 Apr 2018 16:49:29 +0200
+Message-ID: <20180430144929.ld6wjyyrorrj5kcr@agrajag.zerfleddert.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -20,14 +20,19 @@ Found by Linux Driver Verification project (linuxtesting.org).
 Fixes: 08678b850cd0 ("i2c: axxia: Add I2C driver for AXM55xx")
 Signed-off-by: Tobias Jordan <Tobias.Jordan@elektrobit.com>
 ---
- drivers/i2c/busses/i2c-axxia.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+v2:
+first version of the patch ignored that the clock should be disabled in
+case we bail out later...
+compile-tested and coccichecked.
+
+ drivers/i2c/busses/i2c-axxia.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-axxia.c b/drivers/i2c/busses/i2c-axxia.c
-index 13f07482ec68..51338c48d193 100644
+index 13f07482ec68..12f92369888b 100644
 --- a/drivers/i2c/busses/i2c-axxia.c
 +++ b/drivers/i2c/busses/i2c-axxia.c
-@@ -532,6 +532,12 @@ static int axxia_i2c_probe(struct platform_device *pdev)
+@@ -532,23 +532,23 @@ static int axxia_i2c_probe(struct platform_device *pdev)
  	if (idev->bus_clk_rate == 0)
  		idev->bus_clk_rate = 100000;	/* default clock rate */
  
@@ -40,18 +45,43 @@ index 13f07482ec68..51338c48d193 100644
  	ret = axxia_i2c_init(idev);
  	if (ret) {
  		dev_err(&pdev->dev, "failed to initialize\n");
-@@ -545,12 +551,6 @@ static int axxia_i2c_probe(struct platform_device *pdev)
- 		return ret;
+-		return ret;
++		goto error_disable_clk;
  	}
  
+ 	ret = devm_request_irq(&pdev->dev, irq, axxia_i2c_isr, 0,
+ 			       pdev->name, idev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to claim IRQ%d\n", irq);
+-		return ret;
+-	}
+-
 -	ret = clk_prepare_enable(idev->i2c_clk);
 -	if (ret) {
 -		dev_err(&pdev->dev, "failed to enable clock\n");
 -		return ret;
--	}
--
++		goto error_disable_clk;
+ 	}
+ 
  	i2c_set_adapdata(&idev->adapter, idev);
- 	strlcpy(idev->adapter.name, pdev->name, sizeof(idev->adapter.name));
- 	idev->adapter.owner = THIS_MODULE;
+@@ -563,12 +563,14 @@ static int axxia_i2c_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, idev);
+ 
+ 	ret = i2c_add_adapter(&idev->adapter);
+-	if (ret) {
+-		clk_disable_unprepare(idev->i2c_clk);
+-		return ret;
+-	}
++	if (ret)
++		goto error_disable_clk;
+ 
+ 	return 0;
++
++error_disable_clk:
++	clk_disable_unprepare(idev->i2c_clk);
++	return ret;
+ }
+ 
+ static int axxia_i2c_remove(struct platform_device *pdev)
 -- 
 2.11.0
