@@ -1,40 +1,51 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v4 00/10] Add the I3C subsystem
-Date: Sun, 29 Apr 2018 15:36:42 +0200
-Message-ID: <20180429133642.GC28913@kroah.com>
-References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
- <20180423193814.5c8ca75a@bbrezillon>
- <20180423175646.GA23210@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Wenwen Wang <wang6495@umn.edu>
+Subject: [PATCH] i2c: core-smbus: fix a potential uninitialization bug
+Date: Mon, 30 Apr 2018 00:53:38 -0500
+Message-ID: <1525067618-836-1-git-send-email-wang6495@umn.edu>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180423175646.GA23210@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>devi
+To: Wenwen Wang <wang6495@umn.edu>
+Cc: Kangjie Lu <kjlu@umn.edu>, Wolfram Sang <wsa@the-dreams.de>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 23, 2018 at 07:56:46PM +0200, Greg Kroah-Hartman wrote:
-> On Mon, Apr 23, 2018 at 07:38:14PM +0200, Boris Brezillon wrote:
-> > Hi,
-> > 
-> > On Fri, 30 Mar 2018 09:47:41 +0200
-> > Boris Brezillon <boris.brezillon@bootlin.com> wrote:
-> > 
-> > > This patch series is a proposal for a new I3C subsystem.
-> > 
-> > This v4 has been sent almost a month ago and I didn't get any feedback
-> > so far apart from Rob's R-b. Greg, is there any chance we can get these
-> > patches merged in 4.18? If not, could you tell me what should be
-> > addressed/improved/reworked?
-> 
-> I'll look over it later this week, thanks.
+In i2c_smbus_xfer_emulated(), there are two buffers: msgbuf0 and msgbuf1,
+which are used to save a series of messages, as mentioned in the comment.
+According to the value of the variable "size", msgbuf0 is initialized to
+various values. In contrast, msgbuf1 is left uninitialized until the
+function i2c_transfer() is invoked. However, mgsbuf1 is not always
+initialized on all possible execution paths (implementation) of
+i2c_transfer(). Thus, it is possible that mgsbuf1 may still not be
+uninitialized even after the invocation of the function i2c_transfer(). In
+the following execution, the uninitialized msgbuf1 will be used, such as
+for security checks. Since uninitialized values can be random and
+arbitrary, this will cause undefined behaviors or even check bypass. For
+example, it is expected that if the value of "size" is
+I2C_SMBUS_BLOCK_PROC_CALL, the value of data->block[0] should not be larger
+than I2C_SMBUS_BLOCK_MAX. But, at the end of i2c_smbus_xfer_emulated(), the
+value read from msgbuf1 is assigned to data->block[0], which can
+potentially lead to invalid block write size, as demonstrated in the error
+message.
 
-At first glance, it would be great to have at least one other
-reviewed-by or signed-off-by on the main code here.  I don't want to be
-the only one to have to review it :)
+This patch simply initializes the buffer msgbuf1 with 0 to avoid undefined
+behaviors or security issues.
 
-thanks,
+Signed-off-by: Wenwen Wang <wang6495@umn.edu>
+---
+ drivers/i2c/i2c-core-smbus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-greg k-h
+diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
+index b5aec33..0fcca75 100644
+--- a/drivers/i2c/i2c-core-smbus.c
++++ b/drivers/i2c/i2c-core-smbus.c
+@@ -324,7 +324,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+ 	 * somewhat simpler.
+ 	 */
+ 	unsigned char msgbuf0[I2C_SMBUS_BLOCK_MAX+3];
+-	unsigned char msgbuf1[I2C_SMBUS_BLOCK_MAX+2];
++	unsigned char msgbuf1[I2C_SMBUS_BLOCK_MAX+2] = {0};
+ 	int num = read_write == I2C_SMBUS_READ ? 2 : 1;
+ 	int i;
+ 	u8 partial_pec = 0;
+-- 
+2.7.4
