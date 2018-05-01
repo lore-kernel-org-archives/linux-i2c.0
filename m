@@ -1,53 +1,43 @@
-From: Mike Looijmans <mike.looijmans@topic.nl>
-Subject: [PATCH] i2c-mux-pca954x: Force reset on probe if available
-Date: Tue,  1 May 2018 13:42:12 +0200
-Message-ID: <1525174932-8865-1-git-send-email-mike.looijmans@topic.nl>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [RFC 01/10] ARM: dts: exynos: Remove Exynos5440
+Date: Tue, 1 May 2018 09:07:25 -0500
+Message-ID: <20180501140725.GA25487@rob-hp-laptop>
+References: <20180424203239.21885-1-krzk@kernel.org>
+ <20180424203239.21885-2-krzk@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180424203239.21885-2-krzk@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: peda@axentia.se, linux-kernel@vger.kernel.org, Mike Looijmans <mike.looijmans@topic.nl>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Kukjin Kim <kgene@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Tejun Heo <tj@kernel.org>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Tomasz Figa <tomasz.figa@gmail.com>, Chanwoo Choi <cw00.choi@samsung.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Viresh Kumar <viresh.kumar@linaro.org>, Zhang Rui <rui.zhang@intel.com>, Eduardo Valentin <edubezval@gmail.com>, Russell King <linux@armlinux.org.uk>, Hans de Goede <hdegoede@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Andi Shyti <andi@etezian.org>, Mark Brown <broonie@kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Alan Stern <stern@rowland.harvard.edu>, Greg Kroah-Hartman <gregkh@linuxfounda>
 List-Id: linux-i2c@vger.kernel.org
 
-Instead of just hogging the reset GPIO into deactivated state, activate and
-then de-activate the reset. This allows for better recovery if the CPU was
-reset halfway through an I2C transaction for example.
+On Tue, Apr 24, 2018 at 10:32:30PM +0200, Krzysztof Kozlowski wrote:
+> The Exynos5440 (quad-core A15 with GMAC, PCIe, SATA) was targeting
+> server platforms but it did not make it to the market really.  There are
+> no development boards with it and probably there are no real products
+> neither.  The development for Exynos5440 ended in 2013 and since then
+> the platform is in maintenance mode.
+> 
+> Remove all Device Tree sources for Exynos5440, as first step of removal
+> of the platform to simplify the code and drivers.
+> 
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> ---
+>  .../bindings/arm/samsung/samsung-boards.txt        |   2 -
+>  arch/arm/boot/dts/Makefile                         |   2 -
+>  arch/arm/boot/dts/exynos5440-sd5v1.dts             |  42 ---
+>  arch/arm/boot/dts/exynos5440-ssdk5440.dts          |  81 -----
+>  arch/arm/boot/dts/exynos5440-tmu-sensor-conf.dtsi  |  20 --
+>  arch/arm/boot/dts/exynos5440-trip-points.dtsi      |  21 --
+>  arch/arm/boot/dts/exynos5440.dtsi                  | 355 ---------------------
+>  7 files changed, 523 deletions(-)
+>  delete mode 100644 arch/arm/boot/dts/exynos5440-sd5v1.dts
+>  delete mode 100644 arch/arm/boot/dts/exynos5440-ssdk5440.dts
+>  delete mode 100644 arch/arm/boot/dts/exynos5440-tmu-sensor-conf.dtsi
+>  delete mode 100644 arch/arm/boot/dts/exynos5440-trip-points.dtsi
+>  delete mode 100644 arch/arm/boot/dts/exynos5440.dtsi
 
-Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
----
- drivers/i2c/muxes/i2c-mux-pca954x.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 09bafd3..13e10d0 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -36,6 +36,7 @@
-  */
- 
- #include <linux/device.h>
-+#include <linux/delay.h>
- #include <linux/gpio/consumer.h>
- #include <linux/i2c.h>
- #include <linux/i2c-mux.h>
-@@ -389,10 +390,17 @@ static int pca954x_probe(struct i2c_client *client,
- 	i2c_set_clientdata(client, muxc);
- 	data->client = client;
- 
--	/* Get the mux out of reset if a reset GPIO is specified. */
--	gpio = devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_LOW);
-+	/* Reset the mux if a reset GPIO is specified. */
-+	gpio = devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_HIGH);
- 	if (IS_ERR(gpio))
- 		return PTR_ERR(gpio);
-+	if (gpio) {
-+		/* Datasheet specifies a 4 ns reset-low time */
-+		udelay(1);
-+		gpiod_set_value_cansleep(gpio, 0);
-+		/* Datasheet specifies a 500 ns reset recovery time */
-+		udelay(1);
-+	}
- 
- 	match = of_match_device(of_match_ptr(pca954x_of_match), &client->dev);
- 	if (match)
--- 
-1.9.1
+Reviewed-by: Rob Herring <robh@kernel.org>
