@@ -1,62 +1,51 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH v4 03/10] i3c: Add sysfs ABI spec
-Date: Wed, 2 May 2018 13:32:04 +0200
-Message-ID: <CAMuHMdWgmPOntSQH0artOgBf4GrxOHJmHX8gyw1gmAW0ichPyg@mail.gmail.com>
-References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
- <20180330074751.25987-4-boris.brezillon@bootlin.com> <20180429133700.GD28913@kroah.com>
- <CAMuHMdUe=zauTS7BQXyTvMbmc-AsEVdWN0gG_3Ejg3E4T-xFXQ@mail.gmail.com> <20180502111046.GA22091@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Wenwen Wang <wang6495@umn.edu>
+Subject: [PATCH] i2c: core-smbus: fix a potential uninitialization bug
+Date: Wed,  2 May 2018 17:36:21 -0500
+Message-ID: <1525300581-27217-1-git-send-email-wang6495@umn.edu>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180502111046.GA22091@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Boris Brezillon <boris.brezillon@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+>
+To: Wenwen Wang <wang6495@umn.edu>
+Cc: Kangjie Lu <kjlu@umn.edu>, Wolfram Sang <wsa@the-dreams.de>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Greg,
+In i2c_smbus_xfer_emulated(), there are two buffers: msgbuf0 and msgbuf1,
+which are used to save a series of messages, as mentioned in the comment.
+According to the value of the variable "size", msgbuf0 is initialized to
+various values. In contrast, msgbuf1 is left uninitialized until the
+function i2c_transfer() is invoked. However, mgsbuf1 is not always
+initialized on all possible execution paths (implementation) of
+i2c_transfer(). Thus, it is possible that mgsbuf1 may still not be
+uninitialized even after the invocation of the function i2c_transfer(). In
+the following execution, the uninitialized msgbuf1 will be used, such as
+for security checks. Since uninitialized values can be random and
+arbitrary, this will cause undefined behaviors or even check bypass. For
+example, it is expected that if the value of "size" is
+I2C_SMBUS_BLOCK_PROC_CALL, the value of data->block[0] should not be larger
+than I2C_SMBUS_BLOCK_MAX. But, at the end of i2c_smbus_xfer_emulated(), the
+value read from msgbuf1 is assigned to data->block[0], which can
+potentially lead to invalid block write size, as demonstrated in the error
+message.
 
-On Wed, May 2, 2018 at 1:10 PM, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
-> On Wed, May 02, 2018 at 11:47:49AM +0200, Geert Uytterhoeven wrote:
->> On Sun, Apr 29, 2018 at 3:37 PM, Greg Kroah-Hartman
->> <gregkh@linuxfoundation.org> wrote:
->> > On Fri, Mar 30, 2018 at 09:47:44AM +0200, Boris Brezillon wrote:
->> >> Document sysfs files/directories/symlinks exposed by the I3C subsystem.
->> >>
->> >> Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
->> >> ---
->> >> Changes in v2:
->> >> - new patch
->> >> ---
->> >>  Documentation/ABI/testing/sysfs-bus-i3c | 95 +++++++++++++++++++++++++++++++++
->> >>  1 file changed, 95 insertions(+)
->> >>  create mode 100644 Documentation/ABI/testing/sysfs-bus-i3c
->> >>
->> >> diff --git a/Documentation/ABI/testing/sysfs-bus-i3c b/Documentation/ABI/testing/sysfs-bus-i3c
->> >> new file mode 100644
->> >> index 000000000000..5e88cc093e0e
->> >> --- /dev/null
->> >> +++ b/Documentation/ABI/testing/sysfs-bus-i3c
->> >> @@ -0,0 +1,95 @@
->> >> +What:                /sys/bus/i3c/devices/i3c-<bus-id>
->> >> +KernelVersion:  4.16
->> >
->> > Wrong kernel versions :)
->>
->> Do you update these when backporting to stable? ;-)
->
-> I'm not adding new features/subsystems to stable :)
+This patch simply initializes the buffer msgbuf1 with 0 to avoid undefined
+behaviors or security issues.
 
-True. So let's leave that for the LTSI patch monkey ;-)
+Signed-off-by: Wenwen Wang <wang6495@umn.edu>
+---
+ drivers/i2c/i2c-core-smbus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Gr{oetje,eeting}s,
-
-                        Geert
-
+diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
+index b5aec33..0fcca75 100644
+--- a/drivers/i2c/i2c-core-smbus.c
++++ b/drivers/i2c/i2c-core-smbus.c
+@@ -324,7 +324,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+ 	 * somewhat simpler.
+ 	 */
+ 	unsigned char msgbuf0[I2C_SMBUS_BLOCK_MAX+3];
+-	unsigned char msgbuf1[I2C_SMBUS_BLOCK_MAX+2];
++	unsigned char msgbuf1[I2C_SMBUS_BLOCK_MAX+2] = {0};
+ 	int num = read_write == I2C_SMBUS_READ ? 2 : 1;
+ 	int i;
+ 	u8 partial_pec = 0;
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+2.7.4
