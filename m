@@ -1,32 +1,54 @@
-From: Baolin Wang <baolin.wang@linaro.org>
-Subject: Re: [PATCH 1/2] i2c: sprd: Prevent i2c accesses after suspend is called
-Date: Wed, 2 May 2018 13:48:47 +0800
-Message-ID: <CAMz4kuJAzr-ybCCmjx_Tcdw6qNYN0wLGQgWsb1H0WEkR4ZpyYg@mail.gmail.com>
-References: <99031524fa147e72451d26f54b24f36093c0d3fa.1523255712.git.baolin.wang@linaro.org>
- <20180427121417.auv4ppryegkprv32@ninjato> <CAMz4kuK3fyBhdrUcLvY0s0N-0yY9_0MrAAi9cWdX1ZfdNW+R0w@mail.gmail.com>
- <20180502052336.i5f4yv2ho3za7qa7@tetsubishi>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v4 03/10] i3c: Add sysfs ABI spec
+Date: Wed, 2 May 2018 11:47:49 +0200
+Message-ID: <CAMuHMdUe=zauTS7BQXyTvMbmc-AsEVdWN0gG_3Ejg3E4T-xFXQ@mail.gmail.com>
+References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
+ <20180330074751.25987-4-boris.brezillon@bootlin.com> <20180429133700.GD28913@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180502052336.i5f4yv2ho3za7qa7@tetsubishi>
+In-Reply-To: <20180429133700.GD28913@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Mark Brown <broonie@kernel.org>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Boris Brezillon <boris.brezillon@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2 May 2018 at 13:23, Wolfram Sang <wsa@the-dreams.de> wrote:
->
->> > We should maybe handle this in the core somewhen, though. Or?
->>
->> Thanks. Yes, It will more helpful if we can handle this in the i2c core.
->
-> To understand the issue better: which kind of devices in your system
-> still send I2C transfers when the system is going to suspend? Do you
-> know?
+Hi Greg,
 
-Now we found the touch screen device will trigger I2C transfers when
-the system is going to suspend.
+On Sun, Apr 29, 2018 at 3:37 PM, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+> On Fri, Mar 30, 2018 at 09:47:44AM +0200, Boris Brezillon wrote:
+>> Document sysfs files/directories/symlinks exposed by the I3C subsystem.
+>>
+>> Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
+>> ---
+>> Changes in v2:
+>> - new patch
+>> ---
+>>  Documentation/ABI/testing/sysfs-bus-i3c | 95 +++++++++++++++++++++++++++++++++
+>>  1 file changed, 95 insertions(+)
+>>  create mode 100644 Documentation/ABI/testing/sysfs-bus-i3c
+>>
+>> diff --git a/Documentation/ABI/testing/sysfs-bus-i3c b/Documentation/ABI/testing/sysfs-bus-i3c
+>> new file mode 100644
+>> index 000000000000..5e88cc093e0e
+>> --- /dev/null
+>> +++ b/Documentation/ABI/testing/sysfs-bus-i3c
+>> @@ -0,0 +1,95 @@
+>> +What:                /sys/bus/i3c/devices/i3c-<bus-id>
+>> +KernelVersion:  4.16
+>
+> Wrong kernel versions :)
+
+Do you update these when backporting to stable? ;-)
+
+Gr{oetje,eeting}s,
+
+                        Geert
 
 -- 
-Baolin.wang
-Best Regards
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
