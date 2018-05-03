@@ -1,50 +1,68 @@
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-Subject: Re: [PATCH 1/2] i2c: sprd: Prevent i2c accesses after suspend is
- called
-Date: Thu, 3 May 2018 11:26:48 -0500
-Message-ID: <3485f73f-e356-6db0-89fc-d51bf8bdab71@ti.com>
-References: <99031524fa147e72451d26f54b24f36093c0d3fa.1523255712.git.baolin.wang@linaro.org>
- <20180427121417.auv4ppryegkprv32@ninjato>
- <CAMz4kuK3fyBhdrUcLvY0s0N-0yY9_0MrAAi9cWdX1ZfdNW+R0w@mail.gmail.com>
- <20180502052336.i5f4yv2ho3za7qa7@tetsubishi>
- <CAMz4kuJAzr-ybCCmjx_Tcdw6qNYN0wLGQgWsb1H0WEkR4ZpyYg@mail.gmail.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH] i2c: core-smbus: fix a potential uninitialization bug
+Date: Thu, 3 May 2018 22:34:06 +0200
+Message-ID: <4390a69e-a297-313d-044d-abf846eff1d1@axentia.se>
+References: <1525300581-27217-1-git-send-email-wang6495@umn.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMz4kuJAzr-ybCCmjx_Tcdw6qNYN0wLGQgWsb1H0WEkR4ZpyYg@mail.gmail.com>
+In-Reply-To: <1525300581-27217-1-git-send-email-wang6495@umn.edu>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Baolin Wang <baolin.wang@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Mark Brown <broonie@kernel.org>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: Wenwen Wang <wang6495@umn.edu>
+Cc: Kangjie Lu <kjlu@umn.edu>, Wolfram Sang <wsa@the-dreams.de>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 2018-05-03 00:36, Wenwen Wang wrote:
+> In i2c_smbus_xfer_emulated(), there are two buffers: msgbuf0 and msgbuf1,
+> which are used to save a series of messages, as mentioned in the comment.
+> According to the value of the variable "size", msgbuf0 is initialized to
+> various values. In contrast, msgbuf1 is left uninitialized until the
+> function i2c_transfer() is invoked. However, mgsbuf1 is not always
+> initialized on all possible execution paths (implementation) of
+> i2c_transfer(). Thus, it is possible that mgsbuf1 may still not be
 
+double negation here
 
-On 05/02/2018 12:48 AM, Baolin Wang wrote:
-> On 2 May 2018 at 13:23, Wolfram Sang <wsa@the-dreams.de> wrote:
->>
->>>> We should maybe handle this in the core somewhen, though. Or?
->>>
->>> Thanks. Yes, It will more helpful if we can handle this in the i2c core.
->>
->> To understand the issue better: which kind of devices in your system
->> still send I2C transfers when the system is going to suspend? Do you
->> know?
+> uninitialized even after the invocation of the function i2c_transfer(). In
+> the following execution, the uninitialized msgbuf1 will be used, such as
+> for security checks. Since uninitialized values can be random and
+> arbitrary, this will cause undefined behaviors or even check bypass. For
+> example, it is expected that if the value of "size" is
+> I2C_SMBUS_BLOCK_PROC_CALL, the value of data->block[0] should not be larger
+> than I2C_SMBUS_BLOCK_MAX. But, at the end of i2c_smbus_xfer_emulated(), the
+> value read from msgbuf1 is assigned to data->block[0], which can
+> potentially lead to invalid block write size, as demonstrated in the error
+> message.
 > 
-> Now we found the touch screen device will trigger I2C transfers when
-> the system is going to suspend.
+> This patch simply initializes the buffer msgbuf1 with 0 to avoid undefined
+> behaviors or security issues.
 > 
+> Signed-off-by: Wenwen Wang <wang6495@umn.edu>
+> ---
+>  drivers/i2c/i2c-core-smbus.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
+> index b5aec33..0fcca75 100644
+> --- a/drivers/i2c/i2c-core-smbus.c
+> +++ b/drivers/i2c/i2c-core-smbus.c
+> @@ -324,7 +324,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+>  	 * somewhat simpler.
+>  	 */
+>  	unsigned char msgbuf0[I2C_SMBUS_BLOCK_MAX+3];
+> -	unsigned char msgbuf1[I2C_SMBUS_BLOCK_MAX+2];
+> +	unsigned char msgbuf1[I2C_SMBUS_BLOCK_MAX+2] = {0};
 
-And you have to fix it (touch screen) - not your i2c driver. Otherwise, you can get
-situation when set of I2C transfers (executed from some kthread/work/threaded_irq/..)
-will be just interrupted in the middle - usual behavior after this is (I2C timeout) [and/or
-not-functional I2C client device [and/or I2C bus stuck (worst case)].
+I think this will result in the whole of msgbuf1 being filled with zeroes.
+It might be cheaper to do this with code proper rather than with an
+initializer?
 
-In case, somebody is trying to access I2C after .suspend_noirq() stage I2C bus driver 
-should produce big fat warning and, most probably, abort suspend.
-Above, in general, can be part of I2C core functionality.
+Cheers,
+Peter
 
--- 
-regards,
--grygorii
+>  	int num = read_write == I2C_SMBUS_READ ? 2 : 1;
+>  	int i;
+>  	u8 partial_pec = 0;
+> 
