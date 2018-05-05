@@ -1,46 +1,187 @@
-From: Wenwen Wang <wang6495@umn.edu>
-Subject: [PATCH v2 2/2] i2c: core-smbus: fix a potential missing-check bug
-Date: Sat,  5 May 2018 08:02:21 -0500
-Message-ID: <1525525341-10046-1-git-send-email-wang6495@umn.edu>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wenwen Wang <wang6495@umn.edu>
-Cc: Kangjie Lu <kjlu@umn.edu>, Wolfram Sang <wsa@the-dreams.de>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: Re: [PATCH 1/7] i2c: i2c-gpio: move header to platform_data
+Date: Sat, 5 May 2018 10:26:37 -0300
+Message-ID: <20180505102637.76ab7c41@vento.lan>
+References: <20180419200015.15095-1-wsa@the-dreams.de>
+ <20180419200015.15095-2-wsa@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180419200015.15095-2-wsa@the-dreams.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, linux-omap@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Aaro Koskinen <aaro.koskinen@iki.fi>, Tony Lindgren <tony@atomide.com>, James Hogan <jhogan@kernel.org>, Sergey Lapin <slapin@ossfans.org>, Jonathan Corbet <corbet@lwn.net>, Russell King <linux@armlinux.org.uk>, Haojian Zhuang <haojian.zhuang@gmail.com>, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, Greg Ungerer <gerg@uclinux.org>, Lee Jones <lee.jones@linaro.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Daniel Mack <daniel@zonque.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-In i2c_smbus_xfer_emulated(), the function i2c_transfer() is invoked to
-transfer i2c messages. The number of actual transferred messages is
-returned and saved to 'status'. If 'status' is negative, that means an
-error occurred during the transfer process. In that case, the value of
-'status' is an error code to indicate the reason of the transfer failure.
-In most cases, i2c_transfer() can transfer 'num' messages with no error.
-And so 'status' == 'num'. However, due to unexpected errors, it is probable
-that only partial messages are transferred by i2c_transfer(). As a result,
-'status' != 'num'. This special case is not checked after the invocation of
-i2c_transfer() and can potentially lead to unexpected issues in the
-following execution since it is expected that 'status' == 'num'.
+Em Thu, 19 Apr 2018 22:00:07 +0200
+Wolfram Sang <wsa@the-dreams.de> escreveu:
 
-This patch checks the return value of i2c_transfer() and returns an error
-code -EIO if the number of actual transferred messages 'status' is not
-equal to 'num'.
+> This header only contains platform_data. Move it to the proper directory.
+> 
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+>  MAINTAINERS                                      | 2 +-
+>  arch/arm/mach-ks8695/board-acs5k.c               | 2 +-
+>  arch/arm/mach-omap1/board-htcherald.c            | 2 +-
+>  arch/arm/mach-pxa/palmz72.c                      | 2 +-
+>  arch/arm/mach-pxa/viper.c                        | 2 +-
+>  arch/arm/mach-sa1100/simpad.c                    | 2 +-
+>  arch/mips/alchemy/board-gpr.c                    | 2 +-
+>  drivers/i2c/busses/i2c-gpio.c                    | 2 +-
 
-Signed-off-by: Wenwen Wang <wang6495@umn.edu>
----
- drivers/i2c/i2c-core-smbus.c | 2 ++
- 1 file changed, 2 insertions(+)
+>  drivers/media/platform/marvell-ccic/mmp-driver.c | 2 +-
+Acked-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 
-diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
-index 7d7700f..e7a2d2f 100644
---- a/drivers/i2c/i2c-core-smbus.c
-+++ b/drivers/i2c/i2c-core-smbus.c
-@@ -467,6 +467,8 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
- 	status = i2c_transfer(adapter, msg, num);
- 	if (status < 0)
- 		return status;
-+	if (status != num)
-+		return -EIO;
- 
- 	/* Check PEC if last message is a read */
- 	if (i && (msg[num-1].flags & I2C_M_RD)) {
--- 
-2.7.4
+>  drivers/mfd/sm501.c                              | 2 +-
+>  include/linux/{ => platform_data}/i2c-gpio.h     | 0
+>  11 files changed, 10 insertions(+), 10 deletions(-)
+>  rename include/linux/{ => platform_data}/i2c-gpio.h (100%)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 0a1410d5a621..7aad64b62102 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -5872,7 +5872,7 @@ GENERIC GPIO I2C DRIVER
+>  M:	Haavard Skinnemoen <hskinnemoen@gmail.com>
+>  S:	Supported
+>  F:	drivers/i2c/busses/i2c-gpio.c
+> -F:	include/linux/i2c-gpio.h
+> +F:	include/linux/platform_data/i2c-gpio.h
+>  
+>  GENERIC GPIO I2C MULTIPLEXER DRIVER
+>  M:	Peter Korsgaard <peter.korsgaard@barco.com>
+> diff --git a/arch/arm/mach-ks8695/board-acs5k.c b/arch/arm/mach-ks8695/board-acs5k.c
+> index 937eb1d47e7b..ef835d82cdb9 100644
+> --- a/arch/arm/mach-ks8695/board-acs5k.c
+> +++ b/arch/arm/mach-ks8695/board-acs5k.c
+> @@ -19,7 +19,7 @@
+>  #include <linux/gpio/machine.h>
+>  #include <linux/i2c.h>
+>  #include <linux/i2c-algo-bit.h>
+> -#include <linux/i2c-gpio.h>
+> +#include <linux/platform_data/i2c-gpio.h>
+>  #include <linux/platform_data/pca953x.h>
+>  
+>  #include <linux/mtd/mtd.h>
+> diff --git a/arch/arm/mach-omap1/board-htcherald.c b/arch/arm/mach-omap1/board-htcherald.c
+> index 67d46690a56e..da8f3fc3180f 100644
+> --- a/arch/arm/mach-omap1/board-htcherald.c
+> +++ b/arch/arm/mach-omap1/board-htcherald.c
+> @@ -31,7 +31,7 @@
+>  #include <linux/gpio.h>
+>  #include <linux/gpio_keys.h>
+>  #include <linux/i2c.h>
+> -#include <linux/i2c-gpio.h>
+> +#include <linux/platform_data/i2c-gpio.h>
+>  #include <linux/htcpld.h>
+>  #include <linux/leds.h>
+>  #include <linux/spi/spi.h>
+> diff --git a/arch/arm/mach-pxa/palmz72.c b/arch/arm/mach-pxa/palmz72.c
+> index 5877e547cecd..c053c8ce1586 100644
+> --- a/arch/arm/mach-pxa/palmz72.c
+> +++ b/arch/arm/mach-pxa/palmz72.c
+> @@ -30,7 +30,7 @@
+>  #include <linux/wm97xx.h>
+>  #include <linux/power_supply.h>
+>  #include <linux/usb/gpio_vbus.h>
+> -#include <linux/i2c-gpio.h>
+> +#include <linux/platform_data/i2c-gpio.h>
+>  #include <linux/gpio/machine.h>
+>  
+>  #include <asm/mach-types.h>
+> diff --git a/arch/arm/mach-pxa/viper.c b/arch/arm/mach-pxa/viper.c
+> index 90d0f277de55..39e05b7008d8 100644
+> --- a/arch/arm/mach-pxa/viper.c
+> +++ b/arch/arm/mach-pxa/viper.c
+> @@ -35,7 +35,7 @@
+>  #include <linux/sched.h>
+>  #include <linux/gpio.h>
+>  #include <linux/jiffies.h>
+> -#include <linux/i2c-gpio.h>
+> +#include <linux/platform_data/i2c-gpio.h>
+>  #include <linux/gpio/machine.h>
+>  #include <linux/platform_data/i2c-pxa.h>
+>  #include <linux/serial_8250.h>
+> diff --git a/arch/arm/mach-sa1100/simpad.c b/arch/arm/mach-sa1100/simpad.c
+> index ace010479eb6..49a61e6f3c5f 100644
+> --- a/arch/arm/mach-sa1100/simpad.c
+> +++ b/arch/arm/mach-sa1100/simpad.c
+> @@ -37,7 +37,7 @@
+>  #include <linux/input.h>
+>  #include <linux/gpio_keys.h>
+>  #include <linux/leds.h>
+> -#include <linux/i2c-gpio.h>
+> +#include <linux/platform_data/i2c-gpio.h>
+>  
+>  #include "generic.h"
+>  
+> diff --git a/arch/mips/alchemy/board-gpr.c b/arch/mips/alchemy/board-gpr.c
+> index 4e79dbd54a33..fa75d75b5ba9 100644
+> --- a/arch/mips/alchemy/board-gpr.c
+> +++ b/arch/mips/alchemy/board-gpr.c
+> @@ -29,7 +29,7 @@
+>  #include <linux/leds.h>
+>  #include <linux/gpio.h>
+>  #include <linux/i2c.h>
+> -#include <linux/i2c-gpio.h>
+> +#include <linux/platform_data/i2c-gpio.h>
+>  #include <linux/gpio/machine.h>
+>  #include <asm/bootinfo.h>
+>  #include <asm/idle.h>
+> diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+> index 58abb3eced58..005e6e0330c2 100644
+> --- a/drivers/i2c/busses/i2c-gpio.c
+> +++ b/drivers/i2c/busses/i2c-gpio.c
+> @@ -11,7 +11,7 @@
+>  #include <linux/delay.h>
+>  #include <linux/i2c.h>
+>  #include <linux/i2c-algo-bit.h>
+> -#include <linux/i2c-gpio.h>
+> +#include <linux/platform_data/i2c-gpio.h>
+>  #include <linux/init.h>
+>  #include <linux/module.h>
+>  #include <linux/slab.h>
+> diff --git a/drivers/media/platform/marvell-ccic/mmp-driver.c b/drivers/media/platform/marvell-ccic/mmp-driver.c
+> index 816f4b6a7b8e..d9f0dd0d3525 100644
+> --- a/drivers/media/platform/marvell-ccic/mmp-driver.c
+> +++ b/drivers/media/platform/marvell-ccic/mmp-driver.c
+> @@ -12,7 +12,7 @@
+>  #include <linux/kernel.h>
+>  #include <linux/module.h>
+>  #include <linux/i2c.h>
+> -#include <linux/i2c-gpio.h>
+> +#include <linux/platform_data/i2c-gpio.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/spinlock.h>
+>  #include <linux/slab.h>
+> diff --git a/drivers/mfd/sm501.c b/drivers/mfd/sm501.c
+> index ad774161a22d..66af659b01b2 100644
+> --- a/drivers/mfd/sm501.c
+> +++ b/drivers/mfd/sm501.c
+> @@ -19,7 +19,7 @@
+>  #include <linux/device.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/pci.h>
+> -#include <linux/i2c-gpio.h>
+> +#include <linux/platform_data/i2c-gpio.h>
+>  #include <linux/gpio/machine.h>
+>  #include <linux/slab.h>
+>  
+> diff --git a/include/linux/i2c-gpio.h b/include/linux/platform_data/i2c-gpio.h
+> similarity index 100%
+> rename from include/linux/i2c-gpio.h
+> rename to include/linux/platform_data/i2c-gpio.h
+
+
+
+Thanks,
+Mauro
