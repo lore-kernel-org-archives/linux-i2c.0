@@ -1,61 +1,63 @@
-From: Wenwen Wang <wang6495@umn.edu>
-Subject: [PATCH] i2c: core-smbus: fix a potential uninitialization bug
-Date: Fri,  4 May 2018 20:43:16 -0500
-Message-ID: <1525484596-5585-1-git-send-email-wang6495@umn.edu>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: I2C PM overhaul needed? (Re: [PATCH 1/2] i2c: sprd: Prevent i2c
+ accesses after suspend is called)
+Date: Sat, 5 May 2018 10:54:58 +0900
+Message-ID: <20180505015458.GM13402@sirena.org.uk>
+References: <99031524fa147e72451d26f54b24f36093c0d3fa.1523255712.git.baolin.wang@linaro.org>
+ <20180427121417.auv4ppryegkprv32@ninjato>
+ <CAMz4kuK3fyBhdrUcLvY0s0N-0yY9_0MrAAi9cWdX1ZfdNW+R0w@mail.gmail.com>
+ <20180502052336.i5f4yv2ho3za7qa7@tetsubishi>
+ <CAMz4kuJAzr-ybCCmjx_Tcdw6qNYN0wLGQgWsb1H0WEkR4ZpyYg@mail.gmail.com>
+ <3485f73f-e356-6db0-89fc-d51bf8bdab71@ti.com>
+ <20180504122447.u3xgrkperxz5dpcz@ninjato>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="Xb8pJpF45Qg/t7GZ"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180504122447.u3xgrkperxz5dpcz@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wenwen Wang <wang6495@umn.edu>
-Cc: Kangjie Lu <kjlu@umn.edu>, Wolfram Sang <wsa@the-dreams.de>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>, Baolin Wang <baolin.wang@linaro.org>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-In i2c_smbus_xfer_emulated(), there are two buffers: msgbuf0 and msgbuf1,
-which are used to save a series of messages, as mentioned in the comment.
-According to the value of the variable "size", msgbuf0 is initialized to
-various values. In contrast, msgbuf1 is left uninitialized until the
-function i2c_transfer() is invoked. However, mgsbuf1 is not always
-initialized on all possible execution paths (implementation) of
-i2c_transfer(). Thus, it is possible that mgsbuf1 may still be
-uninitialized even after the invocation of the function i2c_transfer(),
-especially when the return value of ic2_transfer() is not checked properly.
-In the following execution, the uninitialized msgbuf1 will be used, such as
-for security checks. Since uninitialized values can be random and
-arbitrary, this will cause undefined behaviors or even check bypass. For
-example, it is expected that if the value of "size" is
-I2C_SMBUS_BLOCK_PROC_CALL, the value of data->block[0] should not be larger
-than I2C_SMBUS_BLOCK_MAX. But, at the end of i2c_smbus_xfer_emulated(), the
-value read from msgbuf1 is assigned to data->block[0], which can
-potentially lead to invalid block write size, as demonstrated in the error
-message.
 
-This patch checks the return value of i2c_transfer() and also initializes
-the first byte of msgbuf1 with 0 to avoid undefined behaviors or security
-issues.
+--Xb8pJpF45Qg/t7GZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Wenwen Wang <wang6495@umn.edu>
----
- drivers/i2c/i2c-core-smbus.c | 3 +++
- 1 file changed, 3 insertions(+)
+On Fri, May 04, 2018 at 02:24:47PM +0200, Wolfram Sang wrote:
 
-diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
-index b5aec33..e8470d5 100644
---- a/drivers/i2c/i2c-core-smbus.c
-+++ b/drivers/i2c/i2c-core-smbus.c
-@@ -344,6 +344,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
- 	};
- 
- 	msgbuf0[0] = command;
-+	msgbug1[0] = 0;
- 	switch (size) {
- 	case I2C_SMBUS_QUICK:
- 		msg[0].len = 0;
-@@ -466,6 +467,8 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
- 	status = i2c_transfer(adapter, msg, num);
- 	if (status < 0)
- 		return status;
-+	if (status != num)
-+		return -EIO;
- 
- 	/* Check PEC if last message is a read */
- 	if (i && (msg[num-1].flags & I2C_M_RD)) {
--- 
-2.7.4
+> To handle that, I imagined an additional adapter callback like
+> 'master_xfer_irqless' to be used for such special I2C messages. These
+> kind of special messages could be tagged with a new I2C_M_something
+> flag.
+
+> And maybe this could be used here, too? Introduce this flag for very
+> late/early messages. If they have it, messages are even sent in
+> suspend_noirq() phase with the master_xfer_irqless() callback, otherwise
+> we will have the WARNing printed out.
+
+It feels like it'd be more elegant to have the core select the irqless
+function automatically if called after interrupts have been disabled -
+otherwise we end up with the need to special case through other layers
+of the stack like regmap as well which seems like it'd be error prone.
+OTOH it does mean we might not notice things happening later than they
+should so it's not 100% clear...
+
+--Xb8pJpF45Qg/t7GZ
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlrtDvEACgkQJNaLcl1U
+h9AVzwf9HXeIb5jst5K9BIC9uAe0uVBSWC4Whk8+Msy2998H1IYDuWsKc+bQN7ad
+ZtJgocc06oHrltwR+gKBzbhCaIDfan6jbdl4HaevTOQBzqfMRpRG/UJN5SVkY7ky
+GV3lR9Dr6rbhPuyDuR1iYgsXMBDRr6a5oixAWwdo+xXdVbSqt7s6XtVIsV7AyR5t
+vjQPDDu9O29Z19uU2eiDAOMe4fjfqu5OnWshJSHNarTiuIvi0KDl6gZIoBNvDY+f
+WY+iCZX/OB+/gile7FNjf0Syl5lT9PaUU0Eq8AD0LKb0Q8em0P5Ce7Q43zPKoM0E
+JJCDupBjKy9yULYv/5nDI/GspFu8ug==
+=kOM9
+-----END PGP SIGNATURE-----
+
+--Xb8pJpF45Qg/t7GZ--
