@@ -1,51 +1,46 @@
 From: Wenwen Wang <wang6495@umn.edu>
-Subject: [PATCH v2 1/2] i2c: core-smbus: fix a potential uninitialization bug
-Date: Sat,  5 May 2018 07:57:10 -0500
-Message-ID: <1525525030-9805-1-git-send-email-wang6495@umn.edu>
+Subject: [PATCH v2 2/2] i2c: core-smbus: fix a potential missing-check bug
+Date: Sat,  5 May 2018 08:02:21 -0500
+Message-ID: <1525525341-10046-1-git-send-email-wang6495@umn.edu>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wenwen Wang <wang6495@umn.edu>
 Cc: Kangjie Lu <kjlu@umn.edu>, Wolfram Sang <wsa@the-dreams.de>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-In i2c_smbus_xfer_emulated(), there are two buffers: msgbuf0 and msgbuf1,
-which are used to save a series of messages, as mentioned in the comment.
-According to the value of the variable 'size', msgbuf0 is initialized to
-various values. In contrast, msgbuf1 is left uninitialized until the
-function i2c_transfer() is invoked. However, msgbuf1 is not always
-initialized on all possible execution paths (implementation) of
-i2c_transfer(). Thus, it is possible that msgbuf1 may still be
-uninitialized even after the invocation of the function i2c_transfer(),
-especially when the return value of ic2_transfer() is not checked properly.
-In the following execution, the uninitialized msgbuf1 will be used, such as
-for security checks. Since uninitialized values can be random and
-arbitrary, this will cause undefined behaviors or even check bypass. For
-example, it is expected that if the value of 'size' is
-I2C_SMBUS_BLOCK_PROC_CALL, the value of data->block[0] should not be larger
-than I2C_SMBUS_BLOCK_MAX. But, at the end of i2c_smbus_xfer_emulated(), the
-value read from msgbuf1 is assigned to data->block[0], which can
-potentially lead to invalid block write size, as demonstrated in the error
-message.
+In i2c_smbus_xfer_emulated(), the function i2c_transfer() is invoked to
+transfer i2c messages. The number of actual transferred messages is
+returned and saved to 'status'. If 'status' is negative, that means an
+error occurred during the transfer process. In that case, the value of
+'status' is an error code to indicate the reason of the transfer failure.
+In most cases, i2c_transfer() can transfer 'num' messages with no error.
+And so 'status' == 'num'. However, due to unexpected errors, it is probable
+that only partial messages are transferred by i2c_transfer(). As a result,
+'status' != 'num'. This special case is not checked after the invocation of
+i2c_transfer() and can potentially lead to unexpected issues in the
+following execution since it is expected that 'status' == 'num'.
 
-This patch initializes the first byte of msgbuf1 with 0 to avoid such
-undefined behaviors or security issues.
+This patch checks the return value of i2c_transfer() and returns an error
+code -EIO if the number of actual transferred messages 'status' is not
+equal to 'num'.
 
 Signed-off-by: Wenwen Wang <wang6495@umn.edu>
 ---
- drivers/i2c/i2c-core-smbus.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/i2c-core-smbus.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
-index b5aec33..7d7700f 100644
+index 7d7700f..e7a2d2f 100644
 --- a/drivers/i2c/i2c-core-smbus.c
 +++ b/drivers/i2c/i2c-core-smbus.c
-@@ -344,6 +344,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
- 	};
+@@ -467,6 +467,8 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+ 	status = i2c_transfer(adapter, msg, num);
+ 	if (status < 0)
+ 		return status;
++	if (status != num)
++		return -EIO;
  
- 	msgbuf0[0] = command;
-+	msgbuf1[0] = 0;
- 	switch (size) {
- 	case I2C_SMBUS_QUICK:
- 		msg[0].len = 0;
+ 	/* Check PEC if last message is a read */
+ 	if (i && (msg[num-1].flags & I2C_M_RD)) {
 -- 
 2.7.4
