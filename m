@@ -1,187 +1,43 @@
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: Re: [PATCH 1/7] i2c: i2c-gpio: move header to platform_data
-Date: Sat, 5 May 2018 10:26:37 -0300
-Message-ID: <20180505102637.76ab7c41@vento.lan>
-References: <20180419200015.15095-1-wsa@the-dreams.de>
- <20180419200015.15095-2-wsa@the-dreams.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180419200015.15095-2-wsa@the-dreams.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-arm-kernel@lists.infradead.org, linux-mips@linux-mips.org, linux-omap@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, Aaro Koskinen <aaro.koskinen@iki.fi>, Tony Lindgren <tony@atomide.com>, James Hogan <jhogan@kernel.org>, Sergey Lapin <slapin@ossfans.org>, Jonathan Corbet <corbet@lwn.net>, Russell King <linux@armlinux.org.uk>, Haojian Zhuang <haojian.zhuang@gmail.com>, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, Greg Ungerer <gerg@uclinux.org>, Lee Jones <lee.jones@linaro.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Daniel Mack <daniel@zonque.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH 0/9] tree-wide: fix typo 'can by' to 'can be'
+Date: Sun,  6 May 2018 13:23:44 +0200
+Message-ID: <20180506112404.24872-1-wsa+renesas@sang-engineering.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
+To: trivial@kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-ntb@googlegroups.com, linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, reiserfs-devel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Em Thu, 19 Apr 2018 22:00:07 +0200
-Wolfram Sang <wsa@the-dreams.de> escreveu:
+I found this kind of typo when reading the documentation for device_remove().
+So, I checked the tree for it.
 
-> This header only contains platform_data. Move it to the proper directory.
-> 
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> ---
->  MAINTAINERS                                      | 2 +-
->  arch/arm/mach-ks8695/board-acs5k.c               | 2 +-
->  arch/arm/mach-omap1/board-htcherald.c            | 2 +-
->  arch/arm/mach-pxa/palmz72.c                      | 2 +-
->  arch/arm/mach-pxa/viper.c                        | 2 +-
->  arch/arm/mach-sa1100/simpad.c                    | 2 +-
->  arch/mips/alchemy/board-gpr.c                    | 2 +-
->  drivers/i2c/busses/i2c-gpio.c                    | 2 +-
+CCing all the subsystems directly, and I'd think the leftover ones could be
+picked up by the trivial tree. Or would it be more convenient if trivial would
+pick up all? I don't mind.
 
->  drivers/media/platform/marvell-ccic/mmp-driver.c | 2 +-
-Acked-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Based on v4.17-rc3.
 
->  drivers/mfd/sm501.c                              | 2 +-
->  include/linux/{ => platform_data}/i2c-gpio.h     | 0
->  11 files changed, 10 insertions(+), 10 deletions(-)
->  rename include/linux/{ => platform_data}/i2c-gpio.h (100%)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 0a1410d5a621..7aad64b62102 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -5872,7 +5872,7 @@ GENERIC GPIO I2C DRIVER
->  M:	Haavard Skinnemoen <hskinnemoen@gmail.com>
->  S:	Supported
->  F:	drivers/i2c/busses/i2c-gpio.c
-> -F:	include/linux/i2c-gpio.h
-> +F:	include/linux/platform_data/i2c-gpio.h
->  
->  GENERIC GPIO I2C MULTIPLEXER DRIVER
->  M:	Peter Korsgaard <peter.korsgaard@barco.com>
-> diff --git a/arch/arm/mach-ks8695/board-acs5k.c b/arch/arm/mach-ks8695/board-acs5k.c
-> index 937eb1d47e7b..ef835d82cdb9 100644
-> --- a/arch/arm/mach-ks8695/board-acs5k.c
-> +++ b/arch/arm/mach-ks8695/board-acs5k.c
-> @@ -19,7 +19,7 @@
->  #include <linux/gpio/machine.h>
->  #include <linux/i2c.h>
->  #include <linux/i2c-algo-bit.h>
-> -#include <linux/i2c-gpio.h>
-> +#include <linux/platform_data/i2c-gpio.h>
->  #include <linux/platform_data/pca953x.h>
->  
->  #include <linux/mtd/mtd.h>
-> diff --git a/arch/arm/mach-omap1/board-htcherald.c b/arch/arm/mach-omap1/board-htcherald.c
-> index 67d46690a56e..da8f3fc3180f 100644
-> --- a/arch/arm/mach-omap1/board-htcherald.c
-> +++ b/arch/arm/mach-omap1/board-htcherald.c
-> @@ -31,7 +31,7 @@
->  #include <linux/gpio.h>
->  #include <linux/gpio_keys.h>
->  #include <linux/i2c.h>
-> -#include <linux/i2c-gpio.h>
-> +#include <linux/platform_data/i2c-gpio.h>
->  #include <linux/htcpld.h>
->  #include <linux/leds.h>
->  #include <linux/spi/spi.h>
-> diff --git a/arch/arm/mach-pxa/palmz72.c b/arch/arm/mach-pxa/palmz72.c
-> index 5877e547cecd..c053c8ce1586 100644
-> --- a/arch/arm/mach-pxa/palmz72.c
-> +++ b/arch/arm/mach-pxa/palmz72.c
-> @@ -30,7 +30,7 @@
->  #include <linux/wm97xx.h>
->  #include <linux/power_supply.h>
->  #include <linux/usb/gpio_vbus.h>
-> -#include <linux/i2c-gpio.h>
-> +#include <linux/platform_data/i2c-gpio.h>
->  #include <linux/gpio/machine.h>
->  
->  #include <asm/mach-types.h>
-> diff --git a/arch/arm/mach-pxa/viper.c b/arch/arm/mach-pxa/viper.c
-> index 90d0f277de55..39e05b7008d8 100644
-> --- a/arch/arm/mach-pxa/viper.c
-> +++ b/arch/arm/mach-pxa/viper.c
-> @@ -35,7 +35,7 @@
->  #include <linux/sched.h>
->  #include <linux/gpio.h>
->  #include <linux/jiffies.h>
-> -#include <linux/i2c-gpio.h>
-> +#include <linux/platform_data/i2c-gpio.h>
->  #include <linux/gpio/machine.h>
->  #include <linux/platform_data/i2c-pxa.h>
->  #include <linux/serial_8250.h>
-> diff --git a/arch/arm/mach-sa1100/simpad.c b/arch/arm/mach-sa1100/simpad.c
-> index ace010479eb6..49a61e6f3c5f 100644
-> --- a/arch/arm/mach-sa1100/simpad.c
-> +++ b/arch/arm/mach-sa1100/simpad.c
-> @@ -37,7 +37,7 @@
->  #include <linux/input.h>
->  #include <linux/gpio_keys.h>
->  #include <linux/leds.h>
-> -#include <linux/i2c-gpio.h>
-> +#include <linux/platform_data/i2c-gpio.h>
->  
->  #include "generic.h"
->  
-> diff --git a/arch/mips/alchemy/board-gpr.c b/arch/mips/alchemy/board-gpr.c
-> index 4e79dbd54a33..fa75d75b5ba9 100644
-> --- a/arch/mips/alchemy/board-gpr.c
-> +++ b/arch/mips/alchemy/board-gpr.c
-> @@ -29,7 +29,7 @@
->  #include <linux/leds.h>
->  #include <linux/gpio.h>
->  #include <linux/i2c.h>
-> -#include <linux/i2c-gpio.h>
-> +#include <linux/platform_data/i2c-gpio.h>
->  #include <linux/gpio/machine.h>
->  #include <asm/bootinfo.h>
->  #include <asm/idle.h>
-> diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-> index 58abb3eced58..005e6e0330c2 100644
-> --- a/drivers/i2c/busses/i2c-gpio.c
-> +++ b/drivers/i2c/busses/i2c-gpio.c
-> @@ -11,7 +11,7 @@
->  #include <linux/delay.h>
->  #include <linux/i2c.h>
->  #include <linux/i2c-algo-bit.h>
-> -#include <linux/i2c-gpio.h>
-> +#include <linux/platform_data/i2c-gpio.h>
->  #include <linux/init.h>
->  #include <linux/module.h>
->  #include <linux/slab.h>
-> diff --git a/drivers/media/platform/marvell-ccic/mmp-driver.c b/drivers/media/platform/marvell-ccic/mmp-driver.c
-> index 816f4b6a7b8e..d9f0dd0d3525 100644
-> --- a/drivers/media/platform/marvell-ccic/mmp-driver.c
-> +++ b/drivers/media/platform/marvell-ccic/mmp-driver.c
-> @@ -12,7 +12,7 @@
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/i2c.h>
-> -#include <linux/i2c-gpio.h>
-> +#include <linux/platform_data/i2c-gpio.h>
->  #include <linux/interrupt.h>
->  #include <linux/spinlock.h>
->  #include <linux/slab.h>
-> diff --git a/drivers/mfd/sm501.c b/drivers/mfd/sm501.c
-> index ad774161a22d..66af659b01b2 100644
-> --- a/drivers/mfd/sm501.c
-> +++ b/drivers/mfd/sm501.c
-> @@ -19,7 +19,7 @@
->  #include <linux/device.h>
->  #include <linux/platform_device.h>
->  #include <linux/pci.h>
-> -#include <linux/i2c-gpio.h>
-> +#include <linux/platform_data/i2c-gpio.h>
->  #include <linux/gpio/machine.h>
->  #include <linux/slab.h>
->  
-> diff --git a/include/linux/i2c-gpio.h b/include/linux/platform_data/i2c-gpio.h
-> similarity index 100%
-> rename from include/linux/i2c-gpio.h
-> rename to include/linux/platform_data/i2c-gpio.h
+Wolfram Sang (9):
+  dt-bindings: i2c: fix typo 'can by' to 'can be'
+  powerpc/watchdog: fix typo 'can by' to 'can be'
+  base: core: fix typo 'can by' to 'can be'
+  hwmon: fschmd: fix typo 'can by' to 'can be'
+  input: ati_remote2: fix typo 'can by' to 'can be'
+  NTB: ntb_hw_idt: fix typo 'can by' to 'can be'
+  reiserfs: journal: fix typo 'can by' to 'can be'
+  net: flow_dissector: fix typo 'can by' to 'can be'
+  objtool: fix typo 'can by' to 'can be'
 
+ Documentation/devicetree/bindings/i2c/i2c-davinci.txt | 2 +-
+ arch/powerpc/kernel/watchdog.c                        | 2 +-
+ drivers/base/core.c                                   | 2 +-
+ drivers/hwmon/fschmd.c                                | 2 +-
+ drivers/input/misc/ati_remote2.c                      | 2 +-
+ drivers/ntb/hw/idt/ntb_hw_idt.c                       | 2 +-
+ fs/reiserfs/journal.c                                 | 2 +-
+ include/net/flow_dissector.h                          | 2 +-
+ tools/objtool/Documentation/stack-validation.txt      | 2 +-
+ 9 files changed, 9 insertions(+), 9 deletions(-)
 
-
-Thanks,
-Mauro
+-- 
+2.11.0
