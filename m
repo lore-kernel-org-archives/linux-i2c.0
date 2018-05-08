@@ -1,71 +1,53 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] i2c-mux-pca954x: Force reset on probe if available
-Date: Tue, 8 May 2018 08:36:23 +0200
-Message-ID: <bc56d669-b02f-a017-844d-e095bbbcb7cd@axentia.se>
-References: <1525174932-8865-1-git-send-email-mike.looijmans@topic.nl>
+From: Anders Roxell <anders.roxell@linaro.org>
+Subject: [PATCH] i2c: i801: mark PM functions as __maybe_unused
+Date: Tue,  8 May 2018 09:38:52 +0200
+Message-ID: <20180508073852.16840-1-anders.roxell@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1525174932-8865-1-git-send-email-mike.looijmans@topic.nl>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mike Looijmans <mike.looijmans@topic.nl>, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: jdelvare@suse.com
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-05-01 13:42, Mike Looijmans wrote:
-> Instead of just hogging the reset GPIO into deactivated state, activate and
-> then de-activate the reset. This allows for better recovery if the CPU was
-> reset halfway through an I2C transaction for example.
+With CONFIG_PM, we get a harmless build warning:
+drivers/i2c/busses/i2c-i801.c:1723:12: warning: ‘i801_resume’ defined but not used [-Wunused-function]
+ static int i801_resume(struct device *dev)
+            ^~~~~~~~~~~
+drivers/i2c/busses/i2c-i801.c:1714:12: warning: ‘i801_suspend’ defined but not used [-Wunused-function]
+ static int i801_suspend(struct device *dev)
+            ^~~~~~~~~~~~
 
-I can't see any problems with this, and a reset at load time can certainly
-be a benefit. Some questions below though...
+This marks the affected functions as __maybe_unused.
 
-Cheers,
-Peter
+Fixes: a9c8088c7988 ("i2c: i801: Don't restore config registers on runtime PM")
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+---
+ drivers/i2c/busses/i2c-i801.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
-> ---
->  drivers/i2c/muxes/i2c-mux-pca954x.c | 12 ++++++++++--
->  1 file changed, 10 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> index 09bafd3..13e10d0 100644
-> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> @@ -36,6 +36,7 @@
->   */
->  
->  #include <linux/device.h>
-> +#include <linux/delay.h>
->  #include <linux/gpio/consumer.h>
->  #include <linux/i2c.h>
->  #include <linux/i2c-mux.h>
-> @@ -389,10 +390,17 @@ static int pca954x_probe(struct i2c_client *client,
->  	i2c_set_clientdata(client, muxc);
->  	data->client = client;
->  
-> -	/* Get the mux out of reset if a reset GPIO is specified. */
-> -	gpio = devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_LOW);
-> +	/* Reset the mux if a reset GPIO is specified. */
-> +	gpio = devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_HIGH);
->  	if (IS_ERR(gpio))
->  		return PTR_ERR(gpio);
-> +	if (gpio) {
-> +		/* Datasheet specifies a 4 ns reset-low time */
-> +		udelay(1);
-
-ndelay(4) ?
-
-> +		gpiod_set_value_cansleep(gpio, 0);
-> +		/* Datasheet specifies a 500 ns reset recovery time */
-> +		udelay(1);
-
-ndelay(500) ?
-
-> +	}
->  
->  	match = of_match_device(of_match_ptr(pca954x_of_match), &client->dev);
->  	if (match)
-> 
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index ed07f9002710..ff18c6ed2bec 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1711,7 +1711,7 @@ static void i801_shutdown(struct pci_dev *dev)
+ }
+ 
+ #ifdef CONFIG_PM
+-static int i801_suspend(struct device *dev)
++static int __maybe_unused i801_suspend(struct device *dev)
+ {
+ 	struct pci_dev *pci_dev = to_pci_dev(dev);
+ 	struct i801_priv *priv = pci_get_drvdata(pci_dev);
+@@ -1720,7 +1720,7 @@ static int i801_suspend(struct device *dev)
+ 	return 0;
+ }
+ 
+-static int i801_resume(struct device *dev)
++static int __maybe_unused i801_resume(struct device *dev)
+ {
+ 	struct pci_dev *pci_dev = to_pci_dev(dev);
+ 	struct i801_priv *priv = pci_get_drvdata(pci_dev);
+-- 
+2.17.0
