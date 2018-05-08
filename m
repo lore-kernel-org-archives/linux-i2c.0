@@ -1,49 +1,162 @@
-From: Daniel Drake <drake@endlessm.com>
-Subject: Re: [BUG] i2c-hid: ELAN Touchpad does not work on ASUS X580GD
-Date: Tue, 8 May 2018 09:47:01 -0600
-Message-ID: <CAD8Lp46b+-B=xqSAqB+zV4xF6SRUGs46FkydS37UEuqav_jNog@mail.gmail.com>
-References: <CAPpJ_ed-JPOzQPtyCdH4_C7dzEeM3fznus8XDuaojaiM_4nFpw@mail.gmail.com>
- <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com> <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: I2C PM overhaul needed? (Re: [PATCH 1/2] i2c: sprd: Prevent i2c
+ accesses after suspend is called)
+Date: Tue, 8 May 2018 18:32:21 +0200
+Message-ID: <20180508163221.2slrtg3cidvpj7g2@ninjato>
+References: <99031524fa147e72451d26f54b24f36093c0d3fa.1523255712.git.baolin.wang@linaro.org>
+ <20180427121417.auv4ppryegkprv32@ninjato>
+ <CAMz4kuK3fyBhdrUcLvY0s0N-0yY9_0MrAAi9cWdX1ZfdNW+R0w@mail.gmail.com>
+ <20180502052336.i5f4yv2ho3za7qa7@tetsubishi>
+ <CAMz4kuJAzr-ybCCmjx_Tcdw6qNYN0wLGQgWsb1H0WEkR4ZpyYg@mail.gmail.com>
+ <3485f73f-e356-6db0-89fc-d51bf8bdab71@ti.com>
+ <20180504122447.u3xgrkperxz5dpcz@ninjato>
+ <bef80500-4727-d324-f0c8-4fc6016f43ed@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="mtcrtj3x3rvhprwe"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com>
+Content-Disposition: inline
+In-Reply-To: <bef80500-4727-d324-f0c8-4fc6016f43ed@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Chris Chiu <chiu@endlessm.com>, Jian-Hong Pan <jian-hong@endlessm.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jani Nikula <jani.nikula@intel.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Adrian Salido <salidoa@google.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
+To: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Baolin Wang <baolin.wang@linaro.org>, Mark Brown <broonie@kernel.org>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 8, 2018 at 8:31 AM, Jarkko Nikula
-<jarkko.nikula@linux.intel.com> wrote:
->> Some update, we can make the touchpad work by simply modifying the
->> clk_rate of spt_i2c_info from 120000000 to 133000000 in intel-lpss-pci.c for
->> specific PCI ID 8086:a368 ~ a36a (CoffeeLake). Is the clock setting different
->> for the CoffeeLake series?
->>
-> Hmm.. at quick look it looks like to be 133 MHz but I want to double check first from other specs. I'm also wondering why it results 600 kHz instead of expected 133/120 * 400 kHz = 443 kHz. Need to check timing parameters too.
 
-Thanks for looking at this. I believe we tried 133MHz just because
-some other platforms in the file have the clock at that speed.
+--mtcrtj3x3rvhprwe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-In the original/shipped setup, the scope shows the SDA clock is
-running at ~635kHz (rather than the intended 400kHz) and the debug
-logs from the kernel producing that waveform shows that HCNT=105 and
-LCNT=191
+Grygorii,
 
-105+191=296 parent clock ticks per cycle
+thanks a lot for your input. Much appreciated!
 
-At 635kHz, a single clock cycle is 1575ns. What is the speed of the
-parent clock if it ticks 296 times in 1575ns? I calculate this to be
-187960000Hz and further experiments indicate that clk_rate=187960000
-also makes the touchpad work. Unfortunately we don't have easy access
-to the scope to measure the effect on the waveform.
+> That would be great, but note:
+> 1) only i2c_transfer() operations are locked, so if driver is doing=20
+> i2c_transfer(1)
+> i2c_transfer(2) <- suspend in the middle
+> <- suspend in between
+> i2c_transfer(3)
+> It will not help.
 
-Also through experimentation we tried i2c-sda-falling-time-ns=400ns
-(increasing from the default of 300ns) in order to make the HCNT
-increase to 117. This also makes the touchpad work.
+Will it not improve the situation by ensuring that at least the transfer
+with its (potenitally) multiple messages got completed? That we are at
+least in a bus-free state (assuming single-master here) before
+suspending?
 
-Please let us know if we can help further in finding an upstream fix
-for this issue.
+> Everything depends on timings :( - in my practice 10000 suspend iteration=
+ tests
+> where required to run many times to catch 3 buggy I2C client drivers.
 
-Thanks
-Daniel
+Matches my experiences that creating a reliable test case for that is
+not that easy as I thought. Or I am missing something obvious.
+
+> 2) It's normal to abort suspend if system is busy, so if I2C core will be=
+ able
+> to catch active I2C operation - it should abort, but again I do not see h=
+ow it
+>  can be detected 100% with current I2C core design or without reworking h=
+uge number of drivers.
+
+I agree. After second thought, waiting for i2c_transfer to finish maybe
+won't be enough, I am afraid. We don't know if STOP has been put on the
+wires yet. My best bet now is that we implement such a
+'is-transfer-ongoing'-check in the suspend function of the master
+driver? That check should be optional, but recommended.
+
+> 3) So, only one thing I2C core potentially can do - catch invalid access =
+and
+> report it. "wait for transfer to finish" wouldn't work as for me.
+
+And we do this in suspend_noirq function of the i2c core.
+
+> > I at least know of some Renesas boards which needed the I2C connected
+> > PMIC to do a system reset (not sure about suspend, need to recheck
+> > that). That still today causes problems because interrupts are disabled
+> > then.
+>=20
+> this was triggered few times already (sry, don't have links), as of now,
+>  and as I know, the only ways to W/A this is:
+> - to create barametal platform driver (some time in ASM)
+> - or delegate final suspend operation to another system controller (co-pr=
+ocessor),
+>   as example TI am335x SoCs,
+> - or implement I2C driver in hw - TI AVS/SmartReflex.=20
+
+Yes. Please note that this is only needed for reset, not suspend. So, it
+is a bit easier. Still, it might make more sense to use a platform based
+solution. I'll think about that.
+
+> Sry, but 99% percent of I2C client drivers *should not* access I2C bus af=
+ter
+> .suspend_noirq() stage it's BUG-BUG!! Any W/A will just hide real problem=
+s.
+
+I do believe you, still is there documentation about such things? I like
+to understand more but didn't dig up something up to now. E.g. I grepped
+for "noirq" in Documentation/power.
+
+> "master_xfer_irqless" might be a not bad idea, but, in my opinion, it=20
+> should be used explicitly by platform code only, and each usage should
+> be proved to exist.=20
+
+Yes, we can think about it once it is really needed.
+
+> Some additional info:
+
+Thanks a lot for that!
+
+> I'm attaching some very old patch (don't ask me why it was not sent :()
+> I did for Android system - which likes suspend very much. Some
+> part of below diff are obsolete now (like omap_i2c_suspend()),
+> but .noirq() callback are still valid and can show over all idea.
+> Really helped to catch min 3 buggy client drivers with timers, delayed
+> or periodic works.
+
+Ok, so what do you think about my plan to:
+
+1) encourage drivers to check if there is still an ongoing transfer in
+their .suspend function (or the core can do that, too, if we agree that
+checking for a taken adapter lock is sufficient)
+
+-> to ensure transfers don't get interrupted in the middle
+
+2) use a .suspend_noirq callback in i2c_bus_type.pm to reject and WARN
+about transfers still going on in that phase
+
+-> this ensures that buggy drivers are caught
+
+3) write some documentation about our findings / assumptions /
+recommendations to a file in Documentation/i2c/
+
+-> this ensures we won't forget why we did things like they are ;)
+
+?
+
+Kind regards,
+
+   Wolfram
+
+
+--mtcrtj3x3rvhprwe
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlrx0REACgkQFA3kzBSg
+KbYpJg//TOEZo59SzV210itR56njIa7vNNMFi7lM5Bk9A+d2AVvxBEGvnAS71LF2
+6+zTocb1QIyreAy+i0dehuFAZRKKo3E2+u171lTKlS60y52YR7Z7pSKnJuT1ebd2
+I2Ow9leIzLZPugdtlA7FzTYybzok0m740i7QCwQXXSbhTtG+w3ItlDSCx039yPZo
+AQwtSsq3es7bhMOstlV1BzSE1Ed+TIJ4sQgV/vN1oPQJS5oWtVV6kHeT26Gt58WO
+MM2Ic4/JiGg0yxvlclw/udYMExeXQR1OohvCSu1lHnusCi5wFCEV0hUtTvft2u9I
+RFTK5hfDvSCaHF4dsJDfT8eYmjeLOoL1MWsdC/8VR+QH4Ar874kvEKtrIHyq42ah
+3pMs7/4lw6iF6xfAWah1l2ZNF1Ip7C3/xEjwa5WKeEpp3dE5blZ33pInTeyayzjh
+4ywHNpryOcVHb0AGLUAoCFZkorjilngtJb+8cT0hv8jyPMhSDrAnpaKrlzCShpZ4
+H5lqKufWcIXjsK2se7fuVri018ZE1PmZSvwm6AgPFctzKPQkd/3pXOTC85HPAn8r
+NMquesRZaZHvQ3hL/poih6ZaNzHZ3RGXCEVLQMNEazlxGkq7+WpRMiFFIbd9IWz7
+lanziiWFPvcCy+t0e+H1qDPoPOzE1lgHyVttcwryc/uOZ2n3BkA=
+=FuV4
+-----END PGP SIGNATURE-----
+
+--mtcrtj3x3rvhprwe--
