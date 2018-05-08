@@ -1,104 +1,38 @@
-From: Mike Looijmans <mike.looijmans@topic.nl>
-Subject: Re: [PATCH] i2c-mux-pca954x: Force reset on probe if available
-Date: Tue, 8 May 2018 10:06:21 +0200
-Message-ID: <350e9638-1127-c0e5-290b-9d04725c1b8e@topic.nl>
-References: <1525174932-8865-1-git-send-email-mike.looijmans@topic.nl>
- <bc56d669-b02f-a017-844d-e095bbbcb7cd@axentia.se>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [BUG] i2c-hid: ELAN Touchpad does not work on ASUS X580GD
+Date: Tue, 8 May 2018 17:31:16 +0300
+Message-ID: <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com>
+References: <CAPpJ_ed-JPOzQPtyCdH4_C7dzEeM3fznus8XDuaojaiM_4nFpw@mail.gmail.com>
+ <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <bc56d669-b02f-a017-844d-e095bbbcb7cd@axentia.se>
+In-Reply-To: <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: Chris Chiu <chiu@endlessm.com>, Jian-Hong Pan <jian-hong@endlessm.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jani Nikula <jani.nikula@intel.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Adrian Salido <salidoa@google.com>, Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Daniel Drake <drake@endlessm.com>, Linux Upstreaming Team <linux@endlessm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-﻿On 08-05-18 08:36, Peter Rosin wrote:
-> On 2018-05-01 13:42, Mike Looijmans wrote:
->> Instead of just hogging the reset GPIO into deactivated state, activate and
->> then de-activate the reset. This allows for better recovery if the CPU was
->> reset halfway through an I2C transaction for example.
-> 
-> I can't see any problems with this, and a reset at load time can certainly
-> be a benefit. Some questions below though...
-> 
-> Cheers,
-> Peter
-> 
->> Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
->> ---
->>   drivers/i2c/muxes/i2c-mux-pca954x.c | 12 ++++++++++--
->>   1 file changed, 10 insertions(+), 2 deletions(-)
+Hi
+
+On 05/07/2018 11:07 AM, Chris Chiu wrote:
+
+>> Besides, according to ASUS's input, they observed that after entering
+>> the OS, the frequency of SCL is too fast (about 600kHz) and the SCL High
+>> time is around 450ns, not following I2C spec which is 0.6us.
+>> https://pasteboard.co/HjzSWXd.png
 >>
->> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
->> index 09bafd3..13e10d0 100644
->> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
->> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
->> @@ -36,6 +36,7 @@
->>    */
->>   
->>   #include <linux/device.h>
->> +#include <linux/delay.h>
->>   #include <linux/gpio/consumer.h>
->>   #include <linux/i2c.h>
->>   #include <linux/i2c-mux.h>
->> @@ -389,10 +390,17 @@ static int pca954x_probe(struct i2c_client *client,
->>   	i2c_set_clientdata(client, muxc);
->>   	data->client = client;
->>   
->> -	/* Get the mux out of reset if a reset GPIO is specified. */
->> -	gpio = devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_LOW);
->> +	/* Reset the mux if a reset GPIO is specified. */
->> +	gpio = devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_HIGH);
->>   	if (IS_ERR(gpio))
->>   		return PTR_ERR(gpio);
->> +	if (gpio) {
->> +		/* Datasheet specifies a 4 ns reset-low time */
->> +		udelay(1);
+> Some update, we can make the touchpad work by simply modifying the
+> clk_rate of spt_i2c_info from 120000000 to 133000000 in intel-lpss-pci.c for
+> specific PCI ID 8086:a368 ~ a36a (CoffeeLake). Is the clock setting different
+> for the CoffeeLake series?
 > 
-> ndelay(4) ?
-> 
+Hmm.. at quick look it looks like to be 133 MHz but I want to double 
+check first from other specs. I'm also wondering why it results 600 kHz 
+instead of expected 133/120 * 400 kHz = 443 kHz. Need to check timing 
+parameters too.
 
-I have several reasons for making it much much longer:
-- A true 4ns pulse might not make it through the GPIO controller (on some 
-chips, the GPIO controller runs at 1/10th of the CPU speed or even less)
-- Board designers tend to treat RESET signals as "DC", so a 250MHz pulse might 
-not make it through. There may be level converters and open-drain drives in 
-the signal path as well.
-- I've only looked it op on a few chips, others may have different values
-
-I think best is to just remove the comment line, it doesn't really help.
-
->> +		gpiod_set_value_cansleep(gpio, 0);
->> +		/* Datasheet specifies a 500 ns reset recovery time */
->> +		udelay(1);
-> 
-> ndelay(500) ?
-
-Similar reasons as above.
-
-> 
->> +	}
->>   
->>   	match = of_match_device(of_match_ptr(pca954x_of_match), &client->dev);
->>   	if (match)
->>
-> 
-
-
-
-Kind regards,
-
-Mike Looijmans
-System Expert
-
-TOPIC Products
-Materiaalweg 4, NL-5681 RJ Best
-Postbus 440, NL-5680 AK Best
-Telefoon: +31 (0) 499 33 69 79
-E-mail: mike.looijmans@topicproducts.com
-Website: www.topicproducts.com
-
-Please consider the environment before printing this e-mail
+-- 
+Jarkko
