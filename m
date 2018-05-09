@@ -1,45 +1,34 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH] i2c: hix5hd2: remove some dead code
-Date: Wed,  9 May 2018 21:46:03 +0200
-Message-ID: <20180509194603.28986-1-peda@axentia.se>
+Subject: [PATCH 1/2] i2c: pmcmsp: return message count on master_xfer success
+Date: Wed,  9 May 2018 21:46:29 +0200
+Message-ID: <20180509194630.29047-1-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Masahiro Yamada <yamada.masahiro@socionext.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, "Gustavo A. R. Silva" <garsilva@embeddedor.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The else branch cannot be taken as i will always equal num.
-Get rid of the whole construct.
+Returning zero is wrong in this case.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/i2c/busses/i2c-hix5hd2.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ drivers/i2c/busses/i2c-pmcmsp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-hix5hd2.c b/drivers/i2c/busses/i2c-hix5hd2.c
-index bb68957d3da5..190b250e6834 100644
---- a/drivers/i2c/busses/i2c-hix5hd2.c
-+++ b/drivers/i2c/busses/i2c-hix5hd2.c
-@@ -377,17 +377,7 @@ static int hix5hd2_i2c_xfer(struct i2c_adapter *adap,
- 			goto out;
+diff --git a/drivers/i2c/busses/i2c-pmcmsp.c b/drivers/i2c/busses/i2c-pmcmsp.c
+index 2aa0e83174c5..ec27e27e8d06 100644
+--- a/drivers/i2c/busses/i2c-pmcmsp.c
++++ b/drivers/i2c/busses/i2c-pmcmsp.c
+@@ -567,7 +567,7 @@ static int pmcmsptwi_master_xfer(struct i2c_adapter *adap,
+ 		return -1;
  	}
  
--	if (i == num) {
--		ret = num;
--	} else {
--		/* Only one message, cannot access the device */
--		if (i == 1)
--			ret = -EREMOTEIO;
--		else
--			ret = i;
--
--		dev_warn(priv->dev, "xfer message failed\n");
--	}
-+	ret = num;
+-	return 0;
++	return num;
+ }
  
- out:
- 	pm_runtime_mark_last_busy(priv->dev);
+ static u32 pmcmsptwi_i2c_func(struct i2c_adapter *adapter)
 -- 
 2.11.0
