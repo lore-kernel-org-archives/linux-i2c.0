@@ -1,56 +1,59 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: axxia: enable clock before calling clk_get_rate()
-Date: Tue, 8 May 2018 23:15:37 +0200
-Message-ID: <20180508211536.3lacmi4izgduaniy@ninjato>
-References: <20180430144929.ld6wjyyrorrj5kcr@agrajag.zerfleddert.de>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: I2C PM overhaul needed? (Re: [PATCH 1/2] i2c: sprd: Prevent i2c
+ accesses after suspend is called)
+Date: Wed, 9 May 2018 17:18:48 +0900
+Message-ID: <20180509081848.GO13402@sirena.org.uk>
+References: <99031524fa147e72451d26f54b24f36093c0d3fa.1523255712.git.baolin.wang@linaro.org>
+ <20180427121417.auv4ppryegkprv32@ninjato>
+ <CAMz4kuK3fyBhdrUcLvY0s0N-0yY9_0MrAAi9cWdX1ZfdNW+R0w@mail.gmail.com>
+ <20180502052336.i5f4yv2ho3za7qa7@tetsubishi>
+ <CAMz4kuJAzr-ybCCmjx_Tcdw6qNYN0wLGQgWsb1H0WEkR4ZpyYg@mail.gmail.com>
+ <3485f73f-e356-6db0-89fc-d51bf8bdab71@ti.com>
+ <20180504122447.u3xgrkperxz5dpcz@ninjato>
+ <20180505015458.GM13402@sirena.org.uk>
+ <20180505083255.7gv3bcjxx3b6nzeb@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="smmjfqopkswbny7v"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="+mr2ctTDD1GjnQwB"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180430144929.ld6wjyyrorrj5kcr@agrajag.zerfleddert.de>
+In-Reply-To: <20180505083255.7gv3bcjxx3b6nzeb@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tobias Jordan <Tobias.Jordan@elektrobit.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>, Baolin Wang <baolin.wang@linaro.org>, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---smmjfqopkswbny7v
+--+mr2ctTDD1GjnQwB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 30, 2018 at 04:49:29PM +0200, Tobias Jordan wrote:
-> axxia_i2c_init() uses clk_get_rate() for idev->i2c_clk. clk_get_rate()
-> should only be called if the clock is enabled, so ensure that by moving
-> the clk_prepare_enable() call before the call to axxia_i2c_init().
->=20
-> Found by Linux Driver Verification project (linuxtesting.org).
->=20
-> Fixes: 08678b850cd0 ("i2c: axxia: Add I2C driver for AXM55xx")
-> Signed-off-by: Tobias Jordan <Tobias.Jordan@elektrobit.com>
+On Sat, May 05, 2018 at 10:32:55AM +0200, Wolfram Sang wrote:
 
-Applied to for-next, thanks!
+> > OTOH it does mean we might not notice things happening later than they
+> > should so it's not 100% clear...
 
+> What do you mean here?
 
---smmjfqopkswbny7v
+If someone is doing I/O later than they should currently we'll notice as
+they try to do something that needs interrupts with interrupts disabled.
+With transparent noirq then it'll just work on some percentage of
+systems with controllers that support that but fail on others.  That may
+or may not be what we want but it's worth considering.
+
+--+mr2ctTDD1GjnQwB
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlryE3gACgkQFA3kzBSg
-KbYSkQ//QsqjcnnA4Ik2bofaQ2Ug2XbkrPKrlmi5hx5MxVP3RVNmbB+5UNwUJ4P4
-tSI8QWqlv/UHmBDsp+PEC5+jMnSsR0Nt7dzrnxUiAge7fad9ILCp1pHODkDmwm5o
-6q29WT7UoyEGc/wvRnCo2k0OISoxNVdGBrxsNK8F7Mjkrhl55CsLvVpbvw1ij+Dh
-BEQky5fEoJNmAp0bDTcwDClKBXwKw3uomm4WSHh1boERD4jCjc5tTlzUSQpoJNUM
-4gEFq2W+Fh3GMJ88LyNUv4bRIdmu/d4MN4atE0WnONwhU6M20BiiZwmogHwmAzza
-dRSCum9k2dvFbzSVPyamLddSOQY0jnXGeUZq8wxzdcH5cZNHeHg209DDNckblm1V
-E+mxZVoQomP/dKPH7Lz8vWLABu4N/JH09GRBzmkAIKyyF//96CPeI/igyfq4NNtD
-OOqlVgWO2EZrBQtPcqsvQTYYm7kPbiZW2noJbq3AK/iTJOJymXcbL01yJaukUIAe
-n8QVWIkoFpF+GiAyas1mkcaUQRZ4oBDSgYS9dx/Qt4AJEwAhNLjK3dtfJztm0nn1
-lt2UQ5Sd2zfPqR2cKW2avlradjrZQGT67B2yuc5HLCLL7l/ROPfI1RGd9JnVg5XR
-YibhNj60gRapWJgm2d22UBN+8XJYWy52LwZJ95dRNXpQ3dq4vRM=
-=Do/k
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlryrucACgkQJNaLcl1U
+h9AK6Qf/dL7AXD4YqQnivJm9tMvny93IdehkZgx7Vi+UAY43/JS6jtF+yyO5MCbB
+z8/rYVkh/TsjCYpfhfgEMhorcxrU706PFeADYU8p7MF89jQiFEiskV0gds+mogrv
+CP/Zvjtm1dmqnMwXtLvtnJe8yrsoMOzYkKqMBijSKWIWPJhSrYcTZfZrvWtfUFQ/
+myNii5kUe+QI/l1XkOxTIoaOdkIh0jChpD/TOkcsNebzX7sI08RROEsKBVg6cAb0
+D5ns8MUDtxftG+CITywfT3Vpxyb5jpb7gtSknvp4Tyw9ef+Q8QmGrzwgH9O5mKng
+fHdXFLL8QyKFg6rnzGoFie0l9tYrdQ==
+=Fd8g
 -----END PGP SIGNATURE-----
 
---smmjfqopkswbny7v--
+--+mr2ctTDD1GjnQwB--
