@@ -1,34 +1,34 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH] i2c: synquacer: fix fence-post error in retry loop
-Date: Wed,  9 May 2018 21:47:26 +0200
-Message-ID: <20180509194726.29166-1-peda@axentia.se>
+Subject: [PATCH] i2c: viperboard: return message count on master_xfer success
+Date: Wed,  9 May 2018 21:47:48 +0200
+Message-ID: <20180509194748.29222-1-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-i2c@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-There is a difference between attempts and retries.
+Returning zero is wrong in this case.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/i2c/busses/i2c-synquacer.c | 2 +-
+ drivers/i2c/busses/i2c-viperboard.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-synquacer.c b/drivers/i2c/busses/i2c-synquacer.c
-index a021f866d8c2..915f5edbab33 100644
---- a/drivers/i2c/busses/i2c-synquacer.c
-+++ b/drivers/i2c/busses/i2c-synquacer.c
-@@ -509,7 +509,7 @@ static int synquacer_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 
- 	dev_dbg(i2c->dev, "calculated timeout %d ms\n", i2c->timeout_ms);
- 
--	for (retry = 0; retry < adap->retries; retry++) {
-+	for (retry = 0; retry <= adap->retries; retry++) {
- 		ret = synquacer_i2c_doxfer(i2c, msgs, num);
- 		if (ret != -EAGAIN)
- 			return ret;
+diff --git a/drivers/i2c/busses/i2c-viperboard.c b/drivers/i2c/busses/i2c-viperboard.c
+index e4be86b3de9a..7235c7302bb7 100644
+--- a/drivers/i2c/busses/i2c-viperboard.c
++++ b/drivers/i2c/busses/i2c-viperboard.c
+@@ -337,7 +337,7 @@ static int vprbrd_i2c_xfer(struct i2c_adapter *i2c, struct i2c_msg *msgs,
+ 		}
+ 		mutex_unlock(&vb->lock);
+ 	}
+-	return 0;
++	return num;
+ error:
+ 	mutex_unlock(&vb->lock);
+ 	return error;
 -- 
 2.11.0
