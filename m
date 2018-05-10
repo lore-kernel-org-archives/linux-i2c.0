@@ -1,46 +1,49 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: Re: [PATCH 2/2] i2c: exynos5: remove pointless initializers
-Date: Thu, 10 May 2018 10:44:05 +0200
-Message-ID: <b69f6656-3831-86ea-5f13-fc805d86b288@samsung.com>
-References: <20180509194532.28929-1-peda@axentia.se>
-        <CGME20180509194552epcas3p4777026e41c7b34663eb11345e4f3d82d@epcas3p4.samsung.com>
-        <20180509194532.28929-2-peda@axentia.se>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/9] dt-bindings: i2c: fix typo 'can by' to 'can be'
+Date: Thu, 10 May 2018 12:41:35 +0200
+Message-ID: <20180510104135.cj6em2n34lwwzgm2@ninjato>
+References: <20180506112404.24872-1-wsa+renesas@sang-engineering.com>
+ <20180506112404.24872-2-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="yvjvf7crypp62h6k"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180509194532.28929-2-peda@axentia.se>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180506112404.24872-2-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
-Cc: Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Masahiro Yamada <yamada.masahiro@socionext.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: trivial@kernel.org, linux-renesas-soc@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 09.05.2018 21:45, Peter Rosin wrote:
-> The variables are always assigned before use anyway.
->
-> Signed-off-by: Peter Rosin <peda@axentia.se>
-> ---
->  drivers/i2c/busses/i2c-exynos5.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-> index a2cbc779c33a..185fba37e830 100644
-> --- a/drivers/i2c/busses/i2c-exynos5.c
-> +++ b/drivers/i2c/busses/i2c-exynos5.c
-> @@ -707,7 +707,7 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
->  			struct i2c_msg *msgs, int num)
->  {
->  	struct exynos5_i2c *i2c = adap->algo_data;
-> -	int i = 0, ret = 0, stop = 0;
-> +	int i, ret, stop;
 
-I hope gcc is smart enough to not complain in case of ret.
-I think you can merge both patches into one.
+--yvjvf7crypp62h6k
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Regards
-Andrzej
+On Sun, May 06, 2018 at 01:23:45PM +0200, Wolfram Sang wrote:
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
->  
->  	if (i2c->suspended) {
->  		dev_err(i2c->dev, "HS-I2C is not initialized.\n");
+Applied to for-next, thanks!
+
+
+--yvjvf7crypp62h6k
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr0Id8ACgkQFA3kzBSg
+KbaSnw/7BOVHCjcSyFnEXN+NkI/Rh0b8yN6wIAYW+UDfu2C5cAFXI2zf5GVDxoP5
+0gBDZHKtKpFfY03e0UpgWigRbjRaRzQtdRHKysIxhv8xSEx/en02fPI59PeBT1bA
+L/6P3QrYK+08rVzzhyV705JgPdAJO+xHW5qarAIvFC+KIcRQPjAI7mIno5sbGEy0
+tpJnV8p1tk9ZHqLkfDeJ/NvLzNmgmHQTQHbdIHkMmaVZe+xVlOSHUp7czMubLxL7
+5jHBcMuIhMSspuFes/YoF8+vDus95ncakH+QCk/4btEuxjVRR6ZYUaRqPUW9YeRf
+ori8DVE80woRu18tknw1BxslYdDLdVm61H6EZE5JIeF7NoEzfLwjSDA+mkRyBsZr
+oRycOFPotjwdv5BipTmgWxR5Xipsvr3LOjZlAGmU4EnkdDGSMw3f8Kx5UPa9rD/m
+bistd8ZZorM0krjjF4H9Fdg4XjPHjaPZsnNrMrBPM+CYefeAL4lutJIX2s1tywrj
+Os89345lp8eDTO/rjJ7F9/eZRmdHt83tVxo8Xn4MM5S6eLXrBlqu98UgImJqXvQR
+Vaad84ki+WfQdaUa4bvAlqGjqVDNhu9/9pMKIaGqq0VWyp1EdodccyU9SSe9GAo7
+DevXIJsxhG9qxSXbvuRjkEwa1ZauSJVcfgcGirFsaU4xGKiqH+A=
+=oVlN
+-----END PGP SIGNATURE-----
+
+--yvjvf7crypp62h6k--
