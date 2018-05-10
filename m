@@ -1,34 +1,60 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH] i2c: viperboard: return message count on master_xfer success
-Date: Wed,  9 May 2018 21:47:48 +0200
-Message-ID: <20180509194748.29222-1-peda@axentia.se>
+From: Andrzej Hajda <a.hajda@samsung.com>
+Subject: Re: [PATCH 1/2] i2c: exynos5: remove some dead code
+Date: Thu, 10 May 2018 10:36:57 +0200
+Message-ID: <b3915e40-895f-2a72-27a2-dcffe504456d@samsung.com>
+References: <CGME20180509194548epcas2p25579e969e21707afe2435b1f568ff005@epcas2p2.samsung.com>
+        <20180509194532.28929-1-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180509194532.28929-1-peda@axentia.se>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
+Cc: Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Masahiro Yamada <yamada.masahiro@socionext.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Returning zero is wrong in this case.
+On 09.05.2018 21:45, Peter Rosin wrote:
+> The else branch cannot be taken as i will always equal num.
+> Get rid of the whole construct.
+>
+> Signed-off-by: Peter Rosin <peda@axentia.se>
+> ---
+>  drivers/i2c/busses/i2c-exynos5.c | 12 +-----------
+>  1 file changed, 1 insertion(+), 11 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+> index 12ec8484e653..a2cbc779c33a 100644
+> --- a/drivers/i2c/busses/i2c-exynos5.c
+> +++ b/drivers/i2c/busses/i2c-exynos5.c
+> @@ -727,17 +727,7 @@ static int exynos5_i2c_xfer(struct i2c_adapter *adap,
+>  			goto out;
+>  	}
+>  
+> -	if (i == num) {
+> -		ret = num;
+> -	} else {
+> -		/* Only one message, cannot access the device */
+> -		if (i == 1)
+> -			ret = -EREMOTEIO;
+> -		else
+> -			ret = i;
+> -
+> -		dev_warn(i2c->dev, "xfer message failed\n");
+> -	}
+> +	ret = num;
+>  
+>   out:
+>  	clk_disable(i2c->clk);
 
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- drivers/i2c/busses/i2c-viperboard.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+You can go further and remove "out:" label, use break instead, and at
+the end use "return (i == num) ? num : ret;" or sth similar.
 
-diff --git a/drivers/i2c/busses/i2c-viperboard.c b/drivers/i2c/busses/i2c-viperboard.c
-index e4be86b3de9a..7235c7302bb7 100644
---- a/drivers/i2c/busses/i2c-viperboard.c
-+++ b/drivers/i2c/busses/i2c-viperboard.c
-@@ -337,7 +337,7 @@ static int vprbrd_i2c_xfer(struct i2c_adapter *i2c, struct i2c_msg *msgs,
- 		}
- 		mutex_unlock(&vb->lock);
- 	}
--	return 0;
-+	return num;
- error:
- 	mutex_unlock(&vb->lock);
- 	return error;
--- 
-2.11.0
+With this change you can add:
+
+Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
+
+ --
+Regards
+Andrzej
