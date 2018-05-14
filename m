@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 20/21] i2c: stu300: make use of i2c_8bit_addr_from_msg
-Date: Mon, 14 May 2018 16:53:29 +0200
-Message-ID: <20180514145330.4857-21-peda@axentia.se>
+Subject: [PATCH 19/21] i2c: riic: make use of i2c_8bit_addr_from_msg
+Date: Mon, 14 May 2018 16:53:28 +0200
+Message-ID: <20180514145330.4857-20-peda@axentia.se>
 References: <20180514145330.4857-1-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -9,56 +9,37 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180514145330.4857-1-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Linus Walleij <linus.walleij@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
 
 Because it looks neater.
 
-Also restructure debug output for resends, since that code as a
-result is only handling debug output.
-
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/i2c/busses/i2c-stu300.c | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-riic.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
-index dc63236b45b2..e866c481bfc3 100644
---- a/drivers/i2c/busses/i2c-stu300.c
-+++ b/drivers/i2c/busses/i2c-stu300.c
-@@ -602,20 +602,24 @@ static int stu300_send_address(struct stu300_dev *dev,
- 	u32 val;
- 	int ret;
+diff --git a/drivers/i2c/busses/i2c-riic.c b/drivers/i2c/busses/i2c-riic.c
+index 95c2f1ce3cad..5f1fca7880b1 100644
+--- a/drivers/i2c/busses/i2c-riic.c
++++ b/drivers/i2c/busses/i2c-riic.c
+@@ -167,15 +167,14 @@ static irqreturn_t riic_tdre_isr(int irq, void *data)
+ 		return IRQ_NONE;
  
--	if (msg->flags & I2C_M_TEN)
-+	if (msg->flags & I2C_M_TEN) {
- 		/* This is probably how 10 bit addresses look */
- 		val = (0xf0 | (((u32) msg->addr & 0x300) >> 7)) &
- 			I2C_DR_D_MASK;
--	else
--		val = ((msg->addr << 1) & I2C_DR_D_MASK);
-+		if (msg->flags & I2C_M_RD)
-+			/* This is the direction bit */
-+			val |= 0x01;
-+	} else {
-+		val = i2c_8bit_addr_from_msg(msg);
-+	}
+ 	if (riic->bytes_left == RIIC_INIT_MSG) {
+-		val = !!(riic->msg->flags & I2C_M_RD);
+-		if (val)
++		if (riic->msg->flags & I2C_M_RD)
+ 			/* On read, switch over to receive interrupt */
+ 			riic_clear_set_bit(riic, ICIER_TIE, ICIER_RIE, RIIC_ICIER);
+ 		else
+ 			/* On write, initialize length */
+ 			riic->bytes_left = riic->msg->len;
  
--	if (msg->flags & I2C_M_RD) {
--		/* This is the direction bit */
--		val |= 0x01;
--		if (resend)
-+	if (resend) {
-+		if (msg->flags & I2C_M_RD)
- 			dev_dbg(&dev->pdev->dev, "read resend\n");
--	} else if (resend)
--		dev_dbg(&dev->pdev->dev, "write resend\n");
-+		else
-+			dev_dbg(&dev->pdev->dev, "write resend\n");
-+	}
-+
- 	stu300_wr8(val, dev->virtbase + I2C_DR);
- 
- 	/* For 10bit addressing, await 10bit request (EVENT 9) */
+-		val |= (riic->msg->addr << 1);
++		val = i2c_8bit_addr_from_msg(riic->msg);
+ 	} else {
+ 		val = *riic->buf;
+ 		riic->buf++;
 -- 
 2.11.0
