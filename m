@@ -1,46 +1,38 @@
-From: Colin King <colin.king@canonical.com>
-Subject: [PATCH] i2c: xiic: fix spelling mistake: "unexpexted" -> "unexpected"
-Date: Mon, 14 May 2018 18:15:52 +0100
-Message-ID: <20180514171552.25094-1-colin.king@canonical.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v2] i2c: i801: fix unused-function warning
+Date: Mon, 14 May 2018 20:18:37 +0300
+Message-ID: <CAHp75VdJEzDsvJmv812wvc5p=frqc3KU8HW=y4cGULYEp4=SKQ@mail.gmail.com>
+References: <20180510152719.6e37b10e@endymion> <20180514093326.30314-1-anders.roxell@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180514093326.30314-1-anders.roxell@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Moritz Fischer <mdf@kernel.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, linux-i2c@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Anders Roxell <anders.roxell@linaro.org>
+Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+On Mon, May 14, 2018 at 12:33 PM, Anders Roxell
+<anders.roxell@linaro.org> wrote:
+> With CONFIG_PM, we get a harmless build warning:
+> drivers/i2c/busses/i2c-i801.c:1723:12: warning: =E2=80=98i801_resume=E2=
+=80=99 defined but not used [-Wunused-function]
+>  static int i801_resume(struct device *dev)
+>             ^~~~~~~~~~~
+> drivers/i2c/busses/i2c-i801.c:1714:12: warning: =E2=80=98i801_suspend=E2=
+=80=99 defined but not used [-Wunused-function]
+>  static int i801_suspend(struct device *dev)
+>             ^~~~~~~~~~~~
 
-Trivial fix to spelling mistakes in dev_dbg messages
+> -#ifdef CONFIG_PM
+> +#ifdef CONFIG_PM_SLEEP
+>  static int i801_suspend(struct device *dev)
 
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/i2c/busses/i2c-xiic.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+The better pattern is to get rid of ugly ifdef and supply
+__maybe_unused annotation to each function in question.
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index c80527816ad0..92def988d3c7 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -415,7 +415,7 @@ static irqreturn_t xiic_process(int irq, void *dev_id)
- 		clr |= XIIC_INTR_RX_FULL_MASK;
- 		if (!i2c->rx_msg) {
- 			dev_dbg(i2c->adap.dev.parent,
--				"%s unexpexted RX IRQ\n", __func__);
-+				"%s unexpected RX IRQ\n", __func__);
- 			xiic_clear_rx_fifo(i2c);
- 			goto out;
- 		}
-@@ -470,7 +470,7 @@ static irqreturn_t xiic_process(int irq, void *dev_id)
- 
- 		if (!i2c->tx_msg) {
- 			dev_dbg(i2c->adap.dev.parent,
--				"%s unexpexted TX IRQ\n", __func__);
-+				"%s unexpected TX IRQ\n", __func__);
- 			goto out;
- 		}
- 
--- 
-2.17.0
+
+--=20
+With Best Regards,
+Andy Shevchenko
