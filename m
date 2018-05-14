@@ -1,41 +1,71 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [BUG] i2c-hid: ELAN Touchpad does not work on ASUS X580GD
-Date: Mon, 14 May 2018 17:20:22 +0300
-Message-ID: <c1343704-6b1a-14b5-3942-a8a33f73feee@linux.intel.com>
-References: <CAPpJ_ed-JPOzQPtyCdH4_C7dzEeM3fznus8XDuaojaiM_4nFpw@mail.gmail.com>
- <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com>
- <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com>
- <CAD8Lp46b+-B=xqSAqB+zV4xF6SRUGs46FkydS37UEuqav_jNog@mail.gmail.com>
- <CAB4CAwd0tN7CaS7YZCo3TZH-DPxt0x6wxyO23v7aBW9MOCtHCw@mail.gmail.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH 00/21] i2c: make use of i2c_8bit_addr_from_msg
+Date: Mon, 14 May 2018 16:53:09 +0200
+Message-ID: <20180514145330.4857-1-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAB4CAwd0tN7CaS7YZCo3TZH-DPxt0x6wxyO23v7aBW9MOCtHCw@mail.gmail.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Chris Chiu <chiu@endlessm.com>, Daniel Drake <drake@endlessm.com>
-Cc: Jian-Hong Pan <jian-hong@endlessm.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jani Nikula <jani.nikula@intel.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Adrian Salido <salidoa@google.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, Guenter Roeck <linux@roeck-us.net>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Peter Korsgaard <jacmet@sunsite.dk>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linuxppc-dev@lists.ozlabs.org, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 05/10/2018 03:03 PM, Chris Chiu wrote:
-> Report from guys who can access scope. If i2c-sda-falling-time-ns=400ns
-> , HCNT increase to 117, the SCL high duration is 576ns as follows
-> https://pasteboard.co/HkwERvP.png
-> 
-> The original SCL high duration (HCNT = 105, 120MHz) is as follows
-> https://pasteboard.co/HkwFxgY.png
-> 
-> So the HCNT does affect but per this HCNT/LCNT value, just not 400kHz
-> as expected. Any suggestion?
-> 
-Thanks for measurements. I was sidetracked last week so I don't have yet 
-explanation why signals run faster than expected :-(
+Hi!
 
-Using 120 MHz SPT I2C clocks in commit b418bbff36dd ("mfd: intel-lpss: 
-Add Intel Cannonlake PCI IDs") is clearly wrong but before going to 133 
-MHz (which work for you but still runs too fast) I would like to find 
-explanation why it appears to be much higher.
+The nice little inline i2c_8bit_addr_from_msg is not getting
+enough use. This series improves the situation and drops a
+bunch of lines in the process.
+
+I have only compile-tested (that part fine, at least over here).
+
+Cheers,
+Peter
+
+Peter Rosin (21):
+  i2c: algo: bit: make use of i2c_8bit_addr_from_msg
+  i2c: algo: pca: make use of i2c_8bit_addr_from_msg
+  i2c: algo: pcf: make use of i2c_8bit_addr_from_msg
+  i2c: aspeed: make use of i2c_8bit_addr_from_msg
+  i2c: axxia: make use of i2c_8bit_addr_from_msg
+  i2c: diolan: make use of i2c_8bit_addr_from_msg
+  i2c: efm32: make use of i2c_8bit_addr_from_msg
+  i2c: eg20t: make use of i2c_8bit_addr_from_msg
+  i2c: emev2: make use of i2c_8bit_addr_from_msg
+  i2c: hix5hd2: make use of i2c_8bit_addr_from_msg
+  i2c: imx-lpi2c: make use of i2c_8bit_addr_from_msg
+  i2c: imx: make use of i2c_8bit_addr_from_msg
+  i2c: kempld: make use of i2c_8bit_addr_from_msg
+  i2c: mxs: make use of i2c_8bit_addr_from_msg
+  i2c: ocores: make use of i2c_8bit_addr_from_msg
+  i2c: pasemi: make use of i2c_8bit_addr_from_msg
+  i2c: qup: make use of i2c_8bit_addr_from_msg
+  i2c: rcar: make use of i2c_8bit_addr_from_msg
+  i2c: riic: make use of i2c_8bit_addr_from_msg
+  i2c: stu300: make use of i2c_8bit_addr_from_msg
+  i2c: xiic: make use of i2c_8bit_addr_from_msg
+
+ drivers/i2c/algos/i2c-algo-bit.c    |  4 +---
+ drivers/i2c/algos/i2c-algo-pca.c    |  5 +----
+ drivers/i2c/algos/i2c-algo-pcf.c    |  5 +----
+ drivers/i2c/busses/i2c-aspeed.c     |  3 +--
+ drivers/i2c/busses/i2c-axxia.c      |  5 +++--
+ drivers/i2c/busses/i2c-diolan-u2c.c | 11 ++++-------
+ drivers/i2c/busses/i2c-efm32.c      |  3 +--
+ drivers/i2c/busses/i2c-eg20t.c      |  5 ++---
+ drivers/i2c/busses/i2c-emev2.c      |  2 +-
+ drivers/i2c/busses/i2c-hix5hd2.c    |  9 ++-------
+ drivers/i2c/busses/i2c-imx-lpi2c.c  |  4 +---
+ drivers/i2c/busses/i2c-imx.c        | 10 +++++-----
+ drivers/i2c/busses/i2c-kempld.c     |  7 +++----
+ drivers/i2c/busses/i2c-mxs.c        |  9 +++------
+ drivers/i2c/busses/i2c-ocores.c     |  5 +----
+ drivers/i2c/busses/i2c-pasemi.c     |  2 +-
+ drivers/i2c/busses/i2c-qup.c        |  2 +-
+ drivers/i2c/busses/i2c-rcar.c       |  2 +-
+ drivers/i2c/busses/i2c-riic.c       |  5 ++---
+ drivers/i2c/busses/i2c-stu300.c     | 22 +++++++++++++---------
+ drivers/i2c/busses/i2c-xiic.c       | 11 ++---------
+ 21 files changed, 50 insertions(+), 81 deletions(-)
 
 -- 
-Jarkko
+2.11.0
