@@ -1,31 +1,46 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 03/21] i2c: algo: pcf: make use of i2c_8bit_addr_from_msg
-Date: Mon, 14 May 2018 19:03:41 +0200
-Message-ID: <e9de96d5-a119-74ec-72b5-1965d71e5a42@axentia.se>
-References: <20180514145330.4857-1-peda@axentia.se>
- <20180514145330.4857-4-peda@axentia.se>
- <CAHp75Vcz72q1Oi9hCf1vp32h3GrrYSoR0BR7qacnka9eKB8XAQ@mail.gmail.com>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] i2c: xiic: fix spelling mistake: "unexpexted" -> "unexpected"
+Date: Mon, 14 May 2018 18:15:52 +0100
+Message-ID: <20180514171552.25094-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75Vcz72q1Oi9hCf1vp32h3GrrYSoR0BR7qacnka9eKB8XAQ@mail.gmail.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Wolfram Sang <wsa@the-dreams.de>, Moritz Fischer <mdf@kernel.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, linux-i2c@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-05-14 18:59, Andy Shevchenko wrote:
-> On Mon, May 14, 2018 at 5:53 PM, Peter Rosin <peda@axentia.se> wrote:
->> Because it looks neater.
-> 
->>  drivers/i2c/algos/i2c-algo-pcf.c | 5 +----
-> 
-> I guess for such trivial no functional change patches you may do them
-> one per folder, and not one-per driver.
+From: Colin Ian King <colin.king@canonical.com>
 
-Right, will do for v2, if I don't hear anything else...
+Trivial fix to spelling mistakes in dev_dbg messages
 
-Cheers,
-Peter
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/i2c/busses/i2c-xiic.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index c80527816ad0..92def988d3c7 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -415,7 +415,7 @@ static irqreturn_t xiic_process(int irq, void *dev_id)
+ 		clr |= XIIC_INTR_RX_FULL_MASK;
+ 		if (!i2c->rx_msg) {
+ 			dev_dbg(i2c->adap.dev.parent,
+-				"%s unexpexted RX IRQ\n", __func__);
++				"%s unexpected RX IRQ\n", __func__);
+ 			xiic_clear_rx_fifo(i2c);
+ 			goto out;
+ 		}
+@@ -470,7 +470,7 @@ static irqreturn_t xiic_process(int irq, void *dev_id)
+ 
+ 		if (!i2c->tx_msg) {
+ 			dev_dbg(i2c->adap.dev.parent,
+-				"%s unexpexted TX IRQ\n", __func__);
++				"%s unexpected TX IRQ\n", __func__);
+ 			goto out;
+ 		}
+ 
+-- 
+2.17.0
