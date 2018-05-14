@@ -1,41 +1,59 @@
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: Re: [PATCH] i2c: synquacer: fix fence-post error in retry loop
-Date: Mon, 14 May 2018 12:35:40 +0200
-Message-ID: <CAKv+Gu_ffVT2Ns5ta9jLLWf-ZdzO7+EZn+-6wpWHYx9--r5umw@mail.gmail.com>
-References: <20180509194726.29166-1-peda@axentia.se>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH v1] mfd: tps6586x: Move interrupt handling into workqueue
+Date: Mon, 14 May 2018 13:51:35 +0200
+Message-ID: <20180514115135.GG18312@ulmo>
+References: <20180513211842.7819-1-digetx@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="64j1qyTOoGvYcHb1"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180509194726.29166-1-peda@axentia.se>
+Content-Disposition: inline
+In-Reply-To: <20180513211842.7819-1-digetx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
+To: Dmitry Osipenko <digetx@gmail.com>
+Cc: Lee Jones <lee.jones@linaro.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 9 May 2018 at 21:47, Peter Rosin <peda@axentia.se> wrote:
-> There is a difference between attempts and retries.
->
-> Signed-off-by: Peter Rosin <peda@axentia.se>
 
-Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+--64j1qyTOoGvYcHb1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Mon, May 14, 2018 at 12:18:42AM +0300, Dmitry Osipenko wrote:
+> Reading of status register within the interrupt handler fails with -EAGAIN
+> if I2C is busy with handling some other request at the same time. Move the
+> actual interrupt handling into a workqueue to avoid the unfortunate I2C
+> failure and to avoid hanging CPU in interrupt up to 1 second (transfer
+> timeout in the Tegra I2C driver).
+>=20
+> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
 > ---
->  drivers/i2c/busses/i2c-synquacer.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-synquacer.c b/drivers/i2c/busses/i2c-synquacer.c
-> index a021f866d8c2..915f5edbab33 100644
-> --- a/drivers/i2c/busses/i2c-synquacer.c
-> +++ b/drivers/i2c/busses/i2c-synquacer.c
-> @@ -509,7 +509,7 @@ static int synquacer_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->
->         dev_dbg(i2c->dev, "calculated timeout %d ms\n", i2c->timeout_ms);
->
-> -       for (retry = 0; retry < adap->retries; retry++) {
-> +       for (retry = 0; retry <= adap->retries; retry++) {
->                 ret = synquacer_i2c_doxfer(i2c, msgs, num);
->                 if (ret != -EAGAIN)
->                         return ret;
-> --
-> 2.11.0
->
+>  drivers/mfd/tps6586x.c | 40 +++++++++++++++++++++++++++++-----------
+>  1 file changed, 29 insertions(+), 11 deletions(-)
+
+Could this not be achieved with a threaded interrupt handler?
+
+Thierry
+
+--64j1qyTOoGvYcHb1
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlr5eEcACgkQ3SOs138+
+s6FAyhAAq80tkvFczYnA4GX2jq86xP/IB3C7Djg4zOp/dEpUFGTtH7jMHrMUiq7d
+lsNU2YRhorcT7cqslncYo6L6RSVTti65HBmww856j8f7GvOO+roMm/ysmvGP0mhr
+f0byAaXL3hcZbRL13Y9B8x9HQc3SD/r1YzFYUNwJb3eV6xjWO3dStq5C8OFIRm/A
+KQrdTO/VqIfWmzVSFwL8SlbTqhgfZBAkCs+YrY5Gm1TC7rFUtPh4hFpC+dHboq6v
+RFQTGUDj5TE+J8OZ79nQQBaOzRGymrNln3OvnfhZ92f//SF1uJGeh6Xm+WmjfFGe
+YqIhLgtpO6F3gTqAzxC+6N6Y7H9BaeBANwwJ0OOcsnkY6cuL2m4nj3nZWYqLgHYp
+blBA1FtbF2o1Zbo3VP3OyDWDWpFrkKXghVGScJtUdotRj7M6AQXglCaodHUBMTmt
+zoc9ZVinnt0Bm6GmeSKfeFvZnCi6FquXwIaUlxENzKv9AfYNktAUcRejuwZiAWy4
+GE36Ax1f1K9IpoHkC3GGJUpkHmqbl6ddUv0Yz89ipcc9X2sQ60RhVBD8V+FJJoqD
+jUgR4SLkRM9DXhGzUiogzhKdrPRw1VmfeGSVfe2H7ZbWdvl6NobUhNYVLxbLKl+1
+QGqvTdlJGymSLqTJSDIlLGZvlcN7nEDtzKIzBgsAWsT9U2aZhhs=
+=zJYC
+-----END PGP SIGNATURE-----
+
+--64j1qyTOoGvYcHb1--
