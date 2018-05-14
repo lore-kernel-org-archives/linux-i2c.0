@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 01/21] i2c: algo: bit: make use of i2c_8bit_addr_from_msg
-Date: Mon, 14 May 2018 16:53:10 +0200
-Message-ID: <20180514145330.4857-2-peda@axentia.se>
+Subject: [PATCH 03/21] i2c: algo: pcf: make use of i2c_8bit_addr_from_msg
+Date: Mon, 14 May 2018 16:53:12 +0200
+Message-ID: <20180514145330.4857-4-peda@axentia.se>
 References: <20180514145330.4857-1-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -16,23 +16,25 @@ Because it looks neater.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/i2c/algos/i2c-algo-bit.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/i2c/algos/i2c-algo-pcf.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
-index 3df0efd69ae3..4a34f311e1ff 100644
---- a/drivers/i2c/algos/i2c-algo-bit.c
-+++ b/drivers/i2c/algos/i2c-algo-bit.c
-@@ -519,9 +519,7 @@ static int bit_doAddress(struct i2c_adapter *i2c_adap, struct i2c_msg *msg)
- 			}
- 		}
- 	} else {		/* normal 7bit address	*/
--		addr = msg->addr << 1;
--		if (flags & I2C_M_RD)
--			addr |= 1;
-+		addr = i2c_8bit_addr_from_msg(msg);
- 		if (flags & I2C_M_REV_DIR_ADDR)
- 			addr ^= 1;
- 		ret = try_address(i2c_adap, addr, retries);
+diff --git a/drivers/i2c/algos/i2c-algo-pcf.c b/drivers/i2c/algos/i2c-algo-pcf.c
+index 270d84bfc2c6..bb60c1bd1f2d 100644
+--- a/drivers/i2c/algos/i2c-algo-pcf.c
++++ b/drivers/i2c/algos/i2c-algo-pcf.c
+@@ -292,11 +292,8 @@ static int pcf_doAddress(struct i2c_algo_pcf_data *adap,
+ 			 struct i2c_msg *msg)
+ {
+ 	unsigned short flags = msg->flags;
+-	unsigned char addr;
++	unsigned char addr = i2c_8bit_addr_from_msg(msg);
+ 
+-	addr = msg->addr << 1;
+-	if (flags & I2C_M_RD)
+-		addr |= 1;
+ 	if (flags & I2C_M_REV_DIR_ADDR)
+ 		addr ^= 1;
+ 	i2c_outb(adap, addr);
 -- 
 2.11.0
