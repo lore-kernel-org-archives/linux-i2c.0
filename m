@@ -1,36 +1,25 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 00/21] i2c: make use of i2c_8bit_addr_from_msg
-Date: Mon, 14 May 2018 09:11:57 -0700
-Message-ID: <c83bb5ddf36b419c4c01e20384c7b532c9a48cd4.camel@perches.com>
-References: <20180514145330.4857-1-peda@axentia.se>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH 03/21] i2c: algo: pcf: make use of i2c_8bit_addr_from_msg
+Date: Mon, 14 May 2018 19:59:37 +0300
+Message-ID: <CAHp75Vcz72q1Oi9hCf1vp32h3GrrYSoR0BR7qacnka9eKB8XAQ@mail.gmail.com>
+References: <20180514145330.4857-1-peda@axentia.se> <20180514145330.4857-4-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180514145330.4857-1-peda@axentia.se>
+In-Reply-To: <20180514145330.4857-4-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
-Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, Guenter Roeck <linux@roeck-us.net>, Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Peter Korsgaard <jacmet@sunsite.dk>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linuxppc-dev@lists.ozlabs.org, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 2018-05-14 at 16:53 +0200, Peter Rosin wrote:
-> Hi!
-> 
-> The nice little inline i2c_8bit_addr_from_msg is not getting
-> enough use. This series improves the situation and drops a
-> bunch of lines in the process.
+On Mon, May 14, 2018 at 5:53 PM, Peter Rosin <peda@axentia.se> wrote:
+> Because it looks neater.
 
-Perhaps the inline should test for I2C_M_REV_DIR_ADDR
-as there is at least one use like
+>  drivers/i2c/algos/i2c-algo-pcf.c | 5 +----
 
--               addr = msg->addr << 1;
--               if (flags & I2C_M_RD)
--                       addr |= 1;
-+               addr = i2c_8bit_addr_from_msg(msg);
-                if (flags & I2C_M_REV_DIR_ADDR)
-                        addr ^= 1;
+I guess for such trivial no functional change patches you may do them
+one per folder, and not one-per driver.
 
-which look odd
-
-Do any of these changes now no longer need
-the temporary flags variable?
+-- 
+With Best Regards,
+Andy Shevchenko
