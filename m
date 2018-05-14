@@ -1,38 +1,50 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v2] i2c: i801: fix unused-function warning
-Date: Mon, 14 May 2018 20:18:37 +0300
-Message-ID: <CAHp75VdJEzDsvJmv812wvc5p=frqc3KU8HW=y4cGULYEp4=SKQ@mail.gmail.com>
-References: <20180510152719.6e37b10e@endymion> <20180514093326.30314-1-anders.roxell@linaro.org>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH 07/21] i2c: efm32: make use of i2c_8bit_addr_from_msg
+Date: Mon, 14 May 2018 20:27:24 +0200
+Message-ID: <20180514182724.sw3c4xmq5av4pphf@pengutronix.de>
+References: <20180514145330.4857-1-peda@axentia.se>
+ <20180514145330.4857-8-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180514093326.30314-1-anders.roxell@linaro.org>
+Content-Disposition: inline
+In-Reply-To: <20180514145330.4857-8-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Anders Roxell <anders.roxell@linaro.org>
-Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 14, 2018 at 12:33 PM, Anders Roxell
-<anders.roxell@linaro.org> wrote:
-> With CONFIG_PM, we get a harmless build warning:
-> drivers/i2c/busses/i2c-i801.c:1723:12: warning: =E2=80=98i801_resume=E2=
-=80=99 defined but not used [-Wunused-function]
->  static int i801_resume(struct device *dev)
->             ^~~~~~~~~~~
-> drivers/i2c/busses/i2c-i801.c:1714:12: warning: =E2=80=98i801_suspend=E2=
-=80=99 defined but not used [-Wunused-function]
->  static int i801_suspend(struct device *dev)
->             ^~~~~~~~~~~~
+Hello Peter,
 
-> -#ifdef CONFIG_PM
-> +#ifdef CONFIG_PM_SLEEP
->  static int i801_suspend(struct device *dev)
+On Mon, May 14, 2018 at 04:53:16PM +0200, Peter Rosin wrote:
+> Because it looks neater.
+> 
+> Signed-off-by: Peter Rosin <peda@axentia.se>
+> ---
+>  drivers/i2c/busses/i2c-efm32.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-efm32.c b/drivers/i2c/busses/i2c-efm32.c
+> index aa336ba89aa3..5f2bab878b2c 100644
+> --- a/drivers/i2c/busses/i2c-efm32.c
+> +++ b/drivers/i2c/busses/i2c-efm32.c
+> @@ -144,8 +144,7 @@ static void efm32_i2c_send_next_msg(struct efm32_i2c_ddata *ddata)
+>  	struct i2c_msg *cur_msg = &ddata->msgs[ddata->current_msg];
+>  
+>  	efm32_i2c_write32(ddata, REG_CMD, REG_CMD_START);
+> -	efm32_i2c_write32(ddata, REG_TXDATA, cur_msg->addr << 1 |
+> -			(cur_msg->flags & I2C_M_RD ? 1 : 0));
+> +	efm32_i2c_write32(ddata, REG_TXDATA, i2c_8bit_addr_from_msg(cur_msg));
 
-The better pattern is to get rid of ugly ifdef and supply
-__maybe_unused annotation to each function in question.
+Nice,
 
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
---=20
-With Best Regards,
-Andy Shevchenko
+Best regards and thanks,
+Uwe
+
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
