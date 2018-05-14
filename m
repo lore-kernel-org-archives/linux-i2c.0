@@ -1,40 +1,55 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 02/21] i2c: algo: pca: make use of i2c_8bit_addr_from_msg
-Date: Mon, 14 May 2018 16:53:11 +0200
-Message-ID: <20180514145330.4857-3-peda@axentia.se>
-References: <20180514145330.4857-1-peda@axentia.se>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v2] i2c: i801: fix unused-function warning
+Date: Mon, 14 May 2018 17:02:40 +0200
+Message-ID: <20180514170240.0b72a2d2@endymion>
+References: <20180510152719.6e37b10e@endymion>
+        <20180514093326.30314-1-anders.roxell@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180514145330.4857-1-peda@axentia.se>
+In-Reply-To: <20180514093326.30314-1-anders.roxell@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Anders Roxell <anders.roxell@linaro.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Because it looks neater.
+On Mon, 14 May 2018 11:33:26 +0200, Anders Roxell wrote:
+> With CONFIG_PM, we get a harmless build warning:
+> drivers/i2c/busses/i2c-i801.c:1723:12: warning: ‘i801_resume’ defined but not used [-Wunused-function]
+>  static int i801_resume(struct device *dev)
+>             ^~~~~~~~~~~
+> drivers/i2c/busses/i2c-i801.c:1714:12: warning: ‘i801_suspend’ defined but not used [-Wunused-function]
+>  static int i801_suspend(struct device *dev)
+>             ^~~~~~~~~~~~
+> 
+> Follow design pattern from other drivers like i2c-brcmstb, i2c-mpc,
+> i2c-ocores, i2c-pnx, i2c-puv3, i2c-st, i2c-stu300 and i2c-mux-pca954x
+> and changing the ifdef CONFIG_PM to CONFIG_PM_SLEEP.
+> 
+> Fixes: a9c8088c7988 ("i2c: i801: Don't restore config registers on runtime PM")
+> Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+> ---
+>  drivers/i2c/busses/i2c-i801.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index ed07f9002710..954fb3f3b7fc 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -1710,7 +1710,7 @@ static void i801_shutdown(struct pci_dev *dev)
+>  	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
+>  }
+>  
+> -#ifdef CONFIG_PM
+> +#ifdef CONFIG_PM_SLEEP
+>  static int i801_suspend(struct device *dev)
+>  {
+>  	struct pci_dev *pci_dev = to_pci_dev(dev);
 
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- drivers/i2c/algos/i2c-algo-pca.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
-diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
-index e370804ec8bc..883a290f6a4d 100644
---- a/drivers/i2c/algos/i2c-algo-pca.c
-+++ b/drivers/i2c/algos/i2c-algo-pca.c
-@@ -112,11 +112,8 @@ static int pca_address(struct i2c_algo_pca_data *adap,
- 		       struct i2c_msg *msg)
- {
- 	int sta = pca_get_con(adap);
--	int addr;
-+	int addr = i2c_8bit_addr_from_msg(msg);
- 
--	addr = ((0x7f & msg->addr) << 1);
--	if (msg->flags & I2C_M_RD)
--		addr |= 1;
- 	DEB2("=== SLAVE ADDRESS %#04x+%c=%#04x\n",
- 	     msg->addr, msg->flags & I2C_M_RD ? 'R' : 'W', addr);
- 
+Thanks,
 -- 
-2.11.0
+Jean Delvare
+SUSE L3 Support
