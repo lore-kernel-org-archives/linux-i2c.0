@@ -1,60 +1,104 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v2 1/2] i2c: core-smbus: fix a potential uninitialization
- bug
-Date: Mon, 14 May 2018 22:31:07 +0200
-Message-ID: <ac843580-884e-b0fc-60af-8d73ba099100@axentia.se>
-References: <1525525030-9805-1-git-send-email-wang6495@umn.edu>
- <20180510111737.b6g7s2nnf6froote@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/7] i2c: i2c-gpio: move header to platform_data
+Date: Mon, 14 May 2018 23:37:20 +0200
+Message-ID: <20180514213719.o6ceftp2quem3s7f@ninjato>
+References: <20180419200015.15095-1-wsa@the-dreams.de>
+ <20180419200015.15095-2-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="tcoidkrh63ciwaqm"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180510111737.b6g7s2nnf6froote@ninjato>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180419200015.15095-2-wsa@the-dreams.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Wenwen Wang <wang6495@umn.edu>
-Cc: Kangjie Lu <kjlu@umn.edu>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+To: linux-i2c@vger.kernel.org
+Cc: Greg Ungerer <gerg@uclinux.org>, Russell King <linux@armlinux.org.uk>, Aaro Koskinen <aaro.koskinen@iki.fi>, Tony Lindgren <tony@atomide.com>, Sergey Lapin <slapin@ossfans.org>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Ralf Baechle <ralf@linux-mips.org>, James Hogan <jhogan@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Mauro Carvalho Chehab <mchehab@kernel.org>, Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-mips@linux-mips.org, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-05-10 13:17, Wolfram Sang wrote:
-> On Sat, May 05, 2018 at 07:57:10AM -0500, Wenwen Wang wrote:
->> In i2c_smbus_xfer_emulated(), there are two buffers: msgbuf0 and msgbuf1,
->> which are used to save a series of messages, as mentioned in the comment.
->> According to the value of the variable 'size', msgbuf0 is initialized to
->> various values. In contrast, msgbuf1 is left uninitialized until the
->> function i2c_transfer() is invoked. However, msgbuf1 is not always
->> initialized on all possible execution paths (implementation) of
->> i2c_transfer(). Thus, it is possible that msgbuf1 may still be
->> uninitialized even after the invocation of the function i2c_transfer(),
->> especially when the return value of ic2_transfer() is not checked properly.
->> In the following execution, the uninitialized msgbuf1 will be used, such as
->> for security checks. Since uninitialized values can be random and
->> arbitrary, this will cause undefined behaviors or even check bypass. For
->> example, it is expected that if the value of 'size' is
->> I2C_SMBUS_BLOCK_PROC_CALL, the value of data->block[0] should not be larger
->> than I2C_SMBUS_BLOCK_MAX. But, at the end of i2c_smbus_xfer_emulated(), the
->> value read from msgbuf1 is assigned to data->block[0], which can
->> potentially lead to invalid block write size, as demonstrated in the error
->> message.
->>
->> This patch initializes the first byte of msgbuf1 with 0 to avoid such
->> undefined behaviors or security issues.
->>
->> Signed-off-by: Wenwen Wang <wang6495@umn.edu>
-> 
-> From what I can tell, this patch is not needed anymore after patch 2 is
-> applied. Correct?
 
-AFAIU, it is only needed if there are bugs elsewhere. I.e. it's for extra
-protection. If all drivers implement .master_xfer correctly, msgbuf1 will
-be filled in and the return value will be the number of messages (i.e. 2)
-OR you get a negative return value and the msgbuf1 content will not matter.
+--tcoidkrh63ciwaqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The patch does not magically fix all possible driver bugs, so in that
-sense this patch is still "needed".
 
-Also - again AFAIU - there is no known bug that actually gets caught by
-this extra check.
+>  arch/arm/mach-ks8695/board-acs5k.c               | 2 +-
+>  arch/arm/mach-sa1100/simpad.c                    | 2 +-
+>  arch/mips/alchemy/board-gpr.c                    | 2 +-
 
-Cheers,
-Peter
+Those still need acks...
+
+> diff --git a/arch/arm/mach-ks8695/board-acs5k.c b/arch/arm/mach-ks8695/bo=
+ard-acs5k.c
+> index 937eb1d47e7b..ef835d82cdb9 100644
+> --- a/arch/arm/mach-ks8695/board-acs5k.c
+> +++ b/arch/arm/mach-ks8695/board-acs5k.c
+> @@ -19,7 +19,7 @@
+>  #include <linux/gpio/machine.h>
+>  #include <linux/i2c.h>
+>  #include <linux/i2c-algo-bit.h>
+> -#include <linux/i2c-gpio.h>
+> +#include <linux/platform_data/i2c-gpio.h>
+>  #include <linux/platform_data/pca953x.h>
+> =20
+>  #include <linux/mtd/mtd.h>
+
+=2E..
+
+> diff --git a/arch/arm/mach-sa1100/simpad.c b/arch/arm/mach-sa1100/simpad.c
+> index ace010479eb6..49a61e6f3c5f 100644
+> --- a/arch/arm/mach-sa1100/simpad.c
+> +++ b/arch/arm/mach-sa1100/simpad.c
+> @@ -37,7 +37,7 @@
+>  #include <linux/input.h>
+>  #include <linux/gpio_keys.h>
+>  #include <linux/leds.h>
+> -#include <linux/i2c-gpio.h>
+> +#include <linux/platform_data/i2c-gpio.h>
+> =20
+>  #include "generic.h"
+> =20
+> diff --git a/arch/mips/alchemy/board-gpr.c b/arch/mips/alchemy/board-gpr.c
+> index 4e79dbd54a33..fa75d75b5ba9 100644
+> --- a/arch/mips/alchemy/board-gpr.c
+> +++ b/arch/mips/alchemy/board-gpr.c
+> @@ -29,7 +29,7 @@
+>  #include <linux/leds.h>
+>  #include <linux/gpio.h>
+>  #include <linux/i2c.h>
+> -#include <linux/i2c-gpio.h>
+> +#include <linux/platform_data/i2c-gpio.h>
+>  #include <linux/gpio/machine.h>
+>  #include <asm/bootinfo.h>
+>  #include <asm/idle.h>
+
+=2E.. and this was the shortened diff for those.
+
+Greg, Russell, Ralf, James? Is it okay if I take this via my tree?
+
+Thanks,
+
+   Wolfram
+
+
+--tcoidkrh63ciwaqm
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr6AYsACgkQFA3kzBSg
+KbbazA//bpr6/qUgGIXnVTTVquilOsWl6XIWFNDxE7TweCbHbjHsf72+og1lNDGd
+oqyZuuuBrNg749CO9e9mvgkefDr7q80j84bzRwj0uvmULtAB/kvHV67kepBmmqJ0
+xrmTOquVT4owzbiE46lJWPMp5x1K1JII7/lsWk9Ftlq2SzZX0Z/64y9MCcod23Iq
+7JaAraqsGRQAu39/DqO+oQugPqX2zPnp1BSXDIM5UUJUXBKjzdpS9JpUUJTqiVM0
+9hBcYxd8aE4SQrhkiVArvELgO1gvERL13q6LNe185j+9c8Jo5ACR9mSCGi+oRzPC
+4ZAtlWjluD7nXr6ZnaAd7IEg2LVnO9SSDuztnMGXN8c3taV+jb6EnhGmubuGn6yM
+sug3NzFRT29jvyn3jLwZjZfJDQtuTlQz6+VtsrrIRNyrEohgWAd/ZrJJr91tV0DK
+31DCDEYWZ4t0b9ZSty+EQ2LrBrxZoZo0cQ+jW1/2SI6dJbB3zLNSMyTKx56AjYR/
+NGqPw5sIkpoylOkVKUOvz9VTsidTroNE49/jMzkUIaepIrO8Zh5sqSRo8W2TEuGJ
+VwU/QYzKhGrOtHd5n9nXYqikcRjet+rFGSwtQQCpOKRuu7lcZZ5l6965wBGHEocu
+XVJlX0I6t956kRNIEdgrAVWT1PbAHcm4ztc4NMby6j8DiozPSbw=
+=rmj3
+-----END PGP SIGNATURE-----
+
+--tcoidkrh63ciwaqm--
