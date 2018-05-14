@@ -1,27 +1,22 @@
 From: Dmitry Osipenko <digetx@gmail.com>
 Subject: Re: [PATCH v1] i2c: tegra: Remove suspend-resume
-Date: Mon, 14 May 2018 15:51:28 +0300
-Message-ID: <5949e650-8ab5-b4bb-196d-5a0705383141@gmail.com>
+Date: Mon, 14 May 2018 16:03:50 +0300
+Message-ID: <35bb3f47-2767-bc6c-62c0-b568f80a1cfb@gmail.com>
 References: <20180513211347.7187-1-digetx@gmail.com>
- <20180514115933.GH18312@ulmo>
- <d83fc1f7-d5e5-4211-1cd8-babcabdd9c4b@nvidia.com>
+ <20180514115933.GH18312@ulmo> <20180514121833.2hcpuwfjxmzi3rcx@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d83fc1f7-d5e5-4211-1cd8-babcabdd9c4b@nvidia.com>
+In-Reply-To: <20180514121833.2hcpuwfjxmzi3rcx@katana>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jonathan Hunter <jonathanh@nvidia.com>, Shardar Shariff Md <smohammed@nvidia.com>, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Thierry Reding <thierry.reding@gmail.com>
+Cc: Jonathan Hunter <jonathanh@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Shardar Shariff Md <smohammed@nvidia.com>, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 14.05.2018 15:21, Laxman Dewangan wrote:
-> 
-> 
-> On Monday 14 May 2018 05:29 PM, Thierry Reding wrote:
->> * PGP Signed by an unknown key
->>
+On 14.05.2018 15:18, Wolfram Sang wrote:
+> On Mon, May 14, 2018 at 01:59:33PM +0200, Thierry Reding wrote:
 >> On Mon, May 14, 2018 at 12:13:47AM +0300, Dmitry Osipenko wrote:
 >>> Nothing prevents I2C clients to access I2C while Tegra's driver is being
 >>> suspended, this results in -EBUSY error returned to the clients and that
@@ -44,27 +39,28 @@ On 14.05.2018 15:21, Laxman Dewangan wrote:
 >>> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
 >>> Cc: <stable@vger.kernel.org>
 >>> ---
->>>   drivers/i2c/busses/i2c-tegra.c | 33 ---------------------------------
->>>   1 file changed, 33 deletions(-)
+>>>  drivers/i2c/busses/i2c-tegra.c | 33 ---------------------------------
+>>>  1 file changed, 33 deletions(-)
+>>
 >> Shardar, Laxman, any thoughts on this? The is_suspended thing looks to
 >> me like a workaround of some sort that may not be needed if clients have
 >> proper suspend/resume implementations. Even without suspend/resume
 >> support in client drivers, the driver core should resume devices in the
 >> right order (I2C adapter before any of the clients), so I don't see any
 >> cases where the is_suspended logic would be useful.
->>
 > 
-> Our I2C driver is based on the interrupt. So we have converted the
-> suspend/resume to suspend_noirq and reseume_noirq so that we will not allow the
-> transfer when system interrupt disabled in downstream.
->           SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(tegra_i2c_suspend, tegra_i2c_resume)
+> Thanks for this patch!
 > 
-> In shutdown path, where interrupt disabled and still need i2c, we use the
-> bit-bang method via GPIO for i2c transfer.
-In the current upstream kernel suspend/resume can't be simply moved to the
-'noirq' stage because resume invokes tegra_i2c_init() which uses runtime PM and
-that doesn't work with the IRQ's being disabled. But things do not work even
-with the tegra_i2c_init() changed to work with the disabled IRQ's, like I wrote
-above the I2C transfer fails (due to timeout) and a "fix" for that failure was
-to remove reset_control_assert/deassert from the tegra_i2c_init(). So I'd go for
-a complete suspend/resume removal for now as it is causes problem.
+> This is closely related to a discussion we started recently:
+> 
+> "I2C PM overhaul needed?" https://lkml.org/lkml/2018/5/4/329
+> 
+> And part of the outcome is that the I2C core should print a WARN if an
+> I2C client tries to use I2C at suspend_noirq state or later. This is to
+> remove logic like in this patch from all I2C host drivers and to make it
+> more explicit that those I2C client drivers need their PM fixed.
+> 
+
+Thank you very much for pointing at the discussion. Indeed it should be nicer if
+I2C core handled the buggy client drivers and the rest of related suspend/resume
+issues instead of having each I2C BUS driver to do it on its own.
