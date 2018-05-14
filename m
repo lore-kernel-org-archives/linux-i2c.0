@@ -1,61 +1,36 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 06/21] i2c: diolan: make use of i2c_8bit_addr_from_msg
-Date: Mon, 14 May 2018 08:50:37 -0700
-Message-ID: <20180514155037.GA29550@roeck-us.net>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH 00/21] i2c: make use of i2c_8bit_addr_from_msg
+Date: Mon, 14 May 2018 09:11:57 -0700
+Message-ID: <c83bb5ddf36b419c4c01e20384c7b532c9a48cd4.camel@perches.com>
 References: <20180514145330.4857-1-peda@axentia.se>
- <20180514145330.4857-7-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180514145330.4857-7-peda@axentia.se>
+In-Reply-To: <20180514145330.4857-1-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
+Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, Guenter Roeck <linux@roeck-us.net>, Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Peter Korsgaard <jacmet@sunsite.dk>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linuxppc-dev@lists.ozlabs.org, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 14, 2018 at 04:53:15PM +0200, Peter Rosin wrote:
-> Because it looks neater and allows factoring out some code
-> that is now common between if and else.
+On Mon, 2018-05-14 at 16:53 +0200, Peter Rosin wrote:
+> Hi!
 > 
-> Signed-off-by: Peter Rosin <peda@axentia.se>
+> The nice little inline i2c_8bit_addr_from_msg is not getting
+> enough use. This series improves the situation and drops a
+> bunch of lines in the process.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Perhaps the inline should test for I2C_M_REV_DIR_ADDR
+as there is at least one use like
 
-> ---
->  drivers/i2c/busses/i2c-diolan-u2c.c | 11 ++++-------
->  1 file changed, 4 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-diolan-u2c.c b/drivers/i2c/busses/i2c-diolan-u2c.c
-> index f718ee4e3332..3f28317cde39 100644
-> --- a/drivers/i2c/busses/i2c-diolan-u2c.c
-> +++ b/drivers/i2c/busses/i2c-diolan-u2c.c
-> @@ -360,11 +360,11 @@ static int diolan_usb_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs,
->  			if (ret < 0)
->  				goto abort;
->  		}
-> +		ret = diolan_i2c_put_byte_ack(dev,
-> +					      i2c_8bit_addr_from_msg(pmsg));
-> +		if (ret < 0)
-> +			goto abort;
->  		if (pmsg->flags & I2C_M_RD) {
-> -			ret =
-> -			    diolan_i2c_put_byte_ack(dev, (pmsg->addr << 1) | 1);
-> -			if (ret < 0)
-> -				goto abort;
->  			for (j = 0; j < pmsg->len; j++) {
->  				u8 byte;
->  				bool ack = j < pmsg->len - 1;
-> @@ -393,9 +393,6 @@ static int diolan_usb_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs,
->  				pmsg->buf[j] = byte;
->  			}
->  		} else {
-> -			ret = diolan_i2c_put_byte_ack(dev, pmsg->addr << 1);
-> -			if (ret < 0)
-> -				goto abort;
->  			for (j = 0; j < pmsg->len; j++) {
->  				ret = diolan_i2c_put_byte_ack(dev,
->  							      pmsg->buf[j]);
-> -- 
-> 2.11.0
-> 
+-               addr = msg->addr << 1;
+-               if (flags & I2C_M_RD)
+-                       addr |= 1;
++               addr = i2c_8bit_addr_from_msg(msg);
+                if (flags & I2C_M_REV_DIR_ADDR)
+                        addr ^= 1;
+
+which look odd
+
+Do any of these changes now no longer need
+the temporary flags variable?
