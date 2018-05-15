@@ -1,52 +1,52 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: pmcmsp: return message count on master_xfer
- success
-Date: Tue, 15 May 2018 09:28:07 +0200
-Message-ID: <20180515072806.twsuirbmx2xs5rge@ninjato>
+Subject: Re: [PATCH 2/2] i2c: pmcmsp: fix error return from master_xfer
+Date: Tue, 15 May 2018 09:28:13 +0200
+Message-ID: <20180515072813.wrihve2xjjteg4rj@ninjato>
 References: <20180509194630.29047-1-peda@axentia.se>
+ <20180509194630.29047-2-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="6klqfydcvsqnnam2"
+        protocol="application/pgp-signature"; boundary="kru5cayobwcmhhvm"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180509194630.29047-1-peda@axentia.se>
+In-Reply-To: <20180509194630.29047-2-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Peter Rosin <peda@axentia.se>
 Cc: linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "Gustavo A. R. Silva" <garsilva@embeddedor.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---6klqfydcvsqnnam2
+--kru5cayobwcmhhvm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 09, 2018 at 09:46:29PM +0200, Peter Rosin wrote:
-> Returning zero is wrong in this case.
+On Wed, May 09, 2018 at 09:46:30PM +0200, Peter Rosin wrote:
+> Returning -1 (-EPERM) is not appropriate here, go with -EIO.
 >=20
 > Signed-off-by: Peter Rosin <peda@axentia.se>
 
 Applied to for-current, thanks!
 
 
---6klqfydcvsqnnam2
+--kru5cayobwcmhhvm
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr6jAYACgkQFA3kzBSg
-Kbaciw//RnwWTyfCtwEIwaiR6lRkdAQUGEVT98Jo96ID5qGIQUFuWkIo3G33BuR4
-1kPXOVjcTAWO7ZtHjwqKczSKov/k2WmpyllO4oiSc9sUOxC3kk2nE6Kq0IEiL3uv
-oE4b3LTRbmXxgcdAw2QeOziBi6QaCp/NXdSvW4PmyoiRikQEFv7Z5ez+rGbGbwX5
-8t3zpdz+hDKh5vXaTtWcmyU3oDT30/5RcwFMiTA/AGbYK64cnFH277DpJnAeGtLe
-AbXGC0DIZWzCOcO8mhJPtGVhvNF7zJQs6SITjrrDMeFRrPgP4AN9hif2od+IZRxL
-ClC3bQMcdJjU/PK+sLlB9tmoiIPED90uMk0vC8uov5lVMerAUv137zA/btxLyuY6
-EmasH2Z/zAlVtorymnnVDh5/8auSl7eCE3kRrNhilA+WBz/kNq7vnrnBKWs6LSSw
-XJRoJ+ReJN8C4T8LOD3pp3DLPSkXU15YeQoshF9nw85oiEZWQfDOympWtKCAANZm
-5G/uSRgXxLOtDYaaZVdUdQzIT2bBBTBrZ+Z3ja/VGPcuQ/sm8DHkNnWYV3fCQuoF
-lG/emZ4rU3qduBCQGXCChL0jlSvEQXve3E1up12MTpJOKAQhSYEBg8KY5LlL8GX/
-a+H4oMloRNPxNMpvnY9DdnC4ZLSAtIn+z7CLl6FnN1KbwLmykmw=
-=0yAl
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr6jA0ACgkQFA3kzBSg
+Kba0GQ/7BoQtr5W5VHHxWx7OOgT1b1RvMw4ato89dtth3yAzcZ81rbW2OKWtRdx6
+ANCyuiNIxmBMMYx+LIaWLXaWgCt1ET07DVTSEsWIRNrqBRPulc4MC2KpWUYO5VQm
+/egIs4nGXHPWwbgVD7Ndmxe7wAyDeBh5Y6SlZMslZeS0/gHSw3KP/os6P03RqIV/
+ImHs3pY84XqW/K+yJdAnPPnHAd1TbZqmgT6srCJsROharkCGhvKLAakGjWH7MSq+
+zBJFAqQsadoAYHrRyzhhwIK2buNqJDE9xa0WzgKrJ7Tt716gJIh6JV7OcB3/aMol
+7TtjfIHnqcy+BSrJ3pUsmQY2jztYJXRWs/ST3kUI9niViaD9O1OkVj/jWDVz3SeX
+6QWmdBUQPJ5OiSJpinZzeUQXqKNr1q7jWphIF3K4rCm5tMqIMiEH2KKxU4rZ7w0/
+/h/sW6FBWLrSNm4/GhNX8q3UqfQ60a7CxDjNNrqsnlWSurL44JpboWHc+aZjMcRQ
+eZfm0X2QXcYyCsbIMucX+em7dJrAE2Gd1l9jfCkvKWvzvccekhW6TQQAHYB0AsBs
+9uG45BhF9jOzTW+RvjEh9qoO+ud0epdTJJhWhFR6jB/gUfeqxaA8f2QnKpcpoWGq
+sSk3QdN0kqlBkyO/bAfDVg2BHImd2C9ZktPvul5JgypL6Nj/naE=
+=Nbhf
 -----END PGP SIGNATURE-----
 
---6klqfydcvsqnnam2--
+--kru5cayobwcmhhvm--
