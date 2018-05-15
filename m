@@ -1,52 +1,57 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: viperboard: return message count on master_xfer
- success
-Date: Tue, 15 May 2018 09:28:23 +0200
-Message-ID: <20180515072823.kqjzlqqy3gwipxmm@ninjato>
-References: <20180509194748.29222-1-peda@axentia.se>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v2] i2c: i801: fix unused-function warning
+Date: Tue, 15 May 2018 10:16:02 +0200
+Message-ID: <20180515101602.79ff49cf@endymion>
+References: <20180510152719.6e37b10e@endymion>
+        <20180514093326.30314-1-anders.roxell@linaro.org>
+        <CAHp75VdJEzDsvJmv812wvc5p=frqc3KU8HW=y4cGULYEp4=SKQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rjce4wpc4toapdwe"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180509194748.29222-1-peda@axentia.se>
+In-Reply-To: <CAHp75VdJEzDsvJmv812wvc5p=frqc3KU8HW=y4cGULYEp4=SKQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Anders Roxell <anders.roxell@linaro.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Andy,
 
---rjce4wpc4toapdwe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, 14 May 2018 20:18:37 +0300, Andy Shevchenko wrote:
+> On Mon, May 14, 2018 at 12:33 PM, Anders Roxell
+> <anders.roxell@linaro.org> wrote:
+> > With CONFIG_PM, we get a harmless build warning:
+> > drivers/i2c/busses/i2c-i801.c:1723:12: warning: ‘i801_resume’ defined but not used [-Wunused-function]
+> >  static int i801_resume(struct device *dev)
+> >             ^~~~~~~~~~~
+> > drivers/i2c/busses/i2c-i801.c:1714:12: warning: ‘i801_suspend’ defined but not used [-Wunused-function]
+> >  static int i801_suspend(struct device *dev)
+> >             ^~~~~~~~~~~~  
+> 
+> > -#ifdef CONFIG_PM
+> > +#ifdef CONFIG_PM_SLEEP
+> >  static int i801_suspend(struct device *dev)  
+> 
+> The better pattern is to get rid of ugly ifdef and supply
+> __maybe_unused annotation to each function in question.
 
-On Wed, May 09, 2018 at 09:47:48PM +0200, Peter Rosin wrote:
-> Returning zero is wrong in this case.
->=20
-> Signed-off-by: Peter Rosin <peda@axentia.se>
+That was Anders' first proposal, but it was declined by the driver
+maintainer (me.) See:
 
-Applied to for-current, thanks!
+https://marc.info/?l=linux-kernel&m=152588526520326&w=2
 
+__maybe_unused is just a way to prevent the compiler from doing its
+job. If it's really what you want, you might as well build with
+-Wno-unused, instead of crippling the code with yet another annotation.
 
---rjce4wpc4toapdwe
-Content-Type: application/pgp-signature; name="signature.asc"
+I can't see how building unused code only to discard it later can be
+better than a proper #ifdef which will only build the code when we
+actually need it.
 
------BEGIN PGP SIGNATURE-----
+Maybe there are cases where __maybe_unused is actually needed, but in
+my opinion that should be the last resort option. That's not the case
+here.
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr6jBcACgkQFA3kzBSg
-KbYgTxAArCi8vgmnWCZyIbL5krPpBNcyQI2Ignw9zZ7ZU84G6fiaZBG1QaqCQCkU
-YhoY8XPdtX+fum8T03Ni6sXUDCm3h+XSok3h7s+nM5EC6LEH4H2Mewh4iMip467H
-ES0Jmo6fihxgPpljep6SX9pP3AiuiTpWi8uiO+naYmOnNCk72xXUVCuOS6TdFiU0
-xp6vK/lwJee1e+bFLd9wkfrtA8Ie2BDFKjQfbBJTslct3aZ1RhTAZPYYVtEju+e1
-YArTJImc2LkOMM339Lt3wilm/qW4bYGaXccO674eCGY1A4aOT0bhye7oPTBoCSQM
-wHJu5kXonnx46z+qOC1Qsvzg+WBHXAuJsL29VK0sGrBXHGI15bSgQmyUvbwo8/+N
-gUZoBRe0oCzivmR1gCTtK6N+bzek8tHqxGMvDdQhVNgvZGsVEqhKwhxl7OAsA56V
-nnIMZTZsV8CZSDxDDqpuXKRkGUuYOucnXtjiSsp4FmoQrNqC4UO0HOk68zceAq6H
-nmBJ42auDqx3DVw1u3U+jroHiPlx1PDBzYwjjb8FAvXu8QOuobcjUPlhZYGPpN9X
-WSttMsGVFQjVJM3GrZ3pP7LGUeupOFE0ZiUPA7tAvRCh5Sa33aS+n4QOg+is905n
-jcp3UGK2TuUdaSrdE71JFY57TX8W3roYQRAzZ05JymelrrnUsnQ=
-=KD85
------END PGP SIGNATURE-----
-
---rjce4wpc4toapdwe--
+-- 
+Jean Delvare
+SUSE L3 Support
