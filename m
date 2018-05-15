@@ -1,38 +1,90 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [BUG] i2c-hid: ELAN Touchpad does not work on ASUS X580GD
-Date: Tue, 15 May 2018 13:20:58 +0300
-Message-ID: <7728da79-8a7a-b87d-d09c-b36978b3032e@linux.intel.com>
-References: <CAPpJ_ed-JPOzQPtyCdH4_C7dzEeM3fznus8XDuaojaiM_4nFpw@mail.gmail.com>
- <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com>
- <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com>
- <CAD8Lp46b+-B=xqSAqB+zV4xF6SRUGs46FkydS37UEuqav_jNog@mail.gmail.com>
- <CAB4CAwd0tN7CaS7YZCo3TZH-DPxt0x6wxyO23v7aBW9MOCtHCw@mail.gmail.com>
- <c1343704-6b1a-14b5-3942-a8a33f73feee@linux.intel.com>
- <CAB4CAwe6kjJ10s0KtVJrPMSC8UA+YLCiqbnkZ_-oFTKTFPTwCw@mail.gmail.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v2 2/2] i2c: core-smbus: fix a potential missing-check bug
+Date: Tue, 15 May 2018 12:36:50 +0200
+Message-ID: <87286831-408c-b542-46e9-fe8aba151d5f@axentia.se>
+References: <1525525341-10046-1-git-send-email-wang6495@umn.edu>
+ <20180510111658.sxf3mvye5q6ihxa7@ninjato>
+ <8f728c2d-b463-507e-2c36-fad22fd99dff@axentia.se>
+ <20180515085833.4z4cvsxoqqbny53q@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAB4CAwe6kjJ10s0KtVJrPMSC8UA+YLCiqbnkZ_-oFTKTFPTwCw@mail.gmail.com>
+In-Reply-To: <20180515085833.4z4cvsxoqqbny53q@ninjato>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Chris Chiu <chiu@endlessm.com>
-Cc: Daniel Drake <drake@endlessm.com>, Jian-Hong Pan <jian-hong@endlessm.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jani Nikula <jani.nikula@intel.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Adrian Salido <salidoa@google.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wenwen Wang <wang6495@umn.edu>, Kangjie Lu <kjlu@umn.edu>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 05/15/2018 06:22 AM, Chris Chiu wrote:
-> What if I change the 120MHz to 180MHz and then make sure that the I2C operates
-> in target FS mode frequency 400kHz via scope? Would there be any side effect?
-> Maybe some other busses frequency could be also affected and causing some other
-> component malfunction?
+On 2018-05-15 10:58, Wolfram Sang wrote:
+> Hi Peter,
 > 
-Should be safe. It is only clock rate information when registering a 
-fixed clock with known rate in intel-lpss.c and i2c-designware uses that 
-info when calculating the timing parameters. I.e. it doesn't change any 
-internal clocks.
+>>>> In i2c_smbus_xfer_emulated(), the function i2c_transfer() is invoked to
+>>>> transfer i2c messages. The number of actual transferred messages is
+>>>> returned and saved to 'status'. If 'status' is negative, that means an
+>>>> error occurred during the transfer process. In that case, the value of
+>>>> 'status' is an error code to indicate the reason of the transfer failure.
+>>>> In most cases, i2c_transfer() can transfer 'num' messages with no error.
+>>>> And so 'status' == 'num'. However, due to unexpected errors, it is probable
+>>>> that only partial messages are transferred by i2c_transfer(). As a result,
+>>>> 'status' != 'num'. This special case is not checked after the invocation of
+>>>> i2c_transfer() and can potentially lead to unexpected issues in the
+>>>> following execution since it is expected that 'status' == 'num'.
+>>>>
+>>>> This patch checks the return value of i2c_transfer() and returns an error
+>>>> code -EIO if the number of actual transferred messages 'status' is not
+>>>> equal to 'num'.
+>>>>
+>>>> Signed-off-by: Wenwen Wang <wang6495@umn.edu>
+>>>
+>>> Applied to for-current, thanks!
+>>>
+>>
+>> I meant to comment here but got side-tracked and never got around to it.
+>> But see e.g. [1] and [2] for drivers that will not be happy with this
+>> change. Maybe there are more of those? I did a scan of the drivers in
+>> algos/ and busses/, but there are drivers all over the tree that
+>> implements .master_xfer that I have not audited. Who knows what further
+>> problems this patch will reveal? So, maybe we should be a bit
+>> conservative and only WARN as a first step?
+> 
+> I came to the conclusion: yes and no.
+> 
+> I think this patch is correct, so it is good to have. But true, it will
+> expose if other drivers have implemented the return value wrongly. So, I
+> removed this patch from for-current and plan to include it in for-next
+> instead if we can agree on that being a good way forward. That will
+> allow for one full cycle of testing and fixing the issues found. And
+> hopefully I have time to write a small coccinelle rule to find if
+> constant values are returned in a function declared as master_xfer.
 
-I'm trying to find a contact who can confirm what is the expected rate 
-of I2C input clock and is it common to all Cannon Lake HW.
+That would be a good thing. Maybe a long term goal is to simply return
+zero on success for .master_xfer, because currently the only expected
+success value is the number of messages sent, but the caller is in all
+likelihood already aware of that count, so it all seems rather like
+something that is just pointless and easy to get wrong...
 
--- 
-Jarkko
+>> PS. Also busses/i2c-rcar.c seems like it might return a short "success"
+>> for some sequence of events. But I'm not sure about that one...
+> 
+> What do you mean with "short success for some sequence" here?
+
+By "short" I mean not all requested messages transferred. By "success"
+I mean non-negative.
+
+I.e. when I look at rcar_i2c_master_xfer(), it sets things up for all
+messages to be transferred, starts things off and waits for completion
+(or timeout). But the driver is too involved for it to be easy to say
+that either all messages are transferred or a negative error is
+returned. I never managed to see that anyway.
+
+And the function has that "ret = num - priv->msgs_left;" statement
+indicating that whomever wrote it thought it perfectly ok to return
+such a "short success" (which noone is expecting).
+
+So, I'm simply uncertain about that .master_xfer implementation, that's
+all.
+
+Cheers,
+Peter
