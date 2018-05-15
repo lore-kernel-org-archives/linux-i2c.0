@@ -1,57 +1,102 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v2] i2c: i801: fix unused-function warning
-Date: Tue, 15 May 2018 10:16:02 +0200
-Message-ID: <20180515101602.79ff49cf@endymion>
-References: <20180510152719.6e37b10e@endymion>
-        <20180514093326.30314-1-anders.roxell@linaro.org>
-        <CAHp75VdJEzDsvJmv812wvc5p=frqc3KU8HW=y4cGULYEp4=SKQ@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 2/2] i2c: core-smbus: fix a potential missing-check bug
+Date: Tue, 15 May 2018 10:58:33 +0200
+Message-ID: <20180515085833.4z4cvsxoqqbny53q@ninjato>
+References: <1525525341-10046-1-git-send-email-wang6495@umn.edu>
+ <20180510111658.sxf3mvye5q6ihxa7@ninjato>
+ <8f728c2d-b463-507e-2c36-fad22fd99dff@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="jzt5abwbfk6alqil"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75VdJEzDsvJmv812wvc5p=frqc3KU8HW=y4cGULYEp4=SKQ@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <8f728c2d-b463-507e-2c36-fad22fd99dff@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Anders Roxell <anders.roxell@linaro.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Peter Rosin <peda@axentia.se>
+Cc: Wenwen Wang <wang6495@umn.edu>, Kangjie Lu <kjlu@umn.edu>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andy,
 
-On Mon, 14 May 2018 20:18:37 +0300, Andy Shevchenko wrote:
-> On Mon, May 14, 2018 at 12:33 PM, Anders Roxell
-> <anders.roxell@linaro.org> wrote:
-> > With CONFIG_PM, we get a harmless build warning:
-> > drivers/i2c/busses/i2c-i801.c:1723:12: warning: ‘i801_resume’ defined but not used [-Wunused-function]
-> >  static int i801_resume(struct device *dev)
-> >             ^~~~~~~~~~~
-> > drivers/i2c/busses/i2c-i801.c:1714:12: warning: ‘i801_suspend’ defined but not used [-Wunused-function]
-> >  static int i801_suspend(struct device *dev)
-> >             ^~~~~~~~~~~~  
-> 
-> > -#ifdef CONFIG_PM
-> > +#ifdef CONFIG_PM_SLEEP
-> >  static int i801_suspend(struct device *dev)  
-> 
-> The better pattern is to get rid of ugly ifdef and supply
-> __maybe_unused annotation to each function in question.
+--jzt5abwbfk6alqil
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That was Anders' first proposal, but it was declined by the driver
-maintainer (me.) See:
+Hi Peter,
 
-https://marc.info/?l=linux-kernel&m=152588526520326&w=2
+> >> In i2c_smbus_xfer_emulated(), the function i2c_transfer() is invoked to
+> >> transfer i2c messages. The number of actual transferred messages is
+> >> returned and saved to 'status'. If 'status' is negative, that means an
+> >> error occurred during the transfer process. In that case, the value of
+> >> 'status' is an error code to indicate the reason of the transfer failu=
+re.
+> >> In most cases, i2c_transfer() can transfer 'num' messages with no erro=
+r.
+> >> And so 'status' =3D=3D 'num'. However, due to unexpected errors, it is=
+ probable
+> >> that only partial messages are transferred by i2c_transfer(). As a res=
+ult,
+> >> 'status' !=3D 'num'. This special case is not checked after the invoca=
+tion of
+> >> i2c_transfer() and can potentially lead to unexpected issues in the
+> >> following execution since it is expected that 'status' =3D=3D 'num'.
+> >>
+> >> This patch checks the return value of i2c_transfer() and returns an er=
+ror
+> >> code -EIO if the number of actual transferred messages 'status' is not
+> >> equal to 'num'.
+> >>
+> >> Signed-off-by: Wenwen Wang <wang6495@umn.edu>
+> >=20
+> > Applied to for-current, thanks!
+> >=20
+>=20
+> I meant to comment here but got side-tracked and never got around to it.
+> But see e.g. [1] and [2] for drivers that will not be happy with this
+> change. Maybe there are more of those? I did a scan of the drivers in
+> algos/ and busses/, but there are drivers all over the tree that
+> implements .master_xfer that I have not audited. Who knows what further
+> problems this patch will reveal? So, maybe we should be a bit
+> conservative and only WARN as a first step?
 
-__maybe_unused is just a way to prevent the compiler from doing its
-job. If it's really what you want, you might as well build with
--Wno-unused, instead of crippling the code with yet another annotation.
+I came to the conclusion: yes and no.
 
-I can't see how building unused code only to discard it later can be
-better than a proper #ifdef which will only build the code when we
-actually need it.
+I think this patch is correct, so it is good to have. But true, it will
+expose if other drivers have implemented the return value wrongly. So, I
+removed this patch from for-current and plan to include it in for-next
+instead if we can agree on that being a good way forward. That will
+allow for one full cycle of testing and fixing the issues found. And
+hopefully I have time to write a small coccinelle rule to find if
+constant values are returned in a function declared as master_xfer.
 
-Maybe there are cases where __maybe_unused is actually needed, but in
-my opinion that should be the last resort option. That's not the case
-here.
+> PS. Also busses/i2c-rcar.c seems like it might return a short "success"
+> for some sequence of events. But I'm not sure about that one...
 
--- 
-Jean Delvare
-SUSE L3 Support
+What do you mean with "short success for some sequence" here?
+
+Thanks,
+
+   Wolfram
+
+
+--jzt5abwbfk6alqil
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr6oTUACgkQFA3kzBSg
+KbZ2Tw//cC+5y9aMfkjUiOYYBeX3rm9XqzBmxWIX72eTybh+KE9flHQrIWqsnv6y
+mFqQSsc9wkynQS+9FyztJBz/2EnrLsWxc+3huVlvS400MGX0T5isB9OTBxYcOlFd
+zwAhWozr8B4yosw0wgr5i1DClFCGbs2No5ZBdg9iBDIG53O8NNvKfSQaEbnZmdvJ
+Mssli6btOZYHQRwf88csuYsAm62PHsf4PmCL1vsYteNBe5wo1pZDLWBoPTvhsj4S
+HmHhC04+wN41X3dBQUlG/4pCpVvvPB7B1KIn05ZwttgslYlb7PODKKFkZ80SrV7K
+G/qyGUpjdO4WSfq/GttLGf2WiJH4B9cDBmcpUlemhVVGsZpojJeOPv5CkJS3CPSl
+5Ffp3Y0B09AIJ8YTMM5/KAJWQlplqK4Yh042HjUB0tPZ/tjeT7LbyQSVEfBxfinU
+SdeJ673hd4hMzG8Drh1ekTchrvtWaEZunNAEQ0WJ79eCGF4UT0MycxW97kcuCRWe
+DjLDMXpifEuKpWpSm0QtWOdMuDY4OTDBHdOsDKfJ6KHxP1yD1sDZTagly95oBGZp
+gduDKuCdqUeMY9X7T8g+i76trUAGWt4AO53ZnycONbf/GOcozWWHOOfdQO4X+o4D
+WteL712JDJ1RtoTinnx/pRfdctLGNny/1K+dyKg7aeVS4KABV6E=
+=vsxh
+-----END PGP SIGNATURE-----
+
+--jzt5abwbfk6alqil--
