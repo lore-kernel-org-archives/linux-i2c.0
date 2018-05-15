@@ -1,102 +1,38 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/2] i2c: core-smbus: fix a potential missing-check bug
-Date: Tue, 15 May 2018 10:58:33 +0200
-Message-ID: <20180515085833.4z4cvsxoqqbny53q@ninjato>
-References: <1525525341-10046-1-git-send-email-wang6495@umn.edu>
- <20180510111658.sxf3mvye5q6ihxa7@ninjato>
- <8f728c2d-b463-507e-2c36-fad22fd99dff@axentia.se>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [BUG] i2c-hid: ELAN Touchpad does not work on ASUS X580GD
+Date: Tue, 15 May 2018 13:20:58 +0300
+Message-ID: <7728da79-8a7a-b87d-d09c-b36978b3032e@linux.intel.com>
+References: <CAPpJ_ed-JPOzQPtyCdH4_C7dzEeM3fznus8XDuaojaiM_4nFpw@mail.gmail.com>
+ <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com>
+ <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com>
+ <CAD8Lp46b+-B=xqSAqB+zV4xF6SRUGs46FkydS37UEuqav_jNog@mail.gmail.com>
+ <CAB4CAwd0tN7CaS7YZCo3TZH-DPxt0x6wxyO23v7aBW9MOCtHCw@mail.gmail.com>
+ <c1343704-6b1a-14b5-3942-a8a33f73feee@linux.intel.com>
+ <CAB4CAwe6kjJ10s0KtVJrPMSC8UA+YLCiqbnkZ_-oFTKTFPTwCw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="jzt5abwbfk6alqil"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <8f728c2d-b463-507e-2c36-fad22fd99dff@axentia.se>
+In-Reply-To: <CAB4CAwe6kjJ10s0KtVJrPMSC8UA+YLCiqbnkZ_-oFTKTFPTwCw@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Wenwen Wang <wang6495@umn.edu>, Kangjie Lu <kjlu@umn.edu>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+To: Chris Chiu <chiu@endlessm.com>
+Cc: Daniel Drake <drake@endlessm.com>, Jian-Hong Pan <jian-hong@endlessm.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jani Nikula <jani.nikula@intel.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Adrian Salido <salidoa@google.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On 05/15/2018 06:22 AM, Chris Chiu wrote:
+> What if I change the 120MHz to 180MHz and then make sure that the I2C operates
+> in target FS mode frequency 400kHz via scope? Would there be any side effect?
+> Maybe some other busses frequency could be also affected and causing some other
+> component malfunction?
+> 
+Should be safe. It is only clock rate information when registering a 
+fixed clock with known rate in intel-lpss.c and i2c-designware uses that 
+info when calculating the timing parameters. I.e. it doesn't change any 
+internal clocks.
 
---jzt5abwbfk6alqil
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I'm trying to find a contact who can confirm what is the expected rate 
+of I2C input clock and is it common to all Cannon Lake HW.
 
-Hi Peter,
-
-> >> In i2c_smbus_xfer_emulated(), the function i2c_transfer() is invoked to
-> >> transfer i2c messages. The number of actual transferred messages is
-> >> returned and saved to 'status'. If 'status' is negative, that means an
-> >> error occurred during the transfer process. In that case, the value of
-> >> 'status' is an error code to indicate the reason of the transfer failu=
-re.
-> >> In most cases, i2c_transfer() can transfer 'num' messages with no erro=
-r.
-> >> And so 'status' =3D=3D 'num'. However, due to unexpected errors, it is=
- probable
-> >> that only partial messages are transferred by i2c_transfer(). As a res=
-ult,
-> >> 'status' !=3D 'num'. This special case is not checked after the invoca=
-tion of
-> >> i2c_transfer() and can potentially lead to unexpected issues in the
-> >> following execution since it is expected that 'status' =3D=3D 'num'.
-> >>
-> >> This patch checks the return value of i2c_transfer() and returns an er=
-ror
-> >> code -EIO if the number of actual transferred messages 'status' is not
-> >> equal to 'num'.
-> >>
-> >> Signed-off-by: Wenwen Wang <wang6495@umn.edu>
-> >=20
-> > Applied to for-current, thanks!
-> >=20
->=20
-> I meant to comment here but got side-tracked and never got around to it.
-> But see e.g. [1] and [2] for drivers that will not be happy with this
-> change. Maybe there are more of those? I did a scan of the drivers in
-> algos/ and busses/, but there are drivers all over the tree that
-> implements .master_xfer that I have not audited. Who knows what further
-> problems this patch will reveal? So, maybe we should be a bit
-> conservative and only WARN as a first step?
-
-I came to the conclusion: yes and no.
-
-I think this patch is correct, so it is good to have. But true, it will
-expose if other drivers have implemented the return value wrongly. So, I
-removed this patch from for-current and plan to include it in for-next
-instead if we can agree on that being a good way forward. That will
-allow for one full cycle of testing and fixing the issues found. And
-hopefully I have time to write a small coccinelle rule to find if
-constant values are returned in a function declared as master_xfer.
-
-> PS. Also busses/i2c-rcar.c seems like it might return a short "success"
-> for some sequence of events. But I'm not sure about that one...
-
-What do you mean with "short success for some sequence" here?
-
-Thanks,
-
-   Wolfram
-
-
---jzt5abwbfk6alqil
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr6oTUACgkQFA3kzBSg
-KbZ2Tw//cC+5y9aMfkjUiOYYBeX3rm9XqzBmxWIX72eTybh+KE9flHQrIWqsnv6y
-mFqQSsc9wkynQS+9FyztJBz/2EnrLsWxc+3huVlvS400MGX0T5isB9OTBxYcOlFd
-zwAhWozr8B4yosw0wgr5i1DClFCGbs2No5ZBdg9iBDIG53O8NNvKfSQaEbnZmdvJ
-Mssli6btOZYHQRwf88csuYsAm62PHsf4PmCL1vsYteNBe5wo1pZDLWBoPTvhsj4S
-HmHhC04+wN41X3dBQUlG/4pCpVvvPB7B1KIn05ZwttgslYlb7PODKKFkZ80SrV7K
-G/qyGUpjdO4WSfq/GttLGf2WiJH4B9cDBmcpUlemhVVGsZpojJeOPv5CkJS3CPSl
-5Ffp3Y0B09AIJ8YTMM5/KAJWQlplqK4Yh042HjUB0tPZ/tjeT7LbyQSVEfBxfinU
-SdeJ673hd4hMzG8Drh1ekTchrvtWaEZunNAEQ0WJ79eCGF4UT0MycxW97kcuCRWe
-DjLDMXpifEuKpWpSm0QtWOdMuDY4OTDBHdOsDKfJ6KHxP1yD1sDZTagly95oBGZp
-gduDKuCdqUeMY9X7T8g+i76trUAGWt4AO53ZnycONbf/GOcozWWHOOfdQO4X+o4D
-WteL712JDJ1RtoTinnx/pRfdctLGNny/1K+dyKg7aeVS4KABV6E=
-=vsxh
------END PGP SIGNATURE-----
-
---jzt5abwbfk6alqil--
+-- 
+Jarkko
