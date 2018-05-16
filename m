@@ -1,36 +1,89 @@
 From: George Cherian <george.cherian@cavium.com>
-Subject: [PATCH 0/4] i2c-xlp9xx Add support for SMBAlert and minor fixes
-Date: Wed, 16 May 2018 00:00:15 -0700
-Message-ID: <1526454019-32714-1-git-send-email-george.cherian@cavium.com>
+Subject: [PATCH 2/4] i2c: xlp9xx: Fix issue seen when updating receive length
+Date: Wed, 16 May 2018 00:00:17 -0700
+Message-ID: <1526454019-32714-3-git-send-email-george.cherian@cavium.com>
+References: <1526454019-32714-1-git-send-email-george.cherian@cavium.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1526454019-32714-1-git-send-email-george.cherian@cavium.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: wsa@the-dreams.de, jglauber@cavium.com, kamlakant.patel@cavium.com, mchehab+samsung@kernel.org, davem@davemloft.net, gregkh@linuxfoundation.org, akpm@linux-foundation.org, linus.walleij@linaro.org, rdunlap@infradead.org, george.cherian@cavium.com
+Cc: wsa@the-dreams.de, jglauber@cavium.com, kamlakant.patel@cavium.com, mchehab+samsung@kernel.org, davem@davemloft.net, gregkh@linuxfoundation.org, akpm@linux-foundation.org, linus.walleij@linaro.org, rdunlap@infradead.org, george.cherian@cavium.com, Jayachandran C <jnair@caviumnetworks.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This series adds the SMBAlert support for i2c-xlp9xx driver and the following
-fixes.
+The hardware does not handle updates to the length register gracefully
+if the new value is less than the number of bytes received so far. If
+this happens, the i2c controller will not stop the receive transaction
+properly.
 
-Patch 2: Make sure we update the transfer length to a future length.
+Fix this by ensuring that the updated length is ok. This is done by
+making sure that the new length written to hardware is at least few
+bytes more than the bytes received so far.
 
-Patch 3: Restrict the transfer size to I2C_SMBUS_BLOCK_SIZE for transfers
-with I2C_M_RECV_LEN is set.
+While at that refactor the length updation to a new function.
 
-Patch 4: While at that update the MAINATINERS file to reflect the current
-maintainers of the driver.
+Signed-off-by: Jayachandran C <jnair@caviumnetworks.com>
+Signed-off-by: George Cherian <george.cherian@cavium.com>
+---
+ drivers/i2c/busses/i2c-xlp9xx.c | 30 +++++++++++++++++++++---------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
 
-George Cherian (4):
-  i2c: xlp9xx: Add support for SMBAlert
-  i2c: xlp9xx: Fix issue seen when updating receive length
-  i2c: xlp9xx: Make sure the transfer size is not more than
-    I2C_SMBUS_BLOCK_SIZE
-  i2c: xlp9xx: Add MAINTAINERS entry
-
- MAINTAINERS                     |  8 ++++
- drivers/i2c/busses/i2c-xlp9xx.c | 89 +++++++++++++++++++++++++++++++----------
- 2 files changed, 76 insertions(+), 21 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
+index fe54512..c268fde 100644
+--- a/drivers/i2c/busses/i2c-xlp9xx.c
++++ b/drivers/i2c/busses/i2c-xlp9xx.c
+@@ -158,9 +158,28 @@ static void xlp9xx_i2c_fill_tx_fifo(struct xlp9xx_i2c_dev *priv)
+ 	priv->msg_buf += len;
+ }
+ 
++static void xlp9xx_i2c_update_rlen(struct xlp9xx_i2c_dev *priv)
++{
++	u32 val, len;
++
++	/*
++	 * Update receive length. Re-read len to get the latest value,
++	 * and then add 4 to have a minimum value that can be safely
++	 * written. This is to account for the byte read above, the
++	 * transfer in progress and any delays in the register I/O
++	 */
++	val = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_CTRL);
++	len = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_FIFOWCNT) &
++				  XLP9XX_I2C_FIFO_WCNT_MASK;
++	len = max_t(u32, priv->msg_len, len + 4);
++	val = (val & ~XLP9XX_I2C_CTRL_MCTLEN_MASK) |
++			(len << XLP9XX_I2C_CTRL_MCTLEN_SHIFT);
++	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_CTRL, val);
++}
++
+ static void xlp9xx_i2c_drain_rx_fifo(struct xlp9xx_i2c_dev *priv)
+ {
+-	u32 len, i, val;
++	u32 len, i;
+ 	u8 rlen, *buf = priv->msg_buf;
+ 
+ 	len = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_FIFOWCNT) &
+@@ -171,20 +190,13 @@ static void xlp9xx_i2c_drain_rx_fifo(struct xlp9xx_i2c_dev *priv)
+ 		/* read length byte */
+ 		rlen = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_MRXFIFO);
+ 		*buf++ = rlen;
+-		len--;
+-
+ 		if (priv->client_pec)
+ 			++rlen;
+ 		/* update remaining bytes and message length */
+ 		priv->msg_buf_remaining = rlen;
+ 		priv->msg_len = rlen + 1;
+ 		priv->len_recv = false;
+-
+-		/* Update transfer length to read only actual data */
+-		val = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_CTRL);
+-		val = (val & ~XLP9XX_I2C_CTRL_MCTLEN_MASK) |
+-			((rlen + 1) << XLP9XX_I2C_CTRL_MCTLEN_SHIFT);
+-		xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_CTRL, val);
++		xlp9xx_i2c_update_rlen(priv);
+ 	} else {
+ 		len = min(priv->msg_buf_remaining, len);
+ 		for (i = 0; i < len; i++, buf++)
 -- 
 1.8.3.1
