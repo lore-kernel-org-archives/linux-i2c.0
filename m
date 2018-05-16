@@ -1,90 +1,60 @@
-From: George Cherian <george.cherian@cavium.com>
-Subject: [PATCH 1/4] i2c: xlp9xx: Add support for SMBAlert
-Date: Wed, 16 May 2018 00:00:16 -0700
-Message-ID: <1526454019-32714-2-git-send-email-george.cherian@cavium.com>
-References: <1526454019-32714-1-git-send-email-george.cherian@cavium.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH v2 0/2] i2c: make use of i2c_8bit_addr_from_msg
+Date: Wed, 16 May 2018 09:16:45 +0200
+Message-ID: <20180516071647.29277-1-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1526454019-32714-1-git-send-email-george.cherian@cavium.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: wsa@the-dreams.de, jglauber@cavium.com, kamlakant.patel@cavium.com, mchehab+samsung@kernel.org, davem@davemloft.net, gregkh@linuxfoundation.org, akpm@linux-foundation.org, linus.walleij@linaro.org, rdunlap@infradead.org, george.cherian@cavium.com
+To: linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, Guenter Roeck <linux@roeck-us.net>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Peter Korsgaard <jacmet@sunsite.dk>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linuxppc-dev@lists.ozlabs.org, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add support for SMBus alert mechanism to i2c-xlp9xx driver.
-The second interrupt is parsed to use for SMBus alert.
-The first interrupt is the i2c controller main interrupt.
+Hi!
 
-Signed-off-by: Kamlakant Patel <kamlakant.patel@cavium.com>
-Signed-off-by: George Cherian <george.cherian@cavium.com>
-Reviewed-by: Jan Glauber <jglauber@cavium.com>
----
- drivers/i2c/busses/i2c-xlp9xx.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+The nice little inline i2c_8bit_addr_from_msg is not getting
+enough use. This series improves the situation and drops a
+bunch of lines in the process.
 
-diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
-index eb8913e..fe54512 100644
---- a/drivers/i2c/busses/i2c-xlp9xx.c
-+++ b/drivers/i2c/busses/i2c-xlp9xx.c
-@@ -10,6 +10,7 @@
- #include <linux/clk.h>
- #include <linux/completion.h>
- #include <linux/i2c.h>
-+#include <linux/i2c-smbus.h>
- #include <linux/init.h>
- #include <linux/interrupt.h>
- #include <linux/io.h>
-@@ -84,6 +85,8 @@ struct xlp9xx_i2c_dev {
- 	struct device *dev;
- 	struct i2c_adapter adapter;
- 	struct completion msg_complete;
-+	struct i2c_smbus_alert_setup alert_data;
-+	struct i2c_client *ara;
- 	int irq;
- 	bool msg_read;
- 	bool len_recv;
-@@ -447,6 +450,19 @@ static int xlp9xx_i2c_get_frequency(struct platform_device *pdev,
- 	return 0;
- }
- 
-+static int xlp9xx_i2c_smbus_setup(struct xlp9xx_i2c_dev *priv,
-+				  struct platform_device *pdev)
-+{
-+	if (!priv->alert_data.irq)
-+		return -EINVAL;
-+
-+	priv->ara = i2c_setup_smbus_alert(&priv->adapter, &priv->alert_data);
-+	if (!priv->ara)
-+		return -ENODEV;
-+
-+	return 0;
-+}
-+
- static int xlp9xx_i2c_probe(struct platform_device *pdev)
- {
- 	struct xlp9xx_i2c_dev *priv;
-@@ -467,6 +483,10 @@ static int xlp9xx_i2c_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "invalid irq!\n");
- 		return priv->irq;
- 	}
-+	/* SMBAlert irq */
-+	priv->alert_data.irq = platform_get_irq(pdev, 1);
-+	if (priv->alert_data.irq <= 0)
-+		priv->alert_data.irq = 0;
- 
- 	xlp9xx_i2c_get_frequency(pdev, priv);
- 	xlp9xx_i2c_init(priv);
-@@ -493,6 +513,10 @@ static int xlp9xx_i2c_probe(struct platform_device *pdev)
- 	if (err)
- 		return err;
- 
-+	err = xlp9xx_i2c_smbus_setup(priv, pdev);
-+	if (err)
-+		dev_dbg(&pdev->dev, "No active SMBus alert %d\n", err);
-+
- 	platform_set_drvdata(pdev, priv);
- 	dev_dbg(&pdev->dev, "I2C bus:%d added\n", priv->adapter.nr);
- 
+I have only compile-tested (that part fine, at least over here).
+
+Changes since v1     https://lkml.org/lkml/2018/5/14/919
+
+- Squashed patches 1-3 (algos) and patches 4-21 (busses) making
+  the series consist of just two patches instead of 21.
+- Added ack-bys and reviewed-bys from Guenter, Uwe and LinusW.
+- Eliminated the flags variable in algos/i2c-algo-pcf.c
+
+Cheers,
+Peter
+
+Peter Rosin (2):
+  i2c: algos: make use of i2c_8bit_addr_from_msg
+  i2c: busses: make use of i2c_8bit_addr_from_msg
+
+ drivers/i2c/algos/i2c-algo-bit.c    |  4 +---
+ drivers/i2c/algos/i2c-algo-pca.c    |  5 +----
+ drivers/i2c/algos/i2c-algo-pcf.c    |  8 ++------
+ drivers/i2c/busses/i2c-aspeed.c     |  3 +--
+ drivers/i2c/busses/i2c-axxia.c      |  5 +++--
+ drivers/i2c/busses/i2c-diolan-u2c.c | 11 ++++-------
+ drivers/i2c/busses/i2c-efm32.c      |  3 +--
+ drivers/i2c/busses/i2c-eg20t.c      |  5 ++---
+ drivers/i2c/busses/i2c-emev2.c      |  2 +-
+ drivers/i2c/busses/i2c-hix5hd2.c    |  9 ++-------
+ drivers/i2c/busses/i2c-imx-lpi2c.c  |  4 +---
+ drivers/i2c/busses/i2c-imx.c        | 10 +++++-----
+ drivers/i2c/busses/i2c-kempld.c     |  7 +++----
+ drivers/i2c/busses/i2c-mxs.c        |  9 +++------
+ drivers/i2c/busses/i2c-ocores.c     |  5 +----
+ drivers/i2c/busses/i2c-pasemi.c     |  2 +-
+ drivers/i2c/busses/i2c-qup.c        |  2 +-
+ drivers/i2c/busses/i2c-rcar.c       |  2 +-
+ drivers/i2c/busses/i2c-riic.c       |  5 ++---
+ drivers/i2c/busses/i2c-stu300.c     | 22 +++++++++++++---------
+ drivers/i2c/busses/i2c-xiic.c       | 11 ++---------
+ 21 files changed, 51 insertions(+), 83 deletions(-)
+
 -- 
-1.8.3.1
+2.11.0
