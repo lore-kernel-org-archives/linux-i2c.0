@@ -1,7 +1,7 @@
 From: George Cherian <george.cherian@cavium.com>
-Subject: [PATCH 4/4] i2c: xlp9xx: Add MAINTAINERS entry
-Date: Wed, 16 May 2018 00:00:19 -0700
-Message-ID: <1526454019-32714-5-git-send-email-george.cherian@cavium.com>
+Subject: [PATCH 3/4] i2c: xlp9xx: Make sure the transfer size is not more than I2C_SMBUS_BLOCK_SIZE
+Date: Wed, 16 May 2018 00:00:18 -0700
+Message-ID: <1526454019-32714-4-git-send-email-george.cherian@cavium.com>
 References: <1526454019-32714-1-git-send-email-george.cherian@cavium.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -9,35 +9,100 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1526454019-32714-1-git-send-email-george.cherian@cavium.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: wsa@the-dreams.de, jglauber@cavium.com, kamlakant.patel@cavium.com, mchehab+samsung@kernel.org, davem@davemloft.net, gregkh@linuxfoundation.org, akpm@linux-foundation.org, linus.walleij@linaro.org, rdunlap@infradead.org, george.cherian@cavium.com
+Cc: wsa@the-dreams.de, jglauber@cavium.com, kamlakant.patel@cavium.com, mchehab+samsung@kernel.org, davem@davemloft.net, gregkh@linuxfoundation.org, akpm@linux-foundation.org, linus.walleij@linaro.org, rdunlap@infradead.org, george.cherian@cavium.com, Jayachandran C <jnair@caviumnetworks.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The i2c XLP9xx driver is maintained by Cavium.
-Add George Cherian and Jan Glauber as the Maintainers.
+For SMBus transactions the max permissible transfer size is
+I2C_SMBUS_BLOCK_SIZE. It is possible that some clients might
+not follow it strictly occasionally.
+This would lead to stack corruption if the driver copies more than
+I2C_SMBUS_BLOCK_SIZE bytes. Add a check to avoid such conditions.
 
+Signed-off-by: Jayachandran C <jnair@caviumnetworks.com>
 Signed-off-by: George Cherian <george.cherian@cavium.com>
 ---
- MAINTAINERS | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/i2c/busses/i2c-xlp9xx.c | 37 ++++++++++++++++++++++++-------------
+ 1 file changed, 24 insertions(+), 13 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index df6e9bb..68da265 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -15509,6 +15509,14 @@ L:	linux-kernel@vger.kernel.org
- S:	Supported
- F:	drivers/char/xillybus/
+diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
+index c268fde..1f41a4f 100644
+--- a/drivers/i2c/busses/i2c-xlp9xx.c
++++ b/drivers/i2c/busses/i2c-xlp9xx.c
+@@ -172,6 +172,8 @@ static void xlp9xx_i2c_update_rlen(struct xlp9xx_i2c_dev *priv)
+ 	len = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_FIFOWCNT) &
+ 				  XLP9XX_I2C_FIFO_WCNT_MASK;
+ 	len = max_t(u32, priv->msg_len, len + 4);
++	if (len >= I2C_SMBUS_BLOCK_MAX + 2)
++		return;
+ 	val = (val & ~XLP9XX_I2C_CTRL_MCTLEN_MASK) |
+ 			(len << XLP9XX_I2C_CTRL_MCTLEN_SHIFT);
+ 	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_CTRL, val);
+@@ -189,14 +191,20 @@ static void xlp9xx_i2c_drain_rx_fifo(struct xlp9xx_i2c_dev *priv)
+ 	if (priv->len_recv) {
+ 		/* read length byte */
+ 		rlen = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_MRXFIFO);
+-		*buf++ = rlen;
+-		if (priv->client_pec)
+-			++rlen;
+-		/* update remaining bytes and message length */
+-		priv->msg_buf_remaining = rlen;
+-		priv->msg_len = rlen + 1;
+-		priv->len_recv = false;
++		if (rlen > I2C_SMBUS_BLOCK_MAX || rlen == 0) {
++			rlen = 0;	/*abort transfer */
++			priv->msg_buf_remaining = 0;
++			priv->msg_len = 0;
++		} else {
++			*buf++ = rlen;
++			if (priv->client_pec)
++				++rlen; /* account for error check byte */
++			/* update remaining bytes and message length */
++			priv->msg_buf_remaining = rlen;
++			priv->msg_len = rlen + 1;
++		}
+ 		xlp9xx_i2c_update_rlen(priv);
++		priv->len_recv = false;
+ 	} else {
+ 		len = min(priv->msg_buf_remaining, len);
+ 		for (i = 0; i < len; i++, buf++)
+@@ -315,10 +323,6 @@ static int xlp9xx_i2c_xfer_msg(struct xlp9xx_i2c_dev *priv, struct i2c_msg *msg,
+ 	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_MFIFOCTRL,
+ 			     XLP9XX_I2C_MFIFOCTRL_RST);
  
-+XLP9XX I2C DRIVER
-+M:	George Cherian <george.cherian@cavium.com>
-+M:	Jan Glauber <jglauber@cavium.com>
-+L:	linux-i2c@vger.kernel.org
-+W:	http://www.cavium.com
-+S:	Supported
-+F:	drivers/i2c/busses/i2c-xlp9xx.c
+-	/* set FIFO threshold if reading */
+-	if (priv->msg_read)
+-		xlp9xx_i2c_update_rx_fifo_thres(priv);
+-
+ 	/* set slave addr */
+ 	xlp9xx_write_i2c_reg(priv, XLP9XX_I2C_SLAVEADDR,
+ 			     (msg->addr << XLP9XX_I2C_SLAVEADDR_ADDR_SHIFT) |
+@@ -337,9 +341,13 @@ static int xlp9xx_i2c_xfer_msg(struct xlp9xx_i2c_dev *priv, struct i2c_msg *msg,
+ 		val &= ~XLP9XX_I2C_CTRL_ADDMODE;
+ 
+ 	priv->len_recv = msg->flags & I2C_M_RECV_LEN;
+-	len = priv->len_recv ? XLP9XX_I2C_FIFO_SIZE : msg->len;
++	len = priv->len_recv ? I2C_SMBUS_BLOCK_MAX + 2 : msg->len;
+ 	priv->client_pec = msg->flags & I2C_CLIENT_PEC;
+ 
++	/* set FIFO threshold if reading */
++	if (priv->msg_read)
++		xlp9xx_i2c_update_rx_fifo_thres(priv);
 +
- XRA1403 GPIO EXPANDER
- M:	Nandor Han <nandor.han@ge.com>
- M:	Semi Malinen <semi.malinen@ge.com>
+ 	/* set data length to be transferred */
+ 	val = (val & ~XLP9XX_I2C_CTRL_MCTLEN_MASK) |
+ 	      (len << XLP9XX_I2C_CTRL_MCTLEN_SHIFT);
+@@ -393,8 +401,11 @@ static int xlp9xx_i2c_xfer_msg(struct xlp9xx_i2c_dev *priv, struct i2c_msg *msg,
+ 	}
+ 
+ 	/* update msg->len with actual received length */
+-	if (msg->flags & I2C_M_RECV_LEN)
++	if (msg->flags & I2C_M_RECV_LEN) {
++		if (!priv->msg_len)
++			return -EPROTO;
+ 		msg->len = priv->msg_len;
++	}
+ 	return 0;
+ }
+ 
 -- 
 1.8.3.1
