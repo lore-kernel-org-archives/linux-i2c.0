@@ -1,66 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: i801: fix unused-function warning
-Date: Thu, 17 May 2018 15:54:53 +0200
-Message-ID: <20180517135453.ori4uopsqnxn6wte@ninjato>
-References: <20180510152719.6e37b10e@endymion>
- <20180514093326.30314-1-anders.roxell@linaro.org>
+Subject: Re: [PATCH] i2c: i2c-stm32f7: fix documentation typo
+Date: Thu, 17 May 2018 15:59:33 +0200
+Message-ID: <20180517135933.mdh4femklasitbfy@ninjato>
+References: <1526026825-2996-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="vro5bi3toditkjgc"
+        protocol="application/pgp-signature"; boundary="3d6xzsp2p26embe4"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180514093326.30314-1-anders.roxell@linaro.org>
+In-Reply-To: <1526026825-2996-1-git-send-email-pierre-yves.mordret@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Anders Roxell <anders.roxell@linaro.org>
-Cc: jdelvare@suse.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Colin Ian King <colin.king@canonical.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---vro5bi3toditkjgc
-Content-Type: text/plain; charset=utf-8
+--3d6xzsp2p26embe4
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 14, 2018 at 11:33:26AM +0200, Anders Roxell wrote:
-> With CONFIG_PM, we get a harmless build warning:
-> drivers/i2c/busses/i2c-i801.c:1723:12: warning: =E2=80=98i801_resume=E2=
-=80=99 defined but not used [-Wunused-function]
->  static int i801_resume(struct device *dev)
->             ^~~~~~~~~~~
-> drivers/i2c/busses/i2c-i801.c:1714:12: warning: =E2=80=98i801_suspend=E2=
-=80=99 defined but not used [-Wunused-function]
->  static int i801_suspend(struct device *dev)
->             ^~~~~~~~~~~~
+On Fri, May 11, 2018 at 10:20:25AM +0200, Pierre-Yves MORDRET wrote:
+> Some data structure members were either misspelled or missing.
 >=20
-> Follow design pattern from other drivers like i2c-brcmstb, i2c-mpc,
-> i2c-ocores, i2c-pnx, i2c-puv3, i2c-st, i2c-stu300 and i2c-mux-pca954x
-> and changing the ifdef CONFIG_PM to CONFIG_PM_SLEEP.
->=20
-> Fixes: a9c8088c7988 ("i2c: i801: Don't restore config registers on runtim=
-e PM")
-> Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+> Fixes: aeb068c572 ("i2c: i2c-stm32f7: add driver")
+> Fixes: 380b8a85e7 ("i2c: i2c-stm32f7: Add initial SMBus protocols support=
+")
+> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 
 Applied to for-next, thanks!
 
 
---vro5bi3toditkjgc
+--3d6xzsp2p26embe4
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr9ia0ACgkQFA3kzBSg
-KbadwA/9GsKwsmiOW7KLc3Cfv86pVOZaEF8HPeccuW+fkZk4hu+9mEtta6fE43bH
-rBFAGAcbzU7Uv73zZ8OEogLPB+EnI3r/vrMD+3dvpBLlQOJ2sp1uzBg1JiZz+MsR
-OJa1a+WFC3s2J3AYCWUNJ2cc83YLSiImQQLJfgtDyCUJGPcMrTetx3r85lZfM0Dd
-Nvaab1Pg7gkbuAsaynTs7NUPqngSc3lHkKUfB1TW0Dx2rGFVg3lw342pfh//VJwq
-wfBm2CsNwGY1EN5xXcN6A+FQVhUYCfGKq9FvaawGCya6c7jDapOTe86AN16FbnUw
-bfyWmudlVrnPg8a4KdGiDpmNinUHcCdvgh4zrWES45Z5Sp7PvXKKjy746ziULZRe
-stdel7ov36WtghkLl9ncABWuZLXJPoE34GRem2xwqisvLqSTGvRTTNlq5zpyTQv9
-m2TTlAmbvxEzZShf0EU7BFbZ/LUKXK3ThRgMogrulp4H3DhP1xSq0umx5F/3x8o7
-zmrlxB1bft2L/DLqxmYffRF8Qe4yjQeAc61/RNrfmdu7HYseuYs00cC9ZYHS1f1v
-pydbP5ECgGszAgeBJOLeCQ8rwt2enPTMarPMy6svRKBu3kw1zMau0jrq8bLM6dfJ
-zD2BSL3Wwyqsau8pBV8xVzCZtZ8LUbtDFEtsAoEEeKbfddnX0wQ=
-=X2Ca
+iQIyBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr9isUACgkQFA3kzBSg
+KbbvMw/yA3QFPLmAoCRd5H4fuGFXhpgp9SLdgkF5Z46BGFpbJZaLbJbPnr55bcwS
++BazcdJfu1+oLmhOA4r1NPdj/5thrZyP9YNknq00hE2ur3FkIYogcS53ic/UtcKp
+Y/jZwmcF08VmxUdJ81pfWJ31OdeOemvNu2betVkHgsTh4rFrBEEMFmPzkYajezYl
+aNT3ROqBuTXbI/+zebwMzXFsfLtPA/K/RYTg9Y5uMLD08vei+yzoKQciuURy/QvQ
+FNRYwypLHmEG8mbAZ/Z2OdScwlNSDaE8B2TdNfhGmto/DUwRwmRerm5qtEZrL3gt
+VauMCUc3l9FZlYrkTbd7SauA1W4V4t9FdSTrujrFqxyTYaF13Uuma6xJMnZP//0o
+WiSWvpwO1NzNhvAB4C93814c1go54FVF1s17dKk+cAUAmJmhrZHmlVFQm+Ytsg2G
+EUjQyvXFqb5SeOW+aSFXNNc7RB2t6CvSGutqQigtJzogSfOEYRyybStEiw87WwnE
+PZzishcGge88eKRjCJYxFJFinxZPic9ThY8hElmiJOvwOOXILpR4YqTj7wmg6Mxh
+GT/BUguW2oHbpBoxTSwKbRzG4jPXZiWyFpWvpF75RTpbWy1kB3XITTPpkgHg6RCy
+2yKof02o+wv6EL1x3i2r6uCRLVVzzXjMaz6mGJwJG+DHK50qoA==
+=xu61
 -----END PGP SIGNATURE-----
 
---vro5bi3toditkjgc--
+--3d6xzsp2p26embe4--
