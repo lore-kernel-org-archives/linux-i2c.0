@@ -1,51 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: synquacer: fix fence-post error in retry loop
-Date: Thu, 17 May 2018 15:41:23 +0200
-Message-ID: <20180517134122.odweeppckmpckk4r@ninjato>
-References: <20180509194726.29166-1-peda@axentia.se>
+Subject: Re: [PATCH] i2c: xiic: fix spelling mistake: "unexpexted" ->
+ "unexpected"
+Date: Thu, 17 May 2018 15:52:33 +0200
+Message-ID: <20180517135233.ebimh6keikt7isz5@ninjato>
+References: <20180514171552.25094-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="lq7fi7y74l36e4nv"
+        protocol="application/pgp-signature"; boundary="3fumasckvskl3tas"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180509194726.29166-1-peda@axentia.se>
+In-Reply-To: <20180514171552.25094-1-colin.king@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>, linux-i2c@vger.kernel.org
+To: Colin King <colin.king@canonical.com>
+Cc: Moritz Fischer <mdf@kernel.org>, Masahiro Yamada <yamada.masahiro@socionext.com>, linux-i2c@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---lq7fi7y74l36e4nv
+--3fumasckvskl3tas
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 09, 2018 at 09:47:26PM +0200, Peter Rosin wrote:
-> There is a difference between attempts and retries.
+On Mon, May 14, 2018 at 06:15:52PM +0100, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
 >=20
-> Signed-off-by: Peter Rosin <peda@axentia.se>
+> Trivial fix to spelling mistakes in dev_dbg messages
+>=20
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
 
 Applied to for-next, thanks!
 
 
---lq7fi7y74l36e4nv
+--3fumasckvskl3tas
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr9hoIACgkQFA3kzBSg
-KbZKOg//ZFmZcvLw/s44MmWQzjwxXeRqTdI2nBX6oIP2ROL9XoCr1BQyiTO9l7WF
-qVrujmaiBsKm9Hr0adbrP9dvurmbukcJSUL51gFSheSgtsYtS9PhwkEB8PCecRjE
-cu9lFnqUFQ09F03kG3LNKVckhX52PqgmsDU5tk4NT9QAqoyTJ0ff5ZPb83QTmt8Q
-rpaGe2ri8fZhHSBpCJvsbHQrMkG9WiTvRveDcftOg+9XYUs9POTiscQ82gssQqSA
-HQBMjFhM9TI/+JvCpzDk81WtZhOyFH50NfEuHnKlpPa4iJWCq742LIrIOPAjKReR
-Tp3HsROAtVgPtBU88r27ajbmGL70cgU96TJ5sIF5LPdahWh2EdzlJYkYxiXlu3nu
-4B44YI+tK2jn0BgWRpdddPZttNnpz+gpPfsDSNRqVTVbTQm2a3LCt8FtJxpc/vSu
-4lXn93KR4qHbiiqOLQUd7q3y2XPTQEALKXF799a5Lv6QjvHFuSKXwKSr9bOSgZyz
-g0UA8OuQgdiOBgrgLuTdEkBf0A3+J/Np9JNhoTmutl+kKrflFe7eCUpGyIw2elqK
-HVZxQY0I4JkkhbJ6cmgsceQwKnaCRp1rULsv3bkOkCt13+eDjaiFVAlqZ2d3Kq1s
-fCMI0nqvlF7lfHck/JM21d06934xTkbXx4ppZAGY6QXHnxjJR7o=
-=TnWa
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr9iSEACgkQFA3kzBSg
+KbYYyxAAkIBYKLpw/pGKHoNq0p90HVTFBhILc5rJdlmo9JBQ9HNM5Mj+WlujbTrE
+Bnu1+3AjS6bGmUTIuqn8uD8oC1cJfYORtypW1++O7L5R7l7HxIdHylLpg4xmYMcV
+EAMktFKHq/Jxp6fImUFapKudKkT/F4HUuYsbRVk/g9TVIEpdzdN8iDba4GUrLPz7
+q0QG/bRuVzuLLjOGiH/PaJ6dN60sJeppSxOcUb2OlCEavsuW+UArB0NXo8UuRYd/
+NX4aCVAvMAXC6wp8q1FuWW4o1lUDYUXko5WwGwuK/f5nZeKBqKE89jEEsY2onNRH
+G3oZPw9M2ouv2kj4y6G/giqbO+RzJE0h2Y5htGBdwdb9AeIt8jrya8NcBOY4zeuc
+U2XuBOzpmpvw+DfGJT06RW7x22LlJ8DHfYC57BFOqrMS7ycyOcWeWTFiS71icGrL
+Y13LfiI8+7+QQ8XLPO4oMEMhSpK6eX+6NQmX9yFbjxr8T+5Df4jxdiOSn5M74k9/
+Y9na+swyeMDtPvyzIiMuw18dsEiIg+BUjzZzSfkGlrW+Sh8NOjVYdq1cDfJTDd6Z
+5g1YFS8mNyKG0nyq56+fvHMM8VVcntF0oULNcmWBdBDEsh9pqlgcdoY6GdDwhASB
+EpQMR9IHy9kc9/hbdl/eTqqvYC7ko7iC2ldOQSfmxrioZa6aoiA=
+=NZMQ
 -----END PGP SIGNATURE-----
 
---lq7fi7y74l36e4nv--
+--3fumasckvskl3tas--
