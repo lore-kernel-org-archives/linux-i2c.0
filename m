@@ -1,40 +1,51 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v2 2/2] i2c: busses: make use of i2c_8bit_addr_from_msg
-Date: Wed, 16 May 2018 09:33:51 +0200
-Message-ID: <20180516073351.y5avitvaj5ouu6m3@pengutronix.de>
-References: <20180516071647.29277-1-peda@axentia.se>
- <20180516071647.29277-3-peda@axentia.se>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [BUG] i2c-hid: ELAN Touchpad does not work on ASUS X580GD
+Date: Thu, 17 May 2018 10:48:14 +0300
+Message-ID: <a3ce1af5-7b99-38db-fc51-4d580db1e87e@linux.intel.com>
+References: <CAPpJ_ed-JPOzQPtyCdH4_C7dzEeM3fznus8XDuaojaiM_4nFpw@mail.gmail.com>
+ <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com>
+ <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com>
+ <CAD8Lp46b+-B=xqSAqB+zV4xF6SRUGs46FkydS37UEuqav_jNog@mail.gmail.com>
+ <CAB4CAwd0tN7CaS7YZCo3TZH-DPxt0x6wxyO23v7aBW9MOCtHCw@mail.gmail.com>
+ <c1343704-6b1a-14b5-3942-a8a33f73feee@linux.intel.com>
+ <CAB4CAwe6kjJ10s0KtVJrPMSC8UA+YLCiqbnkZ_-oFTKTFPTwCw@mail.gmail.com>
+ <7728da79-8a7a-b87d-d09c-b36978b3032e@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20180516071647.29277-3-peda@axentia.se>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Guenter Roeck <linux@roeck-us.net>, linux-aspeed@lists.ozlabs.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Andrew Jeffery <andrew@aj.id.au>, linux-arm-msm@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, linuxppc-dev@lists.ozlabs.org, Brendan Higgins <brendanhiggins@google.com>, linux-kernel@vger.kernel.org, David Brown <david.brown@linaro.org>, Joel Stanley <joel@jms.id.au>, Pengutronix Kernel Team <kernel@pengutronix.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andy Gross <andy.gross@linaro.org>, Peter Korsgaard <jacmet@sunsite.dk>, linux-soc@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <7728da79-8a7a-b87d-d09c-b36978b3032e@linux.intel.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chris Chiu <chiu@endlessm.com>
+Cc: Daniel Drake <drake@endlessm.com>, Jian-Hong Pan <jian-hong@endlessm.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jani Nikula <jani.nikula@intel.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Adrian Salido <salidoa@google.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Peter,
+Hi
 
-On Wed, May 16, 2018 at 09:16:47AM +0200, Peter Rosin wrote:
-> Acked-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de> [emf32 and =
-imx]
+On 05/15/2018 01:20 PM, Jarkko Nikula wrote:
+> On 05/15/2018 06:22 AM, Chris Chiu wrote:
+>> What if I change the 120MHz to 180MHz and then make sure that the I2C 
+>> operates
+>> in target FS mode frequency 400kHz via scope? Would there be any side 
+>> effect?
+>> Maybe some other busses frequency could be also affected and causing 
+>> some other
+>> component malfunction?
+>>
+> Should be safe. It is only clock rate information when registering a 
+> fixed clock with known rate in intel-lpss.c and i2c-designware uses that 
+> info when calculating the timing parameters. I.e. it doesn't change any 
+> internal clocks.
+> 
+> I'm trying to find a contact who can confirm what is the expected rate 
+> of I2C input clock and is it common to all Cannon Lake HW.
+> 
+I got confirmation that input clock is actually even higher 216 Mhz.
 
-s/emf/efm/
+While checking does it cover all of those CNL CNL-LP and CNL-H PCI IDs 
+may I add your Jian-Hong, Chris and Daniel email addresses to Repored-by 
+tags in a fix patch?
 
-Best regards
-Uwe
-
--- =
-
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+-- 
+Jarkko
