@@ -1,54 +1,63 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i2c-stm32f7: fix documentation typo
-Date: Thu, 17 May 2018 15:59:33 +0200
-Message-ID: <20180517135933.mdh4femklasitbfy@ninjato>
-References: <1526026825-2996-1-git-send-email-pierre-yves.mordret@st.com>
+Subject: Re: [PATCH 0/7] i2c: clean up include/linux/i2c-*
+Date: Thu, 17 May 2018 16:32:03 +0200
+Message-ID: <20180517143202.vzwmqkemlqxj2xgu@ninjato>
+References: <20180419200015.15095-1-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="3d6xzsp2p26embe4"
+        protocol="application/pgp-signature"; boundary="2am76ftu5fuftxje"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1526026825-2996-1-git-send-email-pierre-yves.mordret@st.com>
+In-Reply-To: <20180419200015.15095-1-wsa@the-dreams.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Colin Ian King <colin.king@canonical.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, linux-mips@linux-mips.org, linux-omap@vger.kernel.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---3d6xzsp2p26embe4
+--2am76ftu5fuftxje
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 11, 2018 at 10:20:25AM +0200, Pierre-Yves MORDRET wrote:
-> Some data structure members were either misspelled or missing.
+On Thu, Apr 19, 2018 at 10:00:06PM +0200, Wolfram Sang wrote:
+> Move all plain platform_data includes to the platform_data-dir
+> (except for i2c-pnx which can be moved into the driver itself).
 >=20
-> Fixes: aeb068c572 ("i2c: i2c-stm32f7: add driver")
-> Fixes: 380b8a85e7 ("i2c: i2c-stm32f7: Add initial SMBus protocols support=
-")
-> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+> My preference is to take these patches via the i2c tree. I can provide an
+> immutable branch if needed. But we can also discuss those going in via
+> arch-trees if dependencies are against us.
 
-Applied to for-next, thanks!
+All applied to for-next!
+
+The immutable branch is here:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/platform_da=
+ta-immutable
+
+Thanks,
+
+   Wolfram
 
 
---3d6xzsp2p26embe4
+--2am76ftu5fuftxje
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIyBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr9isUACgkQFA3kzBSg
-KbbvMw/yA3QFPLmAoCRd5H4fuGFXhpgp9SLdgkF5Z46BGFpbJZaLbJbPnr55bcwS
-+BazcdJfu1+oLmhOA4r1NPdj/5thrZyP9YNknq00hE2ur3FkIYogcS53ic/UtcKp
-Y/jZwmcF08VmxUdJ81pfWJ31OdeOemvNu2betVkHgsTh4rFrBEEMFmPzkYajezYl
-aNT3ROqBuTXbI/+zebwMzXFsfLtPA/K/RYTg9Y5uMLD08vei+yzoKQciuURy/QvQ
-FNRYwypLHmEG8mbAZ/Z2OdScwlNSDaE8B2TdNfhGmto/DUwRwmRerm5qtEZrL3gt
-VauMCUc3l9FZlYrkTbd7SauA1W4V4t9FdSTrujrFqxyTYaF13Uuma6xJMnZP//0o
-WiSWvpwO1NzNhvAB4C93814c1go54FVF1s17dKk+cAUAmJmhrZHmlVFQm+Ytsg2G
-EUjQyvXFqb5SeOW+aSFXNNc7RB2t6CvSGutqQigtJzogSfOEYRyybStEiw87WwnE
-PZzishcGge88eKRjCJYxFJFinxZPic9ThY8hElmiJOvwOOXILpR4YqTj7wmg6Mxh
-GT/BUguW2oHbpBoxTSwKbRzG4jPXZiWyFpWvpF75RTpbWy1kB3XITTPpkgHg6RCy
-2yKof02o+wv6EL1x3i2r6uCRLVVzzXjMaz6mGJwJG+DHK50qoA==
-=xu61
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr9kmIACgkQFA3kzBSg
+KbZKxw/+JSU2lxyogS2eTiaKLZ+5KEMXeB/xFcc1vSljvMU6dkspqQUo7QJHZW8Q
+AsIJtMO1XLfKODlsmidF4yhhOy2cninfK+MQbmZOsuReUF5eEf9DnUxs6YE1YKmJ
+3MuoIHqmKXDEYUjL+0xJeU5g8lsPbXVyML+AJ+96THHEDkUf0MeAFApESAoplIWa
+/+B+A465tDedkI1MCSrNNtwiNUUfkMFyS9G6UFIT3ovjbofNN8xoyNP+5aYqwd2S
+DtVRPNaBg8kYzZur7na3n9+ARxGHGFPOLpx+Z5E67IEfJlS5uYLFuZBhQyXyKLBx
+qhhOB6/lHP5hW7vU2EyUjHvpHS55SP0kIQltV85krPlOvmrV3aBp+ucL87NM2BfQ
+OTIUTLZdo49bY1gmPo2FfKtPuPgK9T6t82LOrO/IBx7PkaXSNxhw9HL6+kRyxHBI
+ELISIMIDIrUG27qhrbBT5ttdTJkAKDvviW/e7vy5VHcEHztrK3L0oz/PMDmlzIvL
+YFts1pN6v61jRyr/J7Dv3MYk1bk+B/n94kuZgnTrUws+6Zbv9MBw5l28kOClOp3N
+grELJFSGl5PPSiGp7lntGVSt46iEhJToQzwNRbJHL2Ks19rFPlzBbQCRxY3VtJAj
+jZ7YVZnaWnmDyRUvedNP+YeiTW351d6OQeJAeK6s+9iCz0GjpX4=
+=vxpG
 -----END PGP SIGNATURE-----
 
---3d6xzsp2p26embe4--
+--2am76ftu5fuftxje--
