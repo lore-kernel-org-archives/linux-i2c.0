@@ -1,105 +1,74 @@
 From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v2 2/2] i2c: core-smbus: fix a potential missing-check bug
-Date: Thu, 17 May 2018 15:06:54 +0200
-Message-ID: <20180517130653.vp3sw7duqz6ygazk@ninjato>
+Date: Thu, 17 May 2018 15:38:07 +0200
+Message-ID: <20180517133807.dmlf7rlpavmls6cg@ninjato>
 References: <1525525341-10046-1-git-send-email-wang6495@umn.edu>
  <20180510111658.sxf3mvye5q6ihxa7@ninjato>
- <8f728c2d-b463-507e-2c36-fad22fd99dff@axentia.se>
- <20180515085833.4z4cvsxoqqbny53q@ninjato>
- <87286831-408c-b542-46e9-fe8aba151d5f@axentia.se>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="jobdgfrfnsgdr4ki"
+        protocol="application/pgp-signature"; boundary="vvt4nisdeyjjnky4"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <87286831-408c-b542-46e9-fe8aba151d5f@axentia.se>
+In-Reply-To: <20180510111658.sxf3mvye5q6ihxa7@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Wenwen Wang <wang6495@umn.edu>, Kangjie Lu <kjlu@umn.edu>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+To: Wenwen Wang <wang6495@umn.edu>
+Cc: Kangjie Lu <kjlu@umn.edu>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---jobdgfrfnsgdr4ki
+--vvt4nisdeyjjnky4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> > hopefully I have time to write a small coccinelle rule to find if
-> > constant values are returned in a function declared as master_xfer.
+On Thu, May 10, 2018 at 01:16:59PM +0200, Wolfram Sang wrote:
+> On Sat, May 05, 2018 at 08:02:21AM -0500, Wenwen Wang wrote:
+> > In i2c_smbus_xfer_emulated(), the function i2c_transfer() is invoked to
+> > transfer i2c messages. The number of actual transferred messages is
+> > returned and saved to 'status'. If 'status' is negative, that means an
+> > error occurred during the transfer process. In that case, the value of
+> > 'status' is an error code to indicate the reason of the transfer failur=
+e.
+> > In most cases, i2c_transfer() can transfer 'num' messages with no error.
+> > And so 'status' =3D=3D 'num'. However, due to unexpected errors, it is =
+probable
+> > that only partial messages are transferred by i2c_transfer(). As a resu=
+lt,
+> > 'status' !=3D 'num'. This special case is not checked after the invocat=
+ion of
+> > i2c_transfer() and can potentially lead to unexpected issues in the
+> > following execution since it is expected that 'status' =3D=3D 'num'.
+> >=20
+> > This patch checks the return value of i2c_transfer() and returns an err=
+or
+> > code -EIO if the number of actual transferred messages 'status' is not
+> > equal to 'num'.
+> >=20
+> > Signed-off-by: Wenwen Wang <wang6495@umn.edu>
 >=20
-> That would be a good thing.
+> Applied to for-current, thanks!
 
-Did that now and only found drivers which have a (meanwhile) needless
-parameter check for 'num'. Will set you on CC for those fixes. I didn't
-find any drivers incorrectly returning 0 instead of num. Except the ones
-you already fixed.
+Reconsidered and applied to for-next, thanks!
 
 
-> Maybe a long term goal is to simply return
-> zero on success for .master_xfer, because currently the only expected
-> success value is the number of messages sent, but the caller is in all
-> likelihood already aware of that count, so it all seems rather like
-> something that is just pointless and easy to get wrong...
-
-Yes, the comment in the core is still true:
-
-        /* REVISIT the fault reporting model here is weak:
-         * ...
-
-Returning 0 or -ERRNO sounds best to me, too. But we would need to make
-sure there is no in-kernel user relying on the current behaviour. As you
-said, this is a long-term goal at best.
-
-> > What do you mean with "short success for some sequence" here?
->=20
-> By "short" I mean not all requested messages transferred. By "success"
-> I mean non-negative.
-
-Ah, I understand now, thanks.
-
-> I.e. when I look at rcar_i2c_master_xfer(), it sets things up for all
-> messages to be transferred, starts things off and waits for completion
-> (or timeout). But the driver is too involved for it to be easy to say
-> that either all messages are transferred or a negative error is
-> returned. I never managed to see that anyway.
-
-Well, I am the maintainer of that driver, so I can say something about
-that :) The HW design has a flaw for older SoCs which makes the driver
-prone to a race condition. This is why we set up new messages in
-interrupt context, too. Everything else turned out to be too expensive.
-
-> And the function has that "ret =3D num - priv->msgs_left;" statement
-> indicating that whomever wrote it thought it perfectly ok to return
-> such a "short success" (which noone is expecting).
-
-I copied over that old behaviour when refactoring the driver. But I see
-what you mean, and couldn't also really see a path where a "short
-success" could actually happen.
-
-Thanks,
-
-   Wolfram
-
-
---jobdgfrfnsgdr4ki
+--vvt4nisdeyjjnky4
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr9fmkACgkQFA3kzBSg
-Kbbddw//Quj0zNyC1646l51BOaEW5SqbHJH71KpXOVZvQzw6jA8BY/XR4SmJifzf
-64zMZpFLWpNvI1NT75XkFljnCb6l1X71JO0KC9LZySORFX2KLAnkDnlT1r33IrJJ
-mslzCDjvwwWZW7IHFzPg19ydbFuVmsky2fr8ta5/X0Qcvqs/2yKV+M5B9aLO1tVJ
-30dcC9RH9H3hcK7vRqmLBD+SUSPte44SPQPFiZM1qOBxCIqvj7qoAEXRH/vj+nqc
-mdBf+rZhQQBfkbmzhqQlN7azwmyVJ8kfpkRBnGVi3NV0aKFbe0/vfRnpw6lZcTZ+
-6RZZjjc+yXebBWsDiAlUjKVjrh0aPTl/HV9QSOe2NCy5LYHtbWwbn/RO7ExDPH16
-UNGxxvvOe5wlLHDbyl0+Q4C3iQF9Wvs/OZlj08KWaZj+wWuBRSmHX+47NN1laAZ7
-2P+rQ1f4w1jlwvH6MA7VCYz5NcIlsdW4atjPxqm2jHOnyoH3nxJRyYmu3aPI7g9x
-wIFur45uufHNctuYzjVBGHc7iQG3tmymeuqHpFT0bXW3POXd9OMB/4N36SNyrDhR
-btU6eGC2AaDcT7vg7nlUFOHhkwU1uknQuAUQZkmIzhKHki+NRJAG0hTyXdz6XGWr
-RDVLFy8fSbxOW6LAcJGDE7iAbvRriWkeYEJoLDCD7l9sMUOiDiw=
-=vNvu
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr9hboACgkQFA3kzBSg
+KbYi4g/9GkQOcONR0sLn2iA40fe80fR0lb8WO6fQD4LSskofEiVyuRNgOHzNPg8R
+DnAbinrpUjuq1GWFlNZyivbiTQFs7ku9oMbt0XcJ0ZmxvgHNJmAUObj+WpkW2mJ+
+oCeJbRKdG3uVuvBtuULe7gbRKwIgdVVWt2hxnXX6X56i/8qZGpJo9v7J0zD/JsRd
+zfjBpn0mndG3Mpw/lEOnhnteUduG30h4OtlBTqwTqzaIxfIFBY2ja1P78dbfSotX
+sju3EC71m4qmqQoKn9vtquk5QLyCFDXYNDSg46DJ3chfWKges/Ip7iFA5j2BiSAC
+Em4uOW4yBBF/0OXcdg5w3dSsmdCdkhVRJOsCXsMYmh5cQS1zDasUWRD+/kZX/ve7
+AphPlCOWW6G6OcY5ACaeCzMXcTnEEi1MIaWlOyWa7xnAq+fSdYWESGivQZzF3FYd
+F9AZMF+/gg3URbY59NLxXbdXPhZb41OjjRLnt3OOW0FuAWLSUqyeYPIK81rlNfny
+n+4igX4ikdq7AgpIoq6NgXRfMYP6RFMgg5idg/bGcb0sp8z/ya1eYIJbblLGLnr6
+xzkUtbBYxysLgVUxTcTWJPDOntcTY8G8i+KlS/RjWuJ5yHZBDmYumzP0J5qmjCS/
+D70rCqy7rok88MuORmVhaS3UcMRENGK5A5pkwHlATsRNhzuSZzk=
+=fN6z
 -----END PGP SIGNATURE-----
 
---jobdgfrfnsgdr4ki--
+--vvt4nisdeyjjnky4--
