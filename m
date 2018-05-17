@@ -1,53 +1,105 @@
-From: Chris Chiu <chiu@endlessm.com>
-Subject: Re: [BUG] i2c-hid: ELAN Touchpad does not work on ASUS X580GD
-Date: Thu, 17 May 2018 17:05:38 +0800
-Message-ID: <CAB4CAwdEYJncAxD30UxbFcdz57+AoJnda_L9X3kR6vs=z-dmdQ@mail.gmail.com>
-References: <CAPpJ_ed-JPOzQPtyCdH4_C7dzEeM3fznus8XDuaojaiM_4nFpw@mail.gmail.com>
- <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com>
- <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com> <CAD8Lp46b+-B=xqSAqB+zV4xF6SRUGs46FkydS37UEuqav_jNog@mail.gmail.com>
- <CAB4CAwd0tN7CaS7YZCo3TZH-DPxt0x6wxyO23v7aBW9MOCtHCw@mail.gmail.com>
- <c1343704-6b1a-14b5-3942-a8a33f73feee@linux.intel.com> <CAB4CAwe6kjJ10s0KtVJrPMSC8UA+YLCiqbnkZ_-oFTKTFPTwCw@mail.gmail.com>
- <7728da79-8a7a-b87d-d09c-b36978b3032e@linux.intel.com> <a3ce1af5-7b99-38db-fc51-4d580db1e87e@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 2/2] i2c: core-smbus: fix a potential missing-check bug
+Date: Thu, 17 May 2018 15:06:54 +0200
+Message-ID: <20180517130653.vp3sw7duqz6ygazk@ninjato>
+References: <1525525341-10046-1-git-send-email-wang6495@umn.edu>
+ <20180510111658.sxf3mvye5q6ihxa7@ninjato>
+ <8f728c2d-b463-507e-2c36-fad22fd99dff@axentia.se>
+ <20180515085833.4z4cvsxoqqbny53q@ninjato>
+ <87286831-408c-b542-46e9-fe8aba151d5f@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="jobdgfrfnsgdr4ki"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a3ce1af5-7b99-38db-fc51-4d580db1e87e@linux.intel.com>
+Content-Disposition: inline
+In-Reply-To: <87286831-408c-b542-46e9-fe8aba151d5f@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Daniel Drake <drake@endlessm.com>, Jian-Hong Pan <jian-hong@endlessm.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jani Nikula <jani.nikula@intel.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Adrian Salido <salidoa@google.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
+To: Peter Rosin <peda@axentia.se>
+Cc: Wenwen Wang <wang6495@umn.edu>, Kangjie Lu <kjlu@umn.edu>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, May 17, 2018 at 3:48 PM, Jarkko Nikula
-<jarkko.nikula@linux.intel.com> wrote:
-> Hi
->
-> On 05/15/2018 01:20 PM, Jarkko Nikula wrote:
->>
->> On 05/15/2018 06:22 AM, Chris Chiu wrote:
->>>
->>> What if I change the 120MHz to 180MHz and then make sure that the I2C
->>> operates
->>> in target FS mode frequency 400kHz via scope? Would there be any side
->>> effect?
->>> Maybe some other busses frequency could be also affected and causing some
->>> other
->>> component malfunction?
->>>
->> Should be safe. It is only clock rate information when registering a fixed
->> clock with known rate in intel-lpss.c and i2c-designware uses that info when
->> calculating the timing parameters. I.e. it doesn't change any internal
->> clocks.
->>
->> I'm trying to find a contact who can confirm what is the expected rate of
->> I2C input clock and is it common to all Cannon Lake HW.
->>
-> I got confirmation that input clock is actually even higher 216 Mhz.
->
-> While checking does it cover all of those CNL CNL-LP and CNL-H PCI IDs may I
-> add your Jian-Hong, Chris and Daniel email addresses to Repored-by tags in a
-> fix patch?
->
-> --
-> Jarkko
 
-No problem. Thanks
+--jobdgfrfnsgdr4ki
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> > hopefully I have time to write a small coccinelle rule to find if
+> > constant values are returned in a function declared as master_xfer.
+>=20
+> That would be a good thing.
+
+Did that now and only found drivers which have a (meanwhile) needless
+parameter check for 'num'. Will set you on CC for those fixes. I didn't
+find any drivers incorrectly returning 0 instead of num. Except the ones
+you already fixed.
+
+
+> Maybe a long term goal is to simply return
+> zero on success for .master_xfer, because currently the only expected
+> success value is the number of messages sent, but the caller is in all
+> likelihood already aware of that count, so it all seems rather like
+> something that is just pointless and easy to get wrong...
+
+Yes, the comment in the core is still true:
+
+        /* REVISIT the fault reporting model here is weak:
+         * ...
+
+Returning 0 or -ERRNO sounds best to me, too. But we would need to make
+sure there is no in-kernel user relying on the current behaviour. As you
+said, this is a long-term goal at best.
+
+> > What do you mean with "short success for some sequence" here?
+>=20
+> By "short" I mean not all requested messages transferred. By "success"
+> I mean non-negative.
+
+Ah, I understand now, thanks.
+
+> I.e. when I look at rcar_i2c_master_xfer(), it sets things up for all
+> messages to be transferred, starts things off and waits for completion
+> (or timeout). But the driver is too involved for it to be easy to say
+> that either all messages are transferred or a negative error is
+> returned. I never managed to see that anyway.
+
+Well, I am the maintainer of that driver, so I can say something about
+that :) The HW design has a flaw for older SoCs which makes the driver
+prone to a race condition. This is why we set up new messages in
+interrupt context, too. Everything else turned out to be too expensive.
+
+> And the function has that "ret =3D num - priv->msgs_left;" statement
+> indicating that whomever wrote it thought it perfectly ok to return
+> such a "short success" (which noone is expecting).
+
+I copied over that old behaviour when refactoring the driver. But I see
+what you mean, and couldn't also really see a path where a "short
+success" could actually happen.
+
+Thanks,
+
+   Wolfram
+
+
+--jobdgfrfnsgdr4ki
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr9fmkACgkQFA3kzBSg
+Kbbddw//Quj0zNyC1646l51BOaEW5SqbHJH71KpXOVZvQzw6jA8BY/XR4SmJifzf
+64zMZpFLWpNvI1NT75XkFljnCb6l1X71JO0KC9LZySORFX2KLAnkDnlT1r33IrJJ
+mslzCDjvwwWZW7IHFzPg19ydbFuVmsky2fr8ta5/X0Qcvqs/2yKV+M5B9aLO1tVJ
+30dcC9RH9H3hcK7vRqmLBD+SUSPte44SPQPFiZM1qOBxCIqvj7qoAEXRH/vj+nqc
+mdBf+rZhQQBfkbmzhqQlN7azwmyVJ8kfpkRBnGVi3NV0aKFbe0/vfRnpw6lZcTZ+
+6RZZjjc+yXebBWsDiAlUjKVjrh0aPTl/HV9QSOe2NCy5LYHtbWwbn/RO7ExDPH16
+UNGxxvvOe5wlLHDbyl0+Q4C3iQF9Wvs/OZlj08KWaZj+wWuBRSmHX+47NN1laAZ7
+2P+rQ1f4w1jlwvH6MA7VCYz5NcIlsdW4atjPxqm2jHOnyoH3nxJRyYmu3aPI7g9x
+wIFur45uufHNctuYzjVBGHc7iQG3tmymeuqHpFT0bXW3POXd9OMB/4N36SNyrDhR
+btU6eGC2AaDcT7vg7nlUFOHhkwU1uknQuAUQZkmIzhKHki+NRJAG0hTyXdz6XGWr
+RDVLFy8fSbxOW6LAcJGDE7iAbvRriWkeYEJoLDCD7l9sMUOiDiw=
+=vNvu
+-----END PGP SIGNATURE-----
+
+--jobdgfrfnsgdr4ki--
