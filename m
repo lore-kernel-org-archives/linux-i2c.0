@@ -1,47 +1,103 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [BUG] i2c-hid: ELAN Touchpad does not work on ASUS X580GD
-Date: Fri, 18 May 2018 15:26:13 +0200
-Message-ID: <62b6f02c-d619-6e51-a107-331f0648e832@redhat.com>
-References: <CAPpJ_ed-JPOzQPtyCdH4_C7dzEeM3fznus8XDuaojaiM_4nFpw@mail.gmail.com>
- <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com>
- <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com>
- <CAD8Lp46b+-B=xqSAqB+zV4xF6SRUGs46FkydS37UEuqav_jNog@mail.gmail.com>
- <CAB4CAwd0tN7CaS7YZCo3TZH-DPxt0x6wxyO23v7aBW9MOCtHCw@mail.gmail.com>
- <c1343704-6b1a-14b5-3942-a8a33f73feee@linux.intel.com>
- <CAB4CAwe6kjJ10s0KtVJrPMSC8UA+YLCiqbnkZ_-oFTKTFPTwCw@mail.gmail.com>
- <7728da79-8a7a-b87d-d09c-b36978b3032e@linux.intel.com>
- <a3ce1af5-7b99-38db-fc51-4d580db1e87e@linux.intel.com>
- <ba99be8e-8e8b-87c1-8607-24ace8a01c64@redhat.com>
- <91f87c43-0ae1-00ec-6b3e-819b639aa1b2@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.17
+Date: Fri, 18 May 2018 20:48:41 +0200
+Message-ID: <20180518184837.47b4z776tt4ychhy@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="me3vpn5vwgzjf5vd"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <91f87c43-0ae1-00ec-6b3e-819b639aa1b2@linux.intel.com>
-Content-Language: en-US
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Chris Chiu <chiu@endlessm.com>
-Cc: Daniel Drake <drake@endlessm.com>, Jian-Hong Pan <jian-hong@endlessm.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jani Nikula <jani.nikula@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Adrian Salido <salidoa@google.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
 
-On 18-05-18 15:15, Jarkko Nikula wrote:
-> On 05/18/2018 10:48 AM, Hans de Goede wrote:
->> Could it be the i2c input clock definition in drivers/mfd/intel-lpss-pci.c
->> is also wrong for Apollo Lake (N3450) ?  There are lots of people having
->> various issues with i2c attached touchpads on Apollo Lake devices, this bug:
->> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1728244
->>
->> Is sort of a collection bug for these. Various models laptops, lots of
->> reporters. Note not sure thie is an i2c-designware issue, but it would
->> be good to double check the input clock on Apollo Lake.
->>
-> Does i2c_designware_core.dyndbg=+p and i2c-hid.debug=1 command line arguments give any useful debug information from those machines?
+--me3vpn5vwgzjf5vd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I've asked people in the bug to collect debug output with this
-added.
+Linus,
 
-Regards,
+I2C has a bunch of driver bugfixes and a MAINTAINERS addition.
 
-Hans
+Please pull.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit 75bc37fefc4471e718ba8e651aa74673d4e0a9eb:
+
+  Linux 4.17-rc4 (2018-05-06 16:57:38 -1000)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
+
+for you to fetch changes up to 22aac3eb0c465dd9ea7f06ee1ed8ad933890f2a3:
+
+  MAINTAINERS: add entry for STM32 I2C driver (2018-05-17 16:02:19 +0200)
+
+----------------------------------------------------------------
+Alexander Monakov (1):
+      i2c: designware: fix poll-after-enable regression
+
+Bartosz Golaszewski (1):
+      eeprom: at24: fix retrieving the at24_chip_data structure
+
+Hans de Goede (2):
+      i2c: core: ACPI: Improve OpRegion read errors
+      i2c: core: ACPI: Log device not acking errors at dbg loglevel
+
+Peter Rosin (3):
+      i2c: pmcmsp: return message count on master_xfer success
+      i2c: pmcmsp: fix error return from master_xfer
+      i2c: viperboard: return message count on master_xfer success
+
+Pierre-Yves MORDRET (1):
+      MAINTAINERS: add entry for STM32 I2C driver
+
+Wolfram Sang (1):
+      Merge tag 'at24-4.17-rc5-fixes-for-wolfram' of git://git.kernel.org/.../brgl/linux into i2c/for-current
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Ben Gardner (1):
+      (Test) i2c: designware: fix poll-after-enable regression
+
+Mika Westerberg (2):
+      (Rev.) i2c: core: ACPI: Log device not acking errors at dbg loglevel
+      (Rev.) i2c: core: ACPI: Improve OpRegion read errors
+
+ MAINTAINERS                                |  6 ++++++
+ drivers/i2c/busses/i2c-designware-master.c |  5 ++++-
+ drivers/i2c/busses/i2c-pmcmsp.c            |  4 ++--
+ drivers/i2c/busses/i2c-viperboard.c        |  2 +-
+ drivers/i2c/i2c-core-acpi.c                | 13 ++++++++++---
+ drivers/misc/eeprom/at24.c                 |  2 +-
+ 6 files changed, 24 insertions(+), 8 deletions(-)
+
+--me3vpn5vwgzjf5vd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr/IAEACgkQFA3kzBSg
+KbaEbxAAl2j99CHjbtj17MTTRgxeIRHAp/wGSsQp5L+2RU9y0u0DnIxTOCN/g02e
+1KogAffOhZ1y+fC5YSpWxjDvxnVse3+UYKuybfuzQmespRea5I0aCG7TgF3pBPSJ
+ErN37OImAUyN4Vnhi0xhOn5EbzNmh7C+ilTpqiTr3zULwuAB/7t/il+H14Q+26BJ
+/COqrXQhs2/1fCsRz+7HpZrucMmK1pbqTJ5Evk21aPE9tqBQhovugpJKd1m4MUu9
+eCtWMvt2xqs9AbCtYN7ZWADVn/e2E1pybvksiN3YwWkgFB1OKDK9sZYeZ9KcuRwS
+hRYCXXQUuv9HqcgxBFtpWFqtrcQy2PeVefgtedTDn42m6niDbwq9Hgh5XE21jtAU
+6cYzqbYrAaEIDQTqw5dh6KrZrjCjt+AzvZjIo39QENWw5Ld7yoc7OmD2c9j5ExXM
+NFbtgCnapW8uZ1Tj9mWpJjF63J7jLlKUx+H3TDl9s1Yc7AAYYWi2GaiN7cTZpzQU
+Vzm/lUQRvIZHub6l9QZ2tYJrscSZDSBmYI/RKSIbj0lYNUL6AjDi1fcLewI67F+X
+saOmua61LS217nt40kmH9fxODJ8gE/zS1vodJjMRVVGiaIRjQgk/DOMr+1K/MLv9
+ykQ/8c5BpDB1TV6pksWG0fTKEU/g5ML8Xm6sG1OMUc7AxocDZ+U=
+=lEd0
+-----END PGP SIGNATURE-----
+
+--me3vpn5vwgzjf5vd--
