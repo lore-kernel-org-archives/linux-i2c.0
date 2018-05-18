@@ -1,103 +1,68 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.17
-Date: Fri, 18 May 2018 20:48:41 +0200
-Message-ID: <20180518184837.47b4z776tt4ychhy@ninjato>
+From: Wenwen Wang <wang6495@umn.edu>
+Subject: Re: [PATCH v2 1/2] i2c: core-smbus: fix a potential uninitialization bug
+Date: Fri, 18 May 2018 14:25:48 -0500
+Message-ID: <CAAa=b7cvVW-LDY6PuHKVTaj5unp90JH4mxP2kFxfOO2OAcGkgw@mail.gmail.com>
+References: <1525525030-9805-1-git-send-email-wang6495@umn.edu>
+ <20180510111737.b6g7s2nnf6froote@ninjato> <ac843580-884e-b0fc-60af-8d73ba099100@axentia.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="me3vpn5vwgzjf5vd"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <ac843580-884e-b0fc-60af-8d73ba099100@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Peter Rosin <peda@axentia.se>, Kangjie Lu <kjlu@umn.edu>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, Wenwen Wang <wang6495@umn.edu>
 List-Id: linux-i2c@vger.kernel.org
 
+Yes, this patch does not aim to "fix" all potential driver bugs but
+adds an additional protection in case the implementation of
+.master_xfer is incorrect.
 
---me3vpn5vwgzjf5vd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Linus,
-
-I2C has a bunch of driver bugfixes and a MAINTAINERS addition.
-
-Please pull.
+>From this perspective, it is still necessary to apply this patch, as
+pointed out by Peter.
 
 Thanks,
+Wenwen
 
-   Wolfram
-
-
-The following changes since commit 75bc37fefc4471e718ba8e651aa74673d4e0a9eb:
-
-  Linux 4.17-rc4 (2018-05-06 16:57:38 -1000)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
-
-for you to fetch changes up to 22aac3eb0c465dd9ea7f06ee1ed8ad933890f2a3:
-
-  MAINTAINERS: add entry for STM32 I2C driver (2018-05-17 16:02:19 +0200)
-
-----------------------------------------------------------------
-Alexander Monakov (1):
-      i2c: designware: fix poll-after-enable regression
-
-Bartosz Golaszewski (1):
-      eeprom: at24: fix retrieving the at24_chip_data structure
-
-Hans de Goede (2):
-      i2c: core: ACPI: Improve OpRegion read errors
-      i2c: core: ACPI: Log device not acking errors at dbg loglevel
-
-Peter Rosin (3):
-      i2c: pmcmsp: return message count on master_xfer success
-      i2c: pmcmsp: fix error return from master_xfer
-      i2c: viperboard: return message count on master_xfer success
-
-Pierre-Yves MORDRET (1):
-      MAINTAINERS: add entry for STM32 I2C driver
-
-Wolfram Sang (1):
-      Merge tag 'at24-4.17-rc5-fixes-for-wolfram' of git://git.kernel.org/.../brgl/linux into i2c/for-current
-
-
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Ben Gardner (1):
-      (Test) i2c: designware: fix poll-after-enable regression
-
-Mika Westerberg (2):
-      (Rev.) i2c: core: ACPI: Log device not acking errors at dbg loglevel
-      (Rev.) i2c: core: ACPI: Improve OpRegion read errors
-
- MAINTAINERS                                |  6 ++++++
- drivers/i2c/busses/i2c-designware-master.c |  5 ++++-
- drivers/i2c/busses/i2c-pmcmsp.c            |  4 ++--
- drivers/i2c/busses/i2c-viperboard.c        |  2 +-
- drivers/i2c/i2c-core-acpi.c                | 13 ++++++++++---
- drivers/misc/eeprom/at24.c                 |  2 +-
- 6 files changed, 24 insertions(+), 8 deletions(-)
-
---me3vpn5vwgzjf5vd
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlr/IAEACgkQFA3kzBSg
-KbaEbxAAl2j99CHjbtj17MTTRgxeIRHAp/wGSsQp5L+2RU9y0u0DnIxTOCN/g02e
-1KogAffOhZ1y+fC5YSpWxjDvxnVse3+UYKuybfuzQmespRea5I0aCG7TgF3pBPSJ
-ErN37OImAUyN4Vnhi0xhOn5EbzNmh7C+ilTpqiTr3zULwuAB/7t/il+H14Q+26BJ
-/COqrXQhs2/1fCsRz+7HpZrucMmK1pbqTJ5Evk21aPE9tqBQhovugpJKd1m4MUu9
-eCtWMvt2xqs9AbCtYN7ZWADVn/e2E1pybvksiN3YwWkgFB1OKDK9sZYeZ9KcuRwS
-hRYCXXQUuv9HqcgxBFtpWFqtrcQy2PeVefgtedTDn42m6niDbwq9Hgh5XE21jtAU
-6cYzqbYrAaEIDQTqw5dh6KrZrjCjt+AzvZjIo39QENWw5Ld7yoc7OmD2c9j5ExXM
-NFbtgCnapW8uZ1Tj9mWpJjF63J7jLlKUx+H3TDl9s1Yc7AAYYWi2GaiN7cTZpzQU
-Vzm/lUQRvIZHub6l9QZ2tYJrscSZDSBmYI/RKSIbj0lYNUL6AjDi1fcLewI67F+X
-saOmua61LS217nt40kmH9fxODJ8gE/zS1vodJjMRVVGiaIRjQgk/DOMr+1K/MLv9
-ykQ/8c5BpDB1TV6pksWG0fTKEU/g5ML8Xm6sG1OMUc7AxocDZ+U=
-=lEd0
------END PGP SIGNATURE-----
-
---me3vpn5vwgzjf5vd--
+On Mon, May 14, 2018 at 3:31 PM, Peter Rosin <peda@axentia.se> wrote:
+> On 2018-05-10 13:17, Wolfram Sang wrote:
+>> On Sat, May 05, 2018 at 07:57:10AM -0500, Wenwen Wang wrote:
+>>> In i2c_smbus_xfer_emulated(), there are two buffers: msgbuf0 and msgbuf1,
+>>> which are used to save a series of messages, as mentioned in the comment.
+>>> According to the value of the variable 'size', msgbuf0 is initialized to
+>>> various values. In contrast, msgbuf1 is left uninitialized until the
+>>> function i2c_transfer() is invoked. However, msgbuf1 is not always
+>>> initialized on all possible execution paths (implementation) of
+>>> i2c_transfer(). Thus, it is possible that msgbuf1 may still be
+>>> uninitialized even after the invocation of the function i2c_transfer(),
+>>> especially when the return value of ic2_transfer() is not checked properly.
+>>> In the following execution, the uninitialized msgbuf1 will be used, such as
+>>> for security checks. Since uninitialized values can be random and
+>>> arbitrary, this will cause undefined behaviors or even check bypass. For
+>>> example, it is expected that if the value of 'size' is
+>>> I2C_SMBUS_BLOCK_PROC_CALL, the value of data->block[0] should not be larger
+>>> than I2C_SMBUS_BLOCK_MAX. But, at the end of i2c_smbus_xfer_emulated(), the
+>>> value read from msgbuf1 is assigned to data->block[0], which can
+>>> potentially lead to invalid block write size, as demonstrated in the error
+>>> message.
+>>>
+>>> This patch initializes the first byte of msgbuf1 with 0 to avoid such
+>>> undefined behaviors or security issues.
+>>>
+>>> Signed-off-by: Wenwen Wang <wang6495@umn.edu>
+>>
+>> From what I can tell, this patch is not needed anymore after patch 2 is
+>> applied. Correct?
+>
+> AFAIU, it is only needed if there are bugs elsewhere. I.e. it's for extra
+> protection. If all drivers implement .master_xfer correctly, msgbuf1 will
+> be filled in and the return value will be the number of messages (i.e. 2)
+> OR you get a negative return value and the msgbuf1 content will not matter.
+>
+> The patch does not magically fix all possible driver bugs, so in that
+> sense this patch is still "needed".
+>
+> Also - again AFAIU - there is no known bug that actually gets caught by
+> this extra check.
+>
+> Cheers,
+> Peter
