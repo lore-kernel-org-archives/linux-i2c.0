@@ -1,47 +1,75 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [BUG] i2c-hid: ELAN Touchpad does not work on ASUS X580GD
-Date: Sat, 19 May 2018 13:58:55 +0200
-Message-ID: <f52aa2eb-0af4-dac5-11d4-40b1379b5f89@redhat.com>
-References: <CAPpJ_ed-JPOzQPtyCdH4_C7dzEeM3fznus8XDuaojaiM_4nFpw@mail.gmail.com>
- <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com>
- <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com>
- <CAD8Lp46b+-B=xqSAqB+zV4xF6SRUGs46FkydS37UEuqav_jNog@mail.gmail.com>
- <CAB4CAwd0tN7CaS7YZCo3TZH-DPxt0x6wxyO23v7aBW9MOCtHCw@mail.gmail.com>
- <c1343704-6b1a-14b5-3942-a8a33f73feee@linux.intel.com>
- <CAB4CAwe6kjJ10s0KtVJrPMSC8UA+YLCiqbnkZ_-oFTKTFPTwCw@mail.gmail.com>
- <7728da79-8a7a-b87d-d09c-b36978b3032e@linux.intel.com>
- <a3ce1af5-7b99-38db-fc51-4d580db1e87e@linux.intel.com>
- <ba99be8e-8e8b-87c1-8607-24ace8a01c64@redhat.com>
- <91f87c43-0ae1-00ec-6b3e-819b639aa1b2@linux.intel.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH 1/4] i2c: mux: ltc4306: switch to using .probe_new
+Date: Sat, 19 May 2018 23:55:58 +0200
+Message-ID: <ab7bece4-ff89-3889-615c-7b0b085c3e03@axentia.se>
+References: <20180417143233.25145-1-peda@axentia.se>
+ <20180417143233.25145-2-peda@axentia.se>
+ <bc5637c3-5e09-b01f-8b9d-f7dcb3b578e1@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <91f87c43-0ae1-00ec-6b3e-819b639aa1b2@linux.intel.com>
+In-Reply-To: <bc5637c3-5e09-b01f-8b9d-f7dcb3b578e1@analog.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Chris Chiu <chiu@endlessm.com>
-Cc: Daniel Drake <drake@endlessm.com>, Jian-Hong Pan <jian-hong@endlessm.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jani Nikula <jani.nikula@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Adrian Salido <salidoa@google.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
+To: michael.hennerich@analog.com, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, Guenter Roeck <linux@roeck-us.net>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
-
-On 18-05-18 15:15, Jarkko Nikula wrote:
-> On 05/18/2018 10:48 AM, Hans de Goede wrote:
->> Could it be the i2c input clock definition in drivers/mfd/intel-lpss-pci.c
->> is also wrong for Apollo Lake (N3450) ?  There are lots of people having
->> various issues with i2c attached touchpads on Apollo Lake devices, this bug:
->> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1728244
+On 2018-04-18 11:26, Michael Hennerich wrote:
+> On 17.04.2018 16:32, Peter Rosin wrote:
+>> Use the new probe style for i2c drivers.
 >>
->> Is sort of a collection bug for these. Various models laptops, lots of
->> reporters. Note not sure thie is an i2c-designware issue, but it would
->> be good to double check the input clock on Apollo Lake.
+>> Signed-off-by: Peter Rosin <peda@axentia.se>
+> 
+> Thanks Peter,
+> 
+> Don't know why i2c needs a new probe style to save one function parameter...
+> But this patch looks otherwise good to me.
+> 
+> Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+
+Thanks, added this patch to i2c-mux/for-next
+
+Cheers,
+Peter
+
+>> ---
+>>   drivers/i2c/muxes/i2c-mux-ltc4306.c | 7 +++----
+>>   1 file changed, 3 insertions(+), 4 deletions(-)
 >>
-> Does i2c_designware_core.dyndbg=+p and i2c-hid.debug=1 command line arguments give any useful debug information from those machines?
-
-A first dmesg with these flags has been provided:
-https://launchpadlibrarian.net/370884912/dmesg.log
-
-Regards,
-
-Hans
+>> diff --git a/drivers/i2c/muxes/i2c-mux-ltc4306.c b/drivers/i2c/muxes/i2c-mux-ltc4306.c
+>> index 311b1cced0c0..a9af93259b19 100644
+>> --- a/drivers/i2c/muxes/i2c-mux-ltc4306.c
+>> +++ b/drivers/i2c/muxes/i2c-mux-ltc4306.c
+>> @@ -206,8 +206,7 @@ static const struct of_device_id ltc4306_of_match[] = {
+>>   };
+>>   MODULE_DEVICE_TABLE(of, ltc4306_of_match);
+>>   
+>> -static int ltc4306_probe(struct i2c_client *client,
+>> -			 const struct i2c_device_id *id)
+>> +static int ltc4306_probe(struct i2c_client *client)
+>>   {
+>>   	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
+>>   	const struct chip_desc *chip;
+>> @@ -221,7 +220,7 @@ static int ltc4306_probe(struct i2c_client *client,
+>>   	chip = of_device_get_match_data(&client->dev);
+>>   
+>>   	if (!chip)
+>> -		chip = &chips[id->driver_data];
+>> +		chip = &chips[i2c_match_id(ltc4306_id, client)->driver_data];
+>>   
+>>   	idle_disc = device_property_read_bool(&client->dev,
+>>   					      "i2c-mux-idle-disconnect");
+>> @@ -310,7 +309,7 @@ static struct i2c_driver ltc4306_driver = {
+>>   		.name	= "ltc4306",
+>>   		.of_match_table = of_match_ptr(ltc4306_of_match),
+>>   	},
+>> -	.probe		= ltc4306_probe,
+>> +	.probe_new	= ltc4306_probe,
+>>   	.remove		= ltc4306_remove,
+>>   	.id_table	= ltc4306_id,
+>>   };
+>>
+> 
+> 
