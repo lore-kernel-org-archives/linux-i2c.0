@@ -1,75 +1,116 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 1/4] i2c: mux: ltc4306: switch to using .probe_new
-Date: Sat, 19 May 2018 23:55:58 +0200
-Message-ID: <ab7bece4-ff89-3889-615c-7b0b085c3e03@axentia.se>
-References: <20180417143233.25145-1-peda@axentia.se>
- <20180417143233.25145-2-peda@axentia.se>
- <bc5637c3-5e09-b01f-8b9d-f7dcb3b578e1@analog.com>
+Subject: Re: [PATCH] i2c-mux-pca954x: Force reset on probe if available
+Date: Sat, 19 May 2018 23:58:14 +0200
+Message-ID: <a97e3a9a-9c3a-a172-ba7d-1b393b12a2af@axentia.se>
+References: <1525174932-8865-1-git-send-email-mike.looijmans@topic.nl>
+ <bc56d669-b02f-a017-844d-e095bbbcb7cd@axentia.se>
+ <350e9638-1127-c0e5-290b-9d04725c1b8e@topic.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <bc5637c3-5e09-b01f-8b9d-f7dcb3b578e1@analog.com>
+In-Reply-To: <350e9638-1127-c0e5-290b-9d04725c1b8e@topic.nl>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: michael.hennerich@analog.com, linux-kernel@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, Guenter Roeck <linux@roeck-us.net>, linux-i2c@vger.kernel.org
+To: Mike Looijmans <mike.looijmans@topic.nl>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-04-18 11:26, Michael Hennerich wrote:
-> On 17.04.2018 16:32, Peter Rosin wrote:
->> Use the new probe style for i2c drivers.
+On 2018-05-08 10:06, Mike Looijmans wrote:
+> On 08-05-18 08:36, Peter Rosin wrote:
+>> On 2018-05-01 13:42, Mike Looijmans wrote:
+>>> Instead of just hogging the reset GPIO into deactivated state, activate and
+>>> then de-activate the reset. This allows for better recovery if the CPU was
+>>> reset halfway through an I2C transaction for example.
 >>
->> Signed-off-by: Peter Rosin <peda@axentia.se>
+>> I can't see any problems with this, and a reset at load time can certainly
+>> be a benefit. Some questions below though...
+>>
+>> Cheers,
+>> Peter
+>>
+>>> Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
+>>> ---
+>>>   drivers/i2c/muxes/i2c-mux-pca954x.c | 12 ++++++++++--
+>>>   1 file changed, 10 insertions(+), 2 deletions(-)
+>>>
+>>> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+>>> index 09bafd3..13e10d0 100644
+>>> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
+>>> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+>>> @@ -36,6 +36,7 @@
+>>>    */
+>>>   
+>>>   #include <linux/device.h>
+>>> +#include <linux/delay.h>
+>>>   #include <linux/gpio/consumer.h>
+>>>   #include <linux/i2c.h>
+>>>   #include <linux/i2c-mux.h>
+>>> @@ -389,10 +390,17 @@ static int pca954x_probe(struct i2c_client *client,
+>>>   	i2c_set_clientdata(client, muxc);
+>>>   	data->client = client;
+>>>   
+>>> -	/* Get the mux out of reset if a reset GPIO is specified. */
+>>> -	gpio = devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_LOW);
+>>> +	/* Reset the mux if a reset GPIO is specified. */
+>>> +	gpio = devm_gpiod_get_optional(&client->dev, "reset", GPIOD_OUT_HIGH);
+>>>   	if (IS_ERR(gpio))
+>>>   		return PTR_ERR(gpio);
+>>> +	if (gpio) {
+>>> +		/* Datasheet specifies a 4 ns reset-low time */
+>>> +		udelay(1);
+>>
+>> ndelay(4) ?
+>>
 > 
-> Thanks Peter,
+> I have several reasons for making it much much longer:
+> - A true 4ns pulse might not make it through the GPIO controller (on some 
+> chips, the GPIO controller runs at 1/10th of the CPU speed or even less)
+> - Board designers tend to treat RESET signals as "DC", so a 250MHz pulse might 
+> not make it through. There may be level converters and open-drain drives in 
+> the signal path as well.
+> - I've only looked it op on a few chips, others may have different values
 > 
-> Don't know why i2c needs a new probe style to save one function parameter...
-> But this patch looks otherwise good to me.
+> I think best is to just remove the comment line, it doesn't really help.
 > 
-> Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+>>> +		gpiod_set_value_cansleep(gpio, 0);
+>>> +		/* Datasheet specifies a 500 ns reset recovery time */
+>>> +		udelay(1);
+>>
+>> ndelay(500) ?
+> 
+> Similar reasons as above.
 
-Thanks, added this patch to i2c-mux/for-next
+Agreed, sounds sane.
+
+Applied to i2c-mux/for-next with minor tweaks to the subject and comments.
 
 Cheers,
 Peter
 
->> ---
->>   drivers/i2c/muxes/i2c-mux-ltc4306.c | 7 +++----
->>   1 file changed, 3 insertions(+), 4 deletions(-)
 >>
->> diff --git a/drivers/i2c/muxes/i2c-mux-ltc4306.c b/drivers/i2c/muxes/i2c-mux-ltc4306.c
->> index 311b1cced0c0..a9af93259b19 100644
->> --- a/drivers/i2c/muxes/i2c-mux-ltc4306.c
->> +++ b/drivers/i2c/muxes/i2c-mux-ltc4306.c
->> @@ -206,8 +206,7 @@ static const struct of_device_id ltc4306_of_match[] = {
->>   };
->>   MODULE_DEVICE_TABLE(of, ltc4306_of_match);
->>   
->> -static int ltc4306_probe(struct i2c_client *client,
->> -			 const struct i2c_device_id *id)
->> +static int ltc4306_probe(struct i2c_client *client)
->>   {
->>   	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
->>   	const struct chip_desc *chip;
->> @@ -221,7 +220,7 @@ static int ltc4306_probe(struct i2c_client *client,
->>   	chip = of_device_get_match_data(&client->dev);
->>   
->>   	if (!chip)
->> -		chip = &chips[id->driver_data];
->> +		chip = &chips[i2c_match_id(ltc4306_id, client)->driver_data];
->>   
->>   	idle_disc = device_property_read_bool(&client->dev,
->>   					      "i2c-mux-idle-disconnect");
->> @@ -310,7 +309,7 @@ static struct i2c_driver ltc4306_driver = {
->>   		.name	= "ltc4306",
->>   		.of_match_table = of_match_ptr(ltc4306_of_match),
->>   	},
->> -	.probe		= ltc4306_probe,
->> +	.probe_new	= ltc4306_probe,
->>   	.remove		= ltc4306_remove,
->>   	.id_table	= ltc4306_id,
->>   };
+>>> +	}
+>>>   
+>>>   	match = of_match_device(of_match_ptr(pca954x_of_match), &client->dev);
+>>>   	if (match)
+>>>
 >>
+> 
+> 
+> 
+> Kind regards,
+> 
+> Mike Looijmans
+> System Expert
+> 
+> TOPIC Products
+> Materiaalweg 4, NL-5681 RJ Best
+> Postbus 440, NL-5680 AK Best
+> Telefoon: +31 (0) 499 33 69 79
+> E-mail: mike.looijmans@topicproducts.com
+> Website: www.topicproducts.com
+> 
+> Please consider the environment before printing this e-mail
+> 
 > 
 > 
