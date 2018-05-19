@@ -1,68 +1,47 @@
-From: Wenwen Wang <wang6495@umn.edu>
-Subject: Re: [PATCH v2 1/2] i2c: core-smbus: fix a potential uninitialization bug
-Date: Fri, 18 May 2018 14:25:48 -0500
-Message-ID: <CAAa=b7cvVW-LDY6PuHKVTaj5unp90JH4mxP2kFxfOO2OAcGkgw@mail.gmail.com>
-References: <1525525030-9805-1-git-send-email-wang6495@umn.edu>
- <20180510111737.b6g7s2nnf6froote@ninjato> <ac843580-884e-b0fc-60af-8d73ba099100@axentia.se>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [BUG] i2c-hid: ELAN Touchpad does not work on ASUS X580GD
+Date: Sat, 19 May 2018 13:58:55 +0200
+Message-ID: <f52aa2eb-0af4-dac5-11d4-40b1379b5f89@redhat.com>
+References: <CAPpJ_ed-JPOzQPtyCdH4_C7dzEeM3fznus8XDuaojaiM_4nFpw@mail.gmail.com>
+ <CAB4CAwcKu88xP0R9P-3csd6SE2fZ-Vb6OrQD9AmBDh6p77VFDQ@mail.gmail.com>
+ <a9e1f1cb-b823-8690-930f-f7346798341a@linux.intel.com>
+ <CAD8Lp46b+-B=xqSAqB+zV4xF6SRUGs46FkydS37UEuqav_jNog@mail.gmail.com>
+ <CAB4CAwd0tN7CaS7YZCo3TZH-DPxt0x6wxyO23v7aBW9MOCtHCw@mail.gmail.com>
+ <c1343704-6b1a-14b5-3942-a8a33f73feee@linux.intel.com>
+ <CAB4CAwe6kjJ10s0KtVJrPMSC8UA+YLCiqbnkZ_-oFTKTFPTwCw@mail.gmail.com>
+ <7728da79-8a7a-b87d-d09c-b36978b3032e@linux.intel.com>
+ <a3ce1af5-7b99-38db-fc51-4d580db1e87e@linux.intel.com>
+ <ba99be8e-8e8b-87c1-8607-24ace8a01c64@redhat.com>
+ <91f87c43-0ae1-00ec-6b3e-819b639aa1b2@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <ac843580-884e-b0fc-60af-8d73ba099100@axentia.se>
+In-Reply-To: <91f87c43-0ae1-00ec-6b3e-819b639aa1b2@linux.intel.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Peter Rosin <peda@axentia.se>, Kangjie Lu <kjlu@umn.edu>, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, Wenwen Wang <wang6495@umn.edu>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Chris Chiu <chiu@endlessm.com>
+Cc: Daniel Drake <drake@endlessm.com>, Jian-Hong Pan <jian-hong@endlessm.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jani Nikula <jani.nikula@intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Adrian Salido <salidoa@google.com>, Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Linux Upstreaming Team <linux@endlessm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Yes, this patch does not aim to "fix" all potential driver bugs but
-adds an additional protection in case the implementation of
-.master_xfer is incorrect.
+Hi,
 
->From this perspective, it is still necessary to apply this patch, as
-pointed out by Peter.
-
-Thanks,
-Wenwen
-
-On Mon, May 14, 2018 at 3:31 PM, Peter Rosin <peda@axentia.se> wrote:
-> On 2018-05-10 13:17, Wolfram Sang wrote:
->> On Sat, May 05, 2018 at 07:57:10AM -0500, Wenwen Wang wrote:
->>> In i2c_smbus_xfer_emulated(), there are two buffers: msgbuf0 and msgbuf1,
->>> which are used to save a series of messages, as mentioned in the comment.
->>> According to the value of the variable 'size', msgbuf0 is initialized to
->>> various values. In contrast, msgbuf1 is left uninitialized until the
->>> function i2c_transfer() is invoked. However, msgbuf1 is not always
->>> initialized on all possible execution paths (implementation) of
->>> i2c_transfer(). Thus, it is possible that msgbuf1 may still be
->>> uninitialized even after the invocation of the function i2c_transfer(),
->>> especially when the return value of ic2_transfer() is not checked properly.
->>> In the following execution, the uninitialized msgbuf1 will be used, such as
->>> for security checks. Since uninitialized values can be random and
->>> arbitrary, this will cause undefined behaviors or even check bypass. For
->>> example, it is expected that if the value of 'size' is
->>> I2C_SMBUS_BLOCK_PROC_CALL, the value of data->block[0] should not be larger
->>> than I2C_SMBUS_BLOCK_MAX. But, at the end of i2c_smbus_xfer_emulated(), the
->>> value read from msgbuf1 is assigned to data->block[0], which can
->>> potentially lead to invalid block write size, as demonstrated in the error
->>> message.
->>>
->>> This patch initializes the first byte of msgbuf1 with 0 to avoid such
->>> undefined behaviors or security issues.
->>>
->>> Signed-off-by: Wenwen Wang <wang6495@umn.edu>
+On 18-05-18 15:15, Jarkko Nikula wrote:
+> On 05/18/2018 10:48 AM, Hans de Goede wrote:
+>> Could it be the i2c input clock definition in drivers/mfd/intel-lpss-pci.c
+>> is also wrong for Apollo Lake (N3450) ?  There are lots of people having
+>> various issues with i2c attached touchpads on Apollo Lake devices, this bug:
+>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1728244
 >>
->> From what I can tell, this patch is not needed anymore after patch 2 is
->> applied. Correct?
->
-> AFAIU, it is only needed if there are bugs elsewhere. I.e. it's for extra
-> protection. If all drivers implement .master_xfer correctly, msgbuf1 will
-> be filled in and the return value will be the number of messages (i.e. 2)
-> OR you get a negative return value and the msgbuf1 content will not matter.
->
-> The patch does not magically fix all possible driver bugs, so in that
-> sense this patch is still "needed".
->
-> Also - again AFAIU - there is no known bug that actually gets caught by
-> this extra check.
->
-> Cheers,
-> Peter
+>> Is sort of a collection bug for these. Various models laptops, lots of
+>> reporters. Note not sure thie is an i2c-designware issue, but it would
+>> be good to double check the input clock on Apollo Lake.
+>>
+> Does i2c_designware_core.dyndbg=+p and i2c-hid.debug=1 command line arguments give any useful debug information from those machines?
+
+A first dmesg with these flags has been provided:
+https://launchpadlibrarian.net/370884912/dmesg.log
+
+Regards,
+
+Hans
