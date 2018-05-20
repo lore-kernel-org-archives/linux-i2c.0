@@ -1,13 +1,11 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 5/7] media: hdpvr: don't check number of messages in the driver
-Date: Sun, 20 May 2018 08:50:36 +0200
-Message-ID: <20180520065039.7989-6-wsa@the-dreams.de>
-References: <20180520065039.7989-1-wsa@the-dreams.de>
+Subject: [PATCH 1/1] drm/msm/hdmi: don't check number of messages in the driver
+Date: Sun, 20 May 2018 08:50:44 +0200
+Message-ID: <20180520065045.8108-1-wsa@the-dreams.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180520065039.7989-1-wsa@the-dreams.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Hans Verkuil <hverkuil@xs4all.nl>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Rob Clark <robdclark@gmail.com>, David Airlie <airlied@linux.ie>, linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Since commit 1eace8344c02 ("i2c: add param sanity check to
@@ -19,22 +17,22 @@ Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
 Only build tested.
 
- drivers/media/usb/hdpvr/hdpvr-i2c.c | 3 ---
+ drivers/gpu/drm/msm/hdmi/hdmi_i2c.c | 3 ---
  1 file changed, 3 deletions(-)
 
-diff --git a/drivers/media/usb/hdpvr/hdpvr-i2c.c b/drivers/media/usb/hdpvr/hdpvr-i2c.c
-index 4720d79b0282..c97dcf981b3f 100644
---- a/drivers/media/usb/hdpvr/hdpvr-i2c.c
-+++ b/drivers/media/usb/hdpvr/hdpvr-i2c.c
-@@ -117,9 +117,6 @@ static int hdpvr_transfer(struct i2c_adapter *i2c_adapter, struct i2c_msg *msgs,
- 	struct hdpvr_device *dev = i2c_get_adapdata(i2c_adapter);
- 	int retval = 0, addr;
+diff --git a/drivers/gpu/drm/msm/hdmi/hdmi_i2c.c b/drivers/gpu/drm/msm/hdmi/hdmi_i2c.c
+index 73e20219d431..cc8b27d440bb 100644
+--- a/drivers/gpu/drm/msm/hdmi/hdmi_i2c.c
++++ b/drivers/gpu/drm/msm/hdmi/hdmi_i2c.c
+@@ -115,9 +115,6 @@ static int msm_hdmi_i2c_xfer(struct i2c_adapter *i2c,
  
--	if (num <= 0)
--		return 0;
+ 	WARN_ON(!(hdmi_read(hdmi, REG_HDMI_CTRL) & HDMI_CTRL_ENABLE));
+ 
+-	if (num == 0)
+-		return num;
 -
- 	mutex_lock(&dev->i2c_mutex);
+ 	init_ddc(hdmi_i2c);
  
- 	addr = msgs[0].addr << 1;
+ 	ret = ddc_clear_irq(hdmi_i2c);
 -- 
 2.11.0
