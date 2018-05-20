@@ -1,38 +1,40 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 0/7] don't check number of I2C messages in drivers
-Date: Sun, 20 May 2018 08:50:31 +0200
-Message-ID: <20180520065039.7989-1-wsa@the-dreams.de>
+Subject: [PATCH 7/7] media: dvb-usb: don't check number of messages in the driver
+Date: Sun, 20 May 2018 08:50:38 +0200
+Message-ID: <20180520065039.7989-8-wsa@the-dreams.de>
+References: <20180520065039.7989-1-wsa@the-dreams.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180520065039.7989-1-wsa@the-dreams.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The core does it now, we can simplify drivers.
+Since commit 1eace8344c02 ("i2c: add param sanity check to
+i2c_transfer()"), the I2C core does this check now. We can remove it
+from drivers.
 
-Based on v4.17-rc5. buildbot is happy. I'd suggest the media tree.
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
 
-Thanks,
+Only build tested.
 
-   Wolfram
+ drivers/media/usb/dvb-usb/m920x.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-Wolfram Sang (7):
-  media: netup_unidvb: don't check number of messages in the driver
-  media: si4713: don't check number of messages in the driver
-  media: cx231xx: don't check number of messages in the driver
-  media: em28xx: don't check number of messages in the driver
-  media: hdpvr: don't check number of messages in the driver
-  media: tm6000: don't check number of messages in the driver
-  media: dvb-usb: don't check number of messages in the driver
-
- drivers/media/pci/netup_unidvb/netup_unidvb_i2c.c | 5 -----
- drivers/media/radio/si4713/radio-usb-si4713.c     | 3 ---
- drivers/media/usb/cx231xx/cx231xx-i2c.c           | 2 --
- drivers/media/usb/dvb-usb/m920x.c                 | 3 ---
- drivers/media/usb/em28xx/em28xx-i2c.c             | 4 ----
- drivers/media/usb/hdpvr/hdpvr-i2c.c               | 3 ---
- drivers/media/usb/tm6000/tm6000-i2c.c             | 2 --
- 7 files changed, 22 deletions(-)
-
+diff --git a/drivers/media/usb/dvb-usb/m920x.c b/drivers/media/usb/dvb-usb/m920x.c
+index 32081c2ce0da..a6ab6688cbb3 100644
+--- a/drivers/media/usb/dvb-usb/m920x.c
++++ b/drivers/media/usb/dvb-usb/m920x.c
+@@ -255,9 +255,6 @@ static int m920x_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msg[], int nu
+ 	int i, j;
+ 	int ret = 0;
+ 
+-	if (!num)
+-		return -EINVAL;
+-
+ 	if (mutex_lock_interruptible(&d->i2c_mutex) < 0)
+ 		return -EAGAIN;
+ 
 -- 
 2.11.0
