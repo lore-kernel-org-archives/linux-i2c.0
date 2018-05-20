@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 7/7] media: dvb-usb: don't check number of messages in the driver
-Date: Sun, 20 May 2018 08:50:38 +0200
-Message-ID: <20180520065039.7989-8-wsa@the-dreams.de>
+Subject: [PATCH 6/7] media: tm6000: don't check number of messages in the driver
+Date: Sun, 20 May 2018 08:50:37 +0200
+Message-ID: <20180520065039.7989-7-wsa@the-dreams.de>
 References: <20180520065039.7989-1-wsa@the-dreams.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180520065039.7989-1-wsa@the-dreams.de>
@@ -19,22 +19,21 @@ Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
 Only build tested.
 
- drivers/media/usb/dvb-usb/m920x.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/media/usb/tm6000/tm6000-i2c.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/media/usb/dvb-usb/m920x.c b/drivers/media/usb/dvb-usb/m920x.c
-index 32081c2ce0da..a6ab6688cbb3 100644
---- a/drivers/media/usb/dvb-usb/m920x.c
-+++ b/drivers/media/usb/dvb-usb/m920x.c
-@@ -255,9 +255,6 @@ static int m920x_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msg[], int nu
- 	int i, j;
- 	int ret = 0;
+diff --git a/drivers/media/usb/tm6000/tm6000-i2c.c b/drivers/media/usb/tm6000/tm6000-i2c.c
+index 659b63febf85..ccd1adf862b1 100644
+--- a/drivers/media/usb/tm6000/tm6000-i2c.c
++++ b/drivers/media/usb/tm6000/tm6000-i2c.c
+@@ -145,8 +145,6 @@ static int tm6000_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 	struct tm6000_core *dev = i2c_adap->algo_data;
+ 	int addr, rc, i, byte;
  
--	if (!num)
--		return -EINVAL;
--
- 	if (mutex_lock_interruptible(&d->i2c_mutex) < 0)
- 		return -EAGAIN;
- 
+-	if (num <= 0)
+-		return 0;
+ 	for (i = 0; i < num; i++) {
+ 		addr = (msgs[i].addr << 1) & 0xff;
+ 		i2c_dprintk(2, "%s %s addr=0x%x len=%d:",
 -- 
 2.11.0
