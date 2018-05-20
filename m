@@ -1,13 +1,13 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 2/7] media: si4713: don't check number of messages in the driver
-Date: Sun, 20 May 2018 08:50:33 +0200
-Message-ID: <20180520065039.7989-3-wsa@the-dreams.de>
+Subject: [PATCH 3/7] media: cx231xx: don't check number of messages in the driver
+Date: Sun, 20 May 2018 08:50:34 +0200
+Message-ID: <20180520065039.7989-4-wsa@the-dreams.de>
 References: <20180520065039.7989-1-wsa@the-dreams.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180520065039.7989-1-wsa@the-dreams.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Hans Verkuil <hverkuil@xs4all.nl>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Since commit 1eace8344c02 ("i2c: add param sanity check to
@@ -19,22 +19,21 @@ Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
 Only build tested.
 
- drivers/media/radio/si4713/radio-usb-si4713.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/media/usb/cx231xx/cx231xx-i2c.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/media/radio/si4713/radio-usb-si4713.c b/drivers/media/radio/si4713/radio-usb-si4713.c
-index 05c66701a899..1ebbf0217142 100644
---- a/drivers/media/radio/si4713/radio-usb-si4713.c
-+++ b/drivers/media/radio/si4713/radio-usb-si4713.c
-@@ -370,9 +370,6 @@ static int si4713_transfer(struct i2c_adapter *i2c_adapter,
- 	int retval = -EINVAL;
- 	int i;
+diff --git a/drivers/media/usb/cx231xx/cx231xx-i2c.c b/drivers/media/usb/cx231xx/cx231xx-i2c.c
+index 6e1bef2a45bb..15a91169e749 100644
+--- a/drivers/media/usb/cx231xx/cx231xx-i2c.c
++++ b/drivers/media/usb/cx231xx/cx231xx-i2c.c
+@@ -376,8 +376,6 @@ static int cx231xx_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 	struct cx231xx *dev = bus->dev;
+ 	int addr, rc, i, byte;
  
 -	if (num <= 0)
 -		return 0;
--
+ 	mutex_lock(&dev->i2c_lock);
  	for (i = 0; i < num; i++) {
- 		if (msgs[i].flags & I2C_M_RD)
- 			retval = si4713_i2c_read(radio, msgs[i].buf, msgs[i].len);
+ 
 -- 
 2.11.0
