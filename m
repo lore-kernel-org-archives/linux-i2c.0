@@ -1,63 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/4] i2c: xlp9xx: Fix issue seen when updating receive
- length
-Date: Tue, 22 May 2018 14:08:35 +0200
-Message-ID: <20180522120835.okaho5xuahtozhoc@ninjato>
+Subject: Re: [PATCH 1/4] i2c: xlp9xx: Add support for SMBAlert
+Date: Tue, 22 May 2018 14:08:32 +0200
+Message-ID: <20180522120832.cuw5lbxafq4cl6bo@ninjato>
 References: <1526454019-32714-1-git-send-email-george.cherian@cavium.com>
- <1526454019-32714-3-git-send-email-george.cherian@cavium.com>
+ <1526454019-32714-2-git-send-email-george.cherian@cavium.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="enegb25e522ccrec"
+        protocol="application/pgp-signature"; boundary="w63k2kyc4gozi7sv"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1526454019-32714-3-git-send-email-george.cherian@cavium.com>
+In-Reply-To: <1526454019-32714-2-git-send-email-george.cherian@cavium.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: George Cherian <george.cherian@cavium.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jglauber@cavium.com, kamlakant.patel@cavium.com, mchehab+samsung@kernel.org, davem@davemloft.net, gregkh@linuxfoundation.org, akpm@linux-foundation.org, linus.walleij@linaro.org, rdunlap@infradead.org, Jayachandran C <jnair@caviumnetworks.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jglauber@cavium.com, kamlakant.patel@cavium.com, mchehab+samsung@kernel.org, davem@davemloft.net, gregkh@linuxfoundation.org, akpm@linux-foundation.org, linus.walleij@linaro.org, rdunlap@infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---enegb25e522ccrec
+--w63k2kyc4gozi7sv
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 16, 2018 at 12:00:17AM -0700, George Cherian wrote:
-> The hardware does not handle updates to the length register gracefully
-> if the new value is less than the number of bytes received so far. If
-> this happens, the i2c controller will not stop the receive transaction
-> properly.
+On Wed, May 16, 2018 at 12:00:16AM -0700, George Cherian wrote:
+> Add support for SMBus alert mechanism to i2c-xlp9xx driver.
+> The second interrupt is parsed to use for SMBus alert.
+> The first interrupt is the i2c controller main interrupt.
 >=20
-> Fix this by ensuring that the updated length is ok. This is done by
-> making sure that the new length written to hardware is at least few
-> bytes more than the bytes received so far.
->=20
-> While at that refactor the length updation to a new function.
->=20
-> Signed-off-by: Jayachandran C <jnair@caviumnetworks.com>
+> Signed-off-by: Kamlakant Patel <kamlakant.patel@cavium.com>
 > Signed-off-by: George Cherian <george.cherian@cavium.com>
+> Reviewed-by: Jan Glauber <jglauber@cavium.com>
 
 Applied to for-next, thanks!
 
 
---enegb25e522ccrec
+--w63k2kyc4gozi7sv
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsECEMACgkQFA3kzBSg
-KbbwyQ//feJ4Q63YiClatugj1hhm2p8lThiAOIXn4z8gBOckIKiQ5aXsnjYFR9Zz
-+F4len4L7RsnvG4ZHC0FtSE1M6kRFYmjWxLQmqTrfxxHgoitcdc+YQvpG50rjfCE
-9Chu6yIW+TcqFvhvn8iNdXTrsoH9Ul1Vhsz9DbKUchNgU+J0Ah+/PMtHF2cRzfYn
-7OJun+d4SxR3++ryG92efZ2OCdGjupqZhodHa2J1Z8K0c/W1gOoW2uF59aGQ79HC
-0u+zXAP1vmKsjH/KGU8X0sQ6cjgumSotdfYSbDujbviLTK5VS3y52LF859+WDN/X
-nBbK1qwYpQH1w/Djlep/QLyDZ3erc4RS0sqRDb8WYLPYbswV8+zPFIaXApfFDqUH
-C5WABCQNiCIdrBpJhcLzQNKZdhpCQ8fcWeqe5xxGhfAm2gKjzOtEiaHVVrOP/fbV
-V1hL3r03zRnATJB7dx3Mq/y6a3pEZcy91jUDrIw1q/31WN5xH1b2l0E7ue+PWOMs
-Lm7OV+7anaAEnU79BemjFMLoSYSaLBv4Wn5LuhD2cOsv3xZhPTIkPMXqa0E0HkEi
-cI/7K2OjpXImHInDxv56zAAFi3mkzJLAVZ1LSLIJhJwNNCucaZVIsHU3BAncl18R
-UKHHdHh0dZg4J2FxDmx3JvxSSm5l+exL/VYiiyoALwBFyNYtgK4=
-=Zym2
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsECEAACgkQFA3kzBSg
+KbbGlQ//WbJQtJsqg3aMDclF5UnKjutNvNGUKc+tMjz/XyWzbEdADv/JI/oo+Bsd
+ArcMs+gmMWZKKpY4c3mlTEsbcuE9/KXIw1q3Ht7vnUhQdvOFa0lUa9xuX2xbAqc/
+hOeEve1+tBJO4bPWKf9jwqttLJcBYvP7FHYJgWWYPrfNfUbTEgc2owKWH79TbniZ
+uZj2fLopGdCnY86sKE92pDzkCdAe32b+acTkmDkCM6/xGcc9RO6sU2E+5WIV1A2D
+bA6HdGBS5his48iav/asU5y8+/VBU1aWPbv/y2wdiF9p9vFc9Dy0XMpOK/DnBT5d
+PQtRM6RrbA1kzgjmWzLpeuWrlHlrVcpd+GQDVfGG0+EoG/bN8f6GFn1YNrzZagFw
+ezhWXsBW07Hyvgu8DhECkyGFCZNTARqvhimedJrwUk1ImKFsZbEOI5WjMjh/xxxp
+g7dOhUB0WGSQhYDyYwX/V8EgGrIEu8ytlaIwerlMQZEn+sVA+8Pjru8SEUNMeL3N
+1anTOsFjnQ5A8gRVX0w0dKRRkhcjkhSAtzSGOtGRo94el7yEnxKDxLoctq1Aeoo6
+ztMlPwoe5AQlq0b/Hm+l8GNZr9QFLmKTeiKqTELcEKf6m8TDdTadJ7XOkXaZXwXv
+Zb5950053OLOBIqxWjRSO8pAWS8/2BKZxo/5nL6KKpMoFpV02Ag=
+=L+4g
 -----END PGP SIGNATURE-----
 
---enegb25e522ccrec--
+--w63k2kyc4gozi7sv--
