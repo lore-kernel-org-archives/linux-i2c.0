@@ -1,69 +1,68 @@
-From: Julia Lawall <Julia.Lawall@lip6.fr>
-Subject: [PATCH 1/3] i2c: mux: pca954x: merge calls to of_match_device and of_device_get_match_data
-Date: Mon, 21 May 2018 11:49:08 +0200
-Message-ID: <1526896150-27134-2-git-send-email-Julia.Lawall@lip6.fr>
-References: <1526896150-27134-1-git-send-email-Julia.Lawall@lip6.fr>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 4/4] i2c: xlp9xx: Add MAINTAINERS entry
+Date: Tue, 22 May 2018 13:54:14 +0200
+Message-ID: <20180522115414.473odncwfdpgmcz7@ninjato>
+References: <1526454019-32714-1-git-send-email-george.cherian@cavium.com>
+ <1526454019-32714-5-git-send-email-george.cherian@cavium.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="z4aciq2vkq75z7wy"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1526896150-27134-1-git-send-email-Julia.Lawall@lip6.fr>
+Content-Disposition: inline
+In-Reply-To: <1526454019-32714-5-git-send-email-george.cherian@cavium.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Himanshu Jha <himanshujha199640@gmail.com>
+To: George Cherian <george.cherian@cavium.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jglauber@cavium.com, kamlakant.patel@cavium.com, mchehab+samsung@kernel.org, davem@davemloft.net, gregkh@linuxfoundation.org, akpm@linux-foundation.org, linus.walleij@linaro.org, rdunlap@infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Drop call to of_match_device, which is subsumed by the subsequent
-call to of_device_get_match_data.  The code becomes simpler, and a
-temporary variable can be dropped.
 
-The semantic match that makes this change is as follows:
-(http://coccinelle.lip6.fr/)
+--z4aciq2vkq75z7wy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-// <smpl>
-@r@
-local idexpression match;
-identifier i;
-expression x, dev, e, e1;
-@@
--        match@i = of_match_device(x, dev);
--        if (match) e = of_device_get_match_data(dev);
--        else e = e1;
-+        e = of_device_get_match_data(dev);
-+        if (!e) e = e1;
+On Wed, May 16, 2018 at 12:00:19AM -0700, George Cherian wrote:
+> The i2c XLP9xx driver is maintained by Cavium.
+> Add George Cherian and Jan Glauber as the Maintainers.
+>=20
+> Signed-off-by: George Cherian <george.cherian@cavium.com>
+> ---
+>  MAINTAINERS | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+>=20
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index df6e9bb..68da265 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -15509,6 +15509,14 @@ L:	linux-kernel@vger.kernel.org
+>  S:	Supported
+>  F:	drivers/char/xillybus/
+> =20
+> +XLP9XX I2C DRIVER
+> +M:	George Cherian <george.cherian@cavium.com>
+> +M:	Jan Glauber <jglauber@cavium.com>
 
-@@
-identifier r.i;
-@@
-- const struct of_device_id *i;
-... when != i
-// </smpl>
+Jan, I need an explicit ACK from you for this change.
 
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
 
----
- drivers/i2c/muxes/i2c-mux-pca954x.c |    7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+--z4aciq2vkq75z7wy
+Content-Type: application/pgp-signature; name="signature.asc"
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 09bafd3..ced840f 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -373,7 +373,6 @@ static int pca954x_probe(struct i2c_client *client,
- 	int num, force, class;
- 	struct i2c_mux_core *muxc;
- 	struct pca954x *data;
--	const struct of_device_id *match;
- 	int ret;
- 
- 	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE))
-@@ -394,10 +393,8 @@ static int pca954x_probe(struct i2c_client *client,
- 	if (IS_ERR(gpio))
- 		return PTR_ERR(gpio);
- 
--	match = of_match_device(of_match_ptr(pca954x_of_match), &client->dev);
--	if (match)
--		data->chip = of_device_get_match_data(&client->dev);
--	else
-+	data->chip = of_device_get_match_data(&client->dev);
-+	if (!data->chip)
- 		data->chip = &chips[id->driver_data];
- 
- 	if (data->chip->id.manufacturer_id != I2C_DEVICE_ID_NONE) {
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsEBOYACgkQFA3kzBSg
+KbZw8Q/8DkBUb+wq1cl5Cxq/TtxP+qC359yuqNWB94jhvOCSZ0Lug0BBYpJKH6ZI
+kF4s4hb8z/RaldItl3MOPal5uEcPuCg3rUS51yGA85go/1XUskP+9e8BU9coaP40
+0ZMM2D3wovEFdV+v0GJSxeqxyddTMxPP1BuPzGIfosHY0bvjRPCvGCiWXIGMhs5j
+OlhljgUnUzho+bNK+qJHdkPZfyM/qD2hqVwYnlTyLQxddoxCiOCLWI7a96QX20OW
+7p0s01/9E31lG0TkUsnwj0d2IDaxXV2O0iENVskCIFWgdWsW98uJqSEwARRUU7c8
+cUUeyITzKultT4yVPDANjIVA8RE7Dw3rUSZk6Lic7BJK8Q/Wkls6M0XUCmO6dkXC
+39KRDNG9E8b/KwZKu3P2m6q2ml8CB4+WIZXFYW5F8UtumcbUIJ3wswAjOQjIJdWg
+c8PXvICkEww6Amv6n6//KCJ3pJjuRx+CdMXs5JhdKxI5uOtNNLeL51LjM3fj+pmA
+eDxgEwy8I2odh7/7sRZgLybSxbfpUaije5biaf+Zu5rPwY/UwHC1WZEvJh59xcSL
+rkQYD1WrCz1bjQ8RpiJpoDbzCNra/UVbl0lvJXGcpGFAeDAJZQNUM5Ni2RheWuRD
+heKwK3R+1V/JP/VPffEpuBjnN+Exgz75UX91pDFJRNO7HpFzXmU=
+=IlIB
+-----END PGP SIGNATURE-----
+
+--z4aciq2vkq75z7wy--
