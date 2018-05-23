@@ -1,56 +1,53 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/4] i2c: xlp9xx: Add support for SMBAlert
-Date: Tue, 22 May 2018 14:08:32 +0200
-Message-ID: <20180522120832.cuw5lbxafq4cl6bo@ninjato>
-References: <1526454019-32714-1-git-send-email-george.cherian@cavium.com>
- <1526454019-32714-2-git-send-email-george.cherian@cavium.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="w63k2kyc4gozi7sv"
+From: Esben Haabendal <esben.haabendal@gmail.com>
+Subject: [PATCH 1/4] i2c: imx: Fix reinit_completion() use
+Date: Wed, 23 May 2018 11:56:20 +0200
+Message-ID: <20180523095623.3347-2-esben.haabendal@gmail.com>
+References: <20180523095623.3347-1-esben.haabendal@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1526454019-32714-2-git-send-email-george.cherian@cavium.com>
+In-Reply-To: <20180523095623.3347-1-esben.haabendal@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: George Cherian <george.cherian@cavium.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jglauber@cavium.com, kamlakant.patel@cavium.com, mchehab+samsung@kernel.org, davem@davemloft.net, gregkh@linuxfoundation.org, akpm@linux-foundation.org, linus.walleij@linaro.org, rdunlap@infradead.org
+To: linux-i2c@vger.kernel.org
+Cc: Esben Haabendal <eha@deif.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Phil Reid <preid@electromag.com.au>, Philipp Zabel <p.zabel@pengutronix.de>, Lucas Stach <l.stach@pengutronix.de>, Clemens Gruber <clemens.gruber@pqgruber.com>, Michail Georgios Etairidis <m.etairidis@beck-ipc.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+From: Esben Haabendal <eha@deif.com>
 
---w63k2kyc4gozi7sv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Make sure to call reinit_completion() before dma is started to avoid race
+condition where reinit_compleition() is called after complete() and before
+wait_for_completion_timeout().
 
-On Wed, May 16, 2018 at 12:00:16AM -0700, George Cherian wrote:
-> Add support for SMBus alert mechanism to i2c-xlp9xx driver.
-> The second interrupt is parsed to use for SMBus alert.
-> The first interrupt is the i2c controller main interrupt.
->=20
-> Signed-off-by: Kamlakant Patel <kamlakant.patel@cavium.com>
-> Signed-off-by: George Cherian <george.cherian@cavium.com>
-> Reviewed-by: Jan Glauber <jglauber@cavium.com>
+Signed-off-by: Esben Haabendal <eha@deif.com>
+---
+ drivers/i2c/busses/i2c-imx.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Applied to for-next, thanks!
-
-
---w63k2kyc4gozi7sv
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsECEAACgkQFA3kzBSg
-KbbGlQ//WbJQtJsqg3aMDclF5UnKjutNvNGUKc+tMjz/XyWzbEdADv/JI/oo+Bsd
-ArcMs+gmMWZKKpY4c3mlTEsbcuE9/KXIw1q3Ht7vnUhQdvOFa0lUa9xuX2xbAqc/
-hOeEve1+tBJO4bPWKf9jwqttLJcBYvP7FHYJgWWYPrfNfUbTEgc2owKWH79TbniZ
-uZj2fLopGdCnY86sKE92pDzkCdAe32b+acTkmDkCM6/xGcc9RO6sU2E+5WIV1A2D
-bA6HdGBS5his48iav/asU5y8+/VBU1aWPbv/y2wdiF9p9vFc9Dy0XMpOK/DnBT5d
-PQtRM6RrbA1kzgjmWzLpeuWrlHlrVcpd+GQDVfGG0+EoG/bN8f6GFn1YNrzZagFw
-ezhWXsBW07Hyvgu8DhECkyGFCZNTARqvhimedJrwUk1ImKFsZbEOI5WjMjh/xxxp
-g7dOhUB0WGSQhYDyYwX/V8EgGrIEu8ytlaIwerlMQZEn+sVA+8Pjru8SEUNMeL3N
-1anTOsFjnQ5A8gRVX0w0dKRRkhcjkhSAtzSGOtGRo94el7yEnxKDxLoctq1Aeoo6
-ztMlPwoe5AQlq0b/Hm+l8GNZr9QFLmKTeiKqTELcEKf6m8TDdTadJ7XOkXaZXwXv
-Zb5950053OLOBIqxWjRSO8pAWS8/2BKZxo/5nL6KKpMoFpV02Ag=
-=L+4g
------END PGP SIGNATURE-----
-
---w63k2kyc4gozi7sv--
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index d7267dd9c7bf..6fca5e64cffb 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -377,6 +377,7 @@ static int i2c_imx_dma_xfer(struct imx_i2c_struct *i2c_imx,
+ 		goto err_desc;
+ 	}
+ 
++	reinit_completion(&dma->cmd_complete);
+ 	txdesc->callback = i2c_imx_dma_callback;
+ 	txdesc->callback_param = i2c_imx;
+ 	if (dma_submit_error(dmaengine_submit(txdesc))) {
+@@ -631,7 +632,6 @@ static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+ 	 * The first byte must be transmitted by the CPU.
+ 	 */
+ 	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
+-	reinit_completion(&i2c_imx->dma->cmd_complete);
+ 	time_left = wait_for_completion_timeout(
+ 				&i2c_imx->dma->cmd_complete,
+ 				msecs_to_jiffies(DMA_TIMEOUT));
+@@ -690,7 +690,6 @@ static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
+ 	if (result)
+ 		return result;
+ 
+-	reinit_completion(&i2c_imx->dma->cmd_complete);
+ 	time_left = wait_for_completion_timeout(
+ 				&i2c_imx->dma->cmd_complete,
+ 				msecs_to_jiffies(DMA_TIMEOUT));
+-- 
+2.17.0
