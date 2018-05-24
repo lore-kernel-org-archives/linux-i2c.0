@@ -1,30 +1,55 @@
-From: John Sperbeck <jsperbeck@google.com>
-Subject: Re: [PATCH v3 0/2] Re: Problem: lockdep warning with nested instances
- of i2c-mux
-Date: Thu, 24 May 2018 11:21:31 -0700
-Message-ID: <CAFNjLiVZ+g6eeHjpwMm+KiAA69Kpm_nVjWxkm2wCuV58RZwj4A@mail.gmail.com>
-References: <CAFNjLiXZk3Zigfpy9Hj2uY92sPGB7msUxoZHf6pFDOWSuBwkBA@mail.gmail.com>
- <20180524135240.10881-1-peda@axentia.se>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] i2c: ibm_iic: don't check number of messages in the
+ driver
+Date: Thu, 24 May 2018 22:07:56 +0200
+Message-ID: <20180524200756.ccklgg7gdsg4dcja@ninjato>
+References: <20180520065035.7920-1-wsa@the-dreams.de>
+ <20180520065035.7920-2-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="fqui7yr3ktpr24px"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180524135240.10881-1-peda@axentia.se>
+Content-Disposition: inline
+In-Reply-To: <20180520065035.7920-2-wsa@the-dreams.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: peda@axentia.se
-Cc: linux-kernel@vger.kernel.org, wsa@the-dreams.de, peterz@infradead.org, mingo@redhat.com, will.deacon@arm.com, dave@stgolabs.net, pombredanne@nexb.com, tglx@linutronix.de, gregkh@linuxfoundation.org, linux-i2c@vger.kernel.org, Peter Chang <dpf@google.com>, Deepa Dinamani <deepadinamani@google.com>
+To: linux-i2c@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, May 24, 2018 at 6:52 AM Peter Rosin <peda@axentia.se> wrote:
 
-> Hi!
+--fqui7yr3ktpr24px
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Sorry for spamming. At least I'm finding these embarrassing f$&%ups
-> myself, not that it helps all that much, but...
+On Sun, May 20, 2018 at 08:50:33AM +0200, Wolfram Sang wrote:
+> Since commit 1eace8344c02 ("i2c: add param sanity check to
+> i2c_transfer()"), the I2C core does this check now. We can remove it
+> from drivers.
+>=20
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
-> Changes since v2    https://lkml.org/lkml/2018/5/24/176
-> - EXPORT_SYMBOL_GPL(rt_mutex_lock_nested) is more appropriate (the
->    rt_ prefix was missing).
+Applied to for-next, thanks!
 
 
-Yes, after fixing the "rt_" typo, this addresses our use case.  Thanks for
-the quick response.
+--fqui7yr3ktpr24px
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsHG5wACgkQFA3kzBSg
+KbYbYA/9G4Nfj9s/9hs6xfqpjD0zs9b7TwK4zQZ8yerT6riYxboTUhoBE4JUjaCT
+bICg6nm2qRQKrNWPPXuXeCdom1O/hLvaCSBA4Y/cCsYBBGiRuRXdPAfxovD6bEDu
+IWTQkGAgy2DfyKxGwoqj/5aK21HCijcD/Y+ccbkjcYZCAKqxClRWCT72xlgK2ZJf
+AA122+7WLqxT1WCOilIdeKp98CSOaMvt8hirRBJKdW9JmWe4wPAMYvCYDAHFISoy
++VUPemp0Hbna/BnW7I0cwQb5thFV+SU6NQ6VwlT0/gMiS2sBDl4SURYRD494jr24
+tg00oWir7Y8VE8S/Piv2BQfwvzLUpuMi1qvpkbW6yoQDmG+dZu/JEiWX71Jwc5fb
+zwiln9TRM35hd7VyLqyS7oIKK9qRaCE0d0C0pKVtpUbTaC4O+hakgiNIz42s1N9d
+5q5KvctMzmaS6KXOu3ijgdT0a4kYseux1ia9Q4zmmpXj6KIL/AVvHyI++4OAUpQ+
+HSCNZsaxYKz/v1h2bO5B7gGMahYty37NBWpTxNjaBbBMU0dtEl6udHAlYJoeO9gn
+8KD8h+E9RhSDYOJWdMeKsxvssX8xPAC5NCLM7DNO1pNx1hhzihxx8ovRRdvEZj/c
+fI/tonU6ohMj8wQKmhGIaEdpXiD106NX1fQHbIhnAZ09iqnBePA=
+=QA7v
+-----END PGP SIGNATURE-----
+
+--fqui7yr3ktpr24px--
