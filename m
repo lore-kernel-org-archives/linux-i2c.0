@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v3 2/2] i2c: mux: annotate the nested rt_mutex usage
-Date: Thu, 24 May 2018 15:52:40 +0200
-Message-ID: <20180524135240.10881-3-peda@axentia.se>
+Subject: [PATCH v3 1/2] rtmutex: allow specifying a subclass for nested locking
+Date: Thu, 24 May 2018 15:52:39 +0200
+Message-ID: <20180524135240.10881-2-peda@axentia.se>
 References: <CAFNjLiXZk3Zigfpy9Hj2uY92sPGB7msUxoZHf6pFDOWSuBwkBA@mail.gmail.com>
  <20180524135240.10881-1-peda@axentia.se>
 Mime-Version: 1.0
@@ -13,96 +13,81 @@ To: linux-kernel@vger.kernel.org
 Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will.deacon@arm.com>, Davidlohr Bueso <dave@stgolabs.net>, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, Peter Chang <dpf@google.com>, Deepa Dinamani <deepadinamani@google.com>, John Sperbeck <jsperbeck@google.com>
 List-Id: linux-i2c@vger.kernel.org
 
-If an i2c topology has instances of nested muxes, then a lockdep splat
-is produced when when i2c_parent_lock_bus() is called.  Here is an
-example:
+Needed for annotating rt_mutex locks.
 
-============================================
-WARNING: possible recursive locking detected
---------------------------------------------
-insmod/68159 is trying to acquire lock:
-  (i2c_register_adapter#2){+.+.}, at: i2c_parent_lock_bus+0x32/0x50 [i2c_mux]
-
-but task is already holding lock:
-  (i2c_register_adapter#2){+.+.}, at: i2c_parent_lock_bus+0x32/0x50 [i2c_mux]
-
-other info that might help us debug this:
-  Possible unsafe locking scenario:
-
-        CPU0
-        ----
-   lock(i2c_register_adapter#2);
-   lock(i2c_register_adapter#2);
-
-  *** DEADLOCK ***
-
-  May be due to missing lock nesting notation
-
-1 lock held by insmod/68159:
-  #0:  (i2c_register_adapter#2){+.+.}, at: i2c_parent_lock_bus+0x32/0x50
-[i2c_mux]
-
-stack backtrace:
-CPU: 13 PID: 68159 Comm: insmod Tainted: G           O
-Call Trace:
-  dump_stack+0x67/0x98
-  __lock_acquire+0x162e/0x1780
-  lock_acquire+0xba/0x200
-  rt_mutex_lock+0x44/0x60
-  i2c_parent_lock_bus+0x32/0x50 [i2c_mux]
-  i2c_parent_lock_bus+0x3e/0x50 [i2c_mux]
-  i2c_smbus_xfer+0xf0/0x700
-  i2c_smbus_read_byte+0x42/0x70
-  my2c_init+0xa2/0x1000 [my2c]
-  do_one_initcall+0x51/0x192
-  do_init_module+0x62/0x216
-  load_module+0x20f9/0x2b50
-  SYSC_init_module+0x19a/0x1c0
-  SyS_init_module+0xe/0x10
-  do_syscall_64+0x6c/0x1a0
-  entry_SYSCALL_64_after_hwframe+0x42/0xb7
-
-Reported-by: John Sperbeck <jsperbeck@google.com>
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/i2c/i2c-core-base.c | 2 +-
- drivers/i2c/i2c-mux.c       | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ include/linux/rtmutex.h  |  7 +++++++
+ kernel/locking/rtmutex.c | 29 +++++++++++++++++++++++++----
+ 2 files changed, 32 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index f5ec6ec6776f..1157a64c7be3 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -615,7 +615,7 @@ static int i2c_check_addr_busy(struct i2c_adapter *adapter, int addr)
- static void i2c_adapter_lock_bus(struct i2c_adapter *adapter,
- 				 unsigned int flags)
- {
--	rt_mutex_lock(&adapter->bus_lock);
-+	rt_mutex_lock_nested(&adapter->bus_lock, i2c_adapter_depth(adapter));
+diff --git a/include/linux/rtmutex.h b/include/linux/rtmutex.h
+index 1b92a28dd672..6fd615a0eea9 100644
+--- a/include/linux/rtmutex.h
++++ b/include/linux/rtmutex.h
+@@ -106,7 +106,14 @@ static inline int rt_mutex_is_locked(struct rt_mutex *lock)
+ extern void __rt_mutex_init(struct rt_mutex *lock, const char *name, struct lock_class_key *key);
+ extern void rt_mutex_destroy(struct rt_mutex *lock);
+ 
++#ifdef CONFIG_DEBUG_LOCK_ALLOC
++extern void rt_mutex_lock_nested(struct rt_mutex *lock, unsigned int subclass);
++#define rt_mutex_lock(lock) rt_mutex_lock_nested(lock, 0)
++#else
+ extern void rt_mutex_lock(struct rt_mutex *lock);
++#define rt_mutex_lock_nested(lock, subclass) rt_mutex_lock(lock)
++#endif
++
+ extern int rt_mutex_lock_interruptible(struct rt_mutex *lock);
+ extern int rt_mutex_timed_lock(struct rt_mutex *lock,
+ 			       struct hrtimer_sleeper *timeout);
+diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
+index 4f014be7a4b8..2823d4163a37 100644
+--- a/kernel/locking/rtmutex.c
++++ b/kernel/locking/rtmutex.c
+@@ -1465,6 +1465,29 @@ rt_mutex_fastunlock(struct rt_mutex *lock,
+ 		rt_mutex_postunlock(&wake_q);
  }
+ 
++static inline void __rt_mutex_lock(struct rt_mutex *lock, unsigned int subclass)
++{
++	might_sleep();
++
++	mutex_acquire(&lock->dep_map, subclass, 0, _RET_IP_);
++	rt_mutex_fastlock(lock, TASK_UNINTERRUPTIBLE, rt_mutex_slowlock);
++}
++
++#ifdef CONFIG_DEBUG_LOCK_ALLOC
++/**
++ * rt_mutex_lock_nested - lock a rt_mutex
++ *
++ * @lock: the rt_mutex to be locked
++ * @subclass: the lockdep subclass
++ */
++void __sched rt_mutex_lock_nested(struct rt_mutex *lock, unsigned int subclass)
++{
++	__rt_mutex_lock(lock, subclass);
++}
++EXPORT_SYMBOL_GPL(rt_mutex_lock_nested);
++#endif
++
++#ifndef CONFIG_DEBUG_LOCK_ALLOC
+ /**
+  * rt_mutex_lock - lock a rt_mutex
+  *
+@@ -1472,12 +1495,10 @@ rt_mutex_fastunlock(struct rt_mutex *lock,
+  */
+ void __sched rt_mutex_lock(struct rt_mutex *lock)
+ {
+-	might_sleep();
+-
+-	mutex_acquire(&lock->dep_map, 0, 0, _RET_IP_);
+-	rt_mutex_fastlock(lock, TASK_UNINTERRUPTIBLE, rt_mutex_slowlock);
++	__rt_mutex_lock(lock, 0);
+ }
+ EXPORT_SYMBOL_GPL(rt_mutex_lock);
++#endif
  
  /**
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 9669ca4937b8..7ba31f6bf148 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -144,7 +144,7 @@ static void i2c_mux_lock_bus(struct i2c_adapter *adapter, unsigned int flags)
- 	struct i2c_mux_priv *priv = adapter->algo_data;
- 	struct i2c_adapter *parent = priv->muxc->parent;
- 
--	rt_mutex_lock(&parent->mux_lock);
-+	rt_mutex_lock_nested(&parent->mux_lock, i2c_adapter_depth(adapter));
- 	if (!(flags & I2C_LOCK_ROOT_ADAPTER))
- 		return;
- 	i2c_lock_bus(parent, flags);
-@@ -181,7 +181,7 @@ static void i2c_parent_lock_bus(struct i2c_adapter *adapter,
- 	struct i2c_mux_priv *priv = adapter->algo_data;
- 	struct i2c_adapter *parent = priv->muxc->parent;
- 
--	rt_mutex_lock(&parent->mux_lock);
-+	rt_mutex_lock_nested(&parent->mux_lock, i2c_adapter_depth(adapter));
- 	i2c_lock_bus(parent, flags);
- }
- 
+  * rt_mutex_lock_interruptible - lock a rt_mutex interruptible
 -- 
 2.11.0
