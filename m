@@ -1,55 +1,52 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: opal: don't check number of messages in the
- driver
-Date: Thu, 24 May 2018 22:07:59 +0200
-Message-ID: <20180524200759.bmcati5h3fzobtur@ninjato>
-References: <20180520065035.7920-1-wsa@the-dreams.de>
- <20180520065035.7920-3-wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] i2c: robotfuzz-osif: remove pointless local variable
+Date: Thu, 24 May 2018 22:15:55 +0200
+Message-ID: <20180524201555.x6ayvjjayfqmjvma@ninjato>
+References: <20180509194658.29106-1-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="z2owrkxff3iiku6g"
+        protocol="application/pgp-signature"; boundary="bdxkkb7hphylmgqs"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180520065035.7920-3-wsa@the-dreams.de>
+In-Reply-To: <20180509194658.29106-1-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---z2owrkxff3iiku6g
+--bdxkkb7hphylmgqs
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, May 20, 2018 at 08:50:34AM +0200, Wolfram Sang wrote:
-> Since commit 1eace8344c02 ("i2c: add param sanity check to
-> i2c_transfer()") and b7f625840267 ("i2c: add quirk checks to core"), the
-> I2C core does this check now. We can remove it here.
+On Wed, May 09, 2018 at 09:46:57PM +0200, Peter Rosin wrote:
+> Just use the value directly instead of assigning it to a
+> variable first. And then drop the unused variable.
 >=20
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Signed-off-by: Peter Rosin <peda@axentia.se>
 
 Applied to for-next, thanks!
 
 
---z2owrkxff3iiku6g
+--bdxkkb7hphylmgqs
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIyBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsHG58ACgkQFA3kzBSg
-KbakTw/43FO4Yi3zQylLuRTKH8S3IjK5+LMiYiMmYOe4MvFy4GEsjxyrCtA1xzIw
-KEZgbjc34sWfn6YmoFuDVSA8i2uZ+pXfW2vvEhxyYC121Lg+pjwxBRr41RbP05ZZ
-r4uyv6gmkwn3GF9qKDEuToWTIuUDRcm/Js6gKt+BThlnno7NIUfn4YDVUgHowyPH
-53e1A4aL4GxG0j2WU+97l2oMP8GoWeo9uc1WhA5LZy3R34UkUbErzswkQD+z/95/
-FC/TZ3JpIhalVS4LeHaEwmg8oCsCCmkujOCp2RJEUHzsZ99j+MqEDA+fwmO+nzLb
-f7cAjIjOCFOYN5MEIKobbjDoT3nkQZ3qSAo+sx9Li8ZiIFecW4WsQUypA0QX+I7p
-gBlMZodVnuETAMNHaChnnuEMIsAk5wwFxTGWTYUdCheExaQI93+n/PjkpPH2anw4
-2dThwuJqLjDXTgMq7cSbuinxwz6wBobn3gK9kZXU2LDZ7xCWVOe7KNyju6cSt+Qx
-UJe5E48gtHKv/oneKqNN9PFchN8T4y9x0ZXjhSHu9PJQ8MCz28TAFrDSJ0unXeCw
-4UxlR39/BrT242qG2Qfs5JvnQvVgsHL6lVYhmHWxIKhqYyfYV1mZmR+mx7+l3ZhR
-ZJRcIWgA/VHR73WZ3nLcFpus0vehNwWRbVMLFUt4buupvsUp0A==
-=jjt2
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsHHXsACgkQFA3kzBSg
+KbboEg/8DH5FJaUJt1oW4VDJmfHirFvcJCpYvWlp6kUITNJGONJx/ZDTSfhtx2jf
+TSLFnu5w1BdEra3M8A6yB5kldYdDZ88q1FtfvOtj3UZtXfMqzNyWE2PoKHu59G3p
+0Zbtugja+cWIZcodykUwIg25CLJ6OUWW2Tzryc7A1cJIwi9MiGh8xSAHCVpr4TsG
+yncd/MtnMXus4Z6DAPMoP4HPpKQ2KHafcKI5xjWKGCo4bToawHaS49VltBX5wmHg
+umU3LPUdiHnuFlP8HGNNCJ5KuqfFA3qOjKLgvz+jKFtxxdmuhyBjNS89WITvhzl2
+mf6ZVSehzMrYWy0NFWHEucjHMlsDuowjRQyykeM7vcd8pUfKuHjMMypux0yMWbOv
+brd1BoCQOVGaVEBcbRmh7V6c7+QMoRPz43vkqaeh2L2RKMLk8wlV43RCJaen8A9h
++/OxZxnaXVKAC3DUoJzjgSUnD3KUu9gglEI+ur1AQguLP3Za66vzn+y4OXGshCsV
+kOuFIenfDhnNRDE/wWgMNvSuhmzXg+cfGm1frLOP+c9jX4ChVcfkfLEHOHqeXSJi
+knqSt2DcegayStoSAIISbt/5c5XwfLisqHqowqlvDKK+t2FGzdiUiYQW01sNLP4Y
+QBO4jK2Zqqo3hNS3oKgfYhIEMG6ODDnKVJqQnAAdroCBzfshSfU=
+=Gtvl
 -----END PGP SIGNATURE-----
 
---z2owrkxff3iiku6g--
+--bdxkkb7hphylmgqs--
