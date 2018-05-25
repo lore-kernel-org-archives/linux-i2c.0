@@ -1,58 +1,54 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: robotfuzz-osif: drop pointless test
-Date: Thu, 24 May 2018 22:17:17 +0200
-Message-ID: <20180524201717.tyzatx7nvxwanb3f@ninjato>
-References: <20180509194658.29106-1-peda@axentia.se>
- <20180509194658.29106-2-peda@axentia.se>
+From: Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH 2/2] i2c: opal: don't check number of messages in the driver
+Date: Fri, 25 May 2018 20:27:47 +1000
+Message-ID: <87muwoqbbw.fsf@concordia.ellerman.id.au>
+References: <20180520065035.7920-1-wsa@the-dreams.de> <20180520065035.7920-3-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="xy43rgn7r2esjloo"
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180509194658.29106-2-peda@axentia.se>
+In-Reply-To: <20180520065035.7920-3-wsa@the-dreams.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Wolfram Sang <wsa@the-dreams.de> writes:
 
---xy43rgn7r2esjloo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Since commit 1eace8344c02 ("i2c: add param sanity check to
+> i2c_transfer()") and b7f625840267 ("i2c: add quirk checks to core"), the
+> I2C core does this check now. We can remove it here.
+>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> ---
+>
+> Only build tested.
 
-On Wed, May 09, 2018 at 09:46:58PM +0200, Peter Rosin wrote:
-> In the for-loop test, ret will be either 0 or 1. So, the
-> comparison is pointless. Drop it, and drop the initializer
-> which is then also pointless.
->=20
-> Signed-off-by: Peter Rosin <peda@axentia.se>
+It will get boot tested by me once it's in linux-next, which hopefully
+is sufficient for a patch like this.
 
-Applied to for-next, thanks!
+cheers
 
-Reading that function, it also seems this driver wrongly sends a STOP
-after every message of a transfer. And not just at the end of the
-transfer :(
-
-
---xy43rgn7r2esjloo
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsHHcwACgkQFA3kzBSg
-KbYQmw/+Naxi46bOC8GOCTpySPnLdHU09wTJYgBwHl07aZ3K9h9QZ3KkNiVHFRJs
-91S+yDKWgNLe3JiSsjt6Hxn/+RRkSR0i5U07hZHKh4wiWOp6+hVYQw3E2LPPc2FQ
-fH58+Ka2vqunPlvpGnVoAH6V9lvEy8TTIYMMsnzXackdDRAkiqHZ8CKUXJCWLcFY
-1bXx126JYkFneY5aGicIyzulyNmfGo+NH3hv/1lMc5q7eJIOZiy7t6sSrgKNZP8F
-fnYduB4TsTtqVp0dZaBiOO0OWpcHs482qgNJ3Zj7Yx4qMyL+mxn61PdxYx4junjG
-W0pKbDzCHScQnBpA+SKfwneBrwAuZ54Q/2950jsjcGTOGkJbCpbpfBtJGoPdrPqy
-ZZYnv8C3bxToSn0a1X3mncZouWWrY7bD+uDeAzreAad0zlXQF7tzxZbBNuWBQHTw
-AuEXM49i8Dw/aGZkWvKv1yNWH2jShsH9Meu2NcozPYKQIqmGPQBbNz+NoU00LzxB
-ujFG26OfR/ThstZFI/DX92m1GKGw1KwhOLM/cHF075hdFzRlXMi+7ttJMwQDk71N
-ynX6eg4pDI5ozKqvnnpOhDlBhkeTWw+zkLlvrIXt7LcnsQiu9u6warYXh9cUDTjW
-p5mvSQnSk6V74Ai95g0ZKiDEkouPgibJZAW5kfmzYd4WLnPTNK0=
-=InVS
------END PGP SIGNATURE-----
-
---xy43rgn7r2esjloo--
+> diff --git a/drivers/i2c/busses/i2c-opal.c b/drivers/i2c/busses/i2c-opal.c
+> index 0aabb7eca0c5..dc2a23f4fb52 100644
+> --- a/drivers/i2c/busses/i2c-opal.c
+> +++ b/drivers/i2c/busses/i2c-opal.c
+> @@ -94,8 +94,6 @@ static int i2c_opal_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>  	 */
+>  	memset(&req, 0, sizeof(req));
+>  	switch(num) {
+> -	case 0:
+> -		return 0;
+>  	case 1:
+>  		req.type = (msgs[0].flags & I2C_M_RD) ?
+>  			OPAL_I2C_RAW_READ : OPAL_I2C_RAW_WRITE;
+> @@ -114,8 +112,6 @@ static int i2c_opal_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>  		req.size = cpu_to_be32(msgs[1].len);
+>  		req.buffer_ra = cpu_to_be64(__pa(msgs[1].buf));
+>  		break;
+> -	default:
+> -		return -EOPNOTSUPP;
+>  	}
+>  
+>  	rc = i2c_opal_send_request(opal_id, &req);
+> -- 
+> 2.11.0
