@@ -1,133 +1,67 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] mfd: intel-lpss: Fix Intel Cannon Lake LPSS I2C input
- clock
-Date: Mon, 28 May 2018 18:36:27 +0300
-Message-ID: <0641e04f2d9f4fb0a24201856f4024a8b7a2b29f.camel@linux.intel.com>
-References: <20180518083827.20626-1-jarkko.nikula@linux.intel.com>
+From: Joel Fernandes <joel@joelfernandes.org>
+Subject: Re: [PATCH v3 1/2] rtmutex: allow specifying a subclass for nested
+ locking
+Date: Mon, 28 May 2018 13:51:38 -0700
+Message-ID: <20180528205138.GA189841@joelaf.mtv.corp.google.com>
+References: <CAFNjLiXZk3Zigfpy9Hj2uY92sPGB7msUxoZHf6pFDOWSuBwkBA@mail.gmail.com>
+ <20180524135240.10881-1-peda@axentia.se>
+ <20180524135240.10881-2-peda@axentia.se>
+ <20180528051936.GA205298@joelaf.mtv.corp.google.com>
+ <20180528071751.GT12180@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180518083827.20626-1-jarkko.nikula@linux.intel.com>
+Content-Disposition: inline
+In-Reply-To: <20180528071751.GT12180@hirez.programming.kicks-ass.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-kernel@vger.kernel.org
-Cc: Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>, Chris Chiu <chiu@endlessm.com>, Daniel Drake <drake@endlessm.com>, stable@vger.kernel.org
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will.deacon@arm.com>, Davidlohr Bueso <dave@stgolabs.net>, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, Peter Chang <dpf@google.com>, Deepa Dinamani <deepadinamani@google.com>, John Sperbeck <jsperbeck@google.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 2018-05-18 at 11:38 +0300, Jarkko Nikula wrote:
-> Intel Cannon Lake PCH has much higher 216 MHz input clock to LPSS I2C
-> than Sunrisepoint which uses 120 MHz. Preliminary information was that
-> both share the same clock rate but actual silicon implements elevated
-> rate for better support for 3.4 MHz high-speed I2C.
+On Mon, May 28, 2018 at 09:17:51AM +0200, Peter Zijlstra wrote:
+> On Sun, May 27, 2018 at 10:19:36PM -0700, Joel Fernandes wrote:
 > 
-> This incorrect input clock rate results too high I2C bus clock in case
-> ACPI doesn't provide tuned I2C timing parameters since I2C host
-> controller driver calculates them from input clock rate.
+> > > +static inline void __rt_mutex_lock(struct rt_mutex *lock, unsigned int subclass)
+> > > +{
+> > > +	might_sleep();
+> > > +
+> > > +	mutex_acquire(&lock->dep_map, subclass, 0, _RET_IP_);
+> > > +	rt_mutex_fastlock(lock, TASK_UNINTERRUPTIBLE, rt_mutex_slowlock);
+> > > +}
+> > > +
+> > > +#ifdef CONFIG_DEBUG_LOCK_ALLOC
+> > > +/**
+> > > + * rt_mutex_lock_nested - lock a rt_mutex
+> > 
+> > This ifdef seems consistent with other nested locking primitives, but its
+> > kind of confusing.
+> > 
+> > The Kconfig.debug for DEBUG_LOCK_ALLOC says:
+> > 
+> > config DEBUG_LOCK_ALLOC
+> > 	bool "Lock debugging: detect incorrect freeing of live locks"
+> > 	[...]
+> > 	help
+> > 	 This feature will check whether any held lock (spinlock, rwlock,
+> > 	 mutex or rwsem) is incorrectly freed by the kernel, via any of the
+> > 	 memory-freeing routines (kfree(), kmem_cache_free(), free_pages(),
+> > 	 vfree(), etc.), whether a live lock is incorrectly reinitialized via
+> > 	 spin_lock_init()/mutex_init()/etc., or whether there is any lock
+> > 	 held during task exit.
+> > 
+> > Shouldn't this ideally be ifdef'd under PROVE_LOCKING for this and other
+> > locking primitives? Any idea what's the reason? I know PROVE_LOCKING selects
+> > DEBUG_LOCK_ALLOC but still..
 > 
-> Fix this by using the correct rate. We still share the same 230 ns SDA
-> hold time value than Sunrisepoint.
+> No, the reason is that DEBUG_LOCK_ALLOC needs the lockdep hooks to know
+> which locks are held, so it can warn when we try and free a held one.
+> PROVE_LOCKING builds upon that.
 > 
+> The the locking primitives should key off of DEBUG_LOCK_ALLOC for
+> introducing the hooks.
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Got it, thanks for the clarification Peter!
 
-P.S. Documentation we have is not perfect, that's why previously I
-though about Broxton/Cannonlake case as single, which is wrong, they are
-different in terms of i2c clock organization.
+Regards,
 
-> Cc: stable@vger.kernel.org
-> Fixes: b418bbff36dd ("mfd: intel-lpss: Add Intel Cannonlake PCI IDs")
-> Reported-by: Jian-Hong Pan <jian-hong@endlessm.com>
-> Reported-by: Chris Chiu <chiu@endlessm.com>
-> Reported-by: Daniel Drake <drake@endlessm.com>
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> ---
-> Hi Jian-Hong, Chris and Daniel. Could you test does this fix your
-> touchpad issue?
-> ---
->  drivers/mfd/intel-lpss-pci.c | 25 +++++++++++++++----------
->  1 file changed, 15 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-
-> pci.c
-> index d1c46de89eb4..d9ae983095c5 100644
-> --- a/drivers/mfd/intel-lpss-pci.c
-> +++ b/drivers/mfd/intel-lpss-pci.c
-> @@ -124,6 +124,11 @@ static const struct intel_lpss_platform_info
-> apl_i2c_info = {
->  	.properties = apl_i2c_properties,
->  };
->  
-> +static const struct intel_lpss_platform_info cnl_i2c_info = {
-> +	.clk_rate = 216000000,
-> +	.properties = spt_i2c_properties,
-> +};
-> +
->  static const struct pci_device_id intel_lpss_pci_ids[] = {
->  	/* BXT A-Step */
->  	{ PCI_VDEVICE(INTEL, 0x0aac), (kernel_ulong_t)&bxt_i2c_info
-> },
-> @@ -207,13 +212,13 @@ static const struct pci_device_id
-> intel_lpss_pci_ids[] = {
->  	{ PCI_VDEVICE(INTEL, 0x9daa), (kernel_ulong_t)&spt_info },
->  	{ PCI_VDEVICE(INTEL, 0x9dab), (kernel_ulong_t)&spt_info },
->  	{ PCI_VDEVICE(INTEL, 0x9dfb), (kernel_ulong_t)&spt_info },
-> -	{ PCI_VDEVICE(INTEL, 0x9dc5), (kernel_ulong_t)&spt_i2c_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0x9dc6), (kernel_ulong_t)&spt_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0x9dc5), (kernel_ulong_t)&cnl_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0x9dc6), (kernel_ulong_t)&cnl_i2c_info
-> },
->  	{ PCI_VDEVICE(INTEL, 0x9dc7), (kernel_ulong_t)&spt_uart_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0x9de8), (kernel_ulong_t)&spt_i2c_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0x9de9), (kernel_ulong_t)&spt_i2c_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0x9dea), (kernel_ulong_t)&spt_i2c_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0x9deb), (kernel_ulong_t)&spt_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0x9de8), (kernel_ulong_t)&cnl_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0x9de9), (kernel_ulong_t)&cnl_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0x9dea), (kernel_ulong_t)&cnl_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0x9deb), (kernel_ulong_t)&cnl_i2c_info
-> },
->  	/* SPT-H */
->  	{ PCI_VDEVICE(INTEL, 0xa127), (kernel_ulong_t)&spt_uart_info
-> },
->  	{ PCI_VDEVICE(INTEL, 0xa128), (kernel_ulong_t)&spt_uart_info
-> },
-> @@ -240,10 +245,10 @@ static const struct pci_device_id
-> intel_lpss_pci_ids[] = {
->  	{ PCI_VDEVICE(INTEL, 0xa32b), (kernel_ulong_t)&spt_info },
->  	{ PCI_VDEVICE(INTEL, 0xa37b), (kernel_ulong_t)&spt_info },
->  	{ PCI_VDEVICE(INTEL, 0xa347), (kernel_ulong_t)&spt_uart_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0xa368), (kernel_ulong_t)&spt_i2c_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0xa369), (kernel_ulong_t)&spt_i2c_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0xa36a), (kernel_ulong_t)&spt_i2c_info
-> },
-> -	{ PCI_VDEVICE(INTEL, 0xa36b), (kernel_ulong_t)&spt_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0xa368), (kernel_ulong_t)&cnl_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0xa369), (kernel_ulong_t)&cnl_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0xa36a), (kernel_ulong_t)&cnl_i2c_info
-> },
-> +	{ PCI_VDEVICE(INTEL, 0xa36b), (kernel_ulong_t)&cnl_i2c_info
-> },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(pci, intel_lpss_pci_ids);
-
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+ -Joel
