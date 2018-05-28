@@ -1,12 +1,133 @@
-From: Federico Vaga <federico.vaga@vaga.pv.it>
-Subject: i2c: Open Core driver
-Date: Mon, 28 May 2018 10:59:13 +0200
-Message-ID: <20180528085914.30657-1-federico.vaga@vaga.pv.it>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] mfd: intel-lpss: Fix Intel Cannon Lake LPSS I2C input
+ clock
+Date: Mon, 28 May 2018 18:36:27 +0300
+Message-ID: <0641e04f2d9f4fb0a24201856f4024a8b7a2b29f.camel@linux.intel.com>
+References: <20180518083827.20626-1-jarkko.nikula@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180518083827.20626-1-jarkko.nikula@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Korsgaard <jacmet@sunsite.dk>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-kernel@vger.kernel.org
+Cc: Lee Jones <lee.jones@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>, Chris Chiu <chiu@endlessm.com>, Daniel Drake <drake@endlessm.com>, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Sorry for the SPAM, I re-send the patch because I missed the documentation
-file. This patch is (should) the good one :)
+On Fri, 2018-05-18 at 11:38 +0300, Jarkko Nikula wrote:
+> Intel Cannon Lake PCH has much higher 216 MHz input clock to LPSS I2C
+> than Sunrisepoint which uses 120 MHz. Preliminary information was that
+> both share the same clock rate but actual silicon implements elevated
+> rate for better support for 3.4 MHz high-speed I2C.
+> 
+> This incorrect input clock rate results too high I2C bus clock in case
+> ACPI doesn't provide tuned I2C timing parameters since I2C host
+> controller driver calculates them from input clock rate.
+> 
+> Fix this by using the correct rate. We still share the same 230 ns SDA
+> hold time value than Sunrisepoint.
+> 
+
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+P.S. Documentation we have is not perfect, that's why previously I
+though about Broxton/Cannonlake case as single, which is wrong, they are
+different in terms of i2c clock organization.
+
+> Cc: stable@vger.kernel.org
+> Fixes: b418bbff36dd ("mfd: intel-lpss: Add Intel Cannonlake PCI IDs")
+> Reported-by: Jian-Hong Pan <jian-hong@endlessm.com>
+> Reported-by: Chris Chiu <chiu@endlessm.com>
+> Reported-by: Daniel Drake <drake@endlessm.com>
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> ---
+> Hi Jian-Hong, Chris and Daniel. Could you test does this fix your
+> touchpad issue?
+> ---
+>  drivers/mfd/intel-lpss-pci.c | 25 +++++++++++++++----------
+>  1 file changed, 15 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-
+> pci.c
+> index d1c46de89eb4..d9ae983095c5 100644
+> --- a/drivers/mfd/intel-lpss-pci.c
+> +++ b/drivers/mfd/intel-lpss-pci.c
+> @@ -124,6 +124,11 @@ static const struct intel_lpss_platform_info
+> apl_i2c_info = {
+>  	.properties = apl_i2c_properties,
+>  };
+>  
+> +static const struct intel_lpss_platform_info cnl_i2c_info = {
+> +	.clk_rate = 216000000,
+> +	.properties = spt_i2c_properties,
+> +};
+> +
+>  static const struct pci_device_id intel_lpss_pci_ids[] = {
+>  	/* BXT A-Step */
+>  	{ PCI_VDEVICE(INTEL, 0x0aac), (kernel_ulong_t)&bxt_i2c_info
+> },
+> @@ -207,13 +212,13 @@ static const struct pci_device_id
+> intel_lpss_pci_ids[] = {
+>  	{ PCI_VDEVICE(INTEL, 0x9daa), (kernel_ulong_t)&spt_info },
+>  	{ PCI_VDEVICE(INTEL, 0x9dab), (kernel_ulong_t)&spt_info },
+>  	{ PCI_VDEVICE(INTEL, 0x9dfb), (kernel_ulong_t)&spt_info },
+> -	{ PCI_VDEVICE(INTEL, 0x9dc5), (kernel_ulong_t)&spt_i2c_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0x9dc6), (kernel_ulong_t)&spt_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0x9dc5), (kernel_ulong_t)&cnl_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0x9dc6), (kernel_ulong_t)&cnl_i2c_info
+> },
+>  	{ PCI_VDEVICE(INTEL, 0x9dc7), (kernel_ulong_t)&spt_uart_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0x9de8), (kernel_ulong_t)&spt_i2c_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0x9de9), (kernel_ulong_t)&spt_i2c_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0x9dea), (kernel_ulong_t)&spt_i2c_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0x9deb), (kernel_ulong_t)&spt_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0x9de8), (kernel_ulong_t)&cnl_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0x9de9), (kernel_ulong_t)&cnl_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0x9dea), (kernel_ulong_t)&cnl_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0x9deb), (kernel_ulong_t)&cnl_i2c_info
+> },
+>  	/* SPT-H */
+>  	{ PCI_VDEVICE(INTEL, 0xa127), (kernel_ulong_t)&spt_uart_info
+> },
+>  	{ PCI_VDEVICE(INTEL, 0xa128), (kernel_ulong_t)&spt_uart_info
+> },
+> @@ -240,10 +245,10 @@ static const struct pci_device_id
+> intel_lpss_pci_ids[] = {
+>  	{ PCI_VDEVICE(INTEL, 0xa32b), (kernel_ulong_t)&spt_info },
+>  	{ PCI_VDEVICE(INTEL, 0xa37b), (kernel_ulong_t)&spt_info },
+>  	{ PCI_VDEVICE(INTEL, 0xa347), (kernel_ulong_t)&spt_uart_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0xa368), (kernel_ulong_t)&spt_i2c_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0xa369), (kernel_ulong_t)&spt_i2c_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0xa36a), (kernel_ulong_t)&spt_i2c_info
+> },
+> -	{ PCI_VDEVICE(INTEL, 0xa36b), (kernel_ulong_t)&spt_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0xa368), (kernel_ulong_t)&cnl_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0xa369), (kernel_ulong_t)&cnl_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0xa36a), (kernel_ulong_t)&cnl_i2c_info
+> },
+> +	{ PCI_VDEVICE(INTEL, 0xa36b), (kernel_ulong_t)&cnl_i2c_info
+> },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(pci, intel_lpss_pci_ids);
+
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
