@@ -1,55 +1,52 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V2] i2c: ocores: update HDL sources URL
-Date: Tue, 29 May 2018 20:18:26 +0200
-Message-ID: <20180529181826.h6hzqefjgqd2xpap@ninjato>
-References: <20180528085914.30657-1-federico.vaga@vaga.pv.it>
- <20180528085914.30657-2-federico.vaga@vaga.pv.it>
+Subject: Re: [PATCH v2 1/2] i2c: algos: make use of i2c_8bit_addr_from_msg
+Date: Tue, 29 May 2018 20:31:38 +0200
+Message-ID: <20180529183137.vsl7cuh2zjlplzfj@ninjato>
+References: <20180516071647.29277-1-peda@axentia.se>
+ <20180516071647.29277-2-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ceug3ufc47mmljqv"
+        protocol="application/pgp-signature"; boundary="5jxqd6gx2jsy35an"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180528085914.30657-2-federico.vaga@vaga.pv.it>
+In-Reply-To: <20180516071647.29277-2-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Federico Vaga <federico.vaga@vaga.pv.it>
-Cc: Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, Guenter Roeck <linux@roeck-us.net>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Peter Korsgaard <jacmet@sunsite.dk>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linuxppc-dev@lists.ozlabs.org, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---ceug3ufc47mmljqv
+--5jxqd6gx2jsy35an
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 28, 2018 at 10:59:14AM +0200, Federico Vaga wrote:
-> The URL is broken. This patch fix it
+On Wed, May 16, 2018 at 09:16:46AM +0200, Peter Rosin wrote:
+> Because it looks neater.
 >=20
-> Signed-off-by: Federico Vaga <federico.vaga@vaga.pv.it>
+> Signed-off-by: Peter Rosin <peda@axentia.se>
 
-Shortened the URL a bit and applied to for-current, thanks!
-
-@Peter: since the patch is trivial and nice to have in 4.17 already, I
-took the liberty to apply it right away. Hope this is fine with you.
+Applied to for-next, thanks!
 
 
---ceug3ufc47mmljqv
+--5jxqd6gx2jsy35an
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsNmXIACgkQFA3kzBSg
-KbY5wQ/9E6nRXXmW8E5AfFXY7dXErE1xg+NBL7cGV4aH9l4tTRMFJAp54a3UXTYu
-GmcB/I/7pjr3gQDeqkvBCmKtd+O+Z4uHwhmqIBJ3E3TejVk2ji2gymj46LqXF5+3
-VTWqDBJk90wsgcYpfb0teUBVFzJtrjYem6PBZP/T8WdSjOCLarl6r4B2Nyflqx5l
-w8mWk6CDRkwVlLYEHsfaUoiytCYPYPjRYLphmGKAOst3atJ2ZPjxcfnvVOJGbEZJ
-PNS0RtiiAGjiDSyZhC0s+EC5OHUyZvVCkB9xtFqZXcnwm4jtWzfB1SNrthyfjukW
-v1mtHvjfedngkFDUYnxVwX2DahIpgL8LmOyMNw8kM+mwMo41YYYuKVULw8FZcQHC
-7ZMXsmaKcFldvNq3qPLIALulnuyL1AlRiIovdugr5ecuOlbcPnaF1V9nbH4Hpia/
-mWfTKCEdqq6VIUCZZGSu2wc4kBbJkE7HXYk4eJFD8s9eOowdfvCsBjzVQRYIgSlT
-eBMx+KGLCXwls09457mjDSM0x7hO19LSHYkicWNP1H3rjloB04ifJcreM3LSCEu4
-H2LopLhc6h3S8IDmMQT0HxCueJEZ0KJP3FPalC3IzqL9fudD94l3ktsEqe0CtoBV
-akQ/zDJ6UaIJJ6v4DNY8pgNAFScKVlB6QxSF8BmG32NeGo63X40=
-=ZDu4
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsNnIkACgkQFA3kzBSg
+KbZsGg/+ONTuHz2aI66jHvuwKWxiAcRBdlIiawe6gDudTXDr9Uwt9fFXc0YJXxkx
+xB0lnDjcjY/pNi792W0ejqt5G1pGGyPnffD4/MtOS8yH7NewKy/JTurGn3QjvoH6
+qz58+Vmt9sXJkwt2mYOm66euOxRw7DzSJfd/BEovH+lJ2V3bMe9H9AMkns6/buti
+H6t6HGZz0C/Y4G7zhSfmJQJ6K8F1Ak0Swbc4Jc5cvhE+/7K+slKJ8hsbi3Bh9/VG
+2UFwIHW6h3ICBt0xDAhzeH+/tPyGXNyzSph2QCOAnli7nER72sc7hWyIlL6wymJD
+nQq8gfqRJa95mBiIt1BoeMUAO3sR1qzDMdx9j0dEAk868U2/P9AEYHEOw0/L0jU1
+mjypB7RXFg/2aBTiGaqIJL+Nr7a3uYcpk/KqZjmaN3wibZc8MJwE5gio14rPf09F
+akvxCLzRslRKJjG0AdoO3xJZHtYGsPqOKUjrj3t9clhGfuUZnfCepft3xwirIu7p
+8AqGeJB5DWNssIIlzb+2I9243RmV2808BfFB8JBzgHP+AbJ8yCDBfJCj0BqPaGqj
+c/qAYFvPPKwb7qmLNsHLoErqH/2OjqAiOHlHckc3s1/eQNR+XpVD1L37jTROUBNq
+2KI58ADi8/UcUCM6Y5JDyM/G7X6xC+q6oWUmRffSmWkmcoZITVk=
+=y2Wp
 -----END PGP SIGNATURE-----
 
---ceug3ufc47mmljqv--
+--5jxqd6gx2jsy35an--
