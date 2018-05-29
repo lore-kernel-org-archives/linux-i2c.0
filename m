@@ -1,67 +1,41 @@
-From: Joel Fernandes <joel@joelfernandes.org>
-Subject: Re: [PATCH v3 1/2] rtmutex: allow specifying a subclass for nested
- locking
-Date: Mon, 28 May 2018 13:51:38 -0700
-Message-ID: <20180528205138.GA189841@joelaf.mtv.corp.google.com>
-References: <CAFNjLiXZk3Zigfpy9Hj2uY92sPGB7msUxoZHf6pFDOWSuBwkBA@mail.gmail.com>
- <20180524135240.10881-1-peda@axentia.se>
- <20180524135240.10881-2-peda@axentia.se>
- <20180528051936.GA205298@joelaf.mtv.corp.google.com>
- <20180528071751.GT12180@hirez.programming.kicks-ass.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180528071751.GT12180@hirez.programming.kicks-ass.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will.deacon@arm.com>, Davidlohr Bueso <dave@stgolabs.net>, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, Peter Chang <dpf@google.com>, Deepa Dinamani <deepadinamani@google.com>, John Sperbeck <jsperbeck@google.com>
+From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Subject: [PATCH 0/6] Fix R-Car I2C data byte sent twice issue
+Date: Tue, 29 May 2018 14:33:10 +0100
+Message-ID: <1527600796-25901-1-git-send-email-fabrizio.castro@bp.renesas.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Chris Paterson <Chris.Paterson2@renesas.com>, Biju Das <biju.das@bp.renesas.com>, stable@vger.kernel.org, Ben Hutchings <ben.hutchings@codethink.co.uk>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 28, 2018 at 09:17:51AM +0200, Peter Zijlstra wrote:
-> On Sun, May 27, 2018 at 10:19:36PM -0700, Joel Fernandes wrote:
-> 
-> > > +static inline void __rt_mutex_lock(struct rt_mutex *lock, unsigned int subclass)
-> > > +{
-> > > +	might_sleep();
-> > > +
-> > > +	mutex_acquire(&lock->dep_map, subclass, 0, _RET_IP_);
-> > > +	rt_mutex_fastlock(lock, TASK_UNINTERRUPTIBLE, rt_mutex_slowlock);
-> > > +}
-> > > +
-> > > +#ifdef CONFIG_DEBUG_LOCK_ALLOC
-> > > +/**
-> > > + * rt_mutex_lock_nested - lock a rt_mutex
-> > 
-> > This ifdef seems consistent with other nested locking primitives, but its
-> > kind of confusing.
-> > 
-> > The Kconfig.debug for DEBUG_LOCK_ALLOC says:
-> > 
-> > config DEBUG_LOCK_ALLOC
-> > 	bool "Lock debugging: detect incorrect freeing of live locks"
-> > 	[...]
-> > 	help
-> > 	 This feature will check whether any held lock (spinlock, rwlock,
-> > 	 mutex or rwsem) is incorrectly freed by the kernel, via any of the
-> > 	 memory-freeing routines (kfree(), kmem_cache_free(), free_pages(),
-> > 	 vfree(), etc.), whether a live lock is incorrectly reinitialized via
-> > 	 spin_lock_init()/mutex_init()/etc., or whether there is any lock
-> > 	 held during task exit.
-> > 
-> > Shouldn't this ideally be ifdef'd under PROVE_LOCKING for this and other
-> > locking primitives? Any idea what's the reason? I know PROVE_LOCKING selects
-> > DEBUG_LOCK_ALLOC but still..
-> 
-> No, the reason is that DEBUG_LOCK_ALLOC needs the lockdep hooks to know
-> which locks are held, so it can warn when we try and free a held one.
-> PROVE_LOCKING builds upon that.
-> 
-> The the locking primitives should key off of DEBUG_LOCK_ALLOC for
-> introducing the hooks.
+Hello Greg,
 
-Got it, thanks for the clarification Peter!
+this series fixes an issue with the I2C driver of the Renesas R-Car and
+RZ/G1 family of chips. The issue is clearly visible with the CIP kernel
+(4.4) running on a iwg20d board from iWave due to the way the bq32000
+driver/device is interacting with the I2C driver/controller.
+In the stable kernel (4.4) there is no support for the iwg20d, I tried
+to replicate the same problem on a Koelsch board with no success, but
+the problem is there.
 
-Regards,
+Do you think this series is suitable for (4.4) stable considering I
+can't reproduce the problem on the Koelsch board?
 
- -Joel
+This patches apply on top of 4.4.133.
+
+Thanks,
+Fab
+
+Wolfram Sang (6):
+  i2c: rcar: make sure clocks are on when doing clock calculation
+  i2c: rcar: rework hw init
+  i2c: rcar: remove unused IOERROR state
+  i2c: rcar: remove spinlock
+  i2c: rcar: refactor setup of a msg
+  i2c: rcar: init new messages in irq
+
+ drivers/i2c/busses/i2c-rcar.c | 166 ++++++++++++++++++------------------------
+ 1 file changed, 72 insertions(+), 94 deletions(-)
+
+-- 
+2.7.4
