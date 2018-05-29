@@ -1,49 +1,261 @@
 From: Eddie James <eajames@linux.vnet.ibm.com>
-Subject: [PATCH v7 0/7] i2c: Add FSI-attached I2C master algorithm
-Date: Tue, 29 May 2018 17:24:18 -0500
-Message-ID: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com>
+Subject: [PATCH v7 5/7] drivers/i2c: Add transfer implementation for FSI algorithm
+Date: Tue, 29 May 2018 17:24:23 -0500
+Message-ID: <1527632665-25707-6-git-send-email-eajames@linux.vnet.ibm.com>
+References: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, Eddie James <eajames@linux.vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, "Edward A. James" <eajames@us.ibm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This series adds an algorithm for an I2C master physically located on an FSI
-slave device. The I2C master has multiple ports, each of which may be connected
-to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
+From: "Edward A. James" <eajames@us.ibm.com>
 
-Due to the multi-port nature of the I2C master, the driver instantiates a new
-I2C adapter for each port connected to a slave. The connected ports should be
-defined in the device tree under the I2C master device.
+Execute I2C transfers from the FSI-attached I2C master. Use polling
+instead of interrupts as we have no hardware IRQ over FSI.
 
-Changes since v6
- - Remove spinlock for reset functionality; it's unecessary and doesn't work
-   with the latest FSI core.
- - Use a mutex instead of a semaphore, and don't wait for timeout to get the
-   lock.
- - Use usleeps instead of schedule_timeout; it's not worth the overhead when
-   the wait should be very short in between sending the command and receiving
-   the response.
+Signed-off-by: Edward A. James <eajames@us.ibm.com>
+---
+ drivers/i2c/busses/i2c-fsi.c | 203 ++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 201 insertions(+), 2 deletions(-)
 
-Changes since v5
- - Fix reset functionality and do a reset after every transfer failure
-
-Edward A. James (7):
-  dt-bindings: i2c: Add FSI-attached I2C master dt binding documentation
-  drivers/i2c: Add FSI-attached I2C master algorithm
-  drivers/i2c: Add port structure to FSI algorithm
-  drivers/i2c: Add abort and hardware reset procedures
-  drivers/i2c: Add transfer implementation for FSI algorithm
-  drivers/i2c: Add I2C master locking to FSI algorithm
-  drivers/i2c: Add bus recovery for FSI algorithm
-
- Documentation/devicetree/bindings/i2c/i2c-fsi.txt |  40 ++
- drivers/i2c/busses/Kconfig                        |  11 +
- drivers/i2c/busses/Makefile                       |   1 +
- drivers/i2c/busses/i2c-fsi.c                      | 738 ++++++++++++++++++++++
- 4 files changed, 790 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
- create mode 100644 drivers/i2c/busses/i2c-fsi.c
-
+diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
+index c0b17df..78e3586 100644
+--- a/drivers/i2c/busses/i2c-fsi.c
++++ b/drivers/i2c/busses/i2c-fsi.c
+@@ -150,6 +150,7 @@ struct fsi_i2c_port {
+ 	struct i2c_adapter	adapter;
+ 	struct fsi_i2c_master	*master;
+ 	u16			port;
++	u16			xfrd;
+ };
+ 
+ static int fsi_i2c_read_reg(struct fsi_device *fsi, unsigned int reg,
+@@ -234,6 +235,103 @@ static int fsi_i2c_set_port(struct fsi_i2c_port *port)
+ 	return rc;
+ }
+ 
++static int fsi_i2c_start(struct fsi_i2c_port *port, struct i2c_msg *msg,
++			 bool stop)
++{
++	int rc;
++	struct fsi_i2c_master *i2c = port->master;
++	u32 cmd = I2C_CMD_WITH_START | I2C_CMD_WITH_ADDR;
++
++	port->xfrd = 0;
++
++	if (msg->flags & I2C_M_RD)
++		cmd |= I2C_CMD_READ;
++
++	if (stop || msg->flags & I2C_M_STOP)
++		cmd |= I2C_CMD_WITH_STOP;
++
++	cmd = SETFIELD(I2C_CMD_ADDR, cmd, msg->addr >> 1);
++	cmd = SETFIELD(I2C_CMD_LEN, cmd, msg->len);
++
++	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_CMD, &cmd);
++
++	return rc;
++}
++
++static int fsi_i2c_write_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
++			      u8 fifo_count)
++{
++	int write;
++	int rc = 0;
++	struct fsi_i2c_master *i2c = port->master;
++	int bytes_to_write = i2c->fifo_size - fifo_count;
++	int bytes_remaining = msg->len - port->xfrd;
++
++	if (bytes_to_write > bytes_remaining)
++		bytes_to_write = bytes_remaining;
++
++	while (bytes_to_write > 0) {
++		write = bytes_to_write;
++		/* fsi limited to max 4 byte aligned ops */
++		if (bytes_to_write > 4)
++			write = 4;
++		else if (write == 3)
++			write = 2;
++
++		rc = fsi_device_write(i2c->fsi, I2C_FSI_FIFO,
++				      &msg->buf[port->xfrd], write);
++		if (rc)
++			return rc;
++
++		port->xfrd += write;
++		bytes_to_write -= write;
++	}
++
++	return rc;
++}
++
++static int fsi_i2c_read_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
++			     u8 fifo_count)
++{
++	int read;
++	int rc = 0;
++	struct fsi_i2c_master *i2c = port->master;
++	int xfr_remaining = msg->len - port->xfrd;
++	u32 dummy;
++
++	while (fifo_count) {
++		read = fifo_count;
++		/* fsi limited to max 4 byte aligned ops */
++		if (fifo_count > 4)
++			read = 4;
++		else if (read == 3)
++			read = 2;
++
++		if (xfr_remaining) {
++			if (xfr_remaining < read)
++				read = xfr_remaining;
++
++			rc = fsi_device_read(i2c->fsi, I2C_FSI_FIFO,
++					     &msg->buf[port->xfrd], read);
++			if (rc)
++				return rc;
++
++			port->xfrd += read;
++			xfr_remaining -= read;
++		} else {
++			/* no more buffer but data in fifo, need to clear it */
++			rc = fsi_device_read(i2c->fsi, I2C_FSI_FIFO, &dummy,
++					     read);
++			if (rc)
++				return rc;
++		}
++
++		fifo_count -= read;
++	}
++
++	return rc;
++}
++
+ static int fsi_i2c_reset_bus(struct fsi_i2c_master *i2c)
+ {
+ 	int i, rc;
+@@ -396,17 +494,118 @@ static int fsi_i2c_abort(struct fsi_i2c_port *port, u32 status)
+ 	return -ETIME;
+ }
+ 
++static int fsi_i2c_handle_status(struct fsi_i2c_port *port,
++				 struct i2c_msg *msg, u32 status)
++{
++	int rc;
++	u8 fifo_count;
++
++	if (status & I2C_STAT_ERR) {
++		rc = fsi_i2c_abort(port, status);
++		if (rc)
++			return rc;
++
++		if (status & I2C_STAT_INV_CMD)
++			return -EINVAL;
++
++		if (status & (I2C_STAT_PARITY | I2C_STAT_BE_OVERRUN |
++		    I2C_STAT_BE_ACCESS))
++			return -EPROTO;
++
++		if (status & I2C_STAT_NACK)
++			return -ENXIO;
++
++		if (status & I2C_STAT_LOST_ARB)
++			return -EAGAIN;
++
++		if (status & I2C_STAT_STOP_ERR)
++			return -EBADMSG;
++
++		return -EIO;
++	}
++
++	if (status & I2C_STAT_DAT_REQ) {
++		fifo_count = GETFIELD(I2C_STAT_FIFO_COUNT, status);
++
++		if (msg->flags & I2C_M_RD)
++			rc = fsi_i2c_read_fifo(port, msg, fifo_count);
++		else
++			rc = fsi_i2c_write_fifo(port, msg, fifo_count);
++
++		return rc;
++	}
++
++	if (status & I2C_STAT_CMD_COMP) {
++		if (port->xfrd < msg->len)
++			rc = -ENODATA;
++		else
++			rc = msg->len;
++
++		return rc;
++	}
++
++	return 0;
++}
++
++static int fsi_i2c_wait(struct fsi_i2c_port *port, struct i2c_msg *msg,
++			unsigned long timeout)
++{
++	u32 status = 0;
++	int rc;
++	unsigned long start = jiffies;
++
++	do {
++		rc = fsi_i2c_read_reg(port->master->fsi, I2C_FSI_STAT,
++				      &status);
++		if (rc)
++			return rc;
++
++		if (status & I2C_STAT_ANY_RESP) {
++			rc = fsi_i2c_handle_status(port, msg, status);
++			if (rc < 0)
++				return rc;
++
++			/* cmd complete and all data xfrd */
++			if (rc == msg->len)
++				return 0;
++
++			/* need to xfr more data, but maybe don't need wait */
++			continue;
++		}
++
++		usleep_range(I2C_LOCAL_SLEEP_MIN_US, I2C_LOCAL_SLEEP_MAX_US);
++	} while (time_after(start + timeout, jiffies));
++
++	return -ETIME;
++}
++
+ static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			int num)
+ {
+-	int rc;
++	int i, rc;
++	unsigned long start_time;
+ 	struct fsi_i2c_port *port = adap->algo_data;
++	struct i2c_msg *msg;
+ 
+ 	rc = fsi_i2c_set_port(port);
+ 	if (rc)
+ 		return rc;
+ 
+-	return -EOPNOTSUPP;
++	for (i = 0; i < num; ++i) {
++		msg = msgs + i;
++		start_time = jiffies;
++
++		rc = fsi_i2c_start(port, msg, i == num - 1);
++		if (rc)
++			return rc;
++
++		rc = fsi_i2c_wait(port, msg,
++				  adap->timeout - (jiffies - start_time));
++		if (rc)
++			return rc;
++	}
++
++	return 0;
+ }
+ 
+ static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
 -- 
 1.8.3.1
