@@ -1,73 +1,64 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v1] i2c: tegra: Remove suspend-resume
-Date: Tue, 29 May 2018 20:06:59 +0200
-Message-ID: <20180529180659.f5s56nstykztvykr@ninjato>
-References: <20180513211347.7187-1-digetx@gmail.com>
- <20180514115933.GH18312@ulmo>
- <d83fc1f7-d5e5-4211-1cd8-babcabdd9c4b@nvidia.com>
- <5949e650-8ab5-b4bb-196d-5a0705383141@gmail.com>
+From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Subject: RE: [PATCH 0/6] Fix R-Car I2C data byte sent twice issue
+Date: Tue, 29 May 2018 18:08:14 +0000
+Message-ID: <TY1PR01MB17708BA7883CA4CE7454E2BEC06D0@TY1PR01MB1770.jpnprd01.prod.outlook.com>
+References: <1527600796-25901-1-git-send-email-fabrizio.castro@bp.renesas.com>
+ <20180529171957.y2ctsptsnjw6ykag@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="yhskpz7hnuvbrtlc"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <5949e650-8ab5-b4bb-196d-5a0705383141@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Osipenko <digetx@gmail.com>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Shardar Shariff Md <smohammed@nvidia.com>, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20180529171957.y2ctsptsnjw6ykag@ninjato>
+Content-Language: en-US
+Sender: stable-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Chris Paterson <Chris.Paterson2@renesas.com>, Biju Das <biju.das@bp.renesas.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>, Ben Hutchings <ben.hutchings@codethink.co.uk>
 List-Id: linux-i2c@vger.kernel.org
 
+Hello Wolfram,
 
---yhskpz7hnuvbrtlc
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thank you for your feedback!
+
+> -----Original Message-----
+> From: Wolfram Sang [mailto:wsa@the-dreams.de]
+> Sent: 29 May 2018 18:20
+> To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>; linux-i2c@vger.kerne=
+l.org; Chris Paterson <Chris.Paterson2@renesas.com>;
+> Biju Das <biju.das@bp.renesas.com>; stable@vger.kernel.org; Ben Hutchings=
+ <ben.hutchings@codethink.co.uk>
+> Subject: Re: [PATCH 0/6] Fix R-Car I2C data byte sent twice issue
+>
+>
+> > this series fixes an issue with the I2C driver of the Renesas R-Car and
+> > RZ/G1 family of chips. The issue is clearly visible with the CIP kernel
+> > (4.4) running on a iwg20d board from iWave due to the way the bq32000
+> > driver/device is interacting with the I2C driver/controller.
+> > In the stable kernel (4.4) there is no support for the iwg20d, I tried
+> > to replicate the same problem on a Koelsch board with no success, but
+> > the problem is there.
+>
+> For the record, this patchset was developed on a Lager board (R-Car H2)
+> but the issue was known to be present on other Gen2 SoCs, too. This was
+> a nasty race condition. IIRC I was able to reproduce the issue only with
+> the first transfer after boot (for whatever reason). And fixing it,
+> together with another issue (double address byte), needed all this
+> refactoring.
+
+Thank you for the information, I may give it a try.
+
+>
+> I might try to recap how this double data byte problem was triggered.
+> This is somewhere on my todo-list anyhow. Just to check if the same
+> problem is still present with Gen3 SoCs. No promises, but I'll see what
+> I can do.
+
+Thanks,
+Fab
 
 
-> > Our I2C driver is based on the interrupt. So we have converted the
-> > suspend/resume to suspend_noirq and reseume_noirq so that we will not a=
-llow the
-> > transfer when system interrupt disabled in downstream.
-> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 SET_NOIRQ_SYSTEM=
-_SLEEP_PM_OPS(tegra_i2c_suspend, tegra_i2c_resume)
-> >=20
-> > In shutdown path, where interrupt disabled and still need i2c, we use t=
-he
-> > bit-bang method via GPIO for i2c transfer.
-> In the current upstream kernel suspend/resume can't be simply moved to the
-> 'noirq' stage because resume invokes tegra_i2c_init() which uses runtime =
-PM and
-> that doesn't work with the IRQ's being disabled. But things do not work e=
-ven
-> with the tegra_i2c_init() changed to work with the disabled IRQ's, like I=
- wrote
-> above the I2C transfer fails (due to timeout) and a "fix" for that failur=
-e was
-> to remove reset_control_assert/deassert from the tegra_i2c_init(). So I'd=
- go for
-> a complete suspend/resume removal for now as it is causes problem.
-
-Laxman, are you convinced or do you have still objections?
 
 
---yhskpz7hnuvbrtlc
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsNlsMACgkQFA3kzBSg
-KbZnxg//b/JEKpMaCPyKEn1ejp1JJJfDrCgpngPA+xDdGprQTefGkNCtFZ8e1xG8
-SumlReMYABex7myrnkNl8p7xo5BYpn2/PnSRg3VieneKXJMfsB6IvX4Q0u6+MixO
-WeHJwFtDBbhbOligybufr5s03VQ58F0lW16CscBZioHa+epYtWshVbrsyhJ3V4wN
-P9LeR9sj7JYQlEvOWa5jhhJREUq2P8Dl2/si17rDzGiYqPi3PO84Dhc5kfT2qhxC
-UtSTf7NXxqMe2el9TKgMmWVe//LizZ4+e+JJfKgjuL7UKhxr3Rd8fScCGPp7FEiN
-IKZAnnSAhD2/VKJFdWA2JDzH6+nkpNNWfcrfLU4XvHXToC2IXxkYkD2wxaJx0tb9
-0+BfU/dxfQCmPTc8A8NnsP+vV0qWrBLGqPeJA+Jv6rEOvDWwe7V57wPZujXVruPA
-/BCvjFM5s8uM+gzls15WfgdDzOLEOGKUfIPj0Xf0nWSfTE8MUdPyGBXHq1mBZ/XI
-pMmmtJFpPO7Fr/P8drVPm4fNz6tSUgAFYuWtelYlO5PE7l4d75jy20S08zYTzFi7
-3W/dREtSIU3TM0TV18e0URJfLyGk/Utzj8IK16bYFZVX7LycCb2pOQgiFF9xozpU
-ocr0N2OXZwm91J9T96QtGFs10dF9UYcesXb3xNYvFJpCJWyV7hI=
-=luMx
------END PGP SIGNATURE-----
-
---yhskpz7hnuvbrtlc--
+Renesas Electronics Europe Ltd, Dukes Meadow, Millboard Road, Bourne End, B=
+uckinghamshire, SL8 5FH, UK. Registered in England & Wales under Registered=
+ No. 04586709.
