@@ -1,64 +1,55 @@
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Subject: RE: [PATCH 0/6] Fix R-Car I2C data byte sent twice issue
-Date: Tue, 29 May 2018 18:08:14 +0000
-Message-ID: <TY1PR01MB17708BA7883CA4CE7454E2BEC06D0@TY1PR01MB1770.jpnprd01.prod.outlook.com>
-References: <1527600796-25901-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <20180529171957.y2ctsptsnjw6ykag@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH V2] i2c: ocores: update HDL sources URL
+Date: Tue, 29 May 2018 20:18:26 +0200
+Message-ID: <20180529181826.h6hzqefjgqd2xpap@ninjato>
+References: <20180528085914.30657-1-federico.vaga@vaga.pv.it>
+ <20180528085914.30657-2-federico.vaga@vaga.pv.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20180529171957.y2ctsptsnjw6ykag@ninjato>
-Content-Language: en-US
-Sender: stable-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Chris Paterson <Chris.Paterson2@renesas.com>, Biju Das <biju.das@bp.renesas.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>, Ben Hutchings <ben.hutchings@codethink.co.uk>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ceug3ufc47mmljqv"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180528085914.30657-2-federico.vaga@vaga.pv.it>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Federico Vaga <federico.vaga@vaga.pv.it>
+Cc: Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
 
-Thank you for your feedback!
+--ceug3ufc47mmljqv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> -----Original Message-----
-> From: Wolfram Sang [mailto:wsa@the-dreams.de]
-> Sent: 29 May 2018 18:20
-> To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>; linux-i2c@vger.kerne=
-l.org; Chris Paterson <Chris.Paterson2@renesas.com>;
-> Biju Das <biju.das@bp.renesas.com>; stable@vger.kernel.org; Ben Hutchings=
- <ben.hutchings@codethink.co.uk>
-> Subject: Re: [PATCH 0/6] Fix R-Car I2C data byte sent twice issue
->
->
-> > this series fixes an issue with the I2C driver of the Renesas R-Car and
-> > RZ/G1 family of chips. The issue is clearly visible with the CIP kernel
-> > (4.4) running on a iwg20d board from iWave due to the way the bq32000
-> > driver/device is interacting with the I2C driver/controller.
-> > In the stable kernel (4.4) there is no support for the iwg20d, I tried
-> > to replicate the same problem on a Koelsch board with no success, but
-> > the problem is there.
->
-> For the record, this patchset was developed on a Lager board (R-Car H2)
-> but the issue was known to be present on other Gen2 SoCs, too. This was
-> a nasty race condition. IIRC I was able to reproduce the issue only with
-> the first transfer after boot (for whatever reason). And fixing it,
-> together with another issue (double address byte), needed all this
-> refactoring.
+On Mon, May 28, 2018 at 10:59:14AM +0200, Federico Vaga wrote:
+> The URL is broken. This patch fix it
+>=20
+> Signed-off-by: Federico Vaga <federico.vaga@vaga.pv.it>
 
-Thank you for the information, I may give it a try.
+Shortened the URL a bit and applied to for-current, thanks!
 
->
-> I might try to recap how this double data byte problem was triggered.
-> This is somewhere on my todo-list anyhow. Just to check if the same
-> problem is still present with Gen3 SoCs. No promises, but I'll see what
-> I can do.
-
-Thanks,
-Fab
+@Peter: since the patch is trivial and nice to have in 4.17 already, I
+took the liberty to apply it right away. Hope this is fine with you.
 
 
+--ceug3ufc47mmljqv
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
-Renesas Electronics Europe Ltd, Dukes Meadow, Millboard Road, Bourne End, B=
-uckinghamshire, SL8 5FH, UK. Registered in England & Wales under Registered=
- No. 04586709.
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsNmXIACgkQFA3kzBSg
+KbY5wQ/9E6nRXXmW8E5AfFXY7dXErE1xg+NBL7cGV4aH9l4tTRMFJAp54a3UXTYu
+GmcB/I/7pjr3gQDeqkvBCmKtd+O+Z4uHwhmqIBJ3E3TejVk2ji2gymj46LqXF5+3
+VTWqDBJk90wsgcYpfb0teUBVFzJtrjYem6PBZP/T8WdSjOCLarl6r4B2Nyflqx5l
+w8mWk6CDRkwVlLYEHsfaUoiytCYPYPjRYLphmGKAOst3atJ2ZPjxcfnvVOJGbEZJ
+PNS0RtiiAGjiDSyZhC0s+EC5OHUyZvVCkB9xtFqZXcnwm4jtWzfB1SNrthyfjukW
+v1mtHvjfedngkFDUYnxVwX2DahIpgL8LmOyMNw8kM+mwMo41YYYuKVULw8FZcQHC
+7ZMXsmaKcFldvNq3qPLIALulnuyL1AlRiIovdugr5ecuOlbcPnaF1V9nbH4Hpia/
+mWfTKCEdqq6VIUCZZGSu2wc4kBbJkE7HXYk4eJFD8s9eOowdfvCsBjzVQRYIgSlT
+eBMx+KGLCXwls09457mjDSM0x7hO19LSHYkicWNP1H3rjloB04ifJcreM3LSCEu4
+H2LopLhc6h3S8IDmMQT0HxCueJEZ0KJP3FPalC3IzqL9fudD94l3ktsEqe0CtoBV
+akQ/zDJ6UaIJJ6v4DNY8pgNAFScKVlB6QxSF8BmG32NeGo63X40=
+=ZDu4
+-----END PGP SIGNATURE-----
+
+--ceug3ufc47mmljqv--
