@@ -1,7 +1,7 @@
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Subject: [PATCH 2/6] i2c: rcar: rework hw init
-Date: Tue, 29 May 2018 14:33:12 +0100
-Message-ID: <1527600796-25901-3-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [PATCH 4/6] i2c: rcar: remove spinlock
+Date: Tue, 29 May 2018 14:33:14 +0100
+Message-ID: <1527600796-25901-5-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1527600796-25901-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Return-path: <stable-owner@vger.kernel.org>
 In-Reply-To: <1527600796-25901-1-git-send-email-fabrizio.castro@bp.renesas.com>
@@ -12,12 +12,13 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit 2c78cdc1c06308a59d6ed4145cdba73fdeff8c0d upstream.
+commit ff2316b87a336bff940939cd9fc56287ed48e578 upstream.
 
-We don't need to init HW before every transfer since we know the HW
-state then. HW init at probe time is enough. While here, add setting the
-clock register which belongs to init HW. Also, set MDBS bit since not
-setting it is prohibited according to the manual.
+After making sure to reinit the HW and clear interrupts in the timeout
+case, we know that interrupts are always disabled in the sections
+protected by the spinlock. Thus, we can simply remove it which is a
+preparation for further refactoring. While here, rename the timeout
+variable to time_left which is way more readable.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
@@ -25,50 +26,94 @@ Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Reviewed-by: Chris Paterson <Chris.Paterson2@renesas.com>
 ---
- drivers/i2c/busses/i2c-rcar.c | 16 ++++------------
- 1 file changed, 4 insertions(+), 12 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 23 ++++-------------------
+ 1 file changed, 4 insertions(+), 19 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index fef53c1..b8ff5f2 100644
+index 7510733..46b6a5f 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -144,9 +144,10 @@ static void rcar_i2c_init(struct rcar_i2c_priv *priv)
- {
- 	/* reset master mode */
- 	rcar_i2c_write(priv, ICMIER, 0);
--	rcar_i2c_write(priv, ICMCR, 0);
-+	rcar_i2c_write(priv, ICMCR, MDBS);
- 	rcar_i2c_write(priv, ICMSR, 0);
--	rcar_i2c_write(priv, ICMAR, 0);
-+	/* start clock */
-+	rcar_i2c_write(priv, ICCCR, priv->icccr);
+@@ -33,7 +33,6 @@
+ #include <linux/platform_device.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/slab.h>
+-#include <linux/spinlock.h>
+ 
+ /* register offsets */
+ #define ICSCR	0x00	/* slave ctrl */
+@@ -110,7 +109,6 @@ struct rcar_i2c_priv {
+ 	struct i2c_msg	*msg;
+ 	struct clk *clk;
+ 
+-	spinlock_t lock;
+ 	wait_queue_head_t wait;
+ 
+ 	int pos;
+@@ -429,9 +427,6 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ 	irqreturn_t result = IRQ_HANDLED;
+ 	u32 msr;
+ 
+-	/*-------------- spin lock -----------------*/
+-	spin_lock(&priv->lock);
+-
+ 	if (rcar_i2c_slave_irq(priv))
+ 		goto exit;
+ 
+@@ -478,9 +473,6 @@ out:
+ 	}
+ 
+ exit:
+-	spin_unlock(&priv->lock);
+-	/*-------------- spin unlock -----------------*/
+-
+ 	return result;
  }
  
- static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
-@@ -496,16 +497,6 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+@@ -490,9 +482,8 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ {
+ 	struct rcar_i2c_priv *priv = i2c_get_adapdata(adap);
+ 	struct device *dev = rcar_i2c_priv_to_dev(priv);
+-	unsigned long flags;
+ 	int i, ret;
+-	long timeout;
++	long time_left;
  
  	pm_runtime_get_sync(dev);
  
--	/*-------------- spin lock -----------------*/
--	spin_lock_irqsave(&priv->lock, flags);
--
--	rcar_i2c_init(priv);
--	/* start clock */
--	rcar_i2c_write(priv, ICCCR, priv->icccr);
--
--	spin_unlock_irqrestore(&priv->lock, flags);
--	/*-------------- spin unlock -----------------*/
--
- 	ret = rcar_i2c_bus_barrier(priv);
- 	if (ret < 0)
- 		goto out;
-@@ -666,6 +657,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		goto out_pm_put;
+@@ -507,9 +498,6 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 			break;
+ 		}
  
-+	rcar_i2c_init(priv);
- 	pm_runtime_put(dev);
+-		/*-------------- spin lock -----------------*/
+-		spin_lock_irqsave(&priv->lock, flags);
+-
+ 		/* init each data */
+ 		priv->msg	= &msgs[i];
+ 		priv->pos	= 0;
+@@ -519,13 +507,11 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 
+ 		rcar_i2c_prepare_msg(priv);
+ 
+-		spin_unlock_irqrestore(&priv->lock, flags);
+-		/*-------------- spin unlock -----------------*/
+-
+-		timeout = wait_event_timeout(priv->wait,
++		time_left = wait_event_timeout(priv->wait,
+ 					     rcar_i2c_flags_has(priv, ID_DONE),
+ 					     adap->timeout);
+-		if (!timeout) {
++		if (!time_left) {
++			rcar_i2c_init(priv);
+ 			ret = -ETIMEDOUT;
+ 			break;
+ 		}
+@@ -656,7 +642,6 @@ static int rcar_i2c_probe(struct platform_device *pdev)
  
  	irq = platform_get_irq(pdev, 0);
+ 	init_waitqueue_head(&priv->wait);
+-	spin_lock_init(&priv->lock);
+ 
+ 	adap = &priv->adap;
+ 	adap->nr = pdev->id;
 -- 
 2.7.4
