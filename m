@@ -1,7 +1,7 @@
 From: Eddie James <eajames@linux.vnet.ibm.com>
-Subject: [PATCH v7 6/7] drivers/i2c: Add I2C master locking to FSI algorithm
-Date: Tue, 29 May 2018 17:24:24 -0500
-Message-ID: <1527632665-25707-7-git-send-email-eajames@linux.vnet.ibm.com>
+Subject: [PATCH v7 7/7] drivers/i2c: Add bus recovery for FSI algorithm
+Date: Tue, 29 May 2018 17:24:25 -0500
+Message-ID: <1527632665-25707-8-git-send-email-eajames@linux.vnet.ibm.com>
 References: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com>
@@ -12,79 +12,50 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: "Edward A. James" <eajames@us.ibm.com>
 
-Since there are many ports per master, each with it's own adapter and
-chardev, we need some locking to prevent transfers from changing the
-master state while other transfers are in progress.
+Bus recovery should reset the engine and force clock the bus 9 times
+to recover most situations.
 
 Signed-off-by: Edward A. James <eajames@us.ibm.com>
 ---
- drivers/i2c/busses/i2c-fsi.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-fsi.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
-index 78e3586..f309267 100644
+index f309267..52a662c 100644
 --- a/drivers/i2c/busses/i2c-fsi.c
 +++ b/drivers/i2c/busses/i2c-fsi.c
-@@ -18,6 +18,7 @@
- #include <linux/kernel.h>
- #include <linux/list.h>
- #include <linux/module.h>
-+#include <linux/mutex.h>
- #include <linux/of.h>
- 
- #define FSI_ENGID_I2C		0x7
-@@ -143,6 +144,7 @@ struct fsi_i2c_master {
- 	struct fsi_device	*fsi;
- 	u8			fifo_size;
- 	struct list_head	ports;
-+	struct mutex		lock;
- };
- 
- struct fsi_i2c_port {
-@@ -585,11 +587,14 @@ static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	int i, rc;
- 	unsigned long start_time;
- 	struct fsi_i2c_port *port = adap->algo_data;
-+	struct fsi_i2c_master *master = port->master;
- 	struct i2c_msg *msg;
- 
-+	mutex_lock(&master->lock);
-+
- 	rc = fsi_i2c_set_port(port);
- 	if (rc)
--		return rc;
-+		goto unlock;
- 
- 	for (i = 0; i < num; ++i) {
- 		msg = msgs + i;
-@@ -597,15 +602,17 @@ static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 
- 		rc = fsi_i2c_start(port, msg, i == num - 1);
- 		if (rc)
--			return rc;
-+			goto unlock;
- 
- 		rc = fsi_i2c_wait(port, msg,
- 				  adap->timeout - (jiffies - start_time));
- 		if (rc)
--			return rc;
-+			goto unlock;
- 	}
- 
--	return 0;
-+unlock:
-+	mutex_unlock(&master->lock);
-+	return rc;
+@@ -621,6 +621,24 @@ static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
+ 		| I2C_FUNC_SMBUS_EMUL | I2C_FUNC_SMBUS_BLOCK_DATA;
  }
  
- static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
-@@ -631,6 +638,7 @@ static int fsi_i2c_probe(struct device *dev)
- 	if (!i2c)
- 		return -ENOMEM;
++static int fsi_i2c_recover_bus(struct i2c_adapter *adap)
++{
++	int rc;
++	struct fsi_i2c_port *port = adap->algo_data;
++	struct fsi_i2c_master *master = port->master;
++
++	mutex_lock(&master->lock);
++
++	rc = fsi_i2c_reset(master, port->port);
++
++	mutex_unlock(&master->lock);
++	return rc;
++}
++
++static struct i2c_bus_recovery_info fsi_i2c_bus_recovery_info = {
++	.recover_bus = fsi_i2c_recover_bus,
++};
++
+ static const struct i2c_algorithm fsi_i2c_algorithm = {
+ 	.master_xfer = fsi_i2c_xfer,
+ 	.functionality = fsi_i2c_functionality,
+@@ -663,6 +681,7 @@ static int fsi_i2c_probe(struct device *dev)
+ 		port->adapter.dev.of_node = np;
+ 		port->adapter.dev.parent = dev;
+ 		port->adapter.algo = &fsi_i2c_algorithm;
++		port->adapter.bus_recovery_info = &fsi_i2c_bus_recovery_info;
+ 		port->adapter.algo_data = port;
  
-+	mutex_init(&i2c->lock);
- 	i2c->fsi = to_fsi_dev(dev);
- 	INIT_LIST_HEAD(&i2c->ports);
- 
+ 		snprintf(port->adapter.name, sizeof(port->adapter.name),
 -- 
 1.8.3.1
