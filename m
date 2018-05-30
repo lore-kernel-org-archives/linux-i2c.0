@@ -1,12 +1,12 @@
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v7 5/7] drivers/i2c: Add transfer implementation for FSI algorithm
-Date: Wed, 30 May 2018 03:08:02 +0300
-Message-ID: <CAHp75Vch1uEVvXadVR68tsDY-51=U+7FGr=5k0N5QtpcXpE_3A@mail.gmail.com>
-References: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com> <1527632665-25707-6-git-send-email-eajames@linux.vnet.ibm.com>
+Subject: Re: [PATCH v7 4/7] drivers/i2c: Add abort and hardware reset procedures
+Date: Wed, 30 May 2018 03:20:04 +0300
+Message-ID: <CAHp75VfZHCDzsmF3=Nauy2ftPNs+5yOqBY9oBkrmLrus1BnK8A@mail.gmail.com>
+References: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com> <1527632665-25707-5-git-send-email-eajames@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1527632665-25707-6-git-send-email-eajames@linux.vnet.ibm.com>
+In-Reply-To: <1527632665-25707-5-git-send-email-eajames@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Eddie James <eajames@linux.vnet.ibm.com>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Edward A. James" <eajames@us.ibm.com>
@@ -15,133 +15,45 @@ List-Id: linux-i2c@vger.kernel.org
 On Wed, May 30, 2018 at 1:24 AM, Eddie James <eajames@linux.vnet.ibm.com> wrote:
 > From: "Edward A. James" <eajames@us.ibm.com>
 >
-> Execute I2C transfers from the FSI-attached I2C master. Use polling
-> instead of interrupts as we have no hardware IRQ over FSI.
+> Add abort procedure for failed transfers. Add engine and bus reset
+> procedures to recover from as many faults as possible.
 
-> +       if (msg->flags & I2C_M_RD)
-> +               cmd |= I2C_CMD_READ;
+> +#define I2C_PORT_BUSY_RESET    0x80000000
 
-I think we have a helper for this, though not sure.
+BIT() ?
 
-> +static int fsi_i2c_write_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
-> +                             u8 fifo_count)
-> +{
-> +       int write;
+> +       for (i = 0; i < 9; ++i) {
 
-> +       int rc = 0;
+i++ would work as well.
 
-Redundant assignment.
-
-> +       struct fsi_i2c_master *i2c = port->master;
-> +       int bytes_to_write = i2c->fifo_size - fifo_count;
-> +       int bytes_remaining = msg->len - port->xfrd;
-
-> +       if (bytes_to_write > bytes_remaining)
-> +               bytes_to_write = bytes_remaining;
-
-_write = min(_write, _remaining);
-
-> +       while (bytes_to_write > 0) {
-
-> +               write = bytes_to_write;
-> +               /* fsi limited to max 4 byte aligned ops */
-> +               if (bytes_to_write > 4)
-> +                       write = 4;
-> +               else if (write == 3)
-> +                       write = 2;
-
-write = min_t(int, 4, rounddown_pow_of_two(bytes_to_write));
-
-Also check it carefully, it might be optimized even more, though I
-didn't think much.
-
+> +               rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_SCL, &dummy);
+> +               if (rc)
+> +                       return rc;
+> +
+> +               rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_SET_SCL, &dummy);
+> +               if (rc)
+> +                       return rc;
 > +       }
 
-> +       return rc;
-
-How it can be non-zero?
-
-> +}
-
-> +
-> +static int fsi_i2c_read_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
-> +                            u8 fifo_count)
-> +{
-> +       int read;
-
-> +       int rc = 0;
-
-Redundant assignment.
-
-> +       struct fsi_i2c_master *i2c = port->master;
-> +       int xfr_remaining = msg->len - port->xfrd;
-> +       u32 dummy;
-> +
-> +       while (fifo_count) {
-
-> +               read = fifo_count;
-> +               /* fsi limited to max 4 byte aligned ops */
-> +               if (fifo_count > 4)
-> +                       read = 4;
-> +               else if (read == 3)
-> +                       read = 2;
-
-See above for write case and do in similar way.
-
-> +
-> +               if (xfr_remaining) {
-
-> +                       if (xfr_remaining < read)
-> +                               read = xfr_remaining;
-
-read = min(read, _remaining);
-
-> +
-> +                       rc = fsi_device_read(i2c->fsi, I2C_FSI_FIFO,
-> +                                            &msg->buf[port->xfrd], read);
-> +                       if (rc)
-> +                               return rc;
-> +
-> +                       port->xfrd += read;
-> +                       xfr_remaining -= read;
-> +               } else {
-> +                       /* no more buffer but data in fifo, need to clear it */
-> +                       rc = fsi_device_read(i2c->fsi, I2C_FSI_FIFO, &dummy,
-> +                                            read);
-> +                       if (rc)
-> +                               return rc;
-> +               }
-> +
-> +               fifo_count -= read;
-> +       }
-> +
-
-> +       return rc;
-
-How non-zero possible here?
-
-> +}
-
-> +               if (port->xfrd < msg->len)
-> +                       rc = -ENODATA;
-> +               else
-> +                       rc = msg->len;
-> +
+> +       /* reset errors */
+> +       dummy = 0;
+> +       rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_ERR, &dummy);
+> +       if (rc)
 > +               return rc;
 
-if (...)
-  return -ENODATA;
-return msg->len;
- ?
+Ah, okay, discard my previous comments on dummy assignments. It seems
+input and output.
 
-> +       u32 status = 0;
+> +       msleep(1);
 
-Redundant assignment.
+msleep(1) usually a bad idea.
+usleep_range() I guess what you need here.
+
+> +}
 
 > +       return -ETIME;
 
 ETIMEDOUT ?
-
 
 -- 
 With Best Regards,
