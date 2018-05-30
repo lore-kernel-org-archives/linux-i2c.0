@@ -1,12 +1,12 @@
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v7 2/7] drivers/i2c: Add FSI-attached I2C master algorithm
-Date: Wed, 30 May 2018 02:42:34 +0300
-Message-ID: <CAHp75VexBiRQ1SPYK6=N-vmCAC9DhtpNKanYXrFshSM9WZb+UA@mail.gmail.com>
-References: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com> <1527632665-25707-3-git-send-email-eajames@linux.vnet.ibm.com>
+Subject: Re: [PATCH v7 5/7] drivers/i2c: Add transfer implementation for FSI algorithm
+Date: Wed, 30 May 2018 03:08:02 +0300
+Message-ID: <CAHp75Vch1uEVvXadVR68tsDY-51=U+7FGr=5k0N5QtpcXpE_3A@mail.gmail.com>
+References: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com> <1527632665-25707-6-git-send-email-eajames@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1527632665-25707-3-git-send-email-eajames@linux.vnet.ibm.com>
+In-Reply-To: <1527632665-25707-6-git-send-email-eajames@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Eddie James <eajames@linux.vnet.ibm.com>
 Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Edward A. James" <eajames@us.ibm.com>
@@ -15,165 +15,133 @@ List-Id: linux-i2c@vger.kernel.org
 On Wed, May 30, 2018 at 1:24 AM, Eddie James <eajames@linux.vnet.ibm.com> wrote:
 > From: "Edward A. James" <eajames@us.ibm.com>
 >
-> Add register definitions for FSI-attached I2C master and functions to
-> access those registers over FSI. Add an FSI driver so that our I2C bus
-> is probed up during an FSI scan.
+> Execute I2C transfers from the FSI-attached I2C master. Use polling
+> instead of interrupts as we have no hardware IRQ over FSI.
 
-This looks like reinventing a wheel in some ways.
+> +       if (msg->flags & I2C_M_RD)
+> +               cmd |= I2C_CMD_READ;
 
-See my comments below.
+I think we have a helper for this, though not sure.
 
-> +/*
-> + * Copyright 2017 IBM Corporation
-> + *
-> + * Eddie James <eajames@us.ibm.com>
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * as published by the Free Software Foundation; either version
-> + * 2 of the License, or (at your option) any later version.
-> + */
-
-We are using SPDX identifiers. Can you?
-
-> +/* Find left shift from first set bit in m */
-> +#define MASK_TO_LSH(m)         (__builtin_ffsll(m) - 1ULL)
-
-Oh. What about GENMASK()?
-
-> +/* Extract field m from v */
-> +#define GETFIELD(m, v)         (((v) & (m)) >> MASK_TO_LSH(m))
-> +
-> +/* Set field m of v to val */
-> +#define SETFIELD(m, v, val)    \
-> +       (((v) & ~(m)) | ((((typeof(v))(val)) << MASK_TO_LSH(m)) & (m)))
-
-Oh, what about https://elixir.bootlin.com/linux/latest/source/include/linux/bitfield.h
-?
-
-> +#define I2C_CMD_WITH_START     0x80000000
-> +#define I2C_CMD_WITH_ADDR      0x40000000
-> +#define I2C_CMD_RD_CONT                0x20000000
-> +#define I2C_CMD_WITH_STOP      0x10000000
-> +#define I2C_CMD_FORCELAUNCH    0x08000000
-
-BIT() ?
-
-> +#define I2C_CMD_ADDR           0x00fe0000
-> +#define I2C_CMD_READ           0x00010000
-
-GENMASK()? Though precisely here it might be good to leave explicit values.
-
-> +#define I2C_CMD_LEN            0x0000ffff
-
-> +#define I2C_MODE_CLKDIV                0xffff0000
-> +#define I2C_MODE_PORT          0x0000fc00
-> +#define I2C_MODE_ENHANCED      0x00000008
-> +#define I2C_MODE_DIAG          0x00000004
-> +#define I2C_MODE_PACE_ALLOW    0x00000002
-> +#define I2C_MODE_WRAP          0x00000001
-
-What are they? Masks? Bit fields? Just plain numbers?
-
-> +#define I2C_WATERMARK_HI       0x0000f000
-> +#define I2C_WATERMARK_LO       0x000000f0
-
-GENMASK() ?
-
-> +#define I2C_INT_INV_CMD                0x00008000
-> +#define I2C_INT_PARITY         0x00004000
-> +#define I2C_INT_BE_OVERRUN     0x00002000
-> +#define I2C_INT_BE_ACCESS      0x00001000
-> +#define I2C_INT_LOST_ARB       0x00000800
-> +#define I2C_INT_NACK           0x00000400
-> +#define I2C_INT_DAT_REQ                0x00000200
-> +#define I2C_INT_CMD_COMP       0x00000100
-> +#define I2C_INT_STOP_ERR       0x00000080
-> +#define I2C_INT_BUSY           0x00000040
-> +#define I2C_INT_IDLE           0x00000020
-
-BIT()
-
-> +#define I2C_INT_ENABLE         0x0000ff80
-> +#define I2C_INT_ERR            0x0000fcc0
-
-> +#define I2C_STAT_INV_CMD       0x80000000
-> +#define I2C_STAT_PARITY                0x40000000
-> +#define I2C_STAT_BE_OVERRUN    0x20000000
-> +#define I2C_STAT_BE_ACCESS     0x10000000
-> +#define I2C_STAT_LOST_ARB      0x08000000
-> +#define I2C_STAT_NACK          0x04000000
-> +#define I2C_STAT_DAT_REQ       0x02000000
-> +#define I2C_STAT_CMD_COMP      0x01000000
-> +#define I2C_STAT_STOP_ERR      0x00800000
-> +#define I2C_STAT_MAX_PORT      0x000f0000
-> +#define I2C_STAT_ANY_INT       0x00008000
-> +#define I2C_STAT_SCL_IN                0x00000800
-> +#define I2C_STAT_SDA_IN                0x00000400
-> +#define I2C_STAT_PORT_BUSY     0x00000200
-> +#define I2C_STAT_SELF_BUSY     0x00000100
-
-BIT()
-
-> +#define I2C_STAT_FIFO_COUNT    0x000000ff
-
-GENMASK()
-
-> +
-> +#define I2C_STAT_ERR           0xfc800000
-> +#define I2C_STAT_ANY_RESP      0xff800000
-
-> +#define I2C_ESTAT_FIFO_SZ      0xff000000
-
-GENMASK()
-
-> +#define I2C_ESTAT_SCL_IN_SY    0x00008000
-> +#define I2C_ESTAT_SDA_IN_SY    0x00004000
-> +#define I2C_ESTAT_S_SCL                0x00002000
-> +#define I2C_ESTAT_S_SDA                0x00001000
-> +#define I2C_ESTAT_M_SCL                0x00000800
-> +#define I2C_ESTAT_M_SDA                0x00000400
-> +#define I2C_ESTAT_HI_WATER     0x00000200
-> +#define I2C_ESTAT_LO_WATER     0x00000100
-> +#define I2C_ESTAT_PORT_BUSY    0x00000080
-> +#define I2C_ESTAT_SELF_BUSY    0x00000040
-
-BIT()
-
-> +#define I2C_ESTAT_VERSION      0x0000001f
-
-GENMASK()
-
-> +       __be32 data_be;
-
-No need to have a suffix. If anything can go wrong we have a tool,
-it's called sparse. It will catch out inappropriate use of __bitwise
-types.
-
-> +       __be32 data_be = cpu_to_be32(*data);
-
-cpu_to_be32p()  IIUC?
-
-> +static int fsi_i2c_dev_init(struct fsi_i2c_master *i2c)
+> +static int fsi_i2c_write_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
+> +                             u8 fifo_count)
 > +{
-> +       int rc;
-> +       u32 mode = I2C_MODE_ENHANCED, extended_status, watermark = 0;
+> +       int write;
 
-> +       u32 interrupt = 0;
+> +       int rc = 0;
 
 Redundant assignment.
 
-> +
-> +       /* since we use polling, disable interrupts */
-> +       rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_INT_MASK, &interrupt);
-> +       if (rc)
-> +               return rc;
+> +       struct fsi_i2c_master *i2c = port->master;
+> +       int bytes_to_write = i2c->fifo_size - fifo_count;
+> +       int bytes_remaining = msg->len - port->xfrd;
+
+> +       if (bytes_to_write > bytes_remaining)
+> +               bytes_to_write = bytes_remaining;
+
+_write = min(_write, _remaining);
+
+> +       while (bytes_to_write > 0) {
+
+> +               write = bytes_to_write;
+> +               /* fsi limited to max 4 byte aligned ops */
+> +               if (bytes_to_write > 4)
+> +                       write = 4;
+> +               else if (write == 3)
+> +                       write = 2;
+
+write = min_t(int, 4, rounddown_pow_of_two(bytes_to_write));
+
+Also check it carefully, it might be optimized even more, though I
+didn't think much.
+
+> +       }
 
 > +       return rc;
 
-Would be non-zero?
+How it can be non-zero?
 
 > +}
+
+> +
+> +static int fsi_i2c_read_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
+> +                            u8 fifo_count)
+> +{
+> +       int read;
+
+> +       int rc = 0;
+
+Redundant assignment.
+
+> +       struct fsi_i2c_master *i2c = port->master;
+> +       int xfr_remaining = msg->len - port->xfrd;
+> +       u32 dummy;
+> +
+> +       while (fifo_count) {
+
+> +               read = fifo_count;
+> +               /* fsi limited to max 4 byte aligned ops */
+> +               if (fifo_count > 4)
+> +                       read = 4;
+> +               else if (read == 3)
+> +                       read = 2;
+
+See above for write case and do in similar way.
+
+> +
+> +               if (xfr_remaining) {
+
+> +                       if (xfr_remaining < read)
+> +                               read = xfr_remaining;
+
+read = min(read, _remaining);
+
+> +
+> +                       rc = fsi_device_read(i2c->fsi, I2C_FSI_FIFO,
+> +                                            &msg->buf[port->xfrd], read);
+> +                       if (rc)
+> +                               return rc;
+> +
+> +                       port->xfrd += read;
+> +                       xfr_remaining -= read;
+> +               } else {
+> +                       /* no more buffer but data in fifo, need to clear it */
+> +                       rc = fsi_device_read(i2c->fsi, I2C_FSI_FIFO, &dummy,
+> +                                            read);
+> +                       if (rc)
+> +                               return rc;
+> +               }
+> +
+> +               fifo_count -= read;
+> +       }
+> +
+
+> +       return rc;
+
+How non-zero possible here?
+
+> +}
+
+> +               if (port->xfrd < msg->len)
+> +                       rc = -ENODATA;
+> +               else
+> +                       rc = msg->len;
+> +
+> +               return rc;
+
+if (...)
+  return -ENODATA;
+return msg->len;
+ ?
+
+> +       u32 status = 0;
+
+Redundant assignment.
+
+> +       return -ETIME;
+
+ETIMEDOUT ?
+
 
 -- 
 With Best Regards,
