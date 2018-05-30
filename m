@@ -1,15 +1,15 @@
 From: Eddie James <eajames@linux.vnet.ibm.com>
-Subject: Re: [PATCH v7 2/7] drivers/i2c: Add FSI-attached I2C master algorithm
-Date: Wed, 30 May 2018 10:40:11 -0500
-Message-ID: <b87ee7a3-9901-b7ec-f89c-8a26f82cbb2f@linux.vnet.ibm.com>
+Subject: Re: [PATCH v7 3/7] drivers/i2c: Add port structure to FSI algorithm
+Date: Wed, 30 May 2018 10:47:15 -0500
+Message-ID: <ae3de08c-6849-bb3a-7c6c-96309876d48e@linux.vnet.ibm.com>
 References: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com>
- <1527632665-25707-3-git-send-email-eajames@linux.vnet.ibm.com>
- <CAHp75VexBiRQ1SPYK6=N-vmCAC9DhtpNKanYXrFshSM9WZb+UA@mail.gmail.com>
+ <1527632665-25707-4-git-send-email-eajames@linux.vnet.ibm.com>
+ <CAHp75Vd38BrJcULxoqj1mTKCEvMh9ZVYEvzCMAg2t9onZrSR6w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75VexBiRQ1SPYK6=N-vmCAC9DhtpNKanYXrFshSM9WZb+UA@mail.gmail.com>
+In-Reply-To: <CAHp75Vd38BrJcULxoqj1mTKCEvMh9ZVYEvzCMAg2t9onZrSR6w@mail.gmail.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Andy Shevchenko <andy.shevchenko@gmail.com>
@@ -18,165 +18,115 @@ List-Id: linux-i2c@vger.kernel.org
 
 
 
-On 05/29/2018 06:42 PM, Andy Shevchenko wrote:
+On 05/29/2018 06:19 PM, Andy Shevchenko wrote:
 > On Wed, May 30, 2018 at 1:24 AM, Eddie James <eajames@linux.vnet.ibm.com> wrote:
 >> From: "Edward A. James" <eajames@us.ibm.com>
 >>
->> Add register definitions for FSI-attached I2C master and functions to
->> access those registers over FSI. Add an FSI driver so that our I2C bus
->> is probed up during an FSI scan.
-> This looks like reinventing a wheel in some ways.
+>> Add and initialize I2C adapters for each port on the FSI-attached I2C
+>> master. Ports for each master are defined in the devicetree.
+>> +#include <linux/of.h>
 >
-> See my comments below.
->
->> +/*
->> + * Copyright 2017 IBM Corporation
->> + *
->> + * Eddie James <eajames@us.ibm.com>
->> + *
->> + * This program is free software; you can redistribute it and/or
->> + * modify it under the terms of the GNU General Public License
->> + * as published by the Free Software Foundation; either version
->> + * 2 of the License, or (at your option) any later version.
->> + */
-> We are using SPDX identifiers. Can you?
-
-Sure.
-
->
->> +/* Find left shift from first set bit in m */
->> +#define MASK_TO_LSH(m)         (__builtin_ffsll(m) - 1ULL)
-> Oh. What about GENMASK()?
->
->> +/* Extract field m from v */
->> +#define GETFIELD(m, v)         (((v) & (m)) >> MASK_TO_LSH(m))
->> +
->> +/* Set field m of v to val */
->> +#define SETFIELD(m, v, val)    \
->> +       (((v) & ~(m)) | ((((typeof(v))(val)) << MASK_TO_LSH(m)) & (m)))
-> Oh, what about https://elixir.bootlin.com/linux/latest/source/include/linux/bitfield.h
-> ?
-
-Good idea, thanks.
-
->
->> +#define I2C_CMD_WITH_START     0x80000000
->> +#define I2C_CMD_WITH_ADDR      0x40000000
->> +#define I2C_CMD_RD_CONT                0x20000000
->> +#define I2C_CMD_WITH_STOP      0x10000000
->> +#define I2C_CMD_FORCELAUNCH    0x08000000
-> BIT() ?
->
->> +#define I2C_CMD_ADDR           0x00fe0000
->> +#define I2C_CMD_READ           0x00010000
-> GENMASK()? Though precisely here it might be good to leave explicit values.
->
->> +#define I2C_CMD_LEN            0x0000ffff
->> +#define I2C_MODE_CLKDIV                0xffff0000
->> +#define I2C_MODE_PORT          0x0000fc00
->> +#define I2C_MODE_ENHANCED      0x00000008
->> +#define I2C_MODE_DIAG          0x00000004
->> +#define I2C_MODE_PACE_ALLOW    0x00000002
->> +#define I2C_MODE_WRAP          0x00000001
-> What are they? Masks? Bit fields? Just plain numbers?
->
->> +#define I2C_WATERMARK_HI       0x0000f000
->> +#define I2C_WATERMARK_LO       0x000000f0
-> GENMASK() ?
->
->> +#define I2C_INT_INV_CMD                0x00008000
->> +#define I2C_INT_PARITY         0x00004000
->> +#define I2C_INT_BE_OVERRUN     0x00002000
->> +#define I2C_INT_BE_ACCESS      0x00001000
->> +#define I2C_INT_LOST_ARB       0x00000800
->> +#define I2C_INT_NACK           0x00000400
->> +#define I2C_INT_DAT_REQ                0x00000200
->> +#define I2C_INT_CMD_COMP       0x00000100
->> +#define I2C_INT_STOP_ERR       0x00000080
->> +#define I2C_INT_BUSY           0x00000040
->> +#define I2C_INT_IDLE           0x00000020
-> BIT()
->
->> +#define I2C_INT_ENABLE         0x0000ff80
->> +#define I2C_INT_ERR            0x0000fcc0
->> +#define I2C_STAT_INV_CMD       0x80000000
->> +#define I2C_STAT_PARITY                0x40000000
->> +#define I2C_STAT_BE_OVERRUN    0x20000000
->> +#define I2C_STAT_BE_ACCESS     0x10000000
->> +#define I2C_STAT_LOST_ARB      0x08000000
->> +#define I2C_STAT_NACK          0x04000000
->> +#define I2C_STAT_DAT_REQ       0x02000000
->> +#define I2C_STAT_CMD_COMP      0x01000000
->> +#define I2C_STAT_STOP_ERR      0x00800000
->> +#define I2C_STAT_MAX_PORT      0x000f0000
->> +#define I2C_STAT_ANY_INT       0x00008000
->> +#define I2C_STAT_SCL_IN                0x00000800
->> +#define I2C_STAT_SDA_IN                0x00000400
->> +#define I2C_STAT_PORT_BUSY     0x00000200
->> +#define I2C_STAT_SELF_BUSY     0x00000100
-> BIT()
->
->> +#define I2C_STAT_FIFO_COUNT    0x000000ff
-> GENMASK()
->
->> +
->> +#define I2C_STAT_ERR           0xfc800000
->> +#define I2C_STAT_ANY_RESP      0xff800000
->> +#define I2C_ESTAT_FIFO_SZ      0xff000000
-> GENMASK()
->
->> +#define I2C_ESTAT_SCL_IN_SY    0x00008000
->> +#define I2C_ESTAT_SDA_IN_SY    0x00004000
->> +#define I2C_ESTAT_S_SCL                0x00002000
->> +#define I2C_ESTAT_S_SDA                0x00001000
->> +#define I2C_ESTAT_M_SCL                0x00000800
->> +#define I2C_ESTAT_M_SDA                0x00000400
->> +#define I2C_ESTAT_HI_WATER     0x00000200
->> +#define I2C_ESTAT_LO_WATER     0x00000100
->> +#define I2C_ESTAT_PORT_BUSY    0x00000080
->> +#define I2C_ESTAT_SELF_BUSY    0x00000040
-> BIT()
->
->> +#define I2C_ESTAT_VERSION      0x0000001f
-> GENMASK()
->
->> +       __be32 data_be;
-> No need to have a suffix. If anything can go wrong we have a tool,
-> it's called sparse. It will catch out inappropriate use of __bitwise
-> types.
-
-I already have a variable called data...
-
->
->> +       __be32 data_be = cpu_to_be32(*data);
-> cpu_to_be32p()  IIUC?
-
-Sure.
-
->
->> +static int fsi_i2c_dev_init(struct fsi_i2c_master *i2c)
+>> +static int fsi_i2c_set_port(struct fsi_i2c_port *port)
 >> +{
 >> +       int rc;
->> +       u32 mode = I2C_MODE_ENHANCED, extended_status, watermark = 0;
->> +       u32 interrupt = 0;
-> Redundant assignment.
-
-No, I need to set the interrupt register to 0, so I must set this.
-
->
+>> +       struct fsi_device *fsi = port->master->fsi;
+>> +       u32 mode, dummy = 0;
+>> +       u16 old_port;
 >> +
->> +       /* since we use polling, disable interrupts */
->> +       rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_INT_MASK, &interrupt);
+>> +       rc = fsi_i2c_read_reg(fsi, I2C_FSI_MODE, &mode);
 >> +       if (rc)
 >> +               return rc;
->> +       return rc;
-> Would be non-zero?
+>> +
+>> +       old_port = GETFIELD(I2C_MODE_PORT, mode);
+>> +
+>> +       if (old_port != port->port) {
+> Why not simple
+>
+> if (port->port == GETFIELD())
+>    return 0;
+>
+> ?
 
-No, fsi_i2c_write_reg returns non-zero on error, zero on success. That 
-is what I want.
+Sure.
+
+>
+>> +               /* reset engine when port is changed */
+>> +               rc = fsi_i2c_write_reg(fsi, I2C_FSI_RESET_ERR, &dummy);
+>> +               if (rc)
+>> +                       return rc;
+>> +       }
+>> +       return rc;
+> It's hardly would be non-zero, right?
+
+No, fsi_i2c_read_reg and fsi_i2c_write_reg both return 0 on success and 
+non-zero on error. That is the desired behavior of this function also.
+
+>
+>> +}
+>>   static int fsi_i2c_probe(struct device *dev)
+>>   {
+> Isn't below somehow repeats of_i2c_register_devices() ?
+> Why not to use it?
+
+Because I need to assign all these port structure fields. Also looks 
+like of_i2c_register_devices creates new devices; I just want an adapter 
+for each port.
+
+>
+>> +       /* Add adapter for each i2c port of the master. */
+>> +       for_each_available_child_of_node(dev->of_node, np) {
+>> +               rc = of_property_read_u32(np, "reg", &port_no);
+>> +               if (rc || port_no > USHRT_MAX)
+>> +                       continue;
+>> +
+>> +               port = devm_kzalloc(dev, sizeof(*port), GFP_KERNEL);
+>> +               if (!port)
+>> +                       break;
+>> +
+>> +               port->master = i2c;
+>> +               port->port = port_no;
+>> +
+>> +               port->adapter.owner = THIS_MODULE;
+>> +               port->adapter.dev.of_node = np;
+>> +               port->adapter.dev.parent = dev;
+>> +               port->adapter.algo = &fsi_i2c_algorithm;
+>> +               port->adapter.algo_data = port;
+>> +
+>> +               snprintf(port->adapter.name, sizeof(port->adapter.name),
+>> +                        "i2c_bus-%u", port_no);
+>> +
+>> +               rc = i2c_add_adapter(&port->adapter);
+>> +               if (rc < 0) {
+>> +                       dev_err(dev, "Failed to register adapter: %d\n", rc);
+>> +                       devm_kfree(dev, port);
+> This hurts my eyes. Why?!
+
+What would you suggest instead?
+
+>
+>> +                       continue;
+>> +               }
+>> +
+>> +               list_add(&port->list, &i2c->ports);
+>> +       }
+>> +
+>>          dev_set_drvdata(dev, i2c);
+>>
+>>          return 0;
+>>   }
+>> +       if (!list_empty(&i2c->ports)) {
+> My gosh, this is done already in list_for_each*()
+
+No, list_for_each_entry does NOT check if the list is empty or if the 
+first entry is NULL.
 
 Thanks,
 Eddie
 
 >
->> +}
+>> +               list_for_each_entry(port, &i2c->ports, list) {
+>> +                       i2c_del_adapter(&port->adapter);
+>> +               }
+>> +       }
+>
+>
