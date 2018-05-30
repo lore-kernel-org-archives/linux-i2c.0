@@ -1,52 +1,67 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v1] i2c: tegra: Remove suspend-resume
-Date: Wed, 30 May 2018 22:25:08 +0200
-Message-ID: <20180530202508.raee7klc2q3qoddo@ninjato>
-References: <20180513211347.7187-1-digetx@gmail.com>
- <20180530201831.6327alcmr2stgr3a@ninjato>
+From: Eddie James <eajames@linux.vnet.ibm.com>
+Subject: Re: [PATCH v7 5/7] drivers/i2c: Add transfer implementation for FSI
+ algorithm
+Date: Wed, 30 May 2018 15:53:53 -0500
+Message-ID: <710a9afe-e268-9dbc-5183-9793d4eae2d3@linux.vnet.ibm.com>
+References: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com>
+ <1527632665-25707-6-git-send-email-eajames@linux.vnet.ibm.com>
+ <CAHp75Vch1uEVvXadVR68tsDY-51=U+7FGr=5k0N5QtpcXpE_3A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="x4anpeq22o24y36s"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180530201831.6327alcmr2stgr3a@ninjato>
+In-Reply-To: <CAHp75Vch1uEVvXadVR68tsDY-51=U+7FGr=5k0N5QtpcXpE_3A@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Osipenko <digetx@gmail.com>
-Cc: Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Edward A. James" <eajames@us.ibm.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---x4anpeq22o24y36s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
+On 05/29/2018 07:08 PM, Andy Shevchenko wrote:
+> On Wed, May 30, 2018 at 1:24 AM, Eddie James <eajames@linux.vnet.ibm.com> wrote:
+>> From: "Edward A. James" <eajames@us.ibm.com>
+>>
+>> Execute I2C transfers from the FSI-attached I2C master. Use polling
+>> instead of interrupts as we have no hardware IRQ over FSI.
+>> +       if (msg->flags & I2C_M_RD)
+>> +               cmd |= I2C_CMD_READ;
+> I think we have a helper for this, though not sure.
 
-> Applied to for-next, thanks!
+Didn't see any other I2C drivers using any helper for msg->flags.
 
-I removed the stable tag, though. I am not 100% sure if there are not
-any side-effects for other users. If you still think it should go to
-stable, please mention this patch to stable@ after it was applied to
-linus tree. Maybe with a word or two about regression safety.
+>
+>> +static int fsi_i2c_write_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
+>> +                             u8 fifo_count)
+>> +{
+>> +       int write;
+>> +       int rc = 0;
+> Redundant assignment.
+>
+>> +       struct fsi_i2c_master *i2c = port->master;
+>> +       int bytes_to_write = i2c->fifo_size - fifo_count;
+>> +       int bytes_remaining = msg->len - port->xfrd;
+>> +       if (bytes_to_write > bytes_remaining)
+>> +               bytes_to_write = bytes_remaining;
+> _write = min(_write, _remaining);
+>
+>> +       while (bytes_to_write > 0) {
+>> +               write = bytes_to_write;
+>> +               /* fsi limited to max 4 byte aligned ops */
+>> +               if (bytes_to_write > 4)
+>> +                       write = 4;
+>> +               else if (write == 3)
+>> +                       write = 2;
+> write = min_t(int, 4, rounddown_pow_of_two(bytes_to_write));
+>
+> Also check it carefully, it might be optimized even more, though I
+> didn't think much.
 
+I think it is more readable this way, and I'm not convinced the 
+min(rounddown()) is faster. I did however add a common function to do 
+this check since it's performed in both the read and write fifo 
+functions. Let me know what you think on v8.
 
---x4anpeq22o24y36s
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsPCKQACgkQFA3kzBSg
-KbZxOQ//emYo+b3hmRs3Wbwpgfd2uJMFBOLHtdlcf2q/8BgPgrp4Ki0aDwJ2d6ut
-oYpFGBZFqbidgxoWw1fxa5dBTRX/QA1zRcTBy11dJQebI7XWR1ou2Zp0u7fBk61P
-/EFhzvEjQavRUCn4l76oGgNM9wKuAQ3Cz6If7tgx+o7/ylDSj1PNvr2nWnqb28xe
-xYJyZUHSni/IcQ1b2XN3RGCe8F6YYjqKP1JP6pV0lrgAvLxl8hZP3TPGPNisTMDv
-fLbdRL/ITfPvshga+iYgQc/+q/mgfw3fG4wNxCmePLVBoMN9Vr8jFWDyBkBp+uHe
-Rq2CmvvRtWDpSpxTf/mo+OecJMp+ni8D3JwRoupIAjW99Q0yVMyNWBZU0VNXDzQX
-vdbJWR5UfkmagqIx5kdFvcjgq+8P4KV7MPyVeQS2xGK8hFAp4H2/esBzHDib9vck
-MAn8B6oVIoT6foCJgTMzgCY5Ast9JQwcdCWQtaJfujVzN5Z2tZJD2QfNtWIAfBhp
-pFzvl6606HPOnwfytj45wFvrJxBy+J8McQ4QbzTY48hrtkLGgVETpnDCn+iq56ge
-BokorHr80O7hXrWg91QMtdd3OWeynzFS0HU4uAWVYIA8YKi0Ofo2C6YyyOP7Fq+M
-ODoEtSqMAD4stJbB53TsM+PhZ67Ek3R7AXDbJsLbZI39YS3eRuA=
-=0dGz
------END PGP SIGNATURE-----
-
---x4anpeq22o24y36s--
+Thanks,
+Eddie
