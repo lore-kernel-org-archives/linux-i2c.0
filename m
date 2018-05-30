@@ -1,67 +1,57 @@
 From: Eddie James <eajames@linux.vnet.ibm.com>
-Subject: Re: [PATCH v7 5/7] drivers/i2c: Add transfer implementation for FSI
- algorithm
-Date: Wed, 30 May 2018 15:53:53 -0500
-Message-ID: <710a9afe-e268-9dbc-5183-9793d4eae2d3@linux.vnet.ibm.com>
-References: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com>
- <1527632665-25707-6-git-send-email-eajames@linux.vnet.ibm.com>
- <CAHp75Vch1uEVvXadVR68tsDY-51=U+7FGr=5k0N5QtpcXpE_3A@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v8 0/7] i2c: Add FSI-attached I2C master algorithm
+Date: Wed, 30 May 2018 16:07:37 -0500
+Message-ID: <1527714464-8642-1-git-send-email-eajames@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75Vch1uEVvXadVR68tsDY-51=U+7FGr=5k0N5QtpcXpE_3A@mail.gmail.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Edward A. James" <eajames@us.ibm.com>
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, rdunlap@infradead.org, andy.shevchenko@gmail.com, Eddie James <eajames@linux.vnet.ibm.com>
 List-Id: linux-i2c@vger.kernel.org
 
+This series adds an algorithm for an I2C master physically located on an FSI
+slave device. The I2C master has multiple ports, each of which may be connected
+to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
 
+Due to the multi-port nature of the I2C master, the driver instantiates a new
+I2C adapter for each port connected to a slave. The connected ports should be
+defined in the device tree under the I2C master device.
 
-On 05/29/2018 07:08 PM, Andy Shevchenko wrote:
-> On Wed, May 30, 2018 at 1:24 AM, Eddie James <eajames@linux.vnet.ibm.com> wrote:
->> From: "Edward A. James" <eajames@us.ibm.com>
->>
->> Execute I2C transfers from the FSI-attached I2C master. Use polling
->> instead of interrupts as we have no hardware IRQ over FSI.
->> +       if (msg->flags & I2C_M_RD)
->> +               cmd |= I2C_CMD_READ;
-> I think we have a helper for this, though not sure.
+Changes since v7
+ - Fix grammer in Kconfig (a -> an)
+ - Change I2C registers to use BIT and GENMASK
+ - Remove custom macros and use FIELD_PREP and FIELD_GET
+ - Fix a few unecessary initializations and "return rc" that are always zero
+ - Clean up the read/write fifo functions a bit
+ - Few other clean-up items
 
-Didn't see any other I2C drivers using any helper for msg->flags.
+Changes since v6
+ - Remove spinlock for reset functionality; it's unecessary and doesn't work
+   with the latest FSI core.
+ - Use a mutex instead of a semaphore, and don't wait for timeout to get the
+   lock.
+ - Use usleeps instead of schedule_timeout; it's not worth the overhead when
+   the wait should be very short in between sending the command and receiving
+   the response.
 
->
->> +static int fsi_i2c_write_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
->> +                             u8 fifo_count)
->> +{
->> +       int write;
->> +       int rc = 0;
-> Redundant assignment.
->
->> +       struct fsi_i2c_master *i2c = port->master;
->> +       int bytes_to_write = i2c->fifo_size - fifo_count;
->> +       int bytes_remaining = msg->len - port->xfrd;
->> +       if (bytes_to_write > bytes_remaining)
->> +               bytes_to_write = bytes_remaining;
-> _write = min(_write, _remaining);
->
->> +       while (bytes_to_write > 0) {
->> +               write = bytes_to_write;
->> +               /* fsi limited to max 4 byte aligned ops */
->> +               if (bytes_to_write > 4)
->> +                       write = 4;
->> +               else if (write == 3)
->> +                       write = 2;
-> write = min_t(int, 4, rounddown_pow_of_two(bytes_to_write));
->
-> Also check it carefully, it might be optimized even more, though I
-> didn't think much.
+Changes since v5
+ - Fix reset functionality and do a reset after every transfer failure
 
-I think it is more readable this way, and I'm not convinced the 
-min(rounddown()) is faster. I did however add a common function to do 
-this check since it's performed in both the read and write fifo 
-functions. Let me know what you think on v8.
+Eddie James (7):
+  dt-bindings: i2c: Add FSI-attached I2C master dt binding documentation
+  i2c: Add FSI-attached I2C master algorithm
+  i2c: fsi: Add port structures
+  i2c: fsi: Add abort and hardware reset procedures
+  i2c: fsi: Add transfer implementation
+  i2c: fsi: Add I2C master locking
+  i2c: fsi: Add bus recovery
 
-Thanks,
-Eddie
+ Documentation/devicetree/bindings/i2c/i2c-fsi.txt |  40 ++
+ drivers/i2c/busses/Kconfig                        |  11 +
+ drivers/i2c/busses/Makefile                       |   1 +
+ drivers/i2c/busses/i2c-fsi.c                      | 722 ++++++++++++++++++++++
+ 4 files changed, 774 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+ create mode 100644 drivers/i2c/busses/i2c-fsi.c
+
+-- 
+1.8.3.1
