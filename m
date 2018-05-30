@@ -1,7 +1,7 @@
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Subject: [PATCH 2/3] i2c: rcar: check master irqs before slave irqs
-Date: Wed, 30 May 2018 11:07:12 +0100
-Message-ID: <1527674833-13122-3-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [PATCH 3/3] i2c: rcar: revoke START request early
+Date: Wed, 30 May 2018 11:07:13 +0100
+Message-ID: <1527674833-13122-4-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1527674833-13122-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Return-path: <stable-owner@vger.kernel.org>
 In-Reply-To: <1527674833-13122-1-git-send-email-fabrizio.castro@bp.renesas.com>
@@ -12,10 +12,17 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit c3be0af15959e11fa535d5332ab3d7cf34abd09b upstream.
+commit 52df445f29b79006d8b2dcd129152987c0d3bd64 upstream.
 
-Due to the HW design, master IRQs are timing critical, so give them
-precedence over slave IRQ.
+If we don't clear START generation as soon as possible, it may cause
+another message to be generated, e.g. when receiving NACK in address
+phase. To keep the race window as small as possible, we clear it right
+at the beginning of the interrupt. We don't need any checks since we
+always want to stop START and STOP generation on the next occasion after
+we started it.
+
+This patch improves the situation but sadly does not completely fix it.
+It is still to be researched if we can do better given this HW design.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
@@ -23,46 +30,77 @@ Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Reviewed-by: Biju Das <biju.das@bp.renesas.com>
 ---
- drivers/i2c/busses/i2c-rcar.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 23 +++++++----------------
+ 1 file changed, 7 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 6f23b97..ee3e02a 100644
+index ee3e02a..6f89484 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -432,19 +432,17 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+@@ -83,6 +83,7 @@
+ 
+ #define RCAR_BUS_PHASE_START	(MDBS | MIE | ESG)
+ #define RCAR_BUS_PHASE_DATA	(MDBS | MIE)
++#define RCAR_BUS_MASK_DATA	(~(ESG | FSB) & 0xFF)
+ #define RCAR_BUS_PHASE_STOP	(MDBS | MIE | FSB)
+ 
+ #define RCAR_IRQ_SEND	(MNR | MAL | MST | MAT | MDE)
+@@ -289,13 +290,6 @@ static void rcar_i2c_irq_send(struct rcar_i2c_priv *priv, u32 msr)
+ 	if (!(msr & MDE))
+ 		return;
+ 
+-	/*
+-	 * If address transfer phase finished,
+-	 * goto data phase.
+-	 */
+-	if (msr & MAT)
+-		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+-
+ 	if (priv->pos < msg->len) {
+ 		/*
+ 		 * Prepare next data to ICRXTX register.
+@@ -345,11 +339,7 @@ static void rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
+ 		return;
+ 
+ 	if (msr & MAT) {
+-		/*
+-		 * Address transfer phase finished,
+-		 * but, there is no data at this point.
+-		 * Do nothing.
+-		 */
++		/* Address transfer phase finished, but no data at this point. */
+ 	} else if (priv->pos < msg->len) {
+ 		/*
+ 		 * get received data
+@@ -365,8 +355,6 @@ static void rcar_i2c_irq_recv(struct rcar_i2c_priv *priv, u32 msr)
+ 	 */
+ 	if (priv->pos + 1 >= msg->len)
+ 		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
+-	else
+-		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+ 
+ 	if (priv->pos == msg->len && !(priv->flags & ID_LAST_MSG))
+ 		rcar_i2c_next_msg(priv);
+@@ -432,7 +420,11 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
  static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
  {
  	struct rcar_i2c_priv *priv = ptr;
--	irqreturn_t result = IRQ_HANDLED;
- 	u32 msr;
+-	u32 msr;
++	u32 msr, val;
++
++	/* Clear START or STOP as soon as we can */
++	val = rcar_i2c_read(priv, ICMCR);
++	rcar_i2c_write(priv, ICMCR, val & RCAR_BUS_MASK_DATA);
  
--	if (rcar_i2c_slave_irq(priv))
--		goto exit;
--
  	msr = rcar_i2c_read(priv, ICMSR);
  
- 	/* Only handle interrupts that are currently enabled */
- 	msr &= rcar_i2c_read(priv, ICMIER);
- 	if (!msr) {
--		result = IRQ_NONE;
--		goto exit;
-+		if (rcar_i2c_slave_irq(priv))
-+			return IRQ_HANDLED;
-+
-+		return IRQ_NONE;
- 	}
- 
- 	/* Arbitration lost */
-@@ -481,8 +479,7 @@ out:
- 		wake_up(&priv->wait);
- 	}
- 
--exit:
--	return result;
-+	return IRQ_HANDLED;
- }
- 
- static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+@@ -454,7 +446,6 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ 	/* Nack */
+ 	if (msr & MNR) {
+ 		/* HW automatically sends STOP after received NACK */
+-		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+ 		rcar_i2c_write(priv, ICMIER, RCAR_IRQ_STOP);
+ 		rcar_i2c_flags_set(priv, ID_NACK);
+ 		goto out;
 -- 
 2.7.4
