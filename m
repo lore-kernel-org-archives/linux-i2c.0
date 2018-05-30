@@ -1,7 +1,7 @@
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Subject: [PATCH 1/3] i2c: rcar: don't issue stop when HW does it automatically
-Date: Wed, 30 May 2018 11:07:11 +0100
-Message-ID: <1527674833-13122-2-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: [PATCH 2/3] i2c: rcar: check master irqs before slave irqs
+Date: Wed, 30 May 2018 11:07:12 +0100
+Message-ID: <1527674833-13122-3-git-send-email-fabrizio.castro@bp.renesas.com>
 References: <1527674833-13122-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Return-path: <stable-owner@vger.kernel.org>
 In-Reply-To: <1527674833-13122-1-git-send-email-fabrizio.castro@bp.renesas.com>
@@ -12,10 +12,10 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit d89667b14f9d13b684287f6189ca209af5feee43 upstream.
+commit c3be0af15959e11fa535d5332ab3d7cf34abd09b upstream.
 
-The manual says (55.4.8.6) that HW does automatically send STOP after
-NACK was received. My measuerments confirm that.
+Due to the HW design, master IRQs are timing critical, so give them
+precedence over slave IRQ.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
@@ -23,23 +23,46 @@ Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 Reviewed-by: Biju Das <biju.das@bp.renesas.com>
 ---
- drivers/i2c/busses/i2c-rcar.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 44662e2..6f23b97 100644
+index 6f23b97..ee3e02a 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -455,8 +455,8 @@ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+@@ -432,19 +432,17 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ {
+ 	struct rcar_i2c_priv *priv = ptr;
+-	irqreturn_t result = IRQ_HANDLED;
+ 	u32 msr;
  
- 	/* Nack */
- 	if (msr & MNR) {
--		/* go to stop phase */
--		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_STOP);
-+		/* HW automatically sends STOP after received NACK */
-+		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
- 		rcar_i2c_write(priv, ICMIER, RCAR_IRQ_STOP);
- 		rcar_i2c_flags_set(priv, ID_NACK);
- 		goto out;
+-	if (rcar_i2c_slave_irq(priv))
+-		goto exit;
+-
+ 	msr = rcar_i2c_read(priv, ICMSR);
+ 
+ 	/* Only handle interrupts that are currently enabled */
+ 	msr &= rcar_i2c_read(priv, ICMIER);
+ 	if (!msr) {
+-		result = IRQ_NONE;
+-		goto exit;
++		if (rcar_i2c_slave_irq(priv))
++			return IRQ_HANDLED;
++
++		return IRQ_NONE;
+ 	}
+ 
+ 	/* Arbitration lost */
+@@ -481,8 +479,7 @@ out:
+ 		wake_up(&priv->wait);
+ 	}
+ 
+-exit:
+-	return result;
++	return IRQ_HANDLED;
+ }
+ 
+ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
 -- 
 2.7.4
