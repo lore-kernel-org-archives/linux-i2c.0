@@ -1,172 +1,33 @@
-From: Eddie James <eajames@linux.vnet.ibm.com>
-Subject: [PATCH v8 3/7] i2c: fsi: Add port structures
-Date: Wed, 30 May 2018 16:07:40 -0500
-Message-ID: <1527714464-8642-4-git-send-email-eajames@linux.vnet.ibm.com>
-References: <1527714464-8642-1-git-send-email-eajames@linux.vnet.ibm.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH v7 3/7] drivers/i2c: Add port structure to FSI algorithm
+Date: Thu, 31 May 2018 07:16:00 +1000
+Message-ID: <8aaa7fa9874bf140354964535ce5cf023012c3f4.camel@kernel.crashing.org>
+References: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com>
+         <1527632665-25707-4-git-send-email-eajames@linux.vnet.ibm.com>
+         <CAHp75Vd38BrJcULxoqj1mTKCEvMh9ZVYEvzCMAg2t9onZrSR6w@mail.gmail.com>
+         <ae3de08c-6849-bb3a-7c6c-96309876d48e@linux.vnet.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1527714464-8642-1-git-send-email-eajames@linux.vnet.ibm.com>
+In-Reply-To: <ae3de08c-6849-bb3a-7c6c-96309876d48e@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, rdunlap@infradead.org, andy.shevchenko@gmail.com, Eddie James <eajames@linux.vnet.ibm.com>
+To: Eddie James <eajames@linux.vnet.ibm.com>, Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Edward A. James" <eajames@us.ibm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Add and initialize I2C adapters for each port on the FSI-attached I2C
-master. Ports for each master are defined in the devicetree.
+On Wed, 2018-05-30 at 10:47 -0500, Eddie James wrote:
+> > > +       if (!list_empty(&i2c->ports)) {
+> > 
+> > My gosh, this is done already in list_for_each*()
+> 
+> No, list_for_each_entry does NOT check if the list is empty or if the 
+> first entry is NULL.
 
-Signed-off-by: Eddie James <eajames@linux.vnet.ibm.com>
----
- drivers/i2c/busses/i2c-fsi.c | 90 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 90 insertions(+)
+NULL is never valid for a list. It does however check for an empty list
 
-diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
-index e1b183c..be8e15c 100644
---- a/drivers/i2c/busses/i2c-fsi.c
-+++ b/drivers/i2c/busses/i2c-fsi.c
-@@ -17,7 +17,9 @@
- #include <linux/fsi.h>
- #include <linux/i2c.h>
- #include <linux/kernel.h>
-+#include <linux/list.h>
- #include <linux/module.h>
-+#include <linux/of.h>
- 
- #define FSI_ENGID_I2C		0x7
- 
-@@ -123,6 +125,14 @@
- struct fsi_i2c_master {
- 	struct fsi_device	*fsi;
- 	u8			fifo_size;
-+	struct list_head	ports;
-+};
-+
-+struct fsi_i2c_port {
-+	struct list_head	list;
-+	struct i2c_adapter	adapter;
-+	struct fsi_i2c_master	*master;
-+	u16			port;
- };
- 
- static int fsi_i2c_read_reg(struct fsi_device *fsi, unsigned int reg,
-@@ -176,9 +186,38 @@ static int fsi_i2c_dev_init(struct fsi_i2c_master *i2c)
- 	return fsi_i2c_write_reg(i2c->fsi, I2C_FSI_WATER_MARK, &watermark);
- }
- 
-+static int fsi_i2c_set_port(struct fsi_i2c_port *port)
-+{
-+	int rc;
-+	struct fsi_device *fsi = port->master->fsi;
-+	u32 mode, dummy = 0;
-+
-+	rc = fsi_i2c_read_reg(fsi, I2C_FSI_MODE, &mode);
-+	if (rc)
-+		return rc;
-+
-+	if (FIELD_GET(I2C_MODE_PORT, mode) == port->port)
-+		return 0;
-+
-+	mode = (mode & ~I2C_MODE_PORT) | FIELD_PREP(I2C_MODE_PORT, port->port);
-+	rc = fsi_i2c_write_reg(fsi, I2C_FSI_MODE, &mode);
-+	if (rc)
-+		return rc;
-+
-+	/* reset engine when port is changed */
-+	return fsi_i2c_write_reg(fsi, I2C_FSI_RESET_ERR, &dummy);
-+}
-+
- static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 			int num)
- {
-+	int rc;
-+	struct fsi_i2c_port *port = adap->algo_data;
-+
-+	rc = fsi_i2c_set_port(port);
-+	if (rc)
-+		return rc;
-+
- 	return -EOPNOTSUPP;
- }
- 
-@@ -196,23 +235,73 @@ static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
- static int fsi_i2c_probe(struct device *dev)
- {
- 	struct fsi_i2c_master *i2c;
-+	struct fsi_i2c_port *port;
-+	struct device_node *np;
- 	int rc;
-+	u32 port_no;
- 
- 	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
- 	if (!i2c)
- 		return -ENOMEM;
- 
- 	i2c->fsi = to_fsi_dev(dev);
-+	INIT_LIST_HEAD(&i2c->ports);
- 
- 	rc = fsi_i2c_dev_init(i2c);
- 	if (rc)
- 		return rc;
- 
-+	/* Add adapter for each i2c port of the master. */
-+	for_each_available_child_of_node(dev->of_node, np) {
-+		rc = of_property_read_u32(np, "reg", &port_no);
-+		if (rc || port_no > USHRT_MAX)
-+			continue;
-+
-+		port = devm_kzalloc(dev, sizeof(*port), GFP_KERNEL);
-+		if (!port)
-+			break;
-+
-+		port->master = i2c;
-+		port->port = port_no;
-+
-+		port->adapter.owner = THIS_MODULE;
-+		port->adapter.dev.of_node = np;
-+		port->adapter.dev.parent = dev;
-+		port->adapter.algo = &fsi_i2c_algorithm;
-+		port->adapter.algo_data = port;
-+
-+		snprintf(port->adapter.name, sizeof(port->adapter.name),
-+			 "i2c_bus-%u", port_no);
-+
-+		rc = i2c_add_adapter(&port->adapter);
-+		if (rc < 0) {
-+			dev_err(dev, "Failed to register adapter: %d\n", rc);
-+			devm_kfree(dev, port);
-+			continue;
-+		}
-+
-+		list_add(&port->list, &i2c->ports);
-+	}
-+
- 	dev_set_drvdata(dev, i2c);
- 
- 	return 0;
- }
- 
-+static int fsi_i2c_remove(struct device *dev)
-+{
-+	struct fsi_i2c_master *i2c = dev_get_drvdata(dev);
-+	struct fsi_i2c_port *port;
-+
-+	if (!list_empty(&i2c->ports)) {
-+		list_for_each_entry(port, &i2c->ports, list) {
-+			i2c_del_adapter(&port->adapter);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static const struct fsi_device_id fsi_i2c_ids[] = {
- 	{ FSI_ENGID_I2C, FSI_VERSION_ANY },
- 	{ 0 }
-@@ -224,6 +313,7 @@ static int fsi_i2c_probe(struct device *dev)
- 		.name = "i2c-fsi",
- 		.bus = &fsi_bus_type,
- 		.probe = fsi_i2c_probe,
-+		.remove = fsi_i2c_remove,
- 	},
- };
- 
--- 
-1.8.3.1
+It does it implicitely in the test part of the for () statement,
+checking if the next pointer points back to the head.
+
+Cheers,
+Ben.
