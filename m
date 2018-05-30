@@ -1,7 +1,7 @@
 From: Eddie James <eajames@linux.vnet.ibm.com>
 Subject: Re: [PATCH v7 3/7] drivers/i2c: Add port structure to FSI algorithm
-Date: Wed, 30 May 2018 10:47:15 -0500
-Message-ID: <ae3de08c-6849-bb3a-7c6c-96309876d48e@linux.vnet.ibm.com>
+Date: Wed, 30 May 2018 10:49:41 -0500
+Message-ID: <b0b5ef58-7c9c-791e-ba34-ea2cc903c64a@linux.vnet.ibm.com>
 References: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com>
  <1527632665-25707-4-git-send-email-eajames@linux.vnet.ibm.com>
  <CAHp75Vd38BrJcULxoqj1mTKCEvMh9ZVYEvzCMAg2t9onZrSR6w@mail.gmail.com>
@@ -46,9 +46,6 @@ On 05/29/2018 06:19 PM, Andy Shevchenko wrote:
 >    return 0;
 >
 > ?
-
-Sure.
-
 >
 >> +               /* reset engine when port is changed */
 >> +               rc = fsi_i2c_write_reg(fsi, I2C_FSI_RESET_ERR, &dummy);
@@ -58,8 +55,11 @@ Sure.
 >> +       return rc;
 > It's hardly would be non-zero, right?
 
-No, fsi_i2c_read_reg and fsi_i2c_write_reg both return 0 on success and 
-non-zero on error. That is the desired behavior of this function also.
+Sorry, misunderstood your comment here. You are correct, it can only be 
+zero.
+
+Thanks,
+Eddie
 
 >
 >> +}
@@ -67,11 +67,6 @@ non-zero on error. That is the desired behavior of this function also.
 >>   {
 > Isn't below somehow repeats of_i2c_register_devices() ?
 > Why not to use it?
-
-Because I need to assign all these port structure fields. Also looks 
-like of_i2c_register_devices creates new devices; I just want an adapter 
-for each port.
-
 >
 >> +       /* Add adapter for each i2c port of the master. */
 >> +       for_each_available_child_of_node(dev->of_node, np) {
@@ -100,9 +95,6 @@ for each port.
 >> +                       dev_err(dev, "Failed to register adapter: %d\n", rc);
 >> +                       devm_kfree(dev, port);
 > This hurts my eyes. Why?!
-
-What would you suggest instead?
-
 >
 >> +                       continue;
 >> +               }
@@ -116,13 +108,6 @@ What would you suggest instead?
 >>   }
 >> +       if (!list_empty(&i2c->ports)) {
 > My gosh, this is done already in list_for_each*()
-
-No, list_for_each_entry does NOT check if the list is empty or if the 
-first entry is NULL.
-
-Thanks,
-Eddie
-
 >
 >> +               list_for_each_entry(port, &i2c->ports, list) {
 >> +                       i2c_del_adapter(&port->adapter);
