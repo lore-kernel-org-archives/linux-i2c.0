@@ -1,60 +1,32 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v7 4/7] drivers/i2c: Add abort and hardware reset procedures
-Date: Wed, 30 May 2018 03:20:04 +0300
-Message-ID: <CAHp75VfZHCDzsmF3=Nauy2ftPNs+5yOqBY9oBkrmLrus1BnK8A@mail.gmail.com>
-References: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com> <1527632665-25707-5-git-send-email-eajames@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1527632665-25707-5-git-send-email-eajames@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eddie James <eajames@linux.vnet.ibm.com>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Edward A. James" <eajames@us.ibm.com>
+From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Subject: [PATCH 0/3] Fix double address byte issue
+Date: Wed, 30 May 2018 11:07:10 +0100
+Message-ID: <1527674833-13122-1-git-send-email-fabrizio.castro@bp.renesas.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Chris Paterson <Chris.Paterson2@renesas.com>, Biju Das <biju.das@bp.renesas.com>, stable@vger.kernel.org, Ben Hutchings <ben.hutchings@codethink.co.uk>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 30, 2018 at 1:24 AM, Eddie James <eajames@linux.vnet.ibm.com> wrote:
-> From: "Edward A. James" <eajames@us.ibm.com>
->
-> Add abort procedure for failed transfers. Add engine and bus reset
-> procedures to recover from as many faults as possible.
+Hello Greg,
 
-> +#define I2C_PORT_BUSY_RESET    0x80000000
+Wolfram recommends the backporting of this series in order to
+improve the situation with a race condition.
+Do you think you can take this series for 4.4 stable?
 
-BIT() ?
+This series applies on 4.4.133, and depends on series:
+"Fix R-Car I2C data byte sent twice issue"
 
-> +       for (i = 0; i < 9; ++i) {
+Thanks,
+Fab
 
-i++ would work as well.
+Wolfram Sang (3):
+  i2c: rcar: don't issue stop when HW does it automatically
+  i2c: rcar: check master irqs before slave irqs
+  i2c: rcar: revoke START request early
 
-> +               rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_SCL, &dummy);
-> +               if (rc)
-> +                       return rc;
-> +
-> +               rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_SET_SCL, &dummy);
-> +               if (rc)
-> +                       return rc;
-> +       }
-
-> +       /* reset errors */
-> +       dummy = 0;
-> +       rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_ERR, &dummy);
-> +       if (rc)
-> +               return rc;
-
-Ah, okay, discard my previous comments on dummy assignments. It seems
-input and output.
-
-> +       msleep(1);
-
-msleep(1) usually a bad idea.
-usleep_range() I guess what you need here.
-
-> +}
-
-> +       return -ETIME;
-
-ETIMEDOUT ?
+ drivers/i2c/busses/i2c-rcar.c | 36 ++++++++++++------------------------
+ 1 file changed, 12 insertions(+), 24 deletions(-)
 
 -- 
-With Best Regards,
-Andy Shevchenko
+2.7.4
