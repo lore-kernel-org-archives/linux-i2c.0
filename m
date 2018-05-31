@@ -1,123 +1,79 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH v8 0/7] i2c: Add FSI-attached I2C master algorithm
-Date: Thu, 31 May 2018 08:42:04 +1000
-Message-ID: <58c1059a91b93a490a7fc8bda2112e67e6513840.camel@kernel.crashing.org>
-References: <1527714464-8642-1-git-send-email-eajames@linux.vnet.ibm.com>
-         <CAHp75VerhOMCTPGz5b8wUNL611AdT1iutRm-wrHfzzT+_GbvWA@mail.gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v7 3/7] drivers/i2c: Add port structure to FSI algorithm
+Date: Thu, 31 May 2018 09:21:25 +0300
+Message-ID: <CAHp75VdnE19hzJPT-jRO99O1t2aV-qjgHfO8=c0QYZ4iDD5Svg@mail.gmail.com>
+References: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com>
+ <1527632665-25707-4-git-send-email-eajames@linux.vnet.ibm.com>
+ <CAHp75Vd38BrJcULxoqj1mTKCEvMh9ZVYEvzCMAg2t9onZrSR6w@mail.gmail.com>
+ <ae3de08c-6849-bb3a-7c6c-96309876d48e@linux.vnet.ibm.com> <CAHp75Vd8M4-mK=Fs_SbSX67NKeNty7vrq0-Y8-GyFdy9u6Q3jA@mail.gmail.com>
+ <48444d16bd410188bd43ca5eea97f03f70c80f42.camel@kernel.crashing.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75VerhOMCTPGz5b8wUNL611AdT1iutRm-wrHfzzT+_GbvWA@mail.gmail.com>
+In-Reply-To: <48444d16bd410188bd43ca5eea97f03f70c80f42.camel@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>, Eddie James <eajames@linux.vnet.ibm.com>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Eddie James <eajames@linux.vnet.ibm.com>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Edward A. James" <eajames@us.ibm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 2018-05-31 at 00:31 +0300, Andy Shevchenko wrote:
-> On Thu, May 31, 2018 at 12:07 AM, Eddie James
-> <eajames@linux.vnet.ibm.com> wrote:
-> > This series adds an algorithm for an I2C master physically located on an FSI
-> > slave device. The I2C master has multiple ports, each of which may be connected
-> > to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
-> > 
-> > Due to the multi-port nature of the I2C master, the driver instantiates a new
-> > I2C adapter for each port connected to a slave. The connected ports should be
-> > defined in the device tree under the I2C master device.
-> 
-> I'll comment the series later, though you have to address previous
-> comments first:
-> - understand devm_ purpose and how it works
+On Thu, May 31, 2018 at 1:34 AM, Benjamin Herrenschmidt
+<benh@kernel.crashing.org> wrote:
+> On Thu, 2018-05-31 at 00:27 +0300, Andy Shevchenko wrote:
+>> On Wed, May 30, 2018 at 6:47 PM, Eddie James <eajames@linux.vnet.ibm.com> wrote:
+>> > On 05/29/2018 06:19 PM, Andy Shevchenko wrote:
+>> > > On Wed, May 30, 2018 at 1:24 AM, Eddie James <eajames@linux.vnet.ibm.com>
+>> > > wrote:
 
-I think it is perfectly understood and I don't see what your problem
-here is. So please be a proper civil human being an express your
-concern precisely rather than with aggressive comments.
+>> > > Isn't below somehow repeats of_i2c_register_devices() ?
+>> > > Why not to use it?
 
-Now to clarify that specific point, devm purpose is to automatically
-clean up the resources used by the device when it is torn down.
+>> > Because I need to assign all these port structure fields. Also looks like
+>> > of_i2c_register_devices creates new devices; I just want an adapter for each
+>> > port.
+>>
+>> Hmm... Wolfram, what is your opinion on this design?
+>
+> Andy, I don't understand your issue.
+>
+> of_i2c_register_devices() is about discovering the i2c devices below a
+> given bus. This is not what is happening here.
+>
+> This is a driver for a master that supports multiple busses, so it the
+> above loop creates all the busses.
 
-However, in this specific case, it makes sense to dispose of the port
-structure explicitly because this is a failure in registering an
-individual port which doesn't lead to a failure of the entire driver.
+My issue here, that it feels like a lot of duplication with existing approaches.
+Though, it might be a right thing to do at the end. So, let's just
+assume maintainer will give their point of view.
 
-Thus not freeing it means the structure would remain allocated
-uselessly until the whole driver is torn down.
+>> > > > +                       devm_kfree(dev, port);
+>> > >
+>> > > This hurts my eyes. Why?!
+>> > What would you suggest instead?
+>>
+>> You even didn't wait for answer, why to ask then?
+>
+> Please stop being so rude.
 
-> - understand list_for_each*() macros
+OK.
 
-This is a genuine misunderstanding of Eddies, I'm sure he will address
-it, your tone however isn't appropriate.
+>> Moreover, you didn't answer to my question. Why are you doing that
+>> call implicitly?
+>
+> "implicitly" ? What's implicit here ? This is just pretty standard
+> cleanup after failure, you are being very cryptic here.
+>
+> Please state precisely what it is you dislike with that code instead of
+> expecting us to guess and being nasty about it. Eddie was a genuine
+> question, he doesn't see what you think is "hurtful to the eyes" in the
+> code you quoted.
 
-> - discuss with maintainer a design of enumerating ports
+In 99% cases when someone calls devm_kfree() it means wrong choice of
+devm_k*alloc() in the first place.
+So, with explanation given why it's done in this way I would rather
+suggest to switch to plain k*alloc() / kfree().
 
-I've been at that game for at least a good 2 decades. Maintainers
-generally do *not* discuss design until a patch is proposed. I even
-still try every now and then, maintainers are like lawyers, they don't
-want to tell you what to do in case they still want to reject it after
-seeing it later :-) I know I've been one of them for long enough.
+Or do we really care about few hundreds of bytes wasted?
 
-If you have specific issues with how this is done, please express them
-clearly. It's quite possible that there's some better way to do what
-Eddie is doing here, but without *construtive* feedback this is
-pointless. 
-
-> - ... (whatever I forgot and others added) ...
-
-I believe he addressed most of your comments. There is one mistake left
-(the list_for_each) which will be easily fixed. As for the rest, it's
-just ramblings unless you or Wolfram can propose a better alternative
-in which case I'm sure Eddie will be happy to implement it.
-
-I'm disappointed here because we have an example of somebody rather new
-producing what is overall pretty damn good code, despite a few corner
-issues, and being (again) treated like crap.
-
-This isn't the right way to operate, and I believe this has been made
-clear many times before.
-
-Cheers,
-Ben.
-
-> > Changes since v7
-> >  - Fix grammer in Kconfig (a -> an)
-> >  - Change I2C registers to use BIT and GENMASK
-> >  - Remove custom macros and use FIELD_PREP and FIELD_GET
-> >  - Fix a few unecessary initializations and "return rc" that are always zero
-> >  - Clean up the read/write fifo functions a bit
-> >  - Few other clean-up items
-> > 
-> > Changes since v6
-> >  - Remove spinlock for reset functionality; it's unecessary and doesn't work
-> >    with the latest FSI core.
-> >  - Use a mutex instead of a semaphore, and don't wait for timeout to get the
-> >    lock.
-> >  - Use usleeps instead of schedule_timeout; it's not worth the overhead when
-> >    the wait should be very short in between sending the command and receiving
-> >    the response.
-> > 
-> > Changes since v5
-> >  - Fix reset functionality and do a reset after every transfer failure
-> > 
-> > Eddie James (7):
-> >   dt-bindings: i2c: Add FSI-attached I2C master dt binding documentation
-> >   i2c: Add FSI-attached I2C master algorithm
-> >   i2c: fsi: Add port structures
-> >   i2c: fsi: Add abort and hardware reset procedures
-> >   i2c: fsi: Add transfer implementation
-> >   i2c: fsi: Add I2C master locking
-> >   i2c: fsi: Add bus recovery
-> > 
-> >  Documentation/devicetree/bindings/i2c/i2c-fsi.txt |  40 ++
-> >  drivers/i2c/busses/Kconfig                        |  11 +
-> >  drivers/i2c/busses/Makefile                       |   1 +
-> >  drivers/i2c/busses/i2c-fsi.c                      | 722 ++++++++++++++++++++++
-> >  4 files changed, 774 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
-> >  create mode 100644 drivers/i2c/busses/i2c-fsi.c
-> > 
-> > --
-> > 1.8.3.1
-> > 
-> 
-> 
-> 
+-- 
+With Best Regards,
+Andy Shevchenko
