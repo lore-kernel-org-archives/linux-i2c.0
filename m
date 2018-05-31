@@ -1,60 +1,57 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: qup: fix building without CONFIG_ACPI
-Date: Thu, 31 May 2018 23:23:07 +0200
-Message-ID: <20180531212306.zyb2m5hrgkgbuyws@ninjato>
-References: <20180530213201.550467-1-arnd@arndb.de>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH v8 0/7] i2c: Add FSI-attached I2C master algorithm
+Date: Fri, 01 Jun 2018 09:33:49 +1000
+Message-ID: <5683dded80ecabef532d2e285e5fc98e29f59510.camel@kernel.crashing.org>
+References: <1527714464-8642-1-git-send-email-eajames@linux.vnet.ibm.com>
+         <CAHp75VerhOMCTPGz5b8wUNL611AdT1iutRm-wrHfzzT+_GbvWA@mail.gmail.com>
+         <58c1059a91b93a490a7fc8bda2112e67e6513840.camel@kernel.crashing.org>
+         <CAHp75Vec+KZCkjcs3qpB=qLmaTon=yTLyu7S_tDrMGcobHW5eQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="dkp34kldra22lzdz"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180530213201.550467-1-arnd@arndb.de>
+In-Reply-To: <CAHp75Vec+KZCkjcs3qpB=qLmaTon=yTLyu7S_tDrMGcobHW5eQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Abhishek Sahu <absahu@codeaurora.org>, Austin Christ <austinwc@codeaurora.org>, Sricharan R <sricharan@codeaurora.org>, Bhumika Goyal <bhumirks@gmail.com>, Peter Rosin <peda@axentia.se>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Eddie James <eajames@linux.vnet.ibm.com>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, 2018-05-31 at 09:29 +0300, Andy Shevchenko wrote:
+> > If you have specific issues with how this is done, please express them
+> > clearly. It's quite possible that there's some better way to do what
+> > Eddie is doing here, but without *construtive* feedback this is
+> > pointless.
+> 
+> It feels like you duplicate approach which is done in OF generic case.
+> That is my concern. Though, if Wolfram is telling that is OK, I have
+> no objections.
 
---dkp34kldra22lzdz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+THe OF generic case is about discovering slaves underneath a port, not
+ports inside of a mulit-port master.
 
-On Wed, May 30, 2018 at 11:31:49PM +0200, Arnd Bergmann wrote:
-> The added Centriq support broke compilation with CONFIG_ACPI disabled:
->=20
-> drivers/i2c/busses/i2c-qup.c: In function 'qup_i2c_probe':
-> drivers/i2c/busses/i2c-qup.c:1707:25: error: 'qup_i2c_acpi_match' undecla=
-red (first use in this function); did you mean 'qup_i2c_recv_data'?
->=20
-> This fixes it by removing the extraneous #ifdef. All ACPI specific
-> code will be dropped implicitly when that option is disabled, but
-> the compiler first needs to see it.
->=20
-> Fixes: 902a91a02bdf ("i2c: qup: add probe path for Centriq ACPI devices")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+I am not aware of a generic mechanism for the latter. We *could* make
+the ports sub-devices but it gets messy then to arbitrate the
+communication and deal with the common part. I've seen (and written)
+multi-port masters in the past that use a similar approach to what
+Eddie's doing and it works fine.
 
-Applied to for-next, thanks!
+> > I'm disappointed here because we have an example of somebody rather new
+> > producing what is overall pretty damn good code,
+> 
+> That is true. His code much better than many I have seen before
+
+Thanks. Also thanks for taking the time to review.
+
+> > despite a few corner
+> > issues, and being (again) treated like crap.
+> 
+> Sorry for that, life is harsh.
+> 
+> > This isn't the right way to operate, and I believe this has been made
+> > clear many times before.
+> 
+> Yes.
 
 
---dkp34kldra22lzdz
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsQZ7YACgkQFA3kzBSg
-KbaCLQ/+MRDaCXRbS13cQFIV8ZVlgba5BDD6yTDPXDgVKJemW/LfXWzZiSLhnE/k
-YDM4rI7zHURovl0SW5amgRsRqMAGI5llA5pmW82sB8dDpqk6WMlXdg91HL/4ickZ
-Zc9ZmA+b/QSEEgHD7jm2jCe1AqN0HyUe+y+TrClBJAu/QvGaHL2VCxV0+kkbVwP6
-zHj7Yt4Q8Cbkj74CZ/KOOgQNEgW2CZt8qcdb01n4zJE0pN7rWoulzDpzT0w5ogI9
-nKFt4biK7XIi6R/WjXPJy9gksahAlqGRmCCOaOjwbkYJXMUZ+NZqXiA3pnrV3Sql
-KfeWaTUdbAngH9UdQRKz7BzRtoELZ+YAEqJa1TIC6QagknABaYciNQ3CBwz/oZvf
-U9NTGHW41FLYEv85WE759qb+u459QHvr3QeR7FdNCchkJfmp/cUO4tdTR1uJ8IH9
-v1zi9yMuJOdcH3pC2j6UuwT86Pq4IJdnoFpd4/0a9u0tQzgwXNLtMASbdS0cXKXx
-oPNrIb1eGB6XlY0p58S4qc3j1CfLhoyZVlSkjLvDouuGJox7MpaEqqOCAONA5ZgA
-7uKaOVhUFxrwGdS5mr2vXbcqAaRxddPC/Z8qDrd1X38TcGPbedm/tT0vMMd+nstC
-bhgko3Q200xcjjE3rHLtbFNS/UEodI7+hfjrGn6KYtoZltgfpDw=
-=bVws
------END PGP SIGNATURE-----
-
---dkp34kldra22lzdz--
+Cheers,
+Ben.
