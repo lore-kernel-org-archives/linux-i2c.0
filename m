@@ -1,63 +1,60 @@
-From: "Christ, Austin" <austinwc@codeaurora.org>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH] i2c: qup: fix building without CONFIG_ACPI
-Date: Thu, 31 May 2018 11:05:29 -0600
-Message-ID: <ea7aa139-8043-0ffb-e534-abf137f82ef0@codeaurora.org>
+Date: Thu, 31 May 2018 23:23:07 +0200
+Message-ID: <20180531212306.zyb2m5hrgkgbuyws@ninjato>
 References: <20180530213201.550467-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="dkp34kldra22lzdz"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <20180530213201.550467-1-arnd@arndb.de>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Abhishek Sahu <absahu@codeaurora.org>, Sricharan R <sricharan@codeaurora.org>, Bhumika Goyal <bhumirks@gmail.com>, Peter Rosin <peda@axentia.se>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Abhishek Sahu <absahu@codeaurora.org>, Austin Christ <austinwc@codeaurora.org>, Sricharan R <sricharan@codeaurora.org>, Bhumika Goyal <bhumirks@gmail.com>, Peter Rosin <peda@axentia.se>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
+--dkp34kldra22lzdz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 5/30/2018 3:31 PM, Arnd Bergmann wrote:
+On Wed, May 30, 2018 at 11:31:49PM +0200, Arnd Bergmann wrote:
 > The added Centriq support broke compilation with CONFIG_ACPI disabled:
-> 
+>=20
 > drivers/i2c/busses/i2c-qup.c: In function 'qup_i2c_probe':
-> drivers/i2c/busses/i2c-qup.c:1707:25: error: 'qup_i2c_acpi_match' undeclared (first use in this function); did you mean 'qup_i2c_recv_data'?
-> 
+> drivers/i2c/busses/i2c-qup.c:1707:25: error: 'qup_i2c_acpi_match' undecla=
+red (first use in this function); did you mean 'qup_i2c_recv_data'?
+>=20
 > This fixes it by removing the extraneous #ifdef. All ACPI specific
 > code will be dropped implicitly when that option is disabled, but
 > the compiler first needs to see it.
-> 
+>=20
 > Fixes: 902a91a02bdf ("i2c: qup: add probe path for Centriq ACPI devices")
 > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->   drivers/i2c/busses/i2c-qup.c | 2 --
->   1 file changed, 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-> index 4f793b5d0c3b..9cfcc0473227 100644
-> --- a/drivers/i2c/busses/i2c-qup.c
-> +++ b/drivers/i2c/busses/i2c-qup.c
-> @@ -1657,13 +1657,11 @@ static void qup_i2c_disable_clocks(struct qup_i2c_dev *qup)
->   	clk_disable_unprepare(qup->pclk);
->   }
->   
-> -#if IS_ENABLED(CONFIG_ACPI)
->   static const struct acpi_device_id qup_i2c_acpi_match[] = {
->   	{ "QCOM8010"},
->   	{ },
->   };
->   MODULE_DEVICE_TABLE(acpi, qup_i2c_acpi_match);
-> -#endif
->   
->   static int qup_i2c_probe(struct platform_device *pdev)
->   {
-> 
 
-Yeah this is correct.
+Applied to for-next, thanks!
 
-Reviewed-by: Austin Christ <austinwc@codeaurora.org>
 
--- 
-Qualcomm Datacenter Technologies as an affiliate of Qualcomm 
-Technologies, Inc.
-Qualcomm Technologies, Inc. is a member of the
-Code Aurora Forum, a Linux Foundation Collaborative Project.
+--dkp34kldra22lzdz
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsQZ7YACgkQFA3kzBSg
+KbaCLQ/+MRDaCXRbS13cQFIV8ZVlgba5BDD6yTDPXDgVKJemW/LfXWzZiSLhnE/k
+YDM4rI7zHURovl0SW5amgRsRqMAGI5llA5pmW82sB8dDpqk6WMlXdg91HL/4ickZ
+Zc9ZmA+b/QSEEgHD7jm2jCe1AqN0HyUe+y+TrClBJAu/QvGaHL2VCxV0+kkbVwP6
+zHj7Yt4Q8Cbkj74CZ/KOOgQNEgW2CZt8qcdb01n4zJE0pN7rWoulzDpzT0w5ogI9
+nKFt4biK7XIi6R/WjXPJy9gksahAlqGRmCCOaOjwbkYJXMUZ+NZqXiA3pnrV3Sql
+KfeWaTUdbAngH9UdQRKz7BzRtoELZ+YAEqJa1TIC6QagknABaYciNQ3CBwz/oZvf
+U9NTGHW41FLYEv85WE759qb+u459QHvr3QeR7FdNCchkJfmp/cUO4tdTR1uJ8IH9
+v1zi9yMuJOdcH3pC2j6UuwT86Pq4IJdnoFpd4/0a9u0tQzgwXNLtMASbdS0cXKXx
+oPNrIb1eGB6XlY0p58S4qc3j1CfLhoyZVlSkjLvDouuGJox7MpaEqqOCAONA5ZgA
+7uKaOVhUFxrwGdS5mr2vXbcqAaRxddPC/Z8qDrd1X38TcGPbedm/tT0vMMd+nstC
+bhgko3Q200xcjjE3rHLtbFNS/UEodI7+hfjrGn6KYtoZltgfpDw=
+=bVws
+-----END PGP SIGNATURE-----
+
+--dkp34kldra22lzdz--
