@@ -1,78 +1,79 @@
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v7 3/7] drivers/i2c: Add port structure to FSI algorithm
-Date: Thu, 31 May 2018 09:21:25 +0300
-Message-ID: <CAHp75VdnE19hzJPT-jRO99O1t2aV-qjgHfO8=c0QYZ4iDD5Svg@mail.gmail.com>
-References: <1527632665-25707-1-git-send-email-eajames@linux.vnet.ibm.com>
- <1527632665-25707-4-git-send-email-eajames@linux.vnet.ibm.com>
- <CAHp75Vd38BrJcULxoqj1mTKCEvMh9ZVYEvzCMAg2t9onZrSR6w@mail.gmail.com>
- <ae3de08c-6849-bb3a-7c6c-96309876d48e@linux.vnet.ibm.com> <CAHp75Vd8M4-mK=Fs_SbSX67NKeNty7vrq0-Y8-GyFdy9u6Q3jA@mail.gmail.com>
- <48444d16bd410188bd43ca5eea97f03f70c80f42.camel@kernel.crashing.org>
+Subject: Re: [PATCH v8 0/7] i2c: Add FSI-attached I2C master algorithm
+Date: Thu, 31 May 2018 09:29:18 +0300
+Message-ID: <CAHp75Vec+KZCkjcs3qpB=qLmaTon=yTLyu7S_tDrMGcobHW5eQ@mail.gmail.com>
+References: <1527714464-8642-1-git-send-email-eajames@linux.vnet.ibm.com>
+ <CAHp75VerhOMCTPGz5b8wUNL611AdT1iutRm-wrHfzzT+_GbvWA@mail.gmail.com> <58c1059a91b93a490a7fc8bda2112e67e6513840.camel@kernel.crashing.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <48444d16bd410188bd43ca5eea97f03f70c80f42.camel@kernel.crashing.org>
+In-Reply-To: <58c1059a91b93a490a7fc8bda2112e67e6513840.camel@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Eddie James <eajames@linux.vnet.ibm.com>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Edward A. James" <eajames@us.ibm.com>
+Cc: Eddie James <eajames@linux.vnet.ibm.com>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, May 31, 2018 at 1:34 AM, Benjamin Herrenschmidt
+On Thu, May 31, 2018 at 1:42 AM, Benjamin Herrenschmidt
 <benh@kernel.crashing.org> wrote:
-> On Thu, 2018-05-31 at 00:27 +0300, Andy Shevchenko wrote:
->> On Wed, May 30, 2018 at 6:47 PM, Eddie James <eajames@linux.vnet.ibm.com> wrote:
->> > On 05/29/2018 06:19 PM, Andy Shevchenko wrote:
->> > > On Wed, May 30, 2018 at 1:24 AM, Eddie James <eajames@linux.vnet.ibm.com>
->> > > wrote:
+> On Thu, 2018-05-31 at 00:31 +0300, Andy Shevchenko wrote:
+>> On Thu, May 31, 2018 at 12:07 AM, Eddie James
+>> <eajames@linux.vnet.ibm.com> wrote:
 
->> > > Isn't below somehow repeats of_i2c_register_devices() ?
->> > > Why not to use it?
-
->> > Because I need to assign all these port structure fields. Also looks like
->> > of_i2c_register_devices creates new devices; I just want an adapter for each
->> > port.
->>
->> Hmm... Wolfram, what is your opinion on this design?
+>> I'll comment the series later, though you have to address previous
+>> comments first:
+>> - understand devm_ purpose and how it works
 >
-> Andy, I don't understand your issue.
+> I think it is perfectly understood and I don't see what your problem
+> here is. So please be a proper civil human being an express your
+> concern precisely rather than with aggressive comments.
+
+I apologize for this kind of tone, let's assume it was a bad day.
+
+> Now to clarify that specific point, devm purpose is to automatically
+> clean up the resources used by the device when it is torn down.
 >
-> of_i2c_register_devices() is about discovering the i2c devices below a
-> given bus. This is not what is happening here.
+> However, in this specific case, it makes sense to dispose of the port
+> structure explicitly because this is a failure in registering an
+> individual port which doesn't lead to a failure of the entire driver.
 >
-> This is a driver for a master that supports multiple busses, so it the
-> above loop creates all the busses.
+> Thus not freeing it means the structure would remain allocated
+> uselessly until the whole driver is torn down.
 
-My issue here, that it feels like a lot of duplication with existing approaches.
-Though, it might be a right thing to do at the end. So, let's just
-assume maintainer will give their point of view.
+Yep, so, why do we care? If it holds few hundreds of bytes, can't we
+live with it?
+If no, the devm_k*alloc() is a wrong choice in the first place.
 
->> > > > +                       devm_kfree(dev, port);
->> > >
->> > > This hurts my eyes. Why?!
->> > What would you suggest instead?
->>
->> You even didn't wait for answer, why to ask then?
+>> - discuss with maintainer a design of enumerating ports
 >
-> Please stop being so rude.
-
-OK.
-
->> Moreover, you didn't answer to my question. Why are you doing that
->> call implicitly?
+> I've been at that game for at least a good 2 decades. Maintainers
+> generally do *not* discuss design until a patch is proposed. I even
+> still try every now and then, maintainers are like lawyers, they don't
+> want to tell you what to do in case they still want to reject it after
+> seeing it later :-) I know I've been one of them for long enough.
 >
-> "implicitly" ? What's implicit here ? This is just pretty standard
-> cleanup after failure, you are being very cryptic here.
->
-> Please state precisely what it is you dislike with that code instead of
-> expecting us to guess and being nasty about it. Eddie was a genuine
-> question, he doesn't see what you think is "hurtful to the eyes" in the
-> code you quoted.
+> If you have specific issues with how this is done, please express them
+> clearly. It's quite possible that there's some better way to do what
+> Eddie is doing here, but without *construtive* feedback this is
+> pointless.
 
-In 99% cases when someone calls devm_kfree() it means wrong choice of
-devm_k*alloc() in the first place.
-So, with explanation given why it's done in this way I would rather
-suggest to switch to plain k*alloc() / kfree().
+It feels like you duplicate approach which is done in OF generic case.
+That is my concern. Though, if Wolfram is telling that is OK, I have
+no objections.
 
-Or do we really care about few hundreds of bytes wasted?
+> I'm disappointed here because we have an example of somebody rather new
+> producing what is overall pretty damn good code,
+
+That is true. His code much better than many I have seen before.
+
+> despite a few corner
+> issues, and being (again) treated like crap.
+
+Sorry for that, life is harsh.
+
+> This isn't the right way to operate, and I believe this has been made
+> clear many times before.
+
+Yes.
 
 -- 
 With Best Regards,
