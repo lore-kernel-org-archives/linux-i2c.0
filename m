@@ -1,57 +1,76 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH v8 0/7] i2c: Add FSI-attached I2C master algorithm
-Date: Fri, 01 Jun 2018 09:33:49 +1000
-Message-ID: <5683dded80ecabef532d2e285e5fc98e29f59510.camel@kernel.crashing.org>
-References: <1527714464-8642-1-git-send-email-eajames@linux.vnet.ibm.com>
-         <CAHp75VerhOMCTPGz5b8wUNL611AdT1iutRm-wrHfzzT+_GbvWA@mail.gmail.com>
-         <58c1059a91b93a490a7fc8bda2112e67e6513840.camel@kernel.crashing.org>
-         <CAHp75Vec+KZCkjcs3qpB=qLmaTon=yTLyu7S_tDrMGcobHW5eQ@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.17
+Date: Fri, 1 Jun 2018 13:06:32 +0200
+Message-ID: <20180601110628.n3sofix7uyqm6grj@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="lo6spks4ncf7lp5u"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75Vec+KZCkjcs3qpB=qLmaTon=yTLyu7S_tDrMGcobHW5eQ@mail.gmail.com>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Eddie James <eajames@linux.vnet.ibm.com>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 2018-05-31 at 09:29 +0300, Andy Shevchenko wrote:
-> > If you have specific issues with how this is done, please express them
-> > clearly. It's quite possible that there's some better way to do what
-> > Eddie is doing here, but without *construtive* feedback this is
-> > pointless.
-> 
-> It feels like you duplicate approach which is done in OF generic case.
-> That is my concern. Though, if Wolfram is telling that is OK, I have
-> no objections.
 
-THe OF generic case is about discovering slaves underneath a port, not
-ports inside of a mulit-port master.
+--lo6spks4ncf7lp5u
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I am not aware of a generic mechanism for the latter. We *could* make
-the ports sub-devices but it gets messy then to arbitrate the
-communication and deal with the common part. I've seen (and written)
-multi-port masters in the past that use a similar approach to what
-Eddie's doing and it works fine.
+Linus,
 
-> > I'm disappointed here because we have an example of somebody rather new
-> > producing what is overall pretty damn good code,
-> 
-> That is true. His code much better than many I have seen before
+I2C has a documentation bugfix and a MAINTAINERS addition for you. It
+would be great to have that in 4.17 proper already.
 
-Thanks. Also thanks for taking the time to review.
+Please pull.
 
-> > despite a few corner
-> > issues, and being (again) treated like crap.
-> 
-> Sorry for that, life is harsh.
-> 
-> > This isn't the right way to operate, and I believe this has been made
-> > clear many times before.
-> 
-> Yes.
+Thanks,
+
+   Wolfram
 
 
-Cheers,
-Ben.
+The following changes since commit 771c577c23bac90597c685971d7297ea00f99d11:
+
+  Linux 4.17-rc6 (2018-05-20 15:31:38 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to a0ccb6b54bdde16885ac99f49ee8031cf1c71abe:
+
+  i2c: ocores: update HDL sources URL (2018-05-29 20:14:32 +0200)
+
+----------------------------------------------------------------
+Federico Vaga (1):
+      i2c: ocores: update HDL sources URL
+
+George Cherian (1):
+      i2c: xlp9xx: Add MAINTAINERS entry
+
+ Documentation/i2c/busses/i2c-ocores | 2 +-
+ MAINTAINERS                         | 8 ++++++++
+ drivers/i2c/busses/i2c-ocores.c     | 2 +-
+ 3 files changed, 10 insertions(+), 2 deletions(-)
+
+--lo6spks4ncf7lp5u
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsRKLAACgkQFA3kzBSg
+KbY/PQ//Y87k/cw7bgFgIQJrcELiSuUnzLrSPtftOPePkGmn5llp8bzVqQqqJmrk
+rIxqAsFK9VXlDQwUPNcSTTGzsUeOwim2/IVv68+mEQm03+XM03RgZ1wpNdIXDrzK
+kxUTUqmanufCJJcrWomkdnrlwOzHfZIuJ7XiZBYz1rBJ0nqnf+bosQlyPDnBrPZb
+o8sNLA6Zj8K9iBFt1AOMn81MbHbMEGW5adjhNgHp6gmToH5Dgwn0lR2YVl/jqVGq
+YlPQqPAR9O3q6FAzf+mCMqOZbVOhrZiw/CP8qm6unl1QTlbNWLcBv+FL295CZrg6
+QCE8HLuE7snM9VZDdg1NG8yKJtCz9xW0lXVu9XQjMgyz4/XcVpKamMGG+w9S2ydK
+mi8KOMrBANd3k+GQ8TpIDUtaA5hTzVBvWVChSF+cG1ssfSo95NZj2In6NaVq4s0X
+xfpidmaoQ20puUrS4f6JdPKwu4HYTMbWJ3lrmgOBj/4asmmVQ2fWV+s0yH35qhzT
+qJGoyD6QE7seqBmDZM7k27o40mdIc8VmMJXwE5dnrxEvO30HYw3PiUlxbCsrqE47
+CqnWcuH3fhJawPwuBvPrni/DKKKh0R+q89OgcjmCfknbyo2Yv7ivBeE17R04qySa
+9S94mW1xRZ4fuAIL87AFQsHt5/+YpHRnT83YWeyEDk/7JSxOc8w=
+=HPz+
+-----END PGP SIGNATURE-----
+
+--lo6spks4ncf7lp5u--
