@@ -1,28 +1,66 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 0/3] Fix double address byte issue
-Date: Sat, 2 Jun 2018 15:17:26 +0200
-Message-ID: <20180602131726.GE31493@kroah.com>
-References: <1527674833-13122-1-git-send-email-fabrizio.castro@bp.renesas.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [v2,3/3] i2c: at91: added slave mode support
+Date: Sat, 2 Jun 2018 23:35:13 +0200
+Message-ID: <20180602213513.qv45gaq2kogagju3@katana>
+References: <c9b749fca8e684aa47ead9a5d9e68751326f63cb.1510247114.git.me@jue.yt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="63zfksmmzk62fyot"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1527674833-13122-1-git-send-email-fabrizio.castro@bp.renesas.com>
-Sender: stable-owner@vger.kernel.org
-To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Chris Paterson <Chris.Paterson2@renesas.com>, Biju Das <biju.das@bp.renesas.com>, stable@vger.kernel.org, Ben Hutchings <ben.hutchings@codethink.co.uk>
+In-Reply-To: <c9b749fca8e684aa47ead9a5d9e68751326f63cb.1510247114.git.me@jue.yt>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Juergen Fitschen <me@jue.yt>
+Cc: Ludovic Desroches <ludovic.desroches@microchip.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 30, 2018 at 11:07:10AM +0100, Fabrizio Castro wrote:
-> Hello Greg,
-> 
-> Wolfram recommends the backporting of this series in order to
-> improve the situation with a race condition.
-> Do you think you can take this series for 4.4 stable?
-> 
-> This series applies on 4.4.133, and depends on series:
-> "Fix R-Car I2C data byte sent twice issue"
 
-All now queued up, thanks.
+--63zfksmmzk62fyot
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-greg k-h
+On Thu, Nov 09, 2017 at 06:22:29PM +0100, Juergen Fitschen wrote:
+> Slave mode driver is based on the concept of i2c-designware driver.
+>=20
+> Signed-off-by: Juergen Fitschen <me@jue.yt>
+
+I lost the original mail where Ludovic said:
+
+"I tested it quickly on a sama5d2 xplained board: I used an i2c-gpio
+master and the eeprom driver. It works pretty well. I tried to increase
+the size of the eeprom by adding:
++ { "slave-24c64", 65536 / 8 },"
+
+That won't work. The comment at the beginning of the file says:
+
+ * ... It is prepared to simulate bigger EEPROMs with an internal 16 bit
+ * pointer, yet implementation is deferred until the need actually arises.
+
+So,  no EEPROMs > 256 byte for now.
+
+BTW maybe I asked already and forgot: is this IP core capable of being
+master and slave on the same bus?
+
+
+--63zfksmmzk62fyot
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsTDYcACgkQFA3kzBSg
+KbaTyxAAnRbYK+fUJpqqsPELVgFhv+jt6NY/e+YeWCiZza5s1mfYxeSBtCdzctIt
+PRN1KaMNbo8FvtNQ0q8JgBSVaE8YTr1iEWPiAkxtw85KblbuNXTp+1emfaubF4wd
+GHOTeIwm0WrpsHVv/OVl5SEnks3HMnijUwVv6hnEHypNOXqm/UzNsEfnXuzoIblx
+R96mnmfJjRjFOUNY3Jb60A9YrKRKWDmwKUlCmET4Yeu4fRVXsamEkS/j6+aCXwAU
+TAWit/2MZXZZVXndMtGapki0V8mbY86qMzk/v+mVu8Kq9KMKL2ika2pipOKpGNbT
+48gCSYRiwIkfqvFEPdoxVZU8fRb9wehF+SEVVi8eoMrxh7bhq3uANvhBx0W4HGTn
+VsDvgpetWZYtm5GYtsK2e726e7L9SgZOEo53ogtuuSttD/rjWwivn3jdDUbLYCnG
+wAePQ4FM6uHnDOMFqrBbdOoK3qLdvzS1hCfS8NiypK9kXweHdZMFB0TtZUZIi57G
+KJfubOHdrYVEwZd9RhPNzuPBULIsSvQaog82omBzljXa0c1p3RidS6BQxC5SdUPF
+9Nk63WtSuR37DMAmZOc6ewnsWfZ/lSwsN34kiVnpC4ByAfum60sisNU4broqgqIi
+DysspsJtZHXYAIjgHX9AAZD4/ZfGGT/ZdIoXMAOv3b9QcXZrAxI=
+=Pud/
+-----END PGP SIGNATURE-----
+
+--63zfksmmzk62fyot--
