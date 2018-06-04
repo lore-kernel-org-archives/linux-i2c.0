@@ -1,66 +1,51 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [v2,3/3] i2c: at91: added slave mode support
-Date: Sat, 2 Jun 2018 23:35:13 +0200
-Message-ID: <20180602213513.qv45gaq2kogagju3@katana>
-References: <c9b749fca8e684aa47ead9a5d9e68751326f63cb.1510247114.git.me@jue.yt>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH] mfd: intel-lpss: Fix Intel Cannon Lake LPSS I2C input
+ clock
+Date: Mon, 4 Jun 2018 08:39:46 +0100
+Message-ID: <20180604073946.GI25455@dell>
+References: <20180518083827.20626-1-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="63zfksmmzk62fyot"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <c9b749fca8e684aa47ead9a5d9e68751326f63cb.1510247114.git.me@jue.yt>
+In-Reply-To: <20180518083827.20626-1-jarkko.nikula@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Juergen Fitschen <me@jue.yt>
-Cc: Ludovic Desroches <ludovic.desroches@microchip.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>, Chris Chiu <chiu@endlessm.com>, Daniel Drake <drake@endlessm.com>, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri, 18 May 2018, Jarkko Nikula wrote:
 
---63zfksmmzk62fyot
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Intel Cannon Lake PCH has much higher 216 MHz input clock to LPSS I2C
+> than Sunrisepoint which uses 120 MHz. Preliminary information was that
+> both share the same clock rate but actual silicon implements elevated
+> rate for better support for 3.4 MHz high-speed I2C.
+> 
+> This incorrect input clock rate results too high I2C bus clock in case
+> ACPI doesn't provide tuned I2C timing parameters since I2C host
+> controller driver calculates them from input clock rate.
+> 
+> Fix this by using the correct rate. We still share the same 230 ns SDA
+> hold time value than Sunrisepoint.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: b418bbff36dd ("mfd: intel-lpss: Add Intel Cannonlake PCI IDs")
+> Reported-by: Jian-Hong Pan <jian-hong@endlessm.com>
+> Reported-by: Chris Chiu <chiu@endlessm.com>
+> Reported-by: Daniel Drake <drake@endlessm.com>
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> ---
+> Hi Jian-Hong, Chris and Daniel. Could you test does this fix your
+> touchpad issue?
+> ---
+>  drivers/mfd/intel-lpss-pci.c | 25 +++++++++++++++----------
+>  1 file changed, 15 insertions(+), 10 deletions(-)
 
-On Thu, Nov 09, 2017 at 06:22:29PM +0100, Juergen Fitschen wrote:
-> Slave mode driver is based on the concept of i2c-designware driver.
->=20
-> Signed-off-by: Juergen Fitschen <me@jue.yt>
+Applied, thanks.
 
-I lost the original mail where Ludovic said:
-
-"I tested it quickly on a sama5d2 xplained board: I used an i2c-gpio
-master and the eeprom driver. It works pretty well. I tried to increase
-the size of the eeprom by adding:
-+ { "slave-24c64", 65536 / 8 },"
-
-That won't work. The comment at the beginning of the file says:
-
- * ... It is prepared to simulate bigger EEPROMs with an internal 16 bit
- * pointer, yet implementation is deferred until the need actually arises.
-
-So,  no EEPROMs > 256 byte for now.
-
-BTW maybe I asked already and forgot: is this IP core capable of being
-master and slave on the same bus?
-
-
---63zfksmmzk62fyot
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsTDYcACgkQFA3kzBSg
-KbaTyxAAnRbYK+fUJpqqsPELVgFhv+jt6NY/e+YeWCiZza5s1mfYxeSBtCdzctIt
-PRN1KaMNbo8FvtNQ0q8JgBSVaE8YTr1iEWPiAkxtw85KblbuNXTp+1emfaubF4wd
-GHOTeIwm0WrpsHVv/OVl5SEnks3HMnijUwVv6hnEHypNOXqm/UzNsEfnXuzoIblx
-R96mnmfJjRjFOUNY3Jb60A9YrKRKWDmwKUlCmET4Yeu4fRVXsamEkS/j6+aCXwAU
-TAWit/2MZXZZVXndMtGapki0V8mbY86qMzk/v+mVu8Kq9KMKL2ika2pipOKpGNbT
-48gCSYRiwIkfqvFEPdoxVZU8fRb9wehF+SEVVi8eoMrxh7bhq3uANvhBx0W4HGTn
-VsDvgpetWZYtm5GYtsK2e726e7L9SgZOEo53ogtuuSttD/rjWwivn3jdDUbLYCnG
-wAePQ4FM6uHnDOMFqrBbdOoK3qLdvzS1hCfS8NiypK9kXweHdZMFB0TtZUZIi57G
-KJfubOHdrYVEwZd9RhPNzuPBULIsSvQaog82omBzljXa0c1p3RidS6BQxC5SdUPF
-9Nk63WtSuR37DMAmZOc6ewnsWfZ/lSwsN34kiVnpC4ByAfum60sisNU4broqgqIi
-DysspsJtZHXYAIjgHX9AAZD4/ZfGGT/ZdIoXMAOv3b9QcXZrAxI=
-=Pud/
------END PGP SIGNATURE-----
-
---63zfksmmzk62fyot--
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
