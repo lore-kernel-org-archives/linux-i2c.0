@@ -1,108 +1,105 @@
 From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v4 01/10] i3c: Add core I3C infrastructure
-Date: Mon, 4 Jun 2018 13:24:27 +0200
-Message-ID: <20180604132427.14193577@bbrezillon>
+Subject: Re: [PATCH v4 07/10] i3c: master: Add driver for Cadence IP
+Date: Mon, 4 Jun 2018 13:26:15 +0200
+Message-ID: <20180604132615.415db91a@bbrezillon>
 References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
-        <20180330074751.25987-2-boris.brezillon@bootlin.com>
-        <EFF070CA-9C6C-4E9C-9CEF-45AAD02745BB@cadence.com>
+        <20180330074751.25987-8-boris.brezillon@bootlin.com>
+        <9613475C-ECAE-4AD6-9C02-55C9214A6489@cadence.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <EFF070CA-9C6C-4E9C-9CEF-45AAD02745BB@cadence.com>
+In-Reply-To: <9613475C-ECAE-4AD6-9C02-55C9214A6489@cadence.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Przemyslaw Gaj <pgaj@cadence.com>
 Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 4 Jun 2018 09:11:25 +0000
+Hi Przemek,
+
+On Mon, 4 Jun 2018 09:24:51 +0000
 Przemyslaw Gaj <pgaj@cadence.com> wrote:
 
-> Hi Boris
+> Hi Boris,
 > 
-> It looks great, just one comment to DEFSLVS command:
+> Few things regarding Cadence IP driver:
 > 
-> ﻿On 6/4/18, 9:32 AM, "Boris Brezillon" <boris.brezillon@bootlin.com> wrote:
+> ﻿On 6/4/18, 9:31 AM, "Boris Brezillon" <boris.brezillon@bootlin.com> wrote:
 > 
->     +int i3c_master_defslvs_locked(struct i3c_master_controller *master)
+>     +static void cdns_i3c_master_handle_ibi(struct cdns_i3c_master *master,
+>     +				       u32 ibir)
 >     +{
->     +	struct i3c_ccc_cmd_dest dest = {
->     +		.addr = I3C_BROADCAST_ADDR,
->     +	};
->     +	struct i3c_ccc_cmd cmd = {
->     +		.id = I3C_CCC_DEFSLVS,
->     +		.dests = &dest,
->     +		.ndests = 1,
->     +	};
->     +	struct i3c_ccc_defslvs *defslvs;
->     +	struct i3c_ccc_dev_desc *desc;
->     +	struct i3c_device *i3cdev;
->     +	struct i2c_device *i2cdev;
->     +	struct i3c_bus *bus;
->     +	bool send = false;
->     +	int ndevs = 0, ret;
+>     +	struct cdns_i3c_i2c_dev_data *data;
+>     +	bool data_consumed = false;
+>     +	struct i3c_ibi_slot *slot;
+>     +	u32 id = IBIR_SLVID(ibir);
+>     +	struct i3c_device *dev;
+>     +	int len, i, j;
+>     +	u8 *buf;
 >     +
->     +	if (!master)
->     +		return -EINVAL;
+>     +	/*
+>     +	 * FIXME: maybe we should report the FIFO OVF errors to the upper
+>     +	 * layer.
+>     +	 */
+>     +	if (id >= master->ibi.num_slots || (ibir & IBIR_ERROR))
+>     +		goto out;
 >     +
->     +	bus = i3c_master_get_bus(master);
->     +	i3c_bus_for_each_i3cdev(bus, i3cdev) {
->     +		ndevs++;
->     +		if (I3C_BCR_DEVICE_ROLE(i3cdev->info.bcr) == I3C_BCR_I3C_MASTER)
->     +			send = true;
+>     +	dev = master->ibi.slots[id];
+>     +	spin_lock(&master->ibi.lock);
+>     +
+>     +	data = i3c_device_get_master_data(dev);
+>     +	slot = i3c_generic_ibi_get_free_slot(data->ibi_pool);
+>     +	if (!slot)
+>     +		goto out_unlock;
+>     +
+>     +	buf = slot->data;
+>     +
+>     +	len = IBIR_XFER_BYTES(ibir);
+>     +	for (i = 0; i < IBIR_XFER_BYTES(ibir); i += 4) {
+>     +		u32 tmp = readl(master->regs + IBI_DATA_FIFO);
+>     +
+>     +		for (j = 0; j < 4 && i + j < dev->ibi->max_payload_len; j++)
+>     +			buf[i + j] = tmp >> (j * 8);
+>     +
 >     +	}
+>     +	slot->len = min_t(unsigned int, IBIR_XFER_BYTES(ibir),
+>     +			  dev->ibi->max_payload_len);
+>     +	i3c_master_queue_ibi(dev, slot);
+>     +	data_consumed = true;
 >     +
->     +	/* No other master on the bus, skip DEFSLVS. */
->     +	if (!send)
->     +		return 0;
+>     +out_unlock:
+>     +	spin_unlock(&master->ibi.lock);
 >     +
->     +	i3c_bus_for_each_i2cdev(bus, i2cdev)
->     +		ndevs++;
->     +
->     +	dest.payload.len = sizeof(*defslvs) +
->     +			   ((ndevs - 1) * sizeof(struct i3c_ccc_dev_desc));
->     +	defslvs = kzalloc(dest.payload.len, GFP_KERNEL);
->     +	if (!defslvs)
->     +		return -ENOMEM;
->     +
->     +	dest.payload.data = defslvs;
->     +
->     +	defslvs->count = ndevs;
->     +	defslvs->master.bcr = master->this->info.bcr;
->     +	defslvs->master.dcr = master->this->info.dcr;
->     +	defslvs->master.dyn_addr = master->this->info.dyn_addr;
->     +	defslvs->master.static_addr = I3C_BROADCAST_ADDR;
->     +
->     +	desc = defslvs->slaves;
->     +	i3c_bus_for_each_i2cdev(bus, i2cdev) {
->     +		desc->lvr = i2cdev->lvr;
->     +		desc->static_addr = i2cdev->info.addr;
->     +		desc++;
+>     +out:
+>     +	/* Consume data from the FIFO if it's not been done already. */
+>     +	if (!data_consumed) {
+>     +		for (i = 0; i < IBIR_XFER_BYTES(ibir); i += 4)
+>     +			readl(master->regs + IBI_DATA_FIFO);
 >     +	}
->     +
->     +	i3c_bus_for_each_i3cdev(bus, i3cdev) {
->     +		/* Skip the I3C dev representing this master. */
->     +		if (i3cdev == master->this)
->     +			continue;
->     +
->     +		desc->bcr = i3cdev->info.bcr;
->     +		desc->dcr = i3cdev->info.dcr;
->     +		desc->dyn_addr = i3cdev->info.dyn_addr;
->     +		desc->static_addr = i3cdev->info.static_addr;
->     +		desc++;
->     +	}
->     +
->     +	ret = i3c_master_send_ccc_cmd_locked(master, &cmd);
->     +	kfree(defslvs);
->     +
->     +	return ret;
 >     +}
-> 
-> You should shift all the addresses (dynamic and static) one bit left. 
-> Addresses are stored on bits [7:1], this is described in MIPI spec, 
-> section 5.1.9.3.7 Define List of Slaves (DEFSLVS)
+>     
+> len variable is unneeded.
 
-Oops, indeed. I will fix that.
+Will get rid of len.
+
+>     +
+>     +	/* Device ID0 is reserved to describe this master. */
+>     +	master->maxdevs = CONF_STATUS0_DEVS_NUM(val);
+>     +	master->free_rr_slots = GENMASK(master->maxdevs, 1);
+>     +
+>     +	val = readl(master->regs + CONF_STATUS1);
+>     +	master->caps.cmdfifodepth = CONF_STATUS1_CMD_DEPTH(val);
+>     +	master->caps.rxfifodepth = CONF_STATUS1_RX_DEPTH(val);
+>     +	master->caps.txfifodepth = CONF_STATUS1_TX_DEPTH(val);
+>     +	master->caps.ibirfifodepth = 16;
+> 
+> IBI fifo depth is hardcoded. You can read this value from CONF_STATUS0 register.
+> 
+>     +	master->caps.cmdrfifodepth = 16;
+> 
+> CMDR fifo depth is hardcoded. You can read this value from CONF_STATUS0 register also.
+
+Sure, I'll use the FIFO depth exposed in CONF_STATUS0.
 
 Thanks,
 
