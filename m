@@ -1,106 +1,63 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v4 07/10] i3c: master: Add driver for Cadence IP
-Date: Mon, 4 Jun 2018 13:26:15 +0200
-Message-ID: <20180604132615.415db91a@bbrezillon>
-References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
-        <20180330074751.25987-8-boris.brezillon@bootlin.com>
-        <9613475C-ECAE-4AD6-9C02-55C9214A6489@cadence.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+From: Eddie James <eajames@linux.vnet.ibm.com>
+Subject: [PATCH v9 0/7] i2c: Add FSI-attached I2C master algorithm
+Date: Mon,  4 Jun 2018 14:00:43 -0500
+Message-ID: <1528138850-18259-1-git-send-email-eajames@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <9613475C-ECAE-4AD6-9C02-55C9214A6489@cadence.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Przemyslaw Gaj <pgaj@cadence.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, rdunlap@infradead.org, andy.shevchenko@gmail.com, Eddie James <eajames@linux.vnet.ibm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Przemek,
+This series adds an algorithm for an I2C master physically located on an FSI
+slave device. The I2C master has multiple ports, each of which may be connected
+to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
 
-On Mon, 4 Jun 2018 09:24:51 +0000
-Przemyslaw Gaj <pgaj@cadence.com> wrote:
+Due to the multi-port nature of the I2C master, the driver instantiates a new
+I2C adapter for each port connected to a slave. The connected ports should be
+defined in the device tree under the I2C master device.
 
-> Hi Boris,
-> 
-> Few things regarding Cadence IP driver:
-> 
-> ﻿On 6/4/18, 9:31 AM, "Boris Brezillon" <boris.brezillon@bootlin.com> wrote:
-> 
->     +static void cdns_i3c_master_handle_ibi(struct cdns_i3c_master *master,
->     +				       u32 ibir)
->     +{
->     +	struct cdns_i3c_i2c_dev_data *data;
->     +	bool data_consumed = false;
->     +	struct i3c_ibi_slot *slot;
->     +	u32 id = IBIR_SLVID(ibir);
->     +	struct i3c_device *dev;
->     +	int len, i, j;
->     +	u8 *buf;
->     +
->     +	/*
->     +	 * FIXME: maybe we should report the FIFO OVF errors to the upper
->     +	 * layer.
->     +	 */
->     +	if (id >= master->ibi.num_slots || (ibir & IBIR_ERROR))
->     +		goto out;
->     +
->     +	dev = master->ibi.slots[id];
->     +	spin_lock(&master->ibi.lock);
->     +
->     +	data = i3c_device_get_master_data(dev);
->     +	slot = i3c_generic_ibi_get_free_slot(data->ibi_pool);
->     +	if (!slot)
->     +		goto out_unlock;
->     +
->     +	buf = slot->data;
->     +
->     +	len = IBIR_XFER_BYTES(ibir);
->     +	for (i = 0; i < IBIR_XFER_BYTES(ibir); i += 4) {
->     +		u32 tmp = readl(master->regs + IBI_DATA_FIFO);
->     +
->     +		for (j = 0; j < 4 && i + j < dev->ibi->max_payload_len; j++)
->     +			buf[i + j] = tmp >> (j * 8);
->     +
->     +	}
->     +	slot->len = min_t(unsigned int, IBIR_XFER_BYTES(ibir),
->     +			  dev->ibi->max_payload_len);
->     +	i3c_master_queue_ibi(dev, slot);
->     +	data_consumed = true;
->     +
->     +out_unlock:
->     +	spin_unlock(&master->ibi.lock);
->     +
->     +out:
->     +	/* Consume data from the FIFO if it's not been done already. */
->     +	if (!data_consumed) {
->     +		for (i = 0; i < IBIR_XFER_BYTES(ibir); i += 4)
->     +			readl(master->regs + IBI_DATA_FIFO);
->     +	}
->     +}
->     
-> len variable is unneeded.
+Changes since v8
+ - Drop unecessary else statements
+ - Use i++ instead of ++i
+ - Use kzalloc/kfree instead of devm_kzalloc/devm_kfree for port structure
+ - Drop the list_empty check in remove
 
-Will get rid of len.
+Changes since v7
+ - Fix grammer in Kconfig (a -> an)
+ - Change I2C registers to use BIT and GENMASK
+ - Remove custom macros and use FIELD_PREP and FIELD_GET
+ - Fix a few unecessary initializations and "return rc" that are always zero
+ - Clean up the read/write fifo functions a bit
+ - Few other clean-up items
 
->     +
->     +	/* Device ID0 is reserved to describe this master. */
->     +	master->maxdevs = CONF_STATUS0_DEVS_NUM(val);
->     +	master->free_rr_slots = GENMASK(master->maxdevs, 1);
->     +
->     +	val = readl(master->regs + CONF_STATUS1);
->     +	master->caps.cmdfifodepth = CONF_STATUS1_CMD_DEPTH(val);
->     +	master->caps.rxfifodepth = CONF_STATUS1_RX_DEPTH(val);
->     +	master->caps.txfifodepth = CONF_STATUS1_TX_DEPTH(val);
->     +	master->caps.ibirfifodepth = 16;
-> 
-> IBI fifo depth is hardcoded. You can read this value from CONF_STATUS0 register.
-> 
->     +	master->caps.cmdrfifodepth = 16;
-> 
-> CMDR fifo depth is hardcoded. You can read this value from CONF_STATUS0 register also.
+Changes since v6
+ - Remove spinlock for reset functionality; it's unecessary and doesn't work
+   with the latest FSI core.
+ - Use a mutex instead of a semaphore, and don't wait for timeout to get the
+   lock.
+ - Use usleeps instead of schedule_timeout; it's not worth the overhead when
+   the wait should be very short in between sending the command and receiving
+   the response.
 
-Sure, I'll use the FIFO depth exposed in CONF_STATUS0.
+Changes since v5
+ - Fix reset functionality and do a reset after every transfer failure
 
-Thanks,
+Eddie James (7):
+  dt-bindings: i2c: Add FSI-attached I2C master dt binding documentation
+  i2c: Add FSI-attached I2C master algorithm
+  i2c: fsi: Add port structures
+  i2c: fsi: Add abort and hardware reset procedures
+  i2c: fsi: Add transfer implementation
+  i2c: fsi: Add I2C master locking
+  i2c: fsi: Add bus recovery
 
-Boris
+ Documentation/devicetree/bindings/i2c/i2c-fsi.txt |  40 ++
+ drivers/i2c/busses/Kconfig                        |  11 +
+ drivers/i2c/busses/Makefile                       |   1 +
+ drivers/i2c/busses/i2c-fsi.c                      | 721 ++++++++++++++++++++++
+ 4 files changed, 773 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+ create mode 100644 drivers/i2c/busses/i2c-fsi.c
+
+-- 
+1.8.3.1
