@@ -1,7 +1,7 @@
 From: Eddie James <eajames@linux.vnet.ibm.com>
-Subject: [PATCH v9 1/7] dt-bindings: i2c: Add FSI-attached I2C master dt binding documentation
-Date: Mon,  4 Jun 2018 14:00:44 -0500
-Message-ID: <1528138850-18259-2-git-send-email-eajames@linux.vnet.ibm.com>
+Subject: [PATCH v9 3/7] i2c: fsi: Add port structures
+Date: Mon,  4 Jun 2018 14:00:46 -0500
+Message-ID: <1528138850-18259-4-git-send-email-eajames@linux.vnet.ibm.com>
 References: <1528138850-18259-1-git-send-email-eajames@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1528138850-18259-1-git-send-email-eajames@linux.vnet.ibm.com>
@@ -10,60 +10,163 @@ To: linux-i2c@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, rdunlap@infradead.org, andy.shevchenko@gmail.com, Eddie James <eajames@linux.vnet.ibm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Document the bindings.
+Add and initialize I2C adapters for each port on the FSI-attached I2C
+master. Ports for each master are defined in the devicetree.
 
 Signed-off-by: Eddie James <eajames@linux.vnet.ibm.com>
-Acked-by: Rob Herring <robh@kernel.org>
 ---
- Documentation/devicetree/bindings/i2c/i2c-fsi.txt | 40 +++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+ drivers/i2c/busses/i2c-fsi.c | 90 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 90 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-fsi.txt b/Documentation/devicetree/bindings/i2c/i2c-fsi.txt
-new file mode 100644
-index 0000000..b1be2ce
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-fsi.txt
-@@ -0,0 +1,40 @@
-+Device-tree bindings for FSI-attached I2C master and busses
-+-----------------------------------------------------------
+diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
+index e1b183c..12130c3 100644
+--- a/drivers/i2c/busses/i2c-fsi.c
++++ b/drivers/i2c/busses/i2c-fsi.c
+@@ -17,7 +17,10 @@
+ #include <linux/fsi.h>
+ #include <linux/i2c.h>
+ #include <linux/kernel.h>
++#include <linux/list.h>
+ #include <linux/module.h>
++#include <linux/of.h>
++#include <linux/slab.h>
+ 
+ #define FSI_ENGID_I2C		0x7
+ 
+@@ -123,6 +126,14 @@
+ struct fsi_i2c_master {
+ 	struct fsi_device	*fsi;
+ 	u8			fifo_size;
++	struct list_head	ports;
++};
 +
-+Required properties:
-+ - compatible = "ibm,i2c-fsi";
-+ - reg = < address size >;		: The FSI CFAM address and address
-+					  space size.
-+ - #address-cells = <1>;		: Number of address cells in child
-+					  nodes.
-+ - #size-cells = <0>;			: Number of size cells in child nodes.
-+ - child nodes				: Nodes to describe busses off the I2C
-+					  master.
++struct fsi_i2c_port {
++	struct list_head	list;
++	struct i2c_adapter	adapter;
++	struct fsi_i2c_master	*master;
++	u16			port;
+ };
+ 
+ static int fsi_i2c_read_reg(struct fsi_device *fsi, unsigned int reg,
+@@ -176,9 +187,38 @@ static int fsi_i2c_dev_init(struct fsi_i2c_master *i2c)
+ 	return fsi_i2c_write_reg(i2c->fsi, I2C_FSI_WATER_MARK, &watermark);
+ }
+ 
++static int fsi_i2c_set_port(struct fsi_i2c_port *port)
++{
++	int rc;
++	struct fsi_device *fsi = port->master->fsi;
++	u32 mode, dummy = 0;
 +
-+Child node required properties:
-+ - reg = < port number >		: The port number on the I2C master.
++	rc = fsi_i2c_read_reg(fsi, I2C_FSI_MODE, &mode);
++	if (rc)
++		return rc;
 +
-+Child node optional properties:
-+ - child nodes				: Nodes to describe devices on the I2C
-+					  bus.
++	if (FIELD_GET(I2C_MODE_PORT, mode) == port->port)
++		return 0;
 +
-+Examples:
++	mode = (mode & ~I2C_MODE_PORT) | FIELD_PREP(I2C_MODE_PORT, port->port);
++	rc = fsi_i2c_write_reg(fsi, I2C_FSI_MODE, &mode);
++	if (rc)
++		return rc;
 +
-+    i2c@1800 {
-+        compatible = "ibm,i2c-fsi";
-+        reg = < 0x1800 0x400 >;
-+        #address-cells = <1>;
-+        #size-cells = <0>;
++	/* reset engine when port is changed */
++	return fsi_i2c_write_reg(fsi, I2C_FSI_RESET_ERR, &dummy);
++}
 +
-+        i2c-bus@0 {
-+            reg = <0>;
-+        };
+ static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			int num)
+ {
++	int rc;
++	struct fsi_i2c_port *port = adap->algo_data;
 +
-+        i2c-bus@1 {
-+            reg = <1>;
++	rc = fsi_i2c_set_port(port);
++	if (rc)
++		return rc;
 +
-+            eeprom@50 {
-+                compatible = "vendor,dev-name";
-+            };
-+        };
-+    };
+ 	return -EOPNOTSUPP;
+ }
+ 
+@@ -196,23 +236,72 @@ static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
+ static int fsi_i2c_probe(struct device *dev)
+ {
+ 	struct fsi_i2c_master *i2c;
++	struct fsi_i2c_port *port;
++	struct device_node *np;
+ 	int rc;
++	u32 port_no;
+ 
+ 	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
+ 	if (!i2c)
+ 		return -ENOMEM;
+ 
+ 	i2c->fsi = to_fsi_dev(dev);
++	INIT_LIST_HEAD(&i2c->ports);
+ 
+ 	rc = fsi_i2c_dev_init(i2c);
+ 	if (rc)
+ 		return rc;
+ 
++	/* Add adapter for each i2c port of the master. */
++	for_each_available_child_of_node(dev->of_node, np) {
++		rc = of_property_read_u32(np, "reg", &port_no);
++		if (rc || port_no > USHRT_MAX)
++			continue;
++
++		port = kzalloc(sizeof(*port), GFP_KERNEL);
++		if (!port)
++			break;
++
++		port->master = i2c;
++		port->port = port_no;
++
++		port->adapter.owner = THIS_MODULE;
++		port->adapter.dev.of_node = np;
++		port->adapter.dev.parent = dev;
++		port->adapter.algo = &fsi_i2c_algorithm;
++		port->adapter.algo_data = port;
++
++		snprintf(port->adapter.name, sizeof(port->adapter.name),
++			 "i2c_bus-%u", port_no);
++
++		rc = i2c_add_adapter(&port->adapter);
++		if (rc < 0) {
++			dev_err(dev, "Failed to register adapter: %d\n", rc);
++			kfree(port);
++			continue;
++		}
++
++		list_add(&port->list, &i2c->ports);
++	}
++
+ 	dev_set_drvdata(dev, i2c);
+ 
+ 	return 0;
+ }
+ 
++static int fsi_i2c_remove(struct device *dev)
++{
++	struct fsi_i2c_master *i2c = dev_get_drvdata(dev);
++	struct fsi_i2c_port *port;
++
++	list_for_each_entry(port, &i2c->ports, list) {
++		i2c_del_adapter(&port->adapter);
++		kfree(port);
++	}
++
++	return 0;
++}
++
+ static const struct fsi_device_id fsi_i2c_ids[] = {
+ 	{ FSI_ENGID_I2C, FSI_VERSION_ANY },
+ 	{ 0 }
+@@ -224,6 +313,7 @@ static int fsi_i2c_probe(struct device *dev)
+ 		.name = "i2c-fsi",
+ 		.bus = &fsi_bus_type,
+ 		.probe = fsi_i2c_probe,
++		.remove = fsi_i2c_remove,
+ 	},
+ };
+ 
 -- 
 1.8.3.1
