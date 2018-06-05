@@ -1,60 +1,65 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v9 2/7] i2c: Add FSI-attached I2C master algorithm
-Date: Tue, 5 Jun 2018 12:17:48 +0300
-Message-ID: <CAHp75VeT1aN3Ek5-d2k11V_43gQWz2Yr1YTq__OoQnJzexFm2Q@mail.gmail.com>
-References: <1528138850-18259-1-git-send-email-eajames@linux.vnet.ibm.com>
- <1528138850-18259-3-git-send-email-eajames@linux.vnet.ibm.com>
- <CAHp75Vd7NvDFmWSzNDz-tgGvMVyXU7Z16LgGCWnHkY-3kE7fwg@mail.gmail.com> <7daf29f643bb0445fceef85b1a7fff71048f2aa6.camel@kernel.crashing.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: [PATCH 0/9] croc_ec: Switch to SPDX identifier
+Date: Tue,  5 Jun 2018 11:22:00 +0200
+Message-ID: <20180605092209.22887-1-enric.balletbo@collabora.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <7daf29f643bb0445fceef85b1a7fff71048f2aa6.camel@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Eddie James <eajames@linux.vnet.ibm.com>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>
+To: linux-kernel@vger.kernel.org
+Cc: Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com, Tony Luck <tony.luck@intel.com>, Alessandro Zummo <a.zummo@towertech.it>, Paolo Cretaro <paolocretaro@gmail.com>, linux-iio@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, Olof Johansson <olof@lixom.net>, linux-rtc@vger.kernel.org, Anton Vorontsov <anton@enomsg.org>, Chanwoo Choi <cw00.choi@samsung.com>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-pwm@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linaro.org>H
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 5, 2018 at 2:38 AM, Benjamin Herrenschmidt
-<benh@kernel.crashing.org> wrote:
-> On Mon, 2018-06-04 at 22:21 +0300, Andy Shevchenko wrote:
->> > +#define I2C_INT_ENABLE         0x0000ff80
->> > +#define I2C_INT_ERR            0x0000fcc0
->>
->> Now it looks like a flags combinations.
->> For me as for reader would be better to see quickly a decoded line.
->>
->> My proposal is to introduce something like following
->>
->> _INT_ALL  GENMASK()
->> _INT_ENABLE (_INT_ALL & ~(_FOO | _BAR))
->> _INT_ERR ... similar way as above ...
->>
->> What do you think?
->
-> I don't think this absolutely needs to change but yes, open coding is
-> error prone. However I would think it more readable to use positive
-> logic and just list all the bits that are *set* even if it's a bit more
-> text:
->
-> #define I2C_INT_ERR     (I2C_INT_INV_CMD        |\
->  I2C_INT_PARITY         |\
->                          I2C_INT_BE_OVERRUN     |\
->                         .../...)
->
-> #define I2C_INT_ENABLE  (I2C_INT_ERR            |\
->                          I2C_INT_DAT_REQ        |\
->                          I2C_INT_CMD_COMP)
+Dear all,
 
-Yep, it's fine.
-I prefered though slightly different style (not putting first value on
-the same line with #define), but it doesn't matter.
+This patchset is just to adopt the SPDX license identifier for all
+ChromeOS Embedded Controller related drivers. The patches touches
+different subsystems but every patch can be picked from their respective
+maintainer independently.
 
->
-> Note: Eddie, I notice I2C_INT_BUSY is in "ERR" but not in "ENABLE", any
-> reason for that ?
+Thanks,
+ Enric
 
-Exactly the reason why I payid attention on these values.
+Enric Balletbo i Serra (9):
+  platform/chrome: cros_ec: Switch to SPDX identifier.
+  platform/chrome: pstore: Switch to SPDX identifier.
+  mfd: cros_ec: Add or fix SPDX-License-Identifier in all files.
+  iio: cros_ec: Switch to SPDX identifier.
+  rtc: cros-ec: Switch to SPDX identifier.
+  Input: cros_ec_keyb - Switch to SPDX identifier.
+  pwm: cros-ec: Switch to SPDX identifier.
+  extcon: usbc-cros-ec: Switch to SPDX identifier.
+  i2c: i2c-cros-ec-tunnel: Switch to SPDX identifier.
+
+ drivers/extcon/extcon-usbc-cros-ec.c          | 20 ++++----------
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c       | 14 +++-------
+ drivers/iio/accel/cros_ec_accel_legacy.c      | 23 ++++------------
+ .../common/cros_ec_sensors/cros_ec_sensors.c  | 24 +++++------------
+ .../cros_ec_sensors/cros_ec_sensors_core.c    | 18 +++----------
+ .../cros_ec_sensors/cros_ec_sensors_core.h    | 12 ++-------
+ drivers/iio/light/cros_ec_light_prox.c        | 18 +++----------
+ drivers/iio/pressure/cros_ec_baro.c           | 18 +++----------
+ drivers/input/keyboard/cros_ec_keyb.c         | 26 +++---------------
+ drivers/mfd/cros_ec.c                         | 27 +++++++------------
+ drivers/mfd/cros_ec_dev.c                     | 24 +++++------------
+ drivers/mfd/cros_ec_dev.h                     | 16 ++---------
+ drivers/mfd/cros_ec_i2c.c                     | 19 ++++---------
+ drivers/mfd/cros_ec_spi.c                     | 21 +++++----------
+ drivers/platform/chrome/chromeos_pstore.c     | 13 +++------
+ drivers/platform/chrome/cros_ec_debugfs.c     | 22 +++------------
+ drivers/platform/chrome/cros_ec_lightbar.c    | 22 +++------------
+ drivers/platform/chrome/cros_ec_lpc.c         | 26 +++---------------
+ drivers/platform/chrome/cros_ec_lpc_mec.c     | 26 +++---------------
+ drivers/platform/chrome/cros_ec_lpc_reg.c     | 26 +++---------------
+ drivers/platform/chrome/cros_ec_proto.c       | 19 +++----------
+ drivers/platform/chrome/cros_ec_sysfs.c       | 22 +++------------
+ drivers/platform/chrome/cros_ec_vbc.c         | 24 ++++-------------
+ .../platform/chrome/cros_kbd_led_backlight.c  | 19 +++----------
+ drivers/pwm/pwm-cros-ec.c                     | 13 +++------
+ drivers/rtc/rtc-cros-ec.c                     | 21 ++++-----------
+ include/linux/mfd/cros_ec.h                   | 10 +------
+ include/linux/mfd/cros_ec_commands.h          | 10 +------
+ include/linux/mfd/cros_ec_lpc_mec.h           | 12 ++-------
+ include/linux/mfd/cros_ec_lpc_reg.h           | 12 ++-------
+ 30 files changed, 123 insertions(+), 454 deletions(-)
 
 -- 
-With Best Regards,
-Andy Shevchenko
+2.17.1
