@@ -1,79 +1,84 @@
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: Re: [PATCH v3 00/12] cros_ec: Match licenses and switch to SPDX
- identifier.
-Date: Fri, 8 Jun 2018 10:58:31 +0200
-Message-ID: <aee6f480-28e0-4b9f-0e90-35a2b7a37419@collabora.com>
-References: <20180606150900.8342-1-enric.balletbo@collabora.com>
- <517d33d8219f22126ec8caaf41072c14b5ebf407.camel@perches.com>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
+Subject: Re: [PATCH 2/9] crypto: atmel-ecc: Silently ignore missing clock
+ frequency
+Date: Mon, 11 Jun 2018 12:46:23 +0300
+Message-ID: <e33b8860-2ff4-da8f-8500-ad24ab6c1e4e@microchip.com>
+References: <20180605134950.6605-1-linus.walleij@linaro.org>
+ <20180605134950.6605-2-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <517d33d8219f22126ec8caaf41072c14b5ebf407.camel@perches.com>
-Content-Language: en-GB
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org
-Cc: Gwendal Grignou <gwendal@chromium.org>, kernel@collabora.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Luck <tony.luck@intel.com>, Alessandro Zummo <a.zummo@towertech.it>, Paolo Cretaro <paolocretaro@gmail.com>, linux-iio@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, Olof Johansson <olof@lixom.net>, linux-rtc@vger.kernel.org, Anton Vorontsov <anton@enomsg.org>, Chanwoo Choi <cw00.choi@samsung.com>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linaro.org>, Hartmut Knaack <knaack.h@gmx.de>, Colin
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180605134950.6605-2-linus.walleij@linaro.org>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Linus Walleij <linus.walleij@linaro.org>, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-crypto@vger.kernel.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Herbert Xu <herbert@gondor.apana.org.au>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Joe,
+Hi, Linus, Wolfram,
 
-On 06/06/18 17:42, Joe Perches wrote:
-> On Wed, 2018-06-06 at 17:08 +0200, Enric Balletbo i Serra wrote:
->> Dear all,
->>
->> This patchset is just to adopt the SPDX license identifier for all
->> ChromeOS Embedded Controller related drivers.
+On 06/05/2018 04:49 PM, Linus Walleij wrote:
+> The Atmel ECC driver contains a check for the I2C bus clock
+> frequency, so as to check that the I2C adapter in use
+> satisfies the device specs.
 > 
-> This bit is fine,
+> If the device is connected to a device tree node that does not
+> contain a clock frequency setting, such as an I2C mux or gate,
+> this blocks the probe. Make the probe continue silently if
+> no clock frequency can be found, assuming all is safe.
+
+I don't think it's safe. We use bus_clk_rate to compute the ecc508's
+wake token. If you can't wake the device, it will ignore all your
+commands.
+
+My proposal was to introduce a bus_freq_hz member in the i2c_adapter
+structure (https://patchwork.kernel.org/patch/10307637/), but I haven't
+received feedback yet, Wolfram?
+
+I would say first to check the bus_freq_hz from adapter (if it will be
+accepted) else to look into dt and, in the last case, if nowhere
+provided, to block the probe.
+
+Thanks,
+ta
+
 > 
->>  The patches touches
->> different subsystems but every patch can be picked from their respective
->> maintainer independently.
->>
->> This third version takes the license note as the valid license (I did
->> the contrary in the second version) so apart from add the SPDX tags it
->> also introduces new patches to match the license.
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+>   drivers/crypto/atmel-ecc.c | 11 +++++------
+>   1 file changed, 5 insertions(+), 6 deletions(-)
 > 
-> But why change any MODULE_LICENSE text?
-> 
-
-Because in some cases there is a mismatch between the license note and the
-MODULE_LICENSE text.
-
-According to the documentation setting MODULE_LICENSE("GPL") means GNU Public
-License v2 or later [1], in the cases where the license note tells explicitly
-that is GPL v2 only I think that the MODULE_LICENSE should match and be changed
-to "GPL v2".
-
-[1] https://elixir.bootlin.com/linux/v4.17/source/include/linux/module.h#L172
-
-> There are uses of MODULE_LICENSE("GPL") where
-> the SPDX license identifier is some GPL variant
-> 
-
-Right, but I suppose in such cases is wrong and should be changed too?
-
-> For instance:
-> $ git grep -P --name-only
-> 'MODULE_LICENSE\s*\("GPL"\s*\)\s*;'| \
->   xargs grep "SPDX-License-
-> Identifier:" | \
->   cut -f3- -d: | \
->   sed -r 's@\s*\*/\s*$@@' | \
->   sort |
-> uniq -c | sort -rn
->     551  GPL-2.0+
->     281  GPL-2.0
->      13  GPL-1.0+
->     
->   9  GPL-2.0-only
->       2  GPL-2.0 OR MIT
->       1  (GPL-2.0 OR MPL-1.1)
->    
->    1  (GPL-2.0+ OR BSD-3-Clause)
->       1  (GPL-2.0 OR BSD-3-Clause)
-> 
-> And if you were to do this, please do it tree-wide,
-> and ideally via a script
+> diff --git a/drivers/crypto/atmel-ecc.c b/drivers/crypto/atmel-ecc.c
+> index e66f18a0ddd0..145ab3a39a56 100644
+> --- a/drivers/crypto/atmel-ecc.c
+> +++ b/drivers/crypto/atmel-ecc.c
+> @@ -657,14 +657,13 @@ static int atmel_ecc_probe(struct i2c_client *client,
+>   		return -ENODEV;
+>   	}
+>   
+> +	/*
+> +	 * Silently assume all is fine if there is no
+> +	 * "clock-frequency" property.
+> +	 */
+>   	ret = of_property_read_u32(client->adapter->dev.of_node,
+>   				   "clock-frequency", &bus_clk_rate);
+> -	if (ret) {
+> -		dev_err(dev, "of: failed to read clock-frequency property\n");
+> -		return ret;
+> -	}
+> -
+> -	if (bus_clk_rate > 1000000L) {
+> +	if (!ret && (bus_clk_rate > 1000000L)) {
+>   		dev_err(dev, "%d exceeds maximum supported clock frequency (1MHz)\n",
+>   			bus_clk_rate);
+>   		return -EINVAL;
 > 
