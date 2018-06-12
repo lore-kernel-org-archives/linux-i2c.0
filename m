@@ -1,84 +1,100 @@
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
-Subject: Re: [PATCH 2/9] crypto: atmel-ecc: Silently ignore missing clock
- frequency
-Date: Mon, 11 Jun 2018 12:46:23 +0300
-Message-ID: <e33b8860-2ff4-da8f-8500-ad24ab6c1e4e@microchip.com>
-References: <20180605134950.6605-1-linus.walleij@linaro.org>
- <20180605134950.6605-2-linus.walleij@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180605134950.6605-2-linus.walleij@linaro.org>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Linus Walleij <linus.walleij@linaro.org>, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-crypto@vger.kernel.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Herbert Xu <herbert@gondor.apana.org.au>
+From: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
+Subject: [PATCH v7 0/4] Introduce GENI SE Controller Driver
+Date: Tue, 12 Jun 2018 11:09:04 -0600
+Message-ID: <1528823348-30532-1-git-send-email-kramasub@codeaurora.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: andy.gross@linaro.org, david.brown@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, gregkh@linuxfoundation.org
+Cc: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, evgreen@chromium.org, acourbot@chromium.org, swboyd@chromium.org, dianders@chromium.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi, Linus, Wolfram,
+Generic Interface (GENI) firmware based Qualcomm Universal Peripheral (QUP)
+Wrapper is a next generation programmable module for supporting a wide
+range of serial interfaces like UART, SPI, I2C, I3C, etc. A single QUP
+module can provide upto 8 Serial Interfaces using its internal Serial
+Engines (SE). The protocol supported by each interface is determined by
+the firmware loaded to the Serial Engine.
 
-On 06/05/2018 04:49 PM, Linus Walleij wrote:
-> The Atmel ECC driver contains a check for the I2C bus clock
-> frequency, so as to check that the I2C adapter in use
-> satisfies the device specs.
-> 
-> If the device is connected to a device tree node that does not
-> contain a clock frequency setting, such as an I2C mux or gate,
-> this blocks the probe. Make the probe continue silently if
-> no clock frequency can be found, assuming all is safe.
+This patch series introduces GENI SE Driver to manage the GENI based QUP
+Wrapper and the common aspects of all SEs inside the QUP Wrapper. This
+patch series also introduces the UART and I2C Controller drivers to
+drive the SEs that are programmed with the respective protocols.
 
-I don't think it's safe. We use bus_clk_rate to compute the ecc508's
-wake token. If you can't wake the device, it will ignore all your
-commands.
+[v7]
+ * Return appropriate error codes as idenitified in i2c fault-codes
+ * Add Maintainer details for I2C controller driver
+ * Fix an incorrect conditional check in DMA mode
+ * Drop the patches in the series that got accepted
 
-My proposal was to introduce a bus_freq_hz member in the i2c_adapter
-structure (https://patchwork.kernel.org/patch/10307637/), but I haven't
-received feedback yet, Wolfram?
+[v6]
+ * Move the I2C clock-frequency configuration to the SDM845 board file
+ * Remove a redundant comment in the I2C driver
 
-I would say first to check the bus_freq_hz from adapter (if it will be
-accepted) else to look into dt and, in the last case, if nowhere
-provided, to block the probe.
+[v5]
+ * Remove Linux specific property from the device tree binding
+ * Clarify I2C SCL time period documentation
+ * Remove redundant checks in I2C controller driver during timeout
+ * Use 100kHz as the default clock frequency in the I2C controller driver
+ * Disable Wrapper controller by default in the SDM845 device tree and
+   enable it explicitly for SDM845 MTP
+ * Specify I2C clock frequency in the SDM845 device tree
+ * Remove bias configuration for I2C pins under sleep state in device tree
+ * Drop the serial driver from the patch series since it is merged
+ * Specify the UART port options in the SDM845 device tree
 
-Thanks,
-ta
+[v4]
+ * Add SPI controller information in device tree binding
+ * Add support for debug UART & I2C controllers in SDM845 device tree
+ * Remove any unnecessary parenthesis & casting
+ * Identify break character in UART line and pass it to the framework
+ * Transmit data from fault handler reliably in debug UART
+ * Map the register block when the UART port is requested
+ * Move concise exported functions as macros or inlines in public header
+ * Move the clock performance table from the wrapper to serial engines
+ * Add a lock to synchronize between IRQ & error handling in I2C controller
+ * Remove any compiler optimization hints like likely/unlikely
+ * Update documentation to clarify tables and hardware blocks
 
-> 
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
->   drivers/crypto/atmel-ecc.c | 11 +++++------
->   1 file changed, 5 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/crypto/atmel-ecc.c b/drivers/crypto/atmel-ecc.c
-> index e66f18a0ddd0..145ab3a39a56 100644
-> --- a/drivers/crypto/atmel-ecc.c
-> +++ b/drivers/crypto/atmel-ecc.c
-> @@ -657,14 +657,13 @@ static int atmel_ecc_probe(struct i2c_client *client,
->   		return -ENODEV;
->   	}
->   
-> +	/*
-> +	 * Silently assume all is fine if there is no
-> +	 * "clock-frequency" property.
-> +	 */
->   	ret = of_property_read_u32(client->adapter->dev.of_node,
->   				   "clock-frequency", &bus_clk_rate);
-> -	if (ret) {
-> -		dev_err(dev, "of: failed to read clock-frequency property\n");
-> -		return ret;
-> -	}
-> -
-> -	if (bus_clk_rate > 1000000L) {
-> +	if (!ret && (bus_clk_rate > 1000000L)) {
->   		dev_err(dev, "%d exceeds maximum supported clock frequency (1MHz)\n",
->   			bus_clk_rate);
->   		return -EINVAL;
-> 
+[v3]
+ * Update the driver dependencies
+ * Use the SPDX License Expression
+ * Squash all the controller device tree bindings together
+ * Use kernel doc format for documentation
+ * Add additional documentation for packing configuration
+ * Use clk_bulk_* API for related clocks
+ * Remove driver references to pinctrl and their states
+ * Replace magic numbers with appropriate macros
+ * Update memory barrier usage and associated comments
+ * Reduce interlacing of register reads/writes
+ * Fix poll_get_char() operation in console UART driver under polling mode
+ * Address other comments from Bjorn Andersson to improve code readability
+
+[v2]
+ * Updated device tree bindings to describe the hardware
+ * Updated SE DT node as child node of QUP Wrapper DT node
+ * Moved common AHB clocks to QUP Wrapper DT node
+ * Use the standard "clock-frequency" I2C property
+ * Update compatible field in UART Controller to reflect hardware manual
+ * Addressed other device tree binding specific comments from Rob Herring
+
+Karthikeyan Ramasubramanian (3):
+  i2c: i2c-qcom-geni: Add bus driver for the Qualcomm GENI I2C
+    controller
+  MAINTAINERS: Add Qualcomm Generic Interface I2C driver maintainer
+  arm64: dts: sdm845: Add support for an instance of I2C controller
+
+Rajendra Nayak (1):
+  arm64: dts: sdm845: Add serial console support
+
+ MAINTAINERS                             |   8 +
+ arch/arm64/boot/dts/qcom/sdm845-mtp.dts |  60 +++
+ arch/arm64/boot/dts/qcom/sdm845.dtsi    |  67 ++++
+ drivers/i2c/busses/Kconfig              |  13 +
+ drivers/i2c/busses/Makefile             |   1 +
+ drivers/i2c/busses/i2c-qcom-geni.c      | 649 ++++++++++++++++++++++++++++++++
+ 6 files changed, 798 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-qcom-geni.c
+
+-- 
+Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
