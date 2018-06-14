@@ -1,73 +1,89 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 01/10] i3c: Add core I3C infrastructure
-Date: Thu, 14 Jun 2018 17:15:42 +0900
-Message-ID: <20180614081541.zlxu6ga47gdg42un@ninjato>
-References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
- <20180330074751.25987-2-boris.brezillon@bootlin.com>
- <20180614041941.4i2cadzoevujmzha@ninjato>
- <20180614090758.17180594@bbrezillon>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v10 0/7] i2c: Add FSI-attached I2C master algorithm
+Date: Thu, 14 Jun 2018 12:05:38 +0300
+Message-ID: <CAHp75Vd9Y5VNVZZxB3-tOiUuC2peE7skBGMgv9nGxCBH178bTg@mail.gmail.com>
+References: <1528918579-27602-1-git-send-email-eajames@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7unw2cj2dmujiusg"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180614090758.17180594@bbrezillon>
+In-Reply-To: <1528918579-27602-1-git-send-email-eajames@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>
-Cc: linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <gala>
+To: Eddie James <eajames@linux.vnet.ibm.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>, Peter Rosin <peda@axentia.se>
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, Jun 13, 2018 at 10:36 PM, Eddie James
+<eajames@linux.vnet.ibm.com> wrote:
+> This series adds an algorithm for an I2C master physically located on an FSI
+> slave device. The I2C master has multiple ports, each of which may be connected
+> to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
+>
+> Due to the multi-port nature of the I2C master, the driver instantiates a new
+> I2C adapter for each port connected to a slave. The connected ports should be
+> defined in the device tree under the I2C master device.
+>
 
---7unw2cj2dmujiusg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+You missed to include tag I gave
+
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+
+be careful next time.
+
+> Changes since v9
+>  - Switch the status masks to use a combination of bits rather than directly
+>    coding the value
+>  - Remove the interrupt mask definition as it was unused
+>  - Fixed return value of master_xfer function (return number of xfrs, not 0)
+>
+> Changes since v8
+>  - Drop unecessary else statements
+>  - Use i++ instead of ++i
+>  - Use kzalloc/kfree instead of devm_kzalloc/devm_kfree for port structure
+>  - Drop the list_empty check in remove
+>
+> Changes since v7
+>  - Fix grammer in Kconfig (a -> an)
+>  - Change I2C registers to use BIT and GENMASK
+>  - Remove custom macros and use FIELD_PREP and FIELD_GET
+>  - Fix a few unecessary initializations and "return rc" that are always zero
+>  - Clean up the read/write fifo functions a bit
+>  - Few other clean-up items
+>
+> Changes since v6
+>  - Remove spinlock for reset functionality; it's unecessary and doesn't work
+>    with the latest FSI core.
+>  - Use a mutex instead of a semaphore, and don't wait for timeout to get the
+>    lock.
+>  - Use usleeps instead of schedule_timeout; it's not worth the overhead when
+>    the wait should be very short in between sending the command and receiving
+>    the response.
+>
+> Changes since v5
+>  - Fix reset functionality and do a reset after every transfer failure
+>
+> Eddie James (7):
+>   dt-bindings: i2c: Add FSI-attached I2C master dt binding documentation
+>   i2c: Add FSI-attached I2C master algorithm
+>   i2c: fsi: Add port structures
+>   i2c: fsi: Add abort and hardware reset procedures
+>   i2c: fsi: Add transfer implementation
+>   i2c: fsi: Add I2C master locking
+>   i2c: fsi: Add bus recovery
+>
+>  Documentation/devicetree/bindings/i2c/i2c-fsi.txt |  40 ++
+>  drivers/i2c/busses/Kconfig                        |  11 +
+>  drivers/i2c/busses/Makefile                       |   1 +
+>  drivers/i2c/busses/i2c-fsi.c                      | 727 ++++++++++++++++++++++
+>  4 files changed, 779 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+>  create mode 100644 drivers/i2c/busses/i2c-fsi.c
+>
+> --
+> 1.8.3.1
+>
 
 
-> > I don't know if typical I3C transfers will be similar to I2C with
-> > usually small payloads where DMA usually makes not much sense. Yet, I
-> > think, that it might be a good idea to think about how this shall be
-> > handled with I3C right away. Maybe simply enforcing buffers to be
-> > DMA-safe. Or whatever.
-> >=20
-> > A clear rule on that might save you hazzle later.
->=20
-> I completely agree. I'll clarify that and for people to pass DMA-able
-> buffers to this struct (just as the SPI framework does). Note that we
 
-Ok, cool!
-
-> don't really have a way to ensure that the buffer is actually
-> DMA-safe from the core, because this notion is architecture/SoC
-> dependent.
-
-True, we can't ensure it at the core. Still, a documented rule will make
-it clear that everything else is considered a bug. Much better than a
-gray area you have to deal with later.
-
-Kind regards,
-
-   Wolfram
-
-
---7unw2cj2dmujiusg
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsiJC0ACgkQFA3kzBSg
-KbZEnQ//dFjlQ2ROtEDcAOlzSfstcuOOulEjtSAycl1EYPFpn+G0xs/n3rHqiZmP
-wmjHmKAmqNHSAmyUSjlqCmXirzruB8Rln7eCb1OUFZSEyp2hDh3VA73xJaEdFOFF
-EgyoyN1SchNgUxeEj08r3zBDv5KFPh6dCEgIQOwFRB299v4BD6xS+O2gvzgveWGW
-oUXd8l1qeVBC25/DbnlxT0iqC/1q0U+usrR/Eu2KInztK5ug9vQ43hTkJaZ+SbiI
-cmKv0AOWAhd3wAtg5oCmFuC8tzIW07uq+RsDiRpsc6BFwKtNCAbhI3cUAy3CCI17
-5iCIqlCremt3nYLPERYwhVT10pM7j75mYqOsO7VQDsomFEyMWKxTp6DyqgIgRBJO
-EG4+9/rmHKPdbSSiWZ3GpVf/MFcdNlzRkN0+lzml5juz/SLaeyBr6Jxh5VxCzRLI
-yOnXfvPMEGFEr8E45vaoeOqpgm3cb0ivC4pgJ/buPDHiVetGAWHzF96sT3xSXYv5
-8PlJDovgHEPwuXPXvtPlpkBndzls7dKvW+Gmyz2czQphwHo+C9ww/PhpY16zSZRk
-dZbZU4V7OFmjO9bWPj1jWpLEnoYlrGMziOuX43CsCNOjSQe6oMEdXFZw5QjB2SQ1
-eSn45yFoypMWEvTZtZyP+wvHKcnYm7VxEYQWy9QAtaWzkEe1fWk=
-=x3M4
------END PGP SIGNATURE-----
-
---7unw2cj2dmujiusg--
+-- 
+With Best Regards,
+Andy Shevchenko
