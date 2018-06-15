@@ -1,89 +1,45 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v10 0/7] i2c: Add FSI-attached I2C master algorithm
-Date: Thu, 14 Jun 2018 12:05:38 +0300
-Message-ID: <CAHp75Vd9Y5VNVZZxB3-tOiUuC2peE7skBGMgv9nGxCBH178bTg@mail.gmail.com>
-References: <1528918579-27602-1-git-send-email-eajames@linux.vnet.ibm.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [RFT] i2c: algos: bit: prepare/unprepare before sending initial STOP
+Date: Fri, 15 Jun 2018 14:17:23 +0900
+Message-ID: <20180615051723.7193-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1528918579-27602-1-git-send-email-eajames@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eddie James <eajames@linux.vnet.ibm.com>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Mark Rutland <mark.rutland@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>, Peter Rosin <peda@axentia.se>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: linux-i2c@vger.kernel.org, cerg2010cerg2010@mail.ru
+Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, dri-devel@lists.freedesktop.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 13, 2018 at 10:36 PM, Eddie James
-<eajames@linux.vnet.ibm.com> wrote:
-> This series adds an algorithm for an I2C master physically located on an FSI
-> slave device. The I2C master has multiple ports, each of which may be connected
-> to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
->
-> Due to the multi-port nature of the I2C master, the driver instantiates a new
-> I2C adapter for each port connected to a slave. The connected ports should be
-> defined in the device tree under the I2C master device.
->
-
-You missed to include tag I gave
-
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-
-be careful next time.
-
-> Changes since v9
->  - Switch the status masks to use a combination of bits rather than directly
->    coding the value
->  - Remove the interrupt mask definition as it was unused
->  - Fixed return value of master_xfer function (return number of xfrs, not 0)
->
-> Changes since v8
->  - Drop unecessary else statements
->  - Use i++ instead of ++i
->  - Use kzalloc/kfree instead of devm_kzalloc/devm_kfree for port structure
->  - Drop the list_empty check in remove
->
-> Changes since v7
->  - Fix grammer in Kconfig (a -> an)
->  - Change I2C registers to use BIT and GENMASK
->  - Remove custom macros and use FIELD_PREP and FIELD_GET
->  - Fix a few unecessary initializations and "return rc" that are always zero
->  - Clean up the read/write fifo functions a bit
->  - Few other clean-up items
->
-> Changes since v6
->  - Remove spinlock for reset functionality; it's unecessary and doesn't work
->    with the latest FSI core.
->  - Use a mutex instead of a semaphore, and don't wait for timeout to get the
->    lock.
->  - Use usleeps instead of schedule_timeout; it's not worth the overhead when
->    the wait should be very short in between sending the command and receiving
->    the response.
->
-> Changes since v5
->  - Fix reset functionality and do a reset after every transfer failure
->
-> Eddie James (7):
->   dt-bindings: i2c: Add FSI-attached I2C master dt binding documentation
->   i2c: Add FSI-attached I2C master algorithm
->   i2c: fsi: Add port structures
->   i2c: fsi: Add abort and hardware reset procedures
->   i2c: fsi: Add transfer implementation
->   i2c: fsi: Add I2C master locking
->   i2c: fsi: Add bus recovery
->
->  Documentation/devicetree/bindings/i2c/i2c-fsi.txt |  40 ++
->  drivers/i2c/busses/Kconfig                        |  11 +
->  drivers/i2c/busses/Makefile                       |   1 +
->  drivers/i2c/busses/i2c-fsi.c                      | 727 ++++++++++++++++++++++
->  4 files changed, 779 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
->  create mode 100644 drivers/i2c/busses/i2c-fsi.c
->
-> --
-> 1.8.3.1
->
-
-
-
--- 
-With Best Regards,
-Andy Shevchenko
+U29tZSBhZGFwdGVycyBuZWVkIHRvIGJlIHByZXBhcmVkL3VucHJlcGFyZWQgYmVmb3JlIGJpdGJh
+bmdpbmcgdGhlIGJ1cy4KRG8gdGhpcyBmb3IgdGhlIGluaXRpYWwgU1RPUCwgdG9vLgoKU2lnbmVk
+LW9mZi1ieTogV29sZnJhbSBTYW5nIDx3c2ErcmVuZXNhc0BzYW5nLWVuZ2luZWVyaW5nLmNvbT4K
+LS0tCgpPaywgYW5vdGhlciBpZGVhIHRvIGZpeCB0aGUgcmVncmVzc2lvbi4gSSdtIG5vdCAxMDAl
+IHN1cmUgaWYgdGhlIHBsYWNlbWVudCBpcwpwZXJmZWN0LCBidXQgaXQgc2hvdWxkIHNlcnZlIHdl
+bGwgZW5vdWdoIGFzIGEgcHJvb2Ygb2YgY29uY2VwdCB0byBzZWUgaWYgdGhpcwppcyB0aGUgYWN0
+dWFsIGlzc3VlLiBJdCBsb29rcyBwcm9taXNpbmcsIHRob3VnaC4KCiBkcml2ZXJzL2kyYy9hbGdv
+cy9pMmMtYWxnby1iaXQuYyB8IDkgKysrKysrKysrCiAxIGZpbGUgY2hhbmdlZCwgOSBpbnNlcnRp
+b25zKCspCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYWxnb3MvaTJjLWFsZ28tYml0LmMgYi9k
+cml2ZXJzL2kyYy9hbGdvcy9pMmMtYWxnby1iaXQuYwppbmRleCA0YTM0ZjMxMWUxZmYuLmZhYjQ0
+MzdlY2JiNSAxMDA2NDQKLS0tIGEvZHJpdmVycy9pMmMvYWxnb3MvaTJjLWFsZ28tYml0LmMKKysr
+IGIvZHJpdmVycy9pMmMvYWxnb3MvaTJjLWFsZ28tYml0LmMKQEAgLTY0OCwxMCArNjQ4LDE5IEBA
+IHN0YXRpYyBpbnQgX19pMmNfYml0X2FkZF9idXMoc3RydWN0IGkyY19hZGFwdGVyICphZGFwLAog
+CQlhZGFwLT5xdWlya3MgPSAmaTJjX2JpdF9xdWlya19ub19jbGtfc3RyZXRjaDsKIAogCS8qIEJy
+aW5nIGJ1cyB0byBhIGtub3duIHN0YXRlLiBMb29rcyBsaWtlIFNUT1AgaWYgYnVzIGlzIG5vdCBm
+cmVlIHlldCAqLworCWlmIChiaXRfYWRhcC0+cHJlX3hmZXIpIHsKKwkJcmV0ID0gYml0X2FkYXAt
+PnByZV94ZmVyKGFkYXApOworCQlpZiAocmV0IDwgMCkKKwkJCXJldHVybiByZXQ7CisJfQorCiAJ
+c2V0c2NsKGJpdF9hZGFwLCAxKTsKIAl1ZGVsYXkoYml0X2FkYXAtPnVkZWxheSk7CiAJc2V0c2Rh
+KGJpdF9hZGFwLCAxKTsKIAorCWlmIChiaXRfYWRhcC0+cG9zdF94ZmVyKQorCQliaXRfYWRhcC0+
+cG9zdF94ZmVyKGFkYXApOworCiAJcmV0ID0gYWRkX2FkYXB0ZXIoYWRhcCk7CiAJaWYgKHJldCA8
+IDApCiAJCXJldHVybiByZXQ7Ci0tIAoyLjExLjAKCl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxp
+c3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL2RyaS1kZXZlbAo=
