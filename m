@@ -1,11 +1,15 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [RFT] i2c: algos: bit: prepare/unprepare before sending initial STOP
-Date: Fri, 15 Jun 2018 14:17:23 +0900
-Message-ID: <20180615051723.7193-1-wsa+renesas@sang-engineering.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [RFT] i2c: algos: bit: prepare/unprepare before sending initial
+ STOP
+Date: Fri, 15 Jun 2018 11:25:27 +0300
+Message-ID: <ca996c6d-4a95-12ae-7200-b49a31c93c31@cogentembedded.com>
+References: <20180615051723.7193-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Content-Transfer-Encoding: base64
 Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20180615051723.7193-1-wsa+renesas@sang-engineering.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
  <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
 List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
@@ -15,31 +19,15 @@ List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
  <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
 Errors-To: dri-devel-bounces@lists.freedesktop.org
 Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: linux-i2c@vger.kernel.org, cerg2010cerg2010@mail.ru
-Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, dri-devel@lists.freedesktop.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, cerg2010cerg2010@mail.ru
+Cc: linux-renesas-soc@vger.kernel.org, dri-devel@lists.freedesktop.org
 List-Id: linux-i2c@vger.kernel.org
 
-U29tZSBhZGFwdGVycyBuZWVkIHRvIGJlIHByZXBhcmVkL3VucHJlcGFyZWQgYmVmb3JlIGJpdGJh
-bmdpbmcgdGhlIGJ1cy4KRG8gdGhpcyBmb3IgdGhlIGluaXRpYWwgU1RPUCwgdG9vLgoKU2lnbmVk
-LW9mZi1ieTogV29sZnJhbSBTYW5nIDx3c2ErcmVuZXNhc0BzYW5nLWVuZ2luZWVyaW5nLmNvbT4K
-LS0tCgpPaywgYW5vdGhlciBpZGVhIHRvIGZpeCB0aGUgcmVncmVzc2lvbi4gSSdtIG5vdCAxMDAl
-IHN1cmUgaWYgdGhlIHBsYWNlbWVudCBpcwpwZXJmZWN0LCBidXQgaXQgc2hvdWxkIHNlcnZlIHdl
-bGwgZW5vdWdoIGFzIGEgcHJvb2Ygb2YgY29uY2VwdCB0byBzZWUgaWYgdGhpcwppcyB0aGUgYWN0
-dWFsIGlzc3VlLiBJdCBsb29rcyBwcm9taXNpbmcsIHRob3VnaC4KCiBkcml2ZXJzL2kyYy9hbGdv
-cy9pMmMtYWxnby1iaXQuYyB8IDkgKysrKysrKysrCiAxIGZpbGUgY2hhbmdlZCwgOSBpbnNlcnRp
-b25zKCspCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYWxnb3MvaTJjLWFsZ28tYml0LmMgYi9k
-cml2ZXJzL2kyYy9hbGdvcy9pMmMtYWxnby1iaXQuYwppbmRleCA0YTM0ZjMxMWUxZmYuLmZhYjQ0
-MzdlY2JiNSAxMDA2NDQKLS0tIGEvZHJpdmVycy9pMmMvYWxnb3MvaTJjLWFsZ28tYml0LmMKKysr
-IGIvZHJpdmVycy9pMmMvYWxnb3MvaTJjLWFsZ28tYml0LmMKQEAgLTY0OCwxMCArNjQ4LDE5IEBA
-IHN0YXRpYyBpbnQgX19pMmNfYml0X2FkZF9idXMoc3RydWN0IGkyY19hZGFwdGVyICphZGFwLAog
-CQlhZGFwLT5xdWlya3MgPSAmaTJjX2JpdF9xdWlya19ub19jbGtfc3RyZXRjaDsKIAogCS8qIEJy
-aW5nIGJ1cyB0byBhIGtub3duIHN0YXRlLiBMb29rcyBsaWtlIFNUT1AgaWYgYnVzIGlzIG5vdCBm
-cmVlIHlldCAqLworCWlmIChiaXRfYWRhcC0+cHJlX3hmZXIpIHsKKwkJcmV0ID0gYml0X2FkYXAt
-PnByZV94ZmVyKGFkYXApOworCQlpZiAocmV0IDwgMCkKKwkJCXJldHVybiByZXQ7CisJfQorCiAJ
-c2V0c2NsKGJpdF9hZGFwLCAxKTsKIAl1ZGVsYXkoYml0X2FkYXAtPnVkZWxheSk7CiAJc2V0c2Rh
-KGJpdF9hZGFwLCAxKTsKIAorCWlmIChiaXRfYWRhcC0+cG9zdF94ZmVyKQorCQliaXRfYWRhcC0+
-cG9zdF94ZmVyKGFkYXApOworCiAJcmV0ID0gYWRkX2FkYXB0ZXIoYWRhcCk7CiAJaWYgKHJldCA8
-IDApCiAJCXJldHVybiByZXQ7Ci0tIAoyLjExLjAKCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxp
-c3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL2RyaS1kZXZlbAo=
+T24gNi8xNS8yMDE4IDg6MTcgQU0sIFdvbGZyYW0gU2FuZyB3cm90ZToKCj4gU29tZSBhZGFwdGVy
+cyBuZWVkIHRvIGJlIHByZXBhcmVkL3VucHJlcGFyZWQgYmVmb3JlIGJpdGJhbmdpbmcgdGhlIGJ1
+cy4KCiAgICBCZWZvcmUvYWZ0ZXI/Cgo+IERvIHRoaXMgZm9yIHRoZSBpbml0aWFsIFNUT1AsIHRv
+by4KPiAKPiBTaWduZWQtb2ZmLWJ5OiBXb2xmcmFtIFNhbmcgPHdzYStyZW5lc2FzQHNhbmctZW5n
+aW5lZXJpbmcuY29tPgpbLi4uXQoKTUJSLCBTZXJnZWkKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxA
+bGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxt
+YW4vbGlzdGluZm8vZHJpLWRldmVsCg==
