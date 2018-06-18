@@ -1,34 +1,70 @@
-From: Joel Stanley <joel@jms.id.au>
-Subject: Re: [PATCH v10 0/7] i2c: Add FSI-attached I2C master algorithm
-Date: Mon, 18 Jun 2018 14:23:11 +0930
-Message-ID: <CACPK8XcA7RmerPbK_5pCh_NJQqZ_5pAVD4najW9e4rf1FYL4SQ@mail.gmail.com>
-References: <1528918579-27602-1-git-send-email-eajames@linux.vnet.ibm.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 01/11] i2c: add helpers for locking the I2C segment
+Date: Mon, 18 Jun 2018 20:05:03 +0900
+Message-ID: <20180618110502.cb5s24srp4frahm6@ninjato>
+References: <20180615101506.8012-1-peda@axentia.se>
+ <20180615101506.8012-2-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="kyrdsz3663p2mr6a"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1528918579-27602-1-git-send-email-eajames@linux.vnet.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <20180615101506.8012-2-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eddie James <eajames@linux.vnet.ibm.com>
-Cc: linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mark Rutland <mark.rutland@arm.com>, Greg KH <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Peter Rosin <peda@axentia.se>
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 14 June 2018 at 05:06, Eddie James <eajames@linux.vnet.ibm.com> wrote:
-> This series adds an algorithm for an I2C master physically located on an FSI
-> slave device. The I2C master has multiple ports, each of which may be connected
-> to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
->
-> Due to the multi-port nature of the I2C master, the driver instantiates a new
-> I2C adapter for each port connected to a slave. The connected ports should be
-> defined in the device tree under the I2C master device.
 
-Looks good Eddie. I had a read over what you have, and I would be
-happy to see this merged in 4.19.
+--kyrdsz3663p2mr6a
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Reviewed-By: Joel Stanley <joel@jms.id.au>
 
-Also, I have merged this into the 4.17 based openbmc tree for testing
-while we wait for it to be merged upstream.
+> +static inline void
+> +i2c_lock_segment(struct i2c_adapter *adapter)
+> +{
+> +	i2c_lock_bus(adapter, I2C_LOCK_SEGMENT);
+> +}
+> +
+> +static inline int
+> +i2c_trylock_segment(struct i2c_adapter *adapter)
+> +{
+> +	return i2c_trylock_bus(adapter, I2C_LOCK_SEGMENT);
+> +}
+> +
+> +static inline void
+> +i2c_unlock_segment(struct i2c_adapter *adapter)
+> +{
+> +	i2c_unlock_bus(adapter, I2C_LOCK_SEGMENT);
+> +}
 
-Cheers,
+I wonder if i2c_lock_segment() and i2c_lock_root_adapter() are really
+more readable and convenient than i2c_lock_bus() with the flag. I think
+the flags have speaking names, too.
 
-Joel
+Is that an idea to remove these functions altogether and start using
+i2c_lock_bus()?
+
+
+--kyrdsz3663p2mr6a
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsnkdkACgkQFA3kzBSg
+KbYHrxAAq5XQSNo6hQGYuXMRkA7MybJvlJqw3Pp8w2csvX2JO0CFIq3RA1WcHkav
+nQZKZTByfrB/oCh+La6HhIy59XgmyetlSLo3u+VQ5YinF3XK6JBKfeImWuLUS706
+vRiptpAMjjaW2SbGJ3NOalr3mgcZ9ru1j4lhN9yq3iBMvWv7uzDAUMmMRtaNNqWx
+aWtIdaWozAyGdKiRh7fhaP0uZXGGC4JDxurrgNE1tGPqkNAMSTD+rGvgEux+A/z3
+nO2UTLmQf/UYDv50FJAFsrl6magReFxyLV7WrJz+wj3l3UyzMEYmGEW3i/j0MZ6A
+WkfLGPpYHEXeX6HRbDE2p6gCuTpWyXBbLBV3fyvSJ6/2qqGnEIxk08Si0XmGwHJi
+Y+t63nhtVzVE2HmU0KssJBKa4C86/bROyDEgkTsq3fijA8ec3i3RtMAgB0DmQat3
+WiACufPjP+n36+IgtKn7UzzaqfuRwUVB788O+E4CI+AVHNTN7maHyBjyTB8Sx/cX
+k5p2FzxEVlVnsANHTL6Mhw4GfZLMP6ofU5MrIEiKIAX53QSOwvg7EoXXu4skUbgv
+JjPqOsqSQOR755iXJ/al/sJCQYnMvpWmTqTgFnqq19jHkLO4bczEa6AoTZlD1XRN
+b2aWYQrXXSKySuOB/X1BqGdfw5Kals3WHGOB7/bVf9LKhSaLUsc=
+=uT/j
+-----END PGP SIGNATURE-----
+
+--kyrdsz3663p2mr6a--
