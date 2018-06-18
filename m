@@ -1,41 +1,34 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 2/2] i2c: algos: bit: mention our experience about initial
- states
-Date: Sat, 16 Jun 2018 22:37:57 +0900
-Message-ID: <20180616133757.5994-3-wsa+renesas@sang-engineering.com>
-References: <20180616133757.5994-1-wsa+renesas@sang-engineering.com>
+From: Joel Stanley <joel@jms.id.au>
+Subject: Re: [PATCH v10 0/7] i2c: Add FSI-attached I2C master algorithm
+Date: Mon, 18 Jun 2018 14:23:11 +0930
+Message-ID: <CACPK8XcA7RmerPbK_5pCh_NJQqZ_5pAVD4najW9e4rf1FYL4SQ@mail.gmail.com>
+References: <1528918579-27602-1-git-send-email-eajames@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20180616133757.5994-1-wsa+renesas@sang-engineering.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, dri-devel@lists.freedesktop.org, Sergey Larin <cerg2010cerg2010@mail.ru>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1528918579-27602-1-git-send-email-eajames@linux.vnet.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Eddie James <eajames@linux.vnet.ibm.com>
+Cc: linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mark Rutland <mark.rutland@arm.com>, Greg KH <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Peter Rosin <peda@axentia.se>
 List-Id: linux-i2c@vger.kernel.org
 
-U28sIGlmIHNvbWVib2R5IHdhbnRzIHRvIHJlLWltcGxlbWVudCB0aGlzIGluIHRoZSBmdXR1cmUs
-IHdlIHBpbnBvaW50IHRvCmEgcHJvYmxlbSBjYXNlLgoKU2lnbmVkLW9mZi1ieTogV29sZnJhbSBT
-YW5nIDx3c2ErcmVuZXNhc0BzYW5nLWVuZ2luZWVyaW5nLmNvbT4KLS0tCiBkcml2ZXJzL2kyYy9h
-bGdvcy9pMmMtYWxnby1iaXQuYyB8IDUgKysrKysKIDEgZmlsZSBjaGFuZ2VkLCA1IGluc2VydGlv
-bnMoKykKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9hbGdvcy9pMmMtYWxnby1iaXQuYyBiL2Ry
-aXZlcnMvaTJjL2FsZ29zL2kyYy1hbGdvLWJpdC5jCmluZGV4IDBjMGViMTZkNzEwZi4uNmVjNjVh
-ZGFiYTQ5IDEwMDY0NAotLS0gYS9kcml2ZXJzL2kyYy9hbGdvcy9pMmMtYWxnby1iaXQuYworKysg
-Yi9kcml2ZXJzL2kyYy9hbGdvcy9pMmMtYWxnby1iaXQuYwpAQCAtNjQ3LDYgKzY0NywxMSBAQCBz
-dGF0aWMgaW50IF9faTJjX2JpdF9hZGRfYnVzKHN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcCwKIAlp
-ZiAoYml0X2FkYXAtPmdldHNjbCA9PSBOVUxMKQogCQlhZGFwLT5xdWlya3MgPSAmaTJjX2JpdF9x
-dWlya19ub19jbGtfc3RyZXRjaDsKIAorCS8qCisJICogV2UgdHJpZWQgZm9yY2luZyBTQ0wvU0RB
-IHRvIGFuIGluaXRpYWwgc3RhdGUgaGVyZS4gQnV0IHRoYXQgY2F1c2VkIGEKKwkgKiByZWdyZXNz
-aW9uLCBzYWRseS4gQ2hlY2sgQnVnemlsbGEgIzIwMDA0NSBmb3IgZGV0YWlscy4KKwkgKi8KKwog
-CXJldCA9IGFkZF9hZGFwdGVyKGFkYXApOwogCWlmIChyZXQgPCAwKQogCQlyZXR1cm4gcmV0Owot
-LSAKMi4xMS4wCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcK
-aHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK
+On 14 June 2018 at 05:06, Eddie James <eajames@linux.vnet.ibm.com> wrote:
+> This series adds an algorithm for an I2C master physically located on an FSI
+> slave device. The I2C master has multiple ports, each of which may be connected
+> to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
+>
+> Due to the multi-port nature of the I2C master, the driver instantiates a new
+> I2C adapter for each port connected to a slave. The connected ports should be
+> defined in the device tree under the I2C master device.
+
+Looks good Eddie. I had a read over what you have, and I would be
+happy to see this merged in 4.19.
+
+Reviewed-By: Joel Stanley <joel@jms.id.au>
+
+Also, I have merged this into the 4.17 based openbmc tree for testing
+while we wait for it to be merged upstream.
+
+Cheers,
+
+Joel
