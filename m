@@ -1,71 +1,50 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 01/11] i2c: add helpers for locking the I2C segment
-Date: Mon, 18 Jun 2018 20:54:46 +0900
-Message-ID: <20180618115444.pgjmfntp767zuvmw@ninjato>
-References: <20180615101506.8012-1-peda@axentia.se>
- <20180615101506.8012-2-peda@axentia.se>
- <20180618110502.cb5s24srp4frahm6@ninjato>
- <b860025e-3d4b-f333-80b4-3831dd969757@axentia.se>
+From: Alex Deucher <alexdeucher@gmail.com>
+Subject: Re: [PATCH 2/2] i2c: algos: bit: mention our experience about initial
+ states
+Date: Mon, 18 Jun 2018 12:03:22 -0400
+Message-ID: <CADnq5_Nfee+r-FC_c94-ByWqC9GBONr+Acr15ATb+5yAw_bWMA@mail.gmail.com>
+References: <20180616133757.5994-1-wsa+renesas@sang-engineering.com>
+ <20180616133757.5994-3-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="odyilowjkqhfymya"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <b860025e-3d4b-f333-80b4-3831dd969757@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20180616133757.5994-3-wsa+renesas@sang-engineering.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-renesas-soc@vger.kernel.org, Sergey Larin <cerg2010cerg2010@mail.ru>, Linux I2C <linux-i2c@vger.kernel.org>, Maling list - DRI developers <dri-devel@lists.freedesktop.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---odyilowjkqhfymya
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-
-> > I wonder if i2c_lock_segment() and i2c_lock_root_adapter() are really
-> > more readable and convenient than i2c_lock_bus() with the flag. I think
-> > the flags have speaking names, too.
-> >=20
-> > Is that an idea to remove these functions altogether and start using
-> > i2c_lock_bus()?
->=20
-> That would be fine with me. I don't have a strong opinion and agree that
-> both are readable enough...
->=20
-> It would make for a reduction of the number of lines so that's nice, but
-> the macro in drivers/i2c/busses/i2c-gpio.c (patch 11) would not fit in
-> the current \-width (or whatever you'd call that line of backslashes to
-> the right in a multi-line macro).
->=20
-> Does anyone have a strong opinion?
-
-I have a strong opinion on making i2c.h less bloated. And yes, less
-number of lines is nice, too. I think that surely pays off the
-whitespace exception.
-
-Thanks!
-
-
---odyilowjkqhfymya
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlsnnXsACgkQFA3kzBSg
-KbanHg//QoW7vYFlzaQmn4GWdT8DHxpMggaefmiIzNdCezeBGZf+7umVKJ9JwScH
-L7tMU76PFrWS8PRJv678TUzIgCamMUepR8AX99kR79q2VKTucHnprWc68WEelO71
-j5C9y/Vc7Oa+AnD6DlnV5JySSjcHTNH1beivLlpU/AATcT1qJf6acYkJfV8h4JCP
-F+wOu6gt2SjsjPY/Naj8NiCXzW1n1be46vOKuwvTcxEcIvs1qSkoMr52S34y/VUP
-DuXFqwsySm0Yb/Z+lF7nOKwEgJ8PV2Y5IPvsnK+KAt86d5X4ivnLgr5Lw6DCGShX
-VhUGaYI9amhtSVT77mpiz+TvUoi3vvUccVKvVUMicGFvNG0b+45wHQwJiGRYxuzn
-57/Fdm+7Dr5/IhqP0HRNc7rWorrT2NcDCJp+Pea5xcSXpsKkoMdLaCW994T1aT0g
-78utxNnqS21O3GCdITN/IO4xbCN1dNX9+x/6sl5Ks9xO0WA3Fvl1fOlslvVknSAp
-4cJRMWOlxqK6NCU4dHy762yptyVrpzp/01jcofLJhpkLRxQjXSiJpk/C6BxZsipa
-a1uyKean7DC8imJX2StUVaKCA9ava33fJau+HBC3TPLXzh54mU8FI+FZTrxB89Aj
-g+8WH14/n0PrTsvFDkLcgGRVY4uQwPkWkM3HYkauUmyyPFs+wYE=
-=CA/X
------END PGP SIGNATURE-----
-
---odyilowjkqhfymya--
+T24gU2F0LCBKdW4gMTYsIDIwMTggYXQgOTozNyBBTSwgV29sZnJhbSBTYW5nCjx3c2ErcmVuZXNh
+c0BzYW5nLWVuZ2luZWVyaW5nLmNvbT4gd3JvdGU6Cj4gU28sIGlmIHNvbWVib2R5IHdhbnRzIHRv
+IHJlLWltcGxlbWVudCB0aGlzIGluIHRoZSBmdXR1cmUsIHdlIHBpbnBvaW50IHRvCj4gYSBwcm9i
+bGVtIGNhc2UuCj4KPiBTaWduZWQtb2ZmLWJ5OiBXb2xmcmFtIFNhbmcgPHdzYStyZW5lc2FzQHNh
+bmctZW5naW5lZXJpbmcuY29tPgoKU2VyaWVzIGlzOgpBY2tlZC1ieTogQWxleCBEZXVjaGVyIDxh
+bGV4YW5kZXIuZGV1Y2hlckBhbWQuY29tPgoKPiAtLS0KPiAgZHJpdmVycy9pMmMvYWxnb3MvaTJj
+LWFsZ28tYml0LmMgfCA1ICsrKysrCj4gIDEgZmlsZSBjaGFuZ2VkLCA1IGluc2VydGlvbnMoKykK
+Pgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9hbGdvcy9pMmMtYWxnby1iaXQuYyBiL2RyaXZl
+cnMvaTJjL2FsZ29zL2kyYy1hbGdvLWJpdC5jCj4gaW5kZXggMGMwZWIxNmQ3MTBmLi42ZWM2NWFk
+YWJhNDkgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9pMmMvYWxnb3MvaTJjLWFsZ28tYml0LmMKPiAr
+KysgYi9kcml2ZXJzL2kyYy9hbGdvcy9pMmMtYWxnby1iaXQuYwo+IEBAIC02NDcsNiArNjQ3LDEx
+IEBAIHN0YXRpYyBpbnQgX19pMmNfYml0X2FkZF9idXMoc3RydWN0IGkyY19hZGFwdGVyICphZGFw
+LAo+ICAgICAgICAgaWYgKGJpdF9hZGFwLT5nZXRzY2wgPT0gTlVMTCkKPiAgICAgICAgICAgICAg
+ICAgYWRhcC0+cXVpcmtzID0gJmkyY19iaXRfcXVpcmtfbm9fY2xrX3N0cmV0Y2g7Cj4KPiArICAg
+ICAgIC8qCj4gKyAgICAgICAgKiBXZSB0cmllZCBmb3JjaW5nIFNDTC9TREEgdG8gYW4gaW5pdGlh
+bCBzdGF0ZSBoZXJlLiBCdXQgdGhhdCBjYXVzZWQgYQo+ICsgICAgICAgICogcmVncmVzc2lvbiwg
+c2FkbHkuIENoZWNrIEJ1Z3ppbGxhICMyMDAwNDUgZm9yIGRldGFpbHMuCj4gKyAgICAgICAgKi8K
+PiArCj4gICAgICAgICByZXQgPSBhZGRfYWRhcHRlcihhZGFwKTsKPiAgICAgICAgIGlmIChyZXQg
+PCAwKQo+ICAgICAgICAgICAgICAgICByZXR1cm4gcmV0Owo+IC0tCj4gMi4xMS4wCj4KPiBfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwo+IGRyaS1kZXZlbCBt
+YWlsaW5nIGxpc3QKPiBkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCj4gaHR0cHM6Ly9s
+aXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcg
+bGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRl
+c2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
