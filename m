@@ -1,49 +1,86 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 0/5] i2c: smbus: add unlocked __i2c_smbus_xfer variant
-Date: Wed, 20 Jun 2018 10:51:52 +0200
-Message-ID: <20180620085157.30121-1-peda@axentia.se>
+From: Michael Shych <michaelsh@mellanox.com>
+Subject: RE: [PATCH 2/5] i2c: mux: mlxcpld: make use of __i2c_smbus_xfer
+Date: Wed, 20 Jun 2018 09:11:19 +0000
+Message-ID: <DB5PR05MB13204C9C94ADA30ABA1575AAD9770@DB5PR05MB1320.eurprd05.prod.outlook.com>
+References: <20180620085157.30121-1-peda@axentia.se>
+ <20180620085157.30121-3-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180620085157.30121-3-peda@axentia.se>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, Guenter Roeck <linux@roeck-us.net>, Akinobu Mita <akinobu.mita@gmail.com>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Vadim Pasternak <vadimp@mellanox.com>, Guenter Roeck <linux@roeck-us.net>, Akinobu Mita <akinobu.mita@gmail.com>, Jean Delvare <jdelvare@suse.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi!
 
-There are a couple of users that could benefit from an unlocked variant
-of i2c_smbus_xfer. In response to [1] I dusted off an old series that I
-have had in a branch for a while that adds such a beast. It also converts
-over some users in the i2c-mux department.
 
-There are a couple of remaining candidates in i2c/busses/i2c-amd756-s4882.c
-and i2c/busses/i2c-nforce2-s4985.c, but frankly, those are just too nasty.
-Why do they unregister the root adapter and then continue to use it? I
-dare not touch that code...
+> -----Original Message-----
+> From: Peter Rosin [mailto:peda@axentia.se]
+> Sent: Wednesday, June 20, 2018 11:52 AM
+> To: linux-kernel@vger.kernel.org
+> Cc: Peter Rosin <peda@axentia.se>; Wolfram Sang <wsa@the-dreams.de>;
+> Vadim Pasternak <vadimp@mellanox.com>; Michael Shych
+> <michaelsh@mellanox.com>; Guenter Roeck <linux@roeck-us.net>;
+> Akinobu Mita <akinobu.mita@gmail.com>; Jean Delvare
+> <jdelvare@suse.com>; linux-i2c@vger.kernel.org
+> Subject: [PATCH 2/5] i2c: mux: mlxcpld: make use of __i2c_smbus_xfer
+>=20
+> This simplifies the code, and you get retries for free if the adapter
+> does not support ->master_xfer.
+>=20
+> Signed-off-by: Peter Rosin <peda@axentia.se>
 
-Anyway, this series looks like a nice cleanup to me, and the recent sccb
-patch from Akinobu Mita could also benefit, as indicated by Wolfram [1].
+Acked-by: Michael Shych <michaelsh@mellanox.com>
 
-Cheers,
-Peter
-
-[1] https://patchwork.ozlabs.org/patch/928386/#1936016
-
-Peter Rosin (5):
-  i2c: smbus: add unlocked __i2c_smbus_xfer variant
-  i2c: mux: mlxcpld: make use of __i2c_smbus_xfer
-  i2c: mux: pca9541: make use of __i2c_smbus_xfer
-  i2c: mux: pca954x: make use of __i2c_smbus_xfer
-  i2c: mux: make use of __i2c_smbus_xfer
-
- drivers/i2c/i2c-core-smbus.c        | 28 ++++++++++-----
- drivers/i2c/i2c-mux.c               |  4 +--
- drivers/i2c/muxes/i2c-mux-mlxcpld.c | 28 +++------------
- drivers/i2c/muxes/i2c-mux-pca9541.c | 69 ++++++-------------------------------
- drivers/i2c/muxes/i2c-mux-pca954x.c | 27 +++------------
- include/linux/i2c.h                 | 11 ++++--
- 6 files changed, 49 insertions(+), 118 deletions(-)
-
--- 
-2.11.0
+> ---
+>  drivers/i2c/muxes/i2c-mux-mlxcpld.c | 28 ++++------------------------
+>  1 file changed, 4 insertions(+), 24 deletions(-)
+>=20
+> diff --git a/drivers/i2c/muxes/i2c-mux-mlxcpld.c b/drivers/i2c/muxes/i2c-
+> mux-mlxcpld.c
+> index 12ad8d65faf6..f2bf3e57ed67 100644
+> --- a/drivers/i2c/muxes/i2c-mux-mlxcpld.c
+> +++ b/drivers/i2c/muxes/i2c-mux-mlxcpld.c
+> @@ -94,31 +94,11 @@ static int mlxcpld_mux_reg_write(struct i2c_adapter
+> *adap,
+>  				 struct i2c_client *client, u8 val)
+>  {
+>  	struct mlxcpld_mux_plat_data *pdata =3D dev_get_platdata(&client-
+> >dev);
+> -	int ret =3D -ENODEV;
+> -
+> -	if (adap->algo->master_xfer) {
+> -		struct i2c_msg msg;
+> -		u8 msgbuf[] =3D {pdata->sel_reg_addr, val};
+> -
+> -		msg.addr =3D client->addr;
+> -		msg.flags =3D 0;
+> -		msg.len =3D 2;
+> -		msg.buf =3D msgbuf;
+> -		ret =3D __i2c_transfer(adap, &msg, 1);
+> -
+> -		if (ret >=3D 0 && ret !=3D 1)
+> -			ret =3D -EREMOTEIO;
+> -	} else if (adap->algo->smbus_xfer) {
+> -		union i2c_smbus_data data;
+> -
+> -		data.byte =3D val;
+> -		ret =3D adap->algo->smbus_xfer(adap, client->addr,
+> -					     client->flags, I2C_SMBUS_WRITE,
+> -					     pdata->sel_reg_addr,
+> -					     I2C_SMBUS_BYTE_DATA, &data);
+> -	}
+> +	union i2c_smbus_data data =3D { .byte =3D val };
+>=20
+> -	return ret;
+> +	return __i2c_smbus_xfer(adap, client->addr, client->flags,
+> +				I2C_SMBUS_WRITE, pdata->sel_reg_addr,
+> +				I2C_SMBUS_BYTE_DATA, &data);
+>  }
+>=20
+>  static int mlxcpld_mux_select_chan(struct i2c_mux_core *muxc, u32 chan)
+> --
+> 2.11.0
