@@ -1,66 +1,126 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v2 01/10] tpm/tpm_i2c_infineon: switch to i2c_lock_bus(..., I2C_LOCK_SEGMENT)
-Date: Wed, 20 Jun 2018 07:17:54 +0200
-Message-ID: <20180620051803.12206-2-peda@axentia.se>
-References: <20180620051803.12206-1-peda@axentia.se>
+Subject: [PATCH 1/5] i2c: smbus: add unlocked __i2c_smbus_xfer variant
+Date: Wed, 20 Jun 2018 10:51:53 +0200
+Message-ID: <20180620085157.30121-2-peda@axentia.se>
+References: <20180620085157.30121-1-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180620051803.12206-1-peda@axentia.se>
+In-Reply-To: <20180620085157.30121-1-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>Crt Mori <c>
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, Guenter Roeck <linux@roeck-us.net>, Akinobu Mita <akinobu.mita@gmail.com>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Locking the root adapter for __i2c_transfer will deadlock if the
-device sits behind a mux-locked I2C mux. Switch to the finer-grained
-i2c_lock_bus with the I2C_LOCK_SEGMENT flag. If the device does not
-sit behind a mux-locked mux, the two locking variants are equivalent.
+Removes all locking from i2c_smbus_xfer and renames it to __i2c_smbus_xfer,
+then adds a new i2c_smbus_xfer function that simply grabs the lock while
+calling the unlocked variant.
+
+This is not perfectly equivalent, since i2c_smbus_xfer was callable from
+atomic/irq context if you happened to end up emulating SMBus with an I2C
+transfer, and that is no longer the case with this patch. It is unknown
+(to me) if anything depends on that quirk, but it seems fragile enough to
+simply break those cases and require them to call i2c_transfer directly
+instead.
+
+While at it, for consistency rename the 2nd to last argument (size) of
+the i2c_smbus_xfer declaration to protocol and remove the surplus extern
+marker.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/char/tpm/tpm_i2c_infineon.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/i2c/i2c-core-smbus.c | 28 ++++++++++++++++++++--------
+ include/linux/i2c.h          | 11 ++++++++---
+ 2 files changed, 28 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/char/tpm/tpm_i2c_infineon.c b/drivers/char/tpm/tpm_i2c_infineon.c
-index 6116cd05e228..9086edc9066b 100644
---- a/drivers/char/tpm/tpm_i2c_infineon.c
-+++ b/drivers/char/tpm/tpm_i2c_infineon.c
-@@ -117,7 +117,7 @@ static int iic_tpm_read(u8 addr, u8 *buffer, size_t len)
- 	/* Lock the adapter for the duration of the whole sequence. */
- 	if (!tpm_dev.client->adapter->algo->master_xfer)
- 		return -EOPNOTSUPP;
--	i2c_lock_adapter(tpm_dev.client->adapter);
-+	i2c_lock_bus(tpm_dev.client->adapter, I2C_LOCK_SEGMENT);
- 
- 	if (tpm_dev.chip_type == SLB9645) {
- 		/* use a combined read for newer chips
-@@ -192,7 +192,7 @@ static int iic_tpm_read(u8 addr, u8 *buffer, size_t len)
+diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
+index f3f683041e7f..e89956ec5e27 100644
+--- a/drivers/i2c/i2c-core-smbus.c
++++ b/drivers/i2c/i2c-core-smbus.c
+@@ -463,7 +463,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+ 			msg[num-1].len++;
  	}
  
- out:
--	i2c_unlock_adapter(tpm_dev.client->adapter);
-+	i2c_unlock_bus(tpm_dev.client->adapter, I2C_LOCK_SEGMENT);
- 	/* take care of 'guard time' */
- 	usleep_range(SLEEP_DURATION_LOW, SLEEP_DURATION_HI);
+-	status = i2c_transfer(adapter, msg, num);
++	status = __i2c_transfer(adapter, msg, num);
+ 	if (status < 0)
+ 		return status;
+ 	if (status != num)
+@@ -520,9 +520,24 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+  * This executes an SMBus protocol operation, and returns a negative
+  * errno code else zero on success.
+  */
+-s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+-		   char read_write, u8 command, int protocol,
+-		   union i2c_smbus_data *data)
++s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
++		   unsigned short flags, char read_write,
++		   u8 command, int protocol, union i2c_smbus_data *data)
++{
++	s32 res;
++
++	i2c_lock_bus(adapter, I2C_LOCK_SEGMENT);
++	res = __i2c_smbus_xfer(adapter, addr, flags, read_write,
++			       command, protocol, data);
++	i2c_unlock_bus(adapter, I2C_LOCK_SEGMENT);
++
++	return res;
++}
++EXPORT_SYMBOL(i2c_smbus_xfer);
++
++s32 __i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
++		     unsigned short flags, char read_write,
++		     u8 command, int protocol, union i2c_smbus_data *data)
+ {
+ 	unsigned long orig_jiffies;
+ 	int try;
+@@ -539,8 +554,6 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+ 	flags &= I2C_M_TEN | I2C_CLIENT_PEC | I2C_CLIENT_SCCB;
  
-@@ -224,7 +224,7 @@ static int iic_tpm_write_generic(u8 addr, u8 *buffer, size_t len,
+ 	if (adapter->algo->smbus_xfer) {
+-		i2c_lock_bus(adapter, I2C_LOCK_SEGMENT);
+-
+ 		/* Retry automatically on arbitration loss */
+ 		orig_jiffies = jiffies;
+ 		for (res = 0, try = 0; try <= adapter->retries; try++) {
+@@ -553,7 +566,6 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+ 				       orig_jiffies + adapter->timeout))
+ 				break;
+ 		}
+-		i2c_unlock_bus(adapter, I2C_LOCK_SEGMENT);
  
- 	if (!tpm_dev.client->adapter->algo->master_xfer)
- 		return -EOPNOTSUPP;
--	i2c_lock_adapter(tpm_dev.client->adapter);
-+	i2c_lock_bus(tpm_dev.client->adapter, I2C_LOCK_SEGMENT);
+ 		if (res != -EOPNOTSUPP || !adapter->algo->master_xfer)
+ 			goto trace;
+@@ -575,7 +587,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
  
- 	/* prepend the 'register address' to the buffer */
- 	tpm_dev.buf[0] = addr;
-@@ -243,7 +243,7 @@ static int iic_tpm_write_generic(u8 addr, u8 *buffer, size_t len,
- 		usleep_range(sleep_low, sleep_hi);
- 	}
+ 	return res;
+ }
+-EXPORT_SYMBOL(i2c_smbus_xfer);
++EXPORT_SYMBOL(__i2c_smbus_xfer);
  
--	i2c_unlock_adapter(tpm_dev.client->adapter);
-+	i2c_unlock_bus(tpm_dev.client->adapter, I2C_LOCK_SEGMENT);
- 	/* take care of 'guard time' */
- 	usleep_range(SLEEP_DURATION_LOW, SLEEP_DURATION_HI);
+ /**
+  * i2c_smbus_read_i2c_block_data_or_emulated - read block or emulate
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 254cd34eeae2..465afb092fa7 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -140,9 +140,14 @@ extern int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+    and probably just as fast.
+    Note that we use i2c_adapter here, because you do not need a specific
+    smbus adapter to call this function. */
+-extern s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+-			  unsigned short flags, char read_write, u8 command,
+-			  int size, union i2c_smbus_data *data);
++s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
++		   unsigned short flags, char read_write, u8 command,
++		   int protocol, union i2c_smbus_data *data);
++
++/* Unlocked flavor */
++s32 __i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
++		     unsigned short flags, char read_write, u8 command,
++		     int protocol, union i2c_smbus_data *data);
  
+ /* Now follow the 'nice' access routines. These also document the calling
+    conventions of i2c_smbus_xfer. */
 -- 
 2.11.0
