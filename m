@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 4/5] i2c: mux: pca954x: make use of __i2c_smbus_xfer
-Date: Wed, 20 Jun 2018 10:51:56 +0200
-Message-ID: <20180620085157.30121-5-peda@axentia.se>
+Subject: [PATCH 2/5] i2c: mux: mlxcpld: make use of __i2c_smbus_xfer
+Date: Wed, 20 Jun 2018 10:51:54 +0200
+Message-ID: <20180620085157.30121-3-peda@axentia.se>
 References: <20180620085157.30121-1-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -17,47 +17,48 @@ does not support ->master_xfer.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/i2c/muxes/i2c-mux-pca954x.c | 27 ++++-----------------------
- 1 file changed, 4 insertions(+), 23 deletions(-)
+ drivers/i2c/muxes/i2c-mux-mlxcpld.c | 28 ++++------------------------
+ 1 file changed, 4 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index fbc748027087..0e9a0e66e92f 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -220,30 +220,11 @@ MODULE_DEVICE_TABLE(of, pca954x_of_match);
- static int pca954x_reg_write(struct i2c_adapter *adap,
- 			     struct i2c_client *client, u8 val)
+diff --git a/drivers/i2c/muxes/i2c-mux-mlxcpld.c b/drivers/i2c/muxes/i2c-mux-mlxcpld.c
+index 12ad8d65faf6..f2bf3e57ed67 100644
+--- a/drivers/i2c/muxes/i2c-mux-mlxcpld.c
++++ b/drivers/i2c/muxes/i2c-mux-mlxcpld.c
+@@ -94,31 +94,11 @@ static int mlxcpld_mux_reg_write(struct i2c_adapter *adap,
+ 				 struct i2c_client *client, u8 val)
  {
+ 	struct mlxcpld_mux_plat_data *pdata = dev_get_platdata(&client->dev);
 -	int ret = -ENODEV;
 -
 -	if (adap->algo->master_xfer) {
 -		struct i2c_msg msg;
--		char buf[1];
+-		u8 msgbuf[] = {pdata->sel_reg_addr, val};
 -
 -		msg.addr = client->addr;
 -		msg.flags = 0;
--		msg.len = 1;
--		buf[0] = val;
--		msg.buf = buf;
+-		msg.len = 2;
+-		msg.buf = msgbuf;
 -		ret = __i2c_transfer(adap, &msg, 1);
 -
 -		if (ret >= 0 && ret != 1)
 -			ret = -EREMOTEIO;
--	} else {
+-	} else if (adap->algo->smbus_xfer) {
 -		union i2c_smbus_data data;
+-
+-		data.byte = val;
 -		ret = adap->algo->smbus_xfer(adap, client->addr,
--					     client->flags,
--					     I2C_SMBUS_WRITE,
--					     val, I2C_SMBUS_BYTE, &data);
+-					     client->flags, I2C_SMBUS_WRITE,
+-					     pdata->sel_reg_addr,
+-					     I2C_SMBUS_BYTE_DATA, &data);
 -	}
-+	union i2c_smbus_data dummy;
++	union i2c_smbus_data data = { .byte = val };
  
 -	return ret;
 +	return __i2c_smbus_xfer(adap, client->addr, client->flags,
-+				I2C_SMBUS_WRITE, val,
-+				I2C_SMBUS_BYTE, &dummy);
++				I2C_SMBUS_WRITE, pdata->sel_reg_addr,
++				I2C_SMBUS_BYTE_DATA, &data);
  }
  
- static int pca954x_select_chan(struct i2c_mux_core *muxc, u32 chan)
+ static int mlxcpld_mux_select_chan(struct i2c_mux_core *muxc, u32 chan)
 -- 
 2.11.0
