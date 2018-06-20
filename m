@@ -1,86 +1,65 @@
-From: Michael Shych <michaelsh@mellanox.com>
-Subject: RE: [PATCH 2/5] i2c: mux: mlxcpld: make use of __i2c_smbus_xfer
-Date: Wed, 20 Jun 2018 09:11:19 +0000
-Message-ID: <DB5PR05MB13204C9C94ADA30ABA1575AAD9770@DB5PR05MB1320.eurprd05.prod.outlook.com>
-References: <20180620085157.30121-1-peda@axentia.se>
- <20180620085157.30121-3-peda@axentia.se>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH] i2c: smbus: kill memory leak on emulated and failed DMA SMBus xfers
+Date: Wed, 20 Jun 2018 11:43:23 +0200
+Message-ID: <20180620094323.8447-1-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180620085157.30121-3-peda@axentia.se>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Vadim Pasternak <vadimp@mellanox.com>, Guenter Roeck <linux@roeck-us.net>, Akinobu Mita <akinobu.mita@gmail.com>, Jean Delvare <jdelvare@suse.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+If DMA safe memory was allocated, but the subsequent I2C transfer
+fails the memory is leaked. Plug this leak.
 
+Fixes: 8a77821e74d6 ("i2c: smbus: use DMA safe buffers for emulated SMBus transactions")
+Signed-off-by: Peter Rosin <peda@axentia.se>
+---
+ drivers/i2c/i2c-core-smbus.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-> -----Original Message-----
-> From: Peter Rosin [mailto:peda@axentia.se]
-> Sent: Wednesday, June 20, 2018 11:52 AM
-> To: linux-kernel@vger.kernel.org
-> Cc: Peter Rosin <peda@axentia.se>; Wolfram Sang <wsa@the-dreams.de>;
-> Vadim Pasternak <vadimp@mellanox.com>; Michael Shych
-> <michaelsh@mellanox.com>; Guenter Roeck <linux@roeck-us.net>;
-> Akinobu Mita <akinobu.mita@gmail.com>; Jean Delvare
-> <jdelvare@suse.com>; linux-i2c@vger.kernel.org
-> Subject: [PATCH 2/5] i2c: mux: mlxcpld: make use of __i2c_smbus_xfer
->=20
-> This simplifies the code, and you get retries for free if the adapter
-> does not support ->master_xfer.
->=20
-> Signed-off-by: Peter Rosin <peda@axentia.se>
-
-Acked-by: Michael Shych <michaelsh@mellanox.com>
-
-> ---
->  drivers/i2c/muxes/i2c-mux-mlxcpld.c | 28 ++++------------------------
->  1 file changed, 4 insertions(+), 24 deletions(-)
->=20
-> diff --git a/drivers/i2c/muxes/i2c-mux-mlxcpld.c b/drivers/i2c/muxes/i2c-
-> mux-mlxcpld.c
-> index 12ad8d65faf6..f2bf3e57ed67 100644
-> --- a/drivers/i2c/muxes/i2c-mux-mlxcpld.c
-> +++ b/drivers/i2c/muxes/i2c-mux-mlxcpld.c
-> @@ -94,31 +94,11 @@ static int mlxcpld_mux_reg_write(struct i2c_adapter
-> *adap,
->  				 struct i2c_client *client, u8 val)
->  {
->  	struct mlxcpld_mux_plat_data *pdata =3D dev_get_platdata(&client-
-> >dev);
-> -	int ret =3D -ENODEV;
-> -
-> -	if (adap->algo->master_xfer) {
-> -		struct i2c_msg msg;
-> -		u8 msgbuf[] =3D {pdata->sel_reg_addr, val};
-> -
-> -		msg.addr =3D client->addr;
-> -		msg.flags =3D 0;
-> -		msg.len =3D 2;
-> -		msg.buf =3D msgbuf;
-> -		ret =3D __i2c_transfer(adap, &msg, 1);
-> -
-> -		if (ret >=3D 0 && ret !=3D 1)
-> -			ret =3D -EREMOTEIO;
-> -	} else if (adap->algo->smbus_xfer) {
-> -		union i2c_smbus_data data;
-> -
-> -		data.byte =3D val;
-> -		ret =3D adap->algo->smbus_xfer(adap, client->addr,
-> -					     client->flags, I2C_SMBUS_WRITE,
-> -					     pdata->sel_reg_addr,
-> -					     I2C_SMBUS_BYTE_DATA, &data);
-> -	}
-> +	union i2c_smbus_data data =3D { .byte =3D val };
->=20
-> -	return ret;
-> +	return __i2c_smbus_xfer(adap, client->addr, client->flags,
-> +				I2C_SMBUS_WRITE, pdata->sel_reg_addr,
-> +				I2C_SMBUS_BYTE_DATA, &data);
->  }
->=20
->  static int mlxcpld_mux_select_chan(struct i2c_mux_core *muxc, u32 chan)
-> --
-> 2.11.0
+diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
+index f3f683041e7f..51970bae3c4a 100644
+--- a/drivers/i2c/i2c-core-smbus.c
++++ b/drivers/i2c/i2c-core-smbus.c
+@@ -465,15 +465,18 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+ 
+ 	status = i2c_transfer(adapter, msg, num);
+ 	if (status < 0)
+-		return status;
+-	if (status != num)
+-		return -EIO;
++		goto cleanup;
++	if (status != num) {
++		status = -EIO;
++		goto cleanup;
++	}
++	status = 0;
+ 
+ 	/* Check PEC if last message is a read */
+ 	if (i && (msg[num-1].flags & I2C_M_RD)) {
+ 		status = i2c_smbus_check_pec(partial_pec, &msg[num-1]);
+ 		if (status < 0)
+-			return status;
++			goto cleanup;
+ 	}
+ 
+ 	if (read_write == I2C_SMBUS_READ)
+@@ -499,12 +502,13 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+ 			break;
+ 		}
+ 
++cleanup:
+ 	if (msg[0].flags & I2C_M_DMA_SAFE)
+ 		kfree(msg[0].buf);
+ 	if (msg[1].flags & I2C_M_DMA_SAFE)
+ 		kfree(msg[1].buf);
+ 
+-	return 0;
++	return status;
+ }
+ 
+ /**
+-- 
+2.11.0
