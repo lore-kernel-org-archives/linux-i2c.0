@@ -1,7 +1,7 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH 1/5] i2c: smbus: add unlocked __i2c_smbus_xfer variant
-Date: Wed, 20 Jun 2018 10:51:53 +0200
-Message-ID: <20180620085157.30121-2-peda@axentia.se>
+Subject: [PATCH 3/5] i2c: mux: pca9541: make use of __i2c_smbus_xfer
+Date: Wed, 20 Jun 2018 10:51:55 +0200
+Message-ID: <20180620085157.30121-4-peda@axentia.se>
 References: <20180620085157.30121-1-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,115 +12,102 @@ To: linux-kernel@vger.kernel.org
 Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, Guenter Roeck <linux@roeck-us.net>, Akinobu Mita <akinobu.mita@gmail.com>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Removes all locking from i2c_smbus_xfer and renames it to __i2c_smbus_xfer,
-then adds a new i2c_smbus_xfer function that simply grabs the lock while
-calling the unlocked variant.
-
-This is not perfectly equivalent, since i2c_smbus_xfer was callable from
-atomic/irq context if you happened to end up emulating SMBus with an I2C
-transfer, and that is no longer the case with this patch. It is unknown
-(to me) if anything depends on that quirk, but it seems fragile enough to
-simply break those cases and require them to call i2c_transfer directly
-instead.
-
-While at it, for consistency rename the 2nd to last argument (size) of
-the i2c_smbus_xfer declaration to protocol and remove the surplus extern
-marker.
+This simplifies the code, and you get retries for free if the adapter
+does not support ->master_xfer.
 
 Signed-off-by: Peter Rosin <peda@axentia.se>
 ---
- drivers/i2c/i2c-core-smbus.c | 28 ++++++++++++++++++++--------
- include/linux/i2c.h          | 11 ++++++++---
- 2 files changed, 28 insertions(+), 11 deletions(-)
+ drivers/i2c/muxes/i2c-mux-pca9541.c | 69 ++++++-------------------------------
+ 1 file changed, 11 insertions(+), 58 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
-index f3f683041e7f..e89956ec5e27 100644
---- a/drivers/i2c/i2c-core-smbus.c
-+++ b/drivers/i2c/i2c-core-smbus.c
-@@ -463,7 +463,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
- 			msg[num-1].len++;
- 	}
- 
--	status = i2c_transfer(adapter, msg, num);
-+	status = __i2c_transfer(adapter, msg, num);
- 	if (status < 0)
- 		return status;
- 	if (status != num)
-@@ -520,9 +520,24 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
-  * This executes an SMBus protocol operation, and returns a negative
-  * errno code else zero on success.
-  */
--s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
--		   char read_write, u8 command, int protocol,
--		   union i2c_smbus_data *data)
-+s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
-+		   unsigned short flags, char read_write,
-+		   u8 command, int protocol, union i2c_smbus_data *data)
-+{
-+	s32 res;
-+
-+	i2c_lock_bus(adapter, I2C_LOCK_SEGMENT);
-+	res = __i2c_smbus_xfer(adapter, addr, flags, read_write,
-+			       command, protocol, data);
-+	i2c_unlock_bus(adapter, I2C_LOCK_SEGMENT);
-+
-+	return res;
-+}
-+EXPORT_SYMBOL(i2c_smbus_xfer);
-+
-+s32 __i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
-+		     unsigned short flags, char read_write,
-+		     u8 command, int protocol, union i2c_smbus_data *data)
+diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+index 6a39adaf433f..3d8c938e99e7 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca9541.c
++++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+@@ -99,31 +99,11 @@ MODULE_DEVICE_TABLE(of, pca9541_of_match);
+ static int pca9541_reg_write(struct i2c_client *client, u8 command, u8 val)
  {
- 	unsigned long orig_jiffies;
- 	int try;
-@@ -539,8 +554,6 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
- 	flags &= I2C_M_TEN | I2C_CLIENT_PEC | I2C_CLIENT_SCCB;
- 
- 	if (adapter->algo->smbus_xfer) {
--		i2c_lock_bus(adapter, I2C_LOCK_SEGMENT);
+ 	struct i2c_adapter *adap = client->adapter;
+-	int ret;
 -
- 		/* Retry automatically on arbitration loss */
- 		orig_jiffies = jiffies;
- 		for (res = 0, try = 0; try <= adapter->retries; try++) {
-@@ -553,7 +566,6 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
- 				       orig_jiffies + adapter->timeout))
- 				break;
- 		}
--		i2c_unlock_bus(adapter, I2C_LOCK_SEGMENT);
+-	if (adap->algo->master_xfer) {
+-		struct i2c_msg msg;
+-		char buf[2];
+-
+-		msg.addr = client->addr;
+-		msg.flags = 0;
+-		msg.len = 2;
+-		buf[0] = command;
+-		buf[1] = val;
+-		msg.buf = buf;
+-		ret = __i2c_transfer(adap, &msg, 1);
+-	} else {
+-		union i2c_smbus_data data;
+-
+-		data.byte = val;
+-		ret = adap->algo->smbus_xfer(adap, client->addr,
+-					     client->flags,
+-					     I2C_SMBUS_WRITE,
+-					     command,
+-					     I2C_SMBUS_BYTE_DATA, &data);
+-	}
++	union i2c_smbus_data data = { .byte = val };
  
- 		if (res != -EOPNOTSUPP || !adapter->algo->master_xfer)
- 			goto trace;
-@@ -575,7 +587,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
- 
- 	return res;
+-	return ret;
++	return __i2c_smbus_xfer(adap, client->addr, client->flags,
++				I2C_SMBUS_WRITE, command,
++				I2C_SMBUS_BYTE_DATA, &data);
  }
--EXPORT_SYMBOL(i2c_smbus_xfer);
-+EXPORT_SYMBOL(__i2c_smbus_xfer);
  
- /**
-  * i2c_smbus_read_i2c_block_data_or_emulated - read block or emulate
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 254cd34eeae2..465afb092fa7 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -140,9 +140,14 @@ extern int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-    and probably just as fast.
-    Note that we use i2c_adapter here, because you do not need a specific
-    smbus adapter to call this function. */
--extern s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
--			  unsigned short flags, char read_write, u8 command,
--			  int size, union i2c_smbus_data *data);
-+s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
-+		   unsigned short flags, char read_write, u8 command,
-+		   int protocol, union i2c_smbus_data *data);
+ /*
+@@ -133,41 +113,14 @@ static int pca9541_reg_write(struct i2c_client *client, u8 command, u8 val)
+ static int pca9541_reg_read(struct i2c_client *client, u8 command)
+ {
+ 	struct i2c_adapter *adap = client->adapter;
++	union i2c_smbus_data data;
+ 	int ret;
+-	u8 val;
+-
+-	if (adap->algo->master_xfer) {
+-		struct i2c_msg msg[2] = {
+-			{
+-				.addr = client->addr,
+-				.flags = 0,
+-				.len = 1,
+-				.buf = &command
+-			},
+-			{
+-				.addr = client->addr,
+-				.flags = I2C_M_RD,
+-				.len = 1,
+-				.buf = &val
+-			}
+-		};
+-		ret = __i2c_transfer(adap, msg, 2);
+-		if (ret == 2)
+-			ret = val;
+-		else if (ret >= 0)
+-			ret = -EIO;
+-	} else {
+-		union i2c_smbus_data data;
+-
+-		ret = adap->algo->smbus_xfer(adap, client->addr,
+-					     client->flags,
+-					     I2C_SMBUS_READ,
+-					     command,
+-					     I2C_SMBUS_BYTE_DATA, &data);
+-		if (!ret)
+-			ret = data.byte;
+-	}
+-	return ret;
 +
-+/* Unlocked flavor */
-+s32 __i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
-+		     unsigned short flags, char read_write, u8 command,
-+		     int protocol, union i2c_smbus_data *data);
++	ret = __i2c_smbus_xfer(adap, client->addr, client->flags,
++			       I2C_SMBUS_READ, command,
++			       I2C_SMBUS_BYTE_DATA, &data);
++
++	return ret ?: data.byte;
+ }
  
- /* Now follow the 'nice' access routines. These also document the calling
-    conventions of i2c_smbus_xfer. */
+ /*
 -- 
 2.11.0
