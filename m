@@ -1,33 +1,33 @@
-From: Peter Korsgaard <peter@korsgaard.com>
-Subject: Re: [PATCH V2] i2c: ocores: update HDL sources URL
-Date: Fri, 22 Jun 2018 08:32:49 +0200
-Message-ID: <87sh5fl4a6.fsf@dell.be.48ers.dk>
-References: <20180528085914.30657-1-federico.vaga@vaga.pv.it>
-        <20180528085914.30657-2-federico.vaga@vaga.pv.it>
-        <20180529181826.h6hzqefjgqd2xpap@ninjato>
+From: Mawanda Henry <mawandahenrynaco@gmail.com>
+Subject: [PATCH v5] i2c: slave: use SPDX license information
+Date: Fri, 22 Jun 2018 09:59:23 +0300
+Message-ID: <20180622065923.GA1405@sesnaco>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180529181826.h6hzqefjgqd2xpap@ninjato> (Wolfram Sang's message
-        of "Tue, 29 May 2018 20:18:26 +0200")
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Federico Vaga <federico.vaga@vaga.pv.it>, Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: mawanda111@gmail.com
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
->>>>> "Wolfram" == Wolfram Sang <wsa@the-dreams.de> writes:
+SPDX license helps developers and machines to know the license governing
+a particular file hence easing work
 
- > On Mon, May 28, 2018 at 10:59:14AM +0200, Federico Vaga wrote:
- >> The URL is broken. This patch fix it
- >> 
- >> Signed-off-by: Federico Vaga <federico.vaga@vaga.pv.it>
+Signed-off-by: Mawanda Henry <mawandahenrynaco@gmail.com>
+---
+ drivers/i2c/i2c-core-slave.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- > Shortened the URL a bit and applied to for-current, thanks!
-
- > @Peter: since the patch is trivial and nice to have in 4.17 already, I
- > took the liberty to apply it right away. Hope this is fine with you.
-
-Sorry for the slow response - Yes it is indeed.
-
+diff --git a/drivers/i2c/i2c-core-slave.c b/drivers/i2c/i2c-core-slave.c
+index 6f56e65..15c7f7a 100644
+--- a/drivers/i2c/i2c-core-slave.c
++++ b/drivers/i2c/i2c-core-slave.c
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0+
++// SPDX-License-Identifier: GPL-2.0-or-later
+ /*
+  * Linux I2C core slave support code
+  *
 -- 
-Bye, Peter Korsgaard
+2.7.4
