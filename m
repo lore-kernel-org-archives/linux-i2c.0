@@ -1,56 +1,33 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v4] i2c: slave: Apply SPDX Lincense-Information
-Date: Thu, 21 Jun 2018 20:23:55 +0200
-Message-ID: <02958ae6-e6c7-5483-5797-c4de5515ed15@axentia.se>
-References: <20180621160530.GA20061@sesnaco>
+From: Peter Korsgaard <peter@korsgaard.com>
+Subject: Re: [PATCH V2] i2c: ocores: update HDL sources URL
+Date: Fri, 22 Jun 2018 08:32:49 +0200
+Message-ID: <87sh5fl4a6.fsf@dell.be.48ers.dk>
+References: <20180528085914.30657-1-federico.vaga@vaga.pv.it>
+        <20180528085914.30657-2-federico.vaga@vaga.pv.it>
+        <20180529181826.h6hzqefjgqd2xpap@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180621160530.GA20061@sesnaco>
-Content-Language: en-US
+In-Reply-To: <20180529181826.h6hzqefjgqd2xpap@ninjato> (Wolfram Sang's message
+        of "Tue, 29 May 2018 20:18:26 +0200")
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mawanda Henry <mawandahenrynaco@gmail.com>, mawanda111@gmail.com
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Federico Vaga <federico.vaga@vaga.pv.it>, Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-06-21 18:05, Mawanda Henry wrote:
-> SPDX license header eases work for developers and machines to know the
-> license that is governing a particular file
-> 
-> Signed-off-by: Mawanda Henry <mawandahenrynaco@gmail.com>
-> ---
->  drivers/i2c/i2c-core-slave.c | 6 +-----
->  1 file changed, 1 insertion(+), 5 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core-slave.c b/drivers/i2c/i2c-core-slave.c
-> index 4a78c65..6f56e65 100644
-> --- a/drivers/i2c/i2c-core-slave.c
-> +++ b/drivers/i2c/i2c-core-slave.c
-> @@ -1,12 +1,8 @@
-> +// SPDX-License-Identifier: GPL-2.0+
+>>>>> "Wolfram" == Wolfram Sang <wsa@the-dreams.de> writes:
 
-Why did you not change this to "GPL-2.0-or-later"?
+ > On Mon, May 28, 2018 at 10:59:14AM +0200, Federico Vaga wrote:
+ >> The URL is broken. This patch fix it
+ >> 
+ >> Signed-off-by: Federico Vaga <federico.vaga@vaga.pv.it>
 
-Also, you now have a spelling error in the subject. Why did you not use
-the subject exactly as I suggested?
+ > Shortened the URL a bit and applied to for-current, thanks!
 
-I will not respond if there are further issues with this patch, this is
-getting ridiculous...
+ > @Peter: since the patch is trivial and nice to have in 4.17 already, I
+ > took the liberty to apply it right away. Hope this is fine with you.
 
-Cheers,
-Peter
+Sorry for the slow response - Yes it is indeed.
 
->  /*
->   * Linux I2C core slave support code
->   *
->   * Copyright (C) 2014 by Wolfram Sang <wsa@sang-engineering.com>
-> - *
-> - * This program is free software; you can redistribute it and/or modify it
-> - * under the terms of the GNU General Public License as published by the Free
-> - * Software Foundation; either version 2 of the License, or (at your option)
-> - * any later version.
->   */
->  
->  #include <dt-bindings/i2c/i2c.h>
-> 
+-- 
+Bye, Peter Korsgaard
