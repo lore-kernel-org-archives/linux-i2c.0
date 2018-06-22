@@ -1,33 +1,106 @@
-From: Mawanda Henry <mawandahenrynaco@gmail.com>
-Subject: [PATCH v5] i2c: slave: use SPDX license information
-Date: Fri, 22 Jun 2018 09:59:23 +0300
-Message-ID: <20180622065923.GA1405@sesnaco>
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Subject: Re: [PATCH v4 09/10] gpio: Add a driver for Cadence I3C GPIO
+ expander
+Date: Fri, 22 Jun 2018 10:24:41 +0200
+Message-ID: <20180622102441.35856a50@bbrezillon>
+References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
+        <20180330074751.25987-10-boris.brezillon@bootlin.com>
+        <CACRpkdY_7mi8GPiopZ9Yg4Y0-AV_SriZe=1yN5is6eH6FUm6Qg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <CACRpkdY_7mi8GPiopZ9Yg4Y0-AV_SriZe=1yN5is6eH6FUm6Qg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: mawanda111@gmail.com
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion>
 List-Id: linux-i2c@vger.kernel.org
 
-SPDX license helps developers and machines to know the license governing
-a particular file hence easing work
+Hi Linus,
 
-Signed-off-by: Mawanda Henry <mawandahenrynaco@gmail.com>
----
- drivers/i2c/i2c-core-slave.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I realize I never replied to this review.
 
-diff --git a/drivers/i2c/i2c-core-slave.c b/drivers/i2c/i2c-core-slave.c
-index 6f56e65..15c7f7a 100644
---- a/drivers/i2c/i2c-core-slave.c
-+++ b/drivers/i2c/i2c-core-slave.c
-@@ -1,4 +1,4 @@
--// SPDX-License-Identifier: GPL-2.0+
-+// SPDX-License-Identifier: GPL-2.0-or-later
- /*
-  * Linux I2C core slave support code
-  *
--- 
-2.7.4
+On Thu, 26 Apr 2018 10:44:26 +0200
+Linus Walleij <linus.walleij@linaro.org> wrote:
+
+> On Fri, Mar 30, 2018 at 9:47 AM, Boris Brezillon
+> <boris.brezillon@bootlin.com> wrote:
+> 
+> > Add a driver for Cadence I3C GPIO expander.
+> >
+> > Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>  
+> 
+> This is pretty much OK, and I don't want to raise the bar
+> even higher for you to get this code into the kernel, so:
+> Acked-by: Linus Walleij <linus.walleij@linaro.org>
+
+Thanks.
+
+> 
+> The following is an observation for future improvement:
+> 
+> > +static int cdns_i3c_gpio_read_reg(struct cdns_i3c_gpio *gpioc, u8 reg,
+> > +                                 u8 *val)
+> > +{
+> > +       struct i3c_priv_xfer xfers[] = {
+> > +               {
+> > +                       .len = sizeof(reg),
+> > +                       .data.out = &reg,
+> > +               },
+> > +               {
+> > +                       .rnw = true,
+> > +                       .len = sizeof(*val),
+> > +                       .data.in = val,
+> > +               },
+> > +       };
+> > +
+> > +       return i3c_device_do_priv_xfers(gpioc->i3cdev, xfers,
+> > +                                       ARRAY_SIZE(xfers));
+> > +}
+> > +
+> > +static int cdns_i3c_gpio_write_reg(struct cdns_i3c_gpio *gpioc, u8 reg,
+> > +                                  u8 val)
+> > +{
+> > +       struct i3c_priv_xfer xfers[] = {
+> > +               {
+> > +                       .len = sizeof(reg),
+> > +                       .data.out = &reg,
+> > +               },
+> > +               {
+> > +                       .len = sizeof(val),
+> > +                       .data.out = &val,
+> > +               },
+> > +       };
+> > +
+> > +       return i3c_device_do_priv_xfers(gpioc->i3cdev, xfers,
+> > +                                       ARRAY_SIZE(xfers));
+> > +}  
+> 
+> This is starting to resemble
+> drivers/base/regmap/regmap-i2c.c
+> 
+> Maybe we should very quickly add regmap-i3c.c as this
+> infrastructre has had a great positive effect on may kernel
+> subsystems.
+
+Yes I considered that too, I was just waiting for at least one
+other user before adding this regmap-i3c implementation.
+
+> 
+> > +static int cdns_i3c_gpio_get_direction(struct gpio_chip *g, unsigned offset)
+> > +{
+> > +       struct cdns_i3c_gpio *gpioc = gpioc_to_cdns_gpioc(g);
+> > +
+> > +       return gpioc->dir & BIT(offset);  
+> 
+> I would:
+> 
+> return !!(gpioc->dir & BIT(offset));
+> 
+> So you clamp it to bit 0.
+
+Will fix that in my v5.
+
+Thanks for your review.
+
+Boris
