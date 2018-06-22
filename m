@@ -1,48 +1,49 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v5 09/10] gpio: Add a driver for Cadence I3C GPIO
- expander
-Date: Fri, 22 Jun 2018 20:35:17 +0200
-Message-ID: <20180622203517.1665030f@bbrezillon>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v5 01/10] i3c: Add core I3C infrastructure
+Date: Fri, 22 Jun 2018 23:35:34 +0200
+Message-ID: <ed1add9b-ba21-d3d3-64c4-44d18af3d133@axentia.se>
 References: <20180622104930.32050-1-boris.brezillon@bootlin.com>
-        <20180622104930.32050-10-boris.brezillon@bootlin.com>
-        <27aae5b0-f8eb-bed7-9d14-5c739769977a@infradead.org>
+ <20180622104930.32050-2-boris.brezillon@bootlin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <27aae5b0-f8eb-bed7-9d14-5c739769977a@infradead.org>
+In-Reply-To: <20180622104930.32050-2-boris.brezillon@bootlin.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion>
+To: Boris Brezillon <boris.brezillon@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
+Cc: Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vitor Soares <Vitor.Soares@synopsys.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linus
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 22 Jun 2018 09:04:47 -0700
-Randy Dunlap <rdunlap@infradead.org> wrote:
-
-> Hi,
+On 2018-06-22 12:49, Boris Brezillon wrote:
+> Add core infrastructure to support I3C in Linux and document it.
 > 
-> On 06/22/2018 03:49 AM, Boris Brezillon wrote:
-> > diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-> > index 71c0ab46f216..19ed6006aea1 100644
-> > --- a/drivers/gpio/Kconfig
-> > +++ b/drivers/gpio/Kconfig
-> > @@ -898,6 +898,17 @@ config GPIO_TS4900
-> >  
-> >  endmenu
-> >  
-> > +menu "I3C GPIO expanders"
-> > +	depends on I3C
-> > +
-> > +config GPIO_CDNS_I3C
-> > +	tristate "Cadence I3C GPIO expander"
-> > +	select GPIOLIB_IRQCHIP
-> > +	help
-> > +	  Say yes here to enabled the driver for Cadence I3C GPIO expander.  
+> This infrastructure is not complete yet and will be extended over
+> time.
 > 
-> 	               to enable the driver
+> There are a few design choices that are worth mentioning because they
+> impact the way I3C device drivers can interact with their devices:
+> 
+> - all functions used to send I3C/I2C frames must be called in
+>   non-atomic context. Mainly done this way to ease implementation, but
+>   this is still open to discussion. Please let me know if you think
+>   it's worth considering an asynchronous model here
+> - the bus element is a separate object and is not implicitly described
+>   by the master (as done in I2C). The reason is that I want to be able
+>   to handle multiple master connected to the same bus and visible to
+>   Linux.
+>   In this situation, we should only have one instance of the device and
+>   not one per master, and sharing the bus object would be part of the
+>   solution to gracefully handle this case.
+>   I'm not sure we will ever need to deal with multiple masters
+>   controlling the same bus and exposed under Linux, but separating the
+>   bus and master concept is pretty easy, hence the decision to do it
+>   like that.
+>   The other benefit of separating the bus and master concepts is that
+>   master devices appear under the bus directory in sysfs.
 
-I'll fix this typo
+Are bus multiplexers relevant to I3C? The locking needed for handling
+muxes for I2C is, well, convoluted...
 
-Thanks,
-
-Boris
+Cheers,
+Peter
