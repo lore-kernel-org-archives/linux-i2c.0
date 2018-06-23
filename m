@@ -1,66 +1,66 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v5 01/10] i3c: Add core I3C infrastructure
-Date: Sat, 23 Jun 2018 12:17:05 +0200
-Message-ID: <20180623121705.1d618c5d@bbrezillon>
-References: <20180622104930.32050-1-boris.brezillon@bootlin.com>
-        <20180622104930.32050-2-boris.brezillon@bootlin.com>
-        <ed1add9b-ba21-d3d3-64c4-44d18af3d133@axentia.se>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH 0/5] Add Actions Semi S900 I2C support
+Date: Sat, 23 Jun 2018 21:41:42 +0530
+Message-ID: <20180623161147.15672-1-manivannan.sadhasivam@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <ed1add9b-ba21-d3d3-64c4-44d18af3d133@axentia.se>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, afaerber@suse.de, linus.walleij@linaro.org, linux-i2c@vger.kernel.org, liuwei@actions-semi.com, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree@vger.kernel.org, andy.shevchenko@gmail.com, daniel.thompson@linaro.org, amit.kucheria@linaro.org, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, hzhang@ucrobotics.com, bdong@ucrobotics.com, manivannanece23@gmail.com, thomas.liau@actions-semi.com, jeff.chen@actions-semi.com
+Cc: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Peter,
+This patchset adds I2C controller support for Actions Semi S900 SoC.
+This driver has been structured in a way such that there will be only
+one controller driver for the whole OWL family series (S500, S700 and
+S900 SoCs).
 
-On Fri, 22 Jun 2018 23:35:34 +0200
-Peter Rosin <peda@axentia.se> wrote:
+There are 6 I2C controllers with separate memory mapped register space.
+The I2C controller can handle atmost two messages concatenated by a
+repeated start via its internal address feature. Hence the driver
+uses this feature for messages of length greater than 1. In those cases,
+the first message of the combined message should be a `write` with maximum
+message length 6 and the second message's maximum length should be 240 bytes.
 
-> On 2018-06-22 12:49, Boris Brezillon wrote:
-> > Add core infrastructure to support I3C in Linux and document it.
-> > 
-> > This infrastructure is not complete yet and will be extended over
-> > time.
-> > 
-> > There are a few design choices that are worth mentioning because they
-> > impact the way I3C device drivers can interact with their devices:
-> > 
-> > - all functions used to send I3C/I2C frames must be called in
-> >   non-atomic context. Mainly done this way to ease implementation, but
-> >   this is still open to discussion. Please let me know if you think
-> >   it's worth considering an asynchronous model here
-> > - the bus element is a separate object and is not implicitly described
-> >   by the master (as done in I2C). The reason is that I want to be able
-> >   to handle multiple master connected to the same bus and visible to
-> >   Linux.
-> >   In this situation, we should only have one instance of the device and
-> >   not one per master, and sharing the bus object would be part of the
-> >   solution to gracefully handle this case.
-> >   I'm not sure we will ever need to deal with multiple masters
-> >   controlling the same bus and exposed under Linux, but separating the
-> >   bus and master concept is pretty easy, hence the decision to do it
-> >   like that.
-> >   The other benefit of separating the bus and master concepts is that
-> >   master devices appear under the bus directory in sysfs.  
-> 
-> Are bus multiplexers relevant to I3C?
+As far as the bus speed is concerned, this driver only supports
+Standard (100KHz) and High speed (400KHz) for now.
 
-Not yet, but who knows.
+The pinctrl definitions are only available for I2C0, I2C1 and I2C2.
+With the mux option available only for I2C0.
 
-> The locking needed for handling
-> muxes for I2C is, well, convoluted...
+For Bubblegum-96 board utilizing the S900 SoC, only I2C1 and I2C2 which
+are exposed on the Low speed expansion connector are enabled.
 
-Do you remember what was the problem?
+Thanks,
+Mani
 
-Anyway, I'd really like to have basic support upstreamed before we
-start considering advanced use cases that do not exist yet. Don't get
-me wrong, I'm not against having the multiplexer/locking discussion,
-but it should not block inclusion of the I3C subsystem.
+Manivannan Sadhasivam (5):
+  dt-bindings: i2c: Add binding for Actions Semi OWL I2C controller
+  arm64: dts: actions: Add Actions Semi S900 I2C controller nodes
+  arm64: dts: actions: Add pinctrl definition for S900 I2C controller
+  arm64: dts: actions: Enable I2C1 and I2C2 in Bubblegum-96 board
+  i2c: Add Actions Semi OWL family S900 I2C driver
 
-Regards,
+ .../devicetree/bindings/i2c/i2c-owl.txt       |  27 ++
+ .../dts/actions/s900-bubblegum-96-pins.dtsi   |  29 ++
+ .../boot/dts/actions/s900-bubblegum-96.dts    |  11 +
+ arch/arm64/boot/dts/actions/s900.dtsi         |  60 +++
+ drivers/i2c/busses/Kconfig                    |   7 +
+ drivers/i2c/busses/Makefile                   |   1 +
+ drivers/i2c/busses/i2c-owl.c                  | 459 ++++++++++++++++++
+ 7 files changed, 594 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-owl.txt
+ create mode 100644 arch/arm64/boot/dts/actions/s900-bubblegum-96-pins.dtsi
+ create mode 100644 drivers/i2c/busses/i2c-owl.c
 
-Boris
+-- 
+2.17.1
