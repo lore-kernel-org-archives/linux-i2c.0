@@ -1,46 +1,47 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 1/5] i2c: smbus: add unlocked __i2c_smbus_xfer variant
-Date: Tue, 26 Jun 2018 13:54:01 +0200
-Message-ID: <79E4A06C-26EF-4FF4-AFEA-7E7769FDF995@axentia.se>
-References: <20180620085157.30121-1-peda@axentia.se> <20180620085157.30121-2-peda@axentia.se> <20180626023757.l54suaryim2fieq3@ninjato>
+From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Subject: Re: [PATCH v2 01/10] tpm/tpm_i2c_infineon: switch to
+ i2c_lock_bus(..., I2C_LOCK_SEGMENT)
+Date: Tue, 26 Jun 2018 15:05:16 +0300
+Message-ID: <6169da633eab7e68d645e6b933b605dcc9ae09f1.camel@linux.intel.com>
+References: <20180620051803.12206-1-peda@axentia.se>
+         <20180620051803.12206-2-peda@axentia.se>
+         <20180625102454.GA3845@linux.intel.com>
+         <7703d6a2-b22c-104c-7390-b5143a504725@infineon.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180626023757.l54suaryim2fieq3@ninjato>
+In-Reply-To: <7703d6a2-b22c-104c-7390-b5143a504725@infineon.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, Guenter Roeck <linux@roeck-us.net>, Akinobu Mita <akinobu.mita@gmail.com>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
+To: Alexander Steffen <Alexander.Steffen@infineon.com>, Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Guenter Roeck <linux@roeck-us.net>, Crt Mori <cmo@melexis.com>, Jonathan Cameron <jic23@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On June 26, 2018 4:37:58 AM GMT+02:00, Wolfram Sang <wsa@the-dreams=2Ede> w=
-rote:
->
->> This is not perfectly equivalent, since i2c_smbus_xfer was callable
->from
->> atomic/irq context if you happened to end up emulating SMBus with an
->I2C
->> transfer, and that is no longer the case with this patch=2E It is
->unknown
->> (to me) if anything depends on that quirk, but it seems fragile
->enough to
->> simply break those cases and require them to call i2c_transfer
->directly
->> instead=2E
->
->Couldn't we just add the same trylock-code path here as well? I always
->wondered why I2C and SMBus were not in sync when it came to that=2E Yet,
->I
->didn't want to change the code for no reason, but it seems we now have
->one?
->
->Rest of the series looks good to me, very nice diffstat!
+On Tue, 2018-06-26 at 12:07 +0200, Alexander Steffen wrote:
+> On 25.06.2018 12:24, Jarkko Sakkinen wrote:
+> > On Wed, Jun 20, 2018 at 07:17:54AM +0200, Peter Rosin wrote:
+> > > Locking the root adapter for __i2c_transfer will deadlock if the
+> > > device sits behind a mux-locked I2C mux. Switch to the finer-grained
+> > > i2c_lock_bus with the I2C_LOCK_SEGMENT flag. If the device does not
+> > > sit behind a mux-locked mux, the two locking variants are equivalent.
+> > > 
+> > > Signed-off-by: Peter Rosin <peda@axentia.se>
+> > 
+> > Studied enough so that I can give
+> > 
+> > Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> > 
+> > Do not have hardware to test this, however.
+> 
+> I don't have a mux-locked I2C mux either, but at least I can confirm 
+> that this change did not break my existing test setup (SLB9635/SLB9645 
+> on Raspberry Pi 2B).
+> 
+> Tested-by: Alexander Steffen <Alexander.Steffen@infineon.com>
+> 
+> Alexander
 
-I don't think it's that easy as I just thought about another problem with =
-lifting the locking from the emulation function=2E It calls kzalloc(=2E=2E=
-=2E, GFP_KERNEL), at least in some cases, and that's not a very good idea f=
-rom atomic/irq context=2E=2E=2E
+Given the scope of the change and since analogous change works for
+every other subsystem, this should be enough! Thank you.
 
-Cheers,
-Peter
+/Jarkko
