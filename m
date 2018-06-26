@@ -1,34 +1,26 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: algos: bit: mention our experience about
- initial states
-Date: Tue, 26 Jun 2018 11:37:17 +0900
-Message-ID: <20180626023716.czt6iweyhzgsgopp@ninjato>
-References: <20180616133757.5994-1-wsa+renesas@sang-engineering.com>
- <20180616133757.5994-3-wsa+renesas@sang-engineering.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <20180616133757.5994-3-wsa+renesas@sang-engineering.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-renesas-soc@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, Sergey Larin <cerg2010cerg2010@mail.ru>
+From: alanx.chiang@intel.com
+Subject: [PATCH v2 0/2] Add a property in at24.c
+Date: Tue, 26 Jun 2018 14:22:06 +0800
+Message-ID: <1529994128-26770-1-git-send-email-alanx.chiang@intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: andy.yeh@intel.com, sakari.ailus@linux.intel.com, andriy.shevchenko@intel.com, rajmohan.mani@intel.com, andy.shevchenko@gmail.com, brgl@bgdev.pl, robh+dt@kernel.org, mark.rutland@arm.com, arnd@arndb.de, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, "alanx.chiang" <alanx.chiang@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gU2F0LCBKdW4gMTYsIDIwMTggYXQgMTA6Mzc6NTdQTSArMDkwMCwgV29sZnJhbSBTYW5nIHdy
-b3RlOgo+IFNvLCBpZiBzb21lYm9keSB3YW50cyB0byByZS1pbXBsZW1lbnQgdGhpcyBpbiB0aGUg
-ZnV0dXJlLCB3ZSBwaW5wb2ludCB0bwo+IGEgcHJvYmxlbSBjYXNlLgo+IAo+IFNpZ25lZC1vZmYt
-Ynk6IFdvbGZyYW0gU2FuZyA8d3NhK3JlbmVzYXNAc2FuZy1lbmdpbmVlcmluZy5jb20+CgpBcHBs
-aWVkIHRvIGZvci1jdXJyZW50LCB0aGFua3MhCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0
-cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9s
-aXN0aW5mby9kcmktZGV2ZWwK
+From: "alanx.chiang" <alanx.chiang@intel.com>
+
+In at24.c, it uses 8-bit addressing by default. In this patch,
+add a property address-width that provides a flexible method to
+pass the information to the driver.
+
+alanx.chiang (2):
+  dt-bindings: at24: Add address-width property
+  eeprom: at24: Add support for address-width property
+
+ Documentation/devicetree/bindings/eeprom/at24.txt |  2 ++
+ drivers/misc/eeprom/at24.c                        | 16 ++++++++++++++++
+ 2 files changed, 18 insertions(+)
+
+-- 
+2.7.4
