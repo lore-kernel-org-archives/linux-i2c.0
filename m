@@ -1,39 +1,40 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v10 0/7] i2c: Add FSI-attached I2C master algorithm
-Date: Tue, 26 Jun 2018 11:39:41 +0900
-Message-ID: <20180626023940.zn4zin6idrgcf2zx@ninjato>
-References: <1528918579-27602-1-git-send-email-eajames@linux.vnet.ibm.com>
+Subject: Re: [PATCH 1/2] Revert "i2c: algo-bit: init the bus to a known state"
+Date: Tue, 26 Jun 2018 11:37:09 +0900
+Message-ID: <20180626023709.jfr7vee7tumarz3h@ninjato>
+References: <20180616133757.5994-1-wsa+renesas@sang-engineering.com>
+ <20180616133757.5994-2-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
 Content-Disposition: inline
-In-Reply-To: <1528918579-27602-1-git-send-email-eajames@linux.vnet.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eddie James <eajames@linux.vnet.ibm.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, rdunlap@infradead.org, andy.shevchenko@gmail.com, peda@axentia.se
+In-Reply-To: <20180616133757.5994-2-wsa+renesas@sang-engineering.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-renesas-soc@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, Sergey Larin <cerg2010cerg2010@mail.ru>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 13, 2018 at 02:36:12PM -0500, Eddie James wrote:
-> This series adds an algorithm for an I2C master physically located on an FSI
-> slave device. The I2C master has multiple ports, each of which may be connected
-> to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
-> 
-> Due to the multi-port nature of the I2C master, the driver instantiates a new
-> I2C adapter for each port connected to a slave. The connected ports should be
-> defined in the device tree under the I2C master device.
-
-Thanks for this series and your patience.
-
-While I can see why it also helps reviewing to send it as a series of
-multiple patches, I consider applying the driver itself as just one
-hunk. I am not decided on this yet.
-
-I have a few comments, especially about recovery. I replied to the
-relevant patches with more detail.
-
-Also, are you (or someone from your company) willing to maintain the
-driver? Then, an addition to MAINTAINERS would be much appreciated.
-
-Thanks,
-
-   Wolfram
+T24gU2F0LCBKdW4gMTYsIDIwMTggYXQgMTA6Mzc6NTZQTSArMDkwMCwgV29sZnJhbSBTYW5nIHdy
+b3RlOgo+IFRoaXMgcmV2ZXJ0cyBjb21taXQgM2U1ZjA2YmVkNzJmZTcyMTY2YTY3NzhmNjMwMjQx
+YTg5M2Y2Nzc5OS4gQXMgcGVyCj4gYnVnemlsbGEgIzIwMDA0NSwgdGhpcyBjYXVzZWQgYSByZWdy
+ZXNzaW9uLiBJIGRvbid0IHJlYWxseSBzZWUgYSB3YXkgdG8KPiBmaXggaXQgd2l0aG91dCBoYXZp
+bmcgdGhlIGhhcmR3YXJlLiBTbywgcmV2ZXJ0IHRoZSBwYXRjaCBhbmQgSSB3aWxsIGZpeAo+IHRo
+ZSBpc3N1ZSBJIHdhcyBzZWVpbmcgb3JpZ2luYWxseSBpbiB0aGUgaTJjLWdwaW8gZHJpdmVyIGl0
+c2VsZi4gSQo+IGNvdWxkbid0IGZpbmQgbmV3IHVzZXJzIG9mIHRoaXMgYWxnb3JpdGhtIHNpbmNl
+LCBzbyB0aGVyZSBzaG91bGQgYmUgbm8KPiBvbmUgZGVwZW5kaW5nIG9uIHRoZSBuZXcgYmVoYXZp
+b3VyLgo+IAo+IFJlcG9ydGVkLWJ5OiBTZXJnZXkgTGFyaW4gPGNlcmcyMDEwY2VyZzIwMTBAbWFp
+bC5ydT4KPiBGaXhlczogM2U1ZjA2YmVkNzJmICgiaTJjOiBhbGdvLWJpdDogaW5pdCB0aGUgYnVz
+IHRvIGEga25vd24gc3RhdGUiKQo+IFNpZ25lZC1vZmYtYnk6IFdvbGZyYW0gU2FuZyA8d3NhK3Jl
+bmVzYXNAc2FuZy1lbmdpbmVlcmluZy5jb20+CgpBcHBsaWVkIHRvIGZvci1jdXJyZW50LCB0aGFu
+a3MhCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpkcmkt
+ZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6
+Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWwK
