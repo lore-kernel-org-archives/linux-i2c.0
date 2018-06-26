@@ -1,84 +1,112 @@
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH 5/5] i2c: Add Actions Semi OWL family S900 I2C driver
-Date: Tue, 26 Jun 2018 20:18:44 +0300
-Message-ID: <CAHp75VdR5UbGvM3AOu21+Hp1xqPgtSnjRSKyhnCeB8ebAmF7eQ@mail.gmail.com>
-References: <20180623161147.15672-1-manivannan.sadhasivam@linaro.org>
- <20180623161147.15672-6-manivannan.sadhasivam@linaro.org> <CAHp75Vf_JR6scrwnomiu62_x2idgCGH63UdMf2bhfy8VNaijXQ@mail.gmail.com>
- <20180626170125.GB5241@Mani-XPS-13-9360>
+Subject: Re: [PATCH v5 09/10] gpio: Add a driver for Cadence I3C GPIO expander
+Date: Tue, 26 Jun 2018 22:07:03 +0300
+Message-ID: <CAHp75Vdxg49q6aQj0dDpzM4q2WnQbGoCECWR1roda7aMR+u4gg@mail.gmail.com>
+References: <20180622104930.32050-1-boris.brezillon@bootlin.com> <20180622104930.32050-10-boris.brezillon@bootlin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180626170125.GB5241@Mani-XPS-13-9360>
+In-Reply-To: <20180622104930.32050-10-boris.brezillon@bootlin.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, =?UTF-8?Q?Andreas_F=C3=A4rber?= <afaerber@suse.de>, Linus Walleij <linus.walleij@linaro.org>, linux-i2c <linux-i2c@vger.kernel.org>, =?UTF-8?B?5YiY54Kc?= <liuwei@actions-semi.com>, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree <devicetree@vger.kernel.org>, Daniel Thompson <daniel.thompson@linaro.org>, amit.kucheria@linaro.org, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, hzhang@ucrobotics.com, bdong@ucrobotics.com, Mani Sadhasivam <manivannanece23@gmail.com>, Thomas Liau <thomas.liau@actions-semi.com>, jeff.chen@actions-semi.com
+To: Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Linux Documentation List <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 26, 2018 at 8:01 PM, Manivannan Sadhasivam
-<manivannan.sadhasivam@linaro.org> wrote:
-> On Mon, Jun 25, 2018 at 12:38:50PM +0300, Andy Shevchenko wrote:
->> On Sat, Jun 23, 2018 at 7:11 PM, Manivannan Sadhasivam
->> <manivannan.sadhasivam@linaro.org> wrote:
-
->> > +#define OWL_I2C_REG_CTL                (0x0000)
->> > +#define OWL_I2C_REG_CLKDIV     (0x0004)
->> > +#define OWL_I2C_REG_STAT       (0x0008)
->> > +#define OWL_I2C_REG_ADDR       (0x000C)
->> > +#define OWL_I2C_REG_TXDAT      (0x0010)
->> > +#define OWL_I2C_REG_RXDAT      (0x0014)
->> > +#define OWL_I2C_REG_CMD                (0x0018)
->> > +#define OWL_I2C_REG_FIFOCTL    (0x001C)
->> > +#define OWL_I2C_REG_FIFOSTAT   (0x0020)
->> > +#define OWL_I2C_REG_DATCNT     (0x0024)
->> > +#define OWL_I2C_REG_RCNT       (0x0028)
->>
->> I don't understand why these have parents?
->>
+On Fri, Jun 22, 2018 at 1:49 PM, Boris Brezillon
+<boris.brezillon@bootlin.com> wrote:
+> Add a driver for Cadence I3C GPIO expander.
 >
-> I'm not sure what you mean here! Can you please elaborate?
+> Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
 
-One has to read 'parens'. Sorry for confusion.
+> +       scratchbuf = kmalloc(sizeof(*scratchbuf) * 2, GFP_KERNEL);
 
->> > +#define OWL_I2C_TIMEOUT                (msecs_to_jiffies(4 * 1000))
->>
->> Ditto.
+kmalloc_array() ?
 
-> Same as above
+> +       ret = i3c_device_do_priv_xfers(gpioc->i3cdev, xfers,
+> +                                      ARRAY_SIZE(xfers));
+
+One line?
+
+
+> +static void cdns_i3c_gpio_set_multiple(struct gpio_chip *g,
+> +                                      unsigned long *mask,
+> +                                      unsigned long *bits)
+> +{
+> +       struct cdns_i3c_gpio *gpioc = gpioc_to_cdns_gpioc(g);
+> +       u8 newovr;
+> +       int ret;
+> +
+> +       newovr = (gpioc->ovr & ~(*mask)) | (*bits & *mask);
+> +       if (newovr == gpioc->ovr)
+> +               return;
+> +
+> +       ret = cdns_i3c_gpio_write_reg(gpioc, OVR, newovr);
+> +       if (!ret)
+> +               gpioc->ovr = newovr;
+
+You don't change mask here, why do you need a pointer to it?
+
+> +}
+
+> +static int cdns_i3c_gpio_get_multiple(struct gpio_chip *g,
+> +                                     unsigned long *mask,
+> +                                     unsigned long *bits)
+> +{
+> +       struct cdns_i3c_gpio *gpioc = gpioc_to_cdns_gpioc(g);
+> +       int ret;
+> +       u8 ivr;
+> +
+> +       ret = cdns_i3c_gpio_read_reg(gpioc, IVR, &ivr);
+> +       if (ret)
+> +               return ret;
+> +
+> +       *bits = ivr & *mask & gpioc->dir;
+> +       *bits |= gpioc->ovr & *mask & ~gpioc->dir;
 
 Ditto.
 
->> > +       /* Wait until FIFO reset complete */
->> > +       do {
->> > +               val =3D readl(i2c_dev->base + OWL_I2C_REG_FIFOCTL);
->> > +               if (!(val & (OWL_I2C_FIFOCTL_RFR | OWL_I2C_FIFOCTL_TFR=
-)))
->> > +                       break;
->> > +       } while (1);
->>
->> No way. Get rid of infinite loop.
+> +
+> +       return 0;
+> +}
 
-> Okay. Can I change it to max of 50 retries with 1ms delay?
+> +static void cdns_i3c_gpio_ibi_handler(struct i3c_device *i3cdev,
+> +                                     const struct i3c_ibi_payload *payload)
+> +{
+> +       struct cdns_i3c_gpio *gpioc = i3cdev_get_drvdata(i3cdev);
 
-Whatever suitable for HW. Rely on datasheet or other source of
-information about this timeouts.
+> +       u8 isr = 0;
 
->> > +static irqreturn_t owl_i2c_interrupt(int irq, void *_dev)
+Perhaps you need to check the result of _read_reg() below instead of
+dummy assignment?
 
->> > +               dev_warn(&i2c_dev->adap.dev, "received NACK from devic=
-e");
->>
->> And if it happens hundreds times in a row?
+> +       int i;
+> +
+> +       cdns_i3c_gpio_read_reg(gpioc, ISR, &isr);
 
-> Should I change it to dev_dbg?
+> +       for (i = 0; i < 8; i++) {
+> +               unsigned int irq;
+> +
+> +               if (!(BIT(i) & isr & gpioc->imr))
+> +                       continue;
 
->> > +               dev_warn(&i2c_dev->adap.dev, "bus error");
+for_each_set_bit() ?
 
-> Same as above?
+> +
+> +               irq = irq_find_mapping(gpioc->gpioc.irq.domain, i);
+> +               handle_nested_irq(irq);
+> +       }
+> +}
 
-ratelimit, another level, tracepoints, getting rid of them completely
-=E2=80=94 your call.
+> +static const struct i3c_device_id cdns_i3c_gpio_ids[] = {
+> +       I3C_DEVICE(0x1c9, 0x0, NULL),
 
---=20
+> +       { /* sentinel */ },
+
+Slightly better without comma.
+
+> +};
+> +MODULE_DEVICE_TABLE(i3c, cdns_i3c_gpio_ids);
+
+-- 
 With Best Regards,
 Andy Shevchenko
