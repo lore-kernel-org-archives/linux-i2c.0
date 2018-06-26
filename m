@@ -1,455 +1,616 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: [PATCH] i2c: aspeed: Improve driver to support multi-master use cases stably
-Date: Tue, 26 Jun 2018 09:58:12 -0700
-Message-ID: <20180626165812.4141-1-jae.hyun.yoo@linux.intel.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: Re: [PATCH 5/5] i2c: Add Actions Semi OWL family S900 I2C driver
+Date: Tue, 26 Jun 2018 22:31:25 +0530
+Message-ID: <20180626170125.GB5241@Mani-XPS-13-9360>
+References: <20180623161147.15672-1-manivannan.sadhasivam@linaro.org>
+ <20180623161147.15672-6-manivannan.sadhasivam@linaro.org>
+ <CAHp75Vf_JR6scrwnomiu62_x2idgCGH63UdMf2bhfy8VNaijXQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAHp75Vf_JR6scrwnomiu62_x2idgCGH63UdMf2bhfy8VNaijXQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Cc: James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>, Linus Walleij <linus.walleij@linaro.org>, linux-i2c <linux-i2c@vger.kernel.org>, =?utf-8?B?5YiY54Kc?= <liuwei@actions-semi.com>, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree <devicetree@vger.kernel.org>, Daniel Thompson <daniel.thompson@linaro.org>, amit.kucheria@linaro.org, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, hzhang@ucrobotics.com, bdong@ucrobotics.com, Mani Sadhasivam <manivannanece23@gmail.com>, Thomas Liau <thomas.liau@actions-semi.com>, jeff.chen@actions-semi.com
 List-Id: linux-i2c@vger.kernel.org
 
-BMC firmware should support some multi-master use cases such as multi-node,
-IPMB, BMC-ME link and so on but the current ASPEED I2C driver is a bit
-unstable for the multi-master use case. So this patch improves ASPEED I2C
-driver to support the multi-master use case stably.
+Hi Andy,
 
-Changes:
-* Added XFER_MODE status register checking logic into
-  aspeed_i2c_master_xfer to improve the current bus busy checking logic.
-* Changed the order of enum aspeed_i2c_master_state and
-  enum aspeed_i2c_slave_state defines to make their initial values set to
-  ASPEED_I2C_MASTER_INACTIVE and ASPEED_I2C_SLAVE_STOP respectively.
-  In case of multi-master use with previous code, if a slave data comes
-  ahead of the first master xfer, master_state starts from an invalid
-  state. This change fixed the issue.
-* Adjusted spin_lock scope to make it wrap the whole irq handler using
-  a single lock and unlock pair covers both master and slave handlers.
-* Added irq_status variable as a member of the struct aspeed_i2c_bus to
-  collect handled interrupt bits throughout the master and the slave irq
-  handlers.
-* Added control logic to put an order on calling the master and the slave
-  irq handlers based on their current states.
+Thanks for the review!
 
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
----
- drivers/i2c/busses/i2c-aspeed.c | 200 +++++++++++++++++++-------------
- 1 file changed, 118 insertions(+), 82 deletions(-)
+On Mon, Jun 25, 2018 at 12:38:50PM +0300, Andy Shevchenko wrote:
+> On Sat, Jun 23, 2018 at 7:11 PM, Manivannan Sadhasivam
+> <manivannan.sadhasivam@linaro.org> wrote:
+> > Add Actions Semi OWL family S900 I2C driver.
+> >
+> > Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> > ---
+> >  drivers/i2c/busses/Kconfig   |   7 +
+> >  drivers/i2c/busses/Makefile  |   1 +
+> >  drivers/i2c/busses/i2c-owl.c | 459 +++++++++++++++++++++++++++++++++++
+> >  3 files changed, 467 insertions(+)
+> >  create mode 100644 drivers/i2c/busses/i2c-owl.c
+> >
+> > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> > index 4f8df2ec87b1..2062da17e33b 100644
+> > --- a/drivers/i2c/busses/Kconfig
+> > +++ b/drivers/i2c/busses/Kconfig
+> > @@ -762,6 +762,13 @@ config I2C_OMAP
+> >           Like OMAP1510/1610/1710/5912 and OMAP242x.
+> >           For details see http://www.ti.com/omap.
+> >
+> > +config I2C_OWL
+> > +       tristate "OWL I2C Controller"
+> > +       depends on ARCH_ACTIONS || COMPILE_TEST
+> > +       help
+> > +         Say Y here if you want to use the I2C bus controller on
+> > +         the Actions Semi OWL SoCs.
+> > +
+> >  config I2C_PASEMI
+> >         tristate "PA Semi SMBus interface"
+> >         depends on PPC_PASEMI && PCI
+> > diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+> > index 5a869144a0c5..b71618f77880 100644
+> > --- a/drivers/i2c/busses/Makefile
+> > +++ b/drivers/i2c/busses/Makefile
+> > @@ -76,6 +76,7 @@ obj-$(CONFIG_I2C_MXS)         += i2c-mxs.o
+> >  obj-$(CONFIG_I2C_NOMADIK)      += i2c-nomadik.o
+> >  obj-$(CONFIG_I2C_OCORES)       += i2c-ocores.o
+> >  obj-$(CONFIG_I2C_OMAP)         += i2c-omap.o
+> > +obj-$(CONFIG_I2C_OWL)          += i2c-owl.o
+> >  obj-$(CONFIG_I2C_PASEMI)       += i2c-pasemi.o
+> >  obj-$(CONFIG_I2C_PCA_PLATFORM) += i2c-pca-platform.o
+> >  obj-$(CONFIG_I2C_PMCMSP)       += i2c-pmcmsp.o
+> > diff --git a/drivers/i2c/busses/i2c-owl.c b/drivers/i2c/busses/i2c-owl.c
+> > new file mode 100644
+> > index 000000000000..53100ddfb3cc
+> > --- /dev/null
+> > +++ b/drivers/i2c/busses/i2c-owl.c
+> > @@ -0,0 +1,459 @@
+> > +// SPDX-License-Identifier: GPL-2.0+
+> > +/*
+> > + * OWL SoC's I2C driver
+> > + *
+> > + * Copyright (c) 2014 Actions Semi Inc.
+> > + * Author: David Liu <liuwei@actions-semi.com>
+> > + *
+> > + * Copyright (c) 2018 Linaro Ltd.
+> > + * Author: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> > + */
+> > +
+> > +#include <linux/clk.h>
+> > +#include <linux/delay.h>
+> > +#include <linux/i2c.h>
+> > +#include <linux/interrupt.h>
+> > +#include <linux/module.h>
+> > +#include <linux/of_device.h>
+> > +#include <linux/io.h>
+> > +
+> > +/* I2C registers */
+> > +#define OWL_I2C_REG_CTL                (0x0000)
+> > +#define OWL_I2C_REG_CLKDIV     (0x0004)
+> > +#define OWL_I2C_REG_STAT       (0x0008)
+> > +#define OWL_I2C_REG_ADDR       (0x000C)
+> > +#define OWL_I2C_REG_TXDAT      (0x0010)
+> > +#define OWL_I2C_REG_RXDAT      (0x0014)
+> > +#define OWL_I2C_REG_CMD                (0x0018)
+> > +#define OWL_I2C_REG_FIFOCTL    (0x001C)
+> > +#define OWL_I2C_REG_FIFOSTAT   (0x0020)
+> > +#define OWL_I2C_REG_DATCNT     (0x0024)
+> > +#define OWL_I2C_REG_RCNT       (0x0028)
+> 
+> I don't understand why these have parents?
+> 
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index 60e4d0e939a3..ac3e17d9a365 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -4,6 +4,7 @@
-  *  Copyright (C) 2012-2017 ASPEED Technology Inc.
-  *  Copyright 2017 IBM Corporation
-  *  Copyright 2017 Google, Inc.
-+ *  Copyright (c) 2018 Intel Corporation
-  *
-  *  This program is free software; you can redistribute it and/or modify
-  *  it under the terms of the GNU General Public License version 2 as
-@@ -12,6 +13,7 @@
- 
- #include <linux/clk.h>
- #include <linux/completion.h>
-+#include <linux/delay.h>
- #include <linux/err.h>
- #include <linux/errno.h>
- #include <linux/i2c.h>
-@@ -82,6 +84,11 @@
- #define ASPEED_I2CD_INTR_RX_DONE			BIT(2)
- #define ASPEED_I2CD_INTR_TX_NAK				BIT(1)
- #define ASPEED_I2CD_INTR_TX_ACK				BIT(0)
-+#define ASPEED_I2CD_INTR_ERRORS						       \
-+		(ASPEED_I2CD_INTR_SDA_DL_TIMEOUT |			       \
-+		 ASPEED_I2CD_INTR_SCL_TIMEOUT |				       \
-+		 ASPEED_I2CD_INTR_ABNORMAL |				       \
-+		 ASPEED_I2CD_INTR_ARBIT_LOSS)
- #define ASPEED_I2CD_INTR_ALL						       \
- 		(ASPEED_I2CD_INTR_SDA_DL_TIMEOUT |			       \
- 		 ASPEED_I2CD_INTR_BUS_RECOVER_DONE |			       \
-@@ -94,6 +101,7 @@
- 		 ASPEED_I2CD_INTR_TX_ACK)
- 
- /* 0x14 : I2CD Command/Status Register   */
-+#define ASPEED_I2CD_XFER_MODE_STS_MASK			GENMASK(22, 19)
- #define ASPEED_I2CD_SCL_LINE_STS			BIT(18)
- #define ASPEED_I2CD_SDA_LINE_STS			BIT(17)
- #define ASPEED_I2CD_BUS_BUSY_STS			BIT(16)
-@@ -110,23 +118,27 @@
- /* 0x18 : I2CD Slave Device Address Register   */
- #define ASPEED_I2CD_DEV_ADDR_MASK			GENMASK(6, 0)
- 
-+/* Timeout for bus busy checking */
-+#define BUS_BUSY_CHECK_TIMEOUT				250000 /* 250ms */
-+#define BUS_BUSY_CHECK_INTERVAL				10000  /* 10ms */
-+
- enum aspeed_i2c_master_state {
-+	ASPEED_I2C_MASTER_INACTIVE,
- 	ASPEED_I2C_MASTER_START,
- 	ASPEED_I2C_MASTER_TX_FIRST,
- 	ASPEED_I2C_MASTER_TX,
- 	ASPEED_I2C_MASTER_RX_FIRST,
- 	ASPEED_I2C_MASTER_RX,
- 	ASPEED_I2C_MASTER_STOP,
--	ASPEED_I2C_MASTER_INACTIVE,
- };
- 
- enum aspeed_i2c_slave_state {
-+	ASPEED_I2C_SLAVE_STOP,
- 	ASPEED_I2C_SLAVE_START,
- 	ASPEED_I2C_SLAVE_READ_REQUESTED,
- 	ASPEED_I2C_SLAVE_READ_PROCESSED,
- 	ASPEED_I2C_SLAVE_WRITE_REQUESTED,
- 	ASPEED_I2C_SLAVE_WRITE_RECEIVED,
--	ASPEED_I2C_SLAVE_STOP,
- };
- 
- struct aspeed_i2c_bus {
-@@ -150,6 +162,7 @@ struct aspeed_i2c_bus {
- 	int				cmd_err;
- 	/* Protected only by i2c_lock_bus */
- 	int				master_xfer_result;
-+	u32				irq_status;
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- 	struct i2c_client		*slave;
- 	enum aspeed_i2c_slave_state	slave_state;
-@@ -229,37 +242,30 @@ static int aspeed_i2c_recover_bus(struct aspeed_i2c_bus *bus)
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
- {
--	u32 command, irq_status, status_ack = 0;
-+	u32 command, status_ack = 0;
- 	struct i2c_client *slave = bus->slave;
--	bool irq_handled = true;
- 	u8 value;
- 
--	spin_lock(&bus->lock);
--	if (!slave) {
--		irq_handled = false;
--		goto out;
--	}
-+	if (!slave)
-+		return false;
- 
- 	command = readl(bus->base + ASPEED_I2C_CMD_REG);
--	irq_status = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
- 
- 	/* Slave was requested, restart state machine. */
--	if (irq_status & ASPEED_I2CD_INTR_SLAVE_MATCH) {
-+	if (bus->irq_status & ASPEED_I2CD_INTR_SLAVE_MATCH) {
- 		status_ack |= ASPEED_I2CD_INTR_SLAVE_MATCH;
- 		bus->slave_state = ASPEED_I2C_SLAVE_START;
- 	}
- 
- 	/* Slave is not currently active, irq was for someone else. */
--	if (bus->slave_state == ASPEED_I2C_SLAVE_STOP) {
--		irq_handled = false;
--		goto out;
--	}
-+	if (bus->slave_state == ASPEED_I2C_SLAVE_STOP)
-+		return false;
- 
- 	dev_dbg(bus->dev, "slave irq status 0x%08x, cmd 0x%08x\n",
--		irq_status, command);
-+		bus->irq_status, command);
- 
- 	/* Slave was sent something. */
--	if (irq_status & ASPEED_I2CD_INTR_RX_DONE) {
-+	if (bus->irq_status & ASPEED_I2CD_INTR_RX_DONE) {
- 		value = readl(bus->base + ASPEED_I2C_BYTE_BUF_REG) >> 8;
- 		/* Handle address frame. */
- 		if (bus->slave_state == ASPEED_I2C_SLAVE_START) {
-@@ -274,28 +280,29 @@ static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
- 	}
- 
- 	/* Slave was asked to stop. */
--	if (irq_status & ASPEED_I2CD_INTR_NORMAL_STOP) {
-+	if (bus->irq_status & ASPEED_I2CD_INTR_NORMAL_STOP) {
- 		status_ack |= ASPEED_I2CD_INTR_NORMAL_STOP;
- 		bus->slave_state = ASPEED_I2C_SLAVE_STOP;
- 	}
--	if (irq_status & ASPEED_I2CD_INTR_TX_NAK) {
-+	if (bus->irq_status & ASPEED_I2CD_INTR_TX_NAK) {
- 		status_ack |= ASPEED_I2CD_INTR_TX_NAK;
- 		bus->slave_state = ASPEED_I2C_SLAVE_STOP;
- 	}
-+	if (bus->irq_status & ASPEED_I2CD_INTR_TX_ACK) {
-+		status_ack |= ASPEED_I2CD_INTR_TX_ACK;
-+	}
- 
- 	switch (bus->slave_state) {
- 	case ASPEED_I2C_SLAVE_READ_REQUESTED:
--		if (irq_status & ASPEED_I2CD_INTR_TX_ACK)
-+		if (bus->irq_status & ASPEED_I2CD_INTR_TX_ACK)
- 			dev_err(bus->dev, "Unexpected ACK on read request.\n");
- 		bus->slave_state = ASPEED_I2C_SLAVE_READ_PROCESSED;
--
- 		i2c_slave_event(slave, I2C_SLAVE_READ_REQUESTED, &value);
- 		writel(value, bus->base + ASPEED_I2C_BYTE_BUF_REG);
- 		writel(ASPEED_I2CD_S_TX_CMD, bus->base + ASPEED_I2C_CMD_REG);
- 		break;
- 	case ASPEED_I2C_SLAVE_READ_PROCESSED:
--		status_ack |= ASPEED_I2CD_INTR_TX_ACK;
--		if (!(irq_status & ASPEED_I2CD_INTR_TX_ACK))
-+		if (!(bus->irq_status & ASPEED_I2CD_INTR_TX_ACK))
- 			dev_err(bus->dev,
- 				"Expected ACK after processed read.\n");
- 		i2c_slave_event(slave, I2C_SLAVE_READ_PROCESSED, &value);
-@@ -318,15 +325,8 @@ static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
- 		break;
- 	}
- 
--	if (status_ack != irq_status)
--		dev_err(bus->dev,
--			"irq handled != irq. expected %x, but was %x\n",
--			irq_status, status_ack);
--	writel(status_ack, bus->base + ASPEED_I2C_INTR_STS_REG);
--
--out:
--	spin_unlock(&bus->lock);
--	return irq_handled;
-+	bus->irq_status ^= status_ack;
-+	return !bus->irq_status;
- }
- #endif /* CONFIG_I2C_SLAVE */
- 
-@@ -384,20 +384,19 @@ static int aspeed_i2c_is_irq_error(u32 irq_status)
- 
- static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
- {
--	u32 irq_status, status_ack = 0, command = 0;
-+	u32 status_ack = 0, command = 0;
- 	struct i2c_msg *msg;
- 	u8 recv_byte;
- 	int ret;
- 
--	spin_lock(&bus->lock);
--	irq_status = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
--	/* Ack all interrupt bits. */
--	writel(irq_status, bus->base + ASPEED_I2C_INTR_STS_REG);
--
--	if (irq_status & ASPEED_I2CD_INTR_BUS_RECOVER_DONE) {
-+	if (bus->irq_status & ASPEED_I2CD_INTR_BUS_RECOVER_DONE) {
- 		bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
- 		status_ack |= ASPEED_I2CD_INTR_BUS_RECOVER_DONE;
- 		goto out_complete;
-+	} else {
-+		/* Master is not currently active, irq was for someone else. */
-+		if (bus->master_state == ASPEED_I2C_MASTER_INACTIVE)
-+			goto out_no_complete;
- 	}
- 
- 	/*
-@@ -405,20 +404,23 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
- 	 * should clear the command queue effectively taking us back to the
- 	 * INACTIVE state.
- 	 */
--	ret = aspeed_i2c_is_irq_error(irq_status);
--	if (ret < 0) {
--		dev_dbg(bus->dev, "received error interrupt: 0x%08x",
--			irq_status);
-+	ret = aspeed_i2c_is_irq_error(bus->irq_status);
-+	if (ret) {
-+		dev_dbg(bus->dev, "received error interrupt: 0x%08x\n",
-+			bus->irq_status);
- 		bus->cmd_err = ret;
- 		bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
-+		status_ack |= (bus->irq_status & ASPEED_I2CD_INTR_ERRORS);
- 		goto out_complete;
- 	}
- 
- 	/* We are in an invalid state; reset bus to a known state. */
- 	if (!bus->msgs) {
--		dev_err(bus->dev, "bus in unknown state");
-+		dev_err(bus->dev, "bus in unknown state irq_status: 0x%x\n",
-+			bus->irq_status);
- 		bus->cmd_err = -EIO;
--		if (bus->master_state != ASPEED_I2C_MASTER_STOP)
-+		if (bus->master_state != ASPEED_I2C_MASTER_STOP &&
-+		    bus->master_state != ASPEED_I2C_MASTER_INACTIVE)
- 			aspeed_i2c_do_stop(bus);
- 		goto out_no_complete;
- 	}
-@@ -430,7 +432,13 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
- 	 * then update the state and handle the new state below.
- 	 */
- 	if (bus->master_state == ASPEED_I2C_MASTER_START) {
--		if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_ACK))) {
-+		if (unlikely(!(bus->irq_status & ASPEED_I2CD_INTR_TX_ACK))) {
-+			if (unlikely(!(bus->irq_status &
-+				     ASPEED_I2CD_INTR_TX_NAK))) {
-+				bus->cmd_err = -ENXIO;
-+				bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
-+				goto out_complete;
-+			}
- 			pr_devel("no slave present at %02x", msg->addr);
- 			status_ack |= ASPEED_I2CD_INTR_TX_NAK;
- 			bus->cmd_err = -ENXIO;
-@@ -450,12 +458,13 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
- 
- 	switch (bus->master_state) {
- 	case ASPEED_I2C_MASTER_TX:
--		if (unlikely(irq_status & ASPEED_I2CD_INTR_TX_NAK)) {
--			dev_dbg(bus->dev, "slave NACKed TX");
-+		if (unlikely(bus->irq_status & ASPEED_I2CD_INTR_TX_NAK)) {
-+			dev_dbg(bus->dev, "slave NACKed TX\n");
- 			status_ack |= ASPEED_I2CD_INTR_TX_NAK;
- 			goto error_and_stop;
--		} else if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_ACK))) {
--			dev_err(bus->dev, "slave failed to ACK TX");
-+		} else if (unlikely(!(bus->irq_status &
-+				      ASPEED_I2CD_INTR_TX_ACK))) {
-+			dev_err(bus->dev, "slave failed to ACK TX\n");
- 			goto error_and_stop;
- 		}
- 		status_ack |= ASPEED_I2CD_INTR_TX_ACK;
-@@ -473,12 +482,12 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
- 		goto out_no_complete;
- 	case ASPEED_I2C_MASTER_RX_FIRST:
- 		/* RX may not have completed yet (only address cycle) */
--		if (!(irq_status & ASPEED_I2CD_INTR_RX_DONE))
-+		if (!(bus->irq_status & ASPEED_I2CD_INTR_RX_DONE))
- 			goto out_no_complete;
- 		/* fallthrough intended */
- 	case ASPEED_I2C_MASTER_RX:
--		if (unlikely(!(irq_status & ASPEED_I2CD_INTR_RX_DONE))) {
--			dev_err(bus->dev, "master failed to RX");
-+		if (unlikely(!(bus->irq_status & ASPEED_I2CD_INTR_RX_DONE))) {
-+			dev_err(bus->dev, "master failed to RX\n");
- 			goto error_and_stop;
- 		}
- 		status_ack |= ASPEED_I2CD_INTR_RX_DONE;
-@@ -508,8 +517,11 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
- 		}
- 		goto out_no_complete;
- 	case ASPEED_I2C_MASTER_STOP:
--		if (unlikely(!(irq_status & ASPEED_I2CD_INTR_NORMAL_STOP))) {
--			dev_err(bus->dev, "master failed to STOP");
-+		if (unlikely(!(bus->irq_status &
-+			       ASPEED_I2CD_INTR_NORMAL_STOP))) {
-+			dev_err(bus->dev,
-+				"master failed to STOP irq_status:0x%x\n",
-+				bus->irq_status);
- 			bus->cmd_err = -EIO;
- 			/* Do not STOP as we have already tried. */
- 		} else {
-@@ -520,8 +532,8 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
- 		goto out_complete;
- 	case ASPEED_I2C_MASTER_INACTIVE:
- 		dev_err(bus->dev,
--			"master received interrupt 0x%08x, but is inactive",
--			irq_status);
-+			"master received interrupt 0x%08x, but is inactive\n",
-+			bus->irq_status);
- 		bus->cmd_err = -EIO;
- 		/* Do not STOP as we should be inactive. */
- 		goto out_complete;
-@@ -543,26 +555,61 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
- 		bus->master_xfer_result = bus->msgs_index + 1;
- 	complete(&bus->cmd_complete);
- out_no_complete:
--	if (irq_status != status_ack)
--		dev_err(bus->dev,
--			"irq handled != irq. expected 0x%08x, but was 0x%08x\n",
--			irq_status, status_ack);
--	spin_unlock(&bus->lock);
--	return !!irq_status;
-+	bus->irq_status ^= status_ack;
-+	return !bus->irq_status;
- }
- 
- static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
- {
- 	struct aspeed_i2c_bus *bus = dev_id;
-+	u32 irq_received;
-+
-+	spin_lock(&bus->lock);
-+	irq_received = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
-+	bus->irq_status = irq_received;
- 
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
--	if (aspeed_i2c_slave_irq(bus)) {
--		dev_dbg(bus->dev, "irq handled by slave.\n");
--		return IRQ_HANDLED;
-+	if (bus->master_state != ASPEED_I2C_MASTER_INACTIVE) {
-+		if (!aspeed_i2c_master_irq(bus))
-+			aspeed_i2c_slave_irq(bus);
-+	} else {
-+		if (!aspeed_i2c_slave_irq(bus))
-+			aspeed_i2c_master_irq(bus);
- 	}
-+#else
-+	aspeed_i2c_master_irq(bus);
- #endif /* CONFIG_I2C_SLAVE */
- 
--	return aspeed_i2c_master_irq(bus) ? IRQ_HANDLED : IRQ_NONE;
-+	if (bus->irq_status)
-+		dev_err(bus->dev,
-+			"irq handled != irq. expected 0x%08x, but was 0x%08x\n",
-+			irq_received, irq_received ^ bus->irq_status);
-+
-+	/* Ack all interrupt bits. */
-+	writel(irq_received, bus->base + ASPEED_I2C_INTR_STS_REG);
-+	spin_unlock(&bus->lock);
-+	return bus->irq_status ? IRQ_NONE : IRQ_HANDLED;
-+}
-+
-+static int aspeed_i2c_check_bus_busy_timeout(struct aspeed_i2c_bus *bus)
-+{
-+	ktime_t timeout = ktime_add_us(ktime_get(), BUS_BUSY_CHECK_TIMEOUT);
-+
-+	might_sleep();
-+
-+	for (;;) {
-+		if (!(readl(bus->base + ASPEED_I2C_CMD_REG) &
-+		      (ASPEED_I2CD_BUS_BUSY_STS |
-+		       ASPEED_I2CD_XFER_MODE_STS_MASK)))
-+			return 0;
-+		if (ktime_compare(ktime_get(), timeout) > 0)
-+			break;
-+		usleep_range((BUS_BUSY_CHECK_INTERVAL >> 2) + 1,
-+			     BUS_BUSY_CHECK_INTERVAL);
-+	}
-+
-+	dev_err(bus->dev, "timeout waiting for idle. attempting recovery\n");
-+	return aspeed_i2c_recover_bus(bus);
- }
- 
- static int aspeed_i2c_master_xfer(struct i2c_adapter *adap,
-@@ -570,22 +617,11 @@ static int aspeed_i2c_master_xfer(struct i2c_adapter *adap,
- {
- 	struct aspeed_i2c_bus *bus = i2c_get_adapdata(adap);
- 	unsigned long time_left, flags;
--	int ret = 0;
--
--	spin_lock_irqsave(&bus->lock, flags);
--	bus->cmd_err = 0;
- 
--	/* If bus is busy, attempt recovery. We assume a single master
--	 * environment.
--	 */
--	if (readl(bus->base + ASPEED_I2C_CMD_REG) & ASPEED_I2CD_BUS_BUSY_STS) {
--		spin_unlock_irqrestore(&bus->lock, flags);
--		ret = aspeed_i2c_recover_bus(bus);
--		if (ret)
--			return ret;
--		spin_lock_irqsave(&bus->lock, flags);
--	}
-+	if (aspeed_i2c_check_bus_busy_timeout(bus))
-+		return -EAGAIN;
- 
-+	spin_lock_irqsave(&bus->lock, flags);
- 	bus->cmd_err = 0;
- 	bus->msgs = msgs;
- 	bus->msgs_index = 0;
-@@ -851,7 +887,7 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
- 	bus->rst = devm_reset_control_get_shared(&pdev->dev, NULL);
- 	if (IS_ERR(bus->rst)) {
- 		dev_err(&pdev->dev,
--			"missing or invalid reset controller device tree entry");
-+			"missing or invalid reset controller device tree entry\n");
- 		return PTR_ERR(bus->rst);
- 	}
- 	reset_control_deassert(bus->rst);
--- 
-2.17.1
+I'm not sure what you mean here! Can you please elaborate?
+
+> > +
+> > +/* I2Cx_CTL Bit Mask */
+> > +#define OWL_I2C_CTL_RB         BIT(1)
+> > +#define OWL_I2C_CTL_GBCC(x)    (((x) & 0x3) << 2)
+> > +#define        OWL_I2C_CTL_GBCC_NONE   OWL_I2C_CTL_GBCC(0)
+> > +#define        OWL_I2C_CTL_GBCC_START  OWL_I2C_CTL_GBCC(1)
+> > +#define        OWL_I2C_CTL_GBCC_STOP   OWL_I2C_CTL_GBCC(2)
+> > +#define        OWL_I2C_CTL_GBCC_RSTART OWL_I2C_CTL_GBCC(3)
+> > +#define OWL_I2C_CTL_IRQE       BIT(5)
+> > +#define OWL_I2C_CTL_EN         BIT(7)
+> > +#define OWL_I2C_CTL_AE         BIT(8)
+> > +#define OWL_I2C_CTL_SHSM       BIT(10)
+> > +
+> > +#define OWL_I2C_DIV_FACTOR(x)  ((x) & 0xff)
+> > +
+> > +/* I2Cx_STAT Bit Mask */
+> > +#define OWL_I2C_STAT_RACK      BIT(0)
+> > +#define OWL_I2C_STAT_BEB       BIT(1)
+> > +#define OWL_I2C_STAT_IRQP      BIT(2)
+> > +#define OWL_I2C_STAT_LAB       BIT(3)
+> > +#define OWL_I2C_STAT_STPD      BIT(4)
+> > +#define OWL_I2C_STAT_STAD      BIT(5)
+> > +#define OWL_I2C_STAT_BBB       BIT(6)
+> > +#define OWL_I2C_STAT_TCB       BIT(7)
+> > +#define OWL_I2C_STAT_LBST      BIT(8)
+> > +#define OWL_I2C_STAT_SAMB      BIT(9)
+> > +#define OWL_I2C_STAT_SRGC      BIT(10)
+> > +
+> > +/* I2Cx_CMD Bit Mask */
+> > +#define OWL_I2C_CMD_SBE                BIT(0)
+> > +#define OWL_I2C_CMD_RBE                BIT(4)
+> > +#define OWL_I2C_CMD_DE         BIT(8)
+> > +#define OWL_I2C_CMD_NS         BIT(9)
+> > +#define OWL_I2C_CMD_SE         BIT(10)
+> > +#define OWL_I2C_CMD_MSS                BIT(11)
+> > +#define OWL_I2C_CMD_WRS                BIT(12)
+> > +#define OWL_I2C_CMD_SECL       BIT(15)
+> > +
+> > +#define OWL_I2C_CMD_AS(x)      (((x) & 0x7) << 1)
+> > +#define OWL_I2C_CMD_SAS(x)     (((x) & 0x7) << 5)
+> > +
+> > +/* I2Cx_FIFOCTL Bit Mask */
+> > +#define OWL_I2C_FIFOCTL_NIB    BIT(0)
+> > +#define OWL_I2C_FIFOCTL_RFR    BIT(1)
+> > +#define OWL_I2C_FIFOCTL_TFR    BIT(2)
+> > +
+> > +/* I2Cc_FIFOSTAT Bit Mask */
+> > +#define OWL_I2C_FIFOSTAT_RNB   BIT(1)
+> > +#define OWL_I2C_FIFOSTAT_RFE   BIT(2)
+> > +#define OWL_I2C_FIFOSTAT_TFF   BIT(5)
+> > +#define OWL_I2C_FIFOSTAT_TFD   GENMASK(23, 16)
+> > +#define OWL_I2C_FIFOSTAT_RFD   GENMASK(15, 8)
+> > +
+> 
+> > +/* I2C bus timeout */
+> > +#define OWL_I2C_TIMEOUT                (msecs_to_jiffies(4 * 1000))
+> 
+> Ditto.
+>
+
+Same as above
+
+> > +
+> > +#define OWL_I2C_DEFAULT_SPEED  100000
+> > +#define OWL_I2C_MAX_SPEED      400000
+> > +
+> > +struct owl_i2c_dev {
+> > +       struct i2c_adapter      adap;
+> > +       struct i2c_msg          *msg;
+> > +       struct completion       msg_complete;
+> > +       struct clk              *clk;
+> > +       void __iomem            *base;
+> > +       unsigned long           clk_rate;
+> > +       u32                     bus_freq;
+> > +       u32                     msg_ptr;
+> > +};
+> > +
+> > +static void owl_i2c_update_reg(void __iomem *base, unsigned int val, bool state)
+> > +{
+> > +       unsigned int regval;
+> > +
+> > +       regval = readl(base);
+> > +
+> > +       if (state)
+> > +               regval |= val;
+> > +       else
+> > +               regval &= ~val;
+> > +
+> > +       writel(regval, base);
+> > +}
+> > +
+> > +static void owl_i2c_reset(struct owl_i2c_dev *i2c_dev)
+> > +{
+> > +       unsigned int val;
+> > +
+> > +       owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_CTL,
+> > +                               OWL_I2C_CTL_EN, false);
+> > +       mdelay(1);
+> > +       owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_CTL,
+> > +                               OWL_I2C_CTL_EN, true);
+> > +
+> > +       /* Reset FIFO */
+> > +       owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_FIFOCTL,
+> > +                               OWL_I2C_FIFOCTL_RFR | OWL_I2C_FIFOCTL_TFR,
+> > +                               true);
+> > +
+> > +       /* Wait until FIFO reset complete */
+> > +       do {
+> > +               val = readl(i2c_dev->base + OWL_I2C_REG_FIFOCTL);
+> > +               if (!(val & (OWL_I2C_FIFOCTL_RFR | OWL_I2C_FIFOCTL_TFR)))
+> > +                       break;
+> > +       } while (1);
+> 
+> No way. Get rid of infinite loop.
+>
+
+Okay. Can I change it to max of 50 retries with 1ms delay?
+
+> > +
+> > +       /* Clear status registers */
+> > +       writel(0, i2c_dev->base + OWL_I2C_REG_STAT);
+> > +}
+> > +
+> > +static void owl_i2c_set_freq(struct owl_i2c_dev *i2c_dev)
+> > +{
+> > +       unsigned int val;
+> > +
+> > +       val = (i2c_dev->clk_rate + i2c_dev->bus_freq * 16 - 1) /
+> > +                               (i2c_dev->bus_freq * 16);
+> > +
+> > +       /* Set clock divider factor */
+> > +       writel(OWL_I2C_DIV_FACTOR(val), i2c_dev->base + OWL_I2C_REG_CLKDIV);
+> > +}
+> > +
+> > +static void owl_i2c_hw_init(struct owl_i2c_dev *i2c_dev)
+> > +{
+> > +       /* Reset I2C controller */
+> > +       owl_i2c_reset(i2c_dev);
+> > +
+> > +       /* Set bus frequency */
+> > +       owl_i2c_set_freq(i2c_dev);
+> > +}
+> > +
+> > +static irqreturn_t owl_i2c_interrupt(int irq, void *_dev)
+> > +{
+> > +       struct owl_i2c_dev *i2c_dev = _dev;
+> > +       struct i2c_msg *msg = i2c_dev->msg;
+> > +       unsigned int stat, fifostat;
+> > +
+> > +       fifostat = readl(i2c_dev->base + OWL_I2C_REG_FIFOSTAT);
+> > +       if (fifostat & OWL_I2C_FIFOSTAT_RNB) {
+> 
+> > +               dev_warn(&i2c_dev->adap.dev, "received NACK from device");
+> 
+> And if it happens hundreds times in a row?
+> 
+
+Should I change it to dev_dbg?
+
+> > +               owl_i2c_reset(i2c_dev);
+> > +               goto stop;
+> > +       }
+> > +
+> > +       stat = readl(i2c_dev->base + OWL_I2C_REG_STAT);
+> > +       if (stat & OWL_I2C_STAT_BEB) {
+> 
+> > +               dev_warn(&i2c_dev->adap.dev, "bus error");
+> 
+> Ditto.
+>
+
+Same as above?
+
+> > +               owl_i2c_reset(i2c_dev);
+> > +               goto stop;
+> > +       }
+> > +
+> > +       /* Handle FIFO read */
+> > +       if (msg->flags & I2C_M_RD) {
+> > +               while ((readl(i2c_dev->base + OWL_I2C_REG_FIFOSTAT) &
+> > +                               OWL_I2C_FIFOSTAT_RFE) &&
+> > +                               (i2c_dev->msg_ptr < msg->len)) {
+> > +                       msg->buf[i2c_dev->msg_ptr++] = readl(i2c_dev->base +
+> > +                                                       OWL_I2C_REG_RXDAT);
+> > +               }
+> > +       } else {
+> > +               /* Handle the remaining bytes which were not sent */
+> > +               while (!(readl(i2c_dev->base + OWL_I2C_REG_FIFOSTAT) &
+> > +                               OWL_I2C_FIFOSTAT_TFF) &&
+> > +                               i2c_dev->msg_ptr < msg->len) {
+> > +                       writel(msg->buf[i2c_dev->msg_ptr++], i2c_dev->base +
+> > +                                                       OWL_I2C_REG_TXDAT);
+> > +               }
+> > +       }
+> > +
+> > +stop:
+> > +       /* Clear pending interrupts */
+> > +       owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_STAT,
+> > +                               OWL_I2C_STAT_IRQP, true);
+> > +
+> > +       complete_all(&i2c_dev->msg_complete);
+> > +
+> > +       return IRQ_HANDLED;
+> > +}
+> > +
+> > +static u32 owl_i2c_func(struct i2c_adapter *adap)
+> > +{
+> > +       return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+> > +}
+> > +
+> > +static int owl_i2c_check_bus_busy(struct i2c_adapter *adap)
+> > +{
+> > +       struct owl_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
+> > +       unsigned long timeout;
+> > +       unsigned int val;
+> > +
+> > +       timeout = jiffies + OWL_I2C_TIMEOUT;
+> 
+> > +       while (1) {
+> 
+> Red flag!
+> 
+> Use
+> 
+> do {
+> ...
+> } while (time_after(...));
+> 
+> instead.
+>
+
+Okay, will change it.
+
+> > +               val = readl(i2c_dev->base + OWL_I2C_REG_STAT);
+> > +
+> > +               /* Check for Arbitration lost */
+> > +               if (val & OWL_I2C_STAT_LAB) {
+> > +                       val &= ~OWL_I2C_STAT_LAB;
+> > +                       writel(val, i2c_dev->base + OWL_I2C_REG_STAT);
+> > +                       return -EAGAIN;
+> > +               }
+> > +
+> > +               /* Check for Bus busy */
+> > +               if (!(val & OWL_I2C_STAT_BBB))
+> > +                       break;
+> > +
+> > +               if (time_after(jiffies, timeout)) {
+> > +                       dev_err(&adap->dev, "Bus busy timeout");
+> > +                       return -ETIMEDOUT;
+> > +               }
+> > +       }
+> > +
+> > +       return 0;
+> > +}
+> > +
+> > +static int owl_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+> > +                               int num)
+> > +{
+> > +       struct owl_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
+> > +       struct i2c_msg *msg;
+> > +       unsigned long time_left;
+> > +       unsigned int i2c_cmd;
+> > +       unsigned int addr;
+> > +       int ret = 0, idx;
+> > +
+> > +       owl_i2c_hw_init(i2c_dev);
+> > +
+> > +       ret = owl_i2c_check_bus_busy(adap);
+> > +       if (ret)
+> > +               return ret;
+> > +
+> > +       reinit_completion(&i2c_dev->msg_complete);
+> > +
+> > +       /* Enable I2C controller interrupt */
+> > +       owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_CTL,
+> > +                               OWL_I2C_CTL_IRQE, true);
+> > +
+> > +       /*
+> > +        * Select: FIFO enable, Master mode, Stop enable, Data count enable,
+> > +        * Send start bit
+> > +        */
+> > +       i2c_cmd = (OWL_I2C_CMD_SECL | OWL_I2C_CMD_MSS | OWL_I2C_CMD_SE
+> > +                       | OWL_I2C_CMD_NS | OWL_I2C_CMD_DE | OWL_I2C_CMD_SBE);
+> > +
+> > +       addr = (msgs[0].addr & 0x7f) << 1;
+> > +
+> > +       /* Handle repeated start condition */
+> > +       if (num > 1) {
+> > +               /* Set internal address length and enable repeated start */
+> > +               i2c_cmd |= (OWL_I2C_CMD_AS(msgs[0].len + 1)
+> > +                               | OWL_I2C_CMD_SAS(1) | OWL_I2C_CMD_RBE);
+> > +
+> > +               /* Write slave address */
+> > +               writel(addr, i2c_dev->base + OWL_I2C_REG_TXDAT);
+> > +
+> > +               /* Write internal register address */
+> > +               for (idx = 0; idx < msgs[0].len; idx++)
+> > +                       writel(msgs[0].buf[idx], i2c_dev->base +
+> > +                                               OWL_I2C_REG_TXDAT);
+> > +
+> > +               msg = &msgs[1];
+> > +       } else {
+> > +               /* Set address length */
+> > +               i2c_cmd |= OWL_I2C_CMD_AS(1);
+> > +               msg = &msgs[0];
+> > +       }
+> > +
+> > +       i2c_dev->msg = msg;
+> > +       i2c_dev->msg_ptr = 0;
+> > +
+> > +       /* Set data count for the message */
+> > +       writel(msg->len, i2c_dev->base + OWL_I2C_REG_DATCNT);
+> > +
+> 
+> > +       if (msg->flags & I2C_M_RD) {
+> > +               writel((addr | 1), i2c_dev->base + OWL_I2C_REG_TXDAT);
+> > +       } else {
+> > +               writel(addr, i2c_dev->base + OWL_I2C_REG_TXDAT);
+> 
+> Don't we have a helper to construct 8-bit address?
+>
+
+Okay, will use i2c_8bit_addr_from_msg for constructing the address
+
+> > +
+> > +               /* Write data to FIFO */
+> > +               for (idx = 0; idx < msg->len; idx++) {
+> > +                       /* Check for FIFO full */
+> > +                       if (readl(i2c_dev->base + OWL_I2C_REG_FIFOSTAT)
+> > +                                       & OWL_I2C_FIFOSTAT_TFF)
+> > +                               break;
+> > +
+> > +                       writel(msg->buf[idx],
+> > +                                       i2c_dev->base + OWL_I2C_REG_TXDAT);
+> > +               }
+> > +
+> > +               i2c_dev->msg_ptr = idx;
+> > +       }
+> > +
+> > +       /* Ingore the NACK if needed */
+> > +       if (msg->flags & I2C_M_IGNORE_NAK)
+> > +               owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_FIFOCTL,
+> > +                               OWL_I2C_FIFOCTL_NIB, true);
+> > +       else
+> > +               owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_FIFOCTL,
+> > +                               OWL_I2C_FIFOCTL_NIB, false);
+> > +
+> > +       /* Start the transfer */
+> > +       writel(i2c_cmd, i2c_dev->base + OWL_I2C_REG_CMD);
+> > +
+> > +       time_left = wait_for_completion_timeout(&i2c_dev->msg_complete,
+> > +                                               adap->timeout);
+> > +       if (time_left == 0) {
+> > +               dev_err(&adap->dev, "Transaction timed out");
+> > +               /* Send stop condition and release the bus */
+> > +               owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_CTL,
+> > +                       OWL_I2C_CTL_GBCC_STOP | OWL_I2C_CTL_RB, true);
+> > +               ret = -ETIMEDOUT;
+> > +       }
+> > +
+> > +       /* Disable I2C controller */
+> > +       owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_CTL,
+> > +                               OWL_I2C_CTL_EN, false);
+> > +
+> > +       return i2c_dev->msg_ptr;
+> > +}
+> > +
+> > +static const struct i2c_algorithm owl_i2c_algorithm = {
+> > +       .master_xfer    = owl_i2c_master_xfer,
+> > +       .functionality  = owl_i2c_func
+> > +};
+> > +
+> > +static const struct i2c_adapter_quirks owl_i2c_quirks = {
+> > +       .flags          = I2C_AQ_COMB | I2C_AQ_COMB_WRITE_FIRST,
+> > +       .max_read_len   = 240,
+> > +       .max_write_len  = 240,
+> > +       .max_comb_1st_msg_len = 6,
+> > +       .max_comb_2nd_msg_len = 240
+> > +};
+> > +
+> > +static int owl_i2c_probe(struct platform_device *pdev)
+> > +{
+> > +       struct device *dev = &pdev->dev;
+> > +       struct owl_i2c_dev *i2c_dev;
+> > +       struct resource *res;
+> > +       int ret, irq;
+> > +
+> > +       i2c_dev = devm_kzalloc(dev, sizeof(*i2c_dev), GFP_KERNEL);
+> > +       if (!i2c_dev)
+> > +               return -ENOMEM;
+> > +
+> > +       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > +       i2c_dev->base = devm_ioremap_resource(dev, res);
+> > +       if (IS_ERR(i2c_dev->base))
+> > +               return PTR_ERR(i2c_dev->base);
+> > +
+> > +       irq = platform_get_irq(pdev, 0);
+> > +       if (irq < 0) {
+> > +               dev_err(dev, "failed to get IRQ number\n");
+> > +               return irq;
+> > +       }
+> > +
+> > +       if (of_property_read_u32(dev->of_node, "clock-frequency",
+> > +                                       &i2c_dev->bus_freq))
+> > +               i2c_dev->bus_freq = OWL_I2C_DEFAULT_SPEED;
+> > +
+> > +       /* We support only frequencies of 100k and 400k for now */
+> > +       if (i2c_dev->bus_freq != OWL_I2C_DEFAULT_SPEED &&
+> > +                       i2c_dev->bus_freq > OWL_I2C_MAX_SPEED) {
+> > +               dev_err(dev, "invalid clock-frequency %d\n", i2c_dev->bus_freq);
+> > +               return -EINVAL;
+> > +       }
+> > +
+> > +       i2c_dev->clk = devm_clk_get(dev, NULL);
+> > +       if (IS_ERR(i2c_dev->clk)) {
+> > +               dev_err(dev, "failed to get clock\n");
+> > +               return PTR_ERR(i2c_dev->clk);
+> > +       }
+> > +
+> > +       ret = clk_prepare_enable(i2c_dev->clk);
+> > +       if (ret)
+> > +               return ret;
+> > +
+> > +       i2c_dev->clk_rate = clk_get_rate(i2c_dev->clk);
+> > +       if (!i2c_dev->clk_rate) {
+> > +               dev_err(dev, "input clock rate should not be zero\n");
+> > +               ret = -EINVAL;
+> > +               goto disable_clk;
+> > +       }
+> > +
+> > +       init_completion(&i2c_dev->msg_complete);
+> > +       i2c_dev->adap.owner = THIS_MODULE;
+> > +       i2c_dev->adap.algo = &owl_i2c_algorithm;
+> > +       i2c_dev->adap.timeout = OWL_I2C_TIMEOUT;
+> > +       i2c_dev->adap.quirks = &owl_i2c_quirks;
+> > +       i2c_dev->adap.dev.parent = dev;
+> > +       i2c_dev->adap.dev.of_node = dev->of_node;
+> > +       snprintf(i2c_dev->adap.name, sizeof(i2c_dev->adap.name),
+> > +                       "%s", "OWL I2C adapter");
+> > +       i2c_set_adapdata(&i2c_dev->adap, i2c_dev);
+> > +
+> > +       platform_set_drvdata(pdev, i2c_dev);
+> > +
+> > +       ret = devm_request_irq(dev, irq, owl_i2c_interrupt, 0, pdev->name,
+> > +                               i2c_dev);
+> > +       if (ret) {
+> > +               dev_err(dev, "failed to request irq %d\n", irq);
+> > +               goto disable_clk;
+> > +       }
+> > +
+> 
+> > +       ret = i2c_add_adapter(&i2c_dev->adap);
+> > +disable_clk:
+> > +       if (ret)
+> > +               clk_disable_unprepare(i2c_dev->clk);
+> > +
+> > +       return ret;
+> 
+> 
+> Can't we go with more usual patter, i.e.
+> 
+> ret = ...;
+> if (ret)
+>  goto err_handling;
+> 
+> return 0;
+> 
+> err_handling:
+>  ...
+> return ret;
+> 
+> ?
+> 
+
+Ack.
+
+Thanks,
+Mani
+
+> > +}
+> > +
+> > +static const struct of_device_id owl_i2c_of_match[] = {
+> > +       {.compatible = "actions,s900-i2c"},
+> > +       { /* sentinel */ }
+> > +};
+> > +MODULE_DEVICE_TABLE(of, owl_i2c_of_match);
+> > +
+> > +static struct platform_driver owl_i2c_driver = {
+> > +       .probe          = owl_i2c_probe,
+> > +       .driver         = {
+> > +               .name   = "owl-i2c",
+> > +               .of_match_table = of_match_ptr(owl_i2c_of_match),
+> > +       },
+> > +};
+> > +module_platform_driver(owl_i2c_driver);
+> > +
+> > +MODULE_AUTHOR("David Liu <liuwei@actions-semi.com>");
+> > +MODULE_AUTHOR("Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>");
+> > +MODULE_DESCRIPTION("Actions Semi OWL SoCs I2C driver");
+> > +MODULE_LICENSE("GPL");
+> > --
+> > 2.17.1
+> >
+> 
+> 
+> 
+> -- 
+> With Best Regards,
+> Andy Shevchenko
