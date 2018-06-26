@@ -1,48 +1,46 @@
-From: Alexander Steffen <Alexander.Steffen@infineon.com>
-Subject: Re: [PATCH v2 01/10] tpm/tpm_i2c_infineon: switch to
- i2c_lock_bus(..., I2C_LOCK_SEGMENT)
-Date: Tue, 26 Jun 2018 12:07:21 +0200
-Message-ID: <7703d6a2-b22c-104c-7390-b5143a504725@infineon.com>
-References: <20180620051803.12206-1-peda@axentia.se>
- <20180620051803.12206-2-peda@axentia.se>
- <20180625102454.GA3845@linux.intel.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH 1/5] i2c: smbus: add unlocked __i2c_smbus_xfer variant
+Date: Tue, 26 Jun 2018 13:54:01 +0200
+Message-ID: <79E4A06C-26EF-4FF4-AFEA-7E7769FDF995@axentia.se>
+References: <20180620085157.30121-1-peda@axentia.se> <20180620085157.30121-2-peda@axentia.se> <20180626023757.l54suaryim2fieq3@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180625102454.GA3845@linux.intel.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Peter Rosin <peda@axentia.se>
-Cc: Crt Mori <cmo@melexis.com>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, Sekhar Nori <nsekhar@ti.com>, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Peter Huewe <peterhuewe@gmx.de>, Michael Krufky <mkrufky@linuxtv.org>, Lee Jones <lee.jones@linaro.org>, Antti Palosaari <crope@iki.fi>, linux-samsung-soc@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>, Kevin Hilman <khilman@kernel.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>, Kukjin Kim <kgene@kernel.org>, bcm-kernel-feedback-list@broadcom.com, linux-input@vger.kernel.org, Orson Zhai <orsonzhai@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Arnd Bergmann <arnd@arndb.de>, linux-media@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Gregory Fong <gregory.0xf0>
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180626023757.l54suaryim2fieq3@ninjato>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, Guenter Roeck <linux@roeck-us.net>, Akinobu Mita <akinobu.mita@gmail.com>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 25.06.2018 12:24, Jarkko Sakkinen wrote:
-> On Wed, Jun 20, 2018 at 07:17:54AM +0200, Peter Rosin wrote:
->> Locking the root adapter for __i2c_transfer will deadlock if the
->> device sits behind a mux-locked I2C mux. Switch to the finer-grained
->> i2c_lock_bus with the I2C_LOCK_SEGMENT flag. If the device does not
->> sit behind a mux-locked mux, the two locking variants are equivalent.
->>
->> Signed-off-by: Peter Rosin <peda@axentia.se>
-> 
-> Studied enough so that I can give
-> 
-> Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> 
-> Do not have hardware to test this, however.
+On June 26, 2018 4:37:58 AM GMT+02:00, Wolfram Sang <wsa@the-dreams=2Ede> w=
+rote:
+>
+>> This is not perfectly equivalent, since i2c_smbus_xfer was callable
+>from
+>> atomic/irq context if you happened to end up emulating SMBus with an
+>I2C
+>> transfer, and that is no longer the case with this patch=2E It is
+>unknown
+>> (to me) if anything depends on that quirk, but it seems fragile
+>enough to
+>> simply break those cases and require them to call i2c_transfer
+>directly
+>> instead=2E
+>
+>Couldn't we just add the same trylock-code path here as well? I always
+>wondered why I2C and SMBus were not in sync when it came to that=2E Yet,
+>I
+>didn't want to change the code for no reason, but it seems we now have
+>one?
+>
+>Rest of the series looks good to me, very nice diffstat!
 
-I don't have a mux-locked I2C mux either, but at least I can confirm 
-that this change did not break my existing test setup (SLB9635/SLB9645 
-on Raspberry Pi 2B).
+I don't think it's that easy as I just thought about another problem with =
+lifting the locking from the emulation function=2E It calls kzalloc(=2E=2E=
+=2E, GFP_KERNEL), at least in some cases, and that's not a very good idea f=
+rom atomic/irq context=2E=2E=2E
 
-Tested-by: Alexander Steffen <Alexander.Steffen@infineon.com>
-
-Alexander
+Cheers,
+Peter
