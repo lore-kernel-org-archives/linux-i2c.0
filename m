@@ -1,33 +1,57 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 1/2] i2c: i801: Fix runtime PM
-Date: Tue, 26 Jun 2018 17:55:07 +0300
-Message-ID: <20180626145507.GE2558@lahna.fi.intel.com>
-References: <20180626143913.7361-1-jarkko.nikula@linux.intel.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v2 0/2] Add a property in at24.c
+Date: Tue, 26 Jun 2018 18:48:05 +0300
+Message-ID: <94f847b50030a10c9dabd907a35c16a9f43e5af4.camel@linux.intel.com>
+References: <1529994128-26770-1-git-send-email-alanx.chiang@intel.com>
+         <CAMRc=Me-Tm8Q5_hGu2r1uqeYFAvCM9ssr7o=w1KZUyXcAn_uCw@mail.gmail.com>
+         <ff4c668d0807657940a4cddc6f7eb63d19be327c.camel@linux.intel.com>
+         <CAMRc=Me511S4Qw_-SPNkpPXcby7rZApbgm9g2=W=irmy9Gsu3g@mail.gmail.com>
+         <3a07d0d9fbe7178bbe9efa99fcb331df213a461f.camel@linux.intel.com>
+         <CAMRc=MdvW_k3ZgrZAffD45r_zxOMWCyXoDx-YgXMQ2=-tSjyGw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180626143913.7361-1-jarkko.nikula@linux.intel.com>
-Sender: stable-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAMRc=MdvW_k3ZgrZAffD45r_zxOMWCyXoDx-YgXMQ2=-tSjyGw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: alanx.chiang@intel.com, linux-i2c <linux-i2c@vger.kernel.org>, andy.yeh@intel.com, Sakari Ailus <sakari.ailus@linux.intel.com>, Rajmohan Mani <rajmohan.mani@intel.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 26, 2018 at 05:39:12PM +0300, Jarkko Nikula wrote:
-> Commit 9c8088c7988 ("i2c: i801: Don't restore config registers on
-> runtime PM") nullified the runtime PM suspend/resume callback pointers
-> while keeping the runtime PM enabled. This causes that device stays in
-> D0 power state and sysfs /sys/bus/pci/devices/.../power/runtime_status
-> shows "error" when runtime PM framework attempts to autosuspend the
-> device.
+On Tue, 2018-06-26 at 15:30 +0200, Bartosz Golaszewski wrote:
+> 2018-06-26 15:23 GMT+02:00 Andy Shevchenko <andriy.shevchenko@linux.in
+> tel.com>:
+> > On Tue, 2018-06-26 at 14:36 +0200, Bartosz Golaszewski wrote:
+> > > 2018-06-26 14:14 GMT+02:00 Andy Shevchenko
+> > > <andriy.shevchenko@linux.intel.com>:
+> > > > On Tue, 2018-06-26 at 09:41 +0200, Bartosz Golaszewski wrote:
+> > > > > What is your use case exactly? Do you have an EEPROM model
+> > > > > that's
+> > > > > not
+> > > > > yet supported explicitly in the driver? Why would you need
+> > > > > this
+> > > > > option?
+> > > > 
+> > > > The current at24 driver has no address width support,
+> > > >  thus, reusing same
+> > > > (allocated) IDs (non-DT case) is hard.
+> > 
+> > ^^^^^
+> > 
+> > > Every supported compatible has the width already specified in its
+> > > corresponding chip data.
+> > 
+> > 
+> > Please, read again carefully what I wrote before.
+> > 
 > 
-> This is due PCI bus runtime PM which checks for driver runtime PM
-> callbacks and returns with -ENOSYS if they are not set. Fix this by
-> having a shared dummy runtime PM callback that returns with success.
-> 
-> Fixes: a9c8088c7988 ("i2c: i801: Don't restore config registers on runtime PM")
-> Reported-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Ok makes sense in that case. Could you just point me towards an
+> example model which has the address width different than the default
+> for its type?
 
-This fixes the issue for me, thanks Jarkko!
+AFAIK, it's a companion device inside the camera voice coil IC, i.e.
+DONGWOON DW9714.
 
-Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
