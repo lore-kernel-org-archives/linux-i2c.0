@@ -1,57 +1,59 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v2 0/2] Add a property in at24.c
-Date: Tue, 26 Jun 2018 18:48:05 +0300
-Message-ID: <94f847b50030a10c9dabd907a35c16a9f43e5af4.camel@linux.intel.com>
+From: "Yeh, Andy" <andy.yeh@intel.com>
+Subject: RE: [PATCH v2 0/2] Add a property in at24.c
+Date: Tue, 26 Jun 2018 16:21:21 +0000
+Message-ID: <8E0971CCB6EA9D41AF58191A2D3978B61D6D9A20@PGSMSX111.gar.corp.intel.com>
 References: <1529994128-26770-1-git-send-email-alanx.chiang@intel.com>
          <CAMRc=Me-Tm8Q5_hGu2r1uqeYFAvCM9ssr7o=w1KZUyXcAn_uCw@mail.gmail.com>
          <ff4c668d0807657940a4cddc6f7eb63d19be327c.camel@linux.intel.com>
          <CAMRc=Me511S4Qw_-SPNkpPXcby7rZApbgm9g2=W=irmy9Gsu3g@mail.gmail.com>
          <3a07d0d9fbe7178bbe9efa99fcb331df213a461f.camel@linux.intel.com>
          <CAMRc=MdvW_k3ZgrZAffD45r_zxOMWCyXoDx-YgXMQ2=-tSjyGw@mail.gmail.com>
+ <94f847b50030a10c9dabd907a35c16a9f43e5af4.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMRc=MdvW_k3ZgrZAffD45r_zxOMWCyXoDx-YgXMQ2=-tSjyGw@mail.gmail.com>
+In-Reply-To: <94f847b50030a10c9dabd907a35c16a9f43e5af4.camel@linux.intel.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: alanx.chiang@intel.com, linux-i2c <linux-i2c@vger.kernel.org>, andy.yeh@intel.com, Sakari Ailus <sakari.ailus@linux.intel.com>, Rajmohan Mani <rajmohan.mani@intel.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: "Chiang, AlanX" <alanx.chiang@intel.com>, linux-i2c <linux-i2c@vger.kernel.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, "Mani, Rajmohan" <rajmohan.mani@intel.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2018-06-26 at 15:30 +0200, Bartosz Golaszewski wrote:
-> 2018-06-26 15:23 GMT+02:00 Andy Shevchenko <andriy.shevchenko@linux.in
-> tel.com>:
-> > On Tue, 2018-06-26 at 14:36 +0200, Bartosz Golaszewski wrote:
-> > > 2018-06-26 14:14 GMT+02:00 Andy Shevchenko
-> > > <andriy.shevchenko@linux.intel.com>:
-> > > > On Tue, 2018-06-26 at 09:41 +0200, Bartosz Golaszewski wrote:
-> > > > > What is your use case exactly? Do you have an EEPROM model
-> > > > > that's
-> > > > > not
-> > > > > yet supported explicitly in the driver? Why would you need
-> > > > > this
-> > > > > option?
-> > > > 
-> > > > The current at24 driver has no address width support,
-> > > >  thus, reusing same
-> > > > (allocated) IDs (non-DT case) is hard.
-> > 
-> > ^^^^^
-> > 
-> > > Every supported compatible has the width already specified in its
-> > > corresponding chip data.
-> > 
-> > 
-> > Please, read again carefully what I wrote before.
-> > 
-> 
-> Ok makes sense in that case. Could you just point me towards an
-> example model which has the address width different than the default
-> for its type?
-
-AFAIK, it's a companion device inside the camera voice coil IC, i.e.
-DONGWOON DW9714.
-
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBBbmR5IFNoZXZjaGVua28gW21h
+aWx0bzphbmRyaXkuc2hldmNoZW5rb0BsaW51eC5pbnRlbC5jb21dDQo+IFNlbnQ6IFR1ZXNkYXks
+IEp1bmUgMjYsIDIwMTggMTE6NDggUE0NCj4gVG86IEJhcnRvc3ogR29sYXN6ZXdza2kgPGJyZ2xA
+YmdkZXYucGw+DQo+IENjOiBDaGlhbmcsIEFsYW5YIDxhbGFueC5jaGlhbmdAaW50ZWwuY29tPjsg
+bGludXgtaTJjIDxsaW51eC0NCj4gaTJjQHZnZXIua2VybmVsLm9yZz47IFllaCwgQW5keSA8YW5k
+eS55ZWhAaW50ZWwuY29tPjsgU2FrYXJpIEFpbHVzDQo+IDxzYWthcmkuYWlsdXNAbGludXguaW50
+ZWwuY29tPjsgTWFuaSwgUmFqbW9oYW4gPHJham1vaGFuLm1hbmlAaW50ZWwuY29tPjsNCj4gQW5k
+eSBTaGV2Y2hlbmtvIDxhbmR5LnNoZXZjaGVua29AZ21haWwuY29tPjsgUm9iIEhlcnJpbmcNCj4g
+PHJvYmgrZHRAa2VybmVsLm9yZz47IE1hcmsgUnV0bGFuZCA8bWFyay5ydXRsYW5kQGFybS5jb20+
+OyBBcm5kDQo+IEJlcmdtYW5uIDxhcm5kQGFybmRiLmRlPjsgR3JlZyBLcm9haC1IYXJ0bWFuDQo+
+IDxncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZz47IExpbnV4IEtlcm5lbCBNYWlsaW5nIExpc3Qg
+PGxpbnV4LQ0KPiBrZXJuZWxAdmdlci5rZXJuZWwub3JnPg0KPiBTdWJqZWN0OiBSZTogW1BBVENI
+IHYyIDAvMl0gQWRkIGEgcHJvcGVydHkgaW4gYXQyNC5jDQo+IA0KPiBPbiBUdWUsIDIwMTgtMDYt
+MjYgYXQgMTU6MzAgKzAyMDAsIEJhcnRvc3ogR29sYXN6ZXdza2kgd3JvdGU6DQo+ID4gMjAxOC0w
+Ni0yNiAxNToyMyBHTVQrMDI6MDAgQW5keSBTaGV2Y2hlbmtvDQo+IDxhbmRyaXkuc2hldmNoZW5r
+b0BsaW51eC5pbg0KPiA+IHRlbC5jb20+Og0KPiA+ID4gT24gVHVlLCAyMDE4LTA2LTI2IGF0IDE0
+OjM2ICswMjAwLCBCYXJ0b3N6IEdvbGFzemV3c2tpIHdyb3RlOg0KPiA+ID4gPiAyMDE4LTA2LTI2
+IDE0OjE0IEdNVCswMjowMCBBbmR5IFNoZXZjaGVua28NCj4gPiA+ID4gPGFuZHJpeS5zaGV2Y2hl
+bmtvQGxpbnV4LmludGVsLmNvbT46DQo+ID4gPiA+ID4gT24gVHVlLCAyMDE4LTA2LTI2IGF0IDA5
+OjQxICswMjAwLCBCYXJ0b3N6IEdvbGFzemV3c2tpIHdyb3RlOg0KPiA+ID4gPiA+ID4gV2hhdCBp
+cyB5b3VyIHVzZSBjYXNlIGV4YWN0bHk/IERvIHlvdSBoYXZlIGFuIEVFUFJPTSBtb2RlbA0KPiA+
+ID4gPiA+ID4gdGhhdCdzIG5vdCB5ZXQgc3VwcG9ydGVkIGV4cGxpY2l0bHkgaW4gdGhlIGRyaXZl
+cj8gV2h5IHdvdWxkDQo+ID4gPiA+ID4gPiB5b3UgbmVlZCB0aGlzIG9wdGlvbj8NCj4gPiA+ID4g
+Pg0KPiA+ID4gPiA+IFRoZSBjdXJyZW50IGF0MjQgZHJpdmVyIGhhcyBubyBhZGRyZXNzIHdpZHRo
+IHN1cHBvcnQsICB0aHVzLA0KPiA+ID4gPiA+IHJldXNpbmcgc2FtZQ0KPiA+ID4gPiA+IChhbGxv
+Y2F0ZWQpIElEcyAobm9uLURUIGNhc2UpIGlzIGhhcmQuDQo+ID4gPg0KPiA+ID4gXl5eXl4NCj4g
+PiA+DQo+ID4gPiA+IEV2ZXJ5IHN1cHBvcnRlZCBjb21wYXRpYmxlIGhhcyB0aGUgd2lkdGggYWxy
+ZWFkeSBzcGVjaWZpZWQgaW4gaXRzDQo+ID4gPiA+IGNvcnJlc3BvbmRpbmcgY2hpcCBkYXRhLg0K
+PiA+ID4NCj4gPiA+DQo+ID4gPiBQbGVhc2UsIHJlYWQgYWdhaW4gY2FyZWZ1bGx5IHdoYXQgSSB3
+cm90ZSBiZWZvcmUuDQo+ID4gPg0KPiA+DQo+ID4gT2sgbWFrZXMgc2Vuc2UgaW4gdGhhdCBjYXNl
+LiBDb3VsZCB5b3UganVzdCBwb2ludCBtZSB0b3dhcmRzIGFuDQo+ID4gZXhhbXBsZSBtb2RlbCB3
+aGljaCBoYXMgdGhlIGFkZHJlc3Mgd2lkdGggZGlmZmVyZW50IHRoYW4gdGhlIGRlZmF1bHQNCj4g
+PiBmb3IgaXRzIHR5cGU/DQo+IA0KPiBBRkFJSywgaXQncyBhIGNvbXBhbmlvbiBkZXZpY2UgaW5z
+aWRlIHRoZSBjYW1lcmEgdm9pY2UgY29pbCBJQywgaS5lLg0KPiBET05HV09PTiBEVzk3MTQuDQo+
+IA0KDQpOb3BlLCBhY3R1YWxseSBpdCBpcyBEVzk4MDcgaW5zdGVhZCwgd2hpY2ggaXMgdXNlZCBv
+biBhIFNhbXN1bmcgQ2hyb21lYm9vay4NCg0KPiAtLQ0KPiBBbmR5IFNoZXZjaGVua28gPGFuZHJp
+eS5zaGV2Y2hlbmtvQGxpbnV4LmludGVsLmNvbT4NCj4gSW50ZWwgRmlubGFuZCBPeQ0K
