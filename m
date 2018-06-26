@@ -1,15 +1,14 @@
 From: Sakari Ailus <sakari.ailus@linux.intel.com>
-Subject: Re: [PATCH v2 2/2] eeprom: at24: Add support for address-width
- property
-Date: Tue, 26 Jun 2018 09:47:36 +0300
-Message-ID: <20180626064736.msxcnsi5rsnxp62k@kekkonen.localdomain>
+Subject: Re: [PATCH v2 1/2] dt-bindings: at24: Add address-width property
+Date: Tue, 26 Jun 2018 09:49:20 +0300
+Message-ID: <20180626064920.65atfoengymu5yjg@kekkonen.localdomain>
 References: <1529994128-26770-1-git-send-email-alanx.chiang@intel.com>
- <1529994128-26770-3-git-send-email-alanx.chiang@intel.com>
+ <1529994128-26770-2-git-send-email-alanx.chiang@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1529994128-26770-3-git-send-email-alanx.chiang@intel.com>
+In-Reply-To: <1529994128-26770-2-git-send-email-alanx.chiang@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: alanx.chiang@intel.com
 Cc: linux-i2c@vger.kernel.org, andy.yeh@intel.com, andriy.shevchenko@intel.com, rajmohan.mani@intel.com, andy.shevchenko@gmail.com, brgl@bgdev.pl, robh+dt@kernel.org, mark.rutland@arm.com, arnd@arndb.de, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org
@@ -17,58 +16,47 @@ List-Id: linux-i2c@vger.kernel.org
 
 Hi Alan,
 
-On Tue, Jun 26, 2018 at 02:22:08PM +0800, alanx.chiang@intel.com wrote:
+On Tue, Jun 26, 2018 at 02:22:07PM +0800, alanx.chiang@intel.com wrote:
 > From: "alanx.chiang" <alanx.chiang@intel.com>
 > 
-> Provide a flexible way to determine the addressing bits of eeprom.
-> Pass the addressing bits to driver through address-width property.
+> The AT24 series chips use 8-bit address by default. If some
+> chips would like to support more than 8 bits, should add the compatible
+> field for specfic chips in the driver.
+> 
+> Provide a flexible way to determine the addressing bits through
+> address-width in this patch.
 > 
 > Signed-off-by: Alan Chiang <alanx.chiang@intel.com>
 > Signed-off-by: Andy Yeh <andy.yeh@intel.com>
 > 
 > ---
-> since v1
-> -- Add a warn message for 8-bit addressing.
+> since v1:
+> -- Remove the address-width field in the example.
 > 
 > ---
->  drivers/misc/eeprom/at24.c | 16 ++++++++++++++++
->  1 file changed, 16 insertions(+)
+>  Documentation/devicetree/bindings/eeprom/at24.txt | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index 0c125f2..231afcd 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -478,6 +478,22 @@ static void at24_properties_to_pdata(struct device *dev,
->  	if (device_property_present(dev, "no-read-rollover"))
->  		chip->flags |= AT24_FLAG_NO_RDROL;
+> diff --git a/Documentation/devicetree/bindings/eeprom/at24.txt b/Documentation/devicetree/bindings/eeprom/at24.txt
+> index 61d833a..9467482 100644
+> --- a/Documentation/devicetree/bindings/eeprom/at24.txt
+> +++ b/Documentation/devicetree/bindings/eeprom/at24.txt
+> @@ -72,6 +72,8 @@ Optional properties:
 >  
-> +	err = device_property_read_u32(dev, "address-width", &val);
-> +	if (!err) {
-> +		switch (val) {
-> +		case 8:
-> +			chip->flags &= ~AT24_FLAG_ADDR16;
-> +			dev_warn(dev, "address-width is 8, clear the ADD16 bit\n");
+>    - wp-gpios: GPIO to which the write-protect pin of the chip is connected.
+>  
+> +  - address-width : number of address bits (one of 8, 16).
 
-Even though the default is 8 address bits, I don't see a need to issue a
-warning if the address-width property sets that to 8 explicitly. I.e. only
-warn if the flag was set.
+Please remove the space before the colon; that way it looks the same as the
+rest.
 
-> +			break;
-> +		case 16:
-> +			chip->flags |= AT24_FLAG_ADDR16;
-> +			break;
-> +		default:
-> +			dev_warn(dev, "Bad \"address-width\" property: %u\n",
-> +				 val);
-> +		}
-> +	}
 > +
->  	err = device_property_read_u32(dev, "size", &val);
->  	if (!err)
->  		chip->byte_len = val;
+>  Example:
+>  
+>  eeprom@52 {
 
 -- 
-Regards,
+Kind regards,
 
 Sakari Ailus
 sakari.ailus@linux.intel.com
