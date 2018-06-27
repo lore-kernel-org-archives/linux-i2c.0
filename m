@@ -1,74 +1,191 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: Re: [PATCH] i2c: aspeed: Improve driver to support multi-master use
- cases stably
-Date: Wed, 27 Jun 2018 11:01:53 -0700
-Message-ID: <c1c361de-32a7-83b6-4d48-ad0750c6218b@linux.intel.com>
-References: <20180626165812.4141-1-jae.hyun.yoo@linux.intel.com>
- <60d0dad1-b735-0650-47b4-40c57b1a5209@linux.intel.com>
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Subject: Re: [PATCH v5 09/10] gpio: Add a driver for Cadence I3C GPIO
+ expander
+Date: Wed, 27 Jun 2018 21:36:17 +0200
+Message-ID: <20180627213617.51e10712@bbrezillon>
+References: <20180622104930.32050-1-boris.brezillon@bootlin.com>
+        <20180622104930.32050-10-boris.brezillon@bootlin.com>
+        <CAHp75Vdxg49q6aQj0dDpzM4q2WnQbGoCECWR1roda7aMR+u4gg@mail.gmail.com>
+        <20180626215648.1472b96e@bbrezillon>
+        <CAHp75VcVvOzgOM87rSrwsCxh+WAK-z+zVCJifnY+Xeeu=cPFiA@mail.gmail.com>
+        <20180626234638.076fb816@bbrezillon>
+        <CAHp75VdBXj66Yd6sQHOWz19R9MUtYMSeq4j-+UidLedpfkB6mA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <60d0dad1-b735-0650-47b4-40c57b1a5209@linux.intel.com>
-Content-Language: en-US
+In-Reply-To: <CAHp75VdBXj66Yd6sQHOWz19R9MUtYMSeq4j-+UidLedpfkB6mA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Cc: James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Linux Documentation List <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jarkko,
+Hi Andy,
 
-Thanks for the review. Please see my answer below.
+On Wed, 27 Jun 2018 20:53:51 +0300
+Andy Shevchenko <andy.shevchenko@gmail.com> wrote:
 
-On 6/27/2018 12:48 AM, Jarkko Nikula wrote:
-> Hi
+> On Wed, Jun 27, 2018 at 12:46 AM, Boris Brezillon
+> <boris.brezillon@bootlin.com> wrote:
+> > On Tue, 26 Jun 2018 23:44:36 +0300
+> > Andy Shevchenko <andy.shevchenko@gmail.com> wrote:  
+> >> On Tue, Jun 26, 2018 at 10:56 PM, Boris Brezillon
+> >> <boris.brezillon@bootlin.com> wrote:  
+> >> > On Tue, 26 Jun 2018 22:07:03 +0300
+> >> > Andy Shevchenko <andy.shevchenko@gmail.com> wrote:  
+> >> >> On Fri, Jun 22, 2018 at 1:49 PM, Boris Brezillon
+> >> >> <boris.brezillon@bootlin.com> wrote:  
 > 
-> On 06/26/2018 07:58 PM, Jae Hyun Yoo wrote:
->> BMC firmware should support some multi-master use cases such as 
->> multi-node,
->> IPMB, BMC-ME link and so on but the current ASPEED I2C driver is a bit
->> unstable for the multi-master use case. So this patch improves ASPEED I2C
->> driver to support the multi-master use case stably.
->>
->> Changes:
->> * Added XFER_MODE status register checking logic into
->>    aspeed_i2c_master_xfer to improve the current bus busy checking logic.
->> * Changed the order of enum aspeed_i2c_master_state and
->>    enum aspeed_i2c_slave_state defines to make their initial values 
->> set to
->>    ASPEED_I2C_MASTER_INACTIVE and ASPEED_I2C_SLAVE_STOP respectively.
->>    In case of multi-master use with previous code, if a slave data comes
->>    ahead of the first master xfer, master_state starts from an invalid
->>    state. This change fixed the issue.
->> * Adjusted spin_lock scope to make it wrap the whole irq handler using
->>    a single lock and unlock pair covers both master and slave handlers.
->> * Added irq_status variable as a member of the struct aspeed_i2c_bus to
->>    collect handled interrupt bits throughout the master and the slave irq
->>    handlers.
->> * Added control logic to put an order on calling the master and the slave
->>    irq handlers based on their current states.
->>
-> This does many unrelated looking changes in one patch making it more 
-> vulnerable for potential multiple regressions. For instance busy 
-> checking goes from single read to loop with 250 ms timeout in this patch 
-> while changing also spin lock logic and interrupt handling.
+> >> > I'll say it here because this is not the first time I'm pissed off by
+> >> > one of your review.  
+> >>
+> >> Like 'I like offending people, because I think people who get offended
+> >> should be offended.' ?
+> >> I'm not that guy, relax.  
+> >
+> > I'm not offended, just annoyed, and not because I have things to change
+> > in my patchset (I'm used to that and that's something I comply with
+> > most of the time), but because the only reviews I had from you were of
+> > this kind (nitpicking on minor stuff).  
 > 
-> Now if there is some regression it might be difficult to find what 
-> change in this patch is causing it and more over things goes more 
-> complicated if some other kind of regressions are found pointing into 
-> the same commit.
+> OK, point taken.
 > 
-> I suggest splitting this into multiple smaller patches. For instance 
-> having first simple conversions patches that are unlikely to cause a 
-> regression like one patch adding '\n' to error print, another moving 
-> irq_status variable into struct aspeed_i2c_bus and so on followed by 
-> patches that change logic like busy checking, spin lock change and then 
-> patch or more for multi-master support.
+> >> > and most of the time your reviews are superficial (focused on tiny
+> >> > details or coding style issues). Don't you have better things to do?  
+> >>
+> >> If your code is written using ancient style and / or API it's not good
+> >> to start with.
+> >> Isn't it? Otherwise, why we do introduce new internal APIs, for what purpose?  
+> >
+> > Come on!
+> >
+> > - kzalloc() vs kmalloc_array()
+> > - for (i = 0; i < n, i++) { if (BIT(x) & var) ... }
+> >   vs
+> >   for_each_bit_set() (which is not even applicable here because I'm
+> >   not manipulating an unsigned long)
+> >
+> > Where do you see ancient style APIs here?  
+> 
+> Both. kmalloc_array() and for_each_set_bit() were introduced quite
+> long time ago.
+
+I mean, kzalloc() is not deprecated AFAIK and I don't really see the
+benefit of using kmalloc_array(), but if that makes you happy, let's go
+for kmalloc_array().
+
+For for_each_bit_set() it would require changing the type of isr +
+having a temporary variable to get the reg value into an u8. Again, I
+can do the change, but I don't really see how it improves the code. 
+
+> 
+> On top of that you are open coding, if I'm not mistaken, cpu_to_be32()
+> and be32_to_cpu().
+
+Care to point where?
+
+> ...and more I believe.
+
+Care to point what?
+ 
+> >> On top of that you might find more interesting reviews where I pointed
+> >> out to a memory leak or other nasty stuff. But of course you prefer
+> >> not to norice that.  
+> >
+> > Yes, sometime you have valid point, but it gets lost in all the noise.  
+> 
+> Btw, you forgot to call of_node_put() on error path in one case.
+
+In this driver or another patch of the series? I don't see any
+of_node_get() call in this GPIO driver, but maybe it's something done
+in one of the GPIO helper.
+
+> Did I
+> again missed the details?
+> 
+> >> > I mean, I'm fine when I get such comments from people that also do
+> >> > useful comments, but yours are most of the time useless and sometime
+> >> > even wrong because you didn't time to look at the code in details.  
+> >>
+> >> Calm down, please.  
+> >
+> > Why? Because I say you didn't look at the code in details? Isn't it
+> > true? Did you look at what I3C is, how it works or how the I3C framework
+> > is architectured? Because that's the kind of reviews I'd love to have on
+> > this series.  
+> 
+> You got me.
+> I have a copy of the spec, this require a bit of time to go through.
+
+Cool!
+
+> 
+> For now I can offer you to consider IBI implementation using IRQ chip framework.
+> It would give few advantages (like we do this for GPIO), such as IRQ
+> statistics or wake up capabilities.
+
+Just pasting the comment I made in my cover letter:
+
+"
+Main changes between the initial RFC and this v2 are:
+- Add a generic infrastructure to support IBIs. It's worth mentioning
+  that I tried exposing IBIs as a regular IRQs, but after several
+  attempts and a discussion with Mark Zyngier, it appeared that it was
+  not really fitting in the Linux IRQ model (the fact that you have
+  payload attached to IBIs, the fact that most of the time an IBI will
+  generate a transfer on the bus which has to be done in an atomic
+  context, ...)
+  The counterpart of this decision is the latency induced by the
+  workqueue approach, but since I don't have real use cases, I don't
+  know if this can be a problem or not. 
+"
+
+To sum-up, yes I tried implementing what you suggest, and it ended
+being messy for 2 main reasons:
+
+1/ IBIs have payload attached to them, and exposing IBIs are regular
+IRQs meant adding a payload queuing mechanism to the i3c_device so that
+the I3C device driver could dequeue each payload independently. Clearly
+not impossible to deal with, but conceptually far from the concept of
+IRQs we have in Linux.
+
+2/ The I3C APIs are meant to be used in non-atomic context, but if you
+expose IBIs are regular IRQs, the irqchip will have to mask/unmask the
+IRQs from an atomic context, and masking/unmasking IRQs almost always
+implies doing a CCC or priv SDR transfer. Plus, most of the time you'll
+have to retrieve extra info from the IRQ handler, which again means
+sending frames on the I3C bus. We could make that work by either
+supporting async transfers or having the irq chip handle the IRQ
+handlers from a thread. But both options add extra complexity for no
+real benefit given that IBIs are already not exactly fitting in the
+Linux IRQ model.
+
+The discussion I had with Mark Zyngier finished convincing me that
+IBIs would be better exposed with their own API.
+
+> 
+> >> You would simple ignore them. Your choice.  
+> >
+> > That's not my point. My point is, maybe you should do less reviews but
+> > spend more time on each of them  
+> 
+> Good point.
+> 
+> > so you don't just scratch the surface
+> > with comments I could get from a tool like checkpatch.  
+> 
+> Perhaps you should run checkpatch yourself then?
 > 
 
-Yes, that makes sense and I agree with you. I'll split out this patch
-into multiple smaller patches as you suggested.
+I do run checkpatch --strict and fix most of the thing reported except
+those hurting readability. I don't remember seeing checkpatch complain
+about kzalloc() usage, and I guess it's not smart enough to detect that
+for_each_bit_set() can be used to replace the "for() if (BIT(x) & val)"
+pattern.
 
-Thanks,
+Anyway, thanks for having a look at the I3C spec and starting the
+discussion on IBIs. I guess I owe you an apology.
 
-Jae
+Regards,
+
+Boris
