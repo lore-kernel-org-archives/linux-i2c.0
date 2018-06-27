@@ -1,15 +1,15 @@
 From: Eddie James <eajames@linux.vnet.ibm.com>
-Subject: Re: [PATCH v10 5/7] i2c: fsi: Add transfer implementation
-Date: Wed, 27 Jun 2018 08:21:30 -0500
-Message-ID: <6713efb9-c4c3-f648-a1e9-7918110091e4@linux.vnet.ibm.com>
+Subject: Re: [PATCH v10 7/7] i2c: fsi: Add bus recovery
+Date: Wed, 27 Jun 2018 08:32:45 -0500
+Message-ID: <c9d0b0c8-268f-04af-7c43-6fec0e272a9d@linux.vnet.ibm.com>
 References: <1528918579-27602-1-git-send-email-eajames@linux.vnet.ibm.com>
- <1528918579-27602-6-git-send-email-eajames@linux.vnet.ibm.com>
- <20180626023823.i3fmdegn2sric5kx@ninjato>
+ <1528918579-27602-8-git-send-email-eajames@linux.vnet.ibm.com>
+ <20180626023833.iwjz7pqnhf4jd3w5@ninjato>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180626023823.i3fmdegn2sric5kx@ninjato>
+In-Reply-To: <20180626023833.iwjz7pqnhf4jd3w5@ninjato>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
@@ -19,54 +19,44 @@ List-Id: linux-i2c@vger.kernel.org
 
 
 On 06/25/2018 09:38 PM, Wolfram Sang wrote:
-> On Wed, Jun 13, 2018 at 02:36:17PM -0500, Eddie James wrote:
->> Execute I2C transfers from the FSI-attached I2C master. Use polling
->> instead of interrupts as we have no hardware IRQ over FSI.
+> On Wed, Jun 13, 2018 at 02:36:19PM -0500, Eddie James wrote:
+>> Bus recovery should reset the engine and force clock the bus 9 times
+>> to recover most situations.
 >>
 >> Signed-off-by: Eddie James <eajames@linux.vnet.ibm.com>
 >> ---
->>   drivers/i2c/busses/i2c-fsi.c | 195 ++++++++++++++++++++++++++++++++++++++++++-
->>   1 file changed, 193 insertions(+), 2 deletions(-)
+>>   drivers/i2c/busses/i2c-fsi.c | 19 +++++++++++++++++++
+>>   1 file changed, 19 insertions(+)
 >>
 >> diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
->> index 4611a0b..8c0a6cb 100644
+>> index d6cab4b..940b198 100644
 >> --- a/drivers/i2c/busses/i2c-fsi.c
 >> +++ b/drivers/i2c/busses/i2c-fsi.c
->> @@ -155,6 +155,7 @@ struct fsi_i2c_port {
->>   	struct i2c_adapter	adapter;
->>   	struct fsi_i2c_master	*master;
->>   	u16			port;
->> +	u16			xfrd;
->>   };
->>   
->>   static int fsi_i2c_read_reg(struct fsi_device *fsi, unsigned int reg,
->> @@ -230,6 +231,99 @@ static int fsi_i2c_set_port(struct fsi_i2c_port *port)
->>   	return fsi_i2c_write_reg(fsi, I2C_FSI_RESET_ERR, &dummy);
+>> @@ -611,6 +611,24 @@ static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
+>>   		I2C_FUNC_SMBUS_BLOCK_DATA;
 >>   }
 >>   
->> +static int fsi_i2c_start(struct fsi_i2c_port *port, struct i2c_msg *msg,
->> +			 bool stop)
+>> +static int fsi_i2c_recover_bus(struct i2c_adapter *adap)
 >> +{
->> +	struct fsi_i2c_master *i2c = port->master;
->> +	u32 cmd = I2C_CMD_WITH_START | I2C_CMD_WITH_ADDR;
+>> +	int rc;
+>> +	struct fsi_i2c_port *port = adap->algo_data;
+>> +	struct fsi_i2c_master *master = port->master;
 >> +
->> +	port->xfrd = 0;
+>> +	mutex_lock(&master->lock);
 >> +
->> +	if (msg->flags & I2C_M_RD)
->> +		cmd |= I2C_CMD_READ;
-> Since you support MANGLING, I'd think you can easily support
-> I2C_M_REV_DIR_ADDR here, too?
+>> +	rc = fsi_i2c_reset(master, port->port);
+>> +
+>> +	mutex_unlock(&master->lock);
+>> +	return rc;
+>> +}
+>> +
+>> +static struct i2c_bus_recovery_info fsi_i2c_bus_recovery_info = {
+>> +	.recover_bus = fsi_i2c_recover_bus,
+>> +};
+>> +
+> This all won't have any effect since you never call i2c_recover_bus
+> which calls back into i2c_bus_recovery_info callbacks.
 
-Hm, I don't really understand the purpose of that flag. From the docs:
-
-This toggles the Rd/Wr flag. That is, if you want to do a write, but
-     need to emit an Rd instead of a Wr, or vice versa, you set this
-     flag. For example:
-S Addr Rd [A] Data [A] Data [A] ... [A] Data [A] P
-
-I don't think our hardware supports this type of operation.
-
-Thanks,
-Eddie
-
->
+Ah, I thought there would be some use of this in the core or in client 
+drivers, or some ioctl interface. Would there be any outside users of 
+these callbacks in the future?
