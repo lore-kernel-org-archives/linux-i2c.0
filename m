@@ -1,191 +1,55 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v5 09/10] gpio: Add a driver for Cadence I3C GPIO
- expander
-Date: Wed, 27 Jun 2018 21:36:17 +0200
-Message-ID: <20180627213617.51e10712@bbrezillon>
-References: <20180622104930.32050-1-boris.brezillon@bootlin.com>
-        <20180622104930.32050-10-boris.brezillon@bootlin.com>
-        <CAHp75Vdxg49q6aQj0dDpzM4q2WnQbGoCECWR1roda7aMR+u4gg@mail.gmail.com>
-        <20180626215648.1472b96e@bbrezillon>
-        <CAHp75VcVvOzgOM87rSrwsCxh+WAK-z+zVCJifnY+Xeeu=cPFiA@mail.gmail.com>
-        <20180626234638.076fb816@bbrezillon>
-        <CAHp75VdBXj66Yd6sQHOWz19R9MUtYMSeq4j-+UidLedpfkB6mA@mail.gmail.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 1/2] i2c: i801: Fix runtime PM
+Date: Wed, 27 Jun 2018 22:15:50 +0200
+Message-ID: <20180627221550.0fa5f2df@endymion>
+References: <20180626143913.7361-1-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75VdBXj66Yd6sQHOWz19R9MUtYMSeq4j-+UidLedpfkB6mA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Linux Documentation List <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20180626143913.7361-1-jarkko.nikula@linux.intel.com>
+Sender: stable-owner@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andy,
+Hi Jarkko,
 
-On Wed, 27 Jun 2018 20:53:51 +0300
-Andy Shevchenko <andy.shevchenko@gmail.com> wrote:
-
-> On Wed, Jun 27, 2018 at 12:46 AM, Boris Brezillon
-> <boris.brezillon@bootlin.com> wrote:
-> > On Tue, 26 Jun 2018 23:44:36 +0300
-> > Andy Shevchenko <andy.shevchenko@gmail.com> wrote:  
-> >> On Tue, Jun 26, 2018 at 10:56 PM, Boris Brezillon
-> >> <boris.brezillon@bootlin.com> wrote:  
-> >> > On Tue, 26 Jun 2018 22:07:03 +0300
-> >> > Andy Shevchenko <andy.shevchenko@gmail.com> wrote:  
-> >> >> On Fri, Jun 22, 2018 at 1:49 PM, Boris Brezillon
-> >> >> <boris.brezillon@bootlin.com> wrote:  
+On Tue, 26 Jun 2018 17:39:12 +0300, Jarkko Nikula wrote:
+> Commit 9c8088c7988 ("i2c: i801: Don't restore config registers on
+> runtime PM") nullified the runtime PM suspend/resume callback pointers
+> while keeping the runtime PM enabled. This causes that device stays in
+> D0 power state and sysfs /sys/bus/pci/devices/.../power/runtime_status
+> shows "error" when runtime PM framework attempts to autosuspend the
+> device.
 > 
-> >> > I'll say it here because this is not the first time I'm pissed off by
-> >> > one of your review.  
-> >>
-> >> Like 'I like offending people, because I think people who get offended
-> >> should be offended.' ?
-> >> I'm not that guy, relax.  
-> >
-> > I'm not offended, just annoyed, and not because I have things to change
-> > in my patchset (I'm used to that and that's something I comply with
-> > most of the time), but because the only reviews I had from you were of
-> > this kind (nitpicking on minor stuff).  
+> This is due PCI bus runtime PM which checks for driver runtime PM
+> callbacks and returns with -ENOSYS if they are not set. Fix this by
+> having a shared dummy runtime PM callback that returns with success.
 > 
-> OK, point taken.
-> 
-> >> > and most of the time your reviews are superficial (focused on tiny
-> >> > details or coding style issues). Don't you have better things to do?  
-> >>
-> >> If your code is written using ancient style and / or API it's not good
-> >> to start with.
-> >> Isn't it? Otherwise, why we do introduce new internal APIs, for what purpose?  
-> >
-> > Come on!
-> >
-> > - kzalloc() vs kmalloc_array()
-> > - for (i = 0; i < n, i++) { if (BIT(x) & var) ... }
-> >   vs
-> >   for_each_bit_set() (which is not even applicable here because I'm
-> >   not manipulating an unsigned long)
-> >
-> > Where do you see ancient style APIs here?  
-> 
-> Both. kmalloc_array() and for_each_set_bit() were introduced quite
-> long time ago.
+> Fixes: a9c8088c7988 ("i2c: i801: Don't restore config registers on runtime PM")
 
-I mean, kzalloc() is not deprecated AFAIK and I don't really see the
-benefit of using kmalloc_array(), but if that makes you happy, let's go
-for kmalloc_array().
+I don't want to sound like I'm trying to decline all responsibility for
+a regression I caused, but frankly, if just using SIMPLE_DEV_PM_OPS()
+breaks runtime PM, then it's the PM model which is broken, not the
+i2c-i801 driver.
 
-For for_each_bit_set() it would require changing the type of isr +
-having a temporary variable to get the reg value into an u8. Again, I
-can do the change, but I don't really see how it improves the code. 
+I will boldly claim that the PCI bus runtime code is simply wrong in
+returning -ENOSYS in the absence of runtime PM callbacks, and it should
+be changed to return 0 instead. Or whoever receives that -ENOSYS should
+not treat it as an error - whatever makes more sense.
 
-> 
-> On top of that you are open coding, if I'm not mistaken, cpu_to_be32()
-> and be32_to_cpu().
+Having to add dummy functions in every PCI driver that doesn't need to
+do anything special for runtime PM sounds plain stupid. It should be
+pretty obvious that a whole lot of drivers are going to use
+SIMPLE_DEV_PM_OPS() because it exists and seems to do what they want,
+and all of them will be bugged because the PCI core is doing something
+silly and unexpected.
 
-Care to point where?
+So please let's fix it at the PCI subsystem core level. Adding Bjorn
+and the linux-pci list to Cc.
 
-> ...and more I believe.
-
-Care to point what?
- 
-> >> On top of that you might find more interesting reviews where I pointed
-> >> out to a memory leak or other nasty stuff. But of course you prefer
-> >> not to norice that.  
-> >
-> > Yes, sometime you have valid point, but it gets lost in all the noise.  
-> 
-> Btw, you forgot to call of_node_put() on error path in one case.
-
-In this driver or another patch of the series? I don't see any
-of_node_get() call in this GPIO driver, but maybe it's something done
-in one of the GPIO helper.
-
-> Did I
-> again missed the details?
-> 
-> >> > I mean, I'm fine when I get such comments from people that also do
-> >> > useful comments, but yours are most of the time useless and sometime
-> >> > even wrong because you didn't time to look at the code in details.  
-> >>
-> >> Calm down, please.  
-> >
-> > Why? Because I say you didn't look at the code in details? Isn't it
-> > true? Did you look at what I3C is, how it works or how the I3C framework
-> > is architectured? Because that's the kind of reviews I'd love to have on
-> > this series.  
-> 
-> You got me.
-> I have a copy of the spec, this require a bit of time to go through.
-
-Cool!
-
-> 
-> For now I can offer you to consider IBI implementation using IRQ chip framework.
-> It would give few advantages (like we do this for GPIO), such as IRQ
-> statistics or wake up capabilities.
-
-Just pasting the comment I made in my cover letter:
-
-"
-Main changes between the initial RFC and this v2 are:
-- Add a generic infrastructure to support IBIs. It's worth mentioning
-  that I tried exposing IBIs as a regular IRQs, but after several
-  attempts and a discussion with Mark Zyngier, it appeared that it was
-  not really fitting in the Linux IRQ model (the fact that you have
-  payload attached to IBIs, the fact that most of the time an IBI will
-  generate a transfer on the bus which has to be done in an atomic
-  context, ...)
-  The counterpart of this decision is the latency induced by the
-  workqueue approach, but since I don't have real use cases, I don't
-  know if this can be a problem or not. 
-"
-
-To sum-up, yes I tried implementing what you suggest, and it ended
-being messy for 2 main reasons:
-
-1/ IBIs have payload attached to them, and exposing IBIs are regular
-IRQs meant adding a payload queuing mechanism to the i3c_device so that
-the I3C device driver could dequeue each payload independently. Clearly
-not impossible to deal with, but conceptually far from the concept of
-IRQs we have in Linux.
-
-2/ The I3C APIs are meant to be used in non-atomic context, but if you
-expose IBIs are regular IRQs, the irqchip will have to mask/unmask the
-IRQs from an atomic context, and masking/unmasking IRQs almost always
-implies doing a CCC or priv SDR transfer. Plus, most of the time you'll
-have to retrieve extra info from the IRQ handler, which again means
-sending frames on the I3C bus. We could make that work by either
-supporting async transfers or having the irq chip handle the IRQ
-handlers from a thread. But both options add extra complexity for no
-real benefit given that IBIs are already not exactly fitting in the
-Linux IRQ model.
-
-The discussion I had with Mark Zyngier finished convincing me that
-IBIs would be better exposed with their own API.
-
-> 
-> >> You would simple ignore them. Your choice.  
-> >
-> > That's not my point. My point is, maybe you should do less reviews but
-> > spend more time on each of them  
-> 
-> Good point.
-> 
-> > so you don't just scratch the surface
-> > with comments I could get from a tool like checkpatch.  
-> 
-> Perhaps you should run checkpatch yourself then?
-> 
-
-I do run checkpatch --strict and fix most of the thing reported except
-those hurting readability. I don't remember seeing checkpatch complain
-about kzalloc() usage, and I guess it's not smart enough to detect that
-for_each_bit_set() can be used to replace the "for() if (BIT(x) & val)"
-pattern.
-
-Anyway, thanks for having a look at the I3C spec and starting the
-discussion on IBIs. I guess I owe you an apology.
-
-Regards,
-
-Boris
+Thanks,
+-- 
+Jean Delvare
+SUSE L3 Support
