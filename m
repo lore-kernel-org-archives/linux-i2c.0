@@ -1,7 +1,7 @@
 From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH v2 1/6] dt-bindings: i2c: Add binding for Actions Semi OWL I2C controller
-Date: Thu, 28 Jun 2018 23:40:37 +0530
-Message-ID: <20180628181042.2239-2-manivannan.sadhasivam@linaro.org>
+Subject: [PATCH v2 2/6] arm64: dts: actions: Add Actions Semi S900 I2C controller nodes
+Date: Thu, 28 Jun 2018 23:40:38 +0530
+Message-ID: <20180628181042.2239-3-manivannan.sadhasivam@linaro.org>
 References: <20180628181042.2239-1-manivannan.sadhasivam@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180628181042.2239-1-manivannan.sadhasivam@linaro.org>
@@ -10,46 +10,83 @@ To: wsa@the-dreams.de, robh+dt@kernel.org, afaerber@suse.de
 Cc: linus.walleij@linaro.org, linux-i2c@vger.kernel.org, liuwei@actions-semi.com, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree@vger.kernel.org, andy.shevchenko@gmail.com, daniel.thompson@linaro.org, amit.kucheria@linaro.org, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, hzhang@ucrobotics.com, bdong@ucrobotics.com, manivannanece23@gmail.com, thomas.liau@actions-semi.com, jeff.chen@actions-semi.com, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add devicetree binding for Actions Semi OWL I2C controller
+Add I2C controller nodes for Actions Semi S900 SoC.
 
 Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 ---
- .../devicetree/bindings/i2c/i2c-owl.txt       | 27 +++++++++++++++++++
- 1 file changed, 27 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-owl.txt
+ arch/arm64/boot/dts/actions/s900.dtsi | 60 +++++++++++++++++++++++++++
+ 1 file changed, 60 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-owl.txt b/Documentation/devicetree/bindings/i2c/i2c-owl.txt
-new file mode 100644
-index 000000000000..9b691968cffd
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-owl.txt
-@@ -0,0 +1,27 @@
-+OWL I2C controller
+diff --git a/arch/arm64/boot/dts/actions/s900.dtsi b/arch/arm64/boot/dts/actions/s900.dtsi
+index 7ae8b931f000..6f7b89edbe4d 100644
+--- a/arch/arm64/boot/dts/actions/s900.dtsi
++++ b/arch/arm64/boot/dts/actions/s900.dtsi
+@@ -174,6 +174,66 @@
+ 			#clock-cells = <1>;
+ 		};
+ 
++		i2c0: i2c@e0170000 {
++			compatible = "actions,s900-i2c";
++			reg = <0 0xe0170000 0 0x1000>;
++			interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c0_default>;
++		};
 +
-+Required properties:
++		i2c1: i2c@e0172000 {
++			compatible = "actions,s900-i2c";
++			reg = <0 0xe0172000 0 0x1000>;
++			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c1_default>;
++		};
 +
-+- compatible        : Should be "actions,s900-i2c".
-+- reg               : Offset and length of the register set for the device.
-+- #address-cells    : Should be 1.
-+- #size-cells       : Should be 0.
-+- interrupts        : A single interrupt specifier.
-+- clocks            : Phandle of the clock feeding the I2C controller.
++		i2c2: i2c@e0174000 {
++			compatible = "actions,s900-i2c";
++			reg = <0 0xe0174000 0 0x1000>;
++			interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c2_default>;
++		};
 +
-+Optional properties:
++		i2c3: i2c@e0176000 {
++			compatible = "actions,s900-i2c";
++			reg = <0 0xe0176000 0 0x1000>;
++			interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
 +
-+- clock-frequency   : Desired I2C bus clock frequency in Hz. As only Normal and
-+                      Fast modes are supported, possible values are 100000 and
-+                      400000.
-+Examples:
++		i2c4: i2c@e0178000 {
++			compatible = "actions,s900-i2c";
++			reg = <0 0xe0178000 0 0x1000>;
++			interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
 +
-+        i2c0: i2c@e0170000 {
-+                compatible = "actions,s900-i2c";
-+                reg = <0 0xe0170000 0 0x1000>;
-+                #address-cells = <1>;
-+                #size-cells = <0>;
-+                interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
-+                clocks = <&clock CLK_I2C0>;
-+                clock-frequency = <100000>;
-+        };
++		i2c5: i2c@e017a000 {
++			compatible = "actions,s900-i2c";
++			reg = <0 0xe017a000 0 0x1000>;
++			interrupts = <GIC_SPI 9 IRQ_TYPE_LEVEL_HIGH>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
++
+ 		pinctrl: pinctrl@e01b0000 {
+ 			compatible = "actions,s900-pinctrl";
+ 			reg = <0x0 0xe01b0000 0x0 0x1000>;
 -- 
 2.17.1
