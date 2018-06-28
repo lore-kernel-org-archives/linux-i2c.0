@@ -1,90 +1,69 @@
-From: vitor <Vitor.Soares@synopsys.com>
-Subject: Re: [PATCH v5 01/10] i3c: Add core I3C infrastructure
-Date: Thu, 28 Jun 2018 16:38:56 +0100
-Message-ID: <088dc947-da66-cec9-44a8-0f1097690bfd@synopsys.com>
-References: <20180622104930.32050-1-boris.brezillon@bootlin.com>
- <20180622104930.32050-2-boris.brezillon@bootlin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 8bit
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH v2 0/6] Add Actions Semi S900 I2C support
+Date: Thu, 28 Jun 2018 23:40:36 +0530
+Message-ID: <20180628181042.2239-1-manivannan.sadhasivam@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180622104930.32050-2-boris.brezillon@bootlin.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
-Cc: Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vitor Soares <Vitor.Soares@synopsys.com>, Geert Uytterhoeven <geert@linux-m68k.org>
+To: wsa@the-dreams.de, robh+dt@kernel.org, afaerber@suse.de
+Cc: linus.walleij@linaro.org, linux-i2c@vger.kernel.org, liuwei@actions-semi.com, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree@vger.kernel.org, andy.shevchenko@gmail.com, daniel.thompson@linaro.org, amit.kucheria@linaro.org, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, hzhang@ucrobotics.com, bdong@ucrobotics.com, manivannanece23@gmail.com, thomas.liau@actions-semi.com, jeff.chen@actions-semi.com, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Boris,
+This patchset adds I2C controller support for Actions Semi S900 SoC.
+This driver has been structured in a way such that there will be only
+one controller driver for the whole OWL family series (S500, S700 and
+S900 SoCs).
 
+There are 6 I2C controllers with separate memory mapped register space.
+The I2C controller can handle atmost two messages concatenated by a
+repeated start via its internal address feature. Hence the driver
+uses this feature for messages of length greater than 1. In those cases,
+the first message of the combined message should be a `write` with maximum
+message length 6 and the second message's maximum length should be 240 bytes.
 
-On 22-06-2018 11:49, Boris Brezillon wrote:
-> +static int of_i3c_master_add_i3c_dev(struct i3c_master_controller *master,
-> +				     struct device_node *node, u32 *reg)
-> +{
-> +	struct i3c_device_info info = { };
-> +	enum i3c_addr_slot_status addrstatus;
-> +	struct i3c_device *i3cdev;
-> +	u32 init_dyn_addr = 0;
-> +
-> +	if (reg[0]) {
-> +		if (reg[0] > I3C_MAX_ADDR)
-> +			return -EINVAL;
-> +
-> +		addrstatus = i3c_bus_get_addr_slot_status(master->bus, reg[0]);
-> +		if (addrstatus != I3C_ADDR_SLOT_FREE)
-> +			return -EINVAL;
-> +	}
-> +
-> +	info.static_addr = reg[0];
-> +
-> +	if (!of_property_read_u32(node, "assigned-address", &init_dyn_addr)) {
-> +		if (init_dyn_addr > I3C_MAX_ADDR)
-> +			return -EINVAL;
-> +
-> +		addrstatus = i3c_bus_get_addr_slot_status(master->bus,
-> +							  init_dyn_addr);
-> +		if (addrstatus != I3C_ADDR_SLOT_FREE)
-> +			return -EINVAL;
-> +	}
-> +
-> +	info.pid = ((u64)reg[1] << 32) | reg[2];
-> +
-> +	if ((info.pid & GENMASK_ULL(63, 48)) ||
-> +	    I3C_PID_RND_LOWER_32BITS(info.pid))
-> +		return -EINVAL;
-> +
-> +	i3cdev = i3c_master_alloc_i3c_dev(master, &info, &i3c_device_type);
-> +	if (IS_ERR(i3cdev))
-> +		return PTR_ERR(i3cdev);
-> +
-> +	i3cdev->init_dyn_addr = init_dyn_addr;
-> +	i3cdev->dev.of_node = node;
-> +	list_add_tail(&i3cdev->common.node, &master->bus->devs.i3c);
-> +
-> +	return 0;
-> +}
-> +
+As far as the bus speed is concerned, this driver only supports
+Standard (100KHz) and High speed (400KHz) for now.
 
-I'm writing the driver for the Synopsys master and but now I getting an 
-issue.
+The pinctrl definitions are only available for I2C0, I2C1 and I2C2.
+With the mux option available only for I2C0.
 
-I use the "slot" of the device to do all transfers, something like you 
-use in DAA. I using the master_priv to save the "slot" per device but 
-the problem is when I call the i3c_master_add_i3c_dev_locked() to 
-retrieve the info I don't have it yet.
+For Bubblegum-96 board utilizing the S900 SoC, only I2C1 and I2C2 which
+are exposed on the Low speed expansion connector are enabled.
 
- From my analysis this can be solve with:
-     - send PID, BCR and DCR when I call i3c_master_add_i3c_dev_locked() 
-or similar function.
-     - Pre-allocate an i3c_device -> attach it (slot data goes to 
-master_priv) -> retrieve info -> if there is already an i3c_device with 
-same PID destroy the pre-allocated one.
-     - Replace the info.dyn_address with a structure with dyn_address 
-and slot and use it in CCC structure.
+Thanks,
+Mani
 
-This is something that will need to be supported for I3C HCI spec too. 
-Do you have any suggestion?
+Changes in v2:
 
-Best regards,
-Vitor Soares
+As per Andy's review:
+* Modified infinite loops to fixed number of retries
+* Used i2c_8bit_addr_from_msg for constructing the slave address
+* Removed unnecessary parenthesis around defines
+* Modified certain dev_warn to dev_dbg
+* Modified the error handling to more generic pattern
+
+* Fixed the return value in owl_i2c_master_xfer
+* Added MAINTAINERS patch for I2C driver and its binding
+
+Manivannan Sadhasivam (6):
+  dt-bindings: i2c: Add binding for Actions Semi OWL I2C controller
+  arm64: dts: actions: Add Actions Semi S900 I2C controller nodes
+  arm64: dts: actions: Add pinctrl definition for S900 I2C controller
+  arm64: dts: actions: Enable I2C1 and I2C2 in Bubblegum-96 board
+  i2c: Add Actions Semi OWL family S900 I2C driver
+  MAINTAINERS: Add entry for Actions Semi OWL I2C driver
+
+ .../devicetree/bindings/i2c/i2c-owl.txt       |  27 +
+ MAINTAINERS                                   |   2 +
+ .../dts/actions/s900-bubblegum-96-pins.dtsi   |  29 ++
+ .../boot/dts/actions/s900-bubblegum-96.dts    |  11 +
+ arch/arm64/boot/dts/actions/s900.dtsi         |  60 +++
+ drivers/i2c/busses/Kconfig                    |   7 +
+ drivers/i2c/busses/Makefile                   |   1 +
+ drivers/i2c/busses/i2c-owl.c                  | 471 ++++++++++++++++++
+ 8 files changed, 608 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-owl.txt
+ create mode 100644 arch/arm64/boot/dts/actions/s900-bubblegum-96-pins.dtsi
+ create mode 100644 drivers/i2c/busses/i2c-owl.c
+
+-- 
+2.17.1
