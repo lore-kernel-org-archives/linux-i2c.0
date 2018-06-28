@@ -1,70 +1,90 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 2/9] crypto: atmel-ecc: Silently ignore missing clock
- frequency
-Date: Thu, 28 Jun 2018 10:47:12 +0200
-Message-ID: <CACRpkdYDABDgYe=FOsQK9=p-mB3Qr8wVb=hbbEgzo_qUCbutPQ@mail.gmail.com>
-References: <20180605134950.6605-1-linus.walleij@linaro.org>
- <20180605134950.6605-2-linus.walleij@linaro.org>
- <e33b8860-2ff4-da8f-8500-ad24ab6c1e4e@microchip.com>
+From: vitor <Vitor.Soares@synopsys.com>
+Subject: Re: [PATCH v5 01/10] i3c: Add core I3C infrastructure
+Date: Thu, 28 Jun 2018 16:38:56 +0100
+Message-ID: <088dc947-da66-cec9-44a8-0f1097690bfd@synopsys.com>
+References: <20180622104930.32050-1-boris.brezillon@bootlin.com>
+ <20180622104930.32050-2-boris.brezillon@bootlin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <e33b8860-2ff4-da8f-8500-ad24ab6c1e4e@microchip.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Tudor Ambarus <tudor.ambarus@microchip.com>
-Cc: linux-i2c@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>, linux-crypto@vger.kernel.org, Linux ARM <linux-arm-kernel@lists.infradead.org>, Wolfram Sang <wsa@the-dreams.de>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180622104930.32050-2-boris.brezillon@bootlin.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
+Cc: Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vitor Soares <Vitor.Soares@synopsys.com>, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 11, 2018 at 11:46 AM Tudor Ambarus
-<tudor.ambarus@microchip.com> wrote:
-> On 06/05/2018 04:49 PM, Linus Walleij wrote:
-> > The Atmel ECC driver contains a check for the I2C bus clock
-> > frequency, so as to check that the I2C adapter in use
-> > satisfies the device specs.
-> >
-> > If the device is connected to a device tree node that does not
-> > contain a clock frequency setting, such as an I2C mux or gate,
-> > this blocks the probe. Make the probe continue silently if
-> > no clock frequency can be found, assuming all is safe.
->
-> I don't think it's safe. We use bus_clk_rate to compute the ecc508's
-> wake token. If you can't wake the device, it will ignore all your
-> commands.
+Hi Boris,
 
-I see. I wonder why it works so well for me then?
-Could we just print a warning and continue?
-The general advice for the kernel is not to bail out if
-hardware is not optimally configured, but continue with
-a warning that maybe not everything is all right.
 
-> My proposal was to introduce a bus_freq_hz member in the i2c_adapter
-> structure (https://patchwork.kernel.org/patch/10307637/), but I haven't
-> received feedback yet, Wolfram?
->
-> I would say first to check the bus_freq_hz from adapter (if it will be
-> accepted) else to look into dt and, in the last case, if nowhere
-> provided, to block the probe.
+On 22-06-2018 11:49, Boris Brezillon wrote:
+> +static int of_i3c_master_add_i3c_dev(struct i3c_master_controller *master,
+> +				     struct device_node *node, u32 *reg)
+> +{
+> +	struct i3c_device_info info = { };
+> +	enum i3c_addr_slot_status addrstatus;
+> +	struct i3c_device *i3cdev;
+> +	u32 init_dyn_addr = 0;
+> +
+> +	if (reg[0]) {
+> +		if (reg[0] > I3C_MAX_ADDR)
+> +			return -EINVAL;
+> +
+> +		addrstatus = i3c_bus_get_addr_slot_status(master->bus, reg[0]);
+> +		if (addrstatus != I3C_ADDR_SLOT_FREE)
+> +			return -EINVAL;
+> +	}
+> +
+> +	info.static_addr = reg[0];
+> +
+> +	if (!of_property_read_u32(node, "assigned-address", &init_dyn_addr)) {
+> +		if (init_dyn_addr > I3C_MAX_ADDR)
+> +			return -EINVAL;
+> +
+> +		addrstatus = i3c_bus_get_addr_slot_status(master->bus,
+> +							  init_dyn_addr);
+> +		if (addrstatus != I3C_ADDR_SLOT_FREE)
+> +			return -EINVAL;
+> +	}
+> +
+> +	info.pid = ((u64)reg[1] << 32) | reg[2];
+> +
+> +	if ((info.pid & GENMASK_ULL(63, 48)) ||
+> +	    I3C_PID_RND_LOWER_32BITS(info.pid))
+> +		return -EINVAL;
+> +
+> +	i3cdev = i3c_master_alloc_i3c_dev(master, &info, &i3c_device_type);
+> +	if (IS_ERR(i3cdev))
+> +		return PTR_ERR(i3cdev);
+> +
+> +	i3cdev->init_dyn_addr = init_dyn_addr;
+> +	i3cdev->dev.of_node = node;
+> +	list_add_tail(&i3cdev->common.node, &master->bus->devs.i3c);
+> +
+> +	return 0;
+> +}
+> +
 
-So blocking the probe because we are not 100% sure the hardware
-will work is against established practice: the established practice
-is to be liberal with letting probe() continue, but emit a warning.
+I'm writing the driver for the Synopsys master and but now I getting an 
+issue.
 
-In my case that is good because it makes the hardware probe
-and work without any visible problems.
+I use the "slot" of the device to do all transfers, something like you 
+use in DAA. I using the master_priv to save the "slot" per device but 
+the problem is when I call the i3c_master_add_i3c_dev_locked() to 
+retrieve the info I don't have it yet.
 
-I *can* try to traverse the device tree upwards from the mux node
-to find the parent I2C controller and its "clock-frequency"
-property. I felt that was hackish, but if you prefer the hack I
-can try to use that.
+ From my analysis this can be solve with:
+     - send PID, BCR and DCR when I call i3c_master_add_i3c_dev_locked() 
+or similar function.
+     - Pre-allocate an i3c_device -> attach it (slot data goes to 
+master_priv) -> retrieve info -> if there is already an i3c_device with 
+same PID destroy the pre-allocated one.
+     - Replace the info.dyn_address with a structure with dyn_address 
+and slot and use it in CCC structure.
 
-Yours,
-Linus Walleij
+This is something that will need to be supported for I3C HCI spec too. 
+Do you have any suggestion?
+
+Best regards,
+Vitor Soares
