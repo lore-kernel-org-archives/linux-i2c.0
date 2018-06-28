@@ -1,53 +1,70 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 09/10] gpio: Add a driver for Cadence I3C GPIO expander
-Date: Thu, 28 Jun 2018 06:08:37 +0200
-Message-ID: <20180628040837.25fpjubloxo277ag@katana>
-References: <20180622104930.32050-1-boris.brezillon@bootlin.com>
- <20180622104930.32050-10-boris.brezillon@bootlin.com>
- <CACRpkdYmR3+urDk6StG7s=W3=oYHB6eqs7ORdMV=-S31QtOAqQ@mail.gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 2/9] crypto: atmel-ecc: Silently ignore missing clock
+ frequency
+Date: Thu, 28 Jun 2018 10:47:12 +0200
+Message-ID: <CACRpkdYDABDgYe=FOsQK9=p-mB3Qr8wVb=hbbEgzo_qUCbutPQ@mail.gmail.com>
+References: <20180605134950.6605-1-linus.walleij@linaro.org>
+ <20180605134950.6605-2-linus.walleij@linaro.org>
+ <e33b8860-2ff4-da8f-8500-ad24ab6c1e4e@microchip.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="a3od6fvxi7bwproo"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CACRpkdYmR3+urDk6StG7s=W3=oYHB6eqs7ORdMV=-S31QtOAqQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Boris Brezillon <boris.brezillon@bootlin.com>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, ext Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devi>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <e33b8860-2ff4-da8f-8500-ad24ab6c1e4e@microchip.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Tudor Ambarus <tudor.ambarus@microchip.com>
+Cc: linux-i2c@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>, linux-crypto@vger.kernel.org, Linux ARM <linux-arm-kernel@lists.infradead.org>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Jun 11, 2018 at 11:46 AM Tudor Ambarus
+<tudor.ambarus@microchip.com> wrote:
+> On 06/05/2018 04:49 PM, Linus Walleij wrote:
+> > The Atmel ECC driver contains a check for the I2C bus clock
+> > frequency, so as to check that the I2C adapter in use
+> > satisfies the device specs.
+> >
+> > If the device is connected to a device tree node that does not
+> > contain a clock frequency setting, such as an I2C mux or gate,
+> > this blocks the probe. Make the probe continue silently if
+> > no clock frequency can be found, assuming all is safe.
+>
+> I don't think it's safe. We use bus_clk_rate to compute the ecc508's
+> wake token. If you can't wake the device, it will ignore all your
+> commands.
 
---a3od6fvxi7bwproo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I see. I wonder why it works so well for me then?
+Could we just print a warning and continue?
+The general advice for the kernel is not to bail out if
+hardware is not optimally configured, but continue with
+a warning that maybe not everything is all right.
 
+> My proposal was to introduce a bus_freq_hz member in the i2c_adapter
+> structure (https://patchwork.kernel.org/patch/10307637/), but I haven't
+> received feedback yet, Wolfram?
+>
+> I would say first to check the bus_freq_hz from adapter (if it will be
+> accepted) else to look into dt and, in the last case, if nowhere
+> provided, to block the probe.
 
-> I see there was some heat in this discussion between you
-> and Andy, and it seems to be resolved. Which is good
-> because you are both senior contributors that I value
-> a lot.
+So blocking the probe because we are not 100% sure the hardware
+will work is against established practice: the established practice
+is to be liberal with letting probe() continue, but emit a warning.
 
-+1
+In my case that is good because it makes the hardware probe
+and work without any visible problems.
 
+I *can* try to traverse the device tree upwards from the mux node
+to find the parent I2C controller and its "clock-frequency"
+property. I felt that was hackish, but if you prefer the hack I
+can try to use that.
 
---a3od6fvxi7bwproo
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAls0X0EACgkQFA3kzBSg
-KbZGuQ/+JXDMJCo6XGuicpcQb6G3cvLv/h/jkSJnR61ElmXs4kSOX8DFsszrMy+Y
-YUV9Br988qAEvJPsfbcEexjBJ5y2K6A3hpTUMJY0un2s23hJECxN9bV0Il0SPInT
-i0WwHnV7fn8aM7qbza/fuYh9N/5CXQRXE1SNJjyj8pVWwHXIayNla8lBaSCnyfgF
-myyd0EmEAxaPze7O2r++K326YhZOFSrcVYT5ScqOIMt/EQd1S4xN91Qx9zTWwMAJ
-27uES5566WnNJEclmuHQFu5hGAMB2X3k3w9HbHzxUInTHgB7g2IQbuHHTjqV8ogT
-qPNXCKFwIJhz6bxYRxo5Lie+Y2a3J9W+Gu6CIIeeZHFgDUfs3svnvSbuog01LZ00
-S+ysTxsSqn0PG2kYYJwNMWPueF6/t2IGsqsCpkB/KK6x0pWkv8c3bQsAtYGDC/Uv
-JIMHJ2cE1JSrWtdUt/gnGn5yysnpim0mdV3mBlkSrwSm7PFsVjThUeEmML8+L1Fm
-Y2VY+zDeJcd639d87ZTp+e8+r9HCqz+41HTC3zE94qXZVX9ZddgcubOm2WTaf6pa
-O3TMQUrNzlLhH3eHnyTiW6PraobNIHCvv8HJ1BmOfWCFVPfa18ZtcA5xN93VYGXg
-28nCx2jumkugOZ9KVoUABGMNaXhtHHhAAbN9DQs4cX4IuJky4C0=
-=buoG
------END PGP SIGNATURE-----
-
---a3od6fvxi7bwproo--
+Yours,
+Linus Walleij
