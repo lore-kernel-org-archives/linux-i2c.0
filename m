@@ -1,105 +1,121 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 1/5] i2c: smbus: add unlocked __i2c_smbus_xfer variant
-Date: Sun, 01 Jul 2018 18:40:06 +0200
-Message-ID: <4570C1C1-1494-41B8-846F-CB906949C46B@axentia.se>
-References: <20180620085157.30121-1-peda@axentia.se> <20180620085157.30121-2-peda@axentia.se> <20180626023757.l54suaryim2fieq3@ninjato> <79E4A06C-26EF-4FF4-AFEA-7E7769FDF995@axentia.se> <20180626134606.h4ciolw23t6qnrjb@ninjato> <58972586-68FD-4FD6-8B38-E7CA93D2131E@axentia.se> <20180627070818.4zb3i557qjiicsv7@katana> <20180701121320.uwhnaggm2wmijkrw@ninjato>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH v4 0/6] Add Actions Semiconductor Owl S900 I2C support
+Date: Sun,  1 Jul 2018 22:52:59 +0530
+Message-ID: <20180701172305.15663-1-manivannan.sadhasivam@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180701121320.uwhnaggm2wmijkrw@ninjato>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, Guenter Roeck <linux@roeck-us.net>, Akinobu Mita <akinobu.mita@gmail.com>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: wsa@the-dreams.de, robh+dt@kernel.org, afaerber@suse.de
+Cc: devicetree@vger.kernel.org, daniel.thompson@linaro.org, manivannanece23@gmail.com, jeff.chen@actions-semi.com, hzhang@ucrobotics.com, thomas.liau@actions-semi.com, linus.walleij@linaro.org, liuwei@actions-semi.com, linux-kernel@vger.kernel.org, amit.kucheria@linaro.org, linux-gpio@vger.kernel.org, andy.shevchenko@gmail.com, mp-cs@actions-semi.com, 96boards@ucrobotics.com, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>, bdong@ucrobotics.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On July 1, 2018 2:13:20 PM GMT+02:00, Wolfram Sang <wsa@the-dreams=2Ede> wr=
-ote:
->On Wed, Jun 27, 2018 at 09:08:18AM +0200, Wolfram Sang wrote:
->>=20
->> > Because, thinking more about it, the problem with those allocs are
->not
->> > related to the locking details; adding another trylock to the mix
->just
->> > makes it so much more obvious=2E I mean, first we would specifically
->> > handle atomic/irq context with a trylock "documenting" that
->atomic/irq
->> > users are welcome to at least try xfers, and then we blattantly
->break
->> > the rulez with a GFP_KERNEL alloc=2E=2E=2E
->>=20
->> Yes, thinking more about it, I came to the conclusion that we should
->not
->> add trylock to SMBus and keep the requirement to allow sleeping=2E
->>=20
->> True, SMBus is not consistent with I2C then, but actually, I'd prefer
->> the consistency the other way around: I wish we had a clear statement
->> that i2c_transfer may sleep=2E And have a dedicated irqless,
->non-sleeping
->> callback for handling the atomic case instead=2E
->>=20
->> I really don't like the commit which introduced the trylock
->> into i2c_transfer[1]=2E Its commit message even says: "It is the
->> reponsability of the caller to ensure that the underlying i2c bus
->driver
->> will not sleep either=2E" Which seems broken to me because I can't see
->how
->> the caller should do that? And most bus drivers will sleep=2E But that
->> commit is upstream for 10 years now, so there are probably users=2E
->Which
->> also are very hard to spot, I am afraid=2E I wouldn't see a way to
->convert
->> them off the top of my head=2E
->>=20
->> [1] cea443a81c9c ("i2c: Support i2c_transfer in atomic contexts")
->>=20
->> > Currently, I assume they are only broken when the alloc happens to
->> > need to do more than is allowed from the given context=2E Something
->> > which might or might not be common?
->>=20
->> The only regression now would be using smbus_emulated from atomic
->> context=2E Which is a bug on the caller side because it cannot know if
->> smbus_emulated will be used or not=2E For the non-emulated case, it
->must
->> not be atomic anyhow=2E
->>=20
->> So, unless I overlooked something, if we decide to not add trylock to
->> smbus_xfer, we are all fine?
->>=20
->> And I think we should really keep this clean rule of smbus functions
->> being non-atomic=2E
->>=20
->> D'accord?
->
->So, if no other arguments drop in, I'll apply this series as is next
->week=2E
+This patchset adds I2C controller support for Actions Semiconductor S900 SoC.
+This driver has been structured in a way such that there will be only
+one controller driver for the whole Owl family series (S500, S700 and
+S900 SoCs).
 
-Right, I had the below response sitting in my drafts folder=2E  I thought =
-I had sent it, but apparently I didn't=2E=2E=2E
+There are 6 I2C controllers with separate memory mapped register space.
+The I2C controller can handle atmost two messages concatenated by a
+repeated start via its internal address feature. Hence the driver
+uses this feature for messages of length greater than 1. In those cases,
+the first message of the combined message should be a `write` with maximum
+message length 6 and the second message's maximum length should be 240 bytes.
 
+As far as the bus speed is concerned, this driver only supports
+Standard (100KHz) and High speed (400KHz) for now.
 
+The pinctrl definitions are only available for I2C0, I2C1 and I2C2.
+With the mux option available only for I2C0.
 
-Well, IF there are SMBus users that in fact do rely on the emulation allow=
-ing calls from atomic/irq context then it will be a regression even if thos=
-e users are "buggy"=2E But if someone complains, I think the correct respon=
-se is to open-code the trylock dance and call the new unlocked __i2c_smbus_=
-xfer at the affected location=2E So, I think we have a contingency plan=2E
+For Bubblegum-96 board utilizing the S900 SoC, only I2C1 and I2C2 which
+are exposed on the Low speed expansion connector are enabled.
 
-Other than that, we are in violent agreement, and I think you also agree w=
-ith the above=2E
+This series depends on the pinctrl patch [1] is still not merged by the
+platform maintainer Andreas but it has been reviewed by the pinctrl maintainer
+Linus Walleij. For the reference, I have queued up all reviewed dts patches
+in my tree [2] from which Andreas is picking them for 4.19.
 
-I guess that also means the series is fine as-is (modulo the fixes recentl=
-y made in the tail of the first hunk of patch 1/5 that causes a trivial but=
- annoying conflict when applying it, i=2Ee=2E below the i2c_transfer -> __i=
-2c_transfer update in the emulation function)=2E
+For this series, since the dts patches will go through the ARM SoC tree,
+Andreas will pick it up once it is reviewed.
 
-As far as I'm concerned, you can take this whole series directly even if m=
-ost patches are i2c-mux patches=2E I don't have anything in my tree yet so =
-I'll simply base any other stuff on this once I can fetch it from you=2E=2E=
-=2E
+Thanks,
+Mani
 
-Ok?
+[1] https://patchwork.kernel.org/patch/10322937/
+[2] https://git.linaro.org/people/manivannan.sadhasivam/linux.git/log/?h=s900-for-next
 
-Cheers,
-Peter
+Changes in v4:
+
+As per Andy and Peter review:
+
+* Used spinlock for accessing most of the register access (only parts
+  involved sleep/long-busy-wait has been excluded)
+* Removed returning 0 and added -ENXIO if the msg_ptr not equals to
+  message length
+* Added DIV_ROUND_UP for setting clock frequency
+* Changed one non-atomic mdelay instance to usleep_range
+* Moved pinctrl definition patch before dts patch
+* Fixed the driver to support only 100KHz and 400KHz frequencies
+
+Changes in v3:
+
+As per Peter, Andy and Andreas review:
+
+* Removed owl_i2c_reset function from interrupt handler since it
+  involves the use of delays.
+* Fixed the return path in owl_i2c_master_xfer and added a note
+* Changed "base" parameter to "reg" in owl_i2c_update_reg for better
+  understandability
+* Ordered the includes in alphabetical order
+* Small changes to defines and added comma at the end of struct members
+* Removed rendundant 0 assignment in owl_i2c_master_xfer
+* Changed all OWL naming convention to Owl and also changed Actions Semi
+  naming to Actions Semiconductor
+
+Changes in v2:
+
+As per Andy's review:
+* Modified infinite loops to fixed number of retries
+* Used i2c_8bit_addr_from_msg for constructing the slave address
+* Removed unnecessary parenthesis around defines
+* Modified certain dev_warn to dev_dbg
+* Modified the error handling to more generic pattern
+
+* Fixed the return value in owl_i2c_master_xfer
+* Added MAINTAINERS patch for I2C driver and its binding
+
+Manivannan Sadhasivam (6):
+  dt-bindings: i2c: Add binding for Actions Semiconductor Owl I2C
+    controller
+  arm64: dts: actions: Add pinctrl definition for S900 I2C controller
+  arm64: dts: actions: Add Actions Semiconductor S900 I2C controller
+    nodes
+  arm64: dts: actions: Enable I2C1 and I2C2 in Bubblegum-96 board
+  i2c: Add Actions Semiconductor Owl family S900 I2C driver
+  MAINTAINERS: Add entry for Actions Semiconductor Owl I2C driver
+
+ .../devicetree/bindings/i2c/i2c-owl.txt       |  27 +
+ MAINTAINERS                                   |   2 +
+ .../dts/actions/s900-bubblegum-96-pins.dtsi   |  29 +
+ .../boot/dts/actions/s900-bubblegum-96.dts    |  11 +
+ arch/arm64/boot/dts/actions/s900.dtsi         |  60 +++
+ drivers/i2c/busses/Kconfig                    |   7 +
+ drivers/i2c/busses/Makefile                   |   1 +
+ drivers/i2c/busses/i2c-owl.c                  | 504 ++++++++++++++++++
+ 8 files changed, 641 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-owl.txt
+ create mode 100644 arch/arm64/boot/dts/actions/s900-bubblegum-96-pins.dtsi
+ create mode 100644 drivers/i2c/busses/i2c-owl.c
+
+-- 
+2.17.1
