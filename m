@@ -1,116 +1,119 @@
 From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 Subject: Re: [PATCH v3 5/6] i2c: Add Actions Semiconductor Owl family S900
  I2C driver
-Date: Sun, 1 Jul 2018 13:43:33 +0530
-Message-ID: <20180701081333.GB28390@Mani-XPS-13-9360>
+Date: Sun, 1 Jul 2018 14:11:40 +0530
+Message-ID: <20180701084140.GC28390@Mani-XPS-13-9360>
 References: <20180630133330.23858-1-manivannan.sadhasivam@linaro.org>
  <20180630133330.23858-6-manivannan.sadhasivam@linaro.org>
  <CAHp75VcVNb51tJzKbCU3pqf0XYPCUZWpv38nfaV1711vyf2S0Q@mail.gmail.com>
+ <20180701081333.GB28390@Mani-XPS-13-9360>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAHp75VcVNb51tJzKbCU3pqf0XYPCUZWpv38nfaV1711vyf2S0Q@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+In-Reply-To: <20180701081333.GB28390@Mani-XPS-13-9360>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: devicetree <devicetree@vger.kernel.org>, Daniel Thompson <daniel.thompson@linaro.org>, Mani Sadhasivam <manivannanece23@gmail.com>, hzhang@ucrobotics.com, Wolfram Sang <wsa@the-dreams.de>, Thomas Liau <thomas.liau@actions-semi.com>, Linus Walleij <linus.walleij@linaro.org>, 96boards@ucrobotics.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, amit.kucheria@linaro.org, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, jeff.chen@actions-semi.com, Rob Herring <robh+dt@kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, =?utf-8?B?5YiY54Kc?= <liuwei@actions-semi.com>, bdong@ucrobotics.com, Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, mp-cs@actions-semi.com
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Andreas =?iso-8859-1?Q?F=E4rber?= <afaerber@suse.de>, Linus Walleij <linus.walleij@linaro.org>, linux-i2c <linux-i2c@vger.kernel.org>, =?utf-8?B?5YiY54Kc?= <liuwei@actions-semi.com>, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree <devicetree@vger.kernel.org>, Daniel Thompson <daniel.thompson@linaro.org>, amit.kucheria@linaro.org, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, hzhang@ucrobotics.com, bdong@ucrobotics.com, Mani Sadhasivam <manivannanece23@gmail.com>, Thomas Liau <thomas.liau@actions-semi.com>, jeff.chen@actions-semi.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andy,
+On Sun, Jul 01, 2018 at 01:43:33PM +0530, Manivannan Sadhasivam wrote:
+> Hi Andy,
+> 
+> On Sun, Jul 01, 2018 at 12:11:00AM +0300, Andy Shevchenko wrote:
+> > On Sat, Jun 30, 2018 at 4:33 PM, Manivannan Sadhasivam
+> > <manivannan.sadhasivam@linaro.org> wrote:
+> > > Add Actions Semiconductor Owl family S900 I2C driver.
+> > 
+> > Thanks for an update. Few left comments and it would LGTM.
+> > 
+> 
+> Thanks :)
+> 
+> > > +static int owl_i2c_reset(struct owl_i2c_dev *i2c_dev)
+> > > +{
+> > 
+> > > +       mdelay(1);
+> > 
+> > But now, since it's not used in atomic context, we may switch to
+> > usleep_range() / msleep() instead.
+> > 
+> 
+> okay, will use msleep()
+>
 
-On Sun, Jul 01, 2018 at 12:11:00AM +0300, Andy Shevchenko wrote:
-> On Sat, Jun 30, 2018 at 4:33 PM, Manivannan Sadhasivam
-> <manivannan.sadhasivam@linaro.org> wrote:
-> > Add Actions Semiconductor Owl family S900 I2C driver.
-> 
-> Thanks for an update. Few left comments and it would LGTM.
-> 
+Just realised, I have to use spinlock for the entire owl_i2c_master_xfer
+function, so can't use sleep* for delay.
 
-Thanks :)
+> > > +       owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_CTL,
+> > > +                               OWL_I2C_CTL_EN, true);
+> > > +
+> > 
+> > > +       /* Wait 50ms for FIFO reset complete */
+> > > +       do {
+> > 
+> > > +               mdelay(1);
+> > 
+> > Especially in this case it's very important.
+> > 
+> 
+> Okay.
 
-> > +static int owl_i2c_reset(struct owl_i2c_dev *i2c_dev)
-> > +{
-> 
-> > +       mdelay(1);
-> 
-> But now, since it's not used in atomic context, we may switch to
-> usleep_range() / msleep() instead.
-> 
-
-okay, will use msleep()
-
-> > +       owl_i2c_update_reg(i2c_dev->base + OWL_I2C_REG_CTL,
-> > +                               OWL_I2C_CTL_EN, true);
-> > +
-> 
-> > +       /* Wait 50ms for FIFO reset complete */
-> > +       do {
-> 
-> > +               mdelay(1);
-> 
-> Especially in this case it's very important.
-> 
-
-Okay.
-
-> > +       } while (timeout++ < OWL_I2C_MAX_RETRIES);
-> 
-> > +}
-> 
-> > +       val = (i2c_dev->clk_rate + i2c_dev->bus_freq * 16 - 1) /
-> > +                               (i2c_dev->bus_freq * 16);
-> 
-> This is effectively DIV_ROUND_UP(->clk_rate, ->bus_freq * 16).
-> 
-
-Ack.
-
-> > +       /*
-> > +        * By default, 0 will be returned if interrupt occurred but no
-> > +        * read or write happened. Else if msg_ptr equals to message length,
-> > +        * message count will be returned.
-> > +        */
-> 
-> > +       if (i2c_dev->msg_ptr == msg->len)
-> > +               ret = num;
-> 
-> I dunno if
-> 
-> ret = ->msg_ptr == len ? num : 0;
-> 
-> would be slightly more explicit (yes, I aware about ret == 0).
-> 
-> Up to you to choose.
-> 
-
-As per Peter's comment, returning 0 will get changed to an error value.
-Will use this pattern once we settle with a proper error value.
-
-> > +       /* We support only frequencies of 100k and 400k for now */
-> > +       if (i2c_dev->bus_freq != OWL_I2C_DEF_SPEED_HZ &&
-> > +                       i2c_dev->bus_freq > OWL_I2C_MAX_SPEED_HZ) {
-> 
-> I think it should be != in the second case as well.
-> 
-
-yeah, agree. We don't support any other frequencies now.
+Same here, but I'm not sure about the latency. What is your suggestion?
 
 Thanks,
 Mani
 
-> > +               dev_err(dev, "invalid clock-frequency %d\n", i2c_dev->bus_freq);
-> > +               return -EINVAL;
-> > +       }
 > 
-> -- 
-> With Best Regards,
-> Andy Shevchenko
+> > > +       } while (timeout++ < OWL_I2C_MAX_RETRIES);
+> > 
+> > > +}
+> > 
+> > > +       val = (i2c_dev->clk_rate + i2c_dev->bus_freq * 16 - 1) /
+> > > +                               (i2c_dev->bus_freq * 16);
+> > 
+> > This is effectively DIV_ROUND_UP(->clk_rate, ->bus_freq * 16).
+> > 
+> 
+> Ack.
+> 
+> > > +       /*
+> > > +        * By default, 0 will be returned if interrupt occurred but no
+> > > +        * read or write happened. Else if msg_ptr equals to message length,
+> > > +        * message count will be returned.
+> > > +        */
+> > 
+> > > +       if (i2c_dev->msg_ptr == msg->len)
+> > > +               ret = num;
+> > 
+> > I dunno if
+> > 
+> > ret = ->msg_ptr == len ? num : 0;
+> > 
+> > would be slightly more explicit (yes, I aware about ret == 0).
+> > 
+> > Up to you to choose.
+> > 
+> 
+> As per Peter's comment, returning 0 will get changed to an error value.
+> Will use this pattern once we settle with a proper error value.
+> 
+> > > +       /* We support only frequencies of 100k and 400k for now */
+> > > +       if (i2c_dev->bus_freq != OWL_I2C_DEF_SPEED_HZ &&
+> > > +                       i2c_dev->bus_freq > OWL_I2C_MAX_SPEED_HZ) {
+> > 
+> > I think it should be != in the second case as well.
+> > 
+> 
+> yeah, agree. We don't support any other frequencies now.
+> 
+> Thanks,
+> Mani
+> 
+> > > +               dev_err(dev, "invalid clock-frequency %d\n", i2c_dev->bus_freq);
+> > > +               return -EINVAL;
+> > > +       }
+> > 
+> > -- 
+> > With Best Regards,
+> > Andy Shevchenko
