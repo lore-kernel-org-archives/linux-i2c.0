@@ -1,51 +1,29 @@
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH v4 4/6] arm64: dts: actions: Enable I2C1 and I2C2 in Bubblegum-96 board
-Date: Sun,  1 Jul 2018 22:53:03 +0530
-Message-ID: <20180701172305.15663-5-manivannan.sadhasivam@linaro.org>
-References: <20180701172305.15663-1-manivannan.sadhasivam@linaro.org>
+From: alanx.chiang@intel.com
+Subject: [RESEND PATCH v4 0/2] Add a property in at24.c
+Date: Mon,  2 Jul 2018 17:12:18 +0800
+Message-ID: <1530522740-2798-1-git-send-email-alanx.chiang@intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180701172305.15663-1-manivannan.sadhasivam@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, afaerber@suse.de
-Cc: linus.walleij@linaro.org, linux-i2c@vger.kernel.org, liuwei@actions-semi.com, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree@vger.kernel.org, andy.shevchenko@gmail.com, daniel.thompson@linaro.org, amit.kucheria@linaro.org, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, hzhang@ucrobotics.com, bdong@ucrobotics.com, manivannanece23@gmail.com, thomas.liau@actions-semi.com, jeff.chen@actions-semi.com, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To: linux-i2c@vger.kernel.org
+Cc: andy.yeh@intel.com, sakari.ailus@linux.intel.com, andriy.shevchenko@linux.intel.com, andriy.shevchenko@intel.com, rajmohan.mani@intel.com, andy.shevchenko@gmail.com, tfiga@chromium.org, jcliang@chromium.org, brgl@bgdev.pl, robh+dt@kernel.org, mark.rutland@arm.com, arnd@arndb.de, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Alan Chiang <alanx.chiang@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Enable I2C1 and I2C2 exposed on the low speed expansion connector in
-Bubblegum-96 board.
+From: Alan Chiang <alanx.chiang@intel.com>
 
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
----
- arch/arm64/boot/dts/actions/s900-bubblegum-96.dts | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+This RESEND PATCH only adds the Acked-by and Reviewed-by,
+no other patch for the codes.
 
-diff --git a/arch/arm64/boot/dts/actions/s900-bubblegum-96.dts b/arch/arm64/boot/dts/actions/s900-bubblegum-96.dts
-index d0ba35df9015..57ae374cfb5a 100644
---- a/arch/arm64/boot/dts/actions/s900-bubblegum-96.dts
-+++ b/arch/arm64/boot/dts/actions/s900-bubblegum-96.dts
-@@ -7,6 +7,7 @@
- /dts-v1/;
- 
- #include "s900.dtsi"
-+#include "s900-bubblegum-96-pins.dtsi"
- 
- / {
- 	compatible = "ucrobotics,bubblegum-96", "actions,s900";
-@@ -35,6 +36,16 @@
- 	clocks = <&cmu CLK_UART5>;
- };
- 
-+&i2c1 {
-+	status = "okay";
-+	clocks = <&cmu CLK_I2C1>;
-+};
-+
-+&i2c2 {
-+	status = "okay";
-+	clocks = <&cmu CLK_I2C2>;
-+};
-+
- /*
-  * GPIO name legend: proper name = the GPIO line is used as GPIO
-  *         NC = not connected (pin out but not routed from the chip to
+In at24.c, it uses 8-bit addressing by default. In this patch,
+add a property address-width that provides a flexible method to
+pass the information to the driver.
+
+Alan Chiang (2):
+  dt-bindings: at24: Add address-width property
+  eeprom: at24: Add support for address-width property
+
+ Documentation/devicetree/bindings/eeprom/at24.txt |  2 ++
+ drivers/misc/eeprom/at24.c                        | 17 +++++++++++++++++
+ 2 files changed, 19 insertions(+)
+
 -- 
-2.17.1
+2.7.4
