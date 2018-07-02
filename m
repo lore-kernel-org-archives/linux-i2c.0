@@ -1,43 +1,139 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [RESEND PATCH v4 0/2] Add a property in at24.c
-Date: Mon, 2 Jul 2018 13:59:02 +0200
-Message-ID: <CAMRc=MfFH7EnyAXyBK+sssjyYoz9LhNDTkzWRsHBsPcDV7Ecig@mail.gmail.com>
-References: <1530522740-2798-1-git-send-email-alanx.chiang@intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v10 4/7] i2c: fsi: Add abort and hardware reset procedures
+Date: Mon, 2 Jul 2018 20:15:11 +0200
+Message-ID: <20180702181511.mv2fuiwjjdhyp43v@ninjato>
+References: <1528918579-27602-1-git-send-email-eajames@linux.vnet.ibm.com>
+ <1528918579-27602-5-git-send-email-eajames@linux.vnet.ibm.com>
+ <20180626023849.op4rimmsnlv4rgwg@ninjato>
+ <3dc50e6b-6985-1920-4f8c-dc7698e2f692@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="e56uxospgaof7b76"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1530522740-2798-1-git-send-email-alanx.chiang@intel.com>
+Content-Disposition: inline
+In-Reply-To: <3dc50e6b-6985-1920-4f8c-dc7698e2f692@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: alanx.chiang@intel.com
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, andy.yeh@intel.com, Sakari Ailus <sakari.ailus@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, andriy.shevchenko@intel.com, Rajmohan Mani <rajmohan.mani@intel.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, tfiga@chromium.org, jcliang@chromium.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>
+To: Eddie James <eajames@linux.vnet.ibm.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, rdunlap@infradead.org, andy.shevchenko@gmail.com, peda@axentia.se
 List-Id: linux-i2c@vger.kernel.org
 
-2018-07-02 11:12 GMT+02:00  <alanx.chiang@intel.com>:
-> From: Alan Chiang <alanx.chiang@intel.com>
->
-> This RESEND PATCH only adds the Acked-by and Reviewed-by,
-> no other patch for the codes.
->
 
-Please don't do this. We're waiting for Rob's Acked-by and I will
-collect all the tags anyway. Don't resend unless there are changes to
-patches.
+--e56uxospgaof7b76
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Best regards,
-Bartosz Golaszewski
+Hi Eddie,
 
-> In at24.c, it uses 8-bit addressing by default. In this patch,
-> add a property address-width that provides a flexible method to
-> pass the information to the driver.
->
-> Alan Chiang (2):
->   dt-bindings: at24: Add address-width property
->   eeprom: at24: Add support for address-width property
->
->  Documentation/devicetree/bindings/eeprom/at24.txt |  2 ++
->  drivers/misc/eeprom/at24.c                        | 17 +++++++++++++++++
->  2 files changed, 19 insertions(+)
->
-> --
-> 2.7.4
->
+> > I think this is a way too aggressive recovery. Your are doing the 9
+> > pulse toggles basically on any error while this is only when the device
+> > keeps SDA low and you want to recover from that. If SDA is not stuck
+> > low, sending a STOP should do. Or do you have a known case where this is
+> > not going to work?
+>=20
+> It is aggressive, but I don't see the harm in doing this on every error.
+
+Well, as it happens, I just fixed such a case. Please check these patch
+series and elinux wiki pages:
+
+=3D=3D=3D
+
+(new fault injector)
+[PATCH v2 0/2] i2c: gpio: fault-injector: add new injector
+
+(actual recovery fix)
+[PATCH 0/2] i2c: recovery: make sure pulses are not misinterpreted
+
+=3D=3D=3D
+
+And here is the new elinux wiki page to describe my findings:
+
+https://elinux.org/Tests:I2C-bus-recovery-write-byte-fix
+
+Also, the previous pages have been updated to reflect the latest status:
+
+https://elinux.org/Tests:I2C-fault-injection
+https://elinux.org/Tests:I2C-bus-recovery
+
+To sum it up: This is a proven case where uncontrolled bus recovery can
+result into a bogus write!
+
+> There are some other error conditions with this hardware which may require
+> the clock toggling, such as "bus arbitration lost." I think this is the
+
+Why is that? In my understanding, recovery is *only* needed when SDA is
+stuck low. If SDA is high, sending STOP should do. If not, it needs to
+be researched why.
+
+> safest option for this hardware, and this routine has been tested for many
+> years.
+
+I remember having a similar argument with Joakim Tjernlund a while ago.
+I recently re-read our argument, yet I still keep my position: I don't
+want to do $random things to recover, just a tested and well understood
+procedure. And in that thread, I was never given a test case.
+
+> >=20
+> > Also, you implement the pulse toggling manually. Can't you just populate
+> > {get|set}_{scl|sda} and use the generic routine we have in the core?
+>=20
+> I see that the generic implementation breaks the loop if it sees the clock
+> isn't high after setting it, or if SDA goes high. I think it's safer to
+> finish the reset for our hardware. Plus, we actually have different
+
+Why do you think it is safer? What is the test case for that? I think
+one really should do check SDA! See above, you might trigger a write
+otherwise. If this breaks something for you, I am looking forward to
+discuss it.
+
+> registers for setting 0 or 1 to the clock/data, so we save some cpu cycles
+> by doing it directly instead of implementing set_scl/sda and having to ch=
+eck
+> val every time :)
+
+Correctness comes above all here. And I am afraid your implementation is
+not correct.
+
+> If you feel very strongly that this recovery procedure needs to be reduce=
+d,
+> then I will work on that and have to do some extensive testing.
+
+I am open for discussion, yet I also feel strong about it. The reason
+why the recovery procedure is moved into the core is to have one working
+and understood bit-banging algorithm which all drivers can rely on. If
+all drivers implement their custom version, they might miss gory details
+like the above write_byte fix.
+
+I do understand this might cause testing effort for you, I am sorry for
+the delay it causes. However, my goal as a maintainer is to have a
+reliable recovery mechanism, for your driver as well as for all drivers.
+
+I hope this is understandable. BTW if you want this driver upstream
+soon, then it may be an idea to resend it without any bus recovery and
+then we can work on it incrementally.
+
+Kind regards and thanks,
+
+   Wolfram
+
+--e56uxospgaof7b76
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAls6a68ACgkQFA3kzBSg
+KbYflg/+Mjc+BP3srgLvTVEJPYbXNx2EYablKQtd+hsI39GvV/J7YNDyB3PbNrbl
+PXuC+zth2OIX5s3LCBZzzTE50X5+5wr1Jvy+2Kh+dDnnJJ5XbmvoembOSbzANced
+MboBqHPfkI4dpUisZOyM40APiCn0B7PQBc/lk9NXRl3kJm77iv1pNO9z0cfmMPCu
+aruMNRQLcigYXQvNiJfsE6DXMktZj9S2VCKEXhJRskRpWz9hUXF3kTQ6hiJ2P+/6
+PsC4yVpa3dwwBh1NxZ0ylfiV1xZtHNAgec5jstcWlSGWbuqic7QLWwa7VK4vmyYA
+T8+M4x+bFnJTt9E81Kcm5r7eONxOk6s6BTjcCxUFKPkdcxdbPgfGvE7bzSzKk+UC
+Muh9SyyqAjRZ7/q/V3eHlAkFs9NcFH4CgKT79Zdody1NMRvQpeiLfDflflJMtUPS
+/yEndwRao5t5N1jbKvAps9/5H3S4Tz6rRQwkQF8faC8dsKCjwNHU/rSxAG6GXCKE
+9iOHPuHxN4GWBzDkKQuhHKuitFGd55nIDNjsG7GQa5eGPgmhUBHUkrIjwKCM4+7b
+Jo9LwZ/g+RifBg+bBaak6AoF5W+JdklebiML97WSO3J0wSe+Qxn77F+pj/ryvFPC
+JpuvLWqDIk+dxyTZw8KgQNQrGS/7EAYv5YlSIVPltah2eT5zPXg=
+=FRs+
+-----END PGP SIGNATURE-----
+
+--e56uxospgaof7b76--
