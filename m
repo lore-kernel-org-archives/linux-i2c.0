@@ -1,65 +1,43 @@
-From: alanx.chiang@intel.com
-Subject: [RESEND PATCH v4 2/2] eeprom: at24: Add support for address-width property
-Date: Mon,  2 Jul 2018 17:12:20 +0800
-Message-ID: <1530522740-2798-3-git-send-email-alanx.chiang@intel.com>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [RESEND PATCH v4 0/2] Add a property in at24.c
+Date: Mon, 2 Jul 2018 13:59:02 +0200
+Message-ID: <CAMRc=MfFH7EnyAXyBK+sssjyYoz9LhNDTkzWRsHBsPcDV7Ecig@mail.gmail.com>
 References: <1530522740-2798-1-git-send-email-alanx.chiang@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1530522740-2798-1-git-send-email-alanx.chiang@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: andy.yeh@intel.com, sakari.ailus@linux.intel.com, andriy.shevchenko@linux.intel.com, andriy.shevchenko@intel.com, rajmohan.mani@intel.com, andy.shevchenko@gmail.com, tfiga@chromium.org, jcliang@chromium.org, brgl@bgdev.pl, robh+dt@kernel.org, mark.rutland@arm.com, arnd@arndb.de, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Alan Chiang <alanx.chiang@intel.com>
+To: alanx.chiang@intel.com
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, andy.yeh@intel.com, Sakari Ailus <sakari.ailus@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, andriy.shevchenko@intel.com, Rajmohan Mani <rajmohan.mani@intel.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, tfiga@chromium.org, jcliang@chromium.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Alan Chiang <alanx.chiang@intel.com>
+2018-07-02 11:12 GMT+02:00  <alanx.chiang@intel.com>:
+> From: Alan Chiang <alanx.chiang@intel.com>
+>
+> This RESEND PATCH only adds the Acked-by and Reviewed-by,
+> no other patch for the codes.
+>
 
-Provide a flexible way to determine the addressing bits of eeprom.
-Pass the addressing bits to driver through address-width property.
+Please don't do this. We're waiting for Rob's Acked-by and I will
+collect all the tags anyway. Don't resend unless there are changes to
+patches.
 
-Signed-off-by: Alan Chiang <alanx.chiang@intel.com>
-Signed-off-by: Andy Yeh <andy.yeh@intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Best regards,
+Bartosz Golaszewski
 
----
-since v1
--- Add a warn message for 8-bit addressing.
-since v2
--- Modify the warning message for clear.
--- Move the clearing bit operation outside of a statement.
-since v3
--- Merge the warning message into one line.
-
----
- drivers/misc/eeprom/at24.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
-
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 0c125f2..7ea640b 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -478,6 +478,23 @@ static void at24_properties_to_pdata(struct device *dev,
- 	if (device_property_present(dev, "no-read-rollover"))
- 		chip->flags |= AT24_FLAG_NO_RDROL;
- 
-+	err = device_property_read_u32(dev, "address-width", &val);
-+	if (!err) {
-+		switch (val) {
-+		case 8:
-+			if (chip->flags & AT24_FLAG_ADDR16)
-+				dev_warn(dev, "Override address width to be 8, while default is 16\n");
-+			chip->flags &= ~AT24_FLAG_ADDR16;
-+			break;
-+		case 16:
-+			chip->flags |= AT24_FLAG_ADDR16;
-+			break;
-+		default:
-+			dev_warn(dev, "Bad \"address-width\" property: %u\n",
-+				 val);
-+		}
-+	}
-+
- 	err = device_property_read_u32(dev, "size", &val);
- 	if (!err)
- 		chip->byte_len = val;
--- 
-2.7.4
+> In at24.c, it uses 8-bit addressing by default. In this patch,
+> add a property address-width that provides a flexible method to
+> pass the information to the driver.
+>
+> Alan Chiang (2):
+>   dt-bindings: at24: Add address-width property
+>   eeprom: at24: Add support for address-width property
+>
+>  Documentation/devicetree/bindings/eeprom/at24.txt |  2 ++
+>  drivers/misc/eeprom/at24.c                        | 17 +++++++++++++++++
+>  2 files changed, 19 insertions(+)
+>
+> --
+> 2.7.4
+>
