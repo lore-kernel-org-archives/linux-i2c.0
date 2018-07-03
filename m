@@ -1,13 +1,13 @@
 From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] i2c-amd8111: Mark expected switch fall-through
-Date: Tue, 3 Jul 2018 14:07:51 -0500
-Message-ID: <20180703190751.GA29770@embeddedor.com>
+Subject: [PATCH] i2c: designware-pcidrv: Mark expected switch fall-through
+Date: Tue, 3 Jul 2018 14:10:55 -0500
+Message-ID: <20180703191055.GA30768@embeddedor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.com>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 List-Id: linux-i2c@vger.kernel.org
 
@@ -16,20 +16,20 @@ where we are expecting to fall through.
 
 Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 ---
- drivers/i2c/busses/i2c-amd8111.c | 1 +
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
-index 95a80a8..134567f 100644
---- a/drivers/i2c/busses/i2c-amd8111.c
-+++ b/drivers/i2c/busses/i2c-amd8111.c
-@@ -384,6 +384,7 @@ static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
- 			if (status)
- 				return status;
- 			len = min_t(u8, len, I2C_SMBUS_BLOCK_MAX);
-+			/* fall through */
- 		case I2C_SMBUS_I2C_BLOCK_DATA:
- 			for (i = 0; i < len; i++) {
- 				status = amd_ec_read(smbus, AMD_SMB_DATA + i,
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 86e1bd0..b4997be 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -105,6 +105,7 @@ static int mfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
+ 	case 0x0817:
+ 		c->bus_cfg &= ~DW_IC_CON_SPEED_MASK;
+ 		c->bus_cfg |= DW_IC_CON_SPEED_STD;
++		/* fall through */
+ 	case 0x0818:
+ 	case 0x0819:
+ 		c->bus_num = pdev->device - 0x817 + 3;
 -- 
 2.7.4
