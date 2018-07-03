@@ -1,77 +1,35 @@
-From: Jon Hunter <jonathanh@nvidia.com>
-Subject: [PATCH] i2c: tegra: Fix NACK error handling
-Date: Tue, 3 Jul 2018 09:55:43 +0100
-Message-ID: <1530608143-9222-1-git-send-email-jonathanh@nvidia.com>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] i2c-amd8111: Mark expected switch fall-through
+Date: Tue, 3 Jul 2018 14:07:51 -0500
+Message-ID: <20180703190751.GA29770@embeddedor.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Laxman Dewangan <ldewangan@nvidia.com>, Shardar Shariff Md <smohammed@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tegra30 Cardhu the PCA9546 I2C mux is not ACK'ing I2C commands on
-resume from suspend (which is caused by the reset signal for the I2C
-mux not being configured correctl). However, this NACK is causing the
-Tegra30 to hang on resuming from suspend which is not expected as we
-detect NACKs and handle them. The hang observed appears to occur when
-resetting the I2C controller to recover from the NACK.
+In preparation to enabling -Wimplicit-fallthrough, mark switch cases
+where we are expecting to fall through.
 
-Commit 77821b4678f9 ("i2c: tegra: proper handling of error cases") added
-additional error handling for some error cases including NACK, however,
-it appears that this change conflicts with an early fix by commit
-f70893d08338 ("i2c: tegra: Add delay before resetting the controller
-after NACK"). After commit 77821b4678f9 was made we now disable 'packet
-mode' before the delay from commit f70893d08338 happens. Testing shows
-that moving the delay to before disabling 'packet mode' fixes the hang
-observed on Tegra30. The delay was added to give the I2C controller
-chance to send a stop condition and so it makes sense to move this to
-before we disable packet mode. Please note that packet mode is always
-enabled for Tegra.
-
-Fixes: 77821b4678f9 ("i2c: tegra: proper handling of error cases")
-
-Cc: stable@vger.kernel.org
-
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 ---
- drivers/i2c/busses/i2c-tegra.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-amd8111.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 5fccd1f1bca8..797def5319f1 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -545,6 +545,14 @@ static int tegra_i2c_disable_packet_mode(struct tegra_i2c_dev *i2c_dev)
- {
- 	u32 cnfg;
- 
-+	/*
-+	 * NACK interrupt is generated before the I2C controller generates
-+	 * the STOP condition on the bus. So wait for 2 clock periods
-+	 * before disabling the controller so that the STOP condition has
-+	 * been delivered properly.
-+	 */
-+	udelay(DIV_ROUND_UP(2 * 1000000, i2c_dev->bus_clk_rate));
-+
- 	cnfg = i2c_readl(i2c_dev, I2C_CNFG);
- 	if (cnfg & I2C_CNFG_PACKET_MODE_EN)
- 		i2c_writel(i2c_dev, cnfg & ~I2C_CNFG_PACKET_MODE_EN, I2C_CNFG);
-@@ -706,15 +714,6 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	if (likely(i2c_dev->msg_err == I2C_ERR_NONE))
- 		return 0;
- 
--	/*
--	 * NACK interrupt is generated before the I2C controller generates
--	 * the STOP condition on the bus. So wait for 2 clock periods
--	 * before resetting the controller so that the STOP condition has
--	 * been delivered properly.
--	 */
--	if (i2c_dev->msg_err == I2C_ERR_NO_ACK)
--		udelay(DIV_ROUND_UP(2 * 1000000, i2c_dev->bus_clk_rate));
--
- 	tegra_i2c_init(i2c_dev);
- 	if (i2c_dev->msg_err == I2C_ERR_NO_ACK) {
- 		if (msg->flags & I2C_M_IGNORE_NAK)
+diff --git a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
+index 95a80a8..134567f 100644
+--- a/drivers/i2c/busses/i2c-amd8111.c
++++ b/drivers/i2c/busses/i2c-amd8111.c
+@@ -384,6 +384,7 @@ static s32 amd8111_access(struct i2c_adapter * adap, u16 addr,
+ 			if (status)
+ 				return status;
+ 			len = min_t(u8, len, I2C_SMBUS_BLOCK_MAX);
++			/* fall through */
+ 		case I2C_SMBUS_I2C_BLOCK_DATA:
+ 			for (i = 0; i < len; i++) {
+ 				status = amd_ec_read(smbus, AMD_SMB_DATA + i,
 -- 
-1.9.1
+2.7.4
