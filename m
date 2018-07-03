@@ -1,82 +1,77 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: [PATCH] i2c: aspeed: Adjust spinlock scope in the irq handler
-Date: Mon,  2 Jul 2018 14:40:11 -0700
-Message-ID: <20180702214011.16071-1-jae.hyun.yoo@linux.intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+From: Jon Hunter <jonathanh@nvidia.com>
+Subject: [PATCH] i2c: tegra: Fix NACK error handling
+Date: Tue, 3 Jul 2018 09:55:43 +0100
+Message-ID: <1530608143-9222-1-git-send-email-jonathanh@nvidia.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Laxman Dewangan <ldewangan@nvidia.com>, Shardar Shariff Md <smohammed@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adjusts spinlock scope to make it wrap the whole irq
-handler using a single lock/unlock which covers both master and
-slave handlers.
+On Tegra30 Cardhu the PCA9546 I2C mux is not ACK'ing I2C commands on
+resume from suspend (which is caused by the reset signal for the I2C
+mux not being configured correctl). However, this NACK is causing the
+Tegra30 to hang on resuming from suspend which is not expected as we
+detect NACKs and handle them. The hang observed appears to occur when
+resetting the I2C controller to recover from the NACK.
 
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Commit 77821b4678f9 ("i2c: tegra: proper handling of error cases") added
+additional error handling for some error cases including NACK, however,
+it appears that this change conflicts with an early fix by commit
+f70893d08338 ("i2c: tegra: Add delay before resetting the controller
+after NACK"). After commit 77821b4678f9 was made we now disable 'packet
+mode' before the delay from commit f70893d08338 happens. Testing shows
+that moving the delay to before disabling 'packet mode' fixes the hang
+observed on Tegra30. The delay was added to give the I2C controller
+chance to send a stop condition and so it makes sense to move this to
+before we disable packet mode. Please note that packet mode is always
+enabled for Tegra.
+
+Fixes: 77821b4678f9 ("i2c: tegra: proper handling of error cases")
+
+Cc: stable@vger.kernel.org
+
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
 ---
- drivers/i2c/busses/i2c-aspeed.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-tegra.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index 60e4d0e939a3..9f02aa959a3e 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -234,7 +234,6 @@ static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
- 	bool irq_handled = true;
- 	u8 value;
- 
--	spin_lock(&bus->lock);
- 	if (!slave) {
- 		irq_handled = false;
- 		goto out;
-@@ -325,7 +324,6 @@ static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
- 	writel(status_ack, bus->base + ASPEED_I2C_INTR_STS_REG);
- 
- out:
--	spin_unlock(&bus->lock);
- 	return irq_handled;
- }
- #endif /* CONFIG_I2C_SLAVE */
-@@ -389,7 +387,6 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
- 	u8 recv_byte;
- 	int ret;
- 
--	spin_lock(&bus->lock);
- 	irq_status = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
- 	/* Ack all interrupt bits. */
- 	writel(irq_status, bus->base + ASPEED_I2C_INTR_STS_REG);
-@@ -547,22 +544,29 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
- 		dev_err(bus->dev,
- 			"irq handled != irq. expected 0x%08x, but was 0x%08x\n",
- 			irq_status, status_ack);
--	spin_unlock(&bus->lock);
- 	return !!irq_status;
- }
- 
- static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 5fccd1f1bca8..797def5319f1 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -545,6 +545,14 @@ static int tegra_i2c_disable_packet_mode(struct tegra_i2c_dev *i2c_dev)
  {
- 	struct aspeed_i2c_bus *bus = dev_id;
-+	bool ret;
+ 	u32 cnfg;
+ 
++	/*
++	 * NACK interrupt is generated before the I2C controller generates
++	 * the STOP condition on the bus. So wait for 2 clock periods
++	 * before disabling the controller so that the STOP condition has
++	 * been delivered properly.
++	 */
++	udelay(DIV_ROUND_UP(2 * 1000000, i2c_dev->bus_clk_rate));
 +
-+	spin_lock(&bus->lock);
+ 	cnfg = i2c_readl(i2c_dev, I2C_CNFG);
+ 	if (cnfg & I2C_CNFG_PACKET_MODE_EN)
+ 		i2c_writel(i2c_dev, cnfg & ~I2C_CNFG_PACKET_MODE_EN, I2C_CNFG);
+@@ -706,15 +714,6 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 	if (likely(i2c_dev->msg_err == I2C_ERR_NONE))
+ 		return 0;
  
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- 	if (aspeed_i2c_slave_irq(bus)) {
- 		dev_dbg(bus->dev, "irq handled by slave.\n");
--		return IRQ_HANDLED;
-+		ret = true;
-+		goto out;
- 	}
- #endif /* CONFIG_I2C_SLAVE */
- 
--	return aspeed_i2c_master_irq(bus) ? IRQ_HANDLED : IRQ_NONE;
-+	ret = aspeed_i2c_master_irq(bus);
-+
-+out:
-+	spin_unlock(&bus->lock);
-+	return ret ? IRQ_HANDLED : IRQ_NONE;
- }
- 
- static int aspeed_i2c_master_xfer(struct i2c_adapter *adap,
+-	/*
+-	 * NACK interrupt is generated before the I2C controller generates
+-	 * the STOP condition on the bus. So wait for 2 clock periods
+-	 * before resetting the controller so that the STOP condition has
+-	 * been delivered properly.
+-	 */
+-	if (i2c_dev->msg_err == I2C_ERR_NO_ACK)
+-		udelay(DIV_ROUND_UP(2 * 1000000, i2c_dev->bus_clk_rate));
+-
+ 	tegra_i2c_init(i2c_dev);
+ 	if (i2c_dev->msg_err == I2C_ERR_NO_ACK) {
+ 		if (msg->flags & I2C_M_IGNORE_NAK)
 -- 
-2.17.1
+1.9.1
