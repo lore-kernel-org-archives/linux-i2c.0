@@ -1,63 +1,75 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/5] i2c: smbus: add unlocked __i2c_smbus_xfer variant
-Date: Tue, 3 Jul 2018 23:01:00 +0200
-Message-ID: <20180703210100.jpxz4xwwwgvjqycv@ninjato>
-References: <20180620085157.30121-1-peda@axentia.se>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH 1/4] i2c: imx: Fix reinit_completion() use
+Date: Wed, 4 Jul 2018 09:03:42 +0200
+Message-ID: <20180704070342.pgnjjffk34nkloob@pengutronix.de>
+References: <20180523095623.3347-1-esben.haabendal@gmail.com>
+ <20180523095623.3347-2-esben.haabendal@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="47ontlfpy2nc3et4"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180620085157.30121-1-peda@axentia.se>
+In-Reply-To: <20180523095623.3347-2-esben.haabendal@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: linux-kernel@vger.kernel.org, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, Guenter Roeck <linux@roeck-us.net>, Akinobu Mita <akinobu.mita@gmail.com>, Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
+To: Esben Haabendal <esben.haabendal@gmail.com>
+Cc: linux-i2c@vger.kernel.org, Esben Haabendal <eha@deif.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Phil Reid <preid@electromag.com.au>, Philipp Zabel <p.zabel@pengutronix.de>, Lucas Stach <l.stach@pengutronix.de>, Clemens Gruber <clemens.gruber@pqgruber.com>, Michail Georgios Etairidis <m.etairidis@beck-ipc.com>, linux-kernel@vger.kernel.org, Yuan Yao <yao.yuan@freescale.com>, linux-imx@nxp.com
 List-Id: linux-i2c@vger.kernel.org
 
+Cc += Yuan Yao who authored DMA support and the NXP team.
 
---47ontlfpy2nc3et4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, May 23, 2018 at 11:56:20AM +0200, Esben Haabendal wrote:
+> From: Esben Haabendal <eha@deif.com>
+> 
+> Make sure to call reinit_completion() before dma is started to avoid race
+> condition where reinit_compleition() is called after complete() and before
 
-On Wed, Jun 20, 2018 at 10:51:52AM +0200, Peter Rosin wrote:
-> Hi!
->=20
-> There are a couple of users that could benefit from an unlocked variant
-> of i2c_smbus_xfer. In response to [1] I dusted off an old series that I
-> have had in a branch for a while that adds such a beast. It also converts
-> over some users in the i2c-mux department.
->=20
-> There are a couple of remaining candidates in i2c/busses/i2c-amd756-s4882=
-=2Ec
-> and i2c/busses/i2c-nforce2-s4985.c, but frankly, those are just too nasty.
-> Why do they unregister the root adapter and then continue to use it? I
-> dare not touch that code...
->=20
-> Anyway, this series looks like a nice cleanup to me, and the recent sccb
-> patch from Akinobu Mita could also benefit, as indicated by Wolfram [1].
+s/compleition/completion/
 
-Applied to for-next, thanks!
+> wait_for_completion_timeout().
 
+Is this a theoretical problem, or did it trigger on your side?
+ 
+> Signed-off-by: Esben Haabendal <eha@deif.com>
+Fixes: ce1a78840ff7 ("i2c: imx: add DMA support for freescale i2c driver")
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
---47ontlfpy2nc3et4
-Content-Type: application/pgp-signature; name="signature.asc"
+> ---
+>  drivers/i2c/busses/i2c-imx.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index d7267dd9c7bf..6fca5e64cffb 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -377,6 +377,7 @@ static int i2c_imx_dma_xfer(struct imx_i2c_struct *i2c_imx,
+>  		goto err_desc;
+>  	}
+>  
+> +	reinit_completion(&dma->cmd_complete);
+>  	txdesc->callback = i2c_imx_dma_callback;
+>  	txdesc->callback_param = i2c_imx;
+>  	if (dma_submit_error(dmaengine_submit(txdesc))) {
+> @@ -631,7 +632,6 @@ static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+>  	 * The first byte must be transmitted by the CPU.
+>  	 */
+>  	imx_i2c_write_reg(msgs->addr << 1, i2c_imx, IMX_I2C_I2DR);
+> -	reinit_completion(&i2c_imx->dma->cmd_complete);
+>  	time_left = wait_for_completion_timeout(
+>  				&i2c_imx->dma->cmd_complete,
+>  				msecs_to_jiffies(DMA_TIMEOUT));
+> @@ -690,7 +690,6 @@ static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
+>  	if (result)
+>  		return result;
+>  
+> -	reinit_completion(&i2c_imx->dma->cmd_complete);
+>  	time_left = wait_for_completion_timeout(
+>  				&i2c_imx->dma->cmd_complete,
+>  				msecs_to_jiffies(DMA_TIMEOUT));
 
------BEGIN PGP SIGNATURE-----
+Best regards
+Uwe
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAls75AgACgkQFA3kzBSg
-KbZRuQ/+LBvh7cnUPnZZ6UxMva8N3uNRN/htcgpXw705HPf2FFesGW32Ao/tD4CL
-REezY4t9v4CsY4Jjm549HVJyyhmqSre+oF9JZZURvkezGGe1RAiOBgLoQ4gU4EaS
-jJ1oz5dT92tEvbGAe87aWb3zrYclr/qYEgEVubrCWACwcymwSuIc0jSkvMO2nK7o
-dz3Zfo9o0a4hAj8HUqUNP84IlZDxEBclzNTr7QWLRsxDBPqcT2xH2g1j+6Qd3ifr
-1iSWdVGmojFGigNWhESn7z/dugDGgMDRQbfYrsjfsIMgoVQU2TlW4QiBYUTorcI8
-V/dJC+6iKReJ4yrRYhumT+lxPAmra6hikqxx+4F+k14QqtrzjhaEtls5wnq8w9r8
-z/YL3uvRu2tsrz2YmhhmZ7wvsXIKHeOXuD8S3gMYR8jIIZsDT6qBp+p9vxaPBrNr
-+qTnua+yQGnE1miI4g24F/oCyGqBC04k9/PkWz2GbH9hc4hk1iAukAwJMWSBowdz
-WIvoQBFgGBStR7Bfchacwoz/LOYUzqBeVu0v+PZEfTk79BdK9mqFMkCswEuwiQ48
-HWD9dwDTbNb4Txw4NlEXFIOsRJw0KnpCe8nZwG4MAvlc5yp+/raKbECij/RmFmCC
-c6qp3/r2VWHAdnIPemyreLa4O/y4ZSozptRlfDhi0QCQbGIXCSk=
-=0qn+
------END PGP SIGNATURE-----
-
---47ontlfpy2nc3et4--
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
