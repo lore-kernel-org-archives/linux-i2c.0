@@ -1,7 +1,7 @@
 From: Eddie James <eajames@linux.vnet.ibm.com>
-Subject: [PATCH v11 4/8] i2c: fsi: Add abort and hardware reset procedures
-Date: Thu,  5 Jul 2018 13:40:26 -0500
-Message-ID: <1530816030-13010-5-git-send-email-eajames@linux.vnet.ibm.com>
+Subject: [PATCH v11 1/8] dt-bindings: i2c: Add FSI-attached I2C master dt binding documentation
+Date: Thu,  5 Jul 2018 13:40:23 -0500
+Message-ID: <1530816030-13010-2-git-send-email-eajames@linux.vnet.ibm.com>
 References: <1530816030-13010-1-git-send-email-eajames@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1530816030-13010-1-git-send-email-eajames@linux.vnet.ibm.com>
@@ -10,134 +10,60 @@ To: linux-i2c@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, rdunlap@infradead.org, andy.shevchenko@gmail.com, peda@axentia.se, Eddie James <eajames@linux.vnet.ibm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Add abort procedure for failed transfers. Add engine reset procedure
-that is executed during the abort to recover from various fault
-conditions.
+Document the bindings.
 
 Signed-off-by: Eddie James <eajames@linux.vnet.ibm.com>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
- drivers/i2c/busses/i2c-fsi.c | 91 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 91 insertions(+)
+ Documentation/devicetree/bindings/i2c/i2c-fsi.txt | 40 +++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
 
-diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
-index 89b7349..8f1e611 100644
---- a/drivers/i2c/busses/i2c-fsi.c
-+++ b/drivers/i2c/busses/i2c-fsi.c
-@@ -12,10 +12,12 @@
- 
- #include <linux/bitfield.h>
- #include <linux/bitops.h>
-+#include <linux/delay.h>
- #include <linux/device.h>
- #include <linux/errno.h>
- #include <linux/fsi.h>
- #include <linux/i2c.h>
-+#include <linux/jiffies.h>
- #include <linux/kernel.h>
- #include <linux/list.h>
- #include <linux/module.h>
-@@ -128,6 +130,20 @@
- #define I2C_ESTAT_SELF_BUSY	BIT(6)
- #define I2C_ESTAT_VERSION	GENMASK(4, 0)
- 
-+/* port busy register */
-+#define I2C_PORT_BUSY_RESET	BIT(31)
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-fsi.txt b/Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+new file mode 100644
+index 0000000..b1be2ce
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+@@ -0,0 +1,40 @@
++Device-tree bindings for FSI-attached I2C master and busses
++-----------------------------------------------------------
 +
-+/* wait for command complete or data request */
-+#define I2C_CMD_SLEEP_MAX_US	500
-+#define I2C_CMD_SLEEP_MIN_US	50
++Required properties:
++ - compatible = "ibm,i2c-fsi";
++ - reg = < address size >;		: The FSI CFAM address and address
++					  space size.
++ - #address-cells = <1>;		: Number of address cells in child
++					  nodes.
++ - #size-cells = <0>;			: Number of size cells in child nodes.
++ - child nodes				: Nodes to describe busses off the I2C
++					  master.
 +
-+/* wait after reset; choose time from legacy driver */
-+#define I2C_RESET_SLEEP_MAX_US	2000
-+#define I2C_RESET_SLEEP_MIN_US	1000
++Child node required properties:
++ - reg = < port number >		: The port number on the I2C master.
 +
-+/* choose timeout length from legacy driver; it's well tested */
-+#define I2C_ABORT_TIMEOUT	msecs_to_jiffies(100)
++Child node optional properties:
++ - child nodes				: Nodes to describe devices on the I2C
++					  bus.
 +
- struct fsi_i2c_master {
- 	struct fsi_device	*fsi;
- 	u8			fifo_size;
-@@ -214,6 +230,81 @@ static int fsi_i2c_set_port(struct fsi_i2c_port *port)
- 	return fsi_i2c_write_reg(fsi, I2C_FSI_RESET_ERR, &dummy);
- }
- 
-+static int fsi_i2c_reset_engine(struct fsi_i2c_master *i2c, u16 port)
-+{
-+	int rc;
-+	u32 mode, dummy = 0;
++Examples:
 +
-+	/* reset engine */
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_I2C, &dummy);
-+	if (rc)
-+		return rc;
++    i2c@1800 {
++        compatible = "ibm,i2c-fsi";
++        reg = < 0x1800 0x400 >;
++        #address-cells = <1>;
++        #size-cells = <0>;
 +
-+	/* re-init engine */
-+	rc = fsi_i2c_dev_init(i2c);
-+	if (rc)
-+		return rc;
++        i2c-bus@0 {
++            reg = <0>;
++        };
 +
-+	rc = fsi_i2c_read_reg(i2c->fsi, I2C_FSI_MODE, &mode);
-+	if (rc)
-+		return rc;
++        i2c-bus@1 {
++            reg = <1>;
 +
-+	/* set port; default after reset is 0 */
-+	if (port) {
-+		mode &= ~I2C_MODE_PORT;
-+		mode |= FIELD_PREP(I2C_MODE_PORT, port);
-+		rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_MODE, &mode);
-+		if (rc)
-+			return rc;
-+	}
-+
-+	/* reset busy register; hw workaround */
-+	dummy = I2C_PORT_BUSY_RESET;
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_PORT_BUSY, &dummy);
-+	if (rc)
-+		return rc;
-+
-+	return 0;
-+}
-+
-+static int fsi_i2c_abort(struct fsi_i2c_port *port, u32 status)
-+{
-+	int rc;
-+	unsigned long start;
-+	u32 cmd = I2C_CMD_WITH_STOP;
-+	struct fsi_i2c_master *i2c = port->master;
-+	struct fsi_device *fsi = i2c->fsi;
-+
-+	rc = fsi_i2c_reset_engine(i2c, port->port);
-+	if (rc)
-+		return rc;
-+
-+	/* skip final stop command for these errors */
-+	if (status & (I2C_STAT_PARITY | I2C_STAT_LOST_ARB | I2C_STAT_STOP_ERR))
-+		return 0;
-+
-+	/* write stop command */
-+	rc = fsi_i2c_write_reg(fsi, I2C_FSI_CMD, &cmd);
-+	if (rc)
-+		return rc;
-+
-+	/* wait until we see command complete in the master */
-+	start = jiffies;
-+
-+	do {
-+		rc = fsi_i2c_read_reg(fsi, I2C_FSI_STAT, &status);
-+		if (rc)
-+			return rc;
-+
-+		if (status & I2C_STAT_CMD_COMP)
-+			return 0;
-+
-+		usleep_range(I2C_CMD_SLEEP_MIN_US, I2C_CMD_SLEEP_MAX_US);
-+	} while (time_after(start + I2C_ABORT_TIMEOUT, jiffies));
-+
-+	return -ETIMEDOUT;
-+}
-+
- static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 			int num)
- {
++            eeprom@50 {
++                compatible = "vendor,dev-name";
++            };
++        };
++    };
 -- 
 1.8.3.1
