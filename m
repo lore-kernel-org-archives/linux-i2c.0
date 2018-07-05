@@ -1,36 +1,79 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH 2/4] i2c: imx: Fix race condition in dma read
-Date: Thu, 5 Jul 2018 08:32:29 +0200
-Message-ID: <20180705063229.sr6jplg63ybyzxta@pengutronix.de>
-References: <20180523095623.3347-1-esben.haabendal@gmail.com>
- <20180523095623.3347-3-esben.haabendal@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+From: Eddie James <eajames@linux.vnet.ibm.com>
+Subject: [PATCH v11 0/8] i2c: Add FSI-attached I2C master algorithm
+Date: Thu,  5 Jul 2018 13:40:22 -0500
+Message-ID: <1530816030-13010-1-git-send-email-eajames@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180523095623.3347-3-esben.haabendal@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Esben Haabendal <esben.haabendal@gmail.com>
-Cc: linux-i2c@vger.kernel.org, Esben Haabendal <eha@deif.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Lucas Stach <l.stach@pengutronix.de>, Phil Reid <preid@electromag.com.au>, Linus Walleij <linus.walleij@linaro.org>, Clemens Gruber <clemens.gruber@pqgruber.com>, Wei Jinhua <wei.jinhua1@zte.com.cn>, Michail Georgios Etairidis <m.etairidis@beck-ipc.com>, linux-kernel@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, rdunlap@infradead.org, andy.shevchenko@gmail.com, peda@axentia.se, Eddie James <eajames@linux.vnet.ibm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 23, 2018 at 11:56:21AM +0200, Esben Haabendal wrote:
-> From: Esben Haabendal <eha@deif.com>
-> 
-> This fixes a race condition, where the DMAEN bit ends up being set after
-> I2C slave has transmitted a byte following the dummy read.  When that
-> happens, an interrupt is generated instead, and no DMA request is generated
-> to kickstart the DMA read, and a timeout happens after DMA_TIMEOUT (1 sec).
-> 
-> Fixed by setting the DMAEN bit before the dummy read.
+This series adds an algorithm for an I2C master physically located on an FSI
+slave device. The I2C master has multiple ports, each of which may be connected
+to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
 
-Does this fix the problem or just narrow the race window?
+Due to the multi-port nature of the I2C master, the driver instantiates a new
+I2C adapter for each port connected to a slave. The connected ports should be
+defined in the device tree under the I2C master device.
 
-Best regards
-Uwe
+Changes since v10
+ - Add myself to maintainers
+ - Rework the reset path. Use generic bus recovery and only do the reset if SDA
+   is low.
+ - Fixed email signature on dts patch
+ - Pulled in Ben H's fix for use-after-free in remove()
+
+Changes since v9
+ - Switch the status masks to use a combination of bits rather than directly
+   coding the value
+ - Remove the interrupt mask definition as it was unused
+ - Fixed return value of master_xfer function (return number of xfrs, not 0)
+
+Changes since v8
+ - Drop unecessary else statements
+ - Use i++ instead of ++i
+ - Use kzalloc/kfree instead of devm_kzalloc/devm_kfree for port structure
+ - Drop the list_empty check in remove
+
+Changes since v7
+ - Fix grammer in Kconfig (a -> an)
+ - Change I2C registers to use BIT and GENMASK
+ - Remove custom macros and use FIELD_PREP and FIELD_GET
+ - Fix a few unecessary initializations and "return rc" that are always zero
+ - Clean up the read/write fifo functions a bit
+ - Few other clean-up items
+
+Changes since v6
+ - Remove spinlock for reset functionality; it's unecessary and doesn't work
+   with the latest FSI core.
+ - Use a mutex instead of a semaphore, and don't wait for timeout to get the
+   lock.
+ - Use usleeps instead of schedule_timeout; it's not worth the overhead when
+   the wait should be very short in between sending the command and receiving
+   the response.
+
+Changes since v5
+ - Fix reset functionality and do a reset after every transfer failure
+
+Eddie James (8):
+  dt-bindings: i2c: Add FSI-attached I2C master dt binding documentation
+  i2c: Add FSI-attached I2C master algorithm
+  i2c: fsi: Add port structures
+  i2c: fsi: Add abort and hardware reset procedures
+  i2c: fsi: Add transfer implementation
+  i2c: fsi: Add I2C master locking
+  i2c: fsi: Add bus recovery
+  MAINTAINERS: Add Eddie as the maintainer for the FSI-attached I2C
+    driver
+
+ Documentation/devicetree/bindings/i2c/i2c-fsi.txt |  40 ++
+ MAINTAINERS                                       |   8 +
+ drivers/i2c/busses/Kconfig                        |  11 +
+ drivers/i2c/busses/Makefile                       |   1 +
+ drivers/i2c/busses/i2c-fsi.c                      | 753 ++++++++++++++++++++++
+ 5 files changed, 813 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+ create mode 100644 drivers/i2c/busses/i2c-fsi.c
 
 -- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+1.8.3.1
