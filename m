@@ -1,79 +1,173 @@
 From: Eddie James <eajames@linux.vnet.ibm.com>
-Subject: [PATCH v11 0/8] i2c: Add FSI-attached I2C master algorithm
-Date: Thu,  5 Jul 2018 13:40:22 -0500
-Message-ID: <1530816030-13010-1-git-send-email-eajames@linux.vnet.ibm.com>
+Subject: [PATCH v11 3/8] i2c: fsi: Add port structures
+Date: Thu,  5 Jul 2018 13:40:25 -0500
+Message-ID: <1530816030-13010-4-git-send-email-eajames@linux.vnet.ibm.com>
+References: <1530816030-13010-1-git-send-email-eajames@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1530816030-13010-1-git-send-email-eajames@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, rdunlap@infradead.org, andy.shevchenko@gmail.com, peda@axentia.se, Eddie James <eajames@linux.vnet.ibm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This series adds an algorithm for an I2C master physically located on an FSI
-slave device. The I2C master has multiple ports, each of which may be connected
-to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
+Add and initialize I2C adapters for each port on the FSI-attached I2C
+master. Ports for each master are defined in the devicetree.
 
-Due to the multi-port nature of the I2C master, the driver instantiates a new
-I2C adapter for each port connected to a slave. The connected ports should be
-defined in the device tree under the I2C master device.
+Signed-off-by: Eddie James <eajames@linux.vnet.ibm.com>
+---
+ drivers/i2c/busses/i2c-fsi.c | 91 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 91 insertions(+)
 
-Changes since v10
- - Add myself to maintainers
- - Rework the reset path. Use generic bus recovery and only do the reset if SDA
-   is low.
- - Fixed email signature on dts patch
- - Pulled in Ben H's fix for use-after-free in remove()
-
-Changes since v9
- - Switch the status masks to use a combination of bits rather than directly
-   coding the value
- - Remove the interrupt mask definition as it was unused
- - Fixed return value of master_xfer function (return number of xfrs, not 0)
-
-Changes since v8
- - Drop unecessary else statements
- - Use i++ instead of ++i
- - Use kzalloc/kfree instead of devm_kzalloc/devm_kfree for port structure
- - Drop the list_empty check in remove
-
-Changes since v7
- - Fix grammer in Kconfig (a -> an)
- - Change I2C registers to use BIT and GENMASK
- - Remove custom macros and use FIELD_PREP and FIELD_GET
- - Fix a few unecessary initializations and "return rc" that are always zero
- - Clean up the read/write fifo functions a bit
- - Few other clean-up items
-
-Changes since v6
- - Remove spinlock for reset functionality; it's unecessary and doesn't work
-   with the latest FSI core.
- - Use a mutex instead of a semaphore, and don't wait for timeout to get the
-   lock.
- - Use usleeps instead of schedule_timeout; it's not worth the overhead when
-   the wait should be very short in between sending the command and receiving
-   the response.
-
-Changes since v5
- - Fix reset functionality and do a reset after every transfer failure
-
-Eddie James (8):
-  dt-bindings: i2c: Add FSI-attached I2C master dt binding documentation
-  i2c: Add FSI-attached I2C master algorithm
-  i2c: fsi: Add port structures
-  i2c: fsi: Add abort and hardware reset procedures
-  i2c: fsi: Add transfer implementation
-  i2c: fsi: Add I2C master locking
-  i2c: fsi: Add bus recovery
-  MAINTAINERS: Add Eddie as the maintainer for the FSI-attached I2C
-    driver
-
- Documentation/devicetree/bindings/i2c/i2c-fsi.txt |  40 ++
- MAINTAINERS                                       |   8 +
- drivers/i2c/busses/Kconfig                        |  11 +
- drivers/i2c/busses/Makefile                       |   1 +
- drivers/i2c/busses/i2c-fsi.c                      | 753 ++++++++++++++++++++++
- 5 files changed, 813 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
- create mode 100644 drivers/i2c/busses/i2c-fsi.c
-
+diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
+index 694bbb4..89b7349 100644
+--- a/drivers/i2c/busses/i2c-fsi.c
++++ b/drivers/i2c/busses/i2c-fsi.c
+@@ -17,7 +17,10 @@
+ #include <linux/fsi.h>
+ #include <linux/i2c.h>
+ #include <linux/kernel.h>
++#include <linux/list.h>
+ #include <linux/module.h>
++#include <linux/of.h>
++#include <linux/slab.h>
+ 
+ #define FSI_ENGID_I2C		0x7
+ 
+@@ -128,6 +131,14 @@
+ struct fsi_i2c_master {
+ 	struct fsi_device	*fsi;
+ 	u8			fifo_size;
++	struct list_head	ports;
++};
++
++struct fsi_i2c_port {
++	struct list_head	list;
++	struct i2c_adapter	adapter;
++	struct fsi_i2c_master	*master;
++	u16			port;
+ };
+ 
+ static int fsi_i2c_read_reg(struct fsi_device *fsi, unsigned int reg,
+@@ -181,9 +192,38 @@ static int fsi_i2c_dev_init(struct fsi_i2c_master *i2c)
+ 	return fsi_i2c_write_reg(i2c->fsi, I2C_FSI_WATER_MARK, &watermark);
+ }
+ 
++static int fsi_i2c_set_port(struct fsi_i2c_port *port)
++{
++	int rc;
++	struct fsi_device *fsi = port->master->fsi;
++	u32 mode, dummy = 0;
++
++	rc = fsi_i2c_read_reg(fsi, I2C_FSI_MODE, &mode);
++	if (rc)
++		return rc;
++
++	if (FIELD_GET(I2C_MODE_PORT, mode) == port->port)
++		return 0;
++
++	mode = (mode & ~I2C_MODE_PORT) | FIELD_PREP(I2C_MODE_PORT, port->port);
++	rc = fsi_i2c_write_reg(fsi, I2C_FSI_MODE, &mode);
++	if (rc)
++		return rc;
++
++	/* reset engine when port is changed */
++	return fsi_i2c_write_reg(fsi, I2C_FSI_RESET_ERR, &dummy);
++}
++
+ static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			int num)
+ {
++	int rc;
++	struct fsi_i2c_port *port = adap->algo_data;
++
++	rc = fsi_i2c_set_port(port);
++	if (rc)
++		return rc;
++
+ 	return -EOPNOTSUPP;
+ }
+ 
+@@ -202,23 +242,73 @@ static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
+ static int fsi_i2c_probe(struct device *dev)
+ {
+ 	struct fsi_i2c_master *i2c;
++	struct fsi_i2c_port *port;
++	struct device_node *np;
+ 	int rc;
++	u32 port_no;
+ 
+ 	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
+ 	if (!i2c)
+ 		return -ENOMEM;
+ 
+ 	i2c->fsi = to_fsi_dev(dev);
++	INIT_LIST_HEAD(&i2c->ports);
+ 
+ 	rc = fsi_i2c_dev_init(i2c);
+ 	if (rc)
+ 		return rc;
+ 
++	/* Add adapter for each i2c port of the master. */
++	for_each_available_child_of_node(dev->of_node, np) {
++		rc = of_property_read_u32(np, "reg", &port_no);
++		if (rc || port_no > USHRT_MAX)
++			continue;
++
++		port = kzalloc(sizeof(*port), GFP_KERNEL);
++		if (!port)
++			break;
++
++		port->master = i2c;
++		port->port = port_no;
++
++		port->adapter.owner = THIS_MODULE;
++		port->adapter.dev.of_node = np;
++		port->adapter.dev.parent = dev;
++		port->adapter.algo = &fsi_i2c_algorithm;
++		port->adapter.algo_data = port;
++
++		snprintf(port->adapter.name, sizeof(port->adapter.name),
++			 "i2c_bus-%u", port_no);
++
++		rc = i2c_add_adapter(&port->adapter);
++		if (rc < 0) {
++			dev_err(dev, "Failed to register adapter: %d\n", rc);
++			kfree(port);
++			continue;
++		}
++
++		list_add(&port->list, &i2c->ports);
++	}
++
+ 	dev_set_drvdata(dev, i2c);
+ 
+ 	return 0;
+ }
+ 
++static int fsi_i2c_remove(struct device *dev)
++{
++	struct fsi_i2c_master *i2c = dev_get_drvdata(dev);
++	struct fsi_i2c_port *port, *tmp;
++
++	list_for_each_entry_safe(port, tmp, &i2c->ports, list) {
++		list_del(&port->list);
++		i2c_del_adapter(&port->adapter);
++		kfree(port);
++	}
++
++	return 0;
++}
++
+ static const struct fsi_device_id fsi_i2c_ids[] = {
+ 	{ FSI_ENGID_I2C, FSI_VERSION_ANY },
+ 	{ }
+@@ -230,6 +320,7 @@ static int fsi_i2c_probe(struct device *dev)
+ 		.name = "i2c-fsi",
+ 		.bus = &fsi_bus_type,
+ 		.probe = fsi_i2c_probe,
++		.remove = fsi_i2c_remove,
+ 	},
+ };
+ 
 -- 
 1.8.3.1
