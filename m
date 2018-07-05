@@ -1,25 +1,23 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
+From: Lee Jones <lee.jones@linaro.org>
 Subject: Re: [PATCH] gpiolib: Defer on non-DT find_chip_by_name() failure
-Date: Thu, 5 Jul 2018 07:23:46 +0200
-Message-ID: <20180705052346.6iwanz5kx3ive42a@pengutronix.de>
+Date: Thu, 5 Jul 2018 06:50:37 +0100
+Message-ID: <20180705055037.GI496@dell>
 References: <20180703172635.32508-1-jmkrzyszt@gmail.com>
  <20180703193141.747fa950@bbrezillon>
  <7058252.SGNltMTCCa@z50>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
 In-Reply-To: <7058252.SGNltMTCCa@z50>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Cc: Boris Brezillon <boris.brezillon@bootlin.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Fabio Estevam <fabio.estevam@nxp.com>, Phil Reid <preid@electromag.com.au>, Lucas Stach <l.stach@pengutronix.de>, Clemens Gruber <clemens.gruber@pqgruber.com>, Peter Rosin <peda@axentia.se>, patches@opensource.cirrus.com, linux-i2c@vger.kernel.org
+Cc: Boris Brezillon <boris.brezillon@bootlin.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Phil Reid <preid@electromag.com.au>, Lucas Stach <l.stach@pengutronix.de>, Clemens Gruber <clemens.gruber@pqgruber.com>, Peter Rosin <peda@axentia.se>, patches@opensource.cirrus.com, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+On Wed, 04 Jul 2018, Janusz Krzysztofik wrote:
 
-On Wed, Jul 04, 2018 at 09:13:42PM +0200, Janusz Krzysztofik wrote:
 > On Tuesday, July 3, 2018 7:31:41 PM CEST Boris Brezillon wrote:
 > > Hi Janusz,
 > > 
@@ -86,34 +84,12 @@ On Wed, Jul 04, 2018 at 09:13:42PM +0200, Janusz Krzysztofik wrote:
 > As far as I can understand the code, both depend on error != -EPROBE_DEFER in 
 > order to continue in degraded mode. I'm adding their maintainers to the loop.
 
-TL;DR: Either I don't understand the implication for
-drivers/i2c/busses/i2c-imx.c or everything is fine.
-
-Given that only i2c_imx_init_recovery_info() uses gpio functions I assume
-you mean:
-
-        rinfo->sda_gpiod = devm_gpiod_get(&pdev->dev, "sda", GPIOD_IN);
-        rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl", GPIOD_OUT_HIGH);
-
-        if (PTR_ERR(rinfo->sda_gpiod) == -EPROBE_DEFER ||
-            PTR_ERR(rinfo->scl_gpiod) == -EPROBE_DEFER) {
-                return -EPROBE_DEFER;
-        } else if (IS_ERR(rinfo->sda_gpiod) ||
-                   IS_ERR(rinfo->scl_gpiod) ||
-                   IS_ERR(i2c_imx->pinctrl_pins_default) ||
-                   IS_ERR(i2c_imx->pinctrl_pins_gpio)) {
-                dev_dbg(&pdev->dev, "recovery information incomplete\n");
-                return 0;
-        }
-
-So if a patch changes devm_gpiod_get() to return -EPROBE_DEFER in more
-cases that doesn't seem to hurt. Moreover TTBOMK this driver should only
-be used by dt-machines today such that changing gpio* for non-DT users
-shouldn't affect it.
-
-Best regards
-Uwe
+>From a quick glance, the -EPROBE_DEFER handing in Arizona Core appears
+to be correct.  Would you mind explaining what your concerns are in
+more detail please?
 
 -- 
-Pengutronix e.K.                           | Uwe Kleine-K�nig            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
