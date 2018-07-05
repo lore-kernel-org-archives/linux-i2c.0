@@ -1,58 +1,53 @@
-From: "Robert P. J. Day" <rpjday@crashcourse.ca>
-Subject: Re: [RESEND PATCH v4 1/2] dt-bindings: at24: Add address-width
- property
-Date: Thu, 5 Jul 2018 16:24:16 -0400 (EDT)
-Message-ID: <alpine.LFD.2.21.1807051623400.12206@localhost.localdomain>
-References: <1530522740-2798-1-git-send-email-alanx.chiang@intel.com> <1530522740-2798-2-git-send-email-alanx.chiang@intel.com> <20180705212204.GA10449@rob-hp-laptop>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v10 5/7] i2c: fsi: Add transfer implementation
+Date: Thu, 5 Jul 2018 23:59:42 +0200
+Message-ID: <20180705215941.25lniljxnzcopsp7@tetsubishi>
+References: <1528918579-27602-1-git-send-email-eajames@linux.vnet.ibm.com>
+ <1528918579-27602-6-git-send-email-eajames@linux.vnet.ibm.com>
+ <20180626023823.i3fmdegn2sric5kx@ninjato>
+ <6713efb9-c4c3-f648-a1e9-7918110091e4@linux.vnet.ibm.com>
+ <20180702182434.5wxxszpgpf6wergl@ninjato>
+ <ab5a5b9c-931e-e8ca-d064-92a917e00a3b@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="jbuejn5n2u6fhqy6"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180705212204.GA10449@rob-hp-laptop>
+Content-Disposition: inline
+In-Reply-To: <ab5a5b9c-931e-e8ca-d064-92a917e00a3b@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: alanx.chiang@intel.com, linux-i2c@vger.kernel.org, andy.yeh@intel.com, sakari.ailus@linux.intel.com, andriy.shevchenko@linux.intel.com, andriy.shevchenko@intel.com, rajmohan.mani@intel.com, andy.shevchenko@gmail.com, tfiga@chromium.org, jcliang@chromium.org, brgl@bgdev.pl, mark.rutland@arm.com, arnd@arndb.de, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+To: Eddie James <eajames@linux.vnet.ibm.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, rdunlap@infradead.org, andy.shevchenko@gmail.com, peda@axentia.se
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 5 Jul 2018, Rob Herring wrote:
 
-> On Mon, Jul 02, 2018 at 05:12:19PM +0800, alanx.chiang@intel.com wrote:
-> > From: Alan Chiang <alanx.chiang@intel.com>
-> >
-> > The AT24 series chips use 8-bit address by default. If some
-> > chips would like to support more than 8 bits, the at24 driver
-> > should be added the compatible field for specfic chips.
-> >
-> > Provide a flexible way to determine the addressing bits through
-> > address-width in this patch.
-> >
-> > Signed-off-by: Alan Chiang <alanx.chiang@intel.com>
-> > Signed-off-by: Andy Yeh <andy.yeh@intel.com>
-> > Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-> >
-> > ---
-> > since v1:
-> > -- Remove the address-width field in the example.
-> > since v2:
-> > -- Remove redundant space.
-> > since v3:
-> > -- Add Acked-by.
-> >
-> > ---
-> >  Documentation/devicetree/bindings/eeprom/at24.txt | 2 ++
-> >  1 file changed, 2 insertions(+)
->
-> Reviewed-by: Rob Herring <robh@kernel.org>
+--jbuejn5n2u6fhqy6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-  "... should be added the compatible field ..."??
+> I meant that the hardware cannot interpret this, it would be a meaningless
+> command unfortunately.
 
-rday
+I see. Thanks for double-checking.
 
--- 
 
-========================================================================
-Robert P. J. Day                                 Ottawa, Ontario, CANADA
-                  http://crashcourse.ca/dokuwiki
+--jbuejn5n2u6fhqy6
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Twitter:                                       http://twitter.com/rpjday
-LinkedIn:                               http://ca.linkedin.com/in/rpjday
-========================================================================
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAls+lMUACgkQFA3kzBSg
+KbYrMQ//Szqy7H8ny/ePnGdQoC+aBNI7ua2lPaS1u+dvzlSnqmuh5eSsQZ0m+RLr
+02g3U2/EYtwU+9g7Qu5kjAanpV2aDlhdTl4PsU9B382zd7Rvs2l4iZAhw4kFtEl9
+bnb+mUfVWNZW21PhqeD51AjBjXMA2rW1nHSozhMtesHfWAqwvGcUE54w4Zc35EZS
+3yh2+1M6fTAKh77LGjBU65aJZb4cwSf+KO8UOUsOzG8s9ZC6LYsJZIWMLEc7mhQA
+dr7vxmwCMi2tf5OSsH8QN39cRMSMOxTdxmLGKjZPFIb+i7YWfWsx6zrPCb2X7kJi
+GDko5LmGgJA2j93BVGF1jdjZX6FyxE6yxXjCWXbbrkuiVqDBVk8Id9WH9QnlifV7
+pYXrboKLQ/aIeH5zo3LBSPpWbz9obBXN8c40D8fUljv+jrz2HHF/4iVA9GsNSa+y
+1qWFbVsbjXg2fznkyOSg+e3zNSVQ8myD+r47WpjMEfLXPeDpYXF6eWOhgL4mlqn1
+lwEa2Y/maQKipTowhuC0bH7G82uw25OqR6WZ2dqyTRGivmui7p4KUQrYCzbnZPYZ
+Yrd2eJGzqZbiKIXrcObq9VajOKJWIbgaBAZwk2ZRyvNqcR35+iQzlSot76IY63M6
+60R4hSgQNLwTMXwaMsS5nUiia2mBhF+YOjp1tzu+8q5vY9PUjdc=
+=CJql
+-----END PGP SIGNATURE-----
+
+--jbuejn5n2u6fhqy6--
