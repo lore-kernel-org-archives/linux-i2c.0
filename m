@@ -1,70 +1,114 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v10 4/7] i2c: fsi: Add abort and hardware reset procedures
-Date: Fri, 6 Jul 2018 00:06:29 +0200
-Message-ID: <20180705220629.rrin3sue6yrcfnnb@tetsubishi>
-References: <1528918579-27602-1-git-send-email-eajames@linux.vnet.ibm.com>
- <1528918579-27602-5-git-send-email-eajames@linux.vnet.ibm.com>
- <20180626023849.op4rimmsnlv4rgwg@ninjato>
- <3dc50e6b-6985-1920-4f8c-dc7698e2f692@linux.vnet.ibm.com>
- <20180702181511.mv2fuiwjjdhyp43v@ninjato>
- <18b756ef-03d3-8103-3b52-c7bc220d4195@linux.vnet.ibm.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH] gpiolib: Defer on non-DT find_chip_by_name() failure
+Date: Fri, 6 Jul 2018 07:06:09 +0100
+Message-ID: <20180706060609.GT496@dell>
+References: <20180703172635.32508-1-jmkrzyszt@gmail.com>
+ <7058252.SGNltMTCCa@z50>
+ <20180705055037.GI496@dell>
+ <1579112.qQSMXVQn9s@z50>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ihitnwi5j25xyp32"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <18b756ef-03d3-8103-3b52-c7bc220d4195@linux.vnet.ibm.com>
+In-Reply-To: <1579112.qQSMXVQn9s@z50>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eddie James <eajames@linux.vnet.ibm.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, rdunlap@infradead.org, andy.shevchenko@gmail.com, peda@axentia.se
+To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Cc: Boris Brezillon <boris.brezillon@bootlin.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Phil Reid <preid@electromag.com.au>, Lucas Stach <l.stach@pengutronix.de>, Clemens Gruber <clemens.gruber@pqgruber.com>, Peter Rosin <peda@axentia.se>, patches@opensource.cirrus.com, linux-i2c@vger.kernel.org, ckeepax@opensource.wolfsonmicro.com, rf@opensource.wolfsonmicro.com, broonie@kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, 05 Jul 2018, Janusz Krzysztofik wrote:
+> On Thursday, July 5, 2018 7:50:37 AM CEST Lee Jones wrote:
+> > On Wed, 04 Jul 2018, Janusz Krzysztofik wrote:
+> > > On Tuesday, July 3, 2018 7:31:41 PM CEST Boris Brezillon wrote:
+> > > > Hi Janusz,
+> > > > 
+> > > > On Tue,  3 Jul 2018 19:26:35 +0200
+> > > > 
+> > > > Janusz Krzysztofik <jmkrzyszt@gmail.com> wrote:
+> > > > > Avoid replication of error code conversion in non-DT GPIO consumers'
+> > > > > code by returning -EPROBE_DEFER from gpiod_find() in case a chip
+> > > > > identified by its label in a registered lookup table is not ready.
+> > > > > 
+> > > > > See https://lkml.org/lkml/2018/5/30/176 for example case.
+> > > > > 
+> > > > > Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+> > > > > ---
+> > > > > If accepted, please add
+> > > > > 
+> > > > > 	Suggested-by: Boris Brezillon <boris.brezillon@bootlin.com>
+> > > > > 
+> > > > > if Boris doesn't mind.
+> > > > > 
+> > > > > Thanks,
+> > > > > Janusz
+> > > > > 
+> > > > >  drivers/gpio/gpiolib.c | 13 ++++++++++---
+> > > > >  1 file changed, 10 insertions(+), 3 deletions(-)
+> > > > > 
+> > > > > diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+> > > > > index e11a3bb03820..15dc77c80328 100644
+> > > > > --- a/drivers/gpio/gpiolib.c
+> > > > > +++ b/drivers/gpio/gpiolib.c
+> > > > > @@ -3639,9 +3639,16 @@ static struct gpio_desc *gpiod_find(struct
+> > > > > device
+> > > > > *dev, const char *con_id,>
+> > > > > 
+> > > > >  		chip = find_chip_by_name(p->chip_label);
+> > > > >  		
+> > > > >  		if (!chip) {
+> > > > > 
+> > > > > -			dev_err(dev, "cannot find GPIO chip %s\n",
+> > > > > -				p->chip_label);
+> > > > > -			return ERR_PTR(-ENODEV);
+> > > > > +			/*
+> > > > > +			 * As the lookup table indicates a chip with
+> > > > > +			 * p->chip_label should exist, assume it may
+> > > > > +			 * still appear latar and let the interested
+> > > > > 
+> > > > 					^ later
+> > > > > 
+> > > > > +			 * consumer be probed again or let the Deferred
+> > > > > +			 * Probe infrastructure handle the error.
+> > > > > +			 */
+> > > > > +			dev_warn(dev, "cannot find GPIO chip %s, deferring\n",
+> > > > > +				 p->chip_label);
+> > > > > +			return ERR_PTR(-EPROBE_DEFER);
+> > > > > 
+> > > > >  		}
+> > > > >  		
+> > > > >  		if (chip->ngpio <= p->chip_hwnum) {
+> > > > 
+> > > > Looks good otherwise. Let's hope we're not breaking implementations
+> > > > testing for -ENODEV...
+> > > 
+> > > I've reviewed them all and found two which I think may be affected:
+> > > - drivers/mfd/arizona-core.c,
+> > > - drivers/i2c/busses/i2c-imx.c.
+> > > As far as I can understand the code, both depend on error != -EPROBE_DEFER
+> > > in order to continue in degraded mode. I'm adding their maintainers to
+> > > the loop.
+> > From a quick glance, the -EPROBE_DEFER handing in Arizona Core appears
+> > to be correct.  Would you mind explaining what your concerns are in
+> > more detail please?
+> 
+> Hi
+> 
+> That's more about handling -ENODEV rather than -EPROBE_DEFER.
+> 
+> Before the change, if GPIO chip supposed to provide "reset" pin was not ready 
+> during  arizona_dev_init(), devm_gpiod_get() returned -ENODEV and device was 
+> initialized in degraded mode, i.e., with no control over the "reset" pin.
+> After the change, gpiod_get() will return -EPROBE_DEFER in such case and 
+> arizona_dev_init() won't succeed in case the GPIO chip doesn't appear later 
+> for some reason.
 
---ihitnwi5j25xyp32
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Yes, I see that now.  Thanks for your explanation.
 
-Eddie,
+I'm bringing in the big guns (CC'ed).
 
-> Thanks for the details. I have sent up a new series which will only do the
-> bus reset if SDA is low. With our current hardware configuration, this
-
-Thanks.
-
-> *should* be sufficient to recover all the possible errors. However, there
-> are configurations where it will not be enough, in which case getting the
-> data line stuck high or clock line stuck either high or low can occur,
-> necessitating the full reset. But since I can't demonstrate those at the
-> moment, I can't argue to include that now :)
-
-For the record, I am *really* interested in these cases. Just from
-reading the above I wonder how SDA can stuck high when being open drain,
-and how you will create 9 SCL pulses if SCL is stuck low. But if we have
-a test case, we will figure out something together.
-
-Thanks,
-
-   Wolfram
-
-
---ihitnwi5j25xyp32
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAls+lmQACgkQFA3kzBSg
-KbYs/w/9HBeG6njVI/OjBZtkDIX6SEDllwnlNp0TLiL2ANynxNwZAW4kk/hk7cuc
-VdRro4JWVdqvsUQnh4peP1TpHGcSQgHKaqjBVSdHUd/iBMsbSiuspxboyS9jhNwM
-VauHrH0V6R5bHRtbWm6RMufgl9iI8czxjN7lE7ciJwrA7O/pLobStubqmMHSPAzK
-275trVZrZYBrJX8fMzwG5aBhjsjdTV9dzXhYtHX0yg64hQVn/o8YkhDuJb1Z+yEY
-g9xEIa5YtJkVijCxUAzhtCrRlk0OeO8O9XL2/jJ95Ve0fuCyX8MuWPSeR40WCAT2
-PMWKtA2OVhkYmYmyzzRJZMTCrGw08f19iZe5fmu9DIsAkAG/7oSPFti9OoHtCzh3
-3YV7aA+7/ZPwiXGtj+Y0Oi+RzonXk5t6/d2blJ5s6q/2sNZVsKZedETN0YjJ38yD
-Mse7+ZqIfFZjkOEKuvAYb5hyByhL9KsBQ+X5sDPxJCqNuxBx64jmyjK+Q4WCr6yZ
-X+hNBJPNuVD2A+ydf1mxfQyZ5FJbU3Sva4Y/bK7GjSOmmy242NQA7+CcQuqQ1+2o
-7H/5mIVuw3kE7xDveYCWKwrtIK1ri9huV/j5eOVRgBiHoYiT3T+s8XWHICrl4Fz4
-U59GbGVBDWikCueX9svFVhbVZTuxvCzB5TnfS59CuKGuD6fx2n0=
-=VwEB
------END PGP SIGNATURE-----
-
---ihitnwi5j25xyp32--
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
