@@ -1,116 +1,70 @@
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 Subject: Re: [PATCH] gpiolib: Defer on non-DT find_chip_by_name() failure
-Date: Fri, 6 Jul 2018 10:03:53 +0100
-Message-ID: <4ecc2072-3ec3-6e9b-576f-fd05559e7634@opensource.cirrus.com>
-References: <20180703172635.32508-1-jmkrzyszt@gmail.com>
- <7058252.SGNltMTCCa@z50> <20180705055037.GI496@dell> <1579112.qQSMXVQn9s@z50>
+Date: Fri, 06 Jul 2018 20:58:34 +0200
+Message-ID: <1956873.bHDVU2PRcn@z50>
+References: <20180703172635.32508-1-jmkrzyszt@gmail.com> <1579112.qQSMXVQn9s@z50> <4ecc2072-3ec3-6e9b-576f-fd05559e7634@opensource.cirrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1579112.qQSMXVQn9s@z50>
-Content-Language: en-US
+In-Reply-To: <4ecc2072-3ec3-6e9b-576f-fd05559e7634@opensource.cirrus.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Janusz Krzysztofik <jmkrzyszt@gmail.com>, Lee Jones <lee.jones@linaro.org>
-Cc: Boris Brezillon <boris.brezillon@bootlin.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Phil Reid <preid@electromag.com.au>, Lucas Stach <l.stach@pengutronix.de>, Clemens Gruber <clemens.gruber@pqgruber.com>, Peter Rosin <peda@axentia.se>, patches@opensource.cirrus.com, linux-i2c@vger.kernel.org
+To: Richard Fitzgerald <rf@opensource.cirrus.com>
+Cc: Lee Jones <lee.jones@linaro.org>, Boris Brezillon <boris.brezillon@bootlin.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Uwe =?ISO-8859-1?Q?Kleine=2DK=F6nig?= <u.kleine-koenig@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Phil Reid <preid@electromag.com.au>, Lucas Stach <l.stach@pengutronix.de>, Clemens Gruber <clemens.gruber@pqgruber.com>, Peter Rosin <peda@axentia.se>, patches@opensource.cirrus.com, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 05/07/18 21:56, Janusz Krzysztofik wrote:
-> On Thursday, July 5, 2018 7:50:37 AM CEST Lee Jones wrote:
->> On Wed, 04 Jul 2018, Janusz Krzysztofik wrote:
->>> On Tuesday, July 3, 2018 7:31:41 PM CEST Boris Brezillon wrote:
->>>> Hi Janusz,
->>>>
->>>> On Tue,  3 Jul 2018 19:26:35 +0200
->>>>
->>>> Janusz Krzysztofik <jmkrzyszt@gmail.com> wrote:
->>>>> Avoid replication of error code conversion in non-DT GPIO consumers'
->>>>> code by returning -EPROBE_DEFER from gpiod_find() in case a chip
->>>>> identified by its label in a registered lookup table is not ready.
->>>>>
->>>>> See https://lkml.org/lkml/2018/5/30/176 for example case.
->>>>>
->>>>> Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
->>>>> ---
->>>>> If accepted, please add
->>>>>
->>>>> 	Suggested-by: Boris Brezillon <boris.brezillon@bootlin.com>
->>>>>
->>>>> if Boris doesn't mind.
->>>>>
->>>>> Thanks,
->>>>> Janusz
->>>>>
->>>>>   drivers/gpio/gpiolib.c | 13 ++++++++++---
->>>>>   1 file changed, 10 insertions(+), 3 deletions(-)
->>>>>
->>>>> diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
->>>>> index e11a3bb03820..15dc77c80328 100644
->>>>> --- a/drivers/gpio/gpiolib.c
->>>>> +++ b/drivers/gpio/gpiolib.c
->>>>> @@ -3639,9 +3639,16 @@ static struct gpio_desc *gpiod_find(struct
->>>>> device
->>>>> *dev, const char *con_id,>
->>>>>
->>>>>   		chip = find_chip_by_name(p->chip_label);
->>>>>   		
->>>>>   		if (!chip) {
->>>>>
->>>>> -			dev_err(dev, "cannot find GPIO chip %s\n",
->>>>> -				p->chip_label);
->>>>> -			return ERR_PTR(-ENODEV);
->>>>> +			/*
->>>>> +			 * As the lookup table indicates a chip with
->>>>> +			 * p->chip_label should exist, assume it may
->>>>> +			 * still appear latar and let the interested
->>>>>
->>>> 					^ later
->>>>>
->>>>> +			 * consumer be probed again or let the Deferred
->>>>> +			 * Probe infrastructure handle the error.
->>>>> +			 */
->>>>> +			dev_warn(dev, "cannot find GPIO chip %s, deferring\n",
->>>>> +				 p->chip_label);
->>>>> +			return ERR_PTR(-EPROBE_DEFER);
->>>>>
->>>>>   		}
->>>>>   		
->>>>>   		if (chip->ngpio <= p->chip_hwnum) {
->>>>
->>>> Looks good otherwise. Let's hope we're not breaking implementations
->>>> testing for -ENODEV...
->>>
->>> I've reviewed them all and found two which I think may be affected:
->>> - drivers/mfd/arizona-core.c,
->>> - drivers/i2c/busses/i2c-imx.c.
->>> As far as I can understand the code, both depend on error != -EPROBE_DEFER
->>> in order to continue in degraded mode. I'm adding their maintainers to
->>> the loop.
->>  From a quick glance, the -EPROBE_DEFER handing in Arizona Core appears
->> to be correct.  Would you mind explaining what your concerns are in
->> more detail please?
-> 
-> Hi
-> 
-> That's more about handling -ENODEV rather than -EPROBE_DEFER.
-> 
-> Before the change, if GPIO chip supposed to provide "reset" pin was not ready
-> during  arizona_dev_init(), devm_gpiod_get() returned -ENODEV and device was
-> initialized in degraded mode, i.e., with no control over the "reset" pin.
-> After the change, gpiod_get() will return -EPROBE_DEFER in such case and
-> arizona_dev_init() won't succeed in case the GPIO chip doesn't appear later
-> for some reason.
-> 
-> Thanks,
-> Januszz
-> 
-> 
+> >> On Wed, 04 Jul 2018, Janusz Krzysztofik wrote:
+> >>> On Tuesday, July 3, 2018 7:31:41 PM CEST Boris Brezillon wrote:
+> >>>> On Tue,  3 Jul 2018 19:26:35 +0200 Janusz Krzysztofik wrote:
+> >>>>>   		chip =3D find_chip_by_name(p->chip_label);
+> >>>>>   		if (!chip) {
+> >>>>> -			dev_err(dev, "cannot find GPIO chip %s\n",
+> >>>>> -				p->chip_label);
+> >>>>> -			return ERR_PTR(-ENODEV);
+> >>>>> +			/*
+> >>>>> +			 * As the lookup table indicates a chip with
+> >>>>> +			 * p->chip_label should exist, assume it may
+> >>>>> +			 * still appear latar and let the interested
+> >>>>> +			 * consumer be probed again or let the Deferred
+> >>>>> +			 * Probe infrastructure handle the error.
+> >>>>> +			 */
+> >>>>> +			dev_warn(dev, "cannot find GPIO chip %s, deferring\n",
+> >>>>> +				 p->chip_label);
+> >>>>> +			return ERR_PTR(-EPROBE_DEFER);
+> >>>>>   		}
+> >>>>=20
+> >>>> Looks good otherwise. Let's hope we're not breaking implementations
+> >>>> testing for -ENODEV...
+> >>>=20
+> >>> I've reviewed them all and found two which I think may be affected:
+> >>> - drivers/mfd/arizona-core.c,
+> >>> - drivers/i2c/busses/i2c-imx.c.
 
-The intention is that if the DT node is missing, the Arizona driver can run
-using only soft reset, though there are limitations in that mode.
-This should return -ENOENT so that the Arizona driver will continue without
-a GPIO.
+On Thursday, July 5, 2018 7:23:46 AM CEST Uwe Kleine-K=F6nig wrote:
+> TL;DR: Either I don't understand the implication for
+> drivers/i2c/busses/i2c-imx.c or everything is fine.
+> ...
+> So if a patch changes devm_gpiod_get() to return -EPROBE_DEFER in more
+> cases that doesn't seem to hurt. Moreover TTBOMK this driver should only
+> be used by dt-machines today such that changing gpio* for non-DT users
+> shouldn't affect it.
 
-If the DT defines a GPIO it is effectively saying that this GPIO is required so
-it is valid for the Arizona driver never to come up if the GPIO it is defined to
-depend on doesn't come up.
+On Friday, July 6, 2018 11:03:53 AM CEST Richard Fitzgerald wrote:
+> The intention is that if the DT node is missing, the Arizona driver can r=
+un
+> using only soft reset, though there are limitations in that mode.
+> This should return -ENOENT so that the Arizona driver will continue witho=
+ut
+> a GPIO.
+>=20
+> If the DT defines a GPIO it is effectively saying that this GPIO is requi=
+red
+> so it is valid for the Arizona driver never to come up if the GPIO it is
+> defined to depend on doesn't come up.
+
+Uwe, Richard, thanks for clarifications.
+
+I think we can assume the change is safe for all current implementations.
+
+Thanks,
+Janusz
