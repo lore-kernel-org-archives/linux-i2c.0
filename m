@@ -1,73 +1,50 @@
-From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v2 2/3] i2c: Add helper to ease DMA handling
-Date: Sat, 7 Jul 2018 17:29:54 +0800
-Message-ID: <1530955795-17714-3-git-send-email-jun.gao@mediatek.com>
+From: Jun Gao <jun.gao@mediatek.com>
+Subject: [PATCH v2 1/3] i2c: mediatek: Register i2c adapter driver earlier
+Date: Sat, 7 Jul 2018 17:29:53 +0800
+Message-ID: <1530955795-17714-2-git-send-email-jun.gao@mediatek.com>
 References: <1530955795-17714-1-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <1530955795-17714-1-git-send-email-jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mediatek/>
-List-Post: <mailto:linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-mediatek" <linux-mediatek-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1530955795-17714-1-git-send-email-jun.gao@mediatek.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, Jun Gao <jun.gao@mediatek.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+From: Jun Gao <jun.gao@mediatek.com>
 
-This function is needed by i2c_get_dma_safe_msg_buf() potentially.
-It is used to free DMA safe buffer when DMA operation fails.
+As i2c adapter, i2c slave devices will depend on it. In order not to
+block the initializations of i2c slave devices, register i2c adapter
+driver at appropriate time.
 
-Signed-off-by: Jun Gao <jun.gao-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Signed-off-by: Jun Gao <jun.gao@mediatek.com>
 ---
- drivers/i2c/i2c-core-base.c | 14 ++++++++++++++
- include/linux/i2c.h         |  1 +
- 2 files changed, 15 insertions(+)
+ drivers/i2c/busses/i2c-mt65xx.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 31d16ad..2b518ea 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -2288,6 +2288,20 @@ void i2c_release_dma_safe_msg_buf(struct i2c_msg *msg, u8 *buf)
- }
- EXPORT_SYMBOL_GPL(i2c_release_dma_safe_msg_buf);
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index 1e57f58..806e8b90 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -888,7 +888,17 @@ static int mtk_i2c_resume(struct device *dev)
+ 	},
+ };
  
-+/**
-+ * i2c_free_dma_safe_msg_buf - free DMA safe buffer
-+ * @msg: the message related to DMA safe buffer
-+ * @buf: the buffer obtained from i2c_get_dma_safe_msg_buf(). May be NULL.
-+ */
-+void i2c_free_dma_safe_msg_buf(struct i2c_msg *msg, u8 *buf)
+-module_platform_driver(mtk_i2c_driver);
++static int __init mtk_i2c_adap_init(void)
 +{
-+	if (!buf || buf == msg->buf)
-+		return;
-+
-+	kfree(buf);
++	return platform_driver_register(&mtk_i2c_driver);
 +}
-+EXPORT_SYMBOL_GPL(i2c_free_dma_safe_msg_buf);
++subsys_initcall(mtk_i2c_adap_init);
 +
- MODULE_AUTHOR("Simon G. Vogl <simon-nD9nYVNVf00W+b/DJNNodF6hYfS7NtTn@public.gmane.org>");
- MODULE_DESCRIPTION("I2C-Bus main module");
- MODULE_LICENSE("GPL");
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 254cd34..6d62f93 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -860,6 +860,7 @@ static inline u8 i2c_8bit_addr_from_msg(const struct i2c_msg *msg)
++static void __exit mtk_i2c_adap_exit(void)
++{
++	platform_driver_unregister(&mtk_i2c_driver);
++}
++module_exit(mtk_i2c_adap_exit);
  
- u8 *i2c_get_dma_safe_msg_buf(struct i2c_msg *msg, unsigned int threshold);
- void i2c_release_dma_safe_msg_buf(struct i2c_msg *msg, u8 *buf);
-+void i2c_free_dma_safe_msg_buf(struct i2c_msg *msg, u8 *buf);
- 
- int i2c_handle_smbus_host_notify(struct i2c_adapter *adap, unsigned short addr);
- /**
+ MODULE_LICENSE("GPL v2");
+ MODULE_DESCRIPTION("MediaTek I2C Bus Driver");
 -- 
 1.8.1.1
