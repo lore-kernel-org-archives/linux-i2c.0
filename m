@@ -1,70 +1,50 @@
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Subject: Re: [PATCH] gpiolib: Defer on non-DT find_chip_by_name() failure
-Date: Fri, 06 Jul 2018 20:58:34 +0200
-Message-ID: <1956873.bHDVU2PRcn@z50>
-References: <20180703172635.32508-1-jmkrzyszt@gmail.com> <1579112.qQSMXVQn9s@z50> <4ecc2072-3ec3-6e9b-576f-fd05559e7634@opensource.cirrus.com>
+From: Jun Gao <jun.gao@mediatek.com>
+Subject: [PATCH 1/3] i2c: mediatek: Register i2c adapter driver earlier
+Date: Sat, 7 Jul 2018 10:49:11 +0800
+Message-ID: <1530931753-8264-2-git-send-email-jun.gao@mediatek.com>
+References: <1530931753-8264-1-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4ecc2072-3ec3-6e9b-576f-fd05559e7634@opensource.cirrus.com>
+In-Reply-To: <1530931753-8264-1-git-send-email-jun.gao@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Richard Fitzgerald <rf@opensource.cirrus.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Boris Brezillon <boris.brezillon@bootlin.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Uwe =?ISO-8859-1?Q?Kleine=2DK=F6nig?= <u.kleine-koenig@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Phil Reid <preid@electromag.com.au>, Lucas Stach <l.stach@pengutronix.de>, Clemens Gruber <clemens.gruber@pqgruber.com>, Peter Rosin <peda@axentia.se>, patches@opensource.cirrus.com, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, Jun Gao <jun.gao@mediatek.com>
 List-Id: linux-i2c@vger.kernel.org
 
-> >> On Wed, 04 Jul 2018, Janusz Krzysztofik wrote:
-> >>> On Tuesday, July 3, 2018 7:31:41 PM CEST Boris Brezillon wrote:
-> >>>> On Tue,  3 Jul 2018 19:26:35 +0200 Janusz Krzysztofik wrote:
-> >>>>>   		chip =3D find_chip_by_name(p->chip_label);
-> >>>>>   		if (!chip) {
-> >>>>> -			dev_err(dev, "cannot find GPIO chip %s\n",
-> >>>>> -				p->chip_label);
-> >>>>> -			return ERR_PTR(-ENODEV);
-> >>>>> +			/*
-> >>>>> +			 * As the lookup table indicates a chip with
-> >>>>> +			 * p->chip_label should exist, assume it may
-> >>>>> +			 * still appear latar and let the interested
-> >>>>> +			 * consumer be probed again or let the Deferred
-> >>>>> +			 * Probe infrastructure handle the error.
-> >>>>> +			 */
-> >>>>> +			dev_warn(dev, "cannot find GPIO chip %s, deferring\n",
-> >>>>> +				 p->chip_label);
-> >>>>> +			return ERR_PTR(-EPROBE_DEFER);
-> >>>>>   		}
-> >>>>=20
-> >>>> Looks good otherwise. Let's hope we're not breaking implementations
-> >>>> testing for -ENODEV...
-> >>>=20
-> >>> I've reviewed them all and found two which I think may be affected:
-> >>> - drivers/mfd/arizona-core.c,
-> >>> - drivers/i2c/busses/i2c-imx.c.
+From: Jun Gao <jun.gao@mediatek.com>
 
-On Thursday, July 5, 2018 7:23:46 AM CEST Uwe Kleine-K=F6nig wrote:
-> TL;DR: Either I don't understand the implication for
-> drivers/i2c/busses/i2c-imx.c or everything is fine.
-> ...
-> So if a patch changes devm_gpiod_get() to return -EPROBE_DEFER in more
-> cases that doesn't seem to hurt. Moreover TTBOMK this driver should only
-> be used by dt-machines today such that changing gpio* for non-DT users
-> shouldn't affect it.
+As i2c adapter, i2c slave devices will depend on it. In order not to
+block the initializations of i2c slave devices, register i2c adapter
+driver at appropriate time.
 
-On Friday, July 6, 2018 11:03:53 AM CEST Richard Fitzgerald wrote:
-> The intention is that if the DT node is missing, the Arizona driver can r=
-un
-> using only soft reset, though there are limitations in that mode.
-> This should return -ENOENT so that the Arizona driver will continue witho=
-ut
-> a GPIO.
->=20
-> If the DT defines a GPIO it is effectively saying that this GPIO is requi=
-red
-> so it is valid for the Arizona driver never to come up if the GPIO it is
-> defined to depend on doesn't come up.
+Signed-off-by: Jun Gao <jun.gao@mediatek.com>
+---
+ drivers/i2c/busses/i2c-mt65xx.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-Uwe, Richard, thanks for clarifications.
-
-I think we can assume the change is safe for all current implementations.
-
-Thanks,
-Janusz
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index 1e57f58..806e8b90 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -888,7 +888,17 @@ static int mtk_i2c_resume(struct device *dev)
+ 	},
+ };
+ 
+-module_platform_driver(mtk_i2c_driver);
++static int __init mtk_i2c_adap_init(void)
++{
++	return platform_driver_register(&mtk_i2c_driver);
++}
++subsys_initcall(mtk_i2c_adap_init);
++
++static void __exit mtk_i2c_adap_exit(void)
++{
++	platform_driver_unregister(&mtk_i2c_driver);
++}
++module_exit(mtk_i2c_adap_exit);
+ 
+ MODULE_LICENSE("GPL v2");
+ MODULE_DESCRIPTION("MediaTek I2C Bus Driver");
+-- 
+1.8.1.1
