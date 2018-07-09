@@ -1,44 +1,38 @@
 From: Esben Haabendal <esben.haabendal@gmail.com>
-Subject: Re: [PATCH 1/4] i2c: imx: Fix reinit_completion() use
-Date: Mon, 09 Jul 2018 11:20:16 +0200
-Message-ID: <87y3ekahpr.fsf@gmail.com>
+Subject: Re: [PATCH 2/4] i2c: imx: Fix race condition in dma read
+Date: Mon, 09 Jul 2018 11:22:31 +0200
+Message-ID: <87tvp8ahm0.fsf@gmail.com>
 References: <20180523095623.3347-1-esben.haabendal@gmail.com>
-        <20180523095623.3347-2-esben.haabendal@gmail.com>
-        <20180704070342.pgnjjffk34nkloob@pengutronix.de>
+        <20180523095623.3347-3-esben.haabendal@gmail.com>
+        <20180705063229.sr6jplg63ybyzxta@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180704070342.pgnjjffk34nkloob@pengutronix.de> ("Uwe
-        =?utf-8?Q?Kleine-K=C3=B6nig=22's?= message of "Wed, 4 Jul 2018 09:03:42
+In-Reply-To: <20180705063229.sr6jplg63ybyzxta@pengutronix.de> ("Uwe
+        =?utf-8?Q?Kleine-K=C3=B6nig=22's?= message of "Thu, 5 Jul 2018 08:32:29
  +0200")
 Sender: linux-kernel-owner@vger.kernel.org
 To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Phil Reid <preid@electromag.com.au>, Philipp Zabel <p.zabel@pengutronix.de>, Lucas Stach <l.stach@pengutronix.de>, Clemens Gruber <clemens.gruber@pqgruber.com>, Michail Georgios Etairidis <m.etairidis@beck-ipc.com>, linux-kernel@vger.kernel.org, Yuan Yao <yao.yuan@freescale.com>, linux-imx@nxp.com
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Lucas Stach <l.stach@pengutronix.de>, Phil Reid <preid@electromag.com.au>, Linus Walleij <linus.walleij@linaro.org>, Clemens Gruber <clemens.gruber@pqgruber.com>, Wei Jinhua <wei.jinhua1@zte.com.cn>, Michail Georgios Etairidis <m.etairidis@beck-ipc.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de> writes:
 
-> Cc +=3D Yuan Yao who authored DMA support and the NXP team.
->
-> On Wed, May 23, 2018 at 11:56:20AM +0200, Esben Haabendal wrote:
+> On Wed, May 23, 2018 at 11:56:21AM +0200, Esben Haabendal wrote:
 >> From: Esben Haabendal <eha@deif.com>
 >>=20
->> Make sure to call reinit_completion() before dma is started to avoid race
->> condition where reinit_compleition() is called after complete() and befo=
-re
+>> This fixes a race condition, where the DMAEN bit ends up being set after
+>> I2C slave has transmitted a byte following the dummy read.  When that
+>> happens, an interrupt is generated instead, and no DMA request is genera=
+ted
+>> to kickstart the DMA read, and a timeout happens after DMA_TIMEOUT (1 se=
+c).
+>>=20
+>> Fixed by setting the DMAEN bit before the dummy read.
 >
-> s/compleition/completion/
+> Does this fix the problem or just narrow the race window?
 
-Will fix in v2.
-
->
->> wait_for_completion_timeout().
->
-> Is this a theoretical problem, or did it trigger on your side?
-
-I thought I did trigger it, but haven't been able to reproduce.
-So it might or might not be theoretical based on my experiences, but it
-does look like something that can (and thus should) trigger sometimes.
+It should fix the problem.
 
 /Esben
