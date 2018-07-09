@@ -1,56 +1,123 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v11 5/8] i2c: fsi: Add transfer implementation
-Date: Tue, 10 Jul 2018 00:41:14 +0200
-Message-ID: <20180709224114.4h47enyt4tucqcou@ninjato>
-References: <1530816030-13010-1-git-send-email-eajames@linux.vnet.ibm.com>
- <1530816030-13010-6-git-send-email-eajames@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="4ypmot53gvpiu2yo"
+From: Evan Green <evgreen@chromium.org>
+Subject: [PATCH] i2c: i2c-qcom-geni: Fix suspend clock handling
+Date: Mon,  9 Jul 2018 16:49:37 -0700
+Message-ID: <20180709234937.176154-1-evgreen@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1530816030-13010-6-git-send-email-eajames@linux.vnet.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eddie James <eajames@linux.vnet.ibm.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, rdunlap@infradead.org, andy.shevchenko@gmail.com, peda@axentia.se
+To: andy.gross@linaro.org, david.brown@linaro.org, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, swboyd@chromium.org, dianders@chromium.org, Girish Mahadevan <girishm@codeaurora.org>, linux-i2c@vger.kernel.org
+Cc: Evan Green <evgreen@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
 
+pm_runtime_suspended can return 0 even if the last runtime power
+management function called in the device was a suspend call. This
+trips up the i2c-qcom-geni's suspend_noirq accounting, which was
+trying to use the function to determine if it should disable clocks
+or if that had already been done.
 
---4ypmot53gvpiu2yo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The fix is to track whether or not clocks have been enabled explicitly
+in the driver with a new member. While in there, also honor the return
+value of geni_se_resources_off, which can technically fail.
 
+An example of the warning generated during suspend:
+[   68.314733] WARNING: CPU: 0 PID: 1990 at drivers/clk/clk.c:595 clk_core_disable+0x28/0x200
+[   68.464576] Call trace:
+[   68.554410] [<ffffff80083f0ed0>] clk_core_disable+0x28/0x200
+[   68.560244] [<ffffff80083f349c>] clk_disable+0x38/0x4c
+[   68.565541] [<ffffff8008408910>] geni_se_resources_off+0x40/0x74
+[   68.571731] [<ffffff800862aadc>] geni_i2c_runtime_suspend+0x2c/0x3c
+[   68.578185] [<ffffff800862ae6c>] geni_i2c_suspend_noirq+0x38/0x68
+[   68.584475] [<ffffff800852bd40>] dpm_run_callback+0x104/0x210
+[   68.590404] [<ffffff800852c3d4>] __device_suspend_noirq+0x158/0x1a8
+[   68.596859] [<ffffff800852dff0>] dpm_noirq_suspend_devices+0x180/0x38c
+[   68.603594] [<ffffff80080fdebc>] suspend_devices_and_enter+0x49c/0x964
+[   68.610321] [<ffffff80080fea14>] pm_suspend+0x690/0x6e0
+[   68.615712] [<ffffff80080fc930>] state_store+0xd4/0xf8
+[   68.621014] [<ffffff80088a57f0>] kobj_attr_store+0x18/0x28
+[   68.626672] [<ffffff8008297a54>] sysfs_kf_write+0x5c/0x68
+[   68.632240] [<ffffff8008296a00>] kernfs_fop_write+0x174/0x1b8
+[   68.638177] [<ffffff800821a2c4>] __vfs_write+0x58/0x160
+[   68.643567] [<ffffff800821a5d8>] vfs_write+0xcc/0x184
+[   68.648780] [<ffffff800821a850>] SyS_write+0x64/0xb4
 
-> +	cmd |= FIELD_PREP(I2C_CMD_ADDR, msg->addr >> 1);
+Signed-off-by: Evan Green <evgreen@chromium.org>
+---
+This change applies atop Karthik's patch [1], which as far as I can tell
+technically hasn't landed yet, but also hasn't had feedback in awhile
+either. I opted to submit this as a separate patch, but if the maintainers
+prefer it's fine with me if this get folded in to another spin of the
+base series.
 
-I just noticed this and wonder: Don't you need the LSB of the address?
-It is not the RW flag, this is encoded in msg->flags.
+[1] https://patchwork.kernel.org/patch/10460819/
 
-Also, no seperate handling for 10 bit addresses? Technically, 7-bit 0x50
-is different on the wire from 10-bit 0x050. This is minor, though. There
-are no 10-bit devices out there. Still, did you test 10-bit support?
+ drivers/i2c/busses/i2c-qcom-geni.c | 25 ++++++++++++++++++++++---
+ 1 file changed, 22 insertions(+), 3 deletions(-)
 
-Rest looks good.
-
-
---4ypmot53gvpiu2yo
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltD5IoACgkQFA3kzBSg
-KbZJ6RAAoLCJ9apVqLEc7GDPJY2mLHft6olFHgNIy0dPlaZ/cNNEcbDRZusWNeU9
-x2HKAqPCEkfiCIEhvOU+BVAje54YhZyldfvbtK6pkWah4qNeTgRMeHnGLEyQU/EJ
-8ig76atDgt/NewStqm/+Rrof6W7jDY20ZWNBdN4DyIr6RFfjb9idbtjj9HgNJ+a8
-Wwptu/LwTKsYYyiHuNKl6l4UvXJcsjTqH/NO1vHaFR6nq/1yEly0CwZPzb7fse1Y
-6jNHQc9LlI+teCbZqkGYB638WUioeFkDlwgdnAyO369P/zDQfCa3RmAQ8aEOmPFu
-TTODXkF+a+28EA9fvxlxlDIYUwrY8f7LY2aIHruosXYGjBwi15tLOnS7SnXkY2MD
-SygxZGkPMabvYTLLS3xPsx5OZOC4yvFWURiIDvA34xCHvFqeoQuvIk96EoH3nC2o
-TY5TPbrZZfS65ahcZzZTRRwf1LkWpybzsy8p+8kbcR1xOCPWm/ak955BLeHSNomC
-NrZMYMSRjZ8heAFetjRoUb2pKTm8XW+DeaYkAMlYZg4yhkX+pXhazsBnaFDC5QGW
-X5nqk8/D3QjalTgHTUqDjoezvt1qi1g5QFUWHcbtKSn/RsbkL3E0d7DLvEqQagzY
-CA8Nnsj2IG1WgfRpYwbx5WQHMFCEYT6t6yz2j6LZgsAox/fa1pI=
-=/cd/
------END PGP SIGNATURE-----
-
---4ypmot53gvpiu2yo--
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index 54bcd1a79cc5..90c4cbfa22d8 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -85,6 +85,7 @@ struct geni_i2c_dev {
+ 	spinlock_t lock;
+ 	u32 clk_freq_out;
+ 	const struct geni_i2c_clk_fld *clk_fld;
++	int suspended;
+ };
+ 
+ struct geni_i2c_err_log {
+@@ -567,9 +568,15 @@ static int geni_i2c_probe(struct platform_device *pdev)
+ 	geni_se_init(&gi2c->se, gi2c->tx_wm, tx_depth);
+ 	geni_se_config_packing(&gi2c->se, BITS_PER_BYTE, PACKING_BYTES_PW,
+ 							true, true, true);
+-	geni_se_resources_off(&gi2c->se);
++	ret = geni_se_resources_off(&gi2c->se);
++	if (ret) {
++		dev_err(&pdev->dev, "Error turning off resources %d\n", ret);
++		return ret;
++	}
++
+ 	dev_dbg(&pdev->dev, "i2c fifo/se-dma mode. fifo depth:%d\n", tx_depth);
+ 
++	gi2c->suspended = 1;
+ 	pm_runtime_set_suspended(gi2c->se.dev);
+ 	pm_runtime_set_autosuspend_delay(gi2c->se.dev, I2C_AUTO_SUSPEND_DELAY);
+ 	pm_runtime_use_autosuspend(gi2c->se.dev);
+@@ -590,10 +597,19 @@ static int geni_i2c_remove(struct platform_device *pdev)
+ 
+ static int __maybe_unused geni_i2c_runtime_suspend(struct device *dev)
+ {
++	int ret;
+ 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
+ 
+ 	disable_irq(gi2c->irq);
+-	geni_se_resources_off(&gi2c->se);
++	ret = geni_se_resources_off(&gi2c->se);
++	if (ret) {
++		enable_irq(gi2c->irq);
++		return ret;
++
++	} else {
++		gi2c->suspended = 1;
++	}
++
+ 	return 0;
+ }
+ 
+@@ -607,12 +623,15 @@ static int __maybe_unused geni_i2c_runtime_resume(struct device *dev)
+ 		return ret;
+ 
+ 	enable_irq(gi2c->irq);
++	gi2c->suspended = 0;
+ 	return 0;
+ }
+ 
+ static int __maybe_unused geni_i2c_suspend_noirq(struct device *dev)
+ {
+-	if (!pm_runtime_suspended(dev)) {
++	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
++
++	if (!gi2c->suspended) {
+ 		geni_i2c_runtime_suspend(dev);
+ 		pm_runtime_disable(dev);
+ 		pm_runtime_set_suspended(dev);
+-- 
+2.18.0.203.gfac676dfb9-goog
