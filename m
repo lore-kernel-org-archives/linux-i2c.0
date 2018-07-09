@@ -1,60 +1,72 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [v2,3/3] i2c: at91: added slave mode support
-Date: Mon, 9 Jul 2018 17:51:36 +0200
-Message-ID: <20180709155135.bjwhrmbk6j26fx4c@ninjato>
-References: <c9b749fca8e684aa47ead9a5d9e68751326f63cb.1510247114.git.me@jue.yt>
- <20180602213513.qv45gaq2kogagju3@katana>
- <20180709151504.6phtp4rm7of6b2qc@M43218.corp.atmel.com>
+Subject: Re: [PATCH] i2c: tegra: Fix NACK error handling
+Date: Tue, 10 Jul 2018 00:20:43 +0200
+Message-ID: <20180709222043.5x627xxpf337uzeq@ninjato>
+References: <1530608143-9222-1-git-send-email-jonathanh@nvidia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="47xjq3ociihvmim2"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="2xo4b6y6k67pplbq"
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180709151504.6phtp4rm7of6b2qc@M43218.corp.atmel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Juergen Fitschen <me@jue.yt>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1530608143-9222-1-git-send-email-jonathanh@nvidia.com>
+Sender: stable-owner@vger.kernel.org
+To: Jon Hunter <jonathanh@nvidia.com>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, Shardar Shariff Md <smohammed@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---47xjq3ociihvmim2
+--2xo4b6y6k67pplbq
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> Sorry for having not catched it. If I remember well, it was the only
-> issue I had while testing the slave support.
+On Tue, Jul 03, 2018 at 09:55:43AM +0100, Jon Hunter wrote:
+> On Tegra30 Cardhu the PCA9546 I2C mux is not ACK'ing I2C commands on
+> resume from suspend (which is caused by the reset signal for the I2C
+> mux not being configured correctl). However, this NACK is causing the
+> Tegra30 to hang on resuming from suspend which is not expected as we
+> detect NACKs and handle them. The hang observed appears to occur when
+> resetting the I2C controller to recover from the NACK.
 >=20
-> >=20
-> > BTW maybe I asked already and forgot: is this IP core capable of being
-> > master and slave on the same bus?
-> >=20
+> Commit 77821b4678f9 ("i2c: tegra: proper handling of error cases") added
+> additional error handling for some error cases including NACK, however,
+> it appears that this change conflicts with an early fix by commit
+> f70893d08338 ("i2c: tegra: Add delay before resetting the controller
+> after NACK"). After commit 77821b4678f9 was made we now disable 'packet
+> mode' before the delay from commit f70893d08338 happens. Testing shows
+> that moving the delay to before disabling 'packet mode' fixes the hang
+> observed on Tegra30. The delay was added to give the I2C controller
+> chance to send a stop condition and so it makes sense to move this to
+> before we disable packet mode. Please note that packet mode is always
+> enabled for Tegra.
 >=20
-> No the master and slave modes are exclusive.
+> Fixes: 77821b4678f9 ("i2c: tegra: proper handling of error cases")
+>=20
+> Cc: stable@vger.kernel.org
+>=20
+> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
 
-Pity.
-
-But thanks for the heads up, any tag you want to give? Ack or Rev?
+Applied to for-current, thanks!
 
 
---47xjq3ociihvmim2
+--2xo4b6y6k67pplbq
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltDhIMACgkQFA3kzBSg
-KbYeMg/+JaNlvaVsuFPljHO0/n90DeoEPtgRwQ3GDrGCdbi80+RCL+xTbGEMvTlW
-q8hjVhJ610TehLz7+aDXmOiyJ6+ww+3Kr4grMQ7Z03H0AA/qiN2yYPsfvjC+LW9b
-HSLweZ3PogTpQ/aY4ySEQani5pttJXtt8FQK8Y5cyMbPNdYBnCu0YM5JTAkHnXeo
-A24GRBMznSHGXzYL9s2xkvssVLc1l9wPn+WzaujoDPAfvg5RncJ6/PhyvpjqFJyQ
-Y1alASYF+0QboJD24oOezm+AJbWiuMltOK5wt4hTWGV0RlePuJvORVP/SFUcVRWu
-VZsa0zQMn2a83a73Y+mHiib5fH5wwzwnWnej/82NLhPllFdG8ShgBlN8CS9JwDFG
-qQu1xhBDKsdMZ/SHCHfgAiNHnotB69nDPMF+IGlEVwcfmeMLSiQtXYf8AwedL2jE
-Azf8xjJzF/rWyfq7HoTWY+5QHwB4TBXa6ASyx+/0J8ipHErYaPqpiPMLczF1VEHP
-usXU+mx1xn0XGCYRnTpfLKOO/43KcUiFnKvs/7v2rF7gtnt6m37Hhh9q8E1jOwD9
-25sTRvy485VxvuBS38tATpIrq8Z5Bbz1XayLVfBfHi2toJe873h/4qLlHYgNbCGN
-RIDqOHw8oLZOflOQbEA5YpTuItl6rHJQSlMmgEhbNM6RCAdBdbo=
-=tV4a
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltD37gACgkQFA3kzBSg
+KbbcMhAArzo9LdUX56To43qMeyV6CEgGkqMHimspA76H325QhBdYLTTNU7JmD+u+
+zvEF17a/PqbVX7a1SxKUdwdpQ/v5TieLuXya1iWw8rbFF93bSpZPkUCm2ceFn59G
+RO3KHoUEx6mgG6FE2m9/2kkqsj+4prTZr2n979hvEFFxy6NsHE4zLzRIhoNlHo2d
+glrGjKPOtdIm9O4HwMSA48S8C2O1dnj+MNXgPyA4t/uqfA6LBTVvg92L++/2Rfof
+7Usm973Yd4B/XqHH9QzWlics+QnfRdOyWWkAeeo8ujnzBiOYJAamM/mFv0vBi07O
+BaZicPaEmW5JWES8gQj9wJkD0wrldEnlJBmR1PR3F7bkeZqU3fnZbj2S9v6TXM/1
+Wfm7jB6gHvTZZt62QDkwNNah1VmCdgXwe5cBQJNlDjmjNEpmURLoMtBC0tU22paY
+QLt65BRX/IPGNMriXp3uJbkgkTUcbi8tNG4PZUR1ZgYPzktcsgAVnb9kqPIi/chw
+wg5SzAevRz82c6x8fXdONoJsfxUURfD8/pFrQZiuNA2RKF2foSo7foj2x4VHpNT8
+wqU7/aWdYo6cTk3d/+2kHtUt3trNUNsLPHfigUnLJ79UrEwelBfZpiixgkv4GOYk
+H31Nr9G0zoqwGqllP8qnb38fpqv8K8jgL0nNmIYOZQe6ksiCCp8=
+=FktC
 -----END PGP SIGNATURE-----
 
---47xjq3ociihvmim2--
+--2xo4b6y6k67pplbq--
