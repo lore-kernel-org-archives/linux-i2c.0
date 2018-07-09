@@ -1,107 +1,94 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v2 2/3] i2c: Add helper to ease DMA handling
-Date: Sun, 8 Jul 2018 14:46:42 +0200
-Message-ID: <b95b8d38-5b0d-7517-f7d9-bea1c7f1408d@axentia.se>
-References: <1530955795-17714-1-git-send-email-jun.gao@mediatek.com>
- <1530955795-17714-3-git-send-email-jun.gao@mediatek.com>
- <eb0a3e62-3efb-3862-3da5-bdf2952a146c@axentia.se>
+From: "Chiang, AlanX" <alanx.chiang@intel.com>
+Subject: RE: [RESEND PATCH v4 1/2] dt-bindings: at24: Add address-width
+ property
+Date: Mon, 9 Jul 2018 03:12:18 +0000
+Message-ID: <0772C36F3434E145A062D024A4869A09010B1E4D@PGSMSX101.gar.corp.intel.com>
+References: <1530522740-2798-1-git-send-email-alanx.chiang@intel.com>
+ <1530522740-2798-2-git-send-email-alanx.chiang@intel.com>
+ <20180705212204.GA10449@rob-hp-laptop>
+ <alpine.LFD.2.21.1807051623400.12206@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <eb0a3e62-3efb-3862-3da5-bdf2952a146c@axentia.se>
+In-Reply-To: <alpine.LFD.2.21.1807051623400.12206@localhost.localdomain>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jun Gao <jun.gao@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
+To: "Robert P. J. Day" <rpjday@crashcourse.ca>, Rob Herring <robh@kernel.org>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Yeh, Andy" <andy.yeh@intel.com>, "sakari.ailus@linux.intel.com" <sakari.ailus@linux.intel.com>, "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>, "Shevchenko, Andriy" <andriy.shevchenko@intel.com>, "Mani, Rajmohan" <rajmohan.mani@intel.com>, "andy.shevchenko@gmail.com" <andy.shevchenko@gmail.com>, "tfiga@chromium.org" <tfiga@chromium.org>, "jcliang@chromium.org" <jcliang@chromium.org>, "brgl@bgdev.pl" <brgl@bgdev.pl>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "arnd@arndb.de" <arnd@arndb.de>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-07-08 13:58, Peter Rosin wrote:
-> On 2018-07-07 11:29, Jun Gao wrote:
->> From: Jun Gao <jun.gao@mediatek.com>
->>
->> This function is needed by i2c_get_dma_safe_msg_buf() potentially.
->> It is used to free DMA safe buffer when DMA operation fails.
->>
->> Signed-off-by: Jun Gao <jun.gao@mediatek.com>
->> ---
->>  drivers/i2c/i2c-core-base.c | 14 ++++++++++++++
->>  include/linux/i2c.h         |  1 +
->>  2 files changed, 15 insertions(+)
->>
->> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
->> index 31d16ad..2b518ea 100644
->> --- a/drivers/i2c/i2c-core-base.c
->> +++ b/drivers/i2c/i2c-core-base.c
->> @@ -2288,6 +2288,20 @@ void i2c_release_dma_safe_msg_buf(struct i2c_msg *msg, u8 *buf)
->>  }
->>  EXPORT_SYMBOL_GPL(i2c_release_dma_safe_msg_buf);
->>  
->> +/**
->> + * i2c_free_dma_safe_msg_buf - free DMA safe buffer
->> + * @msg: the message related to DMA safe buffer
->> + * @buf: the buffer obtained from i2c_get_dma_safe_msg_buf(). May be NULL.
->> + */
->> +void i2c_free_dma_safe_msg_buf(struct i2c_msg *msg, u8 *buf)
->> +{
->> +	if (!buf || buf == msg->buf)
->> +		return;
->> +
->> +	kfree(buf);
-> 
-> Considering that the i2c-core-smbus.c file does the following for its
-> DMA safe buffers...
-> 
-> static void i2c_smbus_try_get_dmabuf(struct i2c_msg *msg, u8 init_val)
-> {
-> 	bool is_read = msg->flags & I2C_M_RD;
-> 	unsigned char *dma_buf;
-> 
-> 	dma_buf = kzalloc(I2C_SMBUS_BLOCK_MAX + (is_read ? 2 : 3), GFP_KERNEL);
-> 	if (!dma_buf)
-> 		return;
-> 
-> 	msg->buf = dma_buf;
-> 	msg->flags |= I2C_M_DMA_SAFE;
-> 
-> 	if (init_val)
-> 		msg->buf[0] = init_val;
-> }
-> 
-> ...I do not think your variant of i2c_release_dma_safe_msg_buf is
-> appropriate for the i2c-core-base.c file. It's simply not possible to have
-> central knowledge of the rules for when to free the buffer, and encoding one
-> set of rules is only confusing (when there are more than one set of rules).
-> I suggest that you make your variant driver specific.
+Hi Robert,
 
-Ignore me. Your i2c_free_dma_safe_msg_buf is of course compatible with
-the existing i2c_smbus_try_get_dmabuf. Sorry for the noise.
-
-Cheers,
-Peter
-
-( However, the naming of these two functions are not really consistent... )
-
-> Cheers,
-> Peter
+> -----Original Message-----
+> From: Robert P. J. Day [mailto:rpjday@crashcourse.ca]
+> Sent: Friday, July 6, 2018 4:24 AM
+> To: Rob Herring <robh@kernel.org>
+> Cc: Chiang, AlanX <alanx.chiang@intel.com>; linux-i2c@vger.kernel.org; Yeh,
+> Andy <andy.yeh@intel.com>; sakari.ailus@linux.intel.com;
+> andriy.shevchenko@linux.intel.com; Shevchenko, Andriy
+> <andriy.shevchenko@intel.com>; Mani, Rajmohan
+> <rajmohan.mani@intel.com>; andy.shevchenko@gmail.com;
+> tfiga@chromium.org; jcliang@chromium.org; brgl@bgdev.pl;
+> mark.rutland@arm.com; arnd@arndb.de; gregkh@linuxfoundation.org;
+> linux-kernel@vger.kernel.org; devicetree@vger.kernel.org
+> Subject: Re: [RESEND PATCH v4 1/2] dt-bindings: at24: Add address-width
+> property
 > 
->> +}
->> +EXPORT_SYMBOL_GPL(i2c_free_dma_safe_msg_buf);
->> +
->>  MODULE_AUTHOR("Simon G. Vogl <simon@tk.uni-linz.ac.at>");
->>  MODULE_DESCRIPTION("I2C-Bus main module");
->>  MODULE_LICENSE("GPL");
->> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
->> index 254cd34..6d62f93 100644
->> --- a/include/linux/i2c.h
->> +++ b/include/linux/i2c.h
->> @@ -860,6 +860,7 @@ static inline u8 i2c_8bit_addr_from_msg(const struct i2c_msg *msg)
->>  
->>  u8 *i2c_get_dma_safe_msg_buf(struct i2c_msg *msg, unsigned int threshold);
->>  void i2c_release_dma_safe_msg_buf(struct i2c_msg *msg, u8 *buf);
->> +void i2c_free_dma_safe_msg_buf(struct i2c_msg *msg, u8 *buf);
->>  
->>  int i2c_handle_smbus_host_notify(struct i2c_adapter *adap, unsigned short addr);
->>  /**
->>
+> On Thu, 5 Jul 2018, Rob Herring wrote:
 > 
+> > On Mon, Jul 02, 2018 at 05:12:19PM +0800, alanx.chiang@intel.com wrote:
+> > > From: Alan Chiang <alanx.chiang@intel.com>
+> > >
+> > > The AT24 series chips use 8-bit address by default. If some chips
+> > > would like to support more than 8 bits, the at24 driver should be
+> > > added the compatible field for specfic chips.
+> > >
+> > > Provide a flexible way to determine the addressing bits through
+> > > address-width in this patch.
+> > >
+> > > Signed-off-by: Alan Chiang <alanx.chiang@intel.com>
+> > > Signed-off-by: Andy Yeh <andy.yeh@intel.com>
+> > > Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+> > >
+> > > ---
+> > > since v1:
+> > > -- Remove the address-width field in the example.
+> > > since v2:
+> > > -- Remove redundant space.
+> > > since v3:
+> > > -- Add Acked-by.
+> > >
+> > > ---
+> > >  Documentation/devicetree/bindings/eeprom/at24.txt | 2 ++
+> > >  1 file changed, 2 insertions(+)
+> >
+> > Reviewed-by: Rob Herring <robh@kernel.org>
+> 
+>   "... should be added the compatible field ..."??
+> 
+> rday
+
+Maybe I should modify the sentence as below that makes it clear.
+"The compatible field should be added in the at24.c for specific chips.".
+
+I quote Andy's words in patch v2:
+"The current at24 driver has no address width support, thus, reusing same
+(allocated) IDs (non-DT case) is hard."
+
+This is the reason that I submitted the patch.
+
+Thanks
+
+> 
+> --
+> 
+> ==========================================================
+> ==============
+> Robert P. J. Day                                 Ottawa, Ontario, CANADA
+>                   http://crashcourse.ca/dokuwiki
+> 
+> Twitter:                                       http://twitter.com/rpjday
+> LinkedIn:                               http://ca.linkedin.com/in/rpjday
+> ==========================================================
+> ==============
