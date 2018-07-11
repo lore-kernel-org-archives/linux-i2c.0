@@ -1,55 +1,119 @@
-From: Joel Stanley <joel@jms.id.au>
-Subject: Re: [PATCH v11 5/8] i2c: fsi: Add transfer implementation
-Date: Wed, 11 Jul 2018 14:29:03 +1000
-Message-ID: <CACPK8Xf7mCuksfgH4jfxcgbT2h0-WH236=pWchzbucrrVsLF3A@mail.gmail.com>
-References: <1530816030-13010-1-git-send-email-eajames@linux.vnet.ibm.com>
- <1530816030-13010-6-git-send-email-eajames@linux.vnet.ibm.com>
- <20180709224114.4h47enyt4tucqcou@ninjato> <d7128886-148f-d255-fb33-3727cad01569@linux.vnet.ibm.com>
- <20180710185042.x3slnms5wzocobqu@ninjato> <cda1b231-eeff-626d-5c79-a07c9bc5a9ec@linux.vnet.ibm.com>
- <20180710193944.34phe4zafzvwjm5v@ninjato> <479b3c82-ffe7-9e6a-569c-64fcb1b43d32@linux.vnet.ibm.com>
+From: Brendan Higgins <brendanhiggins@google.com>
+Subject: Re: [PATCH] i2c: aspeed: Add newline characters into message printings.
+Date: Tue, 10 Jul 2018 22:42:52 -0700
+Message-ID: <CAFd5g443wTQJ+0hrprOV949Sr_nRnBGpNo3Wd01xFN4GW4K2Ng@mail.gmail.com>
+References: <20180702211359.30585-1-jae.hyun.yoo@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <479b3c82-ffe7-9e6a-569c-64fcb1b43d32@linux.vnet.ibm.com>
+In-Reply-To: <20180702211359.30585-1-jae.hyun.yoo@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eddie James <eajames@linux.vnet.ibm.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mark Rutland <mark.rutland@arm.com>, Greg KH <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Peter Rosin <peda@axentia.se>
+To: jae.hyun.yoo@linux.intel.com
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, james.feist@linux.intel.com, vernon.mauery@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-On 11 July 2018 at 06:59, Eddie James <eajames@linux.vnet.ibm.com> wrote:
+On Mon, Jul 2, 2018 at 2:14 PM Jae Hyun Yoo
+<jae.hyun.yoo@linux.intel.com> wrote:
 >
+> There are some log printing without a newline character. This
+> patch adds the missing newline characters.
 >
-> On 07/10/2018 02:39 PM, Wolfram Sang wrote:
->>>
->>> Sorry, what do you mean "show up as"? Yes, we could first shift all our
->>> addresses in user-space before passing them to the driver, so that the
->>> msg->addr field is exactly what the hardware expects already... This
->>> would
->>> be non-trivial for our users considering all our documentation represents
->>> the addresses as the top 7 bits of a byte :(
->>
->> Ah, now I understand the whole situation! Good that I asked. But I have
->> bad news for you:
->>
->> msg->addr is 7 bit and LSB aligned. No way around that. This is how
->> Linux I2C worked since the beginning. You have to adapt to it.
->>
->> I know what you mean. Most doumentation I get has the addresses in 8
->> bit, i.e. 7 bit address shifted + RW bit. But sorry again, the Linux
->> representation is different and all drivers have to adhere to that.
->>
->> An EEPROM ist at 0x50 in Linux. There is no write addr 0xa0 and read
->> addr 0xa1.
+> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+> ---
+>  drivers/i2c/busses/i2c-aspeed.c | 18 +++++++++---------
+>  1 file changed, 9 insertions(+), 9 deletions(-)
 >
+> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+> index 60e4d0e939a3..e3007c1c4ac5 100644
+> --- a/drivers/i2c/busses/i2c-aspeed.c
+> +++ b/drivers/i2c/busses/i2c-aspeed.c
+> @@ -407,7 +407,7 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
+>          */
+>         ret = aspeed_i2c_is_irq_error(irq_status);
+>         if (ret < 0) {
+> -               dev_dbg(bus->dev, "received error interrupt: 0x%08x",
+> +               dev_dbg(bus->dev, "received error interrupt: 0x%08x\n",
+>                         irq_status);
+>                 bus->cmd_err = ret;
+>                 bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
+> @@ -416,7 +416,7 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
 >
-> OK, I understand! Will test and resend with conforming addressing. Thanks
-> for all the feedback!
+>         /* We are in an invalid state; reset bus to a known state. */
+>         if (!bus->msgs) {
+> -               dev_err(bus->dev, "bus in unknown state");
+> +               dev_err(bus->dev, "bus in unknown state\n");
+>                 bus->cmd_err = -EIO;
+>                 if (bus->master_state != ASPEED_I2C_MASTER_STOP)
+>                         aspeed_i2c_do_stop(bus);
+> @@ -431,7 +431,7 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
+>          */
+>         if (bus->master_state == ASPEED_I2C_MASTER_START) {
+>                 if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_ACK))) {
+> -                       pr_devel("no slave present at %02x", msg->addr);
+> +                       pr_devel("no slave present at %02x\n", msg->addr);
 
-Nice one Wolfram. I wondered why the standard tools didn't work, but
-hadn't gotten around to working out what was going on.
+Unless something changed in the last couple versions of the kernel, this is the
+only line that actually changes anything. dev_* inserts a newline for every
+call.
 
-Thanks for taking a close look.
+Admittedly, the rest of the file is pretty inconsistent, so if you really want
+to make all these changes, I don't feel super strongly about it.
 
-Cheers,
+>                         status_ack |= ASPEED_I2CD_INTR_TX_NAK;
+>                         bus->cmd_err = -ENXIO;
+>                         aspeed_i2c_do_stop(bus);
+> @@ -451,11 +451,11 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
+>         switch (bus->master_state) {
+>         case ASPEED_I2C_MASTER_TX:
+>                 if (unlikely(irq_status & ASPEED_I2CD_INTR_TX_NAK)) {
+> -                       dev_dbg(bus->dev, "slave NACKed TX");
+> +                       dev_dbg(bus->dev, "slave NACKed TX\n");
+>                         status_ack |= ASPEED_I2CD_INTR_TX_NAK;
+>                         goto error_and_stop;
+>                 } else if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_ACK))) {
+> -                       dev_err(bus->dev, "slave failed to ACK TX");
+> +                       dev_err(bus->dev, "slave failed to ACK TX\n");
+>                         goto error_and_stop;
+>                 }
+>                 status_ack |= ASPEED_I2CD_INTR_TX_ACK;
+> @@ -478,7 +478,7 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
+>                 /* fallthrough intended */
+>         case ASPEED_I2C_MASTER_RX:
+>                 if (unlikely(!(irq_status & ASPEED_I2CD_INTR_RX_DONE))) {
+> -                       dev_err(bus->dev, "master failed to RX");
+> +                       dev_err(bus->dev, "master failed to RX\n");
+>                         goto error_and_stop;
+>                 }
+>                 status_ack |= ASPEED_I2CD_INTR_RX_DONE;
+> @@ -509,7 +509,7 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
+>                 goto out_no_complete;
+>         case ASPEED_I2C_MASTER_STOP:
+>                 if (unlikely(!(irq_status & ASPEED_I2CD_INTR_NORMAL_STOP))) {
+> -                       dev_err(bus->dev, "master failed to STOP");
+> +                       dev_err(bus->dev, "master failed to STOP\n");
+>                         bus->cmd_err = -EIO;
+>                         /* Do not STOP as we have already tried. */
+>                 } else {
+> @@ -520,7 +520,7 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
+>                 goto out_complete;
+>         case ASPEED_I2C_MASTER_INACTIVE:
+>                 dev_err(bus->dev,
+> -                       "master received interrupt 0x%08x, but is inactive",
+> +                       "master received interrupt 0x%08x, but is inactive\n",
+>                         irq_status);
+>                 bus->cmd_err = -EIO;
+>                 /* Do not STOP as we should be inactive. */
+> @@ -851,7 +851,7 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
+>         bus->rst = devm_reset_control_get_shared(&pdev->dev, NULL);
+>         if (IS_ERR(bus->rst)) {
+>                 dev_err(&pdev->dev,
+> -                       "missing or invalid reset controller device tree entry");
+> +                       "missing or invalid reset controller device tree entry\n");
+>                 return PTR_ERR(bus->rst);
+>         }
+>         reset_control_deassert(bus->rst);
+> --
+> 2.17.1
+>
 
-Joel
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
