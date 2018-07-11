@@ -1,76 +1,359 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v11 5/8] i2c: fsi: Add transfer implementation
-Date: Wed, 11 Jul 2018 09:34:14 +0200
-Message-ID: <20180711073414.r27x3qgn3tmpnuic@ninjato>
-References: <1530816030-13010-1-git-send-email-eajames@linux.vnet.ibm.com>
- <1530816030-13010-6-git-send-email-eajames@linux.vnet.ibm.com>
- <20180709224114.4h47enyt4tucqcou@ninjato>
- <d7128886-148f-d255-fb33-3727cad01569@linux.vnet.ibm.com>
- <20180710185042.x3slnms5wzocobqu@ninjato>
- <cda1b231-eeff-626d-5c79-a07c9bc5a9ec@linux.vnet.ibm.com>
- <20180710193944.34phe4zafzvwjm5v@ninjato>
- <479b3c82-ffe7-9e6a-569c-64fcb1b43d32@linux.vnet.ibm.com>
- <CACPK8Xf7mCuksfgH4jfxcgbT2h0-WH236=pWchzbucrrVsLF3A@mail.gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v4 01/10] i3c: Add core I3C infrastructure
+Date: Wed, 11 Jul 2018 16:01:56 +0200
+Message-ID: <CAK8P3a1aZXf2sQW2mgwJScycKPhdoOAwxRjm5cQG83513uc3fg@mail.gmail.com>
+References: <20180330074751.25987-1-boris.brezillon@bootlin.com> <20180330074751.25987-2-boris.brezillon@bootlin.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="xx7t7u7eyooak2jg"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CACPK8Xf7mCuksfgH4jfxcgbT2h0-WH236=pWchzbucrrVsLF3A@mail.gmail.com>
+In-Reply-To: <20180330074751.25987-2-boris.brezillon@bootlin.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joel Stanley <joel@jms.id.au>
-Cc: Eddie James <eajames@linux.vnet.ibm.com>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mark Rutland <mark.rutland@arm.com>, Greg KH <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, Peter Rosin <peda@axentia.se>
+To: Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.or>
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri, Mar 30, 2018 at 9:47 AM, Boris Brezillon
+<boris.brezillon@bootlin.com> wrote:
+> Add core infrastructure to support I3C in Linux and document it.
+>
+> This infrastructure is not complete yet and will be extended over
+> time.
+>
+> There are a few design choices that are worth mentioning because they
+> impact the way I3C device drivers can interact with their devices:
+>
+> - all functions used to send I3C/I2C frames must be called in
+>   non-atomic context. Mainly done this way to ease implementation, but
+>   this is still open to discussion. Please let me know if you think
+>   it's worth considering an asynchronous model here
 
---xx7t7u7eyooak2jg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This sounds like it can be changed later if it turns out necessary, so
+that's fine to me.
 
-Hi Joel,
+> - the bus element is a separate object and is not implicitly described
+>   by the master (as done in I2C). The reason is that I want to be able
+>   to handle multiple master connected to the same bus and visible to
+>   Linux.
+>   In this situation, we should only have one instance of the device and
+>   not one per master, and sharing the bus object would be part of the
+>   solution to gracefully handle this case.
+>   I'm not sure we will ever need to deal with multiple masters
+>   controlling the same bus and exposed under Linux, but separating the
+>   bus and master concept is pretty easy, hence the decision to do it
+>   like that.
+>   The other benefit of separating the bus and master concepts is that
+>   master devices appear under the bus directory in sysfs.
 
-> >> An EEPROM ist at 0x50 in Linux. There is no write addr 0xa0 and read
-> >> addr 0xa1.
-> >
-> > OK, I understand! Will test and resend with conforming addressing. Than=
-ks
-> > for all the feedback!
->=20
-> Nice one Wolfram. I wondered why the standard tools didn't work, but
-> hadn't gotten around to working out what was going on.
+I'm not following here at all, sorry for missing prior discussion if this
+was already explained. What is the "multiple master" case? Do you
+mean multiple devices that are controlled by Linux and that each talk
+to other devices on the same bus, multiple operating systems that
+have talk to are able to own the bus with the kernel being one of
+them, a controller that controls multiple independent buses,
+or something else?
 
-Still, a report that the standard tools don't work with the driver would
-have been very helpful already. We can then work together what is the
-reason. Please do next time.
+> - I2C backward compatibility has been designed to be transparent to I2C
+>   drivers and the I2C subsystem. The I3C master just registers an I2C
+>   adapter which creates a new I2C bus. I'd say that, from a
+>   representation PoV it's not ideal because what should appear as a
+>   single I3C bus exposing I3C and I2C devices here appears as 2
+>   different busses connected to each other through the parenting (the
+>   I3C master is the parent of the I2C and I3C busses).
+>   On the other hand, I don't see a better solution if we want something
+>   that is not invasive.
 
-> Thanks for taking a close look.
+Right, this seems like a reasonable compromise.
 
-You are welcome.
+> Missing features in this preliminary version:
+> - I3C HDR modes are not supported
+> - no support for multi-master and the associated concepts (mastership
+>   handover, support for secondary masters, ...)
+> - I2C devices can only be described using DT because this is the only
+>   use case I have. However, the framework can easily be extended with
+>   ACPI and board info support
+> - I3C slave framework. This has been completely omitted, but shouldn't
+>   have a huge impact on the I3C framework because I3C slaves don't see
+>   the whole bus, it's only about handling master requests and generating
+>   IBIs. Some of the struct, constant and enum definitions could be
+>   shared, but most of the I3C slave framework logic will be different
 
-Kind regards,
+All of these seem ok to me for an initial version. It's already too
+big to review properly, so leaving out stuff helps.
 
-   Wolfram
+> +/**
+> + * i3cdev_to_dev() - Returns the device embedded in @i3cdev
+> + * @i3cdev: I3C device
+> + *
+> + * Return: a pointer to a device object.
+> + */
+> +struct device *i3cdev_to_dev(struct i3c_device *i3cdev)
+> +{
+> +       return &i3cdev->dev;
+> +}
+> +EXPORT_SYMBOL_GPL(i3cdev_to_dev);
+> +
+> +/**
+> + * dev_to_i3cdev() - Returns the I3C device containing @dev
+> + * @dev: device object
+> + *
+> + * Return: a pointer to an I3C device object.
+> + */
+> +struct i3c_device *dev_to_i3cdev(struct device *dev)
+> +{
+> +       return container_of(dev, struct i3c_device, dev);
+> +}
+> +EXPORT_SYMBOL_GPL(dev_to_i3cdev);
 
+Many other subsystems just make the device structure available
+to all client drivers so this can be an inline operation. Is there
+a strong reason to hide it here?
 
---xx7t7u7eyooak2jg
-Content-Type: application/pgp-signature; name="signature.asc"
+> +static struct i3c_device *
+> +i3c_master_alloc_i3c_dev(struct i3c_master_controller *master,
+> +                        const struct i3c_device_info *info,
+> +                        const struct device_type *devtype)
+> +{
+> +       struct i3c_device *dev;
+> +
+> +       dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+> +       if (!dev)
+> +               return ERR_PTR(-ENOMEM);
+> +
+> +       dev->common.bus = master->bus;
+> +       dev->dev.parent = &master->bus->dev;
+> +       dev->dev.type = devtype;
+> +       dev->dev.bus = &i3c_bus_type;
 
------BEGIN PGP SIGNATURE-----
+This feels a bit odd: so you have bus_type that can contain devices
+of three (?) different device types: i3c_device_type, i3c_master_type
+and i3c_busdev_type.
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltFsvIACgkQFA3kzBSg
-KbZXcg//XMNWYGtX/B4mjcFNEFQPpjIBU2a3ihkxZHAF56GDZ86x2CQtLVW1cg87
-FkMKMqMewP4dR7qrc9CmuRBCJrJ8g6evQuYjiC0FQU5rRGXoN8BCty5IazEoG3V1
-AV/9s9B2JCgSapPFVvyU5G3BYvKwf2RLECHEsh3StDHyDe9HzOEGHSbEYBQXedXE
-UPFBYSC+EAdrpvMA6QRX9Qa7nbh7Mj4UbibBByQ1JmvXG1TupOmaLmFzvGxyshn1
-GwShilQFg2bGBoESFe9GoY60qbC8N0ixW37LGqmPFybonOqlZasQtyxikHarVEsy
-9IFevIe8Nt3Jrzcdu3J4Bl8Ozz0+s//bwNPxBRWOyhoucQ0dNQhFPWujsID2Y7RK
-MGIDRYjKmKfEhaDzksxsu+HZf7lz35Zvk7zC282grh2lXAL+24vYXoquqJNz4Wjs
-uTnbdwg0Hm1y/21DjfwvsARkQlVUzl6oTcjwxfb8idrYbp8DTmS7mxZM6BlMYZRK
-AkGdza0hISWNupvGIx1HmP0t+P9OGHYYXAk/LHYS450wjSQAjgt2ryIf8S4m9D7B
-vToczy7jPyEqPyAqfj23B9/hm14NPRojVgPIzAQqkjgJAkPXHSgxwo44AUIQl0sS
-EIJuYZVaFw38tjzYYiyXWvfj96cEFIeDtODAjpdgud5kWZf7YW4=
-=hVNR
------END PGP SIGNATURE-----
+Generally speaking, we don't have a lot of subsystems that even
+use device_types. I assume that the i3c_device_type for a
+device that corresponds to an endpoint on the bus, but I'm
+still confused about the other two, and why they are part of
+the same bus_type.
 
---xx7t7u7eyooak2jg--
+Can you describe whether it's possible to have these arbitrarily
+mixed, or is there a strict hierarchy such as
+
+host_bus (e.g. platform_device)
+    i3c_busdev
+          i3c_master
+                i3c_device
+
+If that is the actual hierarchy, why isn't it enough to have multiple
+masters as children of the platform_device, and then multiple
+devices under each of them? Can you also have a platform_device
+that controls multiple busdev instances, which each have multiple
+masters?
+
+> +/**
+> + * i3c_generic_ibi_alloc_pool() - Create a generic IBI pool
+> + * @dev: the device this pool will be used for
+> + * @req: IBI setup request describing what the device driver expects
+> + *
+> + * Create a generic IBI pool based on the information provided in @req.
+> + *
+> + * Return: a valid IBI pool in case of success, an ERR_PTR() otherwise.
+> + */
+> +struct i3c_generic_ibi_pool *
+> +i3c_generic_ibi_alloc_pool(struct i3c_device *dev,
+> +                          const struct i3c_ibi_setup *req)
+> +{
+> +       struct i3c_generic_ibi_pool *pool;
+> +       struct i3c_generic_ibi_slot *slot;
+> +       unsigned int i;
+> +       int ret;
+> +
+> +       pool = kzalloc(sizeof(*pool), GFP_KERNEL);
+> +       if (!pool)
+> +               return ERR_PTR(-ENOMEM);
+> +
+> +       spin_lock_init(&pool->lock);
+> +       INIT_LIST_HEAD(&pool->free_slots);
+> +       INIT_LIST_HEAD(&pool->pending);
+> +
+> +       for (i = 0; i < req->num_slots; i++) {
+> +               slot = kzalloc(sizeof(*slot), GFP_KERNEL);
+> +               if (!slot)
+> +                       return ERR_PTR(-ENOMEM);
+> +
+> +               i3c_master_init_ibi_slot(dev, &slot->base);
+> +
+> +               if (req->max_payload_len) {
+> +                       slot->base.data = kzalloc(req->max_payload_len,
+> +                                                 GFP_KERNEL);
+
+You do a lot of allocations here, each with the same GFP_KERNEL
+flag. Do the objects have different lifetimes, or could you combine
+them into a larger allocation?
+
+Is this called frequently, or only while initializing a device?
+
+> +/**
+> + * struct i3c_ccc_mwl - payload passed to SETMWL/GETMWL CCC
+> + *
+> + * @len: maximum write length in bytes
+> + *
+> + * The maximum write length is only applicable to SDR private messages or
+> + * extended Write CCCs (like SETXTIME).
+> + */
+> +struct i3c_ccc_mwl {
+> +       __be16 len;
+> +} __packed;
+
+I would suggest only marking structures as __packed that are not already
+naturally packed. Note that a side-effect of __packed is that here
+alignof(struct i3c_ccc_mwl) will be '1', and architectures without efficient
+unaligned access will have to access the field one byte at a time because
+they assume that it may be misaligned.
+
+> +/**
+> + * struct i3c_ccc_mrl - payload passed to SETMRL/GETMRL CCC
+> + *
+> + * @len: maximum read length in bytes
+> + * @ibi_len: maximum IBI payload length
+> + *
+> + * The maximum read length is only applicable to SDR private messages or
+> + * extended Read CCCs (like GETXTIME).
+> + * The IBI length is only valid if the I3C slave is IBI capable
+> + * (%I3C_BCR_IBI_REQ_CAP is set).
+> + */
+> +struct i3c_ccc_mrl {
+> +       __be16 read_len;
+> +       u8 ibi_len;
+> +} __packed;
+
+This one clearly needs the __packed to get sizeof(struct i3c_ccc_mrl)==3
+
+> +/**
+> + * struct i3c_ccc_cmd_payload - CCC payload
+> + *
+> + * @len: payload length
+> + * @data: payload data
+> + */
+> +struct i3c_ccc_cmd_payload {
+> +       u16 len;
+> +       void *data;
+> +};
+> +
+> +/**
+> + * struct i3c_ccc_cmd_dest - CCC command destination
+> + *
+> + * @addr: can be an I3C device address or the broadcast address if this is a
+> + *       broadcast CCC
+> + * @payload: payload to be sent to this device or broadcasted
+> + */
+> +struct i3c_ccc_cmd_dest {
+> +       u8 addr;
+> +       struct i3c_ccc_cmd_payload payload;
+> +};
+
+There seems to be a lot of padding in this structure: on a 64-bit
+machine, you have 11 bytes of data and 13 bytes of padding.
+Not sure if that's intentional or important at all.
+
+> +/**
+> + * struct i3c_ccc_cmd - CCC command
+> + *
+> + * @rnw: true if the CCC should retrieve data from the device. Only valid for
+> + *      unicast commands
+> + * @id: CCC command id
+> + * @dests: array of destinations and associated payload for this CCC. Most of
+> + *        the time, only one destination is provided
+> + * @ndests: number of destinations. Should always be one for broadcast commands
+> + */
+> +struct i3c_ccc_cmd {
+> +       bool rnw;
+> +       u8 id;
+> +       struct i3c_ccc_cmd_dest *dests;
+> +       int ndests;
+> +};
+
+Moving the 'ndests' above the pointer will make this structure 16 bytes instead
+of 24 on 64-bit architectures.
+
+> +/**
+> + * struct i3c_i2c_dev - I3C/I2C common information
+> + * @node: node element used to insert the device into the I2C or I3C device
+> + *       list
+> + * @bus: I3C bus this device is connected to
+> + * @master: I3C master that instantiated this device. Will be used to send
+> + *         I2C/I3C frames on the bus
+> + * @master_priv: master private data assigned to the device. Can be used to
+> + *              add master specific information
+> + *
+> + * This structure is describing common I3C/I2C dev information.
+> + */
+> +struct i3c_i2c_dev {
+> +       struct list_head node;
+> +       struct i3c_bus *bus;
+> +       struct i3c_master_controller *master;
+> +       void *master_priv;
+> +};
+
+I find this hard to follow, which means either this has to be complicated
+and I just didn't take enough time to think it through, or maybe it can
+be simplified.
+
+The 'node' field seems particularly odd, can you explain what it's
+for? Normally all children of a bus device can be enumerated by
+walking the device model structures. Are you doing this just so
+you can walk a single list rather than walking the i3c and i2c
+devices separately?
+
+> +/**
+> + * struct i3c_bus - I3C bus object
+> + * @dev: device to be registered to the device-model
+> + * @cur_master: I3C master currently driving the bus. Since I3C is multi-master
+> + *             this can change over the time. Will be used to let a master
+> + *             know whether it needs to request bus ownership before sending
+> + *             a frame or not
+> + * @id: bus ID. Assigned by the framework when register the bus
+> + * @addrslots: a bitmap with 2-bits per-slot to encode the address status and
+> + *            ease the DAA (Dynamic Address Assignment) procedure (see
+> + *            &enum i3c_addr_slot_status)
+> + * @mode: bus mode (see &enum i3c_bus_mode)
+> + * @scl_rate: SCL signal rate for I3C and I2C mode
+> + * @devs: 2 lists containing all I3C/I2C devices connected to the bus
+> + * @lock: read/write lock on the bus. This is needed to protect against
+> + *       operations that have an impact on the whole bus and the devices
+> + *       connected to it. For example, when asking slaves to drop their
+> + *       dynamic address (RSTDAA CCC), we need to make sure no one is trying
+> + *       to send I3C frames to these devices.
+> + *       Note that this lock does not protect against concurrency between
+> + *       devices: several drivers can send different I3C/I2C frames through
+> + *       the same master in parallel. This is the responsibility of the
+> + *       master to guarantee that frames are actually sent sequentially and
+> + *       not interlaced
+> + *
+> + * The I3C bus is represented with its own object and not implicitly described
+> + * by the I3C master to cope with the multi-master functionality, where one bus
+> + * can be shared amongst several masters, each of them requesting bus ownership
+> + * when they need to.
+> + */
+> +struct i3c_bus {
+> +       struct device dev;
+> +       struct i3c_device *cur_master;
+> +       int id;
+> +       unsigned long addrslots[((I2C_MAX_ADDR + 1) * 2) / BITS_PER_LONG];
+> +       enum i3c_bus_mode mode;
+> +       struct {
+> +               unsigned long i3c;
+> +               unsigned long i2c;
+> +       } scl_rate;
+> +       struct {
+> +               struct list_head i3c;
+> +               struct list_head i2c;
+> +       } devs;
+> +       struct rw_semaphore lock;
+> +};
+
+Now here you have two separate lists. How is the i3c list
+different from i3c_bus->dev.p->klist_children?
+
+How do you get to the i2c_adapter from an i3c_bus? Does
+each master have one?
+
+        Arnd
