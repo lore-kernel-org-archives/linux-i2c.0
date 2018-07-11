@@ -1,64 +1,168 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [PATCH v4 01/10] i3c: Add core I3C infrastructure
-Date: Wed, 11 Jul 2018 17:03:20 +0200
-Message-ID: <20180711170320.5b2b0114@bbrezillon>
+Date: Wed, 11 Jul 2018 17:39:56 +0200
+Message-ID: <CAK8P3a2EZB_tMS_47wv6M2Qpm79ZocxxhG5zLxXsBM_YjZgkyA@mail.gmail.com>
 References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
-        <20180330074751.25987-2-boris.brezillon@bootlin.com>
-        <CAK8P3a1aZXf2sQW2mgwJScycKPhdoOAwxRjm5cQG83513uc3fg@mail.gmail.com>
-        <20180711164120.3e32fb08@bbrezillon>
+ <20180330074751.25987-2-boris.brezillon@bootlin.com> <CAK8P3a1aZXf2sQW2mgwJScycKPhdoOAwxRjm5cQG83513uc3fg@mail.gmail.com>
+ <20180711164120.3e32fb08@bbrezillon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180711164120.3e32fb08@bbrezillon>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
+To: Boris Brezillon <boris.brezillon@bootlin.com>
 Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.or>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 11 Jul 2018 16:41:20 +0200
-Boris Brezillon <boris.brezillon@bootlin.com> wrote:
+On Wed, Jul 11, 2018 at 4:41 PM, Boris Brezillon
+<boris.brezillon@bootlin.com> wrote:
+> On Wed, 11 Jul 2018 16:01:56 +0200 Arnd Bergmann <arnd@arndb.de> wrote:
+>> > - the bus element is a separate object and is not implicitly described
+>> >   by the master (as done in I2C). The reason is that I want to be able
+>> >   to handle multiple master connected to the same bus and visible to
+>> >   Linux.
+>> >   In this situation, we should only have one instance of the device and
+>> >   not one per master, and sharing the bus object would be part of the
+>> >   solution to gracefully handle this case.
+>> >   I'm not sure we will ever need to deal with multiple masters
+>> >   controlling the same bus and exposed under Linux, but separating the
+>> >   bus and master concept is pretty easy, hence the decision to do it
+>> >   like that.
+>> >   The other benefit of separating the bus and master concepts is that
+>> >   master devices appear under the bus directory in sysfs.
+>>
+>> I'm not following here at all, sorry for missing prior discussion if this
+>> was already explained. What is the "multiple master" case? Do you
+>> mean multiple devices that are controlled by Linux and that each talk
+>> to other devices on the same bus, multiple operating systems that
+>> have talk to are able to own the bus with the kernel being one of
+>> them, a controller that controls multiple independent buses,
+>> or something else?
+>
+> I mean several masters connected to the same bus and all exposed to the
+> same Linux instance. In this case, the question is, should we have X
+> I3C buses exposed (X being the number of masters) or should we only
+> have one?
+>
+> Having a bus represented as a separate object allows us to switch to
+> the "one bus : X masters" representation if we need too.
+...
+>>
+>> This feels a bit odd: so you have bus_type that can contain devices
+>> of three (?) different device types: i3c_device_type, i3c_master_type
+>> and i3c_busdev_type.
+>>
+>> Generally speaking, we don't have a lot of subsystems that even
+>> use device_types. I assume that the i3c_device_type for a
+>> device that corresponds to an endpoint on the bus, but I'm
+>> still confused about the other two, and why they are part of
+>> the same bus_type.
+>
+> i3c_busdev is just a virtual device representing the bus itself.
+> i3c_master is representing the I3C master driving the bus. The reason
+> for having a different type here is to avoid attaching this device to a
+> driver but still being able to see the master controller as a device on
+> the bus. And finally, i3c_device are all remote devices that can be
+> accessed through a given i3c_master.
+>
+> This all comes from the design choice I made to represent the bus as a
+> separate object in order to be able to share it between different
+> master controllers exposed through the same Linux instance. Since
+> master controllers are also remote devices for other controllers, we
+> need to represent them.
 
-> > > +/**
-> > > + * i3cdev_to_dev() - Returns the device embedded in @i3cdev
-> > > + * @i3cdev: I3C device
-> > > + *
-> > > + * Return: a pointer to a device object.
-> > > + */
-> > > +struct device *i3cdev_to_dev(struct i3c_device *i3cdev)
-> > > +{
-> > > +       return &i3cdev->dev;
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(i3cdev_to_dev);
-> > > +
-> > > +/**
-> > > + * dev_to_i3cdev() - Returns the I3C device containing @dev
-> > > + * @dev: device object
-> > > + *
-> > > + * Return: a pointer to an I3C device object.
-> > > + */
-> > > +struct i3c_device *dev_to_i3cdev(struct device *dev)
-> > > +{
-> > > +       return container_of(dev, struct i3c_device, dev);
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(dev_to_i3cdev);    
-> > 
-> > Many other subsystems just make the device structure available
-> > to all client drivers so this can be an inline operation. Is there
-> > a strong reason to hide it here?  
-> 
-> No, but I think most subsystem do provide dev_to_xxxdev() at least
-> (to_platform_device() for instance)
-> 
+Ok, so I think this is the most important question to resolve: do we
+actually need to control multiple masters on a single bus from one OS
+or not?
 
-My bad. I misunderstood you question. The main reason I did that was
-because I didn't want to expose i3c_device internals to the I3C device
-drivers. Anyway, this part will be reworked in my v6 to address one
-problem we had when re-attaching a pre-existing device that had lost
-its dynamic address and acquired a new one.
-Since we want that operation to be transparent to I3C device drivers, I
-had to decouple the I3C device driver representation from the I3C master
-controller one. I thus end up with struct i3C_dev_desc on the controller
-API side, and struct i3c_device on the driver side with a link between
-the 2 object that can be updated at runtime. And as you can imagine,
-i3c_device does not contain a lot of information now.
+The problem that I see is that it breaks the tree abstraction that
+we use in the dtb interface, in the driver model and in sysfs.
+If we need to deal with a hardware bus structure like
+
+              cpu
+             /   \
+            /     \
+       platdev   platdev
+           |        |
+     i3c-master   i3c-master
+            \      /
+             \    /
+            i3c-bus
+             /    \
+         device   device
+
+then that abstraction no longer holds. Clearly you could build
+a system like that, and if we have to support it, the i3c infrastructure
+should be prepared for it, since we wouldn't be able to retrofit
+it later.
+
+What would be the point of building such a system though?
+Is this for performance, failover, or something else?
+IOW, what feature would we lose if we were to declare that
+setup above invalid (and ensure you cannot represent it in DT)?
+
+>> > +/**
+>> > + * struct i3c_ccc_mwl - payload passed to SETMWL/GETMWL CCC
+>> > + *
+>> > + * @len: maximum write length in bytes
+>> > + *
+>> > + * The maximum write length is only applicable to SDR private messages or
+>> > + * extended Write CCCs (like SETXTIME).
+>> > + */
+>> > +struct i3c_ccc_mwl {
+>> > +       __be16 len;
+>> > +} __packed;
+>>
+>> I would suggest only marking structures as __packed that are not already
+>> naturally packed. Note that a side-effect of __packed is that here
+>> alignof(struct i3c_ccc_mwl) will be '1', and architectures without efficient
+>> unaligned access will have to access the field one byte at a time because
+>> they assume that it may be misaligned.
+>
+> These are structure used to create packets to be sent on the wire.
+> Making sure that everything is packed correctly is important, so I'm
+> not sure I can remove the __packed everywhere.
+
+I mean just the ones for which the __packed attribute only changes
+the alignment of the outer structure but not the layout inside of the
+structure. Alternatively, set both __packed and __aligned().
+
+>> > +/**
+>> > + * struct i3c_i2c_dev - I3C/I2C common information
+>> > + * @node: node element used to insert the device into the I2C or I3C device
+>> > + *       list
+>> > + * @bus: I3C bus this device is connected to
+>> > + * @master: I3C master that instantiated this device. Will be used to send
+>> > + *         I2C/I3C frames on the bus
+>> > + * @master_priv: master private data assigned to the device. Can be used to
+>> > + *              add master specific information
+>> > + *
+>> > + * This structure is describing common I3C/I2C dev information.
+>> > + */
+>> > +struct i3c_i2c_dev {
+>> > +       struct list_head node;
+>> > +       struct i3c_bus *bus;
+>> > +       struct i3c_master_controller *master;
+>> > +       void *master_priv;
+>> > +};
+>>
+>> I find this hard to follow, which means either this has to be complicated
+>> and I just didn't take enough time to think it through, or maybe it can
+>> be simplified.
+>>
+>> The 'node' field seems particularly odd, can you explain what it's
+>> for? Normally all children of a bus device can be enumerated by
+>> walking the device model structures. Are you doing this just so
+>> you can walk a single list rather than walking the i3c and i2c
+>> devices separately?
+>
+> The devices discovered on the bus are not directly registered to the
+> device model, and I need to store them in a list to do some operations
+> before exposing them. Once everything is ready to be used, I then
+> iterate the list and register all not-yet-registered I3C devs.
+
+Can you explain what those operations are and why we can't
+register everything directly? This seems rather unconventional,
+so I want to make sure it's done for a good reason.
+
+      Arnd
