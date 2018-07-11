@@ -1,45 +1,125 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH v11 5/8] i2c: fsi: Add transfer implementation
-Date: Wed, 11 Jul 2018 09:39:15 +1000
-Message-ID: <f3085f807e19d9c5d36ef9cded2b3ee59e560899.camel@kernel.crashing.org>
-References: <1530816030-13010-1-git-send-email-eajames@linux.vnet.ibm.com>
-         <1530816030-13010-6-git-send-email-eajames@linux.vnet.ibm.com>
-         <20180709224114.4h47enyt4tucqcou@ninjato>
-         <d7128886-148f-d255-fb33-3727cad01569@linux.vnet.ibm.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: Re: [PATCH v4 0/6] Add Actions Semiconductor Owl S900 I2C support
+Date: Wed, 11 Jul 2018 08:15:02 +0530
+Message-ID: <20180711024502.GA4739@Mani-XPS-13-9360>
+References: <20180701172305.15663-1-manivannan.sadhasivam@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d7128886-148f-d255-fb33-3727cad01569@linux.vnet.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <20180701172305.15663-1-manivannan.sadhasivam@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eddie James <eajames@linux.vnet.ibm.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, robh+dt@kernel.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, rdunlap@infradead.org, andy.shevchenko@gmail.com, peda@axentia.se
+To: wsa@the-dreams.de, peda@axentia.se
+Cc: linus.walleij@linaro.org, linux-i2c@vger.kernel.org, liuwei@actions-semi.com, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree@vger.kernel.org, andy.shevchenko@gmail.com, daniel.thompson@linaro.org, amit.kucheria@linaro.org, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, hzhang@ucrobotics.com, bdong@ucrobotics.com, manivannanece23@gmail.com, thomas.liau@actions-semi.com, jeff.chen@actions-semi.com, afaerber@suse.de
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2018-07-10 at 12:52 -0500, Eddie James wrote:
+On Sun, Jul 01, 2018 at 10:52:59PM +0530, Manivannan Sadhasivam wrote:
+> This patchset adds I2C controller support for Actions Semiconductor S900 SoC.
+> This driver has been structured in a way such that there will be only
+> one controller driver for the whole Owl family series (S500, S700 and
+> S900 SoCs).
 > 
-> On 07/09/2018 05:41 PM, Wolfram Sang wrote:
-> > > +	cmd |= FIELD_PREP(I2C_CMD_ADDR, msg->addr >> 1);
-> > 
-> > I just noticed this and wonder: Don't you need the LSB of the address?
-> > It is not the RW flag, this is encoded in msg->flags.
+> There are 6 I2C controllers with separate memory mapped register space.
+> The I2C controller can handle atmost two messages concatenated by a
+> repeated start via its internal address feature. Hence the driver
+> uses this feature for messages of length greater than 1. In those cases,
+> the first message of the combined message should be a `write` with maximum
+> message length 6 and the second message's maximum length should be 240 bytes.
 > 
-> So, the hardware interprets the LSB as the RW flag. It wouldn't be 
-> possible to have a device addressed with the LSB set on this I2C master.
-
-What do you mean ? That doesn't sound right... 
+> As far as the bus speed is concerned, this driver only supports
+> Standard (100KHz) and High speed (400KHz) for now.
 > 
-> > 
-> > Also, no seperate handling for 10 bit addresses? Technically, 7-bit 0x50
-> > is different on the wire from 10-bit 0x050. This is minor, though. There
-> > are no 10-bit devices out there. Still, did you test 10-bit support?
+> The pinctrl definitions are only available for I2C0, I2C1 and I2C2.
+> With the mux option available only for I2C0.
 > 
-> Indeed, real 10-bit addresses require some additional manipulation of 
-> this I2C master in order to work. We don't support it right now.
+> For Bubblegum-96 board utilizing the S900 SoC, only I2C1 and I2C2 which
+> are exposed on the Low speed expansion connector are enabled.
+> 
+> This series depends on the pinctrl patch [1] is still not merged by the
+> platform maintainer Andreas but it has been reviewed by the pinctrl maintainer
+> Linus Walleij. For the reference, I have queued up all reviewed dts patches
+> in my tree [2] from which Andreas is picking them for 4.19.
+> 
+> For this series, since the dts patches will go through the ARM SoC tree,
+> Andreas will pick it up once it is reviewed.
 > 
 > Thanks,
-> Eddie
+> Mani
 > 
-> > 
-> > Rest looks good.
-> > 
+> [1] https://patchwork.kernel.org/patch/10322937/
+> [2] https://git.linaro.org/people/manivannan.sadhasivam/linux.git/log/?h=s900-for-next
+> 
+
+Hi Andy, Peter,
+
+Just a gentle ping on this v4!
+
+Thanks,
+Mani
+
+> Changes in v4:
+> 
+> As per Andy and Peter review:
+> 
+> * Used spinlock for accessing most of the register access (only parts
+>   involved sleep/long-busy-wait has been excluded)
+> * Removed returning 0 and added -ENXIO if the msg_ptr not equals to
+>   message length
+> * Added DIV_ROUND_UP for setting clock frequency
+> * Changed one non-atomic mdelay instance to usleep_range
+> * Moved pinctrl definition patch before dts patch
+> * Fixed the driver to support only 100KHz and 400KHz frequencies
+> 
+> Changes in v3:
+> 
+> As per Peter, Andy and Andreas review:
+> 
+> * Removed owl_i2c_reset function from interrupt handler since it
+>   involves the use of delays.
+> * Fixed the return path in owl_i2c_master_xfer and added a note
+> * Changed "base" parameter to "reg" in owl_i2c_update_reg for better
+>   understandability
+> * Ordered the includes in alphabetical order
+> * Small changes to defines and added comma at the end of struct members
+> * Removed rendundant 0 assignment in owl_i2c_master_xfer
+> * Changed all OWL naming convention to Owl and also changed Actions Semi
+>   naming to Actions Semiconductor
+> 
+> Changes in v2:
+> 
+> As per Andy's review:
+> * Modified infinite loops to fixed number of retries
+> * Used i2c_8bit_addr_from_msg for constructing the slave address
+> * Removed unnecessary parenthesis around defines
+> * Modified certain dev_warn to dev_dbg
+> * Modified the error handling to more generic pattern
+> 
+> * Fixed the return value in owl_i2c_master_xfer
+> * Added MAINTAINERS patch for I2C driver and its binding
+> 
+> Manivannan Sadhasivam (6):
+>   dt-bindings: i2c: Add binding for Actions Semiconductor Owl I2C
+>     controller
+>   arm64: dts: actions: Add pinctrl definition for S900 I2C controller
+>   arm64: dts: actions: Add Actions Semiconductor S900 I2C controller
+>     nodes
+>   arm64: dts: actions: Enable I2C1 and I2C2 in Bubblegum-96 board
+>   i2c: Add Actions Semiconductor Owl family S900 I2C driver
+>   MAINTAINERS: Add entry for Actions Semiconductor Owl I2C driver
+> 
+>  .../devicetree/bindings/i2c/i2c-owl.txt       |  27 +
+>  MAINTAINERS                                   |   2 +
+>  .../dts/actions/s900-bubblegum-96-pins.dtsi   |  29 +
+>  .../boot/dts/actions/s900-bubblegum-96.dts    |  11 +
+>  arch/arm64/boot/dts/actions/s900.dtsi         |  60 +++
+>  drivers/i2c/busses/Kconfig                    |   7 +
+>  drivers/i2c/busses/Makefile                   |   1 +
+>  drivers/i2c/busses/i2c-owl.c                  | 504 ++++++++++++++++++
+>  8 files changed, 641 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-owl.txt
+>  create mode 100644 arch/arm64/boot/dts/actions/s900-bubblegum-96-pins.dtsi
+>  create mode 100644 drivers/i2c/busses/i2c-owl.c
+> 
+> -- 
+> 2.17.1
+> 
