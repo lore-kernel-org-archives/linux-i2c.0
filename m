@@ -1,94 +1,60 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH] i2c: aspeed: Adjust spinlock scope in the irq handler
-Date: Thu, 12 Jul 2018 01:41:28 -0700
-Message-ID: <CAFd5g47nBCbF0mcYqEnQkDpz0Dhh0F0S1-wEL_yBHgs1b3yE5w@mail.gmail.com>
-References: <20180702214011.16071-1-jae.hyun.yoo@linux.intel.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v4 01/10] i3c: Add core I3C infrastructure
+Date: Thu, 12 Jul 2018 10:44:59 +0200
+Message-ID: <bd07430a-8ec6-e2b5-64fd-c4361fe5760f@axentia.se>
+References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
+ <20180330074751.25987-2-boris.brezillon@bootlin.com>
+ <CAK8P3a1aZXf2sQW2mgwJScycKPhdoOAwxRjm5cQG83513uc3fg@mail.gmail.com>
+ <20180711164120.3e32fb08@bbrezillon>
+ <CAK8P3a2EZB_tMS_47wv6M2Qpm79ZocxxhG5zLxXsBM_YjZgkyA@mail.gmail.com>
+ <20180711191212.3855bb25@bbrezillon>
+ <a31dc625-56bf-7a59-d9a3-2841360b864e@axentia.se>
+ <CAK8P3a2oMDw2zHzE5vFFHDqzKVKEzOga6v0ExdYVawnMtcdbrQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180702214011.16071-1-jae.hyun.yoo@linux.intel.com>
+In-Reply-To: <CAK8P3a2oMDw2zHzE5vFFHDqzKVKEzOga6v0ExdYVawnMtcdbrQ@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: jae.hyun.yoo@linux.intel.com
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, james.feist@linux.intel.com, vernon.mauery@linux.intel.com
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Boris Brezillon <boris.brezillon@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@ar>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jul 2, 2018 at 2:40 PM Jae Hyun Yoo
-<jae.hyun.yoo@linux.intel.com> wrote:
->
-> This patch adjusts spinlock scope to make it wrap the whole irq
-> handler using a single lock/unlock which covers both master and
-> slave handlers.
->
-> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-> ---
->  drivers/i2c/busses/i2c-aspeed.c | 16 ++++++++++------
->  1 file changed, 10 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-> index 60e4d0e939a3..9f02aa959a3e 100644
-> --- a/drivers/i2c/busses/i2c-aspeed.c
-> +++ b/drivers/i2c/busses/i2c-aspeed.c
-> @@ -234,7 +234,6 @@ static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
->         bool irq_handled = true;
->         u8 value;
->
-> -       spin_lock(&bus->lock);
->         if (!slave) {
->                 irq_handled = false;
->                 goto out;
-> @@ -325,7 +324,6 @@ static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
->         writel(status_ack, bus->base + ASPEED_I2C_INTR_STS_REG);
->
->  out:
-> -       spin_unlock(&bus->lock);
->         return irq_handled;
->  }
->  #endif /* CONFIG_I2C_SLAVE */
-> @@ -389,7 +387,6 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
->         u8 recv_byte;
->         int ret;
->
-> -       spin_lock(&bus->lock);
->         irq_status = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
->         /* Ack all interrupt bits. */
->         writel(irq_status, bus->base + ASPEED_I2C_INTR_STS_REG);
-> @@ -547,22 +544,29 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
->                 dev_err(bus->dev,
->                         "irq handled != irq. expected 0x%08x, but was 0x%08x\n",
->                         irq_status, status_ack);
-> -       spin_unlock(&bus->lock);
->         return !!irq_status;
->  }
->
->  static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
->  {
->         struct aspeed_i2c_bus *bus = dev_id;
-> +       bool ret;
-> +
-> +       spin_lock(&bus->lock);
->
->  #if IS_ENABLED(CONFIG_I2C_SLAVE)
->         if (aspeed_i2c_slave_irq(bus)) {
->                 dev_dbg(bus->dev, "irq handled by slave.\n");
-> -               return IRQ_HANDLED;
-> +               ret = true;
-> +               goto out;
->         }
->  #endif /* CONFIG_I2C_SLAVE */
->
-> -       return aspeed_i2c_master_irq(bus) ? IRQ_HANDLED : IRQ_NONE;
-> +       ret = aspeed_i2c_master_irq(bus);
-> +
-> +out:
-> +       spin_unlock(&bus->lock);
-> +       return ret ? IRQ_HANDLED : IRQ_NONE;
->  }
->
->  static int aspeed_i2c_master_xfer(struct i2c_adapter *adap,
-> --
-> 2.17.1
->
+On 2018-07-12 10:08, Arnd Bergmann wrote:
+> On Thu, Jul 12, 2018 at 6:41 AM, Peter Rosin <peda@axentia.se> wrote:
+>> On 2018-07-11 19:12, Boris Brezillon wrote:
+>>> On Wed, 11 Jul 2018 17:39:56 +0200 Arnd Bergmann <arnd@arndb.de> wrote:
+>>>
+>>> That's exactly the sort of discussion I wanted to trigger. Maybe we
+>>> shouldn't care and expose this use case as if it was X different I3C
+>>> buses (with all devices present on the bus being exposed X times to the
+>>> system).
+>>
+>> For I2C, this multiple masters for one bus case was retrofitted in
+>> the i2c-demux-pinctrl driver. It's a huge kludge with a number of
+>> undesirable quirks. I don't know if the circumstances for adding
+>> this I2C driver also applies for I3C, but it might be an argument
+>> in favor of the proposed extra bus object...
+> 
+> From reading the documentation and git history on that driver,
+> it seems to be used only for static configuration, i.e. you use
+> one driver or the other, but don't flip between them at runtime,
+> right?
 
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+There is a sysfs file that can be used to change master at runtime
+(current_master). This causes all client drivers to be reprobed,
+which may not be the best thing to do for every client out there...
 
-Thanks!
+> I'm guessing that even with i3c we may have to support something
+> like that, as a likely scenario might be that the i3c controller is
+> multiplexed with a traditional i2c controller and/or gpios, but you
+> would not be able to perform the i3c standard secondary master
+> transition with the latter two because they are (by definition) not
+> i3c compatible.
+
+i2c-demux-pinctrl should probably not be used as template for something
+else, but it is a good argument for some other design IMHO...
+
+Cheers,
+Peter
