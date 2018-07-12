@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [v2,3/3] i2c: at91: added slave mode support
-Date: Thu, 12 Jul 2018 23:48:45 +0200
-Message-ID: <20180712214845.iimw4sfckgm6uhh4@ninjato>
+Date: Thu, 12 Jul 2018 23:56:24 +0200
+Message-ID: <20180712215624.qtdm3au6os4iobqo@ninjato>
 References: <c9b749fca8e684aa47ead9a5d9e68751326f63cb.1510247114.git.me@jue.yt>
  <20180602213513.qv45gaq2kogagju3@katana>
  <20180709151504.6phtp4rm7of6b2qc@M43218.corp.atmel.com>
@@ -9,7 +9,7 @@ References: <c9b749fca8e684aa47ead9a5d9e68751326f63cb.1510247114.git.me@jue.yt>
  <20180710084257.ewgnvroow5weffvf@M43218.corp.atmel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="mkhkdeglwbk2k536"
+        protocol="application/pgp-signature"; boundary="6dxfcu6jjtvnquoj"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
 In-Reply-To: <20180710084257.ewgnvroow5weffvf@M43218.corp.atmel.com>
@@ -18,55 +18,35 @@ To: Juergen Fitschen <me@jue.yt>, linux-i2c@vger.kernel.org, linux-kernel@vger.k
 List-Id: linux-i2c@vger.kernel.org
 
 
---mkhkdeglwbk2k536
+--6dxfcu6jjtvnquoj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 10, 2018 at 10:42:57AM +0200, Ludovic Desroches wrote:
-> On Mon, Jul 09, 2018 at 05:51:36PM +0200, Wolfram Sang wrote:
-> >=20
-> > > Sorry for having not catched it. If I remember well, it was the only
-> > > issue I had while testing the slave support.
-> > >=20
-> > > >=20
-> > > > BTW maybe I asked already and forgot: is this IP core capable of be=
-ing
-> > > > master and slave on the same bus?
-> > > >=20
-> > >=20
-> > > No the master and slave modes are exclusive.
-> >=20
-> > Pity.
-> >=20
-> > But thanks for the heads up, any tag you want to give? Ack or Rev?
-> >=20
->=20
+
 > Yes sure, you can add my Ack. I would be pleased to see the slave
 > support taken.
 
-Not needed now, but next time please give a formal ack. Patchwork
-collects them for me automatically, this saves me quite some work.
+Sadly, I can't get it to apply cleanly. Could you rebase and retest?
 
 
---mkhkdeglwbk2k536
+--6dxfcu6jjtvnquoj
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltHzL0ACgkQFA3kzBSg
-Kbal6A//YTHyE5KzXlxI4eBX/n0u9WTNdkK/I3OV3kg9xHCYu7h3LSkN4N15+uyq
-YtgapKqdoChzwSqqXwL0xKRMmSDDTXC3C2xUjc4qIm2xbh0XWuP6jeOr4hWe2+Fs
-Es2DXD+0ZIiubeEI3lqQXwufv7jWtKbexx4YElMUFhHJfEHYQe7P2nWg/Z96bfC3
-ewiS6+mexevwCw4F3qH2KSvx5fA3NIRFf+dO75S1ogtp2ULKdHCgE138PJ8kgH+o
-XajfqDMxz0HVmh44w9fi5yK9jGWF7cuDlROiM36ljhGX7h5w07HpMozRigjoxgfL
-XitM9pTgnCZn6bKjwSSBJ4whRL/WjiftFmxEWxhyRwHcBFSU0E7Kj1AGVE3JmiYP
-JFboI4at60LgdqUI5F/dYQE5ijPG/G60jk0Rc2lyBA++JmLr+9sda4cjYSvfQJww
-jZKHJ8g5kVfJ4qRZ59vD11GiSPqBTQtnWFhXjG3G0NevW6FlyKbOj6qUj7WlJeL8
-o5SyhXDvJ/h8trABuXzB1huvcEiNRGjTf2gegsN+3q0+P1VS+53CJ5qRDUlmVpmh
-7fcRxQ9kwc8H2ChB6S+P1PeHJAtLDpbZ9U7VWuQ4PYk0GQQb14hL96QISisagukC
-EHTK9lT/1Zfl62qpytzC9kl6zXmdX+vYw54IpdJTaxYZOnddvLw=
-=0jgE
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltHzogACgkQFA3kzBSg
+KbbwjxAAiYX3APiOh7uOg3bb2MEgY3/r+AVSSAcUuDcoxU61OqW/fqsi7Gpf7SHZ
+YCLJe3NkFgd2omsN02dxj6u4dXFD5gEpHresOwQIXs91YLpaPZX8tqU4rsb7LXwm
+/HHue07gyeti07CJJbO4dKkmcS6iw1XVweP3wJg2rwoXTLEUUkNwkC4ACEyNvnYv
+mXw519DhDJMB2iPuTf9v0/N2RB1IJXcPExd6Z7UCzPaUVTqhN64neHikuykh5iQZ
+PUJpwacxAQI24NvgTXKEUWxQpSrSMt4f80h68kDTfbJxModJz5MTyv+jRoYCcnF7
+UAinqH+tTxH2Qyn8gFYa67HkTsQJMIRtHHm0QZK9SeMjiJEKeO7QANPdH23m+v+C
+a/FiSqRjQOxZXQ1zbtXjg/CqHLer2GOBux6yr2b5TNL2lyK364Tm6AmIdWOJJg82
+dxO/Knl2/K45ecOqjBpp8yCncra7TiAeMRJGRvf173Gsr28KX+fz7DJa4LWEeSMB
+8sGLJsu4lrEmW1AY2/yC9qaEl9XIas7rcqgU/Sw8cwqsAUz19p3J1/BjYtMxS//C
+5ii2E4nZbch/ksEyX3Y6+H03rAkoSCYuioTDtEZZFTqXCEG1ggtgrHGjmVrggLLU
+EVP2UWimQmQEKLb/GPxVQBeUkYnHg37hfE9NH4QO/wwm7Ajn9rI=
+=89O0
 -----END PGP SIGNATURE-----
 
---mkhkdeglwbk2k536--
+--6dxfcu6jjtvnquoj--
