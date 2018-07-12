@@ -1,127 +1,51 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v4 01/10] i3c: Add core I3C infrastructure
-Date: Thu, 12 Jul 2018 10:21:40 +0200
-Message-ID: <CAK8P3a13GX67YEci2J8Rxn6O4FBjjD82X+w3hyGMT3TDbtFkTg@mail.gmail.com>
-References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
- <20180330074751.25987-2-boris.brezillon@bootlin.com> <CAK8P3a1aZXf2sQW2mgwJScycKPhdoOAwxRjm5cQG83513uc3fg@mail.gmail.com>
- <20180711164120.3e32fb08@bbrezillon> <CAK8P3a2EZB_tMS_47wv6M2Qpm79ZocxxhG5zLxXsBM_YjZgkyA@mail.gmail.com>
- <20180711191212.3855bb25@bbrezillon> <CAK8P3a2djk8c6STaxJC0MCkBddyOafk4WbG2LdfPf0V1EYiqmQ@mail.gmail.com>
- <20180712000932.3b04ee9d@bbrezillon>
+From: Brendan Higgins <brendanhiggins@google.com>
+Subject: Re: [PATCH] i2c: aspeed: Add newline characters into message printings.
+Date: Thu, 12 Jul 2018 01:38:00 -0700
+Message-ID: <CAFd5g47-Bq_wUkL4vP93si+urDs-A0j26ukZ+Riy24HWi5AuuA@mail.gmail.com>
+References: <20180702211359.30585-1-jae.hyun.yoo@linux.intel.com>
+ <CAFd5g443wTQJ+0hrprOV949Sr_nRnBGpNo3Wd01xFN4GW4K2Ng@mail.gmail.com>
+ <2d2f2b2b-394a-506f-c870-33520335250b@linux.intel.com> <c13fc12e859f7bdb300f08ad805cdf6d7ec09f52.camel@perches.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180712000932.3b04ee9d@bbrezillon>
+In-Reply-To: <c13fc12e859f7bdb300f08ad805cdf6d7ec09f52.camel@perches.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.or>
+To: joe@perches.com
+Cc: jae.hyun.yoo@linux.intel.com, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, james.feist@linux.intel.com, vernon.mauery@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jul 12, 2018 at 12:09 AM, Boris Brezillon
-<boris.brezillon@bootlin.com> wrote:
-> On Wed, 11 Jul 2018 22:10:26 +0200 Arnd Bergmann <arnd@arndb.de> wrote:
->> On Wed, Jul 11, 2018 at 7:12 PM, Boris Brezillon <boris.brezillon@bootlin.com> wrote:
->> > On Wed, 11 Jul 2018 17:39:56 +0200 Arnd Bergmann <arnd@arndb.de> wrote:
->> >> On Wed, Jul 11, 2018 at 4:41 PM, Boris Brezillon <boris.brezillon@bootlin.com> wrote:
-
->> >> IOW, what feature would we lose if we were to declare that
->> >> setup above invalid (and ensure you cannot represent it in DT)?
->> >
->> > That's exactly the sort of discussion I wanted to trigger. Maybe we
->> > shouldn't care and expose this use case as if it was X different I3C
->> > buses (with all devices present on the bus being exposed X times
->> > to the system).
->>
->> That's probably fine for many slave devices (you could read a
->> single sensor multiple times if you iterate through all i2c sensors
->> on all buses) but might not work for others (a slave device sending
->> an interrupt to the current master for a request that was started
->> from the previous master).
->> My impression however is that this is actually a corner case that
->> we can leave to be undefined, and not prepare to handle well,
->> as long as we can deal with the interesting examples above.
+On Wed, Jul 11, 2018 at 10:10 AM Joe Perches <joe@perches.com> wrote:
 >
-> Mastership handover/takeover is something I already thought about.
-> Actually, that's the reason for the i3c_bus->cur_master field (so that
-> the master being asked to do a transfer on the bus can request bus
-> ownership it bus->cur_master != master->this->info.pid).
+> On Wed, 2018-07-11 at 09:53 -0700, Jae Hyun Yoo wrote:
+> > On 7/10/2018 10:42 PM, Brendan Higgins wrote:
+> > > On Mon, Jul 2, 2018 at 2:14 PM Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com> wrote:
+> > > > There are some log printing without a newline character. This
+> > > > patch adds the missing newline characters.
+> []
+> > > > diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+> []
+> > > > @@ -431,7 +431,7 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
+> > > >           */
+> > > >          if (bus->master_state == ASPEED_I2C_MASTER_START) {
+> > > >                  if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_ACK))) {
+> > > > -                       pr_devel("no slave present at %02x", msg->addr);
+> > > > +                       pr_devel("no slave present at %02x\n", msg->addr);
+> > >
+> > > Unless something changed in the last couple versions of the kernel, this is the
+> > > only line that actually changes anything. dev_* inserts a newline for every
+> > > call.
 >
-> I guess this would be replaced by something simpler if we get rid of
-> the i3c_bus object (just a bool i3c_master->owns_bus).
-
-If we can ignore the case of handing over between two masters that
-we both own, we end up being in just one of two states:
-
-a) currently we are the master
-b) we are not currently the master but have asked the current
-    master to transfer ownership back to us. For this, we have to
-    know who the current master is of course.
-
-I think that's the simplest case that would work with the specification,
-but it relies on the assumption that the master controlled by Linux
-is always more important than any other master, and that we just
-hand over ownership for as long as the others want it.
-
-If that is not the case, we also need a third state
-
-c) we have handed ownership to another master that is equally
-    important, but no i2c device driver is currently trying to talk
-    to a device, so we don't need ownership back until a slave driver
-    changes state.
-
-The main difference between b) and c) that I see would be what
-happens with in-band interrupts. If I understand the specification
-correctly, only the current master receives them, so if you have
-any i2c device that uses interrupts to talk to a Linux driver, we
-want to be in b) rather than c). An example of this would be
-an input device on a PC: If the user operateds the keyboard
-or pointer and we have handed off ownership to a sensor hub,
-we never get an input event, right?
-
->> Ok, but maybe you could you put the information about those devices
->> on a local list on the stack rather than the controller? I suppose this
->> would not change the logic much, but it would slightly simplify the
->> data structures for the bus and stop others from wondering about
->> them. ;-)
+> Not true.
 >
-> This has changed a bit in the v6 I'm about to send (probably next week).
-> I now have 2 different objects which do not necessarily have the same
-> lifetime:
+> Any printk without KERN_CONT inserts a newline
+> if the last character
+> emitted is not a newline.
 >
-> * i3c_dev_desc: an I3C device descriptor. This is the representation
->   exposed to I3C master controller drivers which usually reserve one
->   slot in the HW device table per-device on the bus. Since the same
->   device can be re-discovered with a different address, we have a short
->   period in time during which the controller will have 2
->   slots/descriptors used to control the same device, except one would
->   be inactive (any transfer to the old dynamic address would fail) and
->   the other one would be active. The core then takes care of releasing
->   the old descriptor/slot and attaching the new one to the i3c_device
->   object exposed to I3C device drivers
+> dev_<level> uses can also be followed by pr_cont.
 >
-> * i3c_device: this is the object exposed to I3C device drivers. It's
->   lifetime is usually the same as the i3c_dev_desc it's attached to,
->   except when the device lose its dynamic address and get a new one
->   assigned. In this case we keep the same i3c_device object, but
->   dynamically re-attach it to a new i3c_dev_desc before releasing the
->   old dev desc. This way the I3C does not even see that the device
->   address has changed and can keep doing transfers to it.
->
-> With these 2 distinct representations, the handling on the controller
-> side is greatly simplified: the core takes care of the resource
-> migration steps, while it was up to the controller to do that my
-> previous versions (look at the ->reattach_i3c_dev() hook in the Cadence
-> driver, and I think it's even more complicated with other controllers,
-> like the HCI one).
->
->> This is a really minor point though, let's work out the problem of the
->> multiple masters first.
->
-> I agree. This being said, moving to a representation where the bus is
-> implicitly represented by the master_controller instance shouldn't be
-> too difficult. So, if you think we should try this approach I can do
-> the modifications in my v6.
+> So this patch does reduce the possibility of
+> interleaved messages from multiple processes.
 
-I'd say let's wait before you do that change, possibly add a comment
-in there now to remind us of what an alternative would be.
+My mistake. Thanks for pointing that out.
 
-       Arnd
+Jae, forget what I said earlier. This looks good to me.
