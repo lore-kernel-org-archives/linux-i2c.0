@@ -1,95 +1,97 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i2c-qcom-geni: Fix suspend clock handling
-Date: Fri, 13 Jul 2018 00:03:25 +0200
-Message-ID: <20180712220325.y42t5pheifzub6m7@ninjato>
-References: <20180709234937.176154-1-evgreen@chromium.org>
+Subject: Re: [PATCH v2 00/10] Split i2c_lock_adapter into i2c_lock_root and
+ i2c_lock_segment
+Date: Fri, 13 Jul 2018 00:11:37 +0200
+Message-ID: <20180712221137.i3osg6viuz4lwvnd@ninjato>
+References: <20180620051803.12206-1-peda@axentia.se>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="idfaxadab3uz5vqy"
+        protocol="application/pgp-signature"; boundary="qm72oajvd5nwh2m6"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180709234937.176154-1-evgreen@chromium.org>
+In-Reply-To: <20180620051803.12206-1-peda@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Evan Green <evgreen@chromium.org>
-Cc: andy.gross@linaro.org, david.brown@linaro.org, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, swboyd@chromium.org, dianders@chromium.org, Girish Mahadevan <girishm@codeaurora.org>, linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Orson Zhai <orsonzhai@gmail.com>, Baolin Wang <baolin.wang@linaro.org>, Chunyan Zhang <zhang.lyra@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Crt Mori <cmo@melexis.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---idfaxadab3uz5vqy
+--qm72oajvd5nwh2m6
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 09, 2018 at 04:49:37PM -0700, Evan Green wrote:
-> pm_runtime_suspended can return 0 even if the last runtime power
-> management function called in the device was a suspend call. This
-> trips up the i2c-qcom-geni's suspend_noirq accounting, which was
-> trying to use the function to determine if it should disable clocks
-> or if that had already been done.
+On Wed, Jun 20, 2018 at 07:17:53AM +0200, Peter Rosin wrote:
+> Hi!
 >=20
-> The fix is to track whether or not clocks have been enabled explicitly
-> in the driver with a new member. While in there, also honor the return
-> value of geni_se_resources_off, which can technically fail.
+> With the introduction of mux-locked I2C muxes, the concept of
+> locking only a segment of the I2C adapter tree was added. At the
+> time, I did not want to cause a lot of extra churn, so left most
+> users of i2c_lock_adapter alone and apparently didn't think enough
+> about it; they simply continued to lock the whole adapter tree.
+> However, i2c_lock_adapter is in fact wrong for almost every caller
+> (there is naturally an exception) that is itself not a driver for
+> a root adapter. What normal drivers generally want is to only
+> lock the segment of the adapter tree that their device sits on.
 >=20
-> An example of the warning generated during suspend:
-> [   68.314733] WARNING: CPU: 0 PID: 1990 at drivers/clk/clk.c:595 clk_cor=
-e_disable+0x28/0x200
-> [   68.464576] Call trace:
-> [   68.554410] [<ffffff80083f0ed0>] clk_core_disable+0x28/0x200
-> [   68.560244] [<ffffff80083f349c>] clk_disable+0x38/0x4c
-> [   68.565541] [<ffffff8008408910>] geni_se_resources_off+0x40/0x74
-> [   68.571731] [<ffffff800862aadc>] geni_i2c_runtime_suspend+0x2c/0x3c
-> [   68.578185] [<ffffff800862ae6c>] geni_i2c_suspend_noirq+0x38/0x68
-> [   68.584475] [<ffffff800852bd40>] dpm_run_callback+0x104/0x210
-> [   68.590404] [<ffffff800852c3d4>] __device_suspend_noirq+0x158/0x1a8
-> [   68.596859] [<ffffff800852dff0>] dpm_noirq_suspend_devices+0x180/0x38c
-> [   68.603594] [<ffffff80080fdebc>] suspend_devices_and_enter+0x49c/0x964
-> [   68.610321] [<ffffff80080fea14>] pm_suspend+0x690/0x6e0
-> [   68.615712] [<ffffff80080fc930>] state_store+0xd4/0xf8
-> [   68.621014] [<ffffff80088a57f0>] kobj_attr_store+0x18/0x28
-> [   68.626672] [<ffffff8008297a54>] sysfs_kf_write+0x5c/0x68
-> [   68.632240] [<ffffff8008296a00>] kernfs_fop_write+0x174/0x1b8
-> [   68.638177] [<ffffff800821a2c4>] __vfs_write+0x58/0x160
-> [   68.643567] [<ffffff800821a5d8>] vfs_write+0xcc/0x184
-> [   68.648780] [<ffffff800821a850>] SyS_write+0x64/0xb4
+> In fact, if a device sits behind a mux-locked I2C mux, and its
+> driver calls i2c_lock_adapter followed by an unlocked I2C transfer,
+> things will deadlock (since even a mux-locked I2C adapter will lock
+> its parent at some point). If the device is not sitting behind a
+> mux-locked I2C mux (i.e. either directly on the root adapter or
+> behind a (chain of) parent-locked I2C muxes) the root/segment
+> distinction is of no consequence; the root adapter is locked either
+> way.
 >=20
-> Signed-off-by: Evan Green <evgreen@chromium.org>
-> ---
-> This change applies atop Karthik's patch [1], which as far as I can tell
-> technically hasn't landed yet, but also hasn't had feedback in awhile
-> either. I opted to submit this as a separate patch, but if the maintainers
-> prefer it's fine with me if this get folded in to another spin of the
-> base series.
+> Mux-locked I2C muxes are probably not that common, and putting any
+> of the affected devices behind one is probably even rarer, which
+> is why we have not seen any deadlocks. At least not that I know
+> of...
 >=20
-> [1] https://patchwork.kernel.org/patch/10460819/
+> Since silently changing the semantics of i2c_lock_adapter might
+> be quite a surprise, especially for out-of-tree users, this series
+> instead removes the function and forces all users to explicitly
+> name I2C_LOCK_SEGMENT or I2C_LOCK_ROOT_ADAPTER in a call to
+> i2c_lock_bus, as suggested by Wolfram. Yes, users will be a teensy
+> bit more wordy, but open-coding I2C locking from random drivers
+> should be avoided, so it's perhaps a good thing if it doesn't look
+> too neat?
+>=20
+> I suggest that Wolfram takes this series through the I2C tree and
+> creates an immutable branch for the other subsystems. The series
+> is based on v4.18-r1.
+>=20
+> I do not have *any* of the affected devices, and have thus only
+> done build tests.
+>=20
+> Cheers,
+> Peter
 
-Yeah, since the FSI driver seems to be mostly done now, this will be the
-next new driver I will have a look at.
+Applied to for-next, thanks! And thanks for all the acks. An immutable
+branch can be found here:
 
-If the maintainers of the driver ack or rev this patch, I would then
-just fold it into the driver itself when I apply it?
-
-D'accord everyone?
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/precise-loc=
+king-names_immutable
 
 
---idfaxadab3uz5vqy
+--qm72oajvd5nwh2m6
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltH0CkACgkQFA3kzBSg
-KbaVCQ/+OsfMSLp8VGeuD+yB7FloWiAo08IeXuPfri/Hc5yCNmFRGbLYMKfy1Ssj
-7XKLnJUU59A4E1vtBGuurch5i/HlOlN3XwVLaTV1abwB574xX6sRbULnHhkA83AW
-VkT81yVZPXZ+KPdMyY6j7NFmWaWCfjVe3Sz47pHDbvVgMUVJbRHb0QKa7BGIxN6d
-hEBl7f/74yCYMbXWlzkE1BRnfFxqewYc/HyO9uxF3oLNoslWcxbsSKGjuKo+xata
-s42hyr7YTohOuoBzR2zNkiEnXoNHtEz3Y2DWT+CgaRpmzBKgkvoS6zwGDdX2t/JO
-A4BDG3VYtU8/opOWFwfIGAdbhnxk6kduWNV9xKu07unq7BQVq0IvjgOoZ2F2CoHI
-3ZTh2Z0XRJJR9cxOKsjz8mNbkc9g9yTwiZORVQ1SezVIxCAtdcvQZhWewi9ZUbSd
-sNx4hp/9Qp5JxDRz8hH/PQ/GdGFlRHLyNM2khXmqOGF7GjK92+/etuc5iekpjiWW
-xLMKAEtH2cP5IwXW2jeDNWcenfX6VQcoD8egykAnQE9wrirsu76mErUEqZyQbK7V
-JWZ4pGAbr16CRL+enQVxWsml+2Xtpf5/YWOl7pN47dQIBMtdTXrBdLQtYO35TIFY
-BewjSgBAaZkwv4T+WbkoU+swC4FhIBx6LRzP0x5pfVxhay8H2fk=
-=Hvt8
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltH0hkACgkQFA3kzBSg
+KbZDYg//UGVwnuphbOMKhmwxqf3WAAQyKPV28EuVpX8NIevvAgiCFBuCKmH1aZjk
+1z+4AYTgfiefQoJ1hZKoIRv0AGAmQ/jwNtJYhQdDfrVLx/BMUouL9JtZubWosatD
+gIcaSKx1fGsvxgYPTfBk5sEnLwlG52g5lWJnSXlMeA5wyKzBBS/zpa6eHGyBiMq6
+2zUHEJa09BydQDfZ3yXNY3KU3Y/tlaK2sexiM6y2tt4uzoqV4eExKO1jvVwVZhvK
+HSK3RSnWaTQzeim8OVmyWUj/AgnH6rTRvGw9/LijXmKmBdTvqAvqPJpIQRIaklFs
+bHyHMB/jcw2QJw5N/6g1myg/8unfkP7Iq0MkA7/K2SckdAdSYGbAudDqhWwOBqPK
+p7RWS9Si5LqR2d7hFgzXNZDKdmERzG24/JQOi5vw4IOdaXTZ5FBzPg1V0xHpf7uy
+dIzmaN4TeNdS0CFvr0c4gyex+7TD6ejC2CqgtTnX5AGiXqONRDlg/K+K66tMGZyB
+n6TzknvGLgWreNKZfnLjs/ZoT0J9joUj2v9DEhGUT4pJIN+j6MjKGwNKvrwfRpmb
+V2uL5mNSEJdc5+IpIngTuHLnjtQnbqbq3UlIkEc1iR/iuKZqrNHCUJib9fHErV81
+25/XJBC+188GB/Ifm1sMRf40z7GMmpOkpvs70pT8eZCqBtRvNvM=
+=3VaW
 -----END PGP SIGNATURE-----
 
---idfaxadab3uz5vqy--
+--qm72oajvd5nwh2m6--
