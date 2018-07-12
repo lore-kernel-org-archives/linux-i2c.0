@@ -1,126 +1,107 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH] i2c: aspeed: Improve driver to support multi-master use
- cases stably
-Date: Thu, 12 Jul 2018 02:33:16 -0700
-Message-ID: <CAFd5g47j_h4ZrT8Eg1FZ8sAj5ekCUH20jUVub75ozdkg8_YW7Q@mail.gmail.com>
-References: <20180626165812.4141-1-jae.hyun.yoo@linux.intel.com>
- <CAFd5g45z--ucXf-So517tgrayZT6x2TGvaUvaDF7zeRNn7CPXw@mail.gmail.com> <e51471e6-0f8a-bffc-34c8-1e74239fdbcf@linux.intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v4 01/10] i3c: Add core I3C infrastructure
+Date: Thu, 12 Jul 2018 12:03:05 +0200
+Message-ID: <CAK8P3a3raE9rmyvgxR0YVmYSCN4tumYS1TCexCuTEUXjy_9kSw@mail.gmail.com>
+References: <20180330074751.25987-1-boris.brezillon@bootlin.com>
+ <20180330074751.25987-2-boris.brezillon@bootlin.com> <CAK8P3a1aZXf2sQW2mgwJScycKPhdoOAwxRjm5cQG83513uc3fg@mail.gmail.com>
+ <20180711164120.3e32fb08@bbrezillon> <CAK8P3a2EZB_tMS_47wv6M2Qpm79ZocxxhG5zLxXsBM_YjZgkyA@mail.gmail.com>
+ <20180711191212.3855bb25@bbrezillon> <CAK8P3a2djk8c6STaxJC0MCkBddyOafk4WbG2LdfPf0V1EYiqmQ@mail.gmail.com>
+ <20180712000932.3b04ee9d@bbrezillon> <CAK8P3a13GX67YEci2J8Rxn6O4FBjjD82X+w3hyGMT3TDbtFkTg@mail.gmail.com>
+ <20180712104658.220ef8f6@bbrezillon>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e51471e6-0f8a-bffc-34c8-1e74239fdbcf@linux.intel.com>
+In-Reply-To: <20180712104658.220ef8f6@bbrezillon>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jae.hyun.yoo@linux.intel.com
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, james.feist@linux.intel.com, vernon.mauery@linux.intel.com, Benjamin Fair <benjaminfair@google.com>, Patrick Venture <venture@google.com>
+To: Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.or>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 27, 2018 at 10:55 AM Jae Hyun Yoo
-<jae.hyun.yoo@linux.intel.com> wrote:
+On Thu, Jul 12, 2018 at 10:46 AM, Boris Brezillon
+<boris.brezillon@bootlin.com> wrote:
+> On Thu, 12 Jul 2018 10:21:40 +0200 Arnd Bergmann <arnd@arndb.de> wrote:
+>> On Thu, Jul 12, 2018 at 12:09 AM, Boris Brezillon <boris.brezillon@bootl=
+in.com> wrote:
+>> > On Wed, 11 Jul 2018 22:10:26 +0200 Arnd Bergmann <arnd@arndb.de> wrote=
+:
+>> >> On Wed, Jul 11, 2018 at 7:12 PM, Boris Brezillon <boris.brezillon@boo=
+tlin.com> wrote:
+>> >> > On Wed, 11 Jul 2018 17:39:56 +0200 Arnd Bergmann <arnd@arndb.de> wr=
+ote:
+>> >> >> On Wed, Jul 11, 2018 at 4:41 PM, Boris Brezillon <boris.brezillon@=
+bootlin.com> wrote:
+>>
+>> If we can ignore the case of handing over between two masters that
+>> we both own, we end up being in just one of two states:
+>>
+>> a) currently we are the master
+>> b) we are not currently the master but have asked the current
+>>     master to transfer ownership back to us. For this, we have to
+>>     know who the current master is of course.
+>>
+>> I think that's the simplest case that would work with the specification,
+>> but it relies on the assumption that the master controlled by Linux
+>> is always more important than any other master, and that we just
+>> hand over ownership for as long as the others want it.
+>>
+>> If that is not the case, we also need a third state
+>>
+>> c) we have handed ownership to another master that is equally
+>>     important, but no i2c device driver is currently trying to talk
+>>     to a device, so we don't need ownership back until a slave driver
+>>     changes state.
 >
-<snip>
-> >> +/* Timeout for bus busy checking */
-> >> +#define BUS_BUSY_CHECK_TIMEOUT                         250000 /* 250ms */
-> >> +#define BUS_BUSY_CHECK_INTERVAL                                10000  /* 10ms */
-> >
-> > Could you add a comment on where you got these values from?
-> >
+> That was the solution I was opting for.
 >
-> These are coming from ASPEED SDK code. Actually, they use 100ms for
-> timeout and 10ms for interval but I increased the timeout value to
-> 250ms so that it covers a various range of bus speed. I think, it
-> should be computed at run time based on the current bus speed, or
-> we could add these as device tree settings. How do you think about it?
+>>
+>> The main difference between b) and c) that I see would be what
+>> happens with in-band interrupts. If I understand the specification
+>> correctly, only the current master receives them, so if you have
+>> any i2c device that uses interrupts to talk to a Linux driver, we
 >
+>       ^ you mean i3c here, right?
 
-This should definitely be a device tree setting. If one of the busses is being
-used as a regular I2C bus, it could hold the bus for an unlimited amount of
-time before sending a STOP. As for a default, 100ms is probably fine given
-that, a) the limit will only apply to multi-master mode, and b) multi-master
-mode will probably almost always be used with IPMB, or MCTP (MCTP actually
-recommends a 100ms timeout for this purpose, see
-https://www.dmtf.org/sites/default/files/standards/documents/DSP0237_1.1.0.pdf,
-symbol PT2a). That being said, if you actually want to implement IPMB, or MCTP
-arbitration logic, it is much more complicated.
+sure
 
->  >
-<snip>
-> >>   #if IS_ENABLED(CONFIG_I2C_SLAVE)
-> >> -       if (aspeed_i2c_slave_irq(bus)) {
-> >> -               dev_dbg(bus->dev, "irq handled by slave.\n");
-> >> -               return IRQ_HANDLED;
-> >> +       if (bus->master_state != ASPEED_I2C_MASTER_INACTIVE) {
-> >> +               if (!aspeed_i2c_master_irq(bus))
-> >
-> > Why do you check the slave if master fails (or vice versa)? I
-> > understand that there are some status bits that have not been handled,
-> > but it doesn't seem reasonable to assume that there is state that the
-> > other should do something with; the only way this would happen is if
-> > the state that you think you are in does not match the status bits you
-> > have been given, but if this is the case, you are already hosed; I
-> > don't think trying the other handler is likely to make things better,
-> > unless there is something that I am missing.
-> >
+>> want to be in b) rather than c). An example of this would be
+>> an input device on a PC: If the user operateds the keyboard
+>> or pointer and we have handed off ownership to a sensor hub,
+>> we never get an input event, right?
 >
-> In most of cases, interrupt bits are set one by one but there are also a
-> lot of other cases that ASPEED I2C H/W sends multiple interrupt bits
-> with combining master and slave events using a single interrupt call. It
-> happens much in multi-master environment than single-master. For
-> example, when master is waiting for a NORMAL_STOP interrupt in its
-> MASTER_STOP state, SLAVE_MATCH and RX_DONE interrupts could come along
-> with the NORMAL_STOP in case of an another master immediately sends data
-> just after acquiring the bus - it happens a lot in BMC-ME connection
-> practically. In this case, the NORMAL_STOP interrupt should be handled
-> by master_irq and the SLAVE_MATCH and RX_DONE interrupts should be
-> handled by slave_irq so it's the reason why this code is added.
-
-That sucks. Well, it sounds like there are only a handful of cases in which
-this can happen. Maybe enumerate these cases and error out or at least warn if
-it is not one of them?
-
+> Correct. I guess we could try to regain bus ownership in case we have
+> IBIs enabled. Or we let the secondary master give the bus back to us
+> when it sees IBIs it can't handle, as described in section 5.1.7:
 >
-<snip>
-> >> +       for (;;) {
-> >> +               if (!(readl(bus->base + ASPEED_I2C_CMD_REG) &
-> >> +                     (ASPEED_I2CD_BUS_BUSY_STS |
-> >> +                      ASPEED_I2CD_XFER_MODE_STS_MASK)))
-> >
-> > Is using the Transfer Mode State Machine bits necessary? The
-> > documentation marks it as "for debugging purpose only," so relying on
-> > it makes me nervous.
-> >
->
-> As you said, the documentation marks it as "for debugging purpose only."
-> but ASPEED also uses this way in their SDK code because it's the best
-> way for checking bus busy status which can cover both single and
-> multi-master use cases.
->
+> "
+> Once granted control of the Bus, the Secondary Master maintains
+> control until another Master is granted Bus control. After the
+> Secondary Master transitions to the Current Master role it could
+> encounter Bus management activities besides the data transfers that it
+> itself initiates. Some examples are the In-Band Interrupt, or the
+> Hot-Join request. One optional possibility, shown at Section 5.1.7.2,
+> is that the Secondary Master performs the Current Master=E2=80=99s action=
+s with
+> the full capabilities of the Main Master. Another optional possibility
+> is that the Secondary Master, while serving in the Current Master role,
+> could defer some actions to a more capable Master, as described in
+> Section 5.1.7.3.
+> "
 
-Well, it would also be really nice to have access to this bit if someone wants
-to implement MCTP. Could we maybe check with Aspeed what them meant by "for
-debugging purposes only" and document it here? It makes me nervous to rely on
-debugging functionality for normal usage.
+Ah, so the current master can ask a secondary master to take over
+again even if  the secondary master has not requested to be come the
+current master?
 
-> >> +                       return 0;
-> >> +               if (ktime_compare(ktime_get(), timeout) > 0)
-> >> +                       break;
-> >> +               usleep_range((BUS_BUSY_CHECK_INTERVAL >> 2) + 1,
-> >
-> > Where did you get this minimum value?
-> >
+>> > I agree. This being said, moving to a representation where the bus is
+>> > implicitly represented by the master_controller instance shouldn't be
+>> > too difficult. So, if you think we should try this approach I can do
+>> > the modifications in my v6.
+>>
+>> I'd say let's wait before you do that change, possibly add a comment
+>> in there now to remind us of what an alternative would be.
 >
-> No source for the minimum value. ASPEED uses mdelay(10) in their SDK
-> but I changed that code using usleep_range and the range value was set
-> with considering time stretching of usleep_range.
-> regmap_read_poll_timeout was a reference for this code.
+> You mean I should keep the i3c_bus object?
 
-What protocol are you trying to implement on top of this? You mentioned BMC-ME
-above; that's IPMB, right? For most use cases, this should work, but if you
-need arbitration, you will need to do quite a bit more work.
+I mean the ongoing discussion shouldn't stop you from posting a v6.
 
->
-> Thanks,
->
-> Jae
-<snip>
-
-Cheers
+        Arnd
