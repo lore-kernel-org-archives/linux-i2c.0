@@ -1,40 +1,35 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH/RFT 6/6] i2c: recovery: remove bogus check if SDA GPIO is set to output
-Date: Fri, 13 Jul 2018 23:09:18 +0200
-Message-ID: <20180713210920.3648-7-wsa+renesas@sang-engineering.com>
+Subject: [PATCH/RFT 3/6] i2c: designware: set SDA as output for recovery
+Date: Fri, 13 Jul 2018 23:09:15 +0200
+Message-ID: <20180713210920.3648-4-wsa+renesas@sang-engineering.com>
 References: <20180713210920.3648-1-wsa+renesas@sang-engineering.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180713210920.3648-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, kernel@pengutronix.de, Wolfram Sang <wsa+renesas@sang-engineering.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, kernel@pengutronix.de, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This check did not work as intended. I2C is open drain, so this function
-will likely always have presented the GPIO as input because
-gpiod_get_direction doesn't know about open drain states. Remove this
-check for now. We can add it again once we know how to get more precise
-information about the GPIO.
+This allows for sending STOP when generating pulses which is much more
+robust because it will bring clients into a default state.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/i2c-core-base.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-designware-master.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 301285c54603..7c5f012f561c 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -261,9 +261,7 @@ static void i2c_init_recovery(struct i2c_adapter *adap)
- 		bri->set_scl = set_scl_gpio_value;
- 		if (bri->sda_gpiod) {
- 			bri->get_sda = get_sda_gpio_value;
--			/* FIXME: add proper flag instead of '0' once available */
--			if (gpiod_get_direction(bri->sda_gpiod) == 0)
--				bri->set_sda = set_sda_gpio_value;
-+			bri->set_sda = set_sda_gpio_value;
- 		}
- 		return;
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index a546db80f53e..25981efc844e 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -674,7 +674,7 @@ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
  	}
+ 	rinfo->scl_gpiod = gpio;
+ 
+-	gpio = devm_gpiod_get_optional(dev->dev, "sda", GPIOD_IN);
++	gpio = devm_gpiod_get_optional(dev->dev, "sda", GPIOD_OUT_HIGH_OPEN_DRAIN);
+ 	if (IS_ERR(gpio))
+ 		return PTR_ERR(gpio);
+ 	rinfo->sda_gpiod = gpio;
 -- 
 2.11.0
