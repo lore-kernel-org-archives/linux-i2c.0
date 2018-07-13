@@ -1,34 +1,59 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH/RFT 2/6] i2c: imx: use open drain for recovery GPIO
-Date: Fri, 13 Jul 2018 23:09:14 +0200
-Message-ID: <20180713210920.3648-3-wsa+renesas@sang-engineering.com>
-References: <20180713210920.3648-1-wsa+renesas@sang-engineering.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180713210920.3648-1-wsa+renesas@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH/RFT 0/6] i2c: recovery: fix GPIO usage for recovery
+Date: Fri, 13 Jul 2018 23:09:12 +0200
+Message-ID: <20180713210920.3648-1-wsa+renesas@sang-engineering.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, kernel@pengutronix.de, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-kernel@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-arm-kernel@lists.infradead.org, kernel@pengutronix.de, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-I2C is open drain, so set up the GPIO accordingly.
+I have sent the last patch of this series before, but then I realized I need to
+convert all users of GPIO recovery before. I needed to make sure they all set
+the SDA GPIO to output, this is what patches 3-5 are doing. Which is also good
+for them because then they can send STOP at apropriate places when doing
+recovery.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-imx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Then, I noticed that two drivers were not using the open drain mode for SCL
+which seems like a bug to me. So, patches 1+2 address that. I'd think those two
+are stable material.
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 0207e194f84b..3e23ee26c55c 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1010,7 +1010,7 @@ static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
- 	i2c_imx->pinctrl_pins_gpio = pinctrl_lookup_state(i2c_imx->pinctrl,
- 			"gpio");
- 	rinfo->sda_gpiod = devm_gpiod_get(&pdev->dev, "sda", GPIOD_IN);
--	rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl", GPIOD_OUT_HIGH);
-+	rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl", GPIOD_OUT_HIGH_OPEN_DRAIN);
- 
- 	if (PTR_ERR(rinfo->sda_gpiod) == -EPROBE_DEFER ||
- 	    PTR_ERR(rinfo->scl_gpiod) == -EPROBE_DEFER) {
+Due to no hardware, I could only build test these patches. I'd be really
+looking forward to comments or tests of these patches.
+
+A branch can be found here:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/i2c/recovery-sda-output
+
+Thanks,
+
+   Wolfram
+
+
+Wolfram Sang (6):
+  i2c: designware: use open drain for recovery GPIO
+  i2c: imx: use open drain for recovery GPIO
+  i2c: designware: set SDA as output for recovery
+  i2c: davinci: set SDA as output for recovery
+  i2c: imx: set SDA as output for recovery
+  i2c: recovery: remove bogus check if SDA GPIO is set to output
+
+ drivers/i2c/busses/i2c-davinci.c           | 3 ++-
+ drivers/i2c/busses/i2c-designware-master.c | 4 ++--
+ drivers/i2c/busses/i2c-imx.c               | 4 ++--
+ drivers/i2c/i2c-core-base.c                | 4 +---
+ 4 files changed, 7 insertions(+), 8 deletions(-)
+
 -- 
 2.11.0
