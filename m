@@ -1,31 +1,54 @@
-From: Ludovic Desroches <ludovic.desroches@microchip.com>
-Subject: Re: [v2,3/3] i2c: at91: added slave mode support
-Date: Fri, 13 Jul 2018 08:37:47 +0200
-Message-ID: <20180713063747.zs5kpcfcnvgjodz4@M43218.corp.atmel.com>
-References: <c9b749fca8e684aa47ead9a5d9e68751326f63cb.1510247114.git.me@jue.yt>
- <20180602213513.qv45gaq2kogagju3@katana>
- <20180709151504.6phtp4rm7of6b2qc@M43218.corp.atmel.com>
- <20180709155135.bjwhrmbk6j26fx4c@ninjato>
- <20180710084257.ewgnvroow5weffvf@M43218.corp.atmel.com>
- <20180712215624.qtdm3au6os4iobqo@ninjato>
+From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Subject: [PATCH] i2c: davinci: Avoid zero value of CLKH
+Date: Fri, 13 Jul 2018 17:20:17 +0200
+Message-ID: <20180713152017.2207-1-alexander.sverdlin@nokia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180712215624.qtdm3au6os4iobqo@ninjato>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Juergen Fitschen <me@jue.yt>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-i2c@vger.kernel.org
+Cc: Sekhar Nori <nsekhar@ti.com>, Alexander Sverdlin <alexander.sverdlin@nokia.com>, linux-arm-kernel@lists.infradead.org, Kevin Hilman <khilman@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jul 12, 2018 at 11:56:24PM +0200, Wolfram Sang wrote:
-> 
-> > Yes sure, you can add my Ack. I would be pleased to see the slave
-> > support taken.
-> 
-> Sadly, I can't get it to apply cleanly. Could you rebase and retest?
-> 
+If CLKH is set to 0 I2C clock is not generated at all, so avoid this value
+and stretch the clock in this case.
 
-Ok I'll handle it and add my Acked-by.
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+---
+ drivers/i2c/busses/i2c-davinci.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-Ludovic
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index 75d6ab177055..7379043711df 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -237,12 +237,16 @@ static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
+ 	/*
+ 	 * It's not always possible to have 1 to 2 ratio when d=7, so fall back
+ 	 * to minimal possible clkh in this case.
++	 *
++	 * Note:
++	 * CLKH is not allowed to be 0, in this case I2C clock is not generated
++	 * at all
+ 	 */
+-	if (clk >= clkl + d) {
++	if (clk > clkl + d) {
+ 		clkh = clk - clkl - d;
+ 		clkl -= d;
+ 	} else {
+-		clkh = 0;
++		clkh = 1;
+ 		clkl = clk - (d << 1);
+ 	}
+ 
+-- 
+2.18.0
