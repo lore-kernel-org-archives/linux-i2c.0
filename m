@@ -1,82 +1,30 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.18
-Date: Fri, 13 Jul 2018 22:34:23 +0200
-Message-ID: <20180713203419.ty2boi6zj6qvzyoh@katana>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Subject: Re: [PATCH] i2c: aspeed: Adjust spinlock scope in the irq handler
+Date: Fri, 13 Jul 2018 13:37:17 -0700
+Message-ID: <0840cfe8-e18a-ae7c-5593-fc43b9b47291@linux.intel.com>
+References: <20180702214011.16071-1-jae.hyun.yoo@linux.intel.com>
+ <CAFd5g47nBCbF0mcYqEnQkDpz0Dhh0F0S1-wEL_yBHgs1b3yE5w@mail.gmail.com>
+ <59538d26-f025-28da-63df-f675e80fd68b@linux.intel.com>
+ <20180713203327.47yq4gucidbzn2hd@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="mwcxmur3ww62ikxn"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <20180713203327.47yq4gucidbzn2hd@katana>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, james.feist@linux.intel.com, vernon.mauery@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
 
+On 7/13/2018 1:33 PM, Wolfram Sang wrote:
+> 
+>> BTW, to whom should I ask applying this patch? Should I send v2 after
+>> adding your reviewed-by tag?
+> 
+> Not needed, thanks. I use 'patchwork' and this tool collects all the
+> tags for me. If I see a patch reviewed by a driver maintainer, I'll pick
+> it up in the next queue.
+> 
 
---mwcxmur3ww62ikxn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Linus,
-
-I2C has for you:
-
-- one I2C core bugfix regarding bus recovery
-- one driver bugfix for the tegra driver
-- one typo correction
-
-Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit 021c91791a5e7e85c567452f1be3e4c2c6cb6063:
-
-  Linux 4.18-rc3 (2018-07-01 16:04:53 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to abe41184abac487264a4904bfcff2d5500dccce6:
-
-  i2c: recovery: if possible send STOP with recovery pulses (2018-07-12 23:38:18 +0200)
-
-----------------------------------------------------------------
-Jon Hunter (1):
-      i2c: tegra: Fix NACK error handling
-
-Thadeu Lima de Souza Cascardo (1):
-      i2c: stu300: use non-archaic spelling of failes
-
-Wolfram Sang (1):
-      i2c: recovery: if possible send STOP with recovery pulses
-
- drivers/i2c/busses/i2c-stu300.c |  2 +-
- drivers/i2c/busses/i2c-tegra.c  | 17 ++++++++---------
- drivers/i2c/i2c-core-base.c     | 11 ++++++++++-
- 3 files changed, 19 insertions(+), 11 deletions(-)
-
---mwcxmur3ww62ikxn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltJDMsACgkQFA3kzBSg
-Kbbt4A//Y6aUUG/9P1ZuycD+2HRdTU4p2Ma+ogx5O6bX93blLwWtlAG1XJPorUUy
-fldw0NuHQDd0N2CgeJH0OGdTlDpwO1cyGkOEUXVjVMEZc6sySa4utY+kRNEqhiUF
-TXmqW3NNqEwDskxS89XwIGQn45dQ856PW5n4C580u4KUCu1KXXp3OjPUFnX+lDDl
-nzcnW3fn4AtEPXSAkHDuZyw7algIbkkrTorhejNfPIEP5R3b93QGpjaIZto6gDXT
-xc5/odzR9Ag2GcP2IWpdkk6kc1qJ1mT0GqwJKi5+IybLWZddrg3oarravbRvdfL5
-2WmVWYq/DktfJIwZu8IFt+eCycNHtylT6VS0PhAHNh9G5P02TSrUi8ywm+EZBI6s
-PYeqrTXWCjKYiPjxjusfkDkag/MgYMguuJB28G7yrvBXLLKh1QxDRyUpqPteDDY1
-KH8drR8NUQ+qxfWArgMQGQjg/iJrrQRXK6DOre+AnBCK91dB/N+ATg6/PY/vPONN
-/QqjHoMN14449VYrJ5LxYnh2qC8p0pAuywpgMfUQSetao7p+7GqC+4FHfuX85SDh
-o0xt/J+d36oOUNt8/XXpegClXxEc/52Y2A+OnjmgBcbmTUWtsqLTkZhUj/GidLfg
-HTtMFxCau3L6iESjKQjZ338mkPLsKWLt/cWWMapiWqmIJMOa1Fc=
-=aVKt
------END PGP SIGNATURE-----
-
---mwcxmur3ww62ikxn--
+Oh, I see. Thanks a lot Wolfram!
