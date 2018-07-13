@@ -1,30 +1,34 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: Re: [PATCH] i2c: aspeed: Adjust spinlock scope in the irq handler
-Date: Fri, 13 Jul 2018 13:37:17 -0700
-Message-ID: <0840cfe8-e18a-ae7c-5593-fc43b9b47291@linux.intel.com>
-References: <20180702214011.16071-1-jae.hyun.yoo@linux.intel.com>
- <CAFd5g47nBCbF0mcYqEnQkDpz0Dhh0F0S1-wEL_yBHgs1b3yE5w@mail.gmail.com>
- <59538d26-f025-28da-63df-f675e80fd68b@linux.intel.com>
- <20180713203327.47yq4gucidbzn2hd@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH/RFT 1/6] i2c: designware: use open drain for recovery GPIO
+Date: Fri, 13 Jul 2018 23:09:13 +0200
+Message-ID: <20180713210920.3648-2-wsa+renesas@sang-engineering.com>
+References: <20180713210920.3648-1-wsa+renesas@sang-engineering.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180713203327.47yq4gucidbzn2hd@katana>
-Content-Language: en-US
+In-Reply-To: <20180713210920.3648-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, james.feist@linux.intel.com, vernon.mauery@linux.intel.com
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, kernel@pengutronix.de, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 7/13/2018 1:33 PM, Wolfram Sang wrote:
-> 
->> BTW, to whom should I ask applying this patch? Should I send v2 after
->> adding your reviewed-by tag?
-> 
-> Not needed, thanks. I use 'patchwork' and this tool collects all the
-> tags for me. If I see a patch reviewed by a driver maintainer, I'll pick
-> it up in the next queue.
-> 
+I2C is open drain, so set up the GPIO accordingly.
 
-Oh, I see. Thanks a lot Wolfram!
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-designware-master.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index fc7c255c80af..a546db80f53e 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -665,7 +665,7 @@ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
+ 	struct gpio_desc *gpio;
+ 	int r;
+ 
+-	gpio = devm_gpiod_get(dev->dev, "scl", GPIOD_OUT_HIGH);
++	gpio = devm_gpiod_get(dev->dev, "scl", GPIOD_OUT_HIGH_OPEN_DRAIN);
+ 	if (IS_ERR(gpio)) {
+ 		r = PTR_ERR(gpio);
+ 		if (r == -ENOENT || r == -ENOSYS)
+-- 
+2.11.0
