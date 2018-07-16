@@ -1,82 +1,51 @@
-From: Phil Edworthy <phil.edworthy@renesas.com>
-Subject: [PATCH 2/2] i2c: designware: Add support for a bus clock
-Date: Mon, 16 Jul 2018 09:59:13 +0100
-Message-ID: <1531731553-22979-3-git-send-email-phil.edworthy@renesas.com>
-References: <1531731553-22979-1-git-send-email-phil.edworthy@renesas.com>
+From: Ulrich Hecht <ulrich.hecht@gmail.com>
+Subject: Re: [PATCH/RFT 6/6] i2c: recovery: remove bogus check if SDA GPIO is
+ set to output
+Date: Mon, 16 Jul 2018 11:29:29 +0200
+Message-ID: <CAO3366ySBBKpz1fpZ8orLTVF-tU+Gw3A7CiqaJWtmyGiU6kdYA@mail.gmail.com>
+References: <20180713210920.3648-1-wsa+renesas@sang-engineering.com> <20180713210920.3648-7-wsa+renesas@sang-engineering.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1531731553-22979-1-git-send-email-phil.edworthy@renesas.com>
+In-Reply-To: <20180713210920.3648-7-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Phil Edworthy <phil.edworthy@renesas.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, kernel@pengutronix.de, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The Synopsys I2C Controller has a bus clock, but typically SoCs hide this away.
-However, on some SoCs you need to explicity enable the bus clock in order to
-access the registers.
-Therefore, enable an optional bus clock specified by DT.
+On Fri, Jul 13, 2018 at 11:09 PM, Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> This check did not work as intended. I2C is open drain, so this function
+> will likely always have presented the GPIO as input because
+> gpiod_get_direction doesn't know about open drain states. Remove this
+> check for now. We can add it again once we know how to get more precise
+> information about the GPIO.
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  drivers/i2c/i2c-core-base.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+>
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index 301285c54603..7c5f012f561c 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -261,9 +261,7 @@ static void i2c_init_recovery(struct i2c_adapter *adap)
+>                 bri->set_scl = set_scl_gpio_value;
+>                 if (bri->sda_gpiod) {
+>                         bri->get_sda = get_sda_gpio_value;
+> -                       /* FIXME: add proper flag instead of '0' once available */
+> -                       if (gpiod_get_direction(bri->sda_gpiod) == 0)
+> -                               bri->set_sda = set_sda_gpio_value;
+> +                       bri->set_sda = set_sda_gpio_value;
+>                 }
+>                 return;
+>         }
+> --
+> 2.11.0
+>
 
-Signed-off-by: Phil Edworthy <phil.edworthy@renesas.com>
----
- drivers/i2c/busses/i2c-designware-common.c  | 14 +++++++++++++-
- drivers/i2c/busses/i2c-designware-core.h    |  1 +
- drivers/i2c/busses/i2c-designware-platdrv.c |  2 ++
- 3 files changed, 16 insertions(+), 1 deletion(-)
+Reviewed-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 48914df..4fa67d6 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -186,13 +186,25 @@ unsigned long i2c_dw_clk_rate(struct dw_i2c_dev *dev)
- 
- int i2c_dw_prepare_clk(struct dw_i2c_dev *dev, bool prepare)
- {
-+	int ret;
-+
- 	if (IS_ERR(dev->clk))
- 		return PTR_ERR(dev->clk);
- 
--	if (prepare)
-+	if (prepare) {
-+		/* Optional bus clock */
-+		if (!IS_ERR(dev->busclk)) {
-+			ret = clk_prepare_enable(dev->busclk);
-+			if (ret)
-+				return ret;
-+		}
-+
- 		return clk_prepare_enable(dev->clk);
-+	}
- 
- 	clk_disable_unprepare(dev->clk);
-+	clk_disable_unprepare(dev->busclk);
-+
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(i2c_dw_prepare_clk);
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index d690e64..10f905d 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -239,6 +239,7 @@ struct dw_i2c_dev {
- 	void __iomem		*base;
- 	struct completion	cmd_complete;
- 	struct clk		*clk;
-+	struct clk		*busclk;
- 	struct reset_control	*rst;
- 	struct i2c_client		*slave;
- 	u32			(*get_clk_rate_khz) (struct dw_i2c_dev *dev);
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 5660daf..64389fe 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -332,6 +332,8 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	else
- 		i2c_dw_configure_master(dev);
- 
-+	/* Optional bus clock */
-+	dev->busclk = devm_clk_get(&pdev->dev, "bus");
- 	dev->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (!i2c_dw_prepare_clk(dev, true)) {
- 		dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
--- 
-2.7.4
+CU
+Uli
