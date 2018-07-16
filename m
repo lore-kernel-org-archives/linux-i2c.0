@@ -1,51 +1,113 @@
-From: Ulrich Hecht <ulrich.hecht@gmail.com>
-Subject: Re: [PATCH/RFT 6/6] i2c: recovery: remove bogus check if SDA GPIO is
- set to output
-Date: Mon, 16 Jul 2018 11:29:29 +0200
-Message-ID: <CAO3366ySBBKpz1fpZ8orLTVF-tU+Gw3A7CiqaJWtmyGiU6kdYA@mail.gmail.com>
-References: <20180713210920.3648-1-wsa+renesas@sang-engineering.com> <20180713210920.3648-7-wsa+renesas@sang-engineering.com>
+From: Ludovic Desroches <ludovic.desroches@microchip.com>
+Subject: [PATCH v3 0/3] i2c: at91: slave mode support
+Date: Mon, 16 Jul 2018 11:40:34 +0200
+Message-ID: <20180716094037.1843-1-ludovic.desroches@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180713210920.3648-7-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, kernel@pengutronix.de, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: me@jue.yt, wsa@the-dreams.de, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org, Ludovic Desroches <ludovic.desroches@microchip.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 13, 2018 at 11:09 PM, Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
-> This check did not work as intended. I2C is open drain, so this function
-> will likely always have presented the GPIO as input because
-> gpiod_get_direction doesn't know about open drain states. Remove this
-> check for now. We can add it again once we know how to get more precise
-> information about the GPIO.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->  drivers/i2c/i2c-core-base.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
->
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 301285c54603..7c5f012f561c 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -261,9 +261,7 @@ static void i2c_init_recovery(struct i2c_adapter *adap)
->                 bri->set_scl = set_scl_gpio_value;
->                 if (bri->sda_gpiod) {
->                         bri->get_sda = get_sda_gpio_value;
-> -                       /* FIXME: add proper flag instead of '0' once available */
-> -                       if (gpiod_get_direction(bri->sda_gpiod) == 0)
-> -                               bri->set_sda = set_sda_gpio_value;
-> +                       bri->set_sda = set_sda_gpio_value;
->                 }
->                 return;
->         }
-> --
-> 2.11.0
->
+[Ludovic Desroches: see 'Changes in v3' section]
 
-Reviewed-by: Ulrich Hecht <ulrich.hecht+renesas@gmail.com>
+Based on the discussion we had on the i2c-linux list [1], I wrote a patch for
+AT91 hardware and tried to fulfill the Linux I2C slave interface description
+[2] as good as possible. This enables aforementioned hardware to act as an I2C
+slave that can be accessed by a remote I2C master.
 
-CU
-Uli
+I have tested this patchset successfully on an ATSAMA5D27.
+
+                                 ^  3.3V   ^  3.3V
+    +-----------------------+    |         |         +-----------------------+
+    | Slave: ATSAMA5D27     |   +-+       +-+        | Master: ATSAMA5D35    |
+    | with i2c-slave-eeprom |   | | 100k  | | 100k   | with i2cset           |
+    +-------------------+-+-+   +-+       +-+        +-+-+-------------------+
+                        | |      |         |           | |
+                        | +------+---------|---(SDA)---+ |
+                        +------------------+---(SCL)-----+
+
+    Schematic: Connection of slave and master with 100kOhm pullup resistors.
+
+On the master the following BASH script has been used to stress the slave.
+
+	root@emblinux:~# cat ./stress.sh
+	#!/bin/bash
+	I=0
+	while true
+	do
+		if i2cset -y -r 1 0x64 0 $I w | grep mismatch
+		then
+			echo "$(date): Error in transmission ${I}"
+		fi
+		((I++))
+		if [ $I -eq 65536 ]
+		then
+			I=0
+			echo "$(date): Sent 65536 transmissions"
+		fi
+	done
+
+After running the script for some time I had the following output. To me this
+looks promising :)
+
+	root@emblinux:~# ./stress.sh
+	Thu Nov  9 13:58:45 CTE 2017: Sent 65536 transmissions
+	Thu Nov  9 14:35:20 CTE 2017: Sent 65536 transmissions
+	Thu Nov  9 15:12:11 CTE 2017: Sent 65536 transmissions
+	Thu Nov  9 15:49:04 CTE 2017: Sent 65536 transmissions
+	Thu Nov  9 16:26:00 CTE 2017: Sent 65536 transmissions
+	Thu Nov  9 17:03:07 UTC 2017: Sent 65536 transmissions
+	Thu Nov  9 17:40:15 UTC 2017: Sent 65536 transmissions
+
+	If you have some hardware with an at91-i2c interface included at hand, I really
+	would appreciate if you can run the test script on your hardware and test this
+	driver.
+
+Best regards
+  Juergen
+
+
+[Ludovic Desroches]
+Changes in v3:
+ - rebase (cherry-pick was enough)
+ - fix checkpatch errors
+ - tests:
+   - hangs with a SAMA5D4 (master and slave on different busses) after about
+   100 transfers. It's the firs time I do this test.
+   - some mismatches with a SAMA5D4 as slave and a SAMA5D2 as master
+   I don't know if it's a regression. I don't remember having seen this
+   behavior previously.
+   I think it's worth taking those patches even if there are some possible
+   bugs. It'll allow to get more people using it and so to consolidate the
+   slave mode support.
+
+Changes in v2:
+ - Implemented all suggestions made by Ludovic. (Thank you!)
+ - Reworked the IRQ handler completely. Have a look in patch 3 fort further
+   details.
+
+[1] https://marc.info/?t=150824004800001&r=1&w=1
+[2] https://www.kernel.org/doc/Documentation/i2c/slave-interface
+
+Juergen Fitschen (3):
+  i2c: at91: segregate master mode specific code from probe and init
+    func
+  i2c: at91: split driver into core and master file
+  i2c: at91: added slave mode support
+
+ MAINTAINERS                                        |   3 +-
+ drivers/i2c/busses/Makefile                        |   4 +
+ drivers/i2c/busses/i2c-at91-core.c                 | 380 +++++++++++++++++
+ .../i2c/busses/{i2c-at91.c => i2c-at91-master.c}   | 453 +--------------------
+ drivers/i2c/busses/i2c-at91-slave.c                | 147 +++++++
+ drivers/i2c/busses/i2c-at91.h                      | 179 ++++++++
+ 6 files changed, 719 insertions(+), 447 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-at91-core.c
+ rename drivers/i2c/busses/{i2c-at91.c => i2c-at91-master.c} (67%)
+ create mode 100644 drivers/i2c/busses/i2c-at91-slave.c
+ create mode 100644 drivers/i2c/busses/i2c-at91.h
+
+-- 
+2.12.2
