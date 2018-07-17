@@ -1,35 +1,83 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 3/5] i2c: designware: add MSCC Ocelot support
-Date: Tue, 17 Jul 2018 18:26:15 +0300
-Message-ID: <c7704b44012f6b743cc3791eab3faf674f988ce9.camel@linux.intel.com>
-References: <20180717114837.21839-1-alexandre.belloni@bootlin.com>
-         <20180717114837.21839-4-alexandre.belloni@bootlin.com>
-         <1886510d2a828d3a246ef1f490c6819f073fbdcb.camel@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: Eddie James <eajames@linux.vnet.ibm.com>
+Subject: [PATCH v12 0/8] i2c: Add FSI-attached I2C master algorithm
+Date: Tue, 17 Jul 2018 10:30:58 -0500
+Message-ID: <1531841466-9833-1-git-send-email-eajames@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1886510d2a828d3a246ef1f490c6819f073fbdcb.camel@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Hogan <jhogan@kernel.org>
-Cc: Paul Burton <paul.burton@mips.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>, Rob Herring <robh+dt@kernel.org>
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, rdunlap@infradead.org, andy.shevchenko@gmail.com, peda@axentia.se, Eddie James <eajames@linux.vnet.ibm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2018-07-17 at 18:16 +0300, Andy Shevchenko wrote:
-> On Tue, 2018-07-17 at 13:48 +0200, Alexandre Belloni wrote:
-> > The Microsemi Ocelot I2C controller is a designware IP. It also has
-> > a
-> > second set of registers to allow tweaking SDA hold time and spike
-> > filtering.
+This series adds an algorithm for an I2C master physically located on an FSI
+slave device. The I2C master has multiple ports, each of which may be connected
+to an I2C slave. Access to the I2C master registers is achieved over FSI bus.
 
-> What do you think?
+Due to the multi-port nature of the I2C master, the driver instantiates a new
+I2C adapter for each port connected to a slave. The connected ports should be
+defined in the device tree under the I2C master device.
 
-You can also split it to 2-3 patches, like:
-- move to device_get_match_data()
-- move OF device table above in the code (no func changes)
-- add support for MSCC
+Changes since v11
+ - Remove I2C_FUNC_10BIT_ADDR since we don't support it
+ - Don't shift the msg->addr when encoding the command; use it as-is
 
+Changes since v10
+ - Add myself to maintainers
+ - Rework the reset path. Use generic bus recovery and only do the reset if SDA
+   is low.
+ - Fixed email signature on dts patch
+ - Pulled in Ben H's fix for use-after-free in remove()
+
+Changes since v9
+ - Switch the status masks to use a combination of bits rather than directly
+   coding the value
+ - Remove the interrupt mask definition as it was unused
+ - Fixed return value of master_xfer function (return number of xfrs, not 0)
+
+Changes since v8
+ - Drop unecessary else statements
+ - Use i++ instead of ++i
+ - Use kzalloc/kfree instead of devm_kzalloc/devm_kfree for port structure
+ - Drop the list_empty check in remove
+
+Changes since v7
+ - Fix grammer in Kconfig (a -> an)
+ - Change I2C registers to use BIT and GENMASK
+ - Remove custom macros and use FIELD_PREP and FIELD_GET
+ - Fix a few unecessary initializations and "return rc" that are always zero
+ - Clean up the read/write fifo functions a bit
+ - Few other clean-up items
+
+Changes since v6
+ - Remove spinlock for reset functionality; it's unecessary and doesn't work
+   with the latest FSI core.
+ - Use a mutex instead of a semaphore, and don't wait for timeout to get the
+   lock.
+ - Use usleeps instead of schedule_timeout; it's not worth the overhead when
+   the wait should be very short in between sending the command and receiving
+   the response.
+
+Changes since v5
+ - Fix reset functionality and do a reset after every transfer failure
+
+eajames@linux.vnet.ibm.com (8):
+  dt-bindings: i2c: Add FSI-attached I2C master dt binding documentation
+  i2c: Add FSI-attached I2C master algorithm
+  i2c: fsi: Add port structures
+  i2c: fsi: Add abort and hardware reset procedures
+  i2c: fsi: Add transfer implementation
+  i2c: fsi: Add I2C master locking
+  i2c: fsi: Add bus recovery
+  MAINTAINERS: Add Eddie as the maintainer for the FSI-attached I2C
+    driver
+
+ Documentation/devicetree/bindings/i2c/i2c-fsi.txt |  40 ++
+ MAINTAINERS                                       |   8 +
+ drivers/i2c/busses/Kconfig                        |  11 +
+ drivers/i2c/busses/Makefile                       |   1 +
+ drivers/i2c/busses/i2c-fsi.c                      | 752 ++++++++++++++++++++++
+ 5 files changed, 812 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+ create mode 100644 drivers/i2c/busses/i2c-fsi.c
 
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+1.8.3.1
