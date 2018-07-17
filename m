@@ -1,71 +1,92 @@
-From: Sekhar Nori <nsekhar@ti.com>
-Subject: Re: [PATCH] i2c: davinci: Avoid zero value of CLKH
-Date: Tue, 17 Jul 2018 17:27:51 +0530
-Message-ID: <ab965f1d-de6c-75f7-9ebd-35d31ed3de18@ti.com>
-References: <20180713152017.2207-1-alexander.sverdlin@nokia.com>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH 2/2] i2c: designware: Add support for a bus clock
+Date: Tue, 17 Jul 2018 14:07:37 +0200
+Message-ID: <20180717120737.bipotpki3yhn6klf@verge.net.au>
+References: <1531731553-22979-1-git-send-email-phil.edworthy@renesas.com>
+ <1531731553-22979-3-git-send-email-phil.edworthy@renesas.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180713152017.2207-1-alexander.sverdlin@nokia.com>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Alexander Sverdlin <alexander.sverdlin@nokia.com>, linux-i2c@vger.kernel.org
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>, linux-arm-kernel@lists.infradead.org, Kevin Hilman <khilman@kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1531731553-22979-3-git-send-email-phil.edworthy@renesas.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Phil Edworthy <phil.edworthy@renesas.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday 13 July 2018 08:50 PM, Alexander Sverdlin wrote:
-> If CLKH is set to 0 I2C clock is not generated at all, so avoid this value
-> and stretch the clock in this case.
-
-This must be by observation since specification does not seem to state
-this.
-
+On Mon, Jul 16, 2018 at 09:59:13AM +0100, Phil Edworthy wrote:
+> The Synopsys I2C Controller has a bus clock, but typically SoCs hide this away.
+> However, on some SoCs you need to explicity enable the bus clock in order to
+> access the registers.
+> Therefore, enable an optional bus clock specified by DT.
 > 
-> Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-
-In any case, the patch is fine.
-
-Acked-by: Sekhar Nori <nsekhar@ti.com>
-
-Thanks,
-Sekhar
-
+> Signed-off-by: Phil Edworthy <phil.edworthy@renesas.com>
 > ---
->  drivers/i2c/busses/i2c-davinci.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
+>  drivers/i2c/busses/i2c-designware-common.c  | 14 +++++++++++++-
+>  drivers/i2c/busses/i2c-designware-core.h    |  1 +
+>  drivers/i2c/busses/i2c-designware-platdrv.c |  2 ++
+>  3 files changed, 16 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index 75d6ab177055..7379043711df 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -237,12 +237,16 @@ static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
->  	/*
->  	 * It's not always possible to have 1 to 2 ratio when d=7, so fall back
->  	 * to minimal possible clkh in this case.
-> +	 *
-> +	 * Note:
-> +	 * CLKH is not allowed to be 0, in this case I2C clock is not generated
-> +	 * at all
->  	 */
-> -	if (clk >= clkl + d) {
-> +	if (clk > clkl + d) {
->  		clkh = clk - clkl - d;
->  		clkl -= d;
->  	} else {
-> -		clkh = 0;
-> +		clkh = 1;
->  		clkl = clk - (d << 1);
->  	}
+> diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+> index 48914df..4fa67d6 100644
+> --- a/drivers/i2c/busses/i2c-designware-common.c
+> +++ b/drivers/i2c/busses/i2c-designware-common.c
+> @@ -186,13 +186,25 @@ unsigned long i2c_dw_clk_rate(struct dw_i2c_dev *dev)
 >  
+>  int i2c_dw_prepare_clk(struct dw_i2c_dev *dev, bool prepare)
+>  {
+> +	int ret;
+> +
+>  	if (IS_ERR(dev->clk))
+>  		return PTR_ERR(dev->clk);
+>  
+> -	if (prepare)
+> +	if (prepare) {
+> +		/* Optional bus clock */
+> +		if (!IS_ERR(dev->busclk)) {
+
+I suspect that error values stored in dev->busclk,  other than -ENOENT,
+should be treated as errors.
+
+> +			ret = clk_prepare_enable(dev->busclk);
+> +			if (ret)
+> +				return ret;
+> +		}
+> +
+>  		return clk_prepare_enable(dev->clk);
+> +	}
+>  
+>  	clk_disable_unprepare(dev->clk);
+> +	clk_disable_unprepare(dev->busclk);
+> +
+>  	return 0;
+>  }
+>  EXPORT_SYMBOL_GPL(i2c_dw_prepare_clk);
+> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+> index d690e64..10f905d 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.h
+> +++ b/drivers/i2c/busses/i2c-designware-core.h
+> @@ -239,6 +239,7 @@ struct dw_i2c_dev {
+>  	void __iomem		*base;
+>  	struct completion	cmd_complete;
+>  	struct clk		*clk;
+> +	struct clk		*busclk;
+>  	struct reset_control	*rst;
+>  	struct i2c_client		*slave;
+>  	u32			(*get_clk_rate_khz) (struct dw_i2c_dev *dev);
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 5660daf..64389fe 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -332,6 +332,8 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+>  	else
+>  		i2c_dw_configure_master(dev);
+>  
+> +	/* Optional bus clock */
+> +	dev->busclk = devm_clk_get(&pdev->dev, "bus");
+>  	dev->clk = devm_clk_get(&pdev->dev, NULL);
+>  	if (!i2c_dw_prepare_clk(dev, true)) {
+>  		dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
 > -- 
-> 2.18.0
+> 2.7.4
 > 
