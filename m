@@ -1,7 +1,7 @@
 From: Eddie James <eajames@linux.vnet.ibm.com>
-Subject: [PATCH v12 3/8] i2c: fsi: Add port structures
-Date: Tue, 17 Jul 2018 10:31:01 -0500
-Message-ID: <1531841466-9833-4-git-send-email-eajames@linux.vnet.ibm.com>
+Subject: [PATCH v12 6/8] i2c: fsi: Add I2C master locking
+Date: Tue, 17 Jul 2018 10:31:04 -0500
+Message-ID: <1531841466-9833-7-git-send-email-eajames@linux.vnet.ibm.com>
 References: <1531841466-9833-1-git-send-email-eajames@linux.vnet.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1531841466-9833-1-git-send-email-eajames@linux.vnet.ibm.com>
@@ -12,164 +12,80 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: "eajames@linux.vnet.ibm.com" <eajames@linux.vnet.ibm.com>
 
-Add and initialize I2C adapters for each port on the FSI-attached I2C
-master. Ports for each master are defined in the devicetree.
+Since there are many ports per master, each with it's own adapter and
+chardev, we need some locking to prevent transfers from changing the
+master state while other transfers are in progress.
 
 Signed-off-by: Eddie James <eajames@linux.vnet.ibm.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
- drivers/i2c/busses/i2c-fsi.c | 91 ++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 91 insertions(+)
+ drivers/i2c/busses/i2c-fsi.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
-index 3725db1..1d9e9bf 100644
+index 45a6ebd..27d74a9 100644
 --- a/drivers/i2c/busses/i2c-fsi.c
 +++ b/drivers/i2c/busses/i2c-fsi.c
-@@ -17,7 +17,10 @@
- #include <linux/fsi.h>
- #include <linux/i2c.h>
+@@ -21,6 +21,7 @@
  #include <linux/kernel.h>
-+#include <linux/list.h>
+ #include <linux/list.h>
  #include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/slab.h>
++#include <linux/mutex.h>
+ #include <linux/of.h>
+ #include <linux/slab.h>
  
- #define FSI_ENGID_I2C		0x7
- 
-@@ -128,6 +131,14 @@
- struct fsi_i2c_master {
+@@ -148,6 +149,7 @@ struct fsi_i2c_master {
  	struct fsi_device	*fsi;
  	u8			fifo_size;
-+	struct list_head	ports;
-+};
-+
-+struct fsi_i2c_port {
-+	struct list_head	list;
-+	struct i2c_adapter	adapter;
-+	struct fsi_i2c_master	*master;
-+	u16			port;
+ 	struct list_head	ports;
++	struct mutex		lock;
  };
  
- static int fsi_i2c_read_reg(struct fsi_device *fsi, unsigned int reg,
-@@ -181,9 +192,38 @@ static int fsi_i2c_dev_init(struct fsi_i2c_master *i2c)
- 	return fsi_i2c_write_reg(i2c->fsi, I2C_FSI_WATER_MARK, &watermark);
+ struct fsi_i2c_port {
+@@ -486,11 +488,14 @@ static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	int i, rc;
+ 	unsigned long start_time;
+ 	struct fsi_i2c_port *port = adap->algo_data;
++	struct fsi_i2c_master *master = port->master;
+ 	struct i2c_msg *msg;
+ 
++	mutex_lock(&master->lock);
++
+ 	rc = fsi_i2c_set_port(port);
+ 	if (rc)
+-		return rc;
++		goto unlock;
+ 
+ 	for (i = 0; i < num; i++) {
+ 		msg = msgs + i;
+@@ -498,15 +503,17 @@ static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 
+ 		rc = fsi_i2c_start(port, msg, i == num - 1);
+ 		if (rc)
+-			return rc;
++			goto unlock;
+ 
+ 		rc = fsi_i2c_wait(port, msg,
+ 				  adap->timeout - (jiffies - start_time));
+ 		if (rc)
+-			return rc;
++			goto unlock;
+ 	}
+ 
+-	return num;
++unlock:
++	mutex_unlock(&master->lock);
++	return rc ? : num;
  }
  
-+static int fsi_i2c_set_port(struct fsi_i2c_port *port)
-+{
-+	int rc;
-+	struct fsi_device *fsi = port->master->fsi;
-+	u32 mode, dummy = 0;
-+
-+	rc = fsi_i2c_read_reg(fsi, I2C_FSI_MODE, &mode);
-+	if (rc)
-+		return rc;
-+
-+	if (FIELD_GET(I2C_MODE_PORT, mode) == port->port)
-+		return 0;
-+
-+	mode = (mode & ~I2C_MODE_PORT) | FIELD_PREP(I2C_MODE_PORT, port->port);
-+	rc = fsi_i2c_write_reg(fsi, I2C_FSI_MODE, &mode);
-+	if (rc)
-+		return rc;
-+
-+	/* reset engine when port is changed */
-+	return fsi_i2c_write_reg(fsi, I2C_FSI_RESET_ERR, &dummy);
-+}
-+
- static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 			int num)
- {
-+	int rc;
-+	struct fsi_i2c_port *port = adap->algo_data;
-+
-+	rc = fsi_i2c_set_port(port);
-+	if (rc)
-+		return rc;
-+
- 	return -EOPNOTSUPP;
- }
- 
-@@ -201,23 +241,73 @@ static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
- static int fsi_i2c_probe(struct device *dev)
- {
- 	struct fsi_i2c_master *i2c;
-+	struct fsi_i2c_port *port;
-+	struct device_node *np;
- 	int rc;
-+	u32 port_no;
- 
- 	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
+ static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
+@@ -532,6 +539,7 @@ static int fsi_i2c_probe(struct device *dev)
  	if (!i2c)
  		return -ENOMEM;
  
++	mutex_init(&i2c->lock);
  	i2c->fsi = to_fsi_dev(dev);
-+	INIT_LIST_HEAD(&i2c->ports);
- 
- 	rc = fsi_i2c_dev_init(i2c);
- 	if (rc)
- 		return rc;
- 
-+	/* Add adapter for each i2c port of the master. */
-+	for_each_available_child_of_node(dev->of_node, np) {
-+		rc = of_property_read_u32(np, "reg", &port_no);
-+		if (rc || port_no > USHRT_MAX)
-+			continue;
-+
-+		port = kzalloc(sizeof(*port), GFP_KERNEL);
-+		if (!port)
-+			break;
-+
-+		port->master = i2c;
-+		port->port = port_no;
-+
-+		port->adapter.owner = THIS_MODULE;
-+		port->adapter.dev.of_node = np;
-+		port->adapter.dev.parent = dev;
-+		port->adapter.algo = &fsi_i2c_algorithm;
-+		port->adapter.algo_data = port;
-+
-+		snprintf(port->adapter.name, sizeof(port->adapter.name),
-+			 "i2c_bus-%u", port_no);
-+
-+		rc = i2c_add_adapter(&port->adapter);
-+		if (rc < 0) {
-+			dev_err(dev, "Failed to register adapter: %d\n", rc);
-+			kfree(port);
-+			continue;
-+		}
-+
-+		list_add(&port->list, &i2c->ports);
-+	}
-+
- 	dev_set_drvdata(dev, i2c);
- 
- 	return 0;
- }
- 
-+static int fsi_i2c_remove(struct device *dev)
-+{
-+	struct fsi_i2c_master *i2c = dev_get_drvdata(dev);
-+	struct fsi_i2c_port *port, *tmp;
-+
-+	list_for_each_entry_safe(port, tmp, &i2c->ports, list) {
-+		list_del(&port->list);
-+		i2c_del_adapter(&port->adapter);
-+		kfree(port);
-+	}
-+
-+	return 0;
-+}
-+
- static const struct fsi_device_id fsi_i2c_ids[] = {
- 	{ FSI_ENGID_I2C, FSI_VERSION_ANY },
- 	{ }
-@@ -229,6 +319,7 @@ static int fsi_i2c_probe(struct device *dev)
- 		.name = "i2c-fsi",
- 		.bus = &fsi_bus_type,
- 		.probe = fsi_i2c_probe,
-+		.remove = fsi_i2c_remove,
- 	},
- };
+ 	INIT_LIST_HEAD(&i2c->ports);
  
 -- 
 1.8.3.1
