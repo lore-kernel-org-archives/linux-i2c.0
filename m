@@ -1,66 +1,51 @@
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: [PATCH 0/5] Add support for MSCC Ocelot i2c
-Date: Tue, 17 Jul 2018 14:46:06 +0200
-Message-ID: <20180717124606.GC23935@piout.net>
-References: <20180717114837.21839-1-alexandre.belloni@bootlin.com>
- <08da5a79982a1ac2a2b6b4931d497edfe8fa6171.camel@linux.intel.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 2/2] i2c: designware: Add support for a bus clock
+Date: Tue, 17 Jul 2018 15:01:54 +0200
+Message-ID: <CAMuHMdX8Q4wJtQ==PW0HrQpWS=CY1zPuasJPQCuQwhN0PzVfpQ@mail.gmail.com>
+References: <1531731553-22979-1-git-send-email-phil.edworthy@renesas.com>
+ <1531731553-22979-3-git-send-email-phil.edworthy@renesas.com>
+ <20180717120737.bipotpki3yhn6klf@verge.net.au> <c6b21734b729cb5f92a5686ae3fa8469692a1302.camel@linux.intel.com>
+ <TY1PR01MB1769BD3E271E217E0CFBAB46F55C0@TY1PR01MB1769.jpnprd01.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <08da5a79982a1ac2a2b6b4931d497edfe8fa6171.camel@linux.intel.com>
+In-Reply-To: <TY1PR01MB1769BD3E271E217E0CFBAB46F55C0@TY1PR01MB1769.jpnprd01.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>
+To: Phil Edworthy <phil.edworthy@renesas.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Simon Horman <horms@verge.net.au>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 17/07/2018 15:21:20+0300, Andy Shevchenko wrote:
-> On Tue, 2018-07-17 at 13:48 +0200, Alexandre Belloni wrote:
-> > Hi,
-> > 
-> > Because the designware IP was not able to the the SDA hold time, MSCC
-> > has
-> > its own implementation. Add support for it and then add i2c on ocelot
-> > boards.
-> > 
-> > I would expect patches 1 to 3 to go through the i2c tree and 4-5
-> > through
-> > the mips tree once patch 3 has been reviewed by the DT maintainers.
-> 
-> Without reading datasheet it all feels like a wrong place to put.
-> 
-> But maybe that SoC (SoC family?) has some update to DesignWare IP.
-> Btw, what the version of DW IP it's using? 2.00a? More older, more
-> recent?
-> 
+Hi Phil,
 
-COMP_VERSION reads 0x3131302A so it is before DW_IC_SDA_HOLD_MIN_VERS.
+On Tue, Jul 17, 2018 at 2:42 PM Phil Edworthy <phil.edworthy@renesas.com> wrote:
+> On 17 July 2018 13:24, Andy Shevchenko wrote:
+> > On Tue, 2018-07-17 at 14:07 +0200, Simon Horman wrote:
+> > > On Mon, Jul 16, 2018 at 09:59:13AM +0100, Phil Edworthy wrote:
+> > > > The Synopsys I2C Controller has a bus clock, but typically SoCs hide
+> > > > this away.
+> > > > However, on some SoCs you need to explicity enable the bus clock in
+> > > > order to access the registers.
+> > > > Therefore, enable an optional bus clock specified by DT.
+> >
+> > > > +         /* Optional bus clock */
+> > > > +         if (!IS_ERR(dev->busclk)) {
+> > >
+> > > I suspect that error values stored in dev->busclk,  other than
+> > > -ENOENT, should be treated as errors.
+> IS_ERR catches all errors and is the correct way to check the value
+> returned by devm_clk_get.
 
-> 
-> > Alexandre Belloni (5):
-> >   i2c: designware: factorize setting SDA hold time
-> >   i2c: designware: allow IP specific sda_hold_time
-> >   i2c: designware: add MSCC Ocelot support
-> >   mips: dts: mscc: Add i2c on ocelot
-> >   mips: dts: mscc: enable i2c on ocelot_pcb123
-> > 
-> >  .../bindings/i2c/i2c-designware.txt           |  5 ++-
-> >  arch/mips/boot/dts/mscc/ocelot.dtsi           | 19 +++++++++++
-> >  arch/mips/boot/dts/mscc/ocelot_pcb123.dts     |  5 +++
-> >  drivers/i2c/busses/i2c-designware-common.c    | 33
-> > +++++++++++++++++++
-> >  drivers/i2c/busses/i2c-designware-core.h      |  3 ++
-> >  drivers/i2c/busses/i2c-designware-master.c    | 22 +------------
-> >  drivers/i2c/busses/i2c-designware-platdrv.c   | 20 +++++++++++
-> >  drivers/i2c/busses/i2c-designware-slave.c     | 22 +------------
-> >  8 files changed, 86 insertions(+), 43 deletions(-)
-> > 
-> 
-> -- 
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Intel Finland Oy
+What if it returns -EPROBE_DEFER, which means the clock is referenced,
+and thus not optional, but not yet ready?
+For optional clocks, all errors but -ENOENT should be propagated up.
+
+Gr{oetje,eeting}s,
+
+                        Geert
 
 -- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
