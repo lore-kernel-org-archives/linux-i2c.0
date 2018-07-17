@@ -1,115 +1,82 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [RESEND PATCH v4 1/2] dt-bindings: at24: Add address-width property
-Date: Tue, 17 Jul 2018 10:01:17 +0200
-Message-ID: <CAMRc=MfNa0OwMbJ6ibbCJJD0pV9tKtyTZ3cQi34ra5oc_-5jYw@mail.gmail.com>
-References: <1530522740-2798-1-git-send-email-alanx.chiang@intel.com>
- <1530522740-2798-2-git-send-email-alanx.chiang@intel.com> <20180705212204.GA10449@rob-hp-laptop>
- <alpine.LFD.2.21.1807051623400.12206@localhost.localdomain>
- <0772C36F3434E145A062D024A4869A09010B1E4D@PGSMSX101.gar.corp.intel.com> <CAMRc=Mc4s6tJw6dAHYCPQdsPox9V8sBTqY3LHi5XMWALwOZdyA@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH/RFT 1/6] i2c: designware: use open drain for recovery GPIO
+Date: Tue, 17 Jul 2018 11:09:20 +0200
+Message-ID: <20180717090920.zy6lkeqlcewhrfs5@ninjato>
+References: <20180713210920.3648-1-wsa+renesas@sang-engineering.com>
+ <20180713210920.3648-2-wsa+renesas@sang-engineering.com>
+ <daaf702b-642f-e0fd-6a2e-7f0f817efba3@electromag.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="tg455teebzxcygml"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMRc=Mc4s6tJw6dAHYCPQdsPox9V8sBTqY3LHi5XMWALwOZdyA@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <daaf702b-642f-e0fd-6a2e-7f0f817efba3@electromag.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Chiang, AlanX" <alanx.chiang@intel.com>
-Cc: "Robert P. J. Day" <rpjday@crashcourse.ca>, Rob Herring <robh@kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Yeh, Andy" <andy.yeh@intel.com>, "sakari.ailus@linux.intel.com" <sakari.ailus@linux.intel.com>, "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>, "Shevchenko, Andriy" <andriy.shevchenko@intel.com>, "Mani, Rajmohan" <rajmohan.mani@intel.com>, "andy.shevchenko@gmail.com" <andy.shevchenko@gmail.com>, "tfiga@chromium.org" <tfiga@chromium.org>, "jcliang@chromium.org" <jcliang@chromium.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "arnd@arndb.de" <arnd@arndb.de>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, devicetree@vger.ker
+To: Phil Reid <preid@electromag.com.au>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, kernel@pengutronix.de, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-2018-07-09 10:52 GMT+02:00 Bartosz Golaszewski <brgl@bgdev.pl>:
-> 2018-07-09 5:12 GMT+02:00 Chiang, AlanX <alanx.chiang@intel.com>:
->> Hi Robert,
->>
->>> -----Original Message-----
->>> From: Robert P. J. Day [mailto:rpjday@crashcourse.ca]
->>> Sent: Friday, July 6, 2018 4:24 AM
->>> To: Rob Herring <robh@kernel.org>
->>> Cc: Chiang, AlanX <alanx.chiang@intel.com>; linux-i2c@vger.kernel.org; Yeh,
->>> Andy <andy.yeh@intel.com>; sakari.ailus@linux.intel.com;
->>> andriy.shevchenko@linux.intel.com; Shevchenko, Andriy
->>> <andriy.shevchenko@intel.com>; Mani, Rajmohan
->>> <rajmohan.mani@intel.com>; andy.shevchenko@gmail.com;
->>> tfiga@chromium.org; jcliang@chromium.org; brgl@bgdev.pl;
->>> mark.rutland@arm.com; arnd@arndb.de; gregkh@linuxfoundation.org;
->>> linux-kernel@vger.kernel.org; devicetree@vger.kernel.org
->>> Subject: Re: [RESEND PATCH v4 1/2] dt-bindings: at24: Add address-width
->>> property
->>>
->>> On Thu, 5 Jul 2018, Rob Herring wrote:
->>>
->>> > On Mon, Jul 02, 2018 at 05:12:19PM +0800, alanx.chiang@intel.com wrote:
->>> > > From: Alan Chiang <alanx.chiang@intel.com>
->>> > >
->>> > > The AT24 series chips use 8-bit address by default. If some chips
->>> > > would like to support more than 8 bits, the at24 driver should be
->>> > > added the compatible field for specfic chips.
->>> > >
->>> > > Provide a flexible way to determine the addressing bits through
->>> > > address-width in this patch.
->>> > >
->>> > > Signed-off-by: Alan Chiang <alanx.chiang@intel.com>
->>> > > Signed-off-by: Andy Yeh <andy.yeh@intel.com>
->>> > > Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
->>> > >
->>> > > ---
->>> > > since v1:
->>> > > -- Remove the address-width field in the example.
->>> > > since v2:
->>> > > -- Remove redundant space.
->>> > > since v3:
->>> > > -- Add Acked-by.
->>> > >
->>> > > ---
->>> > >  Documentation/devicetree/bindings/eeprom/at24.txt | 2 ++
->>> > >  1 file changed, 2 insertions(+)
->>> >
->>> > Reviewed-by: Rob Herring <robh@kernel.org>
->>>
->>>   "... should be added the compatible field ..."??
->>>
->>> rday
->>
->> Maybe I should modify the sentence as below that makes it clear.
->> "The compatible field should be added in the at24.c for specific chips.".
->>
->> I quote Andy's words in patch v2:
->> "The current at24 driver has no address width support, thus, reusing same
->> (allocated) IDs (non-DT case) is hard."
->>
->> This is the reason that I submitted the patch.
->>
->> Thanks
->>
->
-> Make it something like:
->
-> Currently the only way to use a variant of a supported model with
-> a different address width is to define a new compatible string and the
-> corresponding chip data structure.
->
-> Provide a flexible way to specify the size of the address pointer by
-> defining a new property: address-width.
->
-> Best regards,
-> Bartosz Golaszewski
->
->>>
->>> --
->>>
->>> ==========================================================
->>> ==============
->>> Robert P. J. Day                                 Ottawa, Ontario, CANADA
->>>                   http://crashcourse.ca/dokuwiki
->>>
->>> Twitter:                                       http://twitter.com/rpjday
->>> LinkedIn:                               http://ca.linkedin.com/in/rpjday
->>> ==========================================================
->>> ==============
 
-Hi,
+--tg455teebzxcygml
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I will soon be sending my pull request to Wolfram, so if you still
-want that applied for 4.19 - please resend with the commit message
-fixed.
+Hi Phil,
 
-Thanks,
-Bart
+> > -	gpio =3D devm_gpiod_get(dev->dev, "scl", GPIOD_OUT_HIGH);
+> > +	gpio =3D devm_gpiod_get(dev->dev, "scl", GPIOD_OUT_HIGH_OPEN_DRAIN);
+> >   	if (IS_ERR(gpio)) {
+> >   		r =3D PTR_ERR(gpio);
+> >   		if (r =3D=3D -ENOENT || r =3D=3D -ENOSYS)
+> >=20
+>
+> This was intentional. The gpio we use to drive the i2c line is implemente=
+d in an
+> FPGA and signals a buffer attached to the GPIO to drive scl OPEN drain. T=
+he GPIO is output
+> only.
+
+So, it is not possible to read SCL status then? Hmm, currently a working
+get_scl is required...
+
+> The gpio setup can still specify the the GPIO be allocated OPEN drain if =
+someone wishes
+> to use a "smarter" gpio.
+>=20
+> So while the scl is open drain, there may be hardware in between that isn=
+'t.
+> What would the correct way be to deal with that now?
+
+Well, I don't know much about this IP core and how/where it is used. I
+just wonder what happens if another user comes along using an
+open-drain GPIO. Is that possible?
+
+I assume it is the same with SDA? Non open-drain? Output only?
+
+Regards,
+
+   Wolfram
+
+
+--tg455teebzxcygml
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltNskAACgkQFA3kzBSg
+KbZwbQ/+MJCShrVhonYuESLYY03BEi6p8a5WPFWHsZmTC4Nc8uuKXupxRvNP6qpy
+OdXYBJvLdhIjVRGbpV7MRQII/mYeXpC4hxaVoZhkInxpf07CwqMDUyNU9oiXC0yP
+kM0ONuHPZ/sjCWQSrASMZdu44JgMqZ61PV3FTWN+FBZZY/FEFy0jiem1LK4RupB3
+J3ZrvOBzNE53yv1GLhXm4JvmYqOexkmm5NV2xJW/e1DB4LGNQvxgBxHmz1/1mMNE
+SkUSu125FR/6nhSizpr6Ftq/SC4AACPYmH+SXLCYh7GOtWCwY3ru2eWc5gBFoHkb
+pgjPV5H2GxCO38+IFPVSilH+9lMfc+BB/ykpXdLlo9wcIYBFU0g5ws4cY7/H4ZLL
++FsJwFo3LZbNVVzA1xdT5OQmIQ5Y3ASN+Z2kJ5r3J0ZDRJrG6u5hUw0H/4/KVrm3
+XcWZxxDr0L4xetggo007TvqD7tIt9qpPI94cgwKnkzR4ky65szKDJDynyswrjXID
+D1YjDkHwB6h+FfpIM/c9pWtSaR76NJ4J+f1ouF53NWSVANlUt+O7gDx6ugwDV05w
+BFfxq0iWvIKYtBuD9TjyH2HnMjJysHEfvtTsAImjsXtVEVq87L040UIxlEMz09fV
+j50YUzVql9wE2eQLncmIj2CV+xMhakex6SjkE6m7vLgumtQciZk=
+=L2Mj
+-----END PGP SIGNATURE-----
+
+--tg455teebzxcygml--
