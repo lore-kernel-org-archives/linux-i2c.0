@@ -1,7 +1,7 @@
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5/5] mips: dts: mscc: enable i2c on ocelot_pcb123
-Date: Tue, 17 Jul 2018 13:48:37 +0200
-Message-ID: <20180717114837.21839-6-alexandre.belloni@bootlin.com>
+Subject: [PATCH 4/5] mips: dts: mscc: Add i2c on ocelot
+Date: Tue, 17 Jul 2018 13:48:36 +0200
+Message-ID: <20180717114837.21839-5-alexandre.belloni@bootlin.com>
 References: <20180717114837.21839-1-alexandre.belloni@bootlin.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180717114837.21839-1-alexandre.belloni@bootlin.com>
@@ -10,29 +10,50 @@ To: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.c
 Cc: Paul Burton <paul.burton@mips.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Enable the i2c controller on ocelot PCB123. While there are no i2c devices
-on the board itself, it can be used to control the SFP transceivers.
+Ocelot has an i2c controller, add it. There is only one possible pinmux
+configuration so add it as well.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- arch/mips/boot/dts/mscc/ocelot_pcb123.dts | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/mips/boot/dts/mscc/ocelot.dtsi | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/arch/mips/boot/dts/mscc/ocelot_pcb123.dts b/arch/mips/boot/dts/mscc/ocelot_pcb123.dts
-index 4ccd65379059..d933f1cd8a60 100644
---- a/arch/mips/boot/dts/mscc/ocelot_pcb123.dts
-+++ b/arch/mips/boot/dts/mscc/ocelot_pcb123.dts
-@@ -26,6 +26,11 @@
- 	status = "okay";
- };
+diff --git a/arch/mips/boot/dts/mscc/ocelot.dtsi b/arch/mips/boot/dts/mscc/ocelot.dtsi
+index 4f33dbc67348..8b6398e09bb6 100644
+--- a/arch/mips/boot/dts/mscc/ocelot.dtsi
++++ b/arch/mips/boot/dts/mscc/ocelot.dtsi
+@@ -78,6 +78,20 @@
+ 			status = "disabled";
+ 		};
  
-+&i2c {
-+	clock-frequency = <100000>;
-+	status = "okay";
-+};
++		i2c: i2c@100400 {
++			compatible = "mscc,ocelot-i2c", "snps,designware-i2c";
++			pinctrl-0 = <&i2c_pins>;
++			pinctrl-names = "default";
++			reg = <0x100400 0x100>, <0x198 0x8>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			interrupts = <8>;
++			i2c-sda-hold-time-ns = <300>;
++			clocks = <&ahb_clk>;
 +
- &mdio0 {
- 	status = "okay";
- };
++			status = "disabled";
++		};
++
+ 		uart2: serial@100800 {
+ 			pinctrl-0 = <&uart2_pins>;
+ 			pinctrl-names = "default";
+@@ -178,6 +192,11 @@
+ 				pins = "GPIO_12", "GPIO_13";
+ 				function = "uart2";
+ 			};
++
++			i2c_pins: i2c-pins {
++				pins = "GPIO_16", "GPIO_17";
++				function = "twi";
++			};
+ 		};
+ 
+ 		mdio0: mdio@107009c {
 -- 
 2.18.0
