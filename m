@@ -1,254 +1,142 @@
-From: Eddie James <eajames@linux.vnet.ibm.com>
-Subject: [PATCH v12 5/8] i2c: fsi: Add transfer implementation
-Date: Tue, 17 Jul 2018 10:31:03 -0500
-Message-ID: <1531841466-9833-6-git-send-email-eajames@linux.vnet.ibm.com>
-References: <1531841466-9833-1-git-send-email-eajames@linux.vnet.ibm.com>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Subject: Re: [PATCH] i2c: aspeed: Improve driver to support multi-master use
+ cases stably
+Date: Tue, 17 Jul 2018 09:18:14 -0700
+Message-ID: <26400cb7-972e-7be9-81ba-8e08d42abd4e@linux.intel.com>
+References: <20180626165812.4141-1-jae.hyun.yoo@linux.intel.com>
+ <CAFd5g45z--ucXf-So517tgrayZT6x2TGvaUvaDF7zeRNn7CPXw@mail.gmail.com>
+ <e51471e6-0f8a-bffc-34c8-1e74239fdbcf@linux.intel.com>
+ <CAFd5g47j_h4ZrT8Eg1FZ8sAj5ekCUH20jUVub75ozdkg8_YW7Q@mail.gmail.com>
+ <921b1ab7-9c9f-0aeb-da89-5a1a27d009f0@linux.intel.com>
+ <d3f10fc1-635b-3a5d-a967-2816eac005fc@linux.intel.com>
+ <CAFd5g47zdPdqqjVJtNHtFk+jKgciKbMcEH9M-W9rL4DgLM5hkg@mail.gmail.com>
+ <b8232faa-58f5-f3a5-d12a-3f326cf1d03d@linux.intel.com>
+ <a84da5d076924f40b1c836fe8b9d0844@TWMBX01.aspeed.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1531841466-9833-1-git-send-email-eajames@linux.vnet.ibm.com>
+In-Reply-To: <a84da5d076924f40b1c836fe8b9d0844@TWMBX01.aspeed.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, wsa@the-dreams.de, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, rdunlap@infradead.org, andy.shevchenko@gmail.com, peda@axentia.se, "eajames@linux.vnet.ibm.com" <eajames@linux.vnet.ibm.com>
+To: Gary Hsu <gary_hsu@aspeedtech.com>, Brendan Higgins <brendanhiggins@google.com>
+Cc: Ryan Chen <ryan_chen@aspeedtech.com>, Benjamin Fair <benjaminfair@google.com>, "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>, "james.feist@linux.intel.com" <james.feist@linux.intel.com>, Andrew Jeffery <andrew@aj.id.au>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Patrick Venture <venture@google.com>, "vernon.mauery@linux.intel.com" <vernon.mauery@linux.intel.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: "eajames@linux.vnet.ibm.com" <eajames@linux.vnet.ibm.com>
 
-Execute I2C transfers from the FSI-attached I2C master. Use polling
-instead of interrupts as we have no hardware IRQ over FSI.
+On 7/15/2018 8:05 PM, Gary Hsu wrote:
+> Hi Jae,
+> 
+> In originally, we reserved these register bits for debug purpose. But for some error handling case, we found it is also useful to help to clarify some error conditions. So driver also can use these fields information to check something.
+> As for how driver use these information in their code, I have no comment. I don’t understand the driver. But these information is the real controller state, it had no problem to use information.
+> 
 
-Signed-off-by: Eddie James <eajames@linux.vnet.ibm.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
----
- drivers/i2c/busses/i2c-fsi.c | 195 ++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 193 insertions(+), 2 deletions(-)
+Thanks Gary!
 
-diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
-index 0f0bc88..45a6ebd 100644
---- a/drivers/i2c/busses/i2c-fsi.c
-+++ b/drivers/i2c/busses/i2c-fsi.c
-@@ -155,6 +155,7 @@ struct fsi_i2c_port {
- 	struct i2c_adapter	adapter;
- 	struct fsi_i2c_master	*master;
- 	u16			port;
-+	u16			xfrd;
- };
- 
- static int fsi_i2c_read_reg(struct fsi_device *fsi, unsigned int reg,
-@@ -230,6 +231,99 @@ static int fsi_i2c_set_port(struct fsi_i2c_port *port)
- 	return fsi_i2c_write_reg(fsi, I2C_FSI_RESET_ERR, &dummy);
- }
- 
-+static int fsi_i2c_start(struct fsi_i2c_port *port, struct i2c_msg *msg,
-+			 bool stop)
-+{
-+	struct fsi_i2c_master *i2c = port->master;
-+	u32 cmd = I2C_CMD_WITH_START | I2C_CMD_WITH_ADDR;
-+
-+	port->xfrd = 0;
-+
-+	if (msg->flags & I2C_M_RD)
-+		cmd |= I2C_CMD_READ;
-+
-+	if (stop || msg->flags & I2C_M_STOP)
-+		cmd |= I2C_CMD_WITH_STOP;
-+
-+	cmd |= FIELD_PREP(I2C_CMD_ADDR, msg->addr);
-+	cmd |= FIELD_PREP(I2C_CMD_LEN, msg->len);
-+
-+	return fsi_i2c_write_reg(i2c->fsi, I2C_FSI_CMD, &cmd);
-+}
-+
-+static int fsi_i2c_get_op_bytes(int op_bytes)
-+{
-+	/* fsi is limited to max 4 byte aligned ops */
-+	if (op_bytes > 4)
-+		return 4;
-+	else if (op_bytes == 3)
-+		return 2;
-+	return op_bytes;
-+}
-+
-+static int fsi_i2c_write_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
-+			      u8 fifo_count)
-+{
-+	int write;
-+	int rc;
-+	struct fsi_i2c_master *i2c = port->master;
-+	int bytes_to_write = i2c->fifo_size - fifo_count;
-+	int bytes_remaining = msg->len - port->xfrd;
-+
-+	bytes_to_write = min(bytes_to_write, bytes_remaining);
-+
-+	while (bytes_to_write) {
-+		write = fsi_i2c_get_op_bytes(bytes_to_write);
-+
-+		rc = fsi_device_write(i2c->fsi, I2C_FSI_FIFO,
-+				      &msg->buf[port->xfrd], write);
-+		if (rc)
-+			return rc;
-+
-+		port->xfrd += write;
-+		bytes_to_write -= write;
-+	}
-+
-+	return 0;
-+}
-+
-+static int fsi_i2c_read_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
-+			     u8 fifo_count)
-+{
-+	int read;
-+	int rc;
-+	struct fsi_i2c_master *i2c = port->master;
-+	int bytes_to_read;
-+	int xfr_remaining = msg->len - port->xfrd;
-+	u32 dummy;
-+
-+	bytes_to_read = min_t(int, fifo_count, xfr_remaining);
-+
-+	while (bytes_to_read) {
-+		read = fsi_i2c_get_op_bytes(bytes_to_read);
-+
-+		if (xfr_remaining) {
-+			rc = fsi_device_read(i2c->fsi, I2C_FSI_FIFO,
-+					     &msg->buf[port->xfrd], read);
-+			if (rc)
-+				return rc;
-+
-+			port->xfrd += read;
-+			xfr_remaining -= read;
-+		} else {
-+			/* no more buffer but data in fifo, need to clear it */
-+			rc = fsi_device_read(i2c->fsi, I2C_FSI_FIFO, &dummy,
-+					     read);
-+			if (rc)
-+				return rc;
-+		}
-+
-+		bytes_to_read -= read;
-+	}
-+
-+	return 0;
-+}
-+
- static int fsi_i2c_reset_engine(struct fsi_i2c_master *i2c, u16 port)
- {
- 	int rc;
-@@ -305,17 +399,114 @@ static int fsi_i2c_abort(struct fsi_i2c_port *port, u32 status)
- 	return -ETIMEDOUT;
- }
- 
-+static int fsi_i2c_handle_status(struct fsi_i2c_port *port,
-+				 struct i2c_msg *msg, u32 status)
-+{
-+	int rc;
-+	u8 fifo_count;
-+
-+	if (status & I2C_STAT_ERR) {
-+		rc = fsi_i2c_abort(port, status);
-+		if (rc)
-+			return rc;
-+
-+		if (status & I2C_STAT_INV_CMD)
-+			return -EINVAL;
-+
-+		if (status & (I2C_STAT_PARITY | I2C_STAT_BE_OVERRUN |
-+		    I2C_STAT_BE_ACCESS))
-+			return -EPROTO;
-+
-+		if (status & I2C_STAT_NACK)
-+			return -ENXIO;
-+
-+		if (status & I2C_STAT_LOST_ARB)
-+			return -EAGAIN;
-+
-+		if (status & I2C_STAT_STOP_ERR)
-+			return -EBADMSG;
-+
-+		return -EIO;
-+	}
-+
-+	if (status & I2C_STAT_DAT_REQ) {
-+		fifo_count = FIELD_GET(I2C_STAT_FIFO_COUNT, status);
-+
-+		if (msg->flags & I2C_M_RD)
-+			return fsi_i2c_read_fifo(port, msg, fifo_count);
-+
-+		return fsi_i2c_write_fifo(port, msg, fifo_count);
-+	}
-+
-+	if (status & I2C_STAT_CMD_COMP) {
-+		if (port->xfrd < msg->len)
-+			return -ENODATA;
-+
-+		return msg->len;
-+	}
-+
-+	return 0;
-+}
-+
-+static int fsi_i2c_wait(struct fsi_i2c_port *port, struct i2c_msg *msg,
-+			unsigned long timeout)
-+{
-+	u32 status = 0;
-+	int rc;
-+	unsigned long start = jiffies;
-+
-+	do {
-+		rc = fsi_i2c_read_reg(port->master->fsi, I2C_FSI_STAT,
-+				      &status);
-+		if (rc)
-+			return rc;
-+
-+		if (status & I2C_STAT_ANY_RESP) {
-+			rc = fsi_i2c_handle_status(port, msg, status);
-+			if (rc < 0)
-+				return rc;
-+
-+			/* cmd complete and all data xfrd */
-+			if (rc == msg->len)
-+				return 0;
-+
-+			/* need to xfr more data, but maybe don't need wait */
-+			continue;
-+		}
-+
-+		usleep_range(I2C_CMD_SLEEP_MIN_US, I2C_CMD_SLEEP_MAX_US);
-+	} while (time_after(start + timeout, jiffies));
-+
-+	return -ETIMEDOUT;
-+}
-+
- static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 			int num)
- {
--	int rc;
-+	int i, rc;
-+	unsigned long start_time;
- 	struct fsi_i2c_port *port = adap->algo_data;
-+	struct i2c_msg *msg;
- 
- 	rc = fsi_i2c_set_port(port);
- 	if (rc)
- 		return rc;
- 
--	return -EOPNOTSUPP;
-+	for (i = 0; i < num; i++) {
-+		msg = msgs + i;
-+		start_time = jiffies;
-+
-+		rc = fsi_i2c_start(port, msg, i == num - 1);
-+		if (rc)
-+			return rc;
-+
-+		rc = fsi_i2c_wait(port, msg,
-+				  adap->timeout - (jiffies - start_time));
-+		if (rc)
-+			return rc;
-+	}
-+
-+	return num;
- }
- 
- static u32 fsi_i2c_functionality(struct i2c_adapter *adap)
--- 
-1.8.3.1
+Hi Brendan,
+Is it acceptable now if I add this as a comment like below?
+
+Thanks,
+Jae
+
+> Best Regards,
+> 
+> 許馥疇 Gary Hsu
+> 
+> 信驊科技股份有限公司
+> ASPEED Technology Inc.
+> 
+> 2F,No.15,Industry East Road 4.,Hsinchu Science Park, Hsinchu City 30077, Taiwan
+> 新竹科學園區工業東四路 15 號 2F
+> 
+> Tel : 886-3-5789568 ext:807
+> Fax : 886-3-5789586
+> Web : http://www.aspeedtech.com
+> 
+> ************* Email Confidentiality Notice ********************
+> 免責聲明:
+> 因應個人資料保護法施行,本信件(或其附件)可能包含機密資訊，並受法律保護。如 台端非指定之收件者，請以電子郵件通知本電子郵件之發送者, 並請立即刪除本電子郵件及其附件和銷毀所有複印件。謝謝您的合作!
+> 
+> DISCLAIMER:
+> This message (and any attachments) may contain legally privileged and/or other confidential information. If you have received it in error, please notify the sender by reply e-mail and immediately delete the e-mail and any attachments without copying or disclosing the contents. Thank you.
+> 
+> -----Original Message-----
+> From: Jae Hyun Yoo [mailto:jae.hyun.yoo@linux.intel.com]
+> Sent: Saturday, July 14, 2018 2:54 AM
+> To: Brendan Higgins <brendanhiggins@google.com>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>; Joel Stanley <joel@jms.id.au>; Andrew Jeffery <andrew@aj.id.au>; linux-i2c@vger.kernel.org; OpenBMC Maillist <openbmc@lists.ozlabs.org>; Linux ARM <linux-arm-kernel@lists.infradead.org>; linux-aspeed@lists.ozlabs.org; Linux Kernel Mailing List <linux-kernel@vger.kernel.org>; james.feist@linux.intel.com; vernon.mauery@linux.intel.com; Benjamin Fair <benjaminfair@google.com>; Patrick Venture <venture@google.com>; Gary Hsu <gary_hsu@aspeedtech.com>; Ryan Chen <ryan_chen@aspeedtech.com>
+> Subject: Re: [PATCH] i2c: aspeed: Improve driver to support multi-master use cases stably
+> 
+> On 7/13/2018 11:12 AM, Brendan Higgins wrote:
+>> On Fri, Jul 13, 2018 at 10:22 AM Jae Hyun Yoo
+>> <jae.hyun.yoo@linux.intel.com> wrote:
+>>>
+>>> On 7/12/2018 11:21 AM, Jae Hyun Yoo wrote:
+>>>> On 7/12/2018 2:33 AM, Brendan Higgins wrote:
+>>>>> On Wed, Jun 27, 2018 at 10:55 AM Jae Hyun Yoo
+>>>>> <jae.hyun.yoo@linux.intel.com> wrote:
+>> <snip>
+>>>>> <snip>
+>>>>>>>> +       for (;;) {
+>>>>>>>> +               if (!(readl(bus->base + ASPEED_I2C_CMD_REG) &
+>>>>>>>> +                     (ASPEED_I2CD_BUS_BUSY_STS |
+>>>>>>>> +                      ASPEED_I2CD_XFER_MODE_STS_MASK)))
+>>>>>>>
+>>>>>>> Is using the Transfer Mode State Machine bits necessary? The
+>>>>>>> documentation marks it as "for debugging purpose only," so
+>>>>>>> relying on it makes me nervous.
+>>>>>>>
+>>>>>>
+>>>>>> As you said, the documentation marks it as "for debugging purpose only."
+>>>>>> but ASPEED also uses this way in their SDK code because it's the
+>>>>>> best way for checking bus busy status which can cover both single
+>>>>>> and multi-master use cases.
+>>>>>>
+>>>>>
+>>>>> Well, it would also be really nice to have access to this bit if
+>>>>> someone wants to implement MCTP. Could we maybe check with Aspeed
+>>>>> what them meant by "for debugging purposes only" and document it
+>>>>> here? It makes me nervous to rely on debugging functionality for
+>>>>> normal usage.
+>>>>>
+>>>>
+>>>> Okay, I'll check it with Aspeed. Will let you know their response.
+>>>>
+>>>
+>>> I've checked it with Gary Hsu <gary_hsu@aspeedtech.com> and he
+>>> confirmed that the bits reflect real information and good to be used
+>>> in practical code.
+>>
+>> Huh. For my own edification, could you ask them why they said "for
+>> debugging purpose only" in the documentation? I am just really curious
+>> what they meant by that. I would be satisfied if you just CC'ed me on
+>> your email thread with Gary, and I can ask him myself.
+>>
+> 
+> I've already CC'ed Gary and Ryan in this thread.
+> 
+> Hi Gary,
+> 
+> Can you explain why the documentation says that the bit field is 'for debugging purpose only'? Any plan to change the description?
+> 
+> Thanks,
+> 
+> Jae
+> 
+>>>
+>>> I'll add a comment like below:
+>>>
+>>> /*
+>>>     * This is marked as 'for debugging purpose only' in datasheet but
+>>>     * ASPEED confirmed that this reflects real information and good
+>>>     * to be used in practical code.
+>>>     */
+>>>
+>>> Is it acceptable then?
+>>
+>> Yeah, that's fine.
+>>
+>> <snip>
+>>
+>> Cheers
+>>
