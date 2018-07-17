@@ -1,7 +1,7 @@
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 2/5] i2c: designware: allow IP specific sda_hold_time
-Date: Tue, 17 Jul 2018 13:48:34 +0200
-Message-ID: <20180717114837.21839-3-alexandre.belloni@bootlin.com>
+Subject: [PATCH 1/5] i2c: designware: factorize setting SDA hold time
+Date: Tue, 17 Jul 2018 13:48:33 +0200
+Message-ID: <20180717114837.21839-2-alexandre.belloni@bootlin.com>
 References: <20180717114837.21839-1-alexandre.belloni@bootlin.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180717114837.21839-1-alexandre.belloni@bootlin.com>
@@ -10,44 +10,135 @@ To: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.c
 Cc: Paul Burton <paul.burton@mips.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Because some old designware IPs were not supporting setting an SDA hold
-time, vendors developed their own solution. Add a way for the final driver
-to provide its own SDA hold time handling.
+Factorize setting the SDA hold time in a new function
+i2c_dw_set_sda_hold_time() that is used for both master and slave mode.
+
+This conveniently pulls the fix for the spurious warning from commit
+7a20e707aae2 ("i2c: designware: suppress unneeded SDA hold time warnings")
+in slave mode.
 
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/i2c/busses/i2c-designware-common.c | 6 ++++++
- drivers/i2c/busses/i2c-designware-core.h   | 1 +
- 2 files changed, 7 insertions(+)
+ drivers/i2c/busses/i2c-designware-common.c | 27 ++++++++++++++++++++++
+ drivers/i2c/busses/i2c-designware-core.h   |  1 +
+ drivers/i2c/busses/i2c-designware-master.c | 22 +-----------------
+ drivers/i2c/busses/i2c-designware-slave.c  | 22 +-----------------
+ 4 files changed, 30 insertions(+), 42 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 9afc3e075b33..545b69d6be3c 100644
+index 48914dfc8ce8..9afc3e075b33 100644
 --- a/drivers/i2c/busses/i2c-designware-common.c
 +++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -297,6 +297,12 @@ void i2c_dw_set_sda_hold_time(struct dw_i2c_dev *dev)
- {
- 	u32 reg;
+@@ -293,5 +293,32 @@ u32 i2c_dw_read_comp_param(struct dw_i2c_dev *dev)
+ }
+ EXPORT_SYMBOL_GPL(i2c_dw_read_comp_param);
  
-+	if (dev->set_sda_hold_time) {
-+		dev->set_sda_hold_time(dev);
++void i2c_dw_set_sda_hold_time(struct dw_i2c_dev *dev)
++{
++	u32 reg;
 +
-+		return;
++	/* Configure SDA Hold Time if required. */
++	reg = dw_readl(dev, DW_IC_COMP_VERSION);
++	if (reg >= DW_IC_SDA_HOLD_MIN_VERS) {
++		if (!dev->sda_hold_time) {
++			/* Keep previous hold time setting if no one set it. */
++			dev->sda_hold_time = dw_readl(dev, DW_IC_SDA_HOLD);
++		}
++		/*
++		 * Workaround for avoiding TX arbitration lost in case I2C
++		 * slave pulls SDA down "too quickly" after falling egde of
++		 * SCL by enabling non-zero SDA RX hold. Specification says it
++		 * extends incoming SDA low to high transition while SCL is
++		 * high but it apprears to help also above issue.
++		 */
++		if (!(dev->sda_hold_time & DW_IC_SDA_HOLD_RX_MASK))
++			dev->sda_hold_time |= 1 << DW_IC_SDA_HOLD_RX_SHIFT;
++		dw_writel(dev, dev->sda_hold_time, DW_IC_SDA_HOLD);
++	} else if (dev->sda_hold_time) {
++		dev_warn(dev->dev,
++			 "Hardware too old to adjust SDA hold time.\n");
 +	}
++}
 +
- 	/* Configure SDA Hold Time if required. */
- 	reg = dw_readl(dev, DW_IC_COMP_VERSION);
- 	if (reg >= DW_IC_SDA_HOLD_MIN_VERS) {
+ MODULE_DESCRIPTION("Synopsys DesignWare I2C bus adapter core");
+ MODULE_LICENSE("GPL");
 diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index bc43fb9ac1cf..b2778b6d8aca 100644
+index d690e648bc01..bc43fb9ac1cf 100644
 --- a/drivers/i2c/busses/i2c-designware-core.h
 +++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -283,6 +283,7 @@ struct dw_i2c_dev {
- 	void			(*disable)(struct dw_i2c_dev *dev);
- 	void			(*disable_int)(struct dw_i2c_dev *dev);
- 	int			(*init)(struct dw_i2c_dev *dev);
-+	int			(*set_sda_hold_time)(struct dw_i2c_dev *dev);
- 	int			mode;
- 	struct i2c_bus_recovery_info rinfo;
- };
+@@ -306,6 +306,7 @@ int i2c_dw_handle_tx_abort(struct dw_i2c_dev *dev);
+ u32 i2c_dw_func(struct i2c_adapter *adap);
+ void i2c_dw_disable(struct dw_i2c_dev *dev);
+ void i2c_dw_disable_int(struct dw_i2c_dev *dev);
++void i2c_dw_set_sda_hold_time(struct dw_i2c_dev *dev);
+ 
+ static inline void __i2c_dw_enable(struct dw_i2c_dev *dev)
+ {
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index 27436a937492..826329f8e30b 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -146,27 +146,7 @@ static int i2c_dw_init_master(struct dw_i2c_dev *dev)
+ 		}
+ 	}
+ 
+-	/* Configure SDA Hold Time if required */
+-	reg = dw_readl(dev, DW_IC_COMP_VERSION);
+-	if (reg >= DW_IC_SDA_HOLD_MIN_VERS) {
+-		if (!dev->sda_hold_time) {
+-			/* Keep previous hold time setting if no one set it */
+-			dev->sda_hold_time = dw_readl(dev, DW_IC_SDA_HOLD);
+-		}
+-		/*
+-		 * Workaround for avoiding TX arbitration lost in case I2C
+-		 * slave pulls SDA down "too quickly" after falling egde of
+-		 * SCL by enabling non-zero SDA RX hold. Specification says it
+-		 * extends incoming SDA low to high transition while SCL is
+-		 * high but it apprears to help also above issue.
+-		 */
+-		if (!(dev->sda_hold_time & DW_IC_SDA_HOLD_RX_MASK))
+-			dev->sda_hold_time |= 1 << DW_IC_SDA_HOLD_RX_SHIFT;
+-		dw_writel(dev, dev->sda_hold_time, DW_IC_SDA_HOLD);
+-	} else if (dev->sda_hold_time) {
+-		dev_warn(dev->dev,
+-			"Hardware too old to adjust SDA hold time.\n");
+-	}
++	i2c_dw_set_sda_hold_time(dev);
+ 
+ 	i2c_dw_configure_fifo_master(dev);
+ 	i2c_dw_release_lock(dev);
+diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
+index 8ce2cd368477..150e5edb064c 100644
+--- a/drivers/i2c/busses/i2c-designware-slave.c
++++ b/drivers/i2c/busses/i2c-designware-slave.c
+@@ -77,27 +77,7 @@ static int i2c_dw_init_slave(struct dw_i2c_dev *dev)
+ 	/* Disable the adapter. */
+ 	__i2c_dw_disable(dev);
+ 
+-	/* Configure SDA Hold Time if required. */
+-	reg = dw_readl(dev, DW_IC_COMP_VERSION);
+-	if (reg >= DW_IC_SDA_HOLD_MIN_VERS) {
+-		if (!dev->sda_hold_time) {
+-			/* Keep previous hold time setting if no one set it. */
+-			dev->sda_hold_time = dw_readl(dev, DW_IC_SDA_HOLD);
+-		}
+-		/*
+-		 * Workaround for avoiding TX arbitration lost in case I2C
+-		 * slave pulls SDA down "too quickly" after falling egde of
+-		 * SCL by enabling non-zero SDA RX hold. Specification says it
+-		 * extends incoming SDA low to high transition while SCL is
+-		 * high but it apprears to help also above issue.
+-		 */
+-		if (!(dev->sda_hold_time & DW_IC_SDA_HOLD_RX_MASK))
+-			dev->sda_hold_time |= 1 << DW_IC_SDA_HOLD_RX_SHIFT;
+-		dw_writel(dev, dev->sda_hold_time, DW_IC_SDA_HOLD);
+-	} else {
+-		dev_warn(dev->dev,
+-			 "Hardware too old to adjust SDA hold time.\n");
+-	}
++	i2c_dw_set_sda_hold_time(dev);
+ 
+ 	i2c_dw_configure_fifo_slave(dev);
+ 	i2c_dw_release_lock(dev);
 -- 
 2.18.0
