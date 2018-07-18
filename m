@@ -1,46 +1,70 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 2/2] i2c: designware: Add support for a bus clock
-Date: Wed, 18 Jul 2018 15:52:20 +0300
-Message-ID: <b70d78516e765b3a6587323cffb6066e9363cd48.camel@linux.intel.com>
-References: <1531731553-22979-1-git-send-email-phil.edworthy@renesas.com>
-         <1531731553-22979-3-git-send-email-phil.edworthy@renesas.com>
-         <20180717120737.bipotpki3yhn6klf@verge.net.au>
-         <c6b21734b729cb5f92a5686ae3fa8469692a1302.camel@linux.intel.com>
-         <TY1PR01MB1769BD3E271E217E0CFBAB46F55C0@TY1PR01MB1769.jpnprd01.prod.outlook.com>
-         <40f2729f38bd565a829d60d9cc8f508e33b0dc65.camel@linux.intel.com>
-         <TY1PR01MB1769F130075F1635CC51532FF55C0@TY1PR01MB1769.jpnprd01.prod.outlook.com>
-         <c912248504a4cd534a90d263ab6005526a7e16ab.camel@linux.intel.com>
-         <TY1PR01MB1769473F18D646B7011C5803F55C0@TY1PR01MB1769.jpnprd01.prod.outlook.com>
-         <20180718091448.fw2y7ea6sk2osi3g@verge.net.au>
-         <CAMuHMdWJkwJ5+DDqbaWH-cMhRQynWCxb4MbFtpejqi1HhUBHTQ@mail.gmail.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH -next v4 1/3] regmap: add SCCB support
+Date: Wed, 18 Jul 2018 15:47:24 +0100
+Message-ID: <20180718144723.GM5700@sirena.org.uk>
+References: <1531756070-8560-1-git-send-email-akinobu.mita@gmail.com>
+ <1531756070-8560-2-git-send-email-akinobu.mita@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="nrXiCraHbXeog9mY"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMuHMdWJkwJ5+DDqbaWH-cMhRQynWCxb4MbFtpejqi1HhUBHTQ@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1531756070-8560-2-git-send-email-akinobu.mita@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>, Simon Horman <horms@verge.net.au>
-Cc: Phil Edworthy <phil.edworthy@renesas.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Sebastian Reichel <sebastian.reichel@collabora.co.uk>, Wolfram Sang <wsa@the-dreams.de>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Jacopo Mondi <jacopo+renesas@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Hans Verkuil <hans.verkuil@cisco.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Mauro Carvalho Chehab <mchehab@s-opensource.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2018-07-18 at 13:06 +0200, Geert Uytterhoeven wrote:
-> On Wed, Jul 18, 2018 at 11:14 AM Simon Horman <horms@verge.net.au>
-> wrote:
 
-> >         if (IS_ERR(dev->buslck) && PTR_ERR(dev->busclk) != -ENOENT)
-> >                 return PTR_ERR(dev->busclk);
-> > 
-> >         ...
-> 
-> As this is a commonly-used construct, perhaps it would be good to
-> introduce
-> clk_get_optional() (cfr. gpiod_get_optional()) and
-> devm_clk_get_optional(),
-> which would return NULL instead of -ENOENT?
-> Then it becomes a simple check for IS_ERR() in the driver.
+--nrXiCraHbXeog9mY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I'm puzzled why CCF still lack of such API.
+On Tue, Jul 17, 2018 at 12:47:48AM +0900, Akinobu Mita wrote:
+> This adds Serial Camera Control Bus (SCCB) support for regmap API that
+> is intended to be used by some of Omnivision sensor drivers.
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+The following changes since commit ce397d215ccd07b8ae3f71db689aedb85d56ab40:
+
+  Linux 4.18-rc1 (2018-06-17 08:04:49 +0900)
+
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git tags/regmap-sccb
+
+for you to fetch changes up to bcf7eac3d97f49d8400ba52c71bee5934bf20093:
+
+  regmap: add SCCB support (2018-07-18 15:45:23 +0100)
+
+----------------------------------------------------------------
+regmap: Add support for SCCB
+
+This is an I2C subset.
+
+----------------------------------------------------------------
+Akinobu Mita (1):
+      regmap: add SCCB support
+
+ drivers/base/regmap/Kconfig       |   4 ++
+ drivers/base/regmap/Makefile      |   1 +
+ drivers/base/regmap/regmap-sccb.c | 128 ++++++++++++++++++++++++++++++++++++++
+ include/linux/regmap.h            |  35 +++++++++++
+ 4 files changed, 168 insertions(+)
+ create mode 100644 drivers/base/regmap/regmap-sccb.c
+
+--nrXiCraHbXeog9mY
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAltPUvsACgkQJNaLcl1U
+h9CHfwf/WlS+6f05pFZez91zy/MYpUBD++y4VxOnJn3t7kUo4VaFyYGLVXG9cx+e
+b2LEyr52WkvjL/K61SeY1GDvo+ANBGcA26VTD6S22DIVBSekDEe4hh9tbkRcBMHE
+kfLrSC+hdLX+bAv8Ws0kcKyNm5pOLTZPdNr0CoIo7yGK2nmH/54mOAfMroIS4RNb
+xFjAGGoWbH7xXRrXuhe5PNdbzXecrE/pmKl/3IG6IN5gu2GYLd+niTgiM+X2Rv69
+P29kD9izCb2rd8O1xl1UfudAGeJsZeerjtVqV7fc0YSIYNW3vQNbcC8pWvMmZ7Gb
+W0iwocfPy2uzSnv8Jgz54PnROPubJg==
+=CKOC
+-----END PGP SIGNATURE-----
+
+--nrXiCraHbXeog9mY--
