@@ -1,53 +1,64 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH -next v4 1/3] regmap: add SCCB support
-Date: Wed, 18 Jul 2018 16:31:40 +0100
-Message-ID: <20180718153140.GP5700@sirena.org.uk>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH -next v4 2/3] media: ov772x: use SCCB regmap
+Date: Wed, 18 Jul 2018 17:36:34 +0200
+Message-ID: <20180718153634.2alvxz5ezkvgslny@ninjato>
 References: <1531756070-8560-1-git-send-email-akinobu.mita@gmail.com>
- <1531756070-8560-2-git-send-email-akinobu.mita@gmail.com>
- <20180718152832.ylu6rlcsaom2q4xm@ninjato>
+ <1531756070-8560-3-git-send-email-akinobu.mita@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="GIP5y49pbaVPin6k"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="jazh47z6lyczwhhc"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180718152832.ylu6rlcsaom2q4xm@ninjato>
+In-Reply-To: <1531756070-8560-3-git-send-email-akinobu.mita@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Akinobu Mita <akinobu.mita@gmail.com>, linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Sebastian Reichel <sebastian.reichel@collabora.co.uk>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Jacopo Mondi <jacopo+renesas@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Hans Verkuil <hans.verkuil@cisco.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Mauro Carvalho Chehab <mchehab@s-opensource.com>
+To: Akinobu Mita <akinobu.mita@gmail.com>
+Cc: linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@kernel.org>, Peter Rosin <peda@axentia.se>, Sebastian Reichel <sebastian.reichel@collabora.co.uk>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Jacopo Mondi <jacopo+renesas@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Hans Verkuil <hans.verkuil@cisco.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Mauro Carvalho Chehab <mchehab@s-opensource.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---GIP5y49pbaVPin6k
+--jazh47z6lyczwhhc
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 18, 2018 at 05:28:32PM +0200, Wolfram Sang wrote:
-> On Tue, Jul 17, 2018 at 12:47:48AM +0900, Akinobu Mita wrote:
+On Tue, Jul 17, 2018 at 12:47:49AM +0900, Akinobu Mita wrote:
+> Convert ov772x register access to use SCCB regmap.
+>=20
+> Cc: Mark Brown <broonie@kernel.org>
+> Cc: Peter Rosin <peda@axentia.se>
+> Cc: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
+> Cc: Jacopo Mondi <jacopo+renesas@jmondi.org>
+> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> Cc: Hans Verkuil <hans.verkuil@cisco.com>
+> Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
+> Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
 
-> > +	ret = __i2c_smbus_xfer(i2c->adapter, i2c->addr, i2c->flags,
-> > +			       I2C_SMBUS_WRITE, reg, I2C_SMBUS_BYTE, NULL);
+=46rom an I2C point of view, this makes a lot of sense:
 
-> Mark: __i2c_smbus_xfer is a dependency on i2c/for-next. Do you want an
-> immutable branch for that?
+Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Oh dear, that dependency wasn't mentioned anywhere I can see in the
-submissions and I already applied this and created a signed tag :( .
-I'll need a branch to pull in if I'm going to apply this (which I'd
-prefer, it tends to make life easier).
 
---GIP5y49pbaVPin6k
+--jazh47z6lyczwhhc
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAltPXVsACgkQJNaLcl1U
-h9DjXgf/axsR8NQUNk9IvtOlgTc/b9f/inR7NzaGZITDNx/h9Xt59O+lR7c/7k9x
-8FrzAFuWll0JMhJhDtFHEV9IeraaxByMbIiVffaP0fVh1JWOeoG4jur/aQOvGiov
-cEBrpudcsjyqlKvQHor2SqQz+GrCGuuK0zuFcv5Jpe0UV8C02zwGTiy7fAzJSvTC
-pPAu/YnExqNOk/p8dj9xlWhBk77OrAS7d4PRDHoMIb0OSOazg0UJc6i/CiJfR2Go
-EVRFNCIG+9hBOWEyXS0IBMmFI6tObVUztAmmlGQm5LrYPhNJQPw73O71MRcOy2vs
-M5G4s54lbQ8B4D/gipZGKWI6QddT2Q==
-=iQ+9
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltPXoIACgkQFA3kzBSg
+KbbW/A/8C8AMzlravGGpg5e8TgE+OqFoMzorRCLI2cF/AnZQxkI3CRfd2nN2do46
+j7p9hav4v6+zwnwZKylcyEh0Dn5MIb0m3zdgRDfpM/BjK4nhtD9P4itdMtDsUC99
+ZEIkKpRiqDCL0sxHZlshxqfUvNPtrav1uhr3/+Emwa8da64qcJBiQnMDbnA8cBNv
+DksCSntk1Myyu1YtysuuTLfztCVLIJ8QTvA45kWggC8KtgcmrvwrqdLdjIOMSTdy
+0lp3Qsw0mb2vyT3cKbVyRAeoJ1RaZmC/elwebeZzXlP1aVqTVfjx8eg6mHLYeXud
+/lbsF3rWuUOP+Q67qSsDywdW5Sf3MPCiCGf6WqSIjnBY2bVtJafmcsa3hInh9S/r
+08EEXzM4E2vrRlAjSAAI516tpV/z5HG7GKVwqLXTcss0PxqjT4PxrVuBkyBkFpKu
+7/nJLowu1rzeexYW3mPuQ6u7kb1BSKWFnDj8GkH//HWFFOz21bYGlNGzB92hijiR
+HFiUPLkcCffwtJY5jbzkgPK/+6iYGn1CXEUGrETBGA+qFgrBgPyCng1QH4TFbkbt
+bAJv7dTf5Fh0l7+NMbqTE5meNrKbGmBv/1cYI4XLGoltohPZM6Jca8uIeSWEo/oo
+EQvWIZWMEi4nCfQupSXAP+TEhaBgQyRn4A1qmzNqbFBUOQx9ClI=
+=S+Zy
 -----END PGP SIGNATURE-----
 
---GIP5y49pbaVPin6k--
+--jazh47z6lyczwhhc--
