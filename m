@@ -1,135 +1,116 @@
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: Re: [PATCH v4 0/6] Add Actions Semiconductor Owl S900 I2C support
-Date: Wed, 18 Jul 2018 21:20:00 +0530
-Message-ID: <20180718155000.GA3061@Mani-XPS-13-9360>
-References: <20180701172305.15663-1-manivannan.sadhasivam@linaro.org>
- <20180711024502.GA4739@Mani-XPS-13-9360>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH] i2c: exynos5: Describe the hardware variant for readability
+Date: Wed, 18 Jul 2018 21:54:04 +0200
+Message-ID: <20180718195404.5095-1-krzk@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180711024502.GA4739@Mani-XPS-13-9360>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, andy.shevchenko@gmail.com, peda@axentia.se
-Cc: linus.walleij@linaro.org, linux-i2c@vger.kernel.org, liuwei@actions-semi.com, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree@vger.kernel.org, daniel.thompson@linaro.org, amit.kucheria@linaro.org, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, hzhang@ucrobotics.com, bdong@ucrobotics.com, manivannanece23@gmail.com, thomas.liau@actions-semi.com, jeff.chen@actions-semi.com, afaerber@suse.de
+To: Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Andrzej Hajda <a.hajda@samsung.com>, Andi Shyti <andi@etezian.org>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jul 11, 2018 at 08:15:02AM +0530, Manivannan Sadhasivam wrote:
-> On Sun, Jul 01, 2018 at 10:52:59PM +0530, Manivannan Sadhasivam wrote:
-> > This patchset adds I2C controller support for Actions Semiconductor S900 SoC.
-> > This driver has been structured in a way such that there will be only
-> > one controller driver for the whole Owl family series (S500, S700 and
-> > S900 SoCs).
-> > 
-> > There are 6 I2C controllers with separate memory mapped register space.
-> > The I2C controller can handle atmost two messages concatenated by a
-> > repeated start via its internal address feature. Hence the driver
-> > uses this feature for messages of length greater than 1. In those cases,
-> > the first message of the combined message should be a `write` with maximum
-> > message length 6 and the second message's maximum length should be 240 bytes.
-> > 
-> > As far as the bus speed is concerned, this driver only supports
-> > Standard (100KHz) and High speed (400KHz) for now.
-> > 
-> > The pinctrl definitions are only available for I2C0, I2C1 and I2C2.
-> > With the mux option available only for I2C0.
-> > 
-> > For Bubblegum-96 board utilizing the S900 SoC, only I2C1 and I2C2 which
-> > are exposed on the Low speed expansion connector are enabled.
-> > 
-> > This series depends on the pinctrl patch [1] is still not merged by the
-> > platform maintainer Andreas but it has been reviewed by the pinctrl maintainer
-> > Linus Walleij. For the reference, I have queued up all reviewed dts patches
-> > in my tree [2] from which Andreas is picking them for 4.19.
-> > 
-> > For this series, since the dts patches will go through the ARM SoC tree,
-> > Andreas will pick it up once it is reviewed.
-> > 
-> > Thanks,
-> > Mani
-> > 
-> > [1] https://patchwork.kernel.org/patch/10322937/
-> > [2] https://git.linaro.org/people/manivannan.sadhasivam/linux.git/log/?h=s900-for-next
-> > 
-> 
-> Hi Andy, Peter,
-> 
-> Just a gentle ping on this v4!
-> 
-> Thanks,
-> Mani
->
+The driver supports multiple hardware variants of Exynos I2C controller
+which differ in FIFO depth, handling of interrupts and bus recovery in
+HSI2C_MASTER_ST_LOSE state.
 
-Hi,
+The difference in variant was a single bit set for Exynos7 variants and
+implicit lack of this bit for other variants.
 
-Any update on this patchset?
+Make each variant explicit which also fixes the GCC warning about
+documentation:
 
-Thanks,
-Mani
+    drivers/i2c/busses/i2c-exynos5.c:223: warning: Function parameter or member 'hw' not described in 'exynos_hsi2c_variant'
 
-> > Changes in v4:
-> > 
-> > As per Andy and Peter review:
-> > 
-> > * Used spinlock for accessing most of the register access (only parts
-> >   involved sleep/long-busy-wait has been excluded)
-> > * Removed returning 0 and added -ENXIO if the msg_ptr not equals to
-> >   message length
-> > * Added DIV_ROUND_UP for setting clock frequency
-> > * Changed one non-atomic mdelay instance to usleep_range
-> > * Moved pinctrl definition patch before dts patch
-> > * Fixed the driver to support only 100KHz and 400KHz frequencies
-> > 
-> > Changes in v3:
-> > 
-> > As per Peter, Andy and Andreas review:
-> > 
-> > * Removed owl_i2c_reset function from interrupt handler since it
-> >   involves the use of delays.
-> > * Fixed the return path in owl_i2c_master_xfer and added a note
-> > * Changed "base" parameter to "reg" in owl_i2c_update_reg for better
-> >   understandability
-> > * Ordered the includes in alphabetical order
-> > * Small changes to defines and added comma at the end of struct members
-> > * Removed rendundant 0 assignment in owl_i2c_master_xfer
-> > * Changed all OWL naming convention to Owl and also changed Actions Semi
-> >   naming to Actions Semiconductor
-> > 
-> > Changes in v2:
-> > 
-> > As per Andy's review:
-> > * Modified infinite loops to fixed number of retries
-> > * Used i2c_8bit_addr_from_msg for constructing the slave address
-> > * Removed unnecessary parenthesis around defines
-> > * Modified certain dev_warn to dev_dbg
-> > * Modified the error handling to more generic pattern
-> > 
-> > * Fixed the return value in owl_i2c_master_xfer
-> > * Added MAINTAINERS patch for I2C driver and its binding
-> > 
-> > Manivannan Sadhasivam (6):
-> >   dt-bindings: i2c: Add binding for Actions Semiconductor Owl I2C
-> >     controller
-> >   arm64: dts: actions: Add pinctrl definition for S900 I2C controller
-> >   arm64: dts: actions: Add Actions Semiconductor S900 I2C controller
-> >     nodes
-> >   arm64: dts: actions: Enable I2C1 and I2C2 in Bubblegum-96 board
-> >   i2c: Add Actions Semiconductor Owl family S900 I2C driver
-> >   MAINTAINERS: Add entry for Actions Semiconductor Owl I2C driver
-> > 
-> >  .../devicetree/bindings/i2c/i2c-owl.txt       |  27 +
-> >  MAINTAINERS                                   |   2 +
-> >  .../dts/actions/s900-bubblegum-96-pins.dtsi   |  29 +
-> >  .../boot/dts/actions/s900-bubblegum-96.dts    |  11 +
-> >  arch/arm64/boot/dts/actions/s900.dtsi         |  60 +++
-> >  drivers/i2c/busses/Kconfig                    |   7 +
-> >  drivers/i2c/busses/Makefile                   |   1 +
-> >  drivers/i2c/busses/i2c-owl.c                  | 504 ++++++++++++++++++
-> >  8 files changed, 641 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-owl.txt
-> >  create mode 100644 arch/arm64/boot/dts/actions/s900-bubblegum-96-pins.dtsi
-> >  create mode 100644 drivers/i2c/busses/i2c-owl.c
-> > 
-> > -- 
-> > 2.17.1
-> > 
+No change in functionality.
+
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+---
+ drivers/i2c/busses/i2c-exynos5.c | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+index de82ad8ff534..c1ce2299a76e 100644
+--- a/drivers/i2c/busses/i2c-exynos5.c
++++ b/drivers/i2c/busses/i2c-exynos5.c
+@@ -176,7 +176,10 @@
+ 
+ #define EXYNOS5_I2C_TIMEOUT (msecs_to_jiffies(100))
+ 
+-#define HSI2C_EXYNOS7	BIT(0)
++enum i2c_type_exynos {
++	I2C_TYPE_EXYNOS5,
++	I2C_TYPE_EXYNOS7,
++};
+ 
+ struct exynos5_i2c {
+ 	struct i2c_adapter	adap;
+@@ -212,27 +215,30 @@ struct exynos5_i2c {
+ /**
+  * struct exynos_hsi2c_variant - platform specific HSI2C driver data
+  * @fifo_depth: the fifo depth supported by the HSI2C module
++ * @hw: the hardware variant of Exynos I2C controller
+  *
+  * Specifies platform specific configuration of HSI2C module.
+  * Note: A structure for driver specific platform data is used for future
+  * expansion of its usage.
+  */
+ struct exynos_hsi2c_variant {
+-	unsigned int	fifo_depth;
+-	unsigned int	hw;
++	unsigned int		fifo_depth;
++	enum i2c_type_exynos	hw;
+ };
+ 
+ static const struct exynos_hsi2c_variant exynos5250_hsi2c_data = {
+ 	.fifo_depth	= 64,
++	.hw		= I2C_TYPE_EXYNOS5,
+ };
+ 
+ static const struct exynos_hsi2c_variant exynos5260_hsi2c_data = {
+ 	.fifo_depth	= 16,
++	.hw		= I2C_TYPE_EXYNOS5,
+ };
+ 
+ static const struct exynos_hsi2c_variant exynos7_hsi2c_data = {
+ 	.fifo_depth	= 16,
+-	.hw		= HSI2C_EXYNOS7,
++	.hw		= I2C_TYPE_EXYNOS7,
+ };
+ 
+ static const struct of_device_id exynos5_i2c_match[] = {
+@@ -300,7 +306,7 @@ static int exynos5_i2c_set_timing(struct exynos5_i2c *i2c, bool hs_timings)
+ 	 */
+ 	t_ftl_cycle = (readl(i2c->regs + HSI2C_CONF) >> 16) & 0x7;
+ 	temp = clkin / op_clk - 8 - t_ftl_cycle;
+-	if (i2c->variant->hw != HSI2C_EXYNOS7)
++	if (i2c->variant->hw != I2C_TYPE_EXYNOS7)
+ 		temp -= t_ftl_cycle;
+ 	div = temp / 512;
+ 	clk_cycle = temp / (div + 1) - 2;
+@@ -424,7 +430,7 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
+ 	writel(int_status, i2c->regs + HSI2C_INT_STATUS);
+ 
+ 	/* handle interrupt related to the transfer status */
+-	if (i2c->variant->hw == HSI2C_EXYNOS7) {
++	if (i2c->variant->hw == I2C_TYPE_EXYNOS7) {
+ 		if (int_status & HSI2C_INT_TRANS_DONE) {
+ 			i2c->trans_done = 1;
+ 			i2c->state = 0;
+@@ -571,7 +577,7 @@ static void exynos5_i2c_bus_check(struct exynos5_i2c *i2c)
+ {
+ 	unsigned long timeout;
+ 
+-	if (i2c->variant->hw != HSI2C_EXYNOS7)
++	if (i2c->variant->hw != I2C_TYPE_EXYNOS7)
+ 		return;
+ 
+ 	/*
+@@ -612,7 +618,7 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
+ 	unsigned long flags;
+ 	unsigned short trig_lvl;
+ 
+-	if (i2c->variant->hw == HSI2C_EXYNOS7)
++	if (i2c->variant->hw == I2C_TYPE_EXYNOS7)
+ 		int_en |= HSI2C_INT_I2C_TRANS;
+ 	else
+ 		int_en |= HSI2C_INT_I2C;
+-- 
+2.14.1
