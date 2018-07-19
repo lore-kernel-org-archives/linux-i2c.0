@@ -1,7 +1,7 @@
 From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: [PATCH v6 08/10] dt-bindings: i3c: Document Cadence I3C master bindings
-Date: Thu, 19 Jul 2018 17:29:28 +0200
-Message-ID: <20180719152930.3715-9-boris.brezillon@bootlin.com>
+Subject: [PATCH v6 10/10] dt-bindings: gpio: Add bindings for Cadence I3C gpio expander
+Date: Thu, 19 Jul 2018 17:29:30 +0200
+Message-ID: <20180719152930.3715-11-boris.brezillon@bootlin.com>
 References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180719152930.3715-1-boris.brezillon@bootlin.com>
@@ -10,7 +10,7 @@ To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet
 Cc: Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vitor Soares <Vitor.Soares@synopsys.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linus
 List-Id: linux-i2c@vger.kernel.org
 
-Document Cadence I3C master DT bindings.
+Document the Cadence I3C gpio expander bindings.
 
 Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
 Reviewed-by: Rob Herring <robh@kernel.org>
@@ -19,61 +19,57 @@ Changes in v5:
 - Add Rob's R-b
 
 Changes in v4:
-- Fix example to match the new representation
+- Use GPIO_ and IRQ_TYPE_ macros instead of raw numbers
+- Fix the unit-address in the example
 ---
- .../devicetree/bindings/i3c/cdns,i3c-master.txt    | 44 ++++++++++++++++++++++
- 1 file changed, 44 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i3c/cdns,i3c-master.txt
+ .../devicetree/bindings/gpio/gpio-cdns-i3c.txt     | 39 ++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/gpio/gpio-cdns-i3c.txt
 
-diff --git a/Documentation/devicetree/bindings/i3c/cdns,i3c-master.txt b/Documentation/devicetree/bindings/i3c/cdns,i3c-master.txt
+diff --git a/Documentation/devicetree/bindings/gpio/gpio-cdns-i3c.txt b/Documentation/devicetree/bindings/gpio/gpio-cdns-i3c.txt
 new file mode 100644
-index 000000000000..0e2b8b8770bf
+index 000000000000..d0155a9cea79
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/i3c/cdns,i3c-master.txt
-@@ -0,0 +1,44 @@
-+Bindings for cadence I3C master block
-+=====================================
++++ b/Documentation/devicetree/bindings/gpio/gpio-cdns-i3c.txt
+@@ -0,0 +1,39 @@
++* Cadence I3C GPIO expander
 +
-+Required properties:
-+--------------------
-+- compatible: shall be "cdns,i3c-master"
-+- clocks: shall reference the pclk and sysclk
-+- clock-names: shall contain "pclk" and "sysclk"
-+- interrupts: the interrupt line connected to this I3C master
-+- reg: I3C master registers
++The Cadence I3C GPIO expander provides 8 GPIOs controllable over I3C.
++This GPIOs can be configured in output or input mode and if they are in input
++mode they can generate IBIs (In Band Interrupts).
 +
-+Mandatory properties defined by the generic binding (see
-+Documentation/devicetree/bindings/i3c/i3c.txt for more details):
-+
-+- #address-cells: shall be set to 1
-+- #size-cells: shall be set to 0
-+
-+Optional properties defined by the generic binding (see
-+Documentation/devicetree/bindings/i3c/i3c.txt for more details):
-+
-+- i2c-scl-hz
-+- i3c-scl-hz
-+
-+I3C device connected on the bus follow the generic description (see
-+Documentation/devicetree/bindings/i3c/i3c.txt for more details).
++Required properties for GPIO node:
++- reg : 3 cells encoding the I3C static address (none in our case) and the I3C
++	Provisional ID. See Documentation/devicetree/bindings/i3c/i3c.txt for
++	more details.
++	Should be <0x0 0x392 0x0>.
++- gpio-controller : Marks the device node as a gpio controller.
++- #gpio-cells : Should be two. The first cell is the pin number and
++  the second cell is used to specify the gpio polarity (GPIO_ACTIVE_HIGH or
++  GPIO_ACTIVE_LOW)
++- interrupt-controller: Marks the device node as an interrupt controller.
++- #interrupt-cells : Should be 2. The first cell is the GPIO number.
++  The second cell is used to specify trigger type and level flags.
++  The following trigger types are accepted (see
++  <dt-bindings/interrupt-controller/irq.h> for their definition):
++	IRQ_TYPE_EDGE_RISING
++	IRQ_TYPE_EDGE_FALLING
++	IRQ_TYPE_EDGE_BOTH
++	IRQ_TYPE_LEVEL_HIGH
++	IRQ_TYPE_LEVEL_LOW
 +
 +Example:
 +
-+	i3c-master@0d040000 {
-+		compatible = "cdns,i3c-master";
-+		clocks = <&coreclock>, <&i3csysclock>;
-+		clock-names = "pclk", "sysclk";
-+		interrupts = <3 0>;
-+		reg = <0x0d040000 0x1000>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		i2c-scl-hz = <100000>;
-+
-+		nunchuk: nunchuk@52 {
-+			compatible = "nintendo,nunchuk";
-+			reg = <0x52 0x80000010 0>;
++	i3c-master@xxx {
++		...
++		i3c_gpio_expander: gpio@0,39200000000 {
++			reg = <0 0x392 0x0>;
++			gpio-controller;
++			#gpio-cells = <2>;
++			interrupt-controller;
++			#interrupt-cells = <2>;
 +		};
++		...
 +	};
-+
 -- 
 2.14.1
