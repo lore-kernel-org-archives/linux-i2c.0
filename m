@@ -1,136 +1,177 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: [PATCH v6 03/10] i3c: Add sysfs ABI spec
-Date: Thu, 19 Jul 2018 17:29:23 +0200
-Message-ID: <20180719152930.3715-4-boris.brezillon@bootlin.com>
-References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
+From: Brendan Higgins <brendanhiggins@google.com>
+Subject: Re: [PATCH] i2c: aspeed: Improve driver to support multi-master use
+ cases stably
+Date: Thu, 19 Jul 2018 09:57:59 -0700
+Message-ID: <CAFd5g46=DhGKC59i+Tu3DNGupVvFh4buJPQ_0NWZZbgcpV=6NA@mail.gmail.com>
+References: <20180626165812.4141-1-jae.hyun.yoo@linux.intel.com>
+ <CAFd5g45z--ucXf-So517tgrayZT6x2TGvaUvaDF7zeRNn7CPXw@mail.gmail.com>
+ <e51471e6-0f8a-bffc-34c8-1e74239fdbcf@linux.intel.com> <CAFd5g47j_h4ZrT8Eg1FZ8sAj5ekCUH20jUVub75ozdkg8_YW7Q@mail.gmail.com>
+ <921b1ab7-9c9f-0aeb-da89-5a1a27d009f0@linux.intel.com> <d3f10fc1-635b-3a5d-a967-2816eac005fc@linux.intel.com>
+ <CAFd5g47zdPdqqjVJtNHtFk+jKgciKbMcEH9M-W9rL4DgLM5hkg@mail.gmail.com>
+ <b8232faa-58f5-f3a5-d12a-3f326cf1d03d@linux.intel.com> <a84da5d076924f40b1c836fe8b9d0844@TWMBX01.aspeed.com>
+ <26400cb7-972e-7be9-81ba-8e08d42abd4e@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180719152930.3715-1-boris.brezillon@bootlin.com>
+In-Reply-To: <26400cb7-972e-7be9-81ba-8e08d42abd4e@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
-Cc: Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vitor Soares <Vitor.Soares@synopsys.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linus
+To: jae.hyun.yoo@linux.intel.com
+Cc: gary_hsu@aspeedtech.com, Ryan Chen <ryan_chen@aspeedtech.com>, Benjamin Fair <benjaminfair@google.com>, linux-aspeed@lists.ozlabs.org, james.feist@linux.intel.com, Andrew Jeffery <andrew@aj.id.au>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Patrick Venture <venture@google.com>, vernon.mauery@linux.intel.com, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Document sysfs files/directories/symlinks exposed by the I3C subsystem.
+On Tue, Jul 17, 2018 at 9:18 AM Jae Hyun Yoo
+<jae.hyun.yoo@linux.intel.com> wrote:
+>
+>
+> On 7/15/2018 8:05 PM, Gary Hsu wrote:
+> > Hi Jae,
+> >
+> > In originally, we reserved these register bits for debug purpose. But f=
+or some error handling case, we found it is also useful to help to clarify =
+some error conditions. So driver also can use these fields information to c=
+heck something.
+> > As for how driver use these information in their code, I have no commen=
+t. I don=E2=80=99t understand the driver. But these information is the real=
+ controller state, it had no problem to use information.
+> >
+>
+> Thanks Gary!
+>
+> Hi Brendan,
+> Is it acceptable now if I add this as a comment like below?
 
-Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
----
-Changes in v5:
-- Fix the kernel version
-- Rename address into dynamic_address to match changes done in the code
+Yep, that's fine. I didn't mean to hold you up. I was just curious.
 
-Changes in v4:
-- none
-
-Changes in v3:
-- none
-
-Changes in v2:
-- new patch
----
- Documentation/ABI/testing/sysfs-bus-i3c | 95 +++++++++++++++++++++++++++++++++
- 1 file changed, 95 insertions(+)
- create mode 100644 Documentation/ABI/testing/sysfs-bus-i3c
-
-diff --git a/Documentation/ABI/testing/sysfs-bus-i3c b/Documentation/ABI/testing/sysfs-bus-i3c
-new file mode 100644
-index 000000000000..068fd1e97c01
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-bus-i3c
-@@ -0,0 +1,95 @@
-+What:		/sys/bus/i3c/devices/i3c-<bus-id>
-+KernelVersion:  4.19
-+Contact:	linux-i3c@vger.kernel.org
-+Description:
-+		An I3C bus. This directory will contain one sub-directory per
-+		I3C device present on the bus.
-+
-+What:		/sys/bus/i3c/devices/i3c-<bus-id>/current_master
-+KernelVersion:  4.19
-+Contact:	linux-i3c@vger.kernel.org
-+Description:
-+		Expose the master that owns the bus (<bus-id>-<master-pid>) at
-+		the time this file is read. Note that bus ownership can change
-+		overtime, so there's no guarantee that when the read() call
-+		returns, the value returned is still valid.
-+
-+What:		/sys/bus/i3c/devices/i3c-<bus-id>/mode
-+KernelVersion:  4.19
-+Contact:	linux-i3c@vger.kernel.org
-+Description:
-+		I3C bus mode. Can be "pure", "mixed-fast" or "mixed-slow". See
-+		the I3C specification for a detailed description of what each
-+		of these modes implies.
-+
-+What:		/sys/bus/i3c/devices/i3c-<bus-id>/i3c_scl_frequency
-+KernelVersion:  4.19
-+Contact:	linux-i3c@vger.kernel.org
-+Description:
-+		The frequency (expressed in Hz) of the SCL signal when
-+		operating in I3C SDR mode.
-+
-+What:		/sys/bus/i3c/devices/i3c-<bus-id>/i2c_scl_frequency
-+KernelVersion:  4.19
-+Contact:	linux-i3c@vger.kernel.org
-+Description:
-+		The frequency (expressed in Hz) of the SCL signal when
-+		operating in I2C mode.
-+
-+What:		/sys/bus/i3c/devices/i3c-<bus-id>/<bus-id>-<device-pid>
-+KernelVersion:  4.19
-+Contact:	linux-i3c@vger.kernel.org
-+Description:
-+		An I3C device present on I3C bus identified by <bus-id>. Note
-+		that all devices are represented including the master driving
-+		the bus.
-+
-+What:		/sys/bus/i3c/devices/i3c-<bus-id>/<bus-id>-<device-pid>/dynamic_address
-+KernelVersion:  4.19
-+Contact:	linux-i3c@vger.kernel.org
-+Description:
-+		Dynamic address assigned to device <bus-id>-<device-pid>. This
-+		address may change if the bus is re-initialized.
-+
-+What:		/sys/bus/i3c/devices/i3c-<bus-id>/<bus-id>-<device-pid>/bcr
-+KernelVersion:  4.19
-+Contact:	linux-i3c@vger.kernel.org
-+Description:
-+		BCR stands for Bus Characteristics Register and express the
-+		device capabilities in term of speed, maximum read/write
-+		length, etc. See the I3C specification for more details.
-+
-+What:		/sys/bus/i3c/devices/i3c-<bus-id>/<bus-id>-<device-pid>/dcr
-+KernelVersion:  4.19
-+Contact:	linux-i3c@vger.kernel.org
-+Description:
-+		DCR stands for Device Characteristics Register and express the
-+		device capabilities in term of exposed features. See the I3C
-+		specification for more details.
-+
-+What:		/sys/bus/i3c/devices/i3c-<bus-id>/<bus-id>-<device-pid>/pid
-+KernelVersion:  4.19
-+Contact:	linux-i3c@vger.kernel.org
-+Description:
-+		PID stands for Provisional ID and is used to uniquely identify
-+		a device on a bus. This PID contains information about the
-+		vendor, the part and an instance ID so that several devices of
-+		the same type can be connected on the same bus.
-+		See the I3C specification for more details.
-+
-+What:		/sys/bus/i3c/devices/i3c-<bus-id>/<bus-id>-<device-pid>/hdrcap
-+KernelVersion:  4.19
-+Contact:	linux-i3c@vger.kernel.org
-+Description:
-+		Expose the HDR (High Data Rate) capabilities of a device.
-+		Returns a list of supported HDR mode, each element is separated
-+		by space. Modes can be "hdr-ddr", "hdr-tsp" and "hdr-tsl".
-+		See the I3C specification for more details about these HDR
-+		modes.
-+
-+What:		/sys/bus/i3c/devices/<bus-id>-<device-pid>
-+KernelVersion:  4.19
-+Contact:	linux-i3c@vger.kernel.org
-+Description:
-+		These directories are just symbolic links to
-+		/sys/bus/i3c/devices/i3c-<bus-id>/<bus-id>-<device-pid>.
--- 
-2.14.1
+>
+> Thanks,
+> Jae
+>
+> > Best Regards,
+> >
+> > =E8=A8=B1=E9=A6=A5=E7=96=87 Gary Hsu
+> >
+> > =E4=BF=A1=E9=A9=8A=E7=A7=91=E6=8A=80=E8=82=A1=E4=BB=BD=E6=9C=89=E9=99=
+=90=E5=85=AC=E5=8F=B8
+> > ASPEED Technology Inc.
+> >
+> > 2F,No.15,Industry East Road 4.,Hsinchu Science Park, Hsinchu City 30077=
+, Taiwan
+> > =E6=96=B0=E7=AB=B9=E7=A7=91=E5=AD=B8=E5=9C=92=E5=8D=80=E5=B7=A5=E6=A5=
+=AD=E6=9D=B1=E5=9B=9B=E8=B7=AF 15 =E8=99=9F 2F
+> >
+> > Tel : 886-3-5789568 ext:807
+> > Fax : 886-3-5789586
+> > Web : http://www.aspeedtech.com
+> >
+> > ************* Email Confidentiality Notice ********************
+> > =E5=85=8D=E8=B2=AC=E8=81=B2=E6=98=8E:
+> > =E5=9B=A0=E6=87=89=E5=80=8B=E4=BA=BA=E8=B3=87=E6=96=99=E4=BF=9D=E8=AD=
+=B7=E6=B3=95=E6=96=BD=E8=A1=8C,=E6=9C=AC=E4=BF=A1=E4=BB=B6(=E6=88=96=E5=85=
+=B6=E9=99=84=E4=BB=B6)=E5=8F=AF=E8=83=BD=E5=8C=85=E5=90=AB=E6=A9=9F=E5=AF=
+=86=E8=B3=87=E8=A8=8A=EF=BC=8C=E4=B8=A6=E5=8F=97=E6=B3=95=E5=BE=8B=E4=BF=9D=
+=E8=AD=B7=E3=80=82=E5=A6=82 =E5=8F=B0=E7=AB=AF=E9=9D=9E=E6=8C=87=E5=AE=9A=
+=E4=B9=8B=E6=94=B6=E4=BB=B6=E8=80=85=EF=BC=8C=E8=AB=8B=E4=BB=A5=E9=9B=BB=E5=
+=AD=90=E9=83=B5=E4=BB=B6=E9=80=9A=E7=9F=A5=E6=9C=AC=E9=9B=BB=E5=AD=90=E9=83=
+=B5=E4=BB=B6=E4=B9=8B=E7=99=BC=E9=80=81=E8=80=85, =E4=B8=A6=E8=AB=8B=E7=AB=
+=8B=E5=8D=B3=E5=88=AA=E9=99=A4=E6=9C=AC=E9=9B=BB=E5=AD=90=E9=83=B5=E4=BB=B6=
+=E5=8F=8A=E5=85=B6=E9=99=84=E4=BB=B6=E5=92=8C=E9=8A=B7=E6=AF=80=E6=89=80=E6=
+=9C=89=E8=A4=87=E5=8D=B0=E4=BB=B6=E3=80=82=E8=AC=9D=E8=AC=9D=E6=82=A8=E7=9A=
+=84=E5=90=88=E4=BD=9C!
+> >
+> > DISCLAIMER:
+> > This message (and any attachments) may contain legally privileged and/o=
+r other confidential information. If you have received it in error, please =
+notify the sender by reply e-mail and immediately delete the e-mail and any=
+ attachments without copying or disclosing the contents. Thank you.
+> >
+> > -----Original Message-----
+> > From: Jae Hyun Yoo [mailto:jae.hyun.yoo@linux.intel.com]
+> > Sent: Saturday, July 14, 2018 2:54 AM
+> > To: Brendan Higgins <brendanhiggins@google.com>
+> > Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>; Joel Stanley <jo=
+el@jms.id.au>; Andrew Jeffery <andrew@aj.id.au>; linux-i2c@vger.kernel.org;=
+ OpenBMC Maillist <openbmc@lists.ozlabs.org>; Linux ARM <linux-arm-kernel@l=
+ists.infradead.org>; linux-aspeed@lists.ozlabs.org; Linux Kernel Mailing Li=
+st <linux-kernel@vger.kernel.org>; james.feist@linux.intel.com; vernon.maue=
+ry@linux.intel.com; Benjamin Fair <benjaminfair@google.com>; Patrick Ventur=
+e <venture@google.com>; Gary Hsu <gary_hsu@aspeedtech.com>; Ryan Chen <ryan=
+_chen@aspeedtech.com>
+> > Subject: Re: [PATCH] i2c: aspeed: Improve driver to support multi-maste=
+r use cases stably
+> >
+> > On 7/13/2018 11:12 AM, Brendan Higgins wrote:
+> >> On Fri, Jul 13, 2018 at 10:22 AM Jae Hyun Yoo
+> >> <jae.hyun.yoo@linux.intel.com> wrote:
+> >>>
+> >>> On 7/12/2018 11:21 AM, Jae Hyun Yoo wrote:
+> >>>> On 7/12/2018 2:33 AM, Brendan Higgins wrote:
+> >>>>> On Wed, Jun 27, 2018 at 10:55 AM Jae Hyun Yoo
+> >>>>> <jae.hyun.yoo@linux.intel.com> wrote:
+> >> <snip>
+> >>>>> <snip>
+> >>>>>>>> +       for (;;) {
+> >>>>>>>> +               if (!(readl(bus->base + ASPEED_I2C_CMD_REG) &
+> >>>>>>>> +                     (ASPEED_I2CD_BUS_BUSY_STS |
+> >>>>>>>> +                      ASPEED_I2CD_XFER_MODE_STS_MASK)))
+> >>>>>>>
+> >>>>>>> Is using the Transfer Mode State Machine bits necessary? The
+> >>>>>>> documentation marks it as "for debugging purpose only," so
+> >>>>>>> relying on it makes me nervous.
+> >>>>>>>
+> >>>>>>
+> >>>>>> As you said, the documentation marks it as "for debugging purpose =
+only."
+> >>>>>> but ASPEED also uses this way in their SDK code because it's the
+> >>>>>> best way for checking bus busy status which can cover both single
+> >>>>>> and multi-master use cases.
+> >>>>>>
+> >>>>>
+> >>>>> Well, it would also be really nice to have access to this bit if
+> >>>>> someone wants to implement MCTP. Could we maybe check with Aspeed
+> >>>>> what them meant by "for debugging purposes only" and document it
+> >>>>> here? It makes me nervous to rely on debugging functionality for
+> >>>>> normal usage.
+> >>>>>
+> >>>>
+> >>>> Okay, I'll check it with Aspeed. Will let you know their response.
+> >>>>
+> >>>
+> >>> I've checked it with Gary Hsu <gary_hsu@aspeedtech.com> and he
+> >>> confirmed that the bits reflect real information and good to be used
+> >>> in practical code.
+> >>
+> >> Huh. For my own edification, could you ask them why they said "for
+> >> debugging purpose only" in the documentation? I am just really curious
+> >> what they meant by that. I would be satisfied if you just CC'ed me on
+> >> your email thread with Gary, and I can ask him myself.
+> >>
+> >
+> > I've already CC'ed Gary and Ryan in this thread.
+> >
+> > Hi Gary,
+> >
+> > Can you explain why the documentation says that the bit field is 'for d=
+ebugging purpose only'? Any plan to change the description?
+> >
+> > Thanks,
+> >
+> > Jae
+> >
+> >>>
+> >>> I'll add a comment like below:
+> >>>
+> >>> /*
+> >>>     * This is marked as 'for debugging purpose only' in datasheet but
+> >>>     * ASPEED confirmed that this reflects real information and good
+> >>>     * to be used in practical code.
+> >>>     */
+> >>>
+> >>> Is it acceptable then?
+> >>
+> >> Yeah, that's fine.
+> >>
+> >> <snip>
+> >>
+> >> Cheers
+> >>
