@@ -1,170 +1,117 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH] i2c: aspeed: Improve driver to support multi-master use
- cases stably
-Date: Thu, 19 Jul 2018 09:58:27 -0700
-Message-ID: <CAFd5g44JNqaG58aAoiMRbgzfz1nE4CfsS4v2gt99=Q5LoaZA6Q@mail.gmail.com>
-References: <20180626165812.4141-1-jae.hyun.yoo@linux.intel.com>
- <CAFd5g45z--ucXf-So517tgrayZT6x2TGvaUvaDF7zeRNn7CPXw@mail.gmail.com>
- <e51471e6-0f8a-bffc-34c8-1e74239fdbcf@linux.intel.com> <CAFd5g47j_h4ZrT8Eg1FZ8sAj5ekCUH20jUVub75ozdkg8_YW7Q@mail.gmail.com>
- <921b1ab7-9c9f-0aeb-da89-5a1a27d009f0@linux.intel.com> <d3f10fc1-635b-3a5d-a967-2816eac005fc@linux.intel.com>
- <CAFd5g47zdPdqqjVJtNHtFk+jKgciKbMcEH9M-W9rL4DgLM5hkg@mail.gmail.com>
- <b8232faa-58f5-f3a5-d12a-3f326cf1d03d@linux.intel.com> <a84da5d076924f40b1c836fe8b9d0844@TWMBX01.aspeed.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH v5 0/6] Add Actions Semiconductor Owl S900 I2C support
+Date: Thu, 19 Jul 2018 23:13:59 +0530
+Message-ID: <20180719174405.7210-1-manivannan.sadhasivam@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a84da5d076924f40b1c836fe8b9d0844@TWMBX01.aspeed.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: gary_hsu@aspeedtech.com
-Cc: jae.hyun.yoo@linux.intel.com, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, james.feist@linux.intel.com, vernon.mauery@linux.intel.com, Benjamin Fair <benjaminfair@google.com>, Patrick Venture <venture@google.com>, Ryan Chen <ryan_chen@aspeedtech.com>
+To: wsa@the-dreams.de, robh+dt@kernel.org, afaerber@suse.de
+Cc: linus.walleij@linaro.org, linux-i2c@vger.kernel.org, liuwei@actions-semi.com, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree@vger.kernel.org, andy.shevchenko@gmail.com, daniel.thompson@linaro.org, amit.kucheria@linaro.org, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, hzhang@ucrobotics.com, bdong@ucrobotics.com, manivannanece23@gmail.com, thomas.liau@actions-semi.com, jeff.chen@actions-semi.com, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Jul 15, 2018 at 8:05 PM Gary Hsu <gary_hsu@aspeedtech.com> wrote:
->
-> Hi Jae,
->
-> In originally, we reserved these register bits for debug purpose. But for=
- some error handling case, we found it is also useful to help to clarify so=
-me error conditions. So driver also can use these fields information to che=
-ck something.
-> As for how driver use these information in their code, I have no comment.=
- I don=E2=80=99t understand the driver. But these information is the real c=
-ontroller state, it had no problem to use information.
+This patchset adds I2C controller support for Actions Semiconductor S900 SoC.
+This driver has been structured in a way such that there will be only
+one controller driver for the whole Owl family series (S500, S700 and
+S900 SoCs).
 
-Okay, so it was originally only intended for debugging, but then showed its=
-elf
-to be useful, got it. Just out of curiosity, why did you mark it that way i=
-n
-the documentation? It seems as though you are trying to discourage people f=
-rom
-using it.
+There are 6 I2C controllers with separate memory mapped register space.
+The I2C controller can handle atmost two messages concatenated by a
+repeated start via its internal address feature. Hence the driver
+uses this feature for messages of length greater than 1. In those cases,
+the first message of the combined message should be a `write` with maximum
+message length 6 and the second message's maximum length should be 240 bytes.
 
->
-> Best Regards,
->
-> =E8=A8=B1=E9=A6=A5=E7=96=87 Gary Hsu
->
-> =E4=BF=A1=E9=A9=8A=E7=A7=91=E6=8A=80=E8=82=A1=E4=BB=BD=E6=9C=89=E9=99=90=
-=E5=85=AC=E5=8F=B8
-> ASPEED Technology Inc.
->
-> 2F,No.15,Industry East Road 4.,Hsinchu Science Park, Hsinchu City 30077, =
-Taiwan
-> =E6=96=B0=E7=AB=B9=E7=A7=91=E5=AD=B8=E5=9C=92=E5=8D=80=E5=B7=A5=E6=A5=AD=
-=E6=9D=B1=E5=9B=9B=E8=B7=AF 15 =E8=99=9F 2F
->
-> Tel : 886-3-5789568 ext:807
-> Fax : 886-3-5789586
-> Web : http://www.aspeedtech.com
->
-> ************* Email Confidentiality Notice ********************
-> =E5=85=8D=E8=B2=AC=E8=81=B2=E6=98=8E:
-> =E5=9B=A0=E6=87=89=E5=80=8B=E4=BA=BA=E8=B3=87=E6=96=99=E4=BF=9D=E8=AD=B7=
-=E6=B3=95=E6=96=BD=E8=A1=8C,=E6=9C=AC=E4=BF=A1=E4=BB=B6(=E6=88=96=E5=85=B6=
-=E9=99=84=E4=BB=B6)=E5=8F=AF=E8=83=BD=E5=8C=85=E5=90=AB=E6=A9=9F=E5=AF=86=
-=E8=B3=87=E8=A8=8A=EF=BC=8C=E4=B8=A6=E5=8F=97=E6=B3=95=E5=BE=8B=E4=BF=9D=E8=
-=AD=B7=E3=80=82=E5=A6=82 =E5=8F=B0=E7=AB=AF=E9=9D=9E=E6=8C=87=E5=AE=9A=E4=
-=B9=8B=E6=94=B6=E4=BB=B6=E8=80=85=EF=BC=8C=E8=AB=8B=E4=BB=A5=E9=9B=BB=E5=AD=
-=90=E9=83=B5=E4=BB=B6=E9=80=9A=E7=9F=A5=E6=9C=AC=E9=9B=BB=E5=AD=90=E9=83=B5=
-=E4=BB=B6=E4=B9=8B=E7=99=BC=E9=80=81=E8=80=85, =E4=B8=A6=E8=AB=8B=E7=AB=8B=
-=E5=8D=B3=E5=88=AA=E9=99=A4=E6=9C=AC=E9=9B=BB=E5=AD=90=E9=83=B5=E4=BB=B6=E5=
-=8F=8A=E5=85=B6=E9=99=84=E4=BB=B6=E5=92=8C=E9=8A=B7=E6=AF=80=E6=89=80=E6=9C=
-=89=E8=A4=87=E5=8D=B0=E4=BB=B6=E3=80=82=E8=AC=9D=E8=AC=9D=E6=82=A8=E7=9A=84=
-=E5=90=88=E4=BD=9C!
->
-> DISCLAIMER:
-> This message (and any attachments) may contain legally privileged and/or =
-other confidential information. If you have received it in error, please no=
-tify the sender by reply e-mail and immediately delete the e-mail and any a=
-ttachments without copying or disclosing the contents. Thank you.
->
-> -----Original Message-----
-> From: Jae Hyun Yoo [mailto:jae.hyun.yoo@linux.intel.com]
-> Sent: Saturday, July 14, 2018 2:54 AM
-> To: Brendan Higgins <brendanhiggins@google.com>
-> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>; Joel Stanley <joel=
-@jms.id.au>; Andrew Jeffery <andrew@aj.id.au>; linux-i2c@vger.kernel.org; O=
-penBMC Maillist <openbmc@lists.ozlabs.org>; Linux ARM <linux-arm-kernel@lis=
-ts.infradead.org>; linux-aspeed@lists.ozlabs.org; Linux Kernel Mailing List=
- <linux-kernel@vger.kernel.org>; james.feist@linux.intel.com; vernon.mauery=
-@linux.intel.com; Benjamin Fair <benjaminfair@google.com>; Patrick Venture =
-<venture@google.com>; Gary Hsu <gary_hsu@aspeedtech.com>; Ryan Chen <ryan_c=
-hen@aspeedtech.com>
-> Subject: Re: [PATCH] i2c: aspeed: Improve driver to support multi-master =
-use cases stably
->
-> On 7/13/2018 11:12 AM, Brendan Higgins wrote:
-> > On Fri, Jul 13, 2018 at 10:22 AM Jae Hyun Yoo
-> > <jae.hyun.yoo@linux.intel.com> wrote:
-> >>
-> >> On 7/12/2018 11:21 AM, Jae Hyun Yoo wrote:
-> >>> On 7/12/2018 2:33 AM, Brendan Higgins wrote:
-> >>>> On Wed, Jun 27, 2018 at 10:55 AM Jae Hyun Yoo
-> >>>> <jae.hyun.yoo@linux.intel.com> wrote:
-> > <snip>
-> >>>> <snip>
-> >>>>>>> +       for (;;) {
-> >>>>>>> +               if (!(readl(bus->base + ASPEED_I2C_CMD_REG) &
-> >>>>>>> +                     (ASPEED_I2CD_BUS_BUSY_STS |
-> >>>>>>> +                      ASPEED_I2CD_XFER_MODE_STS_MASK)))
-> >>>>>>
-> >>>>>> Is using the Transfer Mode State Machine bits necessary? The
-> >>>>>> documentation marks it as "for debugging purpose only," so
-> >>>>>> relying on it makes me nervous.
-> >>>>>>
-> >>>>>
-> >>>>> As you said, the documentation marks it as "for debugging purpose o=
-nly."
-> >>>>> but ASPEED also uses this way in their SDK code because it's the
-> >>>>> best way for checking bus busy status which can cover both single
-> >>>>> and multi-master use cases.
-> >>>>>
-> >>>>
-> >>>> Well, it would also be really nice to have access to this bit if
-> >>>> someone wants to implement MCTP. Could we maybe check with Aspeed
-> >>>> what them meant by "for debugging purposes only" and document it
-> >>>> here? It makes me nervous to rely on debugging functionality for
-> >>>> normal usage.
-> >>>>
-> >>>
-> >>> Okay, I'll check it with Aspeed. Will let you know their response.
-> >>>
-> >>
-> >> I've checked it with Gary Hsu <gary_hsu@aspeedtech.com> and he
-> >> confirmed that the bits reflect real information and good to be used
-> >> in practical code.
-> >
-> > Huh. For my own edification, could you ask them why they said "for
-> > debugging purpose only" in the documentation? I am just really curious
-> > what they meant by that. I would be satisfied if you just CC'ed me on
-> > your email thread with Gary, and I can ask him myself.
-> >
->
-> I've already CC'ed Gary and Ryan in this thread.
->
-> Hi Gary,
->
-> Can you explain why the documentation says that the bit field is 'for deb=
-ugging purpose only'? Any plan to change the description?
->
-> Thanks,
->
-> Jae
->
-> >>
-> >> I'll add a comment like below:
-> >>
-> >> /*
-> >>    * This is marked as 'for debugging purpose only' in datasheet but
-> >>    * ASPEED confirmed that this reflects real information and good
-> >>    * to be used in practical code.
-> >>    */
-> >>
-> >> Is it acceptable then?
-> >
-> > Yeah, that's fine.
-> >
-> > <snip>
-> >
-> > Cheers
-> >
+As far as the bus speed is concerned, this driver only supports
+Standard (100KHz) and High speed (400KHz) for now.
+
+The pinctrl definitions are only available for I2C0, I2C1 and I2C2.
+With the mux option available only for I2C0.
+
+For Bubblegum-96 board utilizing the S900 SoC, only I2C1 and I2C2 which
+are exposed on the Low speed expansion connector are enabled.
+
+This series depends on the pinctrl patch [1] is still not merged by the
+platform maintainer Andreas but it has been reviewed by the pinctrl maintainer
+Linus Walleij. For the reference, I have queued up all reviewed dts patches
+in my tree [2] from which Andreas is picking them for 4.19.
+
+For this series, since the dts patches will go through the ARM SoC tree,
+Andreas will pick it up once it is reviewed.
+
+Thanks,
+Mani
+
+[1] https://patchwork.kernel.org/patch/10322937/
+[2] https://git.linaro.org/people/manivannan.sadhasivam/linux.git/log/?h=s900-for-next
+
+Changes in v5:
+
+* Cleaned up the multi-line codes and reordered the error paths
+  as per Peter's review
+* Added Acked-by tag from Peter for driver patch
+* Added Reviewed-by tag from Rob for bindings patch
+
+Changes in v4:
+
+As per Andy and Peter review:
+
+* Used spinlock for accessing most of the register access (only parts
+  involved sleep/long-busy-wait has been excluded)
+* Removed returning 0 and added -ENXIO if the msg_ptr not equals to
+  message length
+* Added DIV_ROUND_UP for setting clock frequency
+* Changed one non-atomic mdelay instance to usleep_range
+* Moved pinctrl definition patch before dts patch
+* Fixed the driver to support only 100KHz and 400KHz frequencies
+
+Changes in v3:
+
+As per Peter, Andy and Andreas review:
+
+* Removed owl_i2c_reset function from interrupt handler since it
+  involves the use of delays.
+* Fixed the return path in owl_i2c_master_xfer and added a note
+* Changed "base" parameter to "reg" in owl_i2c_update_reg for better
+  understandability
+* Ordered the includes in alphabetical order
+* Small changes to defines and added comma at the end of struct members
+* Removed rendundant 0 assignment in owl_i2c_master_xfer
+* Changed all OWL naming convention to Owl and also changed Actions Semi
+  naming to Actions Semiconductor
+
+Changes in v2:
+
+As per Andy's review:
+* Modified infinite loops to fixed number of retries
+* Used i2c_8bit_addr_from_msg for constructing the slave address
+* Removed unnecessary parenthesis around defines
+* Modified certain dev_warn to dev_dbg
+* Modified the error handling to more generic pattern
+
+* Fixed the return value in owl_i2c_master_xfer
+* Added MAINTAINERS patch for I2C driver and its binding
+
+Manivannan Sadhasivam (6):
+  dt-bindings: i2c: Add binding for Actions Semiconductor Owl I2C
+    controller
+  arm64: dts: actions: Add pinctrl definition for S900 I2C controller
+  arm64: dts: actions: Add Actions Semiconductor S900 I2C controller
+    nodes
+  arm64: dts: actions: Enable I2C1 and I2C2 in Bubblegum-96 board
+  i2c: Add Actions Semiconductor Owl family S900 I2C driver
+  MAINTAINERS: Add entry for Actions Semiconductor Owl I2C driver
+
+ .../devicetree/bindings/i2c/i2c-owl.txt       |  27 +
+ MAINTAINERS                                   |   2 +
+ .../dts/actions/s900-bubblegum-96-pins.dtsi   |  29 +
+ .../boot/dts/actions/s900-bubblegum-96.dts    |  11 +
+ arch/arm64/boot/dts/actions/s900.dtsi         |  60 +++
+ drivers/i2c/busses/Kconfig                    |   7 +
+ drivers/i2c/busses/Makefile                   |   1 +
+ drivers/i2c/busses/i2c-owl.c                  | 495 ++++++++++++++++++
+ 8 files changed, 632 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-owl.txt
+ create mode 100644 arch/arm64/boot/dts/actions/s900-bubblegum-96-pins.dtsi
+ create mode 100644 drivers/i2c/busses/i2c-owl.c
+
+-- 
+2.17.1
