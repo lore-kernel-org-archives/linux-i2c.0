@@ -1,181 +1,191 @@
 From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: [PATCH v6 00/10] Add the I3C subsystem
-Date: Thu, 19 Jul 2018 17:29:20 +0200
-Message-ID: <20180719152930.3715-1-boris.brezillon@bootlin.com>
+Subject: [PATCH v6 04/10] dt-bindings: i3c: Document core bindings
+Date: Thu, 19 Jul 2018 17:29:24 +0200
+Message-ID: <20180719152930.3715-5-boris.brezillon@bootlin.com>
+References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180719152930.3715-1-boris.brezillon@bootlin.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
 Cc: Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vitor Soares <Vitor.Soares@synopsys.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linus
 List-Id: linux-i2c@vger.kernel.org
 
-This patch series is a proposal for a new I3C subsystem.
+A new I3C subsystem has been added and a generic description has been
+created to represent the I3C bus and the devices connected on it.
 
-This infrastructure is not complete yet and will be extended over
-time.
+Document this generic representation.
 
-There are a few design choices that are worth mentioning because they
-impact the way I3C device drivers can interact with their devices:
+Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+---
+Changes in v5:
+- Add Rob's R-b
 
-- all functions used to send I3C/I2C frames must be called in
-  non-atomic context. Mainly done this way to ease implementation, but
-  this is still open to discussion. Please let me know if you think it's
-  worth considering an asynchronous model here
-- the bus element is a separate object and is not implicitly described
-  by the master (as done in I2C). The reason is that I want to be able
-  to handle multiple master connected to the same bus and visible to
-  Linux.
-  In this situation, we should only have one instance of the device and
-  not one per master, and sharing the bus object would be part of the
-  solution to gracefully handle this case.
-  I'm not sure if we will ever need to deal with multiple masters
-  controlling the same bus and exposed under Linux, but separating the
-  bus and master concept is pretty easy, hence the decision to do it
-  now, just in case we need it some day.
-  The other benefit of separating the bus and master concepts is that
-  master devices appear under the bus directory in sysfs.
+Changes in v4:
+- Clarify the fact that static address == I3C address and dynamic
+  address == I3C address
+- Use i2c-scl-hz in the example
 
-  Discussion around the bus/master/dev representation is still ongoing,
-  with Arnd opting for a simple approach where
-  * the bus is implicitly represented by the master device
-  * the master is not represented as a device under the I3C bus
-  * only remote I3C devices are exposed and possibly duplicated if
-    several masters controlling the same bus are exposed to the same
-    Linux instance
-  and Peter preferring the representation where the bus is a separate
-  object. IIRC, Wolfram was in favor of the "bus is a separate object"
-  too.
+Changes in v3:
+- Rename {i2c,i3c}-scl-frequency DT prop into {i2c,i3c}-scl-hz
+- Rework the way we expose the provisional ID and LVR information
+- Rename dynamic-address into assigned-address
+- Enforce the I3C master node name
 
-  If possible, I'd like to close this discussion soon, no matter which
-  solution is chosen.
-
-- I2C backward compatibility has been designed to be transparent to I2C
-  drivers and the I2C subsystem. The I3C master just registers an I2C
-  adapter which creates a new I2C bus. I'd say that, from a
-  representation PoV it's not ideal because what should appear as a
-  single I3C bus exposing I3C and I2C devices here appears as 2
-  different busses connected to each other through the parenting (the
-  I3C master is the parent of the I2C and I3C busses).
-  On the other hand, I don't see a better solution if we want something
-  that is not invasive.
-
-Missing features in this preliminary version:
-- support for HDR modes (has been removed because of lack of real users)
-- no support for multi-master and the associated concepts (mastership
-  handover, support for secondary masters, ...)
-- I2C devices can only be described using DT because this is the only
-  use case I have. However, the framework can easily be extended with
-  ACPI and board info support
-- I3C slave framework. This has been completely omitted, but shouldn't
-  have a huge impact on the I3C framework because I3C slaves don't see
-  the whole bus, it's only about handling master requests and generating
-  IBIs. Some of the struct, constant and enum definitions could be
-  shared, but most of the I3C slave framework logic will be different
-
-
-Main changes between v5 and v6:
-- Introduce {i3c,i2c}_dev_desc structures to better match how I3C
-  master controllers (reservation of one HW slot for each device
-  attached to the bus). With this solution, the resource migration
-  that happens when a device lose its dynamic address and is
-  re-assigned a different address is simplified on the driver side,
-  because most of it is now handled in the core (reserve a new dev
-  slot, reserve IBI resources and free all resources attached to the
-  old slot)
-- Add I3C error codes (M0 to M2) so that the core and device drivers
-  can have fine grained information on what caused an EIO error.
-
-Only minor things happened between v3 and v5 (you can go check the
-changelog in each patch for more details).
-
-Main changes between v2 and v3 are:
-- Reworked the DT bindings as suggested by Rob
-- Reworked the bus initialization step as suggested by Vitor
-- Added a driver for an I3C GPIO expander
-
-Main changes between the initial RFC and this v2 are:
-- Add a generic infrastructure to support IBIs. It's worth mentioning
-  that I tried exposing IBIs as a regular IRQs, but after several
-  attempts and a discussion with Mark Zyngier, it appeared that it was
-  not really fitting in the Linux IRQ model (the fact that you have
-  payload attached to IBIs, the fact that most of the time an IBI will
-  generate a transfer on the bus which has to be done in an atomic
-  context, ...)
-  The counterpart of this decision is the latency induced by the
-  workqueue approach, but since I don't have real use cases, I don't
-  know if this can be a problem or not. 
-- Add helpers to support Hot Join
-- Add support for IBIs and Hot Join in Cadence I3C master driver
-- Address several issues in how I was using the device model
-
-Thanks,
-
-Boris
-
-Boris Brezillon (10):
-  i3c: Add core I3C infrastructure
-  docs: driver-api: Add I3C documentation
-  i3c: Add sysfs ABI spec
-  dt-bindings: i3c: Document core bindings
-  dt-bindings: i3c: Add macros to help fill I3C/I2C device's reg
-    property
-  MAINTAINERS: Add myself as the I3C subsystem maintainer
-  i3c: master: Add driver for Cadence IP
-  dt-bindings: i3c: Document Cadence I3C master bindings
-  gpio: Add a driver for Cadence I3C GPIO expander
-  dt-bindings: gpio: Add bindings for Cadence I3C gpio expander
-
- Documentation/ABI/testing/sysfs-bus-i3c            |   95 +
- .../devicetree/bindings/gpio/gpio-cdns-i3c.txt     |   39 +
- .../devicetree/bindings/i3c/cdns,i3c-master.txt    |   44 +
- Documentation/devicetree/bindings/i3c/i3c.txt      |  140 ++
- Documentation/driver-api/i3c/device-driver-api.rst |    9 +
- Documentation/driver-api/i3c/index.rst             |   11 +
- Documentation/driver-api/i3c/master-driver-api.rst |   10 +
- Documentation/driver-api/i3c/protocol.rst          |  203 ++
- Documentation/driver-api/index.rst                 |    1 +
- MAINTAINERS                                        |   10 +
- drivers/Kconfig                                    |    2 +
- drivers/Makefile                                   |    2 +-
- drivers/gpio/Kconfig                               |   11 +
- drivers/gpio/Makefile                              |    1 +
- drivers/gpio/gpio-cdns-i3c.c                       |  411 ++++
- drivers/i3c/Kconfig                                |   24 +
- drivers/i3c/Makefile                               |    4 +
- drivers/i3c/core.c                                 |  606 ++++++
- drivers/i3c/device.c                               |  233 +++
- drivers/i3c/internals.h                            |   36 +
- drivers/i3c/master.c                               | 2058 ++++++++++++++++++++
- drivers/i3c/master/Kconfig                         |    5 +
- drivers/i3c/master/Makefile                        |    1 +
- drivers/i3c/master/i3c-master-cdns.c               | 1668 ++++++++++++++++
- include/dt-bindings/i3c/i3c.h                      |   28 +
- include/linux/i3c/ccc.h                            |  385 ++++
- include/linux/i3c/device.h                         |  331 ++++
- include/linux/i3c/master.h                         |  652 +++++++
- include/linux/mod_devicetable.h                    |   17 +
- 29 files changed, 7036 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/ABI/testing/sysfs-bus-i3c
- create mode 100644 Documentation/devicetree/bindings/gpio/gpio-cdns-i3c.txt
- create mode 100644 Documentation/devicetree/bindings/i3c/cdns,i3c-master.txt
+Changes in v2:
+- Define how to describe I3C devices in the DT and when it should be
+  used. Note that the parsing of I3C devices is not yet implemented in
+  the framework. Will be added when someone really needs it.
+---
+ Documentation/devicetree/bindings/i3c/i3c.txt | 140 ++++++++++++++++++++++++++
+ 1 file changed, 140 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/i3c/i3c.txt
- create mode 100644 Documentation/driver-api/i3c/device-driver-api.rst
- create mode 100644 Documentation/driver-api/i3c/index.rst
- create mode 100644 Documentation/driver-api/i3c/master-driver-api.rst
- create mode 100644 Documentation/driver-api/i3c/protocol.rst
- create mode 100644 drivers/gpio/gpio-cdns-i3c.c
- create mode 100644 drivers/i3c/Kconfig
- create mode 100644 drivers/i3c/Makefile
- create mode 100644 drivers/i3c/core.c
- create mode 100644 drivers/i3c/device.c
- create mode 100644 drivers/i3c/internals.h
- create mode 100644 drivers/i3c/master.c
- create mode 100644 drivers/i3c/master/Kconfig
- create mode 100644 drivers/i3c/master/Makefile
- create mode 100644 drivers/i3c/master/i3c-master-cdns.c
- create mode 100644 include/dt-bindings/i3c/i3c.h
- create mode 100644 include/linux/i3c/ccc.h
- create mode 100644 include/linux/i3c/device.h
- create mode 100644 include/linux/i3c/master.h
 
+diff --git a/Documentation/devicetree/bindings/i3c/i3c.txt b/Documentation/devicetree/bindings/i3c/i3c.txt
+new file mode 100644
+index 000000000000..13b719f1ef15
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i3c/i3c.txt
+@@ -0,0 +1,140 @@
++Generic device tree bindings for I3C busses
++===========================================
++
++This document describes generic bindings that should be used to describe I3C
++busses in a device tree.
++
++Required properties
++-------------------
++
++- #address-cells  - should be <3>. Read more about addresses below.
++- #size-cells     - should be <0>.
++- compatible      - name of the I3C master controller driving the I3C bus
++
++For other required properties e.g. to describe register sets,
++clocks, etc. check the binding documentation of the specific driver.
++The node describing an I3C bus should be named i3c-master.
++
++Optional properties
++-------------------
++
++These properties may not be supported by all I3C master drivers. Each I3C
++master bindings should specify which of them are supported.
++
++- i3c-scl-hz: frequency of the SCL signal used for I3C transfers.
++	      When undefined the core sets it to 12.5MHz.
++
++- i2c-scl-hz: frequency of the SCL signal used for I2C transfers.
++	      When undefined, the core looks at LVR (Legacy Virtual Register)
++	      values of I2C devices described in the device tree to determine
++	      the maximum I2C frequency.
++
++I2C devices
++===========
++
++Each I2C device connected to the bus should be described in a subnode. All
++properties described in Documentation/devicetree/bindings/i2c/i2c.txt are
++valid here, but several new properties have been added.
++
++New constraint on existing properties:
++--------------------------------------
++- reg: contains 3 cells
++  + first cell : still encoding the I2C address
++
++  + second cell: should have bit 31 set to 1 to signify that this is an I2C
++		 device. Bits 0 to 7 encode the I3C LVR (Legacy Virtual
++		 Register):
++
++	bit[7:5]: I2C device index. Possible values
++	* 0: I2C device has a 50 ns spike filter
++	* 1: I2C device does not have a 50 ns spike filter but supports high
++	     frequency on SCL
++	* 2: I2C device does not have a 50 ns spike filter and is not tolerant
++	     to high frequencies
++	* 3-7: reserved
++
++	bit[4]: tell whether the device operates in FM (Fast Mode) or FM+ mode
++	* 0: FM+ mode
++	* 1: FM mode
++
++	bit[3:0]: device type
++	* 0-15: reserved
++
++  + third cell: should be 0
++
++I3C devices
++===========
++
++All I3C devices are supposed to support DAA (Dynamic Address Assignment), and
++are thus discoverable. So, by default, I3C devices do not have to be described
++in the device tree.
++This being said, one might want to attach extra resources to these devices,
++and those resources may have to be described in the device tree, which in turn
++means we have to describe I3C devices.
++
++Another use case for describing an I3C device in the device tree is when this
++I3C device has a static I2C address and we want to assign it a specific I3C
++dynamic address before the DAA takes place (so that other devices on the bus
++can't take this dynamic address).
++
++The I3C device should be names <device-type>@<static-i2c-address>,<i3c-pid>,
++where device-type is describing the type of device connected on the bus
++(gpio-controller, sensor, ...).
++
++Required properties
++-------------------
++- reg: contains 3 cells
++  + first cell : encodes the static I2C address. Should be 0 if the device does
++		 not have one (0 is not a valid I2C address).
++
++  + second and third cells: should encode the ProvisionalID. The second cell
++			    contains the manufacturer ID left-shifted by 1.
++			    The third cell contains ORing of the part ID
++			    left-shifted by 16, the instance ID left-shifted
++			    by 12 and the extra information. This encoding is
++			    following the PID definition provided by the I3C
++			    specification.
++
++Optional properties
++-------------------
++- assigned-address: dynamic address to be assigned to this device. This
++		    property is only valid if the I3C device has a static
++		    address (first cell of the reg property != 0).
++
++
++Example:
++
++	i3c-master@d040000 {
++		compatible = "cdns,i3c-master";
++		clocks = <&coreclock>, <&i3csysclock>;
++		clock-names = "pclk", "sysclk";
++		interrupts = <3 0>;
++		reg = <0x0d040000 0x1000>;
++		#address-cells = <3>;
++		#size-cells = <0>;
++
++		status = "okay";
++		i2c-scl-hz = <100000>;
++
++		/* I2C device. */
++		nunchuk: nunchuk@52 {
++			compatible = "nintendo,nunchuk";
++			reg = <0x52 0x80000010 0x0>;
++		};
++
++		/* I3C device with a static I2C address. */
++		thermal_sensor: sensor@68,39200144004 {
++			reg = <0x68 0x392 0x144004>;
++			assigned-address = <0xa>;
++		};
++
++		/*
++		 * I3C device without a static I2C address but requiring
++		 * resources described in the DT.
++		 */
++		sensor@0,39200154004 {
++			reg = <0x0 0x392 0x154004>;
++			clocks = <&clock_provider 0>;
++		};
++	};
++
 -- 
 2.14.1
