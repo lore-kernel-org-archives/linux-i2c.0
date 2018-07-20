@@ -1,36 +1,67 @@
-From: Vitor soares <Vitor.Soares@synopsys.com>
-Subject: [PATCH 3/3] MAINTAINERS: Add myself as the dw-i3c-master module maintainer
-Date: Fri, 20 Jul 2018 21:57:52 +0100
-Message-ID: <1532120272-17157-4-git-send-email-soares@synopsys.com>
-References: <1532120272-17157-1-git-send-email-soares@synopsys.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH -next v4 1/3] regmap: add SCCB support
+Date: Fri, 20 Jul 2018 23:53:44 +0200
+Message-ID: <20180720215344.6it2k5wckxvwx25p@ninjato>
+References: <1531756070-8560-1-git-send-email-akinobu.mita@gmail.com>
+ <1531756070-8560-2-git-send-email-akinobu.mita@gmail.com>
+ <20180718152832.ylu6rlcsaom2q4xm@ninjato>
+ <20180718153140.GP5700@sirena.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="thlbihjlzr3hfduh"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1532120272-17157-1-git-send-email-soares@synopsys.com>
+Content-Disposition: inline
+In-Reply-To: <20180718153140.GP5700@sirena.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
-To: boris.brezillon@bootlin.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, gregkh@linuxfoundation.org, arnd@arndb.de
-Cc: psroka@cadence.com, agolec@cadence.com, adouglas@cadence.com, bfolta@cadence.com, dkos@cadence.com, alicja@cadence.com, cwronka@cadence.com, sureshp@cadence.com, rafalc@cadence.com, thomas.petazzoni@bootlin.com, nm@ti.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, geert@linux-m68k.org, linus.walleij@linaro.org, Xiang.Lin@synaptics.com, linux-gpio@vger.kernel.org, nsekhar@ti.com, pgaj@cadence.com, peda@axentia.se, Joao.Pinto@synopsys.com, Vitor.Soares@synopsys.com
+To: Mark Brown <broonie@kernel.org>
+Cc: Akinobu Mita <akinobu.mita@gmail.com>, linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Sebastian Reichel <sebastian.reichel@collabora.co.uk>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Jacopo Mondi <jacopo+renesas@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Hans Verkuil <hans.verkuil@cisco.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Mauro Carvalho Chehab <mchehab@s-opensource.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Vitor soares <soares@synopsys.com>
----
- MAINTAINERS | 6 ++++++
- 1 file changed, 6 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index f3e3cb2..d284ba3 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -6773,6 +6773,12 @@ F:	drivers/i3c/
- F:	include/linux/i3c/
- F:	include/dt-bindings/i3c/
- 
-+I3C DRIVER FOR SYNOPSYS DESIGNWARE
-+M:	Vitor Soares <soares@synopsys.com>
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/i3c/snps,dw-i3c-master.txt
-+F:	drivers/i3c/master/dw*
-+
- IA64 (Itanium) PLATFORM
- M:	Tony Luck <tony.luck@intel.com>
- M:	Fenghua Yu <fenghua.yu@intel.com>
--- 
-2.7.4
+--thlbihjlzr3hfduh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Jul 18, 2018 at 04:31:40PM +0100, Mark Brown wrote:
+> On Wed, Jul 18, 2018 at 05:28:32PM +0200, Wolfram Sang wrote:
+> > On Tue, Jul 17, 2018 at 12:47:48AM +0900, Akinobu Mita wrote:
+>=20
+> > > +	ret =3D __i2c_smbus_xfer(i2c->adapter, i2c->addr, i2c->flags,
+> > > +			       I2C_SMBUS_WRITE, reg, I2C_SMBUS_BYTE, NULL);
+>=20
+> > Mark: __i2c_smbus_xfer is a dependency on i2c/for-next. Do you want an
+> > immutable branch for that?
+>=20
+> Oh dear, that dependency wasn't mentioned anywhere I can see in the
+> submissions and I already applied this and created a signed tag :( .
+> I'll need a branch to pull in if I'm going to apply this (which I'd
+> prefer, it tends to make life easier).
+
+Here is it:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/smbus_xfer_=
+unlock-immutable
+
+
+--thlbihjlzr3hfduh
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltSWeQACgkQFA3kzBSg
+KbalqQ//eXO5qwL/dvh6/tCimdspOB4VsuYGxqQTNHnaUpio9dbQRB7SWETV4Rrb
+2PGkl9lMXEuiDe2HcWACPOXEYdrS9O/vit6T1QS5iLuiGfuY2GCyR9B2VbiACvQn
++yMy81wZ5wS8MKB+QbyFjvxzzVt67+nYPvQioQdLsWK/y/ZyqT9a4IZFBJeFyvPN
+v2MPGcpNcQ0Ea5mPNsrpadILrwrZBXsUfnmvGwhu/qG+lTOAx+GCR7LlQmsM/e7+
+d8oR3doGcYkRVmQYELhqVnamGsWGARub4ex8ijsUCNb9IrXiMo30IIW9xEnpUs5P
+bTeJOoL+S6NVpthAaTF4ghAzlTSS4eYYKa03xjSXA/+jFJ4jKa7dQI4Lr1xyGuiJ
+Mx1i9fA+wEh84eG5LzVfKH5833R6L/ye3CY0OdyWB3XYjNw8a+jF5JCW1cfoe6n+
+YSq4Cn14PHuqyVYJeWoU3BqbcRwtJnYYwHwMeJzzis+poutBsyttamT+sbWKX29E
+zIlLX91HDH9Iz9fiTiPN12xnQpdxpOf3sCJl4Y3+KPOIrtG+0wr1KoBm6knDoBzg
+It+F0MtXzDCzO+mnU4DdwsB7DZugIklpfSKFvgaLaiudijOqa9clE0bkIqdQo9mY
+iwLcbQnAExnszZSwSl9Kk580Tg2RcoWsrNr2IjQeghPUdngpSbY=
+=wFYq
+-----END PGP SIGNATURE-----
+
+--thlbihjlzr3hfduh--
