@@ -1,67 +1,55 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH -next v4 1/3] regmap: add SCCB support
-Date: Fri, 20 Jul 2018 23:53:44 +0200
-Message-ID: <20180720215344.6it2k5wckxvwx25p@ninjato>
-References: <1531756070-8560-1-git-send-email-akinobu.mita@gmail.com>
- <1531756070-8560-2-git-send-email-akinobu.mita@gmail.com>
- <20180718152832.ylu6rlcsaom2q4xm@ninjato>
- <20180718153140.GP5700@sirena.org.uk>
+Subject: Re: [PATCH 0/3] Add driver for Synopsys DesignWare I3C master IP
+Date: Fri, 20 Jul 2018 23:58:01 +0200
+Message-ID: <20180720215801.dmklhwxsgakj4exd@ninjato>
+References: <1532120272-17157-1-git-send-email-soares@synopsys.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="thlbihjlzr3hfduh"
+        protocol="application/pgp-signature"; boundary="x2lspxohbhnfcm6l"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180718153140.GP5700@sirena.org.uk>
+In-Reply-To: <1532120272-17157-1-git-send-email-soares@synopsys.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: Akinobu Mita <akinobu.mita@gmail.com>, linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Sebastian Reichel <sebastian.reichel@collabora.co.uk>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Jacopo Mondi <jacopo+renesas@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Hans Verkuil <hans.verkuil@cisco.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Mauro Carvalho Chehab <mchehab@s-opensource.com>
+To: Vitor soares <Vitor.Soares@synopsys.com>
+Cc: boris.brezillon@bootlin.com, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, gregkh@linuxfoundation.org, arnd@arndb.de, psroka@cadence.com, agolec@cadence.com, adouglas@cadence.com, bfolta@cadence.com, dkos@cadence.com, alicja@cadence.com, cwronka@cadence.com, sureshp@cadence.com, rafalc@cadence.com, thomas.petazzoni@bootlin.com, nm@ti.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, geert@linux-m68k.org, linus.walleij@linaro.org, Xiang.Lin@synaptics.com, linux-gpio@vger.kernel.org, nsekhar@ti.com, pgaj@cadence.com, peda@axentia.se, Joao.Pinto@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---thlbihjlzr3hfduh
+--x2lspxohbhnfcm6l
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 18, 2018 at 04:31:40PM +0100, Mark Brown wrote:
-> On Wed, Jul 18, 2018 at 05:28:32PM +0200, Wolfram Sang wrote:
-> > On Tue, Jul 17, 2018 at 12:47:48AM +0900, Akinobu Mita wrote:
->=20
-> > > +	ret =3D __i2c_smbus_xfer(i2c->adapter, i2c->addr, i2c->flags,
-> > > +			       I2C_SMBUS_WRITE, reg, I2C_SMBUS_BYTE, NULL);
->=20
-> > Mark: __i2c_smbus_xfer is a dependency on i2c/for-next. Do you want an
-> > immutable branch for that?
->=20
-> Oh dear, that dependency wasn't mentioned anywhere I can see in the
-> submissions and I already applied this and created a signed tag :( .
-> I'll need a branch to pull in if I'm going to apply this (which I'd
-> prefer, it tends to make life easier).
+On Fri, Jul 20, 2018 at 09:57:49PM +0100, Vitor soares wrote:
+> This patch series is a proposal for the I3C master driver for Synopsys IP.
+> This patch is to be applied on top of I3C subsystem RFC V6 submitted
+> by Boris Brezillon.
 
-Here is it:
+Nice! More users will help the subsystem evolve.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/smbus_xfer_=
-unlock-immutable
+Yet, I also think this may be a good timing for a seperate I3C mailing
+list? We can always cross-post if I2C is relevant, but I guess new I3C
+masters usually are very I3C specific. I think a seperate mailing list
+would also look good in the MAINTAINERS entry.
 
 
---thlbihjlzr3hfduh
+--x2lspxohbhnfcm6l
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltSWeQACgkQFA3kzBSg
-KbalqQ//eXO5qwL/dvh6/tCimdspOB4VsuYGxqQTNHnaUpio9dbQRB7SWETV4Rrb
-2PGkl9lMXEuiDe2HcWACPOXEYdrS9O/vit6T1QS5iLuiGfuY2GCyR9B2VbiACvQn
-+yMy81wZ5wS8MKB+QbyFjvxzzVt67+nYPvQioQdLsWK/y/ZyqT9a4IZFBJeFyvPN
-v2MPGcpNcQ0Ea5mPNsrpadILrwrZBXsUfnmvGwhu/qG+lTOAx+GCR7LlQmsM/e7+
-d8oR3doGcYkRVmQYELhqVnamGsWGARub4ex8ijsUCNb9IrXiMo30IIW9xEnpUs5P
-bTeJOoL+S6NVpthAaTF4ghAzlTSS4eYYKa03xjSXA/+jFJ4jKa7dQI4Lr1xyGuiJ
-Mx1i9fA+wEh84eG5LzVfKH5833R6L/ye3CY0OdyWB3XYjNw8a+jF5JCW1cfoe6n+
-YSq4Cn14PHuqyVYJeWoU3BqbcRwtJnYYwHwMeJzzis+poutBsyttamT+sbWKX29E
-zIlLX91HDH9Iz9fiTiPN12xnQpdxpOf3sCJl4Y3+KPOIrtG+0wr1KoBm6knDoBzg
-It+F0MtXzDCzO+mnU4DdwsB7DZugIklpfSKFvgaLaiudijOqa9clE0bkIqdQo9mY
-iwLcbQnAExnszZSwSl9Kk580Tg2RcoWsrNr2IjQeghPUdngpSbY=
-=wFYq
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltSWukACgkQFA3kzBSg
+KbY5ig/9EK7rk7249vzONpuTF/gM8ZBE6c+8Bxu8bxp0fhItU6oF/+FoNigAUO/x
+U2uRGxUChHNyQXeT89+TRC0Hc7IDmUMw5fnLfgUBORinA5IdzYMHZ3TMuT6HMQbR
++8O9wiK4MQMvTQLvWO9Zfeqq+cG8Ra5Ff2/Ahgg3Kh1yNsilspEDeVfCMXc0/Vao
+WC2Gam+W70ZaYizAH7PnWgDsB/AP25MC9VKaQqsl7UhGBNKidB+oogPknUm72ePO
+Uhq8S3+3uvF98zpGE7dX49+6fm4KYkRj1Y2u1riVUvwrlw+ACJLeCotUqvq71KZH
+D6Tb5EcPz+1MIxz5f/ZS7LubxLAmclRvXsYqhF0UcCCGpy0Ppf1hhMGoYEU3gTWf
+mFQAlPEY12j/mmqIWGh58LQlMTjH8WW5ns1jz0UHxECu0o8yIAXFIn+QgEgKC1Ap
+s1MpAsMotU2keQ+ZZe+iZu+RSjMYhHMl5RPHt8yAqm6fk5kHjitlPVAnwuIEfGrR
+xSaAPmFF9BLXZKWHU7nGWJrxcJC1s9SEEinZrNN/p0wezKyRjCTr8u+/WeF6kNWS
+fe3MMSF/xrEE2pHSNyRc3lW/rNh9ii7igo8wL5kSyaRvtA9qb6bro8AODZMsz84E
+60HCFjRFT7WSK1nb6OlXkjn0R0byc939hZjo/r0voplsChncgmM=
+=lZ8H
 -----END PGP SIGNATURE-----
 
---thlbihjlzr3hfduh--
+--x2lspxohbhnfcm6l--
