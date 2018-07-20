@@ -1,82 +1,60 @@
-From: Akinobu Mita <akinobu.mita@gmail.com>
-Subject: Re: [PATCH -next v4 1/3] regmap: add SCCB support
-Date: Sat, 21 Jul 2018 02:41:37 +0900
-Message-ID: <CAC5umyig9ZTddEu7HLwnspcPqEEmRS7ac=Oszd=6dPdN1vSkfA@mail.gmail.com>
-References: <1531756070-8560-1-git-send-email-akinobu.mita@gmail.com>
- <1531756070-8560-2-git-send-email-akinobu.mita@gmail.com> <20180718152832.ylu6rlcsaom2q4xm@ninjato>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 3/5] i2c: designware: add MSCC Ocelot support
+Date: Fri, 20 Jul 2018 11:56:58 -0600
+Message-ID: <20180720175658.GA2930@rob-hp-laptop>
+References: <20180717114837.21839-1-alexandre.belloni@bootlin.com>
+ <20180717114837.21839-4-alexandre.belloni@bootlin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180718152832.ylu6rlcsaom2q4xm@ninjato>
+Content-Disposition: inline
+In-Reply-To: <20180717114837.21839-4-alexandre.belloni@bootlin.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Peter Rosin <peda@axentia.se>, Sebastian Reichel <sebastian.reichel@collabora.co.uk>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Jacopo Mondi <jacopo+renesas@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Hans Verkuil <hans.verkuil@cisco.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Mauro Carvalho Chehab <mchehab@s-opensource.com>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>
 List-Id: linux-i2c@vger.kernel.org
 
-2018=E5=B9=B47=E6=9C=8819=E6=97=A5(=E6=9C=A8) 0:28 Wolfram Sang <wsa@the-dr=
-eams.de>:
->
-> On Tue, Jul 17, 2018 at 12:47:48AM +0900, Akinobu Mita wrote:
-> > This adds Serial Camera Control Bus (SCCB) support for regmap API that
-> > is intended to be used by some of Omnivision sensor drivers.
-> >
-> > The ov772x and ov9650 drivers are going to use this SCCB regmap API.
-> >
-> > The ov772x driver was previously only worked with the i2c controller
-> > drivers that support I2C_FUNC_PROTOCOL_MANGLING, because the ov772x
-> > device doesn't support repeated starts.  After commit 0b964d183cbf
-> > ("media: ov772x: allow i2c controllers without
-> > I2C_FUNC_PROTOCOL_MANGLING"), reading ov772x register is replaced with
-> > issuing two separated i2c messages in order to avoid repeated start.
-> > Using this SCCB regmap hides the implementation detail.
-> >
-> > The ov9650 driver also issues two separated i2c messages to read the
-> > registers as the device doesn't support repeated start.  So it can
-> > make use of this SCCB regmap.
->
-> Cool, this series really gets better and better each time. Thank you for
-> keeping at it! And thanks to everyone for their suggestions. I really
-> like how we do not introduce a couple of i2c_sccb_* functions with a
-> need to export them. And given the nature of regmap, I'd think it should
-> be fairly easy to add support for ov2659 somewhen which has 16 bit
-> registers? Only minor nits:
+On Tue, Jul 17, 2018 at 01:48:35PM +0200, Alexandre Belloni wrote:
+> The Microsemi Ocelot I2C controller is a designware IP. It also has a
+> second set of registers to allow tweaking SDA hold time and spike
+> filtering.
+> 
+> Cc: Rob Herring <robh+dt@kernel.org>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> ---
+>  .../bindings/i2c/i2c-designware.txt           |  5 ++++-
+>  drivers/i2c/busses/i2c-designware-core.h      |  1 +
+>  drivers/i2c/busses/i2c-designware-platdrv.c   | 20 +++++++++++++++++++
+>  3 files changed, 25 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> index fbb0a6d8b964..7af4176da4af 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> @@ -2,7 +2,7 @@
+>  
+>  Required properties :
+>  
+> - - compatible : should be "snps,designware-i2c"
+> + - compatible : should be "snps,designware-i2c" or "mscc,ocelot-i2c"
 
-I have an ov2659 sensor.  The ov2659 driver works with i2c adapter that
-doesn't know I2C_FUNC_PROTOCOL_MANGLING, so it actually supports repeated
-start.
+Sounds like the registers are optional (or could be initialized by 
+firmware), so shouldn't 'snps,designware-i2c' be a fallback compatible?
 
-But ov5645, ov5647, ov7251 drivers may want to use SCCB regmap API for
-16-bit register.  Because they use i2c_master_send + i2c_master_recv
-for reading register value.
+>   - reg : Offset and length of the register set for the device
+>   - interrupts : <IRQ> where IRQ is the interrupt number.
+>  
+> @@ -11,6 +11,9 @@ Recommended properties :
+>   - clock-frequency : desired I2C bus clock frequency in Hz.
+>  
+>  Optional properties :
+> + - reg : for "mscc,ocelot-i2c", a second register set to configure the SDA hold
+> +   time, named ICPU_CFG:TWI_DELAY in the datasheet.
+> +
+>   - i2c-sda-hold-time-ns : should contain the SDA hold time in nanoseconds.
+>     This option is only supported in hardware blocks version 1.11a or newer.
 
-> > +#include <linux/regmap.h>
-> > +#include <linux/i2c.h>
-> > +#include <linux/module.h>
->
-> Sort these?
->
-> > +/**
-> > + * regmap_sccb_read - Read data from SCCB slave device
-> > + * @context: Device that will be interacted wit
->
-> "with"
->
-> > +     ret =3D __i2c_smbus_xfer(i2c->adapter, i2c->addr, i2c->flags,
-> > +                            I2C_SMBUS_WRITE, reg, I2C_SMBUS_BYTE, NULL=
-);
->
-> Mark: __i2c_smbus_xfer is a dependency on i2c/for-next. Do you want an
-> immutable branch for that?
->
-> > +/**
-> > + * regmap_sccb_write - Write data to SCCB slave device
-> > + * @context: Device that will be interacted wit
->
-> "with"
->
-> But in general (especially for the I2C parts):
->
-> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Perhaps this needs an update too? It sounds like Microsemi fixed this 
+problem on their own before version 1.11a of the IP block.
 
-Thank you for your reviewing.
+Rob
