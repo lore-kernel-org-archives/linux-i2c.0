@@ -1,64 +1,65 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v12 0/8] i2c: Add FSI-attached I2C master algorithm
-Date: Sat, 21 Jul 2018 00:09:06 +0200
-Message-ID: <20180720220906.qwkzucuhvuhmjske@ninjato>
-References: <1531841466-9833-1-git-send-email-eajames@linux.vnet.ibm.com>
+Subject: Re: [PATCH] i2c: exynos5: Describe the hardware variant for
+ readability
+Date: Sat, 21 Jul 2018 00:15:46 +0200
+Message-ID: <20180720221546.obccridrqavnlzfn@ninjato>
+References: <20180718195404.5095-1-krzk@kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ryrzjg2gu4kdrjr6"
+        protocol="application/pgp-signature"; boundary="oatmdfrkwn3xz6o5"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1531841466-9833-1-git-send-email-eajames@linux.vnet.ibm.com>
+In-Reply-To: <20180718195404.5095-1-krzk@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eddie James <eajames@linux.vnet.ibm.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, robh+dt@kernel.org, benh@kernel.crashing.org, joel@jms.id.au, mark.rutland@arm.com, gregkh@linuxfoundation.org, rdunlap@infradead.org, andy.shevchenko@gmail.com, peda@axentia.se
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Kukjin Kim <kgene@kernel.org>, Andrzej Hajda <a.hajda@samsung.com>, Andi Shyti <andi@etezian.org>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---ryrzjg2gu4kdrjr6
+--oatmdfrkwn3xz6o5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 17, 2018 at 10:30:58AM -0500, Eddie James wrote:
-> This series adds an algorithm for an I2C master physically located on an =
-FSI
-> slave device. The I2C master has multiple ports, each of which may be con=
-nected
-> to an I2C slave. Access to the I2C master registers is achieved over FSI =
-bus.
+On Wed, Jul 18, 2018 at 09:54:04PM +0200, Krzysztof Kozlowski wrote:
+> The driver supports multiple hardware variants of Exynos I2C controller
+> which differ in FIFO depth, handling of interrupts and bus recovery in
+> HSI2C_MASTER_ST_LOSE state.
 >=20
-> Due to the multi-port nature of the I2C master, the driver instantiates a=
- new
-> I2C adapter for each port connected to a slave. The connected ports shoul=
-d be
-> defined in the device tree under the I2C master device.
+> The difference in variant was a single bit set for Exynos7 variants and
+> implicit lack of this bit for other variants.
+>=20
+> Make each variant explicit which also fixes the GCC warning about
+> documentation:
+>=20
+>     drivers/i2c/busses/i2c-exynos5.c:223: warning: Function parameter or =
+member 'hw' not described in 'exynos_hsi2c_variant'
+>=20
+> No change in functionality.
+>=20
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 
-Applied to for-next with Joel's tags.
-
-I left the patches as is and did not squash them.
-
-Thanks for the reviews and testing!
+Applied to for-next, thanks!
 
 
---ryrzjg2gu4kdrjr6
+--oatmdfrkwn3xz6o5
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltSXYEACgkQFA3kzBSg
-KbY+cg//fDcU6AmjH46Pckp1sA4vsvkVxiiEYz9TNZITwSBTB7vsPAY4hPmE8iFb
-xjmY94CcLX0cyPCeOYQ7NGhBiPG3tAsHqmhFo87ZENgiZbnfgU3Yy424DGN8wrWE
-oyVisjGaw5ewFDaG3PYruW978ARIbQhS46X4LbMA7iWAKUZIxY5Js8A4urfePEby
-3OvgNul3ouoIl8WNi55ExBZX8CzTn1Q8j220Xl1/Dj4nNSw9xqV5ytgU+qXH+Xa7
-30voAZIQhe28ahA6DZmo4jTtLX8WZKv/ySLXe6VV/tEr2GKXc/g1KdkNtNwLTLEK
-r3M+ls/gR5DHw7dzxH4STyzNGur9VBaEMs9e62oiDNDhmafSBKPU1Clqp/GF1z1q
-rVzeKPgCPJDlxxNG12uiDYR3QA2mUAp+KeZIttTe8Va/SGC9935dOEP2FktN9Txd
-ZKWpv+6ezL3zjXSkt6qEBOCjVACnmvJDZhRSGkpxPK3J2dF61B3TzWjXmHatHTnw
-R+8Fiv6lrsDaixmHPqA6pdsFncUyUqt3+XCpzZI4tTnA8tCyjtVA8NuWjlzWmWCT
-DaMTg02FtFcp55EosqrnW+8X8O6G4HrOzeegHoS3Pkhyn5uZISMeOwGa+p5XVOza
-elcKuH25eMj1GrurXWQzcwUpL4LFH8Cb+zeij/Qa8dt7s60/QvY=
-=807b
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltSXxIACgkQFA3kzBSg
+KbbZEg//U/7Dkb2+soICmo8FPQ0EACtptQsv3c2oAfk6yCaIvTsw64toYaVl/oGL
+aRPyks3pQyS9PDOooY7I/EwRx0cfIQgYoRrCbAqOazJc15PJMex8OaLibuvJHy/S
+W/S3r2RJdrVyKQjksaYR3HpDia7r42eLuuqWDwRMPSheLMXRRSbYRzHeG6WaVywZ
+ePQFQ8tGXkADB6w78YOAE81afAEKJTjoZMnBrIpSrmQZF2d14JwbZoQEcXQlysl7
+A7gFSoS7FxCmVYaic/O7UIdA0JkuDNdIbibscLOKTTsprJW2Or+V6sEYviLXc7FQ
+aRnpT+mAQBVnQAVEMPN8oJspYvAVdM/2ksOhVPCLNL6EBrW0I8zbNelOh1uYYefF
+GCfuJjtvMfrbPzJFFQr694DMa8xY7ZdRc/xUgIIJkLfgh9uCWvZLQDI2ftpLkG/K
++wSywiOGGehAYACjHWQ0yKDAXGH6IIN1yAwEAShW7BaFhFuso8Tn+bwzrhpR5fSz
+SNXiNeyzxN6kYzgQmlI6PpIW3jKaqkMogLIDvDB9tXZdMRBWjr1u76fCIgpEzbZv
+zd6SccUNfzIr0I0HPNqDvLRn3FUYNv+oT5I2VvgVZXVmSYJMk+as4WmiJ2zD0l94
+ifdaLTJgYvfSpAGStDY/g0rhVDh+UJWbZctHa2XFKJpzMBNcysE=
+=a3fE
 -----END PGP SIGNATURE-----
 
---ryrzjg2gu4kdrjr6--
+--oatmdfrkwn3xz6o5--
