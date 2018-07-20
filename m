@@ -1,60 +1,50 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 3/5] i2c: designware: add MSCC Ocelot support
-Date: Fri, 20 Jul 2018 11:56:58 -0600
-Message-ID: <20180720175658.GA2930@rob-hp-laptop>
-References: <20180717114837.21839-1-alexandre.belloni@bootlin.com>
- <20180717114837.21839-4-alexandre.belloni@bootlin.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Subject: Re: [PATCH] i2c: davinci: Avoid zero value of CLKH
+Date: Fri, 20 Jul 2018 13:43:46 -0500
+Message-ID: <0c29ccf5-4077-47a2-e7e0-c89ffcf8cb0b@ti.com>
+References: <20180713152017.2207-1-alexander.sverdlin@nokia.com>
+ <ab965f1d-de6c-75f7-9ebd-35d31ed3de18@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180717114837.21839-4-alexandre.belloni@bootlin.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <ab965f1d-de6c-75f7-9ebd-35d31ed3de18@ti.com>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Sekhar Nori <nsekhar@ti.com>, Alexander Sverdlin <alexander.sverdlin@nokia.com>, linux-i2c@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, Kevin Hilman <khilman@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jul 17, 2018 at 01:48:35PM +0200, Alexandre Belloni wrote:
-> The Microsemi Ocelot I2C controller is a designware IP. It also has a
-> second set of registers to allow tweaking SDA hold time and spike
-> filtering.
+
+
+On 07/17/2018 06:57 AM, Sekhar Nori wrote:
+> On Friday 13 July 2018 08:50 PM, Alexander Sverdlin wrote:
+>> If CLKH is set to 0 I2C clock is not generated at all, so avoid this value
+>> and stretch the clock in this case.
 > 
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> ---
->  .../bindings/i2c/i2c-designware.txt           |  5 ++++-
->  drivers/i2c/busses/i2c-designware-core.h      |  1 +
->  drivers/i2c/busses/i2c-designware-platdrv.c   | 20 +++++++++++++++++++
->  3 files changed, 25 insertions(+), 1 deletion(-)
+> This must be by observation since specification does not seem to state
+> this.
+
+It will be good to know (mention) on what hw was it observed?
+
 > 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> index fbb0a6d8b964..7af4176da4af 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> @@ -2,7 +2,7 @@
->  
->  Required properties :
->  
-> - - compatible : should be "snps,designware-i2c"
-> + - compatible : should be "snps,designware-i2c" or "mscc,ocelot-i2c"
+>>
+>> Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+> 
+> In any case, the patch is fine.
+> 
+> Acked-by: Sekhar Nori <nsekhar@ti.com>
+> 
+[...]
 
-Sounds like the registers are optional (or could be initialized by 
-firmware), so shouldn't 'snps,designware-i2c' be a fallback compatible?
-
->   - reg : Offset and length of the register set for the device
->   - interrupts : <IRQ> where IRQ is the interrupt number.
->  
-> @@ -11,6 +11,9 @@ Recommended properties :
->   - clock-frequency : desired I2C bus clock frequency in Hz.
->  
->  Optional properties :
-> + - reg : for "mscc,ocelot-i2c", a second register set to configure the SDA hold
-> +   time, named ICPU_CFG:TWI_DELAY in the datasheet.
-> +
->   - i2c-sda-hold-time-ns : should contain the SDA hold time in nanoseconds.
->     This option is only supported in hardware blocks version 1.11a or newer.
-
-Perhaps this needs an update too? It sounds like Microsemi fixed this 
-problem on their own before version 1.11a of the IP block.
-
-Rob
+-- 
+regards,
+-grygorii
