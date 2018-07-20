@@ -1,72 +1,44 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Peter Rosin <peda@axentia.se>
 Subject: Re: [PATCH v6 00/10] Add the I3C subsystem
-Date: Fri, 20 Jul 2018 13:05:49 +0200
-Message-ID: <20180720110549.zgre7f7x7jkrbyt7@ninjato>
+Date: Fri, 20 Jul 2018 13:13:49 +0200
+Message-ID: <21b269c5-a3a7-c5de-c81e-c9c9301ae13e@axentia.se>
 References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
  <CAK8P3a2MP5+oFz--e+BM24D8Ahw7H_RKgN1S6wY1nQE6JL0dmw@mail.gmail.com>
  <2ab0ab75-2df0-2714-f007-c33b25481016@axentia.se>
  <20180720101206.tv7nsoanwo5ftnia@ninjato>
  <CAK8P3a2Pqo5DuYBb09+w4nGWGOw+e_tZPxnA06qjNO_6Hw6NvQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="xkvhz6jgoqk4tzls"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 In-Reply-To: <CAK8P3a2Pqo5DuYBb09+w4nGWGOw+e_tZPxnA06qjNO_6Hw6NvQ@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Peter Rosin <peda@axentia.se>, Boris Brezillon <boris.brezillon@bootlin.com>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.c>
+To: Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Boris Brezillon <boris.brezillon@bootlin.com>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetr>
 List-Id: linux-i2c@vger.kernel.org
 
-
---xkvhz6jgoqk4tzls
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
+On 2018-07-20 12:57, Arnd Bergmann wrote:
 > * What I understand from reading i2c-demux-pinctrl.c, a slave device
 >   will only ever be observable from one master at a time, when you
 >   switch over, all children get removed on one master and added to
 >   the other one, to be probed again by their respective drivers.
+>   I can see this as a useful feature on i3c as well, in particular to
+>   deal with the situation where we have i2c slaves connected to a
+>   pinmux that can switch them between an i3c master and an
+>   i2c-only master (possibly a gpio based one). That particular use
+>   case however doesn't seem to fix well in the current code, which
+>   is structure around i3c buses.
 
-Yes. The very first versions of the demuxer tried to do it in a
-hot-swapping like fashion but then I switched over because of...
+It's pretty easy to come up with examples where this reprobing is
+not desirable at all. E.g. if one of the involved I2C devices is
+a HDMI encoder (I have a TDA19988 here) sitting in the middle of the
+graphics pipeline. Blink-blink on the screen because some *other*
+unrelated device needed to be accessed by an alternative master. Not
+pretty.
 
-> it definitely opens up questions in what happens to e.g. the sysfs
-> representation, lock order, and power management that I'd rather
-> not have to think about.
+(No, I don't suffer from this since I don't need the demuxer. Which is
+fortunate. This was just an example, I'm sure there are others.)
 
-... this! There are dragons, I can tell you :)
-
-> * The other thing we definitely have to support for i3c is to deal with
->    handing over control of the bus between the i3c master owned
->    by Linux, and other masters that are /not/ owned by the same
->    Linux instance. This is the part that the spec discusses in much
->    detail, with the intention of temporarily giving up control of the
->    bus to let another master do its thing on a shared slave without
->    user interaction.
-
-I can't comment about this one.
-
-
---xkvhz6jgoqk4tzls
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltRwgkACgkQFA3kzBSg
-KbZY3w/9Fp795KxCTRbIxeQgXGj98k3Bl1La27iUL2CwndG4xQaRfaVIEkXTTCfF
-5mFk/Ui4wzofIK3d6s97bmiu3WyMG+wR6rIEB7ikVZUeuGbXmSrygcidPkCbw7ka
-EDrbnA+Sfj5+a0yOUGquZ6sho2+jFeTnTIG2zRm8vsbqXqHkqZMrFrrf5EFH27GH
-stpmRZhfHzimbLLbq5fw1Q0GdPz2g5xlMbioBkGGVq4Q26B2XE4Ggp26UcGlyraF
-wBEfTYW23JQ/uepPhvxVR/Cj63s9hq5e4o4YMb9PJsTmJ/FG4Ja317hYc0MR+jS8
-6G5eYdzve2P+6tz0+syo8OVS0gjWSm1b7XXsYpeeZtoM2/2sDHMrEGPkvsfrLtBQ
-2xT9SrClmT8SX9Sc3rQEFJNxlzVTv/bp+kfMRnN1DVG+Aa6KnPLJxoLhfMapEzgf
-JUZ2fZs35Puo1Aw/dQWuBQiqvPpqyd4PEsC/f0WiebQYviXnDgXpV3WmEwCAWOyz
-2qVFZwYoQ3LuzOVSNLY42FDyHAgrS/TOzKP2WExlFIin0yyjCmEWBmhwH5Tfr9ww
-MMzy3E2VIFpHlFEW4LwhbheT7BMt3Rrn42aJ+7FBw8NVgsTTuublb8F+tt5fN1B8
-mX9y6VFUJWd/BMf/RIYNB3HZCxIwvRAJWYuv0SwWighqYetB0NU=
-=qblC
------END PGP SIGNATURE-----
-
---xkvhz6jgoqk4tzls--
+Cheers,
+Peter
