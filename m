@@ -1,50 +1,39 @@
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-Subject: Re: [PATCH] i2c: davinci: Avoid zero value of CLKH
-Date: Fri, 20 Jul 2018 13:43:46 -0500
-Message-ID: <0c29ccf5-4077-47a2-e7e0-c89ffcf8cb0b@ti.com>
-References: <20180713152017.2207-1-alexander.sverdlin@nokia.com>
- <ab965f1d-de6c-75f7-9ebd-35d31ed3de18@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <ab965f1d-de6c-75f7-9ebd-35d31ed3de18@ti.com>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Sekhar Nori <nsekhar@ti.com>, Alexander Sverdlin <alexander.sverdlin@nokia.com>, linux-i2c@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, Kevin Hilman <khilman@kernel.org>
+From: Vitor soares <Vitor.Soares@synopsys.com>
+Subject: [PATCH 0/3] Add driver for Synopsys DesignWare I3C master IP
+Date: Fri, 20 Jul 2018 21:57:49 +0100
+Message-ID: <1532120272-17157-1-git-send-email-soares@synopsys.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: boris.brezillon@bootlin.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, gregkh@linuxfoundation.org, arnd@arndb.de
+Cc: psroka@cadence.com, agolec@cadence.com, adouglas@cadence.com, bfolta@cadence.com, dkos@cadence.com, alicja@cadence.com, cwronka@cadence.com, sureshp@cadence.com, rafalc@cadence.com, thomas.petazzoni@bootlin.com, nm@ti.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, geert@linux-m68k.org, linus.walleij@linaro.org, Xiang.Lin@synaptics.com, linux-gpio@vger.kernel.org, nsekhar@ti.com, pgaj@cadence.com, peda@axentia.se, Joao.Pinto@synopsys.com, Vitor.Soares@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
 
+This patch series is a proposal for the I3C master driver for Synopsys IP.
+This patch is to be applied on top of I3C subsystem RFC V6 submitted
+by Boris Brezillon.
 
+Supported features:
+  Regular CCC commands.
+  I3C private transfers.
+  I2C transfers.
 
-On 07/17/2018 06:57 AM, Sekhar Nori wrote:
-> On Friday 13 July 2018 08:50 PM, Alexander Sverdlin wrote:
->> If CLKH is set to 0 I2C clock is not generated at all, so avoid this value
->> and stretch the clock in this case.
-> 
-> This must be by observation since specification does not seem to state
-> this.
+Missing functionalities:
+  Hot-join.
+  IBI.
 
-It will be good to know (mention) on what hw was it observed?
+Vitor soares (3):
+  i3c: master: Add driver for Synopsys DesignWare IP
+  dt-bindings: i3c: Document Synopsys DesignWare I3C master bindings
+  MAINTAINERS: Add myself as the dw-i3c-master module maintainer
 
-> 
->>
->> Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-> 
-> In any case, the patch is fine.
-> 
-> Acked-by: Sekhar Nori <nsekhar@ti.com>
-> 
-[...]
+ .../devicetree/bindings/i3c/snps,dw-i3c-master.txt |   43 +
+ MAINTAINERS                                        |    6 +
+ drivers/i3c/master/Kconfig                         |   10 +
+ drivers/i3c/master/Makefile                        |    1 +
+ drivers/i3c/master/dw-i3c-master.c                 | 1255 ++++++++++++++++++++
+ 5 files changed, 1315 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i3c/snps,dw-i3c-master.txt
+ create mode 100644 drivers/i3c/master/dw-i3c-master.c
 
 -- 
-regards,
--grygorii
+2.7.4
