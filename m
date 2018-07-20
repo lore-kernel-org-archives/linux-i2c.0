@@ -1,96 +1,52 @@
-From: jacopo mondi <jacopo@jmondi.org>
-Subject: Re: [PATCH -next v4 2/3] media: ov772x: use SCCB regmap
-Date: Fri, 20 Jul 2018 09:38:20 +0200
-Message-ID: <20180720073820.GF6784@w540>
-References: <1531756070-8560-1-git-send-email-akinobu.mita@gmail.com>
- <20180719074736.GA6784@w540>
- <20180719084208.4zdwt4vzcop4hve7@ninjato>
- <2173334.CLADOdgFxd@avalon>
- <20180719131019.2kolodvc4r5ewqic@lanttu.localdomain>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH v4 0/2] Fix lockdep warning with nested instances of i2c-mux
+Date: Fri, 20 Jul 2018 10:39:12 +0200
+Message-ID: <20180720083914.1950-1-peda@axentia.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="JSkcQAAxhB1h8DcT"
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180719131019.2kolodvc4r5ewqic@lanttu.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: sakari.ailus@iki.fi
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Wolfram Sang <wsa@the-dreams.de>, Akinobu Mita <akinobu.mita@gmail.com>, linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@kernel.org>, Peter Rosin <peda@axentia.se>, Sebastian Reichel <sebastian.reichel@collabora.co.uk>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Jacopo Mondi <jacopo+renesas@jmondi.org>, Hans Verkuil <hans.verkuil@cisco.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Mauro Carvalho Chehab <mchehab@s-opensource.com>
+To: linux-kernel@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will.deacon@arm.com>, Davidlohr Bueso <dave@stgolabs.net>, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, Peter Chang <dpf@google.com>, Deepa Dinamani <deepadinamani@google.com>, John Sperbeck <jsperbeck@google.com>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi!
 
---JSkcQAAxhB1h8DcT
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ping. This is almost a resend of v3, but I added tested-by tags from
+John and unwrapped a line in the commit message, so it's a v4.
 
-Hi all,
+How is this going to find its way to Linus? I can move this through
+the i2c-mux tree, but I obviously need a tag for patch 1/2 for that...
 
-On Thu, Jul 19, 2018 at 04:10:20PM +0300, sakari.ailus@iki.fi wrote:
-> On Thu, Jul 19, 2018 at 03:14:06PM +0300, Laurent Pinchart wrote:
-> > On Thursday, 19 July 2018 11:42:08 EEST Wolfram Sang wrote:
-> > > > > -static int ov772x_mask_set(struct i2c_client *client, u8  comman=
-d, u8
-> > > > > mask,
-> > > > > -			   u8  set)
-> > > > > -{
-> > > > > -	s32 val =3D ov772x_read(client, command);
-> > > > > -
-> > > > > -	if (val < 0)
-> > > > > -		return val;
-> > > > > -
-> > > > > -	val &=3D ~mask;
-> > > > > -	val |=3D set & mask;
-> > > > > -
-> > > > > -	return ov772x_write(client, command, val);
-> > > > > -}
-> > > > > -
-> > > >
-> > > > If I were you I would have kept these functions and wrapped the reg=
-map
-> > > > operations there. This is not an issue though if you prefer it this
-> > > > way :)
-> > >
-> > > I have suggested this way. It is not a show stopper issue, but I still
-> > > like this version better.
-> >
-> > Wrapping the regmap functions minimizes the diff and makes it easier to
-> > backport the driver.
+Cheers,
+Peter
 
-This was my reasoning too, but I'm happy with the current
-implementation. Thanks Akinobu for handling this!
+Changes since v3    https://lkml.org/lkml/2018/5/24/994
+- Added Tested-by tags from John.
+- Unwrapped commit message for patch 2/2.
 
->
-> May be, but using the regmap functions directly makes the driver cleaner.
-> Most drivers have some kind of wrappers around the I=C2=B2C framework (or
-> regmap) functions; this one is one of the few to get rid of them.
->
-> The two could be done in a separate patch, too, albeit I think the current
-> one seems fine as such.
->
-> --
-> Sakari Ailus
-> e-mail: sakari.ailus@iki.fi
+Changes since v2    https://lkml.org/lkml/2018/5/24/176
+- EXPORT_SYMBOL_GPL(rt_mutex_lock_nested) is more appropriate (the
+  rt_ prefix was missing).
 
---JSkcQAAxhB1h8DcT
-Content-Type: application/pgp-signature; name="signature.asc"
+Changes since v1    https://lkml.org/lkml/2018/5/24/93
+- Further compile tests indicated a missing #define for rt_mutex_lock
+  with lockdep enabled, so that one is added.
+- I have verified that I don't get any lockdep splat for a local i2c-mux
+  setup with these patches applied, and that I do without them.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Cheers,
+Peter
 
-iQIcBAEBAgAGBQJbUZFsAAoJEHI0Bo8WoVY8xYUP/R6e5qUtBgY0rxxzzGt6l+Gh
-+ANvSsmeZX0cAIzdTjTdj2DPOlDMv0enciKjO0enwDZTAXiyPU1Wn8n6XUext7s+
-I7o2hsoMf1w1NIyOPAXlISvnZ0Dc8iFeNA3E0M/rck/cz/d3tUjc/7ZWX0oC4ZeZ
-stOKf0PRa/vjv3jQjqIEK6QnA41EP8VzKIiSh9+HMWoasiiN0FiZsPwF51nwgzsR
-pi/T4gS1NdYSBeN3JkmsCDcM/wjk81FuuvHLVrtj6U4zHUYwqZ+MWiC6l1AjpdCe
-Cx6n/To52os5R+XPJstZxUoZwDEeAYHGq0sHAZBoPYsp442t8sixH5AO9rE/sbLc
-DvM5VYksoiBkem4k+M6oTxMGXrIdtXRlSUWRDmpCavfJRLLtWa91FRme7l6iPJKo
-m6y1YxbpPkGhvj+I3lPXyuNn3jwLGgLOj/BScGMyBnG2vCzvjLnTi4bBWRwo+JQV
-aDQGXiyFpM5UqwVWIIuE8g+60ItT/9ap96rixrVfDsLN2yyvjUNAUi5nfJ207Ocj
-9WyIkrzgKDxUn/9/R/sPUpxDRyQji2OlyCyZ3wKAyNe1EWmfl7rZkuaovpvQ5oBu
-LtRibGdJpVxSglX8k7fmrDfO5frFzyciZeQNr8Ny/p88ttKFZbGb5ToeWFF1WDuP
-iPnhbP6hx1VJv7hZ9XG4
-=qXJo
------END PGP SIGNATURE-----
+Peter Rosin (2):
+  rtmutex: allow specifying a subclass for nested locking
+  i2c: mux: annotate the nested rt_mutex usage
 
---JSkcQAAxhB1h8DcT--
+ drivers/i2c/i2c-core-base.c |  2 +-
+ drivers/i2c/i2c-mux.c       |  4 ++--
+ include/linux/rtmutex.h     |  7 +++++++
+ kernel/locking/rtmutex.c    | 29 +++++++++++++++++++++++++----
+ 4 files changed, 35 insertions(+), 7 deletions(-)
+
+-- 
+2.11.0
