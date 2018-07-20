@@ -1,107 +1,73 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH v4 2/2] i2c: mux: annotate the nested rt_mutex usage
-Date: Fri, 20 Jul 2018 10:39:14 +0200
-Message-ID: <20180720083914.1950-3-peda@axentia.se>
-References: <20180720083914.1950-1-peda@axentia.se>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v6 00/10] Add the I3C subsystem
+Date: Fri, 20 Jul 2018 10:52:27 +0200
+Message-ID: <CAK8P3a2MP5+oFz--e+BM24D8Ahw7H_RKgN1S6wY1nQE6JL0dmw@mail.gmail.com>
+References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180720083914.1950-1-peda@axentia.se>
+In-Reply-To: <20180719152930.3715-1-boris.brezillon@bootlin.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will.deacon@arm.com>, Davidlohr Bueso <dave@stgolabs.net>, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, Peter Chang <dpf@google.com>, Deepa Dinamani <deepadinamani@google.com>, John Sperbeck <jsperbeck@google.com>
+To: Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.or>
 List-Id: linux-i2c@vger.kernel.org
 
-If an i2c topology has instances of nested muxes, then a lockdep splat
-is produced when when i2c_parent_lock_bus() is called.  Here is an
-example:
+On Thu, Jul 19, 2018 at 5:29 PM, Boris Brezillon
+<boris.brezillon@bootlin.com> wrote:
 
-============================================
-WARNING: possible recursive locking detected
---------------------------------------------
-insmod/68159 is trying to acquire lock:
-  (i2c_register_adapter#2){+.+.}, at: i2c_parent_lock_bus+0x32/0x50 [i2c_mux]
+> - the bus element is a separate object and is not implicitly described
+>   by the master (as done in I2C). The reason is that I want to be able
+>   to handle multiple master connected to the same bus and visible to
+>   Linux.
+>   In this situation, we should only have one instance of the device and
+>   not one per master, and sharing the bus object would be part of the
+>   solution to gracefully handle this case.
+>   I'm not sure if we will ever need to deal with multiple masters
+>   controlling the same bus and exposed under Linux, but separating the
+>   bus and master concept is pretty easy, hence the decision to do it
+>   now, just in case we need it some day.
+>   The other benefit of separating the bus and master concepts is that
+>   master devices appear under the bus directory in sysfs.
+>
+>   Discussion around the bus/master/dev representation is still ongoing,
+>   with Arnd opting for a simple approach where
+>   * the bus is implicitly represented by the master device
+>   * the master is not represented as a device under the I3C bus
+>   * only remote I3C devices are exposed and possibly duplicated if
+>     several masters controlling the same bus are exposed to the same
+>     Linux instance
+>   and Peter preferring the representation where the bus is a separate
+>   object. IIRC, Wolfram was in favor of the "bus is a separate object"
+>   too.
+>
+>   If possible, I'd like to close this discussion soon, no matter which
+>   solution is chosen.
+...
+> Missing features in this preliminary version:
+...
+> - no support for multi-master and the associated concepts (mastership
+>   handover, support for secondary masters, ...)
 
-but task is already holding lock:
-  (i2c_register_adapter#2){+.+.}, at: i2c_parent_lock_bus+0x32/0x50 [i2c_mux]
+Let's try to come to a conclusion to this discussion, this is the main
+show-stopper for inclusion that I see, as changing the fundamental
+design would be hard to do once we do it one way or the other,
+and the structure is exposed to user space.
 
-other info that might help us debug this:
-  Possible unsafe locking scenario:
+Peter and Wolfram, could you explain what scenario you can see that
+would require handing over ownership of a device from one i3c master
+to another i3c master when both are controlled by the same Linux
+instance?
 
-        CPU0
-        ----
-   lock(i2c_register_adapter#2);
-   lock(i2c_register_adapter#2);
+To me this seems like a rather odd scenario, and supporting it
+properly requires significant complexity once we try to support the
+dynamic handover of the bus between two of our own masters.
 
-  *** DEADLOCK ***
+It seems more likely to me that we could deal with this case by
+requiring either that each bus is controlled by at most one master
+device in Linux, or at least that when we have two masters on
+the same bus that they each control a non-overlapping set of
+slave devices. Either way we'd be able to represent the structure
+as a normal tree in the firmware (DT or ACPI) as well as in
+sysfs.
 
-  May be due to missing lock nesting notation
-
-1 lock held by insmod/68159:
-  #0:  (i2c_register_adapter#2){+.+.}, at: i2c_parent_lock_bus+0x32/0x50 [i2c_mux]
-
-stack backtrace:
-CPU: 13 PID: 68159 Comm: insmod Tainted: G           O
-Call Trace:
-  dump_stack+0x67/0x98
-  __lock_acquire+0x162e/0x1780
-  lock_acquire+0xba/0x200
-  rt_mutex_lock+0x44/0x60
-  i2c_parent_lock_bus+0x32/0x50 [i2c_mux]
-  i2c_parent_lock_bus+0x3e/0x50 [i2c_mux]
-  i2c_smbus_xfer+0xf0/0x700
-  i2c_smbus_read_byte+0x42/0x70
-  my2c_init+0xa2/0x1000 [my2c]
-  do_one_initcall+0x51/0x192
-  do_init_module+0x62/0x216
-  load_module+0x20f9/0x2b50
-  SYSC_init_module+0x19a/0x1c0
-  SyS_init_module+0xe/0x10
-  do_syscall_64+0x6c/0x1a0
-  entry_SYSCALL_64_after_hwframe+0x42/0xb7
-
-Reported-by: John Sperbeck <jsperbeck@google.com>
-Tested-by: John Sperbeck <jsperbeck@google.com>
-Signed-off-by: Peter Rosin <peda@axentia.se>
----
- drivers/i2c/i2c-core-base.c | 2 +-
- drivers/i2c/i2c-mux.c       | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index f5ec6ec6776f..1157a64c7be3 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -615,7 +615,7 @@ static int i2c_check_addr_busy(struct i2c_adapter *adapter, int addr)
- static void i2c_adapter_lock_bus(struct i2c_adapter *adapter,
- 				 unsigned int flags)
- {
--	rt_mutex_lock(&adapter->bus_lock);
-+	rt_mutex_lock_nested(&adapter->bus_lock, i2c_adapter_depth(adapter));
- }
- 
- /**
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 9669ca4937b8..7ba31f6bf148 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -144,7 +144,7 @@ static void i2c_mux_lock_bus(struct i2c_adapter *adapter, unsigned int flags)
- 	struct i2c_mux_priv *priv = adapter->algo_data;
- 	struct i2c_adapter *parent = priv->muxc->parent;
- 
--	rt_mutex_lock(&parent->mux_lock);
-+	rt_mutex_lock_nested(&parent->mux_lock, i2c_adapter_depth(adapter));
- 	if (!(flags & I2C_LOCK_ROOT_ADAPTER))
- 		return;
- 	i2c_lock_bus(parent, flags);
-@@ -181,7 +181,7 @@ static void i2c_parent_lock_bus(struct i2c_adapter *adapter,
- 	struct i2c_mux_priv *priv = adapter->algo_data;
- 	struct i2c_adapter *parent = priv->muxc->parent;
- 
--	rt_mutex_lock(&parent->mux_lock);
-+	rt_mutex_lock_nested(&parent->mux_lock, i2c_adapter_depth(adapter));
- 	i2c_lock_bus(parent, flags);
- }
- 
--- 
-2.11.0
+       Arnd
