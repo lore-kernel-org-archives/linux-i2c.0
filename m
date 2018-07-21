@@ -1,77 +1,133 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 0/3] i2c: at91: slave mode support
-Date: Sat, 21 Jul 2018 00:41:41 +0200
-Message-ID: <20180720224141.lawanibd7v4hmbym@ninjato>
-References: <20180716094037.1843-1-ludovic.desroches@microchip.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH 1/3] i3c: master: Add driver for Synopsys DesignWare IP
+Date: Sat, 21 Jul 2018 18:35:33 +0300
+Message-ID: <CAHp75VfYYmr7o6xkDbjaad3HxyzZgODzKfSNWdPXjM+YjTMANA@mail.gmail.com>
+References: <1532120272-17157-1-git-send-email-soares@synopsys.com> <1532120272-17157-2-git-send-email-soares@synopsys.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="r4l6to62zx5hf5wb"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180716094037.1843-1-ludovic.desroches@microchip.com>
+In-Reply-To: <1532120272-17157-2-git-send-email-soares@synopsys.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ludovic Desroches <ludovic.desroches@microchip.com>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, me@jue.yt, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org
+To: Vitor soares <Vitor.Soares@synopsys.com>
+Cc: Boris Brezillon <boris.brezillon@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Linux Documentation List <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri, Jul 20, 2018 at 11:57 PM, Vitor soares
+<Vitor.Soares@synopsys.com> wrote:
+> This patch add driver for Synopsys DesignWare IP on top of
+> I3C subsystem patchset proposal V6
 
---r4l6to62zx5hf5wb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Some of comments below related to style.
+But unaligned helpers I think is good to use.
 
-> [Ludovic Desroches]
-> Changes in v3:
->  - rebase (cherry-pick was enough)
+> +#include <linux/bitops.h>
+> +#include <linux/clk.h>
+> +#include <linux/completion.h>
+> +#include <linux/err.h>
+> +#include <linux/errno.h>
+> +#include <linux/i3c/master.h>
+> +#include <linux/init.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/io.h>
+> +#include <linux/ioport.h>
+> +#include <linux/iopoll.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/reset.h>
 
-Thanks for the rebase. I wonder, though, I recall to had more
-complicated issues. However...
+All of them required? Why?
 
->  - fix checkpatch errors
->  - tests:
->    - hangs with a SAMA5D4 (master and slave on different busses) after about
->    100 transfers. It's the firs time I do this test.
->    - some mismatches with a SAMA5D4 as slave and a SAMA5D2 as master
->    I don't know if it's a regression. I don't remember having seen this
->    behavior previously.
->    I think it's worth taking those patches even if there are some possible
->    bugs. It'll allow to get more people using it and so to consolidate the
->    slave mode support.
+> +       default:
 
-I really want to see those patches go upstream, too. But I am also not a
-big fan of delivering the user something with known issues. Especially
-not when they affect the main feature to be added. My rationale here is
-that someone who is able to fix the issues remaining will also be able
-to pick up and apply patches.
+Just return false here?
 
-Maybe, maybe if it was to be enabled by a special
-I2C_AT91_SLAVE_EXPERIMANTEL symbol with lots of explanations. I need to
-think twice about that, though.
+> +               break;
+> +       }
+> +
+> +       return false;
 
-Speaking of Kconfig, I think this series needs to place a
+> +       for (i = 0; i < nbytes; i += 4) {
+> +               u32 data = 0;
+> +
 
-	select I2C_SLAVE
+> +               for (j = 0; j < 4 && (i + j) < nbytes; j++)
+> +                       data |= (u32)bytes[i + j] << (j * 8);
 
-somewhere.
+NIH of get_unaligned_le32()
+
+> +
+> +               writel(data, master->regs + RX_TX_DATA_PORT);
+> +       }
+> +}
+> +
+> +static void dw_i3c_master_read_rx_fifo(struct dw_i3c_master *master,
+> +                                      u8 *bytes, int nbytes)
+> +{
+> +       int i, j;
+> +
+> +       for (i = 0; i < nbytes; i += 4) {
+> +               u32 data;
+> +
+> +               data = readl(master->regs + RX_TX_DATA_PORT);
+> +
 
 
---r4l6to62zx5hf5wb
-Content-Type: application/pgp-signature; name="signature.asc"
+> +               for (j = 0; j < 4 && (i + j) < nbytes; j++)
+> +                       bytes[i + j] = data >> (j * 8);
 
------BEGIN PGP SIGNATURE-----
+Ditto put_unaligned_le32() ?
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltSZSUACgkQFA3kzBSg
-KbYQPQ/9HBYWfbQzHSdXfcRkRjy6FyE1lPHwEY6WDryvg68TJpSa7Yk3m7WoSl8B
-HdsRDvc2kZuOzLQbeo6Fq6c4NnwfXunqvzUt6Ljtoccnr+ZkLTQ9B7+VjgrE2YhU
-5F9GBxPaj2UcyisdbFs8sUhseE9oJHgP8GwO7GmNLfEZhsJ4xICk2phiDbI+eIY0
-QWphEdUoAGRS4UKo+pZxIzmAJFurPeDOSNSFrJb19EmKH4gjsR8SilVIsCoImTR2
-TFJhos0JC0CCmey6zgdttNRPpd44p+uzpUm7lrfa9s0VUWY6ucZrXW8Mu+6WBUM0
-WK74KCok/dq/6xzMz2y/bS1JKI/v/7DudyF3UY+6+8jLiUnX5j6oUGiy7AAf8szX
-gDnXR8e9kD/iiipKvW/Kl+h3AshGsmLEl7aKAfuaeY9BXCa6AegFyA/dXxhssdhl
-mvfp4pIFacZPyXYiCMq/O7cms9izLifXLc97Htn/OulVgV0uudvj9UUqTOdG6yx2
-CVg8B1RWk5PiQZRBmLcRpW3aFue05nR1FlO3duObimE8aNswYsbavRNjy3qrTmW6
-RriOEnoPpyb1LgGyEOWvi+J/LaPuoN/3BwebyF/E/uMByFssuBaU1PAl4nX648os
-T6HggT+HuFF1L6FA4M68Am9Az9cjXD6JgjETTTsxQD3AGP+uVxA=
-=QE0L
------END PGP SIGNATURE-----
+> +       }
+> +}
 
---r4l6to62zx5hf5wb--
+I'm wondering what else you open coded instead of using helpers we already have.
+
+> +               writel(cmd->cmd_hi, master->regs + COMMAND_QUEUE_PORT);
+> +               writel(cmd->cmd_lo, master->regs + COMMAND_QUEUE_PORT);
+
+hmm... writesl()?
+
+> +       info->pid = (u64)readl(master->regs + SLV_PID_VALUE);
+
+Why explicit casting?
+
+
+> +       u32 r;
+> +
+> +
+> +       core_rate = clk_get_rate(master->core_clk);
+
+Too many blank lines in between.
+
+> +
+> +
+
+Ditto.
+
+> +       /* Prepare DAT before launching DAA. */
+> +       for (pos = 0; pos < master->maxdevs; pos++) {
+> +               if (olddevs & BIT(pos))
+> +                       continue;
+> +
+> +               ret = i3c_master_get_free_addr(m, last_addr + 1);
+> +               if (ret < 0)
+> +                       return -ENOSPC;
+> +               master->addrs[pos] = ret;
+
+> +               p = (ret >> 6) ^ (ret >> 5) ^ (ret >> 4) ^ (ret >> 3) ^
+> +                   (ret >> 2) ^ (ret >> 1) ^ ret ^ 1;
+> +               p = p & 1;
+
+Is it parity calculus? Do we have something implemented in kernel already?
+
+Btw, https://graphics.stanford.edu/~seander/bithacks.html#ParityNaive
+offered this
+
+v ^= v >> 4;
+v &= 0xf;
+v = (0x6996 >> v) & 1;
+
+
+-- 
+With Best Regards,
+Andy Shevchenko
