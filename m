@@ -1,64 +1,49 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v6 5/6] i2c: Add Actions Semiconductor Owl family S900 I2C
- driver
-Date: Mon, 23 Jul 2018 09:40:15 +0200
-Message-ID: <690ed3da-c576-5a3b-e0fe-5bfaae3ba5f2@axentia.se>
-References: <20180723034025.5763-1-manivannan.sadhasivam@linaro.org>
- <20180723034025.5763-6-manivannan.sadhasivam@linaro.org>
- <911dc259-7b30-9c6e-2c82-2f4c032b9d73@axentia.se>
- <CAHp75Vf+SLQERDhDGRE-J_hmWwniiHN0FALbaBQjBY4GRNV_Fw@mail.gmail.com>
+From: Lucas Stach <l.stach@pengutronix.de>
+Subject: Re: [PATCH/RFT 2/6] i2c: imx: use open drain for recovery GPIO
+Date: Mon, 23 Jul 2018 14:47:28 +0200
+Message-ID: <1532350048.3163.101.camel@pengutronix.de>
+References: <20180713210920.3648-1-wsa+renesas@sang-engineering.com>
+         <20180713210920.3648-3-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <CAHp75Vf+SLQERDhDGRE-J_hmWwniiHN0FALbaBQjBY4GRNV_Fw@mail.gmail.com>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: devicetree <devicetree@vger.kernel.org>, Daniel Thompson <daniel.thompson@linaro.org>, Mani Sadhasivam <manivannanece23@gmail.com>, hzhang@ucrobotics.com, Wolfram Sang <wsa@the-dreams.de>, Thomas Liau <thomas.liau@actions-semi.com>, Linus Walleij <linus.walleij@linaro.org>, =?UTF-8?B?5YiY54Kc?= <liuwei@actions-semi.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, amit.kucheria@linaro.org, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, jeff.chen@actions-semi.com, Rob Herring <robh+dt@kernel.org>, 96boards@ucrobotics.com, linux-i2c <linux-i2c@vger.kernel.org>, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>, bdong@ucrobotics.com, =?UTF-8?Q?Andreas_F=c3=a4rber?= <afaerber@suse.de>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, mp-cs@actions-semi.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180713210920.3648-3-wsa+renesas@sang-engineering.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@pengutronix.de
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-07-23 09:24, Andy Shevchenko wrote:
-> On Mon, Jul 23, 2018 at 9:12 AM, Peter Rosin <peda@axentia.se> wrote:
->> On 2018-07-23 05:40, Manivannan Sadhasivam wrote:
->>> +             /* Handle the remaining bytes which were not sent */
->>> +             while (!(readl(i2c_dev->base + OWL_I2C_REG_FIFOSTAT) &
->>> +                    OWL_I2C_FIFOSTAT_TFF) && i2c_dev->msg_ptr < msg->len) {
->>
->> You moved the OWL_ line to the left instead of right, so this is still
->> misaligned and thus not helping the reader.
+Am Freitag, den 13.07.2018, 23:09 +0200 schrieb Wolfram Sang:
+> I2C is open drain, so set up the GPIO accordingly.
 > 
-> Guys, wouldn't be better to
-> 
-> 
-> while (i2c_dev->msg_ptr < msg->len) {
->  u32 fifostat = readl();
-> 
->  if (!(fifostat & ...))
->  break;
-> ...
-> }
-> 
-> ?
-> 
-> Same for the other branch.
-> 
-> Yes, it's more LOCs, but less bikeshedding,
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Says the guy arriving late to the table with an incredibly valuable
-suggestion... Please explain why my suggestion is bikeshedding and
-yours is not?
+I don't think this matters on any of the i.MX platforms, as the GPIO
+pin configuration (including open-drain) is only taken from the DT
+pinctrl, with the GPIO driver not being able to change any of those. On
+ the flipside this results in a near zero probability of regressions.
+;)
 
-Aligning with the opening parenthesis is right. Aligning with the wrong
-opening parenthesis is of course going to risk confusing the reader.
+As this is obviously right even if it doesn't have any effect on
+current software:
 
-Cheers,
-Peter
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+
+> ---
+>  drivers/i2c/busses/i2c-imx.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 0207e194f84b..3e23ee26c55c 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -1010,7 +1010,7 @@ static int i2c_imx_init_recovery_info(struct imx_i2c_struct *i2c_imx,
+> >  	i2c_imx->pinctrl_pins_gpio = pinctrl_lookup_state(i2c_imx->pinctrl,
+> >  			"gpio");
+> >  	rinfo->sda_gpiod = devm_gpiod_get(&pdev->dev, "sda", GPIOD_IN);
+> > -	rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl", GPIOD_OUT_HIGH);
+> > +	rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl", GPIOD_OUT_HIGH_OPEN_DRAIN);
+>  
+> >  	if (PTR_ERR(rinfo->sda_gpiod) == -EPROBE_DEFER ||
+> >  	    PTR_ERR(rinfo->scl_gpiod) == -EPROBE_DEFER) {
