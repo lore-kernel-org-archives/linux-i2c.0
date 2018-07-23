@@ -1,7 +1,7 @@
 From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH v6 1/6] dt-bindings: i2c: Add binding for Actions Semiconductor Owl I2C controller
-Date: Mon, 23 Jul 2018 09:10:20 +0530
-Message-ID: <20180723034025.5763-2-manivannan.sadhasivam@linaro.org>
+Subject: [PATCH v6 2/6] arm64: dts: actions: Add pinctrl definition for S900 I2C controller
+Date: Mon, 23 Jul 2018 09:10:21 +0530
+Message-ID: <20180723034025.5763-3-manivannan.sadhasivam@linaro.org>
 References: <20180723034025.5763-1-manivannan.sadhasivam@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180723034025.5763-1-manivannan.sadhasivam@linaro.org>
@@ -10,47 +10,49 @@ To: wsa@the-dreams.de, robh+dt@kernel.org, afaerber@suse.de
 Cc: linus.walleij@linaro.org, linux-i2c@vger.kernel.org, liuwei@actions-semi.com, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree@vger.kernel.org, andy.shevchenko@gmail.com, daniel.thompson@linaro.org, amit.kucheria@linaro.org, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, hzhang@ucrobotics.com, bdong@ucrobotics.com, manivannanece23@gmail.com, thomas.liau@actions-semi.com, jeff.chen@actions-semi.com, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add devicetree binding for Actions Semiconductor Owl I2C controller
+Add pinctrl definition for Actions Semiconductor S900 I2C controller.
+Pinctrl definitions are only available for I2C0, I2C1, and I2C2.
 
 Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
 ---
- .../devicetree/bindings/i2c/i2c-owl.txt       | 27 +++++++++++++++++++
- 1 file changed, 27 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-owl.txt
+ .../dts/actions/s900-bubblegum-96-pins.dtsi   | 29 +++++++++++++++++++
+ 1 file changed, 29 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/actions/s900-bubblegum-96-pins.dtsi
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-owl.txt b/Documentation/devicetree/bindings/i2c/i2c-owl.txt
+diff --git a/arch/arm64/boot/dts/actions/s900-bubblegum-96-pins.dtsi b/arch/arm64/boot/dts/actions/s900-bubblegum-96-pins.dtsi
 new file mode 100644
-index 000000000000..b743fe444e9f
+index 000000000000..95e8b31071f9
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-owl.txt
-@@ -0,0 +1,27 @@
-+Actions Semiconductor Owl I2C controller
++++ b/arch/arm64/boot/dts/actions/s900-bubblegum-96-pins.dtsi
+@@ -0,0 +1,29 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +
-+Required properties:
++&pinctrl {
 +
-+- compatible        : Should be "actions,s900-i2c".
-+- reg               : Offset and length of the register set for the device.
-+- #address-cells    : Should be 1.
-+- #size-cells       : Should be 0.
-+- interrupts        : A single interrupt specifier.
-+- clocks            : Phandle of the clock feeding the I2C controller.
++	i2c0_default: i2c0_default {
++		pinmux {
++			groups = "i2c0_mfp";
++			function = "i2c0";
++		};
++		pinconf {
++			pins = "i2c0_sclk", "i2c0_sdata";
++			bias-pull-up;
++		};
++	};
 +
-+Optional properties:
++	i2c1_default: i2c1_default {
++		pinconf {
++			pins = "i2c1_sclk", "i2c1_sdata";
++			bias-pull-up;
++		};
++	};
 +
-+- clock-frequency   : Desired I2C bus clock frequency in Hz. As only Normal and
-+                      Fast modes are supported, possible values are 100000 and
-+                      400000.
-+Examples:
-+
-+        i2c0: i2c@e0170000 {
-+                compatible = "actions,s900-i2c";
-+                reg = <0 0xe0170000 0 0x1000>;
-+                #address-cells = <1>;
-+                #size-cells = <0>;
-+                interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
-+                clocks = <&clock CLK_I2C0>;
-+                clock-frequency = <100000>;
-+        };
++	i2c2_default: i2c2_default {
++		pinconf {
++			pins = "i2c2_sclk", "i2c2_sdata";
++			bias-pull-up;
++		};
++	};
++};
 -- 
 2.17.1
