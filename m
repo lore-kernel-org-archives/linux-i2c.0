@@ -1,66 +1,124 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH -next] regmap: sccb: fix typo and sort headers
- alphabetically
-Date: Sun, 22 Jul 2018 19:37:54 +0200
-Message-ID: <20180722173753.ckor2rqeqcnfe667@katana>
-References: <1532274346-16952-1-git-send-email-akinobu.mita@gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="5xxzovl5lozpz5qj"
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH v6 0/6] Add Actions Semiconductor Owl S900 I2C support
+Date: Mon, 23 Jul 2018 09:10:19 +0530
+Message-ID: <20180723034025.5763-1-manivannan.sadhasivam@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1532274346-16952-1-git-send-email-akinobu.mita@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@kernel.org>
+To: wsa@the-dreams.de, robh+dt@kernel.org, afaerber@suse.de
+Cc: linus.walleij@linaro.org, linux-i2c@vger.kernel.org, liuwei@actions-semi.com, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree@vger.kernel.org, andy.shevchenko@gmail.com, daniel.thompson@linaro.org, amit.kucheria@linaro.org, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, hzhang@ucrobotics.com, bdong@ucrobotics.com, manivannanece23@gmail.com, thomas.liau@actions-semi.com, jeff.chen@actions-semi.com, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
+This patchset adds I2C controller support for Actions Semiconductor S900 SoC.
+This driver has been structured in a way such that there will be only
+one controller driver for the whole Owl family series (S500, S700 and
+S900 SoCs).
 
---5xxzovl5lozpz5qj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There are 6 I2C controllers with separate memory mapped register space.
+The I2C controller can handle atmost two messages concatenated by a
+repeated start via its internal address feature. Hence the driver
+uses this feature for messages of length greater than 1. In those cases,
+the first message of the combined message should be a `write` with maximum
+message length 6 and the second message's maximum length should be 240 bytes.
 
-On Mon, Jul 23, 2018 at 12:45:46AM +0900, Akinobu Mita wrote:
-> Fix typos 's/wit/with/' in the comments and sort headers alphabetically
-> in order to avoid duplicate includes in future.
->=20
-> Fixes: bcf7eac3d97f ("regmap: add SCCB support")
-> Reported-by: Wolfram Sang <wsa@the-dreams.de>
+As far as the bus speed is concerned, this driver only supports
+Standard (100KHz) and High speed (400KHz) for now.
 
-Could this be replaced with (as I did this in my work time):
+The pinctrl definitions are only available for I2C0, I2C1 and I2C2.
+With the mux option available only for I2C0.
 
-Reported-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+For Bubblegum-96 board utilizing the S900 SoC, only I2C1 and I2C2 which
+are exposed on the Low speed expansion connector are enabled.
 
-?
+This series depends on the pinctrl patch [1] is still not merged by the
+platform maintainer Andreas but it has been reviewed by the pinctrl maintainer
+Linus Walleij. For the reference, I have queued up all reviewed dts patches
+in my tree [2] from which Andreas is picking them for 4.19.
 
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Mark Brown <broonie@kernel.org>
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+For this series, since the dts patches will go through the ARM SoC tree,
+Andreas will pick it up once it is reviewed.
 
-Looks good, thanks!
+Thanks,
+Mani
 
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+[1] https://patchwork.kernel.org/patch/10322937/
+[2] https://git.linaro.org/people/manivannan.sadhasivam/linux.git/log/?h=s900-for-next
 
+Changes in v6:
 
---5xxzovl5lozpz5qj
-Content-Type: application/pgp-signature; name="signature.asc"
+As per Peter's review:
 
------BEGIN PGP SIGNATURE-----
+* Added missing newlines for error and debug outputs
+* Fixed further multi-line misalignments
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltUwO0ACgkQFA3kzBSg
-KbYNTg/7BsB/OjEkWPmeZb6zmaaF37ZesLy+nXLAK3uf5+l5hwHfFh39oJk8vL5w
-op43UX4PmRElzAVkdKuwJOlMR8Vq3HVg2ehN6vyih5xOG/dymu7/iAn+pKTUm/Qa
-Q9X7cQ5GD5OsY14UIUnxpRyNz5hjJYezCXXf1q9vf19xT4p+OBskaTh3ia4BSkrr
-Oi4nSQTBNxsFym6AYu/k09NV/l9lopCm9vj1zRKmY8AM83Jo/lmSAO2vhv+lCavj
-zkfGs8tcMym/o7D3WuV2Ryy9CfRgHuE9A1EWoyQsRB9cBKpqmgm10KGx84S2o+ht
-HPgHT+mW7zPs6/5p7u2McKDbnMJz42WbM/7QzzBGskKCGAc6uSm+HN7MKRyWzyHo
-/1FzVBz6TPu/d/INciETVCVIr+oVI7has/Buxx72WeUBlt3RfNfe2Oe0SkGJFwkQ
-TbhEoEjDWLaqD51NsDmuzjyk/7pf9v3cJMBwtVsoOvxreKrd0bkBWzUAhAX0COji
-yu7csCyP3fW3faE0HqBABH0t1CyDvaiV+w1MDKvAfM5tfBFQ+UI2SHzqtqCiH8l0
-FB7Np+URoEOPGswGysTA3DEXpyrl1Tm9xUEoKVAQNWFREI6w5TNQutSjkRYDfCPE
-LHS5sfqfA+cuaUK9GWfYWwQTM6wlPEuAp0oqQhq2F03Ut+PlA4I=
-=eXU7
------END PGP SIGNATURE-----
+Changes in v5:
 
---5xxzovl5lozpz5qj--
+* Cleaned up the multi-line codes and reordered the error paths
+  as per Peter's review
+* Added Acked-by tag from Peter for driver patch
+* Added Reviewed-by tag from Rob for bindings patch
+
+Changes in v4:
+
+As per Andy and Peter review:
+
+* Used spinlock for accessing most of the register access (only parts
+  involved sleep/long-busy-wait has been excluded)
+* Removed returning 0 and added -ENXIO if the msg_ptr not equals to
+  message length
+* Added DIV_ROUND_UP for setting clock frequency
+* Changed one non-atomic mdelay instance to usleep_range
+* Moved pinctrl definition patch before dts patch
+* Fixed the driver to support only 100KHz and 400KHz frequencies
+
+Changes in v3:
+
+As per Peter, Andy and Andreas review:
+
+* Removed owl_i2c_reset function from interrupt handler since it
+  involves the use of delays.
+* Fixed the return path in owl_i2c_master_xfer and added a note
+* Changed "base" parameter to "reg" in owl_i2c_update_reg for better
+  understandability
+* Ordered the includes in alphabetical order
+* Small changes to defines and added comma at the end of struct members
+* Removed rendundant 0 assignment in owl_i2c_master_xfer
+* Changed all OWL naming convention to Owl and also changed Actions Semi
+  naming to Actions Semiconductor
+
+Changes in v2:
+
+As per Andy's review:
+* Modified infinite loops to fixed number of retries
+* Used i2c_8bit_addr_from_msg for constructing the slave address
+* Removed unnecessary parenthesis around defines
+* Modified certain dev_warn to dev_dbg
+* Modified the error handling to more generic pattern
+
+* Fixed the return value in owl_i2c_master_xfer
+* Added MAINTAINERS patch for I2C driver and its binding
+
+Manivannan Sadhasivam (6):
+  dt-bindings: i2c: Add binding for Actions Semiconductor Owl I2C
+    controller
+  arm64: dts: actions: Add pinctrl definition for S900 I2C controller
+  arm64: dts: actions: Add Actions Semiconductor S900 I2C controller
+    nodes
+  arm64: dts: actions: Enable I2C1 and I2C2 in Bubblegum-96 board
+  i2c: Add Actions Semiconductor Owl family S900 I2C driver
+  MAINTAINERS: Add entry for Actions Semiconductor Owl I2C driver
+
+ .../devicetree/bindings/i2c/i2c-owl.txt       |  27 +
+ MAINTAINERS                                   |   2 +
+ .../dts/actions/s900-bubblegum-96-pins.dtsi   |  29 +
+ .../boot/dts/actions/s900-bubblegum-96.dts    |  11 +
+ arch/arm64/boot/dts/actions/s900.dtsi         |  60 +++
+ drivers/i2c/busses/Kconfig                    |   7 +
+ drivers/i2c/busses/Makefile                   |   1 +
+ drivers/i2c/busses/i2c-owl.c                  | 495 ++++++++++++++++++
+ 8 files changed, 632 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-owl.txt
+ create mode 100644 arch/arm64/boot/dts/actions/s900-bubblegum-96-pins.dtsi
+ create mode 100644 drivers/i2c/busses/i2c-owl.c
+
+-- 
+2.17.1
