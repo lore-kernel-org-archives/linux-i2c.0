@@ -1,83 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: davinci: Avoid zero value of CLKH
-Date: Mon, 23 Jul 2018 20:07:22 +0200
-Message-ID: <20180723180722.7b46aw56oqxrwxwj@ninjato>
-References: <20180713152017.2207-1-alexander.sverdlin@nokia.com>
+Subject: Re: [PATCH v2 1/4] i2c: imx: Fix reinit_completion() use
+Date: Mon, 23 Jul 2018 20:08:49 +0200
+Message-ID: <20180723180848.ctfwxrk2www2ede2@ninjato>
+References: <20180709094304.8814-1-esben.haabendal@gmail.com>
+ <20180709094304.8814-2-esben.haabendal@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4829127684990420666=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180713152017.2207-1-alexander.sverdlin@nokia.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Cc: Sekhar Nori <nsekhar@ti.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Kevin Hilman <khilman@kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="7wqed2ci7gvcette"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180709094304.8814-2-esben.haabendal@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Esben Haabendal <esben.haabendal@gmail.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Yuan Yao <yao.yuan@freescale.com>, Esben Haabendal <eha@deif.com>, Phil Reid <preid@electromag.com.au>, Lucas Stach <l.stach@pengutronix.de>, Linus Walleij <linus.walleij@linaro.org>, Peter Rosin <peda@axentia.se>, Fabio Estevam <fabio.estevam@nxp.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============4829127684990420666==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="py2crmfqizrudnfi"
-Content-Disposition: inline
-
-
---py2crmfqizrudnfi
-Content-Type: text/plain; charset=us-ascii
+--7wqed2ci7gvcette
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 13, 2018 at 05:20:17PM +0200, Alexander Sverdlin wrote:
-> If CLKH is set to 0 I2C clock is not generated at all, so avoid this value
-> and stretch the clock in this case.
+On Mon, Jul 09, 2018 at 11:43:01AM +0200, Esben Haabendal wrote:
+> From: Esben Haabendal <eha@deif.com>
 >=20
-> Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+> Make sure to call reinit_completion() before dma is started to avoid race
+> condition where reinit_completion() is called after complete() and before
+> wait_for_completion_timeout().
+>=20
+> Signed-off-by: Esben Haabendal <eha@deif.com>
+> Fixes: ce1a78840ff7 ("i2c: imx: add DMA support for freescale i2c driver")
+> Reviewed-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
 
-Applied to for-current, thanks!
+Applied to for-current and added stable, thanks!
 
-I did not add stable because Alexander told me this is very likely not
-to be observed on HW out there. But TI people are investigating more.
-I suggest they resend this patch to stable if they see fit. D'accord
-everyone?
+Uwe, do you have comments for the other patches, too?
 
 
---py2crmfqizrudnfi
+--7wqed2ci7gvcette
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltWGVoACgkQFA3kzBSg
-KbaShBAAmTPJfm8x4g3AynTRtS+ZrRiINQb7/mtqPQpixfehcSXQEK1olVFhF+4P
-B/vXyjeHz7UzrZb/Og/nXUWmoCrldcs+9TZoxOU0LLgkWHtCOdaaupXRibACQ5rh
-Nf/pATVqhUjGQsN5/SATW+MBjys6Y77KpBVzyI42jndKPSavcQRjC6j5OSBYDCuw
-Pm9XD3y4tO9BTwZpM+hIGh6zejxjxpi4sUt0oun9a5TmvFNCtHXkXRuzFYUgI2Rw
-WXEcTWCQNbJqjHffaIcpHVJk1McnhHkqN7t/HlaW7Vk68SSCxG1xaGyNZWXaUxto
-xNnuFy3loVRcfvgmZLBmPSb2z1x59z8z/Fw6szzuoG8fAPSmbvXzebPU61pISQOU
-EhUvsVj9enBODGsOO2UuKNta+toHPYWJB0cnbaIQ2Z2EkZ5FYVz9yid/pX743HLi
-T7vqSfynLMIbdw7oGZmwQB1JtJ2dZBDueKm8AM2lB6MWTte0xNhsWzUiPQkLCKyy
-qIWANdPN4YNLNXqkIRwNl+R7amt7TmwCs4I/ckMj3YbvbuHb3fNUYC5lZeqoR3Dg
-6C/tYNANlEqfpmaiPY0UmV+LWNy+35CD2BEonNwkVDhChRkS6CW8aJqZQjLACJB1
-cWHkQyovWQxFIEXVkymvB1i/M6imkK8/gwhMXZ84pSQO6Fv3BV4=
-=avUa
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltWGbAACgkQFA3kzBSg
+KbaOjBAApJ9ECR3ZplMNccodfIHepXh8Wubqou0RJDT81hu1E+2MCS9ihe8jBSEN
+Qg34DOXUWwNrF59XeUbp+zUwIxBgKIM1xZdXk3aYNts5sW79dSOYVccsnHGAQ4Ai
+tO85xI1YbJv4Llawx0wyspnNYYvAyFXZjcChlE+qCojbBTX1TFCHZzFEOk4yd92P
+QJLOxp0D7CMKd0qHzPPg2BZkEPrfzARjnAtcRU5oae8fP3R3xjizp2uVe8pTSRcZ
+IY6dWZNkbsGzJ+pFu1ng5kEtiZb66oHnNZlUQj2vvjAGZ/Cr9/Yjn0m2+E7NRglJ
+eJSwENEdr96e4A08h7fKZM4cRQ0vOv2Mh9AkODgDTDUCcn6ipzI+zFeXXM2PXaOp
+PVIp0cLq54LKvA+Tp/lvPZI89DbPM7BVYc1rwFWR9AOUAXpcfJcjd6RoqSjPxipY
+sCV8AaXfZK0varFF7RVibJ5U8vc1+FAW37WSOPYpFkXCyw/3AbnKYw4KgZEYDgzg
+mD0A6uAHWRpu/MF2QopiqRZPjpDAkbVUf0AUelhVAn9AE5jVhgIR+nCt9nKRLZpY
+YPlwwMdM4WTFbh4+Z43T5WI9yw3do94nPx7OZK10KzBY2vlPfbaIK+hsBURcXL/+
+wBsk7CdjzPqDNH0DqeN/h7mm+6erF9TMBGDZCnBcWKswoQwuANI=
+=ANsa
 -----END PGP SIGNATURE-----
 
---py2crmfqizrudnfi--
-
-
---===============4829127684990420666==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============4829127684990420666==--
+--7wqed2ci7gvcette--
