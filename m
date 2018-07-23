@@ -1,81 +1,81 @@
-From: Niklas =?iso-8859-1?Q?S=F6derlund?=
-        <niklas.soderlund@ragnatech.se>
-Subject: Re: [PATCH 10/12] i2c: rcar: use core to detect 'no zero length'
- quirk
-Date: Mon, 23 Jul 2018 22:46:10 +0200
-Message-ID: <20180723204610.GH1432@bigcity.dyn.berto.se>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH 00/12] i2c: quirks: add zero length checks and update drivers
+Date: Mon, 23 Jul 2018 23:47:57 +0300
+Message-ID: <CAHp75VcAzAtV0+Eu8TGPnrxSpAnPOXU9mvpeO1SaoBO3Rx=wRw@mail.gmail.com>
 References: <20180723202617.15230-1-wsa+renesas@sang-engineering.com>
- <20180723202617.15230-11-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180723202617.15230-11-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20180723202617.15230-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, linux-arm-msm@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-soc@vger.kernel.org, linux-tegra@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+On Mon, Jul 23, 2018 at 11:26 PM, Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> I had this idea for quite some time on my todo list but a soon to be
+> implemented refactoring in the i2c-rcar driver now finally made me do it. Add a
+> 'can't do 0 length messages' quirk to the quirk infrastructure for and remove
+> the manual handling from the drivers. This makes the quirk much more visible.
+> (Quite some prominent vendors in that list) We also have a centralized place to
+> handle updates to the quirk detection if that is ever needed.
+>
+> I have tested this with the i2c-rcar and i2c-sh_mobile driver on a Renesas
+> SalvatorXS board equipped with M3-N (r8a77965).
+>
+> A git branch can be found here:
+>
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/quirk-no-zero-len
+>
+> Looking forward to comments, reviews, tests...
 
-Thanks for your work.
+Thanks!
 
-On 2018-07-23 22:26:14 +0200, Wolfram Sang wrote:
-> And don't reimplement in the driver.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+for patches 1 and 2.
 
-> ---
-> 
->  drivers/i2c/busses/i2c-rcar.c | 13 ++++++-------
->  1 file changed, 6 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-> index 2688520110d1..791a4aa34fdd 100644
-> --- a/drivers/i2c/busses/i2c-rcar.c
-> +++ b/drivers/i2c/busses/i2c-rcar.c
-> @@ -796,14 +796,8 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
->  	if (ret < 0)
->  		goto out;
->  
-> -	for (i = 0; i < num; i++) {
-> -		/* This HW can't send STOP after address phase */
-> -		if (msgs[i].len == 0) {
-> -			ret = -EOPNOTSUPP;
-> -			goto out;
-> -		}
-> +	for (i = 0; i < num; i++)
->  		rcar_i2c_request_dma(priv, msgs + i);
-> -	}
->  
->  	/* init first message */
->  	priv->msg = msgs;
-> @@ -890,6 +884,10 @@ static const struct i2c_algorithm rcar_i2c_algo = {
->  	.unreg_slave	= rcar_unreg_slave,
->  };
->  
-> +static const struct i2c_adapter_quirks rcar_i2c_quirks = {
-> +	.flags = I2C_AQ_NO_ZERO_LEN,
-> +};
-> +
->  static const struct of_device_id rcar_i2c_dt_ids[] = {
->  	{ .compatible = "renesas,i2c-r8a7778", .data = (void *)I2C_RCAR_GEN1 },
->  	{ .compatible = "renesas,i2c-r8a7779", .data = (void *)I2C_RCAR_GEN1 },
-> @@ -943,6 +941,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
->  	adap->dev.parent = dev;
->  	adap->dev.of_node = dev->of_node;
->  	adap->bus_recovery_info = &rcar_i2c_bri;
-> +	adap->quirks = &rcar_i2c_quirks;
->  	i2c_set_adapdata(adap, priv);
->  	strlcpy(adap->name, pdev->name, sizeof(adap->name));
->  
-> -- 
+>
+> Thanks,
+>
+>    Wolfram
+>
+> Wolfram Sang (12):
+>   i2c: quirks: add zero length checks
+>   i2c: designware-master: use core to detect 'no zero length' quirk
+>   i2c: mxs: use core to detect 'no zero length' quirk
+>   i2c: omap: use core to detect 'no zero length' quirk
+>   i2c: pmcmsp: use core to detect 'no zero length' quirk
+>   i2c: qup: use core to detect 'no zero length' quirk
+>   i2c: stu300: use core to detect 'no zero length' quirk
+>   i2c: tegra: use core to detect 'no zero length' quirk
+>   i2c: zx2967: use core to detect 'no zero length' quirk
+>   i2c: rcar: use core to detect 'no zero length' quirk
+>   i2c: xlr: use core to detect 'no zero length' quirk
+>   i2c: sh_mobile: use core to detect 'no zero length read' quirk
+>
+>  drivers/i2c/busses/i2c-designware-master.c | 12 +++++-------
+>  drivers/i2c/busses/i2c-mxs.c               |  8 +++++---
+>  drivers/i2c/busses/i2c-omap.c              |  8 +++++---
+>  drivers/i2c/busses/i2c-pmcmsp.c            | 17 +----------------
+>  drivers/i2c/busses/i2c-qup.c               | 14 ++++++--------
+>  drivers/i2c/busses/i2c-rcar.c              | 13 ++++++-------
+>  drivers/i2c/busses/i2c-sh_mobile.c         | 10 +++++-----
+>  drivers/i2c/busses/i2c-stu300.c            | 12 ++++++------
+>  drivers/i2c/busses/i2c-tegra.c             |  4 +---
+>  drivers/i2c/busses/i2c-xlr.c               | 11 +++++------
+>  drivers/i2c/busses/i2c-zx2967.c            |  8 +++++---
+>  drivers/i2c/i2c-core-base.c                |  6 ++++++
+>  include/linux/i2c.h                        |  4 ++++
+>  13 files changed, 60 insertions(+), 67 deletions(-)
+>
+> --
 > 2.11.0
-> 
+>
+
+
 
 -- 
-Regards,
-Niklas Söderlund
+With Best Regards,
+Andy Shevchenko
