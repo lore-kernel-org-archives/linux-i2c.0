@@ -1,13 +1,13 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 06/12] i2c: qup: use core to detect 'no zero length' quirk
-Date: Mon, 23 Jul 2018 22:26:10 +0200
-Message-ID: <20180723202617.15230-7-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 04/12] i2c: omap: use core to detect 'no zero length' quirk
+Date: Mon, 23 Jul 2018 22:26:08 +0200
+Message-ID: <20180723202617.15230-5-wsa+renesas@sang-engineering.com>
 References: <20180723202617.15230-1-wsa+renesas@sang-engineering.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180723202617.15230-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Tony Lindgren <tony@atomide.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 And don't reimplement in the driver.
@@ -17,57 +17,41 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Only build tested.
 
- drivers/i2c/busses/i2c-qup.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-omap.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index c86c3ae1318f..e09cd0775ae9 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -1088,11 +1088,6 @@ static int qup_i2c_xfer(struct i2c_adapter *adap,
- 	writel(I2C_MINI_CORE | I2C_N_VAL, qup->base + QUP_CONFIG);
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 65d06a819307..b1086bfb0465 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -661,9 +661,6 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+ 	dev_dbg(omap->dev, "addr: 0x%04x, len: %d, flags: 0x%x, stop: %d\n",
+ 		msg->addr, msg->len, msg->flags, stop);
  
- 	for (idx = 0; idx < num; idx++) {
--		if (msgs[idx].len == 0) {
--			ret = -EINVAL;
--			goto out;
--		}
+-	if (msg->len == 0)
+-		return -EINVAL;
 -
- 		if (qup_i2c_poll_state_i2c_master(qup)) {
- 			ret = -EIO;
- 			goto out;
-@@ -1520,9 +1515,6 @@ qup_i2c_determine_mode_v2(struct qup_i2c_dev *qup,
+ 	omap->receiver = !!(msg->flags & I2C_M_RD);
+ 	omap_i2c_resize_fifo(omap, msg->len, omap->receiver);
  
- 	/* All i2c_msgs should be transferred using either dma or cpu */
- 	for (idx = 0; idx < num; idx++) {
--		if (msgs[idx].len == 0)
--			return -EINVAL;
--
- 		if (msgs[idx].flags & I2C_M_RD)
- 			max_rx_len = max_t(unsigned int, max_rx_len,
- 					   msgs[idx].len);
-@@ -1636,9 +1628,14 @@ static const struct i2c_algorithm qup_i2c_algo_v2 = {
-  * which limits the possible read to 256 (QUP_READ_LIMIT) bytes.
-  */
- static const struct i2c_adapter_quirks qup_i2c_quirks = {
-+	.flags = I2C_AQ_NO_ZERO_LEN,
- 	.max_read_len = QUP_READ_LIMIT,
+@@ -1179,6 +1176,10 @@ static const struct i2c_algorithm omap_i2c_algo = {
+ 	.functionality	= omap_i2c_func,
  };
  
-+static const struct i2c_adapter_quirks qup_i2c_quirks_v2 = {
++static const struct i2c_adapter_quirks omap_i2c_quirks = {
 +	.flags = I2C_AQ_NO_ZERO_LEN,
 +};
 +
- static void qup_i2c_enable_clocks(struct qup_i2c_dev *qup)
- {
- 	clk_prepare_enable(qup->clk);
-@@ -1701,6 +1698,7 @@ static int qup_i2c_probe(struct platform_device *pdev)
- 		is_qup_v1 = true;
- 	} else {
- 		qup->adap.algo = &qup_i2c_algo_v2;
-+		qup->adap.quirks = &qup_i2c_quirks_v2;
- 		is_qup_v1 = false;
- 		if (acpi_match_device(qup_i2c_acpi_match, qup->dev))
- 			goto nodma;
+ #ifdef CONFIG_OF
+ static struct omap_i2c_bus_platform_data omap2420_pdata = {
+ 	.rev = OMAP_I2C_IP_VERSION_1,
+@@ -1453,6 +1454,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	adap->class = I2C_CLASS_DEPRECATED;
+ 	strlcpy(adap->name, "OMAP I2C adapter", sizeof(adap->name));
+ 	adap->algo = &omap_i2c_algo;
++	adap->quirks = &omap_i2c_quirks;
+ 	adap->dev.parent = &pdev->dev;
+ 	adap->dev.of_node = pdev->dev.of_node;
+ 	adap->bus_recovery_info = &omap_i2c_bus_recovery_info;
 -- 
 2.11.0
