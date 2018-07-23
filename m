@@ -1,35 +1,49 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: [PATCH i2c-next] i2c: aspeed: Add an implicit type casting for *get_clk_reg_val
-Date: Mon, 23 Jul 2018 09:26:03 -0700
-Message-ID: <20180723162603.3703-1-jae.hyun.yoo@linux.intel.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH -next v4 1/3] regmap: add SCCB support
+Date: Mon, 23 Jul 2018 18:02:58 +0100
+Message-ID: <20180723170258.GE13981@sirena.org.uk>
+References: <1531756070-8560-1-git-send-email-akinobu.mita@gmail.com>
+ <1531756070-8560-2-git-send-email-akinobu.mita@gmail.com>
+ <20180718152832.ylu6rlcsaom2q4xm@ninjato>
+ <20180718153140.GP5700@sirena.org.uk>
+ <20180720215344.6it2k5wckxvwx25p@ninjato>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="llIrKcgUOe3dCx0c"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180720215344.6it2k5wckxvwx25p@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>
-Cc: linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Akinobu Mita <akinobu.mita@gmail.com>, linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Sebastian Reichel <sebastian.reichel@collabora.co.uk>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Jacopo Mondi <jacopo+renesas@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Hans Verkuil <hans.verkuil@cisco.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Mauro Carvalho Chehab <mchehab@s-opensource.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This commit fixes this sparse warning:
-drivers/i2c/busses/i2c-aspeed.c:875:38: warning: incorrect type in assignment (different modifiers)
-drivers/i2c/busses/i2c-aspeed.c:875:38:    expected unsigned int ( *get_clk_reg_val )( ... )
-drivers/i2c/busses/i2c-aspeed.c:875:38:    got void const *const data
 
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
----
- drivers/i2c/busses/i2c-aspeed.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+--llIrKcgUOe3dCx0c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index efb89422d496..a4f956c6d567 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -872,7 +872,7 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
- 	if (!match)
- 		bus->get_clk_reg_val = aspeed_i2c_24xx_get_clk_reg_val;
- 	else
--		bus->get_clk_reg_val = match->data;
-+		bus->get_clk_reg_val = (u32 (*)(u32))match->data;
- 
- 	/* Initialize the I2C adapter */
- 	spin_lock_init(&bus->lock);
--- 
-2.18.0
+On Fri, Jul 20, 2018 at 11:53:44PM +0200, Wolfram Sang wrote:
+
+> Here is it:
+
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/smbus_xfer_unlock-immutable
+
+Thanks, pulled in now.
+
+--llIrKcgUOe3dCx0c
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAltWCkEACgkQJNaLcl1U
+h9CUSwf/ff7c4xQ3H5UVhWpnejDy6b/lHNNiaXrNY25CTtpjuxEX1WndcpmFYvpg
+/T15gDyN+Dny+vgyXQKGsUvMjnVkq2JUFt7IgS9o+fuBjEWHsBI0tQtNeUrom1Zq
+NmpTd4vo2+bl+8B5W/JvRsdQgwYStObWTIYQ0kE0NKoLvsEGnXgNbN2ODw6ULxPP
+/CCRjd6WWgfdqgePs35YzX28Fk3gCiSG72/XcVBqfi9L8OZGCqe80wjwkZWDYKm8
+8NczvX0NjWBaDbze7X6EzDHJtLhuB8UNzRlB2B81uharBAe+xKQidKpg4iq01/9o
+6VESvzgunrriKHiMaX949CE8fGAWEg==
+=NakS
+-----END PGP SIGNATURE-----
+
+--llIrKcgUOe3dCx0c--
