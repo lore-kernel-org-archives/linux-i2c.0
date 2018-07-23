@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 12/12] i2c: sh_mobile: use core to detect 'no zero length read' quirk
-Date: Mon, 23 Jul 2018 22:26:16 +0200
-Message-ID: <20180723202617.15230-13-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 10/12] i2c: rcar: use core to detect 'no zero length' quirk
+Date: Mon, 23 Jul 2018 22:26:14 +0200
+Message-ID: <20180723202617.15230-11-wsa+renesas@sang-engineering.com>
 References: <20180723202617.15230-1-wsa+renesas@sang-engineering.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180723202617.15230-1-wsa+renesas@sang-engineering.com>
@@ -15,43 +15,47 @@ And don't reimplement in the driver.
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
 
- drivers/i2c/busses/i2c-sh_mobile.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index 5fda4188a9e5..9c7f6f8ceb22 100644
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -613,11 +613,6 @@ static void sh_mobile_i2c_xfer_dma(struct sh_mobile_i2c_data *pd)
- static int start_ch(struct sh_mobile_i2c_data *pd, struct i2c_msg *usr_msg,
- 		    bool do_init)
- {
--	if (usr_msg->len == 0 && (usr_msg->flags & I2C_M_RD)) {
--		dev_err(pd->dev, "Unsupported zero length i2c read\n");
--		return -EOPNOTSUPP;
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 2688520110d1..791a4aa34fdd 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -796,14 +796,8 @@ static int rcar_i2c_master_xfer(struct i2c_adapter *adap,
+ 	if (ret < 0)
+ 		goto out;
+ 
+-	for (i = 0; i < num; i++) {
+-		/* This HW can't send STOP after address phase */
+-		if (msgs[i].len == 0) {
+-			ret = -EOPNOTSUPP;
+-			goto out;
+-		}
++	for (i = 0; i < num; i++)
+ 		rcar_i2c_request_dma(priv, msgs + i);
 -	}
--
- 	if (do_init) {
- 		/* Initialize channel registers */
- 		iic_wr(pd, ICCR, ICCR_SCP);
-@@ -758,6 +753,10 @@ static const struct i2c_algorithm sh_mobile_i2c_algorithm = {
- 	.master_xfer	= sh_mobile_i2c_xfer,
+ 
+ 	/* init first message */
+ 	priv->msg = msgs;
+@@ -890,6 +884,10 @@ static const struct i2c_algorithm rcar_i2c_algo = {
+ 	.unreg_slave	= rcar_unreg_slave,
  };
  
-+static const struct i2c_adapter_quirks sh_mobile_i2c_quirks = {
-+	.flags = I2C_AQ_NO_ZERO_LEN_READ,
++static const struct i2c_adapter_quirks rcar_i2c_quirks = {
++	.flags = I2C_AQ_NO_ZERO_LEN,
 +};
 +
- /*
-  * r8a7740 chip has lasting errata on I2C I/O pad reset.
-  * this is work-around for it.
-@@ -925,6 +924,7 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ static const struct of_device_id rcar_i2c_dt_ids[] = {
+ 	{ .compatible = "renesas,i2c-r8a7778", .data = (void *)I2C_RCAR_GEN1 },
+ 	{ .compatible = "renesas,i2c-r8a7779", .data = (void *)I2C_RCAR_GEN1 },
+@@ -943,6 +941,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	adap->dev.parent = dev;
+ 	adap->dev.of_node = dev->of_node;
+ 	adap->bus_recovery_info = &rcar_i2c_bri;
++	adap->quirks = &rcar_i2c_quirks;
+ 	i2c_set_adapdata(adap, priv);
+ 	strlcpy(adap->name, pdev->name, sizeof(adap->name));
  
- 	adap->owner = THIS_MODULE;
- 	adap->algo = &sh_mobile_i2c_algorithm;
-+	adap->quirks = &sh_mobile_i2c_quirks;
- 	adap->dev.parent = &dev->dev;
- 	adap->retries = 5;
- 	adap->nr = dev->id;
 -- 
 2.11.0
