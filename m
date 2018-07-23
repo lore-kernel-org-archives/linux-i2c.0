@@ -1,43 +1,35 @@
-From: Sakari Ailus <sakari.ailus@iki.fi>
-Subject: Re: [PATCH -next v4 2/3] media: ov772x: use SCCB regmap
-Date: Mon, 23 Jul 2018 18:13:02 +0300
-Message-ID: <20180723151302.7uhfsm7fyrlq62qq@valkosipuli.retiisi.org.uk>
-References: <1531756070-8560-1-git-send-email-akinobu.mita@gmail.com>
- <1531756070-8560-3-git-send-email-akinobu.mita@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Subject: [PATCH i2c-next] i2c: aspeed: Add an implicit type casting for *get_clk_reg_val
+Date: Mon, 23 Jul 2018 09:26:03 -0700
+Message-ID: <20180723162603.3703-1-jae.hyun.yoo@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1531756070-8560-3-git-send-email-akinobu.mita@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@kernel.org>, Peter Rosin <peda@axentia.se>, Sebastian Reichel <sebastian.reichel@collabora.co.uk>, Wolfram Sang <wsa@the-dreams.de>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Jacopo Mondi <jacopo+renesas@jmondi.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Hans Verkuil <hans.verkuil@cisco.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Mauro Carvalho Chehab <mchehab@s-opensource.com>
+To: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>
+Cc: linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Mita-san,
+This commit fixes this sparse warning:
+drivers/i2c/busses/i2c-aspeed.c:875:38: warning: incorrect type in assignment (different modifiers)
+drivers/i2c/busses/i2c-aspeed.c:875:38:    expected unsigned int ( *get_clk_reg_val )( ... )
+drivers/i2c/busses/i2c-aspeed.c:875:38:    got void const *const data
 
-On Tue, Jul 17, 2018 at 12:47:49AM +0900, Akinobu Mita wrote:
-> Convert ov772x register access to use SCCB regmap.
-> 
-> Cc: Mark Brown <broonie@kernel.org>
-> Cc: Peter Rosin <peda@axentia.se>
-> Cc: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
-> Cc: Jacopo Mondi <jacopo+renesas@jmondi.org>
-> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> Cc: Hans Verkuil <hans.verkuil@cisco.com>
-> Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
-> Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-> ---
->  drivers/media/i2c/Kconfig  |   1 +
->  drivers/media/i2c/ov772x.c | 192 +++++++++++++++++++--------------------------
->  2 files changed, 82 insertions(+), 111 deletions(-)
+Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-aspeed.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I'll pick the two patches up when the SCCB regmap support has reached media
-tree master. Thanks.
-
+diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+index efb89422d496..a4f956c6d567 100644
+--- a/drivers/i2c/busses/i2c-aspeed.c
++++ b/drivers/i2c/busses/i2c-aspeed.c
+@@ -872,7 +872,7 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
+ 	if (!match)
+ 		bus->get_clk_reg_val = aspeed_i2c_24xx_get_clk_reg_val;
+ 	else
+-		bus->get_clk_reg_val = match->data;
++		bus->get_clk_reg_val = (u32 (*)(u32))match->data;
+ 
+ 	/* Initialize the I2C adapter */
+ 	spin_lock_init(&bus->lock);
 -- 
-Sakari Ailus
-e-mail: sakari.ailus@iki.fi
+2.18.0
