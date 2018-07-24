@@ -1,64 +1,82 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH/RFT 2/6] i2c: imx: use open drain for recovery GPIO
-Date: Tue, 24 Jul 2018 09:28:00 +0200
-Message-ID: <20180724072759.iirtq7qhydn4ep34@ninjato>
-References: <20180713210920.3648-1-wsa+renesas@sang-engineering.com>
- <20180713210920.3648-3-wsa+renesas@sang-engineering.com>
- <1532350048.3163.101.camel@pengutronix.de>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v2 2/4] i2c: imx: Fix race condition in dma read
+Date: Tue, 24 Jul 2018 09:57:07 +0200
+Message-ID: <20180724075707.7wrqltjj54gjrl4y@pengutronix.de>
+References: <20180709094304.8814-1-esben.haabendal@gmail.com>
+ <20180709094304.8814-3-esben.haabendal@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="skzrjsklhy4e4dwq"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1532350048.3163.101.camel@pengutronix.de>
+In-Reply-To: <20180709094304.8814-3-esben.haabendal@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lucas Stach <l.stach@pengutronix.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@pengutronix.de
+To: Esben Haabendal <esben.haabendal@gmail.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Yuan Yao <yao.yuan@freescale.com>, Esben Haabendal <eha@deif.com>, Fabio Estevam <fabio.estevam@nxp.com>, Lucas Stach <l.stach@pengutronix.de>, Phil Reid <preid@electromag.com.au>, Clemens Gruber <clemens.gruber@pqgruber.com>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Jul 09, 2018 at 11:43:02AM +0200, Esben Haabendal wrote:
+> From: Esben Haabendal <eha@deif.com>
+> 
+> This fixes a race condition, where the DMAEN bit ends up being set after
+> I2C slave has transmitted a byte following the dummy read.  When that
+> happens, an interrupt is generated instead, and no DMA request is generated
+> to kickstart the DMA read, and a timeout happens after DMA_TIMEOUT (1 sec).
+> 
+> Fixed by setting the DMAEN bit before the dummy read.
+> 
+> Signed-off-by: Esben Haabendal <eha@deif.com>
+> ---
+>  drivers/i2c/busses/i2c-imx.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 39cfd98c7b23..d86f152176a4 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -668,9 +668,6 @@ static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
+>  	struct imx_i2c_dma *dma = i2c_imx->dma;
+>  	struct device *dev = &i2c_imx->adapter.dev;
+>  
+> -	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> -	temp |= I2CR_DMAEN;
+> -	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+>  
+>  	dma->chan_using = dma->chan_rx;
+>  	dma->dma_transfer_dir = DMA_DEV_TO_MEM;
+> @@ -810,6 +807,11 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs, bo
+>  	if ((msgs->len - 1) || block_data)
+>  		temp &= ~I2CR_TXAK;
+>  	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> +	if (i2c_imx->dma && msgs->len >= DMA_THRESHOLD && !block_data) {
+> +		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> +		temp |= I2CR_DMAEN;
+> +		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> +	}
 
---skzrjsklhy4e4dwq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Does this need to be a separate write to the I2CR register? Just before
+the if there is temp written to this register, so probably this can be
+changed to just:
 
-Hi Lucas,
+	if (i2c_imx->dma && msgs->len >= DMA_THRESHOLD && !block_data)
+		temp |= I2CR_DMAEN;
 
-> I don't think this matters on any of the i.MX platforms, as the GPIO
-> pin configuration (including open-drain) is only taken from the DT
-> pinctrl, with the GPIO driver not being able to change any of those. On
->  the flipside this results in a near zero probability of regressions.
-> ;)
+when moved before up one line.
 
-I see. Thanks for the heads up.
+I don't find documentation for the LS processors where this
+register is described though (and the imx family doesn't seem to support
+DMA for i2c).
 
-> As this is obviously right even if it doesn't have any effect on
-> current software:
->=20
-> Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Other than that this looks reasonable and warrants a
 
-Thanks. Yeah, let's fix it. It might serve as an example for other
-people.
+	Fixes: ce1a78840ff7 ("i2c: imx: add DMA support for freescale i2c driver")
 
+.
 
---skzrjsklhy4e4dwq
-Content-Type: application/pgp-signature; name="signature.asc"
+Best regards
+Uwe
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltW1P8ACgkQFA3kzBSg
-KbYdPhAAppSjM0SiZ8UDMEQHF9emyutkO1hSHCJ4vhBCqrOES9NpXTBRT3fmVwsl
-Sw6D1VwDETyIFIj4LNyZwBc//lLednhElmgPygr3TQoSjdNnoKlvoZ2+pwSDfFam
-Fulr2dfaNv/rlG+pin+ROGZN4SM2FHIPBUIflqK3xt8nkhNWCFVfVyseQBvTF60N
-RswcuVF/kke3ilsjnEONyZ3HzaL7XXFk5A0kjX7GRBbhYOqXoZbIpgxSU8IQ4Syw
-8kItgDn9DnrtnWjLg/HZsFD8FENPkXqMcei5fVnRZgDSzKHXn3wraZNe9adAjCHG
-CjuoKuCjLjSVrY35tb9lNWa8NYhEOPE8Avn922nlgS7kGn6ACX/vQUDbRPQxic9i
-C20/mTvh6IfhQpoyAsxAeqIMlxdX5n9IA+R0v8e/Az9Y/dTo6Pwl0YVeyPNmrbCd
-X28csVWqYu3tJ7Quizg/c6DeYl40G0RQgvQymtINNjEBnqK8nKAqu3KDqA8GLFe7
-R+RiDeN7Pf0mUVkUj0kZMcpyXwkBdzM6UvPnVaxTNbJQZMwk+Kx624VHWRyqJEON
-HQsMblFcFhmmNkXfeJdI7EiqkURq5TGgYh7vK7NOTevPuwYIewOhFzKVQzyaqQ9o
-Qgk3NTHfBA0gI1q72iRCVcQS4RB1pWFB7N+mDIKaeImzieMh+1M=
-=Msjr
------END PGP SIGNATURE-----
-
---skzrjsklhy4e4dwq--
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
