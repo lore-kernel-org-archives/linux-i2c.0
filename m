@@ -1,37 +1,65 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [RESEND PATCH v4 1/2] dt-bindings: at24: Add address-width property
-Date: Tue, 24 Jul 2018 16:10:29 +0200
-Message-ID: <CAMRc=Md_A3_aiuOwCiBKPyBBZ8EtOxfVyttWp7uH2Em_DRWmDg@mail.gmail.com>
-References: <1530522740-2798-1-git-send-email-alanx.chiang@intel.com>
- <1530522740-2798-2-git-send-email-alanx.chiang@intel.com> <20180705212204.GA10449@rob-hp-laptop>
- <alpine.LFD.2.21.1807051623400.12206@localhost.localdomain>
- <0772C36F3434E145A062D024A4869A09010B1E4D@PGSMSX101.gar.corp.intel.com>
- <CAMRc=Mc4s6tJw6dAHYCPQdsPox9V8sBTqY3LHi5XMWALwOZdyA@mail.gmail.com>
- <CAMRc=MfNa0OwMbJ6ibbCJJD0pV9tKtyTZ3cQi34ra5oc_-5jYw@mail.gmail.com> <20180724110712.2f26evp3kdbnhyhd@paasikivi.fi.intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v6 00/10] Add the I3C subsystem
+Date: Tue, 24 Jul 2018 16:14:36 +0200
+Message-ID: <CAK8P3a0+8a9LCyW2WX6gO2Pi3GJa_ofznC07LMHjWmxZ4HaX7Q@mail.gmail.com>
+References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
+ <CAK8P3a2MP5+oFz--e+BM24D8Ahw7H_RKgN1S6wY1nQE6JL0dmw@mail.gmail.com>
+ <2ab0ab75-2df0-2714-f007-c33b25481016@axentia.se> <20180720101206.tv7nsoanwo5ftnia@ninjato>
+ <CAK8P3a2Pqo5DuYBb09+w4nGWGOw+e_tZPxnA06qjNO_6Hw6NvQ@mail.gmail.com>
+ <21b269c5-a3a7-c5de-c81e-c9c9301ae13e@axentia.se> <CAK8P3a1t2fhdw7HwxNkOs9o2pBECZ0ZdOysA=r2SPTWEvx76kw@mail.gmail.com>
+ <a74a7472-e900-d031-d10b-b12f03ea9ff1@axentia.se> <20180720154132.2fwmwpiwtxa73ljf@ninjato>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180724110712.2f26evp3kdbnhyhd@paasikivi.fi.intel.com>
+In-Reply-To: <20180720154132.2fwmwpiwtxa73ljf@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "sakari.ailus@linux.intel.com" <sakari.ailus@linux.intel.com>
-Cc: "Chiang, AlanX" <alanx.chiang@intel.com>, "Robert P. J. Day" <rpjday@crashcourse.ca>, Rob Herring <robh@kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Yeh, Andy" <andy.yeh@intel.com>, "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>, "Shevchenko, Andriy" <andriy.shevchenko@intel.com>, "Mani, Rajmohan" <rajmohan.mani@intel.com>, "andy.shevchenko@gmail.com" <andy.shevchenko@gmail.com>, "tfiga@chromium.org" <tfiga@chromium.org>, "jcliang@chromium.org" <jcliang@chromium.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "arnd@arndb.de" <arnd@arndb.de>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Peter Rosin <peda@axentia.se>, Boris Brezillon <boris.brezillon@bootlin.com>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.c>
 List-Id: linux-i2c@vger.kernel.org
 
-2018-07-24 13:07 GMT+02:00 sakari.ailus@linux.intel.com
-<sakari.ailus@linux.intel.com>:
-> On Tue, Jul 17, 2018 at 10:01:17AM +0200, Bartosz Golaszewski wrote:
->> I will soon be sending my pull request to Wolfram, so if you still
->> want that applied for 4.19 - please resend with the commit message
->> fixed.
+On Fri, Jul 20, 2018 at 5:41 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
 >
-> Alan?
+>> I don't have an actual example for I2C, maybe Wolfram does? But I can
+>> invent a case. E.g. the speedy DMA-enabled master cannot generate
+>> RESTART, which is a must for (re-)configuration, but not for passing
+>> data to the device.
 >
-> Not sure whether it's too late for 4.19 now though.
+> DMA capable controllers may also not react adequate to the slave doing
+> clock stretching (which is forbidden in I3C).
 >
-> --
-> Sakari Ailus
-> sakari.ailus@linux.intel.com
+> Renesas R-Car Gen2 has two I2C IP cores. One can do DMA and automatic
+> transfers to the PMIC, the other has I2C slave functionality. One cannot
+> do I2C_SMBUS_QUICK, the other can. And some more kind of quirks.
+> Sometimes you can mux the pins to GPIO, so you have a third option.
+>
+> This setup is the reason the demux driver exists.
 
-I may still be ok until tomorrow if Alan resend it.
+Have you run into scenarios where you dynamically switch between
+the two masters in order to do different things (on one slave, or
+on multiple slaves), or could you always decide on one of them
+at boot time with that particular chip?
 
-Bart
+>> Also consider some future HW that has several I3C blocks, but they
+>> are not identical. There's one beefy kind and one slim kind (I'm sure
+>> you can find HW with different flavors of I2C blocks). Even if the
+>> HW designers intended for one type of block to be superior in every
+>> aspect, they might have made a mistake? This HW also has a pinmux, so
+>> the SW is free to route different I3C blocks to the actual I3C bus.
+>
+> So, basically this is what happened with R-Car. Now, I tend to think
+> that I3C is much more complex and noone would put two I3C IP cores into
+> on SoC. But it was not too long ago that I wouldn't believe someone put
+> two different I2C IP cores into a SoC. Then again, it happened when I2C
+> was around for 35 years...
+
+I think an SoC design we will likely see is an i3c master multiplexed with
+an i2c master to access one bus. The i2c master can then use clock
+stretching and other things that may not work in the i3c master, and it
+may be used in the absence of proper i3c drivers in the OS.
+
+However, that case cannot be handled with the abstraction in the
+proposed i3c framework, which can only deal with multiple i3c
+standard compliant masters. I'm also not sure if it can be added
+to the i2c-demux-pinctrl driver.
+
+        Arnd
