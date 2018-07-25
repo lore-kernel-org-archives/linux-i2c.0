@@ -1,73 +1,55 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: Re: [PATCH/RFT 1/6] i2c: designware: use open drain for recovery GPIO
-Date: Wed, 25 Jul 2018 11:26:29 +0800
-Message-ID: <4163910a-f37b-5987-ecc2-074cebda753b@electromag.com.au>
-References: <20180713210920.3648-1-wsa+renesas@sang-engineering.com>
- <20180713210920.3648-2-wsa+renesas@sang-engineering.com>
- <daaf702b-642f-e0fd-6a2e-7f0f817efba3@electromag.com.au>
- <20180717090920.zy6lkeqlcewhrfs5@ninjato>
- <b8d7c7aa-dbde-3037-4a1b-691bcf045131@electromag.com.au>
- <20180724072637.smhlrx4kpyh6hvwa@ninjato>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [RESEND PATCH v4 1/2] dt-bindings: at24: Add address-width property
+Date: Wed, 25 Jul 2018 09:35:30 +0200
+Message-ID: <CAMRc=MdHAU8Y==hhhV6L7o1-J9LfTUZrDMYCLm+rASpagFMNmQ@mail.gmail.com>
+References: <1532488822-5622-1-git-send-email-alanx.chiang@intel.com> <1532488822-5622-2-git-send-email-alanx.chiang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180724072637.smhlrx4kpyh6hvwa@ninjato>
-Content-Language: en-AU
+In-Reply-To: <1532488822-5622-2-git-send-email-alanx.chiang@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, kernel@pengutronix.de, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-kernel@vger.kernel.org
+To: "Chiang, AlanX" <alanx.chiang@intel.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, "Yeh, Andy" <andy.yeh@intel.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, "Shevchenko, Andriy" <andriy.shevchenko@intel.com>, Rajmohan Mani <rajmohan.mani@intel.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, tfiga@chromium.org, jcliang@chromium.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, "Robert P. J. Day" <rpjday@crashcourse.ca>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 24/07/2018 15:26, Wolfram Sang wrote:
-> Hi Phil,
-> 
->>> So, it is not possible to read SCL status then? Hmm, currently a working
->>> get_scl is required...
-> ...
->>> Well, I don't know much about this IP core and how/where it is used. I
->>> just wonder what happens if another user comes along using an
->>> open-drain GPIO. Is that possible?
->>>
->>> I assume it is the same with SDA? Non open-drain? Output only?
->>>
->>
->> Just had a closer look at how it's setup here.
->> Maybe the following helps.
-> 
-> Thanks for the detailed explanation. I am just afraid it is a litle too
-> detailed for me. I am not sure if I can read it correctly:
-> 
-> When you read the SCL/SDA GPIO, does it return the true state of the
-> SCL/SDA line or does it just reflect the value it was set to output?
-Yes it returns the true state of the output pin.
-I admit it's a bit odd from the classic GPIO point of view.
+2018-07-25 5:20 GMT+02:00  <alanx.chiang@intel.com>:
+> From: Alan Chiang <alanx.chiang@intel.com>
+>
+> Currently the only way to use a variant of a supported model with
+> a different address with a different address width is to define a
 
-> 
->> There's no concept of HiZ internally in the FPGA.
-> 
-> Which probably means SDA is to be treated the same as SCL -> push/pull.
-Yes. They're both driven push/pull, but the try state of the line is available.
+There's some copy-paste problem here. I fixed it.
 
-> 
->> If there was some kinda of OpenDrain gpio driver that modelled a FET
->> driven by a push pull GPIO I guess it could be made to work.
-> 
-> Still, that sounds quite unlikely to me, so we can for now assume that
-> all designware users will have push/pull?
-I know of one other doing the same thing with the core in the Altera SocFPGA platform.
-As they put me on to this solution for doing the recovery when the i2c was routed thru the SOC's fpga.
+> new compatible string and the corresponding chip data structure.
+>
+> Provide a flexible way to specify the size of the address pointer
+> by defining a new property: address-width.
+>
+> Signed-off-by: Alan Chiang <alanx.chiang@intel.com>
+> Signed-off-by: Andy Yeh <andy.yeh@intel.com>
+> Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+> Reviewed-by: Rob Herring <robh@kernel.org>
+> ---
+>  Documentation/devicetree/bindings/eeprom/at24.txt | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/Documentation/devicetree/bindings/eeprom/at24.txt b/Documentation/devicetree/bindings/eeprom/at24.txt
+> index 61d833a..aededdb 100644
+> --- a/Documentation/devicetree/bindings/eeprom/at24.txt
+> +++ b/Documentation/devicetree/bindings/eeprom/at24.txt
+> @@ -72,6 +72,8 @@ Optional properties:
+>
+>    - wp-gpios: GPIO to which the write-protect pin of the chip is connected.
+>
+> +  - address-width: number of address bits (one of 8, 16).
+> +
+>  Example:
+>
+>  eeprom@52 {
+> --
+> 2.7.4
+>
 
-In other hard configurations they may have a 'proper' GPIO available that needs to be OpenDrain.
+Applied both to for-next.
 
-
-
-> 
-> Disclaimer: I have zero experience with this core, I don't know how hard
-> it is to modify or which versions are out there.
-> 
-
-
--- 
-Regards
-Phil Reid
+Bart
