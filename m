@@ -1,38 +1,28 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: [PATCH i2c-next v2] i2c: aspeed: Add an explicit type casting for *get_clk_reg_val
-Date: Tue, 24 Jul 2018 13:36:15 -0700
-Message-ID: <20180724203615.5770-1-jae.hyun.yoo@linux.intel.com>
+From: alanx.chiang@intel.com
+Subject: [RESEND PATCH v4 0/2] Add aproperty in at24.c
+Date: Wed, 25 Jul 2018 11:20:20 +0800
+Message-ID: <1532488822-5622-1-git-send-email-alanx.chiang@intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+To: linux-i2c@vger.kernel.org
+Cc: andy.yeh@intel.com, sakari.ailus@linux.intel.com, andriy.shevchenko@linux.intel.com, andriy.shevchenko@intel.com, rajmohan.mani@intel.com, andy.shevchenko@gmail.com, tfiga@chromium.org, jcliang@chromium.org, brgl@bgdev.pl, robh+dt@kernel.org, mark.rutland@arm.com, arnd@arndb.de, rpjday@crashcourse.ca, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Alan Chiang <alanx.chiang@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This commit fixes this sparse warning:
-drivers/i2c/busses/i2c-aspeed.c:875:38: warning: incorrect type in assignment (different modifiers)
-drivers/i2c/busses/i2c-aspeed.c:875:38:    expected unsigned int ( *get_clk_reg_val )( ... )
-drivers/i2c/busses/i2c-aspeed.c:875:38:    got void const *const data
+From: Alan Chiang <alanx.chiang@intel.com>
 
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
----
-Changes since v1:
-- Fixed title and added Reported-by tag.
+The RESEND PATCH modifies the commit message and adds the Reviewed-by.
 
- drivers/i2c/busses/i2c-aspeed.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+In at24.c, it uses 8-bit addressing by default. In this patch add a
+property address-width that provides a flexible method to pass the
+information to the driver.
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index efb89422d496..a4f956c6d567 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -872,7 +872,7 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
- 	if (!match)
- 		bus->get_clk_reg_val = aspeed_i2c_24xx_get_clk_reg_val;
- 	else
--		bus->get_clk_reg_val = match->data;
-+		bus->get_clk_reg_val = (u32 (*)(u32))match->data;
- 
- 	/* Initialize the I2C adapter */
- 	spin_lock_init(&bus->lock);
+Alan Chiang (2):
+  dt-bindings: at24: Add address-width property
+  eeprom: at24: Add support for address-width property
+
+ Documentation/devicetree/bindings/eeprom/at24.txt |  2 ++
+ drivers/misc/eeprom/at24.c                        | 17 +++++++++++++++++
+ 2 files changed, 19 insertions(+)
+
 -- 
-2.18.0
+2.7.4
