@@ -1,40 +1,35 @@
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH v7 6/6] MAINTAINERS: Add entry for Actions Semiconductor Owl I2C driver
-Date: Thu, 26 Jul 2018 21:16:03 +0530
-Message-ID: <20180726154603.5089-7-manivannan.sadhasivam@linaro.org>
-References: <20180726154603.5089-1-manivannan.sadhasivam@linaro.org>
+From: Derek Basehore <dbasehore@chromium.org>
+Subject: [PATCH] i2c: enable async suspend/resume on i2c devices
+Date: Thu, 26 Jul 2018 15:55:08 -0700
+Message-ID: <20180726225508.74612-1-dbasehore@chromium.org>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180726154603.5089-1-manivannan.sadhasivam@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, robh+dt@kernel.org, afaerber@suse.de
-Cc: linus.walleij@linaro.org, linux-i2c@vger.kernel.org, liuwei@actions-semi.com, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree@vger.kernel.org, andy.shevchenko@gmail.com, daniel.thompson@linaro.org, amit.kucheria@linaro.org, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, hzhang@ucrobotics.com, bdong@ucrobotics.com, manivannanece23@gmail.com, thomas.liau@actions-semi.com, jeff.chen@actions-semi.com, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To: linux-kernel@vger.kernel.org
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, dianders@chromium.org, dtor@chromium.org, venkateswarlu.v.vinjamuri@intel.corp-partner.google.com, Derek Basehore <dbasehore@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add entry for Actions Semiconductor Owl I2C driver under ARM/ACTIONS
+This enables the async suspend property for i2c devices. This reduces
+the suspend/resume time considerably on platforms with multiple i2c
+devices (such as a trackpad or touchscreen).
 
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Derek Basehore <dbasehore@chromium.org>
 ---
- MAINTAINERS | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/i2c-core-base.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 09b54e9ebc6f..5084c62712fa 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1145,12 +1145,14 @@ F:	arch/arm/boot/dts/owl-*
- F:	arch/arm64/boot/dts/actions/
- F:	drivers/clk/actions/
- F:	drivers/clocksource/owl-*
-+F:	drivers/i2c/busses/i2c-owl.c
- F:	drivers/pinctrl/actions/*
- F:	drivers/soc/actions/
- F:	include/dt-bindings/power/owl-*
- F:	include/linux/soc/actions/
- F:	Documentation/devicetree/bindings/arm/actions.txt
- F:	Documentation/devicetree/bindings/clock/actions,s900-cmu.txt
-+F:	Documentation/devicetree/bindings/i2c/i2c-owl.txt
- F:	Documentation/devicetree/bindings/pinctrl/actions,s900-pinctrl.txt
- F:	Documentation/devicetree/bindings/power/actions,owl-sps.txt
- F:	Documentation/devicetree/bindings/timer/actions,owl-timer.txt
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 1ba40bb2b966..3382bb7e1dcc 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -749,6 +749,7 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+ 	client->dev.of_node = info->of_node;
+ 	client->dev.fwnode = info->fwnode;
+ 
++	device_enable_async_suspend(&client->dev);
+ 	i2c_dev_set_name(adap, client, info);
+ 
+ 	if (info->properties) {
 -- 
-2.17.1
+2.18.0.345.g5c9ce644c3-goog
