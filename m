@@ -1,35 +1,29 @@
-From: Derek Basehore <dbasehore@chromium.org>
-Subject: [PATCH] i2c: enable async suspend/resume on i2c devices
-Date: Thu, 26 Jul 2018 15:55:08 -0700
-Message-ID: <20180726225508.74612-1-dbasehore@chromium.org>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH] i2c: enable async suspend/resume on i2c devices
+Date: Fri, 27 Jul 2018 13:44:56 +0300
+Message-ID: <CAHp75VfXXdzmp7M8rpcYTTKzwMT=QKt=_m7m7Bfp7uM4izMkrQ@mail.gmail.com>
+References: <20180726225508.74612-1-dbasehore@chromium.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180726225508.74612-1-dbasehore@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, dianders@chromium.org, dtor@chromium.org, venkateswarlu.v.vinjamuri@intel.corp-partner.google.com, Derek Basehore <dbasehore@chromium.org>
+To: Derek Basehore <dbasehore@chromium.org>, Hans de Goede <hdegoede@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Douglas Anderson <dianders@chromium.org>, Dmitry Torokhov <dtor@chromium.org>, venkateswarlu.v.vinjamuri@intel.corp-partner.google.com
 List-Id: linux-i2c@vger.kernel.org
 
-This enables the async suspend property for i2c devices. This reduces
-the suspend/resume time considerably on platforms with multiple i2c
-devices (such as a trackpad or touchscreen).
+On Fri, Jul 27, 2018 at 1:55 AM, Derek Basehore <dbasehore@chromium.org> wrote:
+> This enables the async suspend property for i2c devices. This reduces
+> the suspend/resume time considerably on platforms with multiple i2c
+> devices (such as a trackpad or touchscreen).
 
-Signed-off-by: Derek Basehore <dbasehore@chromium.org>
----
- drivers/i2c/i2c-core-base.c | 1 +
- 1 file changed, 1 insertion(+)
+How did you test this?
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 1ba40bb2b966..3382bb7e1dcc 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -749,6 +749,7 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
- 	client->dev.of_node = info->of_node;
- 	client->dev.fwnode = info->fwnode;
- 
-+	device_enable_async_suspend(&client->dev);
- 	i2c_dev_set_name(adap, client, info);
- 
- 	if (info->properties) {
+Especially on Chromebooks based on Intel Cherrytrail / Braswell
+platforms, they have a painful PMIC vs. OS design solution.
+
++Cc: Hans, who did a lot in this area.
+
 -- 
-2.18.0.345.g5c9ce644c3-goog
+With Best Regards,
+Andy Shevchenko
