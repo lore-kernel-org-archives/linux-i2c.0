@@ -1,71 +1,182 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v7 1/4] i2c: i2c-qcom-geni: Add bus driver for the
- Qualcomm GENI I2C controller
-Date: Sun, 29 Jul 2018 12:32:08 +0200
-Message-ID: <20180729103208.uyxp2feonvznmzsp@ninjato>
-References: <1528823348-30532-1-git-send-email-kramasub@codeaurora.org>
- <1528823348-30532-2-git-send-email-kramasub@codeaurora.org>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v1 2/2] i2c: npcm7xx: add i2c controller master mode only
+Date: Sun, 29 Jul 2018 14:27:21 +0300
+Message-ID: <CAHp75VdKhSbAj5c_41Xm1zWDnmTnaQjCMKXQ_7Lxfz03Ktft9A@mail.gmail.com>
+References: <20180729091449.385951-1-tali.perry1@gmail.com> <20180729091449.385951-3-tali.perry1@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ns6ol5ohpitnty2i"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1528823348-30532-2-git-send-email-kramasub@codeaurora.org>
+In-Reply-To: <20180729091449.385951-3-tali.perry1@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
-Cc: andy.gross@linaro.org, david.brown@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, gregkh@linuxfoundation.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, evgreen@chromium.org, acourbot@chromium.org, swboyd@chromium.org, dianders@chromium.org, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>
+To: Tali Perry <tali.perry1@gmail.com>
+Cc: Avi Fishman <avifishman70@gmail.com>, Tomer Maimon <tmaimon77@gmail.com>, venture@google.com, yuenn@google.com, brendanhiggins@google.com, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "David S. Miller" <davem@davemloft.net>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, pierre-yves.mordret@st.com, cedric.madianga@gmail.com, Baolin Wang <baolin.wang@spreadtrum.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>, rmk+kernel@armlinux.org.uk, Ard Biesheuvel <ard.biesheuvel@linaro.>
 List-Id: linux-i2c@vger.kernel.org
 
+On Sun, Jul 29, 2018 at 12:14 PM, Tali Perry <tali.perry1@gmail.com> wrote:
+> Nuvoton NPCM7XX I2C Controller
+> NPCM7xx includes 16 I2C contollers. THis driver operates the controller.
+> This module also includes a slave mode, which will be submitted later on.
+>
+> Any feedback would be appreciated.
 
---ns6ol5ohpitnty2i
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Too much lines of code as for I2C driver.
 
-On Tue, Jun 12, 2018 at 11:09:05AM -0600, Karthikeyan Ramasubramanian wrote:
-> This bus driver supports the GENI based i2c hardware controller in the
-> Qualcomm SOCs. The Qualcomm Generic Interface (GENI) is a programmable
-> module supporting a wide range of serial interfaces including I2C. The
-> driver supports FIFO mode and DMA mode of transfer and switches modes
-> dynamically depending on the size of the transfer.
->=20
-> Signed-off-by: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
-> Signed-off-by: Sagar Dharia <sdharia@codeaurora.org>
-> Signed-off-by: Girish Mahadevan <girishm@codeaurora.org>
-> Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Briefly looking it seems it doesn't utilize what kernel already has
+(e.g. crc8 already is in kernel library) and doesn't follow modern
+style of drivers there.
 
-Looks good except one minor thing:
-
-> +	pm_runtime_set_suspended(gi2c->se.dev);
-> +	pm_runtime_set_autosuspend_delay(gi2c->se.dev, I2C_AUTO_SUSPEND_DELAY);
-> +	pm_runtime_use_autosuspend(gi2c->se.dev);
-> +	pm_runtime_enable(gi2c->se.dev);
-> +	i2c_add_adapter(&gi2c->adap);
+> +#include <linux/kernel.h>
+> +#include <linux/clk.h>
+> +#include <linux/jiffies.h>
+> +#include <linux/completion.h>
+> +#include <linux/err.h>
+> +#include <linux/errno.h>
+> +#include <linux/i2c.h>
+> +#include <linux/init.h>
+> +#include <linux/delay.h>
 > +
-> +	return 0;
+> +#include <linux/interrupt.h>
+> +#include <linux/io.h>
+> +#include <linux/irq.h>
+> +#include <linux/irqchip/chained_irq.h>
+> +#include <linux/irqdomain.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/delay.h>
+> +#include <linux/of_address.h>
+> +#include <linux/of_irq.h>
+> +#include <linux/of_platform.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/slab.h>
+> +#include <linux/clk/nuvoton.h>
+> +#include <linux/bitops.h>
+> +#include <linux/bitfield.h>
+> +
+> +#include <linux/of.h>
+> +#include <linux/of_device.h>
+> +#include <linux/dma-mapping.h>
+> +
+> +#include <linux/regmap.h>
+> +#include <linux/mfd/syscon.h>
 
-i2c_add_adapter can fail. So, I'd guess you want to check the return
-value and move it above the pm_runtime calls?
+Just wow. Are you sure you need all of them? (Also, to see better what
+it's used, keep them in order)
+
+> +#define ENABLE 1
+> +#define DISABLE        0
+
+So, what's wrong with 1, 0 or true, false?
+
+> +#define _1Hz_          (u32)1UL
+> +#define _1KHz_         (1000 * _1Hz_)
+> +#define _1MHz_         (1000 * _1KHz_)
+> +#define _1GHz_         (1000 * _1MHz_)
+
+If you need such constants it would be something like for time periods we have
+
+HZ_PER_KHZ 1000
+HZ_PER_MHZ 1000000
+
+etc.
+
+I saw in a code some of those predefined. If they are not yet generic
+(in scope of kernel) it might be worth to do in the future.
+
+> +#ifndef ASSERT
+> +#ifdef DEBUG
+> +#define ASSERT(cond)  {if (!(cond)) for (;;) ; }
+> +#else
+> +#define ASSERT(cond)
+> +#endif
+> +#endif
+
+Hmm... In production code?!
+
+> +
+> +#define ROUND_UP(val, n)       (((val)+(n)-1) & ~((n)-1))
+> +#define DIV_CEILING(a, b)       (((a) + ((b)-1)) / (b))
 
 
---ns6ol5ohpitnty2i
-Content-Type: application/pgp-signature; name="signature.asc"
+You really need to check what kernel provides.
 
------BEGIN PGP SIGNATURE-----
+> +#define I2C_DEBUG2(f, x...)
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltdl6QACgkQFA3kzBSg
-KbbpRQ/7BY/oo/gRQ8eUBnz5fBJ3bMzwg6CwHH3zsZwEWyT7/MqP6O0ToSIMXiSL
-CsR9snfwAqHev+eJiLVgsFZ3OvLSK+Kizm+HpgAM21A7wy9/hXawPy7s34PkIqDA
-Ive1qOF0Dj+k/mtEwBFp3Pmw2kKVkCPg7KwBbtCnk8bvFKzCFbFvI7eBim+Ox75c
-7riFRuDKzQJpX5m10l8p2ysC7xlnncIY/5gL1lfdjSIv0qU4vQrP8BRBtXKNy89U
-kyWqWVIZVW/O4jsXd3ww4YqDGe/3rjIykXv8xU0BBj6640rQW7D9ZOzowa2W7jbU
-UT9GMhrag1O9w7j9EiMjZ1+u1/yRw2vfzneJxf8s0eslz/5rJ+HV9qJdkn4JvSQ4
-8eAfJ4+SUB/9S7ApDIkkhOauFO3n3nnO6wOqxtaUSjNBTpDfwSOidCc61cHhzx1k
-AwUyYTz/Ap6ASlBx9q411qubYiJRfXOs2fntBhw4pGxpMdLMfq9OAThISoYlygf+
-mlMdg7KPssbuX7O3JOKiOiuk3uAPdsfQkb/x8pXkji+oUNj9iKpi/vLDMO1ahnex
-Stv69cq4TtP+JdJIdRaquVP3S3W8urjqKxnfX1apVQkrcQEv7DdiL1BY66BX0VPI
-4IMZbKOgy4MYCgFfA+tCSSkvwHpbjLKMtiaAEtUqq6m1z0Fo/qk=
-=H+It
------END PGP SIGNATURE-----
+???
 
---ns6ol5ohpitnty2i--
+> +
+> +
+> +
+> +
+
+Why to have so many blank lines?
+
+> +
+> +
+
+Ditto.
+
+> +// Common regs
+> +#define NPCM7XX_SMBSDA(bus)            (bus->base + 0x000)
+> +#define NPCM7XX_SMBST(bus)             (bus->base + 0x002)
+> +#define NPCM7XX_SMBCST(bus)            (bus->base + 0x004)
+> +#define NPCM7XX_SMBCTL1(bus)           (bus->base + 0x006)
+> +#define NPCM7XX_SMBADDR1(bus)          (bus->base + 0x008)
+> +#define NPCM7XX_SMBCTL2(bus)           (bus->base + 0x00A)
+> +#define NPCM7XX_SMBADDR2(bus)          (bus->base + 0x00C)
+> +#define NPCM7XX_SMBCTL3(bus)           (bus->base + 0x00E)
+> +#define NPCM7XX_SMBCST2(bus)           (bus->base + 0x018)  // Control Status 2
+> +#define NPCM7XX_SMBCST3(bus)           (bus->base + 0x019)  // Control Status 3
+> +#define SMB_VER(bus)                   (bus->base + 0x01F)  // SMB Version reg
+
+Usually we put just numbers here and use custom I/O accessors which
+take bus as a parameter.
+
+> +
+> +// BANK 0 regs
+> +#define NPCM7XX_SMBADDR3(bus)          (bus->base + 0x010)
+> +#define NPCM7XX_SMBADDR7(bus)          (bus->base + 0x011)
+> +#define NPCM7XX_SMBADDR4(bus)          (bus->base + 0x012)
+> +#define NPCM7XX_SMBADDR8(bus)          (bus->base + 0x013)
+> +#define NPCM7XX_SMBADDR5(bus)          (bus->base + 0x014)
+> +#define NPCM7XX_SMBADDR9(bus)          (bus->base + 0x015)
+> +#define NPCM7XX_SMBADDR6(bus)          (bus->base + 0x016)
+> +#define NPCM7XX_SMBADDR10(bus)         (bus->base + 0x017)
+
+> +#define NPCM7XX_SMBADDR(bus, i)        (bus->base + 0x008 + \
+> +       (u32)(((int)i * 4) + (((int)i < 2) ? 0 : \
+> +       ((int)i - 2)*(-2)) + (((int)i < 6) ? 0 : (-7))))
+
+It's rather complicated.
+
+> +       // Current state of SMBus
+
+I guess more compact is to put a kernel doc descriprion.
+
+> +       enum smb_state          state;
+
+
+> +static bool NPCM7XX_smb_init_module(struct NPCM7XX_i2c *bus,
+> +                                   enum smb_mode mode, u16 bus_freq);
+
+Do you need all forward declarations? Why?
+
+
+So, I stopped here.
+
+Try to make your code twice less in a lenght (looking at it I think
+it's doable).
+
+
+> +static const struct of_device_id NPCM7XX_i2c_bus_of_table[] = {
+> +       { .compatible = "nuvoton,npcm750-i2c-bus", },
+
+> +       {},
+
+Slightly better without comma for terminator lines.
+
+> +};
+> +MODULE_DEVICE_TABLE(of, NPCM7XX_i2c_bus_of_table);
+
+-- 
+With Best Regards,
+Andy Shevchenko
