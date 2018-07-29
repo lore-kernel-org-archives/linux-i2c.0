@@ -1,82 +1,71 @@
-From: Tali Perry <tali.perry1@gmail.com>
-Subject: [PATCH v1 1/2] dt-binding: i2c: npcm7xx: add binding for i2c
-Date: Sun, 29 Jul 2018 12:14:48 +0300
-Message-ID: <20180729091449.385951-2-tali.perry1@gmail.com>
-References: <20180729091449.385951-1-tali.perry1@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v7 1/4] i2c: i2c-qcom-geni: Add bus driver for the
+ Qualcomm GENI I2C controller
+Date: Sun, 29 Jul 2018 12:32:08 +0200
+Message-ID: <20180729103208.uyxp2feonvznmzsp@ninjato>
+References: <1528823348-30532-1-git-send-email-kramasub@codeaurora.org>
+ <1528823348-30532-2-git-send-email-kramasub@codeaurora.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ns6ol5ohpitnty2i"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180729091449.385951-1-tali.perry1@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1528823348-30532-2-git-send-email-kramasub@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: tali.perry1@gmail.com, avifishman70@gmail.com, tmaimon77@gmail.com, venture@google.com, yuenn@google.com, brendanhiggins@google.com, robh+dt@kernel.org, mark.rutland@arm.com, davem@davemloft.net, mchehab+samsung@kernel.org, gregkh@linuxfoundation.org, akpm@linux-foundation.org, arnd@arndb.de, wsa@the-dreams.de, andriy.shevchenko@linux.intel.com, pierre-yves.mordret@st.com, cedric.madianga@gmail.com, baolin.wang@spreadtrum.com, jarkko.nikula@linux.intel.com, hdegoede@redhat.com, rmk+kernel@armlinux.org.uk, ard.biesheuvel@linaro.org, thor.thayer@linux.intel.com, geert@linux-m68k.org, heikki.krogerus@linux.intel.com, tglx@linutronix.de
-Cc: linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
+Cc: andy.gross@linaro.org, david.brown@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, gregkh@linuxfoundation.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, evgreen@chromium.org, acourbot@chromium.org, swboyd@chromium.org, dianders@chromium.org, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Nuvoton NPCM7XX I2C Controller
-NPCM7xx includes 16 I2C contollers. This driver operates the controller.
-This module also includes a slave mode, which will be submitted later on.
 
-Any feedback would be appreciated.  
+--ns6ol5ohpitnty2i
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Jun 12, 2018 at 11:09:05AM -0600, Karthikeyan Ramasubramanian wrote:
+> This bus driver supports the GENI based i2c hardware controller in the
+> Qualcomm SOCs. The Qualcomm Generic Interface (GENI) is a programmable
+> module supporting a wide range of serial interfaces including I2C. The
+> driver supports FIFO mode and DMA mode of transfer and switches modes
+> dynamically depending on the size of the transfer.
+>=20
+> Signed-off-by: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
+> Signed-off-by: Sagar Dharia <sdharia@codeaurora.org>
+> Signed-off-by: Girish Mahadevan <girishm@codeaurora.org>
+> Reviewed-by: Douglas Anderson <dianders@chromium.org>
+
+Looks good except one minor thing:
+
+> +	pm_runtime_set_suspended(gi2c->se.dev);
+> +	pm_runtime_set_autosuspend_delay(gi2c->se.dev, I2C_AUTO_SUSPEND_DELAY);
+> +	pm_runtime_use_autosuspend(gi2c->se.dev);
+> +	pm_runtime_enable(gi2c->se.dev);
+> +	i2c_add_adapter(&gi2c->adap);
+> +
+> +	return 0;
+
+i2c_add_adapter can fail. So, I'd guess you want to check the return
+value and move it above the pm_runtime calls?
 
 
-Signed-off-by: Tali Perry <tali.perry1@gmail.com>
+--ns6ol5ohpitnty2i
+Content-Type: application/pgp-signature; name="signature.asc"
 
----
- .../devicetree/bindings/i2c/i2c-npcm7xx.txt        | 27 ++++++++++++++++++++++
- MAINTAINERS                                        |  9 ++++++++
- 2 files changed, 36 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
+-----BEGIN PGP SIGNATURE-----
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt b/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
-new file mode 100644
-index 000000000000..e2ee45d7a41e
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
-@@ -0,0 +1,27 @@
-+Nuvoton NPCM7XX I2C bus
-+
-+The NPCM750x includes sixteen I2C busses
-+
-+Required properties:
-+- compatible      : must be "nuvoton,npcm750-i2c-bus"
-+- reg             : Offset and length of the register set for the device.
-+- interrupts      : Contain the I2C interrupt with flags for falling edge.
-+- clocks          : phandle of I2C reference clock.
-+
-+Optional:
-+- bus-frequency   : Contain the I2C bus frequency,
-+			the default I2C bus frequency is 100000.
-+- pinctrl-0       : must be <&smbX_pins>, X is module number
-+			(on NPCM7XX it's 0 to 15)
-+- pinctrl-names   : should be set to "default"
-+Example:
-+
-+	i2c0: i2c-bus@80000 {
-+		compatible = "nuvoton,npcm750-i2c-bus";
-+		reg = <0x80000 0x1000>;
-+		clocks = <&clk NPCM7XX_CLK_APB2>;
-+		bus-frequency = <100000>;
-+		interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&smb0_pins>;
-+	};
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 192d7f73fd01..a28edc9daabb 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1735,6 +1735,15 @@ F:	drivers/*/*npcm*
- F:	Documentation/devicetree/bindings/*/*npcm*
- F:	Documentation/devicetree/bindings/*/*/*npcm*
- 
-+ARM/NUVOTON I2C DRIVER
-+M:	Tali Perry <tali.perry1@gmail.com>
-+M:	Avi Fishman <avifishman70@gmail.com>
-+L:	linux-i2c@vger.kernel.org
-+L:	openbmc@lists.ozlabs.org (moderated for non-subscribers)
-+S:	Supported
-+F:	drivers/i2c/busses/i2c-npcm7xx.c
-+F:	Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
-+
- ARM/NUVOTON W90X900 ARM ARCHITECTURE
- M:	Wan ZongShun <mcuos.com@gmail.com>
- L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
--- 
-2.14.1
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltdl6QACgkQFA3kzBSg
+KbbpRQ/7BY/oo/gRQ8eUBnz5fBJ3bMzwg6CwHH3zsZwEWyT7/MqP6O0ToSIMXiSL
+CsR9snfwAqHev+eJiLVgsFZ3OvLSK+Kizm+HpgAM21A7wy9/hXawPy7s34PkIqDA
+Ive1qOF0Dj+k/mtEwBFp3Pmw2kKVkCPg7KwBbtCnk8bvFKzCFbFvI7eBim+Ox75c
+7riFRuDKzQJpX5m10l8p2ysC7xlnncIY/5gL1lfdjSIv0qU4vQrP8BRBtXKNy89U
+kyWqWVIZVW/O4jsXd3ww4YqDGe/3rjIykXv8xU0BBj6640rQW7D9ZOzowa2W7jbU
+UT9GMhrag1O9w7j9EiMjZ1+u1/yRw2vfzneJxf8s0eslz/5rJ+HV9qJdkn4JvSQ4
+8eAfJ4+SUB/9S7ApDIkkhOauFO3n3nnO6wOqxtaUSjNBTpDfwSOidCc61cHhzx1k
+AwUyYTz/Ap6ASlBx9q411qubYiJRfXOs2fntBhw4pGxpMdLMfq9OAThISoYlygf+
+mlMdg7KPssbuX7O3JOKiOiuk3uAPdsfQkb/x8pXkji+oUNj9iKpi/vLDMO1ahnex
+Stv69cq4TtP+JdJIdRaquVP3S3W8urjqKxnfX1apVQkrcQEv7DdiL1BY66BX0VPI
+4IMZbKOgy4MYCgFfA+tCSSkvwHpbjLKMtiaAEtUqq6m1z0Fo/qk=
+=H+It
+-----END PGP SIGNATURE-----
+
+--ns6ol5ohpitnty2i--
