@@ -1,86 +1,142 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: bcm2835: Set up the rising/falling edge delays
-Date: Thu, 22 Feb 2018 12:21:12 +0100
-Message-ID: <20180222112112.ctjfibmk6vppbrcp@ninjato>
-References: <20180208135405.25446-1-boris.brezillon@bootlin.com>
- <20180221084259.o6754bfe4k2hcwhj@ninjato>
- <87h8qayp8v.fsf@anholt.net>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: Re: [PATCH v7 0/6] Add Actions Semiconductor Owl S900 I2C support
+Date: Mon, 30 Jul 2018 22:37:25 +0530
+Message-ID: <20180730170725.GB2511@Mani-XPS-13-9360>
+References: <20180726154603.5089-1-manivannan.sadhasivam@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7183272451520095996=="
-Return-path: <linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <87h8qayp8v.fsf-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rpi-kernel>,
- <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-rpi-kernel/>
-List-Post: <mailto:linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rpi-kernel>,
- <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "linux-rpi-kernel" <linux-rpi-kernel-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
-Cc: Scott Branden <sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Ray Jui <rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Lee Jones <lee-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Boris Brezillon <boris.brezillon-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>, bcm-kernel-feedback-list-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180726154603.5089-1-manivannan.sadhasivam@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: robh+dt@kernel.org, afaerber@suse.de, linus.walleij@linaro.org, linux-i2c@vger.kernel.org, liuwei@actions-semi.com, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree@vger.kernel.org, andy.shevchenko@gmail.com, daniel.thompson@linaro.org, amit.kucheria@linaro.org, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, hzhang@ucrobotics.com, bdong@ucrobotics.com, manivannanece23@gmail.com, thomas.liau@actions-semi.com, jeff.chen@actions-semi.com
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Jul 26, 2018 at 09:15:57PM +0530, Manivannan Sadhasivam wrote:
+> This patchset adds I2C controller support for Actions Semiconductor S900 SoC.
+> This driver has been structured in a way such that there will be only
+> one controller driver for the whole Owl family series (S500, S700 and
+> S900 SoCs).
+> 
+> There are 6 I2C controllers with separate memory mapped register space.
+> The I2C controller can handle atmost two messages concatenated by a
+> repeated start via its internal address feature. Hence the driver
+> uses this feature for messages of length greater than 1. In those cases,
+> the first message of the combined message should be a `write` with maximum
+> message length 6 and the second message's maximum length should be 240 bytes.
+> 
+> As far as the bus speed is concerned, this driver only supports
+> Standard (100KHz) and High speed (400KHz) for now.
+> 
+> The pinctrl definitions are only available for I2C0, I2C1 and I2C2.
+> With the mux option available only for I2C0.
+> 
+> For Bubblegum-96 board utilizing the S900 SoC, only I2C1 and I2C2 which
+> are exposed on the Low speed expansion connector are enabled.
+> 
+> This series depends on the pinctrl patch [1] is still not merged by the
+> platform maintainer Andreas but it has been reviewed by the pinctrl maintainer
+> Linus Walleij. For the reference, I have queued up all reviewed dts patches
+> in my tree [2] from which Andreas is picking them for 4.19.
+> 
+> For this series, since the dts patches will go through the ARM SoC tree,
+> Andreas will pick it up once it is reviewed.
+> 
+> Thanks,
+> Mani
+>
 
---===============7183272451520095996==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="54zjhqvur63ajoqj"
-Content-Disposition: inline
+Hi Wolfram,
 
+Is there any update on this series?
 
---54zjhqvur63ajoqj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks,
+Mani
 
-
-> > Could you provide a Fixes tag if you think this should go to stable?
->=20
-> It would be a fix back to the start of the driver, but should apply
-> cleanly back to:
->=20
-> Fixes: 9446f62e8e18 ("i2c: bcm2835: Add support for dynamic clock")
->=20
-> and over a year ago seems like plenty of backport.
-
-Thanks for the input. I simply added stable now, so people can apply it as
-long as it fits. I didn't use the above Fixes because it did not really
-introduce the issue.
-
-
---54zjhqvur63ajoqj
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlqOp6gACgkQFA3kzBSg
-KbYQQhAAgjNQ6AORocI7Q5DTdaa4hiXZHLTk7iPaJwNlTdyo4TH5UKplop93qoVJ
-2xvcnxpaF1RNPffUXl4BhPM7iai6BbW2pquvmldhKnyL+RF7rF1vuogjoDFeH9bc
-18TEFHrNb3aK4PKXaIsvXAKYx+CJexKIKgqT33xSzfUXgSATqOzw28iPVuQfeaIw
-63i1CABXKe4qaOHBxNaoHOTvdmF9LDkHpHFqtd0Gio4CQ92Xc74Xe4dH0ZnY+GFP
-vv0MFwWKra8fRl97DAUI3c6K5xFzdg38VkNuQkVsIZDV/+mdovZ8468V3Q6dlKLe
-ldvu5i4zK/jcGuRSlCiObnNf503U+QRkrMGzoMSiVJCeED/axz3jCICH7xhjZ9gt
-V7907PRagl36UY9B6BRn6Udg7l4EGkqYaZOuT6fGj4bXz5xAewZtrufiWIa+9I2r
-lBlem1QBOGO4/of3C2fQomLuPeeRY8RuJqrgiWDVB9e3YASs0XPlcBzqboF+dt15
-4vez5vXOgMAYTUVGveKjylZaF6zt40H7Z5wDgbABiGEArlJxOGlzOW7XZpmsyoOF
-NdLILS0eOt9g1ZhkJSntCYzaKhkYPO5fd9nwFAGk5i+65bXB5ESAhipOiA8gi8OC
-ukw4guNSj/e6i5N1SL7fClwce7Hnf0SJOMHQXg5CoK80lyFzoeA=
-=HQo0
------END PGP SIGNATURE-----
-
---54zjhqvur63ajoqj--
-
-
---===============7183272451520095996==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-rpi-kernel mailing list
-linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-http://lists.infradead.org/mailman/listinfo/linux-rpi-kernel
-
---===============7183272451520095996==--
+> [1] https://patchwork.kernel.org/patch/10322937/
+> [2] https://git.linaro.org/people/manivannan.sadhasivam/linux.git/log/?h=s900-for-next
+> 
+> Changes in v7:
+> 
+> * Fixed a multi line misalignment spotted by Peter
+> 
+> Changes in v6:
+> 
+> As per Peter's review:
+> 
+> * Added missing newlines for error and debug outputs
+> * Fixed further multi-line misalignments
+> 
+> Changes in v5:
+> 
+> * Cleaned up the multi-line codes and reordered the error paths
+>   as per Peter's review
+> * Added Acked-by tag from Peter for driver patch
+> * Added Reviewed-by tag from Rob for bindings patch
+> 
+> Changes in v4:
+> 
+> As per Andy and Peter review:
+> 
+> * Used spinlock for accessing most of the register access (only parts
+>   involved sleep/long-busy-wait has been excluded)
+> * Removed returning 0 and added -ENXIO if the msg_ptr not equals to
+>   message length
+> * Added DIV_ROUND_UP for setting clock frequency
+> * Changed one non-atomic mdelay instance to usleep_range
+> * Moved pinctrl definition patch before dts patch
+> * Fixed the driver to support only 100KHz and 400KHz frequencies
+> 
+> Changes in v3:
+> 
+> As per Peter, Andy and Andreas review:
+> 
+> * Removed owl_i2c_reset function from interrupt handler since it
+>   involves the use of delays.
+> * Fixed the return path in owl_i2c_master_xfer and added a note
+> * Changed "base" parameter to "reg" in owl_i2c_update_reg for better
+>   understandability
+> * Ordered the includes in alphabetical order
+> * Small changes to defines and added comma at the end of struct members
+> * Removed rendundant 0 assignment in owl_i2c_master_xfer
+> * Changed all OWL naming convention to Owl and also changed Actions Semi
+>   naming to Actions Semiconductor
+> 
+> Changes in v2:
+> 
+> As per Andy's review:
+> * Modified infinite loops to fixed number of retries
+> * Used i2c_8bit_addr_from_msg for constructing the slave address
+> * Removed unnecessary parenthesis around defines
+> * Modified certain dev_warn to dev_dbg
+> * Modified the error handling to more generic pattern
+> * Fixed the return value in owl_i2c_master_xfer
+> * Added MAINTAINERS patch for I2C driver and its binding
+> 
+> Manivannan Sadhasivam (6):
+>   dt-bindings: i2c: Add binding for Actions Semiconductor Owl I2C
+>     controller
+>   arm64: dts: actions: Add pinctrl definition for S900 I2C controller
+>   arm64: dts: actions: Add Actions Semiconductor S900 I2C controller
+>     nodes
+>   arm64: dts: actions: Enable I2C1 and I2C2 in Bubblegum-96 board
+>   i2c: Add Actions Semiconductor Owl family S900 I2C driver
+>   MAINTAINERS: Add entry for Actions Semiconductor Owl I2C driver
+> 
+>  .../devicetree/bindings/i2c/i2c-owl.txt       |  27 +
+>  MAINTAINERS                                   |   2 +
+>  .../dts/actions/s900-bubblegum-96-pins.dtsi   |  29 +
+>  .../boot/dts/actions/s900-bubblegum-96.dts    |  11 +
+>  arch/arm64/boot/dts/actions/s900.dtsi         |  60 +++
+>  drivers/i2c/busses/Kconfig                    |   7 +
+>  drivers/i2c/busses/Makefile                   |   1 +
+>  drivers/i2c/busses/i2c-owl.c                  | 495 ++++++++++++++++++
+>  8 files changed, 632 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-owl.txt
+>  create mode 100644 arch/arm64/boot/dts/actions/s900-bubblegum-96-pins.dtsi
+>  create mode 100644 drivers/i2c/busses/i2c-owl.c
+> 
+> -- 
+> 2.17.1
+> 
