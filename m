@@ -1,54 +1,99 @@
-From: Karthik Ramasubramanian <kramasub@codeaurora.org>
-Subject: Re: [PATCH v7 1/4] i2c: i2c-qcom-geni: Add bus driver for the
- Qualcomm GENI I2C controller
-Date: Mon, 30 Jul 2018 11:15:52 -0600
-Message-ID: <d98a059f-e76e-0ae8-e02c-4a980ab925a8@codeaurora.org>
-References: <1528823348-30532-1-git-send-email-kramasub@codeaurora.org>
- <1528823348-30532-2-git-send-email-kramasub@codeaurora.org>
- <20180729103208.uyxp2feonvznmzsp@ninjato>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+From: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
+Subject: [PATCH v8 0/2] Introduce GENI SE Controller Driver
+Date: Mon, 30 Jul 2018 11:23:50 -0600
+Message-ID: <1532971432-16784-1-git-send-email-kramasub@codeaurora.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180729103208.uyxp2feonvznmzsp@ninjato>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: andy.gross@linaro.org, david.brown@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, gregkh@linuxfoundation.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, evgreen@chromium.org, acourbot@chromium.org, swboyd@chromium.org, dianders@chromium.org, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>
+To: wsa@the-dreams.de, gregkh@linuxfoundation.org
+Cc: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, evgreen@chromium.org, acourbot@chromium.org, swboyd@chromium.org, dianders@chromium.org
 List-Id: linux-i2c@vger.kernel.org
 
+Generic Interface (GENI) firmware based Qualcomm Universal Peripheral (QUP)
+Wrapper is a next generation programmable module for supporting a wide
+range of serial interfaces like UART, SPI, I2C, I3C, etc. A single QUP
+module can provide upto 8 Serial Interfaces using its internal Serial
+Engines (SE). The protocol supported by each interface is determined by
+the firmware loaded to the Serial Engine.
 
+This patch series introduces GENI SE Driver to manage the GENI based QUP
+Wrapper and the common aspects of all SEs inside the QUP Wrapper. This
+patch series also introduces the UART and I2C Controller drivers to
+drive the SEs that are programmed with the respective protocols.
 
-On 7/29/2018 4:32 AM, Wolfram Sang wrote:
-> On Tue, Jun 12, 2018 at 11:09:05AM -0600, Karthikeyan Ramasubramanian wrote:
->> This bus driver supports the GENI based i2c hardware controller in the
->> Qualcomm SOCs. The Qualcomm Generic Interface (GENI) is a programmable
->> module supporting a wide range of serial interfaces including I2C. The
->> driver supports FIFO mode and DMA mode of transfer and switches modes
->> dynamically depending on the size of the transfer.
->>
->> Signed-off-by: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
->> Signed-off-by: Sagar Dharia <sdharia@codeaurora.org>
->> Signed-off-by: Girish Mahadevan <girishm@codeaurora.org>
->> Reviewed-by: Douglas Anderson <dianders@chromium.org>
-> 
-> Looks good except one minor thing:
-> 
->> +	pm_runtime_set_suspended(gi2c->se.dev);
->> +	pm_runtime_set_autosuspend_delay(gi2c->se.dev, I2C_AUTO_SUSPEND_DELAY);
->> +	pm_runtime_use_autosuspend(gi2c->se.dev);
->> +	pm_runtime_enable(gi2c->se.dev);
->> +	i2c_add_adapter(&gi2c->adap);
->> +
->> +	return 0;
-> 
-> i2c_add_adapter can fail. So, I'd guess you want to check the return
-> value and move it above the pm_runtime calls?
-> 
-Sure, I will update and upload a new patchset.
+[v8]
+ * Handle the error from i2c_add_adapter function
+ * Drop the device tree patches that are uploaded as part of commit:
+   [v2,1/2] arm64: dts: qcom: sdm845: Add I2C, SPI, and UART9 nodes
 
-Regards,
-Karthik.
+[v7]
+ * Return appropriate error codes as idenitified in i2c fault-codes
+ * Add Maintainer details for I2C controller driver
+ * Fix an incorrect conditional check in DMA mode
+ * Drop the patches in the series that got accepted
+
+[v6]
+ * Move the I2C clock-frequency configuration to the SDM845 board file
+ * Remove a redundant comment in the I2C driver
+
+[v5]
+ * Remove Linux specific property from the device tree binding
+ * Clarify I2C SCL time period documentation
+ * Remove redundant checks in I2C controller driver during timeout
+ * Use 100kHz as the default clock frequency in the I2C controller driver
+ * Disable Wrapper controller by default in the SDM845 device tree and
+   enable it explicitly for SDM845 MTP
+ * Specify I2C clock frequency in the SDM845 device tree
+ * Remove bias configuration for I2C pins under sleep state in device tree
+ * Drop the serial driver from the patch series since it is merged
+ * Specify the UART port options in the SDM845 device tree
+
+[v4]
+ * Add SPI controller information in device tree binding
+ * Add support for debug UART & I2C controllers in SDM845 device tree
+ * Remove any unnecessary parenthesis & casting
+ * Identify break character in UART line and pass it to the framework
+ * Transmit data from fault handler reliably in debug UART
+ * Map the register block when the UART port is requested
+ * Move concise exported functions as macros or inlines in public header
+ * Move the clock performance table from the wrapper to serial engines
+ * Add a lock to synchronize between IRQ & error handling in I2C controller
+ * Remove any compiler optimization hints like likely/unlikely
+ * Update documentation to clarify tables and hardware blocks
+
+[v3]
+ * Update the driver dependencies
+ * Use the SPDX License Expression
+ * Squash all the controller device tree bindings together
+ * Use kernel doc format for documentation
+ * Add additional documentation for packing configuration
+ * Use clk_bulk_* API for related clocks
+ * Remove driver references to pinctrl and their states
+ * Replace magic numbers with appropriate macros
+ * Update memory barrier usage and associated comments
+ * Reduce interlacing of register reads/writes
+ * Fix poll_get_char() operation in console UART driver under polling mode
+ * Address other comments from Bjorn Andersson to improve code readability
+
+[v2]
+ * Updated device tree bindings to describe the hardware
+ * Updated SE DT node as child node of QUP Wrapper DT node
+ * Moved common AHB clocks to QUP Wrapper DT node
+ * Use the standard "clock-frequency" I2C property
+ * Update compatible field in UART Controller to reflect hardware manual
+ * Addressed other device tree binding specific comments from Rob Herring
+
+Karthikeyan Ramasubramanian (2):
+  i2c: i2c-qcom-geni: Add bus driver for the Qualcomm GENI I2C
+    controller
+  MAINTAINERS: Add Qualcomm Generic Interface I2C driver maintainer
+
+ MAINTAINERS                        |   8 +
+ drivers/i2c/busses/Kconfig         |  13 +
+ drivers/i2c/busses/Makefile        |   1 +
+ drivers/i2c/busses/i2c-qcom-geni.c | 653 +++++++++++++++++++++++++++++++++++++
+ 4 files changed, 675 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-qcom-geni.c
+
 -- 
 Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
 a Linux Foundation Collaborative Project
