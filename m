@@ -1,81 +1,107 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i2c-qcom-geni: Fix suspend clock handling
-Date: Tue, 31 Jul 2018 21:20:32 +0200
-Message-ID: <20180731192032.5l7tcdbywlfejzig@ninjato>
-References: <20180709234937.176154-1-evgreen@chromium.org>
+Subject: Re: [PATCH v7 5/6] i2c: Add Actions Semiconductor Owl family S900
+ I2C driver
+Date: Tue, 31 Jul 2018 22:09:32 +0200
+Message-ID: <20180731200932.n7djds2rmqhclit5@ninjato>
+References: <20180726154603.5089-1-manivannan.sadhasivam@linaro.org>
+ <20180726154603.5089-6-manivannan.sadhasivam@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="6eyt7etlhfdgewk5"
+        protocol="application/pgp-signature"; boundary="4utn4zc36jrfmsgr"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180709234937.176154-1-evgreen@chromium.org>
+In-Reply-To: <20180726154603.5089-6-manivannan.sadhasivam@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Evan Green <evgreen@chromium.org>
-Cc: andy.gross@linaro.org, david.brown@linaro.org, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, swboyd@chromium.org, dianders@chromium.org, Girish Mahadevan <girishm@codeaurora.org>, linux-i2c@vger.kernel.org
+To: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Cc: robh+dt@kernel.org, afaerber@suse.de, linus.walleij@linaro.org, linux-i2c@vger.kernel.org, liuwei@actions-semi.com, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree@vger.kernel.org, andy.shevchenko@gmail.com, daniel.thompson@linaro.org, amit.kucheria@linaro.org, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, hzhang@ucrobotics.com, bdong@ucrobotics.com, manivannanece23@gmail.com, thomas.liau@actions-semi.com, jeff.chen@actions-semi.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---6eyt7etlhfdgewk5
+--4utn4zc36jrfmsgr
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 09, 2018 at 04:49:37PM -0700, Evan Green wrote:
-> pm_runtime_suspended can return 0 even if the last runtime power
-> management function called in the device was a suspend call. This
-> trips up the i2c-qcom-geni's suspend_noirq accounting, which was
-> trying to use the function to determine if it should disable clocks
-> or if that had already been done.
->=20
-> The fix is to track whether or not clocks have been enabled explicitly
-> in the driver with a new member. While in there, also honor the return
-> value of geni_se_resources_off, which can technically fail.
->=20
-> An example of the warning generated during suspend:
-> [   68.314733] WARNING: CPU: 0 PID: 1990 at drivers/clk/clk.c:595 clk_cor=
-e_disable+0x28/0x200
-> [   68.464576] Call trace:
-> [   68.554410] [<ffffff80083f0ed0>] clk_core_disable+0x28/0x200
-> [   68.560244] [<ffffff80083f349c>] clk_disable+0x38/0x4c
-> [   68.565541] [<ffffff8008408910>] geni_se_resources_off+0x40/0x74
-> [   68.571731] [<ffffff800862aadc>] geni_i2c_runtime_suspend+0x2c/0x3c
-> [   68.578185] [<ffffff800862ae6c>] geni_i2c_suspend_noirq+0x38/0x68
-> [   68.584475] [<ffffff800852bd40>] dpm_run_callback+0x104/0x210
-> [   68.590404] [<ffffff800852c3d4>] __device_suspend_noirq+0x158/0x1a8
-> [   68.596859] [<ffffff800852dff0>] dpm_noirq_suspend_devices+0x180/0x38c
-> [   68.603594] [<ffffff80080fdebc>] suspend_devices_and_enter+0x49c/0x964
-> [   68.610321] [<ffffff80080fea14>] pm_suspend+0x690/0x6e0
-> [   68.615712] [<ffffff80080fc930>] state_store+0xd4/0xf8
-> [   68.621014] [<ffffff80088a57f0>] kobj_attr_store+0x18/0x28
-> [   68.626672] [<ffffff8008297a54>] sysfs_kf_write+0x5c/0x68
-> [   68.632240] [<ffffff8008296a00>] kernfs_fop_write+0x174/0x1b8
-> [   68.638177] [<ffffff800821a2c4>] __vfs_write+0x58/0x160
-> [   68.643567] [<ffffff800821a5d8>] vfs_write+0xcc/0x184
-> [   68.648780] [<ffffff800821a850>] SyS_write+0x64/0xb4
->=20
-> Signed-off-by: Evan Green <evgreen@chromium.org>
+Hi Manivannan,
 
-Applied to for-next (squashed into the main driver), thanks!
+On Thu, Jul 26, 2018 at 09:16:02PM +0530, Manivannan Sadhasivam wrote:
+> Add Actions Semiconductor Owl family S900 I2C driver.
+>=20
+> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> Acked-by: Peter Rosin <peda@axentia.se>
+
+Looks mostly good already. Thanks Peter for the initial review!
+
+> +static irqreturn_t owl_i2c_interrupt(int irq, void *_dev)
+> +{
+> +	struct owl_i2c_dev *i2c_dev =3D _dev;
+> +	struct i2c_msg *msg =3D i2c_dev->msg;
+> +	unsigned long flags;
+> +	unsigned int stat, fifostat;
+> +
+> +	spin_lock_irqsave(&i2c_dev->lock, flags);
+> +
+> +	fifostat =3D readl(i2c_dev->base + OWL_I2C_REG_FIFOSTAT);
+> +	if (fifostat & OWL_I2C_FIFOSTAT_RNB) {
+> +		dev_dbg(&i2c_dev->adap.dev, "received NACK from device\n");
+> +		goto stop;
+> +	}
+> +
+> +	stat =3D readl(i2c_dev->base + OWL_I2C_REG_STAT);
+> +	if (stat & OWL_I2C_STAT_BEB) {
+> +		dev_dbg(&i2c_dev->adap.dev, "bus error\n");
+> +		goto stop;
+> +	}
+
+I wonder if you can't pass back the different errors to the upper
+layers? Like -ENXIO for NACK and -EIO for bus error? We have a
+convention for that and it seems your HW can support it. The different
+error codes would then maybe also make the debug outputs obsolete.
 
 
---6eyt7etlhfdgewk5
+> +	/*
+> +	 * Here, -ENXIO will be returned if interrupt occurred but no
+> +	 * read or write happened. Else if msg_ptr equals to message length,
+> +	 * message count will be returned.
+> +	 */
+> +	ret =3D i2c_dev->msg_ptr =3D=3D msg->len ? num : -ENXIO;
+
+I'd think this kinda unusual construct could go then as well by just
+returning the error code derived from the interrupt handler above.
+
+> +static const struct i2c_adapter_quirks owl_i2c_quirks =3D {
+> +	.flags		=3D I2C_AQ_COMB | I2C_AQ_COMB_WRITE_FIRST,
+> +	.max_read_len   =3D 240,
+> +	.max_write_len  =3D 240,
+> +	.max_comb_1st_msg_len =3D 6,
+> +	.max_comb_2nd_msg_len =3D 240,
+> +};
+
+Yay! Good use of the i2c_adapter_quirks struct :)
+
+Regards,
+
+   Wolfram
+
+
+--4utn4zc36jrfmsgr
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltgtn8ACgkQFA3kzBSg
-KbbTcA//cNMYL/bNq2oLELjgaXo2AbPPGIRYDALjP/W7Jh5qCeFU4YJo1R60iWxf
-IkXvPazIBG01Py5RwvtwmDRWQ3O1gAbfG2g+SXbOEJhmQZt3cqRJX8yX9vNGgDJ8
-c7EqLK1DhX+FwhzAl7tuv448piUBvC8dkKjzhAsupFfsZy/e7Vz9VsI+tFkcJlqM
-LEUuB+TKvEP8b4eX1KdIERxkfqKHD5GquBQ620SRh2nezF5Ops8Ne6HlJvdMWEpY
-2+RmAOkLqnnG1NinRxr3iDsp652gNwjftYWXTfe2cNJTen+k/gWKqMAQ05ffwTE1
-Y7ZRY0U3QFN0ty5Td13SCm/Dhzs2XhSLntwk0W1hub5GyQY1pkefWtLhT2aO+Zc1
-SEdpGOqT+Pemm7u+Crog0LPC5KmHd7GEnNv38qOYPsEdp7AwJxQ49UgQGUmWqupz
-rJL+AdWjK87yzVIxOoFfpAut/sVf9Vz6wi0/wOlYJ1kmC9u4W/WCYaWrRzQAvqKc
-NXt5U6e1rBWxwVk1xnIf8ppTI21Atjl162vV2Apk099PlARayPduXqcii8inFKPk
-w87kA8JpEatPs5K/n05zkrA3VDoJlsomixxf0uF9cIV7fAlP8fdFzRFxwpt2dJuL
-mvj7nBp+ptYx+gzAqx/KzsuPb2K//4VM4ya1xbXVPJA9/fWcAv4=
-=J9jv
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltgwfwACgkQFA3kzBSg
+KbZ21Q/9GYHmyV1EiblUh0zTmtvPSAJ36HoCteZkNdGlmvUwDXToxDapDNObY+sY
+6S1awC/4Z3iNfVDsQ3q5RTzozcY1gq2tGRLHmBkCH/x8WxIJQ0uz+gs2YSOqRuIc
+iwZqLQ8PKodo2X9Hj02sl/FyYveiaNgFcx21w9pg/Sgx5mn+yB7KYTubln2MeaHh
+H0y06sSnq0hO24WIOEhl6H3hjMDLYXYEG1+VH32kBFjk2ObPueqvpTmD39R/FTHE
+a0m9XqPfwh55IrFKfJTxDv6nS8YD5oLti32wH1fvcZ9bk5MbRlCoMFVmLjU+kR5Y
+rRW0sWl3Lf2WKcVDZbuUycWHJOaXsx7wbAzoYYTo9ucX17rQiuYu2OX3jj+ZWIQg
+hDPcaWA9bNtkdWK8oIiJ+0uPvLvsoDdEuVY5+H+rfvtkwPAwX6xKvDj2EGyOVjyi
+KJnaRS/DlSbksqx7mtbNbN695qErb7k6CmA9uJxd6T9z5JxZuXoEcU57ELP91VDn
+QG3JLPkdsg+5vQImhW+akuY8a4izTo41frlq2aDkKgwrv6WtYC2c/XdJHFtKeV33
+PdC0eQpv4Ne4DlC1CO3Etq61oTTMCkDLRT7DpLXDO1vGw+J9oqS8DGlaJPW7/50A
+Z2cjKc7e+6JcyYdDax43FvqQc42618/AWg7hN4Jmy80Eexo3uQY=
+=6ZjR
 -----END PGP SIGNATURE-----
 
---6eyt7etlhfdgewk5--
+--4utn4zc36jrfmsgr--
