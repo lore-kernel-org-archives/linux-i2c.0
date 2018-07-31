@@ -1,54 +1,66 @@
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: [PATCH v2 1/6] i2c: designware: use generic table matching
-Date: Tue, 31 Jul 2018 20:44:02 +0200
-Message-ID: <20180731184402.GY28585@piout.net>
-References: <20180731134740.441-1-alexandre.belloni@bootlin.com>
- <20180731134740.441-2-alexandre.belloni@bootlin.com>
- <44e52856371e4b5c102df8f2efebd527fd26b066.camel@linux.intel.com>
- <0559c93256ae4f59aed278912bcbfd996e279839.camel@linux.intel.com>
- <20180731143059.GV28585@piout.net>
- <1cbe4c184a0a6db1fc5401dbd8bd3a9f6bf22527.camel@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v8 1/2] i2c: i2c-qcom-geni: Add bus driver for the
+ Qualcomm GENI I2C controller
+Date: Tue, 31 Jul 2018 21:20:04 +0200
+Message-ID: <20180731192004.acg5jnbj5wg55mpl@ninjato>
+References: <1532971432-16784-1-git-send-email-kramasub@codeaurora.org>
+ <1532971432-16784-2-git-send-email-kramasub@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="4qhevqwx622auvc6"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1cbe4c184a0a6db1fc5401dbd8bd3a9f6bf22527.camel@linux.intel.com>
+In-Reply-To: <1532971432-16784-2-git-send-email-kramasub@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>
+To: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
+Cc: gregkh@linuxfoundation.org, linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, evgreen@chromium.org, acourbot@chromium.org, swboyd@chromium.org, dianders@chromium.org, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 31/07/2018 17:53:17+0300, Andy Shevchenko wrote:
-> On Tue, 2018-07-31 at 16:30 +0200, Alexandre Belloni wrote:
-> > On 31/07/2018 17:23:04+0300, Andy Shevchenko wrote:
-> > > On Tue, 2018-07-31 at 17:02 +0300, Andy Shevchenko wrote:
-> > > > On Tue, 2018-07-31 at 15:47 +0200, Alexandre Belloni wrote:
->  
-> > > > > +	dev->flags |= (u32)device_get_match_data(&pdev->dev);
-> > > > > +
-> > > 
-> > > And since it would be changed anyway, can you actually move this
-> > > line
-> > > closet to  if (has_acpi_companion()) one ?
-> > > 
-> > 
-> > I need that value to be set before calling of_configure though.
-> 
-> AFAICS, you added those lines later, so, it would be something like
-> 
-> dev->flags |= ...
-> 
-> if (of_node)
->  of_configure()
-> if (has_acpi_companion())
->  acpi_configure()
-> 
-> Would it work for you?
-> 
 
-Works for me, I'll send v3 soon.
+--4qhevqwx622auvc6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Alexandre Belloni, Bootlin (formerly Free Electrons)
-Embedded Linux and Kernel engineering
-https://bootlin.com
+On Mon, Jul 30, 2018 at 11:23:51AM -0600, Karthikeyan Ramasubramanian wrote:
+> This bus driver supports the GENI based i2c hardware controller in the
+> Qualcomm SOCs. The Qualcomm Generic Interface (GENI) is a programmable
+> module supporting a wide range of serial interfaces including I2C. The
+> driver supports FIFO mode and DMA mode of transfer and switches modes
+> dynamically depending on the size of the transfer.
+>=20
+> Signed-off-by: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
+> Signed-off-by: Sagar Dharia <sdharia@codeaurora.org>
+> Signed-off-by: Girish Mahadevan <girishm@codeaurora.org>
+> Reviewed-by: Douglas Anderson <dianders@chromium.org>
+> Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+> Tested-by: Stephen Boyd <swboyd@chromium.org>
+
+Applied to for-next, thanks!
+
+As discussed, I squashed the MAINTAINER addition and the RPM fix by Evan
+into this commit. Please check later that I resolved the conflict
+correctly (once I pushed out).
+
+
+--4qhevqwx622auvc6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltgtmAACgkQFA3kzBSg
+KbZB/w/9HH8s4ZoLSwSh1QhdKUiRR9aiOmooUw0N695JNV2axlbODP0Mki6l3NfA
+GjPUniZRBjHCUgzpKPYtau/bE9g5uZvNUsS/kT3hVHdrOxQNs3ViHrK/bj91j3OL
+SsYkPwfW8jv+lEKK4JhAm/aub/7DmaSBhK7or35yAEKCUaQ/QT04RPa32VCGth17
+LE9u+ShVmJ/TsT6lr8NJ9SJvN+jeMgiXLDjvNyFBl+BuH81YfPcIZy2GvhH9vp6E
+bjaJqjMlidj9W2PjhemrwcdDUCWyV4TU4Qm9zh4h0usdEkbhyGRSzXTdttCqjg5l
+kGQ6vDQ1uClX5Om0kayv4TOnXRpVFB+9e84duPQiq6Q9bhRS6+ni92HrPeDv2y3u
+j8eNBdB5YxIyx3AJ6rdLR8v9xvojoyq5PY8MpPEiLvFdnsGFHJTU56CmY4+Z6aZf
+5jBqNf2DkDXjJD3JX5A63UqdwQaNuvq+lVEmUwLsa/Xjbin7bCTpWxaXUFxzdYrS
+Nzun+YXWGcb2mOXIlizeXGRZPAhWyj3AvswGXbD+EbeN0jUDoT1oS5F+844H8ooI
+QQyANoY3jXpN5MPhNJncN40EM/lY/Zm3C/oJf97Y6Sr05M88afMP2ln1Zc0gP9C6
+9csA6zBBKj+zJhQcqM56TzDLGStDePe5o1YVnDc1OEyNG5FAC6g=
+=QotW
+-----END PGP SIGNATURE-----
+
+--4qhevqwx622auvc6--
