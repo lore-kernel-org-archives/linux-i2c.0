@@ -1,7 +1,7 @@
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v2 2/6] i2c: designware: move #ifdef CONFIG_OF to the top
-Date: Tue, 31 Jul 2018 15:47:36 +0200
-Message-ID: <20180731134740.441-3-alexandre.belloni@bootlin.com>
+Subject: [PATCH v2 1/6] i2c: designware: use generic table matching
+Date: Tue, 31 Jul 2018 15:47:35 +0200
+Message-ID: <20180731134740.441-2-alexandre.belloni@bootlin.com>
 References: <20180731134740.441-1-alexandre.belloni@bootlin.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180731134740.441-1-alexandre.belloni@bootlin.com>
@@ -10,47 +10,38 @@ To: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.c
 Cc: Paul Burton <paul.burton@mips.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Move the #ifdef CONFIG_OF section to the top of the file, after the ACPI
-section so functions defined there can be used in dw_i2c_plat_probe.
+Switch to device_get_match_data in probe to match the device specific data
+instead of using the acpi specific function.
 
+Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/i2c/busses/i2c-designware-platdrv.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-designware-platdrv.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 00bf62f77c47..ba142d7c0e05 100644
+index ddf13527aaee..00bf62f77c47 100644
 --- a/drivers/i2c/busses/i2c-designware-platdrv.c
 +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -157,6 +157,14 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
- }
- #endif
+@@ -119,10 +119,6 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+ 		break;
+ 	}
  
-+#ifdef CONFIG_OF
-+static const struct of_device_id dw_i2c_of_match[] = {
-+	{ .compatible = "snps,designware-i2c", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
-+#endif
-+
- static void i2c_dw_configure_master(struct dw_i2c_dev *dev)
- {
- 	struct i2c_timings *t = &dev->timings;
-@@ -391,14 +399,6 @@ static int dw_i2c_plat_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--#ifdef CONFIG_OF
--static const struct of_device_id dw_i2c_of_match[] = {
--	{ .compatible = "snps,designware-i2c", },
--	{},
--};
--MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
--#endif
+-	id = acpi_match_device(pdev->dev.driver->acpi_match_table, &pdev->dev);
+-	if (id && id->driver_data)
+-		dev->flags |= (u32)id->driver_data;
 -
- #ifdef CONFIG_PM_SLEEP
- static int dw_i2c_plat_prepare(struct device *dev)
- {
+ 	if (acpi_bus_get_device(handle, &adev))
+ 		return -ENODEV;
+ 
+@@ -269,6 +265,8 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	else
+ 		i2c_parse_fw_timings(&pdev->dev, t, false);
+ 
++	dev->flags |= (u32)device_get_match_data(&pdev->dev);
++
+ 	acpi_speed = i2c_acpi_find_bus_speed(&pdev->dev);
+ 	/*
+ 	 * Some DSTDs use a non standard speed, round down to the lowest
 -- 
 2.18.0
