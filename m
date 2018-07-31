@@ -1,42 +1,42 @@
-From: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
-Subject: [PATCH v8 2/2] MAINTAINERS: Add Qualcomm Generic Interface I2C driver maintainer
-Date: Mon, 30 Jul 2018 11:23:52 -0600
-Message-ID: <1532971432-16784-3-git-send-email-kramasub@codeaurora.org>
-References: <1532971432-16784-1-git-send-email-kramasub@codeaurora.org>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH v2 0/6] Add support for MSCC Ocelot i2c
+Date: Tue, 31 Jul 2018 15:47:34 +0200
+Message-ID: <20180731134740.441-1-alexandre.belloni@bootlin.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1532971432-16784-1-git-send-email-kramasub@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, gregkh@linuxfoundation.org
-Cc: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, evgreen@chromium.org, acourbot@chromium.org, swboyd@chromium.org, dianders@chromium.org
+To: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Hogan <jhogan@kernel.org>
+Cc: Paul Burton <paul.burton@mips.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Add Alok Chauhan and myself as maintainers for Qualcomm GENI I2C master
-controller driver.
+Hi,
 
-Signed-off-by: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
----
- MAINTAINERS | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Because the designware IP was not able to handle the SDA hold time before
+version 1.11a, MSCC has its own implementation. Add support for it and then add
+i2c on ocelot boards.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 32fbc6f..6e33b29 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -11830,6 +11830,14 @@ L:	netdev@vger.kernel.org
- S:	Maintained
- F:	drivers/net/ethernet/qualcomm/emac/
- 
-+QUALCOMM GENERIC INTERFACE I2C DRIVER
-+M:	Alok Chauhan <alokc@codeaurora.org>
-+M:	Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
-+L:	linux-i2c@vger.kernel.org
-+L:	linux-arm-msm@vger.kernel.org
-+S:	Supported
-+F:	drivers/i2c/busses/i2c-qcom-geni.c
-+
- QUALCOMM HEXAGON ARCHITECTURE
- M:	Richard Kuo <rkuo@codeaurora.org>
- L:	linux-hexagon@vger.kernel.org
+I would expect patches 1 to 4 to go through the i2c tree and 5-6 through
+the mips tree once patch 4 has been reviewed by the DT maintainers.
+
+Changes in v2:
+ - removed first patch as a similar one is in i2c-next
+ - rebase on top of i2c-next
+ - Added two patches to implement ideas from Andy
+
+Alexandre Belloni (6):
+  i2c: designware: use generic table matching
+  i2c: designware: move #ifdef CONFIG_OF to the top
+  i2c: designware: allow IP specific sda_hold_time
+  i2c: designware: add MSCC Ocelot support
+  mips: dts: mscc: Add i2c on ocelot
+  mips: dts: mscc: enable i2c on ocelot_pcb123
+
+ .../bindings/i2c/i2c-designware.txt           |  9 ++-
+ arch/mips/boot/dts/mscc/ocelot.dtsi           | 18 ++++++
+ arch/mips/boot/dts/mscc/ocelot_pcb123.dts     |  6 ++
+ drivers/i2c/busses/i2c-designware-common.c    |  2 +
+ drivers/i2c/busses/i2c-designware-core.h      |  4 ++
+ drivers/i2c/busses/i2c-designware-platdrv.c   | 62 +++++++++++++++----
+ 6 files changed, 87 insertions(+), 14 deletions(-)
+
 -- 
-Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project
+2.18.0
