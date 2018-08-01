@@ -1,10 +1,12 @@
 From: Tudor Ambarus <tudor.ambarus@microchip.com>
-Subject: [PATCH 0/2] i2c: enable buses to save their clock frequency in adapter
-Date: Wed, 1 Aug 2018 16:35:10 +0300
-Message-ID: <20180801133512.12276-1-tudor.ambarus@microchip.com>
+Subject: [PATCH 1/2] i2c: enable buses to save their clock frequency in adapter
+Date: Wed, 1 Aug 2018 16:35:11 +0300
+Message-ID: <20180801133512.12276-2-tudor.ambarus@microchip.com>
+References: <20180801133512.12276-1-tudor.ambarus@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180801133512.12276-1-tudor.ambarus@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com
 Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linus.walleij@linaro.org, Tudor Ambarus <tudor.ambarus@microchip.com>
@@ -25,16 +27,22 @@ will have to make their own assumption of the clock frequency.
 Spare the i2c clients of making wrong assumptions of the i2c bus clock
 frequency and enable the buses to save their clock frequency in adapter.
 
-since rfc:
-- reword commit messages
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+---
+ include/linux/i2c.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-Tudor Ambarus (2):
-  i2c: enable buses to save their clock frequency in adapter
-  i2c: at91: Save the bus clock frequency in adapter
-
- drivers/i2c/busses/i2c-at91.c | 1 +
- include/linux/i2c.h           | 1 +
- 2 files changed, 2 insertions(+)
-
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index bc8d42f..fe65768 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -677,6 +677,7 @@ struct i2c_adapter {
+ 	struct rt_mutex bus_lock;
+ 	struct rt_mutex mux_lock;
+ 
++	u32 bus_freq_hz;
+ 	int timeout;			/* in jiffies */
+ 	int retries;
+ 	struct device dev;		/* the adapter device */
 -- 
 2.9.4
