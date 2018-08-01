@@ -1,97 +1,41 @@
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: Re: [PATCH v7 5/6] i2c: Add Actions Semiconductor Owl family S900
- I2C driver
-Date: Wed, 1 Aug 2018 10:26:39 +0530
-Message-ID: <20180801045639.GB15529@Mani-XPS-13-9360>
-References: <20180726154603.5089-1-manivannan.sadhasivam@linaro.org>
- <20180726154603.5089-6-manivannan.sadhasivam@linaro.org>
- <20180731200932.n7djds2rmqhclit5@ninjato>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Mike Shettel <mshettel@codeaurora.org>
+Subject: [PATCH v1 0/3] Add a driver for Qualcomm GENI I3C master IP
+Date: Tue, 31 Jul 2018 23:38:59 -0600
+Message-ID: <1533101942-29442-1-git-send-email-mshettel@codeaurora.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180731200932.n7djds2rmqhclit5@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: robh+dt@kernel.org, afaerber@suse.de, linus.walleij@linaro.org, linux-i2c@vger.kernel.org, liuwei@actions-semi.com, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree@vger.kernel.org, andy.shevchenko@gmail.com, daniel.thompson@linaro.org, amit.kucheria@linaro.org, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, hzhang@ucrobotics.com, bdong@ucrobotics.com, manivannanece23@gmail.com, thomas.liau@actions-semi.com, jeff.chen@actions-semi.com
+To: gregkh@linuxfoundation.org, boris.brezillon@bootlin.com, robh+dt@kernel.org, mark.rutland@arm.com, devicetree@vger.kernel.org
+Cc: Mike Shettel <mshettel@codeaurora.org>, linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, evgreen@chromium.org, acourbot@chromium.org, swboyd@chromium.org, dianders@chromium.org, mka@chromium.org, bjorn.andersson@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+This patch series is a proposal for the I3C master driver for the
+Qualcomm GENI IP. This patch is to be applied on top of the I3C
+subsystem patchset v6 submitted by Boris Brezillon.
 
-On Tue, Jul 31, 2018 at 10:09:32PM +0200, Wolfram Sang wrote:
-> Hi Manivannan,
-> 
-> On Thu, Jul 26, 2018 at 09:16:02PM +0530, Manivannan Sadhasivam wrote:
-> > Add Actions Semiconductor Owl family S900 I2C driver.
-> > 
-> > Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-> > Acked-by: Peter Rosin <peda@axentia.se>
-> 
-> Looks mostly good already. Thanks Peter for the initial review!
-> 
+Features supported:
+  Regular CCC commands
+  I3C private transfers
+  I2C transfers
 
-Thanks to Andy also :)
+Features not yet supported:
+  Hot-join
+  IBI
 
-> > +static irqreturn_t owl_i2c_interrupt(int irq, void *_dev)
-> > +{
-> > +	struct owl_i2c_dev *i2c_dev = _dev;
-> > +	struct i2c_msg *msg = i2c_dev->msg;
-> > +	unsigned long flags;
-> > +	unsigned int stat, fifostat;
-> > +
-> > +	spin_lock_irqsave(&i2c_dev->lock, flags);
-> > +
-> > +	fifostat = readl(i2c_dev->base + OWL_I2C_REG_FIFOSTAT);
-> > +	if (fifostat & OWL_I2C_FIFOSTAT_RNB) {
-> > +		dev_dbg(&i2c_dev->adap.dev, "received NACK from device\n");
-> > +		goto stop;
-> > +	}
-> > +
-> > +	stat = readl(i2c_dev->base + OWL_I2C_REG_STAT);
-> > +	if (stat & OWL_I2C_STAT_BEB) {
-> > +		dev_dbg(&i2c_dev->adap.dev, "bus error\n");
-> > +		goto stop;
-> > +	}
-> 
-> I wonder if you can't pass back the different errors to the upper
-> layers? Like -ENXIO for NACK and -EIO for bus error? We have a
-> convention for that and it seems your HW can support it. The different
-> error codes would then maybe also make the debug outputs obsolete.
-> 
-> 
 
-Sure, will catch the errors using an i2c_dev member and pass it to upper
-layers in owl_i2c_master_xfer.
+Mike Shettel (3):
+  i3c: master: Add a driver for Qualcomm GENI I3C master IP
+  dt-bindings: i3c: Document Qualcomm GENI I3C master bindings
+  MAINTAINERS: Add Qualcomm Generic Interface I3C driver maintainer
 
-> > +	/*
-> > +	 * Here, -ENXIO will be returned if interrupt occurred but no
-> > +	 * read or write happened. Else if msg_ptr equals to message length,
-> > +	 * message count will be returned.
-> > +	 */
-> > +	ret = i2c_dev->msg_ptr == msg->len ? num : -ENXIO;
-> 
-> I'd think this kinda unusual construct could go then as well by just
-> returning the error code derived from the interrupt handler above.
-> 
+ .../devicetree/bindings/i3c/qcom,geni-i3c.txt      |   44 +
+ MAINTAINERS                                        |    8 +
+ drivers/i3c/master/Kconfig                         |   13 +
+ drivers/i3c/master/Makefile                        |    1 +
+ drivers/i3c/master/i3c-master-qcom-geni.c          | 1243 ++++++++++++++++++++
+ 5 files changed, 1309 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i3c/qcom,geni-i3c.txt
+ create mode 100644 drivers/i3c/master/i3c-master-qcom-geni.c
 
-Makes sense! It will become:
-
-ret = i2c_dev->err < 0 ? i2c_dev->err : num;
-
-Thanks,
-Mani
-
-> > +static const struct i2c_adapter_quirks owl_i2c_quirks = {
-> > +	.flags		= I2C_AQ_COMB | I2C_AQ_COMB_WRITE_FIRST,
-> > +	.max_read_len   = 240,
-> > +	.max_write_len  = 240,
-> > +	.max_comb_1st_msg_len = 6,
-> > +	.max_comb_2nd_msg_len = 240,
-> > +};
-> 
-> Yay! Good use of the i2c_adapter_quirks struct :)
-> 
-> Regards,
-> 
->    Wolfram
-> 
+-- 
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
