@@ -1,48 +1,40 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH i2c-next v2] i2c: aspeed: Add an explicit type casting for *get_clk_reg_val
-Date: Tue, 31 Jul 2018 23:56:48 -0700
-Message-ID: <CAFd5g44L+-6wtV4+Kn5-j8zRXA1aNamR2pV0EaFpcoshgQ4bTQ@mail.gmail.com>
-References: <20180724203615.5770-1-jae.hyun.yoo@linux.intel.com>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
+Subject: [PATCH 0/2] i2c: enable buses to save their clock frequency in adapter
+Date: Wed, 1 Aug 2018 16:35:10 +0300
+Message-ID: <20180801133512.12276-1-tudor.ambarus@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180724203615.5770-1-jae.hyun.yoo@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jae.hyun.yoo@linux.intel.com
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, james.feist@linux.intel.com, vernon.mauery@linux.intel.com
+To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linus.walleij@linaro.org, Tudor Ambarus <tudor.ambarus@microchip.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jul 24, 2018 at 1:39 PM Jae Hyun Yoo
-<jae.hyun.yoo@linux.intel.com> wrote:
->
-> This commit fixes this sparse warning:
-> drivers/i2c/busses/i2c-aspeed.c:875:38: warning: incorrect type in assignment (different modifiers)
-> drivers/i2c/busses/i2c-aspeed.c:875:38:    expected unsigned int ( *get_clk_reg_val )( ... )
-> drivers/i2c/busses/i2c-aspeed.c:875:38:    got void const *const data
->
-> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-> ---
-> Changes since v1:
-> - Fixed title and added Reported-by tag.
->
->  drivers/i2c/busses/i2c-aspeed.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-> index efb89422d496..a4f956c6d567 100644
-> --- a/drivers/i2c/busses/i2c-aspeed.c
-> +++ b/drivers/i2c/busses/i2c-aspeed.c
-> @@ -872,7 +872,7 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
->         if (!match)
->                 bus->get_clk_reg_val = aspeed_i2c_24xx_get_clk_reg_val;
->         else
-> -               bus->get_clk_reg_val = match->data;
-> +               bus->get_clk_reg_val = (u32 (*)(u32))match->data;
->
->         /* Initialize the I2C adapter */
->         spin_lock_init(&bus->lock);
-> --
-> 2.18.0
->
+The clock-frequency property is not mandatory for the i2c buses. If it's
+not present in the device tree, the buses __usually__ assume it's 100kHZ
+(see altera, at91, axxia, etc.). Broadcom uses a 375kHZ default
+clock-frequency, so the default clock frequency varies from bus to bus.
 
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+There are i2c clients that need to know the bus clock frequency in order to
+compute their wake token (see atecc508a i2c client).
+
+The clock-frequency value has to be propagated to the i2c clients, otherwise,
+if they will not find the i2c bus clock frequency in the device tree, they
+will have to make their own assumption of the clock frequency.
+
+Spare the i2c clients of making wrong assumptions of the i2c bus clock
+frequency and enable the buses to save their clock frequency in adapter.
+
+since rfc:
+- reword commit messages
+
+Tudor Ambarus (2):
+  i2c: enable buses to save their clock frequency in adapter
+  i2c: at91: Save the bus clock frequency in adapter
+
+ drivers/i2c/busses/i2c-at91.c | 1 +
+ include/linux/i2c.h           | 1 +
+ 2 files changed, 2 insertions(+)
+
+-- 
+2.9.4
