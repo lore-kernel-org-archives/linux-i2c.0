@@ -1,57 +1,97 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: xlp9xx: Fix case where SSIF read transaction
- completes early
-Date: Tue, 31 Jul 2018 23:05:14 +0200
-Message-ID: <20180731210513.izqbzpvvqq5lq4uh@ninjato>
-References: <1532323119-11085-1-git-send-email-george.cherian@cavium.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: Re: [PATCH v7 5/6] i2c: Add Actions Semiconductor Owl family S900
+ I2C driver
+Date: Wed, 1 Aug 2018 10:26:39 +0530
+Message-ID: <20180801045639.GB15529@Mani-XPS-13-9360>
+References: <20180726154603.5089-1-manivannan.sadhasivam@linaro.org>
+ <20180726154603.5089-6-manivannan.sadhasivam@linaro.org>
+ <20180731200932.n7djds2rmqhclit5@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="nt3kfhluwrtxt5wh"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1532323119-11085-1-git-send-email-george.cherian@cavium.com>
+In-Reply-To: <20180731200932.n7djds2rmqhclit5@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: George Cherian <george.cherian@cavium.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jglauber@cavium.com
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: robh+dt@kernel.org, afaerber@suse.de, linus.walleij@linaro.org, linux-i2c@vger.kernel.org, liuwei@actions-semi.com, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree@vger.kernel.org, andy.shevchenko@gmail.com, daniel.thompson@linaro.org, amit.kucheria@linaro.org, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, hzhang@ucrobotics.com, bdong@ucrobotics.com, manivannanece23@gmail.com, thomas.liau@actions-semi.com, jeff.chen@actions-semi.com
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---nt3kfhluwrtxt5wh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Tue, Jul 31, 2018 at 10:09:32PM +0200, Wolfram Sang wrote:
+> Hi Manivannan,
+> 
+> On Thu, Jul 26, 2018 at 09:16:02PM +0530, Manivannan Sadhasivam wrote:
+> > Add Actions Semiconductor Owl family S900 I2C driver.
+> > 
+> > Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> > Acked-by: Peter Rosin <peda@axentia.se>
+> 
+> Looks mostly good already. Thanks Peter for the initial review!
+> 
 
-> --- a/drivers/i2c/busses/i2c-xlp9xx.c
-> +++ b/drivers/i2c/busses/i2c-xlp9xx.c
-> @@ -191,28 +191,30 @@ static void xlp9xx_i2c_drain_rx_fifo(struct xlp9xx_i2c_dev *priv)
->  	if (priv->len_recv) {
->  		/* read length byte */
->  		rlen = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_MRXFIFO);
-> +		len--;
+Thanks to Andy also :)
 
-I don't know the HW and assume the above line is correct because of
-merging two interrupts into one. However, the line looks a bit stray,
-and I wonder if we shouldn't add a comment somewhere explaining the
-situation similar to the second paragraph of the commit message?
+> > +static irqreturn_t owl_i2c_interrupt(int irq, void *_dev)
+> > +{
+> > +	struct owl_i2c_dev *i2c_dev = _dev;
+> > +	struct i2c_msg *msg = i2c_dev->msg;
+> > +	unsigned long flags;
+> > +	unsigned int stat, fifostat;
+> > +
+> > +	spin_lock_irqsave(&i2c_dev->lock, flags);
+> > +
+> > +	fifostat = readl(i2c_dev->base + OWL_I2C_REG_FIFOSTAT);
+> > +	if (fifostat & OWL_I2C_FIFOSTAT_RNB) {
+> > +		dev_dbg(&i2c_dev->adap.dev, "received NACK from device\n");
+> > +		goto stop;
+> > +	}
+> > +
+> > +	stat = readl(i2c_dev->base + OWL_I2C_REG_STAT);
+> > +	if (stat & OWL_I2C_STAT_BEB) {
+> > +		dev_dbg(&i2c_dev->adap.dev, "bus error\n");
+> > +		goto stop;
+> > +	}
+> 
+> I wonder if you can't pass back the different errors to the upper
+> layers? Like -ENXIO for NACK and -EIO for bus error? We have a
+> convention for that and it seems your HW can support it. The different
+> error codes would then maybe also make the debug outputs obsolete.
+> 
+> 
 
+Sure, will catch the errors using an i2c_dev member and pass it to upper
+layers in owl_i2c_master_xfer.
 
---nt3kfhluwrtxt5wh
-Content-Type: application/pgp-signature; name="signature.asc"
+> > +	/*
+> > +	 * Here, -ENXIO will be returned if interrupt occurred but no
+> > +	 * read or write happened. Else if msg_ptr equals to message length,
+> > +	 * message count will be returned.
+> > +	 */
+> > +	ret = i2c_dev->msg_ptr == msg->len ? num : -ENXIO;
+> 
+> I'd think this kinda unusual construct could go then as well by just
+> returning the error code derived from the interrupt handler above.
+> 
 
------BEGIN PGP SIGNATURE-----
+Makes sense! It will become:
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltgzwUACgkQFA3kzBSg
-Kbbmig/+JiAwv3RFIsTmwQQXLznqylgQBPxO6YN4ojCac7DTAhvObGUAMRNeD1AV
-3WGPZn54UFkbgiBWFcLqzea6HZEQJXcYLjbk1OrKmi1A6MQXgVEKcGos0HZRco6p
-B9HEb1+APeBN/VMCDFDerup5agLOmwg+5h2qGxjL6sWy0N9jBOIrhvdA+c5ML9rp
-9DVVehQ19l5r9Ui8p4fQww2A6F49VdGf+5oyaJLWTNcvhzc/bnt0Utk/7kD2VR1Q
-S1NlFXzG7WE2yTNYiUjDkt8d/V4x9oMfmheD7UaLZeJCp0Z9vWSpG/opuX5e1PPK
-P4wnu/EEy/Ioc3u07tWh8+QT8xmmkJaM4T8ot6MazADPr5J+XhRC0yKWjyiMrvoC
-CeV1gqSJbRcidhD5ix4KCtBs+7QWABNQ9F6SAAQzCbd6YVHmfHfKajRTSh7nkgfI
-cIUoOc1RtOSA+r1SXpOtbWW1/1LKb8ao2wUG77TviuqunkBd0n86SqOUdRoGq6vi
-RmXjgv0S2OwZU4R4T+gfBBjzkJWqaPZJq8XxyLpkN7FRGHRa0he7lnSeid/r3JRO
-T+Ychssq/c2/G2ztZRz31ymPw+W7Mclqy2s65t+1wsekthe07t4P8+ftPiqV79xD
-lYA3SKqlWIe/V/Zcvoh0rGRAdOEUJCzJHSX8HGYS2Sfz9G1WbZY=
-=79Yu
------END PGP SIGNATURE-----
+ret = i2c_dev->err < 0 ? i2c_dev->err : num;
 
---nt3kfhluwrtxt5wh--
+Thanks,
+Mani
+
+> > +static const struct i2c_adapter_quirks owl_i2c_quirks = {
+> > +	.flags		= I2C_AQ_COMB | I2C_AQ_COMB_WRITE_FIRST,
+> > +	.max_read_len   = 240,
+> > +	.max_write_len  = 240,
+> > +	.max_comb_1st_msg_len = 6,
+> > +	.max_comb_2nd_msg_len = 240,
+> > +};
+> 
+> Yay! Good use of the i2c_adapter_quirks struct :)
+> 
+> Regards,
+> 
+>    Wolfram
+> 
