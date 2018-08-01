@@ -1,7 +1,7 @@
 From: Tudor Ambarus <tudor.ambarus@microchip.com>
-Subject: [PATCH 1/2] i2c: enable buses to save their clock frequency in adapter
-Date: Wed, 1 Aug 2018 16:35:11 +0300
-Message-ID: <20180801133512.12276-2-tudor.ambarus@microchip.com>
+Subject: [PATCH 2/2] i2c: at91: Save the bus clock frequency in adapter
+Date: Wed, 1 Aug 2018 16:35:12 +0300
+Message-ID: <20180801133512.12276-3-tudor.ambarus@microchip.com>
 References: <20180801133512.12276-1-tudor.ambarus@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -25,24 +25,25 @@ if they will not find the i2c bus clock frequency in the device tree, they
 will have to make their own assumption of the clock frequency.
 
 Spare the i2c clients of making wrong assumptions of the i2c bus clock
-frequency and enable the buses to save their clock frequency in adapter.
+frequency and provide the bus clock frequency in adapter.
 
 Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
 ---
- include/linux/i2c.h | 1 +
+ drivers/i2c/busses/i2c-at91.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index bc8d42f..fe65768 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -677,6 +677,7 @@ struct i2c_adapter {
- 	struct rt_mutex bus_lock;
- 	struct rt_mutex mux_lock;
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 3f3e8b3..9aa0937 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -1124,6 +1124,7 @@ static int at91_twi_probe(struct platform_device *pdev)
+ 	dev->adapter.quirks = &at91_twi_quirks;
+ 	dev->adapter.dev.parent = dev->dev;
+ 	dev->adapter.nr = pdev->id;
++	dev->adapter.bus_freq_hz = bus_clk_rate;
+ 	dev->adapter.timeout = AT91_I2C_TIMEOUT;
+ 	dev->adapter.dev.of_node = pdev->dev.of_node;
  
-+	u32 bus_freq_hz;
- 	int timeout;			/* in jiffies */
- 	int retries;
- 	struct device dev;		/* the adapter device */
 -- 
 2.9.4
