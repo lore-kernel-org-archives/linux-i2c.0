@@ -1,49 +1,131 @@
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
-Subject: [PATCH 2/2] i2c: at91: Save the bus clock frequency in adapter
-Date: Wed, 1 Aug 2018 16:35:12 +0300
-Message-ID: <20180801133512.12276-3-tudor.ambarus@microchip.com>
-References: <20180801133512.12276-1-tudor.ambarus@microchip.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH v8 0/6] Add Actions Semiconductor Owl S900 I2C support
+Date: Wed,  1 Aug 2018 23:32:26 +0530
+Message-ID: <20180801180232.23680-1-manivannan.sadhasivam@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180801133512.12276-1-tudor.ambarus@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linus.walleij@linaro.org, Tudor Ambarus <tudor.ambarus@microchip.com>
+To: wsa@the-dreams.de, robh+dt@kernel.org, afaerber@suse.de
+Cc: linus.walleij@linaro.org, linux-i2c@vger.kernel.org, liuwei@actions-semi.com, mp-cs@actions-semi.com, 96boards@ucrobotics.com, devicetree@vger.kernel.org, andy.shevchenko@gmail.com, daniel.thompson@linaro.org, amit.kucheria@linaro.org, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, hzhang@ucrobotics.com, bdong@ucrobotics.com, manivannanece23@gmail.com, thomas.liau@actions-semi.com, jeff.chen@actions-semi.com, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The clock-frequency property is not mandatory for the i2c buses. If it's
-not present in the device tree, the buses __usually__ assume it's 100kHZ
-(see altera, at91, axxia, etc.). Broadcom uses a 375kHZ default
-clock-frequency, so the default clock frequency varies from bus to bus.
+This patchset adds I2C controller support for Actions Semiconductor S900 SoC.
+This driver has been structured in a way such that there will be only
+one controller driver for the whole Owl family series (S500, S700 and
+S900 SoCs).
 
-There are i2c clients that need to know the bus clock frequency in order to
-compute their wake token (see atecc508a i2c client).
+There are 6 I2C controllers with separate memory mapped register space.
+The I2C controller can handle atmost two messages concatenated by a
+repeated start via its internal address feature. Hence the driver
+uses this feature for messages of length greater than 1. In those cases,
+the first message of the combined message should be a `write` with maximum
+message length 6 and the second message's maximum length should be 240 bytes.
 
-The clock-frequency value has to be propagated to the i2c clients, otherwise,
-if they will not find the i2c bus clock frequency in the device tree, they
-will have to make their own assumption of the clock frequency.
+As far as the bus speed is concerned, this driver only supports
+Standard (100KHz) and High speed (400KHz) for now.
 
-Spare the i2c clients of making wrong assumptions of the i2c bus clock
-frequency and provide the bus clock frequency in adapter.
+The pinctrl definitions are only available for I2C0, I2C1 and I2C2.
+With the mux option available only for I2C0.
 
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
----
- drivers/i2c/busses/i2c-at91.c | 1 +
- 1 file changed, 1 insertion(+)
+For Bubblegum-96 board utilizing the S900 SoC, only I2C1 and I2C2 which
+are exposed on the Low speed expansion connector are enabled.
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 3f3e8b3..9aa0937 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -1124,6 +1124,7 @@ static int at91_twi_probe(struct platform_device *pdev)
- 	dev->adapter.quirks = &at91_twi_quirks;
- 	dev->adapter.dev.parent = dev->dev;
- 	dev->adapter.nr = pdev->id;
-+	dev->adapter.bus_freq_hz = bus_clk_rate;
- 	dev->adapter.timeout = AT91_I2C_TIMEOUT;
- 	dev->adapter.dev.of_node = pdev->dev.of_node;
- 
+This series depends on the pinctrl patch [1] is still not merged by the
+platform maintainer Andreas but it has been reviewed by the pinctrl maintainer
+Linus Walleij. For the reference, I have queued up all reviewed dts patches
+in my tree [2] from which Andreas is picking them for 4.19.
+
+For this series, since the dts patches will go through the ARM SoC tree,
+Andreas will pick it up once it is reviewed.
+
+Thanks,
+Mani
+
+[1] https://patchwork.kernel.org/patch/10322937/
+[2] https://git.linaro.org/people/manivannan.sadhasivam/linux.git/log/?h=s900-for-next
+
+Changes in v8:
+
+* Modified the NACK and Bus error handling as per Wolfram's review
+
+Changes in v7:
+
+* Fixed a multi line misalignment spotted by Peter
+
+Changes in v6:
+
+As per Peter's review:
+
+* Added missing newlines for error and debug outputs
+* Fixed further multi-line misalignments
+
+Changes in v5:
+
+* Cleaned up the multi-line codes and reordered the error paths
+  as per Peter's review
+* Added Acked-by tag from Peter for driver patch
+* Added Reviewed-by tag from Rob for bindings patch
+
+Changes in v4:
+
+As per Andy and Peter review:
+
+* Used spinlock for accessing most of the register access (only parts
+  involved sleep/long-busy-wait has been excluded)
+* Removed returning 0 and added -ENXIO if the msg_ptr not equals to
+  message length
+* Added DIV_ROUND_UP for setting clock frequency
+* Changed one non-atomic mdelay instance to usleep_range
+* Moved pinctrl definition patch before dts patch
+* Fixed the driver to support only 100KHz and 400KHz frequencies
+
+Changes in v3:
+
+As per Peter, Andy and Andreas review:
+
+* Removed owl_i2c_reset function from interrupt handler since it
+  involves the use of delays.
+* Fixed the return path in owl_i2c_master_xfer and added a note
+* Changed "base" parameter to "reg" in owl_i2c_update_reg for better
+  understandability
+* Ordered the includes in alphabetical order
+* Small changes to defines and added comma at the end of struct members
+* Removed rendundant 0 assignment in owl_i2c_master_xfer
+* Changed all OWL naming convention to Owl and also changed Actions Semi
+  naming to Actions Semiconductor
+
+Changes in v2:
+
+As per Andy's review:
+* Modified infinite loops to fixed number of retries
+* Used i2c_8bit_addr_from_msg for constructing the slave address
+* Removed unnecessary parenthesis around defines
+* Modified certain dev_warn to dev_dbg
+* Modified the error handling to more generic pattern
+* Fixed the return value in owl_i2c_master_xfer
+* Added MAINTAINERS patch for I2C driver and its binding
+
+Manivannan Sadhasivam (6):
+  dt-bindings: i2c: Add binding for Actions Semiconductor Owl I2C
+    controller
+  arm64: dts: actions: Add pinctrl definition for S900 I2C controller
+  arm64: dts: actions: Add Actions Semiconductor S900 I2C controller
+    nodes
+  arm64: dts: actions: Enable I2C1 and I2C2 in Bubblegum-96 board
+  i2c: Add Actions Semiconductor Owl family S900 I2C driver
+  MAINTAINERS: Add entry for Actions Semiconductor Owl I2C driver
+
+ .../devicetree/bindings/i2c/i2c-owl.txt       |  27 +
+ MAINTAINERS                                   |   2 +
+ .../dts/actions/s900-bubblegum-96-pins.dtsi   |  29 +
+ .../boot/dts/actions/s900-bubblegum-96.dts    |  11 +
+ arch/arm64/boot/dts/actions/s900.dtsi         |  60 +++
+ drivers/i2c/busses/Kconfig                    |   7 +
+ drivers/i2c/busses/Makefile                   |   1 +
+ drivers/i2c/busses/i2c-owl.c                  | 495 ++++++++++++++++++
+ 8 files changed, 632 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-owl.txt
+ create mode 100644 arch/arm64/boot/dts/actions/s900-bubblegum-96-pins.dtsi
+ create mode 100644 drivers/i2c/busses/i2c-owl.c
+
 -- 
-2.9.4
+2.17.1
