@@ -1,49 +1,43 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH 02/12] i2c: designware-master: use core to detect 'no zero
- length' quirk
-Date: Thu, 2 Aug 2018 17:00:59 +0300
-Message-ID: <db46f7ba-0627-eb0b-9a93-40f26a82b0bf@linux.intel.com>
-References: <20180723202617.15230-1-wsa+renesas@sang-engineering.com>
- <20180723202617.15230-3-wsa+renesas@sang-engineering.com>
+From: George Cherian <gcherian@caviumnetworks.com>
+Subject: Re: Re: [PATCH] i2c: xlp9xx: Fix case where SSIF read transaction
+ completes early
+Date: Fri, 3 Aug 2018 10:19:40 +0530
+Message-ID: <77928aed-a9c4-48af-6766-693a142568eb@caviumnetworks.com>
+References: <1532323119-11085-1-git-send-email-george.cherian@cavium.com>
+ <20180731210513.izqbzpvvqq5lq4uh@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180723202617.15230-3-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20180731210513.izqbzpvvqq5lq4uh@ninjato>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, George Cherian <george.cherian@cavium.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, jglauber@cavium.com
 List-Id: linux-i2c@vger.kernel.org
 
-On 07/23/2018 11:26 PM, Wolfram Sang wrote:
-> And don't reimplement in the driver.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
-> 
-> Only build tested.
-> 
->   drivers/i2c/busses/i2c-designware-master.c | 12 +++++-------
->   1 file changed, 5 insertions(+), 7 deletions(-)
-> 
-I tested this with patch 1 and I like it since with these patches the 
-test is done before firing up the HW, waiting for an interrupt and then 
-see the length is invalid for us.
+Hi Wolfran,
 
-i2ctransfer -f 8 r0@0x10
+Thanks for the review.
 
-Before (with i2c_designware debugging on):
-[   15.607283] i2c_designware i2c_designware.1: i2c_dw_xfer: msgs: 1
-[   15.711988] i2c_designware i2c_designware.1: enabled=0x1 stat=0x10
-[   15.712002] i2c_designware i2c_designware.1: i2c_dw_xfer_msg: invalid 
-message length
-Error: Sending messages failed: Invalid argument
+I will update the patch with a small comment section above
+len --;
+so that there is no confusion.
 
-After:
-[   25.838661] i2c i2c-8: adapter quirk: no zero length (addr 0x0010, 
-size 0, read)
-Error: Sending messages failed: Operation not supported
+On 08/01/2018 02:35 AM, Wolfram Sang wrote:
+>> --- a/drivers/i2c/busses/i2c-xlp9xx.c
+>> +++ b/drivers/i2c/busses/i2c-xlp9xx.c
+>> @@ -191,28 +191,30 @@ static void xlp9xx_i2c_drain_rx_fifo(struct xlp9xx_i2c_dev *priv)
+>>   	if (priv->len_recv) {
+>>   		/* read length byte */
+>>   		rlen = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_MRXFIFO);
+>> +		len--;
+> 
+> I don't know the HW and assume the above line is correct because of
+> merging two interrupts into one. However, the line looks a bit stray,
+> and I wonder if we shouldn't add a comment somewhere explaining the
+> situation similar to the second paragraph of the commit message?
+> 
 
-Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Regards,
+-George
