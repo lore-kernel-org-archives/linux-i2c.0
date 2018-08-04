@@ -1,88 +1,103 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v6 01/10] i3c: Add core I3C infrastructure
-Date: Sat, 4 Aug 2018 07:33:58 +0200
-Message-ID: <20180804073358.7c5cf3a0@bbrezillon>
-References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
-        <20180719152930.3715-2-boris.brezillon@bootlin.com>
-        <023901d42b72$5bc329d0$13497d70$@codeaurora.org>
+From: Mark Jonas <mark.jonas@de.bosch.com>
+Subject: [PATCH] eeprom: at24: Fix unexpected timeout under high load
+Date: Sat, 4 Aug 2018 19:43:40 +0200
+Message-ID: <1533404620-18536-1-git-send-email-mark.jonas@de.bosch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <023901d42b72$5bc329d0$13497d70$@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: mshettel@codeaurora.org
-Cc: 'Wolfram Sang' <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, 'Jonathan Corbet' <corbet@lwn.net>, linux-doc@vger.kernel.org, 'Greg Kroah-Hartman' <gregkh@linuxfoundation.org>, 'Arnd Bergmann' <arnd@arndb.de>, 'Przemyslaw Sroka' <psroka@cadence.com>, 'Arkadiusz Golec' <agolec@cadence.com>, 'Alan Douglas' <adouglas@cadence.com>, 'Bartosz Folta' <bfolta@cadence.com>, 'Damian Kos' <dkos@cadence.com>, 'Alicja Jurasik-Urbaniak' <alicja@cadence.com>, 'Cyprian Wronka' <cwronka@cadence.com>, 'Suresh Punnoose' <sureshp@cadence.com>, 'Rafal Ciepiela' <rafalc@cadence.com>, 'Thomas Petazzoni' <thomas.petazzoni@bootlin.com>, 'Nishanth Menon' <nm@ti.com>, 'Rob Herring' <robh+dt@kernel.org>, 'Pawel Moll' <pawel.moll@arm.com>
+To: Bartosz Golaszewski <brgl@bgdev.pl>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Wang Xin <xin.wang7@cn.bosch.com>, Mark Jonas <mark.jonas@de.bosch.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Mike,
+From: Wang Xin <xin.wang7@cn.bosch.com>
 
-On Fri, 3 Aug 2018 15:38:43 -0600
-<mshettel@codeaurora.org> wrote:
+Within at24_loop_until_timeout the timestamp used for timeout checking
+is recorded after the I2C transfer and sleep_range(). Under high CPU
+load either the execution time for I2C transfer or sleep_range() could
+actually be larger than the timeout value. Worst case the I2C transfer
+is only tried once because the loop will exit due to the timeout
+although the EEPROM is now ready.
 
-> > +static void
-> > +i3c_master_register_new_i3c_devs(struct i3c_master_controller *master)
-> > +{
-> > +	struct i3c_dev_desc *desc;
-> > +	int ret;
-> > +
-> > +	if (!master->init_done)
-> > +		return;
-> > +
-> > +	i3c_bus_for_each_i3cdev(master->bus, desc) {
-> > +		if (desc->dev || !desc->info.dyn_addr)
-> > +			continue;
-> > +
-> > +		desc->dev = kzalloc(sizeof(*desc->dev), GFP_KERNEL);
-> > +		if (!desc->dev)
-> > +			continue;
-> > +
-> > +		desc->dev->bus = master->bus;
-> > +		desc->dev->desc = desc;
-> > +		desc->dev->dev.parent = &master->bus->dev;
-> > +		if (desc == master->this)
-> > +			desc->dev->dev.type = &i3c_master_type;
-> > +		else
-> > +			desc->dev->dev.type = &i3c_device_type;
-> > +		desc->dev->dev.bus = &i3c_bus_type;
-> > +		desc->dev->dev.release = i3c_device_release;
-> > +		dev_set_name(&desc->dev->dev, "%d-%llx", master->bus-  
-> > >id,  
-> > +			     desc->info.pid);
-> > +
-> > +		if (desc->boardinfo)
-> > +			desc->dev->dev.of_node = desc->boardinfo-  
-> > >of_node;  
-> > +
-> > +		pr_info("%s:%i\n", __func__, __LINE__);
-> > +		if (ret)
-> > +			dev_err(master->parent,
-> > +				"Failed to add I3C device (err = %d)\n",  
-> ret);
-> > +	}
-> > +}  
-> 
-> The compiler gives a warning that "ret" may be used uninitialized in the
-> above function, which is true since "ret" is never assigned a value.  Also,
-> I wonder about the "pr_info" call here, should there be a more detailed
-> message here about the device being registered, other than the file name and
-> line number?
+To fix this issue the timestamp is recorded at the beginning of each
+iteration. That is, before I2C transfer and sleep. Then the timeout
+is actually checked against the timestamp of the previous iteration.
+This makes sure that even if the timeout is reached, there is still one
+more chance to try the I2C transfer in case the EEPROM is ready.
 
-Yes, kbuild already reported that problem. I messed up when selecting
-the lines to add to my commit and added this trace instead of
+Signed-off-by: Wang Xin <xin.wang7@cn.bosch.com>
+Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
+---
+ drivers/misc/eeprom/at24.c | 26 +++++++++++++++++++-------
+ 1 file changed, 19 insertions(+), 7 deletions(-)
 
-		ret = device_register(&desc->dev->dev);
-
-Will be fixed in v7.
-
-> 
-> Otherwise, I have gone through the code in the process of writing the first
-> iteration of the Qualcomm I3C master driver, and overall the framework looks
-> good.  Will update with any additional feedback I have.
-
-Thanks for looking at the framework code. Your driver is in my TODO
-list.
-
-Regards,
-
-Boris
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index f5cc517..6d8c294 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -112,16 +112,26 @@ MODULE_PARM_DESC(at24_write_timeout, "Time (in ms) to try writes (default 25)");
+  * write to work while making sure that at least one iteration is run before
+  * checking the break condition.
+  *
++ * By recording current time at the beginning of one iteration, the timeout
++ * is actually checked against the time in previous iteration. It makes sure,
++ * even the timeout is reached, there is still one more chance to try I2C
++ * transfer in case EEPROM is ready.
++ *
+  * It takes two parameters: a variable in which the future timeout in jiffies
+  * will be stored and a temporary variable holding the time of the last
+  * iteration of processing the request. Both should be unsigned integers
+  * holding at least 32 bits.
+  */
+-#define at24_loop_until_timeout(tout, op_time)				\
+-	for (tout = jiffies + msecs_to_jiffies(at24_write_timeout),	\
+-	     op_time = 0;						\
+-	     op_time ? time_before(op_time, tout) : true;		\
+-	     usleep_range(1000, 1500), op_time = jiffies)
++#define at24_loop_until_timeout_begin(tout, op_time)		\
++	tout = jiffies + msecs_to_jiffies(at24_write_timeout);	\
++	while (true) {						\
++		op_time = jiffies;
++
++#define at24_loop_until_timeout_end(tout, op_time)		\
++		if (time_before(tout, op_time))			\
++			break;					\
++		usleep_range(1000, 1500);			\
++	}
+ 
+ struct at24_chip_data {
+ 	/*
+@@ -308,13 +318,14 @@ static ssize_t at24_regmap_read(struct at24_data *at24, char *buf,
+ 	/* adjust offset for mac and serial read ops */
+ 	offset += at24->offset_adj;
+ 
+-	at24_loop_until_timeout(timeout, read_time) {
++	at24_loop_until_timeout_begin(timeout, read_time) {
+ 		ret = regmap_bulk_read(regmap, offset, buf, count);
+ 		dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
+ 			count, offset, ret, jiffies);
+ 		if (!ret)
+ 			return count;
+ 	}
++	at24_loop_until_timeout_end(timeout, read_time)
+ 
+ 	return -ETIMEDOUT;
+ }
+@@ -359,13 +370,14 @@ static ssize_t at24_regmap_write(struct at24_data *at24, const char *buf,
+ 	client = at24_client->client;
+ 	count = at24_adjust_write_count(at24, offset, count);
+ 
+-	at24_loop_until_timeout(timeout, write_time) {
++	at24_loop_until_timeout_begin(timeout, write_time) {
+ 		ret = regmap_bulk_write(regmap, offset, buf, count);
+ 		dev_dbg(&client->dev, "write %zu@%d --> %d (%ld)\n",
+ 			count, offset, ret, jiffies);
+ 		if (!ret)
+ 			return count;
+ 	}
++	at24_loop_until_timeout_end(timeout, write_time)
+ 
+ 	return -ETIMEDOUT;
+ }
+-- 
+2.7.4
