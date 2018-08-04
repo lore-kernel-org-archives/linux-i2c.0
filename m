@@ -1,28 +1,27 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 10/12] i2c: rcar: use core to detect 'no zero length'
- quirk
-Date: Sat, 4 Aug 2018 23:27:28 +0200
-Message-ID: <20180804212728.y66bnjiudsuazs4c@ninjato>
+Subject: Re: [PATCH 11/12] i2c: xlr: use core to detect 'no zero length' quirk
+Date: Sat, 4 Aug 2018 23:27:33 +0200
+Message-ID: <20180804212732.mpnplmon5x4vrwul@ninjato>
 References: <20180723202617.15230-1-wsa+renesas@sang-engineering.com>
- <20180723202617.15230-11-wsa+renesas@sang-engineering.com>
+ <20180723202617.15230-12-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="2xc55qy6jrjdy4k5"
+        protocol="application/pgp-signature"; boundary="tl2hkdq2cknu3aqc"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180723202617.15230-11-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20180723202617.15230-12-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---2xc55qy6jrjdy4k5
+--tl2hkdq2cknu3aqc
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 23, 2018 at 10:26:14PM +0200, Wolfram Sang wrote:
+On Mon, Jul 23, 2018 at 10:26:15PM +0200, Wolfram Sang wrote:
 > And don't reimplement in the driver.
 >=20
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
@@ -30,24 +29,24 @@ On Mon, Jul 23, 2018 at 10:26:14PM +0200, Wolfram Sang wrote:
 Applied to for-next, thanks!
 
 
---2xc55qy6jrjdy4k5
+--tl2hkdq2cknu3aqc
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltmGj8ACgkQFA3kzBSg
-Kbbr5BAAnB3IhW255sok350P6uIA1lldIR8dQFkdVexXEFnJqaolwaSptYaFGpnw
-/gFNPZRG8tbQACOIAOpDNc0GNQXk1hMzXVaq30oLHwcY5ygO/1HiG7QzLeabz8LI
-FY1SX6RLLsKfRhr/tRIspaGLH3YgjMvM6iRV0Tmf/szzmkDExEy8/+omlLThGX7Q
-4m7Gx2FWudV9n4D6K1DPwGDx5deShRrttN2jy4usl2LSjt3SAhbR1a9271t02a4O
-vmYEDkSLWuOhedkOBqbBhLBtioipnrBpj6bGwcm3tEfbtNebOOZI5w9MUPfu+yfY
-tg77ogpFO2UZHt0+1GU2HW839Ofk3ymn28A4XHe+NG6cB+PpoY4xWRuDUTUs7u+9
-ZX8o/HR3YUURs/Mgx1OF1ETRvGlruKtMCD9Pzj3n3dx0oojNNim6TmN50uk1d8Pf
-JQxWcKwqSLHuTlwf5PG92dDfXb3K6ca/nIey5UjscwYV1TnfolJyIcD6vdvjwknn
-CHhQSay2K9LV77rL3yfNc8CwYJQG5IiXJHX/Qjzm4Aym1zqFPvHJX5IHCLXFuXyA
-SjpVrcGROpWRZHvZwNRHfZLSZq5PdUfHBnhJ0k4PE4tDy23xew9/OjX5rElShMrT
-p5mKlPWSlRxrZyhAdZc69kLTn6R5hDQSpIDFHxSYhz/FawnqY3o=
-=LGFa
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltmGkQACgkQFA3kzBSg
+KbZ7yg/9FwRRAAvhqlUjIccoPxACKuZrAmn+BehdJPlgzLKdj0Z5V58QsS2ZUGlt
+tqOpjnOx+hNWl+nmj5tG7ZSg42yBp2bP4z505BIzwaLNCAUd4isfHifikIfDjb32
+nxWjaXxSq9J+5Exn7yOd7gT6j7qOevQzoqasSdfacp+Sqy9wxIIcFd45u4IVX2jN
+GJo4it60+Cnp5OjqtkJzDiXr32ZLCCMJnIaZblLLC7zZoqm4iYN/pgpOowtWII78
+3Vs3IKyNb5m+XJaSTMXJ/o7Lsz7/M9in0cH6LGQTULZT2UVDQtszL09Rd96qzJHK
+9D8yWIvogcVPH0vg8mFF7Fbnn4wnQzAr06WMakkzjfp+rwCOn12QaWdE7K2W+i4I
+sjAAfcNXB1ke9j4pSVIT61Sq2GdnPkgXamHPy9QMO7YECqio+gTGqaWDpA9RBXuj
+C97ovUPyR0USRogX+pZqbTy1dBgAppl7Fv9BTBCa0EsIk0WLfJ1shP5z2R8oq4hs
+98hamO8YGrfY4Kr/jX+DDsHr8CO56fMsmCj19nBHN/BUrEhv0rx8+y7DHGcKcfYq
++xCxiZCPOcATEvDY7GDXJ6KWLddTjxrvICS82GhlTYl8fcoztrV7AEO/RJNzh2ML
+37XbDH7jAMZLyRcHYrM1dtmhvKvfi9gEKH0sbhtPPhLXsfosUJE=
+=cYN7
 -----END PGP SIGNATURE-----
 
---2xc55qy6jrjdy4k5--
+--tl2hkdq2cknu3aqc--
