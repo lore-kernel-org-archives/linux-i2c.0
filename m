@@ -1,68 +1,114 @@
-From: "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
 Subject: Re: [PATCH] eeprom: at24: Fix unexpected timeout under high load
-Date: Sun, 5 Aug 2018 12:26:47 +0000
-Message-ID: <cd8f37876a2e466ea066bcad10b0b8e4@de.bosch.com>
+Date: Sun, 5 Aug 2018 17:09:15 +0300
+Message-ID: <CAHp75Ve=WZj6OT7wwQuqmSbZxK7EZr2z=AWJFRA-_aG+4_7MHw@mail.gmail.com>
+References: <cd8f37876a2e466ea066bcad10b0b8e4@de.bosch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: de-DE
+In-Reply-To: <cd8f37876a2e466ea066bcad10b0b8e4@de.bosch.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>, Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "WANG Xin (BT-FIR/ENG1-Zhu)" <Xin.Wang7@cn.bosch.com>, "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
+To: "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "WANG Xin (BT-FIR/ENG1-Zhu)" <Xin.Wang7@cn.bosch.com>
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgQW5keSwNCg0KVGhhbmsgeW91IGZvciB5b3VyIGZlZWRiYWNrLg0KIA0KPiA+IC0jZGVmaW5l
-IGF0MjRfbG9vcF91bnRpbF90aW1lb3V0KHRvdXQsIG9wX3RpbWUpICAgICAgICAgICAgICAgICAg
-ICAgICAgIFwNCj4gPiAtICAgICAgIGZvciAodG91dCA9IGppZmZpZXMgKyBtc2Vjc190b19qaWZm
-aWVzKGF0MjRfd3JpdGVfdGltZW91dCksICAgICBcDQo+ID4gLSAgICAgICAgICAgIG9wX3RpbWUg
-PSAwOyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXA0KPiA+
-IC0gICAgICAgICAgICBvcF90aW1lID8gdGltZV9iZWZvcmUob3BfdGltZSwgdG91dCkgOiB0cnVl
-OyAgICAgICAgICAgICAgIFwNCj4gPiAtICAgICAgICAgICAgdXNsZWVwX3JhbmdlKDEwMDAsIDE1
-MDApLCBvcF90aW1lID0gamlmZmllcykNCj4gDQo+IFRoaXMgb25lIHVuZGVyc3RhbmRibGUgYW5k
-IHJlcHJlc2VudHMgb25lIG9wZXJhdGlvbi4NCg0KSXQganVzdCBoYXMgdGhlIGRvd25zaWRlIHRo
-YXQgaXQgd2lsbCBub3QgcmV0cnkgaWYgdGhlIHRpbWVvdXQgaXMNCnJlYWNoZWQgYWZ0ZXIgdGhl
-IHVzbGVlcF9yYW5nZSgpLg0KDQpJZiB5b3UgaGF2ZSBhIHN5c3RlbSB3aGljaCBjb21iaW5lcyBo
-aWdoIENQVSBsb2FkIHdpdGggcmVwZWF0ZWQgRUVQUk9NDQp3cml0ZXMgeW91IHdpbGwgcnVuIGlu
-dG8gdGhlIGZvbGxvd2luZyBzY2VuYXJpbzoNCg0KLSBTeXN0ZW0gbWFrZXMgYSBzdWNjZXNzZnVs
-IHJlZ21hcF9idWxrX3dyaXRlKCkgdG8gRUVQUk9NLg0KLSBTeXN0ZW0gd2FudHMgdG8gcGVyZm9y
-bSBhbm90aGVyIHdyaXRlIHRvIEVFUFJPTSBidXQgRUVQUk9NIGlzIHN0aWxsDQogIGJ1c3kgd2l0
-aCB0aGUgbGFzdCB3cml0ZS4NCi0gQmVjYXVzZSBvZiBoaWdoIENQVSBsb2FkIHRoZSB1c2xlZXBf
-cmFuZ2UoKSB3aWxsIHNsZWVwIG1vcmUgdGhhbg0KICAyNSBtcyAoYXQyNF93cml0ZV90aW1lb3V0
-KS4NCi0gV2l0aGluIHRoZSBvdmVyLWxvbmcgc2xlZXBpbmcgdGhlIEVFUFJPTSBmaW5pc2hlZCB0
-aGUgcHJldmlvdXMgd3JpdGUNCiAgb3BlcmF0aW9uIGFuZCBpcyByZWFkeSBhZ2Fpbi4NCi0gYXQy
-NF9sb29wX3VudGlsX3RpbWVvdXQoKSB3aWxsIGRldGVjdCB0aW1lb3V0IGFuZCB3b24ndCB0cnkg
-dG8gd3JpdGUuDQoNClRoZSBzY2VuYXJpbyBhYm92ZSBoYXBwZW5zIHZlcnkgb2Z0ZW4gb24gb3Vy
-IHN5c3RlbSBhbmQgd2UgbmVlZCBhIGZpeC4NCg0KPiA+ICsjZGVmaW5lIGF0MjRfbG9vcF91bnRp
-bF90aW1lb3V0X2JlZ2luKHRvdXQsIG9wX3RpbWUpICAgICAgICAgICBcDQo+ID4gKyAgICAgICB0
-b3V0ID0gamlmZmllcyArIG1zZWNzX3RvX2ppZmZpZXMoYXQyNF93cml0ZV90aW1lb3V0KTsgIFwN
-Cj4gPiArICAgICAgIHdoaWxlICh0cnVlKSB7ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgXA0KPiA+ICsgICAgICAgICAgICAgICBvcF90aW1lID0gamlmZmllczsNCj4g
-PiArDQo+ID4gKyNkZWZpbmUgYXQyNF9sb29wX3VudGlsX3RpbWVvdXRfZW5kKHRvdXQsIG9wX3Rp
-bWUpICAgICAgICAgICAgIFwNCj4gPiArICAgICAgICAgICAgICAgaWYgKHRpbWVfYmVmb3JlKHRv
-dXQsIG9wX3RpbWUpKSAgICAgICAgICAgICAgICAgXA0KPiA+ICsgICAgICAgICAgICAgICAgICAg
-ICAgIGJyZWFrOyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcDQo+ID4gKyAgICAg
-ICAgICAgICAgIHVzbGVlcF9yYW5nZSgxMDAwLCAxNTAwKTsgICAgICAgICAgICAgICAgICAgICAg
-IFwNCj4gPiArICAgICAgIH0NCj4gDQo+IEJlc2lkZXMgYHdoaWxlICh0cnVlKWAsIHdoaWNoIGlz
-IGEgcmVkIGZsYWcgZm9yIHRpbWVvdXQgbG9vcHMsDQo+IHRoZXNlIGFyZSBkb25lIGluIGFuIGhh
-Y2sgd2F5LiBKdXN0IG9wZW4gY29kZSB0aGVtIGluIGJvdGggY2FzZXMsIG9yDQo+IHJld3JpdGUg
-b3JpZ2luYWwgb25lIHRvIGtlZWwgaXQncyBzZW1hbnRpY3MuDQoNCkkgaGF2ZSB0byBhZG1pdCB0
-aGF0IEkgYW0gbm90IHN1cmUgd2hhdCB5b3UgbWVhbi4NCg0KV2Uga2VwdCB0aGUgbWFjcm8tc3R5
-bGUgb2YgdGhlIGxvb3AgYmVjYXVzZSB3ZSBhc3N1bWVkIGl0IHdhcyBnb29kDQpzdHlsZSBpbiB0
-aGlzIGNvbnRleHQuDQoNCldoYXQgZG9lcyAia2VlbCBpdCdzIHNlbWFudGljcyIgbWVhbj8NCg0K
-V2l0aCAib3BlbiBjb2RlIHRoZW0gaW4gYm90aCBjYXNlcyIgZG8geW91IG1lYW4gdG8gcmlkIG9m
-IHRoZSBtYWNybw0KYW5kIHRvIGRpcmVjdGx5IHdyaXRlIHRoZSBsb29wIGludG8gdGhlIGNvZGU/
-IERvZXMgdGhlIGZvbGxvd2luZw0KbWF0Y2ggeW91ciBwcm9wb3NhbHM/DQoNCnJldCA9IDA7DQp0
-b3V0ID0gamlmZmllcyArIG1zZWNzX3RvX2ppZmZpZXMoYXQyNF93cml0ZV90aW1lb3V0KTsNCmRv
-IHsNCglpZiAocmV0KQ0KCQl1c2xlZXBfcmFuZ2UoMTAwMCwgMTUwMCk7DQoNCglyZWFkX3RpbWUg
-PSBqaWZmaWVzOw0KDQoJcmV0ID0gcmVnbWFwX2J1bGtfcmVhZChyZWdtYXAsIG9mZnNldCwgYnVm
-LCBjb3VudCk7DQoJZGV2X2RiZygmY2xpZW50LT5kZXYsICJyZWFkICV6dUAlZCAtLT4gJWQgKCVs
-ZClcbiIsDQoJCWNvdW50LCBvZmZzZXQsIHJldCwgamlmZmllcyk7DQoJaWYgKCFyZXQpDQoJCXJl
-dHVybiBjb3VudDsNCn0gd2hpbGUgKCF0aW1lX2JlZm9yZSh0b3V0LCByZWFkX3RpbWUpKQ0KDQpH
-cmVldGluZ3MsDQpNYXJrDQoNCkJ1aWxkaW5nIFRlY2hub2xvZ2llcywgUGFuZWwgU29mdHdhcmUg
-RmlyZSAoQlQtRklSL0VORzEpIA0KQm9zY2ggU2ljaGVyaGVpdHNzeXN0ZW1lIEdtYkggfCBQb3N0
-ZmFjaCAxMSAxMSB8IDg1NjI2IEdyYXNicnVubiB8IEdFUk1BTlkgfCB3d3cuYm9zY2hzZWN1cml0
-eS5jb20NCg0KU2l0ejogU3R1dHRnYXJ0LCBSZWdpc3RlcmdlcmljaHQ6IEFtdHNnZXJpY2h0IFN0
-dXR0Z2FydCBIUkIgMjMxMTggDQpBdWZzaWNodHNyYXRzdm9yc2l0emVuZGVyOiBTdGVmYW4gSGFy
-dHVuZzsgR2VzY2jDpGZ0c2bDvGhydW5nOiBUYW5qYSBSw7xja2VydCwgQW5kcmVhcyBCYXJ0eiwg
-VGhvbWFzIFF1YW50ZSwgQmVybmhhcmQgU2NodXN0ZXINCg==
+On Sun, Aug 5, 2018 at 3:26 PM, Jonas Mark (BT-FIR/ENG1)
+<Mark.Jonas@de.bosch.com> wrote:
+> Hi Andy,
+>
+> Thank you for your feedback.
+>
+>> > -#define at24_loop_until_timeout(tout, op_time)                         \
+>> > -       for (tout = jiffies + msecs_to_jiffies(at24_write_timeout),     \
+>> > -            op_time = 0;                                               \
+>> > -            op_time ? time_before(op_time, tout) : true;               \
+>> > -            usleep_range(1000, 1500), op_time = jiffies)
+>>
+>> This one understandble and represents one operation.
+>
+> It just has the downside that it will not retry if the timeout is
+> reached after the usleep_range().
+>
+> If you have a system which combines high CPU load with repeated EEPROM
+> writes you will run into the following scenario:
+>
+> - System makes a successful regmap_bulk_write() to EEPROM.
+> - System wants to perform another write to EEPROM but EEPROM is still
+>   busy with the last write.
+> - Because of high CPU load the usleep_range() will sleep more than
+>   25 ms (at24_write_timeout).
+> - Within the over-long sleeping the EEPROM finished the previous write
+>   operation and is ready again.
+> - at24_loop_until_timeout() will detect timeout and won't try to write.
+
+>
+> The scenario above happens very often on our system and we need a fix.
+
+Thanks for explanation why. (it would be good partially move this to
+the commit message).
+
+
+>
+>> > +#define at24_loop_until_timeout_begin(tout, op_time)           \
+>> > +       tout = jiffies + msecs_to_jiffies(at24_write_timeout);  \
+>> > +       while (true) {                                          \
+>> > +               op_time = jiffies;
+>> > +
+>> > +#define at24_loop_until_timeout_end(tout, op_time)             \
+>> > +               if (time_before(tout, op_time))                 \
+>> > +                       break;                                  \
+>> > +               usleep_range(1000, 1500);                       \
+>> > +       }
+>>
+>> Besides `while (true)`, which is a red flag for timeout loops,
+>> these are done in an hack way. Just open code them in both cases, or
+>> rewrite original one to keel it's semantics.
+>
+> I have to admit that I am not sure what you mean.
+>
+> We kept the macro-style of the loop because we assumed it was good
+> style in this context.
+
+No way. It's a bad style when you have a macro like you proposing. It
+would give you a bottle of sparkling bugs.
+
+> What does "keel it's semantics" mean?
+
+Macro should be standalone piece of code which does something from A
+to Z, not from A-K when you need a complementary macro to do L-Z
+parts.
+
+> With "open code them in both cases" do you mean to rid of the macro
+> and to directly write the loop into the code? Does the following
+> match your proposals?
+>
+> ret = 0;
+> tout = jiffies + msecs_to_jiffies(at24_write_timeout);
+> do {
+>         if (ret)
+>                 usleep_range(1000, 1500);
+>
+>         read_time = jiffies;
+>
+>         ret = regmap_bulk_read(regmap, offset, buf, count);
+>         dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
+>                 count, offset, ret, jiffies);
+>         if (!ret)
+>                 return count;
+> } while (!time_before(tout, read_time))
+
+Yes, though, please, look at the examples in the existing code and
+make it slightly better
+
+timeout = ...
+do {
+ret = ...
+if (ret) // or if (!ret)
+ ...
+
+usleep_range(...);
+} while(time_before(...));
+
+-- 
+With Best Regards,
+Andy Shevchenko
