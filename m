@@ -1,7 +1,7 @@
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v3 1/6] i2c: designware: use generic table matching
-Date: Mon,  6 Aug 2018 20:54:07 +0200
-Message-ID: <20180806185412.7210-2-alexandre.belloni@bootlin.com>
+Subject: [PATCH v3 3/6] i2c: designware: allow IP specific sda_hold_time
+Date: Mon,  6 Aug 2018 20:54:09 +0200
+Message-ID: <20180806185412.7210-4-alexandre.belloni@bootlin.com>
 References: <20180806185412.7210-1-alexandre.belloni@bootlin.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180806185412.7210-1-alexandre.belloni@bootlin.com>
@@ -10,50 +10,41 @@ To: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.c
 Cc: Paul Burton <paul.burton@mips.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Switch to device_get_match_data in probe to match the device specific data
-instead of using the acpi specific function.
+Because some old designware IPs were not supporting setting an SDA hold
+time, vendors developed their own solution. Add a way for the final driver
+to provide its own SDA hold time handling.
 
-Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
-Changes in v3:
- - removed unused variable
- - switched to uintptr_t for the cast
+ drivers/i2c/busses/i2c-designware-common.c | 2 ++
+ drivers/i2c/busses/i2c-designware-core.h   | 1 +
+ 2 files changed, 3 insertions(+)
 
- drivers/i2c/busses/i2c-designware-platdrv.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index ddf13527aaee..d117c120730d 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -86,7 +86,6 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
- 	struct i2c_timings *t = &dev->timings;
- 	u32 ss_ht = 0, fp_ht = 0, hs_ht = 0, fs_ht = 0;
- 	acpi_handle handle = ACPI_HANDLE(&pdev->dev);
--	const struct acpi_device_id *id;
- 	struct acpi_device *adev;
- 	const char *uid;
- 
-@@ -119,10 +118,6 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
- 		break;
- 	}
- 
--	id = acpi_match_device(pdev->dev.driver->acpi_match_table, &pdev->dev);
--	if (id && id->driver_data)
--		dev->flags |= (u32)id->driver_data;
--
- 	if (acpi_bus_get_device(handle, &adev))
- 		return -ENODEV;
- 
-@@ -291,6 +286,8 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	else
- 		t->bus_freq_hz = 400000;
- 
-+	dev->flags |= (uintptr_t)device_get_match_data(&pdev->dev);
-+
- 	if (has_acpi_companion(&pdev->dev))
- 		dw_i2c_acpi_configure(pdev);
- 
+diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+index e67d6c7d552c..463906a02c7f 100644
+--- a/drivers/i2c/busses/i2c-designware-common.c
++++ b/drivers/i2c/busses/i2c-designware-common.c
+@@ -201,6 +201,8 @@ int i2c_dw_set_sda_hold(struct dw_i2c_dev *dev)
+ 		dev_dbg(dev->dev, "SDA Hold Time TX:RX = %d:%d\n",
+ 			dev->sda_hold_time & ~(u32)DW_IC_SDA_HOLD_RX_MASK,
+ 			dev->sda_hold_time >> DW_IC_SDA_HOLD_RX_SHIFT);
++	} else if (dev->set_sda_hold_time) {
++		dev->set_sda_hold_time(dev);
+ 	} else if (dev->sda_hold_time) {
+ 		dev_warn(dev->dev,
+ 			"Hardware too old to adjust SDA hold time.\n");
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 70c188d6fb6b..870444bbbcc4 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -269,6 +269,7 @@ struct dw_i2c_dev {
+ 	void			(*disable)(struct dw_i2c_dev *dev);
+ 	void			(*disable_int)(struct dw_i2c_dev *dev);
+ 	int			(*init)(struct dw_i2c_dev *dev);
++	int			(*set_sda_hold_time)(struct dw_i2c_dev *dev);
+ 	int			mode;
+ 	struct i2c_bus_recovery_info rinfo;
+ };
 -- 
 2.18.0
