@@ -1,58 +1,50 @@
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v3 5/6] MIPS: dts: mscc: Add i2c on ocelot
-Date: Mon,  6 Aug 2018 20:54:11 +0200
-Message-ID: <20180806185412.7210-6-alexandre.belloni@bootlin.com>
-References: <20180806185412.7210-1-alexandre.belloni@bootlin.com>
+Subject: [PATCH v3 0/6] Add support for MSCC Ocelot i2c
+Date: Mon,  6 Aug 2018 20:54:06 +0200
+Message-ID: <20180806185412.7210-1-alexandre.belloni@bootlin.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180806185412.7210-1-alexandre.belloni@bootlin.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Hogan <jhogan@kernel.org>
 Cc: Paul Burton <paul.burton@mips.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Ocelot has an i2c controller, add it. There is only one possible pinmux
-configuration so add it as well.
+Hello,
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
----
- arch/mips/boot/dts/mscc/ocelot.dtsi | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+Because the designware IP was not able to handle the SDA hold time before
+version 1.11a, MSCC has its own implementation. Add support for it and then add
+i2c on ocelot boards.
 
-diff --git a/arch/mips/boot/dts/mscc/ocelot.dtsi b/arch/mips/boot/dts/mscc/ocelot.dtsi
-index 4f33dbc67348..34093acebc0d 100644
---- a/arch/mips/boot/dts/mscc/ocelot.dtsi
-+++ b/arch/mips/boot/dts/mscc/ocelot.dtsi
-@@ -78,6 +78,19 @@
- 			status = "disabled";
- 		};
- 
-+		i2c: i2c@100400 {
-+			compatible = "mscc,ocelot-i2c", "snps,designware-i2c";
-+			pinctrl-0 = <&i2c_pins>;
-+			pinctrl-names = "default";
-+			reg = <0x100400 0x100>, <0x198 0x8>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			interrupts = <8>;
-+			clocks = <&ahb_clk>;
-+
-+			status = "disabled";
-+		};
-+
- 		uart2: serial@100800 {
- 			pinctrl-0 = <&uart2_pins>;
- 			pinctrl-names = "default";
-@@ -178,6 +191,11 @@
- 				pins = "GPIO_12", "GPIO_13";
- 				function = "uart2";
- 			};
-+
-+			i2c_pins: i2c-pins {
-+				pins = "GPIO_16", "GPIO_17";
-+				function = "twi";
-+			};
- 		};
- 
- 		mdio0: mdio@107009c {
+I would expect patches 1 to 4 to go through the i2c tree and 5-6 through
+the mips tree once patch 4 has been reviewed by the DT maintainers.
+
+This is based on top of i2c-next plus on
+https://patchwork.ozlabs.org/project/linux-i2c/list/?series=57551
+
+Changes in v3:
+ - collected review tags
+ - fixed build warnings on 64bit machines
+
+Changes in v2:
+ - removed first patch as a similar one is in i2c-next
+ - rebase on top of i2c-next
+ - Added two patches to implement ideas from Andy
+
+
+Alexandre Belloni (6):
+  i2c: designware: use generic table matching
+  i2c: designware: move #ifdef CONFIG_OF to the top
+  i2c: designware: allow IP specific sda_hold_time
+  i2c: designware: add MSCC Ocelot support
+  MIPS: dts: mscc: Add i2c on ocelot
+  MIPS: dts: mscc: enable i2c on ocelot_pcb123
+
+ .../bindings/i2c/i2c-designware.txt           |  9 ++-
+ arch/mips/boot/dts/mscc/ocelot.dtsi           | 18 ++++++
+ arch/mips/boot/dts/mscc/ocelot_pcb123.dts     |  6 ++
+ drivers/i2c/busses/i2c-designware-common.c    |  2 +
+ drivers/i2c/busses/i2c-designware-core.h      |  4 ++
+ drivers/i2c/busses/i2c-designware-platdrv.c   | 63 +++++++++++++++----
+ 6 files changed, 87 insertions(+), 15 deletions(-)
+
 -- 
 2.18.0
