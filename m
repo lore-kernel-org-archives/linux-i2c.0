@@ -1,114 +1,115 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
+From: "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
 Subject: Re: [PATCH] eeprom: at24: Fix unexpected timeout under high load
-Date: Sun, 5 Aug 2018 17:09:15 +0300
-Message-ID: <CAHp75Ve=WZj6OT7wwQuqmSbZxK7EZr2z=AWJFRA-_aG+4_7MHw@mail.gmail.com>
-References: <cd8f37876a2e466ea066bcad10b0b8e4@de.bosch.com>
+Date: Mon, 6 Aug 2018 11:39:32 +0000
+Message-ID: <cf106f99b8794bb38c16c7a5a83e128b@de.bosch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cd8f37876a2e466ea066bcad10b0b8e4@de.bosch.com>
+Content-Language: de-DE
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
-Cc: Bartosz Golaszewski <brgl@bgdev.pl>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "WANG Xin (BT-FIR/ENG1-Zhu)" <Xin.Wang7@cn.bosch.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>, Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "WANG Xin (BT-FIR/ENG1-Zhu)" <Xin.Wang7@cn.bosch.com>, "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Aug 5, 2018 at 3:26 PM, Jonas Mark (BT-FIR/ENG1)
-<Mark.Jonas@de.bosch.com> wrote:
-> Hi Andy,
->
-> Thank you for your feedback.
->
->> > -#define at24_loop_until_timeout(tout, op_time)                         \
->> > -       for (tout = jiffies + msecs_to_jiffies(at24_write_timeout),     \
->> > -            op_time = 0;                                               \
->> > -            op_time ? time_before(op_time, tout) : true;               \
->> > -            usleep_range(1000, 1500), op_time = jiffies)
->>
->> This one understandble and represents one operation.
->
-> It just has the downside that it will not retry if the timeout is
-> reached after the usleep_range().
->
-> If you have a system which combines high CPU load with repeated EEPROM
-> writes you will run into the following scenario:
->
-> - System makes a successful regmap_bulk_write() to EEPROM.
-> - System wants to perform another write to EEPROM but EEPROM is still
->   busy with the last write.
-> - Because of high CPU load the usleep_range() will sleep more than
->   25 ms (at24_write_timeout).
-> - Within the over-long sleeping the EEPROM finished the previous write
->   operation and is ready again.
-> - at24_loop_until_timeout() will detect timeout and won't try to write.
-
->
-> The scenario above happens very often on our system and we need a fix.
-
-Thanks for explanation why. (it would be good partially move this to
-the commit message).
-
-
->
->> > +#define at24_loop_until_timeout_begin(tout, op_time)           \
->> > +       tout = jiffies + msecs_to_jiffies(at24_write_timeout);  \
->> > +       while (true) {                                          \
->> > +               op_time = jiffies;
->> > +
->> > +#define at24_loop_until_timeout_end(tout, op_time)             \
->> > +               if (time_before(tout, op_time))                 \
->> > +                       break;                                  \
->> > +               usleep_range(1000, 1500);                       \
->> > +       }
->>
->> Besides `while (true)`, which is a red flag for timeout loops,
->> these are done in an hack way. Just open code them in both cases, or
->> rewrite original one to keel it's semantics.
->
-> I have to admit that I am not sure what you mean.
->
-> We kept the macro-style of the loop because we assumed it was good
-> style in this context.
-
-No way. It's a bad style when you have a macro like you proposing. It
-would give you a bottle of sparkling bugs.
-
-> What does "keel it's semantics" mean?
-
-Macro should be standalone piece of code which does something from A
-to Z, not from A-K when you need a complementary macro to do L-Z
-parts.
-
-> With "open code them in both cases" do you mean to rid of the macro
-> and to directly write the loop into the code? Does the following
-> match your proposals?
->
-> ret = 0;
-> tout = jiffies + msecs_to_jiffies(at24_write_timeout);
-> do {
->         if (ret)
->                 usleep_range(1000, 1500);
->
->         read_time = jiffies;
->
->         ret = regmap_bulk_read(regmap, offset, buf, count);
->         dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
->                 count, offset, ret, jiffies);
->         if (!ret)
->                 return count;
-> } while (!time_before(tout, read_time))
-
-Yes, though, please, look at the examples in the existing code and
-make it slightly better
-
-timeout = ...
-do {
-ret = ...
-if (ret) // or if (!ret)
- ...
-
-usleep_range(...);
-} while(time_before(...));
-
--- 
-With Best Regards,
-Andy Shevchenko
+SGkgQW5keSwNCg0KPiA+PiA+IC0jZGVmaW5lIGF0MjRfbG9vcF91bnRpbF90aW1lb3V0KHRvdXQs
+IG9wX3RpbWUpICAgICAgICAgICAgICAgICAgICAgICAgIFwNCj4gPj4gPiAtICAgICAgIGZvciAo
+dG91dCA9IGppZmZpZXMgKyBtc2Vjc190b19qaWZmaWVzKGF0MjRfd3JpdGVfdGltZW91dCksICAg
+ICBcDQo+ID4+ID4gLSAgICAgICAgICAgIG9wX3RpbWUgPSAwOyAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgXA0KPiA+PiA+IC0gICAgICAgICAgICBvcF90aW1l
+ID8gdGltZV9iZWZvcmUob3BfdGltZSwgdG91dCkgOiB0cnVlOyAgICAgICAgICAgICAgIFwNCj4g
+Pj4gPiAtICAgICAgICAgICAgdXNsZWVwX3JhbmdlKDEwMDAsIDE1MDApLCBvcF90aW1lID0gamlm
+ZmllcykNCj4gPj4NCj4gPj4gVGhpcyBvbmUgdW5kZXJzdGFuZGJsZSBhbmQgcmVwcmVzZW50cyBv
+bmUgb3BlcmF0aW9uLg0KPiA+DQo+ID4gSXQganVzdCBoYXMgdGhlIGRvd25zaWRlIHRoYXQgaXQg
+d2lsbCBub3QgcmV0cnkgaWYgdGhlIHRpbWVvdXQgaXMNCj4gPiByZWFjaGVkIGFmdGVyIHRoZSB1
+c2xlZXBfcmFuZ2UoKS4NCj4gPg0KPiA+IElmIHlvdSBoYXZlIGEgc3lzdGVtIHdoaWNoIGNvbWJp
+bmVzIGhpZ2ggQ1BVIGxvYWQgd2l0aCByZXBlYXRlZA0KPiBFRVBST00NCj4gPiB3cml0ZXMgeW91
+IHdpbGwgcnVuIGludG8gdGhlIGZvbGxvd2luZyBzY2VuYXJpbzoNCj4gPg0KPiA+IC0gU3lzdGVt
+IG1ha2VzIGEgc3VjY2Vzc2Z1bCByZWdtYXBfYnVsa193cml0ZSgpIHRvIEVFUFJPTS4NCj4gPiAt
+IFN5c3RlbSB3YW50cyB0byBwZXJmb3JtIGFub3RoZXIgd3JpdGUgdG8gRUVQUk9NIGJ1dCBFRVBS
+T00gaXMgc3RpbGwNCj4gPiAgIGJ1c3kgd2l0aCB0aGUgbGFzdCB3cml0ZS4NCj4gPiAtIEJlY2F1
+c2Ugb2YgaGlnaCBDUFUgbG9hZCB0aGUgdXNsZWVwX3JhbmdlKCkgd2lsbCBzbGVlcCBtb3JlIHRo
+YW4NCj4gPiAgIDI1IG1zIChhdDI0X3dyaXRlX3RpbWVvdXQpLg0KPiA+IC0gV2l0aGluIHRoZSBv
+dmVyLWxvbmcgc2xlZXBpbmcgdGhlIEVFUFJPTSBmaW5pc2hlZCB0aGUgcHJldmlvdXMgd3JpdGUN
+Cj4gPiAgIG9wZXJhdGlvbiBhbmQgaXMgcmVhZHkgYWdhaW4uDQo+ID4gLSBhdDI0X2xvb3BfdW50
+aWxfdGltZW91dCgpIHdpbGwgZGV0ZWN0IHRpbWVvdXQgYW5kIHdvbid0IHRyeSB0byB3cml0ZS4N
+Cj4gDQo+ID4NCj4gPiBUaGUgc2NlbmFyaW8gYWJvdmUgaGFwcGVucyB2ZXJ5IG9mdGVuIG9uIG91
+ciBzeXN0ZW0gYW5kIHdlIG5lZWQgYSBmaXguDQo+IA0KPiBUaGFua3MgZm9yIGV4cGxhbmF0aW9u
+IHdoeS4gKGl0IHdvdWxkIGJlIGdvb2QgcGFydGlhbGx5IG1vdmUgdGhpcyB0bw0KPiB0aGUgY29t
+bWl0IG1lc3NhZ2UpLg0KDQpXZSB3aWxsIGltcHJvdmUgdGhlIGNvbW1pdCBtZXNzYWdlIGluIHRo
+ZSBuZXh0IHJldmlzaW9uIG9mIHRoZSBwYXRjaC4NCg0KPiA+PiA+ICsjZGVmaW5lIGF0MjRfbG9v
+cF91bnRpbF90aW1lb3V0X2JlZ2luKHRvdXQsIG9wX3RpbWUpICAgICAgICAgICBcDQo+ID4+ID4g
+KyAgICAgICB0b3V0ID0gamlmZmllcyArIG1zZWNzX3RvX2ppZmZpZXMoYXQyNF93cml0ZV90aW1l
+b3V0KTsgIFwNCj4gPj4gPiArICAgICAgIHdoaWxlICh0cnVlKSB7ICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgXA0KPiA+PiA+ICsgICAgICAgICAgICAgICBvcF90aW1l
+ID0gamlmZmllczsNCj4gPj4gPiArDQo+ID4+ID4gKyNkZWZpbmUgYXQyNF9sb29wX3VudGlsX3Rp
+bWVvdXRfZW5kKHRvdXQsIG9wX3RpbWUpICAgICAgICAgICAgIFwNCj4gPj4gPiArICAgICAgICAg
+ICAgICAgaWYgKHRpbWVfYmVmb3JlKHRvdXQsIG9wX3RpbWUpKSAgICAgICAgICAgICAgICAgXA0K
+PiA+PiA+ICsgICAgICAgICAgICAgICAgICAgICAgIGJyZWFrOyAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICBcDQo+ID4+ID4gKyAgICAgICAgICAgICAgIHVzbGVlcF9yYW5nZSgxMDAw
+LCAxNTAwKTsgICAgICAgICAgICAgICAgICAgICAgIFwNCj4gPj4gPiArICAgICAgIH0NCj4gPj4N
+Cj4gPj4gQmVzaWRlcyBgd2hpbGUgKHRydWUpYCwgd2hpY2ggaXMgYSByZWQgZmxhZyBmb3IgdGlt
+ZW91dCBsb29wcywNCj4gPj4gdGhlc2UgYXJlIGRvbmUgaW4gYW4gaGFjayB3YXkuIEp1c3Qgb3Bl
+biBjb2RlIHRoZW0gaW4gYm90aCBjYXNlcywgb3INCj4gPj4gcmV3cml0ZSBvcmlnaW5hbCBvbmUg
+dG8ga2VlbCBpdCdzIHNlbWFudGljcy4NCj4gPg0KPiA+IEkgaGF2ZSB0byBhZG1pdCB0aGF0IEkg
+YW0gbm90IHN1cmUgd2hhdCB5b3UgbWVhbi4NCj4gPg0KPiA+IFdlIGtlcHQgdGhlIG1hY3JvLXN0
+eWxlIG9mIHRoZSBsb29wIGJlY2F1c2Ugd2UgYXNzdW1lZCBpdCB3YXMgZ29vZA0KPiA+IHN0eWxl
+IGluIHRoaXMgY29udGV4dC4NCj4gDQo+IE5vIHdheS4gSXQncyBhIGJhZCBzdHlsZSB3aGVuIHlv
+dSBoYXZlIGEgbWFjcm8gbGlrZSB5b3UgcHJvcG9zaW5nLiBJdA0KPiB3b3VsZCBnaXZlIHlvdSBh
+IGJvdHRsZSBvZiBzcGFya2xpbmcgYnVncy4NCj4gDQo+ID4gV2hhdCBkb2VzICJrZWVsIGl0J3Mg
+c2VtYW50aWNzIiBtZWFuPw0KPiANCj4gTWFjcm8gc2hvdWxkIGJlIHN0YW5kYWxvbmUgcGllY2Ug
+b2YgY29kZSB3aGljaCBkb2VzIHNvbWV0aGluZyBmcm9tIEENCj4gdG8gWiwgbm90IGZyb20gQS1L
+IHdoZW4geW91IG5lZWQgYSBjb21wbGVtZW50YXJ5IG1hY3JvIHRvIGRvIEwtWg0KPiBwYXJ0cy4N
+Cg0KSSBhZ3JlZSwgd2Ugd2lsbCBkbyBpdCB3aXRob3V0IGEgbWFjcm8gdGhlbi4NCg0KPiA+IFdp
+dGggIm9wZW4gY29kZSB0aGVtIGluIGJvdGggY2FzZXMiIGRvIHlvdSBtZWFuIHRvIHJpZCBvZiB0
+aGUgbWFjcm8NCj4gPiBhbmQgdG8gZGlyZWN0bHkgd3JpdGUgdGhlIGxvb3AgaW50byB0aGUgY29k
+ZT8gRG9lcyB0aGUgZm9sbG93aW5nDQo+ID4gbWF0Y2ggeW91ciBwcm9wb3NhbHM/DQo+ID4NCj4g
+PiByZXQgPSAwOw0KPiA+IHRvdXQgPSBqaWZmaWVzICsgbXNlY3NfdG9famlmZmllcyhhdDI0X3dy
+aXRlX3RpbWVvdXQpOw0KPiA+IGRvIHsNCj4gPiAgICAgICAgIGlmIChyZXQpDQo+ID4gICAgICAg
+ICAgICAgICAgIHVzbGVlcF9yYW5nZSgxMDAwLCAxNTAwKTsNCj4gPg0KPiA+ICAgICAgICAgcmVh
+ZF90aW1lID0gamlmZmllczsNCj4gPg0KPiA+ICAgICAgICAgcmV0ID0gcmVnbWFwX2J1bGtfcmVh
+ZChyZWdtYXAsIG9mZnNldCwgYnVmLCBjb3VudCk7DQo+ID4gICAgICAgICBkZXZfZGJnKCZjbGll
+bnQtPmRldiwgInJlYWQgJXp1QCVkIC0tPiAlZCAoJWxkKVxuIiwNCj4gPiAgICAgICAgICAgICAg
+ICAgY291bnQsIG9mZnNldCwgcmV0LCBqaWZmaWVzKTsNCj4gPiAgICAgICAgIGlmICghcmV0KQ0K
+PiA+ICAgICAgICAgICAgICAgICByZXR1cm4gY291bnQ7DQo+ID4gfSB3aGlsZSAoIXRpbWVfYmVm
+b3JlKHRvdXQsIHJlYWRfdGltZSkpDQo+IA0KPiBZZXMsIHRob3VnaCwgcGxlYXNlLCBsb29rIGF0
+IHRoZSBleGFtcGxlcyBpbiB0aGUgZXhpc3RpbmcgY29kZSBhbmQNCj4gbWFrZSBpdCBzbGlnaHRs
+eSBiZXR0ZXINCj4gDQo+IHRpbWVvdXQgPSAuLi4NCj4gZG8gew0KPiByZXQgPSAuLi4NCj4gaWYg
+KHJldCkgLy8gb3IgaWYgKCFyZXQpDQo+ICAuLi4NCj4gDQo+IHVzbGVlcF9yYW5nZSguLi4pOw0K
+PiB9IHdoaWxlKHRpbWVfYmVmb3JlKC4uLikpOw0KDQpXaGVuIHdvcmtpbmcgb24gdGhlIHByb2Js
+ZW0gd2UgaGFkIGFuIGludGVybWVkaWF0ZSByZXN1bHQgd2VyZSB3ZQ0KY2FtZSB0byB0aGUgc2Ft
+ZSBzb2x1dGlvbiBhcyB5b3VyIHByb3Bvc2FsIHNob3dlZDoNCg0KdG91dCA9IGppZmZpZXMgKyBt
+c2Vjc190b19qaWZmaWVzKGF0MjRfd3JpdGVfdGltZW91dCk7DQpkbyB7DQogICAgICAgICByZWFk
+X3RpbWUgPSBqaWZmaWVzOw0KDQogICAgICAgICByZXQgPSByZWdtYXBfYnVsa19yZWFkKHJlZ21h
+cCwgb2Zmc2V0LCBidWYsIGNvdW50KTsNCiAgICAgICAgIGRldl9kYmcoJmNsaWVudC0+ZGV2LCAi
+cmVhZCAlenVAJWQgLS0+ICVkICglbGQpXG4iLA0KICAgICAgICAgICAgICAgICBjb3VudCwgb2Zm
+c2V0LCByZXQsIGppZmZpZXMpOw0KICAgICAgICAgaWYgKCFyZXQpDQogICAgICAgICAgICAgICAg
+IHJldHVybiBjb3VudDsNCg0KICAgICAgICAgdXNsZWVwX3JhbmdlKDEwMDAsIDE1MDApOw0KfSB3
+aGlsZSAoIXRpbWVfYmVmb3JlKHRvdXQsIHJlYWRfdGltZSkpDQoNClRoZSBhZHZhbnRhZ2Ugb2Yg
+dGhpcyBjb2RlIGlzIHRoYXQgdGhlIHVzbGVlcF9yYW5nZSgpIGlzIHVuY29uZGl0aW9uYWwuDQoN
+CihJbiBteSBvbGRlciBwcm9wb3NhbCBhICJpZiAocmV0KSIgY29uZGl0aW9uIGlzIHJlcXVpcmVk
+IHRvIG1ha2Ugc3VyZQ0KdGhhdCB0aGVyZSBpcyBub3Qgc2xlZXAgYXQgdGhlIHZlcnkgZmlyc3Qg
+aXRlcmF0aW9uIGJ1dCBvbmx5IGF0DQpmb2xsb3ctdXAgaXRlcmF0aW9ucyB3aGVyZSByZWdtYXBf
+YnVsa19yZWFkKCkgZmFpbGVkLikNCg0KVGhlIGRpc2FkdmFudGFnZSBvZiB0aGUgbmV3IHByb3Bv
+c2FsIGlzIHRoYXQgaW4gY2FzZSBvZiBhIHRpbWVvdXQgb25lDQptb3JlIHVubmVjZXNzYXJ5IHNs
+ZWVwIGlzIG1hZGUuIElzIHRoYXQgYWNjZXB0YWJsZT8NCg0KQW4gYWx0ZXJuYXRpdmUgd291bGQg
+YmUgdG8gZHVwbGljYXRlIHRoZSByZWdtYXBfYnVsa19yZWFkKCkgYW5kIHRoZQ0KZGVidWdnaW5n
+IGNvZGUgb3V0c2lkZSB0aGUgbG9vcC4NCg0KdG91dCA9IGppZmZpZXMgKyBtc2Vjc190b19qaWZm
+aWVzKGF0MjRfd3JpdGVfdGltZW91dCk7DQpyZWFkX3RpbWUgPSBqaWZmaWVzOw0KDQpyZXQgPSBy
+ZWdtYXBfYnVsa19yZWFkKHJlZ21hcCwgb2Zmc2V0LCBidWYsIGNvdW50KTsNCmRldl9kYmcoJmNs
+aWVudC0+ZGV2LCAicmVhZCAlenVAJWQgLS0+ICVkICglbGQpXG4iLA0KCWNvdW50LCBvZmZzZXQs
+IHJldCwgamlmZmllcyk7DQoNCndoaWxlIChyZXQgJiYgIXRpbWVfYmVmb3JlKHRvdXQsIHJlYWRf
+dGltZSkpDQoJdXNsZWVwX3JhbmdlKDEwMDAsIDE1MDApOw0KDQoJLyoNCgkgKiBUaGUgdGltZXN0
+YW1wIHNoYWxsIGJlIHRha2VuIGJlZm9yZSBzbGVlcCBhbmQgdGhlIGFjdHVhbA0KCSAqIG9wZXJh
+dGlvbiB0byBhdm9pZCBhIHByZW1hdHVyZSB0aW1lb3V0IGluIGNhc2Ugb2YgaGlnaCBDUFUgbG9h
+ZC4NCgkgKi8NCglyZWFkX3RpbWUgPSBqaWZmaWVzOw0KDQoJcmV0ID0gcmVnbWFwX2J1bGtfcmVh
+ZChyZWdtYXAsIG9mZnNldCwgYnVmLCBjb3VudCk7DQoJZGV2X2RiZygmY2xpZW50LT5kZXYsICJy
+ZWFkIHJldHJ5ICV6dUAlZCAtLT4gJWQgKCVsZClcbiIsDQoJCWNvdW50LCBvZmZzZXQsIHJldCwg
+amlmZmllcyk7DQp9DQoNCmlmICghcmV0KQ0KCXJldHVybiBjb3VudDsNCg0KSXMgdGhpcyBwcmVm
+ZXJhYmxlPw0KDQpHcmVldGluZ3MsDQpNYXJrDQoNCkJ1aWxkaW5nIFRlY2hub2xvZ2llcywgUGFu
+ZWwgU29mdHdhcmUgRmlyZSAoQlQtRklSL0VORzEpIA0KQm9zY2ggU2ljaGVyaGVpdHNzeXN0ZW1l
+IEdtYkggfCBQb3N0ZmFjaCAxMSAxMSB8IDg1NjI2IEdyYXNicnVubiB8IEdFUk1BTlkgfCB3d3cu
+Ym9zY2hzZWN1cml0eS5jb20NCg0KU2l0ejogU3R1dHRnYXJ0LCBSZWdpc3RlcmdlcmljaHQ6IEFt
+dHNnZXJpY2h0IFN0dXR0Z2FydCBIUkIgMjMxMTggDQpBdWZzaWNodHNyYXRzdm9yc2l0emVuZGVy
+OiBTdGVmYW4gSGFydHVuZzsgR2VzY2jDpGZ0c2bDvGhydW5nOiBUYW5qYSBSw7xja2VydCwgQW5k
+cmVhcyBCYXJ0eiwgVGhvbWFzIFF1YW50ZSwgQmVybmhhcmQgU2NodXN0ZXINCg==
