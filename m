@@ -1,40 +1,58 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v2 2/2] i2c: npcm7xx: add i2c controller master mode only
-Date: Tue, 07 Aug 2018 14:26:25 +0300
-Message-ID: <3a50932025929d1b318cb42c05a727892603d31d.camel@linux.intel.com>
-References: <20180807110709.31847-1-tali.perry1@gmail.com>
-         <20180807110709.31847-3-tali.perry1@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 4/4] i2c: Add multi-instantiate pseudo driver
+Date: Tue, 7 Aug 2018 13:27:02 +0200
+Message-ID: <20180807112701.5iukqa6m5atf22fw@ninjato>
+References: <20180807080539.17811-1-hdegoede@redhat.com>
+ <20180807080539.17811-5-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="rjsufeh33ovopkb5"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180807110709.31847-3-tali.perry1@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20180807080539.17811-5-hdegoede@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tali Perry <tali.perry1@gmail.com>, avifishman70@gmail.com, tmaimon77@gmail.com, venture@google.com, yuenn@google.com, brendanhiggins@google.com, robh+dt@kernel.org, mark.rutland@arm.com, davem@davemloft.net, mchehab+samsung@kernel.org, gregkh@linuxfoundation.org, akpm@linux-foundation.org, arnd@arndb.de, wsa@the-dreams.de, pierre-yves.mordret@st.com, cedric.madianga@gmail.com, baolin.wang@spreadtrum.com, jarkko.nikula@linux.intel.com, hdegoede@redhat.com, rmk+kernel@armlinux.org.uk, ard.biesheuvel@linaro.org, thor.thayer@linux.intel.com, geert@linux-m68k.org, heikki.krogerus@linux.intel.com, tglx@linutronix.de
-Cc: linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-acpi@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, John Garry <john.garry@huawei.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2018-08-07 at 14:07 +0300, Tali Perry wrote:
-> Nuvoton NPCM7XX I2C Controller
-> NPCM7xx includes 16 I2C contollers. THis driver operates the
-> controller.
-> This module also includes a slave mode, which will be submitted later
-> on.
-> 
-> Any feedback would be appreciated.  
-> 
-> v2 -> v1:
-> 	- run check patch in strict mode.
-> 	- use linux crc.
-> 	- define regs in constant offset without base.
-> 	- remove debug prints.
-> 	- no declerations for local functions.
-> 	
-> v1: initial version
 
-I don't know / remember why I'm in Cc list here, but you can go through
-my other reviews and find style recommendations for your code as well.
+--rjsufeh33ovopkb5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Hi Hans,
+
+> +I2C MULTI INSTANTIATE DRIVER
+> +M:	Hans de Goede <hdegoede@redhat.com>
+> +L:	linux-i2c@vger.kernel.org
+
+Since this driver is about FW bugs, I wonder if
+platform-driver-x86@vger.kernel.org isn't the better list here?
+
+> +S:	Maintained
+> +F:	drivers/drivers/platform/x86/i2c-multi-instantiate.c
+
+I2C parts of the rest looks good from a glimpse...
+
+
+--rjsufeh33ovopkb5
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltpggIACgkQFA3kzBSg
+Kba4jRAAon1GKq0XmtS0zG9XMo/h248W2ggHZqJyoYs0MskEWYOdp6hq7nAiez8e
+p5BfOL6gahXCLg7inoputCpes+XDQ7TiWuChUDxgbcSH4WnTnSVI5kk28QTrOfPd
+jebCKyHlcXecWWizRGPTydpHl1UuwWLUeogICpgjuTeqP0g38ahbPqhSa8lvUnzl
+xnV9o/YWb7Z0gZy/HZWZhCTNfXqbUfaseK5x62bCYnxHXgjyZ/rwM2Gg4rPYMb6k
+bk/agC6CWhU3CWpZ7Ja298sE2GSlzFRhE/Zc1VjpMEZWbAhyQqwxeQuliLY2EI0z
+xl4FsFQ4uwGDdqk6Qm1SwnkhHWnhys4fo52B+o+8DkQs1Q24Rc6omLK42ctIA+7L
+nyQuRQwDivpGOlg+jo5acpuN9XOsJd7TWZKuwuAU/CPEwwYPBIkm8S3JGAiEsBG0
+aSha9nSWg+Uvkz5a+aCQ90rionXeQsOZ/ygovNZeymhu1TlnL27qSf3td2Zl+FvG
+IBxJSoiGGJkiKl3CAKnRhFVUw5Cipixyts8LUHf9I5G6MBb5mi+RaNg3m99bxC4p
+ZSGuhxWmCHrljxjBWep+ImlLR8LAJhMqrOivgF7H14bgq6qsbFH5q8VB+D+X4s4L
+rT7pk507DF1MFWiJfZK6ltVL5/1uvwIIENTMTtUKjeKmQC/41Xw=
+=W7HD
+-----END PGP SIGNATURE-----
+
+--rjsufeh33ovopkb5--
