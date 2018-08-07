@@ -1,46 +1,59 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v3 0/4] ACPI bugfix + i2c-multi-instantiate pseudo driver
-Date: Tue,  7 Aug 2018 10:05:35 +0200
-Message-ID: <20180807080539.17811-1-hdegoede@redhat.com>
+Subject: [PATCH v3 1/4] ACPI / scan: Fix acpi_is_indirect_io_slave() always returning false
+Date: Tue,  7 Aug 2018 10:05:36 +0200
+Message-ID: <20180807080539.17811-2-hdegoede@redhat.com>
+References: <20180807080539.17811-1-hdegoede@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180807080539.17811-1-hdegoede@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Hans de Goede <hdegoede@redhat.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-acpi@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, John Garry <john.garry@huawei.com>, linux-i2c@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-acpi@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, John Garry <john.garry@huawei.com>, linux-i2c@vger.kernel.org, stable@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, Dann Frazier <dann.frazier@canonical.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi All,
+Since commit 63347db0affa ("ACPI / scan: Use acpi_bus_get_status() to
+initialize ACPI_TYPE_DEVICE devs") the status field of normal acpi_devices
+gets set to 0 by acpi_bus_type_and_status() and filled with its actual
+value later when acpi_add_single_object() calls acpi_bus_get_status().
 
-So here is my third attempt at dealing with multiple i2c devices being
-described in a single ACPI fwnode.
+This means that status is 0 when acpi_device_enumeration_by_parent()
+gets called which makes the acpi_match_device_ids() call in
+acpi_is_indirect_io_slave() always return -ENOENT.
 
-Like the second attemp This is still based on having a special driver for
-these corner cases which can be a module and only loaded when on hardware
-which needs this.
+This commit fixes this by making acpi_bus_type_and_status() set status to
+ACPI_STA_DEFAULT until acpi_add_single_object() calls acpi_bus_get_status()
 
-New this time around is that this now is a platform driver, avoiding the
-need for the I2C_CLIENT_IGNORE_BUSY hack and having 2 i2c-clients at
-the address of the first i2c ACPI resource.
+Fixes: dfda4492322e ("ACPI / scan: Do not enumerate Indirect IO host children")
+Cc: stable@vger.kernel.org
+Cc: John Garry <john.garry@huawei.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Dann Frazier <dann.frazier@canonical.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/acpi/scan.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-While working on the ACPI changes for enumerating ACPI nodes which
-are handled by the new i2c-multi-instantiate driver as platform devices
-I found a bug caused by a combination of my:
-"ACPI / scan: Use acpi_bus_get_status() to initialize ACPI_TYPE_DEVICE devs"
-and the somewhat (but not much) later added:
-"ACPI / scan: Do not enumerate Indirect IO host children"
-commits, specifically the second one does not work because of the first
-one, I guess it was tested against a kernel without the first commit.
-My changes for enumerating relevant ACPI nodes as platform devices
-hit the same problem.
-
-Thus the first patch of this series is an ACPI bugfix for that problem.
-The second patch changes acpi/scan.c to enumerate relevant ACPI nodes as
-platform devices.
-The third patch is an ACPI cleanup patch made possible by the first patch.
-All 3 these patches are new in this version of this series.
-
-And finally the fourth patch is the actual i2c-multi-instantiate driver,
-now as platform driver living under drivers/platform/x86 .
-
-Regards,
-
-Hans
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index 970dd87d347c..6799d00dd790 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -1612,7 +1612,8 @@ static int acpi_add_single_object(struct acpi_device **child,
+ 	 * Note this must be done before the get power-/wakeup_dev-flags calls.
+ 	 */
+ 	if (type == ACPI_BUS_TYPE_DEVICE)
+-		acpi_bus_get_status(device);
++		if (acpi_bus_get_status(device) < 0)
++			acpi_set_device_status(device, 0);
+ 
+ 	acpi_bus_get_power_flags(device);
+ 	acpi_bus_get_wakeup_device_flags(device);
+@@ -1690,7 +1691,7 @@ static int acpi_bus_type_and_status(acpi_handle handle, int *type,
+ 		 * acpi_add_single_object updates this once we've an acpi_device
+ 		 * so that acpi_bus_get_status' quirk handling can be used.
+ 		 */
+-		*sta = 0;
++		*sta = ACPI_STA_DEFAULT;
+ 		break;
+ 	case ACPI_TYPE_PROCESSOR:
+ 		*type = ACPI_BUS_TYPE_PROCESSOR;
+-- 
+2.18.0
