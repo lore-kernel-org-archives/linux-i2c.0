@@ -1,50 +1,46 @@
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v3 0/6] Add support for MSCC Ocelot i2c
-Date: Mon,  6 Aug 2018 20:54:06 +0200
-Message-ID: <20180806185412.7210-1-alexandre.belloni@bootlin.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v3 0/4] ACPI bugfix + i2c-multi-instantiate pseudo driver
+Date: Tue,  7 Aug 2018 10:05:35 +0200
+Message-ID: <20180807080539.17811-1-hdegoede@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Hogan <jhogan@kernel.org>
-Cc: Paul Burton <paul.burton@mips.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>
+To: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Hans de Goede <hdegoede@redhat.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-acpi@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, John Garry <john.garry@huawei.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+Hi All,
 
-Because the designware IP was not able to handle the SDA hold time before
-version 1.11a, MSCC has its own implementation. Add support for it and then add
-i2c on ocelot boards.
+So here is my third attempt at dealing with multiple i2c devices being
+described in a single ACPI fwnode.
 
-I would expect patches 1 to 4 to go through the i2c tree and 5-6 through
-the mips tree once patch 4 has been reviewed by the DT maintainers.
+Like the second attemp This is still based on having a special driver for
+these corner cases which can be a module and only loaded when on hardware
+which needs this.
 
-This is based on top of i2c-next plus on
-https://patchwork.ozlabs.org/project/linux-i2c/list/?series=57551
+New this time around is that this now is a platform driver, avoiding the
+need for the I2C_CLIENT_IGNORE_BUSY hack and having 2 i2c-clients at
+the address of the first i2c ACPI resource.
 
-Changes in v3:
- - collected review tags
- - fixed build warnings on 64bit machines
+While working on the ACPI changes for enumerating ACPI nodes which
+are handled by the new i2c-multi-instantiate driver as platform devices
+I found a bug caused by a combination of my:
+"ACPI / scan: Use acpi_bus_get_status() to initialize ACPI_TYPE_DEVICE devs"
+and the somewhat (but not much) later added:
+"ACPI / scan: Do not enumerate Indirect IO host children"
+commits, specifically the second one does not work because of the first
+one, I guess it was tested against a kernel without the first commit.
+My changes for enumerating relevant ACPI nodes as platform devices
+hit the same problem.
 
-Changes in v2:
- - removed first patch as a similar one is in i2c-next
- - rebase on top of i2c-next
- - Added two patches to implement ideas from Andy
+Thus the first patch of this series is an ACPI bugfix for that problem.
+The second patch changes acpi/scan.c to enumerate relevant ACPI nodes as
+platform devices.
+The third patch is an ACPI cleanup patch made possible by the first patch.
+All 3 these patches are new in this version of this series.
 
+And finally the fourth patch is the actual i2c-multi-instantiate driver,
+now as platform driver living under drivers/platform/x86 .
 
-Alexandre Belloni (6):
-  i2c: designware: use generic table matching
-  i2c: designware: move #ifdef CONFIG_OF to the top
-  i2c: designware: allow IP specific sda_hold_time
-  i2c: designware: add MSCC Ocelot support
-  MIPS: dts: mscc: Add i2c on ocelot
-  MIPS: dts: mscc: enable i2c on ocelot_pcb123
+Regards,
 
- .../bindings/i2c/i2c-designware.txt           |  9 ++-
- arch/mips/boot/dts/mscc/ocelot.dtsi           | 18 ++++++
- arch/mips/boot/dts/mscc/ocelot_pcb123.dts     |  6 ++
- drivers/i2c/busses/i2c-designware-common.c    |  2 +
- drivers/i2c/busses/i2c-designware-core.h      |  4 ++
- drivers/i2c/busses/i2c-designware-platdrv.c   | 63 +++++++++++++++----
- 6 files changed, 87 insertions(+), 15 deletions(-)
-
--- 
-2.18.0
+Hans
