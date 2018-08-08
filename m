@@ -1,100 +1,222 @@
 From: vitor <Vitor.Soares@synopsys.com>
 Subject: Re: [PATCH 1/3] i3c: master: Add driver for Synopsys DesignWare IP
-Date: Wed, 8 Aug 2018 18:01:55 +0100
-Message-ID: <ce858157-8353-2c8f-53f2-dbf2339355e9@synopsys.com>
+Date: Wed, 8 Aug 2018 18:28:57 +0100
+Message-ID: <04ae034c-ec6c-ce43-6536-9da9d765d558@synopsys.com>
 References: <1532120272-17157-1-git-send-email-soares@synopsys.com>
  <1532120272-17157-2-git-send-email-soares@synopsys.com>
- <CAHp75VfYYmr7o6xkDbjaad3HxyzZgODzKfSNWdPXjM+YjTMANA@mail.gmail.com>
- <9fdfaf4e-5a20-af81-82ef-0d9e327f9133@synopsys.com>
- <CAHp75Vd6Ok6i3wQjT=jd3mtFAC2na1vwUs2cr-xhStQ_OjKjAg@mail.gmail.com>
+ <20180727153850.5a8ca75c@bbrezillon>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75Vd6Ok6i3wQjT=jd3mtFAC2na1vwUs2cr-xhStQ_OjKjAg@mail.gmail.com>
+In-Reply-To: <20180727153850.5a8ca75c@bbrezillon>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>, Vitor Soares <Vitor.Soares@synopsys.com>
-Cc: Boris Brezillon <boris.brezillon@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Linux Documentation List <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>
+To: Boris Brezillon <boris.brezillon@bootlin.com>, Vitor soares <Vitor.Soares@synopsys.com>
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, gregkh@linuxfoundation.org, arnd@arndb.de, psroka@cadence.com, agolec@cadence.com, adouglas@cadence.com, bfolta@cadence.com, dkos@cadence.com, alicja@cadence.com, cwronka@cadence.com, sureshp@cadence.com, rafalc@cadence.com, thomas.petazzoni@bootlin.com, nm@ti.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, geert@linux-m68k.org, linus.walleij@linaro.org, Xiang.Lin@synaptics.com, linux-gpio@vger.kernel.org, nsekhar@ti.com, pgaj@cadence.com, peda@axentia.se, Joao.Pinto@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andy,
+Hi Boris,
 
 
-On 25-07-2018 17:56, Andy Shevchenko wrote:
-> On Wed, Jul 25, 2018 at 11:43 AM, Vitor Soares
-> <Vitor.Soares@synopsys.com> wrote:
->> On Fri, Jul 20, 2018 at 11:57 PM, Vitor soares
->> <Vitor.Soares@synopsys.com> wrote:
->>
-> Thanks for answers, my comments below.
+On 27-07-2018 14:38, Boris Brezillon wrote:
+> Hi Victor,
+>
+> On Fri, 20 Jul 2018 21:57:50 +0100
+> Vitor soares <Vitor.Soares@synopsys.com> wrote:
 >
 >> This patch add driver for Synopsys DesignWare IP on top of
 >> I3C subsystem patchset proposal V6
-> ...
+> The fact that you based your work on v6 of the I3C patchset should be
+> placed ....
 >
->> +#include <linux/reset.h>
->> Reset API.
->>
->> All of them required? Why?
-> Thanks, got it.
+>> Signed-off-by: Vitor soares <soares@synopsys.com>
+>> ---
+> ... here, so that it does not appear in the final commit message.
 >
->> There is some header files that are already included by others header files.
->> Should I add them too? it there any rule for that?
-> No need.
-> Usually we drop some "wired" headers (when we sure that one will
-> always include the other one, like module.h vs. init.h)
 >
->> +               writel(cmd->cmd_hi, master->regs + COMMAND_QUEUE_PORT);
->> +               writel(cmd->cmd_lo, master->regs + COMMAND_QUEUE_PORT);
->>
->> hmm... writesl()?
->> Is there any advantage here?
-> Here maybe not. Just a material to think about. If you can refactor
-> code to utilize them, good.
->
->> +       info->pid = (u64)readl(master->regs + SLV_PID_VALUE);
->>
->> Why explicit casting?
->> info->pid is u64 size.
-> In C standard there is an integer promotion which allows you not to
-> use explicit casting in such cases.
->
->> +       u32 r;
+> [...]
+
+I will do that in the next submission.
+
+>> +static int dw_i3c_master_get_free_pos(struct dw_i3c_master *master)
+>> +{
+>> +	if (!(master->free_pos & GENMASK(master->maxdevs - 1, 0)))
+>> +		return -ENOSPC;
 >> +
+>> +	return ffs(master->free_pos) - 1;
+>> +}
+> Okay, maybe we can have a generic infrastructure for that part (I have
+> the same logic in the Cadence driver), but let's keep that for later.
+
+I think everyone will need a table (SW or HW) to mask the slots 
+available for DAA.
+
+>
 >> +
->> +       core_rate = clk_get_rate(master->core_clk);
->>
->> Too many blank lines in between.
->>
->>
->> For me in that way it's better to filter code parts. Do you think that is
->> not readable?
-> The point is it's useless.
-> On the other hand, you have a lot of inconsistency with that style.
+>> +static void dw_i3c_master_wr_tx_fifo(struct dw_i3c_master *master,
+>> +				     const u8 *bytes, int nbytes)
+>> +{
+>> +	int i, j;
+>> +
+>> +	for (i = 0; i < nbytes; i += 4) {
+>> +		u32 data = 0;
+>> +
+>> +		for (j = 0; j < 4 && (i + j) < nbytes; j++)
+>> +			data |= (u32)bytes[i + j] << (j * 8);
+>> +
+>> +		writel(data, master->regs + RX_TX_DATA_PORT);
+> Maybe you can use writesl() as suggested by Arnd in his review of the
+> Cadence driver.
+
+Andy also suggest get_unaligned_le32() / put_unaligned_le32() to 
+read/write from FIFOS. I will try both solutions.
+
 >
->> +               p = (ret >> 6) ^ (ret >> 5) ^ (ret >> 4) ^ (ret >> 3) ^
->> +                   (ret >> 2) ^ (ret >> 1) ^ ret ^ 1;
->> +               p = p & 1;
->>
->> Is it parity calculus? Do we have something implemented in kernel already?
->>
->> Btw,
->> https://urldefense.proofpoint.com/v2/url?u=https-3A__graphics.stanford.edu_-7Eseander_bithacks.html-23ParityNaive&d=DwIBaQ&c=DPL6_X_6JkXFx7AXWqB0tg&r=qVuU64u9x77Y0Kd0PhDK_lpxFgg6PK9PateHwjb_DY0&m=5FpGHBbT8tYA6PB4RT_9O6PJk3v-wYcy1MV59xoqK4I&s=FSJ3EcuoxPtRJWmsk9Yt4s_UH9kxFBam01Xvas2ZFdo&e=
->> offered this
->>
->> v ^= v >> 4;
->> v &= 0xf;
->> v = (0x6996 >> v) & 1;
->>
->>
->> I search into the kernel and I didn't find any function for that. In your
->> opinion what shoud I use?
-> If license of the piece above is okay to use in kernel, then
-> definitely it would be better (even we might create a helper out of
-> it).
+>> +	}
+>> +}
+>> +
+> [...]
 >
-Thanks for your comments I will take them into account for the next version.
+>> +
+>> +static void dw_i3c_master_detach_i2c_dev(struct i2c_dev_desc *dev)
+>> +{
+>> +	struct dw_i3c_i2c_dev_data *data = i2c_dev_get_master_data(dev);
+>> +	struct i3c_master_controller *m = i2c_dev_get_master(dev);
+>> +	struct dw_i3c_master *master = to_dw_i3c_master(m);
+>> +
+>> +	writel(NULL,
+> 		^ 0 not NULL
+
+I will change it.
+
+>
+>> +	       master->regs +
+>> +	       DEV_ADDR_TABLE_LOC(master->datstartaddr, data->index));
+>> +
+>> +	i2c_dev_set_master_data(dev, NULL);
+>> +	master->addrs[data->index] = 0;
+>> +	master->free_pos |= BIT(data->index);
+>> +	kfree(data);
+>> +}
+>> +
+>> +static int dw_i3c_probe(struct platform_device *pdev)
+>> +{
+>> +	struct dw_i3c_master *master;
+>> +	struct resource *res;
+>> +	int ret, irq;
+>> +
+>> +	master = devm_kzalloc(&pdev->dev, sizeof(*master), GFP_KERNEL);
+>> +	if (!master)
+>> +		return -ENOMEM;
+>> +
+>> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> +	master->regs = devm_ioremap_resource(&pdev->dev, res);
+>> +	if (IS_ERR(master->regs))
+>> +		return PTR_ERR(master->regs);
+>> +
+>> +	master->core_clk = devm_clk_get(&pdev->dev, "core_clk");
+>> +	if (IS_ERR(master->core_clk))
+>> +		return PTR_ERR(master->core_clk);
+>> +
+>> +	master->core_rst = devm_reset_control_get_optional_exclusive(&pdev->dev,
+>> +								    "core_rst");
+>> +	if (IS_ERR(master->core_rst))
+>> +		return PTR_ERR(master->core_rst);
+>> +
+>> +	ret = clk_prepare_enable(master->core_clk);
+>> +	if (ret)
+>> +		goto err_disable_core_clk;
+>> +
+>> +	reset_control_deassert(master->core_rst);
+>> +
+>> +	spin_lock_init(&master->xferqueue.lock);
+>> +	INIT_LIST_HEAD(&master->xferqueue.list);
+>> +
+>> +	writel(INTR_ALL, master->regs + INTR_STATUS);
+>> +	irq = platform_get_irq(pdev, 0);
+>> +	ret = devm_request_irq(&pdev->dev, irq,
+>> +			       dw_i3c_master_irq_handler, 0,
+>> +			       dev_name(&pdev->dev), master);
+>> +	if (ret)
+>> +		goto err_assert_rst;
+>> +
+>> +	platform_set_drvdata(pdev, master);
+>> +
+>> +	ret = readl(master->regs + QUEUE_STATUS_LEVEL);
+>> +	master->caps.cmdfifodepth = QUEUE_STATUS_LEVEL_CMD(ret);
+>> +
+>> +	ret = readl(master->regs + DATA_BUFFER_STATUS_LEVEL);
+>> +	master->caps.datafifodepth = DATA_BUFFER_STATUS_LEVEL_TX(ret);
+>> +
+>> +	ret = readl(master->regs + DEVICE_ADDR_TABLE_POINTER);
+>> +	master->datstartaddr = ret;
+>> +	master->maxdevs = ret >> 16;
+>> +	master->free_pos = GENMASK(master->maxdevs - 1, 0);
+>> +
+>> +	/* read controller version */
+>> +	ret = readl(master->regs + I3C_VER_ID);
+>> +	master->version[0] = (char)(ret >> 24);
+>> +	master->version[1] = '.';
+>> +	master->version[2] = (char)(ret >> 16);
+>> +	master->version[3] = (char)(ret >> 8);
+>> +	master->version[4] = '\0';
+>> +
+>> +	/* read controller type */
+>> +	ret = readl(master->regs + I3C_VER_TYPE);
+>> +	master->type[0] = (char)(ret >> 24);
+>> +	master->type[1] = (char)(ret >> 16);
+>> +	master->type[2] = (char)(ret >> 8);
+>> +	master->type[3] = (char) ret;
+>> +	master->type[4] = '\0';
+> Hm, do you really intend to read these as strings? If you do, maybe you
+> can use sprintf() here:
+>
+> 	sprintf(master->version, "%c.%c%c", ...)
+> 	sprintf(master->type, "%c%c%c%c", ...)
+
+Maybe this information is unnecessary. I will remove it.
+
+>
+>
+>> +
+>> +	ret = i3c_master_register(&master->base, &pdev->dev,
+>> +				  &dw_mipi_i3c_ops, false);
+>> +	if (ret)
+>> +		goto err_assert_rst;
+>> +
+>> +	dev_info(&pdev->dev, "Synopsys DW MIPI I3C Master: version %s-%s\n",
+>> +		 master->version, master->type);
+>> +
+>> +	return 0;
+>> +
+>> +err_assert_rst:
+>> +	reset_control_assert(master->core_rst);
+>> +
+>> +err_disable_core_clk:
+>> +	clk_disable_unprepare(master->core_clk);
+>> +
+>> +	return ret;
+>> +}
+> The driver looks pretty good already, and I'm pleasantly surprised to
+> see that the Synopsys IP works pretty much the same way the Cadence one
+> does. I could find some of the logic I implemented in the Cadence
+> driver almost directly applied to this one, so I think there's room for
+> code factorization. Anyway, let's see what the next controller looks
+> like before doing that.
+>
+> Thanks for sharing your work early and for reviewing the previous
+> versions of the I3C patchset.
+>
+> Regards,
+>
+> Boris
+
+I tried to not reinvent the wheel. Right now the test with I3C devices 
+are running very well.
+I still have one or another detail that can be optimize.
+
+Thanks for your feedback.
 
 Best regards,
 Vitor Soares
