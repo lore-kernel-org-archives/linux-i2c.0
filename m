@@ -1,52 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c-amd8111: Mark expected switch fall-through
-Date: Wed, 8 Aug 2018 22:10:19 +0200
-Message-ID: <20180808201019.v6wbbixglpqvzsou@ninjato>
-References: <20180703190751.GA29770@embeddedor.com>
+Subject: Re: [PATCH v3 1/6] i2c: designware: use generic table matching
+Date: Wed, 8 Aug 2018 22:22:10 +0200
+Message-ID: <20180808202210.qkocl4hckqla7exe@ninjato>
+References: <20180806185412.7210-1-alexandre.belloni@bootlin.com>
+ <20180806185412.7210-2-alexandre.belloni@bootlin.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="fn3nrerbdujaohn2"
+        protocol="application/pgp-signature"; boundary="qebv7hyem3d6rgy2"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180703190751.GA29770@embeddedor.com>
+In-Reply-To: <20180806185412.7210-2-alexandre.belloni@bootlin.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---fn3nrerbdujaohn2
+--qebv7hyem3d6rgy2
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 03, 2018 at 02:07:51PM -0500, Gustavo A. R. Silva wrote:
-> In preparation to enabling -Wimplicit-fallthrough, mark switch cases
-> where we are expecting to fall through.
+On Mon, Aug 06, 2018 at 08:54:07PM +0200, Alexandre Belloni wrote:
+> Switch to device_get_match_data in probe to match the device specific data
+> instead of using the acpi specific function.
 >=20
-> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+> Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-Applied to for-next, thanks!
+Andy, you happy with this patch?
 
 
---fn3nrerbdujaohn2
+--qebv7hyem3d6rgy2
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltrTicACgkQFA3kzBSg
-KbacCw//Vgx6WVx2Tt0R+jFSW2lba92Z1cptBvAItIaDKLevwAMfyOpgV+a7vaqh
-YkTNKGCbUjy14bCiJkXVng93NiUU6IV6OvWBlx9omrhqVynTZFTOtl3Gc97mCXK6
-U8zab/fSEXj6KDoVr+LppMKbZNtCrEqDzy5jxdZapTt/iqECNWL+9HhIiDapaWat
-mvHOdtudhFCthW/hYf/MKBsaE1fCjIwnoqk4rEqmPBuu/EaEv4MJpOMfgbdKq2Pd
-pDNUTb1t+j5Oa26dX6H88DQ4fsE5/D7qgKDmY2gmOIbkT1rLFISXHuhEAtMaWCFc
-bGqbbFmDmd55Org//sdoKFqheoXxUqlV/inqVKvtIH+pY8fuYkIp3JLmbVQWTGdL
-TOhhY7AuKCgZc018u79/lgoUqwWdFG+uJwQ4F9wPx+bWMiPslOo2tSIQJraNmH9g
-8xZDYLpOeD0Se8OGctg5JuPxIMUuZR7eofhCvmFhwZajYztALXJBVzqpK/S+b5AS
-ejL4GqQJeH7bXxFR1uHF4J/P6+XJmbxx8phGHMiVp9BWrfeWXRcCm9qeuD3BPI4K
-hnhKgQOvg3763aZZ3kMGLJQzjUEXhjE0RnZJOPkl12AEtzzdgYX1t9WI6ttjm5XL
-pQkO6LJvsamI8W8NPenfSlcnnGv2uA2fxsme55vP1oJbJVFszJs=
-=fy5D
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltrUPIACgkQFA3kzBSg
+KbaIaxAAglFXoMQYzEDtLC4xW5R2IY/3q0HtEncf4ExyKGuclwPtfaEN0ECDPC14
+96nZJednR4FDHm25y5ThZtGyllbm4YNomkQzSJgoplSNCuMZdnEmAOC5+XJilbTH
+oLwxhVrc/txYTAzRVbFgfCGReziyHPzBJjOw1jd8cmjFlTSjBwzS5FtzFYnVd+Fi
+yddQjjAJsvj/WFa8KdQ41Nmq6mUYosldUFQYfQ4kXREj1Kk9f0cdsF0Re6fjkC9S
+ZrFQI7zeooRVE+Tas5l9umdg0aIPJDdyVEKGLAGOU/HpyB4R5nvr3KHDvGaqqlAt
+/SE3vTuf2s0fJdR28vjxkekwMSZawFlcQ8vOhUtDOWJUzJdsTRiXHkBRb6wOY+wx
+dYLN1mWx6yq5TDnIYSf3JCi2m4uz8y/7q0P3l6Wcs8Z1LYJo0xNTMrCWzrrxCMGO
+1cA4qpJ1S7LqMFIS/scDO83TEpsOkKunozNBqElNGRdnMyTgZznysFAPn9dKiBx3
+BQS2xfGl/rlWsXZaKaqoKjrIk2rl2pP1BbMtDi3dB3C7lLfLlCLkd8bzL1t/+CFN
+tugPZcQJwVMeIYnjR6hK89RiupqPRtqs1UH1bnCie6P2kTubOd2Wvt4UaQ57alTj
+BWwI/55tMlFCGldsGApZao/0vJ36jwNZVmM9x743o094tAN7HtM=
+=t7TX
 -----END PGP SIGNATURE-----
 
---fn3nrerbdujaohn2--
+--qebv7hyem3d6rgy2--
