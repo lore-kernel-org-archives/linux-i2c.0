@@ -1,64 +1,65 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v3 4/6] i2c: designware: add MSCC Ocelot support
-Date: Tue, 7 Aug 2018 11:42:22 -0600
-Message-ID: <20180807174222.GA5720@rob-hp-laptop>
-References: <20180806185412.7210-1-alexandre.belloni@bootlin.com>
- <20180806185412.7210-5-alexandre.belloni@bootlin.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v3 4/4] i2c: Add multi-instantiate pseudo driver
+Date: Wed, 8 Aug 2018 10:05:56 +0200
+Message-ID: <c85dd145-2837-6a4d-c848-9604a5d3662f@redhat.com>
+References: <20180807080539.17811-1-hdegoede@redhat.com>
+ <20180807080539.17811-5-hdegoede@redhat.com>
+ <20180807112701.5iukqa6m5atf22fw@ninjato>
+ <9e17dfca-901b-79c9-b562-4f893d7ae44b@redhat.com>
+ <af71656fda0f94e77a136bd50381713020660638.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180806185412.7210-5-alexandre.belloni@bootlin.com>
+In-Reply-To: <af71656fda0f94e77a136bd50381713020660638.camel@linux.intel.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-acpi@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, John Garry <john.garry@huawei.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Aug 06, 2018 at 08:54:10PM +0200, Alexandre Belloni wrote:
-> The Microsemi Ocelot I2C controller is a designware IP. It also has a
-> second set of registers to allow tweaking SDA hold time and spike
-> filtering.
+Hi,
+
+On 07-08-18 13:45, Andy Shevchenko wrote:
+> On Tue, 2018-08-07 at 13:33 +0200, Hans de Goede wrote:
+>> Hi,
+>>
+>> On 07-08-18 13:27, Wolfram Sang wrote:
+>>> Hi Hans,
+>>>
+>>>> +I2C MULTI INSTANTIATE DRIVER
 > 
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> ---
->  .../bindings/i2c/i2c-designware.txt           |  9 ++++-
-
-Please split binding patches.
-
->  drivers/i2c/busses/i2c-designware-core.h      |  3 ++
->  drivers/i2c/busses/i2c-designware-platdrv.c   | 40 +++++++++++++++++++
->  3 files changed, 50 insertions(+), 2 deletions(-)
+> In the case below, I think it would be slightly better to mention ACPI
+> here, something like
 > 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> index fbb0a6d8b964..7886f2dc6675 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> @@ -2,7 +2,8 @@
->  
->  Required properties :
->  
-> - - compatible : should be "snps,designware-i2c"
-> + - compatible : should be "snps,designware-i2c" or "mscc,ocelot-i2c" followed by
-> +   "snps,designware-i2c" for fallback
+> ACPI I2C ...
+> 
+> Otherwise it sounds a bit confusing why it's in PDx86.
 
-Please reformat to one valid combination per line.
+Ok, fixed for the upcoming v4 of this patchset.
 
->   - reg : Offset and length of the register set for the device
->   - interrupts : <IRQ> where IRQ is the interrupt number.
->  
-> @@ -11,8 +12,12 @@ Recommended properties :
->   - clock-frequency : desired I2C bus clock frequency in Hz.
->  
->  Optional properties :
-> + - reg : for "mscc,ocelot-i2c", a second register set to configure the SDA hold
-> +   time, named ICPU_CFG:TWI_DELAY in the datasheet.
-> +
->   - i2c-sda-hold-time-ns : should contain the SDA hold time in nanoseconds.
-> -   This option is only supported in hardware blocks version 1.11a or newer.
-> +   This option is only supported in hardware blocks version 1.11a or newer and
-> +   on Microsemi SoCs ("mscc,ocelot-i2c" compatible).
->  
->   - i2c-scl-falling-time-ns : should contain the SCL falling time in nanoseconds.
->     This value which is by default 300ns is used to compute the tLOW period.
+Regards,
+
+Hans
+
+
+> 
+>>>> +M:	Hans de Goede <hdegoede@redhat.com>
+>>>> +L:	linux-i2c@vger.kernel.org
+>>>
+>>> Since this driver is about FW bugs, I wonder if
+>>> platform-driver-x86@vger.kernel.org isn't the better list here?
+>>
+>> Ok, fixed for v4.
+>>
+>>>> +S:	Maintained
+>>>> +F:	drivers/drivers/platform/x86/i2c-multi-instantiate.c
+>>>
+>>> I2C parts of the rest looks good from a glimpse...
+>>
+>> Thanks.
+>>
+>> Regards,
+>>
+>> Hans
+> 
