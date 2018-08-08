@@ -1,244 +1,111 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v4 4/4] i2c: Add multi-instantiate pseudo driver
-Date: Wed, 8 Aug 2018 16:56:52 +0200
-Message-ID: <e7a065f8-7ded-c5f8-4d9c-abf27fc248b4@redhat.com>
-References: <20180808083006.31919-1-hdegoede@redhat.com>
- <20180808083006.31919-5-hdegoede@redhat.com>
- <CAHp75Vchow81kAaJ-b5Fr2ZjG7huasvM7HOfaKQzso7jaG2xXg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH 00/28] at24: remove at24_platform_data
+Date: Wed,  8 Aug 2018 17:31:22 +0200
+Message-ID: <20180808153150.23444-1-brgl@bgdev.pl>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75Vchow81kAaJ-b5Fr2ZjG7huasvM7HOfaKQzso7jaG2xXg@mail.gmail.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, John Garry <john.garry@huawei.com>, linux-i2c <linux-i2c@vger.kernel.org>
+To: Jonathan Corbet <corbet@lwn.net>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Woodhouse <dwmw2@infradead.org>, Brian Norris <computersforpeace@gmail.com>, Boris Brezillon <boris.brezillon@bootlin.com>, Marek Vasut <marek.vasut@gmail.com>, Richard Weinberger <richard@nod.at>, Grygorii Strashko <grygorii.strashko@ti.com>, "David S . Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Naren <naren.kernel@gmail.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Lukas Wunner <lukas@wunner.de>, Dan Carpenter <dan.carpenter@oracle.co>
+Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-mtd@lists.infradead.org, linux-omap@vger.kernel.org, netdev@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-On 08/08/2018 11:08 AM, Andy Shevchenko wrote:
-> On Wed, Aug 8, 2018 at 11:30 AM, Hans de Goede <hdegoede@redhat.com> wrote:
->> On systems with ACPI instantiated i2c-clients, normally there is 1 fw_node
->> per i2c-device and that fw-node contains 1 I2cSerialBus resource for that 1
->> i2c-device.
->>
->> But in some rare cases the manufacturer has decided to describe multiple
->> i2c-devices in a single ACPI fwnode with multiple I2cSerialBus resources.
->>
->> An earlier attempt to fix this in the i2c-core resulted in a lot of extra
->> code to support this corner-case.
->>
->> This commit introduces a new i2c-multi-instantiate driver which fixes this
->> in a different way. This new driver can be built as a module which will
->> only loaded on affected systems.
->>
->> This driver will instantiate a new i2c-client per I2cSerialBus resource,
->> using the driver_data from the acpi_device_id it is binding to to tell it
->> which chip-type (and optional irq-resource) to use when instantiating.
->>
->> Note this driver depends on a platform device being instantiated for the
->> ACPI fwnode, see the i2c_multi_instantiate_ids list of ACPI device-ids in
->> drivers/acpi/scan.c: acpi_device_enumeration_by_parent().
-> 
-> Thanks for an update! My comments below.
-> 
->> +struct i2c_inst_data {
->> +       const char *type;
->> +       int irq_idx;
->> +};
-> 
->> +struct i2c_multi_inst_data {
-> 
->> +       int no_clients;
-> 
-> Name a bit confusing. What about num_clients?
+This is a follow-up to the previously rejected series[1] which partially
+removed the at24_platform_data structure. After further development and
+taking reviews into account, this series finally removes that struct
+completely but not without touching many different parts of the code
+base.
 
-no is often used as abbreviation for "number of" so this is a quite
-normal naming scheme. But if you really want me to I can do a v5
-renaming this to num_clients.
+Since I took over maintainership of the at24 driver I've been working
+towards removing at24_platform_data in favor for device properties.
 
-> 
->> +       struct i2c_client *clients[0];
->> +};
->> +
->> +static int i2c_multi_inst_probe(struct platform_device *pdev)
->> +{
->> +       struct i2c_multi_inst_data *multi;
->> +       const struct acpi_device_id *match;
->> +       const struct i2c_inst_data *inst_data;
->> +       struct i2c_board_info board_info = {};
->> +       struct device *dev = &pdev->dev;
->> +       struct acpi_device *adev;
->> +       char name[32];
->> +       int i, ret;
->> +
->> +       match = acpi_match_device(dev->driver->acpi_match_table, dev);
->> +       if (!match) {
->> +               dev_err(dev, "Error ACPI match data is missing\n");
->> +               return -ENODEV;
->> +       }
->> +       inst_data = (const struct i2c_inst_data *)match->driver_data;
->> +
->> +       adev = ACPI_COMPANION(dev);
->> +
-> 
->> +       /* Count number of clients to instantiate */
->> +       for (i = 0; inst_data[i].type; i++) {}
->> +
->> +       multi = devm_kmalloc(dev,
->> +                       offsetof(struct i2c_multi_inst_data, clients[i]),
->> +                       GFP_KERNEL);
->> +       if (!multi)
->> +               return -ENOMEM;
-> 
-> Here I see the following:
->   - it's kinda unusual use of offsetof()
+DaVinci is the only platform that's still using it - all other users
+have already been converted.
 
-There are actually plenty of places doing this, this is the normal way
-to get the size of a struct which ends with a variable sized array.
+One of the obstacles in case of DaVinci is removing the setup() callback
+from the pdata struct, the only user of which are some davinci boards.
 
-I would prefer to keep this as is.
+Most boards use the EEPROM to store the MAC address. This series adds
+support for cell lookups to the nvmem framework, registers relevant
+cells for all users, adds nvmem support to eth_platform_get_mac_address(),
+converts davinci_emac driver to using it and replaces at24_platform_data
+with device properties.
 
-, perhaps i*sizeof() + sizeof()
-> would be more understandable
->   - there is no guard against i == 0
+There's also one board (da850-evm) which uses MTD for reading the MAC
+address. I used the patch from Alban Bedel's previous submission[2] to
+add support for nvmem to the MTD framework. Since this user doesn't
+need device tree, I dropped Alban's patches modifying the DT bindings.
+We can add that later once an agreement is reached. For the time being
+MTD devices are registered as nvmem devices and we're registering the
+mac-address cell using the cell lookup mechanism.
 
-i depends on the driver_data, defining a driver_data
-where i == 0 is silly, still if this happens nothing bad
-will happen, so I see no need for a check for this.
+This series adds a blocking notifier chain to the nvmem framework, so
+that we can keep the EEPROM reading code in the mityomapl138 board file
+with only slight modifications.
 
-> 
-> To solve both, it might be like
-> 
-> struct i2c_multi_inst_data {
->         int num_clients;
->         struct i2c_client *clients;
-> };
-> 
-> ...
-> multi = devm_kmalloc(sizeof(*multi), GFP_KERNEL);
-> if (!multi)
->   return -ENOMEM;
-> 
-> multi->clients = devm_kcalloc(i, sizeof(*multi->clients), GFP_KERNEL);
-> if (ZERO_PTR_OR_NULL(multi->clients))
->   return -ENOMEM;
-> 
-> But I would like to hear your (other's) opinion(s).
+I also included some minor fixes to the modified code.
 
-Nack for this option, this just makes the code more
-complicated and uses allocs instead of 1 for no good
-reason IMHO.
+Tested on da850-evm & dm365-evm.
 
-Regards,
+[1] https://lkml.org/lkml/2018/6/29/153
+[2] https://lkml.org/lkml/2018/3/24/312
 
-Hans
+Alban Bedel (1):
+  mtd: Add support for reading MTD devices via the nvmem API
 
+Bartosz Golaszewski (27):
+  nvmem: add support for cell lookups
+  Documentation: nvmem: document lookup entries
+  nvmem: add a notifier chain
+  nvmem: provide nvmem_device_name()
+  nvmem: remove the name field from struct nvmem_device
+  ARM: davinci: dm365-evm: use nvmem lookup for mac address
+  ARM: davinci: dm644-evm: use nvmem lookup for mac address
+  ARM: davinci: dm646x-evm: use nvmem lookup for mac address
+  ARM: davinci: da830-evm: use nvmem lookup for mac address
+  ARM: davinci: mityomapl138: add nvmem cells lookup entries
+  ARM: davinci: da850-evm: use nvmem lookup for mac address
+  ARM: davinci: da850-evm: remove unnecessary include
+  net: split eth_platform_get_mac_address() into subroutines
+  net: add support for nvmem to eth_platform_get_mac_address()
+  net: davinci_emac: use eth_platform_get_mac_address()
+  ARM: davinci: da850-evm: remove dead MTD code
+  ARM: davinci: mityomapl138: don't read the MAC address from machine
+    code
+  ARM: davinci: dm365-evm: use device properties for at24 eeprom
+  ARM: davinci: da830-evm: use device properties for at24 eeprom
+  ARM: davinci: dm644x-evm: use device properties for at24 eeprom
+  ARM: davinci: dm646x-evm: use device properties for at24 eeprom
+  ARM: davinci: sffsdr: fix the at24 eeprom device name
+  ARM: davinci: sffsdr: use device properties for at24 eeprom
+  ARM: davinci: remove dead code related to MAC address reading
+  ARM: davinci: mityomapl138: use nvmem notifiers
+  ARM: davinci: mityomapl138: use device properties for at24 eeprom
+  eeprom: at24: kill at24_platform_data
 
-> 
->> +
->> +       multi->no_clients = i;
->> +
->> +       for (i = 0; i < multi->no_clients; i++) {
->> +               memset(&board_info, 0, sizeof(board_info));
->> +               strlcpy(board_info.type, inst_data[i].type, I2C_NAME_SIZE);
->> +               snprintf(name, sizeof(name), "%s-%s", match->id,
->> +                        inst_data[i].type);
->> +               board_info.dev_name = name;
->> +               board_info.irq = 0;
-> 
->> +               if (inst_data[i].irq_idx != -1) {
-> 
->> = 0 sounds more robust
-> 
->> +                       ret = acpi_dev_gpio_irq_get(adev, inst_data[i].irq_idx);
->> +                       if (ret < 0) {
-> 
->> +                               dev_err(dev, "Error requesting irq at index %d: %d\n",
->> +                                       inst_data[i].irq_idx, ret);
-> 
-> irq -> IRQ in the message.
-> 
->> +                               goto error;
->> +                       }
->> +                       board_info.irq = ret;
->> +               }
->> +               multi->clients[i] = i2c_acpi_new_device(dev, i, &board_info);
->> +               if (!multi->clients[i]) {
->> +                       dev_err(dev, "Error creating i2c-client, idx %d\n", i);
->> +                       ret = -ENODEV;
->> +                       goto error;
->> +               }
->> +       }
->> +
->> +       platform_set_drvdata(pdev, multi);
->> +       return 0;
->> +
->> +error:
-> 
->> +       while (--i >= 0)
-> 
-> It can be simple
-> 
-> while (i--)
-> 
->> +               i2c_unregister_device(multi->clients[i]);
->> +
->> +       return ret;
->> +}
->> +
->> +static int i2c_multi_inst_remove(struct platform_device *pdev)
->> +{
->> +       struct i2c_multi_inst_data *multi = platform_get_drvdata(pdev);
->> +       int i;
->> +
->> +       for (i = 0; i < multi->no_clients; i++)
->> +               i2c_unregister_device(multi->clients[i]);
->> +
->> +       return 0;
->> +}
->> +
->> +static const struct i2c_inst_data bsg1160_data[]  = {
->> +       { "bmc150_accel", 0 },
->> +       { "bmc150_magn", -1 },
->> +       { "bmg160", -1 },
->> +       {}
->> +};
->> +
->> +/*
->> + * Note new device-ids must also be added to i2c_multi_instantiate_ids in
->> + * drivers/acpi/scan.c: acpi_device_enumeration_by_parent().
->> + */
->> +static const struct acpi_device_id i2c_multi_inst_acpi_ids[] = {
->> +       { "BSG1160", (unsigned long)bsg1160_data },
->> +       { }
->> +};
->> +MODULE_DEVICE_TABLE(acpi, i2c_multi_inst_acpi_ids);
->> +
->> +static struct platform_driver i2c_multi_inst_driver = {
->> +       .driver = {
->> +               .name = "I2C multi instantiate pseudo device driver",
-> 
->> +               .acpi_match_table = ACPI_PTR(i2c_multi_inst_acpi_ids),
-> 
-> We don't need ACPI_PTR for the driver which depends on ACPI.
-> In the general case we have an inconsistency with variable definition
-> (might be unused).
-> 
->> +       },
->> +       .probe = i2c_multi_inst_probe,
->> +       .remove = i2c_multi_inst_remove,
->> +};
->> +module_platform_driver(i2c_multi_inst_driver);
->> +
->> +MODULE_DESCRIPTION("I2C multi instantiate pseudo device driver");
->> +MODULE_AUTHOR("Hans de Goede <hdegoede@redhat.com>");
->> +MODULE_LICENSE("GPL");
->> --
->> 2.18.0
->>
-> 
-> 
-> 
+ Documentation/nvmem/nvmem.txt              |  28 +++++
+ MAINTAINERS                                |   1 -
+ arch/arm/mach-davinci/board-da830-evm.c    |  25 ++--
+ arch/arm/mach-davinci/board-da850-evm.c    |  45 +++-----
+ arch/arm/mach-davinci/board-dm365-evm.c    |  25 ++--
+ arch/arm/mach-davinci/board-dm644x-evm.c   |  24 ++--
+ arch/arm/mach-davinci/board-dm646x-evm.c   |  25 ++--
+ arch/arm/mach-davinci/board-mityomapl138.c |  59 +++++++---
+ arch/arm/mach-davinci/board-sffsdr.c       |  13 +--
+ arch/arm/mach-davinci/common.c             |  15 ---
+ drivers/misc/eeprom/at24.c                 | 127 +++++++++------------
+ drivers/mtd/Kconfig                        |   1 +
+ drivers/mtd/mtdcore.c                      |  50 ++++++++
+ drivers/net/ethernet/ti/davinci_emac.c     |  12 +-
+ drivers/nvmem/core.c                       | 106 ++++++++++++++++-
+ include/linux/davinci_emac.h               |   2 -
+ include/linux/mtd/mtd.h                    |   2 +
+ include/linux/nvmem-consumer.h             |  31 +++++
+ include/linux/nvmem-provider.h             |  10 ++
+ include/linux/platform_data/at24.h         |  60 ----------
+ net/ethernet/eth.c                         |  86 ++++++++++++--
+ 21 files changed, 492 insertions(+), 255 deletions(-)
+ delete mode 100644 include/linux/platform_data/at24.h
+
+-- 
+2.18.0
