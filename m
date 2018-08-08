@@ -1,107 +1,51 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v3 4/4] i2c: Add multi-instantiate pseudo driver
-Date: Wed, 8 Aug 2018 10:08:03 +0200
-Message-ID: <594d2c14-6f93-98cb-100d-9cc307d1cee4@redhat.com>
-References: <20180807080539.17811-1-hdegoede@redhat.com>
- <20180807080539.17811-5-hdegoede@redhat.com>
- <7e68276c-2211-85d3-3e1f-2bc4b2d9f7d5@huawei.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
+Subject: [PATCH v4 0/4] i2c-multi-instantiate pseudo driver
+Date: Wed,  8 Aug 2018 10:30:02 +0200
+Message-ID: <20180808083006.31919-1-hdegoede@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <7e68276c-2211-85d3-3e1f-2bc4b2d9f7d5@huawei.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: John Garry <john.garry@huawei.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-acpi@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-i2c@vger.kernel.org
+To: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Hans de Goede <hdegoede@redhat.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-acpi@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, John Garry <john.garry@huawei.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Hi All,
 
-On 07-08-18 14:46, John Garry wrote:
-> On 07/08/2018 09:05, Hans de Goede wrote:
->> On systems with ACPI instantiated i2c-clients, normally there is 1 fw_node
->> per i2c-device and that fw-node contains 1 I2cSerialBus resource for that 1
->> i2c-device.
->>
->> But in some rare cases the manufacturer has decided to describe multiple
->> i2c-devices in a single ACPI fwnode with multiple I2cSerialBus resources.
->>
->> An earlier attempt to fix this in the i2c-core resulted in a lot of extra
->> code to support this corner-case.
->>
->> This commit introduces a new i2c-multi-instantiate driver which fixes this
->> in a different way. This new driver can be built as a module which will
->> only loaded on affected systems.
->>
->> This driver will instantiate a new i2c-client per I2cSerialBus resource,
->> using the driver_data from the acpi_device_id it is binding to to tell it
->> which chip-type (and optional irq-resource) to use when instantiating.
->>
->> Note this driver depends on a platform device being instantiated for the
->> ACPI fwnode, see the i2c_multi_instantiate_ids list of ACPI device-ids in
->> drivers/acpi/scan.c: acpi_device_enumeration_by_parent().
->>
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->>  MAINTAINERS                                  |   6 +
->>  drivers/platform/x86/Kconfig                 |  11 ++
->>  drivers/platform/x86/Makefile                |   1 +
->>  drivers/platform/x86/i2c-multi-instantiate.c | 131 +++++++++++++++++++
->>  4 files changed, 149 insertions(+)
->>  create mode 100644 drivers/platform/x86/i2c-multi-instantiate.c
->>
->> diff --git a/MAINTAINERS b/MAINTAINERS
->> index 9b377508f24f..09e16d76cab7 100644
->> --- a/MAINTAINERS
->> +++ b/MAINTAINERS
->> @@ -6657,6 +6657,12 @@ F:    drivers/i2c/i2c-mux.c
->>  F:    drivers/i2c/muxes/
->>  F:    include/linux/i2c-mux.h
->>
->> +I2C MULTI INSTANTIATE DRIVER
->> +M:    Hans de Goede <hdegoede@redhat.com>
->> +L:    linux-i2c@vger.kernel.org
->> +S:    Maintained
->> +F:    drivers/drivers/platform/x86/i2c-multi-instantiate.c
-> 
-> This path looks incorrect
-> 
->> +
->>  I2C MV64XXX MARVELL AND ALLWINNER DRIVER
->>  M:    Gregory CLEMENT <gregory.clement@bootlin.com>
->>  L:    linux-i2c@vger.kernel.org
->> diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
->> index 85a93453237c..8256629f58f7 100644
->> --- a/drivers/platform/x86/Kconfig
->> +++ b/drivers/platform/x86/Kconfig
->> @@ -1219,6 +1219,17 @@ config INTEL_CHTDC_TI_PWRBTN
->>        To compile this driver as a module, choose M here: the module
->>        will be called intel_chtdc_ti_pwrbtn.
->>
->> +config I2C_MULTI_INSTANTIATE
->> +    tristate "I2C multi instantiate pseudo device driver"
->> +    depends on I2C && ACPI
->> +    help
->> +      Some ACPI bases systems list multiple i2c-devices in a single ACPI
-> 
-> I guess that this should be "Some ACPI-based systems"
+Here is v4 of my patch-series for dealing with multiple independent i2c
+devices being described in a single ACPI fwnode.
 
-Thanks, both fixed for v4 of the patchset.
+Changes in v4:
+-Rewrite commit message of first patch as this is NOT a bug fix for
+ acpi_is_indirect_io_slave() as I thought at first, it is still necessary
+ as a preperation patch for the rest of the series
+-MAINTAINER and Kconfig entry fixes
+-Some minor coding style fixes
+
+Changes in v3:
+-Drop the patch adding the I2C_CLIENT_IGNORE_BUSY flag/hack
+-Add patches to make ACPI fwnode-s with affected acpi_ids get enumerated as
+ platform device instead of i2c-client
+-Change the i2c-multi-instantiate driver to a platform driver
+
+Changes in v2:
+-Rebase on 4.18-rc2
+
+Changes in v1:
+-Second attempt at dealing with this using a new design where a separate
+ driver (which can be build as a module) is used to instantiate the
+ i2c-clients instead of modifying the i2c core
+-Add an I2C_CLIENT_IGNORE_BUSY flag to make it possible for this driver to bind
+ to the client instantiated for the first i2c resource and still create a new
+ client using the i2c_client_id for the actual driver for the first resource,
+ resulting in 2 clients at the same address (of which one is inactive)
+
+About merging this series, the platform-driver and ACPI patches can be
+merged independently of each other, they platform driver relies on the ACPI
+changes to gets its platform device instantiated, but if those changes are
+not in place yet, nothing bad happens.
+
+So if everyone is happy with this series I suggest that each part gets
+merged separately through the relevant trees.
 
 Regards,
 
 Hans
-
-
-> 
->> +      firmware-node. This driver will instantiate separate i2c-clients
->> +      for each device in the firmware-node.
->> +
->> +      To compile this driver as a module, choose M here: the module
->> +      will be called i2c-multi-instantiate.
->> +
-> 
-> Thanks,
-> John
-> 
