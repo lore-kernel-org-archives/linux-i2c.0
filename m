@@ -1,54 +1,62 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 1/6] i2c: designware: use generic table matching
-Date: Wed, 8 Aug 2018 22:22:10 +0200
-Message-ID: <20180808202210.qkocl4hckqla7exe@ninjato>
-References: <20180806185412.7210-1-alexandre.belloni@bootlin.com>
- <20180806185412.7210-2-alexandre.belloni@bootlin.com>
+Subject: Re: [PATCH v2 1/3] i2c: mediatek: Register i2c adapter driver earlier
+Date: Wed, 8 Aug 2018 22:40:17 +0200
+Message-ID: <20180808204017.yfne5q26lmeegyrr@ninjato>
+References: <1530955795-17714-1-git-send-email-jun.gao@mediatek.com>
+ <1530955795-17714-2-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="qebv7hyem3d6rgy2"
+        protocol="application/pgp-signature"; boundary="edtn3rcstugf43bt"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180806185412.7210-2-alexandre.belloni@bootlin.com>
+In-Reply-To: <1530955795-17714-2-git-send-email-jun.gao@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>
+To: Jun Gao <jun.gao@mediatek.com>
+Cc: srv_heupstream@mediatek.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---qebv7hyem3d6rgy2
+--edtn3rcstugf43bt
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 06, 2018 at 08:54:07PM +0200, Alexandre Belloni wrote:
-> Switch to device_get_match_data in probe to match the device specific data
-> instead of using the acpi specific function.
+On Sat, Jul 07, 2018 at 05:29:53PM +0800, Jun Gao wrote:
+> From: Jun Gao <jun.gao@mediatek.com>
 >=20
-> Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> As i2c adapter, i2c slave devices will depend on it. In order not to
+> block the initializations of i2c slave devices, register i2c adapter
+> driver at appropriate time.
+>=20
+> Signed-off-by: Jun Gao <jun.gao@mediatek.com>
 
-Andy, you happy with this patch?
+We don't do this anymore. Check these threads:
+
+http://patchwork.ozlabs.org/project/linux-i2c/list/?series=3D&submitter=3D&=
+state=3D*&q=3Dinitcall&archive=3D&delegate=3D
+
+(/me just realized that patchwork makes it super easy to point people to
+various discussions. Awesome!)
 
 
---qebv7hyem3d6rgy2
+--edtn3rcstugf43bt
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltrUPIACgkQFA3kzBSg
-KbaIaxAAglFXoMQYzEDtLC4xW5R2IY/3q0HtEncf4ExyKGuclwPtfaEN0ECDPC14
-96nZJednR4FDHm25y5ThZtGyllbm4YNomkQzSJgoplSNCuMZdnEmAOC5+XJilbTH
-oLwxhVrc/txYTAzRVbFgfCGReziyHPzBJjOw1jd8cmjFlTSjBwzS5FtzFYnVd+Fi
-yddQjjAJsvj/WFa8KdQ41Nmq6mUYosldUFQYfQ4kXREj1Kk9f0cdsF0Re6fjkC9S
-ZrFQI7zeooRVE+Tas5l9umdg0aIPJDdyVEKGLAGOU/HpyB4R5nvr3KHDvGaqqlAt
-/SE3vTuf2s0fJdR28vjxkekwMSZawFlcQ8vOhUtDOWJUzJdsTRiXHkBRb6wOY+wx
-dYLN1mWx6yq5TDnIYSf3JCi2m4uz8y/7q0P3l6Wcs8Z1LYJo0xNTMrCWzrrxCMGO
-1cA4qpJ1S7LqMFIS/scDO83TEpsOkKunozNBqElNGRdnMyTgZznysFAPn9dKiBx3
-BQS2xfGl/rlWsXZaKaqoKjrIk2rl2pP1BbMtDi3dB3C7lLfLlCLkd8bzL1t/+CFN
-tugPZcQJwVMeIYnjR6hK89RiupqPRtqs1UH1bnCie6P2kTubOd2Wvt4UaQ57alTj
-BWwI/55tMlFCGldsGApZao/0vJ36jwNZVmM9x743o094tAN7HtM=
-=t7TX
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltrVTEACgkQFA3kzBSg
+KbYICxAAo/n3OTlafeyeRr//nATBT9Z4QGjhugCIw5j1dZeXcVCbHuC6+m5jW2su
+Q+JcZSwx3AG3VbgqG6ugJ0QUi94NXv459IbBRuhQQ6FukpKLFV1AwZFasDh3Rmqb
+HfcxoTg5zCGEJLwc3nLSne/q7wiMzaImqREHanQUXY/iHIbWDF0g32yL4BSbx+6F
+XLIbhAvRE0Xx52QBBQkYpB8FB82H6kgKXu5Kq/PRFs4XAhKtMTb+nMxQExCB8SWQ
+yzFmb/6Img+vwY+180qSWlT4NjAYZ9kV5tNjA3qRCg7G1lOJiihjm5l30dZEkZOJ
+hCgBh4FN1UMIWn90pgWDZXRNv9ByCvzaUk/NoeRJA8imyjjC7w5+5WVTqIP1oy4u
+BRfEbQ3hjBpvm7kV699l78uv+Z6xayEvjHQrbMcTVh7sCODLerMk7Dfrp9GfgUG+
+Z1Irc5DcHWDnfD3SyKR5s4XlF3ldND+b+bQEuISXfCgCypF0VVQArT8KSx/V45ga
+lgwexvHIakklxVVnEWQhqnkYn5S79SlbHxfPW4hfPzs2EAf0e6PTN3iHMh/WLfKO
+wg2NI8z0HkA2G928NvBBkSPZgrvDT26SlAytDreNRGK5Gr0IkKD0ed744ziGKeiV
+msiRreTdwi0nKpoxbs1zsGRjsDwk1uaBH3OEpBHynKxSpnrUrU4=
+=0m2X
 -----END PGP SIGNATURE-----
 
---qebv7hyem3d6rgy2--
+--edtn3rcstugf43bt--
