@@ -1,64 +1,68 @@
 From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v2] i2c: xlp9xx: Fix case where SSIF read transaction
  completes early
-Date: Thu, 9 Aug 2018 17:39:59 +0200
-Message-ID: <20180809153959.y6su5kxnwilkdhlz@ninjato>
+Date: Thu, 9 Aug 2018 17:42:52 +0200
+Message-ID: <20180809154251.twazp6scrs57sih5@ninjato>
 References: <1533796608-26349-1-git-send-email-george.cherian@cavium.com>
+ <20180809153959.y6su5kxnwilkdhlz@ninjato>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="442bub4pf5phc3fj"
+        protocol="application/pgp-signature"; boundary="4ohgxcwhw75czpbt"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1533796608-26349-1-git-send-email-george.cherian@cavium.com>
+In-Reply-To: <20180809153959.y6su5kxnwilkdhlz@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
 To: George Cherian <george.cherian@cavium.com>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, jglauber@cavium.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---442bub4pf5phc3fj
+--4ohgxcwhw75czpbt
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 08, 2018 at 11:36:48PM -0700, George Cherian wrote:
-> During ipmi stress tests we see occasional failure of transactions
-> at the boot time. This happens in the case of a I2C_M_RECV_LEN
-> transactions, when the read transfer completes (with the initial
-> read length of 34) before the driver gets a chance to handle interrupts.
+On Thu, Aug 09, 2018 at 05:39:59PM +0200, Wolfram Sang wrote:
+> On Wed, Aug 08, 2018 at 11:36:48PM -0700, George Cherian wrote:
+> > During ipmi stress tests we see occasional failure of transactions
+> > at the boot time. This happens in the case of a I2C_M_RECV_LEN
+> > transactions, when the read transfer completes (with the initial
+> > read length of 34) before the driver gets a chance to handle interrupts.
+> >=20
+> > The current driver code expects at least 2 interrupts for I2C_M_RECV_LEN
+> > transactions. The length is updated during the first interrupt, and  the
+> > buffer contents are only copied during subsequent interrupts. In case of
+> > just one interrupt, we will complete the transaction without copying
+> > out the bytes from RX fifo.
+> >=20
+> > Update the code to drain the RX fifo after the length update,
+> > so that the transaction completes correctly in all cases.
+> >=20
+> > Signed-off-by: George Cherian <george.cherian@cavium.com>
 >=20
-> The current driver code expects at least 2 interrupts for I2C_M_RECV_LEN
-> transactions. The length is updated during the first interrupt, and  the
-> buffer contents are only copied during subsequent interrupts. In case of
-> just one interrupt, we will complete the transaction without copying
-> out the bytes from RX fifo.
->=20
-> Update the code to drain the RX fifo after the length update,
-> so that the transaction completes correctly in all cases.
->=20
-> Signed-off-by: George Cherian <george.cherian@cavium.com>
+> Applied to for-current, thanks!
 
-Applied to for-current, thanks!
+=2E..and added stable.
 
 
---442bub4pf5phc3fj
+--4ohgxcwhw75czpbt
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltsYEsACgkQFA3kzBSg
-KbanCA/+Jam9ZhdgVQYLYpQ8vsiumEOKeHVyXTvURWBjU75HtBAJmlakVIc+B/O0
-/xuqSor2PuB0qO1cfrxj7zHAF5aIUqpdoRpuUIPzEWSi6UGpJFsBB4rnenr/Mn3s
-K55739eLgK5qDMt2uR4aiHUavoMnEzH25oYSax2oEbyoYL2hb7y9dQN5fsC+f8j0
-HR59rPfzhyO7+k8BitGiPfJinXTdALW/utSWpgTwQtZbmBvDp52hk/hOekAfWLbT
-o6h0nNXzB3EXTxyaY7/HP6PRGq0IWrBLXQkji91MFGwqnEpY6rYojHkkW09mItRJ
-F5+ibOya78zc70V6j4hsBbC5ji0P4MmU9wpP7hE60iKTPyc+clXKfr+4Y+1LP4lC
-RD2fAjBlTcsql0uOADKkxcuRapUP6/sCVWxt+XeYa3HO6awtxgRIrrkhGwAzOyC9
-jTgr1BKz/dIVzpTMbp36Izodh2uEhskqmhU4fBD07phg+Tc6OMuOr3nZLwuK7sAM
-C8sTYLlw7XKJSaB9Wy5JPneaFEdTp5jtDp8RdKMLrE+JB7O6pZ1jYEygOdMab2cC
-omPJ+6CRy03hDUpcfAlCON2v06xz1ZaLEROn6BNFg9t6DTlzuU0kq7ws8uPiyg9+
-P51YM4olAoEnVt4WtB0heWLRWTdRn3sDtcSp/SxF929pBgYTmhk=
-=2E0D
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltsYPsACgkQFA3kzBSg
+KbZR6A//TTUy+d5WR759qa9//DOQICFzd9mB+/vxG23omvs16xE13YTNjJHOH5z7
+F/Wt504apHkYa2ziXWCzG8dSQwhYKJI8D3fKGj3KhIR6Fqr93k4ZpcoJlrq1Ck9o
+Wo6Jv9wC+j6mOwCN85zKu+N7Q8RsRxve7DZwS+PUqMqMB96d5U52fN0FklhCeBVv
+ZLNbiuE/G2YhyYY3DgjQOoGUueLriGQDyFbTfyyXAY30VsU38K86RFMkmiP4Cz20
+TKdlJvcq7YEn4olZzFPS6G/ccR3hUJelnWA2GVux2pm+KXD5+Hz3yDGz/tQGbG9p
+vy4dl3bgoZYnqBMWHZy0oYecPmDNsjwlDZCKPSXRTKHKIDopEsJ7k4lwvQTrBnsz
+YMURB7v7tY1G3hCU8LQCnwXagG28Xh1CpnakxUB5Qv0IvUPe2QIDUxTKTEI+l2bR
+SNYRR6DZyEmXYRCJcF0svPKB17v7Hr90M1hNmAY12Q0rjG+yTBCTlEC1UQgCBNbk
+kz/jqNliVj4Vn3dFGp7UuY8ZVR9FYz3C0/rLtZeenSiyyCFijvpQoY6UtBOoK3Jd
+15ickgVZqlrkOXnC85CzH8h1fdgnTCOyUBFUeEDGVt358xEY8GyLiDMPszwSRyws
+pVxY2+6LwF/Sd+pYIy5It494dEAfcqpb1iXqw3ZIdC+7os2GYuY=
+=msB/
 -----END PGP SIGNATURE-----
 
---442bub4pf5phc3fj--
+--4ohgxcwhw75czpbt--
