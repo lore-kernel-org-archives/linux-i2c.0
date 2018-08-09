@@ -1,68 +1,91 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: xlp9xx: Fix case where SSIF read transaction
- completes early
-Date: Thu, 9 Aug 2018 17:42:52 +0200
-Message-ID: <20180809154251.twazp6scrs57sih5@ninjato>
-References: <1533796608-26349-1-git-send-email-george.cherian@cavium.com>
- <20180809153959.y6su5kxnwilkdhlz@ninjato>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v2 3/4] i2c: imx: Simplify stopped state tracking
+Date: Thu, 9 Aug 2018 18:26:52 +0200
+Message-ID: <20180809162652.r34omvkctzxte422@pengutronix.de>
+References: <20180709094304.8814-1-esben.haabendal@gmail.com>
+ <20180709094304.8814-4-esben.haabendal@gmail.com>
+ <20180724075919.iyysd7dtbddvbavq@pengutronix.de>
+ <87k1ozzquk.fsf@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="4ohgxcwhw75czpbt"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180809153959.y6su5kxnwilkdhlz@ninjato>
+In-Reply-To: <87k1ozzquk.fsf@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: George Cherian <george.cherian@cavium.com>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, jglauber@cavium.com
+To: Esben Haabendal <esben.haabendal@gmail.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Yuan Yao <yao.yuan@freescale.com>, Philipp Zabel <p.zabel@pengutronix.de>, Phil Reid <preid@electromag.com.au>, Lucas Stach <l.stach@pengutronix.de>, Clemens Gruber <clemens.gruber@pqgruber.com>, Peter Rosin <peda@axentia.se>, Fabio Estevam <fabio.estevam@nxp.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Aug 09, 2018 at 02:06:43PM +0200, Esben Haabendal wrote:
+> Uwe Kleine-König <u.kleine-koenig@pengutronix.de> writes:
+> 
+> > On Mon, Jul 09, 2018 at 11:43:03AM +0200, Esben Haabendal wrote:
+> >> From: Esben Haabendal <eha@deif.com>
+> >> 
+> >> Always update the stopped state when busy status have been checked.
+> >> This is identical to what was done before, with the exception of error
+> >> handling.
+> >> Without this change, some errors cause the stopped state to be left in
+> >> incorrect state in i2c_imx_stop(), i2c_imx_dma_read(), i2c_imx_read() and
+> >> i2c_imx_xfer().
+> >> 
+> >> Signed-off-by: Esben Haabendal <eha@deif.com>
+> >> ---
+> >>  drivers/i2c/busses/i2c-imx.c | 12 ++++++------
+> >>  1 file changed, 6 insertions(+), 6 deletions(-)
+> >> 
+> >> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> >> index d86f152176a4..1db8e6790afc 100644
+> >> --- a/drivers/i2c/busses/i2c-imx.c
+> >> +++ b/drivers/i2c/busses/i2c-imx.c
+> >> @@ -421,10 +421,14 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy)
+> >>  			return -EAGAIN;
+> >>  		}
+> >>  
+> >> -		if (for_busy && (temp & I2SR_IBB))
+> >> +		if (for_busy && (temp & I2SR_IBB)) {
+> >> +			i2c_imx->stopped = 0;
+> >>  			break;
+> >> -		if (!for_busy && !(temp & I2SR_IBB))
+> >> +		}
+> >> +		if (!for_busy && !(temp & I2SR_IBB)) {
+> >> +			i2c_imx->stopped = 1;
+> >>  			break;
+> >> +		}
+> >
+> > Would it make sense to assign to ->stopped independent of for_busy?
+> 
+> What do you mean?
+> 
+> Assigning to ->stopped on each check for I2SR_IBB in loop, independent
+> of the for_busy argument?  I don't think so.  The additional assignments
+> would be to the same value as it is set to already.
 
---4ohgxcwhw75czpbt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Currently you have:
 
-On Thu, Aug 09, 2018 at 05:39:59PM +0200, Wolfram Sang wrote:
-> On Wed, Aug 08, 2018 at 11:36:48PM -0700, George Cherian wrote:
-> > During ipmi stress tests we see occasional failure of transactions
-> > at the boot time. This happens in the case of a I2C_M_RECV_LEN
-> > transactions, when the read transfer completes (with the initial
-> > read length of 34) before the driver gets a chance to handle interrupts.
-> >=20
-> > The current driver code expects at least 2 interrupts for I2C_M_RECV_LEN
-> > transactions. The length is updated during the first interrupt, and  the
-> > buffer contents are only copied during subsequent interrupts. In case of
-> > just one interrupt, we will complete the transaction without copying
-> > out the bytes from RX fifo.
-> >=20
-> > Update the code to drain the RX fifo after the length update,
-> > so that the transaction completes correctly in all cases.
-> >=20
-> > Signed-off-by: George Cherian <george.cherian@cavium.com>
->=20
-> Applied to for-current, thanks!
+	if (for_busy && (temp & I2SR_IBB)) {
+		i2c_imx->stopped = 0;
+		break;
+	}
 
-=2E..and added stable.
+	if (!for_busy && !(temp & I2SR_IBB)) {
+		i2c_imx->stopped = 1;
+		break;
+	}
 
+The semantic of this is the same (apart from always updating .stopped)
+but is imho easier:
 
---4ohgxcwhw75czpbt
-Content-Type: application/pgp-signature; name="signature.asc"
+	i2c_imx->stopped = !(temp & I2SR_IBB);
 
------BEGIN PGP SIGNATURE-----
+	if (for_busy != i2c_imx->stopped)
+		break;
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltsYPsACgkQFA3kzBSg
-KbZR6A//TTUy+d5WR759qa9//DOQICFzd9mB+/vxG23omvs16xE13YTNjJHOH5z7
-F/Wt504apHkYa2ziXWCzG8dSQwhYKJI8D3fKGj3KhIR6Fqr93k4ZpcoJlrq1Ck9o
-Wo6Jv9wC+j6mOwCN85zKu+N7Q8RsRxve7DZwS+PUqMqMB96d5U52fN0FklhCeBVv
-ZLNbiuE/G2YhyYY3DgjQOoGUueLriGQDyFbTfyyXAY30VsU38K86RFMkmiP4Cz20
-TKdlJvcq7YEn4olZzFPS6G/ccR3hUJelnWA2GVux2pm+KXD5+Hz3yDGz/tQGbG9p
-vy4dl3bgoZYnqBMWHZy0oYecPmDNsjwlDZCKPSXRTKHKIDopEsJ7k4lwvQTrBnsz
-YMURB7v7tY1G3hCU8LQCnwXagG28Xh1CpnakxUB5Qv0IvUPe2QIDUxTKTEI+l2bR
-SNYRR6DZyEmXYRCJcF0svPKB17v7Hr90M1hNmAY12Q0rjG+yTBCTlEC1UQgCBNbk
-kz/jqNliVj4Vn3dFGp7UuY8ZVR9FYz3C0/rLtZeenSiyyCFijvpQoY6UtBOoK3Jd
-15ickgVZqlrkOXnC85CzH8h1fdgnTCOyUBFUeEDGVt358xEY8GyLiDMPszwSRyws
-pVxY2+6LwF/Sd+pYIy5It494dEAfcqpb1iXqw3ZIdC+7os2GYuY=
-=msB/
------END PGP SIGNATURE-----
+Best regards
+Uwe
 
---4ohgxcwhw75czpbt--
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
