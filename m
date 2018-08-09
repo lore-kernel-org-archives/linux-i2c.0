@@ -1,142 +1,35 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v5 4/4] platform/x86: Add ACPI i2c-multi-instantiate
- pseudo driver
-Date: Thu, 9 Aug 2018 13:30:35 +0200
-Message-ID: <7b0b21db-affc-d198-ec86-fd20105222b9@redhat.com>
-References: <20180809091558.4317-1-hdegoede@redhat.com>
- <20180809091558.4317-5-hdegoede@redhat.com>
- <20180809110929.GD1634@kuha.fi.intel.com>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH 28/28] eeprom: at24: kill at24_platform_data
+Date: Thu, 9 Aug 2018 13:33:25 +0200
+Message-ID: <CAMRc=MdTgr-CTia55cRS-Ob8eOVBQom-nXB670nxjf89U_ZEvg@mail.gmail.com>
+References: <20180808153150.23444-1-brgl@bgdev.pl> <20180808153150.23444-29-brgl@bgdev.pl>
+ <CAHp75Veiop-0xAbs7MtdhOrX_vzDz7v=xAUSDnEhTYVfMovFQA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180809110929.GD1634@kuha.fi.intel.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-acpi@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <CAHp75Veiop-0xAbs7MtdhOrX_vzDz7v=xAUSDnEhTYVfMovFQA@mail.gmail.com>
+Sender: netdev-owner@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Woodhouse <dwmw2@infradead.org>, Brian Norris <computersforpeace@gmail.com>, Boris Brezillon <boris.brezillon@bootlin.com>, Marek Vasut <marek.vasut@gmail.com>, Richard Weinberger <richard@nod.at>, Grygorii Strashko <grygorii.strashko@ti.com>, "David S . Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Naren <naren.kernel@gmail.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Lukas Wunner <lukas@wunner.de>, Dan Carpenter <dan.carpenter@oracle.co>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
-
-On 09-08-18 13:09, Heikki Krogerus wrote:
-> On Thu, Aug 09, 2018 at 11:15:58AM +0200, Hans de Goede wrote:
->> On systems with ACPI instantiated i2c-clients, normally there is 1 fw_node
->> per i2c-device and that fw-node contains 1 I2cSerialBus resource for that 1
->> i2c-device.
+2018-08-08 20:03 GMT+02:00 Andy Shevchenko <andy.shevchenko@gmail.com>:
+> On Wed, Aug 8, 2018 at 6:31 PM, Bartosz Golaszewski <brgl@bgdev.pl> wrote:
+>> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 >>
->> But in some rare cases the manufacturer has decided to describe multiple
->> i2c-devices in a single ACPI fwnode with multiple I2cSerialBus resources.
+>> There are no more users of at24_platform_data. Remove the relevant
+>> header and modify the driver code to not use it anymore.
 >>
->> An earlier attempt to fix this in the i2c-core resulted in a lot of extra
->> code to support this corner-case.
->>
->> This commit introduces a new i2c-multi-instantiate driver which fixes this
->> in a different way. This new driver can be built as a module which will
->> only loaded on affected systems.
->>
->> This driver will instantiate a new i2c-client per I2cSerialBus resource,
->> using the driver_data from the acpi_device_id it is binding to to tell it
->> which chip-type (and optional irq-resource) to use when instantiating.
->>
->> Note this driver depends on a platform device being instantiated for the
->> ACPI fwnode, see the i2c_multi_instantiate_ids list of ACPI device-ids in
->> drivers/acpi/scan.c: acpi_device_enumeration_by_parent().
->>
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
-> 
-> <snip>
-> 
->> +static int i2c_multi_inst_probe(struct platform_device *pdev)
->> +{
->> +	struct i2c_multi_inst_data *multi;
->> +	const struct acpi_device_id *match;
->> +	const struct i2c_inst_data *inst_data;
->> +	struct i2c_board_info board_info = {};
->> +	struct device *dev = &pdev->dev;
->> +	struct acpi_device *adev;
->> +	char name[32];
->> +	int i, ret;
->> +
->> +	match = acpi_match_device(dev->driver->acpi_match_table, dev);
->> +	if (!match) {
->> +		dev_err(dev, "Error ACPI match data is missing\n");
->> +		return -ENODEV;
->> +	}
->> +	inst_data = (const struct i2c_inst_data *)match->driver_data;
->> +
->> +	adev = ACPI_COMPANION(dev);
->> +
->> +	/* Count number of clients to instantiate */
->> +	for (i = 0; inst_data[i].type; i++) {}
->> +
->> +	multi = devm_kmalloc(dev,
->> +			offsetof(struct i2c_multi_inst_data, clients[i]),
->> +			GFP_KERNEL);
->> +	if (!multi)
->> +		return -ENOMEM;
->> +
->> +	multi->num_clients = i;
->> +
->> +	for (i = 0; i < multi->num_clients; i++) {
->> +		memset(&board_info, 0, sizeof(board_info));
->> +		strlcpy(board_info.type, inst_data[i].type, I2C_NAME_SIZE);
->> +		snprintf(name, sizeof(name), "%s-%s", match->id,
->> +			 inst_data[i].type);
->> +		board_info.dev_name = name;
->> +		board_info.irq = 0;
->> +		if (inst_data[i].irq_idx != -1) {
->> +			ret = acpi_dev_gpio_irq_get(adev, inst_data[i].irq_idx);
->> +			if (ret < 0) {
->> +				dev_err(dev, "Error requesting irq at index %d: %d\n",
->> +					inst_data[i].irq_idx, ret);
->> +				goto error;
-> 
-> This seems to assume that we always have GpioInt with assigned for
-> these devices, but that's wrong. This needs to work with normal
-> Interrupt type resources as well.
-> 
-> The TI USB PD controller instances (HID 3515) for exmaple have normal
-> Interrupts assigned to them
-> 
-> Why not use the "irq_idx" with normal interrupts, and add a new member
-> for the GpioInts, something like gpio_irq_idx?
+>
+>
+> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+>
+> If you want me to test this on Intel Galileo Gen 2 board, give me a
+> public tree from where I can pull.
+> Thanks.
+>
 
-I don't have any use-cases to test using normal interrupts, so I
-will leave adding support for that to the first patch adding support
-for a device which needs that, such as the HID3515 you mention.
+Yes, you can pull from git@github.com:brgl/linux.git
+davinci-remove-at24-platform-data
 
-I do agree that it is good to prepare for adding this later, so
-I'm going to post a v6 doing s/irq_idx/gpio_irq_idx/
-
-Regards,
-
-Hans
-
-
-
-> 
->> +			}
->> +			board_info.irq = ret;
->> +		}
->> +		multi->clients[i] = i2c_acpi_new_device(dev, i, &board_info);
->> +		if (!multi->clients[i]) {
->> +			dev_err(dev, "Error creating i2c-client, idx %d\n", i);
->> +			ret = -ENODEV;
->> +			goto error;
->> +		}
->> +	}
->> +
->> +	platform_set_drvdata(pdev, multi);
->> +	return 0;
->> +
->> +error:
->> +	while (--i >= 0)
->> +		i2c_unregister_device(multi->clients[i]);
->> +
->> +	return ret;
->> +}
-> 
-> Thanks,
-> 
+Bart
