@@ -1,73 +1,71 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v5 1/4] ACPI / scan: Initialize status to ACPI_STA_DEFAULT
-Date: Thu,  9 Aug 2018 11:15:55 +0200
-Message-ID: <20180809091558.4317-2-hdegoede@redhat.com>
-References: <20180809091558.4317-1-hdegoede@redhat.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 2/3] i2c: Add helper to ease DMA handling
+Date: Thu, 9 Aug 2018 11:23:40 +0200
+Message-ID: <20180809092340.rm4ywre543hpejne@katana>
+References: <1530955795-17714-1-git-send-email-jun.gao@mediatek.com>
+ <1530955795-17714-3-git-send-email-jun.gao@mediatek.com>
+ <20180808205752.llowh4bvu2wkuhga@ninjato>
+ <1533806000.3347.6.camel@mtksdaap41>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="s2qszosqjjnv6gdb"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180809091558.4317-1-hdegoede@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1533806000.3347.6.camel@mtksdaap41>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Hans de Goede <hdegoede@redhat.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-acpi@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-i2c@vger.kernel.org
+To: Yingjoe Chen <yingjoe.chen@mediatek.com>
+Cc: Jun Gao <jun.gao@mediatek.com>, devicetree@vger.kernel.org, srv_heupstream@mediatek.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Since commit 63347db0affa ("ACPI / scan: Use acpi_bus_get_status() to
-initialize ACPI_TYPE_DEVICE devs") the status field of normal acpi_devices
-gets set to 0 by acpi_bus_type_and_status() and filled with its actual
-value later when acpi_add_single_object() calls acpi_bus_get_status().
 
-This means that any acpi_match_device_ids() calls in between will always
-fail with -ENOENT.
+--s2qszosqjjnv6gdb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-We already have a workaround for this, which temporary forces status to
-ACPI_STA_DEFAULT in drivers/acpi/x86/utils.c: acpi_device_always_present()
-and the next commit in this series adds another acpi_match_device_ids()
-call between status being initialized as 0 and the acpi_bus_get_status()
-call.
+Hi,
 
-Rather then adding another workaround, this commit makes
-acpi_bus_type_and_status() initialize status to ACPI_STA_DEFAULT, this is
-safe to do as the only code looking at status between the initialization
-and the acpi_bus_get_status() call is those acpi_match_device_ids() calls.
+> I believe the reason for these api is because some arch changed to can
+> not do DMA on stack recently. Maybe we should have dma_mapping to bounce
 
-Note this does mean that we need to (re)set status to 0 in case the
-acpi_bus_get_status() call fails.
+It is not only arch dependent. You can enable virtual stacks in Kconfig,
+too.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
-Changes in v3:
--New patch in v3 of this patch-set
+> buffer like it bounce un-dma-able address for those arch? or we should
+> have a common driver API for this, not just for i2c?
 
-Changes in v4:
--This is not a fix for acpi_is_indirect_io_slave() as I thought at first,
- acpi_is_indirect_io_slave() calls acpi_match_device_ids() on its parent
- device, where status is already set properly. Rewrite the commit message
- accordingly.
----
- drivers/acpi/scan.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+I gave a talk about this problem recently and everyone in the room
+agreed the best thing would be to have annotated buffers which can be
+used kernel-wide. Someone mentioned DMABUF could be a candidate, but I
+haven't looked further into that.
 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index 970dd87d347c..6799d00dd790 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -1612,7 +1612,8 @@ static int acpi_add_single_object(struct acpi_device **child,
- 	 * Note this must be done before the get power-/wakeup_dev-flags calls.
- 	 */
- 	if (type == ACPI_BUS_TYPE_DEVICE)
--		acpi_bus_get_status(device);
-+		if (acpi_bus_get_status(device) < 0)
-+			acpi_set_device_status(device, 0);
- 
- 	acpi_bus_get_power_flags(device);
- 	acpi_bus_get_wakeup_device_flags(device);
-@@ -1690,7 +1691,7 @@ static int acpi_bus_type_and_status(acpi_handle handle, int *type,
- 		 * acpi_add_single_object updates this once we've an acpi_device
- 		 * so that acpi_bus_get_status' quirk handling can be used.
- 		 */
--		*sta = 0;
-+		*sta = ACPI_STA_DEFAULT;
- 		break;
- 	case ACPI_TYPE_PROCESSOR:
- 		*type = ACPI_BUS_TYPE_PROCESSOR;
--- 
-2.18.0
+So, yes, a bigger solution is needed but I don't see that coming soon,
+so I implemented the I2C part for better safety now. I'd be happy to
+remove all that again once we have the annotated buffers. But it is an
+effort...
+
+Regards,
+
+   Wolfram
+
+
+--s2qszosqjjnv6gdb
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltsCBcACgkQFA3kzBSg
+KbZVzxAAnp4w8fWF7ktxYnYvC9JFp+Buy8W8d+Qz/WV6hTvKLPiS643wtUno8JxV
+lVauE1NnUkoWNxeBv/69HERf0xUBPTRhp41dcMTrWsGdcdDfYNalxTnRjwFrsenQ
+n4bqifiwvfuaG4VocYFc4q90lKznz0fjQxAUUkFu3w06LbPNyUXKEQW90QVcePGI
+Am/uhr4u6OVDOAq99KUNu0dyykS+2zYYsxNQyCskUQl/Le30MVW/UF8+zBS4NePF
+ClZDSm+VQfVsMEo0QvEmGWITY2PsUAIIzzXXQXL+vB5cjn6HZWPaOHbuvyTZPS5E
+8w2uGICNtlkHBkBW3h7cNIkq2SMF2Q/6eh8iKfo92KsLz+0+44usgilTgt0fmubj
+yohov8vh13Cryzw0zlVVWS7v7ffFV0Yz0hpJY55T2TKJAmz32UKyLGb11dNMtB1+
+UbKs/wznm/AjGsMeojP8oLqDurOyXwC7nF2Q3c2dsRFK4mCII87T7+zEPYKAV8dE
+hOGP+QhBODTg/ZRt/gCJUHYitFz6ye4rQDa1QGezTqf2t5AcpZJEqlEhb6SmG1s/
+WN2RHho6lGiknRteeJ/K3Lmt/eRKzTIVN+YoGtgA6dAmndzm3B+PGwvph4kTf98p
+l1gmLpenGuAXB9g6IVtndNCtM4cAOTMmq+nYR+St2nIlQJgcdW0=
+=juxY
+-----END PGP SIGNATURE-----
+
+--s2qszosqjjnv6gdb--
