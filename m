@@ -1,78 +1,51 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v6 4/4] platform/x86: Add ACPI i2c-multi-instantiate
- pseudo driver
-Date: Thu, 9 Aug 2018 14:08:41 +0200
-Message-ID: <9805a950-dfd3-df13-15e8-d60703ce0498@redhat.com>
-References: <20180809114046.21366-1-hdegoede@redhat.com>
- <20180809114046.21366-5-hdegoede@redhat.com>
- <CAJZ5v0jbNTGEXWJ+CtPOKSM=AyB5-3hV-tMCYehj5w87i_2znA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Esben Haabendal <esben.haabendal@gmail.com>
+Subject: [PATCH v3 1/3] i2c: imx: Fix race condition in dma read
+Date: Thu,  9 Aug 2018 14:32:05 +0200
+Message-ID: <20180809123207.9732-2-esben.haabendal@gmail.com>
+References: <20180809123207.9732-1-esben.haabendal@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAJZ5v0jbNTGEXWJ+CtPOKSM=AyB5-3hV-tMCYehj5w87i_2znA@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <20180809123207.9732-1-esben.haabendal@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>
+To: linux-i2c@vger.kernel.org
+Cc: Esben Haabendal <eha@deif.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Lucas Stach <l.stach@pengutronix.de>, Linus Walleij <linus.walleij@linaro.org>, Peter Rosin <peda@axentia.se>, Wei Jinhua <wei.jinhua1@zte.com.cn>, Phil Reid <preid@electromag.com.au>, Fabio Estevam <fabio.estevam@nxp.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+From: Esben Haabendal <eha@deif.com>
 
-On 09-08-18 13:55, Rafael J. Wysocki wrote:
-> On Thu, Aug 9, 2018 at 1:40 PM, Hans de Goede <hdegoede@redhat.com> wrote:
->> On systems with ACPI instantiated i2c-clients, normally there is 1 fw_node
->> per i2c-device and that fw-node contains 1 I2cSerialBus resource for that 1
->> i2c-device.
->>
->> But in some rare cases the manufacturer has decided to describe multiple
->> i2c-devices in a single ACPI fwnode with multiple I2cSerialBus resources.
->>
->> An earlier attempt to fix this in the i2c-core resulted in a lot of extra
->> code to support this corner-case.
->>
->> This commit introduces a new i2c-multi-instantiate driver which fixes this
->> in a different way. This new driver can be built as a module which will
->> only loaded on affected systems.
->>
->> This driver will instantiate a new i2c-client per I2cSerialBus resource,
->> using the driver_data from the acpi_device_id it is binding to to tell it
->> which chip-type (and optional irq-resource) to use when instantiating.
->>
->> Note this driver depends on a platform device being instantiated for the
->> ACPI fwnode, see the i2c_multi_instantiate_ids list of ACPI device-ids in
->> drivers/acpi/scan.c: acpi_device_enumeration_by_parent().
->>
->> Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->> Acked-by: Wolfram Sang <wsa@the-dreams.de>
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->> Changes in v2:
->> -Rebase on top of 4.18-rc2
->>
->> Changes in v3:
->> -Change from an i2c-driver using a hack to allow having multiple i2c clients
->>   at the same address to a platform-driver
->>
->> Changes in v4:
->> -Tweak MAINTAINERS entry a bit
->>
->> Changes in v5:
->> -s/no_clients/num_clients/
->> -Change patch Subject prefix to platform/x86
->>
->> Changes in v6:
->> -s/irq_idx/gpio_irq_idx/
-> 
-> And this is the only patch that has changed in v6, right?
+This fixes a race condition, where the DMAEN bit ends up being set after
+I2C slave has transmitted a byte following the dummy read.  When that
+happens, an interrupt is generated instead, and no DMA request is generated
+to kickstart the DMA read, and a timeout happens after DMA_TIMEOUT (1 sec).
 
-Correct.
+Fixed by setting the DMAEN bit before the dummy read.
 
-> Anyway, if you have further updates on top of this series, please send
-> them as incremental patches.
+Signed-off-by: Esben Haabendal <eha@deif.com>
+---
+ drivers/i2c/busses/i2c-imx.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Ok, will do.
-
-Thanks & Regards,
-
-Hans
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 498c5e891649..f7bd6c21da27 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -668,9 +668,6 @@ static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
+ 	struct imx_i2c_dma *dma = i2c_imx->dma;
+ 	struct device *dev = &i2c_imx->adapter.dev;
+ 
+-	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+-	temp |= I2CR_DMAEN;
+-	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+ 
+ 	dma->chan_using = dma->chan_rx;
+ 	dma->dma_transfer_dir = DMA_DEV_TO_MEM;
+@@ -809,6 +806,8 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs, bo
+ 	 */
+ 	if ((msgs->len - 1) || block_data)
+ 		temp &= ~I2CR_TXAK;
++	if (i2c_imx->dma && msgs->len >= DMA_THRESHOLD && !block_data)
++		temp |= I2CR_DMAEN;
+ 	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+ 	imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR); /* dummy read */
+ 
+-- 
+2.18.0
