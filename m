@@ -1,76 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 4/4] platform/x86: Add ACPI i2c-multi-instantiate
- pseudo driver
-Date: Thu, 9 Aug 2018 11:59:31 +0200
-Message-ID: <20180809095931.q3t7u3o52lxahpaf@katana>
+Subject: Re: [PATCH v5 1/4] ACPI / scan: Initialize status to ACPI_STA_DEFAULT
+Date: Thu, 9 Aug 2018 12:00:43 +0200
+Message-ID: <20180809100043.2twv3qma22ptkddq@katana>
 References: <20180809091558.4317-1-hdegoede@redhat.com>
- <20180809091558.4317-5-hdegoede@redhat.com>
+ <20180809091558.4317-2-hdegoede@redhat.com>
+ <CAJZ5v0jBxL8n8ce7=qgZmHtc4=zCA3u7ePbXaHfyibeNiNrw+w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="eql3q3pitkytsxzq"
+        protocol="application/pgp-signature"; boundary="mq743r4htrqmczbp"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180809091558.4317-5-hdegoede@redhat.com>
+In-Reply-To: <CAJZ5v0jBxL8n8ce7=qgZmHtc4=zCA3u7ePbXaHfyibeNiNrw+w@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-acpi@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-i2c@vger.kernel.org
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Hans de Goede <hdegoede@redhat.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---eql3q3pitkytsxzq
+--mq743r4htrqmczbp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Aug 09, 2018 at 11:15:58AM +0200, Hans de Goede wrote:
-> On systems with ACPI instantiated i2c-clients, normally there is 1 fw_node
-> per i2c-device and that fw-node contains 1 I2cSerialBus resource for that=
- 1
-> i2c-device.
->=20
-> But in some rare cases the manufacturer has decided to describe multiple
-> i2c-devices in a single ACPI fwnode with multiple I2cSerialBus resources.
->=20
-> An earlier attempt to fix this in the i2c-core resulted in a lot of extra
-> code to support this corner-case.
->=20
-> This commit introduces a new i2c-multi-instantiate driver which fixes this
-> in a different way. This new driver can be built as a module which will
-> only loaded on affected systems.
->=20
-> This driver will instantiate a new i2c-client per I2cSerialBus resource,
-> using the driver_data from the acpi_device_id it is binding to to tell it
-> which chip-type (and optional irq-resource) to use when instantiating.
->=20
-> Note this driver depends on a platform device being instantiated for the
-> ACPI fwnode, see the i2c_multi_instantiate_ids list of ACPI device-ids in
-> drivers/acpi/scan.c: acpi_device_enumeration_by_parent().
->=20
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-
-=46rom my I2C PoV:
-
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
 
 
---eql3q3pitkytsxzq
+> As for the rest of the series I'll wait from comments from Wolfram and
+> the other reviewers.
+
+Well, I acked patch 4 now because I like the general approach. I can't
+say much about the rest since this is mostly ACPI/FW related.
+
+Thanks Hans, for keeping at it.
+
+
+--mq743r4htrqmczbp
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltsEH8ACgkQFA3kzBSg
-KbbFoA//a9slRbhisPPLOEQA8XhXzGrOakwuo4HeDanjTuWi7605lp8Tj6j6Acd9
-VmTBpt/UB+2o8hflpmm2CLhB66ZABBMxnHySJd5agKSoBMiGrFVr6TFJ8hSBLDPp
-/caPmFOQ56zq0r8sO7YU1LNFGS8OhStZfORxe+oIzMolLxX5WJ2LCVPoZBGVEF+G
-BEXRtX2wr4dVPGm5c2dG6TZucAC4VEind61qHCDVOAYPK3qygF+hbA+NEt8LdKeG
-piRgeZG31tKi7o2KT3eH5BE8F61wJW6uNp7GFjwyGcB6SH802Y0vDNv1q/7vTw7V
-yrJPfUPHOmrdsUIhdVPNzAZL7XlkiaZI/7gqbazj0vKyLUnJep7Qv+/v8pEiWe7q
-OV8WUSSp+GIhKO6ku6FUAKK/EVUilXHr85wKmQeRslCjijR0nhVWt7/qIKjAM1cQ
-HAD6k4nx6FsD1wS8PVZIwA/Oboul+rvvuHgIMqvGKfKj0WyTP8WPO8xZD1dv68+0
-9y3YuIN/7nSLbEeXChmAGL1uVvIlIXxqiv2fTUsuPwGOsexJkTLOuKqLr5DQf+5m
-L9GNWWXrJwziUqkiOqbk39rIjmezjjwxEJeU8JVVkXzqZ76cf+cPNyo5wUoADIS3
-W32xAKGVPmQozzYv3fgXnFKKp/0R0n3MwazLOGmBJrVQARRvxUI=
-=zSzj
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltsEMoACgkQFA3kzBSg
+KbZODg/7BfBqQDftu3X3jlS1Tp8Te05gl1KEVu60oaLRzmn2Gnlr2xTlMKO21L2R
+W4Pze2A5p2/YlCMco2Xcfdc/UqV0hFxVkJTn0LkTxcub2akTwjt6jWmtO78iNmv1
+eIbG6DY+3fwdogXhtgkqitgNvz37hoBYZN5CFlbHHXJDcdwb80hAf3BkyYSqNHc5
+EBT54KKe8b/vVWuzC9eyvncwizbZBy/7jSVoEWwDqnSgj6azxeeYqELBBB5jhzsA
++SYKTtM3kMdKcJoI9X+60vgIua9LSFbsF0jimphF5n5pRd3uptIp5uZN9OQuDtXL
++DvBDr8vFGdgAL+7Niscrc/ATPwItpJhOEmQVkGJ4xMlMVZQArY/tCvvm7h97tuw
+p284Lid71WmRnSnem+upzAfy646ZBGozBarijoN9vjqVGjAu/YUNIeT4ZQdQ1C3z
+Q+2105Tl6OffuZK+m6yM6w2/sFmTQRzxY0pR/zwcA2fKBYXayMl8QCZIUTpk2d07
+rBw4NUTInoRQTy7oVXUUgkwtnWVm0BnfuSWRaUVRHektJ4Y5KmKsR1nBCwL24jyt
+9WAiyfu/nncBMQIGrFMeMp8+yfD9WCwJSyX5h0yZTmPNzOQLWEZs2BuQNkEGSuzQ
+KdVTrQGdnMEuSgx6Nxs+8hDR5ZK31CVprtK/R52XEv9GVkTOC8M=
+=UUWI
 -----END PGP SIGNATURE-----
 
---eql3q3pitkytsxzq--
+--mq743r4htrqmczbp--
