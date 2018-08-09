@@ -1,58 +1,76 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH v5 1/4] ACPI / scan: Initialize status to ACPI_STA_DEFAULT
-Date: Thu, 9 Aug 2018 11:59:30 +0200
-Message-ID: <CAJZ5v0hvfR=m5GXhSS4Q7DYFS9+BA+EAt9oHOYdxMU-J78dtwQ@mail.gmail.com>
-References: <20180809091558.4317-1-hdegoede@redhat.com> <20180809091558.4317-2-hdegoede@redhat.com>
- <CAJZ5v0jBxL8n8ce7=qgZmHtc4=zCA3u7ePbXaHfyibeNiNrw+w@mail.gmail.com>
- <7d8c71b9-292e-e51e-d3d3-cb0bb00528b6@redhat.com> <CAHp75VeiC35S=urEL_f-j+ZPVodPHqGJBRYxv2m5inBkuJ=1kQ@mail.gmail.com>
- <f2f9289d-0adb-e165-a23e-696fe985fda4@redhat.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v5 4/4] platform/x86: Add ACPI i2c-multi-instantiate
+ pseudo driver
+Date: Thu, 9 Aug 2018 11:59:31 +0200
+Message-ID: <20180809095931.q3t7u3o52lxahpaf@katana>
+References: <20180809091558.4317-1-hdegoede@redhat.com>
+ <20180809091558.4317-5-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="eql3q3pitkytsxzq"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <f2f9289d-0adb-e165-a23e-696fe985fda4@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20180809091558.4317-5-hdegoede@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Hans de Goede <hdegoede@redhat.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, "Rafael J. Wysocki" <rafael@kernel.org>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>
+Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-acpi@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Aug 9, 2018 at 11:58 AM, Hans de Goede <hdegoede@redhat.com> wrote:
-> Hi,
->
-> On 09-08-18 11:51, Andy Shevchenko wrote:
->>
->> On Thu, Aug 9, 2018 at 12:39 PM, Hans de Goede <hdegoede@redhat.com>
->> wrote:
->>>
->>> On 09-08-18 11:35, Rafael J. Wysocki wrote:
->>>>
->>>> On Thu, Aug 9, 2018 at 11:15 AM, Hans de Goede <hdegoede@redhat.com>
->>>> wrote:
->>
->>
->>>> I've applied the v4 of this patch and I don't think there are any
->>>> changes from it here.
->>>
->>>
->>>
->>> Correct, there were only changes to the 4th patch in the series.
->>>
->>>> As for the rest of the series I'll wait from comments from Wolfram and
->>>> the other reviewers.
->>>
->>>
->>>
->>> Ok, note if you've taken patch 1 you may also want to take patch 3 which
->>> is an ACPI code cleanup made possible by patch 1 and otherwise is
->>> unrelated.
->>
->>
->> I'm under impression Rafael is going to take entire series (at least
->> for patch 4 I'm expecting to give an Ack).
->
->
-> As I mentioned in the coverletter, my idea was to have Rafael take
-> patches 1-3 and then merge the 4th patch through the platform/x86
-> tree. There are only runtime dependencies between the 2 parts and
-> merging them independently should not cause any issues.
 
-I can apply the 4th one too if it is ACKed by everyone with a vested interest.
+--eql3q3pitkytsxzq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Aug 09, 2018 at 11:15:58AM +0200, Hans de Goede wrote:
+> On systems with ACPI instantiated i2c-clients, normally there is 1 fw_node
+> per i2c-device and that fw-node contains 1 I2cSerialBus resource for that=
+ 1
+> i2c-device.
+>=20
+> But in some rare cases the manufacturer has decided to describe multiple
+> i2c-devices in a single ACPI fwnode with multiple I2cSerialBus resources.
+>=20
+> An earlier attempt to fix this in the i2c-core resulted in a lot of extra
+> code to support this corner-case.
+>=20
+> This commit introduces a new i2c-multi-instantiate driver which fixes this
+> in a different way. This new driver can be built as a module which will
+> only loaded on affected systems.
+>=20
+> This driver will instantiate a new i2c-client per I2cSerialBus resource,
+> using the driver_data from the acpi_device_id it is binding to to tell it
+> which chip-type (and optional irq-resource) to use when instantiating.
+>=20
+> Note this driver depends on a platform device being instantiated for the
+> ACPI fwnode, see the i2c_multi_instantiate_ids list of ACPI device-ids in
+> drivers/acpi/scan.c: acpi_device_enumeration_by_parent().
+>=20
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+
+=46rom my I2C PoV:
+
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+
+
+--eql3q3pitkytsxzq
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltsEH8ACgkQFA3kzBSg
+KbbFoA//a9slRbhisPPLOEQA8XhXzGrOakwuo4HeDanjTuWi7605lp8Tj6j6Acd9
+VmTBpt/UB+2o8hflpmm2CLhB66ZABBMxnHySJd5agKSoBMiGrFVr6TFJ8hSBLDPp
+/caPmFOQ56zq0r8sO7YU1LNFGS8OhStZfORxe+oIzMolLxX5WJ2LCVPoZBGVEF+G
+BEXRtX2wr4dVPGm5c2dG6TZucAC4VEind61qHCDVOAYPK3qygF+hbA+NEt8LdKeG
+piRgeZG31tKi7o2KT3eH5BE8F61wJW6uNp7GFjwyGcB6SH802Y0vDNv1q/7vTw7V
+yrJPfUPHOmrdsUIhdVPNzAZL7XlkiaZI/7gqbazj0vKyLUnJep7Qv+/v8pEiWe7q
+OV8WUSSp+GIhKO6ku6FUAKK/EVUilXHr85wKmQeRslCjijR0nhVWt7/qIKjAM1cQ
+HAD6k4nx6FsD1wS8PVZIwA/Oboul+rvvuHgIMqvGKfKj0WyTP8WPO8xZD1dv68+0
+9y3YuIN/7nSLbEeXChmAGL1uVvIlIXxqiv2fTUsuPwGOsexJkTLOuKqLr5DQf+5m
+L9GNWWXrJwziUqkiOqbk39rIjmezjjwxEJeU8JVVkXzqZ76cf+cPNyo5wUoADIS3
+W32xAKGVPmQozzYv3fgXnFKKp/0R0n3MwazLOGmBJrVQARRvxUI=
+=zSzj
+-----END PGP SIGNATURE-----
+
+--eql3q3pitkytsxzq--
