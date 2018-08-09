@@ -1,54 +1,105 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 1/4] ACPI / scan: Initialize status to ACPI_STA_DEFAULT
-Date: Thu, 9 Aug 2018 12:00:43 +0200
-Message-ID: <20180809100043.2twv3qma22ptkddq@katana>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v5 2/4] ACPI / scan: Create platform device for fwnodes
+ with multiple i2c devices
+Date: Thu, 09 Aug 2018 13:08:05 +0300
+Message-ID: <1c6de96932f6b7d2d94efb7d4a6db46948b32ac1.camel@linux.intel.com>
 References: <20180809091558.4317-1-hdegoede@redhat.com>
- <20180809091558.4317-2-hdegoede@redhat.com>
- <CAJZ5v0jBxL8n8ce7=qgZmHtc4=zCA3u7ePbXaHfyibeNiNrw+w@mail.gmail.com>
+         <20180809091558.4317-3-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="mq743r4htrqmczbp"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAJZ5v0jBxL8n8ce7=qgZmHtc4=zCA3u7ePbXaHfyibeNiNrw+w@mail.gmail.com>
+In-Reply-To: <20180809091558.4317-3-hdegoede@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Hans de Goede <hdegoede@redhat.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>
+To: Hans de Goede <hdegoede@redhat.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-acpi@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, 2018-08-09 at 11:15 +0200, Hans de Goede wrote:
+> Some devices have multiple I2cSerialBus resources and for things to
+> work
+> an i2c-client must be instantiated for each, each with its own
+> i2c_device_id.
+> 
+> Normally we only instantiate an i2c-client for the first resource,
+> using
+> the ACPI HID as id.
+> 
+> This commit adds a list of HIDs of devices, which need multiple i2c-
+> clients
+> instantiated from a single fwnode, to
+> acpi_device_enumeration_by_parent and
+> makes acpi_device_enumeration_by_parent return false for these devices
+> so
+> that a platform device will be instantiated.
+> 
+> This allows the drivers/platform/x86/i2c-multi-instantiate.c driver,
+> which
+> knows which i2c_device_id to use for each resource, to bind to the
+> fwnode
+> and initiate an i2c-client for each resource.
+> 
 
---mq743r4htrqmczbp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I like this approach
+
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 
-> As for the rest of the series I'll wait from comments from Wolfram and
-> the other reviewers.
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+> Changes in v3:
+> -New patch in v3 of this patch-set
+> 
+> Changes in v4:
+> -Some small code-style fixes
+> ---
+>  drivers/acpi/scan.c | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
+> 
+> diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+> index 6799d00dd790..b51913372e21 100644
+> --- a/drivers/acpi/scan.c
+> +++ b/drivers/acpi/scan.c
+> @@ -1540,6 +1540,18 @@ static bool
+> acpi_device_enumeration_by_parent(struct acpi_device *device)
+>  {
+>  	struct list_head resource_list;
+>  	bool is_serial_bus_slave = false;
+> +	/*
+> +	 * These devices have multiple I2cSerialBus resources and an
+> i2c-client
+> +	 * must be instantiated for each, each with its own
+> i2c_device_id.
+> +	 * Normally we only instantiate an i2c-client for the first
+> resource,
+> +	 * using the ACPI HID as id. These special cases are handled by
+> the
+> +	 * drivers/platform/x86/i2c-multi-instantiate.c driver, which
+> knows
+> +	 * which i2c_device_id to use for each resource.
+> +	 */
+> +	static const struct acpi_device_id i2c_multi_instantiate_ids[] =
+> {
+> +		{"BSG1160", },
+> +		{}
+> +	};
+>  
+>  	if (acpi_is_indirect_io_slave(device))
+>  		return true;
+> @@ -1551,6 +1563,10 @@ static bool
+> acpi_device_enumeration_by_parent(struct acpi_device *device)
+>  	     fwnode_property_present(&device->fwnode, "baud")))
+>  		return true;
+>  
+> +	/* Instantiate a pdev for the i2c-multi-instantiate drv to bind
+> to */
+> +	if (!acpi_match_device_ids(device, i2c_multi_instantiate_ids))
+> +		return false;
+> +
+>  	INIT_LIST_HEAD(&resource_list);
+>  	acpi_dev_get_resources(device, &resource_list,
+>  			       acpi_check_serial_bus_slave,
 
-Well, I acked patch 4 now because I like the general approach. I can't
-say much about the rest since this is mostly ACPI/FW related.
-
-Thanks Hans, for keeping at it.
-
-
---mq743r4htrqmczbp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAltsEMoACgkQFA3kzBSg
-KbZODg/7BfBqQDftu3X3jlS1Tp8Te05gl1KEVu60oaLRzmn2Gnlr2xTlMKO21L2R
-W4Pze2A5p2/YlCMco2Xcfdc/UqV0hFxVkJTn0LkTxcub2akTwjt6jWmtO78iNmv1
-eIbG6DY+3fwdogXhtgkqitgNvz37hoBYZN5CFlbHHXJDcdwb80hAf3BkyYSqNHc5
-EBT54KKe8b/vVWuzC9eyvncwizbZBy/7jSVoEWwDqnSgj6azxeeYqELBBB5jhzsA
-+SYKTtM3kMdKcJoI9X+60vgIua9LSFbsF0jimphF5n5pRd3uptIp5uZN9OQuDtXL
-+DvBDr8vFGdgAL+7Niscrc/ATPwItpJhOEmQVkGJ4xMlMVZQArY/tCvvm7h97tuw
-p284Lid71WmRnSnem+upzAfy646ZBGozBarijoN9vjqVGjAu/YUNIeT4ZQdQ1C3z
-Q+2105Tl6OffuZK+m6yM6w2/sFmTQRzxY0pR/zwcA2fKBYXayMl8QCZIUTpk2d07
-rBw4NUTInoRQTy7oVXUUgkwtnWVm0BnfuSWRaUVRHektJ4Y5KmKsR1nBCwL24jyt
-9WAiyfu/nncBMQIGrFMeMp8+yfD9WCwJSyX5h0yZTmPNzOQLWEZs2BuQNkEGSuzQ
-KdVTrQGdnMEuSgx6Nxs+8hDR5ZK31CVprtK/R52XEv9GVkTOC8M=
-=UUWI
------END PGP SIGNATURE-----
-
---mq743r4htrqmczbp--
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy
