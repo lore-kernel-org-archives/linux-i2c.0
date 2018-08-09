@@ -1,89 +1,78 @@
-From: Esben Haabendal <esben.haabendal@gmail.com>
-Subject: Re: [PATCH v2 3/4] i2c: imx: Simplify stopped state tracking
-Date: Thu, 09 Aug 2018 14:06:43 +0200
-Message-ID: <87k1ozzquk.fsf@gmail.com>
-References: <20180709094304.8814-1-esben.haabendal@gmail.com>
-        <20180709094304.8814-4-esben.haabendal@gmail.com>
-        <20180724075919.iyysd7dtbddvbavq@pengutronix.de>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v6 4/4] platform/x86: Add ACPI i2c-multi-instantiate
+ pseudo driver
+Date: Thu, 9 Aug 2018 14:08:41 +0200
+Message-ID: <9805a950-dfd3-df13-15e8-d60703ce0498@redhat.com>
+References: <20180809114046.21366-1-hdegoede@redhat.com>
+ <20180809114046.21366-5-hdegoede@redhat.com>
+ <CAJZ5v0jbNTGEXWJ+CtPOKSM=AyB5-3hV-tMCYehj5w87i_2znA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180724075919.iyysd7dtbddvbavq@pengutronix.de> ("Uwe
-        =?utf-8?Q?Kleine-K=C3=B6nig=22's?= message of "Tue, 24 Jul 2018 09:59:19
- +0200")
+In-Reply-To: <CAJZ5v0jbNTGEXWJ+CtPOKSM=AyB5-3hV-tMCYehj5w87i_2znA@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Yuan Yao <yao.yuan@freescale.com>, Philipp Zabel <p.zabel@pengutronix.de>, Phil Reid <preid@electromag.com.au>, Lucas Stach <l.stach@pengutronix.de>, Clemens Gruber <clemens.gruber@pqgruber.com>, Peter Rosin <peda@axentia.se>, Fabio Estevam <fabio.estevam@nxp.com>, linux-kernel@vger.kernel.org
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de> writes:
+Hi,
 
-> On Mon, Jul 09, 2018 at 11:43:03AM +0200, Esben Haabendal wrote:
->> From: Esben Haabendal <eha@deif.com>
->>=20
->> Always update the stopped state when busy status have been checked.
->> This is identical to what was done before, with the exception of error
->> handling.
->> Without this change, some errors cause the stopped state to be left in
->> incorrect state in i2c_imx_stop(), i2c_imx_dma_read(), i2c_imx_read() and
->> i2c_imx_xfer().
->>=20
->> Signed-off-by: Esben Haabendal <eha@deif.com>
+On 09-08-18 13:55, Rafael J. Wysocki wrote:
+> On Thu, Aug 9, 2018 at 1:40 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+>> On systems with ACPI instantiated i2c-clients, normally there is 1 fw_node
+>> per i2c-device and that fw-node contains 1 I2cSerialBus resource for that 1
+>> i2c-device.
+>>
+>> But in some rare cases the manufacturer has decided to describe multiple
+>> i2c-devices in a single ACPI fwnode with multiple I2cSerialBus resources.
+>>
+>> An earlier attempt to fix this in the i2c-core resulted in a lot of extra
+>> code to support this corner-case.
+>>
+>> This commit introduces a new i2c-multi-instantiate driver which fixes this
+>> in a different way. This new driver can be built as a module which will
+>> only loaded on affected systems.
+>>
+>> This driver will instantiate a new i2c-client per I2cSerialBus resource,
+>> using the driver_data from the acpi_device_id it is binding to to tell it
+>> which chip-type (and optional irq-resource) to use when instantiating.
+>>
+>> Note this driver depends on a platform device being instantiated for the
+>> ACPI fwnode, see the i2c_multi_instantiate_ids list of ACPI device-ids in
+>> drivers/acpi/scan.c: acpi_device_enumeration_by_parent().
+>>
+>> Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 >> ---
->>  drivers/i2c/busses/i2c-imx.c | 12 ++++++------
->>  1 file changed, 6 insertions(+), 6 deletions(-)
->>=20
->> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
->> index d86f152176a4..1db8e6790afc 100644
->> --- a/drivers/i2c/busses/i2c-imx.c
->> +++ b/drivers/i2c/busses/i2c-imx.c
->> @@ -421,10 +421,14 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct =
-*i2c_imx, int for_busy)
->>  			return -EAGAIN;
->>  		}
->>=20=20
->> -		if (for_busy && (temp & I2SR_IBB))
->> +		if (for_busy && (temp & I2SR_IBB)) {
->> +			i2c_imx->stopped =3D 0;
->>  			break;
->> -		if (!for_busy && !(temp & I2SR_IBB))
->> +		}
->> +		if (!for_busy && !(temp & I2SR_IBB)) {
->> +			i2c_imx->stopped =3D 1;
->>  			break;
->> +		}
->
-> Would it make sense to assign to ->stopped independent of for_busy?
+>> Changes in v2:
+>> -Rebase on top of 4.18-rc2
+>>
+>> Changes in v3:
+>> -Change from an i2c-driver using a hack to allow having multiple i2c clients
+>>   at the same address to a platform-driver
+>>
+>> Changes in v4:
+>> -Tweak MAINTAINERS entry a bit
+>>
+>> Changes in v5:
+>> -s/no_clients/num_clients/
+>> -Change patch Subject prefix to platform/x86
+>>
+>> Changes in v6:
+>> -s/irq_idx/gpio_irq_idx/
+> 
+> And this is the only patch that has changed in v6, right?
 
-What do you mean?
+Correct.
 
-Assigning to ->stopped on each check for I2SR_IBB in loop, independent
-of the for_busy argument?  I don't think so.  The additional assignments
-would be to the same value as it is set to already.
+> Anyway, if you have further updates on top of this series, please send
+> them as incremental patches.
 
->>  		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
->>  			dev_dbg(&i2c_imx->adapter.dev,
->>  				"<%s> I2C bus is busy\n", __func__);
->> @@ -538,7 +542,6 @@ static int i2c_imx_start(struct imx_i2c_struct *i2c_=
-imx)
->>  	result =3D i2c_imx_bus_busy(i2c_imx, 1);
->>  	if (result)
->>  		return result;
->> -	i2c_imx->stopped =3D 0;
->>=20=20
->>  	temp |=3D I2CR_IIEN | I2CR_MTX | I2CR_TXAK;
->>  	temp &=3D ~I2CR_DMAEN;
->> @@ -569,7 +572,6 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_=
-imx)
->>=20=20
->>  	if (!i2c_imx->stopped) {
->>  		i2c_imx_bus_busy(i2c_imx, 0);
->> -		i2c_imx->stopped =3D 1;
->>  	}
->
-> The braces can go away here.
+Ok, will do.
 
-Will do.
+Thanks & Regards,
 
-/Esben
+Hans
