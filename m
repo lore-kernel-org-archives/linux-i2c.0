@@ -1,37 +1,56 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v3 1/6] i2c: designware: use generic table matching
-Date: Thu, 09 Aug 2018 12:29:41 +0300
-Message-ID: <92b206fcb5af4ad809e6f2b103a21bce9f9af706.camel@linux.intel.com>
-References: <20180806185412.7210-1-alexandre.belloni@bootlin.com>
-         <20180806185412.7210-2-alexandre.belloni@bootlin.com>
-         <20180808202210.qkocl4hckqla7exe@ninjato>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH v5 1/4] ACPI / scan: Initialize status to ACPI_STA_DEFAULT
+Date: Thu, 9 Aug 2018 11:35:08 +0200
+Message-ID: <CAJZ5v0jBxL8n8ce7=qgZmHtc4=zCA3u7ePbXaHfyibeNiNrw+w@mail.gmail.com>
+References: <20180809091558.4317-1-hdegoede@redhat.com> <20180809091558.4317-2-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180808202210.qkocl4hckqla7exe@ninjato>
+In-Reply-To: <20180809091558.4317-2-hdegoede@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2018-08-08 at 22:22 +0200, Wolfram Sang wrote:
-> On Mon, Aug 06, 2018 at 08:54:07PM +0200, Alexandre Belloni wrote:
-> > Switch to device_get_match_data in probe to match the device
-> > specific data
-> > instead of using the acpi specific function.
-> > 
-> > Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> 
-> Andy, you happy with this patch?
-> 
+On Thu, Aug 9, 2018 at 11:15 AM, Hans de Goede <hdegoede@redhat.com> wrote:
+> Since commit 63347db0affa ("ACPI / scan: Use acpi_bus_get_status() to
+> initialize ACPI_TYPE_DEVICE devs") the status field of normal acpi_devices
+> gets set to 0 by acpi_bus_type_and_status() and filled with its actual
+> value later when acpi_add_single_object() calls acpi_bus_get_status().
+>
+> This means that any acpi_match_device_ids() calls in between will always
+> fail with -ENOENT.
+>
+> We already have a workaround for this, which temporary forces status to
+> ACPI_STA_DEFAULT in drivers/acpi/x86/utils.c: acpi_device_always_present()
+> and the next commit in this series adds another acpi_match_device_ids()
+> call between status being initialized as 0 and the acpi_bus_get_status()
+> call.
+>
+> Rather then adding another workaround, this commit makes
+> acpi_bus_type_and_status() initialize status to ACPI_STA_DEFAULT, this is
+> safe to do as the only code looking at status between the initialization
+> and the acpi_bus_get_status() call is those acpi_match_device_ids() calls.
+>
+> Note this does mean that we need to (re)set status to 0 in case the
+> acpi_bus_get_status() call fails.
+>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+> Changes in v3:
+> -New patch in v3 of this patch-set
+>
+> Changes in v4:
+> -This is not a fix for acpi_is_indirect_io_slave() as I thought at first,
+>  acpi_is_indirect_io_slave() calls acpi_match_device_ids() on its parent
+>  device, where status is already set properly. Rewrite the commit message
+>  accordingly.
 
-Yes, yes.
-If you need my formal tag, here it is
+I've applied the v4 of this patch and I don't think there are any
+changes from it here.
 
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+As for the rest of the series I'll wait from comments from Wolfram and
+the other reviewers.
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Thanks,
+Rafael
