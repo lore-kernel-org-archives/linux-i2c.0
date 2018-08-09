@@ -1,94 +1,43 @@
-From: George Cherian <george.cherian@cavium.com>
-Subject: [PATCH v2] i2c: xlp9xx: Fix case where SSIF read transaction completes early
-Date: Wed,  8 Aug 2018 23:36:48 -0700
-Message-ID: <1533796608-26349-1-git-send-email-george.cherian@cavium.com>
+From: Yingjoe Chen <yingjoe.chen@mediatek.com>
+Subject: Re: [PATCH v2 2/3] i2c: Add helper to ease DMA handling
+Date: Thu, 9 Aug 2018 17:13:20 +0800
+Message-ID: <1533806000.3347.6.camel@mtksdaap41>
+References: <1530955795-17714-1-git-send-email-jun.gao@mediatek.com>
+         <1530955795-17714-3-git-send-email-jun.gao@mediatek.com>
+         <20180808205752.llowh4bvu2wkuhga@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180808205752.llowh4bvu2wkuhga@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: wsa@the-dreams.de, jglauber@cavium.com, george.cherian@cavium.com
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Jun Gao <jun.gao@mediatek.com>, devicetree@vger.kernel.org, srv_heupstream@mediatek.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-During ipmi stress tests we see occasional failure of transactions
-at the boot time. This happens in the case of a I2C_M_RECV_LEN
-transactions, when the read transfer completes (with the initial
-read length of 34) before the driver gets a chance to handle interrupts.
+On Wed, 2018-08-08 at 22:57 +0200, Wolfram Sang wrote:
+> On Sat, Jul 07, 2018 at 05:29:54PM +0800, Jun Gao wrote:
+> > From: Jun Gao <jun.gao@mediatek.com>
+> > 
+> > This function is needed by i2c_get_dma_safe_msg_buf() potentially.
+> > It is used to free DMA safe buffer when DMA operation fails.
+> > 
+> > Signed-off-by: Jun Gao <jun.gao@mediatek.com>
+> 
+> Right, we need something like this. This leaks in the sh_mobile driver,
+> too :(
+> 
+> I am still thinking if there is a nice way to put this functionality
+> into i2c_release_dma_safe_msg_buf() itself somehow...
 
-The current driver code expects at least 2 interrupts for I2C_M_RECV_LEN
-transactions. The length is updated during the first interrupt, and  the
-buffer contents are only copied during subsequent interrupts. In case of
-just one interrupt, we will complete the transaction without copying
-out the bytes from RX fifo.
+Wolfram,
 
-Update the code to drain the RX fifo after the length update,
-so that the transaction completes correctly in all cases.
+I have second thought on these API now. Recently, we have saw similar
+issue for spi device driver.
 
-Signed-off-by: George Cherian <george.cherian@cavium.com>
----
- drivers/i2c/busses/i2c-xlp9xx.c | 41 ++++++++++++++++++++++++++++-------------
- 1 file changed, 28 insertions(+), 13 deletions(-)
+I believe the reason for these api is because some arch changed to can
+not do DMA on stack recently. Maybe we should have dma_mapping to bounce
+buffer like it bounce un-dma-able address for those arch? or we should
+have a common driver API for this, not just for i2c?
 
-diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
-index 1f41a4f..7134f72 100644
---- a/drivers/i2c/busses/i2c-xlp9xx.c
-+++ b/drivers/i2c/busses/i2c-xlp9xx.c
-@@ -191,28 +191,43 @@ static void xlp9xx_i2c_drain_rx_fifo(struct xlp9xx_i2c_dev *priv)
- 	if (priv->len_recv) {
- 		/* read length byte */
- 		rlen = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_MRXFIFO);
-+
-+		/*
-+		 * We expect at least 2 interrupts for I2C_M_RECV_LEN
-+		 * transactions. The length is updated during the first
-+		 * interrupt, and the buffer contents are only copied
-+		 * during subsequent interrupts. If in case the interrupts
-+		 * get merged we would complete the transaction without
-+		 * copying out the bytes from RX fifo. To avoid this now we
-+		 * drain the fifo as and when data is available.
-+		 * We drained the rlen byte already, decrement total length
-+		 * by one.
-+		 */
-+
-+		len--;
- 		if (rlen > I2C_SMBUS_BLOCK_MAX || rlen == 0) {
- 			rlen = 0;	/*abort transfer */
- 			priv->msg_buf_remaining = 0;
- 			priv->msg_len = 0;
--		} else {
--			*buf++ = rlen;
--			if (priv->client_pec)
--				++rlen; /* account for error check byte */
--			/* update remaining bytes and message length */
--			priv->msg_buf_remaining = rlen;
--			priv->msg_len = rlen + 1;
-+			xlp9xx_i2c_update_rlen(priv);
-+			return;
- 		}
-+
-+		*buf++ = rlen;
-+		if (priv->client_pec)
-+			++rlen; /* account for error check byte */
-+		/* update remaining bytes and message length */
-+		priv->msg_buf_remaining = rlen;
-+		priv->msg_len = rlen + 1;
- 		xlp9xx_i2c_update_rlen(priv);
- 		priv->len_recv = false;
--	} else {
--		len = min(priv->msg_buf_remaining, len);
--		for (i = 0; i < len; i++, buf++)
--			*buf = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_MRXFIFO);
--
--		priv->msg_buf_remaining -= len;
- 	}
- 
-+	len = min(priv->msg_buf_remaining, len);
-+	for (i = 0; i < len; i++, buf++)
-+		*buf = xlp9xx_read_i2c_reg(priv, XLP9XX_I2C_MRXFIFO);
-+
-+	priv->msg_buf_remaining -= len;
- 	priv->msg_buf = buf;
- 
- 	if (priv->msg_buf_remaining)
--- 
-1.8.3.1
+Joe.C
