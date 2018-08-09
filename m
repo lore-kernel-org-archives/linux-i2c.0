@@ -1,51 +1,85 @@
 From: Esben Haabendal <esben.haabendal@gmail.com>
-Subject: [PATCH v3 1/3] i2c: imx: Fix race condition in dma read
-Date: Thu,  9 Aug 2018 14:32:05 +0200
-Message-ID: <20180809123207.9732-2-esben.haabendal@gmail.com>
+Subject: [PATCH v3 2/3] i2c: imx: Simplify stopped state tracking
+Date: Thu,  9 Aug 2018 14:32:06 +0200
+Message-ID: <20180809123207.9732-3-esben.haabendal@gmail.com>
 References: <20180809123207.9732-1-esben.haabendal@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20180809123207.9732-1-esben.haabendal@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Esben Haabendal <eha@deif.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Lucas Stach <l.stach@pengutronix.de>, Linus Walleij <linus.walleij@linaro.org>, Peter Rosin <peda@axentia.se>, Wei Jinhua <wei.jinhua1@zte.com.cn>, Phil Reid <preid@electromag.com.au>, Fabio Estevam <fabio.estevam@nxp.com>, linux-kernel@vger.kernel.org
+Cc: Esben Haabendal <eha@deif.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Lucas Stach <l.stach@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Wei Jinhua <wei.jinhua1@zte.com.cn>, Phil Reid <preid@electromag.com.au>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 From: Esben Haabendal <eha@deif.com>
 
-This fixes a race condition, where the DMAEN bit ends up being set after
-I2C slave has transmitted a byte following the dummy read.  When that
-happens, an interrupt is generated instead, and no DMA request is generated
-to kickstart the DMA read, and a timeout happens after DMA_TIMEOUT (1 sec).
-
-Fixed by setting the DMAEN bit before the dummy read.
+Always update the stopped state when busy status have been checked.
+This is identical to what was done before, with the exception of error
+handling.
+Without this change, some errors cause the stopped state to be left in
+incorrect state in i2c_imx_stop(), i2c_imx_dma_read(), i2c_imx_read() and
+i2c_imx_xfer().
 
 Signed-off-by: Esben Haabendal <eha@deif.com>
 ---
- drivers/i2c/busses/i2c-imx.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-imx.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 498c5e891649..f7bd6c21da27 100644
+index f7bd6c21da27..8fb61691e226 100644
 --- a/drivers/i2c/busses/i2c-imx.c
 +++ b/drivers/i2c/busses/i2c-imx.c
-@@ -668,9 +668,6 @@ static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
- 	struct imx_i2c_dma *dma = i2c_imx->dma;
- 	struct device *dev = &i2c_imx->adapter.dev;
+@@ -421,10 +421,14 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy)
+ 			return -EAGAIN;
+ 		}
  
--	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
--	temp |= I2CR_DMAEN;
--	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+-		if (for_busy && (temp & I2SR_IBB))
++		if (for_busy && (temp & I2SR_IBB)) {
++			i2c_imx->stopped = 0;
+ 			break;
+-		if (!for_busy && !(temp & I2SR_IBB))
++		}
++		if (!for_busy && !(temp & I2SR_IBB)) {
++			i2c_imx->stopped = 1;
+ 			break;
++		}
+ 		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+ 			dev_dbg(&i2c_imx->adapter.dev,
+ 				"<%s> I2C bus is busy\n", __func__);
+@@ -538,7 +542,6 @@ static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)
+ 	result = i2c_imx_bus_busy(i2c_imx, 1);
+ 	if (result)
+ 		return result;
+-	i2c_imx->stopped = 0;
  
- 	dma->chan_using = dma->chan_rx;
- 	dma->dma_transfer_dir = DMA_DEV_TO_MEM;
-@@ -809,6 +806,8 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs, bo
- 	 */
- 	if ((msgs->len - 1) || block_data)
- 		temp &= ~I2CR_TXAK;
-+	if (i2c_imx->dma && msgs->len >= DMA_THRESHOLD && !block_data)
-+		temp |= I2CR_DMAEN;
- 	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
- 	imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR); /* dummy read */
+ 	temp |= I2CR_IIEN | I2CR_MTX | I2CR_TXAK;
+ 	temp &= ~I2CR_DMAEN;
+@@ -567,10 +570,8 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
+ 		udelay(i2c_imx->disable_delay);
+ 	}
  
+-	if (!i2c_imx->stopped) {
++	if (!i2c_imx->stopped)
+ 		i2c_imx_bus_busy(i2c_imx, 0);
+-		i2c_imx->stopped = 1;
+-	}
+ 
+ 	/* Disable I2C controller */
+ 	temp = i2c_imx->hwdata->i2cr_ien_opcode ^ I2CR_IEN,
+@@ -724,7 +725,6 @@ static int i2c_imx_dma_read(struct imx_i2c_struct *i2c_imx,
+ 		temp &= ~(I2CR_MSTA | I2CR_MTX);
+ 		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+ 		i2c_imx_bus_busy(i2c_imx, 0);
+-		i2c_imx->stopped = 1;
+ 	} else {
+ 		/*
+ 		 * For i2c master receiver repeat restart operation like:
+@@ -849,7 +849,6 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs, bo
+ 				temp &= ~(I2CR_MSTA | I2CR_MTX);
+ 				imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+ 				i2c_imx_bus_busy(i2c_imx, 0);
+-				i2c_imx->stopped = 1;
+ 			} else {
+ 				/*
+ 				 * For i2c master receiver repeat restart operation like:
 -- 
 2.18.0
