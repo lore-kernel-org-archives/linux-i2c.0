@@ -1,76 +1,73 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v5 1/4] ACPI / scan: Initialize status to ACPI_STA_DEFAULT
-Date: Thu, 9 Aug 2018 13:36:50 +0200
-Message-ID: <9169f2a6-7835-0472-9b08-320106125716@redhat.com>
-References: <20180809091558.4317-1-hdegoede@redhat.com>
- <20180809091558.4317-2-hdegoede@redhat.com>
- <CAJZ5v0jBxL8n8ce7=qgZmHtc4=zCA3u7ePbXaHfyibeNiNrw+w@mail.gmail.com>
- <7d8c71b9-292e-e51e-d3d3-cb0bb00528b6@redhat.com>
- <CAHp75VeiC35S=urEL_f-j+ZPVodPHqGJBRYxv2m5inBkuJ=1kQ@mail.gmail.com>
- <f2f9289d-0adb-e165-a23e-696fe985fda4@redhat.com>
- <CAJZ5v0hvfR=m5GXhSS4Q7DYFS9+BA+EAt9oHOYdxMU-J78dtwQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v6 1/4] ACPI / scan: Initialize status to ACPI_STA_DEFAULT
+Date: Thu,  9 Aug 2018 13:40:43 +0200
+Message-ID: <20180809114046.21366-2-hdegoede@redhat.com>
+References: <20180809114046.21366-1-hdegoede@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAJZ5v0hvfR=m5GXhSS4Q7DYFS9+BA+EAt9oHOYdxMU-J78dtwQ@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <20180809114046.21366-1-hdegoede@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>
+To: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Hans de Goede <hdegoede@redhat.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-acpi@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Since commit 63347db0affa ("ACPI / scan: Use acpi_bus_get_status() to
+initialize ACPI_TYPE_DEVICE devs") the status field of normal acpi_devices
+gets set to 0 by acpi_bus_type_and_status() and filled with its actual
+value later when acpi_add_single_object() calls acpi_bus_get_status().
 
-On 09-08-18 11:59, Rafael J. Wysocki wrote:
-> On Thu, Aug 9, 2018 at 11:58 AM, Hans de Goede <hdegoede@redhat.com> wrote:
->> Hi,
->>
->> On 09-08-18 11:51, Andy Shevchenko wrote:
->>>
->>> On Thu, Aug 9, 2018 at 12:39 PM, Hans de Goede <hdegoede@redhat.com>
->>> wrote:
->>>>
->>>> On 09-08-18 11:35, Rafael J. Wysocki wrote:
->>>>>
->>>>> On Thu, Aug 9, 2018 at 11:15 AM, Hans de Goede <hdegoede@redhat.com>
->>>>> wrote:
->>>
->>>
->>>>> I've applied the v4 of this patch and I don't think there are any
->>>>> changes from it here.
->>>>
->>>>
->>>>
->>>> Correct, there were only changes to the 4th patch in the series.
->>>>
->>>>> As for the rest of the series I'll wait from comments from Wolfram and
->>>>> the other reviewers.
->>>>
->>>>
->>>>
->>>> Ok, note if you've taken patch 1 you may also want to take patch 3 which
->>>> is an ACPI code cleanup made possible by patch 1 and otherwise is
->>>> unrelated.
->>>
->>>
->>> I'm under impression Rafael is going to take entire series (at least
->>> for patch 4 I'm expecting to give an Ack).
->>
->>
->> As I mentioned in the coverletter, my idea was to have Rafael take
->> patches 1-3 and then merge the 4th patch through the platform/x86
->> tree. There are only runtime dependencies between the 2 parts and
->> merging them independently should not cause any issues.
-> 
-> I can apply the 4th one too if it is ACKed by everyone with a vested interest.
+This means that any acpi_match_device_ids() calls in between will always
+fail with -ENOENT.
 
-That works for me, note I'm about to send out a v6 (with only changes to
-the 4th patch), so hold of a bit with merging this please.
+We already have a workaround for this, which temporary forces status to
+ACPI_STA_DEFAULT in drivers/acpi/x86/utils.c: acpi_device_always_present()
+and the next commit in this series adds another acpi_match_device_ids()
+call between status being initialized as 0 and the acpi_bus_get_status()
+call.
 
-Andy does your ack for the 4th patch mean you're ok with Rafael merging
-this?
+Rather then adding another workaround, this commit makes
+acpi_bus_type_and_status() initialize status to ACPI_STA_DEFAULT, this is
+safe to do as the only code looking at status between the initialization
+and the acpi_bus_get_status() call is those acpi_match_device_ids() calls.
 
-Regards,
+Note this does mean that we need to (re)set status to 0 in case the
+acpi_bus_get_status() call fails.
 
-Hans
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v3:
+-New patch in v3 of this patch-set
+
+Changes in v4:
+-This is not a fix for acpi_is_indirect_io_slave() as I thought at first,
+ acpi_is_indirect_io_slave() calls acpi_match_device_ids() on its parent
+ device, where status is already set properly. Rewrite the commit message
+ accordingly.
+---
+ drivers/acpi/scan.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index 970dd87d347c..6799d00dd790 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -1612,7 +1612,8 @@ static int acpi_add_single_object(struct acpi_device **child,
+ 	 * Note this must be done before the get power-/wakeup_dev-flags calls.
+ 	 */
+ 	if (type == ACPI_BUS_TYPE_DEVICE)
+-		acpi_bus_get_status(device);
++		if (acpi_bus_get_status(device) < 0)
++			acpi_set_device_status(device, 0);
+ 
+ 	acpi_bus_get_power_flags(device);
+ 	acpi_bus_get_wakeup_device_flags(device);
+@@ -1690,7 +1691,7 @@ static int acpi_bus_type_and_status(acpi_handle handle, int *type,
+ 		 * acpi_add_single_object updates this once we've an acpi_device
+ 		 * so that acpi_bus_get_status' quirk handling can be used.
+ 		 */
+-		*sta = 0;
++		*sta = ACPI_STA_DEFAULT;
+ 		break;
+ 	case ACPI_TYPE_PROCESSOR:
+ 		*type = ACPI_BUS_TYPE_PROCESSOR;
+-- 
+2.18.0
