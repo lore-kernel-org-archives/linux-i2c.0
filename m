@@ -1,72 +1,59 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.18
-Date: Fri, 10 Aug 2018 12:58:43 +0200
-Message-ID: <20180810105840.bajsbm3dx3myusji@ninjato>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v2 3/4] i2c: imx: Simplify stopped state tracking
+Date: Fri, 10 Aug 2018 14:25:11 +0200
+Message-ID: <20180810122511.2xnelcn6tguirfbp@pengutronix.de>
+References: <20180709094304.8814-1-esben.haabendal@gmail.com>
+ <20180709094304.8814-4-esben.haabendal@gmail.com>
+ <20180724075919.iyysd7dtbddvbavq@pengutronix.de>
+ <87k1ozzquk.fsf@gmail.com>
+ <20180809162652.r34omvkctzxte422@pengutronix.de>
+ <87zhxuo9o1.fsf@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="dlf7ammxupzzcrry"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <87zhxuo9o1.fsf@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Esben Haabendal <esben.haabendal@gmail.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Yuan Yao <yao.yuan@freescale.com>, Philipp Zabel <p.zabel@pengutronix.de>, Phil Reid <preid@electromag.com.au>, Lucas Stach <l.stach@pengutronix.de>, Clemens Gruber <clemens.gruber@pqgruber.com>, Peter Rosin <peda@axentia.se>, Fabio Estevam <fabio.estevam@nxp.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hello Esben,
 
---dlf7ammxupzzcrry
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Fri, Aug 10, 2018 at 11:25:34AM +0200, Esben Haabendal wrote:
+> Uwe Kleine-König <u.kleine-koenig@pengutronix.de> writes:
+> > Currently you have:
+> >
+> > 	if (for_busy && (temp & I2SR_IBB)) {
+> > 		i2c_imx->stopped = 0;
+> > 		break;
+> > 	}
+> >
+> > 	if (!for_busy && !(temp & I2SR_IBB)) {
+> > 		i2c_imx->stopped = 1;
+> > 		break;
+> > 	}
+> >
+> > The semantic of this is the same (apart from always updating .stopped)
+> > but is imho easier:
+> >
+> > 	i2c_imx->stopped = !(temp & I2SR_IBB);
+> >
+> > 	if (for_busy != i2c_imx->stopped)
+> > 		break;
+> 
+> Yes, that should work also.
+> Shorter, but IMHO a bit more convoluted to read.
+> Let me know if I should send a new version with this change.
 
-Linus,
+unless someone else chimes in I'd say keep it as is. I'd prefer my
+variant, but I accept that this is something subjective.
 
-here is a driver bugfix for I2C. The bug was found by systematically
-stress testing the driver, so I am confident to merge it that late in
-the cycle although it is probably unusually large.
+Best regards
+Uwe
 
-Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit 1ffaddd029c867d134a1dde39f540dcc8c52e274:
-
-  Linux 4.18-rc8 (2018-08-05 12:37:41 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to 5eb173f5c8f3a3cdc47b3952c368f10a28c81ab8:
-
-  i2c: xlp9xx: Fix case where SSIF read transaction completes early (2018-08-09 17:41:13 +0200)
-
-----------------------------------------------------------------
-George Cherian (1):
-      i2c: xlp9xx: Fix case where SSIF read transaction completes early
-
- drivers/i2c/busses/i2c-xlp9xx.c | 41 ++++++++++++++++++++++++++++-------------
- 1 file changed, 28 insertions(+), 13 deletions(-)
-
---dlf7ammxupzzcrry
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlttb9wACgkQFA3kzBSg
-KbZqNw//VWzQgiTdQZ/J45OLBtjW7ZLkeGqT3s9eiHmYf5FNl/itUk1GO4E7BGyw
-L6YUqcAjTFAcH6DoHa23lMGbY9ZIlUCHA8YZZ80E9LAkKNMLe3NDk48URuPME3FG
-ns9M2mzehl9eQGHkOM0mOsZ7IjnEp/cbGg6zlMs7Dm+ZlJgWgPI1IuhdVWf+nP/2
-cy2YNAyBKZLDnQdC9r4Rdvkqb3XH1hPXCxnYQKY7dl1pPvm4bc8935OgHsoGuWzr
-uuEuOTfvo/HyMWEjDgPDW6HACxBqFJHCwiTf/+Jun92QYYO8mfTy4z2v3HOCkvKT
-dsQXkBBE+K1Km1Si/4ElFQ8+/vPXx7m7OeYRCfs8AcLHf4mqFvrcVZJkIW8qmrnb
-Tg+IO3TL0040Kz5XB4JciP0A5AINwJMt22ewNlm5uNLwZ/KS7JEmjreQjMkctT6o
-EhmTatLhcTmTev04/G3w75Rz72imUvZaMzIxWS/iwKM149lQ6viQj9cO8ao1TqhC
-Ti9+096Vu+Ac2G4YtLlr03+18+jCS9dS5TW1Jmtd41MMjLDm4f+QSDQWd713Bnb0
-rxA9lhfLfcQznwGbQz6IB0TdVKwPO4kVTOVWj90uIFtzWXDoMu2l3h0dRKlgpOK+
-KdBb6AfCfNQsaRRQGLwW+se6xoDoVhtVp6N7+Gn6002todmyRlU=
-=Uzat
------END PGP SIGNATURE-----
-
---dlf7ammxupzzcrry--
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
