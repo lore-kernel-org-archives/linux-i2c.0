@@ -1,96 +1,72 @@
-From: Esben Haabendal <esben.haabendal@gmail.com>
-Subject: Re: [PATCH v2 3/4] i2c: imx: Simplify stopped state tracking
-Date: Fri, 10 Aug 2018 11:25:34 +0200
-Message-ID: <87zhxuo9o1.fsf@gmail.com>
-References: <20180709094304.8814-1-esben.haabendal@gmail.com>
-        <20180709094304.8814-4-esben.haabendal@gmail.com>
-        <20180724075919.iyysd7dtbddvbavq@pengutronix.de>
-        <87k1ozzquk.fsf@gmail.com>
-        <20180809162652.r34omvkctzxte422@pengutronix.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.18
+Date: Fri, 10 Aug 2018 12:58:43 +0200
+Message-ID: <20180810105840.bajsbm3dx3myusji@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="dlf7ammxupzzcrry"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180809162652.r34omvkctzxte422@pengutronix.de> ("Uwe
-        =?utf-8?Q?Kleine-K=C3=B6nig=22's?= message of "Thu, 9 Aug 2018 18:26:52
- +0200")
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Yuan Yao <yao.yuan@freescale.com>, Philipp Zabel <p.zabel@pengutronix.de>, Phil Reid <preid@electromag.com.au>, Lucas Stach <l.stach@pengutronix.de>, Clemens Gruber <clemens.gruber@pqgruber.com>, Peter Rosin <peda@axentia.se>, Fabio Estevam <fabio.estevam@nxp.com>, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de> writes:
 
-> On Thu, Aug 09, 2018 at 02:06:43PM +0200, Esben Haabendal wrote:
->> Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de> writes:
->>=20
->> > On Mon, Jul 09, 2018 at 11:43:03AM +0200, Esben Haabendal wrote:
->> >> From: Esben Haabendal <eha@deif.com>
->> >>=20
->> >> Always update the stopped state when busy status have been checked.
->> >> This is identical to what was done before, with the exception of error
->> >> handling.
->> >> Without this change, some errors cause the stopped state to be left in
->> >> incorrect state in i2c_imx_stop(), i2c_imx_dma_read(), i2c_imx_read()=
- and
->> >> i2c_imx_xfer().
->> >>=20
->> >> Signed-off-by: Esben Haabendal <eha@deif.com>
->> >> ---
->> >>  drivers/i2c/busses/i2c-imx.c | 12 ++++++------
->> >>  1 file changed, 6 insertions(+), 6 deletions(-)
->> >>=20
->> >> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-im=
-x.c
->> >> index d86f152176a4..1db8e6790afc 100644
->> >> --- a/drivers/i2c/busses/i2c-imx.c
->> >> +++ b/drivers/i2c/busses/i2c-imx.c
->> >> @@ -421,10 +421,14 @@ static int i2c_imx_bus_busy(struct imx_i2c_stru=
-ct *i2c_imx, int for_busy)
->> >>  			return -EAGAIN;
->> >>  		}
->> >>=20=20
->> >> -		if (for_busy && (temp & I2SR_IBB))
->> >> +		if (for_busy && (temp & I2SR_IBB)) {
->> >> +			i2c_imx->stopped =3D 0;
->> >>  			break;
->> >> -		if (!for_busy && !(temp & I2SR_IBB))
->> >> +		}
->> >> +		if (!for_busy && !(temp & I2SR_IBB)) {
->> >> +			i2c_imx->stopped =3D 1;
->> >>  			break;
->> >> +		}
->> >
->> > Would it make sense to assign to ->stopped independent of for_busy?
->>=20
->> What do you mean?
->>=20
->> Assigning to ->stopped on each check for I2SR_IBB in loop, independent
->> of the for_busy argument?  I don't think so.  The additional assignments
->> would be to the same value as it is set to already.
->
-> Currently you have:
->
-> 	if (for_busy && (temp & I2SR_IBB)) {
-> 		i2c_imx->stopped =3D 0;
-> 		break;
-> 	}
->
-> 	if (!for_busy && !(temp & I2SR_IBB)) {
-> 		i2c_imx->stopped =3D 1;
-> 		break;
-> 	}
->
-> The semantic of this is the same (apart from always updating .stopped)
-> but is imho easier:
->
-> 	i2c_imx->stopped =3D !(temp & I2SR_IBB);
->
-> 	if (for_busy !=3D i2c_imx->stopped)
-> 		break;
+--dlf7ammxupzzcrry
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Yes, that should work also.
-Shorter, but IMHO a bit more convoluted to read.
-Let me know if I should send a new version with this change.
+Linus,
 
-/Esben
+here is a driver bugfix for I2C. The bug was found by systematically
+stress testing the driver, so I am confident to merge it that late in
+the cycle although it is probably unusually large.
+
+Please pull.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit 1ffaddd029c867d134a1dde39f540dcc8c52e274:
+
+  Linux 4.18-rc8 (2018-08-05 12:37:41 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 5eb173f5c8f3a3cdc47b3952c368f10a28c81ab8:
+
+  i2c: xlp9xx: Fix case where SSIF read transaction completes early (2018-08-09 17:41:13 +0200)
+
+----------------------------------------------------------------
+George Cherian (1):
+      i2c: xlp9xx: Fix case where SSIF read transaction completes early
+
+ drivers/i2c/busses/i2c-xlp9xx.c | 41 ++++++++++++++++++++++++++++-------------
+ 1 file changed, 28 insertions(+), 13 deletions(-)
+
+--dlf7ammxupzzcrry
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlttb9wACgkQFA3kzBSg
+KbZqNw//VWzQgiTdQZ/J45OLBtjW7ZLkeGqT3s9eiHmYf5FNl/itUk1GO4E7BGyw
+L6YUqcAjTFAcH6DoHa23lMGbY9ZIlUCHA8YZZ80E9LAkKNMLe3NDk48URuPME3FG
+ns9M2mzehl9eQGHkOM0mOsZ7IjnEp/cbGg6zlMs7Dm+ZlJgWgPI1IuhdVWf+nP/2
+cy2YNAyBKZLDnQdC9r4Rdvkqb3XH1hPXCxnYQKY7dl1pPvm4bc8935OgHsoGuWzr
+uuEuOTfvo/HyMWEjDgPDW6HACxBqFJHCwiTf/+Jun92QYYO8mfTy4z2v3HOCkvKT
+dsQXkBBE+K1Km1Si/4ElFQ8+/vPXx7m7OeYRCfs8AcLHf4mqFvrcVZJkIW8qmrnb
+Tg+IO3TL0040Kz5XB4JciP0A5AINwJMt22ewNlm5uNLwZ/KS7JEmjreQjMkctT6o
+EhmTatLhcTmTev04/G3w75Rz72imUvZaMzIxWS/iwKM149lQ6viQj9cO8ao1TqhC
+Ti9+096Vu+Ac2G4YtLlr03+18+jCS9dS5TW1Jmtd41MMjLDm4f+QSDQWd713Bnb0
+rxA9lhfLfcQznwGbQz6IB0TdVKwPO4kVTOVWj90uIFtzWXDoMu2l3h0dRKlgpOK+
+KdBb6AfCfNQsaRRQGLwW+se6xoDoVhtVp6N7+Gn6002todmyRlU=
+=Uzat
+-----END PGP SIGNATURE-----
+
+--dlf7ammxupzzcrry--
