@@ -1,82 +1,96 @@
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: Re: [PATCH v2 00/29] at24: remove at24_platform_data
-Date: Fri, 10 Aug 2018 09:41:49 +0100
-Message-ID: <e3e2e350-f520-8af5-b5d7-6844a58ca479@linaro.org>
-References: <20180810080526.27207-1-brgl@bgdev.pl>
+From: Esben Haabendal <esben.haabendal@gmail.com>
+Subject: Re: [PATCH v2 3/4] i2c: imx: Simplify stopped state tracking
+Date: Fri, 10 Aug 2018 11:25:34 +0200
+Message-ID: <87zhxuo9o1.fsf@gmail.com>
+References: <20180709094304.8814-1-esben.haabendal@gmail.com>
+        <20180709094304.8814-4-esben.haabendal@gmail.com>
+        <20180724075919.iyysd7dtbddvbavq@pengutronix.de>
+        <87k1ozzquk.fsf@gmail.com>
+        <20180809162652.r34omvkctzxte422@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20180810080526.27207-1-brgl@bgdev.pl>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>, Jonathan Corbet <corbet@lwn.net>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Woodhouse <dwmw2@infradead.org>, Brian Norris <computersforpeace@gmail.com>, Boris Brezillon <boris.brezillon@bootlin.com>, Marek Vasut <marek.vasut@gmail.com>, Richard Weinberger <richard@nod.at>, Grygorii Strashko <grygorii.strashko@ti.com>, "David S . Miller" <davem@davemloft.net>, Naren <naren.kernel@gmail.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Lukas Wunner <lukas@wunner.de>, Dan Carpenter <dan.carpenter@oracle.com>, Flori
-Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-mtd@lists.infradead.org, linux-omap@vger.kernel.org, netdev@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180809162652.r34omvkctzxte422@pengutronix.de> ("Uwe
+        =?utf-8?Q?Kleine-K=C3=B6nig=22's?= message of "Thu, 9 Aug 2018 18:26:52
+ +0200")
+Sender: linux-kernel-owner@vger.kernel.org
+To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Yuan Yao <yao.yuan@freescale.com>, Philipp Zabel <p.zabel@pengutronix.de>, Phil Reid <preid@electromag.com.au>, Lucas Stach <l.stach@pengutronix.de>, Clemens Gruber <clemens.gruber@pqgruber.com>, Peter Rosin <peda@axentia.se>, Fabio Estevam <fabio.estevam@nxp.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de> writes:
 
+> On Thu, Aug 09, 2018 at 02:06:43PM +0200, Esben Haabendal wrote:
+>> Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de> writes:
+>>=20
+>> > On Mon, Jul 09, 2018 at 11:43:03AM +0200, Esben Haabendal wrote:
+>> >> From: Esben Haabendal <eha@deif.com>
+>> >>=20
+>> >> Always update the stopped state when busy status have been checked.
+>> >> This is identical to what was done before, with the exception of error
+>> >> handling.
+>> >> Without this change, some errors cause the stopped state to be left in
+>> >> incorrect state in i2c_imx_stop(), i2c_imx_dma_read(), i2c_imx_read()=
+ and
+>> >> i2c_imx_xfer().
+>> >>=20
+>> >> Signed-off-by: Esben Haabendal <eha@deif.com>
+>> >> ---
+>> >>  drivers/i2c/busses/i2c-imx.c | 12 ++++++------
+>> >>  1 file changed, 6 insertions(+), 6 deletions(-)
+>> >>=20
+>> >> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-im=
+x.c
+>> >> index d86f152176a4..1db8e6790afc 100644
+>> >> --- a/drivers/i2c/busses/i2c-imx.c
+>> >> +++ b/drivers/i2c/busses/i2c-imx.c
+>> >> @@ -421,10 +421,14 @@ static int i2c_imx_bus_busy(struct imx_i2c_stru=
+ct *i2c_imx, int for_busy)
+>> >>  			return -EAGAIN;
+>> >>  		}
+>> >>=20=20
+>> >> -		if (for_busy && (temp & I2SR_IBB))
+>> >> +		if (for_busy && (temp & I2SR_IBB)) {
+>> >> +			i2c_imx->stopped =3D 0;
+>> >>  			break;
+>> >> -		if (!for_busy && !(temp & I2SR_IBB))
+>> >> +		}
+>> >> +		if (!for_busy && !(temp & I2SR_IBB)) {
+>> >> +			i2c_imx->stopped =3D 1;
+>> >>  			break;
+>> >> +		}
+>> >
+>> > Would it make sense to assign to ->stopped independent of for_busy?
+>>=20
+>> What do you mean?
+>>=20
+>> Assigning to ->stopped on each check for I2SR_IBB in loop, independent
+>> of the for_busy argument?  I don't think so.  The additional assignments
+>> would be to the same value as it is set to already.
+>
+> Currently you have:
+>
+> 	if (for_busy && (temp & I2SR_IBB)) {
+> 		i2c_imx->stopped =3D 0;
+> 		break;
+> 	}
+>
+> 	if (!for_busy && !(temp & I2SR_IBB)) {
+> 		i2c_imx->stopped =3D 1;
+> 		break;
+> 	}
+>
+> The semantic of this is the same (apart from always updating .stopped)
+> but is imho easier:
+>
+> 	i2c_imx->stopped =3D !(temp & I2SR_IBB);
+>
+> 	if (for_busy !=3D i2c_imx->stopped)
+> 		break;
 
-On 10/08/18 09:04, Bartosz Golaszewski wrote:
-> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> 
-> This is a follow-up to the previously rejected series[1] which partially
-> removed the at24_platform_data structure. After further development and
-> taking reviews into account, this series finally removes that struct
-> completely but not without touching many different parts of the code
-> base.
-> 
-> Since I took over maintainership of the at24 driver I've been working
-> towards removing at24_platform_data in favor for device properties.
-> 
-> DaVinci is the only platform that's still using it - all other users
-> have already been converted.
-> 
-> One of the obstacles in case of DaVinci is removing the setup() callback
-> from the pdata struct, the only user of which are some davinci boards.
-> 
-> Most boards use the EEPROM to store the MAC address. This series adds
-> support for cell lookups to the nvmem framework, registers relevant
-> cells for all users, adds nvmem support to eth_platform_get_mac_address(),
-> converts davinci_emac driver to using it and replaces at24_platform_data
-> with device properties.
-> 
-> There's also one board (da850-evm) which uses MTD for reading the MAC
-> address. I used the patch from Alban Bedel's previous submission[2] to
-> add support for nvmem to the MTD framework. Since this user doesn't
-> need device tree, I dropped Alban's patches modifying the DT bindings.
-> We can add that later once an agreement is reached. For the time being
-> MTD devices are registered as nvmem devices and we're registering the
-> mac-address cell using the cell lookup mechanism.
-> 
-> This series adds a blocking notifier chain to the nvmem framework, so
-> that we can keep the EEPROM reading code in the mityomapl138 board file
-> with only slight modifications.
-> 
-> I also included some minor fixes to the modified code.
-> 
-> Tested on da850-evm & dm365-evm.
-> 
-> [1] https://lkml.org/lkml/2018/6/29/153
-> [2] https://lkml.org/lkml/2018/3/24/312
-> 
-...
+Yes, that should work also.
+Shorter, but IMHO a bit more convoluted to read.
+Let me know if I should send a new version with this change.
 
-> Bartosz Golaszewski (28):
->    nvmem: add support for cell lookups
->    Documentation: nvmem: document lookup entries
->    nvmem: add a notifier chain
->    nvmem: provide nvmem_dev_name()
->    nvmem: remove the name field from struct nvmem_device
-> 
->   Documentation/nvmem/nvmem.txt              |  28 +++++
-..
->   drivers/nvmem/core.c                       | 106 ++++++++++++++++-
-
-nvmem parts looks good to me other then few trivial kernel doc comments!
-I can either Ack those patches or Send them after rc3-4 to Greg KH as 
-4.20 material.
-
-Thanks
-srini
-
-> 
+/Esben
