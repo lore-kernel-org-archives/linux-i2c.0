@@ -1,48 +1,72 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v2 14/29] net: simplify eth_platform_get_mac_address()
-Date: Fri, 10 Aug 2018 18:17:47 +0200
-Message-ID: <CAMRc=Mc536v+L_u0garWbeyQ78Q6tyEEzhR9pRGf5mBU+daE+w@mail.gmail.com>
-References: <20180810080526.27207-1-brgl@bgdev.pl> <20180810080526.27207-15-brgl@bgdev.pl>
- <CAHp75Ve28aNe+FCK3p4OLsDf7dNo-iJ1VR=pyx+Y9OUn3sjYBw@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: core: ACPI: Properly set status byte to 0 for
+ multi-byte writes
+Date: Sat, 11 Aug 2018 15:11:03 +0200
+Message-ID: <20180811070321.GA2180@kunai>
+References: <20180810122714.690-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <CAHp75Ve28aNe+FCK3p4OLsDf7dNo-iJ1VR=pyx+Y9OUn3sjYBw@mail.gmail.com>
-Sender: netdev-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Woodhouse <dwmw2@infradead.org>, Brian Norris <computersforpeace@gmail.com>, Boris Brezillon <boris.brezillon@bootlin.com>, Marek Vasut <marek.vasut@gmail.com>, Richard Weinberger <richard@nod.at>, Grygorii Strashko <grygorii.strashko@ti.com>, "David S . Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Naren <naren.kernel@gmail.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Lukas Wunner <lukas@wunner.de>, Dan Carpenter <dan.carpenter@oracle.co>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180810122714.690-1-hdegoede@redhat.com>
+Sender: stable-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-2018-08-10 16:39 GMT+02:00 Andy Shevchenko <andy.shevchenko@gmail.com>:
-> On Fri, Aug 10, 2018 at 11:05 AM, Bartosz Golaszewski <brgl@bgdev.pl> wrote:
->> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
->>
->> We don't need to use pci_device_to_OF_node() - we can retrieve
->> dev->of_node directly even for pci devices.
->>
->
->>         struct device_node *dp;
->>
->> -       if (dev_is_pci(dev))
->> -               dp = pci_device_to_OF_node(to_pci_dev(dev));
->> -       else
->> -               dp = dev->of_node;
->> -
->> +       dp = dev->of_node;
->>         addr = NULL;
->>         if (dp)
->>                 addr = of_get_mac_address(dp);
->
-> Looking more at this I could even propose to change all above by
->
-> addr = device_get_mac_address(dev, mac_addr, ETH_ALEN);
->
-> Thoughts?
->
-> --
-> With Best Regards,
-> Andy Shevchenko
+Hi Hans,
 
-Indeed seems like it's even more generalized. Thanks for spotting that.
+thanks for fixing this!
 
-Bart
+On Fri, Aug 10, 2018 at 02:27:14PM +0200, Hans de Goede wrote:
+> acpi_gsb_i2c_write_bytes() returns i2c_transfer()'s return value, which
+> is the number of transfers executed on success, so 1.
+> 
+> The ACPI code expects us to store 0 in gsb->status for success, not 1.
+> 
+> Specifically this breaks the following code in the Thinkpad 8 DSDT:
+> 
+>             ECWR = I2CW = ECWR /* \_SB_.I2C1.BAT0.ECWR */
+>             If ((ECST == Zero))
+>             {
+>                 ECRD = I2CR /* \_SB_.I2C1.I2CR */
+>             }
+> 
+> Before this commit we set ECST to 1, causing the read to never happen
+> breaking battery monitoring on the Thinkpad 8. Note the Thinkpad 8 also
+> has some unrelated issues where i2c transfers are unreliable.
+> 
+> This commit sets status to 0 if it was bigger then 0 (so success),
+> mirroring the multi-byte read path, fixing this.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  drivers/i2c/i2c-core-acpi.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+> index 7c3b4740b94b..10ad851bd277 100644
+> --- a/drivers/i2c/i2c-core-acpi.c
+> +++ b/drivers/i2c/i2c-core-acpi.c
+> @@ -595,6 +595,8 @@ i2c_acpi_space_handler(u32 function, acpi_physical_address command,
+>  		} else {
+>  			status = acpi_gsb_i2c_write_bytes(client, command,
+>  					gsb->data, info->access_length);
+> +			if (status > 0)
+> +				status = 0;
+
+I think we should fix the function we are calling (and the read
+function, too). It doesn't make much sense to return the number of
+successful messages when the paramters of the function deal with bytes,
+not messages. Otherwise we probably will have the bug somewhere else
+again.
+
+We should also return 0 only iff all messages were sent, otherwise -EIO
+or something.
+
+Makes sense?
+
+Regards,
+
+   Wolfram
