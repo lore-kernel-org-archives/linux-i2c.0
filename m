@@ -1,66 +1,73 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 1/2] i2c: core: ACPI: Properly set status byte to 0 for multi-byte writes
-Date: Sun, 12 Aug 2018 12:53:20 +0200
-Message-ID: <20180812105321.2668-1-hdegoede@redhat.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, stable@vger.kernel.org
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH v6 4/4] platform/x86: Add ACPI i2c-multi-instantiate pseudo driver
+Date: Sun, 12 Aug 2018 13:14:23 +0200
+Message-ID: <1946404.OiO1uWY7Ot@aspire.rjw.lan>
+References: <20180809114046.21366-1-hdegoede@redhat.com> <CAJZ5v0jbNTGEXWJ+CtPOKSM=AyB5-3hV-tMCYehj5w87i_2znA@mail.gmail.com> <9805a950-dfd3-df13-15e8-d60703ce0498@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <9805a950-dfd3-df13-15e8-d60703ce0498@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Darren Hart <dvhart@infradead.org>, Wolfram Sang <wsa@the-dreams.de>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-acpi_gsb_i2c_write_bytes() returns i2c_transfer()'s return value, which
-is the number of transfers executed on success, so 1.
+On Thursday, August 9, 2018 2:08:41 PM CEST Hans de Goede wrote:
+> Hi,
+> 
+> On 09-08-18 13:55, Rafael J. Wysocki wrote:
+> > On Thu, Aug 9, 2018 at 1:40 PM, Hans de Goede <hdegoede@redhat.com> wrote:
+> >> On systems with ACPI instantiated i2c-clients, normally there is 1 fw_node
+> >> per i2c-device and that fw-node contains 1 I2cSerialBus resource for that 1
+> >> i2c-device.
+> >>
+> >> But in some rare cases the manufacturer has decided to describe multiple
+> >> i2c-devices in a single ACPI fwnode with multiple I2cSerialBus resources.
+> >>
+> >> An earlier attempt to fix this in the i2c-core resulted in a lot of extra
+> >> code to support this corner-case.
+> >>
+> >> This commit introduces a new i2c-multi-instantiate driver which fixes this
+> >> in a different way. This new driver can be built as a module which will
+> >> only loaded on affected systems.
+> >>
+> >> This driver will instantiate a new i2c-client per I2cSerialBus resource,
+> >> using the driver_data from the acpi_device_id it is binding to to tell it
+> >> which chip-type (and optional irq-resource) to use when instantiating.
+> >>
+> >> Note this driver depends on a platform device being instantiated for the
+> >> ACPI fwnode, see the i2c_multi_instantiate_ids list of ACPI device-ids in
+> >> drivers/acpi/scan.c: acpi_device_enumeration_by_parent().
+> >>
+> >> Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> >> Acked-by: Wolfram Sang <wsa@the-dreams.de>
+> >> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> >> ---
+> >> Changes in v2:
+> >> -Rebase on top of 4.18-rc2
+> >>
+> >> Changes in v3:
+> >> -Change from an i2c-driver using a hack to allow having multiple i2c clients
+> >>   at the same address to a platform-driver
+> >>
+> >> Changes in v4:
+> >> -Tweak MAINTAINERS entry a bit
+> >>
+> >> Changes in v5:
+> >> -s/no_clients/num_clients/
+> >> -Change patch Subject prefix to platform/x86
+> >>
+> >> Changes in v6:
+> >> -s/irq_idx/gpio_irq_idx/
+> > 
+> > And this is the only patch that has changed in v6, right?
+> 
+> Correct.
+> 
+> > Anyway, if you have further updates on top of this series, please send
+> > them as incremental patches.
+> 
+> Ok, will do.
 
-The ACPI code expects us to store 0 in gsb->status for success, not 1.
-
-Specifically this breaks the following code in the Thinkpad 8 DSDT:
-
-            ECWR = I2CW = ECWR /* \_SB_.I2C1.BAT0.ECWR */
-            If ((ECST == Zero))
-            {
-                ECRD = I2CR /* \_SB_.I2C1.I2CR */
-            }
-
-Before this commit we set ECST to 1, causing the read to never happen
-breaking battery monitoring on the Thinkpad 8.
-
-This commit makes acpi_gsb_i2c_write_bytes() return 0 when i2c_transfer()
-returns 1, so the single write transfer completed successfully, and
-makes it return -EIO on for other (unexpected) return values >= 0.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
-Changes in v2:
--Modify the value which acpi_gsb_i2c_write_bytes() returns instead of
- checking + modifying the return value in its caller
----
- drivers/i2c/i2c-core-acpi.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 7c3b4740b94b..b8f303dea305 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -482,11 +482,16 @@ static int acpi_gsb_i2c_write_bytes(struct i2c_client *client,
- 	msgs[0].buf = buffer;
- 
- 	ret = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
--	if (ret < 0)
--		dev_err(&client->adapter->dev, "i2c write failed\n");
- 
- 	kfree(buffer);
--	return ret;
-+
-+	if (ret < 0) {
-+		dev_err(&client->adapter->dev, "i2c write failed: %d\n", ret);
-+		return ret;
-+	}
-+
-+	/* 1 transfer must have completed successfully */
-+	return (ret == 1) ? 0 : -EIO;
- }
- 
- static acpi_status
--- 
-2.18.0
+The series has been applied, thanks!
