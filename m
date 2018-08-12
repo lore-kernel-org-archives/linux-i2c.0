@@ -1,39 +1,66 @@
-From: Federico Vaga <federico.vaga@cern.ch>
-Subject: Re: i2c:ocores: fixes and polling mechanism
-Date: Sat, 11 Aug 2018 19:13:54 +0200
-Message-ID: <5011687.103nMUzm2u@harkonnen>
-References: <20180625161303.7991-1-federico.vaga@cern.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180625161303.7991-1-federico.vaga@cern.ch>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Peter Korsgaard <jacmet@sunsite.dk>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v2 1/2] i2c: core: ACPI: Properly set status byte to 0 for multi-byte writes
+Date: Sun, 12 Aug 2018 12:53:20 +0200
+Message-ID: <20180812105321.2668-1-hdegoede@redhat.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+acpi_gsb_i2c_write_bytes() returns i2c_transfer()'s return value, which
+is the number of transfers executed on success, so 1.
 
-sorry to disturb you all but after one month and a half I never received 
-any comment about this patch set and I fear it ended up in a forgotten 
-corner. I would like to know if someone is considering it or not.
+The ACPI code expects us to store 0 in gsb->status for success, not 1.
 
-Thanks :)
+Specifically this breaks the following code in the Thinkpad 8 DSDT:
 
-On Monday, June 25, 2018 6:13:00 PM CEST Federico Vaga wrote:
-> The first two patches fix what I believe are bugs.
-> 
-> The third patch add a polling mechanism for those systems where
-> interrupts are not available.
-> 
-> All these patches have been tested on a system without interrupt, this
-> means that I used my third patch to validate also the other two.
-> I would be nice if someone can run verify this also on other system,
-> perhaps with interrupts. If you consider it a useful information, I'm not
-> using devicetree for this installation.
+            ECWR = I2CW = ECWR /* \_SB_.I2C1.BAT0.ECWR */
+            If ((ECST == Zero))
+            {
+                ECRD = I2CR /* \_SB_.I2C1.I2CR */
+            }
 
+Before this commit we set ECST to 1, causing the read to never happen
+breaking battery monitoring on the Thinkpad 8.
 
+This commit makes acpi_gsb_i2c_write_bytes() return 0 when i2c_transfer()
+returns 1, so the single write transfer completed successfully, and
+makes it return -EIO on for other (unexpected) return values >= 0.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+-Modify the value which acpi_gsb_i2c_write_bytes() returns instead of
+ checking + modifying the return value in its caller
+---
+ drivers/i2c/i2c-core-acpi.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 7c3b4740b94b..b8f303dea305 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -482,11 +482,16 @@ static int acpi_gsb_i2c_write_bytes(struct i2c_client *client,
+ 	msgs[0].buf = buffer;
+ 
+ 	ret = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
+-	if (ret < 0)
+-		dev_err(&client->adapter->dev, "i2c write failed\n");
+ 
+ 	kfree(buffer);
+-	return ret;
++
++	if (ret < 0) {
++		dev_err(&client->adapter->dev, "i2c write failed: %d\n", ret);
++		return ret;
++	}
++
++	/* 1 transfer must have completed successfully */
++	return (ret == 1) ? 0 : -EIO;
+ }
+ 
+ static acpi_status
 -- 
-Federico Vaga
-[BE-CO-HT]
+2.18.0
