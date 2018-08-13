@@ -1,56 +1,103 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 2/3] dt-bindings: i3c: Document Synopsys DesignWare I3C
- master bindings
-Date: Mon, 13 Aug 2018 08:15:35 -0600
-Message-ID: <CAL_JsqLMxyBtZBtzZOVN7Dx3guD7vgrGwH6E05P3d+ZFW7FOcg@mail.gmail.com>
-References: <1532120272-17157-1-git-send-email-soares@synopsys.com>
- <1532120272-17157-3-git-send-email-soares@synopsys.com> <20180725195733.GA14450@rob-hp-laptop>
- <c00cb815-ae82-312a-213b-145537a294bd@synopsys.com>
+Subject: Re: [PATCH v2 1/2] dt-binding: i2c: npcm7xx: add binding for i2c
+ controller
+Date: Mon, 13 Aug 2018 12:58:30 -0600
+Message-ID: <20180813185830.GA18453@rob-hp-laptop>
+References: <20180807110709.31847-1-tali.perry1@gmail.com>
+ <20180807110709.31847-2-tali.perry1@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <c00cb815-ae82-312a-213b-145537a294bd@synopsys.com>
+Content-Disposition: inline
+In-Reply-To: <20180807110709.31847-2-tali.perry1@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vitor Soares <Vitor.Soares@synopsys.com>
-Cc: Boris Brezillon <boris.brezillon@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Pawel Moll <pawel.moll@arm.com>Mark Rutland <m>
+To: Tali Perry <tali.perry1@gmail.com>
+Cc: avifishman70@gmail.com, tmaimon77@gmail.com, venture@google.com, yuenn@google.com, brendanhiggins@google.com, mark.rutland@arm.com, davem@davemloft.net, mchehab+samsung@kernel.org, gregkh@linuxfoundation.org, akpm@linux-foundation.org, arnd@arndb.de, wsa@the-dreams.de, andriy.shevchenko@linux.intel.com, pierre-yves.mordret@st.com, cedric.madianga@gmail.com, baolin.wang@spreadtrum.com, jarkko.nikula@linux.intel.com, hdegoede@redhat.com, rmk+kernel@armlinux.org.uk, ard.biesheuvel@linaro.org, thor.thayer@linux.intel.com, geert@linux-m68k.org, heikki.krogerus@linux.intel.com, tglx@linutronix.de, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Aug 8, 2018 at 10:59 AM vitor <Vitor.Soares@synopsys.com> wrote:
->
-> Hi Rob,
->
->
-> On 25-07-2018 20:57, Rob Herring wrote:
-> > On Fri, Jul 20, 2018 at 09:57:51PM +0100, Vitor soares wrote:
-> >> This patch document Synopsys DesignWare I3C master DT bindings.
-> >>
-> >> Signed-off-by: Vitor soares <soares@synopsys.com>
-> >> ---
-> >>   .../devicetree/bindings/i3c/snps,dw-i3c-master.txt | 43 ++++++++++++++++++++++
-> >>   1 file changed, 43 insertions(+)
-> >>   create mode 100644 Documentation/devicetree/bindings/i3c/snps,dw-i3c-master.txt
-> >>
-> >> diff --git a/Documentation/devicetree/bindings/i3c/snps,dw-i3c-master.txt b/Documentation/devicetree/bindings/i3c/snps,dw-i3c-master.txt
-> >> new file mode 100644
-> >> index 0000000..7f5c8b0
-> >> --- /dev/null
-> >> +++ b/Documentation/devicetree/bindings/i3c/snps,dw-i3c-master.txt
-> >> @@ -0,0 +1,43 @@
-> >> +Bindings for Synopsys DesignWare I3C master block
-> >> +=================================================
-> >> +
-> >> +Required properties:
-> >> +--------------------
-> >> +- compatible: shall be "snps,dw-i3c-master"
-> > Only one version and no version number?
-> >
-> > ... and an SoC specific compatible string.
->
-> I'm not understanding. Can you explain?
+On Tue, Aug 07, 2018 at 02:07:08PM +0300, Tali Perry wrote:
+> Nuvoton NPCM7XX I2C Controller
+> NPCM7xx includes 16 I2C contollers. THis driver operates the controller.
+> This module also includes a slave mode, which will be submitted later on.
+> 
+> Any feedback would be appreciated.  
+> 
+> v2 -> v1:
+> 	- run check patch in strict mode.
+> 	- use linux crc.
+> 	- define regs in constant offset without base.
+> 	- remove debug prints.
+> 	- no declerations for local functions.
+> 	
+> v1: initial version
+> 
+> Signed-off-by: Tali Perry <tali.perry1@gmail.com>
+> 
+> ---
+>  .../devicetree/bindings/i2c/i2c-npcm7xx.txt        | 27 ++++++++++++++++++++++
+>  MAINTAINERS                                        |  8 +++++++
+>  2 files changed, 35 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt b/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
+> new file mode 100644
+> index 000000000000..e2ee45d7a41e
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
+> @@ -0,0 +1,27 @@
+> +Nuvoton NPCM7XX I2C bus
+> +
+> +The NPCM750x includes sixteen I2C busses
+> +
+> +Required properties:
+> +- compatible      : must be "nuvoton,npcm750-i2c-bus"
 
-Add the above line to the description. Experience shows that only an
-IP vendor compatible string is not sufficient. SoC vendors integrate
-different versions, configure the IP differently and/or integrate it
-differently.
+Is 'bus' how the datasheet calls it? If not, I'd drop the '-bus' part as 
+it is really a controller.
 
-Rob
+> +- reg             : Offset and length of the register set for the device.
+> +- interrupts      : Contain the I2C interrupt with flags for falling edge.
+> +- clocks          : phandle of I2C reference clock.
+> +
+> +Optional:
+> +- bus-frequency   : Contain the I2C bus frequency,
+> +			the default I2C bus frequency is 100000.
+> +- pinctrl-0       : must be <&smbX_pins>, X is module number
+> +			(on NPCM7XX it's 0 to 15)
+> +- pinctrl-names   : should be set to "default"
+> +Example:
+> +
+> +	i2c0: i2c-bus@80000 {
+
+Should be 'i2c@80000'
+
+> +		compatible = "nuvoton,npcm750-i2c-bus";
+> +		reg = <0x80000 0x1000>;
+> +		clocks = <&clk NPCM7XX_CLK_APB2>;
+> +		bus-frequency = <100000>;
+> +		interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
+> +		pinctrl-names = "default";
+> +		pinctrl-0 = <&smb0_pins>;
+> +	};
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 192d7f73fd01..13bac916d21d 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -1244,6 +1244,14 @@ F:	drivers/i2c/busses/i2c-aspeed.c
+>  F:	Documentation/devicetree/bindings/interrupt-controller/aspeed,ast2400-i2c-ic.txt
+>  F:	Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+>  
+> +ARM/NUVOTON I2C DRIVER
+> +M:	Tali Perry <tali.perry1@gmail.com>
+> +L:	linux-i2c@vger.kernel.org
+> +L:	openbmc@lists.ozlabs.org (moderated for non-subscribers)
+> +S:	Maintained
+> +F:	drivers/i2c/busses/i2c-npcm7xx.c
+> +F:	Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
+> +
+>  ARM/ASPEED MACHINE SUPPORT
+>  M:	Joel Stanley <joel@jms.id.au>
+>  R:	Andrew Jeffery <andrew@aj.id.au>
+> -- 
+> 2.14.1
+> 
