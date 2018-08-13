@@ -1,103 +1,90 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v2 1/2] dt-binding: i2c: npcm7xx: add binding for i2c
- controller
-Date: Mon, 13 Aug 2018 12:58:30 -0600
-Message-ID: <20180813185830.GA18453@rob-hp-laptop>
-References: <20180807110709.31847-1-tali.perry1@gmail.com>
- <20180807110709.31847-2-tali.perry1@gmail.com>
+Subject: Re: [PATCH v1 2/3] dt-bindings: i3c: Document Qualcomm GENI I3C
+ master bindings
+Date: Mon, 13 Aug 2018 15:47:55 -0600
+Message-ID: <20180813214755.GA18952@rob-hp-laptop>
+References: <1533101942-29442-1-git-send-email-mshettel@codeaurora.org>
+ <1533101942-29442-3-git-send-email-mshettel@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180807110709.31847-2-tali.perry1@gmail.com>
+In-Reply-To: <1533101942-29442-3-git-send-email-mshettel@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tali Perry <tali.perry1@gmail.com>
-Cc: avifishman70@gmail.com, tmaimon77@gmail.com, venture@google.com, yuenn@google.com, brendanhiggins@google.com, mark.rutland@arm.com, davem@davemloft.net, mchehab+samsung@kernel.org, gregkh@linuxfoundation.org, akpm@linux-foundation.org, arnd@arndb.de, wsa@the-dreams.de, andriy.shevchenko@linux.intel.com, pierre-yves.mordret@st.com, cedric.madianga@gmail.com, baolin.wang@spreadtrum.com, jarkko.nikula@linux.intel.com, hdegoede@redhat.com, rmk+kernel@armlinux.org.uk, ard.biesheuvel@linaro.org, thor.thayer@linux.intel.com, geert@linux-m68k.org, heikki.krogerus@linux.intel.com, tglx@linutronix.de, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Mike Shettel <mshettel@codeaurora.org>
+Cc: gregkh@linuxfoundation.org, boris.brezillon@bootlin.com, mark.rutland@arm.com, devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, evgreen@chromium.org, acourbot@chromium.org, swboyd@chromium.org, dianders@chromium.org, mka@chromium.org, bjorn.andersson@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Aug 07, 2018 at 02:07:08PM +0300, Tali Perry wrote:
-> Nuvoton NPCM7XX I2C Controller
-> NPCM7xx includes 16 I2C contollers. THis driver operates the controller.
-> This module also includes a slave mode, which will be submitted later on.
-> 
-> Any feedback would be appreciated.  
-> 
-> v2 -> v1:
-> 	- run check patch in strict mode.
-> 	- use linux crc.
-> 	- define regs in constant offset without base.
-> 	- remove debug prints.
-> 	- no declerations for local functions.
-> 	
-> v1: initial version
-> 
-> Signed-off-by: Tali Perry <tali.perry1@gmail.com>
-> 
+On Tue, Jul 31, 2018 at 11:39:01PM -0600, Mike Shettel wrote:
+> Signed-off-by: Mike Shettel <mshettel@codeaurora.org>
 > ---
->  .../devicetree/bindings/i2c/i2c-npcm7xx.txt        | 27 ++++++++++++++++++++++
->  MAINTAINERS                                        |  8 +++++++
->  2 files changed, 35 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
+>  .../devicetree/bindings/i3c/qcom,geni-i3c.txt      | 44 ++++++++++++++++++++++
+>  1 file changed, 44 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i3c/qcom,geni-i3c.txt
 > 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt b/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
+> diff --git a/Documentation/devicetree/bindings/i3c/qcom,geni-i3c.txt b/Documentation/devicetree/bindings/i3c/qcom,geni-i3c.txt
 > new file mode 100644
-> index 000000000000..e2ee45d7a41e
+> index 0000000..8b76fda
 > --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
-> @@ -0,0 +1,27 @@
-> +Nuvoton NPCM7XX I2C bus
-> +
-> +The NPCM750x includes sixteen I2C busses
+> +++ b/Documentation/devicetree/bindings/i3c/qcom,geni-i3c.txt
+> @@ -0,0 +1,44 @@
+> +Bindings for Qualcomm Geni I3C master block
+> +===========================================
 > +
 > +Required properties:
-> +- compatible      : must be "nuvoton,npcm750-i2c-bus"
+> +--------------------
+> +- compatible: shall be "qcom,geni-i3c"
+> +- clocks: shall reference the se clock
+> +- clock-names: shall contain clock name corresponding to the serial engine
 
-Is 'bus' how the datasheet calls it? If not, I'd drop the '-bus' part as 
-it is really a controller.
+What's the name?
 
-> +- reg             : Offset and length of the register set for the device.
-> +- interrupts      : Contain the I2C interrupt with flags for falling edge.
-> +- clocks          : phandle of I2C reference clock.
+> +- interrupts: the interrupt line connected to this I3C master
+> +- reg: I3C master registers
 > +
-> +Optional:
-> +- bus-frequency   : Contain the I2C bus frequency,
-> +			the default I2C bus frequency is 100000.
-> +- pinctrl-0       : must be <&smbX_pins>, X is module number
-> +			(on NPCM7XX it's 0 to 15)
-> +- pinctrl-names   : should be set to "default"
+> +Optional properties:
+> +--------------------
+> +- se-clock-frequency: Source serial clock frequency to use
+
+You should be able to figure out this frequency based on available 
+dividers and the specified bus frequencies.
+
+Or use assigned-clocks.
+
+> +- dfs-index: Dynamic frequency scaling table index to use
+
+Needs a vendor prefix.
+
+> +
+> +Mandatory properties defined by the generic binding (see
+> +Documentation/devicetree/bindings/i3c/i3c.txt for more details):
+> +
+> +- #address-cells: shall be set to 3
+> +- #size-cells: shall be set to 0
+> +
+> +Optional properties defined by the generic binding (see
+> +Documentation/devicetree/bindings/i3c/i3c.txt for more details):
+> +
+> +- i2c-scl-hz
+> +- i3c-scl-hz
+ +
+> +I3C device connected on the bus follow the generic description (see
+> +Documentation/devicetree/bindings/i3c/i3c.txt for more details).
+> +
 > +Example:
 > +
-> +	i2c0: i2c-bus@80000 {
-
-Should be 'i2c@80000'
-
-> +		compatible = "nuvoton,npcm750-i2c-bus";
-> +		reg = <0x80000 0x1000>;
-> +		clocks = <&clk NPCM7XX_CLK_APB2>;
-> +		bus-frequency = <100000>;
-> +		interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
-> +		pinctrl-names = "default";
-> +		pinctrl-0 = <&smb0_pins>;
+> +	i3c-master@0d040000 {
+> +		compatible = "qcom,geni-i3c";
+> +		clocks = <&clock_gcc GCC_QUPV3_WRAP0_S0_CLK>;
+> +		clock-names = "se";
+> +		interrupts = <GIC_SPI 356 IRQ_TYPE_LEVEL_HIGH>;
+> +		reg = <0x0d040000 0x4000>;
+> +		#address-cells = <3>;
+> +		#size-cells = <0>;
+> +		i2c-scl-hz = <100000>;
 > +	};
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 192d7f73fd01..13bac916d21d 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -1244,6 +1244,14 @@ F:	drivers/i2c/busses/i2c-aspeed.c
->  F:	Documentation/devicetree/bindings/interrupt-controller/aspeed,ast2400-i2c-ic.txt
->  F:	Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
->  
-> +ARM/NUVOTON I2C DRIVER
-> +M:	Tali Perry <tali.perry1@gmail.com>
-> +L:	linux-i2c@vger.kernel.org
-> +L:	openbmc@lists.ozlabs.org (moderated for non-subscribers)
-> +S:	Maintained
-> +F:	drivers/i2c/busses/i2c-npcm7xx.c
-> +F:	Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
 > +
->  ARM/ASPEED MACHINE SUPPORT
->  M:	Joel Stanley <joel@jms.id.au>
->  R:	Andrew Jeffery <andrew@aj.id.au>
 > -- 
-> 2.14.1
+> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+> a Linux Foundation Collaborative Project
 > 
