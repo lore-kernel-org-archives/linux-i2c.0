@@ -1,42 +1,47 @@
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Subject: [PATCH] dt-bindings: i2c: sh_mobile: Add r8a774a1 support
-Date: Tue, 14 Aug 2018 13:33:08 +0100
-Message-ID: <1534249988-15635-1-git-send-email-fabrizio.castro@bp.renesas.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH] eeprom: at24: Fix unexpected timeout under high load
+Date: Tue, 14 Aug 2018 15:50:40 +0300
+Message-ID: <CAHp75VeVvJhkz2b5SVwaKFzGUtiRiqcKnCDXxcQhV6ke3pyzLA@mail.gmail.com>
+References: <cf106f99b8794bb38c16c7a5a83e128b@de.bosch.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cf106f99b8794bb38c16c7a5a83e128b@de.bosch.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
-Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>, Wolfram Sang <wsa@the-dreams.de>, Simon Horman <horms+renesas@verge.net.au>, Biju Das <biju.das@bp.renesas.com>, Geert Uytterhoeven <geert+renesas@glider.be>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Simon Horman <horms@verge.net.au>, Chris Paterson <Chris.Paterson2@renesas.com>, linux-renesas-soc@vger.kernel.org
+To: "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "WANG Xin (BT-FIR/ENG1-Zhu)" <Xin.Wang7@cn.bosch.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Document RZ/G2M (R8A774A1) SoC bindings.
+On Mon, Aug 6, 2018 at 2:39 PM, Jonas Mark (BT-FIR/ENG1)
+<Mark.Jonas@de.bosch.com> wrote:
 
-Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Reviewed-by: Biju Das <biju.das@bp.renesas.com>
----
- Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+> tout = jiffies + msecs_to_jiffies(at24_write_timeout);
+> do {
+>          read_time = jiffies;
+>
+>          ret = regmap_bulk_read(regmap, offset, buf, count);
+>          dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
+>                  count, offset, ret, jiffies);
+>          if (!ret)
+>                  return count;
+>
+>          usleep_range(1000, 1500);
+> } while (!time_before(tout, read_time))
+>
+> The advantage of this code is that the usleep_range() is unconditional.
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt b/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
-index fc7e178..872673a 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
-@@ -6,6 +6,7 @@ Required properties:
- 			- "renesas,iic-r8a7740" (R-Mobile A1)
- 			- "renesas,iic-r8a7743" (RZ/G1M)
- 			- "renesas,iic-r8a7745" (RZ/G1E)
-+			- "renesas,iic-r8a774a1" (RZ/G2M)
- 			- "renesas,iic-r8a7790" (R-Car H2)
- 			- "renesas,iic-r8a7791" (R-Car M2-W)
- 			- "renesas,iic-r8a7792" (R-Car V2H)
-@@ -17,7 +18,8 @@ Required properties:
- 			- "renesas,iic-sh73a0" (SH-Mobile AG5)
- 			- "renesas,rcar-gen2-iic" (generic R-Car Gen2 or RZ/G1
- 							compatible device)
--			- "renesas,rcar-gen3-iic" (generic R-Car Gen3 compatible device)
-+			- "renesas,rcar-gen3-iic" (generic R-Car Gen3 or RZ/G2
-+							compatible device)
- 			- "renesas,rmobile-iic" (generic device)
- 
- 			When compatible with a generic R-Car version, nodes
+> The disadvantage of the new proposal is that in case of a timeout one
+> more unnecessary sleep is made. Is that acceptable?
+
+Yes.
+
+> An alternative would be to duplicate the regmap_bulk_read() and the
+> debugging code outside the loop.
+
+> Is this preferable?
+
+No.
+
 -- 
-2.7.4
+With Best Regards,
+Andy Shevchenko
