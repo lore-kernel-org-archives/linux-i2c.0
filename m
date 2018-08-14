@@ -1,47 +1,45 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH] i2c: enable async suspend/resume on i2c devices
-Date: Tue, 14 Aug 2018 20:52:00 +0300
-Message-ID: <CAHp75VctrKtj8oa4OuhsAKcwsBXUnb_Qyfu3DiHB7ghcyfY9GQ@mail.gmail.com>
-References: <20180726225508.74612-1-dbasehore@chromium.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Tali Perry <tali.perry1@gmail.com>
+Subject: [PATCH v3 0/2] i2c: npcm7xx: new driver for I2C controller
+Date: Tue, 14 Aug 2018 21:29:05 +0300
+Message-ID: <20180814182907.182139-1-tali.perry1@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180726225508.74612-1-dbasehore@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Derek Basehore <dbasehore@chromium.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Douglas Anderson <dianders@chromium.org>, Dmitry Torokhov <dtor@chromium.org>, venkateswarlu.v.vinjamuri@intel.corp-partner.google.com
+To: tali.perry1@gmail.com, avifishman70@gmail.com, tmaimon77@gmail.com, venture@google.com, yuenn@google.com, brendanhiggins@google.com, robh+dt@kernel.org, mark.rutland@arm.com, davem@davemloft.net, mchehab+samsung@kernel.org, gregkh@linuxfoundation.org, akpm@linux-foundation.org, arnd@arndb.de, wsa@the-dreams.de, andriy.shevchenko@linux.intel.com, pierre-yves.mordret@st.com, cedric.madianga@gmail.com, baolin.wang@spreadtrum.com, jarkko.nikula@linux.intel.com, hdegoede@redhat.com, rmk+kernel@armlinux.org.uk, ard.biesheuvel@linaro.org, thor.thayer@linux.intel.com, geert@linux-m68k.org, heikki.krogerus@linux.intel.com, tglx@linutronix.de
+Cc: linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-+Cc: Jarkko
+Nuvoton NPCM7XX I2C Controller
+NPCM7xx includes 16 I2C contollers. This driver operates the controller.
+This module also includes a slave mode, which will be submitted later on.
 
-On Fri, Jul 27, 2018 at 1:55 AM, Derek Basehore <dbasehore@chromium.org> wrote:
-> This enables the async suspend property for i2c devices. This reduces
-> the suspend/resume time considerably on platforms with multiple i2c
-> devices (such as a trackpad or touchscreen).
->
-> Signed-off-by: Derek Basehore <dbasehore@chromium.org>
-> ---
->  drivers/i2c/i2c-core-base.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 1ba40bb2b966..3382bb7e1dcc 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -749,6 +749,7 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
->         client->dev.of_node = info->of_node;
->         client->dev.fwnode = info->fwnode;
->
-> +       device_enable_async_suspend(&client->dev);
->         i2c_dev_set_name(adap, client, info);
->
->         if (info->properties) {
-> --
-> 2.18.0.345.g5c9ce644c3-goog
->
+Any feedback would be appreciated.  
 
+v3 -> v2:
+	- fix dt binding: compatible name: ommit "bus"
 
+v2 -> v1:
+	- run check patch in strict mode.
+	- use linux crc.
+	- define regs in constant offset without base.
+	- remove debug prints.
+	- no declerations for local functions.
+	
+v1: initial version
+
+Signed-off-by: Tali Perry <tali.perry1@gmail.com>
+
+---
+Tali Perry (2):
+  dt-bindings: i2c: npcm7xx: add binding for i2c controller
+  i2c: npcm7xx: add i2c controller master mode only
+
+ .../devicetree/bindings/i2c/i2c-npcm7xx.txt        |   29 +
+ drivers/i2c/busses/Kconfig                         |   11 +
+ drivers/i2c/busses/Makefile                        |    1 +
+ drivers/i2c/busses/i2c-npcm7xx.c                   | 2017 ++++++++++++++++++++
+ 4 files changed, 2058 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
+ create mode 100644 drivers/i2c/busses/i2c-npcm7xx.c
 
 -- 
-With Best Regards,
-Andy Shevchenko
+2.14.1
