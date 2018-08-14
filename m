@@ -1,46 +1,46 @@
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH] eeprom: at24: Fix unexpected timeout under high load
-Date: Tue, 14 Aug 2018 15:50:40 +0300
-Message-ID: <CAHp75VeVvJhkz2b5SVwaKFzGUtiRiqcKnCDXxcQhV6ke3pyzLA@mail.gmail.com>
-References: <cf106f99b8794bb38c16c7a5a83e128b@de.bosch.com>
+Subject: Re: [PATCH] i2c: enable async suspend/resume on i2c devices
+Date: Tue, 14 Aug 2018 20:52:00 +0300
+Message-ID: <CAHp75VctrKtj8oa4OuhsAKcwsBXUnb_Qyfu3DiHB7ghcyfY9GQ@mail.gmail.com>
+References: <20180726225508.74612-1-dbasehore@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cf106f99b8794bb38c16c7a5a83e128b@de.bosch.com>
+In-Reply-To: <20180726225508.74612-1-dbasehore@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Jonas Mark (BT-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
-Cc: Bartosz Golaszewski <brgl@bgdev.pl>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "WANG Xin (BT-FIR/ENG1-Zhu)" <Xin.Wang7@cn.bosch.com>
+To: Derek Basehore <dbasehore@chromium.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c <linux-i2c@vger.kernel.org>, Douglas Anderson <dianders@chromium.org>, Dmitry Torokhov <dtor@chromium.org>, venkateswarlu.v.vinjamuri@intel.corp-partner.google.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Aug 6, 2018 at 2:39 PM, Jonas Mark (BT-FIR/ENG1)
-<Mark.Jonas@de.bosch.com> wrote:
++Cc: Jarkko
 
-> tout = jiffies + msecs_to_jiffies(at24_write_timeout);
-> do {
->          read_time = jiffies;
+On Fri, Jul 27, 2018 at 1:55 AM, Derek Basehore <dbasehore@chromium.org> wrote:
+> This enables the async suspend property for i2c devices. This reduces
+> the suspend/resume time considerably on platforms with multiple i2c
+> devices (such as a trackpad or touchscreen).
 >
->          ret = regmap_bulk_read(regmap, offset, buf, count);
->          dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
->                  count, offset, ret, jiffies);
->          if (!ret)
->                  return count;
+> Signed-off-by: Derek Basehore <dbasehore@chromium.org>
+> ---
+>  drivers/i2c/i2c-core-base.c | 1 +
+>  1 file changed, 1 insertion(+)
 >
->          usleep_range(1000, 1500);
-> } while (!time_before(tout, read_time))
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index 1ba40bb2b966..3382bb7e1dcc 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -749,6 +749,7 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+>         client->dev.of_node = info->of_node;
+>         client->dev.fwnode = info->fwnode;
 >
-> The advantage of this code is that the usleep_range() is unconditional.
+> +       device_enable_async_suspend(&client->dev);
+>         i2c_dev_set_name(adap, client, info);
+>
+>         if (info->properties) {
+> --
+> 2.18.0.345.g5c9ce644c3-goog
+>
 
-> The disadvantage of the new proposal is that in case of a timeout one
-> more unnecessary sleep is made. Is that acceptable?
 
-Yes.
-
-> An alternative would be to duplicate the regmap_bulk_read() and the
-> debugging code outside the loop.
-
-> Is this preferable?
-
-No.
 
 -- 
 With Best Regards,
