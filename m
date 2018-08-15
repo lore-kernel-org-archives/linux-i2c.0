@@ -1,75 +1,99 @@
-From: Tali Perry <tali.perry1@gmail.com>
-Subject: [PATCH v3 1/2] dt-bindings: i2c: npcm7xx: add binding for i2c controller
-Date: Tue, 14 Aug 2018 21:29:06 +0300
-Message-ID: <20180814182907.182139-2-tali.perry1@gmail.com>
-References: <20180814182907.182139-1-tali.perry1@gmail.com>
+From: Dmitry Safonov <0x7f454c46@gmail.com>
+Subject: Re: [PATCH V2] i2c: ismt: fix wrong device address when unmap the
+ data buffer
+Date: Wed, 15 Aug 2018 03:26:24 +0100
+Message-ID: <CAJwJo6aAGS3vB-F889zmDJjtU3xGLd=twbVVC=DydXYufKEwPQ@mail.gmail.com>
+References: <1497329993-197698-1-git-send-email-liwei.song@windriver.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180814182907.182139-1-tali.perry1@gmail.com>
+In-Reply-To: <1497329993-197698-1-git-send-email-liwei.song@windriver.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: tali.perry1@gmail.com, avifishman70@gmail.com, tmaimon77@gmail.com, venture@google.com, yuenn@google.com, brendanhiggins@google.com, robh+dt@kernel.org, mark.rutland@arm.com, davem@davemloft.net, mchehab+samsung@kernel.org, gregkh@linuxfoundation.org, akpm@linux-foundation.org, arnd@arndb.de, wsa@the-dreams.de, andriy.shevchenko@linux.intel.com, pierre-yves.mordret@st.com, cedric.madianga@gmail.com, baolin.wang@spreadtrum.com, jarkko.nikula@linux.intel.com, hdegoede@redhat.com, rmk+kernel@armlinux.org.uk, ard.biesheuvel@linaro.org, thor.thayer@linux.intel.com, geert@linux-m68k.org, heikki.krogerus@linux.intel.com, tglx@linutronix.de
-Cc: linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: stable <stable@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andy.shevchenko@gmail.com>, Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Song liwei <liwei.song@windriver.com>
 List-Id: linux-i2c@vger.kernel.org
 
++Cc: stable
 
-Nuvoton NPCM7XX I2C Controller
-NPCM7xx includes 16 I2C contollers. This driver operates the controller.
-This module also includes a slave mode, which will be submitted later on.
+Hi Greg, JFI:
+This one has hit a couple of times on autotests on v4.9 stable.
+The fix for BUG() is trivial, so probably worth to ship it to v4.9/v4.4/v3.18.
 
-Any feedback would be appreciated.  
+2017-06-13 5:59 GMT+01:00 Song liwei <liwei.song@windriver.com>:
+> From: Liwei Song <liwei.song@windriver.com>
+>
+> Fix the following kernel bug:
+>
+> kernel BUG at drivers/iommu/intel-iommu.c:3260!
+> invalid opcode: 0000 [#5] PREEMPT SMP
+> Hardware name: Intel Corp. Harcuvar/Server, BIOS HAVLCRB0.X64.0013.D39.1608311820 08/31/2016
+> task: ffff880175389950 ti: ffff880176bec000 task.ti: ffff880176bec000
+> RIP: 0010:[<ffffffff8150a83b>]  [<ffffffff8150a83b>] intel_unmap+0x25b/0x260
+> RSP: 0018:ffff880176bef5e8  EFLAGS: 00010296
+> RAX: 0000000000000024 RBX: ffff8800773c7c88 RCX: 000000000000ce04
+> RDX: 0000000080000000 RSI: 0000000000000000 RDI: 0000000000000009
+> RBP: ffff880176bef638 R08: 0000000000000010 R09: 0000000000000004
+> R10: ffff880175389c78 R11: 0000000000000a4f R12: ffff8800773c7868
+> R13: 00000000ffffac88 R14: ffff8800773c7818 R15: 0000000000000001
+> FS:  00007fef21258700(0000) GS:ffff88017b5c0000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 000000000066d6d8 CR3: 000000007118c000 CR4: 00000000003406e0
+> Stack:
+>  00000000ffffac88 ffffffff8199867f ffff880176bef5f8 ffff880100000030
+>  ffff880176bef668 ffff8800773c7c88 ffff880178288098 ffff8800772c0010
+>  ffff8800773c7818 0000000000000001 ffff880176bef648 ffffffff8150a86e
+> Call Trace:
+>  [<ffffffff8199867f>] ? printk+0x46/0x48
+>  [<ffffffff8150a86e>] intel_unmap_page+0xe/0x10
+>  [<ffffffffa039d99b>] ismt_access+0x27b/0x8fa [i2c_ismt]
+>  [<ffffffff81554420>] ? __pm_runtime_suspend+0xa0/0xa0
+>  [<ffffffff815544a0>] ? pm_suspend_timer_fn+0x80/0x80
+>  [<ffffffff81554420>] ? __pm_runtime_suspend+0xa0/0xa0
+>  [<ffffffff815544a0>] ? pm_suspend_timer_fn+0x80/0x80
+>  [<ffffffff8143dfd0>] ? pci_bus_read_dev_vendor_id+0xf0/0xf0
+>  [<ffffffff8172b36c>] i2c_smbus_xfer+0xec/0x4b0
+>  [<ffffffff810aa4d5>] ? vprintk_emit+0x345/0x530
+>  [<ffffffffa038936b>] i2cdev_ioctl_smbus+0x12b/0x240 [i2c_dev]
+>  [<ffffffff810aa829>] ? vprintk_default+0x29/0x40
+>  [<ffffffffa0389b33>] i2cdev_ioctl+0x63/0x1ec [i2c_dev]
+>  [<ffffffff811b04c8>] do_vfs_ioctl+0x328/0x5d0
+>  [<ffffffff8119d8ec>] ? vfs_write+0x11c/0x190
+>  [<ffffffff8109d449>] ? rt_up_read+0x19/0x20
+>  [<ffffffff811b07f1>] SyS_ioctl+0x81/0xa0
+>  [<ffffffff819a351b>] system_call_fastpath+0x16/0x6e
+>
+> This happen When run "i2cdetect -y 0" detect SMBus iSMT adapter.
+>
+> After finished I2C block read/write, when unmap the data buffer,
+> a wrong device address was pass to dma_unmap_single().
+>
+> To fix this, give dma_unmap_single() the "dev" parameter, just like
+> what dma_map_single() does, then unmap can find the right devices.
+>
+> Fixes: 13f35ac14cd0 ("i2c: Adding support for Intel iSMT SMBus 2.0 host controller")
+> Signed-off-by: Liwei Song <liwei.song@windriver.com>
+> ---
+>  drivers/i2c/busses/i2c-ismt.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+> index f573448..e98e44e 100644
+> --- a/drivers/i2c/busses/i2c-ismt.c
+> +++ b/drivers/i2c/busses/i2c-ismt.c
+> @@ -584,7 +584,7 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+>
+>         /* unmap the data buffer */
+>         if (dma_size != 0)
+> -               dma_unmap_single(&adap->dev, dma_addr, dma_size, dma_direction);
+> +               dma_unmap_single(dev, dma_addr, dma_size, dma_direction);
+>
+>         if (unlikely(!time_left)) {
+>                 dev_err(dev, "completion wait timed out\n");
+> --
+> 2.7.4
+>
 
-v3 -> v2:
-	- fix dt binding: compatible name: ommit "bus"
 
-v2 -> v1:
-	- run check patch in strict mode.
-	- use linux crc.
-	- define regs in constant offset without base.
-	- remove debug prints.
-	- no declerations for local functions.
-	
-v1: initial version
 
-Signed-off-by: Tali Perry <tali.perry1@gmail.com>
-
----
- .../devicetree/bindings/i2c/i2c-npcm7xx.txt        | 29 ++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt b/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
-new file mode 100644
-index 000000000000..2a474a2a5b3f
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
-@@ -0,0 +1,29 @@
-+Nuvoton NPCM7XX I2C bus
-+
-+The NPCM750x includes sixteen I2C bus controllers. All Conterollers support
-+both master and slave mode. Each controller has two 16 byte HW FIFO for TX and
-+RX.
-+
-+Required properties:
-+- compatible      : must be "nuvoton,npcm750-i2c"
-+- reg             : Offset and length of the register set for the device.
-+- interrupts      : Contain the I2C interrupt with flags for falling edge.
-+- clocks          : phandle of I2C reference clock.
-+
-+Optional:
-+- bus-frequency   : Contain the I2C bus frequency,
-+			the default I2C bus frequency is 100000.
-+- pinctrl-0       : must be <&smbX_pins>, X is module number
-+			(on NPCM7XX it's 0 to 15)
-+- pinctrl-names   : should be set to "default"
-+Example:
-+
-+	i2c0: i2c@80000 {
-+		compatible = "nuvoton,npcm750-i2c";
-+		reg = <0x80000 0x1000>;
-+		clocks = <&clk NPCM7XX_CLK_APB2>;
-+		bus-frequency = <100000>;
-+		interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&smb0_pins>;
-+	};
 -- 
-2.14.1
+             Dmitry
