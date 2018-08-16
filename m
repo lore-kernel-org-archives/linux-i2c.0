@@ -1,36 +1,135 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v4 3/3] arm: dts: ls1021a: Enable I2C DMA support
-Date: Thu, 16 Aug 2018 17:50:42 +0200
-Message-ID: <20180816155042.2pzipvcuqmtgics5@pengutronix.de>
-References: <20180816084315.7857-1-esben.haabendal@gmail.com>
- <20180816084315.7857-4-esben.haabendal@gmail.com>
+From: Mark Jonas <mark.jonas@de.bosch.com>
+Subject: [PATCH v2] eeprom: at24: Fix unexpected timeout under high load
+Date: Thu, 16 Aug 2018 19:45:34 +0200
+Message-ID: <1534441534-6357-1-git-send-email-mark.jonas@de.bosch.com>
+References: <1533404620-18536-1-git-send-email-mark.jonas@de.bosch.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180816084315.7857-4-esben.haabendal@gmail.com>
+In-Reply-To: <1533404620-18536-1-git-send-email-mark.jonas@de.bosch.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Esben Haabendal <esben.haabendal@gmail.com>
-Cc: linux-i2c@vger.kernel.org, Esben Haabendal <eha@deif.com>, Shawn Guo <shawnguo@kernel.org>, kernel@pengutronix.de, NXP Linux Team <linux-imx@nxp.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, andy.shevchenko@gmail.com
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Wang Xin <xin.wang7@cn.bosch.com>, Mark Jonas <mark.jonas@de.bosch.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Aug 16, 2018 at 10:43:14AM +0200, Esben Haabendal wrote:
-> From: Esben Haabendal <eha@deif.com>
-> 
-> Gives substantial performance improvement for transfers larger than 16
-> bytes (DMA_THRESHOLD).  Smaller transfers are unaffected.
-> 
-> Signed-off-by: Esben Haabendal <eha@deif.com>
+From: Wang Xin <xin.wang7@cn.bosch.com>
 
-Looks reasonable to me.
+Within at24_loop_until_timeout the timestamp used for timeout checking
+is recorded after the I2C transfer and sleep_range(). Under high CPU
+load either the execution time for I2C transfer or sleep_range() could
+actually be larger than the timeout value. Worst case the I2C transfer
+is only tried once because the loop will exit due to the timeout
+although the EEPROM is now ready.
 
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+To fix this issue the timestamp is recorded at the beginning of each
+iteration. That is, before I2C transfer and sleep. Then the timeout
+is actually checked against the timestamp of the previous iteration.
+This makes sure that even if the timeout is reached, there is still one
+more chance to try the I2C transfer in case the EEPROM is ready.
 
-Best regards
-Uwe
+Example:
 
+If you have a system which combines high CPU load with repeated EEPROM
+writes you will run into the following scenario.
+
+ - System makes a successful regmap_bulk_write() to EEPROM.
+ - System wants to perform another write to EEPROM but EEPROM is still
+   busy with the last write.
+ - Because of high CPU load the usleep_range() will sleep more than
+   25 ms (at24_write_timeout).
+ - Within the over-long sleeping the EEPROM finished the previous write
+   operation and is ready again.
+ - at24_loop_until_timeout() will detect timeout and won't try to write.
+
+Signed-off-by: Wang Xin <xin.wang7@cn.bosch.com>
+Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
+---
+Changes in v2:
+ - Remove loop macro
+ - Accept superfluous sleep in case of timeout
+ - Add concrete example to commit message
+---
+ drivers/misc/eeprom/at24.c | 43 ++++++++++++++++++++++---------------------
+ 1 file changed, 22 insertions(+), 21 deletions(-)
+
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index f5cc517..37a5c8b 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -106,23 +106,6 @@ static unsigned int at24_write_timeout = 25;
+ module_param_named(write_timeout, at24_write_timeout, uint, 0);
+ MODULE_PARM_DESC(at24_write_timeout, "Time (in ms) to try writes (default 25)");
+ 
+-/*
+- * Both reads and writes fail if the previous write didn't complete yet. This
+- * macro loops a few times waiting at least long enough for one entire page
+- * write to work while making sure that at least one iteration is run before
+- * checking the break condition.
+- *
+- * It takes two parameters: a variable in which the future timeout in jiffies
+- * will be stored and a temporary variable holding the time of the last
+- * iteration of processing the request. Both should be unsigned integers
+- * holding at least 32 bits.
+- */
+-#define at24_loop_until_timeout(tout, op_time)				\
+-	for (tout = jiffies + msecs_to_jiffies(at24_write_timeout),	\
+-	     op_time = 0;						\
+-	     op_time ? time_before(op_time, tout) : true;		\
+-	     usleep_range(1000, 1500), op_time = jiffies)
+-
+ struct at24_chip_data {
+ 	/*
+ 	 * these fields mirror their equivalents in
+@@ -308,13 +291,22 @@ static ssize_t at24_regmap_read(struct at24_data *at24, char *buf,
+ 	/* adjust offset for mac and serial read ops */
+ 	offset += at24->offset_adj;
+ 
+-	at24_loop_until_timeout(timeout, read_time) {
++	timeout = jiffies + msecs_to_jiffies(at24_write_timeout);
++	do {
++		/*
++		 * The timestamp shall be taken before the actual operation
++		 * to avoid a premature timeout in case of high CPU load.
++		 */
++		read_time = jiffies;
++
+ 		ret = regmap_bulk_read(regmap, offset, buf, count);
+ 		dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
+ 			count, offset, ret, jiffies);
+ 		if (!ret)
+ 			return count;
+-	}
++
++		usleep_range(1000, 1500);
++	} while (time_before(read_time, timeout));
+ 
+ 	return -ETIMEDOUT;
+ }
+@@ -358,14 +350,23 @@ static ssize_t at24_regmap_write(struct at24_data *at24, const char *buf,
+ 	regmap = at24_client->regmap;
+ 	client = at24_client->client;
+ 	count = at24_adjust_write_count(at24, offset, count);
++	timeout = jiffies + msecs_to_jiffies(at24_write_timeout);
++
++	do {
++		/*
++		 * The timestamp shall be taken before the actual operation
++		 * to avoid a premature timeout in case of high CPU load.
++		 */
++		write_time = jiffies;
+ 
+-	at24_loop_until_timeout(timeout, write_time) {
+ 		ret = regmap_bulk_write(regmap, offset, buf, count);
+ 		dev_dbg(&client->dev, "write %zu@%d --> %d (%ld)\n",
+ 			count, offset, ret, jiffies);
+ 		if (!ret)
+ 			return count;
+-	}
++
++		usleep_range(1000, 1500);
++	} while (time_before(write_time, timeout));
+ 
+ 	return -ETIMEDOUT;
+ }
 -- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+2.7.4
