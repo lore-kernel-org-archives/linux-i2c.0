@@ -1,96 +1,35 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v3 1/2] dt-bindings: i2c: npcm7xx: add binding for i2c
- controller
-Date: Wed, 15 Aug 2018 14:30:15 -0600
-Message-ID: <20180815203015.GA19242@rob-hp-laptop>
-References: <20180814182907.182139-1-tali.perry1@gmail.com>
- <20180814182907.182139-2-tali.perry1@gmail.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v3 2/3] i2c: imx: Simplify stopped state tracking
+Date: Thu, 16 Aug 2018 10:23:48 +0200
+Message-ID: <20180816082348.wei7fnbqbzowe6er@pengutronix.de>
+References: <20180809123207.9732-1-esben.haabendal@gmail.com>
+ <20180809123207.9732-3-esben.haabendal@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180814182907.182139-2-tali.perry1@gmail.com>
+In-Reply-To: <20180809123207.9732-3-esben.haabendal@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tali Perry <tali.perry1@gmail.com>
-Cc: avifishman70@gmail.com, tmaimon77@gmail.com, venture@google.com, yuenn@google.com, brendanhiggins@google.com, mark.rutland@arm.com, davem@davemloft.net, mchehab+samsung@kernel.org, gregkh@linuxfoundation.org, akpm@linux-foundation.org, arnd@arndb.de, wsa@the-dreams.de, andriy.shevchenko@linux.intel.com, pierre-yves.mordret@st.com, cedric.madianga@gmail.com, baolin.wang@spreadtrum.com, jarkko.nikula@linux.intel.com, hdegoede@redhat.com, rmk+kernel@armlinux.org.uk, ard.biesheuvel@linaro.org, thor.thayer@linux.intel.com, geert@linux-m68k.org, heikki.krogerus@linux.intel.com, tglx@linutronix.de, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Esben Haabendal <esben.haabendal@gmail.com>
+Cc: linux-i2c@vger.kernel.org, Esben Haabendal <eha@deif.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Lucas Stach <l.stach@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Wei Jinhua <wei.jinhua1@zte.com.cn>, Phil Reid <preid@electromag.com.au>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Aug 14, 2018 at 09:29:06PM +0300, Tali Perry wrote:
+On Thu, Aug 09, 2018 at 02:32:06PM +0200, Esben Haabendal wrote:
+> From: Esben Haabendal <eha@deif.com>
 > 
-> Nuvoton NPCM7XX I2C Controller
-> NPCM7xx includes 16 I2C contollers. This driver operates the controller.
-
-s/contollers/controllers/
-
-> This module also includes a slave mode, which will be submitted later on.
+> Always update the stopped state when busy status have been checked.
+> This is identical to what was done before, with the exception of error
+> handling.
+> Without this change, some errors cause the stopped state to be left in
+> incorrect state in i2c_imx_stop(), i2c_imx_dma_read(), i2c_imx_read() and
+> i2c_imx_xfer().
 > 
-> Any feedback would be appreciated.  
-> 
-> v3 -> v2:
-> 	- fix dt binding: compatible name: ommit "bus"
-> 
-> v2 -> v1:
-> 	- run check patch in strict mode.
-> 	- use linux crc.
-> 	- define regs in constant offset without base.
-> 	- remove debug prints.
-> 	- no declerations for local functions.
-> 	
-> v1: initial version
+> Signed-off-by: Esben Haabendal <eha@deif.com>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-The version info normally goes below the '---' so it is not part of the 
-commit msg.
 
-> 
-> Signed-off-by: Tali Perry <tali.perry1@gmail.com>
-> 
-> ---
->  .../devicetree/bindings/i2c/i2c-npcm7xx.txt        | 29 ++++++++++++++++++++++
->  1 file changed, 29 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt b/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
-> new file mode 100644
-> index 000000000000..2a474a2a5b3f
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
-> @@ -0,0 +1,29 @@
-> +Nuvoton NPCM7XX I2C bus
-> +
-> +The NPCM750x includes sixteen I2C bus controllers. All Conterollers support
-
-s/Conterollers/controllers/
-
-With those fixed,
-
-Reviewed-by: Rob Herring <robh@kernel.org>
-
-> +both master and slave mode. Each controller has two 16 byte HW FIFO for TX and
-> +RX.
-> +
-> +Required properties:
-> +- compatible      : must be "nuvoton,npcm750-i2c"
-> +- reg             : Offset and length of the register set for the device.
-> +- interrupts      : Contain the I2C interrupt with flags for falling edge.
-> +- clocks          : phandle of I2C reference clock.
-> +
-> +Optional:
-> +- bus-frequency   : Contain the I2C bus frequency,
-> +			the default I2C bus frequency is 100000.
-> +- pinctrl-0       : must be <&smbX_pins>, X is module number
-> +			(on NPCM7XX it's 0 to 15)
-> +- pinctrl-names   : should be set to "default"
-> +Example:
-> +
-> +	i2c0: i2c@80000 {
-> +		compatible = "nuvoton,npcm750-i2c";
-> +		reg = <0x80000 0x1000>;
-> +		clocks = <&clk NPCM7XX_CLK_APB2>;
-> +		bus-frequency = <100000>;
-> +		interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
-> +		pinctrl-names = "default";
-> +		pinctrl-0 = <&smb0_pins>;
-> +	};
-> -- 
-> 2.14.1
-> 
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
