@@ -1,141 +1,31 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v2] eeprom: at24: Fix unexpected timeout under high load
-Date: Fri, 17 Aug 2018 11:01:07 +0200
-Message-ID: <CAMRc=MfMZ7pDJ-ULn5JSQq2jYVMgrefk9vmqUinFs=wzZ4rJ3w@mail.gmail.com>
-References: <1533404620-18536-1-git-send-email-mark.jonas@de.bosch.com> <1534441534-6357-1-git-send-email-mark.jonas@de.bosch.com>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH] dt-bindings: i2c: rcar: Add r8a774a1 support
+Date: Fri, 17 Aug 2018 11:56:41 +0200
+Message-ID: <20180817095641.aolmewiurhazx66s@verge.net.au>
+References: <1534249975-15588-1-git-send-email-fabrizio.castro@bp.renesas.com>
+ <20180815201442.GA31058@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1534441534-6357-1-git-send-email-mark.jonas@de.bosch.com>
+Content-Disposition: inline
+In-Reply-To: <20180815201442.GA31058@rob-hp-laptop>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Jonas <mark.jonas@de.bosch.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Wang Xin <xin.wang7@cn.bosch.com>
+To: Rob Herring <robh@kernel.org>
+Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>, Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Hiromitsu Yamasaki <hiromitsu.yamasaki.ym@renesas.com>, Ulrich Hecht <ulrich.hecht+renesas@gmail.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Chris Paterson <Chris.Paterson2@renesas.com>, Biju Das <biju.das@bp.renesas.com>, linux-renesas-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-2018-08-16 19:45 GMT+02:00 Mark Jonas <mark.jonas@de.bosch.com>:
-> From: Wang Xin <xin.wang7@cn.bosch.com>
->
-> Within at24_loop_until_timeout the timestamp used for timeout checking
-> is recorded after the I2C transfer and sleep_range(). Under high CPU
-> load either the execution time for I2C transfer or sleep_range() could
-> actually be larger than the timeout value. Worst case the I2C transfer
-> is only tried once because the loop will exit due to the timeout
-> although the EEPROM is now ready.
->
-> To fix this issue the timestamp is recorded at the beginning of each
-> iteration. That is, before I2C transfer and sleep. Then the timeout
-> is actually checked against the timestamp of the previous iteration.
-> This makes sure that even if the timeout is reached, there is still one
-> more chance to try the I2C transfer in case the EEPROM is ready.
->
-> Example:
->
-> If you have a system which combines high CPU load with repeated EEPROM
-> writes you will run into the following scenario.
->
->  - System makes a successful regmap_bulk_write() to EEPROM.
->  - System wants to perform another write to EEPROM but EEPROM is still
->    busy with the last write.
->  - Because of high CPU load the usleep_range() will sleep more than
->    25 ms (at24_write_timeout).
->  - Within the over-long sleeping the EEPROM finished the previous write
->    operation and is ready again.
->  - at24_loop_until_timeout() will detect timeout and won't try to write.
->
-> Signed-off-by: Wang Xin <xin.wang7@cn.bosch.com>
-> Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
-> ---
-> Changes in v2:
->  - Remove loop macro
->  - Accept superfluous sleep in case of timeout
->  - Add concrete example to commit message
-> ---
->  drivers/misc/eeprom/at24.c | 43 ++++++++++++++++++++++---------------------
->  1 file changed, 22 insertions(+), 21 deletions(-)
->
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index f5cc517..37a5c8b 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -106,23 +106,6 @@ static unsigned int at24_write_timeout = 25;
->  module_param_named(write_timeout, at24_write_timeout, uint, 0);
->  MODULE_PARM_DESC(at24_write_timeout, "Time (in ms) to try writes (default 25)");
->
-> -/*
-> - * Both reads and writes fail if the previous write didn't complete yet. This
-> - * macro loops a few times waiting at least long enough for one entire page
-> - * write to work while making sure that at least one iteration is run before
-> - * checking the break condition.
-> - *
-> - * It takes two parameters: a variable in which the future timeout in jiffies
-> - * will be stored and a temporary variable holding the time of the last
-> - * iteration of processing the request. Both should be unsigned integers
-> - * holding at least 32 bits.
-> - */
-> -#define at24_loop_until_timeout(tout, op_time)                         \
-> -       for (tout = jiffies + msecs_to_jiffies(at24_write_timeout),     \
-> -            op_time = 0;                                               \
-> -            op_time ? time_before(op_time, tout) : true;               \
-> -            usleep_range(1000, 1500), op_time = jiffies)
-> -
->  struct at24_chip_data {
->         /*
->          * these fields mirror their equivalents in
-> @@ -308,13 +291,22 @@ static ssize_t at24_regmap_read(struct at24_data *at24, char *buf,
->         /* adjust offset for mac and serial read ops */
->         offset += at24->offset_adj;
->
-> -       at24_loop_until_timeout(timeout, read_time) {
-> +       timeout = jiffies + msecs_to_jiffies(at24_write_timeout);
-> +       do {
-> +               /*
-> +                * The timestamp shall be taken before the actual operation
-> +                * to avoid a premature timeout in case of high CPU load.
-> +                */
-> +               read_time = jiffies;
-> +
->                 ret = regmap_bulk_read(regmap, offset, buf, count);
->                 dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
->                         count, offset, ret, jiffies);
->                 if (!ret)
->                         return count;
-> -       }
-> +
-> +               usleep_range(1000, 1500);
-> +       } while (time_before(read_time, timeout));
->
->         return -ETIMEDOUT;
->  }
-> @@ -358,14 +350,23 @@ static ssize_t at24_regmap_write(struct at24_data *at24, const char *buf,
->         regmap = at24_client->regmap;
->         client = at24_client->client;
->         count = at24_adjust_write_count(at24, offset, count);
-> +       timeout = jiffies + msecs_to_jiffies(at24_write_timeout);
-> +
-> +       do {
-> +               /*
-> +                * The timestamp shall be taken before the actual operation
-> +                * to avoid a premature timeout in case of high CPU load.
-> +                */
-> +               write_time = jiffies;
->
-> -       at24_loop_until_timeout(timeout, write_time) {
->                 ret = regmap_bulk_write(regmap, offset, buf, count);
->                 dev_dbg(&client->dev, "write %zu@%d --> %d (%ld)\n",
->                         count, offset, ret, jiffies);
->                 if (!ret)
->                         return count;
-> -       }
-> +
-> +               usleep_range(1000, 1500);
-> +       } while (time_before(write_time, timeout));
->
->         return -ETIMEDOUT;
->  }
-> --
-> 2.7.4
->
+On Wed, Aug 15, 2018 at 02:14:42PM -0600, Rob Herring wrote:
+> On Tue, 14 Aug 2018 13:32:55 +0100, Fabrizio Castro wrote:
+> > Document RZ/G2M (R8A774A1) I2C compatibility with the relevant driver
+> > dt-bindings.
+> > 
+> > Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> > Reviewed-by: Biju Das <biju.das@bp.renesas.com>
+> > ---
+> >  Documentation/devicetree/bindings/i2c/i2c-rcar.txt | 4 +++-
+> >  1 file changed, 3 insertions(+), 1 deletion(-)
+> > 
+> 
+> Reviewed-by: Rob Herring <robh@kernel.org>
 
-Looks good to me, I'll test it after v4.19-rc1 is tagged.
-
-Bart
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
