@@ -1,883 +1,2101 @@
-From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH] i2c: Remove '-Wno-deprecated-declarations' compiler
- warning
-Date: Mon, 20 Aug 2018 01:55:26 +0800
-Message-ID: <201808200122.U9ZygZvJ%fengguang.wu@intel.com>
-References: <20180819134540.8653-1-sedat.dilek@credativ.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="pf9I7BMVVzbSWLtt"
+From: Tali Perry <tali.perry1@gmail.com>
+Subject: [PATCH v4 2/2] i2c: npcm7xx: add i2c controller master mode only
+Date: Sun, 19 Aug 2018 23:30:44 +0300
+Message-ID: <20180819203044.73286-3-tali.perry1@gmail.com>
+References: <20180819203044.73286-1-tali.perry1@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180819134540.8653-1-sedat.dilek@credativ.de>
+In-Reply-To: <20180819203044.73286-1-tali.perry1@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: kbuild-all@01.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Sedat Dilek <sedat.dilek@credativ.de>, Nick Desaulniers <ndesaulniers@google.com>
+To: tali.perry1@gmail.com, avifishman70@gmail.com, tmaimon77@gmail.com, venture@google.com, yuenn@google.com, brendanhiggins@google.com, robh+dt@kernel.org, mark.rutland@arm.com, davem@davemloft.net, mchehab+samsung@kernel.org, gregkh@linuxfoundation.org, akpm@linux-foundation.org, arnd@arndb.de, wsa@the-dreams.de, andriy.shevchenko@linux.intel.com, pierre-yves.mordret@st.com, cedric.madianga@gmail.com, baolin.wang@spreadtrum.com, jarkko.nikula@linux.intel.com, hdegoede@redhat.com, rmk+kernel@armlinux.org.uk, ard.biesheuvel@linaro.org, thor.thayer@linux.intel.com, geert@linux-m68k.org, heikki.krogerus@linux.intel.com, tglx@linutronix.de
+Cc: linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---pf9I7BMVVzbSWLtt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi Sedat,
-
-Thank you for the patch! Perhaps something to improve:
-
-[auto build test WARNING on wsa/i2c/for-next]
-[also build test WARNING on v4.18 next-20180817]
-[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
-
-url:    https://github.com/0day-ci/linux/commits/Sedat-Dilek/i2c-Remove-Wno-deprecated-declarations-compiler-warning/20180819-222255
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
-config: i386-randconfig-x016-201833 (attached as .config)
-compiler: gcc-7 (Debian 7.3.0-16) 7.3.0
-reproduce:
-        # save the attached .config to linux build tree
-        make ARCH=i386 
-
-All warnings (new ones prefixed by >>):
-
-   drivers//i2c/i2c-core-base.c: In function 'i2c_do_add_adapter':
-   drivers//i2c/i2c-core-base.c:1128:2: warning: 'attach_adapter' is deprecated [-Wdeprecated-declarations]
-     if (driver->attach_adapter) {
-     ^~
-   In file included from drivers//i2c/i2c-core-base.c:31:0:
-   include/linux/i2c.h:274:8: note: declared here
-     int (*attach_adapter)(struct i2c_adapter *) __deprecated;
-           ^~~~~~~~~~~~~~
-   drivers//i2c/i2c-core-base.c:1128:2: warning: 'attach_adapter' is deprecated [-Wdeprecated-declarations]
-     if (driver->attach_adapter) {
-     ^~
-   In file included from drivers//i2c/i2c-core-base.c:31:0:
-   include/linux/i2c.h:274:8: note: declared here
-     int (*attach_adapter)(struct i2c_adapter *) __deprecated;
-           ^~~~~~~~~~~~~~
-   In file included from include/linux/ioport.h:13:0,
-                    from include/linux/acpi.h:25,
-                    from drivers//i2c/i2c-core-base.c:24:
->> include/linux/compiler.h:61:17: warning: 'attach_adapter' is deprecated [-Wdeprecated-declarations]
-      static struct ftrace_branch_data   \
-                    ^
-   include/linux/compiler.h:56:23: note: in expansion of macro '__trace_if'
-    #define if(cond, ...) __trace_if( (cond , ## __VA_ARGS__) )
-                          ^~~~~~~~~~
->> drivers//i2c/i2c-core-base.c:1128:2: note: in expansion of macro 'if'
-     if (driver->attach_adapter) {
-     ^~
-   In file included from drivers//i2c/i2c-core-base.c:31:0:
-   include/linux/i2c.h:274:8: note: declared here
-     int (*attach_adapter)(struct i2c_adapter *) __deprecated;
-           ^~~~~~~~~~~~~~
-   drivers//i2c/i2c-core-base.c:1134:3: warning: 'attach_adapter' is deprecated [-Wdeprecated-declarations]
-      driver->attach_adapter(adap);
-      ^~~~~~
-   In file included from drivers//i2c/i2c-core-base.c:31:0:
-   include/linux/i2c.h:274:8: note: declared here
-     int (*attach_adapter)(struct i2c_adapter *) __deprecated;
-           ^~~~~~~~~~~~~~
-   Cyclomatic Complexity 5 include/linux/compiler.h:__read_once_size
-   Cyclomatic Complexity 5 include/linux/compiler.h:__write_once_size
-   Cyclomatic Complexity 1 include/linux/kasan-checks.h:kasan_check_read
-   Cyclomatic Complexity 1 include/linux/kasan-checks.h:kasan_check_write
-   Cyclomatic Complexity 1 include/linux/ioport.h:resource_type
-   Cyclomatic Complexity 3 arch/x86/include/asm/bitops.h:clear_bit
-   Cyclomatic Complexity 1 arch/x86/include/asm/bitops.h:variable_test_bit
-   Cyclomatic Complexity 1 arch/x86/include/asm/bitops.h:fls
-   Cyclomatic Complexity 1 include/linux/log2.h:__ilog2_u32
-   Cyclomatic Complexity 1 include/linux/list.h:INIT_LIST_HEAD
-   Cyclomatic Complexity 1 include/linux/list.h:__list_add_valid
-   Cyclomatic Complexity 1 include/linux/list.h:__list_del_entry_valid
-   Cyclomatic Complexity 2 include/linux/list.h:__list_add
-   Cyclomatic Complexity 1 include/linux/list.h:list_add_tail
-   Cyclomatic Complexity 1 include/linux/list.h:__list_del
-   Cyclomatic Complexity 2 include/linux/list.h:__list_del_entry
-   Cyclomatic Complexity 1 include/linux/list.h:list_del
-   Cyclomatic Complexity 1 include/linux/list.h:hlist_empty
-   Cyclomatic Complexity 1 include/asm-generic/getorder.h:__get_order
-   Cyclomatic Complexity 1 include/linux/cpumask.h:cpumask_check
-   Cyclomatic Complexity 1 include/linux/cpumask.h:cpumask_test_cpu
-   Cyclomatic Complexity 1 arch/x86/include/asm/atomic.h:arch_atomic_read
-   Cyclomatic Complexity 1 arch/x86/include/asm/atomic.h:arch_atomic_inc
-   Cyclomatic Complexity 1 arch/x86/include/asm/atomic.h:arch_atomic_dec
-   Cyclomatic Complexity 1 include/asm-generic/atomic-instrumented.h:atomic_read
-   Cyclomatic Complexity 1 include/asm-generic/atomic-instrumented.h:atomic_inc
-   Cyclomatic Complexity 1 include/asm-generic/atomic-instrumented.h:atomic_dec
-   Cyclomatic Complexity 1 include/linux/jump_label.h:static_key_count
-   Cyclomatic Complexity 2 include/linux/jump_label.h:static_key_false
-   Cyclomatic Complexity 1 arch/x86/include/asm/paravirt.h:arch_local_save_flags
-   Cyclomatic Complexity 1 arch/x86/include/asm/irqflags.h:arch_irqs_disabled_flags
-   Cyclomatic Complexity 1 arch/x86/include/asm/preempt.h:preempt_count
-   Cyclomatic Complexity 7 arch/x86/include/asm/preempt.h:__preempt_count_add
-   Cyclomatic Complexity 7 arch/x86/include/asm/preempt.h:__preempt_count_sub
-   Cyclomatic Complexity 1 include/linux/rcupdate.h:rcu_read_lock_sched_notrace
-   Cyclomatic Complexity 1 include/linux/rcupdate.h:rcu_read_unlock_sched_notrace
-   Cyclomatic Complexity 56 include/linux/slab.h:kmalloc_index
-   Cyclomatic Complexity 67 include/linux/slab.h:kmalloc_large
-   Cyclomatic Complexity 9 include/linux/slab.h:kmalloc
-   Cyclomatic Complexity 1 include/linux/slab.h:kzalloc
-   Cyclomatic Complexity 1 include/linux/kobject.h:kobject_name
-   Cyclomatic Complexity 1 include/linux/pm_wakeup.h:device_set_wakeup_capable
-   Cyclomatic Complexity 1 include/linux/pm_wakeup.h:device_set_wakeup_enable
-   Cyclomatic Complexity 1 include/linux/pm_wakeup.h:device_init_wakeup
-   Cyclomatic Complexity 1 include/linux/acpi.h:acpi_device_clear_enumerated
-   Cyclomatic Complexity 1 include/linux/of.h:of_node_clear_flag
-   Cyclomatic Complexity 1 include/linux/i2c.h:i2c_lock_bus
-   Cyclomatic Complexity 1 include/linux/i2c.h:i2c_trylock_bus
-   Cyclomatic Complexity 1 include/linux/i2c.h:i2c_unlock_bus
-   Cyclomatic Complexity 1 include/linux/i2c.h:i2c_get_functionality
-   Cyclomatic Complexity 1 include/linux/i2c.h:i2c_check_functionality
-   Cyclomatic Complexity 1 include/linux/i2c.h:i2c_adapter_id
-   Cyclomatic Complexity 1 include/linux/irq.h:irqd_set_trigger_type
-   Cyclomatic Complexity 1 include/linux/pm_domain.h:dev_pm_domain_attach
-   Cyclomatic Complexity 1 include/linux/pm_domain.h:dev_pm_domain_detach
-   Cyclomatic Complexity 1 include/linux/pm_runtime.h:pm_runtime_enable
-   Cyclomatic Complexity 1 include/linux/pm_runtime.h:__pm_runtime_disable
-   Cyclomatic Complexity 1 include/linux/pm_runtime.h:pm_suspend_ignore_children
-   Cyclomatic Complexity 1 include/linux/pm_runtime.h:pm_runtime_no_callbacks
-   Cyclomatic Complexity 1 include/linux/pm_runtime.h:pm_runtime_disable
-   Cyclomatic Complexity 1 include/linux/pm_wakeirq.h:dev_pm_set_wake_irq
-   Cyclomatic Complexity 1 include/linux/pm_wakeirq.h:dev_pm_set_dedicated_wake_irq
-   Cyclomatic Complexity 1 include/linux/pm_wakeirq.h:dev_pm_clear_wake_irq
-   Cyclomatic Complexity 1 drivers//i2c/i2c-core.h:i2c_acpi_install_space_handler
-   Cyclomatic Complexity 1 drivers//i2c/i2c-core.h:i2c_acpi_remove_space_handler
-   Cyclomatic Complexity 1 include/linux/trace_events.h:bpf_prog_array_valid
-   Cyclomatic Complexity 1 include/trace/events/i2c.h:trace_event_get_offsets_i2c_write
-   Cyclomatic Complexity 1 include/trace/events/i2c.h:trace_event_get_offsets_i2c_read
-   Cyclomatic Complexity 1 include/trace/events/i2c.h:trace_event_get_offsets_i2c_reply
-   Cyclomatic Complexity 1 include/trace/events/i2c.h:trace_event_get_offsets_i2c_result
-   Cyclomatic Complexity 1 drivers//i2c/i2c-core-base.c:dummy_probe
-   Cyclomatic Complexity 1 drivers//i2c/i2c-core-base.c:dummy_remove
-   Cyclomatic Complexity 11 include/trace/events/i2c.h:trace_event_define_fields_i2c_write
-   Cyclomatic Complexity 11 include/trace/events/i2c.h:trace_event_define_fields_i2c_read
-   Cyclomatic Complexity 11 include/trace/events/i2c.h:trace_event_define_fields_i2c_reply
-   Cyclomatic Complexity 7 include/trace/events/i2c.h:trace_event_define_fields_i2c_result
-   Cyclomatic Complexity 8 drivers//i2c/i2c-core-base.c:i2c_generic_bus_free
-   Cyclomatic Complexity 7 drivers//i2c/i2c-core-base.c:i2c_check_addr_validity
-   Cyclomatic Complexity 5 drivers//i2c/i2c-core-base.c:i2c_encode_flags_to_addr
-   Cyclomatic Complexity 3 include/linux/device.h:dev_name
-   Cyclomatic Complexity 1 include/linux/acpi.h:acpi_dev_name
-   Cyclomatic Complexity 1 arch/x86/include/asm/stacktrace.h:caller_frame_pointer
-   Cyclomatic Complexity 1 include/linux/perf_event.h:perf_fetch_caller_regs
-   Cyclomatic Complexity 8 include/trace/events/i2c.h:perf_trace_i2c_write
-   Cyclomatic Complexity 8 include/trace/events/i2c.h:perf_trace_i2c_read
-   Cyclomatic Complexity 8 include/trace/events/i2c.h:perf_trace_i2c_reply
-   Cyclomatic Complexity 8 include/trace/events/i2c.h:perf_trace_i2c_result
---
-   drivers/i2c/i2c-core-base.c: In function 'i2c_do_add_adapter':
-   drivers/i2c/i2c-core-base.c:1128:2: warning: 'attach_adapter' is deprecated [-Wdeprecated-declarations]
-     if (driver->attach_adapter) {
-     ^~
-   In file included from drivers/i2c/i2c-core-base.c:31:0:
-   include/linux/i2c.h:274:8: note: declared here
-     int (*attach_adapter)(struct i2c_adapter *) __deprecated;
-           ^~~~~~~~~~~~~~
-   drivers/i2c/i2c-core-base.c:1128:2: warning: 'attach_adapter' is deprecated [-Wdeprecated-declarations]
-     if (driver->attach_adapter) {
-     ^~
-   In file included from drivers/i2c/i2c-core-base.c:31:0:
-   include/linux/i2c.h:274:8: note: declared here
-     int (*attach_adapter)(struct i2c_adapter *) __deprecated;
-           ^~~~~~~~~~~~~~
-   In file included from include/linux/ioport.h:13:0,
-                    from include/linux/acpi.h:25,
-                    from drivers/i2c/i2c-core-base.c:24:
->> include/linux/compiler.h:61:17: warning: 'attach_adapter' is deprecated [-Wdeprecated-declarations]
-      static struct ftrace_branch_data   \
-                    ^
-   include/linux/compiler.h:56:23: note: in expansion of macro '__trace_if'
-    #define if(cond, ...) __trace_if( (cond , ## __VA_ARGS__) )
-                          ^~~~~~~~~~
-   drivers/i2c/i2c-core-base.c:1128:2: note: in expansion of macro 'if'
-     if (driver->attach_adapter) {
-     ^~
-   In file included from drivers/i2c/i2c-core-base.c:31:0:
-   include/linux/i2c.h:274:8: note: declared here
-     int (*attach_adapter)(struct i2c_adapter *) __deprecated;
-           ^~~~~~~~~~~~~~
-   drivers/i2c/i2c-core-base.c:1134:3: warning: 'attach_adapter' is deprecated [-Wdeprecated-declarations]
-      driver->attach_adapter(adap);
-      ^~~~~~
-   In file included from drivers/i2c/i2c-core-base.c:31:0:
-   include/linux/i2c.h:274:8: note: declared here
-     int (*attach_adapter)(struct i2c_adapter *) __deprecated;
-           ^~~~~~~~~~~~~~
-   Cyclomatic Complexity 5 include/linux/compiler.h:__read_once_size
-   Cyclomatic Complexity 5 include/linux/compiler.h:__write_once_size
-   Cyclomatic Complexity 1 include/linux/kasan-checks.h:kasan_check_read
-   Cyclomatic Complexity 1 include/linux/kasan-checks.h:kasan_check_write
-   Cyclomatic Complexity 1 include/linux/ioport.h:resource_type
-   Cyclomatic Complexity 3 arch/x86/include/asm/bitops.h:clear_bit
-   Cyclomatic Complexity 1 arch/x86/include/asm/bitops.h:variable_test_bit
-   Cyclomatic Complexity 1 arch/x86/include/asm/bitops.h:fls
-   Cyclomatic Complexity 1 include/linux/log2.h:__ilog2_u32
-   Cyclomatic Complexity 1 include/linux/list.h:INIT_LIST_HEAD
-   Cyclomatic Complexity 1 include/linux/list.h:__list_add_valid
-   Cyclomatic Complexity 1 include/linux/list.h:__list_del_entry_valid
-   Cyclomatic Complexity 2 include/linux/list.h:__list_add
-   Cyclomatic Complexity 1 include/linux/list.h:list_add_tail
-   Cyclomatic Complexity 1 include/linux/list.h:__list_del
-   Cyclomatic Complexity 2 include/linux/list.h:__list_del_entry
-   Cyclomatic Complexity 1 include/linux/list.h:list_del
-   Cyclomatic Complexity 1 include/linux/list.h:hlist_empty
-   Cyclomatic Complexity 1 include/asm-generic/getorder.h:__get_order
-   Cyclomatic Complexity 1 include/linux/cpumask.h:cpumask_check
-   Cyclomatic Complexity 1 include/linux/cpumask.h:cpumask_test_cpu
-   Cyclomatic Complexity 1 arch/x86/include/asm/atomic.h:arch_atomic_read
-   Cyclomatic Complexity 1 arch/x86/include/asm/atomic.h:arch_atomic_inc
-   Cyclomatic Complexity 1 arch/x86/include/asm/atomic.h:arch_atomic_dec
-   Cyclomatic Complexity 1 include/asm-generic/atomic-instrumented.h:atomic_read
-   Cyclomatic Complexity 1 include/asm-generic/atomic-instrumented.h:atomic_inc
-   Cyclomatic Complexity 1 include/asm-generic/atomic-instrumented.h:atomic_dec
-   Cyclomatic Complexity 1 include/linux/jump_label.h:static_key_count
-   Cyclomatic Complexity 2 include/linux/jump_label.h:static_key_false
-   Cyclomatic Complexity 1 arch/x86/include/asm/paravirt.h:arch_local_save_flags
-   Cyclomatic Complexity 1 arch/x86/include/asm/irqflags.h:arch_irqs_disabled_flags
-   Cyclomatic Complexity 1 arch/x86/include/asm/preempt.h:preempt_count
-   Cyclomatic Complexity 7 arch/x86/include/asm/preempt.h:__preempt_count_add
-   Cyclomatic Complexity 7 arch/x86/include/asm/preempt.h:__preempt_count_sub
-   Cyclomatic Complexity 1 include/linux/rcupdate.h:rcu_read_lock_sched_notrace
-   Cyclomatic Complexity 1 include/linux/rcupdate.h:rcu_read_unlock_sched_notrace
-   Cyclomatic Complexity 56 include/linux/slab.h:kmalloc_index
-   Cyclomatic Complexity 67 include/linux/slab.h:kmalloc_large
-   Cyclomatic Complexity 9 include/linux/slab.h:kmalloc
-   Cyclomatic Complexity 1 include/linux/slab.h:kzalloc
-   Cyclomatic Complexity 1 include/linux/kobject.h:kobject_name
-   Cyclomatic Complexity 1 include/linux/pm_wakeup.h:device_set_wakeup_capable
-   Cyclomatic Complexity 1 include/linux/pm_wakeup.h:device_set_wakeup_enable
-   Cyclomatic Complexity 1 include/linux/pm_wakeup.h:device_init_wakeup
-   Cyclomatic Complexity 1 include/linux/acpi.h:acpi_device_clear_enumerated
-   Cyclomatic Complexity 1 include/linux/of.h:of_node_clear_flag
-   Cyclomatic Complexity 1 include/linux/i2c.h:i2c_lock_bus
-   Cyclomatic Complexity 1 include/linux/i2c.h:i2c_trylock_bus
-   Cyclomatic Complexity 1 include/linux/i2c.h:i2c_unlock_bus
-   Cyclomatic Complexity 1 include/linux/i2c.h:i2c_get_functionality
-   Cyclomatic Complexity 1 include/linux/i2c.h:i2c_check_functionality
-   Cyclomatic Complexity 1 include/linux/i2c.h:i2c_adapter_id
-   Cyclomatic Complexity 1 include/linux/irq.h:irqd_set_trigger_type
-   Cyclomatic Complexity 1 include/linux/pm_domain.h:dev_pm_domain_attach
-   Cyclomatic Complexity 1 include/linux/pm_domain.h:dev_pm_domain_detach
-   Cyclomatic Complexity 1 include/linux/pm_runtime.h:pm_runtime_enable
-   Cyclomatic Complexity 1 include/linux/pm_runtime.h:__pm_runtime_disable
-   Cyclomatic Complexity 1 include/linux/pm_runtime.h:pm_suspend_ignore_children
-   Cyclomatic Complexity 1 include/linux/pm_runtime.h:pm_runtime_no_callbacks
-   Cyclomatic Complexity 1 include/linux/pm_runtime.h:pm_runtime_disable
-   Cyclomatic Complexity 1 include/linux/pm_wakeirq.h:dev_pm_set_wake_irq
-   Cyclomatic Complexity 1 include/linux/pm_wakeirq.h:dev_pm_set_dedicated_wake_irq
-   Cyclomatic Complexity 1 include/linux/pm_wakeirq.h:dev_pm_clear_wake_irq
-   Cyclomatic Complexity 1 drivers/i2c/i2c-core.h:i2c_acpi_install_space_handler
-   Cyclomatic Complexity 1 drivers/i2c/i2c-core.h:i2c_acpi_remove_space_handler
-   Cyclomatic Complexity 1 include/linux/trace_events.h:bpf_prog_array_valid
-   Cyclomatic Complexity 1 include/trace/events/i2c.h:trace_event_get_offsets_i2c_write
-   Cyclomatic Complexity 1 include/trace/events/i2c.h:trace_event_get_offsets_i2c_read
-   Cyclomatic Complexity 1 include/trace/events/i2c.h:trace_event_get_offsets_i2c_reply
-   Cyclomatic Complexity 1 include/trace/events/i2c.h:trace_event_get_offsets_i2c_result
-   Cyclomatic Complexity 1 drivers/i2c/i2c-core-base.c:dummy_probe
-   Cyclomatic Complexity 1 drivers/i2c/i2c-core-base.c:dummy_remove
-   Cyclomatic Complexity 11 include/trace/events/i2c.h:trace_event_define_fields_i2c_write
-   Cyclomatic Complexity 11 include/trace/events/i2c.h:trace_event_define_fields_i2c_read
-   Cyclomatic Complexity 11 include/trace/events/i2c.h:trace_event_define_fields_i2c_reply
-   Cyclomatic Complexity 7 include/trace/events/i2c.h:trace_event_define_fields_i2c_result
-   Cyclomatic Complexity 8 drivers/i2c/i2c-core-base.c:i2c_generic_bus_free
-   Cyclomatic Complexity 7 drivers/i2c/i2c-core-base.c:i2c_check_addr_validity
-   Cyclomatic Complexity 5 drivers/i2c/i2c-core-base.c:i2c_encode_flags_to_addr
-   Cyclomatic Complexity 3 include/linux/device.h:dev_name
-   Cyclomatic Complexity 1 include/linux/acpi.h:acpi_dev_name
-
-vim +/attach_adapter +61 include/linux/compiler.h
-
-2bcd521a Steven Rostedt 2008-11-21  50  
-2bcd521a Steven Rostedt 2008-11-21  51  #ifdef CONFIG_PROFILE_ALL_BRANCHES
-2bcd521a Steven Rostedt 2008-11-21  52  /*
-2bcd521a Steven Rostedt 2008-11-21  53   * "Define 'is'", Bill Clinton
-2bcd521a Steven Rostedt 2008-11-21  54   * "Define 'if'", Steven Rostedt
-2bcd521a Steven Rostedt 2008-11-21  55   */
-ab3c9c68 Linus Torvalds 2009-04-07  56  #define if(cond, ...) __trace_if( (cond , ## __VA_ARGS__) )
-ab3c9c68 Linus Torvalds 2009-04-07  57  #define __trace_if(cond) \
-b33c8ff4 Arnd Bergmann  2016-02-12  58  	if (__builtin_constant_p(!!(cond)) ? !!(cond) :			\
-2bcd521a Steven Rostedt 2008-11-21  59  	({								\
-2bcd521a Steven Rostedt 2008-11-21  60  		int ______r;						\
-2bcd521a Steven Rostedt 2008-11-21 @61  		static struct ftrace_branch_data			\
-2bcd521a Steven Rostedt 2008-11-21  62  			__attribute__((__aligned__(4)))			\
-2bcd521a Steven Rostedt 2008-11-21  63  			__attribute__((section("_ftrace_branch")))	\
-2bcd521a Steven Rostedt 2008-11-21  64  			______f = {					\
-2bcd521a Steven Rostedt 2008-11-21  65  				.func = __func__,			\
-2bcd521a Steven Rostedt 2008-11-21  66  				.file = __FILE__,			\
-2bcd521a Steven Rostedt 2008-11-21  67  				.line = __LINE__,			\
-2bcd521a Steven Rostedt 2008-11-21  68  			};						\
-2bcd521a Steven Rostedt 2008-11-21  69  		______r = !!(cond);					\
-97e7e4f3 Witold Baryluk 2009-03-17  70  		______f.miss_hit[______r]++;					\
-2bcd521a Steven Rostedt 2008-11-21  71  		______r;						\
-2bcd521a Steven Rostedt 2008-11-21  72  	}))
-2bcd521a Steven Rostedt 2008-11-21  73  #endif /* CONFIG_PROFILE_ALL_BRANCHES */
-2bcd521a Steven Rostedt 2008-11-21  74  
-
-:::::: The code at line 61 was first introduced by commit
-:::::: 2bcd521a684cc94befbe2ce7d5b613c841b0d304 trace: profile all if conditionals
-
-:::::: TO: Steven Rostedt <srostedt@redhat.com>
-:::::: CC: Ingo Molnar <mingo@elte.hu>
+Nuvoton NPCM7XX I2C Controller
+NPCM7xx includes 16 I2C controllers. This driver operates the controller.
+This module also includes a slave mode, which will be submitted later on.
 
 ---
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+v4 -> v3:
+	- typo on cover letter.
 
---pf9I7BMVVzbSWLtt
-Content-Type: application/gzip
-Content-Disposition: attachment; filename=".config.gz"
-Content-Transfer-Encoding: base64
+v3 -> v2:
+	- fix dt binding: compatible name: omit "bus"
 
-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
-6zLEC8UBAA==
+v2 -> v1:
+	- run check patch in strict mode.
+	- use linux crc.
+	- define regs in constant offset without base.
+	- remove debug prints.
+	- no declarations for local functions.
+	
+v1: initial version
 
---pf9I7BMVVzbSWLtt--
+Signed-off-by: Tali Perry <tali.perry1@gmail.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+---
+ drivers/i2c/busses/Kconfig       |   11 +
+ drivers/i2c/busses/Makefile      |    1 +
+ drivers/i2c/busses/i2c-npcm7xx.c | 2017 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 2029 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-npcm7xx.c
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 4f8df2ec87b1..61862fed71fd 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -742,6 +742,17 @@ config I2C_NOMADIK
+ 	  I2C interface from ST-Ericsson's Nomadik and Ux500 architectures,
+ 	  as well as the STA2X11 PCIe I/O HUB.
+ 
++config I2C_NPCM7XX
++	tristate "Nuvoton I2C Controller"
++	depends on ARCH_NPCM7XX
++	select CRC8
++	help
++	  If you say yes to this option, support will be included for the
++	  Nuvoton I2C controller.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called i2c-npcm7xx.
++
+ config I2C_OCORES
+ 	tristate "OpenCores I2C Controller"
+ 	help
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 5a869144a0c5..80d4ec8908e1 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -74,6 +74,7 @@ obj-$(CONFIG_I2C_MT65XX)	+= i2c-mt65xx.o
+ obj-$(CONFIG_I2C_MV64XXX)	+= i2c-mv64xxx.o
+ obj-$(CONFIG_I2C_MXS)		+= i2c-mxs.o
+ obj-$(CONFIG_I2C_NOMADIK)	+= i2c-nomadik.o
++obj-$(CONFIG_I2C_NPCM7XX)	+= i2c-npcm7xx.o
+ obj-$(CONFIG_I2C_OCORES)	+= i2c-ocores.o
+ obj-$(CONFIG_I2C_OMAP)		+= i2c-omap.o
+ obj-$(CONFIG_I2C_PASEMI)	+= i2c-pasemi.o
+diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
+new file mode 100644
+index 000000000000..4dc766016031
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-npcm7xx.c
+@@ -0,0 +1,2017 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Nuvoton NPCM7xx SMB Controller driver
++ *
++ * Copyright (C) 2018 Nuvoton Technologies tali.perry@nuvoton.com
++ */
++#include <linux/bitfield.h>
++#include <linux/clk.h>
++#include <linux/clk/nuvoton.h>
++#include <linux/crc8.h>
++#include <linux/errno.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
++#include <linux/kernel.h>
++#include <linux/mfd/syscon.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
++
++#define I2C_VERSION "0.0.3"
++
++enum smb_mode {
++	SMB_SLAVE = 1,
++	SMB_MASTER
++};
++
++/*
++ * External SMB Interface driver xfer indication values, which indicate status
++ * of the bus.
++ */
++enum smb_state_ind {
++	SMB_NO_STATUS_IND = 0,
++	SMB_SLAVE_RCV_IND = 1,
++	SMB_SLAVE_XMIT_IND = 2,
++	SMB_SLAVE_XMIT_MISSING_DATA_IND = 3,
++	SMB_SLAVE_RESTART_IND = 4,
++	SMB_SLAVE_DONE_IND = 5,
++	SMB_MASTER_DONE_IND = 6,
++	SMB_NO_DATA_IND = 7,
++	SMB_NACK_IND = 8,
++	SMB_BUS_ERR_IND = 9,
++	SMB_WAKE_UP_IND = 10,
++	SMB_MASTER_PEC_ERR_IND = 11,
++	SMB_BLOCK_BYTES_ERR_IND = 12,
++	SMB_SLAVE_PEC_ERR_IND = 13,
++	SMB_SLAVE_RCV_MISSING_DATA_IND = 14,
++};
++
++// SMBus Operation type values
++enum smb_oper {
++	SMB_NO_OPER = 0,
++	SMB_WRITE_OPER = 1,
++	SMB_READ_OPER = 2
++};
++
++// SMBus Bank (FIFO mode)
++enum smb_bank {
++	SMB_BANK_0 = 0,
++	SMB_BANK_1 = 1
++};
++
++// Internal SMB states values (for the SMB module state machine).
++enum smb_state {
++	SMB_DISABLE = 0,
++	SMB_IDLE,
++	SMB_MASTER_START,
++	SMB_SLAVE_MATCH,
++	SMB_OPER_STARTED,
++	SMB_REPEATED_START,
++	SMB_STOP_PENDING
++};
++
++// Module supports setting multiple own slave addresses:
++enum smb_addr {
++	SMB_SLAVE_ADDR1 = 0,
++	SMB_SLAVE_ADDR2,
++	SMB_SLAVE_ADDR3,
++	SMB_SLAVE_ADDR4,
++	SMB_SLAVE_ADDR5,
++	SMB_SLAVE_ADDR6,
++	SMB_SLAVE_ADDR7,
++	SMB_SLAVE_ADDR8,
++	SMB_SLAVE_ADDR9,
++	SMB_SLAVE_ADDR10,
++	SMB_GC_ADDR,
++	SMB_ARP_ADDR
++};
++
++// global regs
++static struct regmap *gcr_regmap;
++static struct regmap *clk_regmap;
++
++#define NPCM_I2CSEGCTL  0xE4
++#define NPCM_SECCNT	0x68
++#define NPCM_CNTR25M	0x6C
++#define I2CSEGCTL_VAL	0x0333F000
++
++// Common regs
++#define NPCM_SMBSDA			0x000
++#define NPCM_SMBST			0x002
++#define NPCM_SMBCST			0x004
++#define NPCM_SMBCTL1			0x006
++#define NPCM_SMBADDR1			0x008
++#define NPCM_SMBCTL2			0x00A
++#define NPCM_SMBADDR2			0x00C
++#define NPCM_SMBCTL3			0x00E
++#define NPCM_SMBCST2			0x018
++#define NPCM_SMBCST3			0x019
++#define SMB_VER				0x01F
++
++// BANK 0 regs
++#define NPCM_SMBADDR3			0x010
++#define NPCM_SMBADDR7			0x011
++#define NPCM_SMBADDR4			0x012
++#define NPCM_SMBADDR8			0x013
++#define NPCM_SMBADDR5			0x014
++#define NPCM_SMBADDR9			0x015
++#define NPCM_SMBADDR6			0x016
++#define NPCM_SMBADDR10			0x017
++
++// SMBADDR array: because the addr regs are sprincled all over the address space
++const int  NPCM_SMBADDR[10] = {NPCM_SMBADDR1, NPCM_SMBADDR2, NPCM_SMBADDR3,
++			       NPCM_SMBADDR4, NPCM_SMBADDR5, NPCM_SMBADDR6,
++			       NPCM_SMBADDR7, NPCM_SMBADDR8, NPCM_SMBADDR9,
++			       NPCM_SMBADDR10};
++
++#define NPCM_SMBCTL4			0x01A
++#define NPCM_SMBCTL5			0x01B
++#define NPCM_SMBSCLLT			0x01C // SCL Low Time
++#define NPCM_SMBFIF_CTL			0x01D // FIFO Control
++#define NPCM_SMBSCLHT			0x01E // SCL High Time
++
++// BANK 1 regs
++#define NPCM_SMBFIF_CTS			0x010 // FIFO Control
++#define NPCM_SMBTXF_CTL			0x012 // Tx-FIFO Control
++#define NPCM_SMBT_OUT			0x014 // Bus T.O.
++#define NPCM_SMBPEC			0x016 // PEC Data
++#define NPCM_SMBTXF_STS			0x01A // Tx-FIFO Status
++#define NPCM_SMBRXF_STS			0x01C // Rx-FIFO Status
++#define NPCM_SMBRXF_CTL			0x01E // Rx-FIFO Control
++
++// NPCM_SMBST reg fields
++#define NPCM_SMBST_XMIT			BIT(0)
++#define NPCM_SMBST_MASTER		BIT(1)
++#define NPCM_SMBST_NMATCH		BIT(2)
++#define NPCM_SMBST_STASTR		BIT(3)
++#define NPCM_SMBST_NEGACK		BIT(4)
++#define NPCM_SMBST_BER			BIT(5)
++#define NPCM_SMBST_SDAST		BIT(6)
++#define NPCM_SMBST_SLVSTP		BIT(7)
++
++// NPCM_SMBCST reg fields
++#define NPCM_SMBCST_BUSY		BIT(0)
++#define NPCM_SMBCST_BB			BIT(1)
++#define NPCM_SMBCST_MATCH		BIT(2)
++#define NPCM_SMBCST_GCMATCH		BIT(3)
++#define NPCM_SMBCST_TSDA		BIT(4)
++#define NPCM_SMBCST_TGSCL		BIT(5)
++#define NPCM_SMBCST_MATCHAF		BIT(6)
++#define NPCM_SMBCST_ARPMATCH		BIT(7)
++
++// NPCM_SMBCTL1 reg fields
++#define NPCM_SMBCTL1_START		BIT(0)
++#define NPCM_SMBCTL1_STOP		BIT(1)
++#define NPCM_SMBCTL1_INTEN		BIT(2)
++#define NPCM_SMBCTL1_EOBINTE		BIT(3)
++#define NPCM_SMBCTL1_ACK		BIT(4)
++#define NPCM_SMBCTL1_GCMEN		BIT(5)
++#define NPCM_SMBCTL1_NMINTE		BIT(6)
++#define NPCM_SMBCTL1_STASTRE		BIT(7)
++
++// RW1S fields (inside a RW reg):
++#define NPCM_SMBCTL1_RWS_FIELDS	  (NPCM_SMBCTL1_START | NPCM_SMBCTL1_STOP | \
++				   NPCM_SMBCTL1_ACK)
++// NPCM_SMBADDR reg fields
++#define NPCM_SMBADDR_ADDR		GENMASK(6, 0)
++#define NPCM_SMBADDR_SAEN		BIT(7)
++
++// NPCM_SMBCTL2 reg fields
++#define SMBCTL2_ENABLE			BIT(0)
++#define SMBCTL2_SCLFRQ6_0		GENMASK(7, 1)
++
++// NPCM_SMBCTL3 reg fields
++#define SMBCTL3_SCLFRQ8_7		GENMASK(1, 0)
++#define SMBCTL3_ARPMEN			BIT(2)
++#define SMBCTL3_IDL_START		BIT(3)
++#define SMBCTL3_400K_MODE		BIT(4)
++#define SMBCTL3_BNK_SEL			BIT(5)
++#define SMBCTL3_SDA_LVL			BIT(6)
++#define SMBCTL3_SCL_LVL			BIT(7)
++
++// NPCM_SMBCST2 reg fields
++#define NPCM_SMBCST2_MATCHA1F		BIT(0)
++#define NPCM_SMBCST2_MATCHA2F		BIT(1)
++#define NPCM_SMBCST2_MATCHA3F		BIT(2)
++#define NPCM_SMBCST2_MATCHA4F		BIT(3)
++#define NPCM_SMBCST2_MATCHA5F		BIT(4)
++#define NPCM_SMBCST2_MATCHA6F		BIT(5)
++#define NPCM_SMBCST2_MATCHA7F		BIT(5)
++#define NPCM_SMBCST2_INTSTS		BIT(7)
++
++// NPCM_SMBCST3 reg fields
++#define NPCM_SMBCST3_MATCHA8F		BIT(0)
++#define NPCM_SMBCST3_MATCHA9F		BIT(1)
++#define NPCM_SMBCST3_MATCHA10F		BIT(2)
++#define NPCM_SMBCST3_EO_BUSY		BIT(7)
++
++// NPCM_SMBCTL4 reg fields
++#define SMBCTL4_HLDT			GENMASK(5, 0)
++#define SMBCTL4_LVL_WE			BIT(7)
++
++// NPCM_SMBCTL5 reg fields
++#define SMBCTL5_DBNCT			GENMASK(3, 0)
++
++// NPCM_SMBFIF_CTS reg fields
++#define NPCM_SMBFIF_CTS_RXF_TXE		BIT(1)
++#define NPCM_SMBFIF_CTS_RFTE_IE		BIT(3)
++#define NPCM_SMBFIF_CTS_CLR_FIFO	BIT(6)
++#define NPCM_SMBFIF_CTS_SLVRSTR		BIT(7)
++
++// NPCM_SMBTXF_CTL reg fields
++#ifdef SMB_CAPABILITY_32B_FIFO
++#define NPCM_SMBTXF_CTL_TX_THR		GENMASK(5, 0)
++#else
++#define NPCM_SMBTXF_CTL_TX_THR		GENMASK(4, 0)
++#endif
++#define NPCM_SMBTXF_CTL_THR_TXIE	BIT(6)
++
++// NPCM_SMBT_OUT reg fields
++#define NPCM_SMBT_OUT_TO_CKDIV		GENMASK(5, 0)
++#define NPCM_SMBT_OUT_T_OUTIE		BIT(6)
++#define NPCM_SMBT_OUT_T_OUTST		BIT(7)
++
++// NPCM_SMBTXF_STS reg fields
++#ifdef SMB_CAPABILITY_32B_FIFO
++#define NPCM_SMBTXF_STS_TX_BYTES	GENMASK(5, 0)
++#else
++#define NPCM_SMBTXF_STS_TX_BYTES	GENMASK(4, 0)
++#endif
++#define NPCM_SMBTXF_STS_TX_THST		BIT(6)
++
++// NPCM_SMBRXF_STS reg fields
++#ifdef SMB_CAPABILITY_32B_FIFO
++#define NPCM_SMBRXF_STS_RX_BYTES	GENMASK(5, 0)
++#else
++#define NPCM_SMBRXF_STS_RX_BYTES	GENMASK(4, 0)
++#endif
++#define NPCM_SMBRXF_STS_RX_THST		BIT(6)
++
++// NPCM_SMBFIF_CTL reg fields
++#define NPCM_SMBFIF_CTL_FIFO_EN		BIT(4)
++
++// NPCM_SMBRXF_CTL reg fields
++// Note: on the next HW version of this module, this HW is about to switch to
++//	 32 bytes FIFO. This size will be set using a config.
++//	 on current version 16 bytes FIFO is set using a define
++#ifdef SMB_CAPABILITY_32B_FIFO
++#define NPCM_SMBRXF_CTL_RX_THR		GENMASK(5, 0)
++#define NPCM_SMBRXF_CTL_THR_RXIE	BIT(6)
++#define NPCM_SMBRXF_CTL_LAST_PEC	BIT(7)
++#define SMBUS_FIFO_SIZE			32
++#else
++#define NPCM_SMBRXF_CTL_RX_THR		GENMASK(4, 0)
++#define NPCM_SMBRXF_CTL_LAST_PEC	BIT(5)
++#define NPCM_SMBRXF_CTL_THR_RXIE	BIT(6)
++#define SMBUS_FIFO_SIZE			16
++#endif
++
++// SMB_VER reg fields
++#define SMB_VER_VERSION			GENMASK(6, 0)
++#define SMB_VER_FIFO_EN			BIT(7)
++
++// stall/stuck timeout
++const unsigned int DEFAULT_STALL_COUNT =	25;
++
++// Data abort timeout
++const unsigned int ABORT_TIMEOUT =	 1000;
++
++// SMBus spec. values in KHZ
++const unsigned int SMBUS_FREQ_MIN = 10;
++const unsigned int SMBUS_FREQ_MAX = 1000;
++const unsigned int SMBUS_FREQ_100KHZ = 100;
++const unsigned int SMBUS_FREQ_400KHZ = 400;
++const unsigned int SMBUS_FREQ_1MHZ = 1000;
++
++// SCLFRQ min/max field values
++const unsigned int SCLFRQ_MIN = 10;
++const unsigned int SCLFRQ_MAX = 511;
++
++// SCLFRQ field position
++#define SCLFRQ_0_TO_6		GENMASK(6, 0)
++#define SCLFRQ_7_TO_8		GENMASK(8, 7)
++
++// SMB Maximum Retry Trials (on Bus Arbitration Loss)
++const unsigned int SMB_RETRY_MAX_COUNT = 2;
++const unsigned int SMB_NUM_OF_ADDR = 10;
++
++// for logging:
++#define NPCM_I2C_EVENT_START	BIT(0)
++#define NPCM_I2C_EVENT_STOP	BIT(1)
++#define NPCM_I2C_EVENT_ABORT	BIT(2)
++#define NPCM_I2C_EVENT_WRITE	BIT(3)
++#define NPCM_I2C_EVENT_READ	BIT(4)
++#define NPCM_I2C_EVENT_BER	BIT(5)
++#define NPCM_I2C_EVENT_NACK	BIT(6)
++#define NPCM_I2C_EVENT_TO	BIT(7)
++#define NPCM_I2C_EVENT_EOB	BIT(8)
++
++#define NPCM_I2C_EVENT_LOG(event)   (bus->event_log |= event)
++
++#define SMB_RECOVERY_SUPPORT
++
++// slave mode: if end device reads more data than available, ask issuer or
++// request for more data:
++#define SMB_WRAP_AROUND_BUFFER
++
++// Status of one SMBus module
++struct npcm_i2c {
++	struct i2c_adapter	adap;
++	struct device		*dev;
++	unsigned char __iomem	*reg;
++	spinlock_t		lock;   /* IRQ synchronization */
++	struct completion	cmd_complete;
++	int			irq;
++	int			cmd_err;
++	struct i2c_msg		*msgs;
++	int			msgs_num;
++	int			num;
++	u32			apb_clk;
++	enum smb_state		state;
++	enum smb_oper		operation;
++	enum smb_mode		master_or_slave;
++	enum smb_state_ind	stop_ind;
++	u8			dest_addr;
++	u8			*rd_buf;
++	u16			rd_size;
++	u16			rd_ind;
++	u8			*wr_buf;
++	u16			wr_size;
++	u16			wr_ind;
++	bool			fifo_use;
++	u8			threshold_fifo;
++
++	// PEC bit mask per slave address.
++	//		1: use PEC for this address,
++	//		0: do not use PEC for this address
++	u16			PEC_mask;
++	bool			PEC_use;
++	u8			crc_data;
++	bool			read_block_use;
++	u8			retry_count;
++	u8			int_cnt;
++	u32			event_log;
++	u32			clk_period_us;
++	u32			int_time_stamp[2];
++};
++
++static inline void _npcm7xx_get_time_stamp(u32 *time_quad0, u32 *time_quad1)
++{
++	u32 seconds, seconds_last;
++	u32 ref_clock;
++
++	regmap_read(clk_regmap, NPCM_SECCNT, &seconds_last);
++
++	do {
++		regmap_read(clk_regmap, NPCM_SECCNT, &seconds);
++		regmap_read(clk_regmap, NPCM_CNTR25M, &ref_clock);
++		regmap_read(clk_regmap, NPCM_SECCNT, &seconds_last);
++	} while (seconds_last != seconds);
++
++	*time_quad0 = ref_clock;
++	*time_quad1 = seconds;
++}
++
++#define EXT_CLOCK_FREQUENCY_MHZ 25
++#define CNTR25M_ACCURECY	EXT_CLOCK_FREQUENCY_MHZ  // minimum accurecy
++
++// Function:	 _npcm7xx_delay_relative
++// Parameters:
++//		 us_delay -  number of microseconds to delay since t0_time.
++//				  if zero: no delay.
++//
++//		t0_time	      - start time , to measure time from.
++// get a time stamp, delay us_delay from it. If us_delay has already passed
++// since the time stamp , then no delay is executed. returns the time elapsed
++// since t0_time
++
++static inline u32 _npcm7xx_delay_relative(u32 us_delay, u32 t0_time0,
++					  u32 t0_time1)
++{
++	u32 t1_time_0, t1_time_1;
++	u32 time_elapsed;
++	u32 minimum_delay = (us_delay * EXT_CLOCK_FREQUENCY_MHZ)
++		+ CNTR25M_ACCURECY;
++
++	// this is equivalent to microSec/0.64 + minimal tic length.
++	do {
++		_npcm7xx_get_time_stamp(&t1_time_0, &t1_time_1);
++		time_elapsed = ((EXT_CLOCK_FREQUENCY_MHZ * 1000000) *
++				(t1_time_1 - t0_time1)) +
++				(t1_time_0 - t0_time0);
++	} while (time_elapsed < minimum_delay);
++
++	// return elapsed time
++	return (u32)(time_elapsed / EXT_CLOCK_FREQUENCY_MHZ);
++}
++
++static inline void npcm_smb_select_bank(struct npcm_i2c *bus,
++					enum smb_bank bank)
++{
++	if (bus->fifo_use)
++		iowrite8((ioread8(bus->reg + NPCM_SMBCTL3) & ~SMBCTL3_BNK_SEL) |
++			 FIELD_PREP(SMBCTL3_BNK_SEL, bank),
++			 bus->reg + NPCM_SMBCTL3);
++}
++
++DECLARE_CRC8_TABLE(npcm7xx_crc8);
++
++static u8 npcm_smb_calc_crc8(u8 crc_data, u8 data)
++{
++	crc_data = crc8(npcm7xx_crc8, &data, 1, crc_data);
++	return crc_data;
++}
++
++static void npcm_smb_calc_PEC(struct npcm_i2c *bus, u8 data)
++{
++	if (bus->PEC_use)
++		bus->crc_data = npcm_smb_calc_crc8(bus->crc_data, data);
++}
++
++static inline void npcm_smb_wr_byte(struct npcm_i2c *bus, u8 data)
++{
++	iowrite8(data, bus->reg + NPCM_SMBSDA);
++	npcm_smb_calc_PEC(bus, data);
++}
++
++static inline void npcm_smb_rd_byte(struct npcm_i2c *bus, u8 *data)
++{
++	*data = ioread8(bus->reg + NPCM_SMBSDA);
++	npcm_smb_calc_PEC(bus, *data);
++}
++
++static inline u8 npcm_smb_get_PEC(struct npcm_i2c *bus)
++{
++	if (bus->PEC_use)
++		return bus->crc_data;
++	else
++		return 0;
++}
++
++static inline void npcm_smb_write_PEC(struct npcm_i2c *bus)
++{
++	if (bus->PEC_use) {
++		// get PAC value and write to the bus:
++		npcm_smb_wr_byte(bus, npcm_smb_get_PEC(bus));
++	}
++}
++
++//
++//  NPCM7XX SMB module allows writing to SCL and SDA pins directly
++//  without the need to change muxing of pins.
++//  This feature will be used for recovery sequences i.e.
++//
++static void npcm_smb_set_SCL(struct i2c_adapter *_adap, int level)
++{
++#ifdef SMB_CAPABILITY_FORCE_SCL_SDA
++	unsigned long flags;
++	struct npcm_i2c *bus = container_of(_adap, struct npcm_i2c, adap);
++
++	// Select Bank 0 to access NPCM_SMBCTL4
++	spin_lock_irqsave(&bus->lock, flags);
++	npcm_smb_select_bank(bus, SMB_BANK_0);
++
++	// Set SCL_LVL, SDA_LVL bits as Read/Write (R/W)
++	iowrite8(ioread8(bus->reg + NPCM_SMBCTL4) | SMBCTL4_LVL_WE,
++		 bus->reg + NPCM_SMBCTL4);
++
++	// Set level
++	iowrite8((ioread8(bus->reg + NPCM_SMBCTL3)
++		& ~SMBCTL3_SCL_LVL) | FIELD_PREP(SMBCTL3_SCL_LVL,
++		level), bus->reg + NPCM_SMBCTL3);
++
++	// Set SCL_LVL, SDA_LVL bits as Read Only (RO)
++	iowrite8(ioread8(bus->reg + NPCM_SMBCTL4)
++		 & ~SMBCTL4_LVL_WE, bus->reg + NPCM_SMBCTL4);
++
++	// Return to Bank 1
++	npcm_smb_select_bank(bus, SMB_BANK_1);
++	spin_unlock_irqrestore(&bus->lock, flags);
++#endif
++}
++
++static int npcm_smb_get_SCL(struct i2c_adapter *_adap)
++{
++	unsigned long flags;
++	unsigned int ret = 0;
++	struct npcm_i2c *bus = container_of(_adap, struct npcm_i2c, adap);
++
++	// Select Bank 0 to access NPCM_SMBCTL4
++	spin_lock_irqsave(&bus->lock, flags);
++	npcm_smb_select_bank(bus, SMB_BANK_0);
++
++	// Get SCL level
++	ret = FIELD_GET(SMBCTL3_SCL_LVL,  ioread8(bus->reg + NPCM_SMBCTL3));
++
++	// Return to Bank 1
++	npcm_smb_select_bank(bus, SMB_BANK_1);
++	spin_unlock_irqrestore(&bus->lock, flags);
++	return ret;
++}
++
++static int npcm_smb_get_SDA(struct i2c_adapter *_adap)
++{
++	unsigned long flags;
++	unsigned int ret = 0;
++	struct npcm_i2c *bus = container_of(_adap, struct npcm_i2c, adap);
++
++	// Select Bank 0 to access NPCM_SMBCTL4
++	spin_lock_irqsave(&bus->lock, flags);
++	npcm_smb_select_bank(bus, SMB_BANK_0);
++
++	// Get SDA level
++	ret = FIELD_GET(SMBCTL3_SDA_LVL,  ioread8(bus->reg + NPCM_SMBCTL3));
++
++	// Return to Bank 1
++	npcm_smb_select_bank(bus, SMB_BANK_1);
++	spin_unlock_irqrestore(&bus->lock, flags);
++	return ret;
++}
++
++static inline u16 npcm_smb_get_index(struct npcm_i2c *bus)
++{
++	u16 index = 0;
++
++	if (bus->operation == SMB_READ_OPER)
++		index = bus->rd_ind;
++	else if (bus->operation == SMB_WRITE_OPER)
++		index = bus->wr_ind;
++
++	return index;
++}
++
++// quick protocol:
++static inline bool npcm_smb_is_quick(struct npcm_i2c *bus)
++{
++	if (bus->wr_size == 0 && bus->rd_size == 0)
++		return true;
++	return false;
++}
++
++static void npcm_smb_disable(struct npcm_i2c *bus)
++{
++	int i;
++
++	// select bank 0 for SMB addresses
++	npcm_smb_select_bank(bus, SMB_BANK_0);
++
++	// Slave Addresses Removal
++	for (i = SMB_SLAVE_ADDR1; i < SMB_NUM_OF_ADDR; i++)
++		iowrite8(0, bus->reg + NPCM_SMBADDR[i]);
++
++	// select bank 0 for SMB addresses
++	npcm_smb_select_bank(bus, SMB_BANK_1);
++
++	// Disable module.
++	iowrite8(ioread8(bus->reg + NPCM_SMBCTL2) & ~SMBCTL2_ENABLE,
++		 bus->reg + NPCM_SMBCTL2);
++
++	// Set module disable
++	bus->state = SMB_DISABLE;
++}
++
++static void npcm_smb_enable(struct npcm_i2c *bus)
++{
++	iowrite8((ioread8(bus->reg + NPCM_SMBCTL2) | SMBCTL2_ENABLE),
++		 bus->reg + NPCM_SMBCTL2);
++}
++
++// enable\disable end of busy (EOB) interrupt
++static inline void npcm_smb_eob_int(struct npcm_i2c *bus, bool enable)
++{
++	if (enable) {
++		iowrite8((ioread8(bus->reg + NPCM_SMBCTL1) |
++			 NPCM_SMBCTL1_EOBINTE)  & ~NPCM_SMBCTL1_RWS_FIELDS,
++			 bus->reg + NPCM_SMBCTL1);
++	} else {
++		iowrite8(ioread8(bus->reg + NPCM_SMBCTL1) &
++			 ~NPCM_SMBCTL1_EOBINTE & ~NPCM_SMBCTL1_RWS_FIELDS,
++			 bus->reg + NPCM_SMBCTL1);
++
++		// Clear EO_BUSY pending bit:
++		iowrite8(ioread8(bus->reg + NPCM_SMBCST3) |
++			 NPCM_SMBCST3_EO_BUSY, bus->reg + NPCM_SMBCST3);
++	}
++}
++
++static inline bool npcm_smb_tx_fifo_full(struct npcm_i2c *bus)
++{
++	// check if TX FIFO full:
++	return (bool)FIELD_GET(NPCM_SMBTXF_STS_TX_THST,
++			       ioread8(bus->reg + NPCM_SMBTXF_STS));
++}
++
++static inline bool npcm_smb_rx_fifo_full(struct npcm_i2c *bus)
++{
++	// check if RX FIFO full:
++	return (bool)FIELD_GET(NPCM_SMBRXF_STS_RX_THST,
++			       ioread8(bus->reg + NPCM_SMBRXF_STS));
++}
++
++static inline void npcm_smb_clear_tx_fifo(struct npcm_i2c *bus)
++{
++	// clear TX FIFO:
++	iowrite8(ioread8(bus->reg + NPCM_SMBTXF_STS) |
++		 NPCM_SMBTXF_STS_TX_THST,
++		 bus->reg + NPCM_SMBTXF_STS);
++}
++
++static inline void npcm_smb_clear_rx_fifo(struct npcm_i2c *bus)
++{
++	// clear RX FIFO:
++	iowrite8(ioread8(bus->reg + NPCM_SMBRXF_STS) |
++			 NPCM_SMBRXF_STS_RX_THST,
++			 bus->reg + NPCM_SMBRXF_STS);
++}
++
++static void npcm_smb_int_enable(struct npcm_i2c *bus, bool enable)
++{
++	if (enable)
++		iowrite8((ioread8(bus->reg + NPCM_SMBCTL1) |
++			 NPCM_SMBCTL1_INTEN) & ~NPCM_SMBCTL1_RWS_FIELDS,
++			 bus->reg + NPCM_SMBCTL1);
++	else
++		iowrite8((ioread8(bus->reg + NPCM_SMBCTL1) &
++			 ~NPCM_SMBCTL1_INTEN) & ~NPCM_SMBCTL1_RWS_FIELDS,
++			 bus->reg + NPCM_SMBCTL1);
++}
++
++static inline void npcm_smb_master_start(struct npcm_i2c *bus)
++{
++	NPCM_I2C_EVENT_LOG(NPCM_I2C_EVENT_START);
++
++	iowrite8((ioread8(bus->reg + NPCM_SMBCTL1) | NPCM_SMBCTL1_START) &
++		 ~(NPCM_SMBCTL1_STOP | NPCM_SMBCTL1_ACK),
++		 bus->reg + NPCM_SMBCTL1);
++}
++
++static inline void npcm_smb_master_stop(struct npcm_i2c *bus)
++{
++	NPCM_I2C_EVENT_LOG(NPCM_I2C_EVENT_STOP);
++
++	// override HW issue: SMBus may fail to supply stop condition in Master
++	// Write operation.
++	// Need to delay at least 5 us from the last int, before issueing a stop
++	_npcm7xx_delay_relative(5, bus->int_time_stamp[0],
++				bus->int_time_stamp[1]);
++
++	iowrite8((ioread8(bus->reg + NPCM_SMBCTL1) | NPCM_SMBCTL1_STOP) &
++		 ~(NPCM_SMBCTL1_START | NPCM_SMBCTL1_ACK),
++		 bus->reg + NPCM_SMBCTL1);
++
++	if (bus->fifo_use) {
++		npcm_smb_select_bank(bus, SMB_BANK_1);
++
++		if (bus->operation == SMB_READ_OPER)
++			npcm_smb_clear_rx_fifo(bus);
++		else
++			npcm_smb_clear_tx_fifo(bus);
++
++		iowrite8(ioread8(bus->reg + NPCM_SMBFIF_CTS) |
++				 NPCM_SMBFIF_CTS_SLVRSTR |
++				 NPCM_SMBFIF_CTS_RXF_TXE,
++				 bus->reg + NPCM_SMBFIF_CTS);
++
++		iowrite8(0, bus->reg + NPCM_SMBTXF_CTL);
++	}
++}
++
++static inline void npcm_smb_abort_data(struct npcm_i2c *bus)
++{
++	unsigned int timeout = ABORT_TIMEOUT;
++	u8 data;
++
++	NPCM_I2C_EVENT_LOG(NPCM_I2C_EVENT_ABORT);
++	// Generate a STOP condition
++	npcm_smb_master_stop(bus);
++	npcm_smb_rd_byte(bus, &data);
++
++	// Clear NEGACK, STASTR and BER bits
++	iowrite8(NPCM_SMBST_STASTR | NPCM_SMBST_NEGACK |
++		NPCM_SMBST_BER, bus->reg + NPCM_SMBST);
++
++	// Wait till STOP condition is generated
++	while (FIELD_GET(NPCM_SMBCTL1_STOP, ioread8(bus->reg + NPCM_SMBCTL1))) {
++		timeout--;
++		if (!FIELD_GET(NPCM_SMBCTL1_STOP,
++			       ioread8(bus->reg + NPCM_SMBCTL1)))
++			break;
++		if (timeout <= 1) {
++			dev_err(bus->dev, "%s, abort timeout!\n", __func__);
++			break;
++		}
++	}
++}
++
++static inline void npcm_smb_stall_after_start(struct npcm_i2c *bus, bool stall)
++{
++	if (stall)
++		iowrite8((ioread8(bus->reg + NPCM_SMBCTL1) |
++			 NPCM_SMBCTL1_STASTRE)  & ~NPCM_SMBCTL1_RWS_FIELDS,
++			 bus->reg + NPCM_SMBCTL1);
++	else
++		iowrite8((ioread8(bus->reg + NPCM_SMBCTL1) &
++			 ~NPCM_SMBCTL1_STASTRE)  & ~NPCM_SMBCTL1_RWS_FIELDS,
++			 bus->reg + NPCM_SMBCTL1);
++}
++
++static inline void npcm_smb_nack(struct npcm_i2c *bus)
++{
++	if (bus->rd_ind < (bus->rd_size - 1))
++		dev_info(bus->dev,
++			 "\tNACK err bus%d, SA=0x%x, rd(%d\%d), op=%d st=%d\n",
++			 bus->num, bus->dest_addr, bus->rd_ind, bus->rd_size,
++			 bus->operation, bus->state);
++	iowrite8((ioread8(bus->reg + NPCM_SMBCTL1) | NPCM_SMBCTL1_ACK) &
++		 ~(NPCM_SMBCTL1_STOP | NPCM_SMBCTL1_START),
++		 bus->reg + NPCM_SMBCTL1);
++}
++
++static void npcm_smb_reset(struct npcm_i2c *bus)
++{
++	// Save NPCM_SMBCTL1 relevant bits. It is being cleared when the
++	// module is disabled
++	u8 smbctl1 = ioread8(bus->reg + NPCM_SMBCTL1) & (NPCM_SMBCTL1_GCMEN
++						      | NPCM_SMBCTL1_INTEN
++						      | NPCM_SMBCTL1_NMINTE);
++
++	// Disable the SMB module
++	iowrite8((ioread8(bus->reg + NPCM_SMBCTL2) & ~SMBCTL2_ENABLE),
++		 bus->reg + NPCM_SMBCTL2);
++
++	// Enable the SMB module
++	npcm_smb_enable(bus);
++
++	// Restore NPCM_SMBCTL1 status
++	iowrite8(smbctl1 & ~NPCM_SMBCTL1_RWS_FIELDS, bus->reg + NPCM_SMBCTL1);
++
++	// Reset driver status
++	bus->state = SMB_IDLE;
++	//
++	// Configure FIFO disabled mode so slave will not use fifo
++	//  (master will set it on if supported)
++	iowrite8(ioread8(bus->reg + NPCM_SMBFIF_CTL) &
++		~NPCM_SMBFIF_CTL_FIFO_EN,
++		bus->reg + NPCM_SMBFIF_CTL);
++	bus->fifo_use = false;
++}
++
++static inline bool npcm_smb_is_master(struct npcm_i2c *bus)
++{
++	return (bool)FIELD_GET(NPCM_SMBST_MASTER,
++			       ioread8(bus->reg + NPCM_SMBST));
++}
++
++static int npcm_smb_master_abort(struct npcm_i2c *bus)
++{
++	int ret = -(EIO);
++
++	// Only current master is allowed to issue Stop Condition
++	if (npcm_smb_is_master(bus)) {
++		npcm_smb_abort_data(bus);
++		ret = 0;
++	}
++
++	npcm_smb_reset(bus);
++
++	return ret;
++}
++
++static void npcm_smb_callback(struct npcm_i2c *bus,
++			      enum smb_state_ind op_status, u16 info)
++{
++	struct i2c_msg *msgs = bus->msgs;
++	int msgs_num = bus->msgs_num;
++
++	switch (op_status) {
++	case SMB_MASTER_DONE_IND:
++	// Master transaction finished and all transmit bytes were sent
++	// info: number of bytes actually received after the Master
++	//	receive operation (if Master didn't issue receive it
++	//	should be 0)
++	// Notify that not all data was received on Master or Slave
++	// info:
++	//	on receive: number of actual bytes received
++	//	when PEC is used even if 'info' is the expected number
++	//	of bytes, it means that PEC error occurred.
++	{
++		if (msgs[0].flags & I2C_M_RD)
++			msgs[0].len = info;
++		else if (msgs_num == 2 && msgs[1].flags & I2C_M_RD)
++			msgs[1].len = info;
++
++		bus->cmd_err = 0;
++		complete(&bus->cmd_complete);
++	}
++	break;
++
++	case SMB_NO_DATA_IND:
++	// Notify that not all data was received on Master or Slave
++	// info:
++	//on receive: number of actual bytes received
++	//	when PEC is used even if 'info' is the expected number
++	//	of bytes,it means that PEC error occurred.
++	{
++		if (msgs[0].flags & I2C_M_RD)
++			msgs[0].len = info;
++		else if (msgs_num == 2 && msgs[1].flags & I2C_M_RD)
++			msgs[1].len = info;
++
++		bus->cmd_err = -EFAULT;
++		complete(&bus->cmd_complete);
++	}
++	break;
++	case SMB_NACK_IND:
++		// MASTER transmit got a NAK before transmitting all bytes
++		// info: number of transmitted bytes
++		bus->cmd_err = -EAGAIN;
++		complete(&bus->cmd_complete);
++
++		break;
++	case SMB_BUS_ERR_IND:
++		// Bus error
++		// info: has no meaning
++		bus->cmd_err = -EIO;
++		complete(&bus->cmd_complete);
++		break;
++	case SMB_WAKE_UP_IND:
++		// SMBus wake up
++		// info: has no meaning
++		break;
++	default:
++		break;
++	}
++}
++
++static u32 npcm_smb_get_fifo_fullness(struct npcm_i2c *bus)
++{
++	if (bus->operation == SMB_WRITE_OPER)
++		return FIELD_GET(NPCM_SMBTXF_STS_TX_BYTES,
++				 ioread8(bus->reg + NPCM_SMBTXF_STS));
++	else if (bus->operation == SMB_READ_OPER)
++		return FIELD_GET(NPCM_SMBRXF_STS_RX_BYTES,
++				 ioread8(bus->reg + NPCM_SMBRXF_STS));
++	return 0;
++}
++
++static void npcm_smb_write_to_fifo(struct npcm_i2c *bus, u16 max_bytes_to_send)
++{
++	// Fill the FIFO, while the FIFO is not full and there are more bytes to
++	// write
++	while ((max_bytes_to_send--) && (SMBUS_FIFO_SIZE -
++					 npcm_smb_get_fifo_fullness(bus))) {
++		// write the data
++		if (bus->wr_ind < bus->wr_size) {
++			if (bus->PEC_use &&
++			    (bus->wr_ind + 1 == bus->wr_size) &&
++			    (bus->rd_size == 0 ||
++			     bus->master_or_slave == SMB_SLAVE)) {
++				// Master send PEC in write protocol, Slave send
++				// PEC in read protocol.
++				npcm_smb_write_PEC(bus);
++				bus->wr_ind++;
++			} else {
++				npcm_smb_wr_byte(bus,
++						 bus->wr_buf[bus->wr_ind++]);
++			}
++		} else {
++#ifdef SMB_WRAP_AROUND_BUFFER
++			// We're out of bytes. Ask the higher level for
++			// more bytes. Let it know that driver
++			// used all its' bytes
++
++			npcm_smb_clear_tx_fifo(bus);
++
++			// Reset state for the remaining bytes transaction
++			bus->state = SMB_SLAVE_MATCH;
++
++			// Notify upper layer of transaction completion
++			npcm_smb_callback(bus, SMB_SLAVE_XMIT_MISSING_DATA_IND,
++					  bus->wr_ind);
++
++			iowrite8(NPCM_SMBST_SDAST, bus->reg + NPCM_SMBST);
++#else
++			npcm_smb_wr_byte(bus, 0xFF);
++#endif
++		}
++	}
++}
++
++// configure the FIFO before using it. If nread is -1 RX FIFO will not be
++// configured. same for	nwrite
++static void npcm_smb_set_fifo(struct npcm_i2c *bus, int nread, int nwrite)
++{
++	if (!bus->fifo_use)
++		return;
++	npcm_smb_select_bank(bus, SMB_BANK_1);
++	npcm_smb_clear_tx_fifo(bus);
++	npcm_smb_clear_rx_fifo(bus);
++
++	// configure RX FIFO
++	if (nread > 0) {
++		// clear LAST bit:
++		iowrite8(ioread8(bus->reg + NPCM_SMBRXF_CTL) &
++					(~NPCM_SMBRXF_CTL_LAST_PEC),
++					bus->reg + NPCM_SMBRXF_CTL);
++
++		if (nread > SMBUS_FIFO_SIZE)
++			iowrite8((ioread8(bus->reg + NPCM_SMBRXF_CTL) &
++				~NPCM_SMBRXF_CTL_RX_THR)
++				| FIELD_PREP(NPCM_SMBRXF_CTL_RX_THR,
++				SMBUS_FIFO_SIZE), bus->reg + NPCM_SMBRXF_CTL);
++		else
++			iowrite8((ioread8(bus->reg + NPCM_SMBRXF_CTL) &
++					  ~NPCM_SMBRXF_CTL_RX_THR) |
++					  FIELD_PREP(NPCM_SMBRXF_CTL_RX_THR,
++						     (u8)(nread)),
++				 bus->reg + NPCM_SMBRXF_CTL);
++
++		if (nread <= SMBUS_FIFO_SIZE && !bus->read_block_use)
++			iowrite8(ioread8(bus->reg + NPCM_SMBRXF_CTL) |
++				 NPCM_SMBRXF_CTL_LAST_PEC,
++				 bus->reg + NPCM_SMBRXF_CTL);
++	}
++
++	// configure TX FIFO
++	if (nwrite > 0) {
++		if (nwrite > SMBUS_FIFO_SIZE)
++			// data to send is more then FIFO size.
++			// Configure the FIFO int to be mid of FIFO.
++			iowrite8(NPCM_SMBTXF_CTL_THR_TXIE |
++				(SMBUS_FIFO_SIZE / 2),
++				bus->reg + NPCM_SMBTXF_CTL);
++		else if (nwrite > (SMBUS_FIFO_SIZE / 2) &&
++			 bus->wr_ind != 0)
++			// wr_ind != 0 means that this is not the first
++			// write. since int is in the mid of FIFO, only
++			// half of the fifo is empty.
++			// Continue to configure the FIFO int to be mid
++			// of FIFO.
++			iowrite8(NPCM_SMBTXF_CTL_THR_TXIE |
++				 (SMBUS_FIFO_SIZE / 2),
++				 bus->reg + NPCM_SMBTXF_CTL);
++		else
++			// This is the either first write (wr_ind = 0)
++			// and data to send is less or equal to FIFO
++			// size.
++			// Or this is the last write and data to send
++			// is less or equal half FIFO size.
++			// In both cases disable the FIFO threshold int.
++			// The next int will happen after the FIFO will
++			// get empty.
++			iowrite8(0, bus->reg + NPCM_SMBTXF_CTL);
++		npcm_smb_clear_tx_fifo(bus);
++	}
++}
++
++static void npcm_smb_read_from_fifo(struct npcm_i2c *bus, u8 bytes_in_fifo)
++{
++	while (bytes_in_fifo--) {
++		// Keep read data
++		u8 data = ioread8(bus->reg + NPCM_SMBSDA);
++
++		npcm_smb_calc_PEC(bus, data);
++		if (bus->rd_ind < bus->rd_size) {
++			bus->rd_buf[bus->rd_ind++] = data;
++			if (bus->rd_ind == 1 && bus->read_block_use)
++				// First byte indicates length in block protocol
++				bus->rd_size = data;
++		}
++	}
++}
++
++static void npcm_smb_master_fifo_read(struct npcm_i2c *bus)
++{
++	u16 rcount;
++	u8 fifo_bytes;
++	enum smb_state_ind ind = SMB_MASTER_DONE_IND;
++
++	rcount = bus->rd_size - bus->rd_ind;
++
++	// In order not to change the RX_TRH during transaction (we found that
++	// this might be problematic if it takes too much time to read the FIFO)
++	//  we read the data in the following way. If the number of bytes to
++	// read == FIFO Size + C (where C < FIFO Size)then first read C bytes
++	// and in the next int we read rest of the data.
++	if (rcount < (2 * SMBUS_FIFO_SIZE) && rcount > SMBUS_FIFO_SIZE)
++		fifo_bytes = (u8)(rcount - SMBUS_FIFO_SIZE);
++	else
++		fifo_bytes = npcm_smb_get_fifo_fullness(bus);
++
++	if (rcount - fifo_bytes == 0) {
++		// last byte is about to be read - end of transaction.
++		// Stop should be set before reading last byte.
++		npcm_smb_eob_int(bus, true);
++		npcm_smb_master_stop(bus);
++		npcm_smb_read_from_fifo(bus, fifo_bytes);
++
++		if (npcm_smb_get_PEC(bus) != 0)
++			ind = SMB_MASTER_PEC_ERR_IND;
++		bus->state = SMB_STOP_PENDING;
++		bus->stop_ind = ind;
++
++	} else {
++		npcm_smb_read_from_fifo(bus, fifo_bytes);
++		rcount = bus->rd_size - bus->rd_ind;
++		npcm_smb_set_fifo(bus, rcount, -1);
++	}
++}
++
++static void npcm_smb_int_master_handler_write(struct npcm_i2c *bus)
++{
++	u16 wcount;
++
++	NPCM_I2C_EVENT_LOG(NPCM_I2C_EVENT_WRITE);
++	if (bus->fifo_use)
++		npcm_smb_clear_tx_fifo(bus);
++
++	// Master write operation - last byte handling
++	if (bus->wr_ind == bus->wr_size) {
++		if (bus->fifo_use && npcm_smb_get_fifo_fullness(bus) > 0)
++	// No more bytes to send (to add to the FIFO), however the FIFO is not
++	// empty yet. It is still in the middle of tx. Currently there's nothing
++	// to do except for waiting to the end of the tx.
++	// We will get an int when the FIFO will get empty.
++			return;
++
++		if (bus->rd_size == 0) {
++			// all bytes have been written, in a pure wr operation
++			npcm_smb_eob_int(bus, true);
++
++			// Issue a STOP condition on the bus
++			npcm_smb_master_stop(bus);
++			// Clear SDA Status bit (by writing dummy byte)
++			npcm_smb_wr_byte(bus, 0xFF);
++
++			bus->state = SMB_STOP_PENDING;
++			bus->stop_ind = SMB_MASTER_DONE_IND;
++		} else {
++			// last write-byte written on previous int - need to
++			// restart & send slave address
++			if (bus->PEC_use && !bus->read_block_use &&
++			    !npcm_smb_is_quick(bus))
++			    // PEC is used but the protocol is not block read
++			    // then we add extra bytes for PEC support
++				bus->rd_size += 1;
++
++			if (bus->fifo_use) {
++				if (bus->rd_size == 1 || bus->read_block_use) {
++					// SMBus Block read transaction.
++					iowrite8(0, bus->reg + NPCM_SMBTXF_CTL);
++					iowrite8(1, bus->reg + NPCM_SMBRXF_CTL);
++				}
++			}
++
++			npcm_smb_set_fifo(bus, bus->rd_size, -1);
++
++			// Generate (Repeated) Start upon next write to SDA
++			npcm_smb_master_start(bus);
++
++			if (bus->rd_size == 1)
++
++	// Receiving one byte only - stall after successful completion of send
++	// address byte. If we NACK here, and slave doesn't ACK the address, we
++	// might unintentionally NACK the next multi-byte read
++
++				npcm_smb_stall_after_start(bus, true);
++
++			// send the slave address in read direction
++			npcm_smb_wr_byte(bus, bus->dest_addr | 0x1);
++
++			// Next int will occur on read
++			bus->operation = SMB_READ_OPER;
++		}
++	} else {
++		if (bus->PEC_use && !npcm_smb_is_quick(bus))
++			// extra bytes for PEC support
++			bus->wr_size += 1;
++
++		// write next byte not last byte and not slave address
++		if (!bus->fifo_use || bus->wr_size == 1) {
++			if (bus->PEC_use && bus->rd_size == 0 &&
++			    (bus->wr_ind + 1 == bus->wr_size)) {
++				// Master write protocol to send PEC byte.
++				npcm_smb_write_PEC(bus);
++				bus->wr_ind++;
++			} else {
++				npcm_smb_wr_byte(bus,
++						 bus->wr_buf[bus->wr_ind++]);
++			}
++		} else { // FIFO is used
++			wcount = bus->wr_size - bus->wr_ind;
++			npcm_smb_set_fifo(bus, -1, wcount);
++			npcm_smb_write_to_fifo(bus, wcount);
++		}
++	}
++}
++
++static void npcm_smb_int_master_handler_read(struct npcm_i2c *bus)
++{
++	u16 block_zero_bytes;
++	u32 fifo_bytes;
++
++	// Master read operation (pure read or following a write operation).
++	NPCM_I2C_EVENT_LOG(NPCM_I2C_EVENT_READ);
++
++	// Initialize number of bytes to include only the first byte (presents
++	// a case where number of bytes to read is zero); add PEC if applicable
++	block_zero_bytes = 1;
++	if (bus->PEC_use)
++		block_zero_bytes++;
++
++	fifo_bytes = FIELD_GET(NPCM_SMBRXF_CTL_RX_THR,
++			       ioread8(bus->reg + NPCM_SMBRXF_CTL));
++
++	// Perform master read, distinguishing between last byte and the rest of
++	// the bytes. The last byte should be read when the clock is stopped
++	if ((bus->rd_ind < (bus->rd_size - 1)) ||  bus->fifo_use) {
++		u8 data;
++
++		// byte to be read is not the last one
++		// Check if byte-before-last is about to be read
++		if ((bus->rd_ind == (bus->rd_size - 2)) &&
++		    !bus->fifo_use){
++			// Set nack before reading byte-before-last, so that
++			// nack will be generated after receive of last byte
++			npcm_smb_nack(bus);
++
++			if (!FIELD_GET(NPCM_SMBST_SDAST,
++				       ioread8(bus->reg + NPCM_SMBST))) {
++				// No data available - reset state for new xfer
++				bus->state = SMB_IDLE;
++
++				// Notify upper layer of rx completion
++				npcm_smb_callback(bus, SMB_NO_DATA_IND,
++						  bus->rd_ind);
++			}
++		} else if (bus->rd_ind == 0) { //first byte handling:
++			// in block protocol first byte is the size
++			if (bus->read_block_use) {
++				npcm_smb_rd_byte(bus, &data);
++
++				// First byte indicates length in block protocol
++				bus->rd_buf[bus->rd_ind++] = data;
++				bus->rd_size = data + 1;
++
++				if (bus->PEC_use) {
++					bus->rd_size += 1;
++					data += 1;
++				}
++
++				if (bus->fifo_use) {
++					iowrite8(NPCM_SMBFIF_CTS_RXF_TXE |
++						 ioread8(bus->reg +
++							 NPCM_SMBFIF_CTS),
++						 bus->reg + NPCM_SMBFIF_CTS);
++
++					// first byte in block protocol
++					// is zero -> not supported. read at
++					// least one byte
++					if (data == 0)
++						data = 1;
++				}
++				npcm_smb_set_fifo(bus, bus->rd_size, -1);
++			} else {
++				if (!bus->fifo_use) {
++					npcm_smb_rd_byte(bus, &data);
++					bus->rd_buf[bus->rd_ind++] = data;
++				} else {
++					npcm_smb_clear_tx_fifo(bus);
++					npcm_smb_master_fifo_read(bus);
++				}
++			}
++
++		} else {
++			if (bus->fifo_use) {
++				if (bus->rd_size == block_zero_bytes &&
++				    bus->read_block_use) {
++					npcm_smb_eob_int(bus, true);
++					npcm_smb_master_stop(bus);
++					npcm_smb_read_from_fifo(bus,
++								fifo_bytes);
++					bus->state = SMB_STOP_PENDING;
++					bus->stop_ind = SMB_BLOCK_BYTES_ERR_IND;
++
++				} else {
++					npcm_smb_master_fifo_read(bus);
++				}
++			} else {
++				npcm_smb_rd_byte(bus, &data);
++				bus->rd_buf[bus->rd_ind++] = data;
++			}
++		}
++	} else {
++		// last byte is about to be read - end of transaction.
++		// Stop should be set before reading last byte.
++		u8 data;
++		enum smb_state_ind ind = SMB_MASTER_DONE_IND;
++
++		npcm_smb_eob_int(bus, true);
++
++		npcm_smb_master_stop(bus);
++
++		npcm_smb_rd_byte(bus, &data);
++
++		if (bus->rd_size == block_zero_bytes && bus->read_block_use) {
++			ind = SMB_BLOCK_BYTES_ERR_IND;
++		} else {
++			bus->rd_buf[bus->rd_ind++] = data;
++			if (npcm_smb_get_PEC(bus) != 0)
++				ind = SMB_MASTER_PEC_ERR_IND;
++		}
++
++		bus->state = SMB_STOP_PENDING;
++		bus->stop_ind = ind;
++	}
++}
++
++static void npcm_smb_int_master_handler(struct npcm_i2c *bus)
++{
++	// A negative acknowledge has occurred
++	if (FIELD_GET(NPCM_SMBST_NEGACK, ioread8(bus->reg + NPCM_SMBST))) {
++		NPCM_I2C_EVENT_LOG(NPCM_I2C_EVENT_NACK);
++		if (bus->fifo_use) {
++			// if there are still untransmitted bytes in TX FIFO
++			// reduce them from wr_ind
++
++			if (bus->operation == SMB_WRITE_OPER)
++				bus->wr_ind -= npcm_smb_get_fifo_fullness(bus);
++			// clear the FIFO
++			iowrite8(NPCM_SMBFIF_CTS_CLR_FIFO,
++				 bus->reg + NPCM_SMBFIF_CTS);
++		}
++
++		// In master write operation, NACK is a problem
++		// number of bytes sent to master less than required
++		npcm_smb_master_abort(bus);
++		bus->state = SMB_IDLE;
++
++		// In Master mode, NEGACK should be cleared only after
++		// generating STOP.
++		// In such case, the bus is released from stall only after the
++		// software clears NEGACK bit.
++		// Then a Stop condition is sent.
++		iowrite8(NPCM_SMBST_NEGACK, bus->reg + NPCM_SMBST);
++		npcm_smb_callback(bus, SMB_NACK_IND, bus->wr_ind);
++		return;
++	}
++
++	// Master mode: a Bus Error has been identified
++	if (FIELD_GET(NPCM_SMBST_BER, ioread8(bus->reg + NPCM_SMBST))) {
++		// Check whether bus arbitration or Start or Stop during data
++		// xfer bus arbitration problem should not result in recovery
++		if (npcm_smb_is_master(bus)) {
++			// Only current master is allowed to issue stop
++			npcm_smb_master_abort(bus);
++		} else {
++			// Bus arbitration loss
++			if (bus->retry_count-- > 0) {
++				// Perform a retry (generate a start condition)
++				// as soon as the SMBus is free
++				iowrite8(NPCM_SMBST_BER, bus->reg + NPCM_SMBST);
++				npcm_smb_master_start(bus);
++				return;
++			}
++		}
++		iowrite8(NPCM_SMBST_BER, bus->reg + NPCM_SMBST);
++		bus->state = SMB_IDLE;
++		npcm_smb_callback(bus, SMB_BUS_ERR_IND,
++				  npcm_smb_get_index(bus));
++		return;
++	}
++
++	// A Master End of Busy (meaning Stop Condition happened)
++	// End of Busy int is on and End of Busy is set
++	if ((FIELD_GET(NPCM_SMBCTL1_EOBINTE,
++		       ioread8(bus->reg + NPCM_SMBCTL1)) == 1) &&
++	    (FIELD_GET(NPCM_SMBCST3_EO_BUSY,
++		       ioread8(bus->reg + NPCM_SMBCST3)))) {
++		NPCM_I2C_EVENT_LOG(NPCM_I2C_EVENT_EOB);
++		npcm_smb_eob_int(bus, false);
++		bus->state = SMB_IDLE;
++		if (npcm_smb_is_quick(bus))
++			npcm_smb_callback(bus, bus->stop_ind, 0);
++		else
++			npcm_smb_callback(bus, bus->stop_ind, bus->rd_ind);
++		return;
++	}
++
++	// Address sent and requested stall occurred (Master mode)
++	if (FIELD_GET(NPCM_SMBST_STASTR, ioread8(bus->reg + NPCM_SMBST))) {
++		// Check for Quick Command SMBus protocol
++		if (npcm_smb_is_quick(bus)) {
++			npcm_smb_eob_int(bus, true);
++			npcm_smb_master_stop(bus);
++
++			// Update status
++			bus->state = SMB_STOP_PENDING;
++			bus->stop_ind = SMB_MASTER_DONE_IND;
++
++		} else if (bus->rd_size == 1) {
++			// Receiving one byte only - set NACK after ensuring
++			// slave ACKed the address byte
++			npcm_smb_nack(bus);
++		}
++
++		// Reset stall-after-address-byte
++		npcm_smb_stall_after_start(bus, false);
++
++		// Clear stall only after setting STOP
++		iowrite8(NPCM_SMBST_STASTR, bus->reg + NPCM_SMBST);
++
++		return;
++	}
++
++	// SDA status is set - transmit or receive, master
++	if (FIELD_GET(NPCM_SMBST_SDAST, ioread8(bus->reg + NPCM_SMBST)) ||
++	    (bus->fifo_use &&
++	    (npcm_smb_tx_fifo_full(bus) || npcm_smb_rx_fifo_full(bus)))) {
++		// Status Bit is cleared by writing to or reading from SDA
++		// (depending on current direction)
++		switch (bus->state) {
++		// Handle unsuccessful bus mastership
++		case SMB_IDLE:
++			npcm_smb_master_abort(bus);
++			return;
++
++		case SMB_MASTER_START:
++			if (npcm_smb_is_master(bus)) {
++				u8 addr_byte = bus->dest_addr;
++
++				bus->crc_data = 0;
++				if (npcm_smb_is_quick(bus)) {
++					// Need to stall after successful
++					// completion of sending address byte
++					npcm_smb_stall_after_start(bus, true);
++				} else if (bus->wr_size == 0) {
++					// Set direction to Read
++					addr_byte |= (u8)0x1;
++					bus->operation = SMB_READ_OPER;
++				} else {
++					bus->operation = SMB_WRITE_OPER;
++				}
++
++	// Receiving one byte only - stall after successful completion of
++	// sending address byte. If we NACK here, and slave doesn't ACK the
++	// address, we might unintentionally NACK the next multi-byte read
++				if (bus->wr_size == 0 && bus->rd_size == 1)
++					npcm_smb_stall_after_start(bus, true);
++
++				// Write the address to the bus
++				bus->state = SMB_OPER_STARTED;
++				npcm_smb_wr_byte(bus, addr_byte);
++			} else {
++				dev_err(bus->dev,
++					"SDA, bus%d is not master, wr %d 0x%x...\n",
++					bus->num, bus->wr_size,
++					bus->wr_buf[0]);
++			}
++			break;
++
++		// SDA status is set - transmit or receive: Handle master mode
++		case SMB_OPER_STARTED:
++			if (bus->operation == SMB_WRITE_OPER)
++				npcm_smb_int_master_handler_write(bus);
++			else if (bus->operation == SMB_READ_OPER)
++				npcm_smb_int_master_handler_read(bus);
++			else
++				pr_err("I2C%d: unknown operation\n", bus->num);
++			break;
++		default:
++			dev_err(bus->dev, "i2c%d master sda err on state machine\n",
++				bus->num);
++		}
++	}
++}
++
++static int npcm_smb_recovery(struct i2c_adapter *_adap)
++{
++	u8   iter = 27;	  // Allow one byte to be sent by the Slave
++	u16  timeout;
++	bool done = false;
++	struct npcm_i2c *bus = container_of(_adap, struct npcm_i2c, adap);
++
++	dev_info(bus->dev, "recovery bus%d\n", bus->num);
++
++	might_sleep();
++
++	// Disable int
++	npcm_smb_int_enable(bus, false);
++
++	// Check If the SDA line is active (low)
++	if (FIELD_GET(NPCM_SMBCST_TSDA, ioread8(bus->reg + NPCM_SMBCST)) == 0) {
++		// Repeat the following sequence until SDA is released
++		do {
++			// Issue a single SCL cycle
++			iowrite8(NPCM_SMBCST_TGSCL, bus->reg + NPCM_SMBCST);
++			timeout = ABORT_TIMEOUT;
++			while (timeout != 0 &&
++			       FIELD_GET(NPCM_SMBCST_TGSCL,
++					 ioread8(bus->reg + NPCM_SMBCST) == 0))
++				timeout--;
++
++			// If SDA line is inactive (high), stop
++			if (FIELD_GET(NPCM_SMBCST_TSDA,
++				      ioread8(bus->reg + NPCM_SMBCST)) == 1)
++				done = true;
++		} while ((!done) && (--iter != 0));
++
++		// If SDA line is released (high)
++		if (done) {
++			// Clear BB (BUS BUSY) bit
++			iowrite8(NPCM_SMBCST_BB, bus->reg + NPCM_SMBCST);
++
++			// Generate a START, to synchronize Master and Slave
++			npcm_smb_master_start(bus);
++
++			// Wait until START condition is sent, or timeout
++			timeout = ABORT_TIMEOUT;
++			while (timeout != 0 && !npcm_smb_is_master(bus))
++				timeout--;
++
++			// If START condition was sent
++			if (timeout > 0) {
++				// Send an address byte
++				npcm_smb_wr_byte(bus, bus->dest_addr);
++
++				// Generate a STOP condition
++				npcm_smb_master_stop(bus);
++			}
++			return 0;
++		}
++	}
++
++	// check if success:
++	if (npcm_smb_get_SCL(_adap) == 1 && npcm_smb_get_SDA(_adap) == 1)
++		goto npcm_smb_recovery_done;
++
++	// hold clock low for 35ms: 25 and some spair:
++	npcm_smb_set_SCL(_adap, 0);
++	usleep_range(35000, 40000);
++	npcm_smb_set_SCL(_adap, 1);
++	usleep_range(1000, 2000);
++
++	// check if success:
++	if (npcm_smb_get_SCL(_adap) == 1 && npcm_smb_get_SDA(_adap) == 1)
++		goto npcm_smb_recovery_done;
++
++	return 0;
++
++npcm_smb_recovery_done:
++
++	npcm_smb_int_enable(bus, true);
++	return -(ENOTRECOVERABLE);
++}
++
++static bool npcm_smb_init_clk(struct npcm_i2c *bus, enum smb_mode mode,
++			      u32 bus_freq)
++{
++	u32  k1 = 0;
++	u32  k2 = 0;
++	u8   dbnct = 0;
++	u32  sclfrq = 0;
++	u8   hldt = 7;
++	bool fast_mode = false;
++	u32  src_clk_freq; // in KHz
++
++	src_clk_freq = bus->apb_clk / 1000;
++
++	if (bus_freq <= SMBUS_FREQ_100KHZ) {
++		sclfrq = src_clk_freq / (bus_freq * 4);
++
++		if (sclfrq < SCLFRQ_MIN || sclfrq > SCLFRQ_MAX)
++			return false;
++
++		if (src_clk_freq >= 40000)
++			hldt = 17;
++		else if (src_clk_freq >= 12500)
++			hldt = 15;
++		else
++			hldt = 7;
++	}
++
++	else if (bus_freq == SMBUS_FREQ_400KHZ) {
++		sclfrq = 0;
++		fast_mode = true;
++
++		if ((mode == SMB_MASTER && src_clk_freq < 7500) ||
++		    (mode == SMB_SLAVE && src_clk_freq < 10000))
++		  // 400KHZ cannot be supported for master core clock < 7.5 MHZ
++		  // or slave core clock < 10 MHZ
++			return false;
++
++		// Master or Slave with frequency > 25 MHZ
++		if (mode == SMB_MASTER || src_clk_freq > 25000) {
++			hldt = (u8)__KERNEL_DIV_ROUND_UP(src_clk_freq * 300,
++							 1000000) + 7;
++			if (mode == SMB_MASTER) {
++				k1 = __KERNEL_DIV_ROUND_UP(src_clk_freq * 1600,
++							   1000000);
++				k2 = __KERNEL_DIV_ROUND_UP(src_clk_freq * 900,
++							   1000000);
++				k1 = round_up(k1, 2);
++				k2 = round_up(k2 + 1, 2);
++				if (k1 < SCLFRQ_MIN || k1 > SCLFRQ_MAX ||
++				    k2 < SCLFRQ_MIN || k2 > SCLFRQ_MAX)
++					return false;
++			}
++		} else { // Slave with frequency 10-25 MHZ
++			hldt = 7;
++			dbnct = 2;
++		}
++	}
++
++	else if (bus_freq == SMBUS_FREQ_1MHZ) {
++		sclfrq = 0;
++		fast_mode = true;
++
++		if ((mode == SMB_MASTER && src_clk_freq < 15000) ||
++		    (mode == SMB_SLAVE	&& src_clk_freq < 24000))
++		// 1MHZ cannot be supported for master core clock < 15 MHZ
++		// or slave core clock < 24 MHZ
++			return false;
++
++		if (mode == SMB_MASTER) {
++			k1 = round_up((__KERNEL_DIV_ROUND_UP(src_clk_freq * 620,
++							     1000000)), 2);
++			k2 = round_up((__KERNEL_DIV_ROUND_UP(src_clk_freq * 380,
++							     1000000) + 1), 2);
++			if (k1 < SCLFRQ_MIN || k1 > SCLFRQ_MAX ||
++			    k2 < SCLFRQ_MIN || k2 > SCLFRQ_MAX) {
++				return false;
++			}
++		}
++
++		// Master or Slave with frequency > 40 MHZ
++		if (mode == SMB_MASTER || src_clk_freq > 40000) {
++			// Set HLDT:
++			// SDA hold time:  (HLDT-7) * T(CLK) >= 120
++			// HLDT = 120/T(CLK) + 7 = 120 * FREQ(CLK) + 7
++			hldt = (u8)__KERNEL_DIV_ROUND_UP(src_clk_freq * 120,
++							 1000000) + 7;
++
++		// Slave with frequency 24-40 MHZ
++		} else {
++			hldt = 7;
++			dbnct = 2;
++		}
++	}
++
++	// Frequency larger than 1 MHZ
++	else
++		return false;
++
++	// After clock parameters calculation update the reg
++	iowrite8((ioread8(bus->reg + NPCM_SMBCTL2)
++		& ~SMBCTL2_SCLFRQ6_0) | FIELD_PREP(SMBCTL2_SCLFRQ6_0,
++		sclfrq & 0x7F), bus->reg + NPCM_SMBCTL2);
++
++	iowrite8((ioread8(bus->reg + NPCM_SMBCTL3) & ~SMBCTL3_SCLFRQ8_7) |
++		 FIELD_PREP(SMBCTL3_SCLFRQ8_7, (sclfrq >> 7) & 0x3),
++		 bus->reg + NPCM_SMBCTL3);
++
++	iowrite8((ioread8(bus->reg + NPCM_SMBCTL3) & ~SMBCTL3_400K_MODE) |
++		 FIELD_PREP(SMBCTL3_400K_MODE, fast_mode),
++		 bus->reg + NPCM_SMBCTL3);
++
++	// Select Bank 0 to access NPCM_SMBCTL4/NPCM_SMBCTL5
++	npcm_smb_select_bank(bus, SMB_BANK_0);
++
++	if (bus_freq >= SMBUS_FREQ_400KHZ) {
++		// k1 and k2 are relevant for master mode only
++		if (mode == SMB_MASTER) {
++			// Set SCL Low/High Time:
++			// k1 = 2 * SCLLT7-0 -> Low Time  = k1 / 2
++			// k2 = 2 * SCLLT7-0 -> High Time = k2 / 2
++			iowrite8((u8)k1 / 2, bus->reg + NPCM_SMBSCLLT);
++			iowrite8((u8)k2 / 2, bus->reg + NPCM_SMBSCLHT);
++		} else { // DBNCT is relevant for slave mode only
++			iowrite8((ioread8(bus->reg + NPCM_SMBCTL5) &
++				 ~SMBCTL5_DBNCT) |
++				 FIELD_PREP(SMBCTL5_DBNCT, dbnct),
++				 bus->reg + NPCM_SMBCTL5);
++		}
++	}
++
++	iowrite8((ioread8(bus->reg + NPCM_SMBCTL4) & ~SMBCTL4_HLDT)
++		 | FIELD_PREP(SMBCTL4_HLDT, hldt), bus->reg + NPCM_SMBCTL4);
++
++	// Return to Bank 1, and stay there by default:
++	npcm_smb_select_bank(bus, SMB_BANK_1);
++
++	dev_dbg(bus->dev, "k1 = %d k2 = %d dbnct = %d sclfrq = %d hldt = %d src_clk_freq %d fast_mode %d\n",
++		k1, k2, dbnct, sclfrq, hldt, src_clk_freq, fast_mode);
++
++	return true;
++}
++
++static bool npcm_smb_init_module(struct npcm_i2c *bus, enum smb_mode mode,
++				 u32 bus_freq)
++{
++	// Check whether module already enabled or frequency is out of bounds
++	if ((bus->state != SMB_DISABLE && bus->state != SMB_IDLE) ||
++	    bus_freq < SMBUS_FREQ_MIN || bus_freq > SMBUS_FREQ_MAX)
++		return false;
++	// Configure FIFO disabled mode so slave will not use fifo
++	// (maste will set it on if supported)
++	bus->threshold_fifo = SMBUS_FIFO_SIZE;
++	iowrite8(ioread8(bus->reg + NPCM_SMBFIF_CTL) & ~NPCM_SMBFIF_CTL_FIFO_EN,
++		 bus->reg + NPCM_SMBFIF_CTL);
++
++	bus->fifo_use = false;
++
++	// Configure SMB module clock frequency
++	if (!npcm_smb_init_clk(bus, mode, bus_freq)) {
++		pr_err("npcm_smb_init_clk failed\n");
++		return false;
++	}
++	npcm_smb_disable(bus);
++
++	// Enable module (before configuring CTL1)
++	npcm_smb_enable(bus);
++	bus->state = SMB_IDLE;
++
++	// Enable SMB int and New Address Match int source
++	iowrite8((ioread8(bus->reg + NPCM_SMBCTL1) | NPCM_SMBCTL1_NMINTE) &
++		 ~NPCM_SMBCTL1_RWS_FIELDS,
++		 bus->reg + NPCM_SMBCTL1);
++
++	npcm_smb_int_enable(bus, true);
++	return true;
++}
++
++static int __npcm_i2c_init(struct npcm_i2c *bus, struct platform_device *pdev)
++{
++	u32 clk_freq;
++	int ret;
++
++	// Initialize the internal data structures
++	bus->state = SMB_DISABLE;
++	bus->master_or_slave = SMB_SLAVE;
++
++	ret = of_property_read_u32(pdev->dev.of_node,
++				   "bus-frequency", &clk_freq);
++	if (ret < 0) {
++		dev_err(&pdev->dev,
++			"Could not read bus-frequency property\n");
++		clk_freq = 100000;
++	}
++	ret = npcm_smb_init_module(bus, SMB_MASTER, clk_freq / 1000);
++	if (!ret) {
++		dev_err(&pdev->dev,
++			"npcm_smb_init_module() failed\n");
++		return -1;
++	}
++
++	crc8_populate_lsb(npcm7xx_crc8, 0x07);
++	crc8_populate_msb(npcm7xx_crc8, 0x07);
++	return 0;
++}
++
++static irqreturn_t npcm_i2c_bus_irq(int irq, void *dev_id)
++{
++	struct npcm_i2c *bus = dev_id;
++
++	bus->int_cnt++;
++	_npcm7xx_get_time_stamp(&bus->int_time_stamp[0],
++				&bus->int_time_stamp[1]);
++	if (bus->master_or_slave == SMB_MASTER)	{
++		npcm_smb_int_master_handler(bus);
++		return IRQ_HANDLED;
++	}
++
++	dev_err(bus->dev, "int unknown on bus%d\n", bus->num);
++	return IRQ_NONE;
++}
++
++static bool npcm_smb_master_start_xmit(struct npcm_i2c *bus,
++				       u8 slave_addr, u16 nwrite, u16 nread,
++				       u8 *write_data, u8 *read_data,
++				       bool use_PEC)
++{
++	//
++	// Allow only if bus is not busy
++	//
++	if (bus->state != SMB_IDLE) {
++		dev_info(bus->dev, "\tbus%d->state != SMB_IDLE\n", bus->num);
++		return false;
++	}
++
++	// Configure FIFO mode :
++	if (FIELD_GET(SMB_VER_FIFO_EN, ioread8(bus->reg + SMB_VER))) {
++		bus->fifo_use = true;
++		iowrite8(ioread8(bus->reg + NPCM_SMBFIF_CTL) |
++			 NPCM_SMBFIF_CTL_FIFO_EN, bus->reg + NPCM_SMBFIF_CTL);
++	} else {
++		bus->fifo_use = false;
++	}
++
++	// Update driver state
++	bus->master_or_slave = SMB_MASTER;
++	bus->state = SMB_MASTER_START;
++	if (nwrite > 0)
++		bus->operation = SMB_WRITE_OPER;
++	else
++		bus->operation = SMB_READ_OPER;
++
++	if (npcm_smb_is_quick(bus))
++		bus->operation = SMB_WRITE_OPER; // send the address with W bit.
++
++	bus->dest_addr = (u8)(slave_addr << 1);// Translate 7bit to 8bit format
++	bus->wr_buf = write_data;
++	bus->wr_size = nwrite;
++	bus->wr_ind = 0;
++	bus->rd_buf = read_data;
++	bus->rd_size = nread;
++	bus->rd_ind = 0;
++	bus->PEC_use = use_PEC;
++	bus->retry_count = SMB_RETRY_MAX_COUNT;
++
++	// clear BER just in case it is set due to a previous transaction
++	iowrite8(NPCM_SMBST_BER, bus->reg + NPCM_SMBST);
++
++	// Initiate SMBus master transaction
++	// Generate a Start condition on the SMBus
++	if (bus->fifo_use) {
++		// select bank 1 for FIFO regs
++		npcm_smb_select_bank(bus, SMB_BANK_1);
++
++		// clear FIFO and relevant status bits.
++		iowrite8(ioread8(bus->reg + NPCM_SMBFIF_CTS) |
++			 NPCM_SMBFIF_CTS_SLVRSTR |
++			 NPCM_SMBFIF_CTS_CLR_FIFO |
++			 NPCM_SMBFIF_CTS_RXF_TXE, bus->reg + NPCM_SMBFIF_CTS);
++
++		if (bus->operation == SMB_READ_OPER) {
++			//This is a read only operation. Configure the FIFO
++			//threshold according to the needed # of bytes to read.
++			npcm_smb_set_fifo(bus, nread, -1);
++		} else if (bus->operation == SMB_WRITE_OPER) {
++			npcm_smb_set_fifo(bus, -1, nwrite);
++		}
++	}
++
++	bus->int_cnt = 0;
++	bus->event_log = 0;
++	npcm_smb_master_start(bus);
++
++	return true;
++}
++
++static int npcm_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
++				int num)
++{
++	struct npcm_i2c *bus = adap->algo_data;
++	struct i2c_msg *msg0, *msg1;
++	unsigned long time_left, flags;
++	u16 nwrite, nread;
++	u8 *write_data, *read_data;
++	u8 slave_addr;
++	int ret = 0;
++
++	spin_lock_irqsave(&bus->lock, flags);
++	bus->cmd_err = -EPERM;
++	bus->int_cnt = 0;
++	bus->stop_ind = SMB_NO_STATUS_IND;
++	bus->read_block_use = false;
++
++	iowrite8(0xFF, bus->reg + NPCM_SMBST);
++
++	if (num > 2 || num < 1) {
++		pr_err("I2C command not supported, num of msgs = %d\n", num);
++		spin_unlock_irqrestore(&bus->lock, flags);
++		return -EINVAL;
++	}
++
++	msg0 = &msgs[0];
++	slave_addr = msg0->addr;
++	if (msg0->flags & I2C_M_RD) { // read
++		if (num == 2) {
++			pr_err(" num = 2 but first msg is rd instead of wr\n");
++			spin_unlock_irqrestore(&bus->lock, flags);
++			return -EINVAL;
++		}
++		nwrite = 0;
++		write_data = NULL;
++		if (msg0->flags & I2C_M_RECV_LEN) {
++			nread = 1;
++			bus->read_block_use = true;
++
++		} else {
++			nread = msg0->len;
++		}
++		read_data = msg0->buf;
++
++	} else { // write
++		nwrite = msg0->len;
++		write_data = msg0->buf;
++		nread = 0;
++		read_data = NULL;
++		if (num == 2) {
++			msg1 = &msgs[1];
++			if (slave_addr != msg1->addr) {
++				pr_err("SA==%02x but msg1->addr == %02x\n",
++				       slave_addr, msg1->addr);
++				spin_unlock_irqrestore(&bus->lock, flags);
++				return -EINVAL;
++			}
++			if ((msg1->flags & I2C_M_RD) == 0) {
++				pr_err("num = 2 but both msg are write.\n");
++				spin_unlock_irqrestore(&bus->lock, flags);
++				return -EINVAL;
++			}
++			if (msg1->flags & I2C_M_RECV_LEN) {
++				nread = 1;
++				bus->read_block_use = true;
++			} else {
++				nread = msg1->len;
++				bus->read_block_use = false;
++			}
++
++			read_data = msg1->buf;
++		}
++	}
++
++	bus->msgs = msgs;
++	bus->msgs_num = num;
++
++	if (nwrite >= 32 * 1024 ||  nread >= 32 * 1024) {
++		pr_err("i2c%d buffer too big\n", bus->num);
++		return -EINVAL;
++	}
++
++	reinit_completion(&bus->cmd_complete);
++
++	if (npcm_smb_master_start_xmit(bus, slave_addr, nwrite, nread,
++				       write_data, read_data, 0) == false)
++		ret = -(EBUSY);
++
++	if (ret != -(EBUSY)) {
++		time_left = wait_for_completion_timeout(&bus->cmd_complete,
++							bus->adap.timeout);
++
++		if (time_left == 0 && bus->cmd_err == -EPERM) {
++			npcm_smb_master_abort(bus);
++			ret = -ETIMEDOUT;
++		} else {
++			ret = bus->cmd_err;
++		}
++	}
++
++	bus->msgs = NULL;
++	bus->msgs_num = 0;
++	spin_unlock_irqrestore(&bus->lock, flags);
++
++	// If nothing went wrong, return number of messages xferred.
++	if (ret >= 0)
++		return num;
++	else
++		return ret;
++}
++
++static u32 npcm_i2c_functionality(struct i2c_adapter *adap)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_SMBUS_BLOCK_DATA;
++}
++
++static const struct i2c_algorithm npcm_i2c_algo = {
++	.master_xfer = npcm_i2c_master_xfer,
++	.functionality = npcm_i2c_functionality,
++};
++
++static struct i2c_bus_recovery_info npcm_i2c_recovery = {
++	.recover_bus = npcm_smb_recovery,
++	.get_scl = npcm_smb_get_SCL,
++	.set_scl = npcm_smb_set_SCL,
++	.get_sda = npcm_smb_get_SDA,
++};
++
++static int  npcm_i2c_probe_bus(struct platform_device *pdev)
++{
++	struct npcm_i2c *bus;
++	struct resource *res;
++	struct clk *i2c_clk;
++	int ret;
++	int num;
++
++	bus = devm_kzalloc(&pdev->dev, sizeof(*bus), GFP_KERNEL);
++	if (!bus)
++		return -ENOMEM;
++
++#ifdef CONFIG_OF
++	num = of_alias_get_id(pdev->dev.of_node, "i2c");
++	bus->num = num;
++	i2c_clk = devm_clk_get(&pdev->dev, NULL);
++	if (IS_ERR(i2c_clk)) {
++		pr_err(" I2C probe failed: can't read clk.\n");
++		return	-EPROBE_DEFER;
++	}
++	bus->apb_clk = clk_get_rate(i2c_clk);
++	dev_dbg(bus->dev, "I2C APB clock is %d\n", bus->apb_clk);
++#endif //  CONFIG_OF
++
++	gcr_regmap = syscon_regmap_lookup_by_compatible("nuvoton,npcm750-gcr");
++	if (IS_ERR(gcr_regmap)) {
++		pr_err("%s: failed to find nuvoton,npcm750-gcr\n", __func__);
++		return IS_ERR(gcr_regmap);
++	}
++	regmap_write(gcr_regmap, NPCM_I2CSEGCTL, I2CSEGCTL_VAL);
++	dev_dbg(bus->dev, "I2C%d: gcr mapped\n", bus->num);
++
++	clk_regmap = syscon_regmap_lookup_by_compatible("nuvoton,npcm750-clk");
++	if (IS_ERR(clk_regmap)) {
++		pr_err("%s: failed to find nuvoton,npcm750-clk\n", __func__);
++		return IS_ERR(clk_regmap);
++	}
++	dev_dbg(bus->dev, "I2C%d: clk mapped\n", bus->num);
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	dev_dbg(bus->dev, "resource: %pR\n", res);
++	bus->reg = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR((bus)->reg))
++		return PTR_ERR((bus)->reg);
++	dev_dbg(bus->dev, "base = %p\n", bus->reg);
++
++	// Initialize the I2C adapter
++	spin_lock_init(&bus->lock);
++	init_completion(&bus->cmd_complete);
++	bus->adap.owner = THIS_MODULE;
++	bus->adap.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
++	bus->adap.retries = 0;
++	bus->adap.timeout = 500 * HZ / 1000;
++	bus->adap.algo = &npcm_i2c_algo;
++	bus->adap.algo_data = bus;
++	bus->adap.dev.parent = &pdev->dev;
++	bus->adap.dev.of_node = pdev->dev.of_node;
++	bus->adap.bus_recovery_info = &npcm_i2c_recovery;
++
++	snprintf(bus->adap.name, sizeof(bus->adap.name), "Nuvoton i2c");
++
++	bus->dev = &pdev->dev;
++
++	ret = __npcm_i2c_init(bus, pdev);
++	if (ret < 0)
++		return ret;
++
++	bus->irq = platform_get_irq(pdev, 0);
++	if (bus->irq < 0) {
++		pr_err("I2C platform_get_irq error.");
++		return -ENODEV;
++	}
++	dev_dbg(bus->dev, "irq = %d\n", bus->irq);
++
++	ret = request_irq(bus->irq, npcm_i2c_bus_irq, 0,
++			  dev_name(&pdev->dev), (void *)bus);
++	if (ret) {
++		dev_err(&pdev->dev, "I2C%d: request_irq fail\n", bus->num);
++		return ret;
++	}
++
++	ret = i2c_add_adapter(&bus->adap);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "I2C%d: i2c_add_adapter fail\n", bus->num);
++		return ret;
++	}
++
++	platform_set_drvdata(pdev, bus);
++	pr_info("i2c bus %d registered\n", bus->adap.nr);
++
++	return 0;
++}
++
++static int  npcm_i2c_remove_bus(struct platform_device *pdev)
++{
++	unsigned long lock_flags;
++	struct npcm_i2c *bus = platform_get_drvdata(pdev);
++
++	spin_lock_irqsave(&bus->lock, lock_flags);
++	npcm_smb_disable(bus);
++	spin_unlock_irqrestore(&bus->lock, lock_flags);
++	i2c_del_adapter(&bus->adap);
++
++	return 0;
++}
++
++static const struct of_device_id npcm_i2c_bus_of_table[] = {
++	{ .compatible = "nuvoton,npcm750-i2c", },
++	{},
++};
++MODULE_DEVICE_TABLE(of, npcm_i2c_bus_of_table);
++
++static struct platform_driver npcm_i2c_bus_driver = {
++	.probe = npcm_i2c_probe_bus,
++	.remove = npcm_i2c_remove_bus,
++	.driver = {
++		.name = "nuvoton-i2c-bus",
++		.of_match_table = npcm_i2c_bus_of_table,
++	}
++};
++module_platform_driver(npcm_i2c_bus_driver);
++
++MODULE_AUTHOR("Avi Fishman <avi.fishman@gmail.com>");
++MODULE_AUTHOR("Tali Perry <tali.perry@nuvoton.com>");
++MODULE_DESCRIPTION("Nuvoton I2C Bus Driver");
++MODULE_LICENSE("GPL v2");
++MODULE_VERSION(I2C_VERSION);
+-- 
+2.14.1
