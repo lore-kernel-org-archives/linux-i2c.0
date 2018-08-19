@@ -1,7 +1,7 @@
 From: Sedat Dilek <sedat.dilek@credativ.de>
-Subject: [PATCH v2] i2c: Remove '-Wno-deprecated-declarations' compiler warning
-Date: Sun, 19 Aug 2018 15:51:35 +0200
-Message-ID: <20180819135135.8801-1-sedat.dilek@credativ.de>
+Subject: [PATCH] i2c: Remove '-Wno-deprecated-declarations' compiler warning
+Date: Sun, 19 Aug 2018 15:45:40 +0200
+Message-ID: <20180819134540.8653-1-sedat.dilek@credativ.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
@@ -15,7 +15,7 @@ now in upstream.
 Please, use the kbuild infrastruture to disable compiler warnings.
 This should be...
 
-CFLAGS_i2c-core-base.o := $(call cc-disable-warning, deprecated-declarations)
+CFLAGS_i2c-core-base.o := $(call cc-disable-warning, no-deprecated-declarations)
 
 This has the advantage to check if other compilers like GCC support this.
 
@@ -26,7 +26,6 @@ NOTE: My compiler is a prerelease of LLVM/Clang version 7.
 CC: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Sedat Dilek <sedat.dilek@credativ.de>
 ---
-[ v2: Fix typo s/no-deprecated-declarations/deprecated-declarations. -dileks ]
  drivers/i2c/Makefile | 1 -
  1 file changed, 1 deletion(-)
 
