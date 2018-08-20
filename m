@@ -1,29 +1,60 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 4/7] i2c: designware: document MSCC Ocelot bindings
-Date: Mon, 20 Aug 2018 13:13:41 -0500
-Message-ID: <20180820181341.GA982@bogus>
-References: <20180816084521.16289-1-alexandre.belloni@bootlin.com>
- <20180816084521.16289-5-alexandre.belloni@bootlin.com>
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Subject: Re: [PATCH v2 06/29] mtd: Add support for reading MTD devices via
+ the nvmem API
+Date: Mon, 20 Aug 2018 20:20:38 +0200
+Message-ID: <20180820202038.5d3dc195@bbrezillon>
+References: <20180810080526.27207-1-brgl@bgdev.pl>
+        <20180810080526.27207-7-brgl@bgdev.pl>
+        <20180817182720.6a6e5e8e@bbrezillon>
+        <20180819133106.0420df5f@tock>
+        <20180819184609.6dcdbb9a@bbrezillon>
+        <5b8c30b8-41e1-d59e-542b-fef6c6469ff0@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180816084521.16289-5-alexandre.belloni@bootlin.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microsemi.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <5b8c30b8-41e1-d59e-542b-fef6c6469ff0@linaro.org>
+Sender: netdev-owner@vger.kernel.org
+To: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: Alban <albeu@free.fr>, Bartosz Golaszewski <brgl@bgdev.pl>, Jonathan Corbet <corbet@lwn.net>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Woodhouse <dwmw2@infradead.org>, Brian Norris <computersforpeace@gmail.com>, Marek Vasut <marek.vasut@gmail.com>, Richard Weinberger <richard@nod.at>, Grygorii Strashko <grygorii.strashko@ti.com>, "David S . Miller" <davem@davemloft.net>, Naren <naren.kernel@gmail.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Lukas Wunner <lukas@wunner.de>, Dan Carpenter <dan.carpenter@oracle.com>, Florian Fainelli <f.fainelli@gmail.co>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Aug 16, 2018 at 10:45:18AM +0200, Alexandre Belloni wrote:
-> Document bindings for the Microsemi Ocelot integration of the Designware
-> I2C controller.
+On Mon, 20 Aug 2018 11:43:34 +0100
+Srinivas Kandagatla <srinivas.kandagatla@linaro.org> wrote:
+
 > 
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-designware.txt | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
+> Overall am still not able to clear visualize on how MTD bindings with 
+> nvmem cells would look in both partition and un-partition usecases?
+> An example DT would be nice here!!
 
-No need to re-spin just for the subject.
+Something along those lines:
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+	mtdnode {
+		nvmem-cells {
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			cell@0 {
+				reg = <0x0 0x14>;
+			};
+		};
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				reg = <0x0 0x20000>;
+
+				nvmem-cells {
+					#address-cells = <1>;
+					#size-cells = <1>;
+
+					cell@0 {
+						reg = <0x0 0x10>;
+					};
+				};
+			};
+		};
+	};
