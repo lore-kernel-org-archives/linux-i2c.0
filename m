@@ -1,107 +1,65 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: Remove '-Wno-deprecated-declarations' compiler
- warning
-Date: Mon, 20 Aug 2018 10:06:29 +0200
-Message-ID: <20180820080629.i7y4cx4wewmcyqpk@ninjato>
-References: <20180819135135.8801-1-sedat.dilek@credativ.de>
- <CA+55aFxv5_8C5ApV4cDjpvAmZbn1aiKebc7yrRWBskQQbz9=Hw@mail.gmail.com>
- <1d2a7c56cc44ff639ef2943366f4868e6e5ecdfe.camel@kernel.crashing.org>
+Subject: Re: [RESEND PATCH] i2c/busses/pasemi: Remove hardcoded bus numbers
+ on smbus
+Date: Mon, 20 Aug 2018 11:07:18 +0200
+Message-ID: <20180820090718.eb4kgadzg7qevqrx@ninjato>
+References: <4b3d0f2cad0.58555470@auth.smtp.1and1.co.uk>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="tee3kciyjjipcgdi"
+        protocol="application/pgp-signature"; boundary="c47ohostxojzrm6n"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1d2a7c56cc44ff639ef2943366f4868e6e5ecdfe.camel@kernel.crashing.org>
+In-Reply-To: <4b3d0f2cad0.58555470@auth.smtp.1and1.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, sedat.dilek@credativ.de, Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, Paul Mackerras <pmac@au1.ibm.com>
+To: Darren Stevens <darren@stevens-zone.net>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---tee3kciyjjipcgdi
+--c47ohostxojzrm6n
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 20, 2018 at 12:12:47PM +1000, Benjamin Herrenschmidt wrote:
-> On Sun, 2018-08-19 at 09:46 -0700, Linus Torvalds wrote:
-> > On Sun, Aug 19, 2018 at 6:51 AM Sedat Dilek <sedat.dilek@credativ.de> w=
-rote:
-> > >=20
-> > > This can be dropped with commit 771c035372a036f83353eef46dbb829780330=
-234
-> > > ("deprecate the '__deprecated' attribute warnings entirely and for go=
-od")
-> > > now in upstream.
-> >=20
-> > Could we please just remove the __deprecated use in i2c entirely?
-> >=20
-> > As fat as I can tell, it's used for one thing, which is the
-> > "attach_adapter" function pointer member in 'struct i2c_driver'.
-> >=20
-> > And I think there is _one_ remaining driver using it, namely the
-> > powermac "therm_windtunnel" driver.
-> >=20
-> > Could somebody who knows the i2c probing just a bit convert that *one*
-> > remaining driver, then remove the "attach_adapter" entirely, and also
-> > remove this thing?
-> >=20
-> > Alternatively, perhaps the driver should be removed? The last actual
-> > powermac change to that driver seems to be from August 2009.
-> > Everything since has been just cleanup unrelated to that driver code
-> > itself (ie spelling fixes, automated coccinelle scripts etc).
-> >=20
-> > Added a few people either because they're still officially maintainers
-> > of that file, or because they touched the code ten years ago.
+On Sun, Dec 31, 2017 at 08:53:55PM +0000, Darren Stevens wrote:
+> The pasemi smbus controller uses PCI_FUNC(dev->devfn) to define which
+> number bus to attach to, however this fails when something else is=20
+> probed first, for example an ATI Radeon graphics card will claim 9 or
+> 10 busses, including the ones the pasemi wants.
+> Patch the driver to call i2c_add_adapter rather than
+> i2c_add_numbered_adapter.
 >=20
-> Some people still use those old machines, I'll give a try at fixing the
-> driver.
+> Signed-off-by: Darren Stevens <darren@stevens-zone.net>
+>=20
 
-I did this here a while ago [1] ("macintosh: therm_windtunnel: drop
-using attach adapter")...
+Applied to for-next, thanks!
 
-> Paul: Do you still have one of these machines ?
+Disclaimer: I usually do not like to change the bus numbering because
+some people may rely on that. But numbering based on PCI functions seems
+really weak and all known users of pasemi seem to have issues here, so I
+make an exception.
 
-=2E.. but this was the main problem. I couldn't find anyone to test this.
-Even asked on PPC lists of various distributions.
-
-Note that we did apply the same approach of patch [1] already in commit
-ac397c80de89 ("ALSA: ppc: keywest: drop using attach adapter"). This has
-been tested on HW. I also have a hack to make this driver probe on one
-of my ARM boards. Of course, no real HW present there, but shows that
-the new probing works at least there.
-
-This is very interesting timing, too. Because I wanted to use the
-tentative version jump to 5.0 to finally get rid of this deprecated
-feature independently of the discussion here. Which would have meant
-resending the patch and arguing we have enough indications that the
-patch [1] is sane. And then I could finally remove this callback.
-
-Thanks,
-
-   Wolfram
-
-[1] http://patchwork.ozlabs.org/patch/461759/
+Thanks to Michael Ellerman for the additional info.
 
 
---tee3kciyjjipcgdi
+--c47ohostxojzrm6n
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlt6doAACgkQFA3kzBSg
-KbZk/A//cpCMtKUwztdNTPu70z0HxMxBpdMhItbKcxDHV2VcssC57fLeNla+1Ng1
-uT/4/Xni1TZOf+srO50veerXDZadQydAwp9rVw4N0567T859tmB09aXP4PQKXTB7
-H6j/pUQOYWJek3drbWaW3jeDVOhQRQL13IwYfjeHq335NePYcD/kqWRkM7FMNaQ+
-nl1MRVDXAYfLPmXW++YQNKwEQ9dsiC62+mnAFqUjm6mlel9wHUKMMMfTdUd+fPjD
-NwpQDBRV8nCJJWs/MZMSWGVfr+8sEcNyqomfvNuTZYLMJ7Tu2TkaKAeCUyNl2BZc
-GTVqdYgsLL9cW3N92Qs0Kr+tg6E4adUEajuwn7kRgPv2Y9x1a9bNvP5NxWKV+Qm9
-TBFrr0f9PQuJAG5UyVQR61+HN4WHiV0RfVgNtO/6k3qt9kfIjnu6Wdiyt9iyHLI6
-RBKBWqVAI6p5kiaEBP2yzQmMskOODH1hTdN4FJ3joFRFKVW17/pf341DP5WeLlZT
-7Vlq1OPHMWbx5Y+iyziTkKAgLfhgLHo9qXLZP33WJlhNPDAvI3/VhN9N3MoyKoq5
-vCALiLDQkQ0LL9xQV7ntV0Dd3iXh3FH5niaLzJI3qYcO9FRh280CJtrtx1+U63Ei
-ssuGQ6Y2gRv+w7BkYiLf6v2XBAJCDAIFtP5pUUe4x0RSbyX2AI4=
-=9/e0
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlt6hMYACgkQFA3kzBSg
+KbYBqg/9EWQNUMoeNhGwRrKaMNO33hZCrOpJxvlEanmPyfFGddCNh4+bIqHbA0rs
+i/XVqdHCa1gtRCxh2x67dnt9UMcW1Ftq//cgWeEu+oDBYHj1EvLtBx1jUdnuq3OY
+UEkKZXUagPAiYE7o4NvhfAG0Uw3TdhGFWvJkQft1h5aOrtQjqmOqoMzbra0MgbCq
+49auz5PomKjRDcKsJs+sDM0OAjisElsFAD9O2nbFJA5/Fr2eymN5uWtb4lGmJuxq
+0+Yd0ThvROSULc+9XusvqFw27Jh8ShShZR7+QyPy5m/gm9j/YDxpw3lPKupAb9K+
+11QJotldy2JkqUwv/d7BWdhj+8qBPcqekbqot4yy6jhBOugfF6lWflDe/nJ1TNcM
+gtK8IES5BwkGL+uxQkpF4pZyQ1Cp/PN1N0ADVXi9xoQbF2YVwESbgC8BG8l4hsuk
+NfV4HqDV6qAVzDtCSRfKi4FHJMvb5ThM1rz9hz1XBylK3anAnauZXBA7UZwiIWUh
+UKCfbm9IUjVruvaLOUAMI6yVabnMWGgAFbbvDdZHqpVr5Ps0icijVTrqLKLGzuZ2
+0u8YLlWgSZfeenkj6tJ7P9wmLRropMSxmmb4rqBN08x6iZWRSrEynuQt1FbQbUwz
+VvDaRpQY6d9XrNu4yNOx+D52+3MoGPOlDQDH1m/eIFp+sWPAp58=
+=4t8c
 -----END PGP SIGNATURE-----
 
---tee3kciyjjipcgdi--
+--c47ohostxojzrm6n--
