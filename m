@@ -1,52 +1,71 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] dt-bindings: i2c: sh_mobile: Add r8a774a1 support
-Date: Mon, 20 Aug 2018 14:05:54 +0200
-Message-ID: <20180820120553.ch3bu5xqaetevg5c@ninjato>
-References: <1534249988-15635-1-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: Re: [PATCH v2 1/2] i2c: core: ACPI: Properly set status byte to 0
+ for multi-byte writes
+Date: Mon, 20 Aug 2018 14:10:37 +0200
+Message-ID: <20180820121037.pgfwmzm6aygahiq6@ninjato>
+References: <20180812105321.2668-1-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="kzlhsmoaul2vbg3q"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="xbfjvnr32bjhxely"
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1534249988-15635-1-git-send-email-fabrizio.castro@bp.renesas.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Simon Horman <horms+renesas@verge.net.au>, Biju Das <biju.das@bp.renesas.com>, Geert Uytterhoeven <geert+renesas@glider.be>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Simon Horman <horms@verge.net.au>, Chris Paterson <Chris.Paterson2@renesas.com>, linux-renesas-soc@vger.kernel.org
+In-Reply-To: <20180812105321.2668-1-hdegoede@redhat.com>
+Sender: stable-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---kzlhsmoaul2vbg3q
+--xbfjvnr32bjhxely
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 14, 2018 at 01:33:08PM +0100, Fabrizio Castro wrote:
-> Document RZ/G2M (R8A774A1) SoC bindings.
+On Sun, Aug 12, 2018 at 12:53:20PM +0200, Hans de Goede wrote:
+> acpi_gsb_i2c_write_bytes() returns i2c_transfer()'s return value, which
+> is the number of transfers executed on success, so 1.
 >=20
-> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-> Reviewed-by: Biju Das <biju.das@bp.renesas.com>
+> The ACPI code expects us to store 0 in gsb->status for success, not 1.
+>=20
+> Specifically this breaks the following code in the Thinkpad 8 DSDT:
+>=20
+>             ECWR =3D I2CW =3D ECWR /* \_SB_.I2C1.BAT0.ECWR */
+>             If ((ECST =3D=3D Zero))
+>             {
+>                 ECRD =3D I2CR /* \_SB_.I2C1.I2CR */
+>             }
+>=20
+> Before this commit we set ECST to 1, causing the read to never happen
+> breaking battery monitoring on the Thinkpad 8.
+>=20
+> This commit makes acpi_gsb_i2c_write_bytes() return 0 when i2c_transfer()
+> returns 1, so the single write transfer completed successfully, and
+> makes it return -EIO on for other (unexpected) return values >=3D 0.
+>=20
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
 Applied to for-next, thanks!
 
 
---kzlhsmoaul2vbg3q
+--xbfjvnr32bjhxely
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlt6rqEACgkQFA3kzBSg
-KbbGTxAAikahaDNtHBJdm1lcsEqDCd7H0OvzHU03kTHjb22ACWAiaxVoUpcBcD1O
-vcxBDUIuSOuUZ7CLdrjPLBYY+PEpw40UTNRH+QKLLeH1eZpTVrBLxY8RGnjJ/seY
-Fjl3ZrOMV+P1MBzlYjW/O2XXRdDzVvAMHMH3cAkbfeM09o7P50WZYU7tbi3FAjJO
-uuQBMTn+A6nm3/rSzl5H/BsvJ9sflyOW+evrOWBgqn9YgVONePVOEbSiNRFDO6Bo
-zXXVZuYJnOgb2Mxxcr3BSpwC6R9OwY/07QFCYAidDPSG3jkcgUhW3o2h0T7ZnGJ8
-Xk2IpqRIj1LQrpDjvNgIdFxTNU5hdYCZT9M38nb9TuCBJFILxvcgjyrCp8tHS21q
-qhNwREosFOLb1A+RQK/P3tSegznGuUP5JyBMqfqMK7NDsqlYa4FlITwgKUk5THnW
-5EjS0NioLf08Se4Nq2cJej55B00GStqBPvDfEXALeNVrV7qGw4ta1rsY4dUG3T7G
-POnLAVn0cD0YhBhwQy5agfFnbFM4DztC30e/WIX+5KKt6A2ek/fLuXXUGPoCgYAr
-LoGfDnhvNU6wO9LwCuSHPC8PsYAKsL8oW1yf8OGfqBD3jG7zRxtCTvDbFwe7W97Y
-11Arc3AvaqVFOhBWlaGd4pNxi9kDVYjDUM1JhnFmHPZWPh3iBXs=
-=Rd/P
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlt6r70ACgkQFA3kzBSg
+KbYAqQ//agMIjEGntDzmmS1ldJIL9ClmmFBktdlhYJx7Q9jp36TiOf/X+JiLtCLM
+Ogmg/HCx6l3fa1FUnf1uj/pGhnLbRgsRmD6LDtMO7Xk/IyFPfmseXksM/X8wYHnf
+mkM8vlsrASJnYeqx/ww8Q02qqWQwXshcC+ZLK2xFnPTF90vgBQsGb61Ix6G1ABbb
+d1UbxQBRUfIBRwWHU7gDPOv95K86FXXTdIwdKRAxRROEfbR/YPdhvMPE26vaNihw
+wOPnhiicz0cIJlRpIGiVlmDJIQlBr0J01WCrTNtvW5+m2Bkx9T4ZXOFbQ9wvIswB
+CrhEzOn4gyFl1wMCQAnA0rEP3vgw2qL/SRcapht89ROitPE2xo8IUVdJRirtQ58a
+IaX6cB9rGKtlZUSOenDKOYruhBaeqedzoVoxYNyFoKjDJd0inPE2G9V0VvBbpEnE
+At6VLJ/LCirpMfRMntkDcBLEH0Zr5Xt478VOdiGuiIuTAyWwjeplV4FSJxHJlXCR
+0TqL3s/jaOW2g072iA4O0Krh0wctu6lplsyxhi+L30tlxEPH6xYXmcEleOHjDp2h
+zUoLu9UBnU7xPT5IwD222ino6OWhaEbVvcVQmsvDp/qsdsfkotyBiewwIjJI56kI
+VNsJbrV9SarrP0QK5DPhSNpJF3l4kW73GCfmoUTY0VbFqNpFm1s=
+=ENTF
 -----END PGP SIGNATURE-----
 
---kzlhsmoaul2vbg3q--
+--xbfjvnr32bjhxely--
