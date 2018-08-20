@@ -1,53 +1,58 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 3/3] arm: dts: ls1021a: Enable I2C DMA support
-Date: Mon, 20 Aug 2018 13:14:48 +0200
-Message-ID: <20180820111448.5njestngbsupcpwl@ninjato>
-References: <20180816084315.7857-1-esben.haabendal@gmail.com>
- <20180816084315.7857-4-esben.haabendal@gmail.com>
- <20180820091531.komc6ypyybnq22nw@ninjato>
- <87zhxhgzmm.fsf@gmail.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH v2] i2c: Remove '-Wno-deprecated-declarations' compiler
+ warning
+Date: Mon, 20 Aug 2018 21:25:24 +1000
+Message-ID: <fed6012f3438f996cd2e7cb62e8eee58964fa36c.camel@kernel.crashing.org>
+References: <20180819135135.8801-1-sedat.dilek@credativ.de>
+         <CA+55aFxv5_8C5ApV4cDjpvAmZbn1aiKebc7yrRWBskQQbz9=Hw@mail.gmail.com>
+         <1d2a7c56cc44ff639ef2943366f4868e6e5ecdfe.camel@kernel.crashing.org>
+         <20180820080629.i7y4cx4wewmcyqpk@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="p36gfmphq3omwcpo"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <87zhxhgzmm.fsf@gmail.com>
+In-Reply-To: <20180820080629.i7y4cx4wewmcyqpk@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Esben Haabendal <esben.haabendal@gmail.com>
-Cc: linux-i2c@vger.kernel.org, Shawn Guo <shawnguo@kernel.org>, kernel@pengutronix.de, NXP Linux Team <linux-imx@nxp.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, sedat.dilek@credativ.de, Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, Paul Mackerras <pmac@au1.ibm.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, 2018-08-20 at 10:06 +0200, Wolfram Sang wrote:
+> 
+> > Some people still use those old machines, I'll give a try at fixing the
+> > driver.
+> 
+> I did this here a while ago [1] ("macintosh: therm_windtunnel: drop
+> using attach adapter")...
+> 
+> > Paul: Do you still have one of these machines ?
+> 
+> ... but this was the main problem. I couldn't find anyone to test this.
+> Even asked on PPC lists of various distributions.
 
---p36gfmphq3omwcpo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Yeah this one is annoying because it's only used by one specific
+machine model..
 
+> Note that we did apply the same approach of patch [1] already in commit
+> ac397c80de89 ("ALSA: ppc: keywest: drop using attach adapter"). This has
+> been tested on HW. I also have a hack to make this driver probe on one
+> of my ARM boards. Of course, no real HW present there, but shows that
+> the new probing works at least there.
+> 
+> This is very interesting timing, too. Because I wanted to use the
+> tentative version jump to 5.0 to finally get rid of this deprecated
+> feature independently of the discussion here. Which would have meant
+> resending the patch and arguing we have enough indications that the
+> patch [1] is sane. And then I could finally remove this callback.
+> 
+> Thanks,
+> 
+>    Wolfram
+> 
+> [1] http://patchwork.ozlabs.org/patch/461759/
 
-> Ok, do I need to send to additional list(s)?
-> linux-arm-kernel@lists.infradead.org?
+Ok, worst case we can remove the driver and re-instate it back later if
+somebody complains, but I'll try to chase a machine first.
 
-I'd say resend this patch after rc1 is out and the other 2 patches are
-upstream.
-
-
---p36gfmphq3omwcpo
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlt6oqQACgkQFA3kzBSg
-KbZTehAAkNpisXhL/VDgIfEQ734n6+rqFsegC8LNNttXaJ/7OaQYe/S/I8HeY4ZG
-BoIU8haBmHDV5Jdpv9PMDNzC7MecoVQqafo1FFO9xD8UyOUVIg40tdOuv59ux8eF
-oCn6ZFsEG9ZheutO0lx1GF3A20TorIeaLj9MlceLjbdAsst+V9hBeZA+gCp2Q5cC
-1UO74ACv1S9cO35q/qRQGq11rsaEUpqMLifAi5uH4avrH+dLROVRuVY8+VbdW29O
-MdsWTFvwilB4bU2NLwFCbGVhT5VxxXYtkFmxSX8fzeHoI0b2AAE46YAJIgzHzqz1
-7n8fF0oUtEpT2i7bUSlcep7XhMmwoX3kg0E9FgQONfRk8LL0t2egWvwWfDuua8tp
-RROD7kP83eYsjj75euG/Glmgjk371Did8JU01yFleDdzLHCbZGJ5ZoIrSlWGAtqj
-DFOj/KuGZ/v1hgrLaSLrBe5QrXGXGz0iGLk9Oig2yLp6/n4sX5qslgx6oEb4x9mq
-lnNVERxUkfwEbBewvKrYQ+TOtWol5qB7QFpqedeu+uHWVgKqBHfMmkg+e2kgAdp7
-3ut6IZacZuW9LvWZPBzljahMwJZDrVLGgIdyOWwT5UT1VyLdnyCj8DZ+67ApC7DS
-cDZosmMvmrwt4rM1ppLwqNt6sFTzoklLDI87txw6zo+6g0GWBgY=
-=6hns
------END PGP SIGNATURE-----
-
---p36gfmphq3omwcpo--
+Cheers,
+Ben.
