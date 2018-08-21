@@ -1,36 +1,65 @@
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: Re: [PATCH v2 06/29] mtd: Add support for reading MTD devices via the
- nvmem API
-Date: Tue, 21 Aug 2018 15:33:22 +0100
-Message-ID: <2d5761f4-2c27-5a23-a635-9205124c993a@linaro.org>
-References: <20180810080526.27207-1-brgl@bgdev.pl>
- <20180810080526.27207-7-brgl@bgdev.pl> <20180817182720.6a6e5e8e@bbrezillon>
- <20180819133106.0420df5f@tock> <20180819184609.6dcdbb9a@bbrezillon>
- <20180821005327.0d312a85@tock> <20180821074404.23aaeb6b@bbrezillon>
- <20180821142716.0adcdd56@eos> <20180821145725.3b385399@bbrezillon>
- <20180821155706.2adf3b4c@eos> <20180821162644.5a1d7799@bbrezillon>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20180821162644.5a1d7799@bbrezillon>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>, Alban <albeu@free.fr>
-Cc: Bartosz Golaszewski <brgl@bgdev.pl>, Jonathan Corbet <corbet@lwn.net>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Woodhouse <dwmw2@infradead.org>, Brian Norris <computersforpeace@gmail.com>, Marek Vasut <marek.vasut@gmail.com>, Richard Weinberger <richard@nod.at>, Grygorii Strashko <grygorii.strashko@ti.com>, "David S . Miller" <davem@davemloft.net>, Naren <naren.kernel@gmail.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Lukas Wunner <lukas@wunner.de>, Dan Carpenter <dan.carpenter@oracle.com>, Florian Fainelli <f.fainelli@gmail.com>, Ivan
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 1/2] macintosh: therm_windtunnel: drop using attach_adapter
+Date: Tue, 21 Aug 2018 17:02:39 +0200
+Message-ID: <20180821150240.19964-2-wsa@the-dreams.de>
+References: <20180821150240.19964-1-wsa@the-dreams.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180821150240.19964-1-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Ellerman <mpe@ellerman.id.au>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
+As we now have deferred probing, we can use a custom mechanism and
+finally get rid of the legacy interface from the i2c core.
 
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ drivers/macintosh/therm_windtunnel.c | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
-On 21/08/18 15:26, Boris Brezillon wrote:
->> This also has the side effect that nvmem cells defined in DT don't
->> appear in sysfs, unlike those defined from board code.
-> Wow, that's not good. I guess we'll want to make that consistent at
-> some point.
-> 
-support for sysfs entries per cell is not available in nvmem. However 
-there is nvmem sysfs entry per provider which can be read by the user 
-space if required.
-
-
---srini
+diff --git a/drivers/macintosh/therm_windtunnel.c b/drivers/macintosh/therm_windtunnel.c
+index 68dcbcb4fc5b..8c744578122a 100644
+--- a/drivers/macintosh/therm_windtunnel.c
++++ b/drivers/macintosh/therm_windtunnel.c
+@@ -432,7 +432,6 @@ static struct i2c_driver g4fan_driver = {
+ 	.driver = {
+ 		.name	= "therm_windtunnel",
+ 	},
+-	.attach_adapter = do_attach,
+ 	.probe		= do_probe,
+ 	.remove		= do_remove,
+ 	.id_table	= therm_windtunnel_id,
+@@ -445,7 +444,29 @@ static struct i2c_driver g4fan_driver = {
+ 
+ static int therm_of_probe(struct platform_device *dev)
+ {
+-	return i2c_add_driver( &g4fan_driver );
++	struct i2c_adapter *adap;
++	int ret, i = 0;
++
++	adap = i2c_get_adapter(0);
++	if (!adap)
++		return -EPROBE_DEFER;
++
++	ret = i2c_add_driver(&g4fan_driver);
++	if (ret) {
++		i2c_put_adapter(adap);
++		return ret;
++	}
++
++	/* We assume Macs have consecutive I2C bus numbers starting at 0 */
++	while (adap) {
++		do_attach(adap);
++		if (x.running)
++			return 0;
++		i2c_put_adapter(adap);
++		adap = i2c_get_adapter(++i);
++	}
++
++	return -ENODEV;
+ }
+ 
+ static int
+-- 
+2.11.0
