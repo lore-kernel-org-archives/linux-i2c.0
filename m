@@ -1,358 +1,365 @@
-From: Alban <albeu@free.fr>
-Subject: Re: [PATCH v2 06/29] mtd: Add support for reading MTD devices via
- the nvmem API
-Date: Tue, 21 Aug 2018 15:57:06 +0200
-Message-ID: <20180821155706.2adf3b4c@eos>
-References: <20180810080526.27207-1-brgl@bgdev.pl>
-        <20180810080526.27207-7-brgl@bgdev.pl>
-        <20180817182720.6a6e5e8e@bbrezillon>
-        <20180819133106.0420df5f@tock>
-        <20180819184609.6dcdbb9a@bbrezillon>
-        <20180821005327.0d312a85@tock>
-        <20180821074404.23aaeb6b@bbrezillon>
-        <20180821142716.0adcdd56@eos>
-        <20180821145725.3b385399@bbrezillon>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.19
+Date: Tue, 21 Aug 2018 16:04:35 +0200
+Message-ID: <20180821140430.ezghempfe64nddxw@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- boundary="Sig_/Vrx59kMnNF++K/5vjoJF3zd"; protocol="application/pgp-signature"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="m5swph7nsuhx2eh5"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180821145725.3b385399@bbrezillon>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>
-Cc: Alban Bedel <albeu@free.fr>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Bartosz Golaszewski <brgl@bgdev.pl>, Jonathan Corbet <corbet@lwn.net>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Woodhouse <dwmw2@infradead.org>, Brian Norris <computersforpeace@gmail.com>, Marek Vasut <marek.vasut@gmail.com>, Richard Weinberger <richard@nod.at>, Grygorii Strashko <grygorii.strashko@ti.com>, "David S . Miller" <davem@davemloft.net>, Naren <naren.kernel@gmail.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Lukas Wunner <lukas@wunner.de>, Dan
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
---Sig_/Vrx59kMnNF++K/5vjoJF3zd
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, 21 Aug 2018 14:57:25 +0200
-Boris Brezillon <boris.brezillon@bootlin.com> wrote:
+--m5swph7nsuhx2eh5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> On Tue, 21 Aug 2018 14:27:16 +0200
-> Alban <albeu@free.fr> wrote:
->=20
-> > On Tue, 21 Aug 2018 07:44:04 +0200
-> > Boris Brezillon <boris.brezillon@bootlin.com> wrote:
-> >  =20
-> > > On Tue, 21 Aug 2018 00:53:27 +0200
-> > > Alban <albeu@free.fr> wrote:
-> > >    =20
-> > > > On Sun, 19 Aug 2018 18:46:09 +0200
-> > > > Boris Brezillon <boris.brezillon@bootlin.com> wrote:
-> > > >      =20
-> > > > > On Sun, 19 Aug 2018 13:31:06 +0200
-> > > > > Alban <albeu@free.fr> wrote:
-> > > > >        =20
-> > > > > > On Fri, 17 Aug 2018 18:27:20 +0200
-> > > > > > Boris Brezillon <boris.brezillon@bootlin.com> wrote:
-> > > > > >          =20
-> > > > > > > Hi Bartosz,
-> > > > > > >=20
-> > > > > > > On Fri, 10 Aug 2018 10:05:03 +0200
-> > > > > > > Bartosz Golaszewski <brgl@bgdev.pl> wrote:
-> > > > > > >            =20
-> > > > > > > > From: Alban Bedel <albeu@free.fr>
-> > > > > > > >=20
-> > > > > > > > Allow drivers that use the nvmem API to read data
-> > > > > > > > stored on MTD devices. For this the mtd devices are
-> > > > > > > > registered as read-only NVMEM providers.
-> > > > > > > >=20
-> > > > > > > > Signed-off-by: Alban Bedel <albeu@free.fr>
-> > > > > > > > [Bartosz:
-> > > > > > > >   - use the managed variant of nvmem_register(),
-> > > > > > > >   - set the nvmem name]
-> > > > > > > > Signed-off-by: Bartosz Golaszewski
-> > > > > > > > <bgolaszewski@baylibre.com>             =20
-> > > > > > >=20
-> > > > > > > What happened to the 2 other patches of Alban's series?
-> > > > > > > I'd really like the DT case to be handled/agreed on in
-> > > > > > > the same patchset, but IIRC, Alban and Srinivas disagreed
-> > > > > > > on how this should be represented. I hope this time we'll
-> > > > > > > come to an agreement, because the MTD <-> NVMEM glue has
-> > > > > > > been floating around for quite some time...           =20
-> > > > > >=20
-> > > > > > These other patches were to fix what I consider a
-> > > > > > fundamental flaw in the generic NVMEM bindings, however we
-> > > > > > couldn't agree on this point. Bartosz later contacted me to
-> > > > > > take over this series and I suggested to just change the
-> > > > > > MTD NVMEM binding to use a compatible string on the NVMEM
-> > > > > > cells as an alternative solution to fix the clash with the
-> > > > > > old style MTD partition.
-> > > > > >=20
-> > > > > > However all this has no impact on the code needed to add
-> > > > > > NVMEM support to MTD, so the above patch didn't change at
-> > > > > > all.         =20
-> > > > >=20
-> > > > > It does have an impact on the supported binding though.
-> > > > > nvmem->dev.of_node is automatically assigned to
-> > > > > mtd->dev.of_node, which means people will be able to define
-> > > > > their NVMEM cells directly under the MTD device and reference
-> > > > > them from other nodes (even if it's not documented), and as
-> > > > > you said, it conflict with the old MTD partition bindings. So
-> > > > > we'd better agree on this binding before merging this
-> > > > > patch.       =20
-> > > >=20
-> > > > Unless the nvmem cell node has a compatible string, then it
-> > > > won't be considered as a partition by the MTD code. That is
-> > > > were the clash is, both bindings allow free named child nodes
-> > > > without a compatible string.     =20
-> > >=20
-> > > Except the current nvmem cells parsing code does not enforce
-> > > that, and existing DTs rely on this behavior, so we're screwed.
-> > > Or are you suggesting to add a new "bool check_cells_compat;"
-> > > field to nvmem_config?   =20
-> >=20
-> > There is no nvmem cell parsing at the moment. The DT lookup just
-> > resolve the phandle to the cell node, take the parent node and
-> > search for the nvmem provider that has this OF node. So extending
-> > it in case the node has a *new* compatible string would not break
-> > users of the old binding, none of them has a compatible string. =20
->=20
-> But we want to enforce the compat check on MTD devices, otherwise old
-> MTD partitions (those defined under the MTD node) will be considered
-> as NVMEM cells by the NVMEM framework. Hence the bool
-> check_cells_compat field.
+Linus,
 
-That would only be needed if the NVMEM framework would do "forward"
-parsing, creating data structure for each NVMEM cell found under an
-NVMEM provider. However currently it doesn't do that and only goes
-"backward", starting by resolving a phandle pointing to a cell, then
-finding the provider that the cell belongs to.
+here are the I2C updates for this merge window:
 
-This also has the side effect that nvmem cells defined in DT don't
-appear in sysfs, unlike those defined from board code.
+* the core has now a lockless variant of i2c_smbus_xfer. Some open coded
+  versions of this got removed in drivers. This also enables proper SCCB
+  support in regmap.
+* locking got a more precise naming. i2c_{un}lock_adapter() had to go,
+  and we know use i2c_lock_bus() consistently with flags like
+  I2C_LOCK_ROOT_ADAPTER and I2C_LOCK_SEGMENT to avoid ambiguity.
+* the gpio fault injector got a new delicate testcase
+* the bus recovery procedure got fixed to handle the new testcase
+  correctly
+* a new quirk flag for controllers not able to handle zero length
+  messages together with driver updates to use it
+* new drivers: FSI bus attached I2C masters, GENI I2C controller,
+  Owl family S900
+* and a good set of driver improvements and bugfixes
 
-> >  =20
-> > > >      =20
-> > > > > I see several options:
-> > > > >=20
-> > > > > 1/ provide a way to tell the NVMEM framework not to use
-> > > > > parent->of_node even if it's !=3D NULL. This way we really don't
-> > > > > support defining NVMEM cells in the DT, and also don't support
-> > > > > referencing the nvmem device using a phandle.       =20
-> > > >=20
-> > > > I really don't get what the point of this would be. Make the
-> > > > whole API useless?     =20
-> > >=20
-> > > No, just allow Bartosz to get his changes merged without waiting
-> > > for you and Srinivas to agree on how to handle the new binding.
-> > > As I said earlier, this mtd <-> nvmem stuff has been around for
-> > > quite some time, and instead of trying to find an approach that
-> > > makes everyone happy, you decided to let the patchset die.   =20
-> >=20
-> > As long as that wouldn't prevent using DT in the future I'm fine
-> > with it.
-> >  =20
-> > > >      =20
-> > > > > 2/ define a new binding where all nvmem-cells are placed in an
-> > > > >    "nvmem" subnode (just like we have this "partitions"
-> > > > > subnode for partitions), and then add a config->of_node field
-> > > > > so that the nvmem provider can explicitly specify the DT node
-> > > > > representing the nvmem device. We'll also need to set this
-> > > > > field to ERR_PTR(-ENOENT) in case this node does not exist so
-> > > > > that the nvmem framework knows that it should not assign
-> > > > > nvmem->dev.of_node to parent->of_node       =20
-> > > >=20
-> > > > This is not good. First the NVMEM device is only a virtual
-> > > > concept of the Linux kernel, it has no place in the DT.     =20
-> > >=20
-> > > nvmem-cells is a virtual concept too, still, you define them in
-> > > the DT.   =20
-> >=20
-> > To be honest I also think that naming this concept "nvmem" in the
-> > DT was a bad idea. Perhaps something like "driver-data" or
-> > "data-cell" would have been better as that would make it clear what
-> > this is about, nvmem is just the Linux implementation of this
-> > concept. =20
->=20
-> I'm fine using a different name.
->=20
-> >  =20
-> > > > Secondly the NVMEM
-> > > > provider (here the MTD device) then has to manually parse its DT
-> > > > node to find this subnode, pass it to the NVMEM framework to
-> > > > later again resolve it back to the MTD device.     =20
-> > >=20
-> > > We don't resolve it back to the MTD device, because the MTD
-> > > device is just the parent of the nvmem device.
-> > >   =20
-> > > > Not very complex but still a lot of
-> > > > useless code, just registering the MTD device is a lot simpler
-> > > > and much more inline with most other kernel API that register a
-> > > > "service" available from a device.     =20
-> > >=20
-> > > I'm not a big fan of this option either, but I thought I had to
-> > > propose it.
-> > >    =20
-> > > >      =20
-> > > > > 3/ only declare partitions as nvmem providers. This would
-> > > > > solve the problem we have with partitions defined in the DT
-> > > > > since defining sub-partitions in the DT is not (yet?)
-> > > > > supported and partition nodes are supposed to be leaf nodes.
-> > > > > Still, I'm not a big fan of this solution because it will
-> > > > > prevent us from supporting sub-partitions if we ever
-> > > > > want/need to.       =20
-> > > >=20
-> > > > That sound like a poor workaround.     =20
-> > >=20
-> > > Yes, that's a workaround. And the reason I propose it, is, again,
-> > > because I don't want to block Bartosz.
-> > >    =20
-> > > > Remember that this problem could
-> > > > appear with any device that has a binding that use child
-> > > > nodes.     =20
-> > >=20
-> > > I'm talking about partitions, and you're talking about mtd
-> > > devices. Right now partitions don't have subnodes, and if we
-> > > define that partition subnodes should describe nvmem-cells, then
-> > > it becomes part of the official binding. So, no, the problem you
-> > > mention does not (yet) exist.   =20
-> >=20
-> > That would add another binding that allow free named child nodes
-> > without compatible string although experience has repeatedly shown
-> > that this was a bad idea. =20
->=20
-> Yes, I agree. Just thought it was important to have this solution in
-> the list, even if it's just to reject it.
->=20
-> >  =20
-> > > >      =20
-> > > > > 4/ Add a ->of_xlate() hook that would be called if present by
-> > > > > the framework instead of using the default parsing we have
-> > > > > right now.       =20
-> > > >=20
-> > > > That is a bit cleaner, but I don't think it would be worse the
-> > > > complexity.     =20
-> > >=20
-> > > But it's way more flexible than putting everything in the nvmem
-> > > framework. BTW, did you notice that nvmem-cells parsing does not
-> > > work with flashes bigger than 4GB, because the framework assumes
-> > > #address-cells and #size-cells are always 1. That's probably
-> > > something we'll have to fix for the MTD case.   =20
-> >=20
-> > Yes, however that's just an implementation limitation which is
-> > trivial to solve. =20
->=20
-> Agree. I was just pointing it in case you hadn't noticed.
->=20
-> >  =20
-> > > > Furthermore xlate functions are more about converting
-> > > > from hardware parameters to internal kernel representation than
-> > > > to hide extra DT parsing.     =20
-> > >=20
-> > > Hm, how is that different? ->of_xlate() is just a way for drivers
-> > > to have their own DT representation, which is exactly what we
-> > > want here.   =20
-> >=20
-> > There is a big difference. DT represent the hardware and the
-> > relationship between the devices in an OS independent format. We
-> > don't add extra stuff in there just to map back internal Linux API
-> > details. =20
->=20
-> And I'm not talking about adding SW information in the DT, I'm talking
-> about HW specific description. We have the same solution for pinctrl
-> configs (it's HW/driver specific).
+I will send you the promised pull request with the removal of the
+deprecated attach_adapter callback seperately during this merge window.
 
-For pinctrl I do understand, these beast can be very different from SoC
-to SoC, having a single biding for all doesn't make much sense.
+Please pull.
 
-However here we are talking about a simple linear storage, nothing
-special at all. I could see the need for an xlate to for example
-support a device with several partitions, but not to just allow each
-driver to have slightly incompatible bindings.
+Thanks,
 
-> >  =20
-> > > >      =20
-> > > > > 5/ Tell the nvmem framework the name of the subnode containing
-> > > > > nvmem cell definitions (if NULL that means cells are directly
-> > > > > defined under the nvmem provider node). We would set it to
-> > > > > "nvmem-cells" (or whatever you like) for the MTD case.       =20
-> > > >=20
-> > > > If so please match on compatible and not on the node name.     =20
-> > >=20
-> > > If you like.
-> > >    =20
-> > > >=20
-> > > > 6/ Extend the current NVMEM cell lookup to check if the parent
-> > > > node of the cell has a compatible string set to "nvmem-cells".
-> > > > If it doesn't it mean we have the current binding and this node
-> > > > is the NVMEM device. If it does the device node is just the
-> > > > next parent. This is trivial to implement (literally 2 lines of
-> > > > code) and cover all the cases currently known.     =20
-> > >=20
-> > > Except Srinivas was not happy with this solution, and this
-> > > stalled the discussion. I'm trying to find other options and you
-> > > keep rejecting all of them to come back to this one.   =20
-> >=20
-> > Well, I think this is the best solution :/
-> >  =20
-> > > >=20
-> > > > 7/ Just add a compatible string to the nvmem cell. No code
-> > > > change is needed,     =20
-> > >=20
-> > > That's not true!!!   =20
-> >=20
-> > What is not true in this statement? The current nvmem lookup don't
-> > care about compatible strings, so the cell lookup would just works
-> > fine. The MTD partition parser won't consider them as a partition
-> > because of the compatible string. Problem solved! =20
->=20
-> No because partitions defined the old way (as direct subnodes of the
-> MTD node) will be considered as NVMEM cells by the NVMEM framework,
-> and I don't want that.
+   Wolfram
 
-As I explained above that is not currently the case. If the NVMEM,
-framework is ever changed to explicitly parse NVMEM cells in advance
-we can first update the few existing users to add the compatible string.
 
-> Plus, I don't want people to start defining their NVMEM cells and
-> forget the compat string (which would work just fine because the
-> NVMEM framework doesn't care).
+The following changes since commit d72e90f33aa4709ebecc5005562f52335e106a60:
 
-A review of a new DTS should check that it use each binding correctly,
-AFAIK the DT people do that. We could also add a warning when there is
-no compatible string, that would also help pushing people to update
-their DTS.
+  Linux 4.18-rc6 (2018-07-22 14:12:20 -0700)
 
-> >  =20
-> > > What forces people to add this compatible in their
-> > > DT? Nothing. I'll tell you what will happen: people will start
-> > > defining their nvmem cells directly under the MTD node because
-> > > that *works*, and even if the binding is not documented and we
-> > > consider it invalid, we'll be stuck supporting it forever.   =20
-> >=20
-> > Do note that undocumented bindings are not allowed. DTS that use
-> > undocumented bindings (normally) just get rejected. =20
->=20
-> Except that's just in theory. In practice, if people can do something
-> wrong, they'll complain if you later fix the bug and break their
-> setup. So no, if we go for the "nvmem cells have an 'nvmem-cell'
-> compat", then I'd like the NVMEM framework to enforce that somehow.
+are available in the git repository at:
 
-That should be trivial to implement.
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-4.19
 
-Alban
+for you to fetch changes up to 19358d4488db7e6a04e940730cc75909d7d1e0d8:
 
---Sig_/Vrx59kMnNF++K/5vjoJF3zd
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
+  i2c: rcar: implement STOP and REP_START according to docs (2018-08-20 14:49:41 +0200)
+
+----------------------------------------------------------------
+Alan Chiang (2):
+      dt-bindings: at24: Add address-width property
+      eeprom: at24: Add support for address-width property
+
+Andy Shevchenko (3):
+      i2c: core: Parse SDA hold time from firmware
+      i2c: designware: Convert to use struct i2c_timings
+      i2c: designware: Add SPDX license tag
+
+Darren Stevens (1):
+      i2c: pasemi: remove hardcoded bus numbers on smbus
+
+Eddie James (8):
+      dt-bindings: i2c: Add FSI-attached I2C master dt binding documentation
+      i2c: Add FSI-attached I2C master algorithm
+      i2c: fsi: Add port structures
+      i2c: fsi: Add abort and hardware reset procedures
+      i2c: fsi: Add transfer implementation
+      i2c: fsi: Add I2C master locking
+      i2c: fsi: Add bus recovery
+      MAINTAINERS: Add Eddie as the maintainer for the FSI-attached I2C driver
+
+Esben Haabendal (2):
+      i2c: imx: Fix race condition in dma read
+      i2c: imx: Simplify stopped state tracking
+
+Fabrizio Castro (2):
+      dt-bindings: i2c: sh_mobile: Add r8a774a1 support
+      dt-bindings: i2c: rcar: Add r8a774a1 support
+
+Gustavo A. R. Silva (2):
+      i2c: amd8111: Mark expected switch fall-through
+      i2c: designware-pcidrv: Mark expected switch fall-through
+
+Hans de Goede (2):
+      i2c: core: ACPI: Properly set status byte to 0 for multi-byte writes
+      i2c: core: ACPI: Make acpi_gsb_i2c_read_bytes() check i2c_transfer return value
+
+Hiromitsu Yamasaki (1):
+      i2c: rcar: Add compatible support for r8a77990 (R-Car E3)
+
+Jae Hyun Yoo (4):
+      i2c: aspeed: Add newline characters into message printings.
+      i2c: aspeed: Fix initial values of master and slave state
+      i2c: aspeed: Adjust spinlock scope in the irq handler
+      i2c: aspeed: Add an explicit type casting for *get_clk_reg_val
+
+Jarkko Nikula (9):
+      i2c: designware: Remove needless variable from i2c_dw_init_slave()
+      i2c: designware: Move register access detection to common code
+      i2c: designware: Don't use internal ___constant_swab32
+      i2c: designware: Call i2c_dw_clk_rate() only once in i2c_dw_init_master()
+      i2c: designware: Move SDA hold time configuration to common code
+      i2c: designware: Separate timing parameter setting from HW initalization
+      i2c: designware: Add debug print for SDA hold time value
+      i2c: designware: Add debug print for bus speed
+      i2c: i801: Consolidate chipset names in documentation and Kconfig
+
+Karthikeyan Ramasubramanian (1):
+      i2c: i2c-qcom-geni: Add bus driver for the Qualcomm GENI I2C controller
+
+Krzysztof Kozlowski (1):
+      i2c: exynos5: Describe the hardware variant for readability
+
+Linus Walleij (1):
+      i2c: mux: pca954x: use helper variable in probe
+
+Manivannan Sadhasivam (2):
+      dt-bindings: i2c: Add binding for Actions Semiconductor Owl I2C controller
+      i2c: Add Actions Semiconductor Owl family S900 I2C driver
+
+Mika Westerberg (1):
+      i2c: i801: Add support for Intel Ice Lake
+
+Peter Rosin (15):
+      i2c: smbus: add unlocked __i2c_smbus_xfer variant
+      i2c: mux: mlxcpld: make use of __i2c_smbus_xfer
+      i2c: mux: pca9541: make use of __i2c_smbus_xfer
+      i2c: mux: pca954x: make use of __i2c_smbus_xfer
+      i2c: mux: make use of __i2c_smbus_xfer
+      tpm/tpm_i2c_infineon: switch to i2c_lock_bus(..., I2C_LOCK_SEGMENT)
+      i2c: mux: pca9541: switch to i2c_lock_bus(..., I2C_LOCK_SEGMENT)
+      input: rohm_bu21023: switch to i2c_lock_bus(..., I2C_LOCK_SEGMENT)
+      media: af9013: switch to i2c_lock_bus(..., I2C_LOCK_SEGMENT)
+      media: drxk_hard: switch to i2c_lock_bus(..., I2C_LOCK_SEGMENT)
+      media: rtl2830: switch to i2c_lock_bus(..., I2C_LOCK_SEGMENT)
+      media: tda1004x: switch to i2c_lock_bus(..., I2C_LOCK_SEGMENT)
+      media: tda18271: switch to i2c_lock_bus(..., I2C_LOCK_SEGMENT)
+      mfd: 88pm860x-i2c: switch to i2c_lock_bus(..., I2C_LOCK_SEGMENT)
+      i2c: remove i2c_lock_adapter and use i2c_lock_bus directly
+
+Thierry Reding (1):
+      i2c: tegra: Add support for Tegra194
+
+Wolfram Sang (23):
+      i2c: gpio: fault-injector: refactor incomplete transfer
+      i2c: gpio: fault-injector: add incomplete_write_byte
+      Merge branch 'i2c/precise-locking-names_immutable' into i2c/for-4.19
+      Merge tag 'v4.18-rc5' into i2c/for-4.19
+      i2c: recovery: require either get_sda or set_sda
+      i2c: recovery: refactor recovery function
+      i2c: recovery: add get_bus_free callback
+      i2c: rcar: use the new get_bus_free callback
+      i2c: recovery: rename variable for easier understanding
+      i2c: recovery: make pin init look like STOP
+      i2c: rcar: handle RXDMA HW behaviour on Gen3
+      Merge tag 'at24-4.19-updates-for-wolfram' of git://git.kernel.org/.../brgl/linux into i2c/for-4.19
+      Merge branch 'i2c-mux/for-next' of https://github.com/peda-r/i2c-mux into i2c/for-4.19
+      i2c: quirks: add zero length checks
+      i2c: designware-master: use core to detect 'no zero length' quirk
+      i2c: mxs: use core to detect 'no zero length' quirk
+      i2c: pmcmsp: use core to detect 'no zero length' quirk
+      i2c: stu300: use core to detect 'no zero length' quirk
+      i2c: rcar: use core to detect 'no zero length' quirk
+      i2c: xlr: use core to detect 'no zero length' quirk
+      i2c: sh_mobile: use core to detect 'no zero length read' quirk
+      i2c: rcar: refactor private flags
+      i2c: rcar: implement STOP and REP_START according to docs
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Alexander Steffen (1):
+      (Test) tpm/tpm_i2c_infineon: switch to i2c_lock_bus(..., I2C_LOCK_SEGMENT)
+
+Alexandre Belloni (4):
+      (Rev.) i2c: designware: Convert to use struct i2c_timings
+      (Test) i2c: designware: Convert to use struct i2c_timings
+      (Test) i2c: core: Parse SDA hold time from firmware
+      (Rev.) i2c: core: Parse SDA hold time from firmware
+
+Andrzej Hajda (1):
+      (Rev.) i2c: exynos5: Describe the hardware variant for readability
+
+Andy Shevchenko (13):
+      (Rev.) i2c: designware-master: use core to detect 'no zero length' quirk
+      (Rev.) i2c: quirks: add zero length checks
+      (Rev.) i2c: fsi: Add I2C master locking
+      (Rev.) i2c: fsi: Add transfer implementation
+      (Rev.) i2c: Add FSI-attached I2C master algorithm
+      (Rev.) i2c: designware: Add debug print for bus speed
+      (Rev.) i2c: designware: Add debug print for SDA hold time value
+      (Rev.) i2c: designware: Separate timing parameter setting from HW initalization
+      (Rev.) i2c: designware: Move SDA hold time configuration to common code
+      (Rev.) i2c: designware: Call i2c_dw_clk_rate() only once in i2c_dw_init_master()
+      (Rev.) i2c: designware: Don't use internal ___constant_swab32
+      (Rev.) i2c: designware: Move register access detection to common code
+      (Rev.) i2c: designware: Remove needless variable from i2c_dw_init_slave()
+
+Biju Das (2):
+      (Rev.) dt-bindings: i2c: rcar: Add r8a774a1 support
+      (Rev.) dt-bindings: i2c: sh_mobile: Add r8a774a1 support
+
+Brendan Higgins (4):
+      (Rev.) i2c: aspeed: Add an explicit type casting for *get_clk_reg_val
+      (Rev.) i2c: aspeed: Adjust spinlock scope in the irq handler
+      (Rev.) i2c: aspeed: Fix initial values of master and slave state
+      (Rev.) i2c: aspeed: Add newline characters into message printings.
+
+Douglas Anderson (1):
+      (Rev.) i2c: i2c-qcom-geni: Add bus driver for the Qualcomm GENI I2C controller
+
+Geert Uytterhoeven (2):
+      (Rev.) i2c: rcar: handle RXDMA HW behaviour on Gen3
+      (Rev.) i2c: rcar: Add compatible support for r8a77990 (R-Car E3)
+
+Jarkko Nikula (2):
+      (Test) i2c: designware-master: use core to detect 'no zero length' quirk
+      (Test) i2c: quirks: add zero length checks
+
+Jarkko Sakkinen (1):
+      (Rev.) tpm/tpm_i2c_infineon: switch to i2c_lock_bus(..., I2C_LOCK_SEGMENT)
+
+Jean Delvare (2):
+      (Rev.) i2c: i801: Add support for Intel Ice Lake
+      (Rev.) i2c: i801: Consolidate chipset names in documentation and Kconfig
+
+Joel Stanley (6):
+      (Test) i2c: fsi: Add bus recovery
+      (Test) i2c: fsi: Add I2C master locking
+      (Test) i2c: fsi: Add transfer implementation
+      (Test) i2c: fsi: Add abort and hardware reset procedures
+      (Test) i2c: fsi: Add port structures
+      (Test) i2c: Add FSI-attached I2C master algorithm
+
+Linus Walleij (1):
+      (Rev.) i2c: stu300: use core to detect 'no zero length' quirk
+
+Niklas S??derlund (3):
+      (Rev.) i2c: sh_mobile: use core to detect 'no zero length read' quirk
+      (Rev.) i2c: rcar: use core to detect 'no zero length' quirk
+      (Rev.) i2c: quirks: add zero length checks
+
+Peter Rosin (2):
+      (Rev.) i2c: recovery: make pin init look like STOP
+      (Rev.) i2c: recovery: refactor recovery function
+
+Rob Herring (4):
+      (Rev.) dt-bindings: i2c: rcar: Add r8a774a1 support
+      (Rev.) dt-bindings: i2c: sh_mobile: Add r8a774a1 support
+      (Rev.) dt-bindings: i2c: Add binding for Actions Semiconductor Owl I2C controller
+      (Rev.) dt-bindings: at24: Add address-width property
+
+Sekhar Nori (1):
+      (Test) i2c: remove i2c_lock_adapter and use i2c_lock_bus directly
+
+Simon Horman (2):
+      (Rev.) dt-bindings: i2c: rcar: Add r8a774a1 support
+      (Rev.) dt-bindings: i2c: sh_mobile: Add r8a774a1 support
+
+Stephen Boyd (2):
+      (Rev.) i2c: i2c-qcom-geni: Add bus driver for the Qualcomm GENI I2C controller
+      (Test) i2c: i2c-qcom-geni: Add bus driver for the Qualcomm GENI I2C controller
+
+Ulrich Hecht (3):
+      (Rev.) i2c: rcar: implement STOP and REP_START according to docs
+      (Rev.) i2c: rcar: refactor private flags
+      (Rev.) i2c: recovery: make pin init look like STOP
+
+ Documentation/devicetree/bindings/eeprom/at24.txt  |   2 +
+ Documentation/devicetree/bindings/i2c/i2c-fsi.txt  |  40 ++
+ Documentation/devicetree/bindings/i2c/i2c-owl.txt  |  27 +
+ Documentation/devicetree/bindings/i2c/i2c-rcar.txt |   5 +-
+ .../devicetree/bindings/i2c/i2c-sh_mobile.txt      |   4 +-
+ Documentation/i2c/busses/i2c-i801                  |  11 +-
+ Documentation/i2c/gpio-fault-injection             |  49 +-
+ MAINTAINERS                                        |  16 +
+ drivers/char/tpm/tpm_i2c_infineon.c                |   8 +-
+ drivers/i2c/busses/Kconfig                         |  42 +-
+ drivers/i2c/busses/Makefile                        |   3 +
+ drivers/i2c/busses/i2c-amd8111.c                   |   1 +
+ drivers/i2c/busses/i2c-aspeed.c                    |  40 +-
+ drivers/i2c/busses/i2c-brcmstb.c                   |   8 +-
+ drivers/i2c/busses/i2c-davinci.c                   |   4 +-
+ drivers/i2c/busses/i2c-designware-baytrail.c       |  10 +-
+ drivers/i2c/busses/i2c-designware-common.c         |  91 ++-
+ drivers/i2c/busses/i2c-designware-core.h           |  24 +-
+ drivers/i2c/busses/i2c-designware-master.c         | 223 +++---
+ drivers/i2c/busses/i2c-designware-pcidrv.c         |  17 +-
+ drivers/i2c/busses/i2c-designware-platdrv.c        |  68 +-
+ drivers/i2c/busses/i2c-designware-slave.c          |  62 +-
+ drivers/i2c/busses/i2c-exynos5.c                   |  22 +-
+ drivers/i2c/busses/i2c-fsi.c                       | 752 +++++++++++++++++++++
+ drivers/i2c/busses/i2c-gpio.c                      |  97 ++-
+ drivers/i2c/busses/i2c-i801.c                      |   4 +
+ drivers/i2c/busses/i2c-imx.c                       |  23 +-
+ drivers/i2c/busses/i2c-mxs.c                       |   8 +-
+ drivers/i2c/busses/i2c-owl.c                       | 495 ++++++++++++++
+ drivers/i2c/busses/i2c-pasemi.c                    |   3 +-
+ drivers/i2c/busses/i2c-pmcmsp.c                    |  17 +-
+ drivers/i2c/busses/i2c-qcom-geni.c                 | 673 ++++++++++++++++++
+ drivers/i2c/busses/i2c-rcar.c                      | 123 +++-
+ drivers/i2c/busses/i2c-s3c2410.c                   |   4 +-
+ drivers/i2c/busses/i2c-sh_mobile.c                 |  10 +-
+ drivers/i2c/busses/i2c-sprd.c                      |   8 +-
+ drivers/i2c/busses/i2c-stu300.c                    |  12 +-
+ drivers/i2c/busses/i2c-tegra.c                     |  90 ++-
+ drivers/i2c/busses/i2c-xlr.c                       |  11 +-
+ drivers/i2c/i2c-core-acpi.c                        |  19 +-
+ drivers/i2c/i2c-core-base.c                        |  85 ++-
+ drivers/i2c/i2c-core-slave.c                       |   8 +-
+ drivers/i2c/i2c-core-smbus.c                       |  28 +-
+ drivers/i2c/i2c-mux.c                              |   4 +-
+ drivers/i2c/muxes/i2c-mux-mlxcpld.c                |  28 +-
+ drivers/i2c/muxes/i2c-mux-pca9541.c                |  75 +-
+ drivers/i2c/muxes/i2c-mux-pca954x.c                |  51 +-
+ drivers/iio/temperature/mlx90614.c                 |   4 +-
+ drivers/input/touchscreen/rohm_bu21023.c           |   4 +-
+ drivers/media/dvb-frontends/af9013.c               |   8 +-
+ drivers/media/dvb-frontends/drxk_hard.c            |   4 +-
+ drivers/media/dvb-frontends/rtl2830.c              |  12 +-
+ drivers/media/dvb-frontends/tda1004x.c             |   6 +-
+ drivers/media/tuners/tda18271-common.c             |   8 +-
+ drivers/mfd/88pm860x-i2c.c                         |   8 +-
+ drivers/misc/eeprom/at24.c                         |  17 +
+ include/linux/i2c.h                                |  44 +-
+ 57 files changed, 2846 insertions(+), 674 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-owl.txt
+ create mode 100644 drivers/i2c/busses/i2c-fsi.c
+ create mode 100644 drivers/i2c/busses/i2c-owl.c
+ create mode 100644 drivers/i2c/busses/i2c-qcom-geni.c
+
+--m5swph7nsuhx2eh5
+Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEE0W61GceYqNjiMSkodJSaS524LbwFAlt8GjIACgkQdJSaS524
-LbxtUQ//bv0o7p77QHXjYAhbLi9Sxak2BkzVv9qLaMiUyuipgHBwKttHYqLh0s2w
-PtvXg1Xb/yu9ZudVxxOXrnorv1kyBatv4BO71lWcWRT8XpJLeZ+BqowZH2J8ea8J
-f7a2VoUFzN4AeZCLFX48pzrJfHd9GjuOyBSet+RjMfaLAHblAxVLg6dLu+I8yKJs
-uvARE7IQRbbjRcgkQ2kmfwP5waj+pXsgh5fU6DpucC8/rypbKkZ89hAo3rljuUX/
-rsWw78dVOrKQYcjmZkHjbo6wU0OZsq5gReX2T1/PwOeW+BBWK0NcNf6fWKJ0riLh
-83tp9zoutWqTnigGLtDOadPzzZvC0SvNpK0wCY6HGy/azvTVyxbG8zuItRG6/muj
-z3SFvNQUUwjHCZKVxt3SkG67cq0MSBri8oUnS0hVDNYTvqR9zmH6SUHwYcLX72+O
-DErB5V2hVoIvYsrs7L3NEy6tPO90O+NTUha/xjLMVH0KJLKPeSsoPh2QyaJdq8Qr
-ts/jgTQmYW2rBhFimZNWNh04wHNoKX1c9mG1OEZs5khFeox/FNcY75uUsh81y32V
-81lPyOEfRF/2+O+JBiRDv4Zd8Qm27nWz+58+3ncqBijYPKWPDbNaCEzI3kmZoi+a
-hNmx6sKipvJ82Tu+z++RWrSwi1wY7xqTjN6IngFl9nlXS43NNpw=
-=iA2t
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlt8G+4ACgkQFA3kzBSg
+KbarGhAAq78jBza0pBsYdA6BG+pmN8JFPn87zChMJTdtlLQOOQL0eOYFXj/b6Q+/
+rc8nvOwwmA3izv3NSprI7EO+TeFEWKyNoAMV/V/LBSrZ7VwH/XTSm+YRrTlUTIrs
+3k2yEaZdRXINHmzp+41rKvMnX3Mi7HzB23NtyxFJ4EQwMbSHGG5rMSkpY0LcdYjq
+IYkle6bp0QuRlKt3fqb7H/FJgFfe+94vO7KU63mvYek8cRhv5/kHD/Vk9XA0uIBq
+352KKZaUhNlf8H8PWXsMok5Ys4WJ1Qmlbsufw0S+rFxl62GiAVkOa6+eaYG7LXMi
+9To6nycjDn5x/y8lIPeEyFAF2OWKq7kqHZRJLYX18lated9C0PXHLy0yGNAQrryy
+DZUHzgobfjxxwJJ6IeQLb8HZmxSCbDl8nhWyof1tW4pS+Ko6rXjfQ64YISyPacnP
+KI9Y6XSGjeyx1pytP15lDr3S2JUHVQLOh2O0LkZelxVNhK8xQY+C1nnoiRFrWXse
+X3pMDezp8nFkKbhtrgIF4b3KbhakqJ+HV6IMxlUX/IVfrCzko17qzX0wkwgarjdl
+CPCv9VaNjG68H2URZrFnXlmI3aLuPqEbpefO7dpR8r6VFJ7AxUV1I2SdWmom+KDQ
+OkdyXiaD08osX/9EZXRcRPGtA6P9mC7ZU7er/Ea7dke1BI6HMDk=
+=Hit/
 -----END PGP SIGNATURE-----
 
---Sig_/Vrx59kMnNF++K/5vjoJF3zd--
+--m5swph7nsuhx2eh5--
