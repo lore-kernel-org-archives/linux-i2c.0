@@ -1,46 +1,99 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 0/2] i2c: remove deprecated attach_adapter callback
-Date: Tue, 21 Aug 2018 17:02:38 +0200
-Message-ID: <20180821150240.19964-1-wsa@the-dreams.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Ellerman <mpe@ellerman.id.au>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH 00/11] tree-wide: use SPDX identifier for Renesas drivers
+Date: Wed, 22 Aug 2018 00:02:13 +0200
+Message-ID: <20180821220233.9202-1-wsa+renesas@sang-engineering.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
+To: linux-renesas-soc@vger.kernel.org
+Cc: Kuninori Morimoto <kuninori.morimoto.gx@gmail.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, dmaengine@vger.kernel.org, linux-can@vger.kernel.org, linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mmc@vger.kernel.org, linux-pwm@vger.kernel.org, linux-spi@vger.kernel.org, linux-watchdog@vger.kernel.org, netdev@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-So, I wanted to do this in the next cycle, but Linus seems to want it this
-cycle already [1], so here it is:
+Here is my first batch of SPDX conversion patches. Mostly low hanging fruits,
+only a handful of drivers needed corrections in MODULE_LICENSE, too.
 
-Remove the attach_adapter callback from the 2.4 times by converting
-the last user to a custom probing mechanism based on deferred probing. We used
-this already in commit ac397c80de89 ("ALSA: ppc: keywest: drop using attach
-adapter") successfully on HW, so we agreed to use it on the windtunnel driver
-as well.
+checkpatch is happy as well.
 
-With the last user gone, we can then remove the callback \o/ I think this
-allows for more cleanup in the core, but let's do this later and focus on the
-removal for now.
-
-Tested on a Renesas R-Car Salvator-XS board (M3N) by using and rebinding
-various I2C busses. Build bot and checkpatch are happy, too.
-
-I'd like to send a pull request to Linus this merge window, so looking forward
-to super fast comments, acks, etc...
+I think an ack from Morimoto-san with his Renesas email address would be nice
+to make it more official? Still, I *am* contracted by Renesas.
 
 Thanks,
 
    Wolfram
 
-[1] http://patchwork.ozlabs.org/patch/959322/#1976742
+Wolfram Sang (11):
+  clk: renesas: use SPDX identifier for Renesas drivers
+  dmaengine: use SPDX identifier for Renesas drivers
+  i2c: use SPDX identifier for Renesas drivers
+  mmc: use SPDX identifier for Renesas drivers
+  can: rcar: use SPDX identifier for Renesas drivers
+  net: ethernet: renesas: use SPDX identifier for Renesas drivers
+  phy: renesas: use SPDX identifier for Renesas drivers
+  pwm: use SPDX identifier for Renesas drivers
+  soc: renesas: use SPDX identifier for Renesas drivers
+  spi: use SPDX identifier for Renesas drivers
+  watchdog: use SPDX identifier for Renesas drivers
 
-Wolfram Sang (2):
-  macintosh: therm_windtunnel: drop using attach_adapter
-  i2c: remove deprecated attach_adapter callback
-
- drivers/i2c/i2c-core-base.c          | 11 +----------
- drivers/macintosh/therm_windtunnel.c | 25 +++++++++++++++++++++++--
- include/linux/i2c.h                  |  6 ------
- 3 files changed, 24 insertions(+), 18 deletions(-)
+ drivers/clk/renesas/clk-div6.c                |  5 +----
+ drivers/clk/renesas/r8a7795-cpg-mssr.c        |  5 +----
+ drivers/clk/renesas/r8a7796-cpg-mssr.c        |  5 +----
+ drivers/clk/renesas/r8a77995-cpg-mssr.c       |  5 +----
+ drivers/clk/renesas/rcar-gen3-cpg.c           |  5 +----
+ drivers/clk/renesas/rcar-usb2-clock-sel.c     |  5 +----
+ drivers/clk/renesas/renesas-cpg-mssr.c        |  5 +----
+ drivers/clk/renesas/renesas-cpg-mssr.h        |  5 +----
+ drivers/dma/nbpfaxi.c                         |  5 +----
+ drivers/dma/sh/shdma-arm.h                    |  5 +----
+ drivers/dma/sh/shdma-base.c                   |  5 +----
+ drivers/dma/sh/shdma-of.c                     |  5 +----
+ drivers/dma/sh/shdma-r8a73a4.c                |  5 +----
+ drivers/dma/sh/shdma.h                        |  6 +-----
+ drivers/dma/sh/shdmac.c                       |  6 +-----
+ drivers/dma/sh/sudmac.c                       |  5 +----
+ drivers/dma/sh/usb-dmac.c                     |  5 +----
+ drivers/i2c/busses/i2c-emev2.c                |  5 +----
+ drivers/i2c/busses/i2c-highlander.c           |  5 +----
+ drivers/i2c/busses/i2c-rcar.c                 | 10 +---------
+ drivers/i2c/busses/i2c-riic.c                 |  5 +----
+ drivers/i2c/busses/i2c-sh_mobile.c            | 10 +---------
+ drivers/mmc/host/renesas_sdhi.h               |  5 +----
+ drivers/mmc/host/renesas_sdhi_core.c          |  5 +----
+ drivers/mmc/host/renesas_sdhi_internal_dmac.c |  5 +----
+ drivers/mmc/host/renesas_sdhi_sys_dmac.c      |  5 +----
+ drivers/mmc/host/sh_mmcif.c                   |  7 ++-----
+ drivers/mmc/host/tmio_mmc.c                   |  5 +----
+ drivers/mmc/host/tmio_mmc.h                   |  6 +-----
+ drivers/mmc/host/tmio_mmc_core.c              |  5 +----
+ drivers/mmc/host/usdhi6rol0.c                 |  5 +----
+ drivers/net/can/rcar/rcar_can.c               |  6 +-----
+ drivers/net/can/rcar/rcar_canfd.c             |  6 +-----
+ drivers/net/ethernet/renesas/ravb.h           |  5 +----
+ drivers/net/ethernet/renesas/ravb_main.c      |  5 +----
+ drivers/net/ethernet/renesas/sh_eth.c         | 13 +------------
+ drivers/net/ethernet/renesas/sh_eth.h         | 13 +------------
+ drivers/phy/renesas/phy-rcar-gen2.c           |  5 +----
+ drivers/phy/renesas/phy-rcar-gen3-usb2.c      |  5 +----
+ drivers/phy/renesas/phy-rcar-gen3-usb3.c      |  5 +----
+ drivers/pwm/pwm-rcar.c                        |  5 +----
+ drivers/pwm/pwm-renesas-tpu.c                 | 10 +---------
+ drivers/soc/renesas/r8a7743-sysc.c            |  5 +----
+ drivers/soc/renesas/r8a7745-sysc.c            |  5 +----
+ drivers/soc/renesas/r8a7779-sysc.c            |  5 +----
+ drivers/soc/renesas/r8a7790-sysc.c            |  5 +----
+ drivers/soc/renesas/r8a7791-sysc.c            |  5 +----
+ drivers/soc/renesas/r8a7792-sysc.c            |  5 +----
+ drivers/soc/renesas/r8a7794-sysc.c            |  5 +----
+ drivers/soc/renesas/r8a7795-sysc.c            |  5 +----
+ drivers/soc/renesas/r8a7796-sysc.c            |  5 +----
+ drivers/soc/renesas/r8a77970-sysc.c           |  5 +----
+ drivers/soc/renesas/r8a77995-sysc.c           |  5 +----
+ drivers/soc/renesas/rcar-sysc.h               |  5 +----
+ drivers/soc/renesas/renesas-soc.c             | 10 +---------
+ drivers/spi/spi-rspi.c                        | 10 +---------
+ drivers/spi/spi-sh-hspi.c                     | 12 ++----------
+ drivers/spi/spi-sh-msiof.c                    |  6 +-----
+ drivers/spi/spi-sh.c                          | 12 ++----------
+ drivers/watchdog/renesas_wdt.c                |  5 +----
+ 60 files changed, 63 insertions(+), 300 deletions(-)
 
 -- 
 2.11.0
