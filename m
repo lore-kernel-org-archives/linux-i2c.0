@@ -1,13 +1,14 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 1/4] eeprom: at24: Allow passing gpiodesc from pdata
-Date: Thu, 23 Aug 2018 12:33:29 +0200
-Message-ID: <20180823103332.32047-2-linus.walleij@linaro.org>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH 1/4] eeprom: at24: Allow passing gpiodesc from pdata
+Date: Thu, 23 Aug 2018 13:14:32 +0200
+Message-ID: <CAMRc=MeR242hFhk4Nts9Fo2110NYAKoULDZPpe_mTrpdA2CNSw@mail.gmail.com>
 References: <20180823103332.32047-1-linus.walleij@linaro.org>
+ <20180823103332.32047-2-linus.walleij@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180823103332.32047-1-linus.walleij@linaro.org>
+In-Reply-To: <20180823103332.32047-2-linus.walleij@linaro.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -17,71 +18,35 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, dev@lists.96boards.org
-Cc: Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, Michal Simek <michal.simek@xilinx.com>, Rob Herring <robh+dt@kernel.org>, Mark Brown <broonie@kernel.org>, John Stultz <john.stultz@linaro.org>, linux-i2c@vger.kernel.org, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>, Frank Rowand <frowand.list@gmail.com>, Bartosz Golaszewski <brgl@bgdev.pl>, Andy Shevchenko <andy@infradead.org>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree <devicetree@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Mark Brown <broonie@kernel.org>, Michal Simek <michal.simek@xilinx.com>, dev@lists.96boards.org, Rob Herring <robh+dt@kernel.org>, John Stultz <john.stultz@linaro.org>, Andy Shevchenko <andy@infradead.org>, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>, Frank Rowand <frowand.list@gmail.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This makes it possible to pass an initialized GPIO descriptor
-to the driver through platform data.
+2018-08-23 12:33 GMT+02:00 Linus Walleij <linus.walleij@linaro.org>:
+> This makes it possible to pass an initialized GPIO descriptor
+> to the driver through platform data.
+>
+> This is useful when we are dealing with EEPROMs on expansion
+> boards where the GPIO has to be looked up indirectly using a
+> connector abstraction (several systems using the same
+> connector) so the machine descriptor tables cannot be used
+> to associate the descriptor with the device and we then want
+> to pass this descriptor on to the EEPROM driver this way
+> instead.
+>
 
-This is useful when we are dealing with EEPROMs on expansion
-boards where the GPIO has to be looked up indirectly using a
-connector abstraction (several systems using the same
-connector) so the machine descriptor tables cannot be used
-to associate the descriptor with the device and we then want
-to pass this descriptor on to the EEPROM driver this way
-instead.
+Ugh I don't like this at all. In fact I'm right now trying to *get
+rid* of platform_data from at24 in favor of device properties[1].
 
-Cc: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: linux-i2c@vger.kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
-ChangeLog v1->v2:
-- No changes
-- Requesting an ACK from the EEPROM maintainer (Bartosz) so
-  we can apply this to the ARM SoC tree with the series depending
-  on it.
----
- drivers/misc/eeprom/at24.c         | 6 +++++-
- include/linux/platform_data/at24.h | 2 ++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+Part of the changes from my series actually removes the setup function
+from at24 and replaces it with a notifier fired by the nvmem
+framework.
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index f5cc517d1131..d577cdbe221e 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -662,7 +662,11 @@ static int at24_probe(struct i2c_client *client)
- 	at24->client[0].client = client;
- 	at24->client[0].regmap = regmap;
- 
--	at24->wp_gpio = devm_gpiod_get_optional(dev, "wp", GPIOD_OUT_HIGH);
-+	if (pdata.wp_gpiod)
-+		at24->wp_gpio = pdata.wp_gpiod;
-+	else
-+		at24->wp_gpio =
-+			devm_gpiod_get_optional(dev, "wp", GPIOD_OUT_HIGH);
- 	if (IS_ERR(at24->wp_gpio))
- 		return PTR_ERR(at24->wp_gpio);
- 
-diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
-index 63507ff464ee..5606fb2ef76c 100644
---- a/include/linux/platform_data/at24.h
-+++ b/include/linux/platform_data/at24.h
-@@ -11,6 +11,7 @@
- #include <linux/types.h>
- #include <linux/nvmem-consumer.h>
- #include <linux/bitops.h>
-+#include <linux/gpio/consumer.h>
- 
- /**
-  * struct at24_platform_data - data to set up at24 (generic eeprom) driver
-@@ -55,6 +56,7 @@ struct at24_platform_data {
- 
- 	void		(*setup)(struct nvmem_device *nvmem, void *context);
- 	void		*context;
-+	struct gpio_desc *wp_gpiod;
- };
- 
- #endif /* _LINUX_AT24_H */
--- 
-2.17.0
+I would really prefer that we introduce some generic way of handling
+write-protect mechanisms in nvmem. Maybe starting by moving the
+wp_gpio to nvmem and then passing it in nvmem_config?
+
+Best regards,
+Bartosz Golaszewski
+
+[1] https://patchwork.kernel.org/cover/10562365/
