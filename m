@@ -1,96 +1,87 @@
-From: Alban <albeu@free.fr>
-Subject: Re: [PATCH v2 06/29] mtd: Add support for reading MTD devices via
- the nvmem API
-Date: Thu, 23 Aug 2018 12:29:21 +0200
-Message-ID: <20180823122921.6857d917@tock>
-References: <20180810080526.27207-1-brgl@bgdev.pl>
- <20180810080526.27207-7-brgl@bgdev.pl>
- <20180817182720.6a6e5e8e@bbrezillon>
- <20180819133106.0420df5f@tock>
- <20180819184609.6dcdbb9a@bbrezillon>
- <5b8c30b8-41e1-d59e-542b-fef6c6469ff0@linaro.org>
- <20180820202038.5d3dc195@bbrezillon>
- <e0ec3194-fd3a-9b3d-fba8-f88447eb56e9@linaro.org>
- <20180821133916.3a1c51b1@eos>
- <6db14f9c-edd3-5e43-839c-953bb03097ff@linaro.org>
- <20180821150121.4408672f@bbrezillon>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 1/4] eeprom: at24: Allow passing gpiodesc from pdata
+Date: Thu, 23 Aug 2018 12:33:29 +0200
+Message-ID: <20180823103332.32047-2-linus.walleij@linaro.org>
+References: <20180823103332.32047-1-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/clJVj=KipsjMDyfNIMePBO1"; protocol="application/pgp-signature"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180821150121.4408672f@bbrezillon>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>
-Cc: Alban Bedel <albeu@free.fr>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Bartosz Golaszewski <brgl@bgdev.pl>, Jonathan Corbet <corbet@lwn.net>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Woodhouse <dwmw2@infradead.org>, Brian Norris <computersforpeace@gmail.com>, Marek Vasut <marek.vasut@gmail.com>, Richard Weinberger <richard@nod.at>, Grygorii Strashko <grygorii.strashko@ti.com>, "David S . Miller" <davem@davemloft.net>, Naren <naren.kernel@gmail.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Lukas Wunner <lukas@wunner.de>, Dan
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180823103332.32047-1-linus.walleij@linaro.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, dev@lists.96boards.org
+Cc: Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, Michal Simek <michal.simek@xilinx.com>, Rob Herring <robh+dt@kernel.org>, Mark Brown <broonie@kernel.org>, John Stultz <john.stultz@linaro.org>, linux-i2c@vger.kernel.org, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>, Frank Rowand <frowand.list@gmail.com>, Bartosz Golaszewski <brgl@bgdev.pl>, Andy Shevchenko <andy@infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
---Sig_/clJVj=KipsjMDyfNIMePBO1
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+This makes it possible to pass an initialized GPIO descriptor
+to the driver through platform data.
 
-On Tue, 21 Aug 2018 15:01:21 +0200
-Boris Brezillon <boris.brezillon@bootlin.com> wrote:
+This is useful when we are dealing with EEPROMs on expansion
+boards where the GPIO has to be looked up indirectly using a
+connector abstraction (several systems using the same
+connector) so the machine descriptor tables cannot be used
+to associate the descriptor with the device and we then want
+to pass this descriptor on to the EEPROM driver this way
+instead.
 
-> On Tue, 21 Aug 2018 13:00:04 +0100
-> Srinivas Kandagatla <srinivas.kandagatla@linaro.org> wrote:
->=20
-> > On 21/08/18 12:39, Alban wrote: =20
-> > > However we still have the a potential address space clash between
-> > > the nvmem cells and the main device binding.   =20
-> > Can you elaborate?
-> >  =20
->=20
-> Yes, I'd be interested in having a real example too, cause I don't see
-> what this address space clash is.
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: linux-i2c@vger.kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ChangeLog v1->v2:
+- No changes
+- Requesting an ACK from the EEPROM maintainer (Bartosz) so
+  we can apply this to the ARM SoC tree with the series depending
+  on it.
+---
+ drivers/misc/eeprom/at24.c         | 6 +++++-
+ include/linux/platform_data/at24.h | 2 ++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-Let say I have a device that use the following binding:
-
-device {
-    compatible =3D "example-device";
-    #address-cells =3D <2>;
-    #size-cells =3D <1>;
-
-    child@0,0 {
-        reg =3D <0x0 0x0>;
-        ...
-    };
-
-    child@1,2 {
-        reg =3D <0x1 0x2>;
-        ...
-    };
-
-};
-
-Now this binding already use the node address space for something,
-so putting a nvmem node as direct child would not work. Here it is
-quiet clear as we have 2 address cells, however even if the number of
-cells and the cells size would match it would still be conceptually
-wrong as both bindings then use the same address space for something
-different.
-
-Alban
-
---Sig_/clJVj=KipsjMDyfNIMePBO1
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-
-iQIcBAEBCAAGBQJbfoyCAAoJEHSUmkuduC2831EQANEODpUrKPBwoUPR5kK9+xS1
-1qpoYGYl6TM2lHAEP7nZP+eNv3rOyBncZoiuVAIAIqYi2cJ1eyury5lRDpgIpZaH
-hYDSyeBefkS/qFTH91x3+CYq5wK8uPKEFoDJcAmj0jDw+dEGk9xRohWF0rSR5AVv
-IKVtiDByjgCLlNBCmzOe9GAxEU9hSZVRck3u84NA9HlklZ+P3dbEotpRkt3c9qsZ
-3HlckafnYuWs3gFW+HP++oALuUa4X7iqHTNi2Wubj/G0K30vhOrSAgCpQty5TqWF
-iYiZq/zfZqDJlDkWOYkW9lSdF0tGlCgfsVOrxG5ByG5jMMtW5B7QREyZrBmQzcuz
-kIoerm0mjZYCfev2rkdtw0FZWXQdDGp9Rjy28B8RnnSMjR3cljid3wyWRZRhtnOY
-6QuHDQ7D5ncqn9LiZIAj4Th6RKgxxd4F7iNDLMY57+GmMVeqdgXJr/vWMXUy+KEu
-k9xO3xr+7l7wy23C35vGw+IK2Y9mrWyuchUNF+waa3gUL2L9ufugB8l6Yp+4OjRx
-ur16kOtTg4ZTYeRryImv8FLrjjm3FT81aKwZthoLL5W4Wxh5WPU0oMe2YWcE7g/G
-K6exE5qdZ285k3uHVgvqXH4SZTcjkqonJZ59Xjl5lb/NWhvMrAY3nXzUH1roM863
-jpGm3PZXS4uPr9TwgjAK
-=952h
------END PGP SIGNATURE-----
-
---Sig_/clJVj=KipsjMDyfNIMePBO1--
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index f5cc517d1131..d577cdbe221e 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -662,7 +662,11 @@ static int at24_probe(struct i2c_client *client)
+ 	at24->client[0].client = client;
+ 	at24->client[0].regmap = regmap;
+ 
+-	at24->wp_gpio = devm_gpiod_get_optional(dev, "wp", GPIOD_OUT_HIGH);
++	if (pdata.wp_gpiod)
++		at24->wp_gpio = pdata.wp_gpiod;
++	else
++		at24->wp_gpio =
++			devm_gpiod_get_optional(dev, "wp", GPIOD_OUT_HIGH);
+ 	if (IS_ERR(at24->wp_gpio))
+ 		return PTR_ERR(at24->wp_gpio);
+ 
+diff --git a/include/linux/platform_data/at24.h b/include/linux/platform_data/at24.h
+index 63507ff464ee..5606fb2ef76c 100644
+--- a/include/linux/platform_data/at24.h
++++ b/include/linux/platform_data/at24.h
+@@ -11,6 +11,7 @@
+ #include <linux/types.h>
+ #include <linux/nvmem-consumer.h>
+ #include <linux/bitops.h>
++#include <linux/gpio/consumer.h>
+ 
+ /**
+  * struct at24_platform_data - data to set up at24 (generic eeprom) driver
+@@ -55,6 +56,7 @@ struct at24_platform_data {
+ 
+ 	void		(*setup)(struct nvmem_device *nvmem, void *context);
+ 	void		*context;
++	struct gpio_desc *wp_gpiod;
+ };
+ 
+ #endif /* _LINUX_AT24_H */
+-- 
+2.17.0
