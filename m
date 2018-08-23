@@ -1,299 +1,96 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH i2c-next v4] i2c: aspeed: Handle master/slave combined irq
- events properly
-Date: Wed, 22 Aug 2018 23:46:13 -0700
-Message-ID: <CAFd5g477PagwugRic6ihC-v3mFaewBbsvGHXRw+kPF5w+-n3iA@mail.gmail.com>
-References: <20180820201632.29229-1-jae.hyun.yoo@linux.intel.com>
+From: Alban <albeu@free.fr>
+Subject: Re: [PATCH v2 06/29] mtd: Add support for reading MTD devices via
+ the nvmem API
+Date: Thu, 23 Aug 2018 12:29:21 +0200
+Message-ID: <20180823122921.6857d917@tock>
+References: <20180810080526.27207-1-brgl@bgdev.pl>
+ <20180810080526.27207-7-brgl@bgdev.pl>
+ <20180817182720.6a6e5e8e@bbrezillon>
+ <20180819133106.0420df5f@tock>
+ <20180819184609.6dcdbb9a@bbrezillon>
+ <5b8c30b8-41e1-d59e-542b-fef6c6469ff0@linaro.org>
+ <20180820202038.5d3dc195@bbrezillon>
+ <e0ec3194-fd3a-9b3d-fba8-f88447eb56e9@linaro.org>
+ <20180821133916.3a1c51b1@eos>
+ <6db14f9c-edd3-5e43-839c-953bb03097ff@linaro.org>
+ <20180821150121.4408672f@bbrezillon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/clJVj=KipsjMDyfNIMePBO1"; protocol="application/pgp-signature"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180820201632.29229-1-jae.hyun.yoo@linux.intel.com>
+In-Reply-To: <20180821150121.4408672f@bbrezillon>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jae.hyun.yoo@linux.intel.com
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, james.feist@linux.intel.com, vernon.mauery@linux.intel.com
+To: Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: Alban Bedel <albeu@free.fr>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Bartosz Golaszewski <brgl@bgdev.pl>, Jonathan Corbet <corbet@lwn.net>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Woodhouse <dwmw2@infradead.org>, Brian Norris <computersforpeace@gmail.com>, Marek Vasut <marek.vasut@gmail.com>, Richard Weinberger <richard@nod.at>, Grygorii Strashko <grygorii.strashko@ti.com>, "David S . Miller" <davem@davemloft.net>, Naren <naren.kernel@gmail.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Lukas Wunner <lukas@wunner.de>, Dan
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Aug 20, 2018 at 1:16 PM Jae Hyun Yoo
-<jae.hyun.yoo@linux.intel.com> wrote:
->
-> In most of cases, interrupt bits are set one by one but there are
-> also a lot of other cases that Aspeed I2C IP sends multiple
-> interrupt bits with combining master and slave events using a
-> single interrupt call. It happens much more in multi-master
-> environment than single-master. For an example, when master is
-> waiting for a NORMAL_STOP interrupt in its MASTER_STOP state,
-> SLAVE_MATCH and RX_DONE interrupts could come along with the
-> NORMAL_STOP in case of an another master immediately sends data
-> just after acquiring the bus. In this case, the NORMAL_STOP
-> interrupt should be handled by master_irq and the SLAVE_MATCH and
-> RX_DONE interrupts should be handled by slave_irq. This commit
-> modifies irq hadling logic to handle the master/slave combined
-> events properly.
->
-> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-> ---
-> Changes since v3:
-> - Fixed typos in a comment.
->
-> Changes since v2:
-> - Changed the name of ASPEED_I2CD_INTR_ERRORS to ASPEED_I2CD_INTR_MASTER_ERRORS
-> - Removed a member irq_status from the struct aspeed_i2c_bus and changed
->   master_irq and slave_irq handlers to make them return status_ack.
-> - Added a comment to explain why it needs to try both irq handlers.
->
-> Changes since v1:
-> - Fixed a grammar issue in commit message.
-> - Added a missing line feed character into a message printing.
->
->  drivers/i2c/busses/i2c-aspeed.c | 110 +++++++++++++++++++-------------
->  1 file changed, 65 insertions(+), 45 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-> index a4f956c6d567..09eb4a9b355c 100644
-> --- a/drivers/i2c/busses/i2c-aspeed.c
-> +++ b/drivers/i2c/busses/i2c-aspeed.c
-> @@ -82,6 +82,11 @@
->  #define ASPEED_I2CD_INTR_RX_DONE                       BIT(2)
->  #define ASPEED_I2CD_INTR_TX_NAK                                BIT(1)
->  #define ASPEED_I2CD_INTR_TX_ACK                                BIT(0)
-> +#define ASPEED_I2CD_INTR_MASTER_ERRORS                                        \
-> +               (ASPEED_I2CD_INTR_SDA_DL_TIMEOUT |                             \
-> +                ASPEED_I2CD_INTR_SCL_TIMEOUT |                                \
-> +                ASPEED_I2CD_INTR_ABNORMAL |                                   \
-> +                ASPEED_I2CD_INTR_ARBIT_LOSS)
->  #define ASPEED_I2CD_INTR_ALL                                                  \
->                 (ASPEED_I2CD_INTR_SDA_DL_TIMEOUT |                             \
->                  ASPEED_I2CD_INTR_BUS_RECOVER_DONE |                           \
-> @@ -227,20 +232,16 @@ static int aspeed_i2c_recover_bus(struct aspeed_i2c_bus *bus)
->  }
->
->  #if IS_ENABLED(CONFIG_I2C_SLAVE)
-> -static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
-> +static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
->  {
-> -       u32 command, irq_status, status_ack = 0;
-> +       u32 command, status_ack = 0;
->         struct i2c_client *slave = bus->slave;
-> -       bool irq_handled = true;
->         u8 value;
->
-> -       if (!slave) {
-> -               irq_handled = false;
-> -               goto out;
-> -       }
-> +       if (!slave)
-> +               return 0;
->
->         command = readl(bus->base + ASPEED_I2C_CMD_REG);
-> -       irq_status = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
->
->         /* Slave was requested, restart state machine. */
->         if (irq_status & ASPEED_I2CD_INTR_SLAVE_MATCH) {
-> @@ -249,10 +250,8 @@ static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
->         }
->
->         /* Slave is not currently active, irq was for someone else. */
-> -       if (bus->slave_state == ASPEED_I2C_SLAVE_STOP) {
-> -               irq_handled = false;
-> -               goto out;
-> -       }
-> +       if (bus->slave_state == ASPEED_I2C_SLAVE_STOP)
-> +               return status_ack;
->
->         dev_dbg(bus->dev, "slave irq status 0x%08x, cmd 0x%08x\n",
->                 irq_status, command);
-> @@ -281,19 +280,19 @@ static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
->                 status_ack |= ASPEED_I2CD_INTR_TX_NAK;
->                 bus->slave_state = ASPEED_I2C_SLAVE_STOP;
->         }
-> +       if (irq_status & ASPEED_I2CD_INTR_TX_ACK)
-> +               status_ack |= ASPEED_I2CD_INTR_TX_ACK;
->
->         switch (bus->slave_state) {
->         case ASPEED_I2C_SLAVE_READ_REQUESTED:
->                 if (irq_status & ASPEED_I2CD_INTR_TX_ACK)
->                         dev_err(bus->dev, "Unexpected ACK on read request.\n");
->                 bus->slave_state = ASPEED_I2C_SLAVE_READ_PROCESSED;
-> -
->                 i2c_slave_event(slave, I2C_SLAVE_READ_REQUESTED, &value);
->                 writel(value, bus->base + ASPEED_I2C_BYTE_BUF_REG);
->                 writel(ASPEED_I2CD_S_TX_CMD, bus->base + ASPEED_I2C_CMD_REG);
->                 break;
->         case ASPEED_I2C_SLAVE_READ_PROCESSED:
-> -               status_ack |= ASPEED_I2CD_INTR_TX_ACK;
->                 if (!(irq_status & ASPEED_I2CD_INTR_TX_ACK))
->                         dev_err(bus->dev,
->                                 "Expected ACK after processed read.\n");
-> @@ -317,14 +316,7 @@ static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
->                 break;
->         }
->
-> -       if (status_ack != irq_status)
-> -               dev_err(bus->dev,
-> -                       "irq handled != irq. expected %x, but was %x\n",
-> -                       irq_status, status_ack);
-> -       writel(status_ack, bus->base + ASPEED_I2C_INTR_STS_REG);
-> -
-> -out:
-> -       return irq_handled;
-> +       return status_ack;
->  }
->  #endif /* CONFIG_I2C_SLAVE */
->
-> @@ -380,21 +372,21 @@ static int aspeed_i2c_is_irq_error(u32 irq_status)
->         return 0;
->  }
->
-> -static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
-> +static u32 aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
->  {
-> -       u32 irq_status, status_ack = 0, command = 0;
-> +       u32 status_ack = 0, command = 0;
->         struct i2c_msg *msg;
->         u8 recv_byte;
->         int ret;
->
-> -       irq_status = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
-> -       /* Ack all interrupt bits. */
-> -       writel(irq_status, bus->base + ASPEED_I2C_INTR_STS_REG);
-> -
->         if (irq_status & ASPEED_I2CD_INTR_BUS_RECOVER_DONE) {
->                 bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
->                 status_ack |= ASPEED_I2CD_INTR_BUS_RECOVER_DONE;
->                 goto out_complete;
-> +       } else {
-> +               /* Master is not currently active, irq was for someone else. */
-> +               if (bus->master_state == ASPEED_I2C_MASTER_INACTIVE)
-> +                       goto out_no_complete;
->         }
->
->         /*
-> @@ -403,19 +395,22 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
->          * INACTIVE state.
->          */
->         ret = aspeed_i2c_is_irq_error(irq_status);
-> -       if (ret < 0) {
-> +       if (ret) {
->                 dev_dbg(bus->dev, "received error interrupt: 0x%08x\n",
->                         irq_status);
->                 bus->cmd_err = ret;
->                 bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
-> +               status_ack |= (irq_status & ASPEED_I2CD_INTR_MASTER_ERRORS);
->                 goto out_complete;
->         }
->
->         /* We are in an invalid state; reset bus to a known state. */
->         if (!bus->msgs) {
-> -               dev_err(bus->dev, "bus in unknown state\n");
-> +               dev_err(bus->dev, "bus in unknown state irq_status: 0x%x\n",
-> +                       irq_status);
->                 bus->cmd_err = -EIO;
-> -               if (bus->master_state != ASPEED_I2C_MASTER_STOP)
-> +               if (bus->master_state != ASPEED_I2C_MASTER_STOP &&
-> +                   bus->master_state != ASPEED_I2C_MASTER_INACTIVE)
->                         aspeed_i2c_do_stop(bus);
->                 goto out_no_complete;
->         }
-> @@ -428,6 +423,11 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
->          */
->         if (bus->master_state == ASPEED_I2C_MASTER_START) {
->                 if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_ACK))) {
-> +                       if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_NAK))) {
-> +                               bus->cmd_err = -ENXIO;
-> +                               bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
-> +                               goto out_complete;
-> +                       }
->                         pr_devel("no slave present at %02x\n", msg->addr);
->                         status_ack |= ASPEED_I2CD_INTR_TX_NAK;
->                         bus->cmd_err = -ENXIO;
-> @@ -506,7 +506,9 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
->                 goto out_no_complete;
->         case ASPEED_I2C_MASTER_STOP:
->                 if (unlikely(!(irq_status & ASPEED_I2CD_INTR_NORMAL_STOP))) {
-> -                       dev_err(bus->dev, "master failed to STOP\n");
-> +                       dev_err(bus->dev,
-> +                               "master failed to STOP irq_status:0x%x\n",
-> +                               irq_status);
->                         bus->cmd_err = -EIO;
->                         /* Do not STOP as we have already tried. */
->                 } else {
-> @@ -540,33 +542,51 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
->                 bus->master_xfer_result = bus->msgs_index + 1;
->         complete(&bus->cmd_complete);
->  out_no_complete:
-> -       if (irq_status != status_ack)
-> -               dev_err(bus->dev,
-> -                       "irq handled != irq. expected 0x%08x, but was 0x%08x\n",
-> -                       irq_status, status_ack);
-> -       return !!irq_status;
-> +       return status_ack;
->  }
->
->  static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
->  {
->         struct aspeed_i2c_bus *bus = dev_id;
-> -       bool ret;
-> +       u32 irq_received, irq_status, irq_acked;
->
->         spin_lock(&bus->lock);
-> +       irq_received = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
-> +       irq_status = irq_received;
->
->  #if IS_ENABLED(CONFIG_I2C_SLAVE)
-> -       if (aspeed_i2c_slave_irq(bus)) {
-> -               dev_dbg(bus->dev, "irq handled by slave.\n");
-> -               ret = true;
-> -               goto out;
-> +       /*
-> +        * In most cases, interrupt bits will be set one by one, although
-> +        * multiple interrupt bits could be set at the same time. It's also
-> +        * possible that master interrupt bits could be set along with slave
-> +        * interrupt bits. Each case needs to be handled using corresponding
-> +        * handlers depending on the current state.
-> +        */
-> +       if (bus->master_state != ASPEED_I2C_MASTER_INACTIVE) {
-> +               irq_acked = aspeed_i2c_master_irq(bus, irq_status);
-> +               irq_status &= ~irq_acked;
-> +               if (irq_status)
-> +                       irq_acked = aspeed_i2c_slave_irq(bus, irq_status);
-> +       } else {
-> +               irq_acked = aspeed_i2c_slave_irq(bus, irq_status);
-> +               irq_status &= ~irq_acked;
-> +               if (irq_status)
-> +                       irq_acked = aspeed_i2c_master_irq(bus, irq_status);
->         }
-> +#else
-> +       irq_acked = aspeed_i2c_master_irq(bus, irq_status);
->  #endif /* CONFIG_I2C_SLAVE */
->
-> -       ret = aspeed_i2c_master_irq(bus);
-> +       irq_status &= ~irq_acked;
-> +       if (irq_status)
-> +               dev_err(bus->dev,
-> +                       "irq handled != irq. expected 0x%08x, but was 0x%08x\n",
-> +                       irq_received, irq_received ^ irq_status);
+--Sig_/clJVj=KipsjMDyfNIMePBO1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-I think you want to use `irq_acked` here.
+On Tue, 21 Aug 2018 15:01:21 +0200
+Boris Brezillon <boris.brezillon@bootlin.com> wrote:
 
->
-> -out:
-> +       /* Ack all interrupt bits. */
-> +       writel(irq_received, bus->base + ASPEED_I2C_INTR_STS_REG);
->         spin_unlock(&bus->lock);
-> -       return ret ? IRQ_HANDLED : IRQ_NONE;
-> +       return irq_status ? IRQ_NONE : IRQ_HANDLED;
->  }
->
->  static int aspeed_i2c_master_xfer(struct i2c_adapter *adap,
-> --
-> 2.18.0
->
+> On Tue, 21 Aug 2018 13:00:04 +0100
+> Srinivas Kandagatla <srinivas.kandagatla@linaro.org> wrote:
+>=20
+> > On 21/08/18 12:39, Alban wrote: =20
+> > > However we still have the a potential address space clash between
+> > > the nvmem cells and the main device binding.   =20
+> > Can you elaborate?
+> >  =20
+>=20
+> Yes, I'd be interested in having a real example too, cause I don't see
+> what this address space clash is.
 
-One minor issue and then I think we are good to go!
+Let say I have a device that use the following binding:
 
-Also, sorry about not reviewing your last patch. I missed it apparently.
+device {
+    compatible =3D "example-device";
+    #address-cells =3D <2>;
+    #size-cells =3D <1>;
 
-Feel free to mark the next patch "Reviewed-by: Brendan Higgins
-<brendanhiggins@google.com>"
+    child@0,0 {
+        reg =3D <0x0 0x0>;
+        ...
+    };
 
-Cheers
+    child@1,2 {
+        reg =3D <0x1 0x2>;
+        ...
+    };
+
+};
+
+Now this binding already use the node address space for something,
+so putting a nvmem node as direct child would not work. Here it is
+quiet clear as we have 2 address cells, however even if the number of
+cells and the cells size would match it would still be conceptually
+wrong as both bindings then use the same address space for something
+different.
+
+Alban
+
+--Sig_/clJVj=KipsjMDyfNIMePBO1
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJbfoyCAAoJEHSUmkuduC2831EQANEODpUrKPBwoUPR5kK9+xS1
+1qpoYGYl6TM2lHAEP7nZP+eNv3rOyBncZoiuVAIAIqYi2cJ1eyury5lRDpgIpZaH
+hYDSyeBefkS/qFTH91x3+CYq5wK8uPKEFoDJcAmj0jDw+dEGk9xRohWF0rSR5AVv
+IKVtiDByjgCLlNBCmzOe9GAxEU9hSZVRck3u84NA9HlklZ+P3dbEotpRkt3c9qsZ
+3HlckafnYuWs3gFW+HP++oALuUa4X7iqHTNi2Wubj/G0K30vhOrSAgCpQty5TqWF
+iYiZq/zfZqDJlDkWOYkW9lSdF0tGlCgfsVOrxG5ByG5jMMtW5B7QREyZrBmQzcuz
+kIoerm0mjZYCfev2rkdtw0FZWXQdDGp9Rjy28B8RnnSMjR3cljid3wyWRZRhtnOY
+6QuHDQ7D5ncqn9LiZIAj4Th6RKgxxd4F7iNDLMY57+GmMVeqdgXJr/vWMXUy+KEu
+k9xO3xr+7l7wy23C35vGw+IK2Y9mrWyuchUNF+waa3gUL2L9ufugB8l6Yp+4OjRx
+ur16kOtTg4ZTYeRryImv8FLrjjm3FT81aKwZthoLL5W4Wxh5WPU0oMe2YWcE7g/G
+K6exE5qdZ285k3uHVgvqXH4SZTcjkqonJZ59Xjl5lb/NWhvMrAY3nXzUH1roM863
+jpGm3PZXS4uPr9TwgjAK
+=952h
+-----END PGP SIGNATURE-----
+
+--Sig_/clJVj=KipsjMDyfNIMePBO1--
