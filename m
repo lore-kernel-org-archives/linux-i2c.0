@@ -1,102 +1,103 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.19
-Date: Fri, 24 Aug 2018 17:37:40 +0200
-Message-ID: <20180824153735.ffqgp6k3utguwpwb@ninjato>
+From: vitor <Vitor.Soares@synopsys.com>
+Subject: Re: [PATCH v6 01/10] i3c: Add core I3C infrastructure
+Date: Fri, 24 Aug 2018 18:52:52 +0100
+Message-ID: <bdb2924f-ecfa-1da3-41db-9ac77d4d933b@synopsys.com>
+References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
+ <20180719152930.3715-2-boris.brezillon@bootlin.com>
+ <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
+ <20180824143934.6d6b6487@bbrezillon>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="asfofoxe35wwz27d"
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <20180824143934.6d6b6487@bbrezillon>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>, Jean Delvare <jdelvare@suse.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Boris Brezillon <boris.brezillon@bootlin.com>, vitor <Vitor.Soares@synopsys.com>, linux-gpio@vger.kernel.org, Sekhar Nori <nsekhar@ti.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetr>
 List-Id: linux-i2c@vger.kernel.org
 
-
---asfofoxe35wwz27d
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Linus,
-
-as promised, here is my 2nd pull request for I2C, containing:
-
-* removal of the attach_adapter callback, converting its last user
-* removal of any __deprecated usage within I2C
-* one email address update
-* some SPDX conversion
-
-CCing Jean on this one, he will probably be happy to finally see
-attach_adapter be gone for good as well :)
-
-Thanks,
-
-   Wolfram
+Hi Boris,
 
 
-The following changes since commit 33e17876ea4edcd7f5c01efa78e8d02889261abf:
+On 24-08-2018 13:39, Boris Brezillon wrote:
+> Hi Vitor,
+>
+> On Wed, 22 Aug 2018 17:43:34 +0100
+> vitor <Vitor.Soares@synopsys.com> wrote:
+>
+>> Hi Boris,
+>>
+>>
+>> On 19-07-2018 16:29, Boris Brezillon wrote:
+>>> +int i3c_bus_register(struct i3c_bus *i3cbus)
+>>> +{
+>>> +	struct i2c_dev_desc *desc;
+>>> +
+>>> +	i3c_bus_for_each_i2cdev(i3cbus, desc) {
+>>> +		switch (desc->boardinfo->lvr & I3C_LVR_I2C_INDEX_MASK) {
+>>> +		case I3C_LVR_I2C_INDEX(0):
+>>> +			if (i3cbus->mode < I3C_BUS_MODE_MIXED_FAST)
+>>> +				i3cbus->mode = I3C_BUS_MODE_MIXED_FAST;
+>>> +			break;
+>>> +
+>>> +		case I3C_LVR_I2C_INDEX(1):
+>>> +		case I3C_LVR_I2C_INDEX(2):
+>>> +			if (i3cbus->mode < I3C_BUS_MODE_MIXED_SLOW)
+>>> +				i3cbus->mode = I3C_BUS_MODE_MIXED_SLOW;
+>>> +			break;
+>>> +
+>>> +		default:
+>>> +			return -EINVAL;
+>>> +		}
+>>> +	}
+>>> +
+>>> +	if (!i3cbus->scl_rate.i3c)
+>>> +		i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
+>>> +
+>>> +	if (!i3cbus->scl_rate.i2c) {
+>>> +		if (i3cbus->mode == I3C_BUS_MODE_MIXED_SLOW)
+>>> +			i3cbus->scl_rate.i2c = I3C_BUS_I2C_FM_SCL_RATE;
+>>> +		else
+>>> +			i3cbus->scl_rate.i2c = I3C_BUS_I2C_FM_PLUS_SCL_RATE;
+>>> +	}
+>>> +
+>>> +	/*
+>>> +	 * I3C/I2C frequency may have been overridden, check that user-provided
+>>> +	 * values are not exceeding max possible frequency.
+>>> +	 */
+>>> +	if (i3cbus->scl_rate.i3c > I3C_BUS_MAX_I3C_SCL_RATE ||
+>>> +	    i3cbus->scl_rate.i2c > I3C_BUS_I2C_FM_PLUS_SCL_RATE) {
+>>> +		return -EINVAL;
+>>> +	}
+>>> +
+>>> +	dev_set_name(&i3cbus->dev, "i3c-%d", i3cbus->id);
+>>> +
+>>> +	return device_add(&i3cbus->dev);
+>>> +}
+>> During the tests of the bus with i2c devices I found the i2c_dev_desc
+>> objects aren't allocated before this function. This cause i3cbus->mode =
+>> I3C_BUS_MODE_PURE.
+> I just checked and DT parsing (+ I2C descs creation) is done before
+> i3c_bus_register() is called, so we should be good. How did you declare
+> your I2C devices (right now, only DT declaration is supported).
+During the DT parsing, you create the i2c_dev_boardinfo. the 
+i2c_dev_desc is created in i3c_master_bus_init() which is after the 
+i3c_mater_create_bus(). One possible way to fix this is to pass master 
+also to i3c_bus_register and iterate over i2c_dev_board_info list.
 
-  Merge branch 'akpm' (patches from Andrew) (2018-08-23 19:20:12 -0700)
+>> I want to do something for the slave and secondary master, do you
+>> already have infrastructure that you can share?
+> What do you mean?
+>
+> Regards,
+>
+> Boris
 
-are available in the git repository at:
+I want start to add the secondary master functionality but it is also 
+necessary to add the infrastructure to the subsystem.
+So, to avoid duplicated work can you share your plans for the secondary 
+master?
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
-
-for you to fetch changes up to 00efcdce67a365ec1881a6fbf17f769d690244e9:
-
-  i2c: don't use any __deprecated handling anymore (2018-08-24 17:26:43 +0200)
-
-----------------------------------------------------------------
-Peter Korsgaard (1):
-      i2c: ocores: update my email address
-
-Sedat Dilek (1):
-      i2c: don't use any __deprecated handling anymore
-
-Wolfram Sang (3):
-      macintosh: therm_windtunnel: drop using attach_adapter
-      i2c: remove deprecated attach_adapter callback
-      i2c: use SPDX identifier for Renesas drivers
-
-
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Simon Horman (1):
-      (Rev.) i2c: use SPDX identifier for Renesas drivers
-
- Documentation/i2c/busses/i2c-ocores      |  2 +-
- MAINTAINERS                              |  2 +-
- drivers/i2c/Makefile                     |  1 -
- drivers/i2c/busses/i2c-emev2.c           |  5 +----
- drivers/i2c/busses/i2c-highlander.c      |  5 +----
- drivers/i2c/busses/i2c-ocores.c          |  4 ++--
- drivers/i2c/busses/i2c-rcar.c            | 10 +---------
- drivers/i2c/busses/i2c-riic.c            |  5 +----
- drivers/i2c/busses/i2c-sh_mobile.c       | 10 +---------
- drivers/i2c/i2c-core-base.c              | 11 +----------
- drivers/macintosh/therm_windtunnel.c     | 25 +++++++++++++++++++++++--
- include/linux/i2c.h                      |  6 ------
- include/linux/platform_data/i2c-ocores.h |  2 +-
- 13 files changed, 34 insertions(+), 54 deletions(-)
-
---asfofoxe35wwz27d
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAluAJjsACgkQFA3kzBSg
-Kbao8w/+ImcI7fiANu+KsU4M6ro1T8lsOPXklHA8+SiMOXniWcUw7XPE9ES3FGTo
-BQDWHRilgyqVWPPdtzbjneLe7LhFsGXYFl2veW8rOegz0IUrN0J2G7yIicdg3y7A
-tnPCOFUUAFD6YaFonVoB4K7wfB/BqhktqLAkRe2WyI7XpHw+x4nnxk9ga6xjR6qi
-kOX3OVA5DcZXRd26mT0hb6FFTlH4AurzPp/e6h+tmgPEhYWwYZB3CeDO2+RM7tCo
-hC+QtmnZe3oAlvQFptAgHFO4x2BGjNM3wpDKual6M8RwfbPH7s6mQX5zkhgAfNEi
-d4OOQmP2tDIdBpukkoDiSTOEJy1vuQybeMCXp3UicETx4duq3f2LnAmR3eEW6uPU
-H4zYIidn+SQ70MXy4JwwwRauqmG6M3vDVrm4PPh3ujVIgCWfNpIB7uBNkSeMzq9l
-v4k+UCKsc8GVXRR27/KH+a8ZIeh5+M4EIQjLA5OaPYeRZASxIvEAfZ969krZATLP
-6agExIzf9pRksTq9uoVFuSttsLXxvtQXaRz8ofs1CqriTUrs0T97YhzOyhDvLXBo
-M9UF1O+a04Nk6RyiPB+oPT2QCOG42WIaAPdHyq+/dvYAaNpXQkCGB0NCc0xjgbVE
-312SJE8Mh13JotbI8/QK/V71nAk/Zg1sF/fuI+ed45j0ILliHTc=
-=firY
------END PGP SIGNATURE-----
-
---asfofoxe35wwz27d--
+Best regards,
+Vitor Soares
