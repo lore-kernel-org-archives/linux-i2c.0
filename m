@@ -1,88 +1,54 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v6 01/10] i3c: Add core I3C infrastructure
-Date: Fri, 24 Aug 2018 14:39:34 +0200
-Message-ID: <20180824143934.6d6b6487@bbrezillon>
-References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
-        <20180719152930.3715-2-boris.brezillon@bootlin.com>
-        <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] macintosh: therm_windtunnel: drop using
+ attach_adapter
+Date: Fri, 24 Aug 2018 14:47:37 +0200
+Message-ID: <20180824124737.pdiktpor5ofpfo45@ninjato>
+References: <20180821150240.19964-1-wsa@the-dreams.de>
+ <20180821150240.19964-2-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="exskspteuohzfyut"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
+Content-Disposition: inline
+In-Reply-To: <20180821150240.19964-2-wsa@the-dreams.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: vitor <Vitor.Soares@synopsys.com>, linux-gpio@vger.kernel.org, Sekhar Nori <nsekhar@ti.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hel>
+To: linux-i2c@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Michael Ellerman <mpe@ellerman.id.au>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Vitor,
 
-On Wed, 22 Aug 2018 17:43:34 +0100
-vitor <Vitor.Soares@synopsys.com> wrote:
+--exskspteuohzfyut
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Hi Boris,
-> 
-> 
-> On 19-07-2018 16:29, Boris Brezillon wrote:
-> > +int i3c_bus_register(struct i3c_bus *i3cbus)
-> > +{
-> > +	struct i2c_dev_desc *desc;
-> > +
-> > +	i3c_bus_for_each_i2cdev(i3cbus, desc) {
-> > +		switch (desc->boardinfo->lvr & I3C_LVR_I2C_INDEX_MASK) {
-> > +		case I3C_LVR_I2C_INDEX(0):
-> > +			if (i3cbus->mode < I3C_BUS_MODE_MIXED_FAST)
-> > +				i3cbus->mode = I3C_BUS_MODE_MIXED_FAST;
-> > +			break;
-> > +
-> > +		case I3C_LVR_I2C_INDEX(1):
-> > +		case I3C_LVR_I2C_INDEX(2):
-> > +			if (i3cbus->mode < I3C_BUS_MODE_MIXED_SLOW)
-> > +				i3cbus->mode = I3C_BUS_MODE_MIXED_SLOW;
-> > +			break;
-> > +
-> > +		default:
-> > +			return -EINVAL;
-> > +		}
-> > +	}
-> > +
-> > +	if (!i3cbus->scl_rate.i3c)
-> > +		i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
-> > +
-> > +	if (!i3cbus->scl_rate.i2c) {
-> > +		if (i3cbus->mode == I3C_BUS_MODE_MIXED_SLOW)
-> > +			i3cbus->scl_rate.i2c = I3C_BUS_I2C_FM_SCL_RATE;
-> > +		else
-> > +			i3cbus->scl_rate.i2c = I3C_BUS_I2C_FM_PLUS_SCL_RATE;
-> > +	}
-> > +
-> > +	/*
-> > +	 * I3C/I2C frequency may have been overridden, check that user-provided
-> > +	 * values are not exceeding max possible frequency.
-> > +	 */
-> > +	if (i3cbus->scl_rate.i3c > I3C_BUS_MAX_I3C_SCL_RATE ||
-> > +	    i3cbus->scl_rate.i2c > I3C_BUS_I2C_FM_PLUS_SCL_RATE) {
-> > +		return -EINVAL;
-> > +	}
-> > +
-> > +	dev_set_name(&i3cbus->dev, "i3c-%d", i3cbus->id);
-> > +
-> > +	return device_add(&i3cbus->dev);
-> > +}  
-> During the tests of the bus with i2c devices I found the i2c_dev_desc 
-> objects aren't allocated before this function. This cause i3cbus->mode = 
-> I3C_BUS_MODE_PURE.
+On Tue, Aug 21, 2018 at 05:02:39PM +0200, Wolfram Sang wrote:
+> As we now have deferred probing, we can use a custom mechanism and
+> finally get rid of the legacy interface from the i2c core.
+>=20
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
-I just checked and DT parsing (+ I2C descs creation) is done before
-i3c_bus_register() is called, so we should be good. How did you declare
-your I2C devices (right now, only DT declaration is supported).
+Applied to for-next, thanks!
 
-> 
-> I want to do something for the slave and secondary master, do you 
-> already have infrastructure that you can share?
 
-What do you mean?
+--exskspteuohzfyut
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Regards,
+-----BEGIN PGP SIGNATURE-----
 
-Boris
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlt//mUACgkQFA3kzBSg
+KbZYGg//U81jqO+xJivJmJi18OYtguMoRFghC2VH4BjYdMP9yyy6JsXqr63AIRF4
+IBkR4zmRtm5xU8IOL8LAHBIOHQ5blY1HvqXG7y4uV2X1L7vpSD7vneKR0noJg/OC
+k2DFPyFdIahTkVvhYAbJLo/ypmpccWYP9ySkGIl7haLktoSGKkZJCT+lRl6qKRx+
+Jw0aOykpHgVFt/Tg2WDcMwnM+jpQwZ0pGmzdZ69bQT4kH/bUJJDFa+fGHSzw0GOj
+c6si5muNsw/Yj12IBRlXYJf7Xg8C7dZLkqqWeX7wYlvOSuAaTksJaZ2ZrNB22hiD
+k5UsyNgONl6cfT2gvXdidVk5QPB5NkXgTLxejeLp9Lk8kD5jpqno+eOpD8xTVjQv
+0POmu0fAkgla7Hmaq5xCj+8aXNUwogpInnUcE7R4/4tYs+nOcAYRdFMnTR/olHUP
+LfEyYeX+0WX+04IVZY5BrxoyNJyRuxJuqQ1NggifYl9xPwMSSdSA0Ba6uvFh3G9F
+HvpG/PYZmzHS3T7pmFVe25Jm0implMScwP7OrUcYeSMzOdz4+g7rEDVYGF+Jg9HP
+oMLGrZRwnIg1ZPzRwVV7oOs73V03q3TSuJbN5W/aSb9vE4K9irhvL7+4JlwwaNfE
+teacpRRlN3sboLv+k+jG23J4XcPXc/bjd4FIcdk6RRBKZTiuTWk=
+=Qivk
+-----END PGP SIGNATURE-----
+
+--exskspteuohzfyut--
