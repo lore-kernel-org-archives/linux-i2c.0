@@ -1,101 +1,25 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v2 01/29] nvmem: add support for cell lookups
-Date: Sat, 25 Aug 2018 08:27:22 +0200
-Message-ID: <20180825082722.567e8c9a@bbrezillon>
-References: <20180810080526.27207-1-brgl@bgdev.pl>
-        <20180810080526.27207-2-brgl@bgdev.pl>
-        <20180824170848.29594318@bbrezillon>
-        <20180824152740.GD27483@lunn.ch>
+From: Shawn Guo <shawnguo@kernel.org>
+Subject: Re: [PATCH v3 3/3] arm: dts: ls1021a: Enable I2C DMA support
+Date: Mon, 27 Aug 2018 14:51:11 +0800
+Message-ID: <20180827065106.GD3850@dragon>
+References: <20180809123207.9732-1-esben.haabendal@gmail.com>
+ <20180809123207.9732-4-esben.haabendal@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20180824152740.GD27483@lunn.ch>
-Sender: netdev-owner@vger.kernel.org
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: linux-doc@vger.kernel.org, Sekhar Nori <nsekhar@ti.com>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Rob Herring <robh@kernel.org>, Florian Fainelli <f.fainelli@gmail.com>, Kevin Hilman <khilman@kernel.org>, Richard Weinberger <richard@nod.at>, Bartosz Golaszewski <brgl@bgdev.pl>, Russell King <linux@armlinux.org.uk>, Marek Vasut <marek.vasut@gmail.com>, Paolo Abeni <pabeni@redhat.com>, Dan Carpenter <dan.carpenter@oracle.com>, Grygorii Strashko <grygorii.strashko@ti.com>, David Lechner <david@lechnology.com>, Arnd Bergmann <arnd@arndb.de>, Sven Van Asbroeck <svendev@arcx.com>, linux-mtd@lists.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180809123207.9732-4-esben.haabendal@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Esben Haabendal <esben.haabendal@gmail.com>
+Cc: linux-i2c@vger.kernel.org, Esben Haabendal <eha@deif.com>, kernel@pengutronix.de, NXP Linux Team <linux-imx@nxp.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 24 Aug 2018 17:27:40 +0200
-Andrew Lunn <andrew@lunn.ch> wrote:
+On Thu, Aug 09, 2018 at 02:32:07PM +0200, Esben Haabendal wrote:
+> From: Esben Haabendal <eha@deif.com>
+> 
+> Gives substantial performance improvement for transfers larger than 16
+> bytes (DMA_THRESHOLD).  Smaller transfers are unaffected.
+> 
+> Signed-off-by: Esben Haabendal <eha@deif.com>
 
-> On Fri, Aug 24, 2018 at 05:08:48PM +0200, Boris Brezillon wrote:
-> > Hi Bartosz,
-> > 
-> > On Fri, 10 Aug 2018 10:04:58 +0200
-> > Bartosz Golaszewski <brgl@bgdev.pl> wrote:
-> >   
-> > > +struct nvmem_cell_lookup {
-> > > +	struct nvmem_cell_info	info;
-> > > +	struct list_head	list;
-> > > +	const char		*nvmem_name;
-> > > +};  
-> > 
-> > Hm, maybe I don't get it right, but this looks suspicious. Usually the
-> > consumer lookup table is here to attach device specific names to
-> > external resources.
-> > 
-> > So what I'd expect here is:
-> > 
-> > struct nvmem_cell_lookup {
-> > 	/* The nvmem device name. */
-> > 	const char *nvmem_name;
-> > 
-> > 	/* The nvmem cell name */
-> > 	const char *nvmem_cell_name;
-> > 
-> > 	/*
-> > 	 * The local resource name. Basically what you have in the
-> > 	 * nvmem-cell-names prop.
-> > 	 */
-> > 	const char *conid;
-> > };
-> > 
-> > struct nvmem_cell_lookup_table {
-> > 	struct list_head list;
-> > 
-> > 	/* ID of the consumer device. */
-> > 	const char *devid;
-> > 
-> > 	/* Array of cell lookup entries. */
-> > 	unsigned int ncells;
-> > 	const struct nvmem_cell_lookup *cells;
-> > };
-> > 
-> > Looks like your nvmem_cell_lookup is more something used to attach cells
-> > to an nvmem device, which is NVMEM provider's responsibility not the
-> > consumer one.  
-> 
-> Hi Boris
-> 
-> There are cases where there is not a clear providier/consumer split. I
-> have an x86 platform, with a few at24 EEPROMs on it. It uses an off
-> the shelf Komtron module, placed on a custom carrier board. One of the
-> EEPROMs contains the hardware variant information. Once i know the
-> variant, i need to instantiate other I2C, SPI, MDIO devices, all using
-> platform devices, since this is x86, no DT available.
-> 
-> So the first thing my x86 platform device does is instantiate the
-> first i2c device for the AT24. Once the EEPROM pops into existence, i
-> need to add nvmem cells onto it. So at that point, the x86 platform
-> driver is playing the provider role. Once the cells are added, i can
-> then use nvmem consumer interfaces to get the contents of the cell,
-> run a checksum, and instantiate the other devices.
-> 
-> I wish the embedded world was all DT, but the reality is that it is
-> not :-(
-
-Actually, I'm not questioning the need for this feature (being able to
-attach NVMEM cells to an NVMEM device on a platform that does not use
-DT). What I'm saying is that this functionality is provider related,
-not consumer related. Also, I wonder if defining such NVMEM cells
-shouldn't go through the provider driver instead of being passed
-directly to the NVMEM layer, because nvmem_config already have a fields
-to pass cells at registration time, plus, the name of the NVMEM cell
-device is sometimes created dynamically and can be hard to guess at
-platform_device registration time.
-
-I also think non-DT consumers will need a way to reference exiting
-NVMEM cells, but this consumer-oriented nvmem cell lookup table should
-look like the gpio or pwm lookup table (basically what I proposed in my
-previous email).
+Applied, thanks.
