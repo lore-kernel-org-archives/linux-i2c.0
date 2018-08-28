@@ -1,61 +1,68 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
+From: Przemyslaw Gaj <pgaj@cadence.com>
 Subject: Re: [PATCH v6 01/10] i3c: Add core I3C infrastructure
-Date: Tue, 28 Aug 2018 14:02:09 +0200
-Message-ID: <20180828140209.29155d00@bbrezillon>
+Date: Tue, 28 Aug 2018 12:55:20 +0000
+Message-ID: <4DBE768F-3CDC-41BE-9CC8-E294E7277CB1@cadence.com>
 References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
-        <20180719152930.3715-2-boris.brezillon@bootlin.com>
-        <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
-        <20180824143934.6d6b6487@bbrezillon>
-        <bdb2924f-ecfa-1da3-41db-9ac77d4d933b@synopsys.com>
-        <20180824201600.7d80bca9@bbrezillon>
-        <fe839027-c4d7-4d6f-412b-5b315cbc7a39@synopsys.com>
+ <20180719152930.3715-2-boris.brezillon@bootlin.com>
+ <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
+ <20180824143934.6d6b6487@bbrezillon>
+ <bdb2924f-ecfa-1da3-41db-9ac77d4d933b@synopsys.com>
+ <20180824201600.7d80bca9@bbrezillon>
+ <fe839027-c4d7-4d6f-412b-5b315cbc7a39@synopsys.com>
+ <20180828140209.29155d00@bbrezillon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <fe839027-c4d7-4d6f-412b-5b315cbc7a39@synopsys.com>
+In-Reply-To: <20180828140209.29155d00@bbrezillon>
+Content-Language: en-US
+Content-ID: <7221CDCC1D9B3D43B80DADC4629BDEAB@namprd07.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: vitor <Vitor.Soares@synopsys.com>
-Cc: linux-gpio@vger.kernel.org, Sekhar Nori <nsekhar@ti.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark
+To: Boris Brezillon <boris.brezillon@bootlin.com>, vitor <Vitor.Soares@synopsys.com>
+Cc: "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Vitor,
-
-On Tue, 28 Aug 2018 12:50:12 +0100
-vitor <Vitor.Soares@synopsys.com> wrote:
-
-> Hi Boris,
-> 
-> The DT Bindings say "The node describing an I3C bus should be named 
-> i3c-master.". Do you have a field for secondary master?
-> 
-> On 24-08-2018 19:16, Boris Brezillon wrote:
-> > Well, before even considering supporting secondary master registration,
-> > we need to handle mastership handover. As for the DAA operation, it's
-> > likely to be host specific, so we'll have to add a new hook to the
-> > i3c_master_controller_ops struct.  
-> Do you mean when master try to delegate the bus ownership through 
-> GETACCMST? or to get the bus ownership with IBI-MR?
-
-I think we need to support both.
-
-> 
-> I think that could be useful to pass the ibi type on request_ibi(), 
-> there is some case where the master doesn't support IBI-MR.
-
-Actually, I was planning on making it completely separate from
-regular slave IBIs. That is, the master controller driver would demux
-the slave, MR and Hot Join IBIs, and if there's an MR request, queue a
-mastership handover work to the workqueue (pretty much what we do for
-Hot-Join already). Mastership handover is anyway likely to be IP
-specific, so I don't think there's a need to make it look like a
-regular IBI.
-
-Regarding whether IBI-MR support should be exposed to the I3C framework
-or not depends on how much will be automated on the framework side. I
-don't the answer yet, but that's probably something will figure out
-along the road.
-
-Regards,
-
-Boris
+SGkgVml0b3IsDQoNCkkgaGF2ZSBhbHJlYWR5IGltcGxlbWVudGVkIE1hc3RlcnNoaXAgcmVxdWVz
+dC9oYW5kb3ZlciBidXQgd2UgYXJlIHdhaXRpbmcgZm9yIEJvcmlz4oCZcyBwYXRjaCB0byBiZSBh
+Y2NlcHRlZCBhbmQgbWVyZ2VkLiBBbnl3YXksIG15IGNvbW1lbnRzIGJlbG93Lg0KDQrvu79PbiA4
+LzI4LzE4LCAyOjAyIFBNLCAiQm9yaXMgQnJlemlsbG9uIiA8Ym9yaXMuYnJlemlsbG9uQGJvb3Rs
+aW4uY29tPiB3cm90ZToNCg0KICAgIEVYVEVSTkFMIE1BSUwNCiAgICANCiAgICANCiAgICBIaSBW
+aXRvciwNCiAgICANCiAgICBPbiBUdWUsIDI4IEF1ZyAyMDE4IDEyOjUwOjEyICswMTAwDQogICAg
+dml0b3IgPFZpdG9yLlNvYXJlc0BzeW5vcHN5cy5jb20+IHdyb3RlOg0KICAgIA0KICAgID4gSGkg
+Qm9yaXMsDQogICAgPiANCiAgICA+IFRoZSBEVCBCaW5kaW5ncyBzYXkgIlRoZSBub2RlIGRlc2Ny
+aWJpbmcgYW4gSTNDIGJ1cyBzaG91bGQgYmUgbmFtZWQgDQogICAgPiBpM2MtbWFzdGVyLiIuIERv
+IHlvdSBoYXZlIGEgZmllbGQgZm9yIHNlY29uZGFyeSBtYXN0ZXI/DQoNCkkgdGhpbmsgd2UgZG9u
+4oCZdCBuZWVkIHNlcGFyYXRlIGZpZWxkIGZvciBzZWNvbmRhcnkgbWFzdGVyLiBNYWluIGFuZCBz
+ZWNvbmRhcnkgbWFzdGVycyANCnN1cHBvcnQgc2ltaWxhciBmdW5jdGlvbmFsaXRpZXMuIEl04oCZ
+cyBlbm91Z2ggdG8gaGF2ZSB0aGlzIHN0YXRlIGludGVybmFsbHkgYW5kIGRvIG1hc3RlcnNoaXAg
+aXQgaXQncyBuZWVkZWQuDQoNCiAgICA+IA0KICAgID4gT24gMjQtMDgtMjAxOCAxOToxNiwgQm9y
+aXMgQnJlemlsbG9uIHdyb3RlOg0KICAgID4gPiBXZWxsLCBiZWZvcmUgZXZlbiBjb25zaWRlcmlu
+ZyBzdXBwb3J0aW5nIHNlY29uZGFyeSBtYXN0ZXIgcmVnaXN0cmF0aW9uLA0KICAgID4gPiB3ZSBu
+ZWVkIHRvIGhhbmRsZSBtYXN0ZXJzaGlwIGhhbmRvdmVyLiBBcyBmb3IgdGhlIERBQSBvcGVyYXRp
+b24sIGl0J3MNCiAgICA+ID4gbGlrZWx5IHRvIGJlIGhvc3Qgc3BlY2lmaWMsIHNvIHdlJ2xsIGhh
+dmUgdG8gYWRkIGEgbmV3IGhvb2sgdG8gdGhlDQogICAgPiA+IGkzY19tYXN0ZXJfY29udHJvbGxl
+cl9vcHMgc3RydWN0LiAgDQogICAgPiBEbyB5b3UgbWVhbiB3aGVuIG1hc3RlciB0cnkgdG8gZGVs
+ZWdhdGUgdGhlIGJ1cyBvd25lcnNoaXAgdGhyb3VnaCANCiAgICA+IEdFVEFDQ01TVD8gb3IgdG8g
+Z2V0IHRoZSBidXMgb3duZXJzaGlwIHdpdGggSUJJLU1SPw0KICAgIA0KICAgIEkgdGhpbmsgd2Ug
+bmVlZCB0byBzdXBwb3J0IGJvdGguDQoNCkkgYWdyZWUuDQogICAgDQogICAgPiANCiAgICA+IEkg
+dGhpbmsgdGhhdCBjb3VsZCBiZSB1c2VmdWwgdG8gcGFzcyB0aGUgaWJpIHR5cGUgb24gcmVxdWVz
+dF9pYmkoKSwgDQogICAgPiB0aGVyZSBpcyBzb21lIGNhc2Ugd2hlcmUgdGhlIG1hc3RlciBkb2Vz
+bid0IHN1cHBvcnQgSUJJLU1SLg0KICAgIA0KICAgIEFjdHVhbGx5LCBJIHdhcyBwbGFubmluZyBv
+biBtYWtpbmcgaXQgY29tcGxldGVseSBzZXBhcmF0ZSBmcm9tDQogICAgcmVndWxhciBzbGF2ZSBJ
+QklzLiBUaGF0IGlzLCB0aGUgbWFzdGVyIGNvbnRyb2xsZXIgZHJpdmVyIHdvdWxkIGRlbXV4DQog
+ICAgdGhlIHNsYXZlLCBNUiBhbmQgSG90IEpvaW4gSUJJcywgYW5kIGlmIHRoZXJlJ3MgYW4gTVIg
+cmVxdWVzdCwgcXVldWUgYQ0KICAgIG1hc3RlcnNoaXAgaGFuZG92ZXIgd29yayB0byB0aGUgd29y
+a3F1ZXVlIChwcmV0dHkgbXVjaCB3aGF0IHdlIGRvIGZvcg0KICAgIEhvdC1Kb2luIGFscmVhZHkp
+LiBNYXN0ZXJzaGlwIGhhbmRvdmVyIGlzIGFueXdheSBsaWtlbHkgdG8gYmUgSVANCiAgICBzcGVj
+aWZpYywgc28gSSBkb24ndCB0aGluayB0aGVyZSdzIGEgbmVlZCB0byBtYWtlIGl0IGxvb2sgbGlr
+ZSBhDQogICAgcmVndWxhciBJQkkuDQoNCkkgdGhpbmsgaXQncyBiZXR0ZXIgdG8gaGF2ZSBzZXBh
+cmF0ZSBmdW5jdGlvbiB0byBkbyBtYXN0ZXJzaGlwIHJlcXVlc3QuDQogICAgDQogICAgUmVnYXJk
+aW5nIHdoZXRoZXIgSUJJLU1SIHN1cHBvcnQgc2hvdWxkIGJlIGV4cG9zZWQgdG8gdGhlIEkzQyBm
+cmFtZXdvcmsNCiAgICBvciBub3QgZGVwZW5kcyBvbiBob3cgbXVjaCB3aWxsIGJlIGF1dG9tYXRl
+ZCBvbiB0aGUgZnJhbWV3b3JrIHNpZGUuIEkNCiAgICBkb24ndCB0aGUgYW5zd2VyIHlldCwgYnV0
+IHRoYXQncyBwcm9iYWJseSBzb21ldGhpbmcgd2lsbCBmaWd1cmUgb3V0DQogICAgYWxvbmcgdGhl
+IHJvYWQuDQoNCk15IGN1cnJlbnQgaW1wbGVtZW50YXRpb24gaXM6IHdoZW4gcmVxdWVzdF9tYXN0
+ZXJzaGlwIGZpZWxkIA0Kb2YgaTNjX21hc3Rlcl9jb250cm9sbGVyX29wcyBzdHJ1Y3R1cmUgaXMg
+c2V0LCBtYXN0ZXIgZHJpdmVyIHN1cHBvcnRzIG1hc3RlcnNoaXAgcmVxdWVzdHMuDQpUaGF0J3Mg
+aG93IEkgY2hlY2sgaWYgdGhpcyBpcyBzdXBwb3J0ZWQgb3Igbm90Lg0KICAgIA0KICAgIFJlZ2Fy
+ZHMsDQogICAgDQogICAgQm9yaXMNCiAgICANClJlZ2FyZHMsDQpQcnplbWVrDQoNCg==
