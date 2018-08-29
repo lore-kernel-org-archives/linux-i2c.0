@@ -1,140 +1,120 @@
-From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Subject: Re: [RFC RFT PATCH v4 1/4] gpiolib: Pass bitmaps, not integer arrays,
- to get/set array
-Date: Wed, 29 Aug 2018 14:03:18 +0200
-Message-ID: <CANiq72kM9bYJ1Q+dbLumjfQLZW223ZTrYEFqfQ2Jv2SAjrD1NA@mail.gmail.com>
-References: <20180813223448.21316-1-jmkrzyszt@gmail.com>
- <20180820234341.5271-1-jmkrzyszt@gmail.com>
- <20180820234341.5271-2-jmkrzyszt@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 1/2] i2c: designware: Re-init controllers with pm_disabled set on resume
+Date: Wed, 29 Aug 2018 15:06:31 +0200
+Message-ID: <20180829130632.31111-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20180820234341.5271-2-jmkrzyszt@gmail.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
-To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Ulf Hansson <ulf.hansson@linaro.org>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, linux-iio@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Dominik Brodowski <linux@dominikbrodowski.net>, Network Development <netdev@vger.kernel.org>, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, devel@driverdev.osuosl.org, Florian Fainelli <f.fainelli@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Kishon Vijay Abraham I <kishon@ti.com>, Willy Tarreau <w@1wt.eu>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-serial@vger.kernel.org, Jiri Slaby <jslaby@suse.com>, Michael Hennerich <Michael.Hennerich@analog.com>, linux-gpio@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-mmc@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, Peter Rosin <peda@axe>
+Content-Transfer-Encoding: 8bit
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, "4 . 15+" <stable@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Janusz,
+On Bay Trail and Cherry Trail devices we set the pm_disabled flag for I2C
+busses which the OS shares with the PUNIT as these need special handling.
+Until now we called dev_pm_syscore_device(dev, true) for I2C controllers
+with this flag set to keep these I2C controllers always on.
 
-On Tue, Aug 21, 2018 at 1:43 AM, Janusz Krzysztofik <jmkrzyszt@gmail.com> wrote:
-> Most users of get/set array functions iterate consecutive bits of data,
-> usually a single integer, while or processing array of results obtained
-> from or building an array of values to be passed to those functions.
-> Save time wasted on those iterations by changing the functions' API to
-> accept bitmaps.
->
-> All current users are updated as well.
->
-> More benefits from the change are expected as soon as planned support
-> for accepting/passing those bitmaps directly from/to respective GPIO
-> chip callbacks if applicable is implemented.
->
-> Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-> ---
->  Documentation/driver-api/gpio/consumer.rst  | 22 ++++----
->  drivers/auxdisplay/hd44780.c                | 52 +++++++++--------
+After commit 12864ff8545f ("ACPI / LPSS: Avoid PM quirks on suspend and
+resume from hibernation"), this no longer works. This commit modifies
+lpss_iosf_exit_d3_state() to only run if lpss_iosf_enter_d3_state() has ran
+before it, so that it does not run on a resume from hibernate (or from S3).
 
-[CC'ing Willy and Geert for hd44780]
+On these systems the conditions for lpss_iosf_enter_d3_state() to run
+never become true, so lpss_iosf_exit_d3_state() never gets called and
+the 2 LPSS DMA controllers never get forced into D0 mode, instead they
+are left in their default automatic power-on when needed mode.
 
-> diff --git a/drivers/auxdisplay/hd44780.c b/drivers/auxdisplay/hd44780.c
-> index f1a42f0f1ded..d340473aa142 100644
-> --- a/drivers/auxdisplay/hd44780.c
-> +++ b/drivers/auxdisplay/hd44780.c
-> @@ -62,20 +62,19 @@ static void hd44780_strobe_gpio(struct hd44780 *hd)
->  /* write to an LCD panel register in 8 bit GPIO mode */
->  static void hd44780_write_gpio8(struct hd44780 *hd, u8 val, unsigned int rs)
->  {
-> -       int values[10]; /* for DATA[0-7], RS, RW */
-> -       unsigned int i, n;
-> +       unsigned long value_bitmap[1];  /* for DATA[0-7], RS, RW */
+The not forcing of D0 mode for the DMA controllers enables these systems
+to properly enter S0ix modes, which is a good thing.
 
-Why [1]? I understand it is because in other cases it may be more than
-one, but...
+But after entering S0ix modes the I2C controller connected to the PMIC
+no longer works, leading to e.g. broken battery monitoring.
 
-> +       unsigned int n;
->
-> -       for (i = 0; i < 8; i++)
-> -               values[PIN_DATA0 + i] = !!(val & BIT(i));
-> -       values[PIN_CTRL_RS] = rs;
-> +       value_bitmap[0] = val;
-> +       __assign_bit(PIN_CTRL_RS, value_bitmap, rs);
->         n = 9;
->         if (hd->pins[PIN_CTRL_RW]) {
-> -               values[PIN_CTRL_RW] = 0;
-> +               __clear_bit(PIN_CTRL_RW, value_bitmap);
->                 n++;
->         }
->
->         /* Present the data to the port */
-> -       gpiod_set_array_value_cansleep(n, &hd->pins[PIN_DATA0], values);
-> +       gpiod_set_array_value_cansleep(n, &hd->pins[PIN_DATA0], value_bitmap);
->
->         hd44780_strobe_gpio(hd);
->  }
-> @@ -83,32 +82,31 @@ static void hd44780_write_gpio8(struct hd44780 *hd, u8 val, unsigned int rs)
->  /* write to an LCD panel register in 4 bit GPIO mode */
->  static void hd44780_write_gpio4(struct hd44780 *hd, u8 val, unsigned int rs)
->  {
-> -       int values[10]; /* for DATA[0-7], RS, RW, but DATA[0-3] is unused */
-> -       unsigned int i, n;
-> +       /* for DATA[0-7], RS, RW, but DATA[0-3] is unused */
-> +       unsigned long value_bitmap[0];
+The _PS3 method for this I2C controller looks like this:
 
-This one is even more strange... :-)
+            Method (_PS3, 0, NotSerialized)  // _PS3: Power State 3
+            {
+                If ((((PMID == 0x04) || (PMID == 0x05)) || (PMID == 0x06)))
+                {
+                    Return (Zero)
+                }
 
-> +       unsigned int n;
->
->         /* High nibble + RS, RW */
-> -       for (i = 4; i < 8; i++)
-> -               values[PIN_DATA0 + i] = !!(val & BIT(i));
-> -       values[PIN_CTRL_RS] = rs;
-> +       value_bitmap[0] = val;
-> +       __assign_bit(PIN_CTRL_RS, value_bitmap, rs);
->         n = 5;
->         if (hd->pins[PIN_CTRL_RW]) {
-> -               values[PIN_CTRL_RW] = 0;
-> +               __clear_bit(PIN_CTRL_RW, value_bitmap);
->                 n++;
->         }
-> +       value_bitmap[0] = value_bitmap[0] >> PIN_DATA4;
+                PSAT |= 0x03
+                Local0 = PSAT /* \_SB_.I2C5.PSAT */
+            }
 
-Maybe >>=?
+Where PMID = 0x05, so we enter the Return (Zero) path on these systems.
 
->
->         /* Present the data to the port */
-> -       gpiod_set_array_value_cansleep(n, &hd->pins[PIN_DATA4],
-> -                                      &values[PIN_DATA4]);
-> +       gpiod_set_array_value_cansleep(n, &hd->pins[PIN_DATA4], value_bitmap);
->
->         hd44780_strobe_gpio(hd);
->
->         /* Low nibble */
-> -       for (i = 0; i < 4; i++)
-> -               values[PIN_DATA4 + i] = !!(val & BIT(i));
-> +       value_bitmap[0] &= ~((1 << PIN_DATA4) - 1);
-> +       value_bitmap[0] |= val & ~((1 << PIN_DATA4) - 1);
+So even if we were to not call dev_pm_syscore_device(dev, true) the
+I2C controller will be left in D0 rather then be switched to D3.
 
-Are you sure this is correct? You are basically doing an or of
-value_bitmap and val and clearing the low-nibble.
+Yet on other Bay and Cherry Trail devices S0ix is not entered unless *all*
+I2C controllers are in D3 mode. This combined with the I2C controller no
+longer working now that we reach S0ix states on these systems leads to me
+believing that the PUNIT itself puts the I2C controller in D3 when all
+other conditions for entering S0ix states are true.
 
->
->         /* Present the data to the port */
-> -       gpiod_set_array_value_cansleep(n, &hd->pins[PIN_DATA4],
-> -                                      &values[PIN_DATA4]);
-> +       gpiod_set_array_value_cansleep(n, &hd->pins[PIN_DATA4], value_bitmap);
->
->         hd44780_strobe_gpio(hd);
->  }
+Since now the I2C controller is put in D3 over a suspend/resume we must
+re-initialize it afterwards and that does indeed fix it no longer working.
 
-Cheers,
-Miguel
+This commit implements this fix by:
+
+1) Making the suspend_late callback a no-op if pm_disabled is set and
+making the resume_early callback skip the clock re-enable (since it now was
+not disabled) while still doing the necessary I2C controller re-init.
+
+2) Removing the dev_pm_syscore_device(dev, true) call, so that the suspend
+and resume callbacks are actually called. Normally this would cause the
+ACPI pm code to call _PS3 putting the I2C controller in D3, wreaking havoc
+since it is shared with the PUNIT, but in this special case the _PS3 method
+is a no-op so we can safely allow a "fake" suspend / resume.
+
+Fixes: 12864ff8545f ("ACPI / LPSS: Avoid PM quirks on suspend and resume ...")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=200861
+Cc: 4.15+ <stable@vger.kernel.org> # 4.15+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/i2c/busses/i2c-designware-master.c  | 1 -
+ drivers/i2c/busses/i2c-designware-platdrv.c | 7 ++++++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index 27436a937492..54b2a3a86677 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -693,7 +693,6 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
+ 	i2c_set_adapdata(adap, dev);
+ 
+ 	if (dev->pm_disabled) {
+-		dev_pm_syscore_device(dev->dev, true);
+ 		irq_flags = IRQF_NO_SUSPEND;
+ 	} else {
+ 		irq_flags = IRQF_SHARED | IRQF_COND_SUSPEND;
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 5660daf6c92e..d281d21cdd8e 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -448,6 +448,9 @@ static int dw_i2c_plat_suspend(struct device *dev)
+ {
+ 	struct dw_i2c_dev *i_dev = dev_get_drvdata(dev);
+ 
++	if (i_dev->pm_disabled)
++		return 0;
++
+ 	i_dev->disable(i_dev);
+ 	i2c_dw_prepare_clk(i_dev, false);
+ 
+@@ -458,7 +461,9 @@ static int dw_i2c_plat_resume(struct device *dev)
+ {
+ 	struct dw_i2c_dev *i_dev = dev_get_drvdata(dev);
+ 
+-	i2c_dw_prepare_clk(i_dev, true);
++	if (!i_dev->pm_disabled)
++		i2c_dw_prepare_clk(i_dev, true);
++
+ 	i_dev->init(i_dev);
+ 
+ 	return 0;
+-- 
+2.19.0.rc0
