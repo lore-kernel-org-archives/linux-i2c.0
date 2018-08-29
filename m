@@ -1,70 +1,85 @@
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: Re: [PATCH v2 01/29] nvmem: add support for cell lookups
-Date: Tue, 28 Aug 2018 16:09:07 +0100
-Message-ID: <af94be21-328b-d6a2-2024-67b98860c3d5@linaro.org>
-References: <20180810080526.27207-1-brgl@bgdev.pl>
- <20180810080526.27207-2-brgl@bgdev.pl> <20180824170848.29594318@bbrezillon>
- <20180824152740.GD27483@lunn.ch> <20180825082722.567e8c9a@bbrezillon>
- <CAMRc=Men-MPk5DGshWcVEc0v=gH2WSpx1j-CawOeydwp59tejw@mail.gmail.com>
- <20180827110055.122988d0@bbrezillon>
- <CAMRc=MfpZJUEAhM4OoLbmJcnX3rTJk8fvdiL6=9BjNkVcsf=SA@mail.gmail.com>
- <8cb75723-dc87-f127-2aab-54dd0b08eee8@linaro.org>
- <CAMRc=Mex5WAm8uiV4T=0+bLduBBdj18iekuYT55W9gA_rzQ_sg@mail.gmail.com>
- <916e3e89-82b3-0d52-2b77-4374261a9d0f@linaro.org>
- <CAMRc=MeALxpyBQhWxGPt9BubO_ZwKGih1d8zhRzFYZ0+3kHFAA@mail.gmail.com>
- <20180828165309.0594ae13@bbrezillon>
+From: Przemyslaw Gaj <pgaj@cadence.com>
+Subject: Re: [PATCH v6 01/10] i3c: Add core I3C infrastructure
+Date: Wed, 29 Aug 2018 07:41:53 +0000
+Message-ID: <BC0C856B-BC5C-4404-8DEC-075FC84312B7@cadence.com>
+References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
+ <20180719152930.3715-2-boris.brezillon@bootlin.com>
+ <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
+ <20180824143934.6d6b6487@bbrezillon>
+ <bdb2924f-ecfa-1da3-41db-9ac77d4d933b@synopsys.com>
+ <20180824201600.7d80bca9@bbrezillon>
+ <fe839027-c4d7-4d6f-412b-5b315cbc7a39@synopsys.com>
+ <20180828140209.29155d00@bbrezillon>
+ <4DBE768F-3CDC-41BE-9CC8-E294E7277CB1@cadence.com>
+ <20180828150114.2a816c4a@bbrezillon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180828165309.0594ae13@bbrezillon>
+In-Reply-To: <20180828150114.2a816c4a@bbrezillon>
 Content-Language: en-US
+Content-ID: <DAD3960BB6FE7848AF2F5863AF1963B0@namprd07.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>, Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Andrew Lunn <andrew@lunn.ch>, linux-doc <linux-doc@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, linux-i2c <linux-i2c@vger.kernel.org>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Rob Herring <robh@kernel.org>, Florian Fainelli <f.fainelli@gmail.com>, Kevin Hilman <khilman@kernel.org>, Richard Weinberger <richard@nod.at>, Russell King <linux@armlinux.org.uk>, Marek Vasut <marek.vasut@gmail.com>, Paolo Abeni <pabeni@redhat.com>, Dan Carpenter <dan.carpenter@oracle.com>, Grygorii Strashko <grygorii.strashko@ti.com>, David Lechner <david@lechnology.com>, Arnd Bergmann <arnd@arndb.de>, Sven Van Asbroeck <svendev@arcx.com>, "open list:MEMORY TECHNOLOGY..." <linux-mtd@lists.infradead.org>
+To: Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: vitor <Vitor.Soares@synopsys.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzon>
 List-Id: linux-i2c@vger.kernel.org
 
-
-
-On 28/08/18 15:53, Boris Brezillon wrote:
-> On Tue, 28 Aug 2018 16:41:04 +0200
-> Bartosz Golaszewski <brgl@bgdev.pl> wrote:
-> 
-
-...
-> 
->>>
->>>   static struct nvmem_cell *nvmem_find_cell(const char *cell_id)
-> 
-> Can we get rid of this function and just have the the version that
-> takes an nvmem_name and a cell_id.
-
-That should be feasible!
-
-
->>>>>
->>>>> I hope you got the reason why of_nvmem_cell_get() always allocates new
->>>>> instance for every get!!
->>>>
->>>>
->>>>
->>>> I admit I didn't test it, but just from reading the code it seems like
->>>> in nvmem_cell_get() for DT-users we'll always get to
->>>> of_nvmem_cell_get() and in there we always end up calling line 873:
->>>> cell = kzalloc(sizeof(*cell), GFP_KERNEL);
->>>>   
->>> That is correct, this cell is created when we do a get and release when we
->>> do a put().
->>>   
->>
->> Shouldn't we add the cell to the list, and check first if it's there
->> and only create it if not?
-> 
-> Or even better: create the cells at registration time so that the
-> search code is the same for both DT and non-DT cases. Only the
-> registration would differ (with one path parsing the DT, and the other
-> one searching for nvmem cells defined with a nvmem-provider-lookup
-> table).
-Makes sense! and that would go very well with the plan of "nvmem-cell" 
-compatible for cells!.
-> 
+SGkgQm9yaXMsDQoNCu+7v09uIDgvMjgvMTgsIDM6MDEgUE0sICJCb3JpcyBCcmV6aWxsb24iIDxi
+b3Jpcy5icmV6aWxsb25AYm9vdGxpbi5jb20+IHdyb3RlOg0KDQogICAgRVhURVJOQUwgTUFJTA0K
+ICAgIA0KICAgIA0KICAgIEhpIFByemVtZWssDQogICAgDQogICAgT24gVHVlLCAyOCBBdWcgMjAx
+OCAxMjo1NToyMCArMDAwMA0KICAgIFByemVteXNsYXcgR2FqIDxwZ2FqQGNhZGVuY2UuY29tPiB3
+cm90ZToNCiAgICANCiAgICA+IEhpIFZpdG9yLA0KICAgID4gDQogICAgPiBJIGhhdmUgYWxyZWFk
+eSBpbXBsZW1lbnRlZCBNYXN0ZXJzaGlwIHJlcXVlc3QvaGFuZG92ZXIgYnV0IHdlIGFyZSB3YWl0
+aW5nIGZvciBCb3Jpc+KAmXMgcGF0Y2ggdG8gYmUgYWNjZXB0ZWQgYW5kIG1lcmdlZC4gQW55d2F5
+LCBteSBjb21tZW50cyBiZWxvdy4NCiAgICA+IA0KICAgID4gT24gOC8yOC8xOCwgMjowMiBQTSwg
+IkJvcmlzIEJyZXppbGxvbiIgPGJvcmlzLmJyZXppbGxvbkBib290bGluLmNvbT4gd3JvdGU6DQog
+ICAgPiANCiAgICA+ICAgICBFWFRFUk5BTCBNQUlMDQogICAgPiAgICAgDQogICAgPiAgICAgDQog
+ICAgPiAgICAgSGkgVml0b3IsDQogICAgPiAgICAgDQogICAgPiAgICAgT24gVHVlLCAyOCBBdWcg
+MjAxOCAxMjo1MDoxMiArMDEwMA0KICAgID4gICAgIHZpdG9yIDxWaXRvci5Tb2FyZXNAc3lub3Bz
+eXMuY29tPiB3cm90ZToNCiAgICA+ICAgICANCiAgICA+ICAgICA+IEhpIEJvcmlzLA0KICAgID4g
+ICAgID4gDQogICAgPiAgICAgPiBUaGUgRFQgQmluZGluZ3Mgc2F5ICJUaGUgbm9kZSBkZXNjcmli
+aW5nIGFuIEkzQyBidXMgc2hvdWxkIGJlIG5hbWVkIA0KICAgID4gICAgID4gaTNjLW1hc3Rlci4i
+LiBEbyB5b3UgaGF2ZSBhIGZpZWxkIGZvciBzZWNvbmRhcnkgbWFzdGVyPyAgDQogICAgPiANCiAg
+ICA+IEkgdGhpbmsgd2UgZG9u4oCZdCBuZWVkIHNlcGFyYXRlIGZpZWxkIGZvciBzZWNvbmRhcnkg
+bWFzdGVyLiBNYWluIGFuZCBzZWNvbmRhcnkgbWFzdGVycyANCiAgICA+IHN1cHBvcnQgc2ltaWxh
+ciBmdW5jdGlvbmFsaXRpZXMuIEl04oCZcyBlbm91Z2ggdG8gaGF2ZSB0aGlzIHN0YXRlIGludGVy
+bmFsbHkgYW5kIGRvIG1hc3RlcnNoaXAgaXQgaXQncyBuZWVkZWQuDQogICAgPiANCiAgICA+ICAg
+ICA+IA0KICAgID4gICAgID4gT24gMjQtMDgtMjAxOCAxOToxNiwgQm9yaXMgQnJlemlsbG9uIHdy
+b3RlOiAgDQogICAgPiAgICAgPiA+IFdlbGwsIGJlZm9yZSBldmVuIGNvbnNpZGVyaW5nIHN1cHBv
+cnRpbmcgc2Vjb25kYXJ5IG1hc3RlciByZWdpc3RyYXRpb24sDQogICAgPiAgICAgPiA+IHdlIG5l
+ZWQgdG8gaGFuZGxlIG1hc3RlcnNoaXAgaGFuZG92ZXIuIEFzIGZvciB0aGUgREFBIG9wZXJhdGlv
+biwgaXQncw0KICAgID4gICAgID4gPiBsaWtlbHkgdG8gYmUgaG9zdCBzcGVjaWZpYywgc28gd2Un
+bGwgaGF2ZSB0byBhZGQgYSBuZXcgaG9vayB0byB0aGUNCiAgICA+ICAgICA+ID4gaTNjX21hc3Rl
+cl9jb250cm9sbGVyX29wcyBzdHJ1Y3QuICAgIA0KICAgID4gICAgID4gRG8geW91IG1lYW4gd2hl
+biBtYXN0ZXIgdHJ5IHRvIGRlbGVnYXRlIHRoZSBidXMgb3duZXJzaGlwIHRocm91Z2ggDQogICAg
+PiAgICAgPiBHRVRBQ0NNU1Q/IG9yIHRvIGdldCB0aGUgYnVzIG93bmVyc2hpcCB3aXRoIElCSS1N
+Uj8gIA0KICAgID4gICAgIA0KICAgID4gICAgIEkgdGhpbmsgd2UgbmVlZCB0byBzdXBwb3J0IGJv
+dGguDQogICAgPiANCiAgICA+IEkgYWdyZWUuDQogICAgPiAgICAgDQogICAgPiAgICAgPiANCiAg
+ICA+ICAgICA+IEkgdGhpbmsgdGhhdCBjb3VsZCBiZSB1c2VmdWwgdG8gcGFzcyB0aGUgaWJpIHR5
+cGUgb24gcmVxdWVzdF9pYmkoKSwgDQogICAgPiAgICAgPiB0aGVyZSBpcyBzb21lIGNhc2Ugd2hl
+cmUgdGhlIG1hc3RlciBkb2Vzbid0IHN1cHBvcnQgSUJJLU1SLiAgDQogICAgPiAgICAgDQogICAg
+PiAgICAgQWN0dWFsbHksIEkgd2FzIHBsYW5uaW5nIG9uIG1ha2luZyBpdCBjb21wbGV0ZWx5IHNl
+cGFyYXRlIGZyb20NCiAgICA+ICAgICByZWd1bGFyIHNsYXZlIElCSXMuIFRoYXQgaXMsIHRoZSBt
+YXN0ZXIgY29udHJvbGxlciBkcml2ZXIgd291bGQgZGVtdXgNCiAgICA+ICAgICB0aGUgc2xhdmUs
+IE1SIGFuZCBIb3QgSm9pbiBJQklzLCBhbmQgaWYgdGhlcmUncyBhbiBNUiByZXF1ZXN0LCBxdWV1
+ZSBhDQogICAgPiAgICAgbWFzdGVyc2hpcCBoYW5kb3ZlciB3b3JrIHRvIHRoZSB3b3JrcXVldWUg
+KHByZXR0eSBtdWNoIHdoYXQgd2UgZG8gZm9yDQogICAgPiAgICAgSG90LUpvaW4gYWxyZWFkeSku
+IE1hc3RlcnNoaXAgaGFuZG92ZXIgaXMgYW55d2F5IGxpa2VseSB0byBiZSBJUA0KICAgID4gICAg
+IHNwZWNpZmljLCBzbyBJIGRvbid0IHRoaW5rIHRoZXJlJ3MgYSBuZWVkIHRvIG1ha2UgaXQgbG9v
+ayBsaWtlIGENCiAgICA+ICAgICByZWd1bGFyIElCSS4NCiAgICA+IA0KICAgID4gSSB0aGluayBp
+dCdzIGJldHRlciB0byBoYXZlIHNlcGFyYXRlIGZ1bmN0aW9uIHRvIGRvIG1hc3RlcnNoaXAgcmVx
+dWVzdC4NCiAgICA+ICAgICANCiAgICA+ICAgICBSZWdhcmRpbmcgd2hldGhlciBJQkktTVIgc3Vw
+cG9ydCBzaG91bGQgYmUgZXhwb3NlZCB0byB0aGUgSTNDIGZyYW1ld29yaw0KICAgID4gICAgIG9y
+IG5vdCBkZXBlbmRzIG9uIGhvdyBtdWNoIHdpbGwgYmUgYXV0b21hdGVkIG9uIHRoZSBmcmFtZXdv
+cmsgc2lkZS4gSQ0KICAgID4gICAgIGRvbid0IHRoZSBhbnN3ZXIgeWV0LCBidXQgdGhhdCdzIHBy
+b2JhYmx5IHNvbWV0aGluZyB3aWxsIGZpZ3VyZSBvdXQNCiAgICA+ICAgICBhbG9uZyB0aGUgcm9h
+ZC4NCiAgICA+IA0KICAgID4gTXkgY3VycmVudCBpbXBsZW1lbnRhdGlvbiBpczogd2hlbiByZXF1
+ZXN0X21hc3RlcnNoaXAgZmllbGQgDQogICAgPiBvZiBpM2NfbWFzdGVyX2NvbnRyb2xsZXJfb3Bz
+IHN0cnVjdHVyZSBpcyBzZXQsIG1hc3RlciBkcml2ZXIgc3VwcG9ydHMgbWFzdGVyc2hpcCByZXF1
+ZXN0cy4NCiAgICA+IFRoYXQncyBob3cgSSBjaGVjayBpZiB0aGlzIGlzIHN1cHBvcnRlZCBvciBu
+b3QuDQogICAgDQogICAgQ2FuIHlvdSBtYXliZSBob3N0IHlvdXIgY29kZSBvbiBhIHB1YmxpYyBy
+ZXBvIChJIGNhbiBwdXNoIGl0IGZvciB5b3UgaWYNCiAgICBuZWVkZWQpIHNvIHRoYXQgeW91IGFu
+ZCBWaXRvciBjYW4gc3RhcnQgZGlzY3Vzc2luZyBpbXBsZW1lbnRhdGlvbg0KICAgIGRldGFpbHMu
+DQoNClN1cmUhIFBsZWFzZSBnaXZlIG1lIHNvbWUgdGltZS4gSSdsbCB0cnkgdG8gZG8gaXQgdGhp
+cyB3ZWVrIG9yIGVhcmx5IG5leHQgd2Vlay4NCiAgICANCiAgICBUaGFua3MsDQogICAgDQogICAg
+Qm9yaXMNCiAgICANClRoYW5rcywNClByemVtZWsNCg0K
