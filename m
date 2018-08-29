@@ -1,64 +1,89 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] i2c: Convert to using %pOFn instead of device_node.name
-Date: Wed, 29 Aug 2018 21:52:22 +0200
-Message-ID: <d2736c07-d653-a855-401d-120b0650ae79@axentia.se>
-References: <20180828015252.28511-1-robh@kernel.org>
- <20180828015252.28511-21-robh@kernel.org>
- <3fa33583-f748-1708-2274-0a6f4e81004b@axentia.se>
- <CAL_JsqJcDdntsi3D=neU=Dhx0Xku_XPFC_OCLRb8V==HTtviBQ@mail.gmail.com>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Subject: [PATH v5 0/4] gpiolib: speed up GPIO array processing
+Date: Wed, 29 Aug 2018 22:48:56 +0200
+Message-ID: <20180829204900.19390-1-jmkrzyszt@gmail.com>
+References: <20180820234341.5271-1-jmkrzyszt@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAL_JsqJcDdntsi3D=neU=Dhx0Xku_XPFC_OCLRb8V==HTtviBQ@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Linux I2C <linux-i2c@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20180820234341.5271-1-jmkrzyszt@gmail.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Ulf Hansson <ulf.hansson@linaro.org>, linux-doc@vger.kernel.org, linux-iio@vger.kernel.org, Dominik Brodowski <linux@dominikbrodowski.net>, Peter Rosin <peda@axentia.se>, netdev@vger.kernel.org, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, devel@driverdev.osuosl.org, Florian Fainelli <f.fainelli@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Kishon Vijay Abraham I <kishon@ti.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-serial@vger.kernel.org, Jiri Slaby <jslaby@suse.com>, Michael Hennerich <Michael.Hennerich@analog.com>, linux-gpio@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org, Willy Tarreau <w@1wt.eu>, Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>, Peter Korsgaard <peter.korsgaard@bar>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-08-29 20:42, Rob Herring wrote:
-> On Wed, Aug 29, 2018 at 1:03 PM Peter Rosin <peda@axentia.se> wrote:
->>
->> On 2018-08-28 03:52, Rob Herring wrote:
->>> In preparation to remove the node name pointer from struct device_node,
->>> convert printf users to use the %pOFn format specifier.
->>>
->>> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
->>> Cc: Paul Mackerras <paulus@samba.org>
->>> Cc: Michael Ellerman <mpe@ellerman.id.au>
->>> Cc: Peter Rosin <peda@axentia.se>
->>> Cc: linux-i2c@vger.kernel.org
->>> Cc: linuxppc-dev@lists.ozlabs.org
->>> Signed-off-by: Rob Herring <robh@kernel.org>
->>> ---
->>>  drivers/i2c/busses/i2c-powermac.c | 15 ++++++++-------
->>>  drivers/i2c/muxes/i2c-mux-gpmux.c |  4 ++--
->>>  2 files changed, 10 insertions(+), 9 deletions(-)
->>>
->>> diff --git a/drivers/i2c/busses/i2c-powermac.c b/drivers/i2c/busses/i2c-powermac.c
->>> index f2a2067525ef..b706fd136ca5 100644
->>> --- a/drivers/i2c/busses/i2c-powermac.c
->>> +++ b/drivers/i2c/busses/i2c-powermac.c
->>> @@ -390,7 +390,6 @@ static int i2c_powermac_probe(struct platform_device *dev)
->>>       struct pmac_i2c_bus *bus = dev_get_platdata(&dev->dev);
->>>       struct device_node *parent = NULL;
->>
->> Lose the initializer...
-> 
-> That's pretty much unrelated though.
 
-I disagree. If you remove the need for the initializer, it's very much
-related to also remove the initializer.
+The goal is to boost performance of get/set array functions while
+processing GPIO arrays which represent pins of a signle chip in
+hardware order.  If resulting performance is close to PIO, GPIO API
+can be used for data I/O without much loss of speed.
 
-> I'd have to write "Also, remove
-> the unnecessary parent pointer init" in the commit message and we all
-> know "Also" is a clue for belongs in a separate patch.
+Created and tested on a low end Amstrad Delta board with NAND driver
+updated to use GPIO API for data I/O.  Performance degrade compared to
+PIO is much better than before the optimization but still not quite
+satisfactory.
 
-How about: "This makes the parent pointer initializer redundant, lose it."
+Janusz Krzysztofik (4):
+      gpiolib: Pass bitmaps, not integer arrays, to get/set array
+      gpiolib: Identify arrays matching GPIO hardware
+      gpiolib: Pass array info to get/set array functions
+      gpiolib: Implement fast processing path in get/set array
 
-See, no "Also" in there, and no separate patch needed. Or don't mention it
-at all.
+Changelog:
+v5:
+[PATCH v5 1/4] gpiolib: Pass bitmaps, not integer arrays, to get/set
+- drivers/i2c/muxes/i2c-mux-gpio.c:
+  - drop assigment of values to struct gpiomux.values, as recommended
+    by Peter Rosin - thanks!,
+  - mark the .values member of the structure as obsolete,
+- drivers/mux/gpio.c:
+  - drop assigment of values to struct mux_gpio.val, also recommended
+    by Peter Rosin - thanks!,
+  - merk the .val member of the structure as obsolete,
+- drivers/auxdisplay/hd44780.c:
+  - fix incorrect bitmap size,
+  - use >>= operator to simplify notation,
+  both catched by Miguel Ojeda - thanks!,
+- add Cc: clauses as well as Acked-by: collected so far.
+[PATCH v5 2/4] gpiolib: Identify arrays matching GPIO hardware
+- add Cc: clause.
+[PATCH v5 3/4] gpiolib: Pass array info to get/set array functions
+- add Cc: clauses as well as Acked-by: collected so far.
+[PATCH v5 4/4] gpiolib: Implement fast processing path in get/set
+- add Cc: clause.
 
-Cheers,
-Peter
+v4:
+That series was a follow up of the former "mtd: rawnand: ams-delta: Use
+gpio-omap accessors for data I/O" which already contained some changes
+to gpiolib.  Those previous attempts were commented by Borris Brezillon
+who suggested using GPIO API modified to accept bitmaps, and by Linus
+Walleij who suggested still more great ideas for further immprovement
+of the proposed API changes - thanks!
+
+diffstat:
+ Documentation/driver-api/gpio/board.rst     |   15 +
+ Documentation/driver-api/gpio/consumer.rst  |   48 +++-
+ drivers/auxdisplay/hd44780.c                |   64 +++---
+ drivers/bus/ts-nbus.c                       |   25 --
+ drivers/gpio/gpio-max3191x.c                |   23 +-
+ drivers/gpio/gpiolib.c                      |  279 ++++++++++++++++++++++------
+ drivers/gpio/gpiolib.h                      |   15 +
+ drivers/i2c/muxes/i2c-mux-gpio.c            |   10 -
+ drivers/mmc/core/pwrseq_simple.c            |   15 -
+ drivers/mux/gpio.c                          |   12 -
+ drivers/net/phy/mdio-mux-gpio.c             |    5 
+ drivers/pcmcia/soc_common.c                 |   14 -
+ drivers/phy/motorola/phy-mapphone-mdm6600.c |   21 +-
+ drivers/staging/iio/adc/ad7606.c            |   12 -
+ drivers/tty/serial/serial_mctrl_gpio.c      |    9 
+ include/linux/gpio/consumer.h               |   35 ++-
+ 16 files changed, 412 insertions(+), 190 deletions(-)
