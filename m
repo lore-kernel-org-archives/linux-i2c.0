@@ -1,85 +1,45 @@
-From: Przemyslaw Gaj <pgaj@cadence.com>
-Subject: Re: [PATCH v6 01/10] i3c: Add core I3C infrastructure
-Date: Wed, 29 Aug 2018 07:41:53 +0000
-Message-ID: <BC0C856B-BC5C-4404-8DEC-075FC84312B7@cadence.com>
-References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
- <20180719152930.3715-2-boris.brezillon@bootlin.com>
- <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
- <20180824143934.6d6b6487@bbrezillon>
- <bdb2924f-ecfa-1da3-41db-9ac77d4d933b@synopsys.com>
- <20180824201600.7d80bca9@bbrezillon>
- <fe839027-c4d7-4d6f-412b-5b315cbc7a39@synopsys.com>
- <20180828140209.29155d00@bbrezillon>
- <4DBE768F-3CDC-41BE-9CC8-E294E7277CB1@cadence.com>
- <20180828150114.2a816c4a@bbrezillon>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [RFC RFT PATCH 0/4] gpiolib: speed up GPIO array processing
+Date: Wed, 29 Aug 2018 11:06:21 +0200
+Message-ID: <CACRpkdbgY6VNP-K-c5ErQtmO7E83D6c=49TN5siF8VTNh_66Jg@mail.gmail.com>
+References: <20180813223448.21316-1-jmkrzyszt@gmail.com> <20180820234341.5271-1-jmkrzyszt@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180828150114.2a816c4a@bbrezillon>
-Content-Language: en-US
-Content-ID: <DAD3960BB6FE7848AF2F5863AF1963B0@namprd07.prod.outlook.com>
+In-Reply-To: <20180820234341.5271-1-jmkrzyszt@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>
-Cc: vitor <Vitor.Soares@synopsys.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzon>
+To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>, Ulf Hansson <ulf.hansson@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, "David S. Miller" <davem@davemloft.net>, Dominik Brodowski <linux@dominikbrodowski.net>, kishon@ti.com, Lars-Peter Clausen <lars@metafoo.de>, Michael Hennerich <Michael.Hennerich@analog.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald <pmeerw@pmeerw.net>, Greg KH <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgQm9yaXMsDQoNCu+7v09uIDgvMjgvMTgsIDM6MDEgUE0sICJCb3JpcyBCcmV6aWxsb24iIDxi
-b3Jpcy5icmV6aWxsb25AYm9vdGxpbi5jb20+IHdyb3RlOg0KDQogICAgRVhURVJOQUwgTUFJTA0K
-ICAgIA0KICAgIA0KICAgIEhpIFByemVtZWssDQogICAgDQogICAgT24gVHVlLCAyOCBBdWcgMjAx
-OCAxMjo1NToyMCArMDAwMA0KICAgIFByemVteXNsYXcgR2FqIDxwZ2FqQGNhZGVuY2UuY29tPiB3
-cm90ZToNCiAgICANCiAgICA+IEhpIFZpdG9yLA0KICAgID4gDQogICAgPiBJIGhhdmUgYWxyZWFk
-eSBpbXBsZW1lbnRlZCBNYXN0ZXJzaGlwIHJlcXVlc3QvaGFuZG92ZXIgYnV0IHdlIGFyZSB3YWl0
-aW5nIGZvciBCb3Jpc+KAmXMgcGF0Y2ggdG8gYmUgYWNjZXB0ZWQgYW5kIG1lcmdlZC4gQW55d2F5
-LCBteSBjb21tZW50cyBiZWxvdy4NCiAgICA+IA0KICAgID4gT24gOC8yOC8xOCwgMjowMiBQTSwg
-IkJvcmlzIEJyZXppbGxvbiIgPGJvcmlzLmJyZXppbGxvbkBib290bGluLmNvbT4gd3JvdGU6DQog
-ICAgPiANCiAgICA+ICAgICBFWFRFUk5BTCBNQUlMDQogICAgPiAgICAgDQogICAgPiAgICAgDQog
-ICAgPiAgICAgSGkgVml0b3IsDQogICAgPiAgICAgDQogICAgPiAgICAgT24gVHVlLCAyOCBBdWcg
-MjAxOCAxMjo1MDoxMiArMDEwMA0KICAgID4gICAgIHZpdG9yIDxWaXRvci5Tb2FyZXNAc3lub3Bz
-eXMuY29tPiB3cm90ZToNCiAgICA+ICAgICANCiAgICA+ICAgICA+IEhpIEJvcmlzLA0KICAgID4g
-ICAgID4gDQogICAgPiAgICAgPiBUaGUgRFQgQmluZGluZ3Mgc2F5ICJUaGUgbm9kZSBkZXNjcmli
-aW5nIGFuIEkzQyBidXMgc2hvdWxkIGJlIG5hbWVkIA0KICAgID4gICAgID4gaTNjLW1hc3Rlci4i
-LiBEbyB5b3UgaGF2ZSBhIGZpZWxkIGZvciBzZWNvbmRhcnkgbWFzdGVyPyAgDQogICAgPiANCiAg
-ICA+IEkgdGhpbmsgd2UgZG9u4oCZdCBuZWVkIHNlcGFyYXRlIGZpZWxkIGZvciBzZWNvbmRhcnkg
-bWFzdGVyLiBNYWluIGFuZCBzZWNvbmRhcnkgbWFzdGVycyANCiAgICA+IHN1cHBvcnQgc2ltaWxh
-ciBmdW5jdGlvbmFsaXRpZXMuIEl04oCZcyBlbm91Z2ggdG8gaGF2ZSB0aGlzIHN0YXRlIGludGVy
-bmFsbHkgYW5kIGRvIG1hc3RlcnNoaXAgaXQgaXQncyBuZWVkZWQuDQogICAgPiANCiAgICA+ICAg
-ICA+IA0KICAgID4gICAgID4gT24gMjQtMDgtMjAxOCAxOToxNiwgQm9yaXMgQnJlemlsbG9uIHdy
-b3RlOiAgDQogICAgPiAgICAgPiA+IFdlbGwsIGJlZm9yZSBldmVuIGNvbnNpZGVyaW5nIHN1cHBv
-cnRpbmcgc2Vjb25kYXJ5IG1hc3RlciByZWdpc3RyYXRpb24sDQogICAgPiAgICAgPiA+IHdlIG5l
-ZWQgdG8gaGFuZGxlIG1hc3RlcnNoaXAgaGFuZG92ZXIuIEFzIGZvciB0aGUgREFBIG9wZXJhdGlv
-biwgaXQncw0KICAgID4gICAgID4gPiBsaWtlbHkgdG8gYmUgaG9zdCBzcGVjaWZpYywgc28gd2Un
-bGwgaGF2ZSB0byBhZGQgYSBuZXcgaG9vayB0byB0aGUNCiAgICA+ICAgICA+ID4gaTNjX21hc3Rl
-cl9jb250cm9sbGVyX29wcyBzdHJ1Y3QuICAgIA0KICAgID4gICAgID4gRG8geW91IG1lYW4gd2hl
-biBtYXN0ZXIgdHJ5IHRvIGRlbGVnYXRlIHRoZSBidXMgb3duZXJzaGlwIHRocm91Z2ggDQogICAg
-PiAgICAgPiBHRVRBQ0NNU1Q/IG9yIHRvIGdldCB0aGUgYnVzIG93bmVyc2hpcCB3aXRoIElCSS1N
-Uj8gIA0KICAgID4gICAgIA0KICAgID4gICAgIEkgdGhpbmsgd2UgbmVlZCB0byBzdXBwb3J0IGJv
-dGguDQogICAgPiANCiAgICA+IEkgYWdyZWUuDQogICAgPiAgICAgDQogICAgPiAgICAgPiANCiAg
-ICA+ICAgICA+IEkgdGhpbmsgdGhhdCBjb3VsZCBiZSB1c2VmdWwgdG8gcGFzcyB0aGUgaWJpIHR5
-cGUgb24gcmVxdWVzdF9pYmkoKSwgDQogICAgPiAgICAgPiB0aGVyZSBpcyBzb21lIGNhc2Ugd2hl
-cmUgdGhlIG1hc3RlciBkb2Vzbid0IHN1cHBvcnQgSUJJLU1SLiAgDQogICAgPiAgICAgDQogICAg
-PiAgICAgQWN0dWFsbHksIEkgd2FzIHBsYW5uaW5nIG9uIG1ha2luZyBpdCBjb21wbGV0ZWx5IHNl
-cGFyYXRlIGZyb20NCiAgICA+ICAgICByZWd1bGFyIHNsYXZlIElCSXMuIFRoYXQgaXMsIHRoZSBt
-YXN0ZXIgY29udHJvbGxlciBkcml2ZXIgd291bGQgZGVtdXgNCiAgICA+ICAgICB0aGUgc2xhdmUs
-IE1SIGFuZCBIb3QgSm9pbiBJQklzLCBhbmQgaWYgdGhlcmUncyBhbiBNUiByZXF1ZXN0LCBxdWV1
-ZSBhDQogICAgPiAgICAgbWFzdGVyc2hpcCBoYW5kb3ZlciB3b3JrIHRvIHRoZSB3b3JrcXVldWUg
-KHByZXR0eSBtdWNoIHdoYXQgd2UgZG8gZm9yDQogICAgPiAgICAgSG90LUpvaW4gYWxyZWFkeSku
-IE1hc3RlcnNoaXAgaGFuZG92ZXIgaXMgYW55d2F5IGxpa2VseSB0byBiZSBJUA0KICAgID4gICAg
-IHNwZWNpZmljLCBzbyBJIGRvbid0IHRoaW5rIHRoZXJlJ3MgYSBuZWVkIHRvIG1ha2UgaXQgbG9v
-ayBsaWtlIGENCiAgICA+ICAgICByZWd1bGFyIElCSS4NCiAgICA+IA0KICAgID4gSSB0aGluayBp
-dCdzIGJldHRlciB0byBoYXZlIHNlcGFyYXRlIGZ1bmN0aW9uIHRvIGRvIG1hc3RlcnNoaXAgcmVx
-dWVzdC4NCiAgICA+ICAgICANCiAgICA+ICAgICBSZWdhcmRpbmcgd2hldGhlciBJQkktTVIgc3Vw
-cG9ydCBzaG91bGQgYmUgZXhwb3NlZCB0byB0aGUgSTNDIGZyYW1ld29yaw0KICAgID4gICAgIG9y
-IG5vdCBkZXBlbmRzIG9uIGhvdyBtdWNoIHdpbGwgYmUgYXV0b21hdGVkIG9uIHRoZSBmcmFtZXdv
-cmsgc2lkZS4gSQ0KICAgID4gICAgIGRvbid0IHRoZSBhbnN3ZXIgeWV0LCBidXQgdGhhdCdzIHBy
-b2JhYmx5IHNvbWV0aGluZyB3aWxsIGZpZ3VyZSBvdXQNCiAgICA+ICAgICBhbG9uZyB0aGUgcm9h
-ZC4NCiAgICA+IA0KICAgID4gTXkgY3VycmVudCBpbXBsZW1lbnRhdGlvbiBpczogd2hlbiByZXF1
-ZXN0X21hc3RlcnNoaXAgZmllbGQgDQogICAgPiBvZiBpM2NfbWFzdGVyX2NvbnRyb2xsZXJfb3Bz
-IHN0cnVjdHVyZSBpcyBzZXQsIG1hc3RlciBkcml2ZXIgc3VwcG9ydHMgbWFzdGVyc2hpcCByZXF1
-ZXN0cy4NCiAgICA+IFRoYXQncyBob3cgSSBjaGVjayBpZiB0aGlzIGlzIHN1cHBvcnRlZCBvciBu
-b3QuDQogICAgDQogICAgQ2FuIHlvdSBtYXliZSBob3N0IHlvdXIgY29kZSBvbiBhIHB1YmxpYyBy
-ZXBvIChJIGNhbiBwdXNoIGl0IGZvciB5b3UgaWYNCiAgICBuZWVkZWQpIHNvIHRoYXQgeW91IGFu
-ZCBWaXRvciBjYW4gc3RhcnQgZGlzY3Vzc2luZyBpbXBsZW1lbnRhdGlvbg0KICAgIGRldGFpbHMu
-DQoNClN1cmUhIFBsZWFzZSBnaXZlIG1lIHNvbWUgdGltZS4gSSdsbCB0cnkgdG8gZG8gaXQgdGhp
-cyB3ZWVrIG9yIGVhcmx5IG5leHQgd2Vlay4NCiAgICANCiAgICBUaGFua3MsDQogICAgDQogICAg
-Qm9yaXMNCiAgICANClRoYW5rcywNClByemVtZWsNCg0K
+On Tue, Aug 21, 2018 at 1:42 AM Janusz Krzysztofik <jmkrzyszt@gmail.com> wrote:
+
+> This series is a follow up of the former "mtd: rawnand: ams-delta: Use
+> gpio-omap accessors for data I/O" which already contained some changes
+> to gpiolib.  Those previous attempts were commented by Borris Brezillon
+> who suggested using GPIO API modified to accept bitmaps, and by Linus
+> Walleij who suggested still more great ideas for further immprovement
+> of the proposed API changes - thanks!
+>
+> The goal is to boost performans of get/set array functions while
+> processing GPIO arrays which represent pins of a signle chip in
+> hardware order.  If resulting performance is close to PIO, GPIO API
+> can be used for data I/O without much loss of speed.
+
+Hands down, this is a very pretty patch set. I'm a big fan already.
+
+This is mainly because it fulfills the requirement for libraries
+to be narrow and deep, which is what we want.
+This refers to John Ousterhouts software design philosophy,
+here is a great lecture if you haven't seen it already:
+https://www.youtube.com/watch?v=bmSAYlu0NcY
+
+Let's get this into v1 and get some testing and merge it for v4.20
+ASAP so we get some proper testing before the v4.20 merge
+window. It would be excellent if some of the current users of
+the array API could provide tested-by's or at least ACKs.
+
+For example ts-nbus.c must be a big benefactor.
+
+Yours,
+Linus Walleij
