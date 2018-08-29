@@ -1,120 +1,138 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 1/2] i2c: designware: Re-init controllers with pm_disabled set on resume
-Date: Wed, 29 Aug 2018 15:06:31 +0200
-Message-ID: <20180829130632.31111-1-hdegoede@redhat.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 1/2] i2c: designware: Re-init controllers with
+ pm_disabled set on resume
+Date: Wed, 29 Aug 2018 19:08:46 +0300
+Message-ID: <20180829160846.GA8462@smile.fi.intel.com>
+References: <20180829130632.31111-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180829130632.31111-1-hdegoede@redhat.com>
 Sender: stable-owner@vger.kernel.org
-To: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, "4 . 15+" <stable@vger.kernel.org>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, "4 . 15+" <stable@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Bay Trail and Cherry Trail devices we set the pm_disabled flag for I2C
-busses which the OS shares with the PUNIT as these need special handling.
-Until now we called dev_pm_syscore_device(dev, true) for I2C controllers
-with this flag set to keep these I2C controllers always on.
+On Wed, Aug 29, 2018 at 03:06:31PM +0200, Hans de Goede wrote:
+> On Bay Trail and Cherry Trail devices we set the pm_disabled flag for I2C
+> busses which the OS shares with the PUNIT as these need special handling.
+> Until now we called dev_pm_syscore_device(dev, true) for I2C controllers
+> with this flag set to keep these I2C controllers always on.
+> 
+> After commit 12864ff8545f ("ACPI / LPSS: Avoid PM quirks on suspend and
+> resume from hibernation"), this no longer works. This commit modifies
+> lpss_iosf_exit_d3_state() to only run if lpss_iosf_enter_d3_state() has ran
+> before it, so that it does not run on a resume from hibernate (or from S3).
+> 
+> On these systems the conditions for lpss_iosf_enter_d3_state() to run
+> never become true, so lpss_iosf_exit_d3_state() never gets called and
+> the 2 LPSS DMA controllers never get forced into D0 mode, instead they
+> are left in their default automatic power-on when needed mode.
+> 
+> The not forcing of D0 mode for the DMA controllers enables these systems
+> to properly enter S0ix modes, which is a good thing.
+> 
+> But after entering S0ix modes the I2C controller connected to the PMIC
+> no longer works, leading to e.g. broken battery monitoring.
+> 
+> The _PS3 method for this I2C controller looks like this:
+> 
+>             Method (_PS3, 0, NotSerialized)  // _PS3: Power State 3
+>             {
+>                 If ((((PMID == 0x04) || (PMID == 0x05)) || (PMID == 0x06)))
+>                 {
+>                     Return (Zero)
+>                 }
+> 
+>                 PSAT |= 0x03
+>                 Local0 = PSAT /* \_SB_.I2C5.PSAT */
+>             }
+> 
+> Where PMID = 0x05, so we enter the Return (Zero) path on these systems.
+> 
+> So even if we were to not call dev_pm_syscore_device(dev, true) the
+> I2C controller will be left in D0 rather then be switched to D3.
+> 
+> Yet on other Bay and Cherry Trail devices S0ix is not entered unless *all*
+> I2C controllers are in D3 mode. This combined with the I2C controller no
+> longer working now that we reach S0ix states on these systems leads to me
+> believing that the PUNIT itself puts the I2C controller in D3 when all
+> other conditions for entering S0ix states are true.
+> 
+> Since now the I2C controller is put in D3 over a suspend/resume we must
+> re-initialize it afterwards and that does indeed fix it no longer working.
+> 
+> This commit implements this fix by:
+> 
+> 1) Making the suspend_late callback a no-op if pm_disabled is set and
+> making the resume_early callback skip the clock re-enable (since it now was
+> not disabled) while still doing the necessary I2C controller re-init.
+> 
+> 2) Removing the dev_pm_syscore_device(dev, true) call, so that the suspend
+> and resume callbacks are actually called. Normally this would cause the
+> ACPI pm code to call _PS3 putting the I2C controller in D3, wreaking havoc
+> since it is shared with the PUNIT, but in this special case the _PS3 method
+> is a no-op so we can safely allow a "fake" suspend / resume.
+> 
 
-After commit 12864ff8545f ("ACPI / LPSS: Avoid PM quirks on suspend and
-resume from hibernation"), this no longer works. This commit modifies
-lpss_iosf_exit_d3_state() to only run if lpss_iosf_enter_d3_state() has ran
-before it, so that it does not run on a resume from hibernate (or from S3).
+Oh, this hardware platform design in a real PITA.
+Thank you for so good analysis!
 
-On these systems the conditions for lpss_iosf_enter_d3_state() to run
-never become true, so lpss_iosf_exit_d3_state() never gets called and
-the 2 LPSS DMA controllers never get forced into D0 mode, instead they
-are left in their default automatic power-on when needed mode.
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-The not forcing of D0 mode for the DMA controllers enables these systems
-to properly enter S0ix modes, which is a good thing.
+for both patches.
 
-But after entering S0ix modes the I2C controller connected to the PMIC
-no longer works, leading to e.g. broken battery monitoring.
+> Fixes: 12864ff8545f ("ACPI / LPSS: Avoid PM quirks on suspend and resume ...")
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=200861
+> Cc: 4.15+ <stable@vger.kernel.org> # 4.15+
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  drivers/i2c/busses/i2c-designware-master.c  | 1 -
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 7 ++++++-
+>  2 files changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+> index 27436a937492..54b2a3a86677 100644
+> --- a/drivers/i2c/busses/i2c-designware-master.c
+> +++ b/drivers/i2c/busses/i2c-designware-master.c
+> @@ -693,7 +693,6 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
+>  	i2c_set_adapdata(adap, dev);
+>  
+>  	if (dev->pm_disabled) {
+> -		dev_pm_syscore_device(dev->dev, true);
+>  		irq_flags = IRQF_NO_SUSPEND;
+>  	} else {
+>  		irq_flags = IRQF_SHARED | IRQF_COND_SUSPEND;
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 5660daf6c92e..d281d21cdd8e 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -448,6 +448,9 @@ static int dw_i2c_plat_suspend(struct device *dev)
+>  {
+>  	struct dw_i2c_dev *i_dev = dev_get_drvdata(dev);
+>  
+> +	if (i_dev->pm_disabled)
+> +		return 0;
+> +
+>  	i_dev->disable(i_dev);
+>  	i2c_dw_prepare_clk(i_dev, false);
+>  
+> @@ -458,7 +461,9 @@ static int dw_i2c_plat_resume(struct device *dev)
+>  {
+>  	struct dw_i2c_dev *i_dev = dev_get_drvdata(dev);
+>  
+> -	i2c_dw_prepare_clk(i_dev, true);
+> +	if (!i_dev->pm_disabled)
+> +		i2c_dw_prepare_clk(i_dev, true);
+> +
+>  	i_dev->init(i_dev);
+>  
+>  	return 0;
+> -- 
+> 2.19.0.rc0
+> 
 
-The _PS3 method for this I2C controller looks like this:
-
-            Method (_PS3, 0, NotSerialized)  // _PS3: Power State 3
-            {
-                If ((((PMID == 0x04) || (PMID == 0x05)) || (PMID == 0x06)))
-                {
-                    Return (Zero)
-                }
-
-                PSAT |= 0x03
-                Local0 = PSAT /* \_SB_.I2C5.PSAT */
-            }
-
-Where PMID = 0x05, so we enter the Return (Zero) path on these systems.
-
-So even if we were to not call dev_pm_syscore_device(dev, true) the
-I2C controller will be left in D0 rather then be switched to D3.
-
-Yet on other Bay and Cherry Trail devices S0ix is not entered unless *all*
-I2C controllers are in D3 mode. This combined with the I2C controller no
-longer working now that we reach S0ix states on these systems leads to me
-believing that the PUNIT itself puts the I2C controller in D3 when all
-other conditions for entering S0ix states are true.
-
-Since now the I2C controller is put in D3 over a suspend/resume we must
-re-initialize it afterwards and that does indeed fix it no longer working.
-
-This commit implements this fix by:
-
-1) Making the suspend_late callback a no-op if pm_disabled is set and
-making the resume_early callback skip the clock re-enable (since it now was
-not disabled) while still doing the necessary I2C controller re-init.
-
-2) Removing the dev_pm_syscore_device(dev, true) call, so that the suspend
-and resume callbacks are actually called. Normally this would cause the
-ACPI pm code to call _PS3 putting the I2C controller in D3, wreaking havoc
-since it is shared with the PUNIT, but in this special case the _PS3 method
-is a no-op so we can safely allow a "fake" suspend / resume.
-
-Fixes: 12864ff8545f ("ACPI / LPSS: Avoid PM quirks on suspend and resume ...")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=200861
-Cc: 4.15+ <stable@vger.kernel.org> # 4.15+
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/i2c/busses/i2c-designware-master.c  | 1 -
- drivers/i2c/busses/i2c-designware-platdrv.c | 7 ++++++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 27436a937492..54b2a3a86677 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -693,7 +693,6 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
- 	i2c_set_adapdata(adap, dev);
- 
- 	if (dev->pm_disabled) {
--		dev_pm_syscore_device(dev->dev, true);
- 		irq_flags = IRQF_NO_SUSPEND;
- 	} else {
- 		irq_flags = IRQF_SHARED | IRQF_COND_SUSPEND;
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 5660daf6c92e..d281d21cdd8e 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -448,6 +448,9 @@ static int dw_i2c_plat_suspend(struct device *dev)
- {
- 	struct dw_i2c_dev *i_dev = dev_get_drvdata(dev);
- 
-+	if (i_dev->pm_disabled)
-+		return 0;
-+
- 	i_dev->disable(i_dev);
- 	i2c_dw_prepare_clk(i_dev, false);
- 
-@@ -458,7 +461,9 @@ static int dw_i2c_plat_resume(struct device *dev)
- {
- 	struct dw_i2c_dev *i_dev = dev_get_drvdata(dev);
- 
--	i2c_dw_prepare_clk(i_dev, true);
-+	if (!i_dev->pm_disabled)
-+		i2c_dw_prepare_clk(i_dev, true);
-+
- 	i_dev->init(i_dev);
- 
- 	return 0;
 -- 
-2.19.0.rc0
+With Best Regards,
+Andy Shevchenko
