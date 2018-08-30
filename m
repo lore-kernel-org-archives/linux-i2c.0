@@ -1,93 +1,107 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH 1/2] i2c: designware: Re-init controllers with pm_disabled
- set on resume
-Date: Thu, 30 Aug 2018 16:55:04 +0300
-Message-ID: <413b4279-fc24-7334-4290-82ec7bd6e7e7@linux.intel.com>
-References: <20180829130632.31111-1-hdegoede@redhat.com>
- <20180829160846.GA8462@smile.fi.intel.com>
+From: vitor <Vitor.Soares@synopsys.com>
+Subject: Re: [PATCH v6 01/10] i3c: Add core I3C infrastructure
+Date: Thu, 30 Aug 2018 14:57:36 +0100
+Message-ID: <8abfb007-d755-36a4-5960-fddd61d04aa2@synopsys.com>
+References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
+ <20180719152930.3715-2-boris.brezillon@bootlin.com>
+ <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
+ <20180824143934.6d6b6487@bbrezillon>
+ <bdb2924f-ecfa-1da3-41db-9ac77d4d933b@synopsys.com>
+ <20180824201600.7d80bca9@bbrezillon>
+ <fe839027-c4d7-4d6f-412b-5b315cbc7a39@synopsys.com>
+ <20180828140209.29155d00@bbrezillon>
+ <4DBE768F-3CDC-41BE-9CC8-E294E7277CB1@cadence.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20180829160846.GA8462@smile.fi.intel.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4DBE768F-3CDC-41BE-9CC8-E294E7277CB1@cadence.com>
 Content-Language: en-US
-Sender: stable-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>
-Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, "4 . 15+" <stable@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Przemyslaw Gaj <pgaj@cadence.com>, Boris Brezillon <boris.brezillon@bootlin.com>, vitor <Vitor.Soares@synopsys.com>
+Cc: "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@>
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/29/2018 07:08 PM, Andy Shevchenko wrote:
-> On Wed, Aug 29, 2018 at 03:06:31PM +0200, Hans de Goede wrote:
->> On Bay Trail and Cherry Trail devices we set the pm_disabled flag for I2C
->> busses which the OS shares with the PUNIT as these need special handling.
->> Until now we called dev_pm_syscore_device(dev, true) for I2C controllers
->> with this flag set to keep these I2C controllers always on.
->>
->> After commit 12864ff8545f ("ACPI / LPSS: Avoid PM quirks on suspend and
->> resume from hibernation"), this no longer works. This commit modifies
->> lpss_iosf_exit_d3_state() to only run if lpss_iosf_enter_d3_state() has ran
->> before it, so that it does not run on a resume from hibernate (or from S3).
->>
->> On these systems the conditions for lpss_iosf_enter_d3_state() to run
->> never become true, so lpss_iosf_exit_d3_state() never gets called and
->> the 2 LPSS DMA controllers never get forced into D0 mode, instead they
->> are left in their default automatic power-on when needed mode.
->>
->> The not forcing of D0 mode for the DMA controllers enables these systems
->> to properly enter S0ix modes, which is a good thing.
->>
->> But after entering S0ix modes the I2C controller connected to the PMIC
->> no longer works, leading to e.g. broken battery monitoring.
->>
->> The _PS3 method for this I2C controller looks like this:
->>
->>              Method (_PS3, 0, NotSerialized)  // _PS3: Power State 3
->>              {
->>                  If ((((PMID == 0x04) || (PMID == 0x05)) || (PMID == 0x06)))
->>                  {
->>                      Return (Zero)
->>                  }
->>
->>                  PSAT |= 0x03
->>                  Local0 = PSAT /* \_SB_.I2C5.PSAT */
->>              }
->>
->> Where PMID = 0x05, so we enter the Return (Zero) path on these systems.
->>
->> So even if we were to not call dev_pm_syscore_device(dev, true) the
->> I2C controller will be left in D0 rather then be switched to D3.
->>
->> Yet on other Bay and Cherry Trail devices S0ix is not entered unless *all*
->> I2C controllers are in D3 mode. This combined with the I2C controller no
->> longer working now that we reach S0ix states on these systems leads to me
->> believing that the PUNIT itself puts the I2C controller in D3 when all
->> other conditions for entering S0ix states are true.
->>
->> Since now the I2C controller is put in D3 over a suspend/resume we must
->> re-initialize it afterwards and that does indeed fix it no longer working.
->>
->> This commit implements this fix by:
->>
->> 1) Making the suspend_late callback a no-op if pm_disabled is set and
->> making the resume_early callback skip the clock re-enable (since it now was
->> not disabled) while still doing the necessary I2C controller re-init.
->>
->> 2) Removing the dev_pm_syscore_device(dev, true) call, so that the suspend
->> and resume callbacks are actually called. Normally this would cause the
->> ACPI pm code to call _PS3 putting the I2C controller in D3, wreaking havoc
->> since it is shared with the PUNIT, but in this special case the _PS3 method
->> is a no-op so we can safely allow a "fake" suspend / resume.
->>
-> 
-> Oh, this hardware platform design in a real PITA.
-> Thank you for so good analysis!
-> 
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> 
-> for both patches.
-> 
-I tried to see does our Bay Trail and Cherry Trail devices show any 
-issue before this patch but didn't see. They are without the battery and 
-maybe I didn't manage to trigger PUNIT. Anyway for this patch,
+Hi Przemyslaw
 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+
+On 28-08-2018 13:55, Przemyslaw Gaj wrote:
+> Hi Vitor,
+>
+> I have already implemented Mastership request/handover but we are waiting for Boris’s patch to be accepted and merged. Anyway, my comments below.
+>
+> ﻿On 8/28/18, 2:02 PM, "Boris Brezillon" <boris.brezillon@bootlin.com> wrote:
+>
+>      EXTERNAL MAIL
+>      
+>      
+>      Hi Vitor,
+>      
+>      On Tue, 28 Aug 2018 12:50:12 +0100
+>      vitor <Vitor.Soares@synopsys.com> wrote:
+>      
+>      > Hi Boris,
+>      >
+>      > The DT Bindings say "The node describing an I3C bus should be named
+>      > i3c-master.". Do you have a field for secondary master?
+>
+> I think we don’t need separate field for secondary master. Main and secondary masters
+> support similar functionalities. It’s enough to have this state internally and do mastership it it's needed.
+
+Yes, you are right.
+
+>
+>      >
+>      > On 24-08-2018 19:16, Boris Brezillon wrote:
+>      > > Well, before even considering supporting secondary master registration,
+>      > > we need to handle mastership handover. As for the DAA operation, it's
+>      > > likely to be host specific, so we'll have to add a new hook to the
+>      > > i3c_master_controller_ops struct.
+>      > Do you mean when master try to delegate the bus ownership through
+>      > GETACCMST? or to get the bus ownership with IBI-MR?
+>      
+>      I think we need to support both.
+>
+> I agree.
+
+That's ok to me.
+
+>      
+>      >
+>      > I think that could be useful to pass the ibi type on request_ibi(),
+>      > there is some case where the master doesn't support IBI-MR.
+>      
+>      Actually, I was planning on making it completely separate from
+>      regular slave IBIs. That is, the master controller driver would demux
+>      the slave, MR and Hot Join IBIs, and if there's an MR request, queue a
+>      mastership handover work to the workqueue (pretty much what we do for
+>      Hot-Join already). Mastership handover is anyway likely to be IP
+>      specific, so I don't think there's a need to make it look like a
+>      regular IBI.
+>
+> I think it's better to have separate function to do mastership request.
+>      
+>      Regarding whether IBI-MR support should be exposed to the I3C framework
+>      or not depends on how much will be automated on the framework side. I
+>      don't the answer yet, but that's probably something will figure out
+>      along the road.
+>
+> My current implementation is: when request_mastership field
+> of i3c_master_controller_ops structure is set, master driver supports mastership requests.
+> That's how I check if this is supported or not.
+>      
+>      Regards,
+>      
+>      Boris
+>      
+> Regards,
+> Przemek
+>
+when you say request_mastership, do you mean the current master do the 
+mastership hand-off or the secondary master request to be current master?
+
+So, per my understanding since the Main master support the hand-off of 
+the bus you accept all incoming MR, right? Or do you check all devices BCR?
+
+Best regards,
+Vitor Soares
