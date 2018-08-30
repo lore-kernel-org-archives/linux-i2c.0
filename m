@@ -1,107 +1,31 @@
-From: vitor <Vitor.Soares@synopsys.com>
-Subject: Re: [PATCH v6 01/10] i3c: Add core I3C infrastructure
-Date: Thu, 30 Aug 2018 14:57:36 +0100
-Message-ID: <8abfb007-d755-36a4-5960-fddd61d04aa2@synopsys.com>
-References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
- <20180719152930.3715-2-boris.brezillon@bootlin.com>
- <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
- <20180824143934.6d6b6487@bbrezillon>
- <bdb2924f-ecfa-1da3-41db-9ac77d4d933b@synopsys.com>
- <20180824201600.7d80bca9@bbrezillon>
- <fe839027-c4d7-4d6f-412b-5b315cbc7a39@synopsys.com>
- <20180828140209.29155d00@bbrezillon>
- <4DBE768F-3CDC-41BE-9CC8-E294E7277CB1@cadence.com>
+From: David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [PATCH v5 1/4] gpiolib: Pass bitmaps, not integer arrays, to
+ get/set array
+Date: Thu, 30 Aug 2018 15:35:39 +0000
+Message-ID: <34ad57ec954c481d87ef6af58453ee9f@AcuMS.aculab.com>
+References: <20180820234341.5271-1-jmkrzyszt@gmail.com>
+ <20180829204900.19390-1-jmkrzyszt@gmail.com>
+ <20180829204900.19390-2-jmkrzyszt@gmail.com>
+ <CANiq72kJT15ELkYr2U5r4-pvGunQFLmZ5dhdZLnjmM7NWBnkNQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4DBE768F-3CDC-41BE-9CC8-E294E7277CB1@cadence.com>
+In-Reply-To: <CANiq72kJT15ELkYr2U5r4-pvGunQFLmZ5dhdZLnjmM7NWBnkNQ@mail.gmail.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Przemyslaw Gaj <pgaj@cadence.com>, Boris Brezillon <boris.brezillon@bootlin.com>, vitor <Vitor.Soares@synopsys.com>
-Cc: "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@>
+To: 'Miguel Ojeda' <miguel.ojeda.sandonis@gmail.com>, Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>, Ulf Hansson <ulf.hansson@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, "David S. Miller" <davem@davemloft.net>, Dominik Brodowski <linux@dominikbrodowski.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kishon Vijay Abraham I <kishon@ti.com>, Lars-Peter Clausen <lars@metafoo.de>, Michael Hennerich <Michael.Hennerich@analog.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jiri Slaby <jslaby@suse.com>, Willy Tarreau <w@1wt.eu>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Przemyslaw
-
-
-On 28-08-2018 13:55, Przemyslaw Gaj wrote:
-> Hi Vitor,
->
-> I have already implemented Mastership request/handover but we are waiting for Boris’s patch to be accepted and merged. Anyway, my comments below.
->
-> ﻿On 8/28/18, 2:02 PM, "Boris Brezillon" <boris.brezillon@bootlin.com> wrote:
->
->      EXTERNAL MAIL
->      
->      
->      Hi Vitor,
->      
->      On Tue, 28 Aug 2018 12:50:12 +0100
->      vitor <Vitor.Soares@synopsys.com> wrote:
->      
->      > Hi Boris,
->      >
->      > The DT Bindings say "The node describing an I3C bus should be named
->      > i3c-master.". Do you have a field for secondary master?
->
-> I think we don’t need separate field for secondary master. Main and secondary masters
-> support similar functionalities. It’s enough to have this state internally and do mastership it it's needed.
-
-Yes, you are right.
-
->
->      >
->      > On 24-08-2018 19:16, Boris Brezillon wrote:
->      > > Well, before even considering supporting secondary master registration,
->      > > we need to handle mastership handover. As for the DAA operation, it's
->      > > likely to be host specific, so we'll have to add a new hook to the
->      > > i3c_master_controller_ops struct.
->      > Do you mean when master try to delegate the bus ownership through
->      > GETACCMST? or to get the bus ownership with IBI-MR?
->      
->      I think we need to support both.
->
-> I agree.
-
-That's ok to me.
-
->      
->      >
->      > I think that could be useful to pass the ibi type on request_ibi(),
->      > there is some case where the master doesn't support IBI-MR.
->      
->      Actually, I was planning on making it completely separate from
->      regular slave IBIs. That is, the master controller driver would demux
->      the slave, MR and Hot Join IBIs, and if there's an MR request, queue a
->      mastership handover work to the workqueue (pretty much what we do for
->      Hot-Join already). Mastership handover is anyway likely to be IP
->      specific, so I don't think there's a need to make it look like a
->      regular IBI.
->
-> I think it's better to have separate function to do mastership request.
->      
->      Regarding whether IBI-MR support should be exposed to the I3C framework
->      or not depends on how much will be automated on the framework side. I
->      don't the answer yet, but that's probably something will figure out
->      along the road.
->
-> My current implementation is: when request_mastership field
-> of i3c_master_controller_ops structure is set, master driver supports mastership requests.
-> That's how I check if this is supported or not.
->      
->      Regards,
->      
->      Boris
->      
-> Regards,
-> Przemek
->
-when you say request_mastership, do you mean the current master do the 
-mastership hand-off or the secondary master request to be current master?
-
-So, per my understanding since the Main master support the hand-off of 
-the bus you accept all incoming MR, right? Or do you check all devices BCR?
-
-Best regards,
-Vitor Soares
+RnJvbTogTWlndWVsIE9qZWRhDQo+IFNlbnQ6IDMwIEF1Z3VzdCAyMDE4IDEyOjExDQouLi4NCj4g
+PiArICAgICAgIHVuc2lnbmVkIGxvbmcgdmFsdWVfYml0bWFwWzFdOyAgLyogZm9yIERBVEFbMC03
+XSwgUlMsIFJXICovDQo+IA0KPiAoSSByZWFkIHlvdXIgY29tbWVudHMgaW4gdGhlIG90aGVyIGVt
+YWlsKQ0KPiANCj4gSSBzdGlsbCBmaW5kIHRoaXMgb2RkLCBidXQgaWYgZXZlcnlvbmUgaXMgZ29p
+bmcgdG8gaGF2ZSB0aGlzIGNoYW5nZQ0KPiBkb25lIGxpa2UgdGhpcywgY29uc2lzdGVuY3kgaXMg
+YmV0dGVyLg0KDQpNYXliZSB0aGVyZSBvdWdodCB0byBiZSBhIGRlZmluZSBzbyB5b3UgY2FuIGRv
+Og0KCURFRklORV9CSVRNQVAodmFsdWVfYml0bWFwLCAzMik7DQoNCldoaWxlIGl0IG1pZ2h0IGp1
+c3QgZ2VuZXJhdGUgYW4gdW5zaWduZWQgbG9uZyBbXSB0aGVyZSBpcyBwcm9iYWJseQ0Kc2NvcGUg
+Zm9yIHN0cm9uZ2VyIHR5cGluZy4NCg0KCURhdmlkDQoNCi0NClJlZ2lzdGVyZWQgQWRkcmVzcyBM
+YWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0b24gS2V5bmVzLCBNSzEgMVBU
+LCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykNCg==
