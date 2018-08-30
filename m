@@ -1,221 +1,93 @@
-From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Subject: Re: [PATCH v5 1/4] gpiolib: Pass bitmaps, not integer arrays, to
- get/set array
-Date: Thu, 30 Aug 2018 13:10:59 +0200
-Message-ID: <CANiq72kJT15ELkYr2U5r4-pvGunQFLmZ5dhdZLnjmM7NWBnkNQ@mail.gmail.com>
-References: <20180820234341.5271-1-jmkrzyszt@gmail.com> <20180829204900.19390-1-jmkrzyszt@gmail.com>
- <20180829204900.19390-2-jmkrzyszt@gmail.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH 1/2] i2c: designware: Re-init controllers with pm_disabled
+ set on resume
+Date: Thu, 30 Aug 2018 16:55:04 +0300
+Message-ID: <413b4279-fc24-7334-4290-82ec7bd6e7e7@linux.intel.com>
+References: <20180829130632.31111-1-hdegoede@redhat.com>
+ <20180829160846.GA8462@smile.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180829204900.19390-2-jmkrzyszt@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>, Ulf Hansson <ulf.hansson@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, "David S. Miller" <davem@davemloft.net>, Dominik Brodowski <linux@dominikbrodowski.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kishon Vijay Abraham I <kishon@ti.com>, Lars-Peter Clausen <lars@metafoo.de>, Michael Hennerich <Michael.Hennerich@analog.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jiri Slaby <jslaby@suse.com>, Willy Tarreau <w@1wt.eu>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20180829160846.GA8462@smile.fi.intel.com>
+Content-Language: en-US
+Sender: stable-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>
+Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, "4 . 15+" <stable@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Janusz,
+On 08/29/2018 07:08 PM, Andy Shevchenko wrote:
+> On Wed, Aug 29, 2018 at 03:06:31PM +0200, Hans de Goede wrote:
+>> On Bay Trail and Cherry Trail devices we set the pm_disabled flag for I2C
+>> busses which the OS shares with the PUNIT as these need special handling.
+>> Until now we called dev_pm_syscore_device(dev, true) for I2C controllers
+>> with this flag set to keep these I2C controllers always on.
+>>
+>> After commit 12864ff8545f ("ACPI / LPSS: Avoid PM quirks on suspend and
+>> resume from hibernation"), this no longer works. This commit modifies
+>> lpss_iosf_exit_d3_state() to only run if lpss_iosf_enter_d3_state() has ran
+>> before it, so that it does not run on a resume from hibernate (or from S3).
+>>
+>> On these systems the conditions for lpss_iosf_enter_d3_state() to run
+>> never become true, so lpss_iosf_exit_d3_state() never gets called and
+>> the 2 LPSS DMA controllers never get forced into D0 mode, instead they
+>> are left in their default automatic power-on when needed mode.
+>>
+>> The not forcing of D0 mode for the DMA controllers enables these systems
+>> to properly enter S0ix modes, which is a good thing.
+>>
+>> But after entering S0ix modes the I2C controller connected to the PMIC
+>> no longer works, leading to e.g. broken battery monitoring.
+>>
+>> The _PS3 method for this I2C controller looks like this:
+>>
+>>              Method (_PS3, 0, NotSerialized)  // _PS3: Power State 3
+>>              {
+>>                  If ((((PMID == 0x04) || (PMID == 0x05)) || (PMID == 0x06)))
+>>                  {
+>>                      Return (Zero)
+>>                  }
+>>
+>>                  PSAT |= 0x03
+>>                  Local0 = PSAT /* \_SB_.I2C5.PSAT */
+>>              }
+>>
+>> Where PMID = 0x05, so we enter the Return (Zero) path on these systems.
+>>
+>> So even if we were to not call dev_pm_syscore_device(dev, true) the
+>> I2C controller will be left in D0 rather then be switched to D3.
+>>
+>> Yet on other Bay and Cherry Trail devices S0ix is not entered unless *all*
+>> I2C controllers are in D3 mode. This combined with the I2C controller no
+>> longer working now that we reach S0ix states on these systems leads to me
+>> believing that the PUNIT itself puts the I2C controller in D3 when all
+>> other conditions for entering S0ix states are true.
+>>
+>> Since now the I2C controller is put in D3 over a suspend/resume we must
+>> re-initialize it afterwards and that does indeed fix it no longer working.
+>>
+>> This commit implements this fix by:
+>>
+>> 1) Making the suspend_late callback a no-op if pm_disabled is set and
+>> making the resume_early callback skip the clock re-enable (since it now was
+>> not disabled) while still doing the necessary I2C controller re-init.
+>>
+>> 2) Removing the dev_pm_syscore_device(dev, true) call, so that the suspend
+>> and resume callbacks are actually called. Normally this would cause the
+>> ACPI pm code to call _PS3 putting the I2C controller in D3, wreaking havoc
+>> since it is shared with the PUNIT, but in this special case the _PS3 method
+>> is a no-op so we can safely allow a "fake" suspend / resume.
+>>
+> 
+> Oh, this hardware platform design in a real PITA.
+> Thank you for so good analysis!
+> 
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> 
+> for both patches.
+> 
+I tried to see does our Bay Trail and Cherry Trail devices show any 
+issue before this patch but didn't see. They are without the battery and 
+maybe I didn't manage to trigger PUNIT. Anyway for this patch,
 
-On Wed, Aug 29, 2018 at 10:48 PM, Janusz Krzysztofik
-<jmkrzyszt@gmail.com> wrote:
-> Most users of get/set array functions iterate consecutive bits of data,
-> usually a single integer, while processing array of results obtained
-> from, or building an array of values to be passed to those functions.
-> Save time wasted on those iterations by changing the functions' API to
-> accept bitmaps.
->
-> All current users are updated as well.
->
-> More benefits from the change are expected as soon as planned support
-> for accepting/passing those bitmaps directly from/to respective GPIO
-> chip callbacks if applicable is implemented.
->
-> Cc: Jonathan Corbet <corbet@lwn.net>
-> Cc: Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>
-> Cc: Peter Korsgaard <peter.korsgaard@barco.com>
-> Cc: Peter Rosin <peda@axentia.se>
-> Cc: Andrew Lunn <andrew@lunn.ch>
-> Cc: Florian Fainelli <f.fainelli@gmail.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-> Cc: Kishon Vijay Abraham I <kishon@ti.com>
-> Cc: Lars-Peter Clausen <lars@metafoo.de>
-> Cc: Michael Hennerich <Michael.Hennerich@analog.com>
-> Cc: Jonathan Cameron <jic23@kernel.org>
-> Cc: Hartmut Knaack <knaack.h@gmx.de>
-> Cc: Peter Meerwald-Stadler <pmeerw@pmeerw.net>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Jiri Slaby <jslaby@suse.com>
-> Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-> Acked-by: Ulf Hansson <ulf.hansson@linaro.org>
-> ---
->  Documentation/driver-api/gpio/consumer.rst  | 22 ++++----
->  drivers/auxdisplay/hd44780.c                | 52 +++++++++--------
->  drivers/bus/ts-nbus.c                       | 19 ++-----
->  drivers/gpio/gpio-max3191x.c                | 17 +++---
->  drivers/gpio/gpiolib.c                      | 86 +++++++++++++++--------------
->  drivers/gpio/gpiolib.h                      |  4 +-
->  drivers/i2c/muxes/i2c-mux-gpio.c            |  8 +--
->  drivers/mmc/core/pwrseq_simple.c            | 13 ++---
->  drivers/mux/gpio.c                          |  9 +--
->  drivers/net/phy/mdio-mux-gpio.c             |  3 +-
->  drivers/pcmcia/soc_common.c                 | 11 ++--
->  drivers/phy/motorola/phy-mapphone-mdm6600.c | 17 +++---
->  drivers/staging/iio/adc/ad7606.c            |  9 +--
->  drivers/tty/serial/serial_mctrl_gpio.c      |  7 ++-
->  include/linux/gpio/consumer.h               | 18 +++---
->  15 files changed, 140 insertions(+), 155 deletions(-)
->
-> diff --git a/Documentation/driver-api/gpio/consumer.rst b/Documentation/driver-api/gpio/consumer.rst
-> index aa03f389d41d..ed68042ddccf 100644
-> --- a/Documentation/driver-api/gpio/consumer.rst
-> +++ b/Documentation/driver-api/gpio/consumer.rst
-> @@ -323,29 +323,29 @@ The following functions get or set the values of an array of GPIOs::
->
->         int gpiod_get_array_value(unsigned int array_size,
->                                   struct gpio_desc **desc_array,
-> -                                 int *value_array);
-> +                                 unsigned long *value_bitmap);
->         int gpiod_get_raw_array_value(unsigned int array_size,
->                                       struct gpio_desc **desc_array,
-> -                                     int *value_array);
-> +                                     unsigned long *value_bitmap);
->         int gpiod_get_array_value_cansleep(unsigned int array_size,
->                                            struct gpio_desc **desc_array,
-> -                                          int *value_array);
-> +                                          unsigned long *value_bitmap);
->         int gpiod_get_raw_array_value_cansleep(unsigned int array_size,
->                                            struct gpio_desc **desc_array,
-> -                                          int *value_array);
-> +                                          unsigned long *value_bitmap);
->
->         void gpiod_set_array_value(unsigned int array_size,
->                                    struct gpio_desc **desc_array,
-> -                                  int *value_array)
-> +                                  unsigned long *value_bitmap)
->         void gpiod_set_raw_array_value(unsigned int array_size,
->                                        struct gpio_desc **desc_array,
-> -                                      int *value_array)
-> +                                      unsigned long *value_bitmap)
->         void gpiod_set_array_value_cansleep(unsigned int array_size,
->                                             struct gpio_desc **desc_array,
-> -                                           int *value_array)
-> +                                           unsigned long *value_bitmap)
->         void gpiod_set_raw_array_value_cansleep(unsigned int array_size,
->                                                 struct gpio_desc **desc_array,
-> -                                               int *value_array)
-> +                                               unsigned long *value_bitmap)
->
->  The array can be an arbitrary set of GPIOs. The functions will try to access
->  GPIOs belonging to the same bank or chip simultaneously if supported by the
-> @@ -356,8 +356,8 @@ accessed sequentially.
->  The functions take three arguments:
->         * array_size    - the number of array elements
->         * desc_array    - an array of GPIO descriptors
-> -       * value_array   - an array to store the GPIOs' values (get) or
-> -                         an array of values to assign to the GPIOs (set)
-> +       * value_bitmap  - a bitmap to store the GPIOs' values (get) or
-> +                         a bitmap of values to assign to the GPIOs (set)
->
->  The descriptor array can be obtained using the gpiod_get_array() function
->  or one of its variants. If the group of descriptors returned by that function
-> @@ -366,7 +366,7 @@ the struct gpio_descs returned by gpiod_get_array()::
->
->         struct gpio_descs *my_gpio_descs = gpiod_get_array(...);
->         gpiod_set_array_value(my_gpio_descs->ndescs, my_gpio_descs->desc,
-> -                             my_gpio_values);
-> +                             my_gpio_value_bitmap);
->
->  It is also possible to access a completely arbitrary array of descriptors. The
->  descriptors may be obtained using any combination of gpiod_get() and
-> diff --git a/drivers/auxdisplay/hd44780.c b/drivers/auxdisplay/hd44780.c
-> index f1a42f0f1ded..bbbd6a29bf01 100644
-> --- a/drivers/auxdisplay/hd44780.c
-> +++ b/drivers/auxdisplay/hd44780.c
-> @@ -62,20 +62,19 @@ static void hd44780_strobe_gpio(struct hd44780 *hd)
->  /* write to an LCD panel register in 8 bit GPIO mode */
->  static void hd44780_write_gpio8(struct hd44780 *hd, u8 val, unsigned int rs)
->  {
-> -       int values[10]; /* for DATA[0-7], RS, RW */
-> -       unsigned int i, n;
-> +       unsigned long value_bitmap[1];  /* for DATA[0-7], RS, RW */
-
-(I read your comments in the other email)
-
-I still find this odd, but if everyone is going to have this change
-done like this, consistency is better.
-
-> +       unsigned int n;
->
-> -       for (i = 0; i < 8; i++)
-> -               values[PIN_DATA0 + i] = !!(val & BIT(i));
-> -       values[PIN_CTRL_RS] = rs;
-> +       value_bitmap[0] = val;
-> +       __assign_bit(PIN_CTRL_RS, value_bitmap, rs);
->         n = 9;
->         if (hd->pins[PIN_CTRL_RW]) {
-> -               values[PIN_CTRL_RW] = 0;
-> +               __clear_bit(PIN_CTRL_RW, value_bitmap);
->                 n++;
->         }
->
->         /* Present the data to the port */
-> -       gpiod_set_array_value_cansleep(n, &hd->pins[PIN_DATA0], values);
-> +       gpiod_set_array_value_cansleep(n, &hd->pins[PIN_DATA0], value_bitmap);
->
->         hd44780_strobe_gpio(hd);
->  }
-> @@ -83,32 +82,31 @@ static void hd44780_write_gpio8(struct hd44780 *hd, u8 val, unsigned int rs)
->  /* write to an LCD panel register in 4 bit GPIO mode */
->  static void hd44780_write_gpio4(struct hd44780 *hd, u8 val, unsigned int rs)
->  {
-> -       int values[10]; /* for DATA[0-7], RS, RW, but DATA[0-3] is unused */
-> -       unsigned int i, n;
-> +       /* for DATA[0-7], RS, RW, but DATA[0-3] is unused */
-> +       unsigned long value_bitmap[1];
-
-Ditto.
-
-> +       unsigned int n;
->
->         /* High nibble + RS, RW */
-> -       for (i = 4; i < 8; i++)
-> -               values[PIN_DATA0 + i] = !!(val & BIT(i));
-> -       values[PIN_CTRL_RS] = rs;
-> +       value_bitmap[0] = val;
-> +       __assign_bit(PIN_CTRL_RS, value_bitmap, rs);
->         n = 5;
->         if (hd->pins[PIN_CTRL_RW]) {
-> -               values[PIN_CTRL_RW] = 0;
-> +               __clear_bit(PIN_CTRL_RW, value_bitmap);
->                 n++;
->         }
-> +       value_bitmap[0] >>= PIN_DATA4;
->
->         /* Present the data to the port */
-> -       gpiod_set_array_value_cansleep(n, &hd->pins[PIN_DATA4],
-> -                                      &values[PIN_DATA4]);
-> +       gpiod_set_array_value_cansleep(n, &hd->pins[PIN_DATA4], value_bitmap);
->
->         hd44780_strobe_gpio(hd);
->
->         /* Low nibble */
-> -       for (i = 0; i < 4; i++)
-> -               values[PIN_DATA4 + i] = !!(val & BIT(i));
-> +       value_bitmap[0] &= ~((1 << PIN_DATA4) - 1);
-> +       value_bitmap[0] |= val & ~((1 << PIN_DATA4) - 1);
-
-This is still wrong! What I originally meant in my v4 review is that
-there is an extra ~ in the second line.
-
-Also, a couple of general comments:
-
- - Please review the list of CCs (I was not CC'd originally, so maybe
-there are other maintainers that aren't, either)
- - In general, the new code seems harder to read than the original one
-(but that is my impression).
-
-Thanks for your effort! :-)
-
-Cheers,
-Miguel
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
