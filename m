@@ -1,99 +1,119 @@
-From: Przemyslaw Gaj <pgaj@cadence.com>
-Subject: Re: [PATCH v6 01/10] i3c: Add core I3C infrastructure
-Date: Thu, 30 Aug 2018 19:00:39 +0000
-Message-ID: <3D2681D9-1ACC-42FF-9FAB-D86B3C689003@cadence.com>
-References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
- <20180719152930.3715-2-boris.brezillon@bootlin.com>
- <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
- <20180824143934.6d6b6487@bbrezillon>
- <bdb2924f-ecfa-1da3-41db-9ac77d4d933b@synopsys.com>
- <20180824201600.7d80bca9@bbrezillon>
- <fe839027-c4d7-4d6f-412b-5b315cbc7a39@synopsys.com>
- <20180828140209.29155d00@bbrezillon>
- <4DBE768F-3CDC-41BE-9CC8-E294E7277CB1@cadence.com>
- <8abfb007-d755-36a4-5960-fddd61d04aa2@synopsys.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] i2c: designware: Re-init controllers with
+ pm_disabled set on resume
+Date: Thu, 30 Aug 2018 23:03:43 +0200
+Message-ID: <20180830210343.3lpvf2mjh5irnlai@ninjato>
+References: <20180829130632.31111-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <8abfb007-d755-36a4-5960-fddd61d04aa2@synopsys.com>
-Content-Language: en-US
-Content-ID: <709EFCE5C7083243B8CC2CE09EBDB8DB@namprd07.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: vitor <Vitor.Soares@synopsys.com>, Boris Brezillon <boris.brezillon@bootlin.com>
-Cc: "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="bm3bdhgwp5yxvn2n"
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180829130632.31111-1-hdegoede@redhat.com>
+Sender: stable-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, "4 . 15+" <stable@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgVml0b3IsDQoNCu+7v09uIDgvMzAvMTgsIDM6NTcgUE0sICJ2aXRvciIgPFZpdG9yLlNvYXJl
-c0BzeW5vcHN5cy5jb20+IHdyb3RlOg0KDQogICAgRVhURVJOQUwgTUFJTA0KICAgIA0KICAgIA0K
-ICAgIEhpIFByemVteXNsYXcNCiAgICANCkp1c3QgUHJ6ZW1layA6KQ0KICAgIA0KICAgIE9uIDI4
-LTA4LTIwMTggMTM6NTUsIFByemVteXNsYXcgR2FqIHdyb3RlOg0KICAgID4gSGkgVml0b3IsDQog
-ICAgPg0KICAgID4gSSBoYXZlIGFscmVhZHkgaW1wbGVtZW50ZWQgTWFzdGVyc2hpcCByZXF1ZXN0
-L2hhbmRvdmVyIGJ1dCB3ZSBhcmUgd2FpdGluZyBmb3IgQm9yaXPigJlzIHBhdGNoIHRvIGJlIGFj
-Y2VwdGVkIGFuZCBtZXJnZWQuIEFueXdheSwgbXkgY29tbWVudHMgYmVsb3cuDQogICAgPg0KICAg
-ID4gT24gOC8yOC8xOCwgMjowMiBQTSwgIkJvcmlzIEJyZXppbGxvbiIgPGJvcmlzLmJyZXppbGxv
-bkBib290bGluLmNvbT4gd3JvdGU6DQogICAgPg0KICAgID4gICAgICBFWFRFUk5BTCBNQUlMDQog
-ICAgPiAgICAgIA0KICAgID4gICAgICANCiAgICA+ICAgICAgSGkgVml0b3IsDQogICAgPiAgICAg
-IA0KICAgID4gICAgICBPbiBUdWUsIDI4IEF1ZyAyMDE4IDEyOjUwOjEyICswMTAwDQogICAgPiAg
-ICAgIHZpdG9yIDxWaXRvci5Tb2FyZXNAc3lub3BzeXMuY29tPiB3cm90ZToNCiAgICA+ICAgICAg
-DQogICAgPiAgICAgID4gSGkgQm9yaXMsDQogICAgPiAgICAgID4NCiAgICA+ICAgICAgPiBUaGUg
-RFQgQmluZGluZ3Mgc2F5ICJUaGUgbm9kZSBkZXNjcmliaW5nIGFuIEkzQyBidXMgc2hvdWxkIGJl
-IG5hbWVkDQogICAgPiAgICAgID4gaTNjLW1hc3Rlci4iLiBEbyB5b3UgaGF2ZSBhIGZpZWxkIGZv
-ciBzZWNvbmRhcnkgbWFzdGVyPw0KICAgID4NCiAgICA+IEkgdGhpbmsgd2UgZG9u4oCZdCBuZWVk
-IHNlcGFyYXRlIGZpZWxkIGZvciBzZWNvbmRhcnkgbWFzdGVyLiBNYWluIGFuZCBzZWNvbmRhcnkg
-bWFzdGVycw0KICAgID4gc3VwcG9ydCBzaW1pbGFyIGZ1bmN0aW9uYWxpdGllcy4gSXTigJlzIGVu
-b3VnaCB0byBoYXZlIHRoaXMgc3RhdGUgaW50ZXJuYWxseSBhbmQgZG8gbWFzdGVyc2hpcCBpdCBp
-dCdzIG5lZWRlZC4NCiAgICANCiAgICBZZXMsIHlvdSBhcmUgcmlnaHQuDQogICAgDQogICAgPg0K
-ICAgID4gICAgICA+DQogICAgPiAgICAgID4gT24gMjQtMDgtMjAxOCAxOToxNiwgQm9yaXMgQnJl
-emlsbG9uIHdyb3RlOg0KICAgID4gICAgICA+ID4gV2VsbCwgYmVmb3JlIGV2ZW4gY29uc2lkZXJp
-bmcgc3VwcG9ydGluZyBzZWNvbmRhcnkgbWFzdGVyIHJlZ2lzdHJhdGlvbiwNCiAgICA+ICAgICAg
-PiA+IHdlIG5lZWQgdG8gaGFuZGxlIG1hc3RlcnNoaXAgaGFuZG92ZXIuIEFzIGZvciB0aGUgREFB
-IG9wZXJhdGlvbiwgaXQncw0KICAgID4gICAgICA+ID4gbGlrZWx5IHRvIGJlIGhvc3Qgc3BlY2lm
-aWMsIHNvIHdlJ2xsIGhhdmUgdG8gYWRkIGEgbmV3IGhvb2sgdG8gdGhlDQogICAgPiAgICAgID4g
-PiBpM2NfbWFzdGVyX2NvbnRyb2xsZXJfb3BzIHN0cnVjdC4NCiAgICA+ICAgICAgPiBEbyB5b3Ug
-bWVhbiB3aGVuIG1hc3RlciB0cnkgdG8gZGVsZWdhdGUgdGhlIGJ1cyBvd25lcnNoaXAgdGhyb3Vn
-aA0KICAgID4gICAgICA+IEdFVEFDQ01TVD8gb3IgdG8gZ2V0IHRoZSBidXMgb3duZXJzaGlwIHdp
-dGggSUJJLU1SPw0KICAgID4gICAgICANCiAgICA+ICAgICAgSSB0aGluayB3ZSBuZWVkIHRvIHN1
-cHBvcnQgYm90aC4NCiAgICA+DQogICAgPiBJIGFncmVlLg0KICAgIA0KICAgIFRoYXQncyBvayB0
-byBtZS4NCiAgICANCiAgICA+ICAgICAgDQogICAgPiAgICAgID4NCiAgICA+ICAgICAgPiBJIHRo
-aW5rIHRoYXQgY291bGQgYmUgdXNlZnVsIHRvIHBhc3MgdGhlIGliaSB0eXBlIG9uIHJlcXVlc3Rf
-aWJpKCksDQogICAgPiAgICAgID4gdGhlcmUgaXMgc29tZSBjYXNlIHdoZXJlIHRoZSBtYXN0ZXIg
-ZG9lc24ndCBzdXBwb3J0IElCSS1NUi4NCiAgICA+ICAgICAgDQogICAgPiAgICAgIEFjdHVhbGx5
-LCBJIHdhcyBwbGFubmluZyBvbiBtYWtpbmcgaXQgY29tcGxldGVseSBzZXBhcmF0ZSBmcm9tDQog
-ICAgPiAgICAgIHJlZ3VsYXIgc2xhdmUgSUJJcy4gVGhhdCBpcywgdGhlIG1hc3RlciBjb250cm9s
-bGVyIGRyaXZlciB3b3VsZCBkZW11eA0KICAgID4gICAgICB0aGUgc2xhdmUsIE1SIGFuZCBIb3Qg
-Sm9pbiBJQklzLCBhbmQgaWYgdGhlcmUncyBhbiBNUiByZXF1ZXN0LCBxdWV1ZSBhDQogICAgPiAg
-ICAgIG1hc3RlcnNoaXAgaGFuZG92ZXIgd29yayB0byB0aGUgd29ya3F1ZXVlIChwcmV0dHkgbXVj
-aCB3aGF0IHdlIGRvIGZvcg0KICAgID4gICAgICBIb3QtSm9pbiBhbHJlYWR5KS4gTWFzdGVyc2hp
-cCBoYW5kb3ZlciBpcyBhbnl3YXkgbGlrZWx5IHRvIGJlIElQDQogICAgPiAgICAgIHNwZWNpZmlj
-LCBzbyBJIGRvbid0IHRoaW5rIHRoZXJlJ3MgYSBuZWVkIHRvIG1ha2UgaXQgbG9vayBsaWtlIGEN
-CiAgICA+ICAgICAgcmVndWxhciBJQkkuDQogICAgPg0KICAgID4gSSB0aGluayBpdCdzIGJldHRl
-ciB0byBoYXZlIHNlcGFyYXRlIGZ1bmN0aW9uIHRvIGRvIG1hc3RlcnNoaXAgcmVxdWVzdC4NCiAg
-ICA+ICAgICAgDQogICAgPiAgICAgIFJlZ2FyZGluZyB3aGV0aGVyIElCSS1NUiBzdXBwb3J0IHNo
-b3VsZCBiZSBleHBvc2VkIHRvIHRoZSBJM0MgZnJhbWV3b3JrDQogICAgPiAgICAgIG9yIG5vdCBk
-ZXBlbmRzIG9uIGhvdyBtdWNoIHdpbGwgYmUgYXV0b21hdGVkIG9uIHRoZSBmcmFtZXdvcmsgc2lk
-ZS4gSQ0KICAgID4gICAgICBkb24ndCB0aGUgYW5zd2VyIHlldCwgYnV0IHRoYXQncyBwcm9iYWJs
-eSBzb21ldGhpbmcgd2lsbCBmaWd1cmUgb3V0DQogICAgPiAgICAgIGFsb25nIHRoZSByb2FkLg0K
-ICAgID4NCiAgICA+IE15IGN1cnJlbnQgaW1wbGVtZW50YXRpb24gaXM6IHdoZW4gcmVxdWVzdF9t
-YXN0ZXJzaGlwIGZpZWxkDQogICAgPiBvZiBpM2NfbWFzdGVyX2NvbnRyb2xsZXJfb3BzIHN0cnVj
-dHVyZSBpcyBzZXQsIG1hc3RlciBkcml2ZXIgc3VwcG9ydHMgbWFzdGVyc2hpcCByZXF1ZXN0cy4N
-CiAgICA+IFRoYXQncyBob3cgSSBjaGVjayBpZiB0aGlzIGlzIHN1cHBvcnRlZCBvciBub3QuDQog
-ICAgPiAgICAgIA0KICAgID4gICAgICBSZWdhcmRzLA0KICAgID4gICAgICANCiAgICA+ICAgICAg
-Qm9yaXMNCiAgICA+ICAgICAgDQogICAgPiBSZWdhcmRzLA0KICAgID4gUHJ6ZW1law0KICAgID4N
-CiAgICB3aGVuIHlvdSBzYXkgcmVxdWVzdF9tYXN0ZXJzaGlwLCBkbyB5b3UgbWVhbiB0aGUgY3Vy
-cmVudCBtYXN0ZXIgZG8gdGhlIA0KICAgIG1hc3RlcnNoaXAgaGFuZC1vZmYgb3IgdGhlIHNlY29u
-ZGFyeSBtYXN0ZXIgcmVxdWVzdCB0byBiZSBjdXJyZW50IG1hc3Rlcj8NCg0KSSBtZWFuIHNlY29u
-ZGFyeSBtYXN0ZXIgcmVxdWVzdHMgdG8gYmUgY3VycmVudCBtYXN0ZXIuIEN1cnJlbnQgbWFzdGVy
-IGRvIHRoZSBtYXN0ZXJzaGlwDQpoYW5kLW9mZiB1c2luZyBHRVRBQ0NNU1QgY29tbWFuZC4NCiAg
-ICANCiAgICBTbywgcGVyIG15IHVuZGVyc3RhbmRpbmcgc2luY2UgdGhlIE1haW4gbWFzdGVyIHN1
-cHBvcnQgdGhlIGhhbmQtb2ZmIG9mIA0KICAgIHRoZSBidXMgeW91IGFjY2VwdCBhbGwgaW5jb21p
-bmcgTVIsIHJpZ2h0PyBPciBkbyB5b3UgY2hlY2sgYWxsIGRldmljZXMgQkNSPw0KDQpJJ20gbm90
-IHN1cmUgd2hhdCBkbyB5b3UgbWVhbiBoZXJlLiBNYXN0ZXJzaGlwIHJlcXVlc3QoTVIpIGlzIGZy
-b20gc2Vjb25kYXJ5IG1hc3Rlcg0KdG8gY3VycmVudCBtYXN0ZXIuIEN1cnJlbnQgbWFzdGVyIGNh
-biBOQUNLIHRoaXMgcmVxdWVzdCBpZiBmb3IgZXhhbXBsZSBpdCBjb21lcyBmcm9tIA0Kd3Jvbmcg
-ZGV2aWNlLiBJZiBpdCdzIG9rLCBjdXJyZW50IG1hc3RlciBzZW5kcyBHRVRBQ0NNU1QgY29tbWFu
-ZCBhbmQgc2Vjb25kYXJ5IG1hc3RlciANCm1heSBBQ0sgb3IgTkFDSyB0aGlzIGNvbW1hbmQuIEl0
-IGl0J3MgYWNrZWQsIHNlY29uZGFyeSBtYXN0ZXIgYmVjb21lcyBjdXJyZW50IG1hc3Rlci4NCiAg
-ICANCiAgICBCZXN0IHJlZ2FyZHMsDQogICAgVml0b3IgU29hcmVzDQoNClBsZWFzZSBsZXQgbWUg
-a25vdyBpZiBzb21ldGhpbmcgaXMgdW5jbGVhci4NCg0KUmVnYXJkcywNClByemVtZWsNCiAgICAN
-Cg0K
+
+--bm3bdhgwp5yxvn2n
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Aug 29, 2018 at 03:06:31PM +0200, Hans de Goede wrote:
+> On Bay Trail and Cherry Trail devices we set the pm_disabled flag for I2C
+> busses which the OS shares with the PUNIT as these need special handling.
+> Until now we called dev_pm_syscore_device(dev, true) for I2C controllers
+> with this flag set to keep these I2C controllers always on.
+>=20
+> After commit 12864ff8545f ("ACPI / LPSS: Avoid PM quirks on suspend and
+> resume from hibernation"), this no longer works. This commit modifies
+> lpss_iosf_exit_d3_state() to only run if lpss_iosf_enter_d3_state() has r=
+an
+> before it, so that it does not run on a resume from hibernate (or from S3=
+).
+>=20
+> On these systems the conditions for lpss_iosf_enter_d3_state() to run
+> never become true, so lpss_iosf_exit_d3_state() never gets called and
+> the 2 LPSS DMA controllers never get forced into D0 mode, instead they
+> are left in their default automatic power-on when needed mode.
+>=20
+> The not forcing of D0 mode for the DMA controllers enables these systems
+> to properly enter S0ix modes, which is a good thing.
+>=20
+> But after entering S0ix modes the I2C controller connected to the PMIC
+> no longer works, leading to e.g. broken battery monitoring.
+>=20
+> The _PS3 method for this I2C controller looks like this:
+>=20
+>             Method (_PS3, 0, NotSerialized)  // _PS3: Power State 3
+>             {
+>                 If ((((PMID =3D=3D 0x04) || (PMID =3D=3D 0x05)) || (PMID =
+=3D=3D 0x06)))
+>                 {
+>                     Return (Zero)
+>                 }
+>=20
+>                 PSAT |=3D 0x03
+>                 Local0 =3D PSAT /* \_SB_.I2C5.PSAT */
+>             }
+>=20
+> Where PMID =3D 0x05, so we enter the Return (Zero) path on these systems.
+>=20
+> So even if we were to not call dev_pm_syscore_device(dev, true) the
+> I2C controller will be left in D0 rather then be switched to D3.
+>=20
+> Yet on other Bay and Cherry Trail devices S0ix is not entered unless *all*
+> I2C controllers are in D3 mode. This combined with the I2C controller no
+> longer working now that we reach S0ix states on these systems leads to me
+> believing that the PUNIT itself puts the I2C controller in D3 when all
+> other conditions for entering S0ix states are true.
+>=20
+> Since now the I2C controller is put in D3 over a suspend/resume we must
+> re-initialize it afterwards and that does indeed fix it no longer working.
+>=20
+> This commit implements this fix by:
+>=20
+> 1) Making the suspend_late callback a no-op if pm_disabled is set and
+> making the resume_early callback skip the clock re-enable (since it now w=
+as
+> not disabled) while still doing the necessary I2C controller re-init.
+>=20
+> 2) Removing the dev_pm_syscore_device(dev, true) call, so that the suspend
+> and resume callbacks are actually called. Normally this would cause the
+> ACPI pm code to call _PS3 putting the I2C controller in D3, wreaking havoc
+> since it is shared with the PUNIT, but in this special case the _PS3 meth=
+od
+> is a no-op so we can safely allow a "fake" suspend / resume.
+>=20
+> Fixes: 12864ff8545f ("ACPI / LPSS: Avoid PM quirks on suspend and resume =
+=2E..")
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D200861
+> Cc: 4.15+ <stable@vger.kernel.org> # 4.15+
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+
+Applied to for-current, thanks!
+
+
+--bm3bdhgwp5yxvn2n
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAluIW68ACgkQFA3kzBSg
+KbbsHg/+Kvhg63/Hq4TXs6GlusK9KtO0EoUgYS2w/mOTA551DJz5zyXcDoAulKog
+iSrjTWGpIPJdX6HV41ZWQheMkMfYavdDdHWRg86Y2coodXU+EOs/bQk3X+LeWbqo
+LTefAFu9nL5do7ODkfpNVk1tNxFRXoYWfoLeV9UUYX8Ug0daqlTJv7zEIiiqyaT2
+opWEqXTjOI4imTsdBEZewuPa78jUoRcQYY/dmdlfkwNkUFaa9+i7Q4mESo8NzLk8
+oglUDejJfFm5lC/26exD7kJmHjlfWmifxJ8uChK6k8us8ydDzTP5lUlBf3bcP3e0
+1mPNnOoqt0b70FAkJ5P8Lr0WfzPAyOgln+BYm04pHVwUch8lvsNaTMQkl5Ov17d9
+H7qGRdfOJM1cOKdqMMMB0fgL4Wg1Li3J8E70UqO07wDR0G0jwETu/1VOVysCYhGv
+wKanIZPlQB1hBHL3XMMVaksxXYZucCXjMaMFW55c1hFN1WateVqAdqSPjCdKBfpT
+9Blo1lznZZNFTHORbj3CQDCsTxryAUlqeHkd5FiSnFIo+sZgdHvUnic2cDakdNLI
+gxmhURpa0CcaVRf8cN/6DaRCTZup03iN2MCRMqpJEPL5GzpFdAM5XFgqtXlsNCt1
+2Xs0HHhwsYJW820Ao5Q6mCqpTTP+UFw4H5dtlOc2DL4CygJ38dQ=
+=jEKk
+-----END PGP SIGNATURE-----
+
+--bm3bdhgwp5yxvn2n--
