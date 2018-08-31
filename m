@@ -1,45 +1,58 @@
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 1/2] i2c: uniphier: issue STOP only for last message or I2C_M_STOP
-Date: Fri, 31 Aug 2018 23:30:47 +0900
-Message-ID: <1535725848-4076-1-git-send-email-yamada.masahiro@socionext.com>
+Subject: Re: [Question] When should a driver issue STOP condition?
+Date: Fri, 31 Aug 2018 23:39:20 +0900
+Message-ID: <CAK7LNAQyUa=uDD-vTe32XfHAueqdVtVZP_+imL2-Kh9BeFCG1A@mail.gmail.com>
+References: <CAK7LNAQO2aYLrtzg82jgKdKcOw20rNWBEY3DrdLcwOhnF9aa3A@mail.gmail.com>
+ <20180831095356.ow6nhbx2fhhpuhjj@ninjato>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180831095356.ow6nhbx2fhhpuhjj@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Masahiro Yamada <yamada.masahiro@socionext.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This driver currently emits a STOP if the next message is not
-I2C_MD_RD.  It should not do it because it disturbs the I2C_RDWR
-ioctl, where read/write transactions are combined without STOP
-between.
+Hi Wolfram,
 
-Issue STOP only when the message is the last one _or_ flagged with
-I2C_M_STOP.
 
-Fixes: dd6fd4a32793 ("i2c: uniphier: add UniPhier FIFO-less I2C driver")
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
+2018-08-31 18:53 GMT+09:00 Wolfram Sang <wsa@the-dreams.de>:
+>
+>> The problem is, my driver is forcibly setting
+>> STOP condition unless the next message is read.
+>
+> This likely is a problem.
 
- drivers/i2c/busses/i2c-uniphier.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-uniphier.c b/drivers/i2c/busses/i2c-uniphier.c
-index bb181b0..454f914 100644
---- a/drivers/i2c/busses/i2c-uniphier.c
-+++ b/drivers/i2c/busses/i2c-uniphier.c
-@@ -248,11 +248,8 @@ static int uniphier_i2c_master_xfer(struct i2c_adapter *adap,
- 		return ret;
- 
- 	for (msg = msgs; msg < emsg; msg++) {
--		/* If next message is read, skip the stop condition */
--		bool stop = !(msg + 1 < emsg && msg[1].flags & I2C_M_RD);
--		/* but, force it if I2C_M_STOP is set */
--		if (msg->flags & I2C_M_STOP)
--			stop = true;
-+		/* Emit STOP if it is the last message or I2C_M_STOP is set. */
-+		bool stop = (msg + 1 == emsg) || (msg->flags & I2C_M_STOP);
- 
- 		ret = uniphier_i2c_master_xfer_one(adap, msg, stop);
- 		if (ret)
+Oh, my drivers were wrong from the beginning.
+
+I've sent patches.
+
+
+> In Linux I2C terminology, a transfer is everything between a START and a
+> STOP. A transfer may consist of multiple messages, connected with
+> REP_START [1].
+>
+> So, a STOP should be generated after the last message of a transfer or
+> of I2C_M_STOP is set in a message.
+
+I see.
+I hope this is documented somewhere if it has not been yet.
+
+
+> The latter should be super-rare
+> because mostly you should be able to use multiple transfers with a
+> regular STOP instead.
+>
+> [1] Slide 8 illustrates this:
+> http://events17.linuxfoundation.org/sites/events/files/slides/ELCE17-WSang-I2C-Fault-Injector.pdf
+
+Awesome!
+
+I should follow "When to not use bus recovery" check-list.
+
+Thanks.
+
 -- 
-2.7.4
+Best Regards
+Masahiro Yamada
