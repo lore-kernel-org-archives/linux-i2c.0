@@ -1,7 +1,7 @@
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH v5 2/7] i2c: designware: move #ifdef CONFIG_OF to the top
-Date: Fri, 31 Aug 2018 17:11:09 +0200
-Message-ID: <20180831151114.25739-3-alexandre.belloni@bootlin.com>
+Subject: [PATCH v5 3/7] i2c: designware: allow IP specific sda_hold_time
+Date: Fri, 31 Aug 2018 17:11:10 +0200
+Message-ID: <20180831151114.25739-4-alexandre.belloni@bootlin.com>
 References: <20180831151114.25739-1-alexandre.belloni@bootlin.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,49 +12,43 @@ To: Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.c
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microchip.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Move the #ifdef CONFIG_OF section to the top of the file, after the ACPI
-section so functions defined there can be used in dw_i2c_plat_probe.
+Because some old designware IPs were not supporting setting an SDA hold
+time, vendors developed their own solution. Add a way for the final driver
+to provide its own SDA hold time handling.
 
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 ---
- drivers/i2c/busses/i2c-designware-platdrv.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-designware-common.c | 2 ++
+ drivers/i2c/busses/i2c-designware-core.h   | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 72f403e75fa6..e88090a62cb5 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -156,6 +156,14 @@ static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
- }
- #endif
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id dw_i2c_of_match[] = {
-+	{ .compatible = "snps,designware-i2c", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
-+#endif
-+
- static void i2c_dw_configure_master(struct dw_i2c_dev *dev)
- {
- 	struct i2c_timings *t = &dev->timings;
-@@ -390,14 +398,6 @@ static int dw_i2c_plat_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--#ifdef CONFIG_OF
--static const struct of_device_id dw_i2c_of_match[] = {
--	{ .compatible = "snps,designware-i2c", },
--	{},
--};
--MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
--#endif
--
- #ifdef CONFIG_PM_SLEEP
- static int dw_i2c_plat_prepare(struct device *dev)
- {
+diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+index 69ec4a791f23..36271cd75342 100644
+--- a/drivers/i2c/busses/i2c-designware-common.c
++++ b/drivers/i2c/busses/i2c-designware-common.c
+@@ -201,6 +201,8 @@ int i2c_dw_set_sda_hold(struct dw_i2c_dev *dev)
+ 		dev_dbg(dev->dev, "SDA Hold Time TX:RX = %d:%d\n",
+ 			dev->sda_hold_time & ~(u32)DW_IC_SDA_HOLD_RX_MASK,
+ 			dev->sda_hold_time >> DW_IC_SDA_HOLD_RX_SHIFT);
++	} else if (dev->set_sda_hold_time) {
++		dev->set_sda_hold_time(dev);
+ 	} else if (dev->sda_hold_time) {
+ 		dev_warn(dev->dev,
+ 			"Hardware too old to adjust SDA hold time.\n");
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index e367b1af4ab2..f6cad20a86ff 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -269,6 +269,7 @@ struct dw_i2c_dev {
+ 	void			(*disable)(struct dw_i2c_dev *dev);
+ 	void			(*disable_int)(struct dw_i2c_dev *dev);
+ 	int			(*init)(struct dw_i2c_dev *dev);
++	int			(*set_sda_hold_time)(struct dw_i2c_dev *dev);
+ 	int			mode;
+ 	struct i2c_bus_recovery_info rinfo;
+ };
 -- 
 2.19.0.rc1
