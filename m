@@ -1,89 +1,59 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v6 1/4] gpiolib: Pass bitmaps, not integer arrays, to
- get/set array
-Date: Sat, 1 Sep 2018 02:23:17 +0200
-Message-ID: <47a7e66f-8635-7131-8a0c-c26cf849fd50@axentia.se>
-References: <20180829204900.19390-1-jmkrzyszt@gmail.com>
- <20180831225616.29221-1-jmkrzyszt@gmail.com>
- <20180831225616.29221-2-jmkrzyszt@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v5 0/7] Add support for MSCC Ocelot i2c
+Date: Sat, 1 Sep 2018 14:43:53 +0200
+Message-ID: <20180901124353.GB1196@kunai>
+References: <20180831151114.25739-1-alexandre.belloni@bootlin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="eAbsdosE1cNLO4uF"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180831225616.29221-2-jmkrzyszt@gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20180831151114.25739-1-alexandre.belloni@bootlin.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Janusz Krzysztofik <jmkrzyszt@gmail.com>, Linus Walleij <linus.walleij@linaro.org>
-Cc: Jonathan Corbet <corbet@lwn.net>, Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Ulf Hansson <ulf.hansson@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, "David S. Miller" <davem@davemloft.net>, Dominik Brodowski <linux@dominikbrodowski.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kishon Vijay Abraham I <kishon@ti.com>, Lars-Peter Clausen <lars@metafoo.de>, Michael Hennerich <Michael.Hennerich@analog.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jiri Slaby <jslaby@suse.com>, Willy Tarreau <w@1wt.eu>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-doc@vger.kernel.org, linux-i2
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microchip.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-09-01 00:56, Janusz Krzysztofik wrote:
-> Most users of get/set array functions iterate consecutive bits of data,
-> usually a single integer, while processing array of results obtained
-> from, or building an array of values to be passed to those functions.
-> Save time wasted on those iterations by changing the functions' API to
-> accept bitmaps.
-> 
-> All current users are updated as well.
-> 
-> More benefits from the change are expected as soon as planned support
-> for accepting/passing those bitmaps directly from/to respective GPIO
-> chip callbacks if applicable is implemented.
 
-> diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-> index 401308e3d036..e28ddc20000d 100644
-> --- a/drivers/i2c/muxes/i2c-mux-gpio.c
-> +++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-> @@ -22,18 +22,16 @@ struct gpiomux {
->  	struct i2c_mux_gpio_platform_data data;
->  	unsigned gpio_base;
->  	struct gpio_desc **gpios;
-> -	int *values;
->  };
->  
->  static void i2c_mux_gpio_set(const struct gpiomux *mux, unsigned val)
->  {
-> -	int i;
-> -
-> -	for (i = 0; i < mux->data.n_gpios; i++)
-> -		mux->values[i] = (val >> i) & 1;
-> +	DECLARE_BITMAP(value_bitmap, mux->data.n_gpios);
+--eAbsdosE1cNLO4uF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Picking a random driver for this comment, it applies to many of them.
 
-I think this creates a VLA? Can't you, for the bit-count, just go with
-BITS_PER_TYPE(unsigned)? Or whatever is appropriate for the driver
-in question.
+> Because the designware IP was not able to handle the SDA hold time before
+> version 1.11a, MSCC has its own implementation. Add support for it and th=
+en add
+> i2c on ocelot boards.
+>=20
+> I would expect patches 1 to 5 to go through the i2c tree.
 
-Also, I find that where you use DECLARE_BITMAP, the _bitmap suffix is
-just noise and I would very much like to zap it.
+Applied to for-next, thanks!
 
-Cheers,
-Peter
+> Pathces 6-7 can go through the mips tree now that the bindings have been
+> reviewed.
 
-> +	
-> +	*value_bitmap = val;
->  
->  	gpiod_set_array_value_cansleep(mux->data.n_gpios,
-> -				       mux->gpios, mux->values);
-> +				       mux->gpios, value_bitmap);
->  }
->  
->  static int i2c_mux_gpio_select(struct i2c_mux_core *muxc, u32 chan)
-> @@ -182,15 +180,13 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
->  		return -EPROBE_DEFER;
->  
->  	muxc = i2c_mux_alloc(parent, &pdev->dev, mux->data.n_values,
-> -			     mux->data.n_gpios * sizeof(*mux->gpios) +
-> -			     mux->data.n_gpios * sizeof(*mux->values), 0,
-> +			     mux->data.n_gpios * sizeof(*mux->gpios), 0,
->  			     i2c_mux_gpio_select, NULL);
->  	if (!muxc) {
->  		ret = -ENOMEM;
->  		goto alloc_failed;
->  	}
->  	mux->gpios = muxc->priv;
-> -	mux->values = (int *)(mux->gpios + mux->data.n_gpios);
->  	muxc->priv = mux;
->  
->  	platform_set_drvdata(pdev, muxc);
+They have been reviewed by Rob and are applied now to my tree.
+
+
+--eAbsdosE1cNLO4uF
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAluKiYkACgkQFA3kzBSg
+KbbGAw/+KrZJqSfDSLRIptY2cwjI826Eg8PnYKu7uwuPeazt6dBpVv8you4CZmj4
+RJCFzhkC2iNa+ziA+97IIa6b+U7RpYcYvyh/Hkaju6iS0294D8fMHwplJMDlVoWF
+H0B3PrhCN8+s1jruyFKJaIIuYU8CHDuFAoGP/osZQ48qqlTgVw92069znUqieTPl
+rqKqWl3WTDnekvtjhtyVJRMDl0JLsUbJk0W6I5jk9rPN9CLb/42ktfaebwjYWiti
+Exfd+QO2e6ExR3xMqaDLqsOY4GcbD3kPle51Z3TZZ4h1PIzX39/UP0tR6c90K0iw
+/bhCpdRI9vXuKPSIQSVT9MXdFaCgNxPG+WQXUd7eCzfil2VSJan08GzM6nJQx0tS
+7+TKQce0teDvC3OgZTi9pVusHheBKSmCbBQuX7kFr03GLNZCFiKhr4O7c70TzPLW
+qzD5VasjqZI2FPAoa1ZPpQgjCTXAg8ip5FOa6kaH3giEf6sJHrBeQ441QxY3i6X+
+ky3rvj1PcgUBCWT50szyuYlNadn7QY6ANNshU8qKMrOFb1YJajVmD+7niYIdF5US
+MTNpAsd7PrJruMak9eLXoaWdOUxzvSXzzI8as9okJo1u24V5tfFkAxkVV3Y5HyVa
+vD4gzMgwByG/+Sz4nnsutSGpnD8R8a9KePVJSzU2Rw8RFbmSkdw=
+=fVHo
+-----END PGP SIGNATURE-----
+
+--eAbsdosE1cNLO4uF--
