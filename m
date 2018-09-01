@@ -1,61 +1,91 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: uniphier-f: issue STOP only for last message or
- I2C_M_STOP
-Date: Sat, 1 Sep 2018 14:52:05 +0200
-Message-ID: <20180901125205.GE1196@kunai>
-References: <1535725848-4076-1-git-send-email-yamada.masahiro@socionext.com>
- <1535725848-4076-2-git-send-email-yamada.masahiro@socionext.com>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH v2 02/29] Documentation: nvmem: document lookup entries
+Date: Sat, 1 Sep 2018 15:11:05 +0200
+Message-ID: <CAMRc=MdergeeYO9HLiFX5_n=SJr22dOJBG2y3+DwkB29XeaFJA@mail.gmail.com>
+References: <20180810080526.27207-1-brgl@bgdev.pl> <20180810080526.27207-3-brgl@bgdev.pl>
+ <20180831203028.GC62862@ban.mtv.corp.google.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="lteA1dqeVaWQ9QQl"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1535725848-4076-2-git-send-email-yamada.masahiro@socionext.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180831203028.GC62862@ban.mtv.corp.google.com>
+Sender: netdev-owner@vger.kernel.org
+To: Brian Norris <computersforpeace@gmail.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Woodhouse <dwmw2@infradead.org>, Boris Brezillon <boris.brezillon@bootlin.com>, Marek Vasut <marek.vasut@gmail.com>, Richard Weinberger <richard@nod.at>, Grygorii Strashko <grygorii.strashko@ti.com>, "David S . Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Naren <naren.kernel@gmail.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Lukas Wunner <lukas@wunner.de>, Dan Carpenter <dan.carpenter@oracle.com>, Florian Fainelli <f.fainelli@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
+2018-08-31 22:30 GMT+02:00 Brian Norris <computersforpeace@gmail.com>:
+> On Fri, Aug 10, 2018 at 10:04:59AM +0200, Bartosz Golaszewski wrote:
+>> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+>>
+>> Describe the usage of nvmem cell lookup tables.
+>>
+>> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+>> ---
+>>  Documentation/nvmem/nvmem.txt | 28 ++++++++++++++++++++++++++++
+>>  1 file changed, 28 insertions(+)
+>>
+>> diff --git a/Documentation/nvmem/nvmem.txt b/Documentation/nvmem/nvmem.txt
+>> index 8d8d8f58f96f..9d5e3ca2b4f3 100644
+>> --- a/Documentation/nvmem/nvmem.txt
+>> +++ b/Documentation/nvmem/nvmem.txt
+>> @@ -58,6 +58,34 @@ static int qfprom_probe(struct platform_device *pdev)
+>>  It is mandatory that the NVMEM provider has a regmap associated with its
+>>  struct device. Failure to do would return error code from nvmem_register().
+>>
+>> +Additionally it is possible to create nvmem cell lookup entries and register
+>> +them with the nvmem framework from machine code as shown in the example below:
+>
+> Maybe it's partially a lacking in the existing documentation, but what
+> does the "name" and the "nvmem_name" mean here? AFAICT, "nvmem_name" is
+> akin to a provider identifier; and "name" is a key to match with the
+> consumer. It feels like this should be in either the header / kerneldoc
+> or this file. Or maybe both.
+>
+> Does this mean there can only be a single "mac-address" cell in the
+> system? I have systems where there are multiple MACs provided in flash
+> storage, and we need to map them to ethernet0 and ethernet1. Is that
+> supported here?
+>
 
---lteA1dqeVaWQ9QQl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is a shortcoming of the nvmem subsystem we discussed under
+another patch in this series with Boris and Srinivas. I will try to
+post a series addressing this next week. Basically there's a global
+list of nvmem cells referenced only by name and unless you're using DT
+you can only have a single cell with given name. I will address it by
+introducing the standard dev_id/con_id resource association.
 
-On Fri, Aug 31, 2018 at 11:30:48PM +0900, Masahiro Yamada wrote:
-> This driver currently emits a STOP if the next message is not
-> I2C_MD_RD.  It should not do it because it disturbs the I2C_RDWR
-> ioctl, where read/write transactions are combined without STOP
-> between.
->=20
-> Issue STOP only when the message is the last one _or_ flagged with
-> I2C_M_STOP.
->=20
-> Fixes: 6a62974b667f ("i2c: uniphier_f: add UniPhier FIFO-builtin I2C driv=
-er")
-> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Bart
 
-Applied to for-current, thanks!
-
-
---lteA1dqeVaWQ9QQl
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAluKi3UACgkQFA3kzBSg
-KbYFHg/8CsB36E2cCqLUOSHQmYrQY5trs9MIxRqTpqJJ0O/qdFdemsq3GvzRiYpU
-Ky2SH7jNMLWM+cNJ3Kb9Bx73q1HCxZ1XSiEPFl6okiCMTj6hKgTAyi75pqKv2acz
-CWKf8CWpM/2wHlLHwZol809Y7NK1kbU6aPCw7G49Nt9ERkgb8zu7iM8ravPUCHYf
-uU7iCcCyJbskmUuVZ2oGYTZ9n7BYFAQnKfEpBzhd8ewyEB/e1e8lTF+igdLTCKnr
-wh/KhtfGcU9juoOmF1xpd+GWwDA8ul4gIHl9jnz5XvThB6oAhCjZuweY5Lnf3DiI
-HIy2uznB2HgBVcEbSRZ4HT6hy+E0G8i9tiB2KEhg9JR9r6BI2dvxA/aEkwKxHtDW
-MKl5nxBKghsSsfdOT354BFHFHEoZ5KACQDRf3E0lX/22YPKxZNNWxr3NP4yoY4/E
-fcSx05KtFzmtsVsl4pjH58Vayiwvu6N3/X468TfCr6WdxxmDf+nbvUj64kkOwkHB
-LuEMrpNOoYrWyJuw7VTDtSErtWkUepMrXnwt8sj6RCh8xZwUP6N8V7JoJxwwj21Q
-g9NvGxx1QX2naVxe3dndDyb56UMnCmylY+avcuB/1a2zbv7cL+8O88Yybo4Wnnie
-sXT/p5BTQVgAjSh6BXLVdY9q0y3bNK319BzMe6f+Lo+jbEiXliw=
-=z8f7
------END PGP SIGNATURE-----
-
---lteA1dqeVaWQ9QQl--
+> Brian
+>
+>> +static struct nvmem_cell_lookup foobar_lookup = {
+>> +     .info = {
+>> +             .name = "mac-address",
+>> +             .offset = 0xd000,
+>> +             .bytes = ERH_ALEN,
+>> +     },
+>> +     .nvmem_name = "foobar",
+>> +};
+>> +
+>> +static void foobar_register(void)
+>> +{
+>> +     ...
+>> +     nvmem_add_lookup_table(&foobar_lookup, 1);
+>> +     ...
+>> +}
+>> +
+>> +A lookup entry table can be later removed if needed:
+>> +
+>> +static void foobar_fini(void)
+>> +{
+>> +     ...
+>> +     nvmem_del_lookup_table(&foobar_lookup, 1);
+>> +     ...
+>> +}
+>> +
+>>  NVMEM Consumers
+>>  +++++++++++++++
+>>
+>> --
+>> 2.18.0
+>>
