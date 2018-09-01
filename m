@@ -1,49 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 5/7] i2c: designware: add MSCC Ocelot support
-Date: Sat, 1 Sep 2018 14:44:16 +0200
-Message-ID: <20180901124416.GC1196@kunai>
-References: <20180831151114.25739-1-alexandre.belloni@bootlin.com>
- <20180831151114.25739-6-alexandre.belloni@bootlin.com>
+Subject: Re: [PATCH 1/2] i2c: uniphier: issue STOP only for last message or
+ I2C_M_STOP
+Date: Sat, 1 Sep 2018 14:52:01 +0200
+Message-ID: <20180901125200.GD1196@kunai>
+References: <1535725848-4076-1-git-send-email-yamada.masahiro@socionext.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="WfZ7S8PLGjBY9Voh"
+        protocol="application/pgp-signature"; boundary="2iBwrppp/7QCDedR"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180831151114.25739-6-alexandre.belloni@bootlin.com>
+In-Reply-To: <1535725848-4076-1-git-send-email-yamada.masahiro@socionext.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Hogan <jhogan@kernel.org>, Paul Burton <paul.burton@mips.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microchip.com>
+To: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---WfZ7S8PLGjBY9Voh
+--2iBwrppp/7QCDedR
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Aug 31, 2018 at 11:30:47PM +0900, Masahiro Yamada wrote:
+> This driver currently emits a STOP if the next message is not
+> I2C_MD_RD.  It should not do it because it disturbs the I2C_RDWR
+> ioctl, where read/write transactions are combined without STOP
+> between.
+>=20
+> Issue STOP only when the message is the last one _or_ flagged with
+> I2C_M_STOP.
+>=20
+> Fixes: dd6fd4a32793 ("i2c: uniphier: add UniPhier FIFO-less I2C driver")
+> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+
+Applied to for-current, thanks!
 
 
-> +int dw_i2c_of_configure(struct platform_device *pdev)
-
-I made this 'static' as well.
-
-
---WfZ7S8PLGjBY9Voh
+--2iBwrppp/7QCDedR
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAluKiaAACgkQFA3kzBSg
-KbYlpQ/8Dpz1rwpriPCRczKfGEpM49wx/FAypJOs0rSQQEjDcMgpYjRhUGZOHdL/
-o/chajkvs1hyXilHjudAb99SuEqZyHk9cOJIoSurborwizJfsVRnZ0NIdb3BuWVb
-XN8+eZ7CrEbWCOwv/PPC3glB9hkysLMOSU1xk4QPhTtAn1jv7LKd0ZN2HcALb6Ux
-gTqjOxw26USwhuxswSP2LPO53SfHvdu83skDAtJSIcyDFRbDoXJELJBUzLvDS+LH
-WuVNBSfUVKRGPK0GH/wB3ZQly5te0GDrMO6k1NQeJ8swGasTapDU9seEKAfcN0JO
-NRsDDY0eJ/XcFMS2ew2+EH7B59rEhLuvNuZm6KvCf1xMcVeH01qGapOt17pQFkL7
-1Aswcr/R512cI37O+HtwZY941lHX4f2/8nJ0LXnerxxJFZT1AnmBtoIuJRfCN+HV
-EqezURSkVhHH6XhUxmsPPcG0L5IcHbu0RHbPaHa1AAVREk0anYXFyIY1JogrUHqs
-XXowZch8YpIGsqLcussrU+noU49VCMuyllLr7K8pQHBvggTsuE3XFhGK9zTG5EFP
-a0H3rHKDCCMH46F9s11MhvlCvRbjKd6vDKzzHCV/yU7qVP4h4sGcGEmjk2p8+pGq
-n9MCZAfkMuoMpAwoACOP2TzGQonf0ZDMIzuPqux/+zMBE3foM0M=
-=0MVY
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAluKi3AACgkQFA3kzBSg
+KbYkwg//cixDikZbhlbmEg9se5SihXJiO3HwHbaE8rSoV3MyJoJLctJa9MpEMf1x
+R+Dnn+td9aGhP9NTidHBZydrZBKqmqFnCHTsom9i9uYzWYI/Lf0Xk8B1SqpA+huI
+wp4OP8OPIZS3b3fBmsR/u0IkRbNmzBQTwOhZ+sqE028O0zH2RkcJeAzQ/qZuQ6Ix
+MdSBLe8jkTTIEBeBL7YQ3Ogz6nEE47lANwNQGow1zvPjl2lqYTbe0tEoY31IAO8I
+JtrcsVixNSg7Nv6TvJKjfTNsrIzvhFPGSuW4NWPCi9lgOrrS5TJSGVhznEsXBHIO
+TSJKlvDAnC6sjMMkqodUiRgStNcWiLrguJsejWx4YMQViqPMIQfcGWV/1aCp032D
+Zzsh3K/ogWJIxwZzYXh0TtfSfCaL2SnhaVhkYklPa19yVmZIULI1PCFB73+oN/fF
+y5gMgKTwomVTw9GwmLncNv/9mpg5M0DSse+cRMUwZQSngqkP/0eELE1DwxSi2diJ
+GJeeEJ243eKnMhhM3oKlMdKWGzNHvFc1DW365y/ZVUidbQlMQ++Tj3TN9tDMy+ME
+NQCkejoVz+T7jy/wPTt22wvgggcxNBJLyQecMi0sa4cHF0fziIIrqi2ImYXaTxb0
+igjBBpjvxiRSibCugXFqhdfHb00oChDJWHTCL38Nvr9hZTyIewM=
+=UZOe
 -----END PGP SIGNATURE-----
 
---WfZ7S8PLGjBY9Voh--
+--2iBwrppp/7QCDedR--
