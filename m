@@ -1,91 +1,76 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v2 02/29] Documentation: nvmem: document lookup entries
-Date: Sat, 1 Sep 2018 15:11:05 +0200
-Message-ID: <CAMRc=MdergeeYO9HLiFX5_n=SJr22dOJBG2y3+DwkB29XeaFJA@mail.gmail.com>
-References: <20180810080526.27207-1-brgl@bgdev.pl> <20180810080526.27207-3-brgl@bgdev.pl>
- <20180831203028.GC62862@ban.mtv.corp.google.com>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Subject: Re: [PATCH v5 1/4] gpiolib: Pass bitmaps, not integer arrays, to get/set array
+Date: Sun, 02 Sep 2018 12:19:11 +0200
+Message-ID: <2195152.WzNjLO0DAH@z50>
+References: <20180820234341.5271-1-jmkrzyszt@gmail.com> <20180829204900.19390-2-jmkrzyszt@gmail.com> <CANiq72kJT15ELkYr2U5r4-pvGunQFLmZ5dhdZLnjmM7NWBnkNQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20180831203028.GC62862@ban.mtv.corp.google.com>
+In-Reply-To: <CANiq72kJT15ELkYr2U5r4-pvGunQFLmZ5dhdZLnjmM7NWBnkNQ@mail.gmail.com>
 Sender: netdev-owner@vger.kernel.org
-To: Brian Norris <computersforpeace@gmail.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Woodhouse <dwmw2@infradead.org>, Boris Brezillon <boris.brezillon@bootlin.com>, Marek Vasut <marek.vasut@gmail.com>, Richard Weinberger <richard@nod.at>, Grygorii Strashko <grygorii.strashko@ti.com>, "David S . Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Naren <naren.kernel@gmail.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Lukas Wunner <lukas@wunner.de>, Dan Carpenter <dan.carpenter@oracle.com>, Florian Fainelli <f.fainelli@gmail.com>
+To: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Jonathan Corbet <corbet@lwn.net>, Peter Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>, Ulf Hansson <ulf.hansson@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, "David S. Miller" <davem@davemloft.net>, Dominik Brodowski <linux@dominikbrodowski.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kishon Vijay Abraham I <kishon@ti.com>, Lars-Peter Clausen <lars@metafoo.de>, Michael Hennerich <Michael.Hennerich@analog.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jiri Slaby <jslaby@suse.com>, Willy Tarreau <w@1wt.eu>, Geert Uytterhoeven <geert@linux-m68k.org>, Linux
 List-Id: linux-i2c@vger.kernel.org
 
-2018-08-31 22:30 GMT+02:00 Brian Norris <computersforpeace@gmail.com>:
-> On Fri, Aug 10, 2018 at 10:04:59AM +0200, Bartosz Golaszewski wrote:
->> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
->>
->> Describe the usage of nvmem cell lookup tables.
->>
->> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
->> ---
->>  Documentation/nvmem/nvmem.txt | 28 ++++++++++++++++++++++++++++
->>  1 file changed, 28 insertions(+)
->>
->> diff --git a/Documentation/nvmem/nvmem.txt b/Documentation/nvmem/nvmem.txt
->> index 8d8d8f58f96f..9d5e3ca2b4f3 100644
->> --- a/Documentation/nvmem/nvmem.txt
->> +++ b/Documentation/nvmem/nvmem.txt
->> @@ -58,6 +58,34 @@ static int qfprom_probe(struct platform_device *pdev)
->>  It is mandatory that the NVMEM provider has a regmap associated with its
->>  struct device. Failure to do would return error code from nvmem_register().
->>
->> +Additionally it is possible to create nvmem cell lookup entries and register
->> +them with the nvmem framework from machine code as shown in the example below:
->
-> Maybe it's partially a lacking in the existing documentation, but what
-> does the "name" and the "nvmem_name" mean here? AFAICT, "nvmem_name" is
-> akin to a provider identifier; and "name" is a key to match with the
-> consumer. It feels like this should be in either the header / kerneldoc
-> or this file. Or maybe both.
->
-> Does this mean there can only be a single "mac-address" cell in the
-> system? I have systems where there are multiple MACs provided in flash
-> storage, and we need to map them to ethernet0 and ethernet1. Is that
-> supported here?
->
+Hi Miguel,
 
-This is a shortcoming of the nvmem subsystem we discussed under
-another patch in this series with Boris and Srinivas. I will try to
-post a series addressing this next week. Basically there's a global
-list of nvmem cells referenced only by name and unless you're using DT
-you can only have a single cell with given name. I will address it by
-introducing the standard dev_id/con_id resource association.
+On Thursday, August 30, 2018 1:10:59 PM CEST Miguel Ojeda wrote:
+> Hi Janusz,
+> 
+> On Wed, Aug 29, 2018 at 10:48 PM, Janusz Krzysztofik
+> <jmkrzyszt@gmail.com> wrote:
+> > ...
+> >         /* High nibble + RS, RW */
+> > -       for (i = 4; i < 8; i++)
+> > -               values[PIN_DATA0 + i] = !!(val & BIT(i));
+> > -       values[PIN_CTRL_RS] = rs;
+> > +       value_bitmap[0] = val;
+> > +       __assign_bit(PIN_CTRL_RS, value_bitmap, rs);
+> >         n = 5;
+> >         if (hd->pins[PIN_CTRL_RW]) {
+> > -               values[PIN_CTRL_RW] = 0;
+> > +               __clear_bit(PIN_CTRL_RW, value_bitmap);
+> >                 n++;
+> >         }
+> > +       value_bitmap[0] >>= PIN_DATA4;
+> >
+> >         /* Present the data to the port */
+> > -       gpiod_set_array_value_cansleep(n, &hd->pins[PIN_DATA4],
+> > -                                      &values[PIN_DATA4]);
+> > +       gpiod_set_array_value_cansleep(n, &hd->pins[PIN_DATA4], 
+value_bitmap);
+> >
+> >         hd44780_strobe_gpio(hd);
+> >
+> >         /* Low nibble */
+> > -       for (i = 0; i < 4; i++)
+> > -               values[PIN_DATA4 + i] = !!(val & BIT(i));
+> > +       value_bitmap[0] &= ~((1 << PIN_DATA4) - 1);
+> > +       value_bitmap[0] |= val & ~((1 << PIN_DATA4) - 1);
+> 
+> This is still wrong! What I originally meant in my v4 review is that
+> there is an extra ~ in the second line.
 
-Bart
+Indeed, that's wrong, I missed your original point, sorry.
 
-> Brian
->
->> +static struct nvmem_cell_lookup foobar_lookup = {
->> +     .info = {
->> +             .name = "mac-address",
->> +             .offset = 0xd000,
->> +             .bytes = ERH_ALEN,
->> +     },
->> +     .nvmem_name = "foobar",
->> +};
->> +
->> +static void foobar_register(void)
->> +{
->> +     ...
->> +     nvmem_add_lookup_table(&foobar_lookup, 1);
->> +     ...
->> +}
->> +
->> +A lookup entry table can be later removed if needed:
->> +
->> +static void foobar_fini(void)
->> +{
->> +     ...
->> +     nvmem_del_lookup_table(&foobar_lookup, 1);
->> +     ...
->> +}
->> +
->>  NVMEM Consumers
->>  +++++++++++++++
->>
->> --
->> 2.18.0
->>
+> Also, a couple of general comments:
+> 
+>  - Please review the list of CCs (I was not CC'd originally, so maybe
+> there are other maintainers that aren't, either)
+
+That's probably because early versions of the series, prior to v4, were not 
+touching existing GPIO API so there were no changes to users of gpiod_get/
+set_array_value() and their variants. From v4 on, you are in the loop so don't 
+worry, you haven't missed anything.
+But anyway, thanks for your suggestion to review the Cc; list, I've done that 
+for v7 and added still a few people who contributed most to the code being 
+changed.
+
+>  - In general, the new code seems harder to read than the original one
+> (but that is my impression).
+
+I hope we are slowly approaching acceptable readability in recent iterations.
+
+Thanks,
+Janusz
