@@ -1,62 +1,34 @@
-From: <shubhrajyoti.datta@gmail.com>
-Subject: [PATCH] i2c: xiic: Make the start and the byte count write atomic
-Date: Mon, 3 Sep 2018 15:11:11 +0530
-Message-ID: <1535967671-7784-1-git-send-email-shubhrajyoti.datta@gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v7 3/4] gpiolib: Pass array info to get/set array functions
+Date: Mon, 3 Sep 2018 16:21:33 +0200
+Message-ID: <CAMuHMdV66N_YAvvZjk7kEf_aLNNFo6HA8S4JjzkM2d3QC-ZS5A@mail.gmail.com>
+References: <20180831225616.29221-1-jmkrzyszt@gmail.com> <20180902120144.6855-1-jmkrzyszt@gmail.com>
+ <20180902120144.6855-4-jmkrzyszt@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: shubhrajyoti.datta@gmail.com, wsa@the-dreams.de, michal.simek@xilinx.com, linux-kernel@vger.kernel.org, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180902120144.6855-4-jmkrzyszt@gmail.com>
+Sender: netdev-owner@vger.kernel.org
+To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Jonathan Corbet <corbet@lwn.net>, Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>, peter.korsgaard@barco.com, Peter Rosin <peda@axentia.se>, Ulf Hansson <ulf.hansson@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, "David S. Miller" <davem@davemloft.net>, Dominik Brodowski <linux@dominikbrodowski.net>, Greg KH <gregkh@linuxfoundation.org>, Kishon Vijay Abraham I <kishon@ti.com>, Lars-Peter Clausen <lars@metafoo.de>, Michael Hennerich <Michael.Hennerich@analog.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald <pmeerw@pmeerw.net>, Jiri Slaby <jslaby@suse.com>, Willy Tarreau <w@1wt.eu>, "open list:DOCUMENTATION" <linux-doc@vger.>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+On Sun, Sep 2, 2018 at 2:01 PM Janusz Krzysztofik <jmkrzyszt@gmail.com> wrote:
+> In order to make use of array info obtained from gpiod_get_array() and
+> speed up processing of arrays matching single GPIO chip layout, that
+> information must be passed to get/set array functions.  Extend the
+> functions' API with that additional parameter and update all users.
+> Pass NULL if a user bulids an array itself from single GPIOs.
 
-Disable interrupts while configuring the transfer and enable them back.
+builds
 
-We have below as the programming sequence
-1. start and slave address
-2. byte count and stop
+Gr{oetje,eeting}s,
 
-In some customer platform there was a lot of interrupts between 1 and 2
-and after slave address (around 7 clock cyles) if 2 is not executed
-then the transaction is nacked.
+                        Geert
 
-To fix this case make the 2 writes atomic.
-
-Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
----
- drivers/i2c/busses/i2c-xiic.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 9a71e50..4e3b2a4 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -532,6 +532,7 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
- {
- 	u8 rx_watermark;
- 	struct i2c_msg *msg = i2c->rx_msg = i2c->tx_msg;
-+	unsigned long flags;
- 
- 	/* Clear and enable Rx full interrupt. */
- 	xiic_irq_clr_en(i2c, XIIC_INTR_RX_FULL_MASK | XIIC_INTR_TX_ERROR_MASK);
-@@ -547,6 +548,7 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
- 		rx_watermark = IIC_RX_FIFO_DEPTH;
- 	xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, rx_watermark - 1);
- 
-+	local_irq_save(flags);
- 	if (!(msg->flags & I2C_M_NOSTART))
- 		/* write the address */
- 		xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET,
-@@ -556,6 +558,7 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
- 
- 	xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET,
- 		msg->len | ((i2c->nmsgs == 1) ? XIIC_TX_DYN_STOP_MASK : 0));
-+	local_irq_restore(flags);
- 	if (i2c->nmsgs == 1)
- 		/* very last, enable bus not busy as well */
- 		xiic_irq_clr_en(i2c, XIIC_INTR_BNB_MASK);
 -- 
-2.1.1
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
