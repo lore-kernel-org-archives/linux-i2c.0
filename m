@@ -1,55 +1,62 @@
-From: vitor <Vitor.Soares@synopsys.com>
-Subject: Re: [PATCH v6 01/10] i3c: Add core I3C infrastructure
-Date: Mon, 3 Sep 2018 10:33:11 +0100
-Message-ID: <9584757a-e7e2-5bfe-fc2c-e9bc14ad65a8@synopsys.com>
-References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
- <20180719152930.3715-2-boris.brezillon@bootlin.com>
- <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
- <20180824143934.6d6b6487@bbrezillon>
- <bdb2924f-ecfa-1da3-41db-9ac77d4d933b@synopsys.com>
- <20180824201600.7d80bca9@bbrezillon>
- <fe839027-c4d7-4d6f-412b-5b315cbc7a39@synopsys.com>
- <20180828140209.29155d00@bbrezillon>
- <4DBE768F-3CDC-41BE-9CC8-E294E7277CB1@cadence.com>
- <8abfb007-d755-36a4-5960-fddd61d04aa2@synopsys.com>
- <3D2681D9-1ACC-42FF-9FAB-D86B3C689003@cadence.com>
+From: <shubhrajyoti.datta@gmail.com>
+Subject: [PATCH] i2c: xiic: Make the start and the byte count write atomic
+Date: Mon, 3 Sep 2018 15:11:11 +0530
+Message-ID: <1535967671-7784-1-git-send-email-shubhrajyoti.datta@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <3D2681D9-1ACC-42FF-9FAB-D86B3C689003@cadence.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Przemyslaw Gaj <pgaj@cadence.com>, vitor <Vitor.Soares@synopsys.com>, Boris Brezillon <boris.brezillon@bootlin.com>
-Cc: "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@>
+To: linux-i2c@vger.kernel.org
+Cc: shubhrajyoti.datta@gmail.com, wsa@the-dreams.de, michal.simek@xilinx.com, linux-kernel@vger.kernel.org, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Przemek,
+From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
 
+Disable interrupts while configuring the transfer and enable them back.
 
-On 30-08-2018 20:00, Przemyslaw Gaj wrote:
->      So, per my understanding since the Main master support the hand-off of
->      the bus you accept all incoming MR, right? Or do you check all devices BCR?
->
-> I'm not sure what do you mean here. Mastership request(MR) is from secondary master
-> to current master. Current master can NACK this request if for example it comes from
-> wrong device. If it's ok, current master sends GETACCMST command and secondary master
-> may ACK or NACK this command. It it's acked, secondary master becomes current master.
->      
->      Best regards,
->      Vitor Soares
->
-> Please let me know if something is unclear.
->
-> Regards,
-> Przemek
->      
+We have below as the programming sequence
+1. start and slave address
+2. byte count and stop
 
-Sorry, it s not clear yet.
+In some customer platform there was a lot of interrupts between 1 and 2
+and after slave address (around 7 clock cyles) if 2 is not executed
+then the transaction is nacked.
 
-For instances there is a bus with several secondary master. If each of 
-them request the bus mastership (one at a time), will you accept all by 
-default? Because you can only accept only some of them.
+To fix this case make the 2 writes atomic.
 
-Regards,
-Vitor Soares
+Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+---
+ drivers/i2c/busses/i2c-xiic.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index 9a71e50..4e3b2a4 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -532,6 +532,7 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
+ {
+ 	u8 rx_watermark;
+ 	struct i2c_msg *msg = i2c->rx_msg = i2c->tx_msg;
++	unsigned long flags;
+ 
+ 	/* Clear and enable Rx full interrupt. */
+ 	xiic_irq_clr_en(i2c, XIIC_INTR_RX_FULL_MASK | XIIC_INTR_TX_ERROR_MASK);
+@@ -547,6 +548,7 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
+ 		rx_watermark = IIC_RX_FIFO_DEPTH;
+ 	xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, rx_watermark - 1);
+ 
++	local_irq_save(flags);
+ 	if (!(msg->flags & I2C_M_NOSTART))
+ 		/* write the address */
+ 		xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET,
+@@ -556,6 +558,7 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
+ 
+ 	xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET,
+ 		msg->len | ((i2c->nmsgs == 1) ? XIIC_TX_DYN_STOP_MASK : 0));
++	local_irq_restore(flags);
+ 	if (i2c->nmsgs == 1)
+ 		/* very last, enable bus not busy as well */
+ 		xiic_irq_clr_en(i2c, XIIC_INTR_BNB_MASK);
+-- 
+2.1.1
