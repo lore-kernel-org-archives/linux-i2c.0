@@ -1,43 +1,39 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH v7 1/4] gpiolib: Pass bitmaps, not integer arrays, to
- get/set array
-Date: Sun, 2 Sep 2018 21:31:29 -0700
-Message-ID: <20180903043129.GA17856@bombadil.infradead.org>
-References: <20180831225616.29221-1-jmkrzyszt@gmail.com>
- <20180902120144.6855-1-jmkrzyszt@gmail.com>
- <20180902120144.6855-2-jmkrzyszt@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180902120144.6855-2-jmkrzyszt@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Jonathan Corbet <corbet@lwn.net>, Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>, Ulf Hansson <ulf.hansson@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, "David S. Miller" <davem@davemloft.net>, Dominik Brodowski <linux@dominikbrodowski.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kishon Vijay Abraham I <kishon@ti.com>, Lars-Peter Clausen <lars@metafoo.de>, Michael Hennerich <Michael.Hennerich@analog.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Jiri Slaby <jslaby@suse.com>, Willy Tarreau <w@1wt.eu>
+From: Felipe Balbi <felipe.balbi@linux.intel.com>
+Subject: [PATCH] i2c: i801: fix DNV's SMBCTRL register offset
+Date: Mon,  3 Sep 2018 08:37:05 +0300
+Message-ID: <20180903053705.9844-1-felipe.balbi@linux.intel.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.com>
+Cc: linux-i2c@vger.kernel.org, Felipe Balbi <felipe.balbi@linux.intel.com>, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-> +++ b/drivers/auxdisplay/hd44780.c
-> @@ -62,17 +62,12 @@ static void hd44780_strobe_gpio(struct hd44780 *hd)
->  /* write to an LCD panel register in 8 bit GPIO mode */
->  static void hd44780_write_gpio8(struct hd44780 *hd, u8 val, unsigned int rs)
->  {
-> -	int values[10];	/* for DATA[0-7], RS, RW */
-> -	unsigned int i, n;
-> -
-> -	for (i = 0; i < 8; i++)
-> -		values[PIN_DATA0 + i] = !!(val & BIT(i));
-> -	values[PIN_CTRL_RS] = rs;
-> -	n = 9;
-> -	if (hd->pins[PIN_CTRL_RW]) {
-> -		values[PIN_CTRL_RW] = 0;
-> -		n++;
-> -	}
-> +	DECLARE_BITMAP(values, 10); /* for DATA[0-7], RS, RW */
-> +	unsigned int n;
-> +
-> +	*values = val;
-> +	__assign_bit(8, values, rs);
-> +	n = hd->pins[PIN_CTRL_RW] ? 10 : 9;
+DNV's iTCO is slightly different with SMBCTRL sitting at a differnt
+offset when compared to all other devices. Let's fix so that we can
+properly use iTCO watchdog.
 
-Doesn't this assume little endian bitmaps?  Has anyone tested this on
-big-endian machines?
+Fixes: 84d7f2ebd70d ("i2c: i801: Add support for Intel DNV")
+Cc: <stable@vger.kernel.org> # v4.4+
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-i801.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 941c223f6491..390bf253b6ea 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1400,6 +1400,11 @@ static void i801_add_tco(struct i801_priv *priv)
+ 
+ 	res = &tco_res[ICH_RES_MEM_OFF];
+ 	res->start = (resource_size_t)base64_addr + SBREG_SMBCTRL;
++
++	/* DNV device has SMBCTRL at 0xcf000c */
++	if (pci_dev->device == PCI_DEVICE_ID_INTEL_DNV_SMBUS)
++		res->start += 0x90000;
++
+ 	res->end = res->start + 3;
+ 	res->flags = IORESOURCE_MEM;
+ 
+-- 
+2.18.0
