@@ -1,54 +1,55 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: i801: fix DNV's SMBCTRL register offset
-Date: Mon, 3 Sep 2018 11:04:42 +0200
-Message-ID: <20180903090442.mzd3qi3hmkp67i4p@ninjato>
-References: <20180903090953.7d3e677f@endymion>
- <20180903082457.26143-1-felipe.balbi@linux.intel.com>
- <20180903110251.7aef3fd0@endymion>
+From: vitor <Vitor.Soares@synopsys.com>
+Subject: Re: [PATCH v6 01/10] i3c: Add core I3C infrastructure
+Date: Mon, 3 Sep 2018 10:33:11 +0100
+Message-ID: <9584757a-e7e2-5bfe-fc2c-e9bc14ad65a8@synopsys.com>
+References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
+ <20180719152930.3715-2-boris.brezillon@bootlin.com>
+ <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
+ <20180824143934.6d6b6487@bbrezillon>
+ <bdb2924f-ecfa-1da3-41db-9ac77d4d933b@synopsys.com>
+ <20180824201600.7d80bca9@bbrezillon>
+ <fe839027-c4d7-4d6f-412b-5b315cbc7a39@synopsys.com>
+ <20180828140209.29155d00@bbrezillon>
+ <4DBE768F-3CDC-41BE-9CC8-E294E7277CB1@cadence.com>
+ <8abfb007-d755-36a4-5960-fddd61d04aa2@synopsys.com>
+ <3D2681D9-1ACC-42FF-9FAB-D86B3C689003@cadence.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="jaovqvidso32fwsi"
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180903110251.7aef3fd0@endymion>
-Sender: stable-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Felipe Balbi <felipe.balbi@linux.intel.com>, linux-i2c@vger.kernel.org, stable@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <3D2681D9-1ACC-42FF-9FAB-D86B3C689003@cadence.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Przemyslaw Gaj <pgaj@cadence.com>, vitor <Vitor.Soares@synopsys.com>, Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@>
 List-Id: linux-i2c@vger.kernel.org
 
-
---jaovqvidso32fwsi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Sep 03, 2018 at 11:02:51AM +0200, Jean Delvare wrote:
-> On Mon,  3 Sep 2018 11:24:57 +0300, Felipe Balbi wrote:
-> > DNV's iTCO is slightly different with SMBCTRL sitting at a differnt
->=20
-> Typo: different.
-
-I'll fix it when applying.
+Hi Przemek,
 
 
---jaovqvidso32fwsi
-Content-Type: application/pgp-signature; name="signature.asc"
+On 30-08-2018 20:00, Przemyslaw Gaj wrote:
+>      So, per my understanding since the Main master support the hand-off of
+>      the bus you accept all incoming MR, right? Or do you check all devices BCR?
+>
+> I'm not sure what do you mean here. Mastership request(MR) is from secondary master
+> to current master. Current master can NACK this request if for example it comes from
+> wrong device. If it's ok, current master sends GETACCMST command and secondary master
+> may ACK or NACK this command. It it's acked, secondary master becomes current master.
+>      
+>      Best regards,
+>      Vitor Soares
+>
+> Please let me know if something is unclear.
+>
+> Regards,
+> Przemek
+>      
 
------BEGIN PGP SIGNATURE-----
+Sorry, it s not clear yet.
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAluM+SkACgkQFA3kzBSg
-KbYCWg/+KHh4Jog205SoxumAOVtb/mTgq1jNum+D2z4VAjOZi4Ha4UbtOMOr67PU
-E0tIEb1d18q9yG+MSZ5eo4kqLQHOB30jHwMXb4e6bDeWFQO4Zs321sl75fPyhITm
-9fw3ziMNCZvIiT08YTzT9xdpDs20nyPJZU1x/tU+tu0DJqyZNz/lft31dvtkIntW
-//zidtkTTJrPaTtKGT/1FSpW3NURr32vOzcmOAvtwIcZ6QanHy25B5cxjMRgwTDn
-8MwXnD/Ry9umGfhpKDqf96Uc6b75vnsIuGVgKB0nYpvfJUlW16f34xa92TcW2KuF
-RmBfvWWIriYapSO9L6uf9PJNwobQM9ujthaKUnZcU5hXF8JidWQ7brYcwVy4ETpj
-cpgYvYeW3uqUPRn5EPNmd2cDwPBkXWrCg8Q2ncHj6zKTSEOfkxKdkj1mPAZ57MjT
-HEhT7ijK8qeNqxyGj92wL4TGH/LqiOqzE29v3391OB6IFU6noVQSnt/wazGUtBJe
-xpOgBD8+CA6nEX/dnqcmZJZaxSw9pilr6Ccl1JRIJhZDgVxneSlHAa4E1AZTbyE6
-msEvlyX3TJa6AruLD6dkmr80+Q0mfFK/IKjgrNqqY1lcY2rzAeziJM2sUYShQFBL
-SNjdqdfCuBPJGmNUgmCpVWHnU7rxf0j6xc6wiCn9QQ8pI2yDsFM=
-=A9Pm
------END PGP SIGNATURE-----
+For instances there is a bus with several secondary master. If each of 
+them request the bus mastership (one at a time), will you accept all by 
+default? Because you can only accept only some of them.
 
---jaovqvidso32fwsi--
+Regards,
+Vitor Soares
