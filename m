@@ -1,56 +1,67 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: i801: fix DNV's SMBCTRL register offset
-Date: Tue, 4 Sep 2018 18:04:46 +0200
-Message-ID: <20180904160446.GB5000@kunai>
-References: <20180903090953.7d3e677f@endymion>
- <20180903082457.26143-1-felipe.balbi@linux.intel.com>
+Subject: Re: [PATCH] i2c: xiic: Make the start and the byte count write atomic
+Date: Tue, 4 Sep 2018 18:11:14 +0200
+Message-ID: <20180904161114.GC5000@kunai>
+References: <1535967671-7784-1-git-send-email-shubhrajyoti.datta@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="4SFOXa2GPu3tIq4H"
-Return-path: <stable-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="wxDdMuZNg1r63Hyj"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180903082457.26143-1-felipe.balbi@linux.intel.com>
-Sender: stable-owner@vger.kernel.org
-To: Felipe Balbi <felipe.balbi@linux.intel.com>
-Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, stable@vger.kernel.org
+In-Reply-To: <1535967671-7784-1-git-send-email-shubhrajyoti.datta@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: shubhrajyoti.datta@gmail.com
+Cc: linux-i2c@vger.kernel.org, michal.simek@xilinx.com, linux-kernel@vger.kernel.org, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---4SFOXa2GPu3tIq4H
+--wxDdMuZNg1r63Hyj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 03, 2018 at 11:24:57AM +0300, Felipe Balbi wrote:
-> DNV's iTCO is slightly different with SMBCTRL sitting at a differnt
-> offset when compared to all other devices. Let's fix so that we can
-> properly use iTCO watchdog.
+On Mon, Sep 03, 2018 at 03:11:11PM +0530, shubhrajyoti.datta@gmail.com wrot=
+e:
+> From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
 >=20
-> Fixes: 84d7f2ebd70d ("i2c: i801: Add support for Intel DNV")
-> Cc: <stable@vger.kernel.org> # v4.4+
-> Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+> Disable interrupts while configuring the transfer and enable them back.
+>=20
+> We have below as the programming sequence
+> 1. start and slave address
+> 2. byte count and stop
+>=20
+> In some customer platform there was a lot of interrupts between 1 and 2
+> and after slave address (around 7 clock cyles) if 2 is not executed
+> then the transaction is nacked.
+>=20
+> To fix this case make the 2 writes atomic.
+>=20
+> Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 
-Applied to for-current, thanks!
+I assume simply changing the order of the register writes won't fix it?
+
+I also assume this is stable material?
 
 
---4SFOXa2GPu3tIq4H
+--wxDdMuZNg1r63Hyj
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAluOrRkACgkQFA3kzBSg
-KbbL5g/+MARWY+RlwufP/DBF6LFwRTAH0yEL9XmEFem9imMz90NuCdqgfUeHywKk
-UOGOvyDPqh9vihuncmXJcWHLUg2e8D1nbSIJ/RZoAIam9QIahJ6jO2F81bSV6m0K
-ILMVWPzWgxVxCssibF7ETO1dVMGN6ZWLlaIZtXEkivILcT8RJ5JJKsNctQ44l764
-8kura3FT29xm2NFDBKIwKZKeZzvfKd07Yir4k9DTydJ+VcKAqas6pvfkbuUFyACF
-U/RfC6BE7Q80GDAtgwO4cs0+euzxtXLVuJ8lFxi4pk5IiJAIf3hh3NPJ0Akbt3jF
-OEI0hVkp7S2aqRvKiMFGDB18aG94NRHbSKggmFBJkzM4IMdOwdOScIYd3AZswg7B
-2g3+EROvbUwuhhUJGqrxfqae5fP4h79bJwO/kdXKZ9lkxWU0M29L6AtsTxi16wUq
-RWmOSNjpigvkV310VgnBVaLlAvIVaxZI9f4ZlWiD4hCz+ZOfy1GNhoxzJryRNqky
-Wx1yFROMyRX/hbZcVyJcCgfkZNU42snbm9mbREfrDtzrroLF9v8PBvk+pyMo7/PJ
-xRlPvSGf8tPAHAMVjR8Kv5Jo0O2Lars3pqIrpi2VoDZ0K3YUMxaaAQxu50RYSvYX
-Q6v5J/Kcy64axXcaL5Q4zHzkf7hxlopWywacC/6ftLCgnkuL9NM=
-=V2/s
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAluOrqIACgkQFA3kzBSg
+KbapRxAArZeq002KSZpUYsWhatVQEjnYvYcwpQBRDx5hECYdi+eA6jEfmMirD0+Z
+sU0SrQGu4DZ0pTGcB7Jcz68hIiL6E6o9+BBwI/23A/K+IanWMv/5YeDafBkZJpEu
+VXvcXcMB9YuOEl00Oz/kUz4IPDeL2Rs9cCeQFAIU+l8MPGvNTel1/h1r9Q04O6/k
+Bsd4g279d4QueTO+n6UhQYu3ny9d9j5VAF5S1aO/RZqlt29blZ1UX5RTxW3Hii1C
+kOdTVlZknnPD1//4SKC02W403AiVAaieitCZ2COvpoomwQSkluSEIdmohk146ssO
+TTTR+OmNx/bAaMgDYZWasRB+uui6gw2X9ELrermwF/VLWv8ok4zUc/AqAlnpxJgC
+7exqwyXN9SFvETSs77w5PgCmnvMW2inkiS+exKcnYzg/b/vW+PvyALB7M7A23Z9D
+Rmo4U6zI4cdsffbe9DuuOheBYTfndPrMEWjVrxbpjGygGb5ZvXY3ym6yOUDqrYah
+swFRaHVrn7U7oJE42ve6efrvjhN3yWRaqKH4si9csNWQa4msw+LvRABj7kznFraX
+xMFNXzSquz7ZwJ+yZeMomzlbITIhXIlZeQAJe1vNiIGP2zOowpI1t+xTvJsKJqPS
+G+wxa8LNrC99WGL3nV68ajT58GhalGNzu+gsk394zov8ywxrMMg=
+=YYMd
 -----END PGP SIGNATURE-----
 
---4SFOXa2GPu3tIq4H--
+--wxDdMuZNg1r63Hyj--
