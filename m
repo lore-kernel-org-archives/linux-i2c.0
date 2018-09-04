@@ -1,109 +1,58 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH v7 1/4] gpiolib: Pass bitmaps, not integer arrays, to
- get/set array
-Date: Mon, 3 Sep 2018 17:07:44 +0200
-Message-ID: <CAMuHMdXScsLg+LsQDn0dU8qSV30uWaeGQsNDPssm0H5y6UPAWw@mail.gmail.com>
-References: <20180831225616.29221-1-jmkrzyszt@gmail.com> <20180902120144.6855-1-jmkrzyszt@gmail.com>
- <20180902120144.6855-2-jmkrzyszt@gmail.com>
+From: Przemyslaw Gaj <pgaj@cadence.com>
+Subject: Re: [PATCH v6 01/10] i3c: Add core I3C infrastructure
+Date: Tue, 4 Sep 2018 11:03:35 +0000
+Message-ID: <E73421F5-DC9B-4000-B282-FF71D7E45866@cadence.com>
+References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
+ <20180719152930.3715-2-boris.brezillon@bootlin.com>
+ <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
+ <20180824143934.6d6b6487@bbrezillon>
+ <bdb2924f-ecfa-1da3-41db-9ac77d4d933b@synopsys.com>
+ <20180824201600.7d80bca9@bbrezillon>
+ <fe839027-c4d7-4d6f-412b-5b315cbc7a39@synopsys.com>
+ <20180828140209.29155d00@bbrezillon>
+ <4DBE768F-3CDC-41BE-9CC8-E294E7277CB1@cadence.com>
+ <8abfb007-d755-36a4-5960-fddd61d04aa2@synopsys.com>
+ <3D2681D9-1ACC-42FF-9FAB-D86B3C689003@cadence.com>
+ <9584757a-e7e2-5bfe-fc2c-e9bc14ad65a8@synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20180902120144.6855-2-jmkrzyszt@gmail.com>
-Sender: netdev-owner@vger.kernel.org
-To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Jonathan Corbet <corbet@lwn.net>, Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>, peter.korsgaard@barco.com, Peter Rosin <peda@axentia.se>, Ulf Hansson <ulf.hansson@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, "David S. Miller" <davem@davemloft.net>, Dominik Brodowski <linux@dominikbrodowski.net>, Greg KH <gregkh@linuxfoundation.org>, Kishon Vijay Abraham I <kishon@ti.com>, Lars-Peter Clausen <lars@metafoo.de>, Michael Hennerich <Michael.Hennerich@analog.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald <pmeerw@pmeerw.net>, Jiri Slaby <jslaby@suse.com>, Willy Tarreau <w@1wt.eu>, "open list:DOCUMENTATION" <linux-doc@vger.>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <9584757a-e7e2-5bfe-fc2c-e9bc14ad65a8@synopsys.com>
+Content-Language: en-US
+Content-ID: <333A476A334B654787EAC7B600AFC919@namprd07.prod.outlook.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: vitor <Vitor.Soares@synopsys.com>, Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Janusz,
-
-On Sun, Sep 2, 2018 at 2:01 PM Janusz Krzysztofik <jmkrzyszt@gmail.com> wrote:
-> Most users of get/set array functions iterate consecutive bits of data,
-> usually a single integer, while processing array of results obtained
-> from, or building an array of values to be passed to those functions.
-> Save time wasted on those iterations by changing the functions' API to
-> accept bitmaps.
->
-> All current users are updated as well.
->
-> More benefits from the change are expected as soon as planned support
-> for accepting/passing those bitmaps directly from/to respective GPIO
-> chip callbacks if applicable is implemented.
->
-> Cc: Jonathan Corbet <corbet@lwn.net>
-> Cc: Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>
-> Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> Cc: Sebastien Bourdelin <sebastien.bourdelin@savoirfairelinux.com>
-> Cc: Lukas Wunner <lukas@wunner.de>
-> Cc: Peter Korsgaard <peter.korsgaard@barco.com>
-> Cc: Peter Rosin <peda@axentia.se>
-> Cc: Andrew Lunn <andrew@lunn.ch>
-> Cc: Florian Fainelli <f.fainelli@gmail.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Rojhalat Ibrahim <imr@rtschenk.de>
-> Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-> Cc: Russell King <rmk+kernel@armlinux.org.uk>
-> Cc: Kishon Vijay Abraham I <kishon@ti.com>
-> Cc: Tony Lindgren <tony@atomide.com>
-> Cc: Lars-Peter Clausen <lars@metafoo.de>
-> Cc: Michael Hennerich <Michael.Hennerich@analog.com>
-> Cc: Jonathan Cameron <jic23@kernel.org>
-> Cc: Hartmut Knaack <knaack.h@gmx.de>
-> Cc: Peter Meerwald-Stadler <pmeerw@pmeerw.net>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Jiri Slaby <jslaby@suse.com>
-> Cc: Yegor Yefremov <yegorslists@googlemail.com>
-> Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-> Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-> Acked-by: Ulf Hansson <ulf.hansson@linaro.org>
-
-> --- a/drivers/auxdisplay/hd44780.c
-> +++ b/drivers/auxdisplay/hd44780.c
-> @@ -62,17 +62,12 @@ static void hd44780_strobe_gpio(struct hd44780 *hd)
->  /* write to an LCD panel register in 8 bit GPIO mode */
->  static void hd44780_write_gpio8(struct hd44780 *hd, u8 val, unsigned int rs)
->  {
-> -       int values[10]; /* for DATA[0-7], RS, RW */
-> -       unsigned int i, n;
-> -
-> -       for (i = 0; i < 8; i++)
-> -               values[PIN_DATA0 + i] = !!(val & BIT(i));
-> -       values[PIN_CTRL_RS] = rs;
-> -       n = 9;
-> -       if (hd->pins[PIN_CTRL_RW]) {
-> -               values[PIN_CTRL_RW] = 0;
-> -               n++;
-> -       }
-> +       DECLARE_BITMAP(values, 10); /* for DATA[0-7], RS, RW */
-> +       unsigned int n;
-> +
-> +       *values = val;
-
-Given DECLARE_BITMAP() creates an array, the above line looks a bit funny now.
-
-IMHO, either you use
-
-    unsigned long values;
-    values = val;
-    __assign_bit(8, &values, rs);
-
-or
-
-    DECLARE_BITMAP(values, 10);
-    values[0] = val;
-    __assign_bit(8, values, rs);
-
-Nevertheless, for hd44780.c:
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+SGkgVml0b3IsDQoNCu+7v09uIDkvMy8xOCwgMTE6MzMgQU0sICJ2aXRvciIgPFZpdG9yLlNvYXJl
+c0BzeW5vcHN5cy5jb20+IHdyb3RlOg0KDQogICAgRVhURVJOQUwgTUFJTA0KICAgIA0KICAgIA0K
+ICAgIEhpIFByemVtZWssDQogICAgDQogICAgDQogICAgT24gMzAtMDgtMjAxOCAyMDowMCwgUHJ6
+ZW15c2xhdyBHYWogd3JvdGU6DQogICAgPiAgICAgIFNvLCBwZXIgbXkgdW5kZXJzdGFuZGluZyBz
+aW5jZSB0aGUgTWFpbiBtYXN0ZXIgc3VwcG9ydCB0aGUgaGFuZC1vZmYgb2YNCiAgICA+ICAgICAg
+dGhlIGJ1cyB5b3UgYWNjZXB0IGFsbCBpbmNvbWluZyBNUiwgcmlnaHQ/IE9yIGRvIHlvdSBjaGVj
+ayBhbGwgZGV2aWNlcyBCQ1I/DQogICAgPg0KICAgID4gSSdtIG5vdCBzdXJlIHdoYXQgZG8geW91
+IG1lYW4gaGVyZS4gTWFzdGVyc2hpcCByZXF1ZXN0KE1SKSBpcyBmcm9tIHNlY29uZGFyeSBtYXN0
+ZXINCiAgICA+IHRvIGN1cnJlbnQgbWFzdGVyLiBDdXJyZW50IG1hc3RlciBjYW4gTkFDSyB0aGlz
+IHJlcXVlc3QgaWYgZm9yIGV4YW1wbGUgaXQgY29tZXMgZnJvbQ0KICAgID4gd3JvbmcgZGV2aWNl
+LiBJZiBpdCdzIG9rLCBjdXJyZW50IG1hc3RlciBzZW5kcyBHRVRBQ0NNU1QgY29tbWFuZCBhbmQg
+c2Vjb25kYXJ5IG1hc3Rlcg0KICAgID4gbWF5IEFDSyBvciBOQUNLIHRoaXMgY29tbWFuZC4gSXQg
+aXQncyBhY2tlZCwgc2Vjb25kYXJ5IG1hc3RlciBiZWNvbWVzIGN1cnJlbnQgbWFzdGVyLg0KICAg
+ID4gICAgICANCiAgICA+ICAgICAgQmVzdCByZWdhcmRzLA0KICAgID4gICAgICBWaXRvciBTb2Fy
+ZXMNCiAgICA+DQogICAgPiBQbGVhc2UgbGV0IG1lIGtub3cgaWYgc29tZXRoaW5nIGlzIHVuY2xl
+YXIuDQogICAgPg0KICAgID4gUmVnYXJkcywNCiAgICA+IFByemVtZWsNCiAgICA+ICAgICAgDQog
+ICAgDQogICAgU29ycnksIGl0IHMgbm90IGNsZWFyIHlldC4NCiAgICANCiAgICBGb3IgaW5zdGFu
+Y2VzIHRoZXJlIGlzIGEgYnVzIHdpdGggc2V2ZXJhbCBzZWNvbmRhcnkgbWFzdGVyLiBJZiBlYWNo
+IG9mIA0KICAgIHRoZW0gcmVxdWVzdCB0aGUgYnVzIG1hc3RlcnNoaXAgKG9uZSBhdCBhIHRpbWUp
+LCB3aWxsIHlvdSBhY2NlcHQgYWxsIGJ5IA0KICAgIGRlZmF1bHQ/IEJlY2F1c2UgeW91IGNhbiBv
+bmx5IGFjY2VwdCBvbmx5IHNvbWUgb2YgdGhlbS4NCg0KRmlyc3Qgb2YgYWxsLCBvbmx5IGRldmlj
+ZXMgd2hpY2ggaGF2ZSBNYXN0ZXJzaGlwIHJlcXVlc3QgZXZlbnQgZW5hYmxlZCAoRU5NUiBzbGF2
+ZSBldmVudCkNCmNhbiByZXF1ZXN0IG1hc3RlcnNoaXAuIFNlY29uZCB0aGluZyBpcyB0aGF0IHRo
+aXMgZGV2aWNlIG5lZWRzIHRvIGhhdmUgSUJJIGVuYWJsZWQgaW4gDQpjdXJyZW50IG1hc3Rlci4g
+SSBhY2NlcHQgYWxsIHN1Y2ggZGV2aWNlcy4gVGhlcmUgaXMgbm8gYWRkaXRpb25hbCBsb2dpYyBm
+b3Igbm93LCB3ZSBjYW4gYWRkIGl0DQppbiB0aGUgZnV0dXJlLg0KDQpJIHdhcyB2ZXJ5IGJ1c3kg
+cmVjZW50bHkuIEknbSBhbG1vc3QgcmVhZHkgdG8gcHVibGlzaCBteSBjaGFuZ2VzIHJlbGF0ZWQg
+dG8gbWFzdGVyc2hpcCByZXF1ZXN0Lg0KSSdtIHNvcnJ5IGZvciB0aGUgZGVsYXkuDQogICAgDQog
+ICAgUmVnYXJkcywNCiAgICBWaXRvciBTb2FyZXMNCiAgICANClJlZ2FyZHMsDQpQcnplbWVrDQoN
+Cg==
