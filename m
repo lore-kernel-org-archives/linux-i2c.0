@@ -1,35 +1,42 @@
-From: Paul Burton <paul.burton@mips.com>
-Subject: Re: [PATCH v5 0/7] Add support for MSCC Ocelot i2c
-Date: Wed, 5 Sep 2018 16:09:19 -0700
-Message-ID: <20180905230919.ycqmkohubym5foz3@pburton-laptop>
-References: <20180831151114.25739-1-alexandre.belloni@bootlin.com>
- <20180901124353.GB1196@kunai>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Subject: Re: [PATCH] i2c: xiic: Make the start and the byte count write atomic
+Date: Thu, 6 Sep 2018 12:38:08 +0530
+Message-ID: <CAKfKVtHrN2gGWxrOy5jhhQQ5pxU=XBSym72m8nDYUJvrPGfdiw@mail.gmail.com>
+References: <1535967671-7784-1-git-send-email-shubhrajyoti.datta@gmail.com> <20180904161114.GC5000@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180901124353.GB1196@kunai>
+In-Reply-To: <20180904161114.GC5000@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Hogan <jhogan@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@linux-mips.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Allan Nielsen <allan.nielsen@microchip.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>, linux-kernel@vger.kernel.org, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Alexandre & Wolfram,
+Hi,
 
-On Sat, Sep 01, 2018 at 02:43:53PM +0200, Wolfram Sang wrote:
-> > Because the designware IP was not able to handle the SDA hold time before
-> > version 1.11a, MSCC has its own implementation. Add support for it and then add
-> > i2c on ocelot boards.
-> > 
-> > I would expect patches 1 to 5 to go through the i2c tree.
-> 
-> Applied to for-next, thanks!
-> 
-> > Pathces 6-7 can go through the mips tree now that the bindings have been
-> > reviewed.
-> 
-> They have been reviewed by Rob and are applied now to my tree.
-
-Patches 6 & 7 applied to mips-next for 4.20 - thanks!
-
-Paul
+On Tue, Sep 4, 2018 at 9:41 PM Wolfram Sang <wsa@the-dreams.de> wrote:
+>
+> On Mon, Sep 03, 2018 at 03:11:11PM +0530, shubhrajyoti.datta@gmail.com wrote:
+> > From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+> >
+> > Disable interrupts while configuring the transfer and enable them back.
+> >
+> > We have below as the programming sequence
+> > 1. start and slave address
+> > 2. byte count and stop
+> >
+> > In some customer platform there was a lot of interrupts between 1 and 2
+> > and after slave address (around 7 clock cyles) if 2 is not executed
+> > then the transaction is nacked.
+> >
+> > To fix this case make the 2 writes atomic.
+> >
+> > Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+> > Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+>
+> I assume simply changing the order of the register writes won't fix it?
+No that is not possible.
+>
+> I also assume this is stable material?
+>
+Yes let me know if you want me to resend with the stable tag?
