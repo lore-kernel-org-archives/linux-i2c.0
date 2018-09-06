@@ -1,147 +1,354 @@
-From: Przemyslaw Gaj <pgaj@cadence.com>
-Subject: Re: [PATCH v6 01/10] i3c: Add core I3C infrastructure
-Date: Thu, 6 Sep 2018 16:17:41 +0000
-Message-ID: <B6FB5A1F-EBE3-4A30-A27F-1051969F0E25@cadence.com>
-References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
- <20180719152930.3715-2-boris.brezillon@bootlin.com>
- <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
- <20180824143934.6d6b6487@bbrezillon>
- <bdb2924f-ecfa-1da3-41db-9ac77d4d933b@synopsys.com>
- <20180824201600.7d80bca9@bbrezillon>
- <fe839027-c4d7-4d6f-412b-5b315cbc7a39@synopsys.com>
- <20180828140209.29155d00@bbrezillon>
- <4DBE768F-3CDC-41BE-9CC8-E294E7277CB1@cadence.com>
- <8abfb007-d755-36a4-5960-fddd61d04aa2@synopsys.com>
- <3D2681D9-1ACC-42FF-9FAB-D86B3C689003@cadence.com>
- <9584757a-e7e2-5bfe-fc2c-e9bc14ad65a8@synopsys.com>
- <25862F03-9823-42B0-87AC-AE36D7E9C780@cadence.com>
- <CAK8P3a3pkddD9VnogYryQKoL9Z_5qVRBXd6yr1z6CqGU692rXg@mail.gmail.com>
- <20180906151437.4259d6fc@bbrezillon> <20180906152055.5618d235@bbrezillon>
- <a08a0f8b-395b-f956-47d1-e29e0de4aae9@synopsys.com>
- <20180906161443.0f76b246@bbrezillon>
- <5a2ed122-b56f-421b-34e0-74ef551b76b8@synopsys.com>
- <20180906180643.3b1420fc@bbrezillon>
+From: Brendan Higgins <brendanhiggins@google.com>
+Subject: Re: [PATCH i2c-next v6] i2c: aspeed: Handle master/slave combined irq
+ events properly
+Date: Thu, 6 Sep 2018 10:26:11 -0700
+Message-ID: <CAFd5g46fRrYW8E8FsPB=5fWSGxemgc4ENc4D2fT7yBfH6p4ERg@mail.gmail.com>
+References: <20180823225731.19063-1-jae.hyun.yoo@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180906180643.3b1420fc@bbrezillon>
-Content-Language: en-US
-Content-ID: <A558AE448C23FB49888F6D3909166BCB@namprd07.prod.outlook.com>
+In-Reply-To: <20180823225731.19063-1-jae.hyun.yoo@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>, vitor <Vitor.Soares@synopsys.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, gregkh <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kern>
+To: jae.hyun.yoo@linux.intel.com
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, james.feist@linux.intel.com, vernon.mauery@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-DQoNCu+7v09uIDkvNi8xOCwgNjowNyBQTSwgIkJvcmlzIEJyZXppbGxvbiIgPGJvcmlzLmJyZXpp
-bGxvbkBib290bGluLmNvbT4gd3JvdGU6DQoNCiAgICBFWFRFUk5BTCBNQUlMDQogICAgDQogICAg
-DQogICAgT24gVGh1LCA2IFNlcCAyMDE4IDE2OjE3OjU4ICswMTAwDQogICAgdml0b3IgPFZpdG9y
-LlNvYXJlc0BzeW5vcHN5cy5jb20+IHdyb3RlOg0KICAgIA0KICAgID4gSGkgQm9yaXMsDQogICAg
-PiANCiAgICA+IA0KICAgID4gT24gMDYtMDktMjAxOCAxNToxNCwgQm9yaXMgQnJlemlsbG9uIHdy
-b3RlOg0KICAgID4gPiBPbiBUaHUsIDYgU2VwIDIwMTggMTQ6NTA6MDMgKzAxMDANCiAgICA+ID4g
-dml0b3IgPFZpdG9yLlNvYXJlc0BzeW5vcHN5cy5jb20+IHdyb3RlOg0KICAgID4gPiAgDQogICAg
-PiA+PiBIaSwNCiAgICA+ID4+DQogICAgPiA+Pg0KICAgID4gPj4gT24gMDYtMDktMjAxOCAxNDoy
-MCwgQm9yaXMgQnJlemlsbG9uIHdyb3RlOiAgDQogICAgPiA+Pj4gT24gVGh1LCA2IFNlcCAyMDE4
-IDE1OjE0OjM3ICswMjAwDQogICAgPiA+Pj4gQm9yaXMgQnJlemlsbG9uIDxib3Jpcy5icmV6aWxs
-b25AYm9vdGxpbi5jb20+IHdyb3RlOg0KICAgID4gPj4+ICAgICANCiAgICA+ID4+Pj4gT24gVGh1
-LCA2IFNlcCAyMDE4IDE0OjU5OjQ2ICswMjAwDQogICAgPiA+Pj4+IEFybmQgQmVyZ21hbm4gPGFy
-bmRAYXJuZGIuZGU+IHdyb3RlOg0KICAgID4gPj4+PiAgICAgDQogICAgPiA+Pj4+PiBPbiBUaHUs
-IFNlcCA2LCAyMDE4IGF0IDI6NDMgUE0gUHJ6ZW15c2xhdyBHYWogPHBnYWpAY2FkZW5jZS5jb20+
-IHdyb3RlOiAgDQogICAgPiA+Pj4+Pj4gSGkgQm9yaXMsIFZpdG9yLA0KICAgID4gPj4+Pj4+DQog
-ICAgPiA+Pj4+Pj4gVGhpcyByZXBvc2l0b3J5IGRvZXMgbm90IGNvbnRhaW4gZnVsbCBrZXJuZWwg
-c291cmNlcywgYnV0IGl0IHNob3VsZCBiZSBlbm91Z2ggdG8gZGlzY3VzcyBtYXN0ZXJzaGlwIHJl
-cXVlc3QgZmVhdHVyZS4NCiAgICA+ID4+Pj4+PiBodHRwczovL3VybGRlZmVuc2UucHJvb2Zwb2lu
-dC5jb20vdjIvdXJsP3U9aHR0cHMtM0FfX2dpdGh1Yi5jb21fcHJ6ZW1la2dhal9pM2MtMkRsaW51
-eF9jb21taXRfZDU0ZmU2OGE5ZDNlNTczYzBjNDU0YTJjNmYxYWZhZmMyMDE0MmVjNSZkPUR3SUNB
-ZyZjPURQTDZfWF82SmtYRng3QVhXcUIwdGcmcj1xVnVVNjR1OXg3N1kwS2QwUGhES19scHhGZ2c2
-UEs5UGF0ZUh3amJfRFkwJm09UTlEV3czS0dtc2hHdzBmNVFUaWZmYnBiRVN5VWxQeDZLbUFTdURC
-dFg5WSZzPUhIRV95MWt5TXN6SnZQX3RTUDlKa0RsUFl4RHl3QmVId2tNR2dDUjExdUkmZT0NCiAg
-ICA+ID4+Pj4+Pg0KICAgID4gPj4+Pj4+IFBsZWFzZSBrZWVwIGluIG1pbmQgdGhhdCB0aGlzIGlz
-IGluaXRpYWwgdmVyc2lvbiwgYnV0IG1hc3RlcnNoaXAgd29ya3MgY29ycmVjdGx5LiBJIGFkZGVk
-IG9uZSBwcm9wZXJ0eSB0byBEVCB0byByZWZsZWN0IHJlbGF0aW9uc2hpcCBiZXR3ZWVuIG1hc3Rl
-cnMuDQogICAgPiA+Pj4+Pj4gSXQgaXMgcG9zc2libGUgdG8gcmVxdWVzdCBtYXN0ZXJzaGlwIG9u
-IGRlbWFuZCAodXNpbmcgc3lzZnMuIFVzZWZ1bCBpbiBjYXNlIHdoZW4gTGludXggbWFjaGluZSBp
-cyBlcXVpcHBlZCBvbmx5IHdpdGggc2Vjb25kYXJ5IG1hc3RlciBjb250cm9sbGVyKSBvciBhdXRv
-bWF0aWNhbGx5IGNoYW5nZSBvcGVyYXRpb24gbW9kZSB3aGVuIGRldmljZSBkcml2ZXIgd2FudHMg
-dG8gcmVhZC93cml0ZSBzb21ldGhpbmcgZnJvbS90byBkZXZpY2UuDQogICAgPiA+Pj4+Pj4NCiAg
-ICA+ID4+Pj4+PiBJJ20gc3VyZSBJIHdpbGwgaGF2ZSB0byByZXdvcmsgc29tZXRoaW5nIGJlY2F1
-c2UgdGhpcyB3YXMgaW1wbGVtZW50ZWQgb24gc291cmNlcyBmcm9tIFBBVENIIHY0LiBJIHNhdyB0
-aGF0IEJvcmlzIHJlbGVhc2VkIHY3IHllc3RlcmRheSA6KSAgDQogICAgPiA+Pj4+PiBDYW4geW91
-IGV4cGxhaW4gdGhlIHJlYXNvbiBmb3IgaGF2aW5nIGEgdXNlciBzcGFjZSBpbnRlcmZhY2UgYW5k
-IERUIHByb3BlcnR5Pw0KICAgID4gPj4+Pj4gSSB0aG91Z2h0IHdlIGhhZCBjb25jbHVkZWQgZWFy
-bGllciB0aGF0IHdlIHdvdWxkbid0IG5lZWQgdGhhdCwgYnV0IGl0J3MgcG9zc2libGUNCiAgICA+
-ID4+Pj4+IHRoYXQgSSBtaXNzZWQgc29tZXRoaW5nIGluIHRoZSBkaXNjdXNzaW9uIHNpbmNlIHRo
-ZW4uICANCiAgICA+ID4+Pj4gSSBkb24ndCB0aGluayB0aGUgc3lzZnMga25vYiBpcyBuZWVkZWQs
-IHRoaXMgYmVpbmcgc2FpZCwgYWZ0ZXIgdGhpbmtpbmcNCiAgICA+ID4+Pj4gYSBiaXQgbW9yZSBh
-Ym91dCBtYXN0ZXJzaGlwIGhhbmRvdmVyIGFuZCB0aGUgc2Vjb25kYXJ5IG1hc3RlciBjYXNlLCBJ
-DQogICAgPiA+Pj4+IHRoaW5rIHdlIGhhdmUgc29tZXRoaW5nIGltcG9ydGFudCB0byBzb2x2ZS4N
-CiAgICA+ID4+Pj4NCiAgICA+ID4+Pj4gV2hlbiBhIG1hc3RlciBpcyBub3QgaW4gY29udHJvbCBv
-ZiB0aGUgYnVzLCBpdCBnZXRzIGluZm9ybWVkIG9mIGRldmljZXMNCiAgICA+ID4+Pj4gcHJlc2Vu
-dCBvbiB0aGUgYnVzIGJ5IG1vbml0b3JpbmcgREFBIG9yIERFRlNMVlMgYnJvYWRjYXN0IGV2ZW50
-cy4gVGhhdA0KICAgID4gPj4+PiBtZWFucyB0aGUgc2Vjb25kYXJ5IG1hc3RlciBzaG91bGQgcG9w
-dWxhdGUgdGhlIGJ1cyB3aXRoIEkzQy9JMkMgZGV2aWNlcw0KICAgID4gPj4+PiBvbiBzdWNoIGV2
-ZW50cywgYnV0IHRoYXQncyBub3QgZW5vdWdoLCBiZWNhdXNlIERFRlNMVlMvREFBIGRvIG5vdA0K
-ICAgID4gPj4+PiBwcm92aWRlIGFsbCBkZXZpY2UgaW5mby5Tb21lIG9mIHRoZW0gKGxpa2UgcmVh
-ZC93cml0ZS9pYmkgbGltaXRhdGlvbnMpDQogICAgPiA+Pj4+IHJlcXVpcmUgZXh0cmEgQ0NDIGNv
-bW1hbmRzLCBhbmQsIHRvIHNlbmQgdGhvc2UgQ0NDIGNvbW1hbmRzLCB0aGUNCiAgICA+ID4+Pj4g
-c2Vjb25kYXJ5IG1hc3RlciBtdXN0IGNsYWltIHRoZSBidXMuIFdlIGNvdWxkIGFkZCBhIGNhc2Ug
-d2hlcmUgd2UNCiAgICA+ID4+Pj4gZGVjbGFyZSBkZXZpY2VzIGFzIHBhcnRpYWxseSBkaXNjb3Zl
-cmVkIHVudGlsIHRoZSBtYXN0ZXIgYWNxdWlyZXMNCiAgICA+ID4+Pj4gb3duZXJzaGlwIG9mIHRo
-ZSBidXMsIGJ1dCB0aGF0IG1lYW5zIHBhcnQgb2YgdGhlIGRhdGEgcmV0dXJuZWQgYnkNCiAgICA+
-ID4+Pj4gaTNjX2RldmljZV9nZXRfaW5mbygpIHdpbGwgYmUgaW5hY2N1cmF0ZSwgd2hpY2ggbWln
-aHQgaGF2ZSBhbiBpbXBhY3Qgb24NCiAgICA+ID4+Pj4gc29tZSBpM2MgZHJpdmVyIC0+cHJvYmUo
-KSBmdW5jdGlvbnMuICANCiAgICA+ID4+PiBIbSwgb25lIHBvc3NpYmxlIHNvbHV0aW9uIHdvdWxk
-IGJlIHRvIHJlZ2lzdGVyIHBhcnRpYWxseSBkaXNjb3ZlcmVkDQogICAgPiA+Pj4gZGV2aWNlcyB0
-byB0aGUgZGV2aWNlIG1vZGVsIGFuZCBsZXQgaTNjX2RldmljZV9nZXRfaW5mbygpIGNsYWltIHRo
-ZSBidXMNCiAgICA+ID4+PiBhbmQgcmVxdWVzdCBtaXNzaW5nIGRhdGEgd2hlbiBuZWVkZWQuIFRo
-aXMgd2F5LCBpZiB0aGUgZHJpdmVyIG5lZWRzIHRvDQogICAgPiA+Pj4gY2FsbCBpM2NfZGV2aWNl
-X2dldF9pbmZvKCkgaW4gaXRzIHByb2JlIHBhdGgsIGl0IHNob3VsZCB3b3JrIGp1c3QgZmluZS4g
-IA0KICAgID4gPj4gV2h5IGRvbid0IHVzZSB0aGUgaTNjX21hc3Rlcl9hZGRfaTNjX2Rldl9sb2Nr
-ZWQgdGhhdCBqb2I/IEl0IGNyZWF0ZSwNCiAgICA+ID4+IGF0dGFjaCBhbmQgcmV0cmlldmUgdGhl
-IGRldmljZSBpbmZvLiAgDQogICAgPiA+IFdoZW4gd2lsbCB5b3UgY2FsbCBpM2NfbWFzdGVyX2Fk
-ZF9pM2NfZGV2X2xvY2tlZCgpPyBBZnRlciByZWNlaXZpbmcgYQ0KICAgID4gPiBERUZTTFZTIGlu
-dGVycnVwdC9ldmVudD8gV2hlbiB0aGF0IGhhcHBlbnMgeW91J3JlIG5vdCBpbiBjb250cm9sIG9m
-IHRoZQ0KICAgID4gPiBidXMsIHdoaWNoIG1lYW5zIHlvdSdsbCBoYXZlIHRvIGZvcmNlIGJ1cyBv
-d25lcnNoaXAgaGFuZG92ZXIuIElzIHRoaXMNCiAgICA+ID4gcmVhbGx5IHdoYXQgd2Ugd2FudD8N
-CiAgICA+ID4NCiAgICA+ID4gVGhlc2UgYXJlIG5vdCByaGV0b3JpY2FsIHF1ZXN0aW9ucywgSSdt
-IHJlYWxseSBhc2tpbmcgZm9yIHlvdXIgb3Bpbmlvbg0KICAgID4gPiBoZXJlLiAgDQogICAgPiBX
-aGF0IEkgdW5kZXJzdGFuZCBmcm9tIGxhc3QgZGlzY3Vzc2lvbiB3YXMgdGhhdCBldmVyeSB0aW1l
-IHRoYXQgZGV2aWNlIA0KICAgID4gbmVlZCB0byBkbyBzb21ldGhpbmcgKHByaXZhdGUgbWVzc2Fn
-ZXMpIG9uIHRoZSBidXMgYW5kIGRvbid0IGhhdmUgdGhlIA0KICAgID4gYnVzIGNvbnRyb2wgaXQg
-c2hvdWxkIGZvcmNlIG93bmVyc2hpcCBoYW5kb3Zlci4NCiAgICA+IElmIG15IHVuZGVyc3RhbmRp
-bmcgaXMgY29ycmVjdCB0aGlzIGNhbiBiZSBhbHNvIGFwcGxpZWQgdG8gQ0NDIGNvbW1hbmRzLg0K
-ICAgIA0KICAgIFN1cmUsIGJ1dCB0aGUgcXVlc3Rpb24gaXMgbW9yZSwgd2hlbiBkbyB3ZSB3YW50
-IHRvIGRvIHRoYXQ/DQogICAgDQogICAgPiANCiAgICA+ID4gIA0KICAgID4gPj4gVGhpcyBjYW4g
-YmUgdHJpZ2dlcmVkIGFmdGVyIHRoZSBzZWNvbmRhcnkgbWFzdGVyIHJlY2VpdmUgRU5FQyBNUiB1
-bnRpbA0KICAgID4gPj4gdGhlbSBpcyBrZWVwIGluIHRoZSBkcml2ZXIgbWVtb3J5LiAgDQogICAg
-PiA+IEJ1dCB0aGF0IG1lYW5zIG5vLW9uZSB3aWxsIGFjdHVhbGx5IHRyaWdnZXIgYSBtYXN0ZXJz
-aGlwIHJlcXVlc3QsDQogICAgPiA+IGJlY2F1c2UgZGV2aWNlcyB3b24ndCBiZSByZWdpc3RlcmVk
-IHVudGlsIGFsbCBpbmZvIGFyZSBhdmFpbGFibGUuIElmIHdlDQogICAgPiA+IHRha2UgdGhpcyBw
-YXRoLCB3ZSBzaG91bGQgaGF2ZSBhIHdheSB0byBleHBsaWNpdGx5IHRyaWdnZXIgYSBtYXN0ZXJz
-aGlwDQogICAgPiA+IHJlcXVlc3QgKHN5c2ZzIGtub2Igb3IgYW55IG90aGVyIG1lYW5zKS4gIA0K
-ICAgID4gQnkgdGhlIGN1cnJlbnQgZmxvdyB0aGF0IHdlIGhhdmUgbm93LCB3ZSBlbmFibGUgdGhl
-IElCSSBldmVudHMgYXQgdGhlIA0KICAgID4gZW5kIG9mIC5kb19kYWEuIEF0IHRoaXMgdGltZSB0
-aGUgbWFpbiBtYXN0ZXIgYnVzIGlzIGluaXRpYWxpemVkIHdpdGggYWxsIA0KICAgID4gZGV2aWNl
-cy4NCiAgICA+IA0KICAgID4gIEZyb20gdGhlIHBvaW50IG9mIHZpZXcgb2Ygc2Vjb25kYXJ5IG1h
-c3RlciwgaXQgZmlyc3QgcGFydGljaXBhdGUgb24gREFBIA0KICAgID4gcHJvY2VzcywgbmV4dCBp
-dCBzZW5kIGl0cyBpbmZvIChNYWluIG1hc3RlciBkbyANCiAgICA+IGkzY19tYXN0ZXJfcmV0cmll
-dmVfZGV2X2luZm8oKSkgYW5kIHRoZW0gcmVjZWl2ZSBERUZTTFZTLiBJbiB0aGUgc3RhZ2UgDQog
-ICAgPiBpdCBjYW5ub3QgcmVxdWVzdCB0aGUgYnVzIG1hc3RlcnNoaXAgaXQgbmVlZCB0aGUgTVIg
-ZW5hYmxlLg0KICAgIA0KICAgIFlvdSBtZWFuIHRoZSBicm9hZGNhc3QgRU5FQyhNUikgZXZlbnQs
-IHJpZ2h0PyBUaGVuIHllcywgdGhpcyBvbmUgaXMNCiAgICBwcm9iYWJseSBtaXNzaW5nIChvciBt
-YXliZSBJIGFkZGVkIGl0IGluIHRoZSBtYXN0ZXIgY29udHJvbGxlciBkcml2ZXIsDQogICAgSSBk
-b24ndCByZW1lbWJlcikuDQogICAgDQogICAgPiANCiAgICA+IFNvLCB3aGF0IEkgd291bGQgc3Vn
-Z2VzdCBpcyB0byBrZWVwIERFRlNMVlMgZGF0YSBpbiBzZWNvbmRhcnkgbWFzdGVyIA0KICAgID4g
-ZHJpdmVyIG1lbW9yeSAuIFdoZW4gc2Vjb25kYXJ5IG1hc3RlciByZWNlaXZlIHRoZSBNUiBlbmFi
-bGUsIGl0IGNhbiBnZXQgDQogICAgPiB0aGUgYnVzIG93bmVyc2hpcCBhbmQgZG8gaTNjX21hc3Rl
-cl9hZGRfaTNjX2Rldl9sb2NrZWQoKSBhbmQgZWFjaCBkZXZpY2UgDQogICAgPiBpbiBERUZTTFZT
-IGNvbW1hbmQuIEFmdGVyIHRoaXMgc3RlcCBkZWxlZ2F0ZSB0aGUgYnVzIG93bmVyc2hpcCB0byB0
-aGUgDQogICAgPiBtYWluIG1hc3Rlci4NCiAgICANCiAgICBUaGF0J3MgYW4gb3B0aW9uLCBpbmRl
-ZWQuDQogICAgDQogICAgPiANCiAgICA+IFdoYXQgZG8geW91IHRoaW5rIGFib3V0IHRoaXM/DQog
-ICAgDQogICAgU291bmRzIGxpa2UgYSBnb29kIHN0YXJ0LiBJZiBNUiBpcyByZWplY3RlZCBieSB0
-aGUgbWFzdGVyLCB3ZSB3aWxsIGp1c3QNCiAgICBrZWVwIGFsbCBkZXZpY2VzIGluIGFuIHVucmVn
-aXN0ZXJlZCBzdGF0ZS4gV2UgY2FuIGFsc28gYWRkIGEgc3lzZnMNCiAgICBlbnRyeSB0byBtYW51
-YWxseSByZS10cmlnZ2VyIHRoaXMgb3BlcmF0aW9uIGluIGNhc2UgdGhlIGluaXRpYWwgb25lDQog
-ICAgZmFpbGVkLg0KICAgIA0KVGhpcyBldmVyeXRoaW5nIHNvdW5kcyBsaWtlIG15IHByZXZpb3Vz
-IHZlcnNpb24uIEVuZWMgZXZlbnQgd2FzIG1pc3NpbmcsIA0KZXZlcnl0aGluZyB3YXMgdHJpZ2dl
-cmVkIG1hbnVhbGx5IGZyb20gc3lzZnMuDQoNCg==
+On Thu, Aug 23, 2018 at 3:58 PM Jae Hyun Yoo
+<jae.hyun.yoo@linux.intel.com> wrote:
+>
+> In most of cases, interrupt bits are set one by one but there are
+> also a lot of other cases that Aspeed I2C IP sends multiple
+> interrupt bits with combining master and slave events using a
+> single interrupt call. It happens much more in multi-master
+> environment than single-master. For an example, when master is
+> waiting for a NORMAL_STOP interrupt in its MASTER_STOP state,
+> SLAVE_MATCH and RX_DONE interrupts could come along with the
+> NORMAL_STOP in case of an another master immediately sends data
+> just after acquiring the bus. In this case, the NORMAL_STOP
+> interrupt should be handled by master_irq and the SLAVE_MATCH and
+> RX_DONE interrupts should be handled by slave_irq. This commit
+> modifies irq hadling logic to handle the master/slave combined
+> events properly.
+>
+> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+> ---
+> Changes since v5:
+> - Changed variable names in irq hanlders to represent proper meaning.
+> - Fixed an error printing message again to make it use the irq_handled variable.
+>
+> Changes since v4:
+> - Fixed an error printing message that handlers didn't handle all interrupts.
+>
+> Changes since v3:
+> - Fixed typos in a comment.
+>
+> Changes since v2:
+> - Changed the name of ASPEED_I2CD_INTR_ERRORS to ASPEED_I2CD_INTR_MASTER_ERRORS
+> - Removed a member irq_status from the struct aspeed_i2c_bus and changed
+>   master_irq and slave_irq handlers to make them return status_ack.
+> - Added a comment to explain why it needs to try both irq handlers.
+>
+> Changes since v1:
+> - Fixed a grammar issue in commit message.
+> - Added a missing line feed character into a message printing.
+>
+>  drivers/i2c/busses/i2c-aspeed.c | 131 ++++++++++++++++++--------------
+>  1 file changed, 76 insertions(+), 55 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+> index a4f956c6d567..c258c4d9a4c0 100644
+> --- a/drivers/i2c/busses/i2c-aspeed.c
+> +++ b/drivers/i2c/busses/i2c-aspeed.c
+> @@ -82,6 +82,11 @@
+>  #define ASPEED_I2CD_INTR_RX_DONE                       BIT(2)
+>  #define ASPEED_I2CD_INTR_TX_NAK                                BIT(1)
+>  #define ASPEED_I2CD_INTR_TX_ACK                                BIT(0)
+> +#define ASPEED_I2CD_INTR_MASTER_ERRORS                                        \
+> +               (ASPEED_I2CD_INTR_SDA_DL_TIMEOUT |                             \
+> +                ASPEED_I2CD_INTR_SCL_TIMEOUT |                                \
+> +                ASPEED_I2CD_INTR_ABNORMAL |                                   \
+> +                ASPEED_I2CD_INTR_ARBIT_LOSS)
+>  #define ASPEED_I2CD_INTR_ALL                                                  \
+>                 (ASPEED_I2CD_INTR_SDA_DL_TIMEOUT |                             \
+>                  ASPEED_I2CD_INTR_BUS_RECOVER_DONE |                           \
+> @@ -227,32 +232,26 @@ static int aspeed_i2c_recover_bus(struct aspeed_i2c_bus *bus)
+>  }
+>
+>  #if IS_ENABLED(CONFIG_I2C_SLAVE)
+> -static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
+> +static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
+>  {
+> -       u32 command, irq_status, status_ack = 0;
+> +       u32 command, irq_handled = 0;
+>         struct i2c_client *slave = bus->slave;
+> -       bool irq_handled = true;
+>         u8 value;
+>
+> -       if (!slave) {
+> -               irq_handled = false;
+> -               goto out;
+> -       }
+> +       if (!slave)
+> +               return 0;
+>
+>         command = readl(bus->base + ASPEED_I2C_CMD_REG);
+> -       irq_status = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
+>
+>         /* Slave was requested, restart state machine. */
+>         if (irq_status & ASPEED_I2CD_INTR_SLAVE_MATCH) {
+> -               status_ack |= ASPEED_I2CD_INTR_SLAVE_MATCH;
+> +               irq_handled |= ASPEED_I2CD_INTR_SLAVE_MATCH;
+>                 bus->slave_state = ASPEED_I2C_SLAVE_START;
+>         }
+>
+>         /* Slave is not currently active, irq was for someone else. */
+> -       if (bus->slave_state == ASPEED_I2C_SLAVE_STOP) {
+> -               irq_handled = false;
+> -               goto out;
+> -       }
+> +       if (bus->slave_state == ASPEED_I2C_SLAVE_STOP)
+> +               return irq_handled;
+>
+>         dev_dbg(bus->dev, "slave irq status 0x%08x, cmd 0x%08x\n",
+>                 irq_status, command);
+> @@ -269,31 +268,31 @@ static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
+>                                 bus->slave_state =
+>                                                 ASPEED_I2C_SLAVE_WRITE_REQUESTED;
+>                 }
+> -               status_ack |= ASPEED_I2CD_INTR_RX_DONE;
+> +               irq_handled |= ASPEED_I2CD_INTR_RX_DONE;
+>         }
+>
+>         /* Slave was asked to stop. */
+>         if (irq_status & ASPEED_I2CD_INTR_NORMAL_STOP) {
+> -               status_ack |= ASPEED_I2CD_INTR_NORMAL_STOP;
+> +               irq_handled |= ASPEED_I2CD_INTR_NORMAL_STOP;
+>                 bus->slave_state = ASPEED_I2C_SLAVE_STOP;
+>         }
+>         if (irq_status & ASPEED_I2CD_INTR_TX_NAK) {
+> -               status_ack |= ASPEED_I2CD_INTR_TX_NAK;
+> +               irq_handled |= ASPEED_I2CD_INTR_TX_NAK;
+>                 bus->slave_state = ASPEED_I2C_SLAVE_STOP;
+>         }
+> +       if (irq_status & ASPEED_I2CD_INTR_TX_ACK)
+> +               irq_handled |= ASPEED_I2CD_INTR_TX_ACK;
+>
+>         switch (bus->slave_state) {
+>         case ASPEED_I2C_SLAVE_READ_REQUESTED:
+>                 if (irq_status & ASPEED_I2CD_INTR_TX_ACK)
+>                         dev_err(bus->dev, "Unexpected ACK on read request.\n");
+>                 bus->slave_state = ASPEED_I2C_SLAVE_READ_PROCESSED;
+> -
+>                 i2c_slave_event(slave, I2C_SLAVE_READ_REQUESTED, &value);
+>                 writel(value, bus->base + ASPEED_I2C_BYTE_BUF_REG);
+>                 writel(ASPEED_I2CD_S_TX_CMD, bus->base + ASPEED_I2C_CMD_REG);
+>                 break;
+>         case ASPEED_I2C_SLAVE_READ_PROCESSED:
+> -               status_ack |= ASPEED_I2CD_INTR_TX_ACK;
+>                 if (!(irq_status & ASPEED_I2CD_INTR_TX_ACK))
+>                         dev_err(bus->dev,
+>                                 "Expected ACK after processed read.\n");
+> @@ -317,13 +316,6 @@ static bool aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus)
+>                 break;
+>         }
+>
+> -       if (status_ack != irq_status)
+> -               dev_err(bus->dev,
+> -                       "irq handled != irq. expected %x, but was %x\n",
+> -                       irq_status, status_ack);
+> -       writel(status_ack, bus->base + ASPEED_I2C_INTR_STS_REG);
+> -
+> -out:
+>         return irq_handled;
+>  }
+>  #endif /* CONFIG_I2C_SLAVE */
+> @@ -380,21 +372,21 @@ static int aspeed_i2c_is_irq_error(u32 irq_status)
+>         return 0;
+>  }
+>
+> -static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
+> +static u32 aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
+>  {
+> -       u32 irq_status, status_ack = 0, command = 0;
+> +       u32 irq_handled = 0, command = 0;
+>         struct i2c_msg *msg;
+>         u8 recv_byte;
+>         int ret;
+>
+> -       irq_status = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
+> -       /* Ack all interrupt bits. */
+> -       writel(irq_status, bus->base + ASPEED_I2C_INTR_STS_REG);
+> -
+>         if (irq_status & ASPEED_I2CD_INTR_BUS_RECOVER_DONE) {
+>                 bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
+> -               status_ack |= ASPEED_I2CD_INTR_BUS_RECOVER_DONE;
+> +               irq_handled |= ASPEED_I2CD_INTR_BUS_RECOVER_DONE;
+>                 goto out_complete;
+> +       } else {
+> +               /* Master is not currently active, irq was for someone else. */
+> +               if (bus->master_state == ASPEED_I2C_MASTER_INACTIVE)
+> +                       goto out_no_complete;
+>         }
+>
+>         /*
+> @@ -403,19 +395,22 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
+>          * INACTIVE state.
+>          */
+>         ret = aspeed_i2c_is_irq_error(irq_status);
+> -       if (ret < 0) {
+> +       if (ret) {
+>                 dev_dbg(bus->dev, "received error interrupt: 0x%08x\n",
+>                         irq_status);
+>                 bus->cmd_err = ret;
+>                 bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
+> +               irq_handled |= (irq_status & ASPEED_I2CD_INTR_MASTER_ERRORS);
+>                 goto out_complete;
+>         }
+>
+>         /* We are in an invalid state; reset bus to a known state. */
+>         if (!bus->msgs) {
+> -               dev_err(bus->dev, "bus in unknown state\n");
+> +               dev_err(bus->dev, "bus in unknown state. irq_status: 0x%x\n",
+> +                       irq_status);
+>                 bus->cmd_err = -EIO;
+> -               if (bus->master_state != ASPEED_I2C_MASTER_STOP)
+> +               if (bus->master_state != ASPEED_I2C_MASTER_STOP &&
+> +                   bus->master_state != ASPEED_I2C_MASTER_INACTIVE)
+>                         aspeed_i2c_do_stop(bus);
+>                 goto out_no_complete;
+>         }
+> @@ -428,13 +423,18 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
+>          */
+>         if (bus->master_state == ASPEED_I2C_MASTER_START) {
+>                 if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_ACK))) {
+> +                       if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_NAK))) {
+> +                               bus->cmd_err = -ENXIO;
+> +                               bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
+> +                               goto out_complete;
+> +                       }
+>                         pr_devel("no slave present at %02x\n", msg->addr);
+> -                       status_ack |= ASPEED_I2CD_INTR_TX_NAK;
+> +                       irq_handled |= ASPEED_I2CD_INTR_TX_NAK;
+>                         bus->cmd_err = -ENXIO;
+>                         aspeed_i2c_do_stop(bus);
+>                         goto out_no_complete;
+>                 }
+> -               status_ack |= ASPEED_I2CD_INTR_TX_ACK;
+> +               irq_handled |= ASPEED_I2CD_INTR_TX_ACK;
+>                 if (msg->len == 0) { /* SMBUS_QUICK */
+>                         aspeed_i2c_do_stop(bus);
+>                         goto out_no_complete;
+> @@ -449,13 +449,13 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
+>         case ASPEED_I2C_MASTER_TX:
+>                 if (unlikely(irq_status & ASPEED_I2CD_INTR_TX_NAK)) {
+>                         dev_dbg(bus->dev, "slave NACKed TX\n");
+> -                       status_ack |= ASPEED_I2CD_INTR_TX_NAK;
+> +                       irq_handled |= ASPEED_I2CD_INTR_TX_NAK;
+>                         goto error_and_stop;
+>                 } else if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_ACK))) {
+>                         dev_err(bus->dev, "slave failed to ACK TX\n");
+>                         goto error_and_stop;
+>                 }
+> -               status_ack |= ASPEED_I2CD_INTR_TX_ACK;
+> +               irq_handled |= ASPEED_I2CD_INTR_TX_ACK;
+>                 /* fallthrough intended */
+>         case ASPEED_I2C_MASTER_TX_FIRST:
+>                 if (bus->buf_index < msg->len) {
+> @@ -478,7 +478,7 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
+>                         dev_err(bus->dev, "master failed to RX\n");
+>                         goto error_and_stop;
+>                 }
+> -               status_ack |= ASPEED_I2CD_INTR_RX_DONE;
+> +               irq_handled |= ASPEED_I2CD_INTR_RX_DONE;
+>
+>                 recv_byte = readl(bus->base + ASPEED_I2C_BYTE_BUF_REG) >> 8;
+>                 msg->buf[bus->buf_index++] = recv_byte;
+> @@ -506,11 +506,13 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
+>                 goto out_no_complete;
+>         case ASPEED_I2C_MASTER_STOP:
+>                 if (unlikely(!(irq_status & ASPEED_I2CD_INTR_NORMAL_STOP))) {
+> -                       dev_err(bus->dev, "master failed to STOP\n");
+> +                       dev_err(bus->dev,
+> +                               "master failed to STOP. irq_status:0x%x\n",
+> +                               irq_status);
+>                         bus->cmd_err = -EIO;
+>                         /* Do not STOP as we have already tried. */
+>                 } else {
+> -                       status_ack |= ASPEED_I2CD_INTR_NORMAL_STOP;
+> +                       irq_handled |= ASPEED_I2CD_INTR_NORMAL_STOP;
+>                 }
+>
+>                 bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
+> @@ -540,33 +542,52 @@ static bool aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus)
+>                 bus->master_xfer_result = bus->msgs_index + 1;
+>         complete(&bus->cmd_complete);
+>  out_no_complete:
+> -       if (irq_status != status_ack)
+> -               dev_err(bus->dev,
+> -                       "irq handled != irq. expected 0x%08x, but was 0x%08x\n",
+> -                       irq_status, status_ack);
+> -       return !!irq_status;
+> +       return irq_handled;
+>  }
+>
+>  static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
+>  {
+>         struct aspeed_i2c_bus *bus = dev_id;
+> -       bool ret;
+> +       u32 irq_received, irq_remaining, irq_handled;
+>
+>         spin_lock(&bus->lock);
+> +       irq_received = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
+> +       irq_remaining = irq_received;
+>
+>  #if IS_ENABLED(CONFIG_I2C_SLAVE)
+> -       if (aspeed_i2c_slave_irq(bus)) {
+> -               dev_dbg(bus->dev, "irq handled by slave.\n");
+> -               ret = true;
+> -               goto out;
+> +       /*
+> +        * In most cases, interrupt bits will be set one by one, although
+> +        * multiple interrupt bits could be set at the same time. It's also
+> +        * possible that master interrupt bits could be set along with slave
+> +        * interrupt bits. Each case needs to be handled using corresponding
+> +        * handlers depending on the current state.
+> +        */
+> +       if (bus->master_state != ASPEED_I2C_MASTER_INACTIVE) {
+> +               irq_handled = aspeed_i2c_master_irq(bus, irq_remaining);
+> +               irq_remaining &= ~irq_handled;
+> +               if (irq_remaining)
+> +                       irq_handled |= aspeed_i2c_slave_irq(bus, irq_remaining);
+> +       } else {
+> +               irq_handled = aspeed_i2c_slave_irq(bus, irq_remaining);
+> +               irq_remaining &= ~irq_handled;
+> +               if (irq_remaining)
+> +                       irq_handled |= aspeed_i2c_master_irq(bus,
+> +                                                            irq_remaining);
+>         }
+> +#else
+> +       irq_handled = aspeed_i2c_master_irq(bus, irq_remaining);
+>  #endif /* CONFIG_I2C_SLAVE */
+>
+> -       ret = aspeed_i2c_master_irq(bus);
+> +       irq_remaining &= ~irq_handled;
+> +       if (irq_remaining)
+> +               dev_err(bus->dev,
+> +                       "irq handled != irq. expected 0x%08x, but was 0x%08x\n",
+> +                       irq_received, irq_handled);
+>
+> -out:
+> +       /* Ack all interrupt bits. */
+> +       writel(irq_received, bus->base + ASPEED_I2C_INTR_STS_REG);
+>         spin_unlock(&bus->lock);
+> -       return ret ? IRQ_HANDLED : IRQ_NONE;
+> +       return irq_remaining ? IRQ_NONE : IRQ_HANDLED;
+>  }
+>
+>  static int aspeed_i2c_master_xfer(struct i2c_adapter *adap,
+> --
+> 2.18.0
+>
+
+Looks awesome! Thanks!
+
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
