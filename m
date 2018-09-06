@@ -1,55 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 1/2] i2c: mediatek: Register i2c adapter driver earlier
-Date: Thu, 6 Sep 2018 20:31:44 +0200
-Message-ID: <20180906183144.GD8607@kunai>
+Subject: Re: [PATCH v3 2/2] i2c: mediatek: Use DMA safe buffers for i2c
+ transactions
+Date: Thu, 6 Sep 2018 20:33:47 +0200
+Message-ID: <20180906183347.GE8607@kunai>
 References: <1536239729-10008-1-git-send-email-jun.gao@mediatek.com>
- <1536239729-10008-2-git-send-email-jun.gao@mediatek.com>
+ <1536239729-10008-3-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="M38YqGLZlgb6RLPS"
+        protocol="application/pgp-signature"; boundary="bi5JUZtvcfApsciF"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1536239729-10008-2-git-send-email-jun.gao@mediatek.com>
+In-Reply-To: <1536239729-10008-3-git-send-email-jun.gao@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jun Gao <jun.gao@mediatek.com>
 Cc: srv_heupstream@mediatek.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---M38YqGLZlgb6RLPS
+--bi5JUZtvcfApsciF
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 06, 2018 at 09:15:28PM +0800, Jun Gao wrote:
+On Thu, Sep 06, 2018 at 09:15:29PM +0800, Jun Gao wrote:
 > From: Jun Gao <jun.gao@mediatek.com>
 >=20
-> In order not to block the initializations of some i2c devices.
-> Register i2c adapter driver at appropriate time.
+> DMA mode will always be used in i2c transactions, try to allocate
+> a DMA safe buffer if the buf of struct i2c_msg used is not DMA safe.
 >=20
 > Signed-off-by: Jun Gao <jun.gao@mediatek.com>
 
-The reasons this patch was rejected in v2 still hold.
+Applied to for-next, thanks!
 
 
---M38YqGLZlgb6RLPS
+--bi5JUZtvcfApsciF
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAluRcpAACgkQFA3kzBSg
-KbZN3BAAsqTrWJ5QI5dYweb+tLwNyMhYSAnc4IFN6kWZUrd5EXil95DmgJk4X2MP
-e593rEqeyLhpnX96PTFZOuwKtz1Pd/VUvUa2u1IHM1K6NiK4lTfLRa54Fi/8/5Hs
-tZHsgiZaxAXiZ6wxfLIoE/FKFipvgmpX72qfxsGPjMU21668qrGfzrLpNzZMd4n/
-TEMgo3ILkMEM8JBepw6FdVgAUyt+lBd51PSd5Sruo0i+Yungl0whikIa/9Lxl21K
-Mgh3oJ9E+fhCrL4soX8NSjW+foFGs52Wz1dumnhLXkkcuwOPfzZzYbGOt0bDiuIo
-yDvweosF9HovW35oVT1lDP+3N6FT8o06plxVpcvPtLBhywQ9GF0lP7BFqd/I0XPE
-7+0LM0dfmNF5og0Hc5My6ZhwWP+Qvd5YpcUGTIf7qlFY2zE+00H9/cHuSERqQKAn
-eYQaVm6TZrGQ9+eIn/BxWiSQZfqg08Qa6TVgR/HAW2nqJ0DIn8Hdl6C7WP59ucB9
-vCke0c8CXLMDI5AHgUWcsrZ6gHzlx7yNn7kkxoqdBUbUfOMS5gUStIv7ca6+NS5i
-+cj3ymQCwvMXBmI44w8Fz3y2f4RCziQ9gOWvX77t0aUIrG17x1Z5EsVgJmOdN98H
-T4SOfeEAi29j1Ah/GmLMenRA09M83tsYiQDdkouteYbJMhh6rtQ=
-=fhL5
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAluRcwsACgkQFA3kzBSg
+KbZa0A//X8r1smIUOljW7c4uxJqYfYp+QlX18IAFMkaIJlEwhJeXlk7iLyYwk8j+
+WYEqojJ/wE0M56aQhjGwSENT9wXcE+jcl92k+ieashTSs/kWLGZnYh1DFXXdblXj
+9m5CwbyRpYcaWD/+3yf6VxnNPci0CwJ1mbocDjF2OFfgMFQtoiQ2NQjHQS5j2/iQ
+bMlaSFx8iFF+mSrfT9pEBfD9OJ+uQrsfvsBAxN2cOSnKtgClH5hlDVOSv/AtkVXw
+NZMAhcPshGfLYHQ3g+ZGRSkX50X9APZPz4LNTygHFwS+dDCIQNVPPB7CeuN4ALwI
+WUJSvt4xAkGnO2d6lMAH9iyYi66KSQ38eo27Xk9hLhXXd9xh9N1Sj5sBBRJzKZ33
+smSRorXjLfm/hDQGLDgW2qhOb/MV1dqCLXUQVYpfmCQxIPFXiZ7zA1qzfK8UhifP
+7qEyHJl1NP+r70+qATFieM2Bb1j7llUARHKjuBDj69cbW8tRTpV96SyAeoqOHRk2
+jdDf2HonzQhJjAS88O9UqWz+JHmZarOzX9bDu7NqC/Y2WDD92voCnl60BSa6dTjP
+5wHjp1K9iZk9R+aaRKevpIQmOnfqtq7St37UZN0mvhkguiSs2F7xiTWsmlNPiJ0X
+D/DeAPzRJOcRtOQLmzdLuObKpIlHEUnRo3WwAeY3Wy3tmcUdOg8=
+=LmrF
 -----END PGP SIGNATURE-----
 
---M38YqGLZlgb6RLPS--
+--bi5JUZtvcfApsciF--
