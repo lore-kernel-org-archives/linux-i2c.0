@@ -1,42 +1,64 @@
-From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Subject: Re: [PATCH] i2c: xiic: Make the start and the byte count write atomic
-Date: Thu, 6 Sep 2018 12:38:08 +0530
-Message-ID: <CAKfKVtHrN2gGWxrOy5jhhQQ5pxU=XBSym72m8nDYUJvrPGfdiw@mail.gmail.com>
-References: <1535967671-7784-1-git-send-email-shubhrajyoti.datta@gmail.com> <20180904161114.GC5000@kunai>
+From: Przemyslaw Gaj <pgaj@cadence.com>
+Subject: Re: [PATCH v6 01/10] i3c: Add core I3C infrastructure
+Date: Thu, 6 Sep 2018 12:43:34 +0000
+Message-ID: <25862F03-9823-42B0-87AC-AE36D7E9C780@cadence.com>
+References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
+ <20180719152930.3715-2-boris.brezillon@bootlin.com>
+ <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
+ <20180824143934.6d6b6487@bbrezillon>
+ <bdb2924f-ecfa-1da3-41db-9ac77d4d933b@synopsys.com>
+ <20180824201600.7d80bca9@bbrezillon>
+ <fe839027-c4d7-4d6f-412b-5b315cbc7a39@synopsys.com>
+ <20180828140209.29155d00@bbrezillon>
+ <4DBE768F-3CDC-41BE-9CC8-E294E7277CB1@cadence.com>
+ <8abfb007-d755-36a4-5960-fddd61d04aa2@synopsys.com>
+ <3D2681D9-1ACC-42FF-9FAB-D86B3C689003@cadence.com>
+ <9584757a-e7e2-5bfe-fc2c-e9bc14ad65a8@synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180904161114.GC5000@kunai>
+In-Reply-To: <9584757a-e7e2-5bfe-fc2c-e9bc14ad65a8@synopsys.com>
+Content-Language: en-US
+Content-ID: <4E3F596F73557C478F42D82B97D172DD@namprd07.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>, linux-kernel@vger.kernel.org, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+To: vitor <Vitor.Soares@synopsys.com>, Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
-
-On Tue, Sep 4, 2018 at 9:41 PM Wolfram Sang <wsa@the-dreams.de> wrote:
->
-> On Mon, Sep 03, 2018 at 03:11:11PM +0530, shubhrajyoti.datta@gmail.com wrote:
-> > From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-> >
-> > Disable interrupts while configuring the transfer and enable them back.
-> >
-> > We have below as the programming sequence
-> > 1. start and slave address
-> > 2. byte count and stop
-> >
-> > In some customer platform there was a lot of interrupts between 1 and 2
-> > and after slave address (around 7 clock cyles) if 2 is not executed
-> > then the transaction is nacked.
-> >
-> > To fix this case make the 2 writes atomic.
-> >
-> > Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-> > Signed-off-by: Michal Simek <michal.simek@xilinx.com>
->
-> I assume simply changing the order of the register writes won't fix it?
-No that is not possible.
->
-> I also assume this is stable material?
->
-Yes let me know if you want me to resend with the stable tag?
+SGkgQm9yaXMsIFZpdG9yLA0KDQpUaGlzIHJlcG9zaXRvcnkgZG9lcyBub3QgY29udGFpbiBmdWxs
+IGtlcm5lbCBzb3VyY2VzLCBidXQgaXQgc2hvdWxkIGJlIGVub3VnaCB0byBkaXNjdXNzIG1hc3Rl
+cnNoaXAgcmVxdWVzdCBmZWF0dXJlLiANCmh0dHBzOi8vZ2l0aHViLmNvbS9wcnplbWVrZ2FqL2kz
+Yy1saW51eC9jb21taXQvZDU0ZmU2OGE5ZDNlNTczYzBjNDU0YTJjNmYxYWZhZmMyMDE0MmVjNQ0K
+DQpQbGVhc2Uga2VlcCBpbiBtaW5kIHRoYXQgdGhpcyBpcyBpbml0aWFsIHZlcnNpb24sIGJ1dCBt
+YXN0ZXJzaGlwIHdvcmtzIGNvcnJlY3RseS4gSSBhZGRlZCBvbmUgcHJvcGVydHkgdG8gRFQgdG8g
+cmVmbGVjdCByZWxhdGlvbnNoaXAgYmV0d2VlbiBtYXN0ZXJzLg0KSXQgaXMgcG9zc2libGUgdG8g
+cmVxdWVzdCBtYXN0ZXJzaGlwIG9uIGRlbWFuZCAodXNpbmcgc3lzZnMuIFVzZWZ1bCBpbiBjYXNl
+IHdoZW4gTGludXggbWFjaGluZSBpcyBlcXVpcHBlZCBvbmx5IHdpdGggc2Vjb25kYXJ5IG1hc3Rl
+ciBjb250cm9sbGVyKSBvciBhdXRvbWF0aWNhbGx5IGNoYW5nZSBvcGVyYXRpb24gbW9kZSB3aGVu
+IGRldmljZSBkcml2ZXIgd2FudHMgdG8gcmVhZC93cml0ZSBzb21ldGhpbmcgZnJvbS90byBkZXZp
+Y2UuDQoNCkknbSBzdXJlIEkgd2lsbCBoYXZlIHRvIHJld29yayBzb21ldGhpbmcgYmVjYXVzZSB0
+aGlzIHdhcyBpbXBsZW1lbnRlZCBvbiBzb3VyY2VzIGZyb20gUEFUQ0ggdjQuIEkgc2F3IHRoYXQg
+Qm9yaXMgcmVsZWFzZWQgdjcgeWVzdGVyZGF5IDopDQoNClRoYW5rcywNClByemVtZWsNCg0K77u/
+T24gOS8zLzE4LCAxMTozMyBBTSwgInZpdG9yIiA8Vml0b3IuU29hcmVzQHN5bm9wc3lzLmNvbT4g
+d3JvdGU6DQoNCiAgICBFWFRFUk5BTCBNQUlMDQogICAgDQogICAgDQogICAgSGkgUHJ6ZW1laywN
+CiAgICANCiAgICANCiAgICBPbiAzMC0wOC0yMDE4IDIwOjAwLCBQcnplbXlzbGF3IEdhaiB3cm90
+ZToNCiAgICA+ICAgICAgU28sIHBlciBteSB1bmRlcnN0YW5kaW5nIHNpbmNlIHRoZSBNYWluIG1h
+c3RlciBzdXBwb3J0IHRoZSBoYW5kLW9mZiBvZg0KICAgID4gICAgICB0aGUgYnVzIHlvdSBhY2Nl
+cHQgYWxsIGluY29taW5nIE1SLCByaWdodD8gT3IgZG8geW91IGNoZWNrIGFsbCBkZXZpY2VzIEJD
+Uj8NCiAgICA+DQogICAgPiBJJ20gbm90IHN1cmUgd2hhdCBkbyB5b3UgbWVhbiBoZXJlLiBNYXN0
+ZXJzaGlwIHJlcXVlc3QoTVIpIGlzIGZyb20gc2Vjb25kYXJ5IG1hc3Rlcg0KICAgID4gdG8gY3Vy
+cmVudCBtYXN0ZXIuIEN1cnJlbnQgbWFzdGVyIGNhbiBOQUNLIHRoaXMgcmVxdWVzdCBpZiBmb3Ig
+ZXhhbXBsZSBpdCBjb21lcyBmcm9tDQogICAgPiB3cm9uZyBkZXZpY2UuIElmIGl0J3Mgb2ssIGN1
+cnJlbnQgbWFzdGVyIHNlbmRzIEdFVEFDQ01TVCBjb21tYW5kIGFuZCBzZWNvbmRhcnkgbWFzdGVy
+DQogICAgPiBtYXkgQUNLIG9yIE5BQ0sgdGhpcyBjb21tYW5kLiBJdCBpdCdzIGFja2VkLCBzZWNv
+bmRhcnkgbWFzdGVyIGJlY29tZXMgY3VycmVudCBtYXN0ZXIuDQogICAgPiAgICAgIA0KICAgID4g
+ICAgICBCZXN0IHJlZ2FyZHMsDQogICAgPiAgICAgIFZpdG9yIFNvYXJlcw0KICAgID4NCiAgICA+
+IFBsZWFzZSBsZXQgbWUga25vdyBpZiBzb21ldGhpbmcgaXMgdW5jbGVhci4NCiAgICA+DQogICAg
+PiBSZWdhcmRzLA0KICAgID4gUHJ6ZW1law0KICAgID4gICAgICANCiAgICANCiAgICBTb3JyeSwg
+aXQgcyBub3QgY2xlYXIgeWV0Lg0KICAgIA0KICAgIEZvciBpbnN0YW5jZXMgdGhlcmUgaXMgYSBi
+dXMgd2l0aCBzZXZlcmFsIHNlY29uZGFyeSBtYXN0ZXIuIElmIGVhY2ggb2YgDQogICAgdGhlbSBy
+ZXF1ZXN0IHRoZSBidXMgbWFzdGVyc2hpcCAob25lIGF0IGEgdGltZSksIHdpbGwgeW91IGFjY2Vw
+dCBhbGwgYnkgDQogICAgZGVmYXVsdD8gQmVjYXVzZSB5b3UgY2FuIG9ubHkgYWNjZXB0IG9ubHkg
+c29tZSBvZiB0aGVtLg0KICAgIA0KICAgIFJlZ2FyZHMsDQogICAgVml0b3IgU29hcmVzDQogICAg
+DQoNCg==
