@@ -1,88 +1,122 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v7 01/10] i3c: Add core I3C infrastructure
-Date: Thu, 6 Sep 2018 17:15:16 +0200
-Message-ID: <CAK8P3a1OV_w5br=fkQjY-xOUa_u3j+8P2=9MRLzpQqLfWpSaBA@mail.gmail.com>
-References: <20180905154108.20770-1-boris.brezillon@bootlin.com>
- <20180905154108.20770-2-boris.brezillon@bootlin.com> <CAK8P3a3EkwAXin=s1bak7V7xM7zqip_Q6GMpxB-b1BD931G6cA@mail.gmail.com>
- <20180906160048.2f585e2b@bbrezillon>
+From: vitor <Vitor.Soares@synopsys.com>
+Subject: Re: [PATCH v6 01/10] i3c: Add core I3C infrastructure
+Date: Thu, 6 Sep 2018 16:17:58 +0100
+Message-ID: <5a2ed122-b56f-421b-34e0-74ef551b76b8@synopsys.com>
+References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
+ <20180719152930.3715-2-boris.brezillon@bootlin.com>
+ <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
+ <20180824143934.6d6b6487@bbrezillon>
+ <bdb2924f-ecfa-1da3-41db-9ac77d4d933b@synopsys.com>
+ <20180824201600.7d80bca9@bbrezillon>
+ <fe839027-c4d7-4d6f-412b-5b315cbc7a39@synopsys.com>
+ <20180828140209.29155d00@bbrezillon>
+ <4DBE768F-3CDC-41BE-9CC8-E294E7277CB1@cadence.com>
+ <8abfb007-d755-36a4-5960-fddd61d04aa2@synopsys.com>
+ <3D2681D9-1ACC-42FF-9FAB-D86B3C689003@cadence.com>
+ <9584757a-e7e2-5bfe-fc2c-e9bc14ad65a8@synopsys.com>
+ <25862F03-9823-42B0-87AC-AE36D7E9C780@cadence.com>
+ <CAK8P3a3pkddD9VnogYryQKoL9Z_5qVRBXd6yr1z6CqGU692rXg@mail.gmail.com>
+ <20180906151437.4259d6fc@bbrezillon> <20180906152055.5618d235@bbrezillon>
+ <a08a0f8b-395b-f956-47d1-e29e0de4aae9@synopsys.com>
+ <20180906161443.0f76b246@bbrezillon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180906160048.2f585e2b@bbrezillon>
+In-Reply-To: <20180906161443.0f76b246@bbrezillon>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, gregkh <gregkh@linuxfoundation.org>, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@he>
+To: Boris Brezillon <boris.brezillon@bootlin.com>, vitor <Vitor.Soares@synopsys.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Przemyslaw Gaj <pgaj@cadence.com>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, gregkh <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 6, 2018 at 4:01 PM Boris Brezillon
-<boris.brezillon@bootlin.com> wrote:
-> On Thu, 6 Sep 2018 15:38:49 +0200 Arnd Bergmann <arnd@arndb.de> wrote:
-> > On Wed, Sep 5, 2018 at 5:41 PM Boris Brezillon <boris.brezillon@bootlin.com> wrote:
+Hi Boris,
 
-> >
-> > > +struct i3c_bus *i3c_bus_create(struct i3c_master_controller *master)
-> > > +{
-> > > +       struct i3c_bus *i3cbus;
-> > > +       int ret;
-> > > +
-> > > +       i3cbus = kzalloc(sizeof(*i3cbus), GFP_KERNEL);
-> > > +       if (!i3cbus)
-> > > +               return ERR_PTR(-ENOMEM);
-> >
-> > I find it a bit confusing to have separate i3c_master_controller
-> > and i3c_bus structures with this version. Why not merge the
-> > two structures into one now and move the bus management
-> > into master.c?
+
+On 06-09-2018 15:14, Boris Brezillon wrote:
+> On Thu, 6 Sep 2018 14:50:03 +0100
+> vitor <Vitor.Soares@synopsys.com> wrote:
 >
-> Yes, I considered this approach. Not sure it would make the whole code a
-> lot simpler though, and it was definitely more work on my side, so I
-> decided to delay that and wait for someone to explicitly request this
-> change ;-).
+>> Hi,
+>>
+>>
+>> On 06-09-2018 14:20, Boris Brezillon wrote:
+>>> On Thu, 6 Sep 2018 15:14:37 +0200
+>>> Boris Brezillon <boris.brezillon@bootlin.com> wrote:
+>>>   
+>>>> On Thu, 6 Sep 2018 14:59:46 +0200
+>>>> Arnd Bergmann <arnd@arndb.de> wrote:
+>>>>   
+>>>>> On Thu, Sep 6, 2018 at 2:43 PM Przemyslaw Gaj <pgaj@cadence.com> wrote:
+>>>>>> Hi Boris, Vitor,
+>>>>>>
+>>>>>> This repository does not contain full kernel sources, but it should be enough to discuss mastership request feature.
+>>>>>> https://urldefense.proofpoint.com/v2/url?u=https-3A__github.com_przemekgaj_i3c-2Dlinux_commit_d54fe68a9d3e573c0c454a2c6f1afafc20142ec5&d=DwICAg&c=DPL6_X_6JkXFx7AXWqB0tg&r=qVuU64u9x77Y0Kd0PhDK_lpxFgg6PK9PateHwjb_DY0&m=Q9DWw3KGmshGw0f5QTiffbpbESyUlPx6KmASuDBtX9Y&s=HHE_y1kyMszJvP_tSP9JkDlPYxDywBeHwkMGgCR11uI&e=
+>>>>>>
+>>>>>> Please keep in mind that this is initial version, but mastership works correctly. I added one property to DT to reflect relationship between masters.
+>>>>>> It is possible to request mastership on demand (using sysfs. Useful in case when Linux machine is equipped only with secondary master controller) or automatically change operation mode when device driver wants to read/write something from/to device.
+>>>>>>
+>>>>>> I'm sure I will have to rework something because this was implemented on sources from PATCH v4. I saw that Boris released v7 yesterday :)
+>>>>> Can you explain the reason for having a user space interface and DT property?
+>>>>> I thought we had concluded earlier that we wouldn't need that, but it's possible
+>>>>> that I missed something in the discussion since then.
+>>>> I don't think the sysfs knob is needed, this being said, after thinking
+>>>> a bit more about mastership handover and the secondary master case, I
+>>>> think we have something important to solve.
+>>>>
+>>>> When a master is not in control of the bus, it gets informed of devices
+>>>> present on the bus by monitoring DAA or DEFSLVS broadcast events. That
+>>>> means the secondary master should populate the bus with I3C/I2C devices
+>>>> on such events, but that's not enough, because DEFSLVS/DAA do not
+>>>> provide all device info.Some of them (like read/write/ibi limitations)
+>>>> require extra CCC commands, and, to send those CCC commands, the
+>>>> secondary master must claim the bus. We could add a case where we
+>>>> declare devices as partially discovered until the master acquires
+>>>> ownership of the bus, but that means part of the data returned by
+>>>> i3c_device_get_info() will be inaccurate, which might have an impact on
+>>>> some i3c driver ->probe() functions.
+>>> Hm, one possible solution would be to register partially discovered
+>>> devices to the device model and let i3c_device_get_info() claim the bus
+>>> and request missing data when needed. This way, if the driver needs to
+>>> call i3c_device_get_info() in its probe path, it should work just fine.
+>> Why don't use the i3c_master_add_i3c_dev_locked that job? It create,
+>> attach and retrieve the device info.
+> When will you call i3c_master_add_i3c_dev_locked()? After receiving a
+> DEFSLVS interrupt/event? When that happens you're not in control of the
+> bus, which means you'll have to force bus ownership handover. Is this
+> really what we want?
 >
-> I also like the bus/master separation in that it allows one to clearly
-> identify the properties that are bus (speed, mode, ...) related and
-> those that are master controller oriented (PID, DCR, ...).
+> These are not rhetorical questions, I'm really asking for your opinion
+> here.
+What I understand from last discussion was that every time that device 
+need to do something (private messages) on the bus and don't have the 
+bus control it should force ownership handover.
+If my understanding is correct this can be also applied to CCC commands.
 
-Maybe you could make the bus a member of the master rather
-than a pointer from it?
-
-That would still let us avoid the separate dynamic allocations,
-and not having to worry about separate lifetime rules for the
-two, but also group the bus properties together a bit more
-as you said. It can also have code deal with the the bus object
-without including the structure definition of the master (if that
-is desirable).
-
-> > Since it contains an i2c_adapter, maybe a good name for the
-> > combined i3c_master_controller+i3c_bus structure would
-> > be 'i3c_adapter'?
 >
-> Hm, I'd really like to keep the name master and not adapter, just
-> because that's how it's named in the spec.
+>> This can be triggered after the secondary master receive ENEC MR until
+>> them is keep in the driver memory.
+> But that means no-one will actually trigger a mastership request,
+> because devices won't be registered until all info are available. If we
+> take this path, we should have a way to explicitly trigger a mastership
+> request (sysfs knob or any other means).
+By the current flow that we have now, we enable the IBI events at the 
+end of .do_daa. At this time the main master bus is initialized with all 
+devices.
 
-Fair enough.
+ From the point of view of secondary master, it first participate on DAA 
+process, next it send its info (Main master do 
+i3c_master_retrieve_dev_info()) and them receive DEFSLVS. In the stage 
+it cannot request the bus mastership it need the MR enable.
 
-> We don't store i3c/i3c_device objects in those lists, but
-> i3c/i2c_dev_desc objects, so device_for_each_child() won't work.
-> Remember that i3c devs can be present but not registered yet, and we
-> need to have those representations somehow attached to the master/bus.
+So, what I would suggest is to keep DEFSLVS data in secondary master 
+driver memory . When secondary master receive the MR enable, it can get 
+the bus ownership and do i3c_master_add_i3c_dev_locked() and each device 
+in DEFSLVS command. After this step delegate the bus ownership to the 
+main master.
 
-Ah right, I remember you explained that before.
+What do you think about this?
 
-> Regarding the possibility of merging those 2 lists together, we could
-> do it, but I find it simpler to have them separated.
 
-Agreed. It would only make sense if we had the combined list already.
-
-> > That might help with locking
-> > and keeping the two lists synchronized, which may or
-> > may not be a problem here.
->
-> Regarding the locking aspects. Anything touching those lists is either
-> init code (which should be serialized) or DAA related, which requires
-> the bus lock to be held in write mode (exclusive access mode). Do you
-> see any other possible race?
-
-No, nothing specific, it was just a general feeling.
-
-        Arnd
+Best regards,
+Vitor Soares
