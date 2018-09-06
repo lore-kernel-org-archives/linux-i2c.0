@@ -1,58 +1,55 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH i2c-next v6] i2c: aspeed: Handle master/slave combined
- irq events properly
-Date: Thu, 6 Sep 2018 20:08:37 +0200
-Message-ID: <20180906180837.GA8607@kunai>
-References: <20180823225731.19063-1-jae.hyun.yoo@linux.intel.com>
- <CAFd5g46fRrYW8E8FsPB=5fWSGxemgc4ENc4D2fT7yBfH6p4ERg@mail.gmail.com>
- <eab56d58-0703-d201-dc9a-f9fd257e96cf@linux.intel.com>
+Subject: Re: [PATCH v3 1/2] i2c: mediatek: Register i2c adapter driver earlier
+Date: Thu, 6 Sep 2018 20:31:44 +0200
+Message-ID: <20180906183144.GD8607@kunai>
+References: <1536239729-10008-1-git-send-email-jun.gao@mediatek.com>
+ <1536239729-10008-2-git-send-email-jun.gao@mediatek.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
+        protocol="application/pgp-signature"; boundary="M38YqGLZlgb6RLPS"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <eab56d58-0703-d201-dc9a-f9fd257e96cf@linux.intel.com>
+In-Reply-To: <1536239729-10008-2-git-send-email-jun.gao@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, james.feist@linux.intel.com, vernon.mauery@linux.intel.com
+To: Jun Gao <jun.gao@mediatek.com>
+Cc: srv_heupstream@mediatek.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---/04w6evG8XlLl3ft
+--M38YqGLZlgb6RLPS
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> > Looks awesome! Thanks!
-> >=20
-> > Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-> >=20
+On Thu, Sep 06, 2018 at 09:15:28PM +0800, Jun Gao wrote:
+> From: Jun Gao <jun.gao@mediatek.com>
 >=20
-> Thanks a lot for your review Brendan!
+> In order not to block the initializations of some i2c devices.
+> Register i2c adapter driver at appropriate time.
+>=20
+> Signed-off-by: Jun Gao <jun.gao@mediatek.com>
 
-Please don't quote the whole message. Everyone else has to scroll down
-a lot to find the relevant information. Thanks!
+The reasons this patch was rejected in v2 still hold.
 
 
---/04w6evG8XlLl3ft
+--M38YqGLZlgb6RLPS
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAluRbSEACgkQFA3kzBSg
-Kbbkfg/9HrorkqAdlIbkynR938MGcOFlN13CAr2gRHmQHJMx/9fJDYj6ycLklFzb
-U+n1QiKIMiyVIBvuIkqQn9wGFu0tITOoN1dGDruHn5gc9QxHNmb7VLsPN2/EeJXf
-01bQ/j7btHubwXVM58tcdRVlmXyBRVgRgA87IWH/Uc+s/TarRcj3kDmgyRQ5o9Vf
-D+JuguURS5SrfH3pJzFRO/Dr3gilORnK/SapmNRqrvvhDdSgLNHdpwfC+ZFJmOsC
-B1JEgxXKUke9G+Fi9fIdGH2ZKmtgKRWvkrKVwwPko3TVjMNf/s8ep4Oh6q7oTy6/
-x1qD8No+MDHcIPJ/y8ca+1T9Wcmsc3kNpk6PE64DorCL68iNtoru7xkM/dhFvnLe
-Fmr6lYTmOBlCX/xCd8h8tvXvVzDJIbcdZdKXRAaJFPIbVa00ySIUhHup87QyJLQw
-aE9h+Urin6qbMtxkiwYLs6RbP6p5bXRX6t4ENudZb8UQz4QgWioSqZqZjBfmci4/
-vjEkGxzzE3W8DIUxsET+Tdt/qPNwGOtyj/fQzz4leD6o0tw+gy1uE3eN+IDIkbuo
-bufG9nmpQF6zZBPC9+lC9Sf0ewRILPMZ+BDjZhtts3rQa6MKStRLgE9/W2PR4zNa
-jUFY5ioJnDp78Dm8jafFT+5aVh4/rUa5Bqp1DaLsdOQd0M0v4kw=
-=iVNz
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAluRcpAACgkQFA3kzBSg
+KbZN3BAAsqTrWJ5QI5dYweb+tLwNyMhYSAnc4IFN6kWZUrd5EXil95DmgJk4X2MP
+e593rEqeyLhpnX96PTFZOuwKtz1Pd/VUvUa2u1IHM1K6NiK4lTfLRa54Fi/8/5Hs
+tZHsgiZaxAXiZ6wxfLIoE/FKFipvgmpX72qfxsGPjMU21668qrGfzrLpNzZMd4n/
+TEMgo3ILkMEM8JBepw6FdVgAUyt+lBd51PSd5Sruo0i+Yungl0whikIa/9Lxl21K
+Mgh3oJ9E+fhCrL4soX8NSjW+foFGs52Wz1dumnhLXkkcuwOPfzZzYbGOt0bDiuIo
+yDvweosF9HovW35oVT1lDP+3N6FT8o06plxVpcvPtLBhywQ9GF0lP7BFqd/I0XPE
+7+0LM0dfmNF5og0Hc5My6ZhwWP+Qvd5YpcUGTIf7qlFY2zE+00H9/cHuSERqQKAn
+eYQaVm6TZrGQ9+eIn/BxWiSQZfqg08Qa6TVgR/HAW2nqJ0DIn8Hdl6C7WP59ucB9
+vCke0c8CXLMDI5AHgUWcsrZ6gHzlx7yNn7kkxoqdBUbUfOMS5gUStIv7ca6+NS5i
++cj3ymQCwvMXBmI44w8Fz3y2f4RCziQ9gOWvX77t0aUIrG17x1Z5EsVgJmOdN98H
+T4SOfeEAi29j1Ah/GmLMenRA09M83tsYiQDdkouteYbJMhh6rtQ=
+=fhL5
 -----END PGP SIGNATURE-----
 
---/04w6evG8XlLl3ft--
+--M38YqGLZlgb6RLPS--
