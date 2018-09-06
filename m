@@ -1,96 +1,108 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
+From: Przemyslaw Gaj <pgaj@cadence.com>
 Subject: Re: [PATCH v6 01/10] i3c: Add core I3C infrastructure
-Date: Thu, 6 Sep 2018 16:14:43 +0200
-Message-ID: <20180906161443.0f76b246@bbrezillon>
+Date: Thu, 6 Sep 2018 14:20:55 +0000
+Message-ID: <A207EE0E-9DBC-4A39-822C-37B09D0F81B3@cadence.com>
 References: <20180719152930.3715-1-boris.brezillon@bootlin.com>
-        <20180719152930.3715-2-boris.brezillon@bootlin.com>
-        <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
-        <20180824143934.6d6b6487@bbrezillon>
-        <bdb2924f-ecfa-1da3-41db-9ac77d4d933b@synopsys.com>
-        <20180824201600.7d80bca9@bbrezillon>
-        <fe839027-c4d7-4d6f-412b-5b315cbc7a39@synopsys.com>
-        <20180828140209.29155d00@bbrezillon>
-        <4DBE768F-3CDC-41BE-9CC8-E294E7277CB1@cadence.com>
-        <8abfb007-d755-36a4-5960-fddd61d04aa2@synopsys.com>
-        <3D2681D9-1ACC-42FF-9FAB-D86B3C689003@cadence.com>
-        <9584757a-e7e2-5bfe-fc2c-e9bc14ad65a8@synopsys.com>
-        <25862F03-9823-42B0-87AC-AE36D7E9C780@cadence.com>
-        <CAK8P3a3pkddD9VnogYryQKoL9Z_5qVRBXd6yr1z6CqGU692rXg@mail.gmail.com>
-        <20180906151437.4259d6fc@bbrezillon>
-        <20180906152055.5618d235@bbrezillon>
-        <a08a0f8b-395b-f956-47d1-e29e0de4aae9@synopsys.com>
+ <20180719152930.3715-2-boris.brezillon@bootlin.com>
+ <d2f40cc2-b344-69d1-4314-83524ad7b178@synopsys.com>
+ <20180824143934.6d6b6487@bbrezillon>
+ <bdb2924f-ecfa-1da3-41db-9ac77d4d933b@synopsys.com>
+ <20180824201600.7d80bca9@bbrezillon>
+ <fe839027-c4d7-4d6f-412b-5b315cbc7a39@synopsys.com>
+ <20180828140209.29155d00@bbrezillon>
+ <4DBE768F-3CDC-41BE-9CC8-E294E7277CB1@cadence.com>
+ <8abfb007-d755-36a4-5960-fddd61d04aa2@synopsys.com>
+ <3D2681D9-1ACC-42FF-9FAB-D86B3C689003@cadence.com>
+ <9584757a-e7e2-5bfe-fc2c-e9bc14ad65a8@synopsys.com>
+ <25862F03-9823-42B0-87AC-AE36D7E9C780@cadence.com>
+ <CAK8P3a3pkddD9VnogYryQKoL9Z_5qVRBXd6yr1z6CqGU692rXg@mail.gmail.com>
+ <20180906151437.4259d6fc@bbrezillon>
+ <5AD923AE-E86E-4414-A48F-CE7399E18431@cadence.com>
+ <20180906160947.3c80072f@bbrezillon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a08a0f8b-395b-f956-47d1-e29e0de4aae9@synopsys.com>
+In-Reply-To: <20180906160947.3c80072f@bbrezillon>
+Content-Language: en-US
+Content-ID: <8FB86CB3B553EC42A64FFA5762978ADE@namprd07.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: vitor <Vitor.Soares@synopsys.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Przemyslaw Gaj <pgaj@cadence.com>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, gregkh <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+To: Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Vitor Soares <Vitor.Soares@synopsys.com>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, Sekhar Nori <nsekhar@ti.com>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, gregkh <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nis
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 6 Sep 2018 14:50:03 +0100
-vitor <Vitor.Soares@synopsys.com> wrote:
-
-> Hi,
-> 
-> 
-> On 06-09-2018 14:20, Boris Brezillon wrote:
-> > On Thu, 6 Sep 2018 15:14:37 +0200
-> > Boris Brezillon <boris.brezillon@bootlin.com> wrote:
-> >  
-> >> On Thu, 6 Sep 2018 14:59:46 +0200
-> >> Arnd Bergmann <arnd@arndb.de> wrote:
-> >>  
-> >>> On Thu, Sep 6, 2018 at 2:43 PM Przemyslaw Gaj <pgaj@cadence.com> wrote:  
-> >>>> Hi Boris, Vitor,
-> >>>>
-> >>>> This repository does not contain full kernel sources, but it should be enough to discuss mastership request feature.
-> >>>> https://urldefense.proofpoint.com/v2/url?u=https-3A__github.com_przemekgaj_i3c-2Dlinux_commit_d54fe68a9d3e573c0c454a2c6f1afafc20142ec5&d=DwICAg&c=DPL6_X_6JkXFx7AXWqB0tg&r=qVuU64u9x77Y0Kd0PhDK_lpxFgg6PK9PateHwjb_DY0&m=Q9DWw3KGmshGw0f5QTiffbpbESyUlPx6KmASuDBtX9Y&s=HHE_y1kyMszJvP_tSP9JkDlPYxDywBeHwkMGgCR11uI&e=
-> >>>>
-> >>>> Please keep in mind that this is initial version, but mastership works correctly. I added one property to DT to reflect relationship between masters.
-> >>>> It is possible to request mastership on demand (using sysfs. Useful in case when Linux machine is equipped only with secondary master controller) or automatically change operation mode when device driver wants to read/write something from/to device.
-> >>>>
-> >>>> I'm sure I will have to rework something because this was implemented on sources from PATCH v4. I saw that Boris released v7 yesterday :)  
-> >>>
-> >>> Can you explain the reason for having a user space interface and DT property?
-> >>> I thought we had concluded earlier that we wouldn't need that, but it's possible
-> >>> that I missed something in the discussion since then.  
-> >> I don't think the sysfs knob is needed, this being said, after thinking
-> >> a bit more about mastership handover and the secondary master case, I
-> >> think we have something important to solve.
-> >>
-> >> When a master is not in control of the bus, it gets informed of devices
-> >> present on the bus by monitoring DAA or DEFSLVS broadcast events. That
-> >> means the secondary master should populate the bus with I3C/I2C devices
-> >> on such events, but that's not enough, because DEFSLVS/DAA do not
-> >> provide all device info.Some of them (like read/write/ibi limitations)
-> >> require extra CCC commands, and, to send those CCC commands, the
-> >> secondary master must claim the bus. We could add a case where we
-> >> declare devices as partially discovered until the master acquires
-> >> ownership of the bus, but that means part of the data returned by
-> >> i3c_device_get_info() will be inaccurate, which might have an impact on
-> >> some i3c driver ->probe() functions.  
-> > Hm, one possible solution would be to register partially discovered
-> > devices to the device model and let i3c_device_get_info() claim the bus
-> > and request missing data when needed. This way, if the driver needs to
-> > call i3c_device_get_info() in its probe path, it should work just fine.  
-> 
-> Why don't use the i3c_master_add_i3c_dev_locked that job? It create, 
-> attach and retrieve the device info.
-
-When will you call i3c_master_add_i3c_dev_locked()? After receiving a
-DEFSLVS interrupt/event? When that happens you're not in control of the
-bus, which means you'll have to force bus ownership handover. Is this
-really what we want?
-
-These are not rhetorical questions, I'm really asking for your opinion
-here.
-
-> This can be triggered after the secondary master receive ENEC MR until 
-> them is keep in the driver memory.
-
-But that means no-one will actually trigger a mastership request,
-because devices won't be registered until all info are available. If we
-take this path, we should have a way to explicitly trigger a mastership
-request (sysfs knob or any other means).
+DQoNCu+7v09uIDkvNi8xOCwgNDoxMCBQTSwgIkJvcmlzIEJyZXppbGxvbiIgPGJvcmlzLmJyZXpp
+bGxvbkBib290bGluLmNvbT4gd3JvdGU6DQoNCiAgICBFWFRFUk5BTCBNQUlMDQogICAgDQogICAg
+DQogICAgT24gVGh1LCA2IFNlcCAyMDE4IDEzOjQ3OjI5ICswMDAwDQogICAgUHJ6ZW15c2xhdyBH
+YWogPHBnYWpAY2FkZW5jZS5jb20+IHdyb3RlOg0KICAgIA0KICAgID4gT24gOS82LzE4LCAzOjE0
+IFBNLCAiQm9yaXMgQnJlemlsbG9uIiA8Ym9yaXMuYnJlemlsbG9uQGJvb3RsaW4uY29tPiB3cm90
+ZToNCiAgICA+IA0KICAgID4gICAgIEVYVEVSTkFMIE1BSUwNCiAgICA+ICAgICANCiAgICA+ICAg
+ICANCiAgICA+ICAgICBPbiBUaHUsIDYgU2VwIDIwMTggMTQ6NTk6NDYgKzAyMDANCiAgICA+ICAg
+ICBBcm5kIEJlcmdtYW5uIDxhcm5kQGFybmRiLmRlPiB3cm90ZToNCiAgICA+ICAgICANCiAgICA+
+ICAgICA+IE9uIFRodSwgU2VwIDYsIDIwMTggYXQgMjo0MyBQTSBQcnplbXlzbGF3IEdhaiA8cGdh
+akBjYWRlbmNlLmNvbT4gd3JvdGU6ICANCiAgICA+ICAgICA+ID4NCiAgICA+ICAgICA+ID4gSGkg
+Qm9yaXMsIFZpdG9yLA0KICAgID4gICAgID4gPg0KICAgID4gICAgID4gPiBUaGlzIHJlcG9zaXRv
+cnkgZG9lcyBub3QgY29udGFpbiBmdWxsIGtlcm5lbCBzb3VyY2VzLCBidXQgaXQgc2hvdWxkIGJl
+IGVub3VnaCB0byBkaXNjdXNzIG1hc3RlcnNoaXAgcmVxdWVzdCBmZWF0dXJlLg0KICAgID4gICAg
+ID4gPiBodHRwczovL3VybGRlZmVuc2UucHJvb2Zwb2ludC5jb20vdjIvdXJsP3U9aHR0cHMtM0Ff
+X2dpdGh1Yi5jb21fcHJ6ZW1la2dhal9pM2MtMkRsaW51eF9jb21taXRfZDU0ZmU2OGE5ZDNlNTcz
+YzBjNDU0YTJjNmYxYWZhZmMyMDE0MmVjNSZkPUR3SUNBZyZjPWFVcTk4M0wycHVlMkZxS0ZvUDZQ
+R0hNSlF5b0o3a2wzczNHWi1faGFYcVkmcj1DTW5BZk1fT2ZwcWNXWlJmaXFjUld3Jm09T1BTYTI1
+RU5uckYwUXY3MERHNDlabmdmZHlnSlp1YmpvM1RPZ0JBM3BKNCZzPV9DNmkxS1BwbFFHY1d2UVlQ
+a3JHeDdWM1RqS0RKdnF0M0tHLXZjZFUySzQmZT0NCiAgICA+ICAgICA+ID4NCiAgICA+ICAgICA+
+ID4gUGxlYXNlIGtlZXAgaW4gbWluZCB0aGF0IHRoaXMgaXMgaW5pdGlhbCB2ZXJzaW9uLCBidXQg
+bWFzdGVyc2hpcCB3b3JrcyBjb3JyZWN0bHkuIEkgYWRkZWQgb25lIHByb3BlcnR5IHRvIERUIHRv
+IHJlZmxlY3QgcmVsYXRpb25zaGlwIGJldHdlZW4gbWFzdGVycy4NCiAgICA+ICAgICA+ID4gSXQg
+aXMgcG9zc2libGUgdG8gcmVxdWVzdCBtYXN0ZXJzaGlwIG9uIGRlbWFuZCAodXNpbmcgc3lzZnMu
+IFVzZWZ1bCBpbiBjYXNlIHdoZW4gTGludXggbWFjaGluZSBpcyBlcXVpcHBlZCBvbmx5IHdpdGgg
+c2Vjb25kYXJ5IG1hc3RlciBjb250cm9sbGVyKSBvciBhdXRvbWF0aWNhbGx5IGNoYW5nZSBvcGVy
+YXRpb24gbW9kZSB3aGVuIGRldmljZSBkcml2ZXIgd2FudHMgdG8gcmVhZC93cml0ZSBzb21ldGhp
+bmcgZnJvbS90byBkZXZpY2UuDQogICAgPiAgICAgPiA+DQogICAgPiAgICAgPiA+IEknbSBzdXJl
+IEkgd2lsbCBoYXZlIHRvIHJld29yayBzb21ldGhpbmcgYmVjYXVzZSB0aGlzIHdhcyBpbXBsZW1l
+bnRlZCBvbiBzb3VyY2VzIGZyb20gUEFUQ0ggdjQuIEkgc2F3IHRoYXQgQm9yaXMgcmVsZWFzZWQg
+djcgeWVzdGVyZGF5IDopICAgIA0KICAgID4gICAgID4gDQogICAgPiAgICAgPiANCiAgICA+ICAg
+ICA+IENhbiB5b3UgZXhwbGFpbiB0aGUgcmVhc29uIGZvciBoYXZpbmcgYSB1c2VyIHNwYWNlIGlu
+dGVyZmFjZSBhbmQgRFQgcHJvcGVydHk/DQogICAgPiAgICAgPiBJIHRob3VnaHQgd2UgaGFkIGNv
+bmNsdWRlZCBlYXJsaWVyIHRoYXQgd2Ugd291bGRuJ3QgbmVlZCB0aGF0LCBidXQgaXQncyBwb3Nz
+aWJsZQ0KICAgID4gICAgID4gdGhhdCBJIG1pc3NlZCBzb21ldGhpbmcgaW4gdGhlIGRpc2N1c3Np
+b24gc2luY2UgdGhlbi4gIA0KICAgID4gICAgIA0KICAgID4gICAgIEkgZG9uJ3QgdGhpbmsgdGhl
+IHN5c2ZzIGtub2IgaXMgbmVlZGVkLCB0aGlzIGJlaW5nIHNhaWQsIGFmdGVyIHRoaW5raW5nDQog
+ICAgPiAgICAgYSBiaXQgbW9yZSBhYm91dCBtYXN0ZXJzaGlwIGhhbmRvdmVyIGFuZCB0aGUgc2Vj
+b25kYXJ5IG1hc3RlciBjYXNlLCBJDQogICAgPiAgICAgdGhpbmsgd2UgaGF2ZSBzb21ldGhpbmcg
+aW1wb3J0YW50IHRvIHNvbHZlLg0KICAgID4gICAgIA0KICAgID4gICAgIFdoZW4gYSBtYXN0ZXIg
+aXMgbm90IGluIGNvbnRyb2wgb2YgdGhlIGJ1cywgaXQgZ2V0cyBpbmZvcm1lZCBvZiBkZXZpY2Vz
+DQogICAgPiAgICAgcHJlc2VudCBvbiB0aGUgYnVzIGJ5IG1vbml0b3JpbmcgREFBIG9yIERFRlNM
+VlMgYnJvYWRjYXN0IGV2ZW50cy4gVGhhdA0KICAgID4gICAgIG1lYW5zIHRoZSBzZWNvbmRhcnkg
+bWFzdGVyIHNob3VsZCBwb3B1bGF0ZSB0aGUgYnVzIHdpdGggSTNDL0kyQyBkZXZpY2VzDQogICAg
+PiAgICAgb24gc3VjaCBldmVudHMsIGJ1dCB0aGF0J3Mgbm90IGVub3VnaCwgYmVjYXVzZSBERUZT
+TFZTL0RBQSBkbyBub3QNCiAgICA+ICAgICBwcm92aWRlIGFsbCBkZXZpY2UgaW5mby4gU29tZSBv
+ZiB0aGVtIChsaWtlIHJlYWQvd3JpdGUvaWJpIGxpbWl0YXRpb25zKQ0KICAgID4gICAgIHJlcXVp
+cmUgZXh0cmEgQ0NDIGNvbW1hbmRzLCBhbmQsIHRvIHNlbmQgdGhvc2UgQ0NDIGNvbW1hbmRzLCB0
+aGUNCiAgICA+ICAgICBzZWNvbmRhcnkgbWFzdGVyIG11c3QgY2xhaW0gdGhlIGJ1cy4gV2UgY291
+bGQgYWRkIGEgY2FzZSB3aGVyZSB3ZQ0KICAgID4gICAgIGRlY2xhcmUgZGV2aWNlcyBhcyBwYXJ0
+aWFsbHkgZGlzY292ZXJlZCB1bnRpbCB0aGUgbWFzdGVyIGFjcXVpcmVzDQogICAgPiAgICAgb3du
+ZXJzaGlwIG9mIHRoZSBidXMsIGJ1dCB0aGF0IG1lYW5zIHBhcnQgb2YgdGhlIGRhdGEgcmV0dXJu
+ZWQgYnkNCiAgICA+ICAgICBpM2NfZGV2aWNlX2dldF9pbmZvKCkgd2lsbCBiZSBpbmFjY3VyYXRl
+LCB3aGljaCBtaWdodCBoYXZlIGFuIGltcGFjdCBvbg0KICAgID4gICAgIHNvbWUgaTNjIGRyaXZl
+ciAtPnByb2JlKCkgZnVuY3Rpb25zLg0KICAgID4gDQogICAgPiBIb3cgZG8geW91IHdhbnQgdG8g
+aGFuZGxlIGNhc2VzIHdoZW4gc2Vjb25kYXJ5IG1hc3RlciBqb2lucyB0aGUgYnVzIGFmdGVyIA0K
+ICAgID4gREVGU0xWUz8gT2YgY291cnNlIHdlIGNhbiBzZW5kIERFRlNMVlMgYWZ0ZXIgc2Vjb25k
+YXJ5IG1hc3RlciBqb2lucyB0aGUgYnVzLg0KICAgIA0KICAgIFRoYXQncyBhbHJlYWR5IHRoZSBj
+YXNlIDstKS4gRXZlcnkgdGltZSB0aGUgY3VycmVudCBtYXN0ZXIgZGlzY292ZXJzDQogICAgYW5v
+dGhlciBtYXN0ZXIsIGl0J3Mgc2VuZHMgYSBERUZTTFZTIGF0IHRoZSBlbmQgb2YgdGhlIERBQSBw
+cm9jZWR1cmUuDQogICAgDQogICAgPiAgICAgDQogICAgPiAgICAgV2UgY291bGQgYWxzbyBzYXkg
+dGhhdCBwYXJ0aWFsbHkgZGlzY292ZXJlZCBkZXZpY2VzIHNob3VsZCBub3QgYmUNCiAgICA+ICAg
+ICByZWdpc3RlcmVkIHRvIHRoZSBkZXZpY2UgbW9kZWwsIGJ1dCB3ZSB0aGVuIGhpdCB0aGUgcHJv
+YmxlbSBvZiAid2hvIGNhbg0KICAgID4gICAgIGZvcmNlIHRoZSBzZWNvbmRhcnkgbWFzdGVyIHRv
+IGNsYWltIHRoZSBidXMgaWYgdGhlcmUncyBubyB1c2Vycz8iLg0KICAgID4gDQogICAgPiBOb3cg
+SSBmZWVsIGxpa2UgSSBtaXNzZWQgc29tZXRoaW5nLiBEbyB5b3Ugd2FudCB0byBwb3B1bGF0ZSBz
+ZWNvbmQgaW5zdGFuY2UNCiAgICA+IG9mIHRoZSBzYW1lIHBoeXNpY2FsIGJ1cz8gSWYgeWVzLCB0
+aGVuIHdlIGRvbid0IG5lZWQgdG8gaGF2ZSByZWZlcmVuY2UgDQogICAgPiBiZXR3ZWVuIG1hc3Rl
+cnMgaW4gRFQuDQogICAgDQogICAgVGhpcyBpcyB0aGUgZGlzY3Vzc2lvbiB3ZSd2ZSBoYWQgYWJv
+dXQgMSBtb250aCBhZ28gd2l0aCBBcm5kLCBXb2xmcmFtDQogICAgYW5kIFBldGVyLCBhbmQgdGhl
+IGNvbmNsdXNpb24gd2FzIHRoYXQgMiBkaWZmZXJlbnQgbWFzdGVycyBjb25uZWN0ZWQgdG8NCiAg
+ICB0aGUgc2FtZSBwaHlzaWNhbCBidXMgc2hvdWxkIGV4cG9zZSAyIGRpZmZlcmVudCBidXNlcyAo
+d2hpY2ggbWVhbnMNCiAgICBoYXZpbmcgdGhlIHNhbWUgcGh5c2ljYWwgZGV2aWNlcyBleHBvc2Vk
+IDIgdGltZXMgaW4gTGludXgpLg0KDQpPaywgSSBpbXBsZW1lbnRlZCBpdCBhZnRlciBvdXIgZGlz
+Y3Vzc2lvbiwgSSB0aGluayBpdCB3YXMgaW4gTWF5LiBJIGV2ZW4gaGFkIA0KdmVyc2lvbiB3aGVy
+ZSBldmVyeSBtYXN0ZXIgaGFkIG93biBidXMuIA0KICAgIA0KDQo=
