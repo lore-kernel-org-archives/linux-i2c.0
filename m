@@ -1,39 +1,30 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v4 1/2] rtmutex: allow specifying a subclass for nested
- locking
-Date: Tue, 11 Sep 2018 02:58:52 +0200
-Message-ID: <e85878a5-a5ae-59ea-0101-20361f49d32d@axentia.se>
-References: <20180720083914.1950-1-peda@axentia.se>
- <20180720083914.1950-2-peda@axentia.se>
- <20180910232712.fcpdfaagm4xdb24n@home.goodmis.org>
+From: Jun Gao <jun.gao@mediatek.com>
+Subject: Re: [PATCH v3 1/2] i2c: mediatek: Register i2c adapter driver
+ earlier
+Date: Tue, 11 Sep 2018 10:26:32 +0800
+Message-ID: <1536632792.22101.7.camel@mhfsdcap03>
+References: <1536239729-10008-1-git-send-email-jun.gao@mediatek.com>
+         <1536239729-10008-2-git-send-email-jun.gao@mediatek.com>
+         <20180906183144.GD8607@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180910232712.fcpdfaagm4xdb24n@home.goodmis.org>
-Content-Language: en-US
+In-Reply-To: <20180906183144.GD8607@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will.deacon@arm.com>, Davidlohr Bueso <dave@stgolabs.net>, Philippe Ombredanne <pombredanne@nexb.com>, Thomas Gleixner <tglx@linutronix.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c@vger.kernel.org, Peter Chang <dpf@google.com>, Deepa Dinamani <deepadinamani@google.com>, John Sperbeck <jsperbeck@google.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: srv_heupstream@mediatek.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-09-11 01:27, Steven Rostedt wrote:
+On Thu, 2018-09-06 at 20:31 +0200, Wolfram Sang wrote:
+> On Thu, Sep 06, 2018 at 09:15:28PM +0800, Jun Gao wrote:
+> > From: Jun Gao <jun.gao@mediatek.com>
+> > 
+> > In order not to block the initializations of some i2c devices.
+> > Register i2c adapter driver at appropriate time.
+> > 
+> > Signed-off-by: Jun Gao <jun.gao@mediatek.com>
 > 
-> Why this:
+> The reasons this patch was rejected in v2 still hold.
+OK. Thanks for your opinion.
 > 
-> #ifdef CONFIG_DEBUG_LOCK_ALLOC
-> [..]
-> #endif
-> 
-> #ifndef CONFIG_DEBUG_LOCK_ALLOC
-> [..]
-> #endif
-> 
-> ???
-> 
-> This should use #else.
-
-Yes. Water under the bridge...
-
-Cheers,
-Peter
