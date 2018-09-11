@@ -1,62 +1,45 @@
-From: vitor <Vitor.Soares@synopsys.com>
-Subject: Re: [PATCH v7 01/10] i3c: Add core I3C infrastructure
-Date: Tue, 11 Sep 2018 11:04:07 +0100
-Message-ID: <aa29faa0-237c-3875-64da-b93a1e87ccff@synopsys.com>
-References: <20180905154108.20770-1-boris.brezillon@bootlin.com>
- <20180905154108.20770-2-boris.brezillon@bootlin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+From: jun qian <hangdianqj@163.com>
+Subject: [PATCH] i2c: i2c-tegra: replace spin_lock_irqsave with spin_lock in ISR
+Date: Tue, 11 Sep 2018 07:54:46 -0700
+Message-ID: <20180911145446.53621-1-hangdianqj@163.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180905154108.20770-2-boris.brezillon@bootlin.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
-Cc: Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vitor Soares <Vitor.Soares>
+To: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>
+Cc: linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, jun qian <hangdianqj@163.com>
 List-Id: linux-i2c@vger.kernel.org
 
+As you are already in ISR, it is unnecessary to call spin_lock_irqsave.
 
-Hi Boris,
+Signed-off-by: jun qian <hangdianqj@163.com>
+---
+ drivers/i2c/busses/i2c-tegra.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-On 05-09-2018 16:40, Boris Brezillon wrote:
-> +i3c_master_register_new_i3c_devs(struct i3c_master_controller *master)
-> +{
-> +	struct i3c_dev_desc *desc;
-> +	int ret;
-> +
-> +	if (!master->init_done)
-> +		return;
-> +
-If you have a hot-join and call i3c_master_do_daa this function will 
-return without create the i3c_device.
-
-> +	i3c_bus_for_each_i3cdev(master->bus, desc) {
-> +		if (desc->dev || !desc->info.dyn_addr || desc == master->this)
-> +			continue;
-> +
-> +		desc->dev = kzalloc(sizeof(*desc->dev), GFP_KERNEL);
-> +		if (!desc->dev)
-> +			continue;
-> +
-> +		desc->dev->bus = master->bus;
-> +		desc->dev->desc = desc;
-> +		desc->dev->dev.parent = &master->bus->dev;
-> +		desc->dev->dev.type = &i3c_device_type;
-> +		desc->dev->dev.bus = &i3c_bus_type;
-> +		desc->dev->dev.release = i3c_device_release;
-> +		dev_set_name(&desc->dev->dev, "%d-%llx", master->bus->id,
-> +			     desc->info.pid);
-> +
-> +		if (desc->boardinfo)
-> +			desc->dev->dev.of_node = desc->boardinfo->of_node;
-> +
-> +		ret = device_register(&desc->dev->dev);
-> +		if (ret)
-> +			dev_err(master->parent,
-> +				"Failed to add I3C device (err = %d)\n", ret);
-> +	}
-> +}
->
-
-Best regards,
-Vitor Soares
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 60c8561fbe65..59f31d3a508f 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -608,11 +608,10 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 	u32 status;
+ 	const u32 status_err = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
+ 	struct tegra_i2c_dev *i2c_dev = dev_id;
+-	unsigned long flags;
+ 
+ 	status = i2c_readl(i2c_dev, I2C_INT_STATUS);
+ 
+-	spin_lock_irqsave(&i2c_dev->xfer_lock, flags);
++	spin_lock(&i2c_dev->xfer_lock);
+ 	if (status == 0) {
+ 		dev_warn(i2c_dev->dev, "irq status 0 %08x %08x %08x\n",
+ 			 i2c_readl(i2c_dev, I2C_PACKET_TRANSFER_STATUS),
+@@ -670,7 +669,7 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 
+ 	complete(&i2c_dev->msg_complete);
+ done:
+-	spin_unlock_irqrestore(&i2c_dev->xfer_lock, flags);
++	spin_unlock(&i2c_dev->xfer_lock);
+ 	return IRQ_HANDLED;
+ }
+ 
+-- 
+2.17.1
