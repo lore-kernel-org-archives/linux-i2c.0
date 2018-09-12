@@ -1,8 +1,8 @@
-From: =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
 Subject: Re: [PATCH i2c-next v6] i2c: aspeed: Handle master/slave combined irq
  events properly
-Date: Wed, 12 Sep 2018 07:57:24 +0200
-Message-ID: <f184e209-cb4b-55d4-e520-ae2cc9f0d963@kaod.org>
+Date: Wed, 12 Sep 2018 09:54:51 -0700
+Message-ID: <7fd98646-fb5a-be4d-ce37-84b74e0fa8b3@linux.intel.com>
 References: <20180823225731.19063-1-jae.hyun.yoo@linux.intel.com>
  <20180911183734.GA21976@roeck-us.net>
  <1f34fe8c-69ef-5f2d-25dc-d5f6037cc558@linux.intel.com>
@@ -10,78 +10,95 @@ References: <20180823225731.19063-1-jae.hyun.yoo@linux.intel.com>
  <e5135af4-9105-214f-5de2-65cc03804222@linux.intel.com>
  <CACPK8Xdv3aP_zOHAL0WMgwvkpBHAUesU7OdhW==jgvXjRmt-Zw@mail.gmail.com>
  <20180911233302.GA18799@roeck-us.net>
+ <5698ca34-14c9-8d05-c4e6-5acf85ff9d14@linux.intel.com>
+ <20180912013449.GA12612@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180911233302.GA18799@roeck-us.net>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180912013449.GA12612@roeck-us.net>
 Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Guenter Roeck <linux@roeck-us.net>, Joel Stanley <joel@jms.id.au>
-Cc: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, linux-aspeed@lists.ozlabs.org, Vernon Mauery <vernon.mauery@linux.intel.com>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Brendan Higgins <brendanhiggins@google.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, James Feist <james.feist@linux.intel.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Joel Stanley <joel@jms.id.au>, linux-aspeed@lists.ozlabs.org, Vernon Mauery <vernon.mauery@linux.intel.com>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Brendan Higgins <brendanhiggins@google.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, jarkko.nikula@linux.intel.com, =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, James Feist <james.feist@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMDkvMTIvMjAxOCAwMTozMyBBTSwgR3VlbnRlciBSb2VjayB3cm90ZToKPiBPbiBXZWQsIFNl
-cCAxMiwgMjAxOCBhdCAwODoyMzoyOUFNICswOTMwLCBKb2VsIFN0YW5sZXkgd3JvdGU6Cj4+IE9u
-IFdlZCwgMTIgU2VwIDIwMTggYXQgMDc6NDgsIEphZSBIeXVuIFlvbyA8amFlLmh5dW4ueW9vQGxp
-bnV4LmludGVsLmNvbT4gd3JvdGU6Cj4+Pgo+Pj4gT24gOS8xMS8yMDE4IDE6NDEgUE0sIEd1ZW50
-ZXIgUm9lY2sgd3JvdGU6Cj4+Pj4gT24gVHVlLCBTZXAgMTEsIDIwMTggYXQgMDE6MzA6NDFQTSAt
-MDcwMCwgSmFlIEh5dW4gWW9vIHdyb3RlOgo+Pgo+Pj4+PiBJIGNoZWNrZWQgdGhpcyBwYXRjaCBh
-Z2FpbiBidXQgaXQgZG9lc24ndCBoYXZlIGFueSBjaGFuZ2UgdGhhdCBjb3VsZAo+Pj4+PiBhZmZl
-Y3QgdG8gdGhlIHByb2JpbmcgZmxvdy4gSSdsbCBkZWJ1ZyB0aGUgaXNzdWUgb24gcWVtdSAzLjAg
-ZW52aXJvbm1lbnQKPj4+Pj4gYW5kIHdpbGwgc2hhcmUgaWYgSSBmaW5kIHNvbWV0aGluZy4KPj4+
-Pj4KPj4+PiBUaGUgcHJvYmxlbSBtYXkgYmUgdGhhdCBxZW11IGFuZCB0aGUgbmV3IGNvZGUgZGlz
-YWdyZWUgaG93IGludGVycnVwdHMKPj4+PiBzaG91bGQgYmUgZ2VuZXJhdGVkIGFuZCBoYW5kbGVk
-LCBhbmQgdGhlIG5ldyBjb2RlIGRvZXMgbm90IGhhbmRsZSB0aGUKPj4+PiBpbnRlcnJ1cHRzIGl0
-IHJlY2VpdmVzIGZyb20gdGhlIHNpbXVsYXRlZCBoYXJkd2FyZS4gVGhpcyB3aWxsIHJlc3VsdAo+
-Pj4+IGluIGkyYyBkZXZpY2UgcHJvYmUgZmFpbHVyZSwgd2hpY2ggaW4gdHVybiBjYW4gY2F1c2Ug
-YWxsIGtpbmRzIG9mCj4+Pj4gcHJvYmxlbXMuCj4+Pj4KPj4+Cj4+PiBZZXMsIHRoYXQgbWFrZXMg
-c2Vuc2UuIExvb2tzIGxpa2UgaXQgc2hvdWxkIGJlIHJldmVydGVkIHVudGlsIHRoZSBpc3N1ZQo+
-Pj4gaXMgZml4ZWQuIFdpbGwgc3VibWl0IGEgcGF0Y2ggdG8gcmV2ZXJ0IGl0Lgo+Pgo+PiBMZXQn
-cyBub3QgcnVzaC4gVGhlIHFlbXUgbW9kZWwgd2FzIHdyaXR0ZW4gaW4gb3JkZXIgdG8gYWxsb3cg
-dXMgdG8KPj4gdGVzdCB0aGUga2VybmVsIGNvZGUsIGFuZCB3YXMgdmFsaWRhdGVkIGJ5IHRoZSBr
-ZXJuZWwgZHJpdmVyIHdlIGhhdmUuCj4+IFdlJ3ZlIGhhZCBzaXR1YXRpb25zIGluIHRoZSBwYXN0
-ICh3aXRoIHRoZSBpMmMgZHJpdmVyIGluIGZhY3QpIHdoZXJlIGEKPj4gY2hhbmdlIGluIHRoZSBk
-cml2ZXIgcmVxdWlyZWQgYW4gdXBkYXRlIG9mIHRoZSBtb2RlbCB0byBiZSBtb3JlCj4+IGFjY3Vy
-YXRlLgo+Pgo+PiBJIHN1Z2dlc3Qgd2Ugd2FpdCB1bnRpbCBDZWRyaWMgaGFzIGEgY2hhbmNlIHRv
-IGxvb2sgYXQgdGhlIGlzc3VlCj4+IGJlZm9yZSByZXZlcnRpbmcgdGhlIHBhdGNoLgo+Pgo+IAo+
-IExvb2tpbmcgaW50byB0aGUgcGF0Y2gsIGNsZWFyaW5nIHRoZSBpbnRlcnJ1cHQgc3RhdHVzIGF0
-IHRoZSBlbmQgb2YgYW4KPiBpbnRlcnJ1cHQgaGFuZGxlciBpcyBhbHdheXMgc3VzcGljaW91cyBh
-bmQgdGVuZHMgdG8gcmVzdWx0IGluIHJhY2UKCnllcy4gVGhhdCBoYXBwZW5lZCBpbiB0aGUgcGFz
-dCB3aXRoIHRoZSBJMkMgYXNwZWVkIGRyaXZlci4gSSBjYW4gbm90IGZpbmQKdGhlIHRocmVhZCBh
-bnltb3JlIGJ1dCB3ZSBoYWQgdG8gbW92ZSB1cCB0aGUgYWNrIG9mIHRoZSBpbnRlcnJ1cHRzLiAK
-ClFFTVUgdGVuZHMgdG8gYmUgbXVjaCBmYXN0ZXIgdG8gZmlyZSBpbnRlcnJ1cHRzIHRoYW4gcmVh
-bCBIVy4KCgo+IGNvbmRpdGlvbnMgKGJlY2F1c2UgYWRkaXRpb25hbCBpbnRlcnJ1cHRzIG1heSBo
-YXZlIGFycml2ZWQgd2hpbGUgaGFuZGxpbmcKPiB0aGUgZXhpc3RpbmcgaW50ZXJydXB0cywgb3Ig
-YmVjYXVzZSBpbnRlcnJ1cHQgaGFuZGxpbmcgaXRzZWxmIG1heSB0cmlnZ2VyCj4gYW5vdGhlciBp
-bnRlcnJ1cHQpLiBXaXRoIHRoYXQgaW4gbWluZCwgdGhlIGZvbGxvd2luZyBwYXRjaCBmaXhlcyB0
-aGUKPiBwcm9ibGVtIGZvciBtZS4KCkFja2VkLWJ5OiBDw6lkcmljIExlIEdvYXRlciA8Y2xnQGth
-b2Qub3JnPgoKVGhhbmtzLAoKQy4KCj4gR3VlbnRlcgo+IAo+IC0tLQo+IAo+IGRpZmYgLS1naXQg
-YS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWFzcGVlZC5jIGIvZHJpdmVycy9pMmMvYnVzc2VzL2ky
-Yy1hc3BlZWQuYwo+IGluZGV4IGMyNThjNGQ5YTRjMC4uYzQ4OGU2OTUwYjdjIDEwMDY0NAo+IC0t
-LSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXNwZWVkLmMKPiArKysgYi9kcml2ZXJzL2kyYy9i
-dXNzZXMvaTJjLWFzcGVlZC5jCj4gQEAgLTU1Miw2ICs1NTIsOCBAQCBzdGF0aWMgaXJxcmV0dXJu
-X3QgYXNwZWVkX2kyY19idXNfaXJxKGludCBpcnEsIHZvaWQgKmRldl9pZCkKPiAgCj4gIAlzcGlu
-X2xvY2soJmJ1cy0+bG9jayk7Cj4gIAlpcnFfcmVjZWl2ZWQgPSByZWFkbChidXMtPmJhc2UgKyBB
-U1BFRURfSTJDX0lOVFJfU1RTX1JFRyk7Cj4gKwkvKiBBY2sgYWxsIGludGVycnVwdCBiaXRzLiAq
-Lwo+ICsJd3JpdGVsKGlycV9yZWNlaXZlZCwgYnVzLT5iYXNlICsgQVNQRUVEX0kyQ19JTlRSX1NU
-U19SRUcpOwo+ICAJaXJxX3JlbWFpbmluZyA9IGlycV9yZWNlaXZlZDsKPiAgCj4gICNpZiBJU19F
-TkFCTEVEKENPTkZJR19JMkNfU0xBVkUpCj4gQEAgLTU4NCw4ICs1ODYsNiBAQCBzdGF0aWMgaXJx
-cmV0dXJuX3QgYXNwZWVkX2kyY19idXNfaXJxKGludCBpcnEsIHZvaWQgKmRldl9pZCkKPiAgCQkJ
-ImlycSBoYW5kbGVkICE9IGlycS4gZXhwZWN0ZWQgMHglMDh4LCBidXQgd2FzIDB4JTA4eFxuIiwK
-PiAgCQkJaXJxX3JlY2VpdmVkLCBpcnFfaGFuZGxlZCk7Cj4gIAo+IC0JLyogQWNrIGFsbCBpbnRl
-cnJ1cHQgYml0cy4gKi8KPiAtCXdyaXRlbChpcnFfcmVjZWl2ZWQsIGJ1cy0+YmFzZSArIEFTUEVF
-RF9JMkNfSU5UUl9TVFNfUkVHKTsKPiAgCXNwaW5fdW5sb2NrKCZidXMtPmxvY2spOwo+ICAJcmV0
-dXJuIGlycV9yZW1haW5pbmcgPyBJUlFfTk9ORSA6IElSUV9IQU5ETEVEOwo+ICB9Cj4gCgoKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtl
-cm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0
-dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5l
-bAo=
+On 9/11/2018 6:34 PM, Guenter Roeck wrote:
+> On Tue, Sep 11, 2018 at 04:58:44PM -0700, Jae Hyun Yoo wrote:
+>> On 9/11/2018 4:33 PM, Guenter Roeck wrote:
+>>> Looking into the patch, clearing the interrupt status at the end of an
+>>> interrupt handler is always suspicious and tends to result in race
+>>> conditions (because additional interrupts may have arrived while handling
+>>> the existing interrupts, or because interrupt handling itself may trigger
+>>> another interrupt). With that in mind, the following patch fixes the
+>>> problem for me.
+>>>
+>>> Guenter
+>>>
+>>> ---
+>>>
+>>> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+>>> index c258c4d9a4c0..c488e6950b7c 100644
+>>> --- a/drivers/i2c/busses/i2c-aspeed.c
+>>> +++ b/drivers/i2c/busses/i2c-aspeed.c
+>>> @@ -552,6 +552,8 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
+>>>   	spin_lock(&bus->lock);
+>>>   	irq_received = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
+>>> +	/* Ack all interrupt bits. */
+>>> +	writel(irq_received, bus->base + ASPEED_I2C_INTR_STS_REG);
+>>>   	irq_remaining = irq_received;
+>>>   #if IS_ENABLED(CONFIG_I2C_SLAVE)
+>>> @@ -584,8 +586,6 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
+>>>   			"irq handled != irq. expected 0x%08x, but was 0x%08x\n",
+>>>   			irq_received, irq_handled);
+>>> -	/* Ack all interrupt bits. */
+>>> -	writel(irq_received, bus->base + ASPEED_I2C_INTR_STS_REG);
+>>>   	spin_unlock(&bus->lock);
+>>>   	return irq_remaining ? IRQ_NONE : IRQ_HANDLED;
+>>>   }
+>>>
+>>
+>> My intention of putting the code at the end of interrupt handler was,
+>> to reduce possibility of combined irq calls which is explained in this
+>> patch. But YES, I agree with you. It could make a potential race
+> 
+> Hmm, yes, but that doesn't explain why it would make sense to acknowledge
+> the interrupt late. The interrupt ack only means "I am going to handle these
+> interrupts". If additional interrupts arrive while the interrupt handler
+> is active, those will have to be acknowledged separately.
+> 
+> Sure, there is a risk that an interrupt arrives while the handler is
+> running, and that it is handled but not acknowledged. That can happen
+> with pretty much all interrupt handlers, and there are mitigations to
+> limit the impact (for example, read the interrupt status register in
+> a loop until no more interrupts are pending). But acknowledging
+> an interrupt that was possibly not handled is always bad idea.
+
+Well, that's generally right but not always. Sometimes that depends on
+hardware and Aspeed I2C is the case.
+
+This is a description from Aspeed AST2500 datasheet:
+   I2CD10 Interrupt Status Register
+   bit 2 Receive Done Interrupt status
+         S/W needs to clear this status bit to allow next data receiving.
+
+It means, driver should hold this bit to prevent transition of hardware
+state machine until the driver handles received data, so the bit should
+be cleared at the end of interrupt handler.
+
+Let me share my test result. Your code change works on 100KHz bus speed
+but doesn't work well on 1MHz bus speed. Investigated that interrupt
+handling is fast enough in 100KHz test but in 1MHz, most of data is
+corrupted because the bit is cleared at the beginning of interrupt
+handler so it allows receiving of the next data but the interrupt
+handler isn't fast enough to read the data buffer on time. I checked
+this problem on BMC-ME channel which ME sends lots of IPMB packets to
+BMC at 1MHz speed. You could simply check the data corruption problem on
+the BMC-ME channel.
+
+My thought is, the current code is right for real Aspeed I2C hardware.
+It seems that QEMU 3.0 model for witherspoon-bmc doesn't simulate the
+actual Aspeed I2C hardware correctly.
+
+Thanks,
+Jae
