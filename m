@@ -1,30 +1,169 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v8 0/4] gpiolib: speed up GPIO array processing
-Date: Thu, 13 Sep 2018 11:22:06 +0200
-Message-ID: <CACRpkdbAG1N0v-BrXruf5088L0x3XwSHbFTWOFxjHQWx0LKz5g@mail.gmail.com>
-References: <20180902120144.6855-1-jmkrzyszt@gmail.com> <20180905215008.1649-1-jmkrzyszt@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH i2c-next v6] i2c: aspeed: Handle master/slave combined irq
+ events properly
+Date: Thu, 13 Sep 2018 06:33:29 -0700
+Message-ID: <3f86e75f-1502-eae8-0633-d087937111c8@roeck-us.net>
+References: <1f34fe8c-69ef-5f2d-25dc-d5f6037cc558@linux.intel.com>
+ <20180911204107.GA26017@roeck-us.net>
+ <e5135af4-9105-214f-5de2-65cc03804222@linux.intel.com>
+ <CACPK8Xdv3aP_zOHAL0WMgwvkpBHAUesU7OdhW==jgvXjRmt-Zw@mail.gmail.com>
+ <20180911233302.GA18799@roeck-us.net>
+ <5698ca34-14c9-8d05-c4e6-5acf85ff9d14@linux.intel.com>
+ <20180912013449.GA12612@roeck-us.net>
+ <7fd98646-fb5a-be4d-ce37-84b74e0fa8b3@linux.intel.com>
+ <20180912195844.GA6893@roeck-us.net>
+ <da7f4691-7428-3114-32bb-e0171f6c7228@linux.intel.com>
+ <20180912203059.GA18201@roeck-us.net>
+ <fb185839-3ae0-01dc-09e8-f22db55ecb04@kaod.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20180905215008.1649-1-jmkrzyszt@gmail.com>
-Sender: netdev-owner@vger.kernel.org
-To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>, Ulf Hansson <ulf.hansson@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, "David S. Miller" <davem@davemloft.net>, Dominik Brodowski <linux@dominikbrodowski.net>, Greg KH <gregkh@linuxfoundation.org>, kishon@ti.com, Lars-Peter Clausen <lars@metafoo.de>, Michael Hennerich <Michael.Hennerich@analog.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald <pmeerw@pmeerw.net>, Jiri Slaby <jslaby@suse.com>, Willy Tarreau <w@1wt.eu>, Geert Uytterhoeven <geert@linux-m68k.org>, Sebastien Bourdelin <sebastien.bourdelin@savoirf>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <fb185839-3ae0-01dc-09e8-f22db55ecb04@kaod.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Cc: Joel Stanley <joel@jms.id.au>, linux-aspeed@lists.ozlabs.org, Vernon Mauery <vernon.mauery@linux.intel.com>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Brendan Higgins <brendanhiggins@google.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, jarkko.nikula@linux.intel.com, Linux ARM <linux-arm-kernel@lists.infradead.org>, James Feist <james.feist@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 5, 2018 at 11:49 PM Janusz Krzysztofik <jmkrzyszt@gmail.com> wrote:
+On 09/12/2018 10:45 PM, Cédric Le Goater wrote
 
-> The goal is to boost performance of get/set array functions while
-> processing GPIO arrays which represent pins of a signle chip in
-> hardware order.  If resulting performance is close to PIO, GPIO API
-> can be used for data I/O without much loss of speed.
+[ ... ]
 
-I applied the v8 to an immutable branch and pushed to kernelorg
-so the build servers can churn it a bit, and if it works fine
-then we can merge this into the devel branch and also set up
-that as something other subsystems can pull in if they need it.
+>> ---
+>> qemu:
+>>
+>> diff --git a/hw/i2c/aspeed_i2c.c b/hw/i2c/aspeed_i2c.c
+>> index c762c73..0d4aa08 100644
+>> --- a/hw/i2c/aspeed_i2c.c
+>> +++ b/hw/i2c/aspeed_i2c.c
+>> @@ -180,6 +180,33 @@ static uint8_t aspeed_i2c_get_state(AspeedI2CBus *bus)
+>>       return (bus->cmd >> I2CD_TX_STATE_SHIFT) & I2CD_TX_STATE_MASK;
+>>   }
+>>   
+>> +static void aspeed_i2c_handle_rx_cmd(AspeedI2CBus *bus)
+>> +{
+>> +    int ret;
+>> +
+>> +    if (!(bus->cmd & (I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST))) {
+>> +        return;
+>> +    }
+> 
+> it deserves a comment to understand which scenario we are trying to handle.
+> 
+>> +    if (bus->intr_status & I2CD_INTR_RX_DONE) {
+>> +        return;
+>> +    }
+> 
+> should be handled in aspeed_i2c_bus_handle_cmd() I think
+> 
 
-I'm really excited to merge this!
+I moved those two checks into the calling code.
 
-Yours,
-Linus Walleij
+
+>> +    aspeed_i2c_set_state(bus, I2CD_MRXD);
+>> +    ret = i2c_recv(bus->bus);
+>> +    if (ret < 0) {
+>> +        qemu_log_mask(LOG_GUEST_ERROR, "%s: read failed\n", __func__);
+>> +        ret = 0xff;
+>> +    } else {
+>> +        bus->intr_status |= I2CD_INTR_RX_DONE;
+>> +    }
+>> +    bus->buf = (ret & I2CD_BYTE_BUF_RX_MASK) << I2CD_BYTE_BUF_RX_SHIFT;
+>> +    if (bus->cmd & I2CD_M_S_RX_CMD_LAST) {
+>> +        i2c_nack(bus->bus);
+>> +    }
+>> +    bus->cmd &= ~(I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST);
+>> +    aspeed_i2c_set_state(bus, I2CD_MACTIVE);
+>> +}
+>> +
+>>   /*
+>>    * The state machine needs some refinement. It is only used to track
+>>    * invalid STOP commands for the moment.
+>> @@ -188,7 +215,7 @@ static void aspeed_i2c_bus_handle_cmd(AspeedI2CBus *bus, uint64_t value)
+>>   {
+>>       bus->cmd &= ~0xFFFF;
+>>       bus->cmd |= value & 0xFFFF;
+>> -    bus->intr_status = 0;> +    bus->intr_status &= I2CD_INTR_RX_DONE;
+> 
+> it deserves a comment to understand which scenario we are trying to handle.
+>    
+
+Ok. FWIW, I wonder if intr_status should be touched here in the first place,
+but I neither have the hardware nor a datasheet, so I don't know if any bits
+are auto-cleared.
+
+>>       if (bus->cmd & I2CD_M_START_CMD) {
+>>           uint8_t state = aspeed_i2c_get_state(bus) & I2CD_MACTIVE ?
+>> @@ -227,22 +254,7 @@ static void aspeed_i2c_bus_handle_cmd(AspeedI2CBus *bus, uint64_t value)
+>>       }
+>>   
+>>       if (bus->cmd & (I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST)) {
+>> -        int ret;
+>> -
+>> -        aspeed_i2c_set_state(bus, I2CD_MRXD);
+>> -        ret = i2c_recv(bus->bus);
+>> -        if (ret < 0) {
+>> -            qemu_log_mask(LOG_GUEST_ERROR, "%s: read failed\n", __func__);
+>> -            ret = 0xff;
+>> -        } else {
+>> -            bus->intr_status |= I2CD_INTR_RX_DONE;
+>> -        }
+>> -        bus->buf = (ret & I2CD_BYTE_BUF_RX_MASK) << I2CD_BYTE_BUF_RX_SHIFT;
+>> -        if (bus->cmd & I2CD_M_S_RX_CMD_LAST) {
+>> -            i2c_nack(bus->bus);
+>> -        }
+>> -        bus->cmd &= ~(I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST);
+>> -        aspeed_i2c_set_state(bus, I2CD_MACTIVE);
+>> +        aspeed_i2c_handle_rx_cmd(bus);
+>>       }
+>>   
+>>       if (bus->cmd & I2CD_M_STOP_CMD) {
+>> @@ -263,6 +275,7 @@ static void aspeed_i2c_bus_write(void *opaque, hwaddr offset,
+>>                                    uint64_t value, unsigned size)
+>>   {
+>>       AspeedI2CBus *bus = opaque;
+>> +    int status;
+>>   
+>>       switch (offset) {
+>>       case I2CD_FUN_CTRL_REG:
+>> @@ -283,9 +296,16 @@ static void aspeed_i2c_bus_write(void *opaque, hwaddr offset,
+>>           bus->intr_ctrl = value & 0x7FFF;
+>>           break;
+>>       case I2CD_INTR_STS_REG:
+>> +        status = bus->intr_status;
+>>           bus->intr_status &= ~(value & 0x7FFF);
+>> -        bus->controller->intr_status &= ~(1 << bus->id);
+>> -        qemu_irq_lower(bus->controller->irq);
+>> +        if (!bus->intr_status) {
+>> +            bus->controller->intr_status &= ~(1 << bus->id);
+>> +            qemu_irq_lower(bus->controller->irq);
+>> +        }
+> 
+> That part below is indeed something to fix. I had a similar patch.
+> 
+
+Should I split it out as separate patch ? Alternatively, if you submitted
+your patch already, I'll be happy to use it as base for mine.
+
+Thanks,
+Guenter
+
+> 
+>> +        if ((status & I2CD_INTR_RX_DONE) && !(bus->intr_status & I2CD_INTR_RX_DONE)) {
+>> +            aspeed_i2c_handle_rx_cmd(bus);
+>> +            aspeed_i2c_bus_raise_interrupt(bus);
+>> +        }
+> 
+> ok.
+> 
+> Thanks for looking into this.
+> 
+> C.
+> 
+>>           break;
+>>       case I2CD_DEV_ADDR_REG:
+>>           qemu_log_mask(LOG_UNIMP, "%s: slave mode not implemented\n",
+>>
+> 
+> 
