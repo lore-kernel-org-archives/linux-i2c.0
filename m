@@ -1,24 +1,12 @@
-From: =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>
-Subject: Re: [PATCH i2c-next v6] i2c: aspeed: Handle master/slave combined irq
- events properly
-Date: Thu, 13 Sep 2018 07:47:34 +0200
-Message-ID: <285ea914-5407-7fde-036d-95978f95a430@kaod.org>
-References: <20180823225731.19063-1-jae.hyun.yoo@linux.intel.com>
- <20180911183734.GA21976@roeck-us.net>
- <1f34fe8c-69ef-5f2d-25dc-d5f6037cc558@linux.intel.com>
- <20180911204107.GA26017@roeck-us.net>
- <e5135af4-9105-214f-5de2-65cc03804222@linux.intel.com>
- <CACPK8Xdv3aP_zOHAL0WMgwvkpBHAUesU7OdhW==jgvXjRmt-Zw@mail.gmail.com>
- <20180911233302.GA18799@roeck-us.net>
- <5698ca34-14c9-8d05-c4e6-5acf85ff9d14@linux.intel.com>
- <20180912013449.GA12612@roeck-us.net>
- <7fd98646-fb5a-be4d-ce37-84b74e0fa8b3@linux.intel.com>
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Subject: [PATCH] i2c: designware: select gpio/default pin when
+ prepare/unprepare recovery
+Date: Thu, 13 Sep 2018 16:05:48 +0800
+Message-ID: <20180913160548.6ed41c43@xhacker.debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <7fd98646-fb5a-be4d-ce37-84b74e0fa8b3@linux.intel.com>
-Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -28,83 +16,94 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, Guenter Roeck <linux@roeck-us.net>
-Cc: linux-aspeed@lists.ozlabs.org, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Brendan Higgins <brendanhiggins@google.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, Joel Stanley <joel@jms.id.au>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMDkvMTIvMjAxOCAwNjo1NCBQTSwgSmFlIEh5dW4gWW9vIHdyb3RlOgo+IE9uIDkvMTEvMjAx
-OCA2OjM0IFBNLCBHdWVudGVyIFJvZWNrIHdyb3RlOgo+PiBPbiBUdWUsIFNlcCAxMSwgMjAxOCBh
-dCAwNDo1ODo0NFBNIC0wNzAwLCBKYWUgSHl1biBZb28gd3JvdGU6Cj4+PiBPbiA5LzExLzIwMTgg
-NDozMyBQTSwgR3VlbnRlciBSb2VjayB3cm90ZToKPj4+PiBMb29raW5nIGludG8gdGhlIHBhdGNo
-LCBjbGVhcmluZyB0aGUgaW50ZXJydXB0IHN0YXR1cyBhdCB0aGUgZW5kIG9mIGFuCj4+Pj4gaW50
-ZXJydXB0IGhhbmRsZXIgaXMgYWx3YXlzIHN1c3BpY2lvdXMgYW5kIHRlbmRzIHRvIHJlc3VsdCBp
-biByYWNlCj4+Pj4gY29uZGl0aW9ucyAoYmVjYXVzZSBhZGRpdGlvbmFsIGludGVycnVwdHMgbWF5
-IGhhdmUgYXJyaXZlZCB3aGlsZSBoYW5kbGluZwo+Pj4+IHRoZSBleGlzdGluZyBpbnRlcnJ1cHRz
-LCBvciBiZWNhdXNlIGludGVycnVwdCBoYW5kbGluZyBpdHNlbGYgbWF5IHRyaWdnZXIKPj4+PiBh
-bm90aGVyIGludGVycnVwdCkuIFdpdGggdGhhdCBpbiBtaW5kLCB0aGUgZm9sbG93aW5nIHBhdGNo
-IGZpeGVzIHRoZQo+Pj4+IHByb2JsZW0gZm9yIG1lLgo+Pj4+Cj4+Pj4gR3VlbnRlcgo+Pj4+Cj4+
-Pj4gLS0tCj4+Pj4KPj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hc3Bl
-ZWQuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXNwZWVkLmMKPj4+PiBpbmRleCBjMjU4YzRk
-OWE0YzAuLmM0ODhlNjk1MGI3YyAxMDA2NDQKPj4+PiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMv
-aTJjLWFzcGVlZC5jCj4+Pj4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hc3BlZWQuYwo+
-Pj4+IEBAIC01NTIsNiArNTUyLDggQEAgc3RhdGljIGlycXJldHVybl90IGFzcGVlZF9pMmNfYnVz
-X2lycShpbnQgaXJxLCB2b2lkICpkZXZfaWQpCj4+Pj4gwqDCoMKgwqDCoCBzcGluX2xvY2soJmJ1
-cy0+bG9jayk7Cj4+Pj4gwqDCoMKgwqDCoCBpcnFfcmVjZWl2ZWQgPSByZWFkbChidXMtPmJhc2Ug
-KyBBU1BFRURfSTJDX0lOVFJfU1RTX1JFRyk7Cj4+Pj4gK8KgwqDCoCAvKiBBY2sgYWxsIGludGVy
-cnVwdCBiaXRzLiAqLwo+Pj4+ICvCoMKgwqAgd3JpdGVsKGlycV9yZWNlaXZlZCwgYnVzLT5iYXNl
-ICsgQVNQRUVEX0kyQ19JTlRSX1NUU19SRUcpOwo+Pj4+IMKgwqDCoMKgwqAgaXJxX3JlbWFpbmlu
-ZyA9IGlycV9yZWNlaXZlZDsKPj4+PiDCoCAjaWYgSVNfRU5BQkxFRChDT05GSUdfSTJDX1NMQVZF
-KQo+Pj4+IEBAIC01ODQsOCArNTg2LDYgQEAgc3RhdGljIGlycXJldHVybl90IGFzcGVlZF9pMmNf
-YnVzX2lycShpbnQgaXJxLCB2b2lkICpkZXZfaWQpCj4+Pj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqAgImlycSBoYW5kbGVkICE9IGlycS4gZXhwZWN0ZWQgMHglMDh4LCBidXQgd2FzIDB4JTA4
-eFxuIiwKPj4+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBpcnFfcmVjZWl2ZWQsIGlycV9o
-YW5kbGVkKTsKPj4+PiAtwqDCoMKgIC8qIEFjayBhbGwgaW50ZXJydXB0IGJpdHMuICovCj4+Pj4g
-LcKgwqDCoCB3cml0ZWwoaXJxX3JlY2VpdmVkLCBidXMtPmJhc2UgKyBBU1BFRURfSTJDX0lOVFJf
-U1RTX1JFRyk7Cj4+Pj4gwqDCoMKgwqDCoCBzcGluX3VubG9jaygmYnVzLT5sb2NrKTsKPj4+PiDC
-oMKgwqDCoMKgIHJldHVybiBpcnFfcmVtYWluaW5nID8gSVJRX05PTkUgOiBJUlFfSEFORExFRDsK
-Pj4+PiDCoCB9Cj4+Pj4KPj4+Cj4+PiBNeSBpbnRlbnRpb24gb2YgcHV0dGluZyB0aGUgY29kZSBh
-dCB0aGUgZW5kIG9mIGludGVycnVwdCBoYW5kbGVyIHdhcywKPj4+IHRvIHJlZHVjZSBwb3NzaWJp
-bGl0eSBvZiBjb21iaW5lZCBpcnEgY2FsbHMgd2hpY2ggaXMgZXhwbGFpbmVkIGluIHRoaXMKPj4+
-IHBhdGNoLiBCdXQgWUVTLCBJIGFncmVlIHdpdGggeW91LiBJdCBjb3VsZCBtYWtlIGEgcG90ZW50
-aWFsIHJhY2UKPj4KPj4gSG1tLCB5ZXMsIGJ1dCB0aGF0IGRvZXNuJ3QgZXhwbGFpbiB3aHkgaXQg
-d291bGQgbWFrZSBzZW5zZSB0byBhY2tub3dsZWRnZQo+PiB0aGUgaW50ZXJydXB0IGxhdGUuIFRo
-ZSBpbnRlcnJ1cHQgYWNrIG9ubHkgbWVhbnMgIkkgYW0gZ29pbmcgdG8gaGFuZGxlIHRoZXNlCj4+
-IGludGVycnVwdHMiLiBJZiBhZGRpdGlvbmFsIGludGVycnVwdHMgYXJyaXZlIHdoaWxlIHRoZSBp
-bnRlcnJ1cHQgaGFuZGxlcgo+PiBpcyBhY3RpdmUsIHRob3NlIHdpbGwgaGF2ZSB0byBiZSBhY2tu
-b3dsZWRnZWQgc2VwYXJhdGVseS4KPj4KPj4gU3VyZSwgdGhlcmUgaXMgYSByaXNrIHRoYXQgYW4g
-aW50ZXJydXB0IGFycml2ZXMgd2hpbGUgdGhlIGhhbmRsZXIgaXMKPj4gcnVubmluZywgYW5kIHRo
-YXQgaXQgaXMgaGFuZGxlZCBidXQgbm90IGFja25vd2xlZGdlZC4gVGhhdCBjYW4gaGFwcGVuCj4+
-IHdpdGggcHJldHR5IG11Y2ggYWxsIGludGVycnVwdCBoYW5kbGVycywgYW5kIHRoZXJlIGFyZSBt
-aXRpZ2F0aW9ucyB0bwo+PiBsaW1pdCB0aGUgaW1wYWN0IChmb3IgZXhhbXBsZSwgcmVhZCB0aGUg
-aW50ZXJydXB0IHN0YXR1cyByZWdpc3RlciBpbgo+PiBhIGxvb3AgdW50aWwgbm8gbW9yZSBpbnRl
-cnJ1cHRzIGFyZSBwZW5kaW5nKS4gQnV0IGFja25vd2xlZGdpbmcKPj4gYW4gaW50ZXJydXB0IHRo
-YXQgd2FzIHBvc3NpYmx5IG5vdCBoYW5kbGVkIGlzIGFsd2F5cyBiYWQgaWRlYS4KPiAKPiBXZWxs
-LCB0aGF0J3MgZ2VuZXJhbGx5IHJpZ2h0IGJ1dCBub3QgYWx3YXlzLiBTb21ldGltZXMgdGhhdCBk
-ZXBlbmRzIG9uCj4gaGFyZHdhcmUgYW5kIEFzcGVlZCBJMkMgaXMgdGhlIGNhc2UuCj4gCj4gVGhp
-cyBpcyBhIGRlc2NyaXB0aW9uIGZyb20gQXNwZWVkIEFTVDI1MDAgZGF0YXNoZWV0Ogo+IMKgIEky
-Q0QxMCBJbnRlcnJ1cHQgU3RhdHVzIFJlZ2lzdGVyCj4gwqAgYml0IDIgUmVjZWl2ZSBEb25lIElu
-dGVycnVwdCBzdGF0dXMKPiDCoMKgwqDCoMKgwqDCoCBTL1cgbmVlZHMgdG8gY2xlYXIgdGhpcyBz
-dGF0dXMgYml0IHRvIGFsbG93IG5leHQgZGF0YSByZWNlaXZpbmcuCj4gCj4gSXQgbWVhbnMsIGRy
-aXZlciBzaG91bGQgaG9sZCB0aGlzIGJpdCB0byBwcmV2ZW50IHRyYW5zaXRpb24gb2YgaGFyZHdh
-cmUKPiBzdGF0ZSBtYWNoaW5lIHVudGlsIHRoZSBkcml2ZXIgaGFuZGxlcyByZWNlaXZlZCBkYXRh
-LCBzbyB0aGUgYml0IHNob3VsZAo+IGJlIGNsZWFyZWQgYXQgdGhlIGVuZCBvZiBpbnRlcnJ1cHQg
-aGFuZGxlci4KPiAKPiBMZXQgbWUgc2hhcmUgbXkgdGVzdCByZXN1bHQuIFlvdXIgY29kZSBjaGFu
-Z2Ugd29ya3Mgb24gMTAwS0h6IGJ1cyBzcGVlZAo+IGJ1dCBkb2Vzbid0IHdvcmsgd2VsbCBvbiAx
-TUh6IGJ1cyBzcGVlZC4gSW52ZXN0aWdhdGVkIHRoYXQgaW50ZXJydXB0Cj4gaGFuZGxpbmcgaXMg
-ZmFzdCBlbm91Z2ggaW4gMTAwS0h6IHRlc3QgYnV0IGluIDFNSHosIG1vc3Qgb2YgZGF0YSBpcwo+
-IGNvcnJ1cHRlZCBiZWNhdXNlIHRoZSBiaXQgaXMgY2xlYXJlZCBhdCB0aGUgYmVnaW5uaW5nIG9m
-IGludGVycnVwdAo+IGhhbmRsZXIgc28gaXQgYWxsb3dzIHJlY2VpdmluZyBvZiB0aGUgbmV4dCBk
-YXRhIGJ1dCB0aGUgaW50ZXJydXB0Cj4gaGFuZGxlciBpc24ndCBmYXN0IGVub3VnaCB0byByZWFk
-IHRoZSBkYXRhIGJ1ZmZlciBvbiB0aW1lLiBJIGNoZWNrZWQKPiB0aGlzIHByb2JsZW0gb24gQk1D
-LU1FIGNoYW5uZWwgd2hpY2ggTUUgc2VuZHMgbG90cyBvZiBJUE1CIHBhY2tldHMgdG8KPiBCTUMg
-YXQgMU1IeiBzcGVlZC4gWW91IGNvdWxkIHNpbXBseSBjaGVjayB0aGUgZGF0YSBjb3JydXB0aW9u
-IHByb2JsZW0gb24KPiB0aGUgQk1DLU1FIGNoYW5uZWwuCgpPSy4KIAo+IE15IHRob3VnaHQgaXMs
-IHRoZSBjdXJyZW50IGNvZGUgaXMgcmlnaHQgZm9yIHJlYWwgQXNwZWVkIEkyQyBoYXJkd2FyZS4K
-PiBJdCBzZWVtcyB0aGF0IFFFTVUgMy4wIG1vZGVsIGZvciB3aXRoZXJzcG9vbi1ibWMgZG9lc24n
-dCBzaW11bGF0ZSB0aGUKPiBhY3R1YWwgQXNwZWVkIEkyQyBoYXJkd2FyZSBjb3JyZWN0bHkuCgpU
-aGF0IG1pZ2h0IGJlIHZlcnkgd2VsbCBwb3NzaWJsZSB5ZXMuIGl0IGFsc28gbWlzc2VzIHN1cHBv
-cnQgZm9yIHRoZSBzbGF2ZSAKbW9kZSBhbmQgdGhlIERNQSByZWdpc3RlcnMuCgpUaGFua3MgZm9y
-IHRoZSBpbmZvLAoKQy4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlz
-dHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL2xpbnV4LWFybS1rZXJuZWwK
+On some platforms, the sda/scl pins are muxed with gpio functions, so
+they could be used for recovery. Select the gpio/default pin function
+when prepare/unprepare recovery.
+
+Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+---
+ drivers/i2c/busses/i2c-designware-core.h   |  3 +++
+ drivers/i2c/busses/i2c-designware-master.c | 22 ++++++++++++++++++++++
+ 2 files changed, 25 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index e367b1af4ab2..01d5f01691a4 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -271,6 +271,9 @@ struct dw_i2c_dev {
+ 	int			(*init)(struct dw_i2c_dev *dev);
+ 	int			mode;
+ 	struct i2c_bus_recovery_info rinfo;
++	struct pinctrl		*pinctrl;
++	struct pinctrl_state	*pins_default;
++	struct pinctrl_state	*pins_gpio;
+ };
+ 
+ #define ACCESS_SWAP		0x00000001
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index 94d94b4a9a0d..c1b5b51e3ecc 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -17,6 +17,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+ #include <linux/module.h>
++#include <linux/pinctrl/consumer.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/reset.h>
+ 
+@@ -629,6 +630,9 @@ static void i2c_dw_prepare_recovery(struct i2c_adapter *adap)
+ {
+ 	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
+ 
++	if (dev->pinctrl && dev->pins_gpio)
++		pinctrl_select_state(dev->pinctrl, dev->pins_gpio);
++
+ 	i2c_dw_disable(dev);
+ 	reset_control_assert(dev->rst);
+ 	i2c_dw_prepare_clk(dev, false);
+@@ -641,6 +645,9 @@ static void i2c_dw_unprepare_recovery(struct i2c_adapter *adap)
+ 	i2c_dw_prepare_clk(dev, true);
+ 	reset_control_deassert(dev->rst);
+ 	i2c_dw_init_master(dev);
++
++	if (dev->pinctrl && dev->pins_default)
++		pinctrl_select_state(dev->pinctrl, dev->pins_default);
+ }
+ 
+ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
+@@ -648,6 +655,8 @@ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
+ 	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
+ 	struct i2c_adapter *adap = &dev->adapter;
+ 	struct gpio_desc *gpio;
++	struct pinctrl *pinctrl;
++	struct pinctrl_state *s;
+ 	int r;
+ 
+ 	gpio = devm_gpiod_get(dev->dev, "scl", GPIOD_OUT_HIGH);
+@@ -664,6 +673,19 @@ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
+ 		return PTR_ERR(gpio);
+ 	rinfo->sda_gpiod = gpio;
+ 
++	pinctrl = devm_pinctrl_get(dev->dev);
++	if (PTR_ERR(pinctrl) == -EPROBE_DEFER)
++		return -EPROBE_DEFER;
++	if (pinctrl && !IS_ERR(pinctrl)) {
++		dev->pinctrl = pinctrl;
++		s = pinctrl_lookup_state(pinctrl, PINCTRL_STATE_DEFAULT);
++		if (s && !IS_ERR(s))
++			dev->pins_default = s;
++		s = pinctrl_lookup_state(dev->pinctrl, "gpio");
++		if (s && !IS_ERR(s))
++			dev->pins_gpio = s;
++	}
++
+ 	rinfo->recover_bus = i2c_generic_scl_recovery;
+ 	rinfo->prepare_recovery = i2c_dw_prepare_recovery;
+ 	rinfo->unprepare_recovery = i2c_dw_unprepare_recovery;
+-- 
+2.19.0.rc2
