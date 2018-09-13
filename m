@@ -1,23 +1,15 @@
 From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Subject: [PATCH] i2c: designware: select gpio/default pin when
+Subject: [PATCH v2] i2c: designware: select gpio/default pin when
  prepare/unprepare recovery
-Date: Thu, 13 Sep 2018 16:05:48 +0800
-Message-ID: <20180913160548.6ed41c43@xhacker.debian>
+Date: Thu, 13 Sep 2018 16:21:32 +0800
+Message-ID: <20180913162132.17c9c2b3@xhacker.debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 On some platforms, the sda/scl pins are muxed with gpio functions, so
@@ -26,6 +18,10 @@ when prepare/unprepare recovery.
 
 Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 ---
+
+since v1:
+ - use IS_ERR_OR_NULL
+
  drivers/i2c/busses/i2c-designware-core.h   |  3 +++
  drivers/i2c/busses/i2c-designware-master.c | 22 ++++++++++++++++++++++
  2 files changed, 25 insertions(+)
@@ -45,7 +41,7 @@ index e367b1af4ab2..01d5f01691a4 100644
  
  #define ACCESS_SWAP		0x00000001
 diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 94d94b4a9a0d..c1b5b51e3ecc 100644
+index 94d94b4a9a0d..384d6630366a 100644
 --- a/drivers/i2c/busses/i2c-designware-master.c
 +++ b/drivers/i2c/busses/i2c-designware-master.c
 @@ -17,6 +17,7 @@
@@ -92,13 +88,13 @@ index 94d94b4a9a0d..c1b5b51e3ecc 100644
 +	pinctrl = devm_pinctrl_get(dev->dev);
 +	if (PTR_ERR(pinctrl) == -EPROBE_DEFER)
 +		return -EPROBE_DEFER;
-+	if (pinctrl && !IS_ERR(pinctrl)) {
++	if (!IS_ERR_OR_NULL(pinctrl)) {
 +		dev->pinctrl = pinctrl;
 +		s = pinctrl_lookup_state(pinctrl, PINCTRL_STATE_DEFAULT);
-+		if (s && !IS_ERR(s))
++		if (!IS_ERR_OR_NULL(s))
 +			dev->pins_default = s;
-+		s = pinctrl_lookup_state(dev->pinctrl, "gpio");
-+		if (s && !IS_ERR(s))
++		s = pinctrl_lookup_state(pinctrl, "gpio");
++		if (!IS_ERR_OR_NULL(s))
 +			dev->pins_gpio = s;
 +	}
 +
@@ -106,4 +102,4 @@ index 94d94b4a9a0d..c1b5b51e3ecc 100644
  	rinfo->prepare_recovery = i2c_dw_prepare_recovery;
  	rinfo->unprepare_recovery = i2c_dw_unprepare_recovery;
 -- 
-2.19.0.rc2
+2.19.0
