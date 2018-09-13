@@ -1,9 +1,11 @@
 From: =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>
 Subject: Re: [PATCH i2c-next v6] i2c: aspeed: Handle master/slave combined irq
  events properly
-Date: Thu, 13 Sep 2018 07:45:07 +0200
-Message-ID: <fb185839-3ae0-01dc-09e8-f22db55ecb04@kaod.org>
-References: <1f34fe8c-69ef-5f2d-25dc-d5f6037cc558@linux.intel.com>
+Date: Thu, 13 Sep 2018 07:47:34 +0200
+Message-ID: <285ea914-5407-7fde-036d-95978f95a430@kaod.org>
+References: <20180823225731.19063-1-jae.hyun.yoo@linux.intel.com>
+ <20180911183734.GA21976@roeck-us.net>
+ <1f34fe8c-69ef-5f2d-25dc-d5f6037cc558@linux.intel.com>
  <20180911204107.GA26017@roeck-us.net>
  <e5135af4-9105-214f-5de2-65cc03804222@linux.intel.com>
  <CACPK8Xdv3aP_zOHAL0WMgwvkpBHAUesU7OdhW==jgvXjRmt-Zw@mail.gmail.com>
@@ -11,14 +13,11 @@ References: <1f34fe8c-69ef-5f2d-25dc-d5f6037cc558@linux.intel.com>
  <5698ca34-14c9-8d05-c4e6-5acf85ff9d14@linux.intel.com>
  <20180912013449.GA12612@roeck-us.net>
  <7fd98646-fb5a-be4d-ce37-84b74e0fa8b3@linux.intel.com>
- <20180912195844.GA6893@roeck-us.net>
- <da7f4691-7428-3114-32bb-e0171f6c7228@linux.intel.com>
- <20180912203059.GA18201@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180912203059.GA18201@roeck-us.net>
+In-Reply-To: <7fd98646-fb5a-be4d-ce37-84b74e0fa8b3@linux.intel.com>
 Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -29,240 +28,83 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Guenter Roeck <linux@roeck-us.net>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, Guenter Roeck <linux@roeck-us.net>
 Cc: linux-aspeed@lists.ozlabs.org, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Brendan Higgins <brendanhiggins@google.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, Joel Stanley <joel@jms.id.au>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 09/12/2018 10:30 PM, Guenter Roeck wrote:
-> On Wed, Sep 12, 2018 at 01:10:45PM -0700, Jae Hyun Yoo wrote:
->> On 9/12/2018 12:58 PM, Guenter Roeck wrote:
->>> On Wed, Sep 12, 2018 at 09:54:51AM -0700, Jae Hyun Yoo wrote:
->>>> On 9/11/2018 6:34 PM, Guenter Roeck wrote:
->>>>> On Tue, Sep 11, 2018 at 04:58:44PM -0700, Jae Hyun Yoo wrote:
->>>>>> On 9/11/2018 4:33 PM, Guenter Roeck wrote:
->>>>>>> Looking into the patch, clearing the interrupt status at the end of an
->>>>>>> interrupt handler is always suspicious and tends to result in race
->>>>>>> conditions (because additional interrupts may have arrived while handling
->>>>>>> the existing interrupts, or because interrupt handling itself may trigger
->>>>>>> another interrupt). With that in mind, the following patch fixes the
->>>>>>> problem for me.
->>>>>>>
->>>>>>> Guenter
->>>>>>>
->>>>>>> ---
->>>>>>>
->>>>>>> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
->>>>>>> index c258c4d9a4c0..c488e6950b7c 100644
->>>>>>> --- a/drivers/i2c/busses/i2c-aspeed.c
->>>>>>> +++ b/drivers/i2c/busses/i2c-aspeed.c
->>>>>>> @@ -552,6 +552,8 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
->>>>>>>  	spin_lock(&bus->lock);
->>>>>>>  	irq_received = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
->>>>>>> +	/* Ack all interrupt bits. */
->>>>>>> +	writel(irq_received, bus->base + ASPEED_I2C_INTR_STS_REG);
->>>>>>>  	irq_remaining = irq_received;
->>>>>>>  #if IS_ENABLED(CONFIG_I2C_SLAVE)
->>>>>>> @@ -584,8 +586,6 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
->>>>>>>  			"irq handled != irq. expected 0x%08x, but was 0x%08x\n",
->>>>>>>  			irq_received, irq_handled);
->>>>>>> -	/* Ack all interrupt bits. */
->>>>>>> -	writel(irq_received, bus->base + ASPEED_I2C_INTR_STS_REG);
->>>>>>>  	spin_unlock(&bus->lock);
->>>>>>>  	return irq_remaining ? IRQ_NONE : IRQ_HANDLED;
->>>>>>>  }
->>>>>>>
->>>>>>
->>>>>> My intention of putting the code at the end of interrupt handler was,
->>>>>> to reduce possibility of combined irq calls which is explained in this
->>>>>> patch. But YES, I agree with you. It could make a potential race
->>>>>
->>>>> Hmm, yes, but that doesn't explain why it would make sense to acknowledge
->>>>> the interrupt late. The interrupt ack only means "I am going to handle these
->>>>> interrupts". If additional interrupts arrive while the interrupt handler
->>>>> is active, those will have to be acknowledged separately.
->>>>>
->>>>> Sure, there is a risk that an interrupt arrives while the handler is
->>>>> running, and that it is handled but not acknowledged. That can happen
->>>>> with pretty much all interrupt handlers, and there are mitigations to
->>>>> limit the impact (for example, read the interrupt status register in
->>>>> a loop until no more interrupts are pending). But acknowledging
->>>>> an interrupt that was possibly not handled is always bad idea.
->>>>
->>>> Well, that's generally right but not always. Sometimes that depends on
->>>> hardware and Aspeed I2C is the case.
->>>>
->>>> This is a description from Aspeed AST2500 datasheet:
->>>>   I2CD10 Interrupt Status Register
->>>>   bit 2 Receive Done Interrupt status
->>>>         S/W needs to clear this status bit to allow next data receiving.
->>>>
->>>> It means, driver should hold this bit to prevent transition of hardware
->>>> state machine until the driver handles received data, so the bit should
->>>> be cleared at the end of interrupt handler.
->>>>
->>> That makes sense. Does that apply to the other status bits as well ?
->>> Reason for asking is that the current code actually gets stuck
->>> in transmit, not receive.
->>>
->> Only bit 2 has that description in datasheet. Is slave config enabled
->> for QEMU build? Does that get stuck in master sending or slave
->> receiving?
->>
-> qemu does not support slave mode. Linux gets stuck in master tx.
-> 
-> I played with the code on both sides. I had to make changes in both
-> the linux kernel and in qemu to get the code to work again.
-> See attached.
-> 
-> Guenter
-> 
-> ---
-> Linux:
-> 
-> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-> index c258c4d9a4c0..3d518e09369f 100644
-> --- a/drivers/i2c/busses/i2c-aspeed.c
-> +++ b/drivers/i2c/busses/i2c-aspeed.c
-> @@ -552,6 +552,9 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
->  
->  	spin_lock(&bus->lock);
->  	irq_received = readl(bus->base + ASPEED_I2C_INTR_STS_REG);
-> +	/* Ack all interrupts except for Rx done */
-> +	writel(irq_received & ~ASPEED_I2CD_INTR_RX_DONE,
-> +	       bus->base + ASPEED_I2C_INTR_STS_REG);
->  	irq_remaining = irq_received;
->  
->  #if IS_ENABLED(CONFIG_I2C_SLAVE)
-> @@ -584,8 +587,10 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
->  			"irq handled != irq. expected 0x%08x, but was 0x%08x\n",
->  			irq_received, irq_handled);
->  
-> -	/* Ack all interrupt bits. */
-> -	writel(irq_received, bus->base + ASPEED_I2C_INTR_STS_REG);
-> +	/* Ack Rx done */
-> +	if (irq_received & ASPEED_I2CD_INTR_RX_DONE)
-> +		writel(ASPEED_I2CD_INTR_RX_DONE,
-> +		       bus->base + ASPEED_I2C_INTR_STS_REG);
->  	spin_unlock(&bus->lock);
->  	return irq_remaining ? IRQ_NONE : IRQ_HANDLED;
->  }
-> 
-> ---
-> qemu:
-> 
-> diff --git a/hw/i2c/aspeed_i2c.c b/hw/i2c/aspeed_i2c.c
-> index c762c73..0d4aa08 100644
-> --- a/hw/i2c/aspeed_i2c.c
-> +++ b/hw/i2c/aspeed_i2c.c
-> @@ -180,6 +180,33 @@ static uint8_t aspeed_i2c_get_state(AspeedI2CBus *bus)
->      return (bus->cmd >> I2CD_TX_STATE_SHIFT) & I2CD_TX_STATE_MASK;
->  }
->  
-> +static void aspeed_i2c_handle_rx_cmd(AspeedI2CBus *bus)
-> +{
-> +    int ret;
-> +
-> +    if (!(bus->cmd & (I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST))) {
-> +        return;
-> +    }
-
-it deserves a comment to understand which scenario we are trying to handle.
-
-> +    if (bus->intr_status & I2CD_INTR_RX_DONE) {
-> +        return;
-> +    }
-
-should be handled in aspeed_i2c_bus_handle_cmd() I think
-
-> +    aspeed_i2c_set_state(bus, I2CD_MRXD);
-> +    ret = i2c_recv(bus->bus);
-> +    if (ret < 0) {
-> +        qemu_log_mask(LOG_GUEST_ERROR, "%s: read failed\n", __func__);
-> +        ret = 0xff;
-> +    } else {
-> +        bus->intr_status |= I2CD_INTR_RX_DONE;
-> +    }
-> +    bus->buf = (ret & I2CD_BYTE_BUF_RX_MASK) << I2CD_BYTE_BUF_RX_SHIFT;
-> +    if (bus->cmd & I2CD_M_S_RX_CMD_LAST) {
-> +        i2c_nack(bus->bus);
-> +    }
-> +    bus->cmd &= ~(I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST);
-> +    aspeed_i2c_set_state(bus, I2CD_MACTIVE);
-> +}
-> +
->  /*
->   * The state machine needs some refinement. It is only used to track
->   * invalid STOP commands for the moment.
-> @@ -188,7 +215,7 @@ static void aspeed_i2c_bus_handle_cmd(AspeedI2CBus *bus, uint64_t value)
->  {
->      bus->cmd &= ~0xFFFF;
->      bus->cmd |= value & 0xFFFF;
-> -    bus->intr_status = 0;> +    bus->intr_status &= I2CD_INTR_RX_DONE;
-
-it deserves a comment to understand which scenario we are trying to handle.
-  
->      if (bus->cmd & I2CD_M_START_CMD) {
->          uint8_t state = aspeed_i2c_get_state(bus) & I2CD_MACTIVE ?
-> @@ -227,22 +254,7 @@ static void aspeed_i2c_bus_handle_cmd(AspeedI2CBus *bus, uint64_t value)
->      }
->  
->      if (bus->cmd & (I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST)) {
-> -        int ret;
-> -
-> -        aspeed_i2c_set_state(bus, I2CD_MRXD);
-> -        ret = i2c_recv(bus->bus);
-> -        if (ret < 0) {
-> -            qemu_log_mask(LOG_GUEST_ERROR, "%s: read failed\n", __func__);
-> -            ret = 0xff;
-> -        } else {
-> -            bus->intr_status |= I2CD_INTR_RX_DONE;
-> -        }
-> -        bus->buf = (ret & I2CD_BYTE_BUF_RX_MASK) << I2CD_BYTE_BUF_RX_SHIFT;
-> -        if (bus->cmd & I2CD_M_S_RX_CMD_LAST) {
-> -            i2c_nack(bus->bus);
-> -        }
-> -        bus->cmd &= ~(I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST);
-> -        aspeed_i2c_set_state(bus, I2CD_MACTIVE);
-> +        aspeed_i2c_handle_rx_cmd(bus);
->      }
->  
->      if (bus->cmd & I2CD_M_STOP_CMD) {
-> @@ -263,6 +275,7 @@ static void aspeed_i2c_bus_write(void *opaque, hwaddr offset,
->                                   uint64_t value, unsigned size)
->  {
->      AspeedI2CBus *bus = opaque;
-> +    int status;
->  
->      switch (offset) {
->      case I2CD_FUN_CTRL_REG:
-> @@ -283,9 +296,16 @@ static void aspeed_i2c_bus_write(void *opaque, hwaddr offset,
->          bus->intr_ctrl = value & 0x7FFF;
->          break;
->      case I2CD_INTR_STS_REG:
-> +        status = bus->intr_status;
->          bus->intr_status &= ~(value & 0x7FFF);
-> -        bus->controller->intr_status &= ~(1 << bus->id);
-> -        qemu_irq_lower(bus->controller->irq);
-> +        if (!bus->intr_status) {
-> +            bus->controller->intr_status &= ~(1 << bus->id);
-> +            qemu_irq_lower(bus->controller->irq);
-> +        }
-
-That part below is indeed something to fix. I had a similar patch.
-
-
-> +        if ((status & I2CD_INTR_RX_DONE) && !(bus->intr_status & I2CD_INTR_RX_DONE)) {
-> +            aspeed_i2c_handle_rx_cmd(bus);
-> +            aspeed_i2c_bus_raise_interrupt(bus);
-> +        }
-
-ok.
-
-Thanks for looking into this.
-
-C.
-
->          break;
->      case I2CD_DEV_ADDR_REG:
->          qemu_log_mask(LOG_UNIMP, "%s: slave mode not implemented\n",
-> 
+T24gMDkvMTIvMjAxOCAwNjo1NCBQTSwgSmFlIEh5dW4gWW9vIHdyb3RlOgo+IE9uIDkvMTEvMjAx
+OCA2OjM0IFBNLCBHdWVudGVyIFJvZWNrIHdyb3RlOgo+PiBPbiBUdWUsIFNlcCAxMSwgMjAxOCBh
+dCAwNDo1ODo0NFBNIC0wNzAwLCBKYWUgSHl1biBZb28gd3JvdGU6Cj4+PiBPbiA5LzExLzIwMTgg
+NDozMyBQTSwgR3VlbnRlciBSb2VjayB3cm90ZToKPj4+PiBMb29raW5nIGludG8gdGhlIHBhdGNo
+LCBjbGVhcmluZyB0aGUgaW50ZXJydXB0IHN0YXR1cyBhdCB0aGUgZW5kIG9mIGFuCj4+Pj4gaW50
+ZXJydXB0IGhhbmRsZXIgaXMgYWx3YXlzIHN1c3BpY2lvdXMgYW5kIHRlbmRzIHRvIHJlc3VsdCBp
+biByYWNlCj4+Pj4gY29uZGl0aW9ucyAoYmVjYXVzZSBhZGRpdGlvbmFsIGludGVycnVwdHMgbWF5
+IGhhdmUgYXJyaXZlZCB3aGlsZSBoYW5kbGluZwo+Pj4+IHRoZSBleGlzdGluZyBpbnRlcnJ1cHRz
+LCBvciBiZWNhdXNlIGludGVycnVwdCBoYW5kbGluZyBpdHNlbGYgbWF5IHRyaWdnZXIKPj4+PiBh
+bm90aGVyIGludGVycnVwdCkuIFdpdGggdGhhdCBpbiBtaW5kLCB0aGUgZm9sbG93aW5nIHBhdGNo
+IGZpeGVzIHRoZQo+Pj4+IHByb2JsZW0gZm9yIG1lLgo+Pj4+Cj4+Pj4gR3VlbnRlcgo+Pj4+Cj4+
+Pj4gLS0tCj4+Pj4KPj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hc3Bl
+ZWQuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXNwZWVkLmMKPj4+PiBpbmRleCBjMjU4YzRk
+OWE0YzAuLmM0ODhlNjk1MGI3YyAxMDA2NDQKPj4+PiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMv
+aTJjLWFzcGVlZC5jCj4+Pj4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hc3BlZWQuYwo+
+Pj4+IEBAIC01NTIsNiArNTUyLDggQEAgc3RhdGljIGlycXJldHVybl90IGFzcGVlZF9pMmNfYnVz
+X2lycShpbnQgaXJxLCB2b2lkICpkZXZfaWQpCj4+Pj4gwqDCoMKgwqDCoCBzcGluX2xvY2soJmJ1
+cy0+bG9jayk7Cj4+Pj4gwqDCoMKgwqDCoCBpcnFfcmVjZWl2ZWQgPSByZWFkbChidXMtPmJhc2Ug
+KyBBU1BFRURfSTJDX0lOVFJfU1RTX1JFRyk7Cj4+Pj4gK8KgwqDCoCAvKiBBY2sgYWxsIGludGVy
+cnVwdCBiaXRzLiAqLwo+Pj4+ICvCoMKgwqAgd3JpdGVsKGlycV9yZWNlaXZlZCwgYnVzLT5iYXNl
+ICsgQVNQRUVEX0kyQ19JTlRSX1NUU19SRUcpOwo+Pj4+IMKgwqDCoMKgwqAgaXJxX3JlbWFpbmlu
+ZyA9IGlycV9yZWNlaXZlZDsKPj4+PiDCoCAjaWYgSVNfRU5BQkxFRChDT05GSUdfSTJDX1NMQVZF
+KQo+Pj4+IEBAIC01ODQsOCArNTg2LDYgQEAgc3RhdGljIGlycXJldHVybl90IGFzcGVlZF9pMmNf
+YnVzX2lycShpbnQgaXJxLCB2b2lkICpkZXZfaWQpCj4+Pj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqAgImlycSBoYW5kbGVkICE9IGlycS4gZXhwZWN0ZWQgMHglMDh4LCBidXQgd2FzIDB4JTA4
+eFxuIiwKPj4+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBpcnFfcmVjZWl2ZWQsIGlycV9o
+YW5kbGVkKTsKPj4+PiAtwqDCoMKgIC8qIEFjayBhbGwgaW50ZXJydXB0IGJpdHMuICovCj4+Pj4g
+LcKgwqDCoCB3cml0ZWwoaXJxX3JlY2VpdmVkLCBidXMtPmJhc2UgKyBBU1BFRURfSTJDX0lOVFJf
+U1RTX1JFRyk7Cj4+Pj4gwqDCoMKgwqDCoCBzcGluX3VubG9jaygmYnVzLT5sb2NrKTsKPj4+PiDC
+oMKgwqDCoMKgIHJldHVybiBpcnFfcmVtYWluaW5nID8gSVJRX05PTkUgOiBJUlFfSEFORExFRDsK
+Pj4+PiDCoCB9Cj4+Pj4KPj4+Cj4+PiBNeSBpbnRlbnRpb24gb2YgcHV0dGluZyB0aGUgY29kZSBh
+dCB0aGUgZW5kIG9mIGludGVycnVwdCBoYW5kbGVyIHdhcywKPj4+IHRvIHJlZHVjZSBwb3NzaWJp
+bGl0eSBvZiBjb21iaW5lZCBpcnEgY2FsbHMgd2hpY2ggaXMgZXhwbGFpbmVkIGluIHRoaXMKPj4+
+IHBhdGNoLiBCdXQgWUVTLCBJIGFncmVlIHdpdGggeW91LiBJdCBjb3VsZCBtYWtlIGEgcG90ZW50
+aWFsIHJhY2UKPj4KPj4gSG1tLCB5ZXMsIGJ1dCB0aGF0IGRvZXNuJ3QgZXhwbGFpbiB3aHkgaXQg
+d291bGQgbWFrZSBzZW5zZSB0byBhY2tub3dsZWRnZQo+PiB0aGUgaW50ZXJydXB0IGxhdGUuIFRo
+ZSBpbnRlcnJ1cHQgYWNrIG9ubHkgbWVhbnMgIkkgYW0gZ29pbmcgdG8gaGFuZGxlIHRoZXNlCj4+
+IGludGVycnVwdHMiLiBJZiBhZGRpdGlvbmFsIGludGVycnVwdHMgYXJyaXZlIHdoaWxlIHRoZSBp
+bnRlcnJ1cHQgaGFuZGxlcgo+PiBpcyBhY3RpdmUsIHRob3NlIHdpbGwgaGF2ZSB0byBiZSBhY2tu
+b3dsZWRnZWQgc2VwYXJhdGVseS4KPj4KPj4gU3VyZSwgdGhlcmUgaXMgYSByaXNrIHRoYXQgYW4g
+aW50ZXJydXB0IGFycml2ZXMgd2hpbGUgdGhlIGhhbmRsZXIgaXMKPj4gcnVubmluZywgYW5kIHRo
+YXQgaXQgaXMgaGFuZGxlZCBidXQgbm90IGFja25vd2xlZGdlZC4gVGhhdCBjYW4gaGFwcGVuCj4+
+IHdpdGggcHJldHR5IG11Y2ggYWxsIGludGVycnVwdCBoYW5kbGVycywgYW5kIHRoZXJlIGFyZSBt
+aXRpZ2F0aW9ucyB0bwo+PiBsaW1pdCB0aGUgaW1wYWN0IChmb3IgZXhhbXBsZSwgcmVhZCB0aGUg
+aW50ZXJydXB0IHN0YXR1cyByZWdpc3RlciBpbgo+PiBhIGxvb3AgdW50aWwgbm8gbW9yZSBpbnRl
+cnJ1cHRzIGFyZSBwZW5kaW5nKS4gQnV0IGFja25vd2xlZGdpbmcKPj4gYW4gaW50ZXJydXB0IHRo
+YXQgd2FzIHBvc3NpYmx5IG5vdCBoYW5kbGVkIGlzIGFsd2F5cyBiYWQgaWRlYS4KPiAKPiBXZWxs
+LCB0aGF0J3MgZ2VuZXJhbGx5IHJpZ2h0IGJ1dCBub3QgYWx3YXlzLiBTb21ldGltZXMgdGhhdCBk
+ZXBlbmRzIG9uCj4gaGFyZHdhcmUgYW5kIEFzcGVlZCBJMkMgaXMgdGhlIGNhc2UuCj4gCj4gVGhp
+cyBpcyBhIGRlc2NyaXB0aW9uIGZyb20gQXNwZWVkIEFTVDI1MDAgZGF0YXNoZWV0Ogo+IMKgIEky
+Q0QxMCBJbnRlcnJ1cHQgU3RhdHVzIFJlZ2lzdGVyCj4gwqAgYml0IDIgUmVjZWl2ZSBEb25lIElu
+dGVycnVwdCBzdGF0dXMKPiDCoMKgwqDCoMKgwqDCoCBTL1cgbmVlZHMgdG8gY2xlYXIgdGhpcyBz
+dGF0dXMgYml0IHRvIGFsbG93IG5leHQgZGF0YSByZWNlaXZpbmcuCj4gCj4gSXQgbWVhbnMsIGRy
+aXZlciBzaG91bGQgaG9sZCB0aGlzIGJpdCB0byBwcmV2ZW50IHRyYW5zaXRpb24gb2YgaGFyZHdh
+cmUKPiBzdGF0ZSBtYWNoaW5lIHVudGlsIHRoZSBkcml2ZXIgaGFuZGxlcyByZWNlaXZlZCBkYXRh
+LCBzbyB0aGUgYml0IHNob3VsZAo+IGJlIGNsZWFyZWQgYXQgdGhlIGVuZCBvZiBpbnRlcnJ1cHQg
+aGFuZGxlci4KPiAKPiBMZXQgbWUgc2hhcmUgbXkgdGVzdCByZXN1bHQuIFlvdXIgY29kZSBjaGFu
+Z2Ugd29ya3Mgb24gMTAwS0h6IGJ1cyBzcGVlZAo+IGJ1dCBkb2Vzbid0IHdvcmsgd2VsbCBvbiAx
+TUh6IGJ1cyBzcGVlZC4gSW52ZXN0aWdhdGVkIHRoYXQgaW50ZXJydXB0Cj4gaGFuZGxpbmcgaXMg
+ZmFzdCBlbm91Z2ggaW4gMTAwS0h6IHRlc3QgYnV0IGluIDFNSHosIG1vc3Qgb2YgZGF0YSBpcwo+
+IGNvcnJ1cHRlZCBiZWNhdXNlIHRoZSBiaXQgaXMgY2xlYXJlZCBhdCB0aGUgYmVnaW5uaW5nIG9m
+IGludGVycnVwdAo+IGhhbmRsZXIgc28gaXQgYWxsb3dzIHJlY2VpdmluZyBvZiB0aGUgbmV4dCBk
+YXRhIGJ1dCB0aGUgaW50ZXJydXB0Cj4gaGFuZGxlciBpc24ndCBmYXN0IGVub3VnaCB0byByZWFk
+IHRoZSBkYXRhIGJ1ZmZlciBvbiB0aW1lLiBJIGNoZWNrZWQKPiB0aGlzIHByb2JsZW0gb24gQk1D
+LU1FIGNoYW5uZWwgd2hpY2ggTUUgc2VuZHMgbG90cyBvZiBJUE1CIHBhY2tldHMgdG8KPiBCTUMg
+YXQgMU1IeiBzcGVlZC4gWW91IGNvdWxkIHNpbXBseSBjaGVjayB0aGUgZGF0YSBjb3JydXB0aW9u
+IHByb2JsZW0gb24KPiB0aGUgQk1DLU1FIGNoYW5uZWwuCgpPSy4KIAo+IE15IHRob3VnaHQgaXMs
+IHRoZSBjdXJyZW50IGNvZGUgaXMgcmlnaHQgZm9yIHJlYWwgQXNwZWVkIEkyQyBoYXJkd2FyZS4K
+PiBJdCBzZWVtcyB0aGF0IFFFTVUgMy4wIG1vZGVsIGZvciB3aXRoZXJzcG9vbi1ibWMgZG9lc24n
+dCBzaW11bGF0ZSB0aGUKPiBhY3R1YWwgQXNwZWVkIEkyQyBoYXJkd2FyZSBjb3JyZWN0bHkuCgpU
+aGF0IG1pZ2h0IGJlIHZlcnkgd2VsbCBwb3NzaWJsZSB5ZXMuIGl0IGFsc28gbWlzc2VzIHN1cHBv
+cnQgZm9yIHRoZSBzbGF2ZSAKbW9kZSBhbmQgdGhlIERNQSByZWdpc3RlcnMuCgpUaGFua3MgZm9y
+IHRoZSBpbmZvLAoKQy4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlz
+dHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL2xpbnV4LWFybS1rZXJuZWwK
