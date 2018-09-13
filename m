@@ -1,169 +1,52 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH i2c-next v6] i2c: aspeed: Handle master/slave combined irq
- events properly
-Date: Thu, 13 Sep 2018 06:33:29 -0700
-Message-ID: <3f86e75f-1502-eae8-0633-d087937111c8@roeck-us.net>
-References: <1f34fe8c-69ef-5f2d-25dc-d5f6037cc558@linux.intel.com>
- <20180911204107.GA26017@roeck-us.net>
- <e5135af4-9105-214f-5de2-65cc03804222@linux.intel.com>
- <CACPK8Xdv3aP_zOHAL0WMgwvkpBHAUesU7OdhW==jgvXjRmt-Zw@mail.gmail.com>
- <20180911233302.GA18799@roeck-us.net>
- <5698ca34-14c9-8d05-c4e6-5acf85ff9d14@linux.intel.com>
- <20180912013449.GA12612@roeck-us.net>
- <7fd98646-fb5a-be4d-ce37-84b74e0fa8b3@linux.intel.com>
- <20180912195844.GA6893@roeck-us.net>
- <da7f4691-7428-3114-32bb-e0171f6c7228@linux.intel.com>
- <20180912203059.GA18201@roeck-us.net>
- <fb185839-3ae0-01dc-09e8-f22db55ecb04@kaod.org>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v2] i2c: designware: select gpio/default pin when
+ prepare/unprepare recovery
+Date: Thu, 13 Sep 2018 16:50:30 +0300
+Message-ID: <d4ebb8a5-9e56-20c5-2bda-03ca2a40378e@linux.intel.com>
+References: <20180913162132.17c9c2b3@xhacker.debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <fb185839-3ae0-01dc-09e8-f22db55ecb04@kaod.org>
+In-Reply-To: <20180913162132.17c9c2b3@xhacker.debian>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Cc: Joel Stanley <joel@jms.id.au>, linux-aspeed@lists.ozlabs.org, Vernon Mauery <vernon.mauery@linux.intel.com>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Brendan Higgins <brendanhiggins@google.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, jarkko.nikula@linux.intel.com, Linux ARM <linux-arm-kernel@lists.infradead.org>, James Feist <james.feist@linux.intel.com>
+To: Jisheng Zhang <Jisheng.Zhang@synaptics.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 09/12/2018 10:45 PM, Cédric Le Goater wrote
+On 09/13/2018 11:21 AM, Jisheng Zhang wrote:
+> On some platforms, the sda/scl pins are muxed with gpio functions, so
+> they could be used for recovery. Select the gpio/default pin function
+> when prepare/unprepare recovery.
+> 
+> Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+> ---
+> 
+> since v1:
+>   - use IS_ERR_OR_NULL
+> 
+>   drivers/i2c/busses/i2c-designware-core.h   |  3 +++
+>   drivers/i2c/busses/i2c-designware-master.c | 22 ++++++++++++++++++++++
+>   2 files changed, 25 insertions(+)
+> 
+...
+> +	pinctrl = devm_pinctrl_get(dev->dev);
+> +	if (PTR_ERR(pinctrl) == -EPROBE_DEFER)
+> +		return -EPROBE_DEFER;
+> +	if (!IS_ERR_OR_NULL(pinctrl)) {
+> +		dev->pinctrl = pinctrl;
+> +		s = pinctrl_lookup_state(pinctrl, PINCTRL_STATE_DEFAULT);
+> +		if (!IS_ERR_OR_NULL(s))
+> +			dev->pins_default = s;
+> +		s = pinctrl_lookup_state(pinctrl, "gpio");
+> +		if (!IS_ERR_OR_NULL(s))
+> +			dev->pins_gpio = s;
+> +	}
+> +
 
-[ ... ]
+Should these be documented in 
+Documentation/devicetree/bindings/i2c/i2c-designware.txt?
 
->> ---
->> qemu:
->>
->> diff --git a/hw/i2c/aspeed_i2c.c b/hw/i2c/aspeed_i2c.c
->> index c762c73..0d4aa08 100644
->> --- a/hw/i2c/aspeed_i2c.c
->> +++ b/hw/i2c/aspeed_i2c.c
->> @@ -180,6 +180,33 @@ static uint8_t aspeed_i2c_get_state(AspeedI2CBus *bus)
->>       return (bus->cmd >> I2CD_TX_STATE_SHIFT) & I2CD_TX_STATE_MASK;
->>   }
->>   
->> +static void aspeed_i2c_handle_rx_cmd(AspeedI2CBus *bus)
->> +{
->> +    int ret;
->> +
->> +    if (!(bus->cmd & (I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST))) {
->> +        return;
->> +    }
-> 
-> it deserves a comment to understand which scenario we are trying to handle.
-> 
->> +    if (bus->intr_status & I2CD_INTR_RX_DONE) {
->> +        return;
->> +    }
-> 
-> should be handled in aspeed_i2c_bus_handle_cmd() I think
-> 
-
-I moved those two checks into the calling code.
-
-
->> +    aspeed_i2c_set_state(bus, I2CD_MRXD);
->> +    ret = i2c_recv(bus->bus);
->> +    if (ret < 0) {
->> +        qemu_log_mask(LOG_GUEST_ERROR, "%s: read failed\n", __func__);
->> +        ret = 0xff;
->> +    } else {
->> +        bus->intr_status |= I2CD_INTR_RX_DONE;
->> +    }
->> +    bus->buf = (ret & I2CD_BYTE_BUF_RX_MASK) << I2CD_BYTE_BUF_RX_SHIFT;
->> +    if (bus->cmd & I2CD_M_S_RX_CMD_LAST) {
->> +        i2c_nack(bus->bus);
->> +    }
->> +    bus->cmd &= ~(I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST);
->> +    aspeed_i2c_set_state(bus, I2CD_MACTIVE);
->> +}
->> +
->>   /*
->>    * The state machine needs some refinement. It is only used to track
->>    * invalid STOP commands for the moment.
->> @@ -188,7 +215,7 @@ static void aspeed_i2c_bus_handle_cmd(AspeedI2CBus *bus, uint64_t value)
->>   {
->>       bus->cmd &= ~0xFFFF;
->>       bus->cmd |= value & 0xFFFF;
->> -    bus->intr_status = 0;> +    bus->intr_status &= I2CD_INTR_RX_DONE;
-> 
-> it deserves a comment to understand which scenario we are trying to handle.
->    
-
-Ok. FWIW, I wonder if intr_status should be touched here in the first place,
-but I neither have the hardware nor a datasheet, so I don't know if any bits
-are auto-cleared.
-
->>       if (bus->cmd & I2CD_M_START_CMD) {
->>           uint8_t state = aspeed_i2c_get_state(bus) & I2CD_MACTIVE ?
->> @@ -227,22 +254,7 @@ static void aspeed_i2c_bus_handle_cmd(AspeedI2CBus *bus, uint64_t value)
->>       }
->>   
->>       if (bus->cmd & (I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST)) {
->> -        int ret;
->> -
->> -        aspeed_i2c_set_state(bus, I2CD_MRXD);
->> -        ret = i2c_recv(bus->bus);
->> -        if (ret < 0) {
->> -            qemu_log_mask(LOG_GUEST_ERROR, "%s: read failed\n", __func__);
->> -            ret = 0xff;
->> -        } else {
->> -            bus->intr_status |= I2CD_INTR_RX_DONE;
->> -        }
->> -        bus->buf = (ret & I2CD_BYTE_BUF_RX_MASK) << I2CD_BYTE_BUF_RX_SHIFT;
->> -        if (bus->cmd & I2CD_M_S_RX_CMD_LAST) {
->> -            i2c_nack(bus->bus);
->> -        }
->> -        bus->cmd &= ~(I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST);
->> -        aspeed_i2c_set_state(bus, I2CD_MACTIVE);
->> +        aspeed_i2c_handle_rx_cmd(bus);
->>       }
->>   
->>       if (bus->cmd & I2CD_M_STOP_CMD) {
->> @@ -263,6 +275,7 @@ static void aspeed_i2c_bus_write(void *opaque, hwaddr offset,
->>                                    uint64_t value, unsigned size)
->>   {
->>       AspeedI2CBus *bus = opaque;
->> +    int status;
->>   
->>       switch (offset) {
->>       case I2CD_FUN_CTRL_REG:
->> @@ -283,9 +296,16 @@ static void aspeed_i2c_bus_write(void *opaque, hwaddr offset,
->>           bus->intr_ctrl = value & 0x7FFF;
->>           break;
->>       case I2CD_INTR_STS_REG:
->> +        status = bus->intr_status;
->>           bus->intr_status &= ~(value & 0x7FFF);
->> -        bus->controller->intr_status &= ~(1 << bus->id);
->> -        qemu_irq_lower(bus->controller->irq);
->> +        if (!bus->intr_status) {
->> +            bus->controller->intr_status &= ~(1 << bus->id);
->> +            qemu_irq_lower(bus->controller->irq);
->> +        }
-> 
-> That part below is indeed something to fix. I had a similar patch.
-> 
-
-Should I split it out as separate patch ? Alternatively, if you submitted
-your patch already, I'll be happy to use it as base for mine.
-
-Thanks,
-Guenter
-
-> 
->> +        if ((status & I2CD_INTR_RX_DONE) && !(bus->intr_status & I2CD_INTR_RX_DONE)) {
->> +            aspeed_i2c_handle_rx_cmd(bus);
->> +            aspeed_i2c_bus_raise_interrupt(bus);
->> +        }
-> 
-> ok.
-> 
-> Thanks for looking into this.
-> 
-> C.
-> 
->>           break;
->>       case I2CD_DEV_ADDR_REG:
->>           qemu_log_mask(LOG_UNIMP, "%s: slave mode not implemented\n",
->>
-> 
-> 
+-- 
+Jarkko
