@@ -1,105 +1,30 @@
-From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Subject: [PATCH v2] i2c: designware: select gpio/default pin when
- prepare/unprepare recovery
-Date: Thu, 13 Sep 2018 16:21:32 +0800
-Message-ID: <20180913162132.17c9c2b3@xhacker.debian>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v8 0/4] gpiolib: speed up GPIO array processing
+Date: Thu, 13 Sep 2018 11:22:06 +0200
+Message-ID: <CACRpkdbAG1N0v-BrXruf5088L0x3XwSHbFTWOFxjHQWx0LKz5g@mail.gmail.com>
+References: <20180902120144.6855-1-jmkrzyszt@gmail.com> <20180905215008.1649-1-jmkrzyszt@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20180905215008.1649-1-jmkrzyszt@gmail.com>
+Sender: netdev-owner@vger.kernel.org
+To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>, Ulf Hansson <ulf.hansson@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, "David S. Miller" <davem@davemloft.net>, Dominik Brodowski <linux@dominikbrodowski.net>, Greg KH <gregkh@linuxfoundation.org>, kishon@ti.com, Lars-Peter Clausen <lars@metafoo.de>, Michael Hennerich <Michael.Hennerich@analog.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald <pmeerw@pmeerw.net>, Jiri Slaby <jslaby@suse.com>, Willy Tarreau <w@1wt.eu>, Geert Uytterhoeven <geert@linux-m68k.org>, Sebastien Bourdelin <sebastien.bourdelin@savoirf>
 List-Id: linux-i2c@vger.kernel.org
 
-On some platforms, the sda/scl pins are muxed with gpio functions, so
-they could be used for recovery. Select the gpio/default pin function
-when prepare/unprepare recovery.
+On Wed, Sep 5, 2018 at 11:49 PM Janusz Krzysztofik <jmkrzyszt@gmail.com> wrote:
 
-Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
----
+> The goal is to boost performance of get/set array functions while
+> processing GPIO arrays which represent pins of a signle chip in
+> hardware order.  If resulting performance is close to PIO, GPIO API
+> can be used for data I/O without much loss of speed.
 
-since v1:
- - use IS_ERR_OR_NULL
+I applied the v8 to an immutable branch and pushed to kernelorg
+so the build servers can churn it a bit, and if it works fine
+then we can merge this into the devel branch and also set up
+that as something other subsystems can pull in if they need it.
 
- drivers/i2c/busses/i2c-designware-core.h   |  3 +++
- drivers/i2c/busses/i2c-designware-master.c | 22 ++++++++++++++++++++++
- 2 files changed, 25 insertions(+)
+I'm really excited to merge this!
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index e367b1af4ab2..01d5f01691a4 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -271,6 +271,9 @@ struct dw_i2c_dev {
- 	int			(*init)(struct dw_i2c_dev *dev);
- 	int			mode;
- 	struct i2c_bus_recovery_info rinfo;
-+	struct pinctrl		*pinctrl;
-+	struct pinctrl_state	*pins_default;
-+	struct pinctrl_state	*pins_gpio;
- };
- 
- #define ACCESS_SWAP		0x00000001
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 94d94b4a9a0d..384d6630366a 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -17,6 +17,7 @@
- #include <linux/interrupt.h>
- #include <linux/io.h>
- #include <linux/module.h>
-+#include <linux/pinctrl/consumer.h>
- #include <linux/pm_runtime.h>
- #include <linux/reset.h>
- 
-@@ -629,6 +630,9 @@ static void i2c_dw_prepare_recovery(struct i2c_adapter *adap)
- {
- 	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
- 
-+	if (dev->pinctrl && dev->pins_gpio)
-+		pinctrl_select_state(dev->pinctrl, dev->pins_gpio);
-+
- 	i2c_dw_disable(dev);
- 	reset_control_assert(dev->rst);
- 	i2c_dw_prepare_clk(dev, false);
-@@ -641,6 +645,9 @@ static void i2c_dw_unprepare_recovery(struct i2c_adapter *adap)
- 	i2c_dw_prepare_clk(dev, true);
- 	reset_control_deassert(dev->rst);
- 	i2c_dw_init_master(dev);
-+
-+	if (dev->pinctrl && dev->pins_default)
-+		pinctrl_select_state(dev->pinctrl, dev->pins_default);
- }
- 
- static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
-@@ -648,6 +655,8 @@ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
- 	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
- 	struct i2c_adapter *adap = &dev->adapter;
- 	struct gpio_desc *gpio;
-+	struct pinctrl *pinctrl;
-+	struct pinctrl_state *s;
- 	int r;
- 
- 	gpio = devm_gpiod_get(dev->dev, "scl", GPIOD_OUT_HIGH);
-@@ -664,6 +673,19 @@ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
- 		return PTR_ERR(gpio);
- 	rinfo->sda_gpiod = gpio;
- 
-+	pinctrl = devm_pinctrl_get(dev->dev);
-+	if (PTR_ERR(pinctrl) == -EPROBE_DEFER)
-+		return -EPROBE_DEFER;
-+	if (!IS_ERR_OR_NULL(pinctrl)) {
-+		dev->pinctrl = pinctrl;
-+		s = pinctrl_lookup_state(pinctrl, PINCTRL_STATE_DEFAULT);
-+		if (!IS_ERR_OR_NULL(s))
-+			dev->pins_default = s;
-+		s = pinctrl_lookup_state(pinctrl, "gpio");
-+		if (!IS_ERR_OR_NULL(s))
-+			dev->pins_gpio = s;
-+	}
-+
- 	rinfo->recover_bus = i2c_generic_scl_recovery;
- 	rinfo->prepare_recovery = i2c_dw_prepare_recovery;
- 	rinfo->unprepare_recovery = i2c_dw_unprepare_recovery;
--- 
-2.19.0
+Yours,
+Linus Walleij
