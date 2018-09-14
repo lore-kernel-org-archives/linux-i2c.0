@@ -1,8 +1,8 @@
-From: Guenter Roeck <linux@roeck-us.net>
+From: =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>
 Subject: Re: [PATCH i2c-next v6] i2c: aspeed: Handle master/slave combined irq
  events properly
-Date: Thu, 13 Sep 2018 20:48:09 -0700
-Message-ID: <b4da2b68-e6e3-e068-cd6e-9e638aa67889@roeck-us.net>
+Date: Fri, 14 Sep 2018 07:38:37 +0200
+Message-ID: <ccbf7059-77fd-44e8-daee-516582814cb3@kaod.org>
 References: <20180911233302.GA18799@roeck-us.net>
  <5698ca34-14c9-8d05-c4e6-5acf85ff9d14@linux.intel.com>
  <20180912013449.GA12612@roeck-us.net>
@@ -15,228 +15,45 @@ References: <20180911233302.GA18799@roeck-us.net>
  <f47b3050-3abd-caa4-cc71-4b13ef60e2c0@kaod.org>
  <20180913155703.GA22605@roeck-us.net>
  <2c481986-7ee0-4887-5c9b-64e2cd9d8c04@kaod.org>
+ <b4da2b68-e6e3-e068-cd6e-9e638aa67889@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------E9005F7A05CA14521919FD16"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2c481986-7ee0-4887-5c9b-64e2cd9d8c04@kaod.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <b4da2b68-e6e3-e068-cd6e-9e638aa67889@roeck-us.net>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>
-Cc: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, Joel Stanley <joel@jms.id.au>, linux-aspeed@lists.ozlabs.org, Vernon Mauery <vernon.mauery@linux.intel.com>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Brendan Higgins <brendanhiggins@google.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, jarkko.nikula@linux.intel.com, Linux ARM <linux-arm-kernel@lists.infradead.org>, James Feist <james.feist@linux.intel.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, linux-aspeed@lists.ozlabs.org, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Brendan Higgins <brendanhiggins@google.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, Joel Stanley <joel@jms.id.au>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------E9005F7A05CA14521919FD16
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-
-On 09/13/2018 09:35 AM, Cédric Le Goater wrote:
-> On 09/13/2018 05:57 PM, Guenter Roeck wrote:
->> On Thu, Sep 13, 2018 at 05:48:59PM +0200, Cédric Le Goater wrote:
->>> On 09/13/2018 03:33 PM, Guenter Roeck wrote:
->> [ ... ]
->>>>>>    /*
->>>>>>     * The state machine needs some refinement. It is only used to track
->>>>>>     * invalid STOP commands for the moment.
->>>>>> @@ -188,7 +215,7 @@ static void aspeed_i2c_bus_handle_cmd(AspeedI2CBus *bus, uint64_t value)
->>>>>>    {
->>>>>>        bus->cmd &= ~0xFFFF;
->>>>>>        bus->cmd |= value & 0xFFFF;
->>>>>> -    bus->intr_status = 0;> +    bus->intr_status &= I2CD_INTR_RX_DONE;
->>>>>
->>>>> it deserves a comment to understand which scenario we are trying to handle.
->>>>>     
->>>>
->>>> Ok. FWIW, I wonder if intr_status should be touched here in the first place,
->>>> but I neither have the hardware nor a datasheet, so I don't know if any bits
->>>> are auto-cleared.
->>>
->>> I just pushed a patch on my branch with some more explanation :
->>>
->>> 	https://github.com/legoater/qemu/commits/aspeed-3.1
->>>
->> That seems to suggest that none of the status bits auto-clears, and that
->> the above code clearing intr_status should be removed entirely.
->> Am I missing something ?
-> 
-> You are right. I just pushed another version of the previous patch with this
-> new hunk :
-> 
-> @@ -188,7 +200,6 @@ static void aspeed_i2c_bus_handle_cmd(As
->   {
->       bus->cmd &= ~0xFFFF;
->       bus->cmd |= value & 0xFFFF;
-> -    bus->intr_status = 0;
->   
->       if (bus->cmd & I2CD_M_START_CMD) {
->           uint8_t state = aspeed_i2c_get_state(bus) & I2CD_MACTIVE ?
-> 
-> 
-> The QEMU palmetto and witherspoon machines seem to behave fine. Can you give
-> it a try ?
-> 
-
-Works fine for me for all affected qemu platforms.
-
-How do you want to proceed with the qemu patches ? I attached my patches
-for reference. Maybe you can add them to your tree if they are ok and submit
-the entire series together to the qemu mailing list ?
-
-Thanks,
-Guenter
-
---------------E9005F7A05CA14521919FD16
-Content-Type: text/x-patch;
- name="0001-aspeed-i2c-Handle-receive-command-in-separate-functi.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename*0="0001-aspeed-i2c-Handle-receive-command-in-separate-functi.pa";
- filename*1="tch"
-
->From 9eb05b7f6d7ceb2919fa8b865772ab9207d1afed Mon Sep 17 00:00:00 2001
-From: Guenter Roeck <linux@roeck-us.net>
-Date: Wed, 12 Sep 2018 16:35:20 -0700
-Subject: [PATCH 1/2] aspeed/i2c: Handle receive command in separate function
-
-Receive command handling may have to be deferred if a previous receive
-done interrupt was not yet acknowledged. Move receive command handling
-into a separate function to prepare for the necessary changes.
-
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- hw/i2c/aspeed_i2c.c | 37 +++++++++++++++++++++----------------
- 1 file changed, 21 insertions(+), 16 deletions(-)
-
-diff --git a/hw/i2c/aspeed_i2c.c b/hw/i2c/aspeed_i2c.c
-index de6b083..d81f865 100644
---- a/hw/i2c/aspeed_i2c.c
-+++ b/hw/i2c/aspeed_i2c.c
-@@ -192,6 +192,26 @@ static uint8_t aspeed_i2c_get_state(AspeedI2CBus *bus)
-     return (bus->cmd >> I2CD_TX_STATE_SHIFT) & I2CD_TX_STATE_MASK;
- }
- 
-+static void aspeed_i2c_handle_rx_cmd(AspeedI2CBus *bus)
-+{
-+    int ret;
-+
-+    aspeed_i2c_set_state(bus, I2CD_MRXD);
-+    ret = i2c_recv(bus->bus);
-+    if (ret < 0) {
-+        qemu_log_mask(LOG_GUEST_ERROR, "%s: read failed\n", __func__);
-+        ret = 0xff;
-+    } else {
-+        bus->intr_status |= I2CD_INTR_RX_DONE;
-+    }
-+    bus->buf = (ret & I2CD_BYTE_BUF_RX_MASK) << I2CD_BYTE_BUF_RX_SHIFT;
-+    if (bus->cmd & I2CD_M_S_RX_CMD_LAST) {
-+        i2c_nack(bus->bus);
-+    }
-+    bus->cmd &= ~(I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST);
-+    aspeed_i2c_set_state(bus, I2CD_MACTIVE);
-+}
-+
- /*
-  * The state machine needs some refinement. It is only used to track
-  * invalid STOP commands for the moment.
-@@ -238,22 +258,7 @@ static void aspeed_i2c_bus_handle_cmd(AspeedI2CBus *bus, uint64_t value)
-     }
- 
-     if (bus->cmd & (I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST)) {
--        int ret;
--
--        aspeed_i2c_set_state(bus, I2CD_MRXD);
--        ret = i2c_recv(bus->bus);
--        if (ret < 0) {
--            qemu_log_mask(LOG_GUEST_ERROR, "%s: read failed\n", __func__);
--            ret = 0xff;
--        } else {
--            bus->intr_status |= I2CD_INTR_RX_DONE;
--        }
--        bus->buf = (ret & I2CD_BYTE_BUF_RX_MASK) << I2CD_BYTE_BUF_RX_SHIFT;
--        if (bus->cmd & I2CD_M_S_RX_CMD_LAST) {
--            i2c_nack(bus->bus);
--        }
--        bus->cmd &= ~(I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST);
--        aspeed_i2c_set_state(bus, I2CD_MACTIVE);
-+        aspeed_i2c_handle_rx_cmd(bus);
-     }
- 
-     if (bus->cmd & I2CD_M_STOP_CMD) {
--- 
-2.7.4
-
-
---------------E9005F7A05CA14521919FD16
-Content-Type: text/x-patch;
- name="0002-aspeed-i2c-Fix-receive-done-interrupt-handling.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename*0="0002-aspeed-i2c-Fix-receive-done-interrupt-handling.patch"
-
->From b5e1879de9c347ab03a09d71f12d40aad0a16d6d Mon Sep 17 00:00:00 2001
-From: Guenter Roeck <linux@roeck-us.net>
-Date: Wed, 12 Sep 2018 14:19:30 -0700
-Subject: [PATCH 2/2] aspeed/i2c: Fix receive done interrupt handling
-
-The AST2500 datasheet says:
-
-I2CD10 Interrupt Status Register
-       bit 2 Receive Done Interrupt status
-             S/W needs to clear this status bit to allow next data receiving
-
-The Rx interrrupt done interrupt status bit needs to be cleared
-explicitly before the next byte can be received, and must therefore
-not be auto-cleared. Also, receiving the next byte must be delayed
-until the bit has been cleared.
-
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- hw/i2c/aspeed_i2c.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
-
-diff --git a/hw/i2c/aspeed_i2c.c b/hw/i2c/aspeed_i2c.c
-index d81f865..7ae99bc 100644
---- a/hw/i2c/aspeed_i2c.c
-+++ b/hw/i2c/aspeed_i2c.c
-@@ -257,7 +257,8 @@ static void aspeed_i2c_bus_handle_cmd(AspeedI2CBus *bus, uint64_t value)
-         aspeed_i2c_set_state(bus, I2CD_MACTIVE);
-     }
- 
--    if (bus->cmd & (I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST)) {
-+    if ((bus->cmd & (I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST)) &&
-+        !(bus->intr_status & I2CD_INTR_RX_DONE)) {
-         aspeed_i2c_handle_rx_cmd(bus);
-     }
- 
-@@ -279,6 +280,7 @@ static void aspeed_i2c_bus_write(void *opaque, hwaddr offset,
-                                  uint64_t value, unsigned size)
- {
-     AspeedI2CBus *bus = opaque;
-+    bool handle_rx;
- 
-     switch (offset) {
-     case I2CD_FUN_CTRL_REG:
-@@ -299,11 +301,17 @@ static void aspeed_i2c_bus_write(void *opaque, hwaddr offset,
-         bus->intr_ctrl = value & 0x7FFF;
-         break;
-     case I2CD_INTR_STS_REG:
-+        handle_rx = (bus->intr_status & I2CD_INTR_RX_DONE) &&
-+                (value & I2CD_INTR_RX_DONE);
-         bus->intr_status &= ~(value & 0x7FFF);
-         if (!bus->intr_status) {
-             bus->controller->intr_status &= ~(1 << bus->id);
-             qemu_irq_lower(bus->controller->irq);
-         }
-+        if (handle_rx && (bus->cmd & (I2CD_M_RX_CMD | I2CD_M_S_RX_CMD_LAST))) {
-+            aspeed_i2c_handle_rx_cmd(bus);
-+            aspeed_i2c_bus_raise_interrupt(bus);
-+        }
-         break;
-     case I2CD_DEV_ADDR_REG:
-         qemu_log_mask(LOG_UNIMP, "%s: slave mode not implemented\n",
--- 
-2.7.4
-
-
---------------E9005F7A05CA14521919FD16--
+Pj4+IFRoYXQgc2VlbXMgdG8gc3VnZ2VzdCB0aGF0IG5vbmUgb2YgdGhlIHN0YXR1cyBiaXRzIGF1
+dG8tY2xlYXJzLCBhbmQgdGhhdAo+Pj4gdGhlIGFib3ZlIGNvZGUgY2xlYXJpbmcgaW50cl9zdGF0
+dXMgc2hvdWxkIGJlIHJlbW92ZWQgZW50aXJlbHkuCj4+PiBBbSBJIG1pc3Npbmcgc29tZXRoaW5n
+ID8KPj4KPj4gWW91IGFyZSByaWdodC4gSSBqdXN0IHB1c2hlZCBhbm90aGVyIHZlcnNpb24gb2Yg
+dGhlIHByZXZpb3VzIHBhdGNoIHdpdGggdGhpcwo+PiBuZXcgaHVuayA6Cj4+Cj4+IEBAIC0xODgs
+NyArMjAwLDYgQEAgc3RhdGljIHZvaWQgYXNwZWVkX2kyY19idXNfaGFuZGxlX2NtZChBcwo+PiDC
+oCB7Cj4+IMKgwqDCoMKgwqAgYnVzLT5jbWQgJj0gfjB4RkZGRjsKPj4gwqDCoMKgwqDCoCBidXMt
+PmNtZCB8PSB2YWx1ZSAmIDB4RkZGRjsKPj4gLcKgwqDCoCBidXMtPmludHJfc3RhdHVzID0gMDsK
+Pj4gwqAgwqDCoMKgwqDCoCBpZiAoYnVzLT5jbWQgJiBJMkNEX01fU1RBUlRfQ01EKSB7Cj4+IMKg
+wqDCoMKgwqDCoMKgwqDCoCB1aW50OF90IHN0YXRlID0gYXNwZWVkX2kyY19nZXRfc3RhdGUoYnVz
+KSAmIEkyQ0RfTUFDVElWRSA/Cj4+Cj4+Cj4+IFRoZSBRRU1VIHBhbG1ldHRvIGFuZCB3aXRoZXJz
+cG9vbiBtYWNoaW5lcyBzZWVtIHRvIGJlaGF2ZSBmaW5lLiBDYW4geW91IGdpdmUKPj4gaXQgYSB0
+cnkgPwo+Pgo+IAo+IFdvcmtzIGZpbmUgZm9yIG1lIGZvciBhbGwgYWZmZWN0ZWQgcWVtdSBwbGF0
+Zm9ybXMuCj4gCj4gSG93IGRvIHlvdSB3YW50IHRvIHByb2NlZWQgd2l0aCB0aGUgcWVtdSBwYXRj
+aGVzID8gSSBhdHRhY2hlZCBteSBwYXRjaGVzCj4gZm9yIHJlZmVyZW5jZS4gTWF5YmUgeW91IGNh
+biBhZGQgdGhlbSB0byB5b3VyIHRyZWUgaWYgdGhleSBhcmUgb2sgYW5kIHN1Ym1pdAo+IHRoZSBl
+bnRpcmUgc2VyaWVzIHRvZ2V0aGVyIHRvIHRoZSBxZW11IG1haWxpbmcgbGlzdCA/Cgp5ZXMuIFRo
+ZXkgYXJlIHB1c2hlZCBpbiBteSBhc3BlZWQtMy4xIGJyYW5jaC4gSSB3aWxsIHNlbmQgdGhlIHNl
+cmllcyAKb24gdGhlIGxpc3QuCgpUaGFua3MsCgpDLiAKCgoKX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QK
+bGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRl
+YWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
