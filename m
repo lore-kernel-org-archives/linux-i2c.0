@@ -1,45 +1,64 @@
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: Re: [PATCH] i2c: synquacer: fix fall-through annotation
-Date: Fri, 14 Sep 2018 08:07:20 +0200
-Message-ID: <CAKv+Gu_ny+CZ+SRT2bN2UdrxVchxeSdd999Eqy91fwJEG=MEmg@mail.gmail.com>
-References: <20180913185913.GA8471@embeddedor.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH i2c-next v6] i2c: aspeed: Handle master/slave combined irq
+ events properly
+Date: Fri, 14 Sep 2018 06:23:05 -0700
+Message-ID: <94a2aa4e-69ac-7042-92d9-1ada46d5fc33@roeck-us.net>
+References: <20180911233302.GA18799@roeck-us.net>
+ <5698ca34-14c9-8d05-c4e6-5acf85ff9d14@linux.intel.com>
+ <20180912013449.GA12612@roeck-us.net>
+ <7fd98646-fb5a-be4d-ce37-84b74e0fa8b3@linux.intel.com>
+ <20180912195844.GA6893@roeck-us.net>
+ <da7f4691-7428-3114-32bb-e0171f6c7228@linux.intel.com>
+ <20180912203059.GA18201@roeck-us.net>
+ <fb185839-3ae0-01dc-09e8-f22db55ecb04@kaod.org>
+ <3f86e75f-1502-eae8-0633-d087937111c8@roeck-us.net>
+ <f47b3050-3abd-caa4-cc71-4b13ef60e2c0@kaod.org>
+ <20180913155703.GA22605@roeck-us.net>
+ <2c481986-7ee0-4887-5c9b-64e2cd9d8c04@kaod.org>
+ <b4da2b68-e6e3-e068-cd6e-9e638aa67889@roeck-us.net>
+ <ccbf7059-77fd-44e8-daee-516582814cb3@kaod.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180913185913.GA8471@embeddedor.com>
+In-Reply-To: <ccbf7059-77fd-44e8-daee-516582814cb3@kaod.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>
+Cc: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, Joel Stanley <joel@jms.id.au>, linux-aspeed@lists.ozlabs.org, Vernon Mauery <vernon.mauery@linux.intel.com>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Brendan Higgins <brendanhiggins@google.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, jarkko.nikula@linux.intel.com, Linux ARM <linux-arm-kernel@lists.infradead.org>, James Feist <james.feist@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 13 September 2018 at 20:59, Gustavo A. R. Silva
-<gustavo@embeddedor.com> wrote:
-> Replace "fallthru" with a proper "fall through" annotation.
->
-> This fix is part of the ongoing efforts to enabling
-> -Wimplicit-fallthrough
->
-> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+On 09/13/2018 10:38 PM, Cédric Le Goater wrote:
+>>>> That seems to suggest that none of the status bits auto-clears, and that
+>>>> the above code clearing intr_status should be removed entirely.
+>>>> Am I missing something ?
+>>>
+>>> You are right. I just pushed another version of the previous patch with this
+>>> new hunk :
+>>>
+>>> @@ -188,7 +200,6 @@ static void aspeed_i2c_bus_handle_cmd(As
+>>>    {
+>>>        bus->cmd &= ~0xFFFF;
+>>>        bus->cmd |= value & 0xFFFF;
+>>> -    bus->intr_status = 0;
+>>>          if (bus->cmd & I2CD_M_START_CMD) {
+>>>            uint8_t state = aspeed_i2c_get_state(bus) & I2CD_MACTIVE ?
+>>>
+>>>
+>>> The QEMU palmetto and witherspoon machines seem to behave fine. Can you give
+>>> it a try ?
+>>>
+>>
+>> Works fine for me for all affected qemu platforms.
+>>
+>> How do you want to proceed with the qemu patches ? I attached my patches
+>> for reference. Maybe you can add them to your tree if they are ok and submit
+>> the entire series together to the qemu mailing list ?
+> 
+> yes. They are pushed in my aspeed-3.1 branch. I will send the series
+> on the list.
+> 
 
-Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Excellent. Thanks a lot!
 
-> ---
->  drivers/i2c/busses/i2c-synquacer.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-synquacer.c b/drivers/i2c/busses/i2c-synquacer.c
-> index 915f5ed..2184b7c 100644
-> --- a/drivers/i2c/busses/i2c-synquacer.c
-> +++ b/drivers/i2c/busses/i2c-synquacer.c
-> @@ -404,7 +404,7 @@ static irqreturn_t synquacer_i2c_isr(int irq, void *dev_id)
->                 if (i2c->state == STATE_READ)
->                         goto prepare_read;
->
-> -               /* fallthru */
-> +               /* fall through */
->
->         case STATE_WRITE:
->                 if (bsr & SYNQUACER_I2C_BSR_LRB) {
-> --
-> 2.7.4
->
+Guenter
