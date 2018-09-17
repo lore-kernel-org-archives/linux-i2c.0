@@ -1,26 +1,26 @@
 From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Subject: Re: [PATCH v3 1/3] dt-bindings: i2c: designware: add optional gpio
- recovery properties
-Date: Mon, 17 Sep 2018 11:32:28 +0800
-Message-ID: <20180917113228.43c9b8dc@xhacker.debian>
+Subject: Re: [PATCH v3 2/3] dt-bindings: i2c: designware: add optional
+ pinctrl for bus recovery
+Date: Mon, 17 Sep 2018 11:33:25 +0800
+Message-ID: <20180917113325.13ed122f@xhacker.debian>
 References: <20180917112633.252c591c@xhacker.debian>
-        <20180917112741.7c3d6514@xhacker.debian>
+        <20180917112830.2a3c9be9@xhacker.debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180917112741.7c3d6514@xhacker.debian>
+In-Reply-To: <20180917112830.2a3c9be9@xhacker.debian>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>
 Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 + DT maintainers
 
-On Mon, 17 Sep 2018 11:27:41 +0800
+On Mon, 17 Sep 2018 11:28:30 +0800
 Jisheng Zhang <Jisheng.Zhang@synaptics.com> wrote:
 
-> Document the scl-gpios and sda-gpios properties for bus recovery.
+> Document the pinctrl property for bus recovery.
 > 
 > Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 > ---
@@ -28,26 +28,26 @@ Jisheng Zhang <Jisheng.Zhang@synaptics.com> wrote:
 >  1 file changed, 6 insertions(+)
 > 
 > diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> index fbb0a6d8b964..1d6a6a8061ba 100644
+> index 1d6a6a8061ba..c1544d1f7b55 100644
 > --- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
 > +++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> @@ -20,6 +20,10 @@ Optional properties :
->   - i2c-sda-falling-time-ns : should contain the SDA falling time in nanoseconds.
->     This value which is by default 300ns is used to compute the tHIGH period.
+> @@ -24,6 +24,9 @@ Optional properties :
 >  
-> + - scl-gpios: specify the gpio of the SCL line for gpio recovery
-> +
-> + - sda-gpios: specify the gpio of the SDA line for gpio recovery
+>   - sda-gpios: specify the gpio of the SDA line for gpio recovery
+>  
+> + - pinctrl: add extra pinctrl to configure i2c pins to gpio function for i2c
+> +   bus recovery, call it "gpio" state
 > +
 >  Examples :
 >  
 >  	i2c@f0000 {
-> @@ -42,6 +46,8 @@ Examples :
+> @@ -46,6 +49,9 @@ Examples :
 >  		i2c-sda-hold-time-ns = <300>;
 >  		i2c-sda-falling-time-ns = <300>;
 >  		i2c-scl-falling-time-ns = <300>;
-> +		scl-gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;
-> +		sda-gpios = <&gpio1 16 GPIO_ACTIVE_HIGH>;
+> +		pinctrl-names = "default", "gpio";
+> +		pinctrl-0 = <&pinctrl_i2c1>;
+> +		pinctrl-1 = <&pinctrl_i2c1_gpio>;
+>  		scl-gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;
+>  		sda-gpios = <&gpio1 16 GPIO_ACTIVE_HIGH>;
 >  	};
->  
->  	i2c@1120000 {
