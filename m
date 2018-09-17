@@ -1,51 +1,39 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: i2c:ocores: fixes and polling mechanism
-Date: Mon, 17 Sep 2018 18:42:35 +0200
-Message-ID: <20180917164235.GB1082@kunai>
-References: <20180625161303.7991-1-federico.vaga@cern.ch>
- <5011687.103nMUzm2u@harkonnen>
- <20180812153400.GA1010@kunai>
- <8760022x77.fsf@dell.be.48ers.dk>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Subject: Re: [PATCH] i2c: aspeed: Acknowledge most interrupts early in
+ interrupt handler
+Date: Mon, 17 Sep 2018 10:16:59 -0700
+Message-ID: <037b4cf8-5dfa-d554-b126-a2462ba9c803@linux.intel.com>
+References: <1536895810-28903-1-git-send-email-linux@roeck-us.net>
+ <fbf54ca6-16b3-5e35-eac8-b3dab8118543@linux.intel.com>
+ <20180917163401.GA1082@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <8760022x77.fsf@dell.be.48ers.dk>
+In-Reply-To: <20180917163401.GA1082@kunai>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Korsgaard <peter@korsgaard.com>
-Cc: Federico Vaga <federico.vaga@cern.ch>, Peter Korsgaard <peter.korsgaard@barco.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Korsgaard <jacmet@sunsite.dk>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Guenter Roeck <linux@roeck-us.net>, Brendan Higgins <brendanhiggins@google.com>, linux-aspeed@lists.ozlabs.org, Andrew Jeffery <andrew@aj.id.au>, openbmc@lists.ozlabs.org, linux-kernel@vger.kernel.org, =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 9/17/2018 9:34 AM, Wolfram Sang wrote:
+> 
+>> Looks good to me. Thanks! :)
+>>
+>> Acked-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+> 
+> Does that mean I need to revert "[PATCH i2c-next v6] i2c: aspeed: Handle
+> master/slave combined irq events properly" in i2c/for-next? And apply
+> this to i2c/for-current?
+> 
+> (and please quote only relevat parts of a message when replying)
+> 
 
---7iMSBzlTiPOCCT2k
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+No need to revert "[PATCH i2c-next v6] i2c: aspeed: Handle master/slave
+combined irq events properly". This patch should be applied on top of
+the patch.
 
+(Will reduce message size when replying. Thanks!)
 
-> Thanks! I'll take a look at the patches now.
-
-Ping :)
-
-
---7iMSBzlTiPOCCT2k
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAluf2XsACgkQFA3kzBSg
-KbaiSBAAgCGWJXLkvzG545mw40PHCWZVFWPxGRDYen9W9uDLpmQkFEVZNbq5pflp
-/K3vN95jHYeHn4P1ixQ+hHQE2gJfBNaK0u++tlSqEYFoAo7gGApIh4ooeCeWS1fo
-mPBoQXHYNuvSDewzQsVp4j9RWt2rubvOmQUNvNltMqnNAb/LAj7RUccUAm4IM2tx
-xC24hLqmDCWIQrvNkfb5T9tp7ssBdOiJ6pga1e8InNyM5PYAEx/kgqtPM/w21udg
-NGrPQnUktlbSzrFQIAsncXK/ZpadERvxVre0K5nTZ6wRPWfj+3l7o49BJtCTgTWR
-hrDdjfJIA2WCJgbHsJOoTDdByqdUCFRje/8STRmLsndSjLLgCU8xQBP+4c4LMyXk
-mWnBfUqexw/3BH4fnEJRzagEa67p/4deI6tMPkfQDXkujZ2wZAYyzF8sm/u/z6HX
-lc9tgOep1TFxcEDzBd2/BtuqxZnz4BeQBsdARQVFAnlbmRebK9fCWlbY8RVgizqJ
-ucsJhb8FMtm67jsImbXsOSocPXdSsMeo4iXwMUTpr3cyCiv8C8q0hX+IMQBmcJd7
-9nLNtiSxtSf/oKFpSzgjZoUgUVZYTrRQfb+lXUUuJ6tVOIeZcKuNP6bjnb3VbDmp
-goo4f5xd6qGrmloQV5XOaTjye/g1FZ2NxCpSOW72PAT8fCvKekk=
-=gJye
------END PGP SIGNATURE-----
-
---7iMSBzlTiPOCCT2k--
+Jae
