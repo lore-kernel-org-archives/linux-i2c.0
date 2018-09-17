@@ -1,76 +1,41 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: Re: [PATCH i2c-next v6] i2c: aspeed: Handle master/slave combined irq
- events properly
-Date: Fri, 14 Sep 2018 09:52:35 -0700
-Message-ID: <3e319dd0-17e6-679d-18fd-43ed59f7075d@linux.intel.com>
-References: <20180911233302.GA18799@roeck-us.net>
- <5698ca34-14c9-8d05-c4e6-5acf85ff9d14@linux.intel.com>
- <20180912013449.GA12612@roeck-us.net>
- <7fd98646-fb5a-be4d-ce37-84b74e0fa8b3@linux.intel.com>
- <20180912195844.GA6893@roeck-us.net>
- <da7f4691-7428-3114-32bb-e0171f6c7228@linux.intel.com>
- <20180912203059.GA18201@roeck-us.net>
- <fb185839-3ae0-01dc-09e8-f22db55ecb04@kaod.org>
- <3f86e75f-1502-eae8-0633-d087937111c8@roeck-us.net>
- <f47b3050-3abd-caa4-cc71-4b13ef60e2c0@kaod.org>
- <20180913155703.GA22605@roeck-us.net>
- <2c481986-7ee0-4887-5c9b-64e2cd9d8c04@kaod.org>
- <b4da2b68-e6e3-e068-cd6e-9e638aa67889@roeck-us.net>
- <ccbf7059-77fd-44e8-daee-516582814cb3@kaod.org>
- <94a2aa4e-69ac-7042-92d9-1ada46d5fc33@roeck-us.net>
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Subject: [PATCH v3 0/3] i2c: designware: select gpio/default pin when
+ prepare/unprepare recovery
+Date: Mon, 17 Sep 2018 11:26:33 +0800
+Message-ID: <20180917112633.252c591c@xhacker.debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <94a2aa4e-69ac-7042-92d9-1ada46d5fc33@roeck-us.net>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>, =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>
-Cc: linux-aspeed@lists.ozlabs.org, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Brendan Higgins <brendanhiggins@google.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 9/14/2018 6:23 AM, Guenter Roeck wrote:
-> On 09/13/2018 10:38 PM, Cédric Le Goater wrote:
->>>>> That seems to suggest that none of the status bits auto-clears, and 
->>>>> that
->>>>> the above code clearing intr_status should be removed entirely.
->>>>> Am I missing something ?
->>>>
->>>> You are right. I just pushed another version of the previous patch 
->>>> with this
->>>> new hunk :
->>>>
->>>> @@ -188,7 +200,6 @@ static void aspeed_i2c_bus_handle_cmd(As
->>>>    {
->>>>        bus->cmd &= ~0xFFFF;
->>>>        bus->cmd |= value & 0xFFFF;
->>>> -    bus->intr_status = 0;
->>>>          if (bus->cmd & I2CD_M_START_CMD) {
->>>>            uint8_t state = aspeed_i2c_get_state(bus) & I2CD_MACTIVE ?
->>>>
->>>>
->>>> The QEMU palmetto and witherspoon machines seem to behave fine. Can 
->>>> you give
->>>> it a try ?
->>>>
->>>
->>> Works fine for me for all affected qemu platforms.
->>>
->>> How do you want to proceed with the qemu patches ? I attached my patches
->>> for reference. Maybe you can add them to your tree if they are ok and 
->>> submit
->>> the entire series together to the qemu mailing list ?
->>
->> yes. They are pushed in my aspeed-3.1 branch. I will send the series
->> on the list.
->>
-> 
-> Excellent. Thanks a lot!
-> 
-> Guenter
-> 
+On some platforms, the sda/scl pins are muxed with gpio functions, so
+they could be used for recovery. Select the gpio/default pin function
+when prepare/unprepare recovery.
 
-Awesome! Many thanks to Guenter, Cédric and Joel. I really appreciate
-it.
+patch1 adds the missing scl-gpios, sda-gpios properties binding doc.
+patch2 adds the pintrl property for i2c bus recovery.
+patch3 selects gpio/default pin when prepare/unprepare recovery.
 
-Jae
+Since v2:
+ - add missing property dt-binding
+
+Since v1:
+ - use IS_ERR_OR_NULL
+
+Jisheng Zhang (3):
+  dt-bindings: i2c: designware: add optional gpio recovery properties
+  dt-bindings: i2c: designware: add optional pinctrl for bus recovery
+  i2c: designware: select gpio/default pin when prepare/unprepare
+    recovery
+
+ .../bindings/i2c/i2c-designware.txt           | 12 ++++++++++
+ drivers/i2c/busses/i2c-designware-core.h      |  3 +++
+ drivers/i2c/busses/i2c-designware-master.c    | 22 +++++++++++++++++++
+ 3 files changed, 37 insertions(+)
+
+-- 
+2.19.0
