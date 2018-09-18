@@ -1,38 +1,50 @@
-From: Guenter Roeck <linux@roeck-us.net>
+From: Joel Stanley <joel@jms.id.au>
 Subject: Re: [PATCH] i2c: aspeed: Acknowledge most interrupts early in
  interrupt handler
-Date: Mon, 17 Sep 2018 11:48:09 -0700
-Message-ID: <20180917184809.GA16057@roeck-us.net>
+Date: Tue, 18 Sep 2018 10:41:12 +0930
+Message-ID: <CACPK8XchoryZ_RS8f4n=-GoT-Ak+dXuC3cgqLmxK9C=gySEJFQ@mail.gmail.com>
 References: <1536895810-28903-1-git-send-email-linux@roeck-us.net>
- <fbf54ca6-16b3-5e35-eac8-b3dab8118543@linux.intel.com>
- <20180917163401.GA1082@kunai>
- <037b4cf8-5dfa-d554-b126-a2462ba9c803@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <037b4cf8-5dfa-d554-b126-a2462ba9c803@linux.intel.com>
+In-Reply-To: <1536895810-28903-1-git-send-email-linux@roeck-us.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Brendan Higgins <brendanhiggins@google.com>, linux-aspeed@lists.ozlabs.org, Andrew Jeffery <andrew@aj.id.au>, openbmc@lists.ozlabs.org, linux-kernel@vger.kernel.org, =?iso-8859-1?Q?C=E9dric?= Le Goater <clg@kaod.org>, linux-i2c@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Sep 17, 2018 at 10:16:59AM -0700, Jae Hyun Yoo wrote:
-> On 9/17/2018 9:34 AM, Wolfram Sang wrote:
-> >
-> >>Looks good to me. Thanks! :)
-> >>
-> >>Acked-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-> >
-> >Does that mean I need to revert "[PATCH i2c-next v6] i2c: aspeed: Handle
-> >master/slave combined irq events properly" in i2c/for-next? And apply
-> >this to i2c/for-current?
-> >
-> 
-> No need to revert "[PATCH i2c-next v6] i2c: aspeed: Handle master/slave
-> combined irq events properly". This patch should be applied on top of
-> the patch.
-> 
-Yes, sorry, I should have tagged the patch as for-next.
+On Fri, 14 Sep 2018 at 13:00, Guenter Roeck <linux@roeck-us.net> wrote:
+>
+> Commit 3e9efc3299dd ("i2c: aspeed: Handle master/slave combined irq events
+> properly") moved interrupt acknowledgment to the end of the interrupt
+> handler. In part this was done because the AST2500 datasheet says:
+>
+>  I2CD10 Interrupt Status Register
+>    bit 2 Receive Done Interrupt status
+>          S/W needs to clear this status bit to allow next data receiving.
+>
+> Acknowledging Receive Done before receive data was handled resulted in
+> receive errors on high speed I2C busses.
+>
+> However, interrupt acknowledgment was not only moved to the end of the
+> interrupt handler for Receive Done Interrupt status, but for all interrupt
+> status bits. This could result in race conditions if a second interrupt was
+> received during interrupt handling and not handled but still acknowledged
+> at the end of the interrupt handler.
+>
+> Acknowledge only "Receive Done Interrupt status" late in the interrupt
+> handler to solve the problem.
+>
+> Fixes: 3e9efc3299dd ("i2c: aspeed: Handle master/slave combined irq events properly")
+> Cc: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+> Cc: Joel Stanley <joel@jms.id.au>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 
-Guenter
+Thanks for getting to the bottom of this Guenter. I gave it a spin on
+Romulus (ast2500) and Palmetto (ast2400) without issue.
+
+Tested-by: Joel Stanley <joel@jms.id.au>
+
+Cheers,
+
+Joel
