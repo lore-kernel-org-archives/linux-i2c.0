@@ -1,36 +1,56 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v8 0/4] gpiolib: speed up GPIO array processing
-Date: Wed, 19 Sep 2018 11:08:57 -0700
-Message-ID: <CACRpkdbdYmsFD3XOVLWjoGsPSU4UnTKtkYm5VQxGmoeQZewWZA@mail.gmail.com>
-References: <20180902120144.6855-1-jmkrzyszt@gmail.com> <20180905215008.1649-1-jmkrzyszt@gmail.com>
- <CACRpkdbAG1N0v-BrXruf5088L0x3XwSHbFTWOFxjHQWx0LKz5g@mail.gmail.com>
+From: Stephen Boyd <swboyd@chromium.org>
+Subject: Re: [PATCH] i2c: i2c-qcom-geni: Properly handle DMA safe buffers
+Date: Wed, 19 Sep 2018 11:25:04 -0700
+Message-ID: <153738150448.119890.13258586980997802695@swboyd.mtv.corp.google.com>
+References: <20180918194126.138455-1-swboyd@chromium.org> <20180918221646.GA970@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdbAG1N0v-BrXruf5088L0x3XwSHbFTWOFxjHQWx0LKz5g@mail.gmail.com>
-Sender: netdev-owner@vger.kernel.org
-To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>, Ulf Hansson <ulf.hansson@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, "David S. Miller" <davem@davemloft.net>, Dominik Brodowski <linux@dominikbrodowski.net>, Greg KH <gregkh@linuxfoundation.org>, kishon@ti.com, Lars-Peter Clausen <lars@metafoo.de>, Michael Hennerich <Michael.Hennerich@analog.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald <pmeerw@pmeerw.net>, Jiri Slaby <jslaby@suse.com>, Willy Tarreau <w@1wt.eu>, Geert Uytterhoeven <geert@linux-m68k.org>, Sebastien Bourdelin <sebastien.bourdelin@savoirf>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180918221646.GA970@kunai>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 13, 2018 at 2:22 AM Linus Walleij <linus.walleij@linaro.org> wrote:
-> On Wed, Sep 5, 2018 at 11:49 PM Janusz Krzysztofik <jmkrzyszt@gmail.com> wrote:
->
-> > The goal is to boost performance of get/set array functions while
-> > processing GPIO arrays which represent pins of a signle chip in
-> > hardware order.  If resulting performance is close to PIO, GPIO API
-> > can be used for data I/O without much loss of speed.
->
-> I applied the v8 to an immutable branch and pushed to kernelorg
-> so the build servers can churn it a bit, and if it works fine
-> then we can merge this into the devel branch and also set up
-> that as something other subsystems can pull in if they need it.
->
-> I'm really excited to merge this!
+Quoting Wolfram Sang (2018-09-18 15:16:46)
+> =
 
-The branch built with no problems, and now I merged this into
-devel. If that also builds fine, I will let it hit linux-next so we can
-stabilize it for v4.20.
+> > This fixes a problem where the kernel oopses cleaning pages for a buffer
+> > that's mapped into the vmalloc space. The pages are returned from
+> > request_firmware() and passed down directly to the i2c master to write
+> > to the i2c touchscreen device. Mapping vmalloc buffers with
+> > dma_map_single() won't work reliably, causing an oops like below:
+> =
 
-Yours,
-Linus Walleij
+> Exactly the reason why I implemented I2C_M_DMA_SAFE. Did you also notice
+> the helper i2c_get_dma_safe_msg_buf() which you maybe could use for
+> len > 32?
+> =
+
+
+Yes I noticed that after sending the patch, thanks for pointing it out.
+
+But now when I try to use it I'm not exicted when the buffer is bounced
+but we fail to map the buffer with the DMA APIs. For an I2C_M_RD
+message, presumably we would call i2c_release_dma_safe_msg_buf() in this
+error case, but that will cause the original buffer to be copied over
+which seems wasteful to do, but I guess it's OK. I suppose we could have
+another function like:
+
+void i2c_release_dma_safe_msg_buf_on_err(struct i2c_msg *msg, u8 *buf)
+{
+        if (!buf || buf =3D=3D msg->buf)
+                return;
+
+        kfree(buf);
+}
+
+so that we don't copy over the buffer on failure and still properly free
+the buffer that we setup. Or we can pass an argument to
+i2c_release_dma_safe_msg_buf() to indicate if we should do the memcpy or
+not? Removing the I2C_M_RD flag from the message on failure doesn't
+sound like a good idea.
+
+Either way, I can resend the patch with the releasing and duplicate
+memcpy and we can discuss this minor optimization.
