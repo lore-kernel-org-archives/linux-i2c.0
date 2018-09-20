@@ -1,7 +1,7 @@
 From: Stephen Boyd <swboyd@chromium.org>
-Subject: [PATCH v2 1/2] i2c: i2c-qcom-geni: Properly handle DMA safe buffers
-Date: Thu, 20 Sep 2018 11:03:22 -0700
-Message-ID: <20180920180323.217377-2-swboyd@chromium.org>
+Subject: [PATCH v2 2/2] i2c: i2c-qcom-geni: Simplify tx/rx functions
+Date: Thu, 20 Sep 2018 11:03:23 -0700
+Message-ID: <20180920180323.217377-3-swboyd@chromium.org>
 References: <20180920180323.217377-1-swboyd@chromium.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,181 +12,127 @@ To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-We shouldn't attempt to DMA map the message buffers passed into this
-driver from the i2c core unless the message we're mapping have been
-properly setup for DMA. The i2c core indicates such a situation by
-setting the I2C_M_DMA_SAFE flag, so check for that flag before using DMA
-mode. We can also bounce the buffer if it isn't already mapped properly
-by using the i2c_get_dma_safe_msg_buf() APIs, so do that when we
-want to use DMA for a message.
+We never really look at the 'ret' local variable in these functions, so
+let's remove it to make way for shorter and simpler code. Furthermore,
+we can shorten some lines by adding two local variables for the SE and
+the message length so that everything fits in 80 columns. And kernel
+style is to leave the return statement by itself, detached from the rest
+of the function.
 
-This fixes a problem where the kernel oopses cleaning pages for a buffer
-that's mapped into the vmalloc space. The pages are returned from
-request_firmware() and passed down directly to the i2c master to write
-to the i2c touchscreen device. Mapping vmalloc buffers with
-dma_map_single() won't work reliably, causing an oops like below:
-
- Unable to handle kernel paging request at virtual address ffffffc01391d000
- Mem abort info:
-   Exception class = DABT (current EL), IL = 32 bits
-   SET = 0, FnV = 0
-   EA = 0, S1PTW = 0
- Data abort info:
-   ISV = 0, ISS = 0x00000146
-   CM = 1, WnR = 1
- swapper pgtable: 4k pages, 39-bit VAs, pgd = ffffff8009ecf000
- [ffffffc01391d000] *pgd=000000017fffa803, *pud=000000017fffa803, *pmd=0000000000000000
- Internal error: Oops: 96000146 [#1] PREEMPT SMP
- Modules linked in: i2c_dev rfcomm uinput lzo lzo_compress hci_uart zram btqca qcom_q6v5_pil bluetooth ecdh_generic qcom_common bridge qcom_q6v5 stp llc ipt_MASQUERADE nf_nat_masquerade_ipv4 xt_mark fuse snd_seq_dummy snd_seq snd_seq_device cfg80211 rmtfs_mem smsc95xx usbnet mii joydev
- CPU: 0 PID: 1269 Comm: bash Not tainted 4.14.68 #1
- task: ffffffc0dc2a0080 task.stack: ffffff800f978000
- PC is at __clean_dcache_area_poc+0x20/0x38
- LR is at __swiotlb_map_page+0x80/0x98
- pc : [<ffffff800809bfb4>] lr : [<ffffff800809a150>] pstate: 80400149
- sp : ffffff800f97ba20
- x29: ffffff800f97ba50 x28: 0000000000000001
- x27: ffffff8008a04000 x26: ffffffc0f79a7a28
- x25: 0000000000000000 x24: ffffffbf004e4740
- x23: 0000000000000000 x22: ffffffc0f94eb290
- x21: 000000009391d000 x20: 0000000000000084
- x19: 0000000000000001 x18: 0000000000000000
- x17: 0000000000000000 x16: ffffffc0dc2a0080
- x15: 0000000000000000 x14: 0000000000000001
- x13: 00000000000c00b1 x12: 0000000000000000
- x11: 0000000002000000 x10: 0000000000000000
- x9 : 0000000080000000 x8 : 000000001391d000
- x7 : ffffff80085649dc x6 : 0000000000000000
- x5 : 0000000000000000 x4 : 0000000000000001
- x3 : 000000000000003f x2 : 0000000000000040
- x1 : ffffffc01391d084 x0 : ffffffc01391d000
- Process bash (pid: 1269, stack limit = 0xffffff800f978000)
- Call trace:
- Exception stack(0xffffff800f97b8e0 to 0xffffff800f97ba20)
- b8e0: ffffffc01391d000 ffffffc01391d084 0000000000000040 000000000000003f
- b900: 0000000000000001 0000000000000000 0000000000000000 ffffff80085649dc
- b920: 000000001391d000 0000000080000000 0000000000000000 0000000002000000
- b940: 0000000000000000 00000000000c00b1 0000000000000001 0000000000000000
- cros-ec-spi spi10.0: SPI transfer timed out
- b960: ffffffc0dc2a0080 0000000000000000 0000000000000000 0000000000000001
- b980: 0000000000000084 000000009391d000 ffffffc0f94eb290 0000000000000000
- b9a0: ffffffbf004e4740 0000000000000000 ffffffc0f79a7a28 ffffff8008a04000
- b9c0: 0000000000000001 ffffff800f97ba50 ffffff800809a150 ffffff800f97ba20
- b9e0: ffffff800809bfb4 0000000080400149 ffffffc0f94eb290 0000000000000000
- ba00: 0000007fffffffff 0000000000000001 ffffff800f97ba50 ffffff800809bfb4
- [<ffffff800809bfb4>] __clean_dcache_area_poc+0x20/0x38
- [<ffffff8008448154>] geni_se_tx_dma_prep+0x80/0x154
- [<ffffff800867eb2c>] geni_i2c_xfer+0x14c/0x3dc
- [<ffffff80086793bc>] __i2c_transfer+0x428/0x83c
- [<ffffff8008679850>] i2c_transfer+0x80/0xbc
- [<ffffff80086798e8>] i2c_master_send+0x5c/0x90
- [<ffffff8008671cc0>] elants_i2c_send+0x30/0x84
- [<ffffff8008672460>] write_update_fw+0x324/0x484
- [<ffffff80085559e4>] dev_attr_store+0x40/0x58
- [<ffffff80082c4ca4>] sysfs_kf_write+0x4c/0x64
- [<ffffff80082c36fc>] kernfs_fop_write+0x124/0x1bc
- [<ffffff8008234f04>] __vfs_write+0x54/0x14c
- [<ffffff80082352b0>] vfs_write+0xcc/0x188
- [<ffffff800823548c>] SyS_write+0x60/0xc0
- Exception stack(0xffffff800f97bec0 to 0xffffff800f97c000)
- bec0: 0000000000000001 000000000e7ede70 0000000000000002 0000000000000000
- bee0: 0000000000000002 000000000e7ede70 00000000ec049bc8 0000000000000004
- bf00: 0000000000000002 0000000000000000 000000000e7f0f10 000000000ca2bcd8
- bf20: 0000000000000000 00000000ff9df69c 00000000ebfaf229 0000000000000000
- bf40: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
- bf60: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
- bf80: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
- bfa0: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
- bfc0: 00000000ebfec978 00000000400e0030 0000000000000001 0000000000000004
- bfe0: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
- [<ffffff80080832c4>] el0_svc_naked+0x34/0x38
- Code: 9ac32042 8b010001 d1000443 8a230000 (d50b7a20)
-
-Reported-by: Philip Chen <philipchen@chromium.org>
 Cc: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
 Cc: Sagar Dharia <sdharia@codeaurora.org>
 Cc: Girish Mahadevan <girishm@codeaurora.org>
 Signed-off-by: Stephen Boyd <swboyd@chromium.org>
 ---
- drivers/i2c/busses/i2c-qcom-geni.c | 22 ++++++++++++++++++----
- 1 file changed, 18 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-qcom-geni.c | 54 ++++++++++++++----------------
+ 1 file changed, 25 insertions(+), 29 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 36732eb688a4..9f2eb02481d3 100644
+index 9f2eb02481d3..1215bb21c9f1 100644
 --- a/drivers/i2c/busses/i2c-qcom-geni.c
 +++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -367,20 +367,26 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 	dma_addr_t rx_dma;
+@@ -368,6 +368,8 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
  	enum geni_se_xfer_mode mode;
  	unsigned long time_left = XFER_TIMEOUT;
-+	void *dma_buf;
+ 	void *dma_buf;
++	struct geni_se *se = &gi2c->se;
++	size_t len = msg->len;
  
  	gi2c->cur = msg;
--	mode = msg->len > 32 ? GENI_SE_DMA : GENI_SE_FIFO;
-+	mode = GENI_SE_FIFO;
-+	dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
-+	if (dma_buf)
-+		mode = GENI_SE_DMA;
-+
- 	geni_se_select_mode(&gi2c->se, mode);
- 	writel_relaxed(msg->len, gi2c->se.base + SE_I2C_RX_TRANS_LEN);
- 	geni_se_setup_m_cmd(&gi2c->se, I2C_READ, m_param);
- 	if (mode == GENI_SE_DMA) {
- 		int ret;
+ 	mode = GENI_SE_FIFO;
+@@ -375,19 +377,14 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ 	if (dma_buf)
+ 		mode = GENI_SE_DMA;
  
--		ret = geni_se_rx_dma_prep(&gi2c->se, msg->buf, msg->len,
-+		ret = geni_se_rx_dma_prep(&gi2c->se, dma_buf, msg->len,
- 								&rx_dma);
- 		if (ret) {
- 			mode = GENI_SE_FIFO;
- 			geni_se_select_mode(&gi2c->se, mode);
-+			i2c_put_dma_safe_msg_buf(dma_buf, msg, false);
- 		}
+-	geni_se_select_mode(&gi2c->se, mode);
+-	writel_relaxed(msg->len, gi2c->se.base + SE_I2C_RX_TRANS_LEN);
+-	geni_se_setup_m_cmd(&gi2c->se, I2C_READ, m_param);
+-	if (mode == GENI_SE_DMA) {
+-		int ret;
+-
+-		ret = geni_se_rx_dma_prep(&gi2c->se, dma_buf, msg->len,
+-								&rx_dma);
+-		if (ret) {
+-			mode = GENI_SE_FIFO;
+-			geni_se_select_mode(&gi2c->se, mode);
+-			i2c_put_dma_safe_msg_buf(dma_buf, msg, false);
+-		}
++	geni_se_select_mode(se, mode);
++	writel_relaxed(len, se->base + SE_I2C_RX_TRANS_LEN);
++	geni_se_setup_m_cmd(se, I2C_READ, m_param);
++
++	if (dma_buf && geni_se_rx_dma_prep(se, dma_buf, len, &rx_dma)) {
++		mode = GENI_SE_FIFO;
++		geni_se_select_mode(se, mode);
++		i2c_put_dma_safe_msg_buf(dma_buf, msg, false);
  	}
  
-@@ -393,6 +399,7 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ 	time_left = wait_for_completion_timeout(&gi2c->done, XFER_TIMEOUT);
+@@ -398,9 +395,10 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ 	if (mode == GENI_SE_DMA) {
  		if (gi2c->err)
  			geni_i2c_rx_fsm_rst(gi2c);
- 		geni_se_rx_dma_unprep(&gi2c->se, rx_dma, msg->len);
-+		i2c_put_dma_safe_msg_buf(dma_buf, msg, !gi2c->err);
+-		geni_se_rx_dma_unprep(&gi2c->se, rx_dma, msg->len);
++		geni_se_rx_dma_unprep(se, rx_dma, len);
+ 		i2c_put_dma_safe_msg_buf(dma_buf, msg, !gi2c->err);
  	}
++
  	return gi2c->err;
  }
-@@ -403,20 +410,26 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 	dma_addr_t tx_dma;
+ 
+@@ -411,6 +409,8 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
  	enum geni_se_xfer_mode mode;
  	unsigned long time_left;
-+	void *dma_buf;
+ 	void *dma_buf;
++	struct geni_se *se = &gi2c->se;
++	size_t len = msg->len;
  
  	gi2c->cur = msg;
--	mode = msg->len > 32 ? GENI_SE_DMA : GENI_SE_FIFO;
-+	mode = GENI_SE_FIFO;
-+	dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
-+	if (dma_buf)
-+		mode = GENI_SE_DMA;
-+
- 	geni_se_select_mode(&gi2c->se, mode);
- 	writel_relaxed(msg->len, gi2c->se.base + SE_I2C_TX_TRANS_LEN);
- 	geni_se_setup_m_cmd(&gi2c->se, I2C_WRITE, m_param);
- 	if (mode == GENI_SE_DMA) {
- 		int ret;
+ 	mode = GENI_SE_FIFO;
+@@ -418,23 +418,18 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ 	if (dma_buf)
+ 		mode = GENI_SE_DMA;
  
--		ret = geni_se_tx_dma_prep(&gi2c->se, msg->buf, msg->len,
-+		ret = geni_se_tx_dma_prep(&gi2c->se, dma_buf, msg->len,
- 								&tx_dma);
- 		if (ret) {
- 			mode = GENI_SE_FIFO;
- 			geni_se_select_mode(&gi2c->se, mode);
-+			i2c_put_dma_safe_msg_buf(dma_buf, msg, false);
- 		}
+-	geni_se_select_mode(&gi2c->se, mode);
+-	writel_relaxed(msg->len, gi2c->se.base + SE_I2C_TX_TRANS_LEN);
+-	geni_se_setup_m_cmd(&gi2c->se, I2C_WRITE, m_param);
+-	if (mode == GENI_SE_DMA) {
+-		int ret;
+-
+-		ret = geni_se_tx_dma_prep(&gi2c->se, dma_buf, msg->len,
+-								&tx_dma);
+-		if (ret) {
+-			mode = GENI_SE_FIFO;
+-			geni_se_select_mode(&gi2c->se, mode);
+-			i2c_put_dma_safe_msg_buf(dma_buf, msg, false);
+-		}
++	geni_se_select_mode(se, mode);
++	writel_relaxed(len, se->base + SE_I2C_TX_TRANS_LEN);
++	geni_se_setup_m_cmd(se, I2C_WRITE, m_param);
++
++	if (dma_buf && geni_se_tx_dma_prep(se, dma_buf, len, &tx_dma)) {
++		mode = GENI_SE_FIFO;
++		geni_se_select_mode(se, mode);
++		i2c_put_dma_safe_msg_buf(dma_buf, msg, false);
  	}
  
-@@ -432,6 +445,7 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ 	if (mode == GENI_SE_FIFO) /* Get FIFO IRQ */
+-		writel_relaxed(1, gi2c->se.base + SE_GENI_TX_WATERMARK_REG);
++		writel_relaxed(1, se->base + SE_GENI_TX_WATERMARK_REG);
+ 
+ 	time_left = wait_for_completion_timeout(&gi2c->done, XFER_TIMEOUT);
+ 	if (!time_left)
+@@ -444,9 +439,10 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ 	if (mode == GENI_SE_DMA) {
  		if (gi2c->err)
  			geni_i2c_tx_fsm_rst(gi2c);
- 		geni_se_tx_dma_unprep(&gi2c->se, tx_dma, msg->len);
-+		i2c_put_dma_safe_msg_buf(dma_buf, msg, !gi2c->err);
+-		geni_se_tx_dma_unprep(&gi2c->se, tx_dma, msg->len);
++		geni_se_tx_dma_unprep(se, tx_dma, len);
+ 		i2c_put_dma_safe_msg_buf(dma_buf, msg, !gi2c->err);
  	}
++
  	return gi2c->err;
  }
+ 
 -- 
 Sent by a computer through tubes
