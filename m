@@ -1,115 +1,35 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [RFC PATCH 4/4] i2c: core: introduce master_xfer_irqless callback
-Date: Thu, 20 Sep 2018 19:41:05 +0200
-Message-ID: <ca62f8b1-26e2-2b40-d8ce-39a920d90063@axentia.se>
-References: <20180920161423.13990-1-wsa+renesas@sang-engineering.com>
- <20180920161423.13990-5-wsa+renesas@sang-engineering.com>
+From: Stephen Boyd <swboyd@chromium.org>
+Subject: [PATCH v2 0/2] Fix qcom geni i2c DMA handling
+Date: Thu, 20 Sep 2018 11:03:21 -0700
+Message-ID: <20180920180323.217377-1-swboyd@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20180920161423.13990-5-wsa+renesas@sang-engineering.com>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
-Cc: Tero Kristo <t-kristo@ti.com>, preid@electromag.com.au, Keerthy <j-keerthy@ti.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-renesas-soc@vger.kernel.org, Grygorii Strashko <grygorii.strashko@ti.com>, Stefan Lengfeld <contact@stefanchrist.eu>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-09-20 18:14, Wolfram Sang wrote:
-> We had the request to access devices very late when interrupts are not
-> available anymore multiple times now. Mostly to prepare shutdown or
+The qcom GENI I2C driver fails DMA sometimes when things
+from request firmware are passed in as the message buffer.
+This patch series fixes that problem in the first patch
+and the second patch cleans up the code a little to reduce
+lines and simplify lines.
 
-The first sentence is a bit backwards, I'd rephrase like so:
+Changes from v1:
+ * Use i2c helpers to map buffers
+ * New patch 2 to clean up seriously indented code
 
-Multiple times now we've had the request to access devices very late, when
-interrupts are no longer available.
+Cc: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
+Cc: Sagar Dharia <sdharia@codeaurora.org>
+Cc: Girish Mahadevan <girishm@codeaurora.org>
 
-> reboot. Allow adapters to specify a specific callback for this case.
-> Note that we fall back to the generic master_xfer callback if this new
-> irqless one is not present. This is intentional to preserve the previous
-> behaviour and avoid regressions. Because there are drivers not using
-> interrupts or because it might have worked "accidently" before.
+Stephen Boyd (2):
+  i2c: i2c-qcom-geni: Properly handle DMA safe buffers
+  i2c: i2c-qcom-geni: Simplify tx/rx functions
 
-accidentally
+ drivers/i2c/busses/i2c-qcom-geni.c | 68 +++++++++++++++++-------------
+ 1 file changed, 39 insertions(+), 29 deletions(-)
 
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->  drivers/i2c/i2c-core-base.c |  6 +++++-
->  include/linux/i2c.h         | 10 +++++++---
->  2 files changed, 12 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 904b4d2ebefa..f827446c3089 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -1887,7 +1887,11 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
->  	/* Retry automatically on arbitration loss */
->  	orig_jiffies = jiffies;
->  	for (ret = 0, try = 0; try <= adap->retries; try++) {
-> -		ret = adap->algo->master_xfer(adap, msgs, num);
-> +		if ((in_atomic() || irqs_disabled()) && adap->algo->master_xfer_irqless)
-> +			ret = adap->algo->master_xfer_irqless(adap, msgs, num);
-> +		else
-> +			ret = adap->algo->master_xfer(adap, msgs, num);
-> +
->  		if (ret != -EAGAIN)
->  			break;
->  		if (time_after(jiffies, orig_jiffies + adap->timeout))
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 65b4eaed1d96..11e615123bd0 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -498,6 +498,8 @@ i2c_register_board_info(int busnum, struct i2c_board_info const *info,
->   * @master_xfer: Issue a set of i2c transactions to the given I2C adapter
->   *   defined by the msgs array, with num messages available to transfer via
->   *   the adapter specified by adap.
-> + * @master_xfer_irqless: same as master_xfer. Yet, not using any interrupts
-
-"Same" (with capital 'S') to match the other entries. Also, should it
-not be @master_xfer to help the tools do the right thing?
-
-> + *   so e.g. PMICs can be accessed very late before shutdown
-
-Trailing period.
-
-I'm fine with this change, but should it not wait until there is a user?
-(I think there is one in the wings, so that's a very weak objection...)
-
-Acked-by: Peter Rosin <peda@axentia.se>
-
-
->   * @smbus_xfer: Issue smbus transactions to the given I2C adapter. If this
->   *   is not present, then the bus layer will try and convert the SMBus calls
->   *   into I2C transfers instead.
-> @@ -511,9 +513,9 @@ i2c_register_board_info(int busnum, struct i2c_board_info const *info,
->   * be addressed using the same bus algorithms - i.e. bit-banging or the PCF8584
->   * to name two of the most common.
->   *
-> - * The return codes from the @master_xfer field should indicate the type of
-> - * error code that occurred during the transfer, as documented in the kernel
-> - * Documentation file Documentation/i2c/fault-codes.
-> + * The return codes from the @master_xfer{_irqless} field should indicate the
-> + * type of error code that occurred during the transfer, as documented in the
-> + * Kernel Documentation file Documentation/i2c/fault-codes.
->   */
->  struct i2c_algorithm {
->  	/* If an adapter algorithm can't do I2C-level access, set master_xfer
-> @@ -524,6 +526,8 @@ struct i2c_algorithm {
->  	   processed, or a negative value on error */
->  	int (*master_xfer)(struct i2c_adapter *adap, struct i2c_msg *msgs,
->  			   int num);
-> +	int (*master_xfer_irqless)(struct i2c_adapter *adap,
-> +				   struct i2c_msg *msgs, int num);
->  	int (*smbus_xfer) (struct i2c_adapter *adap, u16 addr,
->  			   unsigned short flags, char read_write,
->  			   u8 command, int size, union i2c_smbus_data *data);
-> 
+-- 
+Sent by a computer through tubes
