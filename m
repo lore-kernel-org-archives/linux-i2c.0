@@ -1,138 +1,48 @@
-From: Stephen Boyd <swboyd@chromium.org>
-Subject: [PATCH v2 2/2] i2c: i2c-qcom-geni: Simplify tx/rx functions
-Date: Thu, 20 Sep 2018 11:03:23 -0700
-Message-ID: <20180920180323.217377-3-swboyd@chromium.org>
-References: <20180920180323.217377-1-swboyd@chromium.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [PATCH v7 4/4] gpiolib: Implement fast processing path in
+ get/set array
+Date: Thu, 20 Sep 2018 21:05:29 +0300
+Message-ID: <20180920180529.hjc54yoqmvnpvvt7@mwanda>
+References: <20180831225616.29221-1-jmkrzyszt@gmail.com>
+ <CGME20180920101151eucas1p221f5a1715b8556bb9d99bf08fe09ce6f@eucas1p2.samsung.com>
+ <20180920101151eucas1p221f5a1715b8556bb9d99bf08fe09ce6f~WE-_cEf4l0754207542eucas1p27@eucas1p2.samsung.com>
+ <9860023.SlBYqtbjDV@z50>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180920180323.217377-1-swboyd@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+Content-Disposition: inline
+In-Reply-To: <9860023.SlBYqtbjDV@z50>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Ulf Hansson <ulf.hansson@linaro.org>, linux-doc@vger.kernel.org, linux-iio@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Dominik Brodowski <linux@dominikbrodowski.net>, Yegor Yefremov <yegorslists@googlemail.com>, "David S. Miller" <davem@davemloft.net>, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Marek Szyprowski <m.szyprowski@samsung.com>, devel@driverdev.osuosl.org, Florian Fainelli <f.fainelli@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Krzysztof Kozlowski <krzk@kernel.org>, Kishon Vijay Abraham I <kishon@ti.com>, Tony Lindgren <tony@atomide.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-serial@vger.kernel.org, Jiri Slaby <jslaby@suse.com>, Michael Hennerich <Michael.Hennerich@analog.com>, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pe>
 List-Id: linux-i2c@vger.kernel.org
 
-We never really look at the 'ret' local variable in these functions, so
-let's remove it to make way for shorter and simpler code. Furthermore,
-we can shorten some lines by adding two local variables for the SE and
-the message length so that everything fits in 80 columns. And kernel
-style is to leave the return statement by itself, detached from the rest
-of the function.
+On Thu, Sep 20, 2018 at 05:48:22PM +0200, Janusz Krzysztofik wrote:
+> diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+> index a53d17745d21..5bc3447949c9 100644
+> --- a/drivers/gpio/gpiolib.c
+> +++ b/drivers/gpio/gpiolib.c
+> @@ -2880,7 +2880,7 @@ int gpiod_get_array_value_complex(bool raw, bool can_sleep,
+>  			__set_bit(hwgpio, mask);
+>  
+>  			if (array_info)
+> -				find_next_zero_bit(array_info->get_mask,
+> +				i = find_next_zero_bit(array_info->get_mask,
+>  						   array_size, i);
 
-Cc: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
-Cc: Sagar Dharia <sdharia@codeaurora.org>
-Cc: Girish Mahadevan <girishm@codeaurora.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
----
- drivers/i2c/busses/i2c-qcom-geni.c | 54 ++++++++++++++----------------
- 1 file changed, 25 insertions(+), 29 deletions(-)
+We could mark find_next_zero_bit() and friends as a __must_check
+functions so we avoid this bug in the future.  I have a more complicated
+idea how to detect these bugs in a generic way using Smatch but it will
+take longer to implement.
 
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 9f2eb02481d3..1215bb21c9f1 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -368,6 +368,8 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 	enum geni_se_xfer_mode mode;
- 	unsigned long time_left = XFER_TIMEOUT;
- 	void *dma_buf;
-+	struct geni_se *se = &gi2c->se;
-+	size_t len = msg->len;
- 
- 	gi2c->cur = msg;
- 	mode = GENI_SE_FIFO;
-@@ -375,19 +377,14 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 	if (dma_buf)
- 		mode = GENI_SE_DMA;
- 
--	geni_se_select_mode(&gi2c->se, mode);
--	writel_relaxed(msg->len, gi2c->se.base + SE_I2C_RX_TRANS_LEN);
--	geni_se_setup_m_cmd(&gi2c->se, I2C_READ, m_param);
--	if (mode == GENI_SE_DMA) {
--		int ret;
--
--		ret = geni_se_rx_dma_prep(&gi2c->se, dma_buf, msg->len,
--								&rx_dma);
--		if (ret) {
--			mode = GENI_SE_FIFO;
--			geni_se_select_mode(&gi2c->se, mode);
--			i2c_put_dma_safe_msg_buf(dma_buf, msg, false);
--		}
-+	geni_se_select_mode(se, mode);
-+	writel_relaxed(len, se->base + SE_I2C_RX_TRANS_LEN);
-+	geni_se_setup_m_cmd(se, I2C_READ, m_param);
-+
-+	if (dma_buf && geni_se_rx_dma_prep(se, dma_buf, len, &rx_dma)) {
-+		mode = GENI_SE_FIFO;
-+		geni_se_select_mode(se, mode);
-+		i2c_put_dma_safe_msg_buf(dma_buf, msg, false);
- 	}
- 
- 	time_left = wait_for_completion_timeout(&gi2c->done, XFER_TIMEOUT);
-@@ -398,9 +395,10 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 	if (mode == GENI_SE_DMA) {
- 		if (gi2c->err)
- 			geni_i2c_rx_fsm_rst(gi2c);
--		geni_se_rx_dma_unprep(&gi2c->se, rx_dma, msg->len);
-+		geni_se_rx_dma_unprep(se, rx_dma, len);
- 		i2c_put_dma_safe_msg_buf(dma_buf, msg, !gi2c->err);
- 	}
-+
- 	return gi2c->err;
- }
- 
-@@ -411,6 +409,8 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 	enum geni_se_xfer_mode mode;
- 	unsigned long time_left;
- 	void *dma_buf;
-+	struct geni_se *se = &gi2c->se;
-+	size_t len = msg->len;
- 
- 	gi2c->cur = msg;
- 	mode = GENI_SE_FIFO;
-@@ -418,23 +418,18 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 	if (dma_buf)
- 		mode = GENI_SE_DMA;
- 
--	geni_se_select_mode(&gi2c->se, mode);
--	writel_relaxed(msg->len, gi2c->se.base + SE_I2C_TX_TRANS_LEN);
--	geni_se_setup_m_cmd(&gi2c->se, I2C_WRITE, m_param);
--	if (mode == GENI_SE_DMA) {
--		int ret;
--
--		ret = geni_se_tx_dma_prep(&gi2c->se, dma_buf, msg->len,
--								&tx_dma);
--		if (ret) {
--			mode = GENI_SE_FIFO;
--			geni_se_select_mode(&gi2c->se, mode);
--			i2c_put_dma_safe_msg_buf(dma_buf, msg, false);
--		}
-+	geni_se_select_mode(se, mode);
-+	writel_relaxed(len, se->base + SE_I2C_TX_TRANS_LEN);
-+	geni_se_setup_m_cmd(se, I2C_WRITE, m_param);
-+
-+	if (dma_buf && geni_se_tx_dma_prep(se, dma_buf, len, &tx_dma)) {
-+		mode = GENI_SE_FIFO;
-+		geni_se_select_mode(se, mode);
-+		i2c_put_dma_safe_msg_buf(dma_buf, msg, false);
- 	}
- 
- 	if (mode == GENI_SE_FIFO) /* Get FIFO IRQ */
--		writel_relaxed(1, gi2c->se.base + SE_GENI_TX_WATERMARK_REG);
-+		writel_relaxed(1, se->base + SE_GENI_TX_WATERMARK_REG);
- 
- 	time_left = wait_for_completion_timeout(&gi2c->done, XFER_TIMEOUT);
- 	if (!time_left)
-@@ -444,9 +439,10 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- 	if (mode == GENI_SE_DMA) {
- 		if (gi2c->err)
- 			geni_i2c_tx_fsm_rst(gi2c);
--		geni_se_tx_dma_unprep(&gi2c->se, tx_dma, msg->len);
-+		geni_se_tx_dma_unprep(se, tx_dma, len);
- 		i2c_put_dma_safe_msg_buf(dma_buf, msg, !gi2c->err);
- 	}
-+
- 	return gi2c->err;
- }
- 
--- 
-Sent by a computer through tubes
+regards,
+dan carpenter
