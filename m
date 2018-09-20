@@ -1,34 +1,91 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v7 4/4] gpiolib: Implement fast processing path in get/set array
-Date: Thu, 20 Sep 2018 08:49:04 -0700
-Message-ID: <CACRpkdZD+kFsyvSKBm1JpCOd1is_TBRJGx3Yvd=kshoH5iPhXA@mail.gmail.com>
-References: <20180831225616.29221-1-jmkrzyszt@gmail.com> <20180902120144.6855-1-jmkrzyszt@gmail.com>
- <CGME20180920101151eucas1p221f5a1715b8556bb9d99bf08fe09ce6f@eucas1p2.samsung.com>
- <20180902120144.6855-5-jmkrzyszt@gmail.com> <20180920101151eucas1p221f5a1715b8556bb9d99bf08fe09ce6f~WE-_cEf4l0754207542eucas1p27@eucas1p2.samsung.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH 4/4] i2c: core: introduce master_xfer_irqless callback
+Date: Thu, 20 Sep 2018 18:14:23 +0200
+Message-ID: <20180920161423.13990-5-wsa+renesas@sang-engineering.com>
+References: <20180920161423.13990-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180920101151eucas1p221f5a1715b8556bb9d99bf08fe09ce6f~WE-_cEf4l0754207542eucas1p27@eucas1p2.samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Janusz Krzysztofik <jmkrzyszt@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Miguel Ojeda Sandonis <miguel.ojeda.sandonis@gmail.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>, Ulf Hansson <ulf.hansson@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, "David S. Miller" <davem@davemloft.net>, Dominik Brodowski <linux@dominikbrodowski.net>, Greg KH <gregkh@linuxfoundation.org>, kishon@ti.com, Lars-Peter Clausen <lars@metafoo.de>, Michael Hennerich <Michael.Hennerich@analog.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Peter Meerwald <pmeerw@pmeerw.net>, Jiri Slaby <jslaby@suse.com>, Willy Tarreau <w@1wt.eu>, Geert Uytterhoeven <geert@linux-m68k.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20180920161423.13990-1-wsa+renesas@sang-engineering.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-i2c@vger.kernel.org
+Cc: Tero Kristo <t-kristo@ti.com>, preid@electromag.com.au, Keerthy <j-keerthy@ti.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Stefan Lengfeld <contact@stefanchrist.eu>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 20, 2018 at 3:11 AM Marek Szyprowski
-<m.szyprowski@samsung.com> wrote:
+We had the request to access devices very late when interrupts are not
+available anymore multiple times now. Mostly to prepare shutdown or
+reboot. Allow adapters to specify a specific callback for this case.
+Note that we fall back to the generic master_xfer callback if this new
+irqless one is not present. This is intentional to preserve the previous
+behaviour and avoid regressions. Because there are drivers not using
+interrupts or because it might have worked "accidently" before.
 
-> I've just noticed that this patch landed in today's linux-next. Sadly it
-> breaks booting of Exynos5250-based Samsung Snow Chromebook (ARM 32bit,
-> device-tree source arch/arm/boot/dts/exynos5250-snow.dts).
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/i2c-core-base.c |  6 +++++-
+ include/linux/i2c.h         | 10 +++++++---
+ 2 files changed, 12 insertions(+), 4 deletions(-)
 
-Thanks for testing on this platform!
-
-> Booting hangs after detecting MMC cards. Reverting this patch fixes the
-> boot. I will try later to add some debugs and investigate it further what
-> really happens when booting hangs.
-
-How typical. I hope we can fix it, because this should mean speedups
-for your platform.
-
-Yours,
-Linus Walleij
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 904b4d2ebefa..f827446c3089 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1887,7 +1887,11 @@ int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 	/* Retry automatically on arbitration loss */
+ 	orig_jiffies = jiffies;
+ 	for (ret = 0, try = 0; try <= adap->retries; try++) {
+-		ret = adap->algo->master_xfer(adap, msgs, num);
++		if ((in_atomic() || irqs_disabled()) && adap->algo->master_xfer_irqless)
++			ret = adap->algo->master_xfer_irqless(adap, msgs, num);
++		else
++			ret = adap->algo->master_xfer(adap, msgs, num);
++
+ 		if (ret != -EAGAIN)
+ 			break;
+ 		if (time_after(jiffies, orig_jiffies + adap->timeout))
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 65b4eaed1d96..11e615123bd0 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -498,6 +498,8 @@ i2c_register_board_info(int busnum, struct i2c_board_info const *info,
+  * @master_xfer: Issue a set of i2c transactions to the given I2C adapter
+  *   defined by the msgs array, with num messages available to transfer via
+  *   the adapter specified by adap.
++ * @master_xfer_irqless: same as master_xfer. Yet, not using any interrupts
++ *   so e.g. PMICs can be accessed very late before shutdown
+  * @smbus_xfer: Issue smbus transactions to the given I2C adapter. If this
+  *   is not present, then the bus layer will try and convert the SMBus calls
+  *   into I2C transfers instead.
+@@ -511,9 +513,9 @@ i2c_register_board_info(int busnum, struct i2c_board_info const *info,
+  * be addressed using the same bus algorithms - i.e. bit-banging or the PCF8584
+  * to name two of the most common.
+  *
+- * The return codes from the @master_xfer field should indicate the type of
+- * error code that occurred during the transfer, as documented in the kernel
+- * Documentation file Documentation/i2c/fault-codes.
++ * The return codes from the @master_xfer{_irqless} field should indicate the
++ * type of error code that occurred during the transfer, as documented in the
++ * Kernel Documentation file Documentation/i2c/fault-codes.
+  */
+ struct i2c_algorithm {
+ 	/* If an adapter algorithm can't do I2C-level access, set master_xfer
+@@ -524,6 +526,8 @@ struct i2c_algorithm {
+ 	   processed, or a negative value on error */
+ 	int (*master_xfer)(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			   int num);
++	int (*master_xfer_irqless)(struct i2c_adapter *adap,
++				   struct i2c_msg *msgs, int num);
+ 	int (*smbus_xfer) (struct i2c_adapter *adap, u16 addr,
+ 			   unsigned short flags, char read_write,
+ 			   u8 command, int size, union i2c_smbus_data *data);
+-- 
+2.18.0
