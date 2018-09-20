@@ -1,111 +1,51 @@
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Subject: Re: [PATCH v7 4/4] gpiolib: Implement fast processing path in get/set
- array
-Date: Thu, 20 Sep 2018 18:21:09 +0200
-Message-ID: <15226900.TQMLYV7PZ0@z50>
-References: <20180831225616.29221-1-jmkrzyszt@gmail.com>
- <20180920101151eucas1p221f5a1715b8556bb9d99bf08fe09ce6f~WE-_cEf4l0754207542eucas1p27@eucas1p2.samsung.com>
- <9860023.SlBYqtbjDV@z50>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH 0/4] i2c: core: introduce master_xfer_irqless
+Date: Thu, 20 Sep 2018 18:14:19 +0200
+Message-ID: <20180920161423.13990-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <9860023.SlBYqtbjDV@z50>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
-To: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Ulf Hansson <ulf.hansson@linaro.org>, linux-doc@vger.kernel.org, linux-iio@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Dominik Brodowski <linux@dominikbrodowski.net>, Peter Rosin <peda@axentia.se>, netdev@vger.kernel.org, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, devel@driverdev.osuosl.org, Florian Fainelli <f.fainelli@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Janusz Krzysztofik <jmkrzyszt@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Kishon Vijay Abraham I <kishon@ti.com>, Tony Lindgren <tony@atomide.com>, Lukas Wunner <lukas@wunner.de>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-serial@vger.kernel.org, Jiri Slaby <jslaby@suse.com>, Michael Hennerich <Michael.Hennerich@analog.com>, =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, linux-gpio@vger.kernel.org, Russ
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-i2c@vger.kernel.org
+Cc: Tero Kristo <t-kristo@ti.com>, preid@electromag.com.au, Keerthy <j-keerthy@ti.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Stefan Lengfeld <contact@stefanchrist.eu>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday, September 20, 2018 5:48:22 PM CEST Janusz Krzysztofik wrote:
-> On Thursday, September 20, 2018 12:11:48 PM CEST Marek Szyprowski wrote:
-> > Hi All,
-> > 
-> > On 2018-09-02 14:01, Janusz Krzysztofik wrote:
-> > > Certain GPIO descriptor arrays returned by gpio_get_array() may contain
-> > > information on direct mapping of array members to pins of a single GPIO
-> > > chip in hardware order.  In such cases, bitmaps of values can be passed
-> > > directly from/to the chip's .get/set_multiple() callbacks without
-> > > wasting time on iterations.
-> > >
-> > > Add respective code to gpiod_get/set_array_bitmap_complex() functions.
-> > > Pins not applicable for fast path are processed as before, skipping
-> > > over the 'fast' ones.
-> > >
-> > > Cc: Jonathan Corbet <corbet@lwn.net>
-> > > Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-> > 
-> > I've just noticed that this patch landed in today's linux-next. Sadly it
-> > breaks booting of Exynos5250-based Samsung Snow Chromebook (ARM 32bit,
-> > device-tree source arch/arm/boot/dts/exynos5250-snow.dts).
-> > 
-> > Booting hangs after detecting MMC cards. Reverting this patch fixes the
-> > boot. I will try later to add some debugs and investigate it further what
-> > really happens when booting hangs.
-> 
-> Hi Marek,
-> 
-> Thanks for reporting. Could you please try the following fix?
+To keep the discussion about master_xfer_irqless going, I post here a
+draft how I envision the changes to the I2C core. They are only build
+tested. I am unsure if I can test them on hardware before next week, so
+I'll send them around as RFC already, so people can get an idea and
+comment. Maybe Stefan has some bandwidth to test his imx driver
+implementation on top of this?
 
-Hi again,
+A branch can be found here:
 
-I realized the patch was not correct, j, not i, should be updated in second 
-hunk. Please try the following one.
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/i2c/xfer_irqless
 
-Thanks,
-Janusz
+Happy hacking and thanks for all the input to this,
 
->From a919c504850f6cb40e8e81267a3a37537f7c4fd4 Mon Sep 17 00:00:00 2001
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Date: Thu, 20 Sep 2018 17:37:21 +0200
-Subject: [PATCH] gpiolib: Fix bitmap index not updated
+   Wolfram
 
-While skipping fast path bits, bitmap index is not updated with next
-found zero bit position. Fix it.
 
-Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
----
- drivers/gpio/gpiolib.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+Wolfram Sang (4):
+  i2c: core: remove outdated DEBUG output
+  i2c: core: remove level of indentation in i2c_transfer
+  i2c: core: use I2C locking behaviour also for SMBUS
+  i2c: core: introduce master_xfer_irqless callback
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index a53d17745d21..369bdd358fcc 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -2880,7 +2880,7 @@ int gpiod_get_array_value_complex(bool raw, bool can_sleep,
- 			__set_bit(hwgpio, mask);
- 
- 			if (array_info)
--				find_next_zero_bit(array_info->get_mask,
-+				i = find_next_zero_bit(array_info->get_mask,
- 						   array_size, i);
- 			else
- 				i++;
-@@ -2905,7 +2905,8 @@ int gpiod_get_array_value_complex(bool raw, bool can_sleep,
- 			trace_gpio_value(desc_to_gpio(desc), 1, value);
- 
- 			if (array_info)
--				find_next_zero_bit(array_info->get_mask, i, j);
-+				j = find_next_zero_bit(array_info->get_mask, i,
-+						       j);
- 			else
- 				j++;
- 		}
-@@ -3192,7 +3193,7 @@ int gpiod_set_array_value_complex(bool raw, bool can_sleep,
- 			}
- 
- 			if (array_info)
--				find_next_zero_bit(array_info->set_mask,
-+				i = find_next_zero_bit(array_info->set_mask,
- 						   array_size, i);
- 			else
- 				i++;
+ drivers/i2c/i2c-core-base.c  | 44 +++++++++++++-----------------------
+ drivers/i2c/i2c-core-smbus.c |  7 +++++-
+ drivers/i2c/i2c-core.h       | 12 ++++++++++
+ include/linux/i2c.h          | 10 +++++---
+ 4 files changed, 41 insertions(+), 32 deletions(-)
+
 -- 
-2.16.4
+2.18.0
