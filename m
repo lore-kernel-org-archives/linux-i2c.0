@@ -1,100 +1,120 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: [PATCH] i2c: aspeed: fixed invalid clock parameters for very large divisors
-Date: Thu, 20 Sep 2018 16:28:20 -0700
-Message-ID: <20180920232820.243734-1-brendanhiggins@google.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+Subject: Re: [PATCH v7 4/4] gpiolib: Implement fast processing path in
+ get/set array
+Date: Fri, 21 Sep 2018 10:18:03 +0200
+Message-ID: <20180921081806eucas1p182d4646e8510b5f0356214af7edba11e~WXF8Ptw4M0970709707eucas1p1p@eucas1p1.samsung.com>
+References: <20180831225616.29221-1-jmkrzyszt@gmail.com>
+ <20180920101151eucas1p221f5a1715b8556bb9d99bf08fe09ce6f~WE-_cEf4l0754207542eucas1p27@eucas1p2.samsung.com>
+ <9860023.SlBYqtbjDV@z50>
+ <CGME20180920161947epcas3p491e6c136fe05d9672c81b7b4b8328f64@epcas3p4.samsung.com>
+ <15226900.TQMLYV7PZ0@z50>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jae.hyun.yoo@linux.intel.com, benh@kernel.crashing.org, joel@jms.id.au, andrew@aj.id.au
-Cc: linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, Brendan Higgins <brendanhiggins@google.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <15226900.TQMLYV7PZ0@z50>
+Content-Language: en-US
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+To: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Ulf Hansson <ulf.hansson@linaro.org>, linux-doc@vger.kernel.org, linux-iio@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Dominik Brodowski <linux@dominikbrodowski.net>, Peter Rosin <peda@axentia.se>, netdev@vger.kernel.org, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, devel@driverdev.osuosl.org, Florian Fainelli <f.fainelli@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Krzysztof Kozlowski <krzk@kernel.org>, Kishon Vijay Abraham I <kishon@ti.com>, Tony Lindgren <tony@atomide.com>, Lukas Wunner <lukas@wunner.de>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-serial@vger.kernel.org, Jiri Slaby <jslaby@suse.com>, Michael Hennerich <Michael.Hennerich@analog.com>, =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>, linux-gpio@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>, Lars-
 List-Id: linux-i2c@vger.kernel.org
 
-The function that computes clock parameters from divisors did not
-respect the maximum size of the bitfields that the parameters were
-written to. This fixes the bug.
+Hi Janusz,
 
-This bug can be reproduced with (and this fix verified with) the test
-at: https://kunit-review.googlesource.com/c/linux/+/1035/
+On 2018-09-20 18:21, Janusz Krzysztofik wrote:
+> On Thursday, September 20, 2018 5:48:22 PM CEST Janusz Krzysztofik wrote:
+>> On Thursday, September 20, 2018 12:11:48 PM CEST Marek Szyprowski wrote:
+>>> On 2018-09-02 14:01, Janusz Krzysztofik wrote:
+>>>> Certain GPIO descriptor arrays returned by gpio_get_array() may contain
+>>>> information on direct mapping of array members to pins of a single GPIO
+>>>> chip in hardware order.  In such cases, bitmaps of values can be passed
+>>>> directly from/to the chip's .get/set_multiple() callbacks without
+>>>> wasting time on iterations.
+>>>>
+>>>> Add respective code to gpiod_get/set_array_bitmap_complex() functions.
+>>>> Pins not applicable for fast path are processed as before, skipping
+>>>> over the 'fast' ones.
+>>>>
+>>>> Cc: Jonathan Corbet <corbet@lwn.net>
+>>>> Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+>>> I've just noticed that this patch landed in today's linux-next. Sadly it
+>>> breaks booting of Exynos5250-based Samsung Snow Chromebook (ARM 32bit,
+>>> device-tree source arch/arm/boot/dts/exynos5250-snow.dts).
+>>>
+>>> Booting hangs after detecting MMC cards. Reverting this patch fixes the
+>>> boot. I will try later to add some debugs and investigate it further what
+>>> really happens when booting hangs.
+>> Hi Marek,
+>>
+>> Thanks for reporting. Could you please try the following fix?
+> Hi again,
+>
+> I realized the patch was not correct, j, not i, should be updated in second
+> hunk. Please try the following one.
+>
+> Thanks,
+> Janusz
+>
+> >From a919c504850f6cb40e8e81267a3a37537f7c4fd4 Mon Sep 17 00:00:00 2001
+> From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+> Date: Thu, 20 Sep 2018 17:37:21 +0200
+> Subject: [PATCH] gpiolib: Fix bitmap index not updated
+> While skipping fast path bits, bitmap index is not updated with next
+> found zero bit position. Fix it.
+>
+> Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
 
-Discovered-by-KUnit: https://kunit-review.googlesource.com/c/linux/+/1035/
-Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
----
- drivers/i2c/busses/i2c-aspeed.c | 38 +++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 11 deletions(-)
+This one also doesn't help. A quick compare of logs with this version and
+a working system shows, that with your patch (and fix) there are no calls to
+gpx0-2 pin (which are a part of mmc pwrseq), what causes mmc failure. If
+you need any more information (what kind of logs will help?), let me know.
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index c258c4d9a4c0..c1c3f0a4d805 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -705,9 +705,18 @@ static const struct i2c_algorithm aspeed_i2c_algo = {
- #endif /* CONFIG_I2C_SLAVE */
- };
- 
--static u32 aspeed_i2c_get_clk_reg_val(u32 clk_high_low_max, u32 divisor)
-+static u32 aspeed_i2c_get_clk_reg_val(u32 clk_high_low_mask, u32 divisor)
- {
--	u32 base_clk, clk_high, clk_low, tmp;
-+	u32 base_clk, clk_high_low_max, clk_high, clk_low, tmp;
-+
-+	/*
-+	 * SCL_high and SCL_low represent a value 1 greater than what is stored
-+	 * since a zero divider is meaningless. Thus, the max value each can
-+	 * store is every bit set + 1. Since SCL_high and SCL_low are added
-+	 * together (see below), the max value of both is the max value of one
-+	 * them times two.
-+	 */
-+	clk_high_low_max = (clk_high_low_mask + 1) * 2;
- 
- 	/*
- 	 * The actual clock frequency of SCL is:
-@@ -731,15 +740,22 @@ static u32 aspeed_i2c_get_clk_reg_val(u32 clk_high_low_max, u32 divisor)
- 	 */
- 	base_clk = divisor > clk_high_low_max ?
- 			ilog2((divisor - 1) / clk_high_low_max) + 1 : 0;
--	tmp = (divisor + (1 << base_clk) - 1) >> base_clk;
--	clk_low = tmp / 2;
--	clk_high = tmp - clk_low;
- 
--	if (clk_high)
--		clk_high--;
-+	if (base_clk > ASPEED_I2CD_TIME_BASE_DIVISOR_MASK) {
-+		base_clk = ASPEED_I2CD_TIME_BASE_DIVISOR_MASK;
-+		clk_low = clk_high_low_mask;
-+		clk_high = clk_high_low_mask;
-+	} else {
-+		tmp = (divisor + (1 << base_clk) - 1) >> base_clk;
-+		clk_low = tmp / 2;
-+		clk_high = tmp - clk_low;
-+
-+		if (clk_high)
-+			clk_high--;
- 
--	if (clk_low)
--		clk_low--;
-+		if (clk_low)
-+			clk_low--;
-+	}
- 
- 
- 	return ((clk_high << ASPEED_I2CD_TIME_SCL_HIGH_SHIFT)
-@@ -755,7 +771,7 @@ static u32 aspeed_i2c_24xx_get_clk_reg_val(u32 divisor)
- 	 * clk_high and clk_low are each 3 bits wide, so each can hold a max
- 	 * value of 8 giving a clk_high_low_max of 16.
- 	 */
--	return aspeed_i2c_get_clk_reg_val(16, divisor);
-+	return aspeed_i2c_get_clk_reg_val(GENMASK(2, 0), divisor);
- }
- 
- static u32 aspeed_i2c_25xx_get_clk_reg_val(u32 divisor)
-@@ -764,7 +780,7 @@ static u32 aspeed_i2c_25xx_get_clk_reg_val(u32 divisor)
- 	 * clk_high and clk_low are each 4 bits wide, so each can hold a max
- 	 * value of 16 giving a clk_high_low_max of 32.
- 	 */
--	return aspeed_i2c_get_clk_reg_val(32, divisor);
-+	return aspeed_i2c_get_clk_reg_val(GENMASK(3, 0), divisor);
- }
- 
- /* precondition: bus.lock has been acquired. */
+> ---
+>   drivers/gpio/gpiolib.c | 7 ++++---
+>   1 file changed, 4 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+> index a53d17745d21..369bdd358fcc 100644
+> --- a/drivers/gpio/gpiolib.c
+> +++ b/drivers/gpio/gpiolib.c
+> @@ -2880,7 +2880,7 @@ int gpiod_get_array_value_complex(bool raw, bool can_sleep,
+>   			__set_bit(hwgpio, mask);
+>   
+>   			if (array_info)
+> -				find_next_zero_bit(array_info->get_mask,
+> +				i = find_next_zero_bit(array_info->get_mask,
+>   						   array_size, i);
+>   			else
+>   				i++;
+> @@ -2905,7 +2905,8 @@ int gpiod_get_array_value_complex(bool raw, bool can_sleep,
+>   			trace_gpio_value(desc_to_gpio(desc), 1, value);
+>   
+>   			if (array_info)
+> -				find_next_zero_bit(array_info->get_mask, i, j);
+> +				j = find_next_zero_bit(array_info->get_mask, i,
+> +						       j);
+>   			else
+>   				j++;
+>   		}
+> @@ -3192,7 +3193,7 @@ int gpiod_set_array_value_complex(bool raw, bool can_sleep,
+>   			}
+>   
+>   			if (array_info)
+> -				find_next_zero_bit(array_info->set_mask,
+> +				i = find_next_zero_bit(array_info->set_mask,
+>   						   array_size, i);
+>   			else
+>   				i++;
+
+Best regards
 -- 
-2.19.0.444.g18242da7ef-goog
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
