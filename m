@@ -1,33 +1,50 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH] i2c: aspeed: fixed invalid clock parameters for very
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Subject: Re: [PATCH v2] i2c: aspeed: fix invalid clock parameters for very
  large divisors
-Date: Fri, 21 Sep 2018 15:18:31 -0700
-Message-ID: <CAFd5g455kDnOQfkZK=U-gs2JrPVXdnA0GViRuWEcHrvjFASOEw@mail.gmail.com>
-References: <20180920232820.243734-1-brendanhiggins@google.com> <07af0253-1efc-2ae1-93fb-ebcc1996d768@linux.intel.com>
+Date: Fri, 21 Sep 2018 15:26:13 -0700
+Message-ID: <f5943177-6f1b-9344-3821-2aac001ff45d@linux.intel.com>
+References: <20180921221025.75003-1-brendanhiggins@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <07af0253-1efc-2ae1-93fb-ebcc1996d768@linux.intel.com>
+In-Reply-To: <20180921221025.75003-1-brendanhiggins@google.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Brendan Higgins <brendanhiggins@google.com>, benh@kernel.crashing.org, joel@jms.id.au, andrew@aj.id.au
+Cc: openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Sep 21, 2018 at 10:46 AM Jae Hyun Yoo
-<jae.hyun.yoo@linux.intel.com> wrote:
->
-> Hi Brendan,
->
-> nit:
-> Title in imperative mood. I'd put 'fix' instead of 'fixed'.
->
-<snip>
->
-> One minor issue is, 'base_clk_divisor' instead of 'base_clk' could avoid
-> misreading on this code.
->
-> With that, it looks nice to me. Thanks!
->
-> Reviewed-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Hi,
 
-Thanks for the review!
+On 9/21/2018 3:10 PM, Brendan Higgins wrote:
+> The function that computes clock parameters from divisors did not
+> respect the maximum size of the bitfields that the parameters were
+> written to. This fixes the bug.
+> 
+> This bug can be reproduced with (and this fix verified with) the test
+> at: https://kunit-review.googlesource.com/c/linux/+/1035/
+> 
+> Discovered-by-KUnit: https://kunit-review.googlesource.com/c/linux/+/1035/
+> Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+> Reviewed-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+> ---
+>   - v2 updates the title of the patch, renames a local variable, and
+>     prints an error when the clock divider is clamped.
+> ---
+
+[....]
+
+> +	if (base_clk_divisor > ASPEED_I2CD_TIME_BASE_DIVISOR_MASK) {
+> +		base_clk_divisor = ASPEED_I2CD_TIME_BASE_DIVISOR_MASK;
+> +		clk_low = clk_high_low_mask;
+> +		clk_high = clk_high_low_mask;
+> +		dev_err(dev,
+> +			"clamping clock divider: divider requested, %u, is greater than largest possible divider, %u.",
+
+Please put a newline character at the end of the string.
+
+Thanks,
+Jae
+
+[....]
