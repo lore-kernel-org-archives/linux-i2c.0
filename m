@@ -1,186 +1,125 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 1/3] x86: baytrail/cherrytrail: Rework and move P-Unit
- PMIC bus semaphore code
-Date: Mon, 24 Sep 2018 12:48:55 +0300
-Message-ID: <20180924094855.GH15943@smile.fi.intel.com>
-References: <20180923144510.4564-1-hdegoede@redhat.com>
- <20180923144510.4564-2-hdegoede@redhat.com>
+From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Subject: Re: [PATCH 0/2] gpiolib: Fix issues introduced by fast bitmap
+ processing path
+Date: Mon, 24 Sep 2018 13:08:11 +0200
+Message-ID: <CAGfqbt6H8u_dUokB-pg51kCj09G8Mh7wB0879nKMw5Dw83tcSg@mail.gmail.com>
+References: <2785169.v6aIfS3K2k@z50>
+ <CGME20180923235237epcas3p3aa946da71a07da1bc3cd0e8cce3473b2@epcas3p3.samsung.com>
+ <20180923235336.22148-1-jmkrzyszt@gmail.com>
+ <20180924094339eucas1p282f2f7cb627c183fe87da044edb90fa5~XTMgQ4GFs1339913399eucas1p2N@eucas1p2.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180923144510.4564-2-hdegoede@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20180924094339eucas1p282f2f7cb627c183fe87da044edb90fa5~XTMgQ4GFs1339913399eucas1p2N@eucas1p2.samsung.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
+To: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Ulf Hansson <ulf.hansson@linaro.org>, linux-doc@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Linus Walleij <linus.walleij@linaro.org>, Dominik Brodowski <linux@dominikbrodowski.net>, Peter Rosin <peda@axentia.se>, netdev@vger.kernel.org, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, devel@driverdev.osuosl.org, Florian Fainelli <f.fainelli@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Krzysztof Kozlowski <krzk@kernel.org>, Kishon Vijay Abraham I <kishon@ti.com>, linux-iio@vger.kernel.org, Peter Korsgaard <peter.korsgaard@barco.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-serial@vger.kernel.org, Jiri Slaby <jslaby@suse.com>, Michael Hennerich <Michael.Hennerich@analog.com>, =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, linux-gpio@vger.kernel.org, Russell King <rmk+kernel@armlinux.>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Sep 23, 2018 at 04:45:08PM +0200, Hans de Goede wrote:
-> On some BYT/CHT systems the SoC's P-Unit shares the I2C bus with the
-> kernel. The P-Unit has a semaphore for the PMIC bus which we can take to
-> block it from accessing the shared bus while the kernel wants to access it.
-> 
-> Currently we have the I2C-controller driver acquiring and releasing the
-> semaphore around each I2C transfer. There are 2 problems with this:
-> 
-> 1) PMIC accesses often come in the form of a read-modify-write on one of
-> the PMIC registers, we currently release the P-Unit's PMIC bus semaphore
-> between the read and the write. If the P-Unit modifies the register during
-> this window?, then we end up overwriting the P-Unit's changes.
-> I believe that this is mostly an academic problem, but I'm not sure.
-> 
-> 2) To safely access the shared I2C bus, we need to do 3 things:
-> a) Notify the GPU driver that we are starting a window in which it may not
-> access the P-Unit, since the P-Unit seems to ignore the semaphore for
-> explicit power-level requests made by the GPU driver
-> b) Make a pm_qos request to force all CPU cores out of C6/C7 since entering
-> C6/C7 while we hold the semaphore hangs the SoC
-> c) Finally take the P-Unit's PMIC bus semaphore
-> All 3 these steps together are somewhat expensive, so ideally if we have
-> a bunch of i2c transfers grouped together we only do this once for the
-> entire group.
-> 
-> Taking the read-modify-write on a PMIC register as example then ideally we
-> would only do all 3 steps once at the beginning and undo all 3 steps once
-> at the end.
-> 
-> For this we need to be able to take the semaphore from within e.g. the PMIC
-> opregion driver, yet we do not want to remove the taking of the semaphore
-> from the I2C-controller driver, as that is still necessary to protect many
-> other code-paths leading to accessing the shared I2C bus.
-> 
-> This means that we first have the PMIC driver acquire the semaphore and
-> then have the I2C controller driver trying to acquire it again.
-> 
-> To make this possible this commit does the following:
-> 
-> 1) Move the semaphore code from being private to the I2C controller driver
-> into the generic iosf_mbi code, which already has other code to deal with
-> the shared bus so that it can be accessed outside of the I2C bus driver.
-> 
-> 2) Rework the code so that it can be called multiple times nested, while
-> still blocking I2C accesses while e.g. the GPU driver has indicated the
-> P-Unit needs the bus through a iosf_mbi_punit_acquire() call.
-> 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
-> Note this commit deliberately limits the i2c-designware changes to
-> only touch i2c-designware-baytrail.c, deliberately not doing some cleanups
-> which become possible after removing the semaphore code from the
-> i2c-designmware code. This is done so that this commit can be merged
-> through the x86 tree without causing conflicts in the i2c tree.
-> 
-> The cleanups to the i2c-designware tree will be done in a follow up
-> patch which can be merged once this commit is in place.
+Hi Marek,
 
-> +static void iosf_mbi_reset_semaphore(void)
-> +{
-> +	if (iosf_mbi_modify(BT_MBI_UNIT_PMC, MBI_REG_READ,
-> +			    iosf_mbi_sem_address, 0, PUNIT_SEMAPHORE_BIT))
-> +		dev_err(&mbi_pdev->dev, "Error punit semaphore reset failed\n");
-> +
-> +	pm_qos_update_request(&iosf_mbi_pm_qos, PM_QOS_DEFAULT_VALUE);
-> +
-> +	blocking_notifier_call_chain(&iosf_mbi_pmic_bus_access_notifier,
-> +				     MBI_PMIC_BUS_ACCESS_END, NULL);
+2018-09-24 11:43 GMT+02:00, Marek Szyprowski <m.szyprowski@samsung.com>:
+> Hi Janusz,
+>
+> On 2018-09-24 01:53, Janusz Krzysztofik wrote:
+>> While investigating possible reasons of GPIO fast bitmap processing
+>> related boot hang on Samsung Snow Chromebook, reported by Marek
+>> Szyprowski (thanks!), I've discovered one coding bug, addressed by
+>> PATCH 1/2 of this series, and one potential regression introduced at
+>> design level of the solution, hopefully fixed by PATCH 2/2.  See
+>> commit messages for details.
+>>
+>> Janusz Krzysztofik (2):
+>>        gpiolib: Fix missing updates of bitmap index
+>>        gpiolib: Fix array members of same chip processed separately
+>>
+>> The fixes should resolve the boot hang observed by Marek, however the
+>> second change excludes that particular case from fast bitmap processing
+>> and restores the old behaviour.
+>
+> I confirm, that the above 2 patches fixes boot issue on Samsung Snow
+> Chromebook with next-20180920.
+>
+> Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+>
+>> Hence, it is possible still another
+>> issue which have had an influence on that boot hang exists in the code.
+>> In order to fully verify the fix, it would have to be tested on a
+>> platform where an array of GPIO descriptors is used which starts from
+>> at least two consecutive pins of one GPIO chip in hardware order,
+>> starting ftom 0, followed by one or more pins belonging to other
+>> chip(s).
+>>
+>> In order to verify if separate calls to .set() chip callback for each
+>> pin instead of one call to .set_multiple() is actually the reason of
+>> boot hang on Samsung Snow Chromebook, the affected driver -
+>> drivers/mmc/core/pwrseq_simple.c - would have to be temporarily
+>> modified for testing purposes so it calls gpiod_set_value() for each
+>> pin instead of gpiod_set_array_value() for all of them.  If that would
+>> also result in boot hang, we could be sure the issue was really the
+>> one addressed by the second fix.  Marek, could you please try to
+>> perform such test?
+>
+> Yes, I've just tested next-20180920 only with the first patch from this
+> patchset and the mentioned change to drivers/mmc/core/pwrseq_simple.c.
+> It boots fine, so indeed the issue is in handling of arrays of gpios.
+>
+> Just to be sure I did it right, this is my change to the mentioned file:
 
-> +	mutex_unlock(&iosf_mbi_punit_mutex);
+Yeah, that's what I had on mind.  However, I'd be more lucky if it didn't work
+for you.  Setting the pins sequentially, not simultaneously as before, was
+exactly what I hoped was the reason of the hang.
 
-Can we actually move this to the callers?
-To me sounds slightly more logical to see lock in *block*() call and unlock in
-*unblock*() respectively.
+> diff --git a/drivers/mmc/core/pwrseq_simple.c
+> b/drivers/mmc/core/pwrseq_simple.c
+> index 7f882a2bb872..9397dc1f2e38 100644
+> --- a/drivers/mmc/core/pwrseq_simple.c
+> +++ b/drivers/mmc/core/pwrseq_simple.c
+> @@ -38,16 +38,11 @@ static void mmc_pwrseq_simple_set_gpios_value(struct
+> mmc_pwrseq_simple *pwrseq,
+>                                                int value)
+>   {
+>          struct gpio_descs *reset_gpios = pwrseq->reset_gpios;
+> +       int i;
+>
+> -       if (!IS_ERR(reset_gpios)) {
+> -               DECLARE_BITMAP(values, BITS_PER_TYPE(value));
+> -               int nvalues = reset_gpios->ndescs;
+> -
+> -               values[0] = value;
+> -
+> -               gpiod_set_array_value_cansleep(nvalues, reset_gpios->desc,
+> -                                              reset_gpios->info, values);
+> -       }
+> +       if (!IS_ERR(reset_gpios))
+> +               for (i = 0; i < reset_gpios->ndescs; i++)
 
-> +}
+The only difference from the behaviour when the hang was occurring is now
+the order the pins are manipulated.  Maybe that matters?
+Could you please retry the same with the order of pins reversed, either in
+the .dts file or here inside this for loop?
 
-> +int iosf_mbi_block_punit_i2c_access(void)
-> +{
-> +	unsigned long start, end;
-> +	int ret = 0;
-> +	u32 sem;
-> +
-> +	if (WARN_ON(!mbi_pdev || !iosf_mbi_sem_address))
-> +		return -ENXIO;
-> +
-> +	mutex_lock(&iosf_mbi_block_punit_i2c_access_count_mutex);
-> +
-> +	if (iosf_mbi_block_punit_i2c_access_count > 0)
-> +		goto out;
-> +
-> +	mutex_lock(&iosf_mbi_punit_mutex);
-> +	blocking_notifier_call_chain(&iosf_mbi_pmic_bus_access_notifier,
-> +				     MBI_PMIC_BUS_ACCESS_BEGIN, NULL);
-> +
-> +	/*
-> +	 * Disallow the CPU to enter C6 or C7 state, entering these states
-> +	 * requires the punit to talk to the pmic and if this happens while
-> +	 * we're holding the semaphore, the SoC hangs.
-> +	 */
-> +	pm_qos_update_request(&iosf_mbi_pm_qos, 0);
-> +
-> +	/* host driver writes to side band semaphore register */
-> +	ret = iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE,
-> +			     iosf_mbi_sem_address, PUNIT_SEMAPHORE_ACQUIRE);
-> +	if (ret) {
-> +		dev_err(&mbi_pdev->dev, "Error punit semaphore request failed\n");
-> +		goto out;
-> +	}
-> +
-> +	/* host driver waits for bit 0 to be set in semaphore register */
-> +	start = jiffies;
-> +	end = start + msecs_to_jiffies(SEMAPHORE_TIMEOUT);
-> +	do {
-> +		ret = iosf_mbi_get_sem(&sem);
-> +		if (!ret && sem) {
-> +			iosf_mbi_sem_acquired = jiffies;
-> +			dev_dbg(&mbi_pdev->dev, "punit semaphore acquired after %ums\n",
-> +				jiffies_to_msecs(jiffies - start));
-> +			goto out; /* Success, done. */
-> +		}
-> +
-> +		usleep_range(1000, 2000);
-> +	} while (time_before(jiffies, end));
-> +
-> +	ret = -ETIMEDOUT;
-> +	dev_err(&mbi_pdev->dev, "Error punit semaphore timed out, resetting\n");
-> +	iosf_mbi_reset_semaphore();
-> +
-> +	if (!iosf_mbi_get_sem(&sem))
-> +		dev_err(&mbi_pdev->dev, "PUNIT SEM: %d\n", sem);
-> +out:
-> +	if (!WARN_ON(ret))
-> +		iosf_mbi_block_punit_i2c_access_count++;
-> +
-> +	mutex_unlock(&iosf_mbi_block_punit_i2c_access_count_mutex);
-> +
-> +	return ret;
-> +}
-> +EXPORT_SYMBOL(iosf_mbi_block_punit_i2c_access);
-> +
-> +void iosf_mbi_unblock_punit_i2c_access(void)
-> +{
-> +	mutex_lock(&iosf_mbi_block_punit_i2c_access_count_mutex);
-> +
-> +	iosf_mbi_block_punit_i2c_access_count--;
-> +	if (iosf_mbi_block_punit_i2c_access_count == 0) {
-> +		iosf_mbi_reset_semaphore();
-> +		dev_dbg(&mbi_pdev->dev, "punit semaphore held for %ums\n",
-> +			jiffies_to_msecs(jiffies - iosf_mbi_sem_acquired));
-> +	}
-> +
-> +	mutex_unlock(&iosf_mbi_block_punit_i2c_access_count_mutex);
-> +}
-> +EXPORT_SYMBOL(iosf_mbi_unblock_punit_i2c_access);
+Thanks,
+Janusz
 
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_BAYTRAIL),
-> +	  .driver_data = PUNIT_SEMAPHORE_BYT },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_BRASWELL),
-> +	  .driver_data = PUNIT_SEMAPHORE_CHT },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_QUARK_X1000) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_TANGIER) },
->  	{ 0, },
-
-Perhaps it can be converted to use PCI_DEVICE_DATA() macro.
-
--- 
-With Best Regards,
-Andy Shevchenko
+> + gpiod_set_value_cansleep(reset_gpios->desc[i], value);
+>   }
+>
+>   static void mmc_pwrseq_simple_pre_power_on(struct mmc_host *host)
+>
+>
+> Best regards
+> --
+> Marek Szyprowski, PhD
+> Samsung R&D Institute Poland
+>
+>
