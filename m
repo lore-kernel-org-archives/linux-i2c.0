@@ -1,43 +1,45 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: [PATCH i2c-next v2 1/2] dt-bindings: i2c: aspeed: Add 'idle-wait-timeout-ms' property
-Date: Mon, 24 Sep 2018 16:04:41 -0700
-Message-ID: <20180924230442.7732-2-jae.hyun.yoo@linux.intel.com>
-References: <20180924230442.7732-1-jae.hyun.yoo@linux.intel.com>
+From: Stephen Boyd <swboyd@chromium.org>
+Subject: [PATCH v3 0/3] Fix qcom geni i2c DMA handling
+Date: Mon, 24 Sep 2018 16:52:33 -0700
+Message-ID: <20180924235235.182649-1-swboyd@chromium.org>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180924230442.7732-1-jae.hyun.yoo@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>, Doug Anderson <dianders@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This commit adds 'idle-wait-timeout-ms' property which can be used
-for bus idle waiting logic in multi-master environment.
+(Numbering is weird because I dropped patch 1 but left numbering
+the same)
 
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
----
- Documentation/devicetree/bindings/i2c/i2c-aspeed.txt | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+The qcom GENI I2C driver fails DMA sometimes when things
+from request firmware are passed in as the message buffer.
+This patch series fixes that problem in the first patch
+and the second patch cleans up the code a little to reduce
+lines and simplify lines.
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-index 8fbd8633a387..42ecaaf67172 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-@@ -13,9 +13,13 @@ Required Properties:
- - interrupts		: interrupt number
- 
- Optional Properties:
--- bus-frequency	: frequency of the bus clock in Hz defaults to 100 kHz when not
--		  specified
--- multi-master	: states that there is another master active on this bus.
-+- bus-frequency		: frequency of the bus clock in Hz defaults to 100 kHz
-+			  when not specified
-+- multi-master		: states that there is another master active on this
-+			  bus.
-+- idle-wait-timeout-ms	: bus idle waiting timeout in milliseconds when
-+			  multi-master is set, defaults to 100 ms when not
-+			  specified.
- 
- Example:
- 
+Cc: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
+Cc: Sagar Dharia <sdharia@codeaurora.org>
+Cc: Girish Mahadevan <girishm@codeaurora.org>
+Cc: Doug Anderson <dianders@chromium.org>
+
+Changes from v2:
+ * Dropped first patch because it's applied
+ * New patch 3 to simplify irq handler
+ * Updated patch 2 to hoist out common code and remove 'mode'
+   local variable
+
+Changes from v1:
+ * Use i2c helpers to map buffers
+ * New patch 2 to clean up seriously indented code
+
+Stephen Boyd (2):
+  i2c: i2c-qcom-geni: Simplify tx/rx functions
+  i2c: i2c-qcom-geni: Simplify irq handler
+
+ drivers/i2c/busses/i2c-qcom-geni.c | 149 +++++++++++++----------------
+ 1 file changed, 65 insertions(+), 84 deletions(-)
+
 -- 
-2.18.0
+Sent by a computer through tubes
