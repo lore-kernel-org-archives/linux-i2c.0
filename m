@@ -1,54 +1,49 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i2c-isch: fix spelling mistake "unitialized" ->
- "uninitialized"
-Date: Tue, 25 Sep 2018 00:14:35 +0200
-Message-ID: <20180924221435.GH18592@kunai>
-References: <20180924171437.3071-1-colin.king@canonical.com>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Subject: Re: [RFC PATCH i2c-next 1/2] dt-bindings: i2c: aspeed: Add
+ 'idle-wait-timeout-ms' setting
+Date: Mon, 24 Sep 2018 15:15:46 -0700
+Message-ID: <2c8563fd-0641-5237-0026-f559c480ad91@linux.intel.com>
+References: <20180910214519.14126-1-jae.hyun.yoo@linux.intel.com>
+ <20180910214519.14126-2-jae.hyun.yoo@linux.intel.com>
+ <a81a6092-a9d0-78d5-3596-cddc5d6a0713@linux.intel.com>
+ <20180924215850.GD18592@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="6cMF9JLEeZkfJjkP"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180924171437.3071-1-colin.king@canonical.com>
+In-Reply-To: <20180924215850.GD18592@kunai>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Colin King <colin.king@canonical.com>
-Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---6cMF9JLEeZkfJjkP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 9/24/2018 2:58 PM, Wolfram Sang wrote:
+> On Tue, Sep 18, 2018 at 11:02:54AM -0700, Jae Hyun Yoo wrote:
+>> On 9/10/2018 2:45 PM, Jae Hyun Yoo wrote:
+>>> +- idle-wait-timeout-ms	: bus idle waiting timeout in milliseconds when
+>>> +			  multi-master is set, defaults to 100 ms when not
+>>> +			  specified.
+>>
+>> Will change it to 'aspeed,idle-wait-timeout-ms' as it's a non standard
+>> property.
+> 
+> No need. This binding is not a HW description, so not a DT property in
+> my book. I still don't understand: Your IP core in master mode does not
+> have a BUSY bit or similar which detects when a START was detected and
+> clears after a STOP?
+> 
 
-On Mon, Sep 24, 2018 at 06:14:37PM +0100, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
->=20
-> Trivial fix to spelling mistake in dev_notice message.
->=20
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Okay, I'll keep this property as it is then.
 
-Applied to for-current, thanks!
+Aspeed IP has the BUSY bit on the I2CD14 register and we are already
+using the bit in the current code for single-master use cases.
+Due to the bit doesn't cover well multi-master use cases so we need to
+improve the current busy checking logic using the 'Transfer Mode State
+Machine' bit fields on the same register through this patch set.
 
+Thanks for the review!
 
---6cMF9JLEeZkfJjkP
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlupYcsACgkQFA3kzBSg
-KbYo7A/9FELjcZH/Lcr86xarLkGDMI/KSC5EFpa04dFESW86aRJhjZZYc4lGR1Wo
-m3oiGZObxtqU1HdSQq/CdFb5DKZvVKP/VD8+RNTEQFtUrexAIXx08rnjY01JBWFU
-38X1tIhg3fTM3JY2bVfUErZzuERL9ScwTmqIytfb1hzIfrWWZlY1/Cxva3q9GuOF
-71q9cHhcKSLytGJmDVBxvnsfXzzQ6o2nC0e+e00uSOH+59KH+Rui8iHsTKM/uU25
-AjVHdYR2T3uWL8L/ZsQUNYss3KKT5U8Hi7hJyxue6XYO/IhzNCt2DT754S36AAN/
-7ghwSBgG1ewHCWbL3lY11zmYvZpH2HOXPNv+R17/w6F+i3Np+kShAd/PfwRWH+1L
-SmdYTB704ex4pVuQDOghoXLGDpzpVR9cOdq9TqHnDGWProT1+4Qpv7wR/mHk/gKm
-Z9YQOV+Yoi1afjuVGZZW5ROwnlkCuGkjEY06ndlMmhAZJmMYP8DUBdqxylYmIl81
-P1EZRTwus/4gtMyQEpfGxolVqySuKr9+h1GlH7WZSvxlirvb8p4bwL46ALBFLBio
-7O5MR+RDnACn2EkfHAahs/3y9ff99PBTLZoMJ3f5ZhhoV8Hs6gSvWIpInGZqmSD5
-K29QEkedoyf7jKSirkSH0cTPhAFX+DmfJ7tLEERyxiitq/IXko0=
-=Fi9A
------END PGP SIGNATURE-----
-
---6cMF9JLEeZkfJjkP--
+Jae
