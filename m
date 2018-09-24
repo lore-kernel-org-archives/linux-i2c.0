@@ -1,51 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/2] i2c: i2c-qcom-geni: Simplify tx/rx functions
-Date: Tue, 25 Sep 2018 00:13:24 +0200
-Message-ID: <20180924221324.GG18592@kunai>
-References: <20180920180323.217377-1-swboyd@chromium.org>
- <20180920180323.217377-3-swboyd@chromium.org>
- <CAD=FV=U=r0nkT+JO2j4WUHF03ZiJcmaVrzL6dsauDHV=a2m3tQ@mail.gmail.com>
- <153748188889.119890.3818754688788845202@swboyd.mtv.corp.google.com>
+Subject: Re: [PATCH] i2c: i2c-isch: fix spelling mistake "unitialized" ->
+ "uninitialized"
+Date: Tue, 25 Sep 2018 00:14:35 +0200
+Message-ID: <20180924221435.GH18592@kunai>
+References: <20180924171437.3071-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="4eRLI4hEmsdu6Npr"
+        protocol="application/pgp-signature"; boundary="6cMF9JLEeZkfJjkP"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <153748188889.119890.3818754688788845202@swboyd.mtv.corp.google.com>
+In-Reply-To: <20180924171437.3071-1-colin.king@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Stephen Boyd <swboyd@chromium.org>
-Cc: Doug Anderson <dianders@chromium.org>, LKML <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>
+To: Colin King <colin.king@canonical.com>
+Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---4eRLI4hEmsdu6Npr
+--6cMF9JLEeZkfJjkP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Sep 24, 2018 at 06:14:37PM +0100, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
+>=20
+> Trivial fix to spelling mistake in dev_notice message.
+>=20
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+
+Applied to for-current, thanks!
 
 
-> Sure that's fine. I'll resend this one patch with that squashed in.
-
-Waiting for this resend.
-
-
---4eRLI4hEmsdu6Npr
+--6cMF9JLEeZkfJjkP
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlupYYQACgkQFA3kzBSg
-KbZUAw/6AjBlbEkPNqwMjLmoFWCYG2iIlf+ba+VcKOfT/msFIMa+UA60q2rzKgJR
-q3Qx3PFagto5Vpoaoj0Vm8FYpEL2ePw2n/l4ULrvVdzlTvPVu58PiX80bijy+QN1
-H25JOGX/xslcKN07MCMCM38NoumrmMPM7iFK18uooPLqVeGe/49V38aqkiTv6tkG
-YE8tsr+WHgxDDvZ5X+eZF0vikupbJsjB6MShThZkQGspv95qwagVO4P4ZvyLpvHn
-geWXyby0jCskkUDADpl9eJzKUEgqN18Va3Tli1VzK75Epv28mnjkDGDNr60ujBPd
-LEbm/qK0Wrez46S5KrpLR24mMsBGuDGivgdV/puaWQA1NpAIh2koD8ZRqnZMhXD3
-39iipVT0304EQi9HU9AW1R9Ye+nF4rzXobc8CHIF/nvVjwVGYu/YrVhOjtIu8Jun
-KR3+a+79AxgJsj1epx0NKBvJ6VEVCuWM+gZ5O6d7w/jfE1AVUFTlcCH73Qy5vw3k
-0NVaKJmJFFz0rJ8timQnMZGUyPoj+ajp5Bvc2gixYYygGaw0nI+1LYzOXYLB50FO
-n+Y/AYMiWxKdBDWhMQiRMI1BSkoD+cKYycqjz2gRWkIsix6ktvBnjHE2ViKWUZ6Z
-32lAym2dYG2GizHGLFf8nTFTLkRfdXm6qU0eG8bbPMLdYauDgJA=
-=KsAr
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlupYcsACgkQFA3kzBSg
+KbYo7A/9FELjcZH/Lcr86xarLkGDMI/KSC5EFpa04dFESW86aRJhjZZYc4lGR1Wo
+m3oiGZObxtqU1HdSQq/CdFb5DKZvVKP/VD8+RNTEQFtUrexAIXx08rnjY01JBWFU
+38X1tIhg3fTM3JY2bVfUErZzuERL9ScwTmqIytfb1hzIfrWWZlY1/Cxva3q9GuOF
+71q9cHhcKSLytGJmDVBxvnsfXzzQ6o2nC0e+e00uSOH+59KH+Rui8iHsTKM/uU25
+AjVHdYR2T3uWL8L/ZsQUNYss3KKT5U8Hi7hJyxue6XYO/IhzNCt2DT754S36AAN/
+7ghwSBgG1ewHCWbL3lY11zmYvZpH2HOXPNv+R17/w6F+i3Np+kShAd/PfwRWH+1L
+SmdYTB704ex4pVuQDOghoXLGDpzpVR9cOdq9TqHnDGWProT1+4Qpv7wR/mHk/gKm
+Z9YQOV+Yoi1afjuVGZZW5ROwnlkCuGkjEY06ndlMmhAZJmMYP8DUBdqxylYmIl81
+P1EZRTwus/4gtMyQEpfGxolVqySuKr9+h1GlH7WZSvxlirvb8p4bwL46ALBFLBio
+7O5MR+RDnACn2EkfHAahs/3y9ff99PBTLZoMJ3f5ZhhoV8Hs6gSvWIpInGZqmSD5
+K29QEkedoyf7jKSirkSH0cTPhAFX+DmfJ7tLEERyxiitq/IXko0=
+=Fi9A
 -----END PGP SIGNATURE-----
 
---4eRLI4hEmsdu6Npr--
+--6cMF9JLEeZkfJjkP--
