@@ -1,158 +1,74 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v2] eeprom: at24: Fix unexpected timeout under high load
-Date: Tue, 25 Sep 2018 17:21:57 +0200
-Message-ID: <CAMRc=McXDkLomqHy6_KuKDABedv34+cNdJKU_iQVBLBYKFP0Ow@mail.gmail.com>
-References: <1533404620-18536-1-git-send-email-mark.jonas@de.bosch.com> <1534441534-6357-1-git-send-email-mark.jonas@de.bosch.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: [PATCH] i2c: of: Try to find an I2C adapter matching the parent
+Date: Tue, 25 Sep 2018 18:06:11 +0200
+Message-ID: <20180925160611.17736-1-thierry.reding@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1534441534-6357-1-git-send-email-mark.jonas@de.bosch.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Jonas Mark (ST-FIR/ENG1)" <mark.jonas@de.bosch.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Wang Xin <xin.wang7@cn.bosch.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: rechner@vlado-do.de, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-czw., 16 sie 2018 o 19:46 Mark Jonas <mark.jonas@de.bosch.com> napisa=C5=82=
-(a):
->
-> From: Wang Xin <xin.wang7@cn.bosch.com>
->
-> Within at24_loop_until_timeout the timestamp used for timeout checking
-> is recorded after the I2C transfer and sleep_range(). Under high CPU
-> load either the execution time for I2C transfer or sleep_range() could
-> actually be larger than the timeout value. Worst case the I2C transfer
-> is only tried once because the loop will exit due to the timeout
-> although the EEPROM is now ready.
->
-> To fix this issue the timestamp is recorded at the beginning of each
-> iteration. That is, before I2C transfer and sleep. Then the timeout
-> is actually checked against the timestamp of the previous iteration.
-> This makes sure that even if the timeout is reached, there is still one
-> more chance to try the I2C transfer in case the EEPROM is ready.
->
-> Example:
->
-> If you have a system which combines high CPU load with repeated EEPROM
-> writes you will run into the following scenario.
->
->  - System makes a successful regmap_bulk_write() to EEPROM.
->  - System wants to perform another write to EEPROM but EEPROM is still
->    busy with the last write.
->  - Because of high CPU load the usleep_range() will sleep more than
->    25 ms (at24_write_timeout).
->  - Within the over-long sleeping the EEPROM finished the previous write
->    operation and is ready again.
->  - at24_loop_until_timeout() will detect timeout and won't try to write.
->
-> Signed-off-by: Wang Xin <xin.wang7@cn.bosch.com>
-> Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
-
-Applied to at24/for-next.
-
-Thanks,
-Bartosz
-
-> ---
-> Changes in v2:
->  - Remove loop macro
->  - Accept superfluous sleep in case of timeout
->  - Add concrete example to commit message
-> ---
->  drivers/misc/eeprom/at24.c | 43 ++++++++++++++++++++++------------------=
----
->  1 file changed, 22 insertions(+), 21 deletions(-)
->
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index f5cc517..37a5c8b 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -106,23 +106,6 @@ static unsigned int at24_write_timeout =3D 25;
->  module_param_named(write_timeout, at24_write_timeout, uint, 0);
->  MODULE_PARM_DESC(at24_write_timeout, "Time (in ms) to try writes (defaul=
-t 25)");
->
-> -/*
-> - * Both reads and writes fail if the previous write didn't complete yet.=
- This
-> - * macro loops a few times waiting at least long enough for one entire p=
-age
-> - * write to work while making sure that at least one iteration is run be=
-fore
-> - * checking the break condition.
-> - *
-> - * It takes two parameters: a variable in which the future timeout in ji=
-ffies
-> - * will be stored and a temporary variable holding the time of the last
-> - * iteration of processing the request. Both should be unsigned integers
-> - * holding at least 32 bits.
-> - */
-> -#define at24_loop_until_timeout(tout, op_time)                         \
-> -       for (tout =3D jiffies + msecs_to_jiffies(at24_write_timeout),    =
- \
-> -            op_time =3D 0;                                              =
- \
-> -            op_time ? time_before(op_time, tout) : true;               \
-> -            usleep_range(1000, 1500), op_time =3D jiffies)
-> -
->  struct at24_chip_data {
->         /*
->          * these fields mirror their equivalents in
-> @@ -308,13 +291,22 @@ static ssize_t at24_regmap_read(struct at24_data *a=
-t24, char *buf,
->         /* adjust offset for mac and serial read ops */
->         offset +=3D at24->offset_adj;
->
-> -       at24_loop_until_timeout(timeout, read_time) {
-> +       timeout =3D jiffies + msecs_to_jiffies(at24_write_timeout);
-> +       do {
-> +               /*
-> +                * The timestamp shall be taken before the actual operati=
-on
-> +                * to avoid a premature timeout in case of high CPU load.
-> +                */
-> +               read_time =3D jiffies;
-> +
->                 ret =3D regmap_bulk_read(regmap, offset, buf, count);
->                 dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
->                         count, offset, ret, jiffies);
->                 if (!ret)
->                         return count;
-> -       }
-> +
-> +               usleep_range(1000, 1500);
-> +       } while (time_before(read_time, timeout));
->
->         return -ETIMEDOUT;
->  }
-> @@ -358,14 +350,23 @@ static ssize_t at24_regmap_write(struct at24_data *=
-at24, const char *buf,
->         regmap =3D at24_client->regmap;
->         client =3D at24_client->client;
->         count =3D at24_adjust_write_count(at24, offset, count);
-> +       timeout =3D jiffies + msecs_to_jiffies(at24_write_timeout);
-> +
-> +       do {
-> +               /*
-> +                * The timestamp shall be taken before the actual operati=
-on
-> +                * to avoid a premature timeout in case of high CPU load.
-> +                */
-> +               write_time =3D jiffies;
->
-> -       at24_loop_until_timeout(timeout, write_time) {
->                 ret =3D regmap_bulk_write(regmap, offset, buf, count);
->                 dev_dbg(&client->dev, "write %zu@%d --> %d (%ld)\n",
->                         count, offset, ret, jiffies);
->                 if (!ret)
->                         return count;
-> -       }
-> +
-> +               usleep_range(1000, 1500);
-> +       } while (time_before(write_time, timeout));
->
->         return -ETIMEDOUT;
->  }
-> --
-> 2.7.4
->
+RnJvbTogVGhpZXJyeSBSZWRpbmcgPHRyZWRpbmdAbnZpZGlhLmNvbT4KCklmIGFuIEkyQyBhZGFw
+dGVyIGRvZXNuJ3QgbWF0Y2ggdGhlIHByb3ZpZGVkIGRldmljZSB0cmVlIG5vZGUsIGFsc28gdHJ5
+Cm1hdGNoaW5nIHRoZSBwYXJlbnQncyBkZXZpY2UgdHJlZSBub2RlLiBUaGlzIGFsbG93cyBmaW5k
+aW5nIGFuIGFkYXB0ZXIKYmFzZWQgb24gdGhlIGRldmljZSBub2RlIG9mIHRoZSBwYXJlbnQgZGV2
+aWNlIHRoYXQgd2FzIHVzZWQgdG8gcmVnaXN0ZXIKaXQuCgpTaWduZWQtb2ZmLWJ5OiBUaGllcnJ5
+IFJlZGluZyA8dHJlZGluZ0BudmlkaWEuY29tPgotLS0KSGkgV29sZnJhbSwKClRoaXMgaXMgYSBm
+aXggZm9yIHRoZSBpc3N1ZSBkaXNjdXNzZWQgaW4gYSBsb25nIGVtYWlsIHRocmVhZCBhIGNvdXBs
+ZSBvZgptb250aHMgYWdvLiBJbiBhIG51dHNoZWxsIHRoZSBpc3N1ZSBpcyB0aGF0IHdlIHdhbnQg
+dG8gYmUgYWJsZSB0byBmaW5kIGEKSTJDLW92ZXItQVVYIGFkYXB0ZXIgYmFzZWQgb24gdGhlIGRl
+dmljZSB0cmVlIG5vZGUgKHRoaXMgaXMgdG8gaG9vayB1cCBhCkkyQyBhZGFwdGVyIGZvciB1c2Ug
+YXMgRERDIHRvIHF1ZXJ5IEVESUQgZnJvbSBhIGRpc3BsYXkgcGFuZWwsIGZvcgpleGFtcGxlKS4K
+CkhlcmUncyBhIGxpbmsgdG8gdGhlIHByaW9yIGRpc2N1c3Npb24sIHdoaWNoIGVuZGVkIHVwIGdl
+dHRpbmcgc3BsaXQgaW50bwp0d28gZm9yIHNvbWUgcmVhc29uLCBwb3NzaWJseSBiZWNhdXNlIHRo
+ZSBpbml0aWFsIHN1Ym1pc3Npb24gYW5kCnN1YnNlcXVlbnQgZGlzY3Vzc2lvbiB0b29rIHBsYWNl
+IG92ZXIgYW4gZXh0ZW5kZWQgcGVyaW9kIG9mIHRpbWU6CgoJaHR0cHM6Ly9wYXRjaHdvcmsua2Vy
+bmVsLm9yZy9wYXRjaC85NTE2MTA1LwoJaHR0cHM6Ly9wYXRjaHdvcmsua2VybmVsLm9yZy9wYXRj
+aC8xMDIwMDg3OS8KCkkgbmV2ZXIgZ290IGFyb3VuZCB0byBzdWJtaXR0aW5nIHRoZSBwYXRjaCBw
+cm9wZXJseSwgYnV0IGhlcmUgaXQgaXMuIEFzCm1lbnRpb25lZCBpbiB0aGUgZGlzY3Vzc2lvbiBs
+aW5rZWQgdG8gYWJvdmUsIEkgdGhpbmsgdGhlIHByb2JsZW0gaGVyZSBpcwp0aGF0IHRoZSBuZXcg
+bG9va3VwIHZpYSB0aGUgcGFyZW50IGRldmljZSBvbmx5IGhhcHBlbnMgd2hlbiBsb29raW5nIGZv
+cgp0aGUgYWRhcHRlciBmcm9tIGl0cyBkZXZpY2UgdHJlZSBub2RlLiBIb3dldmVyLCB0aGlzIGFs
+c28gbWVhbnMgdGhhdCB0aGUKY2hpbGRyZW4gZm9yIHRoZSBjb250cm9sbGVyIHdvbid0IGJlIGFk
+ZGVkIGZvciB0aGVzZSBkZXZpY2VzLCBiZWNhdXNlIGl0Cm9ubHkgaGFwcGVucyBmb3IgYWRhcHRl
+cnMgdGhhdCBoYXZlIHRoZSBkZXYtPm9mX25vZGUgc2V0LCBub3QgZm9yIHRoZQpub2RlIHJlZmVy
+ZW5jZSBieSBkZXYtPnBhcmVudC0+b2Zfbm9kZS4gSG93ZXZlciwgSSdtIG5vdCBzdXJlIGlmIHRo
+YXQncwpyZWFsbHkgYSBwcm9ibGVtLiBBIGRldmljZSB0aGF0IGRvZXNuJ3QgaGF2ZSBkZXYtPm9m
+X25vZGUgc2V0IHdvdWxkIGJlIGEKInZpcnR1YWwiIEkyQyBidXMsIGFzIGluIHRoZSBjYXNlIG9m
+IEkyQy1vdmVyLUFVWC4gUHJvcGVyIEkyQyBidXNzZXMgYXJlCnN0aWxsIGdvaW5nIHRvIGhhdmUg
+dG8gaGF2ZSB0aGVpciBkZXYtPm9mX25vZGUgc2V0LCBvdGhlcndpc2UgYW55IGNoaWxkCmRldmlj
+ZXMgbGlzdGVkIGluIGRldmljZSB0cmVlIHdvbid0IGJlIGFkZGVkLgoKQW55d2F5LCBsZXQgbWUg
+a25vdyB3aGF0IHlvdSB0aGluayBvZiB0aGlzLiBBbHNvIGFkZGluZyBMdWNhcywgUm9iIGFuZApB
+bmRyemVqIHRvIHRoZSBkaXNjdXNzaW9uIHNpbmNlIHRoZXkgd2VyZSBpbnZvbHZlZCBiYWNrIGF0
+IHRoZSB0aW1lLgoKVGhhbmtzLApUaGllcnJ5CgogZHJpdmVycy9pMmMvaTJjLWNvcmUtb2YuYyB8
+IDExICsrKysrKysrKysrCiAxIGZpbGUgY2hhbmdlZCwgMTEgaW5zZXJ0aW9ucygrKQoKZGlmZiAt
+LWdpdCBhL2RyaXZlcnMvaTJjL2kyYy1jb3JlLW9mLmMgYi9kcml2ZXJzL2kyYy9pMmMtY29yZS1v
+Zi5jCmluZGV4IDZjYjdhZDYwOGJjZC4uMzdkMzQ4ODVlYTJkIDEwMDY0NAotLS0gYS9kcml2ZXJz
+L2kyYy9pMmMtY29yZS1vZi5jCisrKyBiL2RyaXZlcnMvaTJjL2kyYy1jb3JlLW9mLmMKQEAgLTEy
+MSw2ICsxMjEsMTQgQEAgc3RhdGljIGludCBvZl9kZXZfbm9kZV9tYXRjaChzdHJ1Y3QgZGV2aWNl
+ICpkZXYsIHZvaWQgKmRhdGEpCiAJcmV0dXJuIGRldi0+b2Zfbm9kZSA9PSBkYXRhOwogfQogCitz
+dGF0aWMgaW50IG9mX3BhcmVudF9ub2RlX21hdGNoKHN0cnVjdCBkZXZpY2UgKmRldiwgdm9pZCAq
+ZGF0YSkKK3sKKwlpZiAoZGV2LT5wYXJlbnQpCisJCXJldHVybiBkZXYtPnBhcmVudC0+b2Zfbm9k
+ZSA9PSBkYXRhOworCisJcmV0dXJuIDA7Cit9CisKIC8qIG11c3QgY2FsbCBwdXRfZGV2aWNlKCkg
+d2hlbiBkb25lIHdpdGggcmV0dXJuZWQgaTJjX2NsaWVudCBkZXZpY2UgKi8KIHN0cnVjdCBpMmNf
+Y2xpZW50ICpvZl9maW5kX2kyY19kZXZpY2VfYnlfbm9kZShzdHJ1Y3QgZGV2aWNlX25vZGUgKm5v
+ZGUpCiB7CkBAIC0xNDYsNiArMTU0LDkgQEAgc3RydWN0IGkyY19hZGFwdGVyICpvZl9maW5kX2ky
+Y19hZGFwdGVyX2J5X25vZGUoc3RydWN0IGRldmljZV9ub2RlICpub2RlKQogCXN0cnVjdCBpMmNf
+YWRhcHRlciAqYWRhcHRlcjsKIAogCWRldiA9IGJ1c19maW5kX2RldmljZSgmaTJjX2J1c190eXBl
+LCBOVUxMLCBub2RlLCBvZl9kZXZfbm9kZV9tYXRjaCk7CisJaWYgKCFkZXYpCisJCWRldiA9IGJ1
+c19maW5kX2RldmljZSgmaTJjX2J1c190eXBlLCBOVUxMLCBub2RlLCBvZl9wYXJlbnRfbm9kZV9t
+YXRjaCk7CisKIAlpZiAoIWRldikKIAkJcmV0dXJuIE5VTEw7CiAKLS0gCjIuMTkuMAoKX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxp
+bmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJl
+ZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
