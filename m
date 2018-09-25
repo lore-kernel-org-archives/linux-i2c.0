@@ -1,58 +1,41 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: Re: [RFC PATCH i2c-next 1/2] dt-bindings: i2c: aspeed: Add
- 'idle-wait-timeout-ms' setting
-Date: Tue, 25 Sep 2018 09:20:02 -0700
-Message-ID: <7b4e5715-3a87-8f77-8d0d-4647f02c87a8@linux.intel.com>
-References: <20180910214519.14126-1-jae.hyun.yoo@linux.intel.com>
- <20180910214519.14126-2-jae.hyun.yoo@linux.intel.com>
- <a81a6092-a9d0-78d5-3596-cddc5d6a0713@linux.intel.com>
- <20180924215850.GD18592@kunai>
- <2c8563fd-0641-5237-0026-f559c480ad91@linux.intel.com>
- <20180925082717.GB2270@kunai>
+From: Doug Anderson <dianders@chromium.org>
+Subject: Re: [PATCH v3 2/3] i2c: i2c-qcom-geni: Simplify tx/rx functions
+Date: Tue, 25 Sep 2018 14:49:34 -0700
+Message-ID: <CAD=FV=X9yDF95NvuJGFMWJHBFS87VG4jJP946oH6w8gB3LGRvQ@mail.gmail.com>
+References: <20180924235235.182649-1-swboyd@chromium.org> <20180924235235.182649-2-swboyd@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180925082717.GB2270@kunai>
-Content-Language: en-US
+In-Reply-To: <20180924235235.182649-2-swboyd@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-aspeed@lists.ozlabs.org, James Feist <james.feist@linux.intel.com>, Andrew Jeffery <andrew@aj.id.au>, openbmc@lists.ozlabs.org, Brendan Higgins <brendanhiggins@google.com>, linux-kernel@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+To: Stephen Boyd <swboyd@chromium.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, LKML <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 9/25/2018 1:27 AM, Wolfram Sang wrote:
-> On Mon, Sep 24, 2018 at 03:15:46PM -0700, Jae Hyun Yoo wrote:
->> Hi Wolfram,
->>
->> On 9/24/2018 2:58 PM, Wolfram Sang wrote:
->>> On Tue, Sep 18, 2018 at 11:02:54AM -0700, Jae Hyun Yoo wrote:
->>>> On 9/10/2018 2:45 PM, Jae Hyun Yoo wrote:
->>>>> +- idle-wait-timeout-ms	: bus idle waiting timeout in milliseconds when
->>>>> +			  multi-master is set, defaults to 100 ms when not
->>>>> +			  specified.
->>>>
->>>> Will change it to 'aspeed,idle-wait-timeout-ms' as it's a non standard
->>>> property.
->>>
->>> No need. This binding is not a HW description, so not a DT property in
->>> my book. I still don't understand: Your IP core in master mode does not
->>> have a BUSY bit or similar which detects when a START was detected and
->>> clears after a STOP?
->>>
->>
->> Okay, I'll keep this property as it is then.
-> 
-> Sorry for the misunderstanding. I don't think this a property, at all.
-> It doesn't describe the hardware, it is more of a configuration thing,
-> or?
-> 
+Hi,
 
-You are right. It doesn't describe the hardware but it needs to be
-configurable because it very depends on the peer master's behavior.
-If peer master sends a long packet usually, it should have a long
-timeout value since a slave receiving operation takes long time,
-and it should be adjusted with an optimal value with taking some
-experiments to make it not too long. Any suggestion?
+On Mon, Sep 24, 2018 at 4:52 PM Stephen Boyd <swboyd@chromium.org> wrote:
+>
+> We never really look at the 'ret' local variable in these functions, so
+> let's remove it to make way for shorter and simpler code. Furthermore,
+> we can shorten some lines by adding two local variables for the SE and
+> the message length so that everything fits in 80 columns and testing the
+> 'dma_buf' local variable in lieu of the 'mode' local variable.  And
+> kernel style is to leave the return statement by itself, detached from
+> the rest of the function.
+>
+> Cc: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
+> Cc: Sagar Dharia <sdharia@codeaurora.org>
+> Cc: Girish Mahadevan <girishm@codeaurora.org>
+> Cc: Doug Anderson <dianders@chromium.org>
+> Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+> ---
+>  drivers/i2c/busses/i2c-qcom-geni.c | 79 ++++++++++++++----------------
+>  1 file changed, 36 insertions(+), 43 deletions(-)
 
-Thanks,
-Jae
+It's so polished I can see my reflection in it now.  Looks like this
+snuck in a few other cleanups compared to v2 (move "gi2c->cur = ..."
+to be common between tx/rx and removed a pointless init of time_left).
+Seems good.  In total 7 lines shorter and easier to read.
+
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
