@@ -1,157 +1,75 @@
-From: Stephen Boyd <swboyd@chromium.org>
-Subject: [PATCH v3 3/3] i2c: i2c-qcom-geni: Simplify irq handler
-Date: Mon, 24 Sep 2018 16:52:35 -0700
-Message-ID: <20180924235235.182649-3-swboyd@chromium.org>
-References: <20180924235235.182649-1-swboyd@chromium.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC PATCH i2c-next 1/2] dt-bindings: i2c: aspeed: Add
+ 'idle-wait-timeout-ms' setting
+Date: Tue, 25 Sep 2018 10:27:17 +0200
+Message-ID: <20180925082717.GB2270@kunai>
+References: <20180910214519.14126-1-jae.hyun.yoo@linux.intel.com>
+ <20180910214519.14126-2-jae.hyun.yoo@linux.intel.com>
+ <a81a6092-a9d0-78d5-3596-cddc5d6a0713@linux.intel.com>
+ <20180924215850.GD18592@kunai>
+ <2c8563fd-0641-5237-0026-f559c480ad91@linux.intel.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="3lcZGd9BuhuYXNfi"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180924235235.182649-1-swboyd@chromium.org>
+Content-Disposition: inline
+In-Reply-To: <2c8563fd-0641-5237-0026-f559c480ad91@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>, Doug Anderson <dianders@chromium.org>
+To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-We don't need to use goto here, we can just collapse the if statement
-and goto chain into multiple branches and then combine some duplicate
-completion calls into one big if statement. Let's do it to clean up code
-some more.
 
-Cc: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
-Cc: Sagar Dharia <sdharia@codeaurora.org>
-Cc: Girish Mahadevan <girishm@codeaurora.org>
-Cc: Doug Anderson <dianders@chromium.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
----
- drivers/i2c/busses/i2c-qcom-geni.c | 70 +++++++++++++-----------------
- 1 file changed, 29 insertions(+), 41 deletions(-)
+--3lcZGd9BuhuYXNfi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 0b466835cf40..527f55c8c4c7 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -201,21 +201,23 @@ static void geni_i2c_err(struct geni_i2c_dev *gi2c, int err)
- static irqreturn_t geni_i2c_irq(int irq, void *dev)
- {
- 	struct geni_i2c_dev *gi2c = dev;
--	int j;
-+	void __iomem *base = gi2c->se.base;
-+	int j, p;
- 	u32 m_stat;
- 	u32 rx_st;
- 	u32 dm_tx_st;
- 	u32 dm_rx_st;
- 	u32 dma;
-+	u32 val;
- 	struct i2c_msg *cur;
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&gi2c->lock, flags);
--	m_stat = readl_relaxed(gi2c->se.base + SE_GENI_M_IRQ_STATUS);
--	rx_st = readl_relaxed(gi2c->se.base + SE_GENI_RX_FIFO_STATUS);
--	dm_tx_st = readl_relaxed(gi2c->se.base + SE_DMA_TX_IRQ_STAT);
--	dm_rx_st = readl_relaxed(gi2c->se.base + SE_DMA_RX_IRQ_STAT);
--	dma = readl_relaxed(gi2c->se.base + SE_GENI_DMA_MODE_EN);
-+	m_stat = readl_relaxed(base + SE_GENI_M_IRQ_STATUS);
-+	rx_st = readl_relaxed(base + SE_GENI_RX_FIFO_STATUS);
-+	dm_tx_st = readl_relaxed(base + SE_DMA_TX_IRQ_STAT);
-+	dm_rx_st = readl_relaxed(base + SE_DMA_RX_IRQ_STAT);
-+	dma = readl_relaxed(base + SE_GENI_DMA_MODE_EN);
- 	cur = gi2c->cur;
- 
- 	if (!cur ||
-@@ -238,26 +240,17 @@ static irqreturn_t geni_i2c_irq(int irq, void *dev)
- 
- 		/* Disable the TX Watermark interrupt to stop TX */
- 		if (!dma)
--			writel_relaxed(0, gi2c->se.base +
--					   SE_GENI_TX_WATERMARK_REG);
--		goto irqret;
--	}
--
--	if (dma) {
-+			writel_relaxed(0, base + SE_GENI_TX_WATERMARK_REG);
-+	} else if (dma) {
- 		dev_dbg(gi2c->se.dev, "i2c dma tx:0x%x, dma rx:0x%x\n",
- 			dm_tx_st, dm_rx_st);
--		goto irqret;
--	}
--
--	if (cur->flags & I2C_M_RD &&
--	    m_stat & (M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN)) {
-+	} else if (cur->flags & I2C_M_RD &&
-+		   m_stat & (M_RX_FIFO_WATERMARK_EN | M_RX_FIFO_LAST_EN)) {
- 		u32 rxcnt = rx_st & RX_FIFO_WC_MSK;
- 
- 		for (j = 0; j < rxcnt; j++) {
--			u32 val;
--			int p = 0;
--
--			val = readl_relaxed(gi2c->se.base + SE_GENI_RX_FIFOn);
-+			p = 0;
-+			val = readl_relaxed(base + SE_GENI_RX_FIFOn);
- 			while (gi2c->cur_rd < cur->len && p < sizeof(val)) {
- 				cur->buf[gi2c->cur_rd++] = val & 0xff;
- 				val >>= 8;
-@@ -270,44 +263,39 @@ static irqreturn_t geni_i2c_irq(int irq, void *dev)
- 		   m_stat & M_TX_FIFO_WATERMARK_EN) {
- 		for (j = 0; j < gi2c->tx_wm; j++) {
- 			u32 temp;
--			u32 val = 0;
--			int p = 0;
- 
-+			val = 0;
-+			p = 0;
- 			while (gi2c->cur_wr < cur->len && p < sizeof(val)) {
- 				temp = cur->buf[gi2c->cur_wr++];
- 				val |= temp << (p * 8);
- 				p++;
- 			}
--			writel_relaxed(val, gi2c->se.base + SE_GENI_TX_FIFOn);
-+			writel_relaxed(val, base + SE_GENI_TX_FIFOn);
- 			/* TX Complete, Disable the TX Watermark interrupt */
- 			if (gi2c->cur_wr == cur->len) {
--				writel_relaxed(0, gi2c->se.base +
--						SE_GENI_TX_WATERMARK_REG);
-+				writel_relaxed(0, base + SE_GENI_TX_WATERMARK_REG);
- 				break;
- 			}
- 		}
- 	}
--irqret:
-+
- 	if (m_stat)
--		writel_relaxed(m_stat, gi2c->se.base + SE_GENI_M_IRQ_CLEAR);
-+		writel_relaxed(m_stat, base + SE_GENI_M_IRQ_CLEAR);
-+
-+	if (dma && dm_tx_st)
-+		writel_relaxed(dm_tx_st, base + SE_DMA_TX_IRQ_CLR);
-+	if (dma && dm_rx_st)
-+		writel_relaxed(dm_rx_st, base + SE_DMA_RX_IRQ_CLR);
- 
--	if (dma) {
--		if (dm_tx_st)
--			writel_relaxed(dm_tx_st, gi2c->se.base +
--						SE_DMA_TX_IRQ_CLR);
--		if (dm_rx_st)
--			writel_relaxed(dm_rx_st, gi2c->se.base +
--						SE_DMA_RX_IRQ_CLR);
--	}
- 	/* if this is err with done-bit not set, handle that through timeout. */
--	if (m_stat & M_CMD_DONE_EN || m_stat & M_CMD_ABORT_EN)
--		complete(&gi2c->done);
--	else if (dm_tx_st & TX_DMA_DONE || dm_tx_st & TX_RESET_DONE)
--		complete(&gi2c->done);
--	else if (dm_rx_st & RX_DMA_DONE || dm_rx_st & RX_RESET_DONE)
-+	if (m_stat & M_CMD_DONE_EN || m_stat & M_CMD_ABORT_EN ||
-+	    dm_tx_st & TX_DMA_DONE || dm_tx_st & TX_RESET_DONE ||
-+	    dm_rx_st & RX_DMA_DONE || dm_rx_st & RX_RESET_DONE)
- 		complete(&gi2c->done);
- 
- 	spin_unlock_irqrestore(&gi2c->lock, flags);
-+
- 	return IRQ_HANDLED;
- }
- 
--- 
-Sent by a computer through tubes
+On Mon, Sep 24, 2018 at 03:15:46PM -0700, Jae Hyun Yoo wrote:
+> Hi Wolfram,
+>=20
+> On 9/24/2018 2:58 PM, Wolfram Sang wrote:
+> > On Tue, Sep 18, 2018 at 11:02:54AM -0700, Jae Hyun Yoo wrote:
+> > > On 9/10/2018 2:45 PM, Jae Hyun Yoo wrote:
+> > > > +- idle-wait-timeout-ms	: bus idle waiting timeout in milliseconds =
+when
+> > > > +			  multi-master is set, defaults to 100 ms when not
+> > > > +			  specified.
+> > >=20
+> > > Will change it to 'aspeed,idle-wait-timeout-ms' as it's a non standard
+> > > property.
+> >=20
+> > No need. This binding is not a HW description, so not a DT property in
+> > my book. I still don't understand: Your IP core in master mode does not
+> > have a BUSY bit or similar which detects when a START was detected and
+> > clears after a STOP?
+> >=20
+>=20
+> Okay, I'll keep this property as it is then.
+
+Sorry for the misunderstanding. I don't think this a property, at all.
+It doesn't describe the hardware, it is more of a configuration thing,
+or?
+
+
+--3lcZGd9BuhuYXNfi
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlup8WUACgkQFA3kzBSg
+KbaCkQ//Sr79g4ksA+VQaClLdgoFcG7zOSuXCbILrhtjICbXU/WDEfPbqtL9IBVM
+cSElb3LZuKX7VtGH4RdXdLjLtoK/uCub8uIoblbz+R614BQOUnLfmeeo0yVdOJeW
+oJtPolSHTd6zrBXKv8sMCF/UBU2msJeHmEzgSEleV6ExaFCD4dI34VBKuFZFLpjz
+6GYan49CkRxLNodatCnTJ4bMYY7SxGtAQC33A6K01FLVnQdLuM+P9XFvMLYOTq96
+oNFQCYdX1c3h4aKLJGN4AInX9zlK75IVotYJwXQwBUiJ+QcajiOv8TfoWkDxibd/
+QPVVCkRqextHRajwPwIFqyKwyKNfkSAmqrwqJ41qZDV40SUVrVnQpGrkWmUEk0G2
+Zho/UfwyAkRYAaUzAjwsbzXOoCZMD10+WCBceajhgYHpUX/OVagrYCuD8BNcQMOq
+w0MUdxk9zjjANGihAIOBagcbOc/rD2lo/g7m2yaTX8sxkvlksHLdMoBBguXlL/RO
+lYOhgwTGTjXXL06bVReKLtmXaDb++QrCxrM1T+X2uL0VUas5MbvwepDq//Zo7VrV
+u18Z7Uvee+8x+O6/hpkBr6i412E/BO/gN9RTtnNEHns1E4DN7cHairHtfV3BBggp
+p0egYeeu0fkSQnigxhL49xaYTUYVPHHGTBcMP7d78LY3IpPkNiU=
+=niVH
+-----END PGP SIGNATURE-----
+
+--3lcZGd9BuhuYXNfi--
