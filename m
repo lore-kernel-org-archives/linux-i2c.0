@@ -1,33 +1,158 @@
-From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: [PATCH] i2c: mux: pca954x: simplify code to reach the adapter
-Date: Tue, 25 Sep 2018 17:17:34 +0200
-Message-ID: <20180925151734.14148-1-luca@lucaceresoli.net>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH v2] eeprom: at24: Fix unexpected timeout under high load
+Date: Tue, 25 Sep 2018 17:21:57 +0200
+Message-ID: <CAMRc=McXDkLomqHy6_KuKDABedv34+cNdJKU_iQVBLBYKFP0Ow@mail.gmail.com>
+References: <1533404620-18536-1-git-send-email-mark.jonas@de.bosch.com> <1534441534-6357-1-git-send-email-mark.jonas@de.bosch.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1534441534-6357-1-git-send-email-mark.jonas@de.bosch.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org, Luca Ceresoli <luca@lucaceresoli.net>
+To: "Jonas Mark (ST-FIR/ENG1)" <mark.jonas@de.bosch.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andy Shevchenko <andy.shevchenko@gmail.com>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Wang Xin <xin.wang7@cn.bosch.com>
 List-Id: linux-i2c@vger.kernel.org
 
-struct i2c_client has a direct pointer to the adapter, no need to dig
-it out of the struct device tree.
+czw., 16 sie 2018 o 19:46 Mark Jonas <mark.jonas@de.bosch.com> napisa=C5=82=
+(a):
+>
+> From: Wang Xin <xin.wang7@cn.bosch.com>
+>
+> Within at24_loop_until_timeout the timestamp used for timeout checking
+> is recorded after the I2C transfer and sleep_range(). Under high CPU
+> load either the execution time for I2C transfer or sleep_range() could
+> actually be larger than the timeout value. Worst case the I2C transfer
+> is only tried once because the loop will exit due to the timeout
+> although the EEPROM is now ready.
+>
+> To fix this issue the timestamp is recorded at the beginning of each
+> iteration. That is, before I2C transfer and sleep. Then the timeout
+> is actually checked against the timestamp of the previous iteration.
+> This makes sure that even if the timeout is reached, there is still one
+> more chance to try the I2C transfer in case the EEPROM is ready.
+>
+> Example:
+>
+> If you have a system which combines high CPU load with repeated EEPROM
+> writes you will run into the following scenario.
+>
+>  - System makes a successful regmap_bulk_write() to EEPROM.
+>  - System wants to perform another write to EEPROM but EEPROM is still
+>    busy with the last write.
+>  - Because of high CPU load the usleep_range() will sleep more than
+>    25 ms (at24_write_timeout).
+>  - Within the over-long sleeping the EEPROM finished the previous write
+>    operation and is ready again.
+>  - at24_loop_until_timeout() will detect timeout and won't try to write.
+>
+> Signed-off-by: Wang Xin <xin.wang7@cn.bosch.com>
+> Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
 
-Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+Applied to at24/for-next.
+
+Thanks,
+Bartosz
+
+> ---
+> Changes in v2:
+>  - Remove loop macro
+>  - Accept superfluous sleep in case of timeout
+>  - Add concrete example to commit message
+> ---
+>  drivers/misc/eeprom/at24.c | 43 ++++++++++++++++++++++------------------=
 ---
- drivers/i2c/muxes/i2c-mux-pca954x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 24bd9275fde5..bfabf985e830 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -347,7 +347,7 @@ static void pca954x_cleanup(struct i2c_mux_core *muxc)
- static int pca954x_probe(struct i2c_client *client,
- 			 const struct i2c_device_id *id)
- {
--	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
-+	struct i2c_adapter *adap = client->adapter;
- 	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
- 	struct device *dev = &client->dev;
- 	struct device_node *np = dev->of_node;
--- 
-2.17.1
+>  1 file changed, 22 insertions(+), 21 deletions(-)
+>
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index f5cc517..37a5c8b 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -106,23 +106,6 @@ static unsigned int at24_write_timeout =3D 25;
+>  module_param_named(write_timeout, at24_write_timeout, uint, 0);
+>  MODULE_PARM_DESC(at24_write_timeout, "Time (in ms) to try writes (defaul=
+t 25)");
+>
+> -/*
+> - * Both reads and writes fail if the previous write didn't complete yet.=
+ This
+> - * macro loops a few times waiting at least long enough for one entire p=
+age
+> - * write to work while making sure that at least one iteration is run be=
+fore
+> - * checking the break condition.
+> - *
+> - * It takes two parameters: a variable in which the future timeout in ji=
+ffies
+> - * will be stored and a temporary variable holding the time of the last
+> - * iteration of processing the request. Both should be unsigned integers
+> - * holding at least 32 bits.
+> - */
+> -#define at24_loop_until_timeout(tout, op_time)                         \
+> -       for (tout =3D jiffies + msecs_to_jiffies(at24_write_timeout),    =
+ \
+> -            op_time =3D 0;                                              =
+ \
+> -            op_time ? time_before(op_time, tout) : true;               \
+> -            usleep_range(1000, 1500), op_time =3D jiffies)
+> -
+>  struct at24_chip_data {
+>         /*
+>          * these fields mirror their equivalents in
+> @@ -308,13 +291,22 @@ static ssize_t at24_regmap_read(struct at24_data *a=
+t24, char *buf,
+>         /* adjust offset for mac and serial read ops */
+>         offset +=3D at24->offset_adj;
+>
+> -       at24_loop_until_timeout(timeout, read_time) {
+> +       timeout =3D jiffies + msecs_to_jiffies(at24_write_timeout);
+> +       do {
+> +               /*
+> +                * The timestamp shall be taken before the actual operati=
+on
+> +                * to avoid a premature timeout in case of high CPU load.
+> +                */
+> +               read_time =3D jiffies;
+> +
+>                 ret =3D regmap_bulk_read(regmap, offset, buf, count);
+>                 dev_dbg(&client->dev, "read %zu@%d --> %d (%ld)\n",
+>                         count, offset, ret, jiffies);
+>                 if (!ret)
+>                         return count;
+> -       }
+> +
+> +               usleep_range(1000, 1500);
+> +       } while (time_before(read_time, timeout));
+>
+>         return -ETIMEDOUT;
+>  }
+> @@ -358,14 +350,23 @@ static ssize_t at24_regmap_write(struct at24_data *=
+at24, const char *buf,
+>         regmap =3D at24_client->regmap;
+>         client =3D at24_client->client;
+>         count =3D at24_adjust_write_count(at24, offset, count);
+> +       timeout =3D jiffies + msecs_to_jiffies(at24_write_timeout);
+> +
+> +       do {
+> +               /*
+> +                * The timestamp shall be taken before the actual operati=
+on
+> +                * to avoid a premature timeout in case of high CPU load.
+> +                */
+> +               write_time =3D jiffies;
+>
+> -       at24_loop_until_timeout(timeout, write_time) {
+>                 ret =3D regmap_bulk_write(regmap, offset, buf, count);
+>                 dev_dbg(&client->dev, "write %zu@%d --> %d (%ld)\n",
+>                         count, offset, ret, jiffies);
+>                 if (!ret)
+>                         return count;
+> -       }
+> +
+> +               usleep_range(1000, 1500);
+> +       } while (time_before(write_time, timeout));
+>
+>         return -ETIMEDOUT;
+>  }
+> --
+> 2.7.4
+>
