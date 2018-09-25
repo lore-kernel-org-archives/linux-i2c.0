@@ -1,74 +1,58 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: [PATCH] i2c: of: Try to find an I2C adapter matching the parent
-Date: Tue, 25 Sep 2018 18:06:11 +0200
-Message-ID: <20180925160611.17736-1-thierry.reding@gmail.com>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Subject: Re: [RFC PATCH i2c-next 1/2] dt-bindings: i2c: aspeed: Add
+ 'idle-wait-timeout-ms' setting
+Date: Tue, 25 Sep 2018 09:20:02 -0700
+Message-ID: <7b4e5715-3a87-8f77-8d0d-4647f02c87a8@linux.intel.com>
+References: <20180910214519.14126-1-jae.hyun.yoo@linux.intel.com>
+ <20180910214519.14126-2-jae.hyun.yoo@linux.intel.com>
+ <a81a6092-a9d0-78d5-3596-cddc5d6a0713@linux.intel.com>
+ <20180924215850.GD18592@kunai>
+ <2c8563fd-0641-5237-0026-f559c480ad91@linux.intel.com>
+ <20180925082717.GB2270@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180925082717.GB2270@kunai>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: rechner@vlado-do.de, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
+Cc: linux-aspeed@lists.ozlabs.org, James Feist <james.feist@linux.intel.com>, Andrew Jeffery <andrew@aj.id.au>, openbmc@lists.ozlabs.org, Brendan Higgins <brendanhiggins@google.com>, linux-kernel@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-RnJvbTogVGhpZXJyeSBSZWRpbmcgPHRyZWRpbmdAbnZpZGlhLmNvbT4KCklmIGFuIEkyQyBhZGFw
-dGVyIGRvZXNuJ3QgbWF0Y2ggdGhlIHByb3ZpZGVkIGRldmljZSB0cmVlIG5vZGUsIGFsc28gdHJ5
-Cm1hdGNoaW5nIHRoZSBwYXJlbnQncyBkZXZpY2UgdHJlZSBub2RlLiBUaGlzIGFsbG93cyBmaW5k
-aW5nIGFuIGFkYXB0ZXIKYmFzZWQgb24gdGhlIGRldmljZSBub2RlIG9mIHRoZSBwYXJlbnQgZGV2
-aWNlIHRoYXQgd2FzIHVzZWQgdG8gcmVnaXN0ZXIKaXQuCgpTaWduZWQtb2ZmLWJ5OiBUaGllcnJ5
-IFJlZGluZyA8dHJlZGluZ0BudmlkaWEuY29tPgotLS0KSGkgV29sZnJhbSwKClRoaXMgaXMgYSBm
-aXggZm9yIHRoZSBpc3N1ZSBkaXNjdXNzZWQgaW4gYSBsb25nIGVtYWlsIHRocmVhZCBhIGNvdXBs
-ZSBvZgptb250aHMgYWdvLiBJbiBhIG51dHNoZWxsIHRoZSBpc3N1ZSBpcyB0aGF0IHdlIHdhbnQg
-dG8gYmUgYWJsZSB0byBmaW5kIGEKSTJDLW92ZXItQVVYIGFkYXB0ZXIgYmFzZWQgb24gdGhlIGRl
-dmljZSB0cmVlIG5vZGUgKHRoaXMgaXMgdG8gaG9vayB1cCBhCkkyQyBhZGFwdGVyIGZvciB1c2Ug
-YXMgRERDIHRvIHF1ZXJ5IEVESUQgZnJvbSBhIGRpc3BsYXkgcGFuZWwsIGZvcgpleGFtcGxlKS4K
-CkhlcmUncyBhIGxpbmsgdG8gdGhlIHByaW9yIGRpc2N1c3Npb24sIHdoaWNoIGVuZGVkIHVwIGdl
-dHRpbmcgc3BsaXQgaW50bwp0d28gZm9yIHNvbWUgcmVhc29uLCBwb3NzaWJseSBiZWNhdXNlIHRo
-ZSBpbml0aWFsIHN1Ym1pc3Npb24gYW5kCnN1YnNlcXVlbnQgZGlzY3Vzc2lvbiB0b29rIHBsYWNl
-IG92ZXIgYW4gZXh0ZW5kZWQgcGVyaW9kIG9mIHRpbWU6CgoJaHR0cHM6Ly9wYXRjaHdvcmsua2Vy
-bmVsLm9yZy9wYXRjaC85NTE2MTA1LwoJaHR0cHM6Ly9wYXRjaHdvcmsua2VybmVsLm9yZy9wYXRj
-aC8xMDIwMDg3OS8KCkkgbmV2ZXIgZ290IGFyb3VuZCB0byBzdWJtaXR0aW5nIHRoZSBwYXRjaCBw
-cm9wZXJseSwgYnV0IGhlcmUgaXQgaXMuIEFzCm1lbnRpb25lZCBpbiB0aGUgZGlzY3Vzc2lvbiBs
-aW5rZWQgdG8gYWJvdmUsIEkgdGhpbmsgdGhlIHByb2JsZW0gaGVyZSBpcwp0aGF0IHRoZSBuZXcg
-bG9va3VwIHZpYSB0aGUgcGFyZW50IGRldmljZSBvbmx5IGhhcHBlbnMgd2hlbiBsb29raW5nIGZv
-cgp0aGUgYWRhcHRlciBmcm9tIGl0cyBkZXZpY2UgdHJlZSBub2RlLiBIb3dldmVyLCB0aGlzIGFs
-c28gbWVhbnMgdGhhdCB0aGUKY2hpbGRyZW4gZm9yIHRoZSBjb250cm9sbGVyIHdvbid0IGJlIGFk
-ZGVkIGZvciB0aGVzZSBkZXZpY2VzLCBiZWNhdXNlIGl0Cm9ubHkgaGFwcGVucyBmb3IgYWRhcHRl
-cnMgdGhhdCBoYXZlIHRoZSBkZXYtPm9mX25vZGUgc2V0LCBub3QgZm9yIHRoZQpub2RlIHJlZmVy
-ZW5jZSBieSBkZXYtPnBhcmVudC0+b2Zfbm9kZS4gSG93ZXZlciwgSSdtIG5vdCBzdXJlIGlmIHRo
-YXQncwpyZWFsbHkgYSBwcm9ibGVtLiBBIGRldmljZSB0aGF0IGRvZXNuJ3QgaGF2ZSBkZXYtPm9m
-X25vZGUgc2V0IHdvdWxkIGJlIGEKInZpcnR1YWwiIEkyQyBidXMsIGFzIGluIHRoZSBjYXNlIG9m
-IEkyQy1vdmVyLUFVWC4gUHJvcGVyIEkyQyBidXNzZXMgYXJlCnN0aWxsIGdvaW5nIHRvIGhhdmUg
-dG8gaGF2ZSB0aGVpciBkZXYtPm9mX25vZGUgc2V0LCBvdGhlcndpc2UgYW55IGNoaWxkCmRldmlj
-ZXMgbGlzdGVkIGluIGRldmljZSB0cmVlIHdvbid0IGJlIGFkZGVkLgoKQW55d2F5LCBsZXQgbWUg
-a25vdyB3aGF0IHlvdSB0aGluayBvZiB0aGlzLiBBbHNvIGFkZGluZyBMdWNhcywgUm9iIGFuZApB
-bmRyemVqIHRvIHRoZSBkaXNjdXNzaW9uIHNpbmNlIHRoZXkgd2VyZSBpbnZvbHZlZCBiYWNrIGF0
-IHRoZSB0aW1lLgoKVGhhbmtzLApUaGllcnJ5CgogZHJpdmVycy9pMmMvaTJjLWNvcmUtb2YuYyB8
-IDExICsrKysrKysrKysrCiAxIGZpbGUgY2hhbmdlZCwgMTEgaW5zZXJ0aW9ucygrKQoKZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvaTJjL2kyYy1jb3JlLW9mLmMgYi9kcml2ZXJzL2kyYy9pMmMtY29yZS1v
-Zi5jCmluZGV4IDZjYjdhZDYwOGJjZC4uMzdkMzQ4ODVlYTJkIDEwMDY0NAotLS0gYS9kcml2ZXJz
-L2kyYy9pMmMtY29yZS1vZi5jCisrKyBiL2RyaXZlcnMvaTJjL2kyYy1jb3JlLW9mLmMKQEAgLTEy
-MSw2ICsxMjEsMTQgQEAgc3RhdGljIGludCBvZl9kZXZfbm9kZV9tYXRjaChzdHJ1Y3QgZGV2aWNl
-ICpkZXYsIHZvaWQgKmRhdGEpCiAJcmV0dXJuIGRldi0+b2Zfbm9kZSA9PSBkYXRhOwogfQogCitz
-dGF0aWMgaW50IG9mX3BhcmVudF9ub2RlX21hdGNoKHN0cnVjdCBkZXZpY2UgKmRldiwgdm9pZCAq
-ZGF0YSkKK3sKKwlpZiAoZGV2LT5wYXJlbnQpCisJCXJldHVybiBkZXYtPnBhcmVudC0+b2Zfbm9k
-ZSA9PSBkYXRhOworCisJcmV0dXJuIDA7Cit9CisKIC8qIG11c3QgY2FsbCBwdXRfZGV2aWNlKCkg
-d2hlbiBkb25lIHdpdGggcmV0dXJuZWQgaTJjX2NsaWVudCBkZXZpY2UgKi8KIHN0cnVjdCBpMmNf
-Y2xpZW50ICpvZl9maW5kX2kyY19kZXZpY2VfYnlfbm9kZShzdHJ1Y3QgZGV2aWNlX25vZGUgKm5v
-ZGUpCiB7CkBAIC0xNDYsNiArMTU0LDkgQEAgc3RydWN0IGkyY19hZGFwdGVyICpvZl9maW5kX2ky
-Y19hZGFwdGVyX2J5X25vZGUoc3RydWN0IGRldmljZV9ub2RlICpub2RlKQogCXN0cnVjdCBpMmNf
-YWRhcHRlciAqYWRhcHRlcjsKIAogCWRldiA9IGJ1c19maW5kX2RldmljZSgmaTJjX2J1c190eXBl
-LCBOVUxMLCBub2RlLCBvZl9kZXZfbm9kZV9tYXRjaCk7CisJaWYgKCFkZXYpCisJCWRldiA9IGJ1
-c19maW5kX2RldmljZSgmaTJjX2J1c190eXBlLCBOVUxMLCBub2RlLCBvZl9wYXJlbnRfbm9kZV9t
-YXRjaCk7CisKIAlpZiAoIWRldikKIAkJcmV0dXJuIE5VTEw7CiAKLS0gCjIuMTkuMAoKX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxp
-bmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJl
-ZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+On 9/25/2018 1:27 AM, Wolfram Sang wrote:
+> On Mon, Sep 24, 2018 at 03:15:46PM -0700, Jae Hyun Yoo wrote:
+>> Hi Wolfram,
+>>
+>> On 9/24/2018 2:58 PM, Wolfram Sang wrote:
+>>> On Tue, Sep 18, 2018 at 11:02:54AM -0700, Jae Hyun Yoo wrote:
+>>>> On 9/10/2018 2:45 PM, Jae Hyun Yoo wrote:
+>>>>> +- idle-wait-timeout-ms	: bus idle waiting timeout in milliseconds when
+>>>>> +			  multi-master is set, defaults to 100 ms when not
+>>>>> +			  specified.
+>>>>
+>>>> Will change it to 'aspeed,idle-wait-timeout-ms' as it's a non standard
+>>>> property.
+>>>
+>>> No need. This binding is not a HW description, so not a DT property in
+>>> my book. I still don't understand: Your IP core in master mode does not
+>>> have a BUSY bit or similar which detects when a START was detected and
+>>> clears after a STOP?
+>>>
+>>
+>> Okay, I'll keep this property as it is then.
+> 
+> Sorry for the misunderstanding. I don't think this a property, at all.
+> It doesn't describe the hardware, it is more of a configuration thing,
+> or?
+> 
+
+You are right. It doesn't describe the hardware but it needs to be
+configurable because it very depends on the peer master's behavior.
+If peer master sends a long packet usually, it should have a long
+timeout value since a slave receiving operation takes long time,
+and it should be adjusted with an optimal value with taking some
+experiments to make it not too long. Any suggestion?
+
+Thanks,
+Jae
