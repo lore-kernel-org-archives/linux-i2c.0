@@ -1,7 +1,7 @@
 From: Vignesh R <vigneshr@ti.com>
-Subject: [PATCH 2/2] i2c: busses: Kconfig: Enable I2C_OMAP for ARCH_K3
-Date: Wed, 26 Sep 2018 17:27:51 +0530
-Message-ID: <20180926115751.20421-3-vigneshr@ti.com>
+Subject: [PATCH 1/2] dt-bindings: i2c-omap: Add new compatible for AM654 SoCs
+Date: Wed, 26 Sep 2018 17:27:50 +0530
+Message-ID: <20180926115751.20421-2-vigneshr@ti.com>
 References: <20180926115751.20421-1-vigneshr@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -13,25 +13,27 @@ To: Rob Herring <robh+dt@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering
 Cc: Vignesh R <vigneshr@ti.com>, Sekhar Nori <nsekhar@ti.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Nishanth Menon <nm@ti.com>, Tero Kristo <t-kristo@ti.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Allow I2C_OMAP to be built for K3 platforms.
+AM654 SoCs have similar I2C IP as OMAP SoCs. Add new compatible to
+handle AM654 SoCs.
 
 Signed-off-by: Vignesh R <vigneshr@ti.com>
 ---
- drivers/i2c/busses/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/devicetree/bindings/i2c/i2c-omap.txt | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 451d4ae50e66..ac4b09642f63 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -751,7 +751,7 @@ config I2C_OCORES
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-omap.txt b/Documentation/devicetree/bindings/i2c/i2c-omap.txt
+index 7e49839d4124..11ce869d682d 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-omap.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-omap.txt
+@@ -2,7 +2,8 @@ I2C for OMAP platforms
  
- config I2C_OMAP
- 	tristate "OMAP I2C adapter"
--	depends on ARCH_OMAP
-+	depends on ARCH_OMAP || ARCH_K3
- 	default y if MACH_OMAP_H3 || MACH_OMAP_OSK
- 	help
- 	  If you say yes to this option, support will be included for the
+ Required properties :
+ - compatible : Must be "ti,omap2420-i2c", "ti,omap2430-i2c", "ti,omap3-i2c"
+-  or "ti,omap4-i2c"
++  or "ti,omap4-i2c" for OMAP2+ SoCs
++- compatible : Must "ti,am654-i2c", "ti,omap4-i2c" for AM654 SoCs
+ - ti,hwmods : Must be "i2c<n>", n being the instance number (1-based)
+ - #address-cells = <1>;
+ - #size-cells = <0>;
 -- 
 2.19.0
