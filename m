@@ -1,36 +1,40 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH v3 3/3] i2c: i2c-qcom-geni: Simplify irq handler
-Date: Tue, 25 Sep 2018 14:49:45 -0700
-Message-ID: <CAD=FV=WWCrY3Kxa1qXXvYd4FM_8cAtWnKMm4mYU8zxEfQmHmVw@mail.gmail.com>
-References: <20180924235235.182649-1-swboyd@chromium.org> <20180924235235.182649-3-swboyd@chromium.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Luca Ceresoli <lucaceresoli77@gmail.com>
+Subject: [PATCH RESEND] i2c: mux: pca954x: simplify code to reach the adapter
+Date: Wed, 26 Sep 2018 10:35:34 +0200
+Message-ID: <20180926083534.21999-1-lucaceresoli77@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180924235235.182649-3-swboyd@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Stephen Boyd <swboyd@chromium.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, LKML <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>
+To: linux-i2c@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org, Luca Ceresoli <luca@lucaceresoli.net>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+From: Luca Ceresoli <luca@lucaceresoli.net>
 
-On Mon, Sep 24, 2018 at 4:52 PM Stephen Boyd <swboyd@chromium.org> wrote:
->
-> We don't need to use goto here, we can just collapse the if statement
-> and goto chain into multiple branches and then combine some duplicate
-> completion calls into one big if statement. Let's do it to clean up code
-> some more.
->
-> Cc: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
-> Cc: Sagar Dharia <sdharia@codeaurora.org>
-> Cc: Girish Mahadevan <girishm@codeaurora.org>
-> Cc: Doug Anderson <dianders@chromium.org>
-> Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-> ---
->  drivers/i2c/busses/i2c-qcom-geni.c | 70 +++++++++++++-----------------
->  1 file changed, 29 insertions(+), 41 deletions(-)
+struct i2c_client has a direct pointer to the adapter, no need to dig
+it out of the struct device tree.
 
-It doesn't gleam as powerfully the cleanups in patch 2/3 but this does
-have a few nice readability improvements.
+Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+---
 
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Sorry for the RESEND noise, but my provider and vger are not
+interacting (again). I'll solve the issue at its root ASAP, but in the
+meanwhile I'm sending from a different account.
+
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index 24bd9275fde5..bfabf985e830 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -347,7 +347,7 @@ static void pca954x_cleanup(struct i2c_mux_core *muxc)
+ static int pca954x_probe(struct i2c_client *client,
+ 			 const struct i2c_device_id *id)
+ {
+-	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
++	struct i2c_adapter *adap = client->adapter;
+ 	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	struct device *dev = &client->dev;
+ 	struct device_node *np = dev->of_node;
+-- 
+2.17.1
