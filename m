@@ -1,90 +1,58 @@
-From: Joel Stanley <joel@jms.id.au>
-Subject: Re: [PATCH i2c-next v3 2/3] i2c: aspeed: Add 'aspeed,timeout' DT
- property reading code
-Date: Thu, 27 Sep 2018 07:11:59 +0400
-Message-ID: <CACPK8XcKms88EcpT3soE6wLyAmvyiLfVkNeOQT0FgmY4eZoDrw@mail.gmail.com>
-References: <20180926215842.23125-1-jae.hyun.yoo@linux.intel.com> <20180926215842.23125-3-jae.hyun.yoo@linux.intel.com>
+From: Vlado Plaga <rechner@vlado-do.de>
+Subject: Re: [PATCH] i2c: of: Try to find an I2C adapter matching the parent
+Date: Wed, 26 Sep 2018 20:20:42 +0200
+Message-ID: <e84a1565-5d88-ebfa-54ae-e4b3254f4287@vlado-do.de>
+References: <20180925160611.17736-1-thierry.reding@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180926215842.23125-3-jae.hyun.yoo@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Cc: Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, devicetree <devicetree@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20180925160611.17736-1-thierry.reding@gmail.com>
+Content-Language: en-US-large
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Thierry Reding <thierry.reding@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: rechner@vlado-do.de, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 27 Sep 2018 at 01:58, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com> wrote:
->
-> This commit adds reading code of the 'aspeed,timeout' DT property
-> to set 'timeout' value in adapter configuration. This value still
-> case be configured through an I2C_TIMEOUT ioctl on cdev too.
->
-> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-> ---
->  drivers/i2c/busses/i2c-aspeed.c | 11 ++++++++++-
->  1 file changed, 10 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-> index 8dc9161ced38..0d934ce0c028 100644
-> --- a/drivers/i2c/busses/i2c-aspeed.c
-> +++ b/drivers/i2c/busses/i2c-aspeed.c
-> @@ -115,6 +115,9 @@
->  /* 0x18 : I2CD Slave Device Address Register   */
->  #define ASPEED_I2CD_DEV_ADDR_MASK                      GENMASK(6, 0)
->
-> +/* Timeout */
-> +#define ASPEED_I2C_BUS_TIMEOUT_US_DEFAULT              (5 * 1000 * 1000)
-
-The 5 seconds time out is way too long. On a system that doesn't have
-functional i2c, this holds up boot for a long time as most i2c client
-drivers try to initialise their device and fail. I realise you're not
-changing the value, but we should pick a better default. 1 second?
-Half a second?
-
-> +
->  enum aspeed_i2c_master_state {
->         ASPEED_I2C_MASTER_INACTIVE,
->         ASPEED_I2C_MASTER_START,
-> @@ -885,6 +888,7 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
->         struct clk *parent_clk;
->         struct resource *res;
->         int irq, ret;
-> +       u32 timeout_us;
->
->         bus = devm_kzalloc(&pdev->dev, sizeof(*bus), GFP_KERNEL);
->         if (!bus)
-> @@ -918,6 +922,11 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
->                 bus->bus_frequency = 100000;
->         }
->
-> +       ret = of_property_read_u32(pdev->dev.of_node, "aspeed,timeout",
-> +                                  &timeout_us);
-
-Can we make this binding generic? It's not specific to aspeed's
-hardware. Getting the value could even part of the i2c core.
-
-I read the previous thread with Wolfram. I think this would still fit
-with what Wolfram suggested, but please forgive my jetlagged brain if
-I've missed something.
-
-Cheers,
-
-Joel
-> +       if (ret)
-> +               timeout_us = ASPEED_I2C_BUS_TIMEOUT_US_DEFAULT;
-> +
->         match = of_match_node(aspeed_i2c_bus_of_table, pdev->dev.of_node);
->         if (!match)
->                 bus->get_clk_reg_val = aspeed_i2c_24xx_get_clk_reg_val;
-> @@ -930,7 +939,7 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
->         init_completion(&bus->cmd_complete);
->         bus->adap.owner = THIS_MODULE;
->         bus->adap.retries = 0;
-> -       bus->adap.timeout = 5 * HZ;
-> +       bus->adap.timeout = usecs_to_jiffies(timeout_us);
->         bus->adap.algo = &aspeed_i2c_algo;
->         bus->adap.dev.parent = &pdev->dev;
->         bus->adap.dev.of_node = pdev->dev.of_node;
-> --
-> 2.19.0
->
+VGVzdGVkLWJ5OiBWbGFkbyBQbGFnYSA8cmVjaG5lckB2bGFkby1kby5kZT4KClRoaXMgcGF0Y2gg
+d29ya3MgZm9yIG1lIC0gd2l0aG91dCBpdCBteSBzY3JlZW4gc3RheXMgYmxhY2sgKEFjZXIgQ0I1
+LTMxMSkuCgpPbiAyNS8wOS8yMDE4IDE4OjA2LCBUaGllcnJ5IFJlZGluZyB3cm90ZToKPiBGcm9t
+OiBUaGllcnJ5IFJlZGluZyA8dHJlZGluZ0BudmlkaWEuY29tPgo+Cj4gSWYgYW4gSTJDIGFkYXB0
+ZXIgZG9lc24ndCBtYXRjaCB0aGUgcHJvdmlkZWQgZGV2aWNlIHRyZWUgbm9kZSwgYWxzbyB0cnkK
+PiBtYXRjaGluZyB0aGUgcGFyZW50J3MgZGV2aWNlIHRyZWUgbm9kZS4gVGhpcyBhbGxvd3MgZmlu
+ZGluZyBhbiBhZGFwdGVyCj4gYmFzZWQgb24gdGhlIGRldmljZSBub2RlIG9mIHRoZSBwYXJlbnQg
+ZGV2aWNlIHRoYXQgd2FzIHVzZWQgdG8gcmVnaXN0ZXIKPiBpdC4KPgo+IFNpZ25lZC1vZmYtYnk6
+IFRoaWVycnkgUmVkaW5nIDx0cmVkaW5nQG52aWRpYS5jb20+ClsuLi5dCj4gIGRyaXZlcnMvaTJj
+L2kyYy1jb3JlLW9mLmMgfCAxMSArKysrKysrKysrKwo+ICAxIGZpbGUgY2hhbmdlZCwgMTEgaW5z
+ZXJ0aW9ucygrKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2kyYy1jb3JlLW9mLmMgYi9k
+cml2ZXJzL2kyYy9pMmMtY29yZS1vZi5jCj4gaW5kZXggNmNiN2FkNjA4YmNkLi4zN2QzNDg4NWVh
+MmQgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9pMmMvaTJjLWNvcmUtb2YuYwo+ICsrKyBiL2RyaXZl
+cnMvaTJjL2kyYy1jb3JlLW9mLmMKPiBAQCAtMTIxLDYgKzEyMSwxNCBAQCBzdGF0aWMgaW50IG9m
+X2Rldl9ub2RlX21hdGNoKHN0cnVjdCBkZXZpY2UgKmRldiwgdm9pZCAqZGF0YSkKPiAgCXJldHVy
+biBkZXYtPm9mX25vZGUgPT0gZGF0YTsKPiAgfQo+ICAKPiArc3RhdGljIGludCBvZl9wYXJlbnRf
+bm9kZV9tYXRjaChzdHJ1Y3QgZGV2aWNlICpkZXYsIHZvaWQgKmRhdGEpCj4gK3sKPiArCWlmIChk
+ZXYtPnBhcmVudCkKPiArCQlyZXR1cm4gZGV2LT5wYXJlbnQtPm9mX25vZGUgPT0gZGF0YTsKPiAr
+Cj4gKwlyZXR1cm4gMDsKPiArfQo+ICsKPiAgLyogbXVzdCBjYWxsIHB1dF9kZXZpY2UoKSB3aGVu
+IGRvbmUgd2l0aCByZXR1cm5lZCBpMmNfY2xpZW50IGRldmljZSAqLwo+ICBzdHJ1Y3QgaTJjX2Ns
+aWVudCAqb2ZfZmluZF9pMmNfZGV2aWNlX2J5X25vZGUoc3RydWN0IGRldmljZV9ub2RlICpub2Rl
+KQo+ICB7Cj4gQEAgLTE0Niw2ICsxNTQsOSBAQCBzdHJ1Y3QgaTJjX2FkYXB0ZXIgKm9mX2ZpbmRf
+aTJjX2FkYXB0ZXJfYnlfbm9kZShzdHJ1Y3QgZGV2aWNlX25vZGUgKm5vZGUpCj4gIAlzdHJ1Y3Qg
+aTJjX2FkYXB0ZXIgKmFkYXB0ZXI7Cj4gIAo+ICAJZGV2ID0gYnVzX2ZpbmRfZGV2aWNlKCZpMmNf
+YnVzX3R5cGUsIE5VTEwsIG5vZGUsIG9mX2Rldl9ub2RlX21hdGNoKTsKPiArCWlmICghZGV2KQo+
+ICsJCWRldiA9IGJ1c19maW5kX2RldmljZSgmaTJjX2J1c190eXBlLCBOVUxMLCBub2RlLCBvZl9w
+YXJlbnRfbm9kZV9tYXRjaCk7Cj4gKwo+ICAJaWYgKCFkZXYpCj4gIAkJcmV0dXJuIE5VTEw7Cj4g
+IAoKLS0gCgpWbGFkbyBQbGFnYQpodHRwOi8vdmxhZG8tZG8uZGUvCmFrdWFsaXNpZXJ0OiAyMDE4
+LTA1LTA4CgoiV2VyIGRhcyBHZWxkIGhhdCwgaGF0IGRpZSBNYWNodCB1bmQgd2VyIGRpZSBNYWNo
+dCBoYXQsIGhhdCBkYXMgUmVjaHQiCmF1cyAnRGVyIEthbXBmIGdlaHQgd2VpdGVyJywgUmlvIFJl
+aXNlciB1bmQgUi5QLlMuIExhbnJ1ZSwgMTk3MQoKX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4v
+bGlzdGluZm8vZHJpLWRldmVsCg==
