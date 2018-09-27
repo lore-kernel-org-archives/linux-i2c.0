@@ -1,118 +1,61 @@
-From: Luca Ceresoli <lucaceresoli77@gmail.com>
-Subject: [PATCH v2] i2c: mux: remove duplicated i2c_algorithm
-Date: Thu, 27 Sep 2018 15:38:15 +0200
-Message-ID: <20180927133815.19089-1-lucaceresoli77@gmail.com>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Subject: Re: [PATCH i2c-next v3 2/3] i2c: aspeed: Add 'aspeed,timeout' DT
+ property reading code
+Date: Thu, 27 Sep 2018 10:41:16 -0700
+Message-ID: <37ae7a11-44b6-88e5-0f4d-c97c70334ad4@linux.intel.com>
+References: <20180926215842.23125-1-jae.hyun.yoo@linux.intel.com>
+ <20180926215842.23125-3-jae.hyun.yoo@linux.intel.com>
+ <CACPK8XcKms88EcpT3soE6wLyAmvyiLfVkNeOQT0FgmY4eZoDrw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CACPK8XcKms88EcpT3soE6wLyAmvyiLfVkNeOQT0FgmY4eZoDrw@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Luca Ceresoli <luca@lucaceresoli.net>, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
+To: Joel Stanley <joel@jms.id.au>
+Cc: Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, devicetree <devicetree@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Luca Ceresoli <luca@lucaceresoli.net>
+Hi Joel,
 
-i2c-mux instantiates one i2c_algorithm for each downstream adapter.
-However these algorithms are all identical, depending only on the
-parent adapter.
+On 9/26/2018 8:11 PM, Joel Stanley wrote:
+> On Thu, 27 Sep 2018 at 01:58, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com> wrote:
+>>
+>> +/* Timeout */
+>> +#define ASPEED_I2C_BUS_TIMEOUT_US_DEFAULT              (5 * 1000 * 1000)
+> 
+> The 5 seconds time out is way too long. On a system that doesn't have
+> functional i2c, this holds up boot for a long time as most i2c client
+> drivers try to initialise their device and fail. I realise you're not
+> changing the value, but we should pick a better default. 1 second?
+> Half a second?
+> 
 
-Avoid duplication by hoisting the i2c_algorithm from the adapters to
-the i2c_mux_core object, and reuse it in all the adapters.
+I agree with you. We could probably use 1 second as default which can
+cover the most of general cases. If so, we don't need to make the
+default setting in this driver because i2c-core-base will default
+adap->timeout to 1 second if the value is 0 when a driver registers an
+adapter. Will fix this code.
 
-Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+>>
+>> +       ret = of_property_read_u32(pdev->dev.of_node, "aspeed,timeout",
+>> +                                  &timeout_us);
+> 
+> Can we make this binding generic? It's not specific to aspeed's
+> hardware. Getting the value could even part of the i2c core.
+> 
+> I read the previous thread with Wolfram. I think this would still fit
+> with what Wolfram suggested, but please forgive my jetlagged brain if
+> I've missed something.
+> 
 
----
+It followed the way of the existing i2c-mpc driver uses 'fsl,timeout'
+for the same purpose. Though, I also want to make it as a generic as you
+suggested like 'timeout' in milliseconds unit, not in microseconds unit.
+If making it a generic property is acceptable, I'll fix it too.
 
-Changes v1 -> v2:
- - include i2c.h (fixes build failure on i2c-mux-ltc4306)
----
- drivers/i2c/i2c-mux.c   | 37 ++++++++++++++++++-------------------
- include/linux/i2c-mux.h |  2 ++
- 2 files changed, 20 insertions(+), 19 deletions(-)
+Wolfram, can you please share your thought on it?
 
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index f330690b4125..2b0cc2ad0a17 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -30,7 +30,6 @@
- /* multiplexer per channel data */
- struct i2c_mux_priv {
- 	struct i2c_adapter adap;
--	struct i2c_algorithm algo;
- 	struct i2c_mux_core *muxc;
- 	u32 chan_id;
- };
-@@ -263,6 +262,23 @@ struct i2c_mux_core *i2c_mux_alloc(struct i2c_adapter *parent,
- 	muxc->deselect = deselect;
- 	muxc->max_adapters = max_adapters;
- 
-+	/* Need to do algo dynamically because we don't know ahead
-+	 * of time what sort of physical adapter we'll be dealing with.
-+	 */
-+	if (parent->algo->master_xfer) {
-+		if (muxc->mux_locked)
-+			muxc->algo.master_xfer = i2c_mux_master_xfer;
-+		else
-+			muxc->algo.master_xfer = __i2c_mux_master_xfer;
-+	}
-+	if (parent->algo->smbus_xfer) {
-+		if (muxc->mux_locked)
-+			muxc->algo.smbus_xfer = i2c_mux_smbus_xfer;
-+		else
-+			muxc->algo.smbus_xfer = __i2c_mux_smbus_xfer;
-+	}
-+	muxc->algo.functionality = i2c_mux_functionality;
-+
- 	return muxc;
- }
- EXPORT_SYMBOL_GPL(i2c_mux_alloc);
-@@ -301,28 +317,11 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
- 	priv->muxc = muxc;
- 	priv->chan_id = chan_id;
- 
--	/* Need to do algo dynamically because we don't know ahead
--	 * of time what sort of physical adapter we'll be dealing with.
--	 */
--	if (parent->algo->master_xfer) {
--		if (muxc->mux_locked)
--			priv->algo.master_xfer = i2c_mux_master_xfer;
--		else
--			priv->algo.master_xfer = __i2c_mux_master_xfer;
--	}
--	if (parent->algo->smbus_xfer) {
--		if (muxc->mux_locked)
--			priv->algo.smbus_xfer = i2c_mux_smbus_xfer;
--		else
--			priv->algo.smbus_xfer = __i2c_mux_smbus_xfer;
--	}
--	priv->algo.functionality = i2c_mux_functionality;
--
- 	/* Now fill out new adapter structure */
- 	snprintf(priv->adap.name, sizeof(priv->adap.name),
- 		 "i2c-%d-mux (chan_id %d)", i2c_adapter_id(parent), chan_id);
- 	priv->adap.owner = THIS_MODULE;
--	priv->adap.algo = &priv->algo;
-+	priv->adap.algo = &muxc->algo;
- 	priv->adap.algo_data = priv;
- 	priv->adap.dev.parent = &parent->dev;
- 	priv->adap.retries = parent->retries;
-diff --git a/include/linux/i2c-mux.h b/include/linux/i2c-mux.h
-index bd74d5706f3b..5a4ffca99f5d 100644
---- a/include/linux/i2c-mux.h
-+++ b/include/linux/i2c-mux.h
-@@ -28,6 +28,7 @@
- #ifdef __KERNEL__
- 
- #include <linux/bitops.h>
-+#include <linux/i2c.h>
- 
- struct i2c_mux_core {
- 	struct i2c_adapter *parent;
-@@ -36,6 +37,7 @@ struct i2c_mux_core {
- 	unsigned int arbitrator:1;
- 	unsigned int gate:1;
- 
-+	struct i2c_algorithm algo;
- 	void *priv;
- 
- 	int (*select)(struct i2c_mux_core *, u32 chan_id);
--- 
-2.17.1
+Thanks,
+Jae
