@@ -1,58 +1,118 @@
-From: Vlado Plaga <rechner@vlado-do.de>
-Subject: Re: [PATCH] i2c: of: Try to find an I2C adapter matching the parent
-Date: Wed, 26 Sep 2018 20:20:42 +0200
-Message-ID: <e84a1565-5d88-ebfa-54ae-e4b3254f4287@vlado-do.de>
-References: <20180925160611.17736-1-thierry.reding@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20180925160611.17736-1-thierry.reding@gmail.com>
-Content-Language: en-US-large
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Thierry Reding <thierry.reding@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: rechner@vlado-do.de, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
+From: Luca Ceresoli <lucaceresoli77@gmail.com>
+Subject: [PATCH v2] i2c: mux: remove duplicated i2c_algorithm
+Date: Thu, 27 Sep 2018 15:38:15 +0200
+Message-ID: <20180927133815.19089-1-lucaceresoli77@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Luca Ceresoli <luca@lucaceresoli.net>, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-VGVzdGVkLWJ5OiBWbGFkbyBQbGFnYSA8cmVjaG5lckB2bGFkby1kby5kZT4KClRoaXMgcGF0Y2gg
-d29ya3MgZm9yIG1lIC0gd2l0aG91dCBpdCBteSBzY3JlZW4gc3RheXMgYmxhY2sgKEFjZXIgQ0I1
-LTMxMSkuCgpPbiAyNS8wOS8yMDE4IDE4OjA2LCBUaGllcnJ5IFJlZGluZyB3cm90ZToKPiBGcm9t
-OiBUaGllcnJ5IFJlZGluZyA8dHJlZGluZ0BudmlkaWEuY29tPgo+Cj4gSWYgYW4gSTJDIGFkYXB0
-ZXIgZG9lc24ndCBtYXRjaCB0aGUgcHJvdmlkZWQgZGV2aWNlIHRyZWUgbm9kZSwgYWxzbyB0cnkK
-PiBtYXRjaGluZyB0aGUgcGFyZW50J3MgZGV2aWNlIHRyZWUgbm9kZS4gVGhpcyBhbGxvd3MgZmlu
-ZGluZyBhbiBhZGFwdGVyCj4gYmFzZWQgb24gdGhlIGRldmljZSBub2RlIG9mIHRoZSBwYXJlbnQg
-ZGV2aWNlIHRoYXQgd2FzIHVzZWQgdG8gcmVnaXN0ZXIKPiBpdC4KPgo+IFNpZ25lZC1vZmYtYnk6
-IFRoaWVycnkgUmVkaW5nIDx0cmVkaW5nQG52aWRpYS5jb20+ClsuLi5dCj4gIGRyaXZlcnMvaTJj
-L2kyYy1jb3JlLW9mLmMgfCAxMSArKysrKysrKysrKwo+ICAxIGZpbGUgY2hhbmdlZCwgMTEgaW5z
-ZXJ0aW9ucygrKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2kyYy1jb3JlLW9mLmMgYi9k
-cml2ZXJzL2kyYy9pMmMtY29yZS1vZi5jCj4gaW5kZXggNmNiN2FkNjA4YmNkLi4zN2QzNDg4NWVh
-MmQgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9pMmMvaTJjLWNvcmUtb2YuYwo+ICsrKyBiL2RyaXZl
-cnMvaTJjL2kyYy1jb3JlLW9mLmMKPiBAQCAtMTIxLDYgKzEyMSwxNCBAQCBzdGF0aWMgaW50IG9m
-X2Rldl9ub2RlX21hdGNoKHN0cnVjdCBkZXZpY2UgKmRldiwgdm9pZCAqZGF0YSkKPiAgCXJldHVy
-biBkZXYtPm9mX25vZGUgPT0gZGF0YTsKPiAgfQo+ICAKPiArc3RhdGljIGludCBvZl9wYXJlbnRf
-bm9kZV9tYXRjaChzdHJ1Y3QgZGV2aWNlICpkZXYsIHZvaWQgKmRhdGEpCj4gK3sKPiArCWlmIChk
-ZXYtPnBhcmVudCkKPiArCQlyZXR1cm4gZGV2LT5wYXJlbnQtPm9mX25vZGUgPT0gZGF0YTsKPiAr
-Cj4gKwlyZXR1cm4gMDsKPiArfQo+ICsKPiAgLyogbXVzdCBjYWxsIHB1dF9kZXZpY2UoKSB3aGVu
-IGRvbmUgd2l0aCByZXR1cm5lZCBpMmNfY2xpZW50IGRldmljZSAqLwo+ICBzdHJ1Y3QgaTJjX2Ns
-aWVudCAqb2ZfZmluZF9pMmNfZGV2aWNlX2J5X25vZGUoc3RydWN0IGRldmljZV9ub2RlICpub2Rl
-KQo+ICB7Cj4gQEAgLTE0Niw2ICsxNTQsOSBAQCBzdHJ1Y3QgaTJjX2FkYXB0ZXIgKm9mX2ZpbmRf
-aTJjX2FkYXB0ZXJfYnlfbm9kZShzdHJ1Y3QgZGV2aWNlX25vZGUgKm5vZGUpCj4gIAlzdHJ1Y3Qg
-aTJjX2FkYXB0ZXIgKmFkYXB0ZXI7Cj4gIAo+ICAJZGV2ID0gYnVzX2ZpbmRfZGV2aWNlKCZpMmNf
-YnVzX3R5cGUsIE5VTEwsIG5vZGUsIG9mX2Rldl9ub2RlX21hdGNoKTsKPiArCWlmICghZGV2KQo+
-ICsJCWRldiA9IGJ1c19maW5kX2RldmljZSgmaTJjX2J1c190eXBlLCBOVUxMLCBub2RlLCBvZl9w
-YXJlbnRfbm9kZV9tYXRjaCk7Cj4gKwo+ICAJaWYgKCFkZXYpCj4gIAkJcmV0dXJuIE5VTEw7Cj4g
-IAoKLS0gCgpWbGFkbyBQbGFnYQpodHRwOi8vdmxhZG8tZG8uZGUvCmFrdWFsaXNpZXJ0OiAyMDE4
-LTA1LTA4CgoiV2VyIGRhcyBHZWxkIGhhdCwgaGF0IGRpZSBNYWNodCB1bmQgd2VyIGRpZSBNYWNo
-dCBoYXQsIGhhdCBkYXMgUmVjaHQiCmF1cyAnRGVyIEthbXBmIGdlaHQgd2VpdGVyJywgUmlvIFJl
-aXNlciB1bmQgUi5QLlMuIExhbnJ1ZSwgMTk3MQoKX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlz
-dHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4v
-bGlzdGluZm8vZHJpLWRldmVsCg==
+From: Luca Ceresoli <luca@lucaceresoli.net>
+
+i2c-mux instantiates one i2c_algorithm for each downstream adapter.
+However these algorithms are all identical, depending only on the
+parent adapter.
+
+Avoid duplication by hoisting the i2c_algorithm from the adapters to
+the i2c_mux_core object, and reuse it in all the adapters.
+
+Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+
+---
+
+Changes v1 -> v2:
+ - include i2c.h (fixes build failure on i2c-mux-ltc4306)
+---
+ drivers/i2c/i2c-mux.c   | 37 ++++++++++++++++++-------------------
+ include/linux/i2c-mux.h |  2 ++
+ 2 files changed, 20 insertions(+), 19 deletions(-)
+
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index f330690b4125..2b0cc2ad0a17 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -30,7 +30,6 @@
+ /* multiplexer per channel data */
+ struct i2c_mux_priv {
+ 	struct i2c_adapter adap;
+-	struct i2c_algorithm algo;
+ 	struct i2c_mux_core *muxc;
+ 	u32 chan_id;
+ };
+@@ -263,6 +262,23 @@ struct i2c_mux_core *i2c_mux_alloc(struct i2c_adapter *parent,
+ 	muxc->deselect = deselect;
+ 	muxc->max_adapters = max_adapters;
+ 
++	/* Need to do algo dynamically because we don't know ahead
++	 * of time what sort of physical adapter we'll be dealing with.
++	 */
++	if (parent->algo->master_xfer) {
++		if (muxc->mux_locked)
++			muxc->algo.master_xfer = i2c_mux_master_xfer;
++		else
++			muxc->algo.master_xfer = __i2c_mux_master_xfer;
++	}
++	if (parent->algo->smbus_xfer) {
++		if (muxc->mux_locked)
++			muxc->algo.smbus_xfer = i2c_mux_smbus_xfer;
++		else
++			muxc->algo.smbus_xfer = __i2c_mux_smbus_xfer;
++	}
++	muxc->algo.functionality = i2c_mux_functionality;
++
+ 	return muxc;
+ }
+ EXPORT_SYMBOL_GPL(i2c_mux_alloc);
+@@ -301,28 +317,11 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+ 	priv->muxc = muxc;
+ 	priv->chan_id = chan_id;
+ 
+-	/* Need to do algo dynamically because we don't know ahead
+-	 * of time what sort of physical adapter we'll be dealing with.
+-	 */
+-	if (parent->algo->master_xfer) {
+-		if (muxc->mux_locked)
+-			priv->algo.master_xfer = i2c_mux_master_xfer;
+-		else
+-			priv->algo.master_xfer = __i2c_mux_master_xfer;
+-	}
+-	if (parent->algo->smbus_xfer) {
+-		if (muxc->mux_locked)
+-			priv->algo.smbus_xfer = i2c_mux_smbus_xfer;
+-		else
+-			priv->algo.smbus_xfer = __i2c_mux_smbus_xfer;
+-	}
+-	priv->algo.functionality = i2c_mux_functionality;
+-
+ 	/* Now fill out new adapter structure */
+ 	snprintf(priv->adap.name, sizeof(priv->adap.name),
+ 		 "i2c-%d-mux (chan_id %d)", i2c_adapter_id(parent), chan_id);
+ 	priv->adap.owner = THIS_MODULE;
+-	priv->adap.algo = &priv->algo;
++	priv->adap.algo = &muxc->algo;
+ 	priv->adap.algo_data = priv;
+ 	priv->adap.dev.parent = &parent->dev;
+ 	priv->adap.retries = parent->retries;
+diff --git a/include/linux/i2c-mux.h b/include/linux/i2c-mux.h
+index bd74d5706f3b..5a4ffca99f5d 100644
+--- a/include/linux/i2c-mux.h
++++ b/include/linux/i2c-mux.h
+@@ -28,6 +28,7 @@
+ #ifdef __KERNEL__
+ 
+ #include <linux/bitops.h>
++#include <linux/i2c.h>
+ 
+ struct i2c_mux_core {
+ 	struct i2c_adapter *parent;
+@@ -36,6 +37,7 @@ struct i2c_mux_core {
+ 	unsigned int arbitrator:1;
+ 	unsigned int gate:1;
+ 
++	struct i2c_algorithm algo;
+ 	void *priv;
+ 
+ 	int (*select)(struct i2c_mux_core *, u32 chan_id);
+-- 
+2.17.1
