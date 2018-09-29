@@ -1,100 +1,51 @@
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Subject: [PATCH] gpiolib: Fix incorrect use of find_next_zero_bit()
-Date: Sat, 29 Sep 2018 14:20:22 +0200
-Message-ID: <20180929122022.6825-1-jmkrzyszt@gmail.com>
-References: <20180923235336.22148-2-jmkrzyszt@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Subject: Re: [PATCH] i2c: brcmstb: Allow enabling the driver on DSL SoCs
+Date: Sat, 29 Sep 2018 13:37:13 -0700
+Message-ID: <34253924-54D8-4CB1-822E-21123EB503CA@gmail.com>
+References: <20180928223947.20751-1-f.fainelli@gmail.com> <CAMuHMdVgpf2b8gOeygij7MGjTwxgBv8-Y0M5ggBBhNE0pS07pA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20180923235336.22148-2-jmkrzyszt@gmail.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Andrew Lunn <andrew@lunn.ch>, Ulf Hansson <ulf.hansson@linaro.org>, Tony Lindgren <tony@atomide.com>, Dominik Brodowski <linux@dominikbrodowski.net>, Yegor Yefremov <yegorslists@googlemail.com>, netdev@vger.kernel.org, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Marek Szyprowski <m.szyprowski@samsung.com>, devel@driverdev.osuosl.org, Florian Fainelli <f.fainelli@gmail.com>, Peter Rosin <peda@axentia.se>, Janusz Krzysztofik <jmkrzyszt@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Kishon Vijay Abraham I <kishon@ti.com>, linux-iio@vger.kernel.org, Peter Korsgaard <peter.korsgaard@barco.com>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-serial@vger.kernel.org, Jiri Slaby <jslaby@suse.com>, Michael Hennerich <Michael.Hennerich@analog.com>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, linux-gpio@vger.kernel.org, Russ
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAMuHMdVgpf2b8gOeygij7MGjTwxgBv8-Y0M5ggBBhNE0pS07pA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kamal Dasu <kdasu.kdev@gmail.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Jean Delvare <jdelvare@suse.de>, Andy Shevchenko <andy.shevchenko@gmail.com>, M'boumba Cedric Madianga <cedric.madianga@gmail.com>, kramasub@codeaurora.org, Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, eajames@linux.vnet.ibm.com, Ard Biesheuvel <ard.biesheuvel@linaro.org>, manivannan.sadhasivam@linaro.org, Arnd Bergmann <arnd@arndb.de>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Commit b17566a6b08b ("gpiolib: Implement fast processing path in
-get/set array"), already fixed to some extent with commit 5d581d7e8cdc
-("gpiolib: Fix missing updates of bitmap index"), introduced a new mode
-of processing bitmaps where bits applicable for fast bitmap processing
-path are supposed to be skipped while iterating bits which don't apply.
-Unfortunately, find_next_zero_bit() function supposed to skip over
-those fast bits is always called with a 'start' argument equal to an
-index of last zero bit found and returns that index value again an
-again, causing an infinite loop.
-
-Fix it by incrementing the index uncoditionally before
-find_next_zero_bit() is optionally called.
-
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
----
-Marek,
-
-Could you please test it on top of next-20180920 with "gpiolib: Fix
-missing updates of bitmap index" and optionally "mmc: pwrseq_simple:
-Fix incorrect handling of GPIO bitmap" also applied?
-
-Thanks,
-Janusz
 
 
- drivers/gpio/gpiolib.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+On September 29, 2018 12:55:08 AM PDT, Geert Uytterhoeven <geert@linux-m68=
+k=2Eorg> wrote:
+>Hi Florian,
+>
+>On Sat, Sep 29, 2018 at 12:40 AM Florian Fainelli
+><f=2Efainelli@gmail=2Ecom> wrote:
+>> ARCH_BCM_63XX which is used by ARM-based DSL SoCs from Broadcom uses
+>the
+>> same controller, make it possible to select the STB driver and update
+>> the Kconfig and help text a bit=2E
+>>
+>> Signed-off-by: Florian Fainelli <f=2Efainelli@gmail=2Ecom>
+>
+>Thanks for your patch!
+>
+>> --- a/drivers/i2c/busses/Kconfig
+>> +++ b/drivers/i2c/busses/Kconfig
+>> @@ -432,12 +432,13 @@ config I2C_BCM_KONA
+>>           If you do not need KONA I2C interface, say N=2E
+>>
+>>  config I2C_BRCMSTB
+>> -       tristate "BRCM Settop I2C controller"
+>> -       depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
+>> +       tristate "BRCM Settop/DSL I2C controller"
+>> +       depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST || \
+>> +                  ARCH_BCM_63XX
+>
+>I think it would be good to keep the "|| COMPILE_TEST" as the last
+>dependency=2E
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 6ae13e3e05f1..940b543e966d 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -2878,12 +2878,11 @@ int gpiod_get_array_value_complex(bool raw, bool can_sleep,
- 			int hwgpio = gpio_chip_hwgpio(desc);
- 
- 			__set_bit(hwgpio, mask);
-+			i++;
- 
- 			if (array_info)
- 				i = find_next_zero_bit(array_info->get_mask,
- 						       array_size, i);
--			else
--				i++;
- 		} while ((i < array_size) &&
- 			 (desc_array[i]->gdev->chip == chip));
- 
-@@ -2903,12 +2902,11 @@ int gpiod_get_array_value_complex(bool raw, bool can_sleep,
- 				value = !value;
- 			__assign_bit(j, value_bitmap, value);
- 			trace_gpio_value(desc_to_gpio(desc), 1, value);
-+			j++;
- 
- 			if (array_info)
- 				j = find_next_zero_bit(array_info->get_mask, i,
- 						       j);
--			else
--				j++;
- 		}
- 
- 		if (mask != fastpath)
-@@ -3191,12 +3189,11 @@ int gpiod_set_array_value_complex(bool raw, bool can_sleep,
- 					__clear_bit(hwgpio, bits);
- 				count++;
- 			}
-+			i++;
- 
- 			if (array_info)
- 				i = find_next_zero_bit(array_info->set_mask,
- 						       array_size, i);
--			else
--				i++;
- 		} while ((i < array_size) &&
- 			 (desc_array[i]->gdev->chip == chip));
- 		/* push collected bits to outputs */
--- 
-2.16.4
+Makes sense, v2 coming, thank you!
+--=20
+Florian
