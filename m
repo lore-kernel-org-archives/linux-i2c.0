@@ -1,92 +1,49 @@
-From: Rob Herring <robh@kernel.org>
-Subject: [PATCH v2] i2c: Convert to using %pOFn instead of device_node.name
-Date: Fri, 28 Sep 2018 17:49:47 -0500
-Message-ID: <20180928224947.19058-1-robh@kernel.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] i2c: brcmstb: Allow enabling the driver on DSL SoCs
+Date: Sat, 29 Sep 2018 09:55:08 +0200
+Message-ID: <CAMuHMdVgpf2b8gOeygij7MGjTwxgBv8-Y0M5ggBBhNE0pS07pA@mail.gmail.com>
+References: <20180928223947.20751-1-f.fainelli@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180928223947.20751-1-f.fainelli@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+To: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kamal Dasu <kdasu.kdev@gmail.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Jean Delvare <jdelvare@suse.de>, Andy Shevchenko <andy.shevchenko@gmail.com>, M'boumba Cedric Madianga <cedric.madianga@gmail.com>, kramasub@codeaurora.org, Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, eajames@linux.vnet.ibm.com, Ard Biesheuvel <ard.biesheuvel@linaro.org>, manivannan.sadhasivam@linaro.org, Arnd Bergmann <arnd@arndb.de>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-In preparation to remove the node name pointer from struct device_node,
-convert printf users to use the %pOFn format specifier.
+Hi Florian,
 
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Peter Rosin <peda@axentia.se>
-Cc: linux-i2c@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Signed-off-by: Rob Herring <robh@kernel.org>
----
-v2:
-- Remove initialization of parent
+On Sat, Sep 29, 2018 at 12:40 AM Florian Fainelli <f.fainelli@gmail.com> wrote:
+> ARCH_BCM_63XX which is used by ARM-based DSL SoCs from Broadcom uses the
+> same controller, make it possible to select the STB driver and update
+> the Kconfig and help text a bit.
+>
+> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 
- drivers/i2c/busses/i2c-powermac.c | 17 +++++++++--------
- drivers/i2c/muxes/i2c-mux-gpmux.c |  4 ++--
- 2 files changed, 11 insertions(+), 10 deletions(-)
+Thanks for your patch!
 
-diff --git a/drivers/i2c/busses/i2c-powermac.c b/drivers/i2c/busses/i2c-powermac.c
-index f2a2067525ef..f6f4ed8afc93 100644
---- a/drivers/i2c/busses/i2c-powermac.c
-+++ b/drivers/i2c/busses/i2c-powermac.c
-@@ -388,9 +388,8 @@ static void i2c_powermac_register_devices(struct i2c_adapter *adap,
- static int i2c_powermac_probe(struct platform_device *dev)
- {
- 	struct pmac_i2c_bus *bus = dev_get_platdata(&dev->dev);
--	struct device_node *parent = NULL;
-+	struct device_node *parent;
- 	struct i2c_adapter *adapter;
--	const char *basename;
- 	int rc;
- 
- 	if (bus == NULL)
-@@ -407,23 +406,25 @@ static int i2c_powermac_probe(struct platform_device *dev)
- 		parent = of_get_parent(pmac_i2c_get_controller(bus));
- 		if (parent == NULL)
- 			return -EINVAL;
--		basename = parent->name;
-+		snprintf(adapter->name, sizeof(adapter->name), "%pOFn %d",
-+			 parent,
-+			 pmac_i2c_get_channel(bus));
-+		of_node_put(parent);
- 		break;
- 	case pmac_i2c_bus_pmu:
--		basename = "pmu";
-+		snprintf(adapter->name, sizeof(adapter->name), "pmu %d",
-+			 pmac_i2c_get_channel(bus));
- 		break;
- 	case pmac_i2c_bus_smu:
- 		/* This is not what we used to do but I'm fixing drivers at
- 		 * the same time as this change
- 		 */
--		basename = "smu";
-+		snprintf(adapter->name, sizeof(adapter->name), "smu %d",
-+			 pmac_i2c_get_channel(bus));
- 		break;
- 	default:
- 		return -EINVAL;
- 	}
--	snprintf(adapter->name, sizeof(adapter->name), "%s %d", basename,
--		 pmac_i2c_get_channel(bus));
--	of_node_put(parent);
- 
- 	platform_set_drvdata(dev, adapter);
- 	adapter->algo = &i2c_powermac_algorithm;
-diff --git a/drivers/i2c/muxes/i2c-mux-gpmux.c b/drivers/i2c/muxes/i2c-mux-gpmux.c
-index 92cf5f48afe6..f60b670deff7 100644
---- a/drivers/i2c/muxes/i2c-mux-gpmux.c
-+++ b/drivers/i2c/muxes/i2c-mux-gpmux.c
-@@ -120,8 +120,8 @@ static int i2c_mux_probe(struct platform_device *pdev)
- 
- 		ret = of_property_read_u32(child, "reg", &chan);
- 		if (ret < 0) {
--			dev_err(dev, "no reg property for node '%s'\n",
--				child->name);
-+			dev_err(dev, "no reg property for node '%pOFn'\n",
-+				child);
- 			goto err_children;
- 		}
- 
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -432,12 +432,13 @@ config I2C_BCM_KONA
+>           If you do not need KONA I2C interface, say N.
+>
+>  config I2C_BRCMSTB
+> -       tristate "BRCM Settop I2C controller"
+> -       depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
+> +       tristate "BRCM Settop/DSL I2C controller"
+> +       depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST || \
+> +                  ARCH_BCM_63XX
+
+I think it would be good to keep the "|| COMPILE_TEST" as the last dependency.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
 -- 
-2.17.1
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
