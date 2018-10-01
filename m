@@ -1,65 +1,53 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH] i2c: designware: Call i2c_dw_clk_rate() only when calculating timings
-Date: Mon,  1 Oct 2018 14:49:05 +0300
-Message-ID: <20181001114905.13766-1-jarkko.nikula@linux.intel.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH RESEND] i2c: mux: pca954x: simplify code to reach the
+ adapter
+Date: Mon, 1 Oct 2018 13:49:10 +0200
+Message-ID: <14ba57eb-0647-5dca-8f84-eaa27fd0af4a@axentia.se>
+References: <20180926083534.21999-1-lucaceresoli77@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180926083534.21999-1-lucaceresoli77@gmail.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Luca Ceresoli <lucaceresoli77@gmail.com>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Luca Ceresoli <luca@lucaceresoli.net>
 List-Id: linux-i2c@vger.kernel.org
 
-There are platforms which don't provide input clock rate but provide
-I2C timing parameters. Commit 3bd4f277274b ("i2c: designware: Call
-i2c_dw_clk_rate() only once in i2c_dw_init_master()") causes needless
-warning during probe on those platforms since i2c_dw_clk_rate(), which
-causes the warning when input clock is unknown, is called even when
-there is no need to calculate timing parameters.
+On 2018-09-26 10:35, Luca Ceresoli wrote:
+> From: Luca Ceresoli <luca@lucaceresoli.net>
+> 
+> struct i2c_client has a direct pointer to the adapter, no need to dig
+> it out of the struct device tree.
 
-Fixes: 3bd4f277274b ("i2c: designware: Call i2c_dw_clk_rate() only once in i2c_dw_init_master()")
-Reported-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: <stable@vger.kernel.org> # 4.19
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
----
-for current 4.19-rc6. I Cc'ed stable just in case this doesn't hit the
-v4.19.
----
- drivers/i2c/busses/i2c-designware-master.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Right, looks sane, but can you please also do the same thing for the
+ltc4306 and mlxcpld drivers which have the same pattern?
 
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 94d94b4a9a0d..18cc324f3ca9 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -34,11 +34,11 @@ static void i2c_dw_configure_fifo_master(struct dw_i2c_dev *dev)
- 
- static int i2c_dw_set_timings_master(struct dw_i2c_dev *dev)
- {
--	u32 ic_clk = i2c_dw_clk_rate(dev);
- 	const char *mode_str, *fp_str = "";
- 	u32 comp_param1;
- 	u32 sda_falling_time, scl_falling_time;
- 	struct i2c_timings *t = &dev->timings;
-+	u32 ic_clk;
- 	int ret;
- 
- 	ret = i2c_dw_acquire_lock(dev);
-@@ -53,6 +53,7 @@ static int i2c_dw_set_timings_master(struct dw_i2c_dev *dev)
- 
- 	/* Calculate SCL timing parameters for standard mode if not set */
- 	if (!dev->ss_hcnt || !dev->ss_lcnt) {
-+		ic_clk = i2c_dw_clk_rate(dev);
- 		dev->ss_hcnt =
- 			i2c_dw_scl_hcnt(ic_clk,
- 					4000,	/* tHD;STA = tHIGH = 4.0 us */
-@@ -89,6 +90,7 @@ static int i2c_dw_set_timings_master(struct dw_i2c_dev *dev)
- 	 * needed also in high speed mode.
- 	 */
- 	if (!dev->fs_hcnt || !dev->fs_lcnt) {
-+		ic_clk = i2c_dw_clk_rate(dev);
- 		dev->fs_hcnt =
- 			i2c_dw_scl_hcnt(ic_clk,
- 					600,	/* tHD;STA = tHIGH = 0.6 us */
--- 
-2.19.0
+Cheers,
+Peter
+
+> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+> ---
+> 
+> Sorry for the RESEND noise, but my provider and vger are not
+> interacting (again). I'll solve the issue at its root ASAP, but in the
+> meanwhile I'm sending from a different account.
+> 
+>  drivers/i2c/muxes/i2c-mux-pca954x.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> index 24bd9275fde5..bfabf985e830 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> @@ -347,7 +347,7 @@ static void pca954x_cleanup(struct i2c_mux_core *muxc)
+>  static int pca954x_probe(struct i2c_client *client,
+>  			 const struct i2c_device_id *id)
+>  {
+> -	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
+> +	struct i2c_adapter *adap = client->adapter;
+>  	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
+>  	struct device *dev = &client->dev;
+>  	struct device_node *np = dev->of_node;
+> 
