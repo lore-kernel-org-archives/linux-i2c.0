@@ -1,75 +1,46 @@
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: Re: [PATCH] i2c: designware: Call i2c_dw_clk_rate() only when
- calculating timings
-Date: Mon, 1 Oct 2018 15:10:26 +0200
-Message-ID: <CAKv+Gu-D3jN+jHC+7kRHm7sh-r0LDV90Ft-6hqnYbzNLizG3FA@mail.gmail.com>
-References: <20181001114905.13766-1-jarkko.nikula@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20181001114905.13766-1-jarkko.nikula@linux.intel.com>
-Sender: stable-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, stable <stable@vger.kernel.org>
+From: Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH v2] i2c: brcmstb: Allow enabling the driver on DSL SoCs
+Date: Mon,  1 Oct 2018 10:43:47 -0700
+Message-ID: <20181001174349.26357-1-f.fainelli@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: kdasu.kdev@gmail.com, geert@linux-m68k.org, Florian Fainelli <f.fainelli@gmail.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Jean Delvare <jdelvare@suse.de>, Andy Shevchenko <andy.shevchenko@gmail.com>, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>, Eddie James <eajames@linux.vnet.ibm.com>, James Hogan <jhogan@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, "open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 1 October 2018 at 13:49, Jarkko Nikula <jarkko.nikula@linux.intel.com> wrote:
-> There are platforms which don't provide input clock rate but provide
-> I2C timing parameters. Commit 3bd4f277274b ("i2c: designware: Call
-> i2c_dw_clk_rate() only once in i2c_dw_init_master()") causes needless
-> warning during probe on those platforms since i2c_dw_clk_rate(), which
-> causes the warning when input clock is unknown, is called even when
-> there is no need to calculate timing parameters.
->
-> Fixes: 3bd4f277274b ("i2c: designware: Call i2c_dw_clk_rate() only once in i2c_dw_init_master()")
-> Reported-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> Cc: <stable@vger.kernel.org> # 4.19
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+ARCH_BCM_63XX which is used by ARM-based DSL SoCs from Broadcom uses the
+same controller, make it possible to select the STB driver and update
+the Kconfig and help text a bit.
 
-Tested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+---
+Changes in v2:
 
-Thanks!
+- Make COMPILE_TEST last, as per Geert's recommendation
 
-> ---
-> for current 4.19-rc6. I Cc'ed stable just in case this doesn't hit the
-> v4.19.
-> ---
->  drivers/i2c/busses/i2c-designware-master.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-> index 94d94b4a9a0d..18cc324f3ca9 100644
-> --- a/drivers/i2c/busses/i2c-designware-master.c
-> +++ b/drivers/i2c/busses/i2c-designware-master.c
-> @@ -34,11 +34,11 @@ static void i2c_dw_configure_fifo_master(struct dw_i2c_dev *dev)
->
->  static int i2c_dw_set_timings_master(struct dw_i2c_dev *dev)
->  {
-> -       u32 ic_clk = i2c_dw_clk_rate(dev);
->         const char *mode_str, *fp_str = "";
->         u32 comp_param1;
->         u32 sda_falling_time, scl_falling_time;
->         struct i2c_timings *t = &dev->timings;
-> +       u32 ic_clk;
->         int ret;
->
->         ret = i2c_dw_acquire_lock(dev);
-> @@ -53,6 +53,7 @@ static int i2c_dw_set_timings_master(struct dw_i2c_dev *dev)
->
->         /* Calculate SCL timing parameters for standard mode if not set */
->         if (!dev->ss_hcnt || !dev->ss_lcnt) {
-> +               ic_clk = i2c_dw_clk_rate(dev);
->                 dev->ss_hcnt =
->                         i2c_dw_scl_hcnt(ic_clk,
->                                         4000,   /* tHD;STA = tHIGH = 4.0 us */
-> @@ -89,6 +90,7 @@ static int i2c_dw_set_timings_master(struct dw_i2c_dev *dev)
->          * needed also in high speed mode.
->          */
->         if (!dev->fs_hcnt || !dev->fs_lcnt) {
-> +               ic_clk = i2c_dw_clk_rate(dev);
->                 dev->fs_hcnt =
->                         i2c_dw_scl_hcnt(ic_clk,
->                                         600,    /* tHD;STA = tHIGH = 0.6 us */
-> --
-> 2.19.0
->
+ drivers/i2c/busses/Kconfig | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 451d4ae50e66..56ccb1ea7da5 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -432,12 +432,13 @@ config I2C_BCM_KONA
+ 	  If you do not need KONA I2C interface, say N.
+ 
+ config I2C_BRCMSTB
+-	tristate "BRCM Settop I2C controller"
+-	depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
++	tristate "BRCM Settop/DSL I2C controller"
++	depends on ARCH_BRCMSTB || BMIPS_GENERIC || ARCH_BCM_63XX || \
++		   COMPILE_TEST
+ 	default y
+ 	help
+ 	  If you say yes to this option, support will be included for the
+-	  I2C interface on the Broadcom Settop SoCs.
++	  I2C interface on the Broadcom Settop/DSL SoCs.
+ 
+ 	  If you do not need I2C interface, say N.
+ 
+-- 
+2.17.1
