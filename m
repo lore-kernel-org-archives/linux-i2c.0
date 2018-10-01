@@ -1,53 +1,138 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH RESEND] i2c: mux: pca954x: simplify code to reach the
- adapter
-Date: Mon, 1 Oct 2018 13:49:10 +0200
-Message-ID: <14ba57eb-0647-5dca-8f84-eaa27fd0af4a@axentia.se>
-References: <20180926083534.21999-1-lucaceresoli77@gmail.com>
+Subject: Re: [PATCH v2] i2c: mux: remove duplicated i2c_algorithm
+Date: Mon, 1 Oct 2018 13:55:26 +0200
+Message-ID: <9fcca887-1ade-e3bf-67f7-aecd8a60dafb@axentia.se>
+References: <20180927133815.19089-1-lucaceresoli77@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180926083534.21999-1-lucaceresoli77@gmail.com>
+In-Reply-To: <20180927133815.19089-1-lucaceresoli77@gmail.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Luca Ceresoli <lucaceresoli77@gmail.com>, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Luca Ceresoli <luca@lucaceresoli.net>
+Cc: linux-kernel@vger.kernel.org, Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-09-26 10:35, Luca Ceresoli wrote:
+On 2018-09-27 15:38, Luca Ceresoli wrote:
 > From: Luca Ceresoli <luca@lucaceresoli.net>
 > 
-> struct i2c_client has a direct pointer to the adapter, no need to dig
-> it out of the struct device tree.
+> i2c-mux instantiates one i2c_algorithm for each downstream adapter.
+> However these algorithms are all identical, depending only on the
+> parent adapter.
+> 
+> Avoid duplication by hoisting the i2c_algorithm from the adapters to
+> the i2c_mux_core object, and reuse it in all the adapters.
 
-Right, looks sane, but can you please also do the same thing for the
-ltc4306 and mlxcpld drivers which have the same pattern?
+Looks about right to me, just a couple of nit-picks. See below.
+
+> 
+> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+> 
+> ---
+> 
+> Changes v1 -> v2:
+>  - include i2c.h (fixes build failure on i2c-mux-ltc4306)
+> ---
+>  drivers/i2c/i2c-mux.c   | 37 ++++++++++++++++++-------------------
+>  include/linux/i2c-mux.h |  2 ++
+>  2 files changed, 20 insertions(+), 19 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+> index f330690b4125..2b0cc2ad0a17 100644
+> --- a/drivers/i2c/i2c-mux.c
+> +++ b/drivers/i2c/i2c-mux.c
+> @@ -30,7 +30,6 @@
+>  /* multiplexer per channel data */
+>  struct i2c_mux_priv {
+>  	struct i2c_adapter adap;
+> -	struct i2c_algorithm algo;
+>  	struct i2c_mux_core *muxc;
+>  	u32 chan_id;
+>  };
+> @@ -263,6 +262,23 @@ struct i2c_mux_core *i2c_mux_alloc(struct i2c_adapter *parent,
+>  	muxc->deselect = deselect;
+>  	muxc->max_adapters = max_adapters;
+>  
+> +	/* Need to do algo dynamically because we don't know ahead
+> +	 * of time what sort of physical adapter we'll be dealing with.
+> +	 */
+
+Multiline comments should start with a /* on a line of its own. Yes,
+I know you just moved it, but please fix it up as you do so.
+
+> +	if (parent->algo->master_xfer) {
+> +		if (muxc->mux_locked)
+> +			muxc->algo.master_xfer = i2c_mux_master_xfer;
+> +		else
+> +			muxc->algo.master_xfer = __i2c_mux_master_xfer;
+> +	}
+> +	if (parent->algo->smbus_xfer) {
+> +		if (muxc->mux_locked)
+> +			muxc->algo.smbus_xfer = i2c_mux_smbus_xfer;
+> +		else
+> +			muxc->algo.smbus_xfer = __i2c_mux_smbus_xfer;
+> +	}
+> +	muxc->algo.functionality = i2c_mux_functionality;
+> +
+>  	return muxc;
+>  }
+>  EXPORT_SYMBOL_GPL(i2c_mux_alloc);
+> @@ -301,28 +317,11 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+>  	priv->muxc = muxc;
+>  	priv->chan_id = chan_id;
+>  
+> -	/* Need to do algo dynamically because we don't know ahead
+> -	 * of time what sort of physical adapter we'll be dealing with.
+> -	 */
+> -	if (parent->algo->master_xfer) {
+> -		if (muxc->mux_locked)
+> -			priv->algo.master_xfer = i2c_mux_master_xfer;
+> -		else
+> -			priv->algo.master_xfer = __i2c_mux_master_xfer;
+> -	}
+> -	if (parent->algo->smbus_xfer) {
+> -		if (muxc->mux_locked)
+> -			priv->algo.smbus_xfer = i2c_mux_smbus_xfer;
+> -		else
+> -			priv->algo.smbus_xfer = __i2c_mux_smbus_xfer;
+> -	}
+> -	priv->algo.functionality = i2c_mux_functionality;
+> -
+>  	/* Now fill out new adapter structure */
+>  	snprintf(priv->adap.name, sizeof(priv->adap.name),
+>  		 "i2c-%d-mux (chan_id %d)", i2c_adapter_id(parent), chan_id);
+>  	priv->adap.owner = THIS_MODULE;
+> -	priv->adap.algo = &priv->algo;
+> +	priv->adap.algo = &muxc->algo;
+>  	priv->adap.algo_data = priv;
+>  	priv->adap.dev.parent = &parent->dev;
+>  	priv->adap.retries = parent->retries;
+> diff --git a/include/linux/i2c-mux.h b/include/linux/i2c-mux.h
+> index bd74d5706f3b..5a4ffca99f5d 100644
+> --- a/include/linux/i2c-mux.h
+> +++ b/include/linux/i2c-mux.h
+> @@ -28,6 +28,7 @@
+>  #ifdef __KERNEL__
+>  
+>  #include <linux/bitops.h>
+> +#include <linux/i2c.h>
+>  
+>  struct i2c_mux_core {
+>  	struct i2c_adapter *parent;
+> @@ -36,6 +37,7 @@ struct i2c_mux_core {
+>  	unsigned int arbitrator:1;
+>  	unsigned int gate:1;
+>  
+> +	struct i2c_algorithm algo;
+>  	void *priv;
+
+I want the algo member further up, and certainly not "grouped" with
+priv. Between parent and dev seems fine to me.
 
 Cheers,
 Peter
 
-> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-> ---
-> 
-> Sorry for the RESEND noise, but my provider and vger are not
-> interacting (again). I'll solve the issue at its root ASAP, but in the
-> meanwhile I'm sending from a different account.
-> 
->  drivers/i2c/muxes/i2c-mux-pca954x.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> index 24bd9275fde5..bfabf985e830 100644
-> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-> @@ -347,7 +347,7 @@ static void pca954x_cleanup(struct i2c_mux_core *muxc)
->  static int pca954x_probe(struct i2c_client *client,
->  			 const struct i2c_device_id *id)
->  {
-> -	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
-> +	struct i2c_adapter *adap = client->adapter;
->  	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
->  	struct device *dev = &client->dev;
->  	struct device_node *np = dev->of_node;
+>  
+>  	int (*select)(struct i2c_mux_core *, u32 chan_id);
 > 
