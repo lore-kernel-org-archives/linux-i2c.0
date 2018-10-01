@@ -1,42 +1,36 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: [PATCH i2c-next v4 1/3] dt-bindings: i2c: aspeed: Add 'timeout' property as an optional property
-Date: Mon,  1 Oct 2018 13:27:46 -0700
-Message-ID: <20181001202748.8030-2-jae.hyun.yoo@linux.intel.com>
-References: <20181001202748.8030-1-jae.hyun.yoo@linux.intel.com>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: Re: [PATCH RESEND] i2c: mux: pca954x: simplify code to reach the
+ adapter
+Date: Mon, 1 Oct 2018 22:44:17 +0200
+Message-ID: <5626f9c0-129a-8162-f9b3-ef95c3c835be@lucaceresoli.net>
+References: <20180926083534.21999-1-lucaceresoli77@gmail.com>
+ <14ba57eb-0647-5dca-8f84-eaa27fd0af4a@axentia.se>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181001202748.8030-1-jae.hyun.yoo@linux.intel.com>
+In-Reply-To: <14ba57eb-0647-5dca-8f84-eaa27fd0af4a@axentia.se>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+To: Peter Rosin <peda@axentia.se>, Luca Ceresoli <lucaceresoli77@gmail.com>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This commit adds 'timeout' property as an optional property which
-can be used for setting 'timeout' value of 'struct i2c_adapter'.
-With this patch, the bus timeout value can be set through this
-DT property from the probing time of the module. Still the bus
-timeout value can be set by an I2C_TIMEOUT ioctl on cdev at
-runtime too.
+Hi Peter,
 
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
----
- Documentation/devicetree/bindings/i2c/i2c-aspeed.txt | 3 +++
- 1 file changed, 3 insertions(+)
+thanks for the review.
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-index 8fbd8633a387..1789502818c2 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-@@ -17,6 +17,9 @@ Optional Properties:
- 		  specified
- - multi-master	: states that there is another master active on this bus.
- 
-+- timeout	: I2C bus timeout in milliseconds defaults to 1 second when not
-+		  specified.
-+
- Example:
- 
- i2c {
+On 01/10/2018 13:49, Peter Rosin wrote:
+> On 2018-09-26 10:35, Luca Ceresoli wrote:
+>> From: Luca Ceresoli <luca@lucaceresoli.net>
+>>
+>> struct i2c_client has a direct pointer to the adapter, no need to dig
+>> it out of the struct device tree.
+> 
+> Right, looks sane, but can you please also do the same thing for the
+> ltc4306 and mlxcpld drivers which have the same pattern?
+
+No problem. But be aware I can't runtime test these two drivers.
+
 -- 
-2.19.0
+Luca
