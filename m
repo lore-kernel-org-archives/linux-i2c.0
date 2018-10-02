@@ -1,92 +1,50 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: Re: [PATCH] i2c: of: Try to find an I2C adapter matching the parent
-Date: Tue, 2 Oct 2018 14:12:12 +0200
-Message-ID: <20181002121214eucas1p2f5c38f9c5b7cee9cf41b2c4c1167ab0a~ZyYg-gQgr1404914049eucas1p2D@eucas1p2.samsung.com>
-References: <CGME20180925160618epcas1p1f2a4263fcce9c70aa3808999ebe72315@epcas1p1.samsung.com>
- <20180925160611.17736-1-thierry.reding@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH] eeprom: New ee1004 driver for DDR4 memory
+Date: Tue, 2 Oct 2018 15:27:27 -0700
+Message-ID: <20181002222727.GB19204@kroah.com>
+References: <20180226102000.1b76640e@endymion>
+ <CAMRc=MernxfN-P29HnLUFzAiX-UiFx32ZYZW_v6_BH9dXnfCfw@mail.gmail.com>
+ <20181002114346.4bcf7927@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20180925160611.17736-1-thierry.reding@gmail.com>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Thierry Reding <thierry.reding@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-tegra@vger.kernel.org, rechner@vlado-do.de, linux-i2c@vger.kernel.org, dri-devel@lists.freedesktop.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20181002114346.4bcf7927@endymion>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>, Arnd Bergmann <arnd@arndb.de>, Linux I2C <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjUuMDkuMjAxOCAxODowNiwgVGhpZXJyeSBSZWRpbmcgd3JvdGU6Cj4gRnJvbTogVGhpZXJy
-eSBSZWRpbmcgPHRyZWRpbmdAbnZpZGlhLmNvbT4KPgo+IElmIGFuIEkyQyBhZGFwdGVyIGRvZXNu
-J3QgbWF0Y2ggdGhlIHByb3ZpZGVkIGRldmljZSB0cmVlIG5vZGUsIGFsc28gdHJ5Cj4gbWF0Y2hp
-bmcgdGhlIHBhcmVudCdzIGRldmljZSB0cmVlIG5vZGUuIFRoaXMgYWxsb3dzIGZpbmRpbmcgYW4g
-YWRhcHRlcgo+IGJhc2VkIG9uIHRoZSBkZXZpY2Ugbm9kZSBvZiB0aGUgcGFyZW50IGRldmljZSB0
-aGF0IHdhcyB1c2VkIHRvIHJlZ2lzdGVyCj4gaXQuCj4KPiBTaWduZWQtb2ZmLWJ5OiBUaGllcnJ5
-IFJlZGluZyA8dHJlZGluZ0BudmlkaWEuY29tPgo+IC0tLQo+IEhpIFdvbGZyYW0sCj4KPiBUaGlz
-IGlzIGEgZml4IGZvciB0aGUgaXNzdWUgZGlzY3Vzc2VkIGluIGEgbG9uZyBlbWFpbCB0aHJlYWQg
-YSBjb3VwbGUgb2YKPiBtb250aHMgYWdvLiBJbiBhIG51dHNoZWxsIHRoZSBpc3N1ZSBpcyB0aGF0
-IHdlIHdhbnQgdG8gYmUgYWJsZSB0byBmaW5kIGEKPiBJMkMtb3Zlci1BVVggYWRhcHRlciBiYXNl
-ZCBvbiB0aGUgZGV2aWNlIHRyZWUgbm9kZSAodGhpcyBpcyB0byBob29rIHVwIGEKPiBJMkMgYWRh
-cHRlciBmb3IgdXNlIGFzIEREQyB0byBxdWVyeSBFRElEIGZyb20gYSBkaXNwbGF5IHBhbmVsLCBm
-b3IKPiBleGFtcGxlKS4KPgo+IEhlcmUncyBhIGxpbmsgdG8gdGhlIHByaW9yIGRpc2N1c3Npb24s
-IHdoaWNoIGVuZGVkIHVwIGdldHRpbmcgc3BsaXQgaW50bwo+IHR3byBmb3Igc29tZSByZWFzb24s
-IHBvc3NpYmx5IGJlY2F1c2UgdGhlIGluaXRpYWwgc3VibWlzc2lvbiBhbmQKPiBzdWJzZXF1ZW50
-IGRpc2N1c3Npb24gdG9vayBwbGFjZSBvdmVyIGFuIGV4dGVuZGVkIHBlcmlvZCBvZiB0aW1lOgo+
-Cj4gCWh0dHBzOi8vcGF0Y2h3b3JrLmtlcm5lbC5vcmcvcGF0Y2gvOTUxNjEwNS8KPiAJaHR0cHM6
-Ly9wYXRjaHdvcmsua2VybmVsLm9yZy9wYXRjaC8xMDIwMDg3OS8KPgo+IEkgbmV2ZXIgZ290IGFy
-b3VuZCB0byBzdWJtaXR0aW5nIHRoZSBwYXRjaCBwcm9wZXJseSwgYnV0IGhlcmUgaXQgaXMuIEFz
-Cj4gbWVudGlvbmVkIGluIHRoZSBkaXNjdXNzaW9uIGxpbmtlZCB0byBhYm92ZSwgSSB0aGluayB0
-aGUgcHJvYmxlbSBoZXJlIGlzCj4gdGhhdCB0aGUgbmV3IGxvb2t1cCB2aWEgdGhlIHBhcmVudCBk
-ZXZpY2Ugb25seSBoYXBwZW5zIHdoZW4gbG9va2luZyBmb3IKPiB0aGUgYWRhcHRlciBmcm9tIGl0
-cyBkZXZpY2UgdHJlZSBub2RlLiBIb3dldmVyLCB0aGlzIGFsc28gbWVhbnMgdGhhdCB0aGUKPiBj
-aGlsZHJlbiBmb3IgdGhlIGNvbnRyb2xsZXIgd29uJ3QgYmUgYWRkZWQgZm9yIHRoZXNlIGRldmlj
-ZXMsIGJlY2F1c2UgaXQKPiBvbmx5IGhhcHBlbnMgZm9yIGFkYXB0ZXJzIHRoYXQgaGF2ZSB0aGUg
-ZGV2LT5vZl9ub2RlIHNldCwgbm90IGZvciB0aGUKPiBub2RlIHJlZmVyZW5jZSBieSBkZXYtPnBh
-cmVudC0+b2Zfbm9kZS4gSG93ZXZlciwgSSdtIG5vdCBzdXJlIGlmIHRoYXQncwo+IHJlYWxseSBh
-IHByb2JsZW0uIEEgZGV2aWNlIHRoYXQgZG9lc24ndCBoYXZlIGRldi0+b2Zfbm9kZSBzZXQgd291
-bGQgYmUgYQo+ICJ2aXJ0dWFsIiBJMkMgYnVzLCBhcyBpbiB0aGUgY2FzZSBvZiBJMkMtb3Zlci1B
-VVguIFByb3BlciBJMkMgYnVzc2VzIGFyZQo+IHN0aWxsIGdvaW5nIHRvIGhhdmUgdG8gaGF2ZSB0
-aGVpciBkZXYtPm9mX25vZGUgc2V0LCBvdGhlcndpc2UgYW55IGNoaWxkCj4gZGV2aWNlcyBsaXN0
-ZWQgaW4gZGV2aWNlIHRyZWUgd29uJ3QgYmUgYWRkZWQuCj4KPiBBbnl3YXksIGxldCBtZSBrbm93
-IHdoYXQgeW91IHRoaW5rIG9mIHRoaXMuIEFsc28gYWRkaW5nIEx1Y2FzLCBSb2IgYW5kCj4gQW5k
-cnplaiB0byB0aGUgZGlzY3Vzc2lvbiBzaW5jZSB0aGV5IHdlcmUgaW52b2x2ZWQgYmFjayBhdCB0
-aGUgdGltZS4KPgo+IFRoYW5rcywKPiBUaGllcnJ5Cj4KPiAgZHJpdmVycy9pMmMvaTJjLWNvcmUt
-b2YuYyB8IDExICsrKysrKysrKysrCj4gIDEgZmlsZSBjaGFuZ2VkLCAxMSBpbnNlcnRpb25zKCsp
-Cj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvaTJjLWNvcmUtb2YuYyBiL2RyaXZlcnMvaTJj
-L2kyYy1jb3JlLW9mLmMKPiBpbmRleCA2Y2I3YWQ2MDhiY2QuLjM3ZDM0ODg1ZWEyZCAxMDA2NDQK
-PiAtLS0gYS9kcml2ZXJzL2kyYy9pMmMtY29yZS1vZi5jCj4gKysrIGIvZHJpdmVycy9pMmMvaTJj
-LWNvcmUtb2YuYwo+IEBAIC0xMjEsNiArMTIxLDE0IEBAIHN0YXRpYyBpbnQgb2ZfZGV2X25vZGVf
-bWF0Y2goc3RydWN0IGRldmljZSAqZGV2LCB2b2lkICpkYXRhKQo+ICAJcmV0dXJuIGRldi0+b2Zf
-bm9kZSA9PSBkYXRhOwo+ICB9Cj4gIAo+ICtzdGF0aWMgaW50IG9mX3BhcmVudF9ub2RlX21hdGNo
-KHN0cnVjdCBkZXZpY2UgKmRldiwgdm9pZCAqZGF0YSkKPiArewo+ICsJaWYgKGRldi0+cGFyZW50
-KQo+ICsJCXJldHVybiBkZXYtPnBhcmVudC0+b2Zfbm9kZSA9PSBkYXRhOwo+ICsKPiArCXJldHVy
-biAwOwo+ICt9Cj4gKwo+ICAvKiBtdXN0IGNhbGwgcHV0X2RldmljZSgpIHdoZW4gZG9uZSB3aXRo
-IHJldHVybmVkIGkyY19jbGllbnQgZGV2aWNlICovCj4gIHN0cnVjdCBpMmNfY2xpZW50ICpvZl9m
-aW5kX2kyY19kZXZpY2VfYnlfbm9kZShzdHJ1Y3QgZGV2aWNlX25vZGUgKm5vZGUpCj4gIHsKPiBA
-QCAtMTQ2LDYgKzE1NCw5IEBAIHN0cnVjdCBpMmNfYWRhcHRlciAqb2ZfZmluZF9pMmNfYWRhcHRl
-cl9ieV9ub2RlKHN0cnVjdCBkZXZpY2Vfbm9kZSAqbm9kZSkKPiAgCXN0cnVjdCBpMmNfYWRhcHRl
-ciAqYWRhcHRlcjsKPiAgCj4gIAlkZXYgPSBidXNfZmluZF9kZXZpY2UoJmkyY19idXNfdHlwZSwg
-TlVMTCwgbm9kZSwgb2ZfZGV2X25vZGVfbWF0Y2gpOwo+ICsJaWYgKCFkZXYpCj4gKwkJZGV2ID0g
-YnVzX2ZpbmRfZGV2aWNlKCZpMmNfYnVzX3R5cGUsIE5VTEwsIG5vZGUsIG9mX3BhcmVudF9ub2Rl
-X21hdGNoKTsKPiArCgpXb3VsZG4ndCBiZSBiZXR0ZXIgdG8gbWVyZ2Ugb2ZfZGV2X25vZGVfbWF0
-Y2ggYW5kIG9mX3BhcmVudF9ub2RlX21hdGNowqAKZnVuY3Rpb25zIGFuZCBjYWxsIGJ1c19maW5k
-X2RldmljZSBvbmNlPwpUaGVuIGV4cHJlc3Npb246CgpkZXYtPm9mX25vZGUgPzogZGV2LT5wYXJl
-bnQtPm9mX25vZGUKCndvdWxkIGlkZW50aWZ5IGFkYXB0ZXIgY3JlYXRlZCBmcm9tIERUICh3aXRo
-IGFzc3VtcHRpb24gZGV2wqAgaGFzIGFsd2F5cwpwYXJlbnQpLgpUaGVyZSBhcmUgZmV3IHF1ZXN0
-aW9ucyB0aGVuOgoxLiBJcyB0aGVyZSBhIGNhc2Ugd2hlbiBkZXYtPnBhcmVudCBjYW4gYmUgTlVM
-TD8gSWYgbm90LCBOVUxMIGNoZWNrIGNhbgpiZSBhZGRlZCB0byBhZGFwdGVyIHJlZ2lzdHJhdGlv
-biBhbmQgaXQgY2FuIGJlIHJlbW92ZWQgZnJvbSBoZXJlLgoyLiBJcyB0aGVyZSBhIGNhc2Ugd2hl
-biBkZXYtPm9mX25vZGUgIT0gTlVMTCBhbmQgZGV2LT5vZl9ub2RlICE9CmRldi0+cGFyZW50LT5v
-Zl9ub2RlPyBJZiBub3QsIGp1c3QgZGV2LT5wYXJlbnQtPm9mX25vZGUgY2FuIGJlIHRlc3RlZCBp
-bgptYXRjaCBmdW5jdGlvbi4KClJlZ2FyZHMKQW5kcnplagoKPiAgCWlmICghZGV2KQo+ICAJCXJl
-dHVybiBOVUxMOwo+ICAKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3Rv
-cC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmkt
-ZGV2ZWwK
+On Tue, Oct 02, 2018 at 11:43:46AM +0200, Jean Delvare wrote:
+> On Mon, 26 Feb 2018 14:40:42 +0100, Bartosz Golaszewski wrote:
+> > 2018-02-26 10:20 GMT+01:00 Jean Delvare <jdelvare@suse.de>:
+> > > The EEPROMs which hold the SPD data on DDR4 memory modules are no
+> > > longer standard AT24C02-compatible EEPROMs. They are 512-byte EEPROMs
+> > > which use only 1 I2C address for data access. You need to switch
+> > > between the lower page and the upper page of data by sending commands
+> > > on the SMBus.
+> > >
+> > > Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> > > ---
+> > >  drivers/misc/eeprom/Kconfig  |   11 +
+> > >  drivers/misc/eeprom/Makefile |    1
+> > >  drivers/misc/eeprom/ee1004.c |  281 +++++++++++++++++++++++++++++++++++++++++++
+> > >  3 files changed, 293 insertions(+)
+> > 
+> > is there any reason not to use regmap as is done currently in at24? It
+> > would spare you a lot of code.
+> 
+> As it turns out, I don't have the time to look into this. The driver is
+> not exactly big, it is functional, and I would hate if someone else
+> would duplicate the work just because my driver is not upstream.
+> 
+> So, Greg, can we just get the driver in the kernel tree as is, and if
+> anyone really cares about it using regmap, that person will convert the
+> driver later?
+
+Fine with me, but someone needs to resend it as it is no longer in my
+patch queue at all...
+
+thanks,
+
+greg k-h
