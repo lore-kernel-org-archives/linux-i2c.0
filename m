@@ -1,43 +1,77 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: Re: [PATCH i2c-next v4 2/3] i2c: aspeed: Add 'timeout' DT property
- reading code
-Date: Wed, 3 Oct 2018 10:10:23 -0700
-Message-ID: <9951c217-70c1-81cf-a43d-baf6bb02beb9@linux.intel.com>
-References: <20181001202748.8030-1-jae.hyun.yoo@linux.intel.com>
- <20181001202748.8030-3-jae.hyun.yoo@linux.intel.com>
- <CACPK8XeuFm_GYFhe-KimOHV7y7PBdFjhMGG+QAmfNrfOcb488A@mail.gmail.com>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH v8 05/10] dt-bindings: i3c: Add macros to help fill
+ I3C/I2C device's reg property
+Date: Wed, 03 Oct 2018 11:37:17 -0700
+Message-ID: <c7b929a8c8ebaec7ce0f0e09f803e414e74f986b.camel@perches.com>
+References: <20181003132212.12619-1-boris.brezillon@bootlin.com>
+         <20181003132212.12619-6-boris.brezillon@bootlin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACPK8XeuFm_GYFhe-KimOHV7y7PBdFjhMGG+QAmfNrfOcb488A@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <20181003132212.12619-6-boris.brezillon@bootlin.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joel Stanley <joel@jms.id.au>
-Cc: Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, devicetree <devicetree@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
+To: Boris Brezillon <boris.brezillon@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
+Cc: Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vitor Soares <Vitor.Soares@synopsys.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linus
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Joel,
+On Wed, 2018-10-03 at 15:22 +0200, Boris Brezillon wrote:
+> The reg property of devices connected to an I3C bus have 3 cells, and
+> filling them manually is not trivial. Provides macros to help doing
+> that.
 
-On 10/3/2018 12:49 AM, Joel Stanley wrote:
-> Hello Jae,
-> 
-> On Mon, 1 Oct 2018 at 22:28, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com> wrote:
->> @@ -918,6 +919,11 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
->>                  bus->bus_frequency = 100000;
->>          }
->>
->> +       ret = of_property_read_u32(pdev->dev.of_node, "timeout",
->> +                                  &timeout_ms);
->> +       if (ret)
->> +               timeout_ms = 0; /* then adap.timeout will be set by i2c-core */
-> 
-> Is it possible to implement the parsing of this property in the i2c
-> core instead?
-> 
+This patch logic seems excessively fragile.
 
-Yes, that's possible but I'm not sure that could be acceptable or not.
-Let me try.
+> Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
+> Reviewed-by: Rob Herring <robh@kernel.org>
+> ---
+> Changes in v8:
+> - None
+> 
+> Changes in v5:
+> - none
+> ---
+>  include/dt-bindings/i3c/i3c.h | 28 ++++++++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
+>  create mode 100644 include/dt-bindings/i3c/i3c.h
+> 
+> diff --git a/include/dt-bindings/i3c/i3c.h b/include/dt-bindings/i3c/i3c.h
+> new file mode 100644
+> index 000000000000..97448c546649
+> --- /dev/null
+> +++ b/include/dt-bindings/i3c/i3c.h
+> @@ -0,0 +1,28 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +/*
+> + * Copyright (C) 2017 Cadence Design Systems Inc.
+> + *
+> + * Author: Boris Brezillon <boris.brezillon@bootlin.com>
+> + */
+> +
+> +#ifndef _DT_BINDINGS_I3C_I3C_H
+> +#define _DT_BINDINGS_I3C_I3C_H
+> +
+> +#define IS_I2C_DEV		0x80000000
+> +
+> +#define I2C_DEV(addr, lvr)					\
+> +	(addr) (IS_I2C_DEV | (lvr)) 0x0
 
-Thanks,
-Jae
+This looks to be missing surrounding parentheses.
+
+> +
+> +#define I3C_PID(manufid, partid, instid, extrainfo)		\
+> +	((manufid) << 1)					\
+> +	(((partid) << 16) | ((instid) << 12) | (extrainfo))
+
+This macro doesn't make any sense.  Missing a shift and an or?
+
+> +
+> +#define I3C_DEV_WITH_STATIC_ADDR(addr, manufid, partid,		\
+> +				 instid, extrainfo)		\
+> +	(addr) I3C_PID(manufid, partid, instid, extrainfo)
+> +
+> +#define I3C_DEV(manufid, partid, instid, extrainfo)		\
+> +	I3C_DEV_WITH_STATIC_ADDR(0x0, manufid, partid,		\
+> +				 instid, extrainfo)
+> +
+> +#endif
