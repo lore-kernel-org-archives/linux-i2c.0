@@ -1,38 +1,43 @@
-From: Luca Ceresoli <lucaceresoli77@gmail.com>
-Subject: [PATCH v2 2/3] i2c: mux: ltc4306: simplify code to reach the adapter
-Date: Wed,  3 Oct 2018 17:50:23 +0200
-Message-ID: <20181003155024.16024-2-lucaceresoli77@gmail.com>
-References: <20181003155024.16024-1-lucaceresoli77@gmail.com>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Subject: Re: [PATCH i2c-next v4 2/3] i2c: aspeed: Add 'timeout' DT property
+ reading code
+Date: Wed, 3 Oct 2018 10:10:23 -0700
+Message-ID: <9951c217-70c1-81cf-a43d-baf6bb02beb9@linux.intel.com>
+References: <20181001202748.8030-1-jae.hyun.yoo@linux.intel.com>
+ <20181001202748.8030-3-jae.hyun.yoo@linux.intel.com>
+ <CACPK8XeuFm_GYFhe-KimOHV7y7PBdFjhMGG+QAmfNrfOcb488A@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181003155024.16024-1-lucaceresoli77@gmail.com>
+In-Reply-To: <CACPK8XeuFm_GYFhe-KimOHV7y7PBdFjhMGG+QAmfNrfOcb488A@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Luca Ceresoli <luca@lucaceresoli.net>, Peter Rosin <peda@axentia.se>, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, Michael Hennerich <michael.hennerich@analog.com>
+To: Joel Stanley <joel@jms.id.au>
+Cc: Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, devicetree <devicetree@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Luca Ceresoli <luca@lucaceresoli.net>
+Hi Joel,
 
-struct i2c_client has a direct pointer to the adapter, no need to dig
-it out of the struct device tree.
+On 10/3/2018 12:49 AM, Joel Stanley wrote:
+> Hello Jae,
+> 
+> On Mon, 1 Oct 2018 at 22:28, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com> wrote:
+>> @@ -918,6 +919,11 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
+>>                  bus->bus_frequency = 100000;
+>>          }
+>>
+>> +       ret = of_property_read_u32(pdev->dev.of_node, "timeout",
+>> +                                  &timeout_ms);
+>> +       if (ret)
+>> +               timeout_ms = 0; /* then adap.timeout will be set by i2c-core */
+> 
+> Is it possible to implement the parsing of this property in the i2c
+> core instead?
+> 
 
-Suggested-by: Peter Rosin <peda@axentia.se>
-Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
----
- drivers/i2c/muxes/i2c-mux-ltc4306.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Yes, that's possible but I'm not sure that could be acceptable or not.
+Let me try.
 
-diff --git a/drivers/i2c/muxes/i2c-mux-ltc4306.c b/drivers/i2c/muxes/i2c-mux-ltc4306.c
-index a9af93259b19..83a714605cd6 100644
---- a/drivers/i2c/muxes/i2c-mux-ltc4306.c
-+++ b/drivers/i2c/muxes/i2c-mux-ltc4306.c
-@@ -208,7 +208,7 @@ MODULE_DEVICE_TABLE(of, ltc4306_of_match);
- 
- static int ltc4306_probe(struct i2c_client *client)
- {
--	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
-+	struct i2c_adapter *adap = client->adapter;
- 	const struct chip_desc *chip;
- 	struct i2c_mux_core *muxc;
- 	struct ltc4306 *data;
--- 
-2.17.1
+Thanks,
+Jae
