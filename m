@@ -1,50 +1,51 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH] eeprom: New ee1004 driver for DDR4 memory
-Date: Tue, 2 Oct 2018 15:27:27 -0700
-Message-ID: <20181002222727.GB19204@kroah.com>
-References: <20180226102000.1b76640e@endymion>
- <CAMRc=MernxfN-P29HnLUFzAiX-UiFx32ZYZW_v6_BH9dXnfCfw@mail.gmail.com>
- <20181002114346.4bcf7927@endymion>
+From: Joel Stanley <joel@jms.id.au>
+Subject: Re: [PATCH i2c-next v4 2/3] i2c: aspeed: Add 'timeout' DT property
+ reading code
+Date: Wed, 3 Oct 2018 09:49:41 +0200
+Message-ID: <CACPK8XeuFm_GYFhe-KimOHV7y7PBdFjhMGG+QAmfNrfOcb488A@mail.gmail.com>
+References: <20181001202748.8030-1-jae.hyun.yoo@linux.intel.com> <20181001202748.8030-3-jae.hyun.yoo@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181002114346.4bcf7927@endymion>
+In-Reply-To: <20181001202748.8030-3-jae.hyun.yoo@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Bartosz Golaszewski <brgl@bgdev.pl>, Arnd Bergmann <arnd@arndb.de>, Linux I2C <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Cc: Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, devicetree <devicetree@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, jarkko.nikula@linux.intel.com, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Oct 02, 2018 at 11:43:46AM +0200, Jean Delvare wrote:
-> On Mon, 26 Feb 2018 14:40:42 +0100, Bartosz Golaszewski wrote:
-> > 2018-02-26 10:20 GMT+01:00 Jean Delvare <jdelvare@suse.de>:
-> > > The EEPROMs which hold the SPD data on DDR4 memory modules are no
-> > > longer standard AT24C02-compatible EEPROMs. They are 512-byte EEPROMs
-> > > which use only 1 I2C address for data access. You need to switch
-> > > between the lower page and the upper page of data by sending commands
-> > > on the SMBus.
-> > >
-> > > Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> > > ---
-> > >  drivers/misc/eeprom/Kconfig  |   11 +
-> > >  drivers/misc/eeprom/Makefile |    1
-> > >  drivers/misc/eeprom/ee1004.c |  281 +++++++++++++++++++++++++++++++++++++++++++
-> > >  3 files changed, 293 insertions(+)
-> > 
-> > is there any reason not to use regmap as is done currently in at24? It
-> > would spare you a lot of code.
-> 
-> As it turns out, I don't have the time to look into this. The driver is
-> not exactly big, it is functional, and I would hate if someone else
-> would duplicate the work just because my driver is not upstream.
-> 
-> So, Greg, can we just get the driver in the kernel tree as is, and if
-> anyone really cares about it using regmap, that person will convert the
-> driver later?
+Hello Jae,
 
-Fine with me, but someone needs to resend it as it is no longer in my
-patch queue at all...
+On Mon, 1 Oct 2018 at 22:28, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com> wrote:
+>
+> This commit adds reading code of the 'timeout' DT property to set
+> bus timeout value in adapter configuration. This value still
+> can be configured through an I2C_TIMEOUT ioctl on cdev too.
+>
+> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+> ---
+>  drivers/i2c/busses/i2c-aspeed.c | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+> index 8dc9161ced38..6d31f54a6653 100644
+> --- a/drivers/i2c/busses/i2c-aspeed.c
+> +++ b/drivers/i2c/busses/i2c-aspeed.c
+> @@ -885,6 +885,7 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
+>         struct clk *parent_clk;
+>         struct resource *res;
+>         int irq, ret;
+> +       u32 timeout_ms;
+>
+>         bus = devm_kzalloc(&pdev->dev, sizeof(*bus), GFP_KERNEL);
+>         if (!bus)
+> @@ -918,6 +919,11 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
+>                 bus->bus_frequency = 100000;
+>         }
+>
+> +       ret = of_property_read_u32(pdev->dev.of_node, "timeout",
+> +                                  &timeout_ms);
+> +       if (ret)
+> +               timeout_ms = 0; /* then adap.timeout will be set by i2c-core */
 
-thanks,
-
-greg k-h
+Is it possible to implement the parsing of this property in the i2c
+core instead?
