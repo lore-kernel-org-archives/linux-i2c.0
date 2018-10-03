@@ -1,123 +1,114 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v8 05/10] dt-bindings: i3c: Add macros to help fill
- I3C/I2C device's reg property
-Date: Wed, 3 Oct 2018 21:06:13 +0200
-Message-ID: <20181003210613.27d180c7@bbrezillon>
-References: <20181003132212.12619-1-boris.brezillon@bootlin.com>
-        <20181003132212.12619-6-boris.brezillon@bootlin.com>
-        <c7b929a8c8ebaec7ce0f0e09f803e414e74f986b.camel@perches.com>
-        <20181003205953.426021bb@bbrezillon>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH v2 00/29] at24: remove at24_platform_data
+Date: Wed, 3 Oct 2018 22:15:23 +0200
+Message-ID: <CAMRc=MejZLV1EQ7uAddsxLY0MTUF8WyiBn=F0ZhkWQJpET0EDQ@mail.gmail.com>
+References: <20180810080526.27207-1-brgl@bgdev.pl> <20180831194643.GA62862@ban.mtv.corp.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181003205953.426021bb@bbrezillon>
+In-Reply-To: <20180831194643.GA62862@ban.mtv.corp.google.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>, Rob Herring <robh+dt@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeau>
+To: Brian Norris <computersforpeace@gmail.com>, "David S . Miller" <davem@davemloft.net>
+Cc: Jonathan Corbet <corbet@lwn.net>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Woodhouse <dwmw2@infradead.org>, Boris Brezillon <boris.brezillon@bootlin.com>, Marek Vasut <marek.vasut@gmail.com>, Richard Weinberger <richard@nod.at>, Grygorii Strashko <grygorii.strashko@ti.com>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Naren <naren.kernel@gmail.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Lukas Wunner <lukas@wunner.de>, Dan Carpenter <dan.carpenter@oracle.com>, Florian Fainelli <f.fainelli@gmail.com>, Ivan Khoronzhuk <ivan.khoronzhuk@linaro.o>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 3 Oct 2018 20:59:53 +0200
-Boris Brezillon <boris.brezillon@bootlin.com> wrote:
+pt., 31 sie 2018 o 21:46 Brian Norris <computersforpeace@gmail.com> napisa=
+=C5=82(a):
+>
+> Hi,
+>
+> On Fri, Aug 10, 2018 at 10:04:57AM +0200, Bartosz Golaszewski wrote:
+> > Most boards use the EEPROM to store the MAC address. This series adds
+> > support for cell lookups to the nvmem framework, registers relevant
+> > cells for all users, adds nvmem support to eth_platform_get_mac_address=
+(),
+> > converts davinci_emac driver to using it and replaces at24_platform_dat=
+a
+> > with device properties.
+>
+> We already have:
+>
+> of_get_nvmem_mac_address() (which does exactly what you're adding,
+> except it's DT specific)
+> of_get_mac_address()
+> fwnode_get_mac_address()
+> device_get_mac_address()
+>
+> and now you've taught me that this exists too:
+>
+> eth_platform_get_mac_address()
+>
+> These mostly don't share code, and with your series, they'll start to
+> diverge even more as to what they support. Can you please help rectify
+> that, instead of widening the gap?
+>
+> For instance, you can delete most of eth_platform_get_mac_address() and
+> replace it with device_get_mac_address() [1]. And you could add your new
+> stuff to fwnode_get_mac_address().
+>
+> And important part to note here is that you code isn't just useful for
+> ethernet -- it could be useful for Wifi devices too. So IMO, sticking it
+> only in an "eth" function is the wrong move.
+>
+> Brian
+>
+> [1] arch_get_platform_mac_address() is the only part I wouldn't want to
+> replicate into a truly generic helper. The following should be a no-op
+> refactor, AIUI:
+>
 
-> On Wed, 03 Oct 2018 11:37:17 -0700
-> Joe Perches <joe@perches.com> wrote:
-> 
-> > On Wed, 2018-10-03 at 15:22 +0200, Boris Brezillon wrote:  
-> > > The reg property of devices connected to an I3C bus have 3 cells, and
-> > > filling them manually is not trivial. Provides macros to help doing
-> > > that.    
-> > 
-> > This patch logic seems excessively fragile.  
-> 
-> Keep in mind that this header is meant to be include by .dts(i) files,
-> not regular .c files.
-> 
-> >   
-> > > Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
-> > > Reviewed-by: Rob Herring <robh@kernel.org>
-> > > ---
-> > > Changes in v8:
-> > > - None
-> > > 
-> > > Changes in v5:
-> > > - none
-> > > ---
-> > >  include/dt-bindings/i3c/i3c.h | 28 ++++++++++++++++++++++++++++
-> > >  1 file changed, 28 insertions(+)
-> > >  create mode 100644 include/dt-bindings/i3c/i3c.h
-> > > 
-> > > diff --git a/include/dt-bindings/i3c/i3c.h b/include/dt-bindings/i3c/i3c.h
-> > > new file mode 100644
-> > > index 000000000000..97448c546649
-> > > --- /dev/null
-> > > +++ b/include/dt-bindings/i3c/i3c.h
-> > > @@ -0,0 +1,28 @@
-> > > +/* SPDX-License-Identifier: GPL-2.0 */
-> > > +/*
-> > > + * Copyright (C) 2017 Cadence Design Systems Inc.
-> > > + *
-> > > + * Author: Boris Brezillon <boris.brezillon@bootlin.com>
-> > > + */
-> > > +
-> > > +#ifndef _DT_BINDINGS_I3C_I3C_H
-> > > +#define _DT_BINDINGS_I3C_I3C_H
-> > > +
-> > > +#define IS_I2C_DEV		0x80000000
-> > > +
-> > > +#define I2C_DEV(addr, lvr)					\
-> > > +	(addr) (IS_I2C_DEV | (lvr)) 0x0    
-> > 
-> > This looks to be missing surrounding parentheses.  
-> 
-> Actually it's not. The macro is supposed to declare 3 u32 integers each
-> of them separated by a space:
-> 
-> 	reg = <I2C_DEV(0x34, 0x1)>;
-> 
-> is translated into
-> 
-> 	reg = <0x34 0x80000001 0x0>;
-> 
-> >   
-> > > +
-> > > +#define I3C_PID(manufid, partid, instid, extrainfo)		\
-> > > +	((manufid) << 1)					\
-> > > +	(((partid) << 16) | ((instid) << 12) | (extrainfo))    
-> > 
-> > This macro doesn't make any sense.  Missing a shift and an or?  
-> 
-> Same here, the PID is taking 2 32-bit entries.
-> 
-> Now, I agree that this is far from obvious, and if Rob is okay, I'd
-> like to propose a different binding to avoid having to define these
-> macros:
-> 
-> 	reg = <i2c_addr_or_i3c_static_addr pid_msb pid_lsb>;
-> 
-> If pid_msb and pid_lsb are 0, then the node is defining an I2C device
+The only user of arch_get_platform_mac_address() is sparc. It returns
+an address that seems to be read from some kind of EEPROM. I'm not
+familiar with this arch though. I'm wondering if we could somehow
+seamlessly remove this call and then convert all users of
+eth_platform_get_mac_address() to using device_get_mac_address()?
 
-Actually, I meant pid_msb == 0. This part of the PID is encoding the
-manufacturer, and I don't think 0 is a valid manufacturer (I hope it's
-not). So, we'd have something like:
+David: I couldn't find a place in sparc code where any ethernet device
+would be registered, so is there a chance that nobody is using it?
 
-	reg = <i2c_addr_or_i3c_static_addr pid_msb pid_lsb_or_i2c_lvr>;
+Best regards,
+Bartosz Golaszewski
 
-> (AFAICT, 0 is not a valid PID), otherwise it's an I3C device. This way
-> we get rid of the IS_I2C_DEV flag, and we can get rid of those macros
-> without making I3C dev node definition too painful (the only part
-> developers will have to get right is the PID) 
-> 
-> >   
-> > > +
-> > > +#define I3C_DEV_WITH_STATIC_ADDR(addr, manufid, partid,		\
-> > > +				 instid, extrainfo)		\
-> > > +	(addr) I3C_PID(manufid, partid, instid, extrainfo)
-> > > +
-> > > +#define I3C_DEV(manufid, partid, instid, extrainfo)		\
-> > > +	I3C_DEV_WITH_STATIC_ADDR(0x0, manufid, partid,		\
-> > > +				 instid, extrainfo)
-> > > +
-> > > +#endif    
-> >   
-> 
+> diff --git a/net/ethernet/eth.c b/net/ethernet/eth.c
+> index ee28440f57c5..b738651f71e1 100644
+> --- a/net/ethernet/eth.c
+> +++ b/net/ethernet/eth.c
+> @@ -47,12 +47,12 @@
+>  #include <linux/inet.h>
+>  #include <linux/ip.h>
+>  #include <linux/netdevice.h>
+> +#include <linux/property.h>
+>  #include <linux/etherdevice.h>
+>  #include <linux/skbuff.h>
+>  #include <linux/errno.h>
+>  #include <linux/init.h>
+>  #include <linux/if_ether.h>
+> -#include <linux/of_net.h>
+>  #include <linux/pci.h>
+>  #include <net/dst.h>
+>  #include <net/arp.h>
+> @@ -528,19 +528,11 @@ unsigned char * __weak arch_get_platform_mac_addres=
+s(void)
+>  int eth_platform_get_mac_address(struct device *dev, u8 *mac_addr)
+>  {
+>         const unsigned char *addr;
+> -       struct device_node *dp;
+>
+> -       if (dev_is_pci(dev))
+> -               dp =3D pci_device_to_OF_node(to_pci_dev(dev));
+> -       else
+> -               dp =3D dev->of_node;
+> -
+> -       addr =3D NULL;
+> -       if (dp)
+> -               addr =3D of_get_mac_address(dp);
+> -       if (!addr)
+> -               addr =3D arch_get_platform_mac_address();
+> +       if (device_get_mac_address(dev, mac_addr, ETH_ALEN))
+> +               return 0;
+>
+> +       addr =3D arch_get_platform_mac_address();
+>         if (!addr)
+>                 return -ENODEV;
+>
