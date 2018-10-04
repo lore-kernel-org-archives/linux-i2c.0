@@ -1,7 +1,7 @@
 From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: [PATCH i2c-next v6 1/5] dt-bindings: i2c: Add 'timeout-ms' and '#retries' properties as common optional
-Date: Thu,  4 Oct 2018 13:43:18 -0700
-Message-ID: <20181004204322.20665-2-jae.hyun.yoo@linux.intel.com>
+Subject: [PATCH i2c-next v6 3/5] dt-bindings: i2c: aspeed: Add 'timeout-ms' property as an optional property
+Date: Thu,  4 Oct 2018 13:43:20 -0700
+Message-ID: <20181004204322.20665-4-jae.hyun.yoo@linux.intel.com>
 References: <20181004204322.20665-1-jae.hyun.yoo@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,39 +12,30 @@ To: Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de
 Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This commit adds 'timeout-ms' and '#retries' properties as common
-optional properties that can be used for setting 'timeout' and
-'retries' values of 'struct i2c_adapter'. With this patch, the bus
-timeout value and the master transfer retries count can be set
-through these properties at the registration time of an adapter.
-Still the values can be set by I2C_TIMEOUT and I2C_RETRIES ioctls
-on cdev at runtime too.
-
-These properties may not be supported by all drivers. However, if
-a driver wants to support one of them, it should adapt the
-bindings in this document.
+This commit adds 'timeout-ms' property as an optional property
+which can be used for setting the bus timeout value of an adapter.
+With this patch, the bus timeout value can be set through this
+property at the probing time of this module. Still the bus timeout
+value can be set by an I2C_TIMEOUT ioctl on cdev at runtime too.
 
 Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c.txt | 6 ++++++
- 1 file changed, 6 insertions(+)
+ Documentation/devicetree/bindings/i2c/i2c-aspeed.txt | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
-index 11263982470e..6d7a6e919cf8 100644
---- a/Documentation/devicetree/bindings/i2c/i2c.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c.txt
-@@ -80,6 +80,12 @@ wants to support one of the below features, it should adapt the bindings below.
- 	Names of map programmable addresses.
- 	It can contain any map needing another address than default one.
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+index 8fbd8633a387..af9be200383c 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+@@ -17,6 +17,9 @@ Optional Properties:
+ 		  specified
+ - multi-master	: states that there is another master active on this bus.
  
-+- timeout-ms
-+	Bus timeout in milliseconds.
++- timeout-ms	: bus timeout in milliseconds defaults to 1 second when not
++		  specified.
 +
-+- #retries
-+	Number of retries for master transfer.
-+
- Binding may contain optional "interrupts" property, describing interrupts
- used by the device. I2C core will assign "irq" interrupt (or the very first
- interrupt if not using interrupt names) as primary interrupt for the slave.
+ Example:
+ 
+ i2c {
 -- 
 2.19.0
