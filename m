@@ -1,130 +1,61 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: [PATCH i2c-next v6 5/5] i2c: aspeed: Add bus idle waiting logic for multi-master use cases
-Date: Thu,  4 Oct 2018 13:43:22 -0700
-Message-ID: <20181004204322.20665-6-jae.hyun.yoo@linux.intel.com>
-References: <20181004204322.20665-1-jae.hyun.yoo@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: designware: Call i2c_dw_clk_rate() only when
+ calculating timings
+Date: Fri, 5 Oct 2018 13:41:27 +0200
+Message-ID: <20181005114127.GA5433@kunai>
+References: <20181001114905.13766-1-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181004204322.20665-1-jae.hyun.yoo@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20181001114905.13766-1-jarkko.nikula@linux.intel.com>
+Sender: stable-owner@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-In multi-master environment, this driver's master cannot know
-exactly when peer master sends data to this driver's slave so a
-case can be happened that this master tries to send data through
-the master_xfer function but slave data from peer master is still
-being processed by this driver.
 
-To prevent any state corruption in the case, this patch adds
-checking code if any slave operation is ongoing and it waits up to
-the bus timeout duration before starting a master_xfer operation.
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
----
- drivers/i2c/busses/i2c-aspeed.c | 53 +++++++++++++++++++++++----------
- 1 file changed, 38 insertions(+), 15 deletions(-)
+On Mon, Oct 01, 2018 at 02:49:05PM +0300, Jarkko Nikula wrote:
+> There are platforms which don't provide input clock rate but provide
+> I2C timing parameters. Commit 3bd4f277274b ("i2c: designware: Call
+> i2c_dw_clk_rate() only once in i2c_dw_init_master()") causes needless
+> warning during probe on those platforms since i2c_dw_clk_rate(), which
+> causes the warning when input clock is unknown, is called even when
+> there is no need to calculate timing parameters.
+>=20
+> Fixes: 3bd4f277274b ("i2c: designware: Call i2c_dw_clk_rate() only once i=
+n i2c_dw_init_master()")
+> Reported-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+> Cc: <stable@vger.kernel.org> # 4.19
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index 833b6b6a4c7e..8d60d7e5b323 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -12,6 +12,7 @@
- 
- #include <linux/clk.h>
- #include <linux/completion.h>
-+#include <linux/delay.h>
- #include <linux/err.h>
- #include <linux/errno.h>
- #include <linux/i2c.h>
-@@ -115,6 +116,9 @@
- /* 0x18 : I2CD Slave Device Address Register   */
- #define ASPEED_I2CD_DEV_ADDR_MASK			GENMASK(6, 0)
- 
-+/* Busy checking */
-+#define ASPEED_I2C_BUS_BUSY_CHECK_INTERVAL_US		(10 * 1000)
-+
- enum aspeed_i2c_master_state {
- 	ASPEED_I2C_MASTER_INACTIVE,
- 	ASPEED_I2C_MASTER_START,
-@@ -156,6 +160,8 @@ struct aspeed_i2c_bus {
- 	int				cmd_err;
- 	/* Protected only by i2c_lock_bus */
- 	int				master_xfer_result;
-+	/* Multi-master */
-+	bool				multi_master;
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- 	struct i2c_client		*slave;
- 	enum aspeed_i2c_slave_state	slave_state;
-@@ -596,27 +602,42 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
- 	return irq_remaining ? IRQ_NONE : IRQ_HANDLED;
- }
- 
-+static int aspeed_i2c_check_bus_busy(struct aspeed_i2c_bus *bus)
-+{
-+	ktime_t timeout;
-+
-+	if (bus->multi_master) {
-+		might_sleep();
-+		timeout = ktime_add_ms(ktime_get(),
-+				       jiffies_to_msecs(bus->adap.timeout));
-+	}
-+
-+	for (;;) {
-+		if (!(readl(bus->base + ASPEED_I2C_CMD_REG) &
-+		      ASPEED_I2CD_BUS_BUSY_STS) &&
-+		    bus->slave_state == ASPEED_I2C_SLAVE_STOP)
-+			return 0;
-+		if (!bus->multi_master)
-+			break;
-+		if (ktime_compare(ktime_get(), timeout) > 0)
-+			break;
-+		usleep_range((ASPEED_I2C_BUS_BUSY_CHECK_INTERVAL_US >> 2) + 1,
-+			     ASPEED_I2C_BUS_BUSY_CHECK_INTERVAL_US);
-+	}
-+
-+	return aspeed_i2c_recover_bus(bus);
-+}
-+
- static int aspeed_i2c_master_xfer(struct i2c_adapter *adap,
- 				  struct i2c_msg *msgs, int num)
- {
- 	struct aspeed_i2c_bus *bus = i2c_get_adapdata(adap);
- 	unsigned long time_left, flags;
--	int ret = 0;
- 
--	spin_lock_irqsave(&bus->lock, flags);
--	bus->cmd_err = 0;
--
--	/* If bus is busy, attempt recovery. We assume a single master
--	 * environment.
--	 */
--	if (readl(bus->base + ASPEED_I2C_CMD_REG) & ASPEED_I2CD_BUS_BUSY_STS) {
--		spin_unlock_irqrestore(&bus->lock, flags);
--		ret = aspeed_i2c_recover_bus(bus);
--		if (ret)
--			return ret;
--		spin_lock_irqsave(&bus->lock, flags);
--	}
-+	if (aspeed_i2c_check_bus_busy(bus))
-+		return -EAGAIN;
- 
-+	spin_lock_irqsave(&bus->lock, flags);
- 	bus->cmd_err = 0;
- 	bus->msgs = msgs;
- 	bus->msgs_index = 0;
-@@ -827,7 +848,9 @@ static int aspeed_i2c_init(struct aspeed_i2c_bus *bus,
- 	if (ret < 0)
- 		return ret;
- 
--	if (!of_property_read_bool(pdev->dev.of_node, "multi-master"))
-+	if (of_property_read_bool(pdev->dev.of_node, "multi-master"))
-+		bus->multi_master = true;
-+	else
- 		fun_ctrl_reg |= ASPEED_I2CD_MULTI_MASTER_DIS;
- 
- 	/* Enable Master Mode */
--- 
-2.19.0
+Applied to for-current, thanks!
+
+
+--/04w6evG8XlLl3ft
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlu3TeMACgkQFA3kzBSg
+Kbb6gQ/+OgoQZpeJohRjQLD7j5u/23/sWJIeggO/bToa+Lgm+RLlNhLfLOyr1X0P
+PIqdv0aLVJ4f8EOOkEwxrSEyv3K7AIdbC5gdH4UltJeKnrvz+220y9kB69+WNTpr
+T7F3SYFiQ9iaNmZ1g11qr8iNwLKdvHSTjL7zB1MgQkh33dr1pXtHYb/xHQzIa7em
+1tppQ+q0cDqtgYxk8o/9rTn/Vh2BMfFV9X5x9vSIxxyAeqL8cLn2X2KNFNNH6lo5
+b0YzUik3lZvKl4RO9x98Hwmuvn3p6N7mAlkRnaDNd9ejHA4V4MHL8bKPPwEzZEkN
+h4U0BhrXDlNKhpRhJY1WwXgxj2YbScQZmaOF1sJsp+5Uq+EveWh5mLALZq5u1pKU
+bPPjFEoldTIzTHplU3atHtPYg2+YUvYNSELX5oBvNtB8r+dTZx8fzisZEsqafkIT
+xZEG4QT4eRC55RvBlcVVxoyFSPEF1+GTNwhZ2OI3Vzhvz0d+siJWMNZYCOwtP87q
+/joKYlVep5XU5NTLewou0f9dCZ2WzHt0Q06nK55nw5GO/TOQoOg85YSM7vI86zwZ
+CIWeoAuZAQ+bbt/QRPdTiaXKxexrLp1WMKI9KUI3nz1iBVl/OD4GuT7TnnEXnG5w
+9wyxaxNAimiJAaUiYx1SvqkbhO6MFIgbuA7ftJgo/71sAMmwICE=
+=dv+k
+-----END PGP SIGNATURE-----
+
+--/04w6evG8XlLl3ft--
