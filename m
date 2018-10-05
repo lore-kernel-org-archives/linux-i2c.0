@@ -1,59 +1,58 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: core: squelch error: uninitialized symbol 'ret'
-Date: Fri, 5 Oct 2018 19:43:01 +0200
-Message-ID: <20181005174301.GA964@kunai>
-References: <20181005161826.2455-1-george_davis@mentor.com>
- <20181005162841.wy4uyespwcvffkpc@ninjato>
- <20181005164520.GA2617@gandalf.middle.earth.net>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH i2c-next v6 1/5] dt-bindings: i2c: Add 'timeout-ms' and
+ '#retries' properties as common optional
+Date: Fri, 5 Oct 2018 15:39:30 -0500
+Message-ID: <20181005203930.GA12987@bogus>
+References: <20181004204322.20665-1-jae.hyun.yoo@linux.intel.com>
+ <20181004204322.20665-2-jae.hyun.yoo@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181005164520.GA2617@gandalf.middle.earth.net>
+In-Reply-To: <20181004204322.20665-2-jae.hyun.yoo@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "George G. Davis" <ggdavisiv@gmail.com>
-Cc: "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, "George G. Davis" <george_davis@mentor.com>
+To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Cc: Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Oct 04, 2018 at 01:43:18PM -0700, Jae Hyun Yoo wrote:
+> This commit adds 'timeout-ms' and '#retries' properties as common
+> optional properties that can be used for setting 'timeout' and
+> 'retries' values of 'struct i2c_adapter'. With this patch, the bus
+> timeout value and the master transfer retries count can be set
+> through these properties at the registration time of an adapter.
+> Still the values can be set by I2C_TIMEOUT and I2C_RETRIES ioctls
+> on cdev at runtime too.
+> 
+> These properties may not be supported by all drivers. However, if
+> a driver wants to support one of them, it should adapt the
+> bindings in this document.
+> 
+> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c.txt | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+> index 11263982470e..6d7a6e919cf8 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+> @@ -80,6 +80,12 @@ wants to support one of the below features, it should adapt the bindings below.
+>  	Names of map programmable addresses.
+>  	It can contain any map needing another address than default one.
+>  
+> +- timeout-ms
 
---DocE+STaALJfprDB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+bus-timeout-ms in case we have some other timeout needed.
 
-
-> Feel free to ignore if this is a topic already discussed in other
-> threads. To be honest, I did not search the mailing list to determine if
-> this particular issue was already discussed. =20
-
-Not this particular issue, but in general we usually don't change
-working code to silence false positives in code checkers.
-
-But thanks for letting me know this is a false positive!
-
-BTW next time CC Dan Carpenter, he might be interested to fix the issue
-in smatch.
-
-
---DocE+STaALJfprDB
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlu3oqEACgkQFA3kzBSg
-KbY3Og/+N68VQHFdCT2SuhsrVWXy6C0KkdkFSJQ/0iE7E0+5e0bMbiRsu8KPtEIn
-PCjKqwmvEAByJFtnlR6BkiVK55LoO3nQHLZO4z/qjdxaia1q6repELIFq10fWnj2
-hYXcph6PW5k5TM3cKLSs1agV6EX/No1ps6Z3bLES62EBIwYCpkSh7JJfbDopTTFY
-I//iyjH+TO+Xkw8Mr9mMaKN75cW5VdvsGq8mML60ATCwTX/+pPlmz8C2Xim0WQJW
-vF2jjA2rqdIzC/fFKeDmXfVnglB42rZyLvritg6IdQhp7Gau2XF5kvQrBGGA83HJ
-7o/RD5IKBTaTEXdx7IlIpUhGhqoIhWZj9KCYtgnorixzUXiQxex0g7Uxer8IPtnF
-ZHq7LyzhNZgao0ZAAFlu39QMki/AEQsD8RpsEleoq4fjAq60L/H9v+KO1r2misnZ
-a/HL8H1CRzzj9x5kPADCLqjBa9yOFla38qdwmwO0heUXh5A8FqKdJtlA2vy3VQ5k
-iME8w4J9i7buJhV4vv8BmP8v8Dmh+F3ioa/jOmckjvuE16C1yt+Y4odi4TM6h/y6
-IKbvjT2YptycCAyVHJvwyro9Gm0fHojt9wWKFK6ETmRgdnI4noOaxbtT2vxS4MiF
-9n79u5K6A8jtUCrKZul3z0Fa2UTaG3aDNyhXcjHEUvWH9LLis1w=
-=NpSr
------END PGP SIGNATURE-----
-
---DocE+STaALJfprDB--
+> +	Bus timeout in milliseconds.
+> +
+> +- #retries
+> +	Number of retries for master transfer.
+> +
+>  Binding may contain optional "interrupts" property, describing interrupts
+>  used by the device. I2C core will assign "irq" interrupt (or the very first
+>  interrupt if not using interrupt names) as primary interrupt for the slave.
+> -- 
+> 2.19.0
+> 
