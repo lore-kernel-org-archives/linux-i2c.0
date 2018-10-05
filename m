@@ -1,28 +1,28 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 09/12] i2c: zx2967: use core to detect 'no zero length'
+Subject: Re: [PATCH 08/12] i2c: tegra: use core to detect 'no zero length'
  quirk
-Date: Fri, 5 Oct 2018 18:08:08 +0200
-Message-ID: <20181005160807.zq2kyfggeksbalf2@ninjato>
+Date: Fri, 5 Oct 2018 18:08:18 +0200
+Message-ID: <20181005160818.ta2ngy4av7mwpakv@ninjato>
 References: <20180723202617.15230-1-wsa+renesas@sang-engineering.com>
- <20180723202617.15230-10-wsa+renesas@sang-engineering.com>
+ <20180723202617.15230-9-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rfpvimj7pxg33722"
+        protocol="application/pgp-signature"; boundary="j75xnhkbcuolmljp"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180723202617.15230-10-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20180723202617.15230-9-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Jun Nie <jun.nie@linaro.org>, Baoyou Xie <baoyou.xie@linaro.org>, Shawn Guo <shawnguo@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---rfpvimj7pxg33722
+--j75xnhkbcuolmljp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 23, 2018 at 10:26:13PM +0200, Wolfram Sang wrote:
+On Mon, Jul 23, 2018 at 10:26:12PM +0200, Wolfram Sang wrote:
 > And don't reimplement in the driver.
 >=20
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
@@ -30,24 +30,24 @@ On Mon, Jul 23, 2018 at 10:26:13PM +0200, Wolfram Sang wrote:
 Applied to for-next, thanks!
 
 
---rfpvimj7pxg33722
+--j75xnhkbcuolmljp
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlu3jGcACgkQFA3kzBSg
-KbbR4w//cpkcbNMbmv0DOiZRjAHX/HpmmF4E0rxmRFiX24rEvZrDxuh1M8ChlvE4
-54fi6tf8X2qtKqybqbIcuoQlSNHjCV8eZLQBkl7umKUgCPSicmlxk44Bd1XzXqvf
-DzZMzZSrexSN94SUYFlvqT7bK14fab460kaNl0pp3QCaQhtiNEi38xkTAdXWyO2R
-aR1Jxw44E7jDGPNg49r+TjuDxU3Ju07WfVbXuRJ2T5SATuMNQKIDI5YnpyGi8XAq
-SWZIRf8m5M4HUVa08JK3BQk5aSID9ADVXh3AwqN6FueRjaG7RF+ItiTNZ8JyvZff
-ob6z/B7WZH33eHhuOm+cDMOiFjqtiqwrWhH10bfgGCCDEgVP8QKJTwLJvybmOxqx
-sAChXiEWpDqOMpMQUynXbiBL9LDOX6AtL49U0c5eMvjTa8apF+AKXCTtYsZVynDG
-T19rm2qEgpZqHx2CS7a0tWKSIP8OOhKuFEk9vsT0i0ZJJ2m4wwYFSt2rA0eNKr8v
-/83n7jrCNvFu5Kg/avAipStx8RpcxwUYwueQ8gRELc9kx0XxJyaAyytYhgCir+jf
-Td7VvtD8TBp4A6YSULHZf36cFNQkXcymHpxJmqI3dCn6Tjy831+4cV3FB2iPPW0V
-qY6CUZahWGwzeZ8Wm2hdr4dQM0W/C4a4ASLJzvs1RRzZXtW9IY0=
-=qAhN
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlu3jHIACgkQFA3kzBSg
+KbZCShAAnKs4K41P5qCG0kGY1iFAOtC3xA1ZPUDjfkva0GCFDLdc96AxOo0oRiLQ
+wUsBnK+uQ5kzbfXyY+htm3/jlEU0rj+eRGJBuvdSVaEgKHDFoef4yjK0VYnv3BMP
+qAEN8UqKIV8tTKEN0EIPqpSw5TX/n2TVkLORsNVkGg7PaWJtANYTLQWFx6IySZsW
+KAMq868YBtjXn9ZayCKwrT0YFrVmG4L2TpgGtyYyyEjOT2MxVL57MXKtzh24ZQ0B
+rwVKCOgUXEAww87fvaXc9H9ex9fvtxRNwAzpxWPnoZbxoqZhuCccrvxvuOGEWAFW
+MekUtwytiSkvxNLyc09o5RtKzZmFxTKOzpa1Tmg9zgSMWEWmiZHUBkP8h2uQsi7V
+XANzc4hrBu5Qp/qdZJCaUlP/O1HVR8pWwL7R6YYoWrn2fOZIbAEq3qtJB+/iBigS
+5n4naNC2Op5KT6/1v7N7CwkRJHmn1i64ZVEAp6MrBNS39dDTEVmyq4pyiRlbR7/v
+yBlU2gFg1ZHvclBn5xgP1vWU+UDmgvyQbUwMF3vBmKuRCeYxbqIo6V698SGFsnTN
+2B8dU30RfHdMLp2x/HoMRJipZxeubAHpz+RpLAB7akzbhSpso8yiQulYroQzacG5
+UDf1nxO1CjuX57BBv3ujUsCWkOZoZCrLzPuFgaekZciPfhfmr0g=
+=mJp1
 -----END PGP SIGNATURE-----
 
---rfpvimj7pxg33722--
+--j75xnhkbcuolmljp--
