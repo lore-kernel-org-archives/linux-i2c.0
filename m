@@ -1,59 +1,53 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: Convert to using %pOFn instead of
- device_node.name
-Date: Fri, 5 Oct 2018 14:15:19 +0200
-Message-ID: <20181005121519.GF5433@kunai>
-References: <20180928224947.19058-1-robh@kernel.org>
+Subject: Re: [PATCH 04/12] i2c: omap: use core to detect 'no zero length'
+ quirk
+Date: Fri, 5 Oct 2018 14:24:09 +0200
+Message-ID: <20181005122409.GH5433@kunai>
+References: <20180723202617.15230-1-wsa+renesas@sang-engineering.com>
+ <20180723202617.15230-5-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="/aVve/J9H4Wl5yVO"
+        protocol="application/pgp-signature"; boundary="Bg2esWel0ueIH/G/"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180928224947.19058-1-robh@kernel.org>
+In-Reply-To: <20180723202617.15230-5-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---/aVve/J9H4Wl5yVO
+--Bg2esWel0ueIH/G/
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 28, 2018 at 05:49:47PM -0500, Rob Herring wrote:
-> In preparation to remove the node name pointer from struct device_node,
-> convert printf users to use the %pOFn format specifier.
+On Mon, Jul 23, 2018 at 10:26:08PM +0200, Wolfram Sang wrote:
+> And don't reimplement in the driver.
 >=20
-> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-> Cc: Paul Mackerras <paulus@samba.org>
-> Cc: Michael Ellerman <mpe@ellerman.id.au>
-> Cc: Peter Rosin <peda@axentia.se>
-> Cc: linux-i2c@vger.kernel.org
-> Cc: linuxppc-dev@lists.ozlabs.org
-> Signed-off-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Applied to for-next (with Peter's tag from v1), thanks!
+Ping.
 
 
---/aVve/J9H4Wl5yVO
+--Bg2esWel0ueIH/G/
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlu3Vc8ACgkQFA3kzBSg
-KbZbGA//TSsle8Y0hbsCLheqkV1zbEMBpC5F5/eaqcwxg20jF/6pD+9q5L2xPbCW
-PcaAC9SB5ftn/C9gJKk6wB5jKxoDU57rczj0csUN/tb0b066FkJVqx08vPQtNbXZ
-X9fr/rhwr/K88d384wFxailAR41r88BmIJoaNYmcbUcsBBYQC3USOQKmzd0lup+i
-1MeKAanXqQnCeEXJkf3in1u/dLEI+yI1e6/EEzo/glFw1l8tBFQJ4D6/VAnSX2He
-SfL4LRkJkw06PKRWuRMvox2nNuT6rUVqa81qlNLhrrfE/VzRAM9I5U6l5LbgZYdg
-LSzLPQNOyuLBkdxsxNjpoEV4HHvtM4ultHy+SBQzevJ9BsiZ78FyxugB4hg+1hxf
-qHlHAT1gCvzNfvGHPekYbP7c0iDa2N9JlznW5oNmT4tNt/gNAUGJr6rr64FO2rVI
-DIaYKIScjKAMAIixr3fIDr5sxmaxb8ewdva9Jro23QnNUjOAuVSwzmlZBa16Nn48
-t02PycWUlhXp4y3KFXVdPHZjXpcQCf2UaF6nkVXuZ9U9KRRo8C9mc/Q96XErM7vl
-oFxuZpWaiBXTWQzp3lER7aFY5AI91MxdlkcPVklq/9J5W/HXuJBSe+sOUi5DxH6d
-74p4Ki5FzP7HguGw+x5EcuIvKUPkr3RvBI5DNIOh7SVMuBhUvN4=
-=tLIh
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlu3V+kACgkQFA3kzBSg
+KbYnDg/+Liwiu1pXEl0lzisDoU6OD/RdtfHGufCJOMjMfYgDXp3/tRgSSyfXHUpc
+3sRdLsqcG1r6YX79ItTMt9a2DN+TxWgGsiROIsHasWhddcHfPAianibo3uqJQeNd
+8WojGRtiplYVDJbiLUUHfG2z4te0xhh/ryXadY738/PQEmTsaYjbLwHC2ii5dcK3
+yO14ZY4lXPqXqNwl4A5BPxDE+urMuoTVCyS/fL0Uay+YSXJxSCWYBwArNw5/glpG
+lL0d4Rl0Yfq5DZp01iA9OwkOriNfUbp1v+s9QhPzwHCsVChcfj+R1P8PFkd0kKZk
+Sb7VCvZBw9zJQL/ABXGzWrixR58LhKQHJIl3jbE5Lo/pX9B77H/+ZM16BcG401RG
+JC+lCueVHPR2UTCQ1X5CllVlLSJSGPpj1pGbWW/1zmqkit7U9OiUGMA0glle0dvh
+hCI311WhgSoyogLYokNvtFN/u4LRNi6B8PSBXo3j8XweqU+caAFG59M8nZgH6oDQ
+8DvxH2c0mXFK3fT/VtBBO4D9LDFLniSryzbNkQVs9/5ofhP9RHbLtpZmaBAUoeCv
+nfJWa2PPgtZnnr826/ZZ9stEoUZq1Iy0Lr+mTulEd6t2qD3vEGS3agvhu9Z/mFQK
+DWFhGPTE1R5hqRItWDiPJfci4RMz+yBBP7bizl8mbR5HTeBppgo=
+=2cYe
 -----END PGP SIGNATURE-----
 
---/aVve/J9H4Wl5yVO--
+--Bg2esWel0ueIH/G/--
