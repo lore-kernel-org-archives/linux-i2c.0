@@ -1,61 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: designware: Call i2c_dw_clk_rate() only when
- calculating timings
-Date: Fri, 5 Oct 2018 13:41:27 +0200
-Message-ID: <20181005114127.GA5433@kunai>
-References: <20181001114905.13766-1-jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v2 1/3] i2c: mux: pca954x: simplify code to reach the
+ adapter
+Date: Fri, 5 Oct 2018 13:43:36 +0200
+Message-ID: <20181005114336.GB5433@kunai>
+References: <20181003155024.16024-1-lucaceresoli77@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
-Return-path: <stable-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="1UWUbFP1cBYEclgG"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181001114905.13766-1-jarkko.nikula@linux.intel.com>
-Sender: stable-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, stable@vger.kernel.org
+In-Reply-To: <20181003155024.16024-1-lucaceresoli77@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Luca Ceresoli <lucaceresoli77@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Luca Ceresoli <luca@lucaceresoli.net>, Peter Rosin <peda@axentia.se>, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, Michael Hennerich <michael.hennerich@analog.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---/04w6evG8XlLl3ft
+--1UWUbFP1cBYEclgG
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 01, 2018 at 02:49:05PM +0300, Jarkko Nikula wrote:
-> There are platforms which don't provide input clock rate but provide
-> I2C timing parameters. Commit 3bd4f277274b ("i2c: designware: Call
-> i2c_dw_clk_rate() only once in i2c_dw_init_master()") causes needless
-> warning during probe on those platforms since i2c_dw_clk_rate(), which
-> causes the warning when input clock is unknown, is called even when
-> there is no need to calculate timing parameters.
+On Wed, Oct 03, 2018 at 05:50:22PM +0200, Luca Ceresoli wrote:
+> From: Luca Ceresoli <luca@lucaceresoli.net>
 >=20
-> Fixes: 3bd4f277274b ("i2c: designware: Call i2c_dw_clk_rate() only once i=
-n i2c_dw_init_master()")
-> Reported-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> Cc: <stable@vger.kernel.org> # 4.19
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> struct i2c_client has a direct pointer to the adapter, no need to dig
+> it out of the struct device tree.
+>=20
+> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 
-Applied to for-current, thanks!
+I like such cleanups!
+
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
 
 
---/04w6evG8XlLl3ft
+--1UWUbFP1cBYEclgG
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlu3TeMACgkQFA3kzBSg
-Kbb6gQ/+OgoQZpeJohRjQLD7j5u/23/sWJIeggO/bToa+Lgm+RLlNhLfLOyr1X0P
-PIqdv0aLVJ4f8EOOkEwxrSEyv3K7AIdbC5gdH4UltJeKnrvz+220y9kB69+WNTpr
-T7F3SYFiQ9iaNmZ1g11qr8iNwLKdvHSTjL7zB1MgQkh33dr1pXtHYb/xHQzIa7em
-1tppQ+q0cDqtgYxk8o/9rTn/Vh2BMfFV9X5x9vSIxxyAeqL8cLn2X2KNFNNH6lo5
-b0YzUik3lZvKl4RO9x98Hwmuvn3p6N7mAlkRnaDNd9ejHA4V4MHL8bKPPwEzZEkN
-h4U0BhrXDlNKhpRhJY1WwXgxj2YbScQZmaOF1sJsp+5Uq+EveWh5mLALZq5u1pKU
-bPPjFEoldTIzTHplU3atHtPYg2+YUvYNSELX5oBvNtB8r+dTZx8fzisZEsqafkIT
-xZEG4QT4eRC55RvBlcVVxoyFSPEF1+GTNwhZ2OI3Vzhvz0d+siJWMNZYCOwtP87q
-/joKYlVep5XU5NTLewou0f9dCZ2WzHt0Q06nK55nw5GO/TOQoOg85YSM7vI86zwZ
-CIWeoAuZAQ+bbt/QRPdTiaXKxexrLp1WMKI9KUI3nz1iBVl/OD4GuT7TnnEXnG5w
-9wyxaxNAimiJAaUiYx1SvqkbhO6MFIgbuA7ftJgo/71sAMmwICE=
-=dv+k
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlu3TmgACgkQFA3kzBSg
+KbY/wxAAn7G7Vdc1KEByMKk9/3TAiEhJTn3MfACEsR6i42Jt/y1GspZ45xyn//2T
+GZRFv+Ci9qNXh+t08KASjiS9N85/72l3zOhBqSQcmJN5zDtdTtES2rbvsK1HOTAU
+ukEygzgofLPd+O0+26L8nBq1QRhmPhe+wYOArw/56/gTH1RUGEr+FY2J9SZBfqoT
+G2+RnFszAYhC2A5BubZm8BN01Sim6fHI0CAye6CWYBDypr8q6FoSEfvmmTvjgDTC
+u2smf6Q2ZMOHGC9GsZIRMaAahLFW5VkJwTDdA8QY62FaM7XAc6QRzQGmEDbJ46Ig
+vWPUekCx703gOXPDNGUb+AAXKRaT9URuY0jbOmV/Y+lTZiUhjdHgDXlv8PfR4yep
+twrMDeK3dzbqB9qh3puVugSLqHV5NDKIP5/j0s4/UDLvMFzezJ1klrqJl52szieq
+o/SrPKG3OxyHavlTDeIKBHufc5Eo9QgOd0sfw14WCJT/Y16fU3aysStuDWtJ23z+
+HLt3ItE3c2rg2FEJRW+23LkoiF8gXD17TArwrhJIeGiSeHfFw3dycAG+9EODz7BQ
+DX9Fu6aT2I1Fzo46BiTZ1woQz8kxlslAb25j6Wd3ytzVzlnlXFz3+eiLV5CIv2Iu
+fLV/ASCdLkLJrozZzQdZmiNKxWua9fK+qw1SgQIokvE1GdG62Dc=
+=UVAc
 -----END PGP SIGNATURE-----
 
---/04w6evG8XlLl3ft--
+--1UWUbFP1cBYEclgG--
