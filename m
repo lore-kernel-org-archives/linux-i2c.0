@@ -1,28 +1,27 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 04/12] i2c: omap: use core to detect 'no zero length'
- quirk
-Date: Fri, 5 Oct 2018 14:24:09 +0200
-Message-ID: <20181005122409.GH5433@kunai>
+Subject: Re: [PATCH 06/12] i2c: qup: use core to detect 'no zero length' quirk
+Date: Fri, 5 Oct 2018 14:24:22 +0200
+Message-ID: <20181005122422.GI5433@kunai>
 References: <20180723202617.15230-1-wsa+renesas@sang-engineering.com>
- <20180723202617.15230-5-wsa+renesas@sang-engineering.com>
+ <20180723202617.15230-7-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Bg2esWel0ueIH/G/"
+        protocol="application/pgp-signature"; boundary="LYw3s/afESlflPpp"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180723202617.15230-5-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20180723202617.15230-7-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Tony Lindgren <tony@atomide.com>, Aaro Koskinen <aaro.koskinen@iki.fi>, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, linux-arm-msm@vger.kernel.org, linux-soc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---Bg2esWel0ueIH/G/
+--LYw3s/afESlflPpp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 23, 2018 at 10:26:08PM +0200, Wolfram Sang wrote:
+On Mon, Jul 23, 2018 at 10:26:10PM +0200, Wolfram Sang wrote:
 > And don't reimplement in the driver.
 >=20
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
@@ -30,24 +29,24 @@ On Mon, Jul 23, 2018 at 10:26:08PM +0200, Wolfram Sang wrote:
 Ping.
 
 
---Bg2esWel0ueIH/G/
+--LYw3s/afESlflPpp
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlu3V+kACgkQFA3kzBSg
-KbYnDg/+Liwiu1pXEl0lzisDoU6OD/RdtfHGufCJOMjMfYgDXp3/tRgSSyfXHUpc
-3sRdLsqcG1r6YX79ItTMt9a2DN+TxWgGsiROIsHasWhddcHfPAianibo3uqJQeNd
-8WojGRtiplYVDJbiLUUHfG2z4te0xhh/ryXadY738/PQEmTsaYjbLwHC2ii5dcK3
-yO14ZY4lXPqXqNwl4A5BPxDE+urMuoTVCyS/fL0Uay+YSXJxSCWYBwArNw5/glpG
-lL0d4Rl0Yfq5DZp01iA9OwkOriNfUbp1v+s9QhPzwHCsVChcfj+R1P8PFkd0kKZk
-Sb7VCvZBw9zJQL/ABXGzWrixR58LhKQHJIl3jbE5Lo/pX9B77H/+ZM16BcG401RG
-JC+lCueVHPR2UTCQ1X5CllVlLSJSGPpj1pGbWW/1zmqkit7U9OiUGMA0glle0dvh
-hCI311WhgSoyogLYokNvtFN/u4LRNi6B8PSBXo3j8XweqU+caAFG59M8nZgH6oDQ
-8DvxH2c0mXFK3fT/VtBBO4D9LDFLniSryzbNkQVs9/5ofhP9RHbLtpZmaBAUoeCv
-nfJWa2PPgtZnnr826/ZZ9stEoUZq1Iy0Lr+mTulEd6t2qD3vEGS3agvhu9Z/mFQK
-DWFhGPTE1R5hqRItWDiPJfci4RMz+yBBP7bizl8mbR5HTeBppgo=
-=2cYe
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlu3V/UACgkQFA3kzBSg
+KbZXHA/+N6hfddOcX01gbCol367kzHol2md/H6PTSaLsq4/+Gc7+CVB2QZMi5/ao
+OJcipA09/6idjhO/YkcCVF3MOJr1gLSbh8u3mZFvom+9bcjlZdIkI+7VZRP8J4cd
+l+Bd8Y7/G8RUwHgbDWWtaCR/NpGb/0azh1SWTJRSiVy6x+QyxjapMAIuYSe+7bcV
+Apmzm783ytzhS5SzqgRNWC9cgVM27Iger6az38uQyScNFabbuiSp9Whg3kT1HZfV
+2WMc5WvN4TkZd8FFeHSshtmz/I38tCpaYE4FcZIIrJpnTPtEFNi8/WtzHS77rDrt
+vE8U1CaUOBuC/4gHPEVqxK6w5w7lJRQX1qSaRXsIoY7JOAbzrQxclnuRqlxTzCsR
+pyKaihmOo+gVnjC0N/RciPpx1jvHp61DZfe/EQFawXSGq+RsLX+KPaNaimpAf6hS
+v8mkXzH2g4PTuOE+bxBlw7uBOCypWSSL8PLXdA7QegMlvifK9Z6OXGj+CbxovQHt
+7oc+ASJ14/UqDe4QmNQbyeTdmGEEcXpofHARhFJ6lvzob8kfOnRx5gDSp0Q0/Wki
+ma0AzdcIG39rGEVWreJY23KZG9K4PI8l1P1ohMrJZCA1iWf8gWZk7TgaFZI02RpU
+gjTzd1OLBHZqrwFQ8B6BDwJLJUUU11A8p5TFVqO/r7msTcPtgec=
+=5qTJ
 -----END PGP SIGNATURE-----
 
---Bg2esWel0ueIH/G/--
+--LYw3s/afESlflPpp--
