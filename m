@@ -1,58 +1,59 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: brcmstb: Allow enabling the driver on DSL SoCs
-Date: Fri, 5 Oct 2018 14:07:27 +0200
-Message-ID: <20181005120727.GE5433@kunai>
-References: <20181001174349.26357-1-f.fainelli@gmail.com>
+Subject: Re: [PATCH v2] i2c: Convert to using %pOFn instead of
+ device_node.name
+Date: Fri, 5 Oct 2018 14:15:19 +0200
+Message-ID: <20181005121519.GF5433@kunai>
+References: <20180928224947.19058-1-robh@kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="bi5JUZtvcfApsciF"
+        protocol="application/pgp-signature"; boundary="/aVve/J9H4Wl5yVO"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181001174349.26357-1-f.fainelli@gmail.com>
+In-Reply-To: <20180928224947.19058-1-robh@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: linux-kernel@vger.kernel.org, kdasu.kdev@gmail.com, geert@linux-m68k.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Jean Delvare <jdelvare@suse.de>, Andy Shevchenko <andy.shevchenko@gmail.com>, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>, Eddie James <eajames@linux.vnet.ibm.com>, James Hogan <jhogan@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Ard Biesheuvel <ard.biesheuvel@linaro.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, "open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>
+To: Rob Herring <robh@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---bi5JUZtvcfApsciF
+--/aVve/J9H4Wl5yVO
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 01, 2018 at 10:43:47AM -0700, Florian Fainelli wrote:
-> ARCH_BCM_63XX which is used by ARM-based DSL SoCs from Broadcom uses the
-> same controller, make it possible to select the STB driver and update
-> the Kconfig and help text a bit.
+On Fri, Sep 28, 2018 at 05:49:47PM -0500, Rob Herring wrote:
+> In preparation to remove the node name pointer from struct device_node,
+> convert printf users to use the %pOFn format specifier.
 >=20
-> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-> ---
-> Changes in v2:
->=20
-> - Make COMPILE_TEST last, as per Geert's recommendation
->=20
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Peter Rosin <peda@axentia.se>
+> Cc: linux-i2c@vger.kernel.org
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Signed-off-by: Rob Herring <robh@kernel.org>
 
-Applied to for-next, thanks!
+Applied to for-next (with Peter's tag from v1), thanks!
 
 
---bi5JUZtvcfApsciF
+--/aVve/J9H4Wl5yVO
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlu3U/8ACgkQFA3kzBSg
-KbZ0zQ/+Nmy/sNNBB7LHM+I2AXJm/oTn5aK+VufxVzt9sGI5BRlZItsx3AmKVNeN
-xyM5+WypJpBBAob5A354R8Kfy0up4RK4qJMXj6l5cHbNxOG4Ofp5crdsbn08FMkx
-ldLrDn3ArzPq57y+OlegOfiue0BNEckSkKlVLV7o5Rn7uvRcEAocOcS0pDahvc+l
-PzpufO8OQPGRQbJ2V4jLMj/bS+mxhj5pXVjybJm54LKedsGnZKUEGeHDyxvhOBRo
-m8D7BTBgzzcfu3cgZbFfg5nkRjXZ/PaXAll38dkHpJQSN2b1OrBoDvddqI8rqtli
-A5XtwzCfNZVN6nGF4XnwndGgGQe7pg1EuCEl3JnE+B/aQPMsqbSNzjZox3moKmw4
-oD1PLLpCt+cF9nfZ3ipIwQ3VL8V2u5RQUOpOVhzwVN2qzlgA/WJ6IxurJ9ksVrB6
-j55DN2/4KMADCUzK2xnJA1JVUWdhWnyiluScEWEenLrucs0Ychx4WUj/2hz5m+bT
-rF04/Xpiqy893XJq7gE/TET3T1xExayKVwCJpHLYKKzTK5lBNa9TjDp9S9ogTnOn
-O/Ik/OT8i++K7rEGbf667+p96YAJqv7tzK/QRboTkADmqdSwUF5RzX2ytVf41JuG
-6aswlSAYZnwXM1E/KM6Sm4LPrvZWt1MkbBQDbfNzqEg/OySyPgE=
-=5a90
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlu3Vc8ACgkQFA3kzBSg
+KbZbGA//TSsle8Y0hbsCLheqkV1zbEMBpC5F5/eaqcwxg20jF/6pD+9q5L2xPbCW
+PcaAC9SB5ftn/C9gJKk6wB5jKxoDU57rczj0csUN/tb0b066FkJVqx08vPQtNbXZ
+X9fr/rhwr/K88d384wFxailAR41r88BmIJoaNYmcbUcsBBYQC3USOQKmzd0lup+i
+1MeKAanXqQnCeEXJkf3in1u/dLEI+yI1e6/EEzo/glFw1l8tBFQJ4D6/VAnSX2He
+SfL4LRkJkw06PKRWuRMvox2nNuT6rUVqa81qlNLhrrfE/VzRAM9I5U6l5LbgZYdg
+LSzLPQNOyuLBkdxsxNjpoEV4HHvtM4ultHy+SBQzevJ9BsiZ78FyxugB4hg+1hxf
+qHlHAT1gCvzNfvGHPekYbP7c0iDa2N9JlznW5oNmT4tNt/gNAUGJr6rr64FO2rVI
+DIaYKIScjKAMAIixr3fIDr5sxmaxb8ewdva9Jro23QnNUjOAuVSwzmlZBa16Nn48
+t02PycWUlhXp4y3KFXVdPHZjXpcQCf2UaF6nkVXuZ9U9KRRo8C9mc/Q96XErM7vl
+oFxuZpWaiBXTWQzp3lER7aFY5AI91MxdlkcPVklq/9J5W/HXuJBSe+sOUi5DxH6d
+74p4Ki5FzP7HguGw+x5EcuIvKUPkr3RvBI5DNIOh7SVMuBhUvN4=
+=tLIh
 -----END PGP SIGNATURE-----
 
---bi5JUZtvcfApsciF--
+--/aVve/J9H4Wl5yVO--
