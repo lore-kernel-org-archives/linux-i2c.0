@@ -1,43 +1,50 @@
-From: "George G. Davis" <ggdavisiv@gmail.com>
-Subject: Re: [PATCH] i2c: core: squelch error: uninitialized symbol 'ret'
-Date: Fri, 5 Oct 2018 16:55:29 -0400
-Message-ID: <20181005205529.GA3332@gandalf.middle.earth.net>
-References: <20181005161826.2455-1-george_davis@mentor.com>
- <20181005162841.wy4uyespwcvffkpc@ninjato>
- <20181005164520.GA2617@gandalf.middle.earth.net>
- <20181005174301.GA964@kunai>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Subject: [PATCH i2c-next v7 1/5] dt-bindings: i2c: Add 'bus-timeout-ms' and '#retries' properties as common optional
+Date: Fri,  5 Oct 2018 14:45:03 -0700
+Message-ID: <20181005214507.26315-2-jae.hyun.yoo@linux.intel.com>
+References: <20181005214507.26315-1-jae.hyun.yoo@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181005174301.GA964@kunai>
+In-Reply-To: <20181005214507.26315-1-jae.hyun.yoo@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, "George G. Davis" <george_davis@mentor.com>
+To: Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Oct 05, 2018 at 07:43:01PM +0200, Wolfram Sang wrote:
-> 
-> > Feel free to ignore if this is a topic already discussed in other
-> > threads. To be honest, I did not search the mailing list to determine if
-> > this particular issue was already discussed.  
-> 
-> Not this particular issue, but in general we usually don't change
-> working code to silence false positives in code checkers.
+This commit adds 'bus-timeout-ms' and '#retries' properties as
+common optional properties that can be used for setting 'timeout'
+and 'retries' values of 'struct i2c_adapter'. With this patch, the
+bus timeout value and the master transfer retries count can be set
+through these properties at the registration time of an adapter.
+Still the values can be set by I2C_TIMEOUT and I2C_RETRIES ioctls
+on cdev at runtime too.
 
-Ok.
+These properties may not be supported by all drivers. However, if
+a driver wants to support one of them, it should adapt the
+bindings in this document.
 
-> But thanks for letting me know this is a false positive!
+Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+---
+ Documentation/devicetree/bindings/i2c/i2c.txt | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-No worries. Thanks for having a look.
-
-> BTW next time CC Dan Carpenter, he might be interested to fix the issue
-> in smatch.
-
-I'll try to remember this in the future.
-
-Thanks again!
-
---
-Regards,
-George
+diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+index 11263982470e..bdead91f82a4 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+@@ -80,6 +80,12 @@ wants to support one of the below features, it should adapt the bindings below.
+ 	Names of map programmable addresses.
+ 	It can contain any map needing another address than default one.
+ 
++- bus-timeout-ms
++	Bus timeout in milliseconds.
++
++- #retries
++	Number of retries for master transfer.
++
+ Binding may contain optional "interrupts" property, describing interrupts
+ used by the device. I2C core will assign "irq" interrupt (or the very first
+ interrupt if not using interrupt names) as primary interrupt for the slave.
+-- 
+2.19.0
