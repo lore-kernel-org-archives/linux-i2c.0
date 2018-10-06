@@ -1,71 +1,94 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: [PATCH i2c-next v7 2/5] i2c: core: Add support reading of
- 'bus-timeout-ms' and '#retries' properties
-Date: Fri,  5 Oct 2018 14:45:04 -0700
-Message-ID: <20181005214507.26315-3-jae.hyun.yoo@linux.intel.com>
-References: <20181005214507.26315-1-jae.hyun.yoo@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.19
+Date: Sat, 6 Oct 2018 22:37:38 +0200
+Message-ID: <20181006203728.ijfuod6p3ocwy3sk@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20181005214507.26315-1-jae.hyun.yoo@linux.intel.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Cc: Vernon Mauery <vernon.mauery@linux.intel.com>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="exehsgcp3xa2xsl4"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-This commit adds support for 'bus-timeout-ms' and '#retries'
-properties to set 'timeout' and 'retries' values in
-'struct i2c_adapter' in case an adapter node has the properties.
-Still the values can be set by I2C_TIMEOUT and I2C_RETRIES ioctls
-on cdev at runtime too.
 
-These properties may not be supported by all drivers. However, if
-a driver wants to support one of them, it should adapt the
-bindings in the dt-bindings document.
+--exehsgcp3xa2xsl4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
----
- drivers/i2c/i2c-core-base.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+Greg,
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 799776c6d421..aa2a365d374a 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -1214,6 +1214,7 @@ EXPORT_SYMBOL_GPL(i2c_handle_smbus_host_notify);
- static int i2c_register_adapter(struct i2c_adapter *adap)
- {
- 	int res = -EINVAL;
-+	u32 bus_timeout_ms = 0;
- 
- 	/* Can't register until after driver model init */
- 	if (WARN_ON(!is_registered)) {
-@@ -1239,8 +1240,15 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
- 	INIT_LIST_HEAD(&adap->userspace_clients);
- 
- 	/* Set default timeout to 1 second if not already set */
--	if (adap->timeout == 0)
--		adap->timeout = HZ;
-+	if (adap->timeout == 0) {
-+		device_property_read_u32(&adap->dev, "bus-timeout-ms",
-+					 &bus_timeout_ms);
-+		adap->timeout = bus_timeout_ms ?
-+					msecs_to_jiffies(bus_timeout_ms) : HZ;
-+	}
-+
-+	/* Set retries count if it has the property setting */
-+	device_property_read_u32(&adap->dev, "#retries", &adap->retries);
- 
- 	/* register soft irqs for Host Notify */
- 	res = i2c_setup_host_notify_irq_domain(adap);
--- 
-2.19.0
+I2C has three driver bugfixes and a fix for a typo for you.
+
+Please pull.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit 6bf4ca7fbc85d80446ac01c0d1d77db4d91a6d84:
+
+  Linux 4.19-rc5 (2018-09-23 19:15:18 +0200)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to 9ce7610e6d201e3923c0b2f454f2e1d54f5da49e:
+
+  i2c: designware: Call i2c_dw_clk_rate() only when calculating timings (2018-10-05 13:40:05 +0200)
+
+----------------------------------------------------------------
+Colin Ian King (1):
+      i2c: i2c-isch: fix spelling mistake "unitialized" -> "uninitialized"
+
+Edgar Cherkasov (1):
+      i2c: i2c-scmi: fix for i2c_smbus_write_block_data
+
+Jarkko Nikula (1):
+      i2c: designware: Call i2c_dw_clk_rate() only when calculating timings
+
+Stephen Boyd (1):
+      i2c: i2c-qcom-geni: Properly handle DMA safe buffers
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Ard Biesheuvel (1):
+      (Test) i2c: designware: Call i2c_dw_clk_rate() only when calculating timings
+
+Douglas Anderson (1):
+      (Rev.) i2c: i2c-qcom-geni: Properly handle DMA safe buffers
+
+Jean Delvare (1):
+      (Rev.) i2c: i2c-isch: fix spelling mistake "unitialized" -> "uninitialized"
+
+ drivers/i2c/busses/i2c-designware-master.c |  4 +++-
+ drivers/i2c/busses/i2c-isch.c              |  2 +-
+ drivers/i2c/busses/i2c-qcom-geni.c         | 22 ++++++++++++++++++----
+ drivers/i2c/busses/i2c-scmi.c              |  1 +
+ 4 files changed, 23 insertions(+), 6 deletions(-)
+
+--exehsgcp3xa2xsl4
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlu5HQQACgkQFA3kzBSg
+KbYNPQ/+LfftRiDvXuXJBNgSUWTZbQ8ppO7qCBq9rCbw5pBm+gRodWpLrQBkrf+S
+oRhVIbIiEhP4oNqfw30fhHEKK4LO4jfpNl3mtu6RkrOJ476DK2BTwP2WzO7pzrjO
+CdpiNqX0QbJY+IH8G437YcS3BjNdyF0H48u6rWO/YvlOErpAv+pBoSVyZHS/Ht8Q
+skG3xlVzHNXv+V9aJ1GJz5b3jV2hWkiVeZnA3PUoie21IVhdo+0e63SH9IEW0OAB
+3pUDO5fp8ZaP+AUTwf/MWu/zFfrxOFBg1aiNz1c37aY18Ok5whvlQMgbnJFNmR3D
+8ykifqbbuwxxxp3OhxUCoiQjdngA1um6FGjg6ogwZ/QpdZe7nvHnLPjXf32Z9hB9
+1YH4IJ3adTUKNnl+JiQTdcUBEDtRfOSf4ilRnKisTAKHbPhOcTFacbS7ZY2DWTrF
+SrwJmcnGav/jXQ6jcyn9aDVWKBBuaTn9xnhK2M1vA+aikBq7zRbNaHuZLPrgO9eg
+XH8FTMHhb+UGVBuKHd/5fE8AppiuR0XaoRYACqBWPdpcLSGpizR1IkZjDt+r/ZQi
+NRQzfIGT5l3yyuNzEe5IzFR5Xn5zWtEam9eDA3MFMrpd0b9ExJ4I1P6JRU4NwUsc
+O2xYKMV2WFimMrL8XSdVNDZwKyKwcyIjRzHqh3AMMFEpjUplH30=
+=9h/P
+-----END PGP SIGNATURE-----
+
+--exehsgcp3xa2xsl4--
