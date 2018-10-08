@@ -1,37 +1,88 @@
-From: Stephen Boyd <swboyd@chromium.org>
-Subject: [PATCH] i2c: Fix kerneldoc for renamed i2c dma put function
-Date: Mon,  8 Oct 2018 07:55:20 -0700
-Message-ID: <20181008145520.36810-1-swboyd@chromium.org>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v3] i2c: mux: remove duplicated i2c_algorithm
+Date: Mon, 8 Oct 2018 21:43:55 +0000
+Message-ID: <99cfa6a2-9a60-6bdd-2542-9dd78af75758@axentia.se>
+References: <20181003151928.17713-1-lucaceresoli77@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181003151928.17713-1-lucaceresoli77@gmail.com>
+Content-Language: en-US
+Content-ID: <355CE9BA777F23429C443D68FF7A17FA@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Luca Ceresoli <lucaceresoli77@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-This function was renamed in commit 82fe39a6bc7b ("i2c: refactor
-function to release a DMA safe buffer") but this kernel doc wasn't
-updated to point at the new function. Rename it.
-
-Fixes: 82fe39a6bc7b ("i2c: refactor function to release a DMA safe buffer")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
----
- drivers/i2c/i2c-core-base.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 9ee9a15e7134..9200e349f29e 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -2270,7 +2270,7 @@ EXPORT_SYMBOL(i2c_put_adapter);
-  *
-  * Return: NULL if a DMA safe buffer was not obtained. Use msg->buf with PIO.
-  *	   Or a valid pointer to be used with DMA. After use, release it by
-- *	   calling i2c_release_dma_safe_msg_buf().
-+ *	   calling i2c_put_dma_safe_msg_buf().
-  *
-  * This function must only be called from process context!
-  */
--- 
-Sent by a computer through tubes
+T24gMjAxOC0xMC0wMyAxNzoxOSwgTHVjYSBDZXJlc29saSB3cm90ZToNCj4gRnJvbTogTHVjYSBD
+ZXJlc29saSA8bHVjYUBsdWNhY2VyZXNvbGkubmV0Pg0KPiANCj4gaTJjLW11eCBpbnN0YW50aWF0
+ZXMgb25lIGkyY19hbGdvcml0aG0gZm9yIGVhY2ggZG93bnN0cmVhbSBhZGFwdGVyLg0KPiBIb3dl
+dmVyIHRoZXNlIGFsZ29yaXRobXMgYXJlIGFsbCBpZGVudGljYWwsIGRlcGVuZGluZyBvbmx5IG9u
+IHRoZQ0KPiBwYXJlbnQgYWRhcHRlci4NCj4gDQo+IEF2b2lkIGR1cGxpY2F0aW9uIGJ5IGhvaXN0
+aW5nIHRoZSBpMmNfYWxnb3JpdGhtIGZyb20gdGhlIGFkYXB0ZXJzIHRvDQo+IHRoZSBpMmNfbXV4
+X2NvcmUgb2JqZWN0LCBhbmQgcmV1c2UgaXQgaW4gYWxsIHRoZSBhZGFwdGVycy4NCg0KT3VjaCwg
+d2hpbGUgSSBsaWtlIHRoZSBjb25jZXB0IG9mIGhhdmluZyBvbmUgaTJjX2FsZ29yaXRobSBwZXIg
+bXV4LA0KdGhpcyBwYXRjaCBpcyBub3Qgd29ya2luZy4gVmFyaW91cyBpMmMtbXV4IGRyaXZlcnMg
+c2V0IHRoZQ0KbXV4Yy0+bXV4X2xvY2tlZCB2YXJpYWJsZSAqYWZ0ZXIqIHRoZSBpMmNfbXV4X2Fs
+bG9jIGNhbGwsIGFuZCB0aGlzDQpwYXRjaCBicmVha3Mgc3VjaCB1c2UuDQoNClNvLCB0aGUgcGF0
+Y2ggbmVlZHMgc29tZSByZXdvcmtpbmcuIFNvcnJ5IGZvciBub3Qgbm90aWNpbmcgdGhpcw0KZWFy
+bGllci4NCg0KQ2hlZXJzLA0KUGV0ZXINCg0KPiBDYzogUGV0ZXIgUm9zaW4gPHBlZGFAYXhlbnRp
+YS5zZT4NCj4gU2lnbmVkLW9mZi1ieTogTHVjYSBDZXJlc29saSA8bHVjYUBsdWNhY2VyZXNvbGku
+bmV0Pg0KPiANCj4gLS0tDQo+IA0KPiBDaGFuZ2VzIHYyIC0+IHYzOg0KPiAgLSBmaXggY29kaW5n
+IHN0eWxlIG9mIGNvbW1lbnQgd2hlbiBtb3ZpbmcgaXQgKFBldGVyIFJvc2luKQ0KPiAgLSBtb3Zl
+IHRoZSAnYWxnbycgbWVtYmVyIGJldHdlZW4gcGFyZW50IGFuZCBkZXYgKFBldGVyIFJvc2luKQ0K
+PiANCj4gQ2hhbmdlcyB2MSAtPiB2MjoNCj4gIC0gaW5jbHVkZSBpMmMuaCAoZml4ZXMgYnVpbGQg
+ZmFpbHVyZSBvbiBpMmMtbXV4LWx0YzQzMDYpDQo+IC0tLQ0KPiAgZHJpdmVycy9pMmMvaTJjLW11
+eC5jICAgfCAzOCArKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0tLS0tLQ0KPiAgaW5j
+bHVkZS9saW51eC9pMmMtbXV4LmggfCAgMiArKw0KPiAgMiBmaWxlcyBjaGFuZ2VkLCAyMSBpbnNl
+cnRpb25zKCspLCAxOSBkZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2ky
+Yy9pMmMtbXV4LmMgYi9kcml2ZXJzL2kyYy9pMmMtbXV4LmMNCj4gaW5kZXggZjMzMDY5MGI0MTI1
+Li42YWMyMzAwNGZiMmEgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaTJjL2kyYy1tdXguYw0KPiAr
+KysgYi9kcml2ZXJzL2kyYy9pMmMtbXV4LmMNCj4gQEAgLTMwLDcgKzMwLDYgQEANCj4gIC8qIG11
+bHRpcGxleGVyIHBlciBjaGFubmVsIGRhdGEgKi8NCj4gIHN0cnVjdCBpMmNfbXV4X3ByaXYgew0K
+PiAgCXN0cnVjdCBpMmNfYWRhcHRlciBhZGFwOw0KPiAtCXN0cnVjdCBpMmNfYWxnb3JpdGhtIGFs
+Z287DQo+ICAJc3RydWN0IGkyY19tdXhfY29yZSAqbXV4YzsNCj4gIAl1MzIgY2hhbl9pZDsNCj4g
+IH07DQo+IEBAIC0yNjMsNiArMjYyLDI0IEBAIHN0cnVjdCBpMmNfbXV4X2NvcmUgKmkyY19tdXhf
+YWxsb2Moc3RydWN0IGkyY19hZGFwdGVyICpwYXJlbnQsDQo+ICAJbXV4Yy0+ZGVzZWxlY3QgPSBk
+ZXNlbGVjdDsNCj4gIAltdXhjLT5tYXhfYWRhcHRlcnMgPSBtYXhfYWRhcHRlcnM7DQo+ICANCj4g
+KwkvKg0KPiArCSAqIE5lZWQgdG8gZG8gYWxnbyBkeW5hbWljYWxseSBiZWNhdXNlIHdlIGRvbid0
+IGtub3cgYWhlYWQgb2YNCj4gKwkgKiB0aW1lIHdoYXQgc29ydCBvZiBwaHlzaWNhbCBhZGFwdGVy
+IHdlJ2xsIGJlIGRlYWxpbmcgd2l0aC4NCj4gKwkgKi8NCj4gKwlpZiAocGFyZW50LT5hbGdvLT5t
+YXN0ZXJfeGZlcikgew0KPiArCQlpZiAobXV4Yy0+bXV4X2xvY2tlZCkNCj4gKwkJCW11eGMtPmFs
+Z28ubWFzdGVyX3hmZXIgPSBpMmNfbXV4X21hc3Rlcl94ZmVyOw0KPiArCQllbHNlDQo+ICsJCQlt
+dXhjLT5hbGdvLm1hc3Rlcl94ZmVyID0gX19pMmNfbXV4X21hc3Rlcl94ZmVyOw0KPiArCX0NCj4g
+KwlpZiAocGFyZW50LT5hbGdvLT5zbWJ1c194ZmVyKSB7DQo+ICsJCWlmIChtdXhjLT5tdXhfbG9j
+a2VkKQ0KPiArCQkJbXV4Yy0+YWxnby5zbWJ1c194ZmVyID0gaTJjX211eF9zbWJ1c194ZmVyOw0K
+PiArCQllbHNlDQo+ICsJCQltdXhjLT5hbGdvLnNtYnVzX3hmZXIgPSBfX2kyY19tdXhfc21idXNf
+eGZlcjsNCj4gKwl9DQo+ICsJbXV4Yy0+YWxnby5mdW5jdGlvbmFsaXR5ID0gaTJjX211eF9mdW5j
+dGlvbmFsaXR5Ow0KPiArDQo+ICAJcmV0dXJuIG11eGM7DQo+ICB9DQo+ICBFWFBPUlRfU1lNQk9M
+X0dQTChpMmNfbXV4X2FsbG9jKTsNCj4gQEAgLTMwMSwyOCArMzE4LDExIEBAIGludCBpMmNfbXV4
+X2FkZF9hZGFwdGVyKHN0cnVjdCBpMmNfbXV4X2NvcmUgKm11eGMsDQo+ICAJcHJpdi0+bXV4YyA9
+IG11eGM7DQo+ICAJcHJpdi0+Y2hhbl9pZCA9IGNoYW5faWQ7DQo+ICANCj4gLQkvKiBOZWVkIHRv
+IGRvIGFsZ28gZHluYW1pY2FsbHkgYmVjYXVzZSB3ZSBkb24ndCBrbm93IGFoZWFkDQo+IC0JICog
+b2YgdGltZSB3aGF0IHNvcnQgb2YgcGh5c2ljYWwgYWRhcHRlciB3ZSdsbCBiZSBkZWFsaW5nIHdp
+dGguDQo+IC0JICovDQo+IC0JaWYgKHBhcmVudC0+YWxnby0+bWFzdGVyX3hmZXIpIHsNCj4gLQkJ
+aWYgKG11eGMtPm11eF9sb2NrZWQpDQo+IC0JCQlwcml2LT5hbGdvLm1hc3Rlcl94ZmVyID0gaTJj
+X211eF9tYXN0ZXJfeGZlcjsNCj4gLQkJZWxzZQ0KPiAtCQkJcHJpdi0+YWxnby5tYXN0ZXJfeGZl
+ciA9IF9faTJjX211eF9tYXN0ZXJfeGZlcjsNCj4gLQl9DQo+IC0JaWYgKHBhcmVudC0+YWxnby0+
+c21idXNfeGZlcikgew0KPiAtCQlpZiAobXV4Yy0+bXV4X2xvY2tlZCkNCj4gLQkJCXByaXYtPmFs
+Z28uc21idXNfeGZlciA9IGkyY19tdXhfc21idXNfeGZlcjsNCj4gLQkJZWxzZQ0KPiAtCQkJcHJp
+di0+YWxnby5zbWJ1c194ZmVyID0gX19pMmNfbXV4X3NtYnVzX3hmZXI7DQo+IC0JfQ0KPiAtCXBy
+aXYtPmFsZ28uZnVuY3Rpb25hbGl0eSA9IGkyY19tdXhfZnVuY3Rpb25hbGl0eTsNCj4gLQ0KPiAg
+CS8qIE5vdyBmaWxsIG91dCBuZXcgYWRhcHRlciBzdHJ1Y3R1cmUgKi8NCj4gIAlzbnByaW50Zihw
+cml2LT5hZGFwLm5hbWUsIHNpemVvZihwcml2LT5hZGFwLm5hbWUpLA0KPiAgCQkgImkyYy0lZC1t
+dXggKGNoYW5faWQgJWQpIiwgaTJjX2FkYXB0ZXJfaWQocGFyZW50KSwgY2hhbl9pZCk7DQo+ICAJ
+cHJpdi0+YWRhcC5vd25lciA9IFRISVNfTU9EVUxFOw0KPiAtCXByaXYtPmFkYXAuYWxnbyA9ICZw
+cml2LT5hbGdvOw0KPiArCXByaXYtPmFkYXAuYWxnbyA9ICZtdXhjLT5hbGdvOw0KPiAgCXByaXYt
+PmFkYXAuYWxnb19kYXRhID0gcHJpdjsNCj4gIAlwcml2LT5hZGFwLmRldi5wYXJlbnQgPSAmcGFy
+ZW50LT5kZXY7DQo+ICAJcHJpdi0+YWRhcC5yZXRyaWVzID0gcGFyZW50LT5yZXRyaWVzOw0KPiBk
+aWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9pMmMtbXV4LmggYi9pbmNsdWRlL2xpbnV4L2kyYy1t
+dXguaA0KPiBpbmRleCBiZDc0ZDU3MDZmM2IuLjNkODk2MDBkNWE5ZSAxMDA2NDQNCj4gLS0tIGEv
+aW5jbHVkZS9saW51eC9pMmMtbXV4LmgNCj4gKysrIGIvaW5jbHVkZS9saW51eC9pMmMtbXV4LmgN
+Cj4gQEAgLTI4LDkgKzI4LDExIEBADQo+ICAjaWZkZWYgX19LRVJORUxfXw0KPiAgDQo+ICAjaW5j
+bHVkZSA8bGludXgvYml0b3BzLmg+DQo+ICsjaW5jbHVkZSA8bGludXgvaTJjLmg+DQo+ICANCj4g
+IHN0cnVjdCBpMmNfbXV4X2NvcmUgew0KPiAgCXN0cnVjdCBpMmNfYWRhcHRlciAqcGFyZW50Ow0K
+PiArCXN0cnVjdCBpMmNfYWxnb3JpdGhtIGFsZ287DQo+ICAJc3RydWN0IGRldmljZSAqZGV2Ow0K
+PiAgCXVuc2lnbmVkIGludCBtdXhfbG9ja2VkOjE7DQo+ICAJdW5zaWduZWQgaW50IGFyYml0cmF0
+b3I6MTsNCj4gDQoNCg==
