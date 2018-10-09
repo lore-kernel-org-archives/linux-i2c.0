@@ -1,36 +1,78 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v2 1/3] i2c: mux: pca954x: simplify code to reach the
- adapter
-Date: Mon, 8 Oct 2018 21:48:20 +0000
-Message-ID: <c3fdd93a-b0db-771e-85e4-480c3b01ac29@axentia.se>
-References: <20181003155024.16024-1-lucaceresoli77@gmail.com>
- <20181005114336.GB5433@kunai>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181005114336.GB5433@kunai>
-Content-Language: en-US
-Content-ID: <666B2A29BFB0AF48AEB3A4940BD7BEC7@eurprd02.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Luca Ceresoli <lucaceresoli77@gmail.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Luca Ceresoli <luca@lucaceresoli.net>, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, Michael Hennerich <michael.hennerich@analog.com>
+From: Silesh C V <svellattu@mvista.com>
+Subject: [PATCH v3 1/2] Driver core: add bus_find_device_by_fwnode
+Date: Tue,  9 Oct 2018 15:47:24 +0530
+Message-ID: <1539080245-25818-1-git-send-email-svellattu@mvista.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-rdma@vger.kernel.org, netdev@vger.kernel.org, devicetree@vger.kernel.org, linux-spi@vger.kernel.org, Mathieu Poirier <mathieu.poirier@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Lijun Ou <oulijun@huawei.com>, "Wei Hu(Xavier)" <xavier.huwei@huawei.com>, Yisen Zhuang <yisen.zhuang@huawei.com>, Salil Mehta <salil.mehta@huawei.com>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Mark Brown <broonie@kernel.org>, "David S. Miller" <davem@davemloft.net>, Silesh C V <svellattu@mvista.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-10-05 13:43, Wolfram Sang wrote:
-> On Wed, Oct 03, 2018 at 05:50:22PM +0200, Luca Ceresoli wrote:
->> From: Luca Ceresoli <luca@lucaceresoli.net>
->>
->> struct i2c_client has a direct pointer to the adapter, no need to dig
->> it out of the struct device tree.
->>
->> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
->=20
-> I like such cleanups!
+Some drivers need to find the device on a bus having a specific firmware
+node. Currently, such drivers have their own implementations to do this.
+Provide a helper similar to bus_find_device_by_name so that each driver
+does not have to reinvent this.
 
-Me too!
+Signed-off-by: Silesh C V <svellattu@mvista.com>
+---
+Changes since v2: 
+	- make use of dev_fwnode in match_fwnode.
 
-All three patches applied to for-next. Thanks!
+ drivers/base/bus.c     | 20 ++++++++++++++++++++
+ include/linux/device.h |  3 +++
+ 2 files changed, 23 insertions(+)
 
-Cheers,
-Peter
+diff --git a/drivers/base/bus.c b/drivers/base/bus.c
+index 8bfd27e..a2f39db 100644
+--- a/drivers/base/bus.c
++++ b/drivers/base/bus.c
+@@ -17,6 +17,7 @@
+ #include <linux/string.h>
+ #include <linux/mutex.h>
+ #include <linux/sysfs.h>
++#include <linux/property.h>
+ #include "base.h"
+ #include "power/power.h"
+ 
+@@ -373,6 +374,25 @@ struct device *bus_find_device_by_name(struct bus_type *bus,
+ }
+ EXPORT_SYMBOL_GPL(bus_find_device_by_name);
+ 
++static int match_fwnode(struct device *dev, void *fwnode)
++{
++	return dev_fwnode(dev) == fwnode;
++}
++
++/**
++ * bus_find_device_by_fwnode - device iterator for locating a particular device
++ * having a specific firmware node
++ * @bus: bus type
++ * @start: Device to begin with
++ * @fwnode: firmware node of the device to match
++ */
++struct device *bus_find_device_by_fwnode(struct bus_type *bus, struct device *start,
++					struct fwnode_handle *fwnode)
++{
++	return bus_find_device(bus, start, (void *)fwnode, match_fwnode);
++}
++EXPORT_SYMBOL_GPL(bus_find_device_by_fwnode);
++
+ /**
+  * subsys_find_device_by_id - find a device with a specific enumeration number
+  * @subsys: subsystem
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 8f88254..09384f6 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -171,6 +171,9 @@ struct device *bus_find_device(struct bus_type *bus, struct device *start,
+ struct device *bus_find_device_by_name(struct bus_type *bus,
+ 				       struct device *start,
+ 				       const char *name);
++struct device *bus_find_device_by_fwnode(struct bus_type *bus,
++				       struct device *start,
++				       struct fwnode_handle *fwnode);
+ struct device *subsys_find_device_by_id(struct bus_type *bus, unsigned int id,
+ 					struct device *hint);
+ int bus_for_each_drv(struct bus_type *bus, struct device_driver *start,
+-- 
+1.9.1
