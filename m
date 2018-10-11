@@ -1,188 +1,51 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2 1/3] x86: baytrail/cherrytrail: Rework and move P-Unit
- PMIC bus semaphore code
-Date: Thu, 11 Oct 2018 13:58:23 +0200
-Message-ID: <6c7d650d-b65f-da70-ecef-474137369ae3@redhat.com>
-References: <20181011102627.7418-1-hdegoede@redhat.com>
- <20181011102627.7418-2-hdegoede@redhat.com>
- <20181011104151.GA31491@gmail.com>
+Subject: [PATCH v3 0/3] x86: baytrail/cherrytrail: Rework and move P-Unit PMIC semaphore handling
+Date: Thu, 11 Oct 2018 16:29:08 +0200
+Message-ID: <20181011142911.13750-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181011104151.GA31491@gmail.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ingo Molnar <mingo@kernel.org>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Hi All,
 
-On 11-10-18 12:41, Ingo Molnar wrote:
-> 
-> * Hans de Goede <hdegoede@redhat.com> wrote:
-> 
->> +int iosf_mbi_block_punit_i2c_access(void)
->> +{
->> +	unsigned long start, end;
->> +	int ret = 0;
->> +	u32 sem;
->> +
->> +	if (WARN_ON(!mbi_pdev || !iosf_mbi_sem_address))
->> +		return -ENXIO;
->> +
->> +	mutex_lock(&iosf_mbi_block_punit_i2c_access_count_mutex);
->> +
->> +	if (iosf_mbi_block_punit_i2c_access_count > 0)
->> +		goto out;
->> +
->> +	mutex_lock(&iosf_mbi_punit_mutex);
->> +	blocking_notifier_call_chain(&iosf_mbi_pmic_bus_access_notifier,
->> +				     MBI_PMIC_BUS_ACCESS_BEGIN, NULL);
->> +
->> +	/*
->> +	 * Disallow the CPU to enter C6 or C7 state, entering these states
->> +	 * requires the punit to talk to the pmic and if this happens while
->> +	 * we're holding the semaphore, the SoC hangs.
->> +	 */
->> +	pm_qos_update_request(&iosf_mbi_pm_qos, 0);
->> +
->> +	/* host driver writes to side band semaphore register */
->> +	ret = iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE,
->> +			     iosf_mbi_sem_address, PUNIT_SEMAPHORE_ACQUIRE);
->> +	if (ret) {
->> +		dev_err(&mbi_pdev->dev, "Error punit semaphore request failed\n");
->> +		goto out;
->> +	}
-> 
-> Isn't this error path leaking the iosf_mbi_punit_mutex held mutex? The 'out' label only unlocks
-> iosf_mbi_block_punit_i2c_access_count_mutex:
+Changes in v3:
+-Fix iosf_mbi_punit_mutex not being unlocked in error exit path
+-Add a big comment describing the what-and-why of
+ iosf_mbi_block_punit_i2c_access()
 
-Yes you're right, I messed this up when adding the handling for the new
-iosf_mbi_block_punit_i2c_access_count[_mutex] which is new compared to the
-code from i2c-designware-baytrail.c (the rest of the code is just moved
-from there).
+Changes in v2:
+-Move mutex_unlock(&iosf_mbi_punit_mutex); to the callers of
+ iosf_mbi_reset_semaphore()
+-Use PCI_DEVICE_DATA() to pass the driver_data
 
-This is fixed in the upcoming v3 of the patch.
+See the commit message of the first patch for the why and what of this
+series.
 
->> +	/* host driver waits for bit 0 to be set in semaphore register */
->> +	start = jiffies;
->> +	end = start + msecs_to_jiffies(SEMAPHORE_TIMEOUT);
->> +	do {
->> +		ret = iosf_mbi_get_sem(&sem);
->> +		if (!ret && sem) {
->> +			iosf_mbi_sem_acquired = jiffies;
->> +			dev_dbg(&mbi_pdev->dev, "punit semaphore acquired after %ums\n",
->> +				jiffies_to_msecs(jiffies - start));
->> +			/*
->> +			 * Success, keep iosf_mbi_punit_mutex locked till
->> +			 * iosf_mbi_unblock_punit_i2c_access() gets called.
->> +			 */
->> +			goto out;
-> 
-> Ditto - although this does claim that this is done intentionally.
+Also the whole purpose of posting this series for now is just to get the
+first patch reviewed and merged, the others are more of a RFC until that
+happens.
 
-Right, we have 2 sets of functions:
+Once the first patch is merged we can look at using the new
+iosf_mbi_[un]block_punit_i2c_access() functions in various drivers for the
+AXP288 PMIC (and the TI dollarcove PMIC) to only take the P-Unit semaphore
+once around a group of I2C accesses to the PMIC. The second patch is an
+example of this.
 
-iosf_mbi_punit_acquire()
-iosf_mbi_punit_release()
+The third patch is some trivial cleanup to the i2c-designware driver which
+becomes possible after the first patch is merged. As mentioned in the commit
+message of the first patch, that patch deliberately saves that cleanup for
+later, so that it only touches i2c-designware-baytrail.c and not the main
+i2c-designware*.c files, so that it can be merged through the x86 tree
+without conflicts.
 
-iosf_mbi_block_punit_i2c_access()
-iosf_mbi_unblock_punit_i2c_access()
-
-The first 2 are for code which sends request to the P-Unit
-which may make it access the shared I2C bus to the PMIC, calling
-these will stop any kernel I2C code from accessing the bus.
-
-The latter 2 are for I2C code which wants to access the
-shared I2C bus to the PMIC, such as e.g. the fuel-gauge driver,
-these block any callers of iosf_mbi_punit_acquire() from
-continuing until iosf_mbi_unblock_punit_i2c_access() gets
-called.
-
-Basically we have 2 groups of code trying to access the same
-shared resource (the PMIC I2C bus), code talking to the P-Unit
-(which has its own access to the I2C bus at some level) and
-I2C client drivers (or ACPI OpRegions).
-
-If both happen at the same time bad things happen, so we
-need to arbitrate and exclusively allow accesses of one kind
-at a time. This is implemetned by both type of accesses acquiring
-the iosf_mbi_punit_mutex and keeping it locked over the access,
-hence the exit from the function keeps the mutex locked on success.
-
->> +		}
->> +
->> +		usleep_range(1000, 2000);
->> +	} while (time_before(jiffies, end));
->> +
->> +	ret = -ETIMEDOUT;
->> +	dev_err(&mbi_pdev->dev, "Error punit semaphore timed out, resetting\n");
->> +	iosf_mbi_reset_semaphore();
->> +	mutex_unlock(&iosf_mbi_punit_mutex);
->> +
->> +	if (!iosf_mbi_get_sem(&sem))
->> +		dev_err(&mbi_pdev->dev, "PUNIT SEM: %d\n", sem);
->> +out:
->> +	if (!WARN_ON(ret))
->> +		iosf_mbi_block_punit_i2c_access_count++;
->> +
->> +	mutex_unlock(&iosf_mbi_block_punit_i2c_access_count_mutex);
->> +
->> +	return ret;
->> +}
->> +EXPORT_SYMBOL(iosf_mbi_block_punit_i2c_access);
-> 
-> So this is a rather unusual looking locking pattern.
-> 
-> So if this is all intended and works fine then at minimum the semantics of the function should
-> be explained - right now it has no description whatsoever.
-
-Ok, for v3 I've added the following comment above the new
-iosf_mbi_block_punit_i2c_access() to explain things:
-
-/*
-  * This function blocks P-Unit accesses to the PMIC I2C bus, so that kernel
-  * I2C code, such as e.g. a fuel-gauge driver, can access it safely.
-  *
-  * This function may be called by I2C controller code while an I2C driver has
-  * already blocked P-Unit accesses because it wants them blocked over multiple
-  * i2c-transfers, for e.g. read-modify-write of an I2C client register.
-  *
-  * The P-Unit accesses already being blocked is tracked through the
-  * iosf_mbi_block_punit_i2c_access_count variable which is protected by the
-  * iosf_mbi_block_punit_i2c_access_count_mutex this mutex is hold for the
-  * entire duration of the function.
-  *
-  * If access is not blocked yet, this function takes the following steps:
-  *
-  * 1) Some code sends request to the P-Unit which make it access the PMIC
-  *    I2C bus. Testing has shown that the P-Unit does not check its internal
-  *    PMIC bus semaphore for these requests. Callers of these requests call
-  *    iosf_mbi_punit_acquire()/_release() around their P-Unit accesses, these
-  *    functions lock/unlock the iosf_mbi_punit_mutex.
-  *    As the first step we lock the iosf_mbi_punit_mutex, to wait for any in
-  *    flight requests to finish and to block any new requests.
-  *
-  * 2) Some code makes such P-Unit requests from atomic contexts where it
-  *    cannot call iosf_mbi_punit_acquire() as that may sleep.
-  *    As the second step we call a notifier chain which allows any code
-  *    needing P-Unit resources from atomic context to acquire them before
-  *    we take control over the PMIC I2C bus.
-  *
-  * 3) When CPU cores enter C6 or C7 the P-Unit needs to talk to the PMIC
-  *    if this happens while the kernel itself is accessing the PMIC I2C bus
-  *    the SoC hangs.
-  *    As the third step we call pm_qos_update_request() to disallow the CPU
-  *    to enter C6 or C7.
-  *
-  * 4) The P-Unit has a PMIC bus semaphore which we can request to stop
-  *    autonomous P-Unit tasks from accessing the PMIC I2C bus while we hold it.
-  *    As the fourth and final step we request this semaphore and wait for our
-  *    request to be acknowledged.
-  */
+Wolfram can we have your ack for merging the i2c-designware-baytrail.c
+changes through the x86 tree (assuming you are ok with moving all the
+iosf_mbi magic out of that file into arch/x86/platform/intel/iosf_mbi.c)?
 
 Regards,
-
+ 
 Hans
