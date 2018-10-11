@@ -1,7 +1,7 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 2/3] ACPI / PMIC: xpower: Block P-Unit I2C access during read-modify-write
-Date: Thu, 11 Oct 2018 12:26:26 +0200
-Message-ID: <20181011102627.7418-3-hdegoede@redhat.com>
+Subject: [PATCH v2 3/3] i2c: designware: Cleanup bus lock handling
+Date: Thu, 11 Oct 2018 12:26:27 +0200
+Message-ID: <20181011102627.7418-4-hdegoede@redhat.com>
 References: <20181011102627.7418-1-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,71 +12,129 @@ To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.
 Cc: Hans de Goede <hdegoede@redhat.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-intel_xpower_pmic_update_power() does a read-modify-write of the output
-control register. The i2c-designware code blocks the P-Unit I2C access
-during the read and write by taking the P-Unit's PMIC bus semaphore.
-But between the read and the write that semaphore is released and the
-P-Unit could make changes to the register which we then end up overwriting.
-
-This commit makes intel_xpower_pmic_update_power() take the semaphore
-itself so that it is held over the entire read-modify-write, avoiding this
-race.
+Now that most of the special Bay- / Cherry-Trail bus lock handling has
+been moved to the iosf_mbi code we can simplify the remaining code a bit.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/acpi/pmic/intel_pmic_xpower.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-designware-baytrail.c | 18 ++----------------
+ drivers/i2c/busses/i2c-designware-common.c   |  4 ++--
+ drivers/i2c/busses/i2c-designware-core.h     |  9 ++-------
+ drivers/i2c/busses/i2c-designware-platdrv.c  |  2 --
+ 4 files changed, 6 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/acpi/pmic/intel_pmic_xpower.c b/drivers/acpi/pmic/intel_pmic_xpower.c
-index 316e55174aa9..9e6ddf2a2d4e 100644
---- a/drivers/acpi/pmic/intel_pmic_xpower.c
-+++ b/drivers/acpi/pmic/intel_pmic_xpower.c
-@@ -18,6 +18,7 @@
- #include <linux/mfd/axp20x.h>
- #include <linux/regmap.h>
- #include <linux/platform_device.h>
-+#include <asm/iosf_mbi.h>
- #include "intel_pmic.h"
+diff --git a/drivers/i2c/busses/i2c-designware-baytrail.c b/drivers/i2c/busses/i2c-designware-baytrail.c
+index 8c84fa0b0384..33da07d64494 100644
+--- a/drivers/i2c/busses/i2c-designware-baytrail.c
++++ b/drivers/i2c/busses/i2c-designware-baytrail.c
+@@ -12,16 +12,6 @@
  
- #define XPOWER_GPADC_LOW	0x5b
-@@ -180,15 +181,21 @@ static int intel_xpower_pmic_get_power(struct regmap *regmap, int reg,
- static int intel_xpower_pmic_update_power(struct regmap *regmap, int reg,
- 					  int bit, bool on)
+ #include "i2c-designware-core.h"
+ 
+-static int baytrail_i2c_acquire(struct dw_i2c_dev *dev)
+-{
+-	return iosf_mbi_block_punit_i2c_access();
+-}
+-
+-static void baytrail_i2c_release(struct dw_i2c_dev *dev)
+-{
+-	iosf_mbi_unblock_punit_i2c_access();
+-}
+-
+ int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
  {
--	int data;
-+	int data, ret;
+ 	acpi_status status;
+@@ -46,13 +36,9 @@ int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
+ 		return -EPROBE_DEFER;
  
- 	/* GPIO1 LDO regulator needs special handling */
- 	if (reg == XPOWER_GPI1_CTRL)
- 		return regmap_update_bits(regmap, reg, GPI1_LDO_MASK,
- 					  on ? GPI1_LDO_ON : GPI1_LDO_OFF);
+ 	dev_info(dev->dev, "I2C bus managed by PUNIT\n");
+-	dev->acquire_lock = baytrail_i2c_acquire;
+-	dev->release_lock = baytrail_i2c_release;
++	dev->acquire_lock = iosf_mbi_block_punit_i2c_access;
++	dev->release_lock = iosf_mbi_unblock_punit_i2c_access;
+ 	dev->shared_with_punit = true;
  
--	if (regmap_read(regmap, reg, &data))
--		return -EIO;
-+	ret = iosf_mbi_block_punit_i2c_access();
-+	if (ret)
-+		return ret;
-+
-+	if (regmap_read(regmap, reg, &data)) {
-+		ret = -EIO;
-+		goto out;
-+	}
+ 	return 0;
+ }
+-
+-void i2c_dw_remove_lock_support(struct dw_i2c_dev *dev)
+-{
+-}
+diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+index 36271cd75342..a4730111d290 100644
+--- a/drivers/i2c/busses/i2c-designware-common.c
++++ b/drivers/i2c/busses/i2c-designware-common.c
+@@ -269,7 +269,7 @@ int i2c_dw_acquire_lock(struct dw_i2c_dev *dev)
+ 	if (!dev->acquire_lock)
+ 		return 0;
  
- 	if (on)
- 		data |= BIT(bit);
-@@ -196,9 +203,11 @@ static int intel_xpower_pmic_update_power(struct regmap *regmap, int reg,
- 		data &= ~BIT(bit);
+-	ret = dev->acquire_lock(dev);
++	ret = dev->acquire_lock();
+ 	if (!ret)
+ 		return 0;
  
- 	if (regmap_write(regmap, reg, data))
--		return -EIO;
-+		ret = -EIO;
-+out:
-+	iosf_mbi_unblock_punit_i2c_access();
- 
--	return 0;
-+	return ret;
+@@ -281,7 +281,7 @@ int i2c_dw_acquire_lock(struct dw_i2c_dev *dev)
+ void i2c_dw_release_lock(struct dw_i2c_dev *dev)
+ {
+ 	if (dev->release_lock)
+-		dev->release_lock(dev);
++		dev->release_lock();
  }
  
- /**
+ /*
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 9ec8394f4787..b4a0b2b99a78 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -10,7 +10,6 @@
+  */
+ 
+ #include <linux/i2c.h>
+-#include <linux/pm_qos.h>
+ 
+ #define DW_IC_DEFAULT_FUNCTIONALITY (I2C_FUNC_I2C |			\
+ 					I2C_FUNC_SMBUS_BYTE |		\
+@@ -209,7 +208,6 @@
+  * @fp_lcnt: fast plus LCNT value
+  * @hs_hcnt: high speed HCNT value
+  * @hs_lcnt: high speed LCNT value
+- * @pm_qos: pm_qos_request used while holding a hardware lock on the bus
+  * @acquire_lock: function to acquire a hardware lock on the bus
+  * @release_lock: function to release a hardware lock on the bus
+  * @shared_with_punit: true if this bus is shared with the SoCs PUNIT
+@@ -263,9 +261,8 @@ struct dw_i2c_dev {
+ 	u16			fp_lcnt;
+ 	u16			hs_hcnt;
+ 	u16			hs_lcnt;
+-	struct pm_qos_request	pm_qos;
+-	int			(*acquire_lock)(struct dw_i2c_dev *dev);
+-	void			(*release_lock)(struct dw_i2c_dev *dev);
++	int			(*acquire_lock)(void);
++	void			(*release_lock)(void);
+ 	bool			shared_with_punit;
+ 	void			(*disable)(struct dw_i2c_dev *dev);
+ 	void			(*disable_int)(struct dw_i2c_dev *dev);
+@@ -322,8 +319,6 @@ static inline int i2c_dw_probe_slave(struct dw_i2c_dev *dev) { return -EINVAL; }
+ 
+ #if IS_ENABLED(CONFIG_I2C_DESIGNWARE_BAYTRAIL)
+ extern int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev);
+-extern void i2c_dw_remove_lock_support(struct dw_i2c_dev *dev);
+ #else
+ static inline int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev) { return 0; }
+-static inline void i2c_dw_remove_lock_support(struct dw_i2c_dev *dev) {}
+ #endif
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 997bbb3d925f..9eaac3be1f63 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -418,8 +418,6 @@ static int dw_i2c_plat_remove(struct platform_device *pdev)
+ 	if (!IS_ERR_OR_NULL(dev->rst))
+ 		reset_control_assert(dev->rst);
+ 
+-	i2c_dw_remove_lock_support(dev);
+-
+ 	return 0;
+ }
+ 
 -- 
 2.19.0
