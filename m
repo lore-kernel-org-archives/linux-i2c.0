@@ -1,50 +1,55 @@
-From: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH v3 1/3] x86: baytrail/cherrytrail: Rework and move
- P-Unit PMIC bus semaphore code
-Date: Thu, 11 Oct 2018 21:35:08 +0100
-Message-ID: <20181011213508.40b8ce0e@alans-desktop>
-References: <20181011142911.13750-1-hdegoede@redhat.com>
-        <20181011142911.13750-2-hdegoede@redhat.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: Fix kerneldoc for renamed i2c dma put function
+Date: Thu, 11 Oct 2018 23:02:10 +0200
+Message-ID: <20181011210210.hsrxwqbc2loultks@katana>
+References: <20181008145520.36810-1-swboyd@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="dng3cjxcefyt7pl7"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181011142911.13750-2-hdegoede@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20181008145520.36810-1-swboyd@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: Stephen Boyd <swboyd@chromium.org>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-> 1) PMIC accesses often come in the form of a read-modify-write on one of
-> the PMIC registers, we currently release the P-Unit's PMIC bus semaphore
-> between the read and the write. If the P-Unit modifies the register during
-> this window?, then we end up overwriting the P-Unit's changes.
-> I believe that this is mostly an academic problem, but I'm not sure.
 
-It should be.
+--dng3cjxcefyt7pl7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 2) To safely access the shared I2C bus, we need to do 3 things:
-> a) Notify the GPU driver that we are starting a window in which it may not
-> access the P-Unit, since the P-Unit seems to ignore the semaphore for
-> explicit power-level requests made by the GPU driver
+On Mon, Oct 08, 2018 at 07:55:20AM -0700, Stephen Boyd wrote:
+> This function was renamed in commit 82fe39a6bc7b ("i2c: refactor
+> function to release a DMA safe buffer") but this kernel doc wasn't
+> updated to point at the new function. Rename it.
+>=20
+> Fixes: 82fe39a6bc7b ("i2c: refactor function to release a DMA safe buffer=
+")
+> Signed-off-by: Stephen Boyd <swboyd@chromium.org>
 
-That's not what happens. It's more a problem of
+Applied to for-current, thanks!
 
-We take the SEM
-The GPU driver pokes the GPU
-The GPU decides it wants to change the power situation
-The GPU asks
-It blocks on the SEM
 
-and the system deadlocks.
+--dng3cjxcefyt7pl7
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> b) Make a pm_qos request to force all CPU cores out of C6/C7 since entering
-> C6/C7 while we hold the semaphore hangs the SoC
+-----BEGIN PGP SIGNATURE-----
 
-Not just C6/C7 necessarily. We need to stop assorted transitions.
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlu/ukwACgkQFA3kzBSg
+KbYecRAAlUpqMldRD91/4Bpapu7M0C7rwGJ6PJPw43VweR9JQD/x0r/YE/6//EHs
+4thzz2Ip7bUI/cQ8XfkfVLO/XylnIHRF9x+DbAyUO4yXWQiUBEoFMp179ZYSyrzp
+Y8QdJNq8ykpNRezjJI4UjMudKLcwhoXFxOegFyXyN++IpUnru8QvyKz6ddgPSEJE
+SQLpVlh1r/9U7r310ozxJi3VQMCd+saYekgXj5Vl0OO8MKlgX5vxK2+CrlD448v2
+/Jazywg8l6CFCZLfsIzfMxpagRFAx2zmcIkI0EdVrcrZ8St8pPhl9+m7/2t+/ub/
+ThHBm/fi+vjlfi5JllbbABTRlksHPaFivh39r1o5mzer/eRMbWT2huCBzXfmlbnx
+rLiXPaGfYdI0Kr2B1c1nmDncRyAUsrPtYQ584kLHOD/urdvhFQ5+AYW24UhJ4tft
+MaHPyKRxVVPqsTASeMrVCbiN/etfvruX+O/WkXp1Sjba+aHFPERZe8cFnib5D8w/
+7sIS7CiUjhuR+dPau46n07qylx0i7y92UTQ8KJT+8BU6i+jHYXr0Bbf6TYWeU1sb
+acxqiNeD9ydOZrcBJc3z1iZk27lvbeNQsju3z2jQ1Qu9hgK9VGuaY0wzT7IO3ynZ
+WQlfiQWEiPE/aZ/8Krr5PQUO1G4X1ZrUjxcxIEZSuen9ElbolXQ=
+=wISp
+-----END PGP SIGNATURE-----
 
-Given how horrible this lot was to debug originally do you have any
-meaningful test data and performance numbers to justify it ? As an ahem
-'feature' it's gone away in modern chips so is it worth the attention ?
-
-Alan
+--dng3cjxcefyt7pl7--
