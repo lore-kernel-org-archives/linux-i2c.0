@@ -1,34 +1,195 @@
-From: Rob Herring <robh+dt@kernel.org>
-Subject: Re: [PATCH v3 2/2] treewide: use bus_find_device_by_fwnode
-Date: Wed, 10 Oct 2018 14:05:43 -0500
-Message-ID: <CAL_JsqJsF0Zr=chBQ_Euq+27TJftpSR5dpi-tYyiwEFdsEh6vQ@mail.gmail.com>
-References: <1539080245-25818-1-git-send-email-svellattu@mvista.com>
- <1539080245-25818-2-git-send-email-svellattu@mvista.com> <20181009174428.GB2182@xps15>
- <CALabi0FgQWGL8KMpCKt9N6Kkoig77LxOsea3Oe47tk5nOH10-Q@mail.gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 1/3] x86: baytrail/cherrytrail: Rework and move P-Unit
+ PMIC bus semaphore code
+Date: Thu, 11 Oct 2018 12:14:26 +0200
+Message-ID: <5f47d8ed-0c69-25b3-4eb8-fb92e90699a6@redhat.com>
+References: <20180923144510.4564-1-hdegoede@redhat.com>
+ <20180923144510.4564-2-hdegoede@redhat.com>
+ <20180924094855.GH15943@smile.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <CALabi0FgQWGL8KMpCKt9N6Kkoig77LxOsea3Oe47tk5nOH10-Q@mail.gmail.com>
-Sender: netdev-owner@vger.kernel.org
-To: svellattu@mvista.com
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, Linux I2C <linux-i2c@vger.kernel.org>, linux-rdma@vger.kernel.org, netdev <netdev@vger.kernel.org>, devicetree@vger.kernel.org, linux-spi <linux-spi@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, oulijun@huawei.com, xavier.huwei@huawei.com, Yisen Zhuang <yisen.zhuang@huawei.com>, Salil Mehta <salil.mehta@huawei.com>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Frank Rowand <frowand.list@gm>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180924094855.GH15943@smile.fi.intel.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, linux-acpi@vger.kernel.org, linux-i2c@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Oct 9, 2018 at 9:59 PM Silesh C V <svellattu@mvista.com> wrote:
->
-> Hello Mathieu,
->
-> On Tue, Oct 9, 2018 at 11:14 PM Mathieu Poirier
-> <mathieu.poirier@linaro.org> wrote:
-> >
-> >
-> > This doesn't apply on linux-next.  This late in the cycle you may want to rebase
-> > your work on that tree.
->
-> OK. Will send v4 after rebasing onto linux-next.
+Hi,
 
-That doesn't help anything unless you are targeting 4.21. If you are
-it would be easiest to apply patch 1 in 4.20 and split this patch by
-subsystem for 4.21. That avoids any cross subsystem dependencies.
+On 24-09-18 11:48, Andy Shevchenko wrote:
+> On Sun, Sep 23, 2018 at 04:45:08PM +0200, Hans de Goede wrote:
+>> On some BYT/CHT systems the SoC's P-Unit shares the I2C bus with the
+>> kernel. The P-Unit has a semaphore for the PMIC bus which we can take to
+>> block it from accessing the shared bus while the kernel wants to access it.
+>>
+>> Currently we have the I2C-controller driver acquiring and releasing the
+>> semaphore around each I2C transfer. There are 2 problems with this:
+>>
+>> 1) PMIC accesses often come in the form of a read-modify-write on one of
+>> the PMIC registers, we currently release the P-Unit's PMIC bus semaphore
+>> between the read and the write. If the P-Unit modifies the register during
+>> this window?, then we end up overwriting the P-Unit's changes.
+>> I believe that this is mostly an academic problem, but I'm not sure.
+>>
+>> 2) To safely access the shared I2C bus, we need to do 3 things:
+>> a) Notify the GPU driver that we are starting a window in which it may not
+>> access the P-Unit, since the P-Unit seems to ignore the semaphore for
+>> explicit power-level requests made by the GPU driver
+>> b) Make a pm_qos request to force all CPU cores out of C6/C7 since entering
+>> C6/C7 while we hold the semaphore hangs the SoC
+>> c) Finally take the P-Unit's PMIC bus semaphore
+>> All 3 these steps together are somewhat expensive, so ideally if we have
+>> a bunch of i2c transfers grouped together we only do this once for the
+>> entire group.
+>>
+>> Taking the read-modify-write on a PMIC register as example then ideally we
+>> would only do all 3 steps once at the beginning and undo all 3 steps once
+>> at the end.
+>>
+>> For this we need to be able to take the semaphore from within e.g. the PMIC
+>> opregion driver, yet we do not want to remove the taking of the semaphore
+>> from the I2C-controller driver, as that is still necessary to protect many
+>> other code-paths leading to accessing the shared I2C bus.
+>>
+>> This means that we first have the PMIC driver acquire the semaphore and
+>> then have the I2C controller driver trying to acquire it again.
+>>
+>> To make this possible this commit does the following:
+>>
+>> 1) Move the semaphore code from being private to the I2C controller driver
+>> into the generic iosf_mbi code, which already has other code to deal with
+>> the shared bus so that it can be accessed outside of the I2C bus driver.
+>>
+>> 2) Rework the code so that it can be called multiple times nested, while
+>> still blocking I2C accesses while e.g. the GPU driver has indicated the
+>> P-Unit needs the bus through a iosf_mbi_punit_acquire() call.
+>>
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>> Note this commit deliberately limits the i2c-designware changes to
+>> only touch i2c-designware-baytrail.c, deliberately not doing some cleanups
+>> which become possible after removing the semaphore code from the
+>> i2c-designmware code. This is done so that this commit can be merged
+>> through the x86 tree without causing conflicts in the i2c tree.
+>>
+>> The cleanups to the i2c-designware tree will be done in a follow up
+>> patch which can be merged once this commit is in place.
+> 
+>> +static void iosf_mbi_reset_semaphore(void)
+>> +{
+>> +	if (iosf_mbi_modify(BT_MBI_UNIT_PMC, MBI_REG_READ,
+>> +			    iosf_mbi_sem_address, 0, PUNIT_SEMAPHORE_BIT))
+>> +		dev_err(&mbi_pdev->dev, "Error punit semaphore reset failed\n");
+>> +
+>> +	pm_qos_update_request(&iosf_mbi_pm_qos, PM_QOS_DEFAULT_VALUE);
+>> +
+>> +	blocking_notifier_call_chain(&iosf_mbi_pmic_bus_access_notifier,
+>> +				     MBI_PMIC_BUS_ACCESS_END, NULL);
+> 
+>> +	mutex_unlock(&iosf_mbi_punit_mutex);
+> 
+> Can we actually move this to the callers?
+> To me sounds slightly more logical to see lock in *block*() call and unlock in
+> *unblock*() respectively.
 
-Rob
+Done for v2, which I will send out as soon as I've ran some tests with it.
+
+>> +}
+> 
+>> +int iosf_mbi_block_punit_i2c_access(void)
+>> +{
+>> +	unsigned long start, end;
+>> +	int ret = 0;
+>> +	u32 sem;
+>> +
+>> +	if (WARN_ON(!mbi_pdev || !iosf_mbi_sem_address))
+>> +		return -ENXIO;
+>> +
+>> +	mutex_lock(&iosf_mbi_block_punit_i2c_access_count_mutex);
+>> +
+>> +	if (iosf_mbi_block_punit_i2c_access_count > 0)
+>> +		goto out;
+>> +
+>> +	mutex_lock(&iosf_mbi_punit_mutex);
+>> +	blocking_notifier_call_chain(&iosf_mbi_pmic_bus_access_notifier,
+>> +				     MBI_PMIC_BUS_ACCESS_BEGIN, NULL);
+>> +
+>> +	/*
+>> +	 * Disallow the CPU to enter C6 or C7 state, entering these states
+>> +	 * requires the punit to talk to the pmic and if this happens while
+>> +	 * we're holding the semaphore, the SoC hangs.
+>> +	 */
+>> +	pm_qos_update_request(&iosf_mbi_pm_qos, 0);
+>> +
+>> +	/* host driver writes to side band semaphore register */
+>> +	ret = iosf_mbi_write(BT_MBI_UNIT_PMC, MBI_REG_WRITE,
+>> +			     iosf_mbi_sem_address, PUNIT_SEMAPHORE_ACQUIRE);
+>> +	if (ret) {
+>> +		dev_err(&mbi_pdev->dev, "Error punit semaphore request failed\n");
+>> +		goto out;
+>> +	}
+>> +
+>> +	/* host driver waits for bit 0 to be set in semaphore register */
+>> +	start = jiffies;
+>> +	end = start + msecs_to_jiffies(SEMAPHORE_TIMEOUT);
+>> +	do {
+>> +		ret = iosf_mbi_get_sem(&sem);
+>> +		if (!ret && sem) {
+>> +			iosf_mbi_sem_acquired = jiffies;
+>> +			dev_dbg(&mbi_pdev->dev, "punit semaphore acquired after %ums\n",
+>> +				jiffies_to_msecs(jiffies - start));
+>> +			goto out; /* Success, done. */
+>> +		}
+>> +
+>> +		usleep_range(1000, 2000);
+>> +	} while (time_before(jiffies, end));
+>> +
+>> +	ret = -ETIMEDOUT;
+>> +	dev_err(&mbi_pdev->dev, "Error punit semaphore timed out, resetting\n");
+>> +	iosf_mbi_reset_semaphore();
+>> +
+>> +	if (!iosf_mbi_get_sem(&sem))
+>> +		dev_err(&mbi_pdev->dev, "PUNIT SEM: %d\n", sem);
+>> +out:
+>> +	if (!WARN_ON(ret))
+>> +		iosf_mbi_block_punit_i2c_access_count++;
+>> +
+>> +	mutex_unlock(&iosf_mbi_block_punit_i2c_access_count_mutex);
+>> +
+>> +	return ret;
+>> +}
+>> +EXPORT_SYMBOL(iosf_mbi_block_punit_i2c_access);
+>> +
+>> +void iosf_mbi_unblock_punit_i2c_access(void)
+>> +{
+>> +	mutex_lock(&iosf_mbi_block_punit_i2c_access_count_mutex);
+>> +
+>> +	iosf_mbi_block_punit_i2c_access_count--;
+>> +	if (iosf_mbi_block_punit_i2c_access_count == 0) {
+>> +		iosf_mbi_reset_semaphore();
+>> +		dev_dbg(&mbi_pdev->dev, "punit semaphore held for %ums\n",
+>> +			jiffies_to_msecs(jiffies - iosf_mbi_sem_acquired));
+>> +	}
+>> +
+>> +	mutex_unlock(&iosf_mbi_block_punit_i2c_access_count_mutex);
+>> +}
+>> +EXPORT_SYMBOL(iosf_mbi_unblock_punit_i2c_access);
+> 
+>> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_BAYTRAIL),
+>> +	  .driver_data = PUNIT_SEMAPHORE_BYT },
+>> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_BRASWELL),
+>> +	  .driver_data = PUNIT_SEMAPHORE_CHT },
+>>   	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_QUARK_X1000) },
+>>   	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_TANGIER) },
+>>   	{ 0, },
+> 
+> Perhaps it can be converted to use PCI_DEVICE_DATA() macro.
+
+Also done for v2.
+
+Regards,
+
+Hans
