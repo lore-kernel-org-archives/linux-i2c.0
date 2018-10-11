@@ -1,34 +1,31 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 2/3] i2c: i2c-qcom-geni: Simplify tx/rx functions
-Date: Thu, 11 Oct 2018 23:11:21 +0200
-Message-ID: <20181011211121.6k525ixa2cbemm5w@katana>
+Subject: Re: [PATCH v3 3/3] i2c: i2c-qcom-geni: Simplify irq handler
+Date: Thu, 11 Oct 2018 23:11:26 +0200
+Message-ID: <20181011211126.r7sxqvrxce22wdk5@katana>
 References: <20180924235235.182649-1-swboyd@chromium.org>
- <20180924235235.182649-2-swboyd@chromium.org>
+ <20180924235235.182649-3-swboyd@chromium.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="taemko2ixbpiv2iq"
+        protocol="application/pgp-signature"; boundary="gw4hxvqsow7do7fv"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20180924235235.182649-2-swboyd@chromium.org>
+In-Reply-To: <20180924235235.182649-3-swboyd@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Stephen Boyd <swboyd@chromium.org>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, Sagar Dharia <sdharia@codeaurora.org>, Girish Mahadevan <girishm@codeaurora.org>, Doug Anderson <dianders@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---taemko2ixbpiv2iq
+--gw4hxvqsow7do7fv
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 24, 2018 at 04:52:34PM -0700, Stephen Boyd wrote:
-> We never really look at the 'ret' local variable in these functions, so
-> let's remove it to make way for shorter and simpler code. Furthermore,
-> we can shorten some lines by adding two local variables for the SE and
-> the message length so that everything fits in 80 columns and testing the
-> 'dma_buf' local variable in lieu of the 'mode' local variable.  And
-> kernel style is to leave the return statement by itself, detached from
-> the rest of the function.
+On Mon, Sep 24, 2018 at 04:52:35PM -0700, Stephen Boyd wrote:
+> We don't need to use goto here, we can just collapse the if statement
+> and goto chain into multiple branches and then combine some duplicate
+> completion calls into one big if statement. Let's do it to clean up code
+> some more.
 >=20
 > Cc: Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
 > Cc: Sagar Dharia <sdharia@codeaurora.org>
@@ -39,24 +36,24 @@ On Mon, Sep 24, 2018 at 04:52:34PM -0700, Stephen Boyd wrote:
 Applied to for-next, thanks!
 
 
---taemko2ixbpiv2iq
+--gw4hxvqsow7do7fv
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlu/vHkACgkQFA3kzBSg
-Kbb83w//eCKnP//hTPObrMhJ+Mmp6HU5Tp89ikmciHnAQvwdlV9LhNNikmnT70D/
-9mpOxz2MA56I1sX/adMQgkb6+pT5i3/fvvABoH5ZKpPs6jxjTWulRX/e9pIRAKtA
-FJeko90KbyPd2IlldY0cawzZmsgwVnbLxnfO5ZBoozLaJnMRxUggWz7UbrsGN1DB
-T1khYEPSeqBcr3tOtKjPeG8oSj4pzX5LWa356Tn1X54cpUDZPqZEDy+d3m42/piH
-LUS4h5qVajbL1dWErX64hFXIDYJ6QSwxnfJwfnoOH7nHNpzdcdBkb/g78asei4Fq
-Y3V04h/XowgAUyJHb4PDAL32/gGPHMFwR+D0zNCCYgvGKFDG4HA+tkeXAEQMu/hL
-YAGIqNfPTKgtuewM/Va/FtlXlgCK7ey/Kjz/r+hiQBJdgJ9+dqcgzbVspvrl95SC
-XE3kMilcSeBGr/UaTGU2N6o6YxW5XoncUtJwX936jIH/LZY2m5IkTFmvlIpDrtDq
-SJIW1NjbfTZuiS118DKVFXwGMIN65HA2ATHJvPEhlRcZ/LkqBuxdXCrC9s62Xa8r
-6mEDL0bkmJoCmFTlHF8a1hpbfpZxfQHST8od4/GJBpglSCucbD9TkiidKGD3yST3
-2+i4p+7Y9Ujq31r9Fug4DMRQib4B3Ukpqxxs3VUlh1wz9VWLxA4=
-=f4rs
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlu/vH4ACgkQFA3kzBSg
+KbYdcg/9EmvZmbD3Pll1WJOOnuCOWr1DMUsz3YGx6HbchQySbJvNtY7+CB8U3xHT
+RzLhjeMpSty7FfCM1WxV2TeKQMJNytYIuQfq/mGQVbJvcCQ1T7VCuAfYGyQutUIL
+Y5ZhJGbNEMZ0pzv7f/qEG656wyyOtTRB+/UrzQtwKG2U+YLFm0l3r76Se2uUqPmg
+h/+brH4Wlr7hYmAwwHBeVQt+gjFdGxS3zCjSPeyPmgD0Ab577dMh/pLN+3LjU4XS
+dNnXvoG158udEzF+ELtq32mTmdVuo08KcvTeF9oY5uSVlhS0nAQSlGtF4vSRr9jg
+vlKI451sUtIR0VDMrbD+A1Dqd5hR2GBR5tn7W6gqqSvZ7B50EhcMw7qDf/27KpmW
+ZUNI2N9PhMMPSRphcu2ert45bxruPiA1q7+4IyUovqZbj33Xul94BjEJW0j0ZYnB
+gjaO167U5P0lkrGUBE4t/tHHOUSVqt1G99Y+gd3FRg+jh9iqU0bfjF+WzBT0lUTS
+bh2tb6EoJjYDmmXIl0zR0SZnBpoGHBrRHq3/pgIhZPBvksNkV5ODTwO7XO5ulWkt
+9b+hV/HQ2x1m0TbN/c1RO0LiT3ZJxb8tNucMWsVizznDb5YaKecKsQ7Yax9p7NAa
+dreRUpu07L9xlCeY8oduVhRdWDpvscNMzJ4IDbeg6wkGbkGkAb4=
+=rDgc
 -----END PGP SIGNATURE-----
 
---taemko2ixbpiv2iq--
+--gw4hxvqsow7do7fv--
