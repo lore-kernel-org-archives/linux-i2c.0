@@ -1,85 +1,119 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v8 00/10] Add the I3C subsystem
-Date: Wed, 17 Oct 2018 15:18:29 +0200
-Message-ID: <20181017151829.470930a7@bbrezillon>
-References: <20181003132212.12619-1-boris.brezillon@bootlin.com>
-        <CAK8P3a2C+FHiPnHKEAanhD=RpqDG1VywTEGhpdBvvKQ8zmwdUA@mail.gmail.com>
+From: Jon Hunter <jonathanh@nvidia.com>
+Subject: Re: [PATCH v1] i2c: tegra: Remove suspend-resume
+Date: Wed, 17 Oct 2018 14:59:12 +0100
+Message-ID: <c1b73435-48f0-b445-568f-3c8942878123@nvidia.com>
+References: <20180513211347.7187-1-digetx@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAK8P3a2C+FHiPnHKEAanhD=RpqDG1VywTEGhpdBvvKQ8zmwdUA@mail.gmail.com>
+In-Reply-To: <20180513211347.7187-1-digetx@gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh <gregkh@linuxfoundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>
+To: Dmitry Osipenko <digetx@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Thierry Reding <thierry.reding@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>
+Cc: linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Greg,
 
-On Mon, 8 Oct 2018 12:47:21 +0200
-Arnd Bergmann <arnd@arndb.de> wrote:
+On 13/05/2018 22:13, Dmitry Osipenko wrote:
+> Nothing prevents I2C clients to access I2C while Tegra's driver is being
+> suspended, this results in -EBUSY error returned to the clients and that
+> may have unfortunate consequences. In particular this causes problems
+> for the TPS6586x MFD driver which emits hundreds of "failed to read
+> interrupt status" error messages on resume from suspend. This happens if
+> TPS6586X is used to wake system from suspend by the expired RTC alarm
+> timer because TPS6586X is an I2C device driver and its IRQ handler reads
+> the status register while Tegra's I2C driver is suspended, i.e. just after
+> kernel enabled IRQ's during of resume-from-suspend process.
 
-> On Wed, Oct 3, 2018 at 3:22 PM Boris Brezillon
-> <boris.brezillon@bootlin.com> wrote:
-> >
-> > Sorry for the huge delay between v7 and v8 despite the small amount of
-> > things I was asked to fix/rework.
-> >
-> > This patch series is adding a new subsystem to support I3C devices.
-> >
-> > This is just adding support for basic features. Extra features will
-> > be added afterwards.
-> >
-> > There are a few design choices that are worth mentioning because they
-> > impact the way I3C device drivers can interact with their devices:
-> >
-> > - all functions used to send I3C/I2C frames must be called in
-> >   non-atomic context. Mainly done this way to ease implementation, but
-> >   this is still open to discussion. Please let me know if you think it's
-> >   worth considering an asynchronous model here
-> > - the I3C bus and I3C master controller are now tightly coupled even
-> >   though they're still allocated separately. There's now a 1:1
-> >   relationship between these objects, and the I3C master is no longer
-> >   represented under the I3C bus object.
-> >   Arnd, let me know if you had something different in mind, and I'll
-> >   rework the implementation accordingly.  
-> 
-> I looked at the entire series again and I'm rather happy with how
-> it turned out. I've commented on a tiny issue about the readsl()
-> that should be easy to resolve one way or another, with that
-> you can add my
-> 
-> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-> 
-> There is one additional issue that we've talked about previously
-> and that I'd like to hear about from GregKH or maybe other
-> subsystem maintainers: In the current version, you have a single
-> 'bus_type' object, and this is used to represent both a 'host' and
-> a 'device'. I think we concluded that this is done in other
-> subsystems as well, and that this is fitting here because a
-> host (master device) can hand over being a master to another
-> device (slave), which then becomes the host and sees this
-> one as a slave. Also a lot of the sysfs attributes are the same
-> because of this relationship.
-> 
-> It also means that you get a mix of things in sysfs:
-> 
-> /sys/devices/i3c/<bus>
-> /sys/devices/i3c/<device>
-> /sys/devices/i3c/<bus>/<device>
-> 
-> which is a bit like what we have on USB where we can have hub
-> devices that are again parents of other USB devices, but I don't
-> think we can have i3c hubs or multiplexers in the same way, so
-> it's only a single level.
-> 
-> I'm ok with this model after our previous discussion and couldn't
-> come up with a better one. If anyone else still sees it as
-> problematic and has a better idea, please let us know now.
+I have been looking at the above issue with the tps6586x because I am
+seeing delays on resume caused by this driver on the stable branches. I
+understand that this patch was dropped for stable, but looking at the
+specific issue with the tps6586x I am curious why the tps6586x driver
+was not fixed because it appears to me that the issue largely resides
+with that driver and any other device that uses the tps6586x is
+susceptible to it. I was able to fix the tps6586x driver by doing the
+following and I am interested in your thoughts ...
 
-I know you're quite busy with the 4.19 release, but if you find a bit
-of time, that'd be great to have your feedback on this.
+Subject: [PATCH] mfd: tps6586x: Handle interrupts on suspend
 
-Thanks,
+The tps6586x device is registered as an irqchip and the tps6586x-rtc
+interrupt is one of it's interrupt sources. When using the tps6586x-rtc
+as a wake-up device from suspend, the following is seen:
 
-Boris
+ PM: Syncing filesystems ... done.
+ Freezing user space processes ... (elapsed 0.001 seconds) done.
+ OOM killer disabled.
+ Freezing remaining freezable tasks ... (elapsed 0.000 seconds) done.
+ Disabling non-boot CPUs ...
+ Entering suspend state LP1
+ Enabling non-boot CPUs ...
+ CPU1 is up
+ tps6586x 3-0034: failed to read interrupt status
+ tps6586x 3-0034: failed to read interrupt status
+
+The reason why the tps6586x interrupt status cannot be read is because
+the tps6586x interrupt is not masked during suspend and when the
+tps6586x-rtc interrupt occurs, to wake-up the device, the interrupt is
+seen before the i2c controller has been resumed in order to read the
+tps6586x interrupt status.
+
+The tps6586x-rtc driver sets it's interrupt as a wake-up source during
+suspend, which gets propagated to the parent tps6586x interrupt.
+However, the tps6586x-rtc driver cannot disable it's interrupt during
+suspend otherwise we would never be woken up and so the tps6586x must
+disable it's interrupt instead.
+
+Fix this by disabling the tps6586x interrupt on entering suspend and
+re-enabling it on resuming from suspend.
+---
+ drivers/mfd/tps6586x.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/drivers/mfd/tps6586x.c b/drivers/mfd/tps6586x.c
+index 5628a6b5b19b..165ac8a3d22c 100644
+--- a/drivers/mfd/tps6586x.c
++++ b/drivers/mfd/tps6586x.c
+@@ -594,6 +594,27 @@ static int tps6586x_i2c_remove(struct i2c_client
+*client)
+ 	return 0;
+ }
+
++static int __maybe_unused tps6586x_i2c_suspend(struct device *dev)
++{
++	struct tps6586x *tps6586x = dev_get_drvdata(dev);
++
++	disable_irq(tps6586x->client->irq);
++
++	return 0;
++}
++
++static int __maybe_unused tps6586x_i2c_resume(struct device *dev)
++{
++	struct tps6586x *tps6586x = dev_get_drvdata(dev);
++
++	enable_irq(tps6586x->client->irq);
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(tps6586x_pm_ops, tps6586x_i2c_suspend,
++			 tps6586x_i2c_resume);
++
+ static const struct i2c_device_id tps6586x_id_table[] = {
+ 	{ "tps6586x", 0 },
+ 	{ },
+@@ -604,6 +625,7 @@ static int tps6586x_i2c_remove(struct i2c_client
+*client)
+ 	.driver	= {
+ 		.name	= "tps6586x",
+ 		.of_match_table = of_match_ptr(tps6586x_of_match),
++		.pm	= &tps6586x_pm_ops,
+ 	},
+ 	.probe		= tps6586x_i2c_probe,
+ 	.remove		= tps6586x_i2c_remove,
+-- 
+1.9.1
+
+-- 
+nvpublic
