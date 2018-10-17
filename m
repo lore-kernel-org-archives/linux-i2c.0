@@ -1,57 +1,85 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 1/3] x86: baytrail/cherrytrail: Rework and move P-Unit
- PMIC bus semaphore code
-Date: Wed, 17 Oct 2018 12:34:31 +0200
-Message-ID: <20181017103430.GA1563@kunai>
-References: <20181011142911.13750-1-hdegoede@redhat.com>
- <20181011142911.13750-2-hdegoede@redhat.com>
- <20181014131724.GA863@kunai>
- <f040787b-3f64-e338-7a9c-0d44f968f496@linux.intel.com>
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Subject: Re: [PATCH v8 00/10] Add the I3C subsystem
+Date: Wed, 17 Oct 2018 15:18:29 +0200
+Message-ID: <20181017151829.470930a7@bbrezillon>
+References: <20181003132212.12619-1-boris.brezillon@bootlin.com>
+        <CAK8P3a2C+FHiPnHKEAanhD=RpqDG1VywTEGhpdBvvKQ8zmwdUA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <f040787b-3f64-e338-7a9c-0d44f968f496@linux.intel.com>
+In-Reply-To: <CAK8P3a2C+FHiPnHKEAanhD=RpqDG1VywTEGhpdBvvKQ8zmwdUA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org
+To: gregkh <gregkh@linuxfoundation.org>
+Cc: Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Greg,
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, 8 Oct 2018 12:47:21 +0200
+Arnd Bergmann <arnd@arndb.de> wrote:
 
+> On Wed, Oct 3, 2018 at 3:22 PM Boris Brezillon
+> <boris.brezillon@bootlin.com> wrote:
+> >
+> > Sorry for the huge delay between v7 and v8 despite the small amount of
+> > things I was asked to fix/rework.
+> >
+> > This patch series is adding a new subsystem to support I3C devices.
+> >
+> > This is just adding support for basic features. Extra features will
+> > be added afterwards.
+> >
+> > There are a few design choices that are worth mentioning because they
+> > impact the way I3C device drivers can interact with their devices:
+> >
+> > - all functions used to send I3C/I2C frames must be called in
+> >   non-atomic context. Mainly done this way to ease implementation, but
+> >   this is still open to discussion. Please let me know if you think it's
+> >   worth considering an asynchronous model here
+> > - the I3C bus and I3C master controller are now tightly coupled even
+> >   though they're still allocated separately. There's now a 1:1
+> >   relationship between these objects, and the I3C master is no longer
+> >   represented under the I3C bus object.
+> >   Arnd, let me know if you had something different in mind, and I'll
+> >   rework the implementation accordingly.  
+> 
+> I looked at the entire series again and I'm rather happy with how
+> it turned out. I've commented on a tiny issue about the readsl()
+> that should be easy to resolve one way or another, with that
+> you can add my
+> 
+> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+> 
+> There is one additional issue that we've talked about previously
+> and that I'd like to hear about from GregKH or maybe other
+> subsystem maintainers: In the current version, you have a single
+> 'bus_type' object, and this is used to represent both a 'host' and
+> a 'device'. I think we concluded that this is done in other
+> subsystems as well, and that this is fitting here because a
+> host (master device) can hand over being a master to another
+> device (slave), which then becomes the host and sees this
+> one as a slave. Also a lot of the sysfs attributes are the same
+> because of this relationship.
+> 
+> It also means that you get a mix of things in sysfs:
+> 
+> /sys/devices/i3c/<bus>
+> /sys/devices/i3c/<device>
+> /sys/devices/i3c/<bus>/<device>
+> 
+> which is a bit like what we have on USB where we can have hub
+> devices that are again parents of other USB devices, but I don't
+> think we can have i3c hubs or multiplexers in the same way, so
+> it's only a single level.
+> 
+> I'm ok with this model after our previous discussion and couldn't
+> come up with a better one. If anyone else still sees it as
+> problematic and has a better idea, please let us know now.
 
-> > For the record: once the designware maintainers are okay with this
-> > change, I am also okay with it going via the x86 platform tree.
-> >=20
-> Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+I know you're quite busy with the 4.19 release, but if you find a bit
+of time, that'd be great to have your feedback on this.
 
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
+Thanks,
 
-
---nFreZHaLTZJo0R7j
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlvHEDMACgkQFA3kzBSg
-KbZ8fQ/9GPZzZB/WIcMzmSZHbX0okCplGqCv2Ad1Xpm1dy0XuwTQJUSwAF+vN365
-rsP3Nr8wyYNLj6EYLS6+jJ0Rh5dGuG8mhgDjYMEny7UBr0pUhjzFOQXN9U0NeFYs
-YF1UyppAaX+uViiPz89bcDc5zj3heoFjjGP2r+0vJUw5uscXEQr+hEA6jw2fAL0n
-RgMuB0audo3sj87pyZd8Aur1/gQEfQ4UBW6Z09BYltvGhwsy6SMA/GtbX2lC7+iJ
-d0G2/TeuzpHDXsc4Bot3kbb69hx3CYnyAirFlC/tnNklZqaykC8qTEpXAL3mcMbE
-B2f4uEq1d86pPqqOmNTkcBhFqTbT+HFLqqdOjCdWrR8vW/qAqts/2RzZhr0c2OUh
-0IN7EJcaNbX2oDuuIN1SYAVll84+SCXQ+PesX8vsxPF6/r0DlMXxFrcuqz1L9n0v
-FnyXMGfnqPmIFIiBSkD17k6nRShZm9U0ZDtJThdhWNt2ObnXe9bVlGBg6+3YVLeZ
-U+2TCcoajrZXLVct8XuBj4LwVsg5r9bSjXE6N+w1prgvUkpw4vLkymCEO9Ki6BqP
-ZtlzXwQCmLd3sKZz+UcqrXm0qeXgbCsmQajHyAYHLevMvKKQma5Wn2iWHSOmefnN
-JQcRhwy/pwZFCcH/I5LIcAVZHJEDYH5RP45rmK44/KanQ9QDcCc=
-=U+Xp
------END PGP SIGNATURE-----
-
---nFreZHaLTZJo0R7j--
+Boris
