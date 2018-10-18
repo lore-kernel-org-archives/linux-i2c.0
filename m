@@ -1,84 +1,65 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH 1/3] x86: baytrail/cherrytrail: Rework and move P-Unit
- PMIC bus semaphore code
-Date: Thu, 18 Oct 2018 11:01:37 +0300
-Message-ID: <3093be44-3dc0-4e47-8d4d-b4f69818a0d3@linux.intel.com>
-References: <20180923144510.4564-1-hdegoede@redhat.com>
- <20180923144510.4564-2-hdegoede@redhat.com>
- <CAJZ5v0iu5eikTw3wOK7wHOVe+xHTv5xPTnQELEyA2oF8sL3S=g@mail.gmail.com>
- <CAHp75VccCQ3ey3kRpE35BDkjjFZtdYiHZ+caSVcviCd-fY71bA@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 3/3] i2c: designware: Cleanup bus lock handling
+Date: Thu, 18 Oct 2018 10:03:35 +0200
+Message-ID: <20181018080335.GD882@kunai>
+References: <20181011142911.13750-1-hdegoede@redhat.com>
+ <20181011142911.13750-4-hdegoede@redhat.com>
+ <47ea8d77-83eb-8f13-720c-6dd11fb70428@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="d9ADC0YsG2v16Js0"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHp75VccCQ3ey3kRpE35BDkjjFZtdYiHZ+caSVcviCd-fY71bA@mail.gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <47ea8d77-83eb-8f13-720c-6dd11fb70428@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>, "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Hans de Goede <hdegoede@redhat.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H . Peter Anvin" <hpa@zytor.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/18/2018 10:36 AM, Andy Shevchenko wrote:
-> On Thu, Oct 18, 2018 at 10:33 AM Rafael J. Wysocki <rafael@kernel.org> wrote:
->>
->> On Sun, Sep 23, 2018 at 4:45 PM Hans de Goede <hdegoede@redhat.com> wrote:
->>>
->>> On some BYT/CHT systems the SoC's P-Unit shares the I2C bus with the
->>> kernel. The P-Unit has a semaphore for the PMIC bus which we can take to
->>> block it from accessing the shared bus while the kernel wants to access it.
->>>
->>> Currently we have the I2C-controller driver acquiring and releasing the
->>> semaphore around each I2C transfer. There are 2 problems with this:
->>>
->>> 1) PMIC accesses often come in the form of a read-modify-write on one of
->>> the PMIC registers, we currently release the P-Unit's PMIC bus semaphore
->>> between the read and the write. If the P-Unit modifies the register during
->>> this window?, then we end up overwriting the P-Unit's changes.
->>> I believe that this is mostly an academic problem, but I'm not sure.
->>>
->>> 2) To safely access the shared I2C bus, we need to do 3 things:
->>> a) Notify the GPU driver that we are starting a window in which it may not
->>> access the P-Unit, since the P-Unit seems to ignore the semaphore for
->>> explicit power-level requests made by the GPU driver
->>> b) Make a pm_qos request to force all CPU cores out of C6/C7 since entering
->>> C6/C7 while we hold the semaphore hangs the SoC
->>> c) Finally take the P-Unit's PMIC bus semaphore
->>> All 3 these steps together are somewhat expensive, so ideally if we have
->>> a bunch of i2c transfers grouped together we only do this once for the
->>> entire group.
->>>
->>> Taking the read-modify-write on a PMIC register as example then ideally we
->>> would only do all 3 steps once at the beginning and undo all 3 steps once
->>> at the end.
->>>
->>> For this we need to be able to take the semaphore from within e.g. the PMIC
->>> opregion driver, yet we do not want to remove the taking of the semaphore
->>> from the I2C-controller driver, as that is still necessary to protect many
->>> other code-paths leading to accessing the shared I2C bus.
->>>
->>> This means that we first have the PMIC driver acquire the semaphore and
->>> then have the I2C controller driver trying to acquire it again.
->>>
->>> To make this possible this commit does the following:
->>>
->>> 1) Move the semaphore code from being private to the I2C controller driver
->>> into the generic iosf_mbi code, which already has other code to deal with
->>> the shared bus so that it can be accessed outside of the I2C bus driver.
->>>
->>> 2) Rework the code so that it can be called multiple times nested, while
->>> still blocking I2C accesses while e.g. the GPU driver has indicated the
->>> P-Unit needs the bus through a iosf_mbi_punit_acquire() call.
->>>
->>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->>
->> If there are no objections or concerns regarding this patch, I'm
->> inclined to take the entire series including it.
-> 
-> Please, go ahead, it looks good to me.
-> Thanks!
-> 
-Just in case note: please remember to take patches and tags from v3 of 
-the series, not from this v1 thread.
 
--- 
-Jarkko
+--d9ADC0YsG2v16Js0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Oct 15, 2018 at 05:15:47PM +0300, Jarkko Nikula wrote:
+> On 10/11/2018 05:29 PM, Hans de Goede wrote:
+> > Now that most of the special Bay- / Cherry-Trail bus lock handling has
+> > been moved to the iosf_mbi code we can simplify the remaining code a bi=
+t.
+> >=20
+> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> > ---
+> >   drivers/i2c/busses/i2c-designware-baytrail.c | 18 ++----------------
+> >   drivers/i2c/busses/i2c-designware-common.c   |  4 ++--
+> >   drivers/i2c/busses/i2c-designware-core.h     |  9 ++-------
+> >   drivers/i2c/busses/i2c-designware-platdrv.c  |  2 --
+> >   4 files changed, 6 insertions(+), 27 deletions(-)
+> >=20
+> Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+
+
+--d9ADC0YsG2v16Js0
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlvIPlcACgkQFA3kzBSg
+KbZbxA/+L/iMKMkRRkbJNp7Lvf5Bfp1CuWuC9x8IisQKY/jHDGxZIVlyjAdzOq/1
+2fGtfo9ke5Aq2M+3UO/bWHUUplis5Svtvl2uE6b/Oa2KWuJvTAdTHz2vIiKAah60
+eRlFcyJFaScPL5xQlETxcmQai1vjsennOuCe6Jsv1eNuKIttlYD1qZxIbQO/8kAJ
+e8q7DdYR1FcSnwKMiqBoDOE9O/EKVtf7K60luGDFX4XeGTGlsHwRvjEKAchLum+i
+ScGFNqVAQzCKPYtoWAJcwCJStUd6ZzR8UsqsZ6gjN+uEKh9SK7RyIGFJgfqD/Uj7
+H9SY96lczgz3iHcy3jRnya1aFpIgDBCpbuWG5RK2pITNTxNgXZWwGIJ0WuH2wYLR
+75SMxnZ+TxiLpXNHqhpR1CAN8f/E3I+Dneb9/4c4+M7MQFr9ap6rKUxHjRvoypOp
+ixzNSVDCnpAIIk6xeKXoDWqzNOjYSHtqeswoXOEPH1YerDRQsclgQITtN0tW9HlZ
+DBrgqTP2XFaNKr4ke4RM6GcaKHBKevt1TqPdPrz7iyWZubAg4J1X85VyJxKOZNax
+YkePZUzNfCk6c3B+hYVtdd7b/G/tXKS4ZzfVqQ9W/spAtvsU7frSufJAizSE9JZK
+i6oEZCHLILeNlBe8NmZf+02vIqcvHZVO5zFX+tMbnGmzBNoBTn4=
+=6mQJ
+-----END PGP SIGNATURE-----
+
+--d9ADC0YsG2v16Js0--
