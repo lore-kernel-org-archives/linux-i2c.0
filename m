@@ -1,111 +1,80 @@
-From: Oleksij Rempel <o.rempel@pengutronix.de>
-Subject: Re: [PATCH v1 2/3] i2c: imx: probe dma only only on i.MX50 and later.
-Date: Fri, 19 Oct 2018 12:17:03 +0200
-Message-ID: <20181019101703.qmgljhldymq3xtj3@pengutronix.de>
-References: <20181018112615.29362-1-o.rempel@pengutronix.de>
- <20181018112615.29362-3-o.rempel@pengutronix.de>
- <20181019071243.t5bwcmnnlqrgtajj@pengutronix.de>
- <20181019090100.6vcergf6txgxt7fo@pengutronix.de>
- <20181019092145.6zihrnduyypzo5x2@pengutronix.de>
+From: Evan Green <evgreen@chromium.org>
+Subject: Re: [RFC] i2c: qup: Use the interconnect API
+Date: Fri, 19 Oct 2018 10:37:35 -0700
+Message-ID: <CAE=gft4BCgrPCf5UuhxMh8ORCk40C4tnFxWy-QQJ4ag+yObwvg@mail.gmail.com>
+References: <20180920182903.19991-1-georgi.djakov@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============9207950894810238720=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20181019092145.6zihrnduyypzo5x2@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Shawn Guo <shawnguo@kernel.org>, linux-arm-kernel@lists.infradead.org, NXP Linux Team <linux-imx@nxp.com>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20180920182903.19991-1-georgi.djakov@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: georgi.djakov@linaro.org
+Cc: linux-pm@vger.kernel.org, gregkh@linuxfoundation.org, rjw@rjwysocki.net, robh+dt@kernel.org, Michael Turquette <mturquette@baylibre.com>, khilman@baylibre.com, Vincent Guittot <vincent.guittot@linaro.org>, Saravana Kannan <skannan@codeaurora.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, amit.kucheria@linaro.org, seansw@qti.qualcomm.com, daidavid1@codeaurora.org, mark.rutland@arm.com, lorenzo.pieralisi@arm.com, Alexandre Bailon <abailon@baylibre.com>, maxime.ripard@bootlin.com, Arnd Bergmann <arnd@arndb.de>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org, wsa@the-dreams.de, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Sep 20, 2018 at 11:29 AM Georgi Djakov <georgi.djakov@linaro.org> wrote:
+>
+> The interconnect API provides an interface for consumer drivers to express
+> their bandwidth needs in the SoC. This data is aggregated and the on-chip
+> interconnect hardware is configured to the appropriate power/performance
+> profile.
+>
+> Use the interconnect API to get() the path between the endpoints used for
+> data transfers by the I2C QUP and report the needed bandwidth based on the
+> i2c mode.
+>
+> Signed-off-by: Georgi Djakov <georgi.djakov@linaro.org>
+> ---
+>
+> This patch depends on the interconnect API: https://lkml.org/lkml/2018/8/31/444
+>
+> TODO: Use a macro for converting and rounding to icc units instead of
+> converting between kilobits, kilobytes etc. in the consumer drivers.
+>
+>  drivers/i2c/busses/i2c-qup.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
+>
+> diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+> index c86c3ae1318f..436747a74dc6 100644
+> --- a/drivers/i2c/busses/i2c-qup.c
+> +++ b/drivers/i2c/busses/i2c-qup.c
+> @@ -14,6 +14,7 @@
+>  #include <linux/dma-mapping.h>
+>  #include <linux/err.h>
+>  #include <linux/i2c.h>
+> +#include <linux/interconnect.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/io.h>
+>  #include <linux/module.h>
+> @@ -280,6 +281,11 @@ struct qup_i2c_dev {
+>         void (*read_rx_fifo)(struct qup_i2c_dev *qup);
+>         /* function to write tags in tx fifo for i2c read transfer */
+>         void (*write_rx_tags)(struct qup_i2c_dev *qup);
+> +
+> +       /* frequency mode standard */
+> +       u32                     clk_freq;
+> +       /* interconnect path to scale according to bandwidth needs */
+> +       struct icc_path         *path;
+>  };
+>
+>  static irqreturn_t qup_i2c_interrupt(int irq, void *dev)
+> @@ -1657,6 +1663,16 @@ static void qup_i2c_disable_clocks(struct qup_i2c_dev *qup)
+>         clk_disable_unprepare(qup->pclk);
+>  }
+>
+> +static void qup_i2c_enable_icc(struct qup_i2c_dev *qup)
+> +{
+> +       icc_set(qup->path, 0, qup->clk_freq / 8000);
 
---===============9207950894810238720==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="mibcikfkof3hn62k"
-Content-Disposition: inline
+So this specifies an average bandwidth of zero, and a peak bandwidth
+of freq / 8000? Can you explain why that is the right choice?
+Also, where is this 8000 coming from? Can that be a define, and
+possibly explained?
 
-
---mibcikfkof3hn62k
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Oct 19, 2018 at 11:21:45AM +0200, Uwe Kleine-K=F6nig wrote:
-> On Fri, Oct 19, 2018 at 11:01:00AM +0200, Oleksij Rempel wrote:
-> > On Fri, Oct 19, 2018 at 09:12:43AM +0200, Uwe Kleine-K=F6nig wrote:
-> > > Hello Oleksij,
-> > >=20
-> > > On Thu, Oct 18, 2018 at 01:26:14PM +0200, Oleksij Rempel wrote:
-> > > > The DMA support for I2C was introduced on i.MX50. So,
-> > > > avoid of DMA probing on not supported versions.
-> > >=20
-> > > What is the obvious downside of trying to use DMA on i.MX21? If the
-> > > purpose is just to suppress the message
-> > >=20
-> > > 	can't request DMA tx channel
-> > >=20
-> > > , that goes away with patch 3, too.
-> > >=20
-> > > Note that if we agree that i.MX50 (and later) isn't compatible to
-> > > i.MX21, all device trees should be fixed accordingly. IMHO the
-> > > difference "There is a DMA engine connected only on some
-> > > implementations" doesn't give enough incentive to claim that i.MX21 a=
-nd
-> > > i.MX50 must not share the compatible.
-> >=20
-> > I don't see any sense to do allocation and add extra probes just to find
-> > what we already know from compatible.
->=20
-> I think it's perfectly fine to only notice that there is no DMA support
-> when trying to set it up. It has slight runtime overhead, yes, but being
-> able to handle imx21 and imx50 in the same way is a nice advantage that
-> I don't want to throw away easily.
->=20
-> If you care about the allocation, you can do do the calls to
-> dma_request_chan first and assign to local variables before the
-> allocation of *dma.
-
-Ok, then we can drop this patch.
-
---=20
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
-
---mibcikfkof3hn62k
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEEpENFL0P3hvQ7p0DDdQOiSHVI77QFAlvJrxUACgkQdQOiSHVI
-77QXAwgAj78EfTt4efZDEp+YavsSBAb2yL4yflgAHlwVzxKwBfZKeg0UQHhk8Kll
-HY+BjbxTMhanoec809WINAS504CGMLklg6nwEmc3YtvKAIcPyp76p2gJDb4GbMKj
-KyTYrc4Z5VL6GiZFBrcnXxP4nLhHKbtLStqN3l6Ca5ZGT5J1/aypjEwicJZt5pAy
-/sTyR9J3j+8ydXk0n6aFfRt0Q0y3lnCCDkfXM2vlLwgi6C7aT+Ho27+JCQE4lO5A
-dAQHmWAuxvfYOyRFrIv4Lnu0HEGx2W29J45Eu8biQW/jxmQd+graUJUYCv+Bj5gr
-YSMLfBmKppTBHM+uW3V4bPZz+j+PDA==
-=siPD
------END PGP SIGNATURE-----
-
---mibcikfkof3hn62k--
-
-
---===============9207950894810238720==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============9207950894810238720==--
+> +}
+> +
+> +static void qup_i2c_disable_icc(struct qup_i2c_dev *qup)
+> +{
+> +       icc_set(qup->path, 0, 0);
+> +}
+> +
