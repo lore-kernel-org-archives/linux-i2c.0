@@ -1,16 +1,15 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH V3 4/8] dt-bindings: i2c: i2c-imx-lpi2c: add imx8qxp
- compatible string
-Date: Thu, 18 Oct 2018 14:49:23 -0500
-Message-ID: <20181018194923.GA23965@bogus>
-References: <1539886483-15775-1-git-send-email-aisheng.dong@nxp.com>
- <1539886483-15775-5-git-send-email-aisheng.dong@nxp.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v1 2/3] i2c: imx: probe dma only only on i.MX50 and later.
+Date: Fri, 19 Oct 2018 09:12:43 +0200
+Message-ID: <20181019071243.t5bwcmnnlqrgtajj@pengutronix.de>
+References: <20181018112615.29362-1-o.rempel@pengutronix.de>
+ <20181018112615.29362-3-o.rempel@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <1539886483-15775-5-git-send-email-aisheng.dong@nxp.com>
+In-Reply-To: <20181018112615.29362-3-o.rempel@pengutronix.de>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -20,21 +19,33 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-Cc: "A.s. Dong" <aisheng.dong@nxp.com>, Mark Rutland <mark.rutland@arm.com>, "dongas86@gmail.com" <dongas86@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "robh+dt@kernel.org" <robh+dt@kernel.org>, dl-linux-imx <linux-imx@nxp.com>, "kernel@pengutronix.de" <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Shawn Guo <shawnguo@kernel.org>, linux-arm-kernel@lists.infradead.org, NXP Linux Team <linux-imx@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 18 Oct 2018 18:19:29 +0000, "A.s. Dong" wrote:
-> Add imx8qxp compatible string
-> 
-> Cc: Rob Herring <robh+dt@kernel.org>
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: linux-i2c@vger.kernel.org
-> Cc: devicetree@vger.kernel.org
-> Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-imx-lpi2c.txt | 1 +
->  1 file changed, 1 insertion(+)
-> 
+Hello Oleksij,
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+On Thu, Oct 18, 2018 at 01:26:14PM +0200, Oleksij Rempel wrote:
+> The DMA support for I2C was introduced on i.MX50. So,
+> avoid of DMA probing on not supported versions.
+
+What is the obvious downside of trying to use DMA on i.MX21? If the
+purpose is just to suppress the message
+
+	can't request DMA tx channel
+
+, that goes away with patch 3, too.
+
+Note that if we agree that i.MX50 (and later) isn't compatible to
+i.MX21, all device trees should be fixed accordingly. IMHO the
+difference "There is a DMA engine connected only on some
+implementations" doesn't give enough incentive to claim that i.MX21 and
+i.MX50 must not share the compatible.
+
+Best regards
+Uwe
+
+-- =
+
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
