@@ -1,51 +1,39 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v1 2/3] i2c: imx: probe dma only only on i.MX50 and later.
-Date: Fri, 19 Oct 2018 09:12:43 +0200
-Message-ID: <20181019071243.t5bwcmnnlqrgtajj@pengutronix.de>
-References: <20181018112615.29362-1-o.rempel@pengutronix.de>
- <20181018112615.29362-3-o.rempel@pengutronix.de>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
+Subject: [PATCH 1/2] i2c: Remove unnecessary call to irq_find_mapping
+Date: Fri, 19 Oct 2018 09:59:57 +0100
+Message-ID: <20181019085958.32694-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20181018112615.29362-3-o.rempel@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Shawn Guo <shawnguo@kernel.org>, linux-arm-kernel@lists.infradead.org, NXP Linux Team <linux-imx@nxp.com>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Oleksij,
+irq_create_mapping calls irq_find_mapping internally and will use the
+found mapping if one exists, so there is no need to manually call this
+from i2c_smbus_host_notify_to_irq.
 
-On Thu, Oct 18, 2018 at 01:26:14PM +0200, Oleksij Rempel wrote:
-> The DMA support for I2C was introduced on i.MX50. So,
-> avoid of DMA probing on not supported versions.
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+---
+ drivers/i2c/i2c-core-base.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-What is the obvious downside of trying to use DMA on i.MX21? If the
-purpose is just to suppress the message
-
-	can't request DMA tx channel
-
-, that goes away with patch 3, too.
-
-Note that if we agree that i.MX50 (and later) isn't compatible to
-i.MX21, all device trees should be fixed accordingly. IMHO the
-difference "There is a DMA engine connected only on some
-implementations" doesn't give enough incentive to claim that i.MX21 and
-i.MX50 must not share the compatible.
-
-Best regards
-Uwe
-
--- =
-
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index dc78aa7369def..656f0a6fe3adf 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -306,10 +306,7 @@ static int i2c_smbus_host_notify_to_irq(const struct i2c_client *client)
+ 	if (client->flags & I2C_CLIENT_TEN)
+ 		return -EINVAL;
+ 
+-	irq = irq_find_mapping(adap->host_notify_domain, client->addr);
+-	if (!irq)
+-		irq = irq_create_mapping(adap->host_notify_domain,
+-					 client->addr);
++	irq = irq_create_mapping(adap->host_notify_domain, client->addr);
+ 
+ 	return irq > 0 ? irq : -ENXIO;
+ }
+-- 
+2.11.0
