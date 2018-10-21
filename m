@@ -1,72 +1,89 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.19
-Date: Sun, 21 Oct 2018 12:40:06 +0200
-Message-ID: <20181021104002.GA2921@kunai>
+From: Peter Korsgaard <jacmet@sunsite.dk>
+Subject: Re: [PATCH 1/3] i2c:ocores: stop transfer on timeout
+Date: Sun, 21 Oct 2018 16:10:30 +0200
+Message-ID: <CACXmVia0vStmBwd4ndFk6UjE9wGsjp7Y75ej0AGq68H8-XkZqw@mail.gmail.com>
+References: <20180625161303.7991-1-federico.vaga@cern.ch> <20180625161303.7991-2-federico.vaga@cern.ch>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="zYM0uCDKw75PZbzx"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <20180625161303.7991-2-federico.vaga@cern.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Federico Vaga <federico.vaga@cern.ch>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Jun 25, 2018 at 6:14 PM Federico Vaga <federico.vaga@cern.ch> wrote:
 
---zYM0uCDKw75PZbzx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi, and sorry for the slow response.
 
-Greg,
+> Detecting a timeout is ok, but we also need to assert a STOP command on
+> the bus in order to prevent it from generating interrupts when there are
+> no on going transfers.
+>
+> Example: very long transmission.
+>
+> 1. ocores_xfer: START a transfer
+> 2. ocores_isr : handle byte by byte the transfer
+> 3. ocores_xfer: goes in timeout [[bugfix here]]
+> 4. ocores_xfer: return to I2C subsystem and to the I2C driver
+> 5. I2C driver : it may clean up the i2c_msg memory
+> 6. ocores_isr : receives another interrupt (pending bytes to be
+>                 transferred) but the i2c_msg memory is invalid now
+>
+> So, since the transfer was too long, we have to detect the timeout and
+> STOP the transfer.
+>
+> Another point is that we have a critical region here. When handling the
+> timeout condition we may have a running IRQ handler. For this reason I
+> introduce a spinlock. In the IRQ handler we can just use trylock because
+> if the lock is taken is because we are in timeout, so there is no need to
+> process the IRQ.
+>
+> Signed-off-by: Federico Vaga <federico.vaga@cern.ch>
+> ---
+>  drivers/i2c/busses/i2c-ocores.c | 28 ++++++++++++++++++++++++++--
+>  1 file changed, 26 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+> index 88444ef74943..98c0ef74882b 100644
+> --- a/drivers/i2c/busses/i2c-ocores.c
+> +++ b/drivers/i2c/busses/i2c-ocores.c
+> @@ -25,6 +25,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/io.h>
+>  #include <linux/log2.h>
+> +#include <linux/spinlock.h>
+>
+>  struct ocores_i2c {
+>         void __iomem *base;
+> @@ -36,6 +37,7 @@ struct ocores_i2c {
+>         int pos;
+>         int nmsgs;
+>         int state; /* see STATE_ */
+> +       spinlock_t xfer_lock;
+>         struct clk *clk;
+>         int ip_clock_khz;
+>         int bus_clock_khz;
+> @@ -207,15 +209,30 @@ static void ocores_process(struct ocores_i2c *i2c)
+>  static irqreturn_t ocores_isr(int irq, void *dev_id)
+>  {
+>         struct ocores_i2c *i2c = dev_id;
+> +       unsigned long flags;
+> +       int ret;
+> +
+> +       /*
+> +        * We need to protect i2c against a timeout event (see ocores_xfer())
+> +        * If we cannot take this lock, it means that we are already in
+> +        * timeout, so it's pointless to handle this interrupt because we
+> +        * are going to abort the current transfer.
+> +        */
+> +       ret = spin_trylock_irqsave(&i2c->xfer_lock, flags);
 
-please pull another driver bugfix and MAINTAINERS addition from I2C.
+This is very old code, so I might be missing something - But I still
+don't quite understand this trylock logic. If we end up here with the
+lock taken, then that must mean that we are on SMP system. We still
+need to ack the interrupt, so just spinning until the other CPU
+releases the lock seems more sensible?
 
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit 35a7f35ad1b150ddf59a41dcac7b2fa32982be0e:
-
-  Linux 4.19-rc8 (2018-10-15 07:20:24 +0200)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to 31d86033a0749a0463ea654130b2de5c163154f1:
-
-  i2c: rcar: cleanup DMA for all kinds of failure (2018-10-20 15:25:59 +0200)
-
-----------------------------------------------------------------
-Kamal Dasu (1):
-      MAINTAINERS: Add entry for Broadcom STB I2C controller
-
-Wolfram Sang (1):
-      i2c: rcar: cleanup DMA for all kinds of failure
-
- MAINTAINERS                   | 8 ++++++++
- drivers/i2c/busses/i2c-rcar.c | 6 +++++-
- 2 files changed, 13 insertions(+), 1 deletion(-)
-
---zYM0uCDKw75PZbzx
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlvMV30ACgkQFA3kzBSg
-KbbFJw//e/o64XaEp1T+pNh4khVEAtQmh98yb+/Sph8xVPqFKZnOd0MxKnc6SZUt
-gXJUKroRnqclp+0dCeeeVDVOKHlgVkbv1lECBOG/jaNIdpdxahQm8UHvLWDl2N4h
-z7G2oB1urzA9i7ziDIGEVZLoTLmhQCk+4s8/Vc1EHj5hRzkwFaTC/9X245+LCtnv
-7n8RAKDnP7VQN/ThMoMU/7qRlq3aFlZP9s6315qmvF4qnXyDRTc+RdRecI4Xfs6C
-qnKL1mMuAwHCdk3IsTcL1kopbyIXMJM2a12sOWpioc/BD7qS8z4iZD5XAYm2rrza
-0iMhIYGgZGtvgBt9DX876BgvAq4FwVa+FoXCVC4+Rbh11EwkCnC6YBtXhMfffacB
-uNIwKbdd3bfoYXeZOzfsE27E+l0GBetOzq/XsJJ+M/UZP38yILMrHQihL/PEd8Bp
-nxDnj6hkkmY+dPbmJyD3U8KdWIAD0incZ8cxXAvw5zeDQQPz0kg5Nr0Nr1Z/tjl+
-fxqhkwOMcnuHsBsL885aVE+nXle4JdVdC5Yp7BO8cbeKI5yg+3wdEVbunXeobhrT
-SF8cdHdEnMmPtNwBvbu+j5YFs/9VZrvtXyGyLO/43ceyWtwk9GPFwrNfDH6XiwPN
-YGfJgePR6EtXpK4VikoFfGizCuZPa4l3eI8AbBrU+920hdkTg9s=
-=8ka2
------END PGP SIGNATURE-----
-
---zYM0uCDKw75PZbzx--
+-- 
+Bye, Peter Korsgaard
