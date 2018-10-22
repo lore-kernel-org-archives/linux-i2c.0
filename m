@@ -1,81 +1,64 @@
-From: Adrian Bunk <bunk@kernel.org>
-Subject: 4.14/4.18: Please add "eeprom: at24: Add support for address-width
- property"
-Date: Mon, 22 Oct 2018 11:38:35 +0300
-Message-ID: <20181022083835.GA5315@localhost>
+From: <Andrei.Stefanescu@microchip.com>
+Subject: [PATCH] i2c: at91: switched to resume/suspend callbacks.
+Date: Mon, 22 Oct 2018 10:17:47 +0000
+Message-ID: <1540203006-805-1-git-send-email-andrei.stefanescu@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: stable-owner@vger.kernel.org
-To: stable@vger.kernel.org
-Cc: Alan Chiang <alanx.chiang@intel.com>, Andy Yeh <andy.yeh@intel.com>, Bartosz Golaszewski <brgl@bgdev.pl>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, Ludovic.Desroches@microchip.com, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com
+Cc: Cristian.Birsan@microchip.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Andrei.Stefanescu@microchip.com
 List-Id: linux-i2c@vger.kernel.org
 
-Please cherry-pick the following commit to 4.14 and 4.18:
+In the previous version of the driver resume/suspend_noirq callbacks
+were used. Because of this, when resuming from suspend-to-ram,
+an I2C (belonging to a FLEXCOM) would resume before FLEXCOM.
+The first read on the I2C bus would then result in a timeout.
 
-    commit a2b3bf4846e5eed62ea6abb096af2c950961033c
-    Author: Alan Chiang <alanx.chiang@intel.com>
-    Date:   Wed Jul 25 11:20:22 2018 +0800
+This patch switches to resume/suspend callbacks which are=20
+called after FLEXCOM resumes. FLEXCOM, SPI and USART drivers use
+resume/suspend callbacks.
 
-    eeprom: at24: Add support for address-width property
-    
-    Provide a flexible way to determine the addressing bits of eeprom.
-    Pass the addressing bits to driver through address-width property.
-
-    Signed-off-by: Alan Chiang <alanx.chiang@intel.com>
-    Signed-off-by: Andy Yeh <andy.yeh@intel.com>
-    Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-
-
-Confirmed to work on 4.14 with the Identification Page
-of an ST M24M02-DR (256 bytes but 16 bit addressing).
-
-Cannot be cherry-picked trivially on 4.9.
-
-The corresponding documentation commit 21d04054501fb27b56e995b54ac74e39aee79a46
-can be cherry-picked to 4.18, the backport for 4.14 is below.
-
-Thanks
-Adrian
-
-
->From 2562e333f39b8077ffb06bdf79430f10b74c11f5 Mon Sep 17 00:00:00 2001
-From: Alan Chiang <alanx.chiang@intel.com>
-Date: Wed, 25 Jul 2018 11:20:21 +0800
-Subject: [PATCH] dt-bindings: at24: Add address-width property
-
-Currently the only way to use a variant of a supported model with
-a different address width is to define a new compatible string and
-the corresponding chip data structure.
-
-Provide a flexible way to specify the size of the address pointer
-by defining a new property: address-width.
-
-Signed-off-by: Alan Chiang <alanx.chiang@intel.com>
-Signed-off-by: Andy Yeh <andy.yeh@intel.com>
-Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-[Bartosz: fixed the commit message]
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-[Adrian Bunk: backported to 4.14]
-Signed-off-by: Adrian Bunk <bunk@kernel.org>
+Signed-off-by: Andrei Stefanescu <andrei.stefanescu@microchip.com>
 ---
- Documentation/devicetree/bindings/eeprom/eeprom.txt | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/busses/i2c-at91.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt b/Documentation/devicetree/bindings/eeprom/eeprom.txt
-index afc04589eadf..44bfffc43bed 100644
---- a/Documentation/devicetree/bindings/eeprom/eeprom.txt
-+++ b/Documentation/devicetree/bindings/eeprom/eeprom.txt
-@@ -36,6 +36,8 @@ Optional properties:
- 
-   - read-only: this parameterless property disables writes to the eeprom
- 
-+  - address-width: number of address bits (one of 8, 16).
-+
- Example:
- 
- eeprom@52 {
--- 
-2.11.0
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index bfd1fdf..81f7b94 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -1174,7 +1174,7 @@ static int at91_twi_runtime_resume(struct device *dev=
+)
+ 	return clk_prepare_enable(twi_dev->clk);
+ }
+=20
+-static int at91_twi_suspend_noirq(struct device *dev)
++static int at91_twi_suspend(struct device *dev)
+ {
+ 	if (!pm_runtime_status_suspended(dev))
+ 		at91_twi_runtime_suspend(dev);
+@@ -1182,7 +1182,7 @@ static int at91_twi_suspend_noirq(struct device *dev)
+ 	return 0;
+ }
+=20
+-static int at91_twi_resume_noirq(struct device *dev)
++static int at91_twi_resume(struct device *dev)
+ {
+ 	struct at91_twi_dev *twi_dev =3D dev_get_drvdata(dev);
+ 	int ret;
+@@ -1202,8 +1202,8 @@ static int at91_twi_resume_noirq(struct device *dev)
+ }
+=20
+ static const struct dev_pm_ops at91_twi_pm =3D {
+-	.suspend_noirq	=3D at91_twi_suspend_noirq,
+-	.resume_noirq	=3D at91_twi_resume_noirq,
++	.suspend	=3D at91_twi_suspend,
++	.resume		=3D at91_twi_resume,
+ 	.runtime_suspend	=3D at91_twi_runtime_suspend,
+ 	.runtime_resume		=3D at91_twi_runtime_resume,
+ };
+--=20
+2.7.4
