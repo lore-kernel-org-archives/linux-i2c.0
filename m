@@ -1,43 +1,49 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [PATCH 2/3] net: ethernet: Remove dummy runtime PM callbacks from
- Renesas drivers
-Date: Wed, 24 Oct 2018 20:44:07 +0300
-Message-ID: <ecf01d95-f973-5294-932f-41e2a68decf3@cogentembedded.com>
-References: <20181024135134.28456-1-jarkko.nikula@linux.intel.com>
- <20181024135134.28456-3-jarkko.nikula@linux.intel.com>
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Subject: Re: [PATCH v9 6/9] i3c: master: Add driver for Cadence IP
+Date: Wed, 24 Oct 2018 20:20:48 +0200
+Message-ID: <20181024202048.7e3534f7@bbrezillon>
+References: <20181022133404.2061-1-boris.brezillon@bootlin.com>
+        <20181022133404.2061-7-boris.brezillon@bootlin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20181024135134.28456-3-jarkko.nikula@linux.intel.com>
-Content-Language: en-MW
-Sender: netdev-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-pm@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, netdev@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, linux-renesas-soc@vger.kernel.org, linux-usb@vger.kernel.org, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181022133404.2061-7-boris.brezillon@bootlin.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
+Cc: Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vitor Soares <Vitor.Soares@synopsys.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linus
 List-Id: linux-i2c@vger.kernel.org
 
-Hello!
+Hi Arnd,
 
-On 10/24/2018 04:51 PM, Jarkko Nikula wrote:
+On Mon, 22 Oct 2018 15:34:01 +0200
+Boris Brezillon <boris.brezillon@bootlin.com> wrote:
 
-> Platform drivers don't need dummy runtime PM callbacks that just return
-> success in order to have runtime PM happening. This has changed since
-> following commits:
-> 
-> 05aa55dddb9e ("PM / Runtime: Lenient generic runtime pm callbacks")
-> 543f2503a956 ("PM / platform_bus: Allow runtime PM by default")
-> 8b313a38ecff ("PM / Platform: Use generic runtime PM callbacks directly")
 
-   Wow, these are old! :-)
+> +
+> +static void cdns_i3c_master_rd_from_rx_fifo(struct cdns_i3c_master *master,
+> +					    u8 *bytes, int nbytes)
+> +{
+> +	readsl(master->regs + RX_FIFO, bytes, nbytes / 4);
 
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> ---
-> Only build tested.
+Vitor reported a problem with readsl(): this function expects the 2nd
+argument to be aligned on 32-bit, which is not guaranteed here. Unless
+you see a better solution, I'll switch back to a loop doing:
 
-   Seems long overdue...
+	for (i = 0; i < nbytes; i += 4) {
+		u32 tmp = __raw_readl(...);
+		memcpy(bytes + i, &tmp,
+		       nbytes - i  > 4 ? 4 : nbytes - i);
+	}
 
-[...]
+> +	if (nbytes & 3) {
+> +		u32 tmp;
+> +
+> +		readsl(master->regs + RX_FIFO, &tmp, 1);
+> +		memcpy(bytes + (nbytes & ~3), &tmp, nbytes & 3);
+> +	}
+> +}
 
-Reviewed-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Regards,
 
-MBR, Sergei
+Boris
