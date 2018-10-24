@@ -1,74 +1,31 @@
-From: Russell King - ARM Linux <linux@armlinux.org.uk>
-Subject: Re: [PATCH] i2c: cadence: Implement timeout
-Date: Wed, 24 Oct 2018 11:58:54 +0100
-Message-ID: <20181024105854.GU30658@n2100.armlinux.org.uk>
-References: <1540378203-1655-1-git-send-email-shubhrajyoti.datta@gmail.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: [PATCH 0/3] PM: Renesas: Remove dummy runtime PM callbacks
+Date: Wed, 24 Oct 2018 16:51:31 +0300
+Message-ID: <20181024135134.28456-1-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1540378203-1655-1-git-send-email-shubhrajyoti.datta@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: shubhrajyoti.datta@gmail.com
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, michal.simek@xilinx.com, linux-arm-kernel@lists.infradead.org
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
+To: linux-pm@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, netdev@vger.kernel.org, "David S . Miller" <davem@davemloft.net>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, linux-renesas-soc@vger.kernel.org, linux-usb@vger.kernel.org, Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 24, 2018 at 04:20:03PM +0530, shubhrajyoti.datta@gmail.com wrote:
-> From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-> 
-> In some cases we are waiting in a loop. Replace the infinite wait with
-> the  timeout.
-> 
-> Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-> ---
->  drivers/i2c/busses/i2c-cadence.c | 30 ++++++++++++++++++++++++++----
->  1 file changed, 26 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-> index b136057..9c38278 100644
-> --- a/drivers/i2c/busses/i2c-cadence.c
-> +++ b/drivers/i2c/busses/i2c-cadence.c
-> @@ -209,6 +209,7 @@ static irqreturn_t cdns_i2c_isr(int irq, void *ptr)
->  	struct cdns_i2c *id = ptr;
->  	/* Signal completion only after everything is updated */
->  	int done_flag = 0;
-> +	unsigned int timeout;
->  	irqreturn_t status = IRQ_NONE;
->  
->  	isr_status = cdns_i2c_readreg(CDNS_I2C_ISR_OFFSET);
-> @@ -235,6 +236,7 @@ static irqreturn_t cdns_i2c_isr(int irq, void *ptr)
->  	    ((isr_status & CDNS_I2C_IXR_COMP) ||
->  	     (isr_status & CDNS_I2C_IXR_DATA))) {
->  		/* Read data if receive data valid is set */
-> +		timeout = 1000;
->  		while (cdns_i2c_readreg(CDNS_I2C_SR_OFFSET) &
->  		       CDNS_I2C_SR_RXDV) {
->  			/*
-> @@ -253,6 +255,16 @@ static irqreturn_t cdns_i2c_isr(int irq, void *ptr)
->  
->  			if (cdns_is_holdquirk(id, hold_quirk))
->  				break;
-> +			timeout--;
-> +			if (timeout)
-> +				mdelay(1);
-> +			else
-> +				break;
-> +		}
-> +		if (!timeout) {
-> +			id->err_status = -ETIMEDOUT;
-> +			complete(&id->xfer_done);
-> +			return IRQ_HANDLED;
+I noticed these independent Renesas drivers have needless dummy runtime
+PM callbacks. I don't have the HW so only build tested.
 
-Good kernel programming principle: Always check for the success
-condition when exiting due to timeout rather than the fact that we
-timed out.
+Patches can be applied independently to their own subsystems. I wanted to
+send them together if some of them gets Tested-by or sees a regression.
 
-Also, is this _really_ a loop that needs a timeout condition?  Looking
-at the original code, it looks like the purpose of the loop is to read
-more than one byte, and you are introducing a 1ms delay between the
-read of each byte.
+Jarkko Nikula (3):
+  i2c: sh_mobile: Remove dummy runtime PM callbacks
+  net: ethernet: Remove dummy runtime PM callbacks from Renesas drivers
+  usb: renesas_usbhs: Remove dummy runtime PM callbacks
+
+ drivers/i2c/busses/i2c-sh_mobile.c       | 18 ------------------
+ drivers/net/ethernet/renesas/ravb_main.c | 13 -------------
+ drivers/net/ethernet/renesas/sh_eth.c    | 13 -------------
+ drivers/usb/renesas_usbhs/common.c       | 14 --------------
+ 4 files changed, 58 deletions(-)
 
 -- 
-RMK's Patch system: http://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line in suburbia: sync at 12.1Mbps down 622kbps up
-According to speedtest.net: 11.9Mbps down 500kbps up
+2.19.1
