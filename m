@@ -1,94 +1,206 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v9 6/9] i3c: master: Add driver for Cadence IP
-Date: Fri, 26 Oct 2018 15:21:31 +0200
-Message-ID: <CAK8P3a08jhpUZyiGsUVUFggi1C88SAqYHG7CY1GysZN7iwm5gw@mail.gmail.com>
-References: <20181022133404.2061-1-boris.brezillon@bootlin.com>
- <20181022133404.2061-7-boris.brezillon@bootlin.com> <20181024202048.7e3534f7@bbrezillon>
- <CAK8P3a2DBgfvXs-9KzoDvbQpV+VN96xb7xHG-5=NDDgnt7ViVQ@mail.gmail.com>
- <20181025180720.1790f6a1@bbrezillon> <CAK8P3a02ELWiMB_pe0bzbsMfdqYOG1G0bFnSHzGu3ZbQHatH2w@mail.gmail.com>
- <20181025183005.3c0fa452@bbrezillon> <CAK8P3a0WDRpukjDBm1rGPnZiH2FJRpquWhEknOBg=CphNOYOwg@mail.gmail.com>
- <20181026095707.3cd9b511@bbrezillon> <CAK8P3a0_En6e6ORvNqxprBcsT3+NmFO8nFnQ3nNiv-5Hq2LjrQ@mail.gmail.com>
- <20181026144647.11926142@bbrezillon>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Subject: [PATCH v10 0/9] Add the I3C subsystem
+Date: Fri, 26 Oct 2018 16:43:24 +0200
+Message-ID: <20181026144333.12276-1-boris.brezillon@bootlin.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181026144647.11926142@bbrezillon>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, gregkh <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@he>
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
+Cc: Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Vitor Soares <Vitor.Soares@synopsys.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Linus
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Oct 26, 2018 at 2:46 PM Boris Brezillon
-<boris.brezillon@bootlin.com> wrote:
-> On Fri, 26 Oct 2018 12:01:52 +0200
-> Arnd Bergmann <arnd@arndb.de> wrote:
-> > On Fri, Oct 26, 2018 at 9:57 AM Boris Brezillon
-> > <boris.brezillon@bootlin.com> wrote:
-> > > On Fri, 26 Oct 2018 09:43:25 +0200
-> > > Arnd Bergmann <arnd@arndb.de> wrote:
-> > >
-> > > > On Thu, Oct 25, 2018 at 6:30 PM Boris Brezillon
-> > > > <boris.brezillon@bootlin.com> wrote:
-> > > > > On Thu, 25 Oct 2018 18:13:51 +0200 Arnd Bergmann <arnd@arndb.de> wrote:
-> > > > > On Thu, Oct 25, 2018 at 6:07 PM Boris Brezillon <boris.brezillon@bootlin.com> wrote:
-> > > > > > > On Thu, 25 Oct 2018 17:30:26 +0200
-> >
-> > This is apparently not allowed on ARC when 'buffer' is
-> > unaligned. I think what we need here is to use
-> > put_unaligned() instead of the pointer dereference.
-> > For architectures that can do unaligned accesses,
-> > the result is the same, but for ARC it will fix the problem.
->
-> Okay, so writesl()/readsl() should deal with unaligned pointers, and
-> default implementations should be fixed. I guess you'll send a patch to
-> use put/get_unaligned().
+Hi Greg,
 
-That's one way of doing it, though thinking about it some more,
-this can also introduce overhead on machines that don't support
-unaligned buffers and only work on drivers that are guaranteed
-to see fully aligned data.
+I think we've reached a point where we can eventually consider the I3C
+framework for inclusion in 4.20 (5.0?). A few more issues were reported
+on v9 and fixed in v10. I can't guarantee that the implementation is
+free of bugs but I still think it's worth merging it in v4.20: it's a
+new subsystem, so we don't risk regressions, and the only way we can
+detect other issues is by having other people experiment with this
+implementation.
 
-We could also override these specifically for ARC, and risk
-running into the same problem elsewhere, rather than be sure
-to fix everyone while risking to introduce noticeable performance
-regressions in existing drivers.
+The only remaining concern raised by Arnd is the fact that both hosts
+and slaves share the same bus type and are differentiated thanks to
+their device_type, which IMHO is fine since this is what other
+subsystems do (plus I don't see other solutions to have both I3C
+devices and I3C buses represented under /sys/bus/i3c/).
 
-> > > > One way to address this might be to always bounce any
-> > > > messages that are less than a cache line through a
-> > > > (pre-)kmallocated buffer, and require any longer messages
-> > > > to be cache capable. This could also solve the issue with
-> > > > readsl(), but it would be a rather confusing user interface.
-> > > >
-> > > > Another option might be to have separate interfaces for
-> > > > "short" and "long" messages at the API level and have
-> > > > distinct rules for those: short would always be bounced
-> > > > by the i3c code, and long puts restrictions on the buffer
-> > > > location.
-> > >
-> > > Hm, let's keep the API simple. I'll just mandate that all payload bufs
-> > > passed to i3c_master_send_ccc_cmd_locked() be dynamically allocated.
-> >
-> > Ok. What about i2c commands sent to the same i3c controller
-> > then?
->
-> Still not taken care of.
->
-> > Do we need to copy those to satisfy the requirements
-> > of the i3c layer?
->
-> I guess we should. The question is, should we do that unconditionally
-> or should we try to optimize thins with something like:
->
->         if (!virt_addr_valid(xfer->buf) ||
->             object_is_on_stack(xfer->buf))
->                 /* Alloc bounce buf. */
->         else
->                 /* Use provided buf. */
+I'd really like to get this series merged in 4.20 so that other
+contributors can work on top of it to add
 
-There may be too many cases that we need to handle here that
-are not DMA capable. To be on the safe side, I'd probably always
-copy all data that is not a multiple of fully aligned cache lines,
-as well as pointers that fails to meet some other requirements
-(stack, vmalloc, kmap, ...)
+1/ new host drivers
+2/ support for advanced features
+3/ new device drivers
 
-        Arnd
+So, unless you have strong reasons to reject this request, and,
+assuming I get Rob's ack soon enough, I plan to send a PR for this
+framework next week.
+
+Here is the usual description copy&pasted from the previous versions:
+
+This patch series is adding a new subsystem to support I3C devices.
+
+This is just adding support for basic features. Extra features will
+be added afterwards.
+
+There are a few design choices that are worth mentioning because they
+impact the way I3C device drivers can interact with their devices:
+
+- all functions used to send I3C/I2C frames must be called in
+  non-atomic context. Mainly done this way to ease implementation, but
+  this is still open to discussion. Please let me know if you think it's
+  worth considering an asynchronous model here
+- the I3C bus and I3C master controller are now tightly coupled even
+  though they're still allocated separately. There's now a 1:1
+  relationship between these objects, and the I3C master is no longer
+  represented under the I3C bus object.
+  Arnd, let me know if you had something different in mind, and I'll
+  rework the implementation accordingly.
+
+- I2C backward compatibility has been designed to be transparent to I2C
+  drivers and the I2C subsystem. The I3C master just registers an I2C
+  adapter which creates a new I2C bus. I'd say that, from a
+  representation PoV it's not ideal because what should appear as a
+  single I3C bus exposing I3C and I2C devices here appears as 2
+  different busses connected to each other through the parenting (the
+  I3C master is the parent of the I2C and I3C busses).
+  On the other hand, I don't see a better solution if we want something
+  that is not invasive.
+
+Missing features (will be added in separate patch series after initial
+support has been accepted/merged):
+- support for HDR modes (has been removed because of lack of real users)
+- no support for multi-master and the associated concepts (mastership
+  handover, support for secondary masters, ...)
+- I2C devices can only be described using DT because this is the only
+  use case I have. However, the framework can easily be extended with
+  ACPI and board info support
+- I3C slave framework. This has been completely omitted, but shouldn't
+  have a huge impact on the I3C framework because I3C slaves don't see
+  the whole bus, it's only about handling master requests and generating
+  IBIs. Some of the struct, constant and enum definitions could be
+  shared, but most of the I3C slave framework logic will be different
+
+Note that this patchset is available on the linux-i3c repo[1].
+
+Main change between v8 and v9:
+- The DT bindings have been simplified to get rid of the I3C/I3C_DEV()
+  macros
+
+Main change between v7 and v8:
+- The bus object is now embedded in the master_controller object (as
+  suggested by Arnd)
+
+Main changes between v6 and v7:
+- I3C bus/master representations have been reworked to match what other
+  subsystems are doing (master implicitly represented by the bus
+  object)
+- I3C dev registration has been fixed
+- I3C bus mode selection has been fixed
+- Calls to readsl/writesl() in the Cadence I3C master driver have been
+  fixed
+
+Main changes between v5 and v6:
+- Introduce {i3c,i2c}_dev_desc structures to better match how I3C
+  master controllers (reservation of one HW slot for each device
+  attached to the bus). With this solution, the resource migration
+  that happens when a device lose its dynamic address and is
+  re-assigned a different address is simplified on the driver side,
+  because most of it is now handled in the core (reserve a new dev
+  slot, reserve IBI resources and free all resources attached to the
+  old slot)
+- Add I3C error codes (M0 to M2) so that the core and device drivers
+  can have fine grained information on what caused an EIO error.
+
+Only minor things happened between v3 and v5 (you can go check the
+changelog in each patch for more details).
+
+Main changes between v2 and v3 are:
+- Reworked the DT bindings as suggested by Rob
+- Reworked the bus initialization step as suggested by Vitor
+- Added a driver for an I3C GPIO expander
+
+Main changes between the initial RFC and this v2 are:
+- Add a generic infrastructure to support IBIs. It's worth mentioning
+  that I tried exposing IBIs as a regular IRQs, but after several
+  attempts and a discussion with Mark Zyngier, it appeared that it was
+  not really fitting in the Linux IRQ model (the fact that you have
+  payload attached to IBIs, the fact that most of the time an IBI will
+  generate a transfer on the bus which has to be done in an atomic
+  context, ...)
+  The counterpart of this decision is the latency induced by the
+  workqueue approach, but since I don't have real use cases, I don't
+  know if this can be a problem or not. 
+- Add helpers to support Hot Join
+- Add support for IBIs and Hot Join in Cadence I3C master driver
+- Address several issues in how I was using the device model
+
+Thanks,
+
+Boris
+
+[1]https://git.kernel.org/pub/scm/linux/kernel/git/i3c/linux.git/log/?h=i3c/next
+
+*** BLURB HERE ***
+
+Boris Brezillon (9):
+  i3c: Add core I3C infrastructure
+  docs: driver-api: Add I3C documentation
+  i3c: Add sysfs ABI spec
+  dt-bindings: i3c: Document core bindings
+  MAINTAINERS: Add myself as the I3C subsystem maintainer
+  i3c: master: Add driver for Cadence IP
+  dt-bindings: i3c: Document Cadence I3C master bindings
+  gpio: Add a driver for Cadence I3C GPIO expander
+  dt-bindings: gpio: Add bindings for Cadence I3C gpio expander
+
+ Documentation/ABI/testing/sysfs-bus-i3c       |  146 +
+ .../bindings/gpio/gpio-cdns-i3c.txt           |   39 +
+ .../bindings/i3c/cdns,i3c-master.txt          |   44 +
+ Documentation/devicetree/bindings/i3c/i3c.txt |  139 +
+ .../driver-api/i3c/device-driver-api.rst      |    9 +
+ Documentation/driver-api/i3c/index.rst        |   11 +
+ .../driver-api/i3c/master-driver-api.rst      |   10 +
+ Documentation/driver-api/i3c/protocol.rst     |  203 ++
+ Documentation/driver-api/index.rst            |    1 +
+ MAINTAINERS                                   |   12 +
+ drivers/Kconfig                               |    2 +
+ drivers/Makefile                              |    2 +-
+ drivers/gpio/Kconfig                          |   11 +
+ drivers/gpio/Makefile                         |    1 +
+ drivers/gpio/gpio-cdns-i3c.c                  |  411 +++
+ drivers/i3c/Kconfig                           |   24 +
+ drivers/i3c/Makefile                          |    4 +
+ drivers/i3c/device.c                          |  233 ++
+ drivers/i3c/internals.h                       |   26 +
+ drivers/i3c/master.c                          | 2661 +++++++++++++++++
+ drivers/i3c/master/Kconfig                    |    6 +
+ drivers/i3c/master/Makefile                   |    1 +
+ drivers/i3c/master/i3c-master-cdns.c          | 1671 +++++++++++
+ include/linux/i3c/ccc.h                       |  385 +++
+ include/linux/i3c/device.h                    |  331 ++
+ include/linux/i3c/master.h                    |  648 ++++
+ include/linux/mod_devicetable.h               |   17 +
+ 27 files changed, 7047 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-bus-i3c
+ create mode 100644 Documentation/devicetree/bindings/gpio/gpio-cdns-i3c.txt
+ create mode 100644 Documentation/devicetree/bindings/i3c/cdns,i3c-master.txt
+ create mode 100644 Documentation/devicetree/bindings/i3c/i3c.txt
+ create mode 100644 Documentation/driver-api/i3c/device-driver-api.rst
+ create mode 100644 Documentation/driver-api/i3c/index.rst
+ create mode 100644 Documentation/driver-api/i3c/master-driver-api.rst
+ create mode 100644 Documentation/driver-api/i3c/protocol.rst
+ create mode 100644 drivers/gpio/gpio-cdns-i3c.c
+ create mode 100644 drivers/i3c/Kconfig
+ create mode 100644 drivers/i3c/Makefile
+ create mode 100644 drivers/i3c/device.c
+ create mode 100644 drivers/i3c/internals.h
+ create mode 100644 drivers/i3c/master.c
+ create mode 100644 drivers/i3c/master/Kconfig
+ create mode 100644 drivers/i3c/master/Makefile
+ create mode 100644 drivers/i3c/master/i3c-master-cdns.c
+ create mode 100644 include/linux/i3c/ccc.h
+ create mode 100644 include/linux/i3c/device.h
+ create mode 100644 include/linux/i3c/master.h
+
+-- 
+2.17.1
