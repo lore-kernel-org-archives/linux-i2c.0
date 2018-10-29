@@ -1,43 +1,67 @@
-From: Oleksij Rempel <o.rempel@pengutronix.de>
-Subject: Re: [PATCH v1 3/3] i2c: imx: don't print error if DMA is not
- configured
-Date: Mon, 29 Oct 2018 09:07:56 +0100
-Message-ID: <9a3fc087-2fe5-6d57-9b65-a05e176bf53d@pengutronix.de>
-References: <20181018112615.29362-1-o.rempel@pengutronix.de>
- <20181018112615.29362-4-o.rempel@pengutronix.de>
- <20181028221123.GE1882@kunai>
+From: Federico Vaga <federico.vaga@cern.ch>
+Subject: Re: [PATCH 3/3] i2c:ocores: add polling interface
+Date: Mon, 29 Oct 2018 09:50:15 +0100
+Message-ID: <5352289.A0jT2G1FDH@pcbe13614>
+References: <20180625161303.7991-1-federico.vaga@cern.ch> <4222986.LvGMQbjSbS@pcbe13614> <87woq438li.fsf@dell.be.48ers.dk>
+Reply-To: <federico.vaga@cern.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20181028221123.GE1882@kunai>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Shawn Guo <shawnguo@kernel.org>, linux-arm-kernel@lists.infradead.org, NXP Linux Team <linux-imx@nxp.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <87woq438li.fsf@dell.be.48ers.dk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Korsgaard <peter@korsgaard.com>
+Cc: Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Peter,
 
-
-On 28.10.18 23:11, Wolfram Sang wrote:
-> On Thu, Oct 18, 2018 at 01:26:15PM +0200, Oleksij Rempel wrote:
->> At least on i.MX5x variants is DMA event for I2C muxed with SDHC. So
->> it is project specific configuration and not an error.
->>
->> Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+On Friday, October 26, 2018 7:45:29 PM CET Peter Korsgaard wrote:
+> >>>>> "Federico" == Federico Vaga <federico.vaga@cern.ch> writes:
+> Hi,
 > 
-> So, the first patch is not I2C realm, and the second is dropped. No
-> comment about the third one?
+>  >> > -       } else
+>  >> > +       } else {
+>  >> > 
+>  >> >                 msg->buf[i2c->pos++] = oc_getreg(i2c, OCI2C_DATA);
+>  >> > 
+>  >> > +       }
+>  >> 
+>  >> This looks unrelated to $SUBJECT.
+>  > 
+>  > Do you prefer a different patch just for styling?
 > 
-> And is maybe someone from Pengutronix interested in maintaining this
-> driver? Uwe maybe? That would speed up things for it...
+> Yes please, it is a lot nicer to keep functional changes from pure style
+> changes.
 
-Should i resend it as single patch?
+Ok
+
+>  >> > +static void ocores_poll_wait(struct ocores_i2c *i2c)
+>  >> > +{
+>  >> > +       int sleep_min = (8/i2c->bus_clock_khz) * 1000; /* us for 8bits
+>  >> > */
+>  >> > +       u8 loop_on;
+>  >> > +
+>  >> > +       usleep_range(sleep_min, sleep_min + 10);
+>  >> 
+>  >> Where does this 10 come from?
+>  > 
+>  > It's true, it's just a random number. It can be zero as well, and we ask
+>  > the system to just sleep for that amount of time.
+>  > 
+>  > (1) usleep_range(sleep_min, sleep_min);
+> 
+> Or just usleep(sleep_min);
+
+This does not exist as far as I know; the alternative is an active wait with 
+udelay. But then, it is not that different from just start polling TIP or BUSY 
+flags.
+
+I think that something like this could be better
+
+(2) usleep_range(sleep_min, sleep_min * XXX);
+
+But.
+Since it is better to make this patch ready for xfer_irqless, then I will 
+definitively go for udelay(). The reason is that, xfer_irqless may run in 
+atomic context where we can't sleep at all.
