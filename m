@@ -1,67 +1,43 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 0/2] i2c-omap: Enable i2c-omap driver for AM654 SoCs
-Date: Sun, 28 Oct 2018 22:34:50 +0000
-Message-ID: <20181028223450.GK1882@kunai>
-References: <20180928052557.21663-1-vigneshr@ti.com>
- <09a6b1d4-f8f4-ea90-f361-bd3a92088430@ti.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
+Subject: Re: [PATCH v1 3/3] i2c: imx: don't print error if DMA is not
+ configured
+Date: Mon, 29 Oct 2018 09:07:56 +0100
+Message-ID: <9a3fc087-2fe5-6d57-9b65-a05e176bf53d@pengutronix.de>
+References: <20181018112615.29362-1-o.rempel@pengutronix.de>
+ <20181018112615.29362-4-o.rempel@pengutronix.de>
+ <20181028221123.GE1882@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Xsn3knLL3qrmRbVI"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <09a6b1d4-f8f4-ea90-f361-bd3a92088430@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Vignesh R <vigneshr@ti.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Sekhar Nori <nsekhar@ti.com>, Nishanth Menon <nm@ti.com>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20181028221123.GE1882@kunai>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Shawn Guo <shawnguo@kernel.org>, linux-arm-kernel@lists.infradead.org, NXP Linux Team <linux-imx@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---Xsn3knLL3qrmRbVI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sat, Oct 20, 2018 at 01:23:40PM +0530, Vignesh R wrote:
->=20
->=20
-> On 28-Sep-18 10:55 AM, Vignesh R wrote:
-> > Couple of patches to enable i2c-omap driver to be used with TI's new
-> > AM654 platforms.
-> >=20
-> >=20
-> > Vignesh R (2):
-> >   dt-bindings: i2c-omap: Add new compatible for AM654 SoCs
-> >   i2c: busses: Kconfig: Enable I2C_OMAP for ARCH_K3
-> >=20
-> >  Documentation/devicetree/bindings/i2c/i2c-omap.txt | 8 ++++++--
-> >  drivers/i2c/busses/Kconfig                         | 2 +-
-> >  2 files changed, 7 insertions(+), 3 deletions(-)
-> >=20
->=20
-> Gentle ping...
+On 28.10.18 23:11, Wolfram Sang wrote:
+> On Thu, Oct 18, 2018 at 01:26:15PM +0200, Oleksij Rempel wrote:
+>> At least on i.MX5x variants is DMA event for I2C muxed with SDHC. So
+>> it is project specific configuration and not an error.
+>>
+>> Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+> 
+> So, the first patch is not I2C realm, and the second is dropped. No
+> comment about the third one?
+> 
+> And is maybe someone from Pengutronix interested in maintaining this
+> driver? Uwe maybe? That would speed up things for it...
 
-Maintainer tags are missing. Tony is listed for this driver on OMAP2+.
-Is this his realm? Do we need a specific maintainer for this driver?
-
-
---Xsn3knLL3qrmRbVI
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlvWOYkACgkQFA3kzBSg
-KbYIFBAAqCLZ65V0I5GPyJjznioZ2Fw/6JUr+Wn1LrqT3chwhG67zkJcTlxP3mxE
-2PommoAQUO0/thFaRkHEfZoC/JfqxhtgLlqdWU+SlVUXw3gt2FJ07eJ9KdAL60/w
-wqrHz0UmXhz8PqqRY5R24lgcJYqMSSi6tiq+SiRvb4iFwJPTj0giismR0iS6wDT+
-no+1XlB43WfZBYJ3Aj0gAdGID5+DtxkLjuy+/+NEhP9KLWpZYjVOJ9GgfNGZkeDJ
-rp4Rd+ONT9xf3/00Y7EpruPsXyhLN4/TcYIjJrk9jpme7RtHjnZVrVWcsT0bKMYl
-st8dLJBAD0MeBDAsPOUV0tw36aSV/ttyZDP+kl5BswFbFZ9OKhtvQggyHezDU2eh
-C7S1f8goOOK71qkHMmT0ZZ4nTXm84vIqS/8PqTQt9SAfkHBzBUwCr+Qo8EMHkrDp
-6Dya/Gwe4E5oEqNdc26KrrBqWiZVYzttIcfjVEV5GzKhQyzfBXDBWAoKZS7kyxeV
-yVZb/QFCH+0LB5aNiuc2HRI5XXze8WwpCJmU1zcg/yi2UT2LAE1XbIfeV0vat6q6
-osQFXAUScydV0/cy93bxarnpxYIRPezTJRWvWj/qaHF+Ev3lQ2lW3CBfy0MboiOE
-ZY1ZwYrroAIpgWxDNLhV4hshBJNkDmMqX+p3ThocSB328PT5AOc=
-=0lwQ
------END PGP SIGNATURE-----
-
---Xsn3knLL3qrmRbVI--
+Should i resend it as single patch?
