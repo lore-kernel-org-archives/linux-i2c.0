@@ -1,61 +1,50 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/2] i2c: Clear client->irq in i2c_device_remove
-Date: Mon, 29 Oct 2018 11:15:47 +0100
-Message-ID: <CAO-hwJLw74k+jBnDuQ7OrVzJOy8i82OXKNWuNhxNqUj+8nzwhg@mail.gmail.com>
-References: <20181019085958.32694-1-ckeepax@opensource.cirrus.com>
- <20181019085958.32694-2-ckeepax@opensource.cirrus.com> <20181028223116.GJ1882@kunai>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 0/3] Add driver for Synopsys DesignWare I3C master IP
+Date: Mon, 29 Oct 2018 11:56:34 +0000
+Message-ID: <20181029115633.GA5881@kunai>
+References: <1540807618-13246-1-git-send-email-soares@synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181028223116.GJ1882@kunai>
+Content-Disposition: inline
+In-Reply-To: <1540807618-13246-1-git-send-email-soares@synopsys.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: ckeepax@opensource.cirrus.com, Linux I2C <linux-i2c@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, patches@opensource.cirrus.com
+To: Vitor soares <vitor.soares@synopsys.com>
+Cc: boris.brezillon@bootlin.com, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, gregkh@linuxfoundation.org, arnd@arndb.de, psroka@cadence.com, agolec@cadence.com, adouglas@cadence.com, bfolta@cadence.com, dkos@cadence.com, alicja@cadence.com, cwronka@cadence.com, sureshp@cadence.com, rafalc@cadence.com, thomas.petazzoni@bootlin.com, nm@ti.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, geert@linux-m68k.org, linus.walleij@linaro.org, Xiang.Lin@synaptics.com, linux-gpio@vger.kernel.org, nsekhar@ti.com, pgaj@cadence.com, peda@axentia.se, mshettel@codeaurora.org, swboyd@chromium.org, joao.pinto@synopsys.com, luis.oliveira@synopsys.
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Oct 28, 2018 at 11:31 PM Wolfram Sang <wsa@the-dreams.de> wrote:
->
-> On Fri, Oct 19, 2018 at 09:59:58AM +0100, Charles Keepax wrote:
-> > The IRQ will be mapped in i2c_device_probe only if client->irq is zero and
-> > i2c_device_remove does not clear this. When rebinding an I2C device,
-> > whos IRQ provider has also been rebound this means that an IRQ mapping
-> > will never be created, causing the I2C device to fail to acquire its
-> > IRQ. Fix this issue by clearing client->irq in i2c_device_remove,
-> > forcing i2c_device_probe to lookup the mapping again.
-> >
-> > Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
->
-> Adding Benjamin here again. Also, should there be a Fixes: tag?
 
-Not sure if the circumstances are preventing me to think straight, but
-how can you reprobe the i2c_device?
-And in all cases, for the Host notify part, having the IRQ already set
-shouldn't be an issue.
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-So for the host notify case, this patch is fine, not entirely sure
-about the acpi or OF part of it.
+Boris,
 
-Cheers,
-Benjamin
+> This patch series is a proposal for the I3C master driver for Synopsys IP.
 
->
-> > ---
-> >  drivers/i2c/i2c-core-base.c | 2 ++
-> >  1 file changed, 2 insertions(+)
-> >
-> > diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> > index 656f0a6fe3adf..28460f6a60cc1 100644
-> > --- a/drivers/i2c/i2c-core-base.c
-> > +++ b/drivers/i2c/i2c-core-base.c
-> > @@ -430,6 +430,8 @@ static int i2c_device_remove(struct device *dev)
-> >       dev_pm_clear_wake_irq(&client->dev);
-> >       device_init_wakeup(&client->dev, false);
-> >
-> > +     client->irq = 0;
-> > +
-> >       return status;
-> >  }
-> >
-> > --
-> > 2.11.0
-> >
+Any news on the I3C mailing list? It is not much yet, still I was
+wondering...
+
+
+--a8Wt8u1KmwUX3Y2C
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlvW9W0ACgkQFA3kzBSg
+KbZC9A/+Ii8yRdJYBTx6mJ1Qq2cAjCodzhjGOYHap458IBp5QdRGZi2JAIaPD+Zo
+4RXK2gcYq59xC975wRfd6DrUTEQLvIr/qVWLCLqeBzWjbqWPPDKeDpdWUs39JRiJ
+kCxu15q+tpnIqtIpiocE5xGrWXL0xHatzOqn915hwOJr5ebqBgroHoMzVjR5v2+w
+hLxMnyDvYee0mN/AsgOObrCeHHbrpnFhduvISsTvNKz0CAE5OpbJNPQbjj3+U2aM
+GpfHGK5m5aPvW38BFsadD0lY+P0zNkHJ8ejL5mWlXqFS6G6gGLvHfEcYwxF5vfSJ
+gqFiKqDY/JOAEApDCiDe21UUXyy02l27PQwP4cXA3QiBObHWg+dlIKc5EnNoT+r5
+3pO6eteZnqF0gGA5JiruBw+vOZrPuse9NDuzRoPExO2KE7BXLwR0UDcprr4Z+Usi
+4LlaoagkaFMexuVFFykBaB9Z8U9Y6aBc9f52cjGCuQ28PkCzNuwYINGf65NUWOcY
+IEOjA9v/1RTrQPMlmywoOMyQnmZflvNf9uUG7Dk2HiViO5F7u0IxjwWqTOD7Sc1U
+QLhOGNlfDLJdcLRwlSFE4xsUkrMdAqSfx+Mnzwj0C53ds+2GX5g0zdA/TZmt7JVs
+MLCxt2rGulK1kRPBeVqVs6GH0yXy/iORF/OI4Y2u/OQl0yAteXg=
+=sUO6
+-----END PGP SIGNATURE-----
+
+--a8Wt8u1KmwUX3Y2C--
