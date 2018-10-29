@@ -1,50 +1,55 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/3] Add driver for Synopsys DesignWare I3C master IP
-Date: Mon, 29 Oct 2018 11:56:34 +0000
-Message-ID: <20181029115633.GA5881@kunai>
-References: <1540807618-13246-1-git-send-email-soares@synopsys.com>
+From: Peter Korsgaard <peter@korsgaard.com>
+Subject: Re: [PATCH 3/3] i2c:ocores: add polling interface
+Date: Mon, 29 Oct 2018 14:04:13 +0100
+Message-ID: <87muqwzyya.fsf@dell.be.48ers.dk>
+References: <20180625161303.7991-1-federico.vaga@cern.ch>
+        <4222986.LvGMQbjSbS@pcbe13614> <87woq438li.fsf@dell.be.48ers.dk>
+        <5352289.A0jT2G1FDH@pcbe13614>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1540807618-13246-1-git-send-email-soares@synopsys.com>
+In-Reply-To: <5352289.A0jT2G1FDH@pcbe13614> (Federico Vaga's message of "Mon,
+        29 Oct 2018 09:50:15 +0100")
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vitor soares <vitor.soares@synopsys.com>
-Cc: boris.brezillon@bootlin.com, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, gregkh@linuxfoundation.org, arnd@arndb.de, psroka@cadence.com, agolec@cadence.com, adouglas@cadence.com, bfolta@cadence.com, dkos@cadence.com, alicja@cadence.com, cwronka@cadence.com, sureshp@cadence.com, rafalc@cadence.com, thomas.petazzoni@bootlin.com, nm@ti.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, geert@linux-m68k.org, linus.walleij@linaro.org, Xiang.Lin@synaptics.com, linux-gpio@vger.kernel.org, nsekhar@ti.com, pgaj@cadence.com, peda@axentia.se, mshettel@codeaurora.org, swboyd@chromium.org, joao.pinto@synopsys.com, luis.oliveira@synopsys.
+To: Federico Vaga <federico.vaga@cern.ch>
+Cc: Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+>>>>> "Federico" == Federico Vaga <federico.vaga@cern.ch> writes:
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi,
 
-Boris,
+ >> >> Where does this 10 come from?
+ >> > 
+ >> > It's true, it's just a random number. It can be zero as well, and we ask
+ >> > the system to just sleep for that amount of time.
+ >> > 
+ >> > (1) usleep_range(sleep_min, sleep_min);
+ >> 
+ >> Or just usleep(sleep_min);
 
-> This patch series is a proposal for the I3C master driver for Synopsys IP.
+ > This does not exist as far as I know; the alternative is an active wait with 
+ > udelay. But then, it is not that different from just start polling TIP or BUSY 
+ > flags.
 
-Any news on the I3C mailing list? It is not much yet, still I was
-wondering...
+Ahh yes.
 
+ > I think that something like this could be better
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: application/pgp-signature; name="signature.asc"
+ > (2) usleep_range(sleep_min, sleep_min * XXX);
 
------BEGIN PGP SIGNATURE-----
+ > But.
+ > Since it is better to make this patch ready for xfer_irqless, then I will 
+ > definitively go for udelay(). The reason is that, xfer_irqless may run in 
+ > atomic context where we can't sleep at all.
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlvW9W0ACgkQFA3kzBSg
-KbZC9A/+Ii8yRdJYBTx6mJ1Qq2cAjCodzhjGOYHap458IBp5QdRGZi2JAIaPD+Zo
-4RXK2gcYq59xC975wRfd6DrUTEQLvIr/qVWLCLqeBzWjbqWPPDKeDpdWUs39JRiJ
-kCxu15q+tpnIqtIpiocE5xGrWXL0xHatzOqn915hwOJr5ebqBgroHoMzVjR5v2+w
-hLxMnyDvYee0mN/AsgOObrCeHHbrpnFhduvISsTvNKz0CAE5OpbJNPQbjj3+U2aM
-GpfHGK5m5aPvW38BFsadD0lY+P0zNkHJ8ejL5mWlXqFS6G6gGLvHfEcYwxF5vfSJ
-gqFiKqDY/JOAEApDCiDe21UUXyy02l27PQwP4cXA3QiBObHWg+dlIKc5EnNoT+r5
-3pO6eteZnqF0gGA5JiruBw+vOZrPuse9NDuzRoPExO2KE7BXLwR0UDcprr4Z+Usi
-4LlaoagkaFMexuVFFykBaB9Z8U9Y6aBc9f52cjGCuQ28PkCzNuwYINGf65NUWOcY
-IEOjA9v/1RTrQPMlmywoOMyQnmZflvNf9uUG7Dk2HiViO5F7u0IxjwWqTOD7Sc1U
-QLhOGNlfDLJdcLRwlSFE4xsUkrMdAqSfx+Mnzwj0C53ds+2GX5g0zdA/TZmt7JVs
-MLCxt2rGulK1kRPBeVqVs6GH0yXy/iORF/OI4Y2u/OQl0yAteXg=
-=sUO6
------END PGP SIGNATURE-----
+Great! BTW I noticed that your sleep_min calculation looked odd:
 
---a8Wt8u1KmwUX3Y2C--
+int sleep_min = (8/i2c->bus_clock_khz) * 1000; /* us for 8bits
+
+bus_clock_khz almost certainly will be bigger than 8 (E.G. likely
+100KHz), so the above set sleep_min to 0. Please move the * 1000 before
+the division.
+
+-- 
+Bye, Peter Korsgaard
