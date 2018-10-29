@@ -1,41 +1,39 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH 1/3] i3c: master: Add driver for Synopsys DesignWare IP
-Date: Mon, 29 Oct 2018 06:41:00 -0700
-Message-ID: <20181029134100.GD28520@bombadil.infradead.org>
-References: <1540807618-13246-1-git-send-email-soares@synopsys.com>
- <1540807618-13246-2-git-send-email-soares@synopsys.com>
+From: Federico Vaga <federico.vaga@cern.ch>
+Subject: Re: [PATCH 2/3] i2c:ocores: do not handle IRQ if IF is not set
+Date: Mon, 29 Oct 2018 15:27:43 +0100
+Message-ID: <1607303.K3FPNFt9tg@pcbe13614>
+References: <20180625161303.7991-1-federico.vaga@cern.ch> <CACXmViZZ3SBPbV4AXK6EsJPfD5TJqEU_-Q36+vz5LxTk_pzq4A@mail.gmail.com> <20181029085259.GA4101@kunai>
+Reply-To: <federico.vaga@cern.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1540807618-13246-2-git-send-email-soares@synopsys.com>
+In-Reply-To: <20181029085259.GA4101@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vitor soares <vitor.soares@synopsys.com>
-Cc: boris.brezillon@bootlin.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, gregkh@linuxfoundation.org, arnd@arndb.de, psroka@cadence.com, agolec@cadence.com, adouglas@cadence.com, bfolta@cadence.com, dkos@cadence.com, alicja@cadence.com, cwronka@cadence.com, sureshp@cadence.com, rafalc@cadence.com, thomas.petazzoni@bootlin.com, nm@ti.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, geert@linux-m68k.org, linus.walleij@linaro.org, Xiang.Lin@synaptics.com, linux-gpio@vger.kernel.org, nsekhar@ti.com, pgaj@cadence.com, peda@axentia.se, mshettel@codeaurora.org, swboyd@chromium.org, joao.pinto@synopsys.com, luis
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 29, 2018 at 10:06:56AM +0000, Vitor soares wrote:
-> +config DW_I3C_MASTER
-> +	tristate "Synospsys DesignWare I3C master driver"
-> +	depends on I3C
+On Monday, October 29, 2018 9:53:01 AM CET Wolfram Sang wrote:
+> On Sun, Oct 21, 2018 at 04:12:10PM +0200, Peter Korsgaard wrote:
+> > On Mon, Jun 25, 2018 at 6:14 PM Federico Vaga <federico.vaga@cern.ch> 
+wrote:
+> > > If the Interrupt Flag (IF) is not set, we should not handle the IRQ:
+> > > - the line can be shared with other devices
+> > > - it can be a spurious interrupt
+> > > 
+> > > To avoid reading twice the status register, the ocores_process()
+> > > function
+> > > expects it to be read by the caller.
+> > > 
+> > > Signed-off-by: Federico Vaga <federico.vaga@cern.ch>
+> > 
+> > Looks good.
+> > 
+> > Acked-by: Peter Korsgaard <peter@korsgaard.com>
+> 
+> I assume this patch will be resent when the other patches get updated?
+> Or shall I pick this one independently of the others?
 
-> +	depends on !(ALPHA || PARISC)
-
-why?
-
-> +	help
-> +	  Support·for·Synopsys·DesignWare·MIPI·I3C·Controller.
-
-These strange characters (displayed as a centred dot on my terminal)
-should probably be spaces.
-
-> +static struct dw_i3c_xfer *
-> +dw_i3c_master_alloc_xfer(struct dw_i3c_master *master, unsigned int ncmds)
-> +{
-> +	struct dw_i3c_xfer *xfer;
-> +
-> +	xfer = kzalloc(sizeof(*xfer) + (ncmds * sizeof(*xfer->cmds)),
-> +		       GFP_KERNEL);
-
-You should be using struct_size() here.
+Since Peter did not answer yet, I would say to wait because I'm going to re-
+send the full patch-set soon.
