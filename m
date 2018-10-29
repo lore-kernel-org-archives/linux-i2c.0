@@ -1,238 +1,76 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.20
-Date: Mon, 29 Oct 2018 19:05:35 +0000
-Message-ID: <20181029190531.GA5319@kunai>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Subject: [PATCH i2c-next v8 0/5] i2c: aspeed: Add bus idle waiting logic for multi-master use cases
+Date: Mon, 29 Oct 2018 14:14:09 -0700
+Message-ID: <20181029211414.20771-1-jae.hyun.yoo@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Wolfram Sang <wsa@the-dreams.de>, Brendan Higgins <brendanhiggins@google.com>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
+In multi-master environment, this driver's master cannot know
+exactly when a peer master sends data to this driver's slave so a
+case can be happened that this master tries to send data through
+the master_xfer function but slave data from peer master is still
+being processed by this driver. To prevent state corruption in the
+case, this patch adds checking code if any slave operation is
+ongoing and it waits up to the bus timeout duration before starting
+a master_xfer operation.
 
---SUOF0GtieIMvvwua
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+To support this change, it introduces changes on i2c-core-base to
+make that able to read the bus timeout and master transfer retries
+count values from device tree properties.
 
-Linus,
-
-welcome back! I hope the time off was good for you.
-
-I2C has not so much stuff this time. Mostly driver enablement for new
-SoCs, some driver bugfixes, and some cleanups.
-
-Please pull.
+Please review this patch set.
 
 Thanks,
 
-   Wolfram
+-Jae
 
+Changes since v7:
+- Simplified the bus idle waiting logic using jiffy based timer APIs.
 
-The following changes since commit 0238df646e6224016a45505d2c111a24669ebe21:
+Changes since v6:
+- Changed the 'timeout-ms' property name to 'bus-timeout-ms'.
 
-  Linux 4.19-rc7 (2018-10-07 17:26:02 +0200)
+Changes since v5:
+- Changed using of property reading API to device_property_read_u32.
 
-are available in the Git repository at:
+Changes since v4:
+- Moved the property reading code into i2c-base-core and changed the
+  property name to 'timeout-ms'. Also, added '#retries' property reading
+  code.
+- Changed bus busy checking logic to make that check slave_state instead
+  of 'Transfer Mode State Machine' reg value.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-4.20
+Changes since v3:
+- Changed the property name to 'timeout' and made it use the
+  default setting in i2c-core when not specified.
 
-for you to fetch changes up to 84de6e96e036dcfb18dded04a506b1dd72ba0e5b:
+Changes since v2:
+- Changed the property name to 'aspeed,timeout' and made it to
+  update the adapter's timeout configuration.
 
-  MAINTAINERS: add maintainer for Renesas RIIC driver (2018-10-29 18:53:38 +0000)
+Changes since v1:
+- Changed define names of timeout related.
 
-----------------------------------------------------------------
-Alexandre Belloni (5):
-      i2c: designware: use generic table matching
-      i2c: designware: move #ifdef CONFIG_OF to the top
-      i2c: designware: allow IP specific sda_hold_time
-      dt-bindings: i2c: designware: document MSCC Ocelot bindings
-      i2c: designware: add MSCC Ocelot support
+Jae Hyun Yoo (5):
+  dt-bindings: i2c: Add 'bus-timeout-ms' and '#retries' properties as
+    common optional
+  i2c: core: Add support reading of 'bus-timeout-ms' and '#retries'
+    properties
+  dt-bindings: i2c: aspeed: Add 'bus-timeout-ms' property as an optional
+    property
+  i2c: aspeed: Remove hard-coded bus timeout value setting
+  i2c: aspeed: Add bus idle waiting logic for multi-master use cases
 
-Biju Das (2):
-      dt-bindings: i2c: rcar: Document r8a7744 support
-      dt-bindings: i2c: sh_mobile: Document r8a7744 support
+ .../devicetree/bindings/i2c/i2c-aspeed.txt    |  3 ++
+ Documentation/devicetree/bindings/i2c/i2c.txt |  6 +++
+ drivers/i2c/busses/i2c-aspeed.c               | 53 +++++++++++++------
+ drivers/i2c/i2c-core-base.c                   | 12 ++++-
+ 4 files changed, 56 insertions(+), 18 deletions(-)
 
-Brendan Higgins (1):
-      i2c: aspeed: fix invalid clock parameters for very large divisors
-
-Chris Brandt (1):
-      MAINTAINERS: add maintainer for Renesas RIIC driver
-
-Fabrizio Castro (1):
-      dt-bindings: i2c: rcar: Add r8a77470 support
-
-Florian Fainelli (1):
-      i2c: brcmstb: Allow enabling the driver on DSL SoCs
-
-Guenter Roeck (1):
-      i2c: aspeed: Acknowledge most interrupts early in interrupt handler
-
-Gustavo A. R. Silva (1):
-      i2c: synquacer: fix fall-through annotation
-
-Hans de Goede (2):
-      i2c: designware: Remove Cherry Trail PMIC I2C bus pm_disabled workaround
-      i2c: designware: Set IRQF_NO_SUSPEND flag for all BYT and CHT controllers
-
-Jae Hyun Yoo (1):
-      i2c: aspeed: Handle master/slave combined irq events properly
-
-Jarkko Nikula (1):
-      i2c: sh_mobile: Remove dummy runtime PM callbacks
-
-Jun Gao (1):
-      i2c: mediatek: Use DMA safe buffers for i2c transactions
-
-Luca Ceresoli (3):
-      i2c: mux: pca954x: simplify code to reach the adapter
-      i2c: mux: ltc4306: simplify code to reach the adapter
-      i2c: mux: mlxcpld: simplify code to reach the adapter
-
-Masahiro Yamada (3):
-      i2c: uniphier-f: make driver robust against concurrency
-      i2c: uniphier-f: fix occasional timeout error
-      i2c: uniphier-f: fix race condition when IRQ is cleared
-
-Rob Herring (1):
-      i2c: Convert to using %pOFn instead of device_node.name
-
-Stephen Boyd (2):
-      i2c: i2c-qcom-geni: Simplify tx/rx functions
-      i2c: i2c-qcom-geni: Simplify irq handler
-
-Wang Xin (1):
-      eeprom: at24: fix unexpected timeout under high load
-
-Wolfram Sang (10):
-      i2c: aspeed: use proper annotation for "fall through"
-      Merge tag 'at24-4.20-updates-for-wolfram' of git://git.kernel.org/.../brgl/linux into i2c/for-4.20
-      i2c: omap: use core to detect 'no zero length' quirk
-      i2c: qup: use core to detect 'no zero length' quirk
-      i2c: tegra: use core to detect 'no zero length' quirk
-      i2c: zx2967: use core to detect 'no zero length' quirk
-      i2c: core: remove outdated DEBUG output
-      i2c: core: remove level of indentation in i2c_transfer
-      Merge tag 'v4.19-rc7' into i2c/for-4.20
-      Merge branch 'i2c-mux/for-next' of https://github.com/peda-r/i2c-mux into i2c/for-4.20-fixed
-
-
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Alok Chauhan (2):
-      (Rev.) i2c: i2c-qcom-geni: Simplify irq handler
-      (Rev.) i2c: i2c-qcom-geni: Simplify tx/rx functions
-
-Andy Gross (1):
-      (Rev.) i2c: qup: use core to detect 'no zero length' quirk
-
-Andy Shevchenko (4):
-      (Rev.) i2c: designware: Set IRQF_NO_SUSPEND flag for all BYT and CHT controllers
-      (Rev.) i2c: designware: Remove Cherry Trail PMIC I2C bus pm_disabled workaround
-      (Rev.) i2c: designware: add MSCC Ocelot support
-      (Rev.) i2c: designware: allow IP specific sda_hold_time
-
-Biju Das (1):
-      (Rev.) dt-bindings: i2c: rcar: Add r8a77470 support
-
-Brendan Higgins (2):
-      (Rev.) i2c: aspeed: use proper annotation for "fall through"
-      (Rev.) i2c: aspeed: Handle master/slave combined irq events properly
-
-Douglas Anderson (2):
-      (Rev.) i2c: i2c-qcom-geni: Simplify irq handler
-      (Rev.) i2c: i2c-qcom-geni: Simplify tx/rx functions
-
-Fabrizio Castro (2):
-      (Rev.) dt-bindings: i2c: sh_mobile: Document r8a7744 support
-      (Rev.) dt-bindings: i2c: rcar: Document r8a7744 support
-
-Geert Uytterhoeven (2):
-      (Rev.) dt-bindings: i2c: sh_mobile: Document r8a7744 support
-      (Rev.) dt-bindings: i2c: rcar: Document r8a7744 support
-
-Grygorii Strashko (1):
-      (Rev.) i2c: omap: use core to detect 'no zero length' quirk
-
-Jae Hyun Yoo (2):
-      (Rev.) i2c: aspeed: fix invalid clock parameters for very large divisors
-      (Test) i2c: aspeed: use proper annotation for "fall through"
-
-Jarkko Nikula (5):
-      (Test) i2c: designware: Set IRQF_NO_SUSPEND flag for all BYT and CHT controllers
-      (Test) i2c: designware: add MSCC Ocelot support
-      (Test) i2c: designware: allow IP specific sda_hold_time
-      (Test) i2c: designware: move #ifdef CONFIG_OF to the top
-      (Test) i2c: designware: use generic table matching
-
-Joel Stanley (1):
-      (Test) i2c: aspeed: Acknowledge most interrupts early in interrupt handler
-
-Mika Westerberg (1):
-      (Rev.) i2c: designware: Set IRQF_NO_SUSPEND flag for all BYT and CHT controllers
-
-Peter Rosin (1):
-      (Rev.) i2c: Convert to using %pOFn instead of device_node.name
-
-Rob Herring (1):
-      (Rev.) dt-bindings: i2c: designware: document MSCC Ocelot bindings
-
-Simon Horman (2):
-      (Rev.) dt-bindings: i2c: sh_mobile: Document r8a7744 support
-      (Rev.) dt-bindings: i2c: rcar: Document r8a7744 support
-
-Wolfram Sang (1):
-      (Rev.) i2c: sh_mobile: Remove dummy runtime PM callbacks
-
- .../devicetree/bindings/i2c/i2c-designware.txt     |   7 +-
- Documentation/devicetree/bindings/i2c/i2c-rcar.txt |   2 +
- .../devicetree/bindings/i2c/i2c-sh_mobile.txt      |   1 +
- MAINTAINERS                                        |   6 +
- drivers/i2c/busses/Kconfig                         |   7 +-
- drivers/i2c/busses/i2c-aspeed.c                    | 205 +++++++++++++--------
- drivers/i2c/busses/i2c-designware-baytrail.c       |   2 +-
- drivers/i2c/busses/i2c-designware-common.c         |   2 +
- drivers/i2c/busses/i2c-designware-core.h           |   9 +-
- drivers/i2c/busses/i2c-designware-master.c         |   2 +-
- drivers/i2c/busses/i2c-designware-platdrv.c        |  90 +++++----
- drivers/i2c/busses/i2c-mt65xx.c                    |  62 ++++++-
- drivers/i2c/busses/i2c-omap.c                      |   8 +-
- drivers/i2c/busses/i2c-powermac.c                  |  17 +-
- drivers/i2c/busses/i2c-qcom-geni.c                 | 149 +++++++--------
- drivers/i2c/busses/i2c-qup.c                       |  14 +-
- drivers/i2c/busses/i2c-sh_mobile.c                 |  18 --
- drivers/i2c/busses/i2c-synquacer.c                 |   2 +-
- drivers/i2c/busses/i2c-tegra.c                     |   4 +-
- drivers/i2c/busses/i2c-uniphier-f.c                |  59 ++++--
- drivers/i2c/busses/i2c-zx2967.c                    |   8 +-
- drivers/i2c/i2c-core-base.c                        |  43 ++---
- drivers/i2c/muxes/i2c-mux-gpmux.c                  |   4 +-
- drivers/i2c/muxes/i2c-mux-ltc4306.c                |   2 +-
- drivers/i2c/muxes/i2c-mux-mlxcpld.c                |   2 +-
- drivers/i2c/muxes/i2c-mux-pca954x.c                |   2 +-
- drivers/misc/eeprom/at24.c                         |  43 ++---
- 27 files changed, 450 insertions(+), 320 deletions(-)
-
---SUOF0GtieIMvvwua
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlvXWfYACgkQFA3kzBSg
-KbY8Ow//QUUMgbmdo5++zaz9B6HRb2rL0LAleXj0BFDFVplzfkus1usTzeTkRppm
-lX+MOkML6yJCekNzo9JJIeH86xIXdejUVVHbhzMogTdL5im5qvIn2m92EyO0zSc/
-B003xn+4z+cVzkG4iltDXZeof1EZf+72SuVwAUUkiNA9ZYnIjRrKZP9jm93dNLVA
-4kAOLUeOaFCKToXzr4DoL/1wUkmuS2OIqAs0IO2LuAUF+aJhCsU1EBw1YUgQHbBK
-3eGEFWFZAJP2detXCqnUUXXd9Q2TCTuju4uPUouPm2Lz2OEJtkmqmSit+mwSRxLe
-7uvT+seAbgZUG43eu1VeaMY3ywnOknRH8mTgkSzMNATLwPBDr8WRiIuTOD5W+36w
-nK/7lMsuVwuszrYQ9qkz7z5BnR7SgAXyFwCijU3hXCr8M18uicYOAq83Wg5Nw2Ui
-eq+h7Ka8mYYy0Sf3jcKeHvW71JYRsbiaZzB24wikN5HXRe2asoVQVy63y6FLrMXX
-9MMmhxDePRrALxOKQkcsjTXbgRMNVM05+CR0ZqE90LCuqgt/LQ2/TsFMelOU3SD4
-FbMOPT+7bVkCQfhaLJ51+0cscywKOd9Gw/vAdZCwOqXHk3e1OpQI2M4jRxJTrxuV
-l/nwYj1pc7ah0iLoRl0AOR8tWEK9LxK2GgYPl14O15tcReF//vs=
-=46rK
------END PGP SIGNATURE-----
-
---SUOF0GtieIMvvwua--
+-- 
+2.19.1
