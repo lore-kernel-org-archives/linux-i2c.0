@@ -1,94 +1,48 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v1 3/3] i2c: imx: don't print error if DMA is not
- configured
-Date: Mon, 29 Oct 2018 08:54:08 +0000
-Message-ID: <20181029085408.GB4101@kunai>
-References: <20181018112615.29362-1-o.rempel@pengutronix.de>
- <20181018112615.29362-4-o.rempel@pengutronix.de>
- <20181028221123.GE1882@kunai>
- <9a3fc087-2fe5-6d57-9b65-a05e176bf53d@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7681714518082318579=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <9a3fc087-2fe5-6d57-9b65-a05e176bf53d@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Shawn Guo <shawnguo@kernel.org>, linux-arm-kernel@lists.infradead.org, NXP Linux Team <linux-imx@nxp.com>
+From: Vitor soares <vitor.soares@synopsys.com>
+Subject: [PATCH 0/3] Add driver for Synopsys DesignWare I3C master IP
+Date: Mon, 29 Oct 2018 10:06:55 +0000
+Message-ID: <1540807618-13246-1-git-send-email-soares@synopsys.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: boris.brezillon@bootlin.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, gregkh@linuxfoundation.org, arnd@arndb.de
+Cc: psroka@cadence.com, agolec@cadence.com, adouglas@cadence.com, bfolta@cadence.com, dkos@cadence.com, alicja@cadence.com, cwronka@cadence.com, sureshp@cadence.com, rafalc@cadence.com, thomas.petazzoni@bootlin.com, nm@ti.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, vitor.soares@synopsys.com, geert@linux-m68k.org, linus.walleij@linaro.org, Xiang.Lin@synaptics.com, linux-gpio@vger.kernel.org, nsekhar@ti.com, pgaj@cadence.com, peda@axentia.se, mshettel@codeaurora.org, swboyd@chromium.org, joao.pinto@synopsys.com, luis.oliveira@synopsys.com, manuel.abreu@synopsys.com, gustavo.pimentel@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
 
+This patch series is a proposal for the I3C master driver for Synopsys IP.
+This patch is to be applied on top of I3C subsystem RFC V10 submitted bu Boris Brezillon.
 
---===============7681714518082318579==
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="GID0FwUMdk1T2AWN"
-Content-Disposition: inline
+The change made on bufs passed to i3c_master_send_ccc_cmd_locked() be dynamically allocated allow the use of writesl/readsl() function on I3C transfers.
+For I2C transfers still have memory misalignment on bufs and if the client try to read more than 4bytes the system stops. This will fixed next version.
 
+Supported features:
+  Regular CCC commands.
+  I3C private transfers.
+  I2C transfers.
 
---GID0FwUMdk1T2AWN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Missing functionalities:
+  Support for I3C_BUS_MODE_MIXED_SLOW.
+  Hot-join.
+  IBI.
 
-On Mon, Oct 29, 2018 at 09:07:56AM +0100, Oleksij Rempel wrote:
->=20
->=20
-> On 28.10.18 23:11, Wolfram Sang wrote:
-> > On Thu, Oct 18, 2018 at 01:26:15PM +0200, Oleksij Rempel wrote:
-> > > At least on i.MX5x variants is DMA event for I2C muxed with SDHC. So
-> > > it is project specific configuration and not an error.
-> > >=20
-> > > Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-> >=20
-> > So, the first patch is not I2C realm, and the second is dropped. No
-> > comment about the third one?
-> >=20
-> > And is maybe someone from Pengutronix interested in maintaining this
-> > driver? Uwe maybe? That would speed up things for it...
->=20
-> Should i resend it as single patch?
+Main change between v1 and v2:
+  Add controller version on dt-binding
+  The driver now calls writesl/readsl() instead readl/writel
+  Rename some variables in the driver
+   
 
-I am fine with an ack here.
+Vitor soares (3):
+  i3c: master: Add driver for Synopsys DesignWare IP
+  dt-bindings: i3c: Document Synopsys DesignWare I3C master bindings
+  MAINTAINERS: Add myself as the dw-i3c-master module maintainer
 
+ .../devicetree/bindings/i3c/snps,dw-i3c-master.txt |   42 +
+ MAINTAINERS                                        |    6 +
+ drivers/i3c/master/Kconfig                         |   13 +
+ drivers/i3c/master/Makefile                        |    1 +
+ drivers/i3c/master/dw-i3c-master.c                 | 1217 ++++++++++++++++++++
+ 5 files changed, 1279 insertions(+)
+ create mode 100755 Documentation/devicetree/bindings/i3c/snps,dw-i3c-master.txt
+ create mode 100755 drivers/i3c/master/dw-i3c-master.c
 
---GID0FwUMdk1T2AWN
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlvWyq8ACgkQFA3kzBSg
-Kbba8xAAqQ6UIuiXXX0qTxzHxJvIIeihnMv3DIOXuIhRD9uPXgXpyr25o/Oc7LQ6
-J7hwTXF7H/BBYZc092v7cSKuAeTcjNM5zcYB8TFGRzmA1XD/tDNqA8E2OT+Nr2R4
-2d8BwtCSH2C9cONVjQskkQ8ZSsnK/ZXa11Fydk9RuQitlKN4W6tavXzBspCd94we
-P1E5nDo7IwZPaUb/NsBvddeH+YL2XVC9R6a9AhB8AgutybF/Bpi2Mn8d4bT031mv
-7gV7IkOO4GOa2RPN5bQr9HgGHoFCdKfbRWmHSEqbal4vpgrtRtkZ5TSB2EhYcLQU
-/553niIjoy/f2ER9SvPXKz+5xsWwn9NEdHlW4f9sq5TBmOY6ORPuCDm3VqSDfSm3
-ebvoIgDLcH3V738/nlbeW83gwiDISUgcuWjWKjQkVWv7aZIMVB7uOmN4/IcbEglK
-hFgzixpLafewJ/syQMQ4pBQ2BxaZJd0bjqBM2ZW4J5Jf5d5Vfv/cH0OEnSLRIEk6
-XS47axoAtd7qVbpzJa7ijPN+zBsOGIbTXhMi8n51GGPs2DIJf0jHJ9AS3rS+GK0A
-Gk+quyuz/8qFRI8QZG3JX9JzO1EccMO9cdVgM+HDruK/BlfMaHhydkQ9QzpRiYy9
-xnmJ9KMZhX6lk8MyXoSWwDffQOIXQJTNLyPLXMeO37LzKxlFY0Q=
-=JfI2
------END PGP SIGNATURE-----
-
---GID0FwUMdk1T2AWN--
-
-
---===============7681714518082318579==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============7681714518082318579==--
+-- 
+2.7.4
