@@ -1,39 +1,55 @@
-From: Federico Vaga <federico.vaga@cern.ch>
-Subject: Re: [PATCH 2/3] i2c:ocores: do not handle IRQ if IF is not set
-Date: Mon, 29 Oct 2018 15:27:43 +0100
-Message-ID: <1607303.K3FPNFt9tg@pcbe13614>
-References: <20180625161303.7991-1-federico.vaga@cern.ch> <CACXmViZZ3SBPbV4AXK6EsJPfD5TJqEU_-Q36+vz5LxTk_pzq4A@mail.gmail.com> <20181029085259.GA4101@kunai>
-Reply-To: <federico.vaga@cern.ch>
+From: Ludovic Desroches <ludovic.desroches@microchip.com>
+Subject: Re: [RESEND PATCH 1/2] i2c: enable buses to save their clock
+ frequency in adapter
+Date: Mon, 29 Oct 2018 15:49:18 +0100
+Message-ID: <20181029144918.3iukhksa522xna2e@M43218.corp.atmel.com>
+References: <20181023092025.32463-1-tudor.ambarus@microchip.com>
+ <20181023092025.32463-2-tudor.ambarus@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181029085259.GA4101@kunai>
+Content-Disposition: inline
+In-Reply-To: <20181023092025.32463-2-tudor.ambarus@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel@vger.kernel.org
+To: Tudor Ambarus - M18064 <Tudor.Ambarus@microchip.com>
+Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, Nicolas Ferre - M43238 <Nicolas.Ferre@microchip.com>, "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday, October 29, 2018 9:53:01 AM CET Wolfram Sang wrote:
-> On Sun, Oct 21, 2018 at 04:12:10PM +0200, Peter Korsgaard wrote:
-> > On Mon, Jun 25, 2018 at 6:14 PM Federico Vaga <federico.vaga@cern.ch> 
-wrote:
-> > > If the Interrupt Flag (IF) is not set, we should not handle the IRQ:
-> > > - the line can be shared with other devices
-> > > - it can be a spurious interrupt
-> > > 
-> > > To avoid reading twice the status register, the ocores_process()
-> > > function
-> > > expects it to be read by the caller.
-> > > 
-> > > Signed-off-by: Federico Vaga <federico.vaga@cern.ch>
-> > 
-> > Looks good.
-> > 
-> > Acked-by: Peter Korsgaard <peter@korsgaard.com>
+On Tue, Oct 23, 2018 at 11:20:39AM +0200, Tudor Ambarus - M18064 wrote:
+> The clock-frequency property is not mandatory for the i2c buses. If it's
+> not present in the device tree, the buses __usually__ assume it's 100kHZ
+> (see altera, at91, axxia, etc.). Broadcom uses a 375kHZ default
+> clock-frequency, so the default clock frequency varies from bus to bus.
 > 
-> I assume this patch will be resent when the other patches get updated?
-> Or shall I pick this one independently of the others?
+> There are i2c clients that need to know the bus clock frequency in order to
+> compute their wake token (see atecc508a i2c client).
+> 
+> The clock-frequency value has to be propagated to the i2c clients, otherwise,
+> if they will not find the i2c bus clock frequency in the device tree, they
+> will have to make their own assumption of the clock frequency.
+> 
+> Spare the i2c clients of making wrong assumptions of the i2c bus clock
+> frequency and enable the buses to save their clock frequency in adapter.
+> 
+> Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Reviwed-by: Ludovic Desroches <ludovic.desroches@microchip.com>
 
-Since Peter did not answer yet, I would say to wait because I'm going to re-
-send the full patch-set soon.
+> ---
+>  include/linux/i2c.h | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 65b4eaed1d96..f238da204c49 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -677,6 +677,7 @@ struct i2c_adapter {
+>  	struct rt_mutex bus_lock;
+>  	struct rt_mutex mux_lock;
+>  
+> +	u32 bus_freq_hz;
+>  	int timeout;			/* in jiffies */
+>  	int retries;
+>  	struct device dev;		/* the adapter device */
+> -- 
+> 2.9.4
+> 
