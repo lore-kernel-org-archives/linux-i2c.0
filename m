@@ -1,57 +1,48 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: Clear client->irq in i2c_device_remove
-Date: Tue, 30 Oct 2018 14:55:50 +0000
-Message-ID: <20181030145549.GB2459@kunai>
-References: <20181019085958.32694-1-ckeepax@opensource.cirrus.com>
- <20181019085958.32694-2-ckeepax@opensource.cirrus.com>
- <20181028223116.GJ1882@kunai>
- <CAO-hwJLw74k+jBnDuQ7OrVzJOy8i82OXKNWuNhxNqUj+8nzwhg@mail.gmail.com>
- <20181030115120.GI16508@imbe.wolfsonmicro.main>
- <CAO-hwJ+B5iUpbUamsCfNKGwxJMM9fNBUnrb2-csn1VpNG58KBA@mail.gmail.com>
+From: "A.s. Dong" <aisheng.dong@nxp.com>
+Subject: RE: [PATCH V3 4/8] dt-bindings: i2c: i2c-imx-lpi2c: add imx8qxp
+ compatible string
+Date: Tue, 30 Oct 2018 15:03:57 +0000
+Message-ID: <AM0PR04MB421190D30048AB9AE39FA8C780CC0@AM0PR04MB4211.eurprd04.prod.outlook.com>
+References: <1539886483-15775-1-git-send-email-aisheng.dong@nxp.com>
+ <1539886483-15775-5-git-send-email-aisheng.dong@nxp.com>
+ <20181028221952.GF1882@kunai>
+ <AM0PR04MB42110EB0836E9610CDA2746680CC0@AM0PR04MB4211.eurprd04.prod.outlook.com>
+ <20181030145925.GC2459@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAO-hwJ+B5iUpbUamsCfNKGwxJMM9fNBUnrb2-csn1VpNG58KBA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: ckeepax@opensource.cirrus.com, Linux I2C <linux-i2c@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, patches@opensource.cirrus.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20181030145925.GC2459@kunai>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "dongas86@gmail.com" <dongas86@gmail.com>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "will.deacon@arm.com" <will.deacon@arm.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, dl-linux-imx <linux-imx@nxp.com>, "kernel@pengutronix.de" <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+[...]
+ 
+> > > Would you maybe volunteer to maintain this driver? To prevent stuff
+> > > like this from happening? :)
+> >
+> > Sure, I will open an eye on this driver patches from now on.
+> 
+> Great, thank you! Can you add an entry to MAINTAINERS and send this as a
+> patch, too?
+> 
 
---7iMSBzlTiPOCCT2k
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Got it. Thanks
 
+Regards
+Dong Aisheng
 
-> No, that's fine. Now I get this, and I totally agree with the approach:
->=20
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Thanks! If one of you could provide me with a Fixes tag (for this. or
-both patches?), that would be most helpful.
-
-
---7iMSBzlTiPOCCT2k
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlvYcPUACgkQFA3kzBSg
-KbbBLBAArsFBvF18lduX8tW25Jn2VvrX/3hEt8dMJAIyWD0pH84M8elcWQbs/tdz
-p/aAiLsfX+RteluA3fNqllohWGpgPcJaMlA7na126FZ13pEsCnw1ot8wUOZfTRlm
-2k2PbCCo1GkIoHSCwJpkkPXC/zIyXij74KWGS6n6BIsy33X6GjePh1NiJ35MQA8u
-ujz8pSFGhA2LVAntjOvDOhA0DnqYilNABdjNzg8k7N0LIrH3A9K9O+AL5PKk72Tx
-yK/wPquy2Th8F5dXNiPv1J9OSpP6yagdvF6ADhacFDuFnLCbS5aAN2Y5lbF0st3m
-oWjlYEX5ZaJmHFTKtNZlE+WZFa/1AYjC1ve1AAW1SecAWhDOCOh5N+IFYaLTwYQb
-S6dmzA7NXK/+NTCyUVwyopkLYdDvPcQLIEdQdXjTmGuesu8Isn3d9J8bq8NQDPMm
-9EuIOXDKEjpkurguVD4DANcYZRw+Gc7LWQKJzMFI2erShFmZjwRItvzKu6f9vlVQ
-brT2rXB6dRzEiWVHV02trbcsNpTcNopXSU9kVBTWOFvSLBQA7yAyDUyoYNIpOwSW
-DCu26kZqDln00prQvQF9dmwzuHeC00oNwVMsHISF6bZgESf4LNrN2TkkjXHfIDvP
-h9vZbBCyKauhDFc6HO+//Fyo2kWsBdSfqFIINLEd2VCrIUS0nKg=
-=3PS+
------END PGP SIGNATURE-----
-
---7iMSBzlTiPOCCT2k--
+> > And I will resend the patch against your tree.
+> 
+> Thanks!
