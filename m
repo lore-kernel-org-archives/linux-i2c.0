@@ -1,74 +1,57 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH 2/2] i2c: Clear client->irq in i2c_device_remove
-Date: Tue, 30 Oct 2018 15:34:51 +0100
-Message-ID: <CAO-hwJ+B5iUpbUamsCfNKGwxJMM9fNBUnrb2-csn1VpNG58KBA@mail.gmail.com>
+Date: Tue, 30 Oct 2018 14:55:50 +0000
+Message-ID: <20181030145549.GB2459@kunai>
 References: <20181019085958.32694-1-ckeepax@opensource.cirrus.com>
- <20181019085958.32694-2-ckeepax@opensource.cirrus.com> <20181028223116.GJ1882@kunai>
- <CAO-hwJLw74k+jBnDuQ7OrVzJOy8i82OXKNWuNhxNqUj+8nzwhg@mail.gmail.com> <20181030115120.GI16508@imbe.wolfsonmicro.main>
+ <20181019085958.32694-2-ckeepax@opensource.cirrus.com>
+ <20181028223116.GJ1882@kunai>
+ <CAO-hwJLw74k+jBnDuQ7OrVzJOy8i82OXKNWuNhxNqUj+8nzwhg@mail.gmail.com>
+ <20181030115120.GI16508@imbe.wolfsonmicro.main>
+ <CAO-hwJ+B5iUpbUamsCfNKGwxJMM9fNBUnrb2-csn1VpNG58KBA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181030115120.GI16508@imbe.wolfsonmicro.main>
+Content-Disposition: inline
+In-Reply-To: <CAO-hwJ+B5iUpbUamsCfNKGwxJMM9fNBUnrb2-csn1VpNG58KBA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: ckeepax@opensource.cirrus.com
-Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, patches@opensource.cirrus.com
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: ckeepax@opensource.cirrus.com, Linux I2C <linux-i2c@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Oct 30, 2018 at 12:51 PM Charles Keepax
-<ckeepax@opensource.cirrus.com> wrote:
->
-> On Mon, Oct 29, 2018 at 11:15:47AM +0100, Benjamin Tissoires wrote:
-> > On Sun, Oct 28, 2018 at 11:31 PM Wolfram Sang <wsa@the-dreams.de> wrote:
-> > >
-> > > On Fri, Oct 19, 2018 at 09:59:58AM +0100, Charles Keepax wrote:
-> > > > The IRQ will be mapped in i2c_device_probe only if client->irq is zero and
-> > > > i2c_device_remove does not clear this. When rebinding an I2C device,
-> > > > whos IRQ provider has also been rebound this means that an IRQ mapping
-> > > > will never be created, causing the I2C device to fail to acquire its
-> > > > IRQ. Fix this issue by clearing client->irq in i2c_device_remove,
-> > > > forcing i2c_device_probe to lookup the mapping again.
-> > > >
-> > > > Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-> > >
-> > > Adding Benjamin here again. Also, should there be a Fixes: tag?
-> >
-> > Not sure if the circumstances are preventing me to think straight, but
-> > how can you reprobe the i2c_device?
->
-> You just head into /sys/bus/i2c/drivers/<the_driver> and use the
-> unbind file to remove the driver. You can then probe the driver
-> again using the bind file.
 
-Right... not sure why I haven't seen that one yesterday
+--7iMSBzlTiPOCCT2k
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->
-> > And in all cases, for the Host notify part, having the IRQ already set
-> > shouldn't be an issue.
->
-> To be clear this isn't a theoretical issue this is something I
-> can replicate very easily. The problem comes in when you unbind
-> both the I2C device and the device that is providing its IRQ. In
-> my case the I2C device is a speaker amp and the device providing
-> IRQs is an audio CODEC.
->
-> When the device providing the IRQ is unbound it will delete the
-> IRQ mapping. For the I2C device to acquire its IRQ something
-> needs to recreate that mapping, this would normally happen (in a
-> DT system) as a result of the of_irq_get/_by_name. But as
-> client->irq is already set this doesn't happen, causing the I2C
-> device to fail probe because it couldn't locate its IRQ.
 
-Right. I completely missed the fact that the driver of the IRQ could
-be reset during the period the device is unbound.
-That's a pretty strong case for this patch.
+> No, that's fine. Now I get this, and I totally agree with the approach:
+>=20
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
->
-> I can provide some stack traces or something if that would help
-> to clarify the issue?
+Thanks! If one of you could provide me with a Fixes tag (for this. or
+both patches?), that would be most helpful.
 
-No, that's fine. Now I get this, and I totally agree with the approach:
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+--7iMSBzlTiPOCCT2k
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Cheers,
-Benjamin
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlvYcPUACgkQFA3kzBSg
+KbbBLBAArsFBvF18lduX8tW25Jn2VvrX/3hEt8dMJAIyWD0pH84M8elcWQbs/tdz
+p/aAiLsfX+RteluA3fNqllohWGpgPcJaMlA7na126FZ13pEsCnw1ot8wUOZfTRlm
+2k2PbCCo1GkIoHSCwJpkkPXC/zIyXij74KWGS6n6BIsy33X6GjePh1NiJ35MQA8u
+ujz8pSFGhA2LVAntjOvDOhA0DnqYilNABdjNzg8k7N0LIrH3A9K9O+AL5PKk72Tx
+yK/wPquy2Th8F5dXNiPv1J9OSpP6yagdvF6ADhacFDuFnLCbS5aAN2Y5lbF0st3m
+oWjlYEX5ZaJmHFTKtNZlE+WZFa/1AYjC1ve1AAW1SecAWhDOCOh5N+IFYaLTwYQb
+S6dmzA7NXK/+NTCyUVwyopkLYdDvPcQLIEdQdXjTmGuesu8Isn3d9J8bq8NQDPMm
+9EuIOXDKEjpkurguVD4DANcYZRw+Gc7LWQKJzMFI2erShFmZjwRItvzKu6f9vlVQ
+brT2rXB6dRzEiWVHV02trbcsNpTcNopXSU9kVBTWOFvSLBQA7yAyDUyoYNIpOwSW
+DCu26kZqDln00prQvQF9dmwzuHeC00oNwVMsHISF6bZgESf4LNrN2TkkjXHfIDvP
+h9vZbBCyKauhDFc6HO+//Fyo2kWsBdSfqFIINLEd2VCrIUS0nKg=
+=3PS+
+-----END PGP SIGNATURE-----
+
+--7iMSBzlTiPOCCT2k--
