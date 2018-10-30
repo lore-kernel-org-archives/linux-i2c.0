@@ -1,133 +1,54 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: [PATCH i2c-next v9 5/5] i2c: aspeed: Add bus idle waiting logic for multi-master use cases
-Date: Tue, 30 Oct 2018 14:09:16 -0700
-Message-ID: <20181030210917.32711-6-jae.hyun.yoo@linux.intel.com>
-References: <20181030210917.32711-1-jae.hyun.yoo@linux.intel.com>
+From: Tobias Thomer <thomer.tobias@gmail.com>
+Subject: Re: [PATCH v7] i2c: Add PCI and platform drivers for the AMD MP2 I2C controller
+Date: Tue, 30 Oct 2018 22:47:20 +0100
+Message-ID: <CAHYSBa-QNtqZ9f__ysG9cz33LiCEpjVBHrPvHhgPn2gzVUhv8Q@mail.gmail.com>
+References: <20181027150910.GA2070@syn-yoga530> <20181030205624.GC13681@bhelgaas-glaptop.roam.corp.google.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181030210917.32711-1-jae.hyun.yoo@linux.intel.com>
+In-Reply-To: <20181030205624.GC13681@bhelgaas-glaptop.roam.corp.google.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Brendan Higgins <brendanhiggins@google.com>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+To: helgaas@kernel.org
+Cc: syniurge@gmail.com, linux-i2c@vger.kernel.org, wsa@the-dreams.de, Nehal-bakulchandra.Shah@amd.com, Shyam-sundar.S-k@amd.com, sandeep.singh@amd.com, linux-kernel@vger.kernel.org, rjw@rjwysocki.net, lenb@kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-In multi-master environment, this driver's master cannot know
-exactly when a peer master sends data to this driver's slave so a
-case can be happened that this master tries to send data through
-the master_xfer function but slave data from peer master is still
-being processed by this driver.
+I've tested v7 on a Yoga 530 and it seems to work (sometimes for
+hours) but it randomly dies with a i2c read timeout
 
-To prevent any state corruption in the case, this patch adds
-checking code if any slave operation is ongoing and it waits up to
-the bus timeout duration before starting a master_xfer operation.
+[ 9562.237020] i2c_amd_plat_mp2 AMDI0011:00: i2c read timed out
 
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
----
- drivers/i2c/busses/i2c-aspeed.c | 55 ++++++++++++++++++++++++---------
- 1 file changed, 40 insertions(+), 15 deletions(-)
+and reloading/removing of the module results in this:
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index 833b6b6a4c7e..30c3ab3a4844 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -12,6 +12,7 @@
- 
- #include <linux/clk.h>
- #include <linux/completion.h>
-+#include <linux/delay.h>
- #include <linux/err.h>
- #include <linux/errno.h>
- #include <linux/i2c.h>
-@@ -115,6 +116,9 @@
- /* 0x18 : I2CD Slave Device Address Register   */
- #define ASPEED_I2CD_DEV_ADDR_MASK			GENMASK(6, 0)
- 
-+/* Busy checking */
-+#define ASPEED_I2C_BUS_BUSY_CHECK_INTERVAL_US		(10 * 1000)
-+
- enum aspeed_i2c_master_state {
- 	ASPEED_I2C_MASTER_INACTIVE,
- 	ASPEED_I2C_MASTER_START,
-@@ -156,6 +160,8 @@ struct aspeed_i2c_bus {
- 	int				cmd_err;
- 	/* Protected only by i2c_lock_bus */
- 	int				master_xfer_result;
-+	/* Multi-master */
-+	bool				multi_master;
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- 	struct i2c_client		*slave;
- 	enum aspeed_i2c_slave_state	slave_state;
-@@ -596,27 +602,44 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
- 	return irq_remaining ? IRQ_NONE : IRQ_HANDLED;
- }
- 
-+static int aspeed_i2c_check_bus_busy(struct aspeed_i2c_bus *bus)
-+{
-+	unsigned long timeout;
-+
-+	if (bus->multi_master) {
-+		might_sleep();
-+		/* Initialize it only when multi_master is set */
-+		timeout = jiffies + bus->adap.timeout;
-+	}
-+
-+	for (;;) {
-+		if (!(readl(bus->base + ASPEED_I2C_CMD_REG) &
-+		      ASPEED_I2CD_BUS_BUSY_STS))
-+#if IS_ENABLED(CONFIG_I2C_SLAVE)
-+			if (bus->slave_state == ASPEED_I2C_SLAVE_STOP)
-+#endif
-+				return 0;
-+		if (!bus->multi_master)
-+			break;
-+		if (time_after(jiffies, timeout))
-+			break;
-+		usleep_range((ASPEED_I2C_BUS_BUSY_CHECK_INTERVAL_US >> 2) + 1,
-+			     ASPEED_I2C_BUS_BUSY_CHECK_INTERVAL_US);
-+	}
-+
-+	return aspeed_i2c_recover_bus(bus);
-+}
-+
- static int aspeed_i2c_master_xfer(struct i2c_adapter *adap,
- 				  struct i2c_msg *msgs, int num)
- {
- 	struct aspeed_i2c_bus *bus = i2c_get_adapdata(adap);
- 	unsigned long time_left, flags;
--	int ret = 0;
- 
--	spin_lock_irqsave(&bus->lock, flags);
--	bus->cmd_err = 0;
--
--	/* If bus is busy, attempt recovery. We assume a single master
--	 * environment.
--	 */
--	if (readl(bus->base + ASPEED_I2C_CMD_REG) & ASPEED_I2CD_BUS_BUSY_STS) {
--		spin_unlock_irqrestore(&bus->lock, flags);
--		ret = aspeed_i2c_recover_bus(bus);
--		if (ret)
--			return ret;
--		spin_lock_irqsave(&bus->lock, flags);
--	}
-+	if (aspeed_i2c_check_bus_busy(bus))
-+		return -EAGAIN;
- 
-+	spin_lock_irqsave(&bus->lock, flags);
- 	bus->cmd_err = 0;
- 	bus->msgs = msgs;
- 	bus->msgs_index = 0;
-@@ -827,7 +850,9 @@ static int aspeed_i2c_init(struct aspeed_i2c_bus *bus,
- 	if (ret < 0)
- 		return ret;
- 
--	if (!of_property_read_bool(pdev->dev.of_node, "multi-master"))
-+	if (of_property_read_bool(pdev->dev.of_node, "multi-master"))
-+		bus->multi_master = true;
-+	else
- 		fun_ctrl_reg |= ASPEED_I2CD_MULTI_MASTER_DIS;
- 
- 	/* Enable Master Mode */
--- 
-2.19.1
+[ 9703.591021] pcie_mp2_amd 0000:03:00.7: length 0 in event doesn't
+match buffer length 64!
+[ 9703.591030] pcie_mp2_amd 0000:03:00.7: unexpected slave address 0
+(expected: 2c)!
+[ 9703.863740] i2c_amd_plat_mp2 AMDI0011:01: i2c connection timed out
+[ 9707.596826] INFO: task irq/67-WCOM517E:340 blocked for more than 120 seconds.
+[ 9707.596838]       Tainted: G           OE     4.19.0-v7 #1
+[ 9707.596841] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs"
+disables this message.
+[ 9707.596845] irq/67-WCOM517E D    0   340      2 0x80000080
+[ 9707.596851] Call Trace:
+[ 9707.596868]  ? __schedule+0x29b/0x8b0
+[ 9707.596873]  schedule+0x32/0x90
+[ 9707.596875]  schedule_preempt_disabled+0x14/0x20
+[ 9707.596879]  __mutex_lock.isra.0+0x217/0x520
+[ 9707.596884]  ? __switch_to_asm+0x40/0x70
+[ 9707.596887]  ? __switch_to_asm+0x34/0x70
+[ 9707.596890]  ? __switch_to_asm+0x34/0x70
+[ 9707.596898]  amd_mp2_read+0x4f/0x17b [i2c_amd_pci_mp2]
+[ 9707.596912]  i2c_amd_xfer+0x61/0x150 [i2c_amd_plat_mp2]
+[ 9707.596919]  __i2c_transfer+0x142/0x480
+[ 9707.596922]  ? _raw_spin_unlock_irq+0x1d/0x30
+[ 9707.596926]  ? irq_forced_thread_fn+0x70/0x70
+[ 9707.596929]  i2c_transfer+0x51/0xc0
+[ 9707.596932]  i2c_transfer_buffer_flags+0x4c/0x70
+[ 9707.596937]  i2c_hid_irq+0x3c/0x130 [i2c_hid]
+[ 9707.596941]  irq_thread_fn+0x1f/0x50
+[ 9707.596944]  irq_thread+0xf7/0x1a0
+[ 9707.596946]  ? irq_thread_check_affinity.part.3+0xa0/0xa0
+[ 9707.596949]  ? irq_thread_dtor+0xb0/0xb0
+[ 9707.596953]  kthread+0x112/0x130
+[ 9707.596956]  ? kthread_park+0x80/0x80
+[ 9707.596959]  ret_from_fork+0x22/0x40
