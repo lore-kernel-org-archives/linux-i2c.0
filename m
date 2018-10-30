@@ -1,62 +1,61 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: [GIT PULL] More ACPI updates for v4.20-rc1
-Date: Tue, 30 Oct 2018 09:30:15 +0100
-Message-ID: <CAJZ5v0ihPs+sU+s357sYNYBVmqd1CC2JH6_XvRsJQx1A_J7wJw@mail.gmail.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
+Subject: Re: [PATCH 2/2] i2c: Clear client->irq in i2c_device_remove
+Date: Tue, 30 Oct 2018 11:51:20 +0000
+Message-ID: <20181030115120.GI16508@imbe.wolfsonmicro.main>
+References: <20181019085958.32694-1-ckeepax@opensource.cirrus.com>
+ <20181019085958.32694-2-ckeepax@opensource.cirrus.com>
+ <20181028223116.GJ1882@kunai>
+ <CAO-hwJLw74k+jBnDuQ7OrVzJOy8i82OXKNWuNhxNqUj+8nzwhg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAO-hwJLw74k+jBnDuQ7OrVzJOy8i82OXKNWuNhxNqUj+8nzwhg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+On Mon, Oct 29, 2018 at 11:15:47AM +0100, Benjamin Tissoires wrote:
+> On Sun, Oct 28, 2018 at 11:31 PM Wolfram Sang <wsa@the-dreams.de> wrote:
+> >
+> > On Fri, Oct 19, 2018 at 09:59:58AM +0100, Charles Keepax wrote:
+> > > The IRQ will be mapped in i2c_device_probe only if client->irq is zero and
+> > > i2c_device_remove does not clear this. When rebinding an I2C device,
+> > > whos IRQ provider has also been rebound this means that an IRQ mapping
+> > > will never be created, causing the I2C device to fail to acquire its
+> > > IRQ. Fix this issue by clearing client->irq in i2c_device_remove,
+> > > forcing i2c_device_probe to lookup the mapping again.
+> > >
+> > > Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+> >
+> > Adding Benjamin here again. Also, should there be a Fixes: tag?
+> 
+> Not sure if the circumstances are preventing me to think straight, but
+> how can you reprobe the i2c_device?
 
-Please pull from the tag
+You just head into /sys/bus/i2c/drivers/<the_driver> and use the
+unbind file to remove the driver. You can then probe the driver
+again using the bind file.
 
- git://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm.git \
- acpi-4.20-rc1-2
+> And in all cases, for the Host notify part, having the IRQ already set
+> shouldn't be an issue.
 
-with top-most commit 6a9b593d4b6f5994209456de7a3c2db0974b5dda
+To be clear this isn't a theoretical issue this is something I
+can replicate very easily. The problem comes in when you unbind
+both the I2C device and the device that is providing its IRQ. In
+my case the I2C device is a speaker amp and the device providing
+IRQs is an audio CODEC.
 
- ACPI / PMIC: xpower: Add depends on IOSF_MBI to Kconfig entry
+When the device providing the IRQ is unbound it will delete the
+IRQ mapping. For the I2C device to acquire its IRQ something
+needs to recreate that mapping, this would normally happen (in a
+DT system) as a result of the of_irq_get/_by_name. But as
+client->irq is already set this doesn't happen, causing the I2C
+device to fail probe because it couldn't locate its IRQ.
 
-on top of commit bd6bf7c10484f026505814b690104cdef27ed460
+I can provide some stack traces or something if that would help
+to clarify the issue?
 
- Merge tag 'pci-v4.20-changes' of
-git://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci
-
-to receive additional ACPI updates for 4.20-rc1.
-
-These rework the handling of the P-unit semaphore on Intel
-Baytrail and Cherrytrail systems to avoid race conditions and
-excessive overhead related to it (Hans de Goede).
-
-There was a merge conflict between this material and the i2c
-tree (merged now) in linux-next that should be straightforward
-to resolve [1].
-
-Thanks!
-
-[1] https://lore.kernel.org/lkml/20181029130925.60ea7830@canb.auug.org.au/
-
-
----------------
-
-Hans de Goede (4):
-      x86: baytrail/cherrytrail: Rework and move P-Unit PMIC bus semaphore code
-      ACPI / PMIC: xpower: Block P-Unit I2C access during read-modify-write
-      i2c: designware: Cleanup bus lock handling
-      ACPI / PMIC: xpower: Add depends on IOSF_MBI to Kconfig entry
-
----------------
-
- arch/x86/include/asm/iosf_mbi.h              |  39 +++--
- arch/x86/platform/intel/iosf_mbi.c           | 217 ++++++++++++++++++++++++---
- drivers/acpi/Kconfig                         |   2 +-
- drivers/acpi/pmic/intel_pmic_xpower.c        |  21 ++-
- drivers/i2c/busses/i2c-designware-baytrail.c | 139 +----------------
- drivers/i2c/busses/i2c-designware-common.c   |   4 +-
- drivers/i2c/busses/i2c-designware-core.h     |   9 +-
- drivers/i2c/busses/i2c-designware-platdrv.c  |   2 -
- 8 files changed, 250 insertions(+), 183 deletions(-)
+Thanks,
+Charles
