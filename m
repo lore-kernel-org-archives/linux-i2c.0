@@ -1,112 +1,51 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: Re: [PATCH i2c-next v9 5/5] i2c: aspeed: Add bus idle waiting logic
- for multi-master use cases
-Date: Tue, 30 Oct 2018 16:04:24 -0700
-Message-ID: <f5d3d3a3-daa3-fef7-853a-2b543fce0379@linux.intel.com>
-References: <20181030210917.32711-6-jae.hyun.yoo@linux.intel.com>
- <201810310601.Odxb7qSY%fengguang.wu@intel.com>
+From: Shawn Guo <shawnguo@kernel.org>
+Subject: Re: [PATCH v1 1/3] ARM: dts: imx6sll: fix typo for fsl,imx6sll-i2c
+ node
+Date: Wed, 31 Oct 2018 15:50:06 +0800
+Message-ID: <20181031075004.GM10386@tiger>
+References: <20181018112615.29362-1-o.rempel@pengutronix.de>
+ <20181018112615.29362-2-o.rempel@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201810310601.Odxb7qSY%fengguang.wu@intel.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: kbuild test robot <lkp@intel.com>
-Cc: kbuild-all@01.org, Wolfram Sang <wsa@the-dreams.de>, Brendan Higgins <brendanhiggins@google.com>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <20181018112615.29362-2-o.rempel@pengutronix.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, NXP Linux Team <linux-imx@nxp.com>, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/30/2018 3:22 PM, kbuild test robot wrote:
-> Hi Jae,
-> 
-> Thank you for the patch! Perhaps something to improve:
-> 
-> [auto build test WARNING on wsa/i2c/for-next]
-> [also build test WARNING on v4.19 next-20181030]
-> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
-> 
-> url:    https://github.com/0day-ci/linux/commits/Jae-Hyun-Yoo/dt-bindings-i2c-Add-bus-timeout-ms-and-retries-properties-as-common-optional/20181031-051152
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
-> config: xtensa-allyesconfig (attached as .config)
-> compiler: xtensa-linux-gcc (GCC) 8.1.0
-> reproduce:
->          wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->          chmod +x ~/bin/make.cross
->          # save the attached .config to linux build tree
->          GCC_VERSION=8.1.0 make.cross ARCH=xtensa
-> 
-> Note: it may well be a FALSE warning. FWIW you are at least aware of it now.
-> http://gcc.gnu.org/wiki/Better_Uninitialized_Warnings
-> 
-> All warnings (new ones prefixed by >>):
-> 
->     In file included from include/linux/ktime.h:25,
->                      from include/linux/rcutiny.h:28,
->                      from include/linux/rcupdate.h:209,
->                      from include/linux/srcu.h:33,
->                      from include/linux/notifier.h:16,
->                      from include/linux/clk.h:17,
->                      from drivers/i2c/busses/i2c-aspeed.c:13:
->     drivers/i2c/busses/i2c-aspeed.c: In function 'aspeed_i2c_master_xfer':
->>> include/linux/jiffies.h:108:15: warning: 'timeout' may be used uninitialized in this function [-Wmaybe-uninitialized]
->        ((long)((b) - (a)) < 0))
->                    ^
->     drivers/i2c/busses/i2c-aspeed.c:607:16: note: 'timeout' was declared here
->       unsigned long timeout;
->                     ^~~~~~~
-> --
->     In file included from include/linux/ktime.h:25,
->                      from include/linux/rcutiny.h:28,
->                      from include/linux/rcupdate.h:209,
->                      from include/linux/srcu.h:33,
->                      from include/linux/notifier.h:16,
->                      from include/linux/clk.h:17,
->                      from drivers/i2c//busses/i2c-aspeed.c:13:
->     drivers/i2c//busses/i2c-aspeed.c: In function 'aspeed_i2c_master_xfer':
->>> include/linux/jiffies.h:108:15: warning: 'timeout' may be used uninitialized in this function [-Wmaybe-uninitialized]
->        ((long)((b) - (a)) < 0))
->                    ^
->     drivers/i2c//busses/i2c-aspeed.c:607:16: note: 'timeout' was declared here
->       unsigned long timeout;
->                     ^~~~~~~
-> 
-> vim +/timeout +108 include/linux/jiffies.h
-> 
-> ^1da177e Linus Torvalds   2005-04-16   91
-> ^1da177e Linus Torvalds   2005-04-16   92  /*
-> ^1da177e Linus Torvalds   2005-04-16   93   *	These inlines deal with timer wrapping correctly. You are
-> ^1da177e Linus Torvalds   2005-04-16   94   *	strongly encouraged to use them
-> ^1da177e Linus Torvalds   2005-04-16   95   *	1. Because people otherwise forget
-> ^1da177e Linus Torvalds   2005-04-16   96   *	2. Because if the timer wrap changes in future you won't have to
-> ^1da177e Linus Torvalds   2005-04-16   97   *	   alter your driver code.
-> ^1da177e Linus Torvalds   2005-04-16   98   *
-> ^1da177e Linus Torvalds   2005-04-16   99   * time_after(a,b) returns true if the time a is after time b.
-> ^1da177e Linus Torvalds   2005-04-16  100   *
-> ^1da177e Linus Torvalds   2005-04-16  101   * Do this with "<0" and ">=0" to only test the sign of the result. A
-> ^1da177e Linus Torvalds   2005-04-16  102   * good compiler would generate better code (and a really good compiler
-> ^1da177e Linus Torvalds   2005-04-16  103   * wouldn't care). Gcc is currently neither.
-> ^1da177e Linus Torvalds   2005-04-16  104   */
-> ^1da177e Linus Torvalds   2005-04-16  105  #define time_after(a,b)		\
-> ^1da177e Linus Torvalds   2005-04-16  106  	(typecheck(unsigned long, a) && \
-> ^1da177e Linus Torvalds   2005-04-16  107  	 typecheck(unsigned long, b) && \
-> 5a581b36 Paul E. McKenney 2013-07-27 @108  	 ((long)((b) - (a)) < 0))
-> ^1da177e Linus Torvalds   2005-04-16  109  #define time_before(a,b)	time_after(b,a)
-> ^1da177e Linus Torvalds   2005-04-16  110
-> 
-> :::::: The code at line 108 was first introduced by commit
-> :::::: 5a581b367b5df0531265311fc681c2abd377e5e6 jiffies: Avoid undefined behavior from signed overflow
-> 
-> :::::: TO: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-> :::::: CC: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-> 
+On Thu, Oct 18, 2018 at 01:26:13PM +0200, Oleksij Rempel wrote:
+> Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+
+Applied, thanks.
+
 > ---
-> 0-DAY kernel test infrastructure                Open Source Technology Center
-> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+>  arch/arm/boot/dts/imx6sll.dtsi | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-
-This is a false warning.
-
-The 'timeout' local variable will be initialized properly if it's gonna
-be used when the multi-master property is set.
-
--Jae
+> diff --git a/arch/arm/boot/dts/imx6sll.dtsi b/arch/arm/boot/dts/imx6sll.dtsi
+> index 000e6136a9d6..3e6ffaf5f104 100644
+> --- a/arch/arm/boot/dts/imx6sll.dtsi
+> +++ b/arch/arm/boot/dts/imx6sll.dtsi
+> @@ -709,7 +709,7 @@
+>  			i2c1: i2c@21a0000 {
+>  				#address-cells = <1>;
+>  				#size-cells = <0>;
+> -				compatible = "fs,imx6sll-i2c", "fsl,imx21-i2c";
+> +				compatible = "fsl,imx6sll-i2c", "fsl,imx21-i2c";
+>  				reg = <0x021a0000 0x4000>;
+>  				interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
+>  				clocks = <&clks IMX6SLL_CLK_I2C1>;
+> -- 
+> 2.19.0
+> 
