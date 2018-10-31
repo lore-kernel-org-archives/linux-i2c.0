@@ -1,57 +1,83 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: Clear client->irq in i2c_device_remove
-Date: Wed, 31 Oct 2018 23:35:02 +0000
-Message-ID: <20181031233502.GB8321@kunai>
-References: <20181019085958.32694-1-ckeepax@opensource.cirrus.com>
- <20181019085958.32694-2-ckeepax@opensource.cirrus.com>
+Subject: Re: [PATCH 1/2] dt-bindings: i2c: i2c-imx-lpi2c: add imx8qxp
+ compatible string
+Date: Wed, 31 Oct 2018 23:37:47 +0000
+Message-ID: <20181031233747.GC8321@kunai>
+References: <1540913007-28343-1-git-send-email-aisheng.dong@nxp.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="dTy3Mrz/UPE2dbVg"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181019085958.32694-2-ckeepax@opensource.cirrus.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Charles Keepax <ckeepax@opensource.cirrus.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, patches@opensource.cirrus.com
+Content-Type: multipart/mixed; boundary="===============5042534633932058823=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1540913007-28343-1-git-send-email-aisheng.dong@nxp.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: "A.s. Dong" <aisheng.dong@nxp.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "dongas86@gmail.com" <dongas86@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---dTy3Mrz/UPE2dbVg
+--===============5042534633932058823==
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="VywGB/WGlW4DM4P8"
+Content-Disposition: inline
+
+
+--VywGB/WGlW4DM4P8
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 19, 2018 at 09:59:58AM +0100, Charles Keepax wrote:
-> The IRQ will be mapped in i2c_device_probe only if client->irq is zero and
-> i2c_device_remove does not clear this. When rebinding an I2C device,
-> whos IRQ provider has also been rebound this means that an IRQ mapping
-> will never be created, causing the I2C device to fail to acquire its
-> IRQ. Fix this issue by clearing client->irq in i2c_device_remove,
-> forcing i2c_device_probe to lookup the mapping again.
+On Tue, Oct 30, 2018 at 03:28:11PM +0000, A.s. Dong wrote:
+> Add imx8qxp compatible string
 >=20
-> Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Cc: Wolfram Sang <wsa@the-dreams.de>
+> Cc: linux-i2c@vger.kernel.org
+> Cc: devicetree@vger.kernel.org
+> Reviewed-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
 
 Applied to for-current, thanks!
 
 
---dTy3Mrz/UPE2dbVg
+--VywGB/WGlW4DM4P8
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlvaPCYACgkQFA3kzBSg
-KbagKA/9FcmeFpRbTCBZSnQ0ei127fILessOcNaMqJhi386/lKyF87/Wo7MbuYnw
-5lbtxe16L40Mt0tvdbT/Q1K5FUJ6OerTGz3NwJeiQJhAkQxCbHdc+w9bByMbwyqi
-18f4q/PgBqpiUsIwu5HzXJLfZyVdhX5/m1uvG+Gi+pwIRk7yx5bbuZpx5pIDUtN1
-2Bi6+pmQhDMbHIGQTo3fw6MHax/FX0aQ70WJ64o/2g2Apa+IynbksZvjkdq5Cc8W
-/GikRRPSN7Ngx0xJUyQ2YP1Ct/LX4de0uLre9eWqnATvZTrRk/puXQWvAm3ywz8X
-JVNbwFdYFVxUCk12W4d/5uWw37R6Ah+diav8W7KsPzoNhCvmRFkSq5ROpyVXzlZ4
-rhFsa5uoNqN6x5lUMpkfWFeNHaS3NPTWnCcLw8fb7ZBe0vyc5riWGb0Kr9hU86fC
-UKHhgh1eEynn/WIOLNKQMADn4qjc9H9wQg2IqhXO8z/CIp8b6c2fT1QE3mnKH7VA
-QWcX2jdYzEDIOK67sy4HlSMJ0gm+RXPdq9JLHN0nvrpoLDSbrqx75P0jbptOXUrE
-rB6dPJV6/lMCAwCq6ZcHU5wkTQGoPmXrLq8Mu3VDMigac3DyRKNM10/81/QMcRO7
-6xdGQX9BKDe7bJFDIgQ5+BPoewa2luHv7qpnlA2WZrk76CFFmwk=
-=Aof/
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlvaPMsACgkQFA3kzBSg
+KbbqwA//RsrS7hOpN9Ojuxp/2DxLlMyZpweW6tq7iCvxEe5D2LdsHOFTrcZ13Bot
+fT/WxR9/n3qLzCfUZE7+bfZN1AbgEA9hfrMaTiKdTNblmtYdYFMHdZSu6kxeIHxo
+SBJXtn1QFpqoNko3mRnRgtrNMEpWW5bhS2euBp4kIrZs6NQnZN+rsgirQnvxjbVN
+PJQ6oX1DCXYV/IWav5cK57czeFIcTuByCplBvkn9MI+PkQjnCAAXIdnSiTDTJ6WU
+Oro0IUyJpttm+wKDyZF3Tx7rmPq3blmk8J+eh/Heoq5PrbMhBm+NdY/D0uuwHT5W
+80C/JQQVEFHLkvBfTimvcXHSr3qrNYg+B8jaIPtXwOXu9M5i1zMnrbAu0/NRfhmB
+g6xACPsc+/lYTXnkzkoC4dNf0+4iPQGN/BsAQ4f3E9q0rOILieVxwv95RWrNfdTo
+NgJEeKhSUqcPBrBrEqAEOxJZZ7oIXrAhXy2F6Pvj3qDR5v+GC7XS8Ua0LlXmLyqR
+AGv23wfVGg5ScIWjU2AChHzCEzafXTL/tYwkFKQCnRO0usCUKoIcAj7gEcTfkZ5J
+FYpmX835WCtdHGyZKBjAfYzmU0tR3eMF6snpzssSGf3U1QNcxEEjAgYsRij1HTzk
+rpE9clTCdI6ZatXcNMsZFiFBUN4UpVw4uDMbVkIJxf6V7x25CVU=
+=5xWz
 -----END PGP SIGNATURE-----
 
---dTy3Mrz/UPE2dbVg--
+--VywGB/WGlW4DM4P8--
+
+
+--===============5042534633932058823==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============5042534633932058823==--
