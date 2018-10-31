@@ -1,13 +1,13 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] dt-bindings: i2c: i2c-imx-lpi2c: add imx8qxp
- compatible string
-Date: Wed, 31 Oct 2018 23:37:47 +0000
-Message-ID: <20181031233747.GC8321@kunai>
+Subject: Re: [PATCH 2/2] MAINTAINERS: add maintainer for IMX LPI2C driver
+Date: Wed, 31 Oct 2018 23:37:54 +0000
+Message-ID: <20181031233753.GD8321@kunai>
 References: <1540913007-28343-1-git-send-email-aisheng.dong@nxp.com>
+ <1540913007-28343-2-git-send-email-aisheng.dong@nxp.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5042534633932058823=="
+Content-Type: multipart/mixed; boundary="===============7609683711271359601=="
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1540913007-28343-1-git-send-email-aisheng.dong@nxp.com>
+In-Reply-To: <1540913007-28343-2-git-send-email-aisheng.dong@nxp.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -18,58 +18,54 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: "A.s. Dong" <aisheng.dong@nxp.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "dongas86@gmail.com" <dongas86@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: dl-linux-imx <linux-imx@nxp.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "dongas86@gmail.com" <dongas86@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============5042534633932058823==
+--===============7609683711271359601==
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="VywGB/WGlW4DM4P8"
+	protocol="application/pgp-signature"; boundary="11Y7aswkeuHtSBEs"
 Content-Disposition: inline
 
 
---VywGB/WGlW4DM4P8
+--11Y7aswkeuHtSBEs
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 30, 2018 at 03:28:11PM +0000, A.s. Dong wrote:
-> Add imx8qxp compatible string
+On Tue, Oct 30, 2018 at 03:28:14PM +0000, A.s. Dong wrote:
+> The LPI2C is used in IMX7ULP/MX8 SoCs.
 >=20
-> Cc: Mark Rutland <mark.rutland@arm.com>
 > Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: linux-i2c@vger.kernel.org
-> Cc: devicetree@vger.kernel.org
-> Reviewed-by: Rob Herring <robh@kernel.org>
 > Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
 
 Applied to for-current, thanks!
 
 
---VywGB/WGlW4DM4P8
+--11Y7aswkeuHtSBEs
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlvaPMsACgkQFA3kzBSg
-KbbqwA//RsrS7hOpN9Ojuxp/2DxLlMyZpweW6tq7iCvxEe5D2LdsHOFTrcZ13Bot
-fT/WxR9/n3qLzCfUZE7+bfZN1AbgEA9hfrMaTiKdTNblmtYdYFMHdZSu6kxeIHxo
-SBJXtn1QFpqoNko3mRnRgtrNMEpWW5bhS2euBp4kIrZs6NQnZN+rsgirQnvxjbVN
-PJQ6oX1DCXYV/IWav5cK57czeFIcTuByCplBvkn9MI+PkQjnCAAXIdnSiTDTJ6WU
-Oro0IUyJpttm+wKDyZF3Tx7rmPq3blmk8J+eh/Heoq5PrbMhBm+NdY/D0uuwHT5W
-80C/JQQVEFHLkvBfTimvcXHSr3qrNYg+B8jaIPtXwOXu9M5i1zMnrbAu0/NRfhmB
-g6xACPsc+/lYTXnkzkoC4dNf0+4iPQGN/BsAQ4f3E9q0rOILieVxwv95RWrNfdTo
-NgJEeKhSUqcPBrBrEqAEOxJZZ7oIXrAhXy2F6Pvj3qDR5v+GC7XS8Ua0LlXmLyqR
-AGv23wfVGg5ScIWjU2AChHzCEzafXTL/tYwkFKQCnRO0usCUKoIcAj7gEcTfkZ5J
-FYpmX835WCtdHGyZKBjAfYzmU0tR3eMF6snpzssSGf3U1QNcxEEjAgYsRij1HTzk
-rpE9clTCdI6ZatXcNMsZFiFBUN4UpVw4uDMbVkIJxf6V7x25CVU=
-=5xWz
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlvaPNEACgkQFA3kzBSg
+KbZ/zA//dwGS6oJK91UVLgNyp1Wayn7yI0ckKqZZfyPOi0rPy38eNdHMUA2Breyn
+Gyvp6AmmfXP5/mZ1Yd4wSVokLmuC7ddFGQE+0YnnNTEsYXJjmZhfb1xUB0ToNG/Z
+5PgIxUofozs7FY2T2xJ5lmOq0ALCGco6HJpr2tzys62bN75AufSVVie+l7eYR6zz
+CpvXVegY/tIxySElUpm+h3vFKiLCTizyBoDddiAC3gOplf21/xQKJTWbA8wqZAGv
+1NELFfpy7fSWHwxhgP5p44R/Lh8Gs/OGx6Yw3g7AHp0r+WsPhPb4gFg4zPrvTxyA
+qctMDVCDTgqtqyOPoDsnqUaTMrT6cBYnqBsq1GkVPUdMYOV+isa4ua3FLPw3Rw3z
+SaX49srJJHCnwujBa3xgcpKfhfjU34nPV5Rw7GChjQB9yRX4FclmlGu3LzZetsV4
+6QX/azuDTP+H3lTSc8wPY09jDOxbWKyG2np9tzZI/2fJK2Q8KXt0jPJJqn0nmTwk
+ujaySbHYwUGHNvx3CSSmLpIwHQL/KO1Xk6cgSaOmjMhWQ9jBgRJVe89dDLR6GAo9
+zIqz2nikLwqsMfeXhFpza8c/z1TiiL+jmeCRTxxZ0XPA6LGW9XTYe4KsA58sqphc
+wXlM8PGvgInzw1F6rE6n4vFFw6ZfLhFQG6kks7K5dj23q89CLAc=
+=OY2U
 -----END PGP SIGNATURE-----
 
---VywGB/WGlW4DM4P8--
+--11Y7aswkeuHtSBEs--
 
 
---===============5042534633932058823==
+--===============7609683711271359601==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -80,4 +76,4 @@ linux-arm-kernel mailing list
 linux-arm-kernel@lists.infradead.org
 http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
---===============5042534633932058823==--
+--===============7609683711271359601==--
