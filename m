@@ -1,51 +1,43 @@
-From: Shawn Guo <shawnguo@kernel.org>
-Subject: Re: [PATCH v1 1/3] ARM: dts: imx6sll: fix typo for fsl,imx6sll-i2c
- node
-Date: Wed, 31 Oct 2018 15:50:06 +0800
-Message-ID: <20181031075004.GM10386@tiger>
-References: <20181018112615.29362-1-o.rempel@pengutronix.de>
- <20181018112615.29362-2-o.rempel@pengutronix.de>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
+Subject: Re: [PATCH 2/2] i2c: Clear client->irq in i2c_device_remove
+Date: Wed, 31 Oct 2018 09:52:30 +0000
+Message-ID: <20181031095230.GK16508@imbe.wolfsonmicro.main>
+References: <20181019085958.32694-1-ckeepax@opensource.cirrus.com>
+ <20181019085958.32694-2-ckeepax@opensource.cirrus.com>
+ <20181028223116.GJ1882@kunai>
+ <CAO-hwJLw74k+jBnDuQ7OrVzJOy8i82OXKNWuNhxNqUj+8nzwhg@mail.gmail.com>
+ <20181030115120.GI16508@imbe.wolfsonmicro.main>
+ <CAO-hwJ+B5iUpbUamsCfNKGwxJMM9fNBUnrb2-csn1VpNG58KBA@mail.gmail.com>
+ <20181030145549.GB2459@kunai>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181018112615.29362-2-o.rempel@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, NXP Linux Team <linux-imx@nxp.com>, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+In-Reply-To: <20181030145549.GB2459@kunai>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linux I2C <linux-i2c@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Oct 18, 2018 at 01:26:13PM +0200, Oleksij Rempel wrote:
-> Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-
-Applied, thanks.
-
-> ---
->  arch/arm/boot/dts/imx6sll.dtsi | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On Tue, Oct 30, 2018 at 02:55:50PM +0000, Wolfram Sang wrote:
 > 
-> diff --git a/arch/arm/boot/dts/imx6sll.dtsi b/arch/arm/boot/dts/imx6sll.dtsi
-> index 000e6136a9d6..3e6ffaf5f104 100644
-> --- a/arch/arm/boot/dts/imx6sll.dtsi
-> +++ b/arch/arm/boot/dts/imx6sll.dtsi
-> @@ -709,7 +709,7 @@
->  			i2c1: i2c@21a0000 {
->  				#address-cells = <1>;
->  				#size-cells = <0>;
-> -				compatible = "fs,imx6sll-i2c", "fsl,imx21-i2c";
-> +				compatible = "fsl,imx6sll-i2c", "fsl,imx21-i2c";
->  				reg = <0x021a0000 0x4000>;
->  				interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
->  				clocks = <&clks IMX6SLL_CLK_I2C1>;
-> -- 
-> 2.19.0
+> > No, that's fine. Now I get this, and I totally agree with the approach:
+> > 
+> > Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > 
+> Thanks! If one of you could provide me with a Fixes tag (for this. or
+> both patches?), that would be most helpful.
+> 
+
+It's a bit of a long chain and fairly tricky to say exactly when
+the bug was introduced but I think this is probably the closest
+match:
+
+Fixes: 2fd36c552649 ("i2c: core: Map OF IRQ at probe time")
+
+I suspect the process of unbinding/rebinding would have also
+not worked before that commit but it would have not worked
+for different reasons.
+
+Thanks,
+Charles
