@@ -1,61 +1,42 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: Clear client->irq in i2c_device_remove
-Date: Wed, 31 Oct 2018 09:59:32 +0000
-Message-ID: <20181031095932.GA1487@kunai>
-References: <20181019085958.32694-1-ckeepax@opensource.cirrus.com>
- <20181019085958.32694-2-ckeepax@opensource.cirrus.com>
- <20181028223116.GJ1882@kunai>
- <CAO-hwJLw74k+jBnDuQ7OrVzJOy8i82OXKNWuNhxNqUj+8nzwhg@mail.gmail.com>
- <20181030115120.GI16508@imbe.wolfsonmicro.main>
- <CAO-hwJ+B5iUpbUamsCfNKGwxJMM9fNBUnrb2-csn1VpNG58KBA@mail.gmail.com>
- <20181030145549.GB2459@kunai>
- <20181031095230.GK16508@imbe.wolfsonmicro.main>
+From: Sasha Levin <sashal@kernel.org>
+Subject: Re: 4.14/4.18: Please add "eeprom: at24: Add support for
+ address-width property"
+Date: Wed, 31 Oct 2018 10:27:45 -0400
+Message-ID: <20181031142745.GK194472@sasha-vm>
+References: <20181022083835.GA5315@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181031095230.GK16508@imbe.wolfsonmicro.main>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Charles Keepax <ckeepax@opensource.cirrus.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linux I2C <linux-i2c@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, patches@opensource.cirrus.com
+In-Reply-To: <20181022083835.GA5315@localhost>
+Sender: stable-owner@vger.kernel.org
+To: Adrian Bunk <bunk@kernel.org>
+Cc: stable@vger.kernel.org, Alan Chiang <alanx.chiang@intel.com>, Andy Yeh <andy.yeh@intel.com>, Bartosz Golaszewski <brgl@bgdev.pl>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Oct 22, 2018 at 11:38:35AM +0300, Adrian Bunk wrote:
+>Please cherry-pick the following commit to 4.14 and 4.18:
+>
+>    commit a2b3bf4846e5eed62ea6abb096af2c950961033c
+>    Author: Alan Chiang <alanx.chiang@intel.com>
+>    Date:   Wed Jul 25 11:20:22 2018 +0800
+>
+>    eeprom: at24: Add support for address-width property
+>
+>    Provide a flexible way to determine the addressing bits of eeprom.
+>    Pass the addressing bits to driver through address-width property.
+>
+>    Signed-off-by: Alan Chiang <alanx.chiang@intel.com>
+>    Signed-off-by: Andy Yeh <andy.yeh@intel.com>
+>    Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+>
+>
+>Confirmed to work on 4.14 with the Identification Page
+>of an ST M24M02-DR (256 bytes but 16 bit addressing).
 
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch doesn't look like stable material. The hardware never worked
+before, so this is not a regression and falls under new hardware
+enablement, but the patch is more complex than what we usually allow for
+hardware enablement (adding various IDs/quirks/etc).
 
-
-> It's a bit of a long chain and fairly tricky to say exactly when
-> the bug was introduced but I think this is probably the closest
-> match:
->=20
-> Fixes: 2fd36c552649 ("i2c: core: Map OF IRQ at probe time")
-
-Thank you for checking! Then, I'll just leave it and cc stable so it can
-be applied as long as it fits.
-
-
---k+w/mQv8wyuph6w0
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlvZfP8ACgkQFA3kzBSg
-KbajlBAAqOEGMuXQ+XDNiiSuBsZr8jIbdFSkb9pLlGRkLjetIkS1dAEOjYBr2+/U
-nQ6m55UUhVFLtiiidsESt4pHx4YtLlUrbKUvDXsoNdUDmU1XFfQKM7C1xHzZsMal
-HfQ09z07mMxmKnsTIAgxvqt7XFa0EO2+hO1A4YtcZpSYeJ33WfeuREH7CmtiqlpL
-/+06LZMotG1XXWbE1823na/zqdhHMXjykt0S1qytnrhERM2rgyOeXo//IKhJV3aP
-RR0HcHiHbqm5Qur2RcKrvVVPTv7wTfeCpoyjFp8VAxLd2JPtWy783TrmdTIpEcQc
-aEjEDPVFAdj94+jV8ioQ9xcFxoZiHzgrZi+swJLBS0YLzZfb7N8pj+LMePsI2fDH
-CUBrvnuG+49kOI0NBx/iQ+P9jVeP5gPwQzU+MiyU+3/FlACX+5dTIlnFUaBArx4K
-CX0zsLAqwFhI3vyZU1QEVMXRUSTf2usFb9O2xHk13M1/r/Tim52afLDKkRtTq6Cu
-dqSx7h0o2UM9ijMDsrV6fNl0X3XUWfQIvpONTt15/kcInWPMwPojd/iVbc6Zqe0L
-Dk5GgdgOZxnNS62uYkTaybqgLZmCKCyWQ4UZzh9a7mBFZOl7EqubkngjcB4VLLNF
-3AIyRdUfBDuFZa7/FzGumukyUQuVuTSJTaZZI5BFH+kcmKVVEaI=
-=q9jn
------END PGP SIGNATURE-----
-
---k+w/mQv8wyuph6w0--
+Am I missing something?
