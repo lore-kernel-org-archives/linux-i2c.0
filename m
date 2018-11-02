@@ -1,45 +1,48 @@
-From: Yangtao Li <tiny.windzz@gmail.com>
-Subject: [PATCH v2] i2c: rk3x: fix some typo
-Date: Fri,  2 Nov 2018 08:45:35 -0400
-Message-ID: <20181102124535.24331-1-tiny.windzz@gmail.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v2] i2c: rk3x: fix some typo
+Date: Fri, 2 Nov 2018 12:58:37 +0000
+Message-ID: <19a28033-9241-1f4e-97cd-7c6648a73c6d@axentia.se>
+References: <20181102124535.24331-1-tiny.windzz@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181102124535.24331-1-tiny.windzz@gmail.com>
+Content-Language: en-US
+Content-ID: <B4CB0DD9DB5C8C4C93B9A3CC7670CB98@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: heiko@sntech.de
-Cc: linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Yangtao Li <tiny.windzz@gmail.com>
+To: Yangtao Li <tiny.windzz@gmail.com>, "heiko@sntech.de" <heiko@sntech.de>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-rockchip@lists.infradead.org" <linux-rockchip@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Fix multiple instances of a misspelled "Calculates".
-
-Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
----
-Changes in v2:
--add commit message
----
- drivers/i2c/busses/i2c-rk3x.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index b8a2728dd4b6..fe347e8e2a23 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -555,7 +555,7 @@ static const struct i2c_spec_values *rk3x_i2c_get_spec(unsigned int speed)
-  *
-  * @clk_rate: I2C input clock rate
-  * @t: Known I2C timing information
-- * @t_calc: Caculated rk3x private timings that would be written into regs
-+ * @t_calc: Calculated rk3x private timings that would be written into regs
-  *
-  * Returns: 0 on success, -EINVAL if the goal SCL rate is too slow. In that case
-  * a best-effort divider value is returned in divs. If the target rate is
-@@ -716,7 +716,7 @@ static int rk3x_i2c_v0_calc_timings(unsigned long clk_rate,
-  *
-  * @clk_rate: I2C input clock rate
-  * @t: Known I2C timing information
-- * @t_calc: Caculated rk3x private timings that would be written into regs
-+ * @t_calc: Calculated rk3x private timings that would be written into regs
-  *
-  * Returns: 0 on success, -EINVAL if the goal SCL rate is too slow. In that case
-  * a best-effort divider value is returned in divs. If the target rate is
--- 
-2.17.0
+T24gMjAxOC0xMS0wMiAxMzo0NSwgWWFuZ3RhbyBMaSB3cm90ZToNCj4gRml4IG11bHRpcGxlIGlu
+c3RhbmNlcyBvZiBhIG1pc3NwZWxsZWQgIkNhbGN1bGF0ZXMiLg0KDQpZZXMsIGl0IHN1cmUgaXMg
+aGFyZCB0byBzcGVsbCAiQ2FsY2x1YXRlZCwiIGl0J3MgYWxtb3N0IGltcG9zc2libGUgdG8NCmdl
+dCBpdCBjb21wbGV0ZWx5IHJpZ2h0IGFuZCBub3QgaW50cm9kdWNlIGFub3RoZXIgdHlwbyBzb21l
+d2hlcmUuLi4gOi0pDQoNCkNoZWVycywNClBldGVyDQoNCj4gDQo+IFNpZ25lZC1vZmYtYnk6IFlh
+bmd0YW8gTGkgPHRpbnkud2luZHp6QGdtYWlsLmNvbT4NCj4gUmV2aWV3ZWQtYnk6IEhlaWtvIFN0
+dWVibmVyIDxoZWlrb0BzbnRlY2guZGU+DQo+IC0tLQ0KPiBDaGFuZ2VzIGluIHYyOg0KPiAtYWRk
+IGNvbW1pdCBtZXNzYWdlDQo+IC0tLQ0KPiAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1yazN4LmMg
+fCA0ICsrLS0NCj4gIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25z
+KC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1yazN4LmMgYi9k
+cml2ZXJzL2kyYy9idXNzZXMvaTJjLXJrM3guYw0KPiBpbmRleCBiOGEyNzI4ZGQ0YjYuLmZlMzQ3
+ZThlMmEyMyAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1yazN4LmMNCj4g
+KysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1yazN4LmMNCj4gQEAgLTU1NSw3ICs1NTUsNyBA
+QCBzdGF0aWMgY29uc3Qgc3RydWN0IGkyY19zcGVjX3ZhbHVlcyAqcmszeF9pMmNfZ2V0X3NwZWMo
+dW5zaWduZWQgaW50IHNwZWVkKQ0KPiAgICoNCj4gICAqIEBjbGtfcmF0ZTogSTJDIGlucHV0IGNs
+b2NrIHJhdGUNCj4gICAqIEB0OiBLbm93biBJMkMgdGltaW5nIGluZm9ybWF0aW9uDQo+IC0gKiBA
+dF9jYWxjOiBDYWN1bGF0ZWQgcmszeCBwcml2YXRlIHRpbWluZ3MgdGhhdCB3b3VsZCBiZSB3cml0
+dGVuIGludG8gcmVncw0KPiArICogQHRfY2FsYzogQ2FsY3VsYXRlZCByazN4IHByaXZhdGUgdGlt
+aW5ncyB0aGF0IHdvdWxkIGJlIHdyaXR0ZW4gaW50byByZWdzDQo+ICAgKg0KPiAgICogUmV0dXJu
+czogMCBvbiBzdWNjZXNzLCAtRUlOVkFMIGlmIHRoZSBnb2FsIFNDTCByYXRlIGlzIHRvbyBzbG93
+LiBJbiB0aGF0IGNhc2UNCj4gICAqIGEgYmVzdC1lZmZvcnQgZGl2aWRlciB2YWx1ZSBpcyByZXR1
+cm5lZCBpbiBkaXZzLiBJZiB0aGUgdGFyZ2V0IHJhdGUgaXMNCj4gQEAgLTcxNiw3ICs3MTYsNyBA
+QCBzdGF0aWMgaW50IHJrM3hfaTJjX3YwX2NhbGNfdGltaW5ncyh1bnNpZ25lZCBsb25nIGNsa19y
+YXRlLA0KPiAgICoNCj4gICAqIEBjbGtfcmF0ZTogSTJDIGlucHV0IGNsb2NrIHJhdGUNCj4gICAq
+IEB0OiBLbm93biBJMkMgdGltaW5nIGluZm9ybWF0aW9uDQo+IC0gKiBAdF9jYWxjOiBDYWN1bGF0
+ZWQgcmszeCBwcml2YXRlIHRpbWluZ3MgdGhhdCB3b3VsZCBiZSB3cml0dGVuIGludG8gcmVncw0K
+PiArICogQHRfY2FsYzogQ2FsY3VsYXRlZCByazN4IHByaXZhdGUgdGltaW5ncyB0aGF0IHdvdWxk
+IGJlIHdyaXR0ZW4gaW50byByZWdzDQo+ICAgKg0KPiAgICogUmV0dXJuczogMCBvbiBzdWNjZXNz
+LCAtRUlOVkFMIGlmIHRoZSBnb2FsIFNDTCByYXRlIGlzIHRvbyBzbG93LiBJbiB0aGF0IGNhc2UN
+Cj4gICAqIGEgYmVzdC1lZmZvcnQgZGl2aWRlciB2YWx1ZSBpcyByZXR1cm5lZCBpbiBkaXZzLiBJ
+ZiB0aGUgdGFyZ2V0IHJhdGUgaXMNCj4gDQoNCg==
