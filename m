@@ -1,67 +1,64 @@
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Subject: RE: [PATCH] drm/bridge/sii902x: Fix EDID readback
-Date: Fri, 2 Nov 2018 16:16:11 +0000
-Message-ID: <OSBPR01MB176626F352D6F020DA349166C0CF0@OSBPR01MB1766.jpnprd01.prod.outlook.com>
-References: <1541160827-14255-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <2f970e6a-3ff1-1788-f454-781c7baca62d@axentia.se>
- <OSBPR01MB1766A7CE698738CDB36A3F26C0CF0@OSBPR01MB1766.jpnprd01.prod.outlook.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v1 3/3] i2c: imx: don't print error if DMA is not
+ configured
+Date: Sat, 3 Nov 2018 21:59:32 +0100
+Message-ID: <20181103205932.hxqhwclb2jo6wo5n@pengutronix.de>
+References: <20181018112615.29362-1-o.rempel@pengutronix.de>
+ <20181018112615.29362-4-o.rempel@pengutronix.de>
+ <20181028221123.GE1882@kunai>
+ <9a3fc087-2fe5-6d57-9b65-a05e176bf53d@pengutronix.de>
+ <20181029085408.GB4101@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <OSBPR01MB1766A7CE698738CDB36A3F26C0CF0@OSBPR01MB1766.jpnprd01.prod.outlook.com>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>, Peter Rosin <peda@axentia.se>, Archit Taneja <architt@codeaurora.org>, Andrzej Hajda <a.hajda@samsung.com>, David Airlie <airlied@linux.ie>, Wolfram Sang <wsa@the-dreams.de>, Mark Brown <broonie@kernel.org>
-Cc: Chris Paterson <Chris.Paterson2@renesas.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Boris Brezillon <boris.brezillon@free-electrons.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, Biju Das <biju.das@bp.renesas.com>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <20181029085408.GB4101@kunai>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Shawn Guo <shawnguo@kernel.org>, linux-arm-kernel@lists.infradead.org, NXP Linux Team <linux-imx@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-PiA+IEhlcmUgKGFuZCBhbHNvIGluIHNpaTkwMnhfaTJjX2J5cGFzc19kZXNlbGVjdCkgeW91IGRv
-IGEgcm13IGFjY2VzcyB0byB0aGUNCj4gPiBTSUk5MDJYX1NZU19DVFJMX0RBVEEgcmVnaXN0ZXIg
-d2l0aG91dCBjb29yZGluYXRpbmcgd2l0aCByZWdtYXAuIFJlZ21hcCBpcw0KPiA+IGFsc28gZG9p
-bmcgcm13IGFjY2Vzc2VzIHRvIHRoYXQgcmVnaXN0ZXIgaW4gb3RoZXIgcGFydHMgb2YgdGhlIGRy
-aXZlci4gSQ0KPiA+IHRoaW5rIHlvdSBuZWVkIHRvIGVpdGhlciBhZGQgY29tbWVudCBhcyB0byB3
-aHkgdGhhdCBpcyBzYWZlIChtYXliZSBvdGhlcg0KPiA+IHRoaW5ncyBtYWtlIGl0IGltcG9zc2li
-bGUgZm9yIHRoZSB0d28gcm13IGFjY2Vzc2VzIHRvIGNyb3NzPyksIG9yIGFkZCB0aGUNCj4gPiBt
-aXNzaW5nIGNvb3JkaW5hdGlvbi4NCj4gPg0KPg0KPiBUaGUgb3RoZXIgdHdvIHBsYWNlcyB3aGVy
-ZSBTSUk5MDJYX1NZU19DVFJMX0RBVEEgaXMgYmVpbmcgaGFuZGxlZCBhcmUNCj4gc2lpOTAyeF9i
-cmlkZ2VfZGlzYWJsZSBhbmQgc2lpOTAyeF9icmlkZ2VfZW5hYmxlLCBJIGRpZG7igJl0IHRoaW5r
-IHRoZXJlIGlzDQo+IGFueSBjaGFuY2Ugb2YgdGhlIG1vZGVzIGJlaW5nIHByb2JlZCB3aGlsZSB0
-aGUgYnJpZGdlIGdldHMgZW5hYmxlZC9kaXNhYmxlZCwNCj4gYnV0IG5vdyB0aGF0IHlvdSBtYWtl
-IG1lIHRoaW5rIGFib3V0IGl0IHVzZXIgc3BhY2UgbWF5IHRyaWdnZXIgdGhlIHJlYWRiYWNrDQo+
-IG9mIHRoZSBFRElEIGF0IHRoZSBtb3N0IGluY29udmVuaWVudCB0aW1lcy4gQW55d2F5LCB0aGlz
-IGlzIGEgZ29vZCBwb2ludCwgYW5kDQo+IHNpbmNlIEkgZG9uJ3QgdGhpbmsgSSBhbSBzdXBwb3Nl
-ZCB0byBhY2Nlc3MgcmVnbWFwJ3MgbG9jayBmcm9tIG91dHNpZGUgdGhlIEFQSXMsDQo+IEkgY291
-bGQgc3dpdGNoIHRvIHRoZSB1bmxvY2tlZCB2ZXJzaW9uIG9mIHVwZGF0ZV9iaXRzIGZyb20gd2l0
-aGluIHNpaTkwMnhfYnJpZGdlX2Rpc2FibGUNCj4gYW5kIHNpaTkwMnhfYnJpZGdlX2VuYWJsZSwg
-YW5kIG1hbnVhbGx5IGdyYWIgdGhlIGkyYyBhZGFwdGVyIGxvY2ssIHdoYXQgZG8geW91IHRoaW5r
-Pw0KPg0KDQpUaGUgYnJpZGdlIGVuYWJsZS9kaXNhYmxlIGNhbGxiYWNrcyBkZWFsIHdpdGggZGlm
-ZmVyZW50IGJpdHMgb2YgcmVnaXN0ZXINClNJSTkwMlhfU1lTX0NUUkxfREFUQSwgYW5kIHRoZSB2
-YWx1ZSBvZiByZWdpc3RlciBTSUk5MDJYX1NZU19DVFJMX0RBVEEgIGFmdGVyDQpzaWk5MDJ4X2ky
-Y19ieXBhc3NfZGVzZWxlY3QgaXMgdGhlIHNhbWUgYXMgd2hlbiBzaWk5MDJ4X2kyY19ieXBhc3Nf
-c2VsZWN0IGdldHMgdHJpZ2dlcmVkDQpzbyBiYXNpY2FsbHkgZXZlbiBpZiB3ZSBtYW5hZ2VkIHRv
-IGdldCBpbiB0aGUgd2F5IG9mIHRoZSByZWdtYXAgcm13IChpbiB0aGUgc2Vuc2UgdGhhdA0KZm9y
-IGV4YW1wbGUgc2lpOTAyeF9icmlkZ2VfZW5hYmxlIHJlYWRzIFNJSTkwMlhfU1lTX0NUUkxfREFU
-QSBhbmQgdGhlbiB3ZSBjYWxsDQppbnRvIHNpaTkwMnhfaTJjX2J5cGFzc19zZWxlY3QpIGJ5IHRo
-ZSB0aW1lIHJlZ21hcF91cGRhdGVfYml0cyBjYW4gcGVyZm9ybSB0aGUNCndyaXRlIG9wZXJhdGlv
-biB0aGUgdmFsdWUgb2YgcmVnaXN0ZXIgU0lJOTAyWF9TWVNfQ1RSTF9EQVRBIGlzIHRoZSBzYW1l
-IGFzIHRoZSBvbmUNCnJlYWQgYnkgcmVnbWFwLCBhcyAic2VsZWN0IHhmZXIgZGVzZWxlY3QiIHdv
-bid0IGFsdGVyIHRoZSBmaW5hbCB2YWx1ZSBvZiBTSUk5MDJYX1NZU19DVFJMX0RBVEENCmFuZCBu
-b2JvZHkgY2FuIGdldCBpbiBiZXR3ZWVuLg0KV2hhdCBkbyB5b3UgdGhpbmsgSSBzaG91bGQgZG8/
-IERvIHlvdSB0aGluayBJIGNhbiBsZWF2ZSB0aGlzIGFsb25lIGFuZCBtYXliZSBhZGQgc29tZQ0K
-Y29tbWVudHMgb3IgZG8geW91IHRoaW5rIEkgc2hvdWxkIGV4cGxpY2l0bHkgcHJvdGVjdCBhY2Nl
-c3MgdG8gU0lJOTAyWF9TWVNfQ1RSTF9EQVRBPw0KDQpUaGFua3MsDQpGYWINCg0KDQoNCg0KDQpS
-ZW5lc2FzIEVsZWN0cm9uaWNzIEV1cm9wZSBMdGQsIER1a2VzIE1lYWRvdywgTWlsbGJvYXJkIFJv
-YWQsIEJvdXJuZSBFbmQsIEJ1Y2tpbmdoYW1zaGlyZSwgU0w4IDVGSCwgVUsuIFJlZ2lzdGVyZWQg
-aW4gRW5nbGFuZCAmIFdhbGVzIHVuZGVyIFJlZ2lzdGVyZWQgTm8uIDA0NTg2NzA5Lg0KX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxp
-bmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJl
-ZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+Hello Wolfram, hello Oleksij,
+
+On Mon, Oct 29, 2018 at 08:54:08AM +0000, Wolfram Sang wrote:
+> On Mon, Oct 29, 2018 at 09:07:56AM +0100, Oleksij Rempel wrote:
+> > On 28.10.18 23:11, Wolfram Sang wrote:
+> > > On Thu, Oct 18, 2018 at 01:26:15PM +0200, Oleksij Rempel wrote:
+> > > > At least on i.MX5x variants is DMA event for I2C muxed with SDHC. So
+> > > > it is project specific configuration and not an error.
+> > > > =
+
+> > > > Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+> > > =
+
+> > > So, the first patch is not I2C realm, and the second is dropped. No
+> > > comment about the third one?
+> > > =
+
+> > > And is maybe someone from Pengutronix interested in maintaining this
+> > > driver? Uwe maybe? That would speed up things for it...
+> > =
+
+> > Should i resend it as single patch?
+> =
+
+> I am fine with an ack here.
+
+With patch 1 dropped this patch needs adaption I think.
+
+Best regards
+Uwe
+
+-- =
+
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
