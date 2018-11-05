@@ -1,70 +1,61 @@
-From: "Yeh, Andy" <andy.yeh@intel.com>
-Subject: RE: 4.14/4.18: Please add "eeprom: at24: Add support for
- address-width property"
-Date: Mon, 5 Nov 2018 10:08:40 +0000
-Message-ID: <8E0971CCB6EA9D41AF58191A2D3978B61D7F6B4E@PGSMSX111.gar.corp.intel.com>
-References: <20181022083835.GA5315@localhost>
+From: Frank Lee <tiny.windzz@gmail.com>
+Subject: Re: [PATCH v2] i2c: rk3x: fix some typo
+Date: Mon, 5 Nov 2018 23:59:58 +0800
+Message-ID: <CAEExFWtQrPD8hUn15Add-EuueCL5=Crb+yvDckWejG75BExGug@mail.gmail.com>
+References: <20181102124535.24331-1-tiny.windzz@gmail.com> <19a28033-9241-1f4e-97cd-7c6648a73c6d@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20181022083835.GA5315@localhost>
-Content-Language: en-US
-Sender: stable-owner@vger.kernel.org
-To: Adrian Bunk <bunk@kernel.org>, "stable@vger.kernel.org" <stable@vger.kernel.org>, "Chen, KenX" <kenx.chen@intel.com>
-Cc: Bartosz Golaszewski <brgl@bgdev.pl>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <19a28033-9241-1f4e-97cd-7c6648a73c6d@axentia.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: peda@axentia.se
+Cc: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-QWxsLA0KDQpUaGUgb3JpZ2luYWwgYXV0aG9yIEFsYW54IGNoaWFuZyBoYXMgbGVmdCB0aGUgY29t
-cGFueS4gSSBhc3NpZ25lZCBLZW4gdG8gaGVscCBoYW5kbGUgdGhlIGNoZXJyeXBpY2sgdGFzayAo
-NC4xNCBhbmQgNC4xOCkuDQoNClJlZ2FyZHMsIEFuZHkNCg0KPi0tLS0tT3JpZ2luYWwgTWVzc2Fn
-ZS0tLS0tDQo+RnJvbTogQWRyaWFuIEJ1bmsgW21haWx0bzpidW5rQGtlcm5lbC5vcmddDQo+U2Vu
-dDogTW9uZGF5LCBPY3RvYmVyIDIyLCAyMDE4IDQ6MzkgUE0NCj5Ubzogc3RhYmxlQHZnZXIua2Vy
-bmVsLm9yZw0KPkNjOiBBbGFuIENoaWFuZyA8YWxhbnguY2hpYW5nQGludGVsLmNvbT47IFllaCwg
-QW5keSA8YW5keS55ZWhAaW50ZWwuY29tPjsNCj5CYXJ0b3N6IEdvbGFzemV3c2tpIDxicmdsQGJn
-ZGV2LnBsPjsgbGludXgtaTJjQHZnZXIua2VybmVsLm9yZw0KPlN1YmplY3Q6IDQuMTQvNC4xODog
-UGxlYXNlIGFkZCAiZWVwcm9tOiBhdDI0OiBBZGQgc3VwcG9ydCBmb3IgYWRkcmVzcy13aWR0aA0K
-PnByb3BlcnR5Ig0KPg0KPlBsZWFzZSBjaGVycnktcGljayB0aGUgZm9sbG93aW5nIGNvbW1pdCB0
-byA0LjE0IGFuZCA0LjE4Og0KPg0KPiAgICBjb21taXQgYTJiM2JmNDg0NmU1ZWVkNjJlYTZhYmIw
-OTZhZjJjOTUwOTYxMDMzYw0KPiAgICBBdXRob3I6IEFsYW4gQ2hpYW5nIDxhbGFueC5jaGlhbmdA
-aW50ZWwuY29tPg0KPiAgICBEYXRlOiAgIFdlZCBKdWwgMjUgMTE6MjA6MjIgMjAxOCArMDgwMA0K
-Pg0KPiAgICBlZXByb206IGF0MjQ6IEFkZCBzdXBwb3J0IGZvciBhZGRyZXNzLXdpZHRoIHByb3Bl
-cnR5DQo+DQo+ICAgIFByb3ZpZGUgYSBmbGV4aWJsZSB3YXkgdG8gZGV0ZXJtaW5lIHRoZSBhZGRy
-ZXNzaW5nIGJpdHMgb2YgZWVwcm9tLg0KPiAgICBQYXNzIHRoZSBhZGRyZXNzaW5nIGJpdHMgdG8g
-ZHJpdmVyIHRocm91Z2ggYWRkcmVzcy13aWR0aCBwcm9wZXJ0eS4NCj4NCj4gICAgU2lnbmVkLW9m
-Zi1ieTogQWxhbiBDaGlhbmcgPGFsYW54LmNoaWFuZ0BpbnRlbC5jb20+DQo+ICAgIFNpZ25lZC1v
-ZmYtYnk6IEFuZHkgWWVoIDxhbmR5LnllaEBpbnRlbC5jb20+DQo+ICAgIFNpZ25lZC1vZmYtYnk6
-IEJhcnRvc3ogR29sYXN6ZXdza2kgPGJyZ2xAYmdkZXYucGw+DQo+DQo+DQo+Q29uZmlybWVkIHRv
-IHdvcmsgb24gNC4xNCB3aXRoIHRoZSBJZGVudGlmaWNhdGlvbiBQYWdlIG9mIGFuIFNUIE0yNE0w
-Mi1EUg0KPigyNTYgYnl0ZXMgYnV0IDE2IGJpdCBhZGRyZXNzaW5nKS4NCj4NCj5DYW5ub3QgYmUg
-Y2hlcnJ5LXBpY2tlZCB0cml2aWFsbHkgb24gNC45Lg0KPg0KPlRoZSBjb3JyZXNwb25kaW5nIGRv
-Y3VtZW50YXRpb24gY29tbWl0DQo+MjFkMDQwNTQ1MDFmYjI3YjU2ZTk5NWI1NGFjNzRlMzlhZWU3
-OWE0Ng0KPmNhbiBiZSBjaGVycnktcGlja2VkIHRvIDQuMTgsIHRoZSBiYWNrcG9ydCBmb3IgNC4x
-NCBpcyBiZWxvdy4NCj4NCj5UaGFua3MNCj5BZHJpYW4NCj4NCj4NCj5Gcm9tIDI1NjJlMzMzZjM5
-YjgwNzdmZmIwNmJkZjc5NDMwZjEwYjc0YzExZjUgTW9uIFNlcCAxNyAwMDowMDowMA0KPjIwMDEN
-Cj5Gcm9tOiBBbGFuIENoaWFuZyA8YWxhbnguY2hpYW5nQGludGVsLmNvbT4NCj5EYXRlOiBXZWQs
-IDI1IEp1bCAyMDE4IDExOjIwOjIxICswODAwDQo+U3ViamVjdDogW1BBVENIXSBkdC1iaW5kaW5n
-czogYXQyNDogQWRkIGFkZHJlc3Mtd2lkdGggcHJvcGVydHkNCj4NCj5DdXJyZW50bHkgdGhlIG9u
-bHkgd2F5IHRvIHVzZSBhIHZhcmlhbnQgb2YgYSBzdXBwb3J0ZWQgbW9kZWwgd2l0aCBhIGRpZmZl
-cmVudA0KPmFkZHJlc3Mgd2lkdGggaXMgdG8gZGVmaW5lIGEgbmV3IGNvbXBhdGlibGUgc3RyaW5n
-IGFuZCB0aGUgY29ycmVzcG9uZGluZyBjaGlwDQo+ZGF0YSBzdHJ1Y3R1cmUuDQo+DQo+UHJvdmlk
-ZSBhIGZsZXhpYmxlIHdheSB0byBzcGVjaWZ5IHRoZSBzaXplIG9mIHRoZSBhZGRyZXNzIHBvaW50
-ZXIgYnkgZGVmaW5pbmcgYQ0KPm5ldyBwcm9wZXJ0eTogYWRkcmVzcy13aWR0aC4NCj4NCj5TaWdu
-ZWQtb2ZmLWJ5OiBBbGFuIENoaWFuZyA8YWxhbnguY2hpYW5nQGludGVsLmNvbT4NCj5TaWduZWQt
-b2ZmLWJ5OiBBbmR5IFllaCA8YW5keS55ZWhAaW50ZWwuY29tPg0KPkFja2VkLWJ5OiBTYWthcmkg
-QWlsdXMgPHNha2FyaS5haWx1c0BsaW51eC5pbnRlbC5jb20+DQo+UmV2aWV3ZWQtYnk6IFJvYiBI
-ZXJyaW5nIDxyb2JoQGtlcm5lbC5vcmc+DQo+W0JhcnRvc3o6IGZpeGVkIHRoZSBjb21taXQgbWVz
-c2FnZV0NCj5TaWduZWQtb2ZmLWJ5OiBCYXJ0b3N6IEdvbGFzemV3c2tpIDxicmdsQGJnZGV2LnBs
-PiBbQWRyaWFuIEJ1bms6IGJhY2twb3J0ZWQNCj50byA0LjE0XQ0KPlNpZ25lZC1vZmYtYnk6IEFk
-cmlhbiBCdW5rIDxidW5rQGtlcm5lbC5vcmc+DQo+LS0tDQo+IERvY3VtZW50YXRpb24vZGV2aWNl
-dHJlZS9iaW5kaW5ncy9lZXByb20vZWVwcm9tLnR4dCB8IDIgKysNCj4gMSBmaWxlIGNoYW5nZWQs
-IDIgaW5zZXJ0aW9ucygrKQ0KPg0KPmRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL2RldmljZXRy
-ZWUvYmluZGluZ3MvZWVwcm9tL2VlcHJvbS50eHQNCj5iL0RvY3VtZW50YXRpb24vZGV2aWNldHJl
-ZS9iaW5kaW5ncy9lZXByb20vZWVwcm9tLnR4dA0KPmluZGV4IGFmYzA0NTg5ZWFkZi4uNDRiZmZm
-YzQzYmVkIDEwMDY0NA0KPi0tLSBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9l
-ZXByb20vZWVwcm9tLnR4dA0KPisrKyBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5n
-cy9lZXByb20vZWVwcm9tLnR4dA0KPkBAIC0zNiw2ICszNiw4IEBAIE9wdGlvbmFsIHByb3BlcnRp
-ZXM6DQo+DQo+ICAgLSByZWFkLW9ubHk6IHRoaXMgcGFyYW1ldGVybGVzcyBwcm9wZXJ0eSBkaXNh
-YmxlcyB3cml0ZXMgdG8gdGhlIGVlcHJvbQ0KPg0KPisgIC0gYWRkcmVzcy13aWR0aDogbnVtYmVy
-IG9mIGFkZHJlc3MgYml0cyAob25lIG9mIDgsIDE2KS4NCj4rDQo+IEV4YW1wbGU6DQo+DQo+IGVl
-cHJvbUA1MiB7DQo+LS0NCj4yLjExLjANCg0K
+I am sorry.
+-- Yangtao
+On Fri, Nov 2, 2018 at 8:58 PM Peter Rosin <peda@axentia.se> wrote:
+>
+> On 2018-11-02 13:45, Yangtao Li wrote:
+> > Fix multiple instances of a misspelled "Calculates".
+>
+> Yes, it sure is hard to spell "Calcluated," it's almost impossible to
+> get it completely right and not introduce another typo somewhere... :-)
+>
+> Cheers,
+> Peter
+>
+> >
+> > Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
+> > Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+> > ---
+> > Changes in v2:
+> > -add commit message
+> > ---
+> >  drivers/i2c/busses/i2c-rk3x.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+> > index b8a2728dd4b6..fe347e8e2a23 100644
+> > --- a/drivers/i2c/busses/i2c-rk3x.c
+> > +++ b/drivers/i2c/busses/i2c-rk3x.c
+> > @@ -555,7 +555,7 @@ static const struct i2c_spec_values *rk3x_i2c_get_spec(unsigned int speed)
+> >   *
+> >   * @clk_rate: I2C input clock rate
+> >   * @t: Known I2C timing information
+> > - * @t_calc: Caculated rk3x private timings that would be written into regs
+> > + * @t_calc: Calculated rk3x private timings that would be written into regs
+> >   *
+> >   * Returns: 0 on success, -EINVAL if the goal SCL rate is too slow. In that case
+> >   * a best-effort divider value is returned in divs. If the target rate is
+> > @@ -716,7 +716,7 @@ static int rk3x_i2c_v0_calc_timings(unsigned long clk_rate,
+> >   *
+> >   * @clk_rate: I2C input clock rate
+> >   * @t: Known I2C timing information
+> > - * @t_calc: Caculated rk3x private timings that would be written into regs
+> > + * @t_calc: Calculated rk3x private timings that would be written into regs
+> >   *
+> >   * Returns: 0 on success, -EINVAL if the goal SCL rate is too slow. In that case
+> >   * a best-effort divider value is returned in divs. If the target rate is
+> >
+>
