@@ -1,40 +1,53 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v2] drm/bridge/sii902x: Fix EDID readback
-Date: Mon, 5 Nov 2018 22:15:23 +0100
-Message-ID: <20181105221523.4b90c87e@bbrezillon>
-References: <1541426208-25434-1-git-send-email-fabrizio.castro@bp.renesas.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: Re: 4.14/4.18: Please add "eeprom: at24: Add support for
+ address-width property"
+Date: Mon, 5 Nov 2018 18:51:21 -0500
+Message-ID: <20181105235121.GW194472@sasha-vm>
+References: <20181022083835.GA5315@localhost>
+ <20181031142745.GK194472@sasha-vm>
+ <20181031204959.GA3691@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <1541426208-25434-1-git-send-email-fabrizio.castro@bp.renesas.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Simon Horman <horms@verge.net.au>, Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, Boris Brezillon <boris.brezillon@free-electrons.com>, Chris Paterson <Chris.Paterson2@renesas.com>, dri-devel@lists.freedesktop.org, Biju Das <biju.das@bp.renesas.com>, linux-renesas-soc@vger.kernel.org, Mark Brown <broonie@kernel.org>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20181031204959.GA3691@localhost>
+Sender: stable-owner@vger.kernel.org
+To: Adrian Bunk <bunk@kernel.org>
+Cc: stable@vger.kernel.org, Alan Chiang <alanx.chiang@intel.com>, Andy Yeh <andy.yeh@intel.com>, Bartosz Golaszewski <brgl@bgdev.pl>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgRmFicml6aW8sCgpUaGFua3MgZm9yIHdvcmtpbmcgb24gdGhhdC4gSSB0aGluayB5b3VyIHNv
-bHV0aW9uIGZpeGVzIHRoZSBpc3N1ZSB3ZSBoYWQKb24gYXRtZWwgYm9hcmRzIFsxXSBpbiBhIGNs
-ZWFuIHdheSAoc3RpbGwgaGF2ZSB0byBmaW5kIHNvbWUgdGltZSB0bwp0ZXN0IGl0KS4KCk9uIE1v
-biwgIDUgTm92IDIwMTggMTM6NTY6NDggKzAwMDAKRmFicml6aW8gQ2FzdHJvIDxmYWJyaXppby5j
-YXN0cm9AYnAucmVuZXNhcy5jb20+IHdyb3RlOgoKPiBAQCAtNDQxLDYgKzU1OCw5IEBAIHN0YXRp
-YyBpbnQgc2lpOTAyeF9yZW1vdmUoc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCkKPiAgewo+ICAJ
-c3RydWN0IHNpaTkwMnggKnNpaTkwMnggPSBpMmNfZ2V0X2NsaWVudGRhdGEoY2xpZW50KTsKPiAg
-Cj4gKwlpZiAoc2lpOTAyeC0+aTJjbXV4KQo+ICsJCWkyY19tdXhfZGVsX2FkYXB0ZXJzKHNpaTkw
-MngtPmkyY211eCk7Cj4gKwoKSnVzdCBvbmUgdGlueSBkZXRhaWw6IEkgdGhpbmsgeW91IGNhbiBz
-YWZlbHkgY2FsbCBpMmNfbXV4X2RlbF9hZGFwdGVycygpCnVuY29uZGl0aW9uYWxseSBzaW5jZSAt
-PnJlbW92ZSgpIHdpbGwgb25seSBiZSBjYWxsZWQgaWYgLT5wcm9iZSgpCnN1Y2NlZWRlZCwgd2hp
-Y2ggZ3VhcmFudGVlcyB0aGF0IHNpaTkwMngtPmkyY211eCAhPSBOVUxMLgoKCj4gIAlkcm1fYnJp
-ZGdlX3JlbW92ZSgmc2lpOTAyeC0+YnJpZGdlKTsKPiAgCj4gIAlyZXR1cm4gMDsKClsxXWh0dHBz
-Oi8vcGF0Y2h3b3JrLmtlcm5lbC5vcmcvcGF0Y2gvOTUzMjAwNS8KX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmkt
-ZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3Jn
-L21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+On Wed, Oct 31, 2018 at 10:49:59PM +0200, Adrian Bunk wrote:
+>On Wed, Oct 31, 2018 at 10:27:45AM -0400, Sasha Levin wrote:
+>> On Mon, Oct 22, 2018 at 11:38:35AM +0300, Adrian Bunk wrote:
+>> > Please cherry-pick the following commit to 4.14 and 4.18:
+>> >
+>> >    commit a2b3bf4846e5eed62ea6abb096af2c950961033c
+>> >    Author: Alan Chiang <alanx.chiang@intel.com>
+>> >    Date:   Wed Jul 25 11:20:22 2018 +0800
+>> >
+>> >    eeprom: at24: Add support for address-width property
+>> >
+>> >    Provide a flexible way to determine the addressing bits of eeprom.
+>> >    Pass the addressing bits to driver through address-width property.
+>> >
+>> >    Signed-off-by: Alan Chiang <alanx.chiang@intel.com>
+>> >    Signed-off-by: Andy Yeh <andy.yeh@intel.com>
+>> >    Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+>> >
+>> >
+>> > Confirmed to work on 4.14 with the Identification Page
+>> > of an ST M24M02-DR (256 bytes but 16 bit addressing).
+>>
+>> This patch doesn't look like stable material. The hardware never worked
+>> before, so this is not a regression and falls under new hardware
+>> enablement, but the patch is more complex than what we usually allow for
+>> hardware enablement (adding various IDs/quirks/etc).
+>>
+>> Am I missing something?
+>
+>IMHO it is a pretty straightforward quirk for hardware enablement.
+>
+>Note that the quirk will only be used if explicitely enabled in the
+>device tree, for everyone else this code is a nop.
+
+Fair enough. I've queued it for 4.18 and 4.14.
