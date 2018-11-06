@@ -1,105 +1,49 @@
-From: Frank Lee <tiny.windzz@gmail.com>
-Subject: Re: [PATCH v2] i2c: rk3x: fix some typo
-Date: Tue, 6 Nov 2018 21:02:40 +0800
-Message-ID: <CAEExFWuCVzKdvu6VjDxabANV7WqirspBfLSGSVN95LczZfJwCA@mail.gmail.com>
-References: <20181102124535.24331-1-tiny.windzz@gmail.com> <19a28033-9241-1f4e-97cd-7c6648a73c6d@axentia.se>
- <CAEExFWtQrPD8hUn15Add-EuueCL5=Crb+yvDckWejG75BExGug@mail.gmail.com>
- <12637568.SqdzpTGmKQ@phil> <CAEExFWuP2yX9cFSjStosRZZ2aZOKGtekCg-u8UwqeM1909-Hwg@mail.gmail.com>
+From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Subject: RE: [PATCH v2] drm/bridge/sii902x: Fix EDID readback
+Date: Tue, 6 Nov 2018 10:25:43 +0000
+Message-ID: <TY1PR01MB17705AC915A25FF046375B4EC0CB0@TY1PR01MB1770.jpnprd01.prod.outlook.com>
+References: <1541426208-25434-1-git-send-email-fabrizio.castro@bp.renesas.com>
+ <20181105221523.4b90c87e@bbrezillon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAEExFWuP2yX9cFSjStosRZZ2aZOKGtekCg-u8UwqeM1909-Hwg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, Yangtao Li <tiny.windzz@gmail.com>
-Cc: peda@axentia.se, linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20181105221523.4b90c87e@bbrezillon>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Simon Horman <horms@verge.net.au>, Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, Boris Brezillon <boris.brezillon@free-electrons.com>, Chris Paterson <Chris.Paterson2@renesas.com>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, Biju Das <biju.das@bp.renesas.com>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, Peter Rosin <peda@axentia.se>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-add myself.
-On Tue, Nov 6, 2018 at 9:01 PM Frank Lee <tiny.windzz@gmail.com> wrote:
->
-> Hi Heiko=EF=BC=9A
->
-> please=EF=BC=8Ccorrect it in the cimmit message.
->
-> --Yangtao
-> On Tue, Nov 6, 2018 at 8:01 PM Heiko Stuebner <heiko@sntech.de> wrote:
-> >
-> > Hi Yangtao, Peter,
-> >
-> > Am Montag, 5. November 2018, 16:59:58 CET schrieb Frank Lee:
-> > > I am sorry.
-> > > -- Yangtao
-> >
-> > If anything, it is me that should be sorry, as I did suggest the
-> > patch description, including the new spelling error.
-> >
-> > And it took me like the whole weekend to actually realize where the
-> > Calculated / Calculates error was hiding ;-) .
-> >
-> >
-> > Heiko
-> >
-> > > On Fri, Nov 2, 2018 at 8:58 PM Peter Rosin <peda@axentia.se> wrote:
-> > > >
-> > > > On 2018-11-02 13:45, Yangtao Li wrote:
-> > > > > Fix multiple instances of a misspelled "Calculates".
-> > > >
-> > > > Yes, it sure is hard to spell "Calcluated," it's almost impossible =
-to
-> > > > get it completely right and not introduce another typo somewhere...=
- :-)
-> > > >
-> > > > Cheers,
-> > > > Peter
-> > > >
-> > > > >
-> > > > > Signed-off-by: Yangtao Li <tiny.windzz@gmail.com>
-> > > > > Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-> > > > > ---
-> > > > > Changes in v2:
-> > > > > -add commit message
-> > > > > ---
-> > > > >  drivers/i2c/busses/i2c-rk3x.c | 4 ++--
-> > > > >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > > > >
-> > > > > diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i=
-2c-rk3x.c
-> > > > > index b8a2728dd4b6..fe347e8e2a23 100644
-> > > > > --- a/drivers/i2c/busses/i2c-rk3x.c
-> > > > > +++ b/drivers/i2c/busses/i2c-rk3x.c
-> > > > > @@ -555,7 +555,7 @@ static const struct i2c_spec_values *rk3x_i2c=
-_get_spec(unsigned int speed)
-> > > > >   *
-> > > > >   * @clk_rate: I2C input clock rate
-> > > > >   * @t: Known I2C timing information
-> > > > > - * @t_calc: Caculated rk3x private timings that would be written=
- into regs
-> > > > > + * @t_calc: Calculated rk3x private timings that would be writte=
-n into regs
-> > > > >   *
-> > > > >   * Returns: 0 on success, -EINVAL if the goal SCL rate is too sl=
-ow. In that case
-> > > > >   * a best-effort divider value is returned in divs. If the targe=
-t rate is
-> > > > > @@ -716,7 +716,7 @@ static int rk3x_i2c_v0_calc_timings(unsigned =
-long clk_rate,
-> > > > >   *
-> > > > >   * @clk_rate: I2C input clock rate
-> > > > >   * @t: Known I2C timing information
-> > > > > - * @t_calc: Caculated rk3x private timings that would be written=
- into regs
-> > > > > + * @t_calc: Calculated rk3x private timings that would be writte=
-n into regs
-> > > > >   *
-> > > > >   * Returns: 0 on success, -EINVAL if the goal SCL rate is too sl=
-ow. In that case
-> > > > >   * a best-effort divider value is returned in divs. If the targe=
-t rate is
-> > > > >
-> > > >
-> > >
-> >
-> >
-> >
-> >
+SGVsbG8gQm9yaXMsCgpUaGFuayB5b3UgZm9yIHlvdXIgZmVlZGJhY2shCgo+IFN1YmplY3Q6IFJl
+OiBbUEFUQ0ggdjJdIGRybS9icmlkZ2Uvc2lpOTAyeDogRml4IEVESUQgcmVhZGJhY2sKPgo+IEhp
+IEZhYnJpemlvLAo+Cj4gVGhhbmtzIGZvciB3b3JraW5nIG9uIHRoYXQuIEkgdGhpbmsgeW91ciBz
+b2x1dGlvbiBmaXhlcyB0aGUgaXNzdWUgd2UgaGFkCj4gb24gYXRtZWwgYm9hcmRzIFsxXSBpbiBh
+IGNsZWFuIHdheSAoc3RpbGwgaGF2ZSB0byBmaW5kIHNvbWUgdGltZSB0bwo+IHRlc3QgaXQpLgo+
+Cj4gT24gTW9uLCAgNSBOb3YgMjAxOCAxMzo1Njo0OCArMDAwMAo+IEZhYnJpemlvIENhc3RybyA8
+ZmFicml6aW8uY2FzdHJvQGJwLnJlbmVzYXMuY29tPiB3cm90ZToKPgo+ID4gQEAgLTQ0MSw2ICs1
+NTgsOSBAQCBzdGF0aWMgaW50IHNpaTkwMnhfcmVtb3ZlKHN0cnVjdCBpMmNfY2xpZW50ICpjbGll
+bnQpCj4gPiAgewo+ID4gIHN0cnVjdCBzaWk5MDJ4ICpzaWk5MDJ4ID0gaTJjX2dldF9jbGllbnRk
+YXRhKGNsaWVudCk7Cj4gPgo+ID4gK2lmIChzaWk5MDJ4LT5pMmNtdXgpCj4gPiAraTJjX211eF9k
+ZWxfYWRhcHRlcnMoc2lpOTAyeC0+aTJjbXV4KTsKPiA+ICsKPgo+IEp1c3Qgb25lIHRpbnkgZGV0
+YWlsOiBJIHRoaW5rIHlvdSBjYW4gc2FmZWx5IGNhbGwgaTJjX211eF9kZWxfYWRhcHRlcnMoKQo+
+IHVuY29uZGl0aW9uYWxseSBzaW5jZSAtPnJlbW92ZSgpIHdpbGwgb25seSBiZSBjYWxsZWQgaWYg
+LT5wcm9iZSgpCj4gc3VjY2VlZGVkLCB3aGljaCBndWFyYW50ZWVzIHRoYXQgc2lpOTAyeC0+aTJj
+bXV4ICE9IE5VTEwuCgpGYWlyIHBvaW50LCB3aWxsIGNoYW5nZSBpbiB0aGUgbmV4dCB2ZXJzaW9u
+LgoKQ2hlZXJzLApGYWIKCj4KPgo+ID4gIGRybV9icmlkZ2VfcmVtb3ZlKCZzaWk5MDJ4LT5icmlk
+Z2UpOwo+ID4KPiA+ICByZXR1cm4gMDsKPgo+IFsxXWh0dHBzOi8vcGF0Y2h3b3JrLmtlcm5lbC5v
+cmcvcGF0Y2gvOTUzMjAwNS8KCgoKUmVuZXNhcyBFbGVjdHJvbmljcyBFdXJvcGUgTHRkLCBEdWtl
+cyBNZWFkb3csIE1pbGxib2FyZCBSb2FkLCBCb3VybmUgRW5kLCBCdWNraW5naGFtc2hpcmUsIFNM
+OCA1RkgsIFVLLiBSZWdpc3RlcmVkIGluIEVuZ2xhbmQgJiBXYWxlcyB1bmRlciBSZWdpc3RlcmVk
+IE5vLiAwNDU4NjcwOS4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Au
+b3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRl
+dmVsCg==
