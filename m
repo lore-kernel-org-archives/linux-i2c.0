@@ -1,79 +1,54 @@
-From: Ludovic Desroches <ludovic.desroches@microchip.com>
-Subject: Re: [PATCH] i2c: at91: switched to resume/suspend callbacks.
-Date: Wed, 7 Nov 2018 09:39:28 +0100
-Message-ID: <20181107083928.vqgnpw3mmczjn4el@M43218.corp.atmel.com>
-References: <1540203006-805-1-git-send-email-andrei.stefanescu@microchip.com>
+From: vitor <vitor.soares@synopsys.com>
+Subject: Re: [PATCH 1/3] i3c: master: Add driver for Synopsys DesignWare IP
+Date: Wed, 7 Nov 2018 15:15:17 +0000
+Message-ID: <8a71cb94-ccf5-8ec0-446a-37a29405f585@synopsys.com>
+References: <1540807618-13246-1-git-send-email-soares@synopsys.com>
+ <1540807618-13246-2-git-send-email-soares@synopsys.com>
+ <20181029134100.GD28520@bombadil.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1540203006-805-1-git-send-email-andrei.stefanescu@microchip.com>
+In-Reply-To: <20181029134100.GD28520@bombadil.infradead.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andrei Stefanescu - M50506 <Andrei.Stefanescu@microchip.com>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, Nicolas Ferre - M43238 <Nicolas.Ferre@microchip.com>, "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>, Cristian Birsan - M91496 <Cristian.Birsan@microchip.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Matthew Wilcox <willy@infradead.org>, Vitor soares <vitor.soares@synopsys.com>
+Cc: boris.brezillon@bootlin.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, gregkh@linuxfoundation.org, arnd@arndb.de, psroka@cadence.com, agolec@cadence.com, adouglas@cadence.com, bfolta@cadence.com, dkos@cadence.com, alicja@cadence.com, cwronka@cadence.com, sureshp@cadence.com, rafalc@cadence.com, thomas.petazzoni@bootlin.com, nm@ti.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, geert@linux-m68k.org, linus.walleij@linaro.org, Xiang.Lin@synaptics.com, linux-gpio@vger.kernel.org, nsekhar@ti.com, pgaj@cadence.com, peda@axentia.se, mshettel@codeauror
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 22, 2018 at 12:17:47PM +0200, Andrei Stefanescu - M50506 wrote:
-> In the previous version of the driver resume/suspend_noirq callbacks
-> were used. Because of this, when resuming from suspend-to-ram,
-> an I2C (belonging to a FLEXCOM) would resume before FLEXCOM.
-> The first read on the I2C bus would then result in a timeout.
-> 
-> This patch switches to resume/suspend callbacks which are 
-> called after FLEXCOM resumes. FLEXCOM, SPI and USART drivers use
-> resume/suspend callbacks.
-> 
-> Signed-off-by: Andrei Stefanescu <andrei.stefanescu@microchip.com>
-I can't figure out why we use the _noirq variant. When patches for PM
-stuff were sent, suspend/resume callbacks were used but in the latest
-version it moved to the _noirq variant without explanation.
+Hi Matthew,
 
-Excepting if someone has an argument to keep the _noirq variant,
-Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com> 
+Thank for your feedback.
 
-Thanks
+On 29/10/18 13:41, Matthew Wilcox wrote:
+> On Mon, Oct 29, 2018 at 10:06:56AM +0000, Vitor soares wrote:
+>> +config DW_I3C_MASTER
+>> +	tristate "Synospsys DesignWare I3C master driver"
+>> +	depends on I3C
+>> +	depends on !(ALPHA || PARISC)
+> why?
 
-Regards
+Please check this email thread: https://lkml.org/lkml/2018/10/8/393
 
-Ludovic
+>
+>> +	help
+>> +	  Support·for·Synopsys·DesignWare·MIPI·I3C·Controller.
+> These strange characters (displayed as a centred dot on my terminal)
+> should probably be spaces.
 
-> ---
->  drivers/i2c/busses/i2c-at91.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> index bfd1fdf..81f7b94 100644
-> --- a/drivers/i2c/busses/i2c-at91.c
-> +++ b/drivers/i2c/busses/i2c-at91.c
-> @@ -1174,7 +1174,7 @@ static int at91_twi_runtime_resume(struct device *dev)
->  	return clk_prepare_enable(twi_dev->clk);
->  }
->  
-> -static int at91_twi_suspend_noirq(struct device *dev)
-> +static int at91_twi_suspend(struct device *dev)
->  {
->  	if (!pm_runtime_status_suspended(dev))
->  		at91_twi_runtime_suspend(dev);
-> @@ -1182,7 +1182,7 @@ static int at91_twi_suspend_noirq(struct device *dev)
->  	return 0;
->  }
->  
-> -static int at91_twi_resume_noirq(struct device *dev)
-> +static int at91_twi_resume(struct device *dev)
->  {
->  	struct at91_twi_dev *twi_dev = dev_get_drvdata(dev);
->  	int ret;
-> @@ -1202,8 +1202,8 @@ static int at91_twi_resume_noirq(struct device *dev)
->  }
->  
->  static const struct dev_pm_ops at91_twi_pm = {
-> -	.suspend_noirq	= at91_twi_suspend_noirq,
-> -	.resume_noirq	= at91_twi_resume_noirq,
-> +	.suspend	= at91_twi_suspend,
-> +	.resume		= at91_twi_resume,
->  	.runtime_suspend	= at91_twi_runtime_suspend,
->  	.runtime_resume		= at91_twi_runtime_resume,
->  };
-> -- 
-> 2.7.4
-> 
+Something went wrong here. I need to check it.
+
+>
+>> +static struct dw_i3c_xfer *
+>> +dw_i3c_master_alloc_xfer(struct dw_i3c_master *master, unsigned int ncmds)
+>> +{
+>> +	struct dw_i3c_xfer *xfer;
+>> +
+>> +	xfer = kzalloc(sizeof(*xfer) + (ncmds * sizeof(*xfer->cmds)),
+>> +		       GFP_KERNEL);
+> You should be using struct_size() here.
+
+This seem to be recent. I will use it next version :D
+
+Best regards,
+Vitor Soares
