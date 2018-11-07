@@ -1,44 +1,56 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 1/3] i3c: master: Add driver for Synopsys DesignWare IP
-Date: Wed, 7 Nov 2018 16:34:12 +0100
-Message-ID: <CAMuHMdUO5_-TsGiu3otuLqNtLNgdnw=1QdKjTzPmSxHp9QotxQ@mail.gmail.com>
-References: <1540807618-13246-1-git-send-email-soares@synopsys.com>
- <1540807618-13246-2-git-send-email-soares@synopsys.com> <20181029134100.GD28520@bombadil.infradead.org>
- <8a71cb94-ccf5-8ec0-446a-37a29405f585@synopsys.com>
+From: Vignesh R <vigneshr@ti.com>
+Subject: Re: [PATCH v2 0/2] i2c-omap: Enable i2c-omap driver for AM654 SoCs
+Date: Wed, 7 Nov 2018 22:31:24 +0530
+Message-ID: <c664348b-bb5b-9cba-6ed5-040014515477@ti.com>
+References: <20180928052557.21663-1-vigneshr@ti.com>
+ <09a6b1d4-f8f4-ea90-f361-bd3a92088430@ti.com> <20181028223450.GK1882@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <8a71cb94-ccf5-8ec0-446a-37a29405f585@synopsys.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Vitor Soares <vitor.soares@synopsys.com>
-Cc: Matthew Wilcox <willy@infradead.org>, Boris Brezillon <boris.brezillon@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Greg KH <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20181028223450.GK1882@kunai>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "Menon, Nishanth" <nm@ti.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Tony Lindgren <tony@atomide.com>, "Nori, Sekhar" <nsekhar@ti.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Rob Herring <robh+dt@kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Peter Rosin <peda@axentia.se>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Vitor,
 
-On Wed, Nov 7, 2018 at 4:15 PM vitor <vitor.soares@synopsys.com> wrote:
-> On 29/10/18 13:41, Matthew Wilcox wrote:
-> > On Mon, Oct 29, 2018 at 10:06:56AM +0000, Vitor soares wrote:
-> >> +config DW_I3C_MASTER
-> >> +    tristate "Synospsys DesignWare I3C master driver"
-> >> +    depends on I3C
-> >> +    depends on !(ALPHA || PARISC)
-> > why?
->
-> Please check this email thread: https://lkml.org/lkml/2018/10/8/393
+On 29/10/18 4:04 AM, Wolfram Sang wrote:
+> On Sat, Oct 20, 2018 at 01:23:40PM +0530, Vignesh R wrote:
+>>
+>>
+>> On 28-Sep-18 10:55 AM, Vignesh R wrote:
+>>> Couple of patches to enable i2c-omap driver to be used with TI's new
+>>> AM654 platforms.
+>>>
+>>>
+>>> Vignesh R (2):
+>>>   dt-bindings: i2c-omap: Add new compatible for AM654 SoCs
+>>>   i2c: busses: Kconfig: Enable I2C_OMAP for ARCH_K3
+>>>
+>>>  Documentation/devicetree/bindings/i2c/i2c-omap.txt | 8 ++++++--
+>>>  drivers/i2c/busses/Kconfig                         | 2 +-
+>>>  2 files changed, 7 insertions(+), 3 deletions(-)
+>>>
+>>
+>> Gentle ping...
+> 
+> Maintainer tags are missing. Tony is listed for this driver on OMAP2+.
+> Is this his realm? Do we need a specific maintainer for this driver?
+> 
 
-Hence this deserves a comment, so we know when/what to do to drop the
-dependency:
-
-    depends on  !(ALPHA || PARISC) # needs {read,write}sl()
-
-Gr{oetje,eeting}s,
-
-                        Geert
+I think this driver needs a separate entry, will send a patch adding my
+name as reviewer for this driver.
 
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Regards
+Vignesh
