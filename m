@@ -1,37 +1,49 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH v3 3/3] MAINTAINERS: Add entry for i2c-omap driver
-Date: Thu, 8 Nov 2018 07:02:31 -0800
-Message-ID: <20181108150231.GF56134@atomide.com>
-References: <20181108091931.3342-1-vigneshr@ti.com>
- <20181108091931.3342-4-vigneshr@ti.com>
- <20181108092320.GC951@kunai>
- <d57ace5e-d42a-0a0e-2813-4a25cc6b37bb@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Vitor soares <vitor.soares@synopsys.com>
+Subject: [PATCH v3 0/3] Add driver for Synopsys DesignWare I3C master IP
+Date: Thu,  8 Nov 2018 17:14:08 +0000
+Message-ID: <1541697251-20392-1-git-send-email-soares@synopsys.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <d57ace5e-d42a-0a0e-2813-4a25cc6b37bb@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vignesh R <vigneshr@ti.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Rob Herring <robh+dt@kernel.org>, "Strashko, Grygorii" <grygorii.strashko@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: boris.brezillon@bootlin.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, gregkh@linuxfoundation.org, arnd@arndb.de
+Cc: psroka@cadence.com, agolec@cadence.com, adouglas@cadence.com, bfolta@cadence.com, dkos@cadence.com, alicja@cadence.com, cwronka@cadence.com, sureshp@cadence.com, rafalc@cadence.com, thomas.petazzoni@bootlin.com, nm@ti.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, vitor.soares@synopsys.com, geert@linux-m68k.org, linus.walleij@linaro.org, Xiang.Lin@synaptics.com, linux-gpio@vger.kernel.org, nsekhar@ti.com, pgaj@cadence.com, peda@axentia.se, mshettel@codeaurora.org, swboyd@chromium.org, joao.pinto@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
 
-* Vignesh R <vigneshr@ti.com> [181108 12:28]:
-> 
-> 
-> On 08/11/18 2:53 PM, Wolfram Sang wrote:
-> > On Thu, Nov 08, 2018 at 02:49:31PM +0530, Vignesh R wrote:
-> >> Add separate entry for i2c-omap and add my name as reviewer for this
-> >> driver.
-> > 
-> > Thanks for stepping up, yet out of curiosity: why not maintainer?
-> > 
-> 
-> I wasn't sure whether the convention is to add Reviewer or Maintainer
-> entry for individual driver. I would be glad to change entry to maintainer.
+This patch series is a proposal for the I3C master driver for Synopsys IP.
+This patch is to be applied on top of I3C subsystem RFC V10 submitted by
+Boris Brezillon.
 
-Great, yes please do!
+Supported features:
+  Regular CCC commands.
+  I3C private transfers.
+  I2C transfers.
 
-Regards,
+Missing functionalities:
+  Support DMA interface.
+  Support for I3C_BUS_MODE_MIXED_SLOW.
+  Hot-join.
+  IBI.
 
-Tony
+Main change between v2 and v3:
+- Minor fixes. They are described in each patch
+
+Main change between v1 and v2:
+- Add controller version on dt-binding
+- The driver now calls writesl/readsl() instead readl/writel
+- Rename some variables in the driver
+
+Vitor soares (3):
+  i3c: master: Add driver for Synopsys DesignWare IP
+  dt-bindings: i3c: Document Synopsys DesignWare I3C master bindings
+  MAINTAINERS: Add myself as the dw-i3c-master module maintainer
+
+ .../devicetree/bindings/i3c/snps,dw-i3c-master.txt |   42 +
+ MAINTAINERS                                        |    6 +
+ drivers/i3c/master/Kconfig                         |   15 +
+ drivers/i3c/master/Makefile                        |    1 +
+ drivers/i3c/master/dw-i3c-master.c                 | 1216 ++++++++++++++++++++
+ 5 files changed, 1280 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i3c/snps,dw-i3c-master.txt
+ create mode 100644 drivers/i3c/master/dw-i3c-master.c
+
+-- 
+2.7.4
