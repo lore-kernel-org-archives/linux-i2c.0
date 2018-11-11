@@ -1,25 +1,68 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v3 0/3] Add driver for Synopsys DesignWare I3C master IP
-Date: Sun, 11 Nov 2018 09:40:14 -0800
-Message-ID: <20181111174014.GA16216@kroah.com>
-References: <1541697251-20392-1-git-send-email-soares@synopsys.com>
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Subject: Re: [PATCH v10 0/9] Add the I3C subsystem
+Date: Sun, 11 Nov 2018 19:10:17 +0100
+Message-ID: <20181111191017.7b2efdf1@bbrezillon>
+References: <20181026144333.12276-1-boris.brezillon@bootlin.com>
+        <20181111173932.GA12254@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1541697251-20392-1-git-send-email-soares@synopsys.com>
+In-Reply-To: <20181111173932.GA12254@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vitor soares <vitor.soares@synopsys.com>
-Cc: boris.brezillon@bootlin.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, arnd@arndb.de, psroka@cadence.com, agolec@cadence.com, adouglas@cadence.com, bfolta@cadence.com, dkos@cadence.com, alicja@cadence.com, cwronka@cadence.com, sureshp@cadence.com, rafalc@cadence.com, thomas.petazzoni@bootlin.com, nm@ti.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, geert@linux-m68k.org, linus.walleij@linaro.org, Xiang.Lin@synaptics.com, linux-gpio@vger.kernel.org, nsekhar@ti.com, pgaj@cadence.com, peda@axentia.se, mshettel@codeaurora.org, swboyd@chromium.org, joao.pinto@synopsys.com
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Kumar Gala <galak@codeaurora.org>devi
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Nov 08, 2018 at 05:14:08PM +0000, Vitor soares wrote:
-> This patch series is a proposal for the I3C master driver for Synopsys IP.
-> This patch is to be applied on top of I3C subsystem RFC V10 submitted by
-> Boris Brezillon.
+Hi Greg,
 
-I'd like to get Boris's reviewed/signed-off on these before I take them.
+On Sun, 11 Nov 2018 09:39:32 -0800
+Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
 
-thanks,
+> On Fri, Oct 26, 2018 at 04:43:24PM +0200, Boris Brezillon wrote:
+> > Hi Greg,
+> > 
+> > I think we've reached a point where we can eventually consider the I3C
+> > framework for inclusion in 4.20 (5.0?). A few more issues were reported
+> > on v9 and fixed in v10. I can't guarantee that the implementation is
+> > free of bugs but I still think it's worth merging it in v4.20: it's a
+> > new subsystem, so we don't risk regressions, and the only way we can
+> > detect other issues is by having other people experiment with this
+> > implementation.
+> > 
+> > The only remaining concern raised by Arnd is the fact that both hosts
+> > and slaves share the same bus type and are differentiated thanks to
+> > their device_type, which IMHO is fine since this is what other
+> > subsystems do (plus I don't see other solutions to have both I3C
+> > devices and I3C buses represented under /sys/bus/i3c/).  
+> 
+> Yeah, it's not the nicest, but it will work, we did it also for USB and
+> greybus and it solves the issue.
+> 
+> This all looks good to me, so I've queued it up.  Let's see if
+> linux-next has any problems with it.
 
-greg k-h
+I recently asked Stephen to add the linux-i3c tree to linux-next, so
+I'm expecting conflicts :-/. Sorry, I didn't know you were planning to
+take these patches through your tree.
+
+BTW, I also fixed a couple of things when rebasing on top of 4.20-rc1:
+
+- KernelVersion in the sysfs ABI doc has been updated to 5.0
+- Fixed i3c_master_getmxds_locked() (bug reported/fixed by Colin here
+  https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1799850.html)
+- Removed a blank line at the end of master-driver-api.rst
+
+For the record, the i3c/next branch pulled by Stephen is available here
+[1].
+
+> Thanks for sticking with it, nice work!
+
+Thanks for reviewing it! Greg, Stephen, let me know if you want me to
+reset i3c/next to v4.20-rc1 to avoid conflicts in linux-next.
+
+Regards,
+
+Boris
+
+[1]https://git.kernel.org/pub/scm/linux/kernel/git/i3c/linux.git/log/?h=i3c/next
