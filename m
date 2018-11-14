@@ -1,10 +1,10 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 8/8] i2c: omap: Enable for ARCH_K3
-Date: Wed, 14 Nov 2018 17:26:14 -0500
-Message-ID: <20181114222618.100378-8-sashal@kernel.org>
-References: <20181114222618.100378-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 3.18 3/3] i2c: omap: Enable for ARCH_K3
+Date: Wed, 14 Nov 2018 17:26:32 -0500
+Message-ID: <20181114222636.100512-3-sashal@kernel.org>
+References: <20181114222636.100512-1-sashal@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181114222618.100378-1-sashal@kernel.org>
+In-Reply-To: <20181114222636.100512-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: stable@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Vignesh R <vigneshr@ti.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
@@ -25,10 +25,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 7b0aa82ea38b..b6a692677eea 100644
+index 06e99eb64295..6ced9382bf02 100644
 --- a/drivers/i2c/busses/Kconfig
 +++ b/drivers/i2c/busses/Kconfig
-@@ -702,7 +702,7 @@ config I2C_OCORES
+@@ -607,7 +607,7 @@ config I2C_OCORES
  
  config I2C_OMAP
  	tristate "OMAP I2C adapter"
