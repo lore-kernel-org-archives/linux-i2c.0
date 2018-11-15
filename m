@@ -1,36 +1,66 @@
-From: Davidlohr Bueso <dave@stgolabs.net>
-Subject: [PATCH 5/6] drivers/i2c: Remove caller signal_pending branch predictions
-Date: Thu, 15 Nov 2018 16:27:12 -0800
-Message-ID: <20181116002713.8474-6-dave@stgolabs.net>
-References: <20181116002713.8474-1-dave@stgolabs.net>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181116002713.8474-1-dave@stgolabs.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: akpm@linux-foundation.org
-Cc: dave@stgolabs.net, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, peda@axentia.se
+From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Subject: RE: [PATCH v3] drm/bridge/sii902x: Fix EDID readback
+Date: Thu, 15 Nov 2018 11:39:30 +0000
+Message-ID: <TY1PR01MB1770CD25E936A7DE3421E61DC0DC0@TY1PR01MB1770.jpnprd01.prod.outlook.com>
+References: <1541505156-8097-1-git-send-email-fabrizio.castro@bp.renesas.com>
+ <CACRpkda+YcxCOQeSo=2Jk5S2b4Sa7WcROeaJitzgPcBzM1qBrA@mail.gmail.com>
+ <20181115111611.783e5c42@bbrezillon>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20181115111611.783e5c42@bbrezillon>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Boris Brezillon <boris.brezillon@bootlin.com>, Linus Walleij <linus.walleij@linaro.org>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Simon Horman <horms@verge.net.au>, Wolfram Sang <wsa@the-dreams.de>, Dave Airlie <airlied@linux.ie>, Boris BREZILLON <boris.brezillon@free-electrons.com>, Chris Paterson <Chris.Paterson2@renesas.com>, "open list:DRM PANEL DRIVERS" <dri-devel@lists.freedesktop.org>, Biju Das <biju.das@bp.renesas.com>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, Peter Rosin <peda@axentia.se>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This is already done for us internally by the signal machinery.
-
-Cc: linux-i2c@vger.kernel.org
-Cc: peda@axentia.se
-Signed-off-by: Davidlohr Bueso <dave@stgolabs.net>
----
- drivers/i2c/busses/i2c-ibm_iic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
-index 6f6e1dfe7cce..d78023d42a35 100644
---- a/drivers/i2c/busses/i2c-ibm_iic.c
-+++ b/drivers/i2c/busses/i2c-ibm_iic.c
-@@ -437,7 +437,7 @@ static int iic_wait_for_tc(struct ibm_iic_private* dev){
- 				break;
- 			}
- 
--			if (unlikely(signal_pending(current))){
-+			if (signal_pending(current)){
- 				DBG("%d: poll interrupted\n", dev->idx);
- 				ret = -ERESTARTSYS;
- 				break;
--- 
-2.16.4
+SGVsbG8gQm9yaXMsCgo+IEZyb206IEJvcmlzIEJyZXppbGxvbiA8Ym9yaXMuYnJlemlsbG9uQGJv
+b3RsaW4uY29tPgo+IFNlbnQ6IDE1IE5vdmVtYmVyIDIwMTggMTA6MTYKPiBTdWJqZWN0OiBSZTog
+W1BBVENIIHYzXSBkcm0vYnJpZGdlL3NpaTkwMng6IEZpeCBFRElEIHJlYWRiYWNrCj4KPiBPbiBU
+aHUsIDE1IE5vdiAyMDE4IDExOjEzOjUyICswMTAwCj4gTGludXMgV2FsbGVpaiA8bGludXMud2Fs
+bGVpakBsaW5hcm8ub3JnPiB3cm90ZToKPgo+ID4gT24gVHVlLCBOb3YgNiwgMjAxOCBhdCAxMjo1
+MiBQTSBGYWJyaXppbyBDYXN0cm8KPiA+IDxmYWJyaXppby5jYXN0cm9AYnAucmVuZXNhcy5jb20+
+IHdyb3RlOgo+ID4KPiA+ID4gV2hpbGUgYWRkaW5nIFNpSTkwMjJBIHN1cHBvcnQgdG8gdGhlIGl3
+ZzIzcyBib2FyZCwgaXQgY2FtZQo+ID4gPiB1cCB0aGF0IHdoZW4gdGhlIEhETUkgdHJhbnNtaXR0
+ZXIgaXMgaW4gcGFzcyB0aHJvdWdoIG1vZGUgdGhlCj4gPiA+IGRldmljZSBpcyBub3QgY29tcGxp
+YW50IHdpdGggdGhlIEkyQyBzcGVjaWZpY2F0aW9uIGFueW1vcmUsCj4gPiA+IGFzIGl0IHJlcXVp
+cmVzIGEgZmFyIGJpZ2dlciB0YnVmLCBkdWUgdG8gYSBkZWxheSB0aGUgSERNSQo+ID4gPiB0cmFu
+c21pdHRlciBpcyBhZGRpbmcgd2hlbiByZWxheWluZyB0aGUgU1RPUCBjb25kaXRpb24gb24gdGhl
+Cj4gPiA+IG1vbml0b3IgaTJjIHNpZGUgb2YgdGhpbmdzLgo+ID4gPgo+ID4gPiBXaGVuIG5vdCBw
+cm92aWRpbmcgYW4gYXBwcm9wcmlhdGUgZGVsYXkgYWZ0ZXIgdGhlIFNUT1AgY29uZGl0aW9uCj4g
+PiA+IHRoZSBpMmMgYnVzIHdvdWxkIGdldCBzdHVjay4gQWxzbywgYW55IG90aGVyIHRyYWZmaWMg
+b24gdGhlIGJ1cwo+ID4gPiB3aGlsZSB0YWxraW5nIHRvIHRoZSBtb25pdG9yIG1heSBjYXVzZSB0
+aGUgdHJhbnNhY3Rpb24gdG8gZmFpbAo+ID4gPiBvciBldmVuIGNhdXNlIGlzc3VlcyB3aXRoIHRo
+ZSBpMmMgYnVzIGFzIHdlbGwuCj4gPiA+Cj4gPiA+IEkyYy1nYXRlcyBzZWVtZWQgdG8gcmVhY2gg
+Y29uc2VudCBhcyBhIHBvc3NpYmxlIHdheSB0byBhZGRyZXNzCj4gPiA+IHRoZXNlIGlzc3Vlcywg
+YW5kIGFzIHN1Y2ggdGhpcyBwYXRjaCBpcyBpbXBsZW1lbnRpbmcgYSBzb2x1dGlvbgo+ID4gPiBi
+YXNlZCBvbiB0aGF0LiBTaW5jZSBvdGhlcnMgYXJlIGNsZWFybHkgcmVseWluZyBvbiB0aGUgY3Vy
+cmVudAo+ID4gPiBpbXBsZW1lbnRhdGlvbiBvZiB0aGUgZHJpdmVyLCB0aGlzIHBhdGNoIHdvbid0
+IHJlcXVpcmUgYW55IERUCj4gPiA+IGNoYW5nZXMuCj4gPiA+Cj4gPiA+IFNpbmNlIHdlIGRvbid0
+IHdhbnQgYW55IGludGVyZmVyZW5jZSBkdXJpbmcgdGhlIEREQyBCdXMKPiA+ID4gUmVxdWVzdC9H
+cmFudCBwcm9jZWR1cmUgYW5kIHdoaWxlIHRhbGtpbmcgdG8gdGhlIG1vbml0b3IsIHdlCj4gPiA+
+IGhhdmUgdG8gdXNlIHRoZSBhZGFwdGVyIGxvY2tpbmcgcHJpbWl0aXZlcyByYXRoZXIgdGhhbiB0
+aGUKPiA+ID4gaTJjLW11eCBsb2NraW5nIHByaW1pdGl2ZXMuCj4gPiA+Cj4gPiA+IFNpZ25lZC1v
+ZmYtYnk6IEZhYnJpemlvIENhc3RybyA8ZmFicml6aW8uY2FzdHJvQGJwLnJlbmVzYXMuY29tPgo+
+ID4gPgo+ID4gPiAtLS0KPiA+ID4gdjItPnYzOgo+ID4gPiAqIEluY29ycG9yYXRlZCBjb21tZW50
+cyBmcm9tIEJvcmlzIEJyZXppbGxvbiBhbmQgUGV0ZXIgUm9zaW4KPiA+Cj4gPiBBY2tlZC1ieTog
+TGludXMgV2FsbGVpaiA8bGludXMud2FsbGVpakBsaW5hcm8ub3JnPgo+ID4KPiA+IERvIHlvdSBu
+ZWVkIGhlbHAgdG8gYXBwbHkgdGhpcyB0byBkcm0tbWlzYyBvciBkbyB5b3UKPiA+IGhhdmUgY29t
+bWl0IGFjY2Vzcz8KPgo+IEkgY2FuIGRvIGl0IGlmIG5lZWRlZC4KClllcywgcGxlYXNlLCB5b3Vy
+IGhlbHAgaXMgdmVyeSBtdWNoIGFwcHJlY2lhdGVkLgoKVGhhbmtzLApGYWIKCgoKUmVuZXNhcyBF
+bGVjdHJvbmljcyBFdXJvcGUgTHRkLCBEdWtlcyBNZWFkb3csIE1pbGxib2FyZCBSb2FkLCBCb3Vy
+bmUgRW5kLCBCdWNraW5naGFtc2hpcmUsIFNMOCA1RkgsIFVLLiBSZWdpc3RlcmVkIGluIEVuZ2xh
+bmQgJiBXYWxlcyB1bmRlciBSZWdpc3RlcmVkIE5vLiAwNDU4NjcwOS4KX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApk
+cmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Au
+b3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
