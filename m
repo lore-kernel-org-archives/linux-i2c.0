@@ -1,54 +1,65 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v10 0/9] Add the I3C subsystem
-Date: Thu, 15 Nov 2018 11:08:24 -0800
-Message-ID: <20181115190824.GJ2089@sirena.org.uk>
-References: <20181026144333.12276-1-boris.brezillon@bootlin.com>
- <76b1d15d-232c-d8ba-5eba-8394e71be725@synopsys.com>
- <20181115135731.25f60990@bbrezillon>
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Subject: Re: [PATCH v4 0/3] Add driver for Synopsys DesignWare I3C master IP
+Date: Thu, 15 Nov 2018 20:29:16 +0100
+Message-ID: <20181115202916.613df7b3@bbrezillon>
+References: <1542118193-24925-1-git-send-email-vitor.soares@synopsys.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="vCQF5Fh1eN3mBuH/"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181115135731.25f60990@bbrezillon>
+In-Reply-To: <1542118193-24925-1-git-send-email-vitor.soares@synopsys.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>
-Cc: vitor <vitor.soares@synopsys.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>
+To: Vitor Soares <vitor.soares@synopsys.com>
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, gregkh@linuxfoundation.org, arnd@arndb.de, psroka@cadence.com, agolec@cadence.com, adouglas@cadence.com, bfolta@cadence.com, dkos@cadence.com, alicja@cadence.com, cwronka@cadence.com, sureshp@cadence.com, rafalc@cadence.com, thomas.petazzoni@bootlin.com, nm@ti.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, geert@linux-m68k.org, linus.walleij@linaro.org, Xiang.Lin@synaptics.com, linux-gpio@vger.kernel.org, nsekhar@ti.com, pgaj@cadence.com, peda@axentia.se, mshettel@codeaurora.org, swboyd@chromium.org, joao.pinto@synopsys.com
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, 13 Nov 2018 14:09:50 +0000
+Vitor Soares <vitor.soares@synopsys.com> wrote:
 
---vCQF5Fh1eN3mBuH/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> This patch series is a proposal for the I3C master driver for Synopsys IP.
+> This patch is to be applied on top of I3C subsystem RFC V10 submitted by
+> Boris Brezillon.
+> 
+> Supported features:
+>   Regular CCC commands.
+>   I3C private transfers.
+>   I2C transfers.
+> 
+> Missing functionalities:
+>   Support DMA interface.
+>   Support for I3C_BUS_MODE_MIXED_SLOW.
+>   Hot-join.
+>   IBI.
 
-On Thu, Nov 15, 2018 at 01:57:31PM +0100, Boris Brezillon wrote:
+Patchset queued to i3c/next.
 
-> What we could do though, is expose I3C devices that do not have a
-> driver in kernel space, like spidev does.
+Thanks,
 
-Yes, this is much safer and more robust especially if the bus has
-enumeration requirements like you're saying it does.  It's much easier
-and more sensible to do this if the bus can be enumerated than it is
-with SPI, USB would be a good example here I guess (though I've never
-looked at the details of how USB does this on the implementation side=20
-so this may be me speaking in blissful ignorance).
+Boris
 
-I do agree that there will be use cases that turn up for this.
-
---vCQF5Fh1eN3mBuH/
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlvtxCcACgkQJNaLcl1U
-h9Cwqgf9FzaFIpuw5W1ZNyAo/CrKG9CG7oGaFJL30zMrjp4pW4+47CHwCNFgWYa8
-934xtfIiTiMP+TJgyRu9HkkW1/FnQQbjPUFG1sDZxDUJIrAyRpJNySUqr9gIbW0V
-d/ghzX8St9zFvrvzm7aILWbwC35lbjpSFIb2pXhtril67M5ZbWBNlRONJIAXePLR
-4uPM5hr202hXDVw3EJOHb5M/q+SneMMei60TIMep9qYBI/zSGHIcUUEc/nDkgU3p
-gLkitVuEv1M3Imj+KmB+dnVFP5GGijN5yq5zcuKMpBoxPgt9TBpelkpFTO1ncelW
-1GZMkdv9qBVLAmGo7gaP5scgYnFr/w==
-=HYvt
------END PGP SIGNATURE-----
-
---vCQF5Fh1eN3mBuH/--
+> 
+> Main change between v3 and v4:
+> - Minor fixes. They are described in each patch
+> 
+> Main change between v2 and v3:
+> - Minor fixes. They are described in each patch
+> 
+> Main change between v1 and v2:
+> - Add controller version on dt-binding
+> - The driver now calls writesl/readsl() instead readl/writel
+> - Rename some variables in the driver
+> 
+> Vitor Soares (3):
+>   i3c: master: Add driver for Synopsys DesignWare IP
+>   dt-binding: i3c: Document Synopsys DesignWare I3C
+>   MAINTAINERS: Add myself as the dw-i3c-master module maintainer
+> 
+>  .../devicetree/bindings/i3c/snps,dw-i3c-master.txt |   41 +
+>  MAINTAINERS                                        |    6 +
+>  drivers/i3c/master/Kconfig                         |   14 +
+>  drivers/i3c/master/Makefile                        |    1 +
+>  drivers/i3c/master/dw-i3c-master.c                 | 1216 ++++++++++++++++++++
+>  5 files changed, 1278 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i3c/snps,dw-i3c-master.txt
+>  create mode 100644 drivers/i3c/master/dw-i3c-master.c
+> 
