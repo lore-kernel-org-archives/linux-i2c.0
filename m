@@ -1,67 +1,56 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v3] drm/bridge/sii902x: Fix EDID readback
-Date: Thu, 15 Nov 2018 17:54:44 +0100
-Message-ID: <20181115175444.3d0fce9c@bbrezillon>
-References: <1541505156-8097-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <CACRpkda+YcxCOQeSo=2Jk5S2b4Sa7WcROeaJitzgPcBzM1qBrA@mail.gmail.com>
- <20181115111611.783e5c42@bbrezillon>
- <TY1PR01MB1770CD25E936A7DE3421E61DC0DC0@TY1PR01MB1770.jpnprd01.prod.outlook.com>
+From: vitor <vitor.soares@synopsys.com>
+Subject: Re: [PATCH v10 0/9] Add the I3C subsystem
+Date: Thu, 15 Nov 2018 18:03:47 +0000
+Message-ID: <1d64f21a-ad24-94e0-2c17-25729ef59a31@synopsys.com>
+References: <20181026144333.12276-1-boris.brezillon@bootlin.com>
+ <76b1d15d-232c-d8ba-5eba-8394e71be725@synopsys.com>
+ <20181115135731.25f60990@bbrezillon> <20181115150137.GB4169@kunai>
+ <20181115162826.42b54776@bbrezillon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <TY1PR01MB1770CD25E936A7DE3421E61DC0DC0@TY1PR01MB1770.jpnprd01.prod.outlook.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>, Simon Horman <horms@verge.net.au>, Wolfram Sang <wsa@the-dreams.de>, Dave Airlie <airlied@linux.ie>, Boris BREZILLON <boris.brezillon@free-electrons.com>, Chris Paterson <Chris.Paterson2@renesas.com>, "open list:DRM PANEL DRIVERS" <dri-devel@lists.freedesktop.org>, Biju Das <biju.das@bp.renesas.com>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, Peter Rosin <peda@axentia.se>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181115162826.42b54776@bbrezillon>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: vitor <vitor.soares@synopsys.com>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicet>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gVGh1LCAxNSBOb3YgMjAxOCAxMTozOTozMCArMDAwMApGYWJyaXppbyBDYXN0cm8gPGZhYnJp
-emlvLmNhc3Ryb0BicC5yZW5lc2FzLmNvbT4gd3JvdGU6Cgo+IEhlbGxvIEJvcmlzLAo+IAo+ID4g
-RnJvbTogQm9yaXMgQnJlemlsbG9uIDxib3Jpcy5icmV6aWxsb25AYm9vdGxpbi5jb20+Cj4gPiBT
-ZW50OiAxNSBOb3ZlbWJlciAyMDE4IDEwOjE2Cj4gPiBTdWJqZWN0OiBSZTogW1BBVENIIHYzXSBk
-cm0vYnJpZGdlL3NpaTkwMng6IEZpeCBFRElEIHJlYWRiYWNrCj4gPgo+ID4gT24gVGh1LCAxNSBO
-b3YgMjAxOCAxMToxMzo1MiArMDEwMAo+ID4gTGludXMgV2FsbGVpaiA8bGludXMud2FsbGVpakBs
-aW5hcm8ub3JnPiB3cm90ZToKPiA+ICAKPiA+ID4gT24gVHVlLCBOb3YgNiwgMjAxOCBhdCAxMjo1
-MiBQTSBGYWJyaXppbyBDYXN0cm8KPiA+ID4gPGZhYnJpemlvLmNhc3Ryb0BicC5yZW5lc2FzLmNv
-bT4gd3JvdGU6Cj4gPiA+ICAKPiA+ID4gPiBXaGlsZSBhZGRpbmcgU2lJOTAyMkEgc3VwcG9ydCB0
-byB0aGUgaXdnMjNzIGJvYXJkLCBpdCBjYW1lCj4gPiA+ID4gdXAgdGhhdCB3aGVuIHRoZSBIRE1J
-IHRyYW5zbWl0dGVyIGlzIGluIHBhc3MgdGhyb3VnaCBtb2RlIHRoZQo+ID4gPiA+IGRldmljZSBp
-cyBub3QgY29tcGxpYW50IHdpdGggdGhlIEkyQyBzcGVjaWZpY2F0aW9uIGFueW1vcmUsCj4gPiA+
-ID4gYXMgaXQgcmVxdWlyZXMgYSBmYXIgYmlnZ2VyIHRidWYsIGR1ZSB0byBhIGRlbGF5IHRoZSBI
-RE1JCj4gPiA+ID4gdHJhbnNtaXR0ZXIgaXMgYWRkaW5nIHdoZW4gcmVsYXlpbmcgdGhlIFNUT1Ag
-Y29uZGl0aW9uIG9uIHRoZQo+ID4gPiA+IG1vbml0b3IgaTJjIHNpZGUgb2YgdGhpbmdzLgo+ID4g
-PiA+Cj4gPiA+ID4gV2hlbiBub3QgcHJvdmlkaW5nIGFuIGFwcHJvcHJpYXRlIGRlbGF5IGFmdGVy
-IHRoZSBTVE9QIGNvbmRpdGlvbgo+ID4gPiA+IHRoZSBpMmMgYnVzIHdvdWxkIGdldCBzdHVjay4g
-QWxzbywgYW55IG90aGVyIHRyYWZmaWMgb24gdGhlIGJ1cwo+ID4gPiA+IHdoaWxlIHRhbGtpbmcg
-dG8gdGhlIG1vbml0b3IgbWF5IGNhdXNlIHRoZSB0cmFuc2FjdGlvbiB0byBmYWlsCj4gPiA+ID4g
-b3IgZXZlbiBjYXVzZSBpc3N1ZXMgd2l0aCB0aGUgaTJjIGJ1cyBhcyB3ZWxsLgo+ID4gPiA+Cj4g
-PiA+ID4gSTJjLWdhdGVzIHNlZW1lZCB0byByZWFjaCBjb25zZW50IGFzIGEgcG9zc2libGUgd2F5
-IHRvIGFkZHJlc3MKPiA+ID4gPiB0aGVzZSBpc3N1ZXMsIGFuZCBhcyBzdWNoIHRoaXMgcGF0Y2gg
-aXMgaW1wbGVtZW50aW5nIGEgc29sdXRpb24KPiA+ID4gPiBiYXNlZCBvbiB0aGF0LiBTaW5jZSBv
-dGhlcnMgYXJlIGNsZWFybHkgcmVseWluZyBvbiB0aGUgY3VycmVudAo+ID4gPiA+IGltcGxlbWVu
-dGF0aW9uIG9mIHRoZSBkcml2ZXIsIHRoaXMgcGF0Y2ggd29uJ3QgcmVxdWlyZSBhbnkgRFQKPiA+
-ID4gPiBjaGFuZ2VzLgo+ID4gPiA+Cj4gPiA+ID4gU2luY2Ugd2UgZG9uJ3Qgd2FudCBhbnkgaW50
-ZXJmZXJlbmNlIGR1cmluZyB0aGUgRERDIEJ1cwo+ID4gPiA+IFJlcXVlc3QvR3JhbnQgcHJvY2Vk
-dXJlIGFuZCB3aGlsZSB0YWxraW5nIHRvIHRoZSBtb25pdG9yLCB3ZQo+ID4gPiA+IGhhdmUgdG8g
-dXNlIHRoZSBhZGFwdGVyIGxvY2tpbmcgcHJpbWl0aXZlcyByYXRoZXIgdGhhbiB0aGUKPiA+ID4g
-PiBpMmMtbXV4IGxvY2tpbmcgcHJpbWl0aXZlcy4KPiA+ID4gPgo+ID4gPiA+IFNpZ25lZC1vZmYt
-Ynk6IEZhYnJpemlvIENhc3RybyA8ZmFicml6aW8uY2FzdHJvQGJwLnJlbmVzYXMuY29tPgo+ID4g
-PiA+Cj4gPiA+ID4gLS0tCj4gPiA+ID4gdjItPnYzOgo+ID4gPiA+ICogSW5jb3Jwb3JhdGVkIGNv
-bW1lbnRzIGZyb20gQm9yaXMgQnJlemlsbG9uIGFuZCBQZXRlciBSb3NpbiAgCj4gPiA+Cj4gPiA+
-IEFja2VkLWJ5OiBMaW51cyBXYWxsZWlqIDxsaW51cy53YWxsZWlqQGxpbmFyby5vcmc+Cj4gPiA+
-Cj4gPiA+IERvIHlvdSBuZWVkIGhlbHAgdG8gYXBwbHkgdGhpcyB0byBkcm0tbWlzYyBvciBkbyB5
-b3UKPiA+ID4gaGF2ZSBjb21taXQgYWNjZXNzPyAgCj4gPgo+ID4gSSBjYW4gZG8gaXQgaWYgbmVl
-ZGVkLiAgCj4gCj4gWWVzLCBwbGVhc2UsIHlvdXIgaGVscCBpcyB2ZXJ5IG11Y2ggYXBwcmVjaWF0
-ZWQuCgpRdWV1ZWQgdG8gZHJtLW1pc2MtbmV4dC4KClRoYW5rcywKCkJvcmlzCl9fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxp
-c3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNr
-dG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1kZXZlbAo=
+Hi Boris,
+
+
+On 15/11/18 15:28, Boris Brezillon wrote:
+> On Thu, 15 Nov 2018 16:01:37 +0100
+> Wolfram Sang <wsa@the-dreams.de> wrote:
+>
+>> Hi Boris,
+>>
+>>> What we could do though, is expose I3C devices that do not have a
+>>> driver in kernel space, like spidev does.
+>> ...
+>>
+>>> Mark, Wolfram, Arnd, Greg, any opinion?
+>> Is there a benefit for having drivers in userspace? My gut feeling is to
+>> encourage people to write kernel drivers. If this is, for some reason,
+>> not possible for some driver, then we have a use case at hand to test
+>> the then-to-be-developed userspace interface against. Until then, I
+>> personally wouldn't waste effort on designing it without a user in
+>> sight.
+> I kind of agree with that. Vitor, do you have a use case in mind for
+> such userspace drivers? I don't think it's worth designing an API for
+> something we don't need (yet).
+
+My use case is a tool for tests, lets say like the i2c tools. There is 
+other subsystems, some of them mentioned on this thread, that have and 
+ioctl system call or other method to change parameters or send data.
+
+
+I rise this topic because I really think it worth to define now how this 
+should be design (and for me how to do the things right) to avoid future 
+issues.
+
+
+Best regards,
+
+Vitor Soares
