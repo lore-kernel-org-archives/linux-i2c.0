@@ -1,63 +1,79 @@
-From: <Andrei.Stefanescu@microchip.com>
-Subject: Re: [PATCH] i2c: at91: switched to resume/suspend callbacks.
-Date: Thu, 15 Nov 2018 14:18:28 +0000
-Message-ID: <e5210bfd-0ce6-0a15-299f-32e04521667d@microchip.com>
-References: <1540203006-805-1-git-send-email-andrei.stefanescu@microchip.com>
- <20181107083928.vqgnpw3mmczjn4el@M43218.corp.atmel.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v10 0/9] Add the I3C subsystem
+Date: Thu, 15 Nov 2018 06:25:54 -0800
+Message-ID: <CAK8P3a0gmCtMac7ctKZ3r=2Dxo03pYvuXkQ7c4Vnt9yMoLDMSQ@mail.gmail.com>
+References: <20181026144333.12276-1-boris.brezillon@bootlin.com>
+ <76b1d15d-232c-d8ba-5eba-8394e71be725@synopsys.com> <20181115135731.25f60990@bbrezillon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181107083928.vqgnpw3mmczjn4el@M43218.corp.atmel.com>
-Content-Language: en-US
-Content-ID: <FA9B339F548A8E4C8925C1E64D198771@namprd11.prod.outlook.com>
+In-Reply-To: <20181115135731.25f60990@bbrezillon>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, Nicolas.Ferre@microchip.com, Ludovic.Desroches@microchip.com, alexandre.belloni@bootlin.com, Cristian.Birsan@microchip.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: Vitor Soares <vitor.soares@synopsys.com>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, gregkh <gregkh@linuxfoundation.org>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland>
 List-Id: linux-i2c@vger.kernel.org
 
-SGVsbG8gV29sZnJhbSwNCg0KQ291bGQgeW91IHBsZWFzZSB0ZWxsIG1lIGlmIHRoZXJlIGFyZSBh
-bnkgY2hhbmdlcyB0aGF0IEkgc2hvdWxkIG1ha2UNCnRvIHRoZSBwYXRjaD8NCg0KVGhhbmsgeW91
-LA0KQW5kcmVpIFN0ZWZhbmVzY3UNCg0KT24gMDcuMTEuMjAxOCAxMDozOSwgTHVkb3ZpYyBEZXNy
-b2NoZXMgd3JvdGU6DQo+IE9uIE1vbiwgT2N0IDIyLCAyMDE4IGF0IDEyOjE3OjQ3UE0gKzAyMDAs
-IEFuZHJlaSBTdGVmYW5lc2N1IC0gTTUwNTA2IHdyb3RlOg0KPj4gSW4gdGhlIHByZXZpb3VzIHZl
-cnNpb24gb2YgdGhlIGRyaXZlciByZXN1bWUvc3VzcGVuZF9ub2lycSBjYWxsYmFja3MNCj4+IHdl
-cmUgdXNlZC4gQmVjYXVzZSBvZiB0aGlzLCB3aGVuIHJlc3VtaW5nIGZyb20gc3VzcGVuZC10by1y
-YW0sDQo+PiBhbiBJMkMgKGJlbG9uZ2luZyB0byBhIEZMRVhDT00pIHdvdWxkIHJlc3VtZSBiZWZv
-cmUgRkxFWENPTS4NCj4+IFRoZSBmaXJzdCByZWFkIG9uIHRoZSBJMkMgYnVzIHdvdWxkIHRoZW4g
-cmVzdWx0IGluIGEgdGltZW91dC4NCj4+DQo+PiBUaGlzIHBhdGNoIHN3aXRjaGVzIHRvIHJlc3Vt
-ZS9zdXNwZW5kIGNhbGxiYWNrcyB3aGljaCBhcmUNCj4+IGNhbGxlZCBhZnRlciBGTEVYQ09NIHJl
-c3VtZXMuIEZMRVhDT00sIFNQSSBhbmQgVVNBUlQgZHJpdmVycyB1c2UNCj4+IHJlc3VtZS9zdXNw
-ZW5kIGNhbGxiYWNrcy4NCj4+DQo+PiBTaWduZWQtb2ZmLWJ5OiBBbmRyZWkgU3RlZmFuZXNjdSA8
-YW5kcmVpLnN0ZWZhbmVzY3VAbWljcm9jaGlwLmNvbT4NCj4gSSBjYW4ndCBmaWd1cmUgb3V0IHdo
-eSB3ZSB1c2UgdGhlIF9ub2lycSB2YXJpYW50LiBXaGVuIHBhdGNoZXMgZm9yIFBNDQo+IHN0dWZm
-IHdlcmUgc2VudCwgc3VzcGVuZC9yZXN1bWUgY2FsbGJhY2tzIHdlcmUgdXNlZCBidXQgaW4gdGhl
-IGxhdGVzdA0KPiB2ZXJzaW9uIGl0IG1vdmVkIHRvIHRoZSBfbm9pcnEgdmFyaWFudCB3aXRob3V0
-IGV4cGxhbmF0aW9uLg0KPg0KPiBFeGNlcHRpbmcgaWYgc29tZW9uZSBoYXMgYW4gYXJndW1lbnQg
-dG8ga2VlcCB0aGUgX25vaXJxIHZhcmlhbnQsDQo+IEFja2VkLWJ5OiBMdWRvdmljIERlc3JvY2hl
-cyA8bHVkb3ZpYy5kZXNyb2NoZXNAbWljcm9jaGlwLmNvbT4NCj4NCj4gVGhhbmtzDQo+DQo+IFJl
-Z2FyZHMNCj4NCj4gTHVkb3ZpYw0KPg0KPj4gLS0tDQo+PiAgIGRyaXZlcnMvaTJjL2J1c3Nlcy9p
-MmMtYXQ5MS5jIHwgOCArKysrLS0tLQ0KPj4gICAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRpb25z
-KCspLCA0IGRlbGV0aW9ucygtKQ0KPj4NCj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNz
-ZXMvaTJjLWF0OTEuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS5jDQo+PiBpbmRleCBi
-ZmQxZmRmLi44MWY3Yjk0IDEwMDY0NA0KPj4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1h
-dDkxLmMNCj4+ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS5jDQo+PiBAQCAtMTE3
-NCw3ICsxMTc0LDcgQEAgc3RhdGljIGludCBhdDkxX3R3aV9ydW50aW1lX3Jlc3VtZShzdHJ1Y3Qg
-ZGV2aWNlICpkZXYpDQo+PiAgIAlyZXR1cm4gY2xrX3ByZXBhcmVfZW5hYmxlKHR3aV9kZXYtPmNs
-ayk7DQo+PiAgIH0NCj4+ICAgDQo+PiAtc3RhdGljIGludCBhdDkxX3R3aV9zdXNwZW5kX25vaXJx
-KHN0cnVjdCBkZXZpY2UgKmRldikNCj4+ICtzdGF0aWMgaW50IGF0OTFfdHdpX3N1c3BlbmQoc3Ry
-dWN0IGRldmljZSAqZGV2KQ0KPj4gICB7DQo+PiAgIAlpZiAoIXBtX3J1bnRpbWVfc3RhdHVzX3N1
-c3BlbmRlZChkZXYpKQ0KPj4gICAJCWF0OTFfdHdpX3J1bnRpbWVfc3VzcGVuZChkZXYpOw0KPj4g
-QEAgLTExODIsNyArMTE4Miw3IEBAIHN0YXRpYyBpbnQgYXQ5MV90d2lfc3VzcGVuZF9ub2lycShz
-dHJ1Y3QgZGV2aWNlICpkZXYpDQo+PiAgIAlyZXR1cm4gMDsNCj4+ICAgfQ0KPj4gICANCj4+IC1z
-dGF0aWMgaW50IGF0OTFfdHdpX3Jlc3VtZV9ub2lycShzdHJ1Y3QgZGV2aWNlICpkZXYpDQo+PiAr
-c3RhdGljIGludCBhdDkxX3R3aV9yZXN1bWUoc3RydWN0IGRldmljZSAqZGV2KQ0KPj4gICB7DQo+
-PiAgIAlzdHJ1Y3QgYXQ5MV90d2lfZGV2ICp0d2lfZGV2ID0gZGV2X2dldF9kcnZkYXRhKGRldik7
-DQo+PiAgIAlpbnQgcmV0Ow0KPj4gQEAgLTEyMDIsOCArMTIwMiw4IEBAIHN0YXRpYyBpbnQgYXQ5
-MV90d2lfcmVzdW1lX25vaXJxKHN0cnVjdCBkZXZpY2UgKmRldikNCj4+ICAgfQ0KPj4gICANCj4+
-ICAgc3RhdGljIGNvbnN0IHN0cnVjdCBkZXZfcG1fb3BzIGF0OTFfdHdpX3BtID0gew0KPj4gLQku
-c3VzcGVuZF9ub2lycQk9IGF0OTFfdHdpX3N1c3BlbmRfbm9pcnEsDQo+PiAtCS5yZXN1bWVfbm9p
-cnEJPSBhdDkxX3R3aV9yZXN1bWVfbm9pcnEsDQo+PiArCS5zdXNwZW5kCT0gYXQ5MV90d2lfc3Vz
-cGVuZCwNCj4+ICsJLnJlc3VtZQkJPSBhdDkxX3R3aV9yZXN1bWUsDQo+PiAgIAkucnVudGltZV9z
-dXNwZW5kCT0gYXQ5MV90d2lfcnVudGltZV9zdXNwZW5kLA0KPj4gICAJLnJ1bnRpbWVfcmVzdW1l
-CQk9IGF0OTFfdHdpX3J1bnRpbWVfcmVzdW1lLA0KPj4gICB9Ow0KPj4gLS0gDQo+PiAyLjcuNA0K
-Pj4NCg==
+On Thu, Nov 15, 2018 at 4:58 AM Boris Brezillon
+<boris.brezillon@bootlin.com> wrote:
+> +Mark Brown for the question about /dev/spidev
+> On Thu, 15 Nov 2018 12:14:37 +0000
+> vitor <vitor.soares@synopsys.com> wrote:
+> > My initial thoughts are to do the same think as for i2c, expose the
+> > buses or the i3c_devices and use ioctl for private transfers.
+>
+> Exposing the bus is dangerous IMO, because an I3C bus is not like an
+> I2C bus:
+>
+>    * I3C device needs to be discovered through DAA
+>    * I2C devices need to be declared ahead of time, and LVR is used to
+>      determine the limitations on the bus at runtime
+>
+> So you'd anyway be able to interact only with devices that have
+> previously been discovered.
+>
+> Note that the virtual I2C bus is already exposed, but any command
+> targeting an address that is not attached to a registered I2C dev will
+> get a -ENOENT error.
+>
+> What we could do though, is expose I3C devices that do not have a
+> driver in kernel space, like spidev does.
+>
+> > Some
+> > direct CCC commands can be sent through the /sys as you plan for SETNEWDA .
+>
+> Yes, CCC commands that need to be exposed to userspace should be
+> exposed through sysfs, or, if we decide to create a /dev/i3cX device
+> per bus, through ioctls.
+>
+> >
+> > What do you think about this?
+>
+> I think this request is perfectly valid, we just need to decide how it
+> should be done, and before we take this decision, I'd like to get
+> inputs from other maintainers.
+>
+> Mark, Wolfram, Arnd, Greg, any opinion?
+
+I think for a new user space interface, it makes sense to explore a number of
+different options before making the final decision.
+
+I agree about better not exposing the bus as a /dev/i3c* node, and that we
+probably do need to expose individual devices in some form to allow
+writing complete user space drivers that can do everything a kernel driver
+can do.
+
+Can you describe what a low-level interface to the device looks like
+in the kernel? Can this be abstracted as simply pread()/pwrite() plus
+an interrupt mechanism, or do we need a set of ioctl() operations as
+well?
+
+If it can be purely based on a regmap abstraction, a sysfs inteface
+might be sufficient, though that has some downsides with permission
+management compared to a /dev/* node.
+
+Another option might be the use of a socket interface, which also
+has some issues in terms of permission management, but might
+be a good fit if we could abstract bus transactions as packets that
+can be queued.
+
+       Arnd
