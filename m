@@ -1,106 +1,70 @@
-From: Parthiban Nallathambi <pn@denx.de>
-Subject: Re: [PATCH] arm64: dts: actions: s700: Add I2C controller nodes
-Date: Thu, 15 Nov 2018 13:51:59 +0100
-Message-ID: <f3364954-d1af-af41-2619-449b401140b8@denx.de>
-References: <20181113133235.37754-1-pn@denx.de>
- <20181115111217.GC15537@Mani-XPS-13-9360>
+From: Boris Brezillon <boris.brezillon@bootlin.com>
+Subject: Re: [PATCH v10 0/9] Add the I3C subsystem
+Date: Thu, 15 Nov 2018 13:57:31 +0100
+Message-ID: <20181115135731.25f60990@bbrezillon>
+References: <20181026144333.12276-1-boris.brezillon@bootlin.com>
+        <76b1d15d-232c-d8ba-5eba-8394e71be725@synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181115111217.GC15537@Mani-XPS-13-9360>
-Content-Language: en-US
+In-Reply-To: <76b1d15d-232c-d8ba-5eba-8394e71be725@synopsys.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Cc: pn@denx.de, afaerber@suse.de, robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: vitor <vitor.soares@synopsys.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hel>
 List-Id: linux-i2c@vger.kernel.org
 
++Mark Brown for the question about /dev/spidev
 
+Hi Vitor,
 
-On 11/15/18 12:12 PM, Manivannan Sadhasivam wrote:
-> Hi Parthiban,
+On Thu, 15 Nov 2018 12:14:37 +0000
+vitor <vitor.soares@synopsys.com> wrote:
+
+> Hi Boris,
 > 
-> On Tue, Nov 13, 2018 at 02:32:35PM +0100, Parthiban Nallathambi wrote:
->> Add I2C controller nodes for Actions Semiconductor S700 SoC.
->>
->> Signed-off-by: Parthiban Nallathambi <pn@denx.de>
->> ---
->>   arch/arm64/boot/dts/actions/s700.dtsi | 40 +++++++++++++++++++++++++++
->>   1 file changed, 40 insertions(+)
->>
->> diff --git a/arch/arm64/boot/dts/actions/s700.dtsi b/arch/arm64/boot/dts/actions/s700.dtsi
->> index 192c7b39c8c1..573c844d7afe 100644
->> --- a/arch/arm64/boot/dts/actions/s700.dtsi
->> +++ b/arch/arm64/boot/dts/actions/s700.dtsi
->> @@ -174,6 +174,46 @@
->>   			#clock-cells = <1>;
->>   		};
->>   
->> +		i2c0: i2c@e0170000 {
->> +			compatible = "actions,s900-i2c";
-> 
-> Why don't you add a compatible for S700? Also, please add the pinctrl
-> nodes for these busses and enable the ones exposed on board. These could
-> go in a separate patch.
+> Given the current state of the subsystem I think it might worth start to 
+> think how to expose the devices under /dev.
 
-Makes sense as pinctrl is already fine. Will do in v2 as series!
+Thanks for starting this discussion. I'm not against the idea in
+general, we just need to be careful when doing that.
 
-Thanks,
-Parthi
-> 
-> Thanks,
-> Mani
-> 
->> +			reg = <0 0xe0170000 0 0x1000>;
->> +			clocks = <&cmu CLK_I2C0>;
->> +			interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
->> +			#address-cells = <1>;
->> +			#size-cells = <0>;
->> +			status = "disabled";
->> +		};
->> +
->> +		i2c1: i2c@e0174000 {
->> +			compatible = "actions,s900-i2c";
->> +			reg = <0 0xe0174000 0 0x1000>;
->> +			clocks = <&cmu CLK_I2C1>;
->> +			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
->> +			#address-cells = <1>;
->> +			#size-cells = <0>;
->> +			status = "disabled";
->> +		};
->> +
->> +		i2c2: i2c@e0178000 {
->> +			compatible = "actions,s900-i2c";
->> +			reg = <0 0xe0178000 0 0x1000>;
->> +			clocks = <&cmu CLK_I2C2>;
->> +			interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
->> +			#address-cells = <1>;
->> +			#size-cells = <0>;
->> +			status = "disabled";
->> +		};
->> +
->> +		i2c3: i2c@e017c000 {
->> +			compatible = "actions,s900-i2c";
->> +			reg = <0 0xe017c000 0 0x1000>;
->> +			clocks = <&cmu CLK_I2C3>;
->> +			interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
->> +			#address-cells = <1>;
->> +			#size-cells = <0>;
->> +			status = "disabled";
->> +		};
->> +
->>   		sps: power-controller@e01b0100 {
->>   			compatible = "actions,s700-sps";
->>   			reg = <0x0 0xe01b0100 0x0 0x100>;
->> -- 
->> 2.17.2
->>
-> 
+> My initial thoughts are to do the same think as for i2c, expose the 
+> buses or the i3c_devices and use ioctl for private transfers.
 
--- 
-Thanks,
-Parthiban N
+Exposing the bus is dangerous IMO, because an I3C bus is not like an
+I2C bus:
 
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-Phone: (+49)-8142-66989-22 Fax: (+49)-8142-66989-80 Email: pn@denx.de
+   * I3C device needs to be discovered through DAA
+   * I2C devices need to be declared ahead of time, and LVR is used to
+     determine the limitations on the bus at runtime
+
+So you'd anyway be able to interact only with devices that have
+previously been discovered.
+
+Note that the virtual I2C bus is already exposed, but any command
+targeting an address that is not attached to a registered I2C dev will
+get a -ENOENT error.
+
+What we could do though, is expose I3C devices that do not have a
+driver in kernel space, like spidev does.
+
+> Some 
+> direct CCC commands can be sent through the /sys as you plan for SETNEWDA .
+
+Yes, CCC commands that need to be exposed to userspace should be
+exposed through sysfs, or, if we decide to create a /dev/i3cX device
+per bus, through ioctls.
+
+> 
+> What do you think about this?
+
+I think this request is perfectly valid, we just need to decide how it
+should be done, and before we take this decision, I'd like to get
+inputs from other maintainers.
+
+Mark, Wolfram, Arnd, Greg, any opinion?
+
+Regards,
+
+Boris
