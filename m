@@ -1,119 +1,186 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v10 0/9] Add the I3C subsystem
-Date: Fri, 16 Nov 2018 14:16:39 +0100
-Message-ID: <20181116141639.31074113@bbrezillon>
-References: <20181026144333.12276-1-boris.brezillon@bootlin.com>
-        <76b1d15d-232c-d8ba-5eba-8394e71be725@synopsys.com>
-        <20181115135731.25f60990@bbrezillon>
-        <20181115150137.GB4169@kunai>
-        <20181115162826.42b54776@bbrezillon>
-        <1d64f21a-ad24-94e0-2c17-25729ef59a31@synopsys.com>
-        <20181115200058.1869afdb@bbrezillon>
-        <5f946406-a205-3802-aefd-ebd8b5a72b0b@synopsys.com>
+From: "Adamski, Krzysztof (Nokia - PL/Wroclaw)"
+        <krzysztof.adamski@nokia.com>
+Subject: [PATCH] i2c-axxia: properly handle master timeout
+Date: Fri, 16 Nov 2018 13:24:41 +0000
+Message-ID: <20181116132334.GA3951@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5f946406-a205-3802-aefd-ebd8b5a72b0b@synopsys.com>
+Content-Language: en-US
+Content-ID: <0534958739C2E047B36637E20B8B91AC@eurprd07.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: vitor <vitor.soares@synopsys.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetr>
+To: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Guenter Roeck <linux@roeck-us.net>, "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>, Tobias Jordan <Tobias.Jordan@elektrobit.com>, Peter Rosin <peda@axentia.se>, Anders Berg <anders.berg@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 16 Nov 2018 12:31:42 +0000
-vitor <vitor.soares@synopsys.com> wrote:
+According to Intel (R) Axxia TM Lionfish Communication Processor
+Peripheral Subsystem Hardware Reference Manual, the AXXIA I2C module
+have a programmable Master Wait Timer, which among others, checks the
+time between commands send in manual mode. When a timeout (25ms) passes,
+TSS bit is set in Master Interrupt Status register and a Stop command is
+issued by the hardware.
 
-> Hi Boris,
-> 
-> 
-> On 15/11/18 19:00, Boris Brezillon wrote:
-> > On Thu, 15 Nov 2018 18:03:47 +0000
-> > vitor <vitor.soares@synopsys.com> wrote:
-> >  
-> >> Hi Boris,
-> >>
-> >>
-> >> On 15/11/18 15:28, Boris Brezillon wrote:  
-> >>> On Thu, 15 Nov 2018 16:01:37 +0100
-> >>> Wolfram Sang <wsa@the-dreams.de> wrote:
-> >>>     
-> >>>> Hi Boris,
-> >>>>     
-> >>>>> What we could do though, is expose I3C devices that do not have a
-> >>>>> driver in kernel space, like spidev does.  
-> >>>> ...
-> >>>>     
-> >>>>> Mark, Wolfram, Arnd, Greg, any opinion?  
-> >>>> Is there a benefit for having drivers in userspace? My gut feeling is to
-> >>>> encourage people to write kernel drivers. If this is, for some reason,
-> >>>> not possible for some driver, then we have a use case at hand to test
-> >>>> the then-to-be-developed userspace interface against. Until then, I
-> >>>> personally wouldn't waste effort on designing it without a user in
-> >>>> sight.  
-> >>> I kind of agree with that. Vitor, do you have a use case in mind for
-> >>> such userspace drivers? I don't think it's worth designing an API for
-> >>> something we don't need (yet).  
-> >> My use case is a tool for tests, lets say like the i2c tools.  
-> > What would you like to test exactly?
-> >  
-> >> There is
-> >> other subsystems, some of them mentioned on this thread, that have and
-> >> ioctl system call or other method to change parameters or send data.  
-> > I don't think they added the /dev interface before having a real use
-> > case for it.
-> >  
-> >>
-> >> I rise this topic because I really think it worth to define now how this
-> >> should be design (and for me how to do the things right) to avoid future
-> >> issues.  
-> > Actually it should be done the other way around: you should have a real
-> > need and the /dev interface should be designed to fulfill this need.
-> > Based on this real use case we can discuss other potential usage that
-> > might appear in the future and try to design something more
-> > future-proof, but clearly, this userspace interface should be driven by
-> > a real/well-defined use case.
-> >
-> > Also, exposing things to userspace is way more risky than adding a new
-> > in-kernel subsystem/framework, because it then becomes part of the
-> > stable ABI.
-> >
-> > To make things clearer, I'm not against the idea of exposing I3C
-> > devices (or I3C buses) to userspace, but I'd like to understand what you
-> > plan to do with that. If this is about testing, what kind of tests
-> > you'd like to run. If this is about developing drivers in userspace,
-> > why can't these be done in kernel space (license issues?), and what
-> > would those drivers be allowed to do?  
-> 
-> 
-> Basically I need a tool that help me during the development and to avoid 
-> me to write a dummy driver for each device that I test.
+The axxia_i2c_xfer(), does not properly handle this situation, however.
+For each message a separate axxia_i2c_xfer_msg() is called and this
+function incorrectly assumes that any interrupt might happen only when
+waiting for completion. This is mostly correct but there is one
+exception - a master timeout can trigger if enough time has passed
+between individual transfers. It will, by definition, happen between
+transfers when the interrupts are disabled by the code. If that happens,
+the hardware issues Stop command.
 
-But we want I3C device drivers to be upstreamed, so why not developing a
-real driver everytime you test a new device and submitting it upstream?
+The interrupt indicating timeout will not be triggered as soon as we
+enable them since the Master Interrupt Status is cleared when master
+mode is entered again (which happens before enabling irqs) meaning this
+error is lost and the transfer is continued even though the Stop was
+issued on the bus. The subsequent operations completes without error but
+a bogus value (0xFF in case of read) is read as the client device is
+confused because aborted transfer. No error is returned from
+master_xfer() making caller believe that a valid value was read.
 
-> 
-> For instances do some read/write,
+To fix the problem, the TSS bit (indicating timeout) in Master Interrupt
+Status register is checked before each transfer. If it is set, there was
+a timeout before this transfer and (as described above) the hardware
+already issued Stop command so the transaction should be aborted thus
+-ETIMEOUT is returned from the master_xfer() callback. In order to be
+sure no timeout was issued we can't just read the status just before
+starting new transaction as there will always be a small window of time
+(few CPU cycles at best) where this might still happen. For this reason
+we have to temporally disable the timer before checking for TSS bit.
+Disabling it will, however, clear the TSS bit so in order to preserve
+that information, we have to read it in ISR so we have to ensure that
+the TSS interrupt is not masked between transfers of one transaction.
+There is no need to call bus recovery or controller reinitialization if
+that happens so it's skipped.
 
-Doing SDR/DDR transfers is probably acceptable, but I still think we
-should push hard to have kernel drivers when that's possible.
+Signed-off-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
+Reviewed-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+---
+ drivers/i2c/busses/i2c-axxia.c | 40 ++++++++++++++++++++++++----------
+ 1 file changed, 29 insertions(+), 11 deletions(-)
 
-> get/set ccc commands,
-
-Exposing CCC commands is definitely not a good idea, since they're not
-even exposed to kernel drivers.
-
-> if something 
-> goes wrong during the bus initialization have a to debug etc...
-
-Can't we add such a debug infrastructure in the kernel. Maybe we can
-expose debugfs files too if that helps, though if those debugfs files
-are actually used by userspace libs/tools, it's not any better than
-ioctls or sysfs files, since they will anyway become a stable ABI.
-
-> 
-> 
-> For me this is a valid use case and I imagine when people start to 
-> develop in i3c this interface will help everyone.
-
-How about you propose an i3cdev driver that allow users to do SDR
-transfers throuh an ioctl?
+diff --git a/drivers/i2c/busses/i2c-axxia.c b/drivers/i2c/busses/i2c-axxia.=
+c
+index 8e60048a33f8..51d34959709b 100644
+--- a/drivers/i2c/busses/i2c-axxia.c
++++ b/drivers/i2c/busses/i2c-axxia.c
+@@ -74,8 +74,7 @@
+ 				 MST_STATUS_ND)
+ #define   MST_STATUS_ERR	(MST_STATUS_NAK | \
+ 				 MST_STATUS_AL  | \
+-				 MST_STATUS_IP  | \
+-				 MST_STATUS_TSS)
++				 MST_STATUS_IP)
+ #define MST_TX_BYTES_XFRD	0x50
+ #define MST_RX_BYTES_XFRD	0x54
+ #define SCL_HIGH_PERIOD		0x80
+@@ -241,7 +240,7 @@ static int axxia_i2c_empty_rx_fifo(struct axxia_i2c_dev=
+ *idev)
+ 			 */
+ 			if (c <=3D 0 || c > I2C_SMBUS_BLOCK_MAX) {
+ 				idev->msg_err =3D -EPROTO;
+-				i2c_int_disable(idev, ~0);
++				i2c_int_disable(idev, ~MST_STATUS_TSS);
+ 				complete(&idev->msg_complete);
+ 				break;
+ 			}
+@@ -299,14 +298,19 @@ static irqreturn_t axxia_i2c_isr(int irq, void *_dev)
+=20
+ 	if (status & MST_STATUS_SCC) {
+ 		/* Stop completed */
+-		i2c_int_disable(idev, ~0);
++		i2c_int_disable(idev, ~MST_STATUS_TSS);
+ 		complete(&idev->msg_complete);
+ 	} else if (status & MST_STATUS_SNS) {
+ 		/* Transfer done */
+-		i2c_int_disable(idev, ~0);
++		i2c_int_disable(idev, ~MST_STATUS_TSS);
+ 		if (i2c_m_rd(idev->msg) && idev->msg_xfrd < idev->msg->len)
+ 			axxia_i2c_empty_rx_fifo(idev);
+ 		complete(&idev->msg_complete);
++	} else if (status & MST_STATUS_TSS) {
++		/* Transfer timeout */
++		idev->msg_err =3D -ETIMEDOUT;
++		i2c_int_disable(idev, ~MST_STATUS_TSS);
++		complete(&idev->msg_complete);
+ 	} else if (unlikely(status & MST_STATUS_ERR)) {
+ 		/* Transfer error */
+ 		i2c_int_disable(idev, ~0);
+@@ -339,10 +343,10 @@ static int axxia_i2c_xfer_msg(struct axxia_i2c_dev *i=
+dev, struct i2c_msg *msg)
+ 	u32 rx_xfer, tx_xfer;
+ 	u32 addr_1, addr_2;
+ 	unsigned long time_left;
++	unsigned int wt_value;
+=20
+ 	idev->msg =3D msg;
+ 	idev->msg_xfrd =3D 0;
+-	idev->msg_err =3D 0;
+ 	reinit_completion(&idev->msg_complete);
+=20
+ 	if (i2c_m_ten(msg)) {
+@@ -383,9 +387,18 @@ static int axxia_i2c_xfer_msg(struct axxia_i2c_dev *id=
+ev, struct i2c_msg *msg)
+ 	else if (axxia_i2c_fill_tx_fifo(idev) !=3D 0)
+ 		int_mask |=3D MST_STATUS_TFL;
+=20
++	wt_value =3D WT_VALUE(readl(idev->base + WAIT_TIMER_CONTROL));
++	/* Disable wait timer temporarly */
++	writel(wt_value, idev->base + WAIT_TIMER_CONTROL);
++	/* Check if timeout error happened */
++	if (idev->msg_err)
++		goto out;
++
+ 	/* Start manual mode */
+ 	writel(CMD_MANUAL, idev->base + MST_COMMAND);
+=20
++	writel(WT_EN | wt_value, idev->base + WAIT_TIMER_CONTROL);
++
+ 	i2c_int_enable(idev, int_mask);
+=20
+ 	time_left =3D wait_for_completion_timeout(&idev->msg_complete,
+@@ -396,13 +409,15 @@ static int axxia_i2c_xfer_msg(struct axxia_i2c_dev *i=
+dev, struct i2c_msg *msg)
+ 	if (readl(idev->base + MST_COMMAND) & CMD_BUSY)
+ 		dev_warn(idev->dev, "busy after xfer\n");
+=20
+-	if (time_left =3D=3D 0)
++	if (time_left =3D=3D 0) {
+ 		idev->msg_err =3D -ETIMEDOUT;
+-
+-	if (idev->msg_err =3D=3D -ETIMEDOUT)
+ 		i2c_recover_bus(&idev->adapter);
++		axxia_i2c_init(idev);
++	}
+=20
+-	if (unlikely(idev->msg_err) && idev->msg_err !=3D -ENXIO)
++out:
++	if (unlikely(idev->msg_err) && idev->msg_err !=3D -ENXIO &&
++			idev->msg_err !=3D -ETIMEDOUT)
+ 		axxia_i2c_init(idev);
+=20
+ 	return idev->msg_err;
+@@ -410,7 +425,7 @@ static int axxia_i2c_xfer_msg(struct axxia_i2c_dev *ide=
+v, struct i2c_msg *msg)
+=20
+ static int axxia_i2c_stop(struct axxia_i2c_dev *idev)
+ {
+-	u32 int_mask =3D MST_STATUS_ERR | MST_STATUS_SCC;
++	u32 int_mask =3D MST_STATUS_ERR | MST_STATUS_SCC | MST_STATUS_TSS;
+ 	unsigned long time_left;
+=20
+ 	reinit_completion(&idev->msg_complete);
+@@ -437,6 +452,9 @@ axxia_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg=
+ msgs[], int num)
+ 	int i;
+ 	int ret =3D 0;
+=20
++	idev->msg_err =3D 0;
++	i2c_int_enable(idev, MST_STATUS_TSS);
++
+ 	for (i =3D 0; ret =3D=3D 0 && i < num; ++i)
+ 		ret =3D axxia_i2c_xfer_msg(idev, &msgs[i]);
+=20
+--=20
+2.17.2
