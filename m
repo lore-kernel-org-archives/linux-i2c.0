@@ -1,97 +1,89 @@
-From: vitor <vitor.soares@synopsys.com>
+From: Przemyslaw Gaj <pgaj@cadence.com>
 Subject: Re: [PATCH v10 0/9] Add the I3C subsystem
-Date: Fri, 16 Nov 2018 12:31:42 +0000
-Message-ID: <5f946406-a205-3802-aefd-ebd8b5a72b0b@synopsys.com>
+Date: Fri, 16 Nov 2018 12:50:39 +0000
+Message-ID: <8FFB4883-7220-4DC0-B012-5EC89134448E@cadence.com>
 References: <20181026144333.12276-1-boris.brezillon@bootlin.com>
  <76b1d15d-232c-d8ba-5eba-8394e71be725@synopsys.com>
  <20181115135731.25f60990@bbrezillon> <20181115150137.GB4169@kunai>
  <20181115162826.42b54776@bbrezillon>
  <1d64f21a-ad24-94e0-2c17-25729ef59a31@synopsys.com>
  <20181115200058.1869afdb@bbrezillon>
+ <5f946406-a205-3802-aefd-ebd8b5a72b0b@synopsys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181115200058.1869afdb@bbrezillon>
+In-Reply-To: <5f946406-a205-3802-aefd-ebd8b5a72b0b@synopsys.com>
 Content-Language: en-US
+Content-ID: <000C5ABA9CA7694F87E9835B9F20078F@namprd07.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>, vitor <vitor.soares@synopsys.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetr>
+To: vitor <vitor.soares@synopsys.com>, Boris Brezillon <boris.brezillon@bootlin.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Boris,
-
-
-On 15/11/18 19:00, Boris Brezillon wrote:
-> On Thu, 15 Nov 2018 18:03:47 +0000
-> vitor <vitor.soares@synopsys.com> wrote:
->
->> Hi Boris,
->>
->>
->> On 15/11/18 15:28, Boris Brezillon wrote:
->>> On Thu, 15 Nov 2018 16:01:37 +0100
->>> Wolfram Sang <wsa@the-dreams.de> wrote:
->>>   
->>>> Hi Boris,
->>>>   
->>>>> What we could do though, is expose I3C devices that do not have a
->>>>> driver in kernel space, like spidev does.
->>>> ...
->>>>   
->>>>> Mark, Wolfram, Arnd, Greg, any opinion?
->>>> Is there a benefit for having drivers in userspace? My gut feeling is to
->>>> encourage people to write kernel drivers. If this is, for some reason,
->>>> not possible for some driver, then we have a use case at hand to test
->>>> the then-to-be-developed userspace interface against. Until then, I
->>>> personally wouldn't waste effort on designing it without a user in
->>>> sight.
->>> I kind of agree with that. Vitor, do you have a use case in mind for
->>> such userspace drivers? I don't think it's worth designing an API for
->>> something we don't need (yet).
->> My use case is a tool for tests, lets say like the i2c tools.
-> What would you like to test exactly?
->
->> There is
->> other subsystems, some of them mentioned on this thread, that have and
->> ioctl system call or other method to change parameters or send data.
-> I don't think they added the /dev interface before having a real use
-> case for it.
->
->>
->> I rise this topic because I really think it worth to define now how this
->> should be design (and for me how to do the things right) to avoid future
->> issues.
-> Actually it should be done the other way around: you should have a real
-> need and the /dev interface should be designed to fulfill this need.
-> Based on this real use case we can discuss other potential usage that
-> might appear in the future and try to design something more
-> future-proof, but clearly, this userspace interface should be driven by
-> a real/well-defined use case.
->
-> Also, exposing things to userspace is way more risky than adding a new
-> in-kernel subsystem/framework, because it then becomes part of the
-> stable ABI.
->
-> To make things clearer, I'm not against the idea of exposing I3C
-> devices (or I3C buses) to userspace, but I'd like to understand what you
-> plan to do with that. If this is about testing, what kind of tests
-> you'd like to run. If this is about developing drivers in userspace,
-> why can't these be done in kernel space (license issues?), and what
-> would those drivers be allowed to do?
-
-
-Basically I need a tool that help me during the development and to avoid 
-me to write a dummy driver for each device that I test.
-
-For instances do some read/write, get/set ccc commands, if something 
-goes wrong during the bus initialization have a to debug etc...
-
-
-For me this is a valid use case and I imagine when people start to 
-develop in i3c this interface will help everyone.
-
-
-Best regards,
-
-Vitor Soares
+SGkgVml0b3IsDQoNCu+7v09uIDExLzE2LzE4LCAxOjMyIFBNLCAidml0b3IiIDx2aXRvci5zb2Fy
+ZXNAc3lub3BzeXMuY29tPiB3cm90ZToNCg0KICAgIEVYVEVSTkFMIE1BSUwNCiAgICANCiAgICAN
+CiAgICBIaSBCb3JpcywNCiAgICANCiAgICANCiAgICBPbiAxNS8xMS8xOCAxOTowMCwgQm9yaXMg
+QnJlemlsbG9uIHdyb3RlOg0KICAgID4gT24gVGh1LCAxNSBOb3YgMjAxOCAxODowMzo0NyArMDAw
+MA0KICAgID4gdml0b3IgPHZpdG9yLnNvYXJlc0BzeW5vcHN5cy5jb20+IHdyb3RlOg0KICAgID4N
+CiAgICA+PiBIaSBCb3JpcywNCiAgICA+Pg0KICAgID4+DQogICAgPj4gT24gMTUvMTEvMTggMTU6
+MjgsIEJvcmlzIEJyZXppbGxvbiB3cm90ZToNCiAgICA+Pj4gT24gVGh1LCAxNSBOb3YgMjAxOCAx
+NjowMTozNyArMDEwMA0KICAgID4+PiBXb2xmcmFtIFNhbmcgPHdzYUB0aGUtZHJlYW1zLmRlPiB3
+cm90ZToNCiAgICA+Pj4gICANCiAgICA+Pj4+IEhpIEJvcmlzLA0KICAgID4+Pj4gICANCiAgICA+
+Pj4+PiBXaGF0IHdlIGNvdWxkIGRvIHRob3VnaCwgaXMgZXhwb3NlIEkzQyBkZXZpY2VzIHRoYXQg
+ZG8gbm90IGhhdmUgYQ0KICAgID4+Pj4+IGRyaXZlciBpbiBrZXJuZWwgc3BhY2UsIGxpa2Ugc3Bp
+ZGV2IGRvZXMuDQogICAgPj4+PiAuLi4NCiAgICA+Pj4+ICAgDQogICAgPj4+Pj4gTWFyaywgV29s
+ZnJhbSwgQXJuZCwgR3JlZywgYW55IG9waW5pb24/DQogICAgPj4+PiBJcyB0aGVyZSBhIGJlbmVm
+aXQgZm9yIGhhdmluZyBkcml2ZXJzIGluIHVzZXJzcGFjZT8gTXkgZ3V0IGZlZWxpbmcgaXMgdG8N
+CiAgICA+Pj4+IGVuY291cmFnZSBwZW9wbGUgdG8gd3JpdGUga2VybmVsIGRyaXZlcnMuIElmIHRo
+aXMgaXMsIGZvciBzb21lIHJlYXNvbiwNCiAgICA+Pj4+IG5vdCBwb3NzaWJsZSBmb3Igc29tZSBk
+cml2ZXIsIHRoZW4gd2UgaGF2ZSBhIHVzZSBjYXNlIGF0IGhhbmQgdG8gdGVzdA0KICAgID4+Pj4g
+dGhlIHRoZW4tdG8tYmUtZGV2ZWxvcGVkIHVzZXJzcGFjZSBpbnRlcmZhY2UgYWdhaW5zdC4gVW50
+aWwgdGhlbiwgSQ0KICAgID4+Pj4gcGVyc29uYWxseSB3b3VsZG4ndCB3YXN0ZSBlZmZvcnQgb24g
+ZGVzaWduaW5nIGl0IHdpdGhvdXQgYSB1c2VyIGluDQogICAgPj4+PiBzaWdodC4NCiAgICA+Pj4g
+SSBraW5kIG9mIGFncmVlIHdpdGggdGhhdC4gVml0b3IsIGRvIHlvdSBoYXZlIGEgdXNlIGNhc2Ug
+aW4gbWluZCBmb3INCiAgICA+Pj4gc3VjaCB1c2Vyc3BhY2UgZHJpdmVycz8gSSBkb24ndCB0aGlu
+ayBpdCdzIHdvcnRoIGRlc2lnbmluZyBhbiBBUEkgZm9yDQogICAgPj4+IHNvbWV0aGluZyB3ZSBk
+b24ndCBuZWVkICh5ZXQpLg0KICAgID4+IE15IHVzZSBjYXNlIGlzIGEgdG9vbCBmb3IgdGVzdHMs
+IGxldHMgc2F5IGxpa2UgdGhlIGkyYyB0b29scy4NCiAgICA+IFdoYXQgd291bGQgeW91IGxpa2Ug
+dG8gdGVzdCBleGFjdGx5Pw0KICAgID4NCiAgICA+PiBUaGVyZSBpcw0KICAgID4+IG90aGVyIHN1
+YnN5c3RlbXMsIHNvbWUgb2YgdGhlbSBtZW50aW9uZWQgb24gdGhpcyB0aHJlYWQsIHRoYXQgaGF2
+ZSBhbmQNCiAgICA+PiBpb2N0bCBzeXN0ZW0gY2FsbCBvciBvdGhlciBtZXRob2QgdG8gY2hhbmdl
+IHBhcmFtZXRlcnMgb3Igc2VuZCBkYXRhLg0KICAgID4gSSBkb24ndCB0aGluayB0aGV5IGFkZGVk
+IHRoZSAvZGV2IGludGVyZmFjZSBiZWZvcmUgaGF2aW5nIGEgcmVhbCB1c2UNCiAgICA+IGNhc2Ug
+Zm9yIGl0Lg0KICAgID4NCiAgICA+Pg0KICAgID4+IEkgcmlzZSB0aGlzIHRvcGljIGJlY2F1c2Ug
+SSByZWFsbHkgdGhpbmsgaXQgd29ydGggdG8gZGVmaW5lIG5vdyBob3cgdGhpcw0KICAgID4+IHNo
+b3VsZCBiZSBkZXNpZ24gKGFuZCBmb3IgbWUgaG93IHRvIGRvIHRoZSB0aGluZ3MgcmlnaHQpIHRv
+IGF2b2lkIGZ1dHVyZQ0KICAgID4+IGlzc3Vlcy4NCiAgICA+IEFjdHVhbGx5IGl0IHNob3VsZCBi
+ZSBkb25lIHRoZSBvdGhlciB3YXkgYXJvdW5kOiB5b3Ugc2hvdWxkIGhhdmUgYSByZWFsDQogICAg
+PiBuZWVkIGFuZCB0aGUgL2RldiBpbnRlcmZhY2Ugc2hvdWxkIGJlIGRlc2lnbmVkIHRvIGZ1bGZp
+bGwgdGhpcyBuZWVkLg0KICAgID4gQmFzZWQgb24gdGhpcyByZWFsIHVzZSBjYXNlIHdlIGNhbiBk
+aXNjdXNzIG90aGVyIHBvdGVudGlhbCB1c2FnZSB0aGF0DQogICAgPiBtaWdodCBhcHBlYXIgaW4g
+dGhlIGZ1dHVyZSBhbmQgdHJ5IHRvIGRlc2lnbiBzb21ldGhpbmcgbW9yZQ0KICAgID4gZnV0dXJl
+LXByb29mLCBidXQgY2xlYXJseSwgdGhpcyB1c2Vyc3BhY2UgaW50ZXJmYWNlIHNob3VsZCBiZSBk
+cml2ZW4gYnkNCiAgICA+IGEgcmVhbC93ZWxsLWRlZmluZWQgdXNlIGNhc2UuDQogICAgPg0KICAg
+ID4gQWxzbywgZXhwb3NpbmcgdGhpbmdzIHRvIHVzZXJzcGFjZSBpcyB3YXkgbW9yZSByaXNreSB0
+aGFuIGFkZGluZyBhIG5ldw0KICAgID4gaW4ta2VybmVsIHN1YnN5c3RlbS9mcmFtZXdvcmssIGJl
+Y2F1c2UgaXQgdGhlbiBiZWNvbWVzIHBhcnQgb2YgdGhlDQogICAgPiBzdGFibGUgQUJJLg0KICAg
+ID4NCiAgICA+IFRvIG1ha2UgdGhpbmdzIGNsZWFyZXIsIEknbSBub3QgYWdhaW5zdCB0aGUgaWRl
+YSBvZiBleHBvc2luZyBJM0MNCiAgICA+IGRldmljZXMgKG9yIEkzQyBidXNlcykgdG8gdXNlcnNw
+YWNlLCBidXQgSSdkIGxpa2UgdG8gdW5kZXJzdGFuZCB3aGF0IHlvdQ0KICAgID4gcGxhbiB0byBk
+byB3aXRoIHRoYXQuIElmIHRoaXMgaXMgYWJvdXQgdGVzdGluZywgd2hhdCBraW5kIG9mIHRlc3Rz
+DQogICAgPiB5b3UnZCBsaWtlIHRvIHJ1bi4gSWYgdGhpcyBpcyBhYm91dCBkZXZlbG9waW5nIGRy
+aXZlcnMgaW4gdXNlcnNwYWNlLA0KICAgID4gd2h5IGNhbid0IHRoZXNlIGJlIGRvbmUgaW4ga2Vy
+bmVsIHNwYWNlIChsaWNlbnNlIGlzc3Vlcz8pLCBhbmQgd2hhdA0KICAgID4gd291bGQgdGhvc2Ug
+ZHJpdmVycyBiZSBhbGxvd2VkIHRvIGRvPw0KICAgIA0KICAgIA0KICAgIEJhc2ljYWxseSBJIG5l
+ZWQgYSB0b29sIHRoYXQgaGVscCBtZSBkdXJpbmcgdGhlIGRldmVsb3BtZW50IGFuZCB0byBhdm9p
+ZCANCiAgICBtZSB0byB3cml0ZSBhIGR1bW15IGRyaXZlciBmb3IgZWFjaCBkZXZpY2UgdGhhdCBJ
+IHRlc3QuDQoNCkZvciBub3cgd2UgYXJlIGRvaW5nIGl0IHRoYXQgd2F5LiBTZXBhcmF0ZSBkdW1t
+eSBkcml2ZXIgZm9yIGVhY2ggZGV2aWNlLg0KICAgIA0KICAgIEZvciBpbnN0YW5jZXMgZG8gc29t
+ZSByZWFkL3dyaXRlLCBnZXQvc2V0IGNjYyBjb21tYW5kcywgaWYgc29tZXRoaW5nIA0KICAgIGdv
+ZXMgd3JvbmcgZHVyaW5nIHRoZSBidXMgaW5pdGlhbGl6YXRpb24gaGF2ZSBhIHRvIGRlYnVnIGV0
+Yy4uLg0KICAgIA0KVGhhdCBzb3VuZHMgZ29vZCB0byBoYXZlIHBvc3NpYmlsaXR5IHRvIG1ha2Ug
+c2ltcGxlIHJlYWRzL3dyaXRlcyBhbmQgDQpzZW5kIGJhc2ljIGNjYyBjb21tYW5kcy4gQnV0IG9m
+IGNvdXJzZSBrZWVwaW5nIGluIG1pbmQgdGhhdCBJM0MgYnVzIGlzIA0KbW9yZSBjb21wbGljYXRl
+ZCB0aGFuIEkyQywgYXMgQm9yaXMgbWVudGlvbmVkIGJlZm9yZS4NCiAgICANCiAgICBGb3IgbWUg
+dGhpcyBpcyBhIHZhbGlkIHVzZSBjYXNlIGFuZCBJIGltYWdpbmUgd2hlbiBwZW9wbGUgc3RhcnQg
+dG8gDQogICAgZGV2ZWxvcCBpbiBpM2MgdGhpcyBpbnRlcmZhY2Ugd2lsbCBoZWxwIGV2ZXJ5b25l
+Lg0KICAgIA0KICAgIA0KICAgIEJlc3QgcmVnYXJkcywNCiAgICANCiAgICBWaXRvciBTb2FyZXMN
+CiAgICANClJlZ2FyZHMsDQpQcnplbWVrDQogICAgDQoNCg==
