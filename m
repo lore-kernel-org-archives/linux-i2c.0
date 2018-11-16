@@ -1,10 +1,12 @@
 From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: [PATCH v1 0/2] SYSCFG Fast Mode Plus support for I2C STM32F7
-Date: Fri, 16 Nov 2018 13:20:20 +0100
-Message-ID: <1542370822-14721-1-git-send-email-pierre-yves.mordret@st.com>
+Subject: [PATCH v1 1/2] dt-bindings: i2c-stm32: SYSCFG Fast Mode Plus support for I2C STM32F7
+Date: Fri, 16 Nov 2018 13:20:21 +0100
+Message-ID: <1542370822-14721-2-git-send-email-pierre-yves.mordret@st.com>
+References: <1542370822-14721-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1542370822-14721-1-git-send-email-pierre-yves.mordret@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Wolfram Sang <wsa@the-dreams.de>, Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -12,19 +14,37 @@ List-Id: linux-i2c@vger.kernel.org
 Append optional bindings to update SYSCFG Fast Mode Plus bits if
 Fast Mode Plus speed is selected.
 
+Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 ---
   Version history:
     v1:
        * Initial
 ---
+---
+ Documentation/devicetree/bindings/i2c/i2c-stm32.txt | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Pierre-Yves MORDRET (2):
-  dt-bindings: i2c-stm32: SYSCFG Fast Mode Plus support for I2C STM32F7
-  i2c: i2c-stm32f7: SYSCFG Fast Mode Plus support for I2C STM32F7
-
- .../devicetree/bindings/i2c/i2c-stm32.txt          |  6 ++++
- drivers/i2c/busses/i2c-stm32f7.c                   | 37 ++++++++++++++++++++--
- 2 files changed, 40 insertions(+), 3 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+index 3b54899..69240e1 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+@@ -26,6 +26,11 @@ Optional properties :
+ - i2c-scl-falling-time-ns : Only for STM32F7, I2C SCL Falling time for the board
+   (default: 10)
+   I2C Timings are derived from these 2 values
++- st,syscfg-fmp:  Only for STM32F7, use to set Fast Mode Plus bit within SYSCFG
++  whether Fast Mode Plus speed is selected by slave.
++	1st cell : phandle to syscfg
++	2nd cell : register offset within SYSCFG
++	3rd cell : register bitmask for FMP bit
+ 
+ Example :
+ 
+@@ -53,4 +58,5 @@ Example :
+ 		clocks = <&rcc 1 CLK_I2C1>;
+ 		pinctrl-0 = <&i2c1_sda_pin>, <&i2c1_scl_pin>;
+ 		pinctrl-names = "default";
++		st,syscfg-fmp = <&syscfg 0x4 0x1>;
+ 	};
 -- 
 2.7.4
