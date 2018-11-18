@@ -1,70 +1,41 @@
-From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: Re: [PATCH v3] i2c: mux: remove duplicated i2c_algorithm
-Date: Sun, 18 Nov 2018 12:13:51 +0100
-Message-ID: <205e1d73-2318-ecd4-c531-3ff18a0e0005@lucaceresoli.net>
-References: <20181003151928.17713-1-lucaceresoli77@gmail.com>
- <99cfa6a2-9a60-6bdd-2542-9dd78af75758@axentia.se>
- <70c48ade-b2ac-dde8-4b3e-aa4b2f19940a@gmail.com>
+From: <Nicolas.Ferre@microchip.com>
+Subject: Re: [PATCH v2 11/25] net: cadence: switch to using
+ nvmem_get_mac_address()
+Date: Sun, 18 Nov 2018 15:42:34 +0000
+Message-ID: <bd51c2fb-9f86-450a-74d1-0cba5c9e9cee@microchip.com>
+References: <20181113140133.17385-1-brgl@bgdev.pl>
+ <20181113140133.17385-12-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <70c48ade-b2ac-dde8-4b3e-aa4b2f19940a@gmail.com>
+In-Reply-To: <20181113140133.17385-12-brgl@bgdev.pl>
 Content-Language: en-US
+Content-ID: <79F765BA4327334388470161DA7A66DE@namprd11.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Luca Ceresoli <lucaceresoli77@gmail.com>, Peter Rosin <peda@axentia.se>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
+To: brgl@bgdev.pl, nsekhar@ti.com, khilman@kernel.org, linux@armlinux.org.uk, arnd@arndb.de, gregkh@linuxfoundation.org, dwmw2@infradead.org, computersforpeace@gmail.com, boris.brezillon@bootlin.com, marek.vasut@gmail.com, richard@nod.at, davem@davemloft.net, grygorii.strashko@ti.com, srinivas.kandagatla@linaro.org, andrew@lunn.ch, f.fainelli@gmail.com, robh+dt@kernel.org, frowand.list@gmail.com, wsa@the-dreams.de
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-mtd@lists.infradead.org, netdev@vger.kernel.org, linux-omap@vger.kernel.org, devicetree@vger.kernel.org, bgolaszewski@baylibre.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Peter,
-
-On 10/10/18 17:48, Luca Ceresoli wrote:
-> Hi Peter,
-> 
-> On 08/10/2018 23:43, Peter Rosin wrote:
->> On 2018-10-03 17:19, Luca Ceresoli wrote:
->>> From: Luca Ceresoli <luca@lucaceresoli.net>
->>>
->>> i2c-mux instantiates one i2c_algorithm for each downstream adapter.
->>> However these algorithms are all identical, depending only on the
->>> parent adapter.
->>>
->>> Avoid duplication by hoisting the i2c_algorithm from the adapters to
->>> the i2c_mux_core object, and reuse it in all the adapters.
->>
->> Ouch, while I like the concept of having one i2c_algorithm per mux,
->> this patch is not working. Various i2c-mux drivers set the
->> muxc->mux_locked variable *after* the i2c_mux_alloc call, and this
->> patch breaks such use.
-
-I finally had a look into this issue. Three drivers are setting
-mux_locked after i2c_mux_alloc: i2c-mux-gpmux, i2c-mux-gpio and
-i2c-mux-pinctrl.
-
-i2c-mux-gpmux is trivial to fix.
-
-The other two are not trivial because:
-
- 1. they compute mux_locked from other variables
- 2. those variables are stored in the drivers "private" data
- 3. their private data is stored inside struct i2c_mux_core
-    (muxc->priv) which exists only after i2c_mux_alloc()
-
-In those cases computing mux_locked before i2c_mux_alloc() involves
-quite invasive changes. It took 3 non-trivial commits just for
-i2c-mux-gpio, and I still have to look into i2c-mux-pinctrl.
-
-So the question is: do we really want to do this?
-
-Using the private storage provided by i2c_mux_alloc() is a handy
-feature, at least for simpler drivers which know in advance the flags
-they need to set. OTOH I don't like individual drivers to manipulate
-mux_core flags that look very much like internal data. It makes any
-change to the i2c mux core harder, since every changed line could have
-side effects in some drivers, which is what's happening here.
-
-What's your opinion about this issue?
-
-Thanks,
--- 
-Luca
+T24gMTMvMTEvMjAxOCBhdCAxNTowMSwgQmFydG9zeiBHb2xhc3pld3NraSB3cm90ZToNCj4gRnJv
+bTogQmFydG9zeiBHb2xhc3pld3NraSA8YmdvbGFzemV3c2tpQGJheWxpYnJlLmNvbT4NCj4gDQo+
+IFdlIG5vdyBoYXZlIGEgZ2VuZXJhbGl6ZWQgaGVscGVyIHJvdXRpbmUgdG8gcmVhZCB0aGUgTUFD
+IGFkZHJlc3MgZnJvbQ0KPiBudm1lbSB3aGljaCB0YWtlcyBzdHJ1Y3QgZGV2aWNlIGFzIGFyZ3Vt
+ZW50LiBUaGUgbnZtZW0gc3Vic3lzdGVtIHdpbGwNCj4gdGhlbiB0cnkgZGV2aWNlIHRyZWUgZmly
+c3QgYmVmb3JlIGFsbCBvdGhlciBwb3RlbnRpYWwgcHJvdmlkZXJzLg0KPiANCj4gU2lnbmVkLW9m
+Zi1ieTogQmFydG9zeiBHb2xhc3pld3NraSA8YmdvbGFzemV3c2tpQGJheWxpYnJlLmNvbT4NCg0K
+QWNrZWQtYnk6IE5pY29sYXMgRmVycmUgPG5pY29sYXMuZmVycmVAbWljcm9jaGlwLmNvbT4NCg0K
+PiAtLS0NCj4gICBkcml2ZXJzL25ldC9ldGhlcm5ldC9jYWRlbmNlL21hY2JfbWFpbi5jIHwgMiAr
+LQ0KPiAgIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQ0KPiAN
+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L2V0aGVybmV0L2NhZGVuY2UvbWFjYl9tYWluLmMg
+Yi9kcml2ZXJzL25ldC9ldGhlcm5ldC9jYWRlbmNlL21hY2JfbWFpbi5jDQo+IGluZGV4IDFkODZi
+NGQ1NjQ1YS4uZDlhMjA4ZjdiYjQwIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL25ldC9ldGhlcm5l
+dC9jYWRlbmNlL21hY2JfbWFpbi5jDQo+ICsrKyBiL2RyaXZlcnMvbmV0L2V0aGVybmV0L2NhZGVu
+Y2UvbWFjYl9tYWluLmMNCj4gQEAgLTQwNTUsNyArNDA1NSw3IEBAIHN0YXRpYyBpbnQgbWFjYl9w
+cm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQ0KPiAgIAlpZiAobWFjKSB7DQo+ICAg
+CQlldGhlcl9hZGRyX2NvcHkoYnAtPmRldi0+ZGV2X2FkZHIsIG1hYyk7DQo+ICAgCX0gZWxzZSB7
+DQo+IC0JCWVyciA9IG9mX2dldF9udm1lbV9tYWNfYWRkcmVzcyhucCwgYnAtPmRldi0+ZGV2X2Fk
+ZHIpOw0KPiArCQllcnIgPSBudm1lbV9nZXRfbWFjX2FkZHJlc3MoJnBkZXYtPmRldiwgYnAtPmRl
+di0+ZGV2X2FkZHIpOw0KPiAgIAkJaWYgKGVycikgew0KPiAgIAkJCWlmIChlcnIgPT0gLUVQUk9C
+RV9ERUZFUikNCj4gICAJCQkJZ290byBlcnJfb3V0X2ZyZWVfbmV0ZGV2Ow0KPiANCg0KDQotLSAN
+Ck5pY29sYXMgRmVycmUNCg==
