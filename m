@@ -1,335 +1,132 @@
-From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: [PATCH v2] i2c: i2c-stm32f7: add PM Runtime support
-Date: Mon, 19 Nov 2018 12:04:24 +0100
-Message-ID: <1542625464-4704-1-git-send-email-pierre-yves.mordret@st.com>
+From: vitor <vitor.soares@synopsys.com>
+Subject: Re: [PATCH v10 0/9] Add the I3C subsystem
+Date: Mon, 19 Nov 2018 12:35:42 +0000
+Message-ID: <ffcc3c3d-0bfd-23e2-5fbb-00cfbcd6b7af@synopsys.com>
+References: <20181026144333.12276-1-boris.brezillon@bootlin.com>
+ <76b1d15d-232c-d8ba-5eba-8394e71be725@synopsys.com>
+ <20181115135731.25f60990@bbrezillon> <20181115150137.GB4169@kunai>
+ <20181115162826.42b54776@bbrezillon>
+ <1d64f21a-ad24-94e0-2c17-25729ef59a31@synopsys.com>
+ <20181115200058.1869afdb@bbrezillon>
+ <5f946406-a205-3802-aefd-ebd8b5a72b0b@synopsys.com>
+ <20181116141639.31074113@bbrezillon>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181116141639.31074113@bbrezillon>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, Wolfram Sang <wsa@the-dreams.de>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@bootlin.com>, vitor <vitor.soares@synopsys.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Przemyslaw Sroka <psroka@cadence.com>, Arkadiusz Golec <agolec@cadence.com>, Alan Douglas <adouglas@cadence.com>, Bartosz Folta <bfolta@cadence.com>, Damian Kos <dkos@cadence.com>, Alicja Jurasik-Urbaniak <alicja@cadence.com>, Cyprian Wronka <cwronka@cadence.com>, Suresh Punnoose <sureshp@cadence.com>, Rafal Ciepiela <rafalc@cadence.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Nishanth Menon <nm@ti.com>, Rob Herring <robh+dt@kernel.org>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetr>
 List-Id: linux-i2c@vger.kernel.org
 
-Use PM Runtime API to enable/disable clock
+Hi Boris,
 
-Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
----
-  Version history:
-    v2:
-       * missing define
-    v1:
-       * Initial
----
----
- drivers/i2c/busses/i2c-stm32f7.c | 144 +++++++++++++++++++++++++++------------
- 1 file changed, 101 insertions(+), 43 deletions(-)
+On 16/11/18 13:16, Boris Brezillon wrote:
+> On Fri, 16 Nov 2018 12:31:42 +0000
+> vitor <vitor.soares@synopsys.com> wrote:
+>
+>> Hi Boris,
+>>
+>>
+>> On 15/11/18 19:00, Boris Brezillon wrote:
+>>> On Thu, 15 Nov 2018 18:03:47 +0000
+>>> vitor <vitor.soares@synopsys.com> wrote:
+>>>   
+>>>> Hi Boris,
+>>>>
+>>>>
+>>>> On 15/11/18 15:28, Boris Brezillon wrote:
+>>>>> On Thu, 15 Nov 2018 16:01:37 +0100
+>>>>> Wolfram Sang <wsa@the-dreams.de> wrote:
+>>>>>      
+>>>>>> Hi Boris,
+>>>>>>      
+>>>>>>> What we could do though, is expose I3C devices that do not have a
+>>>>>>> driver in kernel space, like spidev does.
+>>>>>> ...
+>>>>>>      
+>>>>>>> Mark, Wolfram, Arnd, Greg, any opinion?
+>>>>>> Is there a benefit for having drivers in userspace? My gut feeling is to
+>>>>>> encourage people to write kernel drivers. If this is, for some reason,
+>>>>>> not possible for some driver, then we have a use case at hand to test
+>>>>>> the then-to-be-developed userspace interface against. Until then, I
+>>>>>> personally wouldn't waste effort on designing it without a user in
+>>>>>> sight.
+>>>>> I kind of agree with that. Vitor, do you have a use case in mind for
+>>>>> such userspace drivers? I don't think it's worth designing an API for
+>>>>> something we don't need (yet).
+>>>> My use case is a tool for tests, lets say like the i2c tools.
+>>> What would you like to test exactly?
+>>>   
+>>>> There is
+>>>> other subsystems, some of them mentioned on this thread, that have and
+>>>> ioctl system call or other method to change parameters or send data.
+>>> I don't think they added the /dev interface before having a real use
+>>> case for it.
+>>>   
+>>>> I rise this topic because I really think it worth to define now how this
+>>>> should be design (and for me how to do the things right) to avoid future
+>>>> issues.
+>>> Actually it should be done the other way around: you should have a real
+>>> need and the /dev interface should be designed to fulfill this need.
+>>> Based on this real use case we can discuss other potential usage that
+>>> might appear in the future and try to design something more
+>>> future-proof, but clearly, this userspace interface should be driven by
+>>> a real/well-defined use case.
+>>>
+>>> Also, exposing things to userspace is way more risky than adding a new
+>>> in-kernel subsystem/framework, because it then becomes part of the
+>>> stable ABI.
+>>>
+>>> To make things clearer, I'm not against the idea of exposing I3C
+>>> devices (or I3C buses) to userspace, but I'd like to understand what you
+>>> plan to do with that. If this is about testing, what kind of tests
+>>> you'd like to run. If this is about developing drivers in userspace,
+>>> why can't these be done in kernel space (license issues?), and what
+>>> would those drivers be allowed to do?
+>>
+>> Basically I need a tool that help me during the development and to avoid
+>> me to write a dummy driver for each device that I test.
+> But we want I3C device drivers to be upstreamed, so why not developing a
+> real driver everytime you test a new device and submitting it upstream?
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 62d023e..3b98b68 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -27,6 +27,8 @@
- #include <linux/of_irq.h>
- #include <linux/of_platform.h>
- #include <linux/platform_device.h>
-+#include <linux/pinctrl/consumer.h>
-+#include <linux/pm_runtime.h>
- #include <linux/reset.h>
- #include <linux/slab.h>
- 
-@@ -163,6 +165,8 @@
- #define STM32F7_SCLH_MAX			BIT(8)
- #define STM32F7_SCLL_MAX			BIT(8)
- 
-+#define STM32F7_AUTOSUSPEND_DELAY		(HZ / 100)
-+
- /**
-  * struct stm32f7_i2c_spec - private i2c specification timing
-  * @rate: I2C bus speed (Hz)
-@@ -1545,15 +1549,13 @@ static int stm32f7_i2c_xfer(struct i2c_adapter *i2c_adap,
- 	i2c_dev->msg_id = 0;
- 	f7_msg->smbus = false;
- 
--	ret = clk_enable(i2c_dev->clk);
--	if (ret) {
--		dev_err(i2c_dev->dev, "Failed to enable clock\n");
-+	ret = pm_runtime_get_sync(i2c_dev->dev);
-+	if (ret < 0)
- 		return ret;
--	}
- 
- 	ret = stm32f7_i2c_wait_free_bus(i2c_dev);
- 	if (ret)
--		goto clk_free;
-+		goto pm_free;
- 
- 	stm32f7_i2c_xfer_msg(i2c_dev, msgs);
- 
-@@ -1569,8 +1571,9 @@ static int stm32f7_i2c_xfer(struct i2c_adapter *i2c_adap,
- 		ret = -ETIMEDOUT;
- 	}
- 
--clk_free:
--	clk_disable(i2c_dev->clk);
-+pm_free:
-+	pm_runtime_mark_last_busy(i2c_dev->dev);
-+	pm_runtime_put_autosuspend(i2c_dev->dev);
- 
- 	return (ret < 0) ? ret : num;
- }
-@@ -1592,39 +1595,37 @@ static int stm32f7_i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
- 	f7_msg->read_write = read_write;
- 	f7_msg->smbus = true;
- 
--	ret = clk_enable(i2c_dev->clk);
--	if (ret) {
--		dev_err(i2c_dev->dev, "Failed to enable clock\n");
-+	ret = pm_runtime_get_sync(dev);
-+	if (ret < 0)
- 		return ret;
--	}
- 
- 	ret = stm32f7_i2c_wait_free_bus(i2c_dev);
- 	if (ret)
--		goto clk_free;
-+		goto pm_free;
- 
- 	ret = stm32f7_i2c_smbus_xfer_msg(i2c_dev, flags, command, data);
- 	if (ret)
--		goto clk_free;
-+		goto pm_free;
- 
- 	timeout = wait_for_completion_timeout(&i2c_dev->complete,
- 					      i2c_dev->adap.timeout);
- 	ret = f7_msg->result;
- 	if (ret)
--		goto clk_free;
-+		goto pm_free;
- 
- 	if (!timeout) {
- 		dev_dbg(dev, "Access to slave 0x%x timed out\n", f7_msg->addr);
- 		if (i2c_dev->use_dma)
- 			dmaengine_terminate_all(dma->chan_using);
- 		ret = -ETIMEDOUT;
--		goto clk_free;
-+		goto pm_free;
- 	}
- 
- 	/* Check PEC */
- 	if ((flags & I2C_CLIENT_PEC) && size != I2C_SMBUS_QUICK && read_write) {
- 		ret = stm32f7_i2c_smbus_check_pec(i2c_dev);
- 		if (ret)
--			goto clk_free;
-+			goto pm_free;
- 	}
- 
- 	if (read_write && size != I2C_SMBUS_QUICK) {
-@@ -1649,8 +1650,9 @@ static int stm32f7_i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
- 		}
- 	}
- 
--clk_free:
--	clk_disable(i2c_dev->clk);
-+pm_free:
-+	pm_runtime_mark_last_busy(dev);
-+	pm_runtime_put_autosuspend(dev);
- 	return ret;
- }
- 
-@@ -1676,13 +1678,9 @@ static int stm32f7_i2c_reg_slave(struct i2c_client *slave)
- 	if (ret)
- 		return ret;
- 
--	if (!(stm32f7_i2c_is_slave_registered(i2c_dev))) {
--		ret = clk_enable(i2c_dev->clk);
--		if (ret) {
--			dev_err(dev, "Failed to enable clock\n");
--			return ret;
--		}
--	}
-+	ret = pm_runtime_get_sync(dev);
-+	if (ret < 0)
-+		return ret;
- 
- 	if (id == 0) {
- 		/* Configure Own Address 1 */
-@@ -1703,7 +1701,7 @@ static int stm32f7_i2c_reg_slave(struct i2c_client *slave)
- 		oar2 &= ~STM32F7_I2C_OAR2_MASK;
- 		if (slave->flags & I2C_CLIENT_TEN) {
- 			ret = -EOPNOTSUPP;
--			goto exit;
-+			goto pm_free;
- 		}
- 
- 		oar2 |= STM32F7_I2C_OAR2_OA2_7(slave->addr);
-@@ -1712,7 +1710,7 @@ static int stm32f7_i2c_reg_slave(struct i2c_client *slave)
- 		writel_relaxed(oar2, i2c_dev->base + STM32F7_I2C_OAR2);
- 	} else {
- 		ret = -ENODEV;
--		goto exit;
-+		goto pm_free;
- 	}
- 
- 	/* Enable ACK */
-@@ -1723,11 +1721,10 @@ static int stm32f7_i2c_reg_slave(struct i2c_client *slave)
- 		STM32F7_I2C_CR1_PE;
- 	stm32f7_i2c_set_bits(base + STM32F7_I2C_CR1, mask);
- 
--	return 0;
--
--exit:
--	if (!(stm32f7_i2c_is_slave_registered(i2c_dev)))
--		clk_disable(i2c_dev->clk);
-+	ret = 0;
-+pm_free:
-+	pm_runtime_mark_last_busy(dev);
-+	pm_runtime_put_autosuspend(dev);
- 
- 	return ret;
- }
-@@ -1745,6 +1742,10 @@ static int stm32f7_i2c_unreg_slave(struct i2c_client *slave)
- 
- 	WARN_ON(!i2c_dev->slave[id]);
- 
-+	ret = pm_runtime_get_sync(i2c_dev->dev);
-+	if (ret < 0)
-+		return ret;
-+
- 	if (id == 0) {
- 		mask = STM32F7_I2C_OAR1_OA1EN;
- 		stm32f7_i2c_clr_bits(base + STM32F7_I2C_OAR1, mask);
-@@ -1755,10 +1756,11 @@ static int stm32f7_i2c_unreg_slave(struct i2c_client *slave)
- 
- 	i2c_dev->slave[id] = NULL;
- 
--	if (!(stm32f7_i2c_is_slave_registered(i2c_dev))) {
-+	if (!(stm32f7_i2c_is_slave_registered(i2c_dev)))
- 		stm32f7_i2c_disable_irq(i2c_dev, STM32F7_I2C_ALL_IRQ_MASK);
--		clk_disable(i2c_dev->clk);
--	}
-+
-+	pm_runtime_mark_last_busy(i2c_dev->dev);
-+	pm_runtime_put_autosuspend(i2c_dev->dev);
- 
- 	return 0;
- }
-@@ -1819,6 +1821,7 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "Error: Missing controller clock\n");
- 		return PTR_ERR(i2c_dev->clk);
- 	}
-+
- 	ret = clk_prepare_enable(i2c_dev->clk);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to prepare_enable clock\n");
-@@ -1888,8 +1891,6 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto clk_free;
- 
--	stm32f7_i2c_hw_config(i2c_dev);
--
- 	adap = &i2c_dev->adap;
- 	i2c_set_adapdata(adap, i2c_dev);
- 	snprintf(adap->name, sizeof(adap->name), "STM32F7 I2C(%pa)",
-@@ -1908,18 +1909,35 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 					     STM32F7_I2C_TXDR,
- 					     STM32F7_I2C_RXDR);
- 
--	ret = i2c_add_adapter(adap);
--	if (ret)
--		goto clk_free;
--
- 	platform_set_drvdata(pdev, i2c_dev);
- 
--	clk_disable(i2c_dev->clk);
-+	pm_runtime_set_autosuspend_delay(i2c_dev->dev,
-+					 STM32F7_AUTOSUSPEND_DELAY);
-+	pm_runtime_use_autosuspend(i2c_dev->dev);
-+	pm_runtime_set_active(i2c_dev->dev);
-+	pm_runtime_enable(i2c_dev->dev);
-+
-+	pm_runtime_get_noresume(&pdev->dev);
-+
-+	stm32f7_i2c_hw_config(i2c_dev);
-+
-+	ret = i2c_add_adapter(adap);
-+	if (ret)
-+		goto pm_disable;
- 
- 	dev_info(i2c_dev->dev, "STM32F7 I2C-%d bus adapter\n", adap->nr);
- 
-+	pm_runtime_mark_last_busy(i2c_dev->dev);
-+	pm_runtime_put_autosuspend(i2c_dev->dev);
-+
- 	return 0;
- 
-+pm_disable:
-+	pm_runtime_put_noidle(i2c_dev->dev);
-+	pm_runtime_disable(i2c_dev->dev);
-+	pm_runtime_set_suspended(i2c_dev->dev);
-+	pm_runtime_dont_use_autosuspend(i2c_dev->dev);
-+
- clk_free:
- 	clk_disable_unprepare(i2c_dev->clk);
- 
-@@ -1936,12 +1954,51 @@ static int stm32f7_i2c_remove(struct platform_device *pdev)
- 	}
- 
- 	i2c_del_adapter(&i2c_dev->adap);
-+	pm_runtime_get_sync(i2c_dev->dev);
-+
-+	clk_disable_unprepare(i2c_dev->clk);
- 
--	clk_unprepare(i2c_dev->clk);
-+	pm_runtime_put_noidle(i2c_dev->dev);
-+	pm_runtime_disable(i2c_dev->dev);
-+	pm_runtime_set_suspended(i2c_dev->dev);
-+	pm_runtime_dont_use_autosuspend(i2c_dev->dev);
- 
- 	return 0;
- }
- 
-+#ifdef CONFIG_PM
-+static int stm32f7_i2c_runtime_suspend(struct device *dev)
-+{
-+	struct stm32f7_i2c_dev *i2c_dev = dev_get_drvdata(dev);
-+
-+	if (!stm32f7_i2c_is_slave_registered(i2c_dev))
-+		clk_disable_unprepare(i2c_dev->clk);
-+
-+	return 0;
-+}
-+
-+static int stm32f7_i2c_runtime_resume(struct device *dev)
-+{
-+	struct stm32f7_i2c_dev *i2c_dev = dev_get_drvdata(dev);
-+	int ret;
-+
-+	if (!stm32f7_i2c_is_slave_registered(i2c_dev)) {
-+		ret = clk_prepare_enable(i2c_dev->clk);
-+		if (ret) {
-+			dev_err(dev, "failed to prepare_enable clock\n");
-+			return ret;
-+		}
-+	}
-+
-+	return 0;
-+}
-+#endif
-+
-+static const struct dev_pm_ops stm32f7_i2c_pm_ops = {
-+	SET_RUNTIME_PM_OPS(stm32f7_i2c_runtime_suspend,
-+			   stm32f7_i2c_runtime_resume, NULL)
-+};
-+
- static const struct of_device_id stm32f7_i2c_match[] = {
- 	{ .compatible = "st,stm32f7-i2c", .data = &stm32f7_setup},
- 	{},
-@@ -1952,6 +2009,7 @@ static struct platform_driver stm32f7_i2c_driver = {
- 	.driver = {
- 		.name = "stm32f7-i2c",
- 		.of_match_table = stm32f7_i2c_match,
-+		.pm = &stm32f7_i2c_pm_ops,
- 	},
- 	.probe = stm32f7_i2c_probe,
- 	.remove = stm32f7_i2c_remove,
--- 
-2.7.4
+
+Usually the devices that I test aren't the final product so it isn't 
+easy to do the upstream.
+
+But when possible I plan to do that.
+
+
+>
+>> For instances do some read/write,
+> Doing SDR/DDR transfers is probably acceptable, but I still think we
+> should push hard to have kernel drivers when that's possible.
+>
+>> get/set ccc commands,
+> Exposing CCC commands is definitely not a good idea, since they're not
+> even exposed to kernel drivers.
+>
+>> if something
+>> goes wrong during the bus initialization have a to debug etc...
+> Can't we add such a debug infrastructure in the kernel. Maybe we can
+> expose debugfs files too if that helps, though if those debugfs files
+> are actually used by userspace libs/tools, it's not any better than
+> ioctls or sysfs files, since they will anyway become a stable ABI.
+>
+>>
+>> For me this is a valid use case and I imagine when people start to
+>> develop in i3c this interface will help everyone.
+> How about you propose an i3cdev driver that allow users to do SDR
+> transfers throuh an ioctl?
+
+I think that was for v6 I started to something to expose the bus like in 
+i2c-dev, but I liked the idea of expose only the device doesn't have a 
+driver. Do you know if  there is already something in the kernel doing 
+the same?
+
+
+Best regards,
+
+Vitor Soares
