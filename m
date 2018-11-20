@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 10/15] platform/x86: i2c-multi-instantiate: Distinguish IRQ resource type
-Date: Tue, 20 Nov 2018 17:59:19 +0200
-Message-ID: <20181120155924.10773-11-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 05/15] i2c: acpi: Return error pointers from i2c_acpi_new_device()
+Date: Tue, 20 Nov 2018 17:59:14 +0200
+Message-ID: <20181120155924.10773-6-andriy.shevchenko@linux.intel.com>
 References: <20181120155924.10773-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,79 +12,51 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-As a preparatory patch switch the driver to distinguish IRQ resource type.
-For now, only GpioInt() is supported.
+The caller would like to know the reason why the i2c_acpi_new_device() fails.
+For example, if adapter is not available, it might be in the future and we
+would like to re-probe the clients again. But at the same time we would like to
+bail out if the error seems unrecoverable, such as out of memory condition.
+To achieve this, return error pointer in some cases.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/platform/x86/i2c-multi-instantiate.c | 27 +++++++++++++-------
- 1 file changed, 18 insertions(+), 9 deletions(-)
+ drivers/i2c/i2c-core-acpi.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
-index d17686e10d08..336ef28e072d 100644
---- a/drivers/platform/x86/i2c-multi-instantiate.c
-+++ b/drivers/platform/x86/i2c-multi-instantiate.c
-@@ -7,6 +7,7 @@
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 32affd3fa8bd..af4b5bd5d973 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -387,6 +387,7 @@ struct notifier_block i2c_acpi_notifier = {
+  * Also see i2c_new_device, which this function calls to create the i2c-client.
+  *
+  * Returns a pointer to the new i2c-client, or NULL if the adapter is not found.
++ * In some cases might return an error pointer.
   */
+ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
+ 				       struct i2c_board_info *info)
+@@ -399,7 +400,7 @@ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
  
- #include <linux/acpi.h>
-+#include <linux/bits.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
-@@ -14,9 +15,14 @@
- #include <linux/platform_device.h>
- #include <linux/types.h>
+ 	adev = ACPI_COMPANION(dev);
+ 	if (!adev)
+-		return NULL;
++		return ERR_PTR(-ENODEV);
  
-+#define IRQ_RESOURCE_TYPE	GENMASK(1, 0)
-+#define IRQ_RESOURCE_NONE	0
-+#define IRQ_RESOURCE_GPIO	1
-+
- struct i2c_inst_data {
- 	const char *type;
--	int gpio_irq_idx;
-+	unsigned int flags;
-+	int irq_idx;
- };
+ 	memset(&lookup, 0, sizeof(lookup));
+ 	lookup.info = info;
+@@ -409,9 +410,11 @@ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
+ 	ret = acpi_dev_get_resources(adev, &resource_list,
+ 				     i2c_acpi_fill_info, &lookup);
+ 	acpi_dev_free_resource_list(&resource_list);
++	if (ret < 0)
++		return ERR_PTR(ret);
  
- struct i2c_multi_inst_data {
-@@ -88,16 +94,19 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
- 		snprintf(name, sizeof(name), "%s-%s", match->id,
- 			 inst_data[i].type);
- 		board_info.dev_name = name;
--		board_info.irq = 0;
--		if (inst_data[i].gpio_irq_idx != -1) {
--			ret = acpi_dev_gpio_irq_get(adev,
--						    inst_data[i].gpio_irq_idx);
-+		switch (inst_data[i].flags & IRQ_RESOURCE_TYPE) {
-+		case IRQ_RESOURCE_GPIO:
-+			ret = acpi_dev_gpio_irq_get(adev, inst_data[i].irq_idx);
- 			if (ret < 0) {
- 				dev_err(dev, "Error requesting irq at index %d: %d\n",
--					inst_data[i].gpio_irq_idx, ret);
-+					inst_data[i].irq_idx, ret);
- 				goto error;
- 			}
- 			board_info.irq = ret;
-+			break;
-+		default:
-+			board_info.irq = 0;
-+			break;
- 		}
- 		multi->clients[i] = i2c_acpi_new_device(dev, i, &board_info);
- 		if (IS_ERR(multi->clients[i]))
-@@ -134,9 +143,9 @@ static int i2c_multi_inst_remove(struct platform_device *pdev)
- }
+-	if (ret < 0 || !info->addr)
+-		return NULL;
++	if (!info->addr)
++		return ERR_PTR(-EADDRNOTAVAIL);
  
- static const struct i2c_inst_data bsg1160_data[]  = {
--	{ "bmc150_accel", 0 },
--	{ "bmc150_magn", -1 },
--	{ "bmg160", -1 },
-+	{ "bmc150_accel", IRQ_RESOURCE_GPIO, 0 },
-+	{ "bmc150_magn" },
-+	{ "bmg160" },
- 	{}
- };
- 
+ 	adapter = i2c_acpi_find_adapter_by_handle(lookup.adapter_handle);
+ 	if (!adapter)
 -- 
 2.19.1
