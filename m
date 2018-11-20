@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 15/15] iio: inv_mpu6050: Use i2c_acpi_get_i2c_resource() helper
-Date: Tue, 20 Nov 2018 17:59:24 +0200
-Message-ID: <20181120155924.10773-16-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 06/15] i2c: acpi: Assign fwnode for devices created via i2c_acpi_new_device()
+Date: Tue, 20 Nov 2018 17:59:15 +0200
+Message-ID: <20181120155924.10773-7-andriy.shevchenko@linux.intel.com>
 References: <20181120155924.10773-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,42 +12,27 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-ACPI provides a generic helper to get I2C Serial Bus resources.
-Use it instead of open coded variant.
+i2c_acpi_new_device() doesn't assign fwnode like it's done, for example,
+in i2c_acpi_register_devices() path.
+
+Assign fwnode in i2c_acpi_new_device() as it's done elsewhere.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/i2c/i2c-core-acpi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-index d78a10403bac..a961b5a06fe6 100644
---- a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-+++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-@@ -91,18 +91,14 @@ static int asus_acpi_get_sensor_info(struct acpi_device *adev,
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index af4b5bd5d973..478862abb82a 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -420,6 +420,7 @@ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
+ 	if (!adapter)
+ 		return NULL;
  
- static int acpi_i2c_check_resource(struct acpi_resource *ares, void *data)
- {
-+	struct acpi_resource_i2c_serialbus *sb;
- 	u32 *addr = data;
- 
--	if (ares->type == ACPI_RESOURCE_TYPE_SERIAL_BUS) {
--		struct acpi_resource_i2c_serialbus *sb;
--
--		sb = &ares->data.i2c_serial_bus;
--		if (sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
--			if (*addr)
--				*addr |= (sb->slave_address << 16);
--			else
--				*addr = sb->slave_address;
--		}
-+	if (i2c_acpi_get_i2c_resource(ares, &sb)) {
-+		if (*addr)
-+			*addr |= (sb->slave_address << 16);
-+		else
-+			*addr = sb->slave_address;
- 	}
- 
- 	/* Tell the ACPI core that we already copied this address */
++	info->fwnode = acpi_fwnode_handle(adev);
+ 	return i2c_new_device(adapter, info);
+ }
+ EXPORT_SYMBOL_GPL(i2c_acpi_new_device);
 -- 
 2.19.1
