@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 05/15] i2c: acpi: Return error pointers from i2c_acpi_new_device()
-Date: Tue, 20 Nov 2018 17:59:14 +0200
-Message-ID: <20181120155924.10773-6-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 01/15] platform/x86: intel_cht_int33fe: Remove duplicate NULL check
+Date: Tue, 20 Nov 2018 17:59:10 +0200
+Message-ID: <20181120155924.10773-2-andriy.shevchenko@linux.intel.com>
 References: <20181120155924.10773-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,51 +12,37 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The caller would like to know the reason why the i2c_acpi_new_device() fails.
-For example, if adapter is not available, it might be in the future and we
-would like to re-probe the clients again. But at the same time we would like to
-bail out if the error seems unrecoverable, such as out of memory condition.
-To achieve this, return error pointer in some cases.
+Since i2c_unregister_device() became NULL-aware we may remove duplicate
+NULL check.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/i2c-core-acpi.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/platform/x86/intel_cht_int33fe.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 32affd3fa8bd..af4b5bd5d973 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -387,6 +387,7 @@ struct notifier_block i2c_acpi_notifier = {
-  * Also see i2c_new_device, which this function calls to create the i2c-client.
-  *
-  * Returns a pointer to the new i2c-client, or NULL if the adapter is not found.
-+ * In some cases might return an error pointer.
-  */
- struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
- 				       struct i2c_board_info *info)
-@@ -399,7 +400,7 @@ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
+diff --git a/drivers/platform/x86/intel_cht_int33fe.c b/drivers/platform/x86/intel_cht_int33fe.c
+index 464fe93657b5..431151d4e611 100644
+--- a/drivers/platform/x86/intel_cht_int33fe.c
++++ b/drivers/platform/x86/intel_cht_int33fe.c
+@@ -213,8 +213,7 @@ static int cht_int33fe_probe(struct platform_device *pdev)
+ 	i2c_unregister_device(data->fusb302);
  
- 	adev = ACPI_COMPANION(dev);
- 	if (!adev)
--		return NULL;
-+		return ERR_PTR(-ENODEV);
+ out_unregister_max17047:
+-	if (data->max17047)
+-		i2c_unregister_device(data->max17047);
++	i2c_unregister_device(data->max17047);
  
- 	memset(&lookup, 0, sizeof(lookup));
- 	lookup.info = info;
-@@ -409,9 +410,11 @@ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
- 	ret = acpi_dev_get_resources(adev, &resource_list,
- 				     i2c_acpi_fill_info, &lookup);
- 	acpi_dev_free_resource_list(&resource_list);
-+	if (ret < 0)
-+		return ERR_PTR(ret);
+ 	device_connections_remove(data->connections);
  
--	if (ret < 0 || !info->addr)
--		return NULL;
-+	if (!info->addr)
-+		return ERR_PTR(-EADDRNOTAVAIL);
+@@ -227,8 +226,7 @@ static int cht_int33fe_remove(struct platform_device *pdev)
  
- 	adapter = i2c_acpi_find_adapter_by_handle(lookup.adapter_handle);
- 	if (!adapter)
+ 	i2c_unregister_device(data->pi3usb30532);
+ 	i2c_unregister_device(data->fusb302);
+-	if (data->max17047)
+-		i2c_unregister_device(data->max17047);
++	i2c_unregister_device(data->max17047);
+ 
+ 	device_connections_remove(data->connections);
+ 
 -- 
 2.19.1
