@@ -1,168 +1,84 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v1 14/15] ACPI / scan: Create platform device for BOSC0200
- ACPI nodes
-Date: Wed, 21 Nov 2018 13:29:38 +0100
-Message-ID: <86b36781-a95f-f280-759a-c4865be603a2@redhat.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1 06/15] i2c: acpi: Assign fwnode for devices created
+ via i2c_acpi_new_device()
+Date: Wed, 21 Nov 2018 15:35:49 +0200
+Message-ID: <20181121133549.GL10650@smile.fi.intel.com>
 References: <20181120155924.10773-1-andriy.shevchenko@linux.intel.com>
- <20181120155924.10773-15-andriy.shevchenko@linux.intel.com>
+ <20181120155924.10773-7-andriy.shevchenko@linux.intel.com>
+ <c2ad13ad-cf27-2700-a051-4dda56755ebd@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181120155924.10773-15-andriy.shevchenko@linux.intel.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <c2ad13ad-cf27-2700-a051-4dda56755ebd@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-acpi@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-kernel@vger.kernel.org
-Cc: Steven Presser <steve@pressers.name>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-acpi@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-HI,
+On Wed, Nov 21, 2018 at 12:44:27PM +0100, Hans de Goede wrote:
+> On 20-11-18 16:59, Andy Shevchenko wrote:
+> > i2c_acpi_new_device() doesn't assign fwnode like it's done, for example,
+> > in i2c_acpi_register_devices() path.
+> > 
+> > Assign fwnode in i2c_acpi_new_device() as it's done elsewhere.
 
-On 20-11-18 16:59, Andy Shevchenko wrote:
-> On some laptops the ACPI device with BOSC0200 _HID is representing
-> two accelerometers under one node.
+> As already mentioned in my reply to the cover letter, a NACK from me for
+> this one.
 > 
-> We add an ID to the I2C multi instantiate list to enumerate
-> all I2C slaves correctly.
+> The problem is that this causes the fwnode to be shared by all the
+> "struct device"-s (embedded in the i2c-clients created).
 > 
-> For reference here is the relevant DSDT blurb from the Yoga 11e:
+> This in itself is not necessarily a problem, but it does become a
+> problem when combined with using device_add_properties as
+> intel_cht_int33fe.c does.
 > 
-> Device (ACC)
-> {
-> 	Name (_ADR, Zero)  // _ADR: Address
-> 	Name (_HID, "BOSC0200")  // _HID: Hardware ID
-> 	Name (_CID, "BOSC0200")  // _CID: Compatible ID
-> 	Name (_DDN, "Accelerometer")  // _DDN: DOS Device Name
-> 	Name (_UID, One)  // _UID: Unique ID
-> 	Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
-> 	{
-> 		Name (RBUF, ResourceTemplate ()
-> 		{
-> 			I2cSerialBusV2 (0x0019, ControllerInitiated, 0x00061A80,
-> 				AddressingMode7Bit, "\\_SB.PCI0.I2C3",
-> 				0x00, ResourceConsumer, , Exclusive,
-> 			)
-> 			I2cSerialBusV2 (0x0018, ControllerInitiated, 0x00061A80,
-> 				AddressingMode7Bit, "\\_SB.PCI0.I2C3",
-> 				0x00, ResourceConsumer, , Exclusive,
-> 			)
-> 		})
-> 		Return (RBUF) /* \_SB_.PCI0.I2C3.ACC_._CRS.RBUF */
-> 	}
+> Since the info in the ACPI tables for devices which use this
+> driver is pretty terrible, we add a bunch of properties to notify
+> the drivers about how the different parts which make up the Type-C
+> functionality are tied together.
 > 
-> Reported-by: Jeremy Cline <jeremy@jcline.org>
-> Cc: Steven Presser <steve@pressers.name>
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
-So as already discussed switching all devices which define a BOSC0200
-device in their ACPI tables to using i2c-multi-instantiate.c will
-break the orientation quirks in udev's hwdb since those go by
-the modalias and this will change the modalias from acpi:BOSC0200:BOSC0200
-to i2c:bmc150_accel
-
-After our last discussion I've been thinking about this and I think the
-best solution is something like this in drivers/acpi/scan.c:
-
-#define I2C_MULTI_INST_FORCE      0x01
-
-         static const struct acpi_device_id i2c_multi_instantiate_ids[] = {
-                 {"BOSC0200", },
-                 {"BSG1160", },
-                 {"INT33FE", I2C_MULTI_INST_FORCE},
-                 {"INT3515", },
-                 {}
-         };
-	const struct acpi_device_id *id = NULL;
-
-         ...
-
-	/* Instantiate a pdev for the i2c-multi-instantiate drv to bind to? */
-	__acpi_match_device(device, i2c_multi_instantiate_ids, NULL, &id, NULL);
-	if (id) {
-		if (id->driver_data & I2C_MULTI_INST_FORCE)
-			return false;
-
-                 count = i2c_multi_inst_count_resources(device);
-		if (count > 1)
-			return false;
-	}
-
-This way we only move to a platform-device + i2c-multi-inst for BOSC0200
-devices on devices which actually have multiple accelerometers defined
-in the node, avoiding the problem of breaking hwdb for existing devices.
-
-Note arguably the force flag should be set on all existing entries in
-the i2c_multi_instantiate_ids, but at least the BSG1160 entry is expected
-to always have multiple I2cSerialBus resources and I guess the same may
-apply to the INT3515 case
-
-The weird BYT/CHT INT33FE fake battery device is special and we always
-need to not create an i2c-client for it, so that we ignore the
-clkrate / speed from its bogus first and sometimes only I2cSerialBus resource.
-
-Regards,
-
-Hans
-
-
-
-
-
-
-
-> ---
->   drivers/acpi/scan.c                          | 1 +
->   drivers/iio/accel/bmc150-accel-i2c.c         | 1 -
->   drivers/platform/x86/i2c-multi-instantiate.c | 7 +++++++
->   3 files changed, 8 insertions(+), 1 deletion(-)
+> device_add_properties creates a new fwnode and then calls
+> set_secondary_fwnode. For devices which already have a fwnode
+> assigned (which the i2c-clients will have after this patch)
+> set_secondary_fwnode sets dev->fwnode->secondary to the fwnode
+> which has been newly created to hold the added properties.
 > 
-> diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-> index e9eda5558c1f..e46c877fa9f1 100644
-> --- a/drivers/acpi/scan.c
-> +++ b/drivers/acpi/scan.c
-> @@ -1539,6 +1539,7 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
->   	 * which i2c_device_id to use for each resource.
->   	 */
->   	static const struct acpi_device_id i2c_multi_instantiate_ids[] = {
-> +		{"BOSC0200", },
->   		{"BSG1160", },
->   		{"INT33FE", },
->   		{"INT3515", },
-> diff --git a/drivers/iio/accel/bmc150-accel-i2c.c b/drivers/iio/accel/bmc150-accel-i2c.c
-> index 8ffc308d5fd0..9d22a4d9d568 100644
-> --- a/drivers/iio/accel/bmc150-accel-i2c.c
-> +++ b/drivers/iio/accel/bmc150-accel-i2c.c
-> @@ -64,7 +64,6 @@ static const struct acpi_device_id bmc150_accel_acpi_match[] = {
->   	{"BMA250E",	bma250e},
->   	{"BMA222E",	bma222e},
->   	{"BMA0280",	bma280},
-> -	{"BOSC0200"},
->   	{ },
->   };
->   MODULE_DEVICE_TABLE(acpi, bmc150_accel_acpi_match);
-> diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
-> index efaf34cbbc7b..c90137d30a98 100644
-> --- a/drivers/platform/x86/i2c-multi-instantiate.c
-> +++ b/drivers/platform/x86/i2c-multi-instantiate.c
-> @@ -151,6 +151,12 @@ static int i2c_multi_inst_remove(struct platform_device *pdev)
->   	return 0;
->   }
->   
-> +static const struct i2c_inst_data bosc0200_data[]  = {
-> +	{ "bmc150_accel" },
-> +	{ "bmc150_accel" },
-> +	{}
-> +};
-> +
->   static const struct i2c_inst_data bsg1160_data[]  = {
->   	{ "bmc150_accel", IRQ_RESOURCE_GPIO, 0 },
->   	{ "bmc150_magn" },
-> @@ -171,6 +177,7 @@ static const struct i2c_inst_data int3515_data[]  = {
->    * drivers/acpi/scan.c: acpi_device_enumeration_by_parent().
->    */
->   static const struct acpi_device_id i2c_multi_inst_acpi_ids[] = {
-> +	{ "BOSC0200", (unsigned long)bosc0200_data },
->   	{ "BSG1160", (unsigned long)bsg1160_data },
->   	{ "INT3515", (unsigned long)int3515_data },
->   	{ }
+> Since all i2c-clients instantiated now share dev->fwnode,
+> the result of this is that all i2c-clients created now will
+> have the properties of the last i2c-client instantiated for
+> an acpi-node which describes multiple clients in a single
+> node.
 > 
+> Also the fwnodes created  for the properties of earlier
+> instantiated i2c-clients will be leaked.
+
+Thanks for this very detailed problem report.
+
+> 
+> I see 2 possible solutions here:
+> 
+> 1) Changing this patch so that i2c_acpi_new_device() does:
+> 
+>         /*
+>          * The fwnode can not be shared between instantiated clients when
+>          * adding device-properties to the instantiated client.
+>          */
+> 	if (!info->properties)
+> 		info->fwnode = acpi_fwnode_handle(adev);
+> 
+> 2) Leave whether info->fwnode should be set or not up to the
+> caller of i2c_acpi_new_device() (info is already passed in as
+> a param). E.g. i2c-multi-instantiate.c could do this (for now,
+> maybe in the future we will also want to add properties for
+> some HIDs).
+> 
+> I think that 1. is the best solution and this is all kernel internal,
+> so we can always revisit this if necessary.
+
+Heikki told me he has some ideas, but for now I will drop this patch.
+
+
+-- 
+With Best Regards,
+Andy Shevchenko
