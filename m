@@ -1,15 +1,15 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v1 06/15] i2c: acpi: Assign fwnode for devices created via
- i2c_acpi_new_device()
-Date: Wed, 21 Nov 2018 12:44:27 +0100
-Message-ID: <c2ad13ad-cf27-2700-a051-4dda56755ebd@redhat.com>
+Subject: Re: [PATCH v1 00/15] i2c-multi-instantiate: Adapt for INT3515 and
+ alike
+Date: Wed, 21 Nov 2018 13:00:07 +0100
+Message-ID: <cdb902c7-324c-3f19-6caa-ff78132c593d@redhat.com>
 References: <20181120155924.10773-1-andriy.shevchenko@linux.intel.com>
- <20181120155924.10773-7-andriy.shevchenko@linux.intel.com>
+ <24f96a15-6b57-c19d-b77d-fdc6c11fddc9@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181120155924.10773-7-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <24f96a15-6b57-c19d-b77d-fdc6c11fddc9@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-acpi@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-kernel@vger.kernel.org
@@ -17,63 +17,43 @@ List-Id: linux-i2c@vger.kernel.org
 
 Hi,
 
-On 20-11-18 16:59, Andy Shevchenko wrote:
-> i2c_acpi_new_device() doesn't assign fwnode like it's done, for example,
-> in i2c_acpi_register_devices() path.
+On 21-11-18 12:27, Hans de Goede wrote:
+> Hi,
 > 
-> Assign fwnode in i2c_acpi_new_device() as it's done elsewhere.
+> On 20-11-18 16:59, Andy Shevchenko wrote:
+>> Currently i2c-multi-instantiate driver does not support the case
+>> of INT3515 USB PD device, where:
+>>
+>> - Interrupt() is used instead of GpioInt()
+>> - All slaves may be the same from IP point of view
+>> - There can be variadic amount of slaves
+>>
+>> This series is addressing all above.
+>>
+>> Notes:
+>> - series has been smoke tested (Heikki would do BAT or more) on Coffee Lake system
+>> - patch for BOSC0200 might be considered as RFC since the modalias potential issue
 > 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Yeah the BOSC0200 patch cannot go upstream as is, that will break the
+> orientation quirks in hwdb on:
+> 
+> [hans@shalem systemd]$ grep BOSC0200 hwdb/60-sensor.hwdb | wc -l
+> 17
+> [hans@shalem systemd]$
+> 
+> At least 17 different models laptops / 2-in-1s
+> 
+>> The idea is to push this either through PDx86 tree (needs Rafael's ACKs) or ACPI.
+>> In any case it needs tags from Heikki, Hans, Mika, Wolfram and Jonathan.
+> 
+> Patches 1-5, 7-13 and 15 are: >
+> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 
-As already mentioned in my reply to the cover letter, a NACK from me for
-this one.
+Correction, I also have some small remarks to patch 9:
 
-The problem is that this causes the fwnode to be shared by all the
-"struct device"-s (embedded in the i2c-clients created).
+[PATCH v1 09/15] platform/x86: i2c-multi-instantiate: Count I2cSerialBus() resources
 
-This in itself is not necessarily a problem, but it does become a
-problem when combined with using device_add_properties as
-intel_cht_int33fe.c does.
-
-Since the info in the ACPI tables for devices which use this
-driver is pretty terrible, we add a bunch of properties to notify
-the drivers about how the different parts which make up the Type-C
-functionality are tied together.
-
-device_add_properties creates a new fwnode and then calls
-set_secondary_fwnode. For devices which already have a fwnode
-assigned (which the i2c-clients will have after this patch)
-set_secondary_fwnode sets dev->fwnode->secondary to the fwnode
-which has been newly created to hold the added properties.
-
-Since all i2c-clients instantiated now share dev->fwnode,
-the result of this is that all i2c-clients created now will
-have the properties of the last i2c-client instantiated for
-an acpi-node which describes multiple clients in a single
-node.
-
-Also the fwnodes created  for the properties of earlier
-instantiated i2c-clients will be leaked.
-
-I see 2 possible solutions here:
-
-1) Changing this patch so that i2c_acpi_new_device() does:
-
-         /*
-          * The fwnode can not be shared between instantiated clients when
-          * adding device-properties to the instantiated client.
-          */
-	if (!info->properties)
-		info->fwnode = acpi_fwnode_handle(adev);
-
-2) Leave whether info->fwnode should be set or not up to the
-caller of i2c_acpi_new_device() (info is already passed in as
-a param). E.g. i2c-multi-instantiate.c could do this (for now,
-maybe in the future we will also want to add properties for
-some HIDs).
-
-I think that 1. is the best solution and this is all kernel internal,
-so we can always revisit this if necessary.
+Which will need to be addressed before you can add my Reviewed-by.
 
 Regards,
 
@@ -81,20 +61,53 @@ Hans
 
 
 
-> ---
->   drivers/i2c/i2c-core-acpi.c | 1 +
->   1 file changed, 1 insertion(+)
+
+> I will send separate replies to:
 > 
-> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-> index af4b5bd5d973..478862abb82a 100644
-> --- a/drivers/i2c/i2c-core-acpi.c
-> +++ b/drivers/i2c/i2c-core-acpi.c
-> @@ -420,6 +420,7 @@ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
->   	if (!adapter)
->   		return NULL;
->   
-> +	info->fwnode = acpi_fwnode_handle(adev);
->   	return i2c_new_device(adapter, info);
->   }
->   EXPORT_SYMBOL_GPL(i2c_acpi_new_device);
+> [PATCH v1 06/15] i2c: acpi: Assign fwnode for devices created via i2c_acpi_new_device()
+> [PATCH v1 14/15] ACPI / scan: Create platform device for BOSC0200 ACPI nodes
 > 
+> Which are both a NACK from me (in their current state) because they both will
+> cause regressions.
+> 
+> Regards,
+> 
+> Hans
+> 
+> 
+> 
+> 
+> 
+> 
+>>
+>> Testing and comments are warmly welcome.
+>>
+>> Andy Shevchenko (15):
+>>    platform/x86: intel_cht_int33fe: Remove duplicate NULL check
+>>    platform/x86: intel_cht_int33fe: Accept errors of
+>>      i2c_acpi_new_device()
+>>    platform/x86: i2c-multi-instantiate: Accept errors of
+>>      i2c_acpi_new_device()
+>>    platform/x86: i2c-mutli-instantiate: Defer probe when no adapter found
+>>    i2c: acpi: Return error pointers from i2c_acpi_new_device()
+>>    i2c: acpi: Assign fwnode for devices created via i2c_acpi_new_device()
+>>    i2c: acpi: Use ACPI_FAILURE instead of !ACPI_SUCCESS
+>>    i2c: acpi: Introduce i2c_acpi_get_i2c_resource() helper
+>>    platform/x86: i2c-multi-instantiate: Count I2cSerialBus() resources
+>>    platform/x86: i2c-multi-instantiate: Distinguish IRQ resource type
+>>    platform/x86: i2c-multi-instantiate: Introduce IOAPIC IRQ support
+>>    platform/x86: i2c-multi-instantiate: Allow to have same slaves
+>>    ACPI / scan: Create platform device for INT3515 ACPI nodes
+>>    ACPI / scan: Create platform device for BOSC0200 ACPI nodes
+>>    iio: inv_mpu6050: Use i2c_acpi_get_i2c_resource() helper
+>>
+>>   drivers/acpi/scan.c                          |  2 +
+>>   drivers/i2c/i2c-core-acpi.c                  | 43 +++++----
+>>   drivers/iio/accel/bmc150-accel-i2c.c         |  1 -
+>>   drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c   | 16 ++--
+>>   drivers/platform/x86/i2c-multi-instantiate.c | 99 ++++++++++++++++----
+>>   drivers/platform/x86/intel_cht_int33fe.c     | 34 +++++--
+>>   drivers/usb/typec/tps6598x.c                 |  8 +-
+>>   include/linux/acpi.h                         | 11 +++
+>>   8 files changed, 158 insertions(+), 56 deletions(-)
+>>
