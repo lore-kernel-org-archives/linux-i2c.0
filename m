@@ -1,65 +1,87 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH] i3c: master: dw: split dw-i3c-master.c into master and
- bus specific parts
-Date: Fri, 23 Nov 2018 13:50:04 +0100
-Message-ID: <20181123135004.7fd1cd58@bbrezillon>
-References: <ade2c1a8d1eb48681b01ccdc9bed22caf5e96c4b.1542904564.git.soares@synopsys.com>
-        <20181122210202.6af50fcc@bbrezillon>
-        <6d513e04-3a57-1989-429c-64631101c5a2@synopsys.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: [PATCH v2] dt-bindings: i2c: Use correct vendor prefix for Atmel
+Date: Fri, 23 Nov 2018 13:51:38 +0100
+Message-ID: <20181123125138.22489-1-thierry.reding@gmail.com>
+References: <20181123121009.17213-1-thierry.reding@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <6d513e04-3a57-1989-429c-64631101c5a2@synopsys.com>
+In-Reply-To: <20181123121009.17213-1-thierry.reding@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: vitor <vitor.soares@synopsys.com>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, gregkh@linuxfoundation.org, arnd@arndb.de, psroka@cadence.com, agolec@cadence.com, adouglas@cadence.com, bfolta@cadence.com, dkos@cadence.com, alicja@cadence.com, cwronka@cadence.com, sureshp@cadence.com, rafalc@cadence.com, thomas.petazzoni@bootlin.com, nm@ti.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, geert@linux-m68k.org, linus.walleij@linaro.org, Xiang.Lin@synaptics.com, linux-gpio@vger.kernel.org, nsekhar@ti.com, pgaj@cadence.com, peda@axentia.se, mshettel@codeaurora.org, swboyd@chromium.org
+To: Rob Herring <robh+dt@kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 23 Nov 2018 12:39:31 +0000
-vitor <vitor.soares@synopsys.com> wrote:
+From: Thierry Reding <treding@nvidia.com>
 
-> Hi Boris,
-> 
-> 
-> On 22/11/18 20:02, Boris Brezillon wrote:
-> > On Thu, 22 Nov 2018 17:54:54 +0000
-> > Vitor Soares <vitor.soares@synopsys.com> wrote:
-> >  
-> >> From: Vitor Soares <soares@synopsys.com>
-> >>
-> >> This patch slipts dw-i3c-master.c into three pieces:
-> >> 	dw-i3c-master.c - contains the code that interacts directly with the
-> >> 	core in master mode.
-> >>
-> >> 	dw-i3c-platdrv.c - contains the code specific to the platform driver.
-> >>
-> >> 	dw-i3c-core.h - contains the definitions and declarations shared by
-> >> 	dw-i3c-master and dw-i3c-platdrv
-> >>
-> >> This patch will allow SOC integrators to add their code specific to
-> >> DesignWare I3C IP.  
-> > Isn't it too early to do this change? Can't we wait until we have a SoC
-> > that actually embeds this IP?  
-> 
-> 
-> I'm trying to turn it more flexible so the other can reuse the code.
+The "at," prefix was never correct for Atmel, so fix the few occurrences
+that got it wrong. Use "atmel," instead.
 
-Looking at the separation you've done here, I don't see why you need
-it. All the resources you request are generic, so why not just adding a
-new compat in the of_match_table?
+While at it, remove the at,24c08 compatible string from the list of
+trivial devices because it is already documented in eeprom/at24.txt.
 
-> 
-> 
-> >  
-> >> Signed-off-by: Vitor Soares <soares@synopsys.com>
-> >> ---
-> >>   drivers/i3c/master/Kconfig          |   9 +-
-> >>   drivers/i3c/master/Makefile         |   5 +-
-> >>   drivers/i3c/master/dw-i3c-core.h    | 214 ++++++++++++++++++++++++++
-> >>   drivers/i3c/master/dw-i3c-master.c  | 299 ++----------------------------------
-> >>   drivers/i3c/master/dw-i3c-platdrv.c | 112 ++++++++++++++
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+---
+Changes in v2:
+- remove at,24c08 compatible from trivial-devices since it is already
+  documented in Documentation/devicetree/bindings/eeprom/at24.txt
 
-Just realized the driver is named dw-i3c-master, while the cadence
-driver is named i3c-master-cdns.c. I'll send a patch to make that
-consistent and follow the initial naming scheme: i3c-master-<ipname>.c.
+ Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt | 2 +-
+ Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt | 2 +-
+ Documentation/devicetree/bindings/i2c/nxp,pca9541.txt     | 2 +-
+ Documentation/devicetree/bindings/trivial-devices.txt     | 1 -
+ 4 files changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
+index 1e98c6b3a721..c661b9083ec6 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
+@@ -43,7 +43,7 @@ Example:
+ 			reg = <0>;
+ 
+ 			eeprom@50 {
+-				compatible = "at,24c02";
++				compatible = "atmel,24c02";
+ 				reg = <0x50>;
+ 			};
+ 		};
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+index ccf6c86ed076..30ac6a60f041 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+@@ -54,7 +54,7 @@ Example:
+ 			reg = <2>;
+ 
+ 			eeprom@54 {
+-				compatible = "at,24c08";
++				compatible = "atmel,24c08";
+ 				reg = <0x54>;
+ 			};
+ 		};
+diff --git a/Documentation/devicetree/bindings/i2c/nxp,pca9541.txt b/Documentation/devicetree/bindings/i2c/nxp,pca9541.txt
+index 0fbbc6970ec5..42bfc09c8918 100644
+--- a/Documentation/devicetree/bindings/i2c/nxp,pca9541.txt
++++ b/Documentation/devicetree/bindings/i2c/nxp,pca9541.txt
+@@ -22,7 +22,7 @@ Example:
+ 			#size-cells = <0>;
+ 
+ 			eeprom@54 {
+-				compatible = "at,24c08";
++				compatible = "atmel,24c08";
+ 				reg = <0x54>;
+ 			};
+ 		};
+diff --git a/Documentation/devicetree/bindings/trivial-devices.txt b/Documentation/devicetree/bindings/trivial-devices.txt
+index 6ab001fa1ed4..94beb5a63ac2 100644
+--- a/Documentation/devicetree/bindings/trivial-devices.txt
++++ b/Documentation/devicetree/bindings/trivial-devices.txt
+@@ -21,7 +21,6 @@ adi,adt7490		+/-1C TDM Extended Temp Range I.C
+ adi,adxl345		Three-Axis Digital Accelerometer
+ adi,adxl346		Three-Axis Digital Accelerometer (backward-compatibility value "adi,adxl345" must be listed too)
+ ams,iaq-core		AMS iAQ-Core VOC Sensor
+-at,24c08		i2c serial eeprom  (24cxx)
+ atmel,at97sc3204t	i2c trusted platform module (TPM)
+ capella,cm32181		CM32181: Ambient Light Sensor
+ capella,cm3232		CM3232: Ambient Light Sensor
+-- 
+2.19.1
