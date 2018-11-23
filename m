@@ -1,133 +1,71 @@
-From: vitor <vitor.soares@synopsys.com>
-Subject: Re: [PATCH] i3c: master: dw: split dw-i3c-master.c into master and
- bus specific parts
-Date: Fri, 23 Nov 2018 12:39:31 +0000
-Message-ID: <6d513e04-3a57-1989-429c-64631101c5a2@synopsys.com>
-References: <ade2c1a8d1eb48681b01ccdc9bed22caf5e96c4b.1542904564.git.soares@synopsys.com>
- <20181122210202.6af50fcc@bbrezillon>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH] dt-bindings: i2c: Use correct vendor prefix for Atmel
+Date: Fri, 23 Nov 2018 12:40:19 +0000
+Message-ID: <374af1fb-54bc-ee13-b4fd-616c2fe0746f@axentia.se>
+References: <20181123121009.17213-1-thierry.reding@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181122210202.6af50fcc@bbrezillon>
+In-Reply-To: <20181123121009.17213-1-thierry.reding@gmail.com>
 Content-Language: en-US
+Content-ID: <E9A070F084B66F4AAE7F7E01CA7FB706@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>, Vitor Soares <vitor.soares@synopsys.com>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, gregkh@linuxfoundation.org, arnd@arndb.de, psroka@cadence.com, agolec@cadence.com, adouglas@cadence.com, bfolta@cadence.com, dkos@cadence.com, alicja@cadence.com, cwronka@cadence.com, sureshp@cadence.com, rafalc@cadence.com, thomas.petazzoni@bootlin.com, nm@ti.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, geert@linux-m68k.org, linus.walleij@linaro.org, Xiang.Lin@synaptics.com, linux-gpio@vger.kernel.org, nsekhar@ti.com, pgaj@cadence.com, peda@axentia.se, mshettel@codeaurora.org, swboyd@chromium.org
+To: Thierry Reding <thierry.reding@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Boris,
-
-
-On 22/11/18 20:02, Boris Brezillon wrote:
-> On Thu, 22 Nov 2018 17:54:54 +0000
-> Vitor Soares <vitor.soares@synopsys.com> wrote:
->
->> From: Vitor Soares <soares@synopsys.com>
->>
->> This patch slipts dw-i3c-master.c into three pieces:
->> 	dw-i3c-master.c - contains the code that interacts directly with the
->> 	core in master mode.
->>
->> 	dw-i3c-platdrv.c - contains the code specific to the platform driver.
->>
->> 	dw-i3c-core.h - contains the definitions and declarations shared by
->> 	dw-i3c-master and dw-i3c-platdrv
->>
->> This patch will allow SOC integrators to add their code specific to
->> DesignWare I3C IP.
-> Isn't it too early to do this change? Can't we wait until we have a SoC
-> that actually embeds this IP?
-
-
-I'm trying to turn it more flexible so the other can reuse the code.
-
-
->
->> Signed-off-by: Vitor Soares <soares@synopsys.com>
->> ---
->>   drivers/i3c/master/Kconfig          |   9 +-
->>   drivers/i3c/master/Makefile         |   5 +-
->>   drivers/i3c/master/dw-i3c-core.h    | 214 ++++++++++++++++++++++++++
->>   drivers/i3c/master/dw-i3c-master.c  | 299 ++----------------------------------
->>   drivers/i3c/master/dw-i3c-platdrv.c | 112 ++++++++++++++
-> I'd prefer to have a dw/ subdir where you'd place all dw files.
-
-
-Sure. I will change to this:
-
-../dwc
-    |-core.h
-    |-master.c
-    |-platdrv.c
-
-
-so the user doesn't need to write dw-i3c.. several times. The folder 
-name is the same as for other subsystem (e.g. PCI).
-
-What do you think?
-
->
->>   5 files changed, 349 insertions(+), 290 deletions(-)
->>   create mode 100644 drivers/i3c/master/dw-i3c-core.h
->>   create mode 100644 drivers/i3c/master/dw-i3c-platdrv.c
->>
->> diff --git a/drivers/i3c/master/Kconfig b/drivers/i3c/master/Kconfig
->> index 8ee1ce6..fdc6e46 100644
->> --- a/drivers/i3c/master/Kconfig
->> +++ b/drivers/i3c/master/Kconfig
->> @@ -5,9 +5,14 @@ config CDNS_I3C_MASTER
->>   	help
->>   	  Enable this driver if you want to support Cadence I3C master block.
->>   
->> -config DW_I3C_MASTER
->> -	tristate "Synospsys DesignWare I3C master driver"
->> +config DW_I3C_CORE
->> +	tristate
->> +
->> +config DW_I3C_PLATFORM
->> +	tristate "Synospsys DesignWare I3C Platform driver"
->> +	select DW_I3C_CORE
->>   	depends on I3C
->> +	depends on HAS_IOMEM
->>   	depends on !(ALPHA || PARISC)
->>   	# ALPHA and PARISC needs {read,write}sl()
->>   	help
->> diff --git a/drivers/i3c/master/Makefile b/drivers/i3c/master/Makefile
->> index fc53939..004ad1c 100644
->> --- a/drivers/i3c/master/Makefile
->> +++ b/drivers/i3c/master/Makefile
->> @@ -1,2 +1,5 @@
->>   obj-$(CONFIG_CDNS_I3C_MASTER)		+= i3c-master-cdns.o
->> -obj-$(CONFIG_DW_I3C_MASTER)		+= dw-i3c-master.o
->> +obj-$(CONFIG_DW_I3C_CORE)		+= dw-i3c-core.o
->> +dw-i3c-core-objs			:= dw-i3c-master.o
->> +obj-$(CONFIG_DW_I3C_PLATFORM)		+= dw-i3c-platform.o
->> +dw-i3c-platform-objs			:= dw-i3c-platdrv.o
-> Do we really have to create one module for the core and one per SoC?
-> Can't we have everything in the same .ko?
-
-
-This will help the introduction of new modules. The design in my mind is 
-to have:
-
--core.h
-
--common.c
-
--master.c
-
--slave.c
-
-...
-
-I'm not sure if make sense to change core.h to common.h.
-
-
-
-Thaks for your feedback.
-
-
-Best regards,
-
-Vitor Soares
+T24gMjAxOC0xMS0yMyAxMzoxMCwgVGhpZXJyeSBSZWRpbmcgd3JvdGU6DQo+IEZyb206IFRoaWVy
+cnkgUmVkaW5nIDx0cmVkaW5nQG52aWRpYS5jb20+DQo+IA0KPiBUaGUgImF0LCIgcHJlZml4IHdh
+cyBuZXZlciBjb3JyZWN0IGZvciBBdG1lbCwgc28gZml4IHRoZSBmZXcgb2NjdXJyZW5jZXMNCj4g
+dGhhdCBnb3QgaXQgd3JvbmcuIFVzZSAiYXRtZWwsIiBpbnN0ZWFkLg0KDQpGdWxseSBhZ3JlZWQu
+IEhvd2V2ZXIsIGdpdmVuIHRoYXQgYXRtZWwsMjRjMDggaXMgZG9jdW1lbnRlZCBpbiAuLi4vZWVw
+cm9tL2F0MjQudHh0DQpJIHRoaW5rIGl0IHdvdWxkIGJlIGJldHRlciB0byByZW1vdmUgYXQsMjRj
+MDggZnJvbSB0cml2aWFsLWRldmljZXMudHh0DQoNCkNoZWVycywNClBldGVyDQoNCj4gU2lnbmVk
+LW9mZi1ieTogVGhpZXJyeSBSZWRpbmcgPHRyZWRpbmdAbnZpZGlhLmNvbT4NCj4gLS0tDQo+ICBE
+b2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgtbHRjNDMwNi50eHQg
+fCAyICstDQo+ICBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgt
+cGNhOTU0eC50eHQgfCAyICstDQo+ICBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3Mv
+aTJjL254cCxwY2E5NTQxLnR4dCAgICAgfCAyICstDQo+ICBEb2N1bWVudGF0aW9uL2RldmljZXRy
+ZWUvYmluZGluZ3MvdHJpdmlhbC1kZXZpY2VzLnR4dCAgICAgfCAyICstDQo+ICA0IGZpbGVzIGNo
+YW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1naXQg
+YS9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgtbHRjNDMwNi50
+eHQgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgtbHRjNDMw
+Ni50eHQNCj4gaW5kZXggMWU5OGM2YjNhNzIxLi5jNjYxYjkwODNlYzYgMTAwNjQ0DQo+IC0tLSBh
+L0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLW11eC1sdGM0MzA2LnR4
+dA0KPiArKysgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgt
+bHRjNDMwNi50eHQNCj4gQEAgLTQzLDcgKzQzLDcgQEAgRXhhbXBsZToNCj4gIAkJCXJlZyA9IDww
+PjsNCj4gIA0KPiAgCQkJZWVwcm9tQDUwIHsNCj4gLQkJCQljb21wYXRpYmxlID0gImF0LDI0YzAy
+IjsNCj4gKwkJCQljb21wYXRpYmxlID0gImF0bWVsLDI0YzAyIjsNCj4gIAkJCQlyZWcgPSA8MHg1
+MD47DQo+ICAJCQl9Ow0KPiAgCQl9Ow0KPiBkaWZmIC0tZ2l0IGEvRG9jdW1lbnRhdGlvbi9kZXZp
+Y2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXV4LXBjYTk1NHgudHh0IGIvRG9jdW1lbnRhdGlvbi9k
+ZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXV4LXBjYTk1NHgudHh0DQo+IGluZGV4IGNjZjZj
+ODZlZDA3Ni4uMzBhYzZhNjBmMDQxIDEwMDY0NA0KPiAtLS0gYS9Eb2N1bWVudGF0aW9uL2Rldmlj
+ZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgtcGNhOTU0eC50eHQNCj4gKysrIGIvRG9jdW1lbnRh
+dGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXV4LXBjYTk1NHgudHh0DQo+IEBAIC01
+NCw3ICs1NCw3IEBAIEV4YW1wbGU6DQo+ICAJCQlyZWcgPSA8Mj47DQo+ICANCj4gIAkJCWVlcHJv
+bUA1NCB7DQo+IC0JCQkJY29tcGF0aWJsZSA9ICJhdCwyNGMwOCI7DQo+ICsJCQkJY29tcGF0aWJs
+ZSA9ICJhdG1lbCwyNGMwOCI7DQo+ICAJCQkJcmVnID0gPDB4NTQ+Ow0KPiAgCQkJfTsNCj4gIAkJ
+fTsNCj4gZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMv
+bnhwLHBjYTk1NDEudHh0IGIvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9u
+eHAscGNhOTU0MS50eHQNCj4gaW5kZXggMGZiYmM2OTcwZWM1Li40MmJmYzA5Yzg5MTggMTAwNjQ0
+DQo+IC0tLSBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvbnhwLHBjYTk1
+NDEudHh0DQo+ICsrKyBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvbnhw
+LHBjYTk1NDEudHh0DQo+IEBAIC0yMiw3ICsyMiw3IEBAIEV4YW1wbGU6DQo+ICAJCQkjc2l6ZS1j
+ZWxscyA9IDwwPjsNCj4gIA0KPiAgCQkJZWVwcm9tQDU0IHsNCj4gLQkJCQljb21wYXRpYmxlID0g
+ImF0LDI0YzA4IjsNCj4gKwkJCQljb21wYXRpYmxlID0gImF0bWVsLDI0YzA4IjsNCj4gIAkJCQly
+ZWcgPSA8MHg1ND47DQo+ICAJCQl9Ow0KPiAgCQl9Ow0KPiBkaWZmIC0tZ2l0IGEvRG9jdW1lbnRh
+dGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL3RyaXZpYWwtZGV2aWNlcy50eHQgYi9Eb2N1bWVudGF0
+aW9uL2RldmljZXRyZWUvYmluZGluZ3MvdHJpdmlhbC1kZXZpY2VzLnR4dA0KPiBpbmRleCA2YWIw
+MDFmYTFlZDQuLmI3YTdlYWYyOTc5YSAxMDA2NDQNCj4gLS0tIGEvRG9jdW1lbnRhdGlvbi9kZXZp
+Y2V0cmVlL2JpbmRpbmdzL3RyaXZpYWwtZGV2aWNlcy50eHQNCj4gKysrIGIvRG9jdW1lbnRhdGlv
+bi9kZXZpY2V0cmVlL2JpbmRpbmdzL3RyaXZpYWwtZGV2aWNlcy50eHQNCj4gQEAgLTIxLDcgKzIx
+LDcgQEAgYWRpLGFkdDc0OTAJCSsvLTFDIFRETSBFeHRlbmRlZCBUZW1wIFJhbmdlIEkuQw0KPiAg
+YWRpLGFkeGwzNDUJCVRocmVlLUF4aXMgRGlnaXRhbCBBY2NlbGVyb21ldGVyDQo+ICBhZGksYWR4
+bDM0NgkJVGhyZWUtQXhpcyBEaWdpdGFsIEFjY2VsZXJvbWV0ZXIgKGJhY2t3YXJkLWNvbXBhdGli
+aWxpdHkgdmFsdWUgImFkaSxhZHhsMzQ1IiBtdXN0IGJlIGxpc3RlZCB0b28pDQo+ICBhbXMsaWFx
+LWNvcmUJCUFNUyBpQVEtQ29yZSBWT0MgU2Vuc29yDQo+IC1hdCwyNGMwOAkJaTJjIHNlcmlhbCBl
+ZXByb20gICgyNGN4eCkNCj4gK2F0bWVsLDI0YzA4CQlpMmMgc2VyaWFsIGVlcHJvbSAgKDI0Y3h4
+KQ0KPiAgYXRtZWwsYXQ5N3NjMzIwNHQJaTJjIHRydXN0ZWQgcGxhdGZvcm0gbW9kdWxlIChUUE0p
+DQo+ICBjYXBlbGxhLGNtMzIxODEJCUNNMzIxODE6IEFtYmllbnQgTGlnaHQgU2Vuc29yDQo+ICBj
+YXBlbGxhLGNtMzIzMgkJQ00zMjMyOiBBbWJpZW50IExpZ2h0IFNlbnNvcg0KPiANCg0K
