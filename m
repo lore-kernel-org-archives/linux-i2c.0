@@ -1,71 +1,60 @@
-From: Peter Rosin <peda@axentia.se>
+From: Thierry Reding <thierry.reding@gmail.com>
 Subject: Re: [PATCH] dt-bindings: i2c: Use correct vendor prefix for Atmel
-Date: Fri, 23 Nov 2018 12:40:19 +0000
-Message-ID: <374af1fb-54bc-ee13-b4fd-616c2fe0746f@axentia.se>
+Date: Fri, 23 Nov 2018 13:47:30 +0100
+Message-ID: <20181123124730.GA21651@ulmo>
 References: <20181123121009.17213-1-thierry.reding@gmail.com>
+ <374af1fb-54bc-ee13-b4fd-616c2fe0746f@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181123121009.17213-1-thierry.reding@gmail.com>
-Content-Language: en-US
-Content-ID: <E9A070F084B66F4AAE7F7E01CA7FB706@eurprd02.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <374af1fb-54bc-ee13-b4fd-616c2fe0746f@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>, Rob Herring <robh+dt@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Peter Rosin <peda@axentia.se>
+Cc: Rob Herring <robh+dt@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOC0xMS0yMyAxMzoxMCwgVGhpZXJyeSBSZWRpbmcgd3JvdGU6DQo+IEZyb206IFRoaWVy
-cnkgUmVkaW5nIDx0cmVkaW5nQG52aWRpYS5jb20+DQo+IA0KPiBUaGUgImF0LCIgcHJlZml4IHdh
-cyBuZXZlciBjb3JyZWN0IGZvciBBdG1lbCwgc28gZml4IHRoZSBmZXcgb2NjdXJyZW5jZXMNCj4g
-dGhhdCBnb3QgaXQgd3JvbmcuIFVzZSAiYXRtZWwsIiBpbnN0ZWFkLg0KDQpGdWxseSBhZ3JlZWQu
-IEhvd2V2ZXIsIGdpdmVuIHRoYXQgYXRtZWwsMjRjMDggaXMgZG9jdW1lbnRlZCBpbiAuLi4vZWVw
-cm9tL2F0MjQudHh0DQpJIHRoaW5rIGl0IHdvdWxkIGJlIGJldHRlciB0byByZW1vdmUgYXQsMjRj
-MDggZnJvbSB0cml2aWFsLWRldmljZXMudHh0DQoNCkNoZWVycywNClBldGVyDQoNCj4gU2lnbmVk
-LW9mZi1ieTogVGhpZXJyeSBSZWRpbmcgPHRyZWRpbmdAbnZpZGlhLmNvbT4NCj4gLS0tDQo+ICBE
-b2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgtbHRjNDMwNi50eHQg
-fCAyICstDQo+ICBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgt
-cGNhOTU0eC50eHQgfCAyICstDQo+ICBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3Mv
-aTJjL254cCxwY2E5NTQxLnR4dCAgICAgfCAyICstDQo+ICBEb2N1bWVudGF0aW9uL2RldmljZXRy
-ZWUvYmluZGluZ3MvdHJpdmlhbC1kZXZpY2VzLnR4dCAgICAgfCAyICstDQo+ICA0IGZpbGVzIGNo
-YW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1naXQg
-YS9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgtbHRjNDMwNi50
-eHQgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgtbHRjNDMw
-Ni50eHQNCj4gaW5kZXggMWU5OGM2YjNhNzIxLi5jNjYxYjkwODNlYzYgMTAwNjQ0DQo+IC0tLSBh
-L0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLW11eC1sdGM0MzA2LnR4
-dA0KPiArKysgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgt
-bHRjNDMwNi50eHQNCj4gQEAgLTQzLDcgKzQzLDcgQEAgRXhhbXBsZToNCj4gIAkJCXJlZyA9IDww
-PjsNCj4gIA0KPiAgCQkJZWVwcm9tQDUwIHsNCj4gLQkJCQljb21wYXRpYmxlID0gImF0LDI0YzAy
-IjsNCj4gKwkJCQljb21wYXRpYmxlID0gImF0bWVsLDI0YzAyIjsNCj4gIAkJCQlyZWcgPSA8MHg1
-MD47DQo+ICAJCQl9Ow0KPiAgCQl9Ow0KPiBkaWZmIC0tZ2l0IGEvRG9jdW1lbnRhdGlvbi9kZXZp
-Y2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXV4LXBjYTk1NHgudHh0IGIvRG9jdW1lbnRhdGlvbi9k
-ZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXV4LXBjYTk1NHgudHh0DQo+IGluZGV4IGNjZjZj
-ODZlZDA3Ni4uMzBhYzZhNjBmMDQxIDEwMDY0NA0KPiAtLS0gYS9Eb2N1bWVudGF0aW9uL2Rldmlj
-ZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgtcGNhOTU0eC50eHQNCj4gKysrIGIvRG9jdW1lbnRh
-dGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXV4LXBjYTk1NHgudHh0DQo+IEBAIC01
-NCw3ICs1NCw3IEBAIEV4YW1wbGU6DQo+ICAJCQlyZWcgPSA8Mj47DQo+ICANCj4gIAkJCWVlcHJv
-bUA1NCB7DQo+IC0JCQkJY29tcGF0aWJsZSA9ICJhdCwyNGMwOCI7DQo+ICsJCQkJY29tcGF0aWJs
-ZSA9ICJhdG1lbCwyNGMwOCI7DQo+ICAJCQkJcmVnID0gPDB4NTQ+Ow0KPiAgCQkJfTsNCj4gIAkJ
-fTsNCj4gZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMv
-bnhwLHBjYTk1NDEudHh0IGIvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9u
-eHAscGNhOTU0MS50eHQNCj4gaW5kZXggMGZiYmM2OTcwZWM1Li40MmJmYzA5Yzg5MTggMTAwNjQ0
-DQo+IC0tLSBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvbnhwLHBjYTk1
-NDEudHh0DQo+ICsrKyBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvbnhw
-LHBjYTk1NDEudHh0DQo+IEBAIC0yMiw3ICsyMiw3IEBAIEV4YW1wbGU6DQo+ICAJCQkjc2l6ZS1j
-ZWxscyA9IDwwPjsNCj4gIA0KPiAgCQkJZWVwcm9tQDU0IHsNCj4gLQkJCQljb21wYXRpYmxlID0g
-ImF0LDI0YzA4IjsNCj4gKwkJCQljb21wYXRpYmxlID0gImF0bWVsLDI0YzA4IjsNCj4gIAkJCQly
-ZWcgPSA8MHg1ND47DQo+ICAJCQl9Ow0KPiAgCQl9Ow0KPiBkaWZmIC0tZ2l0IGEvRG9jdW1lbnRh
-dGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL3RyaXZpYWwtZGV2aWNlcy50eHQgYi9Eb2N1bWVudGF0
-aW9uL2RldmljZXRyZWUvYmluZGluZ3MvdHJpdmlhbC1kZXZpY2VzLnR4dA0KPiBpbmRleCA2YWIw
-MDFmYTFlZDQuLmI3YTdlYWYyOTc5YSAxMDA2NDQNCj4gLS0tIGEvRG9jdW1lbnRhdGlvbi9kZXZp
-Y2V0cmVlL2JpbmRpbmdzL3RyaXZpYWwtZGV2aWNlcy50eHQNCj4gKysrIGIvRG9jdW1lbnRhdGlv
-bi9kZXZpY2V0cmVlL2JpbmRpbmdzL3RyaXZpYWwtZGV2aWNlcy50eHQNCj4gQEAgLTIxLDcgKzIx
-LDcgQEAgYWRpLGFkdDc0OTAJCSsvLTFDIFRETSBFeHRlbmRlZCBUZW1wIFJhbmdlIEkuQw0KPiAg
-YWRpLGFkeGwzNDUJCVRocmVlLUF4aXMgRGlnaXRhbCBBY2NlbGVyb21ldGVyDQo+ICBhZGksYWR4
-bDM0NgkJVGhyZWUtQXhpcyBEaWdpdGFsIEFjY2VsZXJvbWV0ZXIgKGJhY2t3YXJkLWNvbXBhdGli
-aWxpdHkgdmFsdWUgImFkaSxhZHhsMzQ1IiBtdXN0IGJlIGxpc3RlZCB0b28pDQo+ICBhbXMsaWFx
-LWNvcmUJCUFNUyBpQVEtQ29yZSBWT0MgU2Vuc29yDQo+IC1hdCwyNGMwOAkJaTJjIHNlcmlhbCBl
-ZXByb20gICgyNGN4eCkNCj4gK2F0bWVsLDI0YzA4CQlpMmMgc2VyaWFsIGVlcHJvbSAgKDI0Y3h4
-KQ0KPiAgYXRtZWwsYXQ5N3NjMzIwNHQJaTJjIHRydXN0ZWQgcGxhdGZvcm0gbW9kdWxlIChUUE0p
-DQo+ICBjYXBlbGxhLGNtMzIxODEJCUNNMzIxODE6IEFtYmllbnQgTGlnaHQgU2Vuc29yDQo+ICBj
-YXBlbGxhLGNtMzIzMgkJQ00zMjMyOiBBbWJpZW50IExpZ2h0IFNlbnNvcg0KPiANCg0K
+
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Nov 23, 2018 at 12:40:19PM +0000, Peter Rosin wrote:
+> On 2018-11-23 13:10, Thierry Reding wrote:
+> > From: Thierry Reding <treding@nvidia.com>
+> >=20
+> > The "at," prefix was never correct for Atmel, so fix the few occurrences
+> > that got it wrong. Use "atmel," instead.
+>=20
+> Fully agreed. However, given that atmel,24c08 is documented in .../eeprom=
+/at24.txt
+> I think it would be better to remove at,24c08 from trivial-devices.txt
+
+Good point, will respin.
+
+Thanks,
+Thierry
+
+--EVF5PPMfhYS0aIcm
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlv39t8ACgkQ3SOs138+
+s6GgpA/9HMnlBtqOGEZIOhZDI70tCul3alKe0py84MhZlf4lCr5PH3+znwzR+uVX
+86VYxrs5iDM2oXz4lbXZ6O4zebMbnEIozyni7p2CqxgJ5Mk8z79ZkuovjIqhc5QM
+9bbjuPbIiCh/TZflkm+1ujRA/iQCR7waRxBMEC5KIcWfwfA3Ddax/9TGGSGqvZAn
+J3K9OhjvFIHl25lnEFCFKCj2HDx7jQp1+fZBwHtkMtRdYRT6toLedEsCOHXc45y0
+W3vhp6OQiKVAlr+4UdcSuL53t6LYQ2l08IhC7B6ERY0XwvK5QOP8Ky8nj+mEZNjM
+l9vHwiCoCYip/mHGHJuCFUdVXRz0RhRt3yLjl3fG/nMojapj7XUGVoMoT0s+4nxH
+pvpATELxaevAsqEorvI99km2OYvOOw7Nlljq97ag3YjBn/cirbuwI1Lc5p+tigPA
+TB9E6CFZp3gXtDg8MRa4yNphZeHvJPbyCKeAVMKUKksV1BfLqWVbGD6sJG59AjDu
+g8t/B5H7335E0QzVtHjNntAnh1XSiwirJjm30nv9T/o5Oai6irurf+8Ap63C4hoN
+T43ZGUDy5h9aNxk6G5P1Rsi9akmm+1Y6bb2dAyi6wA/miqfljqNgfBbISJUpRcEr
+fi30H0uZnWySPb6eR3kwRX5i+tENLvLuD1sGGmejIpOFGTfRSec=
+=63b1
+-----END PGP SIGNATURE-----
+
+--EVF5PPMfhYS0aIcm--
