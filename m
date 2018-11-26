@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 01/13] platform/x86: intel_cht_int33fe: Remove duplicate NULL check
-Date: Mon, 26 Nov 2018 17:08:46 +0200
-Message-ID: <20181126150858.16901-2-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 10/13] platform/x86: i2c-multi-instantiate: Introduce IOAPIC IRQ support
+Date: Mon, 26 Nov 2018 17:08:55 +0200
+Message-ID: <20181126150858.16901-11-andriy.shevchenko@linux.intel.com>
 References: <20181126150858.16901-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,38 +12,45 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Since i2c_unregister_device() became NULL-aware we may remove duplicate
-NULL check.
+If ACPI table provides an Interrupt() resource we may consider to use it
+instead of GpioInt() one.
+
+Here we leave an error condition, when getting IRQ resource, to the driver
+to decide how to proceed, because some drivers may consider IRQ resource
+optional.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/platform/x86/intel_cht_int33fe.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/platform/x86/i2c-multi-instantiate.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/platform/x86/intel_cht_int33fe.c b/drivers/platform/x86/intel_cht_int33fe.c
-index 464fe93657b5..431151d4e611 100644
---- a/drivers/platform/x86/intel_cht_int33fe.c
-+++ b/drivers/platform/x86/intel_cht_int33fe.c
-@@ -213,8 +213,7 @@ static int cht_int33fe_probe(struct platform_device *pdev)
- 	i2c_unregister_device(data->fusb302);
+diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
+index 1faecc99e0a6..2110f2e4aa1a 100644
+--- a/drivers/platform/x86/i2c-multi-instantiate.c
++++ b/drivers/platform/x86/i2c-multi-instantiate.c
+@@ -18,6 +18,7 @@
+ #define IRQ_RESOURCE_TYPE	GENMASK(1, 0)
+ #define IRQ_RESOURCE_NONE	0
+ #define IRQ_RESOURCE_GPIO	1
++#define IRQ_RESOURCE_APIC	2
  
- out_unregister_max17047:
--	if (data->max17047)
--		i2c_unregister_device(data->max17047);
-+	i2c_unregister_device(data->max17047);
- 
- 	device_connections_remove(data->connections);
- 
-@@ -227,8 +226,7 @@ static int cht_int33fe_remove(struct platform_device *pdev)
- 
- 	i2c_unregister_device(data->pi3usb30532);
- 	i2c_unregister_device(data->fusb302);
--	if (data->max17047)
--		i2c_unregister_device(data->max17047);
-+	i2c_unregister_device(data->max17047);
- 
- 	device_connections_remove(data->connections);
- 
+ struct i2c_inst_data {
+ 	const char *type;
+@@ -104,6 +105,14 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
+ 			}
+ 			board_info.irq = ret;
+ 			break;
++		case IRQ_RESOURCE_APIC:
++			ret = platform_get_irq(pdev, inst_data[i].irq_idx);
++			if (ret < 0) {
++				dev_dbg(dev, "Error requesting irq at index %d: %d\n",
++					inst_data[i].irq_idx, ret);
++			}
++			board_info.irq = ret;
++			break;
+ 		default:
+ 			board_info.irq = 0;
+ 			break;
 -- 
 2.19.1
