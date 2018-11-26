@@ -1,7 +1,7 @@
 From: Parthiban Nallathambi <pn@denx.de>
-Subject: [PATCH v2 1/4] dt-bindings: i2c: Add S700 support for Actions Semi Soc's
-Date: Mon, 26 Nov 2018 19:58:18 +0100
-Message-ID: <20181126185821.2480449-2-pn@denx.de>
+Subject: [PATCH v2 2/4] i2c: Add Actions Semiconductor Owl family S700 I2C support
+Date: Mon, 26 Nov 2018 19:58:19 +0100
+Message-ID: <20181126185821.2480449-3-pn@denx.de>
 References: <20181126185821.2480449-1-pn@denx.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20181126185821.2480449-1-pn@denx.de>
@@ -10,25 +10,26 @@ To: afaerber@suse.de, manivannan.sadhasivam@linaro.org, robh+dt@kernel.org, mark
 Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux@cubietech.com, thomas.liau@actions-semi.com, Parthiban Nallathambi <pn@denx.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Add s700 compatible string to Actions Semi SoC dt-bindings.
+Add S700 to the list of devices supported by Owl I2C driver.
+
+Add Actions Semiconductor Owl family S900 I2C driver.
 
 Signed-off-by: Parthiban Nallathambi <pn@denx.de>
 ---
- Documentation/devicetree/bindings/i2c/i2c-owl.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-owl.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-owl.txt b/Documentation/devicetree/bindings/i2c/i2c-owl.txt
-index b743fe444e9f..dfa1197e0dbf 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-owl.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-owl.txt
-@@ -2,7 +2,7 @@ Actions Semiconductor Owl I2C controller
+diff --git a/drivers/i2c/busses/i2c-owl.c b/drivers/i2c/busses/i2c-owl.c
+index 96b4572e6d9c..b6b5a495118b 100644
+--- a/drivers/i2c/busses/i2c-owl.c
++++ b/drivers/i2c/busses/i2c-owl.c
+@@ -475,6 +475,7 @@ static int owl_i2c_probe(struct platform_device *pdev)
+ }
  
- Required properties:
- 
--- compatible        : Should be "actions,s900-i2c".
-+- compatible        : Should be "actions,s700-i2c" or "actions,s900-i2c".
- - reg               : Offset and length of the register set for the device.
- - #address-cells    : Should be 1.
- - #size-cells       : Should be 0.
+ static const struct of_device_id owl_i2c_of_match[] = {
++	{ .compatible = "actions,s700-i2c" },
+ 	{ .compatible = "actions,s900-i2c" },
+ 	{ /* sentinel */ }
+ };
 -- 
 2.17.2
