@@ -1,62 +1,46 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 00/13] i2c-multi-instantiate: Adapt for INT3515 and alike
-Date: Mon, 26 Nov 2018 17:08:45 +0200
-Message-ID: <20181126150858.16901-1-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 03/13] platform/x86: i2c-multi-instantiate: Accept errors of i2c_acpi_new_device()
+Date: Mon, 26 Nov 2018 17:08:48 +0200
+Message-ID: <20181126150858.16901-4-andriy.shevchenko@linux.intel.com>
+References: <20181126150858.16901-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181126150858.16901-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-acpi@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-kernel@vger.kernel.org
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Currently i2c-multi-instantiate driver does not support the case
-of INT3515 USB PD device, where:
+In the future i2c_acpi_new_device() will return error pointer in some cases.
+Prepare i2c-multi-instantiate driver to support that.
 
-- Interrupt() is used instead of GpioInt()
-- All slaves may be the same from IP point of view
-- There can be variadic amount of slaves
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/platform/x86/i2c-multi-instantiate.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-This series is addressing all above.
-
-Note, series has been smoke tested (Heikki would do BAT or more)
-on Intel Coffee Lake system.
-
-The idea is to push this either through PDx86 tree (needs Rafael's ACKs) or ACPI.
-In any case it needs tags from Heikki, Hans, Mika, Wolfram and Jonathan.
-
-Testing and comments are warmly welcome.
-
-In v2:
- - drop patches to copy fwnode and to handle BOSC0200 device
- - append check for amount of devices listed in the driver's mapping
- - add Rb tag given by Hans
-
-Andy Shevchenko (13):
-  platform/x86: intel_cht_int33fe: Remove duplicate NULL check
-  platform/x86: intel_cht_int33fe: Accept errors of
-    i2c_acpi_new_device()
-  platform/x86: i2c-multi-instantiate: Accept errors of
-    i2c_acpi_new_device()
-  platform/x86: i2c-mutli-instantiate: Defer probe when no adapter found
-  i2c: acpi: Return error pointers from i2c_acpi_new_device()
-  i2c: acpi: Use ACPI_FAILURE instead of !ACPI_SUCCESS
-  i2c: acpi: Introduce i2c_acpi_get_i2c_resource() helper
-  platform/x86: i2c-multi-instantiate: Count I2cSerialBus() resources
-  platform/x86: i2c-multi-instantiate: Distinguish IRQ resource type
-  platform/x86: i2c-multi-instantiate: Introduce IOAPIC IRQ support
-  platform/x86: i2c-multi-instantiate: Allow to have same slaves
-  ACPI / scan: Create platform device for INT3515 ACPI nodes
-  iio: inv_mpu6050: Use i2c_acpi_get_i2c_resource() helper
-
- drivers/acpi/scan.c                          |  1 +
- drivers/i2c/i2c-core-acpi.c                  | 42 +++++----
- drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c   | 16 ++--
- drivers/platform/x86/i2c-multi-instantiate.c | 99 ++++++++++++++++----
- drivers/platform/x86/intel_cht_int33fe.c     | 34 +++++--
- drivers/usb/typec/tps6598x.c                 |  8 +-
- include/linux/acpi.h                         | 11 +++
- 7 files changed, 155 insertions(+), 56 deletions(-)
-
---
+diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
+index 5456581b473c..e3345da82c84 100644
+--- a/drivers/platform/x86/i2c-multi-instantiate.c
++++ b/drivers/platform/x86/i2c-multi-instantiate.c
+@@ -72,9 +72,14 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
+ 			board_info.irq = ret;
+ 		}
+ 		multi->clients[i] = i2c_acpi_new_device(dev, i, &board_info);
+-		if (!multi->clients[i]) {
+-			dev_err(dev, "Error creating i2c-client, idx %d\n", i);
++		if (IS_ERR(multi->clients[i]))
++			ret = PTR_ERR(multi->clients[i]);
++		else if (!multi->clients[i])
+ 			ret = -ENODEV;
++		else
++			ret = 0;
++		if (ret) {
++			dev_err(dev, "Error creating i2c-client, idx %d\n", i);
+ 			goto error;
+ 		}
+ 	}
+-- 
 2.19.1
