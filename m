@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 03/13] platform/x86: i2c-multi-instantiate: Accept errors of i2c_acpi_new_device()
-Date: Mon, 26 Nov 2018 17:08:48 +0200
-Message-ID: <20181126150858.16901-4-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 06/13] i2c: acpi: Use ACPI_FAILURE instead of !ACPI_SUCCESS
+Date: Mon, 26 Nov 2018 17:08:51 +0200
+Message-ID: <20181126150858.16901-7-andriy.shevchenko@linux.intel.com>
 References: <20181126150858.16901-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,35 +12,26 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-In the future i2c_acpi_new_device() will return error pointer in some cases.
-Prepare i2c-multi-instantiate driver to support that.
+Convert to use ACPI_FAILURE instead of !ACPI_SUCCESS.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/platform/x86/i2c-multi-instantiate.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core-acpi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
-index 5456581b473c..e3345da82c84 100644
---- a/drivers/platform/x86/i2c-multi-instantiate.c
-+++ b/drivers/platform/x86/i2c-multi-instantiate.c
-@@ -72,9 +72,14 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
- 			board_info.irq = ret;
- 		}
- 		multi->clients[i] = i2c_acpi_new_device(dev, i, &board_info);
--		if (!multi->clients[i]) {
--			dev_err(dev, "Error creating i2c-client, idx %d\n", i);
-+		if (IS_ERR(multi->clients[i]))
-+			ret = PTR_ERR(multi->clients[i]);
-+		else if (!multi->clients[i])
- 			ret = -ENODEV;
-+		else
-+			ret = 0;
-+		if (ret) {
-+			dev_err(dev, "Error creating i2c-client, idx %d\n", i);
- 			goto error;
- 		}
- 	}
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index af4b5bd5d973..287a5e4b3d30 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -65,7 +65,7 @@ static int i2c_acpi_fill_info(struct acpi_resource *ares, void *data)
+ 	status = acpi_get_handle(lookup->device_handle,
+ 				 sb->resource_source.string_ptr,
+ 				 &lookup->adapter_handle);
+-	if (!ACPI_SUCCESS(status))
++	if (ACPI_FAILURE(status))
+ 		return 1;
+ 
+ 	info->addr = sb->slave_address;
 -- 
 2.19.1
