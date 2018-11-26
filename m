@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 13/13] iio: inv_mpu6050: Use i2c_acpi_get_i2c_resource() helper
-Date: Mon, 26 Nov 2018 17:08:58 +0200
-Message-ID: <20181126150858.16901-14-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 08/13] platform/x86: i2c-multi-instantiate: Count I2cSerialBus() resources
+Date: Mon, 26 Nov 2018 17:08:53 +0200
+Message-ID: <20181126150858.16901-9-andriy.shevchenko@linux.intel.com>
 References: <20181126150858.16901-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,43 +12,96 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-ACPI provides a generic helper to get I2C Serial Bus resources.
-Use it instead of open coded variant.
+Instead of relying on hard coded and thus expected number of I2C clients,
+count the real amount provided by firmware.
+
+This allows to support non-fixed amount of the slaves.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/platform/x86/i2c-multi-instantiate.c | 41 ++++++++++++++++++--
+ 1 file changed, 37 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-index d78a10403bac..a961b5a06fe6 100644
---- a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-+++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-@@ -91,18 +91,14 @@ static int asus_acpi_get_sensor_info(struct acpi_device *adev,
+diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
+index 16a0eabe1e31..2a405867bbc6 100644
+--- a/drivers/platform/x86/i2c-multi-instantiate.c
++++ b/drivers/platform/x86/i2c-multi-instantiate.c
+@@ -12,6 +12,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
++#include <linux/types.h>
  
- static int acpi_i2c_check_resource(struct acpi_resource *ares, void *data)
- {
+ struct i2c_inst_data {
+ 	const char *type;
+@@ -23,6 +24,31 @@ struct i2c_multi_inst_data {
+ 	struct i2c_client *clients[0];
+ };
+ 
++static int i2c_multi_inst_count(struct acpi_resource *ares, void *data)
++{
 +	struct acpi_resource_i2c_serialbus *sb;
- 	u32 *addr = data;
++	int *count = data;
++
++	if (i2c_acpi_get_i2c_resource(ares, &sb))
++		*count = *count + 1;
++
++	return 1;
++}
++
++static int i2c_multi_inst_count_resources(struct acpi_device *adev)
++{
++	LIST_HEAD(r);
++	int count = 0;
++	int ret;
++
++	ret = acpi_dev_get_resources(adev, &r, i2c_multi_inst_count, &count);
++	if (ret < 0)
++		return ret;
++
++	acpi_dev_free_resource_list(&r);
++	return count;
++}
++
+ static int i2c_multi_inst_probe(struct platform_device *pdev)
+ {
+ 	struct i2c_multi_inst_data *multi;
+@@ -44,17 +70,19 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
+ 	adev = ACPI_COMPANION(dev);
  
--	if (ares->type == ACPI_RESOURCE_TYPE_SERIAL_BUS) {
--		struct acpi_resource_i2c_serialbus *sb;
--
--		sb = &ares->data.i2c_serial_bus;
--		if (sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
--			if (*addr)
--				*addr |= (sb->slave_address << 16);
--			else
--				*addr = sb->slave_address;
--		}
-+	if (i2c_acpi_get_i2c_resource(ares, &sb)) {
-+		if (*addr)
-+			*addr |= (sb->slave_address << 16);
-+		else
-+			*addr = sb->slave_address;
+ 	/* Count number of clients to instantiate */
+-	for (i = 0; inst_data[i].type; i++) {}
++	ret = i2c_multi_inst_count_resources(adev);
++	if (ret < 0)
++		return ret;
+ 
+ 	multi = devm_kmalloc(dev,
+-			offsetof(struct i2c_multi_inst_data, clients[i]),
++			offsetof(struct i2c_multi_inst_data, clients[ret]),
+ 			GFP_KERNEL);
+ 	if (!multi)
+ 		return -ENOMEM;
+ 
+-	multi->num_clients = i;
++	multi->num_clients = ret;
+ 
+-	for (i = 0; i < multi->num_clients; i++) {
++	for (i = 0; i < multi->num_clients && inst_data[i].type; i++) {
+ 		memset(&board_info, 0, sizeof(board_info));
+ 		strlcpy(board_info.type, inst_data[i].type, I2C_NAME_SIZE);
+ 		snprintf(name, sizeof(name), "%s-%s", match->id,
+@@ -83,6 +111,11 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
+ 			goto error;
+ 		}
  	}
++	if (i < multi->num_clients) {
++		dev_err(dev, "Error finding driver, idx %d\n", i);
++		ret = -ENODEV;
++		goto error;
++	}
  
- 	/* Tell the ACPI core that we already copied this address */
+ 	platform_set_drvdata(pdev, multi);
+ 	return 0;
 -- 
 2.19.1
