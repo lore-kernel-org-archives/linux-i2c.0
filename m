@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 05/13] i2c: acpi: Return error pointers from i2c_acpi_new_device()
-Date: Mon, 26 Nov 2018 17:08:50 +0200
-Message-ID: <20181126150858.16901-6-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 04/13] platform/x86: i2c-mutli-instantiate: Defer probe when no adapter found
+Date: Mon, 26 Nov 2018 17:08:49 +0200
+Message-ID: <20181126150858.16901-5-andriy.shevchenko@linux.intel.com>
 References: <20181126150858.16901-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,52 +12,27 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The caller would like to know the reason why the i2c_acpi_new_device() fails.
-For example, if adapter is not available, it might be in the future and we
-would like to re-probe the clients again. But at the same time we would like to
-bail out if the error seems unrecoverable, such as out of memory condition.
-To achieve this, return error pointer in some cases.
+Likewise the rest of the i2c_acpi_new_device() users, defer the probe
+of the i2c-multi-intantiate driver in case adapter is not yet found.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/i2c/i2c-core-acpi.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/platform/x86/i2c-multi-instantiate.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 32affd3fa8bd..af4b5bd5d973 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -387,6 +387,7 @@ struct notifier_block i2c_acpi_notifier = {
-  * Also see i2c_new_device, which this function calls to create the i2c-client.
-  *
-  * Returns a pointer to the new i2c-client, or NULL if the adapter is not found.
-+ * In some cases might return an error pointer.
-  */
- struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
- 				       struct i2c_board_info *info)
-@@ -399,7 +400,7 @@ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
- 
- 	adev = ACPI_COMPANION(dev);
- 	if (!adev)
--		return NULL;
-+		return ERR_PTR(-ENODEV);
- 
- 	memset(&lookup, 0, sizeof(lookup));
- 	lookup.info = info;
-@@ -409,9 +410,11 @@ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
- 	ret = acpi_dev_get_resources(adev, &resource_list,
- 				     i2c_acpi_fill_info, &lookup);
- 	acpi_dev_free_resource_list(&resource_list);
-+	if (ret < 0)
-+		return ERR_PTR(ret);
- 
--	if (ret < 0 || !info->addr)
--		return NULL;
-+	if (!info->addr)
-+		return ERR_PTR(-EADDRNOTAVAIL);
- 
- 	adapter = i2c_acpi_find_adapter_by_handle(lookup.adapter_handle);
- 	if (!adapter)
+diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
+index e3345da82c84..16a0eabe1e31 100644
+--- a/drivers/platform/x86/i2c-multi-instantiate.c
++++ b/drivers/platform/x86/i2c-multi-instantiate.c
+@@ -75,7 +75,7 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
+ 		if (IS_ERR(multi->clients[i]))
+ 			ret = PTR_ERR(multi->clients[i]);
+ 		else if (!multi->clients[i])
+-			ret = -ENODEV;
++			ret = -EPROBE_DEFER; /* Wait for i2c-adapter to load */
+ 		else
+ 			ret = 0;
+ 		if (ret) {
 -- 
 2.19.1
