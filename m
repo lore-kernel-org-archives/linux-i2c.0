@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 07/13] i2c: acpi: Introduce i2c_acpi_get_i2c_resource() helper
-Date: Mon, 26 Nov 2018 17:08:52 +0200
-Message-ID: <20181126150858.16901-8-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 01/13] platform/x86: intel_cht_int33fe: Remove duplicate NULL check
+Date: Mon, 26 Nov 2018 17:08:46 +0200
+Message-ID: <20181126150858.16901-2-andriy.shevchenko@linux.intel.com>
 References: <20181126150858.16901-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,95 +12,38 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Besides current two users one more is coming. Definitely makes sense to
-introduce a helper.
-
-No functional change intended.
+Since i2c_unregister_device() became NULL-aware we may remove duplicate
+NULL check.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/i2c/i2c-core-acpi.c | 31 +++++++++++++++++++------------
- include/linux/acpi.h        | 11 +++++++++++
- 2 files changed, 30 insertions(+), 12 deletions(-)
+ drivers/platform/x86/intel_cht_int33fe.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 287a5e4b3d30..b43f535d264b 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -45,6 +45,23 @@ struct i2c_acpi_lookup {
- 	u32 min_speed;
- };
+diff --git a/drivers/platform/x86/intel_cht_int33fe.c b/drivers/platform/x86/intel_cht_int33fe.c
+index 464fe93657b5..431151d4e611 100644
+--- a/drivers/platform/x86/intel_cht_int33fe.c
++++ b/drivers/platform/x86/intel_cht_int33fe.c
+@@ -213,8 +213,7 @@ static int cht_int33fe_probe(struct platform_device *pdev)
+ 	i2c_unregister_device(data->fusb302);
  
-+bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
-+			       struct acpi_resource_i2c_serialbus **i2c)
-+{
-+	struct acpi_resource_i2c_serialbus *sb;
-+
-+	if (ares->type != ACPI_RESOURCE_TYPE_SERIAL_BUS)
-+		return false;
-+
-+	sb = &ares->data.i2c_serial_bus;
-+	if (sb->type != ACPI_RESOURCE_SERIAL_TYPE_I2C)
-+		return false;
-+
-+	*i2c = sb;
-+	return true;
-+}
-+EXPORT_SYMBOL_GPL(i2c_acpi_get_i2c_resource);
-+
- static int i2c_acpi_fill_info(struct acpi_resource *ares, void *data)
- {
- 	struct i2c_acpi_lookup *lookup = data;
-@@ -52,11 +69,7 @@ static int i2c_acpi_fill_info(struct acpi_resource *ares, void *data)
- 	struct acpi_resource_i2c_serialbus *sb;
- 	acpi_status status;
+ out_unregister_max17047:
+-	if (data->max17047)
+-		i2c_unregister_device(data->max17047);
++	i2c_unregister_device(data->max17047);
  
--	if (info->addr || ares->type != ACPI_RESOURCE_TYPE_SERIAL_BUS)
--		return 1;
--
--	sb = &ares->data.i2c_serial_bus;
--	if (sb->type != ACPI_RESOURCE_SERIAL_TYPE_I2C)
-+	if (info->addr || !i2c_acpi_get_i2c_resource(ares, &sb))
- 		return 1;
+ 	device_connections_remove(data->connections);
  
- 	if (lookup->index != -1 && lookup->n++ != lookup->index)
-@@ -528,13 +541,7 @@ i2c_acpi_space_handler(u32 function, acpi_physical_address command,
- 		goto err;
- 	}
+@@ -227,8 +226,7 @@ static int cht_int33fe_remove(struct platform_device *pdev)
  
--	if (!value64 || ares->type != ACPI_RESOURCE_TYPE_SERIAL_BUS) {
--		ret = AE_BAD_PARAMETER;
--		goto err;
--	}
--
--	sb = &ares->data.i2c_serial_bus;
--	if (sb->type != ACPI_RESOURCE_SERIAL_TYPE_I2C) {
-+	if (!value64 || !i2c_acpi_get_i2c_resource(ares, &sb)) {
- 		ret = AE_BAD_PARAMETER;
- 		goto err;
- 	}
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index ed80f147bd50..6afc6e3c4c5c 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -1054,6 +1054,17 @@ static inline int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index)
- }
- #endif
+ 	i2c_unregister_device(data->pi3usb30532);
+ 	i2c_unregister_device(data->fusb302);
+-	if (data->max17047)
+-		i2c_unregister_device(data->max17047);
++	i2c_unregister_device(data->max17047);
  
-+#if defined(CONFIG_ACPI) && IS_ENABLED(CONFIG_I2C)
-+bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
-+			       struct acpi_resource_i2c_serialbus **i2c);
-+#else
-+static inline bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
-+					     struct acpi_resource_i2c_serialbus **i2c)
-+{
-+	return false;
-+}
-+#endif
-+
- /* Device properties */
+ 	device_connections_remove(data->connections);
  
- #ifdef CONFIG_ACPI
 -- 
 2.19.1
