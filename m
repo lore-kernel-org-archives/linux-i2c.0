@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 09/13] platform/x86: i2c-multi-instantiate: Distinguish IRQ resource type
-Date: Mon, 26 Nov 2018 17:08:54 +0200
-Message-ID: <20181126150858.16901-10-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 13/13] iio: inv_mpu6050: Use i2c_acpi_get_i2c_resource() helper
+Date: Mon, 26 Nov 2018 17:08:58 +0200
+Message-ID: <20181126150858.16901-14-andriy.shevchenko@linux.intel.com>
 References: <20181126150858.16901-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,80 +12,43 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-As a preparatory patch switch the driver to distinguish IRQ resource type.
-For now, only GpioInt() is supported.
+ACPI provides a generic helper to get I2C Serial Bus resources.
+Use it instead of open coded variant.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/platform/x86/i2c-multi-instantiate.c | 27 +++++++++++++-------
- 1 file changed, 18 insertions(+), 9 deletions(-)
+ drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
-index 2a405867bbc6..1faecc99e0a6 100644
---- a/drivers/platform/x86/i2c-multi-instantiate.c
-+++ b/drivers/platform/x86/i2c-multi-instantiate.c
-@@ -7,6 +7,7 @@
-  */
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+index d78a10403bac..a961b5a06fe6 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+@@ -91,18 +91,14 @@ static int asus_acpi_get_sensor_info(struct acpi_device *adev,
  
- #include <linux/acpi.h>
-+#include <linux/bits.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
-@@ -14,9 +15,14 @@
- #include <linux/platform_device.h>
- #include <linux/types.h>
+ static int acpi_i2c_check_resource(struct acpi_resource *ares, void *data)
+ {
++	struct acpi_resource_i2c_serialbus *sb;
+ 	u32 *addr = data;
  
-+#define IRQ_RESOURCE_TYPE	GENMASK(1, 0)
-+#define IRQ_RESOURCE_NONE	0
-+#define IRQ_RESOURCE_GPIO	1
-+
- struct i2c_inst_data {
- 	const char *type;
--	int gpio_irq_idx;
-+	unsigned int flags;
-+	int irq_idx;
- };
+-	if (ares->type == ACPI_RESOURCE_TYPE_SERIAL_BUS) {
+-		struct acpi_resource_i2c_serialbus *sb;
+-
+-		sb = &ares->data.i2c_serial_bus;
+-		if (sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
+-			if (*addr)
+-				*addr |= (sb->slave_address << 16);
+-			else
+-				*addr = sb->slave_address;
+-		}
++	if (i2c_acpi_get_i2c_resource(ares, &sb)) {
++		if (*addr)
++			*addr |= (sb->slave_address << 16);
++		else
++			*addr = sb->slave_address;
+ 	}
  
- struct i2c_multi_inst_data {
-@@ -88,16 +94,19 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
- 		snprintf(name, sizeof(name), "%s-%s", match->id,
- 			 inst_data[i].type);
- 		board_info.dev_name = name;
--		board_info.irq = 0;
--		if (inst_data[i].gpio_irq_idx != -1) {
--			ret = acpi_dev_gpio_irq_get(adev,
--						    inst_data[i].gpio_irq_idx);
-+		switch (inst_data[i].flags & IRQ_RESOURCE_TYPE) {
-+		case IRQ_RESOURCE_GPIO:
-+			ret = acpi_dev_gpio_irq_get(adev, inst_data[i].irq_idx);
- 			if (ret < 0) {
- 				dev_err(dev, "Error requesting irq at index %d: %d\n",
--					inst_data[i].gpio_irq_idx, ret);
-+					inst_data[i].irq_idx, ret);
- 				goto error;
- 			}
- 			board_info.irq = ret;
-+			break;
-+		default:
-+			board_info.irq = 0;
-+			break;
- 		}
- 		multi->clients[i] = i2c_acpi_new_device(dev, i, &board_info);
- 		if (IS_ERR(multi->clients[i]))
-@@ -139,9 +148,9 @@ static int i2c_multi_inst_remove(struct platform_device *pdev)
- }
- 
- static const struct i2c_inst_data bsg1160_data[]  = {
--	{ "bmc150_accel", 0 },
--	{ "bmc150_magn", -1 },
--	{ "bmg160", -1 },
-+	{ "bmc150_accel", IRQ_RESOURCE_GPIO, 0 },
-+	{ "bmc150_magn" },
-+	{ "bmg160" },
- 	{}
- };
- 
+ 	/* Tell the ACPI core that we already copied this address */
 -- 
 2.19.1
