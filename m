@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 06/13] i2c: acpi: Use ACPI_FAILURE instead of !ACPI_SUCCESS
-Date: Mon, 26 Nov 2018 17:08:51 +0200
-Message-ID: <20181126150858.16901-7-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 11/13] platform/x86: i2c-multi-instantiate: Allow to have same slaves
+Date: Mon, 26 Nov 2018 17:08:56 +0200
+Message-ID: <20181126150858.16901-12-andriy.shevchenko@linux.intel.com>
 References: <20181126150858.16901-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,26 +12,31 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Convert to use ACPI_FAILURE instead of !ACPI_SUCCESS.
+Currently the driver will not enumerate the devices where I2C slaves
+are of the same type.
+
+Add an instance number to make them unique.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/i2c/i2c-core-acpi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/i2c-multi-instantiate.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index af4b5bd5d973..287a5e4b3d30 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -65,7 +65,7 @@ static int i2c_acpi_fill_info(struct acpi_resource *ares, void *data)
- 	status = acpi_get_handle(lookup->device_handle,
- 				 sb->resource_source.string_ptr,
- 				 &lookup->adapter_handle);
--	if (!ACPI_SUCCESS(status))
-+	if (ACPI_FAILURE(status))
- 		return 1;
- 
- 	info->addr = sb->slave_address;
+diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
+index 2110f2e4aa1a..d184833bfd05 100644
+--- a/drivers/platform/x86/i2c-multi-instantiate.c
++++ b/drivers/platform/x86/i2c-multi-instantiate.c
+@@ -92,8 +92,8 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
+ 	for (i = 0; i < multi->num_clients && inst_data[i].type; i++) {
+ 		memset(&board_info, 0, sizeof(board_info));
+ 		strlcpy(board_info.type, inst_data[i].type, I2C_NAME_SIZE);
+-		snprintf(name, sizeof(name), "%s-%s", match->id,
+-			 inst_data[i].type);
++		snprintf(name, sizeof(name), "%s-%s.%d", match->id,
++			 inst_data[i].type, i);
+ 		board_info.dev_name = name;
+ 		switch (inst_data[i].flags & IRQ_RESOURCE_TYPE) {
+ 		case IRQ_RESOURCE_GPIO:
 -- 
 2.19.1
