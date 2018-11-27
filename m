@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v3 06/13] i2c: acpi: Use ACPI_FAILURE instead of !ACPI_SUCCESS
-Date: Tue, 27 Nov 2018 17:37:21 +0200
-Message-ID: <20181127153728.47866-7-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v3 04/13] platform/x86: i2c-multi-instantiate: Defer probe when no adapter found
+Date: Tue, 27 Nov 2018 17:37:19 +0200
+Message-ID: <20181127153728.47866-5-andriy.shevchenko@linux.intel.com>
 References: <20181127153728.47866-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,27 +12,27 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Convert to use ACPI_FAILURE instead of !ACPI_SUCCESS.
+Likewise the rest of the i2c_acpi_new_device() users, defer the probe
+of the i2c-multi-intantiate driver in case adapter is not yet found.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 ---
- drivers/i2c/i2c-core-acpi.c | 2 +-
+ drivers/platform/x86/i2c-multi-instantiate.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 7e872ceaa14f..4cebbd280e36 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -65,7 +65,7 @@ static int i2c_acpi_fill_info(struct acpi_resource *ares, void *data)
- 	status = acpi_get_handle(lookup->device_handle,
- 				 sb->resource_source.string_ptr,
- 				 &lookup->adapter_handle);
--	if (!ACPI_SUCCESS(status))
-+	if (ACPI_FAILURE(status))
- 		return 1;
- 
- 	info->addr = sb->slave_address;
+diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
+index bab79bdeebc7..0e3a36f3ef64 100644
+--- a/drivers/platform/x86/i2c-multi-instantiate.c
++++ b/drivers/platform/x86/i2c-multi-instantiate.c
+@@ -73,7 +73,7 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
+ 		}
+ 		multi->clients[i] = i2c_acpi_new_device(dev, i, &board_info);
+ 		if (!multi->clients[i])
+-			ret = -ENODEV;
++			ret = -EPROBE_DEFER; /* Wait for i2c-adapter to load */
+ 		else if (IS_ERR(multi->clients[i]))
+ 			ret = PTR_ERR(multi->clients[i]);
+ 		else
 -- 
 2.19.2
