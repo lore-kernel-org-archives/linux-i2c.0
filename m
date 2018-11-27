@@ -1,59 +1,26 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V2 0/5] i2c:ocores: improvements
-Date: Tue, 27 Nov 2018 12:38:22 +0100
-Message-ID: <20181127113821.GB1107@kunai>
-References: <20181029145051.31984-1-federico.vaga@cern.ch>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH v2 05/13] i2c: acpi: Return error pointers from
+ i2c_acpi_new_device()
+Date: Tue, 27 Nov 2018 13:49:53 +0200
+Message-ID: <20181127114953.GQ2296@lahna.fi.intel.com>
+References: <20181126150858.16901-1-andriy.shevchenko@linux.intel.com>
+ <20181126150858.16901-6-andriy.shevchenko@linux.intel.com>
+ <20181127090432.GK2296@lahna.fi.intel.com>
+ <98674437-9374-32d4-4b25-dedd0cad5bea@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="GRPZ8SYKNexpdSJ7"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181029145051.31984-1-federico.vaga@cern.ch>
+In-Reply-To: <98674437-9374-32d4-4b25-dedd0cad5bea@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Federico Vaga <federico.vaga@cern.ch>
-Cc: Peter Korsgaard <peter@korsgaard.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-acpi@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, Nov 27, 2018 at 10:16:25AM +0100, Hans de Goede wrote:
+> One problem is that i2c_new_device() currently simply returns NULL on all
+> errors. Andy, you could take a look how much work it is to make that return
+> an ERR_PTR too, or just check its return value and return ERR_PTR(-ENXIO) if
+> it fails for now...
 
---GRPZ8SYKNexpdSJ7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-
-> This patch set provides improvements to the i2c-ocore driver.
->=20
-> [V1 -> V2]
-> - replaced usleep_range() with udelay() so that the polling version can be
->   used in atomic context.
-> - added dedicated patch for minor style issues
-> - fixed delay computation
-> - use spin_lock_irqsave(), instead of spin_trylock_irqsave(). IACK is alw=
-ays
->   necessary and a trylock would generate an extra interrupt for nothing
-> - make the driver ready for an eventual master_xfer_irqless()
-
-Peter, do you have a time slot to review this?
-
-
---GRPZ8SYKNexpdSJ7
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlv9LK0ACgkQFA3kzBSg
-KbZpVg//Ys16rW3F1UCl9U1nMvkuhOP/F+yTVZJUgObOPYYh2kbw/V2M1RysAEW/
-gcYbHiC9Q7S+MDvn9457S5PkVmJwdEQZ0lbSKHdibFvJh6TxCNNpze7KzO+IAfVf
-KUh81g8NOjNQRPfsZEFMOlgOzFXOazfV1HHoj74JQD9rnHYBnZf6FNCq4gVJaOT6
-HcYsGPtLk35r1l4H3XKqBrkIXi0c1eTLXKOSd4mSbxbKvM1GKhiIKOfaXt5Kbqjq
-CO3PMaGl1PIYBNMWF1xvI2VOKRVv+sVwF4qOOidV7UySeRB/nYvlVLWOyWoLMlD8
-jtq4UY33tJ+gWOfo7cDYJaleHca3TMemoSsE4tPM+E/vrDRf8Erhscmd3soxbAwt
-RnM43/J1BTIJltlY4l7dvIMxTN8DvQBwqgV6Klmfvt0PMTd87oH62zmOR9ati3fX
-mZAVkyBlFKqtfcwkKl3hSW7FRzKX5vsA2fIJOLIVgfnSL29bx6LKLNhgN03UYCww
-hlfijx9iYVbwZ7qw/B8sOiDm10X8tlIeY4ixZun27caRltWxXT4/FVSd66wOP4OS
-9DTi0A9yCDavEa87a7n9uoQiBowTwRMQMW5sUnB2d8j8WVYtL+HZp7vQzGeGcASo
-IcrF+R0l92d/lSMVexIz1Ge0ksip/jYQnCdSblCgptDDZ27towU=
-=EItn
------END PGP SIGNATURE-----
-
---GRPZ8SYKNexpdSJ7--
+I would use -ENODEV here and -EINVAL in case there is no ACPI companion :)
