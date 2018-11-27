@@ -1,68 +1,91 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v3 00/13] i2c-multi-instantiate: Adapt for INT3515 and alike
-Date: Tue, 27 Nov 2018 17:37:15 +0200
-Message-ID: <20181127153728.47866-1-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v3 09/13] platform/x86: i2c-multi-instantiate: Distinguish IRQ resource type
+Date: Tue, 27 Nov 2018 17:37:24 +0200
+Message-ID: <20181127153728.47866-10-andriy.shevchenko@linux.intel.com>
+References: <20181127153728.47866-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181127153728.47866-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-acpi@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-kernel@vger.kernel.org
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Currently i2c-multi-instantiate driver does not support the case
-of INT3515 USB PD device, where:
+As a preparatory patch switch the driver to distinguish IRQ resource type.
+For now, only GpioInt() is supported.
 
-- Interrupt() is used instead of GpioInt()
-- All slaves may be the same from IP point of view
-- There can be variadic amount of slaves
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/platform/x86/i2c-multi-instantiate.c | 27 +++++++++++++-------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
 
-This series is addressing all above.
-
-Note, series has been smoke tested (Heikki would do BAT or more)
-on Intel Coffee Lake system.
-
-The idea is to push this either through PDx86 tree (needs Rafael's ACKs) or ACPI.
-In any case it needs tags from Heikki, Hans, Mika, Wolfram and Jonathan.
-
-Testing and comments are warmly welcome.
-
-In v3:
-- revisit error codes returned by i2c_acpi_new_device() (Hans, Mika)
-- add documentation to exported i2c_acpi_get_i2c_resource() (Mika)
-- drop Hans' Rb tag in patch 5 due to changes
-- append Mika's Ab tag to patch 6
-
-In v2:
-- drop patches to copy fwnode and to handle BOSC0200 device
-- append check for amount of devices listed in the driver's mapping
-- add Rb tag given by Hans
-
-Andy Shevchenko (13):
-  platform/x86: intel_cht_int33fe: Remove duplicate NULL check
-  platform/x86: intel_cht_int33fe: Accept errors of
-    i2c_acpi_new_device()
-  platform/x86: i2c-multi-instantiate: Accept errors of
-    i2c_acpi_new_device()
-  platform/x86: i2c-multi-instantiate: Defer probe when no adapter found
-  i2c: acpi: Return error pointers from i2c_acpi_new_device()
-  i2c: acpi: Use ACPI_FAILURE instead of !ACPI_SUCCESS
-  i2c: acpi: Introduce i2c_acpi_get_i2c_resource() helper
-  platform/x86: i2c-multi-instantiate: Count I2cSerialBus() resources
-  platform/x86: i2c-multi-instantiate: Distinguish IRQ resource type
-  platform/x86: i2c-multi-instantiate: Introduce IOAPIC IRQ support
-  platform/x86: i2c-multi-instantiate: Allow to have same slaves
-  ACPI / scan: Create platform device for INT3515 ACPI nodes
-  iio: inv_mpu6050: Use i2c_acpi_get_i2c_resource() helper
-
- drivers/acpi/scan.c                          |  1 +
- drivers/i2c/i2c-core-acpi.c                  | 64 +++++++++----
- drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c   | 16 ++--
- drivers/platform/x86/i2c-multi-instantiate.c | 99 ++++++++++++++++----
- drivers/platform/x86/intel_cht_int33fe.c     | 34 +++++--
- drivers/usb/typec/tps6598x.c                 |  8 +-
- include/linux/acpi.h                         | 11 +++
- 7 files changed, 174 insertions(+), 59 deletions(-)
-
---
+diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
+index f82f0b36f38d..efee77a11419 100644
+--- a/drivers/platform/x86/i2c-multi-instantiate.c
++++ b/drivers/platform/x86/i2c-multi-instantiate.c
+@@ -7,6 +7,7 @@
+  */
+ 
+ #include <linux/acpi.h>
++#include <linux/bits.h>
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
+@@ -14,9 +15,14 @@
+ #include <linux/platform_device.h>
+ #include <linux/types.h>
+ 
++#define IRQ_RESOURCE_TYPE	GENMASK(1, 0)
++#define IRQ_RESOURCE_NONE	0
++#define IRQ_RESOURCE_GPIO	1
++
+ struct i2c_inst_data {
+ 	const char *type;
+-	int gpio_irq_idx;
++	unsigned int flags;
++	int irq_idx;
+ };
+ 
+ struct i2c_multi_inst_data {
+@@ -88,16 +94,19 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
+ 		snprintf(name, sizeof(name), "%s-%s", match->id,
+ 			 inst_data[i].type);
+ 		board_info.dev_name = name;
+-		board_info.irq = 0;
+-		if (inst_data[i].gpio_irq_idx != -1) {
+-			ret = acpi_dev_gpio_irq_get(adev,
+-						    inst_data[i].gpio_irq_idx);
++		switch (inst_data[i].flags & IRQ_RESOURCE_TYPE) {
++		case IRQ_RESOURCE_GPIO:
++			ret = acpi_dev_gpio_irq_get(adev, inst_data[i].irq_idx);
+ 			if (ret < 0) {
+ 				dev_err(dev, "Error requesting irq at index %d: %d\n",
+-					inst_data[i].gpio_irq_idx, ret);
++					inst_data[i].irq_idx, ret);
+ 				goto error;
+ 			}
+ 			board_info.irq = ret;
++			break;
++		default:
++			board_info.irq = 0;
++			break;
+ 		}
+ 		multi->clients[i] = i2c_acpi_new_device(dev, i, &board_info);
+ 		if (PTR_ERR(multi->clients[i]) == -ENODEV)
+@@ -139,9 +148,9 @@ static int i2c_multi_inst_remove(struct platform_device *pdev)
+ }
+ 
+ static const struct i2c_inst_data bsg1160_data[]  = {
+-	{ "bmc150_accel", 0 },
+-	{ "bmc150_magn", -1 },
+-	{ "bmg160", -1 },
++	{ "bmc150_accel", IRQ_RESOURCE_GPIO, 0 },
++	{ "bmc150_magn" },
++	{ "bmg160" },
+ 	{}
+ };
+ 
+-- 
 2.19.2
