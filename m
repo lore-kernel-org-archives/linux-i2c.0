@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v3 10/13] platform/x86: i2c-multi-instantiate: Introduce IOAPIC IRQ support
-Date: Tue, 27 Nov 2018 17:37:25 +0200
-Message-ID: <20181127153728.47866-11-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v3 11/13] platform/x86: i2c-multi-instantiate: Allow to have same slaves
+Date: Tue, 27 Nov 2018 17:37:26 +0200
+Message-ID: <20181127153728.47866-12-andriy.shevchenko@linux.intel.com>
 References: <20181127153728.47866-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,45 +12,31 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-If ACPI table provides an Interrupt() resource we may consider to use it
-instead of GpioInt() one.
+Currently the driver will not enumerate the devices where I2C slaves
+are of the same type.
 
-Here we leave an error condition, when getting IRQ resource, to the driver
-to decide how to proceed, because some drivers may consider IRQ resource
-optional.
+Add an instance number to make them unique.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/platform/x86/i2c-multi-instantiate.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/platform/x86/i2c-multi-instantiate.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
-index efee77a11419..a1e6ec12ef73 100644
+index a1e6ec12ef73..2e4ec09c57b6 100644
 --- a/drivers/platform/x86/i2c-multi-instantiate.c
 +++ b/drivers/platform/x86/i2c-multi-instantiate.c
-@@ -18,6 +18,7 @@
- #define IRQ_RESOURCE_TYPE	GENMASK(1, 0)
- #define IRQ_RESOURCE_NONE	0
- #define IRQ_RESOURCE_GPIO	1
-+#define IRQ_RESOURCE_APIC	2
- 
- struct i2c_inst_data {
- 	const char *type;
-@@ -104,6 +105,14 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
- 			}
- 			board_info.irq = ret;
- 			break;
-+		case IRQ_RESOURCE_APIC:
-+			ret = platform_get_irq(pdev, inst_data[i].irq_idx);
-+			if (ret < 0) {
-+				dev_dbg(dev, "Error requesting irq at index %d: %d\n",
-+					inst_data[i].irq_idx, ret);
-+			}
-+			board_info.irq = ret;
-+			break;
- 		default:
- 			board_info.irq = 0;
- 			break;
+@@ -92,8 +92,8 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
+ 	for (i = 0; i < multi->num_clients && inst_data[i].type; i++) {
+ 		memset(&board_info, 0, sizeof(board_info));
+ 		strlcpy(board_info.type, inst_data[i].type, I2C_NAME_SIZE);
+-		snprintf(name, sizeof(name), "%s-%s", match->id,
+-			 inst_data[i].type);
++		snprintf(name, sizeof(name), "%s-%s.%d", match->id,
++			 inst_data[i].type, i);
+ 		board_info.dev_name = name;
+ 		switch (inst_data[i].flags & IRQ_RESOURCE_TYPE) {
+ 		case IRQ_RESOURCE_GPIO:
 -- 
 2.19.2
