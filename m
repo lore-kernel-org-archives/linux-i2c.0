@@ -1,54 +1,84 @@
-From: Dmitry Osipenko <digetx@gmail.com>
-Subject: Re: [PATCH] i2c: i2c-tegra: replace spin_lock_irqsave with spin_lock
- in ISR
-Date: Tue, 27 Nov 2018 21:13:15 +0300
-Message-ID: <9d98e98f-c4e6-f202-659b-288be5358117@gmail.com>
-References: <20180911145446.53621-1-hangdianqj@163.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v3] i2c: mux: remove duplicated i2c_algorithm
+Date: Tue, 27 Nov 2018 18:51:13 +0000
+Message-ID: <55ea59c5-ac9b-ab78-e3a1-edaed099ca15@axentia.se>
+References: <20181003151928.17713-1-lucaceresoli77@gmail.com>
+ <99cfa6a2-9a60-6bdd-2542-9dd78af75758@axentia.se>
+ <70c48ade-b2ac-dde8-4b3e-aa4b2f19940a@gmail.com>
+ <205e1d73-2318-ecd4-c531-3ff18a0e0005@lucaceresoli.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20180911145446.53621-1-hangdianqj@163.com>
+In-Reply-To: <205e1d73-2318-ecd4-c531-3ff18a0e0005@lucaceresoli.net>
 Content-Language: en-US
+Content-ID: <36E1114BF01D164E8FA534BA060BAA39@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jun qian <hangdianqj@163.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>
-Cc: linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Luca Ceresoli <luca@lucaceresoli.net>, Luca Ceresoli <lucaceresoli77@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On 11.09.2018 17:54, jun qian wrote:
-> As you are already in ISR, it is unnecessary to call spin_lock_irqsave.
-> 
-> Signed-off-by: jun qian <hangdianqj@163.com>
-> ---
->  drivers/i2c/busses/i2c-tegra.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-> index 60c8561fbe65..59f31d3a508f 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -608,11 +608,10 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
->  	u32 status;
->  	const u32 status_err = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
->  	struct tegra_i2c_dev *i2c_dev = dev_id;
-> -	unsigned long flags;
->  
->  	status = i2c_readl(i2c_dev, I2C_INT_STATUS);
->  
-> -	spin_lock_irqsave(&i2c_dev->xfer_lock, flags);
-> +	spin_lock(&i2c_dev->xfer_lock);
->  	if (status == 0) {
->  		dev_warn(i2c_dev->dev, "irq status 0 %08x %08x %08x\n",
->  			 i2c_readl(i2c_dev, I2C_PACKET_TRANSFER_STATUS),
-> @@ -670,7 +669,7 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
->  
->  	complete(&i2c_dev->msg_complete);
->  done:
-> -	spin_unlock_irqrestore(&i2c_dev->xfer_lock, flags);
-> +	spin_unlock(&i2c_dev->xfer_lock);
->  	return IRQ_HANDLED;
->  }
->  
-> 
-
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+T24gMjAxOC0xMS0xOCAxMjoxMywgTHVjYSBDZXJlc29saSB3cm90ZToNCj4gSGkgUGV0ZXIsDQo+
+IA0KPiBPbiAxMC8xMC8xOCAxNzo0OCwgTHVjYSBDZXJlc29saSB3cm90ZToNCj4+IEhpIFBldGVy
+LA0KPj4NCj4+IE9uIDA4LzEwLzIwMTggMjM6NDMsIFBldGVyIFJvc2luIHdyb3RlOg0KPj4+IE9u
+IDIwMTgtMTAtMDMgMTc6MTksIEx1Y2EgQ2VyZXNvbGkgd3JvdGU6DQo+Pj4+IEZyb206IEx1Y2Eg
+Q2VyZXNvbGkgPGx1Y2FAbHVjYWNlcmVzb2xpLm5ldD4NCj4+Pj4NCj4+Pj4gaTJjLW11eCBpbnN0
+YW50aWF0ZXMgb25lIGkyY19hbGdvcml0aG0gZm9yIGVhY2ggZG93bnN0cmVhbSBhZGFwdGVyLg0K
+Pj4+PiBIb3dldmVyIHRoZXNlIGFsZ29yaXRobXMgYXJlIGFsbCBpZGVudGljYWwsIGRlcGVuZGlu
+ZyBvbmx5IG9uIHRoZQ0KPj4+PiBwYXJlbnQgYWRhcHRlci4NCj4+Pj4NCj4+Pj4gQXZvaWQgZHVw
+bGljYXRpb24gYnkgaG9pc3RpbmcgdGhlIGkyY19hbGdvcml0aG0gZnJvbSB0aGUgYWRhcHRlcnMg
+dG8NCj4+Pj4gdGhlIGkyY19tdXhfY29yZSBvYmplY3QsIGFuZCByZXVzZSBpdCBpbiBhbGwgdGhl
+IGFkYXB0ZXJzLg0KPj4+DQo+Pj4gT3VjaCwgd2hpbGUgSSBsaWtlIHRoZSBjb25jZXB0IG9mIGhh
+dmluZyBvbmUgaTJjX2FsZ29yaXRobSBwZXIgbXV4LA0KPj4+IHRoaXMgcGF0Y2ggaXMgbm90IHdv
+cmtpbmcuIFZhcmlvdXMgaTJjLW11eCBkcml2ZXJzIHNldCB0aGUNCj4+PiBtdXhjLT5tdXhfbG9j
+a2VkIHZhcmlhYmxlICphZnRlciogdGhlIGkyY19tdXhfYWxsb2MgY2FsbCwgYW5kIHRoaXMNCj4+
+PiBwYXRjaCBicmVha3Mgc3VjaCB1c2UuDQo+IA0KPiBJIGZpbmFsbHkgaGFkIGEgbG9vayBpbnRv
+IHRoaXMgaXNzdWUuIFRocmVlIGRyaXZlcnMgYXJlIHNldHRpbmcNCj4gbXV4X2xvY2tlZCBhZnRl
+ciBpMmNfbXV4X2FsbG9jOiBpMmMtbXV4LWdwbXV4LCBpMmMtbXV4LWdwaW8gYW5kDQo+IGkyYy1t
+dXgtcGluY3RybC4NCj4gDQo+IGkyYy1tdXgtZ3BtdXggaXMgdHJpdmlhbCB0byBmaXguDQo+IA0K
+PiBUaGUgb3RoZXIgdHdvIGFyZSBub3QgdHJpdmlhbCBiZWNhdXNlOg0KPiANCj4gIDEuIHRoZXkg
+Y29tcHV0ZSBtdXhfbG9ja2VkIGZyb20gb3RoZXIgdmFyaWFibGVzDQo+ICAyLiB0aG9zZSB2YXJp
+YWJsZXMgYXJlIHN0b3JlZCBpbiB0aGUgZHJpdmVycyAicHJpdmF0ZSIgZGF0YQ0KPiAgMy4gdGhl
+aXIgcHJpdmF0ZSBkYXRhIGlzIHN0b3JlZCBpbnNpZGUgc3RydWN0IGkyY19tdXhfY29yZQ0KPiAg
+ICAgKG11eGMtPnByaXYpIHdoaWNoIGV4aXN0cyBvbmx5IGFmdGVyIGkyY19tdXhfYWxsb2MoKQ0K
+PiANCj4gSW4gdGhvc2UgY2FzZXMgY29tcHV0aW5nIG11eF9sb2NrZWQgYmVmb3JlIGkyY19tdXhf
+YWxsb2MoKSBpbnZvbHZlcw0KPiBxdWl0ZSBpbnZhc2l2ZSBjaGFuZ2VzLiBJdCB0b29rIDMgbm9u
+LXRyaXZpYWwgY29tbWl0cyBqdXN0IGZvcg0KPiBpMmMtbXV4LWdwaW8sIGFuZCBJIHN0aWxsIGhh
+dmUgdG8gbG9vayBpbnRvIGkyYy1tdXgtcGluY3RybC4NCj4gDQo+IFNvIHRoZSBxdWVzdGlvbiBp
+czogZG8gd2UgcmVhbGx5IHdhbnQgdG8gZG8gdGhpcz8NCj4gDQo+IFVzaW5nIHRoZSBwcml2YXRl
+IHN0b3JhZ2UgcHJvdmlkZWQgYnkgaTJjX211eF9hbGxvYygpIGlzIGEgaGFuZHkNCj4gZmVhdHVy
+ZSwgYXQgbGVhc3QgZm9yIHNpbXBsZXIgZHJpdmVycyB3aGljaCBrbm93IGluIGFkdmFuY2UgdGhl
+IGZsYWdzDQo+IHRoZXkgbmVlZCB0byBzZXQuIE9UT0ggSSBkb24ndCBsaWtlIGluZGl2aWR1YWwg
+ZHJpdmVycyB0byBtYW5pcHVsYXRlDQo+IG11eF9jb3JlIGZsYWdzIHRoYXQgbG9vayB2ZXJ5IG11
+Y2ggbGlrZSBpbnRlcm5hbCBkYXRhLiBJdCBtYWtlcyBhbnkNCj4gY2hhbmdlIHRvIHRoZSBpMmMg
+bXV4IGNvcmUgaGFyZGVyLCBzaW5jZSBldmVyeSBjaGFuZ2VkIGxpbmUgY291bGQgaGF2ZQ0KPiBz
+aWRlIGVmZmVjdHMgaW4gc29tZSBkcml2ZXJzLCB3aGljaCBpcyB3aGF0J3MgaGFwcGVuaW5nIGhl
+cmUuDQo+IA0KPiBXaGF0J3MgeW91ciBvcGluaW9uIGFib3V0IHRoaXMgaXNzdWU/DQoNCkkgb2J2
+aW91c2x5IGRvbid0IGxpa2UgdGhhdCBkcml2ZXJzIGFyZSBwb2tpbmcgYXJvdW5kIGluIHN0cnVj
+dA0KaTJjX211eF9jb3JlLg0KDQpCdXQsIHlvdXIgZGVzY3JpcHRpb24gc291bmRzIHByZWNpc2Vs
+eSBob3cgSSByZW1lbWJlcmVkIGl0LiBUaGUNCnVuZGVybHlpbmcgcHJvYmxlbSBpcyBvZiBjb3Vy
+c2UgdGhhdCBpMmMtbXV4LWdwaW8gYW5kDQppMmMtbXV4LXBpbmN0cmwgZG8gcmVhbGx5IG5hc3R5
+IGRpZ3MgaW50byBpbnRlcm5hbCBwYXJ0cyBvZiB0aGUNCmdwaW8gYW5kIHRoZSBwaW5jdHJsIHN1
+YnN5c3RlbXMgYXMgdGhleSAqdHJ5KiB0byBmaWd1cmUgb3V0IGlmDQp0aGV5IHNob3VsZCBiZSBt
+dXgtbG9ja2VkIG9yIHBhcmVudC1sb2NrZWQuIFRoZSByZXN1bHQgb2YgdGhhdA0KZGlnZ2luZyBp
+cyBub3QgY29tcGxldGVseSByZWxpYWJsZSwgYnV0IGl0IHNvbHZlcyB0aGUgaXNzdWUNCndpdGhv
+dXQgaGVscCBmcm9tIGRldmljZS10cmVlIHByb3BlcnRpZXMgaW4gYXQgbGVhc3Qgb25lIGNhc2UN
+CnRoYXQgSSBrbm93IGFib3V0LiBIb3dldmVyLCBmb3IgdGhhdCBjYXNlIEkgYWxzbyBrbm93IHRo
+YXQgdGhlcmUNCmlzIG5vIHJpc2sgb2YgcmVncmVzc2lvbiBzaW5jZSBJIGNvbnRyb2wgdGhlIGRp
+c3RyaWJ1dGlvbiBvZg0KYm90aCBrZXJuZWwgYW5kIC5kdGIgZm9yIGFueSB1cGdyYWRlLiBBbnl3
+YXksIGl0IHdhcyBkb25lIGxpa2UNCml0IHdhcyBzaW5jZSBJIGF0IHRoZSB0aW1lIGRpZCBub3Qg
+ZGFyZSB0byBxdWVzdGlvbiB0aGUgZmVlZGJhY2sNCmZyb20gdGhlIGRldmljZS10cmVlIGNhbXAs
+IGFuZCBhY3R1YWxseSB0aG91Z2h0IGl0IHdhcyBhIGdvb2QNCnRoaW5nLCBhbmQgdGh1cyBkaWQg
+bm90IHB1c2ggZm9yIGEgZGV2aWNlLXRyZWUgcHJvcGVydHkgd2hlbg0KUm9iIGNvbXBsYWluZWQg
+YWJvdXQgdGhlIHByb3BlcnR5IG5vdCBkZXNjcmliaW5nIEhXIGFuZCBpbnN0ZWFkDQp3YXMganVz
+dCB3b3JraW5nIGFyb3VuZCBrZXJuZWwgaXNzdWVzIFsxXS4gVGhlIG11eC1sb2NrZWQgdnMuDQpw
+YXJlbnQtbG9ja2VkIHByb3BlcnR5IGhhcyBiZWVuIGFkZGVkIHNpbmNlLiBJbiByZXRyb3NwZWN0
+LCB0aGUNCndob2xlIGF0dGVtcHQgdG8gYXV0by1kZXRlY3QgbXV4LWxvY2tlZCBvciBwYXJlbnQt
+bG9ja2VkIHdhcyBhDQptaXN0YWtlLCBhbmQgZXZlcnl0aGluZyB3b3VsZCBoYXZlIGJlZW4gc28g
+bXVjaCBlYXNpZXIgaWYgdGhlDQpkZXZpY2UtdHJlZSBjb3VsZCBhbHdheXMganVzdCBzdGF0ZSB3
+aGF0IHRoZSByZXF1aXJlbWVudCBpcy4gQXQNCmxlYXN0IHRoYXQncyBteSBjdXJyZW50IHRob3Vn
+aHRzIG9uIHRoZSBtYXR0ZXIuIE1heWJlIHdlIHNob3VsZA0KYXR0ZW1wdCB0byByZW1vdmUgdGhl
+IHVnbHkgYXV0by1kZXRlY3QgY29kZSBhbmQgc2VlIGlmIGFueW9uZQ0KY29tcGxhaW5zPw0KDQpC
+dXQgb2YgY291cnNlLCBhbm90aGVyIGFzcGVjdCBpcyB0aGF0IG5vdCBldmVyeXRoaW5nIGlzIERU
+LCBzbw0KcGVyaGFwcyB0aGVyZSBpcyBubyBjbGVhbiBzb2x1dGlvbj8NCg0KQ2hlZXJzLA0KUGV0
+ZXINCg0KWzFdIGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDE2LzEvNi80MzcNCg==
