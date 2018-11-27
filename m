@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v3 13/13] iio: inv_mpu6050: Use i2c_acpi_get_i2c_resource() helper
-Date: Tue, 27 Nov 2018 17:37:28 +0200
-Message-ID: <20181127153728.47866-14-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v3 10/13] platform/x86: i2c-multi-instantiate: Introduce IOAPIC IRQ support
+Date: Tue, 27 Nov 2018 17:37:25 +0200
+Message-ID: <20181127153728.47866-11-andriy.shevchenko@linux.intel.com>
 References: <20181127153728.47866-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,43 +12,45 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-ACPI provides a generic helper to get I2C Serial Bus resources.
-Use it instead of open coded variant.
+If ACPI table provides an Interrupt() resource we may consider to use it
+instead of GpioInt() one.
+
+Here we leave an error condition, when getting IRQ resource, to the driver
+to decide how to proceed, because some drivers may consider IRQ resource
+optional.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/platform/x86/i2c-multi-instantiate.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-index d78a10403bac..a961b5a06fe6 100644
---- a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-+++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
-@@ -91,18 +91,14 @@ static int asus_acpi_get_sensor_info(struct acpi_device *adev,
+diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
+index efee77a11419..a1e6ec12ef73 100644
+--- a/drivers/platform/x86/i2c-multi-instantiate.c
++++ b/drivers/platform/x86/i2c-multi-instantiate.c
+@@ -18,6 +18,7 @@
+ #define IRQ_RESOURCE_TYPE	GENMASK(1, 0)
+ #define IRQ_RESOURCE_NONE	0
+ #define IRQ_RESOURCE_GPIO	1
++#define IRQ_RESOURCE_APIC	2
  
- static int acpi_i2c_check_resource(struct acpi_resource *ares, void *data)
- {
-+	struct acpi_resource_i2c_serialbus *sb;
- 	u32 *addr = data;
- 
--	if (ares->type == ACPI_RESOURCE_TYPE_SERIAL_BUS) {
--		struct acpi_resource_i2c_serialbus *sb;
--
--		sb = &ares->data.i2c_serial_bus;
--		if (sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
--			if (*addr)
--				*addr |= (sb->slave_address << 16);
--			else
--				*addr = sb->slave_address;
--		}
-+	if (i2c_acpi_get_i2c_resource(ares, &sb)) {
-+		if (*addr)
-+			*addr |= (sb->slave_address << 16);
-+		else
-+			*addr = sb->slave_address;
- 	}
- 
- 	/* Tell the ACPI core that we already copied this address */
+ struct i2c_inst_data {
+ 	const char *type;
+@@ -104,6 +105,14 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
+ 			}
+ 			board_info.irq = ret;
+ 			break;
++		case IRQ_RESOURCE_APIC:
++			ret = platform_get_irq(pdev, inst_data[i].irq_idx);
++			if (ret < 0) {
++				dev_dbg(dev, "Error requesting irq at index %d: %d\n",
++					inst_data[i].irq_idx, ret);
++			}
++			board_info.irq = ret;
++			break;
+ 		default:
+ 			board_info.irq = 0;
+ 			break;
 -- 
 2.19.2
