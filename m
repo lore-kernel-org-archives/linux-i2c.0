@@ -1,130 +1,39 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v3 05/13] i2c: acpi: Return error pointers from i2c_acpi_new_device()
-Date: Tue, 27 Nov 2018 17:37:20 +0200
-Message-ID: <20181127153728.47866-6-andriy.shevchenko@linux.intel.com>
-References: <20181127153728.47866-1-andriy.shevchenko@linux.intel.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v2] dt-bindings: i2c: Use correct vendor prefix for Atmel
+Date: Tue, 27 Nov 2018 15:48:38 +0000
+Message-ID: <cba730e8-d76b-6cc4-a6df-3aa79d86e580@axentia.se>
+References: <20181123121009.17213-1-thierry.reding@gmail.com>
+ <20181123125138.22489-1-thierry.reding@gmail.com>
+ <20181127125050.GO1107@kunai>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181127153728.47866-1-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20181127125050.GO1107@kunai>
+Content-Language: en-US
+Content-ID: <FBFB5628175A3C46B4E5B3652103CD4F@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-acpi@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-kernel@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Wolfram Sang <wsa@the-dreams.de>, Thierry Reding <thierry.reding@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The caller would like to know the reason why the i2c_acpi_new_device() fails.
-For example, if adapter is not available, it might be in the future and we
-would like to re-probe the clients again. But at the same time we would like to
-bail out if the error seems unrecoverable, such as invalid argument supplied.
-To achieve this, return error pointer in some cases.
+On 2018-11-27 13:50, Wolfram Sang wrote:
+> On Fri, Nov 23, 2018 at 01:51:38PM +0100, Thierry Reding wrote:
+>> From: Thierry Reding <treding@nvidia.com>
+>>
+>> The "at," prefix was never correct for Atmel, so fix the few occurrences
+>> that got it wrong. Use "atmel," instead.
+>>
+>> While at it, remove the at,24c08 compatible string from the list of
+>> trivial devices because it is already documented in eeprom/at24.txt.
+>>
+>> Signed-off-by: Thierry Reding <treding@nvidia.com>
+>=20
+> Peter, I'd assume you are okay with me applying the patch directly?
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/i2c-core-acpi.c                  | 21 ++++++++++++++------
- drivers/platform/x86/i2c-multi-instantiate.c |  2 +-
- drivers/platform/x86/intel_cht_int33fe.c     |  6 +++---
- 3 files changed, 19 insertions(+), 10 deletions(-)
+Absolutely, go ahead.
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 32affd3fa8bd..7e872ceaa14f 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -386,20 +386,22 @@ struct notifier_block i2c_acpi_notifier = {
-  *
-  * Also see i2c_new_device, which this function calls to create the i2c-client.
-  *
-- * Returns a pointer to the new i2c-client, or NULL if the adapter is not found.
-+ * Returns a pointer to the new i2c-client, or error pointer in case of failure.
-+ * Specifically, -ENODEV is returned if the adapter is not found.
-  */
- struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
- 				       struct i2c_board_info *info)
- {
- 	struct i2c_acpi_lookup lookup;
- 	struct i2c_adapter *adapter;
-+	struct i2c_client *client;
- 	struct acpi_device *adev;
- 	LIST_HEAD(resource_list);
- 	int ret;
- 
- 	adev = ACPI_COMPANION(dev);
- 	if (!adev)
--		return NULL;
-+		return ERR_PTR(-EINVAL);
- 
- 	memset(&lookup, 0, sizeof(lookup));
- 	lookup.info = info;
-@@ -408,16 +410,23 @@ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
- 
- 	ret = acpi_dev_get_resources(adev, &resource_list,
- 				     i2c_acpi_fill_info, &lookup);
-+	if (ret < 0)
-+		return ERR_PTR(ret);
-+
- 	acpi_dev_free_resource_list(&resource_list);
- 
--	if (ret < 0 || !info->addr)
--		return NULL;
-+	if (!info->addr)
-+		return ERR_PTR(-EADDRNOTAVAIL);
- 
- 	adapter = i2c_acpi_find_adapter_by_handle(lookup.adapter_handle);
- 	if (!adapter)
--		return NULL;
-+		return ERR_PTR(-ENODEV);
-+
-+	client = i2c_new_device(adapter, info);
-+	if (!client)
-+		return ERR_PTR(-ENODEV);
- 
--	return i2c_new_device(adapter, info);
-+	return client;
- }
- EXPORT_SYMBOL_GPL(i2c_acpi_new_device);
- 
-diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
-index 0e3a36f3ef64..18928e4ede7f 100644
---- a/drivers/platform/x86/i2c-multi-instantiate.c
-+++ b/drivers/platform/x86/i2c-multi-instantiate.c
-@@ -72,7 +72,7 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
- 			board_info.irq = ret;
- 		}
- 		multi->clients[i] = i2c_acpi_new_device(dev, i, &board_info);
--		if (!multi->clients[i])
-+		if (PTR_ERR(multi->clients[i]) == -ENODEV)
- 			ret = -EPROBE_DEFER; /* Wait for i2c-adapter to load */
- 		else if (IS_ERR(multi->clients[i]))
- 			ret = PTR_ERR(multi->clients[i]);
-diff --git a/drivers/platform/x86/intel_cht_int33fe.c b/drivers/platform/x86/intel_cht_int33fe.c
-index 3ba139d3bd03..b8cab17ec596 100644
---- a/drivers/platform/x86/intel_cht_int33fe.c
-+++ b/drivers/platform/x86/intel_cht_int33fe.c
-@@ -168,7 +168,7 @@ static int cht_int33fe_probe(struct platform_device *pdev)
- 		board_info.dev_name = "max17047";
- 		board_info.properties = max17047_props;
- 		data->max17047 = i2c_acpi_new_device(dev, 1, &board_info);
--		if (!data->max17047)
-+		if (PTR_ERR(data->max17047) == -ENODEV)
- 			ret = -EPROBE_DEFER; /* Wait for i2c-adapter to load */
- 		else if (IS_ERR(data->max17047))
- 			ret = PTR_ERR(data->max17047);
-@@ -200,7 +200,7 @@ static int cht_int33fe_probe(struct platform_device *pdev)
- 	board_info.irq = fusb302_irq;
- 
- 	data->fusb302 = i2c_acpi_new_device(dev, 2, &board_info);
--	if (!data->fusb302)
-+	if (PTR_ERR(data->fusb302) == -ENODEV)
- 		ret = -EPROBE_DEFER; /* Wait for the i2c-adapter to load */
- 	else if (IS_ERR(data->fusb302))
- 		ret = PTR_ERR(data->fusb302);
-@@ -214,7 +214,7 @@ static int cht_int33fe_probe(struct platform_device *pdev)
- 	strlcpy(board_info.type, "pi3usb30532", I2C_NAME_SIZE);
- 
- 	data->pi3usb30532 = i2c_acpi_new_device(dev, 3, &board_info);
--	if (!data->pi3usb30532)
-+	if (PTR_ERR(data->pi3usb30532) == -ENODEV)
- 		ret = -EPROBE_DEFER; /* Wait for the i2c-adapter to load */
- 	else if (IS_ERR(data->pi3usb30532))
- 		ret = PTR_ERR(data->pi3usb30532);
--- 
-2.19.2
+Acked-by: Peter Rosin <peda@axentia.se>
+
+Cheers,
+Peter
