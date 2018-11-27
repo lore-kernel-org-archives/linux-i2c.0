@@ -1,53 +1,33 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v2 07/13] i2c: acpi: Introduce
- i2c_acpi_get_i2c_resource() helper
-Date: Tue, 27 Nov 2018 16:27:31 +0200
-Message-ID: <20181127142731.GS10650@smile.fi.intel.com>
-References: <20181126150858.16901-1-andriy.shevchenko@linux.intel.com>
- <20181126150858.16901-8-andriy.shevchenko@linux.intel.com>
- <20181127090719.GM2296@lahna.fi.intel.com>
+From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: Re: [PATCH v2] i2c: i2c-stm32f7: add PM Runtime support
+Date: Tue, 27 Nov 2018 15:34:03 +0100
+Message-ID: <bcaa7139-de5c-c578-10d3-4b01d53628b3@st.com>
+References: <1542625464-4704-1-git-send-email-pierre-yves.mordret@st.com>
+ <20181127121034.GK1107@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181127090719.GM2296@lahna.fi.intel.com>
+In-Reply-To: <20181127121034.GK1107@kunai>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-acpi@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Nov 27, 2018 at 11:07:19AM +0200, Mika Westerberg wrote:
-> On Mon, Nov 26, 2018 at 05:08:52PM +0200, Andy Shevchenko wrote:
-> > Besides current two users one more is coming. Definitely makes sense to
-> > introduce a helper.
+Hi Wolfram,
 
-> Since this is exported, you may want to add kernel-doc here.
+Sorry for the inconvenience.
+I re-submit a v3 right now.
 
-OK.
+Thanks
 
-> > +++ b/include/linux/acpi.h
-> > @@ -1054,6 +1054,17 @@ static inline int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index)
-> >  }
-> >  #endif
-> >  
-> > +#if defined(CONFIG_ACPI) && IS_ENABLED(CONFIG_I2C)
-> > +bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
-> > +			       struct acpi_resource_i2c_serialbus **i2c);
-> > +#else
-> > +static inline bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
-> > +					     struct acpi_resource_i2c_serialbus **i2c)
-> > +{
-> > +	return false;
-> > +}
+On 11/27/18 1:10 PM, Wolfram Sang wrote:
+> On Mon, Nov 19, 2018 at 12:04:24PM +0100, Pierre-Yves MORDRET wrote:
+>> Use PM Runtime API to enable/disable clock
+>>
+>> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 > 
-> I think this belongs to include/linux/i2c.h where we have
-> i2c_acpi_find_bus_speed() and friends.
-
-I don't think so. It operates on top of data structures defined solely under
-ACPI umbrella. If I move them to i2c.h it would look inconsistent.
-
-Perhaps you would like to have different namespace for it (like acpi_i2c_ ?).
-
--- 
-With Best Regards,
-Andy Shevchenko
+> Looks good but doesn't apply on top of your other patches for me. Can
+> you rebase?
+> 
