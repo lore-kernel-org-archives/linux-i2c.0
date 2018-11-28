@@ -1,76 +1,96 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v4 00/15] i2c-multi-instantiate: Adapt for INT3515 and alike
-Date: Wed, 28 Nov 2018 13:30:09 +0200
-Message-ID: <20181128113024.42126-1-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v4 14/15] ACPI / scan: Create platform device for INT3515 ACPI nodes
+Date: Wed, 28 Nov 2018 13:30:23 +0200
+Message-ID: <20181128113024.42126-15-andriy.shevchenko@linux.intel.com>
+References: <20181128113024.42126-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181128113024.42126-1-andriy.shevchenko@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-acpi@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-kernel@vger.kernel.org
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Currently i2c-multi-instantiate driver does not support the case
-of INT3515 USB PD device, where:
+The ACPI device with INT3515 _HID is representing a complex USB PD
+hardware infrastructure which includes several I2C slave ICs.
 
-- Interrupt() is used instead of GpioInt()
-- All slaves may be the same from IP point of view
-- There can be variadic amount of slaves
+We add an ID to the I2C multi instantiate list to enumerate
+all I2C slaves correctly.
 
-This series is addressing all above.
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/acpi/scan.c                          | 1 +
+ drivers/platform/x86/i2c-multi-instantiate.c | 9 +++++++++
+ drivers/usb/typec/tps6598x.c                 | 8 ++++----
+ 3 files changed, 14 insertions(+), 4 deletions(-)
 
-Note, series has been smoke tested (Heikki would do BAT or more)
-on Intel Coffee Lake system.
-
-The idea is to push this either through PDx86 tree (needs Rafael's ACKs) or ACPI.
-In any case it needs tags from Heikki, Hans, Mika, Wolfram and Jonathan.
-
-Testing and comments are warmly welcome.
-
-In v4:
-- directly return -EPROBE_DEFER from i2c_acpi_new_device()
-- due to above split error handling simplification to separate patches
-
-In v3:
-- revisit error codes returned by i2c_acpi_new_device() (Hans, Mika)
-- add documentation to exported i2c_acpi_get_i2c_resource() (Mika)
-- drop Hans' Rb tag in patch 5 due to changes
-- append Mika's Ab tag to patch 6
-
-In v2:
-- drop patches to copy fwnode and to handle BOSC0200 device
-- append check for amount of devices listed in the driver's mapping
-- add Rb tag given by Hans
-
-Andy Shevchenko (15):
-  defconfig: enable I2C_DEBUG_CORE
-  platform/x86: intel_cht_int33fe: Remove duplicate NULL check
-  platform/x86: intel_cht_int33fe: Accept errors of
-    i2c_acpi_new_device()
-  platform/x86: i2c-multi-instantiate: Accept errors of
-    i2c_acpi_new_device()
-  i2c: acpi: Return error pointers from i2c_acpi_new_device()
-  platform/x86: intel_cht_int33fe: Get rid of obsolete conditional
-  platform/x86: i2c-multi-instantiate: Get rid of obsolete conditional
-  i2c: acpi: Use ACPI_FAILURE instead of !ACPI_SUCCESS
-  i2c: acpi: Introduce i2c_acpi_get_i2c_resource() helper
-  platform/x86: i2c-multi-instantiate: Count I2cSerialBus() resources
-  platform/x86: i2c-multi-instantiate: Distinguish IRQ resource type
-  platform/x86: i2c-multi-instantiate: Introduce IOAPIC IRQ support
-  platform/x86: i2c-multi-instantiate: Allow to have same slaves
-  ACPI / scan: Create platform device for INT3515 ACPI nodes
-  iio: inv_mpu6050: Use i2c_acpi_get_i2c_resource() helper
-
- arch/x86/configs/i386_defconfig              |  1 +
- arch/x86/configs/x86_64_defconfig            |  1 +
- drivers/acpi/scan.c                          |  1 +
- drivers/i2c/i2c-core-acpi.c                  | 64 +++++++++----
- drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c   | 16 ++--
- drivers/platform/x86/i2c-multi-instantiate.c | 97 ++++++++++++++++----
- drivers/platform/x86/intel_cht_int33fe.c     | 20 ++--
- drivers/usb/typec/tps6598x.c                 |  8 +-
- include/linux/acpi.h                         | 11 +++
- 9 files changed, 159 insertions(+), 60 deletions(-)
-
---
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index bd1c59fb0e17..e9eda5558c1f 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -1541,6 +1541,7 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
+ 	static const struct acpi_device_id i2c_multi_instantiate_ids[] = {
+ 		{"BSG1160", },
+ 		{"INT33FE", },
++		{"INT3515", },
+ 		{}
+ 	};
+ 
+diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
+index 2439d4c71118..3d893e0ac250 100644
+--- a/drivers/platform/x86/i2c-multi-instantiate.c
++++ b/drivers/platform/x86/i2c-multi-instantiate.c
+@@ -159,12 +159,21 @@ static const struct i2c_inst_data bsg1160_data[]  = {
+ 	{}
+ };
+ 
++static const struct i2c_inst_data int3515_data[]  = {
++	{ "tps6598x", IRQ_RESOURCE_APIC, 0 },
++	{ "tps6598x", IRQ_RESOURCE_APIC, 1 },
++	{ "tps6598x", IRQ_RESOURCE_APIC, 2 },
++	{ "tps6598x", IRQ_RESOURCE_APIC, 3 },
++	{}
++};
++
+ /*
+  * Note new device-ids must also be added to i2c_multi_instantiate_ids in
+  * drivers/acpi/scan.c: acpi_device_enumeration_by_parent().
+  */
+ static const struct acpi_device_id i2c_multi_inst_acpi_ids[] = {
+ 	{ "BSG1160", (unsigned long)bsg1160_data },
++	{ "INT3515", (unsigned long)int3515_data },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(acpi, i2c_multi_inst_acpi_ids);
+diff --git a/drivers/usb/typec/tps6598x.c b/drivers/usb/typec/tps6598x.c
+index c84c8c189e90..1c0033ad8738 100644
+--- a/drivers/usb/typec/tps6598x.c
++++ b/drivers/usb/typec/tps6598x.c
+@@ -501,19 +501,19 @@ static int tps6598x_remove(struct i2c_client *client)
+ 	return 0;
+ }
+ 
+-static const struct acpi_device_id tps6598x_acpi_match[] = {
+-	{ "INT3515", 0 },
++static const struct i2c_device_id tps6598x_id[] = {
++	{ "tps6598x" },
+ 	{ }
+ };
+-MODULE_DEVICE_TABLE(acpi, tps6598x_acpi_match);
++MODULE_DEVICE_TABLE(i2c, tps6598x_id);
+ 
+ static struct i2c_driver tps6598x_i2c_driver = {
+ 	.driver = {
+ 		.name = "tps6598x",
+-		.acpi_match_table = tps6598x_acpi_match,
+ 	},
+ 	.probe_new = tps6598x_probe,
+ 	.remove = tps6598x_remove,
++	.id_table = tps6598x_id,
+ };
+ module_i2c_driver(tps6598x_i2c_driver);
+ 
+-- 
 2.19.2
