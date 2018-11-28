@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v5 09/15] i2c: acpi: Introduce i2c_acpi_get_i2c_resource() helper
-Date: Wed, 28 Nov 2018 13:45:29 +0200
-Message-ID: <20181128114535.80223-10-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v5 15/15] iio: inv_mpu6050: Use i2c_acpi_get_i2c_resource() helper
+Date: Wed, 28 Nov 2018 13:45:35 +0200
+Message-ID: <20181128114535.80223-16-andriy.shevchenko@linux.intel.com>
 References: <20181128114535.80223-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,105 +12,43 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Besides current two users one more is coming. Definitely makes sense to
-introduce a helper.
-
-No functional change intended.
+ACPI provides a generic helper to get I2C Serial Bus resources.
+Use it instead of open coded variant.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/i2c/i2c-core-acpi.c | 41 ++++++++++++++++++++++++++-----------
- include/linux/acpi.h        | 11 ++++++++++
- 2 files changed, 40 insertions(+), 12 deletions(-)
+ drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 8a88586e0902..272800692088 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -45,6 +45,33 @@ struct i2c_acpi_lookup {
- 	u32 min_speed;
- };
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+index d78a10403bac..a961b5a06fe6 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_acpi.c
+@@ -91,18 +91,14 @@ static int asus_acpi_get_sensor_info(struct acpi_device *adev,
  
-+/**
-+ * i2c_acpi_get_i2c_resource - Gets I2cSerialBus resource if type matches
-+ * @ares:	ACPI resource
-+ * @i2c:	Pointer to I2cSerialBus resource will be returned here
-+ *
-+ * Checks if the given ACPI resource is of type I2cSerialBus.
-+ * In this case, returns a pointer to it to the caller.
-+ *
-+ * Returns true if resource type is of I2cSerialBus, otherwise false.
-+ */
-+bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
-+			       struct acpi_resource_i2c_serialbus **i2c)
-+{
-+	struct acpi_resource_i2c_serialbus *sb;
-+
-+	if (ares->type != ACPI_RESOURCE_TYPE_SERIAL_BUS)
-+		return false;
-+
-+	sb = &ares->data.i2c_serial_bus;
-+	if (sb->type != ACPI_RESOURCE_SERIAL_TYPE_I2C)
-+		return false;
-+
-+	*i2c = sb;
-+	return true;
-+}
-+EXPORT_SYMBOL_GPL(i2c_acpi_get_i2c_resource);
-+
- static int i2c_acpi_fill_info(struct acpi_resource *ares, void *data)
+ static int acpi_i2c_check_resource(struct acpi_resource *ares, void *data)
  {
- 	struct i2c_acpi_lookup *lookup = data;
-@@ -52,11 +79,7 @@ static int i2c_acpi_fill_info(struct acpi_resource *ares, void *data)
- 	struct acpi_resource_i2c_serialbus *sb;
- 	acpi_status status;
++	struct acpi_resource_i2c_serialbus *sb;
+ 	u32 *addr = data;
  
--	if (info->addr || ares->type != ACPI_RESOURCE_TYPE_SERIAL_BUS)
--		return 1;
+-	if (ares->type == ACPI_RESOURCE_TYPE_SERIAL_BUS) {
+-		struct acpi_resource_i2c_serialbus *sb;
 -
--	sb = &ares->data.i2c_serial_bus;
--	if (sb->type != ACPI_RESOURCE_SERIAL_TYPE_I2C)
-+	if (info->addr || !i2c_acpi_get_i2c_resource(ares, &sb))
- 		return 1;
- 
- 	if (lookup->index != -1 && lookup->n++ != lookup->index)
-@@ -534,13 +557,7 @@ i2c_acpi_space_handler(u32 function, acpi_physical_address command,
- 		goto err;
+-		sb = &ares->data.i2c_serial_bus;
+-		if (sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
+-			if (*addr)
+-				*addr |= (sb->slave_address << 16);
+-			else
+-				*addr = sb->slave_address;
+-		}
++	if (i2c_acpi_get_i2c_resource(ares, &sb)) {
++		if (*addr)
++			*addr |= (sb->slave_address << 16);
++		else
++			*addr = sb->slave_address;
  	}
  
--	if (!value64 || ares->type != ACPI_RESOURCE_TYPE_SERIAL_BUS) {
--		ret = AE_BAD_PARAMETER;
--		goto err;
--	}
--
--	sb = &ares->data.i2c_serial_bus;
--	if (sb->type != ACPI_RESOURCE_SERIAL_TYPE_I2C) {
-+	if (!value64 || !i2c_acpi_get_i2c_resource(ares, &sb)) {
- 		ret = AE_BAD_PARAMETER;
- 		goto err;
- 	}
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index ed80f147bd50..6afc6e3c4c5c 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -1054,6 +1054,17 @@ static inline int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index)
- }
- #endif
- 
-+#if defined(CONFIG_ACPI) && IS_ENABLED(CONFIG_I2C)
-+bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
-+			       struct acpi_resource_i2c_serialbus **i2c);
-+#else
-+static inline bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
-+					     struct acpi_resource_i2c_serialbus **i2c)
-+{
-+	return false;
-+}
-+#endif
-+
- /* Device properties */
- 
- #ifdef CONFIG_ACPI
+ 	/* Tell the ACPI core that we already copied this address */
 -- 
 2.19.2
