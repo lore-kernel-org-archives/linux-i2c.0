@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v5 07/15] platform/x86: i2c-multi-instantiate: Get rid of obsolete conditional
-Date: Wed, 28 Nov 2018 13:45:27 +0200
-Message-ID: <20181128114535.80223-8-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v5 12/15] platform/x86: i2c-multi-instantiate: Introduce IOAPIC IRQ support
+Date: Wed, 28 Nov 2018 13:45:32 +0200
+Message-ID: <20181128114535.80223-13-andriy.shevchenko@linux.intel.com>
 References: <20181128114535.80223-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,36 +12,45 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Now, when i2c_acpi_new_device() never returns NULL, there is no point to check
-for it. Besides that, i2c_acpi_new_device() returns -EPROBE_DEFER directly and
-caller doesn't need to guess is better.
+If ACPI table provides an Interrupt() resource we may consider to use it
+instead of GpioInt() one.
+
+Here we leave an error condition, when getting IRQ resource, to the driver
+to decide how to proceed, because some drivers may consider IRQ resource
+optional.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/platform/x86/i2c-multi-instantiate.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/platform/x86/i2c-multi-instantiate.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
 diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
-index 16a0eabe1e31..724535673089 100644
+index 99db3e336718..365457f9c424 100644
 --- a/drivers/platform/x86/i2c-multi-instantiate.c
 +++ b/drivers/platform/x86/i2c-multi-instantiate.c
-@@ -72,14 +72,10 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
+@@ -18,6 +18,7 @@
+ #define IRQ_RESOURCE_TYPE	GENMASK(1, 0)
+ #define IRQ_RESOURCE_NONE	0
+ #define IRQ_RESOURCE_GPIO	1
++#define IRQ_RESOURCE_APIC	2
+ 
+ struct i2c_inst_data {
+ 	const char *type;
+@@ -104,6 +105,14 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
+ 			}
  			board_info.irq = ret;
- 		}
- 		multi->clients[i] = i2c_acpi_new_device(dev, i, &board_info);
--		if (IS_ERR(multi->clients[i]))
-+		if (IS_ERR(multi->clients[i])) {
- 			ret = PTR_ERR(multi->clients[i]);
--		else if (!multi->clients[i])
--			ret = -EPROBE_DEFER; /* Wait for i2c-adapter to load */
--		else
--			ret = 0;
--		if (ret) {
--			dev_err(dev, "Error creating i2c-client, idx %d\n", i);
-+			if (ret != -EPROBE_DEFER)
-+				dev_err(dev, "Error creating i2c-client, idx %d\n", i);
- 			goto error;
- 		}
- 	}
+ 			break;
++		case IRQ_RESOURCE_APIC:
++			ret = platform_get_irq(pdev, inst_data[i].irq_idx);
++			if (ret < 0) {
++				dev_dbg(dev, "Error requesting irq at index %d: %d\n",
++					inst_data[i].irq_idx, ret);
++			}
++			board_info.irq = ret;
++			break;
+ 		default:
+ 			board_info.irq = 0;
+ 			break;
 -- 
 2.19.2
