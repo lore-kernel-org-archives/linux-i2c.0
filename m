@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v5 01/15] platform/x86: intel_cht_int33fe: Remove duplicate NULL check
-Date: Wed, 28 Nov 2018 13:45:21 +0200
-Message-ID: <20181128114535.80223-2-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v5 13/15] platform/x86: i2c-multi-instantiate: Allow to have same slaves
+Date: Wed, 28 Nov 2018 13:45:33 +0200
+Message-ID: <20181128114535.80223-14-andriy.shevchenko@linux.intel.com>
 References: <20181128114535.80223-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,38 +12,31 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Since i2c_unregister_device() became NULL-aware we may remove duplicate
-NULL check.
+Currently the driver will not enumerate the devices where I2C slaves
+are of the same type.
+
+Add an instance number to make them unique.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/platform/x86/intel_cht_int33fe.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/platform/x86/i2c-multi-instantiate.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/intel_cht_int33fe.c b/drivers/platform/x86/intel_cht_int33fe.c
-index 464fe93657b5..431151d4e611 100644
---- a/drivers/platform/x86/intel_cht_int33fe.c
-+++ b/drivers/platform/x86/intel_cht_int33fe.c
-@@ -213,8 +213,7 @@ static int cht_int33fe_probe(struct platform_device *pdev)
- 	i2c_unregister_device(data->fusb302);
- 
- out_unregister_max17047:
--	if (data->max17047)
--		i2c_unregister_device(data->max17047);
-+	i2c_unregister_device(data->max17047);
- 
- 	device_connections_remove(data->connections);
- 
-@@ -227,8 +226,7 @@ static int cht_int33fe_remove(struct platform_device *pdev)
- 
- 	i2c_unregister_device(data->pi3usb30532);
- 	i2c_unregister_device(data->fusb302);
--	if (data->max17047)
--		i2c_unregister_device(data->max17047);
-+	i2c_unregister_device(data->max17047);
- 
- 	device_connections_remove(data->connections);
- 
+diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
+index 365457f9c424..2439d4c71118 100644
+--- a/drivers/platform/x86/i2c-multi-instantiate.c
++++ b/drivers/platform/x86/i2c-multi-instantiate.c
+@@ -92,8 +92,8 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
+ 	for (i = 0; i < multi->num_clients && inst_data[i].type; i++) {
+ 		memset(&board_info, 0, sizeof(board_info));
+ 		strlcpy(board_info.type, inst_data[i].type, I2C_NAME_SIZE);
+-		snprintf(name, sizeof(name), "%s-%s", match->id,
+-			 inst_data[i].type);
++		snprintf(name, sizeof(name), "%s-%s.%d", match->id,
++			 inst_data[i].type, i);
+ 		board_info.dev_name = name;
+ 		switch (inst_data[i].flags & IRQ_RESOURCE_TYPE) {
+ 		case IRQ_RESOURCE_GPIO:
 -- 
 2.19.2
