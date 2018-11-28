@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v5 03/15] platform/x86: i2c-multi-instantiate: Accept errors of i2c_acpi_new_device()
-Date: Wed, 28 Nov 2018 13:45:23 +0200
-Message-ID: <20181128114535.80223-4-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v5 04/15] platform/x86: i2c-multi-instantiate: Defer probe when no adapter found
+Date: Wed, 28 Nov 2018 13:45:24 +0200
+Message-ID: <20181128114535.80223-5-andriy.shevchenko@linux.intel.com>
 References: <20181128114535.80223-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,35 +12,27 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-In the future i2c_acpi_new_device() will return error pointer in some cases.
-Prepare i2c-multi-instantiate driver to support that.
+Likewise the rest of the i2c_acpi_new_device() users, defer the probe
+of the i2c-multi-intantiate driver in case adapter is not yet found.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/platform/x86/i2c-multi-instantiate.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/platform/x86/i2c-multi-instantiate.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
-index 5456581b473c..e3345da82c84 100644
+index e3345da82c84..16a0eabe1e31 100644
 --- a/drivers/platform/x86/i2c-multi-instantiate.c
 +++ b/drivers/platform/x86/i2c-multi-instantiate.c
-@@ -72,9 +72,14 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
- 			board_info.irq = ret;
- 		}
- 		multi->clients[i] = i2c_acpi_new_device(dev, i, &board_info);
--		if (!multi->clients[i]) {
--			dev_err(dev, "Error creating i2c-client, idx %d\n", i);
-+		if (IS_ERR(multi->clients[i]))
-+			ret = PTR_ERR(multi->clients[i]);
-+		else if (!multi->clients[i])
- 			ret = -ENODEV;
-+		else
-+			ret = 0;
-+		if (ret) {
-+			dev_err(dev, "Error creating i2c-client, idx %d\n", i);
- 			goto error;
- 		}
- 	}
+@@ -75,7 +75,7 @@ static int i2c_multi_inst_probe(struct platform_device *pdev)
+ 		if (IS_ERR(multi->clients[i]))
+ 			ret = PTR_ERR(multi->clients[i]);
+ 		else if (!multi->clients[i])
+-			ret = -ENODEV;
++			ret = -EPROBE_DEFER; /* Wait for i2c-adapter to load */
+ 		else
+ 			ret = 0;
+ 		if (ret) {
 -- 
 2.19.2
