@@ -1,7 +1,7 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v5 14/15] ACPI / scan: Create platform device for INT3515 ACPI nodes
-Date: Wed, 28 Nov 2018 13:45:34 +0200
-Message-ID: <20181128114535.80223-15-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v5 05/15] i2c: acpi: Return error pointers from i2c_acpi_new_device()
+Date: Wed, 28 Nov 2018 13:45:25 +0200
+Message-ID: <20181128114535.80223-6-andriy.shevchenko@linux.intel.com>
 References: <20181128114535.80223-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,85 +12,73 @@ To: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Ra
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The ACPI device with INT3515 _HID is representing a complex USB PD
-hardware infrastructure which includes several I2C slave ICs.
-
-We add an ID to the I2C multi instantiate list to enumerate
-all I2C slaves correctly.
+The caller would like to know the reason why the i2c_acpi_new_device() fails.
+For example, if adapter is not available, it might be in the future and we
+would like to re-probe the clients again. But at the same time we would like to
+bail out if the error seems unrecoverable, such as invalid argument supplied.
+To achieve this, return error pointer in some cases.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/acpi/scan.c                          | 1 +
- drivers/platform/x86/i2c-multi-instantiate.c | 9 +++++++++
- drivers/usb/typec/tps6598x.c                 | 8 ++++----
- 3 files changed, 14 insertions(+), 4 deletions(-)
+ drivers/i2c/i2c-core-acpi.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index bd1c59fb0e17..e9eda5558c1f 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -1541,6 +1541,7 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
- 	static const struct acpi_device_id i2c_multi_instantiate_ids[] = {
- 		{"BSG1160", },
- 		{"INT33FE", },
-+		{"INT3515", },
- 		{}
- 	};
- 
-diff --git a/drivers/platform/x86/i2c-multi-instantiate.c b/drivers/platform/x86/i2c-multi-instantiate.c
-index 2439d4c71118..3d893e0ac250 100644
---- a/drivers/platform/x86/i2c-multi-instantiate.c
-+++ b/drivers/platform/x86/i2c-multi-instantiate.c
-@@ -159,12 +159,21 @@ static const struct i2c_inst_data bsg1160_data[]  = {
- 	{}
- };
- 
-+static const struct i2c_inst_data int3515_data[]  = {
-+	{ "tps6598x", IRQ_RESOURCE_APIC, 0 },
-+	{ "tps6598x", IRQ_RESOURCE_APIC, 1 },
-+	{ "tps6598x", IRQ_RESOURCE_APIC, 2 },
-+	{ "tps6598x", IRQ_RESOURCE_APIC, 3 },
-+	{}
-+};
-+
- /*
-  * Note new device-ids must also be added to i2c_multi_instantiate_ids in
-  * drivers/acpi/scan.c: acpi_device_enumeration_by_parent().
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 32affd3fa8bd..689c0c467e97 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -386,20 +386,22 @@ struct notifier_block i2c_acpi_notifier = {
+  *
+  * Also see i2c_new_device, which this function calls to create the i2c-client.
+  *
+- * Returns a pointer to the new i2c-client, or NULL if the adapter is not found.
++ * Returns a pointer to the new i2c-client, or error pointer in case of failure.
++ * Specifically, -EPROBE_DEFER is returned if the adapter is not found.
   */
- static const struct acpi_device_id i2c_multi_inst_acpi_ids[] = {
- 	{ "BSG1160", (unsigned long)bsg1160_data },
-+	{ "INT3515", (unsigned long)int3515_data },
- 	{ }
- };
- MODULE_DEVICE_TABLE(acpi, i2c_multi_inst_acpi_ids);
-diff --git a/drivers/usb/typec/tps6598x.c b/drivers/usb/typec/tps6598x.c
-index c84c8c189e90..1c0033ad8738 100644
---- a/drivers/usb/typec/tps6598x.c
-+++ b/drivers/usb/typec/tps6598x.c
-@@ -501,19 +501,19 @@ static int tps6598x_remove(struct i2c_client *client)
- 	return 0;
+ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
+ 				       struct i2c_board_info *info)
+ {
+ 	struct i2c_acpi_lookup lookup;
+ 	struct i2c_adapter *adapter;
++	struct i2c_client *client;
+ 	struct acpi_device *adev;
+ 	LIST_HEAD(resource_list);
+ 	int ret;
+ 
+ 	adev = ACPI_COMPANION(dev);
+ 	if (!adev)
+-		return NULL;
++		return ERR_PTR(-EINVAL);
+ 
+ 	memset(&lookup, 0, sizeof(lookup));
+ 	lookup.info = info;
+@@ -408,16 +410,23 @@ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
+ 
+ 	ret = acpi_dev_get_resources(adev, &resource_list,
+ 				     i2c_acpi_fill_info, &lookup);
++	if (ret < 0)
++		return ERR_PTR(ret);
++
+ 	acpi_dev_free_resource_list(&resource_list);
+ 
+-	if (ret < 0 || !info->addr)
+-		return NULL;
++	if (!info->addr)
++		return ERR_PTR(-EADDRNOTAVAIL);
+ 
+ 	adapter = i2c_acpi_find_adapter_by_handle(lookup.adapter_handle);
+ 	if (!adapter)
+-		return NULL;
++		return ERR_PTR(-EPROBE_DEFER);
++
++	client = i2c_new_device(adapter, info);
++	if (!client)
++		return ERR_PTR(-ENODEV);
+ 
+-	return i2c_new_device(adapter, info);
++	return client;
  }
- 
--static const struct acpi_device_id tps6598x_acpi_match[] = {
--	{ "INT3515", 0 },
-+static const struct i2c_device_id tps6598x_id[] = {
-+	{ "tps6598x" },
- 	{ }
- };
--MODULE_DEVICE_TABLE(acpi, tps6598x_acpi_match);
-+MODULE_DEVICE_TABLE(i2c, tps6598x_id);
- 
- static struct i2c_driver tps6598x_i2c_driver = {
- 	.driver = {
- 		.name = "tps6598x",
--		.acpi_match_table = tps6598x_acpi_match,
- 	},
- 	.probe_new = tps6598x_probe,
- 	.remove = tps6598x_remove,
-+	.id_table = tps6598x_id,
- };
- module_i2c_driver(tps6598x_i2c_driver);
+ EXPORT_SYMBOL_GPL(i2c_acpi_new_device);
  
 -- 
 2.19.2
