@@ -1,32 +1,55 @@
-From: Jerome Brunet <jbrunet@baylibre.com>
-Subject: Re: [PATCH 0/2] i2c: meson: add support for Meson G12A SoC i2c
+From: Neil Armstrong <narmstrong@baylibre.com>
+Subject: Re: [PATCH 2/2] i2c: meson: add support for Meson G12A SoC I2C
  controller
-Date: Thu, 29 Nov 2018 12:02:22 +0100
-Message-ID: <8a6a204b28523e5a181f9e85dda18fade76a26a3.camel@baylibre.com>
+Date: Thu, 29 Nov 2018 12:26:45 +0100
+Message-ID: <865b607c-8419-9c9e-0a00-018e87adf8de@baylibre.com>
 References: <1543489197-183181-1-git-send-email-jian.hu@amlogic.com>
+ <1543489197-183181-3-git-send-email-jian.hu@amlogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1543489197-183181-1-git-send-email-jian.hu@amlogic.com>
+In-Reply-To: <1543489197-183181-3-git-send-email-jian.hu@amlogic.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jian Hu <jian.hu@amlogic.com>, Neil Armstrong <narmstrong@baylibre.com>
+To: Jian Hu <jian.hu@amlogic.com>, Jerome Brunet <jbrunet@baylibre.com>
 Cc: Kevin Hilman <khilman@baylibre.com>, Carlo Caione <carlo@caione.org>, Rob Herring <robh@kernel.org>, Martin Blumenstingl <martin.blumenstingl@googlemail.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Jianxin Pan <jianxin.pan@amlogic.com>, Hanjie Lin <hanjie.lin@amlogic.com>, linux-amlogic@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 2018-11-29 at 18:59 +0800, Jian Hu wrote:
-> 1)Add G12A SoC i2c compatible string in dt-bindings.
-> 2)Add compatible and data for G12A I2C controller driver.
+On 29/11/2018 11:59, Jian Hu wrote:
+> Add compatible and data for G12A I2C controller.
 > 
-> Jian Hu (2):
->   dt-bindings: i2c: meson: add Meson G12A SoC i2c compatible string
->   i2c: meson: add support for Meson G12A SoC I2C controller
-
-Looks to me that the g12a is compatible with the axg. What is the point of
-adding this new compatible string ?
-
+> Signed-off-by: Jian Hu <jian.hu@amlogic.com>
+> ---
+>  drivers/i2c/busses/i2c-meson.c | 5 +++++
+>  1 file changed, 5 insertions(+)
 > 
->  Documentation/devicetree/bindings/i2c/i2c-meson.txt | 1 +
->  drivers/i2c/busses/i2c-meson.c                      | 5 +++++
->  2 files changed, 6 insertions(+)
+> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
+> index 90f5d04..b86eed7 100644
+> --- a/drivers/i2c/busses/i2c-meson.c
+> +++ b/drivers/i2c/busses/i2c-meson.c
+> @@ -462,10 +462,15 @@ static int meson_i2c_remove(struct platform_device *pdev)
+>  	.div_factor = 3,
+>  };
+>  
+> +static const struct meson_i2c_data i2c_g12a_data = {
+> +	.div_factor = 3,
+
+Especially if the div_factor is the same as AXG.
+
+If you have some other fixes for G12a in the pipe, you will add the new compatible and meson_i2c_data later,
+for the div_factor, simply use the axg struct and compatible.
+
+Neil
+
+> +};
+> +
+>  static const struct of_device_id meson_i2c_match[] = {
+>  	{ .compatible = "amlogic,meson6-i2c", .data = &i2c_meson6_data },
+>  	{ .compatible = "amlogic,meson-gxbb-i2c", .data = &i2c_gxbb_data },
+>  	{ .compatible = "amlogic,meson-axg-i2c", .data = &i2c_axg_data },
+> +	{ .compatible = "amlogic,meson-g12a-i2c", .data = &i2c_g12a_data },
+>  	{},
+>  };
+>  
 > 
