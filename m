@@ -1,51 +1,25 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: Re: [PATCH i2c-next v9 1/5] dt-bindings: i2c: Add 'bus-timeout-ms'
- and '#retries' properties as common optional
-Date: Wed, 28 Nov 2018 16:36:09 -0600
-Message-ID: <5dde6770-ce7a-720a-f1db-56d9ef044a99@linux.intel.com>
-References: <20181030210917.32711-1-jae.hyun.yoo@linux.intel.com>
- <20181030210917.32711-2-jae.hyun.yoo@linux.intel.com>
- <20181128215458.GB1666@kunai>
+From: Jian Hu <jian.hu@amlogic.com>
+Subject: [PATCH 0/2] i2c: meson: add support for Meson G12A SoC i2c controller
+Date: Thu, 29 Nov 2018 18:59:54 +0800
+Message-ID: <1543489197-183181-1-git-send-email-jian.hu@amlogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181128215458.GB1666@kunai>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Brendan Higgins <brendanhiggins@google.com>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
+To: Jerome Brunet <jbrunet@baylibre.com>, Neil Armstrong <narmstrong@baylibre.com>
+Cc: Jian Hu <jian.hu@amlogic.com>, Kevin Hilman <khilman@baylibre.com>, Carlo Caione <carlo@caione.org>, Rob Herring <robh@kernel.org>, Martin Blumenstingl <martin.blumenstingl@googlemail.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Jianxin Pan <jianxin.pan@amlogic.com>, Hanjie Lin <hanjie.lin@amlogic.com>, linux-amlogic@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 11/28/2018 3:54 PM, Wolfram Sang wrote:
-> On Tue, Oct 30, 2018 at 02:09:12PM -0700, Jae Hyun Yoo wrote:
->> This commit adds 'bus-timeout-ms' and '#retries' properties as
->> common optional properties that can be used for setting 'timeout'
->> and 'retries' values of 'struct i2c_adapter'. With this patch, the
->> bus timeout value and the master transfer retries count can be set
->> through these properties at the registration time of an adapter.
->> Still the values can be set by I2C_TIMEOUT and I2C_RETRIES ioctls
->> on cdev at runtime too.
->>
->> These properties may not be supported by all drivers. However, if
->> a driver wants to support one of them, it should adapt the
->> bindings in this document.
->>
->> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
->> Reviewed-by: Rob Herring <robh@kernel.org>
-> 
-> Definately NACK on the #retries part. This is purely a configuration
-> thing. Besides that it is kind of ancient cruft, too. I don't recommend
-> it, at all.
-> 
-> On the timeout thing, I am still not fully convinced that this is a HW
-> description. I said that before. But maybe I need to understand your
-> problem case better.
-> 
+1)Add G12A SoC i2c compatible string in dt-bindings.
+2)Add compatible and data for G12A I2C controller driver.
 
-Okay, I got it. I'll leave those as configuration things. Will remove
-this part in the next version.
+Jian Hu (2):
+  dt-bindings: i2c: meson: add Meson G12A SoC i2c compatible string
+  i2c: meson: add support for Meson G12A SoC I2C controller
 
-Thanks for your comment.
+ Documentation/devicetree/bindings/i2c/i2c-meson.txt | 1 +
+ drivers/i2c/busses/i2c-meson.c                      | 5 +++++
+ 2 files changed, 6 insertions(+)
 
-Jae
+-- 
+1.9.1
