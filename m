@@ -1,66 +1,87 @@
-From: Jian Hu <jian.hu@amlogic.com>
-Subject: Re: [PATCH 2/2] i2c: meson: add support for Meson G12A SoC I2C
- controller
-Date: Thu, 29 Nov 2018 20:18:03 +0800
-Message-ID: <c6dc485a-1399-62ef-36c0-a062fbd311fd@amlogic.com>
-References: <1543489197-183181-1-git-send-email-jian.hu@amlogic.com>
- <1543489197-183181-3-git-send-email-jian.hu@amlogic.com>
- <865b607c-8419-9c9e-0a00-018e87adf8de@baylibre.com>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH v2 01/25] nvmem: add new config option
+Date: Thu, 29 Nov 2018 15:30:19 +0100
+Message-ID: <CAMRc=MeRJ60gcYz00C828PBqnEdC-9onOKOadfackdzHiC1WOA@mail.gmail.com>
+References: <20181113140133.17385-1-brgl@bgdev.pl> <20181113140133.17385-2-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <865b607c-8419-9c9e-0a00-018e87adf8de@baylibre.com>
-Content-Language: en-US
+In-Reply-To: <20181113140133.17385-2-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Neil Armstrong <narmstrong@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>
-Cc: Kevin Hilman <khilman@baylibre.com>, Carlo Caione <carlo@caione.org>, Rob Herring <robh@kernel.org>, Martin Blumenstingl <martin.blumenstingl@googlemail.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Jianxin Pan <jianxin.pan@amlogic.com>, Hanjie Lin <hanjie.lin@amlogic.com>, linux-amlogic@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+To: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-i2c <linux-i2c@vger.kernel.org>, "open list:MEMORY TECHNOLOGY..." <linux-mtd@lists.infradead.org>, Kevin Hilman <khilman@kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Sekhar Nori <nsekhar@ti.com>, Boris Brezillon <boris.brezillon@bootlin.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Neil,
+wt., 13 lis 2018 o 15:01 Bartosz Golaszewski <brgl@bgdev.pl> napisa=C5=82(a=
+):
+>
+> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+>
+> We want to add nvmem support for MTD. TI DaVinci is the first platform
+> that will be using it, but only in non-DT mode. In order not to
+> introduce any new interface to supporting of which we would have to
+> commit - add a new config option that tells nvmem not to use the DT
+> node of the parent device.
+>
+> This way we won't be creating nvmem devices corresponding with MTD
+> partitions defined in device tree. By default MTD will set this new
+> field to true.
+>
+> Once a set of bindings for MTD nvmem cells is agreed upon, we'll be
+> able to remove this option.
+>
+> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> ---
+>  drivers/nvmem/core.c           | 3 ++-
+>  include/linux/nvmem-provider.h | 2 ++
+>  2 files changed, 4 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+> index 9b18ce90f907..ac7971e8154e 100644
+> --- a/drivers/nvmem/core.c
+> +++ b/drivers/nvmem/core.c
+> @@ -604,7 +604,8 @@ struct nvmem_device *nvmem_register(const struct nvme=
+m_config *config)
+>         nvmem->priv =3D config->priv;
+>         nvmem->reg_read =3D config->reg_read;
+>         nvmem->reg_write =3D config->reg_write;
+> -       nvmem->dev.of_node =3D config->dev->of_node;
+> +       if (!config->no_of_node)
+> +               nvmem->dev.of_node =3D config->dev->of_node;
+>
+>         if (config->id =3D=3D -1 && config->name) {
+>                 dev_set_name(&nvmem->dev, "%s", config->name);
+> diff --git a/include/linux/nvmem-provider.h b/include/linux/nvmem-provide=
+r.h
+> index 1e3283c2af77..e53545e9852b 100644
+> --- a/include/linux/nvmem-provider.h
+> +++ b/include/linux/nvmem-provider.h
+> @@ -30,6 +30,7 @@ typedef int (*nvmem_reg_write_t)(void *priv, unsigned i=
+nt offset,
+>   * @ncells:    Number of elements in cells.
+>   * @read_only: Device is read-only.
+>   * @root_only: Device is accessibly to root only.
+> + * @no_of_node:        Device should not use the parent's of_node even i=
+f it's !NULL.
+>   * @reg_read:  Callback to read data.
+>   * @reg_write: Callback to write data.
+>   * @size:      Device size.
+> @@ -53,6 +54,7 @@ struct nvmem_config {
+>         int                     ncells;
+>         bool                    read_only;
+>         bool                    root_only;
+> +       bool                    no_of_node;
+>         nvmem_reg_read_t        reg_read;
+>         nvmem_reg_write_t       reg_write;
+>         int     size;
+> --
+> 2.19.1
+>
 
-On 2018/11/29 19:26, Neil Armstrong wrote:
-> On 29/11/2018 11:59, Jian Hu wrote:
->> Add compatible and data for G12A I2C controller.
->>
->> Signed-off-by: Jian Hu <jian.hu@amlogic.com>
->> ---
->>   drivers/i2c/busses/i2c-meson.c | 5 +++++
->>   1 file changed, 5 insertions(+)
->>
->> diff --git a/drivers/i2c/busses/i2c-meson.c b/drivers/i2c/busses/i2c-meson.c
->> index 90f5d04..b86eed7 100644
->> --- a/drivers/i2c/busses/i2c-meson.c
->> +++ b/drivers/i2c/busses/i2c-meson.c
->> @@ -462,10 +462,15 @@ static int meson_i2c_remove(struct platform_device *pdev)
->>   	.div_factor = 3,
->>   };
->>   
->> +static const struct meson_i2c_data i2c_g12a_data = {
->> +	.div_factor = 3,
-> 
-> Especially if the div_factor is the same as AXG.
-> 
-> If you have some other fixes for G12a in the pipe, you will add the new compatible and meson_i2c_data later,
-> for the div_factor, simply use the axg struct and compatible.
-> 
-> Neil
-> 
-For axg and g12a SoC, the div_factor is the same, and I have confirmed 
-that they share the same IP. I prefer g12a uses axg's compatible and 
-data if it is reasonable. I will just submit the i2c controller node in 
-meson-g12a.dtsi.
->> +};
->> +
->>   static const struct of_device_id meson_i2c_match[] = {
->>   	{ .compatible = "amlogic,meson6-i2c", .data = &i2c_meson6_data },
->>   	{ .compatible = "amlogic,meson-gxbb-i2c", .data = &i2c_gxbb_data },
->>   	{ .compatible = "amlogic,meson-axg-i2c", .data = &i2c_axg_data },
->> +	{ .compatible = "amlogic,meson-g12a-i2c", .data = &i2c_g12a_data },
->>   	{},
->>   };
->>   
->>
-> 
-> .
-> 
+Hi Srinivas,
+
+if there are no objections - can you Ack this patch for Greg to pick
+up into char-misc?
+
+Bart
