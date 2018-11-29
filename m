@@ -1,44 +1,31 @@
-From: Boris Brezillon <boris.brezillon@bootlin.com>
-Subject: Re: [PATCH v2 01/25] nvmem: add new config option
-Date: Thu, 29 Nov 2018 15:43:14 +0100
-Message-ID: <20181129154314.1d3cd914@bbrezillon>
-References: <20181113140133.17385-1-brgl@bgdev.pl>
-        <20181113140133.17385-2-brgl@bgdev.pl>
-        <CAMRc=MeRJ60gcYz00C828PBqnEdC-9onOKOadfackdzHiC1WOA@mail.gmail.com>
-        <b8f08722-d3d5-6ddf-5845-15eb5079094c@linaro.org>
-        <CAMRc=Md4PbYDhmBNx5Rk5F9OZw2Om3D6F21iV6za-+dq0NshYw@mail.gmail.com>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH v5 14/15] ACPI / scan: Create platform device for INT3515
+ ACPI nodes
+Date: Thu, 29 Nov 2018 21:58:51 +0100
+Message-ID: <CAJZ5v0gCyvS+VkGadYBSy34AzAQ4-20Rjeigc3eV7GZ1x79cfQ@mail.gmail.com>
+References: <20181128114535.80223-1-andriy.shevchenko@linux.intel.com> <20181128114535.80223-15-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMRc=Md4PbYDhmBNx5Rk5F9OZw2Om3D6F21iV6za-+dq0NshYw@mail.gmail.com>
+In-Reply-To: <20181128114535.80223-15-andriy.shevchenko@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Arnd Bergmann <arnd@arndb.de>, linux-i2c <linux-i2c@vger.kernel.org>, "open list:MEMORY TECHNOLOGY..." <linux-mtd@lists.infradead.org>, Kevin Hilman <khilman@kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Sekhar Nori <nsekhar@ti.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Darren Hart <dvhart@infradead.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, jic23@kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 29 Nov 2018 15:35:58 +0100
-Bartosz Golaszewski <brgl@bgdev.pl> wrote:
+On Wed, Nov 28, 2018 at 12:48 PM Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+>
+> The ACPI device with INT3515 _HID is representing a complex USB PD
+> hardware infrastructure which includes several I2C slave ICs.
+>
+> We add an ID to the I2C multi instantiate list to enumerate
+> all I2C slaves correctly.
+>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 
-> czw., 29 lis 2018 o 15:32 Srinivas Kandagatla
-> <srinivas.kandagatla@linaro.org> napisał(a):
-> >
-> >  
-> > >
-> > > Hi Srinivas,
-> > >
-> > > if there are no objections - can you Ack this patch for Greg to pick
-> > > up into char-misc?  
-> >
-> > Patch is fine for me. I normally send all the nvmem patches just before rc5.
-> >
-> > --srini  
-> > >
-> > > Bart
-> > >  
-> 
-> Boris, are you fine with Srinivas sending the MTD patch as well so
-> that they stay together?
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-Yes, I'll just need an immutable branch/tag in case we have conflicting
-changes in the MTD tree.
+and I'm assuming that you will route the whole series through the
+platform/x86 drivers tree.
