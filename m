@@ -1,12 +1,15 @@
-From: Oleksij Rempel <o.rempel@pengutronix.de>
-Subject: [PATCH v3 1/1] i2c: imx: refactor error handling on
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH v3 1/1] i2c: imx: refactor error handling on
  i2c_imx_dma_request()
-Date: Fri, 30 Nov 2018 10:44:18 +0100
-Message-ID: <20181130094418.17700-1-o.rempel@pengutronix.de>
+Date: Fri, 30 Nov 2018 10:52:38 +0100
+Message-ID: <20181130095238.z736hvdeibouqu2b@pengutronix.de>
+References: <20181130094418.17700-1-o.rempel@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <20181130094418.17700-1-o.rempel@pengutronix.de>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -16,83 +19,79 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Oleksij Rempel <o.rempel@pengutronix.de>, NXP Linux Team <linux-imx@nxp.com>, Pengutronix Kernel Team <kernel@pengutronix.de>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+To: Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Shawn Guo <shawnguo@kernel.org>, linux-arm-kernel@lists.infradead.org, NXP Linux Team <linux-imx@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-RnJvbTogVXdlIEtsZWluZS1Lw7ZuaWcgPHUua2xlaW5lLWtvZW5pZ0BwZW5ndXRyb25peC5kZT4K
-CkN1cnJlbnQgaW1wbGVtZW50YXRpb24gd2lsbCBwcmludCBlcnJvciBpZiBzeXN0ZW0gaXMgbm90
-IGNvbmZpZ3VyZWQKd2l0aCBETUEgZm9yIEkyQyBjb3JlLiBBdCBsZWFzdCBvbiBpLk1YNXggdmFy
-aWFudHMgaXMgRE1BIGV2ZW50IGZvciBJMkMKbXV4ZWQgd2l0aCBTREhDLiBTbyBpdCBpcyBwcm9q
-ZWN0IHNwZWNpZmljIGNvbmZpZ3VyYXRpb24gYW5kIG5vdCBhbiBlcnJvci4KClRoaXMgcGF0Y2gg
-d2lsbCBhbHNvIGFmZmVjdCBwcm9iZSwgc2luY2UgaXQgd2lsbCBmb3J3YXJkIGFsbCBlcnJvciBl
-eGNlcHQKb2YgbWlzc2luZyBETUEuCgpTaWduZWQtb2ZmLWJ5OiBVd2UgS2xlaW5lLUvDtm5pZyA8
-dS5rbGVpbmUta29lbmlnQHBlbmd1dHJvbml4LmRlPgpbb3JlOiBtYWtlIGl0IGFjdHVhbGx5IGNv
-bXBpbGUsIGZpeCBhIGNvcm5lciBjYXNlXQpTaWduZWQtb2ZmLWJ5OiBPbGVrc2lqIFJlbXBlbCA8
-by5yZW1wZWxAcGVuZ3V0cm9uaXguZGU+Ci0tLQpjaGFuZ2VzOgoyMDE4MTEzMCB2MzoKIC0gcmV3
-b3JkIGNvbW1pdCBtZXNzYWdlIAoyMDE4MTExMiB2MjoKIC0gZHJvcCAiW1BBVENIIHYxIDIvM10g
-aTJjOiBpbXg6IHByb2JlIGRtYSBvbmx5IG9ubHkgb24gaS5NWDUwIGFuZAogICBsYXRlciIgYW5k
-IHJlYmFzZSB3aXRob3V0IHRoaXMgcGF0Y2guCiAtIFNldCBwcm9wZXIgaW5pdGlhbCBhdXRob3IK
-CiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5jIHwgMzYgKysrKysrKysrKysrKysrKysrKysr
-LS0tLS0tLS0tLS0tLS0tCiAxIGZpbGUgY2hhbmdlZCwgMjEgaW5zZXJ0aW9ucygrKSwgMTUgZGVs
-ZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pbXguYyBiL2Ry
-aXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMKaW5kZXggYzQwNjcwMDc4OWUxLi4zYzEyYjE3NGJi
-YjEgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMKKysrIGIvZHJpdmVy
-cy9pMmMvYnVzc2VzL2kyYy1pbXguYwpAQCAtMjczLDcgKzI3Myw3IEBAIHN0YXRpYyBpbmxpbmUg
-dW5zaWduZWQgY2hhciBpbXhfaTJjX3JlYWRfcmVnKHN0cnVjdCBpbXhfaTJjX3N0cnVjdCAqaTJj
-X2lteCwKIH0KIAogLyogRnVuY3Rpb25zIGZvciBETUEgc3VwcG9ydCAqLwotc3RhdGljIHZvaWQg
-aTJjX2lteF9kbWFfcmVxdWVzdChzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QgKmkyY19pbXgsCitzdGF0
-aWMgaW50IGkyY19pbXhfZG1hX3JlcXVlc3Qoc3RydWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14
-LAogCQkJCQkJZG1hX2FkZHJfdCBwaHlfYWRkcikKIHsKIAlzdHJ1Y3QgaW14X2kyY19kbWEgKmRt
-YTsKQEAgLTI4MywxMSArMjgzLDEzIEBAIHN0YXRpYyB2b2lkIGkyY19pbXhfZG1hX3JlcXVlc3Qo
-c3RydWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14LAogCiAJZG1hID0gZGV2bV9remFsbG9jKGRl
-diwgc2l6ZW9mKCpkbWEpLCBHRlBfS0VSTkVMKTsKIAlpZiAoIWRtYSkKLQkJcmV0dXJuOworCQly
-ZXR1cm4gLUVOT01FTTsKIAotCWRtYS0+Y2hhbl90eCA9IGRtYV9yZXF1ZXN0X3NsYXZlX2NoYW5u
-ZWwoZGV2LCAidHgiKTsKLQlpZiAoIWRtYS0+Y2hhbl90eCkgewotCQlkZXZfZGJnKGRldiwgImNh
-bid0IHJlcXVlc3QgRE1BIHR4IGNoYW5uZWxcbiIpOworCWRtYS0+Y2hhbl90eCA9IGRtYV9yZXF1
-ZXN0X2NoYW4oZGV2LCAidHgiKTsKKwlpZiAoSVNfRVJSKGRtYS0+Y2hhbl90eCkpIHsKKwkJcmV0
-ID0gUFRSX0VSUihkbWEtPmNoYW5fcngpOworCQlpZiAocmV0ICE9IC1FTk9ERVYgJiYgcmV0ICE9
-IC1FUFJPQkVfREVGRVIpCisJCQlkZXZfZXJyKGRldiwgImNhbid0IHJlcXVlc3QgRE1BIHR4IGNo
-YW5uZWwgKCVkKVxuIiwgcmV0KTsKIAkJZ290byBmYWlsX2FsOwogCX0KIApAQCAtMjk4LDEzICsz
-MDAsMTUgQEAgc3RhdGljIHZvaWQgaTJjX2lteF9kbWFfcmVxdWVzdChzdHJ1Y3QgaW14X2kyY19z
-dHJ1Y3QgKmkyY19pbXgsCiAJZG1hX3Njb25maWcuZGlyZWN0aW9uID0gRE1BX01FTV9UT19ERVY7
-CiAJcmV0ID0gZG1hZW5naW5lX3NsYXZlX2NvbmZpZyhkbWEtPmNoYW5fdHgsICZkbWFfc2NvbmZp
-Zyk7CiAJaWYgKHJldCA8IDApIHsKLQkJZGV2X2RiZyhkZXYsICJjYW4ndCBjb25maWd1cmUgdHgg
-Y2hhbm5lbFxuIik7CisJCWRldl9lcnIoZGV2LCAiY2FuJ3QgY29uZmlndXJlIHR4IGNoYW5uZWwg
-KCVkKVxuIiwgcmV0KTsKIAkJZ290byBmYWlsX3R4OwogCX0KIAotCWRtYS0+Y2hhbl9yeCA9IGRt
-YV9yZXF1ZXN0X3NsYXZlX2NoYW5uZWwoZGV2LCAicngiKTsKLQlpZiAoIWRtYS0+Y2hhbl9yeCkg
-ewotCQlkZXZfZGJnKGRldiwgImNhbid0IHJlcXVlc3QgRE1BIHJ4IGNoYW5uZWxcbiIpOworCWRt
-YS0+Y2hhbl9yeCA9IGRtYV9yZXF1ZXN0X2NoYW4oZGV2LCAicngiKTsKKwlpZiAoSVNfRVJSKGRt
-YS0+Y2hhbl9yeCkpIHsKKwkJcmV0ID0gUFRSX0VSUihkbWEtPmNoYW5fcngpOworCQlpZiAocmV0
-ICE9IC1FTk9ERVYgJiYgcmV0ICE9IC1FUFJPQkVfREVGRVIpCisJCQlkZXZfZXJyKGRldiwgImNh
-bid0IHJlcXVlc3QgRE1BIHJ4IGNoYW5uZWwgKCVkKVxuIiwgcmV0KTsKIAkJZ290byBmYWlsX3R4
-OwogCX0KIApAQCAtMzE1LDcgKzMxOSw3IEBAIHN0YXRpYyB2b2lkIGkyY19pbXhfZG1hX3JlcXVl
-c3Qoc3RydWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14LAogCWRtYV9zY29uZmlnLmRpcmVjdGlv
-biA9IERNQV9ERVZfVE9fTUVNOwogCXJldCA9IGRtYWVuZ2luZV9zbGF2ZV9jb25maWcoZG1hLT5j
-aGFuX3J4LCAmZG1hX3Njb25maWcpOwogCWlmIChyZXQgPCAwKSB7Ci0JCWRldl9kYmcoZGV2LCAi
-Y2FuJ3QgY29uZmlndXJlIHJ4IGNoYW5uZWxcbiIpOworCQlkZXZfZXJyKGRldiwgImNhbid0IGNv
-bmZpZ3VyZSByeCBjaGFubmVsICglZClcbiIsIHJldCk7CiAJCWdvdG8gZmFpbF9yeDsKIAl9CiAK
-QEAgLTMyNCwxNSArMzI4LDE1IEBAIHN0YXRpYyB2b2lkIGkyY19pbXhfZG1hX3JlcXVlc3Qoc3Ry
-dWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14LAogCWRldl9pbmZvKGRldiwgInVzaW5nICVzICh0
-eCkgYW5kICVzIChyeCkgZm9yIERNQSB0cmFuc2ZlcnNcbiIsCiAJCWRtYV9jaGFuX25hbWUoZG1h
-LT5jaGFuX3R4KSwgZG1hX2NoYW5fbmFtZShkbWEtPmNoYW5fcngpKTsKIAotCXJldHVybjsKKwly
-ZXR1cm4gMDsKIAogZmFpbF9yeDoKIAlkbWFfcmVsZWFzZV9jaGFubmVsKGRtYS0+Y2hhbl9yeCk7
-CiBmYWlsX3R4OgogCWRtYV9yZWxlYXNlX2NoYW5uZWwoZG1hLT5jaGFuX3R4KTsKIGZhaWxfYWw6
-Ci0JZGV2bV9rZnJlZShkZXYsIGRtYSk7Ci0JZGV2X2luZm8oZGV2LCAiY2FuJ3QgdXNlIERNQSwg
-dXNpbmcgUElPIGluc3RlYWQuXG4iKTsKKwkvKiByZXR1cm4gc3VjY2Vzc2Z1bGx5IGlmIHRoZXJl
-IGlzIG5vIGRtYSBzdXBwb3J0ICovCisJcmV0dXJuIHJldCA9PSAtRU5PREVWID8gMCA6IHJldDsK
-IH0KIAogc3RhdGljIHZvaWQgaTJjX2lteF9kbWFfY2FsbGJhY2sodm9pZCAqYXJnKQpAQCAtMTE1
-OSwxMSArMTE2MywxMyBAQCBzdGF0aWMgaW50IGkyY19pbXhfcHJvYmUoc3RydWN0IHBsYXRmb3Jt
-X2RldmljZSAqcGRldikKIAlkZXZfZGJnKCZpMmNfaW14LT5hZGFwdGVyLmRldiwgImRldmljZSBy
-ZXNvdXJjZXM6ICVwUlxuIiwgcmVzKTsKIAlkZXZfZGJnKCZpMmNfaW14LT5hZGFwdGVyLmRldiwg
-ImFkYXB0ZXIgbmFtZTogXCIlc1wiXG4iLAogCQlpMmNfaW14LT5hZGFwdGVyLm5hbWUpOwotCWRl
-dl9pbmZvKCZpMmNfaW14LT5hZGFwdGVyLmRldiwgIklNWCBJMkMgYWRhcHRlciByZWdpc3RlcmVk
-XG4iKTsKIAogCS8qIEluaXQgRE1BIGNvbmZpZyBpZiBzdXBwb3J0ZWQgKi8KLQlpMmNfaW14X2Rt
-YV9yZXF1ZXN0KGkyY19pbXgsIHBoeV9hZGRyKTsKKwlyZXQgPSBpMmNfaW14X2RtYV9yZXF1ZXN0
-KGkyY19pbXgsIHBoeV9hZGRyKTsKKwlpZiAocmV0IDwgMCkKKwkJZ290byBjbGtfbm90aWZpZXJf
-dW5yZWdpc3RlcjsKIAorCWRldl9pbmZvKCZpMmNfaW14LT5hZGFwdGVyLmRldiwgIklNWCBJMkMg
-YWRhcHRlciByZWdpc3RlcmVkXG4iKTsKIAlyZXR1cm4gMDsgICAvKiBSZXR1cm4gT0sgKi8KIAog
-Y2xrX25vdGlmaWVyX3VucmVnaXN0ZXI6Ci0tIAoyLjE5LjEKCgpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlz
-dApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJh
-ZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
+On Fri, Nov 30, 2018 at 10:44:18AM +0100, Oleksij Rempel wrote:
+> From: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+> =
+
+> Current implementation will print error if system is not configured
+> with DMA for I2C core. At least on i.MX5x variants is DMA event for I2C
+> muxed with SDHC. So it is project specific configuration and not an error.
+> =
+
+> This patch will also affect probe, since it will forward all error except
+> of missing DMA.
+> =
+
+> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+> [ore: make it actually compile, fix a corner case]
+> Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+> ---
+> changes:
+> 20181130 v3:
+>  - reword commit message =
+
+> 20181112 v2:
+>  - drop "[PATCH v1 2/3] i2c: imx: probe dma only only on i.MX50 and
+>    later" and rebase without this patch.
+>  - Set proper initial author
+> =
+
+>  drivers/i2c/busses/i2c-imx.c | 36 +++++++++++++++++++++---------------
+>  1 file changed, 21 insertions(+), 15 deletions(-)
+> =
+
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index c406700789e1..3c12b174bbb1 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -273,7 +273,7 @@ static inline unsigned char imx_i2c_read_reg(struct i=
+mx_i2c_struct *i2c_imx,
+>  }
+>  =
+
+>  /* Functions for DMA support */
+> -static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
+> +static int i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
+>  						dma_addr_t phy_addr)
+
+If you touch the line above, maybe also realign the followup line to
+start at the opening parenthesis.
+
+>  {
+>  	struct imx_i2c_dma *dma;
+> @@ -283,11 +283,13 @@ static void i2c_imx_dma_request(struct imx_i2c_stru=
+ct *i2c_imx,
+>  =
+
+>  	dma =3D devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
+>  	if (!dma)
+> -		return;
+> +		return -ENOMEM;
+>  =
+
+> -	dma->chan_tx =3D dma_request_slave_channel(dev, "tx");
+> +	dma->chan_tx =3D dma_request_chan(dev, "tx");
+
+Maybe this is worth a separate change?
+
+Best regards
+Uwe
+
+-- =
+
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
