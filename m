@@ -1,31 +1,98 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: [PATCH v5 14/15] ACPI / scan: Create platform device for INT3515
- ACPI nodes
-Date: Thu, 29 Nov 2018 21:58:51 +0100
-Message-ID: <CAJZ5v0gCyvS+VkGadYBSy34AzAQ4-20Rjeigc3eV7GZ1x79cfQ@mail.gmail.com>
-References: <20181128114535.80223-1-andriy.shevchenko@linux.intel.com> <20181128114535.80223-15-andriy.shevchenko@linux.intel.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
+Subject: [PATCH v3 1/1] i2c: imx: refactor error handling on
+ i2c_imx_dma_request()
+Date: Fri, 30 Nov 2018 10:44:18 +0100
+Message-ID: <20181130094418.17700-1-o.rempel@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181128114535.80223-15-andriy.shevchenko@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Darren Hart <dvhart@infradead.org>, Platform Driver <platform-driver-x86@vger.kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, jic23@kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c <linux-i2c@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>, NXP Linux Team <linux-imx@nxp.com>, Pengutronix Kernel Team <kernel@pengutronix.de>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Nov 28, 2018 at 12:48 PM Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
->
-> The ACPI device with INT3515 _HID is representing a complex USB PD
-> hardware infrastructure which includes several I2C slave ICs.
->
-> We add an ID to the I2C multi instantiate list to enumerate
-> all I2C slaves correctly.
->
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
-and I'm assuming that you will route the whole series through the
-platform/x86 drivers tree.
+RnJvbTogVXdlIEtsZWluZS1Lw7ZuaWcgPHUua2xlaW5lLWtvZW5pZ0BwZW5ndXRyb25peC5kZT4K
+CkN1cnJlbnQgaW1wbGVtZW50YXRpb24gd2lsbCBwcmludCBlcnJvciBpZiBzeXN0ZW0gaXMgbm90
+IGNvbmZpZ3VyZWQKd2l0aCBETUEgZm9yIEkyQyBjb3JlLiBBdCBsZWFzdCBvbiBpLk1YNXggdmFy
+aWFudHMgaXMgRE1BIGV2ZW50IGZvciBJMkMKbXV4ZWQgd2l0aCBTREhDLiBTbyBpdCBpcyBwcm9q
+ZWN0IHNwZWNpZmljIGNvbmZpZ3VyYXRpb24gYW5kIG5vdCBhbiBlcnJvci4KClRoaXMgcGF0Y2gg
+d2lsbCBhbHNvIGFmZmVjdCBwcm9iZSwgc2luY2UgaXQgd2lsbCBmb3J3YXJkIGFsbCBlcnJvciBl
+eGNlcHQKb2YgbWlzc2luZyBETUEuCgpTaWduZWQtb2ZmLWJ5OiBVd2UgS2xlaW5lLUvDtm5pZyA8
+dS5rbGVpbmUta29lbmlnQHBlbmd1dHJvbml4LmRlPgpbb3JlOiBtYWtlIGl0IGFjdHVhbGx5IGNv
+bXBpbGUsIGZpeCBhIGNvcm5lciBjYXNlXQpTaWduZWQtb2ZmLWJ5OiBPbGVrc2lqIFJlbXBlbCA8
+by5yZW1wZWxAcGVuZ3V0cm9uaXguZGU+Ci0tLQpjaGFuZ2VzOgoyMDE4MTEzMCB2MzoKIC0gcmV3
+b3JkIGNvbW1pdCBtZXNzYWdlIAoyMDE4MTExMiB2MjoKIC0gZHJvcCAiW1BBVENIIHYxIDIvM10g
+aTJjOiBpbXg6IHByb2JlIGRtYSBvbmx5IG9ubHkgb24gaS5NWDUwIGFuZAogICBsYXRlciIgYW5k
+IHJlYmFzZSB3aXRob3V0IHRoaXMgcGF0Y2guCiAtIFNldCBwcm9wZXIgaW5pdGlhbCBhdXRob3IK
+CiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5jIHwgMzYgKysrKysrKysrKysrKysrKysrKysr
+LS0tLS0tLS0tLS0tLS0tCiAxIGZpbGUgY2hhbmdlZCwgMjEgaW5zZXJ0aW9ucygrKSwgMTUgZGVs
+ZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pbXguYyBiL2Ry
+aXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMKaW5kZXggYzQwNjcwMDc4OWUxLi4zYzEyYjE3NGJi
+YjEgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMKKysrIGIvZHJpdmVy
+cy9pMmMvYnVzc2VzL2kyYy1pbXguYwpAQCAtMjczLDcgKzI3Myw3IEBAIHN0YXRpYyBpbmxpbmUg
+dW5zaWduZWQgY2hhciBpbXhfaTJjX3JlYWRfcmVnKHN0cnVjdCBpbXhfaTJjX3N0cnVjdCAqaTJj
+X2lteCwKIH0KIAogLyogRnVuY3Rpb25zIGZvciBETUEgc3VwcG9ydCAqLwotc3RhdGljIHZvaWQg
+aTJjX2lteF9kbWFfcmVxdWVzdChzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QgKmkyY19pbXgsCitzdGF0
+aWMgaW50IGkyY19pbXhfZG1hX3JlcXVlc3Qoc3RydWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14
+LAogCQkJCQkJZG1hX2FkZHJfdCBwaHlfYWRkcikKIHsKIAlzdHJ1Y3QgaW14X2kyY19kbWEgKmRt
+YTsKQEAgLTI4MywxMSArMjgzLDEzIEBAIHN0YXRpYyB2b2lkIGkyY19pbXhfZG1hX3JlcXVlc3Qo
+c3RydWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14LAogCiAJZG1hID0gZGV2bV9remFsbG9jKGRl
+diwgc2l6ZW9mKCpkbWEpLCBHRlBfS0VSTkVMKTsKIAlpZiAoIWRtYSkKLQkJcmV0dXJuOworCQly
+ZXR1cm4gLUVOT01FTTsKIAotCWRtYS0+Y2hhbl90eCA9IGRtYV9yZXF1ZXN0X3NsYXZlX2NoYW5u
+ZWwoZGV2LCAidHgiKTsKLQlpZiAoIWRtYS0+Y2hhbl90eCkgewotCQlkZXZfZGJnKGRldiwgImNh
+bid0IHJlcXVlc3QgRE1BIHR4IGNoYW5uZWxcbiIpOworCWRtYS0+Y2hhbl90eCA9IGRtYV9yZXF1
+ZXN0X2NoYW4oZGV2LCAidHgiKTsKKwlpZiAoSVNfRVJSKGRtYS0+Y2hhbl90eCkpIHsKKwkJcmV0
+ID0gUFRSX0VSUihkbWEtPmNoYW5fcngpOworCQlpZiAocmV0ICE9IC1FTk9ERVYgJiYgcmV0ICE9
+IC1FUFJPQkVfREVGRVIpCisJCQlkZXZfZXJyKGRldiwgImNhbid0IHJlcXVlc3QgRE1BIHR4IGNo
+YW5uZWwgKCVkKVxuIiwgcmV0KTsKIAkJZ290byBmYWlsX2FsOwogCX0KIApAQCAtMjk4LDEzICsz
+MDAsMTUgQEAgc3RhdGljIHZvaWQgaTJjX2lteF9kbWFfcmVxdWVzdChzdHJ1Y3QgaW14X2kyY19z
+dHJ1Y3QgKmkyY19pbXgsCiAJZG1hX3Njb25maWcuZGlyZWN0aW9uID0gRE1BX01FTV9UT19ERVY7
+CiAJcmV0ID0gZG1hZW5naW5lX3NsYXZlX2NvbmZpZyhkbWEtPmNoYW5fdHgsICZkbWFfc2NvbmZp
+Zyk7CiAJaWYgKHJldCA8IDApIHsKLQkJZGV2X2RiZyhkZXYsICJjYW4ndCBjb25maWd1cmUgdHgg
+Y2hhbm5lbFxuIik7CisJCWRldl9lcnIoZGV2LCAiY2FuJ3QgY29uZmlndXJlIHR4IGNoYW5uZWwg
+KCVkKVxuIiwgcmV0KTsKIAkJZ290byBmYWlsX3R4OwogCX0KIAotCWRtYS0+Y2hhbl9yeCA9IGRt
+YV9yZXF1ZXN0X3NsYXZlX2NoYW5uZWwoZGV2LCAicngiKTsKLQlpZiAoIWRtYS0+Y2hhbl9yeCkg
+ewotCQlkZXZfZGJnKGRldiwgImNhbid0IHJlcXVlc3QgRE1BIHJ4IGNoYW5uZWxcbiIpOworCWRt
+YS0+Y2hhbl9yeCA9IGRtYV9yZXF1ZXN0X2NoYW4oZGV2LCAicngiKTsKKwlpZiAoSVNfRVJSKGRt
+YS0+Y2hhbl9yeCkpIHsKKwkJcmV0ID0gUFRSX0VSUihkbWEtPmNoYW5fcngpOworCQlpZiAocmV0
+ICE9IC1FTk9ERVYgJiYgcmV0ICE9IC1FUFJPQkVfREVGRVIpCisJCQlkZXZfZXJyKGRldiwgImNh
+bid0IHJlcXVlc3QgRE1BIHJ4IGNoYW5uZWwgKCVkKVxuIiwgcmV0KTsKIAkJZ290byBmYWlsX3R4
+OwogCX0KIApAQCAtMzE1LDcgKzMxOSw3IEBAIHN0YXRpYyB2b2lkIGkyY19pbXhfZG1hX3JlcXVl
+c3Qoc3RydWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14LAogCWRtYV9zY29uZmlnLmRpcmVjdGlv
+biA9IERNQV9ERVZfVE9fTUVNOwogCXJldCA9IGRtYWVuZ2luZV9zbGF2ZV9jb25maWcoZG1hLT5j
+aGFuX3J4LCAmZG1hX3Njb25maWcpOwogCWlmIChyZXQgPCAwKSB7Ci0JCWRldl9kYmcoZGV2LCAi
+Y2FuJ3QgY29uZmlndXJlIHJ4IGNoYW5uZWxcbiIpOworCQlkZXZfZXJyKGRldiwgImNhbid0IGNv
+bmZpZ3VyZSByeCBjaGFubmVsICglZClcbiIsIHJldCk7CiAJCWdvdG8gZmFpbF9yeDsKIAl9CiAK
+QEAgLTMyNCwxNSArMzI4LDE1IEBAIHN0YXRpYyB2b2lkIGkyY19pbXhfZG1hX3JlcXVlc3Qoc3Ry
+dWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14LAogCWRldl9pbmZvKGRldiwgInVzaW5nICVzICh0
+eCkgYW5kICVzIChyeCkgZm9yIERNQSB0cmFuc2ZlcnNcbiIsCiAJCWRtYV9jaGFuX25hbWUoZG1h
+LT5jaGFuX3R4KSwgZG1hX2NoYW5fbmFtZShkbWEtPmNoYW5fcngpKTsKIAotCXJldHVybjsKKwly
+ZXR1cm4gMDsKIAogZmFpbF9yeDoKIAlkbWFfcmVsZWFzZV9jaGFubmVsKGRtYS0+Y2hhbl9yeCk7
+CiBmYWlsX3R4OgogCWRtYV9yZWxlYXNlX2NoYW5uZWwoZG1hLT5jaGFuX3R4KTsKIGZhaWxfYWw6
+Ci0JZGV2bV9rZnJlZShkZXYsIGRtYSk7Ci0JZGV2X2luZm8oZGV2LCAiY2FuJ3QgdXNlIERNQSwg
+dXNpbmcgUElPIGluc3RlYWQuXG4iKTsKKwkvKiByZXR1cm4gc3VjY2Vzc2Z1bGx5IGlmIHRoZXJl
+IGlzIG5vIGRtYSBzdXBwb3J0ICovCisJcmV0dXJuIHJldCA9PSAtRU5PREVWID8gMCA6IHJldDsK
+IH0KIAogc3RhdGljIHZvaWQgaTJjX2lteF9kbWFfY2FsbGJhY2sodm9pZCAqYXJnKQpAQCAtMTE1
+OSwxMSArMTE2MywxMyBAQCBzdGF0aWMgaW50IGkyY19pbXhfcHJvYmUoc3RydWN0IHBsYXRmb3Jt
+X2RldmljZSAqcGRldikKIAlkZXZfZGJnKCZpMmNfaW14LT5hZGFwdGVyLmRldiwgImRldmljZSBy
+ZXNvdXJjZXM6ICVwUlxuIiwgcmVzKTsKIAlkZXZfZGJnKCZpMmNfaW14LT5hZGFwdGVyLmRldiwg
+ImFkYXB0ZXIgbmFtZTogXCIlc1wiXG4iLAogCQlpMmNfaW14LT5hZGFwdGVyLm5hbWUpOwotCWRl
+dl9pbmZvKCZpMmNfaW14LT5hZGFwdGVyLmRldiwgIklNWCBJMkMgYWRhcHRlciByZWdpc3RlcmVk
+XG4iKTsKIAogCS8qIEluaXQgRE1BIGNvbmZpZyBpZiBzdXBwb3J0ZWQgKi8KLQlpMmNfaW14X2Rt
+YV9yZXF1ZXN0KGkyY19pbXgsIHBoeV9hZGRyKTsKKwlyZXQgPSBpMmNfaW14X2RtYV9yZXF1ZXN0
+KGkyY19pbXgsIHBoeV9hZGRyKTsKKwlpZiAocmV0IDwgMCkKKwkJZ290byBjbGtfbm90aWZpZXJf
+dW5yZWdpc3RlcjsKIAorCWRldl9pbmZvKCZpMmNfaW14LT5hZGFwdGVyLmRldiwgIklNWCBJMkMg
+YWRhcHRlciByZWdpc3RlcmVkXG4iKTsKIAlyZXR1cm4gMDsgICAvKiBSZXR1cm4gT0sgKi8KIAog
+Y2xrX25vdGlmaWVyX3VucmVnaXN0ZXI6Ci0tIAoyLjE5LjEKCgpfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlz
+dApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJh
+ZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
