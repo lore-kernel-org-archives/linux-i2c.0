@@ -1,97 +1,60 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v3 1/1] i2c: imx: refactor error handling on
- i2c_imx_dma_request()
-Date: Fri, 30 Nov 2018 10:52:38 +0100
-Message-ID: <20181130095238.z736hvdeibouqu2b@pengutronix.de>
-References: <20181130094418.17700-1-o.rempel@pengutronix.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v5 05/15] i2c: acpi: Return error pointers from
+ i2c_acpi_new_device()
+Date: Fri, 30 Nov 2018 10:53:04 +0100
+Message-ID: <20181130095304.GA1079@kunai>
+References: <20181128114535.80223-1-andriy.shevchenko@linux.intel.com>
+ <20181128114535.80223-6-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181130094418.17700-1-o.rempel@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Shawn Guo <shawnguo@kernel.org>, linux-arm-kernel@lists.infradead.org, NXP Linux Team <linux-imx@nxp.com>
+In-Reply-To: <20181128114535.80223-6-andriy.shevchenko@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-acpi@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Nov 30, 2018 at 10:44:18AM +0100, Oleksij Rempel wrote:
-> From: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
-> =
 
-> Current implementation will print error if system is not configured
-> with DMA for I2C core. At least on i.MX5x variants is DMA event for I2C
-> muxed with SDHC. So it is project specific configuration and not an error.
-> =
+--/04w6evG8XlLl3ft
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> This patch will also affect probe, since it will forward all error except
-> of missing DMA.
-> =
+On Wed, Nov 28, 2018 at 01:45:25PM +0200, Andy Shevchenko wrote:
+> The caller would like to know the reason why the i2c_acpi_new_device() fa=
+ils.
+> For example, if adapter is not available, it might be in the future and we
+> would like to re-probe the clients again. But at the same time we would l=
+ike to
+> bail out if the error seems unrecoverable, such as invalid argument suppl=
+ied.
+> To achieve this, return error pointer in some cases.
+>=20
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
-> [ore: make it actually compile, fix a corner case]
-> Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-> ---
-> changes:
-> 20181130 v3:
->  - reword commit message =
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
 
-> 20181112 v2:
->  - drop "[PATCH v1 2/3] i2c: imx: probe dma only only on i.MX50 and
->    later" and rebase without this patch.
->  - Set proper initial author
-> =
 
->  drivers/i2c/busses/i2c-imx.c | 36 +++++++++++++++++++++---------------
->  1 file changed, 21 insertions(+), 15 deletions(-)
-> =
+--/04w6evG8XlLl3ft
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index c406700789e1..3c12b174bbb1 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -273,7 +273,7 @@ static inline unsigned char imx_i2c_read_reg(struct i=
-mx_i2c_struct *i2c_imx,
->  }
->  =
+-----BEGIN PGP SIGNATURE-----
 
->  /* Functions for DMA support */
-> -static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
-> +static int i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
->  						dma_addr_t phy_addr)
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwBCHsACgkQFA3kzBSg
+KbatgxAAob8ByaeD+a5hXFcsADxN47hMoRQWCjmzwp7C8iIQhGAVYnXwU+mabN3h
+p7hLzaSGoM76GqF3L7nFZel4qS643B3AYCfd2KHZcp+9cQwXfL7XGXdWJ1IFrycV
+1hvYPdLTf72sBBc95Cswt9D8v340aX0lTx+sIFUXnIbmQVQ8YVfQoA7SnCkIzDsw
+WFJZerxwKzTxaS1TZ/ARZn0TxBURp94AadqZGibVxNeXgsTI5e0Jvudl3n1CtZW8
+Xcvt6SfnL4T3DOxuinhHOm5qDeThHfsq5xoK+30dyjzpylMnMI8Fg8Lir5rqigDJ
+gxZfko4HIfKAlh4iUxLcqBim3ou5K5IzqZocIHEHQ9RQdHRcBEqAGmZkyqpeGDhW
+p/njU8Vz1DySJn1nhw99TMGgsSeFuljCyBhxB9L0tAQlltCWJjlyerfb6Qsz8bDG
+ahkAzFDBZsWKNFuPLAss/tn5jpOGwg3AY+2Mi1d4miyyLIazkIzBMIJtdbuE3faY
+YU43zdGi895xX/r/d3LTEIQ8ZSbK+oFq2cfQ9Ks/NKLC56fq46/jzBdvJWg7yGui
+MyVyWc07Kt8MLban4qXPiYTbCkyGrHVWwObK4ZTNysdOZH9pBYTP3HHLGkvCiieh
+5w5SKyUMIBR/t4mTcUIy7J9sc3RiLbL6PyfcEmVQvnFlSeqwcqA=
+=yHaq
+-----END PGP SIGNATURE-----
 
-If you touch the line above, maybe also realign the followup line to
-start at the opening parenthesis.
-
->  {
->  	struct imx_i2c_dma *dma;
-> @@ -283,11 +283,13 @@ static void i2c_imx_dma_request(struct imx_i2c_stru=
-ct *i2c_imx,
->  =
-
->  	dma =3D devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
->  	if (!dma)
-> -		return;
-> +		return -ENOMEM;
->  =
-
-> -	dma->chan_tx =3D dma_request_slave_channel(dev, "tx");
-> +	dma->chan_tx =3D dma_request_chan(dev, "tx");
-
-Maybe this is worth a separate change?
-
-Best regards
-Uwe
-
--- =
-
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+--/04w6evG8XlLl3ft--
