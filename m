@@ -1,48 +1,51 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v5 09/15] i2c: acpi: Introduce
- i2c_acpi_get_i2c_resource() helper
-Date: Fri, 30 Nov 2018 14:17:54 +0200
-Message-ID: <20181130121754.GO10650@smile.fi.intel.com>
-References: <20181128114535.80223-1-andriy.shevchenko@linux.intel.com>
- <20181128114535.80223-10-andriy.shevchenko@linux.intel.com>
- <20181130095533.GC1079@kunai>
- <20181130105759.GK10650@smile.fi.intel.com>
- <20181130110652.ckj75wrxxaez2sq2@ninjato>
- <20181130114543.GM10650@smile.fi.intel.com>
- <20181130114950.av6pnedcqu27jyjc@ninjato>
- <20181130121231.GO3078@lahna.fi.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3] i2c: i2c-stm32f7: add PM Runtime support
+Date: Sat, 1 Dec 2018 00:16:03 +0100
+Message-ID: <20181130231602.GB860@kunai>
+References: <1543329331-2471-1-git-send-email-pierre-yves.mordret@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181130121231.GO3078@lahna.fi.intel.com>
+In-Reply-To: <1543329331-2471-1-git-send-email-pierre-yves.mordret@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-acpi@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-kernel@vger.kernel.org
+To: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Nov 30, 2018 at 02:12:31PM +0200, Mika Westerberg wrote:
-> On Fri, Nov 30, 2018 at 12:49:50PM +0100, Wolfram Sang wrote:
-> > 
-> > > > Is this something we have to live with or which can be cleaned up
-> > > > somewhen?
-> > > 
-> > > My opinion that we might need something like
-> > > drivers/acpi/acpi_i2c_lib.c
-> > > drivers/acpi/acpi_gpio_lib.c
-> > > etc.
-> > >
-> > 
-> > Collect all of them in drivers/acpi/acpi_libs.c?
-> > 
-> > > But better to ask Rafael and Mika what they think about this.
-> 
-> IMHO all the bus specific ACPI things should go under those buses (so
-> the opposite what is proposed here) but I also don't think any of this
-> is show stopper for the patch series under discussion ;-)
 
-Thank you guys for your input, let me fix this later, out of this series.
+--cvVnyQ+4j833TQvp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-With Best Regards,
-Andy Shevchenko
+On Tue, Nov 27, 2018 at 03:35:31PM +0100, Pierre-Yves MORDRET wrote:
+> Use PM Runtime API to enable/disable clock
+>=20
+> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+
+Applied to for-next, thanks!
+
+
+--cvVnyQ+4j833TQvp
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwBxLIACgkQFA3kzBSg
+KbbFUBAAh8qdHFxWwwJtTmJtHchfy31L3bwIYg4O9x4mHdo6CcAyBWQ69gSaFM1Y
+S7cUti+/UyNj61umr6rXiy7/FlOSGKOOvV3KeSEfvJ9ElEiMtE9fRdNcft2NOGin
+aAy9O2gm7TuIRf2V/kmylQkCyVbMUxH9J8N3huwM99/BcBmxl9IDTFMtWCL3GLel
+cckpFJ3c4ZbF1VRfFPVKhYJ4gvGCt3xG2EdTUNvf6lHizZShIuAFLXlnyVnxh0+o
+qKFWTBaDQNnnwiBQXV3FYyrpSpHrJwkcDf9QQoaL1uvF+ngh47W8cY7GPOt2sAtI
+46OxieAkBte8fitAavZAI5WArtMY4IPITAuwrQyqEpErKQTNhbXM7nNUUsG5XLwK
+1h86+cvOTZawSAuoMqdmnxAocyLIq0AvxIT5gxf05JUjZrQ4hIOO5CzTUe/Yvq1T
+8PQzyuvCYjDbHae2lhOGUhffdLRyoWwwEqD9uFGhmxXoSMsIEN0UsRi7+XRvifcc
+ulMjVNTaV/3HQY2aMl0Fv86LLCMboHJudO03tOeWTDA1rD6b1lJQI1WBydYfVJaB
+Yf+T7kmWydYCzYIhT8kr91ALPitBGGIeIYt0ZxkkEPTKonGfty93tBgzWuGxCwJX
+mPJt3W8jm8uWUKxzvbRSB7b3IV2qcsEHxlJjVI33C4kWvNMQU88=
+=Zt3W
+-----END PGP SIGNATURE-----
+
+--cvVnyQ+4j833TQvp--
