@@ -1,58 +1,52 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] dt-bindings: i2c: Use correct vendor prefix for Atmel
-Date: Sat, 1 Dec 2018 00:19:15 +0100
-Message-ID: <20181130231915.GC860@kunai>
-References: <20181123121009.17213-1-thierry.reding@gmail.com>
- <20181123125138.22489-1-thierry.reding@gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="0vzXIDBeUiKkjNJl"
+From: Nicholas Mc Guire <hofrat@osadl.org>
+Subject: [PATCH] i2c: mux: demux-pinctrl: handle failure case of devm_kstrdup()
+Date: Sat,  1 Dec 2018 11:01:10 +0100
+Message-ID: <1543658470-20887-1-git-send-email-hofrat@osadl.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181123125138.22489-1-thierry.reding@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.org>
 List-Id: linux-i2c@vger.kernel.org
 
+devm_kstrdup() may return NULL if internal allocation failed.
+Thus using  name, value  is unsafe without being checked. As
+i2c_demux_pinctrl_probe() can return -ENOMEM in other cases
+a dev_err() message is included to make the failure location
+clear.
 
---0vzXIDBeUiKkjNJl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+Fixes: e35478eac030 ("i2c: mux: demux-pinctrl: run properly with multiple instances")
+---
 
-On Fri, Nov 23, 2018 at 01:51:38PM +0100, Thierry Reding wrote:
-> From: Thierry Reding <treding@nvidia.com>
->=20
-> The "at," prefix was never correct for Atmel, so fix the few occurrences
-> that got it wrong. Use "atmel," instead.
->=20
-> While at it, remove the at,24c08 compatible string from the list of
-> trivial devices because it is already documented in eeprom/at24.txt.
->=20
-> Signed-off-by: Thierry Reding <treding@nvidia.com>
+Problem located with experimental coccinelle script
 
-Applied to for-current, thanks!
+Q: The use of devm_kstrdup() seems a bit odd while technically not wrong,
+   personally I think devm_kasprintf() would be more suitable here.
 
+Patch was compile tested with: multi_v7_defconfig 
+(implies I2C_DEMUX_PINCTRL=y)
 
---0vzXIDBeUiKkjNJl
-Content-Type: application/pgp-signature; name="signature.asc"
+Patch is against 4.20-rc4 (localversion-next is next-20181130)
 
------BEGIN PGP SIGNATURE-----
+ drivers/i2c/muxes/i2c-demux-pinctrl.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwBxXIACgkQFA3kzBSg
-KbZd4hAAn9iOT2AqhOm5aB5oAWave42zCqrQIf/9Z6kZCnhN8curi3WesgUjwfOr
-M5WcMptWlveZwE8FOAx1K0EYqyWYOgOc2H8Qoi/kdiRYSC6cH2BN93otB49VBg2W
-cIwLnxrxRcZjGTRElADUpUosF73aG2V2okYn6Ryz5EdiPAl1J+DJaevbZv+KOOlS
-4giqL1/zRRxzFMsYQIC0Bz2DHj7UalX48E3gQBLlrY3vMPOR6QWLLwdTzVcN6Fwy
-09LfsKgNOE27F5q2RMk6g/b5NVIA36ufSetKA15SgYiZWrRBhLLq7mz07yC+m11N
-80crbo3tMpvJiEy8pOA6bVUZfG05v16nvKHA0YLsjwRNwK+5rDIiQ21q/+JulIIv
-y+04Ed8vTu26NbpWJ5HDeYdAsuuysp9AQA1JR6qX0juiNIHfslTkNRPgceFnlN68
-OMRllBHAoy2l7Lc55RDtZkmBNnLg6esejZHocqFsKI9otn1YnkNX9J9PdnOroWNI
-1DPyK+sGJizHiSOQHMuD40XiS8hOZs+G9oUnaF38vFyhPcho5Im+Vf1ennw9akWQ
-lZmEI6pt+VzFLvWe0EEPATtL5MUqH56jZQaFaGIyESJDm8aGOaRPRZaomJlry5FN
-Dy6GCMBkVq6bCbaz1QzjM+xdwlKvGrx0xGVR2PlglymQ+WBcOXo=
-=hme5
------END PGP SIGNATURE-----
-
---0vzXIDBeUiKkjNJl--
+diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+index 035032e..c466999 100644
+--- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
++++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+@@ -244,6 +244,12 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
+ 
+ 		props[i].name = devm_kstrdup(&pdev->dev, "status", GFP_KERNEL);
+ 		props[i].value = devm_kstrdup(&pdev->dev, "ok", GFP_KERNEL);
++		if (!props[i].name || !props[i].value) {
++			dev_err(&pdev->dev,
++				"chan %d name, value allocation failed\n", i);
++			err = -ENOMEM;
++			goto err_rollback;
++		}
+ 		props[i].length = 3;
+ 
+ 		of_changeset_init(&priv->chan[i].chgset);
+-- 
+2.1.4
