@@ -1,8 +1,8 @@
 From: Nicholas Mc Guire <der.herr@hofr.at>
 Subject: Re: [PATCH] i2c: mux: demux-pinctrl: handle failure case of
  devm_kstrdup()
-Date: Tue, 4 Dec 2018 12:43:04 +0100
-Message-ID: <20181204114304.GA26798@osadl.at>
+Date: Tue, 4 Dec 2018 13:13:18 +0100
+Message-ID: <20181204121318.GB28201@osadl.at>
 References: <1543658470-20887-1-git-send-email-hofrat@osadl.org>
  <549eba3a-28b9-e4b0-f680-8fb51b160879@axentia.se>
 Mime-Version: 1.0
@@ -59,11 +59,29 @@ On Tue, Dec 04, 2018 at 11:16:59AM +0000, Peter Rosin wrote:
 > Please drop this memory allocation failure message. You should get such a
 > message from devm_kstrdup.
 >
-thanks for the review - will drop the dev_err() then an resend 
+
+hm...tried to figure out where that message would be comming
+from - but I could not find any point in the call tree that
+would issue such a message ?
+
+ devm_kstrdup() 
+   -> devm_kmalloc()
+        -> alloc_dr()
+             --> kmalloc_track_caller() (non-NUMA)
+             |     -> __kmalloc_node()
+             |        -> __do_kmalloc_node()
+             `-> __kmalloc_node_track_caller() (NUMA)
+                   -> __do_kmalloc_node()
+
+ __do_kmalloc_node() seems like it simply returns NULL but
+ issues no failure message.
+ Am I overlooking something ? 
 
 thx!
-hofrat
+hofrat 
  
+> Cheers,
+> Peter
 > 
 > > +			err = -ENOMEM;
 > > +			goto err_rollback;
