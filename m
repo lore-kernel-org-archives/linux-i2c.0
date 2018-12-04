@@ -1,93 +1,74 @@
-From: Nicholas Mc Guire <der.herr@hofr.at>
+From: Peter Rosin <peda@axentia.se>
 Subject: Re: [PATCH] i2c: mux: demux-pinctrl: handle failure case of
  devm_kstrdup()
-Date: Tue, 4 Dec 2018 13:13:18 +0100
-Message-ID: <20181204121318.GB28201@osadl.at>
+Date: Tue, 4 Dec 2018 13:49:11 +0000
+Message-ID: <2c43e965-9a12-0367-fb23-bedfaaed4f68@axentia.se>
 References: <1543658470-20887-1-git-send-email-hofrat@osadl.org>
  <549eba3a-28b9-e4b0-f680-8fb51b160879@axentia.se>
+ <20181204121318.GB28201@osadl.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <549eba3a-28b9-e4b0-f680-8fb51b160879@axentia.se>
+In-Reply-To: <20181204121318.GB28201@osadl.at>
+Content-Language: en-US
+Content-ID: <175875D639804E4EBE8F25B263FD6455@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
+To: Nicholas Mc Guire <der.herr@hofr.at>
 Cc: Nicholas Mc Guire <hofrat@osadl.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Dec 04, 2018 at 11:16:59AM +0000, Peter Rosin wrote:
-> Hi!
-> 
-> This patch looks like a good idea. However, a nitpick below.
-> 
-> On 2018-12-01 11:01, Nicholas Mc Guire wrote:
-> > devm_kstrdup() may return NULL if internal allocation failed.
-> > Thus using  name, value  is unsafe without being checked. As
-> > i2c_demux_pinctrl_probe() can return -ENOMEM in other cases
-> > a dev_err() message is included to make the failure location
-> > clear.
-> > 
-> > Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
-> > Fixes: e35478eac030 ("i2c: mux: demux-pinctrl: run properly with multiple instances")
-> > ---
-> > 
-> > Problem located with experimental coccinelle script
-> > 
-> > Q: The use of devm_kstrdup() seems a bit odd while technically not wrong,
-> >    personally I think devm_kasprintf() would be more suitable here.
-> > 
-> > Patch was compile tested with: multi_v7_defconfig 
-> > (implies I2C_DEMUX_PINCTRL=y)
-> > 
-> > Patch is against 4.20-rc4 (localversion-next is next-20181130)
-> > 
-> >  drivers/i2c/muxes/i2c-demux-pinctrl.c | 6 ++++++
-> >  1 file changed, 6 insertions(+)
-> > 
-> > diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-> > index 035032e..c466999 100644
-> > --- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
-> > +++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-> > @@ -244,6 +244,12 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
-> >  
-> >  		props[i].name = devm_kstrdup(&pdev->dev, "status", GFP_KERNEL);
-> >  		props[i].value = devm_kstrdup(&pdev->dev, "ok", GFP_KERNEL);
-> > +		if (!props[i].name || !props[i].value) {
-> > +			dev_err(&pdev->dev,
-> > +				"chan %d name, value allocation failed\n", i);
-> 
-> Please drop this memory allocation failure message. You should get such a
-> message from devm_kstrdup.
->
-
-hm...tried to figure out where that message would be comming
-from - but I could not find any point in the call tree that
-would issue such a message ?
-
- devm_kstrdup() 
-   -> devm_kmalloc()
-        -> alloc_dr()
-             --> kmalloc_track_caller() (non-NUMA)
-             |     -> __kmalloc_node()
-             |        -> __do_kmalloc_node()
-             `-> __kmalloc_node_track_caller() (NUMA)
-                   -> __do_kmalloc_node()
-
- __do_kmalloc_node() seems like it simply returns NULL but
- issues no failure message.
- Am I overlooking something ? 
-
-thx!
-hofrat 
- 
-> Cheers,
-> Peter
-> 
-> > +			err = -ENOMEM;
-> > +			goto err_rollback;
-> > +		}
-> >  		props[i].length = 3;
-> >  
-> >  		of_changeset_init(&priv->chan[i].chgset);
-> > 
-> 
+T24gMjAxOC0xMi0wNCAxMzoxMywgTmljaG9sYXMgTWMgR3VpcmUgd3JvdGU6DQo+IE9uIFR1ZSwg
+RGVjIDA0LCAyMDE4IGF0IDExOjE2OjU5QU0gKzAwMDAsIFBldGVyIFJvc2luIHdyb3RlOg0KPj4g
+SGkhDQo+Pg0KPj4gVGhpcyBwYXRjaCBsb29rcyBsaWtlIGEgZ29vZCBpZGVhLiBIb3dldmVyLCBh
+IG5pdHBpY2sgYmVsb3cuDQo+Pg0KPj4gT24gMjAxOC0xMi0wMSAxMTowMSwgTmljaG9sYXMgTWMg
+R3VpcmUgd3JvdGU6DQo+Pj4gZGV2bV9rc3RyZHVwKCkgbWF5IHJldHVybiBOVUxMIGlmIGludGVy
+bmFsIGFsbG9jYXRpb24gZmFpbGVkLg0KPj4+IFRodXMgdXNpbmcgIG5hbWUsIHZhbHVlICBpcyB1
+bnNhZmUgd2l0aG91dCBiZWluZyBjaGVja2VkLiBBcw0KPj4+IGkyY19kZW11eF9waW5jdHJsX3By
+b2JlKCkgY2FuIHJldHVybiAtRU5PTUVNIGluIG90aGVyIGNhc2VzDQo+Pj4gYSBkZXZfZXJyKCkg
+bWVzc2FnZSBpcyBpbmNsdWRlZCB0byBtYWtlIHRoZSBmYWlsdXJlIGxvY2F0aW9uDQo+Pj4gY2xl
+YXIuDQo+Pj4NCj4+PiBTaWduZWQtb2ZmLWJ5OiBOaWNob2xhcyBNYyBHdWlyZSA8aG9mcmF0QG9z
+YWRsLm9yZz4NCj4+PiBGaXhlczogZTM1NDc4ZWFjMDMwICgiaTJjOiBtdXg6IGRlbXV4LXBpbmN0
+cmw6IHJ1biBwcm9wZXJseSB3aXRoIG11bHRpcGxlIGluc3RhbmNlcyIpDQo+Pj4gLS0tDQo+Pj4N
+Cj4+PiBQcm9ibGVtIGxvY2F0ZWQgd2l0aCBleHBlcmltZW50YWwgY29jY2luZWxsZSBzY3JpcHQN
+Cj4+Pg0KPj4+IFE6IFRoZSB1c2Ugb2YgZGV2bV9rc3RyZHVwKCkgc2VlbXMgYSBiaXQgb2RkIHdo
+aWxlIHRlY2huaWNhbGx5IG5vdCB3cm9uZywNCj4+PiAgICBwZXJzb25hbGx5IEkgdGhpbmsgZGV2
+bV9rYXNwcmludGYoKSB3b3VsZCBiZSBtb3JlIHN1aXRhYmxlIGhlcmUuDQo+Pj4NCj4+PiBQYXRj
+aCB3YXMgY29tcGlsZSB0ZXN0ZWQgd2l0aDogbXVsdGlfdjdfZGVmY29uZmlnIA0KPj4+IChpbXBs
+aWVzIEkyQ19ERU1VWF9QSU5DVFJMPXkpDQo+Pj4NCj4+PiBQYXRjaCBpcyBhZ2FpbnN0IDQuMjAt
+cmM0IChsb2NhbHZlcnNpb24tbmV4dCBpcyBuZXh0LTIwMTgxMTMwKQ0KPj4+DQo+Pj4gIGRyaXZl
+cnMvaTJjL211eGVzL2kyYy1kZW11eC1waW5jdHJsLmMgfCA2ICsrKysrKw0KPj4+ICAxIGZpbGUg
+Y2hhbmdlZCwgNiBpbnNlcnRpb25zKCspDQo+Pj4NCj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9p
+MmMvbXV4ZXMvaTJjLWRlbXV4LXBpbmN0cmwuYyBiL2RyaXZlcnMvaTJjL211eGVzL2kyYy1kZW11
+eC1waW5jdHJsLmMNCj4+PiBpbmRleCAwMzUwMzJlLi5jNDY2OTk5IDEwMDY0NA0KPj4+IC0tLSBh
+L2RyaXZlcnMvaTJjL211eGVzL2kyYy1kZW11eC1waW5jdHJsLmMNCj4+PiArKysgYi9kcml2ZXJz
+L2kyYy9tdXhlcy9pMmMtZGVtdXgtcGluY3RybC5jDQo+Pj4gQEAgLTI0NCw2ICsyNDQsMTIgQEAg
+c3RhdGljIGludCBpMmNfZGVtdXhfcGluY3RybF9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNl
+ICpwZGV2KQ0KPj4+ICANCj4+PiAgCQlwcm9wc1tpXS5uYW1lID0gZGV2bV9rc3RyZHVwKCZwZGV2
+LT5kZXYsICJzdGF0dXMiLCBHRlBfS0VSTkVMKTsNCj4+PiAgCQlwcm9wc1tpXS52YWx1ZSA9IGRl
+dm1fa3N0cmR1cCgmcGRldi0+ZGV2LCAib2siLCBHRlBfS0VSTkVMKTsNCj4+PiArCQlpZiAoIXBy
+b3BzW2ldLm5hbWUgfHwgIXByb3BzW2ldLnZhbHVlKSB7DQo+Pj4gKwkJCWRldl9lcnIoJnBkZXYt
+PmRldiwNCj4+PiArCQkJCSJjaGFuICVkIG5hbWUsIHZhbHVlIGFsbG9jYXRpb24gZmFpbGVkXG4i
+LCBpKTsNCj4+DQo+PiBQbGVhc2UgZHJvcCB0aGlzIG1lbW9yeSBhbGxvY2F0aW9uIGZhaWx1cmUg
+bWVzc2FnZS4gWW91IHNob3VsZCBnZXQgc3VjaCBhDQo+PiBtZXNzYWdlIGZyb20gZGV2bV9rc3Ry
+ZHVwLg0KPj4NCj4gDQo+IGhtLi4udHJpZWQgdG8gZmlndXJlIG91dCB3aGVyZSB0aGF0IG1lc3Nh
+Z2Ugd291bGQgYmUgY29tbWluZw0KPiBmcm9tIC0gYnV0IEkgY291bGQgbm90IGZpbmQgYW55IHBv
+aW50IGluIHRoZSBjYWxsIHRyZWUgdGhhdA0KPiB3b3VsZCBpc3N1ZSBzdWNoIGEgbWVzc2FnZSA/
+DQo+IA0KPiAgZGV2bV9rc3RyZHVwKCkgDQo+ICAgIC0+IGRldm1fa21hbGxvYygpDQo+ICAgICAg
+ICAgLT4gYWxsb2NfZHIoKQ0KPiAgICAgICAgICAgICAgLS0+IGttYWxsb2NfdHJhY2tfY2FsbGVy
+KCkgKG5vbi1OVU1BKQ0KPiAgICAgICAgICAgICAgfCAgICAgLT4gX19rbWFsbG9jX25vZGUoKQ0K
+PiAgICAgICAgICAgICAgfCAgICAgICAgLT4gX19kb19rbWFsbG9jX25vZGUoKQ0KPiAgICAgICAg
+ICAgICAgYC0+IF9fa21hbGxvY19ub2RlX3RyYWNrX2NhbGxlcigpIChOVU1BKQ0KPiAgICAgICAg
+ICAgICAgICAgICAgLT4gX19kb19rbWFsbG9jX25vZGUoKQ0KPiANCj4gIF9fZG9fa21hbGxvY19u
+b2RlKCkgc2VlbXMgbGlrZSBpdCBzaW1wbHkgcmV0dXJucyBOVUxMIGJ1dA0KPiAgaXNzdWVzIG5v
+IGZhaWx1cmUgbWVzc2FnZS4NCj4gIEFtIEkgb3Zlcmxvb2tpbmcgc29tZXRoaW5nID8gDQoNCldl
+bGwsIEkgZG9uJ3Qga25vdyB0aGUgZGV0YWlscywgYnV0IGNoZWNrcGF0Y2ggd2lsbCB3YXJuIGFi
+b3V0IHNpbXBsZQ0KZXJyb3IgbWVzc2FnZXMgb24gZGV2bV9rc3RyZHVwIGZhaWx1cmUgKGlmIEkg
+cmVhZCB0aGUgY2hlY2twYXRjaCBzb3VyY2UNCmNvcnJlY3RseSkuIEJ1dCBpbiB0aGlzIGNhc2Ug
+dGhlcmUgYXJlIHR3byBwYXJhbGxlbCBjb25kaXRpb25zIGluIHRoZQ0KaWYgYW5kIGhlbmNlIGNo
+ZWNrcGF0Y2ggc3R1bWJsZXMsIGJ1dCBnaXN0IGlzIHRoZSBzYW1lLCB5b3Ugc2hvdWxkIG5vdA0K
+c3ByaW5rbGUgbWVzc2FnZXMgb24gbWVtb3J5IGFsbG9jYXRpb24gZmFpbHVyZS4NCg0KQ2hlZXJz
+LA0KUGV0ZXINCg0KPiB0aHghDQo+IGhvZnJhdCANCj4gIA0KPj4gQ2hlZXJzLA0KPj4gUGV0ZXIN
+Cj4+DQo+Pj4gKwkJCWVyciA9IC1FTk9NRU07DQo+Pj4gKwkJCWdvdG8gZXJyX3JvbGxiYWNrOw0K
+Pj4+ICsJCX0NCj4+PiAgCQlwcm9wc1tpXS5sZW5ndGggPSAzOw0KPj4+ICANCj4+PiAgCQlvZl9j
+aGFuZ2VzZXRfaW5pdCgmcHJpdi0+Y2hhbltpXS5jaGdzZXQpOw0KPj4+DQo+Pg0KDQo=
