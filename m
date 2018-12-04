@@ -1,126 +1,431 @@
-From: vitor <vitor.soares@synopsys.com>
-Subject: Re: [PATCH] i3c: master: dw: split dw-i3c-master.c into master and
- bus specific parts
-Date: Tue, 4 Dec 2018 00:34:20 +0000
-Message-ID: <623809f3-1d1f-a10c-783a-07b545c5955c@synopsys.com>
-References: <ade2c1a8d1eb48681b01ccdc9bed22caf5e96c4b.1542904564.git.soares@synopsys.com>
- <20181122210202.6af50fcc@bbrezillon>
- <6d513e04-3a57-1989-429c-64631101c5a2@synopsys.com>
- <20181123135004.7fd1cd58@bbrezillon>
- <83115f47-1326-cb33-a7dc-4bc8ff95befa@synopsys.com>
- <20181126133550.51469816@bbrezillon>
- <4e9c0461-02a3-80b2-c9b7-2e9ea9b38f8b@synopsys.com>
- <20181126195618.352eafb1@bbrezillon>
- <4c743a9a-d636-d34c-b7e3-913f18e6c754@synopsys.com>
- <20181126223334.08105d89@bbrezillon>
- <0912ea50-b365-d583-9d33-1dff236acbad@synopsys.com>
- <20181127133350.0361f998@bbrezillon>
+From: Sean Wang <sean.wang@kernel.org>
+Subject: Re: [PATCH 5/5] i2c: mediatek: Add i2c compatible for MediaTek MT8183
+Date: Mon, 3 Dec 2018 21:49:23 -0800
+Message-ID: <CAGp9LzqsnF-mvyggw3XMxcNnjvTVgAbiK29413cS0-fF8n57og@mail.gmail.com>
+References: <1543843974-4054-1-git-send-email-qii.wang@mediatek.com> <1543843974-4054-6-git-send-email-qii.wang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181127133350.0361f998@bbrezillon>
-Content-Language: en-US
+In-Reply-To: <1543843974-4054-6-git-send-email-qii.wang@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@bootlin.com>, vitor <vitor.soares@synopsys.com>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, corbet@lwn.net, linux-doc@vger.kernel.org, gregkh@linuxfoundation.org, arnd@arndb.de, psroka@cadence.com, agolec@cadence.com, adouglas@cadence.com, bfolta@cadence.com, dkos@cadence.com, alicja@cadence.com, cwronka@cadence.com, sureshp@cadence.com, rafalc@cadence.com, thomas.petazzoni@bootlin.com, nm@ti.com, robh+dt@kernel.org, pawel.moll@arm.com, mark.rutland@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, geert@linux-m68k.org, linus.walleij@linaro.org, Xiang.Lin@synaptics.com, linux-gpio@vger.kernel.org, nsekhar@ti.com, pgaj@cadence.com, peda@axentia.se, mshettel@codeaurora.org, swboyd@chromium.org
+To: qii.wang@mediatek.com
+Cc: wsa@the-dreams.de, devicetree@vger.kernel.org, ryder.lee@mediatek.com, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Boris,
-
-
-Sorry for the delayed response.
-
-
-On 27/11/18 12:33, Boris Brezillon wrote:
-> Hi Vitor,
+<qii.wang@mediatek.com> =E6=96=BC 2018=E5=B9=B412=E6=9C=883=E6=97=A5 =E9=80=
+=B1=E4=B8=80 =E4=B8=8A=E5=8D=885:34=E5=AF=AB=E9=81=93=EF=BC=9A
 >
-> On Tue, 27 Nov 2018 11:50:53 +0000
-> vitor<vitor.soares@synopsys.com>  wrote:
+> From: qii wang <qii.wang@mediatek.com>
+>
+> Add i2c compatible for MT8183. Compare to 2712 i2c controller, MT8183 has
+> different registers, offsets, clock, and multi-user function.
+>
+> Signed-off-by: qii wang <qii.wang@mediatek.com>
+> ---
+>  drivers/i2c/busses/i2c-mt65xx.c |  136 +++++++++++++++++++++++++++++++++=
+++++--
+>  1 file changed, 130 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt6=
+5xx.c
+> index 428ac99..6b979ab 100644
+> --- a/drivers/i2c/busses/i2c-mt65xx.c
+> +++ b/drivers/i2c/busses/i2c-mt65xx.c
+> @@ -35,17 +35,23 @@
+>  #include <linux/slab.h>
+>
+>  #define I2C_RS_TRANSFER                        (1 << 4)
+> +#define I2C_ARB_LOST                   (1 << 3)
+
+it seems no one refers to the macro in the patch so it should be
+better to be removed
+
+>  #define I2C_HS_NACKERR                 (1 << 2)
+>  #define I2C_ACKERR                     (1 << 1)
+>  #define I2C_TRANSAC_COMP               (1 << 0)
+>  #define I2C_TRANSAC_START              (1 << 0)
+> +#define I2C_RESUME_ARBIT               (1 << 1)
+>  #define I2C_RS_MUL_CNFG                        (1 << 15)
+>  #define I2C_RS_MUL_TRIG                        (1 << 14)
+> +#define I2C_HS_TIME_EN                 (1 << 7)
+>  #define I2C_DCM_DISABLE                        0x0000
+>  #define I2C_IO_CONFIG_OPEN_DRAIN       0x0003
+>  #define I2C_IO_CONFIG_PUSH_PULL                0x0000
+>  #define I2C_SOFT_RST                   0x0001
+>  #define I2C_FIFO_ADDR_CLR              0x0001
+> +#define I2C_FIFO_ADDR_CLRH             0x0002
+> +#define I2C_FIFO_ADDR_CLR_MCH          0x0004
+> +#define I2C_HFIFO_DATA                 0x8208
+>  #define I2C_DELAY_LEN                  0x0002
+>  #define I2C_ST_START_CON               0x8001
+>  #define I2C_FS_START_CON               0x1800
+> @@ -76,6 +82,8 @@
+>  #define I2C_CONTROL_DIR_CHANGE          (0x1 << 4)
+>  #define I2C_CONTROL_ACKERR_DET_EN       (0x1 << 5)
+>  #define I2C_CONTROL_TRANSFER_LEN_CHANGE (0x1 << 6)
+> +#define I2C_CONTROL_DMAACK_EN           (0x1 << 8)
+> +#define I2C_CONTROL_ASYNC_MODE          (0x1 << 9)
+>  #define I2C_CONTROL_WRAPPER             (0x1 << 0)
+>
+>  #define I2C_DRV_NAME           "i2c-mt65xx"
+> @@ -130,6 +138,15 @@ enum I2C_REGS_OFFSET {
+>         OFFSET_DEBUGCTRL,
+>         OFFSET_TRANSFER_LEN_AUX,
+>         OFFSET_CLOCK_DIV,
+> +       /* MT8183 only regs */
+> +       OFFSET_LTIMING,
+> +       OFFSET_DATA_TIMING,
+> +       OFFSET_MCU_INTR,
+> +       OFFSET_HW_TIMEOUT,
+> +       OFFSET_HFIFO_DATA,
+> +       OFFSET_HFIFO_STAT,
+> +       OFFSET_MULTI_DMA,
+> +       OFFSET_ROLLBACK,
+>  };
+>
+>  static const u16 mt_i2c_regs_v1[] =3D {
+> @@ -159,6 +176,39 @@ enum I2C_REGS_OFFSET {
+>         [OFFSET_CLOCK_DIV] =3D 0x70,
+>  };
+>
+> +static const u16 mt_i2c_regs_v2[] =3D {
+> +       [OFFSET_DATA_PORT] =3D 0x0,
+> +       [OFFSET_SLAVE_ADDR] =3D 0x4,
+> +       [OFFSET_INTR_MASK] =3D 0x8,
+> +       [OFFSET_INTR_STAT] =3D 0xc,
+> +       [OFFSET_CONTROL] =3D 0x10,
+> +       [OFFSET_TRANSFER_LEN] =3D 0x14,
+> +       [OFFSET_TRANSAC_LEN] =3D 0x18,
+> +       [OFFSET_DELAY_LEN] =3D 0x1c,
+> +       [OFFSET_TIMING] =3D 0x20,
+> +       [OFFSET_START] =3D 0x24,
+> +       [OFFSET_EXT_CONF] =3D 0x28,
+> +       [OFFSET_LTIMING] =3D 0x2c,
+> +       [OFFSET_HS] =3D 0x30,
+> +       [OFFSET_IO_CONFIG] =3D 0x34,
+> +       [OFFSET_FIFO_ADDR_CLR] =3D 0x38,
+> +       [OFFSET_DATA_TIMING] =3D 0x3c,
+> +       [OFFSET_MCU_INTR] =3D 0x40,
+> +       [OFFSET_TRANSFER_LEN_AUX] =3D 0x44,
+> +       [OFFSET_CLOCK_DIV] =3D 0x48,
+> +       [OFFSET_HW_TIMEOUT] =3D 0x4c,
+> +       [OFFSET_SOFTRESET] =3D 0x50,
+> +       [OFFSET_HFIFO_DATA] =3D 0x70,
+> +       [OFFSET_DEBUGSTAT] =3D 0xe0,
+> +       [OFFSET_DEBUGCTRL] =3D 0xe8,
+> +       [OFFSET_FIFO_STAT] =3D 0xf4,
+> +       [OFFSET_FIFO_THRESH] =3D 0xf8,
+> +       [OFFSET_HFIFO_STAT] =3D 0xfc,
+> +       [OFFSET_DCM_EN] =3D 0xf88,
+> +       [OFFSET_MULTI_DMA] =3D 0xf8c,
+> +       [OFFSET_ROLLBACK] =3D 0xf98,
+> +};
+> +
+>  struct mtk_i2c_compatible {
+>         const struct i2c_adapter_quirks *quirks;
+>         const u16 *regs;
+> @@ -168,6 +218,7 @@ struct mtk_i2c_compatible {
+>         unsigned char aux_len_reg: 1;
+>         unsigned char support_33bits: 1;
+>         unsigned char timing_adjust: 1;
+> +       unsigned char dma_sync: 1;
+>  };
+>
+>  struct mtk_i2c {
+> @@ -181,8 +232,11 @@ struct mtk_i2c {
+>         struct clk *clk_main;           /* main clock for i2c bus */
+>         struct clk *clk_dma;            /* DMA clock for i2c via DMA */
+>         struct clk *clk_pmic;           /* PMIC clock for i2c from PMIC *=
+/
+> +       struct clk *clk_arb;            /* Arbitrator clock for i2c */
+>         bool have_pmic;                 /* can use i2c pins from PMIC */
+>         bool use_push_pull;             /* IO config push-pull mode */
+> +       bool share_i3c;                 /* share i3c IP*/
+> +       u32 ch_offset;                  /* i2c multi-user channel offset =
+*/
+>
+>         u16 irq_stat;                   /* interrupt status */
+>         unsigned int clk_src_div;
+> @@ -190,6 +244,7 @@ struct mtk_i2c {
+>         enum mtk_trans_op op;
+>         u16 timing_reg;
+>         u16 high_speed_reg;
+> +       u16 ltiming_reg;
+>         unsigned char auto_restart;
+>         bool ignore_restart_irq;
+>         const struct mtk_i2c_compatible *dev_comp;
+> @@ -216,6 +271,7 @@ struct mtk_i2c {
+>         .aux_len_reg =3D 1,
+>         .support_33bits =3D 1,
+>         .timing_adjust =3D 1,
+> +       .dma_sync =3D 0,
+>  };
+>
+>  static const struct mtk_i2c_compatible mt6577_compat =3D {
+> @@ -227,6 +283,7 @@ struct mtk_i2c {
+>         .aux_len_reg =3D 0,
+>         .support_33bits =3D 0,
+>         .timing_adjust =3D 0,
+> +       .dma_sync =3D 0,
+>  };
+>
+>  static const struct mtk_i2c_compatible mt6589_compat =3D {
+> @@ -238,6 +295,7 @@ struct mtk_i2c {
+>         .aux_len_reg =3D 0,
+>         .support_33bits =3D 0,
+>         .timing_adjust =3D 0,
+> +       .dma_sync =3D 0,
+>  };
+>
+>  static const struct mtk_i2c_compatible mt7622_compat =3D {
+> @@ -249,6 +307,7 @@ struct mtk_i2c {
+>         .aux_len_reg =3D 1,
+>         .support_33bits =3D 0,
+>         .timing_adjust =3D 0,
+> +       .dma_sync =3D 0,
+>  };
+>
+>  static const struct mtk_i2c_compatible mt8173_compat =3D {
+> @@ -259,6 +318,18 @@ struct mtk_i2c {
+>         .aux_len_reg =3D 1,
+>         .support_33bits =3D 1,
+>         .timing_adjust =3D 0,
+> +       .dma_sync =3D 0,
+> +};
+> +
+> +static const struct mtk_i2c_compatible mt8183_compat =3D {
+> +       .regs =3D mt_i2c_regs_v2,
+> +       .pmic_i2c =3D 0,
+> +       .dcm =3D 0,
+> +       .auto_restart =3D 1,
+> +       .aux_len_reg =3D 1,
+> +       .support_33bits =3D 1,
+> +       .timing_adjust =3D 1,
+> +       .dma_sync =3D 1,
+>  };
+>
+>  static const struct of_device_id mtk_i2c_of_match[] =3D {
+> @@ -267,19 +338,20 @@ struct mtk_i2c {
+>         { .compatible =3D "mediatek,mt6589-i2c", .data =3D &mt6589_compat=
+ },
+>         { .compatible =3D "mediatek,mt7622-i2c", .data =3D &mt7622_compat=
+ },
+>         { .compatible =3D "mediatek,mt8173-i2c", .data =3D &mt8173_compat=
+ },
+> +       { .compatible =3D "mediatek,mt8183-i2c", .data =3D &mt8183_compat=
+ },
+>         {}
+>  };
+>  MODULE_DEVICE_TABLE(of, mtk_i2c_of_match);
+>
+>  static u16 mtk_i2c_readw(struct mtk_i2c *i2c, enum I2C_REGS_OFFSET reg)
+>  {
+> -       return readw(i2c->base + i2c->dev_comp->regs[reg]);
+> +       return readw(i2c->base + i2c->ch_offset + i2c->dev_comp->regs[reg=
+]);
+>  }
+>
+>  static void mtk_i2c_writew(struct mtk_i2c *i2c, u16 val,
+>                            enum I2C_REGS_OFFSET reg)
+>  {
+> -       writew(val, i2c->base + i2c->dev_comp->regs[reg]);
+> +       writew(val, i2c->base + i2c->ch_offset + i2c->dev_comp->regs[reg]=
+);
+>  }
+>
+>  static int mtk_i2c_clock_enable(struct mtk_i2c *i2c)
+> @@ -299,8 +371,18 @@ static int mtk_i2c_clock_enable(struct mtk_i2c *i2c)
+>                 if (ret)
+>                         goto err_pmic;
+>         }
+> +
+> +       if (i2c->clk_arb) {
+> +               ret =3D clk_prepare_enable(i2c->clk_arb);
+> +               if (ret)
+> +                       goto err_arb;
+> +       }
+> +
+>         return 0;
+>
+> +err_arb:
+> +       if (i2c->have_pmic)
+> +               clk_disable_unprepare(i2c->clk_pmic);
+>  err_pmic:
+>         clk_disable_unprepare(i2c->clk_main);
+>  err_main:
+> @@ -311,6 +393,9 @@ static int mtk_i2c_clock_enable(struct mtk_i2c *i2c)
+>
+>  static void mtk_i2c_clock_disable(struct mtk_i2c *i2c)
+>  {
+> +       if (i2c->clk_arb)
+> +               clk_disable_unprepare(i2c->clk_arb);
+> +
+>         if (i2c->have_pmic)
+>                 clk_disable_unprepare(i2c->clk_pmic);
+>
+> @@ -333,11 +418,23 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
+>         if (i2c->dev_comp->dcm)
+>                 mtk_i2c_writew(i2c, I2C_DCM_DISABLE, OFFSET_DCM_EN);
+>
+> -       if (i2c->dev_comp->timing_adjust)
+> +       if (i2c->ch_offset)
+> +               writew(I2C_RESUME_ARBIT, i2c->base +
+> +                                        i2c->dev_comp->regs[OFFSET_START=
+]);
+> +
+> +       if (i2c->dev_comp->timing_adjust && i2c->share_i3c) {
+> +               mtk_i2c_writew(i2c, (I2C_DEFAULT_CLK_DIV - 1) |
+> +                                   (I2C_DEFAULT_CLK_DIV - 1) << 8,
+> +                                   OFFSET_CLOCK_DIV);
+> +               i2c->high_speed_reg |=3D I2C_HS_TIME_EN;
+> +       } else {
+>                 mtk_i2c_writew(i2c, I2C_DEFAULT_CLK_DIV - 1, OFFSET_CLOCK=
+_DIV);
+> +       }
+>
+>         mtk_i2c_writew(i2c, i2c->timing_reg, OFFSET_TIMING);
+>         mtk_i2c_writew(i2c, i2c->high_speed_reg, OFFSET_HS);
+> +       if (i2c->dev_comp->regs =3D=3D mt_i2c_regs_v2)
+> +               mtk_i2c_writew(i2c, i2c->ltiming_reg, OFFSET_LTIMING);
+>
+>         /* If use i2c pin from PMIC mt6397 side, need set PATH_DIR first =
+*/
+>         if (i2c->have_pmic)
+> @@ -345,6 +442,9 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
+>
+>         control_reg =3D I2C_CONTROL_ACKERR_DET_EN |
+>                       I2C_CONTROL_CLK_EXT_EN | I2C_CONTROL_DMA_EN;
+> +       if (i2c->dev_comp->dma_sync)
+> +               control_reg |=3D I2C_CONTROL_DMAACK_EN | I2C_CONTROL_ASYN=
+C_MODE;
+> +
+>         mtk_i2c_writew(i2c, control_reg, OFFSET_CONTROL);
+>         mtk_i2c_writew(i2c, I2C_DELAY_LEN, OFFSET_DELAY_LEN);
+>
+> @@ -434,6 +534,8 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, uns=
+igned int parent_clk)
+>         unsigned int clk_src;
+>         unsigned int step_cnt;
+>         unsigned int sample_cnt;
+> +       unsigned int l_step_cnt;
+> +       unsigned int l_sample_cnt;
+>         unsigned int target_speed;
+>         int ret;
+>
+> @@ -443,11 +545,11 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, u=
+nsigned int parent_clk)
+>         if (target_speed > MAX_FS_MODE_SPEED) {
+>                 /* Set master code speed register */
+>                 ret =3D mtk_i2c_calculate_speed(i2c, clk_src, MAX_FS_MODE=
+_SPEED,
+> -                                             &step_cnt, &sample_cnt);
+> +                                             &l_step_cnt, &l_sample_cnt)=
+;
+>                 if (ret < 0)
+>                         return ret;
+>
+> -               i2c->timing_reg =3D (sample_cnt << 8) | step_cnt;
+> +               i2c->timing_reg =3D (l_sample_cnt << 8) | l_step_cnt;
+>
+>                 /* Set the high speed mode register */
+>                 ret =3D mtk_i2c_calculate_speed(i2c, clk_src, target_spee=
+d,
+> @@ -457,6 +559,8 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, uns=
+igned int parent_clk)
+>
+>                 i2c->high_speed_reg =3D I2C_TIME_DEFAULT_VALUE |
+>                         (sample_cnt << 12) | (step_cnt << 8);
+> +               i2c->ltiming_reg =3D (l_sample_cnt << 6) | l_step_cnt |
+> +                                  (sample_cnt << 12) | (step_cnt << 9);
+>         } else {
+>                 ret =3D mtk_i2c_calculate_speed(i2c, clk_src, target_spee=
+d,
+>                                               &step_cnt, &sample_cnt);
+> @@ -467,6 +571,8 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, uns=
+igned int parent_clk)
+>
+>                 /* Disable the high speed transaction */
+>                 i2c->high_speed_reg =3D I2C_TIME_CLR_VALUE;
+> +
+> +               i2c->ltiming_reg =3D (sample_cnt << 6) | step_cnt;
+>         }
+>
+>         return 0;
+> @@ -483,6 +589,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, s=
+truct i2c_msg *msgs,
+>         u16 addr_reg;
+>         u16 start_reg;
+>         u16 control_reg;
+> +       u16 fifo_clr_reg;
+>         u16 restart_flag =3D 0;
+>         u32 reg_4g_mode;
+>         u8 *dma_rd_buf =3D NULL;
+> @@ -521,7 +628,15 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, =
+struct i2c_msg *msgs,
+>         mtk_i2c_writew(i2c, restart_flag | I2C_HS_NACKERR | I2C_ACKERR |
+>                I2C_TRANSAC_COMP, OFFSET_INTR_STAT);
+>
+> -       mtk_i2c_writew(i2c, I2C_FIFO_ADDR_CLR, OFFSET_FIFO_ADDR_CLR);
+
+There's a missing initialization to fifo_clr_reg here, I guess
+fifo_clr_reg =3D I2C_FIFO_ADDR_CLR should be necessarily made here;
+
+> +       if (i2c->share_i3c)
+> +               fifo_clr_reg =3D I2C_FIFO_ADDR_CLR | I2C_FIFO_ADDR_CLRH;
+
+fifo_clr_reg |=3D I2C_FIFO_ADDR_CLRH baed on initialized value
+
+> +       if (i2c->ch_offset)
+> +               fifo_clr_reg =3D I2C_FIFO_ADDR_CLR | I2C_FIFO_ADDR_CLR_MC=
+H;
+
+and then fifo_clr_reg |=3D I2C_FIFO_ADDR_CLR_MCH;
+
+> +
+> +       mtk_i2c_writew(i2c, fifo_clr_reg, OFFSET_FIFO_ADDR_CLR);
+> +
+> +       if ((i2c->speed_hz > MAX_FS_MODE_SPEED) && i2c->share_i3c)
+> +               mtk_i2c_writew(i2c, I2C_HFIFO_DATA, OFFSET_HFIFO_DATA);
+>
+>         /* Enable interrupt */
+>         mtk_i2c_writew(i2c, restart_flag | I2C_HS_NACKERR | I2C_ACKERR |
+> @@ -817,6 +932,11 @@ static int mtk_i2c_parse_dt(struct device_node *np, =
+struct mtk_i2c *i2c)
+>         if (i2c->clk_src_div =3D=3D 0)
+>                 return -EINVAL;
+>
+> +       ret =3D of_property_read_u32(np, "ch-offset", &i2c->ch_offset);
+
+if ch-offset is a vendor-specific property, it should be better to add
+a vendor prefix
+
+> +       if (ret < 0)
+> +               i2c->ch_offset =3D 0;
+> +
+> +       i2c->share_i3c =3D of_property_read_bool(np, "mediatek,share-i3c"=
+);
+>         i2c->have_pmic =3D of_property_read_bool(np, "mediatek,have-pmic"=
+);
+>         i2c->use_push_pull =3D
+>                 of_property_read_bool(np, "mediatek,use-push-pull");
+> @@ -884,6 +1004,10 @@ static int mtk_i2c_probe(struct platform_device *pd=
+ev)
+>                 return PTR_ERR(i2c->clk_dma);
+>         }
+>
+> +       i2c->clk_arb =3D devm_clk_get(&pdev->dev, "arb");
+> +       if (IS_ERR(i2c->clk_arb))
+> +               i2c->clk_arb =3D NULL;
+> +
+>         clk =3D i2c->clk_main;
+>         if (i2c->have_pmic) {
+>                 i2c->clk_pmic =3D devm_clk_get(&pdev->dev, "pmic");
+> --
+> 1.7.9.5
 >
 >
->>>> Sorry for that and don't take me wrong... maybe I should rise this
->>>> question early but this only came up now when I started splitting and
->>>> thinking where to put what is for master for slave, what is common and
->>>> the thing of putting everything of controller in a folder.
->>> So you have such a dual-role controller?
->> Yes, we already talked about secondary master support.
-> There's a difference between a secondary master that waits for its time
-> to become the currrent master, and a secondary master that provides I3C
-> device features when it's acting as a slave (sensor, GPIO
-> controller, ...). So far we focused on supporting the former. If
-> there's a need for the latter, then we should start thinking about the
-> slave framework...
->
->>> What I call a slave controller would be something that lets you reply to
->>> SDR/DDR transactions or fill a generic regmap that would be exposed to
->>> other masters on the bus. This way we could implement generic slave
->>> drivers in Linux (the same way we have gadget drivers). Anything else
->>> is likely to be to specific to be exposed as a generic framework.
->> I would bet to do something like in i2c, we don't need the same level of
->> complexity found in USB.
-> Can you detail a bit more what you have in mind? I don't think we can
-> do like I2C, simply because we need to expose a valid DCR +
-> manuf-ID/PID so that other masters can bind the device to the
-> appropriate driver on their side. Plus, if we're about to expose
-> generic profiles, we likely don't want each I3C slave controller driver
-> to do that on its own.
-
-
-I think this should be discuss in another thread. Do you agree?
-
-
->>>> Taking the USB as exemple do you prefer a dwc folder on i3c root?
->>> Hm, not sure I like this idea either. So I see 2 options:
->>>
->>> 1/ put all controller drivers (both master and slave ones) in a common
->>>      directory (drivers/i3c/controllers) as you suggest, and prefix them
->>>      correctly (i3c-master-<ip>.c, i3c-slave-<ip>.c and i3c-dual-<ip>.c)
->> I agree with the controller folder but not with prefix. Please check
->> what is already in the kernel.
-> If we mix everything in the same subdir, I'd like to have an easy way
-> to quickly identify those that are slave controllers and those that are
-> master controllers. For the dual-role thing, maybe we can consider them
-> as master (ones with advances slave features).
->
-> Would you be okay with drivers/i3c/controllers/{designware,dw}/..., so
-> that you can have all designware drivers (for both slave and master
-> blocks) in the same dir?
-
-
-Yes, that was what I trying to tell you. For me this might be the best 
-option.
-
-I would like to avoid having dual role i3c driver in a master folder.
-
-
-> For those that are placed directly under drivers/i3c/controllers/...
-> (because they only have one .c file), I'd like to keep a standard
-> prefix.
-
-
-I don't disagree, and for those that have more than one file they should 
-be in a folder, right?
-
-What prefix do you have in mind for those files inside a folder?
-
-
->> To be clear, the subsystem is nice and I working with daily. As I said
->> this is something that I dealing now and I'm telling what I think that
->> is not correct.
->>
-> Come on! All I've seen so far are complaints on tiny details, it
-> definitely doesn't prevent you from adding new features.
->
-> Regards,
->
-> Boris
-
-
-No, it's not. But as you can see to slipt the driver in parts this 
-subject has some relevance.
-
-
-Best regards,
-
-Vitor Soares
+> _______________________________________________
+> Linux-mediatek mailing list
+> Linux-mediatek@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-mediatek
