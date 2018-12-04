@@ -1,51 +1,75 @@
-From: Peter Rosin <peda@axentia.se>
+From: Nicholas Mc Guire <der.herr@hofr.at>
 Subject: Re: [PATCH] i2c: mux: demux-pinctrl: handle failure case of
  devm_kstrdup()
-Date: Tue, 4 Dec 2018 11:16:59 +0000
-Message-ID: <549eba3a-28b9-e4b0-f680-8fb51b160879@axentia.se>
+Date: Tue, 4 Dec 2018 12:43:04 +0100
+Message-ID: <20181204114304.GA26798@osadl.at>
 References: <1543658470-20887-1-git-send-email-hofrat@osadl.org>
+ <549eba3a-28b9-e4b0-f680-8fb51b160879@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1543658470-20887-1-git-send-email-hofrat@osadl.org>
-Content-Language: en-US
-Content-ID: <33C85D541A38A744B654A952F1331D3F@eurprd02.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <549eba3a-28b9-e4b0-f680-8fb51b160879@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nicholas Mc Guire <hofrat@osadl.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Peter Rosin <peda@axentia.se>
+Cc: Nicholas Mc Guire <hofrat@osadl.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SGkhDQoNClRoaXMgcGF0Y2ggbG9va3MgbGlrZSBhIGdvb2QgaWRlYS4gSG93ZXZlciwgYSBuaXRw
-aWNrIGJlbG93Lg0KDQpPbiAyMDE4LTEyLTAxIDExOjAxLCBOaWNob2xhcyBNYyBHdWlyZSB3cm90
-ZToNCj4gZGV2bV9rc3RyZHVwKCkgbWF5IHJldHVybiBOVUxMIGlmIGludGVybmFsIGFsbG9jYXRp
-b24gZmFpbGVkLg0KPiBUaHVzIHVzaW5nICBuYW1lLCB2YWx1ZSAgaXMgdW5zYWZlIHdpdGhvdXQg
-YmVpbmcgY2hlY2tlZC4gQXMNCj4gaTJjX2RlbXV4X3BpbmN0cmxfcHJvYmUoKSBjYW4gcmV0dXJu
-IC1FTk9NRU0gaW4gb3RoZXIgY2FzZXMNCj4gYSBkZXZfZXJyKCkgbWVzc2FnZSBpcyBpbmNsdWRl
-ZCB0byBtYWtlIHRoZSBmYWlsdXJlIGxvY2F0aW9uDQo+IGNsZWFyLg0KPiANCj4gU2lnbmVkLW9m
-Zi1ieTogTmljaG9sYXMgTWMgR3VpcmUgPGhvZnJhdEBvc2FkbC5vcmc+DQo+IEZpeGVzOiBlMzU0
-NzhlYWMwMzAgKCJpMmM6IG11eDogZGVtdXgtcGluY3RybDogcnVuIHByb3Blcmx5IHdpdGggbXVs
-dGlwbGUgaW5zdGFuY2VzIikNCj4gLS0tDQo+IA0KPiBQcm9ibGVtIGxvY2F0ZWQgd2l0aCBleHBl
-cmltZW50YWwgY29jY2luZWxsZSBzY3JpcHQNCj4gDQo+IFE6IFRoZSB1c2Ugb2YgZGV2bV9rc3Ry
-ZHVwKCkgc2VlbXMgYSBiaXQgb2RkIHdoaWxlIHRlY2huaWNhbGx5IG5vdCB3cm9uZywNCj4gICAg
-cGVyc29uYWxseSBJIHRoaW5rIGRldm1fa2FzcHJpbnRmKCkgd291bGQgYmUgbW9yZSBzdWl0YWJs
-ZSBoZXJlLg0KPiANCj4gUGF0Y2ggd2FzIGNvbXBpbGUgdGVzdGVkIHdpdGg6IG11bHRpX3Y3X2Rl
-ZmNvbmZpZyANCj4gKGltcGxpZXMgSTJDX0RFTVVYX1BJTkNUUkw9eSkNCj4gDQo+IFBhdGNoIGlz
-IGFnYWluc3QgNC4yMC1yYzQgKGxvY2FsdmVyc2lvbi1uZXh0IGlzIG5leHQtMjAxODExMzApDQo+
-IA0KPiAgZHJpdmVycy9pMmMvbXV4ZXMvaTJjLWRlbXV4LXBpbmN0cmwuYyB8IDYgKysrKysrDQo+
-ICAxIGZpbGUgY2hhbmdlZCwgNiBpbnNlcnRpb25zKCspDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJp
-dmVycy9pMmMvbXV4ZXMvaTJjLWRlbXV4LXBpbmN0cmwuYyBiL2RyaXZlcnMvaTJjL211eGVzL2ky
-Yy1kZW11eC1waW5jdHJsLmMNCj4gaW5kZXggMDM1MDMyZS4uYzQ2Njk5OSAxMDA2NDQNCj4gLS0t
-IGEvZHJpdmVycy9pMmMvbXV4ZXMvaTJjLWRlbXV4LXBpbmN0cmwuYw0KPiArKysgYi9kcml2ZXJz
-L2kyYy9tdXhlcy9pMmMtZGVtdXgtcGluY3RybC5jDQo+IEBAIC0yNDQsNiArMjQ0LDEyIEBAIHN0
-YXRpYyBpbnQgaTJjX2RlbXV4X3BpbmN0cmxfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAq
-cGRldikNCj4gIA0KPiAgCQlwcm9wc1tpXS5uYW1lID0gZGV2bV9rc3RyZHVwKCZwZGV2LT5kZXYs
-ICJzdGF0dXMiLCBHRlBfS0VSTkVMKTsNCj4gIAkJcHJvcHNbaV0udmFsdWUgPSBkZXZtX2tzdHJk
-dXAoJnBkZXYtPmRldiwgIm9rIiwgR0ZQX0tFUk5FTCk7DQo+ICsJCWlmICghcHJvcHNbaV0ubmFt
-ZSB8fCAhcHJvcHNbaV0udmFsdWUpIHsNCj4gKwkJCWRldl9lcnIoJnBkZXYtPmRldiwNCj4gKwkJ
-CQkiY2hhbiAlZCBuYW1lLCB2YWx1ZSBhbGxvY2F0aW9uIGZhaWxlZFxuIiwgaSk7DQoNClBsZWFz
-ZSBkcm9wIHRoaXMgbWVtb3J5IGFsbG9jYXRpb24gZmFpbHVyZSBtZXNzYWdlLiBZb3Ugc2hvdWxk
-IGdldCBzdWNoIGENCm1lc3NhZ2UgZnJvbSBkZXZtX2tzdHJkdXAuDQoNCkNoZWVycywNClBldGVy
-DQoNCj4gKwkJCWVyciA9IC1FTk9NRU07DQo+ICsJCQlnb3RvIGVycl9yb2xsYmFjazsNCj4gKwkJ
-fQ0KPiAgCQlwcm9wc1tpXS5sZW5ndGggPSAzOw0KPiAgDQo+ICAJCW9mX2NoYW5nZXNldF9pbml0
-KCZwcml2LT5jaGFuW2ldLmNoZ3NldCk7DQo+IA0KDQo=
+On Tue, Dec 04, 2018 at 11:16:59AM +0000, Peter Rosin wrote:
+> Hi!
+> 
+> This patch looks like a good idea. However, a nitpick below.
+> 
+> On 2018-12-01 11:01, Nicholas Mc Guire wrote:
+> > devm_kstrdup() may return NULL if internal allocation failed.
+> > Thus using  name, value  is unsafe without being checked. As
+> > i2c_demux_pinctrl_probe() can return -ENOMEM in other cases
+> > a dev_err() message is included to make the failure location
+> > clear.
+> > 
+> > Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+> > Fixes: e35478eac030 ("i2c: mux: demux-pinctrl: run properly with multiple instances")
+> > ---
+> > 
+> > Problem located with experimental coccinelle script
+> > 
+> > Q: The use of devm_kstrdup() seems a bit odd while technically not wrong,
+> >    personally I think devm_kasprintf() would be more suitable here.
+> > 
+> > Patch was compile tested with: multi_v7_defconfig 
+> > (implies I2C_DEMUX_PINCTRL=y)
+> > 
+> > Patch is against 4.20-rc4 (localversion-next is next-20181130)
+> > 
+> >  drivers/i2c/muxes/i2c-demux-pinctrl.c | 6 ++++++
+> >  1 file changed, 6 insertions(+)
+> > 
+> > diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+> > index 035032e..c466999 100644
+> > --- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
+> > +++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+> > @@ -244,6 +244,12 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
+> >  
+> >  		props[i].name = devm_kstrdup(&pdev->dev, "status", GFP_KERNEL);
+> >  		props[i].value = devm_kstrdup(&pdev->dev, "ok", GFP_KERNEL);
+> > +		if (!props[i].name || !props[i].value) {
+> > +			dev_err(&pdev->dev,
+> > +				"chan %d name, value allocation failed\n", i);
+> 
+> Please drop this memory allocation failure message. You should get such a
+> message from devm_kstrdup.
+>
+thanks for the review - will drop the dev_err() then an resend 
+
+thx!
+hofrat
+ 
+> 
+> > +			err = -ENOMEM;
+> > +			goto err_rollback;
+> > +		}
+> >  		props[i].length = 3;
+> >  
+> >  		of_changeset_init(&priv->chan[i].chgset);
+> > 
+> 
