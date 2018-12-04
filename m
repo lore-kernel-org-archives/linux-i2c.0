@@ -1,61 +1,96 @@
-From: Peter Rosin <peda@axentia.se>
+From: Nicholas Mc Guire <der.herr@hofr.at>
 Subject: Re: [PATCH] i2c: mux: demux-pinctrl: handle failure case of
  devm_kstrdup()
-Date: Tue, 4 Dec 2018 14:11:33 +0000
-Message-ID: <37b8709c-0b58-7bc9-22c5-e01953593d06@axentia.se>
+Date: Tue, 4 Dec 2018 15:25:04 +0100
+Message-ID: <20181204142504.GA16001@osadl.at>
 References: <1543658470-20887-1-git-send-email-hofrat@osadl.org>
+ <549eba3a-28b9-e4b0-f680-8fb51b160879@axentia.se>
+ <20181204121318.GB28201@osadl.at>
+ <2c43e965-9a12-0367-fb23-bedfaaed4f68@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1543658470-20887-1-git-send-email-hofrat@osadl.org>
-Content-Language: en-US
-Content-ID: <3E8123AA13491A44A0EB1DC093B253A5@eurprd02.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <2c43e965-9a12-0367-fb23-bedfaaed4f68@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nicholas Mc Guire <hofrat@osadl.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Peter Rosin <peda@axentia.se>
+Cc: Nicholas Mc Guire <hofrat@osadl.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SG8gaG1tLiBIYWQgYW5vdGhlciBsb29rIGF0IHRoaXMgcGF0Y2gsIG9yIHJhdGhlciwgdGhlIGNv
-bnRleHQgb2YgdGhlDQpwYXRjaCBzbyBub3QgcmVhbGx5IHJlbGF0ZWQsIGJ1dC4uLg0KDQpPbiAy
-MDE4LTEyLTAxIDExOjAxLCBOaWNob2xhcyBNYyBHdWlyZSB3cm90ZToNCj4gZGV2bV9rc3RyZHVw
-KCkgbWF5IHJldHVybiBOVUxMIGlmIGludGVybmFsIGFsbG9jYXRpb24gZmFpbGVkLg0KPiBUaHVz
-IHVzaW5nICBuYW1lLCB2YWx1ZSAgaXMgdW5zYWZlIHdpdGhvdXQgYmVpbmcgY2hlY2tlZC4gQXMN
-Cj4gaTJjX2RlbXV4X3BpbmN0cmxfcHJvYmUoKSBjYW4gcmV0dXJuIC1FTk9NRU0gaW4gb3RoZXIg
-Y2FzZXMNCj4gYSBkZXZfZXJyKCkgbWVzc2FnZSBpcyBpbmNsdWRlZCB0byBtYWtlIHRoZSBmYWls
-dXJlIGxvY2F0aW9uDQo+IGNsZWFyLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogTmljaG9sYXMgTWMg
-R3VpcmUgPGhvZnJhdEBvc2FkbC5vcmc+DQo+IEZpeGVzOiBlMzU0NzhlYWMwMzAgKCJpMmM6IG11
-eDogZGVtdXgtcGluY3RybDogcnVuIHByb3Blcmx5IHdpdGggbXVsdGlwbGUgaW5zdGFuY2VzIikN
-Cj4gLS0tDQo+IA0KPiBQcm9ibGVtIGxvY2F0ZWQgd2l0aCBleHBlcmltZW50YWwgY29jY2luZWxs
-ZSBzY3JpcHQNCj4gDQo+IFE6IFRoZSB1c2Ugb2YgZGV2bV9rc3RyZHVwKCkgc2VlbXMgYSBiaXQg
-b2RkIHdoaWxlIHRlY2huaWNhbGx5IG5vdCB3cm9uZywNCj4gICAgcGVyc29uYWxseSBJIHRoaW5r
-IGRldm1fa2FzcHJpbnRmKCkgd291bGQgYmUgbW9yZSBzdWl0YWJsZSBoZXJlLg0KPiANCj4gUGF0
-Y2ggd2FzIGNvbXBpbGUgdGVzdGVkIHdpdGg6IG11bHRpX3Y3X2RlZmNvbmZpZyANCj4gKGltcGxp
-ZXMgSTJDX0RFTVVYX1BJTkNUUkw9eSkNCj4gDQo+IFBhdGNoIGlzIGFnYWluc3QgNC4yMC1yYzQg
-KGxvY2FsdmVyc2lvbi1uZXh0IGlzIG5leHQtMjAxODExMzApDQo+IA0KPiAgZHJpdmVycy9pMmMv
-bXV4ZXMvaTJjLWRlbXV4LXBpbmN0cmwuYyB8IDYgKysrKysrDQo+ICAxIGZpbGUgY2hhbmdlZCwg
-NiBpbnNlcnRpb25zKCspDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvbXV4ZXMvaTJj
-LWRlbXV4LXBpbmN0cmwuYyBiL2RyaXZlcnMvaTJjL211eGVzL2kyYy1kZW11eC1waW5jdHJsLmMN
-Cj4gaW5kZXggMDM1MDMyZS4uYzQ2Njk5OSAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9pMmMvbXV4
-ZXMvaTJjLWRlbXV4LXBpbmN0cmwuYw0KPiArKysgYi9kcml2ZXJzL2kyYy9tdXhlcy9pMmMtZGVt
-dXgtcGluY3RybC5jDQo+IEBAIC0yNDQsNiArMjQ0LDEyIEBAIHN0YXRpYyBpbnQgaTJjX2RlbXV4
-X3BpbmN0cmxfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4gIA0KPiAgCQlw
-cm9wc1tpXS5uYW1lID0gZGV2bV9rc3RyZHVwKCZwZGV2LT5kZXYsICJzdGF0dXMiLCBHRlBfS0VS
-TkVMKTsNCj4gIAkJcHJvcHNbaV0udmFsdWUgPSBkZXZtX2tzdHJkdXAoJnBkZXYtPmRldiwgIm9r
-IiwgR0ZQX0tFUk5FTCk7DQoNCkl0IHNlZW1lZCB2ZXJ5IGR1YmlvdXMgdG8gdXNlIGRldm1fa3N0
-cmR1cCBoZXJlLCBzaW5jZQ0KDQoxLiBpZiB0aGUgY29uc3VtZXIgaXMgbm90IGZyZWVpbmcgdGhl
-IHN0cmluZ3MgaXQgd291bGQgYmUgc3VmZmljaWVudCB3aXRoIGp1c3QNCiAgCQlwcm9wc1tpXS5u
-YW1lID0gInN0YXR1cyI7DQogIAkJcHJvcHNbaV0udmFsdWUgPSAib2siOw0KDQoyLiBpZiB0aGUg
-Y29uc3VtZXIgaXMgZnJlZWluZyB0aGUgc3RyaW5ncywgaXQgaXMgdmVyeSBiYWQgdG8gZnJlZSB0
-aGVtIHR3aWNlDQogICB3aGljaCBpcyB3aGF0IGhhcHBlbnMgd2l0aCB0aGUgZGV2bV8gcHJlZml4
-Lg0KDQpTbywgdGhlcmUgaXMgbm8gY2FzZSwgQUZBSUNULCB3aGVyZSBpdCBpcyBzYW5lIHRvIHVz
-ZSBkZXZtX2tzdHJkdXAuDQoNClRoZXJlZm9yZSBJIGhhZCBhIGxvb2sgYXQgdGhlIGNvZGUsIGFu
-ZCB0byBtZSBpdCBzZWVtcyBhcyBpZiB0aGUgY29uc3VtZXINCnZlcnkgbXVjaCBmcmVlcyB0aGUg
-c3RyaW5ncywgd2hpY2ggbWVhbnMgdGhhdCB3ZSBhcmUgaW4gY2FzZSAyLCBhbmQgdGhhdA0KdGhl
-IGFib3ZlIHNob3VsZCBiZSBvcmRpbmFyeSBrc3RyZHVwIGNhbGxzLg0KDQpBbSBJIG1pc3Npbmcg
-c29tZXRoaW5nPw0KDQpDaGVlcnMsDQpQZXRlcg0KDQo+ICsJCWlmICghcHJvcHNbaV0ubmFtZSB8
-fCAhcHJvcHNbaV0udmFsdWUpIHsNCj4gKwkJCWRldl9lcnIoJnBkZXYtPmRldiwNCj4gKwkJCQki
-Y2hhbiAlZCBuYW1lLCB2YWx1ZSBhbGxvY2F0aW9uIGZhaWxlZFxuIiwgaSk7DQo+ICsJCQllcnIg
-PSAtRU5PTUVNOw0KPiArCQkJZ290byBlcnJfcm9sbGJhY2s7DQo+ICsJCX0NCj4gIAkJcHJvcHNb
-aV0ubGVuZ3RoID0gMzsNCj4gIA0KPiAgCQlvZl9jaGFuZ2VzZXRfaW5pdCgmcHJpdi0+Y2hhbltp
-XS5jaGdzZXQpOw0KPiANCg0K
+On Tue, Dec 04, 2018 at 01:49:11PM +0000, Peter Rosin wrote:
+> On 2018-12-04 13:13, Nicholas Mc Guire wrote:
+> > On Tue, Dec 04, 2018 at 11:16:59AM +0000, Peter Rosin wrote:
+> >> Hi!
+> >>
+> >> This patch looks like a good idea. However, a nitpick below.
+> >>
+> >> On 2018-12-01 11:01, Nicholas Mc Guire wrote:
+> >>> devm_kstrdup() may return NULL if internal allocation failed.
+> >>> Thus using  name, value  is unsafe without being checked. As
+> >>> i2c_demux_pinctrl_probe() can return -ENOMEM in other cases
+> >>> a dev_err() message is included to make the failure location
+> >>> clear.
+> >>>
+> >>> Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+> >>> Fixes: e35478eac030 ("i2c: mux: demux-pinctrl: run properly with multiple instances")
+> >>> ---
+> >>>
+> >>> Problem located with experimental coccinelle script
+> >>>
+> >>> Q: The use of devm_kstrdup() seems a bit odd while technically not wrong,
+> >>>    personally I think devm_kasprintf() would be more suitable here.
+> >>>
+> >>> Patch was compile tested with: multi_v7_defconfig 
+> >>> (implies I2C_DEMUX_PINCTRL=y)
+> >>>
+> >>> Patch is against 4.20-rc4 (localversion-next is next-20181130)
+> >>>
+> >>>  drivers/i2c/muxes/i2c-demux-pinctrl.c | 6 ++++++
+> >>>  1 file changed, 6 insertions(+)
+> >>>
+> >>> diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+> >>> index 035032e..c466999 100644
+> >>> --- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
+> >>> +++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
+> >>> @@ -244,6 +244,12 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
+> >>>  
+> >>>  		props[i].name = devm_kstrdup(&pdev->dev, "status", GFP_KERNEL);
+> >>>  		props[i].value = devm_kstrdup(&pdev->dev, "ok", GFP_KERNEL);
+> >>> +		if (!props[i].name || !props[i].value) {
+> >>> +			dev_err(&pdev->dev,
+> >>> +				"chan %d name, value allocation failed\n", i);
+> >>
+> >> Please drop this memory allocation failure message. You should get such a
+> >> message from devm_kstrdup.
+> >>
+> > 
+> > hm...tried to figure out where that message would be comming
+> > from - but I could not find any point in the call tree that
+> > would issue such a message ?
+> > 
+> >  devm_kstrdup() 
+> >    -> devm_kmalloc()
+> >         -> alloc_dr()
+> >              --> kmalloc_track_caller() (non-NUMA)
+> >              |     -> __kmalloc_node()
+> >              |        -> __do_kmalloc_node()
+> >              `-> __kmalloc_node_track_caller() (NUMA)
+> >                    -> __do_kmalloc_node()
+> > 
+> >  __do_kmalloc_node() seems like it simply returns NULL but
+> >  issues no failure message.
+> >  Am I overlooking something ? 
+> 
+> Well, I don't know the details, but checkpatch will warn about simple
+> error messages on devm_kstrdup failure (if I read the checkpatch source
+> correctly). But in this case there are two parallel conditions in the
+> if and hence checkpatch stumbles, but gist is the same, you should not
+> sprinkle messages on memory allocation failure.
+>
+not in this case - atleast checkpatch --strict on the original patch
+did not issue any complaint to that ends. But yes - you
+are right that the intent in checkpatch is clear and this should not
+be carrying a failure message.
+
+thx!
+hofrat 
