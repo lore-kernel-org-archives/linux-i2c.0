@@ -1,105 +1,95 @@
-From: Nicholas Mc Guire <der.herr@hofr.at>
+From: Peter Rosin <peda@axentia.se>
 Subject: Re: [PATCH] i2c: mux: demux-pinctrl: handle failure case of
  devm_kstrdup()
-Date: Tue, 4 Dec 2018 15:36:00 +0100
-Message-ID: <20181204143600.GB16001@osadl.at>
+Date: Tue, 4 Dec 2018 14:50:44 +0000
+Message-ID: <a2f22968-3c3c-893e-873e-c7d85b32d212@axentia.se>
 References: <1543658470-20887-1-git-send-email-hofrat@osadl.org>
  <37b8709c-0b58-7bc9-22c5-e01953593d06@axentia.se>
+ <20181204143600.GB16001@osadl.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <37b8709c-0b58-7bc9-22c5-e01953593d06@axentia.se>
+In-Reply-To: <20181204143600.GB16001@osadl.at>
+Content-Language: en-US
+Content-ID: <20F39D6B4A3AD54986C1E07271B1398F@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
+To: Nicholas Mc Guire <der.herr@hofr.at>
 Cc: Nicholas Mc Guire <hofrat@osadl.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Dec 04, 2018 at 02:11:33PM +0000, Peter Rosin wrote:
-> Ho hmm. Had another look at this patch, or rather, the context of the
-> patch so not really related, but...
-> 
-> On 2018-12-01 11:01, Nicholas Mc Guire wrote:
-> > devm_kstrdup() may return NULL if internal allocation failed.
-> > Thus using  name, value  is unsafe without being checked. As
-> > i2c_demux_pinctrl_probe() can return -ENOMEM in other cases
-> > a dev_err() message is included to make the failure location
-> > clear.
-> > 
-> > Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
-> > Fixes: e35478eac030 ("i2c: mux: demux-pinctrl: run properly with multiple instances")
-> > ---
-> > 
-> > Problem located with experimental coccinelle script
-> > 
-> > Q: The use of devm_kstrdup() seems a bit odd while technically not wrong,
-> >    personally I think devm_kasprintf() would be more suitable here.
-> > 
-> > Patch was compile tested with: multi_v7_defconfig 
-> > (implies I2C_DEMUX_PINCTRL=y)
-> > 
-> > Patch is against 4.20-rc4 (localversion-next is next-20181130)
-> > 
-> >  drivers/i2c/muxes/i2c-demux-pinctrl.c | 6 ++++++
-> >  1 file changed, 6 insertions(+)
-> > 
-> > diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-> > index 035032e..c466999 100644
-> > --- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
-> > +++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-> > @@ -244,6 +244,12 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
-> >  
-> >  		props[i].name = devm_kstrdup(&pdev->dev, "status", GFP_KERNEL);
-> >  		props[i].value = devm_kstrdup(&pdev->dev, "ok", GFP_KERNEL);
-> 
-> It seemed very dubious to use devm_kstrdup here, since
->
-
-yup - which is where the question in the initial pach came
-from I felt that this should better be a devm_kasprint() - I
-did not understand why it was kstrdup here in the first
-place - technically it is not wrong though as the source is not RO
-so it will allocate and copy the original string and thus
-effectively it behaves like devm_kasprintf
- 
-> 1. if the consumer is not freeing the strings it would be sufficient with just
->   		props[i].name = "status";
->   		props[i].value = "ok";
-> 
-> 2. if the consumer is freeing the strings, it is very bad to free them twice
->    which is what happens with the devm_ prefix.
-
-Why would it be freed twice ? the pointer returned is a seperately allocated objects ?
-that needs to be indepdently freed (this is not the devm_kstrdup_const() case)
-
-> 
-> So, there is no case, AFAICT, where it is sane to use devm_kstrdup.
-
-I think the only technical difference between devm_kstrdup and devm_kasprintf
-is effectively a memcpy vs vsnprintf - so here I think devm_kasprintf would
-also be the more suitable call to use.
-
-thx!
-hofrat
-
-> 
-> Therefore I had a look at the code, and to me it seems as if the consumer
-> very much frees the strings, which means that we are in case 2, and that
-> the above should be ordinary kstrdup calls.
-> 
-> Am I missing something?
-> 
-> Cheers,
-> Peter
-> 
-> > +		if (!props[i].name || !props[i].value) {
-> > +			dev_err(&pdev->dev,
-> > +				"chan %d name, value allocation failed\n", i);
-> > +			err = -ENOMEM;
-> > +			goto err_rollback;
-> > +		}
-> >  		props[i].length = 3;
-> >  
-> >  		of_changeset_init(&priv->chan[i].chgset);
-> > 
-> 
+T24gMjAxOC0xMi0wNCAxNTozNiwgTmljaG9sYXMgTWMgR3VpcmUgd3JvdGU6DQo+IE9uIFR1ZSwg
+RGVjIDA0LCAyMDE4IGF0IDAyOjExOjMzUE0gKzAwMDAsIFBldGVyIFJvc2luIHdyb3RlOg0KPj4g
+SG8gaG1tLiBIYWQgYW5vdGhlciBsb29rIGF0IHRoaXMgcGF0Y2gsIG9yIHJhdGhlciwgdGhlIGNv
+bnRleHQgb2YgdGhlDQo+PiBwYXRjaCBzbyBub3QgcmVhbGx5IHJlbGF0ZWQsIGJ1dC4uLg0KPj4N
+Cj4+IE9uIDIwMTgtMTItMDEgMTE6MDEsIE5pY2hvbGFzIE1jIEd1aXJlIHdyb3RlOg0KPj4+IGRl
+dm1fa3N0cmR1cCgpIG1heSByZXR1cm4gTlVMTCBpZiBpbnRlcm5hbCBhbGxvY2F0aW9uIGZhaWxl
+ZC4NCj4+PiBUaHVzIHVzaW5nICBuYW1lLCB2YWx1ZSAgaXMgdW5zYWZlIHdpdGhvdXQgYmVpbmcg
+Y2hlY2tlZC4gQXMNCj4+PiBpMmNfZGVtdXhfcGluY3RybF9wcm9iZSgpIGNhbiByZXR1cm4gLUVO
+T01FTSBpbiBvdGhlciBjYXNlcw0KPj4+IGEgZGV2X2VycigpIG1lc3NhZ2UgaXMgaW5jbHVkZWQg
+dG8gbWFrZSB0aGUgZmFpbHVyZSBsb2NhdGlvbg0KPj4+IGNsZWFyLg0KPj4+DQo+Pj4gU2lnbmVk
+LW9mZi1ieTogTmljaG9sYXMgTWMgR3VpcmUgPGhvZnJhdEBvc2FkbC5vcmc+DQo+Pj4gRml4ZXM6
+IGUzNTQ3OGVhYzAzMCAoImkyYzogbXV4OiBkZW11eC1waW5jdHJsOiBydW4gcHJvcGVybHkgd2l0
+aCBtdWx0aXBsZSBpbnN0YW5jZXMiKQ0KPj4+IC0tLQ0KPj4+DQo+Pj4gUHJvYmxlbSBsb2NhdGVk
+IHdpdGggZXhwZXJpbWVudGFsIGNvY2NpbmVsbGUgc2NyaXB0DQo+Pj4NCj4+PiBROiBUaGUgdXNl
+IG9mIGRldm1fa3N0cmR1cCgpIHNlZW1zIGEgYml0IG9kZCB3aGlsZSB0ZWNobmljYWxseSBub3Qg
+d3JvbmcsDQo+Pj4gICAgcGVyc29uYWxseSBJIHRoaW5rIGRldm1fa2FzcHJpbnRmKCkgd291bGQg
+YmUgbW9yZSBzdWl0YWJsZSBoZXJlLg0KPj4+DQo+Pj4gUGF0Y2ggd2FzIGNvbXBpbGUgdGVzdGVk
+IHdpdGg6IG11bHRpX3Y3X2RlZmNvbmZpZyANCj4+PiAoaW1wbGllcyBJMkNfREVNVVhfUElOQ1RS
+TD15KQ0KPj4+DQo+Pj4gUGF0Y2ggaXMgYWdhaW5zdCA0LjIwLXJjNCAobG9jYWx2ZXJzaW9uLW5l
+eHQgaXMgbmV4dC0yMDE4MTEzMCkNCj4+Pg0KPj4+ICBkcml2ZXJzL2kyYy9tdXhlcy9pMmMtZGVt
+dXgtcGluY3RybC5jIHwgNiArKysrKysNCj4+PiAgMSBmaWxlIGNoYW5nZWQsIDYgaW5zZXJ0aW9u
+cygrKQ0KPj4+DQo+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL211eGVzL2kyYy1kZW11eC1w
+aW5jdHJsLmMgYi9kcml2ZXJzL2kyYy9tdXhlcy9pMmMtZGVtdXgtcGluY3RybC5jDQo+Pj4gaW5k
+ZXggMDM1MDMyZS4uYzQ2Njk5OSAxMDA2NDQNCj4+PiAtLS0gYS9kcml2ZXJzL2kyYy9tdXhlcy9p
+MmMtZGVtdXgtcGluY3RybC5jDQo+Pj4gKysrIGIvZHJpdmVycy9pMmMvbXV4ZXMvaTJjLWRlbXV4
+LXBpbmN0cmwuYw0KPj4+IEBAIC0yNDQsNiArMjQ0LDEyIEBAIHN0YXRpYyBpbnQgaTJjX2RlbXV4
+X3BpbmN0cmxfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4+PiAgDQo+Pj4g
+IAkJcHJvcHNbaV0ubmFtZSA9IGRldm1fa3N0cmR1cCgmcGRldi0+ZGV2LCAic3RhdHVzIiwgR0ZQ
+X0tFUk5FTCk7DQo+Pj4gIAkJcHJvcHNbaV0udmFsdWUgPSBkZXZtX2tzdHJkdXAoJnBkZXYtPmRl
+diwgIm9rIiwgR0ZQX0tFUk5FTCk7DQo+Pg0KPj4gSXQgc2VlbWVkIHZlcnkgZHViaW91cyB0byB1
+c2UgZGV2bV9rc3RyZHVwIGhlcmUsIHNpbmNlDQo+Pg0KPiANCj4geXVwIC0gd2hpY2ggaXMgd2hl
+cmUgdGhlIHF1ZXN0aW9uIGluIHRoZSBpbml0aWFsIHBhY2ggY2FtZQ0KPiBmcm9tIEkgZmVsdCB0
+aGF0IHRoaXMgc2hvdWxkIGJldHRlciBiZSBhIGRldm1fa2FzcHJpbnQoKSAtIEkNCj4gZGlkIG5v
+dCB1bmRlcnN0YW5kIHdoeSBpdCB3YXMga3N0cmR1cCBoZXJlIGluIHRoZSBmaXJzdA0KPiBwbGFj
+ZSAtIHRlY2huaWNhbGx5IGl0IGlzIG5vdCB3cm9uZyB0aG91Z2ggYXMgdGhlIHNvdXJjZSBpcyBu
+b3QgUk8NCj4gc28gaXQgd2lsbCBhbGxvY2F0ZSBhbmQgY29weSB0aGUgb3JpZ2luYWwgc3RyaW5n
+IGFuZCB0aHVzDQo+IGVmZmVjdGl2ZWx5IGl0IGJlaGF2ZXMgbGlrZSBkZXZtX2thc3ByaW50Zg0K
+DQpkZXZtX2thc3ByaW50ZiB3b3VsZCBiZSBhcyBiYWQgYXMgZGV2bV9rc3RyZHVwIGhlcmUgKGlm
+IEkgcmVhZCB0aGUgY29kZQ0KcmlnaHQpLiBCb3RoIGFsbG9jYXRlcyBtZW1vcnkgdGhhdCBpcyBm
+cmVlZCBib3RoIGJ5IHRoZSBkZXZtXy4uLiBtYWNoaW5lcnkNCmFuZCBieSB0aGUgY29uc3VtZXIu
+IE1heWJlIEkgc2hvdWxkIGhhdmUgc2FpZCAicHJvcHMgY29uc3VtZXIiIGluc3RlYWQgb2YNCmp1
+c3QgImNvbnN1bWVyIiB0byBtYWtlIGl0IGNsZWFyIHRoYXQgSSdtIHRhbGtpbmcgYWJvdXQgdGhl
+IGR5bmFtaWMgb2YNCmNvZGUgYXMgY29uc3VtZXIuDQoNCj4gIA0KPj4gMS4gaWYgdGhlIGNvbnN1
+bWVyIGlzIG5vdCBmcmVlaW5nIHRoZSBzdHJpbmdzIGl0IHdvdWxkIGJlIHN1ZmZpY2llbnQgd2l0
+aCBqdXN0DQo+PiAgIAkJcHJvcHNbaV0ubmFtZSA9ICJzdGF0dXMiOw0KPj4gICAJCXByb3BzW2ld
+LnZhbHVlID0gIm9rIjsNCj4+DQo+PiAyLiBpZiB0aGUgY29uc3VtZXIgaXMgZnJlZWluZyB0aGUg
+c3RyaW5ncywgaXQgaXMgdmVyeSBiYWQgdG8gZnJlZSB0aGVtIHR3aWNlDQo+PiAgICB3aGljaCBp
+cyB3aGF0IGhhcHBlbnMgd2l0aCB0aGUgZGV2bV8gcHJlZml4Lg0KPiANCj4gV2h5IHdvdWxkIGl0
+IGJlIGZyZWVkIHR3aWNlID8gdGhlIHBvaW50ZXIgcmV0dXJuZWQgaXMgYSBzZXBlcmF0ZWx5IGFs
+bG9jYXRlZCBvYmplY3RzID8NCj4gdGhhdCBuZWVkcyB0byBiZSBpbmRlcGRlbnRseSBmcmVlZCAo
+dGhpcyBpcyBub3QgdGhlIGRldm1fa3N0cmR1cF9jb25zdCgpIGNhc2UpDQoNClRoZSBwcm9wc1tp
+XSBzdHJ1Y3QgaXMgc2VudCBvZmYgdG8gdGhlICJjb25zdW1lciIgd2l0aCB0aGUgY2FsbCB0bw0K
+b2ZfY2hhbmdlc2V0X3VwZGF0ZV9wcm9wZXJ0eS4gQWZ0ZXIgdGhhdCAoaWYgSSByZWFkIGl0IHJp
+Z2h0KSB0aGUNCmNoYW5nZXNldCBvd25zIHRoZSBwcm9wIGFuZCB3aWxsIGZyZWUgaXQsIGFuZCBp
+dHMgY29udGVudCwgYXMgaXQgaXMNCmNsZWFuZWQgdXAuIEl0IGlzIHRoZXJlZm9yZSB3cm9uZyBm
+b3IgdGhpcyBkcml2ZXIgdG8gYWxzbyBjbGVhbiB1cA0KdGhhdCBtZW1vcnkgKGJ5IHVzaW5nIGRl
+dm1fIHByZWZpeGVkIGZ1bmN0aW9ucyBmb3IgdGhlc2UgdHdvDQplbnRpdGllcykuDQoNCj4+DQo+
+PiBTbywgdGhlcmUgaXMgbm8gY2FzZSwgQUZBSUNULCB3aGVyZSBpdCBpcyBzYW5lIHRvIHVzZSBk
+ZXZtX2tzdHJkdXAuDQo+IA0KPiBJIHRoaW5rIHRoZSBvbmx5IHRlY2huaWNhbCBkaWZmZXJlbmNl
+IGJldHdlZW4gZGV2bV9rc3RyZHVwIGFuZCBkZXZtX2thc3ByaW50Zg0KPiBpcyBlZmZlY3RpdmVs
+eSBhIG1lbWNweSB2cyB2c25wcmludGYgLSBzbyBoZXJlIEkgdGhpbmsgZGV2bV9rYXNwcmludGYg
+d291bGQNCj4gYWxzbyBiZSB0aGUgbW9yZSBzdWl0YWJsZSBjYWxsIHRvIHVzZS4NCg0KVGhhdCBk
+aWZmZXJlbmNlIGlzIG5vdCB2ZXJ5IGltcG9ydGFudCwgYnV0IHN0cmR1cCBzaG91bGQgYWx3YXlz
+IGJlIGZhc3Rlcg0KdGhhbiBhc3ByaW50Ziwgc28gSSBzZWUgbm8gcG9pbnQgaW4gbm90IHVzaW5n
+IHN0cmR1cC4NCg0KPiB0aHghDQo+IGhvZnJhdA0KPiANCj4+DQo+PiBUaGVyZWZvcmUgSSBoYWQg
+YSBsb29rIGF0IHRoZSBjb2RlLCBhbmQgdG8gbWUgaXQgc2VlbXMgYXMgaWYgdGhlIGNvbnN1bWVy
+DQo+PiB2ZXJ5IG11Y2ggZnJlZXMgdGhlIHN0cmluZ3MsIHdoaWNoIG1lYW5zIHRoYXQgd2UgYXJl
+IGluIGNhc2UgMiwgYW5kIHRoYXQNCj4+IHRoZSBhYm92ZSBzaG91bGQgYmUgb3JkaW5hcnkga3N0
+cmR1cCBjYWxscy4NCj4+DQo+PiBBbSBJIG1pc3Npbmcgc29tZXRoaW5nPw0KPj4NCj4+IENoZWVy
+cywNCj4+IFBldGVyDQo+Pg0KPj4+ICsJCWlmICghcHJvcHNbaV0ubmFtZSB8fCAhcHJvcHNbaV0u
+dmFsdWUpIHsNCj4+PiArCQkJZGV2X2VycigmcGRldi0+ZGV2LA0KPj4+ICsJCQkJImNoYW4gJWQg
+bmFtZSwgdmFsdWUgYWxsb2NhdGlvbiBmYWlsZWRcbiIsIGkpOw0KPj4+ICsJCQllcnIgPSAtRU5P
+TUVNOw0KPj4+ICsJCQlnb3RvIGVycl9yb2xsYmFjazsNCj4+PiArCQl9DQo+Pj4gIAkJcHJvcHNb
+aV0ubGVuZ3RoID0gMzsNCj4+PiAgDQo+Pj4gIAkJb2ZfY2hhbmdlc2V0X2luaXQoJnByaXYtPmNo
+YW5baV0uY2hnc2V0KTsNCj4+Pg0KPj4NCg0K
