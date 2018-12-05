@@ -1,74 +1,61 @@
-From: Sean Wang <sean.wang@kernel.org>
-Subject: Re: [PATCH 4/5] dt-bindings: i2c: Add Mediatek MT8183 i2c binding
-Date: Tue, 4 Dec 2018 12:59:49 -0800
-Message-ID: <CAGp9LzpBn=bdRa_jf7+R1hPm7GC+San_63ZOG7U6W3ToaEzjaQ@mail.gmail.com>
-References: <1543843974-4054-1-git-send-email-qii.wang@mediatek.com> <1543843974-4054-5-git-send-email-qii.wang@mediatek.com>
+From: Rob Herring <robh@kernel.org>
+Subject: [PATCH] i2c: powermac: Use of_node_name_eq for node name comparisons
+Date: Wed,  5 Dec 2018 13:50:24 -0600
+Message-ID: <20181205195050.4759-8-robh@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1543843974-4054-5-git-send-email-qii.wang@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: qii.wang@mediatek.com
-Cc: wsa@the-dreams.de, devicetree@vger.kernel.org, ryder.lee@mediatek.com, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, linux-i2c@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 3, 2018 at 5:34 AM <qii.wang@mediatek.com> wrote:
->
-> From: qii wang <qii.wang@mediatek.com>
->
-> Add MT8183 i2c binding to binding file. Compare to 2712 i2c
-> controller, MT8183 has different registers, offsets, clock,
-> and multi-user function.
->
-> Signed-off-by: qii wang <qii.wang@mediatek.com>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-mtk.txt |    7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
->
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-> index 7729e57..dfde624 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
-> @@ -12,14 +12,15 @@ Required properties:
->        "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for MediaTek MT7623
->        "mediatek,mt7629-i2c", "mediatek,mt2712-i2c": for MediaTek mt7629
->        "mediatek,mt8173-i2c": for MediaTek MT8173
-> +      "mediatek,mt8183-i2c": for MediaTek MT8183
->    - reg: physical base address of the controller and dma base, length of memory
->      mapped region.
->    - interrupts: interrupt number to the cpu.
->    - clock-div: the fixed value for frequency divider of clock source in i2c
->      module. Each IC may be different.
->    - clocks: clock name from clock manager
-> -  - clock-names: Must include "main" and "dma", if enable have-pmic need include
-> -    "pmic" extra.
-> +  - clock-names: Must include "main" and "dma", "arb" is optional, if enable
+Convert string compares of DT node names to use of_node_name_eq helper
+instead. This removes direct access to the node name pointer.
 
-if arb is optional, the multi-user function still can work? arb seems
-like the clock fed to arbitrating bus when multiple users are
-accessing at the same time.
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: linux-i2c@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Signed-off-by: Rob Herring <robh@kernel.org>
+---
+ drivers/i2c/busses/i2c-powermac.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-> +    have-pmic need include "pmic" extra.
->
->  Optional properties:
->    - clock-frequency: Frequency in Hz of the bus when transfer, the default value
-> @@ -27,6 +28,8 @@ Optional properties:
->    - mediatek,have-pmic: platform can control i2c form special pmic side.
->      Only mt6589 and mt8135 support this feature.
->    - mediatek,use-push-pull: IO config use push-pull mode.
-> +  - ch-offset: base reg offset for multi-user.
-
-add a vendor prefix if the property is vendor-specific one.
-
-> +  - mediatek,share-i3c: i3c controller can share i2c function.
->
->  Example:
->
-> --
-> 1.7.9.5
->
->
-> _______________________________________________
-> Linux-mediatek mailing list
-> Linux-mediatek@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-mediatek
+diff --git a/drivers/i2c/busses/i2c-powermac.c b/drivers/i2c/busses/i2c-powermac.c
+index f6f4ed8afc93..281113c28314 100644
+--- a/drivers/i2c/busses/i2c-powermac.c
++++ b/drivers/i2c/busses/i2c-powermac.c
+@@ -229,9 +229,9 @@ static u32 i2c_powermac_get_addr(struct i2c_adapter *adap,
+ 		return (be32_to_cpup(prop) & 0xff) >> 1;
+ 
+ 	/* Now handle some devices with missing "reg" properties */
+-	if (!strcmp(node->name, "cereal"))
++	if (of_node_name_eq(node, "cereal"))
+ 		return 0x60;
+-	else if (!strcmp(node->name, "deq"))
++	else if (of_node_name_eq(node, "deq"))
+ 		return 0x34;
+ 
+ 	dev_warn(&adap->dev, "No i2c address for %pOF\n", node);
+@@ -304,7 +304,7 @@ static bool i2c_powermac_get_type(struct i2c_adapter *adap,
+ 	}
+ 
+ 	/* Now look for known workarounds */
+-	if (!strcmp(node->name, "deq")) {
++	if (of_node_name_eq(node, "deq")) {
+ 		/* Apple uses address 0x34 for TAS3001 and 0x35 for TAS3004 */
+ 		if (addr == 0x34) {
+ 			snprintf(type, type_size, "MAC,tas3001");
+@@ -331,7 +331,7 @@ static void i2c_powermac_register_devices(struct i2c_adapter *adap,
+ 	 * case we skip this function completely as the device-tree will
+ 	 * not contain anything useful.
+ 	 */
+-	if (!strcmp(adap->dev.of_node->name, "via-pmu"))
++	if (of_node_name_eq(adap->dev.of_node, "via-pmu"))
+ 		return;
+ 
+ 	for_each_child_of_node(adap->dev.of_node, node) {
+-- 
+2.19.1
