@@ -1,7 +1,7 @@
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 4/4] i2c: uniphier-f: fix violation of tLOW requirement for Fast-mode
-Date: Thu,  6 Dec 2018 12:55:28 +0900
-Message-ID: <1544068528-27657-5-git-send-email-yamada.masahiro@socionext.com>
+Subject: [PATCH 1/4] i2c: uniphier-f: fix timeout error after reading 8 bytes
+Date: Thu,  6 Dec 2018 12:55:25 +0900
+Message-ID: <1544068528-27657-2-git-send-email-yamada.masahiro@socionext.com>
 References: <1544068528-27657-1-git-send-email-yamada.masahiro@socionext.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1544068528-27657-1-git-send-email-yamada.masahiro@socionext.com>
@@ -10,50 +10,88 @@ To: linux-i2c@vger.kernel.org
 Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Currently, the clock duty is set as tLOW/tHIGH = 1/1. For Fast-mode,
-tLOW is set to 1.25 us while the I2C spec requires tLOW >= 1.3 us.
+I was totally screwed up in commit eaba68785c2d ("i2c: uniphier-f:
+fix race condition when IRQ is cleared"). Since that commit, if the
+number of read bytes is multiple of the FIFO size (8, 16, 24... bytes),
+the STOP condition could be issued twice, depending on the timing.
+If this happens, the controller will go wrong, resulting in the timeout
+error.
 
-tLOW/tHIGH = 5/4 would meet both Standard-mode and Fast-mode:
-  Standard-mode: tLOW = 5.56 us, tHIGH = 4.44 us
-  Fast-mode:     tLOW = 1.39 us, tHIGH = 1.11 us
+It was more than 3 years ago when I wrote this driver, so my memory
+about this hardware was vague. Please let me correct the description
+in the commit log of eaba68785c2d.
 
+Clearing the IRQ status on exiting the IRQ handler is absolutely
+fine. This controller makes a pause while any IRQ status is asserted.
+If the IRQ status is cleared first, the hardware may start the next
+transaction before the IRQ handler finishes what it supposed to do.
+
+This partially reverts the bad commit with clear comments so that I
+will never repeat this mistake.
+
+I also investigated what is happening at the last moment of the read
+mode. The UNIPHIER_FI2C_INT_RF interrupt is asserted a bit earlier
+(by half a period of the clock cycle) than UNIPHIER_FI2C_INT_RB.
+
+I consulted a hardware engineer, and I got the following information:
+
+UNIPHIER_FI2C_INT_RF
+    asserted at the falling edge of SCL at the 8th bit.
+
+UNIPHIER_FI2C_INT_RB
+    asserted at the rising edge of SCL at the 9th (ACK) bit.
+
+In order to avoid calling uniphier_fi2c_stop() twice, check the latter
+interrupt. I also commented this because it is obscure hardware internal.
+
+Fixes: eaba68785c2d ("i2c: uniphier-f: fix race condition when IRQ is cleared")
 Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
 
- drivers/i2c/busses/i2c-uniphier-f.c | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-uniphier-f.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
-index d8a5db14..03da4a5 100644
+index dd38474..fad2b00 100644
 --- a/drivers/i2c/busses/i2c-uniphier-f.c
 +++ b/drivers/i2c/busses/i2c-uniphier-f.c
-@@ -518,9 +518,26 @@ static void uniphier_fi2c_hw_init(struct uniphier_fi2c_priv *priv)
+@@ -173,8 +173,6 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
+ 		"interrupt: enabled_irqs=%04x, irq_status=%04x\n",
+ 		priv->enabled_irqs, irq_status);
  
- 	uniphier_fi2c_reset(priv);
+-	uniphier_fi2c_clear_irqs(priv, irq_status);
+-
+ 	if (irq_status & UNIPHIER_FI2C_INT_STOP)
+ 		goto complete;
  
-+	/*
-+	 *  Standard-mode: tLOW + tHIGH = 10 us
-+	 *  Fast-mode:     tLOW + tHIGH = 2.5 us
-+	 */
- 	writel(cyc, priv->membase + UNIPHIER_FI2C_CYC);
--	writel(cyc / 2, priv->membase + UNIPHIER_FI2C_LCTL);
-+	/*
-+	 *  Standard-mode: tLOW = 4.7 us, tHIGH = 4.0 us, tBUF = 4.7 us
-+	 *  Fast-mode:     tLOW = 1.3 us, tHIGH = 0.6 us, tBUF = 1.3 us
-+	 * "tLow/tHIGH = 5/4" meets both.
-+	 */
-+	writel(cyc * 5 / 9, priv->membase + UNIPHIER_FI2C_LCTL);
-+	/*
-+	 *  Standard-mode: tHD;STA = 4.0 us, tSU;STA = 4.7 us, tSU;STO = 4.0 us
-+	 *  Fast-mode:     tHD;STA = 0.6 us, tSU;STA = 0.6 us, tSU;STO = 0.6 us
-+	 */
- 	writel(cyc / 2, priv->membase + UNIPHIER_FI2C_SSUT);
-+	/*
-+	 *  Standard-mode: tSU;DAT = 250 ns
-+	 *  Fast-mode:     tSU;DAT = 100 ns
-+	 */
- 	writel(cyc / 16, priv->membase + UNIPHIER_FI2C_DSUT);
+@@ -214,7 +212,13 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
  
- 	uniphier_fi2c_prepare_operation(priv);
+ 	if (irq_status & (UNIPHIER_FI2C_INT_RF | UNIPHIER_FI2C_INT_RB)) {
+ 		uniphier_fi2c_drain_rxfifo(priv);
+-		if (!priv->len)
++		/*
++		 * If the number of bytes to read is multiple of the FIFO size
++		 * (msg->len == 8, 16, 24, ...), the INT_RF bit is set a little
++		 * earlier than INT_RB. We wait for INT_RB to confirm the
++		 * completion of the current message.
++		 */
++		if (!priv->len && (irq_status & UNIPHIER_FI2C_INT_RB))
+ 			goto data_done;
+ 
+ 		if (unlikely(priv->flags & UNIPHIER_FI2C_MANUAL_NACK)) {
+@@ -253,6 +257,13 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
+ 	}
+ 
+ handled:
++	/*
++	 * This controller makes a pause while any bit of the IRQ status is
++	 * asserted. Clear the asserted bit to kick the controller just before
++	 * exiting the handler.
++	 */
++	uniphier_fi2c_clear_irqs(priv, irq_status);
++
+ 	spin_unlock(&priv->lock);
+ 
+ 	return IRQ_HANDLED;
 -- 
 2.7.4
