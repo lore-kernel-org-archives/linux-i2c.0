@@ -1,49 +1,46 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH] dt-bindings: i2c: use correct vendor prefix for atmel's at24 EEPROMs
-Date: Thu,  6 Dec 2018 10:45:50 +0100
-Message-ID: <20181206094550.18082-1-brgl@bgdev.pl>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH] dt-bindings: i2c: use correct vendor prefix for atmel's
+ at24 EEPROMs
+Date: Thu, 6 Dec 2018 10:35:30 +0000
+Message-ID: <1007451d-fc3c-fdc6-f814-014673e7f1f4@axentia.se>
+References: <20181206094550.18082-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181206094550.18082-1-brgl@bgdev.pl>
+Content-Language: en-US
+Content-ID: <F27C24BDDB32A04FA22DE18D12612688@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>, Thierry Reding <thierry.reding@gmail.com>
+To: Bartosz Golaszewski <brgl@bgdev.pl>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Thierry Reding <thierry.reding@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This is a follow-up to Thierry's patch which missed a few occurences.
-
-Cc: Thierry Reding <thierry.reding@gmail.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
----
- Documentation/devicetree/bindings/i2c/i2c-at91.txt        | 2 +-
- Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-index ef973a0343c7..b7cec17c3daf 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-@@ -33,7 +33,7 @@ i2c0: i2c@fff84000 {
- 	clock-frequency = <400000>;
- 
- 	24c512@50 {
--		compatible = "24c512";
-+		compatible = "atmel,24c512";
- 		reg = <0x50>;
- 		pagesize = <128>;
- 	}
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
-index c661b9083ec6..8b1e49cdce3f 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mux-ltc4306.txt
-@@ -54,7 +54,7 @@ Example:
- 			reg = <1>;
- 
- 			eeprom@50 {
--				compatible = "at,24c02";
-+				compatible = "atmel,24c02";
- 				reg = <0x50>;
- 			};
- 		};
--- 
-2.19.1
+T24gMjAxOC0xMi0wNiAxMDo0NSwgQmFydG9zeiBHb2xhc3pld3NraSB3cm90ZToNCj4gVGhpcyBp
+cyBhIGZvbGxvdy11cCB0byBUaGllcnJ5J3MgcGF0Y2ggd2hpY2ggbWlzc2VkIGEgZmV3IG9jY3Vy
+ZW5jZXMuDQo+IA0KPiBDYzogVGhpZXJyeSBSZWRpbmcgPHRoaWVycnkucmVkaW5nQGdtYWlsLmNv
+bT4NCj4gU2lnbmVkLW9mZi1ieTogQmFydG9zeiBHb2xhc3pld3NraSA8YnJnbEBiZ2Rldi5wbD4N
+Cg0KQWNrZWQtYnk6IFBldGVyIFJvc2luIDxwZWRhQGF4ZW50aWEuc2U+DQoNCldvbGZyYW0sIHlv
+dSBjYW4gdGFrZSB0aGlzIG9uZSBhcyB3ZWxsLCBvZiBjb3Vyc2UuDQoNCkNoZWVycywNClBldGVy
+DQoNCj4gLS0tDQo+ICBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1h
+dDkxLnR4dCAgICAgICAgfCAyICstDQo+ICBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGlu
+Z3MvaTJjL2kyYy1tdXgtbHRjNDMwNi50eHQgfCAyICstDQo+ICAyIGZpbGVzIGNoYW5nZWQsIDIg
+aW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9Eb2N1bWVu
+dGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1hdDkxLnR4dCBiL0RvY3VtZW50YXRp
+b24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLWF0OTEudHh0DQo+IGluZGV4IGVmOTczYTAz
+NDNjNy4uYjdjZWMxN2MzZGFmIDEwMDY0NA0KPiAtLS0gYS9Eb2N1bWVudGF0aW9uL2RldmljZXRy
+ZWUvYmluZGluZ3MvaTJjL2kyYy1hdDkxLnR4dA0KPiArKysgYi9Eb2N1bWVudGF0aW9uL2Rldmlj
+ZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1hdDkxLnR4dA0KPiBAQCAtMzMsNyArMzMsNyBAQCBpMmMw
+OiBpMmNAZmZmODQwMDAgew0KPiAgCWNsb2NrLWZyZXF1ZW5jeSA9IDw0MDAwMDA+Ow0KPiAgDQo+
+ICAJMjRjNTEyQDUwIHsNCj4gLQkJY29tcGF0aWJsZSA9ICIyNGM1MTIiOw0KPiArCQljb21wYXRp
+YmxlID0gImF0bWVsLDI0YzUxMiI7DQo+ICAJCXJlZyA9IDwweDUwPjsNCj4gIAkJcGFnZXNpemUg
+PSA8MTI4PjsNCj4gIAl9DQo+IGRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUv
+YmluZGluZ3MvaTJjL2kyYy1tdXgtbHRjNDMwNi50eHQgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRy
+ZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgtbHRjNDMwNi50eHQNCj4gaW5kZXggYzY2MWI5MDgzZWM2
+Li44YjFlNDljZGNlM2YgMTAwNjQ0DQo+IC0tLSBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9i
+aW5kaW5ncy9pMmMvaTJjLW11eC1sdGM0MzA2LnR4dA0KPiArKysgYi9Eb2N1bWVudGF0aW9uL2Rl
+dmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgtbHRjNDMwNi50eHQNCj4gQEAgLTU0LDcgKzU0
+LDcgQEAgRXhhbXBsZToNCj4gIAkJCXJlZyA9IDwxPjsNCj4gIA0KPiAgCQkJZWVwcm9tQDUwIHsN
+Cj4gLQkJCQljb21wYXRpYmxlID0gImF0LDI0YzAyIjsNCj4gKwkJCQljb21wYXRpYmxlID0gImF0
+bWVsLDI0YzAyIjsNCj4gIAkJCQlyZWcgPSA8MHg1MD47DQo+ICAJCQl9Ow0KPiAgCQl9Ow0KPiAN
+Cg0K
