@@ -1,7 +1,7 @@
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH 1/4] i2c: uniphier-f: fix timeout error after reading 8 bytes
-Date: Thu,  6 Dec 2018 12:55:25 +0900
-Message-ID: <1544068528-27657-2-git-send-email-yamada.masahiro@socionext.com>
+Subject: [PATCH 2/4] i2c: uniphier-f: fill TX-FIFO only in IRQ handler for repeated START
+Date: Thu,  6 Dec 2018 12:55:26 +0900
+Message-ID: <1544068528-27657-3-git-send-email-yamada.masahiro@socionext.com>
 References: <1544068528-27657-1-git-send-email-yamada.masahiro@socionext.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1544068528-27657-1-git-send-email-yamada.masahiro@socionext.com>
@@ -10,88 +10,60 @@ To: linux-i2c@vger.kernel.org
 Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-I was totally screwed up in commit eaba68785c2d ("i2c: uniphier-f:
-fix race condition when IRQ is cleared"). Since that commit, if the
-number of read bytes is multiple of the FIFO size (8, 16, 24... bytes),
-the STOP condition could be issued twice, depending on the timing.
-If this happens, the controller will go wrong, resulting in the timeout
-error.
+ - For a repeated START condition, this controller starts data transfer
+   immediately after the slave address is written to the TX-FIFO.
 
-It was more than 3 years ago when I wrote this driver, so my memory
-about this hardware was vague. Please let me correct the description
-in the commit log of eaba68785c2d.
+ - Once the TX-FIFO empty interrupt is asserted, the controller makes
+   a pause even if additional data are written to the TX-FIFO.
 
-Clearing the IRQ status on exiting the IRQ handler is absolutely
-fine. This controller makes a pause while any IRQ status is asserted.
-If the IRQ status is cleared first, the hardware may start the next
-transaction before the IRQ handler finishes what it supposed to do.
+Given those circumstances, the data after a repeated START may not be
+transferred if the interrupt is asserted while the TX-FIFO is being
+filled up. A more reliable way is to append TX data only in the
+interrupt handler.
 
-This partially reverts the bad commit with clear comments so that I
-will never repeat this mistake.
-
-I also investigated what is happening at the last moment of the read
-mode. The UNIPHIER_FI2C_INT_RF interrupt is asserted a bit earlier
-(by half a period of the clock cycle) than UNIPHIER_FI2C_INT_RB.
-
-I consulted a hardware engineer, and I got the following information:
-
-UNIPHIER_FI2C_INT_RF
-    asserted at the falling edge of SCL at the 8th bit.
-
-UNIPHIER_FI2C_INT_RB
-    asserted at the rising edge of SCL at the 9th (ACK) bit.
-
-In order to avoid calling uniphier_fi2c_stop() twice, check the latter
-interrupt. I also commented this because it is obscure hardware internal.
-
-Fixes: eaba68785c2d ("i2c: uniphier-f: fix race condition when IRQ is cleared")
 Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 ---
 
- drivers/i2c/busses/i2c-uniphier-f.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-uniphier-f.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
-index dd38474..fad2b00 100644
+index fad2b00..d8a5db14 100644
 --- a/drivers/i2c/busses/i2c-uniphier-f.c
 +++ b/drivers/i2c/busses/i2c-uniphier-f.c
-@@ -173,8 +173,6 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- 		"interrupt: enabled_irqs=%04x, irq_status=%04x\n",
- 		priv->enabled_irqs, irq_status);
- 
--	uniphier_fi2c_clear_irqs(priv, irq_status);
--
- 	if (irq_status & UNIPHIER_FI2C_INT_STOP)
- 		goto complete;
- 
-@@ -214,7 +212,13 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- 
- 	if (irq_status & (UNIPHIER_FI2C_INT_RF | UNIPHIER_FI2C_INT_RB)) {
- 		uniphier_fi2c_drain_rxfifo(priv);
--		if (!priv->len)
-+		/*
-+		 * If the number of bytes to read is multiple of the FIFO size
-+		 * (msg->len == 8, 16, 24, ...), the INT_RF bit is set a little
-+		 * earlier than INT_RB. We wait for INT_RB to confirm the
-+		 * completion of the current message.
-+		 */
-+		if (!priv->len && (irq_status & UNIPHIER_FI2C_INT_RB))
- 			goto data_done;
- 
- 		if (unlikely(priv->flags & UNIPHIER_FI2C_MANUAL_NACK)) {
-@@ -253,6 +257,13 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- 	}
- 
- handled:
-+	/*
-+	 * This controller makes a pause while any bit of the IRQ status is
-+	 * asserted. Clear the asserted bit to kick the controller just before
-+	 * exiting the handler.
-+	 */
-+	uniphier_fi2c_clear_irqs(priv, irq_status);
-+
- 	spin_unlock(&priv->lock);
- 
+@@ -269,7 +269,8 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
  	return IRQ_HANDLED;
+ }
+ 
+-static void uniphier_fi2c_tx_init(struct uniphier_fi2c_priv *priv, u16 addr)
++static void uniphier_fi2c_tx_init(struct uniphier_fi2c_priv *priv, u16 addr,
++				  bool repeat)
+ {
+ 	priv->enabled_irqs |= UNIPHIER_FI2C_INT_TE;
+ 	uniphier_fi2c_set_irqs(priv);
+@@ -279,8 +280,12 @@ static void uniphier_fi2c_tx_init(struct uniphier_fi2c_priv *priv, u16 addr)
+ 	/* set slave address */
+ 	writel(UNIPHIER_FI2C_DTTX_CMD | addr << 1,
+ 	       priv->membase + UNIPHIER_FI2C_DTTX);
+-	/* first chunk of data */
+-	uniphier_fi2c_fill_txfifo(priv, true);
++	/*
++	 * First chunk of data. For a repeated START condition, do not write
++	 * data to the TX fifo here to avoid the timing issue.
++	 */
++	if (!repeat)
++		uniphier_fi2c_fill_txfifo(priv, true);
+ }
+ 
+ static void uniphier_fi2c_rx_init(struct uniphier_fi2c_priv *priv, u16 addr)
+@@ -361,7 +366,7 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
+ 	if (is_read)
+ 		uniphier_fi2c_rx_init(priv, msg->addr);
+ 	else
+-		uniphier_fi2c_tx_init(priv, msg->addr);
++		uniphier_fi2c_tx_init(priv, msg->addr, repeat);
+ 
+ 	dev_dbg(&adap->dev, "start condition\n");
+ 	/*
 -- 
 2.7.4
