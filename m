@@ -1,8 +1,8 @@
 From: <Tudor.Ambarus@microchip.com>
-Subject: [2nd RESEND PATCH 1/2] i2c: enable buses to save their clock
- frequency in adapter
-Date: Fri, 7 Dec 2018 11:29:57 +0000
-Message-ID: <20181207112939.15791-2-tudor.ambarus@microchip.com>
+Subject: [2nd RESEND PATCH 2/2] i2c: at91: Save the bus clock frequency in
+ adapter
+Date: Fri, 7 Dec 2018 11:29:59 +0000
+Message-ID: <20181207112939.15791-3-tudor.ambarus@microchip.com>
 References: <20181207112939.15791-1-tudor.ambarus@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -31,25 +31,26 @@ if they will not find the i2c bus clock frequency in the device tree, they
 will have to make their own assumption of the clock frequency.
 
 Spare the i2c clients of making wrong assumptions of the i2c bus clock
-frequency and enable the buses to save their clock frequency in adapter.
+frequency and provide the bus clock frequency in adapter.
 
 Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Reviwed-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
 ---
- include/linux/i2c.h | 1 +
+ drivers/i2c/busses/i2c-at91.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 65b4eaed1d96..f238da204c49 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -677,6 +677,7 @@ struct i2c_adapter {
- 	struct rt_mutex bus_lock;
- 	struct rt_mutex mux_lock;
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 3f3e8b3bf5ff..9aa0937817ac 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -1124,6 +1124,7 @@ static int at91_twi_probe(struct platform_device *pde=
+v)
+ 	dev->adapter.quirks =3D &at91_twi_quirks;
+ 	dev->adapter.dev.parent =3D dev->dev;
+ 	dev->adapter.nr =3D pdev->id;
++	dev->adapter.bus_freq_hz =3D bus_clk_rate;
+ 	dev->adapter.timeout =3D AT91_I2C_TIMEOUT;
+ 	dev->adapter.dev.of_node =3D pdev->dev.of_node;
 =20
-+	u32 bus_freq_hz;
- 	int timeout;			/* in jiffies */
- 	int retries;
- 	struct device dev;		/* the adapter device */
 --=20
 2.9.4
