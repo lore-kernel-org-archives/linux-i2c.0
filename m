@@ -1,99 +1,63 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 4.20
-Date: Fri, 7 Dec 2018 14:08:52 +0100
-Message-ID: <20181207130848.GA2661@kunai>
+Subject: Re: [PATCH v2] dt-bindings: i2c: Use correct vendor prefix for Atmel
+Date: Fri, 7 Dec 2018 14:11:08 +0100
+Message-ID: <20181207131108.GA2462@kunai>
+References: <20181123121009.17213-1-thierry.reding@gmail.com>
+ <20181123125138.22489-1-thierry.reding@gmail.com>
+ <20181127125050.GO1107@kunai>
+ <CAL_JsqJZJVMvd0aQJ8eDXBqiZ=quLrNGr3hhqePm8fCushHxxQ@mail.gmail.com>
+ <20181203210035.GA4611@kunai>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
+        protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <20181203210035.GA4611@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Rob Herring <robh+dt@kernel.org>
+Cc: Thierry Reding <thierry.reding@gmail.com>, Peter Rosin <peda@axentia.se>, Linux I2C <linux-i2c@vger.kernel.org>, devicetree@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---1yeeQ81UyVL57Vl7
+--PNTmBPCT7hxwcZjr
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Linus,
+On Mon, Dec 03, 2018 at 10:00:35PM +0100, Wolfram Sang wrote:
+>=20
+> > Didn't we agree that I take trivial devices changes? Normally, it
+> > doesn't really matter, but I'll have to delay landing the json-schema
+> > conversion because this will conflict.
+>=20
+> Oh, sorry, I missed that! I haven't send my pull request to Linus, so I
+> can easily drop this patch again and apply a version not touching
+> trivial-devices instead.
 
-here is a set of driver bugfixes for the I2C subsystem.
-
-Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit 2e6e902d185027f8e3cb8b7305238f7e35d6a436:
-
-  Linux 4.20-rc4 (2018-11-25 14:19:31 -0800)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
-
-for you to fetch changes up to ece27a337d42a3197935711997f2880f0957ed7e:
-
-  i2c: uniphier-f: fix violation of tLOW requirement for Fast-mode (2018-12-06 23:14:59 +0100)
-
-----------------------------------------------------------------
-Adamski, Krzysztof (Nokia - PL/Wroclaw) (1):
-      i2c: axxia: properly handle master timeout
-
-Hans de Goede (1):
-      i2c: scmi: Fix probe error on devices with an empty SMB0001 ACPI device node
-
-Masahiro Yamada (4):
-      i2c: uniphier-f: fix timeout error after reading 8 bytes
-      i2c: uniphier-f: fill TX-FIFO only in IRQ handler for repeated START
-      i2c: uniphier: fix violation of tLOW requirement for Fast-mode
-      i2c: uniphier-f: fix violation of tLOW requirement for Fast-mode
-
-Wolfram Sang (3):
-      i2c: nvidia-gpu: adhere to I2C fault codes
-      i2c: nvidia-gpu: limit reads also for combined messages
-      i2c: rcar: check bus state before reinitializing
+For the record, I really dropped this patch from my for-current queue
+and will apply it to my for-next queue without the 'trivial-devices'
+change once we agreed how to handle Bartosz' incremental patch on top of
+it. I hope this fits your needs.
 
 
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Ajay Gupta (2):
-      (Test) i2c: nvidia-gpu: limit reads also for combined messages
-      (Test) i2c: nvidia-gpu: adhere to I2C fault codes
-
-Alexander Sverdlin (1):
-      (Rev.) i2c: axxia: properly handle master timeout
-
- drivers/i2c/busses/i2c-axxia.c      | 40 +++++++++++++++++++++---------
- drivers/i2c/busses/i2c-nvidia-gpu.c |  7 +++---
- drivers/i2c/busses/i2c-rcar.c       |  9 ++++---
- drivers/i2c/busses/i2c-scmi.c       | 10 +++++---
- drivers/i2c/busses/i2c-uniphier-f.c | 49 +++++++++++++++++++++++++++++++------
- drivers/i2c/busses/i2c-uniphier.c   |  8 +++++-
- 6 files changed, 93 insertions(+), 30 deletions(-)
-
---1yeeQ81UyVL57Vl7
+--PNTmBPCT7hxwcZjr
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwKcNsACgkQFA3kzBSg
-KbZd4g/+K83Z6ZNIGbaMlGp7tKZ9ayTWeEvmv2JhaHK3SpxgZ2nO1K9eoiU9MFqK
-u2ZDLz/BYw/6DGDy0KRH1lvoY3mVFBkUjEEJw/8b71WUBSrbkdwWZlLylegNQh8Y
-MwEabGFaVxylntmyrnjBKrqWuqYIBcKcnyJDZHWldgzoLF35loR1dO8dIfjDLW3H
-M/rK5GmP+a2L1IRuk6awewilF2NGiiCIXFj08s8hyepxJzrDmKYFXcguuRC4yuGH
-lZtJtzZ05w1gVXbDrVw9N4N7ghmbSXtlyFxO1/V+dyhecxbh+FB+zNthyaveLcJY
-lux0xvD3xsAnLV+F1IMMXmUlKDiI1iyT7Lqvu5BM8LtxX072yNBv53z6F8CHHpvP
-G8XzoZSKmMNfU9+WzkpaRhCKFW7JCnoJCvsecJKwYSEjhZubsSMOoJuZ7/NHg7zY
-x8LO5RfAayLbv7CGmUa6mWEBCdIEP4Uds/+j65gzTCAQT5pFV/nVjwQ9dlLSfipI
-hEF4gIQnqRIYaRTaBsMMYEXCuSgkxmw8a1hB2fMXE/eRbsT2AGma35dLU5AqYY5I
-ra9W5dSjIKYnmjSfNXFiI8rGjFWnWY92+6BwTQEuUKuUvrVMspgBRloCrEHuTRVp
-LmBZkqIWrRStxxZ7SrNkBEmd8gqiu00sIROPSxEFZQjHDFIrjgo=
-=Kb0Z
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwKcWwACgkQFA3kzBSg
+KbbcTg//cRhHyl6Oi7w349QnGL0ZEFb47wqcFPYWmaCPzkAJMKlWbf9IQw7c4a4O
+DV2HUjGT2Nu6YU3aGr5wM2LXjO3AiGnoeGyX1glKIcjvaN/r26A77tSX0zzzEU90
+4S9C9PV/GmoO7H4BDerJ/d5BBGeu2X6DqIEoC3Qp/gn3kSrxvWAXvALmX+30sKdj
+vWuETZKm1G7vYPL1bQG1wrOauZAEwpPgpHwLIWdj2uCmxlEJ00UsQumJEz82sxc5
+lYfRjzelW5tg43eqDWV+hn+7pUxz/KL990hHKfAg9NxUszOUdOPOfKX1wb21IXa3
+7Yu0qPfAIGVAswbateYTWXqhmgUJPzaoVesmqpLao5SscxXYFSUOff4fdcBFq/Oo
+nhe0dgzwajL/O1L4RgV9qh1/mSOCLSO5M79c9QxPTKNEZ0/Hw5mbMZs8aM/T+L/h
+l/iduLMSkI4hl4YnBGU+rGQym+oFhPHZXt+TqCB3rjCibXfHMIUIlufIJK3yM+bj
+Nkl+enGbyJfZvJ9D5955ziyF/cAliy3v7vx7c0OMyvZOfimMvlycA9RtWRkE8Ioq
+c1DTsJHqkJs+6aOZBJu7ImRxmU8rUZU8hqLUigAiat/p/AgqSicpQ7aleb4E0I7m
+WBz2fciAP6b09TmiKBzVpk6USInEGvtcRm9OCdKjwQjAt68B2Ws=
+=xul7
 -----END PGP SIGNATURE-----
 
---1yeeQ81UyVL57Vl7--
+--PNTmBPCT7hxwcZjr--
