@@ -1,31 +1,45 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH] dt-bindings: i2c: use correct vendor prefix for atmel's
- at24 EEPROMs
-Date: Fri, 7 Dec 2018 14:18:15 +0100
-Message-ID: <CAMRc=MfRBgF9CSzGb=VMUGiCsFc1B_y=d5yMgPJ3xc0GyytATA@mail.gmail.com>
-References: <20181206094550.18082-1-brgl@bgdev.pl> <20181206104421.a6njveg72dcguckp@katana>
+From: Sergey Suloev <ssuloev-RHPENKW2UW+1Z/+hSey0Gg@public.gmane.org>
+Subject: I2C boot issue with RPI3B
+Date: Fri, 7 Dec 2018 16:36:37 +0300
+Message-ID: <adbaedcd-3d51-f8fc-fef2-8cc00b93f057@orpaltech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181206104421.a6njveg72dcguckp@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Thierry Reding <thierry.reding@gmail.com>
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rpi-kernel>,
+ <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-rpi-kernel/>
+List-Post: <mailto:linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rpi-kernel>,
+ <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "linux-rpi-kernel" <linux-rpi-kernel-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: stefan.wahren-eS4NqCHxEME@public.gmane.org, eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org
+Cc: rjui-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, sbranden-dY08KVG/lbpWk0Htik3J/w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-czw., 6 gru 2018 o 11:44 Wolfram Sang <wsa@the-dreams.de> napisa=C5=82(a):
->
-> On Thu, Dec 06, 2018 at 10:45:50AM +0100, Bartosz Golaszewski wrote:
-> > This is a follow-up to Thierry's patch which missed a few occurences.
-> >
-> > Cc: Thierry Reding <thierry.reding@gmail.com>
-> > Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
->
-> Since I dropped Thierry's original patch, I wonder if it is okay with
-> you to simply squash these hunks into it?
->
-
-Yes, feel free to squash those two with my Signed-off-by tag.
-
-Bart
+R3JlZXRpbmdzLAoKSSBhbSBkZWFsaW5nIHdpdGggYSBjdXN0b20gaGFyZHdhcmUgYmFzZWQgb24g
+UlBJM0IgcnVubmluZyBrZXJuZWwgNC4xOSAKKG9yIDQuMjApLgpNeSBkZXZpY2UgaGFzIDIgc2xh
+dmVzIG9uIEkyQ8KgIGJ1czogY29kZWMgV004NzMxIChvbiBhZGRyZXNzIDB4MWEpIGFuZCAKY2xv
+Y2sgZ2VuZXJhdG9yIHNpNTM1MWEgKG9uIDB4NjApLgoKSXQgaGFzIGJlZW4gYSBsb3Qgb2YgdGlt
+ZSBmb3IgbWUgZmlnaHRpbmcgd2l0aCBhbiBJMkMgaXNzdWUgd2hpY2ggZG9lcyAKbm90IGFsbG93
+IHRoZSB0d28gSTJDIGRldmljZXMgd29yayBjb3JyZWN0bHkgdG9nZXRoZXI6IEkyQyBidXMgaGFu
+Z3MgdXAgCmF0IGtlcm5lbCBib290LiBUaGUgaXNzdWUgaGFwcGVucyBpbiA1MC03MCUgYm9vdCBj
+YXNlcyBhbmQgdGhlIGZhaWwgCnBlcmNlbnRhZ2Ugbm90aWNlYWJseSBkZXBlbmRzIG9uwqAgdGhl
+IGJ1cyBjbG9jayBzZXQgaW4gRFRTOiB0aGUgbW9yZSAKZnJlcXVlbmN5IHNldCB0aGUgbGVzcyBm
+YWlsIHBlcmNlbnRhZ2UuClRoZSBrZXJuZWwgaXRzZWxmIGxvYWRzIHN1Y2Nlc3NmdWxseSwgSSBj
+YW4gc3NoIHRvIHRoZSBSUEkgaW4gb3JkZXIgdG8gCmlzc3VlICJpMmNkZXRlY3QgLXkgMCIgYW5k
+IG1ha2Ugc3VyZSB0aGF0IEkyQyBidXMgaXMgbG9ja2VkIGNvbXBsZXRlbHkgCmFuZCBub3QgcmVz
+cG9uZGluZy4KClNvIGZhciBJIGhhdmUgZm91bmQgdGhlIG9ubHkgd2F5IHRvIG1ha2UgaXQgd29y
+ayA6wqAgdG8gY29tcGlsZSBzaTUzNTFhIApkcml2ZXIgaW50byBrZXJuZWwgYW5kIHVzZSB3bTg3
+MzEgZHJpdmVyIGFzIGEgbW9kdWxlLgpUaGlzIHByb2JhYmx5IG1ha2VzIHRoZSBjbG9jayBkcml2
+ZXIgbG9hZCAxMDAlIGJlZm9yZSB0aGUgY29kZWMgYW5kIEkyQyAKYnVzIGRvZXMgbm90IGhhbmcg
+dXAuClNpbmNlIGl0IGNhbiBiZSBmaXhlZCB0aGlzIHdheSB0aGUgcHJvYmxlbSByZWFsbHkgbG9v
+a3MgbGlrZSBhICJyYWNlIApjb25kaXRpb24iIGluIEkyQyBidXMvZHJpdmVyLgoKV291bGQgYmUg
+cmVhbGx5IG5pY2UgdG8ga25vdyB5b3VyIG9waW5pb24gYW5kIHBvc3NpYmxlIHdheXMgdG8gZml4
+IHRoaXMuCgoKQmVzdCByZWdhcmRzLAoKU2VyZ2V5CgoKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KbGludXgtcnBpLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGlu
+dXgtcnBpLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQu
+b3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtcnBpLWtlcm5lbAo=
