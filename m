@@ -1,54 +1,46 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/4] UniPhier I2C fixes
-Date: Thu, 6 Dec 2018 23:06:09 +0100
-Message-ID: <20181206220609.GA1100@kunai>
-References: <1544068528-27657-1-git-send-email-yamada.masahiro@socionext.com>
+From: <Tudor.Ambarus@microchip.com>
+Subject: [2nd RESEND PATCH 0/2] i2c: enable buses to save their clock
+ frequency in adapter
+Date: Fri, 7 Dec 2018 11:29:52 +0000
+Message-ID: <20181207112939.15791-1-tudor.ambarus@microchip.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1544068528-27657-1-git-send-email-yamada.masahiro@socionext.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: Nicolas.Ferre@microchip.com, Ludovic.Desroches@microchip.com, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Tudor.Ambarus@microchip.com
 List-Id: linux-i2c@vger.kernel.org
 
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The clock-frequency property is not mandatory for the i2c buses. If it's
+not present in the device tree, the buses __usually__ assume it's 100kHZ
+(see altera, at91, axxia, etc.). Broadcom uses a 375kHZ default
+clock-frequency, so the default clock frequency varies from bus to bus.
 
-On Thu, Dec 06, 2018 at 12:55:24PM +0900, Masahiro Yamada wrote:
->=20
-> Masahiro Yamada (4):
->   i2c: uniphier-f: fix timeout error after reading 8 bytes
->   i2c: uniphier-f: fill TX-FIFO only in IRQ handler for repeated START
->   i2c: uniphier: fix violation of tLOW requirement for Fast-mode
->   i2c: uniphier-f: fix violation of tLOW requirement for Fast-mode
+There are i2c clients that need to know the bus clock frequency in order to
+compute their wake token (see atecc508a i2c client).
 
-They all look like bugfixes to me, so applied to for-current, thanks!
+The clock-frequency value has to be propagated to the i2c clients, otherwis=
+e,
+if they will not find the i2c bus clock frequency in the device tree, they
+will have to make their own assumption of the clock frequency.
 
+Spare the i2c clients of making wrong assumptions of the i2c bus clock
+frequency and enable the buses to save their clock frequency in adapter.
 
---ReaqsoxgOBHFXBhH
-Content-Type: application/pgp-signature; name="signature.asc"
+since rfc:
+- reword commit messages
 
------BEGIN PGP SIGNATURE-----
+Tudor.Ambarus@microchip.com (2):
+  i2c: enable buses to save their clock frequency in adapter
+  i2c: at91: Save the bus clock frequency in adapter
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwJnUwACgkQFA3kzBSg
-KbbVWg//SKoF8iqLVzVaLHhyaqytaaee2i2wicaihztkC0smv+LNc63fzMf4ozL3
-AyqCa/1NKy2qfBW9bXl7Dd6T4RpXZmQAPQ67vVlk74Dn6S89pk1lZztG61/m+HsB
-dBlzXxPoF87/cPbq9aU9GLEvsSJcy57h7Z03m24rtemdKDcNFEaxkZy26i5+Ccku
-kdFVQm70SUyQyg6ScQLX9bl/X8JDOvhpv/xI49iTXYvdK+Xeu+dAgGNcjkUhMDYQ
-ynLdb3F/XNfNmqXjgsABe3A0cYwuBqstqKBSUzWax/66rgSOFv2cUO7cI04bPg9C
-5gNbaeoOGE8FGvaxptO+VmasGcF08rhw+KRoMKxEoag3vNdFTOtUf13UwbmVxGHi
-0b+02hUbXEBSVSDVT0vrmeIFA3906R4gmyyNsTYMhlt4BM8r/w1cSsXAEAhuHrc8
-hdNeyA58t8Fj3Si2/aoNd6rpKEKQbCsPtlIXaFbmmC3CedP4M565oGsIt2rL7jZ3
-IU9W/6Mqe274W6ztifoaccJIn13x19Z04EUS5PrLWh++bnL4QOksQu/vEw+ZNl6+
-6Tv4JKmLziiajhbAxGL2jfd9Hu8n457VSFu3esz1hO1qS5ZI3ucquQ8zOsCWyOrG
-zYteCM5Oyx8ECP/m2uQikinXpBNYA8Ci4n5MGTzjYJnHmQuwXpE=
-=MQIn
------END PGP SIGNATURE-----
+ drivers/i2c/busses/i2c-at91.c | 1 +
+ include/linux/i2c.h           | 1 +
+ 2 files changed, 2 insertions(+)
 
---ReaqsoxgOBHFXBhH--
+--=20
+2.9.4
