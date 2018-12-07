@@ -1,56 +1,24 @@
-From: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
-Subject: Re: I2C boot issue with RPI3B
-Date: Fri, 7 Dec 2018 16:42:45 +0100
-Message-ID: <47d72b1b-3400-0785-37bd-2994c5e7b063@i2se.com>
-References: <adbaedcd-3d51-f8fc-fef2-8cc00b93f057@orpaltech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <adbaedcd-3d51-f8fc-fef2-8cc00b93f057-RHPENKW2UW+1Z/+hSey0Gg@public.gmane.org>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rpi-kernel>,
- <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-rpi-kernel/>
-List-Post: <mailto:linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rpi-kernel>,
- <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "linux-rpi-kernel" <linux-rpi-kernel-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Sergey Suloev <ssuloev-RHPENKW2UW+1Z/+hSey0Gg@public.gmane.org>, Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
-Cc: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf-L59+Z2yzLopAfugRpC6u6w@public.gmane.org>, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: pr-tracker-bot@kernel.org
+Subject: Re: [PULL REQUEST] i2c for 4.20
+Date: Fri, 07 Dec 2018 18:35:02 +0000
+Message-ID: <20181207183502.15805.82304.pr-tracker-bot@pdx-korg-gitolite-1.ci.codeaurora.org>
+References: <20181207130848.GA2661@kunai>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20181207130848.GA2661@kunai>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgU2VyZ2V5LAoKW2FkZCBOb3JhbGYgYW5kIGRyb3AgdGhlIEJyb2FkY29tIGd1eXMgZnJvbSBD
-QyBzaW5jZSB0aGlzIHNwZWNpZmljIHRvCnRoZSBSUGldCgpBbSAwNy4xMi4xOCB1bSAxNDozNiBz
-Y2hyaWViIFNlcmdleSBTdWxvZXY6Cj4gR3JlZXRpbmdzLAo+Cj4gSSBhbSBkZWFsaW5nIHdpdGgg
-YSBjdXN0b20gaGFyZHdhcmUgYmFzZWQgb24gUlBJM0IgcnVubmluZyBrZXJuZWwgNC4xOQo+IChv
-ciA0LjIwKS4KPiBNeSBkZXZpY2UgaGFzIDIgc2xhdmVzIG9uIEkyQ8KgIGJ1czogY29kZWMgV004
-NzMxIChvbiBhZGRyZXNzIDB4MWEpIGFuZAo+IGNsb2NrIGdlbmVyYXRvciBzaTUzNTFhIChvbiAw
-eDYwKS4KPgo+IEl0IGhhcyBiZWVuIGEgbG90IG9mIHRpbWUgZm9yIG1lIGZpZ2h0aW5nIHdpdGgg
-YW4gSTJDIGlzc3VlIHdoaWNoIGRvZXMKPiBub3QgYWxsb3cgdGhlIHR3byBJMkMgZGV2aWNlcyB3
-b3JrIGNvcnJlY3RseSB0b2dldGhlcjogSTJDIGJ1cyBoYW5ncwo+IHVwIGF0IGtlcm5lbCBib290
-LgpDb3VsZCB5b3UgZ2l2ZSBzb21lIGtlcm5lbCBtZXNzYWdlIG9yIHNvbWUgbWVhc3VyZW1lbnRz
-IG9mIHRoZSBJMkMgbGluZQpzdGF0ZXM/Cj4gVGhlIGlzc3VlIGhhcHBlbnMgaW4gNTAtNzAlIGJv
-b3QgY2FzZXMgYW5kIHRoZSBmYWlsIHBlcmNlbnRhZ2UKPiBub3RpY2VhYmx5IGRlcGVuZHMgb27C
-oCB0aGUgYnVzIGNsb2NrIHNldCBpbiBEVFM6IHRoZSBtb3JlIGZyZXF1ZW5jeQo+IHNldCB0aGUg
-bGVzcyBmYWlsIHBlcmNlbnRhZ2UuCkkgYXNzdW1lIHlvdSBkb24ndCB1c2UgdGhlIGRvd25zdHJl
-YW0gY3B1ZnJlcSBkcml2ZXIsIHdoaWNoIGNvdWxkCmdlbmVyYXRlIGludGVyZmVyZW5jZXMgb24g
-dGhlIGNsb2NrLgo+IFRoZSBrZXJuZWwgaXRzZWxmIGxvYWRzIHN1Y2Nlc3NmdWxseSwgSSBjYW4g
-c3NoIHRvIHRoZSBSUEkgaW4gb3JkZXIgdG8KPiBpc3N1ZSAiaTJjZGV0ZWN0IC15IDAiIGFuZCBt
-YWtlIHN1cmUgdGhhdCBJMkMgYnVzIGlzIGxvY2tlZCBjb21wbGV0ZWx5Cj4gYW5kIG5vdCByZXNw
-b25kaW5nLgo+CkFGQUlLIHRoaXMgSTJDMCBpcyBzaGFyZWQgd2l0aCB0aGUgVmlkZW9Db3JlLiBE
-aWQgeW91IGFscmVhZHkgdHJpZWQgSTJDMQp3aGljaCBzaG91bGQgYmUgZXhjbHVzaXZlIGZvciB0
-aGUgQVJNIGNvcmUocyk/CgpTdGVmYW4KCj4gU28gZmFyIEkgaGF2ZSBmb3VuZCB0aGUgb25seSB3
-YXkgdG8gbWFrZSBpdCB3b3JrIDrCoCB0byBjb21waWxlIHNpNTM1MWEKPiBkcml2ZXIgaW50byBr
-ZXJuZWwgYW5kIHVzZSB3bTg3MzEgZHJpdmVyIGFzIGEgbW9kdWxlLgo+IFRoaXMgcHJvYmFibHkg
-bWFrZXMgdGhlIGNsb2NrIGRyaXZlciBsb2FkIDEwMCUgYmVmb3JlIHRoZSBjb2RlYyBhbmQKPiBJ
-MkMgYnVzIGRvZXMgbm90IGhhbmcgdXAuCj4gU2luY2UgaXQgY2FuIGJlIGZpeGVkIHRoaXMgd2F5
-IHRoZSBwcm9ibGVtIHJlYWxseSBsb29rcyBsaWtlIGEgInJhY2UKPiBjb25kaXRpb24iIGluIEky
-QyBidXMvZHJpdmVyLgo+Cj4gV291bGQgYmUgcmVhbGx5IG5pY2UgdG8ga25vdyB5b3VyIG9waW5p
-b24gYW5kIHBvc3NpYmxlIHdheXMgdG8gZml4IHRoaXMuCj4KPgo+IEJlc3QgcmVnYXJkcywKPgo+
-IFNlcmdleQo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpsaW51eC1ycGkta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1ycGkta2VybmVsQGxpc3RzLmlu
-ZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9s
-aW51eC1ycGkta2VybmVsCg==
+The pull request you sent on Fri, 7 Dec 2018 14:08:52 +0100:
+
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
+
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/52f842ccd615564a75ef45f8a0985ff14a0a61ce
+
+Thank you!
+
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
