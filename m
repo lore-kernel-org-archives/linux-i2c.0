@@ -1,72 +1,99 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [2nd RESEND PATCH 1/2] i2c: enable buses to save their clock
- frequency in adapter
-Date: Fri, 7 Dec 2018 12:17:05 +0000
-Message-ID: <b70e4721-1cff-eb07-ed8e-8fc39b6e84ed@axentia.se>
-References: <20181207112939.15791-1-tudor.ambarus@microchip.com>
- <20181207112939.15791-2-tudor.ambarus@microchip.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 4.20
+Date: Fri, 7 Dec 2018 14:08:52 +0100
+Message-ID: <20181207130848.GA2661@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20181207112939.15791-2-tudor.ambarus@microchip.com>
-Content-Language: en-US
-Content-ID: <3D88C2896AA66A499C41B51F6DCF224C@eurprd02.prod.outlook.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: "Tudor.Ambarus@microchip.com" <Tudor.Ambarus@microchip.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>
-Cc: "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Ludovic.Desroches@microchip.com" <Ludovic.Desroches@microchip.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2018-12-07 12:29, Tudor.Ambarus@microchip.com wrote:
-> From: "Tudor.Ambarus@microchip.com" <Tudor.Ambarus@microchip.com>
-> 
-> The clock-frequency property is not mandatory for the i2c buses. If it's
-> not present in the device tree, the buses __usually__ assume it's 100kHZ
-> (see altera, at91, axxia, etc.). Broadcom uses a 375kHZ default
-> clock-frequency, so the default clock frequency varies from bus to bus.
-> 
-> There are i2c clients that need to know the bus clock frequency in order to
-> compute their wake token (see atecc508a i2c client).
-> 
-> The clock-frequency value has to be propagated to the i2c clients, otherwise,
-> if they will not find the i2c bus clock frequency in the device tree, they
-> will have to make their own assumption of the clock frequency.
-> 
-> Spare the i2c clients of making wrong assumptions of the i2c bus clock
-> frequency and enable the buses to save their clock frequency in adapter.
-> 
-> Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-> Reviwed-by: Ludovic Desroches <ludovic.desroches@microchip.com>
 
-This is not the correct spelling of the tag and probably the reason for
-the lack of reaction from Wolfram. The tag has simply not showed up in
-patchwork and the patch has thus been postponed. Probably...
+--1yeeQ81UyVL57Vl7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Cheers,
-Peter
+Linus,
 
-> ---
->  include/linux/i2c.h | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 65b4eaed1d96..f238da204c49 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -677,6 +677,7 @@ struct i2c_adapter {
->  	struct rt_mutex bus_lock;
->  	struct rt_mutex mux_lock;
->  
-> +	u32 bus_freq_hz;
->  	int timeout;			/* in jiffies */
->  	int retries;
->  	struct device dev;		/* the adapter device */
-> 
+here is a set of driver bugfixes for the I2C subsystem.
+
+Please pull.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit 2e6e902d185027f8e3cb8b7305238f7e35d6a436:
+
+  Linux 4.20-rc4 (2018-11-25 14:19:31 -0800)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
+
+for you to fetch changes up to ece27a337d42a3197935711997f2880f0957ed7e:
+
+  i2c: uniphier-f: fix violation of tLOW requirement for Fast-mode (2018-12-06 23:14:59 +0100)
+
+----------------------------------------------------------------
+Adamski, Krzysztof (Nokia - PL/Wroclaw) (1):
+      i2c: axxia: properly handle master timeout
+
+Hans de Goede (1):
+      i2c: scmi: Fix probe error on devices with an empty SMB0001 ACPI device node
+
+Masahiro Yamada (4):
+      i2c: uniphier-f: fix timeout error after reading 8 bytes
+      i2c: uniphier-f: fill TX-FIFO only in IRQ handler for repeated START
+      i2c: uniphier: fix violation of tLOW requirement for Fast-mode
+      i2c: uniphier-f: fix violation of tLOW requirement for Fast-mode
+
+Wolfram Sang (3):
+      i2c: nvidia-gpu: adhere to I2C fault codes
+      i2c: nvidia-gpu: limit reads also for combined messages
+      i2c: rcar: check bus state before reinitializing
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Ajay Gupta (2):
+      (Test) i2c: nvidia-gpu: limit reads also for combined messages
+      (Test) i2c: nvidia-gpu: adhere to I2C fault codes
+
+Alexander Sverdlin (1):
+      (Rev.) i2c: axxia: properly handle master timeout
+
+ drivers/i2c/busses/i2c-axxia.c      | 40 +++++++++++++++++++++---------
+ drivers/i2c/busses/i2c-nvidia-gpu.c |  7 +++---
+ drivers/i2c/busses/i2c-rcar.c       |  9 ++++---
+ drivers/i2c/busses/i2c-scmi.c       | 10 +++++---
+ drivers/i2c/busses/i2c-uniphier-f.c | 49 +++++++++++++++++++++++++++++++------
+ drivers/i2c/busses/i2c-uniphier.c   |  8 +++++-
+ 6 files changed, 93 insertions(+), 30 deletions(-)
+
+--1yeeQ81UyVL57Vl7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwKcNsACgkQFA3kzBSg
+KbZd4g/+K83Z6ZNIGbaMlGp7tKZ9ayTWeEvmv2JhaHK3SpxgZ2nO1K9eoiU9MFqK
+u2ZDLz/BYw/6DGDy0KRH1lvoY3mVFBkUjEEJw/8b71WUBSrbkdwWZlLylegNQh8Y
+MwEabGFaVxylntmyrnjBKrqWuqYIBcKcnyJDZHWldgzoLF35loR1dO8dIfjDLW3H
+M/rK5GmP+a2L1IRuk6awewilF2NGiiCIXFj08s8hyepxJzrDmKYFXcguuRC4yuGH
+lZtJtzZ05w1gVXbDrVw9N4N7ghmbSXtlyFxO1/V+dyhecxbh+FB+zNthyaveLcJY
+lux0xvD3xsAnLV+F1IMMXmUlKDiI1iyT7Lqvu5BM8LtxX072yNBv53z6F8CHHpvP
+G8XzoZSKmMNfU9+WzkpaRhCKFW7JCnoJCvsecJKwYSEjhZubsSMOoJuZ7/NHg7zY
+x8LO5RfAayLbv7CGmUa6mWEBCdIEP4Uds/+j65gzTCAQT5pFV/nVjwQ9dlLSfipI
+hEF4gIQnqRIYaRTaBsMMYEXCuSgkxmw8a1hB2fMXE/eRbsT2AGma35dLU5AqYY5I
+ra9W5dSjIKYnmjSfNXFiI8rGjFWnWY92+6BwTQEuUKuUvrVMspgBRloCrEHuTRVp
+LmBZkqIWrRStxxZ7SrNkBEmd8gqiu00sIROPSxEFZQjHDFIrjgo=
+=Kb0Z
+-----END PGP SIGNATURE-----
+
+--1yeeQ81UyVL57Vl7--
