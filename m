@@ -1,24 +1,69 @@
-From: pr-tracker-bot@kernel.org
-Subject: Re: [PULL REQUEST] i2c for 4.20
-Date: Fri, 07 Dec 2018 18:35:02 +0000
-Message-ID: <20181207183502.15805.82304.pr-tracker-bot@pdx-korg-gitolite-1.ci.codeaurora.org>
-References: <20181207130848.GA2661@kunai>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181207130848.GA2661@kunai>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+From: Sergey Suloev <ssuloev-RHPENKW2UW+1Z/+hSey0Gg@public.gmane.org>
+Subject: Re: I2C boot issue with RPI3B
+Date: Fri, 7 Dec 2018 23:01:29 +0300
+Message-ID: <5848bfb2-6b0d-bcd8-318d-2a0c8e067f17@orpaltech.com>
+References: <adbaedcd-3d51-f8fc-fef2-8cc00b93f057@orpaltech.com>
+ <47d72b1b-3400-0785-37bd-2994c5e7b063@i2se.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <47d72b1b-3400-0785-37bd-2994c5e7b063-eS4NqCHxEME@public.gmane.org>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rpi-kernel>,
+ <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-rpi-kernel/>
+List-Post: <mailto:linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rpi-kernel>,
+ <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "linux-rpi-kernel" <linux-rpi-kernel-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>, Eric Anholt <eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org>
+Cc: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf-L59+Z2yzLopAfugRpC6u6w@public.gmane.org>, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The pull request you sent on Fri, 7 Dec 2018 14:08:52 +0100:
-
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
-
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/52f842ccd615564a75ef45f8a0985ff14a0a61ce
-
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+SGksIFN0ZWZhbgoKT24gMTIvNy8xOCA2OjQyIFBNLCBTdGVmYW4gV2FocmVuIHdyb3RlOgo+IEhp
+IFNlcmdleSwKPgo+IFthZGQgTm9yYWxmIGFuZCBkcm9wIHRoZSBCcm9hZGNvbSBndXlzIGZyb20g
+Q0Mgc2luY2UgdGhpcyBzcGVjaWZpYyB0bwo+IHRoZSBSUGldCj4KPiBBbSAwNy4xMi4xOCB1bSAx
+NDozNiBzY2hyaWViIFNlcmdleSBTdWxvZXY6Cj4+IEdyZWV0aW5ncywKPj4KPj4gSSBhbSBkZWFs
+aW5nIHdpdGggYSBjdXN0b20gaGFyZHdhcmUgYmFzZWQgb24gUlBJM0IgcnVubmluZyBrZXJuZWwg
+NC4xOQo+PiAob3IgNC4yMCkuCj4+IE15IGRldmljZSBoYXMgMiBzbGF2ZXMgb24gSTJDwqAgYnVz
+OiBjb2RlYyBXTTg3MzEgKG9uIGFkZHJlc3MgMHgxYSkgYW5kCj4+IGNsb2NrIGdlbmVyYXRvciBz
+aTUzNTFhIChvbiAweDYwKS4KPj4KPj4gSXQgaGFzIGJlZW4gYSBsb3Qgb2YgdGltZSBmb3IgbWUg
+ZmlnaHRpbmcgd2l0aCBhbiBJMkMgaXNzdWUgd2hpY2ggZG9lcwo+PiBub3QgYWxsb3cgdGhlIHR3
+byBJMkMgZGV2aWNlcyB3b3JrIGNvcnJlY3RseSB0b2dldGhlcjogSTJDIGJ1cyBoYW5ncwo+PiB1
+cCBhdCBrZXJuZWwgYm9vdC4KPiBDb3VsZCB5b3UgZ2l2ZSBzb21lIGtlcm5lbCBtZXNzYWdlIG9y
+IHNvbWUgbWVhc3VyZW1lbnRzIG9mIHRoZSBJMkMgbGluZQo+IHN0YXRlcz8KCgpJIHdpbGwgcHJv
+dmlkZSBkbWVzZyBhcyBzb29uIGFzIEkgZ2V0IHRvIG15IG1hY2hpbmUuCkFuZCB3aGF0IG1lYXN1
+cmVtZW50cyBhcmUgeW91IHRhbGtpbmcgYWJvdXQgPyBJIGhhdmUgYSBsb2dpY2FsIGFuYWx5emVy
+IApoZXJlIGFuZCB0aGVvcmV0aWNhbGx5IGNhbiBnZXQgc29tZSBidXMgc25hcHNob3RzLCBidXQg
+SSBkb24ndCBrbm93IHdoYXQgCkkgc2hvdWxkIGxvb2sgZm9yLgoKCj4+IFRoZSBpc3N1ZSBoYXBw
+ZW5zIGluIDUwLTcwJSBib290IGNhc2VzIGFuZCB0aGUgZmFpbCBwZXJjZW50YWdlCj4+IG5vdGlj
+ZWFibHkgZGVwZW5kcyBvbsKgIHRoZSBidXMgY2xvY2sgc2V0IGluIERUUzogdGhlIG1vcmUgZnJl
+cXVlbmN5Cj4+IHNldCB0aGUgbGVzcyBmYWlsIHBlcmNlbnRhZ2UuCj4gSSBhc3N1bWUgeW91IGRv
+bid0IHVzZSB0aGUgZG93bnN0cmVhbSBjcHVmcmVxIGRyaXZlciwgd2hpY2ggY291bGQKPiBnZW5l
+cmF0ZSBpbnRlcmZlcmVuY2VzIG9uIHRoZSBjbG9jay4KCgpObywgaXQgaXMgMTAwJSBkaXNhYmxl
+ZCBhcyB5b3UgbWVudGlvbmVkIHRoaXMgcHJvYmxlbSBiZWZvcmUgaW4gZ2l0aHViIAp0aHJlYWQu
+CgoKPj4gVGhlIGtlcm5lbCBpdHNlbGYgbG9hZHMgc3VjY2Vzc2Z1bGx5LCBJIGNhbiBzc2ggdG8g
+dGhlIFJQSSBpbiBvcmRlciB0bwo+PiBpc3N1ZSAiaTJjZGV0ZWN0IC15IDAiIGFuZCBtYWtlIHN1
+cmUgdGhhdCBJMkMgYnVzIGlzIGxvY2tlZCBjb21wbGV0ZWx5Cj4+IGFuZCBub3QgcmVzcG9uZGlu
+Zy4KPj4KPiBBRkFJSyB0aGlzIEkyQzAgaXMgc2hhcmVkIHdpdGggdGhlIFZpZGVvQ29yZS4gRGlk
+IHlvdSBhbHJlYWR5IHRyaWVkIEkyQzEKPiB3aGljaCBzaG91bGQgYmUgZXhjbHVzaXZlIGZvciB0
+aGUgQVJNIGNvcmUocyk/CgpJIGFtIGF3YXJlIG9mIHRoYXQuIEluIG15IHN5c3RlbSAwIG1lYW5z
+IGkyYzEuCkhhcmQgdG8gc2F5IHdoYXQgZXhhY3RseSBpbiBkZXZpY2UgdHJlZSBpcyBtYW5hZ2lu
+ZyB0aGlzIGJ1dCBJIGNhbid0IAphY2Nlc3MgaTJjMCB3aXRoIGkyY2RldGVjdCwgaS5lLiBpdCBp
+cyBraW5kYSBkaXNhYmxlZC4gSSBjYW4gYWNjZXNzIHR3byAKaTJjIGJ1c3NlcyAocHJvYmFibHkg
+aTJjMSBhbmQgaTJjMikgYW5kIDAgaXMgYXNzaWduZWQgdG8gdGhlIG9uZSAKY29ubmVjdGVkIHRv
+IEdQSU8gMiAmIDMuCgo+IFN0ZWZhbgo+Cj4+IFNvIGZhciBJIGhhdmUgZm91bmQgdGhlIG9ubHkg
+d2F5IHRvIG1ha2UgaXQgd29yayA6wqAgdG8gY29tcGlsZSBzaTUzNTFhCj4+IGRyaXZlciBpbnRv
+IGtlcm5lbCBhbmQgdXNlIHdtODczMSBkcml2ZXIgYXMgYSBtb2R1bGUuCj4+IFRoaXMgcHJvYmFi
+bHkgbWFrZXMgdGhlIGNsb2NrIGRyaXZlciBsb2FkIDEwMCUgYmVmb3JlIHRoZSBjb2RlYyBhbmQK
+Pj4gSTJDIGJ1cyBkb2VzIG5vdCBoYW5nIHVwLgo+PiBTaW5jZSBpdCBjYW4gYmUgZml4ZWQgdGhp
+cyB3YXkgdGhlIHByb2JsZW0gcmVhbGx5IGxvb2tzIGxpa2UgYSAicmFjZQo+PiBjb25kaXRpb24i
+IGluIEkyQyBidXMvZHJpdmVyLgo+Pgo+PiBXb3VsZCBiZSByZWFsbHkgbmljZSB0byBrbm93IHlv
+dXIgb3BpbmlvbiBhbmQgcG9zc2libGUgd2F5cyB0byBmaXggdGhpcy4KPj4KPj4KPj4gQmVzdCBy
+ZWdhcmRzLAo+Pgo+PiBTZXJnZXkKPj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fCmxpbnV4LXJwaS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LXJwaS1r
+ZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL2xpbnV4LXJwaS1rZXJuZWwK
