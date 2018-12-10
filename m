@@ -1,53 +1,36 @@
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: Re: [PATCH v2 2/4] i2c: Add Actions Semiconductor Owl family S700
- I2C support
-Date: Mon, 10 Dec 2018 19:23:09 +0530
-Message-ID: <20181210135309.GD25368@Mani-XPS-13-9360>
-References: <20181126185821.2480449-1-pn@denx.de>
- <20181126185821.2480449-3-pn@denx.de>
+From: "Adamski, Krzysztof (Nokia - PL/Wroclaw)"
+        <krzysztof.adamski@nokia.com>
+Subject: [PATCH 0/3] i2c-axxia: support Sequence command
+Date: Mon, 10 Dec 2018 15:00:17 +0000
+Message-ID: <cover.1544453688.git.krzysztof.adamski@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181126185821.2480449-3-pn@denx.de>
+Content-Language: en-US
+Content-ID: <C803EC27A8711D44BDD9335C563E21C2@eurprd07.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Parthiban Nallathambi <pn@denx.de>
-Cc: afaerber@suse.de, robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux@cubietech.com, thomas.liau@actions-semi.com
+To: Wolfram Sang <wsa@the-dreams.de>, "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Guenter Roeck <linux@roeck-us.net>, Tobias Jordan <Tobias.Jordan@elektrobit.com>, Peter Rosin <peda@axentia.se>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Nov 26, 2018 at 07:58:19PM +0100, Parthiban Nallathambi wrote:
-> Add S700 to the list of devices supported by Owl I2C driver.
-> 
-> Add Actions Semiconductor Owl family S900 I2C driver.
+Hi Woflram,
 
-S700 ;-)
+This patch was based on your i2c/for-current branch as it adds to my
+patch you incuded there. First two patches are just preparations and the
+3rd one which is the actual change. It allows us using hardware mode to
+send i2c transfers consisting for a write followed by read without the
+need of the CPU interaction inbetween which is an opportunity to trigger
+25ms SMbus timeout and abort transaction.
 
-> 
-> Signed-off-by: Parthiban Nallathambi <pn@denx.de>
+--------------------------------------------------------------------
+Krzysztof Adamski (3):
+  i2c-axxia: dedicated function to set client addr
+  i2c-axxia: check for error conditions first
+  i2c-axxia: support sequence command mode
 
-With the change in subject,
+ drivers/i2c/busses/i2c-axxia.c | 159 ++++++++++++++++++++++++++-------
+ 1 file changed, 126 insertions(+), 33 deletions(-)
 
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-
-Cheers,
-Mani
-
-> ---
->  drivers/i2c/busses/i2c-owl.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-owl.c b/drivers/i2c/busses/i2c-owl.c
-> index 96b4572e6d9c..b6b5a495118b 100644
-> --- a/drivers/i2c/busses/i2c-owl.c
-> +++ b/drivers/i2c/busses/i2c-owl.c
-> @@ -475,6 +475,7 @@ static int owl_i2c_probe(struct platform_device *pdev)
->  }
->  
->  static const struct of_device_id owl_i2c_of_match[] = {
-> +	{ .compatible = "actions,s700-i2c" },
->  	{ .compatible = "actions,s900-i2c" },
->  	{ /* sentinel */ }
->  };
-> -- 
-> 2.17.2
-> 
+--=20
+2.17.2
