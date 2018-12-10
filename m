@@ -1,57 +1,55 @@
-From: <Tudor.Ambarus@microchip.com>
-Subject: [PATCH v2 2/2] i2c: at91: Save the bus clock frequency in adapter
-Date: Mon, 10 Dec 2018 08:41:23 +0000
-Message-ID: <20181210084111.6938-3-tudor.ambarus@microchip.com>
-References: <20181210084111.6938-1-tudor.ambarus@microchip.com>
+From: Parthiban Nallathambi <pn@denx.de>
+Subject: Re: [PATCH v2 0/4] Add Actions Semi Owl family S700 I2C support
+Date: Mon, 10 Dec 2018 12:25:37 +0100
+Message-ID: <5434a04c-a492-a7a5-9783-383947b6d1fb@denx.de>
+References: <20181126185821.2480449-1-pn@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181210084111.6938-1-tudor.ambarus@microchip.com>
+In-Reply-To: <20181126185821.2480449-1-pn@denx.de>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: Nicolas.Ferre@microchip.com, Ludovic.Desroches@microchip.com, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Tudor.Ambarus@microchip.com
+To: afaerber@suse.de, manivannan.sadhasivam@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de
+Cc: pn@denx.de, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux@cubietech.com, thomas.liau@actions-semi.com, linux-actions@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
+Ping on this patch series!
 
-The clock-frequency property is not mandatory for the i2c buses. If it's
-not present in the device tree, the buses __usually__ assume it's 100kHZ
-(see altera, at91, axxia, etc.). Broadcom uses a 375kHZ default
-clock-frequency, so the default clock frequency varies from bus to bus.
+On 11/26/18 7:58 PM, Parthiban Nallathambi wrote:
+> This patch series adds support for Actions Semi Owl SoC family S700
+> I2C controller. S700 provides 4 I2C masters and with cubieboard7
+> 2 (I2C0 and I2C1) are exposed.
+> 
+> Added pinctrl definition for I2C controllers in cubieboard7. This patch
+> depends on s700 pinctrl driver support (yet to be merged),
+> https://lkml.org/lkml/2018/11/19/514
+> https://lore.kernel.org/patchwork/patch/1012859/
+> 
+> Changelog in v2:
+> - Initial version https://lore.kernel.org/patchwork/patch/1011911/ only
+> added the I2C nodes using s900 compatible property. Now, new s700
+> compatiable string is added and used for S700
+> - Device tree bindings added with s700 compatible string
+> - pinctrl definition for cubieboard7
+> 
+> Parthiban Nallathambi (4):
+>    dt-bindings: i2c: Add S700 support for Actions Semi Soc's
+>    i2c: Add Actions Semiconductor Owl family S700 I2C support
+>    arm64: dts: actions: s700: Add I2C controller nodes
+>    arm64: dts: actions: s700-cubieboard7: Enable I2C0 and I2C1
+> 
+>   .../devicetree/bindings/i2c/i2c-owl.txt       |  2 +-
+>   .../boot/dts/actions/s700-cubieboard7.dts     | 53 +++++++++++++++++++
+>   arch/arm64/boot/dts/actions/s700.dtsi         | 40 ++++++++++++++
+>   drivers/i2c/busses/i2c-owl.c                  |  1 +
+>   4 files changed, 95 insertions(+), 1 deletion(-)
+> 
 
-There are i2c clients that need to know the bus clock frequency in order to
-compute their wake token (see atecc508a i2c client).
+-- 
+Thanks,
+Parthiban N
 
-The clock-frequency value has to be propagated to the i2c clients, otherwis=
-e,
-if they will not find the i2c bus clock frequency in the device tree, they
-will have to make their own assumption of the clock frequency.
-
-Spare the i2c clients of making wrong assumptions of the i2c bus clock
-frequency and provide the bus clock frequency in adapter.
-
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
----
-v2: no change
-
- drivers/i2c/busses/i2c-at91.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 3f3e8b3bf5ff..9aa0937817ac 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -1124,6 +1124,7 @@ static int at91_twi_probe(struct platform_device *pde=
-v)
- 	dev->adapter.quirks =3D &at91_twi_quirks;
- 	dev->adapter.dev.parent =3D dev->dev;
- 	dev->adapter.nr =3D pdev->id;
-+	dev->adapter.bus_freq_hz =3D bus_clk_rate;
- 	dev->adapter.timeout =3D AT91_I2C_TIMEOUT;
- 	dev->adapter.dev.of_node =3D pdev->dev.of_node;
-=20
---=20
-2.9.4
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+Phone: (+49)-8142-66989-22 Fax: (+49)-8142-66989-80 Email: pn@denx.de
