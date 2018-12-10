@@ -1,87 +1,99 @@
 From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: Re: [PATCH v2 3/4] arm64: dts: actions: s700: Add I2C controller
- nodes
-Date: Mon, 10 Dec 2018 19:17:38 +0530
-Message-ID: <20181210134738.GB25368@Mani-XPS-13-9360>
+Subject: Re: [PATCH v2 4/4] arm64: dts: actions: s700-cubieboard7: Enable
+ I2C0 and I2C1
+Date: Mon, 10 Dec 2018 19:20:44 +0530
+Message-ID: <20181210135044.GC25368@Mani-XPS-13-9360>
 References: <20181126185821.2480449-1-pn@denx.de>
- <20181126185821.2480449-4-pn@denx.de>
+ <20181126185821.2480449-5-pn@denx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181126185821.2480449-4-pn@denx.de>
+In-Reply-To: <20181126185821.2480449-5-pn@denx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Parthiban Nallathambi <pn@denx.de>
 Cc: afaerber@suse.de, robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux@cubietech.com, thomas.liau@actions-semi.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Nov 26, 2018 at 07:58:20PM +0100, Parthiban Nallathambi wrote:
-> Add I2C controller nodes for Actions Semiconductor S700 SoC.
+Hi Parthiban,
+
+On Mon, Nov 26, 2018 at 07:58:21PM +0100, Parthiban Nallathambi wrote:
+> Add pinctrl definitions for Actions Semiconductor S700 I2C controllers.
+> Pinctrl definitions are only available for I2C0, I2C1 and I2C2.
+> Enable I2C0 (PMIC), I2C1 (gyro, touchscreen) in cubieboard7.
 > 
 > Signed-off-by: Parthiban Nallathambi <pn@denx.de>
+> ---
+>  .../boot/dts/actions/s700-cubieboard7.dts     | 53 +++++++++++++++++++
+>  1 file changed, 53 insertions(+)
+> 
+> diff --git a/arch/arm64/boot/dts/actions/s700-cubieboard7.dts b/arch/arm64/boot/dts/actions/s700-cubieboard7.dts
+> index 28f3f4a0f7f0..6a75fdd7ab42 100644
+> --- a/arch/arm64/boot/dts/actions/s700-cubieboard7.dts
+> +++ b/arch/arm64/boot/dts/actions/s700-cubieboard7.dts
+> @@ -37,3 +37,56 @@
+>  &uart3 {
+>  	status = "okay";
+>  };
+> +
+> +&i2c0 {
 
-Ideally, dts patches should come before driver.
+On the board DTS, node names should be sorted alphabetically!
 
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-
-Cheers,
+Regards,
 Mani
 
-> ---
->  arch/arm64/boot/dts/actions/s700.dtsi | 40 +++++++++++++++++++++++++++
->  1 file changed, 40 insertions(+)
-> 
-> diff --git a/arch/arm64/boot/dts/actions/s700.dtsi b/arch/arm64/boot/dts/actions/s700.dtsi
-> index 192c7b39c8c1..35fddba2af1c 100644
-> --- a/arch/arm64/boot/dts/actions/s700.dtsi
-> +++ b/arch/arm64/boot/dts/actions/s700.dtsi
-> @@ -174,6 +174,46 @@
->  			#clock-cells = <1>;
->  		};
->  
-> +		i2c0: i2c@e0170000 {
-> +			compatible = "actions,s700-i2c";
-> +			reg = <0 0xe0170000 0 0x1000>;
-> +			clocks = <&cmu CLK_I2C0>;
-> +			interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +			status = "disabled";
-> +		};
+> +	status = "okay";
+> +	pinctrl-names = "default";
+> +	pinctrl-0 = <&i2c0_default>;
+> +};
 > +
-> +		i2c1: i2c@e0174000 {
-> +			compatible = "actions,s700-i2c";
-> +			reg = <0 0xe0174000 0 0x1000>;
-> +			clocks = <&cmu CLK_I2C1>;
-> +			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +			status = "disabled";
-> +		};
+> +&i2c1 {
+> +	status = "okay";
+> +	pinctrl-names = "default";
+> +	pinctrl-0 = <&i2c1_default>;
+> +};
 > +
-> +		i2c2: i2c@e0178000 {
-> +			compatible = "actions,s700-i2c";
-> +			reg = <0 0xe0178000 0 0x1000>;
-> +			clocks = <&cmu CLK_I2C2>;
-> +			interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +			status = "disabled";
-> +		};
+> +&i2c2 {
+> +	status = "disabled";
+> +	pinctrl-names = "default";
+> +	pinctrl-0 = <&i2c2_default>;
+> +};
 > +
-> +		i2c3: i2c@e017c000 {
-> +			compatible = "actions,s700-i2c";
-> +			reg = <0 0xe017c000 0 0x1000>;
-> +			clocks = <&cmu CLK_I2C3>;
-> +			interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +			status = "disabled";
+> +&pinctrl {
+> +	i2c0_default: i2c0_default {
+> +		pinmux {
+> +			groups = "i2c0_mfp";
+> +			function = "i2c0";
 > +		};
+> +		pinconf {
+> +			pins = "i2c0_sclk", "i2c0_sdata";
+> +			bias-pull-up;
+> +		};
+> +	};
 > +
->  		sps: power-controller@e01b0100 {
->  			compatible = "actions,s700-sps";
->  			reg = <0x0 0xe01b0100 0x0 0x100>;
+> +	i2c1_default: i2c1_default {
+> +		pinmux {
+> +			groups = "i2c1_dummy";
+> +			function = "i2c1";
+> +		};
+> +		pinconf {
+> +			pins = "i2c1_sclk", "i2c1_sdata";
+> +			bias-pull-up;
+> +		};
+> +	};
+> +
+> +	i2c2_default: i2c2_default {
+> +		pinmux {
+> +			groups = "i2c2_dummy";
+> +			function = "i2c2";
+> +		};
+> +		pinconf {
+> +			pins = "i2c2_sclk", "i2c2_sdata";
+> +			bias-pull-up;
+> +		};
+> +	};
+> +};
 > -- 
 > 2.17.2
 > 
