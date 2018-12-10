@@ -1,53 +1,48 @@
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: Re: [RFC/RFT 03/10] i2c: synquacer: remove unused is_suspended flag
-Date: Mon, 10 Dec 2018 22:04:06 +0100
-Message-ID: <CAKv+Gu9uGxTjBhAD3WyQBohhZ=bswXOoo4waTetArrS601_LJQ@mail.gmail.com>
-References: <20181210210310.12677-1-wsa+renesas@sang-engineering.com> <20181210210310.12677-4-wsa+renesas@sang-engineering.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [RFC/RFT 10/10] i2c: rcar: add suspend/resume support
+Date: Mon, 10 Dec 2018 21:52:07 +0000
+Message-ID: <944a2523-aa40-eaf2-2c4a-d27254e7cbca@axentia.se>
+References: <20181210210310.12677-1-wsa+renesas@sang-engineering.com>
+ <20181210210310.12677-11-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181210210310.12677-4-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20181210210310.12677-11-wsa+renesas@sang-engineering.com>
+Content-Language: en-US
+Content-ID: <982E3174F51E754C9161B38295326863@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa+renesas@sang-engineering.com
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, linux-pm <linux-pm@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Hiromitsu Yamasaki <hiromitsu.yamasaki.ym@renesas.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 10 Dec 2018 at 22:03, Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
->
-> This flag was defined and checked but never set a value. Remove it.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-
-> ---
->  drivers/i2c/busses/i2c-synquacer.c | 5 -----
->  1 file changed, 5 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-synquacer.c b/drivers/i2c/busses/i2c-synquacer.c
-> index 2184b7c3580e..d18b0941b71a 100644
-> --- a/drivers/i2c/busses/i2c-synquacer.c
-> +++ b/drivers/i2c/busses/i2c-synquacer.c
-> @@ -144,8 +144,6 @@ struct synquacer_i2c {
->         u32                     timeout_ms;
->         enum i2c_state          state;
->         struct i2c_adapter      adapter;
-> -
-> -       bool                    is_suspended;
->  };
->
->  static inline int is_lastmsg(struct synquacer_i2c *i2c)
-> @@ -316,9 +314,6 @@ static int synquacer_i2c_doxfer(struct synquacer_i2c *i2c,
->         unsigned long timeout;
->         int ret;
->
-> -       if (i2c->is_suspended)
-> -               return -EBUSY;
-> -
->         synquacer_i2c_hw_init(i2c);
->         bsr = readb(i2c->base + SYNQUACER_I2C_REG_BSR);
->         if (bsr & SYNQUACER_I2C_BSR_BB) {
-> --
-> 2.11.0
->
+T24gMjAxOC0xMi0xMCAyMjowMywgV29sZnJhbSBTYW5nIHdyb3RlOg0KPiBCZWNhdXNlIHRoZSBh
+ZGFwdGVyIHdpbGwgYmUgc2V0IHVwIGJlZm9yZSBldmVyeSB0cmFuc2FjdGlvbiBhbnlob3csIHdl
+DQo+IGp1c3QgbmVlZCB0byBtYXJrIGl0IGFzIGFkYXB0ZWQgdG8gdGhlIEkyQyBjb3JlLg0KDQpt
+YXJrIGl0IGFzICJzdXNwZW5kZWQiLCBub3QgImFkYXB0ZWQiPw0KDQpDaGVlcnMsDQpQZXRlcg0K
+DQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBIaXJvbWl0c3UgWWFtYXNha2kgPGhpcm9taXRzdS55YW1h
+c2FraS55bUByZW5lc2FzLmNvbT4NCj4gU2lnbmVkLW9mZi1ieTogV29sZnJhbSBTYW5nIDx3c2Er
+cmVuZXNhc0BzYW5nLWVuZ2luZWVyaW5nLmNvbT4NCj4gLS0tDQo+ICBkcml2ZXJzL2kyYy9idXNz
+ZXMvaTJjLXJjYXIuYyB8IDI1ICsrKysrKysrKysrKysrKysrKysrKysrKysNCj4gIDEgZmlsZSBj
+aGFuZ2VkLCAyNSBpbnNlcnRpb25zKCspDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMv
+YnVzc2VzL2kyYy1yY2FyLmMgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLXJjYXIuYw0KPiBpbmRl
+eCAyNTRlNjIxOWU1MzguLjMwY2ZmMDY2ZTBkYSAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9pMmMv
+YnVzc2VzL2kyYy1yY2FyLmMNCj4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1yY2FyLmMN
+Cj4gQEAgLTEwMTcsMTAgKzEwMTcsMzUgQEAgc3RhdGljIGludCByY2FyX2kyY19yZW1vdmUoc3Ry
+dWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4gIAlyZXR1cm4gMDsNCj4gIH0NCj4gIA0KPiAr
+I2lmZGVmIENPTkZJR19QTV9TTEVFUA0KPiArc3RhdGljIGludCByY2FyX2kyY19zdXNwZW5kKHN0
+cnVjdCBkZXZpY2UgKmRldikNCj4gK3sNCj4gKwlzdHJ1Y3QgcmNhcl9pMmNfcHJpdiAqcHJpdiA9
+IGRldl9nZXRfZHJ2ZGF0YShkZXYpOw0KPiArDQo+ICsJaTJjX21hcmtfYWRhcHRlcl9zdXNwZW5k
+ZWQoJnByaXYtPmFkYXAsIHRydWUpOw0KPiArCXJldHVybiAwOw0KPiArfQ0KPiArDQo+ICtzdGF0
+aWMgaW50IHJjYXJfaTJjX3Jlc3VtZShzdHJ1Y3QgZGV2aWNlICpkZXYpDQo+ICt7DQo+ICsJc3Ry
+dWN0IHJjYXJfaTJjX3ByaXYgKnByaXYgPSBkZXZfZ2V0X2RydmRhdGEoZGV2KTsNCj4gKw0KPiAr
+CWkyY19tYXJrX2FkYXB0ZXJfc3VzcGVuZGVkKCZwcml2LT5hZGFwLCBmYWxzZSk7DQo+ICsJcmV0
+dXJuIDA7DQo+ICt9DQo+ICsNCj4gK3N0YXRpYyBTSU1QTEVfREVWX1BNX09QUyhyY2FyX2kyY19w
+bV9vcHMsIHJjYXJfaTJjX3N1c3BlbmQsIHJjYXJfaTJjX3Jlc3VtZSk7DQo+ICsNCj4gKyNkZWZp
+bmUgREVWX1BNX09QUyAoJnJjYXJfaTJjX3BtX29wcykNCj4gKyNlbHNlDQo+ICsjZGVmaW5lIERF
+Vl9QTV9PUFMgTlVMTA0KPiArI2VuZGlmIC8qIENPTkZJR19QTV9TTEVFUCAqLw0KPiArDQo+ICBz
+dGF0aWMgc3RydWN0IHBsYXRmb3JtX2RyaXZlciByY2FyX2kyY19kcml2ZXIgPSB7DQo+ICAJLmRy
+aXZlcgk9IHsNCj4gIAkJLm5hbWUJPSAiaTJjLXJjYXIiLA0KPiAgCQkub2ZfbWF0Y2hfdGFibGUg
+PSByY2FyX2kyY19kdF9pZHMsDQo+ICsJCS5wbQk9IERFVl9QTV9PUFMsDQo+ICAJfSwNCj4gIAku
+cHJvYmUJCT0gcmNhcl9pMmNfcHJvYmUsDQo+ICAJLnJlbW92ZQkJPSByY2FyX2kyY19yZW1vdmUs
+DQo+IA0KDQo=
