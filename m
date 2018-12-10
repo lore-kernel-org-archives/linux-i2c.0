@@ -1,121 +1,46 @@
-From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: Re: [PATCH v3] i2c: mux: remove duplicated i2c_algorithm
-Date: Sun, 9 Dec 2018 22:46:19 +0100
-Message-ID: <b35ced90-a905-7bd9-e9d4-4b5e6a0207c4@lucaceresoli.net>
-References: <20181003151928.17713-1-lucaceresoli77@gmail.com>
- <99cfa6a2-9a60-6bdd-2542-9dd78af75758@axentia.se>
- <70c48ade-b2ac-dde8-4b3e-aa4b2f19940a@gmail.com>
- <205e1d73-2318-ecd4-c531-3ff18a0e0005@lucaceresoli.net>
- <55ea59c5-ac9b-ab78-e3a1-edaed099ca15@axentia.se>
+From: <Tudor.Ambarus@microchip.com>
+Subject: [PATCH v2 0/2] i2c: enable buses to save their clock frequency in
+ adapter
+Date: Mon, 10 Dec 2018 08:41:19 +0000
+Message-ID: <20181210084111.6938-1-tudor.ambarus@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <55ea59c5-ac9b-ab78-e3a1-edaed099ca15@axentia.se>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Luca Ceresoli <lucaceresoli77@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
+To: wsa@the-dreams.de
+Cc: Nicolas.Ferre@microchip.com, Ludovic.Desroches@microchip.com, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Tudor.Ambarus@microchip.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Peter,
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-after some pondering, find below my reply.
+The clock-frequency property is not mandatory for the i2c buses. If it's
+not present in the device tree, the buses __usually__ assume it's 100kHZ
+(see altera, at91, axxia, etc.). Broadcom uses a 375kHZ default
+clock-frequency, so the default clock frequency varies from bus to bus.
 
-On 27/11/18 19:51, Peter Rosin wrote:
-> On 2018-11-18 12:13, Luca Ceresoli wrote:
->> Hi Peter,
->>
->> On 10/10/18 17:48, Luca Ceresoli wrote:
->>> Hi Peter,
->>>
->>> On 08/10/2018 23:43, Peter Rosin wrote:
->>>> On 2018-10-03 17:19, Luca Ceresoli wrote:
->>>>> From: Luca Ceresoli <luca@lucaceresoli.net>
->>>>>
->>>>> i2c-mux instantiates one i2c_algorithm for each downstream adapter.
->>>>> However these algorithms are all identical, depending only on the
->>>>> parent adapter.
->>>>>
->>>>> Avoid duplication by hoisting the i2c_algorithm from the adapters to
->>>>> the i2c_mux_core object, and reuse it in all the adapters.
->>>>
->>>> Ouch, while I like the concept of having one i2c_algorithm per mux,
->>>> this patch is not working. Various i2c-mux drivers set the
->>>> muxc->mux_locked variable *after* the i2c_mux_alloc call, and this
->>>> patch breaks such use.
->>
->> I finally had a look into this issue. Three drivers are setting
->> mux_locked after i2c_mux_alloc: i2c-mux-gpmux, i2c-mux-gpio and
->> i2c-mux-pinctrl.
->>
->> i2c-mux-gpmux is trivial to fix.
->>
->> The other two are not trivial because:
->>
->>  1. they compute mux_locked from other variables
->>  2. those variables are stored in the drivers "private" data
->>  3. their private data is stored inside struct i2c_mux_core
->>     (muxc->priv) which exists only after i2c_mux_alloc()
->>
->> In those cases computing mux_locked before i2c_mux_alloc() involves
->> quite invasive changes. It took 3 non-trivial commits just for
->> i2c-mux-gpio, and I still have to look into i2c-mux-pinctrl.
->>
->> So the question is: do we really want to do this?
->>
->> Using the private storage provided by i2c_mux_alloc() is a handy
->> feature, at least for simpler drivers which know in advance the flags
->> they need to set. OTOH I don't like individual drivers to manipulate
->> mux_core flags that look very much like internal data. It makes any
->> change to the i2c mux core harder, since every changed line could have
->> side effects in some drivers, which is what's happening here.
->>
->> What's your opinion about this issue?
-> 
-> I obviously don't like that drivers are poking around in struct
-> i2c_mux_core.
-> 
-> But, your description sounds precisely how I remembered it. The
-> underlying problem is of course that i2c-mux-gpio and
-> i2c-mux-pinctrl do really nasty digs into internal parts of the
-> gpio and the pinctrl subsystems as they *try* to figure out if
-> they should be mux-locked or parent-locked. The result of that
-> digging is not completely reliable, but it solves the issue
-> without help from device-tree properties in at least one case
-> that I know about. However, for that case I also know that there
-> is no risk of regression since I control the distribution of
-> both kernel and .dtb for any upgrade. Anyway, it was done like
-> it was since I at the time did not dare to question the feedback
-> from the device-tree camp, and actually thought it was a good
-> thing, and thus did not push for a device-tree property when
-> Rob complained about the property not describing HW and instead
-> was just working around kernel issues [1]. The mux-locked vs.
-> parent-locked property has been added since. In retrospect, the
-> whole attempt to auto-detect mux-locked or parent-locked was a
-> mistake, and everything would have been so much easier if the
-> device-tree could always just state what the requirement is. At
-> least that's my current thoughts on the matter. Maybe we should
-> attempt to remove the ugly auto-detect code and see if anyone
-> complains?
+There are i2c clients that need to know the bus clock frequency in order to
+compute their wake token (see atecc508a i2c client).
 
-I'd love to remove that code, but this would change existing behavior,
-and the change would go unnoticed until something breaks. Scary.
+The clock-frequency value has to be propagated to the i2c clients, otherwis=
+e,
+if they will not find the i2c bus clock frequency in the device tree, they
+will have to make their own assumption of the clock frequency.
 
-What about requiring that either "mux-locked" or "parent-locked" is
-specified in DT? If none is specified, the driver would fail loudly at
-probe time and users would stop and fix their DT. Then of course they
-need to _upgrade_ their DT in existing products.
+Spare the i2c clients of making wrong assumptions of the i2c bus clock
+frequency and enable the buses to save their clock frequency in adapter.
 
-> But of course, another aspect is that not everything is DT, so
-> perhaps there is no clean solution?
+v2: fix typo in R-b tag
+since rfc: reword commit messages
 
-Well, platform code would have to be changed like DT, adding 2 flags:
-mux-locked and parent-locked, and exactly one must be set.
+Tudor Ambarus (2):
+  i2c: enable buses to save their clock frequency in adapter
+  i2c: at91: Save the bus clock frequency in adapter
 
-This seems to me the safest path. Do you think it is a good idea,
-especially with respect to the device tree camp?
+ drivers/i2c/busses/i2c-at91.c | 1 +
+ include/linux/i2c.h           | 1 +
+ 2 files changed, 2 insertions(+)
 
-Thanks,
--- 
-Luca
+--=20
+2.9.4
