@@ -1,54 +1,64 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 4/5] dt-bindings: i2c: Add Mediatek MT8183 i2c binding
-Date: Tue, 11 Dec 2018 21:29:31 +0100
-Message-ID: <20181211202931.xav4gzi7rzh2scgx@ninjato>
-References: <1543843974-4054-1-git-send-email-qii.wang@mediatek.com>
- <1543843974-4054-5-git-send-email-qii.wang@mediatek.com>
+Subject: Re: [PATCH 0/2] i2c: meson: add support for Meson G12A SoC i2c
+ controller
+Date: Tue, 11 Dec 2018 21:36:53 +0100
+Message-ID: <20181211203652.rogajl4ajwu7cs6f@ninjato>
+References: <1543489197-183181-1-git-send-email-jian.hu@amlogic.com>
+ <8a6a204b28523e5a181f9e85dda18fade76a26a3.camel@baylibre.com>
+ <b2bceaf4-92ce-92a4-c382-713d29ae3b70@amlogic.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="qookkrqmaew3bmbg"
+        protocol="application/pgp-signature"; boundary="r6j4ocolv5vcwqhy"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1543843974-4054-5-git-send-email-qii.wang@mediatek.com>
+In-Reply-To: <b2bceaf4-92ce-92a4-c382-713d29ae3b70@amlogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: qii.wang@mediatek.com
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, ryder.lee@mediatek.com
+To: Jian Hu <jian.hu@amlogic.com>
+Cc: Jerome Brunet <jbrunet@baylibre.com>, Neil Armstrong <narmstrong@baylibre.com>, Kevin Hilman <khilman@baylibre.com>, Carlo Caione <carlo@caione.org>, Rob Herring <robh@kernel.org>, Martin Blumenstingl <martin.blumenstingl@googlemail.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jianxin Pan <jianxin.pan@amlogic.com>, Hanjie Lin <hanjie.lin@amlogic.com>, linux-amlogic@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---qookkrqmaew3bmbg
+--r6j4ocolv5vcwqhy
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-> +  - ch-offset: base reg offset for multi-user.
+> I am okay if it is reasonable below in file
+> arch/arm64/boot/dts/amlogic/meson-g12a.dtsi. I2c controller node just uses
+> axg's compatible.
+>=20
+> 			i2c0: i2c@1f000 {
+> 				compatible =3D "amlogic,meson-axg-i2c";
 
-What is "multi-user"? Why can't you add this offset to the reg-property
-directly?
+Actually, you should have
 
-> +  - mediatek,share-i3c: i3c controller can share i2c function.
+	compatible =3D "amlogic,meson-g12a-i2c", "amlogic,meson-axg-i2c";
 
-Please explain in more detail? Is this an I3C controller?
+in the DT to have support for future SoC specific additions. And then,
+patch 1 is needed.
+
+Or do you handle this differently? I'd think this is DT standard.
 
 
---qookkrqmaew3bmbg
+--r6j4ocolv5vcwqhy
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQHisACgkQFA3kzBSg
-Kba9lA//XQcp5LIyZqRaesg1uwwq1/DUnhfyqYK9Hyq5mqOGd+wXFZbvCUWicwwk
-/N7FXIICvbEgzyhzItu4d2m5blloyJiA4rVxPAYo8MihORADU0Eu9qJLwI6XUGUH
-kLe8/GrqWqg8DkGw4xNx7q+QpO52y/Fx7Lit6K2FmCAuMUTU8hkI05Mmm+eFaYGd
-/Wxq2KZTaeDQsT0qLpRXRDi6hVMWamhgfNHO5WPcy32rHAMJ17e6iFOQaOv5FaaZ
-dQmTrp5Wn1mRaKrLKuTACkz5XUqIPNxV/w5ZHWRFyTbEr5zKXdcdcYIPYjNd/bzg
-vkEJR5Ith3YlmjU7YfVPyUBm0y7VGjeDXr+KL4LoVcUD/kbZUT+/GGTmAL5PZvP1
-qatQcUvPiR62LTEi2nZaMjNFwg+9k9BC5WjARRzSi3Ev/2gHA7gwcCgnJEBmwp89
-TaysiINGGxzRzfYnn+wL2ja3lYyJr7iYie9JAqzLHM8Q120KgavZEHyHJCWdOvX8
-sMVcLh6ld03+J8iFtiNJemPiRl4jFMkg0rQs11YeAZJu/H0rVdU2Bvbk1yJ2QaaK
-a22CduYq10DwPPwCrPh4GMGK3Ohi+md5XcUgDTnnc/JVD+hOHSOBtYOHkNp/nYBN
-fnM1q9BoJlE+irfzbAqx64BX+a6rrg5KeAWy+f21+Z7xwCW6gII=
-=ZORW
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQH+QACgkQFA3kzBSg
+KbYghA//e+Y8jxdhjD74FHRwHJedpaaTeb8kDXLWeywBEDsZikyyg521dDLFYodO
+1fm88aVcj21Of70l3aXd5XlRUndSa701Rm/JStWJR6xgHY1wmU0MiuUAINO3XvbE
+90yyjh5gVOonytSaEM1at5rvgsuMknBPDWigRNEbPfQkXckMYyh+Ini2nAvKs5ZB
+GZUNMt1JZcKRdd599coNfhuKPQAxp+SmikdPBJ+H9RSm58IyU8iitPw9AR6JesMM
+7ihWoNOC5REbI8CzCKlYTFM0J8ppRnpJfzAkDKDl18V147TAmXVBQ+hPSDKfTxYH
+VbtZQ9AUPUawMWhTVmt7ZsZuZPmOoPjccsLo+nWqz/db/JDyhyMzjY/46AWl37U2
+b6H55meUJyPVf/AKDY67ey/DpjA00C6URXkOLCelW0vV4qy71hzYgMXGGJ3yWdwi
+4NmJtPpqax3st/K2/mwDQc4humJ+4FeLw9OREsLhdOw++3fRkYr8ZrysJDmNH7yS
+h5cgVTGqE0rtCt9sct8Om88gut//78pusStosThw+nwHbTOL5gsK405OrSQFoe2N
+nitfLq2ISw/njOwajTWSgdUcWa9kkwmTk/UixXjBe8r5VEiv32qmt/Q/K8vmyDES
+O9MOHcWu3slySjEBzXQs519PblIQJCYgUdHVaXwuIStWkHpkO1k=
+=Uiz1
 -----END PGP SIGNATURE-----
 
---qookkrqmaew3bmbg--
+--r6j4ocolv5vcwqhy--
