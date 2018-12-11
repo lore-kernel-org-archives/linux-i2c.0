@@ -1,47 +1,51 @@
-From: "Adamski, Krzysztof (Nokia - PL/Wroclaw)"
-        <krzysztof.adamski@nokia.com>
-Subject: [PATCH] MAINTAINERS: add entry for i2c-axxia driver
-Date: Tue, 11 Dec 2018 09:17:52 +0000
-Message-ID: <20181211091733.GA28051@localhost.localdomain>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] i2c: nvidia-gpu: mark resume function as __maybe_unused
+Date: Tue, 11 Dec 2018 12:50:27 +0200
+Message-ID: <20181211105027.GB10650@smile.fi.intel.com>
+References: <20181210205356.2846843-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
-Content-ID: <AB6064D8B3D89A45A2D1AA3B0E079A5A@eurprd07.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <20181210205356.2846843-1-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Ajay Gupta <ajayg@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Create separate entry for i2c-axxia and set myself as maintainer.
+On Mon, Dec 10, 2018 at 09:53:45PM +0100, Arnd Bergmann wrote:
+> When CONFIG_PM is disabled, this is needed to avoid a harmless
+> unused-function warning:
+> 
+> drivers/i2c/busses/i2c-nvidia-gpu.c:345:12: error: 'gpu_i2c_resume' defined but not used [-Werror=unused-function]
+> 
 
-Even though I don't work for Intel/LSI who is the manufacturer of this
-IP, I do have access to some documentation and the actual hardware using
-this driver and I'm familiar with the code.
+FWIW,
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Signed-off-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
----
- MAINTAINERS | 7 +++++++
- 1 file changed, 7 insertions(+)
+> Fixes: c71bcdcb42a7 ("i2c: add i2c bus driver for NVIDIA GPU")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  drivers/i2c/busses/i2c-nvidia-gpu.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-nvidia-gpu.c b/drivers/i2c/busses/i2c-nvidia-gpu.c
+> index e99c3bb58351..4e67d5ed480e 100644
+> --- a/drivers/i2c/busses/i2c-nvidia-gpu.c
+> +++ b/drivers/i2c/busses/i2c-nvidia-gpu.c
+> @@ -342,7 +342,7 @@ static void gpu_i2c_remove(struct pci_dev *pdev)
+>  	pci_free_irq_vectors(pdev);
+>  }
+>  
+> -static int gpu_i2c_resume(struct device *dev)
+> +static __maybe_unused int gpu_i2c_resume(struct device *dev)
+>  {
+>  	struct gpu_i2c_dev *i2cd = dev_get_drvdata(dev);
+>  
+> -- 
+> 2.20.0
+> 
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 0767f1d1b579..2961b4d0a8e8 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2633,6 +2633,13 @@ S:	Maintained
- F:	Documentation/devicetree/bindings/sound/axentia,*
- F:	sound/soc/atmel/tse850-pcm5142.c
-=20
-+AXXIA I2C CONTROLLER
-+M:	Krzysztof Adamski <krzysztof.adamski@nokia.com>
-+L:	linux-i2c@vger.kernel.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/i2c/i2c-axxia.txt
-+F:	drivers/i2c/busses/i2c-axxia.c
-+
- AZ6007 DVB DRIVER
- M:	Mauro Carvalho Chehab <mchehab@kernel.org>
- L:	linux-media@vger.kernel.org
---=20
-2.17.2
+-- 
+With Best Regards,
+Andy Shevchenko
