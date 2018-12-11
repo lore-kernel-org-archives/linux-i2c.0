@@ -1,51 +1,39 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] i2c: nvidia-gpu: mark resume function as __maybe_unused
-Date: Tue, 11 Dec 2018 12:50:27 +0200
-Message-ID: <20181211105027.GB10650@smile.fi.intel.com>
-References: <20181210205356.2846843-1-arnd@arndb.de>
+From: "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
+Subject: Re: [PATCH] MAINTAINERS: add entry for i2c-axxia driver
+Date: Tue, 11 Dec 2018 11:58:22 +0000
+Message-ID: <44c12ad6-8d22-3e68-9099-6f224917cce3@nokia.com>
+References: <20181211091733.GA28051@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181210205356.2846843-1-arnd@arndb.de>
+In-Reply-To: <20181211091733.GA28051@localhost.localdomain>
+Content-Language: en-US
+Content-ID: <2F9FB8E6E776F844BD18B79C016BAA14@eurprd07.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Ajay Gupta <ajayg@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 10, 2018 at 09:53:45PM +0100, Arnd Bergmann wrote:
-> When CONFIG_PM is disabled, this is needed to avoid a harmless
-> unused-function warning:
-> 
-> drivers/i2c/busses/i2c-nvidia-gpu.c:345:12: error: 'gpu_i2c_resume' defined but not used [-Werror=unused-function]
-> 
-
-FWIW,
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
-> Fixes: c71bcdcb42a7 ("i2c: add i2c bus driver for NVIDIA GPU")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  drivers/i2c/busses/i2c-nvidia-gpu.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-nvidia-gpu.c b/drivers/i2c/busses/i2c-nvidia-gpu.c
-> index e99c3bb58351..4e67d5ed480e 100644
-> --- a/drivers/i2c/busses/i2c-nvidia-gpu.c
-> +++ b/drivers/i2c/busses/i2c-nvidia-gpu.c
-> @@ -342,7 +342,7 @@ static void gpu_i2c_remove(struct pci_dev *pdev)
->  	pci_free_irq_vectors(pdev);
->  }
->  
-> -static int gpu_i2c_resume(struct device *dev)
-> +static __maybe_unused int gpu_i2c_resume(struct device *dev)
->  {
->  	struct gpu_i2c_dev *i2cd = dev_get_drvdata(dev);
->  
-> -- 
-> 2.20.0
-> 
-
--- 
-With Best Regards,
-Andy Shevchenko
+SGkhDQoNCk9uIDExLzEyLzIwMTggMTA6MTcsIEFkYW1za2ksIEtyenlzenRvZiAoTm9raWEgLSBQ
+TC9Xcm9jbGF3KSB3cm90ZToNCj4gQ3JlYXRlIHNlcGFyYXRlIGVudHJ5IGZvciBpMmMtYXh4aWEg
+YW5kIHNldCBteXNlbGYgYXMgbWFpbnRhaW5lci4NCj4gDQo+IEV2ZW4gdGhvdWdoIEkgZG9uJ3Qg
+d29yayBmb3IgSW50ZWwvTFNJIHdobyBpcyB0aGUgbWFudWZhY3R1cmVyIG9mIHRoaXMNCj4gSVAs
+IEkgZG8gaGF2ZSBhY2Nlc3MgdG8gc29tZSBkb2N1bWVudGF0aW9uIGFuZCB0aGUgYWN0dWFsIGhh
+cmR3YXJlIHVzaW5nDQo+IHRoaXMgZHJpdmVyIGFuZCBJJ20gZmFtaWxpYXIgd2l0aCB0aGUgY29k
+ZS4NCg0KU291bmRzIGdvb2QgdG8gbWUsDQpSZXZpZXdlZC1ieTogQWxleGFuZGVyIFN2ZXJkbGlu
+IDxhbGV4YW5kZXIuc3ZlcmRsaW5Abm9raWEuY29tPg0KDQo+IFNpZ25lZC1vZmYtYnk6IEtyenlz
+enRvZiBBZGFtc2tpIDxrcnp5c3p0b2YuYWRhbXNraUBub2tpYS5jb20+DQo+IC0tLQ0KPiAgTUFJ
+TlRBSU5FUlMgfCA3ICsrKysrKysNCj4gIDEgZmlsZSBjaGFuZ2VkLCA3IGluc2VydGlvbnMoKykN
+Cj4gDQo+IGRpZmYgLS1naXQgYS9NQUlOVEFJTkVSUyBiL01BSU5UQUlORVJTDQo+IGluZGV4IDA3
+NjdmMWQxYjU3OS4uMjk2MWI0ZDBhOGU4IDEwMDY0NA0KPiAtLS0gYS9NQUlOVEFJTkVSUw0KPiAr
+KysgYi9NQUlOVEFJTkVSUw0KPiBAQCAtMjYzMyw2ICsyNjMzLDEzIEBAIFM6CU1haW50YWluZWQN
+Cj4gIEY6CURvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9zb3VuZC9heGVudGlhLCoN
+Cj4gIEY6CXNvdW5kL3NvYy9hdG1lbC90c2U4NTAtcGNtNTE0Mi5jDQo+ICANCj4gK0FYWElBIEky
+QyBDT05UUk9MTEVSDQo+ICtNOglLcnp5c3p0b2YgQWRhbXNraSA8a3J6eXN6dG9mLmFkYW1za2lA
+bm9raWEuY29tPg0KPiArTDoJbGludXgtaTJjQHZnZXIua2VybmVsLm9yZw0KPiArUzoJTWFpbnRh
+aW5lZA0KPiArRjoJRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtYXh4
+aWEudHh0DQo+ICtGOglkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWF4eGlhLmMNCj4gKw0KPiAgQVo2
+MDA3IERWQiBEUklWRVINCj4gIE06CU1hdXJvIENhcnZhbGhvIENoZWhhYiA8bWNoZWhhYkBrZXJu
+ZWwub3JnPg0KPiAgTDoJbGludXgtbWVkaWFAdmdlci5rZXJuZWwub3JnDQoNCi0tIA0KQmVzdCBy
+ZWdhcmRzLA0KQWxleGFuZGVyIFN2ZXJkbGluLg0K
