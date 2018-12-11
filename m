@@ -1,64 +1,75 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] dt-bindings: i2c: use correct vendor prefix for atmel's
- at24 EEPROMs
-Date: Tue, 11 Dec 2018 20:49:40 +0100
-Message-ID: <20181211194940.u6ru27qfvrxc3xey@ninjato>
-References: <20181206094550.18082-1-brgl@bgdev.pl>
- <20181206104421.a6njveg72dcguckp@katana>
- <CAMRc=MfRBgF9CSzGb=VMUGiCsFc1B_y=d5yMgPJ3xc0GyytATA@mail.gmail.com>
+Subject: Re: [PATCH 3/3] i2c-axxia: support sequence command mode
+Date: Tue, 11 Dec 2018 21:04:36 +0100
+Message-ID: <20181211200435.abk3jdsmltz7c26w@ninjato>
+References: <cover.1544453688.git.krzysztof.adamski@nokia.com>
+ <8515ba7093f5be3ad7bd31d68efedcbe17958282.1544453688.git.krzysztof.adamski@nokia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="hp3uq3uf7plgsilw"
+        protocol="application/pgp-signature"; boundary="c3m5n2s5rtnxudgq"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAMRc=MfRBgF9CSzGb=VMUGiCsFc1B_y=d5yMgPJ3xc0GyytATA@mail.gmail.com>
+In-Reply-To: <8515ba7093f5be3ad7bd31d68efedcbe17958282.1544453688.git.krzysztof.adamski@nokia.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Thierry Reding <thierry.reding@gmail.com>
+To: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>
+Cc: "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Guenter Roeck <linux@roeck-us.net>, Tobias Jordan <Tobias.Jordan@elektrobit.com>, Peter Rosin <peda@axentia.se>
 List-Id: linux-i2c@vger.kernel.org
 
 
---hp3uq3uf7plgsilw
-Content-Type: text/plain; charset=utf-8
+--c3m5n2s5rtnxudgq
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Dec 07, 2018 at 02:18:15PM +0100, Bartosz Golaszewski wrote:
-> czw., 6 gru 2018 o 11:44 Wolfram Sang <wsa@the-dreams.de> napisa=C5=82(a):
-> >
-> > On Thu, Dec 06, 2018 at 10:45:50AM +0100, Bartosz Golaszewski wrote:
-> > > This is a follow-up to Thierry's patch which missed a few occurences.
-> > >
-> > > Cc: Thierry Reding <thierry.reding@gmail.com>
-> > > Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-> >
-> > Since I dropped Thierry's original patch, I wonder if it is okay with
-> > you to simply squash these hunks into it?
-> >
->=20
-> Yes, feel free to squash those two with my Signed-off-by tag.
+Hi,
 
-Done now, thanks!
+> +static void axxia_i2c_handle_seq_nak(struct axxia_i2c_dev *idev)
+> +{
+> +	while (readl(idev->base + MST_COMMAND) & CMD_BUSY)
+> +		udelay(100);
+> +}
+
+My code checkers rightfully complain about this:
+
+  CHECKPATCH
+CHECK: usleep_range is preferred over udelay; see Documentation/timers/timers-howto.txt
+
+  SMATCH
+drivers/i2c/busses/i2c-axxia.c:382 axxia_i2c_handle_seq_nak() warn: this loop depends on readl() succeeding
+
+(and I get those as well, but not related to your patch; still while I am here)
+
+  GCC
+drivers/i2c/busses/i2c-axxia.c:98: warning: cannot understand function prototype: 'struct axxia_i2c_dev '
+drivers/i2c/busses/i2c-axxia.c:130: warning: Function parameter or member 'ns' not described in 'ns_to_clk'
+drivers/i2c/busses/i2c-axxia.c:130: warning: Function parameter or member 'clk_mhz' not described in 'ns_to_clk'
+drivers/i2c/busses/i2c-axxia.c:229: warning: Function parameter or member 'idev' not described in 'axxia_i2c_empty_rx_fifo'
+drivers/i2c/busses/i2c-axxia.c:261: warning: Function parameter or member 'idev' not described in 'axxia_i2c_fill_tx_fifo'
+
+Also, for $subject, please change the prefix to "i2c: axxia:"
+
+Thanks,
+
+   Wolfram
 
 
---hp3uq3uf7plgsilw
+--c3m5n2s5rtnxudgq
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQFNQACgkQFA3kzBSg
-KbaKUxAApaFbz8HNFCpbawjy/bW1uuTvKOdoPdLY9+KiygbTLqqVAfaKxscKpmA+
-IpKiVyT1UpYFarePvzZ37z5m3+r3Qk72Sy04bK/eJk2dMZ8PYFEaQrCYlTDBOxEu
-Qu3YedaF95i9V1nCZ5JUOOopH03zPYSlSjQRUZfZpBjY9CnYRyV9BVlKmzw8hXH+
-ztOu7omw2EQVB7Xu6qPyX5HL6Yy6qK8SwFbZJca6oezlVnphUoy9kYSSMSSTSLAZ
-yEHzP2oDFQIyKSWy+crCg0kVYm+vjxkCxGtvhuGwCSfMHHuU8X/BWpZx5ObqIe9F
-bMCDmZO4FAq/FRQGGRFN0J/N49d1vklFzy0azGD4o5yTlWDCdJ5kE1y3xHhcn7M3
-7EZIiozo2MBFBqg+ifPlepEysE7WYvw/6KNJCSoeeBs2jILElFbyZbNKqmRb5US/
-x6nU1ZG+BExn+5yGKEiCss5h+0UyDHjYZt4lC3pazhOFsvRP7VgMNYy9/z9+Ui8s
-KhB+fmnRHqKptnQe85SThlD38Ghw5BB5c4sr2rW8yZQO7m5rnGUcRyBxinLziwu/
-DM8gDaR/FzqrMkzZ+BkUjEoymdf3tgAZKdmzAJ+jWxdEhFaJc4sF+wH50K8hUSKx
-o1LK+nmb63WVCygOog9alOpY5b7Sns9Pf/tja5Y5a31PCkmK/oA=
-=Y9uK
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQGFMACgkQFA3kzBSg
+KbZjBQ/+JKkZOieWNTHYtxct2MfgBqvV/GjQ2LNchV0lAsarOYL5+70J8ZRiX3e9
+PB/cb5mkjw8muL0fl41fOonxiel/mxy8X9JdVrnPJj7xSbsbbn9s91dBmaKXr8Tp
+hGDfBdtTQm2EPwWWIeKsCbd6aRwXsCDdUiQLFSiw21F0QuGBJxywKT4V0rNkfBDK
+whew5E94SpVKO74DZZhUO3qT3zGbJIdwfgl3jU9aPAJbpD4GxLWDMenEVkI7bnIO
+SOMsmF6S6sp+O1ZSRARaO6qm28RYoi4I96hU/aoJxmT73LiUagbPuPFd9P9aV/vs
+ucxXDjQhscVbvqeY+EMLU05mwLicfhwT38j0au8Xa0zDLYCKyzUNa2F7gu82yMpS
+lL+LyUYsKWWLUp36pkriH3Hk24jjwXaxqv9JlTuuMf0/QuVRhoIexA9h/eUh/keB
+7Xr2wHvGvLgY9VfIlXpC8PyJvnvBT6wxc/R0p8h1IRuOp234DagQhenDySV0htnx
+s+9Dl+HusBfufX7ACPa/l+PwIOGCBJ7oEHASq+E5NXJ4zdtSi4d1xZToldT2JBdj
+Sm0n6R2p+Gc0vegX9fmin0lqIynb9girYSl3LYbVY0ZE6eXg+8bWun4rJ3447OE7
+QOFSN06zcuedwhaqcg6u2v1kBTRYJZ3qRYjMIbiSu9EwjHK9Jic=
+=Oulp
 -----END PGP SIGNATURE-----
 
---hp3uq3uf7plgsilw--
+--c3m5n2s5rtnxudgq--
