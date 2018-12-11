@@ -1,59 +1,25 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [RFC/RFT 01/10] i2c: add 'is_suspended' flag for i2c adapters
-Date: Mon, 10 Dec 2018 22:03:09 +0000
-Message-ID: <a4fdd7f1-be79-48fd-0d13-410276962384@axentia.se>
+From: Shawn Guo <shawnguo@kernel.org>
+Subject: Re: [RFC/RFT 05/10] i2c: zx2967: use core helper to mark adapter
+ suspended
+Date: Tue, 11 Dec 2018 10:12:06 +0800
+Message-ID: <20181211021205.GS3987@dragon>
 References: <20181210210310.12677-1-wsa+renesas@sang-engineering.com>
- <20181210210310.12677-2-wsa+renesas@sang-engineering.com>
+ <20181210210310.12677-6-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181210210310.12677-2-wsa+renesas@sang-engineering.com>
-Content-Language: en-US
-Content-ID: <0B06DF676AEA734FB34D0ED6F8043D42@eurprd02.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <20181210210310.12677-6-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Cc: "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jun Nie <jun.nie@linaro.org>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOC0xMi0xMCAyMjowMiwgV29sZnJhbSBTYW5nIHdyb3RlOg0KPiBTb21lIGRyaXZlcnMg
-b3BlbiBjb2RlIGhhbmRsaW5nIG9mIHN1c3BlbmRlZCBhZGFwdGVycy4gSXQgc2hvdWxkIGJlDQo+
-IGhhbmRsZWQgYnkgdGhlIGNvcmUsIHRob3VnaCwgdG8gZW5zdXJlIGdlbmVyaWMgaGFuZGxpbmcu
-IFRoaXMgcGF0Y2ggYWRkcw0KPiB0aGUgZmxhZyBhbmQgYW4gYWNjZXNzb3IgZnVuY3Rpb24uDQo+
-IA0KPiBTaWduZWQtb2ZmLWJ5OiBXb2xmcmFtIFNhbmcgPHdzYStyZW5lc2FzQHNhbmctZW5naW5l
-ZXJpbmcuY29tPg0KPiAtLS0NCj4gIGRyaXZlcnMvaTJjL2kyYy1jb3JlLWJhc2UuYyB8IDEgKw0K
-PiAgaW5jbHVkZS9saW51eC9pMmMuaCAgICAgICAgIHwgOSArKysrKysrKysNCj4gIDIgZmlsZXMg
-Y2hhbmdlZCwgMTAgaW5zZXJ0aW9ucygrKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJj
-L2kyYy1jb3JlLWJhc2UuYyBiL2RyaXZlcnMvaTJjL2kyYy1jb3JlLWJhc2UuYw0KPiBpbmRleCAy
-ODQ2MGY2YTYwY2MuLjlmODllMjU4YzhmZiAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9pMmMvaTJj
-LWNvcmUtYmFzZS5jDQo+ICsrKyBiL2RyaXZlcnMvaTJjL2kyYy1jb3JlLWJhc2UuYw0KPiBAQCAt
-MTIzMiw2ICsxMjMyLDcgQEAgc3RhdGljIGludCBpMmNfcmVnaXN0ZXJfYWRhcHRlcihzdHJ1Y3Qg
-aTJjX2FkYXB0ZXIgKmFkYXApDQo+ICAJaWYgKCFhZGFwLT5sb2NrX29wcykNCj4gIAkJYWRhcC0+
-bG9ja19vcHMgPSAmaTJjX2FkYXB0ZXJfbG9ja19vcHM7DQo+ICANCj4gKwlhZGFwLT5pc19zdXNw
-ZW5kZWQgPSBmYWxzZTsNCj4gIAlydF9tdXRleF9pbml0KCZhZGFwLT5idXNfbG9jayk7DQo+ICAJ
-cnRfbXV0ZXhfaW5pdCgmYWRhcC0+bXV4X2xvY2spOw0KPiAgCW11dGV4X2luaXQoJmFkYXAtPnVz
-ZXJzcGFjZV9jbGllbnRzX2xvY2spOw0KPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9pMmMu
-aCBiL2luY2x1ZGUvbGludXgvaTJjLmgNCj4gaW5kZXggNjViNGVhZWQxZDk2Li45ODUyMDM4ZWUz
-YTcgMTAwNjQ0DQo+IC0tLSBhL2luY2x1ZGUvbGludXgvaTJjLmgNCj4gKysrIGIvaW5jbHVkZS9s
-aW51eC9pMmMuaA0KPiBAQCAtNjgwLDYgKzY4MCw3IEBAIHN0cnVjdCBpMmNfYWRhcHRlciB7DQo+
-ICAJaW50IHRpbWVvdXQ7CQkJLyogaW4gamlmZmllcyAqLw0KPiAgCWludCByZXRyaWVzOw0KPiAg
-CXN0cnVjdCBkZXZpY2UgZGV2OwkJLyogdGhlIGFkYXB0ZXIgZGV2aWNlICovDQo+ICsJdW5zaWdu
-ZWQgaW50IGlzX3N1c3BlbmRlZDoxOwkvKiBvd25lZCBieSB0aGUgSTJDIGNvcmUgKi8NCg0KV2hl
-biBtb3JlIHN0dWZmIGlzIGFkZGVkIHRvIHRoaXMgYml0IGZpZWxkICh3aGljaCBhbHdheXMgaGFw
-cGVucyBhdA0Kc29tZSBwb2ludCkgdXBkYXRlcyB0byBhbGwgbWVtYmVycyBvZiB0aGUgYml0IGZp
-ZWxkIHdpbGwgaGF2ZSB0byB1c2UNCnRoZSBzYW1lIHJvb3QtYWRhcHRlci1sb2NraW5nLCBvciB3
-ZSB3aWxsIHN1ZmZlciBmcm9tIFJNVy1yYWNlcy4gU28NCnRoaXMgZmVlbHMgbGlrZSBhbiBpbnZp
-dGF0aW9uIGZvciBmdXR1cmUgZGlzYXN0ZXIuIE1heWJlIGEgY29tbWVudA0KYWJvdXQgdGhhdCB0
-byByZW1pbmQgb3VyIGZ1dHVyZSBzZWx2ZXM/IE9yIHBlcmhhcHMgdGhlIGJpdCBmaWVsZA0Kc2hv
-dWxkIGJlIGF2b2lkZWQgYWx0b2dldGhlcj8NCg0KQ2hlZXJzLA0KUGV0ZXINCg0KPiAgDQo+ICAJ
-aW50IG5yOw0KPiAgCWNoYXIgbmFtZVs0OF07DQo+IEBAIC03NjIsNiArNzYzLDE0IEBAIGkyY191
-bmxvY2tfYnVzKHN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcHRlciwgdW5zaWduZWQgaW50IGZsYWdz
-KQ0KPiAgCWFkYXB0ZXItPmxvY2tfb3BzLT51bmxvY2tfYnVzKGFkYXB0ZXIsIGZsYWdzKTsNCj4g
-IH0NCj4gIA0KPiArc3RhdGljIGlubGluZSB2b2lkIGkyY19tYXJrX2FkYXB0ZXJfc3VzcGVuZGVk
-KHN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcCwNCj4gKwkJCQkJICAgICAgYm9vbCBzdXNwZW5kZWQp
-DQo+ICt7DQo+ICsJaTJjX2xvY2tfYnVzKGFkYXAsIEkyQ19MT0NLX1JPT1RfQURBUFRFUik7DQo+
-ICsJYWRhcC0+aXNfc3VzcGVuZGVkID0gc3VzcGVuZGVkOw0KPiArCWkyY191bmxvY2tfYnVzKGFk
-YXAsIEkyQ19MT0NLX1JPT1RfQURBUFRFUik7DQo+ICt9DQo+ICsNCj4gIC8qZmxhZ3MgZm9yIHRo
-ZSBjbGllbnQgc3RydWN0OiAqLw0KPiAgI2RlZmluZSBJMkNfQ0xJRU5UX1BFQwkJMHgwNAkvKiBV
-c2UgUGFja2V0IEVycm9yIENoZWNraW5nICovDQo+ICAjZGVmaW5lIEkyQ19DTElFTlRfVEVOCQkw
-eDEwCS8qIHdlIGhhdmUgYSB0ZW4gYml0IGNoaXAgYWRkcmVzcyAqLw0KPiANCg0K
+On Mon, Dec 10, 2018 at 10:03:03PM +0100, Wolfram Sang wrote:
+> Rejecting transfers should be handled by the core. Also, this will
+> ensure proper locking which was forgotten in this open coded version
+> and make sure resume mark is set after enabling clocks (not before).
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+Acked-by: Shawn Guo <shawnguo@kernel.org>
