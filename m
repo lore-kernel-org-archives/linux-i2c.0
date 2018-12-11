@@ -1,99 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/5] i2c: mediatek: remove useless code and replace
- definitions
-Date: Tue, 11 Dec 2018 21:20:58 +0100
-Message-ID: <20181211202058.cd4wyz4so66iqspt@ninjato>
+Subject: Re: [PATCH 4/5] dt-bindings: i2c: Add Mediatek MT8183 i2c binding
+Date: Tue, 11 Dec 2018 21:29:31 +0100
+Message-ID: <20181211202931.xav4gzi7rzh2scgx@ninjato>
 References: <1543843974-4054-1-git-send-email-qii.wang@mediatek.com>
- <1543843974-4054-3-git-send-email-qii.wang@mediatek.com>
+ <1543843974-4054-5-git-send-email-qii.wang@mediatek.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rzzha3d23dmk6e55"
+        protocol="application/pgp-signature"; boundary="qookkrqmaew3bmbg"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1543843974-4054-3-git-send-email-qii.wang@mediatek.com>
+In-Reply-To: <1543843974-4054-5-git-send-email-qii.wang@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: qii.wang@mediatek.com
 Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, ryder.lee@mediatek.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---rzzha3d23dmk6e55
+--qookkrqmaew3bmbg
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 03, 2018 at 09:32:51PM +0800, qii.wang@mediatek.com wrote:
-> From: qii wang <qii.wang@mediatek.com>
->=20
-> Completion_done is useless when we don't use its return value,
-> so we remove it. Different speeds have been defined by macros,
-> so we use macros definitions.
 
-Those are two seperate patches, or?
+> +  - ch-offset: base reg offset for multi-user.
 
->=20
-> Signed-off-by: qii wang <qii.wang@mediatek.com>
-> ---
->  drivers/i2c/busses/i2c-mt65xx.c |    6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt6=
-5xx.c
-> index a74ef76..660de1e 100644
-> --- a/drivers/i2c/busses/i2c-mt65xx.c
-> +++ b/drivers/i2c/busses/i2c-mt65xx.c
-> @@ -456,7 +456,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, s=
-truct i2c_msg *msgs,
-> =20
->  	control_reg =3D readw(i2c->base + OFFSET_CONTROL) &
->  			~(I2C_CONTROL_DIR_CHANGE | I2C_CONTROL_RS);
-> -	if ((i2c->speed_hz > 400000) || (left_num >=3D 1))
-> +	if ((i2c->speed_hz > MAX_FS_MODE_SPEED) || (left_num >=3D 1))
->  		control_reg |=3D I2C_CONTROL_RS;
-> =20
->  	if (i2c->op =3D=3D I2C_MASTER_WRRD)
-> @@ -465,7 +465,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, s=
-truct i2c_msg *msgs,
->  	writew(control_reg, i2c->base + OFFSET_CONTROL);
-> =20
->  	/* set start condition */
-> -	if (i2c->speed_hz <=3D 100000)
-> +	if (i2c->speed_hz <=3D I2C_DEFAULT_SPEED)
->  		writew(I2C_ST_START_CON, i2c->base + OFFSET_EXT_CONF);
->  	else
->  		writew(I2C_FS_START_CON, i2c->base + OFFSET_EXT_CONF);
-> @@ -642,8 +642,6 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, s=
-truct i2c_msg *msgs,
->  		return -ETIMEDOUT;
->  	}
-> =20
-> -	completion_done(&i2c->msg_complete);
-> -
->  	if (i2c->irq_stat & (I2C_HS_NACKERR | I2C_ACKERR)) {
->  		dev_dbg(i2c->dev, "addr: %x, transfer ACK error\n", msgs->addr);
->  		mtk_i2c_init_hw(i2c);
-> --=20
-> 1.7.9.5
->=20
+What is "multi-user"? Why can't you add this offset to the reg-property
+directly?
 
---rzzha3d23dmk6e55
+> +  - mediatek,share-i3c: i3c controller can share i2c function.
+
+Please explain in more detail? Is this an I3C controller?
+
+
+--qookkrqmaew3bmbg
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQHCoACgkQFA3kzBSg
-KbbLdw/+ODERxR+ceynTnAj6B+ZBYip0nSF+4P2h+GCcBlb0sM+5iW1aG9Koj2j2
-QadPtWZ1riU6UfvKcoPyTmyPhZE+7B6YZ+wDVANZtXUU0FIzFPcYX7xcQ002bQ+A
-1muAx5kuFfKd/uMXXF5BPcycswIo5tUJ58IFKdhl74qXPKapeKgH0ocse2vKItIs
-O2pfEDqy2TCEPJLaCO2f9TC78MDuKlOs7sE0cs1S3TPCu+0dfgfQeSROQJIwcRxH
-4qn6LB4dgTssaHgrmOta2UfLmA1+DI9bWBlggdpDpjVmI5I+Q8sj/7m8nuvvQWuu
-axX68q4acAgOi5DIJZDKy6vhP1+VuWmdWEBCmPQtNcNRKHkyJr2twBQqH1E2uDo5
-eISaxbq0dD58yYgop85/IBomC82jPCOcK9Xq7D69AtJWO42tpwoXo4FTe1nxqRNj
-hmdwd72Sj8Fe7URPoKfJlWMCKPhcXeJIg7acX3c6U6GIislR+Z2B78Hwnl1CZ9B9
-PkuAo0K+JqF1orCKi4YeXCZHinUc9O/kuL7w5+jrp/F0DPJYQipwi2qEYD3fbh7g
-vwIJ5SC6wCc6qjW6Q1WaflkiuqbXOGt1nsbX5AGtFkovDYVtU0O/EcuNIpo7ytiE
-UAGLEUY45eAFOfij9o3p9Jazw1cZgv7YMb+9ScnPFdnsMKFkykg=
-=7YkG
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQHisACgkQFA3kzBSg
+Kba9lA//XQcp5LIyZqRaesg1uwwq1/DUnhfyqYK9Hyq5mqOGd+wXFZbvCUWicwwk
+/N7FXIICvbEgzyhzItu4d2m5blloyJiA4rVxPAYo8MihORADU0Eu9qJLwI6XUGUH
+kLe8/GrqWqg8DkGw4xNx7q+QpO52y/Fx7Lit6K2FmCAuMUTU8hkI05Mmm+eFaYGd
+/Wxq2KZTaeDQsT0qLpRXRDi6hVMWamhgfNHO5WPcy32rHAMJ17e6iFOQaOv5FaaZ
+dQmTrp5Wn1mRaKrLKuTACkz5XUqIPNxV/w5ZHWRFyTbEr5zKXdcdcYIPYjNd/bzg
+vkEJR5Ith3YlmjU7YfVPyUBm0y7VGjeDXr+KL4LoVcUD/kbZUT+/GGTmAL5PZvP1
+qatQcUvPiR62LTEi2nZaMjNFwg+9k9BC5WjARRzSi3Ev/2gHA7gwcCgnJEBmwp89
+TaysiINGGxzRzfYnn+wL2ja3lYyJr7iYie9JAqzLHM8Q120KgavZEHyHJCWdOvX8
+sMVcLh6ld03+J8iFtiNJemPiRl4jFMkg0rQs11YeAZJu/H0rVdU2Bvbk1yJ2QaaK
+a22CduYq10DwPPwCrPh4GMGK3Ohi+md5XcUgDTnnc/JVD+hOHSOBtYOHkNp/nYBN
+fnM1q9BoJlE+irfzbAqx64BX+a6rrg5KeAWy+f21+Z7xwCW6gII=
+=ZORW
 -----END PGP SIGNATURE-----
 
---rzzha3d23dmk6e55--
+--qookkrqmaew3bmbg--
