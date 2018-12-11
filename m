@@ -1,63 +1,64 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] dt-bindings: i2c: Use correct vendor prefix for Atmel
-Date: Tue, 11 Dec 2018 20:49:22 +0100
-Message-ID: <20181211194922.h2ajgeos5mb2znwc@ninjato>
-References: <20181123121009.17213-1-thierry.reding@gmail.com>
- <20181123125138.22489-1-thierry.reding@gmail.com>
- <20181130231915.GC860@kunai>
+Subject: Re: [PATCH] dt-bindings: i2c: use correct vendor prefix for atmel's
+ at24 EEPROMs
+Date: Tue, 11 Dec 2018 20:49:40 +0100
+Message-ID: <20181211194940.u6ru27qfvrxc3xey@ninjato>
+References: <20181206094550.18082-1-brgl@bgdev.pl>
+ <20181206104421.a6njveg72dcguckp@katana>
+ <CAMRc=MfRBgF9CSzGb=VMUGiCsFc1B_y=d5yMgPJ3xc0GyytATA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="v7eszim7jahxuojo"
+        protocol="application/pgp-signature"; boundary="hp3uq3uf7plgsilw"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181130231915.GC860@kunai>
+In-Reply-To: <CAMRc=MfRBgF9CSzGb=VMUGiCsFc1B_y=d5yMgPJ3xc0GyytATA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Peter Rosin <peda@axentia.se>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Thierry Reding <thierry.reding@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---v7eszim7jahxuojo
-Content-Type: text/plain; charset=us-ascii
+--hp3uq3uf7plgsilw
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Dec 01, 2018 at 12:19:15AM +0100, Wolfram Sang wrote:
-> On Fri, Nov 23, 2018 at 01:51:38PM +0100, Thierry Reding wrote:
-> > From: Thierry Reding <treding@nvidia.com>
-> >=20
-> > The "at," prefix was never correct for Atmel, so fix the few occurrences
-> > that got it wrong. Use "atmel," instead.
-> >=20
-> > While at it, remove the at,24c08 compatible string from the list of
-> > trivial devices because it is already documented in eeprom/at24.txt.
-> >=20
-> > Signed-off-by: Thierry Reding <treding@nvidia.com>
+On Fri, Dec 07, 2018 at 02:18:15PM +0100, Bartosz Golaszewski wrote:
+> czw., 6 gru 2018 o 11:44 Wolfram Sang <wsa@the-dreams.de> napisa=C5=82(a):
+> >
+> > On Thu, Dec 06, 2018 at 10:45:50AM +0100, Bartosz Golaszewski wrote:
+> > > This is a follow-up to Thierry's patch which missed a few occurences.
+> > >
+> > > Cc: Thierry Reding <thierry.reding@gmail.com>
+> > > Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+> >
+> > Since I dropped Thierry's original patch, I wonder if it is okay with
+> > you to simply squash these hunks into it?
+> >
 >=20
-> Applied to for-current, thanks!
+> Yes, feel free to squash those two with my Signed-off-by tag.
 
-Reconsidered (as discussed) and applied to for-next with
-'trivial-devices' hunk droppend and Bartosz' patch squashed in.
+Done now, thanks!
 
 
---v7eszim7jahxuojo
+--hp3uq3uf7plgsilw
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQFMIACgkQFA3kzBSg
-KbY66BAAirYq7JrIwgWUKeRfW662jWt3vMcd4Ef10RqrfboExoHcix6zHKJWo5PR
-1exoAjs3eXdr0RDbBYGHYbKd/yK3Y34LYIaJy5NdaA1cPwO7I1htqgbM98fYSvU7
-CWqAWqVkLAXxcYCABz0A5KKbz14i/rvKPGN1tPlSMl/B2JAKLmrO2xvp25priTv8
-FLiXX/pC0YUqSuWAyyeRsJ98gsbI/+KC/GTpYYAqHbo45v9WSIN8y7TrCKuNb87I
-JH7EVPmSkJIVeXTOS2OQVW5hJWkCAlK5CtLesB2Jjde8aOwl08oMHiWNQZS9CXRK
-766aWrnpLJEPcLcTCqA2BT73Yh1e/IFF03bvwH+F7yMACJvrFSp9jbqeGrUjten9
-VZnPbDYi7PQqiPgzIJ0DXHSrPAbEFpO+L6m5zNb7K1Vt47zFepfDa/zUi7ep87o0
-YnkADYWo+zV6aeYzRzX++Vf4+rrPQEPBPXBQ3JPD+T1LtSP2RYZb0zRePaQEP0mI
-+jw2HbuGrfZkBJ6VrO+4+LQavOo22FOD6UY4GEAXuV1DL7UbW4or9b7Cshjzk1Yn
-eyYo2gIZ64YulvuMfnCV94mCBwS1OmTnVW92vDkuVE1XqlYyM8QDW21ThCd9kBD2
-fVPOIcpxy94PxPon5WdD13lgjTfvVkEmHaSaFO9i/j/uOt1nh8M=
-=2bIe
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQFNQACgkQFA3kzBSg
+KbaKUxAApaFbz8HNFCpbawjy/bW1uuTvKOdoPdLY9+KiygbTLqqVAfaKxscKpmA+
+IpKiVyT1UpYFarePvzZ37z5m3+r3Qk72Sy04bK/eJk2dMZ8PYFEaQrCYlTDBOxEu
+Qu3YedaF95i9V1nCZ5JUOOopH03zPYSlSjQRUZfZpBjY9CnYRyV9BVlKmzw8hXH+
+ztOu7omw2EQVB7Xu6qPyX5HL6Yy6qK8SwFbZJca6oezlVnphUoy9kYSSMSSTSLAZ
+yEHzP2oDFQIyKSWy+crCg0kVYm+vjxkCxGtvhuGwCSfMHHuU8X/BWpZx5ObqIe9F
+bMCDmZO4FAq/FRQGGRFN0J/N49d1vklFzy0azGD4o5yTlWDCdJ5kE1y3xHhcn7M3
+7EZIiozo2MBFBqg+ifPlepEysE7WYvw/6KNJCSoeeBs2jILElFbyZbNKqmRb5US/
+x6nU1ZG+BExn+5yGKEiCss5h+0UyDHjYZt4lC3pazhOFsvRP7VgMNYy9/z9+Ui8s
+KhB+fmnRHqKptnQe85SThlD38Ghw5BB5c4sr2rW8yZQO7m5rnGUcRyBxinLziwu/
+DM8gDaR/FzqrMkzZ+BkUjEoymdf3tgAZKdmzAJ+jWxdEhFaJc4sF+wH50K8hUSKx
+o1LK+nmb63WVCygOog9alOpY5b7Sns9Pf/tja5Y5a31PCkmK/oA=
+=Y9uK
 -----END PGP SIGNATURE-----
 
---v7eszim7jahxuojo--
+--hp3uq3uf7plgsilw--
