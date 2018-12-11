@@ -1,25 +1,71 @@
-From: Shawn Guo <shawnguo@kernel.org>
-Subject: Re: [RFC/RFT 05/10] i2c: zx2967: use core helper to mark adapter
- suspended
-Date: Tue, 11 Dec 2018 10:12:06 +0800
-Message-ID: <20181211021205.GS3987@dragon>
-References: <20181210210310.12677-1-wsa+renesas@sang-engineering.com>
- <20181210210310.12677-6-wsa+renesas@sang-engineering.com>
+From: mtk15107 <qii.wang@mediatek.com>
+Subject: Re: [PATCH 1/5] dt-bindings: i2c: Add Mediatek MT7629 i2c binding
+Date: Tue, 11 Dec 2018 14:28:28 +0800
+Message-ID: <1544509708.14641.6.camel@mhfsdcap03>
+References: <1543843974-4054-1-git-send-email-qii.wang@mediatek.com>
+         <1543843974-4054-2-git-send-email-qii.wang@mediatek.com>
+         <CAGp9Lzppg3NXBtfgG2SLzMxKBiV9ozgDbBQRTffYA2JhT48Efg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181210210310.12677-6-wsa+renesas@sang-engineering.com>
+In-Reply-To: <CAGp9Lzppg3NXBtfgG2SLzMxKBiV9ozgDbBQRTffYA2JhT48Efg@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jun Nie <jun.nie@linaro.org>, linux-kernel@vger.kernel.org
+To: Sean Wang <sean.wang@kernel.org>
+Cc: wsa@the-dreams.de, devicetree@vger.kernel.org, ryder.lee@mediatek.com, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 10, 2018 at 10:03:03PM +0100, Wolfram Sang wrote:
-> Rejecting transfers should be handled by the core. Also, this will
-> ensure proper locking which was forgotten in this open coded version
-> and make sure resume mark is set after enabling clocks (not before).
+On Tue, 2018-12-04 at 12:19 -0800, Sean Wang wrote:
+> <qii.wang@mediatek.com> 於 2018年12月3日 週一 上午5:34寫道：
+> >
+> > From: qii wang <qii.wang@mediatek.com>
+> >
+> > Add MT7629 i2c binding to i2c-mt2712.txt and there is no need to
 > 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> where's i2c-mt2712.txt mentioned here?
+> 
 
-Acked-by: Shawn Guo <shawnguo@kernel.org>
+Sorry, I will rewrite this commit. Such as:
+
+Add MT7629 i2c binding to binding file. 
+
+> > modify i2c driver.
+> 
+> suggest not to mention driver in any dt-binding, dt-binding self
+> should be os-agnostic
+> 
+
+Yes, I will remove it.
+
+> >
+> > Signed-off-by: qii wang <qii.wang@mediatek.com>
+> > ---
+> >  Documentation/devicetree/bindings/i2c/i2c-mtk.txt |    1 +
+> >  1 file changed, 1 insertion(+)
+> >
+> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
+> > index e199695..7729e57 100644
+> > --- a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
+> > +++ b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
+> > @@ -10,6 +10,7 @@ Required properties:
+> >        "mediatek,mt6589-i2c": for MediaTek MT6589
+> >        "mediatek,mt7622-i2c": for MediaTek MT7622
+> >        "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for MediaTek MT7623
+> > +      "mediatek,mt7629-i2c", "mediatek,mt2712-i2c": for MediaTek mt7629
+> 
+> change mt7629 to MT7629 to align to the others
+> 
+
+OK.
+
+> >        "mediatek,mt8173-i2c": for MediaTek MT8173
+> >    - reg: physical base address of the controller and dma base, length of memory
+> >      mapped region.
+> > --
+> > 1.7.9.5
+> >
+> >
+> > _______________________________________________
+> > Linux-mediatek mailing list
+> > Linux-mediatek@lists.infradead.org
+> > http://lists.infradead.org/mailman/listinfo/linux-mediatek
