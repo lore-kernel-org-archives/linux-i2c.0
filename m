@@ -1,73 +1,47 @@
-From: Parthiban Nallathambi <pn@denx.de>
-Subject: [PATCH v3 2/4] arm64: dts: actions: s700: Add I2C controller nodes
-Date: Tue, 11 Dec 2018 09:04:46 +0100
-Message-ID: <20181211080448.24007-3-pn@denx.de>
-References: <20181211080448.24007-1-pn@denx.de>
+From: "Adamski, Krzysztof (Nokia - PL/Wroclaw)"
+        <krzysztof.adamski@nokia.com>
+Subject: [PATCH] MAINTAINERS: add entry for i2c-axxia driver
+Date: Tue, 11 Dec 2018 09:17:52 +0000
+Message-ID: <20181211091733.GA28051@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181211080448.24007-1-pn@denx.de>
+Content-Language: en-US
+Content-ID: <AB6064D8B3D89A45A2D1AA3B0E079A5A@eurprd07.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: manivannan.sadhasivam@linaro.org, afaerber@suse.de, robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux@cubietech.com, thomas.liau@actions-semi.com, linux-actions@lists.infradead.org, Parthiban Nallathambi <pn@denx.de>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Add I2C controller nodes for Actions Semiconductor S700 SoC.
+Create separate entry for i2c-axxia and set myself as maintainer.
 
-Signed-off-by: Parthiban Nallathambi <pn@denx.de>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Even though I don't work for Intel/LSI who is the manufacturer of this
+IP, I do have access to some documentation and the actual hardware using
+this driver and I'm familiar with the code.
+
+Signed-off-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
 ---
- arch/arm64/boot/dts/actions/s700.dtsi | 40 +++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/actions/s700.dtsi b/arch/arm64/boot/dts/actions/s700.dtsi
-index 192c7b39c8c1..35fddba2af1c 100644
---- a/arch/arm64/boot/dts/actions/s700.dtsi
-+++ b/arch/arm64/boot/dts/actions/s700.dtsi
-@@ -174,6 +174,46 @@
- 			#clock-cells = <1>;
- 		};
- 
-+		i2c0: i2c@e0170000 {
-+			compatible = "actions,s700-i2c";
-+			reg = <0 0xe0170000 0 0x1000>;
-+			clocks = <&cmu CLK_I2C0>;
-+			interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			status = "disabled";
-+		};
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 0767f1d1b579..2961b4d0a8e8 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2633,6 +2633,13 @@ S:	Maintained
+ F:	Documentation/devicetree/bindings/sound/axentia,*
+ F:	sound/soc/atmel/tse850-pcm5142.c
+=20
++AXXIA I2C CONTROLLER
++M:	Krzysztof Adamski <krzysztof.adamski@nokia.com>
++L:	linux-i2c@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/i2c/i2c-axxia.txt
++F:	drivers/i2c/busses/i2c-axxia.c
 +
-+		i2c1: i2c@e0174000 {
-+			compatible = "actions,s700-i2c";
-+			reg = <0 0xe0174000 0 0x1000>;
-+			clocks = <&cmu CLK_I2C1>;
-+			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			status = "disabled";
-+		};
-+
-+		i2c2: i2c@e0178000 {
-+			compatible = "actions,s700-i2c";
-+			reg = <0 0xe0178000 0 0x1000>;
-+			clocks = <&cmu CLK_I2C2>;
-+			interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			status = "disabled";
-+		};
-+
-+		i2c3: i2c@e017c000 {
-+			compatible = "actions,s700-i2c";
-+			reg = <0 0xe017c000 0 0x1000>;
-+			clocks = <&cmu CLK_I2C3>;
-+			interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			status = "disabled";
-+		};
-+
- 		sps: power-controller@e01b0100 {
- 			compatible = "actions,s700-sps";
- 			reg = <0x0 0xe01b0100 0x0 0x100>;
--- 
+ AZ6007 DVB DRIVER
+ M:	Mauro Carvalho Chehab <mchehab@kernel.org>
+ L:	linux-media@vger.kernel.org
+--=20
 2.17.2
