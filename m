@@ -1,76 +1,104 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/2] i2c: meson: add support for Meson G12A SoC i2c
- controller
-Date: Tue, 11 Dec 2018 22:45:27 +0100
-Message-ID: <20181211214527.GA5660@kunai>
-References: <1543489197-183181-1-git-send-email-jian.hu@amlogic.com>
- <8a6a204b28523e5a181f9e85dda18fade76a26a3.camel@baylibre.com>
- <b2bceaf4-92ce-92a4-c382-713d29ae3b70@amlogic.com>
- <20181211203652.rogajl4ajwu7cs6f@ninjato>
- <7hsgz3u4fu.fsf@baylibre.com>
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
+Subject: Re: [PATCH v2] MAINTAINERS: add maintainers for ChromeOS EC
+ sub-drivers
+Date: Wed, 12 Dec 2018 00:09:07 +0100
+Message-ID: <20181211230907.2gfxkllqooovwsw2@earth.universe>
+References: <20181211190953.13626-1-enric.balletbo@collabora.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
+        protocol="application/pgp-signature"; boundary="pjsrogytlfephcai"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <7hsgz3u4fu.fsf@baylibre.com>
+In-Reply-To: <20181211190953.13626-1-enric.balletbo@collabora.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kevin Hilman <khilman@baylibre.com>
-Cc: Jian Hu <jian.hu@amlogic.com>, Jerome Brunet <jbrunet@baylibre.com>, Neil Armstrong <narmstrong@baylibre.com>, Carlo Caione <carlo@caione.org>, Rob Herring <robh@kernel.org>, Martin Blumenstingl <martin.blumenstingl@googlemail.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jianxin Pan <jianxin.pan@amlogic.com>, Hanjie Lin <hanjie.lin@amlogic.com>, linux-amlogic@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>, linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, groeck@chromium.org, kernel@collabora.com, linux-rtc@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Benson Leung <bleung@chromium.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, devicetree@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, linux-pm@vger.kernel.org, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linaro.org>, Hartmut Knaack <knaack.h@gmx.de>, Rob Herring <robh+dt@kernel.org>, Lars-Peter
 List-Id: linux-i2c@vger.kernel.org
 
 
---+HP7ph2BbKc20aGI
+--pjsrogytlfephcai
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
+Hi,
 
-> >> I am okay if it is reasonable below in file
-> >> arch/arm64/boot/dts/amlogic/meson-g12a.dtsi. I2c controller node just =
-uses
-> >> axg's compatible.
-> >>=20
-> >> 			i2c0: i2c@1f000 {
-> >> 				compatible =3D "amlogic,meson-axg-i2c";
-> >
-> > Actually, you should have
-> >
-> > 	compatible =3D "amlogic,meson-g12a-i2c", "amlogic,meson-axg-i2c";
-> >
-> > in the DT to have support for future SoC specific additions. And then,
-> > patch 1 is needed.
-> >
-> > Or do you handle this differently? I'd think this is DT standard.
+On Tue, Dec 11, 2018 at 08:09:52PM +0100, Enric Balletbo i Serra wrote:
+> There are multiple ChromeOS EC sub-drivers spread in different
+> subsystems, as all of them are related to the Chrome stuff add
+> Benson and myself as a maintainers for all these sub-drivers.
 >=20
-> It's a DT standard *if* there are actual hardware differences.  In this
-> case, the IP block is identical, so there are no driver changes.
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> ---
 >=20
-> We prefer to add a new compatible if and when there are actual
-> driver/hardware changes.
+> Changes in v2:
+> - Fix typo in Benson email address.
+>=20
+>  MAINTAINERS | 24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
+>=20
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index a24129b0b043..bbe7180e2851 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -3625,6 +3625,30 @@ S:	Maintained
+>  T:	git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platf=
+orm.git
+>  F:	drivers/platform/chrome/
+> =20
+> +CHROMEOS EC SUBDRIVERS
+> +M:	Benson Leung <bleung@chromium.org>
+> +M:	Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> +S:	Maintained
+> +F:	Documentation/devicetree/bindings/extcon/extcon-usbc-cros-ec.txt
+> +F:	Documentation/devicetree/bindings/input/cros-ec-keyb.txt
+> +F:	Documentation/devicetree/bindings/pwm/google,cros-ec-pwm.txt
+> +F:	Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
+> +F:	Documentation/devicetree/bindings/mfd/cros-ec.txt
+> +F:	Documentation/ABI/testing/sysfs-bus-iio-cros-ec
+> +F:	drivers/extcon/extcon-usbc-cros-ec.c
+> +F:	drivers/i2c/busses/i2c-cros-ec-tunnel.c
+> +F:	drivers/iio/accel/cros_ec*
+> +F:	drivers/iio/common/cros_ec_sensors/
+> +F:	drivers/iio/light/cros_ec*
+> +F:	drivers/iio/pressure/cros_ec*
+> +F:	drivers/input/keyboard/cros_ec*
+> +F:	drivers/mfd/cros_ec*
+> +F:	drivers/power/supply/cros_usbpd-charger.c
+> +F:	drivers/pwm/pwm-cros-ec.c
+> +F:	drivers/rtc/rtc-cros-ec.c
+> +F:	include/linux/iio/common/cros_ec_sensors_core.h
+> +F:	include/linux/mfd/cros_ec*
 
-OK, fine with me. I just hope for you guys that there really is no
-change in the IP block, otherwise you need to update DTs later.
+Maybe just use the following (+ extra F entry for cros_usbpd, which
+does not have the ec part)?
 
+N:	cros[-_]ec
 
---+HP7ph2BbKc20aGI
+-- Sebastian
+
+>  CIRRUS LOGIC AUDIO CODEC DRIVERS
+>  M:	Brian Austin <brian.austin@cirrus.com>
+>  M:	Paul Handrigan <Paul.Handrigan@cirrus.com>
+
+--pjsrogytlfephcai
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQL/IACgkQFA3kzBSg
-KbbXFg//SIq2lU0nge0Dh0BSX8NJGPF/ETdhp8hcEKs5kManXc/Kd+rLlNJC7y84
-AMSGX9pIK899f51uMMgI6AbzNGimTk8Y2nghiHLyq6tum6QeFdOIjDJOC3lICUhx
-z7L+BEZ6hFNJPBZRSCRlio3dag2k8qHhM5ah6Xu6i7mH+g1JrNi6gFyrZsNv8hFy
-3Hg/bL7DwZXQJFknp0tsOglXiJThOz7VDx460zqn5cyl2PRvSaRvhZ67Yzg9I7Sz
-TQIW+KLj/hv2JApKkJtlYFHit+p3ZZvb/JfaGfO2FsKnBL6WJQJT6dLwPiK1guG7
-wSmp3eOqAlgeI3NMNqmAy2SfYqZn3IoVsuNy9us5+hkshxwsgOxkoT1Vvde3o19b
-c42k8bolyzyvdKDGbl1UuahvQLB3pdYvDa1kCzO63BlW6slMVsjhcYuK0yP7AW7F
-4SSumOdaFrd3azSi7pl5eG21J19U45sSxWow9oMRuw9yW9JHDiB5mIKt4dLTIym/
-mAbfHswdxtRDepqmM2UyLRN5RX6bJA8aefum/2jdNg98dbiUHMX8akHqbS//eiOX
-xBZcptougATsy9JIVcw25PSpg0NTUM4udScSsKyptNTFkFoE6PyF7ln67R8M3R2n
-uTW6i946iQ/olPGPhN/yCWg3AoD9mAdaxEOIcGZ3ekgA94NbgUc=
-=J9xG
+iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlwQQ5AACgkQ2O7X88g7
++pqX+w//aYjXk2l425T0xSM4PppxkSaFMcAwEQxbrDUrtC5QsF8p/AOcRux2Aekn
+PN1Aw41fHu0slow5ECfwxImMvZiKKGR5HT495TQIpJfS9AD4NCjVcVx7Yc46Cdzl
+o5UHBuzIZurXK16EMAoZnhtc2JsoxMccIuVhtn/HaLZ2NrjkhMh8aSfuG/8/zzGC
+fDKQESeaz+Lgaat3F3vJVCnTEengARF9b2yqWix6D3sfh1y+chNJBaCjpvpzQU8C
+Q+gyzX7mSBpFab4V7QMhm3hV/bW+3gEW5NkyK/1xB1/DK2EC8UwYaROw6ZmElXJ9
+AtTbGiDSSTecbzTwn0Gy9SuiwlSa82rSHBWYujyeL5VGB5WJc0rvHCmHimmWvKyB
+fLcN/FyV2uEdIMBnwMDbnHmszx0VOt9NGleHGJt1GM1Vk0rZU6Wyenm0uHysl4Pp
++SqTB1CkmdtD0siup+pcmU/mzWSa0bxRWoOAqGNuouT2qY1Qfz1yZIxi1Ebbs6fx
+ug+q4+q/bi2FeHVwGmjxfHhQXulFEccCJM36FJ+15R2QZmCUilIinqixz61oy0FV
+3nUADRywH0DM+af+8sCNHGUEQqtRUMxkPDGk6lH+NOUaa0wNLWm92zDFFoCMhhbH
+p1vOYPw+CdjaLyrDiauaASd1h0i5tAowztxfHN9MuZxuGxRsCmo=
+=Z0j4
 -----END PGP SIGNATURE-----
 
---+HP7ph2BbKc20aGI--
+--pjsrogytlfephcai--
