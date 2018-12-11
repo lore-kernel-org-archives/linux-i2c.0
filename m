@@ -1,64 +1,39 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v13] i2c: Add drivers for the AMD PCIe MP2 I2C controller
-Date: Tue, 11 Dec 2018 22:01:59 +0100
-Message-ID: <20181211210159.to6okhbaqpymoax5@ninjato>
-References: <20181209155602.GA8414@syn-yoga530>
+From: Kevin Hilman <khilman@baylibre.com>
+Subject: Re: [PATCH 0/2] i2c: meson: add support for Meson G12A SoC i2c controller
+Date: Tue, 11 Dec 2018 13:41:25 -0800
+Message-ID: <7hsgz3u4fu.fsf@baylibre.com>
+References: <1543489197-183181-1-git-send-email-jian.hu@amlogic.com> <8a6a204b28523e5a181f9e85dda18fade76a26a3.camel@baylibre.com> <b2bceaf4-92ce-92a4-c382-713d29ae3b70@amlogic.com> <20181211203652.rogajl4ajwu7cs6f@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="wghqmh4wfsvnb5a7"
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181209155602.GA8414@syn-yoga530>
+In-Reply-To: <20181211203652.rogajl4ajwu7cs6f@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Elie Morisse <syniurge@gmail.com>
-Cc: linux-i2c@vger.kernel.org, helgaas@kernel.org, Nehal-bakulchandra.Shah@amd.com, Shyam-sundar.S-k@amd.com, sandeep.singh@amd.com, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Jian Hu <jian.hu@amlogic.com>
+Cc: Jerome Brunet <jbrunet@baylibre.com>, Neil Armstrong <narmstrong@baylibre.com>, Carlo Caione <carlo@caione.org>, Rob Herring <robh@kernel.org>, Martin Blumenstingl <martin.blumenstingl@googlemail.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jianxin Pan <jianxin.pan@amlogic.com>, Hanjie Lin <hanjie.lin@amlogic.com>, linux-amlogic@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Wolfram Sang <wsa@the-dreams.de> writes:
 
---wghqmh4wfsvnb5a7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>> I am okay if it is reasonable below in file
+>> arch/arm64/boot/dts/amlogic/meson-g12a.dtsi. I2c controller node just uses
+>> axg's compatible.
+>> 
+>> 			i2c0: i2c@1f000 {
+>> 				compatible = "amlogic,meson-axg-i2c";
+>
+> Actually, you should have
+>
+> 	compatible = "amlogic,meson-g12a-i2c", "amlogic,meson-axg-i2c";
+>
+> in the DT to have support for future SoC specific additions. And then,
+> patch 1 is needed.
+>
+> Or do you handle this differently? I'd think this is DT standard.
 
-On Sun, Dec 09, 2018 at 12:56:02PM -0300, Elie Morisse wrote:
-> MP2 controllers have two separate busses, so may accommodate up to two I2C
-> adapters. Those adapters are listed in the ACPI namespace with the
-> "AMDI0011" HID, and probed by a platform driver.
->=20
-> Communication with the MP2 takes place through iomapped registers, or
-> through DMA for more than 32 bytes transfers.
->=20
-> This is major rework of the patch submitted by Nehal-bakulchandra Shah fr=
-om
-> AMD (https://patchwork.kernel.org/patch/10597369/).
->=20
-> Most of the event handling of v3 was rewritten to make it work with more
-> than one bus (e.g on Ryzen-based Lenovo Yoga 530), and this version
-> contains many other improvements.
->=20
-> Signed-off-by: Elie Morisse <syniurge@gmail.com>
+It's a DT standard *if* there are actual hardware differences.  In this
+case, the IP block is identical, so there are no driver changes.
 
-Nehal Shah, are you happy with this driver from your side?
+We prefer to add a new compatible if and when there are actual
+driver/hardware changes.
 
-
---wghqmh4wfsvnb5a7
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQJcYACgkQFA3kzBSg
-KbaJ+Q//ScA4q0wj/5RXmv1TpYikIecDUlVYiO2UEQfaWzmj7ktGBFbf7Fn/1NLd
-gm1AizqoVxmG0fJwnUYE7fbFi0FKz8vAUl4R0tXk5rRsMD5S+nOIljAEx6M/TUT2
-TzjAKOTvCidmlWlmM1864CN8ZgBzC2zm111xTfGpwcsSAKKZXnV5S/CHP8fhfeZe
-zAtnopg/sy/QhSnhgLz8cqynO0rC47Py/+W/82g08BkTDr13DodJsQ2St34Y8teQ
-g/Otphjo7OG8yqG8INZJCVQvB8U6Pa0AGoPyhMddUqMUdbKjuDRiJqkzi8IxwpMV
-AnFQNcwWVUD9ppW9cX8vBOn8e5SaMrXyKHsRFkYWHYppPpenm3CCkpPqq/DqsJiZ
-s35YgTnTZMqGyQMcWFGUVRE6nC1FUzTYBs8aFlm5Ku+FY9SKUUUanp/aJvTOH14T
-jDs5UEt5n+wDNLTv/CYsWq1nXNU66ys88POCRKCy4xqCijpp9amvRKA4Nb5EdQji
-TI6EUcZQWozqzdC19+B2n+59w1jyr0HVjq1J9X0ivitGmHrogKcVIgRQaUlY6fp3
-s6RbLwmrZRS1n0xAn9B21OMwcVVZffNWQsmjfEHlPmNS018ClH5TnBVI8j9O9lFM
-e0AnqpoO9VhtMW79UfhoswltAdHnSRL/UP1ENWa1zIvMMvAz8ik=
-=6Pk7
------END PGP SIGNATURE-----
-
---wghqmh4wfsvnb5a7--
+Kevin
