@@ -1,64 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 0/2] i2c: meson: add support for Meson G12A SoC i2c
- controller
-Date: Tue, 11 Dec 2018 21:36:53 +0100
-Message-ID: <20181211203652.rogajl4ajwu7cs6f@ninjato>
-References: <1543489197-183181-1-git-send-email-jian.hu@amlogic.com>
- <8a6a204b28523e5a181f9e85dda18fade76a26a3.camel@baylibre.com>
- <b2bceaf4-92ce-92a4-c382-713d29ae3b70@amlogic.com>
+Subject: Re: [PATCH] MAINTAINERS: add entry for i2c-axxia driver
+Date: Tue, 11 Dec 2018 21:39:19 +0100
+Message-ID: <20181211203919.lqzmg7cokmiybgmf@ninjato>
+References: <20181211091733.GA28051@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="r6j4ocolv5vcwqhy"
+        protocol="application/pgp-signature"; boundary="weswamagsnraa3y3"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <b2bceaf4-92ce-92a4-c382-713d29ae3b70@amlogic.com>
+In-Reply-To: <20181211091733.GA28051@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jian Hu <jian.hu@amlogic.com>
-Cc: Jerome Brunet <jbrunet@baylibre.com>, Neil Armstrong <narmstrong@baylibre.com>, Kevin Hilman <khilman@baylibre.com>, Carlo Caione <carlo@caione.org>, Rob Herring <robh@kernel.org>, Martin Blumenstingl <martin.blumenstingl@googlemail.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jianxin Pan <jianxin.pan@amlogic.com>, Hanjie Lin <hanjie.lin@amlogic.com>, linux-amlogic@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+To: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---r6j4ocolv5vcwqhy
+--weswamagsnraa3y3
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> I am okay if it is reasonable below in file
-> arch/arm64/boot/dts/amlogic/meson-g12a.dtsi. I2c controller node just uses
-> axg's compatible.
+On Tue, Dec 11, 2018 at 09:17:52AM +0000, Adamski, Krzysztof (Nokia - PL/Wr=
+oclaw) wrote:
+> Create separate entry for i2c-axxia and set myself as maintainer.
 >=20
-> 			i2c0: i2c@1f000 {
-> 				compatible =3D "amlogic,meson-axg-i2c";
+> Even though I don't work for Intel/LSI who is the manufacturer of this
+> IP, I do have access to some documentation and the actual hardware using
+> this driver and I'm familiar with the code.
+>=20
+> Signed-off-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
 
-Actually, you should have
-
-	compatible =3D "amlogic,meson-g12a-i2c", "amlogic,meson-axg-i2c";
-
-in the DT to have support for future SoC specific additions. And then,
-patch 1 is needed.
-
-Or do you handle this differently? I'd think this is DT standard.
+Applied to for-current, thanks!
 
 
---r6j4ocolv5vcwqhy
+--weswamagsnraa3y3
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQH+QACgkQFA3kzBSg
-KbYghA//e+Y8jxdhjD74FHRwHJedpaaTeb8kDXLWeywBEDsZikyyg521dDLFYodO
-1fm88aVcj21Of70l3aXd5XlRUndSa701Rm/JStWJR6xgHY1wmU0MiuUAINO3XvbE
-90yyjh5gVOonytSaEM1at5rvgsuMknBPDWigRNEbPfQkXckMYyh+Ini2nAvKs5ZB
-GZUNMt1JZcKRdd599coNfhuKPQAxp+SmikdPBJ+H9RSm58IyU8iitPw9AR6JesMM
-7ihWoNOC5REbI8CzCKlYTFM0J8ppRnpJfzAkDKDl18V147TAmXVBQ+hPSDKfTxYH
-VbtZQ9AUPUawMWhTVmt7ZsZuZPmOoPjccsLo+nWqz/db/JDyhyMzjY/46AWl37U2
-b6H55meUJyPVf/AKDY67ey/DpjA00C6URXkOLCelW0vV4qy71hzYgMXGGJ3yWdwi
-4NmJtPpqax3st/K2/mwDQc4humJ+4FeLw9OREsLhdOw++3fRkYr8ZrysJDmNH7yS
-h5cgVTGqE0rtCt9sct8Om88gut//78pusStosThw+nwHbTOL5gsK405OrSQFoe2N
-nitfLq2ISw/njOwajTWSgdUcWa9kkwmTk/UixXjBe8r5VEiv32qmt/Q/K8vmyDES
-O9MOHcWu3slySjEBzXQs519PblIQJCYgUdHVaXwuIStWkHpkO1k=
-=Uiz1
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQIHcACgkQFA3kzBSg
+KbYLAg/+L1vmdAHwihZ7gnFaQcNaVhhVOLWdF4sT5zPfZiObbwJYYvQeBWijCXkf
+UgB2l6DJszAilVHapGT39Mz7VB0EjyaF9R1P2t0T+QRBergZi9v7FBq4jEY+2UYq
+FLP8J/LIqj5y7l+S+JmqDbgXau9bG1dFb+w7jLJ9foVP3rrpPhFhVt2H2R9TKjtA
+LRwWRy6Ov0ySFz8mupbLGFesflGxz5saTgUi8EW2rAUI9plUM0Vb63BnW2vUH1YI
+jp44r61w4co+kcey6GJDp2Dhkacj55252VQNkTRyHMCsZFYUg68rrq2geOyBCpnm
+kKkTbCaXoHrRb6iFCOtmI+91pYsAFY0TvUIPT8vMB73S26CT24nrAJAGmAKZiMX8
+XQU83vYFAwQxRyVYGBiI+uJYA3QGg+msaGV2nliacgt7862JpzFTDvMB9W/lYFON
+HpEkCAOgNomQVCJKSYIPTCfLVc9ogt0T4ipa1ktlKK1CTxhUrQ6rIpnJmhyT9GRY
+5UCrotFR6JuU3V8QcRYIXtrQoAvbjEK3JKyUSUUvT60HQoq5hSyY8NmHIxLbFWjv
+H14oi23jO8SLF4nQKew5vmuLgO1X6iVqbPwWGkr8VfIU4mDLWEzbpZ5BVOcUEtrn
+XJDwNj5jCd4pn9tbyGqKahPYQ30KPJjHKw1yMUr4Vjlx6lqFsO0=
+=bZum
 -----END PGP SIGNATURE-----
 
---r6j4ocolv5vcwqhy--
+--weswamagsnraa3y3--
