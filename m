@@ -1,76 +1,59 @@
-From: Kamal Dasu <kdasu.kdev@gmail.com>
-Subject: Re: [RFC/RFT 04/10] i2c: brcmstb: use core helper to mark adapter suspended
-Date: Tue, 11 Dec 2018 11:44:01 -0500
-Message-ID: <CAC=U0a2cvdhAdBPyowR3i=wpnONDHjBWMZ56D_pJYfhYL=DTbg@mail.gmail.com>
-References: <20181210210310.12677-1-wsa+renesas@sang-engineering.com> <20181210210310.12677-5-wsa+renesas@sang-engineering.com>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: [PATCH] MAINTAINERS: add maintainers for ChromeOS EC sub-drivers
+Date: Tue, 11 Dec 2018 20:00:53 +0100
+Message-ID: <20181211190053.9997-1-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181210210310.12677-5-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa+renesas@sang-engineering.com
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, hdegoede@redhat.com, linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Brian Norris <computersforpeace@gmail.com>, Gregory Fong <gregory.0xf0@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, groeck@chromium.org, kernel@collabora.com, linux-rtc@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, devicetree@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, linux-pm@vger.kernel.org, Benson Leung <bleung@chromiumg.org>, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linaro.org>, Hartmut Knaack <knaack.h@gmx.de>, Rob Herring <robh+dt@kernel.org>, Lar
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 10, 2018 at 4:03 PM Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
->
-> Rejecting transfers should be handled by the core.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+There are multiple ChromeOS EC sub-drivers spread in different
+subsystems, as all of them are related to the Chrome stuff add
+Benson and myself as a maintainers for all these sub-drivers.
 
-Reviewed-by: Kamal Dasu <kdasu.kdev@gmail.com>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+---
 
-> ---
->  drivers/i2c/busses/i2c-brcmstb.c | 13 ++-----------
->  1 file changed, 2 insertions(+), 11 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
-> index 826d32049996..05c822e5a3f6 100644
-> --- a/drivers/i2c/busses/i2c-brcmstb.c
-> +++ b/drivers/i2c/busses/i2c-brcmstb.c
-> @@ -170,7 +170,6 @@ struct brcmstb_i2c_dev {
->         struct bsc_regs *bsc_regmap;
->         struct i2c_adapter adapter;
->         struct completion done;
-> -       bool is_suspended;
->         u32 clk_freq_hz;
->         int data_regsz;
->  };
-> @@ -467,9 +466,6 @@ static int brcmstb_i2c_xfer(struct i2c_adapter *adapter,
->         int xfersz = brcmstb_i2c_get_xfersz(dev);
->         u32 cond, cond_per_msg;
->
-> -       if (dev->is_suspended)
-> -               return -EBUSY;
-> -
->         /* Loop through all messages */
->         for (i = 0; i < num; i++) {
->                 pmsg = &msgs[i];
-> @@ -689,10 +685,7 @@ static int brcmstb_i2c_suspend(struct device *dev)
->  {
->         struct brcmstb_i2c_dev *i2c_dev = dev_get_drvdata(dev);
->
-> -       i2c_lock_bus(&i2c_dev->adapter, I2C_LOCK_ROOT_ADAPTER);
-> -       i2c_dev->is_suspended = true;
-> -       i2c_unlock_bus(&i2c_dev->adapter, I2C_LOCK_ROOT_ADAPTER);
-> -
-> +       i2c_mark_adapter_suspended(&i2c_dev->adapter, true);
->         return 0;
->  }
->
-> @@ -700,10 +693,8 @@ static int brcmstb_i2c_resume(struct device *dev)
->  {
->         struct brcmstb_i2c_dev *i2c_dev = dev_get_drvdata(dev);
->
-> -       i2c_lock_bus(&i2c_dev->adapter, I2C_LOCK_ROOT_ADAPTER);
->         brcmstb_i2c_set_bsc_reg_defaults(i2c_dev);
-> -       i2c_dev->is_suspended = false;
-> -       i2c_unlock_bus(&i2c_dev->adapter, I2C_LOCK_ROOT_ADAPTER);
-> +       i2c_mark_adapter_suspended(&i2c_dev->adapter, false);
->
->         return 0;
->  }
-> --
-> 2.11.0
->
+ MAINTAINERS | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index a24129b0b043..2f24f5c977ca 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -3625,6 +3625,30 @@ S:	Maintained
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git
+ F:	drivers/platform/chrome/
+ 
++CHROMEOS EC SUBDRIVERS
++M:	Benson Leung <bleung@chromiumg.org>
++M:	Enric Balletbo i Serra <enric.balletbo@collabora.com>
++S:	Maintained
++F:	Documentation/devicetree/bindings/extcon/extcon-usbc-cros-ec.txt
++F:	Documentation/devicetree/bindings/input/cros-ec-keyb.txt
++F:	Documentation/devicetree/bindings/pwm/google,cros-ec-pwm.txt
++F:	Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
++F:	Documentation/devicetree/bindings/mfd/cros-ec.txt
++F:	Documentation/ABI/testing/sysfs-bus-iio-cros-ec
++F:	drivers/extcon/extcon-usbc-cros-ec.c
++F:	drivers/i2c/busses/i2c-cros-ec-tunnel.c
++F:	drivers/iio/accel/cros_ec*
++F:	drivers/iio/common/cros_ec_sensors/
++F:	drivers/iio/light/cros_ec*
++F:	drivers/iio/pressure/cros_ec*
++F:	drivers/input/keyboard/cros_ec*
++F:	drivers/mfd/cros_ec*
++F:	drivers/power/supply/cros_usbpd-charger.c
++F:	drivers/pwm/pwm-cros-ec.c
++F:	drivers/rtc/rtc-cros-ec.c
++F:	include/linux/iio/common/cros_ec_sensors_core.h
++F:	include/linux/mfd/cros_ec*
++
+ CIRRUS LOGIC AUDIO CODEC DRIVERS
+ M:	Brian Austin <brian.austin@cirrus.com>
+ M:	Paul Handrigan <Paul.Handrigan@cirrus.com>
+-- 
+2.19.2
