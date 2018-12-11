@@ -1,68 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/3] i2c-axxia: check for error conditions first
-Date: Tue, 11 Dec 2018 21:05:27 +0100
-Message-ID: <20181211200527.t42yj5xcv4ijuoaj@ninjato>
-References: <cover.1544453688.git.krzysztof.adamski@nokia.com>
- <d9a8070357973b5078dc897a18f319cba1df5de0.1544453688.git.krzysztof.adamski@nokia.com>
+Subject: Re: [PATCH] i2c: powermac: Use of_node_name_eq for node name
+ comparisons
+Date: Tue, 11 Dec 2018 21:16:47 +0100
+Message-ID: <20181211201646.2mdjgpp4ilwzwvja@ninjato>
+References: <20181205195050.4759-8-robh@kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="v2trzgsti2cxbi6h"
+        protocol="application/pgp-signature"; boundary="km33xnxufwac6hzc"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <d9a8070357973b5078dc897a18f319cba1df5de0.1544453688.git.krzysztof.adamski@nokia.com>
+In-Reply-To: <20181205195050.4759-8-robh@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>
-Cc: "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Guenter Roeck <linux@roeck-us.net>, Tobias Jordan <Tobias.Jordan@elektrobit.com>, Peter Rosin <peda@axentia.se>
+To: Rob Herring <robh@kernel.org>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, linux-i2c@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---v2trzgsti2cxbi6h
+--km33xnxufwac6hzc
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 10, 2018 at 03:01:27PM +0000, Adamski, Krzysztof (Nokia - PL/Wr=
-oclaw) wrote:
-> It was observed that when using seqentional mode contrary to the
-> documentation, the SS bit (which is supposed to only be set if
-> automatic/sequence command completed normally), is sometimes set
-> together with NA (NAK in address phase) causing transfer to falsely be
-> considered successful.
+On Wed, Dec 05, 2018 at 01:50:24PM -0600, Rob Herring wrote:
+> Convert string compares of DT node names to use of_node_name_eq helper
+> instead. This removes direct access to the node name pointer.
 >=20
-> My assumption is that this does not happen during manual mode since the
-> controller is stopping its work the moment it sets NA/ND bit in status
-> register. This is not the case in Automatic/Sequentional mode where it
-> is still working to send STOP condition and the actual status we get
-> depends on the time when the ISR is run.
->=20
-> This patch changes the order of checking status bits in ISR - error
-> conditions are checked first and only if none of them occurred, the
-> transfer may be considered successful. This is required to introduce
-> using of sequentional mode in next patch.
->=20
-> Signed-off-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: linux-i2c@vger.kernel.org
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Signed-off-by: Rob Herring <robh@kernel.org>
 
 Applied to for-next, thanks!
 
 
---v2trzgsti2cxbi6h
+--km33xnxufwac6hzc
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQGIYACgkQFA3kzBSg
-KbYrpA//cyXc4G0XUB9HpGQS645etLcUQTo3h0wf9DojLPegTXn2EiCm8SZ1eOvT
-voMrmQ9mlkB46ewdn6u2UYZB/QZvVE/IZRP0Wwv5vARxpjcCpMYHK6gdomSwe1YH
-Y6NyfW6JAopk+WOkB3zEWAjwo5Kaf329vbIWOLImBpIJGwrg36V8gD0qJRGTfz4E
-Dmws4jAeAz0tH/2PhSHualquiObcHO4XWnmEgp9nf7Z4mhfpN7/LQ4R1u7P6wtuk
-xiQS5w+jl1iBtBTsIirnNBxi8QlezuqUHqN8/XDM2tmBAFz2OC1wsKMTyWDtIhnZ
-SB0Z58uj2zOCZF6fbv6A9C6rJw/umoV0qx41IqngGdCQS8mdICycLWIELz90nwZo
-7JyT0Ec1yMvobHoOrrJaDbylyI33Bl4YPjdiEdoRxFHa/zUHIfWK5VmqdiWC/V+K
-yJEbumyQc5OaV/T3J4HtCwFEjSZKDMguKmYdmJpIVKgK+Rx/13qiSBVjHdmdGqbj
-PAA1OBEH0+VCZBX53WPRMaW/RBJuvN77uTgfuVLD2b2ET/WU0J0vee3yitvF+eTw
-6gFDxfCoMyaPSdx2na6gFc5v/DOvi0bnjXiSQnj2wcDiSH5WwQYz+Kt6A84rIuZx
-UUD/pj+G2gciiGYINS9UNibnpCmdQ2mK6Rz/QFbs5qpUTp9dVEg=
-=jTOb
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQGyoACgkQFA3kzBSg
+KbbPEw/+L0vejcqiYVgjvQOhSRuegssHy7hONbA6r+I/ys7bfqO5LSl4oWZJQ32U
+vQ0ugyxLVAdghU1RgWu0G8I4iazxA0kdn+dYJYd02tQsCyNNrvJN68Xp8rvSIOCf
+H2eAN38HDfIIJxVBcxg6v+roiN0QBL3G+2HO1UdkAgni2rEOPDH2G62G0XKxVUiq
+LOCz0kEqz2gZ0WlZyjV3+J1iP7HIyW6dqtiOuEkwO43UvOqKkYyccr+n18gSS57e
+IEVK1JSfpf8ULyEl9gw01KTjPNzL2ZTIVLO3rLKRc4zMEQsSw7grbJHls3or7wk3
+LKHvEMwDd8Ba2e0ukKZZkap1Vpz6wL8+Yj8aDZy9dZIzDZUIzaVHB18VyKd4p5Wa
+hzXGTqg5WzZzoBp88wS3mQPKSwHpkm8ab69CBFSXOgduEo330oy4I8cOyPn+e3g5
+Ub6bMH+fx/JhEv585+Bm1j5AN9hYU6KvBwxdTk7pDkb9e3d+ftqpPLAddJ6Od3P1
+DvgU3QCf6pQoiwLO4pQ6kJUZACemldzo6Ycqvs+d3DqnkyVN7s0zpm5CSI26ycRM
+oYGJQ8SLF5WORxOqN6j4qFJsFnvNKNIjxUT1NYD6rxFQH9JQ5A9tSTw1xFNGxcLP
+7VrqEdm+5axqylDRa4+QqyNW7M4qMVqebS0/eGFeXcgpNzMvFb8=
+=psiU
 -----END PGP SIGNATURE-----
 
---v2trzgsti2cxbi6h--
+--km33xnxufwac6hzc--
