@@ -1,56 +1,76 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: nvidia-gpu: mark resume function as __maybe_unused
-Date: Tue, 11 Dec 2018 21:40:16 +0100
-Message-ID: <20181211204016.yrtpw4oodeets64e@ninjato>
-References: <20181210205356.2846843-1-arnd@arndb.de>
+Subject: Re: [PATCH v3 3/4] i2c: Add Actions Semiconductor Owl family S700
+ I2C support
+Date: Tue, 11 Dec 2018 21:54:44 +0100
+Message-ID: <20181211205444.rpfn5cmsndy4y2lv@ninjato>
+References: <20181211080448.24007-1-pn@denx.de>
+ <20181211080448.24007-4-pn@denx.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7plmlgd746tbu72r"
+        protocol="application/pgp-signature"; boundary="45isqxjr4vjntdmi"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181210205356.2846843-1-arnd@arndb.de>
+In-Reply-To: <20181211080448.24007-4-pn@denx.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Ajay Gupta <ajayg@nvidia.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Parthiban Nallathambi <pn@denx.de>
+Cc: manivannan.sadhasivam@linaro.org, afaerber@suse.de, robh+dt@kernel.org, mark.rutland@arm.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux@cubietech.com, thomas.liau@actions-semi.com, linux-actions@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---7plmlgd746tbu72r
+--45isqxjr4vjntdmi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Dec 10, 2018 at 09:53:45PM +0100, Arnd Bergmann wrote:
-> When CONFIG_PM is disabled, this is needed to avoid a harmless
-> unused-function warning:
+On Tue, Dec 11, 2018 at 09:04:47AM +0100, Parthiban Nallathambi wrote:
+> Add S700 to the list of devices supported by Owl I2C driver.
 >=20
-> drivers/i2c/busses/i2c-nvidia-gpu.c:345:12: error: 'gpu_i2c_resume' defin=
-ed but not used [-Werror=3Dunused-function]
+> Add Actions Semiconductor Owl family S700 I2C driver.
 >=20
-> Fixes: c71bcdcb42a7 ("i2c: add i2c bus driver for NVIDIA GPU")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Parthiban Nallathambi <pn@denx.de>
+> Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-Applied to for-current, thanks!
+Rob, is this okay or should we drop this patch and update the DT to
+contain first the s700 compatible and then s900 as fallback?
 
+> ---
+>  drivers/i2c/busses/i2c-owl.c | 1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-owl.c b/drivers/i2c/busses/i2c-owl.c
+> index 96b4572e6d9c..b6b5a495118b 100644
+> --- a/drivers/i2c/busses/i2c-owl.c
+> +++ b/drivers/i2c/busses/i2c-owl.c
+> @@ -475,6 +475,7 @@ static int owl_i2c_probe(struct platform_device *pdev)
+>  }
+> =20
+>  static const struct of_device_id owl_i2c_of_match[] =3D {
+> +	{ .compatible =3D "actions,s700-i2c" },
+>  	{ .compatible =3D "actions,s900-i2c" },
+>  	{ /* sentinel */ }
+>  };
+> --=20
+> 2.17.2
+>=20
 
---7plmlgd746tbu72r
+--45isqxjr4vjntdmi
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQILAACgkQFA3kzBSg
-KbZC3Q/+NqUuLEXbDtQQwaAfqsEIqzJvjH4HXSuKXfgV8jfdvDNLDZ4zQwygKzD/
-Z+oBuVIUdC2abTJMGPDFixz2j8MjsWuDo7uEEfPrsgG5fLC0yN6ffMIboxYO0MdC
-qL7Kka/uELRe+//MNQuVipn5/Ytg+6lLQgxljBD7n4mCm/5rzEpTCG3yLzRZi6ak
-q50WwfKAHOQ3TNy+UNHtTreM3RWhYpc7Y3ahZr8UhQTATcfCspLFGwf4GOxuNIo5
-UZwR53DGx+UwwP0r3plUA4b56QmvZY5U7j1BcOkmpotaANGbMufhvNzOkACf+Xs5
-Z8nOa/XfTRy2oecC/J7dkGtexnbZwoDiKM/JQigdoUdlwYjW4MMllbzYGoHOiHeJ
-iTf5K9FF2+tCtxxpA6/Pf/1pFw/6OSyoSPXQRcq6qyXL2Ea/xBAUni7FPk7WfYKo
-1FQyBP0iM3uxGvkBJZxJhg4mnwKcbb3nqzKuHHt2pcQZIZ0liR0J0/rpiFRYjsdo
-xkwqnxQha9g26izGokmFAQaHIGsP8Ymms2Z7pzZoi6yspov+gHTgXp3/SriRgXOF
-mHTBziwPl5h8+3i6hkO9WcRBHWZf+N+6gLtWFCFOCimu/Ps5f5U2E+tRoKby48zC
-RDw1fGPxAhrE58aL/TU99Cxc5weNn16sKFylDtov+sZhg9X/YZE=
-=j1hl
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwQJA8ACgkQFA3kzBSg
+KbYC5w//aduy+YzaN8BUpjKgg9R2sXqoXAc22xC6MfkvASLpCMVL2mdw7eNnUgOr
+nkTSKS633l8l1yDzzFdreOMwk0LTYnJzEFwKKAUr/zDHmGZYfWjpx/cS8MhCHv+K
+48V+gniY04EpacNvTmQssPGEIF6KDmdCxmacqBISLwVe1Npx5AF3IUxyosoyysv4
++ANDuF+Z3S6yOWnQcoXLHJ8iViSSSPXqoaJ0Jm+bUgZB+5osQbSL+viKsPze2aLA
+30wTLJmm4qG3fHewozjO3qxkTTu1JTlvAPZmNB0g8jYRoZ/zlgr1FYC5I1B1ET/K
+L8MKvLQfqPjczCJ/4joyl1TyVoikaTg98LYTghcnBe0P/pxSQknz+QHTAXwfsJU+
+4xKOPyMpEPSjfIdmcWiWVhd1zXW3/R/lU33Tiw8VumMhK/oan9GHuef9IVmtFMbE
+wRf9eR9JXJgIjNObQJ8c/EKy3PnGjwLOFCt6bSPJ7llGstE6JvcUYlZXbxQp4kNa
+IdLiOUFxwykCOxrnS0ZuMUSwJaKRxQQrteD+dEuH/lQEiOcD8iAPDYTRxdajoOPB
+Ga5Uw4VvM4oShExTlxKfPkhO4tv7NZ503SEFBEnpMo0SFFny+MVCIAERJmB2QkL2
+QZdp7gZpsfNxzrNueaUtL92mLNrmrfmhDwQ8rE6tTl8Jb+cHMxI=
+=cRo4
 -----END PGP SIGNATURE-----
 
---7plmlgd746tbu72r--
+--45isqxjr4vjntdmi--
