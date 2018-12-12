@@ -1,88 +1,68 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [RFC/RFT 00/10] i2c: move handling of suspended adapters to the
- core
-Date: Wed, 12 Dec 2018 11:09:41 +0100
-Message-ID: <e8c68ef5-5085-e304-4959-82c4959f4511@redhat.com>
-References: <20181210210310.12677-1-wsa+renesas@sang-engineering.com>
- <2094a0d4-733f-7f74-abd2-bdb28edd0f80@redhat.com>
- <20181211234102.GA6701@kunai>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v2] MAINTAINERS: add maintainers for ChromeOS EC
+ sub-drivers
+Date: Wed, 12 Dec 2018 17:06:35 +0000
+Message-ID: <20181212170635.09c3363d@archlinux>
+References: <20181211190953.13626-1-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181211234102.GA6701@kunai>
-Content-Language: en-US
+In-Reply-To: <20181211190953.13626-1-enric.balletbo@collabora.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: linux-kernel@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>, linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, groeck@chromium.org, kernel@collabora.com, linux-rtc@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Benson Leung <bleung@chromium.org>, Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, devicetree@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, linux-pm@vger.kernel.org, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linaro.org>, Hartmut Knaack <knaack.h@gmx.de>, Rob Herring <robh+dt@kernel.org>, Lars-Peter
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On Tue, 11 Dec 2018 20:09:52 +0100
+Enric Balletbo i Serra <enric.balletbo@collabora.com> wrote:
 
-On 12-12-18 00:41, Wolfram Sang wrote:
-> Hi Hans,
+> There are multiple ChromeOS EC sub-drivers spread in different
+> subsystems, as all of them are related to the Chrome stuff add
+> Benson and myself as a maintainers for all these sub-drivers.
 > 
-> thanks for testing this series!
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com> for iio parts.
+> ---
 > 
->> Note that the i2c-sprd driver changes in your patchset also get close
->> to triggering this problem, but they dodge the bullet because there
->> are separate system-wide and runtime suspend handlers and only the
->> system-wide handlers call the new i2c_mark_adapter_suspended() function.
+> Changes in v2:
+> - Fix typo in Benson email address.
 > 
-> Yes, this what I assumed to be all around - seperate handlers for RPM
-> and PM. And I also assumed that they could be seperated if they aren't
-> already. Until I read...
+>  MAINTAINERS | 24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
 > 
->> As I explain in the commit message of the first attached patch
->> simply always using split handlers is not really an option because
->> of adapter drivers using DPM_FLAG_SMART_PREPARE or
->> DPM_FLAG_SMART_SUSPEND.
-> 
-> ... this. I don't know what these flags do (and reading SMART in there
-> gives me more a 'uh-oh' feeling)
-
-On x86 the lines between runtime suspend and system-suspend are blurring
-with technologies like "connected standby" and in general devices moving
-to suspend2idle as system-suspend state, I guess this also applies to
-modern smartphone platforms but I'm not following those closely.
-
-What this means on x86 is that the firmware is not doing any suspend
-handling anymore and the OS / device-drivers get to do all the suspend.
-For many devices this means that if they are runtime-suspended, and there
-is no difference between the runtime and system suspend handling at the
-driver level, they can be left as is, so during a system suspend they are
-not touched at all (and left runtime suspended during system resume).
-
-The "SMART" bit is really not all that smart, SMART_PREPARE means that
-the drivers pm prepare callback will return positive non 0 (e.g. 1) to
-indicate that the device may not be kept in its runtime suspended
-state when transitioning to system-suspend, otoh when the prepare
-callback returns 0 and the SMART_PREPARE flag is set then *all* suspend/
-resume handling can be skipped during a system suspend.
-
-SMART_SUSPEND means that if the device is runtime-suspended it may be left
-as such, this only gets checked if the driver either does not have the
-SMART_PREPARE flag, or the prepare callback indicated that skipping the
-entire suspend/resume handling is not ok.
-
-So this is not that scary, but it does require driver authors to know
-what they are doing...
-
-> but if the handlers can't be split, the
-> issues you were seeing are a consequence, yes.
-> 
-> For me, this sadly spoils the whole concept. The patches you add make
-> things even more complicated. Not happy about that.
-
-Agreed, they don't fill me with happiness either.
-
-> Looking at the open coded version you did for the designware driver, I
-> wonder now if it is better to just leave it at driver level? Need to
-> sleep over it, though.
-
-I myself was thinking in the same direction (leave the entire suspended
-check at the driver level).
-
-Regards,
-
-Hans
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index a24129b0b043..bbe7180e2851 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -3625,6 +3625,30 @@ S:	Maintained
+>  T:	git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git
+>  F:	drivers/platform/chrome/
+>  
+> +CHROMEOS EC SUBDRIVERS
+> +M:	Benson Leung <bleung@chromium.org>
+> +M:	Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> +S:	Maintained
+> +F:	Documentation/devicetree/bindings/extcon/extcon-usbc-cros-ec.txt
+> +F:	Documentation/devicetree/bindings/input/cros-ec-keyb.txt
+> +F:	Documentation/devicetree/bindings/pwm/google,cros-ec-pwm.txt
+> +F:	Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
+> +F:	Documentation/devicetree/bindings/mfd/cros-ec.txt
+> +F:	Documentation/ABI/testing/sysfs-bus-iio-cros-ec
+> +F:	drivers/extcon/extcon-usbc-cros-ec.c
+> +F:	drivers/i2c/busses/i2c-cros-ec-tunnel.c
+> +F:	drivers/iio/accel/cros_ec*
+> +F:	drivers/iio/common/cros_ec_sensors/
+> +F:	drivers/iio/light/cros_ec*
+> +F:	drivers/iio/pressure/cros_ec*
+> +F:	drivers/input/keyboard/cros_ec*
+> +F:	drivers/mfd/cros_ec*
+> +F:	drivers/power/supply/cros_usbpd-charger.c
+> +F:	drivers/pwm/pwm-cros-ec.c
+> +F:	drivers/rtc/rtc-cros-ec.c
+> +F:	include/linux/iio/common/cros_ec_sensors_core.h
+> +F:	include/linux/mfd/cros_ec*
+> +
+>  CIRRUS LOGIC AUDIO CODEC DRIVERS
+>  M:	Brian Austin <brian.austin@cirrus.com>
+>  M:	Paul Handrigan <Paul.Handrigan@cirrus.com>
