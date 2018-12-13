@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 68/73] i2c: uniphier: fix violation of tLOW requirement for Fast-mode
-Date: Wed, 12 Dec 2018 23:28:33 -0500
-Message-ID: <20181213042838.75160-68-sashal@kernel.org>
-References: <20181213042838.75160-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 38/41] i2c: uniphier: fix violation of tLOW requirement for Fast-mode
+Date: Wed, 12 Dec 2018 23:30:51 -0500
+Message-ID: <20181213043054.75891-38-sashal@kernel.org>
+References: <20181213043054.75891-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181213042838.75160-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20181213043054.75891-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
