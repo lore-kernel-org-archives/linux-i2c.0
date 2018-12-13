@@ -1,293 +1,197 @@
-From: "Adamski, Krzysztof (Nokia - PL/Wroclaw)"
-        <krzysztof.adamski@nokia.com>
-Subject: [PATCH v2] i2c: axxia: support sequence command mode
-Date: Thu, 13 Dec 2018 12:09:38 +0000
-Message-ID: <20181213120926.GA10479@localhost.localdomain>
+From: "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
+Subject: Re: [PATCH v2] i2c: axxia: support sequence command mode
+Date: Thu, 13 Dec 2018 12:45:31 +0000
+Message-ID: <2b970778-dd77-816a-063c-210643ddaf0c@nokia.com>
 References: <20181211200435.abk3jdsmltz7c26w@ninjato>
+ <20181213120926.GA10479@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181211200435.abk3jdsmltz7c26w@ninjato>
+In-Reply-To: <20181213120926.GA10479@localhost.localdomain>
 Content-Language: en-US
-Content-ID: <820069974CB8F348B78F6929DDEA2E52@eurprd07.prod.outlook.com>
+Content-ID: <579FB5A56272E34AB8D80E5662F9D457@eurprd07.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Guenter Roeck <linux@roeck-us.net>, Tobias Jordan <Tobias.Jordan@elektrobit.com>, Peter Rosin <peda@axentia.se>, "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
+To: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Guenter Roeck <linux@roeck-us.net>, Tobias Jordan <Tobias.Jordan@elektrobit.com>, Peter Rosin <peda@axentia.se>
 List-Id: linux-i2c@vger.kernel.org
 
-In order to comply with SMBus specification, the Axxia I=B2C module will
-abort the multi message transfer if the delay between finishing sending
-one message and starting another is longer than 25ms. Unfortunately it
-isn't that hard to trigger this situation on a busy system. In order to
-fix this problem, we should make sure hardware does whole transaction
-without waiting for software to fill some data.
-
-Fortunately, in addition to Manual mode that is currently used by the
-driver to perform I=B2C transfers, the module supports also so called
-Sequence mode. In this mode, the module automatically performs
-predefined sequence of operations - it sends a slave address, transmits
-specified number of bytes from the FIFO, changes transfer direction,
-resends the slave address and then reads specified number of bytes to
-FIFO. While very inflexible, this does fit a most common case of multi
-message transfer - the one where you first write a register number you
-want to read and then read it.
-
-To use this mode effectively, a number of conditions must be met to
-ensure the transaction does fit the predefined sequence. In case this is
-not the case, a fallback to manual mode is used.
-
-The initialization of this mode is very similar to Manual mode. The most
-notable difference is different bit in the Master Interrupt Status
-designating finishing of transaction. Also some of the errors, like TSS,
-cannot happen in this mode.
-
-While it is possible to support transactions requesting a read of any
-size (RFL interrupt will be generated when FIFO size is not enough) the
-TFL interrupt is not available in this mode, thus the write part of the
-transaction cannot exceed FIFO_SIZE (8).
-
-Note that in case of a NAK during transaction, the NA/ND status bits
-will be set before STOP command is generated, triggering an interrupt
-while the controller is still busy. Current solution for this problem is
-to actively wait for this command to stop before leaving xfer callback.
-
-Signed-off-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
----
-
-Sorry for those problems I still don't know why my checkpatch did not
-complain about it (have to verify that) and I did add smatch to my
-arsenal now.
-
-Changes in v2:
-- added timeout to axxia_i2c_handle_seq_nak()
-- changed udelay to usleep_range in axxia_i2c_handle_seq_nak()
-
- drivers/i2c/busses/i2c-axxia.c | 108 ++++++++++++++++++++++++++++++---
- 1 file changed, 101 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-axxia.c b/drivers/i2c/busses/i2c-axxia.=
-c
-index 35258321e81b..03f1ce75a32e 100644
---- a/drivers/i2c/busses/i2c-axxia.c
-+++ b/drivers/i2c/busses/i2c-axxia.c
-@@ -12,6 +12,7 @@
-  */
- #include <linux/clk.h>
- #include <linux/clkdev.h>
-+#include <linux/delay.h>
- #include <linux/err.h>
- #include <linux/i2c.h>
- #include <linux/init.h>
-@@ -25,6 +26,7 @@
- #define I2C_XFER_TIMEOUT    (msecs_to_jiffies(250))
- #define I2C_STOP_TIMEOUT    (msecs_to_jiffies(100))
- #define FIFO_SIZE           8
-+#define SEQ_LEN             2
-=20
- #define GLOBAL_CONTROL		0x00
- #define   GLOBAL_MST_EN         BIT(0)
-@@ -51,6 +53,7 @@
- #define   CMD_BUSY		(1<<3)
- #define   CMD_MANUAL		(0x00 | CMD_BUSY)
- #define   CMD_AUTO		(0x01 | CMD_BUSY)
-+#define   CMD_SEQUENCE		(0x02 | CMD_BUSY)
- #define MST_RX_XFER		0x2c
- #define MST_TX_XFER		0x30
- #define MST_ADDR_1		0x34
-@@ -87,7 +90,9 @@
-  * axxia_i2c_dev - I2C device context
-  * @base: pointer to register struct
-  * @msg: pointer to current message
-- * @msg_xfrd: number of bytes transferred in msg
-+ * @msg_r: pointer to current read message (sequence transfer)
-+ * @msg_xfrd: number of bytes transferred in tx_fifo
-+ * @msg_xfrd_r: number of bytes transferred in rx_fifo
-  * @msg_err: error code for completed message
-  * @msg_complete: xfer completion object
-  * @dev: device reference
-@@ -98,7 +103,9 @@
- struct axxia_i2c_dev {
- 	void __iomem *base;
- 	struct i2c_msg *msg;
-+	struct i2c_msg *msg_r;
- 	size_t msg_xfrd;
-+	size_t msg_xfrd_r;
- 	int msg_err;
- 	struct completion msg_complete;
- 	struct device *dev;
-@@ -227,14 +234,14 @@ static int i2c_m_recv_len(const struct i2c_msg *msg)
-  */
- static int axxia_i2c_empty_rx_fifo(struct axxia_i2c_dev *idev)
- {
--	struct i2c_msg *msg =3D idev->msg;
-+	struct i2c_msg *msg =3D idev->msg_r;
- 	size_t rx_fifo_avail =3D readl(idev->base + MST_RX_FIFO);
--	int bytes_to_transfer =3D min(rx_fifo_avail, msg->len - idev->msg_xfrd);
-+	int bytes_to_transfer =3D min(rx_fifo_avail, msg->len - idev->msg_xfrd_r)=
-;
-=20
- 	while (bytes_to_transfer-- > 0) {
- 		int c =3D readl(idev->base + MST_DATA);
-=20
--		if (idev->msg_xfrd =3D=3D 0 && i2c_m_recv_len(msg)) {
-+		if (idev->msg_xfrd_r =3D=3D 0 && i2c_m_recv_len(msg)) {
- 			/*
- 			 * Check length byte for SMBus block read
- 			 */
-@@ -247,7 +254,7 @@ static int axxia_i2c_empty_rx_fifo(struct axxia_i2c_dev=
- *idev)
- 			msg->len =3D 1 + c;
- 			writel(msg->len, idev->base + MST_RX_XFER);
- 		}
--		msg->buf[idev->msg_xfrd++] =3D c;
-+		msg->buf[idev->msg_xfrd_r++] =3D c;
- 	}
-=20
- 	return 0;
-@@ -287,7 +294,7 @@ static irqreturn_t axxia_i2c_isr(int irq, void *_dev)
- 	}
-=20
- 	/* RX FIFO needs service? */
--	if (i2c_m_rd(idev->msg) && (status & MST_STATUS_RFL))
-+	if (i2c_m_rd(idev->msg_r) && (status & MST_STATUS_RFL))
- 		axxia_i2c_empty_rx_fifo(idev);
-=20
- 	/* TX FIFO needs service? */
-@@ -320,9 +327,12 @@ static irqreturn_t axxia_i2c_isr(int irq, void *_dev)
- 	} else if (status & MST_STATUS_SNS) {
- 		/* Transfer done */
- 		i2c_int_disable(idev, ~MST_STATUS_TSS);
--		if (i2c_m_rd(idev->msg) && idev->msg_xfrd < idev->msg->len)
-+		if (i2c_m_rd(idev->msg_r) && idev->msg_xfrd_r < idev->msg_r->len)
- 			axxia_i2c_empty_rx_fifo(idev);
- 		complete(&idev->msg_complete);
-+	} else if (status & MST_STATUS_SS) {
-+		/* Auto/Sequence transfer done */
-+		complete(&idev->msg_complete);
- 	} else if (status & MST_STATUS_TSS) {
- 		/* Transfer timeout */
- 		idev->msg_err =3D -ETIMEDOUT;
-@@ -363,6 +373,70 @@ static void axxia_i2c_set_addr(struct axxia_i2c_dev *i=
-dev, struct i2c_msg *msg)
- 	writel(addr_2, idev->base + MST_ADDR_2);
- }
-=20
-+/* The NAK interrupt will be sent _before_ issuing STOP command
-+ * so the controller might still be busy processing it. No
-+ * interrupt will be sent at the end so we have to poll for it
-+ */
-+static int axxia_i2c_handle_seq_nak(struct axxia_i2c_dev *idev)
-+{
-+	unsigned long timeout =3D jiffies + I2C_XFER_TIMEOUT;
-+
-+	do {
-+		if ((readl(idev->base + MST_COMMAND) & CMD_BUSY) =3D=3D 0)
-+			return 0;
-+		usleep_range(1, 100);
-+	} while (time_before(jiffies, timeout));
-+
-+	return -ETIMEDOUT;
-+}
-+
-+static int axxia_i2c_xfer_seq(struct axxia_i2c_dev *idev, struct i2c_msg m=
-sgs[])
-+{
-+	u32 int_mask =3D MST_STATUS_ERR | MST_STATUS_SS | MST_STATUS_RFL;
-+	u32 rlen =3D i2c_m_recv_len(&msgs[1]) ? I2C_SMBUS_BLOCK_MAX : msgs[1].len=
-;
-+	unsigned long time_left;
-+
-+	axxia_i2c_set_addr(idev, &msgs[0]);
-+
-+	writel(msgs[0].len, idev->base + MST_TX_XFER);
-+	writel(rlen, idev->base + MST_RX_XFER);
-+
-+	idev->msg =3D &msgs[0];
-+	idev->msg_r =3D &msgs[1];
-+	idev->msg_xfrd =3D 0;
-+	idev->msg_xfrd_r =3D 0;
-+	axxia_i2c_fill_tx_fifo(idev);
-+
-+	writel(CMD_SEQUENCE, idev->base + MST_COMMAND);
-+
-+	reinit_completion(&idev->msg_complete);
-+	i2c_int_enable(idev, int_mask);
-+
-+	time_left =3D wait_for_completion_timeout(&idev->msg_complete,
-+						I2C_XFER_TIMEOUT);
-+
-+	i2c_int_disable(idev, int_mask);
-+
-+	axxia_i2c_empty_rx_fifo(idev);
-+
-+	if (idev->msg_err =3D=3D -ENXIO) {
-+		if (axxia_i2c_handle_seq_nak(idev))
-+			axxia_i2c_init(idev);
-+	} else if (readl(idev->base + MST_COMMAND) & CMD_BUSY)
-+		dev_warn(idev->dev, "busy after xfer\n");
-+
-+	if (time_left =3D=3D 0) {
-+		idev->msg_err =3D -ETIMEDOUT;
-+		i2c_recover_bus(&idev->adapter);
-+		axxia_i2c_init(idev);
-+	}
-+
-+	if (unlikely(idev->msg_err) && idev->msg_err !=3D -ENXIO)
-+		axxia_i2c_init(idev);
-+
-+	return idev->msg_err;
-+}
-+
- static int axxia_i2c_xfer_msg(struct axxia_i2c_dev *idev, struct i2c_msg *=
-msg)
- {
- 	u32 int_mask =3D MST_STATUS_ERR | MST_STATUS_SNS;
-@@ -371,7 +445,9 @@ static int axxia_i2c_xfer_msg(struct axxia_i2c_dev *ide=
-v, struct i2c_msg *msg)
- 	unsigned int wt_value;
-=20
- 	idev->msg =3D msg;
-+	idev->msg_r =3D msg;
- 	idev->msg_xfrd =3D 0;
-+	idev->msg_xfrd_r =3D 0;
- 	reinit_completion(&idev->msg_complete);
-=20
- 	axxia_i2c_set_addr(idev, msg);
-@@ -452,6 +528,18 @@ static int axxia_i2c_stop(struct axxia_i2c_dev *idev)
- 	return 0;
- }
-=20
-+/* This function checks if the msgs[] array contains messages compatible w=
-ith
-+ * Sequence mode of operation. This mode assumes there will be exactly one
-+ * write of non-zero length followed by exactly one read of non-zero lengt=
-h,
-+ * both targeted at the same client device.
-+ */
-+static bool axxia_i2c_sequence_ok(struct i2c_msg msgs[], int num)
-+{
-+	return num =3D=3D SEQ_LEN && !i2c_m_rd(&msgs[0]) && i2c_m_rd(&msgs[1]) &&
-+	       msgs[0].len > 0 && msgs[0].len <=3D FIFO_SIZE &&
-+	       msgs[1].len > 0 && msgs[0].addr =3D=3D msgs[1].addr;
-+}
-+
- static int
- axxia_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- {
-@@ -460,6 +548,12 @@ axxia_i2c_xfer(struct i2c_adapter *adap, struct i2c_ms=
-g msgs[], int num)
- 	int ret =3D 0;
-=20
- 	idev->msg_err =3D 0;
-+
-+	if (axxia_i2c_sequence_ok(msgs, num)) {
-+		ret =3D axxia_i2c_xfer_seq(idev, msgs);
-+		return ret ? : SEQ_LEN;
-+	}
-+
- 	i2c_int_enable(idev, MST_STATUS_TSS);
-=20
- 	for (i =3D 0; ret =3D=3D 0 && i < num; ++i)
---=20
-2.17.2
+SGkhDQoNCk9uIDEzLzEyLzIwMTggMTM6MDksIEFkYW1za2ksIEtyenlzenRvZiAoTm9raWEgLSBQ
+TC9Xcm9jbGF3KSB3cm90ZToNCj4gSW4gb3JkZXIgdG8gY29tcGx5IHdpdGggU01CdXMgc3BlY2lm
+aWNhdGlvbiwgdGhlIEF4eGlhIEnCskMgbW9kdWxlIHdpbGwNCj4gYWJvcnQgdGhlIG11bHRpIG1l
+c3NhZ2UgdHJhbnNmZXIgaWYgdGhlIGRlbGF5IGJldHdlZW4gZmluaXNoaW5nIHNlbmRpbmcNCj4g
+b25lIG1lc3NhZ2UgYW5kIHN0YXJ0aW5nIGFub3RoZXIgaXMgbG9uZ2VyIHRoYW4gMjVtcy4gVW5m
+b3J0dW5hdGVseSBpdA0KPiBpc24ndCB0aGF0IGhhcmQgdG8gdHJpZ2dlciB0aGlzIHNpdHVhdGlv
+biBvbiBhIGJ1c3kgc3lzdGVtLiBJbiBvcmRlciB0bw0KPiBmaXggdGhpcyBwcm9ibGVtLCB3ZSBz
+aG91bGQgbWFrZSBzdXJlIGhhcmR3YXJlIGRvZXMgd2hvbGUgdHJhbnNhY3Rpb24NCj4gd2l0aG91
+dCB3YWl0aW5nIGZvciBzb2Z0d2FyZSB0byBmaWxsIHNvbWUgZGF0YS4NCj4gDQo+IEZvcnR1bmF0
+ZWx5LCBpbiBhZGRpdGlvbiB0byBNYW51YWwgbW9kZSB0aGF0IGlzIGN1cnJlbnRseSB1c2VkIGJ5
+IHRoZQ0KPiBkcml2ZXIgdG8gcGVyZm9ybSBJwrJDIHRyYW5zZmVycywgdGhlIG1vZHVsZSBzdXBw
+b3J0cyBhbHNvIHNvIGNhbGxlZA0KPiBTZXF1ZW5jZSBtb2RlLiBJbiB0aGlzIG1vZGUsIHRoZSBt
+b2R1bGUgYXV0b21hdGljYWxseSBwZXJmb3Jtcw0KPiBwcmVkZWZpbmVkIHNlcXVlbmNlIG9mIG9w
+ZXJhdGlvbnMgLSBpdCBzZW5kcyBhIHNsYXZlIGFkZHJlc3MsIHRyYW5zbWl0cw0KPiBzcGVjaWZp
+ZWQgbnVtYmVyIG9mIGJ5dGVzIGZyb20gdGhlIEZJRk8sIGNoYW5nZXMgdHJhbnNmZXIgZGlyZWN0
+aW9uLA0KPiByZXNlbmRzIHRoZSBzbGF2ZSBhZGRyZXNzIGFuZCB0aGVuIHJlYWRzIHNwZWNpZmll
+ZCBudW1iZXIgb2YgYnl0ZXMgdG8NCj4gRklGTy4gV2hpbGUgdmVyeSBpbmZsZXhpYmxlLCB0aGlz
+IGRvZXMgZml0IGEgbW9zdCBjb21tb24gY2FzZSBvZiBtdWx0aQ0KPiBtZXNzYWdlIHRyYW5zZmVy
+IC0gdGhlIG9uZSB3aGVyZSB5b3UgZmlyc3Qgd3JpdGUgYSByZWdpc3RlciBudW1iZXIgeW91DQo+
+IHdhbnQgdG8gcmVhZCBhbmQgdGhlbiByZWFkIGl0Lg0KPiANCj4gVG8gdXNlIHRoaXMgbW9kZSBl
+ZmZlY3RpdmVseSwgYSBudW1iZXIgb2YgY29uZGl0aW9ucyBtdXN0IGJlIG1ldCB0bw0KPiBlbnN1
+cmUgdGhlIHRyYW5zYWN0aW9uIGRvZXMgZml0IHRoZSBwcmVkZWZpbmVkIHNlcXVlbmNlLiBJbiBj
+YXNlIHRoaXMgaXMNCj4gbm90IHRoZSBjYXNlLCBhIGZhbGxiYWNrIHRvIG1hbnVhbCBtb2RlIGlz
+IHVzZWQuDQo+IA0KPiBUaGUgaW5pdGlhbGl6YXRpb24gb2YgdGhpcyBtb2RlIGlzIHZlcnkgc2lt
+aWxhciB0byBNYW51YWwgbW9kZS4gVGhlIG1vc3QNCj4gbm90YWJsZSBkaWZmZXJlbmNlIGlzIGRp
+ZmZlcmVudCBiaXQgaW4gdGhlIE1hc3RlciBJbnRlcnJ1cHQgU3RhdHVzDQo+IGRlc2lnbmF0aW5n
+IGZpbmlzaGluZyBvZiB0cmFuc2FjdGlvbi4gQWxzbyBzb21lIG9mIHRoZSBlcnJvcnMsIGxpa2Ug
+VFNTLA0KPiBjYW5ub3QgaGFwcGVuIGluIHRoaXMgbW9kZS4NCj4gDQo+IFdoaWxlIGl0IGlzIHBv
+c3NpYmxlIHRvIHN1cHBvcnQgdHJhbnNhY3Rpb25zIHJlcXVlc3RpbmcgYSByZWFkIG9mIGFueQ0K
+PiBzaXplIChSRkwgaW50ZXJydXB0IHdpbGwgYmUgZ2VuZXJhdGVkIHdoZW4gRklGTyBzaXplIGlz
+IG5vdCBlbm91Z2gpIHRoZQ0KPiBURkwgaW50ZXJydXB0IGlzIG5vdCBhdmFpbGFibGUgaW4gdGhp
+cyBtb2RlLCB0aHVzIHRoZSB3cml0ZSBwYXJ0IG9mIHRoZQ0KPiB0cmFuc2FjdGlvbiBjYW5ub3Qg
+ZXhjZWVkIEZJRk9fU0laRSAoOCkuDQo+IA0KPiBOb3RlIHRoYXQgaW4gY2FzZSBvZiBhIE5BSyBk
+dXJpbmcgdHJhbnNhY3Rpb24sIHRoZSBOQS9ORCBzdGF0dXMgYml0cw0KPiB3aWxsIGJlIHNldCBi
+ZWZvcmUgU1RPUCBjb21tYW5kIGlzIGdlbmVyYXRlZCwgdHJpZ2dlcmluZyBhbiBpbnRlcnJ1cHQN
+Cj4gd2hpbGUgdGhlIGNvbnRyb2xsZXIgaXMgc3RpbGwgYnVzeS4gQ3VycmVudCBzb2x1dGlvbiBm
+b3IgdGhpcyBwcm9ibGVtIGlzDQo+IHRvIGFjdGl2ZWx5IHdhaXQgZm9yIHRoaXMgY29tbWFuZCB0
+byBzdG9wIGJlZm9yZSBsZWF2aW5nIHhmZXIgY2FsbGJhY2suDQoNClJldmlld2VkLWJ5OiBBbGV4
+YW5kZXIgU3ZlcmRsaW4gPGFsZXhhbmRlci5zdmVyZGxpbkBub2tpYS5jb20+DQoNCj4gU2lnbmVk
+LW9mZi1ieTogS3J6eXN6dG9mIEFkYW1za2kgPGtyenlzenRvZi5hZGFtc2tpQG5va2lhLmNvbT4N
+Cj4gLS0tDQo+IA0KPiBTb3JyeSBmb3IgdGhvc2UgcHJvYmxlbXMgSSBzdGlsbCBkb24ndCBrbm93
+IHdoeSBteSBjaGVja3BhdGNoIGRpZCBub3QNCj4gY29tcGxhaW4gYWJvdXQgaXQgKGhhdmUgdG8g
+dmVyaWZ5IHRoYXQpIGFuZCBJIGRpZCBhZGQgc21hdGNoIHRvIG15DQo+IGFyc2VuYWwgbm93Lg0K
+PiANCj4gQ2hhbmdlcyBpbiB2MjoNCj4gLSBhZGRlZCB0aW1lb3V0IHRvIGF4eGlhX2kyY19oYW5k
+bGVfc2VxX25haygpDQo+IC0gY2hhbmdlZCB1ZGVsYXkgdG8gdXNsZWVwX3JhbmdlIGluIGF4eGlh
+X2kyY19oYW5kbGVfc2VxX25haygpDQo+IA0KPiAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1heHhp
+YS5jIHwgMTA4ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLQ0KPiAgMSBmaWxlIGNo
+YW5nZWQsIDEwMSBpbnNlcnRpb25zKCspLCA3IGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdp
+dCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXh4aWEuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9p
+MmMtYXh4aWEuYw0KPiBpbmRleCAzNTI1ODMyMWU4MWIuLjAzZjFjZTc1YTMyZSAxMDA2NDQNCj4g
+LS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1heHhpYS5jDQo+ICsrKyBiL2RyaXZlcnMvaTJj
+L2J1c3Nlcy9pMmMtYXh4aWEuYw0KPiBAQCAtMTIsNiArMTIsNyBAQA0KPiAgICovDQo+ICAjaW5j
+bHVkZSA8bGludXgvY2xrLmg+DQo+ICAjaW5jbHVkZSA8bGludXgvY2xrZGV2Lmg+DQo+ICsjaW5j
+bHVkZSA8bGludXgvZGVsYXkuaD4NCj4gICNpbmNsdWRlIDxsaW51eC9lcnIuaD4NCj4gICNpbmNs
+dWRlIDxsaW51eC9pMmMuaD4NCj4gICNpbmNsdWRlIDxsaW51eC9pbml0Lmg+DQo+IEBAIC0yNSw2
+ICsyNiw3IEBADQo+ICAjZGVmaW5lIEkyQ19YRkVSX1RJTUVPVVQgICAgKG1zZWNzX3RvX2ppZmZp
+ZXMoMjUwKSkNCj4gICNkZWZpbmUgSTJDX1NUT1BfVElNRU9VVCAgICAobXNlY3NfdG9famlmZmll
+cygxMDApKQ0KPiAgI2RlZmluZSBGSUZPX1NJWkUgICAgICAgICAgIDgNCj4gKyNkZWZpbmUgU0VR
+X0xFTiAgICAgICAgICAgICAyDQo+ICANCj4gICNkZWZpbmUgR0xPQkFMX0NPTlRST0wJCTB4MDAN
+Cj4gICNkZWZpbmUgICBHTE9CQUxfTVNUX0VOICAgICAgICAgQklUKDApDQo+IEBAIC01MSw2ICs1
+Myw3IEBADQo+ICAjZGVmaW5lICAgQ01EX0JVU1kJCSgxPDwzKQ0KPiAgI2RlZmluZSAgIENNRF9N
+QU5VQUwJCSgweDAwIHwgQ01EX0JVU1kpDQo+ICAjZGVmaW5lICAgQ01EX0FVVE8JCSgweDAxIHwg
+Q01EX0JVU1kpDQo+ICsjZGVmaW5lICAgQ01EX1NFUVVFTkNFCQkoMHgwMiB8IENNRF9CVVNZKQ0K
+PiAgI2RlZmluZSBNU1RfUlhfWEZFUgkJMHgyYw0KPiAgI2RlZmluZSBNU1RfVFhfWEZFUgkJMHgz
+MA0KPiAgI2RlZmluZSBNU1RfQUREUl8xCQkweDM0DQo+IEBAIC04Nyw3ICs5MCw5IEBADQo+ICAg
+KiBheHhpYV9pMmNfZGV2IC0gSTJDIGRldmljZSBjb250ZXh0DQo+ICAgKiBAYmFzZTogcG9pbnRl
+ciB0byByZWdpc3RlciBzdHJ1Y3QNCj4gICAqIEBtc2c6IHBvaW50ZXIgdG8gY3VycmVudCBtZXNz
+YWdlDQo+IC0gKiBAbXNnX3hmcmQ6IG51bWJlciBvZiBieXRlcyB0cmFuc2ZlcnJlZCBpbiBtc2cN
+Cj4gKyAqIEBtc2dfcjogcG9pbnRlciB0byBjdXJyZW50IHJlYWQgbWVzc2FnZSAoc2VxdWVuY2Ug
+dHJhbnNmZXIpDQo+ICsgKiBAbXNnX3hmcmQ6IG51bWJlciBvZiBieXRlcyB0cmFuc2ZlcnJlZCBp
+biB0eF9maWZvDQo+ICsgKiBAbXNnX3hmcmRfcjogbnVtYmVyIG9mIGJ5dGVzIHRyYW5zZmVycmVk
+IGluIHJ4X2ZpZm8NCj4gICAqIEBtc2dfZXJyOiBlcnJvciBjb2RlIGZvciBjb21wbGV0ZWQgbWVz
+c2FnZQ0KPiAgICogQG1zZ19jb21wbGV0ZTogeGZlciBjb21wbGV0aW9uIG9iamVjdA0KPiAgICog
+QGRldjogZGV2aWNlIHJlZmVyZW5jZQ0KPiBAQCAtOTgsNyArMTAzLDkgQEANCj4gIHN0cnVjdCBh
+eHhpYV9pMmNfZGV2IHsNCj4gIAl2b2lkIF9faW9tZW0gKmJhc2U7DQo+ICAJc3RydWN0IGkyY19t
+c2cgKm1zZzsNCj4gKwlzdHJ1Y3QgaTJjX21zZyAqbXNnX3I7DQo+ICAJc2l6ZV90IG1zZ194ZnJk
+Ow0KPiArCXNpemVfdCBtc2dfeGZyZF9yOw0KPiAgCWludCBtc2dfZXJyOw0KPiAgCXN0cnVjdCBj
+b21wbGV0aW9uIG1zZ19jb21wbGV0ZTsNCj4gIAlzdHJ1Y3QgZGV2aWNlICpkZXY7DQo+IEBAIC0y
+MjcsMTQgKzIzNCwxNCBAQCBzdGF0aWMgaW50IGkyY19tX3JlY3ZfbGVuKGNvbnN0IHN0cnVjdCBp
+MmNfbXNnICptc2cpDQo+ICAgKi8NCj4gIHN0YXRpYyBpbnQgYXh4aWFfaTJjX2VtcHR5X3J4X2Zp
+Zm8oc3RydWN0IGF4eGlhX2kyY19kZXYgKmlkZXYpDQo+ICB7DQo+IC0Jc3RydWN0IGkyY19tc2cg
+Km1zZyA9IGlkZXYtPm1zZzsNCj4gKwlzdHJ1Y3QgaTJjX21zZyAqbXNnID0gaWRldi0+bXNnX3I7
+DQo+ICAJc2l6ZV90IHJ4X2ZpZm9fYXZhaWwgPSByZWFkbChpZGV2LT5iYXNlICsgTVNUX1JYX0ZJ
+Rk8pOw0KPiAtCWludCBieXRlc190b190cmFuc2ZlciA9IG1pbihyeF9maWZvX2F2YWlsLCBtc2ct
+PmxlbiAtIGlkZXYtPm1zZ194ZnJkKTsNCj4gKwlpbnQgYnl0ZXNfdG9fdHJhbnNmZXIgPSBtaW4o
+cnhfZmlmb19hdmFpbCwgbXNnLT5sZW4gLSBpZGV2LT5tc2dfeGZyZF9yKTsNCj4gIA0KPiAgCXdo
+aWxlIChieXRlc190b190cmFuc2Zlci0tID4gMCkgew0KPiAgCQlpbnQgYyA9IHJlYWRsKGlkZXYt
+PmJhc2UgKyBNU1RfREFUQSk7DQo+ICANCj4gLQkJaWYgKGlkZXYtPm1zZ194ZnJkID09IDAgJiYg
+aTJjX21fcmVjdl9sZW4obXNnKSkgew0KPiArCQlpZiAoaWRldi0+bXNnX3hmcmRfciA9PSAwICYm
+IGkyY19tX3JlY3ZfbGVuKG1zZykpIHsNCj4gIAkJCS8qDQo+ICAJCQkgKiBDaGVjayBsZW5ndGgg
+Ynl0ZSBmb3IgU01CdXMgYmxvY2sgcmVhZA0KPiAgCQkJICovDQo+IEBAIC0yNDcsNyArMjU0LDcg
+QEAgc3RhdGljIGludCBheHhpYV9pMmNfZW1wdHlfcnhfZmlmbyhzdHJ1Y3QgYXh4aWFfaTJjX2Rl
+diAqaWRldikNCj4gIAkJCW1zZy0+bGVuID0gMSArIGM7DQo+ICAJCQl3cml0ZWwobXNnLT5sZW4s
+IGlkZXYtPmJhc2UgKyBNU1RfUlhfWEZFUik7DQo+ICAJCX0NCj4gLQkJbXNnLT5idWZbaWRldi0+
+bXNnX3hmcmQrK10gPSBjOw0KPiArCQltc2ctPmJ1ZltpZGV2LT5tc2dfeGZyZF9yKytdID0gYzsN
+Cj4gIAl9DQo+ICANCj4gIAlyZXR1cm4gMDsNCj4gQEAgLTI4Nyw3ICsyOTQsNyBAQCBzdGF0aWMg
+aXJxcmV0dXJuX3QgYXh4aWFfaTJjX2lzcihpbnQgaXJxLCB2b2lkICpfZGV2KQ0KPiAgCX0NCj4g
+IA0KPiAgCS8qIFJYIEZJRk8gbmVlZHMgc2VydmljZT8gKi8NCj4gLQlpZiAoaTJjX21fcmQoaWRl
+di0+bXNnKSAmJiAoc3RhdHVzICYgTVNUX1NUQVRVU19SRkwpKQ0KPiArCWlmIChpMmNfbV9yZChp
+ZGV2LT5tc2dfcikgJiYgKHN0YXR1cyAmIE1TVF9TVEFUVVNfUkZMKSkNCj4gIAkJYXh4aWFfaTJj
+X2VtcHR5X3J4X2ZpZm8oaWRldik7DQo+ICANCj4gIAkvKiBUWCBGSUZPIG5lZWRzIHNlcnZpY2U/
+ICovDQo+IEBAIC0zMjAsOSArMzI3LDEyIEBAIHN0YXRpYyBpcnFyZXR1cm5fdCBheHhpYV9pMmNf
+aXNyKGludCBpcnEsIHZvaWQgKl9kZXYpDQo+ICAJfSBlbHNlIGlmIChzdGF0dXMgJiBNU1RfU1RB
+VFVTX1NOUykgew0KPiAgCQkvKiBUcmFuc2ZlciBkb25lICovDQo+ICAJCWkyY19pbnRfZGlzYWJs
+ZShpZGV2LCB+TVNUX1NUQVRVU19UU1MpOw0KPiAtCQlpZiAoaTJjX21fcmQoaWRldi0+bXNnKSAm
+JiBpZGV2LT5tc2dfeGZyZCA8IGlkZXYtPm1zZy0+bGVuKQ0KPiArCQlpZiAoaTJjX21fcmQoaWRl
+di0+bXNnX3IpICYmIGlkZXYtPm1zZ194ZnJkX3IgPCBpZGV2LT5tc2dfci0+bGVuKQ0KPiAgCQkJ
+YXh4aWFfaTJjX2VtcHR5X3J4X2ZpZm8oaWRldik7DQo+ICAJCWNvbXBsZXRlKCZpZGV2LT5tc2df
+Y29tcGxldGUpOw0KPiArCX0gZWxzZSBpZiAoc3RhdHVzICYgTVNUX1NUQVRVU19TUykgew0KPiAr
+CQkvKiBBdXRvL1NlcXVlbmNlIHRyYW5zZmVyIGRvbmUgKi8NCj4gKwkJY29tcGxldGUoJmlkZXYt
+Pm1zZ19jb21wbGV0ZSk7DQo+ICAJfSBlbHNlIGlmIChzdGF0dXMgJiBNU1RfU1RBVFVTX1RTUykg
+ew0KPiAgCQkvKiBUcmFuc2ZlciB0aW1lb3V0ICovDQo+ICAJCWlkZXYtPm1zZ19lcnIgPSAtRVRJ
+TUVET1VUOw0KPiBAQCAtMzYzLDYgKzM3Myw3MCBAQCBzdGF0aWMgdm9pZCBheHhpYV9pMmNfc2V0
+X2FkZHIoc3RydWN0IGF4eGlhX2kyY19kZXYgKmlkZXYsIHN0cnVjdCBpMmNfbXNnICptc2cpDQo+
+ICAJd3JpdGVsKGFkZHJfMiwgaWRldi0+YmFzZSArIE1TVF9BRERSXzIpOw0KPiAgfQ0KPiAgDQo+
+ICsvKiBUaGUgTkFLIGludGVycnVwdCB3aWxsIGJlIHNlbnQgX2JlZm9yZV8gaXNzdWluZyBTVE9Q
+IGNvbW1hbmQNCj4gKyAqIHNvIHRoZSBjb250cm9sbGVyIG1pZ2h0IHN0aWxsIGJlIGJ1c3kgcHJv
+Y2Vzc2luZyBpdC4gTm8NCj4gKyAqIGludGVycnVwdCB3aWxsIGJlIHNlbnQgYXQgdGhlIGVuZCBz
+byB3ZSBoYXZlIHRvIHBvbGwgZm9yIGl0DQo+ICsgKi8NCj4gK3N0YXRpYyBpbnQgYXh4aWFfaTJj
+X2hhbmRsZV9zZXFfbmFrKHN0cnVjdCBheHhpYV9pMmNfZGV2ICppZGV2KQ0KPiArew0KPiArCXVu
+c2lnbmVkIGxvbmcgdGltZW91dCA9IGppZmZpZXMgKyBJMkNfWEZFUl9USU1FT1VUOw0KPiArDQo+
+ICsJZG8gew0KPiArCQlpZiAoKHJlYWRsKGlkZXYtPmJhc2UgKyBNU1RfQ09NTUFORCkgJiBDTURf
+QlVTWSkgPT0gMCkNCj4gKwkJCXJldHVybiAwOw0KPiArCQl1c2xlZXBfcmFuZ2UoMSwgMTAwKTsN
+Cj4gKwl9IHdoaWxlICh0aW1lX2JlZm9yZShqaWZmaWVzLCB0aW1lb3V0KSk7DQo+ICsNCj4gKwly
+ZXR1cm4gLUVUSU1FRE9VVDsNCj4gK30NCj4gKw0KPiArc3RhdGljIGludCBheHhpYV9pMmNfeGZl
+cl9zZXEoc3RydWN0IGF4eGlhX2kyY19kZXYgKmlkZXYsIHN0cnVjdCBpMmNfbXNnIG1zZ3NbXSkN
+Cj4gK3sNCj4gKwl1MzIgaW50X21hc2sgPSBNU1RfU1RBVFVTX0VSUiB8IE1TVF9TVEFUVVNfU1Mg
+fCBNU1RfU1RBVFVTX1JGTDsNCj4gKwl1MzIgcmxlbiA9IGkyY19tX3JlY3ZfbGVuKCZtc2dzWzFd
+KSA/IEkyQ19TTUJVU19CTE9DS19NQVggOiBtc2dzWzFdLmxlbjsNCj4gKwl1bnNpZ25lZCBsb25n
+IHRpbWVfbGVmdDsNCj4gKw0KPiArCWF4eGlhX2kyY19zZXRfYWRkcihpZGV2LCAmbXNnc1swXSk7
+DQo+ICsNCj4gKwl3cml0ZWwobXNnc1swXS5sZW4sIGlkZXYtPmJhc2UgKyBNU1RfVFhfWEZFUik7
+DQo+ICsJd3JpdGVsKHJsZW4sIGlkZXYtPmJhc2UgKyBNU1RfUlhfWEZFUik7DQo+ICsNCj4gKwlp
+ZGV2LT5tc2cgPSAmbXNnc1swXTsNCj4gKwlpZGV2LT5tc2dfciA9ICZtc2dzWzFdOw0KPiArCWlk
+ZXYtPm1zZ194ZnJkID0gMDsNCj4gKwlpZGV2LT5tc2dfeGZyZF9yID0gMDsNCj4gKwlheHhpYV9p
+MmNfZmlsbF90eF9maWZvKGlkZXYpOw0KPiArDQo+ICsJd3JpdGVsKENNRF9TRVFVRU5DRSwgaWRl
+di0+YmFzZSArIE1TVF9DT01NQU5EKTsNCj4gKw0KPiArCXJlaW5pdF9jb21wbGV0aW9uKCZpZGV2
+LT5tc2dfY29tcGxldGUpOw0KPiArCWkyY19pbnRfZW5hYmxlKGlkZXYsIGludF9tYXNrKTsNCj4g
+Kw0KPiArCXRpbWVfbGVmdCA9IHdhaXRfZm9yX2NvbXBsZXRpb25fdGltZW91dCgmaWRldi0+bXNn
+X2NvbXBsZXRlLA0KPiArCQkJCQkJSTJDX1hGRVJfVElNRU9VVCk7DQo+ICsNCj4gKwlpMmNfaW50
+X2Rpc2FibGUoaWRldiwgaW50X21hc2spOw0KPiArDQo+ICsJYXh4aWFfaTJjX2VtcHR5X3J4X2Zp
+Zm8oaWRldik7DQo+ICsNCj4gKwlpZiAoaWRldi0+bXNnX2VyciA9PSAtRU5YSU8pIHsNCj4gKwkJ
+aWYgKGF4eGlhX2kyY19oYW5kbGVfc2VxX25hayhpZGV2KSkNCj4gKwkJCWF4eGlhX2kyY19pbml0
+KGlkZXYpOw0KPiArCX0gZWxzZSBpZiAocmVhZGwoaWRldi0+YmFzZSArIE1TVF9DT01NQU5EKSAm
+IENNRF9CVVNZKQ0KPiArCQlkZXZfd2FybihpZGV2LT5kZXYsICJidXN5IGFmdGVyIHhmZXJcbiIp
+Ow0KPiArDQo+ICsJaWYgKHRpbWVfbGVmdCA9PSAwKSB7DQo+ICsJCWlkZXYtPm1zZ19lcnIgPSAt
+RVRJTUVET1VUOw0KPiArCQlpMmNfcmVjb3Zlcl9idXMoJmlkZXYtPmFkYXB0ZXIpOw0KPiArCQlh
+eHhpYV9pMmNfaW5pdChpZGV2KTsNCj4gKwl9DQo+ICsNCj4gKwlpZiAodW5saWtlbHkoaWRldi0+
+bXNnX2VycikgJiYgaWRldi0+bXNnX2VyciAhPSAtRU5YSU8pDQo+ICsJCWF4eGlhX2kyY19pbml0
+KGlkZXYpOw0KPiArDQo+ICsJcmV0dXJuIGlkZXYtPm1zZ19lcnI7DQo+ICt9DQo+ICsNCj4gIHN0
+YXRpYyBpbnQgYXh4aWFfaTJjX3hmZXJfbXNnKHN0cnVjdCBheHhpYV9pMmNfZGV2ICppZGV2LCBz
+dHJ1Y3QgaTJjX21zZyAqbXNnKQ0KPiAgew0KPiAgCXUzMiBpbnRfbWFzayA9IE1TVF9TVEFUVVNf
+RVJSIHwgTVNUX1NUQVRVU19TTlM7DQo+IEBAIC0zNzEsNyArNDQ1LDkgQEAgc3RhdGljIGludCBh
+eHhpYV9pMmNfeGZlcl9tc2coc3RydWN0IGF4eGlhX2kyY19kZXYgKmlkZXYsIHN0cnVjdCBpMmNf
+bXNnICptc2cpDQo+ICAJdW5zaWduZWQgaW50IHd0X3ZhbHVlOw0KPiAgDQo+ICAJaWRldi0+bXNn
+ID0gbXNnOw0KPiArCWlkZXYtPm1zZ19yID0gbXNnOw0KPiAgCWlkZXYtPm1zZ194ZnJkID0gMDsN
+Cj4gKwlpZGV2LT5tc2dfeGZyZF9yID0gMDsNCj4gIAlyZWluaXRfY29tcGxldGlvbigmaWRldi0+
+bXNnX2NvbXBsZXRlKTsNCj4gIA0KPiAgCWF4eGlhX2kyY19zZXRfYWRkcihpZGV2LCBtc2cpOw0K
+PiBAQCAtNDUyLDYgKzUyOCwxOCBAQCBzdGF0aWMgaW50IGF4eGlhX2kyY19zdG9wKHN0cnVjdCBh
+eHhpYV9pMmNfZGV2ICppZGV2KQ0KPiAgCXJldHVybiAwOw0KPiAgfQ0KPiAgDQo+ICsvKiBUaGlz
+IGZ1bmN0aW9uIGNoZWNrcyBpZiB0aGUgbXNnc1tdIGFycmF5IGNvbnRhaW5zIG1lc3NhZ2VzIGNv
+bXBhdGlibGUgd2l0aA0KPiArICogU2VxdWVuY2UgbW9kZSBvZiBvcGVyYXRpb24uIFRoaXMgbW9k
+ZSBhc3N1bWVzIHRoZXJlIHdpbGwgYmUgZXhhY3RseSBvbmUNCj4gKyAqIHdyaXRlIG9mIG5vbi16
+ZXJvIGxlbmd0aCBmb2xsb3dlZCBieSBleGFjdGx5IG9uZSByZWFkIG9mIG5vbi16ZXJvIGxlbmd0
+aCwNCj4gKyAqIGJvdGggdGFyZ2V0ZWQgYXQgdGhlIHNhbWUgY2xpZW50IGRldmljZS4NCj4gKyAq
+Lw0KPiArc3RhdGljIGJvb2wgYXh4aWFfaTJjX3NlcXVlbmNlX29rKHN0cnVjdCBpMmNfbXNnIG1z
+Z3NbXSwgaW50IG51bSkNCj4gK3sNCj4gKwlyZXR1cm4gbnVtID09IFNFUV9MRU4gJiYgIWkyY19t
+X3JkKCZtc2dzWzBdKSAmJiBpMmNfbV9yZCgmbXNnc1sxXSkgJiYNCj4gKwkgICAgICAgbXNnc1sw
+XS5sZW4gPiAwICYmIG1zZ3NbMF0ubGVuIDw9IEZJRk9fU0laRSAmJg0KPiArCSAgICAgICBtc2dz
+WzFdLmxlbiA+IDAgJiYgbXNnc1swXS5hZGRyID09IG1zZ3NbMV0uYWRkcjsNCj4gK30NCj4gKw0K
+PiAgc3RhdGljIGludA0KPiAgYXh4aWFfaTJjX3hmZXIoc3RydWN0IGkyY19hZGFwdGVyICphZGFw
+LCBzdHJ1Y3QgaTJjX21zZyBtc2dzW10sIGludCBudW0pDQo+ICB7DQo+IEBAIC00NjAsNiArNTQ4
+LDEyIEBAIGF4eGlhX2kyY194ZmVyKHN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcCwgc3RydWN0IGky
+Y19tc2cgbXNnc1tdLCBpbnQgbnVtKQ0KPiAgCWludCByZXQgPSAwOw0KPiAgDQo+ICAJaWRldi0+
+bXNnX2VyciA9IDA7DQo+ICsNCj4gKwlpZiAoYXh4aWFfaTJjX3NlcXVlbmNlX29rKG1zZ3MsIG51
+bSkpIHsNCj4gKwkJcmV0ID0gYXh4aWFfaTJjX3hmZXJfc2VxKGlkZXYsIG1zZ3MpOw0KPiArCQly
+ZXR1cm4gcmV0ID8gOiBTRVFfTEVOOw0KPiArCX0NCj4gKw0KPiAgCWkyY19pbnRfZW5hYmxlKGlk
+ZXYsIE1TVF9TVEFUVVNfVFNTKTsNCj4gIA0KPiAgCWZvciAoaSA9IDA7IHJldCA9PSAwICYmIGkg
+PCBudW07ICsraSkNCj4gDQoNCi0tIA0KQmVzdCByZWdhcmRzLA0KQWxleGFuZGVyIFN2ZXJkbGlu
+Lg0K
