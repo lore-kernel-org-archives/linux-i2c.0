@@ -1,77 +1,32 @@
-From: Guenter Roeck <groeck@google.com>
-Subject: Re: [PATCH] MAINTAINERS: add maintainers for ChromeOS EC sub-drivers
-Date: Thu, 13 Dec 2018 06:43:02 -0800
-Message-ID: <CABXOdTcN5d69w4vorq_5hGPiaq_nDcAGDNVbU6gyVjNWy9Yubw@mail.gmail.com>
-References: <20181211190053.9997-1-enric.balletbo@collabora.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Subject: [PATCH] dt-bindings: i2c: rcar: Add r8a774c0 support
+Date: Thu, 13 Dec 2018 20:19:02 +0000
+Message-ID: <1544732342-6131-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181211190053.9997-1-enric.balletbo@collabora.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, a.zummo@towertech.it, linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, Guenter Roeck <groeck@chromium.org>, kernel@collabora.com, linux-rtc@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE" <devicetree@vger.kernel.org>, thierry.reding@gmail.com, linux-pm@vger.kernel.org, bleung@chromiumg.org, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linaro.org>, Hartmut Knaack <knaack.h@gmx.de>, Rob
+To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Simon Horman <horms+renesas@verge.net.au>, Biju Das <biju.das@bp.renesas.com>, Ulrich Hecht <ulrich.hecht+renesas@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Hiromitsu Yamasaki <hiromitsu.yamasaki.ym@renesas.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Simon Horman <horms@verge.net.au>, Chris Paterson <Chris.Paterson2@renesas.com>, linux-renesas-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Enric,
+Document RZ/G2E (R8A774C0) I2C compatibility with the relevant driver
+dt-bindings.
 
-On Tue, Dec 11, 2018 at 11:01 AM Enric Balletbo i Serra
-<enric.balletbo@collabora.com> wrote:
->
-> There are multiple ChromeOS EC sub-drivers spread in different
-> subsystems, as all of them are related to the Chrome stuff add
-> Benson and myself as a maintainers for all these sub-drivers.
->
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> ---
->
->  MAINTAINERS | 24 ++++++++++++++++++++++++
->  1 file changed, 24 insertions(+)
->
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index a24129b0b043..2f24f5c977ca 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -3625,6 +3625,30 @@ S:       Maintained
->  T:     git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git
->  F:     drivers/platform/chrome/
->
-> +CHROMEOS EC SUBDRIVERS
-> +M:     Benson Leung <bleung@chromiumg.org>
-> +M:     Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+---
+ Documentation/devicetree/bindings/i2c/i2c-rcar.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-It might possibly make sense to add
-
-R: Guenter Roeck <groeck@chromium.org>
-
-since it looks like I am doing a lot of the actual reviewing anyway.
-
-Thanks,
-Guenter
-
-> +S:     Maintained
-> +F:     Documentation/devicetree/bindings/extcon/extcon-usbc-cros-ec.txt
-> +F:     Documentation/devicetree/bindings/input/cros-ec-keyb.txt
-> +F:     Documentation/devicetree/bindings/pwm/google,cros-ec-pwm.txt
-> +F:     Documentation/devicetree/bindings/i2c/i2c-cros-ec-tunnel.txt
-> +F:     Documentation/devicetree/bindings/mfd/cros-ec.txt
-> +F:     Documentation/ABI/testing/sysfs-bus-iio-cros-ec
-> +F:     drivers/extcon/extcon-usbc-cros-ec.c
-> +F:     drivers/i2c/busses/i2c-cros-ec-tunnel.c
-> +F:     drivers/iio/accel/cros_ec*
-> +F:     drivers/iio/common/cros_ec_sensors/
-> +F:     drivers/iio/light/cros_ec*
-> +F:     drivers/iio/pressure/cros_ec*
-> +F:     drivers/input/keyboard/cros_ec*
-> +F:     drivers/mfd/cros_ec*
-> +F:     drivers/power/supply/cros_usbpd-charger.c
-> +F:     drivers/pwm/pwm-cros-ec.c
-> +F:     drivers/rtc/rtc-cros-ec.c
-> +F:     include/linux/iio/common/cros_ec_sensors_core.h
-> +F:     include/linux/mfd/cros_ec*
-> +
->  CIRRUS LOGIC AUDIO CODEC DRIVERS
->  M:     Brian Austin <brian.austin@cirrus.com>
->  M:     Paul Handrigan <Paul.Handrigan@cirrus.com>
-> --
-> 2.19.2
->
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+index 30c0485..3ee5e8f 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+@@ -7,6 +7,7 @@ Required properties:
+ 	"renesas,i2c-r8a7745" if the device is a part of a R8A7745 SoC.
+ 	"renesas,i2c-r8a77470" if the device is a part of a R8A77470 SoC.
+ 	"renesas,i2c-r8a774a1" if the device is a part of a R8A774A1 SoC.
++	"renesas,i2c-r8a774c0" if the device is a part of a R8A774C0 SoC.
+ 	"renesas,i2c-r8a7778" if the device is a part of a R8A7778 SoC.
+ 	"renesas,i2c-r8a7779" if the device is a part of a R8A7779 SoC.
+ 	"renesas,i2c-r8a7790" if the device is a part of a R8A7790 SoC.
+-- 
+2.7.4
