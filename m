@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 23/23] i2c: scmi: Fix probe error on devices with an empty SMB0001 ACPI device node
-Date: Wed, 12 Dec 2018 23:32:59 -0500
-Message-ID: <20181213043259.76643-23-sashal@kernel.org>
-References: <20181213043259.76643-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 3.18 16/16] i2c: scmi: Fix probe error on devices with an empty SMB0001 ACPI device node
+Date: Wed, 12 Dec 2018 23:33:43 -0500
+Message-ID: <20181213043343.76896-16-sashal@kernel.org>
+References: <20181213043343.76896-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181213043259.76643-1-sashal@kernel.org>
+In-Reply-To: <20181213043343.76896-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
