@@ -1,81 +1,183 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 3.18 16/16] i2c: scmi: Fix probe error on devices with an empty SMB0001 ACPI device node
-Date: Wed, 12 Dec 2018 23:33:43 -0500
-Message-ID: <20181213043343.76896-16-sashal@kernel.org>
-References: <20181213043343.76896-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 22/23] i2c: axxia: properly handle master timeout
+Date: Wed, 12 Dec 2018 23:32:58 -0500
+Message-ID: <20181213043259.76643-22-sashal@kernel.org>
+References: <20181213043259.76643-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181213043343.76896-1-sashal@kernel.org>
+In-Reply-To: <20181213043259.76643-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Cc: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>
 
-[ Upstream commit 0544ee4b1ad574aec3b6379af5f5cdee42840971 ]
+[ Upstream commit 6c7f25cae54b840302e4f1b371dbf318fbf09ab2 ]
 
-Some AMD based HP laptops have a SMB0001 ACPI device node which does not
-define any methods.
+According to Intel (R) Axxia TM Lionfish Communication Processor
+Peripheral Subsystem Hardware Reference Manual, the AXXIA I2C module
+have a programmable Master Wait Timer, which among others, checks the
+time between commands send in manual mode. When a timeout (25ms) passes,
+TSS bit is set in Master Interrupt Status register and a Stop command is
+issued by the hardware.
 
-This leads to the following error in dmesg:
+The axxia_i2c_xfer(), does not properly handle this situation, however.
+For each message a separate axxia_i2c_xfer_msg() is called and this
+function incorrectly assumes that any interrupt might happen only when
+waiting for completion. This is mostly correct but there is one
+exception - a master timeout can trigger if enough time has passed
+between individual transfers. It will, by definition, happen between
+transfers when the interrupts are disabled by the code. If that happens,
+the hardware issues Stop command.
 
-[    5.222731] cmi: probe of SMB0001:00 failed with error -5
+The interrupt indicating timeout will not be triggered as soon as we
+enable them since the Master Interrupt Status is cleared when master
+mode is entered again (which happens before enabling irqs) meaning this
+error is lost and the transfer is continued even though the Stop was
+issued on the bus. The subsequent operations completes without error but
+a bogus value (0xFF in case of read) is read as the client device is
+confused because aborted transfer. No error is returned from
+master_xfer() making caller believe that a valid value was read.
 
-This commit makes acpi_smbus_cmi_add() return -ENODEV instead in this case
-silencing the error. In case of a failure of the i2c_add_adapter() call
-this commit now propagates the error from that call instead of -EIO.
+To fix the problem, the TSS bit (indicating timeout) in Master Interrupt
+Status register is checked before each transfer. If it is set, there was
+a timeout before this transfer and (as described above) the hardware
+already issued Stop command so the transaction should be aborted thus
+-ETIMEOUT is returned from the master_xfer() callback. In order to be
+sure no timeout was issued we can't just read the status just before
+starting new transaction as there will always be a small window of time
+(few CPU cycles at best) where this might still happen. For this reason
+we have to temporally disable the timer before checking for TSS bit.
+Disabling it will, however, clear the TSS bit so in order to preserve
+that information, we have to read it in ISR so we have to ensure that
+the TSS interrupt is not masked between transfers of one transaction.
+There is no need to call bus recovery or controller reinitialization if
+that happens so it's skipped.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
+Reviewed-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-scmi.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-axxia.c | 40 ++++++++++++++++++++++++----------
+ 1 file changed, 29 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-scmi.c b/drivers/i2c/busses/i2c-scmi.c
-index efefcfa24a4c..d2178f701b41 100644
---- a/drivers/i2c/busses/i2c-scmi.c
-+++ b/drivers/i2c/busses/i2c-scmi.c
-@@ -364,6 +364,7 @@ static int acpi_smbus_cmi_add(struct acpi_device *device)
- {
- 	struct acpi_smbus_cmi *smbus_cmi;
- 	const struct acpi_device_id *id;
-+	int ret;
+diff --git a/drivers/i2c/busses/i2c-axxia.c b/drivers/i2c/busses/i2c-axxia.c
+index c335cc7852f9..9c9fd2e87a4b 100644
+--- a/drivers/i2c/busses/i2c-axxia.c
++++ b/drivers/i2c/busses/i2c-axxia.c
+@@ -74,8 +74,7 @@
+ 				 MST_STATUS_ND)
+ #define   MST_STATUS_ERR	(MST_STATUS_NAK | \
+ 				 MST_STATUS_AL  | \
+-				 MST_STATUS_IP  | \
+-				 MST_STATUS_TSS)
++				 MST_STATUS_IP)
+ #define MST_TX_BYTES_XFRD	0x50
+ #define MST_RX_BYTES_XFRD	0x54
+ #define SCL_HIGH_PERIOD		0x80
+@@ -241,7 +240,7 @@ static int axxia_i2c_empty_rx_fifo(struct axxia_i2c_dev *idev)
+ 			 */
+ 			if (c <= 0 || c > I2C_SMBUS_BLOCK_MAX) {
+ 				idev->msg_err = -EPROTO;
+-				i2c_int_disable(idev, ~0);
++				i2c_int_disable(idev, ~MST_STATUS_TSS);
+ 				complete(&idev->msg_complete);
+ 				break;
+ 			}
+@@ -299,14 +298,19 @@ static irqreturn_t axxia_i2c_isr(int irq, void *_dev)
  
- 	smbus_cmi = kzalloc(sizeof(struct acpi_smbus_cmi), GFP_KERNEL);
- 	if (!smbus_cmi)
-@@ -385,8 +386,10 @@ static int acpi_smbus_cmi_add(struct acpi_device *device)
- 	acpi_walk_namespace(ACPI_TYPE_METHOD, smbus_cmi->handle, 1,
- 			    acpi_smbus_cmi_query_methods, NULL, smbus_cmi, NULL);
+ 	if (status & MST_STATUS_SCC) {
+ 		/* Stop completed */
+-		i2c_int_disable(idev, ~0);
++		i2c_int_disable(idev, ~MST_STATUS_TSS);
+ 		complete(&idev->msg_complete);
+ 	} else if (status & MST_STATUS_SNS) {
+ 		/* Transfer done */
+-		i2c_int_disable(idev, ~0);
++		i2c_int_disable(idev, ~MST_STATUS_TSS);
+ 		if (i2c_m_rd(idev->msg) && idev->msg_xfrd < idev->msg->len)
+ 			axxia_i2c_empty_rx_fifo(idev);
+ 		complete(&idev->msg_complete);
++	} else if (status & MST_STATUS_TSS) {
++		/* Transfer timeout */
++		idev->msg_err = -ETIMEDOUT;
++		i2c_int_disable(idev, ~MST_STATUS_TSS);
++		complete(&idev->msg_complete);
+ 	} else if (unlikely(status & MST_STATUS_ERR)) {
+ 		/* Transfer error */
+ 		i2c_int_disable(idev, ~0);
+@@ -339,10 +343,10 @@ static int axxia_i2c_xfer_msg(struct axxia_i2c_dev *idev, struct i2c_msg *msg)
+ 	u32 rx_xfer, tx_xfer;
+ 	u32 addr_1, addr_2;
+ 	unsigned long time_left;
++	unsigned int wt_value;
  
--	if (smbus_cmi->cap_info == 0)
-+	if (smbus_cmi->cap_info == 0) {
-+		ret = -ENODEV;
- 		goto err;
+ 	idev->msg = msg;
+ 	idev->msg_xfrd = 0;
+-	idev->msg_err = 0;
+ 	reinit_completion(&idev->msg_complete);
+ 
+ 	if (i2c_m_ten(msg)) {
+@@ -382,9 +386,18 @@ static int axxia_i2c_xfer_msg(struct axxia_i2c_dev *idev, struct i2c_msg *msg)
+ 	else if (axxia_i2c_fill_tx_fifo(idev) != 0)
+ 		int_mask |= MST_STATUS_TFL;
+ 
++	wt_value = WT_VALUE(readl(idev->base + WAIT_TIMER_CONTROL));
++	/* Disable wait timer temporarly */
++	writel(wt_value, idev->base + WAIT_TIMER_CONTROL);
++	/* Check if timeout error happened */
++	if (idev->msg_err)
++		goto out;
++
+ 	/* Start manual mode */
+ 	writel(CMD_MANUAL, idev->base + MST_COMMAND);
+ 
++	writel(WT_EN | wt_value, idev->base + WAIT_TIMER_CONTROL);
++
+ 	i2c_int_enable(idev, int_mask);
+ 
+ 	time_left = wait_for_completion_timeout(&idev->msg_complete,
+@@ -395,13 +408,15 @@ static int axxia_i2c_xfer_msg(struct axxia_i2c_dev *idev, struct i2c_msg *msg)
+ 	if (readl(idev->base + MST_COMMAND) & CMD_BUSY)
+ 		dev_warn(idev->dev, "busy after xfer\n");
+ 
+-	if (time_left == 0)
++	if (time_left == 0) {
+ 		idev->msg_err = -ETIMEDOUT;
+-
+-	if (idev->msg_err == -ETIMEDOUT)
+ 		i2c_recover_bus(&idev->adapter);
++		axxia_i2c_init(idev);
 +	}
  
- 	snprintf(smbus_cmi->adapter.name, sizeof(smbus_cmi->adapter.name),
- 		"SMBus CMI adapter %s",
-@@ -397,7 +400,8 @@ static int acpi_smbus_cmi_add(struct acpi_device *device)
- 	smbus_cmi->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
- 	smbus_cmi->adapter.dev.parent = &device->dev;
+-	if (unlikely(idev->msg_err) && idev->msg_err != -ENXIO)
++out:
++	if (unlikely(idev->msg_err) && idev->msg_err != -ENXIO &&
++			idev->msg_err != -ETIMEDOUT)
+ 		axxia_i2c_init(idev);
  
--	if (i2c_add_adapter(&smbus_cmi->adapter)) {
-+	ret = i2c_add_adapter(&smbus_cmi->adapter);
-+	if (ret) {
- 		dev_err(&device->dev, "Couldn't register adapter!\n");
- 		goto err;
- 	}
-@@ -407,7 +411,7 @@ static int acpi_smbus_cmi_add(struct acpi_device *device)
- err:
- 	kfree(smbus_cmi);
- 	device->driver_data = NULL;
--	return -EIO;
-+	return ret;
- }
+ 	return idev->msg_err;
+@@ -409,7 +424,7 @@ static int axxia_i2c_xfer_msg(struct axxia_i2c_dev *idev, struct i2c_msg *msg)
  
- static int acpi_smbus_cmi_remove(struct acpi_device *device)
+ static int axxia_i2c_stop(struct axxia_i2c_dev *idev)
+ {
+-	u32 int_mask = MST_STATUS_ERR | MST_STATUS_SCC;
++	u32 int_mask = MST_STATUS_ERR | MST_STATUS_SCC | MST_STATUS_TSS;
+ 	unsigned long time_left;
+ 
+ 	reinit_completion(&idev->msg_complete);
+@@ -436,6 +451,9 @@ axxia_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 	int i;
+ 	int ret = 0;
+ 
++	idev->msg_err = 0;
++	i2c_int_enable(idev, MST_STATUS_TSS);
++
+ 	for (i = 0; ret == 0 && i < num; ++i)
+ 		ret = axxia_i2c_xfer_msg(idev, &msgs[i]);
+ 
 -- 
 2.19.1
