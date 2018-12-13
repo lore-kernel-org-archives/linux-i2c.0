@@ -1,53 +1,81 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 38/41] i2c: uniphier: fix violation of tLOW requirement for Fast-mode
-Date: Wed, 12 Dec 2018 23:30:51 -0500
-Message-ID: <20181213043054.75891-38-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 37/41] i2c: scmi: Fix probe error on devices with an empty SMB0001 ACPI device node
+Date: Wed, 12 Dec 2018 23:30:50 -0500
+Message-ID: <20181213043054.75891-37-sashal@kernel.org>
 References: <20181213043054.75891-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20181213043054.75891-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 8469636ab5d8c77645b953746c10fda6983a8830 ]
+[ Upstream commit 0544ee4b1ad574aec3b6379af5f5cdee42840971 ]
 
-Currently, the clock duty is set as tLOW/tHIGH = 1/1. For Fast-mode,
-tLOW is set to 1.25 us while the I2C spec requires tLOW >= 1.3 us.
+Some AMD based HP laptops have a SMB0001 ACPI device node which does not
+define any methods.
 
-tLOW/tHIGH = 5/4 would meet both Standard-mode and Fast-mode:
-  Standard-mode: tLOW = 5.56 us, tHIGH = 4.44 us
-  Fast-mode:     tLOW = 1.39 us, tHIGH = 1.11 us
+This leads to the following error in dmesg:
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+[    5.222731] cmi: probe of SMB0001:00 failed with error -5
+
+This commit makes acpi_smbus_cmi_add() return -ENODEV instead in this case
+silencing the error. In case of a failure of the i2c_add_adapter() call
+this commit now propagates the error from that call instead of -EIO.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-uniphier.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-scmi.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-uniphier.c b/drivers/i2c/busses/i2c-uniphier.c
-index 454f914ae66d..c488e558aef7 100644
---- a/drivers/i2c/busses/i2c-uniphier.c
-+++ b/drivers/i2c/busses/i2c-uniphier.c
-@@ -320,7 +320,13 @@ static void uniphier_i2c_hw_init(struct uniphier_i2c_priv *priv)
+diff --git a/drivers/i2c/busses/i2c-scmi.c b/drivers/i2c/busses/i2c-scmi.c
+index efefcfa24a4c..d2178f701b41 100644
+--- a/drivers/i2c/busses/i2c-scmi.c
++++ b/drivers/i2c/busses/i2c-scmi.c
+@@ -364,6 +364,7 @@ static int acpi_smbus_cmi_add(struct acpi_device *device)
+ {
+ 	struct acpi_smbus_cmi *smbus_cmi;
+ 	const struct acpi_device_id *id;
++	int ret;
  
- 	uniphier_i2c_reset(priv, true);
+ 	smbus_cmi = kzalloc(sizeof(struct acpi_smbus_cmi), GFP_KERNEL);
+ 	if (!smbus_cmi)
+@@ -385,8 +386,10 @@ static int acpi_smbus_cmi_add(struct acpi_device *device)
+ 	acpi_walk_namespace(ACPI_TYPE_METHOD, smbus_cmi->handle, 1,
+ 			    acpi_smbus_cmi_query_methods, NULL, smbus_cmi, NULL);
  
--	writel((cyc / 2 << 16) | cyc, priv->membase + UNIPHIER_I2C_CLK);
-+	/*
-+	 * Bit30-16: clock cycles of tLOW.
-+	 *  Standard-mode: tLOW = 4.7 us, tHIGH = 4.0 us
-+	 *  Fast-mode:     tLOW = 1.3 us, tHIGH = 0.6 us
-+	 * "tLow/tHIGH = 5/4" meets both.
-+	 */
-+	writel((cyc * 5 / 9 << 16) | cyc, priv->membase + UNIPHIER_I2C_CLK);
+-	if (smbus_cmi->cap_info == 0)
++	if (smbus_cmi->cap_info == 0) {
++		ret = -ENODEV;
+ 		goto err;
++	}
  
- 	uniphier_i2c_reset(priv, false);
+ 	snprintf(smbus_cmi->adapter.name, sizeof(smbus_cmi->adapter.name),
+ 		"SMBus CMI adapter %s",
+@@ -397,7 +400,8 @@ static int acpi_smbus_cmi_add(struct acpi_device *device)
+ 	smbus_cmi->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+ 	smbus_cmi->adapter.dev.parent = &device->dev;
+ 
+-	if (i2c_add_adapter(&smbus_cmi->adapter)) {
++	ret = i2c_add_adapter(&smbus_cmi->adapter);
++	if (ret) {
+ 		dev_err(&device->dev, "Couldn't register adapter!\n");
+ 		goto err;
+ 	}
+@@ -407,7 +411,7 @@ static int acpi_smbus_cmi_add(struct acpi_device *device)
+ err:
+ 	kfree(smbus_cmi);
+ 	device->driver_data = NULL;
+-	return -EIO;
++	return ret;
  }
+ 
+ static int acpi_smbus_cmi_remove(struct acpi_device *device)
 -- 
 2.19.1
