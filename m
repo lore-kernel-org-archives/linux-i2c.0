@@ -1,22 +1,44 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH] dt-bindings: i2c: rcar: Add r8a774c0 support
-Date: Fri, 14 Dec 2018 17:37:03 +0100
-Message-ID: <20181214163703.c3itx4fcrg5ltmdq@verge.net.au>
-References: <1544732342-6131-1-git-send-email-fabrizio.castro@bp.renesas.com>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH v3] MAINTAINERS: add maintainers for ChromeOS EC
+ sub-drivers
+Date: Fri, 14 Dec 2018 09:24:12 -0800
+Message-ID: <461e2531e3979e89923b66966d4fb243a6113280.camel@perches.com>
+References: <20181214114858.21231-1-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1544732342-6131-1-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <20181214114858.21231-1-enric.balletbo@collabora.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Biju Das <biju.das@bp.renesas.com>, Ulrich Hecht <ulrich.hecht+renesas@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Hiromitsu Yamasaki <hiromitsu.yamasaki.ym@renesas.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Chris Paterson <Chris.Paterson2@renesas.com>, linux-renesas-soc@vger.kernel.org
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>, linux-kernel@vger.kernel.org
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, groeck@chromium.org, kernel@collabora.com, linux-rtc@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Benson Leung <bleung@chromium.org>, Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, devicetree@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, linux-pm@vger.kernel.org, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linaro.org>, Hartmut Knaack <knaack.h@gmx.de>, Rob Herring <robh+dt@kernel.org>, Lars
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Dec 13, 2018 at 08:19:02PM +0000, Fabrizio Castro wrote:
-> Document RZ/G2E (R8A774C0) I2C compatibility with the relevant driver
-> dt-bindings.
-> 
-> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+On Fri, 2018-12-14 at 12:48 +0100, Enric Balletbo i Serra wrote:
+> There are multiple ChromeOS EC sub-drivers spread in different
+> subsystems, as all of them are related to the Chrome stuff add
+> Benson and myself as a maintainers for all these sub-drivers.
 
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+[]
+> Changes in v3:
+> - Use a cros[-_]ec pattern instead of list all the files.
+[]
+> diff --git a/MAINTAINERS b/MAINTAINERS
+[]
+> @@ -3629,6 +3629,14 @@ S:	Maintained
+>  T:	git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git
+>  F:	drivers/platform/chrome/
+>  
+> +CHROMEOS EC SUBDRIVERS
+> +M:	Benson Leung <bleung@chromium.org>
+> +M:	Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> +R:	Guenter Roeck <groeck@chromium.org>
+> +S:	Maintained
+> +N:	cros[-_]ec
+
+For linux scripts/, it is unconventional to use a hyphen first
+in a character class pattern so perhaps this is clearer using
+two N: patterns
+
+N:	cros_
+N:	cros-
