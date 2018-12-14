@@ -1,61 +1,50 @@
 From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Subject: RE: [PATCH] dt-bindings: i2c: sh_mobile: Add r8a774c0 support
-Date: Fri, 14 Dec 2018 08:13:22 +0000
-Message-ID: <TYXPR01MB177545E78D35A44BB1F46324C0A10@TYXPR01MB1775.jpnprd01.prod.outlook.com>
-References: <1544732352-6178-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <c987f09c-689f-7e89-d496-f53b0ab6c2c1@axentia.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Subject: [PATCH v2] dt-bindings: i2c: sh_mobile: Add r8a774c0 support
+Date: Fri, 14 Dec 2018 08:41:47 +0000
+Message-ID: <1544776907-17845-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <c987f09c-689f-7e89-d496-f53b0ab6c2c1@axentia.se>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
-Cc: Simon Horman <horms+renesas@verge.net.au>, Wolfram Sang <wsa@the-dreams.de>, Geert Uytterhoeven <geert+renesas@glider.be>, Biju Das <biju.das@bp.renesas.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Chris Paterson <Chris.Paterson2@renesas.com>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>
+To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Peter Rosin <peda@axentia.se>
+Cc: Fabrizio Castro <fabrizio.castro@bp.renesas.com>, Simon Horman <horms+renesas@verge.net.au>, Wolfram Sang <wsa@the-dreams.de>, Geert Uytterhoeven <geert+renesas@glider.be>, Biju Das <biju.das@bp.renesas.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Simon Horman <horms@verge.net.au>, Chris Paterson <Chris.Paterson2@renesas.com>, linux-renesas-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-SGVsbG8gUGV0ZXIsDQoNClRoYW5rIHlvdSBmb3IgeW91ciBmZWVkYmFjayENCg0KPiBGcm9tOiBQ
-ZXRlciBSb3NpbiA8cGVkYUBheGVudGlhLnNlPg0KPiBTZW50OiAxMyBEZWNlbWJlciAyMDE4IDIx
-OjU4DQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0hdIGR0LWJpbmRpbmdzOiBpMmM6IHNoX21vYmlsZTog
-QWRkIHI4YTc3NGMwIHN1cHBvcnQNCj4NCj4gT24gMjAxOC0xMi0xMyAyMToxOSwgRmFicml6aW8g
-Q2FzdHJvIHdyb3RlOg0KPiA+IERvY3VtZW50IFJaL0cyRSAoUjhBNzc0QzApIFNvQyBiaW5kaW5n
-cy4NCj4gPg0KPiA+IFNpZ25lZC1vZmYtYnk6IEZhYnJpemlvIENhc3RybyA8ZmFicml6aW8uY2Fz
-dHJvQGJwLnJlbmVzYXMuY29tPg0KPiA+IC0tLQ0KPiA+ICBEb2N1bWVudGF0aW9uL2RldmljZXRy
-ZWUvYmluZGluZ3MvaTJjL2kyYy1zaF9tb2JpbGUudHh0IHwgMyArKy0NCj4gPiAgMSBmaWxlIGNo
-YW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQ0KPiA+DQo+ID4gZGlmZiAtLWdp
-dCBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLXNoX21vYmlsZS50
-eHQgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1zaF9tb2JpbGUu
-dHh0DQo+ID4gaW5kZXggYmM4NzZiNy4uM2RmZjg5ZiAxMDA2NDQNCj4gPiAtLS0gYS9Eb2N1bWVu
-dGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1zaF9tb2JpbGUudHh0DQo+ID4gKysr
-IGIvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtc2hfbW9iaWxlLnR4
-dA0KPiA+IEBAIC04LDYgKzgsNyBAQCBSZXF1aXJlZCBwcm9wZXJ0aWVzOg0KPiA+ICAtICJyZW5l
-c2FzLGlpYy1yOGE3NzQ0IiAoUlovRzFOKQ0KPiA+ICAtICJyZW5lc2FzLGlpYy1yOGE3NzQ1IiAo
-UlovRzFFKQ0KPiA+ICAtICJyZW5lc2FzLGlpYy1yOGE3NzRhMSIgKFJaL0cyTSkNCj4gPiArLSAi
-cmVuZXNhcyxpaWMtcjhhNzc0YzAiIChSWi9HMkUpDQo+ID4gIC0gInJlbmVzYXMsaWljLXI4YTc3
-OTAiIChSLUNhciBIMikNCj4gPiAgLSAicmVuZXNhcyxpaWMtcjhhNzc5MSIgKFItQ2FyIE0yLVcp
-DQo+ID4gIC0gInJlbmVzYXMsaWljLXI4YTc3OTIiIChSLUNhciBWMkgpDQo+ID4gQEAgLTMyLDcg
-KzMzLDcgQEAgUmVxdWlyZWQgcHJvcGVydGllczoNCj4gPiAgV2hlbiBjb21wYXRpYmxlIHdpdGgg
-InJlbmVzYXMscm1vYmlsZS1paWMiIGl0IHNob3VsZA0KPiA+ICBiZSB0aGUgbGFzdCBjb21wYXRp
-YmlsaXR5IHN0cmluZyBsaXN0ZWQuDQo+ID4NCj4gPiAtVGhlIHI4YTc3OTkwIChSLUNhciBFMykg
-Y29udHJvbGxlciBpcyBub3QNCj4gPiArVGhlIHI4YTc3OTkwIChSLUNhciBFMykgYW5kIFJaL0cy
-RSBjb250cm9sbGVycyBhcmUgbm90DQo+DQo+IFRoZSByZWZlcmVuY2VzIHRvIHRoZXNlIHR3byBj
-b250cm9sbGVycyBkbyBub3QgZm9sbG93IHRoZSBzYW1lIHN0eWxlLg0KPiBJJ2QgZWl0aGVyIGRl
-bGV0ZSByOGE3Nzk5MCBhbmQgZ2V0ICJSLUNhciBFMyBhbmQgUlovRzJFIiBvciBhZGQNCj4gcjhh
-Nzc0YzAgaW4gZnJvbnQgb2YgUlovRzJFIChicmFja2V0ZWQpLCB3aXRoIGEgc2xpZ2h0IHByZWZl
-cmVuY2UNCj4gZm9yIHRoZSBsYXR0ZXIuDQoNCllvdSBhcmUgcmlnaHQsIEknbGwgc2VuZCBhIHYy
-IHRvIGFkZHJlc3MgdGhpcy4NCg0KVGhhbmtzLA0KRmFiDQoNCj4NCj4gQ2hlZXJzLA0KPiBQZXRl
-cg0KPg0KPiA+ICBjb25zaWRlcmVkIGNvbXBhdGlibGUgd2l0aCAicmVuZXNhcyxyY2FyLWdlbjMt
-aWljIg0KPiA+ICBvciAicmVuZXNhcyxybW9iaWxlLWlpYyIgZHVlIHRvIHRoZSBhYnNlbmNlIG9m
-DQo+ID4gIGF1dG9tYXRpYyB0cmFuc21pc3Npb24gcmVnaXN0ZXJzLg0KPiA+DQoNCg0KW2h0dHBz
-Oi8vd3d3Mi5yZW5lc2FzLmV1L21lZGlhL2VtYWlsL3VuaWNlZi5qcGddDQoNClRoaXMgQ2hyaXN0
-bWFzLCBpbnN0ZWFkIG9mIHNlbmRpbmcgb3V0IGNhcmRzLCBSZW5lc2FzIEVsZWN0cm9uaWNzIEV1
-cm9wZSBoYXZlIGRlY2lkZWQgdG8gc3VwcG9ydCBVbmljZWYgd2l0aCBhIGRvbmF0aW9uLiBGb3Ig
-ZnVydGhlciBkZXRhaWxzIGNsaWNrIGhlcmU8aHR0cHM6Ly93d3cudW5pY2VmLm9yZy8+IHRvIGZp
-bmQgb3V0IGFib3V0IHRoZSB2YWx1YWJsZSB3b3JrIHRoZXkgZG8sIGhlbHBpbmcgY2hpbGRyZW4g
-YWxsIG92ZXIgdGhlIHdvcmxkLg0KV2Ugd291bGQgbGlrZSB0byB0YWtlIHRoaXMgb3Bwb3J0dW5p
-dHkgdG8gd2lzaCB5b3UgYSBNZXJyeSBDaHJpc3RtYXMgYW5kIGEgcHJvc3Blcm91cyBOZXcgWWVh
-ci4NCg0KDQoNClJlbmVzYXMgRWxlY3Ryb25pY3MgRXVyb3BlIEx0ZCwgRHVrZXMgTWVhZG93LCBN
-aWxsYm9hcmQgUm9hZCwgQm91cm5lIEVuZCwgQnVja2luZ2hhbXNoaXJlLCBTTDggNUZILCBVSy4g
-UmVnaXN0ZXJlZCBpbiBFbmdsYW5kICYgV2FsZXMgdW5kZXIgUmVnaXN0ZXJlZCBOby4gMDQ1ODY3
-MDkuDQo=
+Document RZ/G2E (R8A774C0) SoC bindings.
+
+Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+
+---
+v1->v2:
+* Improved the style according to Peter's comment
+
+ Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt b/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
+index bc876b7..202602e 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-sh_mobile.txt
+@@ -8,6 +8,7 @@ Required properties:
+ 			- "renesas,iic-r8a7744" (RZ/G1N)
+ 			- "renesas,iic-r8a7745" (RZ/G1E)
+ 			- "renesas,iic-r8a774a1" (RZ/G2M)
++			- "renesas,iic-r8a774c0" (RZ/G2E)
+ 			- "renesas,iic-r8a7790" (R-Car H2)
+ 			- "renesas,iic-r8a7791" (R-Car M2-W)
+ 			- "renesas,iic-r8a7792" (R-Car V2H)
+@@ -32,10 +33,10 @@ Required properties:
+ 			When compatible with "renesas,rmobile-iic" it should
+ 			be the last compatibility string listed.
+ 
+-			The r8a77990 (R-Car E3) controller is not
+-			considered compatible with "renesas,rcar-gen3-iic"
+-			or "renesas,rmobile-iic" due to the absence of
+-			automatic transmission registers.
++			The r8a77990 (R-Car E3) and r8a774c0 (RZ/G2E)
++			controllers are not considered compatible with
++			"renesas,rcar-gen3-iic" or "renesas,rmobile-iic"
++			due to the absence of automatic transmission registers.
+ 
+ - reg             : address start and address range size of device
+ - interrupts      : interrupt of device
+-- 
+2.7.4
