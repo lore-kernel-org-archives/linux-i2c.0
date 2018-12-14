@@ -1,66 +1,57 @@
-From: Guenter Roeck <groeck@google.com>
-Subject: Re: [PATCH v3] MAINTAINERS: add maintainers for ChromeOS EC sub-drivers
-Date: Fri, 14 Dec 2018 06:29:19 -0800
-Message-ID: <CABXOdTdDNaPgBK74dcTgRDy5mJKztZ9GTGRiXDv=ZXOwauO-2A@mail.gmail.com>
-References: <20181214114858.21231-1-enric.balletbo@collabora.com>
+From: Elie Morisse <syniurge@gmail.com>
+Subject: Re: [PATCH v13] i2c: Add drivers for the AMD PCIe MP2 I2C controller
+Date: Fri, 14 Dec 2018 12:53:12 -0300
+Message-ID: <CAC_JBqqo5joUKBz1s7m0ccw0OXxqk57aiY93UEV4inumug6hBg@mail.gmail.com>
+References: <20181209155602.GA8414@syn-yoga530> <20181211210159.to6okhbaqpymoax5@ninjato>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181214114858.21231-1-enric.balletbo@collabora.com>
+In-Reply-To: <20181211210159.to6okhbaqpymoax5@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Alessandro Zummo <a.zummo@towertech.it>, linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, Guenter Roeck <groeck@chromium.org>, kernel@collabora.com, linux-rtc@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Benson Leung <bleung@chromium.org>, Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE" <devicetree@vger.kernel.org>, Thierry Reding <thierry.reding@gmail.com>, linux-pm@vger.kernel.org, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linar>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, helgaas@kernel.org, Nehal-bakulchandra.Shah@amd.com, Shyam-sundar.S-k@amd.com, sandeep.singh@amd.com, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Dec 14, 2018 at 3:49 AM Enric Balletbo i Serra
-<enric.balletbo@collabora.com> wrote:
->
-> There are multiple ChromeOS EC sub-drivers spread in different
-> subsystems, as all of them are related to the Chrome stuff add
-> Benson and myself as a maintainers for all these sub-drivers.
->
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> Signed-off-by: Benson Leung <bleung@chromium.org>
-> Acked-by: Wolfram Sang <wsa@the-dreams.de>
-> Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
-> Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com> for iio parts.
-> Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-> Acked-by: Lee Jones <lee.jones@linaro.org>
+Hi,
 
-Acked-by: Guenter Roeck <groeck@chromium.org>
+Having the patch reviewed by Nehal Shah would be great. While waiting
+to hear from him, he voiced some concerns in the v10 thread:
+https://lkml.org/lkml/2018/11/27/62
+The _DEP hint was removed in v12. Regarding AMD's intention of having
+two drivers, there are still two drivers, just within the same module.
+And the comment about where the DMA mapping code should be is minor
+and it's trivial to move it back if AMD plans to expand the platform
+driver.
 
-> ---
+Noone reported any issue since v11, I'm done improving the drivers
+unless it's necessary in order to get it accepted upstream. Please let
+me know if I still have to change something to get it merged.
+
+Elie Morisse
+
+Le mar. 11 d=C3=A9c. 2018 =C3=A0 18:02, Wolfram Sang <wsa@the-dreams.de> a =
+=C3=A9crit :
 >
-> Changes in v3:
-> - Add collected acks
-> - Use a cros[-_]ec pattern instead of list all the files.
-> - Add Guenter as a reviewer.
+> On Sun, Dec 09, 2018 at 12:56:02PM -0300, Elie Morisse wrote:
+> > MP2 controllers have two separate busses, so may accommodate up to two =
+I2C
+> > adapters. Those adapters are listed in the ACPI namespace with the
+> > "AMDI0011" HID, and probed by a platform driver.
+> >
+> > Communication with the MP2 takes place through iomapped registers, or
+> > through DMA for more than 32 bytes transfers.
+> >
+> > This is major rework of the patch submitted by Nehal-bakulchandra Shah =
+from
+> > AMD (https://patchwork.kernel.org/patch/10597369/).
+> >
+> > Most of the event handling of v3 was rewritten to make it work with mor=
+e
+> > than one bus (e.g on Ryzen-based Lenovo Yoga 530), and this version
+> > contains many other improvements.
+> >
+> > Signed-off-by: Elie Morisse <syniurge@gmail.com>
 >
-> Changes in v2:
-> - Fix typo in Benson email address.
->
->  MAINTAINERS | 8 ++++++++
->  1 file changed, 8 insertions(+)
->
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index e7260191301b..437e036435d5 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -3629,6 +3629,14 @@ S:       Maintained
->  T:     git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git
->  F:     drivers/platform/chrome/
->
-> +CHROMEOS EC SUBDRIVERS
-> +M:     Benson Leung <bleung@chromium.org>
-> +M:     Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> +R:     Guenter Roeck <groeck@chromium.org>
-> +S:     Maintained
-> +N:     cros[-_]ec
-> +F:     drivers/power/supply/cros_usbpd-charger.c
-> +
->  CIRRUS LOGIC AUDIO CODEC DRIVERS
->  M:     Brian Austin <brian.austin@cirrus.com>
->  M:     Paul Handrigan <Paul.Handrigan@cirrus.com>
-> --
-> 2.19.2
+> Nehal Shah, are you happy with this driver from your side?
 >
