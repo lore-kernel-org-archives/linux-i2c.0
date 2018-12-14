@@ -1,46 +1,36 @@
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Subject: RE: [PATCH] dt-bindings: i2c: rcar: Add r8a774c0 support
-Date: Fri, 14 Dec 2018 10:28:07 +0000
-Message-ID: <TY1PR01MB17701F0A62B0F602D76A593CC0A10@TY1PR01MB1770.jpnprd01.prod.outlook.com>
-References: <1544732342-6131-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <CAMuHMdUFbkowC9a-2wst_GufizEY2CtWjr2R0yerzS1d5EmB-w@mail.gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v2] dt-bindings: i2c: sh_mobile: Add r8a774c0 support
+Date: Fri, 14 Dec 2018 11:39:46 +0100
+Message-ID: <CAMuHMdVjccV=xpJ4f25YerR2Y8CxsKfn6CD7Es3P+x3yzGLuYg@mail.gmail.com>
+References: <1544776907-17845-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMuHMdUFbkowC9a-2wst_GufizEY2CtWjr2R0yerzS1d5EmB-w@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <1544776907-17845-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Simon Horman <horms+renesas@verge.net.au>, Biju Das <biju.das@bp.renesas.com>, Ulrich Hecht <ulrich.hecht+renesas@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Hiromitsu Yamasaki <hiromitsu.yamasaki.ym@renesas.com>, Linux I2C <linux-i2c@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Chris Paterson <Chris.Paterson2@renesas.com>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Peter Rosin <peda@axentia.se>, Simon Horman <horms+renesas@verge.net.au>, Wolfram Sang <wsa@the-dreams.de>, Geert Uytterhoeven <geert+renesas@glider.be>, Biju Das <biju.das@bp.renesas.com>, Linux I2C <linux-i2c@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Chris Paterson <Chris.Paterson2@renesas.com>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SGVsbG8gR2VlcnQsDQoNClRoYW5rIHlvdSBmb3IgeW91ciBmZWVkYmFjayENCg0KPiBGcm9tOiBk
-ZXZpY2V0cmVlLW93bmVyQHZnZXIua2VybmVsLm9yZyA8ZGV2aWNldHJlZS1vd25lckB2Z2VyLmtl
-cm5lbC5vcmc+IE9uIEJlaGFsZiBPZiBHZWVydCBVeXR0ZXJob2V2ZW4NCj4gU2VudDogMTQgRGVj
-ZW1iZXIgMjAxOCAxMDowOA0KPiBTdWJqZWN0OiBSZTogW1BBVENIXSBkdC1iaW5kaW5nczogaTJj
-OiByY2FyOiBBZGQgcjhhNzc0YzAgc3VwcG9ydA0KPg0KPiBPbiBUaHUsIERlYyAxMywgMjAxOCBh
-dCA5OjE5IFBNIEZhYnJpemlvIENhc3Rybw0KPiA8ZmFicml6aW8uY2FzdHJvQGJwLnJlbmVzYXMu
-Y29tPiB3cm90ZToNCj4gPiBEb2N1bWVudCBSWi9HMkUgKFI4QTc3NEMwKSBJMkMgY29tcGF0aWJp
-bGl0eSB3aXRoIHRoZSByZWxldmFudCBkcml2ZXINCj4NCj4gZGV2aWNlDQoNCldpbGwgc2VuZCBh
-IHYyIHRvIGZpeCB0aGlzLg0KDQpUaGFua3MsDQpGYWINCg0KPg0KPiA+IGR0LWJpbmRpbmdzLg0K
-PiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogRmFicml6aW8gQ2FzdHJvIDxmYWJyaXppby5jYXN0cm9A
-YnAucmVuZXNhcy5jb20+DQo+DQo+IFJldmlld2VkLWJ5OiBHZWVydCBVeXR0ZXJob2V2ZW4gPGdl
-ZXJ0K3JlbmVzYXNAZ2xpZGVyLmJlPg0KPg0KPiBHcntvZXRqZSxlZXRpbmd9cywNCj4NCj4gICAg
-ICAgICAgICAgICAgICAgICAgICAgR2VlcnQNCj4NCj4gLS0NCj4gR2VlcnQgVXl0dGVyaG9ldmVu
-IC0tIFRoZXJlJ3MgbG90cyBvZiBMaW51eCBiZXlvbmQgaWEzMiAtLSBnZWVydEBsaW51eC1tNjhr
-Lm9yZw0KPg0KPiBJbiBwZXJzb25hbCBjb252ZXJzYXRpb25zIHdpdGggdGVjaG5pY2FsIHBlb3Bs
-ZSwgSSBjYWxsIG15c2VsZiBhIGhhY2tlci4gQnV0DQo+IHdoZW4gSSdtIHRhbGtpbmcgdG8gam91
-cm5hbGlzdHMgSSBqdXN0IHNheSAicHJvZ3JhbW1lciIgb3Igc29tZXRoaW5nIGxpa2UgdGhhdC4N
-Cj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAtLSBMaW51cyBUb3J2YWxkcw0KDQoN
-CltodHRwczovL3d3dzIucmVuZXNhcy5ldS9tZWRpYS9lbWFpbC91bmljZWYuanBnXQ0KDQpUaGlz
-IENocmlzdG1hcywgaW5zdGVhZCBvZiBzZW5kaW5nIG91dCBjYXJkcywgUmVuZXNhcyBFbGVjdHJv
-bmljcyBFdXJvcGUgaGF2ZSBkZWNpZGVkIHRvIHN1cHBvcnQgVW5pY2VmIHdpdGggYSBkb25hdGlv
-bi4gRm9yIGZ1cnRoZXIgZGV0YWlscyBjbGljayBoZXJlPGh0dHBzOi8vd3d3LnVuaWNlZi5vcmcv
-PiB0byBmaW5kIG91dCBhYm91dCB0aGUgdmFsdWFibGUgd29yayB0aGV5IGRvLCBoZWxwaW5nIGNo
-aWxkcmVuIGFsbCBvdmVyIHRoZSB3b3JsZC4NCldlIHdvdWxkIGxpa2UgdG8gdGFrZSB0aGlzIG9w
-cG9ydHVuaXR5IHRvIHdpc2ggeW91IGEgTWVycnkgQ2hyaXN0bWFzIGFuZCBhIHByb3NwZXJvdXMg
-TmV3IFllYXIuDQoNCg0KDQpSZW5lc2FzIEVsZWN0cm9uaWNzIEV1cm9wZSBMdGQsIER1a2VzIE1l
-YWRvdywgTWlsbGJvYXJkIFJvYWQsIEJvdXJuZSBFbmQsIEJ1Y2tpbmdoYW1zaGlyZSwgU0w4IDVG
-SCwgVUsuIFJlZ2lzdGVyZWQgaW4gRW5nbGFuZCAmIFdhbGVzIHVuZGVyIFJlZ2lzdGVyZWQgTm8u
-IDA0NTg2NzA5Lg0K
+On Fri, Dec 14, 2018 at 9:41 AM Fabrizio Castro
+<fabrizio.castro@bp.renesas.com> wrote:
+> Document RZ/G2E (R8A774C0) SoC bindings.
+>
+> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+>
+> ---
+> v1->v2:
+> * Improved the style according to Peter's comment
+
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
