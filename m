@@ -1,47 +1,94 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] ARM i.MX: Fix a kernel panic in
- i2c_imx_clk_notifier_call().
-Date: Mon, 17 Dec 2018 23:02:09 +0000
-Message-ID: <f324c18c-364e-c0fa-05c9-649b8946c977@axentia.se>
-References: <m3o9a2hni5.fsf@t19.piap.pl>
- <CAOMZO5Bhe9t0x0Ke0VJTR3BaeT+ww9vCZBit-8ubyRQjtjM4=Q@mail.gmail.com>
- <m3va3sh5zl.fsf@t19.piap.pl>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 4/5] dt-bindings: i2c: Add Mediatek MT8183 i2c binding
+Date: Tue, 18 Dec 2018 00:06:29 +0100
+Message-ID: <20181217230629.i7i3kbreurgt7u73@ninjato>
+References: <1543843974-4054-1-git-send-email-qii.wang@mediatek.com>
+ <1543843974-4054-5-git-send-email-qii.wang@mediatek.com>
+ <20181211202931.xav4gzi7rzh2scgx@ninjato>
+ <1544693547.11699.40.camel@mhfsdcap03>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <m3va3sh5zl.fsf@t19.piap.pl>
-Content-Language: en-US
-Content-ID: <812FE0E52CEAD54A9E4CDBDAA59AD677@eurprd02.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?S3J6eXN6dG9mIEhhxYJhc2E=?= <khalasa@piap.pl>, Fabio Estevam <festevam@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>, Lucas Stach <l.stach@pengutronix.de>
+Content-Type: multipart/mixed; boundary="===============1765357498413480999=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1544693547.11699.40.camel@mhfsdcap03>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Qii Wang <qii.wang@mediatek.com>
+Cc: devicetree@vger.kernel.org, ryder.lee@mediatek.com, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOC0xMi0xNyAxMDoxMiwgS3J6eXN6dG9mIEhhxYJhc2Egd3JvdGU6DQo+IDkwYWQyY2Jl
-ODhjMjJkMDIxNTIyNWFiOTU5NGVlZWFkMGViMjRmZGUgY2hhbmdlZCB0aGUgaS5NWCBJMkMgYnVz
-IGRyaXZlcg0KDQpUaGlzIHJlZmVyZW5jZSBzaG91bGQgaWRlYWxseSBiZSBpbiBhIGZpeGVzLXRh
-ZywgYmVsb3cuLi4NCg0KPiB0byB1c2UgYSBub3RpZmllciB3aGVuZXZlciB0aGUgYmFzZSBjbG9j
-ayAoImlwZyIgLSA2NiBNSHogcGVyaXBoZXJhbA0KPiBjbG9jaykgcmF0ZSBjaGFuZ2VzLg0KPiAN
-Cj4gVW5mb3J0dW5hdGVseSBvbmUgY2FuJ3QgdXNlIHRoZSBjb250YWluZXJfb2YoKSBtYWNybyB0
-aGlzIHdheSAtIHRoZQ0KPiBmaXJzdCBhcmd1bWVudCBoYXMgdG8gcG9pbnQgdG8gYSBtZW1iZXIg
-b2YgdGhlIGJpZ2dlciBzdHJ1Y3QgKGxhc3QNCj4gYXJndW1lbnQpLiBNZXJlbHkgcG9pbnRpbmcg
-dG8gdGhlIHNhbWUgdmFsdWUgaXNuJ3QgZW5vdWdoICh0aGUgY2xrDQo+IHZhcmlhYmxlIHdoaWNo
-IGhhcyBpdHMgYWRkcmVzcyBwYXNzZWQgdG8gdGhlIG1hY3JvIGlzIHRoZSBjbGsgaW4NCj4gbm90
-aWZpZXJfYmxvY2ssIG5vdCB0aGUgb25lIGluIGlteF9pMmNfc3RydWN0LCBldmVuIHRob3VnaCBi
-b3RoIHBvaW50ZXJzDQo+IHBvaW50IHRvIHRoZSBzYW1lIGNsayBzdHJ1Y3QpLg0KPiANCj4gVGhp
-cyBidWcgY2F1c2VzIGtlcm5lbCBwYW5pYyB3aGVuIHRoZSBJUEcgY2xvY2sgcmF0ZSBjaGFuZ2Vz
-IChlLmcuIGlmDQo+IGFueSBjbG9jayBkZXJpdmVkIGZyb20gSVBHIGNoYW5nZXMpLg0KPiANCg0K
-Li4ucmlnaHQgaGVyZS4NCg0KRml4ZXM6IDkwYWQyY2JlODhjMiAoImkyYzogaW14OiB1c2UgY2xr
-IG5vdGlmaWVyIGZvciByYXRlIGNoYW5nZXMiKQ0KPiBTaWduZWQtb2ZmLWJ5OiBLcnp5c3p0b2Yg
-SGFsYXNhIDxraGFsYXNhQHBpYXAucGw+DQo+IA0KPiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMv
-aTJjLWlteC5jDQo+ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMNCj4gQEAgLTUx
-MCw5ICs1MTAsOSBAQCBzdGF0aWMgaW50IGkyY19pbXhfY2xrX25vdGlmaWVyX2NhbGwoc3RydWN0
-IG5vdGlmaWVyX2Jsb2NrICpuYiwNCj4gIAkJCQkgICAgIHVuc2lnbmVkIGxvbmcgYWN0aW9uLCB2
-b2lkICpkYXRhKQ0KPiAgew0KPiAgCXN0cnVjdCBjbGtfbm90aWZpZXJfZGF0YSAqbmRhdGEgPSBk
-YXRhOw0KPiAtCXN0cnVjdCBpbXhfaTJjX3N0cnVjdCAqaTJjX2lteCA9IGNvbnRhaW5lcl9vZigm
-bmRhdGEtPmNsaywNCj4gKwlzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QgKmkyY19pbXggPSBjb250YWlu
-ZXJfb2YobmIsDQo+ICAJCQkJCQkgICAgICBzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QsDQo+IC0JCQkJ
-CQkgICAgICBjbGspOw0KPiArCQkJCQkJICAgICAgY2xrX2NoYW5nZV9uYik7DQo+ICANCj4gIAlp
-ZiAoYWN0aW9uICYgUE9TVF9SQVRFX0NIQU5HRSkNCj4gIAkJaTJjX2lteF9zZXRfY2xrKGkyY19p
-bXgsIG5kYXRhLT5uZXdfcmF0ZSk7DQo+IA0KDQo=
+
+--===============1765357498413480999==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="gph3bc2aynqejfb4"
+Content-Disposition: inline
+
+
+--gph3bc2aynqejfb4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> > What is "multi-user"? Why can't you add this offset to the reg-property
+> > directly?
+
+=2E..
+
+> MT8183 doesn't need to support muti-user according to the latest project
+> information, and I'll remove this feature from patches.
+
+Okay. It will be dropped then, thanks for the heads up!
+
+> > > +  - mediatek,share-i3c: i3c controller can share i2c function.
+> >=20
+> > Please explain in more detail? Is this an I3C controller?
+>=20
+> Yes, it is a i3c controller, and it is compatible with i2c. I only use
+> the feature of i2c, so I need a flag to do some extra settings.
+
+Can't you derive this from the compatible? If it is
+"mediatek,mt8183-i2c", then you know you need these extra settings?
+
+
+--gph3bc2aynqejfb4
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwYK/UACgkQFA3kzBSg
+Kbae4A/+MilZ2mxtZBN5/KQAX4PI8TwMRQpdfTOFfHZL1U1qxKqJm5ojSZvI3Dle
+BxpSYHyWhFGblcmMckmfTHFSVfPu12UB7ma0h3A/h/6gXTemtuS1LXMolzhA6rIx
+ShCNSsmji6Wk4AH0Bjok+uaO+0dP6SzWX978UmQdNPRAXg12Txf39t8cFzdwkh6t
+/kN6UcNP9aUgVXASp/FXlDfGUQEQvN5opoae8JzBJYvmO7/hbECqRykVlQ1S5p4e
+cwuRjPohrvKGkAwvWuyL7IoZVFotwtd9NEFE56xpykuDKMHstnmqbUS9vYKboWmZ
+oLA0B075zO/iAYhAjKmbD25NAGGIucaTXpB0OsgRdRuQMs6K0rdyUZ9j81iry27N
+zU5wKtoim8klrsgqQTHu+pZ1gYYgKP+M0lu7Hc1P4AYGE/qiEx4KSTX8ZBB7xXPm
+JndAI+ElJracuCTvxDBPZfx5YlQnqOngKwGSwLInVGClA3sm7gRZu8TY8/5jlx7r
+f8evwPSN6A7bSTSLJi5RbKe9PkmXA3XFMa7FWamrluxeVdf1jAmXC39VAF+mIvVi
+ncoTmAmoVIo88lSX7qUNjZVGS6syFgQ3WYZ6lxu0b7lbx7j2PggOZl2l3dc9d+vP
+GbV9jZYhcSF/57+zDFY0TIvfKT/JxyU9FZCuEHTdGcS3zosRL4E=
+=FiE4
+-----END PGP SIGNATURE-----
+
+--gph3bc2aynqejfb4--
+
+
+--===============1765357498413480999==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============1765357498413480999==--
