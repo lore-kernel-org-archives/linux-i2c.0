@@ -1,93 +1,47 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: axxia: support sequence command mode
-Date: Mon, 17 Dec 2018 23:31:22 +0100
-Message-ID: <20181217223122.ye5as5dn5f7rm2a4@ninjato>
-References: <20181211200435.abk3jdsmltz7c26w@ninjato>
- <20181213120926.GA10479@localhost.localdomain>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH] ARM i.MX: Fix a kernel panic in
+ i2c_imx_clk_notifier_call().
+Date: Mon, 17 Dec 2018 23:02:09 +0000
+Message-ID: <f324c18c-364e-c0fa-05c9-649b8946c977@axentia.se>
+References: <m3o9a2hni5.fsf@t19.piap.pl>
+ <CAOMZO5Bhe9t0x0Ke0VJTR3BaeT+ww9vCZBit-8ubyRQjtjM4=Q@mail.gmail.com>
+ <m3va3sh5zl.fsf@t19.piap.pl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="5cfywihpu4wl3i6q"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181213120926.GA10479@localhost.localdomain>
+In-Reply-To: <m3va3sh5zl.fsf@t19.piap.pl>
+Content-Language: en-US
+Content-ID: <812FE0E52CEAD54A9E4CDBDAA59AD677@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Guenter Roeck <linux@roeck-us.net>, Tobias Jordan <Tobias.Jordan@elektrobit.com>, Peter Rosin <peda@axentia.se>, "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
+To: =?utf-8?B?S3J6eXN6dG9mIEhhxYJhc2E=?= <khalasa@piap.pl>, Fabio Estevam <festevam@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>, Lucas Stach <l.stach@pengutronix.de>
 List-Id: linux-i2c@vger.kernel.org
 
-
---5cfywihpu4wl3i6q
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Dec 13, 2018 at 12:09:38PM +0000, Adamski, Krzysztof (Nokia - PL/Wr=
-oclaw) wrote:
-> In order to comply with SMBus specification, the Axxia I=C2=B2C module wi=
-ll
-> abort the multi message transfer if the delay between finishing sending
-> one message and starting another is longer than 25ms. Unfortunately it
-> isn't that hard to trigger this situation on a busy system. In order to
-> fix this problem, we should make sure hardware does whole transaction
-> without waiting for software to fill some data.
->=20
-> Fortunately, in addition to Manual mode that is currently used by the
-> driver to perform I=C2=B2C transfers, the module supports also so called
-> Sequence mode. In this mode, the module automatically performs
-> predefined sequence of operations - it sends a slave address, transmits
-> specified number of bytes from the FIFO, changes transfer direction,
-> resends the slave address and then reads specified number of bytes to
-> FIFO. While very inflexible, this does fit a most common case of multi
-> message transfer - the one where you first write a register number you
-> want to read and then read it.
->=20
-> To use this mode effectively, a number of conditions must be met to
-> ensure the transaction does fit the predefined sequence. In case this is
-> not the case, a fallback to manual mode is used.
->=20
-> The initialization of this mode is very similar to Manual mode. The most
-> notable difference is different bit in the Master Interrupt Status
-> designating finishing of transaction. Also some of the errors, like TSS,
-> cannot happen in this mode.
->=20
-> While it is possible to support transactions requesting a read of any
-> size (RFL interrupt will be generated when FIFO size is not enough) the
-> TFL interrupt is not available in this mode, thus the write part of the
-> transaction cannot exceed FIFO_SIZE (8).
->=20
-> Note that in case of a NAK during transaction, the NA/ND status bits
-> will be set before STOP command is generated, triggering an interrupt
-> while the controller is still busy. Current solution for this problem is
-> to actively wait for this command to stop before leaving xfer callback.
->=20
-> Signed-off-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
-
-Fixed this 'checkpatch --strict' warning:
-
-CHECK: braces {} should be used on all arms of this statement
-#201: FILE: drivers/i2c/busses/i2c-axxia.c:422:
-
-=2E.. and applied to for-next, thanks!
-
-
---5cfywihpu4wl3i6q
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwYI7oACgkQFA3kzBSg
-KbZnOg//fknrJkrD8oAQjJXYZWDOT+dRPDoXmYCuMydzDz4h+SWVXZBQwJOZ3W7K
-B7QlvKQhMl17s+l7AjraJ6+9nZVOtxGye+3L8jLc/CNB0c1pR6siJ1+ju8ZKJVG+
-LxwDsSozGK4Cb+mDTwe41fsuWqmYeEPlaBkqCY8o8K2t6YxyKY70Y0yyujTitJ7/
-NJp5uLEZDy1cIonhHEWf43mWB4dYBEe+iGaAxGDfYs6IBLSDXxUblTpa6HSQB11a
-xa+D7DEOB+7E2ZnxODf9SQmAH0raTclTW07wE+6DpipKrSqHAY2sW1EZZNF6pwaA
-gjPhyirYlin0TFHmBxjvFNoli50HOYdpCA2YQDcdSyBrkrUtwCy9z8eJ9cDzB9tm
-nVfwidOj6NhbKokFGpa7p2mUU/353lWybIMkuCzplUOJAIBHwmpfmyYi66chGLwO
-HR9ufr9IxlFnH9+OitpsRWPag5R/Q5jH4kua8MbSQzdAFJ4XESvCk2l2mofGNeq8
-Z052sjVBnfbJuHv4iRdIwzlFw+HdR09bS1q0ztQglKYcHxfmw5Nld+Ik22q5tk6r
-A/bNlUfQNGx+sJKNT1Bs9YGwdbw9fkSjtkLHAKLzO3dNxrq3L90bVXsBGC0ggyn9
-GxIPRxMi21TLRt7FqCZf7M7kToyv/2OdWw484m4QoHRBIV76mqM=
-=3MFY
------END PGP SIGNATURE-----
-
---5cfywihpu4wl3i6q--
+T24gMjAxOC0xMi0xNyAxMDoxMiwgS3J6eXN6dG9mIEhhxYJhc2Egd3JvdGU6DQo+IDkwYWQyY2Jl
+ODhjMjJkMDIxNTIyNWFiOTU5NGVlZWFkMGViMjRmZGUgY2hhbmdlZCB0aGUgaS5NWCBJMkMgYnVz
+IGRyaXZlcg0KDQpUaGlzIHJlZmVyZW5jZSBzaG91bGQgaWRlYWxseSBiZSBpbiBhIGZpeGVzLXRh
+ZywgYmVsb3cuLi4NCg0KPiB0byB1c2UgYSBub3RpZmllciB3aGVuZXZlciB0aGUgYmFzZSBjbG9j
+ayAoImlwZyIgLSA2NiBNSHogcGVyaXBoZXJhbA0KPiBjbG9jaykgcmF0ZSBjaGFuZ2VzLg0KPiAN
+Cj4gVW5mb3J0dW5hdGVseSBvbmUgY2FuJ3QgdXNlIHRoZSBjb250YWluZXJfb2YoKSBtYWNybyB0
+aGlzIHdheSAtIHRoZQ0KPiBmaXJzdCBhcmd1bWVudCBoYXMgdG8gcG9pbnQgdG8gYSBtZW1iZXIg
+b2YgdGhlIGJpZ2dlciBzdHJ1Y3QgKGxhc3QNCj4gYXJndW1lbnQpLiBNZXJlbHkgcG9pbnRpbmcg
+dG8gdGhlIHNhbWUgdmFsdWUgaXNuJ3QgZW5vdWdoICh0aGUgY2xrDQo+IHZhcmlhYmxlIHdoaWNo
+IGhhcyBpdHMgYWRkcmVzcyBwYXNzZWQgdG8gdGhlIG1hY3JvIGlzIHRoZSBjbGsgaW4NCj4gbm90
+aWZpZXJfYmxvY2ssIG5vdCB0aGUgb25lIGluIGlteF9pMmNfc3RydWN0LCBldmVuIHRob3VnaCBi
+b3RoIHBvaW50ZXJzDQo+IHBvaW50IHRvIHRoZSBzYW1lIGNsayBzdHJ1Y3QpLg0KPiANCj4gVGhp
+cyBidWcgY2F1c2VzIGtlcm5lbCBwYW5pYyB3aGVuIHRoZSBJUEcgY2xvY2sgcmF0ZSBjaGFuZ2Vz
+IChlLmcuIGlmDQo+IGFueSBjbG9jayBkZXJpdmVkIGZyb20gSVBHIGNoYW5nZXMpLg0KPiANCg0K
+Li4ucmlnaHQgaGVyZS4NCg0KRml4ZXM6IDkwYWQyY2JlODhjMiAoImkyYzogaW14OiB1c2UgY2xr
+IG5vdGlmaWVyIGZvciByYXRlIGNoYW5nZXMiKQ0KPiBTaWduZWQtb2ZmLWJ5OiBLcnp5c3p0b2Yg
+SGFsYXNhIDxraGFsYXNhQHBpYXAucGw+DQo+IA0KPiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMv
+aTJjLWlteC5jDQo+ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMNCj4gQEAgLTUx
+MCw5ICs1MTAsOSBAQCBzdGF0aWMgaW50IGkyY19pbXhfY2xrX25vdGlmaWVyX2NhbGwoc3RydWN0
+IG5vdGlmaWVyX2Jsb2NrICpuYiwNCj4gIAkJCQkgICAgIHVuc2lnbmVkIGxvbmcgYWN0aW9uLCB2
+b2lkICpkYXRhKQ0KPiAgew0KPiAgCXN0cnVjdCBjbGtfbm90aWZpZXJfZGF0YSAqbmRhdGEgPSBk
+YXRhOw0KPiAtCXN0cnVjdCBpbXhfaTJjX3N0cnVjdCAqaTJjX2lteCA9IGNvbnRhaW5lcl9vZigm
+bmRhdGEtPmNsaywNCj4gKwlzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QgKmkyY19pbXggPSBjb250YWlu
+ZXJfb2YobmIsDQo+ICAJCQkJCQkgICAgICBzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QsDQo+IC0JCQkJ
+CQkgICAgICBjbGspOw0KPiArCQkJCQkJICAgICAgY2xrX2NoYW5nZV9uYik7DQo+ICANCj4gIAlp
+ZiAoYWN0aW9uICYgUE9TVF9SQVRFX0NIQU5HRSkNCj4gIAkJaTJjX2lteF9zZXRfY2xrKGkyY19p
+bXgsIG5kYXRhLT5uZXdfcmF0ZSk7DQo+IA0KDQo=
