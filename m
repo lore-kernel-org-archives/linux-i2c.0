@@ -1,47 +1,65 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH] ARM i.MX: Fix a kernel panic in
- i2c_imx_clk_notifier_call().
-Date: Mon, 17 Dec 2018 10:26:16 +0100
-Message-ID: <20181217092616.sd4yv4ezu72xzlxb@pengutronix.de>
-References: <m3o9a2hni5.fsf@t19.piap.pl>
- <CAOMZO5Bhe9t0x0Ke0VJTR3BaeT+ww9vCZBit-8ubyRQjtjM4=Q@mail.gmail.com>
- <m3va3sh5zl.fsf@t19.piap.pl>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: [PATCH v4] MAINTAINERS: add maintainers for ChromeOS EC sub-drivers
+Date: Mon, 17 Dec 2018 10:54:09 +0100
+Message-ID: <20181217095409.22627-1-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <m3va3sh5zl.fsf@t19.piap.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Krzysztof =?utf-8?Q?Ha=C5=82asa?= <khalasa@piap.pl>
-Cc: Fabio Estevam <festevam@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>, Lucas Stach <l.stach@pengutronix.de>
+To: linux-kernel@vger.kernel.org
+Cc: Alessandro Zummo <a.zummo@towertech.it>, linux-pwm@vger.kernel.org, linux-iio@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, groeck@chromium.org, kernel@collabora.com, linux-rtc@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Benson Leung <bleung@chromium.org>, Sebastian Reichel <sre@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, devicetree@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, linux-pm@vger.kernel.org, MyungJoo Ham <myungjoo.ham@samsung.com>, Lee Jones <lee.jones@linaro.org>, Hartmut Knaack <knaack.h@gmx.de>, Rob Herring <robh+dt@kernel.org>, Lars
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 17, 2018 at 10:12:14AM +0100, Krzysztof Hałasa wrote:
-> 90ad2cbe88c22d0215225ab9594eeead0eb24fde changed the i.MX I2C bus driver
-> to use a notifier whenever the base clock ("ipg" - 66 MHz peripheral
-> clock) rate changes.
-> 
-> Unfortunately one can't use the container_of() macro this way - the
-> first argument has to point to a member of the bigger struct (last
-> argument). Merely pointing to the same value isn't enough (the clk
-> variable which has its address passed to the macro is the clk in
-> notifier_block, not the one in imx_i2c_struct, even though both pointers
-> point to the same clk struct).
-> 
-> This bug causes kernel panic when the IPG clock rate changes (e.g. if
-> any clock derived from IPG changes).
-> 
-> Signed-off-by: Krzysztof Halasa <khalasa@piap.pl>
+There are multiple ChromeOS EC sub-drivers spread in different
+subsystems, as all of them are related to the Chrome stuff add
+Benson and myself as a maintainers for all these sub-drivers.
 
-I didn't look at the patch, but I suggest a Fixes: line here à la:
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Benson Leung <bleung@chromium.org>
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Acked-by: Guenter Roeck <groeck@chromium.org>
+---
 
-Fixes: 90ad2cbe88c2 ("i2c: imx: use clk notifier for rate changes")
+Changes in v4:
+- Remove the `for iio parts` from Jonathan's acked-by tag.
+- Add more collected acks.
+- Use two N patterns.
 
-Best regards
-Uwe
+Changes in v3:
+- Add collected acks
+- Use a cros[-_]ec pattern instead of list all the files.
+- Add Guenter as a reviewer.
+
+Changes in v2:
+- Fix typo in Benson email address.
+
+ MAINTAINERS | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index fa6e2ad90568..1e27b24e912e 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -3629,6 +3629,15 @@ S:	Maintained
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/bleung/chrome-platform.git
+ F:	drivers/platform/chrome/
  
++CHROMEOS EC SUBDRIVERS
++M:	Benson Leung <bleung@chromium.org>
++M:	Enric Balletbo i Serra <enric.balletbo@collabora.com>
++R:	Guenter Roeck <groeck@chromium.org>
++S:	Maintained
++N:	cros_ec
++N:	cros-ec
++F:	drivers/power/supply/cros_usbpd-charger.c
++
+ CIRRUS LOGIC AUDIO CODEC DRIVERS
+ M:	Brian Austin <brian.austin@cirrus.com>
+ M:	Paul Handrigan <Paul.Handrigan@cirrus.com>
 -- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+2.19.2
