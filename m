@@ -1,53 +1,93 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] dt-bindings: i2c: rcar: Add r8a774c0 support
-Date: Mon, 17 Dec 2018 23:24:11 +0100
-Message-ID: <20181217222410.dfy2them2skvlnuw@ninjato>
-References: <1544732342-6131-1-git-send-email-fabrizio.castro@bp.renesas.com>
+Subject: Re: [PATCH v2] i2c: axxia: support sequence command mode
+Date: Mon, 17 Dec 2018 23:31:22 +0100
+Message-ID: <20181217223122.ye5as5dn5f7rm2a4@ninjato>
+References: <20181211200435.abk3jdsmltz7c26w@ninjato>
+ <20181213120926.GA10479@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7dt2z4ll2efnf3bx"
+        protocol="application/pgp-signature"; boundary="5cfywihpu4wl3i6q"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1544732342-6131-1-git-send-email-fabrizio.castro@bp.renesas.com>
+In-Reply-To: <20181213120926.GA10479@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Simon Horman <horms+renesas@verge.net.au>, Biju Das <biju.das@bp.renesas.com>, Ulrich Hecht <ulrich.hecht+renesas@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Hiromitsu Yamasaki <hiromitsu.yamasaki.ym@renesas.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Simon Horman <horms@verge.net.au>, Chris Paterson <Chris.Paterson2@renesas.com>, linux-renesas-soc@vger.kernel.org
+To: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Guenter Roeck <linux@roeck-us.net>, Tobias Jordan <Tobias.Jordan@elektrobit.com>, Peter Rosin <peda@axentia.se>, "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---7dt2z4ll2efnf3bx
-Content-Type: text/plain; charset=us-ascii
+--5cfywihpu4wl3i6q
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 13, 2018 at 08:19:02PM +0000, Fabrizio Castro wrote:
-> Document RZ/G2E (R8A774C0) I2C compatibility with the relevant driver
-> dt-bindings.
+On Thu, Dec 13, 2018 at 12:09:38PM +0000, Adamski, Krzysztof (Nokia - PL/Wr=
+oclaw) wrote:
+> In order to comply with SMBus specification, the Axxia I=C2=B2C module wi=
+ll
+> abort the multi message transfer if the delay between finishing sending
+> one message and starting another is longer than 25ms. Unfortunately it
+> isn't that hard to trigger this situation on a busy system. In order to
+> fix this problem, we should make sure hardware does whole transaction
+> without waiting for software to fill some data.
 >=20
-> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> Fortunately, in addition to Manual mode that is currently used by the
+> driver to perform I=C2=B2C transfers, the module supports also so called
+> Sequence mode. In this mode, the module automatically performs
+> predefined sequence of operations - it sends a slave address, transmits
+> specified number of bytes from the FIFO, changes transfer direction,
+> resends the slave address and then reads specified number of bytes to
+> FIFO. While very inflexible, this does fit a most common case of multi
+> message transfer - the one where you first write a register number you
+> want to read and then read it.
+>=20
+> To use this mode effectively, a number of conditions must be met to
+> ensure the transaction does fit the predefined sequence. In case this is
+> not the case, a fallback to manual mode is used.
+>=20
+> The initialization of this mode is very similar to Manual mode. The most
+> notable difference is different bit in the Master Interrupt Status
+> designating finishing of transaction. Also some of the errors, like TSS,
+> cannot happen in this mode.
+>=20
+> While it is possible to support transactions requesting a read of any
+> size (RFL interrupt will be generated when FIFO size is not enough) the
+> TFL interrupt is not available in this mode, thus the write part of the
+> transaction cannot exceed FIFO_SIZE (8).
+>=20
+> Note that in case of a NAK during transaction, the NA/ND status bits
+> will be set before STOP command is generated, triggering an interrupt
+> while the controller is still busy. Current solution for this problem is
+> to actively wait for this command to stop before leaving xfer callback.
+>=20
+> Signed-off-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
 
-Fixed the typo in the commit message and applied to for-next, thanks!
+Fixed this 'checkpatch --strict' warning:
+
+CHECK: braces {} should be used on all arms of this statement
+#201: FILE: drivers/i2c/busses/i2c-axxia.c:422:
+
+=2E.. and applied to for-next, thanks!
 
 
-
---7dt2z4ll2efnf3bx
+--5cfywihpu4wl3i6q
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwYIgoACgkQFA3kzBSg
-KbaWSQ/+LbpQI8hOr1Zwos9aH3AL4C/xMnhpg1VIG7cLc82/YpBoHeK9hS2UmWzl
-jGa4SQLjKKyJfxNKEuhado5zqHCZD1r8VpYvK4BuEsNdPC/lyYsC9XGr9fpMdRhu
-OXjiur9a1A80rRLPvvsvqYeAK4GEdhD30IKYkOwe9PjofEZJ5RP34c/7v0DY7UrJ
-WfE3NCohBcF6DWAqNa/qonTVHJgAsrktj9AqGqYUoUCAdsDqHgp3SumOo59HQXpD
-9i9ctinI1J3SXjvdV+MJ08z5tGMJShYywGlhOEeP6jeQtix/OUov6M4Rq09ZBXoH
-n9KtXNFbLJ3AkUUjT+KxiXLKBpNFqHY4bxVeitYooGAIB+pxEc+i4BOCL4LMtTIN
-Q4AhFbeeQFxcrAAftwUiQG+QiGx7pn4IDiMa1njQ7DyPNw8MoJsDKfUjNF2bE/Tf
-3uGvTZwk2baXCLCnDMNyxcJSo9zrTqdZfspLdX5y1Ql4JVgYx07wrhpDlCFWoOI2
-KDckCMpXHuK0xsacs68MfuPrbD6eErgwjt9MJzEmllAOdJ74SNpj3nUIF/C3HiS4
-qoNcXKsygZPYbtPgUaKJPZzVDoAuGgmAV7dzb++1wp8apztwFMQdysn66eS+t3tv
-FkZQbdTQ3LDQfUbAGj83RjK+kt3WIZXS72Gd/0nuizU4IshRHi0=
-=G+Yq
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwYI7oACgkQFA3kzBSg
+KbZnOg//fknrJkrD8oAQjJXYZWDOT+dRPDoXmYCuMydzDz4h+SWVXZBQwJOZ3W7K
+B7QlvKQhMl17s+l7AjraJ6+9nZVOtxGye+3L8jLc/CNB0c1pR6siJ1+ju8ZKJVG+
+LxwDsSozGK4Cb+mDTwe41fsuWqmYeEPlaBkqCY8o8K2t6YxyKY70Y0yyujTitJ7/
+NJp5uLEZDy1cIonhHEWf43mWB4dYBEe+iGaAxGDfYs6IBLSDXxUblTpa6HSQB11a
+xa+D7DEOB+7E2ZnxODf9SQmAH0raTclTW07wE+6DpipKrSqHAY2sW1EZZNF6pwaA
+gjPhyirYlin0TFHmBxjvFNoli50HOYdpCA2YQDcdSyBrkrUtwCy9z8eJ9cDzB9tm
+nVfwidOj6NhbKokFGpa7p2mUU/353lWybIMkuCzplUOJAIBHwmpfmyYi66chGLwO
+HR9ufr9IxlFnH9+OitpsRWPag5R/Q5jH4kua8MbSQzdAFJ4XESvCk2l2mofGNeq8
+Z052sjVBnfbJuHv4iRdIwzlFw+HdR09bS1q0ztQglKYcHxfmw5Nld+Ik22q5tk6r
+A/bNlUfQNGx+sJKNT1Bs9YGwdbw9fkSjtkLHAKLzO3dNxrq3L90bVXsBGC0ggyn9
+GxIPRxMi21TLRt7FqCZf7M7kToyv/2OdWw484m4QoHRBIV76mqM=
+=3MFY
 -----END PGP SIGNATURE-----
 
---7dt2z4ll2efnf3bx--
+--5cfywihpu4wl3i6q--
