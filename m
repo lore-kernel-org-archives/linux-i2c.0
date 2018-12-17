@@ -1,26 +1,52 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v3 1/4] dt-bindings: i2c: Add S700 support for Actions
- Semi Soc's
-Date: Mon, 17 Dec 2018 16:17:46 -0600
-Message-ID: <20181217221746.GA15941@bogus>
-References: <20181211080448.24007-1-pn@denx.de>
- <20181211080448.24007-2-pn@denx.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] dt-bindings: i2c: sh_mobile: Add r8a774c0 support
+Date: Mon, 17 Dec 2018 23:22:39 +0100
+Message-ID: <20181217222239.djwackpdkn7dv4qe@ninjato>
+References: <1544776907-17845-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="6vw7cy44rgrxdwoz"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181211080448.24007-2-pn@denx.de>
+In-Reply-To: <1544776907-17845-1-git-send-email-fabrizio.castro@bp.renesas.com>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: manivannan.sadhasivam@linaro.org, afaerber@suse.de, robh+dt@kernel.org, mark.rutland@arm.com, wsa@the-dreams.de, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux@cubietech.com, thomas.liau@actions-semi.com, linux-actions@lists.infradead.org, Parthiban Nallathambi <pn@denx.de>
+To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Peter Rosin <peda@axentia.se>, Simon Horman <horms+renesas@verge.net.au>, Geert Uytterhoeven <geert+renesas@glider.be>, Biju Das <biju.das@bp.renesas.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Simon Horman <horms@verge.net.au>, Chris Paterson <Chris.Paterson2@renesas.com>, linux-renesas-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 11 Dec 2018 09:04:45 +0100, Parthiban Nallathambi wrote:
-> Add s700 compatible string to Actions Semi SoC dt-bindings.
-> 
-> Signed-off-by: Parthiban Nallathambi <pn@denx.de>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-owl.txt | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+--6vw7cy44rgrxdwoz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Dec 14, 2018 at 08:41:47AM +0000, Fabrizio Castro wrote:
+> Document RZ/G2E (R8A774C0) SoC bindings.
+>=20
+> Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+>=20
+
+Applied to for-next, thanks!
+
+
+--6vw7cy44rgrxdwoz
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwYIa8ACgkQFA3kzBSg
+KbaR+A/6A5sIJpSrElqX8AP/F1lKn7uOpQHbkFXBAWi1Vo4w1CELOe1ipxqlPk5+
+kIJyjN5Ud9gm8C2fiesUlSDJCeysIoh+k5RjWQIjHzh7LLuY2t1ex7M2O7VfePL0
+5LtvBgFHNVNu1yohnpRV4+X/SDlN4AH4DYIjk8x1yef6NNhIHH9Fj0HsXA7BgMVa
+g7uZ2Ar9+z7vLYaNCzpN8lwz+AbD3mb4ZX/2TrGUgn8iymFq9PfTTYVQCX3YisuP
+LBcrUhPgNQm6TAkSwywY+ZbwQbhRA+dbJ56gIzxGFxMT9RzObFJnRC5gOJvN/7Wq
+8P73MzTs9OHrz1hqI20z1AZd1DAl50TyS71UltWKq0ZsHmiTZ0MdWHZeeTlj2/Hg
+/utqaz736vZJM+3ae3PpBH8y49G9IutVtfiHUE2CiZW84c8a861ncgSMBcHvSsZ6
+vdZjGthnRd3abjdcYpD9zOHiCRzgUkMoAy8JonlKSpDPnTQBTSsEBuaSp9eezE/+
+XJ2miCkoXpNzNQZeQYFbEIYUmLRsLJTxqnjPy25FfQkUAiBogRXCy67WWVr1llbz
+MjFi7BgzLuAKFrZRTPLhErhNEbb0e6G12624L6rH3MkhUmq0/bP4omx8euOy8/jA
+yd06dha4rR750DgIVXCZbSWAaVk8w0B5Oe2uOVyc9AaMWc+VkrU=
+=lbQT
+-----END PGP SIGNATURE-----
+
+--6vw7cy44rgrxdwoz--
