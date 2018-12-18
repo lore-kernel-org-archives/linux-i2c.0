@@ -1,79 +1,64 @@
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: Re: [RFC/RFT 09/10] i2c: s3c2410: use core helper to mark adapter
- suspended
-Date: Tue, 18 Dec 2018 12:24:56 +0100
-Message-ID: <2b73c71b-2b73-7132-3629-cf700b251fdb@samsung.com>
-References: <20181210210310.12677-1-wsa+renesas@sang-engineering.com>
-        <CGME20181210210451epcas5p2f186c09d2e89f30cdb7106272e5e4709@epcas5p2.samsung.com>
-        <20181210210310.12677-10-wsa+renesas@sang-engineering.com>
+From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Subject: RE: [PATCH] dt-bindings: i2c: rcar: Add r8a774c0 support
+Date: Tue, 18 Dec 2018 11:41:44 +0000
+Message-ID: <TY1PR01MB1770DD6B3F98F9C1B6B2252FC0BD0@TY1PR01MB1770.jpnprd01.prod.outlook.com>
+References: <1544732342-6131-1-git-send-email-fabrizio.castro@bp.renesas.com>
+ <20181217222410.dfy2them2skvlnuw@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181210210310.12677-10-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20181217222410.dfy2them2skvlnuw@ninjato>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Simon Horman <horms+renesas@verge.net.au>, Biju Das <biju.das@bp.renesas.com>, Ulrich Hecht <ulrich.hecht+renesas@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Hiromitsu Yamasaki <hiromitsu.yamasaki.ym@renesas.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Chris Paterson <Chris.Paterson2@renesas.com>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Hello Wolfram,
 
-On 2018-12-10 22:03, Wolfram Sang wrote:
-> Rejecting transfers should be handled by the core. Also, this will
-> ensure proper locking which was forgotten in this open coded version.
+> From: Wolfram Sang <wsa@the-dreams.de>
+> Sent: 17 December 2018 22:24
+> To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+> Cc: Rob Herring <robh+dt@kernel.org>; Mark Rutland <mark.rutland@arm.com>=
+; Wolfram Sang <wsa+renesas@sang-
+> engineering.com>; Geert Uytterhoeven <geert+renesas@glider.be>; Simon Hor=
+man <horms+renesas@verge.net.au>; Biju Das
+> <biju.das@bp.renesas.com>; Ulrich Hecht <ulrich.hecht+renesas@gmail.com>;=
+ Sergei Shtylyov
+> <sergei.shtylyov@cogentembedded.com>; Hiromitsu Yamasaki <hiromitsu.yamas=
+aki.ym@renesas.com>; linux-i2c@vger.kernel.org;
+> devicetree@vger.kernel.org; linux-kernel@vger.kernel.org; Simon Horman <h=
+orms@verge.net.au>; Chris Paterson
+> <Chris.Paterson2@renesas.com>; linux-renesas-soc@vger.kernel.org
+> Subject: Re: [PATCH] dt-bindings: i2c: rcar: Add r8a774c0 support
 >
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-
-Works fine on Odroid U3.
-
-> ---
->  drivers/i2c/busses/i2c-s3c2410.c | 8 ++------
->  1 file changed, 2 insertions(+), 6 deletions(-)
+> On Thu, Dec 13, 2018 at 08:19:02PM +0000, Fabrizio Castro wrote:
+> > Document RZ/G2E (R8A774C0) I2C compatibility with the relevant driver
+> > dt-bindings.
+> >
+> > Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
 >
-> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-> index 2f2e28d60ef5..7c76edb25514 100644
-> --- a/drivers/i2c/busses/i2c-s3c2410.c
-> +++ b/drivers/i2c/busses/i2c-s3c2410.c
-> @@ -104,7 +104,6 @@ enum s3c24xx_i2c_state {
->  struct s3c24xx_i2c {
->  	wait_queue_head_t	wait;
->  	kernel_ulong_t		quirks;
-> -	unsigned int		suspended:1;
->  
->  	struct i2c_msg		*msg;
->  	unsigned int		msg_num;
-> @@ -703,9 +702,6 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
->  	unsigned long timeout;
->  	int ret;
->  
-> -	if (i2c->suspended)
-> -		return -EIO;
-> -
->  	ret = s3c24xx_i2c_set_master(i2c);
->  	if (ret != 0) {
->  		dev_err(i2c->dev, "cannot get bus (error %d)\n", ret);
-> @@ -1246,7 +1242,7 @@ static int s3c24xx_i2c_suspend_noirq(struct device *dev)
->  {
->  	struct s3c24xx_i2c *i2c = dev_get_drvdata(dev);
->  
-> -	i2c->suspended = 1;
-> +	i2c_mark_adapter_suspended(&i2c->adap, true);
->  
->  	if (!IS_ERR(i2c->sysreg))
->  		regmap_read(i2c->sysreg, EXYNOS5_SYS_I2C_CFG, &i2c->sys_i2c_cfg);
-> @@ -1267,7 +1263,7 @@ static int s3c24xx_i2c_resume_noirq(struct device *dev)
->  		return ret;
->  	s3c24xx_i2c_init(i2c);
->  	clk_disable(i2c->clk);
-> -	i2c->suspended = 0;
-> +	i2c_mark_adapter_suspended(&i2c->adap, false);
->  
->  	return 0;
->  }
+> Fixed the typo in the commit message and applied to for-next, thanks!
+>
 
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+Thank you for fixing!
+
+Fab
+
+
+
+[https://www2.renesas.eu/media/email/unicef.jpg]
+
+This Christmas, instead of sending out cards, Renesas Electronics Europe ha=
+ve decided to support Unicef with a donation. For further details click her=
+e<https://www.unicef.org/> to find out about the valuable work they do, hel=
+ping children all over the world.
+We would like to take this opportunity to wish you a Merry Christmas and a =
+prosperous New Year.
+
+
+
+Renesas Electronics Europe Ltd, Dukes Meadow, Millboard Road, Bourne End, B=
+uckinghamshire, SL8 5FH, UK. Registered in England & Wales under Registered=
+ No. 04586709.
