@@ -1,64 +1,63 @@
-From: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-Subject: RE: [PATCH] dt-bindings: i2c: rcar: Add r8a774c0 support
-Date: Tue, 18 Dec 2018 11:41:44 +0000
-Message-ID: <TY1PR01MB1770DD6B3F98F9C1B6B2252FC0BD0@TY1PR01MB1770.jpnprd01.prod.outlook.com>
-References: <1544732342-6131-1-git-send-email-fabrizio.castro@bp.renesas.com>
- <20181217222410.dfy2them2skvlnuw@ninjato>
+From: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH 0/7] v4.19-stable randconfig fixes
+Date: Tue, 18 Dec 2018 16:12:30 +0100
+Message-ID: <20181218151230.GA30844@kroah.com>
+References: <20181214221023.3878670-1-arnd@arndb.de>
+ <20181218002028.GX2746@sasha-vm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181217222410.dfy2them2skvlnuw@ninjato>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Geert Uytterhoeven <geert+renesas@glider.be>, Simon Horman <horms+renesas@verge.net.au>, Biju Das <biju.das@bp.renesas.com>, Ulrich Hecht <ulrich.hecht+renesas@gmail.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Hiromitsu Yamasaki <hiromitsu.yamasaki.ym@renesas.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Simon Horman <horms@verge.net.au>, Chris Paterson <Chris.Paterson2@renesas.com>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <freedreno-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20181218002028.GX2746@sasha-vm>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/freedreno>,
+ <mailto:freedreno-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/freedreno>
+List-Post: <mailto:freedreno-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
+List-Help: <mailto:freedreno-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/freedreno>,
+ <mailto:freedreno-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=subscribe>
+Errors-To: freedreno-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
+Sender: "Freedreno" <freedreno-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
+To: Sasha Levin <sashal-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-aspeed-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, David Brown <david.brown-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "James E.J. Bottomley" <jejb-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, Daniel Drake <dsd-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>, linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jens Frederich <jfrederich-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, openbmc-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Ingo Molnar <mingo-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Andy Gross <andy.gross-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lubomir Rintel <lkundrak-NGH9Lh4a5iE@public.gmane.org>, dou_liyang-9Onoh4P/yGk@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, bp-Gina5bIWoIWzQB+pC5nmwQ@public.gmane.org, Vincent Guittot <vincent.guittot-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, "Martin K. Petersen" <martin.petersen-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>, Andrew Jeffery <andrew-zrmu5oMJ5Fs@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
-
-> From: Wolfram Sang <wsa@the-dreams.de>
-> Sent: 17 December 2018 22:24
-> To: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
-> Cc: Rob Herring <robh+dt@kernel.org>; Mark Rutland <mark.rutland@arm.com>=
-; Wolfram Sang <wsa+renesas@sang-
-> engineering.com>; Geert Uytterhoeven <geert+renesas@glider.be>; Simon Hor=
-man <horms+renesas@verge.net.au>; Biju Das
-> <biju.das@bp.renesas.com>; Ulrich Hecht <ulrich.hecht+renesas@gmail.com>;=
- Sergei Shtylyov
-> <sergei.shtylyov@cogentembedded.com>; Hiromitsu Yamasaki <hiromitsu.yamas=
-aki.ym@renesas.com>; linux-i2c@vger.kernel.org;
-> devicetree@vger.kernel.org; linux-kernel@vger.kernel.org; Simon Horman <h=
-orms@verge.net.au>; Chris Paterson
-> <Chris.Paterson2@renesas.com>; linux-renesas-soc@vger.kernel.org
-> Subject: Re: [PATCH] dt-bindings: i2c: rcar: Add r8a774c0 support
->
-> On Thu, Dec 13, 2018 at 08:19:02PM +0000, Fabrizio Castro wrote:
-> > Document RZ/G2E (R8A774C0) I2C compatibility with the relevant driver
-> > dt-bindings.
-> >
-> > Signed-off-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
->
-> Fixed the typo in the commit message and applied to for-next, thanks!
->
-
-Thank you for fixing!
-
-Fab
-
-
-
-[https://www2.renesas.eu/media/email/unicef.jpg]
-
-This Christmas, instead of sending out cards, Renesas Electronics Europe ha=
-ve decided to support Unicef with a donation. For further details click her=
-e<https://www.unicef.org/> to find out about the valuable work they do, hel=
-ping children all over the world.
-We would like to take this opportunity to wish you a Merry Christmas and a =
-prosperous New Year.
-
-
-
-Renesas Electronics Europe Ltd, Dukes Meadow, Millboard Road, Bourne End, B=
-uckinghamshire, SL8 5FH, UK. Registered in England & Wales under Registered=
- No. 04586709.
+T24gTW9uLCBEZWMgMTcsIDIwMTggYXQgMDc6MjA6MjhQTSAtMDUwMCwgU2FzaGEgTGV2aW4gd3Jv
+dGU6Cj4gT24gRnJpLCBEZWMgMTQsIDIwMTggYXQgMTE6MTA6MDVQTSArMDEwMCwgQXJuZCBCZXJn
+bWFubiB3cm90ZToKPiA+IEhpIEdyZWcsCj4gPiAKPiA+IEkgZGlkIHNvbWUgcmFuZGNvbmZpZyB0
+ZXN0aW5nIG9uIGxpbnV4LTQuMTkgYXJtL2FybTY0L3g4Ni4gU28gZmFyIEkgbmVlZGVkCj4gPiAy
+NyBwYXRjaGVzLCBtb3N0IG9mIHdoaWNoIGFyZSBhbHNvIHN0aWxsIG5lZWRlZCBpbiBtYWlubGlu
+ZSBMaW51eC4gSQo+ID4gaGFkIHN1Ym1pdHRlZCBzb21lIGJlZm9yZSwgYW5kIG90aGVycyB3ZXJl
+IG5vdCBzdWJtaXR0ZWQgcHJldmlvdXNseQo+ID4gZm9yIHNvbWUgcmVhc29uLiBJJ2xsIHRyeSB0
+byBnZXQgdGhvc2UgZml4ZWQgaW4gbWFpbmxpbmUgYW5kIHRoZW4KPiA+IG1ha2Ugc3VyZSB3ZSBn
+ZXQgdGhlbSBpbnRvIDQuMTkgYXMgd2VsbC4KPiA+IAo+ID4gVGhpcyBzZXJpZXMgZm9yIG5vdyBj
+b250YWlucyBmb3VyIHBhdGNoZXMgdGhhdCBkaWQgbWFrZSBpdCBpbnRvIG1haW5saW5lOgo+ID4g
+Cj4gPiAyZTZhZTExZGQwZDEgKCJzbGltYnVzOiBuZ2Q6IG1hcmsgUE0gZnVuY3Rpb25zIGFzIF9f
+bWF5YmVfdW51c2VkIikKPiA+IDMzZjQ5NTcxZDc1MCAoInN0YWdpbmc6IG9scGNfZGNvbjogYWRk
+IGEgbWlzc2luZyBkZXBlbmRlbmN5IikKPiA+IDBlZWVjMDE0ODhkYSAoInNjc2k6IHJhaWRfYXR0
+cnM6IGZpeCB1bnVzZWQgdmFyaWFibGUgd2FybmluZyIpCj4gPiAxMWQ0YWZkNGZmNjYgKCJzY2hl
+ZC9wZWx0OiBGaXggd2FybmluZyBhbmQgY2xlYW4gdXAgSVJRIFBFTFQgY29uZmlnIikKPiA+IAo+
+ID4gRmVlbCBmcmVlIHRvIGVpdGhlciBjaGVycnktcGljayB0aG9zZSBmcm9tIG1haW5saW5lIG9y
+IGFwcGx5IHRoZQo+ID4gcGF0Y2ggZnJvbSB0aGlzIHNlcmllcywgd2hpY2hldmVyIHdvcmtzIGJl
+c3QgZm9yIHlvdS4KPiA+IAo+ID4gVGhlIG90aGVyIHRocmVlIHBhdGNoZXMgYXJlIGZvciB3YXJu
+aW5ncyBpbiBjb2RlIHRoYXQgZ290IHJlbW92ZWQgaW4KPiA+IG1haW5saW5lIGtlcm5lbHM6Cj4g
+PiAKPiA+IDNlOWVmYzMyOTlkZCAoImkyYzogYXNwZWVkOiBIYW5kbGUgbWFzdGVyL3NsYXZlIGNv
+bWJpbmVkIGlycSBldmVudHMgcHJvcGVybHkiKQo+ID4gOTcyOTEwOTQ4ZmI2ICgiQVJNOiBkdHM6
+IHFjb206IFJlbW92ZSBBcnJvdyBTRDYwMCBldmFsIGJvYXJkIikKPiA+IGVmZmVjODc0NzkyZiAo
+ImRybS9tc20vZHB1OiBSZW1vdmUgZHB1X2RiZyIpCj4gPiAKPiA+IE15IGZlZWxpbmcgd2FzIHRo
+YXQgaXQncyBzYWZlciB0byBqdXN0IGFkZHJlc3MgdGhlIHdhcm5pbmcgYnkgZml4aW5nCj4gPiB0
+aGUgY29kZSBjb3JyZWN0bHkgaW4gZWFjaCBvZiB0aGVzZSBjYXNlcywgYnV0IGlmIHlvdSBkaXNh
+Z3JlZSwKPiA+IGFwcGx5aW5nIHRoZSBtYWlubGluZSBjaGFuZ2Ugc2hvdWxkIHdvcmsgZXF1YWxs
+eSB3ZWxsLCBzbyBkZWNpZGUKPiA+IGZvciB5b3Vyc2VsZi4KPiAKPiBUaGFua3MgQXJuZCwgSSB0
+b29rIHRoZSBzZXJpZXMgYXMgaXMuCj4gCj4gV2UgcmVhbGx5IG5lZWQgdG8gZGlzY3VzcyBob3cg
+LXN0YWJsZSBkZWFscyB3aXRoIHJlbW92ZWQgY29kZSB1cHN0cmVhbS4KPiBGb3Igc29tZSBjYXNl
+cywgd2Ugc2hvdWxkIHByb2JhYmx5IGZvbGxvdyBzdWl0IGFuZCByZW1vdmUgaXQgZnJvbQo+IC1z
+dGFibGUgYXMgd2VsbCAoSSdtIG1vc3RseSB0aGlua2luZyBkb2RneSBjb2RlIHdpdGggcG90ZW50
+aWFsIHNlY3VyaXR5Cj4gaXNzdWVzKS4KCkl0IHdvdWxkIGJlIG5pY2UgdG8gZG8gdGhhdCBhdCB0
+aW1lcyAobGlrZSBsdXN0cmUgYW5kIGlweCksIGJ1dCBpdCdzCmdvb2QgdG8ga2VlcCB0aGF0IGNv
+ZGUgYXJvdW5kIGFzIG1heWJlIHNvbWVvbmUgaXMgdXNpbmcgaXQ/ICBJIGRvbid0Cmtub3csIGl0
+J3MgYSB0b3VnaCBjYWxsLi4uCgp0aGFua3MsCgpncmVnIGstaApfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpGcmVlZHJlbm8gbWFpbGluZyBsaXN0CkZyZWVk
+cmVub0BsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcv
+bWFpbG1hbi9saXN0aW5mby9mcmVlZHJlbm8K
