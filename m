@@ -1,78 +1,53 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [RFC/RFT 00/10] i2c: move handling of suspended adapters to the
- core
-Date: Tue, 18 Dec 2018 22:44:38 +0100
-Message-ID: <0e6b0ea6-e472-19f2-bb2f-61a1d66e6091@redhat.com>
-References: <20181210210310.12677-1-wsa+renesas@sang-engineering.com>
- <2094a0d4-733f-7f74-abd2-bdb28edd0f80@redhat.com>
- <20181211234102.GA6701@kunai>
- <e8c68ef5-5085-e304-4959-82c4959f4511@redhat.com>
- <20181218201725.2uqfmsethlkasdvc@ninjato>
+From: Sowjanya Komatineni <skomatineni@nvidia.com>
+Subject: [PATCH V1 1/2] i2c: tegra: Add HW feature structure for Tegra186
+Date: Tue, 18 Dec 2018 14:40:55 -0800
+Message-ID: <1545172856-19509-1-git-send-email-skomatineni@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20181218201725.2uqfmsethlkasdvc@ninjato>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+To: robh+dt@kernel.org, mark.rutland@arm.com, mperttunen@nvidia.com, thierry.reding@gmail.com, jonathanh@nvidia.com, ldewangan@nvidia.com, talho@nvidia.com
+Cc: devicetree@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sowjanya Komatineni <skomatineni@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Add HW feature structure for Tegra186 and compatible name
 
-On 18-12-18 21:17, Wolfram Sang wrote:
-> Hans, all,
-> 
->>> ... this. I don't know what these flags do (and reading SMART in there
->>> gives me more a 'uh-oh' feeling)
->>
->> On x86 the lines between runtime suspend and system-suspend are blurring
->> with technologies like "connected standby" and in general devices moving
->> to suspend2idle as system-suspend state, I guess this also applies to
->> modern smartphone platforms but I'm not following those closely.
-> 
-> I'd guess so, too. I am not aware of any existing mechanism for that at
-> the moment, though. If somebody does, please enlighten us.
-> 
->> The "SMART" bit is really not all that smart, SMART_PREPARE means that
->> the drivers pm prepare callback will return positive non 0 (e.g. 1) to
->> indicate that the device may not be kept in its runtime suspended
->> state when transitioning to system-suspend, otoh when the prepare
->> callback returns 0 and the SMART_PREPARE flag is set then *all* suspend/
->> resume handling can be skipped during a system suspend.
-> 
-> Thanks for the detailed explanation! Much appreciated.
-> 
->>> Looking at the open coded version you did for the designware driver, I
->>> wonder now if it is better to just leave it at driver level? Need to
->>> sleep over it, though.
->>
->> I myself was thinking in the same direction (leave the entire suspended
->> check at the driver level).
-> 
-> So, I was giving it some more thoughts, and my feeling is to still apply
-> this series with the review comments addressed. Plus, clearly mark the
-> new 'is_suspended' flag and the helper function as *optional* to allow
-> for driver specific solutions as well. The then-to-be-added
-> documentation would state that it is mostly useful for seperated system
-> suspend and runtime suspend. For more complex situations, custom
-> solutions are accepted, too. Which means your patch for designware
-> should be added to the series.
-> 
-> My take is there are enough drivers out there already which can benefit
-> from this new helper. If it turns out to be useless somewhen in the
-> future, we can still remove it.
-> 
-> What do you (and all others, of course) think?
+Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+---
+ drivers/i2c/busses/i2c-tegra.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-I've been thinking along the same lines: your series for the drivers
-with separate runtime and system suspend handlers, "custom" driver
-specific code for troublesome cases like i2c-designware.
-
-Do you want me to send out a new version of my patch for the i2c-designware
-code?
-
-Regards,
-
-Hans
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 437294ea2f0a..63e2345a95c5 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -898,6 +898,19 @@ static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
+ 	.has_mst_fifo = false,
+ };
+ 
++static const struct tegra_i2c_hw_feature tegra186_i2c_hw = {
++	.has_continue_xfer_support = true,
++	.has_per_pkt_xfer_complete_irq = true,
++	.has_single_clk_source = true,
++	.clk_divisor_hs_mode = 1,
++	.clk_divisor_std_fast_mode = 0x19,
++	.clk_divisor_fast_plus_mode = 0x10,
++	.has_config_load_reg = true,
++	.has_multi_master_mode = true,
++	.has_slcg_override_reg = true,
++	.has_mst_fifo = false,
++};
++
+ static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
+ 	.has_continue_xfer_support = true,
+ 	.has_per_pkt_xfer_complete_irq = true,
+@@ -914,6 +927,7 @@ static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
+ /* Match table for of_platform binding */
+ static const struct of_device_id tegra_i2c_of_match[] = {
+ 	{ .compatible = "nvidia,tegra194-i2c", .data = &tegra194_i2c_hw, },
++	{ .compatible = "nvidia,tegra186-i2c", .data = &tegra186_i2c_hw, },
+ 	{ .compatible = "nvidia,tegra210-i2c", .data = &tegra210_i2c_hw, },
+ 	{ .compatible = "nvidia,tegra124-i2c", .data = &tegra124_i2c_hw, },
+ 	{ .compatible = "nvidia,tegra114-i2c", .data = &tegra114_i2c_hw, },
+-- 
+2.7.4
