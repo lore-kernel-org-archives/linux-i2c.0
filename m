@@ -1,108 +1,61 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: [PATCH V1 2/2] arm64: dts: tegra186: Device Tree Updates for Tegra186 I2C
-Date: Tue, 18 Dec 2018 14:40:56 -0800
-Message-ID: <1545172856-19509-2-git-send-email-skomatineni@nvidia.com>
-References: <1545172856-19509-1-git-send-email-skomatineni@nvidia.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC/RFT 00/10] i2c: move handling of suspended adapters to the
+ core
+Date: Wed, 19 Dec 2018 00:32:59 +0100
+Message-ID: <20181218233259.2ufszlpw5hjlg2hm@ninjato>
+References: <20181210210310.12677-1-wsa+renesas@sang-engineering.com>
+ <2094a0d4-733f-7f74-abd2-bdb28edd0f80@redhat.com>
+ <20181211234102.GA6701@kunai>
+ <e8c68ef5-5085-e304-4959-82c4959f4511@redhat.com>
+ <20181218201725.2uqfmsethlkasdvc@ninjato>
+ <0e6b0ea6-e472-19f2-bb2f-61a1d66e6091@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="2zqdnv7q2yfssawi"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1545172856-19509-1-git-send-email-skomatineni@nvidia.com>
+Content-Disposition: inline
+In-Reply-To: <0e6b0ea6-e472-19f2-bb2f-61a1d66e6091@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: robh+dt@kernel.org, mark.rutland@arm.com, mperttunen@nvidia.com, thierry.reding@gmail.com, jonathanh@nvidia.com, ldewangan@nvidia.com, talho@nvidia.com
-Cc: devicetree@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sowjanya Komatineni <skomatineni@nvidia.com>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, bcm-kernel-feedback-list@broadcom.com, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Update I2C Device node compatible string to be appropriate.
 
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
----
- arch/arm64/boot/dts/nvidia/tegra186.dtsi | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+--2zqdnv7q2yfssawi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra186.dtsi b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-index 2f3c8e29520d..31c7278f4c03 100644
---- a/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-@@ -136,7 +136,7 @@
- 	};
- 
- 	gen1_i2c: i2c@3160000 {
--		compatible = "nvidia,tegra186-i2c", "nvidia,tegra114-i2c";
-+		compatible = "nvidia,tegra186-i2c", "nvidia,tegra210-i2c";
- 		reg = <0x0 0x03160000 0x0 0x10000>;
- 		interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
- 		#address-cells = <1>;
-@@ -149,7 +149,7 @@
- 	};
- 
- 	cam_i2c: i2c@3180000 {
--		compatible = "nvidia,tegra186-i2c", "nvidia,tegra114-i2c";
-+		compatible = "nvidia,tegra186-i2c", "nvidia,tegra210-i2c";
- 		reg = <0x0 0x03180000 0x0 0x10000>;
- 		interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
- 		#address-cells = <1>;
-@@ -163,7 +163,7 @@
- 
- 	/* shares pads with dpaux1 */
- 	dp_aux_ch1_i2c: i2c@3190000 {
--		compatible = "nvidia,tegra186-i2c", "nvidia,tegra114-i2c";
-+		compatible = "nvidia,tegra186-i2c", "nvidia,tegra210-i2c";
- 		reg = <0x0 0x03190000 0x0 0x10000>;
- 		interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
- 		#address-cells = <1>;
-@@ -177,7 +177,7 @@
- 
- 	/* controlled by BPMP, should not be enabled */
- 	pwr_i2c: i2c@31a0000 {
--		compatible = "nvidia,tegra186-i2c", "nvidia,tegra114-i2c";
-+		compatible = "nvidia,tegra186-i2c", "nvidia,tegra210-i2c";
- 		reg = <0x0 0x031a0000 0x0 0x10000>;
- 		interrupts = <GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>;
- 		#address-cells = <1>;
-@@ -191,7 +191,7 @@
- 
- 	/* shares pads with dpaux0 */
- 	dp_aux_ch0_i2c: i2c@31b0000 {
--		compatible = "nvidia,tegra186-i2c", "nvidia,tegra114-i2c";
-+		compatible = "nvidia,tegra186-i2c", "nvidia,tegra210-i2c";
- 		reg = <0x0 0x031b0000 0x0 0x10000>;
- 		interrupts = <GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>;
- 		#address-cells = <1>;
-@@ -204,7 +204,7 @@
- 	};
- 
- 	gen7_i2c: i2c@31c0000 {
--		compatible = "nvidia,tegra186-i2c", "nvidia,tegra114-i2c";
-+		compatible = "nvidia,tegra186-i2c", "nvidia,tegra210-i2c";
- 		reg = <0x0 0x031c0000 0x0 0x10000>;
- 		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
- 		#address-cells = <1>;
-@@ -217,7 +217,7 @@
- 	};
- 
- 	gen9_i2c: i2c@31e0000 {
--		compatible = "nvidia,tegra186-i2c", "nvidia,tegra114-i2c";
-+		compatible = "nvidia,tegra186-i2c", "nvidia,tegra210-i2c";
- 		reg = <0x0 0x031e0000 0x0 0x10000>;
- 		interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
- 		#address-cells = <1>;
-@@ -346,7 +346,7 @@
- 	};
- 
- 	gen2_i2c: i2c@c240000 {
--		compatible = "nvidia,tegra186-i2c", "nvidia,tegra114-i2c";
-+		compatible = "nvidia,tegra186-i2c", "nvidia,tegra210-i2c";
- 		reg = <0x0 0x0c240000 0x0 0x10000>;
- 		interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
- 		#address-cells = <1>;
-@@ -359,7 +359,7 @@
- 	};
- 
- 	gen8_i2c: i2c@c250000 {
--		compatible = "nvidia,tegra186-i2c", "nvidia,tegra114-i2c";
-+		compatible = "nvidia,tegra186-i2c", "nvidia,tegra210-i2c";
- 		reg = <0x0 0x0c250000 0x0 0x10000>;
- 		interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
- 		#address-cells = <1>;
--- 
-2.7.4
+
+> I've been thinking along the same lines: your series for the drivers
+> with separate runtime and system suspend handlers, "custom" driver
+> specific code for troublesome cases like i2c-designware.
+
+Cool, thanks!
+
+> Do you want me to send out a new version of my patch for the i2c-designware
+> code?
+
+Yes, please do.
+
+
+--2zqdnv7q2yfssawi
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwZg6sACgkQFA3kzBSg
+Kbb76A//brac55lwWTzuGQxjrhsSLEQwELKmBFUMND3qoxvsksj7MPwfUes29I22
+/40oqppJtH5pvm9a9oLl1EHmvIPKCmECe1kgp9SqrxRtspuMIIvwVL2YVA23bEsk
+g29Fo9oIQ23Le7vsh3CT+9hcfrsyuBUnqbQWdpWQVIEgdzwySeDuRzgF5CbV4951
+WiPwMH9+dxt4JnQART5cjHIkjf88TMNLNZah2mv+Qc306U/qvxBNPjKRAfMuyMHt
+4axCZ6WwuRGB8uXeFu/fkctno7l7Qta/m1iFHIt3t3nGVAlWdOB/fOqS9H3IX0+L
+y4MbbS6WVr+mCjddy1T9UBC9U2GXP29aU6Zn4x9XlcBq7AY/LHAGyvWbXHhuB8IO
+j4ZFy0P/2DH4VYDEtJdFFR4abyBzpPQZIR4dNQIIDQ4qPN5aWgs6gcRTJ38j3fdd
+neCGpf37wKEBzryrRdC4vbMx4CwoeMIcStDz62ARsOV5fOomyg4w8cL6Xlu1Vt+3
+4fIimBvfSzeb+wmSvep+9PPaBzXT99Uft6z0WlpPo2oRIS/x2ryD2livFPQYcxkE
+a0zyiy+8pYgfhrRc4YYp1K2LEJi2dJWBl0dDMyQMT3Wp0qPL02MAVsUEcodWqP6e
+lNasaYCIBijQlWPK6UmIt7ajsXAyXO8TrUZPXFjBK50hFwWYgSk=
+=m5jJ
+-----END PGP SIGNATURE-----
+
+--2zqdnv7q2yfssawi--
