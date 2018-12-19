@@ -1,54 +1,43 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC/RFT 10/10] i2c: rcar: add suspend/resume support
-Date: Wed, 19 Dec 2018 00:47:08 +0100
-Message-ID: <20181218234707.bpagrnelne5xwuot@ninjato>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [RFC/RFT 01/10] i2c: add 'is_suspended' flag for i2c adapters
+Date: Wed, 19 Dec 2018 10:39:05 +0100
+Message-ID: <CAMuHMdWH-bh=cfZhxrD6MYfqFUYroai5WbyYZ6+H4MQeubN=PA@mail.gmail.com>
 References: <20181210210310.12677-1-wsa+renesas@sang-engineering.com>
- <20181210210310.12677-11-wsa+renesas@sang-engineering.com>
- <944a2523-aa40-eaf2-2c4a-d27254e7cbca@axentia.se>
+ <20181210210310.12677-2-wsa+renesas@sang-engineering.com> <a4fdd7f1-be79-48fd-0d13-410276962384@axentia.se>
+ <20181218233354.pie5i3lvrrhq5q2c@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="2wd5zy6ly6ev5syp"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <944a2523-aa40-eaf2-2c4a-d27254e7cbca@axentia.se>
+In-Reply-To: <20181218233354.pie5i3lvrrhq5q2c@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Hans de Goede <hdegoede@redhat.com>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Hiromitsu Yamasaki <hiromitsu.yamasaki.ym@renesas.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Peter Rosin <peda@axentia.se>, Hans de Goede <hdegoede@redhat.com>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---2wd5zy6ly6ev5syp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, Dec 19, 2018 at 12:34 AM Wolfram Sang <wsa@the-dreams.de> wrote:
+> > > +   unsigned int is_suspended:1;    /* owned by the I2C core */
+> >
+> > When more stuff is added to this bit field (which always happens at
+> > some point) updates to all members of the bit field will have to use
+> > the same root-adapter-locking, or we will suffer from RMW-races. So
+> > this feels like an invitation for future disaster. Maybe a comment
+> > about that to remind our future selves? Or perhaps the bit field
+> > should be avoided altogether?
+>
+> Changed to bool. Thanks!
 
+Does that help, given bool is smaller than the CPUs word size?
+Is it Alpha that cannot do atomic operations on bytes?
 
-> > Because the adapter will be set up before every transaction anyhow, we
-> > just need to mark it as adapted to the I2C core.
->=20
-> mark it as "suspended", not "adapted"?
+Gr{oetje,eeting}s,
 
-Sure thing :D Thanks!
+                        Geert
 
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
---2wd5zy6ly6ev5syp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwZhvsACgkQFA3kzBSg
-KbbaJA/+Ob1YPSF6Xjksbil3XEOIkN0XoZ3Nj8E89hLT7tS3ctwAGg38gGTkA9jq
-oh4UfWpqw6EkGle/mcg2NAzqjZgZssQ5zJnq7CbJKnAQqL5Ss35o7iWle3gCX5Wt
-0ebH5rcksESYEsL3a+3r/jw4YRPllAJjna76uhX+rcQ3TeNxRzXfvHOUWErW90SD
-PPwZjUQbk5ryO9hLzaHvOFst8eid7Cjv5EwZc6NAfxuHzg3BtDVooSeKdESDhUww
-DyejT1aYuDOHbhSNqecz61QYxbORlaVTTbLPaaM8/9DPFnlUrGGDWr1THawwLN4C
-0osmhb/MxPA3SFGkWliGbGPvhE4y+fT8+oBucsQWx+Rg8L/4JtqImhu3AY8WrVDN
-9TXWFp1u75plrBfnuCrv6zfLE/qgXg8QljNRsBVgBeZe/dwZ2MPhICqxOF2FI3ZV
-tblDZUUS7wRWom/eAwHt1+BlZ0IlDfx2+hZNTsDW7Gvdm5P82rQieior4RP7BJYo
-f6p0UIJUARj3M3zhUC3frNiYvVF871b9AiBuXuqFElfAEnc29RoXO7PwChHwF9Xo
-BLoi5V8t78NMAkOhx5R+FUiTxt2ur4O5qn0xeq9RDkIt1Z/7vNOfgiUeN3kKQLA0
-QRnbOjrvBz3X7xxIRWqV/R1YSyGYCP1d56yHYhoT/RLJdDxnnFA=
-=mlgw
------END PGP SIGNATURE-----
-
---2wd5zy6ly6ev5syp--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
