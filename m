@@ -1,66 +1,50 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 01/10] i2c: add suspended flag and accessors for i2c
- adapters
-Date: Fri, 21 Dec 2018 11:43:13 +0100
-Message-ID: <6fb7d574-9648-2960-5724-8b02a3348012@redhat.com>
-References: <20181219164827.20985-1-wsa+renesas@sang-engineering.com>
- <20181219223341.GA998@kunai>
- <e8bfcadc-7c1a-6659-7173-4ce484ceeca3@redhat.com>
- <2368540.q2jLLRDsj0@aspire.rjw.lan>
+From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Subject: [PATCH] i2c: bcm2835: Clear current message and count after a transaction
+Date: Fri, 21 Dec 2018 13:11:35 +0100
+Message-ID: <20181221121135.4847-1-paul.kocialkowski@bootlin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2368540.q2jLLRDsj0@aspire.rjw.lan>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Lukas Wunner <lukas@wunner.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Eric Anholt <eric@anholt.net>, Stefan Wahren <stefan.wahren@i2se.com>, Paul Kocialkowski <paul.kocialkowski@bootlin.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+The driver's interrupt handler checks whether a message is currently
+being handled with the curr_msg pointer. When it is NULL, the interrupt
+is considered to be unexpected. Similarly, the i2c_start_transfer
+routine checks for the remaining number of messages to handle in
+num_msgs.
 
-On 20-12-18 22:09, Rafael J. Wysocki wrote:
-> On Thursday, December 20, 2018 11:00:29 AM CET Hans de Goede wrote:
->> Hi,
->>
->> On 19-12-18 23:33, Wolfram Sang wrote:
->>> Hi Lukas, Hans,
->>>
->>> On Wed, Dec 19, 2018 at 07:36:54PM +0100, Hans de Goede wrote:
->>>> Hi,
->>>>
->>>> On 19-12-18 18:22, Lukas Wunner wrote:
->>>>> On Wed, Dec 19, 2018 at 05:48:17PM +0100, Wolfram Sang wrote:
->>>>>> +static inline void i2c_mark_adapter_suspended(struct i2c_adapter *adap)
->>>>>> +{
->>>>>> +	i2c_lock_bus(adap, I2C_LOCK_ROOT_ADAPTER);
->>>>>> +	set_bit(I2C_ALF_IS_SUSPENDED, &adap->locked_flags);
->>>>>> +	i2c_unlock_bus(adap, I2C_LOCK_ROOT_ADAPTER);
->>>>>> +}
->>>>>
->>>>> This looks like a duplication of the is_suspended flag in struct dev_pm_info.
->>>>> Any reason why you can't use that?  If so, it would be good to document the
->>>>> reason in the commit message.
->>>>
->>>> Oh, that is a very good point and that one only gets set on system suspend
->>>> and not on resume suspend, working around the problems with the i2c-designware
->>>
->>> Just to make it clear: you mean runtime suspend, not resume suspend, or?
->>
->> Yes I mean runtime-suspend, sorry.
-> 
-> The power.is_suspended flag is about system-wide suspend, however.
+However, these values are never cleared and always keep the message and
+number relevant to the latest transfer (which might be done already and
+the underlying message memory might have been freed).
 
-Right, which is why it is good for us to use, when runtime-suspend the
-i2c-adapter drivers transfer function will do a runtime_pm_get and all
-is well, we want to check for someone trying to do i2c-transfers on
-the adapter while it is system-suspended, since then the runtime_pm_get
-is a no-op and things fail.
+When an unexpected interrupt hits with the DONE bit set, the isr will
+then try to access the flags field of the curr_msg structure, leading
+to a fatal page fault.
 
-So for this use case it is a good thing that power.is_suspended flag is about
-system-wide suspend (which is what I was trying to say in the first place).
+Fix the issue by systematically clearing curr_msg and num_msgs in the
+driver-wide device structure when a transfer is considered complete.
 
-Regards,
+Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+---
+ drivers/i2c/busses/i2c-bcm2835.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Hans
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index 44deae78913e..5486252f5f2f 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -298,6 +298,9 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+ 		return -ETIMEDOUT;
+ 	}
+ 
++	i2c_dev->curr_msg = NULL;
++	i2c_dev->num_msgs = 0;
++
+ 	if (!i2c_dev->msg_err)
+ 		return num;
+ 
+-- 
+2.20.1
