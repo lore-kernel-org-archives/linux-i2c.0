@@ -1,50 +1,35 @@
-From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Subject: [PATCH] i2c: bcm2835: Clear current message and count after a transaction
-Date: Fri, 21 Dec 2018 13:11:35 +0100
-Message-ID: <20181221121135.4847-1-paul.kocialkowski@bootlin.com>
+From: qii wang <qii.wang@mediatek.com>
+Subject: [PATCH 1/6] dt-bindings: i2c: Add Mediatek MT7629 i2c binding
+Date: Fri, 21 Dec 2018 20:58:26 +0800
+Message-ID: <1545397111-24183-2-git-send-email-qii.wang@mediatek.com>
+References: <1545397111-24183-1-git-send-email-qii.wang@mediatek.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1545397111-24183-1-git-send-email-qii.wang@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Eric Anholt <eric@anholt.net>, Stefan Wahren <stefan.wahren@i2se.com>, Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, qii.wang@mediatek.com, ryder.lee@mediatek.com
 List-Id: linux-i2c@vger.kernel.org
 
-The driver's interrupt handler checks whether a message is currently
-being handled with the curr_msg pointer. When it is NULL, the interrupt
-is considered to be unexpected. Similarly, the i2c_start_transfer
-routine checks for the remaining number of messages to handle in
-num_msgs.
+Add MT7629 i2c binding to binding file.
 
-However, these values are never cleared and always keep the message and
-number relevant to the latest transfer (which might be done already and
-the underlying message memory might have been freed).
-
-When an unexpected interrupt hits with the DONE bit set, the isr will
-then try to access the flags field of the curr_msg structure, leading
-to a fatal page fault.
-
-Fix the issue by systematically clearing curr_msg and num_msgs in the
-driver-wide device structure when a transfer is considered complete.
-
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: qii wang <qii.wang@mediatek.com>
 ---
- drivers/i2c/busses/i2c-bcm2835.c | 3 +++
- 1 file changed, 3 insertions(+)
+ Documentation/devicetree/bindings/i2c/i2c-mtk.txt |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index 44deae78913e..5486252f5f2f 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -298,6 +298,9 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
- 		return -ETIMEDOUT;
- 	}
- 
-+	i2c_dev->curr_msg = NULL;
-+	i2c_dev->num_msgs = 0;
-+
- 	if (!i2c_dev->msg_err)
- 		return num;
- 
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
+index e199695..ee4c324 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mtk.txt
+@@ -10,6 +10,7 @@ Required properties:
+       "mediatek,mt6589-i2c": for MediaTek MT6589
+       "mediatek,mt7622-i2c": for MediaTek MT7622
+       "mediatek,mt7623-i2c", "mediatek,mt6577-i2c": for MediaTek MT7623
++      "mediatek,mt7629-i2c", "mediatek,mt2712-i2c": for MediaTek MT7629
+       "mediatek,mt8173-i2c": for MediaTek MT8173
+   - reg: physical base address of the controller and dma base, length of memory
+     mapped region.
 -- 
-2.20.1
+1.7.9.5
