@@ -1,57 +1,73 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v3 1/1] i2c: imx: refactor error handling on
- i2c_imx_dma_request()
-Date: Fri, 21 Dec 2018 16:24:41 +0100
-Message-ID: <20181221152441.2nq5hjpoujioyf7n@pengutronix.de>
-References: <20181130094418.17700-1-o.rempel@pengutronix.de>
+From: Ludovic Desroches <ludovic.desroches@microchip.com>
+Subject: Re: [PATCH v3 0/3] i2c: at91: slave mode support
+Date: Fri, 21 Dec 2018 17:16:51 +0100
+Message-ID: <20181221161651.5n4zzapliyxzb76l@M43218.corp.atmel.com>
+References: <20180716094037.1843-1-ludovic.desroches@microchip.com>
+ <20180720224141.lawanibd7v4hmbym@ninjato>
+ <20180730071443.clib3swtsommj7jk@M43218.corp.atmel.com>
+ <20181211192805.qsxptzkmczmm5vlz@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181130094418.17700-1-o.rempel@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, NXP Linux Team <linux-imx@nxp.com>, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Shawn Guo <shawnguo@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+In-Reply-To: <20181211192805.qsxptzkmczmm5vlz@ninjato>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, me@jue.yt, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+Hi Wolfram,
 
-On Fri, Nov 30, 2018 at 10:44:18AM +0100, Oleksij Rempel wrote:
-> @@ -1159,11 +1163,13 @@ static int i2c_imx_probe(struct platform_device *=
-pdev)
->  	dev_dbg(&i2c_imx->adapter.dev, "device resources: %pR\n", res);
->  	dev_dbg(&i2c_imx->adapter.dev, "adapter name: \"%s\"\n",
->  		i2c_imx->adapter.name);
-> -	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
->  =
+On Tue, Dec 11, 2018 at 08:28:05PM +0100, Wolfram Sang wrote:
+> Hi Ludovic,
+> 
+> > > >  - fix checkpatch errors
+> > > >  - tests:
+> > > >    - hangs with a SAMA5D4 (master and slave on different busses) after about
+> > > >    100 transfers. It's the firs time I do this test.
+> > > >    - some mismatches with a SAMA5D4 as slave and a SAMA5D2 as master
+> > > >    I don't know if it's a regression. I don't remember having seen this
+> > > >    behavior previously.
+> > > >    I think it's worth taking those patches even if there are some possible
+> > > >    bugs. It'll allow to get more people using it and so to consolidate the
+> > > >    slave mode support.
+> > > 
+> > > I really want to see those patches go upstream, too. But I am also not a
+> > > big fan of delivering the user something with known issues. Especially
+> > > not when they affect the main feature to be added. My rationale here is
+> > > that someone who is able to fix the issues remaining will also be able
+> > > to pick up and apply patches.
+> > > 
+> > > Maybe, maybe if it was to be enabled by a special
+> > > I2C_AT91_SLAVE_EXPERIMANTEL symbol with lots of explanations. I need to
+> > > think twice about that, though.
+> > > 
+> > 
+> > I understand your point. The experimental mentionning could be a good
+> > trade-off. Let me know once you make up your mind.
+> > 
+> > > Speaking of Kconfig, I think this series needs to place a
+> > > 
+> > > 	select I2C_SLAVE
+> > > 
+> > > somewhere.
+> > > 
+> > 
+> > Ok I'll update it if we go further with this set of patches.
+> 
+> Ok, I give in. If you:
+> 
+> * add 'select I2C_SLAVE'
+> * make slave support selectable by I2C_AT91_SLAVE_STAGING or
+>   _EXPERIMENTAL or something alike (default n)
+> * and add to the help text of that symbol the above known issues
+>   and 'not for production' and 'help wanted' and where to get more
+>   info and all that
+> 
+> then I'll apply this series soonish. Promised!
 
->  	/* Init DMA config if supported */
-> -	i2c_imx_dma_request(i2c_imx, phy_addr);
-> +	ret =3D i2c_imx_dma_request(i2c_imx, phy_addr);
-> +	if (ret < 0)
-> +		goto clk_notifier_unregister;
+Ok I will handle these requests and resend it.
 
-Just found another problem while going over my mails:
+Thanks
 
-goto clk_notifier_unregister is wrong here as you have to undo
-i2c_add_numbered_adapter(). Probably it also makes sense to move
-initialisation of DMA before i2c_add_numbered_adapter() because
-otherwise the first transfer request might come in while
-i2c_imx_dma_request is in the middle of initializing the dma channels.
-
-Best regards
-Uwe
-
--- =
-
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Ludovic
