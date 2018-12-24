@@ -1,72 +1,80 @@
-From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Subject: Re: [PATCH] i2c: bcm2835: Clear current message and count after a
- transaction
-Date: Mon, 24 Dec 2018 09:54:48 +0100
-Message-ID: <eaad72f27b69259c9d460f031a2c7c392f19a969.camel@bootlin.com>
-References: <20181221121135.4847-1-paul.kocialkowski@bootlin.com>
-         <4892f080-dff5-8d08-c78f-3c8b85f5a454@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2 0/9] i2c: move handling of suspended adapters to the
+ core
+Date: Mon, 24 Dec 2018 09:55:35 +0100
+Message-ID: <7fd31445-6cf8-5094-3cd8-d6ca5c059541@redhat.com>
+References: <20181222202623.4521-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4892f080-dff5-8d08-c78f-3c8b85f5a454@gmail.com>
+In-Reply-To: <20181222202623.4521-1-wsa+renesas@sang-engineering.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Florian Fainelli <f.fainelli@gmail.com>, bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Eric Anholt <eric@anholt.net>, Stefan Wahren <stefan.wahren@i2se.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Hi,
 
-On Fri, 2018-12-21 at 09:52 -0800, Florian Fainelli wrote:
-> On 12/21/18 4:11 AM, Paul Kocialkowski wrote:
-> > The driver's interrupt handler checks whether a message is currently
-> > being handled with the curr_msg pointer. When it is NULL, the interrupt
-> > is considered to be unexpected. Similarly, the i2c_start_transfer
-> > routine checks for the remaining number of messages to handle in
-> > num_msgs.
-> > 
-> > However, these values are never cleared and always keep the message and
-> > number relevant to the latest transfer (which might be done already and
-> > the underlying message memory might have been freed).
-> > 
-> > When an unexpected interrupt hits with the DONE bit set, the isr will
-> > then try to access the flags field of the curr_msg structure, leading
-> > to a fatal page fault.
-> > 
-> > Fix the issue by systematically clearing curr_msg and num_msgs in the
-> > driver-wide device structure when a transfer is considered complete.
+On 22-12-18 21:26, Wolfram Sang wrote:
+> Here is the new version without specific I2C helpers but using the
+> 'is_suspended' flag from the PM core. I didn't like messing with the
+> flag directly, so I did a helper in patch 1. So far, I like the
+> approach. The diffstat looks nice, and i2c-rcar.c and i2c-sh_mobile.c
+> rejected rightfully too later transfers without further modifications.
+> Tested on a Renesas Lager board (R-Car H2).
 > 
-> Should not this get a Fixes tag?
-
-Yes it totally should! Thanks for the suggestion.
-
-Cheers,
-
-Paul
-
-> > Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-> > ---
-> >  drivers/i2c/busses/i2c-bcm2835.c | 3 +++
-> >  1 file changed, 3 insertions(+)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-> > index 44deae78913e..5486252f5f2f 100644
-> > --- a/drivers/i2c/busses/i2c-bcm2835.c
-> > +++ b/drivers/i2c/busses/i2c-bcm2835.c
-> > @@ -298,6 +298,9 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
-> >  		return -ETIMEDOUT;
-> >  	}
-> >  
-> > +	i2c_dev->curr_msg = NULL;
-> > +	i2c_dev->num_msgs = 0;
-> > +
-> >  	if (!i2c_dev->msg_err)
-> >  		return num;
-> >  
-> > 
+> I dropped a few Tested-by tags because I think this approach is too
+> different from V1 to keep them. I hope you guys can have a look again.
+> Thanks for all the testing, so far!
 > 
+> A branch can be found here:
 > 
--- 
-Paul Kocialkowski, Bootlin (formerly Free Electrons)
-Embedded Linux and kernel engineering
-https://bootlin.com
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/i2c/reject-when-suspended
+> 
+> If this series is acceptable, I'd suggest to take it via my i2c tree
+> after rc1. And then I'll provide an immutable branch for the PM tree to
+> pick. Let me know if this works for you.
+> 
+> And thanks to Renesas for funding this work!
+
+Series looks good to me:
+
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+
+Regards,
+
+Hans
+
+
+
+
+> 
+> Thanks and kind regards,
+> 
+>     Wolfram
+> 
+> Wolfram Sang (9):
+>    PM / core: add helper to return suspend status of a device
+>    i2c: reject new transfers when adapters are suspended
+>    i2c: synquacer: remove unused is_suspended flag
+>    i2c: brcmstb: don't open code to reject transfers when suspended
+>    i2c: zx2967: don't open code to reject transfers when suspended
+>    i2c: sprd: don't use pdev as variable name for struct device *
+>    i2c: sprd: don't open code to reject transfers when suspended
+>    i2c: exynos5: don't open code to reject transfers when suspended
+>    i2c: s3c2410: don't open code to reject transfers when suspended
+> 
+>   Documentation/i2c/fault-codes      |  4 ++++
+>   drivers/i2c/busses/i2c-brcmstb.c   | 22 +-------------------
+>   drivers/i2c/busses/i2c-exynos5.c   | 10 ----------
+>   drivers/i2c/busses/i2c-s3c2410.c   |  7 -------
+>   drivers/i2c/busses/i2c-sprd.c      | 32 ++++++++++--------------------
+>   drivers/i2c/busses/i2c-synquacer.c |  5 -----
+>   drivers/i2c/busses/i2c-zx2967.c    |  8 --------
+>   drivers/i2c/i2c-core-base.c        |  3 +++
+>   drivers/i2c/i2c-core-smbus.c       |  4 ++++
+>   include/linux/device.h             |  5 +++++
+>   10 files changed, 27 insertions(+), 73 deletions(-)
+> 
