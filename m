@@ -1,77 +1,111 @@
-From: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Subject: [PATCH v2] i2c: bcm2835: Clear current buffer pointers and counts after a transfer
-Date: Thu, 27 Dec 2018 16:42:25 +0100
-Message-ID: <20181227154225.5492-1-paul.kocialkowski@bootlin.com>
+From: Eric Anholt <eric@anholt.net>
+Subject: Re: [PATCH] i2c: bcm2835: Clear current message and count after a transaction
+Date: Thu, 27 Dec 2018 10:15:44 -0800
+Message-ID: <87y38abzu7.fsf@anholt.net>
+References: <20181221121135.4847-1-paul.kocialkowski@bootlin.com> <1941132339.131316.1545481176339@email.ionos.de> <baa17fb765bf8b40fe6e91b4884b83af6fcf7641.camel@bootlin.com> <1232214204.268730.1545919526431@email.ionos.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; boundary="=-=-=";
+        micalg=pgp-sha512; protocol="application/pgp-signature"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1232214204.268730.1545919526431@email.ionos.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Eric Anholt <eric@anholt.net>, Stefan Wahren <stefan.wahren@i2se.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Eben Upton <eben@raspberrypi.org>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+To: Stefan Wahren <stefan.wahren@i2se.com>, Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The driver's interrupt handler checks whether a message is currently
-being handled with the curr_msg pointer. When it is NULL, the interrupt
-is considered to be unexpected. Similarly, the i2c_start_transfer
-routine checks for the remaining number of messages to handle in
-num_msgs.
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-However, these values are never cleared and always keep the message and
-number relevant to the latest transfer (which might be done already and
-the underlying message memory might have been freed).
+Stefan Wahren <stefan.wahren@i2se.com> writes:
 
-When an unexpected interrupt hits with the DONE bit set, the isr will
-then try to access the flags field of the curr_msg structure, leading
-to a fatal page fault.
+> Hi Paul,
+>
+>> Paul Kocialkowski <paul.kocialkowski@bootlin.com> hat am 24. Dezember 20=
+18 um 10:10 geschrieben:
+>>=20
+>>=20
+>> Hi,
+>>=20
+>> On Sat, 2018-12-22 at 13:19 +0100, Stefan Wahren wrote:
+>> > Hi Paul,
+>> >=20
+>> > > Paul Kocialkowski <paul.kocialkowski@bootlin.com> hat am 21. Dezembe=
+r 2018 um 13:11 geschrieben:
+>> > >=20
+>> > >=20
+>> > > The driver's interrupt handler checks whether a message is currently
+>> > > being handled with the curr_msg pointer. When it is NULL, the interr=
+upt
+>> > > is considered to be unexpected. Similarly, the i2c_start_transfer
+>> > > routine checks for the remaining number of messages to handle in
+>> > > num_msgs.
+>> > >=20
+>> > > However, these values are never cleared and always keep the message =
+and
+>> > > number relevant to the latest transfer (which might be done already =
+and
+>> > > the underlying message memory might have been freed).
+>> > >=20
+>> > > When an unexpected interrupt hits with the DONE bit set, the isr will
+>> > > then try to access the flags field of the curr_msg structure, leading
+>> > > to a fatal page fault.
+>> > >=20
+>> > > Fix the issue by systematically clearing curr_msg and num_msgs in the
+>> > > driver-wide device structure when a transfer is considered complete.
+>> > >=20
+>> > > Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+>> > > ---
+>> > >  drivers/i2c/busses/i2c-bcm2835.c | 3 +++
+>> > >  1 file changed, 3 insertions(+)
+>> > >=20
+>> > > diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i=
+2c-bcm2835.c
+>> > > index 44deae78913e..5486252f5f2f 100644
+>> > > --- a/drivers/i2c/busses/i2c-bcm2835.c
+>> > > +++ b/drivers/i2c/busses/i2c-bcm2835.c
+>> > > @@ -298,6 +298,9 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *=
+adap, struct i2c_msg msgs[],
+>> > >  		return -ETIMEDOUT;
+>> > >  	}
+>> > >=20=20
+>> > > +	i2c_dev->curr_msg =3D NULL;
+>> > > +	i2c_dev->num_msgs =3D 0;
+>> >=20
+>> > AFAIU this would reduce the chance of a use-after-free dramatically bu=
+t not completely.
+>>=20
+>> Do you have a specific case of use-after-free related to these
+>> variables in mind that this cleanup would not fix (except for the
+>> timeout case)?
+>
+> okay i was wrong about the use-after-free. But i'm not sure about this sc=
+enario on the I2C bus shared with the VC4:
+>
+> 1. ARM core starts I2C transfer (bcm2835_i2c_start_transfer)
+> 2. VC4 triggers a BCM2835_I2C_S_DONE interrupt
+> 3. ARM core catches this interrupt before the VC4
 
-The msg_buf and msg_buf_remaining fields are also never cleared at the
-end of the transfer, which can lead to similar pitfalls.
+We don't share I2C buses with VC4, though, right?  That would just be
+totally broken.
 
-Fix these issues by introducing a cleanup function and always calling
-it after a transfer is finished.
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Fixes: e2474541032d ("i2c: bcm2835: Fix hang for writing messages larger than 16 bytes")
-Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
----
+-----BEGIN PGP SIGNATURE-----
 
-Changes since v1:
-* Added cleanup of msg_buf and msg_buf_remaining;
-* Moved cleanups to a dedicated function;
-* Performed cleanup on timeout as well;
-* Added Fixes tag.
-
- drivers/i2c/busses/i2c-bcm2835.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index 44deae78913e..4d19254f78c8 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -191,6 +191,15 @@ static void bcm2835_i2c_start_transfer(struct bcm2835_i2c_dev *i2c_dev)
- 	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, c);
- }
- 
-+static void bcm2835_i2c_finish_transfer(struct bcm2835_i2c_dev *i2c_dev)
-+{
-+	i2c_dev->curr_msg = NULL;
-+	i2c_dev->num_msgs = 0;
-+
-+	i2c_dev->msg_buf = NULL;
-+	i2c_dev->msg_buf_remaining = 0;
-+}
-+
- /*
-  * Note about I2C_C_CLEAR on error:
-  * The I2C_C_CLEAR on errors will take some time to resolve -- if you were in
-@@ -291,6 +300,9 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
- 
- 	time_left = wait_for_completion_timeout(&i2c_dev->completion,
- 						adap->timeout);
-+
-+	bcm2835_i2c_finish_transfer(i2c_dev);
-+
- 	if (!time_left) {
- 		bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C,
- 				   BCM2835_I2C_C_CLEAR);
--- 
-2.20.1
+iQIzBAEBCgAdFiEE/JuuFDWp9/ZkuCBXtdYpNtH8nugFAlwlFtAACgkQtdYpNtH8
+nugzSBAAh+TmXC01oxfSSVCliBfeyMCRU0gv80tB0rEz9aLB/YmE5hybGpC8NlrG
+AxsvacMW/2GdBm9GDr0kLc4aTHCILpcPua13JJWjAs0AQVrw2tDBa4M8j6ldR/OD
+IONgtWUZU1T1XauXVsuBmmZCx4mDyqTcljjxMa8ckDKgmWkQ8v+jONXu0QLYsoeN
+mX8kM/dB1oDCUtnvf4i2515mhQSA55nZeW+i9AB64i8OXL/D6O0FbKHCa4o7dj/e
+VvXfGoG4GPV+Yd+h3oZ/uqvIzkYuSt3Npd8DvQddIsKjdK75TENDoCgDjpI46Fpc
+06HlUeNp3QXVwvTNiD1SFIjfoa6GOwquWY3nc8o5bRZl3Pblad4UkPoIUz62A8hG
+cu1FOahSzmws3bhC//Ecs6RGKEnV6RS3VKwtzDUkpyE+qseKbsyMBNf+P9ZmXDqu
+OnyRSm2n5XWXKTfPJSkEhpX+PbpjuJ3dKGjTmdMP2JKBKrrWwI54Qyl5L1zdwbj0
+gtQtTZwvKfmU1eagk1Ojry0bVzdNbaGVRIy65sZE6z7g3s1eo2/BlDaClF3BB93E
+2qdn0vzDLtUrD1ZkIySUL9cKhtfEEf01T47yG9mdzqe6y7A/IIy1d8Nia2acjoKY
+bMjQ6/J/jevZ9wkJbwjWPaadQcsoPt1dWIjIo+bT6bZUoA0InnM=
+=3fJl
+-----END PGP SIGNATURE-----
+--=-=-=--
