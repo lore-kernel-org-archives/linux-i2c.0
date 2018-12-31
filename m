@@ -1,56 +1,34 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v15] i2c: Add drivers for the AMD PCIe MP2 I2C controller
-Date: Fri, 28 Dec 2018 20:57:29 +0100
-Message-ID: <20181228195729.GA18811@kunai>
-References: <20181226232258.GA23526@syn-yoga530>
- <CAC_JBqpJ__Vsb5cLrpzjYXv9XERUrm5ATmoBBHQY+6P52EYdLA@mail.gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v4 3/3] i2c: at91: added slave mode support
+Date: Mon, 31 Dec 2018 12:53:48 +0200
+Message-ID: <20181231105348.GV10650@smile.fi.intel.com>
+References: <20181227151311.20107-1-ludovic.desroches@microchip.com>
+ <20181227151311.20107-4-ludovic.desroches@microchip.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="7AUc2qLy4jB3hD7Z"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAC_JBqpJ__Vsb5cLrpzjYXv9XERUrm5ATmoBBHQY+6P52EYdLA@mail.gmail.com>
+In-Reply-To: <20181227151311.20107-4-ludovic.desroches@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Elie Morisse <syniurge@gmail.com>
-Cc: linux-i2c@vger.kernel.org, "Shah, Nehal-bakulchandra" <Nehal-bakulchandra.Shah@amd.com>, Shyam-sundar.S-k@amd.com, sandeep.singh@amd.com, linux-kernel@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>, helgaas@kernel.org
+To: Ludovic Desroches <ludovic.desroches@microchip.com>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, me@jue.yt, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org, wsa@the-dreams.de, Juergen Fitschen <jfi@ssv-embedded.de>
 List-Id: linux-i2c@vger.kernel.org
 
+> Slave mode driver is based on the concept of i2c-designware driver.
 
---7AUc2qLy4jB3hD7Z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> +/*
+> + *  i2c slave support for Atmel's AT91 Two-Wire Interface (TWI)
+> + *
+> + *  Copyright (C) 2017 Juergen Fitschen <me@jue.yt>
+> + *
+> + *  This program is free software; you can redistribute it and/or modify
+> + *  it under the terms of the GNU General Public License as published by
+> + *  the Free Software Foundation; either version 2 of the License, or
+> + *  (at your option) any later version.
+> + */
 
-Hi,
+Perhaps, you can use SPDX instead of boiler plate license text in the files?
 
-> Nehal isn't responding, while the end of the merge window is closing
-> in. I addressed his last requests, will this get merged?
-
-It will get merged but not for this upcoming merge window. Last cycle,
-Linus made clear to me that late merging of new drivers isn't as
-accepted anymore as it used to be. But, your driver has a high priority
-for the next merge window. That being said, really thanks for all your
-efforts with this driver! Much appreciated!
-
-   Wolfram
-
---7AUc2qLy4jB3hD7Z
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwmgCUACgkQFA3kzBSg
-Kba2VBAAtVvtqakbX93VQUlDtf9goPv5a6ymfxBwioZipikOLJU3PupXN6/Fona9
-tLsIVmQQWLfZg5w2eF3De2W9X3jo7F1p3soaFQc7CPH8RhhFyUwkBQsw8S9lvQlb
-QBUFou2Jc9TwKZ18FHF5SoVeTfrtslA7Egdxk6jC5yNXtP2kW2Y0AVbYE/IOwLxZ
-jTczhFZ7i1vnMzm/Hmksvy3UxnPjrnpPLu8M9nwd5UyRbLK9ieJS63xngbhtY9M7
-yKrj7oOB5TF24Emaqe6bJIAc2FBB3ITYL5pDfM0xCWn8klXhhkL0ez1QIwkwUTJE
-kXjsj+t6uaX7r7gSdenZFBSBjuPbB365MfrW9uzoudjv/9DaYlvIDl4qM1tnH/GF
-9ZghN3HSZB/2GzlWPbKVtR7t7U6hfKXo7jnW8hZPhVtnUwo8BOJJcRrkcC60+4Py
-x4bW7nFnFQAh83OFxy30knOAyDfcw25OBeKz9NpLvzmBvWUYtOpE3x/LcGLad/m7
-FHInGNEHfVuix0Pzqoftek6T6C9sKoFuaJmfHsdduM1GJHEjSH7Mgd4aooDGCVdP
-/7Y9L/gjxtHOZS0O/HC7s8dvbJMR06sDpU0bz5T52xhNCxsNtGFAyHsal3W6bsMS
-aN5NYHoMgbKVJDbSTCM8f7oerHBg+irpJbddiwNQSVspc87/Qb8=
-=alZ6
------END PGP SIGNATURE-----
-
---7AUc2qLy4jB3hD7Z--
+-- 
+With Best Regards,
+Andy Shevchenko
