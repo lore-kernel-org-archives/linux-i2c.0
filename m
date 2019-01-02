@@ -1,50 +1,115 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 3/3] i2c: at91: added slave mode support
-Date: Tue, 1 Jan 2019 11:23:31 +0100
-Message-ID: <20190101102331.GA1687@kunai>
-References: <20181227151311.20107-1-ludovic.desroches@microchip.com>
- <20181227151311.20107-4-ludovic.desroches@microchip.com>
- <20181231105348.GV10650@smile.fi.intel.com>
+From: Sowjanya Komatineni <skomatineni@nvidia.com>
+Subject: [PATCH V1] i2c: tegra: Fix Maximum transfer size
+Date: Wed, 2 Jan 2019 13:48:41 -0800
+Message-ID: <1546465721-12108-1-git-send-email-skomatineni@nvidia.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20181231105348.GV10650@smile.fi.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Ludovic Desroches <ludovic.desroches@microchip.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, me@jue.yt, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org, Juergen Fitschen <jfi@ssv-embedded.de>
+To: thierry.reding@gmail.com, jonathanh@nvidia.com, talho@nvidia.com
+Cc: linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sowjanya Komatineni <skomatineni@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
+Tegra194 supports maximum 64K Bytes transfer per packet.
+Tegra186 and prior supports maximum 4K Bytes transfer per packet.
 
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This patch fixes this payload difference between Tegra194 and prior
+tegra chipsets.
 
+Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+---
+ drivers/i2c/busses/i2c-tegra.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-> Perhaps, you can use SPDX instead of boiler plate license text in the files?
-
-I think we can do this incrementally.
-
-
---PEIAKu/WMn1b1Hv9
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwrP54ACgkQFA3kzBSg
-KbbE2A/+PijOZlG7bdPITEsWTqpQPCRFC3Q/mIjNjArm2EVWEkEOT4fIdD/O3X/h
-DLv9TfpHkoJeaqywzO3/Ej6KHGCKlugAnBoddd6PeVVZd/2bm0wEwu9CoyOwsv19
-bFiUaRad2VZHO4cZgfefYQ58Hsc0Iir5NAsyC4Je09Um1rZDoVK//Mal43UJRLFw
-HCeN7IDnmCCBa1/GKMcYNIsLVhwprmx1sQEF1Z6YWPnf3ro9cSACLSSxbug8a1sX
-N1XTOm9D3OpM1NAbD831dZqz+YEGeUx6TKg89DA24E5EXYsHJu5EsrJ9doEb//3O
-tk4ngskiv/Rxlt/+IZsQELV9pnTBOhDUPOMal+/TVvQOkTAb5TrUn9aNO90AdqIX
-YxKqffIhBX7e4MAZ23nEKr1BASf2dNpExpUSqrYDlhyXR2LKT8qlMAWzi18pzSU9
-XYDl+q6okz8Fe0d7pJVK44G96hw1X5ZlQX5e4z54XG7kv7JdD2CajTWS1XMkoQ4G
-oIk3waB5IpZmCdi6hw5BONRoYu7/hnm+rZzYn3Dn93mcNO8vjnDVvoN/2v1SmXE7
-SXWP2L6OVckmZ17cPI6HiQmDG26oel7/AcKeHX3b7oQUqV521acifR7LHps4+tST
-qCzIJ4vMrbCRMSYComRORM3yR+zMYp7FaayA1sX0Gqk3w5WsxyA=
-=JbS7
------END PGP SIGNATURE-----
-
---PEIAKu/WMn1b1Hv9--
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 437294ea2f0a..0c08ed8b6c94 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -167,6 +167,7 @@ struct tegra_i2c_hw_feature {
+ 	bool has_multi_master_mode;
+ 	bool has_slcg_override_reg;
+ 	bool has_mst_fifo;
++	struct i2c_adapter_quirks *quirks;
+ };
+ 
+ /**
+@@ -833,6 +834,12 @@ static const struct i2c_adapter_quirks tegra_i2c_quirks = {
+ 	.max_write_len = 4096,
+ };
+ 
++static const struct i2c_adapter_quirks tegra194_i2c_quirks = {
++	.flags = I2C_AQ_NO_ZERO_LEN,
++	.max_read_len = 65536,
++	.max_write_len = 65536,
++};
++
+ static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
+ 	.has_continue_xfer_support = false,
+ 	.has_per_pkt_xfer_complete_irq = false,
+@@ -844,6 +851,7 @@ static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
+ 	.has_multi_master_mode = false,
+ 	.has_slcg_override_reg = false,
+ 	.has_mst_fifo = false,
++	.quirks = &tegra_i2c_quirks,
+ };
+ 
+ static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
+@@ -857,6 +865,7 @@ static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
+ 	.has_multi_master_mode = false,
+ 	.has_slcg_override_reg = false,
+ 	.has_mst_fifo = false,
++	.quirks = &tegra_i2c_quirks,
+ };
+ 
+ static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
+@@ -870,6 +879,7 @@ static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
+ 	.has_multi_master_mode = false,
+ 	.has_slcg_override_reg = false,
+ 	.has_mst_fifo = false,
++	.quirks = &tegra_i2c_quirks,
+ };
+ 
+ static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
+@@ -883,6 +893,7 @@ static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
+ 	.has_multi_master_mode = false,
+ 	.has_slcg_override_reg = true,
+ 	.has_mst_fifo = false,
++	.quirks = &tegra_i2c_quirks,
+ };
+ 
+ static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
+@@ -896,6 +907,7 @@ static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
+ 	.has_multi_master_mode = true,
+ 	.has_slcg_override_reg = true,
+ 	.has_mst_fifo = false,
++	.quirks = &tegra_i2c_quirks,
+ };
+ 
+ static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
+@@ -909,6 +921,7 @@ static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
+ 	.has_multi_master_mode = true,
+ 	.has_slcg_override_reg = true,
+ 	.has_mst_fifo = true,
++	.quirks = &tegra194_i2c_quirks,
+ };
+ 
+ /* Match table for of_platform binding */
+@@ -960,7 +973,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	i2c_dev->base = base;
+ 	i2c_dev->div_clk = div_clk;
+ 	i2c_dev->adapter.algo = &tegra_i2c_algo;
+-	i2c_dev->adapter.quirks = &tegra_i2c_quirks;
+ 	i2c_dev->irq = irq;
+ 	i2c_dev->cont_id = pdev->id;
+ 	i2c_dev->dev = &pdev->dev;
+@@ -976,6 +988,8 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	i2c_dev->hw = of_device_get_match_data(&pdev->dev);
+ 	i2c_dev->is_dvc = of_device_is_compatible(pdev->dev.of_node,
+ 						  "nvidia,tegra20-i2c-dvc");
++	i2c_dev->adapter.quirks = i2c_dev->hw->quirks;
++
+ 	init_completion(&i2c_dev->msg_complete);
+ 	spin_lock_init(&i2c_dev->xfer_lock);
+ 
+-- 
+2.7.4
