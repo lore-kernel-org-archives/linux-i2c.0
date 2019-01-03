@@ -1,32 +1,36 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: RE: [PATCH V3] i2c: tegra: Fix Maximum transfer size
-Date: Thu, 3 Jan 2019 19:47:21 +0000
-Message-ID: <BN7PR12MB28368BFA8C7DB877316960EFC28D0@BN7PR12MB2836.namprd12.prod.outlook.com>
-References: <1546472423-31366-1-git-send-email-skomatineni@nvidia.com>
- <20190103190552.tspqarvalqxlz7yu@ninjato>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2 2/9] i2c: reject new transfers when adapters are
+ suspended
+Date: Thu, 3 Jan 2019 21:49:58 +0100
+Message-ID: <03b8e4ab-412e-24cf-9c79-5939896b3008@redhat.com>
+References: <20181222202623.4521-1-wsa+renesas@sang-engineering.com>
+ <20181222202623.4521-3-wsa+renesas@sang-engineering.com>
+ <5e560c2e-4da9-05ef-9bfa-3391fdd8ad23@redhat.com>
+ <20190103185917.zfcw24n5w4n4qu2q@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190103190552.tspqarvalqxlz7yu@ninjato>
+In-Reply-To: <20190103185917.zfcw24n5w4n4qu2q@ninjato>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Timo Alho <talho@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi,
 
->> Tegra194 supports maximum 64K Bytes transfer per packet.
->> Tegra186 and prior supports maximum 4K Bytes transfer per packet.
->>=20
->> This patch fixes this payload difference between Tegra194 and prior=20
->> tegra chipsets using separate i2c_adapter_quirks.
->>=20
->> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
->
->  CC      drivers/i2c/busses/i2c-tegra.o
->drivers/i2c/busses/i2c-tegra.c:171: warning: Function parameter or member =
-'quirks' not described in >'tegra_i2c_hw_feature'
->
-Somehow I don't see this warning. Do I need to document somewhere on quirks=
- member of tegra_i2c_hw_feature?
+On 03-01-19 19:59, Wolfram Sang wrote:
+> 
+>> I share your desire to have the check for this shared in core code,
+>> but I'm afraid that just is not going to work.
+> 
+> Okay, so this series is definately not it. Probably the previous one
+> which exposes helpers is not a bad idea after all. Because it is
+> ulitmately the driver's decision when to use the helpers...
+
+Agreed.
+
+Regards,
+
+Hans
