@@ -1,57 +1,53 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V3] i2c: tegra: Fix Maximum transfer size
-Date: Thu, 3 Jan 2019 20:05:52 +0100
-Message-ID: <20190103190552.tspqarvalqxlz7yu@ninjato>
-References: <1546472423-31366-1-git-send-email-skomatineni@nvidia.com>
+Subject: Re: [PATCH v3 1/4] dt-bindings: i2c: Add S700 support for Actions
+ Semi Soc's
+Date: Thu, 3 Jan 2019 20:13:50 +0100
+Message-ID: <20190103191350.ud4fbl5wx3hazs4m@ninjato>
+References: <20181211080448.24007-1-pn@denx.de>
+ <20181211080448.24007-2-pn@denx.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="xvcagbsjzare2ch3"
+        protocol="application/pgp-signature"; boundary="pxiyn77e74u5fpf6"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1546472423-31366-1-git-send-email-skomatineni@nvidia.com>
+In-Reply-To: <20181211080448.24007-2-pn@denx.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc: thierry.reding@gmail.com, jonathanh@nvidia.com, talho@nvidia.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Parthiban Nallathambi <pn@denx.de>
+Cc: manivannan.sadhasivam@linaro.org, afaerber@suse.de, robh+dt@kernel.org, mark.rutland@arm.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux@cubietech.com, thomas.liau@actions-semi.com, linux-actions@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---xvcagbsjzare2ch3
+--pxiyn77e74u5fpf6
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 02, 2019 at 03:40:23PM -0800, Sowjanya Komatineni wrote:
-> Tegra194 supports maximum 64K Bytes transfer per packet.
-> Tegra186 and prior supports maximum 4K Bytes transfer per packet.
+On Tue, Dec 11, 2018 at 09:04:45AM +0100, Parthiban Nallathambi wrote:
+> Add s700 compatible string to Actions Semi SoC dt-bindings.
 >=20
-> This patch fixes this payload difference between Tegra194 and prior
-> tegra chipsets using separate i2c_adapter_quirks.
->=20
-> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+> Signed-off-by: Parthiban Nallathambi <pn@denx.de>
 
-  CC      drivers/i2c/busses/i2c-tegra.o
-drivers/i2c/busses/i2c-tegra.c:171: warning: Function parameter or member '=
-quirks' not described in 'tegra_i2c_hw_feature'
+Applied to for-next, thanks!
 
 
---xvcagbsjzare2ch3
+--pxiyn77e74u5fpf6
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwuXRAACgkQFA3kzBSg
-KbYMHA/+LnD+R8d8bIvoJv5o1QHm/gDf8I5+0TUCFWzj0TLrn4cvN1OM0k6O0O0K
-CB/uCvCdKvpDKxMxXPC+v8TdzVK9EYJyPrS9LeXaPYHTxGuTzsiy6MPhpO4ScPWc
-ELpQILlgXoU+ShA06eKcgp35rmEySZQiedKuGv/U927TbZO13glHLizFhwfRVpBl
-XmWg3Hdiqljt816BLWupSI7kLt16bdbdgzEz2nPA1JzjKtsn0zimDQd7rcDuIkOw
-iCP8TmlkNE6CGrcA94mi1V+EWIWjBZ0ajYoc1rMoEA80O0gKgZRwxUpupY9YCioV
-mlp8fcvc34A2iw6q9hXcjr0ZPwTMTp56JwxpQqa97Yd9haaoZ7d4pXsTMTSQAOZK
-I7c4T6K5pM4Tmdp2doqa7/tAdU4VOGIMUAxqjh/BDQqb5B+/afV/RziYKX0NXf4m
-u3B00hfmogXLE/Lx5TxL08hROVCjV507jHcqwszrW07OkAfafz/D4BZfAmFERYh5
-P7zJIoJyvbDDhXzqfw7BuNsujJep7bv41GpTASHtnnYyk2MOXJk9OSZkUc2xpsXC
-ISvO3WFQnfW1+YUYFzdt/ODFOjgYwkk5RF4+76VrNUKz6aWFZfybnowXvBpg+61j
-3Ub6NhuA6IQPyqL8KhtXyqTItQrmOToDL9mduWq4ehXdCwbLhnM=
-=v9r4
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwuXu4ACgkQFA3kzBSg
+KbbVsw/+IgVQLFBXRkETFjun9/mUOF1Li/1IfKeT418b5XHu9xk924nJeaPQNoAl
+TWiJhDhcoD7nx/2nE6h87lnBgYdmrfukgukqGszt2iuXRE6ObKGVY8g4TeCWkJPS
++KoifU5j4oah97ZStucLlHJrBM1y1YrBBIjHC21ntpKiOyYcPjHry7uTCkrQOXOd
+VsGHsGQmSE1CCcNlRfX9Rzhr8z9zzpnTg5AOHZCE2SEw2tM543cTFgJ3GTHrjeEr
+qqxU/CQ3f/ALcimX6YSBmejqXpTBS2pJG1R0bLQKj50aCNnaq/fNpwVBNvR4+497
+CLNlgPWWscFtMXbNT1Nz+sKzNGEZDViPmGH/zupL6hPgYrAUtfZGnZcugeVpEZOY
+9zq6Tte9Ekg2iBLP+PTTiNjRq/h0LA+l3HWiSwwstMiDkGC23D67zTVZRN/6Salo
+ewQADA9X67j3FkFKUOEvqEZ6rO8//SyG0I3eF/MOkHrtb5lEJE/7HKd9B4KqIT7w
+4+iouUUoY8Wscao0miYCDNwFmRQmpeGC0K8mVFJnYvsxkIN0kXU6oNx/VJWxaWEW
+MVGlJLg20VfMNFs0KkdBZrT6Wiei1iB/qwRZKamVEQeJ9biePNyy8C1KBfN3BPyx
+8oegVkJ383+d5ot/Z6mdPtY15rvG5XWXpou5o7NIFVdBHe5FSE0=
+=KmY6
 -----END PGP SIGNATURE-----
 
---xvcagbsjzare2ch3--
+--pxiyn77e74u5fpf6--
