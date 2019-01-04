@@ -1,190 +1,74 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: [PATCH V1] i2c: tegra: Add Bus Clear Master Support
-Date: Thu, 3 Jan 2019 16:23:38 -0800
-Message-ID: <1546561418-10230-1-git-send-email-skomatineni@nvidia.com>
+From: John Sperbeck <jsperbeck@google.com>
+Subject: [PATCH] i2c: core-smbus: don't trace smbus_reply data on errors
+Date: Thu,  3 Jan 2019 16:42:03 -0800
+Message-ID: <20190104004203.116155-1-jsperbeck@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: thierry.reding@gmail.com, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com
-Cc: linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sowjanya Komatineni <skomatineni@nvidia.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, John Sperbeck <jsperbeck@google.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Bus Clear feature of tegra i2c controller helps to recover from
-bus hang when i2c master loses the bus arbitration due to the
-slave device holding SDA LOW continuously for some unknown reasons.
+If an smbus transfer fails, there's no guarantee that the output
+buffer was written.  So, avoid copying from the output buffer when
+tracing after an error.  This was 'mostly harmless', but would trip
+up kasan checking if left-over cruft in byte 0 is a large length,
+causing us to read from unwritten memory.
 
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Signed-off-by: John Sperbeck <jsperbeck@google.com>
 ---
- drivers/i2c/busses/i2c-tegra.c | 65 ++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 65 insertions(+)
+ drivers/i2c/i2c-core-smbus.c |  2 +-
+ include/trace/events/smbus.h | 10 +++++-----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 437294ea2f0a..89a0c9fdc99e 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -63,6 +63,7 @@
- #define I2C_FIFO_STATUS_RX_SHIFT		0
- #define I2C_INT_MASK				0x064
- #define I2C_INT_STATUS				0x068
-+#define I2C_INT_BUS_CLR_DONE			BIT(11)
- #define I2C_INT_PACKET_XFER_COMPLETE		BIT(7)
- #define I2C_INT_ALL_PACKETS_XFER_COMPLETE	BIT(6)
- #define I2C_INT_TX_FIFO_OVERFLOW		BIT(5)
-@@ -105,6 +106,15 @@
- #define I2C_HEADER_MASTER_ADDR_SHIFT		12
- #define I2C_HEADER_SLAVE_ADDR_SHIFT		1
+diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
+index 9cd66cabb84f..132119112596 100644
+--- a/drivers/i2c/i2c-core-smbus.c
++++ b/drivers/i2c/i2c-core-smbus.c
+@@ -585,7 +585,7 @@ s32 __i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+ trace:
+ 	/* If enabled, the reply tracepoint is conditional on read_write. */
+ 	trace_smbus_reply(adapter, addr, flags, read_write,
+-			  command, protocol, data);
++			  command, protocol, data, res);
+ 	trace_smbus_result(adapter, addr, flags, read_write,
+ 			   command, protocol, res);
  
-+#define I2C_BUS_CLEAR_CNFG			0x084
-+#define I2C_BC_SCLK_THRESHOLD			9
-+#define I2C_BC_SCLK_THRESHOLD_SHIFT		16
-+#define I2C_BC_STOP_COND			BIT(2)
-+#define I2C_BC_TERMINATE			BIT(1)
-+#define I2C_BC_ENABLE				BIT(0)
-+#define I2C_BUS_CLEAR_STATUS			0x088
-+#define I2C_BC_STATUS				BIT(0)
-+
- #define I2C_CONFIG_LOAD				0x08C
- #define I2C_MSTR_CONFIG_LOAD			BIT(0)
- #define I2C_SLV_CONFIG_LOAD			BIT(1)
-@@ -154,6 +164,8 @@ enum msg_end_type {
-  * @clk_divisor_std_fast_mode: Clock divisor in standard/fast mode. It is
-  *		applicable if there is no fast clock source i.e. single clock
-  *		source.
-+ * @has_bus_clr_support: Bus Clear support to recover from bus hang during
-+ *		SDA stuck low from device for some unknown reasons.
-  */
- 
- struct tegra_i2c_hw_feature {
-@@ -167,6 +179,7 @@ struct tegra_i2c_hw_feature {
- 	bool has_multi_master_mode;
- 	bool has_slcg_override_reg;
- 	bool has_mst_fifo;
-+	bool has_bus_clr_support;
- };
- 
- /**
-@@ -636,6 +649,9 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 		goto err;
- 	}
- 
-+	if (i2c_dev->hw->has_bus_clr_support && (status & I2C_INT_BUS_CLR_DONE))
-+		goto err;
-+
- 	if (i2c_dev->msg_read && (status & I2C_INT_RX_FIFO_DATA_REQ)) {
- 		if (i2c_dev->msg_buf_remaining)
- 			tegra_i2c_empty_rx_fifo(i2c_dev);
-@@ -664,6 +680,8 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 	tegra_i2c_mask_irq(i2c_dev, I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST |
- 		I2C_INT_PACKET_XFER_COMPLETE | I2C_INT_TX_FIFO_DATA_REQ |
- 		I2C_INT_RX_FIFO_DATA_REQ);
-+	if (i2c_dev->hw->has_bus_clr_support)
-+		tegra_i2c_mask_irq(i2c_dev, I2C_INT_BUS_CLR_DONE);
- 	i2c_writel(i2c_dev, status, I2C_INT_STATUS);
- 	if (i2c_dev->is_dvc)
- 		dvc_writel(i2c_dev, DVC_STATUS_I2C_DONE_INTR, DVC_STATUS);
-@@ -674,6 +692,41 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
-+static int tegra_i2c_issue_bus_clear(struct tegra_i2c_dev *i2c_dev)
-+{
-+	int time_left, err;
-+	u32 reg;
-+
-+	if (i2c_dev->hw->has_bus_clr_support) {
-+		reinit_completion(&i2c_dev->msg_complete);
-+		reg = (I2C_BC_SCLK_THRESHOLD << I2C_BC_SCLK_THRESHOLD_SHIFT) |
-+		      I2C_BC_STOP_COND | I2C_BC_TERMINATE;
-+		i2c_writel(i2c_dev, reg, I2C_BUS_CLEAR_CNFG);
-+		if (i2c_dev->hw->has_config_load_reg) {
-+			err = tegra_i2c_wait_for_config_load(i2c_dev);
-+			if (err)
-+				return err;
-+		}
-+		reg |= I2C_BC_ENABLE;
-+		i2c_writel(i2c_dev, reg, I2C_BUS_CLEAR_CNFG);
-+		tegra_i2c_unmask_irq(i2c_dev, I2C_INT_BUS_CLR_DONE);
-+
-+		time_left = wait_for_completion_timeout(&i2c_dev->msg_complete,
-+							TEGRA_I2C_TIMEOUT);
-+		if (time_left == 0) {
-+			dev_err(i2c_dev->dev, "timed out for bus clear\n");
-+			return -ETIMEDOUT;
-+		}
-+		reg = i2c_readl(i2c_dev, I2C_BUS_CLEAR_STATUS);
-+		if (!(reg & I2C_BC_STATUS)) {
-+			dev_err(i2c_dev->dev, "Un-recovered Arb lost\n");
-+			return -EIO;
-+		}
-+	}
-+
-+	return -EAGAIN;
-+}
-+
- static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	struct i2c_msg *msg, enum msg_end_type end_state)
- {
-@@ -755,6 +808,12 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 		return 0;
- 
- 	tegra_i2c_init(i2c_dev);
-+	/* Start recovery upon Arbitration loss in Single-Master Mode */
-+	if (i2c_dev->msg_err == I2C_ERR_ARBITRATION_LOST) {
-+		if (!i2c_dev->is_multimaster_mode)
-+			return tegra_i2c_issue_bus_clear(i2c_dev);
-+		return -EAGAIN;
-+	}
- 	if (i2c_dev->msg_err == I2C_ERR_NO_ACK) {
- 		if (msg->flags & I2C_M_IGNORE_NAK)
- 			return 0;
-@@ -844,6 +903,7 @@ static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
- 	.has_multi_master_mode = false,
- 	.has_slcg_override_reg = false,
- 	.has_mst_fifo = false,
-+	.has_bus_clr_support = false,
- };
- 
- static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
-@@ -857,6 +917,7 @@ static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
- 	.has_multi_master_mode = false,
- 	.has_slcg_override_reg = false,
- 	.has_mst_fifo = false,
-+	.has_bus_clr_support = false,
- };
- 
- static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
-@@ -870,6 +931,7 @@ static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
- 	.has_multi_master_mode = false,
- 	.has_slcg_override_reg = false,
- 	.has_mst_fifo = false,
-+	.has_bus_clr_support = true,
- };
- 
- static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
-@@ -883,6 +945,7 @@ static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
- 	.has_multi_master_mode = false,
- 	.has_slcg_override_reg = true,
- 	.has_mst_fifo = false,
-+	.has_bus_clr_support = true,
- };
- 
- static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
-@@ -896,6 +959,7 @@ static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
- 	.has_multi_master_mode = true,
- 	.has_slcg_override_reg = true,
- 	.has_mst_fifo = false,
-+	.has_bus_clr_support = true,
- };
- 
- static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
-@@ -909,6 +973,7 @@ static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
- 	.has_multi_master_mode = true,
- 	.has_slcg_override_reg = true,
- 	.has_mst_fifo = true,
-+	.has_bus_clr_support = true,
- };
- 
- /* Match table for of_platform binding */
+diff --git a/include/trace/events/smbus.h b/include/trace/events/smbus.h
+index d2fb6e1d3e10..b6376a7c7e74 100644
+--- a/include/trace/events/smbus.h
++++ b/include/trace/events/smbus.h
+@@ -138,8 +138,8 @@ TRACE_EVENT_CONDITION(smbus_reply,
+ 	TP_PROTO(const struct i2c_adapter *adap,
+ 		 u16 addr, unsigned short flags,
+ 		 char read_write, u8 command, int protocol,
+-		 const union i2c_smbus_data *data),
+-	TP_ARGS(adap, addr, flags, read_write, command, protocol, data),
++		 const union i2c_smbus_data *data, int res),
++	TP_ARGS(adap, addr, flags, read_write, command, protocol, data, res),
+ 	TP_CONDITION(read_write == I2C_SMBUS_READ),
+ 	TP_STRUCT__entry(
+ 		__field(int,	adapter_nr		)
+@@ -159,16 +159,16 @@ TRACE_EVENT_CONDITION(smbus_reply,
+ 		switch (protocol) {
+ 		case I2C_SMBUS_BYTE:
+ 		case I2C_SMBUS_BYTE_DATA:
+-			__entry->len = 1;
++			__entry->len = res < 0 ? 0 : 1;
+ 			goto copy;
+ 		case I2C_SMBUS_WORD_DATA:
+ 		case I2C_SMBUS_PROC_CALL:
+-			__entry->len = 2;
++			__entry->len = res < 0 ? 0 : 2;
+ 			goto copy;
+ 		case I2C_SMBUS_BLOCK_DATA:
+ 		case I2C_SMBUS_BLOCK_PROC_CALL:
+ 		case I2C_SMBUS_I2C_BLOCK_DATA:
+-			__entry->len = data->block[0] + 1;
++			__entry->len = res < 0 ? 0 : data->block[0] + 1;
+ 		copy:
+ 			memcpy(__entry->buf, data->block, __entry->len);
+ 			break;
 -- 
-2.7.4
+2.20.1.415.g653613c723-goog
