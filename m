@@ -1,88 +1,181 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH] i2c: core-smbus: don't trace smbus_reply data on errors
-Date: Thu, 3 Jan 2019 21:49:27 -0500
-Message-ID: <20190103214927.2bf947ca@vmware.local.home>
-References: <20190104004203.116155-1-jsperbeck@google.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 5.0 (or how it will be called)
+Date: Fri, 4 Jan 2019 12:06:44 +0100
+Message-ID: <20190104110641.bf7k42aprdikplx6@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="omoqqexgk64l5znl"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190104004203.116155-1-jsperbeck@google.com>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: John Sperbeck <jsperbeck@google.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Ingo Molnar <mingo@redhat.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu,  3 Jan 2019 16:42:03 -0800
-John Sperbeck <jsperbeck@google.com> wrote:
 
-> If an smbus transfer fails, there's no guarantee that the output
-> buffer was written.  So, avoid copying from the output buffer when
-> tracing after an error.  This was 'mostly harmless', but would trip
-> up kasan checking if left-over cruft in byte 0 is a large length,
-> causing us to read from unwritten memory.
-> 
-> Signed-off-by: John Sperbeck <jsperbeck@google.com>
-> ---
->  drivers/i2c/i2c-core-smbus.c |  2 +-
->  include/trace/events/smbus.h | 10 +++++-----
->  2 files changed, 6 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
-> index 9cd66cabb84f..132119112596 100644
-> --- a/drivers/i2c/i2c-core-smbus.c
-> +++ b/drivers/i2c/i2c-core-smbus.c
-> @@ -585,7 +585,7 @@ s32 __i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
->  trace:
->  	/* If enabled, the reply tracepoint is conditional on read_write. */
->  	trace_smbus_reply(adapter, addr, flags, read_write,
-> -			  command, protocol, data);
-> +			  command, protocol, data, res);
->  	trace_smbus_result(adapter, addr, flags, read_write,
->  			   command, protocol, res);
->  
-> diff --git a/include/trace/events/smbus.h b/include/trace/events/smbus.h
-> index d2fb6e1d3e10..b6376a7c7e74 100644
-> --- a/include/trace/events/smbus.h
-> +++ b/include/trace/events/smbus.h
-> @@ -138,8 +138,8 @@ TRACE_EVENT_CONDITION(smbus_reply,
->  	TP_PROTO(const struct i2c_adapter *adap,
->  		 u16 addr, unsigned short flags,
->  		 char read_write, u8 command, int protocol,
-> -		 const union i2c_smbus_data *data),
-> -	TP_ARGS(adap, addr, flags, read_write, command, protocol, data),
-> +		 const union i2c_smbus_data *data, int res),
-> +	TP_ARGS(adap, addr, flags, read_write, command, protocol, data, res),
->  	TP_CONDITION(read_write == I2C_SMBUS_READ),
+--omoqqexgk64l5znl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hmm, instead of tracing nothing, as this is already a "conditional
-trace event", why not add to that condition:
+Linus,
 
-	TP_CONDITION(res >= 0 && read_write == I2C_SMBUS_READ),
+I2C has only driver updates for you this time. Mostly new IDs/DT
+compatibles, also SPDX conversions, small cleanups. STM32F7 got
+FastMode+ and PM support, Axxia some reliabilty improvements.
 
-Unless you want to still trace some data on failure.
+Please pull.
 
--- Steve
+Thanks,
 
->  	TP_STRUCT__entry(
->  		__field(int,	adapter_nr		)
-> @@ -159,16 +159,16 @@ TRACE_EVENT_CONDITION(smbus_reply,
->  		switch (protocol) {
->  		case I2C_SMBUS_BYTE:
->  		case I2C_SMBUS_BYTE_DATA:
-> -			__entry->len = 1;
-> +			__entry->len = res < 0 ? 0 : 1;
->  			goto copy;
->  		case I2C_SMBUS_WORD_DATA:
->  		case I2C_SMBUS_PROC_CALL:
-> -			__entry->len = 2;
-> +			__entry->len = res < 0 ? 0 : 2;
->  			goto copy;
->  		case I2C_SMBUS_BLOCK_DATA:
->  		case I2C_SMBUS_BLOCK_PROC_CALL:
->  		case I2C_SMBUS_I2C_BLOCK_DATA:
-> -			__entry->len = data->block[0] + 1;
-> +			__entry->len = res < 0 ? 0 : data->block[0] + 1;
->  		copy:
->  			memcpy(__entry->buf, data->block, __entry->len);
->  			break;
+   Wolfram
+
+
+The following changes since commit 40e020c129cfc991e8ab4736d2665351ffd1468d:
+
+  Linux 4.20-rc6 (2018-12-09 15:31:00 -0800)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-5.0
+
+for you to fetch changes up to 81482d13f37b1c9354d9bf5491699d993b193246:
+
+  i2c: Add Actions Semiconductor Owl family S700 I2C support (2019-01-03 20:36:18 +0100)
+
+----------------------------------------------------------------
+Adamski, Krzysztof (Nokia - PL/Wroclaw) (3):
+      i2c-axxia: dedicated function to set client addr
+      i2c-axxia: check for error conditions first
+      i2c: axxia: support sequence command mode
+
+Adrian Bunk (2):
+      dt-bindings: eeprom: at24: add "atmel,24c2048" compatible string
+      eeprom: at24: add support for 24c2048
+
+Davidlohr Bueso (1):
+      i2c: Remove caller signal_pending branch predictions
+
+Enric Balletbo i Serra (1):
+      i2c: i2c-cros-ec-tunnel: Switch to SPDX identifier.
+
+Fabrizio Castro (3):
+      i2c: sh_mobile: Add support for r8a774c0 (RZ/G2E)
+      dt-bindings: i2c: sh_mobile: Add r8a774c0 support
+      dt-bindings: i2c: rcar: Add r8a774c0 support
+
+Jarkko Nikula (1):
+      i2c: ismt: Add support for Intel Cedar Fork
+
+Lucas Stach (1):
+      i2c: imx: don't print error message on probe defer
+
+Parthiban Nallathambi (2):
+      dt-bindings: i2c: Add S700 support for Actions Semi Soc's
+      i2c: Add Actions Semiconductor Owl family S700 I2C support
+
+Pierre-Yves MORDRET (3):
+      dt-bindings: i2c-stm32: SYSCFG Fast Mode Plus support for I2C STM32F7
+      i2c: stm32f7: SYSCFG Fast Mode Plus support for I2C STM32F7
+      i2c: i2c-stm32f7: add PM Runtime support
+
+Rob Herring (1):
+      i2c: powermac: Use of_node_name_eq for node name comparisons
+
+Simon Horman (2):
+      i2c: sh_mobile: document support for r8a77990 (R-Car E3)
+      i2c: sh_mobile: add support for r8a77990 (R-Car E3)
+
+Stefan Wahren (1):
+      i2c: bcm2835: Switch to SPDX identifier
+
+Thierry Reding (4):
+      dt-bindings: i2c: Use correct vendor prefix for Atmel
+      i2c: tegra: Cleanup kerneldoc comments
+      i2c: tegra: Add missing kerneldoc for some fields
+      i2c: tegra: Switch to SPDX identifier
+
+Wolfram Sang (2):
+      Merge tag 'v4.20-rc6' into i2c/for-5.0
+      Merge tag 'at24-4.21-updates-for-wolfram' of git://git.kernel.org/.../brgl/linux into i2c/for-5.0
+
+jun qian (1):
+      i2c: tegra: replace spin_lock_irqsave with spin_lock in ISR
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Alexander Sverdlin (3):
+      (Rev.) i2c: axxia: support sequence command mode
+      (Rev.) i2c-axxia: check for error conditions first
+      (Rev.) i2c-axxia: dedicated function to set client addr
+
+Dmitry Osipenko (1):
+      (Rev.) i2c: tegra: replace spin_lock_irqsave with spin_lock in ISR
+
+Eric Anholt (1):
+      (Rev.) i2c: bcm2835: Switch to SPDX identifier
+
+Geert Uytterhoeven (5):
+      (Rev.) dt-bindings: i2c: rcar: Add r8a774c0 support
+      (Rev.) dt-bindings: i2c: sh_mobile: Add r8a774c0 support
+      (Rev.) i2c: sh_mobile: Add support for r8a774c0 (RZ/G2E)
+      (Rev.) i2c: sh_mobile: add support for r8a77990 (R-Car E3)
+      (Rev.) i2c: sh_mobile: document support for r8a77990 (R-Car E3)
+
+Manivannan Sadhasivam (1):
+      (Rev.) i2c: Add Actions Semiconductor Owl family S700 I2C support
+
+Rob Herring (2):
+      (Rev.) dt-bindings: i2c: Add S700 support for Actions Semi Soc's
+      (Rev.) dt-bindings: i2c-stm32: SYSCFG Fast Mode Plus support for I2C STM32F7
+
+Simon Horman (3):
+      (Rev.) dt-bindings: i2c: rcar: Add r8a774c0 support
+      (Rev.) dt-bindings: i2c: sh_mobile: Add r8a774c0 support
+      (Rev.) i2c: sh_mobile: Add support for r8a774c0 (RZ/G2E)
+
+ Documentation/devicetree/bindings/eeprom/at24.txt  |   1 +
+ Documentation/devicetree/bindings/i2c/i2c-at91.txt |   2 +-
+ .../devicetree/bindings/i2c/i2c-mux-ltc4306.txt    |   4 +-
+ .../devicetree/bindings/i2c/i2c-mux-pca954x.txt    |   2 +-
+ Documentation/devicetree/bindings/i2c/i2c-owl.txt  |   4 +-
+ Documentation/devicetree/bindings/i2c/i2c-rcar.txt |   1 +
+ .../devicetree/bindings/i2c/i2c-sh_mobile.txt      |  10 +-
+ .../devicetree/bindings/i2c/i2c-stm32.txt          |   6 +
+ .../devicetree/bindings/i2c/nxp,pca9541.txt        |   2 +-
+ drivers/i2c/busses/i2c-axxia.c                     | 168 +++++++++++++++----
+ drivers/i2c/busses/i2c-bcm2835.c                   |  10 +-
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c            |  14 +-
+ drivers/i2c/busses/i2c-ibm_iic.c                   |   2 +-
+ drivers/i2c/busses/i2c-imx.c                       |   3 +-
+ drivers/i2c/busses/i2c-ismt.c                      |   2 +
+ drivers/i2c/busses/i2c-owl.c                       |   1 +
+ drivers/i2c/busses/i2c-powermac.c                  |   8 +-
+ drivers/i2c/busses/i2c-sh_mobile.c                 |   2 +
+ drivers/i2c/busses/i2c-stm32f7.c                   | 182 +++++++++++++++------
+ drivers/i2c/busses/i2c-tegra.c                     |  54 +++---
+ drivers/misc/eeprom/Kconfig                        |   2 +-
+ drivers/misc/eeprom/at24.c                         |   3 +
+ 22 files changed, 346 insertions(+), 137 deletions(-)
+
+--omoqqexgk64l5znl
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlwvPjwACgkQFA3kzBSg
+KbYgJRAAjnZTVkgwTnBrU0OStqU2LucHp3lHCl7iGgsbQBuvJb3s0dx84vn+aAQ+
+dc1zulgH6/I7UbteKwincbeXyK+nJBpduzhLXhDO6J0Z0knQPxgq7zL96mWXeoo+
+tHVXwBpYFIBSmz50OQXoyuJMIc1CbskQbOZaZ1DT5Jkk75lzw4SwDCBFwmyLuRZd
+u1tSUJVr+EdCP8VkY5ZMaTZfoeUutJrG5MyeLtLt2ncuWP/JXndfm/MNr2aLL7xk
+jYMq6VvMNNMFaWW3Igz3ub7rGUYJba3jzNeiJNNRxYcTKISSs8R/sQF5p1IE+ra+
+Oumr+ZOZQ33FNrdLoq01l+52kUyn0YuuJLXB+amj9etrEt5nqWa9aZZo/d7hgxVr
+wxG2qA2M1BuSSNNU+xGjvYK5hnwyxw1eSBIXyNaYd7MOTk9WZKuksovnuqm7Bo3n
+cvV0vj2XUZthZEHfZf+K2HVfe8sharwGoFyf9s7EaJYWP+EzsuHor58UdUrQCWZh
+eHGNpsZqew7VBv+nDr32K5fcIpc0wz08j1TPgydStuyhE4l+OkaPyt1iubCL6UIj
+qOOx1iblsCF44a85izliXDmFlOIjzbuUo3P0PcG5mkPhTu4HG/WgfzuXdWY2SPkZ
+9LhDNz6fRMjM8mC/hGOF3lDjTzxYWy04hZkZTIKBSqTV+X5p3P8=
+=2MnH
+-----END PGP SIGNATURE-----
+
+--omoqqexgk64l5znl--
