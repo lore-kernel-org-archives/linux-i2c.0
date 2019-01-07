@@ -1,90 +1,60 @@
-From: Oleksij Rempel <o.rempel@pengutronix.de>
-Subject: [PATCH v4 2/2] i2c: imx: forward error values out of
- i2c_imx_dma_request()
-Date: Mon,  7 Jan 2019 09:47:38 +0100
-Message-ID: <20190107084738.4130-3-o.rempel@pengutronix.de>
-References: <20190107084738.4130-1-o.rempel@pengutronix.de>
+From: =?gb2312?B?WmVuZyBZaaOo1PjS46Op?= <yizeng@asrmicro.com>
+Subject: RE: [PATCH] i2c: dev: prevent adapter retries being set as minus
+ value
+Date: Mon, 7 Jan 2019 12:36:15 +0000
+Message-ID: <764917762fa14ac497bdfa9ea3737489@mail2012.asrmicro.com>
+References: <1545384726-12463-1-git-send-email-yizeng@asrmicro.com>
+ <20190103193006.2ekn4ugibm73nfcy@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190107084738.4130-1-o.rempel@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Oleksij Rempel <o.rempel@pengutronix.de>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, linux-arm-kernel@lists.infradead.org, NXP Linux Team <linux-imx@nxp.com>
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190103193006.2ekn4ugibm73nfcy@ninjato>
+Content-Language: zh-CN
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Make sure, i2c_imx_probe() well get and forward same error values as
-i2c_imx_dma_request().
-
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
----
- drivers/i2c/busses/i2c-imx.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index e28ef494dac8..487ccc2af999 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -273,7 +273,7 @@ static inline unsigned char imx_i2c_read_reg(struct imx_i2c_struct *i2c_imx,
- }
- 
- /* Functions for DMA support */
--static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
-+static int i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
- 						dma_addr_t phy_addr)
- {
- 	struct imx_i2c_dma *dma;
-@@ -283,7 +283,7 @@ static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
- 
- 	dma = devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
- 	if (!dma)
--		return;
-+		return -ENOMEM;
- 
- 	dma->chan_tx = dma_request_chan(dev, "tx");
- 	if (IS_ERR(dma->chan_tx)) {
-@@ -328,7 +328,7 @@ static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
- 	dev_info(dev, "using %s (tx) and %s (rx) for DMA transfers\n",
- 		dma_chan_name(dma->chan_tx), dma_chan_name(dma->chan_rx));
- 
--	return;
-+	return 0;
- 
- fail_rx:
- 	dma_release_channel(dma->chan_rx);
-@@ -336,6 +336,8 @@ static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
- 	dma_release_channel(dma->chan_tx);
- fail_al:
- 	devm_kfree(dev, dma);
-+	/* return successfully if there is no dma support */
-+	return ret == -ENODEV ? 0 : ret;
- }
- 
- static void i2c_imx_dma_callback(void *arg)
-@@ -1163,11 +1165,13 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	dev_dbg(&i2c_imx->adapter.dev, "device resources: %pR\n", res);
- 	dev_dbg(&i2c_imx->adapter.dev, "adapter name: \"%s\"\n",
- 		i2c_imx->adapter.name);
--	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
- 
- 	/* Init DMA config if supported */
--	i2c_imx_dma_request(i2c_imx, phy_addr);
-+	ret = i2c_imx_dma_request(i2c_imx, phy_addr);
-+	if (ret < 0)
-+		goto clk_notifier_unregister;
- 
-+	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
- 	return 0;   /* Return OK */
- 
- clk_notifier_unregister:
--- 
-2.19.1
+SGkgV29sZnJhbSBTYW5nLA0KDQpUaGFuayB5b3UgdmVyeSBtdWNoIGZvciB5b3VyIHJldmlldyBh
+bmQga2luZGx5IHN1Z2dlc3Rpb25zLCB3b3VsZCB5b3UgcGxlYXNlIHNlZSBteSBjb21tZW50cyBi
+ZWxvdzoNCg0KQmVzdCBSZWdhcmRzLA0KWWkgWmVuZw0KKzg2LTIxLTYwMzM2NTg4IGV4dC4gODY4
+Ng0KDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBXb2xmcmFtIFNhbmcgW21h
+aWx0bzp3c2FAdGhlLWRyZWFtcy5kZV0gDQpTZW50OiBGcmlkYXksIEphbnVhcnkgMDQsIDIwMTkg
+MzozMCBBTQ0KVG86IFplbmcgWWmjqNT40uOjqQ0KQ2M6IGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5v
+cmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBbUEFUQ0hdIGky
+YzogZGV2OiBwcmV2ZW50IGFkYXB0ZXIgcmV0cmllcyBiZWluZyBzZXQgYXMgbWludXMgdmFsdWUN
+Cg0KSGkgWWkgWmVuZywNCg0KT24gRnJpLCBEZWMgMjEsIDIwMTggYXQgMDU6MzI6MDZQTSArMDgw
+MCwgWWkgWmVuZyB3cm90ZToNCj4gSWYgc2V0IGFkYXB0ZXItPnJldHJpZXMgdG8gbWludXMgdmFs
+dWUgZnJvbSB1c2VyIHNwYWNlIHZpYSBpb2N0bCwgd2lsbCANCj4gbWFrZSBfX2kyY190cmFuc2Zl
+ciBhbmQgX19pMmNfc21idXNfeGZlciBqdW1wIHRoZSBjYWxsaW5nIHRvDQo+IGFkYXB0ZXItPmFs
+Z28tPm1hc3Rlcl94ZmVyIGFuZCBhZGFwdGVyLT5hbGdvLT5zbWJ1c194ZmVyIHRoYXQNCj4gcmVn
+aXN0ZXJlZCBieSB0aGUgdW5kZXJseWluZyBidXMgZHJpdmVycywgYW5kIHJldHVybiB2YWx1ZSAw
+IHRvIGFsbCANCj4gdGhlIGNhbGxlcnMuIFRoZSBidXMgZHJpdmVyIHdpbGwgbmV2ZXIgYmUgYWNj
+ZXNzZWQgYW55bW9yZSBieSBhbGwgDQo+IHVzZXJzLCBiZXNpZGVzLCB0aGUgdXNlcnMgbWF5IHN0
+aWxsIGdldCBzdWNjZXNzZnVsIHJldHVybiB2YWx1ZSB3aXRoIA0KPiBubyBhbnkgZXJyb3Igb3Ig
+aW5mb3JtYXRpb24gbG9nIHByaW50IG91dC4NCg0KPj4gVGhhbmtzISBUaGUgaXNzdWUgeW91IG9i
+c2VydmVkIGlzIGNvcnJlY3QuIEl0IGFsc28gYXBwbGllcyB0byBJMkNfVElNRU9VVC4gV291bGQg
+eW91IG1pbmQgZml4aW5nIGl0IHRoZXJlIGFzIHdlbGw/DQpZZXMsIEkgYW0gdmVyeSBnbGFkIHRv
+IGRvIHRoaXMgZml4LiBJIHdpbGwgYWRkIHRoZSBjaGFuZ2VzIHRvIHRoZSBwcmV2aW91cyBwYXRj
+aC4NCg0KPiBTaWduZWQtb2ZmLWJ5OiBZaSBaZW5nIDx5aXplbmdAYXNybWljcm8uY29tPg0KPiAt
+LS0NCj4gIGRyaXZlcnMvaTJjL2kyYy1kZXYuYyB8IDggKysrKysrKysNCj4gIDEgZmlsZSBjaGFu
+Z2VkLCA4IGluc2VydGlvbnMoKykNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9pMmMt
+ZGV2LmMgYi9kcml2ZXJzL2kyYy9pMmMtZGV2LmMgaW5kZXggDQo+IDFhY2E3NDIuLmMzNDlmNTgg
+MTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaTJjL2kyYy1kZXYuYw0KPiArKysgYi9kcml2ZXJzL2ky
+Yy9pMmMtZGV2LmMNCj4gQEAgLTQ3MCw2ICs0NzAsMTQgQEAgc3RhdGljIGxvbmcgaTJjZGV2X2lv
+Y3RsKHN0cnVjdCBmaWxlICpmaWxlLCB1bnNpZ25lZCBpbnQgY21kLCB1bnNpZ25lZCBsb25nIGFy
+ZykNCj4gIAkJCQkJICBkYXRhX2FyZy5kYXRhKTsNCj4gIAl9DQo+ICAJY2FzZSBJMkNfUkVUUklF
+UzoNCj4gKwkJLyoNCj4gKwkJICogVGhlIGFkYXB0ZXItPnJldHJpZXMgaXMgZGVmaW5lZCBhcyBp
+bnQgdHlwZSwgYW5kIGFzDQo+ICsJCSAqIHRoZSB1cHBlciBsaW1pdCBmb3IgdGltZXMgb2YgaTJj
+IHRyYW5zZmVyIHJldHJ5IHdoZW4NCj4gKwkJICogZ2V0IC1FQUdBSU4sIGl0IHNob3VsZCBub3Qg
+YmUgc2V0IGFzIG1pbnVzIHZhbHVlLg0KPiArCQkgKi8NCg0KPj4gSSB1c3VhbGx5IGxpa2UgY29t
+bWVudHMgZXhwbGFpbmluZyB0aGUgc2l0dWlhdGlvbi4gSG93ZXZlciwgaGVyZSBJIHRoaW5rIGl0
+IGlzIHByZXR0eSBjbGVhciB0aGF0IHRoZSBjb2RlIGRvZXMganVzdCBzYW5pdHkgY2hlY2tzLiBT
+bywgSSB0aGluayB3ZSBjYW4gZHJvcCBpdC4NClRoYW5rIHlvdSwgSSB3aWxsIGRyb3AgaXQgaW4g
+dGhlIHVwZGF0ZXMuDQoNCj4gKwkJaWYgKChpbnQpYXJnIDwgMCkNCj4gKwkJCXJldHVybiAtRUlO
+VkFMOw0KDQo+PiBNaW5vciBuaXQ6IEknZCB0aGluayB0aGlzIGlzIGEgbGl0dGxlIG1vcmUgcmVh
+ZGFibGUNCg0KPj4JaWYgKGFyZyA+IElOVF9NQVgpDQo+PgkJCXJldHVybiAtRUlOVkFMDQoNCj4+
+IEJ1dCBJIGhhdmUgbm8gc3Ryb25nIG9waW5pb24gaGVyZS4NClRoYW5rIHlvdSB2ZXJ5IG11Y2gg
+Zm9yIHlvdXIgc3VnZ2VzdGlvbiwgSSB0aGluayB0aGlzIGlzIG11Y2ggYmV0dGVyIHRoYW4gdGhl
+IHByZXZpb3VzLg0KDQpLaW5kIHJlZ2FyZHMsDQoNCiAgIFdvbGZyYW0NCg0K
