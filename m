@@ -1,16 +1,16 @@
 From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v4 1/2] i2c: imx: notify about real errors on dma
- i2c_imx_dma_request
-Date: Mon, 7 Jan 2019 21:27:51 +0100
-Message-ID: <20190107202751.odkfymuvbaljcmot@pengutronix.de>
+Subject: Re: [PATCH v4 2/2] i2c: imx: forward error values out of
+ i2c_imx_dma_request()
+Date: Mon, 7 Jan 2019 21:31:27 +0100
+Message-ID: <20190107203127.6hifb7ilugkiaxpt@pengutronix.de>
 References: <20190107084738.4130-1-o.rempel@pengutronix.de>
- <20190107084738.4130-2-o.rempel@pengutronix.de>
+ <20190107084738.4130-3-o.rempel@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <20190107084738.4130-2-o.rempel@pengutronix.de>
+In-Reply-To: <20190107084738.4130-3-o.rempel@pengutronix.de>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -24,35 +24,24 @@ To: Oleksij Rempel <o.rempel@pengutronix.de>
 Cc: Wolfram Sang <wsa@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Shawn Guo <shawnguo@kernel.org>, linux-arm-kernel@lists.infradead.org, NXP Linux Team <linux-imx@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+On Mon, Jan 07, 2019 at 09:47:38AM +0100, Oleksij Rempel wrote:
+> Make sure, i2c_imx_probe() well get and forward same error values as
+> i2c_imx_dma_request().
 
-On Mon, Jan 07, 2019 at 09:47:37AM +0100, Oleksij Rempel wrote:
-> Current implementation will print "can't use DMA, using PIO instead",
-> which is confusing and mostly interpreted as error. At least on i.MX5x,
-> DMA event for I2C is muxed with SDHC. So it is project specific
-> configuration. On other hand, real error have debug level.
-> =
+Maybe better: Improve the error handling in i2c_imx_dma_request() and
+let it return an error indication that the caller then can handle
+accordingly.
 
-> With this patch real error should be printed and configuration specific
-> state will become silent.
+> -static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
+> +static int i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
+>  						dma_addr_t phy_addr)
 
-I'd write:
+This is a good opportunity to realign the continuation line to the
+opening parenthesis.
 
-At least on i.MX5x, the DMA events for I2C and SDHC use the same channel
-and there can only be a single user. So in this case there should be no
-message emitted that looks like an error if the I2C device doesn't have
-an assigned DMA channel. In contrast real problems that were only
-emitted at debug level before should be described at a higher level
-to be better visible and so understandable.
+Otherwise the patch looks good.
 
-> Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-
-The patch is fine and can have my =
-
-
-Acked-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
-
-Thanks
+Best regards
 Uwe
 
 -- =
