@@ -1,25 +1,15 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [RESEND PATCH 04/12] ARM: davinci: da830-evm: use device properties
- for at24 eeprom
-Date: Tue,  8 Jan 2019 10:15:31 +0100
-Message-ID: <20190108091539.16674-5-brgl@bgdev.pl>
+Subject: [RESEND PATCH 06/12] ARM: davinci: dm646x-evm: use device properties for at24 eeprom
+Date: Tue,  8 Jan 2019 10:15:33 +0100
+Message-ID: <20190108091539.16674-7-brgl@bgdev.pl>
 References: <20190108091539.16674-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190108091539.16674-1-brgl@bgdev.pl>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
@@ -36,46 +26,46 @@ already implies the EEPROM's size.
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
- arch/arm/mach-davinci/board-da830-evm.c | 13 +++++--------
+ arch/arm/mach-davinci/board-dm646x-evm.c | 13 +++++--------
  1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/mach-davinci/board-da830-evm.c b/arch/arm/mach-davinci/board-da830-evm.c
-index e52ec1619b70..ddd871d8b44c 100644
---- a/arch/arm/mach-davinci/board-da830-evm.c
-+++ b/arch/arm/mach-davinci/board-da830-evm.c
-@@ -18,7 +18,7 @@
+diff --git a/arch/arm/mach-davinci/board-dm646x-evm.c b/arch/arm/mach-davinci/board-dm646x-evm.c
+index 8d5be6dd2019..02b57face113 100644
+--- a/arch/arm/mach-davinci/board-dm646x-evm.c
++++ b/arch/arm/mach-davinci/board-dm646x-evm.c
+@@ -22,7 +22,7 @@
+ #include <linux/gpio.h>
  #include <linux/platform_device.h>
  #include <linux/i2c.h>
- #include <linux/platform_data/pcf857x.h>
 -#include <linux/platform_data/at24.h>
 +#include <linux/property.h>
- #include <linux/mtd/mtd.h>
- #include <linux/mtd/partitions.h>
- #include <linux/spi/spi.h>
-@@ -457,12 +457,9 @@ static struct nvmem_cell_lookup da830_evm_nvmem_cell_lookup = {
+ #include <linux/platform_data/pcf857x.h>
+ #include <linux/platform_data/ti-aemif.h>
+ 
+@@ -364,12 +364,9 @@ static struct nvmem_cell_lookup dm646x_evm_nvmem_cell_lookup = {
  	.con_id		= "mac-address",
  };
  
--static struct at24_platform_data da830_evm_i2c_eeprom_info = {
--	.byte_len	= SZ_256K / 8,
--	.page_size	= 64,
--	.flags		= AT24_FLAG_ADDR16,
--	.setup		= davinci_get_mac_addr,
+-static struct at24_platform_data eeprom_info = {
+-	.byte_len       = (256*1024) / 8,
+-	.page_size      = 64,
+-	.flags          = AT24_FLAG_ADDR16,
+-	.setup          = davinci_get_mac_addr,
 -	.context	= (void *)0x7f00,
-+static const struct property_entry da830_evm_i2c_eeprom_properties[] = {
++static const struct property_entry eeprom_properties[] = {
 +	PROPERTY_ENTRY_U32("pagesize", 64),
 +	{ }
  };
+ #endif
  
- static int __init da830_evm_ui_expander_setup(struct i2c_client *client,
-@@ -496,7 +493,7 @@ static struct pcf857x_platform_data __initdata da830_evm_ui_expander_info = {
- static struct i2c_board_info __initdata da830_evm_i2c_devices[] = {
+@@ -440,7 +437,7 @@ static void evm_init_cpld(void)
+ static struct i2c_board_info __initdata i2c_info[] =  {
  	{
  		I2C_BOARD_INFO("24c256", 0x50),
--		.platform_data	= &da830_evm_i2c_eeprom_info,
-+		.properties = da830_evm_i2c_eeprom_properties,
+-		.platform_data  = &eeprom_info,
++		.properties  = eeprom_properties,
  	},
  	{
- 		I2C_BOARD_INFO("tlv320aic3x", 0x18),
+ 		I2C_BOARD_INFO("pcf8574a", 0x38),
 -- 
 2.19.1
