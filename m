@@ -1,71 +1,58 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [RESEND PATCH 06/12] ARM: davinci: dm646x-evm: use device properties for at24 eeprom
-Date: Tue,  8 Jan 2019 10:15:33 +0100
-Message-ID: <20190108091539.16674-7-brgl@bgdev.pl>
-References: <20190108091539.16674-1-brgl@bgdev.pl>
+From: Ray Jui <ray.jui@broadcom.com>
+Subject: Re: [PATCH 0/8] Add IPROC I2C slave mode and NIC I2C support
+Date: Tue, 8 Jan 2019 09:25:09 -0800
+Message-ID: <6a5380e3-1e15-31e3-bbaa-134856a0c2dc@broadcom.com>
+References: <1546938997-13798-1-git-send-email-rayagonda.kokatanur@broadcom.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190108091539.16674-1-brgl@bgdev.pl>
+In-Reply-To: <1546938997-13798-1-git-send-email-rayagonda.kokatanur@broadcom.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Shreesha Rajashekar <shreesha.rajashekar@broadcom.com>, Michael Cheng <ccheng@broadcom.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com
 List-Id: linux-i2c@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+You sent out the same patch series 3 times without any explanation. Very
+confusing.
 
-We want to work towards phasing out the at24_platform_data structure.
-There are few users and its contents can be represented using generic
-device properties. Using device properties only will allow us to
-significantly simplify the at24 configuration code.
+Is this the latest one that should be reviewed?
 
-Remove the at24_platform_data structure and replace it with an array
-of property entries. Drop the byte_len/size property, as the model name
-already implies the EEPROM's size.
+Thanks,
 
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
----
- arch/arm/mach-davinci/board-dm646x-evm.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+Ray
 
-diff --git a/arch/arm/mach-davinci/board-dm646x-evm.c b/arch/arm/mach-davinci/board-dm646x-evm.c
-index 8d5be6dd2019..02b57face113 100644
---- a/arch/arm/mach-davinci/board-dm646x-evm.c
-+++ b/arch/arm/mach-davinci/board-dm646x-evm.c
-@@ -22,7 +22,7 @@
- #include <linux/gpio.h>
- #include <linux/platform_device.h>
- #include <linux/i2c.h>
--#include <linux/platform_data/at24.h>
-+#include <linux/property.h>
- #include <linux/platform_data/pcf857x.h>
- #include <linux/platform_data/ti-aemif.h>
- 
-@@ -364,12 +364,9 @@ static struct nvmem_cell_lookup dm646x_evm_nvmem_cell_lookup = {
- 	.con_id		= "mac-address",
- };
- 
--static struct at24_platform_data eeprom_info = {
--	.byte_len       = (256*1024) / 8,
--	.page_size      = 64,
--	.flags          = AT24_FLAG_ADDR16,
--	.setup          = davinci_get_mac_addr,
--	.context	= (void *)0x7f00,
-+static const struct property_entry eeprom_properties[] = {
-+	PROPERTY_ENTRY_U32("pagesize", 64),
-+	{ }
- };
- #endif
- 
-@@ -440,7 +437,7 @@ static void evm_init_cpld(void)
- static struct i2c_board_info __initdata i2c_info[] =  {
- 	{
- 		I2C_BOARD_INFO("24c256", 0x50),
--		.platform_data  = &eeprom_info,
-+		.properties  = eeprom_properties,
- 	},
- 	{
- 		I2C_BOARD_INFO("pcf8574a", 0x38),
--- 
-2.19.1
+On 1/8/2019 1:16 AM, Rayagonda Kokatanur wrote:
+> Hi,
+> This patchset contains support for IPROC I2C slave and NIC I2C support.
+> Following are the brief changes done inorder to support both IPROC I2C
+> slave mode and NIC I2C,
+> 
+> a. Add support to allow I2C rx transfer upto 255 bytes
+> b. Add polling mode support to the iProc I2C driver. Polling mode is used
+>    in certain SoCs where interrupt is not connected from the I2C block.
+> c. Add warpper read/write access for register to support indirect register
+>    access. This is required in certain SoCs with this iProc I2C
+>    block registered.
+> 
+> 
+> Ray Jui (1):
+>   dt-bindings: i2c: iproc: make 'interrupts' optional
+> 
+> Rayagonda Kokatanur (5):
+>   i2c: iproc: add polling support
+>   i2c: iproc: use wrapper for read/write access
+>   dt-bindings: i2c: iproc: add "brcm,iproc-nic-i2c" compatible string
+>   i2c: iproc: add NIC I2C support
+>   arm64: dts: Stingray: Add NIC i2c device node
+> 
+> Shreesha Rajashekar (2):
+>   i2c: iproc: I2C read up to 255 bytes support
+>   i2c: iproc: Add Slave mode support
+> 
+>  .../devicetree/bindings/i2c/brcm,iproc-i2c.txt     |  14 +-
+>  .../arm64/boot/dts/broadcom/stingray/stingray.dtsi |  18 +
+>  drivers/i2c/busses/Kconfig                         |   1 +
+>  drivers/i2c/busses/i2c-bcm-iproc.c                 | 767 +++++++++++++++++----
+>  4 files changed, 669 insertions(+), 131 deletions(-)
+> 
