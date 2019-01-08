@@ -1,123 +1,139 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: [PATCH V5] i2c: tegra: Fix Maximum transfer size
-Date: Tue, 8 Jan 2019 13:59:10 -0800
-Message-ID: <1546984750-26199-2-git-send-email-skomatineni@nvidia.com>
-References: <1546984750-26199-1-git-send-email-skomatineni@nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: [RFC 0/4] TI camera serdes - I2C address translation draft
+Date: Tue,  8 Jan 2019 23:39:49 +0100
+Message-ID: <20190108223953.9969-1-luca@lucaceresoli.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1546984750-26199-1-git-send-email-skomatineni@nvidia.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: thierry.reding@gmail.com, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com
-Cc: linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sowjanya Komatineni <skomatineni@nvidia.com>
+To: linux-media@vger.kernel.org
+Cc: Luca Ceresoli <luca@lucaceresoli.net>, Kieran Bingham <kieran.bingham@ideasonboard.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, jacopo mondi <jacopo@jmondi.org>, Vladimir Zapolskiy <vz@mleia.com>, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, Mauro Carvalho Chehab <mchehab@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Tegra194 supports maximum 64K Bytes transfer per packet.
-Tegra186 and prior supports maximum 4K Bytes transfer per packet.
+Hi,
 
-This patch fixes this payload difference between Tegra194 and prior
-tegra chipsets using separate i2c_adapter_quirks.
+there has been some discussion on linux-media about video
+serializer/deserializer chipsets with remote I2C capabilities from TI
+[0] and Maxim [1]. I took part discussing how the remote I2C feature
+of such chips could be best implemented in Linux while I was
+implementing a driver for the Texas Instruments DS90UB954-Q1 video
+deserializer. My approach is different from both the one used by
+Vladimir Zapolskiy on other TI chips, which look similar to the
+DS90UB954 in their I2C management, and the one used by Kieran Bingham
+with Maxim chips, which have a different and simpler I2C management.
 
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
----
- drivers/i2c/busses/i2c-tegra.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+After that I had to stop that work, so it is unfinished and I have no
+plan to continue it. Upon suggestion by some linux-media developers
+I'm sending my patches as RFC in the hope that they bring additional
+material for the discussion.
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index e417ebf7628c..c77adbbea0c7 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -155,6 +155,8 @@ enum msg_end_type {
-  * @has_mst_fifo: The I2C controller contains the new MST FIFO interface that
-  *		provides additional features and allows for longer messages to
-  *		be transferred in one go.
-+ * @quirks: i2c adapter quirks for limiting write/read transfer size and not
-+ *		allowing 0 length transfers.
-  */
- struct tegra_i2c_hw_feature {
- 	bool has_continue_xfer_support;
-@@ -167,6 +169,7 @@ struct tegra_i2c_hw_feature {
- 	bool has_multi_master_mode;
- 	bool has_slcg_override_reg;
- 	bool has_mst_fifo;
-+	const struct i2c_adapter_quirks *quirks;
- };
- 
- /**
-@@ -837,6 +840,10 @@ static const struct i2c_adapter_quirks tegra_i2c_quirks = {
- 	.max_write_len = 4096,
- };
- 
-+static const struct i2c_adapter_quirks tegra194_i2c_quirks = {
-+	.flags = I2C_AQ_NO_ZERO_LEN,
-+};
-+
- static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
- 	.has_continue_xfer_support = false,
- 	.has_per_pkt_xfer_complete_irq = false,
-@@ -848,6 +855,7 @@ static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
- 	.has_multi_master_mode = false,
- 	.has_slcg_override_reg = false,
- 	.has_mst_fifo = false,
-+	.quirks = &tegra_i2c_quirks,
- };
- 
- static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
-@@ -861,6 +869,7 @@ static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
- 	.has_multi_master_mode = false,
- 	.has_slcg_override_reg = false,
- 	.has_mst_fifo = false,
-+	.quirks = &tegra_i2c_quirks,
- };
- 
- static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
-@@ -874,6 +883,7 @@ static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
- 	.has_multi_master_mode = false,
- 	.has_slcg_override_reg = false,
- 	.has_mst_fifo = false,
-+	.quirks = &tegra_i2c_quirks,
- };
- 
- static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
-@@ -887,6 +897,7 @@ static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
- 	.has_multi_master_mode = false,
- 	.has_slcg_override_reg = true,
- 	.has_mst_fifo = false,
-+	.quirks = &tegra_i2c_quirks,
- };
- 
- static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
-@@ -900,6 +911,7 @@ static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
- 	.has_multi_master_mode = true,
- 	.has_slcg_override_reg = true,
- 	.has_mst_fifo = false,
-+	.quirks = &tegra_i2c_quirks,
- };
- 
- static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
-@@ -913,6 +925,7 @@ static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
- 	.has_multi_master_mode = true,
- 	.has_slcg_override_reg = true,
- 	.has_mst_fifo = true,
-+	.quirks = &tegra194_i2c_quirks,
- };
- 
- /* Match table for of_platform binding */
-@@ -964,7 +977,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->base = base;
- 	i2c_dev->div_clk = div_clk;
- 	i2c_dev->adapter.algo = &tegra_i2c_algo;
--	i2c_dev->adapter.quirks = &tegra_i2c_quirks;
- 	i2c_dev->irq = irq;
- 	i2c_dev->cont_id = pdev->id;
- 	i2c_dev->dev = &pdev->dev;
-@@ -980,6 +992,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->hw = of_device_get_match_data(&pdev->dev);
- 	i2c_dev->is_dvc = of_device_is_compatible(pdev->dev.of_node,
- 						  "nvidia,tegra20-i2c-dvc");
-+	i2c_dev->adapter.quirks = i2c_dev->hw->quirks;
- 	init_completion(&i2c_dev->msg_complete);
- 	spin_lock_init(&i2c_dev->xfer_lock);
- 
+I2C management is quite complete in my patches, and it shows how I
+envisioned I2C management. For the rest the code is in large part
+incomplete. Don't consider the V4L2, GPIO and other sections as ready
+for any review.
+
+The whole idea is structured around a central node, called the ATR
+(Address Translator). It is similar to an I2C mux except it changes
+the I2C addresses of transactions with an "alias" address for each
+remote chip. Patch 2 has a detailed description of this process.
+
+
+A typical setup looks like:
+
+                          Slave X @ 0x10
+                  .-----.   |
+      .-----.     |     |---+---- B
+      | CPU |--A--| ATR |
+      `-----'     |     |---+---- C
+                  `-----'   |
+                          Slave Y @ 0x10
+
+  A = "local" bus
+  B = "remote" bus 0
+  C = "remote" bus 1
+
+In patch 2 I enriched the i2c-mux to also act as an ATR. However the
+implementation grew larger than I desired, so now I think it would
+make sense to leave i2c-mux as is, and add a new i2c-atr.c which has
+ATR features without much of the MUX code. However the implementation
+would not change too much, so you can look at i2c-mux to see how I
+implemented the ATR.
+
+In the ATR (i2c-mux.c) I implemented the logic needed to remap slave
+addresses according to a table. Choosing appropriate aliases and
+filling that table is driver-specific, so in this case it is done by
+ds90ub954.c. The ATR driver needs to know when a new client appears on
+the remote bus to setup translation and when it gets disconnected to
+undo it. So I added a callback pair, attach_client and detach_client,
+from i2c-core to i2c-mux and from there to the ATR driver. When
+getting the callback the ATR driver chooses an alias to be used on the
+local bus for the new chip, configures the ATR (perhaps setting some
+registers) returns the alias back to the ATR which sill add the new
+chip-alias pair to its table. The ATR (i2c-mux) then will do the
+translation for each message, so that the alias will be used on the
+local bus and the physical chip address on the remote bus.
+
+The alias address for a new client is chosen from an alias pool that
+must be defined in device tree. It is the responsibility of the DT
+writer to fill the pool with addresses that are otherwise unused on
+the local bus. The pool could not be filled automatically because
+there might be conflicting chips on the local bus that are unknown to
+the software, or that are just connected later.
+
+The alias pool and the mapping done at runtime allow to model
+different camera modules [or display or other modules] similarly to
+beaglebone capes or rpi hats, up to a model where:
+
+ 1. there can be different camera modules being designed over time
+ 2. there can be different base boards being designed over time
+ 3. there is a standard interconnection between them (mechanical,
+    electrical, communication bus)
+ 4. camera modules and base boards are designed and sold independently
+    (thanks to point 3)
+
+The implementation is split in the following patches:
+ * Patch 1 adds the attach_client() and detach_client() callbacks to
+   i2c-core
+ * Patch 2 adds similar callbacks for the use of device drivers and,
+   most importantly, implements the ATR engine
+ * Patch 3 adds a farily complete DT bindings document, including the
+   alias map
+ * Patch 4 adds the DS90UB954-Q1 dual deserializer driver
+
+There is no serializer driver here. The one I have is just a skeleton
+setting a few registers, just enough to work on the deserializer
+driver.
+
+Each patch has an comprehensive list of open issues.
+
+[0] https://www.spinics.net/lists/linux-gpio/msg33291.html
+[1] https://www.spinics.net/lists/linux-media/msg142367.html
+
+Regards,
+--
+Luca
+
+
+Luca Ceresoli (4):
+  i2c: core: let adapters be notified of client attach/detach
+  i2c: mux: notify client attach/detach, add ATR
+  media: dt-bindings: add DS90UB954-Q1 video deserializer
+  media: ds90ub954: new driver for TI DS90UB954-Q1 video deserializer
+
+ .../bindings/media/ti,ds90ub954-q1.txt        |  151 ++
+ drivers/i2c/i2c-core-base.c                   |   16 +
+ drivers/i2c/i2c-mux.c                         |  218 ++-
+ drivers/i2c/muxes/i2c-mux-pca954x.c           |    2 +-
+ drivers/media/Kconfig                         |    1 +
+ drivers/media/Makefile                        |    2 +-
+ drivers/media/serdes/Kconfig                  |   13 +
+ drivers/media/serdes/Makefile                 |    1 +
+ drivers/media/serdes/ds90ub954.c              | 1335 +++++++++++++++++
+ include/linux/i2c-mux.h                       |   20 +-
+ include/linux/i2c.h                           |    9 +
+ 11 files changed, 1760 insertions(+), 8 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/media/ti,ds90ub954-q1.txt
+ create mode 100644 drivers/media/serdes/Kconfig
+ create mode 100644 drivers/media/serdes/Makefile
+ create mode 100644 drivers/media/serdes/ds90ub954.c
+
 -- 
-2.7.4
+2.17.1
