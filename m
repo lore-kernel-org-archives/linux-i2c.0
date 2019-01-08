@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [RESEND PATCH 11/12] ARM: davinci: mityomapl138: use device properties for at24 eeprom
-Date: Tue,  8 Jan 2019 10:15:38 +0100
-Message-ID: <20190108091539.16674-12-brgl@bgdev.pl>
+Subject: [RESEND PATCH 08/12] ARM: davinci: sffsdr: use device properties for at24 eeprom
+Date: Tue,  8 Jan 2019 10:15:35 +0100
+Message-ID: <20190108091539.16674-9-brgl@bgdev.pl>
 References: <20190108091539.16674-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -24,52 +24,44 @@ of property entries. Drop the byte_len/size property, as the model name
 already implies the EEPROM's size.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
- arch/arm/mach-davinci/board-mityomapl138.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/arm/mach-davinci/board-sffsdr.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/mach-davinci/board-mityomapl138.c b/arch/arm/mach-davinci/board-mityomapl138.c
-index ac1a1699d185..a381b26328d8 100644
---- a/arch/arm/mach-davinci/board-mityomapl138.c
-+++ b/arch/arm/mach-davinci/board-mityomapl138.c
-@@ -14,13 +14,13 @@
+diff --git a/arch/arm/mach-davinci/board-sffsdr.c b/arch/arm/mach-davinci/board-sffsdr.c
+index acd9778ffa07..ff14de1396c8 100644
+--- a/arch/arm/mach-davinci/board-sffsdr.c
++++ b/arch/arm/mach-davinci/board-sffsdr.c
+@@ -26,7 +26,7 @@
  #include <linux/init.h>
- #include <linux/console.h>
  #include <linux/platform_device.h>
-+#include <linux/property.h>
- #include <linux/mtd/partitions.h>
- #include <linux/notifier.h>
- #include <linux/nvmem-consumer.h>
- #include <linux/nvmem-provider.h>
- #include <linux/regulator/machine.h>
  #include <linux/i2c.h>
 -#include <linux/platform_data/at24.h>
- #include <linux/etherdevice.h>
- #include <linux/spi/spi.h>
- #include <linux/spi/flash.h>
-@@ -192,10 +192,10 @@ static struct nvmem_cell_lookup mityomapl138_nvmem_cell_lookup = {
- 	.con_id		= "mac-address",
++#include <linux/property.h>
+ #include <linux/mtd/mtd.h>
+ #include <linux/mtd/rawnand.h>
+ #include <linux/mtd/partitions.h>
+@@ -92,16 +92,15 @@ static struct platform_device davinci_sffsdr_nandflash_device = {
+ 	.resource	= davinci_sffsdr_nandflash_resource,
  };
  
--static struct at24_platform_data mityomapl138_fd_chip = {
--	.byte_len	= 256,
--	.page_size	= 8,
--	.flags		= AT24_FLAG_READONLY | AT24_FLAG_IRUGO,
-+static const struct property_entry mityomapl138_fd_chip_properties[] = {
-+	PROPERTY_ENTRY_U32("pagesize", 8),
-+	PROPERTY_ENTRY_BOOL("read-only"),
+-static struct at24_platform_data eeprom_info = {
+-	.byte_len	= (64*1024) / 8,
+-	.page_size	= 32,
+-	.flags		= AT24_FLAG_ADDR16,
++static const struct property_entry eeprom_properties[] = {
++	PROPERTY_ENTRY_U32("pagesize", 32),
 +	{ }
  };
  
- static struct davinci_i2c_platform_data mityomap_i2c_0_pdata = {
-@@ -324,7 +324,7 @@ static struct i2c_board_info __initdata mityomap_tps65023_info[] = {
- 	},
+ static struct i2c_board_info __initdata i2c_info[] =  {
  	{
- 		I2C_BOARD_INFO("24c02", 0x50),
--		.platform_data = &mityomapl138_fd_chip,
-+		.properties = mityomapl138_fd_chip_properties,
+ 		I2C_BOARD_INFO("24c64", 0x50),
+-		.platform_data	= &eeprom_info,
++		.properties = eeprom_properties,
  	},
- };
- 
+ 	/* Other I2C devices:
+ 	 * MSP430,  addr 0x23 (not used)
 -- 
 2.19.1
