@@ -1,61 +1,75 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [RESEND PATCH 02/12] ARM: davinci: mityomapl138: don't read the MAC
- address from machine code
-Date: Tue,  8 Jan 2019 10:15:29 +0100
-Message-ID: <20190108091539.16674-3-brgl@bgdev.pl>
+Subject: [RESEND PATCH 11/12] ARM: davinci: mityomapl138: use device properties for at24 eeprom
+Date: Tue,  8 Jan 2019 10:15:38 +0100
+Message-ID: <20190108091539.16674-12-brgl@bgdev.pl>
 References: <20190108091539.16674-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190108091539.16674-1-brgl@bgdev.pl>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-This is now done by the emac driver using a registered nvmem cell.
+We want to work towards phasing out the at24_platform_data structure.
+There are few users and its contents can be represented using generic
+device properties. Using device properties only will allow us to
+significantly simplify the at24 configuration code.
+
+Remove the at24_platform_data structure and replace it with an array
+of property entries. Drop the byte_len/size property, as the model name
+already implies the EEPROM's size.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- arch/arm/mach-davinci/board-mityomapl138.c | 8 --------
- 1 file changed, 8 deletions(-)
+ arch/arm/mach-davinci/board-mityomapl138.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/arch/arm/mach-davinci/board-mityomapl138.c b/arch/arm/mach-davinci/board-mityomapl138.c
-index 8df16e81b69e..3286dc2457a5 100644
+index ac1a1699d185..a381b26328d8 100644
 --- a/arch/arm/mach-davinci/board-mityomapl138.c
 +++ b/arch/arm/mach-davinci/board-mityomapl138.c
-@@ -121,7 +121,6 @@ static void read_factory_config(struct nvmem_device *nvmem, void *context)
- {
- 	int ret;
- 	const char *partnum = NULL;
--	struct davinci_soc_info *soc_info = &davinci_soc_info;
+@@ -14,13 +14,13 @@
+ #include <linux/init.h>
+ #include <linux/console.h>
+ #include <linux/platform_device.h>
++#include <linux/property.h>
+ #include <linux/mtd/partitions.h>
+ #include <linux/notifier.h>
+ #include <linux/nvmem-consumer.h>
+ #include <linux/nvmem-provider.h>
+ #include <linux/regulator/machine.h>
+ #include <linux/i2c.h>
+-#include <linux/platform_data/at24.h>
+ #include <linux/etherdevice.h>
+ #include <linux/spi/spi.h>
+ #include <linux/spi/flash.h>
+@@ -192,10 +192,10 @@ static struct nvmem_cell_lookup mityomapl138_nvmem_cell_lookup = {
+ 	.con_id		= "mac-address",
+ };
  
- 	if (!IS_BUILTIN(CONFIG_NVMEM)) {
- 		pr_warn("Factory Config not available without CONFIG_NVMEM\n");
-@@ -147,13 +146,6 @@ static void read_factory_config(struct nvmem_device *nvmem, void *context)
- 		goto bad_config;
- 	}
+-static struct at24_platform_data mityomapl138_fd_chip = {
+-	.byte_len	= 256,
+-	.page_size	= 8,
+-	.flags		= AT24_FLAG_READONLY | AT24_FLAG_IRUGO,
++static const struct property_entry mityomapl138_fd_chip_properties[] = {
++	PROPERTY_ENTRY_U32("pagesize", 8),
++	PROPERTY_ENTRY_BOOL("read-only"),
++	{ }
+ };
  
--	pr_info("Found MAC = %pM\n", factory_config.mac);
--	if (is_valid_ether_addr(factory_config.mac))
--		memcpy(soc_info->emac_pdata->mac_addr,
--			factory_config.mac, ETH_ALEN);
--	else
--		pr_warn("Invalid MAC found in factory config block\n");
--
- 	partnum = factory_config.partnum;
- 	pr_info("Part Number = %s\n", partnum);
+ static struct davinci_i2c_platform_data mityomap_i2c_0_pdata = {
+@@ -324,7 +324,7 @@ static struct i2c_board_info __initdata mityomap_tps65023_info[] = {
+ 	},
+ 	{
+ 		I2C_BOARD_INFO("24c02", 0x50),
+-		.platform_data = &mityomapl138_fd_chip,
++		.properties = mityomapl138_fd_chip_properties,
+ 	},
+ };
  
 -- 
 2.19.1
