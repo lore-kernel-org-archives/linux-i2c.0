@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [RESEND PATCH 03/12] ARM: davinci: dm365-evm: use device properties for at24 eeprom
-Date: Tue,  8 Jan 2019 10:15:30 +0100
-Message-ID: <20190108091539.16674-4-brgl@bgdev.pl>
+Subject: [RESEND PATCH 05/12] ARM: davinci: dm644x-evm: use device properties for at24 eeprom
+Date: Tue,  8 Jan 2019 10:15:32 +0100
+Message-ID: <20190108091539.16674-6-brgl@bgdev.pl>
 References: <20190108091539.16674-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -26,30 +26,31 @@ already implies the EEPROM's size.
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
- arch/arm/mach-davinci/board-dm365-evm.c | 13 +++++--------
+ arch/arm/mach-davinci/board-dm644x-evm.c | 13 +++++--------
  1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/mach-davinci/board-dm365-evm.c b/arch/arm/mach-davinci/board-dm365-evm.c
-index e3b0b701e395..f21dc8d3b28c 100644
---- a/arch/arm/mach-davinci/board-dm365-evm.c
-+++ b/arch/arm/mach-davinci/board-dm365-evm.c
-@@ -18,7 +18,7 @@
+diff --git a/arch/arm/mach-davinci/board-dm644x-evm.c b/arch/arm/mach-davinci/board-dm644x-evm.c
+index e1428115067f..efe4e170e87d 100644
+--- a/arch/arm/mach-davinci/board-dm644x-evm.c
++++ b/arch/arm/mach-davinci/board-dm644x-evm.c
+@@ -16,8 +16,8 @@
+ #include <linux/gpio/machine.h>
  #include <linux/i2c.h>
- #include <linux/io.h>
- #include <linux/clk.h>
+ #include <linux/platform_data/pcf857x.h>
 -#include <linux/platform_data/at24.h>
+ #include <linux/platform_data/gpio-davinci.h>
 +#include <linux/property.h>
- #include <linux/leds.h>
  #include <linux/mtd/mtd.h>
+ #include <linux/mtd/rawnand.h>
  #include <linux/mtd/partitions.h>
-@@ -225,18 +225,15 @@ static struct nvmem_cell_lookup davinci_nvmem_cell_lookup = {
+@@ -532,12 +532,9 @@ static struct nvmem_cell_lookup dm644evm_nvmem_cell_lookup = {
  	.con_id		= "mac-address",
  };
  
 -static struct at24_platform_data eeprom_info = {
--	.byte_len       = (256*1024) / 8,
--	.page_size      = 64,
--	.flags          = AT24_FLAG_ADDR16,
+-	.byte_len	= (256*1024) / 8,
+-	.page_size	= 64,
+-	.flags		= AT24_FLAG_ADDR16,
 -	.setup          = davinci_get_mac_addr,
 -	.context	= (void *)0x7f00,
 +static const struct property_entry eeprom_properties[] = {
@@ -57,13 +58,15 @@ index e3b0b701e395..f21dc8d3b28c 100644
 +	{ }
  };
  
- static struct i2c_board_info i2c_info[] = {
+ /*
+@@ -647,7 +644,7 @@ static struct i2c_board_info __initdata i2c_info[] =  {
+ 	},
  	{
  		I2C_BOARD_INFO("24c256", 0x50),
 -		.platform_data	= &eeprom_info,
 +		.properties = eeprom_properties,
  	},
  	{
- 		I2C_BOARD_INFO("tlv320aic3x", 0x18),
+ 		I2C_BOARD_INFO("tlv320aic33", 0x1b),
 -- 
 2.19.1
