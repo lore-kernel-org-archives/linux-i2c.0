@@ -1,71 +1,55 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: dev: prevent adapter retries and timeout being set
- as minus value
-Date: Tue, 8 Jan 2019 20:37:39 +0100
-Message-ID: <20190108193739.owmxiosvgtl3nufk@ninjato>
-References: <1546864661-19407-1-git-send-email-yizeng@asrmicro.com>
+Subject: Re: [PATCH V4] i2c: tegra: Fix Maximum transfer size
+Date: Tue, 8 Jan 2019 20:41:51 +0100
+Message-ID: <20190108194151.pdkmxp3m34k5crpf@ninjato>
+References: <1546560767-9559-1-git-send-email-skomatineni@nvidia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="q27njlkdxmceqiql"
+        protocol="application/pgp-signature"; boundary="3ta4ucdpp3gpb63o"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1546864661-19407-1-git-send-email-yizeng@asrmicro.com>
+In-Reply-To: <1546560767-9559-1-git-send-email-skomatineni@nvidia.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Yi Zeng <yizeng@asrmicro.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Sowjanya Komatineni <skomatineni@nvidia.com>
+Cc: thierry.reding@gmail.com, jonathanh@nvidia.com, talho@nvidia.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---q27njlkdxmceqiql
+--3ta4ucdpp3gpb63o
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 07, 2019 at 08:37:41PM +0800, Yi Zeng wrote:
-> If set adapter->retries to minus value from user space via ioctl,
-> will make __i2c_transfer and __i2c_smbus_xfer jump the calling to
-> adapter->algo->master_xfer and adapter->algo->smbus_xfer that
-> registered by the underlying bus drivers, and return value 0 to
-> all the callers. The bus driver will never be accessed anymore by
-> all users, besides, the users may still get successful return value
-> without any error or information log print out.
+On Thu, Jan 03, 2019 at 04:12:47PM -0800, Sowjanya Komatineni wrote:
+> Tegra194 supports maximum 64K Bytes transfer per packet.
+> Tegra186 and prior supports maximum 4K Bytes transfer per packet.
 >=20
-> If set adapter->timeout to minus value from user space via ioctl,
-> will make the retrying loop in __i2c_transfer and __i2c_smbus_xfer
-> always break after the the first try, due to the time_after always
-> returns true.
+> This patch fixes this payload difference between Tegra194 and prior
+> tegra chipsets using separate i2c_adapter_quirks.
 >=20
-> Signed-off-by: Yi Zeng <yizeng@asrmicro.com>
+> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
 
-Please run checkpatch.pl on your patch. It found two issues:
-
-ERROR: code indent should use tabs where possible
-#34: FILE: drivers/i2c/i2c-dev.c:480:
-+                        return -EINVAL;$
-
-WARNING: please, no spaces at the start of a line
-#34: FILE: drivers/i2c/i2c-dev.c:480:
-+                        return -EINVAL;$
+Looks good, but doesn't apply. Can you rebase to 5.0-rc1?
 
 
---q27njlkdxmceqiql
+--3ta4ucdpp3gpb63o
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlw0+/8ACgkQFA3kzBSg
-KbYSshAAnzZE+HczY3uslaNw5nyyKYc2JLsI7ZTagqp+o9IlSBoR4uafDBPuK76A
-8MotMFyvQo/C3D5wu4WL6GWqj28mk7rUDm5x++Xk2uNDqiiBj7huAIO/bYs24ny8
-QJhyNrzUIZvVBkYyurRbnxV0NlaStkmGKu7DRFvfBmaRWQPSXl3V9DpHnNwRggq6
-GEYMFfIoCxjYW3L2qB3RPk/LleUdX1DYz3xTtFc38hjbqrUdz+9OMhHK68SQgF2o
-rUbRkqQtkGHJTE/1F3C7h/L2q43Xdk4X7gmzN4xbf7jlI/lq6/5Cwr6x1l9AnvjE
-wojV4C5TVucFJPpmLTP4OjwVd0VQiZVshnkBzl71KlZImphP/74nMtBwUtb+mDPi
-3+VBcDNcce6X1eBvyZ1+SKZgQ/3fMsmujy6TsRMfNwBYeO+w+0Ni6CQiS4CwqlaC
-r7YQjKYr7ObRhOoqjrB4ehmHXci33H27FrJ2/OE0F47xy/KpgkzLnAZE3lE2rahL
-nLUhgGE1OH8cxENq8tKRLzAv9h7w5yQmFI0EAJFdjpt5xmXeN/nZP5BUKWT+D2Bh
-LgbNAfo5ni/y8wlG2N5oWS8iXKjWpuG8gXSMO7/2zLAgfrbS8tzyxEnZ/gasnZOG
-LBXjjStQIkjPQHafPl0vtZSVOTmu7vjlWE+v11bw0RTTxN0TaNc=
-=vTwj
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlw0/P8ACgkQFA3kzBSg
+KbbIww/+I/rnCg+P7ofEkUHAUoVDMlqgJnUoxTyyIK9Oq1QAShIbDH7mfFDXm5Yx
+iPjZwK/rpxUGNu2qUCSi8KI2WCVfZgZvfZv6tFVj20Yc92E4PVd1ztHcoqXgCYDD
+OOhNyTMjdWJGZXOv1te9N5UMfLGnD5H/3u509AbHC7Rdu+/k3yrN8sNmZZ2bbmZM
+r2Wy5RgRcGAV+5TSdmgPDM67iKrt8mhxFe/3n2FiUThSsXZjQqS/TN57hDNFLwkW
+cTAKojJ8CthHkcXdp3+x0DFkW0CO/bmho2VBCur6ASG9xm7yePPLQ/m5nXw8hWWk
+fcolqKORMmaRY89yLWPUIXpDjFRpOw1gL1mRJL8/MkBwRXnTARYOqQhgSJBMa1iS
+Gnve28vS3jInDy/usyD6qRBcJyxvE9D/wJXkTC9UcUrcm5eeu76+3QB2TUwwG2Hc
+fvi8ehvmg29m9ylSQWWakhvBYKKCSVJs6JV0lmwa1hpaQ0bJukARfwHBGHh1d6Qp
+xE5Jcll4yr208A5HxJqjaWIi9fbZF8u/2k+JJR3MB0zrGX1M7ULmG8bsiJ77eUCb
+r8hFOk0kiRQkKIOwAhirpnE8UKOvEvyQIvKCKzFE8/c4nIqAoVhGXr26zbrI3Cyl
+4b0PN64nQ/Kq+wA+RSm8DpjY24haVcH9gSfAEvEMyrvOhZDAHoE=
+=pV27
 -----END PGP SIGNATURE-----
 
---q27njlkdxmceqiql--
+--3ta4ucdpp3gpb63o--
