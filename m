@@ -1,98 +1,69 @@
-From: Ray Jui <ray.jui@broadcom.com>
-Subject: Re: [PATCH 0/8] Add IPROC I2C slave mode and NIC I2C support
-Date: Wed, 9 Jan 2019 10:27:59 -0800
-Message-ID: <44deeaef-a9b8-9ce1-d6b8-76d99a53cd4f@broadcom.com>
-References: <1546938997-13798-1-git-send-email-rayagonda.kokatanur@broadcom.com>
- <6a5380e3-1e15-31e3-bbaa-134856a0c2dc@broadcom.com>
- <CAHO=5PG3NnYqoSyZ9u9kN1m7KagtKv275tpWj6s8NXvzhj52fQ@mail.gmail.com>
+From: Yauhen Kharuzhy <jekhor@gmail.com>
+Subject: Re: [PATCH 2/2] i2c: Clear client->irq in i2c_device_remove
+Date: Thu, 10 Jan 2019 00:47:56 +0300
+Message-ID: <20190109214756.GA18115@jeknote.loshitsa1.net>
+References: <20181019085958.32694-1-ckeepax@opensource.cirrus.com>
+ <20181019085958.32694-2-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAHO=5PG3NnYqoSyZ9u9kN1m7KagtKv275tpWj6s8NXvzhj52fQ@mail.gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20181019085958.32694-2-ckeepax@opensource.cirrus.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Cc: Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Shreesha Rajashekar <shreesha.rajashekar@broadcom.com>, Michael Cheng <ccheng@broadcom.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com
+To: Charles Keepax <ckeepax@opensource.cirrus.com>
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Okay. Just noticed another thing. May I ask if you ran the
-'get_maintaimner.pl' script to figure out the 'To:' and 'Cc:'?
+On Fri, Oct 19, 2018 at 09:59:58AM +0100, Charles Keepax wrote:
+> The IRQ will be mapped in i2c_device_probe only if client->irq is zero and
+> i2c_device_remove does not clear this. When rebinding an I2C device,
+> whos IRQ provider has also been rebound this means that an IRQ mapping
+> will never be created, causing the I2C device to fail to acquire its
+> IRQ. Fix this issue by clearing client->irq in i2c_device_remove,
+> forcing i2c_device_probe to lookup the mapping again.
 
-I don't see Wolfram's name on on the To or Cc field of the emails you
-send out:
+Hi.
 
-Wolfram Sang <wsa@the-dreams.de>
+I found  driver i2c/busses/i2c-cht-wc.c which instantiates I2C device
+(battery charger) and passes IRQ to driver not using standard I2C IRQ mapping code.
+So if we reprobe I2C device (by reloading I2C device driver module or by
+manipulations with sysfs), we get invalid IRQ number for client:
 
-6845 I2C SUBSYSTEM
-6846 M:      Wolfram Sang <wsa@the-dreams.de>
-6847 L:      linux-i2c@vger.kernel.org
+ adap->client_irq = irq_create_mapping(adap->irq_domain, 0);
+ ...
+ irq_set_chip_data(adap->client_irq, adap);
+ irq_set_chip_and_handler(adap->client_irq, &adap->irqchip, handle_simple_irq);
+ ...
+ board_info.irq = adap->client_irq;
+ adap->client = i2c_new_device(&adap->adapter, &board_info);
 
 
-Thanks,
+adap->client->irq will be reset after device removing here.
 
-Ray
 
-On 1/8/2019 6:15 PM, Rayagonda Kokatanur wrote:
-> Sorry for confusion. I made mistake in adding bcm-kernel-feedback-list
-> while sending patch. Hence sent same patch set with updated email list. 
+Any advice to fix this? Maybe move initial i2c_client->irq value to new field
+like client->init_irq and copy it to client->irq at probing, for example?
+
 > 
-> Best regards,
-> Rayagonda
+> Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>  drivers/i2c/i2c-core-base.c | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> 
-> 
-> On Jan 8, 2019 10:55 PM, "Ray Jui" <ray.jui@broadcom.com
-> <mailto:ray.jui@broadcom.com>> wrote:
-> 
->     You sent out the same patch series 3 times without any explanation. Very
->     confusing.
-> 
->     Is this the latest one that should be reviewed?
-> 
->     Thanks,
-> 
->     Ray
-> 
-> 
->     On 1/8/2019 1:16 AM, Rayagonda Kokatanur wrote:
->     > Hi,
->     > This patchset contains support for IPROC I2C slave and NIC I2C
->     support.
->     > Following are the brief changes done inorder to support both IPROC I2C
->     > slave mode and NIC I2C,
->     >
->     > a. Add support to allow I2C rx transfer upto 255 bytes
->     > b. Add polling mode support to the iProc I2C driver. Polling mode
->     is used
->     >    in certain SoCs where interrupt is not connected from the I2C
->     block.
->     > c. Add warpper read/write access for register to support indirect
->     register
->     >    access. This is required in certain SoCs with this iProc I2C
->     >    block registered.
->     >
->     >
->     > Ray Jui (1):
->     >   dt-bindings: i2c: iproc: make 'interrupts' optional
->     >
->     > Rayagonda Kokatanur (5):
->     >   i2c: iproc: add polling support
->     >   i2c: iproc: use wrapper for read/write access
->     >   dt-bindings: i2c: iproc: add "brcm,iproc-nic-i2c" compatible string
->     >   i2c: iproc: add NIC I2C support
->     >   arm64: dts: Stingray: Add NIC i2c device node
->     >
->     > Shreesha Rajashekar (2):
->     >   i2c: iproc: I2C read up to 255 bytes support
->     >   i2c: iproc: Add Slave mode support
->     >
->     >  .../devicetree/bindings/i2c/brcm,iproc-i2c.txt     |  14 +-
->     >  .../arm64/boot/dts/broadcom/stingray/stingray.dtsi |  18 +
->     >  drivers/i2c/busses/Kconfig                         |   1 +
->     >  drivers/i2c/busses/i2c-bcm-iproc.c                 | 767
->     +++++++++++++++++----
->     >  4 files changed, 669 insertions(+), 131 deletions(-)
->     >
-> 
-> 
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index 656f0a6fe3adf..28460f6a60cc1 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -430,6 +430,8 @@ static int i2c_device_remove(struct device *dev)
+>  	dev_pm_clear_wake_irq(&client->dev);
+>  	device_init_wakeup(&client->dev, false);
+>  
+> +	client->irq = 0;
+> +
+>  	return status;
+>  }
+>  
+
+-- 
+Yauhen Kharuzhy
