@@ -1,47 +1,52 @@
-From: Oleksij Rempel <o.rempel@pengutronix.de>
-Subject: [PATCH v5 0/2] i2c: imx: rework imx error handling.
-Date: Wed,  9 Jan 2019 06:56:48 +0100
-Message-ID: <20190109055650.32259-1-o.rempel@pengutronix.de>
+From: Yi Zeng <yizeng@asrmicro.com>
+Subject: [PATCH v3] i2c: dev: prevent adapter retries and timeout being set as minus value
+Date: Wed, 9 Jan 2019 15:33:07 +0800
+Message-ID: <e0fba81c63e03b58e15143638f0cc42678d07c61.1547018829.git.yizeng@asrmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Oleksij Rempel <o.rempel@pengutronix.de>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, linux-arm-kernel@lists.infradead.org, NXP Linux Team <linux-imx@nxp.com>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Yi Zeng <yizeng@asrmicro.com>
 List-Id: linux-i2c@vger.kernel.org
 
-changes:
-20190109 v5:
- - reword comments.
- - realign
+If set adapter->retries to minus value from user space via ioctl,
+will make __i2c_transfer and __i2c_smbus_xfer jump the calling to
+adapter->algo->master_xfer and adapter->algo->smbus_xfer that
+registered by the underlying bus drivers, and return value 0 to
+all the callers. The bus driver will never be accessed anymore by
+all users, besides, the users may still get successful return value
+without any error or information log print out.
 
-20190107 v4:
- - split one patch to separate patches
- - revert back devm_free(), we need it for -ENODEV case.
- - reword comments.
+If set adapter->timeout to minus value from user space via ioctl,
+will make the retrying loop in __i2c_transfer and __i2c_smbus_xfer
+always break after the the first try, due to the time_after always
+returns true.
 
-20181130 v3:
- - reword commit message 
-20181112 v2:
- - drop "[PATCH v1 2/3] i2c: imx: probe dma only only on i.MX50 and
-   later" and rebase without this patch.
- - Set proper initial author
+Signed-off-by: Yi Zeng <yizeng@asrmicro.com>
+---
+ drivers/i2c/i2c-dev.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Oleksij Rempel (2):
-  i2c: imx: notify about real errors on dma i2c_imx_dma_request
-  i2c: imx: improve the error handling in i2c_imx_dma_request()
-
- drivers/i2c/busses/i2c-imx.c | 37 +++++++++++++++++++++---------------
- 1 file changed, 22 insertions(+), 15 deletions(-)
-
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index 1aca742..ccd76c7 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -470,9 +470,15 @@ static long i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 					  data_arg.data);
+ 	}
+ 	case I2C_RETRIES:
++		if (arg > INT_MAX)
++			return -EINVAL;
++
+ 		client->adapter->retries = arg;
+ 		break;
+ 	case I2C_TIMEOUT:
++		if (arg > INT_MAX)
++			return -EINVAL;
++
+ 		/* For historical reasons, user-space sets the timeout
+ 		 * value in units of 10 ms.
+ 		 */
 -- 
-2.19.1
+1.9.1
