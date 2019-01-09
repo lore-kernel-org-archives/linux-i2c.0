@@ -1,184 +1,73 @@
-From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: [RFC 3/4] media: dt-bindings: add DS90UB954-Q1 video deserializer
-Date: Tue,  8 Jan 2019 23:39:52 +0100
-Message-ID: <20190108223953.9969-4-luca@lucaceresoli.net>
-References: <20190108223953.9969-1-luca@lucaceresoli.net>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190108223953.9969-1-luca@lucaceresoli.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-media@vger.kernel.org
-Cc: Luca Ceresoli <luca@lucaceresoli.net>, Kieran Bingham <kieran.bingham@ideasonboard.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, jacopo mondi <jacopo@jmondi.org>, Vladimir Zapolskiy <vz@mleia.com>, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, Mauro Carvalho Chehab <mchehab@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+From: Oleksij Rempel <o.rempel@pengutronix.de>
+Subject: [PATCH v5 1/2] i2c: imx: notify about real errors on dma
+ i2c_imx_dma_request
+Date: Wed,  9 Jan 2019 06:56:49 +0100
+Message-ID: <20190109055650.32259-2-o.rempel@pengutronix.de>
+References: <20190109055650.32259-1-o.rempel@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190109055650.32259-1-o.rempel@pengutronix.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, linux-arm-kernel@lists.infradead.org, NXP Linux Team <linux-imx@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This is a first, tentative DT layout to describe a 2-input video
-deserializer with I2C Address Translator and remote GPIOs.
-
-NOTES / TODO:
- * This GPIOs representation is not realistic, it has been used only
-   to test that thing work. It shall be rewritten properly.
-
-Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
----
- .../bindings/media/ti,ds90ub954-q1.txt        | 151 ++++++++++++++++++
- 1 file changed, 151 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/media/ti,ds90ub954-q1.txt
-
-diff --git a/Documentation/devicetree/bindings/media/ti,ds90ub954-q1.txt b/Documentation/devicetree/bindings/media/ti,ds90ub954-q1.txt
-new file mode 100644
-index 000000000000..3024ef2df100
---- /dev/null
-+++ b/Documentation/devicetree/bindings/media/ti,ds90ub954-q1.txt
-@@ -0,0 +1,151 @@
-+Texas Instruments DS90UB954-Q1 dual video Deserializer
-+======================================================
-+
-+Required properties:
-+
-+ - compatible: must be "ti,ds90ub954-q1"
-+ - reg: I2C bus address of the chip (0x30..0xdd, based on strapping options)
-+ - reset-gpios: chip reset GPIO, active low (connected to PDB pin of the chip)
-+ - i2c-alias-pool: list of I2C addresses that are known to be available on the
-+                   "local" (SoC-to-deser) I2C bus; they will be picked at
-+		   runtime and used as aliases to reach remove I2C chips
-+
-+
-+Required subnodes:
-+ - ports: A ports node with one port child node per device input and output
-+          port, in accordance with the video interface bindings defined in
-+          Documentation/devicetree/bindings/media/video-interfaces.txt. The
-+          port nodes are numbered as follows:
-+
-+          Port Description
-+          -----------------------------
-+          0    Input from FPD-Link 3 RX port 0
-+          1    Input from FPD-Link 3 RX port 1
-+          2    CSI-2 output
-+ - gpios: *** this is a temporary test implementation, ignore it
-+ - i2c-mux: contains one child per RX port, each generates an I2C adapter
-+            representing the I2C bus on the remote side
-+ - rxports: contains one child per RX port, each describes one FPD-Link 3 port
-+            with these fields:
-+	    - reg: the RX port index
-+	    - ser-i2c-alias: the alias to access the remore serializer from
-+	      the local bus
-+	    - bc-gpio-map: maps backchannel GPIO numbers to local GPIO inputs
-+	                   with pairs <fpd_gpio_number gpio_node>
-+			   (TODO change when reimplementing the gpios subnode)
-+
-+
-+Device node example
-+-------------------
-+
-+&i2c0 {
-+	deser@3d {
-+		reg = <0x3d>;
-+		compatible = "ti,ds90ub954-q1";
-+		reset-gpios = <&gpio1 2 0>;
-+
-+		i2c-alias-pool = /bits/ 16 <0x20 0x21 0x22 0x23 0x24 0x25>;
-+
-+		ports {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			port@0 {
-+				reg = <0>;
-+				ds90ub954_fpd3_in0: endpoint {
-+					remote-endpoint = <&remote_sensor_0_out>;
-+				};
-+			};
-+
-+			// TODO enable both ports (and s/1/2/g in th MIPI port below)
-+			// port@1 {
-+			// 	reg = <1>;
-+			// 	ds90ub954_fpd3_in1: endpoint {
-+			// 		remote-endpoint = <&remote_sensor_1_out>;
-+			// 	};
-+			// };
-+
-+			port@1 {
-+				reg = <1>;
-+				ds90ub954_mipi_out0: endpoint {
-+					data-lanes = <1 2 3 4>;
-+					remote-endpoint = <&csirx_0_in>;
-+				};
-+			};
-+		};
-+
-+		gpios {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			// From sensor to CPU
-+			gpio@0 {
-+				reg = <0>;
-+				output;
-+				source = <0>; // RX port 0
-+				function = <0>;
-+			};
-+
-+			// CPU to sensor reset, active low
-+			remote_sensor1_reset: gpio@1 {
-+				reg = <1>;
-+				input;
-+			};
-+		};
-+
-+		i2c-mux {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			remote_i2c0: i2c@0 {
-+				reg = <0>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+				clock-frequency = <400000>;
-+			};
-+
-+			remote_i2c1: i2c@1 {
-+				reg = <1>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+				clock-frequency = <400000>;
-+			};
-+		};
-+
-+		rxports {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			rxport@0 {
-+				reg = <0>;
-+				ser-i2c-alias = <0x3e>;
-+
-+				/* Map BC GPIO numbers to local GPIO inputs */
-+				bc-gpio-map = <1 &remote_sensor1_reset>;
-+			};
-+
-+			rxport@1 {
-+				reg = <1>;
-+				ser-i2c-alias = <0x3f>;
-+			};
-+		};
-+	};
-+};
-+
-+&remote_i2c0 {
-+	remote_sensor0@1a {
-+		reg = <0x1a>;
-+		compatible = "sony,imx274";
-+
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		reset-gpios = <&gpio1 4 0>;
-+
-+		port@0 {
-+			reg = <0>;
-+			remote_sensor_0_out: endpoint {
-+				remote-endpoint = <&ds90ub954_fpd3_in0>;
-+			};
-+		};
-+	};
-+};
--- 
-2.17.1
+QXQgbGVhc3Qgb24gaS5NWDV4LCB0aGUgRE1BIGV2ZW50cyBmb3IgSTJDIGFuZCBTREhDIHVzZSB0
+aGUgc2FtZSBjaGFubmVsCmFuZCB0aGVyZSBjYW4gb25seSBiZSBhIHNpbmdsZSB1c2VyLiBTbyBp
+biB0aGlzIGNhc2UgdGhlcmUgc2hvdWxkIGJlIG5vCm1lc3NhZ2UgZW1pdHRlZCB0aGF0IGxvb2tz
+IGxpa2UgYW4gZXJyb3IgaWYgdGhlIEkyQyBkZXZpY2UgZG9lc24ndCBoYXZlCmFuIGFzc2lnbmVk
+IERNQSBjaGFubmVsLiBJbiBjb250cmFzdCByZWFsIHByb2JsZW1zIHRoYXQgd2VyZSBvbmx5CmVt
+aXR0ZWQgYXQgZGVidWcgbGV2ZWwgYmVmb3JlIHNob3VsZCBiZSBkZXNjcmliZWQgYXQgYSBoaWdo
+ZXIgbGV2ZWwKdG8gYmUgYmV0dGVyIHZpc2libGUgYW5kIHNvIHVuZGVyc3RhbmRhYmxlLgoKU2ln
+bmVkLW9mZi1ieTogT2xla3NpaiBSZW1wZWwgPG8ucmVtcGVsQHBlbmd1dHJvbml4LmRlPgpBY2tl
+ZC1ieTogVXdlIEtsZWluZS1Lw7ZuaWcgPHUua2xlaW5lLWtvZW5pZ0BwZW5ndXRyb25peC5kZT4K
+LS0tCiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5jIHwgMjEgKysrKysrKysrKysrLS0tLS0t
+LS0tCiAxIGZpbGUgY2hhbmdlZCwgMTIgaW5zZXJ0aW9ucygrKSwgOSBkZWxldGlvbnMoLSkKCmRp
+ZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5jIGIvZHJpdmVycy9pMmMvYnVz
+c2VzL2kyYy1pbXguYwppbmRleCBmYTlhZDUzODQ1ZDkuLmUyOGVmNDk0ZGFjOCAxMDA2NDQKLS0t
+IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pbXguYworKysgYi9kcml2ZXJzL2kyYy9idXNzZXMv
+aTJjLWlteC5jCkBAIC0yODUsOSArMjg1LDExIEBAIHN0YXRpYyB2b2lkIGkyY19pbXhfZG1hX3Jl
+cXVlc3Qoc3RydWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14LAogCWlmICghZG1hKQogCQlyZXR1
+cm47CiAKLQlkbWEtPmNoYW5fdHggPSBkbWFfcmVxdWVzdF9zbGF2ZV9jaGFubmVsKGRldiwgInR4
+Iik7Ci0JaWYgKCFkbWEtPmNoYW5fdHgpIHsKLQkJZGV2X2RiZyhkZXYsICJjYW4ndCByZXF1ZXN0
+IERNQSB0eCBjaGFubmVsXG4iKTsKKwlkbWEtPmNoYW5fdHggPSBkbWFfcmVxdWVzdF9jaGFuKGRl
+diwgInR4Iik7CisJaWYgKElTX0VSUihkbWEtPmNoYW5fdHgpKSB7CisJCXJldCA9IFBUUl9FUlIo
+ZG1hLT5jaGFuX3J4KTsKKwkJaWYgKHJldCAhPSAtRU5PREVWICYmIHJldCAhPSAtRVBST0JFX0RF
+RkVSKQorCQkJZGV2X2VycihkZXYsICJjYW4ndCByZXF1ZXN0IERNQSB0eCBjaGFubmVsICglZClc
+biIsIHJldCk7CiAJCWdvdG8gZmFpbF9hbDsKIAl9CiAKQEAgLTI5OCwxMyArMzAwLDE1IEBAIHN0
+YXRpYyB2b2lkIGkyY19pbXhfZG1hX3JlcXVlc3Qoc3RydWN0IGlteF9pMmNfc3RydWN0ICppMmNf
+aW14LAogCWRtYV9zY29uZmlnLmRpcmVjdGlvbiA9IERNQV9NRU1fVE9fREVWOwogCXJldCA9IGRt
+YWVuZ2luZV9zbGF2ZV9jb25maWcoZG1hLT5jaGFuX3R4LCAmZG1hX3Njb25maWcpOwogCWlmIChy
+ZXQgPCAwKSB7Ci0JCWRldl9kYmcoZGV2LCAiY2FuJ3QgY29uZmlndXJlIHR4IGNoYW5uZWxcbiIp
+OworCQlkZXZfZXJyKGRldiwgImNhbid0IGNvbmZpZ3VyZSB0eCBjaGFubmVsICglZClcbiIsIHJl
+dCk7CiAJCWdvdG8gZmFpbF90eDsKIAl9CiAKLQlkbWEtPmNoYW5fcnggPSBkbWFfcmVxdWVzdF9z
+bGF2ZV9jaGFubmVsKGRldiwgInJ4Iik7Ci0JaWYgKCFkbWEtPmNoYW5fcngpIHsKLQkJZGV2X2Ri
+ZyhkZXYsICJjYW4ndCByZXF1ZXN0IERNQSByeCBjaGFubmVsXG4iKTsKKwlkbWEtPmNoYW5fcngg
+PSBkbWFfcmVxdWVzdF9jaGFuKGRldiwgInJ4Iik7CisJaWYgKElTX0VSUihkbWEtPmNoYW5fcngp
+KSB7CisJCXJldCA9IFBUUl9FUlIoZG1hLT5jaGFuX3J4KTsKKwkJaWYgKHJldCAhPSAtRU5PREVW
+ICYmIHJldCAhPSAtRVBST0JFX0RFRkVSKQorCQkJZGV2X2VycihkZXYsICJjYW4ndCByZXF1ZXN0
+IERNQSByeCBjaGFubmVsICglZClcbiIsIHJldCk7CiAJCWdvdG8gZmFpbF90eDsKIAl9CiAKQEAg
+LTMxNSw3ICszMTksNyBAQCBzdGF0aWMgdm9pZCBpMmNfaW14X2RtYV9yZXF1ZXN0KHN0cnVjdCBp
+bXhfaTJjX3N0cnVjdCAqaTJjX2lteCwKIAlkbWFfc2NvbmZpZy5kaXJlY3Rpb24gPSBETUFfREVW
+X1RPX01FTTsKIAlyZXQgPSBkbWFlbmdpbmVfc2xhdmVfY29uZmlnKGRtYS0+Y2hhbl9yeCwgJmRt
+YV9zY29uZmlnKTsKIAlpZiAocmV0IDwgMCkgewotCQlkZXZfZGJnKGRldiwgImNhbid0IGNvbmZp
+Z3VyZSByeCBjaGFubmVsXG4iKTsKKwkJZGV2X2VycihkZXYsICJjYW4ndCBjb25maWd1cmUgcngg
+Y2hhbm5lbCAoJWQpXG4iLCByZXQpOwogCQlnb3RvIGZhaWxfcng7CiAJfQogCkBAIC0zMzIsNyAr
+MzM2LDYgQEAgc3RhdGljIHZvaWQgaTJjX2lteF9kbWFfcmVxdWVzdChzdHJ1Y3QgaW14X2kyY19z
+dHJ1Y3QgKmkyY19pbXgsCiAJZG1hX3JlbGVhc2VfY2hhbm5lbChkbWEtPmNoYW5fdHgpOwogZmFp
+bF9hbDoKIAlkZXZtX2tmcmVlKGRldiwgZG1hKTsKLQlkZXZfaW5mbyhkZXYsICJjYW4ndCB1c2Ug
+RE1BLCB1c2luZyBQSU8gaW5zdGVhZC5cbiIpOwogfQogCiBzdGF0aWMgdm9pZCBpMmNfaW14X2Rt
+YV9jYWxsYmFjayh2b2lkICphcmcpCi0tIAoyLjE5LjEKCgpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdAps
+aW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVh
+ZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
