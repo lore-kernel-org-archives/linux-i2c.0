@@ -1,14 +1,11 @@
 From: Oleksij Rempel <o.rempel@pengutronix.de>
-Subject: [PATCH v5 2/2] i2c: imx: improve the error handling in
- i2c_imx_dma_request()
-Date: Wed,  9 Jan 2019 06:56:50 +0100
-Message-ID: <20190109055650.32259-3-o.rempel@pengutronix.de>
-References: <20190109055650.32259-1-o.rempel@pengutronix.de>
+Subject: [PATCH v5 0/2] i2c: imx: rework imx error handling.
+Date: Wed,  9 Jan 2019 06:56:48 +0100
+Message-ID: <20190109055650.32259-1-o.rempel@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190109055650.32259-1-o.rempel@pengutronix.de>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -22,48 +19,29 @@ To: Wolfram Sang <wsa@the-dreams.de>, Shawn Guo <shawnguo@kernel.org>, Sascha Ha
 Cc: Oleksij Rempel <o.rempel@pengutronix.de>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, linux-arm-kernel@lists.infradead.org, NXP Linux Team <linux-imx@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-SW1wcm92ZSB0aGUgZXJyb3IgaGFuZGxpbmcgaW4gaTJjX2lteF9kbWFfcmVxdWVzdCgpIGFuZCBs
-ZXQgaXQgcmV0dXJuIGFuIGVycm9yCmluZGljYXRpb24gdGhhdCB0aGUgY2FsbGVyIHRoZW4gY2Fu
-IGhhbmRsZSBhY2NvcmRpbmdseS4KClNpZ25lZC1vZmYtYnk6IE9sZWtzaWogUmVtcGVsIDxvLnJl
-bXBlbEBwZW5ndXRyb25peC5kZT4KQWNrZWQtYnk6IFV3ZSBLbGVpbmUtS8O2bmlnIDx1LmtsZWlu
-ZS1rb2VuaWdAcGVuZ3V0cm9uaXguZGU+Ci0tLQogZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pbXgu
-YyB8IDE2ICsrKysrKysrKystLS0tLS0KIDEgZmlsZSBjaGFuZ2VkLCAxMCBpbnNlcnRpb25zKCsp
-LCA2IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14
-LmMgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5jCmluZGV4IGUyOGVmNDk0ZGFjOC4uMDli
-MTI0NTQ3NjY5IDEwMDY0NAotLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5jCisrKyBi
-L2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMKQEAgLTI3Myw4ICsyNzMsOCBAQCBzdGF0aWMg
-aW5saW5lIHVuc2lnbmVkIGNoYXIgaW14X2kyY19yZWFkX3JlZyhzdHJ1Y3QgaW14X2kyY19zdHJ1
-Y3QgKmkyY19pbXgsCiB9CiAKIC8qIEZ1bmN0aW9ucyBmb3IgRE1BIHN1cHBvcnQgKi8KLXN0YXRp
-YyB2b2lkIGkyY19pbXhfZG1hX3JlcXVlc3Qoc3RydWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14
-LAotCQkJCQkJZG1hX2FkZHJfdCBwaHlfYWRkcikKK3N0YXRpYyBpbnQgaTJjX2lteF9kbWFfcmVx
-dWVzdChzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QgKmkyY19pbXgsCisJCQkgICAgICAgZG1hX2FkZHJf
-dCBwaHlfYWRkcikKIHsKIAlzdHJ1Y3QgaW14X2kyY19kbWEgKmRtYTsKIAlzdHJ1Y3QgZG1hX3Ns
-YXZlX2NvbmZpZyBkbWFfc2NvbmZpZzsKQEAgLTI4Myw3ICsyODMsNyBAQCBzdGF0aWMgdm9pZCBp
-MmNfaW14X2RtYV9yZXF1ZXN0KHN0cnVjdCBpbXhfaTJjX3N0cnVjdCAqaTJjX2lteCwKIAogCWRt
-YSA9IGRldm1fa3phbGxvYyhkZXYsIHNpemVvZigqZG1hKSwgR0ZQX0tFUk5FTCk7CiAJaWYgKCFk
-bWEpCi0JCXJldHVybjsKKwkJcmV0dXJuIC1FTk9NRU07CiAKIAlkbWEtPmNoYW5fdHggPSBkbWFf
-cmVxdWVzdF9jaGFuKGRldiwgInR4Iik7CiAJaWYgKElTX0VSUihkbWEtPmNoYW5fdHgpKSB7CkBA
-IC0zMjgsNyArMzI4LDcgQEAgc3RhdGljIHZvaWQgaTJjX2lteF9kbWFfcmVxdWVzdChzdHJ1Y3Qg
-aW14X2kyY19zdHJ1Y3QgKmkyY19pbXgsCiAJZGV2X2luZm8oZGV2LCAidXNpbmcgJXMgKHR4KSBh
-bmQgJXMgKHJ4KSBmb3IgRE1BIHRyYW5zZmVyc1xuIiwKIAkJZG1hX2NoYW5fbmFtZShkbWEtPmNo
-YW5fdHgpLCBkbWFfY2hhbl9uYW1lKGRtYS0+Y2hhbl9yeCkpOwogCi0JcmV0dXJuOworCXJldHVy
-biAwOwogCiBmYWlsX3J4OgogCWRtYV9yZWxlYXNlX2NoYW5uZWwoZG1hLT5jaGFuX3J4KTsKQEAg
-LTMzNiw2ICszMzYsOCBAQCBzdGF0aWMgdm9pZCBpMmNfaW14X2RtYV9yZXF1ZXN0KHN0cnVjdCBp
-bXhfaTJjX3N0cnVjdCAqaTJjX2lteCwKIAlkbWFfcmVsZWFzZV9jaGFubmVsKGRtYS0+Y2hhbl90
-eCk7CiBmYWlsX2FsOgogCWRldm1fa2ZyZWUoZGV2LCBkbWEpOworCS8qIHJldHVybiBzdWNjZXNz
-ZnVsbHkgaWYgdGhlcmUgaXMgbm8gZG1hIHN1cHBvcnQgKi8KKwlyZXR1cm4gcmV0ID09IC1FTk9E
-RVYgPyAwIDogcmV0OwogfQogCiBzdGF0aWMgdm9pZCBpMmNfaW14X2RtYV9jYWxsYmFjayh2b2lk
-ICphcmcpCkBAIC0xMTYzLDExICsxMTY1LDEzIEBAIHN0YXRpYyBpbnQgaTJjX2lteF9wcm9iZShz
-dHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQogCWRldl9kYmcoJmkyY19pbXgtPmFkYXB0ZXIu
-ZGV2LCAiZGV2aWNlIHJlc291cmNlczogJXBSXG4iLCByZXMpOwogCWRldl9kYmcoJmkyY19pbXgt
-PmFkYXB0ZXIuZGV2LCAiYWRhcHRlciBuYW1lOiBcIiVzXCJcbiIsCiAJCWkyY19pbXgtPmFkYXB0
-ZXIubmFtZSk7Ci0JZGV2X2luZm8oJmkyY19pbXgtPmFkYXB0ZXIuZGV2LCAiSU1YIEkyQyBhZGFw
-dGVyIHJlZ2lzdGVyZWRcbiIpOwogCiAJLyogSW5pdCBETUEgY29uZmlnIGlmIHN1cHBvcnRlZCAq
-LwotCWkyY19pbXhfZG1hX3JlcXVlc3QoaTJjX2lteCwgcGh5X2FkZHIpOworCXJldCA9IGkyY19p
-bXhfZG1hX3JlcXVlc3QoaTJjX2lteCwgcGh5X2FkZHIpOworCWlmIChyZXQgPCAwKQorCQlnb3Rv
-IGNsa19ub3RpZmllcl91bnJlZ2lzdGVyOwogCisJZGV2X2luZm8oJmkyY19pbXgtPmFkYXB0ZXIu
-ZGV2LCAiSU1YIEkyQyBhZGFwdGVyIHJlZ2lzdGVyZWRcbiIpOwogCXJldHVybiAwOyAgIC8qIFJl
-dHVybiBPSyAqLwogCiBjbGtfbm90aWZpZXJfdW5yZWdpc3RlcjoKLS0gCjIuMTkuMQoKCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJu
-ZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRw
-Oi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
+changes:
+20190109 v5:
+ - reword comments.
+ - realign
+
+20190107 v4:
+ - split one patch to separate patches
+ - revert back devm_free(), we need it for -ENODEV case.
+ - reword comments.
+
+20181130 v3:
+ - reword commit message 
+20181112 v2:
+ - drop "[PATCH v1 2/3] i2c: imx: probe dma only only on i.MX50 and
+   later" and rebase without this patch.
+ - Set proper initial author
+
+Oleksij Rempel (2):
+  i2c: imx: notify about real errors on dma i2c_imx_dma_request
+  i2c: imx: improve the error handling in i2c_imx_dma_request()
+
+ drivers/i2c/busses/i2c-imx.c | 37 +++++++++++++++++++++---------------
+ 1 file changed, 22 insertions(+), 15 deletions(-)
+
+-- 
+2.19.1
