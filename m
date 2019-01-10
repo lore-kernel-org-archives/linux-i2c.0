@@ -1,60 +1,78 @@
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: Re: [PATCH 2/2] i2c: Clear client->irq in i2c_device_remove
-Date: Thu, 10 Jan 2019 13:32:36 +0000
-Message-ID: <20190110133236.GC3837@imbe.wolfsonmicro.main>
-References: <20181019085958.32694-1-ckeepax@opensource.cirrus.com>
- <20181019085958.32694-2-ckeepax@opensource.cirrus.com>
- <20190109214756.GA18115@jeknote.loshitsa1.net>
+From: Sekhar Nori <nsekhar@ti.com>
+Subject: Re: [RESEND PATCH 00/12] eeprom: at24: remove platform_data
+Date: Thu, 10 Jan 2019 19:43:47 +0530
+Message-ID: <8c190cf3-b4f3-90d0-07ce-4bb7927160df@ti.com>
+References: <20190108091539.16674-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190109214756.GA18115@jeknote.loshitsa1.net>
+In-Reply-To: <20190108091539.16674-1-brgl@bgdev.pl>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Yauhen Kharuzhy <jekhor@gmail.com>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, patches@opensource.cirrus.com
+To: Bartosz Golaszewski <brgl@bgdev.pl>, Kevin Hilman <khilman@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jan 10, 2019 at 12:47:56AM +0300, Yauhen Kharuzhy wrote:
-> On Fri, Oct 19, 2018 at 09:59:58AM +0100, Charles Keepax wrote:
-> > The IRQ will be mapped in i2c_device_probe only if client->irq is zero and
-> > i2c_device_remove does not clear this. When rebinding an I2C device,
-> > whos IRQ provider has also been rebound this means that an IRQ mapping
-> > will never be created, causing the I2C device to fail to acquire its
-> > IRQ. Fix this issue by clearing client->irq in i2c_device_remove,
-> > forcing i2c_device_probe to lookup the mapping again.
-> 
-> Hi.
-> 
-> I found  driver i2c/busses/i2c-cht-wc.c which instantiates I2C device
-> (battery charger) and passes IRQ to driver not using standard I2C IRQ mapping code.
-> So if we reprobe I2C device (by reloading I2C device driver module or by
-> manipulations with sysfs), we get invalid IRQ number for client:
-> 
->  adap->client_irq = irq_create_mapping(adap->irq_domain, 0);
->  ...
->  irq_set_chip_data(adap->client_irq, adap);
->  irq_set_chip_and_handler(adap->client_irq, &adap->irqchip, handle_simple_irq);
->  ...
->  board_info.irq = adap->client_irq;
->  adap->client = i2c_new_device(&adap->adapter, &board_info);
-> 
-> 
-> adap->client->irq will be reset after device removing here.
-> 
-> 
-> Any advice to fix this? Maybe move initial i2c_client->irq value to new field
-> like client->init_irq and copy it to client->irq at probing, for example?
-> 
+Hi Bartosz,
 
-Could you be a little more specific here, are you saying if you
-reprobe the battery charger device or if you reprobe the I2C
-controller itself?
+On 08/01/19 2:45 PM, Bartosz Golaszewski wrote:
+> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> 
+> Hi Sekhar,
+> 
+> now that all dependencies are in and v5.0-rc1 is tagged, please consider
+> picking up the second batch of davinci-specific changes into your tree.
+> Once that's done, please provide me with an immutable branch for me to
+> apply the last patch to my at24 tree.
 
-Apologies but I am having a little difficulty working out the
-path through which the IRQ is not reinitialised. As I would have
-through the battery chargers probe would have reset up the IRQ
-then the core would pick it up again from there.
+You can use branch v5.1/eeprom-for-bartosz in my tree for this (commit
+e430685f4969).
+
+> 
+> This is the second part of the effort to modernize the at24 driver and
+> remove the legacy platform data structure in favor of device properties.
+> It required getting rid of the at24 setup callback in favor of nvmem
+> lookups.
+> 
+> Re-tested with da850-evm and dm365-evm.
+
+Applied patches 1-11 for v5.1
 
 Thanks,
-Charles
+Sekhar
+
+> 
+> Bartosz Golaszewski (12):
+>   ARM: davinci: da850-evm: remove dead MTD code
+>   ARM: davinci: mityomapl138: don't read the MAC address from machine
+>     code
+>   ARM: davinci: dm365-evm: use device properties for at24 eeprom
+>   ARM: davinci: da830-evm: use device properties for at24 eeprom
+>   ARM: davinci: dm644x-evm: use device properties for at24 eeprom
+>   ARM: davinci: dm646x-evm: use device properties for at24 eeprom
+>   ARM: davinci: sffsdr: fix the at24 eeprom device name
+>   ARM: davinci: sffsdr: use device properties for at24 eeprom
+>   ARM: davinci: remove dead code related to MAC address reading
+>   ARM: davinci: mityomapl138: use nvmem notifiers
+>   ARM: davinci: mityomapl138: use device properties for at24 eeprom
+>   eeprom: at24: remove at24_platform_data
+> 
+>  MAINTAINERS                                |   1 -
+>  arch/arm/mach-davinci/board-da830-evm.c    |  13 +-
+>  arch/arm/mach-davinci/board-da850-evm.c    |  28 ----
+>  arch/arm/mach-davinci/board-dm365-evm.c    |  13 +-
+>  arch/arm/mach-davinci/board-dm644x-evm.c   |  13 +-
+>  arch/arm/mach-davinci/board-dm646x-evm.c   |  13 +-
+>  arch/arm/mach-davinci/board-mityomapl138.c |  38 ++---
+>  arch/arm/mach-davinci/board-sffsdr.c       |  13 +-
+>  arch/arm/mach-davinci/common.c             |  15 --
+>  drivers/misc/eeprom/at24.c                 | 162 ++++++++++-----------
+>  include/linux/davinci_emac.h               |   1 -
+>  include/linux/platform_data/at24.h         |  60 --------
+>  12 files changed, 122 insertions(+), 248 deletions(-)
+>  delete mode 100644 include/linux/platform_data/at24.h
+> 
+> -- 
+> 2.19.1
+> 
