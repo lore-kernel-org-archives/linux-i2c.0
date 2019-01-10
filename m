@@ -1,69 +1,58 @@
-From: Yauhen Kharuzhy <jekhor@gmail.com>
-Subject: Re: [PATCH 2/2] i2c: Clear client->irq in i2c_device_remove
-Date: Thu, 10 Jan 2019 00:47:56 +0300
-Message-ID: <20190109214756.GA18115@jeknote.loshitsa1.net>
-References: <20181019085958.32694-1-ckeepax@opensource.cirrus.com>
- <20181019085958.32694-2-ckeepax@opensource.cirrus.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH V5] i2c: tegra: Fix Maximum transfer size
+Date: Thu, 10 Jan 2019 08:59:26 +0100
+Message-ID: <20190110075926.GA5213@ulmo>
+References: <1546984750-26199-1-git-send-email-skomatineni@nvidia.com>
+ <1546984750-26199-2-git-send-email-skomatineni@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="OXfL5xGRrasGEqWY"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181019085958.32694-2-ckeepax@opensource.cirrus.com>
+In-Reply-To: <1546984750-26199-2-git-send-email-skomatineni@nvidia.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Charles Keepax <ckeepax@opensource.cirrus.com>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, patches@opensource.cirrus.com
+To: Sowjanya Komatineni <skomatineni@nvidia.com>
+Cc: jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Oct 19, 2018 at 09:59:58AM +0100, Charles Keepax wrote:
-> The IRQ will be mapped in i2c_device_probe only if client->irq is zero and
-> i2c_device_remove does not clear this. When rebinding an I2C device,
-> whos IRQ provider has also been rebound this means that an IRQ mapping
-> will never be created, causing the I2C device to fail to acquire its
-> IRQ. Fix this issue by clearing client->irq in i2c_device_remove,
-> forcing i2c_device_probe to lookup the mapping again.
 
-Hi.
+--OXfL5xGRrasGEqWY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I found  driver i2c/busses/i2c-cht-wc.c which instantiates I2C device
-(battery charger) and passes IRQ to driver not using standard I2C IRQ mapping code.
-So if we reprobe I2C device (by reloading I2C device driver module or by
-manipulations with sysfs), we get invalid IRQ number for client:
-
- adap->client_irq = irq_create_mapping(adap->irq_domain, 0);
- ...
- irq_set_chip_data(adap->client_irq, adap);
- irq_set_chip_and_handler(adap->client_irq, &adap->irqchip, handle_simple_irq);
- ...
- board_info.irq = adap->client_irq;
- adap->client = i2c_new_device(&adap->adapter, &board_info);
-
-
-adap->client->irq will be reset after device removing here.
-
-
-Any advice to fix this? Maybe move initial i2c_client->irq value to new field
-like client->init_irq and copy it to client->irq at probing, for example?
-
-> 
-> Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+On Tue, Jan 08, 2019 at 01:59:10PM -0800, Sowjanya Komatineni wrote:
+> Tegra194 supports maximum 64K Bytes transfer per packet.
+> Tegra186 and prior supports maximum 4K Bytes transfer per packet.
+>=20
+> This patch fixes this payload difference between Tegra194 and prior
+> tegra chipsets using separate i2c_adapter_quirks.
+>=20
+> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
 > ---
->  drivers/i2c/i2c-core-base.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 656f0a6fe3adf..28460f6a60cc1 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -430,6 +430,8 @@ static int i2c_device_remove(struct device *dev)
->  	dev_pm_clear_wake_irq(&client->dev);
->  	device_init_wakeup(&client->dev, false);
->  
-> +	client->irq = 0;
-> +
->  	return status;
->  }
->  
+>  drivers/i2c/busses/i2c-tegra.c | 15 ++++++++++++++-
+>  1 file changed, 14 insertions(+), 1 deletion(-)
 
--- 
-Yauhen Kharuzhy
+Acked-by: Thierry Reding <treding@nvidia.com>
+
+--OXfL5xGRrasGEqWY
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlw2+1sACgkQ3SOs138+
+s6HGZw/+OgrH0vkohH4q9BiATVC4SuZlLfhPt6G2C+/w2Ziuqh+F9ek1ByxxQRM3
+rcP+YO76giKzcUSOnyglp0OVRAY0JLGetrk2ejlynC6g1thykq68rfflLZzEGNlG
+auYJcAFLUuDpvpB8cynuSJUtX9S8dj/PUYuIGWEYrupYVSpNGqrWfd8AXhcUdO2N
+O0gDtKLvVAtoieFks0xOFqoYxxYIaFndyAw+J/8GsJggKjkF7hPUS8gP9A0dSCVR
+p3wumVhB+znWZEHH1Ya37vKIUbzbKQuFqxOY2JKW+7uNMmQ9MrCPRMidbUqhRB+y
+DGfBl9J0SW4ng/9/Gce8f7GddXYQFH9E3cgUA1v9RjdcRstvqvnrci4HofATo8a3
+TJftImGwgCgAsBzwruYVuotmDYmDX0gz3MWDzaI0ULDx+CR7WVnp+A45WhLefmxv
+nvx6iQFhUwPLzVAbStqaLPF4L4aTgJWGZEaWkhwaHsPUs49SzqWHB+HEzZRh+naU
+QWMsPS4bU3U1aHo87TIixUdoZysLiWLJxxg2mEIRWU+zM0Dw1K6rEPW0qMhYq4EV
+xM+PXBg6zDLPdtGM2w55DfTSYtqBc54kfwY15xbZxkRBtbbs9yQyIsY7e/tvziyn
+GSgi4B4A3CD1TTWvaXHtQM9TaMbbvHTvh6OFJPsJZ1xZr+SoE8Q=
+=x4d3
+-----END PGP SIGNATURE-----
+
+--OXfL5xGRrasGEqWY--
