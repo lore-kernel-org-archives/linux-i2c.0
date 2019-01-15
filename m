@@ -1,55 +1,51 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V2 0/5] i2c:ocores: improvements
-Date: Tue, 15 Jan 2019 23:49:00 +0100
-Message-ID: <20190115224900.xwggdpx5heaamoe5@ninjato>
-References: <20181029145051.31984-1-federico.vaga@cern.ch>
- <20181127113821.GB1107@kunai>
- <14601911.GrvbWtgO0l@pcbe13614>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Subject: Re: [PATCH i2c-next v9 0/5] i2c: aspeed: Add bus idle waiting logic
+ for multi-master use cases
+Date: Tue, 15 Jan 2019 15:32:33 -0800
+Message-ID: <ae348673-f6d5-36ac-a1f2-872d0bab06b1@linux.intel.com>
+References: <20181030210917.32711-1-jae.hyun.yoo@linux.intel.com>
+ <20190115224713.duoha332mjlrmwji@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="gsv2citdpoizx5tt"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <14601911.GrvbWtgO0l@pcbe13614>
+In-Reply-To: <20190115224713.duoha332mjlrmwji@ninjato>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Federico Vaga <federico.vaga@cern.ch>
-Cc: Peter Korsgaard <peter@korsgaard.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Brendan Higgins <brendanhiggins@google.com>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On 1/15/2019 2:47 PM, Wolfram Sang wrote:
+> On Tue, Oct 30, 2018 at 02:09:11PM -0700, Jae Hyun Yoo wrote:
+>> In multi-master environment, this driver's master cannot know
+>> exactly when a peer master sends data to this driver's slave so a
+>> case can be happened that this master tries to send data through
+>> the master_xfer function but slave data from peer master is still
+>> being processed by this driver. To prevent state corruption in the
+>> case, this patch adds checking code if any slave operation is
+>> ongoing and it waits up to the bus timeout duration before starting
+>> a master_xfer operation.
+>>
+>> To support this change, it introduces changes on i2c-core-base to
+>> make that able to read the bus timeout and master transfer retries
+>> count values from device tree properties.
+>>
+>> Please review this patch set.
+> 
+> Marking this as "Changes requested". I think if the mutex approach
+> works, these patches become obsolete then.
+> 
 
---gsv2citdpoizx5tt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Wolfram,
 
-On Tue, Jan 15, 2019 at 05:37:07PM +0100, Federico Vaga wrote:
-> Hi there,
->=20
-> I just want to ask if there has been any update about this patchset that =
-I'm=20
-> not aware off. Thanks
+Thanks for your touching base. I made and tested a new patch in my
+local. Actually, I couldn't use a mutex because it should provide
+locking between driver context and interrupt context. Instead, after
+taking lots of experiments, I checked that idle waiting can be supported
+by this H/W so I didn't need to use any locking method in the driver
+code for multi-master handling. I'll submit a new patch tomorrow using a
+different thread. Please drop this patch set.
 
-I don't think so. Peter, what is the status of this series?
-
-
---gsv2citdpoizx5tt
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlw+Y1wACgkQFA3kzBSg
-KbY+Tg/6AiZbK9k0e5433bsCuTdcA4BkMwiSxDEbX5qkeDpaWlI9iPqAXrZ2NB0u
-EoXVntsbDor6SQfeqEgKpbYmB0xGQpvDdgnqOau+NbkpskB0MoEOl5jm1u0vCv6h
-8DH1ol3nntRWt9HhsA1jhfqgO9vtYS8xly8pyb3wJrDQ5/THW0XjuuG0b4w4pbPS
-rOzO5ADiXotJb8ZqmjTL8ua0bNxD4+uJsOJ72jMO0/+w+hYcreZAF2fAnIQq7D8d
-1wPy9RjRJeKxx9UXtrrc+xQF92ZGZHSgV2jtHDxO3C6XPwRA1HAq7T/AvvK6jTSS
-muEJif8jDdXGqqzs8T/SD1Ha/6ibWCq1zLMsssN9h9rAieQEX+2veCmUOd9rAGqG
-ry/K+/AEF+vTP7eym3tRnvzM3LvgJZtqPIiSwfICt3hOjJKRQWE31yJarvLg/WtD
-O6uTqkmctyg459O88W27516pn5ywty9RBUknWs2rcEKAPnt5rOubxYFmLUh0kPln
-KT1scQzB/EUrD5ujTLLwfU8W6XsnKF9q7Q3+DLlq/ZYec7rBmOGSWHNDRBW7hlht
-sFEQorGA9X91hG/B3KVESA+/C2C4OcGPrPFwUmqBZOfxrY4hmpyBlPL7sQ2tFPzS
-1F0vGzwlEIalQhcbRIp47z9D0Nw6QgakyHoBboxmeVXiY48JyJc=
-=wyYU
------END PGP SIGNATURE-----
-
---gsv2citdpoizx5tt--
+Thanks,
+Jae
