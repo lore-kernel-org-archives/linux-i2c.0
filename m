@@ -1,82 +1,167 @@
 From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Subject: [PATCH v2 2/2] i2c: imx: defer probing on dma channel request
-Date: Wed, 16 Jan 2019 13:28:55 +0200
-Message-ID: <20190116112855.13824-2-laurentiu.tudor@nxp.com>
-References: <20190116112855.13824-1-laurentiu.tudor@nxp.com>
+Subject: [RFC PATCH] i2c: imx: dma map the i2c data i/o register
+Date: Wed, 16 Jan 2019 18:17:13 +0200
+Message-ID: <20190116161713.12748-1-laurentiu.tudor@nxp.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190116112855.13824-1-laurentiu.tudor@nxp.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-imx@nxp.com, shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, wsa@the-dreams.de
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabio.estevam@nxp.com, leoyang.li@nxp.com, Laurentiu Tudor <laurentiu.tudor@nxp.com>
+To: linux-i2c@vger.kernel.org, linux-imx@nxp.com, iommu@lists.linux-foundation.org, kernel@pengutronix.de, wsa@the-dreams.de
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, robin.murphy@arm.com, Laurentiu Tudor <laurentiu.tudor@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-If the dma controller is not yet probed, defer i2c probe.
-The error path in probe was slightly modified (no functional change)
-to avoid triggering this WARN_ON():
-"cg-pll0-div1 already disabled
-WARNING: CPU: 1 PID: 1 at drivers/clk/clk.c:828 clk_core_disable+0xa8/0xb0"
+This is an attempt to fix an iommu exception when doing dma to the
+i2c controller with EDMA. Without these mappings the smmu raises a
+context fault [1] exactly with the address of the i2c data i/o reg.
+This was seen on an NXP LS1043A chip while working on enabling SMMU.
+
+[1] arm-smmu 9000000.iommu: Unhandled context fault: fsr=0x402,
+    iova=0x02180004, fsynr=0x150021, cb=7
 
 Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
 ---
-Changes in v2:
- - rebased on latest i2c tree
- - fix small error introduced by a previous commit (first patch)
-
- drivers/i2c/busses/i2c-imx.c | 21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-imx.c | 57 +++++++++++++++++++++++++++++-------
+ 1 file changed, 47 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 42fed40198a0..4e34b1572756 100644
+index 4e34b1572756..07cc8f4b45b9 100644
 --- a/drivers/i2c/busses/i2c-imx.c
 +++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1111,7 +1111,8 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 				pdev->name, i2c_imx);
- 	if (ret) {
- 		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
--		goto clk_disable;
-+		clk_disable_unprepare(i2c_imx->clk);
-+		return ret;
+@@ -202,6 +202,9 @@ struct imx_i2c_struct {
+ 	struct pinctrl_state *pinctrl_pins_gpio;
+ 
+ 	struct imx_i2c_dma	*dma;
++
++	dma_addr_t		dma_tx_addr;
++	dma_addr_t		dma_rx_addr;
+ };
+ 
+ static const struct imx_i2c_hwdata imx1_i2c_hwdata = {
+@@ -274,17 +277,20 @@ static inline unsigned char imx_i2c_read_reg(struct imx_i2c_struct *i2c_imx,
+ 
+ /* Functions for DMA support */
+ static int i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
+-			       dma_addr_t phy_addr)
++			       phys_addr_t phy_addr)
+ {
+ 	struct imx_i2c_dma *dma;
+ 	struct dma_slave_config dma_sconfig;
+ 	struct device *dev = &i2c_imx->adapter.dev;
+ 	int ret;
++	phys_addr_t i2dr_pa;
+ 
+ 	dma = devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
+ 	if (!dma)
+ 		return -ENOMEM;
+ 
++	i2dr_pa = phy_addr + (IMX_I2C_I2DR << i2c_imx->hwdata->regshift);
++
+ 	dma->chan_tx = dma_request_chan(dev, "tx");
+ 	if (IS_ERR(dma->chan_tx)) {
+ 		ret = PTR_ERR(dma->chan_tx);
+@@ -293,15 +299,25 @@ static int i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
+ 		goto fail_al;
  	}
  
- 	/* Init queue */
-@@ -1161,19 +1162,25 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	pm_runtime_mark_last_busy(&pdev->dev);
- 	pm_runtime_put_autosuspend(&pdev->dev);
- 
-+	/* Init DMA config if supported */
-+	ret = i2c_imx_dma_request(i2c_imx, phy_addr);
+-	dma_sconfig.dst_addr = phy_addr +
+-				(IMX_I2C_I2DR << i2c_imx->hwdata->regshift);
++	i2c_imx->dma_tx_addr = dma_map_resource(dma->chan_tx->device->dev,
++						i2dr_pa,
++						DMA_SLAVE_BUSWIDTH_1_BYTE,
++						DMA_MEM_TO_DEV, 0);
++	ret = dma_mapping_error(dma->chan_tx->device->dev,
++				i2c_imx->dma_tx_addr);
 +	if (ret) {
-+		if (ret != -EPROBE_DEFER)
-+			dev_info(&pdev->dev, "can't use DMA, using PIO instead.\n");
-+		else
-+			goto del_adapter;
++		dev_err(dev, "can't dma map tx destination (%d)\n", ret);
++		goto fail_tx;
 +	}
 +
- 	dev_dbg(&i2c_imx->adapter.dev, "claimed irq %d\n", irq);
- 	dev_dbg(&i2c_imx->adapter.dev, "device resources: %pR\n", res);
- 	dev_dbg(&i2c_imx->adapter.dev, "adapter name: \"%s\"\n",
- 		i2c_imx->adapter.name);
++	dma_sconfig.dst_addr = i2c_imx->dma_tx_addr;
+ 	dma_sconfig.dst_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
+ 	dma_sconfig.dst_maxburst = 1;
+ 	dma_sconfig.direction = DMA_MEM_TO_DEV;
+ 	ret = dmaengine_slave_config(dma->chan_tx, &dma_sconfig);
+ 	if (ret < 0) {
+ 		dev_err(dev, "can't configure tx channel (%d)\n", ret);
+-		goto fail_tx;
++		goto fail_tx_dma;
+ 	}
  
--	/* Init DMA config if supported */
--	ret = i2c_imx_dma_request(i2c_imx, phy_addr);
--	if (ret < 0)
--		goto clk_notifier_unregister;
--
- 	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
- 	return 0;   /* Return OK */
+ 	dma->chan_rx = dma_request_chan(dev, "rx");
+@@ -309,18 +325,28 @@ static int i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
+ 		ret = PTR_ERR(dma->chan_rx);
+ 		if (ret != -ENODEV && ret != -EPROBE_DEFER)
+ 			dev_err(dev, "can't request DMA rx channel (%d)\n", ret);
+-		goto fail_tx;
++		goto fail_tx_dma;
+ 	}
  
-+del_adapter:
-+	i2c_del_adapter(&i2c_imx->adapter);
- clk_notifier_unregister:
- 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
- rpm_disable:
-@@ -1182,8 +1189,6 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	pm_runtime_set_suspended(&pdev->dev);
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
+-	dma_sconfig.src_addr = phy_addr +
+-				(IMX_I2C_I2DR << i2c_imx->hwdata->regshift);
++	i2c_imx->dma_rx_addr = dma_map_resource(dma->chan_rx->device->dev,
++						i2dr_pa,
++						DMA_SLAVE_BUSWIDTH_1_BYTE,
++						DMA_DEV_TO_MEM, 0);
++	ret = dma_mapping_error(dma->chan_rx->device->dev,
++				i2c_imx->dma_rx_addr);
++	if (ret) {
++		dev_err(dev, "can't dma map rx source (%d)\n", ret);
++		goto fail_rx;
++	}
++
++	dma_sconfig.src_addr = i2c_imx->dma_rx_addr;
+ 	dma_sconfig.src_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
+ 	dma_sconfig.src_maxburst = 1;
+ 	dma_sconfig.direction = DMA_DEV_TO_MEM;
+ 	ret = dmaengine_slave_config(dma->chan_rx, &dma_sconfig);
+ 	if (ret < 0) {
+ 		dev_err(dev, "can't configure rx channel (%d)\n", ret);
+-		goto fail_rx;
++		goto fail_rx_dma;
+ 	}
  
--clk_disable:
--	clk_disable_unprepare(i2c_imx->clk);
- 	return ret;
+ 	i2c_imx->dma = dma;
+@@ -330,8 +356,14 @@ static int i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
+ 
+ 	return 0;
+ 
++fail_rx_dma:
++	dma_unmap_resource(dma->chan_rx->device->dev, i2c_imx->dma_rx_addr,
++			   DMA_SLAVE_BUSWIDTH_1_BYTE, DMA_DEV_TO_MEM, 0);
+ fail_rx:
+ 	dma_release_channel(dma->chan_rx);
++fail_tx_dma:
++	dma_unmap_resource(dma->chan_tx->device->dev, i2c_imx->dma_tx_addr,
++			   DMA_SLAVE_BUSWIDTH_1_BYTE, DMA_MEM_TO_DEV, 0);
+ fail_tx:
+ 	dma_release_channel(dma->chan_tx);
+ fail_al:
+@@ -1057,7 +1089,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
+ 	struct imxi2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
+ 	void __iomem *base;
+ 	int irq, ret;
+-	dma_addr_t phy_addr;
++	phys_addr_t phy_addr;
+ 
+ 	dev_dbg(&pdev->dev, "<%s>\n", __func__);
+ 
+@@ -1072,7 +1104,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
+ 	if (IS_ERR(base))
+ 		return PTR_ERR(base);
+ 
+-	phy_addr = (dma_addr_t)res->start;
++	phy_addr = res->start;
+ 	i2c_imx = devm_kzalloc(&pdev->dev, sizeof(*i2c_imx), GFP_KERNEL);
+ 	if (!i2c_imx)
+ 		return -ENOMEM;
+@@ -1220,6 +1252,11 @@ static int i2c_imx_remove(struct platform_device *pdev)
+ 	pm_runtime_put_noidle(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 
++	dma_unmap_resource(&pdev->dev, i2c_imx->dma_tx_addr,
++			   DMA_SLAVE_BUSWIDTH_1_BYTE, DMA_MEM_TO_DEV, 0);
++	dma_unmap_resource(&pdev->dev, i2c_imx->dma_rx_addr,
++			   DMA_SLAVE_BUSWIDTH_1_BYTE, DMA_DEV_TO_MEM, 0);
++
+ 	return 0;
  }
  
 -- 
