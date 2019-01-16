@@ -1,51 +1,49 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: Re: [PATCH i2c-next v9 0/5] i2c: aspeed: Add bus idle waiting logic
- for multi-master use cases
-Date: Tue, 15 Jan 2019 15:32:33 -0800
-Message-ID: <ae348673-f6d5-36ac-a1f2-872d0bab06b1@linux.intel.com>
-References: <20181030210917.32711-1-jae.hyun.yoo@linux.intel.com>
- <20190115224713.duoha332mjlrmwji@ninjato>
+From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Subject: Re: [PATCH] i2c: imx: defer probing on dma channel request
+Date: Wed, 16 Jan 2019 08:48:28 +0000
+Message-ID: <633db479-e1be-3b8b-45c4-06d1b651fe12@nxp.com>
+References: <20190115140332.30417-1-laurentiu.tudor@nxp.com>
+ <20190115215549.sepj7rmpqmtlxwbw@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190115224713.duoha332mjlrmwji@ninjato>
+In-Reply-To: <20190115215549.sepj7rmpqmtlxwbw@ninjato>
 Content-Language: en-US
+Content-ID: <1515DFC079315A43BEFC0B7DB76310FF@eurprd04.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Brendan Higgins <brendanhiggins@google.com>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, dl-linux-imx <linux-imx@nxp.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Fabio Estevam <fabio.estevam@nxp.com>, Leo Li <leoyang.li@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 1/15/2019 2:47 PM, Wolfram Sang wrote:
-> On Tue, Oct 30, 2018 at 02:09:11PM -0700, Jae Hyun Yoo wrote:
->> In multi-master environment, this driver's master cannot know
->> exactly when a peer master sends data to this driver's slave so a
->> case can be happened that this master tries to send data through
->> the master_xfer function but slave data from peer master is still
->> being processed by this driver. To prevent state corruption in the
->> case, this patch adds checking code if any slave operation is
->> ongoing and it waits up to the bus timeout duration before starting
->> a master_xfer operation.
+Hello,
+
+On 15.01.2019 23:55, Wolfram Sang wrote:
+> Hi,
+>=20
+> On Tue, Jan 15, 2019 at 04:03:32PM +0200, Laurentiu Tudor wrote:
+>> If the dma controller is not yet probed, defer i2c probe.
+>> The error path in probe was slightly modified (no functional change)
+>> to avoid triggering this WARN_ON():
+>> "cg-pll0-div1 already disabled
+>> WARNING: CPU: 1 PID: 1 at drivers/clk/clk.c:828 clk_core_disable+0xa8/0x=
+b0"
 >>
->> To support this change, it introduces changes on i2c-core-base to
->> make that able to read the bus timeout and master transfer retries
->> count values from device tree properties.
->>
->> Please review this patch set.
-> 
-> Marking this as "Changes requested". I think if the mutex approach
-> works, these patches become obsolete then.
-> 
+>> Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+>=20
+> I just applied this series to i2c/for-next:
+>=20
+> http://patchwork.ozlabs.org/project/linux-i2c/list/?series=3D85099&state=
+=3D*
+>=20
+> I haven't checked carefully but maybe it fixes/changes your issue?=20
 
-Hi Wolfram,
+Not really as it doesn't seem to defer probing until the dma controller=20
+gets probed.
 
-Thanks for your touching base. I made and tested a new patch in my
-local. Actually, I couldn't use a mutex because it should provide
-locking between driver context and interrupt context. Instead, after
-taking lots of experiments, I checked that idle waiting can be supported
-by this H/W so I didn't need to use any locking method in the driver
-code for multi-master handling. I'll submit a new patch tomorrow using a
-different thread. Please drop this patch set.
+> If not, your patch most likely will need a rebase on top of the above.
 
-Thanks,
-Jae
+Will rebase on latest i2c tree and re-send.
+
+---
+Best Regards, Laurentiu=
