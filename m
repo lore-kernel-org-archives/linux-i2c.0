@@ -1,53 +1,86 @@
 From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: linux-next: Tree for Jan 18 (i2c-designware-platdrv.c)
-Date: Mon, 21 Jan 2019 15:36:21 +0200
-Message-ID: <018b454e-ecd8-0ebe-40cc-ab64d3deea00@linux.intel.com>
-References: <20190118152404.41ecbe4e@canb.auug.org.au>
- <590dd86f-93ce-16c3-932e-c5ce53035ab2@infradead.org>
+Subject: [PATCH] mfd: Fix I2C_DESIGNWARE_PLATFORM dependencies
+Date: Mon, 21 Jan 2019 16:11:28 +0200
+Message-ID: <20190121141128.5283-1-jarkko.nikula@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <590dd86f-93ce-16c3-932e-c5ce53035ab2@infradead.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Randy Dunlap <rdunlap@infradead.org>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Baruch Siach <baruch@tkos.co.il>, linux-i2c@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Lee Jones <lee.jones@linaro.org>, Randy Dunlap <rdunlap@infradead.org>, Hans de Goede <hdegoede@redhat.com>, Rajmohan Mani <rajmohan.mani@intel.com>, linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Stable <stable@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi
+INTEL_SOC_PMIC, INTEL_SOC_PMIC_CHTWC and MFD_TPS68470 select the
+I2C_DESIGNWARE_PLATFORM without its dependencies making it possible to see
+warning and build error like below:
 
-On 1/18/19 6:27 PM, Randy Dunlap wrote:
-> On 1/17/19 8:24 PM, Stephen Rothwell wrote:
->> Hi all,
->>
->> Changes since 20190117:
->>
-> 
-> on i386 or x86_64:
-> 
-> ld: drivers/i2c/busses/i2c-designware-platdrv.o: in function `dw_i2c_plat_resume':
-> i2c-designware-platdrv.c:(.text+0x4b): undefined reference to `i2c_dw_prepare_clk'
-> ld: drivers/i2c/busses/i2c-designware-platdrv.o: in function `dw_i2c_plat_suspend':
-> i2c-designware-platdrv.c:(.text+0x95): undefined reference to `i2c_dw_prepare_clk'
-> ld: drivers/i2c/busses/i2c-designware-platdrv.o: in function `dw_i2c_plat_probe':
-> i2c-designware-platdrv.c:(.text+0x63f): undefined reference to `i2c_dw_prepare_clk'
-> ld: i2c-designware-platdrv.c:(.text+0x686): undefined reference to `i2c_dw_read_comp_param'
-> ld: i2c-designware-platdrv.c:(.text+0x7b7): undefined reference to `i2c_dw_probe_slave'
-> ld: i2c-designware-platdrv.c:(.text+0x7c1): undefined reference to `i2c_dw_probe'
-> 
-> 
-> probably related to:
-> 
-> WARNING: unmet direct dependencies detected for I2C_DESIGNWARE_PLATFORM
->    Depends on [n]: I2C [=y] && HAS_IOMEM [=y] && (ACPI [=y] && COMMON_CLK [=n] || !ACPI [=y])
->    Selected by [y]:
->    - MFD_TPS68470 [=y] && HAS_IOMEM [=y] && ACPI [=y] && I2C [=y]=y
-> 
-Thanks, this is due CONFIG_MFD_TPS68470 which selects the 
-I2C_DESIGNWARE_PLATFORM but not the dependencies. There are two others 
-in drivers/mfd/Kconfig. I'll send a patch changing them to depend on 
-I2C_DESIGNWARE_PLATFORM=y.
+WARNING: unmet direct dependencies detected for I2C_DESIGNWARE_PLATFORM
+  Depends on [n]: I2C [=y] && HAS_IOMEM [=y] && (ACPI [=y] && COMMON_CLK [=n] || !ACPI [=y])
+  Selected by [y]:
+  - MFD_TPS68470 [=y] && HAS_IOMEM [=y] && ACPI [=y] && I2C [=y]=y
 
+/usr/bin/ld: drivers/i2c/busses/i2c-designware-platdrv.o: in function `dw_i2c_plat_resume':
+i2c-designware-platdrv.c:(.text+0x62): undefined reference to `i2c_dw_prepare_clk'
+/usr/bin/ld: drivers/i2c/busses/i2c-designware-platdrv.o: in function `dw_i2c_plat_suspend':
+i2c-designware-platdrv.c:(.text+0x9a): undefined reference to `i2c_dw_prepare_clk'
+/usr/bin/ld: drivers/i2c/busses/i2c-designware-platdrv.o: in function `dw_i2c_plat_probe':
+i2c-designware-platdrv.c:(.text+0x41c): undefined reference to `i2c_dw_prepare_clk'
+/usr/bin/ld: i2c-designware-platdrv.c:(.text+0x438): undefined reference to `i2c_dw_read_comp_param'
+/usr/bin/ld: i2c-designware-platdrv.c:(.text+0x545): undefined reference to `i2c_dw_probe'
+/usr/bin/ld: i2c-designware-platdrv.c:(.text+0x727): undefined reference to `i2c_dw_probe_slave'
+
+Fix this by making above options to depend on I2C_DESIGNWARE_PLATFORM
+being built-in. I2C_DESIGNWARE_PLATFORM is a visible symbol with
+dependencies so in general the select should be avoided.
+
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Fixes: acebcff9eda8 ("mfd: intel_soc_pmic: Select designware i2c-bus driver")
+Fixes: de85d79f4aab ("mfd: Add Cherry Trail Whiskey Cove PMIC driver")
+Fixes: 9bbf6a15ce19 ("mfd: Add support for TPS68470 device")
+Cc: Stable <stable@vger.kernel.org> # v4.14+
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+---
+ drivers/mfd/Kconfig | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index f461460a2aeb..6a84a8ecd4a9 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -519,10 +519,10 @@ config INTEL_SOC_PMIC
+ 	bool "Support for Crystal Cove PMIC"
+ 	depends on ACPI && HAS_IOMEM && I2C=y && GPIOLIB && COMMON_CLK
+ 	depends on X86 || COMPILE_TEST
++	depends on I2C_DESIGNWARE_PLATFORM=y
+ 	select MFD_CORE
+ 	select REGMAP_I2C
+ 	select REGMAP_IRQ
+-	select I2C_DESIGNWARE_PLATFORM
+ 	help
+ 	  Select this option to enable support for Crystal Cove PMIC
+ 	  on some Intel SoC systems. The PMIC provides ADC, GPIO,
+@@ -548,10 +548,10 @@ config INTEL_SOC_PMIC_CHTWC
+ 	bool "Support for Intel Cherry Trail Whiskey Cove PMIC"
+ 	depends on ACPI && HAS_IOMEM && I2C=y && COMMON_CLK
+ 	depends on X86 || COMPILE_TEST
++	depends on I2C_DESIGNWARE_PLATFORM=y
+ 	select MFD_CORE
+ 	select REGMAP_I2C
+ 	select REGMAP_IRQ
+-	select I2C_DESIGNWARE_PLATFORM
+ 	help
+ 	  Select this option to enable support for the Intel Cherry Trail
+ 	  Whiskey Cove PMIC found on some Intel Cherry Trail systems.
+@@ -1420,9 +1420,9 @@ config MFD_TPS65217
+ config MFD_TPS68470
+ 	bool "TI TPS68470 Power Management / LED chips"
+ 	depends on ACPI && I2C=y
++	depends on I2C_DESIGNWARE_PLATFORM=y
+ 	select MFD_CORE
+ 	select REGMAP_I2C
+-	select I2C_DESIGNWARE_PLATFORM
+ 	help
+ 	  If you say yes here you get support for the TPS68470 series of
+ 	  Power Management / LED chips.
 -- 
-Jarkko
+2.20.1
