@@ -1,325 +1,120 @@
-From: qii wang <qii.wang@mediatek.com>
-Subject: [PATCH v3 4/6] i2c: mediatek: Add offsets array for new i2c registers
-Date: Mon, 21 Jan 2019 15:59:32 +0800
-Message-ID: <1548057574-8061-5-git-send-email-qii.wang@mediatek.com>
-References: <1548057574-8061-1-git-send-email-qii.wang@mediatek.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH V1] i2c: tegra: increase transfer timeout
+Date: Mon, 21 Jan 2019 10:38:00 +0100
+Message-ID: <20190121093800.GA16756@ulmo>
+References: <1547757572-29075-1-git-send-email-skomatineni@nvidia.com>
+ <c6ba237c-d271-c9d7-1c30-9901ba6bb1a0@nvidia.com>
+ <BYAPR12MB3398536A1776FE6B3CA1AB34C29C0@BYAPR12MB3398.namprd12.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1548057574-8061-1-git-send-email-qii.wang@mediatek.com>
+Content-Disposition: inline
+In-Reply-To: <BYAPR12MB3398536A1776FE6B3CA1AB34C29C0@BYAPR12MB3398.namprd12.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, qii.wang@mediatek.com, ryder.lee@mediatek.com, xinping.qian@mediatek.com, liguo.zhang@mediatek.com
+To: Sowjanya Komatineni <skomatineni@nvidia.com>
+Cc: Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-New i2c registers would have different offsets, so we use different
-offsets array to distinguish different i2c registers version.
 
-Signed-off-by: qii wang <qii.wang@mediatek.com>
-Reviewed-by: Sean Wang <sean.wang@kernel.org>
-Reviewed-by: Nicolas Boichat <drinkcat@chromium.org>
----
- drivers/i2c/busses/i2c-mt65xx.c |  163 +++++++++++++++++++++++++--------------
- 1 file changed, 104 insertions(+), 59 deletions(-)
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 660de1e..428ac99 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -106,34 +106,62 @@ enum mtk_trans_op {
- };
- 
- enum I2C_REGS_OFFSET {
--	OFFSET_DATA_PORT = 0x0,
--	OFFSET_SLAVE_ADDR = 0x04,
--	OFFSET_INTR_MASK = 0x08,
--	OFFSET_INTR_STAT = 0x0c,
--	OFFSET_CONTROL = 0x10,
--	OFFSET_TRANSFER_LEN = 0x14,
--	OFFSET_TRANSAC_LEN = 0x18,
--	OFFSET_DELAY_LEN = 0x1c,
--	OFFSET_TIMING = 0x20,
--	OFFSET_START = 0x24,
--	OFFSET_EXT_CONF = 0x28,
--	OFFSET_FIFO_STAT = 0x30,
--	OFFSET_FIFO_THRESH = 0x34,
--	OFFSET_FIFO_ADDR_CLR = 0x38,
--	OFFSET_IO_CONFIG = 0x40,
--	OFFSET_RSV_DEBUG = 0x44,
--	OFFSET_HS = 0x48,
--	OFFSET_SOFTRESET = 0x50,
--	OFFSET_DCM_EN = 0x54,
--	OFFSET_PATH_DIR = 0x60,
--	OFFSET_DEBUGSTAT = 0x64,
--	OFFSET_DEBUGCTRL = 0x68,
--	OFFSET_TRANSFER_LEN_AUX = 0x6c,
--	OFFSET_CLOCK_DIV = 0x70,
-+	OFFSET_DATA_PORT,
-+	OFFSET_SLAVE_ADDR,
-+	OFFSET_INTR_MASK,
-+	OFFSET_INTR_STAT,
-+	OFFSET_CONTROL,
-+	OFFSET_TRANSFER_LEN,
-+	OFFSET_TRANSAC_LEN,
-+	OFFSET_DELAY_LEN,
-+	OFFSET_TIMING,
-+	OFFSET_START,
-+	OFFSET_EXT_CONF,
-+	OFFSET_FIFO_STAT,
-+	OFFSET_FIFO_THRESH,
-+	OFFSET_FIFO_ADDR_CLR,
-+	OFFSET_IO_CONFIG,
-+	OFFSET_RSV_DEBUG,
-+	OFFSET_HS,
-+	OFFSET_SOFTRESET,
-+	OFFSET_DCM_EN,
-+	OFFSET_PATH_DIR,
-+	OFFSET_DEBUGSTAT,
-+	OFFSET_DEBUGCTRL,
-+	OFFSET_TRANSFER_LEN_AUX,
-+	OFFSET_CLOCK_DIV,
-+};
-+
-+static const u16 mt_i2c_regs_v1[] = {
-+	[OFFSET_DATA_PORT] = 0x0,
-+	[OFFSET_SLAVE_ADDR] = 0x4,
-+	[OFFSET_INTR_MASK] = 0x8,
-+	[OFFSET_INTR_STAT] = 0xc,
-+	[OFFSET_CONTROL] = 0x10,
-+	[OFFSET_TRANSFER_LEN] = 0x14,
-+	[OFFSET_TRANSAC_LEN] = 0x18,
-+	[OFFSET_DELAY_LEN] = 0x1c,
-+	[OFFSET_TIMING] = 0x20,
-+	[OFFSET_START] = 0x24,
-+	[OFFSET_EXT_CONF] = 0x28,
-+	[OFFSET_FIFO_STAT] = 0x30,
-+	[OFFSET_FIFO_THRESH] = 0x34,
-+	[OFFSET_FIFO_ADDR_CLR] = 0x38,
-+	[OFFSET_IO_CONFIG] = 0x40,
-+	[OFFSET_RSV_DEBUG] = 0x44,
-+	[OFFSET_HS] = 0x48,
-+	[OFFSET_SOFTRESET] = 0x50,
-+	[OFFSET_DCM_EN] = 0x54,
-+	[OFFSET_PATH_DIR] = 0x60,
-+	[OFFSET_DEBUGSTAT] = 0x64,
-+	[OFFSET_DEBUGCTRL] = 0x68,
-+	[OFFSET_TRANSFER_LEN_AUX] = 0x6c,
-+	[OFFSET_CLOCK_DIV] = 0x70,
- };
- 
- struct mtk_i2c_compatible {
- 	const struct i2c_adapter_quirks *quirks;
-+	const u16 *regs;
- 	unsigned char pmic_i2c: 1;
- 	unsigned char dcm: 1;
- 	unsigned char auto_restart: 1;
-@@ -181,6 +209,7 @@ struct mtk_i2c {
- };
- 
- static const struct mtk_i2c_compatible mt2712_compat = {
-+	.regs = mt_i2c_regs_v1,
- 	.pmic_i2c = 0,
- 	.dcm = 1,
- 	.auto_restart = 1,
-@@ -191,6 +220,7 @@ struct mtk_i2c {
- 
- static const struct mtk_i2c_compatible mt6577_compat = {
- 	.quirks = &mt6577_i2c_quirks,
-+	.regs = mt_i2c_regs_v1,
- 	.pmic_i2c = 0,
- 	.dcm = 1,
- 	.auto_restart = 0,
-@@ -201,6 +231,7 @@ struct mtk_i2c {
- 
- static const struct mtk_i2c_compatible mt6589_compat = {
- 	.quirks = &mt6577_i2c_quirks,
-+	.regs = mt_i2c_regs_v1,
- 	.pmic_i2c = 1,
- 	.dcm = 0,
- 	.auto_restart = 0,
-@@ -211,6 +242,7 @@ struct mtk_i2c {
- 
- static const struct mtk_i2c_compatible mt7622_compat = {
- 	.quirks = &mt7622_i2c_quirks,
-+	.regs = mt_i2c_regs_v1,
- 	.pmic_i2c = 0,
- 	.dcm = 1,
- 	.auto_restart = 1,
-@@ -220,6 +252,7 @@ struct mtk_i2c {
- };
- 
- static const struct mtk_i2c_compatible mt8173_compat = {
-+	.regs = mt_i2c_regs_v1,
- 	.pmic_i2c = 0,
- 	.dcm = 1,
- 	.auto_restart = 1,
-@@ -238,6 +271,17 @@ struct mtk_i2c {
- };
- MODULE_DEVICE_TABLE(of, mtk_i2c_of_match);
- 
-+static u16 mtk_i2c_readw(struct mtk_i2c *i2c, enum I2C_REGS_OFFSET reg)
-+{
-+	return readw(i2c->base + i2c->dev_comp->regs[reg]);
-+}
-+
-+static void mtk_i2c_writew(struct mtk_i2c *i2c, u16 val,
-+			   enum I2C_REGS_OFFSET reg)
-+{
-+	writew(val, i2c->base + i2c->dev_comp->regs[reg]);
-+}
-+
- static int mtk_i2c_clock_enable(struct mtk_i2c *i2c)
- {
- 	int ret;
-@@ -278,31 +322,31 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
- {
- 	u16 control_reg;
- 
--	writew(I2C_SOFT_RST, i2c->base + OFFSET_SOFTRESET);
-+	mtk_i2c_writew(i2c, I2C_SOFT_RST, OFFSET_SOFTRESET);
- 
- 	/* Set ioconfig */
- 	if (i2c->use_push_pull)
--		writew(I2C_IO_CONFIG_PUSH_PULL, i2c->base + OFFSET_IO_CONFIG);
-+		mtk_i2c_writew(i2c, I2C_IO_CONFIG_PUSH_PULL, OFFSET_IO_CONFIG);
- 	else
--		writew(I2C_IO_CONFIG_OPEN_DRAIN, i2c->base + OFFSET_IO_CONFIG);
-+		mtk_i2c_writew(i2c, I2C_IO_CONFIG_OPEN_DRAIN, OFFSET_IO_CONFIG);
- 
- 	if (i2c->dev_comp->dcm)
--		writew(I2C_DCM_DISABLE, i2c->base + OFFSET_DCM_EN);
-+		mtk_i2c_writew(i2c, I2C_DCM_DISABLE, OFFSET_DCM_EN);
- 
- 	if (i2c->dev_comp->timing_adjust)
--		writew(I2C_DEFAULT_CLK_DIV - 1, i2c->base + OFFSET_CLOCK_DIV);
-+		mtk_i2c_writew(i2c, I2C_DEFAULT_CLK_DIV - 1, OFFSET_CLOCK_DIV);
- 
--	writew(i2c->timing_reg, i2c->base + OFFSET_TIMING);
--	writew(i2c->high_speed_reg, i2c->base + OFFSET_HS);
-+	mtk_i2c_writew(i2c, i2c->timing_reg, OFFSET_TIMING);
-+	mtk_i2c_writew(i2c, i2c->high_speed_reg, OFFSET_HS);
- 
- 	/* If use i2c pin from PMIC mt6397 side, need set PATH_DIR first */
- 	if (i2c->have_pmic)
--		writew(I2C_CONTROL_WRAPPER, i2c->base + OFFSET_PATH_DIR);
-+		mtk_i2c_writew(i2c, I2C_CONTROL_WRAPPER, OFFSET_PATH_DIR);
- 
- 	control_reg = I2C_CONTROL_ACKERR_DET_EN |
- 		      I2C_CONTROL_CLK_EXT_EN | I2C_CONTROL_DMA_EN;
--	writew(control_reg, i2c->base + OFFSET_CONTROL);
--	writew(I2C_DELAY_LEN, i2c->base + OFFSET_DELAY_LEN);
-+	mtk_i2c_writew(i2c, control_reg, OFFSET_CONTROL);
-+	mtk_i2c_writew(i2c, I2C_DELAY_LEN, OFFSET_DELAY_LEN);
- 
- 	writel(I2C_DMA_HARD_RST, i2c->pdmabase + OFFSET_RST);
- 	udelay(50);
-@@ -454,7 +498,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 
- 	reinit_completion(&i2c->msg_complete);
- 
--	control_reg = readw(i2c->base + OFFSET_CONTROL) &
-+	control_reg = mtk_i2c_readw(i2c, OFFSET_CONTROL) &
- 			~(I2C_CONTROL_DIR_CHANGE | I2C_CONTROL_RS);
- 	if ((i2c->speed_hz > MAX_FS_MODE_SPEED) || (left_num >= 1))
- 		control_reg |= I2C_CONTROL_RS;
-@@ -462,40 +506,41 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 	if (i2c->op == I2C_MASTER_WRRD)
- 		control_reg |= I2C_CONTROL_DIR_CHANGE | I2C_CONTROL_RS;
- 
--	writew(control_reg, i2c->base + OFFSET_CONTROL);
-+	mtk_i2c_writew(i2c, control_reg, OFFSET_CONTROL);
- 
- 	/* set start condition */
- 	if (i2c->speed_hz <= I2C_DEFAULT_SPEED)
--		writew(I2C_ST_START_CON, i2c->base + OFFSET_EXT_CONF);
-+		mtk_i2c_writew(i2c, I2C_ST_START_CON, OFFSET_EXT_CONF);
- 	else
--		writew(I2C_FS_START_CON, i2c->base + OFFSET_EXT_CONF);
-+		mtk_i2c_writew(i2c, I2C_FS_START_CON, OFFSET_EXT_CONF);
- 
- 	addr_reg = i2c_8bit_addr_from_msg(msgs);
--	writew(addr_reg, i2c->base + OFFSET_SLAVE_ADDR);
-+	mtk_i2c_writew(i2c, addr_reg, OFFSET_SLAVE_ADDR);
- 
- 	/* Clear interrupt status */
--	writew(restart_flag | I2C_HS_NACKERR | I2C_ACKERR |
--	       I2C_TRANSAC_COMP, i2c->base + OFFSET_INTR_STAT);
--	writew(I2C_FIFO_ADDR_CLR, i2c->base + OFFSET_FIFO_ADDR_CLR);
-+	mtk_i2c_writew(i2c, restart_flag | I2C_HS_NACKERR | I2C_ACKERR |
-+	       I2C_TRANSAC_COMP, OFFSET_INTR_STAT);
-+
-+	mtk_i2c_writew(i2c, I2C_FIFO_ADDR_CLR, OFFSET_FIFO_ADDR_CLR);
- 
- 	/* Enable interrupt */
--	writew(restart_flag | I2C_HS_NACKERR | I2C_ACKERR |
--	       I2C_TRANSAC_COMP, i2c->base + OFFSET_INTR_MASK);
-+	mtk_i2c_writew(i2c, restart_flag | I2C_HS_NACKERR | I2C_ACKERR |
-+	       I2C_TRANSAC_COMP, OFFSET_INTR_MASK);
- 
- 	/* Set transfer and transaction len */
- 	if (i2c->op == I2C_MASTER_WRRD) {
- 		if (i2c->dev_comp->aux_len_reg) {
--			writew(msgs->len, i2c->base + OFFSET_TRANSFER_LEN);
--			writew((msgs + 1)->len, i2c->base +
--			       OFFSET_TRANSFER_LEN_AUX);
-+			mtk_i2c_writew(i2c, msgs->len, OFFSET_TRANSFER_LEN);
-+			mtk_i2c_writew(i2c, (msgs + 1)->len,
-+					    OFFSET_TRANSFER_LEN_AUX);
- 		} else {
--			writew(msgs->len | ((msgs + 1)->len) << 8,
--			       i2c->base + OFFSET_TRANSFER_LEN);
-+			mtk_i2c_writew(i2c, msgs->len | ((msgs + 1)->len) << 8,
-+					    OFFSET_TRANSFER_LEN);
- 		}
--		writew(I2C_WRRD_TRANAC_VALUE, i2c->base + OFFSET_TRANSAC_LEN);
-+		mtk_i2c_writew(i2c, I2C_WRRD_TRANAC_VALUE, OFFSET_TRANSAC_LEN);
- 	} else {
--		writew(msgs->len, i2c->base + OFFSET_TRANSFER_LEN);
--		writew(num, i2c->base + OFFSET_TRANSAC_LEN);
-+		mtk_i2c_writew(i2c, msgs->len, OFFSET_TRANSFER_LEN);
-+		mtk_i2c_writew(i2c, num, OFFSET_TRANSAC_LEN);
- 	}
- 
- 	/* Prepare buffer data to start transfer */
-@@ -607,14 +652,14 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 		if (left_num >= 1)
- 			start_reg |= I2C_RS_MUL_CNFG;
- 	}
--	writew(start_reg, i2c->base + OFFSET_START);
-+	mtk_i2c_writew(i2c, start_reg, OFFSET_START);
- 
- 	ret = wait_for_completion_timeout(&i2c->msg_complete,
- 					  i2c->adap.timeout);
- 
- 	/* Clear interrupt mask */
--	writew(~(restart_flag | I2C_HS_NACKERR | I2C_ACKERR |
--	       I2C_TRANSAC_COMP), i2c->base + OFFSET_INTR_MASK);
-+	mtk_i2c_writew(i2c, ~(restart_flag | I2C_HS_NACKERR | I2C_ACKERR |
-+	       I2C_TRANSAC_COMP), OFFSET_INTR_MASK);
- 
- 	if (i2c->op == I2C_MASTER_WR) {
- 		dma_unmap_single(i2c->dev, wpaddr,
-@@ -724,8 +769,8 @@ static irqreturn_t mtk_i2c_irq(int irqno, void *dev_id)
- 	if (i2c->auto_restart)
- 		restart_flag = I2C_RS_TRANSFER;
- 
--	intr_stat = readw(i2c->base + OFFSET_INTR_STAT);
--	writew(intr_stat, i2c->base + OFFSET_INTR_STAT);
-+	intr_stat = mtk_i2c_readw(i2c, OFFSET_INTR_STAT);
-+	mtk_i2c_writew(i2c, intr_stat, OFFSET_INTR_STAT);
- 
- 	/*
- 	 * when occurs ack error, i2c controller generate two interrupts
-@@ -737,8 +782,8 @@ static irqreturn_t mtk_i2c_irq(int irqno, void *dev_id)
- 	if (i2c->ignore_restart_irq && (i2c->irq_stat & restart_flag)) {
- 		i2c->ignore_restart_irq = false;
- 		i2c->irq_stat = 0;
--		writew(I2C_RS_MUL_CNFG | I2C_RS_MUL_TRIG | I2C_TRANSAC_START,
--		       i2c->base + OFFSET_START);
-+		mtk_i2c_writew(i2c, I2C_RS_MUL_CNFG | I2C_RS_MUL_TRIG |
-+				    I2C_TRANSAC_START, OFFSET_START);
- 	} else {
- 		if (i2c->irq_stat & (I2C_TRANSAC_COMP | restart_flag))
- 			complete(&i2c->msg_complete);
--- 
-1.7.9.5
+On Fri, Jan 18, 2019 at 05:21:28PM +0000, Sowjanya Komatineni wrote:
+>=20
+>=20
+> >> increase transfer timeout to 10s to allow enough time during max=20
+> >> transfer size.
+> >>=20
+> >> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+> >> ---
+> >>  drivers/i2c/busses/i2c-tegra.c | 2 +-
+> >>  1 file changed, 1 insertion(+), 1 deletion(-)
+> >>=20
+> >> diff --git a/drivers/i2c/busses/i2c-tegra.c=20
+> >> b/drivers/i2c/busses/i2c-tegra.c index e417ebf7628c..ca7c581fb4c0=20
+> >> 100644
+> >> --- a/drivers/i2c/busses/i2c-tegra.c
+> >> +++ b/drivers/i2c/busses/i2c-tegra.c
+> >> @@ -25,7 +25,7 @@
+> >> =20
+> >>  #include <asm/unaligned.h>
+> >> =20
+> >> -#define TEGRA_I2C_TIMEOUT (msecs_to_jiffies(1000))
+> >> +#define TEGRA_I2C_TIMEOUT (msecs_to_jiffies(10000))
+> >>  #define BYTES_PER_FIFO_WORD 4
+> >> =20
+> >>  #define I2C_CNFG				0x000
+> >
+> >Should the timeout be set depending on the max transfer size? 10s seems =
+an age if the max transfer size is 4KB. In other words, we should this only=
+ be applied for >T194+?
+> >
+> >Furthermore, in tegra_i2c_xfer_msg() we know the len of the message and =
+so maybe it would be better to dynamically set the timeout depending on len=
+gth?
+> >
+> >Cheers
+> >Jon
+>=20
+> Yes, that=E2=80=99s the ideal way to compute timeout based on msg len and=
+ bus rate.=20
+> To do this I had to update TEGRA_I2C_TIMEOUT macro to take arg and
+> there are 3 different patches for tegra i2c under review and all of
+> those will effect as the patch changes use TEGRA_I2C_TIMEOUT.=20
+>=20
+> So, Should I hold on to this change for now till those patches are merged?
+
+If you have a number of patches with interdependencies, it's best to
+send them out as a whole series. So you'd typically apply them in order
+to a single branch, then use:
+
+	$ git format-patch first^..last
+
+where first is the SHA1 of the first commit you want to send, and last
+is the the SHA1 of the last patch. The carret (^) means the parent
+commit of the specified one and is needed because git format-patch
+doesn't include the start of the sequence.
+
+If the commits are at the top of your branch you can use something like
+this:
+
+	$ git format-patch -3
+
+which will generate a series for the last three patches in the branch
+(more specifically starting from HEAD).
+
+If you send them as a series, it's immediately obvious in what order
+they should be applied and generally makes it easier for people to
+review and test.
+
+I think in this case you can probably just have the other two patches
+first in the series, then apply the timeout patch on top. That way you
+can resolve the conflicts between patches 1 and 2, and patch 3 before
+sending out.
+
+Thierry
+
+--AhhlLboLdkugWU4S
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlxFkvUACgkQ3SOs138+
+s6Fw5Q/8DY8UeD7ZJIlP+dx7dlrjYimcows+9YNl/B1Lo0j+R/aCOcil2MKDoh87
+2P3yC0Xa3P29kcepD2noRV0T0LHpCmhq0jxhsuY3+Z3K/M4fRw4oKScjikrtfqlN
+xnrhNd/FLeBygIPvVgEHJQvnHXjzXEaH6rmZapoHuHJjuDmPXl8ZirLJBHLYXeel
+sZFd9aVDtK2PwYm+hKeU2j3Vh18thtKqdtBOcZD4+ioB+mrcwqy7jPPb2OzVWhZw
+ozfBnKsPqCgazFK7rZapd/bGlb0FeERtLeeE+ZqFEx475a8HsVpBOqN7ThwgKf7m
+TTHEwP9EsJstlK//rPjZdOtwNXe179gbueIaKcwNZjbU/sXqmpM4nfSq1xkvGV7E
+yswMwr+4X+nIHjj3Hha5TKdnprBOZTZic2ZZ+k2xQAy5vkgvOLH3BapUoe1lbGV7
+9SN9QHLqUKjHukISXbsP4mLnQ2C+5oInhGRYNHRB3pI3dB2D6BvnW/mv8+2/r+uE
+3wADIycOKibvWxSH5dDf2OXh5rZbcTUWGv8+jPE2LNgAvMunVICPnzyDksVXBdAq
+J0WTMGjHPsr1kwuTtovvl2IHE+e00K3qNx0TJTMCD0ILf6JNjiMazBJz90vRsGyZ
+wI9jSAfeYHMZ+/5uoFRev2Uu+W8YjKSvD+oGwGguXe8Xg39pqfM=
+=SAKZ
+-----END PGP SIGNATURE-----
+
+--AhhlLboLdkugWU4S--
