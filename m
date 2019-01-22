@@ -1,54 +1,48 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: aspeed: Remove hard-coded bus timeout value setting
-Date: Wed, 23 Jan 2019 00:18:54 +0100
-Message-ID: <20190122231854.g75ijhg6halhzdvh@ninjato>
-References: <20190116193943.6004-1-jae.hyun.yoo@linux.intel.com>
+From: Sowjanya Komatineni <skomatineni@nvidia.com>
+Subject: RE: [PATCH V3] i2c: tegra: Add Bus Clear Master Support
+Date: Tue, 22 Jan 2019 23:26:08 +0000
+Message-ID: <BYAPR12MB33986390C45475180381713FC2980@BYAPR12MB3398.namprd12.prod.outlook.com>
+References: <1548187338-6807-1-git-send-email-skomatineni@nvidia.com>
+        <5405e9aa-d974-ca9d-dec1-32f8631a045d@gmail.com>
+        <BYAPR12MB33984356AE1E279C7E0E880CC2980@BYAPR12MB3398.namprd12.prod.outlook.com>
+ <20190123014042.6d64ee29@dimatab>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="n33otukcn44nvdcc"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190116193943.6004-1-jae.hyun.yoo@linux.intel.com>
+In-Reply-To: <20190123014042.6d64ee29@dimatab>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
+To: Dmitry Osipenko <digetx@gmail.com>
+Cc: "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---n33otukcn44nvdcc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Jan 16, 2019 at 11:39:43AM -0800, Jae Hyun Yoo wrote:
-> This commit removes hard-coded bus timeout value setting so that
-> it can be set by i2c-core-base.
->=20
-> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-> Reviewed-by: Joel Stanley <joel@jms.id.au>
-> Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-
-Applied to for-next, thanks!
-
-
---n33otukcn44nvdcc
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxHpN0ACgkQFA3kzBSg
-KbY1fw/9H06zwh4pL8+szV13WMpPIU1rXCyiRitiy1m4Q6GgfHgyNUyjAAeuNmO/
-TcwZNmGx4yGlonk7LmL1xg98w7mjcbAwwu4B5ihlPN28MJGGT+WIdpHibjzB8Dvz
-Qwqh23tWxaU0KtMRwZppKKbKv5T8jux6qarxfxVFDY5eEd8qSWiqRCzN/5i9pE3Y
-gVpxKi5cQwSANEveQ9rjLU+tqq+VNo48PlcybHMaVImGL8V9lDVOKwosoQnISJ71
-Wnx+FfX0f/Mlu00gIcB/LrPnz4JbWRLvvyTr8RRtjJXHEmaicIncj6vmGvLp8m3l
-NsUAalTrwdDJq9EzzTRYNhlDlkUEonESnIlaQmjgSGKLYJ3u8sO1vL6P7SNfYRbu
-dP7O/e0eZFlovb+6XnF21arafl/J8bN4Qv0MLgm3/kUWxcmw6MpDBoiQ58eLn0et
-hFG4AJCWNszEA1btFdt+kR2VSl65+6rHydDqJIP7aDwnoXVYqIJjYjs79tHbs+jS
-jIKvcIpXvzMpPwQ4W7pO9QwqCfDDadnKuOoFpe2L59a+OYT6orTNqfl3kSRey7sv
-9WfLkus8l7nZovpkeXW9vwkEUvdC3xQX5f6eIiKiB4is7uArt5cZmH7BHQOiypX0
-jh0pSX9f6dI9eDCMq/VGzOysDHitI6K+E/0tiv6wFAycN/IVIfg=
-=nQmG
------END PGP SIGNATURE-----
-
---n33otukcn44nvdcc--
+DQoNCj4+ID4+ICsJaWYgKGkyY19kZXYtPm1zZ19lcnIgPT0gSTJDX0VSUl9BUkJJVFJBVElPTl9M
+T1NUKSB7DQo+PiA+PiArCQlpZiAoIWkyY19kZXYtPmlzX211bHRpbWFzdGVyX21vZGUpDQo+PiA+
+PiArCQkJcmV0dXJuIHRlZ3JhX2kyY19pc3N1ZV9idXNfY2xlYXIoaTJjX2Rldik7DQo+PiA+PiAr
+CQlyZXR1cm4gLUVBR0FJTjsNCj4+ID4NCj4+ID5UaGlzIGNoYW5nZXMgdGhlIHJldHVybmVkIGVy
+cm5vIGZyb20gLUVJTyB0byAtRUFHQUlOIGZvciB0aGUgDQo+PiA+c3VwcG9ydHNfYnVzX2NsZWFy
+PWZhbHNlIGNhc2UsIGlzIGl0IG9rYXkgYW5kIGludGVudGlvbmFsPw0KPj4gPiAgDQo+PiANCj4+
+IFllcyBFQUdBSU4gaXMgaW50ZW50aW9uYWwgdG8gYWxsb3cgZm9yIHRyYW5zZmVyIHJldHJ5Lg0K
+Pj4gRHVyaW5nIHNpbmdsZSBtYXN0ZXIgbW9kZSwgQVJCSVRSQVRJT04gTE9TVCBub3RpZmljYXRp
+b24gaGFwcGVucyB3aGVuIA0KPj4gMS4gSTJDIE1hc3RlciBzZWVzIHRoZSBidXMgaXMgb2NjdXBp
+ZWQgYnkgc29tZSBvdGhlciBkZXZpY2Ugd2hlbiBhIA0KPj4gdHJhbnNmZXIgaXMgaW5pdGlhdGVk
+IDIuIEkyQyBNYXN0ZXIgbG9zdCB0aGUgYnVzIGR1cmluZyBhcmJpdHJhdGlvbiANCj4+IGluY2Fz
+ZSBpZiBzbGF2ZSBkZXZpY2UgcHVsbHMgU0RBIGxpbmUgbG93IGNvbnRpbnVvdXNseSBmb3Igc29t
+ZSANCj4+IHVua25vd24gcmVhc29uIElmIGFyYml0cmF0aW9uIGxvc3QgaXMgZHVlIHRvIGNhdXNl
+IDEsIHJldHJ5IGhlbHBzIHRvIA0KPj4gY29udGludWUgd2l0aCB0cmFuc2ZlciBvbmNlIGJ1cyBp
+cyByZWxlYXNlZCBieSB0aGUgc2xhdmUgYW5kIGl0IGp1c3QgDQo+PiBhZGRlZCBkZWxheSBpbiBj
+b21tdW5pY2F0aW9uIGR1ZSB0byBidXMgcmVsZWFzZSBkZWxheSBieSBzbGF2ZS4gSW4gDQo+PiBj
+YXNlIG9mIDJuZCBjYXVzZSwgcmV0cnkgbmV2ZXIgc3VjY2VlZHMgaW4gY2FzZXMgd2hlcmUgYnVz
+IGNsZWFyIGlzIA0KPj4gbm90IHN1cHBvcnRlZC4NCj4NCj5JdCdzIHVuY2xlYXIgd2hldGhlciB0
+aGUgIm5ldmVyIHN1Y2NlZWRzIHJldHJ5IiBtYXkgZmFpbCB3aXRoIHRoZSBFQUdBSU4sIGNhdXNp
+bmcgYW4gZW5kbGVzcyByZXRyeS1sb29wLiBDb3VsZCB5b3UgcGxlYXNlIGNsYXJpZnkgdGhpcyBt
+b21lbnQ/DQoNCmR1cmluZyBtYXN0ZXIgdHJhbnNtaXQgbW9kZSwgb24gYXJiaXRyYXRpb24gbG9z
+dCBhbmQgaWYgbWFzdGVyIGRvZXNu4oCZdCBzdXBwb3J0IGJ1cyBjbGVhciB0byByZWNvdmVyIHRo
+ZW4gdHJhbnNmZXIgd2lsbCByZXR1cm4gRUFHQUlOLg0KSTJjIGNvcmUgYmFzZSBkcml2ZXIgcGVy
+Zm9ybXMgcmV0cmllcyBpZiByZXR1cm4gY29kZSBmcm9tIGkyY190cmFuc2ZlciBpcyBFQUdBSU4g
+dXAgdG8gc3BlY2lmaWVkIHJldHJpZXMgaW4gaTJjIGFkYXB0ZXIgYW5kIHJldHVybnMgdGhlIHJl
+dCBjb2RlIGZyb20gdGhlIGxhc3QgcmV0cnkuDQpSZXRyeSBpcyBub3QgZW5kbGVzcyBhcyBpMmMg
+Y29yZSBiYXNlIHBlcmZvcm1zIHJldHJ5IG9ubHkgdXAgdG8gc3BlY2lmaWVkIGFkYXB0ZXIgcmV0
+cmllcy4NCkZvbGxvd2luZyByZXR1cm4gY29kZSBmcm9tIGRvY3VtZW50YXRpb24NCmh0dHBzOi8v
+d3d3Lmtlcm5lbC5vcmcvZG9jL0RvY3VtZW50YXRpb24vaTJjL2ZhdWx0LWNvZGVzDQoNCg0K
