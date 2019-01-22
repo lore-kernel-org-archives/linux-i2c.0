@@ -1,33 +1,47 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 3/6] i2c: i2c-qcom-geni: Add interconnect support
-Date: Tue, 22 Jan 2019 09:13:26 +0000
-Message-ID: <d44cdb5e-2408-493c-3f86-db97c224dc3f@axentia.se>
-References: <1548138816-1149-1-git-send-email-alokc@codeaurora.org>
- <1548138816-1149-4-git-send-email-alokc@codeaurora.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [RESEND PATCH 00/12] eeprom: at24: remove platform_data
+Date: Tue, 22 Jan 2019 13:22:28 +0100
+Message-ID: <20190122122228.GA2736@kroah.com>
+References: <20190108091539.16674-1-brgl@bgdev.pl>
+ <8c190cf3-b4f3-90d0-07ce-4bb7927160df@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1548138816-1149-4-git-send-email-alokc@codeaurora.org>
-Content-Language: en-US
-Content-ID: <C38BDEC1F2845543840C4E8294DB0415@eurprd02.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <8c190cf3-b4f3-90d0-07ce-4bb7927160df@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alok Chauhan <alokc@codeaurora.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
-Cc: "andy.gross@linaro.org" <andy.gross@linaro.org>, "david.brown@linaro.org" <david.brown@linaro.org>, "georgi.djakov@linaro.org" <georgi.djakov@linaro.org>, "dianders@chromium.org" <dianders@chromium.org>, "swboyd@chromium.org" <swboyd@chromium.org>, "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>
+To: Sekhar Nori <nsekhar@ti.com>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>, Kevin Hilman <khilman@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOS0wMS0yMiAwNzozMywgQWxvayBDaGF1aGFuIHdyb3RlOg0KPiBHZXQgdGhlIGludGVy
-Y29ubmVjdCBwYXRocyBmb3IgSTJDIGJhc2VkIFNlcmlhbCBFbmdpbmUgZGV2aWNlDQo+IGFuZCB2
-b3RlIGFjY29yZGluZ2x5IGJhc2VkIG9uIG1heGltdW0gc3VwcG9ydGVkIEkyQyBmcmVxdWVuY3ku
-DQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBBbG9rIENoYXVoYW4gPGFsb2tjQGNvZGVhdXJvcmEub3Jn
-Pg0KPiAtLS0NCj4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtcWNvbS1nZW5pLmMgfCAxMyArKysr
-KysrKysrKysrDQo+ICAxIGZpbGUgY2hhbmdlZCwgMTMgaW5zZXJ0aW9ucygrKQ0KPiANCj4gZGlm
-ZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtcWNvbS1nZW5pLmMgYi9kcml2ZXJzL2ky
-Yy9idXNzZXMvaTJjLXFjb20tZ2VuaS5jDQo+IGluZGV4IGRiMDc1YmMuLmU4ZmU2M2EgMTAwNjQ0
-DQo+IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtcWNvbS1nZW5pLmMNCj4gKysrIGIvZHJp
-dmVycy9pMmMvYnVzc2VzL2kyYy1xY29tLWdlbmkuYw0KPiBAQCAtMTQsNiArMTQsNyBAQA0KPiAg
-I2luY2x1ZGUgPGxpbnV4L3BtX3J1bnRpbWUuaD4NCj4gICNpbmNsdWRlIDxsaW51eC9xY29tLWdl
-bmktc2UuaD4NCj4gICNpbmNsdWRlIDxsaW51eC9zcGlubG9jay5oPg0KPiArI2luY2x1ZGUgPGxp
-bnV4L2ludGVyY29ubmVjdC5oPg0KDQpQbGVhc2Uga2VlcCB0aGUgaW5jbHVkZXMgc29ydGVkLiBQ
-cm9iYWJseSBhcHBsaWVzIGZvciB0aGUgb3RoZXIgcGF0Y2hlcw0KaW4gdGhlIHNlcmllcyBhcyB3
-ZWxsPw0KDQpDaGVlcnMsDQpQZXRlcg0K
+On Thu, Jan 10, 2019 at 07:43:47PM +0530, Sekhar Nori wrote:
+> Hi Bartosz,
+> 
+> On 08/01/19 2:45 PM, Bartosz Golaszewski wrote:
+> > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> > 
+> > Hi Sekhar,
+> > 
+> > now that all dependencies are in and v5.0-rc1 is tagged, please consider
+> > picking up the second batch of davinci-specific changes into your tree.
+> > Once that's done, please provide me with an immutable branch for me to
+> > apply the last patch to my at24 tree.
+> 
+> You can use branch v5.1/eeprom-for-bartosz in my tree for this (commit
+> e430685f4969).
+> 
+> > 
+> > This is the second part of the effort to modernize the at24 driver and
+> > remove the legacy platform data structure in favor of device properties.
+> > It required getting rid of the at24 setup callback in favor of nvmem
+> > lookups.
+> > 
+> > Re-tested with da850-evm and dm365-evm.
+> 
+> Applied patches 1-11 for v5.1
+
+Feel free to take patch 12 as well :)
+
+thanks,
+
+greg k-h
