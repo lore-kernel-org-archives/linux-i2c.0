@@ -1,84 +1,53 @@
-From: alokc@codeaurora.org
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH 3/6] i2c: i2c-qcom-geni: Add interconnect support
-Date: Tue, 22 Jan 2019 12:24:10 +0530
-Message-ID: <b0df5f24c58766ac10ed1524abfa5f11@codeaurora.org>
-References: <1548069703-26595-1-git-send-email-alokc@codeaurora.org>
- <1548069703-26595-4-git-send-email-alokc@codeaurora.org>
+Date: Tue, 22 Jan 2019 10:07:50 +0100
+Message-ID: <20190122090750.GA1012@kunai>
+References: <1548138816-1149-1-git-send-email-alokc@codeaurora.org>
+ <1548138816-1149-4-git-send-email-alokc@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1548069703-26595-4-git-send-email-alokc@codeaurora.org>
+Content-Disposition: inline
+In-Reply-To: <1548138816-1149-4-git-send-email-alokc@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, Alok Chauhan <alokc@codeaurora.org>, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: andy.gross@linaro.org, david.brown@linaro.org, georgi.djakov@linaro.org, dianders@chromium.org, swboyd@chromium.org, bjorn.andersson@linaro.org
+To: Alok Chauhan <alokc@codeaurora.org>
+Cc: linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-serial@vger.kernel.org, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, andy.gross@linaro.org, david.brown@linaro.org, georgi.djakov@linaro.org, dianders@chromium.org, swboyd@chromium.org, bjorn.andersson@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-Please don't review this patch. I've resend patches after adding all the 
-mailing list.
-Sorry for inconvenience. Please review patches with spi/i2c/uart/kernel 
-mailing list added.
 
-On 2019-01-21 16:51, Alok Chauhan wrote:
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Jan 22, 2019 at 12:03:33PM +0530, Alok Chauhan wrote:
 > Get the interconnect paths for I2C based Serial Engine device
 > and vote accordingly based on maximum supported I2C frequency.
-> 
+>=20
 > Signed-off-by: Alok Chauhan <alokc@codeaurora.org>
-> ---
->  drivers/i2c/busses/i2c-qcom-geni.c | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c
-> b/drivers/i2c/busses/i2c-qcom-geni.c
-> index db075bc..e8fe63a 100644
-> --- a/drivers/i2c/busses/i2c-qcom-geni.c
-> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
-> @@ -14,6 +14,7 @@
->  #include <linux/pm_runtime.h>
->  #include <linux/qcom-geni-se.h>
->  #include <linux/spinlock.h>
-> +#include <linux/interconnect.h>
-> 
->  #define SE_I2C_TX_TRANS_LEN		0x26c
->  #define SE_I2C_RX_TRANS_LEN		0x270
-> @@ -508,6 +509,15 @@ static int geni_i2c_probe(struct platform_device 
-> *pdev)
->  		return ret;
->  	}
-> 
-> +	/* Set the bus quota to a reasonable value */
-> +	gi2c->se.avg_bw = Bps_to_icc(1000);
-> +	gi2c->se.peak_bw = Bps_to_icc(76800000);
-> +	ret = geni_interconnect_init(&gi2c->se);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "interconnect_init failed %d\n", ret);
-> +		return ret;
-> +	}
-> +
->  	ret = device_property_read_u32(&pdev->dev, "clock-frequency",
->  							&gi2c->clk_freq_out);
->  	if (ret) {
-> @@ -611,6 +621,8 @@ static int __maybe_unused
-> geni_i2c_runtime_suspend(struct device *dev)
->  		gi2c->suspended = 1;
->  	}
-> 
-> +	geni_icc_update_bw(&gi2c->se, false);
-> +
->  	return 0;
->  }
-> 
-> @@ -619,6 +631,7 @@ static int __maybe_unused
-> geni_i2c_runtime_resume(struct device *dev)
->  	int ret;
->  	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
-> 
-> +	geni_icc_update_bw(&gi2c->se, true);
->  	ret = geni_se_resources_on(&gi2c->se);
->  	if (ret)
->  		return ret;
 
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora 
-Forum,a Linux Foundation Collaborative Project
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+
+
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxG3WIACgkQFA3kzBSg
+KbY+6BAAl5xhp7jUSOyFJXSafZGLgnJuYx3N01zZJhuCm2sGhGhKQcGH2M0EcfUK
+YMTYKp0bvzOjpa9WvJEceZM/OrHSmFMoMzMbsdUC3oxvrN6USnuDIlmkBo4zKGx+
+srmS5YMtb7ekOXsI0rSFJb5VRX3BULLpD/V5vYsysihZsoS6ReFtwqdMWS1uR/JP
+HLpwgPsvynzIblq1TZM0UfTXvz1QBxRAQjKkJcaoXAUGBFZuL5lEmis3yd5amY4N
+Mvwax2A7s6qB9hOazOUwyutoqLZfChk4AtnH07wnvpuf0fFkiv6FeK9BjpwEwXJe
+ofty1FDAF9/KlkohN9TzVJRhITAAbJFLiwXU+yot69bEehGvaVF13qgZkvgDrElF
+vDC2AlBhvlqdfnLetOVdrsbAErUeaj8XDf19y2NzaF9S/cD69aobLlQ3x784ZRch
+JNz3N0J+IgZeCh2ZK9NQxiiiG0XFMJAASY2dyJqR0MFdr7oNFS/rhQTKS2HqwvWx
+012gPahU1GdcQUeo6dx9ZJfd43dGEbe32GPv5JQWtf9lNBvVcGiEXCoH4wMehvxK
+YlixJOpkdTb263JRy335ACAB14A8caTBDHmR1Vhvtw3Rvn3txSldNHrF0ENQ0N9j
+/ZpWV8NT3GhKvUj5v9Erucjn1wTegBlmU4w6aGJI59JPDsr/2as=
+=C1RA
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--
