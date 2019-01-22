@@ -1,55 +1,84 @@
-From: Alok Chauhan <alokc@codeaurora.org>
-Subject: [PATCH 6/6] arm64: dts: sdm845: Add interconnect for GENI QUP
-Date: Tue, 22 Jan 2019 12:03:36 +0530
-Message-ID: <1548138816-1149-7-git-send-email-alokc@codeaurora.org>
-References: <1548138816-1149-1-git-send-email-alokc@codeaurora.org>
+From: alokc@codeaurora.org
+Subject: Re: [PATCH 3/6] i2c: i2c-qcom-geni: Add interconnect support
+Date: Tue, 22 Jan 2019 12:24:10 +0530
+Message-ID: <b0df5f24c58766ac10ed1524abfa5f11@codeaurora.org>
+References: <1548069703-26595-1-git-send-email-alokc@codeaurora.org>
+ <1548069703-26595-4-git-send-email-alokc@codeaurora.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1548138816-1149-1-git-send-email-alokc@codeaurora.org>
+In-Reply-To: <1548069703-26595-4-git-send-email-alokc@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-serial@vger.kernel.org, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
-Cc: georgi.djakov@linaro.org, dianders@chromium.org, swboyd@chromium.org, bjorn.andersson@linaro.org, Alok Chauhan <alokc@codeaurora.org>
+To: linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, Alok Chauhan <alokc@codeaurora.org>, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: andy.gross@linaro.org, david.brown@linaro.org, georgi.djakov@linaro.org, dianders@chromium.org, swboyd@chromium.org, bjorn.andersson@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add interconnect ports for GENI QUPs to set bus
-capabilities.
+Please don't review this patch. I've resend patches after adding all the 
+mailing list.
+Sorry for inconvenience. Please review patches with spi/i2c/uart/kernel 
+mailing list added.
 
-Signed-off-by: Alok Chauhan <alokc@codeaurora.org>
----
- arch/arm64/boot/dts/qcom/sdm845.dtsi | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+On 2019-01-21 16:51, Alok Chauhan wrote:
+> Get the interconnect paths for I2C based Serial Engine device
+> and vote accordingly based on maximum supported I2C frequency.
+> 
+> Signed-off-by: Alok Chauhan <alokc@codeaurora.org>
+> ---
+>  drivers/i2c/busses/i2c-qcom-geni.c | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c
+> b/drivers/i2c/busses/i2c-qcom-geni.c
+> index db075bc..e8fe63a 100644
+> --- a/drivers/i2c/busses/i2c-qcom-geni.c
+> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+> @@ -14,6 +14,7 @@
+>  #include <linux/pm_runtime.h>
+>  #include <linux/qcom-geni-se.h>
+>  #include <linux/spinlock.h>
+> +#include <linux/interconnect.h>
+> 
+>  #define SE_I2C_TX_TRANS_LEN		0x26c
+>  #define SE_I2C_RX_TRANS_LEN		0x270
+> @@ -508,6 +509,15 @@ static int geni_i2c_probe(struct platform_device 
+> *pdev)
+>  		return ret;
+>  	}
+> 
+> +	/* Set the bus quota to a reasonable value */
+> +	gi2c->se.avg_bw = Bps_to_icc(1000);
+> +	gi2c->se.peak_bw = Bps_to_icc(76800000);
+> +	ret = geni_interconnect_init(&gi2c->se);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "interconnect_init failed %d\n", ret);
+> +		return ret;
+> +	}
+> +
+>  	ret = device_property_read_u32(&pdev->dev, "clock-frequency",
+>  							&gi2c->clk_freq_out);
+>  	if (ret) {
+> @@ -611,6 +621,8 @@ static int __maybe_unused
+> geni_i2c_runtime_suspend(struct device *dev)
+>  		gi2c->suspended = 1;
+>  	}
+> 
+> +	geni_icc_update_bw(&gi2c->se, false);
+> +
+>  	return 0;
+>  }
+> 
+> @@ -619,6 +631,7 @@ static int __maybe_unused
+> geni_i2c_runtime_resume(struct device *dev)
+>  	int ret;
+>  	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
+> 
+> +	geni_icc_update_bw(&gi2c->se, true);
+>  	ret = geni_se_resources_on(&gi2c->se);
+>  	if (ret)
+>  		return ret;
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845.dtsi b/arch/arm64/boot/dts/qcom/sdm845.dtsi
-index c27cbd3..fb0a8a7 100644
---- a/arch/arm64/boot/dts/qcom/sdm845.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845.dtsi
-@@ -374,6 +374,13 @@
- 			#address-cells = <1>;
- 			#size-cells = <1>;
- 			ranges;
-+
-+			interconnects = <&rsc_hlos MASTER_BLSP_1
-+					&rsc_hlos SLAVE_EBI1>,
-+					<&rsc_hlos MASTER_APPSS_PROC
-+					&rsc_hlos SLAVE_BLSP_1>;
-+			interconnect-names = "qup-memory", "qup-config";
-+
- 			status = "disabled";
- 
- 			i2c0: i2c@880000 {
-@@ -682,6 +689,13 @@
- 			#address-cells = <1>;
- 			#size-cells = <1>;
- 			ranges;
-+
-+			interconnects = <&rsc_hlos MASTER_BLSP_2
-+					&rsc_hlos SLAVE_EBI1>,
-+					<&rsc_hlos MASTER_APPSS_PROC
-+					&rsc_hlos SLAVE_BLSP_2>;
-+			interconnect-names = "qup-memory", "qup-config";
-+
- 			status = "disabled";
- 
- 			i2c8: i2c@a80000 {
 -- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora 
+Forum,a Linux Foundation Collaborative Project
