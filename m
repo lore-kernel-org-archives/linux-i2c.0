@@ -1,75 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 1/2] i2c: imx: fix dma_request_chan error handling
-Date: Tue, 22 Jan 2019 23:51:55 +0100
-Message-ID: <20190122225155.vfy37bfuikzzymao@ninjato>
-References: <20190116112855.13824-1-laurentiu.tudor@nxp.com>
+Subject: Re: [PATCH] i2c: aspeed: Remove hard-coded bus timeout value setting
+Date: Wed, 23 Jan 2019 00:18:54 +0100
+Message-ID: <20190122231854.g75ijhg6halhzdvh@ninjato>
+References: <20190116193943.6004-1-jae.hyun.yoo@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="tzp54if5hd3it573"
+        protocol="application/pgp-signature"; boundary="n33otukcn44nvdcc"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190116112855.13824-1-laurentiu.tudor@nxp.com>
+In-Reply-To: <20190116193943.6004-1-jae.hyun.yoo@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Cc: linux-i2c@vger.kernel.org, linux-imx@nxp.com, shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabio.estevam@nxp.com, leoyang.li@nxp.com
+To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---tzp54if5hd3it573
+--n33otukcn44nvdcc
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 16, 2019 at 01:28:54PM +0200, Laurentiu Tudor wrote:
-> Use the correct error pointer when extracting the error code.
+On Wed, Jan 16, 2019 at 11:39:43AM -0800, Jae Hyun Yoo wrote:
+> This commit removes hard-coded bus timeout value setting so that
+> it can be set by i2c-core-base.
 >=20
-> Fixes: ea1e5f176e97 ("i2c: imx: notify about real errors on dma i2c_imx_d=
-ma_request")
+> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+> Reviewed-by: Joel Stanley <joel@jms.id.au>
+> Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
 
-This is not the sha1 in my tree. Maybe you rebased? I applied another
-patch meanwhile fixing the same issue. Still thanks!
+Applied to for-next, thanks!
 
-> Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-> ---
->  drivers/i2c/busses/i2c-imx.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index 09b124547669..42fed40198a0 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -287,7 +287,7 @@ static int i2c_imx_dma_request(struct imx_i2c_struct =
-*i2c_imx,
-> =20
->  	dma->chan_tx =3D dma_request_chan(dev, "tx");
->  	if (IS_ERR(dma->chan_tx)) {
-> -		ret =3D PTR_ERR(dma->chan_rx);
-> +		ret =3D PTR_ERR(dma->chan_tx);
->  		if (ret !=3D -ENODEV && ret !=3D -EPROBE_DEFER)
->  			dev_err(dev, "can't request DMA tx channel (%d)\n", ret);
->  		goto fail_al;
-> --=20
-> 2.17.1
->=20
 
---tzp54if5hd3it573
+--n33otukcn44nvdcc
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxHnosACgkQFA3kzBSg
-KbZMgA//cFlQRC8UbygfeKRp1djCuNi+hrVDWQ3uHwvIO54srWtH/93QcngYpDo3
-zPaJY+syS3Hl22XvtZDgSMljAiN2JXGv0UsxjcTRxU60A4TQaY/UUYuDIF6PcPbN
-kiLGbHmZ+LaT/bSTH6k+c7l7nx/ffqxHrlcy5VOgp9pcOdTsvidJlVV/tsQ5QApJ
-I4c+7xWzr5CztMci10Dq5p3wRClQNpbA28AVWpufJ78yDxf1yMS2q1F84Qbvg1Wd
-XjJESQdlkAXs0e9Ujjwg1mHzAO7lwkF8oj2QN38E94ebyx2t3uoyrv8cbRi/ivCR
-UUwE5Aa72Yhk+h5sTPo3MnAXv9V2gYXkjuinzHwibOxC+B4PQu/oItW4xmGvihh3
-LO88WNnsBgK0M3ZGzWcKYubyYp+zF6a3Z3U47lN1zc2BzS1Ba8svDmQeoeuxItWc
-QRjYtymm/2daqJh7s+2PLjbXHckuw7BsiA9j42YsWiGNMxll88mEPGpg3+F1Fzhh
-0tTJ0zUuSm+99wJO1NanBnGE8vzGb9yjPKqf8xID+1W7q+EjwlNGsHQXb5YchWAe
-R+VmyaoTXoDFytH8LotU628o4WAEFFpJjJjV1hyeC/gev+N/gcWoE1p1W1Gzwvxd
-BxYwAedHrPXztHDfMi9p2EUtXOMyJsm4bIM2ToQ4Clh70xQBl8k=
-=gB2m
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxHpN0ACgkQFA3kzBSg
+KbY1fw/9H06zwh4pL8+szV13WMpPIU1rXCyiRitiy1m4Q6GgfHgyNUyjAAeuNmO/
+TcwZNmGx4yGlonk7LmL1xg98w7mjcbAwwu4B5ihlPN28MJGGT+WIdpHibjzB8Dvz
+Qwqh23tWxaU0KtMRwZppKKbKv5T8jux6qarxfxVFDY5eEd8qSWiqRCzN/5i9pE3Y
+gVpxKi5cQwSANEveQ9rjLU+tqq+VNo48PlcybHMaVImGL8V9lDVOKwosoQnISJ71
+Wnx+FfX0f/Mlu00gIcB/LrPnz4JbWRLvvyTr8RRtjJXHEmaicIncj6vmGvLp8m3l
+NsUAalTrwdDJq9EzzTRYNhlDlkUEonESnIlaQmjgSGKLYJ3u8sO1vL6P7SNfYRbu
+dP7O/e0eZFlovb+6XnF21arafl/J8bN4Qv0MLgm3/kUWxcmw6MpDBoiQ58eLn0et
+hFG4AJCWNszEA1btFdt+kR2VSl65+6rHydDqJIP7aDwnoXVYqIJjYjs79tHbs+jS
+jIKvcIpXvzMpPwQ4W7pO9QwqCfDDadnKuOoFpe2L59a+OYT6orTNqfl3kSRey7sv
+9WfLkus8l7nZovpkeXW9vwkEUvdC3xQX5f6eIiKiB4is7uArt5cZmH7BHQOiypX0
+jh0pSX9f6dI9eDCMq/VGzOysDHitI6K+E/0tiv6wFAycN/IVIfg=
+=nQmG
 -----END PGP SIGNATURE-----
 
---tzp54if5hd3it573--
+--n33otukcn44nvdcc--
