@@ -1,44 +1,76 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 4/6] spi: spi-geni-qcom: Add interconnect support
-Date: Wed, 23 Jan 2019 16:04:29 +0000
-Message-ID: <20190123160429.GE7503@sirena.org.uk>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: Re: [PATCH 1/6] dt-bindings: soc: qcom: Add interconnect binding for
+ GENI QUP
+Date: Wed, 23 Jan 2019 09:07:58 -0800
+Message-ID: <20190123170758.GB512@tuxbook-pro>
 References: <1548138816-1149-1-git-send-email-alokc@codeaurora.org>
- <1548138816-1149-5-git-send-email-alokc@codeaurora.org>
+ <1548138816-1149-2-git-send-email-alokc@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="n+lFg1Zro7sl44OB"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1548138816-1149-5-git-send-email-alokc@codeaurora.org>
+In-Reply-To: <1548138816-1149-2-git-send-email-alokc@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Alok Chauhan <alokc@codeaurora.org>
-Cc: linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-serial@vger.kernel.org, andy.gross@linaro.org, david.brown@linaro.org, georgi.djakov@linaro.org, dianders@chromium.org, swboyd@chromium.org, bjorn.andersson@linaro.org
+Cc: linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-serial@vger.kernel.org, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, georgi.djakov@linaro.org, dianders@chromium.org, swboyd@chromium.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon 21 Jan 22:33 PST 2019, Alok Chauhan wrote:
 
---n+lFg1Zro7sl44OB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Add documentation for the interconnect and interconnect-names bindings
+> for the GENI QUP as detailed by bindings/interconnect/interconnect.txt.
+> 
+> Signed-off-by: Alok Chauhan <alokc@codeaurora.org>
+> ---
+>  Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt b/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
+> index dab7ca9..44d7e02 100644
+> --- a/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
+> +++ b/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
+> @@ -17,6 +17,12 @@ Required properties if child node exists:
+>  - #address-cells: 	Must be <1> for Serial Engine Address
+>  - #size-cells: 		Must be <1> for Serial Engine Address Size
+>  - ranges: 		Must be present
+> +- interconnects:	phandle to a interconnect provider. Please refer
+> +			../interconnect/interconnect.txt for details.
+> +			Must be 2 paths corresponding to 2 AXI ports.
+> +- interconnect-names:	Port names to differentiate between the
 
-On Tue, Jan 22, 2019 at 12:03:34PM +0530, Alok Chauhan wrote:
-> Get the interconnect paths for SPI based Serial Engine device
-> and vote accordingly based on maximum supported SPI frequency.
+s/Port names/Path names/
 
-Acked-by: Mark Brown <broonie@kernel.org>
+> +			2 interconnect paths defined with interconnect
+> +			specifier.
 
---n+lFg1Zro7sl44OB
-Content-Type: application/pgp-signature; name="signature.asc"
+These two names are significant in that they must match what the driver
+expects, hence you must actually specify them here.
 
------BEGIN PGP SIGNATURE-----
+And as the scope of these strings are local to the QUP node you can omit
+"qup" from them, so make them "memory" and "config" (or perhaps iface,
+to match the clock naming?).
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlxIkIwACgkQJNaLcl1U
-h9DSZQf/Z/RXV5oMQ+WeQEjgLJUGNcAKhNgh3h5Ybq6Tn1RanSJMfwLA/kY1mp/e
-9ESnLPEA29E4WCaSUz80AffsHaYge162pI6R8DeR3+MsChdO5dde7S4NwE+Dc9FC
-o3c5MkhxN2gMufWHY30PWI5Hzq/QsKvuLUcN9tBLZZdIXJoIR4+9iBWWbRLbqx5C
-we3GSPuWlVB5xludSl9iAQmiu2FNnzahM4r3OBm4R/+dMOPWViERGMVMIEjI6rrg
-yCKDfUc01EscZyJpO1JcF778OAGzaj+IF6ZDax79W+Y9dke8YwqaJVjOT9l82Xag
-bdX3zyVWgDdLMSOZ+iJD7QBFq3mHSQ==
-=3f7w
------END PGP SIGNATURE-----
+Regards,
+Bjorn
 
---n+lFg1Zro7sl44OB--
+>  
+>  Properties for children:
+>  
+> @@ -67,6 +73,10 @@ Example:
+>  		#size-cells = <1>;
+>  		ranges;
+>  
+> +		interconnects = <&qnoc 11 &qnoc 512>,
+> +				<&qnoc 0 &qnoc 543>;
+
+I presu
+
+> +		interconnect-names = "qup-memory", "qup-config";
+> +
+>  		i2c0: i2c@a94000 {
+>  			compatible = "qcom,geni-i2c";
+>  			reg = <0xa94000 0x4000>;
+> -- 
+> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+> a Linux Foundation Collaborative Project
+> 
