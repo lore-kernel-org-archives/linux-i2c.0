@@ -1,63 +1,54 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 4/6] spi: spi-geni-qcom: Add interconnect support
-Date: Wed, 23 Jan 2019 10:58:21 +0000
-Message-ID: <20190123105821.GA7503@sirena.org.uk>
-References: <1548138816-1149-1-git-send-email-alokc@codeaurora.org>
- <1548138816-1149-5-git-send-email-alokc@codeaurora.org>
- <20190122202924.GL7579@sirena.org.uk>
- <775cdd29a7d536772330a15a7013f251@codeaurora.org>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH V3] i2c: tegra: Add Bus Clear Master Support
+Date: Wed, 23 Jan 2019 16:17:19 +0300
+Message-ID: <783993ec-6d88-9a84-b1bd-cd44d45e2584@gmail.com>
+References: <1548187338-6807-1-git-send-email-skomatineni@nvidia.com>
+ <5405e9aa-d974-ca9d-dec1-32f8631a045d@gmail.com>
+ <BYAPR12MB33984356AE1E279C7E0E880CC2980@BYAPR12MB3398.namprd12.prod.outlook.com>
+ <20190123014042.6d64ee29@dimatab>
+ <BYAPR12MB33986390C45475180381713FC2980@BYAPR12MB3398.namprd12.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="LQksG6bCIzRHxTLp"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <775cdd29a7d536772330a15a7013f251@codeaurora.org>
+In-Reply-To: <BYAPR12MB33986390C45475180381713FC2980@BYAPR12MB3398.namprd12.prod.outlook.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: alokc@codeaurora.org
-Cc: linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-serial@vger.kernel.org, andy.gross@linaro.org, david.brown@linaro.org, georgi.djakov@linaro.org, dianders@chromium.org, swboyd@chromium.org, bjorn.andersson@linaro.org, linux-serial-owner@vger.kernel.org
+To: Sowjanya Komatineni <skomatineni@nvidia.com>
+Cc: "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+23.01.2019 2:26, Sowjanya Komatineni пишет:
+> 
+> 
+>>>>> +	if (i2c_dev->msg_err == I2C_ERR_ARBITRATION_LOST) {
+>>>>> +		if (!i2c_dev->is_multimaster_mode)
+>>>>> +			return tegra_i2c_issue_bus_clear(i2c_dev);
+>>>>> +		return -EAGAIN;
+>>>>
+>>>> This changes the returned errno from -EIO to -EAGAIN for the 
+>>>> supports_bus_clear=false case, is it okay and intentional?
+>>>>  
+>>>
+>>> Yes EAGAIN is intentional to allow for transfer retry.
+>>> During single master mode, ARBITRATION LOST notification happens when 
+>>> 1. I2C Master sees the bus is occupied by some other device when a 
+>>> transfer is initiated 2. I2C Master lost the bus during arbitration 
+>>> incase if slave device pulls SDA line low continuously for some 
+>>> unknown reason If arbitration lost is due to cause 1, retry helps to 
+>>> continue with transfer once bus is released by the slave and it just 
+>>> added delay in communication due to bus release delay by slave. In 
+>>> case of 2nd cause, retry never succeeds in cases where bus clear is 
+>>> not supported.
+>>
+>> It's unclear whether the "never succeeds retry" may fail with the EAGAIN, causing an endless retry-loop. Could you please clarify this moment?
+> 
+> during master transmit mode, on arbitration lost and if master doesn’t support bus clear to recover then transfer will return EAGAIN.
+> I2c core base driver performs retries if return code from i2c_transfer is EAGAIN up to specified retries in i2c adapter and returns the ret code from the last retry.
+> Retry is not endless as i2c core base performs retry only up to specified adapter retries.
+> Following return code from documentation
+> https://www.kernel.org/doc/Documentation/i2c/fault-codes
+> 
+> 
 
---LQksG6bCIzRHxTLp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Wed, Jan 23, 2019 at 12:45:30PM +0530, alokc@codeaurora.org wrote:
-> On 2019-01-23 01:59, Mark Brown wrote:
-
-> > Still not seeing anything except this patch here in my inbox - like I
-> > said what's the story with dependencies?
-
-> I've added linux-spi mailing list to all the patches sent as part of this
-> series. Not sure why you didn't get other patches. Today I've explicitly
-> added you in all the patches.
-
-You really need to ensure that things end up in people's inboxes -
-sending them to a mailing list usually means they'll go to a completely
-different folder.
-
-> This change series basically enabled interconnect (as per
-> bindings/interconnect/interconnect.txt) support in GENI QUPs based drivers
-> so appropriate BW request can be put based on SE usages.
-> here is my complete change series: https://lore.kernel.org/lkml/1548069703-26595-1-git-send-email-alokc@codeaurora.org/
-> I hope I answer to your question properly.
-
-So it looks like there is a dependency on earlier patches in the series,
-that's what I needed to know.
-
---LQksG6bCIzRHxTLp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlxISMwACgkQJNaLcl1U
-h9CoTgf+PA29xBdCek5fu2oi7M3F4k1fLvkUkXx08R30Xh2AEVPfA9BZTIBp64Jd
-6kpDFuGII2h38T7Y02pZhtZtT+36Q0YA6WD9H7AuzupmP7K0CsqOlysR06e43DwX
-8d6tloJYmZlK6isHO+iHG9ID3McrL/9EBng8OCpnIAEAgqR/Dm07L4nAx10NeU4O
-n8WzQJkhCmtvgnSt+ZvF/vVdxGUEKYVmdDsNPUyNmNmH+quhPk52qnVjjWXQIUog
-pULdWHaJADV5o+ewWyAj/67QXWHiq52k63uG80u0/Kp+lstEDfhhL4NkGsixeEpH
-g+6VqKfMx9hBGOpnbcVgX2QpBpvhxQ==
-=ssTu
------END PGP SIGNATURE-----
-
---LQksG6bCIzRHxTLp--
+Could you please point at the code that sets the number of retries for the Tegra's I2C? Looks it is always 0 and hence EAGAIN won't do anything useful.
