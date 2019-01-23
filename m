@@ -1,49 +1,58 @@
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] i2c: imx: fix inconsistent IS_ERR and PTR_ERR
-Date: Tue, 22 Jan 2019 18:37:41 -0600
-Message-ID: <20190123003741.GA12068@embeddedor>
+From: alokc@codeaurora.org
+Subject: Re: [PATCH 0/6] Add interconnect support for GENI QUPs
+Date: Wed, 23 Jan 2019 12:15:10 +0530
+Message-ID: <74b768d6573665fe2a4533a23ad23a9e@codeaurora.org>
+References: <1548138816-1149-1-git-send-email-alokc@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Oleksij Rempel <o.rempel@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, NXP Linux Team <linux-imx@nxp.com>
-Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1548138816-1149-1-git-send-email-alokc@codeaurora.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-serial@vger.kernel.org, Mark Brown <broonie@kernel.org>
+Cc: andy.gross@linaro.org, david.brown@linaro.org, georgi.djakov@linaro.org, dianders@chromium.org, swboyd@chromium.org, bjorn.andersson@linaro.org, linux-arm-msm-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Fix inconsistent IS_ERR and PTR_ERR in i2c_imx_dma_request.
++Mark Brown
 
-The proper pointer to be passed as argument is dma->chan_tx.
+On 2019-01-22 12:03, Alok Chauhan wrote:
+> This patch series contains following:
+> * Add wrapper framework to support interconnect path from GENI QUPs.
+>   This wrapper enabled and help individual SEs to put their BW request.
+>   Adding this wrapper make sense because we don't want individual SEs
+>   to request to interconnect driver separately and put individual bw
+>   votes from QUP.
+> 
+>   This wrapper framework does the following:
+>   - Request for interconnect path handle
+>   - Maintain record of individual SEs' avg/peak bw.
+>   - Aggregated avg/peak bw based on how many SE's are active and put
+>     single bw request from QUP
+> 
+> * Interconnect wrapper API calling from I2C, SPI & Uart driver
+> * dt binding in sdm845 soc for Interconnect path for GENI QUPs
+> * dt binding documentation
+> 
+> 
+> Alok Chauhan (6):
+>   dt-bindings: soc: qcom: Add interconnect binding for GENI QUP
+>   soc: qcom: Add wrapper to support for Interconnect path
+>   i2c: i2c-qcom-geni: Add interconnect support
+>   spi: spi-geni-qcom: Add interconnect support
+>   tty: serial: qcom_geni_serial: Add interconnect support
+>   arm64: dts: sdm845: Add interconnect for GENI QUP
+> 
+>  .../devicetree/bindings/soc/qcom/qcom,geni-se.txt  |  10 ++
+>  arch/arm64/boot/dts/qcom/sdm845.dtsi               |  14 +++
+>  drivers/i2c/busses/i2c-qcom-geni.c                 |  13 +++
+>  drivers/soc/qcom/qcom-geni-se.c                    | 129 
+> +++++++++++++++++++++
+>  drivers/spi/spi-geni-qcom.c                        |  20 +++-
+>  drivers/tty/serial/qcom_geni_serial.c              |  27 ++++-
+>  include/linux/qcom-geni-se.h                       |  11 ++
+>  7 files changed, 222 insertions(+), 2 deletions(-)
 
-This bug was detected with the help of Coccinelle.
-
-Fixes: 5b3a23a3cc94 ("i2c: imx: notify about real errors on dma i2c_imx_dma_request")
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
----
- drivers/i2c/busses/i2c-imx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 09b124547669..42fed40198a0 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -287,7 +287,7 @@ static int i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
- 
- 	dma->chan_tx = dma_request_chan(dev, "tx");
- 	if (IS_ERR(dma->chan_tx)) {
--		ret = PTR_ERR(dma->chan_rx);
-+		ret = PTR_ERR(dma->chan_tx);
- 		if (ret != -ENODEV && ret != -EPROBE_DEFER)
- 			dev_err(dev, "can't request DMA tx channel (%d)\n", ret);
- 		goto fail_al;
 -- 
-2.20.1
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora 
+Forum,a Linux Foundation Collaborative Project
