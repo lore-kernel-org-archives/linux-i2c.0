@@ -1,98 +1,71 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: [PATCH V2 4/4] i2c: tegra: Update transfer timeout
-Date: Thu, 24 Jan 2019 12:51:53 -0800
-Message-ID: <1548363113-25969-4-git-send-email-skomatineni@nvidia.com>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH V2 1/4] i2c: tegra: Sort all the include headers
+ alphabetically
+Date: Fri, 25 Jan 2019 00:31:34 +0300
+Message-ID: <e896f4af-1c20-3188-f1f8-253ce4893a50@gmail.com>
 References: <1548363113-25969-1-git-send-email-skomatineni@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1548363113-25969-1-git-send-email-skomatineni@nvidia.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: thierry.reding@gmail.com, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com
-Cc: linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sowjanya Komatineni <skomatineni@nvidia.com>
+To: Sowjanya Komatineni <skomatineni@nvidia.com>, thierry.reding@gmail.com, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com
+Cc: linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Update I2C transfer timeout based on transfer bytes and I2C bus
-rate to allow enough time during max transfer size based on the
-speed.
+24.01.2019 23:51, Sowjanya Komatineni пишет:
+> This patch sorts all the include headers alphabetically for the
+> I2C tegra driver
+> 
+> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+> ---
+>  [V2] : Added this in V2 to sort the headers in tegra I2C
+> 
+>  drivers/i2c/busses/i2c-tegra.c | 21 ++++++++++-----------
+>  1 file changed, 10 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+> index e417ebf7628c..ef854be4c837 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -6,24 +6,23 @@
+>   * Author: Colin Cross <ccross@android.com>
+>   */
+>  
+> -#include <linux/kernel.h>
+> -#include <linux/init.h>
+> -#include <linux/platform_device.h>
+> +#include <asm/unaligned.h>
 
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
----
- [V2] : Added this patch in V2 series to allow enough time for data transfer
-	to happen.
-	This patch has dependency with DMA patch as TEGRA_I2C_TIMEOUT define
-	takes argument with this patch.
+What about to clean up the includes as well? Seems <asm/unaligned.h> is not needed by the code.
 
- drivers/i2c/busses/i2c-tegra.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 769700d5a7f3..2f8de837f660 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -27,7 +27,7 @@
- #include <linux/reset.h>
- #include <linux/slab.h>
- 
--#define TEGRA_I2C_TIMEOUT (msecs_to_jiffies(1000))
-+#define TEGRA_I2C_TIMEOUT(ms) (msecs_to_jiffies(ms))
- #define BYTES_PER_FIFO_WORD 4
- 
- #define I2C_CNFG				0x000
-@@ -857,7 +857,8 @@ static void tegra_i2c_config_fifo_trig(struct tegra_i2c_dev *i2c_dev,
- 	dmaengine_slave_config(chan, &dma_sconfig);
- }
- 
--static int tegra_i2c_start_dma_xfer(struct tegra_i2c_dev *i2c_dev)
-+static int tegra_i2c_start_dma_xfer(struct tegra_i2c_dev *i2c_dev,
-+				    u16 xfer_time)
- {
- 	u32 *buffer = (u32 *)i2c_dev->msg_buf;
- 	unsigned long time_left, flags;
-@@ -929,7 +930,7 @@ static int tegra_i2c_start_dma_xfer(struct tegra_i2c_dev *i2c_dev)
- 		i2c_readl(i2c_dev, I2C_INT_MASK));
- 
- 	time_left = wait_for_completion_timeout(&i2c_dev->dma_complete,
--						TEGRA_I2C_TIMEOUT);
-+						TEGRA_I2C_TIMEOUT(xfer_time));
- 	if (time_left == 0) {
- 		dev_err(i2c_dev->dev, "DMA transfer timeout\n");
- 		dmaengine_terminate_all(chan);
-@@ -995,6 +996,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	int ret = 0;
- 	size_t xfer_size = 0;
- 	bool dma = false;
-+	u16 xfer_time = 100;
- 
- 	buffer = kmalloc(ALIGN(msg->len, BYTES_PER_FIFO_WORD) +
- 			 I2C_PACKET_HEADER_SIZE, GFP_KERNEL);
-@@ -1012,6 +1014,9 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 
- 	i2c_dev->is_curr_dma_xfer = dma;
- 
-+	xfer_time += DIV_ROUND_CLOSEST((xfer_size * 9) * 1000,
-+					i2c_dev->bus_clk_rate);
-+
- 	tegra_i2c_flush_fifos(i2c_dev);
- 
- 	i2c_dev->msg_buf = (u8 *)buffer;
-@@ -1048,7 +1053,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 		memcpy(buffer, msg->buf, msg->len);
- 
- 	if (dma)
--		ret = tegra_i2c_start_dma_xfer(i2c_dev);
-+		ret = tegra_i2c_start_dma_xfer(i2c_dev, xfer_time);
- 	else
- 		ret = tegra_i2c_start_pio_xfer(i2c_dev);
- 
-@@ -1058,7 +1063,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 		goto end_xfer;
- 
- 	time_left = wait_for_completion_timeout(&i2c_dev->msg_complete,
--						TEGRA_I2C_TIMEOUT);
-+						TEGRA_I2C_TIMEOUT(xfer_time));
- 	if (time_left == 0) {
- 		dev_err(i2c_dev->dev, "i2c transfer timed out\n");
- 		if (i2c_dev->is_curr_dma_xfer) {
--- 
-2.7.4
+>  #include <linux/clk.h>
+> +#include <linux/delay.h>
+>  #include <linux/err.h>
+>  #include <linux/i2c.h>
+> -#include <linux/io.h>
+> +#include <linux/init.h>
+>  #include <linux/interrupt.h>
+> -#include <linux/delay.h>
+> -#include <linux/slab.h>
+> -#include <linux/of_device.h>
+> +#include <linux/io.h>
+> +#include <linux/iopoll.h>
+> +#include <linux/kernel.h>
+>  #include <linux/module.h>
+> -#include <linux/reset.h>
+> +#include <linux/of_device.h>
+>  #include <linux/pinctrl/consumer.h>
+> +#include <linux/platform_device.h>
+>  #include <linux/pm_runtime.h>
+> -#include <linux/iopoll.h>
+> -
+> -#include <asm/unaligned.h>
+> +#include <linux/reset.h>
+> +#include <linux/slab.h>
+>  
+>  #define TEGRA_I2C_TIMEOUT (msecs_to_jiffies(1000))
+>  #define BYTES_PER_FIFO_WORD 4
+> 
