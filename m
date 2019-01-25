@@ -1,63 +1,60 @@
-From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Subject: RE: [PATCH v2 1/2] i2c: imx: fix dma_request_chan error handling
-Date: Fri, 25 Jan 2019 09:20:51 +0000
-Message-ID: <VI1PR04MB51345D0DD6A2138B3E452CEAEC9B0@VI1PR04MB5134.eurprd04.prod.outlook.com>
-References: <20190116112855.13824-1-laurentiu.tudor@nxp.com>
- <20190122225155.vfy37bfuikzzymao@ninjato>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: [PATCH v2] i2c: of: Try to find an I2C adapter matching the parent
+Date: Fri, 25 Jan 2019 14:11:42 +0100
+Message-ID: <20190125131142.26837-1-thierry.reding@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190122225155.vfy37bfuikzzymao@ninjato>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, dl-linux-imx <linux-imx@nxp.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Fabio Estevam <fabio.estevam@nxp.com>, Leo Li <leoyang.li@nxp.com>
+Cc: Tristan Bastian <tristan-c.bastian@gmx.de>, Vlado Plaga <rechner@vlado-do.de>, dri-devel@lists.freedesktop.org, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-
-> -----Original Message-----
-> From: Wolfram Sang [mailto:wsa@the-dreams.de]
-> Sent: Wednesday, January 23, 2019 12:52 AM
->=20
-> On Wed, Jan 16, 2019 at 01:28:54PM +0200, Laurentiu Tudor wrote:
-> > Use the correct error pointer when extracting the error code.
-> >
-> > Fixes: ea1e5f176e97 ("i2c: imx: notify about real errors on dma
-> i2c_imx_dma_request")
->=20
-> This is not the sha1 in my tree. Maybe you rebased? I applied another
-> patch meanwhile fixing the same issue. Still thanks!
-
-I don't know, perhaps I was on some transient snapshot. Anyway, good that i=
-n the end it's fixed.
-
----
-Best Regards, Laurentiu
-
-> > Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-> > ---
-> >  drivers/i2c/busses/i2c-imx.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.=
-c
-> > index 09b124547669..42fed40198a0 100644
-> > --- a/drivers/i2c/busses/i2c-imx.c
-> > +++ b/drivers/i2c/busses/i2c-imx.c
-> > @@ -287,7 +287,7 @@ static int i2c_imx_dma_request(struct imx_i2c_struc=
-t
-> *i2c_imx,
-> >
-> >  	dma->chan_tx =3D dma_request_chan(dev, "tx");
-> >  	if (IS_ERR(dma->chan_tx)) {
-> > -		ret =3D PTR_ERR(dma->chan_rx);
-> > +		ret =3D PTR_ERR(dma->chan_tx);
-> >  		if (ret !=3D -ENODEV && ret !=3D -EPROBE_DEFER)
-> >  			dev_err(dev, "can't request DMA tx channel (%d)\n",
-> ret);
-> >  		goto fail_al;
-> > --
-> > 2.17.1
-> >
+RnJvbTogVGhpZXJyeSBSZWRpbmcgPHRyZWRpbmdAbnZpZGlhLmNvbT4KCklmIGFuIEkyQyBhZGFw
+dGVyIGRvZXNuJ3QgbWF0Y2ggdGhlIHByb3ZpZGVkIGRldmljZSB0cmVlIG5vZGUsIGFsc28gdHJ5
+Cm1hdGNoaW5nIHRoZSBwYXJlbnQncyBkZXZpY2UgdHJlZSBub2RlLiBUaGlzIGFsbG93cyBmaW5k
+aW5nIGFuIGFkYXB0ZXIKYmFzZWQgb24gdGhlIGRldmljZSBub2RlIG9mIHRoZSBwYXJlbnQgZGV2
+aWNlIHRoYXQgd2FzIHVzZWQgdG8gcmVnaXN0ZXIKaXQuCgpUaGlzIGZpeGVzIGEgcmVncmVzc2lv
+biBvbiBUZWdyYTEyNC1iYXNlZCBDaHJvbWVib29rcyAoTnlhbikgd2hlcmUgdGhlCmVEUCBjb250
+cm9sbGVyIHJlZ2lzdGVycyBhbiBJMkMgYWRhcHRlciB0aGF0IGlzIHVzZWQgdG8gcmVhZCB0byBF
+RElELgpBZnRlciBjb21taXQgOTkzYTgxNWRjYmIyICgiZHQtYmluZGluZ3M6IHBhbmVsOiBBZGQg
+bWlzc2luZyAudHh0CnN1ZmZpeCIpIHRoaXMgc3RvcHBlZCB3b3JraW5nIGJlY2F1c2UgdGhlIEky
+QyBhZGFwdGVyIGNvdWxkIG5vIGxvbmdlcgpiZSBmb3VuZC4gVGhlIGFwcHJvYWNoIGluIHRoaXMg
+cGF0Y2ggZml4ZXMgdGhlIHJlZ3Jlc3Npb24gd2l0aG91dAppbnRyb2R1Y2luZyB0aGUgaXNzdWVz
+IHRoYXQgdGhlIGFib3ZlIGNvbW1pdCBzb2x2ZWQuCgpGaXhlczogMTdhYjc4MDZkZTBjICgiZHJt
+OiBkb24ndCBsaW5rIERQIGF1eCBpMmMgYWRhcHRlciB0byB0aGUgaGFyZHdhcmUgZGV2aWNlIG5v
+ZGUiKQpTaWduZWQtb2ZmLWJ5OiBUaGllcnJ5IFJlZGluZyA8dHJlZGluZ0BudmlkaWEuY29tPgot
+LS0KQ2hhbmdlcyBpbiB2MjoKLSBjaGVjayBmb3IgYm90aCBkZXZpY2UgYW5kIHBhcmVudCBkZXZp
+Y2UgdHJlZSBub2RlcyBmb3IgZWFjaCBkZXZpY2UKICBpbnN0ZWFkIG9mIGxvb3BpbmcgdGhyb3Vn
+aCB0aGUgbGlzdCBvZiBkZXZpY2VzIHR3aWNlCgogZHJpdmVycy9pMmMvaTJjLWNvcmUtb2YuYyB8
+IDE0ICsrKysrKysrKysrKystCiAxIGZpbGUgY2hhbmdlZCwgMTMgaW5zZXJ0aW9ucygrKSwgMSBk
+ZWxldGlvbigtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2kyYy1jb3JlLW9mLmMgYi9kcml2
+ZXJzL2kyYy9pMmMtY29yZS1vZi5jCmluZGV4IDZjYjdhZDYwOGJjZC4uMGYwMWNkYmE5ZDJjIDEw
+MDY0NAotLS0gYS9kcml2ZXJzL2kyYy9pMmMtY29yZS1vZi5jCisrKyBiL2RyaXZlcnMvaTJjL2ky
+Yy1jb3JlLW9mLmMKQEAgLTEyMSw2ICsxMjEsMTcgQEAgc3RhdGljIGludCBvZl9kZXZfbm9kZV9t
+YXRjaChzdHJ1Y3QgZGV2aWNlICpkZXYsIHZvaWQgKmRhdGEpCiAJcmV0dXJuIGRldi0+b2Zfbm9k
+ZSA9PSBkYXRhOwogfQogCitzdGF0aWMgaW50IG9mX2Rldl9vcl9wYXJlbnRfbm9kZV9tYXRjaChz
+dHJ1Y3QgZGV2aWNlICpkZXYsIHZvaWQgKmRhdGEpCit7CisJaWYgKGRldi0+b2Zfbm9kZSA9PSBk
+YXRhKQorCQlyZXR1cm4gMTsKKworCWlmIChkZXYtPnBhcmVudCkKKwkJcmV0dXJuIGRldi0+cGFy
+ZW50LT5vZl9ub2RlID09IGRhdGE7CisKKwlyZXR1cm4gMDsKK30KKwogLyogbXVzdCBjYWxsIHB1
+dF9kZXZpY2UoKSB3aGVuIGRvbmUgd2l0aCByZXR1cm5lZCBpMmNfY2xpZW50IGRldmljZSAqLwog
+c3RydWN0IGkyY19jbGllbnQgKm9mX2ZpbmRfaTJjX2RldmljZV9ieV9ub2RlKHN0cnVjdCBkZXZp
+Y2Vfbm9kZSAqbm9kZSkKIHsKQEAgLTE0NSw3ICsxNTYsOCBAQCBzdHJ1Y3QgaTJjX2FkYXB0ZXIg
+Km9mX2ZpbmRfaTJjX2FkYXB0ZXJfYnlfbm9kZShzdHJ1Y3QgZGV2aWNlX25vZGUgKm5vZGUpCiAJ
+c3RydWN0IGRldmljZSAqZGV2OwogCXN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcHRlcjsKIAotCWRl
+diA9IGJ1c19maW5kX2RldmljZSgmaTJjX2J1c190eXBlLCBOVUxMLCBub2RlLCBvZl9kZXZfbm9k
+ZV9tYXRjaCk7CisJZGV2ID0gYnVzX2ZpbmRfZGV2aWNlKCZpMmNfYnVzX3R5cGUsIE5VTEwsIG5v
+ZGUsCisJCQkgICAgICBvZl9kZXZfb3JfcGFyZW50X25vZGVfbWF0Y2gpOwogCWlmICghZGV2KQog
+CQlyZXR1cm4gTlVMTDsKIAotLSAKMi4xOS4xCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0
+cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9s
+aXN0aW5mby9kcmktZGV2ZWwK
