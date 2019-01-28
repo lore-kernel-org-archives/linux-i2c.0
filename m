@@ -1,79 +1,33 @@
-From: Ray Jui <ray.jui@broadcom.com>
-Subject: Re: [PATCH v3 0/8] Add IPROC I2C slave mode and NIC I2C support
-Date: Mon, 28 Jan 2019 11:31:31 -0800
-Message-ID: <746cf074-69e0-7bd1-034e-c8d3156b5506@broadcom.com>
-References: <1547791464-3540-1-git-send-email-rayagonda.kokatanur@broadcom.com>
- <e658ce66-98e3-3ca6-5786-56bfea6d176e@broadcom.com>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH V3 2/3] i2c: tegra: Update transfer timeout
+Date: Tue, 29 Jan 2019 01:08:28 +0300
+Message-ID: <c0b36535-6767-7327-5dc5-612e6957a769@gmail.com>
+References: <1548475073-12408-1-git-send-email-skomatineni@nvidia.com>
+ <1548475073-12408-2-git-send-email-skomatineni@nvidia.com>
+ <0cf91475-f77d-7453-deb6-3dd91b63aeb6@gmail.com>
+ <BYAPR12MB3398E9D32B57B0E2FC2A6466C2960@BYAPR12MB3398.namprd12.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e658ce66-98e3-3ca6-5786-56bfea6d176e@broadcom.com>
+In-Reply-To: <BYAPR12MB3398E9D32B57B0E2FC2A6466C2960@BYAPR12MB3398.namprd12.prod.outlook.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, rjui@broadcom.com
-Cc: bcm-kernel-feedback-list@broadcom.com, shreesha.rajashekar@broadcom.com, sbranden@broadcom.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, ccheng@broadcom.com, heikki.krogerus@linux.intel.com, geert@linux-m68k.org, arnd@arndb.de, manivannan.sadhasivam@linaro.org, ajayg@nvidia.com, ard.biesheuvel@linaro.org, eajames@linux.vnet.ibm.com, kramasub@codeaurora.org, vigneshr@ti.com, mika.westerberg@linux.intel.com, pierre-yves.mordret@st.com, f.fainelli@gmail.com, aaron.wu@analog.com, jdelvare@suse.de, andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, robh+dt@kernel.org, mark.rutland@arm.com, rayagonoda.kokatanur@braodcom.com
+To: Sowjanya Komatineni <skomatineni@nvidia.com>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>
+Cc: "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-
-Just want to check if you had a chance to review the following patch series?
-
-Thanks,
-
-Ray
-
-On 1/20/2019 1:49 PM, Ray Jui wrote:
-> Hi Rayagonda/Wolfram,
+28.01.2019 21:28, Sowjanya Komatineni пишет:
 > 
-> I reviewed the entire patch series and added my Reviewed-by tag on 1/8
-> and 2/8. The rest of the patches in this series already had my
-> Signed-off-by tag.
 > 
-> Thanks,
-> 
-> Ray
-> 
-> On 1/17/2019 10:04 PM, Rayagonda Kokatanur wrote:
->> Hi,
->> This patchset contains support for IPROC I2C slave and NIC I2C support.
->> Following are the brief changes done inorder to support both IPROC I2C
->> slave mode and NIC I2C,
+>>> Update I2C transfer timeout based on transfer bytes and I2C bus rate 
+>>> to allow enough time during max transfer size based on the speed.
 >>
->> a. Add support to allow I2C rx transfer upto 255 bytes
->> b. Add polling mode support to the iProc I2C driver. Polling mode is used
->>    in certain SoCs where interrupt is not connected from the I2C block.
->> c. Add warpper read/write access for register to support indirect register
->>    access. This is required in certain SoCs with this iProc I2C
->>    block registered.
->> d. Remove the set RESET bit to LOW right after setting it to HIGH so that
->>    wait duration can be met.
+>> Could it be that I2C device is busy and just slowly handling the transfer requests? Maybe better to leave the timeout as-is and assume the worst case scenario?
 >>
->> This patch series is based on kernel v5.0.0-rc2.
->>
->> Changes from v2:
->>  - Address Ray's review comments.
->>
->> Changes from v1:
->>  - Rebased to Linux v5.0.0-rc2
->>
->> Ray Jui (1):
->>   dt-bindings: i2c: iproc: make 'interrupts' optional
->>
->> Rayagonda Kokatanur (5):
->>   i2c: iproc: add polling support
->>   i2c: iproc: use wrapper for read/write access
->>   dt-bindings: i2c: iproc: add "brcm,iproc-nic-i2c" compatible string
->>   i2c: iproc: add NIC I2C support
->>   arm64: dts: Stingray: Add NIC i2c device node
->>
->> Shreesha Rajashekar (2):
->>   i2c: iproc: I2C read up to 255 bytes support
->>   i2c: iproc: Add Slave mode support
->>
->>  .../devicetree/bindings/i2c/brcm,iproc-i2c.txt     |  14 +-
->>  .../arm64/boot/dts/broadcom/stingray/stingray.dtsi |  18 +
->>  drivers/i2c/busses/Kconfig                         |   1 +
->>  drivers/i2c/busses/i2c-bcm-iproc.c                 | 757 +++++++++++++++++----
->>  4 files changed, 659 insertions(+), 131 deletions(-)
->>
+> This change includes min transfer time out of 100ms in addition to computed timeout based on transfer bytes and speed which can account in cases of slave devices running at slower speed.
+> Also Tegra I2C Master supports Clock stretching by the slave.
+
+Okay, I suppose in reality this shouldn't break anything.
+
+Please explain what benefits this change brings. Does it fix or improve anything? The commit message only describes changes done in the patch and has no word on justification of those changes. Transfer timeout is an extreme case that doesn't happen often and when it happens, usually only the fact of timeout matters. If there is no real value in shortening of the timeout, why bother then?
