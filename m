@@ -1,54 +1,148 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: Re: [RESEND PATCH 00/12] eeprom: at24: remove platform_data
-Date: Sun, 27 Jan 2019 13:26:35 +0100
-Message-ID: <CAMpxmJW+ODrqCTSaQMOgRG2d3Qy2SipzYQU3JRPbJE_Wn85H0w@mail.gmail.com>
-References: <20190108091539.16674-1-brgl@bgdev.pl>
- <8c190cf3-b4f3-90d0-07ce-4bb7927160df@ti.com>
- <20190122122228.GA2736@kroah.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH v2] i2c: of: Try to find an I2C adapter matching the parent
+Date: Mon, 28 Jan 2019 09:08:15 +0100
+Message-ID: <20190128080815.GD18124@ulmo>
+References: <20190125131142.26837-1-thierry.reding@gmail.com>
+ <844544bc-10ac-a236-8c7d-17a09288fe5d@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190122122228.GA2736@kroah.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Kevin Hilman <khilman@kernel.org>, Bartosz Golaszewski <brgl@bgdev.pl>, Sekhar Nori <nsekhar@ti.com>, LKML <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, arm-soc <linux-arm-kernel@lists.infradead.org>
+Content-Type: multipart/mixed; boundary="===============1651563139=="
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <844544bc-10ac-a236-8c7d-17a09288fe5d@gmx.de>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Tristan Bastian <tristan-c.bastian@gmx.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Vlado Plaga <rechner@vlado-do.de>, dri-devel@lists.freedesktop.org, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-d3QuLCAyMiBzdHkgMjAxOSBvIDEzOjIyIEdyZWcgS3JvYWgtSGFydG1hbgo8Z3JlZ2toQGxpbnV4
-Zm91bmRhdGlvbi5vcmc+IG5hcGlzYcWCKGEpOgo+Cj4gT24gVGh1LCBKYW4gMTAsIDIwMTkgYXQg
-MDc6NDM6NDdQTSArMDUzMCwgU2VraGFyIE5vcmkgd3JvdGU6Cj4gPiBIaSBCYXJ0b3N6LAo+ID4K
-PiA+IE9uIDA4LzAxLzE5IDI6NDUgUE0sIEJhcnRvc3ogR29sYXN6ZXdza2kgd3JvdGU6Cj4gPiA+
-IEZyb206IEJhcnRvc3ogR29sYXN6ZXdza2kgPGJnb2xhc3pld3NraUBiYXlsaWJyZS5jb20+Cj4g
-PiA+Cj4gPiA+IEhpIFNla2hhciwKPiA+ID4KPiA+ID4gbm93IHRoYXQgYWxsIGRlcGVuZGVuY2ll
-cyBhcmUgaW4gYW5kIHY1LjAtcmMxIGlzIHRhZ2dlZCwgcGxlYXNlIGNvbnNpZGVyCj4gPiA+IHBp
-Y2tpbmcgdXAgdGhlIHNlY29uZCBiYXRjaCBvZiBkYXZpbmNpLXNwZWNpZmljIGNoYW5nZXMgaW50
-byB5b3VyIHRyZWUuCj4gPiA+IE9uY2UgdGhhdCdzIGRvbmUsIHBsZWFzZSBwcm92aWRlIG1lIHdp
-dGggYW4gaW1tdXRhYmxlIGJyYW5jaCBmb3IgbWUgdG8KPiA+ID4gYXBwbHkgdGhlIGxhc3QgcGF0
-Y2ggdG8gbXkgYXQyNCB0cmVlLgo+ID4KPiA+IFlvdSBjYW4gdXNlIGJyYW5jaCB2NS4xL2VlcHJv
-bS1mb3ItYmFydG9zeiBpbiBteSB0cmVlIGZvciB0aGlzIChjb21taXQKPiA+IGU0MzA2ODVmNDk2
-OSkuCj4gPgo+ID4gPgo+ID4gPiBUaGlzIGlzIHRoZSBzZWNvbmQgcGFydCBvZiB0aGUgZWZmb3J0
-IHRvIG1vZGVybml6ZSB0aGUgYXQyNCBkcml2ZXIgYW5kCj4gPiA+IHJlbW92ZSB0aGUgbGVnYWN5
-IHBsYXRmb3JtIGRhdGEgc3RydWN0dXJlIGluIGZhdm9yIG9mIGRldmljZSBwcm9wZXJ0aWVzLgo+
-ID4gPiBJdCByZXF1aXJlZCBnZXR0aW5nIHJpZCBvZiB0aGUgYXQyNCBzZXR1cCBjYWxsYmFjayBp
-biBmYXZvciBvZiBudm1lbQo+ID4gPiBsb29rdXBzLgo+ID4gPgo+ID4gPiBSZS10ZXN0ZWQgd2l0
-aCBkYTg1MC1ldm0gYW5kIGRtMzY1LWV2bS4KPiA+Cj4gPiBBcHBsaWVkIHBhdGNoZXMgMS0xMSBm
-b3IgdjUuMQo+Cj4gRmVlbCBmcmVlIHRvIHRha2UgcGF0Y2ggMTIgYXMgd2VsbCA6KQoKSGkgR3Jl
-ZywKCkkgdG9vayBvdmVyIHRoZSBhdDI0IGRyaXZlciBmcm9tIFdvbGZyYW0gU2FuZy4gSSBjb2xs
-ZWN0IHBhdGNoZXMgZm9yCml0IGluIG15IGJyYW5jaCBhbmQgdGhlbiBzZW5kIHB1bGwtcmVxdWVz
-dHMgdG8gV29sZnJhbSBkaXJlY3RseS4gSSd2ZQphcHBsaWVkIHRoaXMgcGF0Y2ggdG8gbXkgYnJh
-bmNoIGluIGNhc2UgdGhlcmUncyBzb21lIG1vcmUgZGV2ZWxvcG1lbnQKZm9yIGF0MjQgaW4gdGhp
-cyBjeWNsZS4gU2VraGFyIHByb3ZpZGVkIG1lIHdpdGggYW4gaW1tdXRhYmxlIGJyYW5jaAp3aXRo
-IHRoZSBhcmNoIGNvbW1pdHMgSSBtZXJnZWQgaW4uCgpCZXN0IHJlZ2FyZHMsCkJhcnRvc3ogR29s
-YXN6ZXdza2kKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-CmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5m
-cmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xp
-bnV4LWFybS1rZXJuZWwK
+
+--===============1651563139==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="YToU2i3Vx8H2dn7O"
+Content-Disposition: inline
+
+
+--YToU2i3Vx8H2dn7O
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sat, Jan 26, 2019 at 01:37:34PM +0100, Tristan Bastian wrote:
+> Am 25.01.19 um 14:11 schrieb Thierry Reding:
+> > From: Thierry Reding <treding@nvidia.com>
+> >=20
+> > If an I2C adapter doesn't match the provided device tree node, also try
+> > matching the parent's device tree node. This allows finding an adapter
+> > based on the device node of the parent device that was used to register
+> > it.
+> >=20
+> > This fixes a regression on Tegra124-based Chromebooks (Nyan) where the
+> > eDP controller registers an I2C adapter that is used to read to EDID.
+> > After commit 993a815dcbb2 ("dt-bindings: panel: Add missing .txt
+> > suffix") this stopped working because the I2C adapter could no longer
+> > be found. The approach in this patch fixes the regression without
+> > introducing the issues that the above commit solved.
+> >=20
+> > Fixes: 17ab7806de0c ("drm: don't link DP aux i2c adapter to the hardwar=
+e device node")
+> > Signed-off-by: Thierry Reding <treding@nvidia.com>
+> > ---
+> > Changes in v2:
+> > - check for both device and parent device tree nodes for each device
+> >    instead of looping through the list of devices twice
+> >=20
+> >   drivers/i2c/i2c-core-of.c | 14 +++++++++++++-
+> >   1 file changed, 13 insertions(+), 1 deletion(-)
+> >=20
+> > diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
+> > index 6cb7ad608bcd..0f01cdba9d2c 100644
+> > --- a/drivers/i2c/i2c-core-of.c
+> > +++ b/drivers/i2c/i2c-core-of.c
+> > @@ -121,6 +121,17 @@ static int of_dev_node_match(struct device *dev, v=
+oid *data)
+> >   	return dev->of_node =3D=3D data;
+> >   }
+> > +static int of_dev_or_parent_node_match(struct device *dev, void *data)
+> > +{
+> > +	if (dev->of_node =3D=3D data)
+> > +		return 1;
+> > +
+> > +	if (dev->parent)
+> > +		return dev->parent->of_node =3D=3D data;
+> > +
+> > +	return 0;
+> > +}
+> > +
+> >   /* must call put_device() when done with returned i2c_client device */
+> >   struct i2c_client *of_find_i2c_device_by_node(struct device_node *nod=
+e)
+> >   {
+> > @@ -145,7 +156,8 @@ struct i2c_adapter *of_find_i2c_adapter_by_node(str=
+uct device_node *node)
+> >   	struct device *dev;
+> >   	struct i2c_adapter *adapter;
+> > -	dev =3D bus_find_device(&i2c_bus_type, NULL, node, of_dev_node_match);
+> > +	dev =3D bus_find_device(&i2c_bus_type, NULL, node,
+> > +			      of_dev_or_parent_node_match);
+> >   	if (!dev)
+> >   		return NULL;
+>=20
+> I've tested this and can confirm that this fixes the issue on the nyan-big
+> chromebook.
+
+Excellent, thanks for testing! Typically if you've tested a patch and
+verified that it fixes the problem that you were seeing, it's good to
+send this on a line by itself along with your reply:
+
+Tested-by: Tristan Bastian <tristan-c.bastian@gmx.de>
+
+Patchwork will pick this up and it will become part of the commit
+message when the patch is applied. This gives you the credit you deserve
+for going through the trouble of testing the change.
+
+> Is this fix going to be applied to the LTS kernels too?
+
+The "Fixes:" line in the commit message should ensure that this does get
+backported to relevant stable kernels.
+
+Thierry
+
+--YToU2i3Vx8H2dn7O
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlxOuG8ACgkQ3SOs138+
+s6FjYxAAu76qnBHq2KGz736pxX9gSC7quGIxJ/+V9Bm6pv7NV0OP2wt7GV34Vs5m
+CmHXUIBT3k99lW8xkgyxUZCOezAAMCZdW7Zp3qnro/0XwVuJmNqf4P39swW3BFra
+HOC0Y2IsTmQQvxsYk0fiJIxebxwWEDcIhT3BvTzn2luvhTlNA/9/m66/m40RF2eq
+xp2jBLBVht9xKD+eqIA/SUIE/lIdR4JcTze6AE2IN/XylrT8c/k3e0W/U29bHTvf
+wb80166FSU1qr4+39sZkQRf3HxmRmLY0NFjt9+Unq+vU3NNueb8OdWPN7JL0gmDu
+qFSFJGndQpD8IUA1Fgnwo1eFBrsdsXprAbqnezRf3ZODiEIHLvi74AcVAHH8WPaR
+S84w1y8c7cu7I66VZnFyDdxE8GWGVKLi75fqGKO3FVKOhkB1ck7QVx6cDB/x+D7g
+kAdglHhqwc47eu8AZ1/1mR4OWXU/qIAbVaY2q3okVKD7BpaRziT19qX3i7+tJGcf
+x1qdl1bPAEKwzY2XtfRnKrXNQ9DTuG62XTv6clllGUeQpYGBn9uKESHC8INr3tCf
+oMvbaPE1skihq6L15yc8Jup1BKxWw3N1qo4W8otP5DvvknJ0dy2a63jYzxHwCHLU
+4gkjHCQLGyf05CdEJSLdFyke7AcaI7v/PyVnJmBUDsU0ky5m3/Q=
+=GYZC
+-----END PGP SIGNATURE-----
+
+--YToU2i3Vx8H2dn7O--
+
+--===============1651563139==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
+
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
+IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+
+--===============1651563139==--
