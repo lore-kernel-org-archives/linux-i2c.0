@@ -1,60 +1,83 @@
-From: Dmitry Osipenko <digetx@gmail.com>
-Subject: Re: [PATCH V3 3/3] i2c: tegra: Add DMA Support
-Date: Tue, 29 Jan 2019 06:11:54 +0300
-Message-ID: <778d578f-6bee-1acb-0562-6657ab4edb43@gmail.com>
-References: <1548475073-12408-1-git-send-email-skomatineni@nvidia.com>
- <1548475073-12408-3-git-send-email-skomatineni@nvidia.com>
- <5973707c-555f-a27c-2ff3-e867d4b2cde7@gmail.com>
- <BYAPR12MB339874021C106E447529E887C2960@BYAPR12MB3398.namprd12.prod.outlook.com>
- <BYAPR12MB339837F4E341F7911F1E1E67C2970@BYAPR12MB3398.namprd12.prod.outlook.com>
+From: "Tristan Bastian" <Tristan-C.Bastian@gmx.de>
+Subject: Re: [PATCH v2] i2c: of: Try to find an I2C adapter matching the parent
+Date: Mon, 28 Jan 2019 10:26:46 +0100
+Message-ID: <trinity-b6aa4026-9432-46bd-96d2-7bde598de3ae-1548667606943@3c-app-gmx-bs34>
+References: <20190125131142.26837-1-thierry.reding@gmail.com>
+ <844544bc-10ac-a236-8c7d-17a09288fe5d@gmx.de> <20190128080815.GD18124@ulmo>
+ <20190128081055.GE18124@ulmo>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <BYAPR12MB339837F4E341F7911F1E1E67C2970@BYAPR12MB3398.namprd12.prod.outlook.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sowjanya Komatineni <skomatineni@nvidia.com>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>
-Cc: "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20190128081055.GE18124@ulmo>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Thierry Reding <thierry.reding@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Vlado Plaga <rechner@vlado-do.de>, dri-devel@lists.freedesktop.org, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-29.01.2019 5:02, Sowjanya Komatineni пишет:
-> 
-> 
->>>> This patch adds DMA support for Tegra I2C.
->>>>
->>>> Tegra I2C TX and RX FIFO depth is 8 words. PIO mode is used for 
->>>> transfer size of the max FIFO depth and DMA mode is used for 
->>>> transfer size higher than max FIFO depth to save CPU overhead.
->>>>
->>>> PIO mode needs full intervention of CPU to fill or empty FIFO's and 
->>>> also need to service multiple data requests interrupt for the same 
->>>> transaction adding overhead on CPU for large transfers.
->>>>
->>>> DMA mode is helpful for Large transfers during downloading or 
->>>> uploading FW over I2C to some external devices.
->>>>
->>>> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
->>>>
->>>> ---
->>>
->>> Seems there are good news, APB DMA could access IRAM. Quote from TRM: "The source may be DRAM or IRAM, and the destination location could be devices placed on > APB Bus; or vice versa". Hence it shall be much more efficient to use IRAM for the DMA buffer, please consider that variant.
->>>
->>
->> Regarding your request for Write Combined memory, it doesn’t guarantee the order.
-
-The memory-access order doesn't matter at all in your case, all you need to care about is that actual data is read from dma-buffer and that caches are flushed after writing is done.
-
->> Main reason for adding DMA mode support to Tegra I2C driver is not for actual transfer performance but for not having delayed I2C transfer mainly in case of CPU fully loaded and I2C transfer during that time (FW upload/download, Sensor programming..) using PIO > mode introduces delay b/w bytes of transfer as it depends on CPU scheduling and interrupt priority which impacts on serving interrupts and filling FIFO for transfer to happen.
->>
->> Below are the cases where we see the need for DMA mode for I2C transfers (mainly during the use cases where CPU is fully loaded)
->> - Some devices need FW update over I2C and DMA mode helps in such large transfers on I2C reducing CPU intervention mainly when CPU is fully loaded.
->> - Some devices have internal timeout for no data activity on I2C bus after the start command (time restriction b/w data to data within single transaction) to avoid bus hang and they force to stop when timeout happens. with PIO mode in those cases, depending on CPU load, there could be more delay in serving interrupt for data requests and sending the data causing the device to trigger its timeout and transaction stops.
->> - Helps for reading data from I2C sensors with better BW.
-
-Okay, since the efficiency between transfers is not the concern in your case, it doesn't really matter much where dma-buffer is located.
-
-> Found from documentation default attribute is DMA_ATTR_WRITE_BARRIER which forces all pending writes to complete preventing race b/w completion notification and data DMA.
-> Will use write-combined memory allocation for DMA buffer in revised patch..
-
-Actually mapping is write-combined on ARM for the coherent DMA allocation with CONFIG_ARM_DMA_MEM_BUFFERABLE=y (enabled by default). I just falsely assumed that it could be writeback. Hence please keep the coherent allocation as-is. And you don't need to care about DMA_ATTR_WRITE_BARRIER, apparently it is only relevant for PCI on IA64.
+Ck9uIE1vbiwgSmFuIDI4LCAyMDE5IGF0IDA5OjA4OjE1QU0gKzAxMDAsIFRoaWVycnkgUmVkaW5n
+IHdyb3RlOgo+IE9uIFNhdCwgSmFuIDI2LCAyMDE5IGF0IDAxOjM3OjM0UE0gKzAxMDAsIFRyaXN0
+YW4gQmFzdGlhbiB3cm90ZToKPiA+IEFtIDI1LjAxLjE5IHVtIDE0OjExIHNjaHJpZWIgVGhpZXJy
+eSBSZWRpbmc6Cj4gPiA+IEZyb206IFRoaWVycnkgUmVkaW5nIDx0cmVkaW5nQG52aWRpYS5jb20+
+Cj4gPiA+Cj4gPiA+IElmIGFuIEkyQyBhZGFwdGVyIGRvZXNuJ3QgbWF0Y2ggdGhlIHByb3ZpZGVk
+IGRldmljZSB0cmVlIG5vZGUsIGFsc28gdHJ5Cj4gPiA+IG1hdGNoaW5nIHRoZSBwYXJlbnQncyBk
+ZXZpY2UgdHJlZSBub2RlLiBUaGlzIGFsbG93cyBmaW5kaW5nIGFuIGFkYXB0ZXIKPiA+ID4gYmFz
+ZWQgb24gdGhlIGRldmljZSBub2RlIG9mIHRoZSBwYXJlbnQgZGV2aWNlIHRoYXQgd2FzIHVzZWQg
+dG8gcmVnaXN0ZXIKPiA+ID4gaXQuCj4gPiA+Cj4gPiA+IFRoaXMgZml4ZXMgYSByZWdyZXNzaW9u
+IG9uIFRlZ3JhMTI0LWJhc2VkIENocm9tZWJvb2tzIChOeWFuKSB3aGVyZSB0aGUKPiA+ID4gZURQ
+IGNvbnRyb2xsZXIgcmVnaXN0ZXJzIGFuIEkyQyBhZGFwdGVyIHRoYXQgaXMgdXNlZCB0byByZWFk
+IHRvIEVESUQuCj4gPiA+IEFmdGVyIGNvbW1pdCA5OTNhODE1ZGNiYjIgKCJkdC1iaW5kaW5nczog
+cGFuZWw6IEFkZCBtaXNzaW5nIC50eHQKPiA+ID4gc3VmZml4IikgdGhpcyBzdG9wcGVkIHdvcmtp
+bmcgYmVjYXVzZSB0aGUgSTJDIGFkYXB0ZXIgY291bGQgbm8gbG9uZ2VyCj4gPiA+IGJlIGZvdW5k
+LiBUaGUgYXBwcm9hY2ggaW4gdGhpcyBwYXRjaCBmaXhlcyB0aGUgcmVncmVzc2lvbiB3aXRob3V0
+Cj4gPiA+IGludHJvZHVjaW5nIHRoZSBpc3N1ZXMgdGhhdCB0aGUgYWJvdmUgY29tbWl0IHNvbHZl
+ZC4KPiA+ID4KPiA+ID4gRml4ZXM6IDE3YWI3ODA2ZGUwYyAoImRybTogZG9uJ3QgbGluayBEUCBh
+dXggaTJjIGFkYXB0ZXIgdG8gdGhlIGhhcmR3YXJlIGRldmljZSBub2RlIikKPiA+ID4gU2lnbmVk
+LW9mZi1ieTogVGhpZXJyeSBSZWRpbmcgPHRyZWRpbmdAbnZpZGlhLmNvbT4KPiA+ID4gLS0tCj4g
+PiA+IENoYW5nZXMgaW4gdjI6Cj4gPiA+IC0gY2hlY2sgZm9yIGJvdGggZGV2aWNlIGFuZCBwYXJl
+bnQgZGV2aWNlIHRyZWUgbm9kZXMgZm9yIGVhY2ggZGV2aWNlCj4gPiA+IGluc3RlYWQgb2YgbG9v
+cGluZyB0aHJvdWdoIHRoZSBsaXN0IG9mIGRldmljZXMgdHdpY2UKPiA+ID4KPiA+ID4gZHJpdmVy
+cy9pMmMvaTJjLWNvcmUtb2YuYyB8IDE0ICsrKysrKysrKysrKystCj4gPiA+IDEgZmlsZSBjaGFu
+Z2VkLCAxMyBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4gPiA+Cj4gPiA+IGRpZmYgLS1n
+aXQgYS9kcml2ZXJzL2kyYy9pMmMtY29yZS1vZi5jIGIvZHJpdmVycy9pMmMvaTJjLWNvcmUtb2Yu
+Ywo+ID4gPiBpbmRleCA2Y2I3YWQ2MDhiY2QuLjBmMDFjZGJhOWQyYyAxMDA2NDQKPiA+ID4gLS0t
+IGEvZHJpdmVycy9pMmMvaTJjLWNvcmUtb2YuYwo+ID4gPiArKysgYi9kcml2ZXJzL2kyYy9pMmMt
+Y29yZS1vZi5jCj4gPiA+IEBAIC0xMjEsNiArMTIxLDE3IEBAIHN0YXRpYyBpbnQgb2ZfZGV2X25v
+ZGVfbWF0Y2goc3RydWN0IGRldmljZSAqZGV2LCB2b2lkICpkYXRhKQo+ID4gPiByZXR1cm4gZGV2
+LT5vZl9ub2RlID09IGRhdGE7Cj4gPiA+IH0KPiA+ID4gK3N0YXRpYyBpbnQgb2ZfZGV2X29yX3Bh
+cmVudF9ub2RlX21hdGNoKHN0cnVjdCBkZXZpY2UgKmRldiwgdm9pZCAqZGF0YSkKPiA+ID4gK3sK
+PiA+ID4gKyBpZiAoZGV2LT5vZl9ub2RlID09IGRhdGEpCj4gPiA+ICsgcmV0dXJuIDE7Cj4gPiA+
+ICsKPiA+ID4gKyBpZiAoZGV2LT5wYXJlbnQpCj4gPiA+ICsgcmV0dXJuIGRldi0+cGFyZW50LT5v
+Zl9ub2RlID09IGRhdGE7Cj4gPiA+ICsKPiA+ID4gKyByZXR1cm4gMDsKPiA+ID4gK30KPiA+ID4g
+Kwo+ID4gPiAvKiBtdXN0IGNhbGwgcHV0X2RldmljZSgpIHdoZW4gZG9uZSB3aXRoIHJldHVybmVk
+IGkyY19jbGllbnQgZGV2aWNlICovCj4gPiA+IHN0cnVjdCBpMmNfY2xpZW50ICpvZl9maW5kX2ky
+Y19kZXZpY2VfYnlfbm9kZShzdHJ1Y3QgZGV2aWNlX25vZGUgKm5vZGUpCj4gPiA+IHsKPiA+ID4g
+QEAgLTE0NSw3ICsxNTYsOCBAQCBzdHJ1Y3QgaTJjX2FkYXB0ZXIgKm9mX2ZpbmRfaTJjX2FkYXB0
+ZXJfYnlfbm9kZShzdHJ1Y3QgZGV2aWNlX25vZGUgKm5vZGUpCj4gPiA+IHN0cnVjdCBkZXZpY2Ug
+KmRldjsKPiA+ID4gc3RydWN0IGkyY19hZGFwdGVyICphZGFwdGVyOwo+ID4gPiAtIGRldiA9IGJ1
+c19maW5kX2RldmljZSgmaTJjX2J1c190eXBlLCBOVUxMLCBub2RlLCBvZl9kZXZfbm9kZV9tYXRj
+aCk7Cj4gPiA+ICsgZGV2ID0gYnVzX2ZpbmRfZGV2aWNlKCZpMmNfYnVzX3R5cGUsIE5VTEwsIG5v
+ZGUsCj4gPiA+ICsgb2ZfZGV2X29yX3BhcmVudF9ub2RlX21hdGNoKTsKPiA+ID4gaWYgKCFkZXYp
+Cj4gPiA+IHJldHVybiBOVUxMOwo+ID4KPiA+IEkndmUgdGVzdGVkIHRoaXMgYW5kIGNhbiBjb25m
+aXJtIHRoYXQgdGhpcyBmaXhlcyB0aGUgaXNzdWUgb24gdGhlIG55YW4tYmlnCj4gPiBjaHJvbWVi
+b29rLgo+Cj4gRXhjZWxsZW50LCB0aGFua3MgZm9yIHRlc3RpbmchIFR5cGljYWxseSBpZiB5b3Un
+dmUgdGVzdGVkIGEgcGF0Y2ggYW5kCj4gdmVyaWZpZWQgdGhhdCBpdCBmaXhlcyB0aGUgcHJvYmxl
+bSB0aGF0IHlvdSB3ZXJlIHNlZWluZywgaXQncyBnb29kIHRvCj4gc2VuZCB0aGlzIG9uIGEgbGlu
+ZSBieSBpdHNlbGYgYWxvbmcgd2l0aCB5b3VyIHJlcGx5Ogo+Cj4gVGVzdGVkLWJ5OiBUcmlzdGFu
+IEJhc3RpYW4gPHRyaXN0YW4tYy5iYXN0aWFuQGdteC5kZT4KClJlc2VuZGluZyBiZWNhdXNlIGZp
+cnN0IG1haWwgY29udGFpbmVkIGh0bWwgYW5kIHdhcyBibG9ja2VkIGJ5IHRoZSBtYWlsaW5nIGxp
+c3RzLi4KRGlkbid0IGtuZXcgYWJvdXQgdGhhdCBsaW5lLCBzb3JyeS4uClN1cmUgeW91IGNhbiBp
+bmNsdWRlIHRoYXQuCkknbSBob3BpbmcgcGF0Y2h3b3JrIHdvbid0IHRoaW5nIGl0IGdvdCB0ZXN0
+ZWQgdHdpY2UgYnkgbWUuLgogClRlc3RlZC1ieTogVHJpc3RhbiBCYXN0aWFuIDx0cmlzdGFuLWMu
+YmFzdGlhbkBnbXguZGU+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9w
+Lm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2RyaS1k
+ZXZlbAo=
