@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 053/107] i2c-axxia: check for error conditions first
-Date: Mon, 28 Jan 2019 11:18:53 -0500
-Message-ID: <20190128161947.57405-53-sashal@kernel.org>
-References: <20190128161947.57405-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 39/80] i2c-axxia: check for error conditions first
+Date: Mon, 28 Jan 2019 11:23:20 -0500
+Message-ID: <20190128162401.58841-39-sashal@kernel.org>
+References: <20190128162401.58841-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190128161947.57405-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190128162401.58841-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -42,7 +42,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 16 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-axxia.c b/drivers/i2c/busses/i2c-axxia.c
-index 96a6d5df9b26..b0962897bc45 100644
+index 9c9fd2e87a4b..1c68b05c8649 100644
 --- a/drivers/i2c/busses/i2c-axxia.c
 +++ b/drivers/i2c/busses/i2c-axxia.c
 @@ -296,22 +296,7 @@ static irqreturn_t axxia_i2c_isr(int irq, void *_dev)
