@@ -1,69 +1,79 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: RE: [PATCH V3 2/3] i2c: tegra: Update transfer timeout
-Date: Mon, 28 Jan 2019 18:28:36 +0000
-Message-ID: <BYAPR12MB3398E9D32B57B0E2FC2A6466C2960@BYAPR12MB3398.namprd12.prod.outlook.com>
-References: <1548475073-12408-1-git-send-email-skomatineni@nvidia.com>
- <1548475073-12408-2-git-send-email-skomatineni@nvidia.com>
- <0cf91475-f77d-7453-deb6-3dd91b63aeb6@gmail.com>
+From: Ray Jui <ray.jui@broadcom.com>
+Subject: Re: [PATCH v3 0/8] Add IPROC I2C slave mode and NIC I2C support
+Date: Mon, 28 Jan 2019 11:31:31 -0800
+Message-ID: <746cf074-69e0-7bd1-034e-c8d3156b5506@broadcom.com>
+References: <1547791464-3540-1-git-send-email-rayagonda.kokatanur@broadcom.com>
+ <e658ce66-98e3-3ca6-5786-56bfea6d176e@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <0cf91475-f77d-7453-deb6-3dd91b63aeb6@gmail.com>
+In-Reply-To: <e658ce66-98e3-3ca6-5786-56bfea6d176e@broadcom.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Osipenko <digetx@gmail.com>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>
-Cc: "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, rjui@broadcom.com
+Cc: bcm-kernel-feedback-list@broadcom.com, shreesha.rajashekar@broadcom.com, sbranden@broadcom.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, ccheng@broadcom.com, heikki.krogerus@linux.intel.com, geert@linux-m68k.org, arnd@arndb.de, manivannan.sadhasivam@linaro.org, ajayg@nvidia.com, ard.biesheuvel@linaro.org, eajames@linux.vnet.ibm.com, kramasub@codeaurora.org, vigneshr@ti.com, mika.westerberg@linux.intel.com, pierre-yves.mordret@st.com, f.fainelli@gmail.com, aaron.wu@analog.com, jdelvare@suse.de, andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, robh+dt@kernel.org, mark.rutland@arm.com, rayagonoda.kokatanur@braodcom.com
 List-Id: linux-i2c@vger.kernel.org
 
-DQoNCj4gPiBVcGRhdGUgSTJDIHRyYW5zZmVyIHRpbWVvdXQgYmFzZWQgb24gdHJhbnNmZXIgYnl0
-ZXMgYW5kIEkyQyBidXMgcmF0ZSANCj4gPiB0byBhbGxvdyBlbm91Z2ggdGltZSBkdXJpbmcgbWF4
-IHRyYW5zZmVyIHNpemUgYmFzZWQgb24gdGhlIHNwZWVkLg0KPg0KPiBDb3VsZCBpdCBiZSB0aGF0
-IEkyQyBkZXZpY2UgaXMgYnVzeSBhbmQganVzdCBzbG93bHkgaGFuZGxpbmcgdGhlIHRyYW5zZmVy
-IHJlcXVlc3RzPyBNYXliZSBiZXR0ZXIgdG8gbGVhdmUgdGhlIHRpbWVvdXQgYXMtaXMgYW5kIGFz
-c3VtZSB0aGUgd29yc3QgY2FzZSBzY2VuYXJpbz8NCj4NClRoaXMgY2hhbmdlIGluY2x1ZGVzIG1p
-biB0cmFuc2ZlciB0aW1lIG91dCBvZiAxMDBtcyBpbiBhZGRpdGlvbiB0byBjb21wdXRlZCB0aW1l
-b3V0IGJhc2VkIG9uIHRyYW5zZmVyIGJ5dGVzIGFuZCBzcGVlZCB3aGljaCBjYW4gYWNjb3VudCBp
-biBjYXNlcyBvZiBzbGF2ZSBkZXZpY2VzIHJ1bm5pbmcgYXQgc2xvd2VyIHNwZWVkLg0KQWxzbyBU
-ZWdyYSBJMkMgTWFzdGVyIHN1cHBvcnRzIENsb2NrIHN0cmV0Y2hpbmcgYnkgdGhlIHNsYXZlLg0K
-DQo+ID4gDQo+ID4gU2lnbmVkLW9mZi1ieTogU293amFueWEgS29tYXRpbmVuaSA8c2tvbWF0aW5l
-bmlAbnZpZGlhLmNvbT4NCj4gPiAtLS0NCj4gPiAgW1YzXSA6IFNhbWUgYXMgVjINCj4gPiAgW1Yy
-XSA6IEFkZGVkIHRoaXMgcGF0Y2ggaW4gVjIgc2VyaWVzIHRvIGFsbG93IGVub3VnaCB0aW1lIGZv
-ciBkYXRhIHRyYW5zZmVyDQo+ID4gCXRvIGhhcHBlbi4NCj4gPiAJVGhpcyBwYXRjaCBoYXMgZGVw
-ZW5kZW5jeSB3aXRoIERNQSBwYXRjaCBhcyBURUdSQV9JMkNfVElNRU9VVCBkZWZpbmUNCj4gPiAJ
-dGFrZXMgYXJndW1lbnQgd2l0aCB0aGlzIHBhdGNoLg0KPiA+IA0KPiA+ICBkcml2ZXJzL2kyYy9i
-dXNzZXMvaTJjLXRlZ3JhLmMgfCAxOCArKysrKysrKysrKysrKysrLS0NCj4gPiAgMSBmaWxlIGNo
-YW5nZWQsIDE2IGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pDQo+ID4gDQo+ID4gZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtdGVncmEuYyANCj4gPiBiL2RyaXZlcnMvaTJj
-L2J1c3Nlcy9pMmMtdGVncmEuYyBpbmRleCBhZWM1MDBlZjlhOTguLjNkY2JjOTk2MGQ5ZCANCj4g
-PiAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLXRlZ3JhLmMNCj4gPiAr
-KysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLXRlZ3JhLmMNCj4gPiBAQCAtMjMsNyArMjMsNyBA
-QA0KPiA+ICAjaW5jbHVkZSA8bGludXgvcmVzZXQuaD4NCj4gPiAgI2luY2x1ZGUgPGxpbnV4L3Ns
-YWIuaD4NCj4gPiAgDQo+ID4gLSNkZWZpbmUgVEVHUkFfSTJDX1RJTUVPVVQgKG1zZWNzX3RvX2pp
-ZmZpZXMoMTAwMCkpDQo+ID4gKyNkZWZpbmUgVEVHUkFfSTJDX1RJTUVPVVQobXMpIChtc2Vjc190
-b19qaWZmaWVzKG1zKSkNCj4gPiAgI2RlZmluZSBCWVRFU19QRVJfRklGT19XT1JEIDQNCj4gPiAg
-DQo+ID4gICNkZWZpbmUgSTJDX0NORkcJCQkJMHgwMDANCj4gPiBAQCAtMTE2LDYgKzExNiw5IEBA
-DQo+ID4gICNkZWZpbmUgSTJDX01TVF9GSUZPX1NUQVRVU19UWF9NQVNLCQkweGZmMDAwMA0KPiA+
-ICAjZGVmaW5lIEkyQ19NU1RfRklGT19TVEFUVVNfVFhfU0hJRlQJCTE2DQo+ID4gIA0KPiA+ICsv
-KiBQYWNrZXQgaGVhZGVyIHNpemUgaW4gYnl0ZXMgKi8NCj4gPiArI2RlZmluZSBJMkNfUEFDS0VU
-X0hFQURFUl9TSVpFCQkJMTINCj4gPiArDQo+ID4gIC8qDQo+ID4gICAqIG1zZ19lbmRfdHlwZTog
-VGhlIGJ1cyBjb250cm9sIHdoaWNoIG5lZWQgdG8gYmUgc2VuZCBhdCBlbmQgb2YgdHJhbnNmZXIu
-DQo+ID4gICAqIEBNU0dfRU5EX1NUT1A6IFNlbmQgc3RvcCBwdWxzZSBhdCBlbmQgb2YgdHJhbnNm
-ZXIuDQo+ID4gQEAgLTY4Myw2ICs2ODYsMTcgQEAgc3RhdGljIGludCB0ZWdyYV9pMmNfeGZlcl9t
-c2coc3RydWN0IHRlZ3JhX2kyY19kZXYgKmkyY19kZXYsDQo+ID4gIAl1MzIgaW50X21hc2s7DQo+
-ID4gIAl1bnNpZ25lZCBsb25nIHRpbWVfbGVmdDsNCj4gPiAgCXVuc2lnbmVkIGxvbmcgZmxhZ3M7
-DQo+ID4gKwl1MTYgeGZlcl90aW1lID0gMTAwOw0KPiA+ICsJc2l6ZV90IHhmZXJfc2l6ZSA9IDA7
-DQo+DQo+IE5vIG5lZWQgdG8gaW5pdGlhbGl6ZSB4ZmVyX3NpemUgdG8gMC4NCj4NCj4gPiArDQo+
-ID4gKwlpZiAobXNnLT5mbGFncyAmIEkyQ19NX1JEKQ0KPiA+ICsJCXhmZXJfc2l6ZSA9IEFMSUdO
-KG1zZy0+bGVuLCBCWVRFU19QRVJfRklGT19XT1JEKTsNCj4gPiArCWVsc2UNCj4gPiArCQl4ZmVy
-X3NpemUgPSBBTElHTihtc2ctPmxlbiwgQllURVNfUEVSX0ZJRk9fV09SRCkgKw0KPiA+ICsJCQkg
-ICAgSTJDX1BBQ0tFVF9IRUFERVJfU0laRTsNCj4gPiArDQo+ID4gKwl4ZmVyX3RpbWUgKz0gRElW
-X1JPVU5EX0NMT1NFU1QoKHhmZXJfc2l6ZSAqIDkpICogMTAwMCwNCj4gPiArCQkJCQlpMmNfZGV2
-LT5idXNfY2xrX3JhdGUpOz4NCj4gPiAgCXRlZ3JhX2kyY19mbHVzaF9maWZvcyhpMmNfZGV2KTsN
-Cj4gPiAgDQo+ID4gQEAgLTczOSw3ICs3NTMsNyBAQCBzdGF0aWMgaW50IHRlZ3JhX2kyY194ZmVy
-X21zZyhzdHJ1Y3QgdGVncmFfaTJjX2RldiAqaTJjX2RldiwNCj4gPiAgCQlpMmNfcmVhZGwoaTJj
-X2RldiwgSTJDX0lOVF9NQVNLKSk7DQo+ID4gIA0KPiA+ICAJdGltZV9sZWZ0ID0gd2FpdF9mb3Jf
-Y29tcGxldGlvbl90aW1lb3V0KCZpMmNfZGV2LT5tc2dfY29tcGxldGUsDQo+ID4gLQkJCQkJCVRF
-R1JBX0kyQ19USU1FT1VUKTsNCj4gPiArCQkJCQkJVEVHUkFfSTJDX1RJTUVPVVQoeGZlcl90aW1l
-KSk7DQo+ID4gIAl0ZWdyYV9pMmNfbWFza19pcnEoaTJjX2RldiwgaW50X21hc2spOw0KPiA+ICAN
-Cj4gPiAgCWlmICh0aW1lX2xlZnQgPT0gMCkgew0KPiA+IA0K
+Hi Wolfram,
+
+Just want to check if you had a chance to review the following patch series?
+
+Thanks,
+
+Ray
+
+On 1/20/2019 1:49 PM, Ray Jui wrote:
+> Hi Rayagonda/Wolfram,
+> 
+> I reviewed the entire patch series and added my Reviewed-by tag on 1/8
+> and 2/8. The rest of the patches in this series already had my
+> Signed-off-by tag.
+> 
+> Thanks,
+> 
+> Ray
+> 
+> On 1/17/2019 10:04 PM, Rayagonda Kokatanur wrote:
+>> Hi,
+>> This patchset contains support for IPROC I2C slave and NIC I2C support.
+>> Following are the brief changes done inorder to support both IPROC I2C
+>> slave mode and NIC I2C,
+>>
+>> a. Add support to allow I2C rx transfer upto 255 bytes
+>> b. Add polling mode support to the iProc I2C driver. Polling mode is used
+>>    in certain SoCs where interrupt is not connected from the I2C block.
+>> c. Add warpper read/write access for register to support indirect register
+>>    access. This is required in certain SoCs with this iProc I2C
+>>    block registered.
+>> d. Remove the set RESET bit to LOW right after setting it to HIGH so that
+>>    wait duration can be met.
+>>
+>> This patch series is based on kernel v5.0.0-rc2.
+>>
+>> Changes from v2:
+>>  - Address Ray's review comments.
+>>
+>> Changes from v1:
+>>  - Rebased to Linux v5.0.0-rc2
+>>
+>> Ray Jui (1):
+>>   dt-bindings: i2c: iproc: make 'interrupts' optional
+>>
+>> Rayagonda Kokatanur (5):
+>>   i2c: iproc: add polling support
+>>   i2c: iproc: use wrapper for read/write access
+>>   dt-bindings: i2c: iproc: add "brcm,iproc-nic-i2c" compatible string
+>>   i2c: iproc: add NIC I2C support
+>>   arm64: dts: Stingray: Add NIC i2c device node
+>>
+>> Shreesha Rajashekar (2):
+>>   i2c: iproc: I2C read up to 255 bytes support
+>>   i2c: iproc: Add Slave mode support
+>>
+>>  .../devicetree/bindings/i2c/brcm,iproc-i2c.txt     |  14 +-
+>>  .../arm64/boot/dts/broadcom/stingray/stingray.dtsi |  18 +
+>>  drivers/i2c/busses/Kconfig                         |   1 +
+>>  drivers/i2c/busses/i2c-bcm-iproc.c                 | 757 +++++++++++++++++----
+>>  4 files changed, 659 insertions(+), 131 deletions(-)
+>>
