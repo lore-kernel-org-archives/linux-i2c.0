@@ -1,65 +1,60 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: RE: [PATCH V3 3/3] i2c: tegra: Add DMA Support
-Date: Tue, 29 Jan 2019 02:02:18 +0000
-Message-ID: <BYAPR12MB339837F4E341F7911F1E1E67C2970@BYAPR12MB3398.namprd12.prod.outlook.com>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH V3 3/3] i2c: tegra: Add DMA Support
+Date: Tue, 29 Jan 2019 06:11:54 +0300
+Message-ID: <778d578f-6bee-1acb-0562-6657ab4edb43@gmail.com>
 References: <1548475073-12408-1-git-send-email-skomatineni@nvidia.com>
  <1548475073-12408-3-git-send-email-skomatineni@nvidia.com>
  <5973707c-555f-a27c-2ff3-e867d4b2cde7@gmail.com>
  <BYAPR12MB339874021C106E447529E887C2960@BYAPR12MB3398.namprd12.prod.outlook.com>
+ <BYAPR12MB339837F4E341F7911F1E1E67C2970@BYAPR12MB3398.namprd12.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <BYAPR12MB339874021C106E447529E887C2960@BYAPR12MB3398.namprd12.prod.outlook.com>
+In-Reply-To: <BYAPR12MB339837F4E341F7911F1E1E67C2970@BYAPR12MB3398.namprd12.prod.outlook.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Osipenko <digetx@gmail.com>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>
+To: Sowjanya Komatineni <skomatineni@nvidia.com>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>
 Cc: "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-DQoNCj4gPiA+IFRoaXMgcGF0Y2ggYWRkcyBETUEgc3VwcG9ydCBmb3IgVGVncmEgSTJDLg0KPiA+
-ID4gDQo+ID4gPiBUZWdyYSBJMkMgVFggYW5kIFJYIEZJRk8gZGVwdGggaXMgOCB3b3Jkcy4gUElP
-IG1vZGUgaXMgdXNlZCBmb3IgDQo+ID4gPiB0cmFuc2ZlciBzaXplIG9mIHRoZSBtYXggRklGTyBk
-ZXB0aCBhbmQgRE1BIG1vZGUgaXMgdXNlZCBmb3IgDQo+ID4gPiB0cmFuc2ZlciBzaXplIGhpZ2hl
-ciB0aGFuIG1heCBGSUZPIGRlcHRoIHRvIHNhdmUgQ1BVIG92ZXJoZWFkLg0KPiA+ID4gDQo+ID4g
-PiBQSU8gbW9kZSBuZWVkcyBmdWxsIGludGVydmVudGlvbiBvZiBDUFUgdG8gZmlsbCBvciBlbXB0
-eSBGSUZPJ3MgYW5kIA0KPiA+ID4gYWxzbyBuZWVkIHRvIHNlcnZpY2UgbXVsdGlwbGUgZGF0YSBy
-ZXF1ZXN0cyBpbnRlcnJ1cHQgZm9yIHRoZSBzYW1lIA0KPiA+ID4gdHJhbnNhY3Rpb24gYWRkaW5n
-IG92ZXJoZWFkIG9uIENQVSBmb3IgbGFyZ2UgdHJhbnNmZXJzLg0KPiA+ID4gDQo+ID4gPiBETUEg
-bW9kZSBpcyBoZWxwZnVsIGZvciBMYXJnZSB0cmFuc2ZlcnMgZHVyaW5nIGRvd25sb2FkaW5nIG9y
-IA0KPiA+ID4gdXBsb2FkaW5nIEZXIG92ZXIgSTJDIHRvIHNvbWUgZXh0ZXJuYWwgZGV2aWNlcy4N
-Cj4gPiA+IA0KPiA+ID4gU2lnbmVkLW9mZi1ieTogU293amFueWEgS29tYXRpbmVuaSA8c2tvbWF0
-aW5lbmlAbnZpZGlhLmNvbT4NCj4gPiA+IA0KPiA+ID4gLS0tDQo+ID4NCj4gPiBTZWVtcyB0aGVy
-ZSBhcmUgZ29vZCBuZXdzLCBBUEIgRE1BIGNvdWxkIGFjY2VzcyBJUkFNLiBRdW90ZSBmcm9tIFRS
-TTogIlRoZSBzb3VyY2UgbWF5IGJlIERSQU0gb3IgSVJBTSwgYW5kIHRoZSBkZXN0aW5hdGlvbiBs
-b2NhdGlvbiBjb3VsZCBiZSBkZXZpY2VzIHBsYWNlZCBvbiA+IEFQQiBCdXM7IG9yIHZpY2UgdmVy
-c2EiLiBIZW5jZSBpdCBzaGFsbCBiZSBtdWNoIG1vcmUgZWZmaWNpZW50IHRvIHVzZSBJUkFNIGZv
-ciB0aGUgRE1BIGJ1ZmZlciwgcGxlYXNlIGNvbnNpZGVyIHRoYXQgdmFyaWFudC4NCj4gPg0KPg0K
-PiBSZWdhcmRpbmcgeW91ciByZXF1ZXN0IGZvciBXcml0ZSBDb21iaW5lZCBtZW1vcnksIGl0IGRv
-ZXNu4oCZdCBndWFyYW50ZWUgdGhlIG9yZGVyLg0KPg0KPiBNYWluIHJlYXNvbiBmb3IgYWRkaW5n
-IERNQSBtb2RlIHN1cHBvcnQgdG8gVGVncmEgSTJDIGRyaXZlciBpcyBub3QgZm9yIGFjdHVhbCB0
-cmFuc2ZlciBwZXJmb3JtYW5jZSBidXQgZm9yIG5vdCBoYXZpbmcgZGVsYXllZCBJMkMgdHJhbnNm
-ZXIgbWFpbmx5IGluIGNhc2Ugb2YgQ1BVIGZ1bGx5IGxvYWRlZCBhbmQgSTJDIHRyYW5zZmVyIGR1
-cmluZyB0aGF0IHRpbWUgKEZXIHVwbG9hZC9kb3dubG9hZCwgU2Vuc29yIHByb2dyYW1taW5nLi4p
-IHVzaW5nIFBJTyA+IG1vZGUgaW50cm9kdWNlcyBkZWxheSBiL3cgYnl0ZXMgb2YgdHJhbnNmZXIg
-YXMgaXQgZGVwZW5kcyBvbiBDUFUgc2NoZWR1bGluZyBhbmQgaW50ZXJydXB0IHByaW9yaXR5IHdo
-aWNoIGltcGFjdHMgb24gc2VydmluZyBpbnRlcnJ1cHRzIGFuZCBmaWxsaW5nIEZJRk8gZm9yIHRy
-YW5zZmVyIHRvIGhhcHBlbi4NCj4NCj4gQmVsb3cgYXJlIHRoZSBjYXNlcyB3aGVyZSB3ZSBzZWUg
-dGhlIG5lZWQgZm9yIERNQSBtb2RlIGZvciBJMkMgdHJhbnNmZXJzIChtYWlubHkgZHVyaW5nIHRo
-ZSB1c2UgY2FzZXMgd2hlcmUgQ1BVIGlzIGZ1bGx5IGxvYWRlZCkNCj4gLSBTb21lIGRldmljZXMg
-bmVlZCBGVyB1cGRhdGUgb3ZlciBJMkMgYW5kIERNQSBtb2RlIGhlbHBzIGluIHN1Y2ggbGFyZ2Ug
-dHJhbnNmZXJzIG9uIEkyQyByZWR1Y2luZyBDUFUgaW50ZXJ2ZW50aW9uIG1haW5seSB3aGVuIENQ
-VSBpcyBmdWxseSBsb2FkZWQuDQo+IC0gU29tZSBkZXZpY2VzIGhhdmUgaW50ZXJuYWwgdGltZW91
-dCBmb3Igbm8gZGF0YSBhY3Rpdml0eSBvbiBJMkMgYnVzIGFmdGVyIHRoZSBzdGFydCBjb21tYW5k
-ICh0aW1lIHJlc3RyaWN0aW9uIGIvdyBkYXRhIHRvIGRhdGEgd2l0aGluIHNpbmdsZSB0cmFuc2Fj
-dGlvbikgdG8gYXZvaWQgYnVzIGhhbmcgYW5kIHRoZXkgZm9yY2UgdG8gc3RvcCB3aGVuIHRpbWVv
-dXQgaGFwcGVucy4gd2l0aCBQSU8gbW9kZSBpbiB0aG9zZSBjYXNlcywgZGVwZW5kaW5nIG9uIENQ
-VSBsb2FkLCB0aGVyZSBjb3VsZCBiZSBtb3JlIGRlbGF5IGluIHNlcnZpbmcgaW50ZXJydXB0IGZv
-ciBkYXRhIHJlcXVlc3RzIGFuZCBzZW5kaW5nIHRoZSBkYXRhIGNhdXNpbmcgdGhlIGRldmljZSB0
-byB0cmlnZ2VyIGl0cyB0aW1lb3V0IGFuZCB0cmFuc2FjdGlvbiBzdG9wcy4NCj4gLSBIZWxwcyBm
-b3IgcmVhZGluZyBkYXRhIGZyb20gSTJDIHNlbnNvcnMgd2l0aCBiZXR0ZXIgQlcuDQoNCkZvdW5k
-IGZyb20gZG9jdW1lbnRhdGlvbiBkZWZhdWx0IGF0dHJpYnV0ZSBpcyBETUFfQVRUUl9XUklURV9C
-QVJSSUVSIHdoaWNoIGZvcmNlcyBhbGwgcGVuZGluZyB3cml0ZXMgdG8gY29tcGxldGUgcHJldmVu
-dGluZyByYWNlIGIvdyBjb21wbGV0aW9uIG5vdGlmaWNhdGlvbiBhbmQgZGF0YSBETUEuDQpXaWxs
-IHVzZSB3cml0ZS1jb21iaW5lZCBtZW1vcnkgYWxsb2NhdGlvbiBmb3IgRE1BIGJ1ZmZlciBpbiBy
-ZXZpc2VkIHBhdGNoLi4NCg0KVGhhbmtzDQpzb3dqYW55YQ0KDQo=
+29.01.2019 5:02, Sowjanya Komatineni пишет:
+> 
+> 
+>>>> This patch adds DMA support for Tegra I2C.
+>>>>
+>>>> Tegra I2C TX and RX FIFO depth is 8 words. PIO mode is used for 
+>>>> transfer size of the max FIFO depth and DMA mode is used for 
+>>>> transfer size higher than max FIFO depth to save CPU overhead.
+>>>>
+>>>> PIO mode needs full intervention of CPU to fill or empty FIFO's and 
+>>>> also need to service multiple data requests interrupt for the same 
+>>>> transaction adding overhead on CPU for large transfers.
+>>>>
+>>>> DMA mode is helpful for Large transfers during downloading or 
+>>>> uploading FW over I2C to some external devices.
+>>>>
+>>>> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+>>>>
+>>>> ---
+>>>
+>>> Seems there are good news, APB DMA could access IRAM. Quote from TRM: "The source may be DRAM or IRAM, and the destination location could be devices placed on > APB Bus; or vice versa". Hence it shall be much more efficient to use IRAM for the DMA buffer, please consider that variant.
+>>>
+>>
+>> Regarding your request for Write Combined memory, it doesn’t guarantee the order.
+
+The memory-access order doesn't matter at all in your case, all you need to care about is that actual data is read from dma-buffer and that caches are flushed after writing is done.
+
+>> Main reason for adding DMA mode support to Tegra I2C driver is not for actual transfer performance but for not having delayed I2C transfer mainly in case of CPU fully loaded and I2C transfer during that time (FW upload/download, Sensor programming..) using PIO > mode introduces delay b/w bytes of transfer as it depends on CPU scheduling and interrupt priority which impacts on serving interrupts and filling FIFO for transfer to happen.
+>>
+>> Below are the cases where we see the need for DMA mode for I2C transfers (mainly during the use cases where CPU is fully loaded)
+>> - Some devices need FW update over I2C and DMA mode helps in such large transfers on I2C reducing CPU intervention mainly when CPU is fully loaded.
+>> - Some devices have internal timeout for no data activity on I2C bus after the start command (time restriction b/w data to data within single transaction) to avoid bus hang and they force to stop when timeout happens. with PIO mode in those cases, depending on CPU load, there could be more delay in serving interrupt for data requests and sending the data causing the device to trigger its timeout and transaction stops.
+>> - Helps for reading data from I2C sensors with better BW.
+
+Okay, since the efficiency between transfers is not the concern in your case, it doesn't really matter much where dma-buffer is located.
+
+> Found from documentation default attribute is DMA_ATTR_WRITE_BARRIER which forces all pending writes to complete preventing race b/w completion notification and data DMA.
+> Will use write-combined memory allocation for DMA buffer in revised patch..
+
+Actually mapping is write-combined on ARM for the coherent DMA allocation with CONFIG_ARM_DMA_MEM_BUFFERABLE=y (enabled by default). I just falsely assumed that it could be writeback. Hence please keep the coherent allocation as-is. And you don't need to care about DMA_ATTR_WRITE_BARRIER, apparently it is only relevant for PCI on IA64.
