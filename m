@@ -1,25 +1,62 @@
 From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: RE: [PATCH V5 3/5] i2c: tegra: Add DMA Support
-Date: Wed, 30 Jan 2019 01:50:44 +0000
-Message-ID: <BYAPR12MB339850895826781B4E6AF028C2900@BYAPR12MB3398.namprd12.prod.outlook.com>
-References: <1548803771-13424-1-git-send-email-skomatineni@nvidia.com>
-        <1548803771-13424-3-git-send-email-skomatineni@nvidia.com>
- <20190130044214.65991195@dimatab>
+Subject: [PATCH V6 1/5] i2c: tegra: Sort all the include headers alphabetically
+Date: Tue, 29 Jan 2019 19:13:29 -0800
+Message-ID: <1548818013-21226-1-git-send-email-skomatineni@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190130044214.65991195@dimatab>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Osipenko <digetx@gmail.com>
-Cc: "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: thierry.reding@gmail.com, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com
+Cc: linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sowjanya Komatineni <skomatineni@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-DQoNCj4gQ291bGQgeW91IHBsZWFzZSB0ZWxsIHdoZXRoZXIgeW91IG1pc3NlZCBteSBjb21tZW50
-cyB0byBWMyBbMF0gb3IgY2hvc2UgdG8gaWdub3JlIHRoZW0/IElmIHRoZSBmb3JtZXIsIHRoZW4g
-SSdkIHdhbnQgdG8gZ2V0IGFuc3dlcnMgdG8gdGhvc2UgcXVlc3Rpb25zIGFuZCBjb21tZW50cy4g
-SSdsbCBzdG9wIGhlcmUgZm9yIG5vdy4NCj4gDQo+IFswXSBodHRwczovL3BhdGNod29yay5vemxh
-YnMub3JnL3BhdGNoLzEwMzEzNzkvDQoNClNvbWVob3cgbWlzc2VkIHRob3NlIGZyb20gbXVsdGlw
-bGUgY29tbWVudHMuIFdpbGwgZ28gdGhydSBhbmQgcmVzcG9uZCBiYWNrLg0KDQpUaGFua3MNCnNv
-d2phbnlhDQo=
+This patch sorts all the include headers alphabetically for the
+I2C tegra driver
+
+Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+---
+ [V3/V4/V5/V6] : Removed unsued headers in tegra I2C
+ [V2] : Added this in V2 to sort the headers in tegra I2C
+
+ drivers/i2c/busses/i2c-tegra.c | 19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index e417ebf7628c..15806c984859 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -6,24 +6,21 @@
+  * Author: Colin Cross <ccross@android.com>
+  */
+ 
+-#include <linux/kernel.h>
+-#include <linux/init.h>
+-#include <linux/platform_device.h>
+ #include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/err.h>
+ #include <linux/i2c.h>
+-#include <linux/io.h>
++#include <linux/init.h>
+ #include <linux/interrupt.h>
+-#include <linux/delay.h>
+-#include <linux/slab.h>
+-#include <linux/of_device.h>
++#include <linux/io.h>
++#include <linux/iopoll.h>
++#include <linux/kernel.h>
+ #include <linux/module.h>
+-#include <linux/reset.h>
++#include <linux/of_device.h>
+ #include <linux/pinctrl/consumer.h>
++#include <linux/platform_device.h>
+ #include <linux/pm_runtime.h>
+-#include <linux/iopoll.h>
+-
+-#include <asm/unaligned.h>
++#include <linux/reset.h>
+ 
+ #define TEGRA_I2C_TIMEOUT (msecs_to_jiffies(1000))
+ #define BYTES_PER_FIFO_WORD 4
+-- 
+2.7.4
