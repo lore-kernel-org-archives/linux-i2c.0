@@ -1,80 +1,118 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH V7 2/5] i2c: tegra: Add Bus Clear Master Support
-Date: Thu, 31 Jan 2019 12:31:38 +0100
-Message-ID: <20190131113138.GE23438@ulmo>
+Subject: Re: [PATCH V7 3/5] i2c: tegra: Add DMA Support
+Date: Thu, 31 Jan 2019 13:06:40 +0100
+Message-ID: <20190131120640.GF23438@ulmo>
 References: <1548864096-20974-1-git-send-email-skomatineni@nvidia.com>
- <1548864096-20974-2-git-send-email-skomatineni@nvidia.com>
+ <1548864096-20974-3-git-send-email-skomatineni@nvidia.com>
+ <1f10cb76-59a1-93c5-ae03-ccc0cd8db1a3@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="a+b56+3nqLzpiR9O"
+        protocol="application/pgp-signature"; boundary="dWYAkE0V1FpFQHQ3"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1548864096-20974-2-git-send-email-skomatineni@nvidia.com>
+In-Reply-To: <1f10cb76-59a1-93c5-ae03-ccc0cd8db1a3@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc: jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Dmitry Osipenko <digetx@gmail.com>
+Cc: Sowjanya Komatineni <skomatineni@nvidia.com>, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---a+b56+3nqLzpiR9O
-Content-Type: text/plain; charset=us-ascii
+--dWYAkE0V1FpFQHQ3
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jan 30, 2019 at 08:01:33AM -0800, Sowjanya Komatineni wrote:
-> Bus clear feature of tegra i2c controller helps to recover from
-> bus hang when i2c master loses the bus arbitration due to the
-> slave device holding SDA LOW continuously for some unknown reasons.
+On Thu, Jan 31, 2019 at 03:05:48AM +0300, Dmitry Osipenko wrote:
+> 30.01.2019 19:01, Sowjanya Komatineni =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+[...]
+> > diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-te=
+gra.c
+[...]
+> > +		return -EIO;
+> > +	}
+> > +
+> > +	dma_desc->callback =3D tegra_i2c_dma_complete;
+> > +	dma_desc->callback_param =3D i2c_dev;
+> > +	dmaengine_submit(dma_desc);
+> > +	dma_async_issue_pending(chan);
+> > +	return 0;
+> > +}
+> > +
+> > +static int tegra_i2c_init_dma_param(struct tegra_i2c_dev *i2c_dev,
+> > +				    bool dma_to_memory)
+> > +{
+> > +	struct dma_chan *dma_chan;
+> > +	u32 *dma_buf;
+> > +	dma_addr_t dma_phys;
+> > +	int ret;
+> > +	const char *chan_name =3D dma_to_memory ? "rx" : "tx";
 >=20
-> Per I2C specification, the device that held the bus LOW should
-> release it within 9 clock pulses.
+> What about to move out chan_name into the function arguments?
+
+That opens up the possibility of passing dma_to_memory =3D true and
+chan_name as "tx" and create an inconsistency.
+
+> > @@ -884,6 +1187,8 @@ static void tegra_i2c_parse_dt(struct tegra_i2c_de=
+v *i2c_dev)
+> > =20
+> >  	i2c_dev->is_multimaster_mode =3D of_property_read_bool(np,
+> >  			"multi-master");
+> > +
+> > +	i2c_dev->has_dma =3D of_property_read_bool(np, "dmas");
 >=20
-> During bus clear operation, Tegra I2C controller sends 9 clock
-> pulses and terminates the transaction with STOP condition.
-> Upon successful bus clear operation, bus goes to idle state and
-> driver retries the transaction.
+> Not only the existence of "dmas" property defines whether DMA is availabl=
+e. DMA subsystem could be disabled in the kernels configuration.
 >=20
-> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-> ---
->  [V5/V6/V7]: Same as V4
->  [V4]: Added I2C Bus Clear support patch to this version of series.
+> Hence there is a need to check for DMA driver presence in the code:
 >=20
->  drivers/i2c/busses/i2c-tegra.c | 71 ++++++++++++++++++++++++++++++++++++=
-++++++
->  1 file changed, 71 insertions(+)
+> 	if (IS_ENABLED(CONFIG_TEGRA20_APB_DMA))
+> 		i2c_dev->has_dma =3D of_property_read_bool(np, "dmas");
 
-Almost perfect, just a minor nit:
+Do we even need the ->has_dma at all? We can just go ahead and request
+the channels at probe time and respond accordingly. If there's no dmas
+property in DT, dma_request_slave_channel_reason() returns an error so
+we can just deal with it at that time.
 
-Please be more consistent with the spelling. You've got all of "Tegra",
-"tegra", "I2C" and "i2c" in the commit message. "Tegra" and "I2C" are
-the correct ones.
+So if we get -EPROBE_DEFER we can propagate that, for any other errors
+we can simply fallback to PIO. Or perhaps we want to restrict fallback
+to PIO for -ENODEV?
 
-And to clarify, it's fine to keep the lower-case spellings in the
-subject because that serves as a sort of tag. In prose, always use the
-correct spelling.
+I wouldn't want to add an IS_ENABLED(CONFIG_TEGRA20_APB_DMA) in here.
+The purpose of these subsystems it to abstract all of that away.
+Otherwise we could just as well use custom APIs, if we're tying together
+drivers in this way anyway.
 
-With that fixed:
+> Also Tegra I2C driver should select DMA driver in Kconfig to make DMA
+> driver built-in when I2C driver is built-in:
 
-Acked-by: Thierry Reding <treding@nvidia.com>
+I don't think there's a requirement for that. The only dependency we
+really have here is the one on the DMA engine API. Since dmaengine.h
+already provides dummy implementations, there's really no need for
+us to have the dependency. If the DMA engine API is completely disabled,
+a call to dma_request_slave_channel_reason() will return -ENODEV and we
+should just deal with that the same way we would if there was no "dmas"
+property present.
 
---a+b56+3nqLzpiR9O
+Thierry
+
+--dWYAkE0V1FpFQHQ3
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlxS3JoACgkQ3SOs138+
-s6EB6g/+IjKYSnpCAhoigIKxi1yW7e07mlWu62zZXBLdQkEsxQoMFGkr5+0d9FgF
-wGR0Uox9v+bPHt3A/A7svqD1o+5b7TFM8jCVAlNepMU81pk12qhU5D6BveZjdTTw
-7MT4PIF46AkI0lLbs5wZ8nnkw0Nx1QKoWpUPqnot2AgJGEwQjPHBmRRs+UtgSRam
-EugV4SmDXbzkMEBuCI28H0r1JegmVl8HZ/3gKqHPN1EvBUov3F/u5xB3rN8U55Jr
-8ZDCbUWMU2nzZzRW/KPmEhQXNH/g6eN2L774gPhddd1RlqZheXxVgk3G+u3OWpVA
-XKCeRDH+Sr5vzIN/5nvqKaUiFjdg1gvbF40gmoeWC6HoJ2wxv3ru42xntMC9oph0
-eMvSHkk7dfr6U5UntMulBOn5U05ap/b482Ht/NXkqo8rgBznAg9z4Asq+3aaENoK
-1nop/WrDuWLmBvmyoJq9E6MCyFXo2mCERUqacYR3rGW6Scjf+UakRzS+YC5ypObP
-6yr/aJOjbKc7/21h+lOAiSJXfTh+tpv3iYg6tIndXZaSLarXF1Jk1P2MICC35WCw
-NZBvMQCp6d9EtfBCP7g8yJ9zfHVAfBLQpwFDVQ3YRaHIEP5ZOTkuXxWYClOcv/iK
-DFEEq6Nl77z3/gMnej+RgNqxdhyjY32cW/aM/bcuuyHiti6qfDI=
-=x02l
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlxS5M4ACgkQ3SOs138+
+s6FDEw/+JxOcZL0QNOUsgqN799nEJ7ytF+t9JghF5uJacTi7Ez0ievlZVZk+kpTb
+xRLHMY67MlcuiW4zKB9H6qAPUj0vXJLrSOFR6P0DXf23KOtRsmavgUzO3tp6EI1h
+23TPmPwQJE1my4Q2VOovaJ9Oc0UrL3r5mYZBf+2eqJcFHZwgCKTo1OwUCOO9rELK
+gaYX1lkWC0MLO5LbSSJqVi3y13V983C5WWrn3KTzzZVSI4oYafknAAE2248E0UQZ
+cuF+4XWsPi8iEbk0fsKe8/rrDOcd5cA3YxjMHQ1N3SiwQx0817jtqgOaavQkee8F
+51Z/yyQrWCPkPiBjaPyoWs3eTWTmg2Kl6ukItnU8rQok5nWdAiVfsDRev6gvV8oD
+N+z8x/m/xuQ+ucqz+7NhEtyp2dWUOuhtRDjdFivr2Yoo5ye1f11CUuNRVHpd9Qbd
+2AXwZFqSsPHaLM6lwYRL0eJA4vyRNI9fnKxRi+ng+1Z1H5LXInvdWYE4TpoyhY81
+zOMw183VtmP9uJXbf9TZOQ84ims8RNamHKTyd2AEKWwUu4fmIkkxh057RA34iQuK
+iXGv/cJPRE6KiR8ZIq66Usro+YZE2hya+lnWNWS3p0gPdiLqYhSZO/0UZWyqXH9k
+C/0VdaxE6hVpYCkQhFFV4B1YOwmgFsuE+nt/izyJO9i794CuA/I=
+=p6wt
 -----END PGP SIGNATURE-----
 
---a+b56+3nqLzpiR9O--
+--dWYAkE0V1FpFQHQ3--
