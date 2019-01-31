@@ -1,304 +1,181 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: Re: [PATCH] i2c: aspeed: Add multi-master use case support
-Date: Thu, 31 Jan 2019 10:20:22 -0800
-Message-ID: <c9b312af-4c0f-5629-386c-8a72bcb3c1b0@linux.intel.com>
-References: <20190116193958.6049-1-jae.hyun.yoo@linux.intel.com>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH V7 3/5] i2c: tegra: Add DMA Support
+Date: Thu, 31 Jan 2019 22:02:55 +0300
+Message-ID: <365fe7b3-7206-cefa-f10a-06b5db42c761@gmail.com>
+References: <1548864096-20974-1-git-send-email-skomatineni@nvidia.com>
+ <1548864096-20974-3-git-send-email-skomatineni@nvidia.com>
+ <1f10cb76-59a1-93c5-ae03-ccc0cd8db1a3@gmail.com>
+ <20190131120640.GF23438@ulmo>
+ <0e832fa6-f143-7b24-2685-b88a55e77e51@gmail.com>
+ <20190131144344.GP23438@ulmo>
+ <bdb5ab9f-b047-6b9e-696a-8d6ef4065c77@gmail.com>
+ <20190131160137.GA31126@ulmo>
+ <4d08ac86-f278-515f-2c68-564362b7f083@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190116193958.6049-1-jae.hyun.yoo@linux.intel.com>
+In-Reply-To: <4d08ac86-f278-515f-2c68-564362b7f083@gmail.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
+To: Thierry Reding <thierry.reding@gmail.com>
+Cc: Sowjanya Komatineni <skomatineni@nvidia.com>, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Brendan,
+31.01.2019 19:27, Dmitry Osipenko пишет:
+> 31.01.2019 19:01, Thierry Reding пишет:
+>> On Thu, Jan 31, 2019 at 06:02:45PM +0300, Dmitry Osipenko wrote:
+>>> 31.01.2019 17:43, Thierry Reding пишет:
+>>>> On Thu, Jan 31, 2019 at 05:06:18PM +0300, Dmitry Osipenko wrote:
+>>>>> 31.01.2019 15:06, Thierry Reding пишет:
+>>>>>> On Thu, Jan 31, 2019 at 03:05:48AM +0300, Dmitry Osipenko wrote:
+>>>>>>> 30.01.2019 19:01, Sowjanya Komatineni пишет:
+>>>>>> [...]
+>>>>>>>> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+>>>>>> [...]
+>>>>>>>> +		return -EIO;
+>>>>>>>> +	}
+>>>>>>>> +
+>>>>>>>> +	dma_desc->callback = tegra_i2c_dma_complete;
+>>>>>>>> +	dma_desc->callback_param = i2c_dev;
+>>>>>>>> +	dmaengine_submit(dma_desc);
+>>>>>>>> +	dma_async_issue_pending(chan);
+>>>>>>>> +	return 0;
+>>>>>>>> +}
+>>>>>>>> +
+>>>>>>>> +static int tegra_i2c_init_dma_param(struct tegra_i2c_dev *i2c_dev,
+>>>>>>>> +				    bool dma_to_memory)
+>>>>>>>> +{
+>>>>>>>> +	struct dma_chan *dma_chan;
+>>>>>>>> +	u32 *dma_buf;
+>>>>>>>> +	dma_addr_t dma_phys;
+>>>>>>>> +	int ret;
+>>>>>>>> +	const char *chan_name = dma_to_memory ? "rx" : "tx";
+>>>>>>>
+>>>>>>> What about to move out chan_name into the function arguments?
+>>>>>>
+>>>>>> That opens up the possibility of passing dma_to_memory = true and
+>>>>>> chan_name as "tx" and create an inconsistency.
+>>>>>>
+>>>>>>>> @@ -884,6 +1187,8 @@ static void tegra_i2c_parse_dt(struct tegra_i2c_dev *i2c_dev)
+>>>>>>>>  
+>>>>>>>>  	i2c_dev->is_multimaster_mode = of_property_read_bool(np,
+>>>>>>>>  			"multi-master");
+>>>>>>>> +
+>>>>>>>> +	i2c_dev->has_dma = of_property_read_bool(np, "dmas");
+>>>>>>>
+>>>>>>> Not only the existence of "dmas" property defines whether DMA is available. DMA subsystem could be disabled in the kernels configuration.
+>>>>>>>
+>>>>>>> Hence there is a need to check for DMA driver presence in the code:
+>>>>>>>
+>>>>>>> 	if (IS_ENABLED(CONFIG_TEGRA20_APB_DMA))
+>>>>>>> 		i2c_dev->has_dma = of_property_read_bool(np, "dmas");
+>>>>>>
+>>>>>> Do we even need the ->has_dma at all? We can just go ahead and request
+>>>>>> the channels at probe time and respond accordingly. If there's no dmas
+>>>>>> property in DT, dma_request_slave_channel_reason() returns an error so
+>>>>>> we can just deal with it at that time.
+>>>>>>
+>>>>>> So if we get -EPROBE_DEFER we can propagate that, for any other errors
+>>>>>> we can simply fallback to PIO. Or perhaps we want to restrict fallback
+>>>>>> to PIO for -ENODEV?
+>>>>>>
+>>>>>> I wouldn't want to add an IS_ENABLED(CONFIG_TEGRA20_APB_DMA) in here.
+>>>>>> The purpose of these subsystems it to abstract all of that away.
+>>>>>> Otherwise we could just as well use custom APIs, if we're tying together
+>>>>>> drivers in this way anyway.
+>>>>>
+>>>>> DMA API doesn't fully abstract the dependencies between drivers, hence
+>>>>> I disagree.
+>>>>
+>>>> Why not? The dependency we're talking about here is a runtime dependency
+>>>> rather than a build time dependency. Kconfig is really all about build-
+>>>> time dependencies.
+>>>
+>>> My understanding is that Kconfig is also about runtime dependencies,
+>>> do you know if it's explicitly documented anywhere?
+>>
+>> I don't think it's explicitly documented, just a common practice that
+>> I've seen applied multiple times over the years. A quick grep through
+>> the drivers/ subdirectory confirms that it's not typical to have this
+>> sort of dependency in the code.
+>>
+>> Similarly, Kconfig uses select primarily to pull in dependencies that
+>> are in the form of helper libraries and such. Occasionally you'll have
+>> some ARCH_* option select a couple of features, or even drivers, but
+>> that is mostly a shortcut to explicitly having to list the essentials
+>> in a defconfig.
+>>
+>> Another reason why it's not good to model these runtime dependencies in
+>> Kconfig is because they unnecessarily restrict the driver. For example,
+>> if you want to build a specialized Linux binary for Tegra186, you will
+>> certainly want to include the i2c-tegra driver. At the same time you
+>> won't want to include the APB DMA driver because it doesn't exist on
+>> Tegra186. Instead you'd want the (non-existent) GPC DMA driver. select
+>> on the APB DMA driver will unconditionally pull in the driver, depends
+>> will only allow you to build i2c-tegra if the APB DMA driver is also
+>> enabled and the conditional in the code may lead to not using DMA
+>> because the APB DMA driver is not available. So you'd have to modify the
+>> i2c-tegra driver to take into account the GPC DMA driver.
+>>
+>>>>>>> Also Tegra I2C driver should select DMA driver in Kconfig to make DMA
+>>>>>>> driver built-in when I2C driver is built-in:
+>>>>>>
+>>>>>> I don't think there's a requirement for that. The only dependency we
+>>>>>> really have here is the one on the DMA engine API. Since dmaengine.h
+>>>>>> already provides dummy implementations, there's really no need for
+>>>>>> us to have the dependency. If the DMA engine API is completely disabled,
+>>>>>> a call to dma_request_slave_channel_reason() will return -ENODEV and we
+>>>>>> should just deal with that the same way we would if there was no "dmas"
+>>>>>> property present.
+>>>>>
+>>>>> In my opinion it is much better to avoid I2C driver probe failing with
+>>>>> -EPROBE_DEFER if we could. It's just one line in code and one in
+>>>>> Kconfig.. really. 
+>>>>
+>>>> The problem is that from a theoretical point of view we don't know that
+>>>> APB DMA is the provider for the DMA channels. This provider could be a
+>>>> completely different device on a different Tegra generation (in fact,
+>>>> the DMA engine on Tegra186 is a different one, so we'd have to add that
+>>>> to the list of checks to make sure we don't disable DMA there). And the
+>>>> fact that we're tightly integrated is really only by accident. We could
+>>>> have the same situation on a SoC that incorporates IP from multiple
+>>>> different sources and multiple combinations thereof as well, so how
+>>>> would you want to deal with those cases?
+>>>>
+>>>> Agreed, failing with -EPROBE_DEFER is suboptimal in that case, but that
+>>>> is really more of an integration problem. Ideally of course there'd be
+>>>> some way for the DMA engine subsystem to know that the provider for the
+>>>> given device node will never show up and give us -ENODEV instead, but,
+>>>> alas, I don't even think that would be possible. That's the price to pay
+>>>> for abstraction.
+>>>
+>>> It's not a big problem to solve for this case, there is
+>>> of_machine_is_compatible(). To me it's more a question about the will
+>>> to invest some extra effort to support all of possible combinations.
+>>> If there is no such will, then at least those unpopular combinations
+>>> shouldn't hurt and thus it should make sense to add an explicit
+>>> build-dependency on the DMA drivers.
+>>
+>> I think we're arguing about the same thing, only coming at it from
+>> different angles. For me "all possible combinations" also includes the
+>> case where you want to be able to run the driver with DMA if the APB DMA
+>> is not enabled. And I similarly want to be able to run without DMA if
+>> the APB DMA is enabled (by explicitly removing dmas from DT for
+>> example). It just seems that we can't have it both ways.
+>>
+>> Also the i2c-tegra driver can perfectly well function without DMA
+>> support (it's done so ever since it was first merged). Keeping existing
+>> functionality shouldn't require the addition of another driver.
+>>
+>> Given the deadlock, I think I'd prefer the option of adding the
+>> conditional in the code. I think that's the most accurate description of
+>> the dependency, even though ideally it would be handled transparently by
+>> the DMA engine API. Would that be an acceptable compromise?
+> 
+> Adding conditional to the code is not enough. Tegra I2C driver could be built-in, while APB DMA driver is a loadable module, hence Tegra I2C will fail to probe with -EPROBE_DEFER. Tegra I2C must select all of the relevant DMA drivers to avoid that situation. Later on it shouldn't be a problem to add .has_gpc_dma to the tegra_i2c_hw_feature and then check in the code whether corresponding DMA driver is enabled or not in the kernel's config.
+> 
+> Combining the code checking with the Kconfig selection that I'm suggesting covers all of possible combinations, otherwise please give me an explicit example when it could fail.
+> 
 
-Can you please review this patch?
-
-Thanks,
-Jae
-
-On 1/16/2019 11:39 AM, Jae Hyun Yoo wrote:
-> In multi-master environment, this driver's master cannot know
-> exactly when a peer master sends data to this driver's slave so
-> cases can be happened that this master tries sending data through
-> the master_xfer function but slave data from a peer master is still
-> being processed or slave xfer is started by a peer immediately
-> after it queues a master command. To support multi-master use cases
-> properly, this H/W provides arbitration in physical level and it
-> provides priority based command handling too to avoid conflicts in
-> multi-master environment, means that if a master and a slave events
-> happen at the same time, H/W will handle a higher priority event
-> first and a pending event will be handled when bus comes back to
-> the idle state.
-> 
-> To support this H/W feature properly, this patch adds the 'pending'
-> state of master and its handling code so that the pending master
-> xfer can be continued after slave operation properly.
-> 
-> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-> ---
->   drivers/i2c/busses/i2c-aspeed.c | 118 +++++++++++++++++++++++++-------
->   1 file changed, 92 insertions(+), 26 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-> index 8dc9161ced38..9253ebccb008 100644
-> --- a/drivers/i2c/busses/i2c-aspeed.c
-> +++ b/drivers/i2c/busses/i2c-aspeed.c
-> @@ -117,6 +117,7 @@
->   
->   enum aspeed_i2c_master_state {
->   	ASPEED_I2C_MASTER_INACTIVE,
-> +	ASPEED_I2C_MASTER_PENDING,
->   	ASPEED_I2C_MASTER_START,
->   	ASPEED_I2C_MASTER_TX_FIRST,
->   	ASPEED_I2C_MASTER_TX,
-> @@ -126,12 +127,13 @@ enum aspeed_i2c_master_state {
->   };
->   
->   enum aspeed_i2c_slave_state {
-> -	ASPEED_I2C_SLAVE_STOP,
-> +	ASPEED_I2C_SLAVE_INACTIVE,
->   	ASPEED_I2C_SLAVE_START,
->   	ASPEED_I2C_SLAVE_READ_REQUESTED,
->   	ASPEED_I2C_SLAVE_READ_PROCESSED,
->   	ASPEED_I2C_SLAVE_WRITE_REQUESTED,
->   	ASPEED_I2C_SLAVE_WRITE_RECEIVED,
-> +	ASPEED_I2C_SLAVE_STOP,
->   };
->   
->   struct aspeed_i2c_bus {
-> @@ -156,6 +158,8 @@ struct aspeed_i2c_bus {
->   	int				cmd_err;
->   	/* Protected only by i2c_lock_bus */
->   	int				master_xfer_result;
-> +	/* Multi-master */
-> +	bool				multi_master;
->   #if IS_ENABLED(CONFIG_I2C_SLAVE)
->   	struct i2c_client		*slave;
->   	enum aspeed_i2c_slave_state	slave_state;
-> @@ -251,7 +255,7 @@ static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
->   	}
->   
->   	/* Slave is not currently active, irq was for someone else. */
-> -	if (bus->slave_state == ASPEED_I2C_SLAVE_STOP)
-> +	if (bus->slave_state == ASPEED_I2C_SLAVE_INACTIVE)
->   		return irq_handled;
->   
->   	dev_dbg(bus->dev, "slave irq status 0x%08x, cmd 0x%08x\n",
-> @@ -277,16 +281,15 @@ static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
->   		irq_handled |= ASPEED_I2CD_INTR_NORMAL_STOP;
->   		bus->slave_state = ASPEED_I2C_SLAVE_STOP;
->   	}
-> -	if (irq_status & ASPEED_I2CD_INTR_TX_NAK) {
-> +	if (irq_status & ASPEED_I2CD_INTR_TX_NAK &&
-> +	    bus->slave_state == ASPEED_I2C_SLAVE_READ_PROCESSED) {
->   		irq_handled |= ASPEED_I2CD_INTR_TX_NAK;
->   		bus->slave_state = ASPEED_I2C_SLAVE_STOP;
->   	}
-> -	if (irq_status & ASPEED_I2CD_INTR_TX_ACK)
-> -		irq_handled |= ASPEED_I2CD_INTR_TX_ACK;
->   
->   	switch (bus->slave_state) {
->   	case ASPEED_I2C_SLAVE_READ_REQUESTED:
-> -		if (irq_status & ASPEED_I2CD_INTR_TX_ACK)
-> +		if (unlikely(irq_status & ASPEED_I2CD_INTR_TX_ACK))
->   			dev_err(bus->dev, "Unexpected ACK on read request.\n");
->   		bus->slave_state = ASPEED_I2C_SLAVE_READ_PROCESSED;
->   		i2c_slave_event(slave, I2C_SLAVE_READ_REQUESTED, &value);
-> @@ -294,9 +297,12 @@ static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
->   		writel(ASPEED_I2CD_S_TX_CMD, bus->base + ASPEED_I2C_CMD_REG);
->   		break;
->   	case ASPEED_I2C_SLAVE_READ_PROCESSED:
-> -		if (!(irq_status & ASPEED_I2CD_INTR_TX_ACK))
-> +		if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_ACK))) {
->   			dev_err(bus->dev,
->   				"Expected ACK after processed read.\n");
-> +			break;
-> +		}
-> +		irq_handled |= ASPEED_I2CD_INTR_TX_ACK;
->   		i2c_slave_event(slave, I2C_SLAVE_READ_PROCESSED, &value);
->   		writel(value, bus->base + ASPEED_I2C_BYTE_BUF_REG);
->   		writel(ASPEED_I2CD_S_TX_CMD, bus->base + ASPEED_I2C_CMD_REG);
-> @@ -310,10 +316,15 @@ static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
->   		break;
->   	case ASPEED_I2C_SLAVE_STOP:
->   		i2c_slave_event(slave, I2C_SLAVE_STOP, &value);
-> +		bus->slave_state = ASPEED_I2C_SLAVE_INACTIVE;
-> +		break;
-> +	case ASPEED_I2C_SLAVE_START:
-> +		/* Slave was just started. Waiting for the next event. */;
->   		break;
->   	default:
-> -		dev_err(bus->dev, "unhandled slave_state: %d\n",
-> +		dev_err(bus->dev, "unknown slave_state: %d\n",
->   			bus->slave_state);
-> +		bus->slave_state = ASPEED_I2C_SLAVE_INACTIVE;
->   		break;
->   	}
->   
-> @@ -329,6 +340,17 @@ static void aspeed_i2c_do_start(struct aspeed_i2c_bus *bus)
->   	u8 slave_addr = i2c_8bit_addr_from_msg(msg);
->   
->   	bus->master_state = ASPEED_I2C_MASTER_START;
-> +
-> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
-> +	/*
-> +	 * If it's requested in the middle of a slave session, set the master
-> +	 * state to 'pending' then H/W will continue handling this master
-> +	 * command when the bus comes back to the idle state.
-> +	 */
-> +	if (bus->slave_state != ASPEED_I2C_SLAVE_INACTIVE)
-> +		bus->master_state = ASPEED_I2C_MASTER_PENDING;
-> +#endif /* CONFIG_I2C_SLAVE */
-> +
->   	bus->buf_index = 0;
->   
->   	if (msg->flags & I2C_M_RD) {
-> @@ -384,10 +406,6 @@ static u32 aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
->   		bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
->   		irq_handled |= ASPEED_I2CD_INTR_BUS_RECOVER_DONE;
->   		goto out_complete;
-> -	} else {
-> -		/* Master is not currently active, irq was for someone else. */
-> -		if (bus->master_state == ASPEED_I2C_MASTER_INACTIVE)
-> -			goto out_no_complete;
->   	}
->   
->   	/*
-> @@ -399,11 +417,32 @@ static u32 aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
->   	if (ret) {
->   		dev_dbg(bus->dev, "received error interrupt: 0x%08x\n",
->   			irq_status);
-> -		bus->cmd_err = ret;
-> -		bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
->   		irq_handled |= (irq_status & ASPEED_I2CD_INTR_MASTER_ERRORS);
-> -		goto out_complete;
-> +		if (bus->master_state != ASPEED_I2C_MASTER_INACTIVE) {
-> +			bus->cmd_err = ret;
-> +			bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
-> +			goto out_complete;
-> +		}
-> +	}
-> +
-> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
-> +	/*
-> +	 * A pending master command will be started by H/W when the bus comes
-> +	 * back to idle state after completing a slave operation so change the
-> +	 * master state from 'pending' to 'start' at here if slave is inactive.
-> +	 */
-> +	if (bus->master_state == ASPEED_I2C_MASTER_PENDING) {
-> +		if (bus->slave_state != ASPEED_I2C_SLAVE_INACTIVE)
-> +			goto out_no_complete;
-> +
-> +		bus->master_state = ASPEED_I2C_MASTER_START;
->   	}
-> +#endif /* CONFIG_I2C_SLAVE */
-> +
-> +	/* Master is not currently active, irq was for someone else. */
-> +	if (bus->master_state == ASPEED_I2C_MASTER_INACTIVE ||
-> +	    bus->master_state == ASPEED_I2C_MASTER_PENDING)
-> +		goto out_no_complete;
->   
->   	/* We are in an invalid state; reset bus to a known state. */
->   	if (!bus->msgs) {
-> @@ -423,6 +462,20 @@ static u32 aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
->   	 * then update the state and handle the new state below.
->   	 */
->   	if (bus->master_state == ASPEED_I2C_MASTER_START) {
-> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
-> +		/*
-> +		 * If a peer master starts a xfer immediately after it queues a
-> +		 * master command, change its state to 'pending' then H/W will
-> +		 * continue the queued master xfer just after completing the
-> +		 * slave mode session.
-> +		 */
-> +		if (unlikely(irq_status & ASPEED_I2CD_INTR_SLAVE_MATCH)) {
-> +			bus->master_state = ASPEED_I2C_MASTER_PENDING;
-> +			dev_dbg(bus->dev,
-> +				"master goes pending due to a slave start\n");
-> +			goto out_no_complete;
-> +		}
-> +#endif /* CONFIG_I2C_SLAVE */
->   		if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_ACK))) {
->   			if (unlikely(!(irq_status & ASPEED_I2CD_INTR_TX_NAK))) {
->   				bus->cmd_err = -ENXIO;
-> @@ -566,7 +619,8 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
->   	 * interrupt bits. Each case needs to be handled using corresponding
->   	 * handlers depending on the current state.
->   	 */
-> -	if (bus->master_state != ASPEED_I2C_MASTER_INACTIVE) {
-> +	if (bus->master_state != ASPEED_I2C_MASTER_INACTIVE &&
-> +	    bus->master_state != ASPEED_I2C_MASTER_PENDING) {
->   		irq_handled = aspeed_i2c_master_irq(bus, irq_remaining);
->   		irq_remaining &= ~irq_handled;
->   		if (irq_remaining)
-> @@ -601,15 +655,15 @@ static int aspeed_i2c_master_xfer(struct i2c_adapter *adap,
->   {
->   	struct aspeed_i2c_bus *bus = i2c_get_adapdata(adap);
->   	unsigned long time_left, flags;
-> -	int ret = 0;
-> +	int ret;
->   
->   	spin_lock_irqsave(&bus->lock, flags);
->   	bus->cmd_err = 0;
->   
-> -	/* If bus is busy, attempt recovery. We assume a single master
-> -	 * environment.
-> -	 */
-> -	if (readl(bus->base + ASPEED_I2C_CMD_REG) & ASPEED_I2CD_BUS_BUSY_STS) {
-> +	/* If bus is busy in a single master environment, attempt recovery. */
-> +	if (!bus->multi_master &&
-> +	    (readl(bus->base + ASPEED_I2C_CMD_REG) &
-> +	     ASPEED_I2CD_BUS_BUSY_STS)) {
->   		spin_unlock_irqrestore(&bus->lock, flags);
->   		ret = aspeed_i2c_recover_bus(bus);
->   		if (ret)
-> @@ -629,10 +683,20 @@ static int aspeed_i2c_master_xfer(struct i2c_adapter *adap,
->   	time_left = wait_for_completion_timeout(&bus->cmd_complete,
->   						bus->adap.timeout);
->   
-> -	if (time_left == 0)
-> +	if (time_left == 0) {
-> +		/*
-> +		 * If timed out and bus is still busy in a multi master
-> +		 * environment, attempt recovery at here.
-> +		 */
-> +		if (bus->multi_master &&
-> +		    (readl(bus->base + ASPEED_I2C_CMD_REG) &
-> +		     ASPEED_I2CD_BUS_BUSY_STS))
-> +			ret = aspeed_i2c_recover_bus(bus);
-> +
->   		return -ETIMEDOUT;
-> -	else
-> -		return bus->master_xfer_result;
-> +	}
-> +
-> +	return bus->master_xfer_result;
->   }
->   
->   static u32 aspeed_i2c_functionality(struct i2c_adapter *adap)
-> @@ -672,7 +736,7 @@ static int aspeed_i2c_reg_slave(struct i2c_client *client)
->   	__aspeed_i2c_reg_slave(bus, client->addr);
->   
->   	bus->slave = client;
-> -	bus->slave_state = ASPEED_I2C_SLAVE_STOP;
-> +	bus->slave_state = ASPEED_I2C_SLAVE_INACTIVE;
->   	spin_unlock_irqrestore(&bus->lock, flags);
->   
->   	return 0;
-> @@ -827,7 +891,9 @@ static int aspeed_i2c_init(struct aspeed_i2c_bus *bus,
->   	if (ret < 0)
->   		return ret;
->   
-> -	if (!of_property_read_bool(pdev->dev.of_node, "multi-master"))
-> +	if (of_property_read_bool(pdev->dev.of_node, "multi-master"))
-> +		bus->multi_master = true;
-> +	else
->   		fun_ctrl_reg |= ASPEED_I2CD_MULTI_MASTER_DIS;
->   
->   	/* Enable Master Mode */
-> 
+Hm, oddly TEGRA20_APB_DMA driver can't be built as a module because it is a bool in Kconfig, but the code has the remove function. Maybe someday somebody will clean out all that mess :) Hence, Thierry, your point make sense. Still could be good to make DMA support explicitly optional for the I2C driver by adding Kconfig option for it, given that it adds some extra complexity and not well tested, up to you to decide.
