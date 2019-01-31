@@ -1,70 +1,93 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH V8 5/5] i2c: tegra: Add I2C interface timing support
-Date: Thu, 31 Jan 2019 13:50:15 +0100
-Message-ID: <20190131125015.GK23438@ulmo>
-References: <1548915387-28826-1-git-send-email-skomatineni@nvidia.com>
- <1548915387-28826-5-git-send-email-skomatineni@nvidia.com>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH V7 3/5] i2c: tegra: Add DMA Support
+Date: Thu, 31 Jan 2019 17:06:18 +0300
+Message-ID: <0e832fa6-f143-7b24-2685-b88a55e77e51@gmail.com>
+References: <1548864096-20974-1-git-send-email-skomatineni@nvidia.com>
+ <1548864096-20974-3-git-send-email-skomatineni@nvidia.com>
+ <1f10cb76-59a1-93c5-ae03-ccc0cd8db1a3@gmail.com>
+ <20190131120640.GF23438@ulmo>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="UlsYxwg8UDQn+EKZ"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1548915387-28826-5-git-send-email-skomatineni@nvidia.com>
+In-Reply-To: <20190131120640.GF23438@ulmo>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sowjanya Komatineni <skomatineni@nvidia.com>
+To: Thierry Reding <thierry.reding@gmail.com>, Sowjanya Komatineni <skomatineni@nvidia.com>
 Cc: jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+31.01.2019 15:06, Thierry Reding пишет:
+> On Thu, Jan 31, 2019 at 03:05:48AM +0300, Dmitry Osipenko wrote:
+>> 30.01.2019 19:01, Sowjanya Komatineni пишет:
+> [...]
+>>> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+> [...]
+>>> +		return -EIO;
+>>> +	}
+>>> +
+>>> +	dma_desc->callback = tegra_i2c_dma_complete;
+>>> +	dma_desc->callback_param = i2c_dev;
+>>> +	dmaengine_submit(dma_desc);
+>>> +	dma_async_issue_pending(chan);
+>>> +	return 0;
+>>> +}
+>>> +
+>>> +static int tegra_i2c_init_dma_param(struct tegra_i2c_dev *i2c_dev,
+>>> +				    bool dma_to_memory)
+>>> +{
+>>> +	struct dma_chan *dma_chan;
+>>> +	u32 *dma_buf;
+>>> +	dma_addr_t dma_phys;
+>>> +	int ret;
+>>> +	const char *chan_name = dma_to_memory ? "rx" : "tx";
+>>
+>> What about to move out chan_name into the function arguments?
+> 
+> That opens up the possibility of passing dma_to_memory = true and
+> chan_name as "tx" and create an inconsistency.
+> 
+>>> @@ -884,6 +1187,8 @@ static void tegra_i2c_parse_dt(struct tegra_i2c_dev *i2c_dev)
+>>>  
+>>>  	i2c_dev->is_multimaster_mode = of_property_read_bool(np,
+>>>  			"multi-master");
+>>> +
+>>> +	i2c_dev->has_dma = of_property_read_bool(np, "dmas");
+>>
+>> Not only the existence of "dmas" property defines whether DMA is available. DMA subsystem could be disabled in the kernels configuration.
+>>
+>> Hence there is a need to check for DMA driver presence in the code:
+>>
+>> 	if (IS_ENABLED(CONFIG_TEGRA20_APB_DMA))
+>> 		i2c_dev->has_dma = of_property_read_bool(np, "dmas");
+> 
+> Do we even need the ->has_dma at all? We can just go ahead and request
+> the channels at probe time and respond accordingly. If there's no dmas
+> property in DT, dma_request_slave_channel_reason() returns an error so
+> we can just deal with it at that time.
+> 
+> So if we get -EPROBE_DEFER we can propagate that, for any other errors
+> we can simply fallback to PIO. Or perhaps we want to restrict fallback
+> to PIO for -ENODEV?
+> 
+> I wouldn't want to add an IS_ENABLED(CONFIG_TEGRA20_APB_DMA) in here.
+> The purpose of these subsystems it to abstract all of that away.
+> Otherwise we could just as well use custom APIs, if we're tying together
+> drivers in this way anyway.
 
---UlsYxwg8UDQn+EKZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+DMA API doesn't fully abstract the dependencies between drivers, hence I disagree.
 
-On Wed, Jan 30, 2019 at 10:16:27PM -0800, Sowjanya Komatineni wrote:
-> This patch adds I2C interface timing registers support for
-> proper bus rate configuration along with meeting the i2c spec
-> setup and hold times based on the tuning performed on Tegra210,
-> Tegra186 and Tegra194 platforms.
->=20
-> I2C_INTERFACE_TIMING_0 register contains TLOW and THIGH field
-> and Tegra I2C controller design uses them as a part of internal
-> clock divisor.
->=20
-> I2C_INTERFACE_TIMING_1 register contains the setup and hold times
-> for start and stop conditions.
->=20
-> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-> ---
->  [V8] : Updated to handle timing implementation within tegra_i2c_init dir=
-ectly
->  [V7] : Minor updates to timing implementation
->  [V5/V6] : Added this Interface timing patch in V5 of the patch series.
->=20
->  drivers/i2c/busses/i2c-tegra.c | 187 ++++++++++++++++++++++++++++++++++-=
-------
->  1 file changed, 158 insertions(+), 29 deletions(-)
+>> Also Tegra I2C driver should select DMA driver in Kconfig to make DMA
+>> driver built-in when I2C driver is built-in:
+> 
+> I don't think there's a requirement for that. The only dependency we
+> really have here is the one on the DMA engine API. Since dmaengine.h
+> already provides dummy implementations, there's really no need for
+> us to have the dependency. If the DMA engine API is completely disabled,
+> a call to dma_request_slave_channel_reason() will return -ENODEV and we
+> should just deal with that the same way we would if there was no "dmas"
+> property present.
 
-Acked-by: Thierry Reding <treding@nvidia.com>
+In my opinion it is much better to avoid I2C driver probe failing with -EPROBE_DEFER if we could. It's just one line in code and one in Kconfig.. really. 
 
---UlsYxwg8UDQn+EKZ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlxS7wcACgkQ3SOs138+
-s6EuAg//R7O3xNYPKqmFBL6WnIleMs2ii8nXNh4msfa3KTIS2p86SUSE36a2zpL2
-2UoflWAc39ZMNpomvrI0NwZrUBoUWFYczEiWHtda6N3CLHzzqvLCOWUJ9Moo43Vq
-LiCsMJUYLonikftcCrr9ADY+9cxdAmSs4+DV4ADtZFEVAeUU+E0cd5Y8aFOUONwc
-yVEflqm11tID7jgwZMgszxMCAgAM5FPStc+/TdZxvUpCd2wCqzsOYYSC8HiHEbX6
-/oxJ+BUTF5qeQaRIgfw0LAL3dleeIkqNIDWBk6/Pi6giNhCaDKxPfUJG/9OC34/j
-Fxwb0qnHSIMKDKH8i0GMPU2G00Wmcva+TgpuGfuyLoA4xEKb3ffPtRgtDQsc/xz+
-kVrNrG1i/6BJKV2TJ8Pv/lmijCjSGPbK0AuPRa5J2remVRwyzkOG2jDD9LW+GZjp
-T5IHTl2zFXGjz+PVQK7BjA6dEbZiZpai7+MI1W0um/SHMfjqWilMkciV2P2uD3xY
-LQdvvZutNMnXwuYjFfM7Get4ozjzuBU/ds+FgK28Lhg4nPrtpnsQq+hKe87ACTm1
-ogq/Dtg+uWgZLbDQHp4IpqbnKfjabj07fqOSKdUIXhRoR7sF2YPT7B3PmwECeS9P
-u/pEWi3YNIrqgqgArG5P8wCzhru7dTsI1Bw5H1FPacLp5I/91CM=
-=fS/Z
------END PGP SIGNATURE-----
-
---UlsYxwg8UDQn+EKZ--
+Good point about handling -ENODEV of dma_request_slave_channel_reason(), +1 for it.
