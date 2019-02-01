@@ -1,148 +1,237 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: RE: [PATCH V8 3/5] i2c: tegra: Add DMA Support
-Date: Fri, 1 Feb 2019 04:19:46 +0000
-Message-ID: <BYAPR12MB3398955CD0EDF40EB61D15B8C2920@BYAPR12MB3398.namprd12.prod.outlook.com>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH V8 3/5] i2c: tegra: Add DMA Support
+Date: Fri, 1 Feb 2019 18:02:24 +0300
+Message-ID: <50def69d-8068-3dec-491e-e3b32ba4f514@gmail.com>
 References: <1548915387-28826-1-git-send-email-skomatineni@nvidia.com>
-        <1548915387-28826-3-git-send-email-skomatineni@nvidia.com>
-        <20190131124423.GG23438@ulmo>        <20190201035249.5b1cdfe2@dimatab>
-        <BYAPR12MB33986DDF4267ED1F499317B0C2920@BYAPR12MB3398.namprd12.prod.outlook.com>
+ <1548915387-28826-3-git-send-email-skomatineni@nvidia.com>
+ <20190131124423.GG23438@ulmo> <20190201035249.5b1cdfe2@dimatab>
+ <BYAPR12MB33986DDF4267ED1F499317B0C2920@BYAPR12MB3398.namprd12.prod.outlook.com>
  <20190201061414.05443ea1@dimatab>
+ <BYAPR12MB3398955CD0EDF40EB61D15B8C2920@BYAPR12MB3398.namprd12.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190201061414.05443ea1@dimatab>
+In-Reply-To: <BYAPR12MB3398955CD0EDF40EB61D15B8C2920@BYAPR12MB3398.namprd12.prod.outlook.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Osipenko <digetx@gmail.com>
-Cc: Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Sowjanya Komatineni <skomatineni@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>
+Cc: Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-PiA+ID4gPiA+ICsJaWYgKGRtYSkgew0KPiA+ID4gPiA+ICsJCWlmIChpMmNfZGV2LT5tc2dfcmVh
-ZCkgew0KPiA+ID4gPiA+ICsJCQljaGFuID0gaTJjX2Rldi0+cnhfZG1hX2NoYW47DQo+ID4gPiA+
-ID4gKwkJCXRlZ3JhX2kyY19jb25maWdfZmlmb190cmlnKGkyY19kZXYsDQo+ID4gPiA+ID4geGZl
-cl9zaXplLA0KPiA+ID4gPiA+ICsNCj4gPiA+ID4gPiBEQVRBX0RNQV9ESVJfUlgpOw0KPiA+ID4g
-PiA+ICsNCj4gPiA+ID4gPiBkbWFfc3luY19zaW5nbGVfZm9yX2RldmljZShpMmNfZGV2LT5kZXYs
-ICsgaTJjX2Rldi0+ZG1hX3BoeXMsDQo+ID4gPiA+ID4gKwkJCQkJCSAgIHhmZXJfc2l6ZSwNCj4g
-PiA+ID4gPiArDQo+ID4gPiA+ID4gRE1BX0ZST01fREVWSUNFKTsNCj4gPiA+ID4gDQo+ID4gPiA+
-IERvIHdlIHJlYWxseSBuZWVkIHRoaXM/IFdlJ3JlIG5vdCBhY3R1YWxseSBwYXNzaW5nIHRoZSBk
-ZXZpY2UgYW55IA0KPiA+ID4gPiBkYXRhLCBzbyBubyBjYWNoZXMgdG8gZmx1c2ggaGVyZS4gSSB3
-ZSdyZSBjYXV0aW91cyBhYm91dCBmbHVzaGluZyANCj4gPiA+ID4gY2FjaGVzIHdoZW4gd2UgZG8g
-d3JpdGUgdG8gdGhlIGJ1ZmZlciAoYW5kIEkgdGhpbmsgd2UgZG8gdGhhdCANCj4gPiA+ID4gcHJv
-cGVybHkgYWxyZWFkeSksIHRoZW4gdGhlcmUgc2hvdWxkIGJlIG5vIG5lZWQgdG8gZG8gaXQgaGVy
-ZSANCj4gPiA+ID4gYWdhaW4uDQo+ID4gPg0KPiA+ID4gSUlVQywgRE1BIEFQSSBoYXMgYSBjb25j
-ZXB0IG9mIGJ1ZmZlciBoYW5kaW5nIHdoaWNoIHRlbGxzIHRvIHVzZQ0KPiA+IGRtYV9zeW5jX3Np
-bmdsZV9mb3JfZGV2aWNlKCkgYmVmb3JlIGlzc3VpbmcgaGFyZHdhcmUgam9iIHRoYXQgdG91Y2hl
-cyANCj4gPiB0aGUgYnVmZmVyIGFuZCB0byB1c2UgZG1hX3N5bmNfc2luZ2xlX2Zvcl9jcHUoKSBh
-ZnRlciBoYXJkd2FyZSBkb25lIA0KPiA+IHRoZSBleGVjdXRpb24uIEluIGZhY3QgdGhlIENQVSBj
-YWNoZXMgYXJlIGdldHRpbmcgZmx1c2hlZCBvciANCj4gPiBpbnZhbGlkYXRlZCBhcyBhcHByb3By
-aWF0ZSBpbiBhIHJlc3VsdC4NCj4gPiA+DQo+ID4gPiBkbWFfc3luY19zaW5nbGVfZm9yX2Rldmlj
-ZShETUFfRlJPTV9ERVZJQ0UpIGludmFsaWRhdGVzIGJ1ZmZlciBpbiANCj4gPiA+IHRoZSBDUFUg
-Y2FjaGUsIHByb2JhYmx5IHRvIGF2b2lkIENQVSBldmljdGluZyBkYXRhIGZyb20gY2FjaGUgdG8g
-DQo+ID4gPiBEUkFNIHdoaWxlIGhhcmR3YXJlIHdyaXRlcyB0byB0aGUgYnVmZmVyLiBIZW5jZSB0
-aGlzIGh1bmsgaXMgDQo+ID4gPiBjb3JyZWN0Lg0KPiA+ID4gPiA+ICsJCQllcnIgPSB0ZWdyYV9p
-MmNfZG1hX3N1Ym1pdChpMmNfZGV2LA0KPiA+ID4gPiA+IHhmZXJfc2l6ZSk7DQo+ID4gPiA+ID4g
-KwkJCWlmIChlcnIgPCAwKSB7DQo+ID4gPiA+ID4gKwkJCQlkZXZfZXJyKGkyY19kZXYtPmRldiwN
-Cj4gPiA+ID4gPiArCQkJCQkic3RhcnRpbmcgUlggRE1BDQo+ID4gPiA+ID4gZmFpbGVkLCBlcnIg
-JWRcbiIsDQo+ID4gPiA+ID4gKwkJCQkJZXJyKTsNCj4gPiA+ID4gPiArCQkJCWdvdG8gdW5sb2Nr
-Ow0KPiA+ID4gPiA+ICsJCQl9DQo+ID4gPiA+ID4gKwkJfSBlbHNlIHsNCj4gPiA+ID4gPiArCQkJ
-Y2hhbiA9IGkyY19kZXYtPnR4X2RtYV9jaGFuOw0KPiA+ID4gPiA+ICsJCQl0ZWdyYV9pMmNfY29u
-ZmlnX2ZpZm9fdHJpZyhpMmNfZGV2LA0KPiA+ID4gPiA+IHhmZXJfc2l6ZSwNCj4gPiA+ID4gPiAr
-DQo+ID4gPiA+ID4gREFUQV9ETUFfRElSX1RYKTsNCj4gPiA+ID4gPiArCQkJZG1hX3N5bmNfc2lu
-Z2xlX2Zvcl9jcHUoaTJjX2Rldi0+ZGV2LA0KPiA+ID4gPiA+ICsNCj4gPiA+ID4gPiBpMmNfZGV2
-LT5kbWFfcGh5cywNCj4gPiA+ID4gPiArCQkJCQkJeGZlcl9zaXplLA0KPiA+ID4gPiA+ICsNCj4g
-PiA+ID4gPiBETUFfVE9fREVWSUNFKTsNCj4gPiA+ID4gDQo+ID4gPiA+IFRoaXMsIG9uIHRoZSBv
-dGhlciBoYW5kIHNlZW1zIGNvcnJlY3QgYmVjYXVzZSB3ZSBuZWVkIHRvIA0KPiA+ID4gPiBpbnZh
-bGlkYXRlIHRoZSBjYWNoZXMgZm9yIHRoaXMgYnVmZmVyIHRvIG1ha2Ugc3VyZSB0aGUgZGF0YSB0
-aGF0IA0KPiA+ID4gPiB3ZSBwdXQgdGhlcmUgZG9lc24ndCBnZXQgb3ZlcndyaXR0ZW4uDQo+ID4g
-Pg0KPiA+ID4gQXMgSSBzdGF0ZWQgYmVmb3JlIGluIGEgY29tbWVudCB0byB2NiwgdGhpcyBwYXJ0
-aWN1bGFyIGNhc2Ugb2YNCj4gPiA+IGRtYV9zeW5jX3NpbmdsZV9mb3JfY3B1KCkgdXNhZ2UgaXMg
-aW5jb3JyZWN0IGJlY2F1c2UgQ1BVIHNob3VsZCB0YWtlIA0KPiA+ID4gb3duZXJzaGlwIG9mIHRo
-ZSBidWZmZXIgYWZ0ZXIgY29tcGxldGlvbiBvZiBoYXJkd2F0ZSBqb2IuIEJ1dCBpbiANCj4gPiA+
-IGZhY3QgZG1hX3N5bmNfc2luZ2xlX2Zvcl9jcHUoRE1BX1RPX0RFVklDRSkgaXMgYSBOTy1PUCBi
-ZWNhdXNlIENQVSANCj4gPiA+IGRvZXNuJ3QgbmVlZCB0byBmbHVzaCBvciBpbnZhbGlkYXRlIGFu
-eXRoaW5nIHRvIHRha2Ugb3duZXJzaGlwIG9mIA0KPiA+ID4gdGhlIGJ1ZmZlciBpZiBoYXJkd2Fy
-ZSBkaWQgYSByZWFkLW9ubHkgYWNjZXNzLg0KPiA+ID4gPiAgIA0KPiA+ID4gPiA+ICsJaWYgKCFp
-MmNfZGV2LT5tc2dfcmVhZCkgew0KPiA+ID4gPiA+ICsJCWlmIChkbWEpIHsNCj4gPiA+ID4gPiAr
-CQkJbWVtY3B5KGJ1ZmZlciwgbXNnLT5idWYsIG1zZy0+bGVuKTsNCj4gPiA+ID4gPiArDQo+ID4g
-PiA+ID4gZG1hX3N5bmNfc2luZ2xlX2Zvcl9kZXZpY2UoaTJjX2Rldi0+ZGV2LCArIGkyY19kZXYt
-PmRtYV9waHlzLA0KPiA+ID4gPiA+ICsJCQkJCQkgICB4ZmVyX3NpemUsDQo+ID4gPiA+ID4gKw0K
-PiA+ID4gPiA+IERNQV9UT19ERVZJQ0UpOw0KPiA+ID4gPiANCj4gPiA+ID4gQWdhaW4sIGhlcmUg
-d2UgcHJvcGVybHkgZmx1c2ggdGhlIGNhY2hlcyB0byBtYWtlIHN1cmUgdGhlIGRhdGEgDQo+ID4g
-PiA+IHRoYXQgd2UndmUgd3JpdHRlbiB0byB0aGUgRE1BIGJ1ZmZlciBpcyB2aXNpYmxlIHRvIHRo
-ZSBETUEgZW5naW5lLg0KPiA+ID4gPiAgIA0KPiA+ID4NCj4gPiA+ICsxIHRoaXMgaXMgY29ycmVj
-dA0KPiA+ID4NCj4gPiA+DQo+ID4gPiAgDQo+ID4gPiA+ID4gKw0KPiA+ID4gPiA+ICsJCWlmIChp
-MmNfZGV2LT5tc2dfcmVhZCkgew0KPiA+ID4gPiA+ICsJCQlpZiAobGlrZWx5KGkyY19kZXYtPm1z
-Z19lcnIgPT0NCj4gPiA+ID4gPiBJMkNfRVJSX05PTkUpKSB7DQo+ID4gPiA+ID4gKw0KPiA+ID4g
-PiA+IGRtYV9zeW5jX3NpbmdsZV9mb3JfY3B1KGkyY19kZXYtPmRldiwNCj4gPiA+ID4gPiArDQo+
-ID4gPiA+ID4gaTJjX2Rldi0+ZG1hX3BoeXMsDQo+ID4gPiA+ID4gKw0KPiA+ID4gPiA+IHhmZXJf
-c2l6ZSwgKw0KPiA+ID4gPiA+IERNQV9GUk9NX0RFVklDRSk7DQo+ID4gPiA+IA0KPiA+ID4gPiBI
-ZXJlIHdlIGludmFsaWRhdGUgdGhlIGNhY2hlcyB0byBtYWtlIHN1cmUgd2UgZG9uJ3QgZ2V0IHN0
-YWxlIGRhdGEgDQo+ID4gPiA+IHRoYXQgbWF5IGJlIGluIHRoZSBjYWNoZXMgZm9yIGRhdGEgdGhh
-dCB3ZSdyZSBjb3B5aW5nIG91dCBvZiB0aGUgDQo+ID4gPiA+IERNQSBidWZmZXIuIEkgdGhpbmsg
-dGhhdCdzIGFib3V0IGFsbCB0aGUgY2FjaGUgbWFpbnRlbmFuY2UgdGhhdCB3ZSANCj4gPiA+ID4g
-cmVhbCBuZWVkLg0KPiA+ID4NCj4gPiA+IENvcnJlY3QuDQo+ID4gPg0KPiA+ID4gQW5kIHRlY2hu
-aWNhbGx5IGhlcmUgc2hvdWxkIGJlDQo+ID4gPiBkbWFfc3luY19zaW5nbGVfZm9yX2NwdShETUFf
-VE9fREVWSUNFKSBmb3IgdGhlIFRYLiBCdXQgYWdhaW4sIGl0J3MgYSANCj4gPiA+IE5PLU9QLg0K
-PiA+IA0KPiA+IElzIG15IGJlbG93IHVuZGVyc3RhbmRpbmcgY29ycmVjdD8gQ2FuIHlvdSBwbGVh
-c2UgY29uZmlybT8NCj4gPiANCj4gPiBEdXJpbmcgVHJhbnNtaXQgdG8gZGV2aWNlOg0KPiA+IC0g
-QmVmb3JlIHdyaXRpbmcgbXNnIGRhdGEgaW50byBkbWEgYnVmIGJ5IENQVSwgZ2l2aW5nIERNQSBv
-d25lcnNoaXAgdG8gDQo+ID4gQ1BVIGRtYV9zeW5jX3NpbmdsZV9mb3JfY3B1IHdpdGggZGlyIERN
-QV9UT19ERVZJQ0UNCj4gPiANCj4NCj4gSSB0cmllZCB0byB0YWtlIGEgbG9vayBhdCBpdCBhZ2Fp
-biBhbmQgbm93IHRoaW5raW5nIHRoYXQgeW91ciB2YXJpYW50IGlzIG1vcmUgY29ycmVjdC4gU3Rp
-bGwgaXQncyBhIGJpdCBkaWZmaWN1bHQgdG8ganVkZ2UgYmVjYXVzZSB0aGlzIGNhc2UgaXMgbm8t
-b3AuDQo+DQo+ID4gLSBBZnRlciB3cml0aW5nIHRvIGRtYSBidWYgYnkgQ1BVLCBnaXZpbmcgYmFj
-ayB0aGUgb3duZXJzaGlwIHRvIGRldmljZSANCj4gPiB0byBhY2Nlc3MgYnVmZmVyIHRvIHNlbmQg
-ZHVyaW5nIERNQSB0cmFuc21pdCANCj4gPiBkbWFfc3luY19zaW5nbGVfZm9yX2RldmljZSB3aXRo
-IGRpciBETUFfVE9fREVWSUNFDQo+DQo+IENvcnJlY3QuDQo+DQo+ID4gRHVyaW5nIFJlY2Vpdmlu
-ZyBmcm9tIERldmljZToNCj4gPiAtIGJlZm9yZSBzdWJtaXR0aW5nIFJYIERNQSB0byBnaXZlIGJ1
-ZmZlciBhY2Nlc3MgdG8gRE1BZW5naW5lDQo+ID4gCWRtYV9zeW5jX3NpbmdsZV9mb3JfRGV2aWNl
-KERNQV9GUk9NX0RFVklDRSkNCj4NCj4gQ29ycmVjdC4NCj4NCj4gPiAtIGFmdGVyIERNQSBSWCBj
-b21wbGV0aW9uLCBnaXZpbmcgZG1hIG93bmVyc2hpcCB0byBDUFUgZm9yIHJlYWRpbmcgDQo+ID4g
-ZG1hYnVmIGRhdGEgd3JpdHRlbiBieSBETUEgZnJvbSBkZXZpY2UgZG1hX3N5bmNfc2luZ2xlX2Zv
-cl9jcHUgd2l0aCANCj4gPiBkaXIgRE1BX0ZST01fREVWSUNFDQo+ID4gDQo+DQo+IENvcnJlY3Qu
-DQoNClRoZW4gd2hhdCBJIGhhdmUgaXMgZXhhY3QgYXMgbWVudGlvbmVkIGFib3ZlLiBTbyBubyBj
-aGFuZ2VzIG5lZWRlZCByZWxhdGVkIHRvIGRtYV9zeW5jDQpQYXN0aW5nIGFnYWluIGhlcmUgd2l0
-aCBjbGVhciBjb21tZW50IHRvIGV4cGxhaW4gb24gd2h5IEkgaGF2ZSB0aG9zZSBjb3JyZXNwb25k
-aW5nIGRtYV9zeW5jDQoNCiAgICAgICAgaWYgKGkyY19kZXYtPm1zZ19yZWFkKSB7DQogICAgICAg
-ICAgICB0ZWdyYV9pMmNfY29uZmlnX2ZpZm9fdHJpZyhpMmNfZGV2LCB4ZmVyX3NpemUsDQogICAg
-ICAgICAgICAgICAgICAgICAgICAgICBEQVRBX0RNQV9ESVJfUlgpOw0KICAgICAgICAgICAgLyog
-Rm9yIFJlYWRzOiBnaXZpbmcgZG1hIGJ1ZiBvd25lcnNoaXAgdG8gZGV2aWNlIGJlZm9yZSBzdWJt
-aXR0aW5nIFJYIERNQSAqLw0KICAgICAgICAgICAgZG1hX3N5bmNfc2luZ2xlX2Zvcl9kZXZpY2Uo
-aTJjX2Rldi0+ZGV2LA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgaTJjX2Rldi0+ZG1hX3Bo
-eXMsDQogICAgICAgICAgICAgICAgICAgICAgICAgICB4ZmVyX3NpemUsDQogICAgICAgICAgICAg
-ICAgICAgICAgICAgICBETUFfRlJPTV9ERVZJQ0UpOw0KICAgICAgICAgICAgZXJyID0gdGVncmFf
-aTJjX2RtYV9zdWJtaXQoaTJjX2RldiwgeGZlcl9zaXplKTsNCiAgICAgICAgICAgIGlmIChlcnIg
-PCAwKSB7DQogICAgICAgICAgICAgICAgZGV2X2VycihpMmNfZGV2LT5kZXYsDQogICAgICAgICAg
-ICAgICAgICAgICJzdGFydGluZyBSWCBETUEgZmFpbGVkLCBlcnIgJWRcbiIsDQogICAgICAgICAg
-ICAgICAgICAgIGVycik7DQogICAgICAgICAgICAgICAgZ290byB1bmxvY2s7DQogICAgICAgICAg
-ICB9DQogICAgICAgIH0gZWxzZSB7DQogICAgICAgICAgICB0ZWdyYV9pMmNfY29uZmlnX2ZpZm9f
-dHJpZyhpMmNfZGV2LCB4ZmVyX3NpemUsDQogICAgICAgICAgICAgICAgICAgICAgICAgICBEQVRB
-X0RNQV9ESVJfVFgpOw0KICAgICAgICAgICAgLyogRm9yIHdyaXRlczogZ2l2aW5nIGRtYSBidWYg
-b3duZXJzaGlwIHRvIENQVSB0byBjb3B5IHRyYW5zbWl0IGRhdGEgdG8gRE1BIEJ1ZiAqLw0KICAg
-ICAgICAgICAgZG1hX3N5bmNfc2luZ2xlX2Zvcl9jcHUoaTJjX2Rldi0+ZGV2LA0KICAgICAgICAg
-ICAgICAgICAgICAgICAgaTJjX2Rldi0+ZG1hX3BoeXMsDQogICAgICAgICAgICAgICAgICAgICAg
-ICB4ZmVyX3NpemUsDQogICAgICAgICAgICAgICAgICAgICAgICBETUFfVE9fREVWSUNFKTsNCiAg
-ICAgICAgICAgIGJ1ZmZlciA9IGkyY19kZXYtPmRtYV9idWY7DQogICAgICAgIH0NCg0KDQoNCiAg
-ICBpZiAoIW1zZy0+ZmxhZ3MgJiBJMkNfTV9SRCkgew0KICAgICAgICBpZiAoZG1hKSB7DQogICAg
-ICAgICAgICBtZW1jcHkoYnVmZmVyLCBtc2ctPmJ1ZiwgbXNnLT5sZW4pOw0KICAgICAgICAgICAg
-LyogRm9yIHdyaXRlczogZ2l2aW5nIG93bmVyc2hpcCB0byBkZXZpY2UgYWZ0ZXIgZG9uZSB3aXRo
-IGNvcHlpbmcgZGF0YSB0byBETUEgQnVmICovDQogICAgICAgICAgICBkbWFfc3luY19zaW5nbGVf
-Zm9yX2RldmljZShpMmNfZGV2LT5kZXYsDQogICAgICAgICAgICAgICAgICAgICAgICAgICBpMmNf
-ZGV2LT5kbWFfcGh5cywNCiAgICAgICAgICAgICAgICAgICAgICAgICAgIHhmZXJfc2l6ZSwNCiAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIERNQV9UT19ERVZJQ0UpOw0KICAgICAgICAgICAgZXJy
-ID0gdGVncmFfaTJjX2RtYV9zdWJtaXQoaTJjX2RldiwgeGZlcl9zaXplKTsNCiAgICAgICAgICAg
-IGlmIChlcnIgPCAwKSB7DQogICAgICAgICAgICAgICAgZGV2X2VycihpMmNfZGV2LT5kZXYsDQog
-ICAgICAgICAgICAgICAgICAgICJzdGFydGluZyBUWCBETUEgZmFpbGVkLCBlcnIgJWRcbiIsDQog
-ICAgICAgICAgICAgICAgICAgIGVycik7DQogICAgICAgICAgICAgICAgZ290byB1bmxvY2s7DQog
-ICAgICAgICAgICB9DQogICAgICAgIH0gZWxzZSB7DQogICAgICAgICAgICB0ZWdyYV9pMmNfZmls
-bF90eF9maWZvKGkyY19kZXYpOw0KICAgICAgICB9DQoNCiAgICAgICAgaWYgKGkyY19kZXYtPm1z
-Z19yZWFkKSB7DQogICAgICAgICAgICBpZiAobGlrZWx5KGkyY19kZXYtPm1zZ19lcnIgPT0gSTJD
-X0VSUl9OT05FKSkgew0KICAgICAgICAgICAgLyogRm9yIFJlYWRzOiBnaXZpbmcgb3duZXJzaGlw
-IHRvIENQVSBhZnRlciBSWCBETUEgY29tcGxldGlvbiB0byBhY2Nlc3MgcmVhZCBkYXRhICovDQog
-ICAgICAgICAgICAgICAgZG1hX3N5bmNfc2luZ2xlX2Zvcl9jcHUoaTJjX2Rldi0+ZGV2LA0KICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIGkyY19kZXYtPmRtYV9waHlzLA0KICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgIHhmZXJfc2l6ZSwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBE
-TUFfRlJPTV9ERVZJQ0UpOw0KDQogICAgICAgICAgICAgICAgbWVtY3B5KGkyY19kZXYtPm1zZ19i
-dWYsIGkyY19kZXYtPmRtYV9idWYsDQogICAgICAgICAgICAgICAgICAgIG1zZy0+bGVuKTsNCiAg
-ICAgICAgICAgIH0NCiAgICAgICAgfQ0KDQoNCg0K
+01.02.2019 7:19, Sowjanya Komatineni пишет:
+>>>>>> +	if (dma) {
+>>>>>> +		if (i2c_dev->msg_read) {
+>>>>>> +			chan = i2c_dev->rx_dma_chan;
+>>>>>> +			tegra_i2c_config_fifo_trig(i2c_dev,
+>>>>>> xfer_size,
+>>>>>> +
+>>>>>> DATA_DMA_DIR_RX);
+>>>>>> +
+>>>>>> dma_sync_single_for_device(i2c_dev->dev, + i2c_dev->dma_phys,
+>>>>>> +						   xfer_size,
+>>>>>> +
+>>>>>> DMA_FROM_DEVICE);
+>>>>>
+>>>>> Do we really need this? We're not actually passing the device any 
+>>>>> data, so no caches to flush here. I we're cautious about flushing 
+>>>>> caches when we do write to the buffer (and I think we do that 
+>>>>> properly already), then there should be no need to do it here 
+>>>>> again.
+>>>>
+>>>> IIUC, DMA API has a concept of buffer handing which tells to use
+>>> dma_sync_single_for_device() before issuing hardware job that touches 
+>>> the buffer and to use dma_sync_single_for_cpu() after hardware done 
+>>> the execution. In fact the CPU caches are getting flushed or 
+>>> invalidated as appropriate in a result.
+>>>>
+>>>> dma_sync_single_for_device(DMA_FROM_DEVICE) invalidates buffer in 
+>>>> the CPU cache, probably to avoid CPU evicting data from cache to 
+>>>> DRAM while hardware writes to the buffer. Hence this hunk is 
+>>>> correct.
+>>>>>> +			err = tegra_i2c_dma_submit(i2c_dev,
+>>>>>> xfer_size);
+>>>>>> +			if (err < 0) {
+>>>>>> +				dev_err(i2c_dev->dev,
+>>>>>> +					"starting RX DMA
+>>>>>> failed, err %d\n",
+>>>>>> +					err);
+>>>>>> +				goto unlock;
+>>>>>> +			}
+>>>>>> +		} else {
+>>>>>> +			chan = i2c_dev->tx_dma_chan;
+>>>>>> +			tegra_i2c_config_fifo_trig(i2c_dev,
+>>>>>> xfer_size,
+>>>>>> +
+>>>>>> DATA_DMA_DIR_TX);
+>>>>>> +			dma_sync_single_for_cpu(i2c_dev->dev,
+>>>>>> +
+>>>>>> i2c_dev->dma_phys,
+>>>>>> +						xfer_size,
+>>>>>> +
+>>>>>> DMA_TO_DEVICE);
+>>>>>
+>>>>> This, on the other hand seems correct because we need to 
+>>>>> invalidate the caches for this buffer to make sure the data that 
+>>>>> we put there doesn't get overwritten.
+>>>>
+>>>> As I stated before in a comment to v6, this particular case of
+>>>> dma_sync_single_for_cpu() usage is incorrect because CPU should take 
+>>>> ownership of the buffer after completion of hardwate job. But in 
+>>>> fact dma_sync_single_for_cpu(DMA_TO_DEVICE) is a NO-OP because CPU 
+>>>> doesn't need to flush or invalidate anything to take ownership of 
+>>>> the buffer if hardware did a read-only access.
+>>>>>   
+>>>>>> +	if (!i2c_dev->msg_read) {
+>>>>>> +		if (dma) {
+>>>>>> +			memcpy(buffer, msg->buf, msg->len);
+>>>>>> +
+>>>>>> dma_sync_single_for_device(i2c_dev->dev, + i2c_dev->dma_phys,
+>>>>>> +						   xfer_size,
+>>>>>> +
+>>>>>> DMA_TO_DEVICE);
+>>>>>
+>>>>> Again, here we properly flush the caches to make sure the data 
+>>>>> that we've written to the DMA buffer is visible to the DMA engine.
+>>>>>   
+>>>>
+>>>> +1 this is correct
+>>>>
+>>>>
+>>>>  
+>>>>>> +
+>>>>>> +		if (i2c_dev->msg_read) {
+>>>>>> +			if (likely(i2c_dev->msg_err ==
+>>>>>> I2C_ERR_NONE)) {
+>>>>>> +
+>>>>>> dma_sync_single_for_cpu(i2c_dev->dev,
+>>>>>> +
+>>>>>> i2c_dev->dma_phys,
+>>>>>> +
+>>>>>> xfer_size, +
+>>>>>> DMA_FROM_DEVICE);
+>>>>>
+>>>>> Here we invalidate the caches to make sure we don't get stale data 
+>>>>> that may be in the caches for data that we're copying out of the 
+>>>>> DMA buffer. I think that's about all the cache maintenance that we 
+>>>>> real need.
+>>>>
+>>>> Correct.
+>>>>
+>>>> And technically here should be
+>>>> dma_sync_single_for_cpu(DMA_TO_DEVICE) for the TX. But again, it's a 
+>>>> NO-OP.
+>>>
+>>> Is my below understanding correct? Can you please confirm?
+>>>
+>>> During Transmit to device:
+>>> - Before writing msg data into dma buf by CPU, giving DMA ownership to 
+>>> CPU dma_sync_single_for_cpu with dir DMA_TO_DEVICE
+>>>
+>>
+>> I tried to take a look at it again and now thinking that your variant is more correct. Still it's a bit difficult to judge because this case is no-op.
+>>
+>>> - After writing to dma buf by CPU, giving back the ownership to device 
+>>> to access buffer to send during DMA transmit 
+>>> dma_sync_single_for_device with dir DMA_TO_DEVICE
+>>
+>> Correct.
+>>
+>>> During Receiving from Device:
+>>> - before submitting RX DMA to give buffer access to DMAengine
+>>> 	dma_sync_single_for_Device(DMA_FROM_DEVICE)
+>>
+>> Correct.
+>>
+>>> - after DMA RX completion, giving dma ownership to CPU for reading 
+>>> dmabuf data written by DMA from device dma_sync_single_for_cpu with 
+>>> dir DMA_FROM_DEVICE
+>>>
+>>
+>> Correct.
+> 
+> Then what I have is exact as mentioned above. So no changes needed related to dma_sync
+
+Yes
+
+> Pasting again here with clear comment to explain on why I have those corresponding dma_sync
+
+If you're going to add these comments to the actual patch, then please add brief explanation of what actually syncing is doing.
+
+> 
+>         if (i2c_dev->msg_read) {
+>             tegra_i2c_config_fifo_trig(i2c_dev, xfer_size,
+>                            DATA_DMA_DIR_RX);
+>             /* For Reads: giving dma buf ownership to device before submitting RX DMA */
+
+This invalidates buffer in CPU caches to avoid buffer-data eviction from the caches to DRAM while hardware writes to the buffer.
+
+>             dma_sync_single_for_device(i2c_dev->dev,
+>                            i2c_dev->dma_phys,
+>                            xfer_size,
+>                            DMA_FROM_DEVICE);
+>             err = tegra_i2c_dma_submit(i2c_dev, xfer_size);
+>             if (err < 0) {
+>                 dev_err(i2c_dev->dev,
+>                     "starting RX DMA failed, err %d\n",
+>                     err);
+>                 goto unlock;
+>             }
+>         } else {
+>             tegra_i2c_config_fifo_trig(i2c_dev, xfer_size,
+>                            DATA_DMA_DIR_TX);
+>             /* For writes: giving dma buf ownership to CPU to copy transmit data to DMA Buf */
+
+This is a NO-OP because there is no need to flush nor to invalidate CPU caches.
+
+>             dma_sync_single_for_cpu(i2c_dev->dev,
+>                         i2c_dev->dma_phys,
+>                         xfer_size,
+>                         DMA_TO_DEVICE);
+>             buffer = i2c_dev->dma_buf;
+>         }
+> 
+> 
+> 
+>     if (!msg->flags & I2C_M_RD) {
+>         if (dma) {
+>             memcpy(buffer, msg->buf, msg->len);
+>             /* For writes: giving ownership to device after done with copying data to DMA Buf */
+
+This flushes out buffer from CPU caches to DRAM.
+
+>             dma_sync_single_for_device(i2c_dev->dev,
+>                            i2c_dev->dma_phys,
+>                            xfer_size,
+>                            DMA_TO_DEVICE);
+>             err = tegra_i2c_dma_submit(i2c_dev, xfer_size);
+>             if (err < 0) {
+>                 dev_err(i2c_dev->dev,
+>                     "starting TX DMA failed, err %d\n",
+>                     err);
+>                 goto unlock;
+>             }
+>         } else {
+>             tegra_i2c_fill_tx_fifo(i2c_dev);
+>         }
+> 
+>         if (i2c_dev->msg_read) {
+>             if (likely(i2c_dev->msg_err == I2C_ERR_NONE)) {
+>             /* For Reads: giving ownership to CPU after RX DMA completion to access read data */
+>                 dma_sync_single_for_cpu(i2c_dev->dev,
+>                             i2c_dev->dma_phys,
+>                             xfer_size,
+>                             DMA_FROM_DEVICE);
+
+This invalidates buffer in CPU caches again, even though it shall be kept invalidated after dma_sync_single_for_device(DMA_FROM_DEVICE). So it's likely to be a mostly NO-OP in hardware. 
+
+> 
+>                 memcpy(i2c_dev->msg_buf, i2c_dev->dma_buf,
+>                     msg->len);
+>             }
+>         }
+> 
+> 
+> 
+
+Technically we could remove the NO-OP's, but I personally would prefer to keep them for consistency with the DMA API.
