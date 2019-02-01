@@ -1,89 +1,155 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: RE: [PATCH V8 3/5] i2c: tegra: Add DMA Support
-Date: Fri, 1 Feb 2019 01:11:06 +0000
-Message-ID: <BYAPR12MB33986DDF4267ED1F499317B0C2920@BYAPR12MB3398.namprd12.prod.outlook.com>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH V8 3/5] i2c: tegra: Add DMA Support
+Date: Fri, 1 Feb 2019 06:14:14 +0300
+Message-ID: <20190201061414.05443ea1@dimatab>
 References: <1548915387-28826-1-git-send-email-skomatineni@nvidia.com>
         <1548915387-28826-3-git-send-email-skomatineni@nvidia.com>
-        <20190131124423.GG23438@ulmo> <20190201035249.5b1cdfe2@dimatab>
+        <20190131124423.GG23438@ulmo>
+        <20190201035249.5b1cdfe2@dimatab>
+        <BYAPR12MB33986DDF4267ED1F499317B0C2920@BYAPR12MB3398.namprd12.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190201035249.5b1cdfe2@dimatab>
-Content-Language: en-US
+In-Reply-To: <BYAPR12MB33986DDF4267ED1F499317B0C2920@BYAPR12MB3398.namprd12.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Osipenko <digetx@gmail.com>, Thierry Reding <thierry.reding@gmail.com>
-Cc: Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Sowjanya Komatineni <skomatineni@nvidia.com>
+Cc: Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-PiA+ID4gKwlpZiAoZG1hKSB7DQo+ID4gPiArCQlpZiAoaTJjX2Rldi0+bXNnX3JlYWQpIHsNCj4g
-PiA+ICsJCQljaGFuID0gaTJjX2Rldi0+cnhfZG1hX2NoYW47DQo+ID4gPiArCQkJdGVncmFfaTJj
-X2NvbmZpZ19maWZvX3RyaWcoaTJjX2RldiwNCj4gPiA+IHhmZXJfc2l6ZSwNCj4gPiA+ICsNCj4g
-PiA+IERBVEFfRE1BX0RJUl9SWCk7DQo+ID4gPiArCQkJZG1hX3N5bmNfc2luZ2xlX2Zvcl9kZXZp
-Y2UoaTJjX2Rldi0+ZGV2LA0KPiA+ID4gKw0KPiA+ID4gaTJjX2Rldi0+ZG1hX3BoeXMsDQo+ID4g
-PiArCQkJCQkJICAgeGZlcl9zaXplLA0KPiA+ID4gKw0KPiA+ID4gRE1BX0ZST01fREVWSUNFKTsN
-Cj4gPiANCj4gPiBEbyB3ZSByZWFsbHkgbmVlZCB0aGlzPyBXZSdyZSBub3QgYWN0dWFsbHkgcGFz
-c2luZyB0aGUgZGV2aWNlIGFueSANCj4gPiBkYXRhLCBzbyBubyBjYWNoZXMgdG8gZmx1c2ggaGVy
-ZS4gSSB3ZSdyZSBjYXV0aW91cyBhYm91dCBmbHVzaGluZyANCj4gPiBjYWNoZXMgd2hlbiB3ZSBk
-byB3cml0ZSB0byB0aGUgYnVmZmVyIChhbmQgSSB0aGluayB3ZSBkbyB0aGF0IHByb3Blcmx5IA0K
-PiA+IGFscmVhZHkpLCB0aGVuIHRoZXJlIHNob3VsZCBiZSBubyBuZWVkIHRvIGRvIGl0IGhlcmUg
-YWdhaW4uDQo+ID4gDQo+DQo+IElJVUMsIERNQSBBUEkgaGFzIGEgY29uY2VwdCBvZiBidWZmZXIg
-aGFuZGluZyB3aGljaCB0ZWxscyB0byB1c2UNCmRtYV9zeW5jX3NpbmdsZV9mb3JfZGV2aWNlKCkg
-YmVmb3JlIGlzc3VpbmcgaGFyZHdhcmUgam9iIHRoYXQgdG91Y2hlcyB0aGUgYnVmZmVyIGFuZCB0
-byB1c2UgZG1hX3N5bmNfc2luZ2xlX2Zvcl9jcHUoKSBhZnRlciBoYXJkd2FyZSBkb25lIHRoZSBl
-eGVjdXRpb24uIEluIGZhY3QgdGhlIENQVSBjYWNoZXMgYXJlIGdldHRpbmcgZmx1c2hlZCBvciBp
-bnZhbGlkYXRlZCBhcyBhcHByb3ByaWF0ZSBpbiBhIHJlc3VsdC4NCj4NCj4gZG1hX3N5bmNfc2lu
-Z2xlX2Zvcl9kZXZpY2UoRE1BX0ZST01fREVWSUNFKSBpbnZhbGlkYXRlcyBidWZmZXIgaW4gdGhl
-IENQVSBjYWNoZSwgcHJvYmFibHkgdG8gYXZvaWQgQ1BVIGV2aWN0aW5nIGRhdGEgZnJvbSBjYWNo
-ZSB0byBEUkFNIHdoaWxlIGhhcmR3YXJlIHdyaXRlcyB0byB0aGUgYnVmZmVyLiBIZW5jZSB0aGlz
-IGh1bmsgaXMgY29ycmVjdC4NCj4NCj4gPiA+ICsJCQllcnIgPSB0ZWdyYV9pMmNfZG1hX3N1Ym1p
-dChpMmNfZGV2LA0KPiA+ID4geGZlcl9zaXplKTsNCj4gPiA+ICsJCQlpZiAoZXJyIDwgMCkgew0K
-PiA+ID4gKwkJCQlkZXZfZXJyKGkyY19kZXYtPmRldiwNCj4gPiA+ICsJCQkJCSJzdGFydGluZyBS
-WCBETUEgZmFpbGVkLA0KPiA+ID4gZXJyICVkXG4iLA0KPiA+ID4gKwkJCQkJZXJyKTsNCj4gPiA+
-ICsJCQkJZ290byB1bmxvY2s7DQo+ID4gPiArCQkJfQ0KPiA+ID4gKwkJfSBlbHNlIHsNCj4gPiA+
-ICsJCQljaGFuID0gaTJjX2Rldi0+dHhfZG1hX2NoYW47DQo+ID4gPiArCQkJdGVncmFfaTJjX2Nv
-bmZpZ19maWZvX3RyaWcoaTJjX2RldiwNCj4gPiA+IHhmZXJfc2l6ZSwNCj4gPiA+ICsNCj4gPiA+
-IERBVEFfRE1BX0RJUl9UWCk7DQo+ID4gPiArCQkJZG1hX3N5bmNfc2luZ2xlX2Zvcl9jcHUoaTJj
-X2Rldi0+ZGV2LA0KPiA+ID4gKwkJCQkJCWkyY19kZXYtPmRtYV9waHlzLA0KPiA+ID4gKwkJCQkJ
-CXhmZXJfc2l6ZSwNCj4gPiA+ICsJCQkJCQlETUFfVE9fREVWSUNFKTsNCj4gPiANCj4gPiBUaGlz
-LCBvbiB0aGUgb3RoZXIgaGFuZCBzZWVtcyBjb3JyZWN0IGJlY2F1c2Ugd2UgbmVlZCB0byBpbnZh
-bGlkYXRlIA0KPiA+IHRoZSBjYWNoZXMgZm9yIHRoaXMgYnVmZmVyIHRvIG1ha2Ugc3VyZSB0aGUg
-ZGF0YSB0aGF0IHdlIHB1dCB0aGVyZSANCj4gPiBkb2Vzbid0IGdldCBvdmVyd3JpdHRlbi4NCj4N
-Cj4gQXMgSSBzdGF0ZWQgYmVmb3JlIGluIGEgY29tbWVudCB0byB2NiwgdGhpcyBwYXJ0aWN1bGFy
-IGNhc2Ugb2YNCj4gZG1hX3N5bmNfc2luZ2xlX2Zvcl9jcHUoKSB1c2FnZSBpcyBpbmNvcnJlY3Qg
-YmVjYXVzZSBDUFUgc2hvdWxkIHRha2Ugb3duZXJzaGlwIG9mIHRoZSBidWZmZXIgYWZ0ZXIgY29t
-cGxldGlvbiBvZiBoYXJkd2F0ZSBqb2IuIEJ1dCBpbiBmYWN0DQo+IGRtYV9zeW5jX3NpbmdsZV9m
-b3JfY3B1KERNQV9UT19ERVZJQ0UpIGlzIGEgTk8tT1AgYmVjYXVzZSBDUFUgZG9lc24ndCBuZWVk
-IHRvIGZsdXNoIG9yIGludmFsaWRhdGUgYW55dGhpbmcgdG8gdGFrZSBvd25lcnNoaXAgb2YgdGhl
-IGJ1ZmZlciBpZiBoYXJkd2FyZSBkaWQgYSByZWFkLW9ubHkgYWNjZXNzLg0KPg0KPiA+IA0KPiA+
-ID4gKwlpZiAoIWkyY19kZXYtPm1zZ19yZWFkKSB7DQo+ID4gPiArCQlpZiAoZG1hKSB7DQo+ID4g
-PiArCQkJbWVtY3B5KGJ1ZmZlciwgbXNnLT5idWYsIG1zZy0+bGVuKTsNCj4gPiA+ICsJCQlkbWFf
-c3luY19zaW5nbGVfZm9yX2RldmljZShpMmNfZGV2LT5kZXYsDQo+ID4gPiArDQo+ID4gPiBpMmNf
-ZGV2LT5kbWFfcGh5cywNCj4gPiA+ICsJCQkJCQkgICB4ZmVyX3NpemUsDQo+ID4gPiArDQo+ID4g
-PiBETUFfVE9fREVWSUNFKTsNCj4gPiANCj4gPiBBZ2FpbiwgaGVyZSB3ZSBwcm9wZXJseSBmbHVz
-aCB0aGUgY2FjaGVzIHRvIG1ha2Ugc3VyZSB0aGUgZGF0YSB0aGF0IA0KPiA+IHdlJ3ZlIHdyaXR0
-ZW4gdG8gdGhlIERNQSBidWZmZXIgaXMgdmlzaWJsZSB0byB0aGUgRE1BIGVuZ2luZS4NCj4gPiAN
-Cj4NCj4gKzEgdGhpcyBpcyBjb3JyZWN0DQo+DQo+DQo+DQo+ID4gPiArDQo+ID4gPiArCQlpZiAo
-aTJjX2Rldi0+bXNnX3JlYWQpIHsNCj4gPiA+ICsJCQlpZiAobGlrZWx5KGkyY19kZXYtPm1zZ19l
-cnIgPT0NCj4gPiA+IEkyQ19FUlJfTk9ORSkpIHsNCj4gPiA+ICsNCj4gPiA+IGRtYV9zeW5jX3Np
-bmdsZV9mb3JfY3B1KGkyY19kZXYtPmRldiwNCj4gPiA+ICsNCj4gPiA+IGkyY19kZXYtPmRtYV9w
-aHlzLA0KPiA+ID4gKwkJCQkJCQl4ZmVyX3NpemUsDQo+ID4gPiArDQo+ID4gPiBETUFfRlJPTV9E
-RVZJQ0UpOw0KPiA+IA0KPiA+IEhlcmUgd2UgaW52YWxpZGF0ZSB0aGUgY2FjaGVzIHRvIG1ha2Ug
-c3VyZSB3ZSBkb24ndCBnZXQgc3RhbGUgZGF0YSANCj4gPiB0aGF0IG1heSBiZSBpbiB0aGUgY2Fj
-aGVzIGZvciBkYXRhIHRoYXQgd2UncmUgY29weWluZyBvdXQgb2YgdGhlIERNQSANCj4gPiBidWZm
-ZXIuIEkgdGhpbmsgdGhhdCdzIGFib3V0IGFsbCB0aGUgY2FjaGUgbWFpbnRlbmFuY2UgdGhhdCB3
-ZSByZWFsIA0KPiA+IG5lZWQuDQo+DQo+IENvcnJlY3QuDQo+DQo+IEFuZCB0ZWNobmljYWxseSBo
-ZXJlIHNob3VsZCBiZSBkbWFfc3luY19zaW5nbGVfZm9yX2NwdShETUFfVE9fREVWSUNFKQ0KPiBm
-b3IgdGhlIFRYLiBCdXQgYWdhaW4sIGl0J3MgYSBOTy1PUC4NCg0KSXMgbXkgYmVsb3cgdW5kZXJz
-dGFuZGluZyBjb3JyZWN0PyBDYW4geW91IHBsZWFzZSBjb25maXJtPw0KDQpEdXJpbmcgVHJhbnNt
-aXQgdG8gZGV2aWNlOg0KLSBCZWZvcmUgd3JpdGluZyBtc2cgZGF0YSBpbnRvIGRtYSBidWYgYnkg
-Q1BVLCBnaXZpbmcgRE1BIG93bmVyc2hpcCB0byBDUFUNCglkbWFfc3luY19zaW5nbGVfZm9yX2Nw
-dSB3aXRoIGRpciBETUFfVE9fREVWSUNFDQoNCi0gQWZ0ZXIgd3JpdGluZyB0byBkbWEgYnVmIGJ5
-IENQVSwgZ2l2aW5nIGJhY2sgdGhlIG93bmVyc2hpcCB0byBkZXZpY2UgdG8gYWNjZXNzIGJ1ZmZl
-ciB0byBzZW5kIGR1cmluZyBETUEgdHJhbnNtaXQNCglkbWFfc3luY19zaW5nbGVfZm9yX2Rldmlj
-ZSB3aXRoIGRpciBETUFfVE9fREVWSUNFDQoNCkR1cmluZyBSZWNlaXZpbmcgZnJvbSBEZXZpY2U6
-DQotIGJlZm9yZSBzdWJtaXR0aW5nIFJYIERNQSB0byBnaXZlIGJ1ZmZlciBhY2Nlc3MgdG8gRE1B
-ZW5naW5lDQoJZG1hX3N5bmNfc2luZ2xlX2Zvcl9EZXZpY2UoRE1BX0ZST01fREVWSUNFKSANCi0g
-YWZ0ZXIgRE1BIFJYIGNvbXBsZXRpb24sIGdpdmluZyBkbWEgb3duZXJzaGlwIHRvIENQVSBmb3Ig
-cmVhZGluZyBkbWFidWYgZGF0YSB3cml0dGVuIGJ5IERNQSBmcm9tIGRldmljZQ0KCWRtYV9zeW5j
-X3NpbmdsZV9mb3JfY3B1IHdpdGggZGlyIERNQV9GUk9NX0RFVklDRQ0KDQo=
+=D0=92 Fri, 1 Feb 2019 01:11:06 +0000
+Sowjanya Komatineni <skomatineni@nvidia.com> =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+
+> > > > +	if (dma) {
+> > > > +		if (i2c_dev->msg_read) {
+> > > > +			chan =3D i2c_dev->rx_dma_chan;
+> > > > +			tegra_i2c_config_fifo_trig(i2c_dev,
+> > > > xfer_size,
+> > > > +
+> > > > DATA_DMA_DIR_RX);
+> > > > +
+> > > > dma_sync_single_for_device(i2c_dev->dev, +
+> > > > i2c_dev->dma_phys,
+> > > > +						   xfer_size,
+> > > > +
+> > > > DMA_FROM_DEVICE); =20
+> > >=20
+> > > Do we really need this? We're not actually passing the device any=20
+> > > data, so no caches to flush here. I we're cautious about flushing=20
+> > > caches when we do write to the buffer (and I think we do that
+> > > properly already), then there should be no need to do it here
+> > > again.=20
+> >
+> > IIUC, DMA API has a concept of buffer handing which tells to use =20
+> dma_sync_single_for_device() before issuing hardware job that touches
+> the buffer and to use dma_sync_single_for_cpu() after hardware done
+> the execution. In fact the CPU caches are getting flushed or
+> invalidated as appropriate in a result.
+> >
+> > dma_sync_single_for_device(DMA_FROM_DEVICE) invalidates buffer in
+> > the CPU cache, probably to avoid CPU evicting data from cache to
+> > DRAM while hardware writes to the buffer. Hence this hunk is
+> > correct.=20
+> > > > +			err =3D tegra_i2c_dma_submit(i2c_dev,
+> > > > xfer_size);
+> > > > +			if (err < 0) {
+> > > > +				dev_err(i2c_dev->dev,
+> > > > +					"starting RX DMA
+> > > > failed, err %d\n",
+> > > > +					err);
+> > > > +				goto unlock;
+> > > > +			}
+> > > > +		} else {
+> > > > +			chan =3D i2c_dev->tx_dma_chan;
+> > > > +			tegra_i2c_config_fifo_trig(i2c_dev,
+> > > > xfer_size,
+> > > > +
+> > > > DATA_DMA_DIR_TX);
+> > > > +			dma_sync_single_for_cpu(i2c_dev->dev,
+> > > > +
+> > > > i2c_dev->dma_phys,
+> > > > +						xfer_size,
+> > > > +
+> > > > DMA_TO_DEVICE); =20
+> > >=20
+> > > This, on the other hand seems correct because we need to
+> > > invalidate the caches for this buffer to make sure the data that
+> > > we put there doesn't get overwritten. =20
+> >
+> > As I stated before in a comment to v6, this particular case of
+> > dma_sync_single_for_cpu() usage is incorrect because CPU should
+> > take ownership of the buffer after completion of hardwate job. But
+> > in fact dma_sync_single_for_cpu(DMA_TO_DEVICE) is a NO-OP because
+> > CPU doesn't need to flush or invalidate anything to take ownership
+> > of the buffer if hardware did a read-only access.=20
+> > >  =20
+> > > > +	if (!i2c_dev->msg_read) {
+> > > > +		if (dma) {
+> > > > +			memcpy(buffer, msg->buf, msg->len);
+> > > > +
+> > > > dma_sync_single_for_device(i2c_dev->dev, +
+> > > > i2c_dev->dma_phys,
+> > > > +						   xfer_size,
+> > > > +
+> > > > DMA_TO_DEVICE); =20
+> > >=20
+> > > Again, here we properly flush the caches to make sure the data
+> > > that we've written to the DMA buffer is visible to the DMA engine.
+> > >  =20
+> >
+> > +1 this is correct
+> >
+> >
+> > =20
+> > > > +
+> > > > +		if (i2c_dev->msg_read) {
+> > > > +			if (likely(i2c_dev->msg_err =3D=3D
+> > > > I2C_ERR_NONE)) {
+> > > > +
+> > > > dma_sync_single_for_cpu(i2c_dev->dev,
+> > > > +
+> > > > i2c_dev->dma_phys,
+> > > > +
+> > > > xfer_size, +
+> > > > DMA_FROM_DEVICE); =20
+> > >=20
+> > > Here we invalidate the caches to make sure we don't get stale
+> > > data that may be in the caches for data that we're copying out of
+> > > the DMA buffer. I think that's about all the cache maintenance
+> > > that we real need. =20
+> >
+> > Correct.
+> >
+> > And technically here should be
+> > dma_sync_single_for_cpu(DMA_TO_DEVICE) for the TX. But again, it's
+> > a NO-OP. =20
+>=20
+> Is my below understanding correct? Can you please confirm?
+>=20
+> During Transmit to device:
+> - Before writing msg data into dma buf by CPU, giving DMA ownership
+> to CPU dma_sync_single_for_cpu with dir DMA_TO_DEVICE
+>=20
+
+I tried to take a look at it again and now thinking that your variant
+is more correct. Still it's a bit difficult to judge because this case
+is no-op.
+
+> - After writing to dma buf by CPU, giving back the ownership to
+> device to access buffer to send during DMA transmit
+> dma_sync_single_for_device with dir DMA_TO_DEVICE
+
+Correct.
+
+> During Receiving from Device:
+> - before submitting RX DMA to give buffer access to DMAengine
+> 	dma_sync_single_for_Device(DMA_FROM_DEVICE)=20
+
+Correct.
+
+> - after DMA RX completion, giving dma ownership to CPU for reading
+> dmabuf data written by DMA from device dma_sync_single_for_cpu with
+> dir DMA_FROM_DEVICE
+>=20
+
+Correct.
