@@ -1,7 +1,7 @@
 From: Ray Jui <ray.jui@broadcom.com>
-Subject: [PATCH v4 8/8] arm64: dts: Stingray: Add NIC i2c device node
-Date: Mon,  4 Feb 2019 15:15:54 -0800
-Message-ID: <20190204231554.87666-9-ray.jui@broadcom.com>
+Subject: [PATCH v4 6/8] dt-bindings: i2c: iproc: add "brcm,iproc-nic-i2c" compatible string
+Date: Mon,  4 Feb 2019 15:15:52 -0800
+Message-ID: <20190204231554.87666-7-ray.jui@broadcom.com>
 References: <20190204231554.87666-1-ray.jui@broadcom.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190204231554.87666-1-ray.jui@broadcom.com>
@@ -12,40 +12,39 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 
-Add NIC i2c device node.
+Update iProc I2C binding document to add new compatible string
+"brcm,iproc-nic-i2c". Optional property "brcm,ape-hsls-addr-mask" is
+also added that allows configuration of the host view into the APE's
+address for "brcm,iproc-nic-i2c"
 
 Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 Signed-off-by: Ray Jui <ray.jui@broadcom.com>
 ---
- .../boot/dts/broadcom/stingray/stingray.dtsi   | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi b/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi
-index cfeaa855bd05..67e53768a84a 100644
---- a/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi
-@@ -612,4 +612,22 @@
- 			status = "disabled";
- 		};
- 	};
-+
-+	nic-hsls {
-+		compatible = "simple-bus";
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		ranges = <0x0 0x0  0x0 0x7fffffff>;
-+
-+		nic_i2c0: i2c@60826100 {
-+			compatible = "brcm,iproc-nic-i2c";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <0x60826100 0x100>,
-+			      <0x60e00408 0x1000>;
-+			brcm,ape-hsls-addr-mask = <0x03400000>;
-+			clock-frequency = <100000>;
-+			status = "disabled";
-+		};
-+	};
- };
+diff --git a/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt b/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
+index d3a3620b1f06..02e82d20239e 100644
+--- a/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
++++ b/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
+@@ -3,7 +3,7 @@ Broadcom iProc I2C controller
+ Required properties:
+ 
+ - compatible:
+-    Must be "brcm,iproc-i2c"
++    Must be "brcm,iproc-i2c" or "brcm,iproc-nic-i2c"
+ 
+ - reg:
+     Define the base and range of the I/O address space that contain the iProc
+@@ -24,6 +24,9 @@ Optional properties:
+     Should contain the I2C interrupt. If unspecified, driver will fall back to
+     polling mode
+ 
++- brcm,ape-hsls-addr-mask:
++    Required for "brcm,iproc-nic-i2c". Host view of address mask into the
++    'APE' co-processor
+ 
+ Example:
+ 	i2c0: i2c@18008000 {
 -- 
 2.17.1
