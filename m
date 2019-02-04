@@ -1,44 +1,63 @@
 From: Ray Jui <ray.jui@broadcom.com>
-Subject: Re: [PATCH v3 0/8] Add IPROC I2C slave mode and NIC I2C support
-Date: Mon, 4 Feb 2019 15:09:46 -0800
-Message-ID: <f00f179b-9824-2211-1456-57fb53ec482f@broadcom.com>
-References: <1547791464-3540-1-git-send-email-rayagonda.kokatanur@broadcom.com>
- <e658ce66-98e3-3ca6-5786-56bfea6d176e@broadcom.com>
- <746cf074-69e0-7bd1-034e-c8d3156b5506@broadcom.com>
- <20190204111205.GA2068@kunai>
+Subject: [PATCH v4 0/8] iProc I2C slave mode and NIC mode
+Date: Mon,  4 Feb 2019 15:15:46 -0800
+Message-ID: <20190204231554.87666-1-ray.jui@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190204111205.GA2068@kunai>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, rjui@broadcom.com, bcm-kernel-feedback-list@broadcom.com, shreesha.rajashekar@broadcom.com, sbranden@broadcom.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, ccheng@broadcom.com, heikki.krogerus@linux.intel.com, geert@linux-m68k.org, arnd@arndb.de, manivannan.sadhasivam@linaro.org, ajayg@nvidia.com, ard.biesheuvel@linaro.org, eajames@linux.vnet.ibm.com, kramasub@codeaurora.org, vigneshr@ti.com, mika.westerberg@linux.intel.com, pierre-yves.mordret@st.com, f.fainelli@gmail.com, aaron.wu@analog.com, jdelvare@suse.de, andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, robh+dt@kernel.org, mark.rutland@arm.com, rayagonoda.kokatanur
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+Cc: devicetree@vger.kernel.org, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, Ray Jui <ray.jui@broadcom.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+This patch series adds the following support to the iProc I2C driver:
+- Increase maximum read transfer size to 255 bytes
+- I2C slave mode
+- Polling mode
+- NIC I2C mode
 
-On 2/4/2019 3:12 AM, Wolfram Sang wrote:
-> Hi,
-> 
->> Just want to check if you had a chance to review the following patch series?
-> 
-> I am sorry, but for some reason they are not listed in my patchwork
-> instance, so they fell through the cracks :( Can you please resend them?
-> 
-> I will double check they show up in patchwork then.
+This patch series is based on kernel v5.0-rc3 and available at:
+https://github.com/Broadcom/arm64-linux.git
+branch: i2c-slave-v4
 
-Thanks. I think the issue might have something to do with Rayagonda's
-email client configuration. I will be helping to send out v4 of the
-patch series.
+Changes from v3:
+ - Various minor fixes on commit messages and commits
+ - Rebased to v5.0-rc3
 
-Regards,
+Changes from v2:
+ - Address Ray's review comments.
 
-Ray
+Changes from v1:
+ - Rebased to Linux v5.0.0-rc2
 
-> 
-> Thanks,
-> 
->    Wolfram
-> 
+Ray Jui (1):
+  dt-bindings: i2c: iproc: make 'interrupts' optional
+
+Rayagonda Kokatanur (5):
+  i2c: iproc: add polling support
+  i2c: iproc: use wrapper for read/write access
+  dt-bindings: i2c: iproc: add "brcm,iproc-nic-i2c" compatible string
+  i2c: iproc: add NIC I2C support
+  arm64: dts: Stingray: Add NIC i2c device node
+
+Shreesha Rajashekar (2):
+  i2c: iproc: Extend I2C read up to 255 bytes
+  i2c: iproc: Add slave mode support
+
+ .../bindings/i2c/brcm,iproc-i2c.txt           |  15 +-
+ .../boot/dts/broadcom/stingray/stingray.dtsi  |  18 +
+ drivers/i2c/busses/Kconfig                    |   1 +
+ drivers/i2c/busses/i2c-bcm-iproc.c            | 758 +++++++++++++++---
+ 4 files changed, 661 insertions(+), 131 deletions(-)
+
+-- 
+2.17.1
