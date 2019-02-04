@@ -1,114 +1,58 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH V9 3/5] i2c: tegra: Add DMA support
-Date: Mon, 4 Feb 2019 09:18:29 +0100
-Message-ID: <20190204081829.GC19087@ulmo>
-References: <1549040867-18149-1-git-send-email-skomatineni@nvidia.com>
- <1549040867-18149-3-git-send-email-skomatineni@nvidia.com>
- <d37e901b-1c26-3d9c-7f68-29e06f4ff993@gmail.com>
- <BYAPR12MB33982BC5A58A000A0CB84F6AC2930@BYAPR12MB3398.namprd12.prod.outlook.com>
- <a5e79739-3ce5-6c22-c9d2-e9d2c709cb30@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 0/8] Add IPROC I2C slave mode and NIC I2C support
+Date: Mon, 4 Feb 2019 12:12:05 +0100
+Message-ID: <20190204111205.GA2068@kunai>
+References: <1547791464-3540-1-git-send-email-rayagonda.kokatanur@broadcom.com>
+ <e658ce66-98e3-3ca6-5786-56bfea6d176e@broadcom.com>
+ <746cf074-69e0-7bd1-034e-c8d3156b5506@broadcom.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="uXxzq0nDebZQVNAZ"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <a5e79739-3ce5-6c22-c9d2-e9d2c709cb30@gmail.com>
+In-Reply-To: <746cf074-69e0-7bd1-034e-c8d3156b5506@broadcom.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Osipenko <digetx@gmail.com>
-Cc: Sowjanya Komatineni <skomatineni@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Ray Jui <ray.jui@broadcom.com>
+Cc: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, rjui@broadcom.com, bcm-kernel-feedback-list@broadcom.com, shreesha.rajashekar@broadcom.com, sbranden@broadcom.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, ccheng@broadcom.com, heikki.krogerus@linux.intel.com, geert@linux-m68k.org, arnd@arndb.de, manivannan.sadhasivam@linaro.org, ajayg@nvidia.com, ard.biesheuvel@linaro.org, eajames@linux.vnet.ibm.com, kramasub@codeaurora.org, vigneshr@ti.com, mika.westerberg@linux.intel.com, pierre-yves.mordret@st.com, f.fainelli@gmail.com, aaron.wu@analog.com, jdelvare@suse.de, andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com, robh+dt@kernel.org, mark.rutland@arm.com, rayagonoda.kokatanur
 List-Id: linux-i2c@vger.kernel.org
 
 
---uXxzq0nDebZQVNAZ
-Content-Type: text/plain; charset=utf-8
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sun, Feb 03, 2019 at 07:48:09PM +0300, Dmitry Osipenko wrote:
-> 02.02.2019 21:32, Sowjanya Komatineni =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
-> >>> This patch adds DMA support for Tegra I2C.
-> >>>
-> >>> Tegra I2C TX and RX FIFO depth is 8 words. PIO mode is used for=20
-> >>> transfer size of the max FIFO depth and DMA mode is used for transfer=
-=20
-> >>> size higher than max FIFO depth to save CPU overhead.
-> >>>
-> >>> PIO mode needs full intervention of CPU to fill or empty FIFO's and=
-=20
-> >>> also need to service multiple data requests interrupt for the same=20
-> >>> transaction. This adds delay between data bytes of the same transfer=
-=20
-> >>> when CPU is fully loaded and some slave devices has internal timeout=
-=20
-> >>> for no bus activity and stops transaction to avoid bus hang. DMA mode=
-=20
-> >>> is helpful in such cases.
-> >>>
-> >>> DMA mode is also helpful for Large transfers during downloading or=20
-> >>> uploading FW over I2C to some external devices.
-> >>>
-> >>> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-> >>> ---
-> >>
-> >>
-> >>> +static int tegra_i2c_init_dma(struct tegra_i2c_dev *i2c_dev) {
-> >>> +	struct dma_chan *dma_chan;
-> >>> +	u32 *dma_buf;
-> >>> +	dma_addr_t dma_phys;
-> >>> +	int err =3D 0;
-> >>> +
-> >>> +	if (!IS_ENABLED(CONFIG_TEGRA20_APB_DMA))
-> >>> +		return -ENODEV;
-> >>
-> >> Another detail is that we need to keep older kernels working on
-> >> T186+ after its device-tree will get the "dmas" property,
-> >> device-tree changes shall be backwards-compatible with older
-> >> kernels. Hence we need to check that platform actually wants the
-> >> APB DMA driver, otherwise T186+ will be failing with -EPROBE_DEFER.
-> >=20
-> > Yes, that will be a separate patch later for adding DMA support for
-> > Tegra186 and later chips once we check on GPCDMA upstream
-> >=20
-> >=20
->=20
-> Sure, and there is a requirement in upstream to keep older kernel
-> versions working with the later device-tree updates, as I pointed
-> above. Please include the ".has_apb_dma checking" that I'm suggesting
-> into the next version.
+Hi,
 
-I don't think that's true. The requirement is for the device-tree ABI to
-remain stable, but that technically only requires that kernel updates do
-not require a DTB update.
+> Just want to check if you had a chance to review the following patch series?
 
-The assumption on which this is based is that the DTB may be shipping in
-read-only storage, like it used to fairly commonly in the distant past.
+I am sorry, but for some reason they are not listed in my patchwork
+instance, so they fell through the cracks :( Can you please resend them?
 
-Conversely, if you update the DTB the assumption is that you can also
-update the kernel, so the compatibility doesn't need to go that way.
+I will double check they show up in patchwork then.
 
-That said, I think what you're proposing here makes sense and is pretty
-trivial, so might as well add it at this time.
+Thanks,
 
-Thierry
+   Wolfram
 
---uXxzq0nDebZQVNAZ
+
+--sdtB3X0nJg68CQEu
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlxX9VMACgkQ3SOs138+
-s6G1ag//exFZIaKJSO0vB5wrW6HZ1CA2EbV9qoMEo+Z/8qGXeXsiHRF3hP78kkn4
-hMW0fo8AkBZ4oKvX0F8imDjKYt3qIFp1eRZtZn1IhYFLc6S6E6sr8kHhNybEdIS+
-GYTM3A/NuuEqwy+iexT1iQC87+hPTwqZD6ReKFaspI4sFupm28a1qj1RrGpD2fW9
-qi2gnehglSzfps2tckWzYlRzH2S7EtEuwfq1hp0ROwn6kLx8UXGMCtEG5w4FYoGY
-igp2RTANj/6Y1kPgpyEHaDD5XP2iOzYS6lsBbEKynNHLbIN6MKsDHo7+fTqU5758
-botJhulhlj/xuMpb3INjVI/PiyJozWb+/8Wx3Y/f7BFkHFQMn8JYdn7RoJZv7c7x
-crSkZnDgZ4ss/WOQzUpEg0NBa451gstRfPhHyXHmuDRHvZ8UezgzE7xv1CvmwUdj
-77OgywBwtb8qhLJG2AeTLNs/wOKNZs/gvF8EbECY/YyoNywvSko1cfdesZHlruNZ
-9x1bHoyjI5qWhLAscejjZt/6IojXNDH/gY8XBf+iFUegt0eU9uI2g+gH/0JWWz4n
-GekHaK0ptUW06irdRuE+XrU6VxrtKUE+OwFoNC9GMuarPvAVeOhfwK5mrBY3TwL5
-aXCw8h00zYiwlb7tbBXT/kQrcnWPE1/ofb5mARcUPOByJwu4/GI=
-=jv1E
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxYHgEACgkQFA3kzBSg
+Kbb0yg//WZeJC9fFYgn0TgSgaJtUKhbio5vIW5421FnnTqDXpsKgLCDLb6SPgMDO
+yOCCUEO3YEMcT2I1lvNiifmlx6AKzJwew5OTBLu8tZsHmcuXvqRvitUkefUOwiyp
+39KKZ0RVho6GrfO0u2C1vZ25zkl1t3ITiv+Uu/BiFcijQtDeDk3qc6vRc/V/HSe7
+oLAMrqwkmeC21acAo+tUUv7iKMck0QVjCbRCoReY+fs3+wp32Iq6Swr0n51h9hvC
+q7dYvYC7JOnIBULotb9p0hzDbH1luaEFEplt/vqiyo7cofWDvnS4MHRlxaLgh6y/
+BmhZaUTlo9wXoYa27GYXcslYrPwcJBn4GDe11IYhb06UR1s6/SlHHHzu9GwJQvMy
+wEYO/oD3UB4EHiyJLhrJ1zcX3YadeFL3kfTK0lly/EbQXGHpKrPC+RwMrv5MakZz
+YHDD+oDSE7992/+5W1a4KcBRjrlWrp/Hn0H7H1dJqHOKBJIOlA9MUSFK/2qgYTID
+ivkXla6Eh607+hztT4G7xkJMyQYQaJDicc0vhkDUxRQDUz3o83jTqVDgvjmCdP2o
+d6lCkNHN835HWfbrQofxyuqgWh/mt4zlYEJvirfIS0QDECF/2Px0p/rPanxM5a78
+S0V8Ldlx7l8rUzLaGHDRpQwOkpZKfTi8pWCOnqXQKPzFWmax/Ao=
+=UhRC
 -----END PGP SIGNATURE-----
 
---uXxzq0nDebZQVNAZ--
+--sdtB3X0nJg68CQEu--
