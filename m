@@ -1,53 +1,55 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 1/6] dt-bindings: i2c: Add Mediatek MT7629 i2c binding
-Date: Tue, 5 Feb 2019 14:10:19 +0100
-Message-ID: <20190205131019.GC12401@kunai>
+Subject: Re: [PATCH v3 2/6] i2c: mediatek: speeds is replaced by macros
+ definitions
+Date: Tue, 5 Feb 2019 14:11:20 +0100
+Message-ID: <20190205131120.GD12401@kunai>
 References: <1548057574-8061-1-git-send-email-qii.wang@mediatek.com>
- <1548057574-8061-2-git-send-email-qii.wang@mediatek.com>
+ <1548057574-8061-3-git-send-email-qii.wang@mediatek.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Y5rl02BVI9TCfPar"
+        protocol="application/pgp-signature"; boundary="48TaNjbzBVislYPb"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1548057574-8061-2-git-send-email-qii.wang@mediatek.com>
+In-Reply-To: <1548057574-8061-3-git-send-email-qii.wang@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: qii wang <qii.wang@mediatek.com>
 Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, ryder.lee@mediatek.com, xinping.qian@mediatek.com, liguo.zhang@mediatek.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---Y5rl02BVI9TCfPar
+--48TaNjbzBVislYPb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 21, 2019 at 03:59:29PM +0800, qii wang wrote:
-> Add MT7629 i2c binding to binding file.
+On Mon, Jan 21, 2019 at 03:59:30PM +0800, qii wang wrote:
+> Different speeds have been defined by macros,
+> so we use macros definitions.
 >=20
 > Signed-off-by: qii wang <qii.wang@mediatek.com>
-> Reviewed-by: Rob Herring <robh@kernel.org>
+> Reviewed-by: Nicolas Boichat <drinkcat@chromium.org>
 
 Applied to for-next, thanks!
 
 
---Y5rl02BVI9TCfPar
+--48TaNjbzBVislYPb
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxZizsACgkQFA3kzBSg
-KbaOBhAAn5gQBSiH1zVHGMVVEsoQ/iM3aRvgJzIe+Kw2ewEd7DgSUl2MfFHDeKO/
-GAnml9dH6/28H68FMncaHXzgCasUBM2Kuigbdbhhrhe3pbojdmH4+bkWCYvg5wU8
-yC1S85m8C2T4xuvYm7ZvM4A+ieo98xyki7rRIkAwdDRppGo7AUQav1ZH5GhWj33o
-DeFJD9gKK9AYNN/5qOnYIpA8AmpFSRJ7t2cTNZ6Ykyo1nSwHs/DebJ46U10uoOwI
-SKReqsDzPj3b938asqh8EPVgcaRZTjQhY/BnL0I8kHL4jvBZLICNNsoJOneRnuMO
-mYOjOdI9rps9vv54HddOji5BtLmqEiB8Dj/4bmo7SPvdJyJJoCOCA3DOaS0VPK/N
-bS72M3axP3nGa1g8WxlQqv4qGBBf1Xx4tmzpMQ0tQqDPx33Vpmvfr0Ka+ZHqYfte
-FF1fiO79hKG48G1itlJE3iXV8AwPlD4YiBBOYxk0gQu/alWDaF4bVKeKI8hFDkFt
-w2V3/a+5/EOMWHHzGePqiZdzifw1ugK6cTK4Q2Q6obFfkSayp9kfUjTYal08OM6Z
-cyFdtGEuhefi774hr3QfR2oFcBKUQiz1TSk2zn0wE3g16UdOi3XiBEecQCIOPrsb
-XLB80WMrseoVQiCUCqDqKqU4zyEeynKHHqXPO5OACATXNpHIiAM=
-=LkO+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxZi3gACgkQFA3kzBSg
+KbbeYg//ZD5cth5gtax9A5yxAmHxRFYNjzjqpu6PFhKbUl50V+JFr/m0p4olHjJ7
+0JMgRqdbfdsU+UWiqCw41N4T97aL/yQZ0GZCFEBfCS1vz30pzqzx9+inufmfjF8z
+dAZV/SB9wRcAjfNaAA/k094Mkrkjo3mBgCMnmKDt7BtVUlFW3GeimXBfpOCiBnY8
+Ldzd96pSeHhDTgnyeTmi/OEcF278UVg6MmJ+NPlycVCBjhMOYACMcXgYkMxWBpSh
+uEnsyuv2+oH3+IvLBJfYQRUL6Su1g3LVIY3o/HGE+2OYX/YAfnLYI8RTzVcGOxuE
+HwEKqGMcpn0O6zZmo56BtSBzg2DdQ4pwx7OMLCg/5v7Npqwf56fbjDsoIrYAlM3K
+jEcCm95V96C43l0Bad8cem2gYvZclvISEoZccqg4xNe0dAPeYmj4mkqpjNTTQE72
+NLYj+dxVjNowwgJDQNqkjFg65opQo38eCtoAACwR2wmiJM0D9Ixa2FkoyGODynwY
+LPFlkUHu/UrM42P2gJRSbjx687lyK5baIRDIeVj/p5dyutIES5/nTpqMUqyWqbmX
+0LHmxyVb7yecF8SQrlEYswn1Ge6K3hWaGBozdL+UxGhXAoVoo+OmYs+RYYFra5vN
+wvWQ2GU1mumGMLSaJHAF/+j5VDkpRpvx3hEu2Ws46rfjRnkprwo=
+=ch0i
 -----END PGP SIGNATURE-----
 
---Y5rl02BVI9TCfPar--
+--48TaNjbzBVislYPb--
