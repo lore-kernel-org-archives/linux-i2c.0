@@ -1,78 +1,74 @@
-From: John Sperbeck <jsperbeck@google.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH] i2c: core-smbus: don't trace smbus_reply data on errors
-Date: Tue, 5 Feb 2019 09:19:01 -0800
-Message-ID: <CAFNjLiU_KOmcBHykHt5JTr439DJVf=j=aGKpnObZfMx6nLreRQ@mail.gmail.com>
-References: <20190104004203.116155-1-jsperbeck@google.com> <20190103214927.2bf947ca@vmware.local.home>
+Date: Tue, 5 Feb 2019 20:08:50 +0100
+Message-ID: <20190205190849.GA2686@kunai>
+References: <20190104004203.116155-1-jsperbeck@google.com>
+ <20190103214927.2bf947ca@vmware.local.home>
  <20190205121353.GC1045@kunai>
+ <CAFNjLiU_KOmcBHykHt5JTr439DJVf=j=aGKpnObZfMx6nLreRQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190205121353.GC1045@kunai>
+Content-Disposition: inline
+In-Reply-To: <CAFNjLiU_KOmcBHykHt5JTr439DJVf=j=aGKpnObZfMx6nLreRQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+To: John Sperbeck <jsperbeck@google.com>
 Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Feb 5, 2019 at 4:14 AM Wolfram Sang <wsa@the-dreams.de> wrote:
->
-> On Thu, Jan 03, 2019 at 09:49:27PM -0500, Steven Rostedt wrote:
-> > On Thu,  3 Jan 2019 16:42:03 -0800
-> > John Sperbeck <jsperbeck@google.com> wrote:
-> >
-> > > If an smbus transfer fails, there's no guarantee that the output
-> > > buffer was written.  So, avoid copying from the output buffer when
-> > > tracing after an error.  This was 'mostly harmless', but would trip
-> > > up kasan checking if left-over cruft in byte 0 is a large length,
-> > > causing us to read from unwritten memory.
-> > >
-> > > Signed-off-by: John Sperbeck <jsperbeck@google.com>
-> > > ---
-> > >  drivers/i2c/i2c-core-smbus.c |  2 +-
-> > >  include/trace/events/smbus.h | 10 +++++-----
-> > >  2 files changed, 6 insertions(+), 6 deletions(-)
-> > >
-> > > diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
-> > > index 9cd66cabb84f..132119112596 100644
-> > > --- a/drivers/i2c/i2c-core-smbus.c
-> > > +++ b/drivers/i2c/i2c-core-smbus.c
-> > > @@ -585,7 +585,7 @@ s32 __i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
-> > >  trace:
-> > >     /* If enabled, the reply tracepoint is conditional on read_write. */
-> > >     trace_smbus_reply(adapter, addr, flags, read_write,
-> > > -                     command, protocol, data);
-> > > +                     command, protocol, data, res);
-> > >     trace_smbus_result(adapter, addr, flags, read_write,
-> > >                        command, protocol, res);
-> > >
-> > > diff --git a/include/trace/events/smbus.h b/include/trace/events/smbus.h
-> > > index d2fb6e1d3e10..b6376a7c7e74 100644
-> > > --- a/include/trace/events/smbus.h
-> > > +++ b/include/trace/events/smbus.h
-> > > @@ -138,8 +138,8 @@ TRACE_EVENT_CONDITION(smbus_reply,
-> > >     TP_PROTO(const struct i2c_adapter *adap,
-> > >              u16 addr, unsigned short flags,
-> > >              char read_write, u8 command, int protocol,
-> > > -            const union i2c_smbus_data *data),
-> > > -   TP_ARGS(adap, addr, flags, read_write, command, protocol, data),
-> > > +            const union i2c_smbus_data *data, int res),
-> > > +   TP_ARGS(adap, addr, flags, read_write, command, protocol, data, res),
-> > >     TP_CONDITION(read_write == I2C_SMBUS_READ),
-> >
-> > Hmm, instead of tracing nothing, as this is already a "conditional
-> > trace event", why not add to that condition:
-> >
-> >       TP_CONDITION(res >= 0 && read_write == I2C_SMBUS_READ),
-> >
-> > Unless you want to still trace some data on failure.
->
-> John, any comment to this?
->
 
-The issue we were dealing with was access to uninitialized memory on the stack.
-The change '30f939feaeee i2c: fix kernel memory disclosure in dev interface'
-does the initialization, so the tracing code is no longer affected.
-We just didn't
-have that change in the particular kernel we were testing.
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Still, Steven's suggestion seems fine to me.  Would you like me to create a new
-patch based on that?
+
+> > > Hmm, instead of tracing nothing, as this is already a "conditional
+> > > trace event", why not add to that condition:
+> > >
+> > >       TP_CONDITION(res >=3D 0 && read_write =3D=3D I2C_SMBUS_READ),
+> > >
+> > > Unless you want to still trace some data on failure.
+> >
+> > John, any comment to this?
+> >
+>=20
+> The issue we were dealing with was access to uninitialized memory on the =
+stack.
+> The change '30f939feaeee i2c: fix kernel memory disclosure in dev interfa=
+ce'
+> does the initialization, so the tracing code is no longer affected.
+> We just didn't
+> have that change in the particular kernel we were testing.
+>=20
+> Still, Steven's suggestion seems fine to me.  Would you like me to create=
+ a new
+> patch based on that?
+
+I am not a tracing expert, but all that was said here tell me that it
+would be better to have the change. So, yes, please, that would be
+appreciated.
+
+
+--HcAYCG3uE/tztfnV
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxZ3z0ACgkQFA3kzBSg
+KbZSnRAAse5m17YZ87jPvZW5/jzAYKc8+HNDT+dPU858YQKZ+Cun6dRL9WXVd3pr
+3tQXdDZ8/L6ruCeIegq32ZD5ogP1T3aZBpn/nYbehT+wn2lKklrbk76exBcpy6+x
+jmBv9DX4vPdMslFxOAHTTIoe70y3wGhIYZSP77U4qhtd5REB4NlbVjNRf0ley56L
+iqi5VB6GmsHBHgr6x8Wj/qb1/52FFvqFBnelDYttNfb3dBBGbAJV9Bgg23YmM2bw
+FeR+3ofSEhvaK3fnsNqNpclNHtciyGtKAkukHArTpdLsjYmZ5AanIihPHPRV7vVD
+dNq52DKALQ7A+XOp9vBDTMQBWPvEW9U9ykUyWSGqgnQgkzsjN1p37g/FAqDcf/zb
+Xa/6RvFnBa+MiQpiwWZoD5/VDzcbfGTdN+IHAXfhYKa5Ip7A8GRlnCofA+kW5jrT
+aCgTsWosKPsP1YNb0jv8novwOvFplxhQWlQmJRdGQia9hP5+N9+k/MbpkwtIP9Ln
+5z34sVQ5CvuUQ/UMEnKGSrp7ox3E6WV1IBu2ZUELUcUicv8P518qUtCulx8YWtPV
+IMdvvg1vM5K9DT3XSZIlGf2ZjsGZbQFzLcQsAB/gazx6XuvwrPxN21B98STNPrcf
+axyHXpfYM2d6aUfPqKlg8EfhgdcIHxIDEmwW/2oZjtXlRuMyMDk=
+=S5W0
+-----END PGP SIGNATURE-----
+
+--HcAYCG3uE/tztfnV--
