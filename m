@@ -1,412 +1,86 @@
-From: Dmitry Osipenko <digetx@gmail.com>
-Subject: Re: [PATCH V11 5/5] i2c: tegra: add i2c interface timing support
-Date: Tue, 5 Feb 2019 17:28:07 +0300
-Message-ID: <3357e516-7a79-41ec-2e25-18eb39e6bf3f@gmail.com>
+From: Sowjanya Komatineni <skomatineni@nvidia.com>
+Subject: RE: [PATCH V11 3/5] i2c: tegra: Add DMA support
+Date: Tue, 5 Feb 2019 16:41:20 +0000
+Message-ID: <BYAPR12MB339828E77EB4D67906A5F0AEC26E0@BYAPR12MB3398.namprd12.prod.outlook.com>
 References: <1549356985-25726-1-git-send-email-skomatineni@nvidia.com>
- <1549356985-25726-5-git-send-email-skomatineni@nvidia.com>
+ <1549356985-25726-3-git-send-email-skomatineni@nvidia.com>
+ <a9e264e2-87c9-e263-808a-b561e8ed4073@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1549356985-25726-5-git-send-email-skomatineni@nvidia.com>
+In-Reply-To: <a9e264e2-87c9-e263-808a-b561e8ed4073@gmail.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sowjanya Komatineni <skomatineni@nvidia.com>, thierry.reding@gmail.com, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com
-Cc: linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Dmitry Osipenko <digetx@gmail.com>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>
+Cc: "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-05.02.2019 11:56, Sowjanya Komatineni пишет:
-> This patch adds I2C interface timing registers support for
-> proper bus rate configuration along with meeting the i2c spec
-> setup and hold times based on the tuning performed on Tegra210,
-> Tegra186 and Tegra194 platforms.
-> 
-> I2C_INTERFACE_TIMING_0 register contains TLOW and THIGH field
-> and Tegra I2C controller design uses them as a part of internal
-> clock divisor.
-> 
-> I2C_INTERFACE_TIMING_1 register contains the setup and hold times
-> for start and stop conditions.
-> 
-> Acked-by: Thierry Reding <treding@nvidia.com>
-> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-> ---
->  [V9/V10/V11] : Same as V8
->  [V8] : Updated to handle timing implementation within tegra_i2c_init directly
->  [V7] : Minor updates to timing implementation
->  [V5/V6] : Added this Interface timing patch in V5 of the patch series.
-> 
->  drivers/i2c/busses/i2c-tegra.c | 189 ++++++++++++++++++++++++++++++++++-------
->  1 file changed, 160 insertions(+), 29 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-> index f7584f0ea7da..841cad6ccb57 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -129,6 +129,15 @@
->  #define I2C_MST_FIFO_STATUS_TX_MASK		0xff0000
->  #define I2C_MST_FIFO_STATUS_TX_SHIFT		16
->  
-> +#define I2C_INTERFACE_TIMING_0			0x94
-> +#define I2C_THIGH_SHIFT				8
-> +#define I2C_INTERFACE_TIMING_1			0x98
-> +
-> +#define I2C_STANDARD_MODE			100000
-> +#define I2C_FAST_MODE				400000
-> +#define I2C_FAST_PLUS_MODE			1000000
-> +#define I2C_HS_MODE				3500000
-> +
->  /* Packet header size in bytes */
->  #define I2C_PACKET_HEADER_SIZE			12
->  
-> @@ -166,7 +175,10 @@ enum msg_end_type {
->   * @has_config_load_reg: Has the config load register to load the new
->   *		configuration.
->   * @clk_divisor_hs_mode: Clock divisor in HS mode.
-> - * @clk_divisor_std_fast_mode: Clock divisor in standard/fast mode. It is
-> + * @clk_divisor_std_mode: Clock divisor in standard mode. It is
-> + *		applicable if there is no fast clock source i.e. single clock
-> + *		source.
-> + * @clk_divisor_fast_mode: Clock divisor in fast mode. It is
->   *		applicable if there is no fast clock source i.e. single clock
->   *		source.
->   * @clk_divisor_fast_plus_mode: Clock divisor in fast mode plus. It is
-> @@ -184,6 +196,16 @@ enum msg_end_type {
->   * @supports_bus_clear: Bus Clear support to recover from bus hang during
->   *		SDA stuck low from device for some unknown reasons.
->   * @has_apb_dma: Support of APBDMA on corresponding Tegra chip.
-> + * @tlow_std_mode: Low period of the clock in standard mode.
-> + * @thigh_std_mode: High period of the clock in standard mode.
-> + * @tlow_fast_fastplus_mode: Low period of the clock in fast/fast-plus modes.
-> + * @thigh_fast_fastplus_mode: High period of the clock in fast/fast-plus modes.
-> + * @setup_hold_time_std_mode: Setup and hold time for start and stop conditions
-> + *		in standard mode.
-> + * @setup_hold_time_fast_fast_plus_mode: Setup and hold time for start and stop
-> + *		conditions in fast/fast-plus modes.
-> + * @setup_hold_time_hs_mode: Setup and hold time for start and stop conditions
-> + *		in HS mode.
->   */
->  struct tegra_i2c_hw_feature {
->  	bool has_continue_xfer_support;
-> @@ -191,7 +213,8 @@ struct tegra_i2c_hw_feature {
->  	bool has_single_clk_source;
->  	bool has_config_load_reg;
->  	int clk_divisor_hs_mode;
-> -	int clk_divisor_std_fast_mode;
-> +	int clk_divisor_std_mode;
-> +	int clk_divisor_fast_mode;
->  	u16 clk_divisor_fast_plus_mode;
->  	bool has_multi_master_mode;
->  	bool has_slcg_override_reg;
-> @@ -199,6 +222,13 @@ struct tegra_i2c_hw_feature {
->  	const struct i2c_adapter_quirks *quirks;
->  	bool supports_bus_clear;
->  	bool has_apb_dma;
-> +	u8 tlow_std_mode;
-> +	u8 thigh_std_mode;
-> +	u8 tlow_fast_fastplus_mode;
-> +	u8 thigh_fast_fastplus_mode;
-> +	u32 setup_hold_time_std_mode;
-> +	u32 setup_hold_time_fast_fast_plus_mode;
-> +	u32 setup_hold_time_hs_mode;
->  };
->  
->  /**
-> @@ -666,11 +696,13 @@ static int tegra_i2c_wait_for_config_load(struct tegra_i2c_dev *i2c_dev)
->  	return 0;
->  }
->  
-> -static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
-> +static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev, bool clk_reinit)
->  {
->  	u32 val;
->  	int err;
-> -	u32 clk_divisor;
-> +	u32 clk_divisor, clk_multiplier;
-> +	u32 tsu_thd = 0;
-> +	u8 tlow, thigh;
->  
->  	err = pm_runtime_get_sync(i2c_dev->dev);
->  	if (err < 0) {
-> @@ -700,6 +732,36 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
->  					I2C_CLK_DIVISOR_STD_FAST_MODE_SHIFT;
->  	i2c_writel(i2c_dev, clk_divisor, I2C_CLK_DIVISOR);
->  
-> +	if ((i2c_dev->bus_clk_rate > I2C_STANDARD_MODE) &&
-> +	    (i2c_dev->bus_clk_rate <= I2C_FAST_PLUS_MODE)) {
-
-CHECK: Unnecessary parentheses around 'i2c_dev->bus_clk_rate > I2C_STANDARD_MODE'
-#1282: FILE: drivers/i2c/busses/i2c-tegra.c:735:
-+       if ((i2c_dev->bus_clk_rate > I2C_STANDARD_MODE) &&
-+           (i2c_dev->bus_clk_rate <= I2C_FAST_PLUS_MODE)) {
-
-CHECK: Unnecessary parentheses around 'i2c_dev->bus_clk_rate <= I2C_FAST_PLUS_MODE'
-#1282: FILE: drivers/i2c/busses/i2c-tegra.c:735:
-+       if ((i2c_dev->bus_clk_rate > I2C_STANDARD_MODE) &&
-+           (i2c_dev->bus_clk_rate <= I2C_FAST_PLUS_MODE)) {
-
-
-> +		tlow = i2c_dev->hw->tlow_fast_fastplus_mode;
-> +		thigh = i2c_dev->hw->thigh_fast_fastplus_mode;
-> +		tsu_thd = i2c_dev->hw->setup_hold_time_fast_fast_plus_mode;
-> +	} else {
-> +		tlow = i2c_dev->hw->tlow_std_mode;
-> +		thigh = i2c_dev->hw->thigh_std_mode;
-> +		tsu_thd = i2c_dev->hw->setup_hold_time_std_mode;
-> +	}
-> +
-> +	val = (thigh << I2C_THIGH_SHIFT) | tlow;
-> +	if (val)
-> +		i2c_writel(i2c_dev, val, I2C_INTERFACE_TIMING_0);
-> +
-> +	if (tsu_thd)
-> +		i2c_writel(i2c_dev, tsu_thd, I2C_INTERFACE_TIMING_1);
-> +
-> +	if (!clk_reinit) {
-> +		clk_multiplier = (tlow + thigh + 2);
-> +		clk_multiplier *= (i2c_dev->clk_divisor_non_hs_mode + 1);
-> +		err = clk_set_rate(i2c_dev->div_clk,
-> +				   i2c_dev->bus_clk_rate * clk_multiplier);
-> +		if (err) {
-> +			dev_err(i2c_dev->dev,
-> +				"failed changing clock rate: %d\n", err);
-> +			goto err;
-> +		}
-> +	}
-> +
->  	if (!i2c_dev->is_dvc) {
->  		u32 sl_cfg = i2c_readl(i2c_dev, I2C_SL_CNFG);
->  
-> @@ -1106,7 +1168,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
->  			dmaengine_terminate_sync(i2c_dev->msg_read ?
->  						  i2c_dev->rx_dma_chan :
->  						  i2c_dev->tx_dma_chan);
-> -			tegra_i2c_init(i2c_dev);
-> +			tegra_i2c_init(i2c_dev, true);
->  			return -ETIMEDOUT;
->  		}
->  
-> @@ -1133,7 +1195,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
->  	if (time_left == 0) {
->  		dev_err(i2c_dev->dev, "i2c transfer timed out\n");
->  
-> -		tegra_i2c_init(i2c_dev);
-> +		tegra_i2c_init(i2c_dev, true);
->  		return -ETIMEDOUT;
->  	}
->  
-> @@ -1145,7 +1207,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
->  	if (likely(i2c_dev->msg_err == I2C_ERR_NONE))
->  		return 0;
->  
-> -	tegra_i2c_init(i2c_dev);
-> +	tegra_i2c_init(i2c_dev, true);
->  	/* start recovery upon arbitration loss in single master mode */
->  	if (i2c_dev->msg_err == I2C_ERR_ARBITRATION_LOST) {
->  		if (!i2c_dev->is_multimaster_mode)
-> @@ -1240,7 +1302,8 @@ static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
->  	.has_per_pkt_xfer_complete_irq = false,
->  	.has_single_clk_source = false,
->  	.clk_divisor_hs_mode = 3,
-> -	.clk_divisor_std_fast_mode = 0,
-> +	.clk_divisor_std_mode = 0,
-> +	.clk_divisor_fast_mode = 0,
->  	.clk_divisor_fast_plus_mode = 0,
->  	.has_config_load_reg = false,
->  	.has_multi_master_mode = false,
-> @@ -1249,6 +1312,13 @@ static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
->  	.quirks = &tegra_i2c_quirks,
->  	.supports_bus_clear = false,
->  	.has_apb_dma = true,
-> +	.tlow_std_mode = 0x4,
-> +	.thigh_std_mode = 0x2,
-> +	.tlow_fast_fastplus_mode = 0x4,
-> +	.thigh_fast_fastplus_mode = 0x2,
-> +	.setup_hold_time_std_mode = 0x0,
-> +	.setup_hold_time_fast_fast_plus_mode = 0x0,
-> +	.setup_hold_time_hs_mode = 0x0,
->  };
->  
->  static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
-> @@ -1256,7 +1326,8 @@ static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
->  	.has_per_pkt_xfer_complete_irq = false,
->  	.has_single_clk_source = false,
->  	.clk_divisor_hs_mode = 3,
-> -	.clk_divisor_std_fast_mode = 0,
-> +	.clk_divisor_std_mode = 0,
-> +	.clk_divisor_fast_mode = 0,
->  	.clk_divisor_fast_plus_mode = 0,
->  	.has_config_load_reg = false,
->  	.has_multi_master_mode = false,
-> @@ -1265,6 +1336,13 @@ static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
->  	.quirks = &tegra_i2c_quirks,
->  	.supports_bus_clear = false,
->  	.has_apb_dma = true,
-> +	.tlow_std_mode = 0x4,
-> +	.thigh_std_mode = 0x2,
-> +	.tlow_fast_fastplus_mode = 0x4,
-> +	.thigh_fast_fastplus_mode = 0x2,
-> +	.setup_hold_time_std_mode = 0x0,
-> +	.setup_hold_time_fast_fast_plus_mode = 0x0,
-> +	.setup_hold_time_hs_mode = 0x0,
->  };
->  
->  static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
-> @@ -1272,7 +1350,8 @@ static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
->  	.has_per_pkt_xfer_complete_irq = true,
->  	.has_single_clk_source = true,
->  	.clk_divisor_hs_mode = 1,
-> -	.clk_divisor_std_fast_mode = 0x19,
-> +	.clk_divisor_std_mode = 0x19,
-> +	.clk_divisor_fast_mode = 0x19,
->  	.clk_divisor_fast_plus_mode = 0x10,
->  	.has_config_load_reg = false,
->  	.has_multi_master_mode = false,
-> @@ -1281,6 +1360,13 @@ static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
->  	.quirks = &tegra_i2c_quirks,
->  	.supports_bus_clear = true,
->  	.has_apb_dma = true,
-> +	.tlow_std_mode = 0x4,
-> +	.thigh_std_mode = 0x2,
-> +	.tlow_fast_fastplus_mode = 0x4,
-> +	.thigh_fast_fastplus_mode = 0x2,
-> +	.setup_hold_time_std_mode = 0x0,
-> +	.setup_hold_time_fast_fast_plus_mode = 0x0,
-> +	.setup_hold_time_hs_mode = 0x0,
->  };
->  
->  static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
-> @@ -1288,7 +1374,8 @@ static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
->  	.has_per_pkt_xfer_complete_irq = true,
->  	.has_single_clk_source = true,
->  	.clk_divisor_hs_mode = 1,
-> -	.clk_divisor_std_fast_mode = 0x19,
-> +	.clk_divisor_std_mode = 0x19,
-> +	.clk_divisor_fast_mode = 0x19,
->  	.clk_divisor_fast_plus_mode = 0x10,
->  	.has_config_load_reg = true,
->  	.has_multi_master_mode = false,
-> @@ -1297,6 +1384,13 @@ static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
->  	.quirks = &tegra_i2c_quirks,
->  	.supports_bus_clear = true,
->  	.has_apb_dma = true,
-> +	.tlow_std_mode = 0x4,
-> +	.thigh_std_mode = 0x2,
-> +	.tlow_fast_fastplus_mode = 0x4,
-> +	.thigh_fast_fastplus_mode = 0x2,
-> +	.setup_hold_time_std_mode = 0x0,
-> +	.setup_hold_time_fast_fast_plus_mode = 0x0,
-> +	.setup_hold_time_hs_mode = 0x0,
->  };
->  
->  static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
-> @@ -1304,7 +1398,8 @@ static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
->  	.has_per_pkt_xfer_complete_irq = true,
->  	.has_single_clk_source = true,
->  	.clk_divisor_hs_mode = 1,
-> -	.clk_divisor_std_fast_mode = 0x19,
-> +	.clk_divisor_std_mode = 0x19,
-> +	.clk_divisor_fast_mode = 0x19,
->  	.clk_divisor_fast_plus_mode = 0x10,
->  	.has_config_load_reg = true,
->  	.has_multi_master_mode = true,
-> @@ -1313,27 +1408,67 @@ static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
->  	.quirks = &tegra_i2c_quirks,
->  	.supports_bus_clear = true,
->  	.has_apb_dma = true,
-> +	.tlow_std_mode = 0x4,
-> +	.thigh_std_mode = 0x2,
-> +	.tlow_fast_fastplus_mode = 0x4,
-> +	.thigh_fast_fastplus_mode = 0x2,
-> +	.setup_hold_time_std_mode = 0,
-> +	.setup_hold_time_fast_fast_plus_mode = 0,
-> +	.setup_hold_time_hs_mode = 0,
->  };
->  
-> -static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
-> +static const struct tegra_i2c_hw_feature tegra186_i2c_hw = {
->  	.has_continue_xfer_support = true,
->  	.has_per_pkt_xfer_complete_irq = true,
->  	.has_single_clk_source = true,
->  	.clk_divisor_hs_mode = 1,
-> -	.clk_divisor_std_fast_mode = 0x19,
-> +	.clk_divisor_std_mode = 0x16,
-> +	.clk_divisor_fast_mode = 0x19,
->  	.clk_divisor_fast_plus_mode = 0x10,
->  	.has_config_load_reg = true,
->  	.has_multi_master_mode = true,
->  	.has_slcg_override_reg = true,
->  	.has_mst_fifo = true,
-> +	.quirks = &tegra_i2c_quirks,
-> +	.supports_bus_clear = true,
-> +	.has_apb_dma = false,
-> +	.tlow_std_mode = 0x4,
-> +	.thigh_std_mode = 0x3,
-> +	.tlow_fast_fastplus_mode = 0x4,
-> +	.thigh_fast_fastplus_mode = 0x2,
-> +	.setup_hold_time_std_mode = 0,
-> +	.setup_hold_time_fast_fast_plus_mode = 0,
-> +	.setup_hold_time_hs_mode = 0,
-> +};
-> +
-> +static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
-> +	.has_continue_xfer_support = true,
-> +	.has_per_pkt_xfer_complete_irq = true,
-> +	.has_single_clk_source = true,
-> +	.clk_divisor_hs_mode = 1,
-> +	.clk_divisor_std_mode = 0x4f,
-> +	.clk_divisor_fast_mode = 0x3c,
-> +	.clk_divisor_fast_plus_mode = 0x16,
-> +	.has_config_load_reg = true,
-> +	.has_multi_master_mode = true,
-> +	.has_slcg_override_reg = true,
-> +	.has_mst_fifo = true,
->  	.quirks = &tegra194_i2c_quirks,
->  	.supports_bus_clear = true,
->  	.has_apb_dma = false,
-> +	.tlow_std_mode = 0x8,
-> +	.thigh_std_mode = 0x7,
-> +	.tlow_fast_fastplus_mode = 0x2,
-> +	.thigh_fast_fastplus_mode = 0x2,
-> +	.setup_hold_time_std_mode = 0x08080808,
-> +	.setup_hold_time_fast_fast_plus_mode = 0x02020202,
-> +	.setup_hold_time_hs_mode = 0x090909,
->  };
->  
->  /* Match table for of_platform binding */
->  static const struct of_device_id tegra_i2c_of_match[] = {
->  	{ .compatible = "nvidia,tegra194-i2c", .data = &tegra194_i2c_hw, },
-> +	{ .compatible = "nvidia,tegra186-i2c", .data = &tegra186_i2c_hw, },
->  	{ .compatible = "nvidia,tegra210-i2c", .data = &tegra210_i2c_hw, },
->  	{ .compatible = "nvidia,tegra124-i2c", .data = &tegra124_i2c_hw, },
->  	{ .compatible = "nvidia,tegra114-i2c", .data = &tegra114_i2c_hw, },
-> @@ -1354,7 +1489,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
->  	phys_addr_t base_phys;
->  	int irq;
->  	int ret = 0;
-> -	int clk_multiplier = I2C_CLK_MULTIPLIER_STD_FAST_MODE;
->  
->  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	base_phys = res->start;
-> @@ -1425,20 +1559,17 @@ static int tegra_i2c_probe(struct platform_device *pdev)
->  		}
->  	}
->  
-> -	i2c_dev->clk_divisor_non_hs_mode =
-> -			i2c_dev->hw->clk_divisor_std_fast_mode;
-> -	if (i2c_dev->hw->clk_divisor_fast_plus_mode &&
-> -		(i2c_dev->bus_clk_rate == 1000000))
-> +	if ((i2c_dev->bus_clk_rate > I2C_FAST_MODE) &&
-> +	    (i2c_dev->bus_clk_rate <= I2C_FAST_PLUS_MODE))
-
-CHECK: Unnecessary parentheses around 'i2c_dev->bus_clk_rate > I2C_FAST_MODE'
-#1534: FILE: drivers/i2c/busses/i2c-tegra.c:1562:
-+       if ((i2c_dev->bus_clk_rate > I2C_FAST_MODE) &&
-+           (i2c_dev->bus_clk_rate <= I2C_FAST_PLUS_MODE))
-
-CHECK: Unnecessary parentheses around 'i2c_dev->bus_clk_rate <= I2C_FAST_PLUS_MODE'
-#1534: FILE: drivers/i2c/busses/i2c-tegra.c:1562:
-+       if ((i2c_dev->bus_clk_rate > I2C_FAST_MODE) &&
-+           (i2c_dev->bus_clk_rate <= I2C_FAST_PLUS_MODE))
-
-[snip]
+PiBQbGVhc2UgdXNlICIuL3NjcmlwdHMvY2hlY2twYXRjaC5wbCAtLXN0cmljdCAqLnBhdGNoIiBh
+bmQgZml4IGFsbCBpdHMgY29tcGxhaW5zLCBidXQgb25seSB0aG9zZSB0aGF0IHJlYWxseSBtYWtl
+IHNlbnNlLiBGb3IgZXhhbXBsZSBpZ25vcmUgdGhlICJDSEVDSzogTGluZXMgc2hvdWxkIG5vdCBl
+bmQgd2l0aCBhICcoJyIgd2FybmluZ3MuIA0KPg0KPkhlcmUgY2hlY2twYXRjaCByZWNvbW1lbmRz
+IHRvIHVzZSB0aGUgQklUKCkgbWFjcm86DQo+DQo+IENIRUNLOiBQcmVmZXIgdXNpbmcgdGhlIEJJ
+VCBtYWNybw0KPiAjMzk0OiBGSUxFOiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLXRlZ3JhLmM6MTM2
+Og0KPiArI2RlZmluZSBEQVRBX0RNQV9ESVJfVFggICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICgxIDw8IDApDQo+DQo+IENIRUNLOiBQcmVmZXIgdXNpbmcgdGhlIEJJVCBtYWNybw0KPiAj
+Mzk1OiBGSUxFOiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLXRlZ3JhLmM6MTM3Og0KPiArI2RlZmlu
+ZSBEQVRBX0RNQV9ESVJfUlggICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICgxIDw8IDEp
+DQoNCkkgdXNlZCBjaGVja3BhdGNoIHNjcmlwdCwgYW5kIGl0IGRpZG7igJl0IHNob3dlZCB0aGVz
+ZSBlcnJvcnMuIFByb2JhYmx5IGNoZWNrcGF0Y2ggc2NyaXB0IHZlcnNpb25zIGFyZSBkaWZmZXJl
+bnQuIEkgYW0gdXNpbmcgdGhlIG9uZSBmcm9tIDUuMC1yYzQNCg0KPiArc3RhdGljIGludCB0ZWdy
+YV9pMmNfZG1hX3N1Ym1pdChzdHJ1Y3QgdGVncmFfaTJjX2RldiAqaTJjX2Rldiwgc2l6ZV90IA0K
+PiArbGVuKSB7DQo+ICsJc3RydWN0IGRtYV9hc3luY190eF9kZXNjcmlwdG9yICpkbWFfZGVzYzsN
+Cj4gKwllbnVtIGRtYV90cmFuc2Zlcl9kaXJlY3Rpb24gZGlyOw0KPiArCXN0cnVjdCBkbWFfY2hh
+biAqY2hhbjsNCj4gKw0KPiArCWRldl9kYmcoaTJjX2Rldi0+ZGV2LCAic3RhcnRpbmcgRE1BIGZv
+ciBsZW5ndGg6ICV6dVxuIiwgbGVuKTsNCj4gKwlyZWluaXRfY29tcGxldGlvbigmaTJjX2Rldi0+
+ZG1hX2NvbXBsZXRlKTsNCj4gKwlkaXIgPSBpMmNfZGV2LT5tc2dfcmVhZCA/IERNQV9ERVZfVE9f
+TUVNIDogRE1BX01FTV9UT19ERVY7DQo+ICsJY2hhbiA9IGkyY19kZXYtPm1zZ19yZWFkID8gaTJj
+X2Rldi0+cnhfZG1hX2NoYW4gOiBpMmNfZGV2LT50eF9kbWFfY2hhbjsNCj4gKwlkbWFfZGVzYyA9
+IGRtYWVuZ2luZV9wcmVwX3NsYXZlX3NpbmdsZShjaGFuLCBpMmNfZGV2LT5kbWFfcGh5cywNCj4g
+KwkJCQkJICAgICAgIGxlbiwgZGlyLCBETUFfUFJFUF9JTlRFUlJVUFQgfA0KPiArCQkJCQkgICAg
+ICAgRE1BX0NUUkxfQUNLKTsNCj4gKwlpZiAoIWRtYV9kZXNjKSB7DQo+ICsJCWRldl9lcnIoaTJj
+X2Rldi0+ZGV2LCAiZmFpbGVkIHRvIGdldCBETUEgZGVzY3JpcHRvclxuIik7DQo+ICsJCXJldHVy
+biAtRUlPOw0KPg0KPiBSZXR1cm5pbmcgdGhlIC1FSU8gaXMgdGVjaG5pY2FsbHkgaW5jb3JyZWN0
+IGJlY2F1c2UgdGhlcmUgaXMgbm8gaGFyZHdhcmUgZmFpbHVyZSBoZXJlLiBUaGUgZG1hZW5naW5l
+X3ByZXBfc2xhdmVfc2luZ2xlKCkgbWVyZWx5IGFsbG9jYXRlcyB0aGUgRE1BIGRlc2NyaXB0b3Is
+IGhlbmNlIGl0IHNob3VsZCBiZSBlaXRoZXIgLUVJTlZBTCAocHJlZmVyYWJseSkgb3IgYXQgbGVh
+c3QgLUVOT01FTS4NCj4NCj4gT2gsIGFub3RoZXIgaW1wb3J0YW50IG1vbWVudCBpcyB0aGF0IHBo
+eXNpY2FsbHkgY29udGlndW91cyBkbWFfYnVmIGFsbG9jYXRpb24gaXNuJ3QgZ3VhcmFudGVlZCBi
+eSB0aGUgRE1BIEFQSS4gVGhpcyBtYXkgYmVjb21lIGEgcHJvYmxlbSBmb3IgVDE4NisgdGhhdCBj
+YW4gdHJhbnNmZXIgdXAgdG8gNjRLLiBXZSBuZWVkIHRvIGVuZm9yY2UgdGhlIGNvbnRpZ3VvdXMt
+YWxsb2NhdGlvbiByZXF1aXJlbWVudCBieSB1c2luZyA+IGRtYV9hbGxvY19hdHRycyhETUFfQVRU
+Ul9GT1JDRV9DT05USUdVT1VTKSBpbnN0ZWFkIG9mIHRoZSBkbWFfYWxsb2NfY29oZXJlbnQoKSwg
+cGxlYXNlIHNlZSBteSBvdGhlciBjb21tZW50IGJlbG93Lg0KDQpGYWlsdXJlIHJldHVybmVkIGZy
+b20gZG1hIHN1Ym1pdCB3aWxsIGJlIHJldHVybmVkIGJ5IGkyYyB4ZmVyIG1lc3NhZ2UgYW5kIHVz
+aW5nIEVJTyBoZXJlIGFzIGRtYWVuZ2luZV9wcmVwX3NsYXZlX3NpbmdsZSBjYW4gcmVzdWx0IGlu
+IG11bHRpcGxlIGZhaWx1cmVzIChpbnZhbGlkIHNlZ21lbnQgbGVuZ3RoLCAgZmFpbGluZyBkbWEg
+ZGVzYyBhbGxvY2F0aW9uLCBkbWEgbGVuZ3RoL21lbW9yeSBjaGVjaywgbm8gYXZhaWxhYmxlIGRt
+YSBzZy1yZWcpDQpBcyBwZXIgSTJDIGZhdWx0IGNvZGVzLCBFSU8gY2FuIGJlIHVzZWQgaW5kaWNh
+dGluZyB3aGVuIHNvbWV0aGluZyB3ZW50IHdyb25nIGR1cmluZyBwZXJmb3JtaW5nIElPIG9wZXJh
+dGlvbi4NCg0KVXNpbmcgRUlOVkFMIGRvZXNu4oCZdCBzdWl0IGlmIGZhaWx1cmUgaXMgZnJvbSBh
+bGxvY2F0aW9uIGFuZCB1c2luZyBFTk9NRU0gZG9lc27igJl0IHN1aXQgaWYgZmFpbHVyZSBpcyBk
+dWUgdG8gbGVuZ3RoL21lbW9yeSwgc2VnbWVudCBsZW5ndGggY2hlY2suDQoNCldpbGwgdXNlIEZP
+UkNFX0NPTlRJR1VPVVMuDQoNCg0KDQo+ID4gKwlkbWFfYnVmID0gZG1hX2FsbG9jX2NvaGVyZW50
+KGkyY19kZXYtPmRldiwgaTJjX2Rldi0+ZG1hX2J1Zl9zaXplLA0KPiA+ICsJCQkJICAgICAmZG1h
+X3BoeXMsIEdGUF9LRVJORUwgfCBfX0dGUF9OT1dBUk4pOw0KPiANCj4gUGxlYXNlIHVzZSBkbWFf
+YWxsb2NfYXR0cnMoKSBpbnN0ZWFkIG9mIGRtYV9hbGxvY19jb2hlcmVudCgpIGJlY2F1c2UgaXQg
+Y291bGQgcmV0dXJuIGEgc3BhcnNlIGFsbG9jYXRpb24uIFRoaXMgaXMgZXNwZWNpYWxseSB0cm91
+Ymxlc29tZSA+IGZvciBBUk02NCBwbGF0Zm9ybXMgYmVjYXVzZSBJT01NVV9ET01BSU5fRE1BIGlz
+IHVzZWQgYnkgZGVmYXVsdCB0aGVyZS4gV2UgbmVlZCB0byBleHBsaWNpdGx5IGFzayBmb3IgdGhl
+IGNvbnRpZ3VvdXMgYWxsb2NhdGlvbjoNCj4gDQo+DQo+CWRtYV9idWYgPSBkbWFfYWxsb2NfYXR0
+cnMoaTJjX2Rldi0+ZGV2LCBpMmNfZGV2LT5kbWFfYnVmX3NpemUsDQo+CQkJCSAgJmRtYV9waHlz
+LCBHRlBfS0VSTkVMLA0KPgkJCQkgIERNQV9BVFRSX0ZPUkNFX0NPTlRJR1VPVVMgfA0KPgkJCQkg
+IERNQV9BVFRSX05PX1dBUk4pOw0KPg0KV2lsbCBzd2l0Y2ggdG8gdXNlIGRtYV9hbGxvY19hdHRy
+cyB3aXRoIENPTlRJR1VPVVMNCj4NCj4NCj4NCj4NCj4gQ0hFQ0s6IG11bHRpcGxlIGFzc2lnbm1l
+bnRzIHNob3VsZCBiZSBhdm9pZGVkDQo+ICM3NjM6IEZJTEU6IGRyaXZlcnMvaTJjL2J1c3Nlcy9p
+MmMtdGVncmEuYzo5OTM6DQo+ICsgICAgICAgICAgICAgICBpMmNfZGV2LT5pc19jdXJyX2RtYV94
+ZmVyID0gZG1hID0gZmFsc2UNCj4NCj4gQ0hFQ0s6IFVubmVjZXNzYXJ5IHBhcmVudGhlc2VzIGFy
+b3VuZCAnaTJjX2Rldi0+bXNnX2VyciA9PSBJMkNfRVJSX05PTkUnDQo+ICM4Nzc6IEZJTEU6IGRy
+aXZlcnMvaTJjL2J1c3Nlcy9pMmMtdGVncmEuYzoxMTA1Og0KPiArICAgICAgICAgICAgICAgaWYg
+KGkyY19kZXYtPm1zZ19yZWFkICYmIChpMmNfZGV2LT5tc2dfZXJyID09IA0KPiArIEkyQ19FUlJf
+Tk9ORSkpIHsNCj4gQ0hFQ0s6IEFsaWdubWVudCBzaG91bGQgbWF0Y2ggb3BlbiBwYXJlbnRoZXNp
+cw0KPiAjODgzOiBGSUxFOiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLXRlZ3JhLmM6MTExMToNCj4g
+DQo+DQpTb21laG93IENoZWNrc2NyaXB0IGRpZG7igJl0IHNob3dlZCB0aGlzIGVpdGhlciB3aGVu
+IEkgcmFuLiBQcm9iYWJseSBkdWUgdG8gZGlmZiBzY3JpcHQgdmVyc2lvbnMuIEkgYW0gdXNpbmcg
+dGhlIG9uZSBmcm9tIDUuMC1yYzQuDQoNCg==
