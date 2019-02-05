@@ -1,82 +1,221 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Subject: Re: I2C bus locked: marvell mv64xxx i2c controller driver
-Date: Tue, 5 Feb 2019 20:58:57 +0100
-Message-ID: <20190205195857.oadxiswya5wq5hca@pengutronix.de>
-References: <CAEHvULnPFtCK9cD3GtFKoZ+OHaqN1ZJMmPxK+OPnYqhptk8t7w@mail.gmail.com>
+From: Sowjanya Komatineni <skomatineni@nvidia.com>
+Subject: [PATCH V12 2/5] i2c: tegra: add bus clear Master Support
+Date: Tue, 5 Feb 2019 14:46:06 -0800
+Message-ID: <1549406769-27544-2-git-send-email-skomatineni@nvidia.com>
+References: <1549406769-27544-1-git-send-email-skomatineni@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <CAEHvULnPFtCK9cD3GtFKoZ+OHaqN1ZJMmPxK+OPnYqhptk8t7w@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Roman Rozman <rozmanro@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1549406769-27544-1-git-send-email-skomatineni@nvidia.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: thierry.reding@gmail.com, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com
+Cc: digetx@gmail.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sowjanya Komatineni <skomatineni@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Cc +=3D linux-i2c
+Bus clear feature of Tegra I2C controller helps to recover from
+bus hang when I2C master loses the bus arbitration due to the
+slave device holding SDA LOW continuously for some unknown reasons.
 
-Hello,
+Per I2C specification, the device that held the bus LOW should
+release it within 9 clock pulses.
 
-On Tue, Feb 05, 2019 at 12:18:05PM +0200, Roman Rozman wrote:
-> Having an issue that i know was found many years ago, and there were
-> patches along the way for it, but i'm still having an issue.
-> =
+During bus clear operation, Tegra I2C controller sends 9 clock
+pulses and terminates the transaction with STOP condition.
+Upon successful bus clear operation, bus goes to idle state and
+driver retries the transaction.
 
-> I have a SFP connector connected to the switch, the EEprom is fine & read=
-able
-> ,the connector is working.
-> But after i reboot the device from user space,on startup an I2C bus
-> locked issue is happening.
-> And the EEprom of the i2c device is no longer readable.
-> =
+Acked-by: Thierry Reding <treding@nvidia.com>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+---
+ [V9/V10/V11/V12] : Rebased to 5.0-rc4
+ [V5/V6/V7/V8]	  : Same as V4
+ [V4]		  : Added I2C Bus Clear support patch to this version of series.
 
-> see screen capture during the reboot:
-> =
+ drivers/i2c/busses/i2c-tegra.c | 73 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 73 insertions(+)
 
-> [ 5.663823] i2c /dev entries driver
-> [ 5.852006] usb 1-1: new high-speed USB device number 2 using orion-ehci
-> [ 6.058964] usb-storage 1-1:1.0: USB Mass Storage device detected
-> [ 6.065221] scsi host0: usb-storage 1-1:1.0
-> [ 7.112857] scsi 0:0:0:0: Direct-Access Generic Ultra HS-COMBO 1.98 PQ: 0=
- ANSI: 0
-> [ 7.122702] sd 0:0:0:0: [sda] Attached SCSI removable disk
-> [ 7.752006] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-> [ 9.832006] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-> [ 11.912005] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-> [ 11.918603] lm75: probe of 1-0048 failed with error -110
-> [ 11.925496] orion_wdt: Initial timeout 171 sec
-> =
-
-> [ 14.472004] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
-> [ 14.478563] sfp sfp: failed to read EEPROM: -110
-> =
-
-> I read regarding the known "possible solution" that the master should
-> send nine clock pulses((SDA) is stuck LOW). And the device that held
-> the bus LOW should release it sometime within those nine clocks.
-> =
-
-> My question is there any GENERIC way to do that for the mv64xxx driver?
-> Or maybe there is some other solution for this.
-
-The relevant keyword here is "recovery". The i2c core has some helper
-functions that make it easy to reset the bus if your pins can be driven
-using a gpio functionality. See i2c_generic_scl_recovery() in
-drivers/i2c/i2c-core-base.c.
-
-Best regards
-Uwe
-
--- =
-
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 79c6aa87499b..118b7023a0f4 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -51,6 +51,7 @@
+ #define I2C_FIFO_STATUS_RX_SHIFT		0
+ #define I2C_INT_MASK				0x064
+ #define I2C_INT_STATUS				0x068
++#define I2C_INT_BUS_CLR_DONE			BIT(11)
+ #define I2C_INT_PACKET_XFER_COMPLETE		BIT(7)
+ #define I2C_INT_ALL_PACKETS_XFER_COMPLETE	BIT(6)
+ #define I2C_INT_TX_FIFO_OVERFLOW		BIT(5)
+@@ -93,6 +94,15 @@
+ #define I2C_HEADER_MASTER_ADDR_SHIFT		12
+ #define I2C_HEADER_SLAVE_ADDR_SHIFT		1
+ 
++#define I2C_BUS_CLEAR_CNFG			0x084
++#define I2C_BC_SCLK_THRESHOLD			9
++#define I2C_BC_SCLK_THRESHOLD_SHIFT		16
++#define I2C_BC_STOP_COND			BIT(2)
++#define I2C_BC_TERMINATE			BIT(1)
++#define I2C_BC_ENABLE				BIT(0)
++#define I2C_BUS_CLEAR_STATUS			0x088
++#define I2C_BC_STATUS				BIT(0)
++
+ #define I2C_CONFIG_LOAD				0x08C
+ #define I2C_MSTR_CONFIG_LOAD			BIT(0)
+ #define I2C_SLV_CONFIG_LOAD			BIT(1)
+@@ -154,6 +164,8 @@ enum msg_end_type {
+  *		be transferred in one go.
+  * @quirks: i2c adapter quirks for limiting write/read transfer size and not
+  *		allowing 0 length transfers.
++ * @supports_bus_clear: Bus Clear support to recover from bus hang during
++ *		SDA stuck low from device for some unknown reasons.
+  */
+ struct tegra_i2c_hw_feature {
+ 	bool has_continue_xfer_support;
+@@ -167,6 +179,7 @@ struct tegra_i2c_hw_feature {
+ 	bool has_slcg_override_reg;
+ 	bool has_mst_fifo;
+ 	const struct i2c_adapter_quirks *quirks;
++	bool supports_bus_clear;
+ };
+ 
+ /**
+@@ -640,6 +653,13 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 		goto err;
+ 	}
+ 
++	/*
++	 * I2C transfer is terminated during the bus clear so skip
++	 * processing the other interrupts.
++	 */
++	if (i2c_dev->hw->supports_bus_clear && (status & I2C_INT_BUS_CLR_DONE))
++		goto err;
++
+ 	if (i2c_dev->msg_read && (status & I2C_INT_RX_FIFO_DATA_REQ)) {
+ 		if (i2c_dev->msg_buf_remaining)
+ 			tegra_i2c_empty_rx_fifo(i2c_dev);
+@@ -668,6 +688,8 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 	tegra_i2c_mask_irq(i2c_dev, I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST |
+ 		I2C_INT_PACKET_XFER_COMPLETE | I2C_INT_TX_FIFO_DATA_REQ |
+ 		I2C_INT_RX_FIFO_DATA_REQ);
++	if (i2c_dev->hw->supports_bus_clear)
++		tegra_i2c_mask_irq(i2c_dev, I2C_INT_BUS_CLR_DONE);
+ 	i2c_writel(i2c_dev, status, I2C_INT_STATUS);
+ 	if (i2c_dev->is_dvc)
+ 		dvc_writel(i2c_dev, DVC_STATUS_I2C_DONE_INTR, DVC_STATUS);
+@@ -678,6 +700,43 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
++static int tegra_i2c_issue_bus_clear(struct tegra_i2c_dev *i2c_dev)
++{
++	int err;
++	unsigned long time_left;
++	u32 reg;
++
++	if (i2c_dev->hw->supports_bus_clear) {
++		reinit_completion(&i2c_dev->msg_complete);
++		reg = (I2C_BC_SCLK_THRESHOLD << I2C_BC_SCLK_THRESHOLD_SHIFT) |
++		      I2C_BC_STOP_COND | I2C_BC_TERMINATE;
++		i2c_writel(i2c_dev, reg, I2C_BUS_CLEAR_CNFG);
++		if (i2c_dev->hw->has_config_load_reg) {
++			err = tegra_i2c_wait_for_config_load(i2c_dev);
++			if (err)
++				return err;
++		}
++		reg |= I2C_BC_ENABLE;
++		i2c_writel(i2c_dev, reg, I2C_BUS_CLEAR_CNFG);
++		tegra_i2c_unmask_irq(i2c_dev, I2C_INT_BUS_CLR_DONE);
++
++		time_left = wait_for_completion_timeout(&i2c_dev->msg_complete,
++							TEGRA_I2C_TIMEOUT);
++		if (time_left == 0) {
++			dev_err(i2c_dev->dev, "timed out for bus clear\n");
++			return -ETIMEDOUT;
++		}
++		reg = i2c_readl(i2c_dev, I2C_BUS_CLEAR_STATUS);
++		if (!(reg & I2C_BC_STATUS)) {
++			dev_err(i2c_dev->dev,
++				"Un-recovered arbitration lost\n");
++			return -EIO;
++		}
++	}
++
++	return -EAGAIN;
++}
++
+ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 	struct i2c_msg *msg, enum msg_end_type end_state)
+ {
+@@ -759,6 +818,13 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 		return 0;
+ 
+ 	tegra_i2c_init(i2c_dev);
++	/* start recovery upon arbitration loss in single master mode */
++	if (i2c_dev->msg_err == I2C_ERR_ARBITRATION_LOST) {
++		if (!i2c_dev->is_multimaster_mode)
++			return tegra_i2c_issue_bus_clear(i2c_dev);
++		return -EAGAIN;
++	}
++
+ 	if (i2c_dev->msg_err == I2C_ERR_NO_ACK) {
+ 		if (msg->flags & I2C_M_IGNORE_NAK)
+ 			return 0;
+@@ -853,6 +919,7 @@ static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
+ 	.has_slcg_override_reg = false,
+ 	.has_mst_fifo = false,
+ 	.quirks = &tegra_i2c_quirks,
++	.supports_bus_clear = false,
+ };
+ 
+ static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
+@@ -867,6 +934,7 @@ static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
+ 	.has_slcg_override_reg = false,
+ 	.has_mst_fifo = false,
+ 	.quirks = &tegra_i2c_quirks,
++	.supports_bus_clear = false,
+ };
+ 
+ static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
+@@ -881,6 +949,7 @@ static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
+ 	.has_slcg_override_reg = false,
+ 	.has_mst_fifo = false,
+ 	.quirks = &tegra_i2c_quirks,
++	.supports_bus_clear = true,
+ };
+ 
+ static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
+@@ -895,6 +964,7 @@ static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
+ 	.has_slcg_override_reg = true,
+ 	.has_mst_fifo = false,
+ 	.quirks = &tegra_i2c_quirks,
++	.supports_bus_clear = true,
+ };
+ 
+ static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
+@@ -909,6 +979,7 @@ static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
+ 	.has_slcg_override_reg = true,
+ 	.has_mst_fifo = false,
+ 	.quirks = &tegra_i2c_quirks,
++	.supports_bus_clear = true,
+ };
+ 
+ static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
+@@ -923,6 +994,7 @@ static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
+ 	.has_slcg_override_reg = true,
+ 	.has_mst_fifo = true,
+ 	.quirks = &tegra194_i2c_quirks,
++	.supports_bus_clear = true,
+ };
+ 
+ /* Match table for of_platform binding */
+@@ -974,6 +1046,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	i2c_dev->base = base;
+ 	i2c_dev->div_clk = div_clk;
+ 	i2c_dev->adapter.algo = &tegra_i2c_algo;
++	i2c_dev->adapter.retries = 1;
+ 	i2c_dev->irq = irq;
+ 	i2c_dev->cont_id = pdev->id;
+ 	i2c_dev->dev = &pdev->dev;
+-- 
+2.7.4
