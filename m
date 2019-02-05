@@ -1,50 +1,65 @@
-From: Ray Jui <ray.jui@broadcom.com>
-Subject: [PATCH v4 6/8] dt-bindings: i2c: iproc: add "brcm,iproc-nic-i2c" compatible string
-Date: Mon,  4 Feb 2019 15:15:52 -0800
-Message-ID: <20190204231554.87666-7-ray.jui@broadcom.com>
-References: <20190204231554.87666-1-ray.jui@broadcom.com>
+From: Sowjanya Komatineni <skomatineni@nvidia.com>
+Subject: [PATCH V10 1/5] i2c: tegra: sort all the include headers alphabetically
+Date: Mon, 4 Feb 2019 17:29:23 -0800
+Message-ID: <1549330167-8690-1-git-send-email-skomatineni@nvidia.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190204231554.87666-1-ray.jui@broadcom.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, Ray Jui <ray.jui@broadcom.com>
+To: thierry.reding@gmail.com, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com
+Cc: digetx@gmail.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sowjanya Komatineni <skomatineni@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+This patch sorts all the include headers alphabetically for the
+I2C Tegra driver.
 
-Update iProc I2C binding document to add new compatible string
-"brcm,iproc-nic-i2c". Optional property "brcm,ape-hsls-addr-mask" is
-also added that allows configuration of the host view into the APE's
-address for "brcm,iproc-nic-i2c"
-
-Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
 ---
- Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ [V9/V10] : Rebased to 5.0-rc4
+ [V3/V4/V5/V7/V8] : Removed unsued headers in tegra I2C
+ [V2] : Added this in V2 to sort the headers in tegra I2C
 
-diff --git a/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt b/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
-index d3a3620b1f06..02e82d20239e 100644
---- a/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
-+++ b/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
-@@ -3,7 +3,7 @@ Broadcom iProc I2C controller
- Required properties:
+ drivers/i2c/busses/i2c-tegra.c | 19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index c77adbbea0c7..79c6aa87499b 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -6,24 +6,21 @@
+  * Author: Colin Cross <ccross@android.com>
+  */
  
- - compatible:
--    Must be "brcm,iproc-i2c"
-+    Must be "brcm,iproc-i2c" or "brcm,iproc-nic-i2c"
+-#include <linux/kernel.h>
+-#include <linux/init.h>
+-#include <linux/platform_device.h>
+ #include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/err.h>
+ #include <linux/i2c.h>
+-#include <linux/io.h>
++#include <linux/init.h>
+ #include <linux/interrupt.h>
+-#include <linux/delay.h>
+-#include <linux/slab.h>
+-#include <linux/of_device.h>
++#include <linux/io.h>
++#include <linux/iopoll.h>
++#include <linux/kernel.h>
+ #include <linux/module.h>
+-#include <linux/reset.h>
++#include <linux/of_device.h>
+ #include <linux/pinctrl/consumer.h>
++#include <linux/platform_device.h>
+ #include <linux/pm_runtime.h>
+-#include <linux/iopoll.h>
+-
+-#include <asm/unaligned.h>
++#include <linux/reset.h>
  
- - reg:
-     Define the base and range of the I/O address space that contain the iProc
-@@ -24,6 +24,9 @@ Optional properties:
-     Should contain the I2C interrupt. If unspecified, driver will fall back to
-     polling mode
- 
-+- brcm,ape-hsls-addr-mask:
-+    Required for "brcm,iproc-nic-i2c". Host view of address mask into the
-+    'APE' co-processor
- 
- Example:
- 	i2c0: i2c@18008000 {
+ #define TEGRA_I2C_TIMEOUT (msecs_to_jiffies(1000))
+ #define BYTES_PER_FIFO_WORD 4
 -- 
-2.17.1
+2.7.4
