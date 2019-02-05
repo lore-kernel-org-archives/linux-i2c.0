@@ -1,728 +1,1192 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: [PATCH V11 3/5] i2c: tegra: Add DMA support
-Date: Tue, 5 Feb 2019 00:56:23 -0800
-Message-ID: <1549356985-25726-3-git-send-email-skomatineni@nvidia.com>
-References: <1549356985-25726-1-git-send-email-skomatineni@nvidia.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v15] i2c: Add drivers for the AMD PCIe MP2 I2C controller
+Date: Tue, 5 Feb 2019 13:05:45 +0100
+Message-ID: <20190205120545.GA1045@kunai>
+References: <20181226232258.GA23526@syn-yoga530>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="YiEDa0DAkWCtVeE4"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1549356985-25726-1-git-send-email-skomatineni@nvidia.com>
+Content-Disposition: inline
+In-Reply-To: <20181226232258.GA23526@syn-yoga530>
 Sender: linux-kernel-owner@vger.kernel.org
-To: thierry.reding@gmail.com, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com
-Cc: digetx@gmail.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sowjanya Komatineni <skomatineni@nvidia.com>
+To: Elie Morisse <syniurge@gmail.com>
+Cc: linux-i2c@vger.kernel.org, Nehal-bakulchandra.Shah@amd.com, Shyam-sundar.S-k@amd.com, sandeep.singh@amd.com, linux-kernel@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>, helgaas@kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds DMA support for Tegra I2C.
 
-Tegra I2C TX and RX FIFO depth is 8 words. PIO mode is used for
-transfer size of the max FIFO depth and DMA mode is used for
-transfer size higher than max FIFO depth to save CPU overhead.
+--YiEDa0DAkWCtVeE4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-PIO mode needs full intervention of CPU to fill or empty FIFO's
-and also need to service multiple data requests interrupt for the
-same transaction. This adds delay between data bytes of the same
-transfer when CPU is fully loaded and some slave devices has
-internal timeout for no bus activity and stops transaction to
-avoid bus hang. DMA mode is helpful in such cases.
+Hi,
 
-DMA mode is also helpful for Large transfers during downloading or
-uploading FW over I2C to some external devices.
+thanks for keeping at this driver! And sorry for the long delay, but large
+drivers take time. I also have to admit that I am very unfamiliar with PCI
+devices.
 
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
----
- [V11] : Replaced deprecated dmaengine_terminate_all with dmaengine_termine_async
-	from non-atomic context and dmaengine_terminate_sync from atomic context.
-	Fixed to program fifo trigger levels properly when transfer falls back to
-	pio mode in case of dma slave configuration failure and other minor fixes.
- [V10] : APBDMA is replaced with GPCDMA on Tegra186 and Tegra194 designs.
-	Added apbdma hw support flag to now allow Tegra186 and later use
-	APBDMA driver.
-	Added explicit flow control enable for DMA slave config and error handling.
-	Moved releasing DMA resources to seperate function to reuse in
-	multiple places.
-	Updated to register tegra_i2c_driver from module level rather than subsys
-	level.
-	Other minor feedback
- [V9] : Rebased to 5.0-rc4
-	Removed dependency of APB DMA in Kconfig and added conditional check
-	in I2C driver to decide on using DMA mode.
-	Changed back the allocation of dma buffer during i2c probe.
-	Fixed FIFO triggers depending on DMA Vs PIO.
- [V8] : Moved back dma init to i2c probe, removed ALL_PACKETS_XFER_COMPLETE
-	interrupt and using PACKETS_XFER_COMPLETE interrupt only and some
-	other fixes
-	Updated Kconfig for APB_DMA dependency
- [V7] : Same as V6
- [V6] : Updated for proper buffer allocation/freeing, channel release.
-	Updated to use exact xfer size for syncing dma buffer.
- [V5] : Same as V4
- [V4] : Updated to allocate DMA buffer only when DMA mode.
-	Updated to fall back to PIO mode when DMA channel request or
-	buffer allocation fails.
- [V3] : Updated without additional buffer allocation.
- [V2] : Updated based on V1 review feedback along with code cleanup for
-	proper implementation of DMA.
+Here is what my code checkers say. Please check those:
 
- drivers/i2c/busses/i2c-tegra.c | 412 ++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 368 insertions(+), 44 deletions(-)
+    SPARSE
+drivers/i2c/busses/i2c-amd-mp2.h:86:43: error: dubious one-bit signed bitfield
+drivers/i2c/busses/i2c-amd-mp2.h:129:43: error: dubious one-bit signed bitfield
+    CPPCHECK
+drivers/i2c/busses/i2c-amd-mp2-pci.c:25:25: warning: 'mmio' is of type 'void *'. When using void pointers in calculations, the behaviour is undefined. [arithOperationsOnVoidPointer]
+ writel(val >> 32, mmio + sizeof(u32));
+                        ^
+drivers/i2c/busses/i2c-amd-mp2-pci.c:33:20: warning: 'mmio' is of type 'void *'. When using void pointers in calculations, the behaviour is undefined. [arithOperationsOnVoidPointer]
+ high = readl(mmio + sizeof(u32));
+                   ^
+drivers/i2c/busses/i2c-amd-mp2-pci.c:28:0: warning: The function 'read64' is never used. [unusedFunction]
+static inline u64 read64(void __iomem *mmio)
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 118b7023a0f4..267a6b3084bf 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -8,6 +8,9 @@
- 
- #include <linux/clk.h>
- #include <linux/delay.h>
-+#include <linux/dmaengine.h>
-+#include <linux/dmapool.h>
-+#include <linux/dma-mapping.h>
- #include <linux/err.h>
- #include <linux/i2c.h>
- #include <linux/init.h>
-@@ -44,6 +47,8 @@
- #define I2C_FIFO_CONTROL_RX_FLUSH		BIT(0)
- #define I2C_FIFO_CONTROL_TX_TRIG_SHIFT		5
- #define I2C_FIFO_CONTROL_RX_TRIG_SHIFT		2
-+#define I2C_FIFO_CONTROL_TX_TRIG(x)		(((x) - 1) << 5)
-+#define I2C_FIFO_CONTROL_RX_TRIG(x)		(((x) - 1) << 2)
- #define I2C_FIFO_STATUS				0x060
- #define I2C_FIFO_STATUS_TX_MASK			0xF0
- #define I2C_FIFO_STATUS_TX_SHIFT		4
-@@ -125,6 +130,19 @@
- #define I2C_MST_FIFO_STATUS_TX_MASK		0xff0000
- #define I2C_MST_FIFO_STATUS_TX_SHIFT		16
- 
-+/* Packet header size in bytes */
-+#define I2C_PACKET_HEADER_SIZE			12
-+
-+#define DATA_DMA_DIR_TX				(1 << 0)
-+#define DATA_DMA_DIR_RX				(1 << 1)
-+
-+/*
-+ * Upto I2C_PIO_MODE_MAX_LEN bytes, controller will use PIO mode,
-+ * above this, controller will use DMA to fill FIFO.
-+ * MAX PIO len is 20 bytes excluding packet header.
-+ */
-+#define I2C_PIO_MODE_MAX_LEN			32
-+
- /*
-  * msg_end_type: The bus control which need to be send at end of transfer.
-  * @MSG_END_STOP: Send stop pulse at end of transfer.
-@@ -166,6 +184,7 @@ enum msg_end_type {
-  *		allowing 0 length transfers.
-  * @supports_bus_clear: Bus Clear support to recover from bus hang during
-  *		SDA stuck low from device for some unknown reasons.
-+ * @has_apb_dma: Support of APBDMA on corresponding Tegra chip.
-  */
- struct tegra_i2c_hw_feature {
- 	bool has_continue_xfer_support;
-@@ -180,6 +199,7 @@ struct tegra_i2c_hw_feature {
- 	bool has_mst_fifo;
- 	const struct i2c_adapter_quirks *quirks;
- 	bool supports_bus_clear;
-+	bool has_apb_dma;
- };
- 
- /**
-@@ -191,6 +211,7 @@ struct tegra_i2c_hw_feature {
-  * @fast_clk: clock reference for fast clock of I2C controller
-  * @rst: reset control for the I2C controller
-  * @base: ioremapped registers cookie
-+ * @base_phys: Physical base address of the I2C controller
-  * @cont_id: I2C controller ID, used for packet header
-  * @irq: IRQ number of transfer complete interrupt
-  * @irq_disabled: used to track whether or not the interrupt is enabled
-@@ -204,6 +225,13 @@ struct tegra_i2c_hw_feature {
-  * @clk_divisor_non_hs_mode: clock divider for non-high-speed modes
-  * @is_multimaster_mode: track if I2C controller is in multi-master mode
-  * @xfer_lock: lock to serialize transfer submission and processing
-+ * @tx_dma_chan: DMA transmit channel
-+ * @rx_dma_chan: DMA receive channel
-+ * @dma_phys: handle to DMA resources
-+ * @dma_buf: pointer to allocated DMA buffer
-+ * @dma_buf_size: DMA buffer size
-+ * @is_curr_dma_xfer: indicates active DMA transfer
-+ * @dma_complete: DMA completion notifier
-  */
- struct tegra_i2c_dev {
- 	struct device *dev;
-@@ -213,6 +241,7 @@ struct tegra_i2c_dev {
- 	struct clk *fast_clk;
- 	struct reset_control *rst;
- 	void __iomem *base;
-+	phys_addr_t base_phys;
- 	int cont_id;
- 	int irq;
- 	bool irq_disabled;
-@@ -226,6 +255,13 @@ struct tegra_i2c_dev {
- 	u16 clk_divisor_non_hs_mode;
- 	bool is_multimaster_mode;
- 	spinlock_t xfer_lock;
-+	struct dma_chan *tx_dma_chan;
-+	struct dma_chan *rx_dma_chan;
-+	dma_addr_t dma_phys;
-+	u32 *dma_buf;
-+	unsigned int dma_buf_size;
-+	bool is_curr_dma_xfer;
-+	struct completion dma_complete;
- };
- 
- static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val,
-@@ -294,6 +330,109 @@ static void tegra_i2c_unmask_irq(struct tegra_i2c_dev *i2c_dev, u32 mask)
- 	i2c_writel(i2c_dev, int_mask, I2C_INT_MASK);
- }
- 
-+static void tegra_i2c_dma_complete(void *args)
-+{
-+	struct tegra_i2c_dev *i2c_dev = args;
-+
-+	complete(&i2c_dev->dma_complete);
-+}
-+
-+static int tegra_i2c_dma_submit(struct tegra_i2c_dev *i2c_dev, size_t len)
-+{
-+	struct dma_async_tx_descriptor *dma_desc;
-+	enum dma_transfer_direction dir;
-+	struct dma_chan *chan;
-+
-+	dev_dbg(i2c_dev->dev, "starting DMA for length: %zu\n", len);
-+	reinit_completion(&i2c_dev->dma_complete);
-+	dir = i2c_dev->msg_read ? DMA_DEV_TO_MEM : DMA_MEM_TO_DEV;
-+	chan = i2c_dev->msg_read ? i2c_dev->rx_dma_chan : i2c_dev->tx_dma_chan;
-+	dma_desc = dmaengine_prep_slave_single(chan, i2c_dev->dma_phys,
-+					       len, dir, DMA_PREP_INTERRUPT |
-+					       DMA_CTRL_ACK);
-+	if (!dma_desc) {
-+		dev_err(i2c_dev->dev, "failed to get DMA descriptor\n");
-+		return -EIO;
-+	}
-+
-+	dma_desc->callback = tegra_i2c_dma_complete;
-+	dma_desc->callback_param = i2c_dev;
-+	dmaengine_submit(dma_desc);
-+	dma_async_issue_pending(chan);
-+	return 0;
-+}
-+
-+static void tegra_i2c_release_dma(struct tegra_i2c_dev *i2c_dev)
-+{
-+	if (i2c_dev->dma_buf) {
-+		dma_free_coherent(i2c_dev->dev, i2c_dev->dma_buf_size,
-+				  i2c_dev->dma_buf, i2c_dev->dma_phys);
-+		i2c_dev->dma_buf = NULL;
-+	}
-+
-+	if (i2c_dev->tx_dma_chan) {
-+		dma_release_channel(i2c_dev->tx_dma_chan);
-+		i2c_dev->tx_dma_chan = NULL;
-+	}
-+
-+	if (i2c_dev->rx_dma_chan) {
-+		dma_release_channel(i2c_dev->rx_dma_chan);
-+		i2c_dev->rx_dma_chan = NULL;
-+	}
-+}
-+
-+static int tegra_i2c_init_dma(struct tegra_i2c_dev *i2c_dev)
-+{
-+	struct dma_chan *chan;
-+	u32 *dma_buf;
-+	dma_addr_t dma_phys;
-+	int err = 0;
-+
-+	if (!IS_ENABLED(CONFIG_TEGRA20_APB_DMA) ||
-+	    !i2c_dev->hw->has_apb_dma) {
-+		err = -ENODEV;
-+		goto err_out;
-+	}
-+
-+	chan = dma_request_slave_channel_reason(i2c_dev->dev, "rx");
-+	if (IS_ERR(chan)) {
-+		err = PTR_ERR(chan);
-+		goto err_out;
-+	}
-+
-+	i2c_dev->rx_dma_chan = chan;
-+
-+	chan = dma_request_slave_channel_reason(i2c_dev->dev, "tx");
-+	if (IS_ERR(chan)) {
-+		err = PTR_ERR(chan);
-+		goto err_out;
-+	}
-+
-+	i2c_dev->tx_dma_chan = chan;
-+
-+	dma_buf = dma_alloc_coherent(i2c_dev->dev, i2c_dev->dma_buf_size,
-+				     &dma_phys, GFP_KERNEL | __GFP_NOWARN);
-+	if (!dma_buf) {
-+		dev_err(i2c_dev->dev, "failed to allocate the DMA buffer\n");
-+		err = -ENOMEM;
-+		goto err_out;
-+	}
-+
-+	i2c_dev->dma_buf = dma_buf;
-+	i2c_dev->dma_phys = dma_phys;
-+	return 0;
-+
-+err_out:
-+	tegra_i2c_release_dma(i2c_dev);
-+	if (err != -EPROBE_DEFER) {
-+		dev_err(i2c_dev->dev, "can't use DMA, err: %d, using PIO\n",
-+			err);
-+		return 0;
-+	}
-+
-+	return err;
-+}
-+
- static int tegra_i2c_flush_fifos(struct tegra_i2c_dev *i2c_dev)
- {
- 	unsigned long timeout = jiffies + HZ;
-@@ -571,16 +710,6 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- 		i2c_writel(i2c_dev, 0x00, I2C_SL_ADDR2);
- 	}
- 
--	if (i2c_dev->hw->has_mst_fifo) {
--		val = I2C_MST_FIFO_CONTROL_TX_TRIG(8) |
--		      I2C_MST_FIFO_CONTROL_RX_TRIG(1);
--		i2c_writel(i2c_dev, val, I2C_MST_FIFO_CONTROL);
--	} else {
--		val = 7 << I2C_FIFO_CONTROL_TX_TRIG_SHIFT |
--			0 << I2C_FIFO_CONTROL_RX_TRIG_SHIFT;
--		i2c_writel(i2c_dev, val, I2C_FIFO_CONTROL);
--	}
--
- 	err = tegra_i2c_flush_fifos(i2c_dev);
- 	if (err)
- 		goto err;
-@@ -660,25 +789,37 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 	if (i2c_dev->hw->supports_bus_clear && (status & I2C_INT_BUS_CLR_DONE))
- 		goto err;
- 
--	if (i2c_dev->msg_read && (status & I2C_INT_RX_FIFO_DATA_REQ)) {
--		if (i2c_dev->msg_buf_remaining)
--			tegra_i2c_empty_rx_fifo(i2c_dev);
--		else
--			BUG();
--	}
-+	if (!i2c_dev->is_curr_dma_xfer) {
-+		if (i2c_dev->msg_read && (status & I2C_INT_RX_FIFO_DATA_REQ)) {
-+			if (i2c_dev->msg_buf_remaining)
-+				tegra_i2c_empty_rx_fifo(i2c_dev);
-+			else
-+				BUG();
-+		}
- 
--	if (!i2c_dev->msg_read && (status & I2C_INT_TX_FIFO_DATA_REQ)) {
--		if (i2c_dev->msg_buf_remaining)
--			tegra_i2c_fill_tx_fifo(i2c_dev);
--		else
--			tegra_i2c_mask_irq(i2c_dev, I2C_INT_TX_FIFO_DATA_REQ);
-+		if (!i2c_dev->msg_read && (status & I2C_INT_TX_FIFO_DATA_REQ)) {
-+			if (i2c_dev->msg_buf_remaining)
-+				tegra_i2c_fill_tx_fifo(i2c_dev);
-+			else
-+				tegra_i2c_mask_irq(i2c_dev,
-+						   I2C_INT_TX_FIFO_DATA_REQ);
-+		}
- 	}
- 
- 	i2c_writel(i2c_dev, status, I2C_INT_STATUS);
- 	if (i2c_dev->is_dvc)
- 		dvc_writel(i2c_dev, DVC_STATUS_I2C_DONE_INTR, DVC_STATUS);
- 
-+	/*
-+	 * During message read XFER_COMPLETE interrupt is triggered prior to
-+	 * DMA completion and during message write XFER_COMPLETE interrupt is
-+	 * triggered after DMA completion.
-+	 * PACKETS_XFER_COMPLETE indicates completion of all bytes of transfer.
-+	 * so forcing msg_buf_remaining to 0 in DMA mode.
-+	 */
- 	if (status & I2C_INT_PACKET_XFER_COMPLETE) {
-+		if (i2c_dev->is_curr_dma_xfer)
-+			i2c_dev->msg_buf_remaining = 0;
- 		BUG_ON(i2c_dev->msg_buf_remaining);
- 		complete(&i2c_dev->msg_complete);
- 	}
-@@ -694,12 +835,89 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 	if (i2c_dev->is_dvc)
- 		dvc_writel(i2c_dev, DVC_STATUS_I2C_DONE_INTR, DVC_STATUS);
- 
-+	if (i2c_dev->is_curr_dma_xfer) {
-+		if (i2c_dev->msg_read)
-+			dmaengine_terminate_async(i2c_dev->rx_dma_chan);
-+		else
-+			dmaengine_terminate_async(i2c_dev->tx_dma_chan);
-+
-+		complete(&i2c_dev->dma_complete);
-+	}
-+
- 	complete(&i2c_dev->msg_complete);
- done:
- 	spin_unlock(&i2c_dev->xfer_lock);
- 	return IRQ_HANDLED;
- }
- 
-+static int tegra_i2c_config_fifo_trig(struct tegra_i2c_dev *i2c_dev,
-+				      size_t len)
-+{
-+	u32 val, reg;
-+	u8 dma_burst = 0;
-+	struct dma_slave_config slv_config = {0};
-+	struct dma_chan *chan;
-+	int ret = 0;
-+
-+	if (i2c_dev->hw->has_mst_fifo)
-+		reg = I2C_MST_FIFO_CONTROL;
-+	else
-+		reg = I2C_FIFO_CONTROL;
-+	val = i2c_readl(i2c_dev, reg);
-+
-+	if (i2c_dev->is_curr_dma_xfer) {
-+		if (len & 0xF)
-+			dma_burst = 1;
-+		else if (len & 0x10)
-+			dma_burst = 4;
-+		else
-+			dma_burst = 8;
-+
-+		if (i2c_dev->msg_read) {
-+			chan = i2c_dev->rx_dma_chan;
-+			slv_config.src_addr = i2c_dev->base_phys + I2C_RX_FIFO;
-+			slv_config.src_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
-+			slv_config.src_maxburst = dma_burst;
-+
-+			if (i2c_dev->hw->has_mst_fifo)
-+				val |= I2C_MST_FIFO_CONTROL_RX_TRIG(dma_burst);
-+			else
-+				val |= I2C_FIFO_CONTROL_RX_TRIG(dma_burst);
-+		} else {
-+			chan = i2c_dev->tx_dma_chan;
-+			slv_config.dst_addr = i2c_dev->base_phys + I2C_TX_FIFO;
-+			slv_config.dst_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
-+			slv_config.dst_maxburst = dma_burst;
-+
-+			if (i2c_dev->hw->has_mst_fifo)
-+				val |= I2C_MST_FIFO_CONTROL_TX_TRIG(dma_burst);
-+			else
-+				val |= I2C_FIFO_CONTROL_TX_TRIG(dma_burst);
-+		}
-+
-+		slv_config.device_fc = true;
-+		ret = dmaengine_slave_config(chan, &slv_config);
-+		if (ret < 0) {
-+			dev_err(i2c_dev->dev,
-+				"DMA slave config failed, err: %d using PIO\n",
-+				ret);
-+			tegra_i2c_release_dma(i2c_dev);
-+		} else {
-+			goto out;
-+		}
-+	}
-+
-+	if (i2c_dev->hw->has_mst_fifo)
-+		val = I2C_MST_FIFO_CONTROL_TX_TRIG(8) |
-+		      I2C_MST_FIFO_CONTROL_RX_TRIG(1);
-+	else
-+		val = I2C_FIFO_CONTROL_TX_TRIG(8) |
-+		      I2C_FIFO_CONTROL_RX_TRIG(1);
-+out:
-+	i2c_writel(i2c_dev, val, reg);
-+	return ret;
-+}
-+
- static int tegra_i2c_issue_bus_clear(struct tegra_i2c_dev *i2c_dev)
- {
- 	int err;
-@@ -744,6 +962,10 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	u32 int_mask;
- 	unsigned long time_left;
- 	unsigned long flags;
-+	size_t xfer_size;
-+	u32 *buffer = NULL;
-+	int err = 0;
-+	bool dma = false;
- 
- 	tegra_i2c_flush_fifos(i2c_dev);
- 
-@@ -753,19 +975,59 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	i2c_dev->msg_read = (msg->flags & I2C_M_RD);
- 	reinit_completion(&i2c_dev->msg_complete);
- 
-+	if (i2c_dev->msg_read)
-+		xfer_size = msg->len;
-+	else
-+		xfer_size = msg->len + I2C_PACKET_HEADER_SIZE;
-+
-+	xfer_size = ALIGN(xfer_size, BYTES_PER_FIFO_WORD);
-+	dma = (xfer_size > I2C_PIO_MODE_MAX_LEN) && i2c_dev->dma_buf;
-+	i2c_dev->is_curr_dma_xfer = dma;
-+
- 	spin_lock_irqsave(&i2c_dev->xfer_lock, flags);
- 
- 	int_mask = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
- 	tegra_i2c_unmask_irq(i2c_dev, int_mask);
-+	err = tegra_i2c_config_fifo_trig(i2c_dev, xfer_size);
-+	if (err < 0)
-+		i2c_dev->is_curr_dma_xfer = dma = false;
-+
-+	if (dma) {
-+		if (i2c_dev->msg_read) {
-+			dma_sync_single_for_device(i2c_dev->dev,
-+						   i2c_dev->dma_phys,
-+						   xfer_size,
-+						   DMA_FROM_DEVICE);
-+			err = tegra_i2c_dma_submit(i2c_dev, xfer_size);
-+			if (err < 0) {
-+				dev_err(i2c_dev->dev,
-+					"starting RX DMA failed, err %d\n",
-+					err);
-+				goto unlock;
-+			}
-+		} else {
-+			dma_sync_single_for_cpu(i2c_dev->dev,
-+						i2c_dev->dma_phys,
-+						xfer_size,
-+						DMA_TO_DEVICE);
-+			buffer = i2c_dev->dma_buf;
-+		}
-+	}
- 
- 	packet_header = (0 << PACKET_HEADER0_HEADER_SIZE_SHIFT) |
- 			PACKET_HEADER0_PROTOCOL_I2C |
- 			(i2c_dev->cont_id << PACKET_HEADER0_CONT_ID_SHIFT) |
- 			(1 << PACKET_HEADER0_PACKET_ID_SHIFT);
--	i2c_writel(i2c_dev, packet_header, I2C_TX_FIFO);
-+	if (dma && !i2c_dev->msg_read)
-+		*buffer++ = packet_header;
-+	else
-+		i2c_writel(i2c_dev, packet_header, I2C_TX_FIFO);
- 
- 	packet_header = msg->len - 1;
--	i2c_writel(i2c_dev, packet_header, I2C_TX_FIFO);
-+	if (dma && !i2c_dev->msg_read)
-+		*buffer++ = packet_header;
-+	else
-+		i2c_writel(i2c_dev, packet_header, I2C_TX_FIFO);
- 
- 	packet_header = I2C_HEADER_IE_ENABLE;
- 	if (end_state == MSG_END_CONTINUE)
-@@ -782,23 +1044,79 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 		packet_header |= I2C_HEADER_CONT_ON_NAK;
- 	if (msg->flags & I2C_M_RD)
- 		packet_header |= I2C_HEADER_READ;
--	i2c_writel(i2c_dev, packet_header, I2C_TX_FIFO);
--
--	if (!(msg->flags & I2C_M_RD))
--		tegra_i2c_fill_tx_fifo(i2c_dev);
-+	if (dma && !i2c_dev->msg_read)
-+		*buffer++ = packet_header;
-+	else
-+		i2c_writel(i2c_dev, packet_header, I2C_TX_FIFO);
-+
-+	if (!msg->flags & I2C_M_RD) {
-+		if (dma) {
-+			memcpy(buffer, msg->buf, msg->len);
-+			dma_sync_single_for_device(i2c_dev->dev,
-+						   i2c_dev->dma_phys,
-+						   xfer_size,
-+						   DMA_TO_DEVICE);
-+			err = tegra_i2c_dma_submit(i2c_dev, xfer_size);
-+			if (err < 0) {
-+				dev_err(i2c_dev->dev,
-+					"starting TX DMA failed, err %d\n",
-+					err);
-+				goto unlock;
-+			}
-+		} else {
-+			tegra_i2c_fill_tx_fifo(i2c_dev);
-+		}
-+	}
- 
- 	if (i2c_dev->hw->has_per_pkt_xfer_complete_irq)
- 		int_mask |= I2C_INT_PACKET_XFER_COMPLETE;
--	if (msg->flags & I2C_M_RD)
--		int_mask |= I2C_INT_RX_FIFO_DATA_REQ;
--	else if (i2c_dev->msg_buf_remaining)
--		int_mask |= I2C_INT_TX_FIFO_DATA_REQ;
-+
-+	if (!dma) {
-+		if (msg->flags & I2C_M_RD)
-+			int_mask |= I2C_INT_RX_FIFO_DATA_REQ;
-+		else if (i2c_dev->msg_buf_remaining)
-+			int_mask |= I2C_INT_TX_FIFO_DATA_REQ;
-+	}
- 
- 	tegra_i2c_unmask_irq(i2c_dev, int_mask);
--	spin_unlock_irqrestore(&i2c_dev->xfer_lock, flags);
- 	dev_dbg(i2c_dev->dev, "unmasked irq: %02x\n",
- 		i2c_readl(i2c_dev, I2C_INT_MASK));
- 
-+unlock:
-+	spin_unlock_irqrestore(&i2c_dev->xfer_lock, flags);
-+
-+	if (dma) {
-+		if (err)
-+			return err;
-+
-+		time_left = wait_for_completion_timeout(
-+						&i2c_dev->dma_complete,
-+						TEGRA_I2C_TIMEOUT);
-+
-+		if (time_left == 0) {
-+			dev_err(i2c_dev->dev, "DMA transfer timeout\n");
-+			dmaengine_terminate_sync(i2c_dev->msg_read ?
-+						  i2c_dev->rx_dma_chan :
-+						  i2c_dev->tx_dma_chan);
-+			tegra_i2c_init(i2c_dev);
-+			return -ETIMEDOUT;
-+		}
-+
-+		if (i2c_dev->msg_read && (i2c_dev->msg_err == I2C_ERR_NONE)) {
-+			dma_sync_single_for_cpu(i2c_dev->dev,
-+						i2c_dev->dma_phys,
-+						xfer_size,
-+						DMA_FROM_DEVICE);
-+			memcpy(i2c_dev->msg_buf, i2c_dev->dma_buf,
-+				msg->len);
-+		}
-+		if (i2c_dev->msg_err != I2C_ERR_NONE) {
-+			dmaengine_synchronize(i2c_dev->msg_read ?
-+					      i2c_dev->rx_dma_chan :
-+					      i2c_dev->tx_dma_chan);
-+		}
-+	}
-+
- 	time_left = wait_for_completion_timeout(&i2c_dev->msg_complete,
- 						TEGRA_I2C_TIMEOUT);
- 	tegra_i2c_mask_irq(i2c_dev, int_mask);
-@@ -814,6 +1132,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 		time_left, completion_done(&i2c_dev->msg_complete),
- 		i2c_dev->msg_err);
- 
-+	i2c_dev->is_curr_dma_xfer = false;
- 	if (likely(i2c_dev->msg_err == I2C_ERR_NONE))
- 		return 0;
- 
-@@ -920,6 +1239,7 @@ static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
- 	.has_mst_fifo = false,
- 	.quirks = &tegra_i2c_quirks,
- 	.supports_bus_clear = false,
-+	.has_apb_dma = true,
- };
- 
- static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
-@@ -935,6 +1255,7 @@ static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
- 	.has_mst_fifo = false,
- 	.quirks = &tegra_i2c_quirks,
- 	.supports_bus_clear = false,
-+	.has_apb_dma = true,
- };
- 
- static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
-@@ -950,6 +1271,7 @@ static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
- 	.has_mst_fifo = false,
- 	.quirks = &tegra_i2c_quirks,
- 	.supports_bus_clear = true,
-+	.has_apb_dma = true,
- };
- 
- static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
-@@ -965,6 +1287,7 @@ static const struct tegra_i2c_hw_feature tegra124_i2c_hw = {
- 	.has_mst_fifo = false,
- 	.quirks = &tegra_i2c_quirks,
- 	.supports_bus_clear = true,
-+	.has_apb_dma = true,
- };
- 
- static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
-@@ -980,6 +1303,7 @@ static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
- 	.has_mst_fifo = false,
- 	.quirks = &tegra_i2c_quirks,
- 	.supports_bus_clear = true,
-+	.has_apb_dma = true,
- };
- 
- static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
-@@ -995,6 +1319,7 @@ static const struct tegra_i2c_hw_feature tegra194_i2c_hw = {
- 	.has_mst_fifo = true,
- 	.quirks = &tegra194_i2c_quirks,
- 	.supports_bus_clear = true,
-+	.has_apb_dma = false,
- };
- 
- /* Match table for of_platform binding */
-@@ -1017,11 +1342,13 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	struct clk *div_clk;
- 	struct clk *fast_clk;
- 	void __iomem *base;
-+	phys_addr_t base_phys;
- 	int irq;
- 	int ret = 0;
- 	int clk_multiplier = I2C_CLK_MULTIPLIER_STD_FAST_MODE;
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	base_phys = res->start;
- 	base = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(base))
- 		return PTR_ERR(base);
-@@ -1044,6 +1371,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	i2c_dev->base = base;
-+	i2c_dev->base_phys = base_phys;
- 	i2c_dev->div_clk = div_clk;
- 	i2c_dev->adapter.algo = &tegra_i2c_algo;
- 	i2c_dev->adapter.retries = 1;
-@@ -1063,7 +1391,9 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->is_dvc = of_device_is_compatible(pdev->dev.of_node,
- 						  "nvidia,tegra20-i2c-dvc");
- 	i2c_dev->adapter.quirks = i2c_dev->hw->quirks;
-+	i2c_dev->dma_buf_size = i2c_dev->adapter.quirks->max_write_len;
- 	init_completion(&i2c_dev->msg_complete);
-+	init_completion(&i2c_dev->dma_complete);
- 	spin_lock_init(&i2c_dev->xfer_lock);
- 
- 	if (!i2c_dev->hw->has_single_clk_source) {
-@@ -1124,6 +1454,10 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 		}
- 	}
- 
-+	ret = tegra_i2c_init_dma(i2c_dev);
-+	if (ret < 0)
-+		goto disable_div_clk;
-+
- 	ret = tegra_i2c_init(i2c_dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to initialize i2c controller\n");
-@@ -1188,6 +1522,7 @@ static int tegra_i2c_remove(struct platform_device *pdev)
- 	if (!i2c_dev->hw->has_single_clk_source)
- 		clk_unprepare(i2c_dev->fast_clk);
- 
-+	tegra_i2c_release_dma(i2c_dev);
- 	return 0;
- }
- 
-@@ -1211,18 +1546,7 @@ static struct platform_driver tegra_i2c_driver = {
- 	},
- };
- 
--static int __init tegra_i2c_init_driver(void)
--{
--	return platform_driver_register(&tegra_i2c_driver);
--}
--
--static void __exit tegra_i2c_exit_driver(void)
--{
--	platform_driver_unregister(&tegra_i2c_driver);
--}
--
--subsys_initcall(tegra_i2c_init_driver);
--module_exit(tegra_i2c_exit_driver);
-+module_platform_driver(tegra_i2c_driver);
- 
- MODULE_DESCRIPTION("nVidia Tegra2 I2C Bus Controller driver");
- MODULE_AUTHOR("Colin Cross");
--- 
-2.7.4
+
+> +Description
+> +-----------
+> +
+> +The MP2 is an ARM processor programmed as an I2C controller and communicating
+> +with the x86 host through PCI.
+> +
+> +If you see something like this:
+> +
+> +03:00.7 Non-VGA unclassified device: Advanced Micro Devices, Inc. [AMD] Device
+> +									15e6
+> +
+> +in your 'lspci -v', then this driver is for your device.
+
+Sidenote: Can't we add something to the pci-ids to make it possible to
+identify it correctly/make it more readable to the user?
+
+> +// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+> +/*
+> + * AMD MP2 PCIe communication driver
+> + *
+> + * Authors: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+> + *          Elie Morisse <syniurge@gmail.com>
+> + */
+> +
+> +#include <linux/debugfs.h>
+> +#include <linux/dma-mapping.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/module.h>
+> +#include <linux/pci.h>
+> +#include <linux/slab.h>
+> +
+> +#include "i2c-amd-mp2.h"
+> +
+> +#define DRIVER_NAME	"i2c_amd_mp2"
+> +#define DRIVER_DESC	"AMD(R) PCI-E MP2 I2C Controller Driver"
+> +#define DRIVER_VER	"1.0"
+
+Because of other changes I suggest later, some uses of these macros get
+removed. And I think the remaining uses can just be hardcoded to make it
+more readable. DRIVER_VER can go entirely, we don't use it anymore.
+
+> +static inline void write64(u64 val, void __iomem *mmio)
+> +{
+> +	writel(val, mmio);
+> +	writel(val >> 32, mmio + sizeof(u32));
+> +}
+
+Can't you use writeq?
+
+> +
+> +static inline u64 read64(void __iomem *mmio)
+> +{
+> +	u64 low, high;
+> +
+> +	low = readl(mmio);
+> +	high = readl(mmio + sizeof(u32));
+> +	return low | (high << 32);
+> +}
+
+Unused.
+
+> +
+> +static void amd_mp2_c2p_mutex_lock(struct amd_i2c_common *i2c_common)
+> +{
+> +	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
+> +
+> +	/* there is only one data mailbox for two i2c adapters */
+> +	mutex_lock(&privdata->c2p_lock);
+> +	privdata->c2p_lock_busid = i2c_common->bus_id;
+> +}
+> +
+> +static void amd_mp2_c2p_mutex_unlock(struct amd_i2c_common *i2c_common)
+> +{
+> +	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
+> +
+> +	if (unlikely(privdata->c2p_lock_busid != i2c_common->bus_id)) {
+> +		dev_warn(ndev_dev(privdata),
+> +			 "bus %d attempting to unlock C2P locked by bus %d\n",
+> +			 i2c_common->bus_id, privdata->c2p_lock_busid);
+> +		return;
+> +	}
+> +
+> +	mutex_unlock(&privdata->c2p_lock);
+> +}
+> +
+> +static int amd_mp2_cmd(struct amd_i2c_common *i2c_common,
+> +		       union i2c_cmd_base i2c_cmd_base)
+> +{
+> +	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
+> +	void __iomem *reg;
+> +
+> +	i2c_common->reqcmd = i2c_cmd_base.s.i2c_cmd;
+> +
+> +	reg = privdata->mmio + ((i2c_cmd_base.s.bus_id == 1) ?
+> +				AMD_C2P_MSG1 : AMD_C2P_MSG0);
+> +	writel(i2c_cmd_base.ul, reg);
+> +
+> +	return 0;
+> +}
+> +
+> +int amd_mp2_bus_enable_set(struct amd_i2c_common *i2c_common, bool enable)
+> +{
+> +	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
+> +	union i2c_cmd_base i2c_cmd_base;
+> +
+> +	dev_dbg(ndev_dev(privdata), "%s id: %d\n", __func__,
+> +		i2c_common->bus_id);
+> +
+> +	i2c_cmd_base.ul = 0;
+> +	i2c_cmd_base.s.i2c_cmd = enable ? i2c_enable : i2c_disable;
+> +	i2c_cmd_base.s.bus_id = i2c_common->bus_id;
+> +	i2c_cmd_base.s.i2c_speed = i2c_common->i2c_speed;
+> +
+> +	amd_mp2_c2p_mutex_lock(i2c_common);
+> +
+> +	return amd_mp2_cmd(i2c_common, i2c_cmd_base);
+> +}
+> +EXPORT_SYMBOL_GPL(amd_mp2_bus_enable_set);
+> +
+> +static void amd_mp2_cmd_rw_fill(struct amd_i2c_common *i2c_common,
+> +				union i2c_cmd_base *i2c_cmd_base,
+> +				enum i2c_cmd reqcmd)
+> +{
+> +	i2c_cmd_base->s.i2c_cmd = reqcmd;
+> +	i2c_cmd_base->s.bus_id = i2c_common->bus_id;
+> +	i2c_cmd_base->s.i2c_speed = i2c_common->i2c_speed;
+> +	i2c_cmd_base->s.slave_addr = i2c_common->msg->addr;
+> +	i2c_cmd_base->s.length = i2c_common->msg->len;
+> +}
+> +
+> +static int amd_mp2_rw(struct amd_i2c_common *i2c_common, enum i2c_cmd reqcmd)
+> +{
+> +	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
+> +	union i2c_cmd_base i2c_cmd_base;
+> +
+> +	amd_mp2_cmd_rw_fill(i2c_common, &i2c_cmd_base, reqcmd);
+> +	amd_mp2_c2p_mutex_lock(i2c_common);
+> +
+> +	if (i2c_common->msg->len <= 32) {
+> +		i2c_cmd_base.s.mem_type = use_c2pmsg;
+> +		if (reqcmd == i2c_write)
+> +			memcpy_toio(privdata->mmio + AMD_C2P_MSG2,
+> +				    i2c_common->msg->buf,
+> +				    i2c_common->msg->len);
+> +	} else {
+> +		i2c_cmd_base.s.mem_type = use_dram;
+> +		write64((u64)i2c_common->dma_addr,
+> +			privdata->mmio + AMD_C2P_MSG2);
+> +	}
+> +
+> +	return amd_mp2_cmd(i2c_common, i2c_cmd_base);
+> +}
+> +
+> +int amd_mp2_read(struct amd_i2c_common *i2c_common)
+> +{
+> +	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
+> +
+> +	dev_dbg(ndev_dev(privdata), "%s addr: %x id: %d\n", __func__,
+> +		i2c_common->msg->addr, i2c_common->bus_id);
+> +
+> +	return amd_mp2_rw(i2c_common, i2c_read);
+> +}
+> +EXPORT_SYMBOL_GPL(amd_mp2_read);
+> +
+> +int amd_mp2_write(struct amd_i2c_common *i2c_common)
+> +{
+> +	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
+> +
+> +	dev_dbg(ndev_dev(privdata), "%s addr: %x id: %d\n", __func__,
+> +		i2c_common->msg->addr, i2c_common->bus_id);
+> +
+> +	return amd_mp2_rw(i2c_common, i2c_write);
+> +}
+> +EXPORT_SYMBOL_GPL(amd_mp2_write);
+
+I am not strict about it: but what about dropping the dev_dbg and only
+export amd_mp2_rw()? The I2C core has alerady debug to print which
+adapter accesses which client.
+
+> +
+> +static void amd_mp2_pci_check_rw_event(struct amd_i2c_common *i2c_common)
+> +{
+> +	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
+> +	int len = i2c_common->eventval.r.length;
+> +	u32 slave_addr = i2c_common->eventval.r.slave_addr;
+> +	bool err = false;
+> +
+> +	if (unlikely(len != i2c_common->msg->len)) {
+> +		dev_err(ndev_dev(privdata),
+> +			"length %d in event doesn't match buffer length %d!\n",
+> +			len, i2c_common->msg->len);
+> +		err = true;
+> +	}
+> +
+> +	if (unlikely(slave_addr != i2c_common->msg->addr)) {
+> +		dev_err(ndev_dev(privdata),
+> +			"unexpected slave address %x (expected: %x)!\n",
+> +			slave_addr, i2c_common->msg->addr);
+> +		err = true;
+> +	}
+> +
+> +	if (!err)
+> +		i2c_common->cmd_success = true;
+> +}
+> +
+> +static void __amd_mp2_process_event(struct amd_i2c_common *i2c_common)
+> +{
+> +	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
+> +	enum status_type sts = i2c_common->eventval.r.status;
+> +	enum response_type res = i2c_common->eventval.r.response;
+> +	int len = i2c_common->eventval.r.length;
+> +
+> +	if (res != command_success) {
+> +		if (res == command_failed)
+> +			dev_err(ndev_dev(privdata), "i2c command failed!\n");
+> +		else
+> +			dev_err(ndev_dev(privdata), "invalid response to i2c command!\n");
+> +		return;
+> +	}
+> +
+> +	switch (i2c_common->reqcmd) {
+> +	case i2c_read:
+> +		if (sts == i2c_readcomplete_event) {
+> +			amd_mp2_pci_check_rw_event(i2c_common);
+> +			if (len <= 32)
+> +				memcpy_fromio(i2c_common->msg->buf,
+> +					      privdata->mmio + AMD_C2P_MSG2,
+> +					      i2c_common->msg->len);
+> +		} else if (sts == i2c_readfail_event) {
+> +			dev_err(ndev_dev(privdata), "i2c read failed!\n");
+> +		} else {
+> +			dev_err(ndev_dev(privdata),
+> +				"invalid i2c status after read (%d)!\n", sts);
+> +		}
+> +		break;
+> +	case i2c_write:
+> +		if (sts == i2c_writecomplete_event)
+> +			amd_mp2_pci_check_rw_event(i2c_common);
+> +		else if (sts == i2c_writefail_event)
+> +			dev_err(ndev_dev(privdata), "i2c write failed!\n");
+> +		else
+> +			dev_err(ndev_dev(privdata),
+> +				"invalid i2c status after write (%d)!\n", sts);
+> +		break;
+> +	case i2c_enable:
+> +		if (sts == i2c_busenable_failed)
+> +			dev_err(ndev_dev(privdata), "i2c bus enable failed!\n");
+> +		else if (sts != i2c_busenable_complete)
+> +			dev_err(ndev_dev(privdata),
+> +				"invalid i2c status after bus enable (%d)!\n",
+> +				sts);
+> +		else
+> +			i2c_common->cmd_success = true;
+> +		break;
+> +	case i2c_disable:
+> +		if (sts == i2c_busdisable_failed)
+> +			dev_err(ndev_dev(privdata), "i2c bus disable failed!\n");
+> +		else if (sts != i2c_busdisable_complete)
+> +			dev_err(ndev_dev(privdata),
+> +				"invalid i2c status after bus disable (%d)!\n",
+> +				sts);
+> +		else
+> +			i2c_common->cmd_success = true;
+> +		break;
+> +	default:
+> +		break;
+> +	}
+> +}
+
+In general, I have the feeling that there are too many dev_err. I2C read/writes
+can fail if the client is busy. This should be reported with an ERRNO to the
+upper layers so they can decide to resend or not. But no need to inform the
+user about it. Please review these and include only the necessary ones. You can
+check other I2C drivers for an inspiration.
+
+> +
+> +void amd_mp2_process_event(struct amd_i2c_common *i2c_common)
+> +{
+> +	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
+> +
+> +	if (unlikely(i2c_common->reqcmd == i2c_none)) {
+> +		dev_warn(ndev_dev(privdata),
+> +			 "received msg but no cmd was sent (bus = %d)!\n",
+> +			 i2c_common->bus_id);
+> +		return;
+> +	}
+> +
+> +	__amd_mp2_process_event(i2c_common);
+> +
+> +	i2c_common->reqcmd = i2c_none;
+> +	amd_mp2_c2p_mutex_unlock(i2c_common);
+> +}
+> +EXPORT_SYMBOL_GPL(amd_mp2_process_event);
+> +
+> +static irqreturn_t amd_mp2_irq_isr(int irq, void *dev)
+> +{
+> +	struct amd_mp2_dev *privdata = dev;
+> +	struct amd_i2c_common *i2c_common;
+> +	u32 val;
+> +	unsigned int bus_id;
+> +	void __iomem *reg;
+> +	enum irqreturn ret = IRQ_NONE;
+> +
+> +	for (bus_id = 0; bus_id < 2; bus_id++) {
+> +		i2c_common = privdata->busses[bus_id];
+> +		if (!i2c_common)
+> +			continue;
+> +
+> +		reg = privdata->mmio + ((bus_id == 0) ?
+> +					AMD_P2C_MSG1 : AMD_P2C_MSG2);
+> +		val = readl(reg);
+> +		if (val != 0) {
+> +			writel(0, reg);
+> +			writel(0, privdata->mmio + AMD_P2C_MSG_INTEN);
+> +			i2c_common->eventval.ul = val;
+> +			i2c_common->cmd_completion(i2c_common);
+> +
+> +			ret = IRQ_HANDLED;
+> +		}
+> +	}
+> +
+> +	if (ret != IRQ_HANDLED) {
+> +		val = readl(privdata->mmio + AMD_P2C_MSG_INTEN);
+> +		if (unlikely(val != 0)) {
+> +			writel(0, privdata->mmio + AMD_P2C_MSG_INTEN);
+> +			dev_warn(ndev_dev(privdata),
+> +				 "received irq without message\n");
+> +			ret = IRQ_HANDLED;
+> +		}
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +void amd_mp2_rw_timeout(struct amd_i2c_common *i2c_common)
+> +{
+> +	i2c_common->reqcmd = i2c_none;
+> +	amd_mp2_c2p_mutex_unlock(i2c_common);
+> +}
+> +EXPORT_SYMBOL_GPL(amd_mp2_rw_timeout);
+> +
+> +int amd_mp2_register_cb(struct amd_i2c_common *i2c_common)
+> +{
+> +	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
+> +
+> +	if (i2c_common->bus_id > 1)
+> +		return -EINVAL;
+> +
+> +	if (privdata->busses[i2c_common->bus_id]) {
+> +		dev_err(ndev_dev(privdata),
+> +			"Bus %d already taken!\n", i2c_common->bus_id);
+> +		return -EINVAL;
+> +	}
+> +
+> +	privdata->busses[i2c_common->bus_id] = i2c_common;
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(amd_mp2_register_cb);
+> +
+> +int amd_mp2_unregister_cb(struct amd_i2c_common *i2c_common)
+> +{
+> +	struct amd_mp2_dev *privdata = i2c_common->mp2_dev;
+> +
+> +	privdata->busses[i2c_common->bus_id] = NULL;
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(amd_mp2_unregister_cb);
+> +
+> +#ifdef CONFIG_DEBUG_FS
+> +static const struct file_operations amd_mp2_debugfs_info;
+> +static struct dentry *debugfs_root_dir;
+> +
+> +static ssize_t amd_mp2_debugfs_read(struct file *filp, char __user *ubuf,
+> +				    size_t count, loff_t *offp)
+> +{
+> +	struct amd_mp2_dev *privdata = filp->private_data;
+> +	size_t buf_size = min_t(size_t, count, 0x800);
+> +	u8 *buf;
+> +	ssize_t ret, off = 0;
+> +	u32 v32;
+> +	int i;
+> +
+> +	buf = kmalloc(buf_size, GFP_KERNEL);
+> +	if (!buf)
+> +		return -ENOMEM;
+> +
+> +	off += scnprintf(buf + off, buf_size - off,
+> +			 "MP2 Device Information:\n"
+> +			 "========================\n"
+> +			 "\tMP2 C2P Message Register Dump:\n\n");
+> +
+> +	for (i = 0; i < 10; i++) {
+> +		v32 = readl(privdata->mmio + AMD_C2P_MSG0 + i * 4);
+> +		off += scnprintf(buf + off, buf_size - off,
+> +				 "AMD_C2P_MSG%d -\t\t\t%#06x\n", i, v32);
+> +	}
+> +
+> +	off += scnprintf(buf + off, buf_size - off,
+> +			"\n\tMP2 P2C Message Register Dump:\n\n");
+> +
+> +	for (i = 0; i < 3; i++) {
+> +		v32 = readl(privdata->mmio + AMD_P2C_MSG1 + i * 4);
+> +		off += scnprintf(buf + off, buf_size - off,
+> +				 "AMD_P2C_MSG%d -\t\t\t%#06x\n", i + 1, v32);
+> +	}
+> +
+> +	v32 = readl(privdata->mmio + AMD_P2C_MSG_INTEN);
+> +	off += scnprintf(buf + off, buf_size - off,
+> +			"AMD_P2C_MSG_INTEN -\t\t%#06x\n", v32);
+> +
+> +	v32 = readl(privdata->mmio + AMD_P2C_MSG_INTSTS);
+> +	off += scnprintf(buf + off, buf_size - off,
+> +			"AMD_P2C_MSG_INTSTS -\t\t%#06x\n", v32);
+> +
+> +	ret = simple_read_from_buffer(ubuf, count, offp, buf, off);
+> +	kfree(buf);
+> +	return ret;
+> +}
+> +
+> +static const struct file_operations amd_mp2_debugfs_info = {
+> +	.owner = THIS_MODULE,
+> +	.open = simple_open,
+> +	.read = amd_mp2_debugfs_read,
+> +};
+> +
+> +static void amd_mp2_init_debugfs(struct amd_mp2_dev *privdata)
+> +{
+> +	if (!debugfs_root_dir)
+> +		return;
+> +
+> +	privdata->debugfs_dir = debugfs_create_dir(ndev_name(privdata),
+> +						   debugfs_root_dir);
+> +	if (!privdata->debugfs_dir) {
+> +		privdata->debugfs_info = NULL;
+> +	} else {
+> +		privdata->debugfs_info = debugfs_create_file
+> +			("info", 0400, privdata->debugfs_dir,
+> +			 privdata, &amd_mp2_debugfs_info);
+> +	}
+> +}
+> +#endif /* CONFIG_DEBUG_FS */
+
+Please remove this debugfs interface. There must be generic ways to read out
+PCI memory?
+
+> +static void amd_mp2_clear_reg(struct amd_mp2_dev *privdata)
+> +{
+> +	int reg;
+> +
+> +	for (reg = AMD_C2P_MSG0; reg <= AMD_C2P_MSG9; reg += 4)
+> +		writel(0, privdata->mmio + reg);
+> +
+> +	for (reg = AMD_P2C_MSG1; reg <= AMD_P2C_MSG2; reg += 4)
+> +		writel(0, privdata->mmio + reg);
+> +}
+> +
+> +static int amd_mp2_pci_init(struct amd_mp2_dev *privdata,
+> +			    struct pci_dev *pci_dev)
+> +{
+> +	int rc;
+> +
+> +	pci_set_drvdata(pci_dev, privdata);
+> +
+> +	rc = pcim_enable_device(pci_dev);
+> +	if (rc) {
+> +		dev_err(ndev_dev(privdata), "Failed to enable MP2 PCI device\n");
+> +		goto err_pci_enable;
+> +	}
+> +
+> +	rc = pcim_iomap_regions(pci_dev, 1 << 2, pci_name(pci_dev));
+> +	if (rc) {
+> +		dev_err(ndev_dev(privdata), "I/O memory remapping failed\n");
+> +		goto err_pci_enable;
+> +	}
+> +	privdata->mmio = pcim_iomap_table(pci_dev)[2];
+> +
+> +	pci_set_master(pci_dev);
+> +
+> +	rc = pci_set_dma_mask(pci_dev, DMA_BIT_MASK(64));
+> +	if (rc) {
+> +		rc = pci_set_dma_mask(pci_dev, DMA_BIT_MASK(32));
+> +		if (rc)
+> +			goto err_dma_mask;
+> +	}
+> +
+> +	/* Set up intx irq */
+> +	writel(0, privdata->mmio + AMD_P2C_MSG_INTEN);
+> +	pci_intx(pci_dev, 1);
+> +	rc = devm_request_irq(&pci_dev->dev, pci_dev->irq, amd_mp2_irq_isr,
+> +			      IRQF_SHARED, dev_name(&pci_dev->dev), privdata);
+> +	if (rc)
+> +		dev_err(&pci_dev->dev, "Failure requesting irq %i: %d\n",
+> +			pci_dev->irq, rc);
+> +
+> +	return rc;
+> +
+> +err_dma_mask:
+> +	pci_clear_master(pci_dev);
+> +err_pci_enable:
+> +	pci_set_drvdata(pci_dev, NULL);
+> +	return rc;
+> +}
+> +
+> +static int amd_mp2_pci_probe(struct pci_dev *pci_dev,
+> +			     const struct pci_device_id *id)
+> +{
+> +	struct amd_mp2_dev *privdata;
+> +	int rc;
+> +	static bool first_probe = true;
+> +
+> +	if (first_probe) {
+> +		pr_info("%s: %s Version: %s\n", DRIVER_NAME,
+> +			DRIVER_DESC, DRIVER_VER);
+> +		first_probe = false;
+> +	}
+> +
+> +	dev_info(&pci_dev->dev, "MP2 device found [%04x:%04x] (rev %x)\n",
+> +		 pci_dev->vendor, pci_dev->device, pci_dev->revision);
+> +
+
+The kernel prints already too much during boot. So, please remove this.
+It will also get rid of the static variable which is not so good style.
+
+> +	privdata = devm_kzalloc(&pci_dev->dev, sizeof(*privdata), GFP_KERNEL);
+> +	if (!privdata)
+> +		return -ENOMEM;
+> +
+> +	rc = amd_mp2_pci_init(privdata, pci_dev);
+> +	if (rc)
+> +		return rc;
+> +
+> +	mutex_init(&privdata->c2p_lock);
+> +	privdata->pci_dev = pci_dev;
+> +
+> +	pm_runtime_set_autosuspend_delay(&pci_dev->dev, 1000);
+> +	pm_runtime_use_autosuspend(&pci_dev->dev);
+> +	pm_runtime_put_autosuspend(&pci_dev->dev);
+> +	pm_runtime_allow(&pci_dev->dev);
+> +
+> +	amd_mp2_init_debugfs(privdata);
+> +	dev_info(&pci_dev->dev, "MP2 device registered.\n");
+> +	return 0;
+> +}
+> +
+> +static bool amd_mp2_pci_is_probed(struct pci_dev *pci_dev)
+> +{
+> +	struct amd_mp2_dev *privdata = pci_get_drvdata(pci_dev);
+> +
+> +	if (!privdata)
+> +		return false;
+> +	return privdata->pci_dev != NULL;
+> +}
+> +
+> +static void amd_mp2_pci_remove(struct pci_dev *pci_dev)
+> +{
+> +	struct amd_mp2_dev *privdata = pci_get_drvdata(pci_dev);
+> +
+> +	pm_runtime_forbid(&pci_dev->dev);
+> +	pm_runtime_get_noresume(&pci_dev->dev);
+> +
+> +#ifdef CONFIG_DEBUG_FS
+> +	debugfs_remove_recursive(privdata->debugfs_dir);
+> +#endif /* CONFIG_DEBUG_FS */
+> +
+> +	pci_intx(pci_dev, 0);
+> +	pci_clear_master(pci_dev);
+> +
+> +	amd_mp2_clear_reg(privdata);
+> +}
+> +
+> +#ifdef CONFIG_PM
+> +static int amd_mp2_pci_suspend(struct device *dev)
+> +{
+> +	struct pci_dev *pci_dev = to_pci_dev(dev);
+> +	struct amd_mp2_dev *privdata = pci_get_drvdata(pci_dev);
+> +	struct amd_i2c_common *i2c_common;
+> +	unsigned int bus_id;
+> +	int ret = 0;
+> +
+> +	for (bus_id = 0; bus_id < 2; bus_id++) {
+> +		i2c_common = privdata->busses[bus_id];
+> +		if (i2c_common)
+> +			i2c_common->suspend(i2c_common);
+> +	}
+> +
+> +	ret = pci_save_state(pci_dev);
+> +	if (ret) {
+> +		dev_err(ndev_dev(privdata),
+> +			"pci_save_state failed = %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	pci_disable_device(pci_dev);
+> +	return ret;
+> +}
+> +
+> +static int amd_mp2_pci_resume(struct device *dev)
+> +{
+> +	struct pci_dev *pci_dev = to_pci_dev(dev);
+> +	struct amd_mp2_dev *privdata = pci_get_drvdata(pci_dev);
+> +	struct amd_i2c_common *i2c_common;
+> +	unsigned int bus_id;
+> +	int ret = 0;
+> +
+> +	pci_restore_state(pci_dev);
+> +	ret = pci_enable_device(pci_dev);
+> +	if (ret < 0) {
+> +		dev_err(ndev_dev(privdata),
+> +			"pci_enable_device failed = %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	for (bus_id = 0; bus_id < 2; bus_id++) {
+> +		i2c_common = privdata->busses[bus_id];
+> +		if (i2c_common) {
+> +			ret = i2c_common->resume(i2c_common);
+> +			if (ret < 0)
+> +				return ret;
+> +		}
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static UNIVERSAL_DEV_PM_OPS(amd_mp2_pci_pm_ops, amd_mp2_pci_suspend,
+> +			    amd_mp2_pci_resume, NULL);
+> +#endif /* CONFIG_PM */
+> +
+> +static const struct pci_device_id amd_mp2_pci_tbl[] = {
+> +	{PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_MP2)},
+> +	{0}
+> +};
+> +MODULE_DEVICE_TABLE(pci, amd_mp2_pci_tbl);
+> +
+> +static struct pci_driver amd_mp2_pci_driver = {
+> +	.name		= DRIVER_NAME,
+> +	.id_table	= amd_mp2_pci_tbl,
+> +	.probe		= amd_mp2_pci_probe,
+> +	.remove		= amd_mp2_pci_remove,
+> +#ifdef CONFIG_PM
+> +	.driver = {
+> +		.pm	= &amd_mp2_pci_pm_ops,
+> +	},
+> +#endif
+> +};
+> +
+> +static int amd_mp2_device_match(struct device *dev, void *data)
+> +{
+> +	return 1;
+> +}
+> +
+> +struct amd_mp2_dev *amd_mp2_find_device(void)
+> +{
+> +	struct device *dev;
+> +	struct pci_dev *pci_dev;
+> +
+> +	dev = driver_find_device(&amd_mp2_pci_driver.driver, NULL, NULL,
+> +				 amd_mp2_device_match);
+> +	if (!dev)
+> +		return NULL;
+> +
+> +	pci_dev = to_pci_dev(dev);
+> +	if (!amd_mp2_pci_is_probed(pci_dev))
+> +		return NULL;
+> +	return (struct amd_mp2_dev *)pci_get_drvdata(pci_dev);
+> +}
+> +EXPORT_SYMBOL_GPL(amd_mp2_find_device);
+
+Can't you just share a common flag when the PCI driver is successfully
+probed and let the platform driver defer until this flag is set?
+
+Reading this, I also don't think there should be two seperate Kconfig
+and Makefile entries. You need both to have working I2C, so one Kconfig
+entry should compile both files.
+
+> +
+> +static int __init amd_mp2_drv_init(void)
+> +{
+> +#ifdef CONFIG_DEBUG_FS
+> +	debugfs_root_dir = debugfs_create_dir(KBUILD_MODNAME, NULL);
+> +#endif /* CONFIG_DEBUG_FS */
+> +
+> +	return pci_register_driver(&amd_mp2_pci_driver);
+> +}
+> +module_init(amd_mp2_drv_init);
+> +
+> +static void __exit amd_mp2_drv_exit(void)
+> +{
+> +	pci_unregister_driver(&amd_mp2_pci_driver);
+> +
+> +#ifdef CONFIG_DEBUG_FS
+> +	debugfs_remove_recursive(debugfs_root_dir);
+> +#endif /* CONFIG_DEBUG_FS */
+> +}
+> +module_exit(amd_mp2_drv_exit);
+
+Without debugfs stuff, you could probably use module_pci_driver.
+
+> +
+> +MODULE_DESCRIPTION(DRIVER_DESC);
+> +MODULE_VERSION(DRIVER_VER);
+> +MODULE_AUTHOR("Shyam Sundar S K <Shyam-sundar.S-k@amd.com>");
+> +MODULE_AUTHOR("Elie Morisse <syniurge@gmail.com>");
+> +MODULE_LICENSE("Dual BSD/GPL");
+> diff --git a/drivers/i2c/busses/i2c-amd-mp2-plat.c b/drivers/i2c/busses/i2c-amd-mp2-plat.c
+> new file mode 100644
+> index 000000000000..06cf2b6658e5
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-amd-mp2-plat.c
+> @@ -0,0 +1,392 @@
+> +// SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
+> +/*
+> + * AMD MP2 platform driver
+> + *
+> + * Setup the I2C adapters enumerated in the ACPI namespace.
+> + * MP2 controllers have 2 separate busses, up to 2 I2C adapters may be listed.
+> + *
+> + * Authors: Nehal Bakulchandra Shah <Nehal-bakulchandra.shah@amd.com>
+> + *          Elie Morisse <syniurge@gmail.com>
+> + */
+> +
+> +#include <linux/acpi.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/slab.h>
+> +#include <linux/types.h>
+> +
+> +#include "i2c-amd-mp2.h"
+> +
+> +#define AMD_MP2_I2C_MAX_RW_LENGTH ((1 << 12) - 1)
+> +#define AMD_I2C_TIMEOUT (msecs_to_jiffies(250))
+> +
+> +/**
+> + * struct amd_i2c_dev - MP2 bus/i2c adapter context
+> + * @common: shared context with the MP2 PCI driver
+> + * @pdev: platform driver node
+> + * @adap: i2c adapter
+> + * @cmd_complete: xfer completion object
+> + */
+> +struct amd_i2c_dev {
+> +	struct amd_i2c_common common;
+> +	struct platform_device *pdev;
+> +	struct i2c_adapter adap;
+> +	struct completion cmd_complete;
+> +};
+> +
+> +#define amd_i2c_dev_common(__common) \
+> +	container_of(__common, struct amd_i2c_dev, common)
+> +
+> +static int i2c_amd_dma_map(struct amd_i2c_common *i2c_common)
+> +{
+> +	struct device *dev_pci = &i2c_common->mp2_dev->pci_dev->dev;
+> +	struct amd_i2c_dev *i2c_dev = amd_i2c_dev_common(i2c_common);
+> +	enum dma_data_direction dma_direction =
+> +			i2c_common->msg->flags & I2C_M_RD ?
+> +			DMA_FROM_DEVICE : DMA_TO_DEVICE;
+> +
+> +	i2c_common->dma_buf = i2c_get_dma_safe_msg_buf(i2c_common->msg, 0);
+> +	i2c_common->dma_addr = dma_map_single(dev_pci, i2c_common->dma_buf,
+> +					      i2c_common->msg->len,
+> +					      dma_direction);
+> +
+> +	if (unlikely(dma_mapping_error(dev_pci, i2c_common->dma_addr))) {
+> +		dev_err(&i2c_dev->pdev->dev,
+> +			"Error while mapping dma buffer %p\n",
+> +			i2c_common->dma_buf);
+> +		return -EIO;
+> +	}
+> +
+> +	return 0;
+> +}
+
+There is too much unlikely() in these drivers. It is suggested to use it
+only carefully in selected hot paths, these days.
+
+> +
+> +static void i2c_amd_dma_unmap(struct amd_i2c_common *i2c_common)
+> +{
+> +	struct device *dev_pci = &i2c_common->mp2_dev->pci_dev->dev;
+> +	enum dma_data_direction dma_direction =
+> +			i2c_common->msg->flags & I2C_M_RD ?
+> +			DMA_FROM_DEVICE : DMA_TO_DEVICE;
+> +
+> +	dma_unmap_single(dev_pci, i2c_common->dma_addr,
+> +			 i2c_common->msg->len, dma_direction);
+> +
+> +	i2c_put_dma_safe_msg_buf(i2c_common->dma_buf, i2c_common->msg, true);
+> +}
+> +
+> +static const char *i2c_amd_cmd_name(enum i2c_cmd cmd)
+> +{
+> +	switch (cmd) {
+> +	case i2c_read:
+> +		return "i2c read";
+> +	case i2c_write:
+> +		return "i2c write";
+> +	case i2c_enable:
+> +		return "bus enable";
+> +	case i2c_disable:
+> +		return "bus disable";
+> +	case number_of_sensor_discovered:
+> +		return "'number of sensors discovered' cmd";
+> +	case is_mp2_active:
+> +		return "'is mp2 active' cmd";
+> +	default:
+> +		return "invalid cmd";
+> +	}
+> +}
+> +
+> +static void i2c_amd_start_cmd(struct amd_i2c_dev *i2c_dev)
+> +{
+> +	struct amd_i2c_common *i2c_common = &i2c_dev->common;
+> +
+> +	reinit_completion(&i2c_dev->cmd_complete);
+> +	i2c_common->cmd_success = false;
+> +}
+> +
+> +static void i2c_amd_cmd_completion(struct amd_i2c_common *i2c_common)
+> +{
+> +	struct amd_i2c_dev *i2c_dev = amd_i2c_dev_common(i2c_common);
+> +	union i2c_event *event = &i2c_common->eventval;
+> +
+> +	if (event->r.status == i2c_readcomplete_event)
+> +		dev_dbg(&i2c_dev->pdev->dev, "%s readdata:%*ph\n",
+> +			__func__, event->r.length,
+> +			i2c_common->msg->buf);
+> +
+> +	complete(&i2c_dev->cmd_complete);
+> +}
+> +
+> +static int i2c_amd_check_cmd_completion(struct amd_i2c_dev *i2c_dev)
+> +{
+> +	struct amd_i2c_common *i2c_common = &i2c_dev->common;
+> +	unsigned long timeout;
+> +
+> +	timeout = wait_for_completion_timeout(&i2c_dev->cmd_complete,
+> +					      i2c_dev->adap.timeout);
+> +	if (unlikely(timeout == 0)) {
+> +		dev_err(&i2c_dev->pdev->dev, "%s timed out\n",
+> +			i2c_amd_cmd_name(i2c_common->reqcmd));
+> +		amd_mp2_rw_timeout(i2c_common);
+> +	}
+
+Again, timeouts can happen in I2C, so no need to inform the user.
+
+> +
+> +	if ((i2c_common->reqcmd == i2c_read ||
+> +	     i2c_common->reqcmd == i2c_write) &&
+> +	    i2c_common->msg->len > 32)
+> +		i2c_amd_dma_unmap(i2c_common);
+> +
+> +	if (unlikely(timeout == 0))
+> +		return -ETIMEDOUT;
+> +
+> +	amd_mp2_process_event(i2c_common);
+> +
+> +	if (!i2c_common->cmd_success)
+> +		return -EIO;
+> +
+> +	return 0;
+> +}
+> +
+> +static int i2c_amd_enable_set(struct amd_i2c_dev *i2c_dev, bool enable)
+> +{
+> +	struct amd_i2c_common *i2c_common = &i2c_dev->common;
+> +
+> +	i2c_amd_start_cmd(i2c_dev);
+> +	amd_mp2_bus_enable_set(i2c_common, enable);
+> +
+> +	return i2c_amd_check_cmd_completion(i2c_dev);
+> +}
+> +
+> +static int i2c_amd_xfer_msg(struct amd_i2c_dev *i2c_dev, struct i2c_msg *pmsg)
+> +{
+> +	struct amd_i2c_common *i2c_common = &i2c_dev->common;
+> +
+> +	i2c_amd_start_cmd(i2c_dev);
+> +	i2c_common->msg = pmsg;
+> +
+> +	if (pmsg->len > 32)
+> +		if (i2c_amd_dma_map(i2c_common))
+> +			return -EIO;
+> +
+> +	if (pmsg->flags & I2C_M_RD)
+> +		amd_mp2_read(i2c_common);
+> +	else
+> +		amd_mp2_write(i2c_common);
+> +
+> +	return i2c_amd_check_cmd_completion(i2c_dev);
+> +}
+> +
+> +static int i2c_amd_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+> +{
+> +	struct amd_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
+> +	int i;
+> +	struct i2c_msg *pmsg;
+> +	int err;
+> +
+> +	/* the adapter might have been deleted while waiting for the bus lock */
+> +	if (unlikely(!i2c_dev->common.mp2_dev))
+> +		return -EINVAL;
+> +
+> +	amd_mp2_pm_runtime_get(i2c_dev->common.mp2_dev);
+> +
+> +	for (i = 0; i < num; i++) {
+> +		pmsg = &msgs[i];
+> +		err = i2c_amd_xfer_msg(i2c_dev, pmsg);
+> +		if (err)
+> +			break;
+> +	}
+> +
+> +	amd_mp2_pm_runtime_put(i2c_dev->common.mp2_dev);
+> +	return err ? err : num;
+> +}
+> +
+> +static u32 i2c_amd_func(struct i2c_adapter *a)
+> +{
+> +	return I2C_FUNC_I2C;
+> +}
+
+Why not emulated SMBUS?
+
+> +
+> +static const struct i2c_algorithm i2c_amd_algorithm = {
+> +	.master_xfer = i2c_amd_xfer,
+> +	.functionality = i2c_amd_func,
+> +};
+> +
+> +#ifdef CONFIG_PM
+> +static int i2c_amd_suspend(struct amd_i2c_common *i2c_common)
+> +{
+> +	struct amd_i2c_dev *i2c_dev = amd_i2c_dev_common(i2c_common);
+> +
+> +	i2c_amd_enable_set(i2c_dev, false);
+> +	return 0;
+> +}
+> +
+> +static int i2c_amd_resume(struct amd_i2c_common *i2c_common)
+> +{
+> +	struct amd_i2c_dev *i2c_dev = amd_i2c_dev_common(i2c_common);
+> +
+> +	return i2c_amd_enable_set(i2c_dev, true);
+> +}
+> +#endif
+> +
+> +static enum speed_enum i2c_amd_get_bus_speed(struct platform_device *pdev)
+> +{
+> +	u32 acpi_speed;
+> +	int i;
+> +	static const u32 supported_speeds[] = {
+> +		0, 100000, 400000, 1000000, 1400000, 3400000
+> +	};
+> +
+> +	acpi_speed = i2c_acpi_find_bus_speed(&pdev->dev);
+> +	/* round down to the lowest standard speed */
+> +	for (i = 1; i < ARRAY_SIZE(supported_speeds); i++) {
+> +		if (acpi_speed < supported_speeds[i])
+> +			break;
+> +	}
+> +	acpi_speed = supported_speeds[i - 1];
+> +
+> +	switch (acpi_speed) {
+> +	case 100000:
+> +		return speed100k;
+> +	case 400000:
+> +		return speed400k;
+> +	case 1000000:
+> +		return speed1000k;
+> +	case 1400000:
+> +		return speed1400k;
+> +	case 3400000:
+> +		return speed3400k;
+> +	default:
+> +		return speed400k;
+> +	}
+> +}
+> +
+> +static const struct i2c_adapter_quirks amd_i2c_dev_quirks = {
+> +	.max_read_len = AMD_MP2_I2C_MAX_RW_LENGTH,
+> +	.max_write_len = AMD_MP2_I2C_MAX_RW_LENGTH,
+> +};
+> +
+> +static int i2c_amd_probe(struct platform_device *pdev)
+> +{
+> +	int ret;
+> +	struct amd_i2c_dev *i2c_dev;
+> +	acpi_handle handle = ACPI_HANDLE(&pdev->dev);
+> +	struct acpi_device *adev;
+> +	struct amd_mp2_dev *mp2_dev;
+> +	const char *uid;
+> +
+> +	if (acpi_bus_get_device(handle, &adev))
+> +		return -ENODEV;
+> +
+> +	/* The ACPI namespace doesn't contain information about which MP2 PCI
+> +	 * device an AMDI0011 ACPI device is related to, so assume that there's
+> +	 * only one MP2 PCI device per system.
+> +	 */
+> +	mp2_dev = amd_mp2_find_device();
+> +	if (!mp2_dev)
+> +		/* The MP2 PCI device might get probed later */
+> +		return -EPROBE_DEFER;
+> +
+> +	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
+> +	if (!i2c_dev)
+> +		return -ENOMEM;
+> +
+> +	i2c_dev->common.mp2_dev = mp2_dev;
+> +	i2c_dev->pdev = pdev;
+> +	platform_set_drvdata(pdev, i2c_dev);
+> +
+> +	i2c_dev->common.cmd_completion = &i2c_amd_cmd_completion;
+> +#ifdef CONFIG_PM
+> +	i2c_dev->common.suspend = &i2c_amd_suspend;
+> +	i2c_dev->common.resume = &i2c_amd_resume;
+> +#endif
+> +
+> +	uid = adev->pnp.unique_id;
+> +	if (!uid) {
+> +		dev_err(&pdev->dev, "missing UID/bus id!\n");
+> +		return -EINVAL;
+> +	} else if (strcmp(uid, "0") == 0) {
+> +		i2c_dev->common.bus_id = 0;
+> +	} else if (strcmp(uid, "1") == 0) {
+> +		i2c_dev->common.bus_id = 1;
+> +	} else {
+> +		dev_err(&pdev->dev, "incorrect UID/bus id \"%s\"!\n", uid);
+> +		return -EINVAL;
+> +	}
+> +	dev_dbg(&pdev->dev, "bus id is %u\n", i2c_dev->common.bus_id);
+> +
+> +	/* Register the adapter */
+> +	amd_mp2_pm_runtime_get(mp2_dev);
+> +
+> +	i2c_dev->common.reqcmd = i2c_none;
+> +	if (amd_mp2_register_cb(&i2c_dev->common))
+> +		return -EINVAL;
+> +	device_link_add(&i2c_dev->pdev->dev, &mp2_dev->pci_dev->dev,
+> +			DL_FLAG_AUTOREMOVE_CONSUMER);
+> +
+> +	i2c_dev->common.i2c_speed = i2c_amd_get_bus_speed(pdev);
+> +
+> +	/* Setup i2c adapter description */
+> +	i2c_dev->adap.owner = THIS_MODULE;
+> +	i2c_dev->adap.algo = &i2c_amd_algorithm;
+> +	i2c_dev->adap.quirks = &amd_i2c_dev_quirks;
+> +	i2c_dev->adap.dev.parent = &pdev->dev;
+> +	i2c_dev->adap.algo_data = i2c_dev;
+> +	i2c_dev->adap.nr = pdev->id;
+> +	i2c_dev->adap.timeout = AMD_I2C_TIMEOUT;
+> +	ACPI_COMPANION_SET(&i2c_dev->adap.dev, ACPI_COMPANION(&pdev->dev));
+> +	i2c_dev->adap.dev.of_node = pdev->dev.of_node;
+> +	snprintf(i2c_dev->adap.name, sizeof(i2c_dev->adap.name),
+> +		 "AMD MP2 i2c bus %u", i2c_dev->common.bus_id);
+> +	i2c_set_adapdata(&i2c_dev->adap, i2c_dev);
+> +
+> +	init_completion(&i2c_dev->cmd_complete);
+> +
+> +	/* Enable the bus */
+> +	if (i2c_amd_enable_set(i2c_dev, true))
+> +		dev_err(&pdev->dev, "initial bus enable failed\n");
+> +
+> +	/* Attach to the i2c layer */
+> +	ret = i2c_add_numbered_adapter(&i2c_dev->adap);
+
+I'd think i2c_add_adapter is much better here. This doesn't look like a
+'fixed' embedded device, so the bus numbers you require might be taken
+by e.g. a graphics card.
+
+> +
+> +	amd_mp2_pm_runtime_put(mp2_dev);
+> +
+> +	if (ret < 0)
+> +		dev_err(&pdev->dev, "i2c add adapter failed = %d\n", ret);
+> +
+> +	return ret;
+> +}
+> +
+> +static int i2c_amd_remove(struct platform_device *pdev)
+> +{
+> +	struct amd_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
+> +	struct amd_i2c_common *i2c_common = &i2c_dev->common;
+> +
+> +	i2c_lock_bus(&i2c_dev->adap, I2C_LOCK_ROOT_ADAPTER);
+> +
+> +	i2c_amd_enable_set(i2c_dev, false);
+> +	amd_mp2_unregister_cb(i2c_common);
+> +	i2c_common->mp2_dev = NULL;
+> +
+> +	i2c_unlock_bus(&i2c_dev->adap, I2C_LOCK_ROOT_ADAPTER);
+> +
+> +	i2c_del_adapter(&i2c_dev->adap);
+> +	return 0;
+> +}
+> +
+> +static const struct acpi_device_id i2c_amd_acpi_match[] = {
+> +	{ "AMDI0011" },
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(acpi, i2c_amd_acpi_match);
+> +
+> +static struct platform_driver i2c_amd_plat_driver = {
+> +	.probe = i2c_amd_probe,
+> +	.remove = i2c_amd_remove,
+> +	.driver = {
+> +		.name = "i2c_amd_mp2",
+> +		.acpi_match_table = ACPI_PTR(i2c_amd_acpi_match),
+> +	},
+> +};
+> +module_platform_driver(i2c_amd_plat_driver);
+> +
+> +MODULE_DESCRIPTION("AMD(R) MP2 I2C Platform Driver");
+> +MODULE_VERSION("1.0");
+> +MODULE_AUTHOR("Nehal Shah <nehal-bakulchandra.shah@amd.com>");
+> +MODULE_AUTHOR("Elie Morisse <syniurge@gmail.com>");
+> +MODULE_LICENSE("Dual BSD/GPL");
+
+So much for now. I might have missed some things due to the complexity
+here, but I think the review is good enough to get going.
+
+Thanks again and regards,
+
+   Wolfram
+
+
+--YiEDa0DAkWCtVeE4
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxZfBUACgkQFA3kzBSg
+KbbvRA//WtmZQ5VBbieAOq/UhEZ7+CaerH/DmWvK6S4xAno+MAmiNg/FiSCiq735
+iPAyiebgcVEqZe/abmIf2XeLIpC6ZtvvsZKI1I3O+qWquQXXLbqplbVVsfu+kHMN
+KJ3dSNc7J6IPF66qdD3na6c1kTAbB3TEUuucAP60VlN/tULvDfiqDj4u+S54wiFw
+D9PRvlsVvQ3kW/V/QWvTuJC4fI37n4Qo9AxhUpSFJa+mzwCIQbb+FC9klwQ2JAcc
+LNkiU8DzhJJ2CCCFqij6gK1kUs5AiQQ2XOY2KnHp4VPxap1GOKwmpZv9EP2maSux
+mhe1UC5PNMcxNxdiUY+mOQ9egp8/zojJ/oetDqqGp8M6oLpPyYubqnwBGC+mSxh+
+FFpZBcCwlBM/D3OSmcYZ/xXh65s5Y5hIALqY0YN3GiGogE0Iyli2GftboJ2OuhUk
+B49Ghilcqp5TGubv6oUA/vpmWxSzn2RmHsVLnwilVq+157MdlG/5/OQq4M1RS++H
+5YJiNVhp0A2IxorTv1v0wgb0G9smdR27JgJ47jbQXo9JIKN7XtYJcit8RN0fHHSB
+Y/ilwc6x9IKqebT3urE7O/d+799nON2sXUFy7qtFHJPwbeO5ZyTjGVlqTdle4Cbm
+oUnmfkjIMQ6HaYNfgf1jBnfjO6ukVX4UpkdcZLFSov3fXY0qLyY=
+=pHh2
+-----END PGP SIGNATURE-----
+
+--YiEDa0DAkWCtVeE4--
