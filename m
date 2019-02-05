@@ -1,98 +1,93 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: core-smbus: don't trace smbus_reply data on errors
-Date: Tue, 5 Feb 2019 13:13:57 +0100
-Message-ID: <20190205121353.GC1045@kunai>
-References: <20190104004203.116155-1-jsperbeck@google.com>
- <20190103214927.2bf947ca@vmware.local.home>
+Subject: Re: [PATCH v2] i2c: of: Try to find an I2C adapter matching the parent
+Date: Tue, 5 Feb 2019 13:44:44 +0100
+Message-ID: <20190205124443.GF1045@kunai>
+References: <20190125131142.26837-1-thierry.reding@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="lCAWRPmW1mITcIfM"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190103214927.2bf947ca@vmware.local.home>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: John Sperbeck <jsperbeck@google.com>, Ingo Molnar <mingo@redhat.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============0221127097=="
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20190125131142.26837-1-thierry.reding@gmail.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Thierry Reding <thierry.reding@gmail.com>
+Cc: Tristan Bastian <tristan-c.bastian@gmx.de>, Vlado Plaga <rechner@vlado-do.de>, dri-devel@lists.freedesktop.org, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---lCAWRPmW1mITcIfM
+--===============0221127097==
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="3oCie2+XPXTnK5a5"
+Content-Disposition: inline
+
+
+--3oCie2+XPXTnK5a5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 03, 2019 at 09:49:27PM -0500, Steven Rostedt wrote:
-> On Thu,  3 Jan 2019 16:42:03 -0800
-> John Sperbeck <jsperbeck@google.com> wrote:
+On Fri, Jan 25, 2019 at 02:11:42PM +0100, Thierry Reding wrote:
+> From: Thierry Reding <treding@nvidia.com>
 >=20
-> > If an smbus transfer fails, there's no guarantee that the output
-> > buffer was written.  So, avoid copying from the output buffer when
-> > tracing after an error.  This was 'mostly harmless', but would trip
-> > up kasan checking if left-over cruft in byte 0 is a large length,
-> > causing us to read from unwritten memory.
-> >=20
-> > Signed-off-by: John Sperbeck <jsperbeck@google.com>
-> > ---
-> >  drivers/i2c/i2c-core-smbus.c |  2 +-
-> >  include/trace/events/smbus.h | 10 +++++-----
-> >  2 files changed, 6 insertions(+), 6 deletions(-)
-> >=20
-> > diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
-> > index 9cd66cabb84f..132119112596 100644
-> > --- a/drivers/i2c/i2c-core-smbus.c
-> > +++ b/drivers/i2c/i2c-core-smbus.c
-> > @@ -585,7 +585,7 @@ s32 __i2c_smbus_xfer(struct i2c_adapter *adapter, u=
-16 addr,
-> >  trace:
-> >  	/* If enabled, the reply tracepoint is conditional on read_write. */
-> >  	trace_smbus_reply(adapter, addr, flags, read_write,
-> > -			  command, protocol, data);
-> > +			  command, protocol, data, res);
-> >  	trace_smbus_result(adapter, addr, flags, read_write,
-> >  			   command, protocol, res);
-> > =20
-> > diff --git a/include/trace/events/smbus.h b/include/trace/events/smbus.h
-> > index d2fb6e1d3e10..b6376a7c7e74 100644
-> > --- a/include/trace/events/smbus.h
-> > +++ b/include/trace/events/smbus.h
-> > @@ -138,8 +138,8 @@ TRACE_EVENT_CONDITION(smbus_reply,
-> >  	TP_PROTO(const struct i2c_adapter *adap,
-> >  		 u16 addr, unsigned short flags,
-> >  		 char read_write, u8 command, int protocol,
-> > -		 const union i2c_smbus_data *data),
-> > -	TP_ARGS(adap, addr, flags, read_write, command, protocol, data),
-> > +		 const union i2c_smbus_data *data, int res),
-> > +	TP_ARGS(adap, addr, flags, read_write, command, protocol, data, res),
-> >  	TP_CONDITION(read_write =3D=3D I2C_SMBUS_READ),
+> If an I2C adapter doesn't match the provided device tree node, also try
+> matching the parent's device tree node. This allows finding an adapter
+> based on the device node of the parent device that was used to register
+> it.
 >=20
-> Hmm, instead of tracing nothing, as this is already a "conditional
-> trace event", why not add to that condition:
+> This fixes a regression on Tegra124-based Chromebooks (Nyan) where the
+> eDP controller registers an I2C adapter that is used to read to EDID.
+> After commit 993a815dcbb2 ("dt-bindings: panel: Add missing .txt
+> suffix") this stopped working because the I2C adapter could no longer
+> be found. The approach in this patch fixes the regression without
+> introducing the issues that the above commit solved.
 >=20
-> 	TP_CONDITION(res >=3D 0 && read_write =3D=3D I2C_SMBUS_READ),
->=20
-> Unless you want to still trace some data on failure.
+> Fixes: 17ab7806de0c ("drm: don't link DP aux i2c adapter to the hardware =
+device node")
+> Signed-off-by: Thierry Reding <treding@nvidia.com>
 
-John, any comment to this?
+Removed the duplicated Tested-by and applied to for-next, thanks!
+
+I applied to -next because I want this core change more regression
+testing in next. If this goes good, I will do a cleanup series to not
+use the of_node of the parent twice.
 
 
---lCAWRPmW1mITcIfM
+--3oCie2+XPXTnK5a5
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxZfgEACgkQFA3kzBSg
-Kbb8Ng//bM9+CBUDuxVV1jEQm1tBwiH1+JclMxzabWd/btO/fwW8h4DQv25NEKI2
-irYP2G0KSzUugfBnnJ0011e+CLOAaB/Txh9Ju/oXDwNX6wZqUeS9V6Hp9DI6oSR0
-fogaBeZKvLvfyrYEt9XVNUPHRVyMHUoMUo8VRFaNaZX02bx9+RsgmXOV9yX2STAT
-E1dZ9d7v74i3Fhrr2yrCTd7QpeT7ohNXJLalW68ZY/LgGG7rBTusRgAvPL1T/x4d
-ifM4D/WBiw7JymainbUdm6SNpIGQkQ7qlD0uAJv+uUqUhU75s7tO1lcExtC049TN
-MYHSMhycgk5338s/4Sp4izgh/2hl+HNdNgd5Mtwgw7M97N2Erm6FGMJLmpb9jZ0q
-NalbqbxThIYBSGMTNxwHKGl20aUce2+uT9cNsaDjhpQav0IeGVDcj93dIMb+SFsn
-AP6raxAhRgZM6Da5PhNtaetfULUF/wYnG+B+So5/TRCeMauhKGUn4qkFjGERyHIQ
-JjSoeJPqeTbe0+zqWmpiKu11ldQeIuzd0L9K+696AiV5zRz64dw3TTBl9ayZiP3n
-9bl9uPbwTP+SwyytzHNgx2Fi9qLMorQqzArMK1kC24Pjvx3tIDGcCn5i3lmMcUaj
-HtO1uOL0gSdgjVf8qP4O33RVrGuwIEfvP8gV2P/fhSSK2399aHA=
-=GMyX
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxZhTcACgkQFA3kzBSg
+KbY89Q/+ILjrajrZxtCSiotT7pK4eOQvpj0Xy7qx4oE3boyoZu1wXc2mF/vDCRDs
+yXc4KK2AP1naZryvB/zsMSwa+id7Hvne+VzZY5VIsl4jxw9IZMuF/hEXqnVQ6AnI
+Zs7SfwXwTEmT70a+231k3XsgCTRqtDKHli3mqPfKCBk9MLka+aHTbvNKgMmetLx5
+FipesTS8UEM8YsIWrjh4sgxK/pzZaDWrlq5ZOVSQYcdxON2mmWRYcFIMDX0VckHA
+Bth/8+Y/VoJI6yxyxQ9b3CalrDhvuOFsagQINa3SLld0TJR8Aa8xTnD4T888Ua4h
+39VLJzEvuEGkySbLEJtFUjC3HzfcWB3gCyzSr2eTwMx7dLqz1pB24/FslMgQb3lk
+NdBk445Kf0QC9ZjTuvzjvf0wI0Dm/6Pl74QgNmfeyn0MEuqsBrkcy5VwqgV3Hz0E
+oJwZ0qfdK28nvjYxASL/7QNIfsRBvOVXUqegprABqkC2RGbZvM2aLv1tiCBExQbs
+K5uEV2v6eYUcE4pacQv86fIsHmxuVXCvA4AnyQsBXHBcCtYciZtKEwWSpR/ZG62G
+xVif0FxsxJPl4sP43TW4M5QIwiZpbmPkQDYYcCP05kVDYmu3bk2U06QObGVljuop
+c8jtFnZ+yhV88SL3QblMjqn4eKuM7hUyoGG1LWASRxVe0o1qzA4=
+=J5TL
 -----END PGP SIGNATURE-----
 
---lCAWRPmW1mITcIfM--
+--3oCie2+XPXTnK5a5--
+
+--===============0221127097==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
+
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
+IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+
+--===============0221127097==--
