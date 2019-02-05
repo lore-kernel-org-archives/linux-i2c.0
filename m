@@ -1,74 +1,99 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: core-smbus: don't trace smbus_reply data on errors
-Date: Tue, 5 Feb 2019 20:08:50 +0100
-Message-ID: <20190205190849.GA2686@kunai>
-References: <20190104004203.116155-1-jsperbeck@google.com>
- <20190103214927.2bf947ca@vmware.local.home>
- <20190205121353.GC1045@kunai>
- <CAFNjLiU_KOmcBHykHt5JTr439DJVf=j=aGKpnObZfMx6nLreRQ@mail.gmail.com>
+From: Bjorn Helgaas <bhelgaas@google.com>
+Subject: Re: [PATCH v15] i2c: Add drivers for the AMD PCIe MP2 I2C controller
+Date: Tue, 5 Feb 2019 13:57:36 -0600
+Message-ID: <CAErSpo5kvFVwo-DCLYT_7UmRQKS1jHahFXawvnZUtZ=ApHKz1Q@mail.gmail.com>
+References: <20181226232258.GA23526@syn-yoga530> <20190205120545.GA1045@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAFNjLiU_KOmcBHykHt5JTr439DJVf=j=aGKpnObZfMx6nLreRQ@mail.gmail.com>
+In-Reply-To: <20190205120545.GA1045@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: John Sperbeck <jsperbeck@google.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@redhat.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Elie Morisse <syniurge@gmail.com>, linux-i2c <linux-i2c@vger.kernel.org>, Nehal-bakulchandra.Shah@amd.com, Shyam-sundar.S-k@amd.com, sandeep.singh@amd.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kai-Heng Feng <kai.heng.feng@canonical.com>, Bjorn Helgaas <helgaas@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, Feb 5, 2019 at 6:06 AM Wolfram Sang <wsa@the-dreams.de> wrote:
 
---HcAYCG3uE/tztfnV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > +03:00.7 Non-VGA unclassified device: Advanced Micro Devices, Inc. [AMD] Device
+> > +                                                                     15e6
+> > +
+> > +in your 'lspci -v', then this driver is for your device.
+>
+> Sidenote: Can't we add something to the pci-ids to make it possible to
+> identify it correctly/make it more readable to the user?
 
+Yes, please add the correct info at https://pci-ids.ucw.cz/
 
-> > > Hmm, instead of tracing nothing, as this is already a "conditional
-> > > trace event", why not add to that condition:
-> > >
-> > >       TP_CONDITION(res >=3D 0 && read_write =3D=3D I2C_SMBUS_READ),
-> > >
-> > > Unless you want to still trace some data on failure.
-> >
-> > John, any comment to this?
-> >
->=20
-> The issue we were dealing with was access to uninitialized memory on the =
-stack.
-> The change '30f939feaeee i2c: fix kernel memory disclosure in dev interfa=
-ce'
-> does the initialization, so the tracing code is no longer affected.
-> We just didn't
-> have that change in the particular kernel we were testing.
->=20
-> Still, Steven's suggestion seems fine to me.  Would you like me to create=
- a new
-> patch based on that?
+> Please remove this debugfs interface. There must be generic ways to read out
+> PCI memory?
 
-I am not a tracing expert, but all that was said here tell me that it
-would be better to have the change. So, yes, please, that would be
-appreciated.
+There are sysfs files that provide access to the raw contents of MMIO
+BARs, e.g.,
 
+  /sys/devices/pci0000:00/0000:00:1f.3/resource0
 
---HcAYCG3uE/tztfnV
-Content-Type: application/pgp-signature; name="signature.asc"
+> > +static int amd_mp2_pci_probe(struct pci_dev *pci_dev,
+> > +                          const struct pci_device_id *id)
+> > +{
+> > +     struct amd_mp2_dev *privdata;
+> > +     int rc;
+> > +     static bool first_probe = true;
+> > +
+> > +     if (first_probe) {
+> > +             pr_info("%s: %s Version: %s\n", DRIVER_NAME,
+> > +                     DRIVER_DESC, DRIVER_VER);
+> > +             first_probe = false;
+> > +     }
+> > +
+> > +     dev_info(&pci_dev->dev, "MP2 device found [%04x:%04x] (rev %x)\n",
+> > +              pci_dev->vendor, pci_dev->device, pci_dev->revision);
+> > +
+>
+> The kernel prints already too much during boot. So, please remove this.
+> It will also get rid of the static variable which is not so good style.
 
------BEGIN PGP SIGNATURE-----
+The PCI core already prints the vendor/device ID of everything it
+finds.  I don't think it prints the revision.
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxZ3z0ACgkQFA3kzBSg
-KbZSnRAAse5m17YZ87jPvZW5/jzAYKc8+HNDT+dPU858YQKZ+Cun6dRL9WXVd3pr
-3tQXdDZ8/L6ruCeIegq32ZD5ogP1T3aZBpn/nYbehT+wn2lKklrbk76exBcpy6+x
-jmBv9DX4vPdMslFxOAHTTIoe70y3wGhIYZSP77U4qhtd5REB4NlbVjNRf0ley56L
-iqi5VB6GmsHBHgr6x8Wj/qb1/52FFvqFBnelDYttNfb3dBBGbAJV9Bgg23YmM2bw
-FeR+3ofSEhvaK3fnsNqNpclNHtciyGtKAkukHArTpdLsjYmZ5AanIihPHPRV7vVD
-dNq52DKALQ7A+XOp9vBDTMQBWPvEW9U9ykUyWSGqgnQgkzsjN1p37g/FAqDcf/zb
-Xa/6RvFnBa+MiQpiwWZoD5/VDzcbfGTdN+IHAXfhYKa5Ip7A8GRlnCofA+kW5jrT
-aCgTsWosKPsP1YNb0jv8novwOvFplxhQWlQmJRdGQia9hP5+N9+k/MbpkwtIP9Ln
-5z34sVQ5CvuUQ/UMEnKGSrp7ox3E6WV1IBu2ZUELUcUicv8P518qUtCulx8YWtPV
-IMdvvg1vM5K9DT3XSZIlGf2ZjsGZbQFzLcQsAB/gazx6XuvwrPxN21B98STNPrcf
-axyHXpfYM2d6aUfPqKlg8EfhgdcIHxIDEmwW/2oZjtXlRuMyMDk=
-=S5W0
------END PGP SIGNATURE-----
+I doubt the driver name/version is really useful.  Nobody ever updates
+the versions anyway, and I think customers will key off the distro
+kernel version, which should uniquely identify the driver version.
 
---HcAYCG3uE/tztfnV--
+> > +struct amd_mp2_dev *amd_mp2_find_device(void)
+> > +{
+> > +     struct device *dev;
+> > +     struct pci_dev *pci_dev;
+> > +
+> > +     dev = driver_find_device(&amd_mp2_pci_driver.driver, NULL, NULL,
+> > +                              amd_mp2_device_match);
+> > +     if (!dev)
+> > +             return NULL;
+> > +
+> > +     pci_dev = to_pci_dev(dev);
+> > +     if (!amd_mp2_pci_is_probed(pci_dev))
+> > +             return NULL;
+> > +     return (struct amd_mp2_dev *)pci_get_drvdata(pci_dev);
+> > +}
+> > +EXPORT_SYMBOL_GPL(amd_mp2_find_device);
+>
+> Can't you just share a common flag when the PCI driver is successfully
+> probed and let the platform driver defer until this flag is set?
+>
+> Reading this, I also don't think there should be two seperate Kconfig
+> and Makefile entries. You need both to have working I2C, so one Kconfig
+> entry should compile both files.
+
+IMHO the split into two drivers is a bit of a mess and doesn't really
+correspond with the hardware, as I mentioned at [1].  The PCI device
+is the real hardware and the driver should claim that.  AFAICT the
+ACPI device exists only to pass some config information to the PCI
+driver.  I think the natural approach would be for the PCI driver to
+directly search the ACPI namespace for that config information.
+
+The fact that driver_find_device() is essentially unused except for a
+few very special cases is a good clue that there's probably a better
+way.
+
+Bjorn
+
+[1] https://lkml.kernel.org/r/20181030205624.GC13681@bhelgaas-glaptop.roam.corp.google.com
