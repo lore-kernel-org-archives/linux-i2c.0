@@ -1,99 +1,82 @@
-From: Bjorn Helgaas <bhelgaas@google.com>
-Subject: Re: [PATCH v15] i2c: Add drivers for the AMD PCIe MP2 I2C controller
-Date: Tue, 5 Feb 2019 13:57:36 -0600
-Message-ID: <CAErSpo5kvFVwo-DCLYT_7UmRQKS1jHahFXawvnZUtZ=ApHKz1Q@mail.gmail.com>
-References: <20181226232258.GA23526@syn-yoga530> <20190205120545.GA1045@kunai>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
+Subject: Re: I2C bus locked: marvell mv64xxx i2c controller driver
+Date: Tue, 5 Feb 2019 20:58:57 +0100
+Message-ID: <20190205195857.oadxiswya5wq5hca@pengutronix.de>
+References: <CAEHvULnPFtCK9cD3GtFKoZ+OHaqN1ZJMmPxK+OPnYqhptk8t7w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190205120545.GA1045@kunai>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Elie Morisse <syniurge@gmail.com>, linux-i2c <linux-i2c@vger.kernel.org>, Nehal-bakulchandra.Shah@amd.com, Shyam-sundar.S-k@amd.com, sandeep.singh@amd.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kai-Heng Feng <kai.heng.feng@canonical.com>, Bjorn Helgaas <helgaas@kernel.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <CAEHvULnPFtCK9cD3GtFKoZ+OHaqN1ZJMmPxK+OPnYqhptk8t7w@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Roman Rozman <rozmanro@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Feb 5, 2019 at 6:06 AM Wolfram Sang <wsa@the-dreams.de> wrote:
+Cc +=3D linux-i2c
 
-> > +03:00.7 Non-VGA unclassified device: Advanced Micro Devices, Inc. [AMD] Device
-> > +                                                                     15e6
-> > +
-> > +in your 'lspci -v', then this driver is for your device.
->
-> Sidenote: Can't we add something to the pci-ids to make it possible to
-> identify it correctly/make it more readable to the user?
+Hello,
 
-Yes, please add the correct info at https://pci-ids.ucw.cz/
+On Tue, Feb 05, 2019 at 12:18:05PM +0200, Roman Rozman wrote:
+> Having an issue that i know was found many years ago, and there were
+> patches along the way for it, but i'm still having an issue.
+> =
 
-> Please remove this debugfs interface. There must be generic ways to read out
-> PCI memory?
+> I have a SFP connector connected to the switch, the EEprom is fine & read=
+able
+> ,the connector is working.
+> But after i reboot the device from user space,on startup an I2C bus
+> locked issue is happening.
+> And the EEprom of the i2c device is no longer readable.
+> =
 
-There are sysfs files that provide access to the raw contents of MMIO
-BARs, e.g.,
+> see screen capture during the reboot:
+> =
 
-  /sys/devices/pci0000:00/0000:00:1f.3/resource0
+> [ 5.663823] i2c /dev entries driver
+> [ 5.852006] usb 1-1: new high-speed USB device number 2 using orion-ehci
+> [ 6.058964] usb-storage 1-1:1.0: USB Mass Storage device detected
+> [ 6.065221] scsi host0: usb-storage 1-1:1.0
+> [ 7.112857] scsi 0:0:0:0: Direct-Access Generic Ultra HS-COMBO 1.98 PQ: 0=
+ ANSI: 0
+> [ 7.122702] sd 0:0:0:0: [sda] Attached SCSI removable disk
+> [ 7.752006] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
+> [ 9.832006] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
+> [ 11.912005] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
+> [ 11.918603] lm75: probe of 1-0048 failed with error -110
+> [ 11.925496] orion_wdt: Initial timeout 171 sec
+> =
 
-> > +static int amd_mp2_pci_probe(struct pci_dev *pci_dev,
-> > +                          const struct pci_device_id *id)
-> > +{
-> > +     struct amd_mp2_dev *privdata;
-> > +     int rc;
-> > +     static bool first_probe = true;
-> > +
-> > +     if (first_probe) {
-> > +             pr_info("%s: %s Version: %s\n", DRIVER_NAME,
-> > +                     DRIVER_DESC, DRIVER_VER);
-> > +             first_probe = false;
-> > +     }
-> > +
-> > +     dev_info(&pci_dev->dev, "MP2 device found [%04x:%04x] (rev %x)\n",
-> > +              pci_dev->vendor, pci_dev->device, pci_dev->revision);
-> > +
->
-> The kernel prints already too much during boot. So, please remove this.
-> It will also get rid of the static variable which is not so good style.
+> [ 14.472004] i2c i2c-1: mv64xxx: I2C bus locked, block: 1, time_left: 0
+> [ 14.478563] sfp sfp: failed to read EEPROM: -110
+> =
 
-The PCI core already prints the vendor/device ID of everything it
-finds.  I don't think it prints the revision.
+> I read regarding the known "possible solution" that the master should
+> send nine clock pulses((SDA) is stuck LOW). And the device that held
+> the bus LOW should release it sometime within those nine clocks.
+> =
 
-I doubt the driver name/version is really useful.  Nobody ever updates
-the versions anyway, and I think customers will key off the distro
-kernel version, which should uniquely identify the driver version.
+> My question is there any GENERIC way to do that for the mv64xxx driver?
+> Or maybe there is some other solution for this.
 
-> > +struct amd_mp2_dev *amd_mp2_find_device(void)
-> > +{
-> > +     struct device *dev;
-> > +     struct pci_dev *pci_dev;
-> > +
-> > +     dev = driver_find_device(&amd_mp2_pci_driver.driver, NULL, NULL,
-> > +                              amd_mp2_device_match);
-> > +     if (!dev)
-> > +             return NULL;
-> > +
-> > +     pci_dev = to_pci_dev(dev);
-> > +     if (!amd_mp2_pci_is_probed(pci_dev))
-> > +             return NULL;
-> > +     return (struct amd_mp2_dev *)pci_get_drvdata(pci_dev);
-> > +}
-> > +EXPORT_SYMBOL_GPL(amd_mp2_find_device);
->
-> Can't you just share a common flag when the PCI driver is successfully
-> probed and let the platform driver defer until this flag is set?
->
-> Reading this, I also don't think there should be two seperate Kconfig
-> and Makefile entries. You need both to have working I2C, so one Kconfig
-> entry should compile both files.
+The relevant keyword here is "recovery". The i2c core has some helper
+functions that make it easy to reset the bus if your pins can be driven
+using a gpio functionality. See i2c_generic_scl_recovery() in
+drivers/i2c/i2c-core-base.c.
 
-IMHO the split into two drivers is a bit of a mess and doesn't really
-correspond with the hardware, as I mentioned at [1].  The PCI device
-is the real hardware and the driver should claim that.  AFAICT the
-ACPI device exists only to pass some config information to the PCI
-driver.  I think the natural approach would be for the PCI driver to
-directly search the ACPI namespace for that config information.
+Best regards
+Uwe
 
-The fact that driver_find_device() is essentially unused except for a
-few very special cases is a good clue that there's probably a better
-way.
+-- =
 
-Bjorn
-
-[1] https://lkml.kernel.org/r/20181030205624.GC13681@bhelgaas-glaptop.roam.corp.google.com
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
