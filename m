@@ -1,56 +1,66 @@
-From: Dmitry Osipenko <digetx@gmail.com>
-Subject: Re: [PATCH V11 3/5] i2c: tegra: Add DMA support
-Date: Wed, 6 Feb 2019 20:37:36 +0300
-Message-ID: <37987664-d354-4f89-cc60-9cc37ca87322@gmail.com>
-References: <1549356985-25726-1-git-send-email-skomatineni@nvidia.com>
- <1549356985-25726-3-git-send-email-skomatineni@nvidia.com>
- <a9e264e2-87c9-e263-808a-b561e8ed4073@gmail.com> <20190206145343.GA3651@ulmo>
- <5e66803c-b13b-cb00-e2ff-d096a1650612@gmail.com>
+From: Sowjanya Komatineni <skomatineni@nvidia.com>
+Subject: [PATCH V14 1/5] i2c: tegra: sort all the include headers alphabetically
+Date: Wed, 6 Feb 2019 11:16:05 -0800
+Message-ID: <1549480569-24860-1-git-send-email-skomatineni@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5e66803c-b13b-cb00-e2ff-d096a1650612@gmail.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>, Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc: jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: thierry.reding@gmail.com, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com
+Cc: digetx@gmail.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sowjanya Komatineni <skomatineni@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-06.02.2019 17:56, Dmitry Osipenko пишет:
-> 06.02.2019 17:53, Thierry Reding пишет:
->> On Tue, Feb 05, 2019 at 05:26:25PM +0300, Dmitry Osipenko wrote:
->> [...]
->>> Oh, another important moment is that physically contiguous dma_buf
->>> allocation isn't guaranteed by the DMA API. This may become a problem
->>> for T186+ that can transfer up to 64K. We need to enforce the
->>> contiguous-allocation requirement by using
->>> dma_alloc_attrs(DMA_ATTR_FORCE_CONTIGUOUS) instead of the
->>> dma_alloc_coherent(), please see my other comment below.
->>
->> Actually I don't think that's necessary here. DMA_ATTR_FORCE_CONTIGUOUS
->> only seems relevant if you've got an IOMMU attached to the device to
->> make sure the physical memory is also contiguous.
->>
->> See this extract from Documentation/DMA-attributes.txt:
->>
->> | DMA_ATTR_FORCE_CONTIGUOUS
->> | -------------------------
->> | 
->> | By default DMA-mapping subsystem is allowed to assemble the buffer
->> | allocated by dma_alloc_attrs() function from individual pages if it can
->> | be mapped as contiguous chunk into device dma address space. By
->> | specifying this attribute the allocated buffer is forced to be contiguous
->> | also in physical memory.
->>
->> We don't have an IOMMU attached to I2C or APBDMA, so this can't happen
->> and even if we had an IOMMU attached, all we care about is the device's
->> DMA address space, which means IOVA space, and that would still be
->> guaranteed to be contiguous, according to the above.
-> 
-> Yes, but doesn't T186+ have IOMMU support for the DMA controller?
-> 
+This patch sorts all the include headers alphabetically for the
+I2C Tegra driver.
 
-Ah, sorry I probably skimmed way too quickly thorough the message. Hmm.. well, seems I was wrong.
+Acked-by: Thierry Reding <treding@nvidia.com>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+---
+ [V9/V10/V11/V12/V13/V14] : Rebased to 5.0-rc4
+ [V3/V4/V5/V7/V8] : Removed unsued headers in tegra I2C
+ [V2] 		  : Added this in V2 to sort the headers in tegra I2C
 
-Sowjanya, after all looks like it should be fine to use the default dma_alloc_coherent() helper. Please put it back in v14.
+
+ drivers/i2c/busses/i2c-tegra.c | 19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index c77adbbea0c7..79c6aa87499b 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -6,24 +6,21 @@
+  * Author: Colin Cross <ccross@android.com>
+  */
+ 
+-#include <linux/kernel.h>
+-#include <linux/init.h>
+-#include <linux/platform_device.h>
+ #include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/err.h>
+ #include <linux/i2c.h>
+-#include <linux/io.h>
++#include <linux/init.h>
+ #include <linux/interrupt.h>
+-#include <linux/delay.h>
+-#include <linux/slab.h>
+-#include <linux/of_device.h>
++#include <linux/io.h>
++#include <linux/iopoll.h>
++#include <linux/kernel.h>
+ #include <linux/module.h>
+-#include <linux/reset.h>
++#include <linux/of_device.h>
+ #include <linux/pinctrl/consumer.h>
++#include <linux/platform_device.h>
+ #include <linux/pm_runtime.h>
+-#include <linux/iopoll.h>
+-
+-#include <asm/unaligned.h>
++#include <linux/reset.h>
+ 
+ #define TEGRA_I2C_TIMEOUT (msecs_to_jiffies(1000))
+ #define BYTES_PER_FIFO_WORD 4
+-- 
+2.7.4
