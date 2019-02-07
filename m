@@ -1,33 +1,70 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: RE: [PATCH V14 3/5] i2c: tegra: Add DMA support
-Date: Thu, 7 Feb 2019 15:23:11 +0000
-Message-ID: <BYAPR12MB3398350797241F90AE347FB5C2680@BYAPR12MB3398.namprd12.prod.outlook.com>
-References: <1549480569-24860-1-git-send-email-skomatineni@nvidia.com>
- <1549480569-24860-3-git-send-email-skomatineni@nvidia.com>
- <32b0b694-f912-044e-1a50-55b9c355d0c3@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v15] i2c: Add drivers for the AMD PCIe MP2 I2C controller
+Date: Thu, 7 Feb 2019 16:53:27 +0100
+Message-ID: <20190207155326.GC4796@kunai>
+References: <20181226232258.GA23526@syn-yoga530>
+ <20190205120545.GA1045@kunai>
+ <CAErSpo5kvFVwo-DCLYT_7UmRQKS1jHahFXawvnZUtZ=ApHKz1Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="LwW0XdcUbUexiWVK"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <32b0b694-f912-044e-1a50-55b9c355d0c3@gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CAErSpo5kvFVwo-DCLYT_7UmRQKS1jHahFXawvnZUtZ=ApHKz1Q@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Osipenko <digetx@gmail.com>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>
-Cc: "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Elie Morisse <syniurge@gmail.com>, linux-i2c <linux-i2c@vger.kernel.org>, Nehal-bakulchandra.Shah@amd.com, Shyam-sundar.S-k@amd.com, sandeep.singh@amd.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kai-Heng Feng <kai.heng.feng@canonical.com>, Bjorn Helgaas <helgaas@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-DQo+SXQgYmVjYW1lIGFwcGFyZW50IHRvIG1lIHRoYXQgdGhlcmUgaXMgYSBwcm9ibGVtIGhlcmUu
-IFRoZSBzaXplIG9mIGRtYV9idWYgaXMgNDA5NiBieXRlcyBhbmQgbWF4aW11bSBtZXNzYWdlIGxl
-bmd0aCBpcyA0MDk2IHRvbywgd2UgaGF2ZSBwdXNoZWQgMTIgYnl0ZXMgcGFja2V0X2hlYWRlciB0
-byB0aGUgYnVmZmVyID5hbmQgbm93IHRoZXJlIGFyZSA0MDg0IGJ5dGVzIGxlZnQgZm9yIHRoZSBt
-ZXNzYWdlIGluIHRoZSBidWZmZXIuIEhlbmNlIHRyYW5zZmVyIG9mIDRLQiB3aWxsIGNhdXNlIGJ1
-ZmZlciBvdmVyZmxvdyBhbmQgZWl0aGVyIGNyYXNoIGtlcm5lbCBvciBjb3JydXB0IG1lbW9yeS4g
-T25lIHNvbHV0aW9uIGlzIHRvIGp1c3QgYWx3YXlzID5wdXNoIHBhY2tldF9oZWFkZXIgdXNpbmcg
-UElPLCBvdGhlciB0byByZWR1Y2UgbWF4X3dyaXRlX2xlbiBvciBpbmNyZWFzZSBkbWFfYnVmIHNp
-emUuDQoNClllcywgVGhpcyBpcyBrbm93biB0byBtZSBhbmQgSSB3aWxsIGFkZCBzZXBhcmF0ZSBw
-YXRjaCBmb3IgdGhpcyB0byB1cGRhdGUgcXVpcmtzIHRvIHRha2UgY2FyZSBmb3IgdDE4NiBhbmQg
-dDE5NCB0byBleGNsdWRlIHBhY2tldCBoZHIgbGVuZ3Rocw0KVGhlcmUgd2FzIHNlcGFyYXRlIHBh
-dGNoIHdoZW4gcXVpcmtzIHdlcmUgYWRkZWQgYW5kIGl0IGdvdCBtZXJnZWQgYWxyZWFkeSBmcm9t
-IDUuMC1yYzEgYnV0IGRvbuKAmXQgd2FudCB0byBzbmVhayB0aGF0IGhlcmUuIFdpbGwgc2VuZCBz
-ZXBhcmF0ZSBwYXRjaCB0byB0YWtlIGNhcmUgb2YgdGhpcy4NCk5lZWQgdG8gdXBkYXRlIHF1aXJr
-IHRvIGV4Y2x1ZGUgcGFja2V0IGhlYWRlcg0KDQo=
+
+--LwW0XdcUbUexiWVK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi Bjorn,
+
+thanks a lot for your additional information!
+
+> IMHO the split into two drivers is a bit of a mess and doesn't really
+> correspond with the hardware, as I mentioned at [1].  The PCI device
+> is the real hardware and the driver should claim that.  AFAICT the
+> ACPI device exists only to pass some config information to the PCI
+> driver.  I think the natural approach would be for the PCI driver to
+> directly search the ACPI namespace for that config information.
+
+AFAIR the AMD folks insisted on the two driver setup because they need
+it in the future? Maybe they can explain again here?
+
+> The fact that driver_find_device() is essentially unused except for a
+> few very special cases is a good clue that there's probably a better
+> way.
+
+Excactly this thinking made me recommend something else, too. Let's see
+what we can come up with.
+
+Thanks,
+
+   Wolfram
+
+
+--LwW0XdcUbUexiWVK
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxcVHYACgkQFA3kzBSg
+KbbKUg/+PJomClPceiLS2KRwNbNrlsyyrzpU/NmDQhCRtTVswOm0z/li4Mb0kj4X
+TwcLUFjZAYe8tyX/8K6QeTEsG+5iPPWKmlA1AoEy+sX7vl/OX8kRdVAcSoGOx5/8
+0jNc+1m3mTF/woaiDHEwMPHo178SQpaYC5kyvvnvyoH3PZY1uMVMOwCUzTMsfuWu
+imW08ROvQoW/T0zSiW9v3OSsaaapCdQuBzq+qXBeEpaGyYCqaDZIj++ZMS7QIpoI
++YBEtiHDRzSNyBo2Qr7rOsDwD38BvHBd1QI1mYzifaf26P2YbDB97IceTMVBS4Ru
+Vp9Fp6gVgcPZWjv47ilsgz8YFyXCPiPVICJyMLsadAOYcwz/Mu1sE4vruweq8j6c
+ahAgtlXvA083CXe8aXxuQUp50gSvo1AMyFGmZLxhUXrdz/ci67jnupU0RxqiLmkC
+EFPyMeELKfOy5ubWij9MPb+gA6j5vMuqhvsCuuzJArdcMVsBxPbU9KvfnIf6dKT/
+rcH76sULNbv5Ygr4z5EUTAXJSRS0LWy9lu2YfzKg+WFRh4PrpQazmwjEmE36cB6E
+E9m5dhkCuyWjAtCPmM0k0Dki8jTS9K47EtQOXTkXcFgD+lnl7ffkQrc5bcismsKv
+47u2jjhCEHFG3XiVkhaZmeXgydqlZ8O2YKImmTSZ5RrSfjqSEII=
+=ib+6
+-----END PGP SIGNATURE-----
+
+--LwW0XdcUbUexiWVK--
