@@ -1,56 +1,57 @@
-From: Bjorn Helgaas <bhelgaas@google.com>
-Subject: Re: [PATCH v15] i2c: Add drivers for the AMD PCIe MP2 I2C controller
-Date: Thu, 7 Feb 2019 11:29:59 -0600
-Message-ID: <CAErSpo5-LAfmoddxT0W_TLryytbKpR694W9dv096=mKGJrL8rw@mail.gmail.com>
-References: <20181226232258.GA23526@syn-yoga530> <20190205120545.GA1045@kunai>
- <CAErSpo5kvFVwo-DCLYT_7UmRQKS1jHahFXawvnZUtZ=ApHKz1Q@mail.gmail.com>
- <20190207155326.GC4796@kunai> <8d70ae32-8e4d-d2aa-e213-4b2f678d7da0@amd.com>
+From: Sowjanya Komatineni <skomatineni@nvidia.com>
+Subject: RE: [PATCH V14 3/5] i2c: tegra: Add DMA support
+Date: Thu, 7 Feb 2019 18:02:27 +0000
+Message-ID: <BYAPR12MB33983F916E6DE23228B4EBD0C2680@BYAPR12MB3398.namprd12.prod.outlook.com>
+References: <1549480569-24860-1-git-send-email-skomatineni@nvidia.com>
+ <1549480569-24860-3-git-send-email-skomatineni@nvidia.com>
+ <32b0b694-f912-044e-1a50-55b9c355d0c3@gmail.com>
+ <BYAPR12MB3398350797241F90AE347FB5C2680@BYAPR12MB3398.namprd12.prod.outlook.com>
+ <0a7d62c4-9dcd-08dd-4e3f-877184848daa@gmail.com>
+ <20190207160630.GB17445@ulmo>
+ <BYAPR12MB3398D9CA36FCFF81BBC8E7B5C2680@BYAPR12MB3398.namprd12.prod.outlook.com>
+ <0b7963a4-ee9c-7296-1478-38235af7cd40@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <8d70ae32-8e4d-d2aa-e213-4b2f678d7da0@amd.com>
+In-Reply-To: <0b7963a4-ee9c-7296-1478-38235af7cd40@gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Shah, Nehal-bakulchandra" <Nehal-bakulchandra.Shah@amd.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Elie Morisse <syniurge@gmail.com>, linux-i2c <linux-i2c@vger.kernel.org>, "S-k, Shyam-sundar" <Shyam-sundar.S-k@amd.com>, "Singh, Sandeep" <Sandeep.Singh@amd.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kai-Heng Feng <kai.heng.feng@canonical.com>, Bjorn Helgaas <helgaas@kernel.org>
+To: Dmitry Osipenko <digetx@gmail.com>, Thierry Reding <thierry.reding@gmail.com>
+Cc: Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Feb 7, 2019 at 10:47 AM Shah, Nehal-bakulchandra
-<Nehal-bakulchandra.Shah@amd.com> wrote:
->
->
->  Hi Bjorn and Wolfram,
-> On 2/7/2019 9:23 PM, Wolfram Sang wrote:
-> > Hi Bjorn,
-> >
-> > thanks a lot for your additional information!
-> >
-> >> IMHO the split into two drivers is a bit of a mess and doesn't really
-> >> correspond with the hardware, as I mentioned at [1].  The PCI device
-> >> is the real hardware and the driver should claim that.  AFAICT the
-> >> ACPI device exists only to pass some config information to the PCI
-> >> driver.  I think the natural approach would be for the PCI driver to
-> >> directly search the ACPI namespace for that config information.
-> >
-> > AFAIR the AMD folks insisted on the two driver setup because they need
-> > it in the future? Maybe they can explain again here?
-> >
-> >> The fact that driver_find_device() is essentially unused except for a
-> >> few very special cases is a good clue that there's probably a better
-> >> way.
-> >
-> > Excactly this thinking made me recommend something else, too. Let's see
-> > what we can come up with.
->
-> First of really thanks for your valuable review. It may seem to be illogical to have two separate drivers, however as explained
-> in past we are working on another solution for some upcoming thing. In that case we need MP2-PCI communication driver which will be reused.
-> At this point of time i can't talk much about that but once solution is ready, we will be pushing that as well. Hence i sincerely requesting
-> to  have two separate driver.
-
-This is not my area and my opinion is by no means definitive.  But
-FWIW, I don't think the argument that "a secret project will someday
-require the ungainly design currently proposed" is worth very much.
-Until we've seen the upcoming project, it's impossible to say whether
-this two-driver design is the best approach for it.  I'd say it's
-quite likely that people might have alternate proposals.
-
-Bjorn
+DQo+ID4+Pj4+IEl0IGJlY2FtZSBhcHBhcmVudCB0byBtZSB0aGF0IHRoZXJlIGlzIGEgcHJvYmxl
+bSBoZXJlLiBUaGUgc2l6ZSBvZiBkbWFfYnVmIGlzIDQwOTYgYnl0ZXMgYW5kIG1heGltdW0gbWVz
+c2FnZSBsZW5ndGggaXMgNDA5NiB0b28sIHdlIGhhdmUgcHVzaGVkIDEyIGJ5dGVzIHBhY2tldF9o
+ZWFkZXIgdG8gdGhlIGJ1ZmZlciA+YW5kIG5vdyB0aGVyZSBhcmUgNDA4NCBieXRlcyBsZWZ0IGZv
+ciB0aGUgbWVzc2FnZSBpbiB0aGUgYnVmZmVyLiBIZW5jZSB0cmFuc2ZlciBvZiA0S0Igd2lsbCBj
+YXVzZSBidWZmZXIgb3ZlcmZsb3cgYW5kIGVpdGhlciBjcmFzaCBrZXJuZWwgb3IgY29ycnVwdCBt
+ZW1vcnkuIE9uZSBzb2x1dGlvbiBpcyB0byBqdXN0IGFsd2F5cyA+cHVzaCBwYWNrZXRfaGVhZGVy
+IHVzaW5nIFBJTywgb3RoZXIgdG8gcmVkdWNlIG1heF93cml0ZV9sZW4gb3IgaW5jcmVhc2UgZG1h
+X2J1ZiBzaXplLg0KPiA+Pj4+DQo+ID4+Pj4gWWVzLCBUaGlzIGlzIGtub3duIHRvIG1lIGFuZCBJ
+IHdpbGwgYWRkIHNlcGFyYXRlIHBhdGNoIGZvciB0aGlzIHRvIA0KPiA+Pj4+IHVwZGF0ZSBxdWly
+a3MgdG8gdGFrZSBjYXJlIGZvciB0MTg2IGFuZCB0MTk0IHRvIGV4Y2x1ZGUgcGFja2V0IGhkciBs
+ZW5ndGhzIFRoZXJlIHdhcyBzZXBhcmF0ZSBwYXRjaCB3aGVuIHF1aXJrcyB3ZXJlIGFkZGVkIGFu
+ZCBpdCBnb3QgbWVyZ2VkIGFscmVhZHkgZnJvbSA1LjAtcmMxIGJ1dCBkb27igJl0IHdhbnQgdG8g
+c25lYWsgdGhhdCBoZXJlLiBXaWxsIHNlbmQgc2VwYXJhdGUgcGF0Y2ggdG8gdGFrZSBjYXJlIG9m
+IHRoaXMuDQo+ID4+Pj4gTmVlZCB0byB1cGRhdGUgcXVpcmsgdG8gZXhjbHVkZSBwYWNrZXQgaGVh
+ZGVyDQo+ID4+Pj4NCj4gPj4+DQo+ID4+PiBOby4gVGhpcyBpcyBhIGJ1ZyBvZiB0aGlzIHBhdGNo
+LCBpdCBtdXN0IGJlIGZpeGVkIGluIHRoaXMgcGF0Y2ggYXMgd2VsbC4gDQo+ID4+Pg0KPiA+Pg0K
+PiA+Pg0KPiA+PiBJJ20gbm90IHN1cmUgd2UgYWN0dWFsbHkgbmVlZCB0aGlzLiBNeSB1bmRlcnN0
+YW5kaW5nIGlzIHRoYXQgaXQncyByZWFsbHkgdGhlIHBheWxvYWQgc2l6ZSB0aGF0J3MgNCBLaUIg
+YW5kIDY0IEtpQiwgcmVzcGVjdGl2ZWx5LiBJIGRvbid0IHRoaW5rIHRoYXQgaW5jbHVkZXMgdGhl
+IGhlYWRlci4NCj4gPj4NCj4gPj4gVGhpZXJyeQ0KPiA+IA0KPiA+IEFzIHBlciB0aGUgZGVzaWdu
+LCBZZXMgdGhhdOKAmXMgaW5jbHVkaW5nIHRoZSBIRUFERVIuIEl0cyB0b3RhbCB0cmFuc2ZlciBw
+ZXIgcGFja2V0IGluY2x1ZGluZyBoZWFkZXIuDQo+ID4gDQo+DQo+IE15IHVuZGVyc3RhbmRpbmcg
+dGhhdCBJMkMncyBtYXggcmVhZC93cml0ZSBzaXplcyBxdWlya3MgYXJlIHRoZSBwYXlsb2FkIGxp
+bWl0cywgYW5kIHNvIGV4Y2x1ZGluZyB0aGUgaGVhZGVyIHNpemUuIEhlbmNlIEknbSBub3Qgc3Vy
+ZSB3aGF0IHlvdSBhcmUgdHJ5aW5nIHRvIHNheSwgVGhpZXJyeS4NCj4NCj4gU293amFueWEsIGFs
+c28uLiBpdCBzaG91bGQgYmUgZmluZSBpZiB5b3UnbGwgaW5jbHVkZSB0aGUgc2VwYXJhdGUgcGF0
+Y2ggaW50byB0aGlzIHNlcmllcywgcGxhY2luZyBpdCBiZWZvcmUgdGhpcyBETUEtcGF0Y2guIEkg
+anVzdCByZWFkIHlvdXIgbWVzc2FnZSBhcyAicGF0Y2ggc2VwYXJhdGVseSBmcm9tIHRoaXMgc2Vy
+aWVzIi4NCg0KT0ssIFdpbGwgYWRkIHRoYXQgcHJpb3IgdG8gRE1BIHBhdGNoLiBWMTUgd2lsbCBp
+bmNsdWRlIG1heCB0cmFuc2ZlciBsaW1pdCB1cGRhdGUsIGRtYSByZXNvdXJjZSByZWxlYXNlcyBv
+biBwcm9iZSBmYWl1cmVzLCBhbmQgb3RoZXIgbWlub3IgZXJyb3JzIGluIFYxNCBmZWVkYmFjay4N
+CldpbGwgd2FpdCBmb3IgYW55IG1vcmUgZmVlZGJhY2tzIGJlZm9yZSByZWxlYXNpbmcgVjE1Li4u
+DQo=
