@@ -1,41 +1,47 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH] i2c: aspeed: Add multi-master use case support
-Date: Thu, 7 Feb 2019 11:48:51 -0800
-Message-ID: <CAFd5g46aiJ2srDf9akR+TwPg3ZheVYJE1JQ4AGm2t8hfO6rF1A@mail.gmail.com>
-References: <20190116193958.6049-1-jae.hyun.yoo@linux.intel.com>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH V14 3/5] i2c: tegra: Add DMA support
+Date: Thu, 7 Feb 2019 23:22:48 +0300
+Message-ID: <b72f8946-f921-f098-de36-e7f6203d6391@gmail.com>
+References: <1549480569-24860-1-git-send-email-skomatineni@nvidia.com>
+ <1549480569-24860-3-git-send-email-skomatineni@nvidia.com>
+ <c6484ae8-65c7-885a-fe37-0666182cff29@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190116193958.6049-1-jae.hyun.yoo@linux.intel.com>
+In-Reply-To: <c6484ae8-65c7-885a-fe37-0666182cff29@gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-aspeed@lists.ozlabs.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
+To: Sowjanya Komatineni <skomatineni@nvidia.com>, thierry.reding@gmail.com, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com
+Cc: linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jan 16, 2019 at 11:40 AM Jae Hyun Yoo
-<jae.hyun.yoo@linux.intel.com> wrote:
->
-> In multi-master environment, this driver's master cannot know
-> exactly when a peer master sends data to this driver's slave so
-> cases can be happened that this master tries sending data through
-> the master_xfer function but slave data from a peer master is still
-> being processed or slave xfer is started by a peer immediately
-> after it queues a master command. To support multi-master use cases
-> properly, this H/W provides arbitration in physical level and it
-> provides priority based command handling too to avoid conflicts in
-> multi-master environment, means that if a master and a slave events
-> happen at the same time, H/W will handle a higher priority event
-> first and a pending event will be handled when bus comes back to
-> the idle state.
->
-> To support this H/W feature properly, this patch adds the 'pending'
-> state of master and its handling code so that the pending master
-> xfer can be continued after slave operation properly.
->
-> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-> ---
->  drivers/i2c/busses/i2c-aspeed.c | 118 +++++++++++++++++++++++++-------
->  1 file changed, 92 insertions(+), 26 deletions(-)
->
+07.02.2019 22:14, Dmitry Osipenko пишет:
+> 06.02.2019 22:16, Sowjanya Komatineni пишет:
+>> +static void tegra_i2c_config_fifo_trig(struct tegra_i2c_dev *i2c_dev,
+>> +				       size_t len)
+>> +{
+>> +	u32 val = 0, reg;
+>> +	u8 dma_burst = 0;
 
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+There is no need to set dma_burst to zero as well. In general you only need to initialize variables if code uses the uninitialized variable.
+
+>> +	struct dma_slave_config slv_config = {0};
+>> +	struct dma_chan *chan;
+>> +	int ret;
+>> +	unsigned long reg_offset;
+>> +
+>> +	if (i2c_dev->hw->has_mst_fifo)
+>> +		reg = I2C_MST_FIFO_CONTROL;
+>> +	else
+>> +		reg = I2C_FIFO_CONTROL;
+>> +
+>> +	if (i2c_dev->is_curr_dma_xfer) {
+>> +		if (len & 0xF)
+>> +			dma_burst = 1;
+>> +		else if (len & 0x10)
+>> +			dma_burst = 4;
+>> +		else
+>> +			dma_burst = 8;
+
+In this case compiler just ignores the first initialization because it is explicitly initialized later on in the code path that actually uses the dma_burst variable. Avoiding unnecessary initialization helps to keep code a bit more clean.
