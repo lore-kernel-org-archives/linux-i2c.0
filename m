@@ -1,7 +1,7 @@
 From: Federico Vaga <federico.vaga@cern.ch>
-Subject: [PATCH v3 1/5] i2c:ocores: stop transfer on timeout
-Date: Fri, 8 Feb 2019 17:11:57 +0100
-Message-ID: <20190208161201.7860-2-federico.vaga@cern.ch>
+Subject: [PATCH v3 5/5] i2c:ocores: checkpatch fixes
+Date: Fri, 8 Feb 2019 17:12:01 +0100
+Message-ID: <20190208161201.7860-6-federico.vaga@cern.ch>
 References: <20190208161201.7860-1-federico.vaga@cern.ch>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,181 +12,82 @@ To: Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Federico Vaga <federico.vaga@cern.ch>
 List-Id: linux-i2c@vger.kernel.org
 
-Detecting a timeout is ok, but we also need to assert a STOP command on
-the bus in order to prevent it from generating interrupts when there are
-no on going transfers.
-
-Example: very long transmission.
-
-1. ocores_xfer: START a transfer
-2. ocores_isr : handle byte by byte the transfer
-3. ocores_xfer: goes in timeout [[bugfix here]]
-4. ocores_xfer: return to I2C subsystem and to the I2C driver
-5. I2C driver : it may clean up the i2c_msg memory
-6. ocores_isr : receives another interrupt (pending bytes to be
-                transferred) but the i2c_msg memory is invalid now
-
-So, since the transfer was too long, we have to detect the timeout and
-STOP the transfer.
-
-Another point is that we have a critical region here. When handling the
-timeout condition we may have a running IRQ handler. For this reason I
-introduce a spinlock.
-
-In order to make easier to understan locking I have:
-- added a new function to handle timeout
-- modified the current ocores_process() function in order to be protected
-  by the new spinlock
-Like this it is obvious at first sight that this locking serializes
-the execution of ocores_process() and ocores_process_timeout()
+Miscellaneous style fixes from checkpatch
 
 Signed-off-by: Federico Vaga <federico.vaga@cern.ch>
 ---
- drivers/i2c/busses/i2c-ocores.c | 54 ++++++++++++++++++++++++++++++++++-------
- 1 file changed, 45 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-ocores.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index 87f9caa..aa85202 100644
+index 5b80190..ba35d2a 100644
 --- a/drivers/i2c/busses/i2c-ocores.c
 +++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -25,7 +25,12 @@
- #include <linux/slab.h>
- #include <linux/io.h>
- #include <linux/log2.h>
-+#include <linux/spinlock.h>
- 
-+/**
-+ * @process_lock: protect I2C transfer process.
-+ *     ocores_process() and ocores_process_timeout() can't run in parallel.
-+ */
- struct ocores_i2c {
- 	void __iomem *base;
- 	u32 reg_shift;
-@@ -36,6 +41,7 @@ struct ocores_i2c {
- 	int pos;
- 	int nmsgs;
- 	int state; /* see STATE_ */
-+	spinlock_t process_lock;
- 	struct clk *clk;
- 	int ip_clock_khz;
- 	int bus_clock_khz;
-@@ -141,19 +147,26 @@ static void ocores_process(struct ocores_i2c *i2c)
- {
- 	struct i2c_msg *msg = i2c->msg;
- 	u8 stat = oc_getreg(i2c, OCI2C_STATUS);
-+	unsigned long flags;
-+
-+	/*
-+	 * If we spin here is because we are in timeout, so we are going
-+	 * to be in STATE_ERROR. See ocores_process_timeout()
-+	 */
-+	spin_lock_irqsave(&i2c->process_lock, flags);
- 
- 	if ((i2c->state == STATE_DONE) || (i2c->state == STATE_ERROR)) {
- 		/* stop has been sent */
- 		oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_IACK);
- 		wake_up(&i2c->wait);
--		return;
-+		goto out;
- 	}
- 
- 	/* error? */
- 	if (stat & OCI2C_STAT_ARBLOST) {
- 		i2c->state = STATE_ERROR;
- 		oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_STOP);
--		return;
-+		goto out;
- 	}
- 
- 	if ((i2c->state == STATE_START) || (i2c->state == STATE_WRITE)) {
-@@ -163,7 +176,7 @@ static void ocores_process(struct ocores_i2c *i2c)
- 		if (stat & OCI2C_STAT_NACK) {
- 			i2c->state = STATE_ERROR;
+@@ -182,8 +182,9 @@ static void ocores_process(struct ocores_i2c *i2c, u8 stat)
  			oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_STOP);
--			return;
-+			goto out;
+ 			goto out;
  		}
- 	} else
+-	} else
++	} else {
  		msg->buf[i2c->pos++] = oc_getreg(i2c, OCI2C_DATA);
-@@ -184,14 +197,14 @@ static void ocores_process(struct ocores_i2c *i2c)
++	}
  
+ 	/* end of msg? */
+ 	if (i2c->pos == msg->len) {
+@@ -202,9 +203,9 @@ static void ocores_process(struct ocores_i2c *i2c, u8 stat)
  				oc_setreg(i2c, OCI2C_DATA, addr);
  				oc_setreg(i2c, OCI2C_CMD,  OCI2C_CMD_START);
--				return;
-+				goto out;
- 			} else
- 				i2c->state = (msg->flags & I2C_M_RD)
- 					? STATE_READ : STATE_WRITE;
+ 				goto out;
+-			} else
+-				i2c->state = (msg->flags & I2C_M_RD)
+-					? STATE_READ : STATE_WRITE;
++			}
++			i2c->state = (msg->flags & I2C_M_RD)
++				? STATE_READ : STATE_WRITE;
  		} else {
  			i2c->state = STATE_DONE;
  			oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_STOP);
--			return;
-+			goto out;
- 		}
- 	}
+@@ -405,7 +406,8 @@ static int ocores_init(struct device *dev, struct ocores_i2c *i2c)
+ 	u8 ctrl = oc_getreg(i2c, OCI2C_CONTROL);
  
-@@ -202,6 +215,9 @@ static void ocores_process(struct ocores_i2c *i2c)
- 		oc_setreg(i2c, OCI2C_DATA, msg->buf[i2c->pos++]);
- 		oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_WRITE);
- 	}
-+
-+out:
-+	spin_unlock_irqrestore(&i2c->process_lock, flags);
- }
+ 	/* make sure the device is disabled */
+-	oc_setreg(i2c, OCI2C_CONTROL, ctrl & ~(OCI2C_CTRL_EN|OCI2C_CTRL_IEN));
++	ctrl &= ~(OCI2C_CTRL_EN | OCI2C_CTRL_IEN);
++	oc_setreg(i2c, OCI2C_CONTROL, ctrl);
  
- static irqreturn_t ocores_isr(int irq, void *dev_id)
-@@ -213,9 +229,24 @@ static irqreturn_t ocores_isr(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
-+/**
-+ * Process timeout event
-+ * @i2c: ocores I2C device instance
+ 	prescale = (i2c->ip_clock_khz / (5 * i2c->bus_clock_khz)) - 1;
+ 	prescale = clamp(prescale, 0, 0xffff);
+@@ -462,11 +464,13 @@ MODULE_DEVICE_TABLE(of, ocores_i2c_match);
+ #ifdef CONFIG_OF
+ /* Read and write functions for the GRLIB port of the controller. Registers are
+  * 32-bit big endian and the PRELOW and PREHIGH registers are merged into one
+- * register. The subsequent registers has their offset decreased accordingly. */
++ * register. The subsequent registers has their offset decreased accordingly.
 + */
-+static void ocores_process_timeout(struct ocores_i2c *i2c)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&i2c->process_lock, flags);
-+	i2c->state = STATE_ERROR;
-+	oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_STOP);
-+	spin_unlock_irqrestore(&i2c->process_lock, flags);
-+}
-+
- static int ocores_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ static u8 oc_getreg_grlib(struct ocores_i2c *i2c, int reg)
  {
- 	struct ocores_i2c *i2c = i2c_get_adapdata(adap);
-+	int ret;
- 
- 	i2c->msg = msgs;
- 	i2c->pos = 0;
-@@ -225,11 +256,14 @@ static int ocores_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 	oc_setreg(i2c, OCI2C_DATA, i2c_8bit_addr_from_msg(i2c->msg));
- 	oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_START);
- 
--	if (wait_event_timeout(i2c->wait, (i2c->state == STATE_ERROR) ||
--			       (i2c->state == STATE_DONE), HZ))
--		return (i2c->state == STATE_DONE) ? num : -EIO;
--	else
-+	ret = wait_event_timeout(i2c->wait, (i2c->state == STATE_ERROR) ||
-+				 (i2c->state == STATE_DONE), HZ);
-+	if (ret == 0) {
-+		ocores_process_timeout(i2c);
- 		return -ETIMEDOUT;
-+	}
+ 	u32 rd;
+ 	int rreg = reg;
 +
-+	return (i2c->state == STATE_DONE) ? num : -EIO;
+ 	if (reg != OCI2C_PRELOW)
+ 		rreg--;
+ 	rd = ioread32be(i2c->base + (rreg << i2c->reg_shift));
+@@ -480,6 +484,7 @@ static void oc_setreg_grlib(struct ocores_i2c *i2c, int reg, u8 value)
+ {
+ 	u32 curr, wr;
+ 	int rreg = reg;
++
+ 	if (reg != OCI2C_PRELOW)
+ 		rreg--;
+ 	if (reg == OCI2C_PRELOW || reg == OCI2C_PREHIGH) {
+@@ -568,7 +573,7 @@ static int ocores_i2c_of_probe(struct platform_device *pdev,
+ 	return 0;
  }
+ #else
+-#define ocores_i2c_of_probe(pdev,i2c) -ENODEV
++#define ocores_i2c_of_probe(pdev, i2c) -ENODEV
+ #endif
  
- static int ocores_init(struct device *dev, struct ocores_i2c *i2c)
-@@ -422,6 +456,8 @@ static int ocores_i2c_probe(struct platform_device *pdev)
- 	if (!i2c)
- 		return -ENOMEM;
- 
-+	spin_lock_init(&i2c->process_lock);
-+
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	i2c->base = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(i2c->base))
+ static int ocores_i2c_probe(struct platform_device *pdev)
 -- 
 2.15.0
