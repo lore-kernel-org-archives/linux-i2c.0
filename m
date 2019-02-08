@@ -1,45 +1,43 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v3 4/5] i2c:ocores: add SPDX tag
-Date: Fri, 8 Feb 2019 17:16:59 +0000
-Message-ID: <789738e8-609a-f20b-11c2-54089366f612@axentia.se>
-References: <20190208161201.7860-1-federico.vaga@cern.ch>
- <20190208161201.7860-5-federico.vaga@cern.ch>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH V16 4/6] i2c: tegra: Add DMA support
+Date: Fri, 8 Feb 2019 20:21:17 +0300
+Message-ID: <4ba38a07-1953-9393-8756-ce555557017a@gmail.com>
+References: <1549644314-1481-1-git-send-email-skomatineni@nvidia.com>
+ <1549644314-1481-4-git-send-email-skomatineni@nvidia.com>
+ <dd2899ab-1a5f-834c-ab97-1654845c7de2@gmail.com>
+ <BYAPR12MB33980494FB2E5C439210124FC2690@BYAPR12MB3398.namprd12.prod.outlook.com>
+ <BYAPR12MB33987BF143F5903AE5DA196AC2690@BYAPR12MB3398.namprd12.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190208161201.7860-5-federico.vaga@cern.ch>
+In-Reply-To: <BYAPR12MB33987BF143F5903AE5DA196AC2690@BYAPR12MB3398.namprd12.prod.outlook.com>
 Content-Language: en-US
-Content-ID: <AE6712A6B1B87549B15C790ECF9C3DB6@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Federico Vaga <federico.vaga@cern.ch>, Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Sowjanya Komatineni <skomatineni@nvidia.com>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>
+Cc: "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOS0wMi0wOCAxNzoxMiwgRmVkZXJpY28gVmFnYSB3cm90ZToNCj4gSXQgYWRkcyB0aGUg
-U1BEWCB0YWcgYW5kIGl0IHJlbW92ZXMgdGhlIG9sZCB0ZXh0IGFib3V0IHRoZSBHUEx2Mi4NCj4g
-DQo+IFNpZ25lZC1vZmYtYnk6IEZlZGVyaWNvIFZhZ2EgPGZlZGVyaWNvLnZhZ2FAY2Vybi5jaD4N
-Cj4gLS0tDQo+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLW9jb3Jlcy5jIHwgNiArKystLS0NCj4g
-IDEgZmlsZSBjaGFuZ2VkLCAzIGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pDQo+IA0KPiBk
-aWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY29yZXMuYyBiL2RyaXZlcnMvaTJj
-L2J1c3Nlcy9pMmMtb2NvcmVzLmMNCj4gaW5kZXggYmJlM2U5Ni4uNWI4MDE5MCAxMDA2NDQNCj4g
-LS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY29yZXMuYw0KPiArKysgYi9kcml2ZXJzL2ky
-Yy9idXNzZXMvaTJjLW9jb3Jlcy5jDQo+IEBAIC0xLDMgKzEsNCBAQA0KPiArLy8gU1BEWC1MaWNl
-bnNlLUlkZW50aWZpZXI6IEdQTC0yLjANCj4gIC8qDQo+ICAgKiBpMmMtb2NvcmVzLmM6IEkyQyBi
-dXMgZHJpdmVyIGZvciBPcGVuQ29yZXMgSTJDIGNvbnRyb2xsZXINCj4gICAqIChodHRwczovL29w
-ZW5jb3Jlcy5vcmcvcHJvamVjdC9pMmMvb3ZlcnZpZXcpDQo+IEBAIC03LDkgKzgsOCBAQA0KPiAg
-ICogU3VwcG9ydCBmb3IgdGhlIEdSTElCIHBvcnQgb2YgdGhlIGNvbnRyb2xsZXIgYnkNCj4gICAq
-IEFuZHJlYXMgTGFyc3NvbiA8YW5kcmVhc0BnYWlzbGVyLmNvbT4NCj4gICAqDQo+IC0gKiBUaGlz
-IGZpbGUgaXMgbGljZW5zZWQgdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJs
-aWMgTGljZW5zZQ0KPiAtICogdmVyc2lvbiAyLiAgVGhpcyBwcm9ncmFtIGlzIGxpY2Vuc2VkICJh
-cyBpcyIgd2l0aG91dCBhbnkgd2FycmFudHkgb2YgYW55DQo+IC0gKiBraW5kLCB3aGV0aGVyIGV4
-cHJlc3Mgb3IgaW1wbGllZC4NCj4gKyAqIFRoaXMgcHJvZ3JhbSBpcyBsaWNlbnNlZCAiYXMgaXMi
-IHdpdGhvdXQgYW55IHdhcnJhbnR5IG9mIGFueSBraW5kLA0KPiArICogd2hldGhlciBleHByZXNz
-IG9yIGltcGxpZWQuDQo+ICAgKi8NCj4gIA0KPiAgI2luY2x1ZGUgPGxpbnV4L2Nsay5oPg0KPiAN
-Cg0KSWYgeW91IGZlZWwgdGhhdCB5b3UgbmVlZCB0byBrZWVwIHNvbWUgbGljZW5zZSBib2lsZXJw
-bGF0ZSBhZnRlciBhZGRpbmcNCnRoZSBTUERYIHRhZywgdGhlbiB0aGUgU1BEWCB0YWcgaXMgcGVy
-IGRlZmF1bHQgd3JvbmcuIFRoZSBTUERYIHRhZyBzaG91bGQgYmUNCmEgZnVsbCBkZXNjcmlwdGlv
-biBvZiB0aGUgYXBwbGljYWJsZSBsaWNlbnNlLiBXaGF0J3MgdGhlIHBvaW50IG90aGVyd2lzZT8N
-CkluIHRoaXMgY2FzZSB0aG91Z2gsIEdQTHYyIGFscmVhZHkgY29udGFpbnMgdGhpcyBnaXN0IG9m
-IHRoZSBib2lsZXJwbGF0ZQ0KdGV4dCAoaW4gc2VjdGlvbiAxMSkgc28gcGxlYXNlIGp1c3Qga2ls
-bCB0aGUgd2hvbGUgcGFyYWdyYXBoLg0KDQpDaGVlcnMsDQpQZXRlcg0K
+08.02.2019 20:06, Sowjanya Komatineni пишет:
+> 
+>> I'm still also suggesting to squash "fix maximum transfer size" into this patch because it is really part of DMA-support enabling.
+> 
+> Max transfer length limits apply to PIO also but for DMA its more needed to prevent crash.
+> So had this as patch before DMA as its applicable for both DMA & PIO.
+
+Oh, so the packet_header size also shall be excluded for the PIO as well, really? It looked to me that PIO doesn't have that restriction and we only need to exclude the header size for DMA..
+
+> We exchanged on this yesterday, so thought the reason you want to squash separate patch and include in this is due to max msg len limit and when moved into hw feature.
+
+If PIO limits are incorrect, then it's absolutely fine to do it in the separate patch. I probably just misunderstood your point.
+
+> Sorry should have verified before sending. Please confirm if I leave max transfer as separate patch or add to this DMA support. Will update along with dma buf size fix.
+> 
+> But max transfer limit applied to PIO also and that’s why added it before DMA patch to show its dependency
+> 
+
+And then you need to explicitly tell in the commit message that PIO limits are incorrect.
+
+It also probably worth to add a stable-tag to the commit message to request backporting of the limits-fixing patch to the stable kernels:
+
+Cc: stable@vger.kernel.org
