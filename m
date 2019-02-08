@@ -1,55 +1,26 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: RE: [PATCH V15 4/6] i2c: tegra: Add DMA support
-Date: Fri, 8 Feb 2019 15:58:13 +0000
-Message-ID: <BYAPR12MB339863A43F030013DCA7F548C2690@BYAPR12MB3398.namprd12.prod.outlook.com>
-References: <1549576040-15907-1-git-send-email-skomatineni@nvidia.com>
- <1549576040-15907-4-git-send-email-skomatineni@nvidia.com>
- <7806f2cd-72b4-6ae3-b75f-0fc74fb62b95@gmail.com>
- <BYAPR12MB3398BE6DA6F1E82E5F2525C2C2690@BYAPR12MB3398.namprd12.prod.outlook.com>
- <BYAPR12MB3398382FF9052AE466CE29ECC2690@BYAPR12MB3398.namprd12.prod.outlook.com>
+From: Federico Vaga <federico.vaga@cern.ch>
+Subject: [PATCH v3 0/5]
+Date: Fri, 8 Feb 2019 17:11:56 +0100
+Message-ID: <20190208161201.7860-1-federico.vaga@cern.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <BYAPR12MB3398382FF9052AE466CE29ECC2690@BYAPR12MB3398.namprd12.prod.outlook.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Osipenko <digetx@gmail.com>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>
-Cc: "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-DQoNCj4gPiBQbGVhc2UgdXNlICJyZWxlYXNlX2RtYToiIHZhcmlhbnQgdGhhdCBJIHN1Z2dlc3Rl
-ZCBpbiB0aGUgY29tbWVudCB0byB2MTQgYmVjYXVzZToNCj4gPiA+DQo+ID4gMSkgSXQncyBqdXN0
-IGEgZ29vZCAoYW5kIGNvbW1vbi1zdHlsZSBpbiBrZXJuZWwpIHRvbmUgdG8gdW53aW5kIGVycm9y
-cyBoYW5kbGluZyBpbiB0aGUgb3Bwb3NpdGUgb3JkZXIsIGl0IG1ha2VzIGNvZGUgbW9yZSBzdHJh
-aWdodCBmb3J3YXJkIGFuZCBoZWxwcyB0byBhdm9pZCBzaWxseSBtaXN0YWtlcy4NCj4gPg0KPiA+
-IDIpIEl0IGtlZXBzIHRoZSBjdXJyZW50IGNvZGUgY29uc2lzdGVudCBpbiByZWdhcmRzIHRvIHBy
-b2JlIGVycm9yLWhhbmRsaW5nLg0KPiA+DQo+DQo+IENhbiBtb3ZlIHRlZ3JhX2kyY19yZWxlYXNl
-X2RtYSB1bmRlciB0aGUgc2FtZSBkaXNhYmxlX2Rpdl9jbGsgbGFiZWwgYmVmb3JlIGNsa19kaXNh
-YmxlDQo+DQo+IE9yZGVyIGluIHByb2JlIGlzDQoJY2xrX3ByZXBhcmUNCglpMmNfcnVudGltZV9y
-ZXN1bWUNCgljbGtfZW5hYmxlIGluIGNhc2Ugb2YgbXVsdGltYXN0ZXIgbW9kZQ0KCWkyY19pbml0
-X2RtYQ0KPg0KPiB1bndpbmRpbmcgc2hvdWxkIGJlIG9yZGVyIGlzDQoJcmVsZWFzZV9kbWENCglk
-aXNhYmxlX2Rpdl9jbGsNCglkaXNhYmxlX3JwbQ0KCXVucHJlcGFyZWQNCj4NCj4gUHJvYmUgZmFp
-bHVyZSBmcm9tIHRlZ3JhX2kyY19pbml0X2RtYSwgdGVncmFfaTJjX2luaXQsIGRldm1fcmVxdWVz
-dF9pcnEsIGkyY19hZGRfbnVtYmVyZWRfYWRhcHRlciBhbGwgb2YgdGhlbSBwZXJmb3JtIGdvdG8g
-ZGlzYWJsZV9kaXZfY2xrDQo+DQo+IEkgY2FuIGFkZCB0ZWdyYV9pMmNfcmVsZWFzZV9kbWEgYmVm
-b3JlIHBlcmZvcm1pbmcgY2xvY2sgZGlzYWJsZSB1bmRlciBzYW1lIGRpc2FibGVfZGl2X2NsayBz
-byBhbGwgZXhpc3RpbmcgZGlzYWJsZV9kaXZfY2xrIGxhYmVscyByZW1haW4gc2FtZS4NCj4gT3Ro
-ZXJ3aXNlIGFkZGluZyBuZXcgbGFiZWwgcmVsZWFzZV9kbWEgY2F1c2VzIGFsbCBnb3RvIGRpc2Fi
-bGVfZGl2X2NsayBzdGF0ZW1lbnQgYWxzbyB0byBiZSBjaGFuZ2VkIGJ1dCBpdHMgc2FtZSBhcyBh
-ZGRpbmcgcmVsZWFzZV9kbWEgdW5kZXIgZGlzYWJsZV9kaXZfY2xrIGFib3ZlIHRoZSBjbGtfZGlz
-YWJsZS4NCj4NCg0KT0ssIHBsZWFzZSBpZ25vcmUgYWJvdmUuIHdpbGwgYWRkIHJlbGVhc2VfZG1h
-IHRvIHNob3cgZXhwbGljaXRseSBmb3IgcmVhZGFiaWxpdHkuDQpXaXRoIHJlbGVhc2VfZG1hIGFs
-bCBlcnJvciBoYW5kbGVycyBwZXJmb3JtaW5nIGRpc2FibGVfY2xrX2RpdiBuZWVkIHRvIGdvIHRo
-cnUgcmVsZWFzZSBkbWEgYW5kIGRpc2FibGVfY2xrX2RpdiBsYWJlbCBpcyBub3QgbmVlZGVkLg0K
-U28gaGF2aW5nIHJlbGVhc2UgZG1hIHVuZGVyIGRpc2FibGVfY2xrIGJlZm9yZSBjbGtfZGlzYWJs
-ZSBmdW5jdGlvbiBpcyBhbHNvIHNhbWUuIA0KDQpQbGVhc2UgY29uZmlybSBpZiB0aGlzIGlzIG9r
-IHRvIHVzZSBzYW1lIGRpc2FibGVfZGl2X2NsayBvciBkbyB5b3UgcHJlZmVyIHJlbGVhc2VfZG1h
-IGxhYmVsIHJlbW92aW5nIGRpc2FibGVfZGl2X2Nsaw0KDQoNCj4gPiA+ICANCj4gPiA+ICBkaXNh
-YmxlX3JwbToNCj4gPiA+ICAJcG1fcnVudGltZV9kaXNhYmxlKCZwZGV2LT5kZXYpOw0KPiA+DQo+
-ID4NCj4gPiBbc25pcF0NCj4gPg0KPiA+IFBsZWFzZSBhbHNvIGFkZHJlc3MgbXkgY29tbWVudCB0
-byB0aGUgImZpeCBtYXhpbXVtIHRyYW5zZmVyIHNpemUiIHBhdGNoLiBBbmQgcGxlYXNlIGFkZCBX
-b2xmcmFtIFNhbmcgdG8gdGhlIENDIGxpc3QuDQo+ID4NCj4gPiBMb29rcyBsaWtlIHYxNiBzaG91
-bGQgYmUgdGhlIGZpbmFsLCBzbyB3aXRoIGV2ZXJ5dGhpbmcgYmVpbmcgYWRkcmVzc2VkOg0KPiA+
-DQo+ID4gUmV2aWV3ZWQtYnk6IERtaXRyeSBPc2lwZW5rbyA8ZGlnZXR4QGdtYWlsLmNvbT4NCj4g
-PiBUZXN0ZWQtYnk6IERtaXRyeSBPc2lwZW5rbyA8ZGlnZXR4QGdtYWlsLmNvbT4NCg0KDQo=
+This patch set provides improvements to the i2c-ocore driver.
+
+[V2 -> V3]
+- fix error condition on platform_get_irq(). Copied from
+  https://patchwork.ozlabs.org/patch/1038409/
+
+[V1 -> V2]
+- replaced usleep_range() with udelay() so that the polling version can be
+  used in atomic context.
+- added dedicated patch for minor style issues
+- fixed delay computation
+- use spin_lock_irqsave(), instead of spin_trylock_irqsave(). IACK is always
+  necessary and a trylock would generate an extra interrupt for nothing
+- make the driver ready for an eventual master_xfer_irqless()
