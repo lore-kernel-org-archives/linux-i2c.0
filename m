@@ -1,272 +1,103 @@
-From: Federico Vaga <federico.vaga@cern.ch>
-Subject: [PATCH v3 3/5] i2c:ocores: add polling interface
-Date: Fri, 8 Feb 2019 17:11:59 +0100
-Message-ID: <20190208161201.7860-4-federico.vaga@cern.ch>
-References: <20190208161201.7860-1-federico.vaga@cern.ch>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH V15 4/6] i2c: tegra: Add DMA support
+Date: Fri, 8 Feb 2019 19:15:20 +0300
+Message-ID: <21901823-2ec1-6bd5-d0df-2360858f2b7e@gmail.com>
+References: <1549576040-15907-1-git-send-email-skomatineni@nvidia.com>
+ <1549576040-15907-4-git-send-email-skomatineni@nvidia.com>
+ <7806f2cd-72b4-6ae3-b75f-0fc74fb62b95@gmail.com>
+ <BYAPR12MB3398BE6DA6F1E82E5F2525C2C2690@BYAPR12MB3398.namprd12.prod.outlook.com>
+ <BYAPR12MB3398382FF9052AE466CE29ECC2690@BYAPR12MB3398.namprd12.prod.outlook.com>
+ <BYAPR12MB339863A43F030013DCA7F548C2690@BYAPR12MB3398.namprd12.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190208161201.7860-1-federico.vaga@cern.ch>
+In-Reply-To: <BYAPR12MB339863A43F030013DCA7F548C2690@BYAPR12MB3398.namprd12.prod.outlook.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Federico Vaga <federico.vaga@cern.ch>
+To: Sowjanya Komatineni <skomatineni@nvidia.com>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>
+Cc: "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This driver assumes that an interrupt line is always available for
-the I2C master. This is not always the case and this patch adds support
-for a polling version.
+08.02.2019 18:58, Sowjanya Komatineni пишет:
+> 
+> 
+>>> Please use "release_dma:" variant that I suggested in the comment to v14 because:
+>>>>
+>>> 1) It's just a good (and common-style in kernel) tone to unwind errors handling in the opposite order, it makes code more straight forward and helps to avoid silly mistakes.
+>>>
+>>> 2) It keeps the current code consistent in regards to probe error-handling.
+>>>
+>>
+>> Can move tegra_i2c_release_dma under the same disable_div_clk label before clk_disable
+>>
+>> Order in probe is
+> 	clk_prepare
+> 	i2c_runtime_resume
+> 	clk_enable in case of multimaster mode
+> 	i2c_init_dma
+>>
+>> unwinding should be order is
+> 	release_dma
+> 	disable_div_clk
+> 	disable_rpm
+> 	unprepared
+>>
+>> Probe failure from tegra_i2c_init_dma, tegra_i2c_init, devm_request_irq, i2c_add_numbered_adapter all of them perform goto disable_div_clk
+>>
+>> I can add tegra_i2c_release_dma before performing clock disable under same disable_div_clk so all existing disable_div_clk labels remain same.
+>> Otherwise adding new label release_dma causes all goto disable_div_clk statement also to be changed but its same as adding release_dma under disable_div_clk above the clk_disable.
+>>
+> 
+> OK, please ignore above. will add release_dma to show explicitly for readability.
+> With release_dma all error handlers performing disable_clk_div need to go thru release dma and disable_clk_div label is not needed.
 
-Signed-off-by: Federico Vaga <federico.vaga@cern.ch>
----
- drivers/i2c/busses/i2c-ocores.c | 176 +++++++++++++++++++++++++++++++++++-----
- 1 file changed, 156 insertions(+), 20 deletions(-)
+tegra_i2c_init_dma() releases dma itself in a case of error, hence it should jump to the disable_clk_div.
 
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index fcc2558..bbe3e96 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -13,6 +13,7 @@
-  */
+> So having release dma under disable_clk before clk_disable function is also same. 
+> Please confirm if this is ok to use same disable_div_clk or do you prefer release_dma label removing disable_div_clk
+
+In general goto-label naming should reflect the actual jump-action. If goto jumps to dma-releasing, then the action is release-dma and not disable-clk.
+
+Hence the correct variant is:
+
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 7104213d813b..62e81096fb55 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -1604,14 +1604,14 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+        ret = tegra_i2c_init(i2c_dev, false);
+        if (ret) {
+                dev_err(&pdev->dev, "Failed to initialize i2c controller\n");
+-               goto disable_div_clk;
++               goto release_dma;
+        }
  
- #include <linux/clk.h>
-+#include <linux/delay.h>
- #include <linux/err.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-@@ -26,6 +27,9 @@
- #include <linux/io.h>
- #include <linux/log2.h>
- #include <linux/spinlock.h>
-+#include <linux/jiffies.h>
-+
-+#define OCORES_FLAG_POLL BIT(0)
+        ret = devm_request_irq(&pdev->dev, i2c_dev->irq,
+                        tegra_i2c_isr, 0, dev_name(&pdev->dev), i2c_dev);
+        if (ret) {
+                dev_err(&pdev->dev, "Failed to request irq %i\n", i2c_dev->irq);
+-               goto disable_div_clk;
++               goto release_dma;
+        }
  
- /**
-  * @process_lock: protect I2C transfer process.
-@@ -35,6 +39,7 @@ struct ocores_i2c {
- 	void __iomem *base;
- 	u32 reg_shift;
- 	u32 reg_io_width;
-+	unsigned long flags;
- 	wait_queue_head_t wait;
- 	struct i2c_adapter adap;
- 	struct i2c_msg *msg;
-@@ -246,10 +251,113 @@ static void ocores_process_timeout(struct ocores_i2c *i2c)
- 	spin_unlock_irqrestore(&i2c->process_lock, flags);
- }
+        i2c_set_adapdata(&i2c_dev->adapter, i2c_dev);
+@@ -1625,14 +1625,16 @@ static int tegra_i2c_probe(struct platform_device *pdev)
  
--static int ocores_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-+/**
-+ * Wait until something change in a given register
-+ * @i2c: ocores I2C device instance
-+ * @reg: register to query
-+ * @mask: bitmask to apply on register value
-+ * @val: expected result
-+ * @timeout: timeout in jiffies
-+ *
-+ * Timeout is necessary to avoid to stay here forever when the chip
-+ * does not answer correctly.
-+ *
-+ * Return: 0 on success, -ETIMEDOUT on timeout
-+ */
-+static int ocores_wait(struct ocores_i2c *i2c,
-+		       int reg, u8 mask, u8 val,
-+		       const unsigned long timeout)
-+{
-+	unsigned long j;
-+
-+	j = jiffies + timeout;
-+	while (1) {
-+		u8 status = oc_getreg(i2c, reg);
-+
-+		if ((status & mask) == val)
-+			break;
-+
-+		if (time_after(jiffies, j))
-+			return -ETIMEDOUT;
-+	}
-+	return 0;
-+}
-+
-+/**
-+ * Wait until is possible to process some data
-+ * @i2c: ocores I2C device instance
-+ *
-+ * Used when the device is in polling mode (interrupts disabled).
-+ *
-+ * Return: 0 on success, -ETIMEDOUT on timeout
-+ */
-+static int ocores_poll_wait(struct ocores_i2c *i2c)
-+{
-+	u8 mask;
-+	int err;
-+
-+	if (i2c->state == STATE_DONE || i2c->state == STATE_ERROR) {
-+		/* transfer is over */
-+		mask = OCI2C_STAT_BUSY;
-+	} else {
-+		/* on going transfer */
-+		mask = OCI2C_STAT_TIP;
-+		udelay((8 * 1000) / i2c->bus_clock_khz);
-+	}
-+
-+	/*
-+	 * once we are here we expect to get the expected result immediately
-+	 * so if after 1ms we timeout then something is broken.
-+	 */
-+	err = ocores_wait(i2c, OCI2C_STATUS, mask, 0, msecs_to_jiffies(1));
-+	if (err)
-+		dev_warn(i2c->adap.dev.parent,
-+			 "%s: STATUS timeout, bit 0x%x did not clear in 1ms\n",
-+			 __func__, mask);
-+	return err;
-+}
-+
-+
-+/**
-+ * It handles an IRQ-less transfer
-+ * @i2c: ocores I2C device instance
-+ *
-+ * Even if IRQ are disabled, the I2C OpenCore IP behavior is exactly the same
-+ * (only that IRQ are not produced). This means that we can re-use entirely
-+ * ocores_isr(), we just add our polling code around it.
-+ *
-+ * It can run in atomic context
-+ */
-+static void ocores_process_polling(struct ocores_i2c *i2c)
-+{
-+	while (1) {
-+		irqreturn_t ret;
-+		int err;
-+
-+		err = ocores_poll_wait(i2c);
-+		if (err) {
-+			i2c->state = STATE_ERROR;
-+			break; /* timeout */
-+		}
-+
-+		ret = ocores_isr(-1, i2c);
-+		if (ret == IRQ_NONE)
-+			break; /* all messages have been transfered */
-+	}
-+}
-+
-+static int ocores_xfer_core(struct ocores_i2c *i2c,
-+			    struct i2c_msg *msgs, int num,
-+			    bool polling)
- {
--	struct ocores_i2c *i2c = i2c_get_adapdata(adap);
- 	int ret;
-+	u8 ctrl;
-+
-+	ctrl = oc_getreg(i2c, OCI2C_CONTROL);
-+	if (polling)
-+		oc_setreg(i2c, OCI2C_CONTROL, ctrl & ~OCI2C_CTRL_IEN);
-+	else
-+		oc_setreg(i2c, OCI2C_CONTROL, ctrl | OCI2C_CTRL_IEN);
+        ret = i2c_add_numbered_adapter(&i2c_dev->adapter);
+        if (ret)
+-               goto disable_div_clk;
++               goto release_dma;
  
- 	i2c->msg = msgs;
- 	i2c->pos = 0;
-@@ -259,16 +367,37 @@ static int ocores_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 	oc_setreg(i2c, OCI2C_DATA, i2c_8bit_addr_from_msg(i2c->msg));
- 	oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_START);
+        return 0;
  
--	ret = wait_event_timeout(i2c->wait, (i2c->state == STATE_ERROR) ||
--				 (i2c->state == STATE_DONE), HZ);
--	if (ret == 0) {
--		ocores_process_timeout(i2c);
--		return -ETIMEDOUT;
-+	if (polling) {
-+		ocores_process_polling(i2c);
-+	} else {
-+		ret = wait_event_timeout(i2c->wait,
-+					 (i2c->state == STATE_ERROR) ||
-+					 (i2c->state == STATE_DONE), HZ);
-+		if (ret == 0) {
-+			ocores_process_timeout(i2c);
-+			return -ETIMEDOUT;
-+		}
- 	}
- 
- 	return (i2c->state == STATE_DONE) ? num : -EIO;
- }
- 
-+static int ocores_xfer_polling(struct i2c_adapter *adap,
-+			       struct i2c_msg *msgs, int num)
-+{
-+	return ocores_xfer_core(i2c_get_adapdata(adap), msgs, num, true);
-+}
++release_dma:
++       tegra_i2c_release_dma(i2c_dev);
 +
-+static int ocores_xfer(struct i2c_adapter *adap,
-+		       struct i2c_msg *msgs, int num)
-+{
-+	struct ocores_i2c *i2c = i2c_get_adapdata(adap);
-+
-+	if (i2c->flags & OCORES_FLAG_POLL)
-+		return ocores_xfer_polling(adap, msgs, num);
-+	return ocores_xfer_core(i2c, msgs, num, false);
-+}
-+
- static int ocores_init(struct device *dev, struct ocores_i2c *i2c)
- {
- 	int prescale;
-@@ -294,7 +423,7 @@ static int ocores_init(struct device *dev, struct ocores_i2c *i2c)
+ disable_div_clk:
+        if (i2c_dev->is_multimaster_mode)
+                clk_disable(i2c_dev->div_clk);
+-       tegra_i2c_release_dma(i2c_dev);
  
- 	/* Init the device */
- 	oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_IACK);
--	oc_setreg(i2c, OCI2C_CONTROL, ctrl | OCI2C_CTRL_IEN | OCI2C_CTRL_EN);
-+	oc_setreg(i2c, OCI2C_CONTROL, ctrl | OCI2C_CTRL_EN);
- 
- 	return 0;
- }
-@@ -451,10 +580,6 @@ static int ocores_i2c_probe(struct platform_device *pdev)
- 	int ret;
- 	int i;
- 
--	irq = platform_get_irq(pdev, 0);
--	if (irq < 0)
--		return irq;
--
- 	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
- 	if (!i2c)
- 		return -ENOMEM;
-@@ -509,18 +634,29 @@ static int ocores_i2c_probe(struct platform_device *pdev)
- 		}
- 	}
- 
-+	init_waitqueue_head(&i2c->wait);
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq == -ENXIO) {
-+		i2c->flags |= OCORES_FLAG_POLL;
-+	} else {
-+		if (irq < 0)
-+			return irq;
-+	}
-+
-+	if (!(i2c->flags & OCORES_FLAG_POLL)) {
-+		ret = devm_request_irq(&pdev->dev, irq, ocores_isr, 0,
-+				       pdev->name, i2c);
-+		if (ret) {
-+			dev_err(&pdev->dev, "Cannot claim IRQ\n");
-+			goto err_clk;
-+		}
-+	}
-+
- 	ret = ocores_init(&pdev->dev, i2c);
- 	if (ret)
- 		goto err_clk;
- 
--	init_waitqueue_head(&i2c->wait);
--	ret = devm_request_irq(&pdev->dev, irq, ocores_isr, 0,
--			       pdev->name, i2c);
--	if (ret) {
--		dev_err(&pdev->dev, "Cannot claim IRQ\n");
--		goto err_clk;
--	}
--
- 	/* hook up driver to tree */
- 	platform_set_drvdata(pdev, i2c);
- 	i2c->adap = ocores_adapter;
--- 
-2.15.0
+ disable_rpm:
+        pm_runtime_disable(&pdev->dev);
