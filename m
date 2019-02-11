@@ -1,74 +1,80 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v4 5/5] i2c:ocores: checkpatch fixes
-Date: Mon, 11 Feb 2019 10:16:41 +0000
-Message-ID: <fd5b5044-2415-c52c-ecb0-1f0f38267355@axentia.se>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v4 1/5] i2c:ocores: stop transfer on timeout
+Date: Mon, 11 Feb 2019 11:24:24 +0100
+Message-ID: <20190211102424.5xnzyxvfd2yhf6ui@ninjato>
 References: <20190211083122.32485-1-federico.vaga@cern.ch>
- <20190211083122.32485-6-federico.vaga@cern.ch>
+ <20190211083122.32485-2-federico.vaga@cern.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="k34seb4vqcvdmmff"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190211083122.32485-6-federico.vaga@cern.ch>
-Content-Language: en-US
-Content-ID: <1D8B36CAC418574786DCADDF0B51E068@eurprd02.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <20190211083122.32485-2-federico.vaga@cern.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Federico Vaga <federico.vaga@cern.ch>, Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Federico Vaga <federico.vaga@cern.ch>
+Cc: Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOS0wMi0xMSAwOTozMSwgRmVkZXJpY28gVmFnYSB3cm90ZToNCj4gTWlzY2VsbGFuZW91
-cyBzdHlsZSBmaXhlcyBmcm9tIGNoZWNrcGF0Y2gNCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEZlZGVy
-aWNvIFZhZ2EgPGZlZGVyaWNvLnZhZ2FAY2Vybi5jaD4NCj4gUmV2aWV3ZWQtYnk6IEFuZHJldyBM
-dW5uIDxhbmRyZXdAbHVubi5jaD4NCj4gDQo+IC0tLQ0KPiAgZHJpdmVycy9pMmMvYnVzc2VzL2ky
-Yy1vY29yZXMuYyB8IDE5ICsrKysrKysrKysrKy0tLS0tLS0NCj4gIDEgZmlsZSBjaGFuZ2VkLCAx
-MiBpbnNlcnRpb25zKCspLCA3IGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZl
-cnMvaTJjL2J1c3Nlcy9pMmMtb2NvcmVzLmMgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW9jb3Jl
-cy5jDQo+IGluZGV4IDViODAxOTAuLmJhMzVkMmEgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaTJj
-L2J1c3Nlcy9pMmMtb2NvcmVzLmMNCj4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY29y
-ZXMuYw0KPiBAQCAtMTgyLDggKzE4Miw5IEBAIHN0YXRpYyB2b2lkIG9jb3Jlc19wcm9jZXNzKHN0
-cnVjdCBvY29yZXNfaTJjICppMmMsIHU4IHN0YXQpDQo+ICAJCQlvY19zZXRyZWcoaTJjLCBPQ0ky
-Q19DTUQsIE9DSTJDX0NNRF9TVE9QKTsNCj4gIAkJCWdvdG8gb3V0Ow0KPiAgCQl9DQo+IC0JfSBl
-bHNlDQo+ICsJfSBlbHNlIHsNCj4gIAkJbXNnLT5idWZbaTJjLT5wb3MrK10gPSBvY19nZXRyZWco
-aTJjLCBPQ0kyQ19EQVRBKTsNCj4gKwl9DQo+ICANCj4gIAkvKiBlbmQgb2YgbXNnPyAqLw0KPiAg
-CWlmIChpMmMtPnBvcyA9PSBtc2ctPmxlbikgew0KPiBAQCAtMjAyLDkgKzIwMyw5IEBAIHN0YXRp
-YyB2b2lkIG9jb3Jlc19wcm9jZXNzKHN0cnVjdCBvY29yZXNfaTJjICppMmMsIHU4IHN0YXQpDQo+
-ICAJCQkJb2Nfc2V0cmVnKGkyYywgT0NJMkNfREFUQSwgYWRkcik7DQo+ICAJCQkJb2Nfc2V0cmVn
-KGkyYywgT0NJMkNfQ01ELCAgT0NJMkNfQ01EX1NUQVJUKTsNCj4gIAkJCQlnb3RvIG91dDsNCj4g
-LQkJCX0gZWxzZQ0KPiAtCQkJCWkyYy0+c3RhdGUgPSAobXNnLT5mbGFncyAmIEkyQ19NX1JEKQ0K
-PiAtCQkJCQk/IFNUQVRFX1JFQUQgOiBTVEFURV9XUklURTsNCj4gKwkJCX0NCj4gKwkJCWkyYy0+
-c3RhdGUgPSAobXNnLT5mbGFncyAmIEkyQ19NX1JEKQ0KPiArCQkJCT8gU1RBVEVfUkVBRCA6IFNU
-QVRFX1dSSVRFOw0KPiAgCQl9IGVsc2Ugew0KPiAgCQkJaTJjLT5zdGF0ZSA9IFNUQVRFX0RPTkU7
-DQo+ICAJCQlvY19zZXRyZWcoaTJjLCBPQ0kyQ19DTUQsIE9DSTJDX0NNRF9TVE9QKTsNCj4gQEAg
-LTQwNSw3ICs0MDYsOCBAQCBzdGF0aWMgaW50IG9jb3Jlc19pbml0KHN0cnVjdCBkZXZpY2UgKmRl
-diwgc3RydWN0IG9jb3Jlc19pMmMgKmkyYykNCj4gIAl1OCBjdHJsID0gb2NfZ2V0cmVnKGkyYywg
-T0NJMkNfQ09OVFJPTCk7DQo+ICANCj4gIAkvKiBtYWtlIHN1cmUgdGhlIGRldmljZSBpcyBkaXNh
-YmxlZCAqLw0KPiAtCW9jX3NldHJlZyhpMmMsIE9DSTJDX0NPTlRST0wsIGN0cmwgJiB+KE9DSTJD
-X0NUUkxfRU58T0NJMkNfQ1RSTF9JRU4pKTsNCj4gKwljdHJsICY9IH4oT0NJMkNfQ1RSTF9FTiB8
-IE9DSTJDX0NUUkxfSUVOKTsNCj4gKwlvY19zZXRyZWcoaTJjLCBPQ0kyQ19DT05UUk9MLCBjdHJs
-KTsNCj4gIA0KPiAgCXByZXNjYWxlID0gKGkyYy0+aXBfY2xvY2tfa2h6IC8gKDUgKiBpMmMtPmJ1
-c19jbG9ja19raHopKSAtIDE7DQo+ICAJcHJlc2NhbGUgPSBjbGFtcChwcmVzY2FsZSwgMCwgMHhm
-ZmZmKTsNCj4gQEAgLTQ2MiwxMSArNDY0LDEzIEBAIE1PRFVMRV9ERVZJQ0VfVEFCTEUob2YsIG9j
-b3Jlc19pMmNfbWF0Y2gpOw0KPiAgI2lmZGVmIENPTkZJR19PRg0KPiAgLyogUmVhZCBhbmQgd3Jp
-dGUgZnVuY3Rpb25zIGZvciB0aGUgR1JMSUIgcG9ydCBvZiB0aGUgY29udHJvbGxlci4gUmVnaXN0
-ZXJzIGFyZQ0KPiAgICogMzItYml0IGJpZyBlbmRpYW4gYW5kIHRoZSBQUkVMT1cgYW5kIFBSRUhJ
-R0ggcmVnaXN0ZXJzIGFyZSBtZXJnZWQgaW50byBvbmUNCj4gLSAqIHJlZ2lzdGVyLiBUaGUgc3Vi
-c2VxdWVudCByZWdpc3RlcnMgaGFzIHRoZWlyIG9mZnNldCBkZWNyZWFzZWQgYWNjb3JkaW5nbHku
-ICovDQo+ICsgKiByZWdpc3Rlci4gVGhlIHN1YnNlcXVlbnQgcmVnaXN0ZXJzIGhhcyB0aGVpciBv
-ZmZzZXQgZGVjcmVhc2VkIGFjY29yZGluZ2x5Lg0KPiArICovDQoNClRoZSBwcmVmZXJyZWQgbXVs
-dGktbGluZSBjb21tZW50IHN0eWxlcyBpczoNCg0KLyoNCiAqIFJlYWQuLi4NCiAqIC4uLmFjY29y
-ZGluZ2x5Lg0KICovDQoNClNvLCBwbGVhc2UgZml4IGFsbCBpc3N1ZXMgd2hlbiB5b3UgYXJlIGNo
-YW5naW5nIGl0IHRvIGNvbmZvcm0uDQoNCkNoZWVycywNClBldGVyDQoNCj4gIHN0YXRpYyB1OCBv
-Y19nZXRyZWdfZ3JsaWIoc3RydWN0IG9jb3Jlc19pMmMgKmkyYywgaW50IHJlZykNCj4gIHsNCj4g
-IAl1MzIgcmQ7DQo+ICAJaW50IHJyZWcgPSByZWc7DQo+ICsNCj4gIAlpZiAocmVnICE9IE9DSTJD
-X1BSRUxPVykNCj4gIAkJcnJlZy0tOw0KPiAgCXJkID0gaW9yZWFkMzJiZShpMmMtPmJhc2UgKyAo
-cnJlZyA8PCBpMmMtPnJlZ19zaGlmdCkpOw0KPiBAQCAtNDgwLDYgKzQ4NCw3IEBAIHN0YXRpYyB2
-b2lkIG9jX3NldHJlZ19ncmxpYihzdHJ1Y3Qgb2NvcmVzX2kyYyAqaTJjLCBpbnQgcmVnLCB1OCB2
-YWx1ZSkNCj4gIHsNCj4gIAl1MzIgY3Vyciwgd3I7DQo+ICAJaW50IHJyZWcgPSByZWc7DQo+ICsN
-Cj4gIAlpZiAocmVnICE9IE9DSTJDX1BSRUxPVykNCj4gIAkJcnJlZy0tOw0KPiAgCWlmIChyZWcg
-PT0gT0NJMkNfUFJFTE9XIHx8IHJlZyA9PSBPQ0kyQ19QUkVISUdIKSB7DQo+IEBAIC01NjgsNyAr
-NTczLDcgQEAgc3RhdGljIGludCBvY29yZXNfaTJjX29mX3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9k
-ZXZpY2UgKnBkZXYsDQo+ICAJcmV0dXJuIDA7DQo+ICB9DQo+ICAjZWxzZQ0KPiAtI2RlZmluZSBv
-Y29yZXNfaTJjX29mX3Byb2JlKHBkZXYsaTJjKSAtRU5PREVWDQo+ICsjZGVmaW5lIG9jb3Jlc19p
-MmNfb2ZfcHJvYmUocGRldiwgaTJjKSAtRU5PREVWDQo+ICAjZW5kaWYNCj4gIA0KPiAgc3RhdGlj
-IGludCBvY29yZXNfaTJjX3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+IA0K
-DQo=
+
+--k34seb4vqcvdmmff
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Feb 11, 2019 at 09:31:18AM +0100, Federico Vaga wrote:
+> Detecting a timeout is ok, but we also need to assert a STOP command on
+> the bus in order to prevent it from generating interrupts when there are
+> no on going transfers.
+>=20
+> Example: very long transmission.
+>=20
+> 1. ocores_xfer: START a transfer
+> 2. ocores_isr : handle byte by byte the transfer
+> 3. ocores_xfer: goes in timeout [[bugfix here]]
+> 4. ocores_xfer: return to I2C subsystem and to the I2C driver
+> 5. I2C driver : it may clean up the i2c_msg memory
+> 6. ocores_isr : receives another interrupt (pending bytes to be
+>                 transferred) but the i2c_msg memory is invalid now
+>=20
+> So, since the transfer was too long, we have to detect the timeout and
+> STOP the transfer.
+>=20
+> Another point is that we have a critical region here. When handling the
+> timeout condition we may have a running IRQ handler. For this reason I
+> introduce a spinlock.
+>=20
+> In order to make easier to understan locking I have:
+> - added a new function to handle timeout
+> - modified the current ocores_process() function in order to be protected
+>   by the new spinlock
+> Like this it is obvious at first sight that this locking serializes
+> the execution of ocores_process() and ocores_process_timeout()
+>=20
+> Signed-off-by: Federico Vaga <federico.vaga@cern.ch>
+> Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+>=20
+
+Applied to for-next, thanks!
+
+
+--k34seb4vqcvdmmff
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxhTVQACgkQFA3kzBSg
+KbbIzBAAk28yIbH11CCG/mU8YLcPZTJRQh7q2VqKZQkxV0pf0CCx+N0pAdlFrzSv
+pzsLLeIpQPUZE37Alfacz+dKZRVimcPGJ4qvR7Gja1onWkSpzOhYPp8LiEBFhgtO
+UTdjqeVLs+/Au35gdZ0vKNKOy62B9azsU11FpY5ygDYrF2KDlE3wIlzEoKrXnG37
+cBhkwFi/xXZL+N9Ew1PIkr4qdPArARHXdvlrsiV48ZHp54byJ0VKTHp80Mvut4IW
+Xs2AFLK+K7u2b6ZGGrbKst6xeRZBQ+lHMxCDzx1jiYMaGoltubOd45uk/Ujdb51r
+de1/6tijFEvvInI1nWucbpLhY79bz7VRYH4rw+NJWwrTlqxGws0uytm3bSD3u6vJ
+2q/5WtPC+vPFl/D42fQcJRwrzg62hls0RRjhO13YscobpCijohVtPLuZerXYAyTq
+FoMcWdFj6H8BCwhB3tobjoDS7VajcN2Yj0H/mhxI8iqUiUSD/03aXYSzeidZzWDd
+z7YYUvv/0fWrhv6MdXpYGZjvzfNoQE8aJVMZ3+ULUWSoeNZ1YfjIogXdYhdxlOBv
+FB9JI0+TeVCgkJBD1AYmuC6GWf1UU7DkpeoLZkpx79ndvXn2XXYdMRs9wHIw242X
+SB5jEQoST38O9F81MOPcGLfpuIFV08kmUcs36jtP1mFQ8ktYZtg=
+=48TV
+-----END PGP SIGNATURE-----
+
+--k34seb4vqcvdmmff--
