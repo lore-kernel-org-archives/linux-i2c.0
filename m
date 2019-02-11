@@ -1,84 +1,201 @@
-From: Peter Rosin <peda@axentia.se>
+From: Federico Vaga <federico.vaga@cern.ch>
 Subject: Re: [PATCH v5 5/5] i2c:ocores: checkpatch fixes
-Date: Mon, 11 Feb 2019 16:12:23 +0000
-Message-ID: <bbaaa303-75f1-9272-c01f-914175237f05@axentia.se>
-References: <20190211160529.23858-1-federico.vaga@cern.ch>
- <20190211160529.23858-6-federico.vaga@cern.ch>
+Date: Mon, 11 Feb 2019 17:18:13 +0100
+Message-ID: <2547581.38QU9fvyYn@pcbe13614>
+References: <20190211160529.23858-1-federico.vaga@cern.ch> <20190211160529.23858-6-federico.vaga@cern.ch> <bbaaa303-75f1-9272-c01f-914175237f05@axentia.se>
+Reply-To: <federico.vaga@cern.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190211160529.23858-6-federico.vaga@cern.ch>
-Content-Language: en-US
-Content-ID: <0DBBBF2B3DCE7A43B7F7F646A610C835@eurprd02.prod.outlook.com>
+In-Reply-To: <bbaaa303-75f1-9272-c01f-914175237f05@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Federico Vaga <federico.vaga@cern.ch>, Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Peter Rosin <peda@axentia.se>
+Cc: Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOS0wMi0xMSAxNzowNSwgRmVkZXJpY28gVmFnYSB3cm90ZToNCj4gTWlzY2VsbGFuZW91
-cyBzdHlsZSBmaXhlcyBmcm9tIGNoZWNrcGF0Y2gNCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEZlZGVy
-aWNvIFZhZ2EgPGZlZGVyaWNvLnZhZ2FAY2Vybi5jaD4NCj4gLS0tDQo+ICBkcml2ZXJzL2kyYy9i
-dXNzZXMvaTJjLW9jb3Jlcy5jIHwgMzAgKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tDQo+
-ICAxIGZpbGUgY2hhbmdlZCwgMTkgaW5zZXJ0aW9ucygrKSwgMTEgZGVsZXRpb25zKC0pDQo+IA0K
-PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY29yZXMuYyBiL2RyaXZlcnMv
-aTJjL2J1c3Nlcy9pMmMtb2NvcmVzLmMNCj4gaW5kZXggNzgwODVhOC4uNTRiMjE1NiAxMDA2NDQN
-Cj4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY29yZXMuYw0KPiArKysgYi9kcml2ZXJz
-L2kyYy9idXNzZXMvaTJjLW9jb3Jlcy5jDQo+IEBAIC0xNzksOCArMTc5LDkgQEAgc3RhdGljIHZv
-aWQgb2NvcmVzX3Byb2Nlc3Moc3RydWN0IG9jb3Jlc19pMmMgKmkyYywgdTggc3RhdCkNCj4gIAkJ
-CW9jX3NldHJlZyhpMmMsIE9DSTJDX0NNRCwgT0NJMkNfQ01EX1NUT1ApOw0KPiAgCQkJZ290byBv
-dXQ7DQo+ICAJCX0NCj4gLQl9IGVsc2UNCj4gKwl9IGVsc2Ugew0KPiAgCQltc2ctPmJ1ZltpMmMt
-PnBvcysrXSA9IG9jX2dldHJlZyhpMmMsIE9DSTJDX0RBVEEpOw0KPiArCX0NCj4gIA0KPiAgCS8q
-IGVuZCBvZiBtc2c/ICovDQo+ICAJaWYgKGkyYy0+cG9zID09IG1zZy0+bGVuKSB7DQo+IEBAIC0x
-OTcsMTEgKzE5OCwxMSBAQCBzdGF0aWMgdm9pZCBvY29yZXNfcHJvY2VzcyhzdHJ1Y3Qgb2NvcmVz
-X2kyYyAqaTJjLCB1OCBzdGF0KQ0KPiAgCQkJCWkyYy0+c3RhdGUgPSBTVEFURV9TVEFSVDsNCj4g
-IA0KPiAgCQkJCW9jX3NldHJlZyhpMmMsIE9DSTJDX0RBVEEsIGFkZHIpOw0KPiAtCQkJCW9jX3Nl
-dHJlZyhpMmMsIE9DSTJDX0NNRCwgIE9DSTJDX0NNRF9TVEFSVCk7DQo+ICsJCQkJb2Nfc2V0cmVn
-KGkyYywgT0NJMkNfQ01ELCBPQ0kyQ19DTURfU1RBUlQpOw0KPiAgCQkJCWdvdG8gb3V0Ow0KPiAt
-CQkJfSBlbHNlDQo+IC0JCQkJaTJjLT5zdGF0ZSA9IChtc2ctPmZsYWdzICYgSTJDX01fUkQpDQo+
-IC0JCQkJCT8gU1RBVEVfUkVBRCA6IFNUQVRFX1dSSVRFOw0KPiArCQkJfQ0KPiArCQkJaTJjLT5z
-dGF0ZSA9IChtc2ctPmZsYWdzICYgSTJDX01fUkQpDQo+ICsJCQkJPyBTVEFURV9SRUFEIDogU1RB
-VEVfV1JJVEU7DQo+ICAJCX0gZWxzZSB7DQo+ICAJCQlpMmMtPnN0YXRlID0gU1RBVEVfRE9ORTsN
-Cj4gIAkJCW9jX3NldHJlZyhpMmMsIE9DSTJDX0NNRCwgT0NJMkNfQ01EX1NUT1ApOw0KPiBAQCAt
-NDYxLDEzICs0NjIsMTYgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBvZl9kZXZpY2VfaWQgb2NvcmVz
-X2kyY19tYXRjaFtdID0gew0KPiAgTU9EVUxFX0RFVklDRV9UQUJMRShvZiwgb2NvcmVzX2kyY19t
-YXRjaCk7DQo+ICANCj4gICNpZmRlZiBDT05GSUdfT0YNCj4gLS8qIFJlYWQgYW5kIHdyaXRlIGZ1
-bmN0aW9ucyBmb3IgdGhlIEdSTElCIHBvcnQgb2YgdGhlIGNvbnRyb2xsZXIuIFJlZ2lzdGVycyBh
-cmUNCj4gKy8qDQo+ICsgKiBSZWFkIGFuZCB3cml0ZSBmdW5jdGlvbnMgZm9yIHRoZSBHUkxJQiBw
-b3J0IG9mIHRoZSBjb250cm9sbGVyLiBSZWdpc3RlcnMgYXJlDQo+ICAgKiAzMi1iaXQgYmlnIGVu
-ZGlhbiBhbmQgdGhlIFBSRUxPVyBhbmQgUFJFSElHSCByZWdpc3RlcnMgYXJlIG1lcmdlZCBpbnRv
-IG9uZQ0KPiAtICogcmVnaXN0ZXIuIFRoZSBzdWJzZXF1ZW50IHJlZ2lzdGVycyBoYXMgdGhlaXIg
-b2Zmc2V0IGRlY3JlYXNlZCBhY2NvcmRpbmdseS4gKi8NCj4gKyAqIHJlZ2lzdGVyLiBUaGUgc3Vi
-c2VxdWVudCByZWdpc3RlcnMgaGF2ZSB0aGVpciBvZmZzZXRzIGRlY3JlYXNlZCBhY2NvcmRpbmds
-eS4NCj4gKyAqLw0KPiAgc3RhdGljIHU4IG9jX2dldHJlZ19ncmxpYihzdHJ1Y3Qgb2NvcmVzX2ky
-YyAqaTJjLCBpbnQgcmVnKQ0KPiAgew0KPiAgCXUzMiByZDsNCj4gIAlpbnQgcnJlZyA9IHJlZzsN
-Cj4gKw0KPiAgCWlmIChyZWcgIT0gT0NJMkNfUFJFTE9XKQ0KPiAgCQlycmVnLS07DQo+ICAJcmQg
-PSBpb3JlYWQzMmJlKGkyYy0+YmFzZSArIChycmVnIDw8IGkyYy0+cmVnX3NoaWZ0KSk7DQo+IEBA
-IC00ODEsNiArNDg1LDcgQEAgc3RhdGljIHZvaWQgb2Nfc2V0cmVnX2dybGliKHN0cnVjdCBvY29y
-ZXNfaTJjICppMmMsIGludCByZWcsIHU4IHZhbHVlKQ0KPiAgew0KPiAgCXUzMiBjdXJyLCB3cjsN
-Cj4gIAlpbnQgcnJlZyA9IHJlZzsNCj4gKw0KPiAgCWlmIChyZWcgIT0gT0NJMkNfUFJFTE9XKQ0K
-PiAgCQlycmVnLS07DQo+ICAJaWYgKHJlZyA9PSBPQ0kyQ19QUkVMT1cgfHwgcmVnID09IE9DSTJD
-X1BSRUhJR0gpIHsNCj4gQEAgLTU2OSw3ICs1NzQsNyBAQCBzdGF0aWMgaW50IG9jb3Jlc19pMmNf
-b2ZfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldiwNCj4gIAlyZXR1cm4gMDsNCj4g
-IH0NCj4gICNlbHNlDQo+IC0jZGVmaW5lIG9jb3Jlc19pMmNfb2ZfcHJvYmUocGRldixpMmMpIC1F
-Tk9ERVYNCj4gKyNkZWZpbmUgb2NvcmVzX2kyY19vZl9wcm9iZShwZGV2LCBpMmMpIC1FTk9ERVYN
-Cj4gICNlbmRpZg0KPiAgDQo+ICBzdGF0aWMgaW50IG9jb3Jlc19pMmNfcHJvYmUoc3RydWN0IHBs
-YXRmb3JtX2RldmljZSAqcGRldikNCj4gQEAgLTY4NiwxMCArNjkxLDExIEBAIGVycl9jbGs6DQo+
-ICBzdGF0aWMgaW50IG9jb3Jlc19pMmNfcmVtb3ZlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBk
-ZXYpDQo+ICB7DQo+ICAJc3RydWN0IG9jb3Jlc19pMmMgKmkyYyA9IHBsYXRmb3JtX2dldF9kcnZk
-YXRhKHBkZXYpOw0KPiArCXU4IGN0cmwgPSBvY19nZXRyZWcoaTJjLCBPQ0kyQ19DT05UUk9MKTsN
-Cj4gIA0KPiAgCS8qIGRpc2FibGUgaTJjIGxvZ2ljICovDQo+IC0Jb2Nfc2V0cmVnKGkyYywgT0NJ
-MkNfQ09OVFJPTCwgb2NfZ2V0cmVnKGkyYywgT0NJMkNfQ09OVFJPTCkNCj4gLQkJICAmIH4oT0NJ
-MkNfQ1RSTF9FTnxPQ0kyQ19DVFJMX0lFTikpOw0KPiArCWN0cmwgJj0gfihPQ0kyQ19DVFJMX0VO
-IHwgT0NJMkNfQ1RSTF9JRU4pOw0KPiArCW9jX3NldHJlZyhpMmMsIE9DSTJDX0NPTlRST0wsIGN0
-cmwpOw0KPiAgDQo+ICAJLyogcmVtb3ZlIGFkYXB0ZXIgJiBkYXRhICovDQo+ICAJaTJjX2RlbF9h
-ZGFwdGVyKCZpMmMtPmFkYXApOw0KPiBAQCAtNzA3LDcgKzcxMyw5IEBAIHN0YXRpYyBpbnQgb2Nv
-cmVzX2kyY19zdXNwZW5kKHN0cnVjdCBkZXZpY2UgKmRldikNCj4gIAl1OCBjdHJsID0gb2NfZ2V0
-cmVnKGkyYywgT0NJMkNfQ09OVFJPTCk7DQo+ICANCj4gIAkvKiBtYWtlIHN1cmUgdGhlIGRldmlj
-ZSBpcyBkaXNhYmxlZCAqLw0KPiAtCW9jX3NldHJlZyhpMmMsIE9DSTJDX0NPTlRST0wsIGN0cmwg
-JiB+KE9DSTJDX0NUUkxfRU58T0NJMkNfQ1RSTF9JRU4pKTsNCj4gKwljdHJsID0gb2NfZ2V0cmVn
-KGkyYywgT0NJMkNfQ09OVFJPTCk7DQoNClRoZXJlJ3MgYSBwb2ludGxlc3MgZG91YmxlIG9jX2dl
-dHJlZyhpMmMsIE9DSTJDX0NPTlRST0wpLg0KDQpDaGVlcnMsDQpQZXRlcg0KDQo+ICsJY3RybCAm
-PSB+KE9DSTJDX0NUUkxfRU4gfCBPQ0kyQ19DVFJMX0lFTik7DQo+ICsJb2Nfc2V0cmVnKGkyYywg
-T0NJMkNfQ09OVFJPTCwgY3RybCk7DQo+ICANCj4gIAlpZiAoIUlTX0VSUihpMmMtPmNsaykpDQo+
-ICAJCWNsa19kaXNhYmxlX3VucHJlcGFyZShpMmMtPmNsayk7DQo+IA0KDQo=
+On Monday, February 11, 2019 5:12:23 PM CET Peter Rosin wrote:
+> On 2019-02-11 17:05, Federico Vaga wrote:
+> 
+> > Miscellaneous style fixes from checkpatch
+> > 
+> > Signed-off-by: Federico Vaga <federico.vaga@cern.ch>
+> > ---
+> > 
+> >  drivers/i2c/busses/i2c-ocores.c | 30 +++++++++++++++++++-----------
+> >  1 file changed, 19 insertions(+), 11 deletions(-)
+> > 
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-ocores.c
+> > b/drivers/i2c/busses/i2c-ocores.c
+ index 78085a8..54b2156 100644
+> > --- a/drivers/i2c/busses/i2c-ocores.c
+> > +++ b/drivers/i2c/busses/i2c-ocores.c
+> > @@ -179,8 +179,9 @@ static void ocores_process(struct ocores_i2c *i2c, u8
+> > stat)
+> 
+> >  			oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_STOP);
+> >  			goto out;
+> >  		
+> >  		}
+> > 
+> > -	} else
+> > +	} else {
+> > 
+> >  		msg->buf[i2c->pos++] = oc_getreg(i2c, OCI2C_DATA);
+> > 
+> > +	}
+> > 
+> >  
+> >  
+> >  	/* end of msg? */
+> >  	if (i2c->pos == msg->len) {
+> > 
+> > @@ -197,11 +198,11 @@ static void ocores_process(struct ocores_i2c *i2c,
+> > u8 stat)
+> 
+> >  				i2c->state = STATE_START;
+> >  
+> >  
+> >  
+> >  				oc_setreg(i2c, OCI2C_DATA, addr);
+> > 
+> > -				oc_setreg(i2c, OCI2C_CMD,  OCI2C_CMD_START);
+> > +				oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_START);
+> > 
+> >  				goto out;
+> > 
+> > -			} else
+> > -				i2c->state = (msg->flags & I2C_M_RD)
+> > -					? STATE_READ : STATE_WRITE;
+> > +			}
+> > +			i2c->state = (msg->flags & I2C_M_RD)
+> > +				? STATE_READ : STATE_WRITE;
+> > 
+> >  		} else {
+> >  		
+> >  			i2c->state = STATE_DONE;
+> >  			oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_STOP);
+> > 
+> > @@ -461,13 +462,16 @@ static const struct of_device_id ocores_i2c_match[]
+> > = {
+> 
+> >  MODULE_DEVICE_TABLE(of, ocores_i2c_match);
+> >  
+> >  #ifdef CONFIG_OF
+> > 
+> > -/* Read and write functions for the GRLIB port of the controller.
+> > Registers are
+ +/*
+> > + * Read and write functions for the GRLIB port of the controller.
+> > Registers are
+> 
+> >   * 32-bit big endian and the PRELOW and PREHIGH registers are merged into
+> >   one
+> 
+> > - * register. The subsequent registers has their offset decreased
+> > accordingly. */
+ + * register. The subsequent registers have their
+> > offsets decreased accordingly. + */
+> > 
+> >  static u8 oc_getreg_grlib(struct ocores_i2c *i2c, int reg)
+> >  {
+> >  
+> >  	u32 rd;
+> >  	int rreg = reg;
+> > 
+> > +
+> > 
+> >  	if (reg != OCI2C_PRELOW)
+> >  	
+> >  		rreg--;
+> >  	
+> >  	rd = ioread32be(i2c->base + (rreg << i2c->reg_shift));
+> > 
+> > @@ -481,6 +485,7 @@ static void oc_setreg_grlib(struct ocores_i2c *i2c,
+> > int reg, u8 value)
+> 
+> >  {
+> >  
+> >  	u32 curr, wr;
+> >  	int rreg = reg;
+> > 
+> > +
+> > 
+> >  	if (reg != OCI2C_PRELOW)
+> >  	
+> >  		rreg--;
+> >  	
+> >  	if (reg == OCI2C_PRELOW || reg == OCI2C_PREHIGH) {
+> > 
+> > @@ -569,7 +574,7 @@ static int ocores_i2c_of_probe(struct platform_device
+> > *pdev,
+> 
+> >  	return 0;
+> >  
+> >  }
+> >  #else
+> > 
+> > -#define ocores_i2c_of_probe(pdev,i2c) -ENODEV
+> > +#define ocores_i2c_of_probe(pdev, i2c) -ENODEV
+> > 
+> >  #endif
+> >  
+> >  static int ocores_i2c_probe(struct platform_device *pdev)
+> > 
+> > @@ -686,10 +691,11 @@ err_clk:
+> > 
+> >  static int ocores_i2c_remove(struct platform_device *pdev)
+> >  {
+> >  
+> >  	struct ocores_i2c *i2c = platform_get_drvdata(pdev);
+> > 
+> > +	u8 ctrl = oc_getreg(i2c, OCI2C_CONTROL);
+> > 
+> >  
+> >  
+> >  	/* disable i2c logic */
+> > 
+> > -	oc_setreg(i2c, OCI2C_CONTROL, oc_getreg(i2c, OCI2C_CONTROL)
+> > -		  & ~(OCI2C_CTRL_EN|OCI2C_CTRL_IEN));
+> > +	ctrl &= ~(OCI2C_CTRL_EN | OCI2C_CTRL_IEN);
+> > +	oc_setreg(i2c, OCI2C_CONTROL, ctrl);
+> > 
+> >  
+> >  
+> >  	/* remove adapter & data */
+> >  	i2c_del_adapter(&i2c->adap);
+> > 
+> > @@ -707,7 +713,9 @@ static int ocores_i2c_suspend(struct device *dev)
+> > 
+> >  	u8 ctrl = oc_getreg(i2c, OCI2C_CONTROL);
+> >  
+> >  
+> >  
+> >  	/* make sure the device is disabled */
+> > 
+> > -	oc_setreg(i2c, OCI2C_CONTROL, ctrl & ~(OCI2C_CTRL_EN|OCI2C_CTRL_IEN));
+> > +	ctrl = oc_getreg(i2c, OCI2C_CONTROL);
+> 
+> 
+> There's a pointless double oc_getreg(i2c, OCI2C_CONTROL).
+
+Very sorry for the waste of time for such a stupid copy&paste error.
+V6 is coming.
+ 
+> Cheers,
+> Peter
+> 
+> 
+> > +	ctrl &= ~(OCI2C_CTRL_EN | OCI2C_CTRL_IEN);
+> > +	oc_setreg(i2c, OCI2C_CONTROL, ctrl);
+> > 
+> >  
+> >  
+> >  	if (!IS_ERR(i2c->clk))
+> >  	
+> >  		clk_disable_unprepare(i2c->clk);
+> > 
+> > 
+> 
+> 
