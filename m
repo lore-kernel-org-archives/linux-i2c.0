@@ -1,58 +1,45 @@
 From: Federico Vaga <federico.vaga@cern.ch>
-Subject: Re: [PATCH v3 3/5] i2c:ocores: add polling interface
-Date: Mon, 11 Feb 2019 09:20:32 +0100
-Message-ID: <1894984.UOdFTssdus@pcbe13614>
-References: <20190208161201.7860-1-federico.vaga@cern.ch> <20190208161201.7860-4-federico.vaga@cern.ch> <20190209213353.GA9061@lunn.ch>
-Reply-To: <federico.vaga@cern.ch>
+Subject: [PATCH v4 4/5] i2c:ocores: add SPDX tag
+Date: Mon, 11 Feb 2019 09:31:21 +0100
+Message-ID: <20190211083122.32485-5-federico.vaga@cern.ch>
+References: <20190211083122.32485-1-federico.vaga@cern.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190209213353.GA9061@lunn.ch>
+In-Reply-To: <20190211083122.32485-1-federico.vaga@cern.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Peter Korsgaard <peter@korsgaard.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Federico Vaga <federico.vaga@cern.ch>
 List-Id: linux-i2c@vger.kernel.org
 
-On Saturday, February 9, 2019 10:33:53 PM CET Andrew Lunn wrote:
-> > +static int ocores_poll_wait(struct ocores_i2c *i2c)
-> > +{
-> > +	u8 mask;
-> > +	int err;
-> > +
-> > +	if (i2c->state == STATE_DONE || i2c->state == STATE_ERROR) {
-> > +		/* transfer is over */
-> > +		mask = OCI2C_STAT_BUSY;
-> > +	} else {
-> > +		/* on going transfer */
-> > +		mask = OCI2C_STAT_TIP;
-> > +		udelay((8 * 1000) / i2c->bus_clock_khz);
-> > +	}
-> > +
-> > +	/*
-> > +	 * once we are here we expect to get the expected result immediately
-> > +	 * so if after 1ms we timeout then something is broken.
-> > +	 */
-> > +	err = ocores_wait(i2c, OCI2C_STATUS, mask, 0, msecs_to_jiffies(1));
-> 
-> Hi Federico
-> 
-> I did some timing tests for this. On my box, we request a udelay of
-> 80uS. The kernel actually delays for about 79uS. We then spin in
-> ocores_wait() for an additional 10-11uS, which is 3 to 4 iterations.
-> 
-> There are actually 9 bits on the wire, not 8, since there is an
-> ACK/NACK bit after the actual data transfer. So i changed the delay to
-> (9 * 1000) / i2c->bus_clock_khz. That resulted in ocores_wait() mostly
-> not looping at all. But for reading an 4K AT24 EEPROM, it increased
-> the read time by 10ms, from 424ms to 434ms. So we should probably keep
-> with 8.
-> 
-> Tested-by: Andrew Lunn <andrew@lunn.ch>
+It adds the SPDX tag and it removes the old text about the GPLv2.
 
-I had a similar experience. I will add a comment in the code to explain that 8 
-is not a mistake but a conscious decision. Then I will add what you wrote here
-in the patch changelog
+Signed-off-by: Federico Vaga <federico.vaga@cern.ch>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 
-> 
->     Andrew
+---
+ drivers/i2c/busses/i2c-ocores.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index bbe3e96..e87fce0 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -1,3 +1,4 @@
++// SPDX-License-Identifier: GPL-2.0
+ /*
+  * i2c-ocores.c: I2C bus driver for OpenCores I2C controller
+  * (https://opencores.org/project/i2c/overview)
+@@ -6,10 +7,6 @@
+  *
+  * Support for the GRLIB port of the controller by
+  * Andreas Larsson <andreas@gaisler.com>
+- *
+- * This file is licensed under the terms of the GNU General Public License
+- * version 2.  This program is licensed "as is" without any warranty of any
+- * kind, whether express or implied.
+  */
+ 
+ #include <linux/clk.h>
+-- 
+2.15.0
