@@ -1,72 +1,33 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: RE: [PATCH V18 2/6] i2c: tegra: add bus clear Master Support
-Date: Mon, 11 Feb 2019 20:18:15 +0000
-Message-ID: <BYAPR12MB3398A2CABD430EA15FE15CC3C2640@BYAPR12MB3398.namprd12.prod.outlook.com>
-References: <1549652382-5476-1-git-send-email-skomatineni@nvidia.com>
- <1549652382-5476-2-git-send-email-skomatineni@nvidia.com>
- <20190211124431.kys66uzp5hwa5ret@ninjato>
+From: John Sperbeck <jsperbeck@google.com>
+Subject: Re: [PATCH v2] i2c: core-smbus: don't trace smbus_reply data on errors
+Date: Mon, 11 Feb 2019 13:43:54 -0800
+Message-ID: <CAFNjLiVMOii_mzs4Px38GHxFq6WnrDNhQ9YHMb+4yGZZ6SFpkQ@mail.gmail.com>
+References: <20190205190849.GA2686@kunai> <20190211034021.242932-1-jsperbeck@google.com>
+ <20190211092417.7f211ee0@gandalf.local.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190211124431.kys66uzp5hwa5ret@ninjato>
-Content-Language: en-US
+In-Reply-To: <20190211092417.7f211ee0@gandalf.local.home>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>, "peda@axentia.se" <peda@axentia.se>, "digetx@gmail.com" <digetx@gmail.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>
 List-Id: linux-i2c@vger.kernel.org
 
-> > Bus clear feature of Tegra I2C controller helps to recover from bus=20
-> > hang when I2C master loses the bus arbitration due to the slave device=
-=20
-> > holding SDA LOW continuously for some unknown reasons.
-> >=20
-> > Per I2C specification, the device that held the bus LOW should release=
-=20
-> > it within 9 clock pulses.
-> >=20
-> > During bus clear operation, Tegra I2C controller sends 9 clock pulses=20
-> > and terminates the transaction with STOP condition.
-> > Upon successful bus clear operation, bus goes to idle state and driver=
-=20
-> > retries the transaction.
-> >=20
-> > Acked-by: Thierry Reding <treding@nvidia.com>
-> > Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-> > Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+On Mon, Feb 11, 2019 at 6:24 AM Steven Rostedt <rostedt@goodmis.org> wrote:
 >
-> We have a bus recovery infrastructure in the core. Tying your code into i=
-t should be easy. You probably just need a 'struct i2c_bus_recovery_info', =
-populate the 'recover_bus' callback with 'tegra_i2c_issue_bus_clear()', and=
- attach this struct to the 'struct adapter' if the IP core supports bus rec=
-overy, otherwise leave it empty.
-> Then, you can...
+> On Sun, 10 Feb 2019 19:40:21 -0800
+> John Sperbeck <jsperbeck@google.com> wrote:
 >
-> > +static int tegra_i2c_issue_bus_clear(struct tegra_i2c_dev *i2c_dev) {
-> > +	int err;
-> > +	unsigned long time_left;
-> > +	u32 reg;
-> > +
-> > +	if (i2c_dev->hw->supports_bus_clear) {
+> > If an smbus transfer fails, there's no guarantee that the output
+> > buffer was written.  So, avoid trying to show the output buffer when
+> > tracing after an error.  This was 'mostly harmless', but would trip
+> > up kasan checking if left-over cruft in byte 0 is a large length,
+> > causing us to read from unwritten memory.
 >
->... remove the if here because the core will check for a valid i2c_bus_rec=
-overy_info...
->
-> > @@ -759,6 +818,13 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev=
- *i2c_dev,
-> >  		return 0;
-> > =20
-> >  	tegra_i2c_init(i2c_dev);
-> > +	/* start recovery upon arbitration loss in single master mode */
-> > +	if (i2c_dev->msg_err =3D=3D I2C_ERR_ARBITRATION_LOST) {
-> > +		if (!i2c_dev->is_multimaster_mode)
-> > +			return tegra_i2c_issue_bus_clear(i2c_dev);
->
->... and use simply i2c_recover_bus() here.
->
-> This will help making bus recovery use consistent across drivers.
->
->
-OK, Will update to use i2c_bus_recovery_info
+> This looks fine to me, but I'm not sure how the i2c maintainers feel,
+> but I always require that a new patch version starts a new thread, and
+> not be part of a older thread release (causes these patches to be
+> hidden from those that read patches in threading mode).
 
-Sowjanya
+That sounds reasonable to me.  Unless I hear otherwise, I'll create a
+v3 as a new thread.  Thanks.
