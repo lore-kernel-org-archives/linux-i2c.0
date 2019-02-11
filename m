@@ -1,58 +1,58 @@
-From: John Sperbeck <jsperbeck@google.com>
-Subject: [PATCH v2] i2c: core-smbus: don't trace smbus_reply data on errors
-Date: Sun, 10 Feb 2019 19:40:21 -0800
-Message-ID: <20190211034021.242932-1-jsperbeck@google.com>
-References: <20190205190849.GA2686@kunai>
+From: Federico Vaga <federico.vaga@cern.ch>
+Subject: Re: [PATCH v3 3/5] i2c:ocores: add polling interface
+Date: Mon, 11 Feb 2019 09:20:32 +0100
+Message-ID: <1894984.UOdFTssdus@pcbe13614>
+References: <20190208161201.7860-1-federico.vaga@cern.ch> <20190208161201.7860-4-federico.vaga@cern.ch> <20190209213353.GA9061@lunn.ch>
+Reply-To: <federico.vaga@cern.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190205190849.GA2686@kunai>
+In-Reply-To: <20190209213353.GA9061@lunn.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: jsperbeck@google.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, rostedt@goodmis.org
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: Peter Korsgaard <peter@korsgaard.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-If an smbus transfer fails, there's no guarantee that the output
-buffer was written.  So, avoid trying to show the output buffer when
-tracing after an error.  This was 'mostly harmless', but would trip
-up kasan checking if left-over cruft in byte 0 is a large length,
-causing us to read from unwritten memory.
+On Saturday, February 9, 2019 10:33:53 PM CET Andrew Lunn wrote:
+> > +static int ocores_poll_wait(struct ocores_i2c *i2c)
+> > +{
+> > +	u8 mask;
+> > +	int err;
+> > +
+> > +	if (i2c->state == STATE_DONE || i2c->state == STATE_ERROR) {
+> > +		/* transfer is over */
+> > +		mask = OCI2C_STAT_BUSY;
+> > +	} else {
+> > +		/* on going transfer */
+> > +		mask = OCI2C_STAT_TIP;
+> > +		udelay((8 * 1000) / i2c->bus_clock_khz);
+> > +	}
+> > +
+> > +	/*
+> > +	 * once we are here we expect to get the expected result immediately
+> > +	 * so if after 1ms we timeout then something is broken.
+> > +	 */
+> > +	err = ocores_wait(i2c, OCI2C_STATUS, mask, 0, msecs_to_jiffies(1));
+> 
+> Hi Federico
+> 
+> I did some timing tests for this. On my box, we request a udelay of
+> 80uS. The kernel actually delays for about 79uS. We then spin in
+> ocores_wait() for an additional 10-11uS, which is 3 to 4 iterations.
+> 
+> There are actually 9 bits on the wire, not 8, since there is an
+> ACK/NACK bit after the actual data transfer. So i changed the delay to
+> (9 * 1000) / i2c->bus_clock_khz. That resulted in ocores_wait() mostly
+> not looping at all. But for reading an 4K AT24 EEPROM, it increased
+> the read time by 10ms, from 424ms to 434ms. So we should probably keep
+> with 8.
+> 
+> Tested-by: Andrew Lunn <andrew@lunn.ch>
 
-Signed-off-by: John Sperbeck <jsperbeck@google.com>
----
- drivers/i2c/i2c-core-smbus.c | 2 +-
- include/trace/events/smbus.h | 6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
+I had a similar experience. I will add a comment in the code to explain that 8 
+is not a mistake but a conscious decision. Then I will add what you wrote here
+in the patch changelog
 
-diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
-index 9cd66cabb84f..132119112596 100644
---- a/drivers/i2c/i2c-core-smbus.c
-+++ b/drivers/i2c/i2c-core-smbus.c
-@@ -585,7 +585,7 @@ s32 __i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
- trace:
- 	/* If enabled, the reply tracepoint is conditional on read_write. */
- 	trace_smbus_reply(adapter, addr, flags, read_write,
--			  command, protocol, data);
-+			  command, protocol, data, res);
- 	trace_smbus_result(adapter, addr, flags, read_write,
- 			   command, protocol, res);
- 
-diff --git a/include/trace/events/smbus.h b/include/trace/events/smbus.h
-index d2fb6e1d3e10..a4892a187842 100644
---- a/include/trace/events/smbus.h
-+++ b/include/trace/events/smbus.h
-@@ -138,9 +138,9 @@ TRACE_EVENT_CONDITION(smbus_reply,
- 	TP_PROTO(const struct i2c_adapter *adap,
- 		 u16 addr, unsigned short flags,
- 		 char read_write, u8 command, int protocol,
--		 const union i2c_smbus_data *data),
--	TP_ARGS(adap, addr, flags, read_write, command, protocol, data),
--	TP_CONDITION(read_write == I2C_SMBUS_READ),
-+		 const union i2c_smbus_data *data, int res),
-+	TP_ARGS(adap, addr, flags, read_write, command, protocol, data, res),
-+	TP_CONDITION(res >= 0 && read_write == I2C_SMBUS_READ),
- 	TP_STRUCT__entry(
- 		__field(int,	adapter_nr		)
- 		__field(__u16,	addr			)
--- 
-2.20.1.791.gb4d0f1c61a-goog
+> 
+>     Andrew
