@@ -1,31 +1,74 @@
-From: Federico Vaga <federico.vaga@cern.ch>
-Subject: [PATCH v4 0/5] i2c:ocores: improvements
-Date: Mon, 11 Feb 2019 09:31:17 +0100
-Message-ID: <20190211083122.32485-1-federico.vaga@cern.ch>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v4 5/5] i2c:ocores: checkpatch fixes
+Date: Mon, 11 Feb 2019 10:16:41 +0000
+Message-ID: <fd5b5044-2415-c52c-ecb0-1f0f38267355@axentia.se>
+References: <20190211083122.32485-1-federico.vaga@cern.ch>
+ <20190211083122.32485-6-federico.vaga@cern.ch>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190211083122.32485-6-federico.vaga@cern.ch>
+Content-Language: en-US
+Content-ID: <1D8B36CAC418574786DCADDF0B51E068@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Federico Vaga <federico.vaga@cern.ch>, Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch set provides improvements to the i2c-ocore driver.
-
-[V3 -> V4]
-- add reviews-by/tested-by
-- add comment to justify the formula in
-    udelay((8 * 1000) / i2c->bus_clock_khz);
-
-[V2 -> V3]
-- fix particular error condition on platform_get_irq(). Copied from
-  https://patchwork.ozlabs.org/patch/1038409/
-
-[V1 -> V2]
-- replaced usleep_range() with udelay() so that the polling version can be
-  used in atomic context.
-- added dedicated patch for minor style issues
-- fixed delay computation
-- use spin_lock_irqsave(), instead of spin_trylock_irqsave(). IACK is always
-  necessary and a trylock would generate an extra interrupt for nothing
-- make the driver ready for an eventual master_xfer_irqless()
+T24gMjAxOS0wMi0xMSAwOTozMSwgRmVkZXJpY28gVmFnYSB3cm90ZToNCj4gTWlzY2VsbGFuZW91
+cyBzdHlsZSBmaXhlcyBmcm9tIGNoZWNrcGF0Y2gNCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEZlZGVy
+aWNvIFZhZ2EgPGZlZGVyaWNvLnZhZ2FAY2Vybi5jaD4NCj4gUmV2aWV3ZWQtYnk6IEFuZHJldyBM
+dW5uIDxhbmRyZXdAbHVubi5jaD4NCj4gDQo+IC0tLQ0KPiAgZHJpdmVycy9pMmMvYnVzc2VzL2ky
+Yy1vY29yZXMuYyB8IDE5ICsrKysrKysrKysrKy0tLS0tLS0NCj4gIDEgZmlsZSBjaGFuZ2VkLCAx
+MiBpbnNlcnRpb25zKCspLCA3IGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZl
+cnMvaTJjL2J1c3Nlcy9pMmMtb2NvcmVzLmMgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW9jb3Jl
+cy5jDQo+IGluZGV4IDViODAxOTAuLmJhMzVkMmEgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaTJj
+L2J1c3Nlcy9pMmMtb2NvcmVzLmMNCj4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY29y
+ZXMuYw0KPiBAQCAtMTgyLDggKzE4Miw5IEBAIHN0YXRpYyB2b2lkIG9jb3Jlc19wcm9jZXNzKHN0
+cnVjdCBvY29yZXNfaTJjICppMmMsIHU4IHN0YXQpDQo+ICAJCQlvY19zZXRyZWcoaTJjLCBPQ0ky
+Q19DTUQsIE9DSTJDX0NNRF9TVE9QKTsNCj4gIAkJCWdvdG8gb3V0Ow0KPiAgCQl9DQo+IC0JfSBl
+bHNlDQo+ICsJfSBlbHNlIHsNCj4gIAkJbXNnLT5idWZbaTJjLT5wb3MrK10gPSBvY19nZXRyZWco
+aTJjLCBPQ0kyQ19EQVRBKTsNCj4gKwl9DQo+ICANCj4gIAkvKiBlbmQgb2YgbXNnPyAqLw0KPiAg
+CWlmIChpMmMtPnBvcyA9PSBtc2ctPmxlbikgew0KPiBAQCAtMjAyLDkgKzIwMyw5IEBAIHN0YXRp
+YyB2b2lkIG9jb3Jlc19wcm9jZXNzKHN0cnVjdCBvY29yZXNfaTJjICppMmMsIHU4IHN0YXQpDQo+
+ICAJCQkJb2Nfc2V0cmVnKGkyYywgT0NJMkNfREFUQSwgYWRkcik7DQo+ICAJCQkJb2Nfc2V0cmVn
+KGkyYywgT0NJMkNfQ01ELCAgT0NJMkNfQ01EX1NUQVJUKTsNCj4gIAkJCQlnb3RvIG91dDsNCj4g
+LQkJCX0gZWxzZQ0KPiAtCQkJCWkyYy0+c3RhdGUgPSAobXNnLT5mbGFncyAmIEkyQ19NX1JEKQ0K
+PiAtCQkJCQk/IFNUQVRFX1JFQUQgOiBTVEFURV9XUklURTsNCj4gKwkJCX0NCj4gKwkJCWkyYy0+
+c3RhdGUgPSAobXNnLT5mbGFncyAmIEkyQ19NX1JEKQ0KPiArCQkJCT8gU1RBVEVfUkVBRCA6IFNU
+QVRFX1dSSVRFOw0KPiAgCQl9IGVsc2Ugew0KPiAgCQkJaTJjLT5zdGF0ZSA9IFNUQVRFX0RPTkU7
+DQo+ICAJCQlvY19zZXRyZWcoaTJjLCBPQ0kyQ19DTUQsIE9DSTJDX0NNRF9TVE9QKTsNCj4gQEAg
+LTQwNSw3ICs0MDYsOCBAQCBzdGF0aWMgaW50IG9jb3Jlc19pbml0KHN0cnVjdCBkZXZpY2UgKmRl
+diwgc3RydWN0IG9jb3Jlc19pMmMgKmkyYykNCj4gIAl1OCBjdHJsID0gb2NfZ2V0cmVnKGkyYywg
+T0NJMkNfQ09OVFJPTCk7DQo+ICANCj4gIAkvKiBtYWtlIHN1cmUgdGhlIGRldmljZSBpcyBkaXNh
+YmxlZCAqLw0KPiAtCW9jX3NldHJlZyhpMmMsIE9DSTJDX0NPTlRST0wsIGN0cmwgJiB+KE9DSTJD
+X0NUUkxfRU58T0NJMkNfQ1RSTF9JRU4pKTsNCj4gKwljdHJsICY9IH4oT0NJMkNfQ1RSTF9FTiB8
+IE9DSTJDX0NUUkxfSUVOKTsNCj4gKwlvY19zZXRyZWcoaTJjLCBPQ0kyQ19DT05UUk9MLCBjdHJs
+KTsNCj4gIA0KPiAgCXByZXNjYWxlID0gKGkyYy0+aXBfY2xvY2tfa2h6IC8gKDUgKiBpMmMtPmJ1
+c19jbG9ja19raHopKSAtIDE7DQo+ICAJcHJlc2NhbGUgPSBjbGFtcChwcmVzY2FsZSwgMCwgMHhm
+ZmZmKTsNCj4gQEAgLTQ2MiwxMSArNDY0LDEzIEBAIE1PRFVMRV9ERVZJQ0VfVEFCTEUob2YsIG9j
+b3Jlc19pMmNfbWF0Y2gpOw0KPiAgI2lmZGVmIENPTkZJR19PRg0KPiAgLyogUmVhZCBhbmQgd3Jp
+dGUgZnVuY3Rpb25zIGZvciB0aGUgR1JMSUIgcG9ydCBvZiB0aGUgY29udHJvbGxlci4gUmVnaXN0
+ZXJzIGFyZQ0KPiAgICogMzItYml0IGJpZyBlbmRpYW4gYW5kIHRoZSBQUkVMT1cgYW5kIFBSRUhJ
+R0ggcmVnaXN0ZXJzIGFyZSBtZXJnZWQgaW50byBvbmUNCj4gLSAqIHJlZ2lzdGVyLiBUaGUgc3Vi
+c2VxdWVudCByZWdpc3RlcnMgaGFzIHRoZWlyIG9mZnNldCBkZWNyZWFzZWQgYWNjb3JkaW5nbHku
+ICovDQo+ICsgKiByZWdpc3Rlci4gVGhlIHN1YnNlcXVlbnQgcmVnaXN0ZXJzIGhhcyB0aGVpciBv
+ZmZzZXQgZGVjcmVhc2VkIGFjY29yZGluZ2x5Lg0KPiArICovDQoNClRoZSBwcmVmZXJyZWQgbXVs
+dGktbGluZSBjb21tZW50IHN0eWxlcyBpczoNCg0KLyoNCiAqIFJlYWQuLi4NCiAqIC4uLmFjY29y
+ZGluZ2x5Lg0KICovDQoNClNvLCBwbGVhc2UgZml4IGFsbCBpc3N1ZXMgd2hlbiB5b3UgYXJlIGNo
+YW5naW5nIGl0IHRvIGNvbmZvcm0uDQoNCkNoZWVycywNClBldGVyDQoNCj4gIHN0YXRpYyB1OCBv
+Y19nZXRyZWdfZ3JsaWIoc3RydWN0IG9jb3Jlc19pMmMgKmkyYywgaW50IHJlZykNCj4gIHsNCj4g
+IAl1MzIgcmQ7DQo+ICAJaW50IHJyZWcgPSByZWc7DQo+ICsNCj4gIAlpZiAocmVnICE9IE9DSTJD
+X1BSRUxPVykNCj4gIAkJcnJlZy0tOw0KPiAgCXJkID0gaW9yZWFkMzJiZShpMmMtPmJhc2UgKyAo
+cnJlZyA8PCBpMmMtPnJlZ19zaGlmdCkpOw0KPiBAQCAtNDgwLDYgKzQ4NCw3IEBAIHN0YXRpYyB2
+b2lkIG9jX3NldHJlZ19ncmxpYihzdHJ1Y3Qgb2NvcmVzX2kyYyAqaTJjLCBpbnQgcmVnLCB1OCB2
+YWx1ZSkNCj4gIHsNCj4gIAl1MzIgY3Vyciwgd3I7DQo+ICAJaW50IHJyZWcgPSByZWc7DQo+ICsN
+Cj4gIAlpZiAocmVnICE9IE9DSTJDX1BSRUxPVykNCj4gIAkJcnJlZy0tOw0KPiAgCWlmIChyZWcg
+PT0gT0NJMkNfUFJFTE9XIHx8IHJlZyA9PSBPQ0kyQ19QUkVISUdIKSB7DQo+IEBAIC01NjgsNyAr
+NTczLDcgQEAgc3RhdGljIGludCBvY29yZXNfaTJjX29mX3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9k
+ZXZpY2UgKnBkZXYsDQo+ICAJcmV0dXJuIDA7DQo+ICB9DQo+ICAjZWxzZQ0KPiAtI2RlZmluZSBv
+Y29yZXNfaTJjX29mX3Byb2JlKHBkZXYsaTJjKSAtRU5PREVWDQo+ICsjZGVmaW5lIG9jb3Jlc19p
+MmNfb2ZfcHJvYmUocGRldiwgaTJjKSAtRU5PREVWDQo+ICAjZW5kaWYNCj4gIA0KPiAgc3RhdGlj
+IGludCBvY29yZXNfaTJjX3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+IA0K
+DQo=
