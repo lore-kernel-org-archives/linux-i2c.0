@@ -1,55 +1,66 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 5/5] i2c:ocores: checkpatch fixes
-Date: Mon, 11 Feb 2019 17:19:43 +0100
-Message-ID: <20190211161942.ckuys4vyagbwaklq@ninjato>
-References: <20190211160529.23858-1-federico.vaga@cern.ch>
- <20190211160529.23858-6-federico.vaga@cern.ch>
- <bbaaa303-75f1-9272-c01f-914175237f05@axentia.se>
+From: Sowjanya Komatineni <skomatineni@nvidia.com>
+Subject: RE: [PATCH V18 6/6] i2c: tegra: add i2c interface timing support
+Date: Mon, 11 Feb 2019 16:23:37 +0000
+Message-ID: <BYAPR12MB339842E44F370110CFA582FEC2640@BYAPR12MB3398.namprd12.prod.outlook.com>
+References: <1549652382-5476-1-git-send-email-skomatineni@nvidia.com>
+ <1549652382-5476-6-git-send-email-skomatineni@nvidia.com>
+ <20190211130322.2kpoky3scnqnxulw@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ilmmbb5oktml3kgo"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <bbaaa303-75f1-9272-c01f-914175237f05@axentia.se>
+In-Reply-To: <20190211130322.2kpoky3scnqnxulw@ninjato>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Federico Vaga <federico.vaga@cern.ch>, Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>, "peda@axentia.se" <peda@axentia.se>, "digetx@gmail.com" <digetx@gmail.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+> On Fri, Feb 08, 2019 at 10:59:42AM -0800, Sowjanya Komatineni wrote:
+> > This patch adds I2C interface timing registers support for proper bus=20
+> > rate configuration along with meeting the I2C spec setup and hold=20
+> > times based on the tuning performed on Tegra210,
+> > Tegra186 and Tegra194 platforms.
+> >=20
+> > I2C_INTERFACE_TIMING_0 register contains TLOW and THIGH field and=20
+> > Tegra I2C controller design uses them as a part of internal clock=20
+> > divisor.
+> >=20
+> > I2C_INTERFACE_TIMING_1 register contains the setup and hold times for=20
+> > start and stop conditions.
+> >=20
+> > Acked-by: Thierry Reding <treding@nvidia.com>
+> > Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+> > Tested-by: Dmitry Osipenko <digetx@gmail.com>
+> > Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+>
+> Are you aware that we also have DT bindings for various I2C timing values=
+? They are usually board dependent and not so much SoC dependent.
+> Please check here:
+>
+> Documentation/devicetree/bindings/i2c/i2c.txt
+>
+> (Oops, I noticed 'i2c-sda-hold-time-ns' is missing from the docs. Will fi=
+x that ASAP)
+>
+> Just saying. The patch here is fine for me. DT support could be added lat=
+er, if you want that.
+>
+Hi Wolfram,
+Yes I looked into those and the reason I added them as part of hw_feature i=
+nside driver are
+1. property is in-terms of ns for fall time but the value we program in int=
+erface timing is not exact ns time
+2. Below are the timing parameters need to be programmed for tegra I2C and =
+I don't see equivalent property for each of those
+     TSU_STA : Setup time for repeated START condition
+     THD_STA : Hold time for (repeated) START condition
+     TSU_STO : Setup time for STOP condition
+     TBUF: Bus free time b/w STOP and START conditions
+3. All above Timing configuration settings are different for different spee=
+d modes (STD/FM & FM+/HS Mode)=20
+4. All tegra platforms of specific Tegra chip has the same timing configura=
+tion at-least for now so added this info as part of hw feature inside the d=
+river.
 
---ilmmbb5oktml3kgo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-
-> > -	oc_setreg(i2c, OCI2C_CONTROL, ctrl & ~(OCI2C_CTRL_EN|OCI2C_CTRL_IEN));
-> > +	ctrl =3D oc_getreg(i2c, OCI2C_CONTROL);
->=20
-> There's a pointless double oc_getreg(i2c, OCI2C_CONTROL).
-
-In case you need to resend, please update $subject of all patches to
-have a space after "i2c:"
-
-
---ilmmbb5oktml3kgo
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxhoJoACgkQFA3kzBSg
-Kba1Jg//Y2TAKnvmcdIGORStIcuiD/0IlmwxPPAVZeBtUgU2an8cczAtGq/dNPNl
-gN1bCNz/GsHf4f/52RFV8VIQGBUfEYCLeS5vnaIAUefnG6IT7+i6OSwDAucnxWz4
-zsJBJ5VFmojraNVuIo3x5RjOBHqeuKhMyIlwcl4GkRYMTp/vwqXs09GwIMltsq8c
-hJ71wJMHD61J1U2zv5aOuzXrlnn+WqSQsaOWv+zF5AcdxCkSrWyZMBKa00EBBxAM
-u+h7Y8zwDy28MO92ZLRngAUHsdM6zA2sjGFCelg9XYUl/3mgcABiIXfDVuYbuiv/
-DmYfRILT6voASocPS2kLInjjNpKBojw9FuWnDt1fos9i/KU9Hd1hR8sialiLOL46
-0EpDuOAx0D7PmAHiOiNbBi6jM5N/cPj+ZeacpCwdGaHuF6IdrUwBrtkrM9ZDw8jm
-+yEQyvhVwQrAZaFBqHunsC0CMnMbuT/xxyTxMWxBcZCub6e2bSBHaAFEfuodT1Yh
-gLJZ8FBlMTl/5pJsCzN+EcPUqGWQEmUbFK4BmmJUmPYboa3syz2C7W2l3hmu/6Xk
-9BzKkFWz2MBnRp/d2aKl7LZ2NaZhwNjvJriXBcBSsU+wtTA80ylCI8bdyyMclPPi
-uHl127swpiVim4KgBYjAQFIeNbv8AlovjRle8C9R8Cj5F8kO0/o=
-=GpBh
------END PGP SIGNATURE-----
-
---ilmmbb5oktml3kgo--
+Sowjanya
