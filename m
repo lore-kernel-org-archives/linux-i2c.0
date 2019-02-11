@@ -1,55 +1,69 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 4/5] i2c:ocores: add SPDX tag
-Date: Mon, 11 Feb 2019 11:25:55 +0100
-Message-ID: <20190211102555.ldigmnnd2lrrgy5t@ninjato>
+Subject: Re: [PATCH v4 5/5] i2c:ocores: checkpatch fixes
+Date: Mon, 11 Feb 2019 11:26:50 +0100
+Message-ID: <20190211102649.pixedc2d4u3imoud@ninjato>
 References: <20190211083122.32485-1-federico.vaga@cern.ch>
- <20190211083122.32485-5-federico.vaga@cern.ch>
+ <20190211083122.32485-6-federico.vaga@cern.ch>
+ <fd5b5044-2415-c52c-ecb0-1f0f38267355@axentia.se>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="nscyjifdlxugrr2w"
+        protocol="application/pgp-signature"; boundary="4efbmwoassybo64t"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190211083122.32485-5-federico.vaga@cern.ch>
+In-Reply-To: <fd5b5044-2415-c52c-ecb0-1f0f38267355@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Federico Vaga <federico.vaga@cern.ch>
-Cc: Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: Federico Vaga <federico.vaga@cern.ch>, Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---nscyjifdlxugrr2w
+--4efbmwoassybo64t
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Feb 11, 2019 at 09:31:21AM +0100, Federico Vaga wrote:
-> It adds the SPDX tag and it removes the old text about the GPLv2.
+
+> >  /* Read and write functions for the GRLIB port of the controller. Regi=
+sters are
+> >   * 32-bit big endian and the PRELOW and PREHIGH registers are merged i=
+nto one
+> > - * register. The subsequent registers has their offset decreased accor=
+dingly. */
+> > + * register. The subsequent registers has their offset decreased accor=
+dingly.
+> > + */
 >=20
-> Signed-off-by: Federico Vaga <federico.vaga@cern.ch>
-> Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+> The preferred multi-line comment styles is:
+>=20
+> /*
+>  * Read...
+>  * ...accordingly.
+>  */
+>=20
+> So, please fix all issues when you are changing it to conform.
 
-Applied SPDX to the platform_data include as well and...
+Yes. It is enough to send this updated patch alone; I applied the rest
+already.
 
-Applied to for-next, thanks!
 
-
---nscyjifdlxugrr2w
+--4efbmwoassybo64t
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxhTbMACgkQFA3kzBSg
-KbZW8g//YveQJfACxbomy0DDXrlOERyzFjX6V90eu2qw+zj5SzkO0iO1XtmDaHm0
-mCUHMlJ+3iMzRIemwSSPcSJwDojvoIb466jftT8KyamVxEn2+bZueRrrmlqMb4nf
-JKt4xpHhRjq5oZ2lFyl/vd2ApS+ZaGfyMFl0i7wGhEy1a4zhv1wslYAkfO9sOYmz
-iE10t3dGqoqzZ8hPkXRbtPTK2Bqs8evkLj/cPHZSmOwts76MkmVuXU4CNeY7UXnH
-7xlVpOfcA4KJsVlFbbEaLOvfS4y8695CYtPdsjJNLFrBmhtqisAouAQuh01yE39I
-mvBHsKgkYugsnR8FtJg+3y6UOvhjGgzIQ5Ftm7Bn96d9XB/yZIIEf17LJqL8Pav4
-VyhTUIbWMzztw0GmZFnUXK6lqFNdv/+87H+XIhaOYpe09y38TRFdknRv54T4Tg4o
-671+u5Y/Fc0drTVcWSgQo26OhSEJZH1ElIXV4J3/+U2D7EtMADoYCktGKp97D47A
-pjZeUQZfotfs5OyBlAwOt6T5Ub4rwMPE6NnaD0poXE34Vz5sNYPd2ZNVsqR10s0G
-3kzcrA5G/FL2zeE51lm4IcGyXmGURrRUqFNmYIjZsc5ze/zZ1fmlbG+4aY6WrNn0
-uC18ozbgjpSFXj6ejCfDhc9kc/AKaD0oct00BkojWJ+hlhPhxjY=
-=PsM4
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxhTekACgkQFA3kzBSg
+Kbbdng//eA9O2upNhs3JFKhZpfb0tjxpRrw1VUdm9ioWOAaktg7WDvPObb/lu6s4
+JQLPtWJ+xHwHBAgLddf2jkgmZ6kz8j3SlCj+bkMnDBs31UbNguIK9rG65n7s9F+8
+RTpV0AGQei3V+GDYAFAeiveMuencAXvHbOZdnSc9UeyYgJXauBq3uIu9I1XLDUaQ
+T1jfd+QfJ2FMiN70dOIuQU1Xk694e3uYlAJ025XDw/C9UcNq3JWKoJSNeo7AXH+X
+iJ2+L+S1/qCeFgWQLmTo3fPMw2w8eciQw3wBbHzB4v+F2y/FrRY5T3R3+5rYmI/Z
+GJ569knkL+C9MvDPOYRczksenrJJsre57BQTM0/qZahrF8uJjf76QHHXthVknMJW
+2Ca+U8XokTx4vhw/rmlYWzJMuT42d5NlvKo9++thp5s0YhEanSNAsddQxxfKJfLu
+LpPMQoFT2f1N2RsfQ1cSlOJWQ4SUCMLKOG52paDD/0xicfmERCw1WHX4aCKOEMxU
+lzt/x1GJRQG9RSrh21I70xRtXKG2fYIoqAr8Iipk04xEnmLj+PsIrtSDU5uylk9e
+D8fj31o3NMAlG20NsEJmdMUDfo44yN8yVkT4YLH6sTV46we4pRR0ry2H/Ldny3eK
+LMUfHl6+Vtbrgtz/XvLEFH7k/MfC1dq6h7F+Hqz4K6qD3SqXs0c=
+=hvH8
 -----END PGP SIGNATURE-----
 
---nscyjifdlxugrr2w--
+--4efbmwoassybo64t--
