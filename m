@@ -1,70 +1,84 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH v2] i2c: core-smbus: don't trace smbus_reply data on
- errors
-Date: Mon, 11 Feb 2019 09:24:17 -0500
-Message-ID: <20190211092417.7f211ee0@gandalf.local.home>
-References: <20190205190849.GA2686@kunai>
-        <20190211034021.242932-1-jsperbeck@google.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v5 5/5] i2c:ocores: checkpatch fixes
+Date: Mon, 11 Feb 2019 16:12:23 +0000
+Message-ID: <bbaaa303-75f1-9272-c01f-914175237f05@axentia.se>
+References: <20190211160529.23858-1-federico.vaga@cern.ch>
+ <20190211160529.23858-6-federico.vaga@cern.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190211034021.242932-1-jsperbeck@google.com>
+In-Reply-To: <20190211160529.23858-6-federico.vaga@cern.ch>
+Content-Language: en-US
+Content-ID: <0DBBBF2B3DCE7A43B7F7F646A610C835@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: John Sperbeck <jsperbeck@google.com>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com
+To: Federico Vaga <federico.vaga@cern.ch>, Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 10 Feb 2019 19:40:21 -0800
-John Sperbeck <jsperbeck@google.com> wrote:
-
-> If an smbus transfer fails, there's no guarantee that the output
-> buffer was written.  So, avoid trying to show the output buffer when
-> tracing after an error.  This was 'mostly harmless', but would trip
-> up kasan checking if left-over cruft in byte 0 is a large length,
-> causing us to read from unwritten memory.
-
-This looks fine to me, but I'm not sure how the i2c maintainers feel,
-but I always require that a new patch version starts a new thread, and
-not be part of a older thread release (causes these patches to be
-hidden from those that read patches in threading mode).
-
--- Steve
-
-> 
-> Signed-off-by: John Sperbeck <jsperbeck@google.com>
-> ---
->  drivers/i2c/i2c-core-smbus.c | 2 +-
->  include/trace/events/smbus.h | 6 +++---
->  2 files changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
-> index 9cd66cabb84f..132119112596 100644
-> --- a/drivers/i2c/i2c-core-smbus.c
-> +++ b/drivers/i2c/i2c-core-smbus.c
-> @@ -585,7 +585,7 @@ s32 __i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
->  trace:
->  	/* If enabled, the reply tracepoint is conditional on read_write. */
->  	trace_smbus_reply(adapter, addr, flags, read_write,
-> -			  command, protocol, data);
-> +			  command, protocol, data, res);
->  	trace_smbus_result(adapter, addr, flags, read_write,
->  			   command, protocol, res);
->  
-> diff --git a/include/trace/events/smbus.h b/include/trace/events/smbus.h
-> index d2fb6e1d3e10..a4892a187842 100644
-> --- a/include/trace/events/smbus.h
-> +++ b/include/trace/events/smbus.h
-> @@ -138,9 +138,9 @@ TRACE_EVENT_CONDITION(smbus_reply,
->  	TP_PROTO(const struct i2c_adapter *adap,
->  		 u16 addr, unsigned short flags,
->  		 char read_write, u8 command, int protocol,
-> -		 const union i2c_smbus_data *data),
-> -	TP_ARGS(adap, addr, flags, read_write, command, protocol, data),
-> -	TP_CONDITION(read_write == I2C_SMBUS_READ),
-> +		 const union i2c_smbus_data *data, int res),
-> +	TP_ARGS(adap, addr, flags, read_write, command, protocol, data, res),
-> +	TP_CONDITION(res >= 0 && read_write == I2C_SMBUS_READ),
->  	TP_STRUCT__entry(
->  		__field(int,	adapter_nr		)
->  		__field(__u16,	addr			)
+T24gMjAxOS0wMi0xMSAxNzowNSwgRmVkZXJpY28gVmFnYSB3cm90ZToNCj4gTWlzY2VsbGFuZW91
+cyBzdHlsZSBmaXhlcyBmcm9tIGNoZWNrcGF0Y2gNCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEZlZGVy
+aWNvIFZhZ2EgPGZlZGVyaWNvLnZhZ2FAY2Vybi5jaD4NCj4gLS0tDQo+ICBkcml2ZXJzL2kyYy9i
+dXNzZXMvaTJjLW9jb3Jlcy5jIHwgMzAgKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tDQo+
+ICAxIGZpbGUgY2hhbmdlZCwgMTkgaW5zZXJ0aW9ucygrKSwgMTEgZGVsZXRpb25zKC0pDQo+IA0K
+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY29yZXMuYyBiL2RyaXZlcnMv
+aTJjL2J1c3Nlcy9pMmMtb2NvcmVzLmMNCj4gaW5kZXggNzgwODVhOC4uNTRiMjE1NiAxMDA2NDQN
+Cj4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY29yZXMuYw0KPiArKysgYi9kcml2ZXJz
+L2kyYy9idXNzZXMvaTJjLW9jb3Jlcy5jDQo+IEBAIC0xNzksOCArMTc5LDkgQEAgc3RhdGljIHZv
+aWQgb2NvcmVzX3Byb2Nlc3Moc3RydWN0IG9jb3Jlc19pMmMgKmkyYywgdTggc3RhdCkNCj4gIAkJ
+CW9jX3NldHJlZyhpMmMsIE9DSTJDX0NNRCwgT0NJMkNfQ01EX1NUT1ApOw0KPiAgCQkJZ290byBv
+dXQ7DQo+ICAJCX0NCj4gLQl9IGVsc2UNCj4gKwl9IGVsc2Ugew0KPiAgCQltc2ctPmJ1ZltpMmMt
+PnBvcysrXSA9IG9jX2dldHJlZyhpMmMsIE9DSTJDX0RBVEEpOw0KPiArCX0NCj4gIA0KPiAgCS8q
+IGVuZCBvZiBtc2c/ICovDQo+ICAJaWYgKGkyYy0+cG9zID09IG1zZy0+bGVuKSB7DQo+IEBAIC0x
+OTcsMTEgKzE5OCwxMSBAQCBzdGF0aWMgdm9pZCBvY29yZXNfcHJvY2VzcyhzdHJ1Y3Qgb2NvcmVz
+X2kyYyAqaTJjLCB1OCBzdGF0KQ0KPiAgCQkJCWkyYy0+c3RhdGUgPSBTVEFURV9TVEFSVDsNCj4g
+IA0KPiAgCQkJCW9jX3NldHJlZyhpMmMsIE9DSTJDX0RBVEEsIGFkZHIpOw0KPiAtCQkJCW9jX3Nl
+dHJlZyhpMmMsIE9DSTJDX0NNRCwgIE9DSTJDX0NNRF9TVEFSVCk7DQo+ICsJCQkJb2Nfc2V0cmVn
+KGkyYywgT0NJMkNfQ01ELCBPQ0kyQ19DTURfU1RBUlQpOw0KPiAgCQkJCWdvdG8gb3V0Ow0KPiAt
+CQkJfSBlbHNlDQo+IC0JCQkJaTJjLT5zdGF0ZSA9IChtc2ctPmZsYWdzICYgSTJDX01fUkQpDQo+
+IC0JCQkJCT8gU1RBVEVfUkVBRCA6IFNUQVRFX1dSSVRFOw0KPiArCQkJfQ0KPiArCQkJaTJjLT5z
+dGF0ZSA9IChtc2ctPmZsYWdzICYgSTJDX01fUkQpDQo+ICsJCQkJPyBTVEFURV9SRUFEIDogU1RB
+VEVfV1JJVEU7DQo+ICAJCX0gZWxzZSB7DQo+ICAJCQlpMmMtPnN0YXRlID0gU1RBVEVfRE9ORTsN
+Cj4gIAkJCW9jX3NldHJlZyhpMmMsIE9DSTJDX0NNRCwgT0NJMkNfQ01EX1NUT1ApOw0KPiBAQCAt
+NDYxLDEzICs0NjIsMTYgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBvZl9kZXZpY2VfaWQgb2NvcmVz
+X2kyY19tYXRjaFtdID0gew0KPiAgTU9EVUxFX0RFVklDRV9UQUJMRShvZiwgb2NvcmVzX2kyY19t
+YXRjaCk7DQo+ICANCj4gICNpZmRlZiBDT05GSUdfT0YNCj4gLS8qIFJlYWQgYW5kIHdyaXRlIGZ1
+bmN0aW9ucyBmb3IgdGhlIEdSTElCIHBvcnQgb2YgdGhlIGNvbnRyb2xsZXIuIFJlZ2lzdGVycyBh
+cmUNCj4gKy8qDQo+ICsgKiBSZWFkIGFuZCB3cml0ZSBmdW5jdGlvbnMgZm9yIHRoZSBHUkxJQiBw
+b3J0IG9mIHRoZSBjb250cm9sbGVyLiBSZWdpc3RlcnMgYXJlDQo+ICAgKiAzMi1iaXQgYmlnIGVu
+ZGlhbiBhbmQgdGhlIFBSRUxPVyBhbmQgUFJFSElHSCByZWdpc3RlcnMgYXJlIG1lcmdlZCBpbnRv
+IG9uZQ0KPiAtICogcmVnaXN0ZXIuIFRoZSBzdWJzZXF1ZW50IHJlZ2lzdGVycyBoYXMgdGhlaXIg
+b2Zmc2V0IGRlY3JlYXNlZCBhY2NvcmRpbmdseS4gKi8NCj4gKyAqIHJlZ2lzdGVyLiBUaGUgc3Vi
+c2VxdWVudCByZWdpc3RlcnMgaGF2ZSB0aGVpciBvZmZzZXRzIGRlY3JlYXNlZCBhY2NvcmRpbmds
+eS4NCj4gKyAqLw0KPiAgc3RhdGljIHU4IG9jX2dldHJlZ19ncmxpYihzdHJ1Y3Qgb2NvcmVzX2ky
+YyAqaTJjLCBpbnQgcmVnKQ0KPiAgew0KPiAgCXUzMiByZDsNCj4gIAlpbnQgcnJlZyA9IHJlZzsN
+Cj4gKw0KPiAgCWlmIChyZWcgIT0gT0NJMkNfUFJFTE9XKQ0KPiAgCQlycmVnLS07DQo+ICAJcmQg
+PSBpb3JlYWQzMmJlKGkyYy0+YmFzZSArIChycmVnIDw8IGkyYy0+cmVnX3NoaWZ0KSk7DQo+IEBA
+IC00ODEsNiArNDg1LDcgQEAgc3RhdGljIHZvaWQgb2Nfc2V0cmVnX2dybGliKHN0cnVjdCBvY29y
+ZXNfaTJjICppMmMsIGludCByZWcsIHU4IHZhbHVlKQ0KPiAgew0KPiAgCXUzMiBjdXJyLCB3cjsN
+Cj4gIAlpbnQgcnJlZyA9IHJlZzsNCj4gKw0KPiAgCWlmIChyZWcgIT0gT0NJMkNfUFJFTE9XKQ0K
+PiAgCQlycmVnLS07DQo+ICAJaWYgKHJlZyA9PSBPQ0kyQ19QUkVMT1cgfHwgcmVnID09IE9DSTJD
+X1BSRUhJR0gpIHsNCj4gQEAgLTU2OSw3ICs1NzQsNyBAQCBzdGF0aWMgaW50IG9jb3Jlc19pMmNf
+b2ZfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldiwNCj4gIAlyZXR1cm4gMDsNCj4g
+IH0NCj4gICNlbHNlDQo+IC0jZGVmaW5lIG9jb3Jlc19pMmNfb2ZfcHJvYmUocGRldixpMmMpIC1F
+Tk9ERVYNCj4gKyNkZWZpbmUgb2NvcmVzX2kyY19vZl9wcm9iZShwZGV2LCBpMmMpIC1FTk9ERVYN
+Cj4gICNlbmRpZg0KPiAgDQo+ICBzdGF0aWMgaW50IG9jb3Jlc19pMmNfcHJvYmUoc3RydWN0IHBs
+YXRmb3JtX2RldmljZSAqcGRldikNCj4gQEAgLTY4NiwxMCArNjkxLDExIEBAIGVycl9jbGs6DQo+
+ICBzdGF0aWMgaW50IG9jb3Jlc19pMmNfcmVtb3ZlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBk
+ZXYpDQo+ICB7DQo+ICAJc3RydWN0IG9jb3Jlc19pMmMgKmkyYyA9IHBsYXRmb3JtX2dldF9kcnZk
+YXRhKHBkZXYpOw0KPiArCXU4IGN0cmwgPSBvY19nZXRyZWcoaTJjLCBPQ0kyQ19DT05UUk9MKTsN
+Cj4gIA0KPiAgCS8qIGRpc2FibGUgaTJjIGxvZ2ljICovDQo+IC0Jb2Nfc2V0cmVnKGkyYywgT0NJ
+MkNfQ09OVFJPTCwgb2NfZ2V0cmVnKGkyYywgT0NJMkNfQ09OVFJPTCkNCj4gLQkJICAmIH4oT0NJ
+MkNfQ1RSTF9FTnxPQ0kyQ19DVFJMX0lFTikpOw0KPiArCWN0cmwgJj0gfihPQ0kyQ19DVFJMX0VO
+IHwgT0NJMkNfQ1RSTF9JRU4pOw0KPiArCW9jX3NldHJlZyhpMmMsIE9DSTJDX0NPTlRST0wsIGN0
+cmwpOw0KPiAgDQo+ICAJLyogcmVtb3ZlIGFkYXB0ZXIgJiBkYXRhICovDQo+ICAJaTJjX2RlbF9h
+ZGFwdGVyKCZpMmMtPmFkYXApOw0KPiBAQCAtNzA3LDcgKzcxMyw5IEBAIHN0YXRpYyBpbnQgb2Nv
+cmVzX2kyY19zdXNwZW5kKHN0cnVjdCBkZXZpY2UgKmRldikNCj4gIAl1OCBjdHJsID0gb2NfZ2V0
+cmVnKGkyYywgT0NJMkNfQ09OVFJPTCk7DQo+ICANCj4gIAkvKiBtYWtlIHN1cmUgdGhlIGRldmlj
+ZSBpcyBkaXNhYmxlZCAqLw0KPiAtCW9jX3NldHJlZyhpMmMsIE9DSTJDX0NPTlRST0wsIGN0cmwg
+JiB+KE9DSTJDX0NUUkxfRU58T0NJMkNfQ1RSTF9JRU4pKTsNCj4gKwljdHJsID0gb2NfZ2V0cmVn
+KGkyYywgT0NJMkNfQ09OVFJPTCk7DQoNClRoZXJlJ3MgYSBwb2ludGxlc3MgZG91YmxlIG9jX2dl
+dHJlZyhpMmMsIE9DSTJDX0NPTlRST0wpLg0KDQpDaGVlcnMsDQpQZXRlcg0KDQo+ICsJY3RybCAm
+PSB+KE9DSTJDX0NUUkxfRU4gfCBPQ0kyQ19DVFJMX0lFTik7DQo+ICsJb2Nfc2V0cmVnKGkyYywg
+T0NJMkNfQ09OVFJPTCwgY3RybCk7DQo+ICANCj4gIAlpZiAoIUlTX0VSUihpMmMtPmNsaykpDQo+
+ICAJCWNsa19kaXNhYmxlX3VucHJlcGFyZShpMmMtPmNsayk7DQo+IA0KDQo=
