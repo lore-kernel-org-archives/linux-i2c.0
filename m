@@ -1,53 +1,81 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v6 4/5] i2c: ocores: add SPDX tag
-Date: Mon, 11 Feb 2019 17:54:54 +0100
-Message-ID: <20190211165454.4l5r2alhlxzvglxk@ninjato>
-References: <20190211164913.5988-1-federico.vaga@cern.ch>
- <20190211164913.5988-5-federico.vaga@cern.ch>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Subject: Re: [PATCH] i2c: aspeed: Add multi-master use case support
+Date: Mon, 11 Feb 2019 10:09:53 -0800
+Message-ID: <d26a95ac-41ab-91eb-bbae-e4143235e531@linux.intel.com>
+References: <20190116193958.6049-1-jae.hyun.yoo@linux.intel.com>
+ <20190208214849.GH12451@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="zmizvlegvhdlqnqf"
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190211164913.5988-5-federico.vaga@cern.ch>
+In-Reply-To: <20190208214849.GH12451@kunai>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Federico Vaga <federico.vaga@cern.ch>
-Cc: Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
+> Hmmm, the #ifdeffery quite increases with this patch. Maybe it is easier
+> to select I2C_SLAVE in Kconfig? I'll let you decide.
+> 
+> My code checkers found this:
+> 
+>      CPPCHECK
+> drivers/i2c/busses/i2c-aspeed.c:694:10: warning: Variable 'ret' is assigned a value that is never used. [unreadVariable]
+> 
 
---zmizvlegvhdlqnqf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Wolfram,
 
-On Mon, Feb 11, 2019 at 05:49:12PM +0100, Federico Vaga wrote:
-> It adds the SPDX tag and it removes the old text about the GPLv2.
->=20
-> Signed-off-by: Federico Vaga <federico.vaga@cern.ch>
+Yes, cppcheck pointed it out correctly. The assignment on the variable
+'ret' is not needed at there. Actually, the code should not be wrapped
+using I2C_SLAVE because a bus can also be in multi-master environment
+even when slave is not enabled. So the warning can be removed by below
+fix.
 
-I can convert the platform_data header to SPDX again. No need to resend
-because of that.
+---
+diff --git a/drivers/i2c/busses/i2c-aspeed.c 
+b/drivers/i2c/busses/i2c-aspeed.c
+index 9253ebccb008..882c4ab1d18a 100644
+--- a/drivers/i2c/busses/i2c-aspeed.c
++++ b/drivers/i2c/busses/i2c-aspeed.c
+@@ -655,7 +655,6 @@ static int aspeed_i2c_master_xfer(struct i2c_adapter 
+*adap,
+  {
+         struct aspeed_i2c_bus *bus = i2c_get_adapdata(adap);
+         unsigned long time_left, flags;
+-       int ret;
 
+         spin_lock_irqsave(&bus->lock, flags);
+         bus->cmd_err = 0;
+@@ -664,6 +663,8 @@ static int aspeed_i2c_master_xfer(struct i2c_adapter 
+*adap,
+         if (!bus->multi_master &&
+             (readl(bus->base + ASPEED_I2C_CMD_REG) &
+              ASPEED_I2CD_BUS_BUSY_STS)) {
++               int ret;
++
+                 spin_unlock_irqrestore(&bus->lock, flags);
+                 ret = aspeed_i2c_recover_bus(bus);
+                 if (ret)
+@@ -691,7 +692,7 @@ static int aspeed_i2c_master_xfer(struct i2c_adapter 
+*adap,
+                 if (bus->multi_master &&
+                     (readl(bus->base + ASPEED_I2C_CMD_REG) &
+                      ASPEED_I2CD_BUS_BUSY_STS))
+-                       ret = aspeed_i2c_recover_bus(bus);
++                       aspeed_i2c_recover_bus(bus);
 
---zmizvlegvhdlqnqf
-Content-Type: application/pgp-signature; name="signature.asc"
+                 return -ETIMEDOUT;
+---
 
------BEGIN PGP SIGNATURE-----
+The reason of adding changes at line 658 and 667 is to remove below
+cppcheck warning when the change at 694 is applied.
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxhqNoACgkQFA3kzBSg
-KbbzRhAAlKQ23iLOTcTLq8pYfKvPFJGmjJLGEXqWNBXhGL0yH4omqvYMUNeR0O1q
-HvvDqexRFbyxgTeeop8FMuVCGxLjcEeMPorNmsTX7GpTOnRupMPUQzm073lbhAra
-Dk0GAAE7RlxAkWn8D4YmfWwH0OCziZLtdnUdf/T5LpIlfgyIjnaXd4VCMKmyIzkO
-GTU8cMhVf1WXhq5MOpsBzJ+h0e6Lw9Ndrsj5tN+hsVOJ6WemXo309Dx7gC+WG/1j
-1D0BKVCSv+nRfqcM6waLImg04Fdw3BDB6ltfoRu6h7Yq/QbM/6ptTi/i5q68TmjZ
-A/3jQQmK8vSaoTAkXaRG1TT52M6uO4Vu/w7dyK5QlDi93xx7p2kG9iAsoCjGOvGo
-16k3Q+H0Uzw8NtwHn3fdIA4Nh4Bjm+Ze8k7UwgY5IZXkvqo1gKm1BDFcBPfw38Dw
-bvo70Q/QAcaF2V7+ZrqJeUT7KYMOjxAmyjMvD3woPPr5jqdaDYdChJLgz7dBti6e
-ZldgrgrvtiglIX4bCOFBlXGn2HjbzEK97aZ+eEm7hTKevT2YxCz5iQmInitd7uIH
-LIC+4PMchnkgJRBwcKfEU0+7diT/+E6kQXKSaffAJwjYALjbk8Ud2wbD5As1+S4T
-qnnMRm4rF5Qu097nhUJalNszeiRzB6CUv9/hqfDcJHwahhYtJfg=
-=siKX
------END PGP SIGNATURE-----
+[drivers/i2c/busses/i2c-aspeed.c:670]: (style) The scope of the variable 
+'ret' can be reduced.
 
---zmizvlegvhdlqnqf--
+Can you please apply above changes on top of this patch? Or I can submit
+v2 with it.
+
+Thanks,
+Jae
