@@ -1,74 +1,99 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v4 5/5] i2c:ocores: checkpatch fixes
-Date: Mon, 11 Feb 2019 10:52:28 +0000
-Message-ID: <4aa1aa03-f762-c569-8733-b753ba34577d@axentia.se>
-References: <20190211083122.32485-1-federico.vaga@cern.ch>
- <20190211083122.32485-6-federico.vaga@cern.ch>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH V18 2/6] i2c: tegra: add bus clear Master Support
+Date: Mon, 11 Feb 2019 13:44:32 +0100
+Message-ID: <20190211124431.kys66uzp5hwa5ret@ninjato>
+References: <1549652382-5476-1-git-send-email-skomatineni@nvidia.com>
+ <1549652382-5476-2-git-send-email-skomatineni@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="yt4liwd2sdc4itsr"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190211083122.32485-6-federico.vaga@cern.ch>
-Content-Language: en-US
-Content-ID: <43BA1A5162A0B94E8DAD53789F38FBB2@eurprd02.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <1549652382-5476-2-git-send-email-skomatineni@nvidia.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Federico Vaga <federico.vaga@cern.ch>, Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Sowjanya Komatineni <skomatineni@nvidia.com>
+Cc: thierry.reding@gmail.com, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com, peda@axentia.se, digetx@gmail.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOS0wMi0xMSAwOTozMSwgRmVkZXJpY28gVmFnYSB3cm90ZToNCj4gTWlzY2VsbGFuZW91
-cyBzdHlsZSBmaXhlcyBmcm9tIGNoZWNrcGF0Y2gNCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEZlZGVy
-aWNvIFZhZ2EgPGZlZGVyaWNvLnZhZ2FAY2Vybi5jaD4NCj4gUmV2aWV3ZWQtYnk6IEFuZHJldyBM
-dW5uIDxhbmRyZXdAbHVubi5jaD4NCj4gDQo+IC0tLQ0KPiAgZHJpdmVycy9pMmMvYnVzc2VzL2ky
-Yy1vY29yZXMuYyB8IDE5ICsrKysrKysrKysrKy0tLS0tLS0NCj4gIDEgZmlsZSBjaGFuZ2VkLCAx
-MiBpbnNlcnRpb25zKCspLCA3IGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZl
-cnMvaTJjL2J1c3Nlcy9pMmMtb2NvcmVzLmMgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW9jb3Jl
-cy5jDQo+IGluZGV4IDViODAxOTAuLmJhMzVkMmEgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaTJj
-L2J1c3Nlcy9pMmMtb2NvcmVzLmMNCj4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY29y
-ZXMuYw0KPiBAQCAtMTgyLDggKzE4Miw5IEBAIHN0YXRpYyB2b2lkIG9jb3Jlc19wcm9jZXNzKHN0
-cnVjdCBvY29yZXNfaTJjICppMmMsIHU4IHN0YXQpDQo+ICAJCQlvY19zZXRyZWcoaTJjLCBPQ0ky
-Q19DTUQsIE9DSTJDX0NNRF9TVE9QKTsNCj4gIAkJCWdvdG8gb3V0Ow0KPiAgCQl9DQo+IC0JfSBl
-bHNlDQo+ICsJfSBlbHNlIHsNCj4gIAkJbXNnLT5idWZbaTJjLT5wb3MrK10gPSBvY19nZXRyZWco
-aTJjLCBPQ0kyQ19EQVRBKTsNCj4gKwl9DQo+ICANCj4gIAkvKiBlbmQgb2YgbXNnPyAqLw0KPiAg
-CWlmIChpMmMtPnBvcyA9PSBtc2ctPmxlbikgew0KPiBAQCAtMjAyLDkgKzIwMyw5IEBAIHN0YXRp
-YyB2b2lkIG9jb3Jlc19wcm9jZXNzKHN0cnVjdCBvY29yZXNfaTJjICppMmMsIHU4IHN0YXQpDQo+
-ICAJCQkJb2Nfc2V0cmVnKGkyYywgT0NJMkNfREFUQSwgYWRkcik7DQo+ICAJCQkJb2Nfc2V0cmVn
-KGkyYywgT0NJMkNfQ01ELCAgT0NJMkNfQ01EX1NUQVJUKTsNCj4gIAkJCQlnb3RvIG91dDsNCj4g
-LQkJCX0gZWxzZQ0KPiAtCQkJCWkyYy0+c3RhdGUgPSAobXNnLT5mbGFncyAmIEkyQ19NX1JEKQ0K
-PiAtCQkJCQk/IFNUQVRFX1JFQUQgOiBTVEFURV9XUklURTsNCj4gKwkJCX0NCj4gKwkJCWkyYy0+
-c3RhdGUgPSAobXNnLT5mbGFncyAmIEkyQ19NX1JEKQ0KPiArCQkJCT8gU1RBVEVfUkVBRCA6IFNU
-QVRFX1dSSVRFOw0KPiAgCQl9IGVsc2Ugew0KPiAgCQkJaTJjLT5zdGF0ZSA9IFNUQVRFX0RPTkU7
-DQo+ICAJCQlvY19zZXRyZWcoaTJjLCBPQ0kyQ19DTUQsIE9DSTJDX0NNRF9TVE9QKTsNCj4gQEAg
-LTQwNSw3ICs0MDYsOCBAQCBzdGF0aWMgaW50IG9jb3Jlc19pbml0KHN0cnVjdCBkZXZpY2UgKmRl
-diwgc3RydWN0IG9jb3Jlc19pMmMgKmkyYykNCj4gIAl1OCBjdHJsID0gb2NfZ2V0cmVnKGkyYywg
-T0NJMkNfQ09OVFJPTCk7DQo+ICANCj4gIAkvKiBtYWtlIHN1cmUgdGhlIGRldmljZSBpcyBkaXNh
-YmxlZCAqLw0KPiAtCW9jX3NldHJlZyhpMmMsIE9DSTJDX0NPTlRST0wsIGN0cmwgJiB+KE9DSTJD
-X0NUUkxfRU58T0NJMkNfQ1RSTF9JRU4pKTsNCj4gKwljdHJsICY9IH4oT0NJMkNfQ1RSTF9FTiB8
-IE9DSTJDX0NUUkxfSUVOKTsNCj4gKwlvY19zZXRyZWcoaTJjLCBPQ0kyQ19DT05UUk9MLCBjdHJs
-KTsNCg0KVGhlIHBhdHRlcm4gfihPQ0kyQ19DVFJMX0VOfE9DSTJDX0NUUkxfSUVOKSB3aXRob3V0
-IHNwYWNlcyBhcm91bmQgdGhlIHwgZXhpc3RzDQppbiBhIGNvdXBsZSBvZiBvdGhlciBwbGFjZXMg
-aW4gdGhlIGRyaXZlciAoYXQgbGVhc3QgdGhlIHZlcnNpb24gSSdtIGxvb2tpbmcgYXQpLg0KWW91
-IGNvdWxkIGZpeCBhbGwgaW5zdGFuY2VzIHdoaWxlIGF0IGl0Lg0KDQpDaGVlcnMsDQpQZXRlcg0K
-DQo+ICANCj4gIAlwcmVzY2FsZSA9IChpMmMtPmlwX2Nsb2NrX2toeiAvICg1ICogaTJjLT5idXNf
-Y2xvY2tfa2h6KSkgLSAxOw0KPiAgCXByZXNjYWxlID0gY2xhbXAocHJlc2NhbGUsIDAsIDB4ZmZm
-Zik7DQo+IEBAIC00NjIsMTEgKzQ2NCwxMyBAQCBNT0RVTEVfREVWSUNFX1RBQkxFKG9mLCBvY29y
-ZXNfaTJjX21hdGNoKTsNCj4gICNpZmRlZiBDT05GSUdfT0YNCj4gIC8qIFJlYWQgYW5kIHdyaXRl
-IGZ1bmN0aW9ucyBmb3IgdGhlIEdSTElCIHBvcnQgb2YgdGhlIGNvbnRyb2xsZXIuIFJlZ2lzdGVy
-cyBhcmUNCj4gICAqIDMyLWJpdCBiaWcgZW5kaWFuIGFuZCB0aGUgUFJFTE9XIGFuZCBQUkVISUdI
-IHJlZ2lzdGVycyBhcmUgbWVyZ2VkIGludG8gb25lDQo+IC0gKiByZWdpc3Rlci4gVGhlIHN1YnNl
-cXVlbnQgcmVnaXN0ZXJzIGhhcyB0aGVpciBvZmZzZXQgZGVjcmVhc2VkIGFjY29yZGluZ2x5LiAq
-Lw0KPiArICogcmVnaXN0ZXIuIFRoZSBzdWJzZXF1ZW50IHJlZ2lzdGVycyBoYXMgdGhlaXIgb2Zm
-c2V0IGRlY3JlYXNlZCBhY2NvcmRpbmdseS4NCj4gKyAqLw0KPiAgc3RhdGljIHU4IG9jX2dldHJl
-Z19ncmxpYihzdHJ1Y3Qgb2NvcmVzX2kyYyAqaTJjLCBpbnQgcmVnKQ0KPiAgew0KPiAgCXUzMiBy
-ZDsNCj4gIAlpbnQgcnJlZyA9IHJlZzsNCj4gKw0KPiAgCWlmIChyZWcgIT0gT0NJMkNfUFJFTE9X
-KQ0KPiAgCQlycmVnLS07DQo+ICAJcmQgPSBpb3JlYWQzMmJlKGkyYy0+YmFzZSArIChycmVnIDw8
-IGkyYy0+cmVnX3NoaWZ0KSk7DQo+IEBAIC00ODAsNiArNDg0LDcgQEAgc3RhdGljIHZvaWQgb2Nf
-c2V0cmVnX2dybGliKHN0cnVjdCBvY29yZXNfaTJjICppMmMsIGludCByZWcsIHU4IHZhbHVlKQ0K
-PiAgew0KPiAgCXUzMiBjdXJyLCB3cjsNCj4gIAlpbnQgcnJlZyA9IHJlZzsNCj4gKw0KPiAgCWlm
-IChyZWcgIT0gT0NJMkNfUFJFTE9XKQ0KPiAgCQlycmVnLS07DQo+ICAJaWYgKHJlZyA9PSBPQ0ky
-Q19QUkVMT1cgfHwgcmVnID09IE9DSTJDX1BSRUhJR0gpIHsNCj4gQEAgLTU2OCw3ICs1NzMsNyBA
-QCBzdGF0aWMgaW50IG9jb3Jlc19pMmNfb2ZfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAq
-cGRldiwNCj4gIAlyZXR1cm4gMDsNCj4gIH0NCj4gICNlbHNlDQo+IC0jZGVmaW5lIG9jb3Jlc19p
-MmNfb2ZfcHJvYmUocGRldixpMmMpIC1FTk9ERVYNCj4gKyNkZWZpbmUgb2NvcmVzX2kyY19vZl9w
-cm9iZShwZGV2LCBpMmMpIC1FTk9ERVYNCj4gICNlbmRpZg0KPiAgDQo+ICBzdGF0aWMgaW50IG9j
-b3Jlc19pMmNfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4gDQoNCg==
+
+--yt4liwd2sdc4itsr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+On Fri, Feb 08, 2019 at 10:59:38AM -0800, Sowjanya Komatineni wrote:
+> Bus clear feature of Tegra I2C controller helps to recover from
+> bus hang when I2C master loses the bus arbitration due to the
+> slave device holding SDA LOW continuously for some unknown reasons.
+>=20
+> Per I2C specification, the device that held the bus LOW should
+> release it within 9 clock pulses.
+>=20
+> During bus clear operation, Tegra I2C controller sends 9 clock
+> pulses and terminates the transaction with STOP condition.
+> Upon successful bus clear operation, bus goes to idle state and
+> driver retries the transaction.
+>=20
+> Acked-by: Thierry Reding <treding@nvidia.com>
+> Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+
+We have a bus recovery infrastructure in the core. Tying your code into
+it should be easy. You probably just need a 'struct
+i2c_bus_recovery_info', populate the 'recover_bus' callback with
+'tegra_i2c_issue_bus_clear()', and attach this struct to the 'struct
+adapter' if the IP core supports bus recovery, otherwise leave it empty.
+Then, you can...
+
+> +static int tegra_i2c_issue_bus_clear(struct tegra_i2c_dev *i2c_dev)
+> +{
+> +	int err;
+> +	unsigned long time_left;
+> +	u32 reg;
+> +
+> +	if (i2c_dev->hw->supports_bus_clear) {
+
+=2E.. remove the if here because the core will check for a valid
+i2c_bus_recovery_info...
+
+> @@ -759,6 +818,13 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *=
+i2c_dev,
+>  		return 0;
+> =20
+>  	tegra_i2c_init(i2c_dev);
+> +	/* start recovery upon arbitration loss in single master mode */
+> +	if (i2c_dev->msg_err =3D=3D I2C_ERR_ARBITRATION_LOST) {
+> +		if (!i2c_dev->is_multimaster_mode)
+> +			return tegra_i2c_issue_bus_clear(i2c_dev);
+
+=2E.. and use simply i2c_recover_bus() here.
+
+This will help making bus recovery use consistent across drivers.
+
+Thanks,
+
+   Wolfram
+
+--yt4liwd2sdc4itsr
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxhbisACgkQFA3kzBSg
+KbaXfw/8D5oseEP3Y/5D8I63l1EVBNyE3QSoHKp6mPkNltlBc+AS6LlZqo5rbu+R
+nW61wGlOxlIFyCknQu2hcOk1+nqmGCeeHdXTS3qu9VN+Lb3oeMPQigLLrPnE/To+
+2EUJQtX54Tp17YwJLBQjllKwBuCUDue78Sn8BaEV6e7HzuIY/UaeezWVXU4/K7uA
+t1xM8vU+G38Pi1FK68EnFo0rT/OGqrNLLBv3yT/zUj+6SAtE8lbQzboq9HRnWMmD
+9TlsiBlZBV2eDgT2yEOA6e4v2FPEg/wMcY0CBb5FGYVGcOb3PRRg6xAUON0fy9Kn
+qVQePBgOLsX+KooENUsvPsECZLhHtRHWw6BEs7r+rZq8zf3OCb3uk5fkG0fnl1xE
+tTtB0RUSRWrHmZiT40qT7ElxmLHkjbM/sNZ+weCv9/V4NRnzpcPP0HQR14kg/bey
+MM9b+BhxhiGZR112eqP0Fe7HHBWz6s27aCKNUayd6il/Vv+jhYt/WGPj5S1eSVYp
+ASFxOxioRyOgH8nOBNFsy1Xh1C/T7PHlmTuhdUEOD1SDjZ/GeDCbVvt8kU3Pq1j5
++XPH4mCPzl9BSJaJ6RsDRVr5AY4wIR+WJNiWIA7mGQjb7d/1a2ET2vhU85H8otTF
++rk0Sw/R8GFrfN1k3vsCjNAfDLY4FFkJmt+mNJhNhMB5fG67zI0=
+=nRY5
+-----END PGP SIGNATURE-----
+
+--yt4liwd2sdc4itsr--
