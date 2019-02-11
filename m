@@ -1,121 +1,71 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V18 4/6] i2c: tegra: Add DMA support
-Date: Mon, 11 Feb 2019 13:55:09 +0100
-Message-ID: <20190211125509.tnsgfl3yoobdpnmj@ninjato>
-References: <1549652382-5476-1-git-send-email-skomatineni@nvidia.com>
- <1549652382-5476-4-git-send-email-skomatineni@nvidia.com>
+From: Federico Vaga <federico.vaga@cern.ch>
+Subject: Re: [PATCH v4 1/5] i2c:ocores: stop transfer on timeout
+Date: Mon, 11 Feb 2019 14:02:12 +0100
+Message-ID: <7790979.IuqCBRmgNN@pcbe13614>
+References: <20190211083122.32485-1-federico.vaga@cern.ch> <20190211083122.32485-2-federico.vaga@cern.ch> <d406a2ea-9d37-3eca-d975-818a22ca2458@axentia.se>
+Reply-To: <federico.vaga@cern.ch>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="6grvdmutaaewrqua"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1549652382-5476-4-git-send-email-skomatineni@nvidia.com>
+In-Reply-To: <d406a2ea-9d37-3eca-d975-818a22ca2458@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc: thierry.reding@gmail.com, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com, peda@axentia.se, digetx@gmail.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Monday, February 11, 2019 11:44:46 AM CET Peter Rosin wrote:
+> On 2019-02-11 09:31, Federico Vaga wrote:
+> 
+> > Detecting a timeout is ok, but we also need to assert a STOP command on
+> > the bus in order to prevent it from generating interrupts when there are
+> > no on going transfers.
+> > 
+> > Example: very long transmission.
+> > 
+> > 1. ocores_xfer: START a transfer
+> > 2. ocores_isr : handle byte by byte the transfer
+> > 3. ocores_xfer: goes in timeout [[bugfix here]]
+> > 4. ocores_xfer: return to I2C subsystem and to the I2C driver
+> > 5. I2C driver : it may clean up the i2c_msg memory
+> > 6. ocores_isr : receives another interrupt (pending bytes to be
+> > 
+> >                 transferred) but the i2c_msg memory is invalid now
+> > 
+> > 
+> > So, since the transfer was too long, we have to detect the timeout and
+> > STOP the transfer.
+> > 
+> > Another point is that we have a critical region here. When handling the
+> > timeout condition we may have a running IRQ handler. For this reason I
+> > introduce a spinlock.
+> > 
+> > In order to make easier to understan locking I have:
+> > - added a new function to handle timeout
+> > - modified the current ocores_process() function in order to be protected
+> > 
+> >   by the new spinlock
+> > 
+> > Like this it is obvious at first sight that this locking serializes
+> > the execution of ocores_process() and ocores_process_timeout()
+> > 
+> 
+> 
+> *snip*
+> 
+> 
+> > @@ -184,14 +197,14 @@ static void ocores_process(struct ocores_i2c *i2c)
+> > 
+> >  
+> >  
+> >  				oc_setreg(i2c, OCI2C_DATA, addr);
+> >  				oc_setreg(i2c, OCI2C_CMD,  OCI2C_CMD_START);
+> 
+> 
+> Didn't checkpatch complain about the double space? Fixing it fits in
+> patch 5...
 
---6grvdmutaaewrqua
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Apparently not, I will add the fix the checkpatch PATCH
 
-On Fri, Feb 08, 2019 at 10:59:40AM -0800, Sowjanya Komatineni wrote:
-> This patch adds DMA support for Tegra I2C.
->=20
-> Tegra I2C TX and RX FIFO depth is 8 words. PIO mode is used for
-> transfer size of the max FIFO depth and DMA mode is used for
-> transfer size higher than max FIFO depth to save CPU overhead.
->=20
-> PIO mode needs full intervention of CPU to fill or empty FIFO's
-> and also need to service multiple data requests interrupt for the
-> same transaction. This adds delay between data bytes of the same
-> transfer when CPU is fully loaded and some slave devices has
-> internal timeout for no bus activity and stops transaction to
-> avoid bus hang. DMA mode is helpful in such cases.
->=20
-> DMA mode is also helpful for Large transfers during downloading or
-> uploading FW over I2C to some external devices.
->=20
-> Acked-by: Thierry Reding <treding@nvidia.com>
-> Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-> Tested-by: Dmitry Osipenko <digetx@gmail.com>
-> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-
-I am not sure if you are aware of this document, so I mention it:
-
-Documentation/i2c/DMA-considerations
-
-I am not pushing you to use the i2c_get_dma_safe_msg_buf() helpers, just
-wanted to make sure you know about them. I am also fine with an
-incremental patch on top of this if you want to add usage of those
-helpers somewhen later.
-
-That all being said, I'd accept the patch as is, except for:
-
-> +static const struct tegra_i2c_hw_feature tegra186_i2c_hw =3D {
-> +	.has_continue_xfer_support =3D true,
-> +	.has_per_pkt_xfer_complete_irq =3D true,
-> +	.has_single_clk_source =3D true,
-> +	.clk_divisor_hs_mode =3D 1,
-> +	.clk_divisor_std_fast_mode =3D 0x19,
-> +	.clk_divisor_fast_plus_mode =3D 0x10,
-> +	.has_config_load_reg =3D true,
-> +	.has_multi_master_mode =3D true,
-> +	.has_slcg_override_reg =3D true,
-> +	.has_mst_fifo =3D true,
-> +	.quirks =3D &tegra_i2c_quirks,
-> +	.supports_bus_clear =3D true,
-> +	.has_apb_dma =3D false,
->  };
-> =20
->  /* Match table for of_platform binding */
->  static const struct of_device_id tegra_i2c_of_match[] =3D {
->  	{ .compatible =3D "nvidia,tegra194-i2c", .data =3D &tegra194_i2c_hw, },
-> +	{ .compatible =3D "nvidia,tegra186-i2c", .data =3D &tegra186_i2c_hw, },
->  	{ .compatible =3D "nvidia,tegra210-i2c", .data =3D &tegra210_i2c_hw, },
->  	{ .compatible =3D "nvidia,tegra124-i2c", .data =3D &tegra124_i2c_hw, },
->  	{ .compatible =3D "nvidia,tegra114-i2c", .data =3D &tegra114_i2c_hw, },
-
-Shouldn't this be a seperate patch?
-
-> -static int __init tegra_i2c_init_driver(void)
-> -{
-> -	return platform_driver_register(&tegra_i2c_driver);
-> -}
-> -
-> -static void __exit tegra_i2c_exit_driver(void)
-> -{
-> -	platform_driver_unregister(&tegra_i2c_driver);
-> -}
-> -
-> -subsys_initcall(tegra_i2c_init_driver);
-> -module_exit(tegra_i2c_exit_driver);
-> +module_platform_driver(tegra_i2c_driver);
-
-This should definately be a seperate patch. While I am all for taking
-it, are you sure it does not regress on older Tegra platforms?
-
-
---6grvdmutaaewrqua
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxhcK0ACgkQFA3kzBSg
-Kbavrw/8Dbu06tEzHDxhHxYtcIfidsA0eVjiTMI9xUYMNf6W9P0xbk2o0aJTG5Hp
-YagcRjZ9q32zAp1JVWqeTLVRDkXRzfw3uI3yxdYI2mmrpFhcMQngHy9FNMi9DaRx
-YTYw+xa0SEpPE70Bvvv5fchZIvEkAHX/EZZWVyjhX5QW7RUp+cd7oBzB55GcX9V2
-dpFhkmvkfYSzdndb8GKAaEmEIbUlRGU6iVckVTijhCqOF299m/67ldoF6Zi0iWXV
-enbjnkx7dvssRH7r1OQEMAeeRaHSLsy7Re/a4K/1CRbvEnHiLxobr8AatgyOPdI2
-Ni1qdzxmdIc9CA825Bq/qXbZ/MkOtdboJOxQ0m8FbIoVXB76npt/ROwgNktKCa4u
-x2tru5w5YPbTd0f5Mpx57vgunT/7v6xvM4l2uQQLlB+/9oBty3GEXPutJUM4vF9G
-qMVlk00SO9dMjME9MPwWro0j/jaOedgCiRi11kNT2qOl0Z9H88NiL/dY+1kp/6wL
-hpxlMwqG4gkz3fNYid9XLqQmbBsLm7QdK814iNxmiwClg6hNwpvo0oB1Gf02mW5D
-3kXpGp0J+sQ/d30iJ9ZsPF0A89FRmXxnzAOMyOsoyfx8E03V/sPbtu+da96nCaPq
-paomg+9t2RSUs04LF033tVGAbv2Y5SJvtJVIirFaAN3sL4My3yo=
-=72n6
------END PGP SIGNATURE-----
-
---6grvdmutaaewrqua--
+> Cheers,
+> Peter
