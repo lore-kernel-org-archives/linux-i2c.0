@@ -1,62 +1,111 @@
-From: Peter Rosin <peda@axentia.se>
+From: Federico Vaga <federico.vaga@cern.ch>
 Subject: Re: [PATCH v4 3/5] i2c:ocores: add polling interface
-Date: Mon, 11 Feb 2019 13:35:15 +0000
-Message-ID: <5bc1757a-3b74-5c77-7c39-00c2513683a1@axentia.se>
-References: <20190211083122.32485-1-federico.vaga@cern.ch>
- <20190211083122.32485-4-federico.vaga@cern.ch>
- <7ef62069-3ce1-2c31-b64e-3a5d045990e5@axentia.se>
- <1845501.4feNL5aF6H@pcbe13614>
+Date: Mon, 11 Feb 2019 14:46:28 +0100
+Message-ID: <14487566.fPVnE3aI26@pcbe13614>
+References: <20190211083122.32485-1-federico.vaga@cern.ch> <1845501.4feNL5aF6H@pcbe13614> <5bc1757a-3b74-5c77-7c39-00c2513683a1@axentia.se>
+Reply-To: <federico.vaga@cern.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1845501.4feNL5aF6H@pcbe13614>
-Content-Language: en-US
-Content-ID: <C5F2060185D8C941B87CEA1ABC202A40@eurprd02.prod.outlook.com>
+In-Reply-To: <5bc1757a-3b74-5c77-7c39-00c2513683a1@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "federico.vaga@cern.ch" <federico.vaga@cern.ch>
+To: Peter Rosin <peda@axentia.se>
 Cc: Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Pj4+IEBAIC0yOTQsNyArNDI3LDcgQEAgc3RhdGljIGludCBvY29yZXNfaW5pdChzdHJ1Y3QgZGV2
-aWNlICpkZXYsIHN0cnVjdA0KPj4+IG9jb3Jlc19pMmMgKmkyYykNCj4+DQo+Pj4gIA0KPj4+ICAN
-Cj4+PiAgCS8qIEluaXQgdGhlIGRldmljZSAqLw0KPj4+ICAJb2Nfc2V0cmVnKGkyYywgT0NJMkNf
-Q01ELCBPQ0kyQ19DTURfSUFDSyk7DQo+Pj4NCj4+PiAtCW9jX3NldHJlZyhpMmMsIE9DSTJDX0NP
-TlRST0wsIGN0cmwgfCBPQ0kyQ19DVFJMX0lFTiB8IE9DSTJDX0NUUkxfRU4pOw0KPj4+ICsJb2Nf
-c2V0cmVnKGkyYywgT0NJMkNfQ09OVFJPTCwgY3RybCB8IE9DSTJDX0NUUkxfRU4pOw0KPj4NCj4+
-DQo+PiBZb3UgZml4IHRoaXMgdXAgaW4gcGF0Y2ggNSAoaW4gd2hhdCBpcyBwZXJoYXBzIGNhcmVs
-ZXNzbHkgbWFya2V0ZWQgYXMNCj4+IGZpeGVzIGZvciBtaW5vciBjaGVja3BhdGNoIGlzc3Vlcyks
-IGJ1dCBmb3IgdGhpcyBwYXRjaCB5b3UgYXJlIGFjdHVhbGx5DQo+PiBubyBsb25nZXIgbWFraW5n
-IHN1cmUgdGhhdCB5b3UgY2xlYXIgdGhlIE9DSTJDX0NUUkxfSUVOIGJpdCBhcyB0aGUgY29kZQ0K
-Pj4gdXNlZCB0byBiZWZvcmUgdGhpcyBwYXRjaC4gSSB0aGluayB5b3UgaW50ZW5kZWQgdG8gcHJl
-c2VydmUgdGhhdA0KPj4gYmVoYXZpb3IsIG5vPw0KPiANCj4gSSB0aGluayB5b3UgZ290IGNvbmZ1
-c2VkIGJ5IHRoZSB0d28gcGF0Y2hlcyBiZWNhdXNlIHRob3NlIGxpbmVzIGxvb2sgdmVyeSANCj4g
-c2ltaWxhci4NCj4gDQo+IEluIFBBVENIIDUgd2hhdCB5b3Ugc2VlIGlzIHRoZSAic3R5bGUgZml4
-IiB0byBjbGVhciBFTiBhbmQgSUVOIGJlZm9yZSBjbG9jayANCj4gY29uZmlndXJhdGlvbg0KPiAN
-Cj4gaW4gUEFUQ0ggMyAodGhpcyBvbmUpIHdoYXQgeW91IHNlZSBpcyB3aGVuIGxhdGVyIChzYW1l
-IGZ1bmN0aW9uLCBhZnRlciBjbG9jayANCj4gY29uZmlndXJhdGlvbikgdGhlIGRldmljZSBpcyBy
-ZS1lbmFibGVkIChFTiksIGJ1dCB3aXRob3V0IGVuYWJsaW5nIHRoZSANCj4gaW50ZXJydXB0IGJl
-Y2F1c2Ugb24gcG9sbGluZyBjb25maWd1cmF0aW9uIHdlIGRvIG5vdCB3YW50IHRvIHNlZSBpbnRl
-cnJ1cHQgDQo+IGZsb3dpbmcuDQo+IA0KPiBTbywgdGhlIGJlaGF2aW9yIGlzIHByZXNlcnZlZCBm
-b3Igd2hhdCBjb25jZXJuIGNsZWFyaW5nIHRoZSBJRU4gYml0IGJlZm9yZSANCj4gY2xvY2sgY29u
-ZmlndXJhdGlvbi4NCj4gDQo+IGFtIEkgd3Jvbmc/DQoNCk5vLCBJIGRvbid0IHRoaW5rIEknbSBj
-b25mdXNlZCBhbmQgSSB0aGluayB5b3UgYXJlIHdyb25nLiBDdXJyZW50IGNvZGUgZG9lcw0KdGhp
-czoNCg0KCXU4IGN0cmwgPSBvY19nZXRyZWcoaTJjLCBPQ0kyQ19DT05UUk9MKTsNCg0KCS8qIG1h
-a2Ugc3VyZSB0aGUgZGV2aWNlIGlzIGRpc2FibGVkICovDQoJb2Nfc2V0cmVnKGkyYywgT0NJMkNf
-Q09OVFJPTCwgY3RybCAmIH4oT0NJMkNfQ1RSTF9JRU58T0NJMkNfQ1RSTF9FTikpOw0KCS4uLg0K
-CW9jX3NldHJlZyhpMmMsIE9DSTJDX0NPTlRST0wsIGN0cmwgfCBPQ0kyQ19DVFJMX0lFTiB8IE9D
-STJDX0NUUkxfRU4pKTsNCg0KSGVyZSwgdGhlIGZpbmFsIG9jX3NldHJlZyBhbHdheXMgc2V0cyBP
-Q0kyQ19DVFJMX0lFTi4NCg0KDQpQYXRjaCAzIGNoYW5nZXMgaXQgdG86DQoNCgl1OCBjdHJsID0g
-b2NfZ2V0cmVnKGkyYywgT0NJMkNfQ09OVFJPTCk7DQoNCgkvKiBtYWtlIHN1cmUgdGhlIGRldmlj
-ZSBpcyBkaXNhYmxlZCAqLw0KCW9jX3NldHJlZyhpMmMsIE9DSTJDX0NPTlRST0wsIGN0cmwgJiB+
-KE9DSTJDX0NUUkxfSUVOfE9DSTJDX0NUUkxfRU4pKTsNCgkuLi4NCglvY19zZXRyZWcoaTJjLCBP
-Q0kyQ19DT05UUk9MLCBjdHJsIHwgT0NJMkNfQ1RSTF9FTikpOw0KDQpIZXJlLCB0aGUgZmluYWwg
-b2Nfc2V0cmVnIHJlc3RvcmVzIE9DSTJDX0NUUkxfSUVOIHRvIHdoYXRldmVyIGl0IHdhcw0KYXQg
-ZnVuY3Rpb24gZW50cnkuDQoNCg0KQW5kIHBhdGNoIDUgY2hhbmdlcyBpdCBhZ2FpbiB0bzoNCg0K
-CXU4IGN0cmwgPSBvY19nZXRyZWcoaTJjLCBPQ0kyQ19DT05UUk9MKTsNCg0KCS8qIG1ha2Ugc3Vy
-ZSB0aGUgZGV2aWNlIGlzIGRpc2FibGVkICovDQoJY3RybCAmPSB+KE9DSTJDX0NUUkxfSUVOIHwg
-T0NJMkNfQ1RSTF9FTik7DQoJb2Nfc2V0cmVnKGkyYywgT0NJMkNfQ09OVFJPTCwgY3RybCk7DQoJ
-Li4uDQoJb2Nfc2V0cmVnKGkyYywgT0NJMkNfQ09OVFJPTCwgY3RybCB8IE9DSTJDX0NUUkxfRU4p
-KTsNCg0KSGVyZSwgdGhlIGZpbmFsIG9jX3NldHJlZyBrZWVwcyBPQ0kyQ19DVFJMX0lFTiBjbGVh
-cmVkLiBJIHRoaW5rIHlvdSB3YW50ZWQNCnRoaXMgZGV0ZXJtaW5pc3RpYyBiZWhhdmlvciBmb3Ig
-cGF0Y2ggMyBhcyB3ZWxsLg0KDQpDaGVlcnMsDQpQZXRlcg0K
+On Monday, February 11, 2019 2:35:15 PM CET Peter Rosin wrote:
+> >>> @@ -294,7 +427,7 @@ static int ocores_init(struct device *dev, struct
+> >>> ocores_i2c *i2c)
+> >>
+> >>
+> >>
+> >>>  
+> >>>  
+> >>>  
+> >>>  	/* Init the device */
+> >>>  	oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_IACK);
+> >>>
+> >>>
+> >>>
+> >>> -	oc_setreg(i2c, OCI2C_CONTROL, ctrl | OCI2C_CTRL_IEN | OCI2C_CTRL_EN);
+> >>> +	oc_setreg(i2c, OCI2C_CONTROL, ctrl | OCI2C_CTRL_EN);
+> >>
+> >>
+> >>
+> >>
+> >> You fix this up in patch 5 (in what is perhaps carelessly marketed as
+> >> fixes for minor checkpatch issues), but for this patch you are actually
+> >> no longer making sure that you clear the OCI2C_CTRL_IEN bit as the code
+> >> used to before this patch. I think you intended to preserve that
+> >> behavior, no?
+> > 
+> > 
+> > I think you got confused by the two patches because those lines look very
+> > 
+> > similar.
+> > 
+> > In PATCH 5 what you see is the "style fix" to clear EN and IEN before
+> > clock 
+ configuration
+> > 
+> > in PATCH 3 (this one) what you see is when later (same function, after
+> > clock 
+ configuration) the device is re-enabled (EN), but without
+> > enabling the interrupt because on polling configuration we do not want to
+> > see interrupt flowing.
+> > 
+> > So, the behavior is preserved for what concern clearing the IEN bit before
+> > 
+ clock configuration.
+> > 
+> > am I wrong?
+> 
+> 
+> No, I don't think I'm confused and I think you are wrong. Current code does
+> this:
+> 
+> 	u8 ctrl = oc_getreg(i2c, OCI2C_CONTROL);
+> 
+> 	/* make sure the device is disabled */
+> 	oc_setreg(i2c, OCI2C_CONTROL, ctrl & ~(OCI2C_CTRL_IEN|OCI2C_CTRL_EN));
+> 	...
+> 	oc_setreg(i2c, OCI2C_CONTROL, ctrl | OCI2C_CTRL_IEN | OCI2C_CTRL_EN));
+> 
+> Here, the final oc_setreg always sets OCI2C_CTRL_IEN.
+> 
+> Patch 3 changes it to:
+> 
+> 	u8 ctrl = oc_getreg(i2c, OCI2C_CONTROL);
+> 
+> 	/* make sure the device is disabled */
+> 	oc_setreg(i2c, OCI2C_CONTROL, ctrl & ~(OCI2C_CTRL_IEN|OCI2C_CTRL_EN));
+> 	...
+> 	oc_setreg(i2c, OCI2C_CONTROL, ctrl | OCI2C_CTRL_EN));
+> 
+> Here, the final oc_setreg restores OCI2C_CTRL_IEN to whatever it was
+> at function entry.
+> 
+> 
+> And patch 5 changes it again to:
+> 
+> 	u8 ctrl = oc_getreg(i2c, OCI2C_CONTROL);
+> 
+> 	/* make sure the device is disabled */
+> 	ctrl &= ~(OCI2C_CTRL_IEN | OCI2C_CTRL_EN);
+> 	oc_setreg(i2c, OCI2C_CONTROL, ctrl);
+> 	...
+> 	oc_setreg(i2c, OCI2C_CONTROL, ctrl | OCI2C_CTRL_EN));
+> 
+> Here, the final oc_setreg keeps OCI2C_CTRL_IEN cleared. I think you wanted
+> this deterministic behavior for patch 3 as well.
+
+Now I see what you mean and I agree. I will move the fix from PATCH 5 to PATCH 
+3, so that bit IEN is clearly cleared.
+
+
+thanks
+
+> 
+> Cheers,
+> Peter
