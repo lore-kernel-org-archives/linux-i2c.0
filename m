@@ -1,107 +1,62 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V18 4/6] i2c: tegra: Add DMA support
-Date: Mon, 11 Feb 2019 14:28:51 +0100
-Message-ID: <20190211132851.pxrawigdgggoc32k@ninjato>
-References: <1549652382-5476-1-git-send-email-skomatineni@nvidia.com>
- <1549652382-5476-4-git-send-email-skomatineni@nvidia.com>
- <20190211125509.tnsgfl3yoobdpnmj@ninjato>
- <ed92df42-459e-26fd-ce4e-f4530bf30783@gmail.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v4 3/5] i2c:ocores: add polling interface
+Date: Mon, 11 Feb 2019 13:35:15 +0000
+Message-ID: <5bc1757a-3b74-5c77-7c39-00c2513683a1@axentia.se>
+References: <20190211083122.32485-1-federico.vaga@cern.ch>
+ <20190211083122.32485-4-federico.vaga@cern.ch>
+ <7ef62069-3ce1-2c31-b64e-3a5d045990e5@axentia.se>
+ <1845501.4feNL5aF6H@pcbe13614>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="zeqgcqe6d7redppc"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <ed92df42-459e-26fd-ce4e-f4530bf30783@gmail.com>
+In-Reply-To: <1845501.4feNL5aF6H@pcbe13614>
+Content-Language: en-US
+Content-ID: <C5F2060185D8C941B87CEA1ABC202A40@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Osipenko <digetx@gmail.com>
-Cc: Sowjanya Komatineni <skomatineni@nvidia.com>, thierry.reding@gmail.com, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com, peda@axentia.se, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: "federico.vaga@cern.ch" <federico.vaga@cern.ch>
+Cc: Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---zeqgcqe6d7redppc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Dmitry,
-
-> > I am not sure if you are aware of this document, so I mention it:
-> >=20
-> > Documentation/i2c/DMA-considerations
-> >=20
-> > I am not pushing you to use the i2c_get_dma_safe_msg_buf() helpers,
-> > just wanted to make sure you know about them. I am also fine with an
-> > incremental patch on top of this if you want to add usage of those
-> > helpers somewhen later.
->=20
-> At least I was not aware of those helpers. It looks to me that the
-> approach of having a statically allocated buffer is more optimal than
-> having to allocate and map the buffer on each transfer.=20
-
-Can be argued, yes.
-
-> >>  /* Match table for of_platform binding */
-> >>  static const struct of_device_id tegra_i2c_of_match[] =3D {
-> >>  	{ .compatible =3D "nvidia,tegra194-i2c", .data =3D &tegra194_i2c_hw,=
- },
-> >> +	{ .compatible =3D "nvidia,tegra186-i2c", .data =3D &tegra186_i2c_hw,=
- },
-> >>  	{ .compatible =3D "nvidia,tegra210-i2c", .data =3D &tegra210_i2c_hw,=
- },
-> >>  	{ .compatible =3D "nvidia,tegra124-i2c", .data =3D &tegra124_i2c_hw,=
- },
-> >>  	{ .compatible =3D "nvidia,tegra114-i2c", .data =3D &tegra114_i2c_hw,=
- },
-> >=20
-> > Shouldn't this be a seperate patch?
->=20
-> I asked for this change and no, it shouldn't be a separate patch as it
-> adds "has_apb_dma =3D false" property for T186 that older Tegra's have
-> as "true". Without this change T186 uses tegra_i2c_hw_feature of T210,
-> see [0]. Hence this change is absolutely correct and appropriate for
-> this patch.
-
-Then please update the patch description to contain this information.
-
-> > This should definately be a seperate patch. While I am all for taking
-> > it, are you sure it does not regress on older Tegra platforms?
-> >=20
->=20
-> All the patches are tested on older Tegra's (T20/T30 specifically by
-> me) and we fixed several bugs that were regressing them over the few
-> versions of the patchset. I specifically asked for this change for
-> older Tegra's because the APBDMA driver (T20-T210) is getting
-> registered from the module-init level and hence I2C driver probe is
-> always getting deferred. I'm not sure that it's worth to factor out
-> this hunk into a separate patch as it's directly related to the DMA
-> support addition, maybe worth to mention why this is needed in the
-> commit message.
-
-At least, this, yes.
-
-Thanks,
-
-   Wolfram
-
-
---zeqgcqe6d7redppc
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxheI8ACgkQFA3kzBSg
-Kba4nA/+JPpDKhEe1m4cyv2HP4wvhFQWP2VcdBlTmazt9YSoMVd0GHs6jmzVXKF3
-xcz3FFh+8SNP6xjXW62kTOEzSCexbqSSk/uoFMq8o1svZrHvLJv80iQiaIRCXfw6
-jnm/NGlJ92hXTf7TDcMhp+v3QygQda0srZWHWBkSnvBp42rPWVAqMj5kVDCsa1mR
-pFPnhUXVsRsYxh+yjrSVl8LifP7XdaBI3mROQwnJjjKWMgf7GA40odMQwvvagw7o
-kPrNvVGxNajcAftUZkN0rLzBoJq71t5HpRsSX9XsxS9OBvtXRKA+rokeIgrD8vmw
-sc+LbbH/QKc81oPV4tR0Fgpl2lMiTF2q2lkXbkNNlPvhNAFYeeRqBB9M0IEcNZVu
-QOGMRZjbA7BXuN4p5lmQuE7lOOCBfuD+mE6zL/bbAQ66NmlKhrW5u3STHGv9SK4r
-fMWdkU0uQqTHE27mmiEopCTL/LUp0ZdXzUf+xqx9MBO0sFb3G9czVvh4fRZSgZ4D
-Et1qm/TPjZW6sVJGKIWsS4yBVnFnsJ1aFuW85fHYy9151OQ6+rMQ1r0r2xJLzKzr
-1rGa4folV52oLKFPT4SeE4uguMrvnH1XwXShZqQbuDt+59KshvZIluBRLFpQm+an
-ek/jOQaVOBGWEUuVs0VG4KLq5It0rYMtWCYOrF0jPyGntLV8XGA=
-=91ks
------END PGP SIGNATURE-----
-
---zeqgcqe6d7redppc--
+Pj4+IEBAIC0yOTQsNyArNDI3LDcgQEAgc3RhdGljIGludCBvY29yZXNfaW5pdChzdHJ1Y3QgZGV2
+aWNlICpkZXYsIHN0cnVjdA0KPj4+IG9jb3Jlc19pMmMgKmkyYykNCj4+DQo+Pj4gIA0KPj4+ICAN
+Cj4+PiAgCS8qIEluaXQgdGhlIGRldmljZSAqLw0KPj4+ICAJb2Nfc2V0cmVnKGkyYywgT0NJMkNf
+Q01ELCBPQ0kyQ19DTURfSUFDSyk7DQo+Pj4NCj4+PiAtCW9jX3NldHJlZyhpMmMsIE9DSTJDX0NP
+TlRST0wsIGN0cmwgfCBPQ0kyQ19DVFJMX0lFTiB8IE9DSTJDX0NUUkxfRU4pOw0KPj4+ICsJb2Nf
+c2V0cmVnKGkyYywgT0NJMkNfQ09OVFJPTCwgY3RybCB8IE9DSTJDX0NUUkxfRU4pOw0KPj4NCj4+
+DQo+PiBZb3UgZml4IHRoaXMgdXAgaW4gcGF0Y2ggNSAoaW4gd2hhdCBpcyBwZXJoYXBzIGNhcmVs
+ZXNzbHkgbWFya2V0ZWQgYXMNCj4+IGZpeGVzIGZvciBtaW5vciBjaGVja3BhdGNoIGlzc3Vlcyks
+IGJ1dCBmb3IgdGhpcyBwYXRjaCB5b3UgYXJlIGFjdHVhbGx5DQo+PiBubyBsb25nZXIgbWFraW5n
+IHN1cmUgdGhhdCB5b3UgY2xlYXIgdGhlIE9DSTJDX0NUUkxfSUVOIGJpdCBhcyB0aGUgY29kZQ0K
+Pj4gdXNlZCB0byBiZWZvcmUgdGhpcyBwYXRjaC4gSSB0aGluayB5b3UgaW50ZW5kZWQgdG8gcHJl
+c2VydmUgdGhhdA0KPj4gYmVoYXZpb3IsIG5vPw0KPiANCj4gSSB0aGluayB5b3UgZ290IGNvbmZ1
+c2VkIGJ5IHRoZSB0d28gcGF0Y2hlcyBiZWNhdXNlIHRob3NlIGxpbmVzIGxvb2sgdmVyeSANCj4g
+c2ltaWxhci4NCj4gDQo+IEluIFBBVENIIDUgd2hhdCB5b3Ugc2VlIGlzIHRoZSAic3R5bGUgZml4
+IiB0byBjbGVhciBFTiBhbmQgSUVOIGJlZm9yZSBjbG9jayANCj4gY29uZmlndXJhdGlvbg0KPiAN
+Cj4gaW4gUEFUQ0ggMyAodGhpcyBvbmUpIHdoYXQgeW91IHNlZSBpcyB3aGVuIGxhdGVyIChzYW1l
+IGZ1bmN0aW9uLCBhZnRlciBjbG9jayANCj4gY29uZmlndXJhdGlvbikgdGhlIGRldmljZSBpcyBy
+ZS1lbmFibGVkIChFTiksIGJ1dCB3aXRob3V0IGVuYWJsaW5nIHRoZSANCj4gaW50ZXJydXB0IGJl
+Y2F1c2Ugb24gcG9sbGluZyBjb25maWd1cmF0aW9uIHdlIGRvIG5vdCB3YW50IHRvIHNlZSBpbnRl
+cnJ1cHQgDQo+IGZsb3dpbmcuDQo+IA0KPiBTbywgdGhlIGJlaGF2aW9yIGlzIHByZXNlcnZlZCBm
+b3Igd2hhdCBjb25jZXJuIGNsZWFyaW5nIHRoZSBJRU4gYml0IGJlZm9yZSANCj4gY2xvY2sgY29u
+ZmlndXJhdGlvbi4NCj4gDQo+IGFtIEkgd3Jvbmc/DQoNCk5vLCBJIGRvbid0IHRoaW5rIEknbSBj
+b25mdXNlZCBhbmQgSSB0aGluayB5b3UgYXJlIHdyb25nLiBDdXJyZW50IGNvZGUgZG9lcw0KdGhp
+czoNCg0KCXU4IGN0cmwgPSBvY19nZXRyZWcoaTJjLCBPQ0kyQ19DT05UUk9MKTsNCg0KCS8qIG1h
+a2Ugc3VyZSB0aGUgZGV2aWNlIGlzIGRpc2FibGVkICovDQoJb2Nfc2V0cmVnKGkyYywgT0NJMkNf
+Q09OVFJPTCwgY3RybCAmIH4oT0NJMkNfQ1RSTF9JRU58T0NJMkNfQ1RSTF9FTikpOw0KCS4uLg0K
+CW9jX3NldHJlZyhpMmMsIE9DSTJDX0NPTlRST0wsIGN0cmwgfCBPQ0kyQ19DVFJMX0lFTiB8IE9D
+STJDX0NUUkxfRU4pKTsNCg0KSGVyZSwgdGhlIGZpbmFsIG9jX3NldHJlZyBhbHdheXMgc2V0cyBP
+Q0kyQ19DVFJMX0lFTi4NCg0KDQpQYXRjaCAzIGNoYW5nZXMgaXQgdG86DQoNCgl1OCBjdHJsID0g
+b2NfZ2V0cmVnKGkyYywgT0NJMkNfQ09OVFJPTCk7DQoNCgkvKiBtYWtlIHN1cmUgdGhlIGRldmlj
+ZSBpcyBkaXNhYmxlZCAqLw0KCW9jX3NldHJlZyhpMmMsIE9DSTJDX0NPTlRST0wsIGN0cmwgJiB+
+KE9DSTJDX0NUUkxfSUVOfE9DSTJDX0NUUkxfRU4pKTsNCgkuLi4NCglvY19zZXRyZWcoaTJjLCBP
+Q0kyQ19DT05UUk9MLCBjdHJsIHwgT0NJMkNfQ1RSTF9FTikpOw0KDQpIZXJlLCB0aGUgZmluYWwg
+b2Nfc2V0cmVnIHJlc3RvcmVzIE9DSTJDX0NUUkxfSUVOIHRvIHdoYXRldmVyIGl0IHdhcw0KYXQg
+ZnVuY3Rpb24gZW50cnkuDQoNCg0KQW5kIHBhdGNoIDUgY2hhbmdlcyBpdCBhZ2FpbiB0bzoNCg0K
+CXU4IGN0cmwgPSBvY19nZXRyZWcoaTJjLCBPQ0kyQ19DT05UUk9MKTsNCg0KCS8qIG1ha2Ugc3Vy
+ZSB0aGUgZGV2aWNlIGlzIGRpc2FibGVkICovDQoJY3RybCAmPSB+KE9DSTJDX0NUUkxfSUVOIHwg
+T0NJMkNfQ1RSTF9FTik7DQoJb2Nfc2V0cmVnKGkyYywgT0NJMkNfQ09OVFJPTCwgY3RybCk7DQoJ
+Li4uDQoJb2Nfc2V0cmVnKGkyYywgT0NJMkNfQ09OVFJPTCwgY3RybCB8IE9DSTJDX0NUUkxfRU4p
+KTsNCg0KSGVyZSwgdGhlIGZpbmFsIG9jX3NldHJlZyBrZWVwcyBPQ0kyQ19DVFJMX0lFTiBjbGVh
+cmVkLiBJIHRoaW5rIHlvdSB3YW50ZWQNCnRoaXMgZGV0ZXJtaW5pc3RpYyBiZWhhdmlvciBmb3Ig
+cGF0Y2ggMyBhcyB3ZWxsLg0KDQpDaGVlcnMsDQpQZXRlcg0K
