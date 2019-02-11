@@ -1,69 +1,80 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Peter Rosin <peda@axentia.se>
 Subject: Re: [PATCH v4 5/5] i2c:ocores: checkpatch fixes
-Date: Mon, 11 Feb 2019 11:26:50 +0100
-Message-ID: <20190211102649.pixedc2d4u3imoud@ninjato>
+Date: Mon, 11 Feb 2019 10:28:52 +0000
+Message-ID: <ff1e4bec-b15e-0085-6d4e-cd351e000f0f@axentia.se>
 References: <20190211083122.32485-1-federico.vaga@cern.ch>
  <20190211083122.32485-6-federico.vaga@cern.ch>
  <fd5b5044-2415-c52c-ecb0-1f0f38267355@axentia.se>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="4efbmwoassybo64t"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 In-Reply-To: <fd5b5044-2415-c52c-ecb0-1f0f38267355@axentia.se>
+Content-Language: en-US
+Content-ID: <A31621E2ECFFFA478B29FB9B2B718735@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Federico Vaga <federico.vaga@cern.ch>, Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Federico Vaga <federico.vaga@cern.ch>, Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---4efbmwoassybo64t
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-
-> >  /* Read and write functions for the GRLIB port of the controller. Regi=
-sters are
-> >   * 32-bit big endian and the PRELOW and PREHIGH registers are merged i=
-nto one
-> > - * register. The subsequent registers has their offset decreased accor=
-dingly. */
-> > + * register. The subsequent registers has their offset decreased accor=
-dingly.
-> > + */
->=20
-> The preferred multi-line comment styles is:
->=20
-> /*
->  * Read...
->  * ...accordingly.
->  */
->=20
-> So, please fix all issues when you are changing it to conform.
-
-Yes. It is enough to send this updated patch alone; I applied the rest
-already.
-
-
---4efbmwoassybo64t
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxhTekACgkQFA3kzBSg
-Kbbdng//eA9O2upNhs3JFKhZpfb0tjxpRrw1VUdm9ioWOAaktg7WDvPObb/lu6s4
-JQLPtWJ+xHwHBAgLddf2jkgmZ6kz8j3SlCj+bkMnDBs31UbNguIK9rG65n7s9F+8
-RTpV0AGQei3V+GDYAFAeiveMuencAXvHbOZdnSc9UeyYgJXauBq3uIu9I1XLDUaQ
-T1jfd+QfJ2FMiN70dOIuQU1Xk694e3uYlAJ025XDw/C9UcNq3JWKoJSNeo7AXH+X
-iJ2+L+S1/qCeFgWQLmTo3fPMw2w8eciQw3wBbHzB4v+F2y/FrRY5T3R3+5rYmI/Z
-GJ569knkL+C9MvDPOYRczksenrJJsre57BQTM0/qZahrF8uJjf76QHHXthVknMJW
-2Ca+U8XokTx4vhw/rmlYWzJMuT42d5NlvKo9++thp5s0YhEanSNAsddQxxfKJfLu
-LpPMQoFT2f1N2RsfQ1cSlOJWQ4SUCMLKOG52paDD/0xicfmERCw1WHX4aCKOEMxU
-lzt/x1GJRQG9RSrh21I70xRtXKG2fYIoqAr8Iipk04xEnmLj+PsIrtSDU5uylk9e
-D8fj31o3NMAlG20NsEJmdMUDfo44yN8yVkT4YLH6sTV46we4pRR0ry2H/Ldny3eK
-LMUfHl6+Vtbrgtz/XvLEFH7k/MfC1dq6h7F+Hqz4K6qD3SqXs0c=
-=hvH8
------END PGP SIGNATURE-----
-
---4efbmwoassybo64t--
+T24gMjAxOS0wMi0xMSAxMToxNiwgUGV0ZXIgUm9zaW4gd3JvdGU6DQo+IE9uIDIwMTktMDItMTEg
+MDk6MzEsIEZlZGVyaWNvIFZhZ2Egd3JvdGU6DQo+PiBNaXNjZWxsYW5lb3VzIHN0eWxlIGZpeGVz
+IGZyb20gY2hlY2twYXRjaA0KPj4NCj4+IFNpZ25lZC1vZmYtYnk6IEZlZGVyaWNvIFZhZ2EgPGZl
+ZGVyaWNvLnZhZ2FAY2Vybi5jaD4NCj4+IFJldmlld2VkLWJ5OiBBbmRyZXcgTHVubiA8YW5kcmV3
+QGx1bm4uY2g+DQo+Pg0KPj4gLS0tDQo+PiAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY29yZXMu
+YyB8IDE5ICsrKysrKysrKysrKy0tLS0tLS0NCj4+ICAxIGZpbGUgY2hhbmdlZCwgMTIgaW5zZXJ0
+aW9ucygrKSwgNyBkZWxldGlvbnMoLSkNCj4+DQo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMv
+YnVzc2VzL2kyYy1vY29yZXMuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtb2NvcmVzLmMNCj4+
+IGluZGV4IDViODAxOTAuLmJhMzVkMmEgMTAwNjQ0DQo+PiAtLS0gYS9kcml2ZXJzL2kyYy9idXNz
+ZXMvaTJjLW9jb3Jlcy5jDQo+PiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW9jb3Jlcy5j
+DQo+PiBAQCAtMTgyLDggKzE4Miw5IEBAIHN0YXRpYyB2b2lkIG9jb3Jlc19wcm9jZXNzKHN0cnVj
+dCBvY29yZXNfaTJjICppMmMsIHU4IHN0YXQpDQo+PiAgCQkJb2Nfc2V0cmVnKGkyYywgT0NJMkNf
+Q01ELCBPQ0kyQ19DTURfU1RPUCk7DQo+PiAgCQkJZ290byBvdXQ7DQo+PiAgCQl9DQo+PiAtCX0g
+ZWxzZQ0KPj4gKwl9IGVsc2Ugew0KPj4gIAkJbXNnLT5idWZbaTJjLT5wb3MrK10gPSBvY19nZXRy
+ZWcoaTJjLCBPQ0kyQ19EQVRBKTsNCj4+ICsJfQ0KPj4gIA0KPj4gIAkvKiBlbmQgb2YgbXNnPyAq
+Lw0KPj4gIAlpZiAoaTJjLT5wb3MgPT0gbXNnLT5sZW4pIHsNCj4+IEBAIC0yMDIsOSArMjAzLDkg
+QEAgc3RhdGljIHZvaWQgb2NvcmVzX3Byb2Nlc3Moc3RydWN0IG9jb3Jlc19pMmMgKmkyYywgdTgg
+c3RhdCkNCj4+ICAJCQkJb2Nfc2V0cmVnKGkyYywgT0NJMkNfREFUQSwgYWRkcik7DQo+PiAgCQkJ
+CW9jX3NldHJlZyhpMmMsIE9DSTJDX0NNRCwgIE9DSTJDX0NNRF9TVEFSVCk7DQo+PiAgCQkJCWdv
+dG8gb3V0Ow0KPj4gLQkJCX0gZWxzZQ0KPj4gLQkJCQlpMmMtPnN0YXRlID0gKG1zZy0+ZmxhZ3Mg
+JiBJMkNfTV9SRCkNCj4+IC0JCQkJCT8gU1RBVEVfUkVBRCA6IFNUQVRFX1dSSVRFOw0KPj4gKwkJ
+CX0NCj4+ICsJCQlpMmMtPnN0YXRlID0gKG1zZy0+ZmxhZ3MgJiBJMkNfTV9SRCkNCj4+ICsJCQkJ
+PyBTVEFURV9SRUFEIDogU1RBVEVfV1JJVEU7DQo+PiAgCQl9IGVsc2Ugew0KPj4gIAkJCWkyYy0+
+c3RhdGUgPSBTVEFURV9ET05FOw0KPj4gIAkJCW9jX3NldHJlZyhpMmMsIE9DSTJDX0NNRCwgT0NJ
+MkNfQ01EX1NUT1ApOw0KPj4gQEAgLTQwNSw3ICs0MDYsOCBAQCBzdGF0aWMgaW50IG9jb3Jlc19p
+bml0KHN0cnVjdCBkZXZpY2UgKmRldiwgc3RydWN0IG9jb3Jlc19pMmMgKmkyYykNCj4+ICAJdTgg
+Y3RybCA9IG9jX2dldHJlZyhpMmMsIE9DSTJDX0NPTlRST0wpOw0KPj4gIA0KPj4gIAkvKiBtYWtl
+IHN1cmUgdGhlIGRldmljZSBpcyBkaXNhYmxlZCAqLw0KPj4gLQlvY19zZXRyZWcoaTJjLCBPQ0ky
+Q19DT05UUk9MLCBjdHJsICYgfihPQ0kyQ19DVFJMX0VOfE9DSTJDX0NUUkxfSUVOKSk7DQo+PiAr
+CWN0cmwgJj0gfihPQ0kyQ19DVFJMX0VOIHwgT0NJMkNfQ1RSTF9JRU4pOw0KPj4gKwlvY19zZXRy
+ZWcoaTJjLCBPQ0kyQ19DT05UUk9MLCBjdHJsKTsNCj4+ICANCj4+ICAJcHJlc2NhbGUgPSAoaTJj
+LT5pcF9jbG9ja19raHogLyAoNSAqIGkyYy0+YnVzX2Nsb2NrX2toeikpIC0gMTsNCj4+ICAJcHJl
+c2NhbGUgPSBjbGFtcChwcmVzY2FsZSwgMCwgMHhmZmZmKTsNCj4+IEBAIC00NjIsMTEgKzQ2NCwx
+MyBAQCBNT0RVTEVfREVWSUNFX1RBQkxFKG9mLCBvY29yZXNfaTJjX21hdGNoKTsNCj4+ICAjaWZk
+ZWYgQ09ORklHX09GDQo+PiAgLyogUmVhZCBhbmQgd3JpdGUgZnVuY3Rpb25zIGZvciB0aGUgR1JM
+SUIgcG9ydCBvZiB0aGUgY29udHJvbGxlci4gUmVnaXN0ZXJzIGFyZQ0KPj4gICAqIDMyLWJpdCBi
+aWcgZW5kaWFuIGFuZCB0aGUgUFJFTE9XIGFuZCBQUkVISUdIIHJlZ2lzdGVycyBhcmUgbWVyZ2Vk
+IGludG8gb25lDQo+PiAtICogcmVnaXN0ZXIuIFRoZSBzdWJzZXF1ZW50IHJlZ2lzdGVycyBoYXMg
+dGhlaXIgb2Zmc2V0IGRlY3JlYXNlZCBhY2NvcmRpbmdseS4gKi8NCj4+ICsgKiByZWdpc3Rlci4g
+VGhlIHN1YnNlcXVlbnQgcmVnaXN0ZXJzIGhhcyB0aGVpciBvZmZzZXQgZGVjcmVhc2VkIGFjY29y
+ZGluZ2x5Lg0KDQpoYXMgLT4gaGF2ZQ0KDQpvZmZzZXQgLT4gb2Zmc2V0cyAgPz8/IEkgdGhpbms/
+DQoNCj4+ICsgKi8NCj4gDQo+IFRoZSBwcmVmZXJyZWQgbXVsdGktbGluZSBjb21tZW50IHN0eWxl
+cyBpczoNCg0KQW5kIGZpbmFsbHksIHRoaXMgdHlwbyBpcyBteSBvd24uLi4NCg0Kc3R5bGVzIC0+
+IHN0eWxlDQoNCkNoZWVycyBhbmQgc29ycnkgZm9yIHJlcGx5aW5nIHRvIHNlbGYsDQpQZXRlcg0K
+DQo+IA0KPiAvKg0KPiAgKiBSZWFkLi4uDQo+ICAqIC4uLmFjY29yZGluZ2x5Lg0KPiAgKi8NCj4g
+DQo+IFNvLCBwbGVhc2UgZml4IGFsbCBpc3N1ZXMgd2hlbiB5b3UgYXJlIGNoYW5naW5nIGl0IHRv
+IGNvbmZvcm0uDQo+IA0KPiBDaGVlcnMsDQo+IFBldGVyDQo+IA0KPj4gIHN0YXRpYyB1OCBvY19n
+ZXRyZWdfZ3JsaWIoc3RydWN0IG9jb3Jlc19pMmMgKmkyYywgaW50IHJlZykNCj4+ICB7DQo+PiAg
+CXUzMiByZDsNCj4+ICAJaW50IHJyZWcgPSByZWc7DQo+PiArDQo+PiAgCWlmIChyZWcgIT0gT0NJ
+MkNfUFJFTE9XKQ0KPj4gIAkJcnJlZy0tOw0KPj4gIAlyZCA9IGlvcmVhZDMyYmUoaTJjLT5iYXNl
+ICsgKHJyZWcgPDwgaTJjLT5yZWdfc2hpZnQpKTsNCj4+IEBAIC00ODAsNiArNDg0LDcgQEAgc3Rh
+dGljIHZvaWQgb2Nfc2V0cmVnX2dybGliKHN0cnVjdCBvY29yZXNfaTJjICppMmMsIGludCByZWcs
+IHU4IHZhbHVlKQ0KPj4gIHsNCj4+ICAJdTMyIGN1cnIsIHdyOw0KPj4gIAlpbnQgcnJlZyA9IHJl
+ZzsNCj4+ICsNCj4+ICAJaWYgKHJlZyAhPSBPQ0kyQ19QUkVMT1cpDQo+PiAgCQlycmVnLS07DQo+
+PiAgCWlmIChyZWcgPT0gT0NJMkNfUFJFTE9XIHx8IHJlZyA9PSBPQ0kyQ19QUkVISUdIKSB7DQo+
+PiBAQCAtNTY4LDcgKzU3Myw3IEBAIHN0YXRpYyBpbnQgb2NvcmVzX2kyY19vZl9wcm9iZShzdHJ1
+Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2LA0KPj4gIAlyZXR1cm4gMDsNCj4+ICB9DQo+PiAgI2Vs
+c2UNCj4+IC0jZGVmaW5lIG9jb3Jlc19pMmNfb2ZfcHJvYmUocGRldixpMmMpIC1FTk9ERVYNCj4+
+ICsjZGVmaW5lIG9jb3Jlc19pMmNfb2ZfcHJvYmUocGRldiwgaTJjKSAtRU5PREVWDQo+PiAgI2Vu
+ZGlmDQo+PiAgDQo+PiAgc3RhdGljIGludCBvY29yZXNfaTJjX3Byb2JlKHN0cnVjdCBwbGF0Zm9y
+bV9kZXZpY2UgKnBkZXYpDQo+Pg0KPiANCg0K
