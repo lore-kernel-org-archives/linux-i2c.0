@@ -1,42 +1,67 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH 0/2] eeprom: at24: new property
-Date: Tue, 12 Feb 2019 15:12:05 +0100
-Message-ID: <CAMRc=MdRgmOwcaytv83pOHGYGwsskCVx3gRqaatg8sMDShmnLw@mail.gmail.com>
-References: <20190205135934.18841-1-brgl@bgdev.pl>
+From: Sowjanya Komatineni <skomatineni@nvidia.com>
+Subject: [PATCH V19 1/7] i2c: tegra: sort all the include headers alphabetically
+Date: Tue, 12 Feb 2019 10:27:55 -0800
+Message-ID: <1549996081-6858-1-git-send-email-skomatineni@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190205135934.18841-1-brgl@bgdev.pl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: thierry.reding@gmail.com, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com
+Cc: wsa@the-dreams.de, peda@axentia.se, digetx@gmail.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Sowjanya Komatineni <skomatineni@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-wt., 5 lut 2019 o 15:00 Bartosz Golaszewski <brgl@bgdev.pl> napisa=C5=82(a)=
-:
->
-> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
->
-> Microchip 24aa02t EEPROM is compatible with Atmel 24c02 except that
-> it's visible on 8 i2c slave addresses. We already support such a
-> use case with hard-coded config for 'atmel,24c00'. Let's add a more
-> flexible device tree property - 'num-addresses' - to the binding
-> document and support it in the driver.
->
-> Bartosz Golaszewski (2):
->   dt-bindings: at24: add the 'num-addresses' property
->   eeprom: at24: implement support for 'num-addresses' property
->
->  Documentation/devicetree/bindings/eeprom/at24.txt |  3 +++
->  drivers/misc/eeprom/at24.c                        | 13 ++++++++-----
->  2 files changed, 11 insertions(+), 5 deletions(-)
->
-> --
-> 2.20.1
->
+This patch sorts all the include headers alphabetically for the
+I2C Tegra driver.
 
-If there are no objections, I will apply these in 2 days and include
-them in the PR for v5.1.
+Acked-by: Thierry Reding <treding@nvidia.com>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+---
+ [V9/V10/V11/V12/V13/V14/V15/V16/V17/V18/V19] : Rebased to 5.0-rc4
+ [V3/V4/V5/V7/V8] : Removed unsued headers in tegra I2C
+ [V2] 		  : Added this in V2 to sort the headers in tegra I2C
 
-Bart
+
+
+ drivers/i2c/busses/i2c-tegra.c | 19 ++++++++-----------
+ 1 file changed, 8 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index c77adbbea0c7..79c6aa87499b 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -6,24 +6,21 @@
+  * Author: Colin Cross <ccross@android.com>
+  */
+ 
+-#include <linux/kernel.h>
+-#include <linux/init.h>
+-#include <linux/platform_device.h>
+ #include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/err.h>
+ #include <linux/i2c.h>
+-#include <linux/io.h>
++#include <linux/init.h>
+ #include <linux/interrupt.h>
+-#include <linux/delay.h>
+-#include <linux/slab.h>
+-#include <linux/of_device.h>
++#include <linux/io.h>
++#include <linux/iopoll.h>
++#include <linux/kernel.h>
+ #include <linux/module.h>
+-#include <linux/reset.h>
++#include <linux/of_device.h>
+ #include <linux/pinctrl/consumer.h>
++#include <linux/platform_device.h>
+ #include <linux/pm_runtime.h>
+-#include <linux/iopoll.h>
+-
+-#include <asm/unaligned.h>
++#include <linux/reset.h>
+ 
+ #define TEGRA_I2C_TIMEOUT (msecs_to_jiffies(1000))
+ #define BYTES_PER_FIFO_WORD 4
+-- 
+2.7.4
