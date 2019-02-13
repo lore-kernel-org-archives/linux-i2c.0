@@ -1,45 +1,68 @@
-From: Dmitry Osipenko <digetx@gmail.com>
-Subject: Re: [PATCH V19 1/7] i2c: tegra: sort all the include headers
- alphabetically
-Date: Wed, 13 Feb 2019 16:13:32 +0300
-Message-ID: <b299217a-454d-6d3a-9c48-3500a95040a7@gmail.com>
-References: <1549998408-9137-1-git-send-email-skomatineni@nvidia.com>
- <de27b8f8-ba8e-fca7-6bdc-cdd580d959e6@axentia.se>
- <cdb66da2-4886-e3ba-e78e-264bd4b5b73c@gmail.com>
- <20190213083519.tynjs3ef6tnvvsms@ninjato>
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH v3] i2c: core-smbus: don't trace smbus_reply data on
+ errors
+Date: Wed, 13 Feb 2019 08:50:54 -0500
+Message-ID: <20190213085054.1a63c95a@gandalf.local.home>
+References: <20190213034057.244716-1-jsperbeck@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190213083519.tynjs3ef6tnvvsms@ninjato>
-Content-Language: en-US
+In-Reply-To: <20190213034057.244716-1-jsperbeck@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Peter Rosin <peda@axentia.se>, Sowjanya Komatineni <skomatineni@nvidia.com>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>, "jonathanh@nvidia.com" <jonathanh@nvidia.com>, "mkarthik@nvidia.com" <mkarthik@nvidia.com>, "smohammed@nvidia.com" <smohammed@nvidia.com>, "talho@nvidia.com" <talho@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: John Sperbeck <jsperbeck@google.com>
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com
 List-Id: linux-i2c@vger.kernel.org
 
-13.02.2019 11:35, Wolfram Sang пишет:
-> 
->>> "^ Header removal should be mentioned in the commit message, I think."
->>> - Wolfram Sang [0]
->>>
->>> Cheers,
->>> Peter
->>>
->>> [0] https://lkml.org/lkml/2019/2/11/375
->>>
->>
->> It could make sense to adjust the comment only if there will be
->> anything else worthwhile a new revision, otherwise it is
->> not-so-important. 
-> 
-> Not quite. Addressing review comments and proper commit messages are
-> both important. So, it needs to be fixed. Yes, I can fix this small
-> issue locally here (and I will do this, so no need to resend), but this
-> is ultimately my decision (which you can surely ask for but not
-> rely on).
-> 
-> I'll apply this series later today.
-> 
+On Tue, 12 Feb 2019 19:40:57 -0800
+John Sperbeck <jsperbeck@google.com> wrote:
 
-Fixing up minor itches while applying patches is the right approach, thank you!
+> If an smbus transfer fails, there's no guarantee that the output
+> buffer was written.  So, avoid trying to show the output buffer when
+> tracing after an error.  This was 'mostly harmless', but would trip
+> up kasan checking if left-over cruft in byte 0 is a large length,
+> causing us to read from unwritten memory.
+
+>From a tracing viewpoint:
+
+ Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+
+-- Steve
+
+> 
+> Signed-off-by: John Sperbeck <jsperbeck@google.com>
+> ---
+>  drivers/i2c/i2c-core-smbus.c | 2 +-
+>  include/trace/events/smbus.h | 6 +++---
+>  2 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
+> index 9cd66cabb84f..132119112596 100644
+> --- a/drivers/i2c/i2c-core-smbus.c
+> +++ b/drivers/i2c/i2c-core-smbus.c
+> @@ -585,7 +585,7 @@ s32 __i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+>  trace:
+>  	/* If enabled, the reply tracepoint is conditional on read_write. */
+>  	trace_smbus_reply(adapter, addr, flags, read_write,
+> -			  command, protocol, data);
+> +			  command, protocol, data, res);
+>  	trace_smbus_result(adapter, addr, flags, read_write,
+>  			   command, protocol, res);
+>  
+> diff --git a/include/trace/events/smbus.h b/include/trace/events/smbus.h
+> index d2fb6e1d3e10..a4892a187842 100644
+> --- a/include/trace/events/smbus.h
+> +++ b/include/trace/events/smbus.h
+> @@ -138,9 +138,9 @@ TRACE_EVENT_CONDITION(smbus_reply,
+>  	TP_PROTO(const struct i2c_adapter *adap,
+>  		 u16 addr, unsigned short flags,
+>  		 char read_write, u8 command, int protocol,
+> -		 const union i2c_smbus_data *data),
+> -	TP_ARGS(adap, addr, flags, read_write, command, protocol, data),
+> -	TP_CONDITION(read_write == I2C_SMBUS_READ),
+> +		 const union i2c_smbus_data *data, int res),
+> +	TP_ARGS(adap, addr, flags, read_write, command, protocol, data, res),
+> +	TP_CONDITION(res >= 0 && read_write == I2C_SMBUS_READ),
+>  	TP_STRUCT__entry(
+>  		__field(int,	adapter_nr		)
+>  		__field(__u16,	addr			)
