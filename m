@@ -1,30 +1,40 @@
-From: Qii Wang <qii.wang@mediatek.com>
-Subject: Re: [PATCH v3 5/6] dt-bindings: i2c: Add Mediatek MT8183 i2c binding
-Date: Thu, 14 Feb 2019 09:54:28 +0800
-Message-ID: <1550109268.30065.13.camel@mhfsdcap03>
-References: <1548057574-8061-1-git-send-email-qii.wang@mediatek.com>
-         <1548057574-8061-6-git-send-email-qii.wang@mediatek.com>
-         <20190205131641.GF12401@kunai>
+From: Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [PATCH v6 0/5] i2c: ocores: improvements
+Date: Thu, 14 Feb 2019 04:07:33 +0100
+Message-ID: <20190214030733.GG24589@lunn.ch>
+References: <20190211164913.5988-1-federico.vaga@cern.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190205131641.GF12401@kunai>
+Content-Disposition: inline
+In-Reply-To: <20190211164913.5988-1-federico.vaga@cern.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, ryder.lee@mediatek.com, xinping.qian@mediatek.com, liguo.zhang@mediatek.com
+To: Federico Vaga <federico.vaga@cern.ch>
+Cc: Peter Korsgaard <peter@korsgaard.com>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2019-02-05 at 14:16 +0100, Wolfram Sang wrote:
-> > +  - mediatek,share-i3c: i3c controller can share i2c function.
+On Mon, Feb 11, 2019 at 05:49:08PM +0100, Federico Vaga wrote:
+> This patch set provides improvements to the i2c-ocore driver.
 > 
-> I am not happy with this binding. There must be a better way of using
-> the I3C controller in I2C mode. I think it would be easier to tell if we
-> had an I3C driver to see how it implements I2C fallback there. Is the
-> I3C driver on the way?
+> [V5 -> V6]
+> - remove redundant code introduced in V5 (double read control register)
 > 
+> [V4 -> V5]
+> - deterministic status of IEN bit in register "CONTROL" at the end of
+>   ocores_init()
+> - more style fixes
+> 
+> [V3 -> V4]
+> - add reviews-by/tested-by
+> - add comment to justify the formula in
+>     udelay((8 * 1000) / i2c->bus_clock_khz);
 
-I am very sorry for the late reply due to the Chinese New Year holiday.
-After confirmation, for I2C mode in I3C controller, we will push an I3C
-driver to implement I2C fallback there later, and we will remove
-"mediatek,share-i3c" for i2c controller driver in the next patch.
+Hi Federico
+
+It looks like all the reviewed-by: tags disappeared from v5.
+
+Can you add them back again, and then we can probably merge this
+patchset.
+
+	Thanks
+		Andrew
