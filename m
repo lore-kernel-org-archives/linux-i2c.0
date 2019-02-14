@@ -1,53 +1,56 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v7 0/5] i2c: ocores: improvements
-Date: Thu, 14 Feb 2019 17:57:17 +0100
-Message-ID: <20190214165717.gr2ujb26x5papwep@ninjato>
-References: <20190214085134.12900-1-federico.vaga@cern.ch>
+Subject: Re: [PATCH v3] i2c: core-smbus: don't trace smbus_reply data on
+ errors
+Date: Thu, 14 Feb 2019 18:02:30 +0100
+Message-ID: <20190214170230.dvm4i2wxmgxij4bg@ninjato>
+References: <20190213034057.244716-1-jsperbeck@google.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="q7zkhe3ilfb4wtbd"
+        protocol="application/pgp-signature"; boundary="phfr5v3ila4kfyxj"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190214085134.12900-1-federico.vaga@cern.ch>
+In-Reply-To: <20190213034057.244716-1-jsperbeck@google.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Federico Vaga <federico.vaga@cern.ch>
-Cc: Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: John Sperbeck <jsperbeck@google.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, rostedt@goodmis.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---q7zkhe3ilfb4wtbd
+--phfr5v3ila4kfyxj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 14, 2019 at 09:51:29AM +0100, Federico Vaga wrote:
+On Tue, Feb 12, 2019 at 07:40:57PM -0800, John Sperbeck wrote:
+> If an smbus transfer fails, there's no guarantee that the output
+> buffer was written.  So, avoid trying to show the output buffer when
+> tracing after an error.  This was 'mostly harmless', but would trip
+> up kasan checking if left-over cruft in byte 0 is a large length,
+> causing us to read from unwritten memory.
 >=20
-> This patch set provides improvements to the i2c-ocore driver.
->=20
-> [V6 -> V7]
-> - restore accidentally removed 'reviewed-by' tags in changelog
+> Signed-off-by: John Sperbeck <jsperbeck@google.com>
 
-Series applied to for-next, thanks!
+Applied to for-next, thanks!
 
 
---q7zkhe3ilfb4wtbd
+--phfr5v3ila4kfyxj
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxlnewACgkQFA3kzBSg
-KbatDw/9ErjD838FhrEXP6pC3yWuz6ZJ40mPOV2lY6uFwQVsruoHLsLTg4B0uB3K
-W/CG/kRdPABB7ExWn7hr9OvIv1+Jpa4YeliO1hgXILC3VPEQSd6BbPx6W4wBgAQu
-q9TKXzYGUncG+l+/eBpBKF79EttEODb+kMLCsWafm0rmR32ToBIwRLvWgUp7w5uA
-iP50HRbC5Npxc9hnGfRlmNFCilmEijCYPHchSqRaEQ7D7okHPdxtYRT7bGaVooLe
-NToCZHwIUf6K5o+Mx0diP2d2PEDhrBAiNiyH21ouXCu1l0iki6LdA4mRSL/5luSW
-zpSTwY7ZeBZbfQgwNAAsb/tBJ1ugVRYRCu99TqyJl16+KIeLosJcRz5NO+8v8TOb
-wR0ZuLiDDkTR/yzUSootfTpsrIM/ecYQbVW37kQ2RsLXBPcqdi61z/3lM9i+eFCN
-T84vyYmspKCt2iMNeEgDPWgFrd2TG3kbZRwhdu/JVqNwSKkGPqFJi6ejTk5PN6xD
-vTICvWEoM1ngtigJkNQp14G6Y1D1yNGBYJMNyq3xbb/dVJ8DJQxLWUaJFNtbnN01
-CYeIRlO1CfOZseOYvP5celsMaXqLM9gKhVZPurtHxwLfIZe4dlV2xt+uDTBJhWxV
-BLnfi71+OWACMYixsZ3VDnqVpAg9K+y/3W0l1uAQFUB73a4kvDo=
-=iroc
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxlnyYACgkQFA3kzBSg
+KbZaEw/+NZvurPqjr3PWQqctg8PTGEw4RgkftxoIXmazaed8cCYoj3XpqQ0EP8jZ
+Ur+GbUtMaPpO7bUjSG2jmlMeKW8kxJXFy9HwtSlZYBMK6GH/Yy4UqqPEPK+FAQt9
+sIPzrnRMeGb4yxQY7fH9E/O0xHoR35cszDdwkwfhF31dpIrZAuFwDumSP6LdHeTs
+9QKK/R1+gCegEArc4n+mb0Xpla7FLV03VD8DlEnUY8vvhWQyprmr1UK6SZ1r+HvD
+AHTrM34kgrSBXSD28GP5s+r9AvdUgMvMRmHol9Ph8Mt2sp9ndwMs+IRL3OEsHBAw
+22eBPJI7UixhQHWw03dbJ5jsd9J3SmTvD6KWoF5jyTqW9sd01vknob8fdOkH5Ec6
+jnXSG4ixes9ILqHO+B+MQfhOnHxgXPE4NJGbktzdKCOHvajKiIplSDhZsBgTvmL9
+ELj4tuBcifBfYGbeZDO6hwSLacwULrcGqMv4iMRMyQRnHWFvvHjpZPqucHgRCbJP
+DSxaINCgfcsS4W8Cmd1FhrmsaHgk1WbbN0MkfuqjEkGtuGH6ld+10ENZArnxZU6F
+kOZtyYKuj5oKw/Ayx0LJbHcDPNTYMjLqypmPjOrxtMMwDzG+qGqX2gaS1bQy6QP8
+O52fD4NVHNkcIAtA+ROjGeqeOHYM3nWWBu01F2VmmER/s+yAx3Q=
+=uqJ3
 -----END PGP SIGNATURE-----
 
---q7zkhe3ilfb4wtbd--
+--phfr5v3ila4kfyxj--
