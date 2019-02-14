@@ -1,56 +1,75 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3] i2c: core-smbus: don't trace smbus_reply data on
- errors
-Date: Thu, 14 Feb 2019 18:02:30 +0100
-Message-ID: <20190214170230.dvm4i2wxmgxij4bg@ninjato>
-References: <20190213034057.244716-1-jsperbeck@google.com>
+From: Ray Jui <ray.jui@broadcom.com>
+Subject: Re: [PATCH v4 6/8] dt-bindings: i2c: iproc: add "brcm,iproc-nic-i2c"
+ compatible string
+Date: Thu, 14 Feb 2019 09:36:06 -0800
+Message-ID: <723faefb-d13d-caf0-3bbd-9e3e698436a4@broadcom.com>
+References: <20190204231554.87666-1-ray.jui@broadcom.com>
+ <20190204231554.87666-7-ray.jui@broadcom.com> <20190213211807.GA20560@bogus>
+ <6de51a50-cd7c-dbf8-15d8-8d2fd441d831@broadcom.com>
+ <CAL_Jsq+aH=SGD+NJWNaWKnZm3Y396ro7E_Px_Ud3NnzOYB+eGQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="phfr5v3ila4kfyxj"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190213034057.244716-1-jsperbeck@google.com>
+In-Reply-To: <CAL_Jsq+aH=SGD+NJWNaWKnZm3Y396ro7E_Px_Ud3NnzOYB+eGQ@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: John Sperbeck <jsperbeck@google.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com, rostedt@goodmis.org
+To: Rob Herring <robh@kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Linux I2C <linux-i2c@vger.kernel.org>, devicetree@vger.kernel.org, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "maintainer:BROADCOM BCM7XXX ARM ARCHITECTURE" <bcm-kernel-feedback-list@broadcom.com>, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---phfr5v3ila4kfyxj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Feb 12, 2019 at 07:40:57PM -0800, John Sperbeck wrote:
-> If an smbus transfer fails, there's no guarantee that the output
-> buffer was written.  So, avoid trying to show the output buffer when
-> tracing after an error.  This was 'mostly harmless', but would trip
-> up kasan checking if left-over cruft in byte 0 is a large length,
-> causing us to read from unwritten memory.
->=20
-> Signed-off-by: John Sperbeck <jsperbeck@google.com>
+On 2/14/2019 6:02 AM, Rob Herring wrote:
+> On Wed, Feb 13, 2019 at 4:09 PM Ray Jui <ray.jui@broadcom.com> wrote:
+>>
+>>
+>>
+>> On 2/13/2019 1:18 PM, Rob Herring wrote:
+>>> On Mon, Feb 04, 2019 at 03:15:52PM -0800, Ray Jui wrote:
+>>>> From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+>>>>
+>>>> Update iProc I2C binding document to add new compatible string
+>>>> "brcm,iproc-nic-i2c". Optional property "brcm,ape-hsls-addr-mask" is
+>>>> also added that allows configuration of the host view into the APE's
+>>>> address for "brcm,iproc-nic-i2c"
+>>>>
+>>>> Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+>>>> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+>>>> ---
+>>>>  Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt | 5 ++++-
+>>>>  1 file changed, 4 insertions(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt b/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
+>>>> index d3a3620b1f06..02e82d20239e 100644
+>>>> --- a/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
+>>>> +++ b/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
+>>>> @@ -3,7 +3,7 @@ Broadcom iProc I2C controller
+>>>>  Required properties:
+>>>>
+>>>>  - compatible:
+>>>> -    Must be "brcm,iproc-i2c"
+>>>> +    Must be "brcm,iproc-i2c" or "brcm,iproc-nic-i2c"
+>>>>
+>>>>  - reg:
+>>>>      Define the base and range of the I/O address space that contain the iProc
+>>>> @@ -24,6 +24,9 @@ Optional properties:
+>>>>      Should contain the I2C interrupt. If unspecified, driver will fall back to
+>>>>      polling mode
+>>>>
+>>>> +- brcm,ape-hsls-addr-mask:
+>>>> +    Required for "brcm,iproc-nic-i2c". Host view of address mask into the
+>>>> +    'APE' co-processor
+>>>
+>>> What's the data type and size? What are valid values?
+>>
+>> It's an unsigned u32 mask value. An example of a valid value is for
+>> example 0x03400000. Do you want any of these added to the paragraph above?
+> 
+> Yes. Bindings should define constraints.
 
-Applied to for-next, thanks!
+Okay will do! Thanks.
 
-
---phfr5v3ila4kfyxj
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxlnyYACgkQFA3kzBSg
-KbZaEw/+NZvurPqjr3PWQqctg8PTGEw4RgkftxoIXmazaed8cCYoj3XpqQ0EP8jZ
-Ur+GbUtMaPpO7bUjSG2jmlMeKW8kxJXFy9HwtSlZYBMK6GH/Yy4UqqPEPK+FAQt9
-sIPzrnRMeGb4yxQY7fH9E/O0xHoR35cszDdwkwfhF31dpIrZAuFwDumSP6LdHeTs
-9QKK/R1+gCegEArc4n+mb0Xpla7FLV03VD8DlEnUY8vvhWQyprmr1UK6SZ1r+HvD
-AHTrM34kgrSBXSD28GP5s+r9AvdUgMvMRmHol9Ph8Mt2sp9ndwMs+IRL3OEsHBAw
-22eBPJI7UixhQHWw03dbJ5jsd9J3SmTvD6KWoF5jyTqW9sd01vknob8fdOkH5Ec6
-jnXSG4ixes9ILqHO+B+MQfhOnHxgXPE4NJGbktzdKCOHvajKiIplSDhZsBgTvmL9
-ELj4tuBcifBfYGbeZDO6hwSLacwULrcGqMv4iMRMyQRnHWFvvHjpZPqucHgRCbJP
-DSxaINCgfcsS4W8Cmd1FhrmsaHgk1WbbN0MkfuqjEkGtuGH6ld+10ENZArnxZU6F
-kOZtyYKuj5oKw/Ayx0LJbHcDPNTYMjLqypmPjOrxtMMwDzG+qGqX2gaS1bQy6QP8
-O52fD4NVHNkcIAtA+ROjGeqeOHYM3nWWBu01F2VmmER/s+yAx3Q=
-=uqJ3
------END PGP SIGNATURE-----
-
---phfr5v3ila4kfyxj--
+> 
+> Rob
+> 
