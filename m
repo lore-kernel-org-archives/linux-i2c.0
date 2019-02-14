@@ -1,81 +1,56 @@
 From: Ray Jui <ray.jui@broadcom.com>
-Subject: Re: [PATCH v4 3/8] dt-bindings: i2c: iproc: make 'interrupts'
- optional
-Date: Thu, 14 Feb 2019 09:36:42 -0800
-Message-ID: <e17b1cd0-8ffb-d014-bcce-57a3ca227506@broadcom.com>
-References: <20190204231554.87666-1-ray.jui@broadcom.com>
- <20190204231554.87666-4-ray.jui@broadcom.com> <20190213211651.GA10705@bogus>
- <796d9a96-f3f9-cb9a-faa3-4baf0e72da65@broadcom.com>
- <CAL_JsqK+QLRp7LqkMzQCXdLPaJU3fbiNWU_uyuPFJ4qDkP=siA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v5 0/8] iProc I2C slave mode and NIC mode
+Date: Thu, 14 Feb 2019 09:57:17 -0800
+Message-ID: <20190214175725.60462-1-ray.jui@broadcom.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAL_JsqK+QLRp7LqkMzQCXdLPaJU3fbiNWU_uyuPFJ4qDkP=siA@mail.gmail.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Linux I2C <linux-i2c@vger.kernel.org>, devicetree@vger.kernel.org, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "maintainer:BROADCOM BCM7XXX ARM ARCHITECTURE" <bcm-kernel-feedback-list@broadcom.com>, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, Ray Jui <ray.jui@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
+This patch series adds the following support to the iProc I2C driver:
+- Increase maximum read transfer size to 255 bytes
+- I2C slave mode
+- Polling mode
+- NIC I2C mode
 
+This patch series is based on kernel v5.0-rc3 and available at:
+https://github.com/Broadcom/arm64-linux.git
+branch: i2c-slave-v5
 
-On 2/14/2019 6:16 AM, Rob Herring wrote:
-> On Wed, Feb 13, 2019 at 4:06 PM Ray Jui <ray.jui@broadcom.com> wrote:
->>
->> Hi Rob,
->>
->> On 2/13/2019 1:16 PM, Rob Herring wrote:
->>> On Mon, Feb 04, 2019 at 03:15:49PM -0800, Ray Jui wrote:
->>>> In prep for the introduction of polling mode into the driver, update the
->>>> binding document to make the 'interrupts' property optional
->>>>
->>>> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
->>>> Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
->>>> ---
->>>>  .../devicetree/bindings/i2c/brcm,iproc-i2c.txt         | 10 +++++++---
->>>>  1 file changed, 7 insertions(+), 3 deletions(-)
->>>>
->>>> diff --git a/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt b/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
->>>> index 81f982ccca31..d3a3620b1f06 100644
->>>> --- a/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
->>>> +++ b/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
->>>> @@ -9,9 +9,6 @@ Required properties:
->>>>      Define the base and range of the I/O address space that contain the iProc
->>>>      I2C controller registers
->>>>
->>>> -- interrupts:
->>>> -    Should contain the I2C interrupt
->>>> -
->>>>  - clock-frequency:
->>>>      This is the I2C bus clock. Need to be either 100000 or 400000
->>>>
->>>> @@ -21,6 +18,13 @@ Required properties:
->>>>  - #size-cells:
->>>>      Always 0
->>>>
->>>> +Optional properties:
->>>> +
->>>> +- interrupts:
->>>> +    Should contain the I2C interrupt. If unspecified, driver will fall back to
->>>> +    polling mode
->>>
->>> What determines when you want to use polling mode? I'm not sure DT
->>> is the best way to control this unless it's really a property of
->>> the h/w. Driver behavior is really outside the scope of the DT. u-boot
->>> would use polling even if an interrupt is specified, for example.
->>>
->> It's tied to the particular revision of the I2C controller, i.e., the
->> iProc NIC i2c controller does not have interrupt line wired. In this
->> case, the behavior is determined by the DT compatible string of the
->> iProc I2C device. I thought that it makes sense to now move the
->> 'interrupts' property to be under "Optional" than "Required" which is
->> basically what this change is.
-> 
-> Okay, please put this detail into the commit msg.
+Changes from v4:
+ - Add more detailed explanations in the device tree binding document
+   changes, to address Rob's review comments
 
-Will do! Thanks.
+Changes from v3:
+ - Various minor fixes on commit messages and commits
+ - Rebased to v5.0-rc3
 
-> 
-> Rob
-> 
+Changes from v2:
+ - Address Ray's review comments.
+
+Changes from v1:
+ - Rebased to Linux v5.0.0-rc2
+
+Ray Jui (1):
+  dt-bindings: i2c: iproc: make 'interrupts' optional
+
+Rayagonda Kokatanur (5):
+  i2c: iproc: add polling support
+  i2c: iproc: use wrapper for read/write access
+  dt-bindings: i2c: iproc: add "brcm,iproc-nic-i2c" compatible string
+  i2c: iproc: add NIC I2C support
+  arm64: dts: Stingray: Add NIC i2c device node
+
+Shreesha Rajashekar (2):
+  i2c: iproc: Extend I2C read up to 255 bytes
+  i2c: iproc: Add slave mode support
+
+ .../bindings/i2c/brcm,iproc-i2c.txt           |  17 +-
+ .../boot/dts/broadcom/stingray/stingray.dtsi  |  18 +
+ drivers/i2c/busses/Kconfig                    |   1 +
+ drivers/i2c/busses/i2c-bcm-iproc.c            | 758 +++++++++++++++---
+ 4 files changed, 663 insertions(+), 131 deletions(-)
+
+-- 
+2.17.1
