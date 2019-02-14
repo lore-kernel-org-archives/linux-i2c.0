@@ -1,36 +1,30 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: RE: [PATCH V19 1/7] i2c: tegra: sort all the include headers
- alphabetically
-Date: Wed, 13 Feb 2019 23:45:43 +0000
-Message-ID: <BYAPR12MB3398B0893B586A587CBB3F1CC2660@BYAPR12MB3398.namprd12.prod.outlook.com>
-References: <1549998408-9137-1-git-send-email-skomatineni@nvidia.com>
- <de27b8f8-ba8e-fca7-6bdc-cdd580d959e6@axentia.se>
- <cdb66da2-4886-e3ba-e78e-264bd4b5b73c@gmail.com>
- <20190213083519.tynjs3ef6tnvvsms@ninjato>
- <b299217a-454d-6d3a-9c48-3500a95040a7@gmail.com>
- <20190213145557.vdxahpsacgy4oznl@katana>
+From: Qii Wang <qii.wang@mediatek.com>
+Subject: Re: [PATCH v3 5/6] dt-bindings: i2c: Add Mediatek MT8183 i2c binding
+Date: Thu, 14 Feb 2019 09:54:28 +0800
+Message-ID: <1550109268.30065.13.camel@mhfsdcap03>
+References: <1548057574-8061-1-git-send-email-qii.wang@mediatek.com>
+         <1548057574-8061-6-git-send-email-qii.wang@mediatek.com>
+         <20190205131641.GF12401@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190213145557.vdxahpsacgy4oznl@katana>
-Content-Language: en-US
+In-Reply-To: <20190205131641.GF12401@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Dmitry Osipenko <digetx@gmail.com>
-Cc: Peter Rosin <peda@axentia.se>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Shardar Mohammed <smohammed@nvidia.com>, Timo Alho <talho@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, ryder.lee@mediatek.com, xinping.qian@mediatek.com, liguo.zhang@mediatek.com
 List-Id: linux-i2c@vger.kernel.org
 
-> > Fixing up minor itches while applying patches is the right approach,=20
-> > thank you!
->
-> It often is. But making a dogma out of it goes nowhere for me.
+On Tue, 2019-02-05 at 14:16 +0100, Wolfram Sang wrote:
+> > +  - mediatek,share-i3c: i3c controller can share i2c function.
+> 
+> I am not happy with this binding. There must be a better way of using
+> the I3C controller in I2C mode. I think it would be easier to tell if we
+> had an I3C driver to see how it implements I2C fallback there. Is the
+> I3C driver on the way?
+> 
 
-Sorry, somehow I looked at your 2nd reply for this patch-1 of V19 about hav=
-ing few comments to take care in this series but missed to view your 1st re=
-ply to same patch-1 of V19.
-Fixed my mail view so will not miss next time.
-
-Appreciate if you can help fix the comment while applying patches.
-
-Thanks a lot
-Sowjanya
+I am very sorry for the late reply due to the Chinese New Year holiday.
+After confirmation, for I2C mode in I3C controller, we will push an I3C
+driver to implement I2C fallback there later, and we will remove
+"mediatek,share-i3c" for i2c controller driver in the next patch.
