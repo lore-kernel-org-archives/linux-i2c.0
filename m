@@ -1,85 +1,53 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V19 5/7] i2c: tegra: Add DMA support
-Date: Thu, 14 Feb 2019 17:53:15 +0100
-Message-ID: <20190214165314.dczoxwkayras5cdr@ninjato>
-References: <1549998408-9137-1-git-send-email-skomatineni@nvidia.com>
- <1549998408-9137-5-git-send-email-skomatineni@nvidia.com>
+Subject: Re: [PATCH v7 0/5] i2c: ocores: improvements
+Date: Thu, 14 Feb 2019 17:57:17 +0100
+Message-ID: <20190214165717.gr2ujb26x5papwep@ninjato>
+References: <20190214085134.12900-1-federico.vaga@cern.ch>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="fvm2hgq32qt7p7oz"
+        protocol="application/pgp-signature"; boundary="q7zkhe3ilfb4wtbd"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1549998408-9137-5-git-send-email-skomatineni@nvidia.com>
+In-Reply-To: <20190214085134.12900-1-federico.vaga@cern.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sowjanya Komatineni <skomatineni@nvidia.com>
-Cc: thierry.reding@gmail.com, jonathanh@nvidia.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com, peda@axentia.se, digetx@gmail.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Federico Vaga <federico.vaga@cern.ch>
+Cc: Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---fvm2hgq32qt7p7oz
+--q7zkhe3ilfb4wtbd
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Feb 12, 2019 at 11:06:46AM -0800, Sowjanya Komatineni wrote:
-> This patch adds DMA support for Tegra I2C.
+On Thu, Feb 14, 2019 at 09:51:29AM +0100, Federico Vaga wrote:
 >=20
-> Tegra I2C TX and RX FIFO depth is 8 words. PIO mode is used for
-> transfer size of the max FIFO depth and DMA mode is used for
-> transfer size higher than max FIFO depth to save CPU overhead.
+> This patch set provides improvements to the i2c-ocore driver.
 >=20
-> PIO mode needs full intervention of CPU to fill or empty FIFO's
-> and also need to service multiple data requests interrupt for the
-> same transaction. This adds delay between data bytes of the same
-> transfer when CPU is fully loaded and some slave devices has
-> internal timeout for no bus activity and stops transaction to
-> avoid bus hang. DMA mode is helpful in such cases.
->=20
-> DMA mode is also helpful for Large transfers during downloading or
-> uploading FW over I2C to some external devices.
->=20
-> Tegra210 and prior Tegra chips use APBDMA driver which is replaced
-> with GPCDMA on Tegra186 and Tegra194.
-> This patch uses has_apb_dma flag in hw_feature to differentiate
-> DMA driver change between Tegra chipset.
->=20
-> APBDMA driver is registered from module-init level and this patch
-> also has a change to register I2C driver at module-init level
-> rather than subsys-init to avoid deferring I2C probe till APBDMA
-> driver is registered.
->=20
-> Acked-by: Thierry Reding <treding@nvidia.com>
-> Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-> Tested-by: Dmitry Osipenko <digetx@gmail.com>
-> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+> [V6 -> V7]
+> - restore accidentally removed 'reviewed-by' tags in changelog
 
-Not directly related to your code, but maybe someone is interested in
-fixing this rightful checkpatch comment somewhen later:
-
-WARNING: Avoid crashing the kernel - try using WARN_ON & recovery code rath=
-er than BUG() or BUG_ON()
-#332: FILE: drivers/i2c/busses/i2c-tegra.c:791:
-+				BUG();
+Series applied to for-next, thanks!
 
 
---fvm2hgq32qt7p7oz
+--q7zkhe3ilfb4wtbd
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxlnPoACgkQFA3kzBSg
-KbbNOA/9EoHlFIaSVQ4ZqkVUQZf6r88V+QclrcLuuiVPC9DoP0faWi8wUN4IDHES
-tXjCRrAndBuqcb6wqOEv2b3cZPYTSg0iBDfSlENIpGjlUProkJ+HcQxAEh5lK1lh
-HwSjlfPfzu28BNvyQeR69c3/6gM56lqVS07EIQg9JCM+ouGVnIQHa1NLg8gf2jJV
-kTqO/MI+byye+ELjKHVHBpAf60zQ6hIfWLqBn9iuRgRGHQNx4Mks2ov17mAC85UN
-Kv8YnL6Sf/Aj6NAg+em/cFL+ReXGMeWJxJY4ENJW5IeCgmCDR/0uEr8iroTLy/3p
-OT2xLBEtF7f15ylTRBmfrdfrdnb3BoNmb7W3VBL9oQWmeJLPG2JFyMBR1GuDDJSg
-Bb9EeIXAPTxCrLYPWAMnpMDaBi4P6ozx8VjYasJRukGoNgg8PA5VCrxbHOq8bigV
-Bf4W8JTmyt1YT0Td9c0cWIE2qrwnTFHfyDPgIdQTkw68ArP0R8kOZjo8TH4sTQ+b
-kq85iZtpPoMA+t+zo3H+3YWv8yvXgGpPfCOVdclFa40b+F/g0Ouxdq0QxW/W4loi
-sFVHIMVe3NqlA2MB6u9DXRuwmeWvmHkVQepqKfFOdXPlqWR51wtZbf0IZVipXyoy
-t9WEOVE6KzBNhmahJ5KxSn+qVsp3d1KCNdmWWS9gDn8XLrik4PU=
-=t5RN
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxlnewACgkQFA3kzBSg
+KbatDw/9ErjD838FhrEXP6pC3yWuz6ZJ40mPOV2lY6uFwQVsruoHLsLTg4B0uB3K
+W/CG/kRdPABB7ExWn7hr9OvIv1+Jpa4YeliO1hgXILC3VPEQSd6BbPx6W4wBgAQu
+q9TKXzYGUncG+l+/eBpBKF79EttEODb+kMLCsWafm0rmR32ToBIwRLvWgUp7w5uA
+iP50HRbC5Npxc9hnGfRlmNFCilmEijCYPHchSqRaEQ7D7okHPdxtYRT7bGaVooLe
+NToCZHwIUf6K5o+Mx0diP2d2PEDhrBAiNiyH21ouXCu1l0iki6LdA4mRSL/5luSW
+zpSTwY7ZeBZbfQgwNAAsb/tBJ1ugVRYRCu99TqyJl16+KIeLosJcRz5NO+8v8TOb
+wR0ZuLiDDkTR/yzUSootfTpsrIM/ecYQbVW37kQ2RsLXBPcqdi61z/3lM9i+eFCN
+T84vyYmspKCt2iMNeEgDPWgFrd2TG3kbZRwhdu/JVqNwSKkGPqFJi6ejTk5PN6xD
+vTICvWEoM1ngtigJkNQp14G6Y1D1yNGBYJMNyq3xbb/dVJ8DJQxLWUaJFNtbnN01
+CYeIRlO1CfOZseOYvP5celsMaXqLM9gKhVZPurtHxwLfIZe4dlV2xt+uDTBJhWxV
+BLnfi71+OWACMYixsZ3VDnqVpAg9K+y/3W0l1uAQFUB73a4kvDo=
+=iroc
 -----END PGP SIGNATURE-----
 
---fvm2hgq32qt7p7oz--
+--q7zkhe3ilfb4wtbd--
