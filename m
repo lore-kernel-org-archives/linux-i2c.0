@@ -1,17 +1,17 @@
 From: Ray Jui <ray.jui@broadcom.com>
-Subject: Re: [PATCH v4 6/8] dt-bindings: i2c: iproc: add "brcm,iproc-nic-i2c"
- compatible string
-Date: Thu, 14 Feb 2019 09:36:06 -0800
-Message-ID: <723faefb-d13d-caf0-3bbd-9e3e698436a4@broadcom.com>
+Subject: Re: [PATCH v4 3/8] dt-bindings: i2c: iproc: make 'interrupts'
+ optional
+Date: Thu, 14 Feb 2019 09:36:42 -0800
+Message-ID: <e17b1cd0-8ffb-d014-bcce-57a3ca227506@broadcom.com>
 References: <20190204231554.87666-1-ray.jui@broadcom.com>
- <20190204231554.87666-7-ray.jui@broadcom.com> <20190213211807.GA20560@bogus>
- <6de51a50-cd7c-dbf8-15d8-8d2fd441d831@broadcom.com>
- <CAL_Jsq+aH=SGD+NJWNaWKnZm3Y396ro7E_Px_Ud3NnzOYB+eGQ@mail.gmail.com>
+ <20190204231554.87666-4-ray.jui@broadcom.com> <20190213211651.GA10705@bogus>
+ <796d9a96-f3f9-cb9a-faa3-4baf0e72da65@broadcom.com>
+ <CAL_JsqK+QLRp7LqkMzQCXdLPaJU3fbiNWU_uyuPFJ4qDkP=siA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAL_Jsq+aH=SGD+NJWNaWKnZm3Y396ro7E_Px_Ud3NnzOYB+eGQ@mail.gmail.com>
+In-Reply-To: <CAL_JsqK+QLRp7LqkMzQCXdLPaJU3fbiNWU_uyuPFJ4qDkP=siA@mail.gmail.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Rob Herring <robh@kernel.org>
@@ -20,55 +20,61 @@ List-Id: linux-i2c@vger.kernel.org
 
 
 
-On 2/14/2019 6:02 AM, Rob Herring wrote:
-> On Wed, Feb 13, 2019 at 4:09 PM Ray Jui <ray.jui@broadcom.com> wrote:
+On 2/14/2019 6:16 AM, Rob Herring wrote:
+> On Wed, Feb 13, 2019 at 4:06 PM Ray Jui <ray.jui@broadcom.com> wrote:
 >>
+>> Hi Rob,
 >>
->>
->> On 2/13/2019 1:18 PM, Rob Herring wrote:
->>> On Mon, Feb 04, 2019 at 03:15:52PM -0800, Ray Jui wrote:
->>>> From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+>> On 2/13/2019 1:16 PM, Rob Herring wrote:
+>>> On Mon, Feb 04, 2019 at 03:15:49PM -0800, Ray Jui wrote:
+>>>> In prep for the introduction of polling mode into the driver, update the
+>>>> binding document to make the 'interrupts' property optional
 >>>>
->>>> Update iProc I2C binding document to add new compatible string
->>>> "brcm,iproc-nic-i2c". Optional property "brcm,ape-hsls-addr-mask" is
->>>> also added that allows configuration of the host view into the APE's
->>>> address for "brcm,iproc-nic-i2c"
->>>>
->>>> Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 >>>> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+>>>> Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 >>>> ---
->>>>  Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt | 5 ++++-
->>>>  1 file changed, 4 insertions(+), 1 deletion(-)
+>>>>  .../devicetree/bindings/i2c/brcm,iproc-i2c.txt         | 10 +++++++---
+>>>>  1 file changed, 7 insertions(+), 3 deletions(-)
 >>>>
 >>>> diff --git a/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt b/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
->>>> index d3a3620b1f06..02e82d20239e 100644
+>>>> index 81f982ccca31..d3a3620b1f06 100644
 >>>> --- a/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
 >>>> +++ b/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
->>>> @@ -3,7 +3,7 @@ Broadcom iProc I2C controller
->>>>  Required properties:
->>>>
->>>>  - compatible:
->>>> -    Must be "brcm,iproc-i2c"
->>>> +    Must be "brcm,iproc-i2c" or "brcm,iproc-nic-i2c"
->>>>
->>>>  - reg:
+>>>> @@ -9,9 +9,6 @@ Required properties:
 >>>>      Define the base and range of the I/O address space that contain the iProc
->>>> @@ -24,6 +24,9 @@ Optional properties:
->>>>      Should contain the I2C interrupt. If unspecified, driver will fall back to
->>>>      polling mode
+>>>>      I2C controller registers
 >>>>
->>>> +- brcm,ape-hsls-addr-mask:
->>>> +    Required for "brcm,iproc-nic-i2c". Host view of address mask into the
->>>> +    'APE' co-processor
+>>>> -- interrupts:
+>>>> -    Should contain the I2C interrupt
+>>>> -
+>>>>  - clock-frequency:
+>>>>      This is the I2C bus clock. Need to be either 100000 or 400000
+>>>>
+>>>> @@ -21,6 +18,13 @@ Required properties:
+>>>>  - #size-cells:
+>>>>      Always 0
+>>>>
+>>>> +Optional properties:
+>>>> +
+>>>> +- interrupts:
+>>>> +    Should contain the I2C interrupt. If unspecified, driver will fall back to
+>>>> +    polling mode
 >>>
->>> What's the data type and size? What are valid values?
->>
->> It's an unsigned u32 mask value. An example of a valid value is for
->> example 0x03400000. Do you want any of these added to the paragraph above?
+>>> What determines when you want to use polling mode? I'm not sure DT
+>>> is the best way to control this unless it's really a property of
+>>> the h/w. Driver behavior is really outside the scope of the DT. u-boot
+>>> would use polling even if an interrupt is specified, for example.
+>>>
+>> It's tied to the particular revision of the I2C controller, i.e., the
+>> iProc NIC i2c controller does not have interrupt line wired. In this
+>> case, the behavior is determined by the DT compatible string of the
+>> iProc I2C device. I thought that it makes sense to now move the
+>> 'interrupts' property to be under "Optional" than "Required" which is
+>> basically what this change is.
 > 
-> Yes. Bindings should define constraints.
+> Okay, please put this detail into the commit msg.
 
-Okay will do! Thanks.
+Will do! Thanks.
 
 > 
 > Rob
