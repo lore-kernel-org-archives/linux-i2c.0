@@ -1,47 +1,60 @@
 From: Federico Vaga <federico.vaga@cern.ch>
-Subject: Re: [PATCH v6 0/5] i2c: ocores: improvements
-Date: Thu, 14 Feb 2019 09:39:32 +0100
-Message-ID: <4284641.8ec35d25Ci@pcbe13614>
-References: <20190211164913.5988-1-federico.vaga@cern.ch> <20190214030733.GG24589@lunn.ch>
-Reply-To: <federico.vaga@cern.ch>
+Subject: [PATCH v7 2/5] i2c: ocores: do not handle IRQ if IF is not set
+Date: Thu, 14 Feb 2019 09:51:31 +0100
+Message-ID: <20190214085134.12900-3-federico.vaga@cern.ch>
+References: <20190214085134.12900-1-federico.vaga@cern.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190214030733.GG24589@lunn.ch>
+In-Reply-To: <20190214085134.12900-1-federico.vaga@cern.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Peter Korsgaard <peter@korsgaard.com>, Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>
+Cc: Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Federico Vaga <federico.vaga@cern.ch>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday, February 14, 2019 4:07:33 AM CET Andrew Lunn wrote:
-> On Mon, Feb 11, 2019 at 05:49:08PM +0100, Federico Vaga wrote:
-> > This patch set provides improvements to the i2c-ocore driver.
-> > 
-> > [V5 -> V6]
-> > - remove redundant code introduced in V5 (double read control register)
-> > 
-> > [V4 -> V5]
-> > - deterministic status of IEN bit in register "CONTROL" at the end of
-> > 
-> >   ocores_init()
-> > 
-> > - more style fixes
-> > 
-> > [V3 -> V4]
-> > - add reviews-by/tested-by
-> > - add comment to justify the formula in
-> > 
-> >     udelay((8 * 1000) / i2c->bus_clock_khz);
-> 
-> Hi Federico
-> 
-> It looks like all the reviewed-by: tags disappeared from v5.
-> 
-> Can you add them back again, and then we can probably merge this
-> patchset.
+If the Interrupt Flag (IF) is not set, we should not handle the IRQ:
+- the line can be shared with other devices
+- it can be a spurious interrupt
 
-v7 is coming (@wolfram) with SPDX tag in the header file
+To avoid reading twice the status register, the ocores_process() function
+expects it to be read by the caller.
 
-> 	Thanks
-> 		Andrew
+Signed-off-by: Federico Vaga <federico.vaga@cern.ch>
+Acked-by: Peter Korsgaard <peter@korsgaard.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+---
+ drivers/i2c/busses/i2c-ocores.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index aa85202..fcc2558 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -143,10 +143,9 @@ static inline u8 oc_getreg(struct ocores_i2c *i2c, int reg)
+ 	return i2c->getreg(i2c, reg);
+ }
+ 
+-static void ocores_process(struct ocores_i2c *i2c)
++static void ocores_process(struct ocores_i2c *i2c, u8 stat)
+ {
+ 	struct i2c_msg *msg = i2c->msg;
+-	u8 stat = oc_getreg(i2c, OCI2C_STATUS);
+ 	unsigned long flags;
+ 
+ 	/*
+@@ -223,8 +222,12 @@ out:
+ static irqreturn_t ocores_isr(int irq, void *dev_id)
+ {
+ 	struct ocores_i2c *i2c = dev_id;
++	u8 stat = oc_getreg(i2c, OCI2C_STATUS);
++
++	if (!(stat & OCI2C_STAT_IF))
++		return IRQ_NONE;
+ 
+-	ocores_process(i2c);
++	ocores_process(i2c, stat);
+ 
+ 	return IRQ_HANDLED;
+ }
+-- 
+2.15.0
