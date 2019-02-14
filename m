@@ -1,69 +1,80 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 3/8] dt-bindings: i2c: iproc: make 'interrupts' optional
-Date: Thu, 14 Feb 2019 08:16:21 -0600
-Message-ID: <CAL_JsqK+QLRp7LqkMzQCXdLPaJU3fbiNWU_uyuPFJ4qDkP=siA@mail.gmail.com>
-References: <20190204231554.87666-1-ray.jui@broadcom.com> <20190204231554.87666-4-ray.jui@broadcom.com>
- <20190213211651.GA10705@bogus> <796d9a96-f3f9-cb9a-faa3-4baf0e72da65@broadcom.com>
+From: Adrian Bunk <bunk@kernel.org>
+Subject: [4.9/4.14 patch] eeprom: at24: add support for 24c2048
+Date: Thu, 14 Feb 2019 17:41:58 +0200
+Message-ID: <20190214154158.GA21871@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <796d9a96-f3f9-cb9a-faa3-4baf0e72da65@broadcom.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ray Jui <ray.jui@broadcom.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Linux I2C <linux-i2c@vger.kernel.org>, devicetree@vger.kernel.org, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "maintainer:BROADCOM BCM7XXX ARM ARCHITECTURE" <bcm-kernel-feedback-list@broadcom.com>, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+Content-Type: text/plain; charset=utf-8
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: stable-owner@vger.kernel.org
+To: stable@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Feb 13, 2019 at 4:06 PM Ray Jui <ray.jui@broadcom.com> wrote:
->
-> Hi Rob,
->
-> On 2/13/2019 1:16 PM, Rob Herring wrote:
-> > On Mon, Feb 04, 2019 at 03:15:49PM -0800, Ray Jui wrote:
-> >> In prep for the introduction of polling mode into the driver, update the
-> >> binding document to make the 'interrupts' property optional
-> >>
-> >> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
-> >> Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-> >> ---
-> >>  .../devicetree/bindings/i2c/brcm,iproc-i2c.txt         | 10 +++++++---
-> >>  1 file changed, 7 insertions(+), 3 deletions(-)
-> >>
-> >> diff --git a/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt b/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
-> >> index 81f982ccca31..d3a3620b1f06 100644
-> >> --- a/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
-> >> +++ b/Documentation/devicetree/bindings/i2c/brcm,iproc-i2c.txt
-> >> @@ -9,9 +9,6 @@ Required properties:
-> >>      Define the base and range of the I/O address space that contain the iProc
-> >>      I2C controller registers
-> >>
-> >> -- interrupts:
-> >> -    Should contain the I2C interrupt
-> >> -
-> >>  - clock-frequency:
-> >>      This is the I2C bus clock. Need to be either 100000 or 400000
-> >>
-> >> @@ -21,6 +18,13 @@ Required properties:
-> >>  - #size-cells:
-> >>      Always 0
-> >>
-> >> +Optional properties:
-> >> +
-> >> +- interrupts:
-> >> +    Should contain the I2C interrupt. If unspecified, driver will fall back to
-> >> +    polling mode
-> >
-> > What determines when you want to use polling mode? I'm not sure DT
-> > is the best way to control this unless it's really a property of
-> > the h/w. Driver behavior is really outside the scope of the DT. u-boot
-> > would use polling even if an interrupt is specified, for example.
-> >
-> It's tied to the particular revision of the I2C controller, i.e., the
-> iProc NIC i2c controller does not have interrupt line wired. In this
-> case, the behavior is determined by the DT compatible string of the
-> iProc I2C device. I thought that it makes sense to now move the
-> 'interrupts' property to be under "Optional" than "Required" which is
-> basically what this change is.
+commit 6c0c5dc33ff42af49243e94842d0ebdb153189ea upstream.
+commit 37cf28d3b5bca1b532a0b6aac722e7f2788a9294 upstream.
 
-Okay, please put this detail into the commit msg.
+Works with ST M24M02.
 
-Rob
+Signed-off-by: Adrian Bunk <bunk@kernel.org>
+---
+
+Backport applies and builds against 4.9/4.14.
+Confirmed working with 4.14.
+For 4.19/4.20 please cherry-pick the upstream commits instead.
+
+ Documentation/devicetree/bindings/eeprom/eeprom.txt | 5 +++--
+ drivers/misc/eeprom/Kconfig                         | 2 +-
+ drivers/misc/eeprom/at24.c                          | 1 +
+ 3 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt b/Documentation/devicetree/bindings/eeprom/eeprom.txt
+index afc04589eadf..3c9a822d576c 100644
+--- a/Documentation/devicetree/bindings/eeprom/eeprom.txt
++++ b/Documentation/devicetree/bindings/eeprom/eeprom.txt
+@@ -6,7 +6,8 @@ Required properties:
+ 
+ 	"atmel,24c00", "atmel,24c01", "atmel,24c02", "atmel,24c04",
+ 	"atmel,24c08", "atmel,24c16", "atmel,24c32", "atmel,24c64",
+-	"atmel,24c128", "atmel,24c256", "atmel,24c512", "atmel,24c1024"
++	"atmel,24c128", "atmel,24c256", "atmel,24c512", "atmel,24c1024",
++	"atmel,24c2048"
+ 
+ 	"catalyst,24c32"
+ 
+@@ -23,7 +24,7 @@ Required properties:
+ 	 device with <type> and manufacturer "atmel" should be used.
+ 	 Possible types are:
+ 	 "24c00", "24c01", "24c02", "24c04", "24c08", "24c16", "24c32", "24c64",
+-	 "24c128", "24c256", "24c512", "24c1024", "spd"
++	 "24c128", "24c256", "24c512", "24c1024", "24c2048", "spd"
+ 
+   - reg : the I2C address of the EEPROM
+ 
+diff --git a/drivers/misc/eeprom/Kconfig b/drivers/misc/eeprom/Kconfig
+index de58762097c4..3f93e4564cab 100644
+--- a/drivers/misc/eeprom/Kconfig
++++ b/drivers/misc/eeprom/Kconfig
+@@ -12,7 +12,7 @@ config EEPROM_AT24
+ 	  ones like at24c64, 24lc02 or fm24c04:
+ 
+ 	     24c00, 24c01, 24c02, spd (readonly 24c02), 24c04, 24c08,
+-	     24c16, 24c32, 24c64, 24c128, 24c256, 24c512, 24c1024
++	     24c16, 24c32, 24c64, 24c128, 24c256, 24c512, 24c1024, 24c2048
+ 
+ 	  Unless you like data loss puzzles, always be sure that any chip
+ 	  you configure as a 24c32 (32 kbit) or larger is NOT really a
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index ded48a0c77ee..59dcd97ee3de 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -170,6 +170,7 @@ static const struct i2c_device_id at24_ids[] = {
+ 	{ "24c256",	AT24_DEVICE_MAGIC(262144 / 8,	AT24_FLAG_ADDR16) },
+ 	{ "24c512",	AT24_DEVICE_MAGIC(524288 / 8,	AT24_FLAG_ADDR16) },
+ 	{ "24c1024",	AT24_DEVICE_MAGIC(1048576 / 8,	AT24_FLAG_ADDR16) },
++	{ "24c2048",	AT24_DEVICE_MAGIC(2097152 / 8,	AT24_FLAG_ADDR16) },
+ 	{ "at24", 0 },
+ 	{ /* END OF LIST */ }
+ };
+-- 
+2.11.0
