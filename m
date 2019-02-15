@@ -1,72 +1,67 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: bcm2835: Clear current buffer pointers and
- counts after a transfer
-Date: Fri, 15 Feb 2019 09:47:31 +0100
-Message-ID: <20190215084731.gy7khiydgyzgfsjk@ninjato>
-References: <20181227154225.5492-1-paul.kocialkowski@bootlin.com>
+Subject: Re: [PATCH v2] i2c: aspeed: Add multi-master use case support
+Date: Fri, 15 Feb 2019 09:52:39 +0100
+Message-ID: <20190215085239.v5cjmcef2q62xiyl@ninjato>
+References: <20190211185444.4965-1-jae.hyun.yoo@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="zp4qokiwiqe3hwav"
+        protocol="application/pgp-signature"; boundary="ybsnxjjqnbgxua7z"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20181227154225.5492-1-paul.kocialkowski@bootlin.com>
+In-Reply-To: <20190211185444.4965-1-jae.hyun.yoo@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Cc: bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Eric Anholt <eric@anholt.net>, Stefan Wahren <stefan.wahren@i2se.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Eben Upton <eben@raspberrypi.org>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---zp4qokiwiqe3hwav
+--ybsnxjjqnbgxua7z
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 27, 2018 at 04:42:25PM +0100, Paul Kocialkowski wrote:
-> The driver's interrupt handler checks whether a message is currently
-> being handled with the curr_msg pointer. When it is NULL, the interrupt
-> is considered to be unexpected. Similarly, the i2c_start_transfer
-> routine checks for the remaining number of messages to handle in
-> num_msgs.
+On Mon, Feb 11, 2019 at 10:54:44AM -0800, Jae Hyun Yoo wrote:
+> In multi-master environment, this driver's master cannot know
+> exactly when a peer master sends data to this driver's slave so
+> cases can be happened that this master tries sending data through
+> the master_xfer function but slave data from a peer master is still
+> being processed or slave xfer is started by a peer immediately
+> after it queues a master command. To support multi-master use cases
+> properly, this H/W provides arbitration in physical level and it
+> provides priority based command handling too to avoid conflicts in
+> multi-master environment, means that if a master and a slave events
+> happen at the same time, H/W will handle a higher priority event
+> first and a pending event will be handled when bus comes back to
+> the idle state.
 >=20
-> However, these values are never cleared and always keep the message and
-> number relevant to the latest transfer (which might be done already and
-> the underlying message memory might have been freed).
+> To support this H/W feature properly, this patch adds the 'pending'
+> state of master and its handling code so that the pending master
+> xfer can be continued after slave operation properly.
 >=20
-> When an unexpected interrupt hits with the DONE bit set, the isr will
-> then try to access the flags field of the curr_msg structure, leading
-> to a fatal page fault.
->=20
-> The msg_buf and msg_buf_remaining fields are also never cleared at the
-> end of the transfer, which can lead to similar pitfalls.
->=20
-> Fix these issues by introducing a cleanup function and always calling
-> it after a transfer is finished.
->=20
-> Fixes: e2474541032d ("i2c: bcm2835: Fix hang for writing messages larger =
-than 16 bytes")
-> Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+> Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
 
-Applied to for-current, thanks!
+Applied to for-next, thanks!
 
 
---zp4qokiwiqe3hwav
+--ybsnxjjqnbgxua7z
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxmfKMACgkQFA3kzBSg
-KbZtrxAAohPOgZx5no3ThwDEyYTFd9bMJTKd+4Vz+n1rXHl2K9Ib1/rNfkPq9fiq
-7HteQbVVbxw+KOLBUUjGBv6oqF7Wf7D6Im6JDEJvMINRXXvkyKODS/x+4QkPLmzl
-4h+r2BkzJpR9Bd5hmWYvot8dia8sUM0qJpEGxKoxezbarIwK6gGeXBZb5hDm94R+
-Qb2robryMxM5URI15D8wPFPUhnOxFhv01fRb1bVgJgcF1k2iBIFWHDU+13YGqgPX
-v2q6DjebSMv/riI5o/wxOuM9o77cvYA8O8OKyc2bdtLxVuoi9yHIvR0LtG/t4ylS
-ZODqbfhu2hk4qlqGVYaq9kYxtH0W/eiE7nTUpM8aNvqLKOrK0HVM6kCm2Tt+TBJI
-XpZGBUPdS9YHv5bWJEQvT2svoli0whFKa16glpK3lzl7f6e2xxG2rqfV4xiqaZSt
-vW+x2XO07lvZgVYBi/PyfPD+WazQZaZdxk8kWuYwO6KN8if4h8ltoqrfbbhFGQGa
-Bs/kFkddb5hzAXBPUdHGr+dEgKT9VrIEYRrdc1PtSeSrbOFeu+xJviH8zgnlar56
-romtLgZ3AoxcColAq7JFrMa1ZiYI1torjIxfMFtoNRZZv/JxgDMPuaSwCBMywlxZ
-joUf0GbmiGtLW+zMeTb0B6RNTVMimxXB/XqQ0rirCkv8o0N0oP8=
-=JjNL
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxmfdcACgkQFA3kzBSg
+KbYJEw//dnf7zJDVpII7ZpsgPtNZerCcz/+RipuuRefqyn6ol/03zMNMDsTsqWTZ
+WB9tWi0dBE0uC50iOyLKS0M9I5b1xVqKasEl2Z/r8J9IvGuakbIfGfhiYJ9oJgdH
+zJBxkc5W2Or1FJ9AUIxpKWeaUSeE6J2/wv5168RfjLQAb+Sr9jVCrCon1ZsTo/7B
+9lBwoYMAXTonbf615WTcU+fnRHDyIbjboL0OB1W2Iv8ksmTPvETviuqfSk4PyiSJ
+RLcQUWrw44sUu9sSUzQNZ97g6l20R/LnFtXdQYIDrXNTmP+tXlAfxqdt6ghVumwa
+toW9MZX/JkYc0xrBIOQPpEL61yqLyoQdChhv9ahUAKUiKTIkz0Io9S5PobOMvIbd
+sGyJ+abYVA9Qvg8CH+ZKQGZwm/SgIGfKtkIgbh+3Q6ATChB5dDfytJw4N2OoVu0T
+5DgPrkmpIaVF9JTOnhvzQZYswpBZuDk11yC2Tea2s9Djp1fN3ettw+uYLbcnLmo1
+GNLWOtLTkT0gr/krY8xy006jaMOa4tjlLLKlB9AzUNB4APidP2UDKE68wrxlo7SD
++5nQ+CZn9CJUBdXR5hQeDrzpoTdRBgNlUPUaB0TOK3Sbz962vu1I4019xG1ITLwf
+OEUWzonl3lABGqbew7I3lyn5Py9nEcWVfW+6Ks74i5vvRBcIAOQ=
+=dfmE
 -----END PGP SIGNATURE-----
 
---zp4qokiwiqe3hwav--
+--ybsnxjjqnbgxua7z--
