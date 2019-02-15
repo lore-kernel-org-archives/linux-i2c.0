@@ -1,67 +1,63 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: aspeed: Add multi-master use case support
-Date: Fri, 15 Feb 2019 09:52:39 +0100
-Message-ID: <20190215085239.v5cjmcef2q62xiyl@ninjato>
-References: <20190211185444.4965-1-jae.hyun.yoo@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ybsnxjjqnbgxua7z"
+From: Hsin-Yi Wang <hsinyi@chromium.org>
+Subject: [PATCH] i2c: mediatek: modify threshold passed to i2c_get_dma_safe_msg_buf()
+Date: Fri, 15 Feb 2019 17:02:02 +0800
+Message-ID: <20190215090202.157100-1-hsinyi@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190211185444.4965-1-jae.hyun.yoo@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>, James Feist <james.feist@linux.intel.com>, Vernon Mauery <vernon.mauery@linux.intel.com>
+To: linux-arm-kernel@lists.infradead.org
+Cc: Matthias Brugger <matthias.bgg@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Jun Gao <jun.gao@mediatek.com>, Hsin-Yi Wang <hsinyi@chromium.org>, Ryder Lee <ryder.lee@mediatek.com>, linux-i2c@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+i2c_get_dma_safe_msg_buf() allocates space based on msg->len. If threshold is
+0 and msg->len is also 0, function makes zero-length allocation, which returns
+a special ZERO_SIZE_PTR instead of a NULL pointer, and this will cause later
+code to fail. Modify the threshold to > 0 so the function returns NULL pointer.
 
---ybsnxjjqnbgxua7z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Fixes: fc66b39fe36a ("i2c: mediatek: Use DMA safe buffers for i2c transactions")
+Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+---
+ drivers/i2c/busses/i2c-mt65xx.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-On Mon, Feb 11, 2019 at 10:54:44AM -0800, Jae Hyun Yoo wrote:
-> In multi-master environment, this driver's master cannot know
-> exactly when a peer master sends data to this driver's slave so
-> cases can be happened that this master tries sending data through
-> the master_xfer function but slave data from a peer master is still
-> being processed or slave xfer is started by a peer immediately
-> after it queues a master command. To support multi-master use cases
-> properly, this H/W provides arbitration in physical level and it
-> provides priority based command handling too to avoid conflicts in
-> multi-master environment, means that if a master and a slave events
-> happen at the same time, H/W will handle a higher priority event
-> first and a pending event will be handled when bus comes back to
-> the idle state.
->=20
-> To support this H/W feature properly, this patch adds the 'pending'
-> state of master and its handling code so that the pending master
-> xfer can be continued after slave operation properly.
->=20
-> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-> Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-
-Applied to for-next, thanks!
-
-
---ybsnxjjqnbgxua7z
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxmfdcACgkQFA3kzBSg
-KbYJEw//dnf7zJDVpII7ZpsgPtNZerCcz/+RipuuRefqyn6ol/03zMNMDsTsqWTZ
-WB9tWi0dBE0uC50iOyLKS0M9I5b1xVqKasEl2Z/r8J9IvGuakbIfGfhiYJ9oJgdH
-zJBxkc5W2Or1FJ9AUIxpKWeaUSeE6J2/wv5168RfjLQAb+Sr9jVCrCon1ZsTo/7B
-9lBwoYMAXTonbf615WTcU+fnRHDyIbjboL0OB1W2Iv8ksmTPvETviuqfSk4PyiSJ
-RLcQUWrw44sUu9sSUzQNZ97g6l20R/LnFtXdQYIDrXNTmP+tXlAfxqdt6ghVumwa
-toW9MZX/JkYc0xrBIOQPpEL61yqLyoQdChhv9ahUAKUiKTIkz0Io9S5PobOMvIbd
-sGyJ+abYVA9Qvg8CH+ZKQGZwm/SgIGfKtkIgbh+3Q6ATChB5dDfytJw4N2OoVu0T
-5DgPrkmpIaVF9JTOnhvzQZYswpBZuDk11yC2Tea2s9Djp1fN3ettw+uYLbcnLmo1
-GNLWOtLTkT0gr/krY8xy006jaMOa4tjlLLKlB9AzUNB4APidP2UDKE68wrxlo7SD
-+5nQ+CZn9CJUBdXR5hQeDrzpoTdRBgNlUPUaB0TOK3Sbz962vu1I4019xG1ITLwf
-OEUWzonl3lABGqbew7I3lyn5Py9nEcWVfW+6Ks74i5vvRBcIAOQ=
-=dfmE
------END PGP SIGNATURE-----
-
---ybsnxjjqnbgxua7z--
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index a74ef76705e0..2bb4d20ead32 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -503,7 +503,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 		writel(I2C_DMA_INT_FLAG_NONE, i2c->pdmabase + OFFSET_INT_FLAG);
+ 		writel(I2C_DMA_CON_RX, i2c->pdmabase + OFFSET_CON);
+ 
+-		dma_rd_buf = i2c_get_dma_safe_msg_buf(msgs, 0);
++		dma_rd_buf = i2c_get_dma_safe_msg_buf(msgs, 1);
+ 		if (!dma_rd_buf)
+ 			return -ENOMEM;
+ 
+@@ -526,7 +526,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 		writel(I2C_DMA_INT_FLAG_NONE, i2c->pdmabase + OFFSET_INT_FLAG);
+ 		writel(I2C_DMA_CON_TX, i2c->pdmabase + OFFSET_CON);
+ 
+-		dma_wr_buf = i2c_get_dma_safe_msg_buf(msgs, 0);
++		dma_wr_buf = i2c_get_dma_safe_msg_buf(msgs, 1);
+ 		if (!dma_wr_buf)
+ 			return -ENOMEM;
+ 
+@@ -549,7 +549,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 		writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_INT_FLAG);
+ 		writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_CON);
+ 
+-		dma_wr_buf = i2c_get_dma_safe_msg_buf(msgs, 0);
++		dma_wr_buf = i2c_get_dma_safe_msg_buf(msgs, 1);
+ 		if (!dma_wr_buf)
+ 			return -ENOMEM;
+ 
+@@ -561,7 +561,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 			return -ENOMEM;
+ 		}
+ 
+-		dma_rd_buf = i2c_get_dma_safe_msg_buf((msgs + 1), 0);
++		dma_rd_buf = i2c_get_dma_safe_msg_buf((msgs + 1), 1);
+ 		if (!dma_rd_buf) {
+ 			dma_unmap_single(i2c->dev, wpaddr,
+ 					 msgs->len, DMA_TO_DEVICE);
+-- 
+2.18.1
