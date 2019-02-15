@@ -1,61 +1,70 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH][next] i2c: tegra: change phrasing, "fallbacking" to
- "falling back"
-Date: Fri, 15 Feb 2019 16:38:22 +0100
-Message-ID: <20190215153822.oszldcxoxk2mssli@ninjato>
-References: <20190215153126.18575-1-colin.king@canonical.com>
- <20190215153245.GA7374@ulmo>
- <da6cdd39-b021-7834-f3a4-46feceeb66c4@canonical.com>
+Subject: Re: [PATCH] i2c: mediatek: modify threshold passed to
+ i2c_get_dma_safe_msg_buf()
+Date: Fri, 15 Feb 2019 17:36:57 +0100
+Message-ID: <20190215163657.fs6t7p3vqez53su3@ninjato>
+References: <20190215090202.157100-1-hsinyi@chromium.org>
+ <20190215090959.soxkf3ho3or2geme@ninjato>
+ <CAJMQK-jrpnfzKNYh01Pg6QydSSa-=6x44Pj1wwMdXw7G3x-ybA@mail.gmail.com>
+ <20190215092500.6q3hqnoufyowiqaz@ninjato>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="6pztjuawutxj44df"
+        protocol="application/pgp-signature"; boundary="fynakfv4m43e4662"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <da6cdd39-b021-7834-f3a4-46feceeb66c4@canonical.com>
+In-Reply-To: <20190215092500.6q3hqnoufyowiqaz@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Colin Ian King <colin.king@canonical.com>
-Cc: Thierry Reding <thierry.reding@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Hsin-Yi Wang <hsinyi@chromium.org>
+Cc: linux-arm-kernel@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Jun Gao <jun.gao@mediatek.com>, Ryder Lee <ryder.lee@mediatek.com>, linux-i2c@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---6pztjuawutxj44df
+--fynakfv4m43e4662
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 15, 2019 at 03:33:58PM +0000, Colin Ian King wrote:
-> On 15/02/2019 15:32, Thierry Reding wrote:
-> > On Fri, Feb 15, 2019 at 03:31:26PM +0000, Colin King wrote:
-> >> From: Colin Ian King <colin.king@canonical.com>
-> >>
-> >> The phrasing in two dev_err messages is using fallbacking which
-> >> os less understandable than "falling back", so fix this up.
-> >=20
-> > os -> is, otherwise:
+
+>> > Ok, I can add a check in another patch. Should we return NULL pointer
+>> > if msg->len is 0 or print out some warnings? Thanks.
+>>=20
+>> No warning, msg->len =3D=3D 0 is a valid setting. But interesting questi=
+on:
+>> I was about to say NULL, but your driver would assume ENOMEM there and
+>> discard the message which is also not correct since msg->len =3D=3D 0 is=
+ a
+>> valid setting. So, should we just return msg->buf then? Will this work
+>> with your driver? Can it handle zero-length transfers?
 >=20
-> Oops, can that be fixed up when it's applied.
+> dma_map_single(i2c->dev, msg->buf , msgs->len, DMA_TO_DEVICE); breaks
+> kernel if msgs->len is 0, so I think it doesn't handle zero-length transf=
+er.
 
-Yes.
+Please don't drop the lists.
+
+Then, the correct solution is to forbid those transfer with this
+controller. Check I2C_AQ_NO_ZERO_LEN. Also, update the functionality
+like this .. (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK).
 
 
---6pztjuawutxj44df
+--fynakfv4m43e4662
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxm3OoACgkQFA3kzBSg
-KbZ2+A//V8yxCnyJ34e2GPkX+XQ9xnbos8BNwpHpU4ilnMujqO5Kxd5oJRX15PR7
-L7EniEzKHnXpHXO6Sfwl7Rr4K2fOmcobkjsHSISVZhMFcjkoAHkgldsbx2R0PUz2
-LcZcujSMXimHZktW+ypDwDS505WKsUm0fUkmW0+MCiEVCAPs+o4OutipbpQOz2jm
-e0SrlGjeeSWkb0/Sf3aXOKngCkAakRBW3uVZT1ddt2JNZK2+OsSrhxXd/BU8uCzq
-jB33DcO5aR+scdHoC8wB4dec8i96HD9D8yL9X9PDa/U8vhCNGe54dJKdLyDA8vVr
-MAdnZt/AGnYJ0PsINE9QG8NFafWul5Ovi4YOAR6hDP7Gbt1fGJs2QtUYPfsrnkPY
-nlvZUuPsjiwNGTkY52zqHG8wCKG+QMV8NhMlGLBOusGHD0N9Fmt3V0KcarYH9Pxd
-g7Ln1vwQqu8mM6gPPC+tWOEcGnyPD4oHeOIayzLWs3N2tJ4WFxc0OYZeFLABXFST
-TexeX/9BYxX4Z1U+WE/dgAslbAS+mhctaGTGOdifaQBHsxN92b7Nqbet1qoB60cT
-t952/VlgIx0jz2OKNFVHCK+2kUGfkAoXX9RASOhoi/6RFnO+qaSBxC2hZiq+lAkk
-OvZcuA5fLKDODePqq54W9Wzr4CF9iqIA5MpCGfgim2BRzKbRvFo=
-=+6Od
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxm6qUACgkQFA3kzBSg
+KbbsQw//TKz2pCmEj99gaTnI4oak75P3IW10Xow7DY8Bhv4KTJ6irOVHclR2WoL/
+/o3ASwvfasg2jvE7JBhdZyMXtAs0GhlISv/02ZG3oJ6/i6gmPGlgAlgftFH2YWVg
+xRWLmRaPJCUfEsN1RddKYGBLsdYrELNJLHNqCvKDvnxiM2eUH1o4KVPn908AlzQf
+6XHzsGew3EW/2G470f0qimDDRPcFN00r7FdUnvM8+fGazP39VPCGb7BFk/cm8iss
+RWitHJTHQehSLLN+yKkLS697feeiV83Qi+tj7tkVOL4HJvs4hrLssAndK4eaaoVu
+TIzXgASGfmO5EC/srp3KqZFNaVHe8sGE8B2uAlS1cmArLfUCG0PirLdAzp6mmG9t
+ExfPZOw7pUsaNRdPyiGLu2xD8u//d2WA6WDvPYiD5/2azHKE3Klv+YDvQZlexkpm
+TqhD56l1ohbQmmEpNzC/a5giCZbOujXMrUgz/2C+JtNEIgcq71VBOPtsUOwaTLxP
+npBZxZ4+Lmu0VdvgLa30VmpaFf9s24rhADLuJs9DWQrECIo5c/8CV19x3jupM3e1
++UkRz2Vt/J7RqeXhOY2lv4pPz9RTx3MJNgUZErVsGsqYhIkzqjVv5Kh2vmoPt2GV
+fnYlXaiiWYoUX2JZ14OBvaHPJA7GqP3T2yJqEOeoLdIVmKYYcng=
+=lS99
 -----END PGP SIGNATURE-----
 
---6pztjuawutxj44df--
+--fynakfv4m43e4662--
