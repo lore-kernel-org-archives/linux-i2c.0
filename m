@@ -1,63 +1,74 @@
-From: Hsin-Yi Wang <hsinyi@chromium.org>
-Subject: [PATCH] i2c: mediatek: modify threshold passed to i2c_get_dma_safe_msg_buf()
-Date: Fri, 15 Feb 2019 17:02:02 +0800
-Message-ID: <20190215090202.157100-1-hsinyi@chromium.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 5/6] dt-bindings: i2c: Add Mediatek MT8183 i2c binding
+Date: Fri, 15 Feb 2019 10:02:57 +0100
+Message-ID: <20190215090257.geumssb2cucs7rzt@ninjato>
+References: <1548057574-8061-1-git-send-email-qii.wang@mediatek.com>
+ <1548057574-8061-6-git-send-email-qii.wang@mediatek.com>
+ <20190205131641.GF12401@kunai>
+ <1550109268.30065.13.camel@mhfsdcap03>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="pzwi6i3t3hyzmfbc"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1550109268.30065.13.camel@mhfsdcap03>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Matthias Brugger <matthias.bgg@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Jun Gao <jun.gao@mediatek.com>, Hsin-Yi Wang <hsinyi@chromium.org>, Ryder Lee <ryder.lee@mediatek.com>, linux-i2c@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Qii Wang <qii.wang@mediatek.com>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, ryder.lee@mediatek.com, xinping.qian@mediatek.com, liguo.zhang@mediatek.com, Rob Herring <robh@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-i2c_get_dma_safe_msg_buf() allocates space based on msg->len. If threshold is
-0 and msg->len is also 0, function makes zero-length allocation, which returns
-a special ZERO_SIZE_PTR instead of a NULL pointer, and this will cause later
-code to fail. Modify the threshold to > 0 so the function returns NULL pointer.
 
-Fixes: fc66b39fe36a ("i2c: mediatek: Use DMA safe buffers for i2c transactions")
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
----
- drivers/i2c/busses/i2c-mt65xx.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+--pzwi6i3t3hyzmfbc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index a74ef76705e0..2bb4d20ead32 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -503,7 +503,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 		writel(I2C_DMA_INT_FLAG_NONE, i2c->pdmabase + OFFSET_INT_FLAG);
- 		writel(I2C_DMA_CON_RX, i2c->pdmabase + OFFSET_CON);
- 
--		dma_rd_buf = i2c_get_dma_safe_msg_buf(msgs, 0);
-+		dma_rd_buf = i2c_get_dma_safe_msg_buf(msgs, 1);
- 		if (!dma_rd_buf)
- 			return -ENOMEM;
- 
-@@ -526,7 +526,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 		writel(I2C_DMA_INT_FLAG_NONE, i2c->pdmabase + OFFSET_INT_FLAG);
- 		writel(I2C_DMA_CON_TX, i2c->pdmabase + OFFSET_CON);
- 
--		dma_wr_buf = i2c_get_dma_safe_msg_buf(msgs, 0);
-+		dma_wr_buf = i2c_get_dma_safe_msg_buf(msgs, 1);
- 		if (!dma_wr_buf)
- 			return -ENOMEM;
- 
-@@ -549,7 +549,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 		writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_INT_FLAG);
- 		writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_CON);
- 
--		dma_wr_buf = i2c_get_dma_safe_msg_buf(msgs, 0);
-+		dma_wr_buf = i2c_get_dma_safe_msg_buf(msgs, 1);
- 		if (!dma_wr_buf)
- 			return -ENOMEM;
- 
-@@ -561,7 +561,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 			return -ENOMEM;
- 		}
- 
--		dma_rd_buf = i2c_get_dma_safe_msg_buf((msgs + 1), 0);
-+		dma_rd_buf = i2c_get_dma_safe_msg_buf((msgs + 1), 1);
- 		if (!dma_rd_buf) {
- 			dma_unmap_single(i2c->dev, wpaddr,
- 					 msgs->len, DMA_TO_DEVICE);
--- 
-2.18.1
+On Thu, Feb 14, 2019 at 09:54:28AM +0800, Qii Wang wrote:
+> On Tue, 2019-02-05 at 14:16 +0100, Wolfram Sang wrote:
+> > > +  - mediatek,share-i3c: i3c controller can share i2c function.
+> >=20
+> > I am not happy with this binding. There must be a better way of using
+> > the I3C controller in I2C mode. I think it would be easier to tell if we
+> > had an I3C driver to see how it implements I2C fallback there. Is the
+> > I3C driver on the way?
+> >=20
+>=20
+> I am very sorry for the late reply due to the Chinese New Year holiday.
+
+No worries. I hope you enjoyed the holidays!
+
+> After confirmation, for I2C mode in I3C controller, we will push an I3C
+> driver to implement I2C fallback there later, and we will remove
+> "mediatek,share-i3c" for i2c controller driver in the next patch.
+
+The problem with DT bindings is that you need to support them forever
+once you introduced them. Because there might be old device trees on
+boards out there which need the property. So, I don't like the idea of
+having a temporary binding which is meant to be removed anyway. My take
+is that you should just send out the I3C driver which will handle the
+I2C support then.
+
+Adding Rob to CC in case he has a different opinion.
+
+
+--pzwi6i3t3hyzmfbc
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxmgEEACgkQFA3kzBSg
+KbaYzQ/9GMVjiYKg0Awt5r1WZ23GftvsUaudHFYCqO3OuZ4iTC3cHFAvYIDxsUKh
+1L/HNEup5EICTXVUe6AoFPe6MFyC4w8e7/00n2Nsj9mfTUFjaR/2DcRWqrR0kv4T
+x48s/UmUVhe8PtRT7AbX3aKkA/Jm6puhFHPCjpaLaDX20mw35B/hLIJ7lkqmpce0
+fN1R2Vuo2xGHueDHv4MBbtsTC4wcOTfPVJwNVfd6nOoDOhQX+UyAqYJyoQ8exaJM
+QmCfPea170F4Ov6fLgrGilWqwiN9EQDbudmlZA8vt0dflDMG+Awt5rFgEpvfKlj0
+Zndw5Kwi1NCCH6b4P/GcUOaTKcrNwwA7b7/A4/dQTIVcAx/WXM+ibKY7ZQz3mfAg
+LgswXBgkDL3jx3gLjHWtYjc39KVzROIBed24BIX80F1G7tfvkkhshm9KJ7gi4yks
+NA2CSlS4Ufgqb0LVgRGK7e6LEFVoBL4kMlMutSToiWdrwB1tJAdWj8F986EB4v9t
+5BzNW9pjN922TqY0k2gtrhFcFGyeb1BP9rvobMaFHLLt31hCIp4gkuWln7TjMFtD
+LiHknLpKMjHUUd4jib/5RRnXtIAmSh7dag/5zM3m7m+Jx4T2k8E5MCQ9eI4ZlGfm
+Rw2Pno7LzRHIeS5oZBAVt2n4U2gfl/okiqdkP0d9kMF1z5vbduY=
+=A+6v
+-----END PGP SIGNATURE-----
+
+--pzwi6i3t3hyzmfbc--
