@@ -1,13 +1,16 @@
-From: "sxauwsk@163.com" <sxauwsk@163.com>
-Subject: [PATCH] i2c: cadence: try reset when master receive error interrupts
-Date: Sat, 16 Feb 2019 15:50:19 +0800
-Message-ID: <2019021615501780626817@163.com>
-References: <20190129195214.30272-1-sxauwsk@163.com>,
- <CAKfKVtELqoNNJB0qB88ghGoVrdV2-Ez1DjvmT3dZifntdV0GQg@mail.gmail.com>
+From: Qii Wang <qii.wang@mediatek.com>
+Subject: Re: [PATCH v3 5/6] dt-bindings: i2c: Add Mediatek MT8183 i2c binding
+Date: Sat, 16 Feb 2019 19:32:03 +0800
+Message-ID: <1550316723.30065.44.camel@mhfsdcap03>
+References: <1548057574-8061-1-git-send-email-qii.wang@mediatek.com>
+ <1548057574-8061-6-git-send-email-qii.wang@mediatek.com>
+ <20190205131641.GF12401@kunai> <1550109268.30065.13.camel@mhfsdcap03>
+ <20190215090257.geumssb2cucs7rzt@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190215090257.geumssb2cucs7rzt@ninjato>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -17,62 +20,43 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, "michal.simek" <michal.simek@xilinx.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: devicetree@vger.kernel.org, ryder.lee@mediatek.com, srv_heupstream@mediatek.com, Rob Herring <robh@kernel.org>, leilk.liu@mediatek.com, xinping.qian@mediatek.com, linux-kernel@vger.kernel.org, liguo.zhang@mediatek.com, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-PkhpIFN4YXV3c2ssCj4KPk9uIFdlZCwgSmFuIDMwLCAyMDE5IGF0IDM6MTMgUE0gc3hhdXdzayA8
-c3hhdXdza0AxNjMuY29tPiB3cm90ZToKPj4KPj4gV2hlbiB0aGUgYWRhcHRlciByZWNlaXZlIGVy
-cm9yIGludGVycnVwdHMsIHN1Y2ggYXMgTkFDSywgYXJiaXRyYXRpb24gbG9zdCwKPj4gY2Ruc19p
-MmNfbWFzdGVyX3hmZXIgcmV0dXJuIHRvIHRoZSBjYWxsZXIgZGlyZWN0bHkgaW5zdGVhZCBvZiBy
-ZXN1bWluZwo+PiB0aGUgYWRhcHRlciB3aGljaCByZXN1bHRlZCBpbiB0aGUgYWRhcHRlciBiZWlu
-ZyBvdXQgb2YgY29udHJvbC4KPj4KPj4gU28gd2hlbiBkcml2ZXIgZGV0ZWN0IGVycl9zdGF0dXMg
-dGhlbiB0cnkgdG8gcmVwYWlyIGFuZCBmaXggaXQuCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IHN4YXV3
-c2sgPHN4YXV3c2tAMTYzLmNvbT4KPj4gLS0tCj4+wqAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1j
-YWRlbmNlLmMgfCAxMiArKysrKysrLS0tLS0KPj7CoCAxIGZpbGUgY2hhbmdlZCwgNyBpbnNlcnRp
-b25zKCspLCA1IGRlbGV0aW9ucygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVz
-c2VzL2kyYy1jYWRlbmNlLmMgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWNhZGVuY2UuYwo+PiBp
-bmRleCBiMTM2MDU3MTgyOTEuLmUxMDA0OGQ3NTI0YSAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy9p
-MmMvYnVzc2VzL2kyYy1jYWRlbmNlLmMKPj4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1j
-YWRlbmNlLmMKPj4gQEAgLTU0OCwxMCArNTQ4LDYgQEAgc3RhdGljIGludCBjZG5zX2kyY19wcm9j
-ZXNzX21zZyhzdHJ1Y3QgY2Ruc19pMmMgKmlkLCBzdHJ1Y3QgaTJjX21zZyAqbXNnLAo+PsKgwqDC
-oMKgwqDCoMKgwqAgY2Ruc19pMmNfd3JpdGVyZWcoQ0ROU19JMkNfSVhSX0FMTF9JTlRSX01BU0ss
-Cj4+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBD
-RE5TX0kyQ19JRFJfT0ZGU0VUKTsKPj4KPj4gLcKgwqDCoMKgwqDCoCAvKiBJZiBpdCBpcyBidXMg
-YXJiaXRyYXRpb24gZXJyb3IsIHRyeSBhZ2FpbiAqLwo+PiAtwqDCoMKgwqDCoMKgIGlmIChpZC0+
-ZXJyX3N0YXR1cyAmIENETlNfSTJDX0lYUl9BUkJfTE9TVCkKPj4gLcKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqAgcmV0dXJuIC1FQUdBSU47Cj4+IC0KPj7CoMKgwqDCoMKgwqDCoMKgIHJldHVy
-biAwOwo+PsKgIH0KPj4KPj4gQEAgLTYxNywxMyArNjEzLDE5IEBAIHN0YXRpYyBpbnQgY2Ruc19p
-MmNfbWFzdGVyX3hmZXIoc3RydWN0IGkyY19hZGFwdGVyICphZGFwLCBzdHJ1Y3QgaTJjX21zZyAq
-bXNncywKPj7CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
-aWQtPmJ1c19ob2xkX2ZsYWcgPSAwOwo+Pgo+PsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgIHJldCA9IGNkbnNfaTJjX3Byb2Nlc3NfbXNnKGlkLCBtc2dzLCBhZGFwKTsKPj4gLcKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgaWYgKHJldCkKPj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqAgaWYgKCFyZXQpCj4+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgIGdvdG8gb3V0Owo+Pgo+SW4gY2FzZcKgIHRoZSBBcmJpdHJhdGlvbiBlcnJv
-ciBoYXBwZW5kwqAgdGhlIGNkbnNfaTJjX3Byb2Nlc3NfbXNnIHdvdWxkIHJldHVybiAwCj5hbmQg
-d2Ugd2lsbCBtaXNzIHRoZSBjaGVja8KgIGJlbG93Lgo+Cj5BbSBJIG1pc3Npbmcgc29tZXRoaW5n
-ID8KPgo+PsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIC8qIFJlcG9ydCB0aGUgb3Ro
-ZXIgZXJyb3IgaW50ZXJydXB0cyB0byBhcHBsaWNhdGlvbiAqLwo+PsKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgIGlmIChpZC0+ZXJyX3N0YXR1cykgewo+PsKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBjZG5zX2kyY19tYXN0ZXJfcmVzZXQoYWRh
-cCk7Cj4+Cj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAv
-KiBJZiBpdCBpcyBidXMgYXJiaXRyYXRpb24gZXJyb3IsIHRyeSBhZ2FpbiAqLwo+PiArwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgaWYgKGlkLT5lcnJfc3RhdHVz
-ICYgQ0ROU19JMkNfSVhSX0FSQl9MT1NUKSB7Cj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0ID0gLUVBR0FJTjsKPj4gK8Kg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oCBnb3RvIG91dDsKPj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgIH0KPj4gKwo+PsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoCBpZiAoaWQtPmVycl9zdGF0dXMgJiBDRE5TX0kyQ19JWFJfTkFDSykgewo+PsKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
-cmV0ID0gLUVOWElPOwo+PsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgZ290byBvdXQ7Cj4+IC0tCj4+IDIuMTkuMgo+Pgo+PiAK
-CkluIGNkbnNfaTJjX3Byb2Nlc3NfbXNnIHByb2Nlc3MsIHdoZW4gZGV0ZWN0IGFyYml0cmF0aW9u
-IGxvc3QgZXJyb3IgcmV0dXJuIC1FQUdBSU4gdG8gwqBjZG5zX2kyY19tYXN0ZXJfeGZlciwgwqBu
-b3QgcmV0dXJuIDAKdGhhdCBtZWFuIGNkbnNfaTJjX3Byb2Nlc3NfbXNnIMKganVzdCBnbyBvdXQg
-aWdub3JlIGVycm9yIGNoZWNrIGFuZCDCoHByb2JsZW0gb2NjdXIsIFNvIHdlIHNob3VsZCBkbyBz
-b21ldGhpbmcgd2hlbiBhcmJpdHJhdGlvbiBlcnJvciBkZXRlY3QuCl9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBs
-aXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5m
-cmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
+On Fri, 2019-02-15 at 10:02 +0100, Wolfram Sang wrote:
+> On Thu, Feb 14, 2019 at 09:54:28AM +0800, Qii Wang wrote:
+> > On Tue, 2019-02-05 at 14:16 +0100, Wolfram Sang wrote:
+> > > > +  - mediatek,share-i3c: i3c controller can share i2c function.
+> > > 
+> > > I am not happy with this binding. There must be a better way of using
+> > > the I3C controller in I2C mode. I think it would be easier to tell if we
+> > > had an I3C driver to see how it implements I2C fallback there. Is the
+> > > I3C driver on the way?
+> > > 
+> > 
+> > I am very sorry for the late reply due to the Chinese New Year holiday.
+> 
+> No worries. I hope you enjoyed the holidays!
+> 
+> > After confirmation, for I2C mode in I3C controller, we will push an I3C
+> > driver to implement I2C fallback there later, and we will remove
+> > "mediatek,share-i3c" for i2c controller driver in the next patch.
+> 
+> The problem with DT bindings is that you need to support them forever
+> once you introduced them. Because there might be old device trees on
+> boards out there which need the property. So, I don't like the idea of
+> having a temporary binding which is meant to be removed anyway. My take
+> is that you should just send out the I3C driver which will handle the
+> I2C support then.
+> 
+> Adding Rob to CC in case he has a different opinion.
+> 
+
+Maybe you think that MT8183 SoC only has the I3C controllers. Actually,
+there are I2C and I3C controllers on MT8183 SoC. We will remove
+"mediatek,share-i3c" for I2C controller driver, so these patches are
+just to support the I2C controllers on MT8183 SoC. For the I3C
+controller we will send some new patches which are based on i3c
+framework directories(kernel/drivers/i3c), not based on
+i2c-mt65xx.c.
