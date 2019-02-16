@@ -1,73 +1,78 @@
-From: Jim Broadus <jbroadus@gmail.com>
-Subject: [PATCH] i2c: Allow recovery of the initial IRQ by a i2c client device.
-Date: Fri, 15 Feb 2019 16:15:33 -0800
-Message-ID: <20190216001533.5465-1-jbroadus@gmail.com>
+From: "sxauwsk@163.com" <sxauwsk@163.com>
+Subject: [PATCH] i2c: cadence: try reset when master receive error interrupts
+Date: Sat, 16 Feb 2019 15:50:19 +0800
+Message-ID: <2019021615501780626817@163.com>
+References: <20190129195214.30272-1-sxauwsk@163.com>,
+ <CAKfKVtELqoNNJB0qB88ghGoVrdV2-Ez1DjvmT3dZifntdV0GQg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: ckeepax@opensource.cirrus.com, benjamin.tissoires@redhat.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Jim Broadus <jbroadus@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, "michal.simek" <michal.simek@xilinx.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-A previous change allowed i2c client devices to discover new IRQs upon
-reprobe. By clearing the IRQ in i2c_device_remove. However, if an IRQ was
-assigned in i2c_new_device, that information is lost.
-
-For example, the touchscreen and trackpad devices on a Dell Inspiron laptop
-are I2C devices whose IRQs are defined by ACPI extended IRQ types. The
-client device structures are initialized during an ACPI walk. After
-removing the i2c_hid device, modprobe fails.
-
-This change caches the initial IRQ value in i2c_new_device and then resets
-the client device IRQ to the initial value in i2c_device_remove.
-
-Fixes: 6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
-Signed-off-by: Jim Broadus <jbroadus@gmail.com>
----
- drivers/i2c/i2c-core-base.c | 9 +++++----
- include/linux/i2c.h         | 1 +
- 2 files changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 28460f6a60cc..af87a16ac3a5 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -430,7 +430,7 @@ static int i2c_device_remove(struct device *dev)
- 	dev_pm_clear_wake_irq(&client->dev);
- 	device_init_wakeup(&client->dev, false);
- 
--	client->irq = 0;
-+	client->irq = client->init_irq;
- 
- 	return status;
- }
-@@ -741,10 +741,11 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
- 	client->flags = info->flags;
- 	client->addr = info->addr;
- 
--	client->irq = info->irq;
--	if (!client->irq)
--		client->irq = i2c_dev_irq_from_resources(info->resources,
-+	client->init_irq = info->irq;
-+	if (!client->init_irq)
-+		client->init_irq = i2c_dev_irq_from_resources(info->resources,
- 							 info->num_resources);
-+	client->irq = client->init_irq;
- 
- 	strlcpy(client->name, info->type, sizeof(client->name));
- 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 65b4eaed1d96..7e748648c7d3 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -333,6 +333,7 @@ struct i2c_client {
- 	char name[I2C_NAME_SIZE];
- 	struct i2c_adapter *adapter;	/* the adapter we sit on	*/
- 	struct device dev;		/* the device structure		*/
-+	int init_irq;			/* irq set at initialization	*/
- 	int irq;			/* irq issued by device		*/
- 	struct list_head detected;
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
--- 
-2.20.1
+PkhpIFN4YXV3c2ssCj4KPk9uIFdlZCwgSmFuIDMwLCAyMDE5IGF0IDM6MTMgUE0gc3hhdXdzayA8
+c3hhdXdza0AxNjMuY29tPiB3cm90ZToKPj4KPj4gV2hlbiB0aGUgYWRhcHRlciByZWNlaXZlIGVy
+cm9yIGludGVycnVwdHMsIHN1Y2ggYXMgTkFDSywgYXJiaXRyYXRpb24gbG9zdCwKPj4gY2Ruc19p
+MmNfbWFzdGVyX3hmZXIgcmV0dXJuIHRvIHRoZSBjYWxsZXIgZGlyZWN0bHkgaW5zdGVhZCBvZiBy
+ZXN1bWluZwo+PiB0aGUgYWRhcHRlciB3aGljaCByZXN1bHRlZCBpbiB0aGUgYWRhcHRlciBiZWlu
+ZyBvdXQgb2YgY29udHJvbC4KPj4KPj4gU28gd2hlbiBkcml2ZXIgZGV0ZWN0IGVycl9zdGF0dXMg
+dGhlbiB0cnkgdG8gcmVwYWlyIGFuZCBmaXggaXQuCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IHN4YXV3
+c2sgPHN4YXV3c2tAMTYzLmNvbT4KPj4gLS0tCj4+wqAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1j
+YWRlbmNlLmMgfCAxMiArKysrKysrLS0tLS0KPj7CoCAxIGZpbGUgY2hhbmdlZCwgNyBpbnNlcnRp
+b25zKCspLCA1IGRlbGV0aW9ucygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVz
+c2VzL2kyYy1jYWRlbmNlLmMgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWNhZGVuY2UuYwo+PiBp
+bmRleCBiMTM2MDU3MTgyOTEuLmUxMDA0OGQ3NTI0YSAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy9p
+MmMvYnVzc2VzL2kyYy1jYWRlbmNlLmMKPj4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1j
+YWRlbmNlLmMKPj4gQEAgLTU0OCwxMCArNTQ4LDYgQEAgc3RhdGljIGludCBjZG5zX2kyY19wcm9j
+ZXNzX21zZyhzdHJ1Y3QgY2Ruc19pMmMgKmlkLCBzdHJ1Y3QgaTJjX21zZyAqbXNnLAo+PsKgwqDC
+oMKgwqDCoMKgwqAgY2Ruc19pMmNfd3JpdGVyZWcoQ0ROU19JMkNfSVhSX0FMTF9JTlRSX01BU0ss
+Cj4+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBD
+RE5TX0kyQ19JRFJfT0ZGU0VUKTsKPj4KPj4gLcKgwqDCoMKgwqDCoCAvKiBJZiBpdCBpcyBidXMg
+YXJiaXRyYXRpb24gZXJyb3IsIHRyeSBhZ2FpbiAqLwo+PiAtwqDCoMKgwqDCoMKgIGlmIChpZC0+
+ZXJyX3N0YXR1cyAmIENETlNfSTJDX0lYUl9BUkJfTE9TVCkKPj4gLcKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqAgcmV0dXJuIC1FQUdBSU47Cj4+IC0KPj7CoMKgwqDCoMKgwqDCoMKgIHJldHVy
+biAwOwo+PsKgIH0KPj4KPj4gQEAgLTYxNywxMyArNjEzLDE5IEBAIHN0YXRpYyBpbnQgY2Ruc19p
+MmNfbWFzdGVyX3hmZXIoc3RydWN0IGkyY19hZGFwdGVyICphZGFwLCBzdHJ1Y3QgaTJjX21zZyAq
+bXNncywKPj7CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
+aWQtPmJ1c19ob2xkX2ZsYWcgPSAwOwo+Pgo+PsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgIHJldCA9IGNkbnNfaTJjX3Byb2Nlc3NfbXNnKGlkLCBtc2dzLCBhZGFwKTsKPj4gLcKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgaWYgKHJldCkKPj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqAgaWYgKCFyZXQpCj4+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgIGdvdG8gb3V0Owo+Pgo+SW4gY2FzZcKgIHRoZSBBcmJpdHJhdGlvbiBlcnJv
+ciBoYXBwZW5kwqAgdGhlIGNkbnNfaTJjX3Byb2Nlc3NfbXNnIHdvdWxkIHJldHVybiAwCj5hbmQg
+d2Ugd2lsbCBtaXNzIHRoZSBjaGVja8KgIGJlbG93Lgo+Cj5BbSBJIG1pc3Npbmcgc29tZXRoaW5n
+ID8KPgo+PsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIC8qIFJlcG9ydCB0aGUgb3Ro
+ZXIgZXJyb3IgaW50ZXJydXB0cyB0byBhcHBsaWNhdGlvbiAqLwo+PsKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgIGlmIChpZC0+ZXJyX3N0YXR1cykgewo+PsKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBjZG5zX2kyY19tYXN0ZXJfcmVzZXQoYWRh
+cCk7Cj4+Cj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAv
+KiBJZiBpdCBpcyBidXMgYXJiaXRyYXRpb24gZXJyb3IsIHRyeSBhZ2FpbiAqLwo+PiArwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgaWYgKGlkLT5lcnJfc3RhdHVz
+ICYgQ0ROU19JMkNfSVhSX0FSQl9MT1NUKSB7Cj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0ID0gLUVBR0FJTjsKPj4gK8Kg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oCBnb3RvIG91dDsKPj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgIH0KPj4gKwo+PsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoCBpZiAoaWQtPmVycl9zdGF0dXMgJiBDRE5TX0kyQ19JWFJfTkFDSykgewo+PsKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
+cmV0ID0gLUVOWElPOwo+PsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgZ290byBvdXQ7Cj4+IC0tCj4+IDIuMTkuMgo+Pgo+PiAK
+CkluIGNkbnNfaTJjX3Byb2Nlc3NfbXNnIHByb2Nlc3MsIHdoZW4gZGV0ZWN0IGFyYml0cmF0aW9u
+IGxvc3QgZXJyb3IgcmV0dXJuIC1FQUdBSU4gdG8gwqBjZG5zX2kyY19tYXN0ZXJfeGZlciwgwqBu
+b3QgcmV0dXJuIDAKdGhhdCBtZWFuIGNkbnNfaTJjX3Byb2Nlc3NfbXNnIMKganVzdCBnbyBvdXQg
+aWdub3JlIGVycm9yIGNoZWNrIGFuZCDCoHByb2JsZW0gb2NjdXIsIFNvIHdlIHNob3VsZCBkbyBz
+b21ldGhpbmcgd2hlbiBhcmJpdHJhdGlvbiBlcnJvciBkZXRlY3QuCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBs
+aXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5m
+cmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
