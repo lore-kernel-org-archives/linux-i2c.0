@@ -1,55 +1,73 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH][next] i2c: tegra: change phrasing, "fallbacking" to
- "falling back"
-Date: Fri, 15 Feb 2019 22:42:59 +0100
-Message-ID: <20190215214259.lijzlwaelm3najwr@ninjato>
-References: <20190215153126.18575-1-colin.king@canonical.com>
+From: Jim Broadus <jbroadus@gmail.com>
+Subject: [PATCH] i2c: Allow recovery of the initial IRQ by a i2c client device.
+Date: Fri, 15 Feb 2019 16:15:33 -0800
+Message-ID: <20190216001533.5465-1-jbroadus@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="cydg23admer3cmh5"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190215153126.18575-1-colin.king@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Colin King <colin.king@canonical.com>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: ckeepax@opensource.cirrus.com, benjamin.tissoires@redhat.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Jim Broadus <jbroadus@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
+A previous change allowed i2c client devices to discover new IRQs upon
+reprobe. By clearing the IRQ in i2c_device_remove. However, if an IRQ was
+assigned in i2c_new_device, that information is lost.
 
---cydg23admer3cmh5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+For example, the touchscreen and trackpad devices on a Dell Inspiron laptop
+are I2C devices whose IRQs are defined by ACPI extended IRQ types. The
+client device structures are initialized during an ACPI walk. After
+removing the i2c_hid device, modprobe fails.
 
-On Fri, Feb 15, 2019 at 03:31:26PM +0000, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
->=20
-> The phrasing in two dev_err messages is using fallbacking which
-> os less understandable than "falling back", so fix this up.
->=20
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+This change caches the initial IRQ value in i2c_new_device and then resets
+the client device IRQ to the initial value in i2c_device_remove.
 
-Applied to for-next, thanks!
+Fixes: 6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
+Signed-off-by: Jim Broadus <jbroadus@gmail.com>
+---
+ drivers/i2c/i2c-core-base.c | 9 +++++----
+ include/linux/i2c.h         | 1 +
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-
---cydg23admer3cmh5
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxnMl4ACgkQFA3kzBSg
-KbbuyQ/+MbAm4ZxfTLByL3Bler1Blvc9fJOX5r3PFhmKT4oKXhC9i21188LEW7VY
-hXcoZT9xpQtBjzUpo+1M5SyHXBF60gY9CFbrogQ18qbyJxW5KfxIoJbwPHLRZ0kQ
-aawr+Qo3pBm8X/+NwMuSTlNxcUHN4jhNZ1Od1mwvmqln5O1WTVCXzNQYCrE3ifyi
-kLCL4/Y0FHjTZrYksUFMYUA3uYhoaKb8xBNW4qxrETclEJSEvne5MN+K4WIbO/90
-+DDz+83dX1Xnn7Eyy5j1WQ+eRgswoKl8K9iOlCcXVlgejXgOCYthbdLGdQRqZdq8
-89BuXvZygaPNvaAoIhZ5xZmQc5z20g7pUOS3MghwSCwUELK2AweHd7CwSvaxz4YD
-ptm9vdwlvbHBnMT3TXjwLFdgtF/uLhpmcuXLv6VHx4e4LM7OMXvvRu+uOUOvpgX9
-g5pYhZRLT7+Xr6piQDZ1AYDGYrzH0WBM6VDz7uHq38I8JTWDNmrIhgA/QP3eqtqW
-J5wGxFdyz8yX+dTHCOtANTxjYNKgAMe1zCHYtvBSz6/eI6srZ0r/kN94sV9mlYwK
-AkoFzQoMgOFTJGGBkoHsmD+9uYoySbUpIukt+CmUCJo7/9aE8qGq656jz6tlZst+
-+xao2NUDWhENDjEFWQdkxlShUDnd0UT1miMH43vCl6bp772RjtE=
-=3c33
------END PGP SIGNATURE-----
-
---cydg23admer3cmh5--
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 28460f6a60cc..af87a16ac3a5 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -430,7 +430,7 @@ static int i2c_device_remove(struct device *dev)
+ 	dev_pm_clear_wake_irq(&client->dev);
+ 	device_init_wakeup(&client->dev, false);
+ 
+-	client->irq = 0;
++	client->irq = client->init_irq;
+ 
+ 	return status;
+ }
+@@ -741,10 +741,11 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+ 	client->flags = info->flags;
+ 	client->addr = info->addr;
+ 
+-	client->irq = info->irq;
+-	if (!client->irq)
+-		client->irq = i2c_dev_irq_from_resources(info->resources,
++	client->init_irq = info->irq;
++	if (!client->init_irq)
++		client->init_irq = i2c_dev_irq_from_resources(info->resources,
+ 							 info->num_resources);
++	client->irq = client->init_irq;
+ 
+ 	strlcpy(client->name, info->type, sizeof(client->name));
+ 
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 65b4eaed1d96..7e748648c7d3 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -333,6 +333,7 @@ struct i2c_client {
+ 	char name[I2C_NAME_SIZE];
+ 	struct i2c_adapter *adapter;	/* the adapter we sit on	*/
+ 	struct device dev;		/* the device structure		*/
++	int init_irq;			/* irq set at initialization	*/
+ 	int irq;			/* irq issued by device		*/
+ 	struct list_head detected;
+ #if IS_ENABLED(CONFIG_I2C_SLAVE)
+-- 
+2.20.1
