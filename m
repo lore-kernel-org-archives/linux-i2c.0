@@ -1,80 +1,39 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 5.0
-Date: Sun, 17 Feb 2019 11:15:17 +0100
-Message-ID: <20190217101513.mmbztn2nopa4phif@ninjato>
+From: Adrian Bunk <bunk@kernel.org>
+Subject: Re: [4.9/4.14 patch] eeprom: at24: add support for 24c2048
+Date: Sun, 17 Feb 2019 13:15:37 +0200
+Message-ID: <20190217111537.GC6606@localhost>
+References: <20190214154158.GA21871@localhost>
+ <20190214155727.GA11308@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="x4lbudek2j2la7in"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+In-Reply-To: <20190214155727.GA11308@kroah.com>
+Sender: stable-owner@vger.kernel.org
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org, linux-i2c@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Feb 14, 2019 at 04:57:27PM +0100, Greg KH wrote:
+> On Thu, Feb 14, 2019 at 05:41:58PM +0200, Adrian Bunk wrote:
+> > commit 6c0c5dc33ff42af49243e94842d0ebdb153189ea upstream.
+> > commit 37cf28d3b5bca1b532a0b6aac722e7f2788a9294 upstream.
+> 
+> Please do not merge two different commits together, but backport them
+> individually, it's safer that way over time.
 
---x4lbudek2j2la7in
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Sorry for that, resent as two patches.
 
-Linus,
+> thanks,
+> 
+> greg k-h
 
-I2C has two more driver bugfixes for you.
+cu
+Adrian
 
-Please pull.
+-- 
 
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit d13937116f1e82bf508a6325111b322c30c85eb9:
-
-  Linux 5.0-rc6 (2019-02-10 14:42:20 -0800)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to f275a4659484716259cc46268d9043424e51cf0f:
-
-  i2c: bcm2835: Clear current buffer pointers and counts after a transfer (2019-02-15 09:45:05 +0100)
-
-----------------------------------------------------------------
-Paul Kocialkowski (1):
-      i2c: bcm2835: Clear current buffer pointers and counts after a transfer
-
-Shubhrajyoti Datta (1):
-      i2c: cadence: Fix the hold bit setting
-
-
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Kyle Roeschley (1):
-      (Test) i2c: cadence: Fix the hold bit setting
-
- drivers/i2c/busses/i2c-bcm2835.c | 12 ++++++++++++
- drivers/i2c/busses/i2c-cadence.c |  9 +++++++--
- 2 files changed, 19 insertions(+), 2 deletions(-)
-
---x4lbudek2j2la7in
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxpNCwACgkQFA3kzBSg
-KbYYcg//eJMnU7nHE4uM843ahTp+WgduIAVmpNuBLU8RFadO7mNqdWCLlu2/rYDy
-kH+c3KDjwur30Uk5YGQAXDWzaJr3gCvvwzJzJHZ8/19i4rZgHsfhx6NiQhY2OPSQ
-foQExmLazsKy9TN+JGJp+BMxy6IuoRY8AFgrudAH/OQnodEL1JOdxtqqT/c7FZMc
-f8X4rWrux4HUoamNiXvsjoDkEWEbWjSIOJ2Mz0rie7zpBiJ7sFDiG64NvrKZz0vq
-TMF4cwl2fOqLObNOuCs5yYFi2mVBJ4e6UgBKb6TU3eOJ6yit7hEk6G2e3GbGQO2z
-GqZAwhd+VnVlCa0Ryqkdy0yVHKs0TesMn3fL7LWcYGBk2VKJbakGyvjXoB4wjkRd
-xOOOwko7yYABZJTMP41c5Q6XODVEeg5KzjKZhmEBpFrK+FIpl7PhR5bwI28JkWV9
-FaLnYHeUWIEEQ9/xPx2waIycW7WbtHC1J/iT/71DyXBbqrLuzlSiy34AjeMoYS9G
-16wxIefEXKfsr6Z0RMzaq9Sk4ES2+gxhefGdaqYsTMXWnWLMt6ABBdeiuGfFEigv
-zz0VqEn67xbAeGYiFC0+PM9qCiG+Qhj4pg2xu6KqYmQSFY6UbbQkjEupbbralvwe
-cXscXe6vxX91b2jfrZMaJd+kgRH2J+sOfz3WdpRQz+uAJNuXeFQ=
-=iluI
------END PGP SIGNATURE-----
-
---x4lbudek2j2la7in--
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
