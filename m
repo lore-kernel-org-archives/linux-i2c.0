@@ -1,7 +1,7 @@
 From: Adrian Bunk <bunk@kernel.org>
-Subject: [4.9/4.14 patch v2 2/2] eeprom: at24: add support for 24c2048
-Date: Sun, 17 Feb 2019 13:14:52 +0200
-Message-ID: <20190217111452.6152-3-bunk@kernel.org>
+Subject: [4.9/4.14 patch v2 1/2] dt-bindings: eeprom: at24: add "atmel,24c2048" compatible string
+Date: Sun, 17 Feb 2019 13:14:51 +0200
+Message-ID: <20190217111452.6152-2-bunk@kernel.org>
 References: <20190217111452.6152-1-bunk@kernel.org>
 Return-path: <stable-owner@vger.kernel.org>
 In-Reply-To: <20190217111452.6152-1-bunk@kernel.org>
@@ -10,41 +10,39 @@ To: stable@vger.kernel.org
 Cc: linux-i2c@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-commit 37cf28d3b5bca1b532a0b6aac722e7f2788a9294 upstream.
+commit 6c0c5dc33ff42af49243e94842d0ebdb153189ea upstream.
 
-Works with ST M24M02.
+Add new compatible to the device tree bindings.
 
 Signed-off-by: Adrian Bunk <bunk@kernel.org>
+Acked-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 ---
- drivers/misc/eeprom/Kconfig | 2 +-
- drivers/misc/eeprom/at24.c  | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/eeprom/eeprom.txt | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/eeprom/Kconfig b/drivers/misc/eeprom/Kconfig
-index de58762097c4..3f93e4564cab 100644
---- a/drivers/misc/eeprom/Kconfig
-+++ b/drivers/misc/eeprom/Kconfig
-@@ -12,7 +12,7 @@ config EEPROM_AT24
- 	  ones like at24c64, 24lc02 or fm24c04:
+diff --git a/Documentation/devicetree/bindings/eeprom/eeprom.txt b/Documentation/devicetree/bindings/eeprom/eeprom.txt
+index afc04589eadf..3c9a822d576c 100644
+--- a/Documentation/devicetree/bindings/eeprom/eeprom.txt
++++ b/Documentation/devicetree/bindings/eeprom/eeprom.txt
+@@ -6,7 +6,8 @@ Required properties:
  
- 	     24c00, 24c01, 24c02, spd (readonly 24c02), 24c04, 24c08,
--	     24c16, 24c32, 24c64, 24c128, 24c256, 24c512, 24c1024
-+	     24c16, 24c32, 24c64, 24c128, 24c256, 24c512, 24c1024, 24c2048
+ 	"atmel,24c00", "atmel,24c01", "atmel,24c02", "atmel,24c04",
+ 	"atmel,24c08", "atmel,24c16", "atmel,24c32", "atmel,24c64",
+-	"atmel,24c128", "atmel,24c256", "atmel,24c512", "atmel,24c1024"
++	"atmel,24c128", "atmel,24c256", "atmel,24c512", "atmel,24c1024",
++	"atmel,24c2048"
  
- 	  Unless you like data loss puzzles, always be sure that any chip
- 	  you configure as a 24c32 (32 kbit) or larger is NOT really a
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index ded48a0c77ee..59dcd97ee3de 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -170,6 +170,7 @@ static const struct i2c_device_id at24_ids[] = {
- 	{ "24c256",	AT24_DEVICE_MAGIC(262144 / 8,	AT24_FLAG_ADDR16) },
- 	{ "24c512",	AT24_DEVICE_MAGIC(524288 / 8,	AT24_FLAG_ADDR16) },
- 	{ "24c1024",	AT24_DEVICE_MAGIC(1048576 / 8,	AT24_FLAG_ADDR16) },
-+	{ "24c2048",	AT24_DEVICE_MAGIC(2097152 / 8,	AT24_FLAG_ADDR16) },
- 	{ "at24", 0 },
- 	{ /* END OF LIST */ }
- };
+ 	"catalyst,24c32"
+ 
+@@ -23,7 +24,7 @@ Required properties:
+ 	 device with <type> and manufacturer "atmel" should be used.
+ 	 Possible types are:
+ 	 "24c00", "24c01", "24c02", "24c04", "24c08", "24c16", "24c32", "24c64",
+-	 "24c128", "24c256", "24c512", "24c1024", "spd"
++	 "24c128", "24c256", "24c512", "24c1024", "24c2048", "spd"
+ 
+   - reg : the I2C address of the EEPROM
+ 
 -- 
 2.11.0
