@@ -1,64 +1,40 @@
-From: Shikai Wang <sxauwsk@163.com>
-Subject: [PATCH] i2c: cadence: try reset when master receive arbitration lost
-Date: Mon, 18 Feb 2019 17:41:32 +0800
-Message-ID: <20190218094132.5226-1-sxauwsk@163.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
+Subject: Re: [PATCH] i2c: Allow recovery of the initial IRQ by a i2c client
+ device.
+Date: Mon, 18 Feb 2019 10:06:52 +0000
+Message-ID: <20190218100652.GB27940@ediswmail.ad.cirrus.com>
+References: <20190216001533.5465-1-jbroadus@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-Cc: linux-kernel@vger.kernel.org, sxauwsk@163.com, Michal Simek <michal.simek@xilinx.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190216001533.5465-1-jbroadus@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jim Broadus <jbroadus@gmail.com>
+Cc: benjamin.tissoires@redhat.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-When the adapter receive arbitration lost error interrupts,
-cdns_i2c_master_xfer return to the caller directly instead of resetting
-the adapter which resulted in the adapter being out of control.
+On Fri, Feb 15, 2019 at 04:15:33PM -0800, Jim Broadus wrote:
+> A previous change allowed i2c client devices to discover new IRQs upon
+> reprobe. By clearing the IRQ in i2c_device_remove. However, if an IRQ was
+> assigned in i2c_new_device, that information is lost.
+> 
+> For example, the touchscreen and trackpad devices on a Dell Inspiron laptop
+> are I2C devices whose IRQs are defined by ACPI extended IRQ types. The
+> client device structures are initialized during an ACPI walk. After
+> removing the i2c_hid device, modprobe fails.
+> 
+> This change caches the initial IRQ value in i2c_new_device and then resets
+> the client device IRQ to the initial value in i2c_device_remove.
+> 
+> Fixes: 6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
+> Signed-off-by: Jim Broadus <jbroadus@gmail.com>
+> ---
 
-So when driver detect err_status such as arbitration lost,
-then try to repair and fix it.
+Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-Signed-off-by: Shikai Wang <sxauwsk@163.com>
-Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
----
- drivers/i2c/busses/i2c-cadence.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+Apologies for the issues caused. I think this looks like a good fix
+to me.
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index b13605718291..595b0d56ff1a 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -548,10 +548,6 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
- 	cdns_i2c_writereg(CDNS_I2C_IXR_ALL_INTR_MASK,
- 			  CDNS_I2C_IDR_OFFSET);
- 
--	/* If it is bus arbitration error, try again */
--	if (id->err_status & CDNS_I2C_IXR_ARB_LOST)
--		return -EAGAIN;
--
- 	return 0;
- }
- 
-@@ -624,6 +620,12 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 		if (id->err_status) {
- 			cdns_i2c_master_reset(adap);
- 
-+			/* If it is bus arbitration error, try again */
-+			if (id->err_status & CDNS_I2C_IXR_ARB_LOST) {
-+				ret = -EAGAIN;
-+				goto out;
-+			}
-+
- 			if (id->err_status & CDNS_I2C_IXR_NACK) {
- 				ret = -ENXIO;
- 				goto out;
--- 
-2.19.2
+Thanks,
+Charles
