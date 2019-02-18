@@ -1,43 +1,38 @@
-From: Jim Broadus <jbroadus@gmail.com>
-Subject: Re: [PATCH] i2c: Allow recovery of the initial IRQ by a i2c client device.
-Date: Mon, 18 Feb 2019 10:25:10 -0800
-Message-ID: <CAKgEEwsOHqV-PtJnc-5nXAuH3BVitXWt80eoENJa3wZ6vGZDpw@mail.gmail.com>
-References: <20190216001533.5465-1-jbroadus@gmail.com> <20190218100652.GB27940@ediswmail.ad.cirrus.com>
+From: Sowjanya Komatineni <skomatineni@nvidia.com>
+Subject: [PATCH V2] i2c: tegra: fix tegra186 hw feature support for has_mst_fifo_reg
+Date: Mon, 18 Feb 2019 13:07:35 -0800
+Message-ID: <1550524059-28900-1-git-send-email-skomatineni@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190218100652.GB27940@ediswmail.ad.cirrus.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Charles Keepax <ckeepax@opensource.cirrus.com>
-Cc: benjamin.tissoires@redhat.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+To: thierry.reding@gmail.com, jonathanh@nvidia.com, talho@nvidia.com, skomatineni@nvidia.com
+Cc: wsa@the-dreams.de, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Thank you Charles. I should probably correct the typos in my commit message.
+Tegra186 does not have master fifo control register and instead
+uses fifo control register like prior tegra chipset.
 
-On Mon, Feb 18, 2019 at 2:06 AM Charles Keepax
-<ckeepax@opensource.cirrus.com> wrote:
->
-> On Fri, Feb 15, 2019 at 04:15:33PM -0800, Jim Broadus wrote:
-> > A previous change allowed i2c client devices to discover new IRQs upon
-> > reprobe. By clearing the IRQ in i2c_device_remove. However, if an IRQ was
-> > assigned in i2c_new_device, that information is lost.
-> >
-> > For example, the touchscreen and trackpad devices on a Dell Inspiron laptop
-> > are I2C devices whose IRQs are defined by ACPI extended IRQ types. The
-> > client device structures are initialized during an ACPI walk. After
-> > removing the i2c_hid device, modprobe fails.
-> >
-> > This change caches the initial IRQ value in i2c_new_device and then resets
-> > the client device IRQ to the initial value in i2c_device_remove.
-> >
-> > Fixes: 6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
-> > Signed-off-by: Jim Broadus <jbroadus@gmail.com>
-> > ---
->
-> Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
->
-> Apologies for the issues caused. I think this looks like a good fix
-> to me.
->
-> Thanks,
-> Charles
+This patch fixes this and prevents crashing during boot when
+accessing fifo control registers.
+
+Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+---
+ drivers/i2c/busses/i2c-tegra.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index a4cd79c9f7a7..e6851904acc1 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -1436,7 +1436,7 @@ static const struct tegra_i2c_hw_feature tegra186_i2c_hw = {
+ 	.has_config_load_reg = true,
+ 	.has_multi_master_mode = true,
+ 	.has_slcg_override_reg = true,
+-	.has_mst_fifo = true,
++	.has_mst_fifo = false,
+ 	.quirks = &tegra_i2c_quirks,
+ 	.supports_bus_clear = true,
+ 	.has_apb_dma = false,
+-- 
+2.7.4
