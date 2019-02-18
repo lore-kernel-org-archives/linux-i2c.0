@@ -1,83 +1,109 @@
-From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Subject: Re: [PATCH] i2c: cadence: try reset when master receive error interrupts
-Date: Mon, 18 Feb 2019 12:03:18 +0530
-Message-ID: <CAKfKVtGu3dzSR71-Rsp8SR8nq8-XhY5FrgDvxv9iu_L-TyL5+Q@mail.gmail.com>
-References: <20190129195214.30272-1-sxauwsk@163.com> <CAKfKVtELqoNNJB0qB88ghGoVrdV2-Ez1DjvmT3dZifntdV0GQg@mail.gmail.com>
- <2019021615501780626817@163.com>
+From: "sxauwsk@163.com" <sxauwsk@163.com>
+Subject: Re: Re: [PATCH] i2c: cadence: try reset when master receive error
+ interrupts
+Date: Mon, 18 Feb 2019 15:16:37 +0800
+Message-ID: <2019021815163582329937@163.com>
+References: <20190129195214.30272-1-sxauwsk@163.com>,
+ <CAKfKVtELqoNNJB0qB88ghGoVrdV2-Ez1DjvmT3dZifntdV0GQg@mail.gmail.com>,
+ <2019021615501780626817@163.com>,
+ <CAKfKVtGu3dzSR71-Rsp8SR8nq8-XhY5FrgDvxv9iu_L-TyL5+Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2019021615501780626817@163.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "sxauwsk@163.com" <sxauwsk@163.com>
-Cc: "michal.simek" <michal.simek@xilinx.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, "michal.simek" <michal.simek@xilinx.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi ,
-On Sat, Feb 16, 2019 at 1:21 PM sxauwsk@163.com <sxauwsk@163.com> wrote:
->
-> >Hi Sxauwsk,
-> >
-> >On Wed, Jan 30, 2019 at 3:13 PM sxauwsk <sxauwsk@163.com> wrote:
-> >>
-> >> When the adapter receive error interrupts, such as NACK, arbitration lost,
-> >> cdns_i2c_master_xfer return to the caller directly instead of resuming
-> >> the adapter which resulted in the adapter being out of control.
-> >>
-> >> So when driver detect err_status then try to repair and fix it.
-> >>
-> >> Signed-off-by: sxauwsk <sxauwsk@163.com>
-> >> ---
-> >>  drivers/i2c/busses/i2c-cadence.c | 12 +++++++-----
-> >>  1 file changed, 7 insertions(+), 5 deletions(-)
-> >>
-> >> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-> >> index b13605718291..e10048d7524a 100644
-> >> --- a/drivers/i2c/busses/i2c-cadence.c
-> >> +++ b/drivers/i2c/busses/i2c-cadence.c
-> >> @@ -548,10 +548,6 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
-> >>         cdns_i2c_writereg(CDNS_I2C_IXR_ALL_INTR_MASK,
-> >>                           CDNS_I2C_IDR_OFFSET);
-> >>
-> >> -       /* If it is bus arbitration error, try again */
-> >> -       if (id->err_status & CDNS_I2C_IXR_ARB_LOST)
-> >> -               return -EAGAIN;
-> >> -
-> >>         return 0;
-> >>  }
-> >>
-> >> @@ -617,13 +613,19 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-> >>                         id->bus_hold_flag = 0;
-> >>
-> >>                 ret = cdns_i2c_process_msg(id, msgs, adap);
-> >> -               if (ret)
-> >> +               if (!ret)
-> >>                         goto out;
-> >>
-> >In case  the Arbitration error happend  the cdns_i2c_process_msg would return 0
-> >and we will miss the check  below.
-> >
-> >Am I missing something ?
-> >
-> >>                 /* Report the other error interrupts to application */
-> >>                 if (id->err_status) {
-> >>                         cdns_i2c_master_reset(adap);
-> >>
-> >> +                       /* If it is bus arbitration error, try again */
-> >> +                       if (id->err_status & CDNS_I2C_IXR_ARB_LOST) {
-> >> +                               ret = -EAGAIN;
-> >> +                               goto out;
-> >> +                       }
-> >> +
-> >>                         if (id->err_status & CDNS_I2C_IXR_NACK) {
-> >>                                 ret = -ENXIO;
-> >>                                 goto out;
-> >> --
-> >> 2.19.2
-> >>
-> >>
->
-> In cdns_i2c_process_msg process, when detect arbitration lost error return -EAGAIN to  cdns_i2c_master_xfer,  not return 0
-> that mean cdns_i2c_process_msg  just go out ignore error check and  problem occur, So we should do something when arbitration error detect.
-
-Arbitration lost is fine how about other errors like NACK.
+SGkgLCBTaHViaHJhanlvdGkKCj5IaSAsCj5PbiBTYXQsIEZlYiAxNiwgMjAxOSBhdCAxOjIxIFBN
+IHN4YXV3c2tAMTYzLmNvbSA8c3hhdXdza0AxNjMuY29tPiB3cm90ZToKPj4KPj4gPkhpIFN4YXV3
+c2ssCj4+ID4KPj4gPk9uIFdlZCwgSmFuIDMwLCAyMDE5IGF0IDM6MTMgUE0gc3hhdXdzayA8c3hh
+dXdza0AxNjMuY29tPiB3cm90ZToKPj4gPj4KPj4gPj4gV2hlbiB0aGUgYWRhcHRlciByZWNlaXZl
+IGVycm9yIGludGVycnVwdHMsIHN1Y2ggYXMgTkFDSywgYXJiaXRyYXRpb24gbG9zdCwKPj4gPj4g
+Y2Ruc19pMmNfbWFzdGVyX3hmZXIgcmV0dXJuIHRvIHRoZSBjYWxsZXIgZGlyZWN0bHkgaW5zdGVh
+ZCBvZiByZXN1bWluZwo+PiA+PiB0aGUgYWRhcHRlciB3aGljaCByZXN1bHRlZCBpbiB0aGUgYWRh
+cHRlciBiZWluZyBvdXQgb2YgY29udHJvbC4KPj4gPj4KPj4gPj4gU28gd2hlbiBkcml2ZXIgZGV0
+ZWN0IGVycl9zdGF0dXMgdGhlbiB0cnkgdG8gcmVwYWlyIGFuZCBmaXggaXQuCj4+ID4+Cj4+ID4+
+IFNpZ25lZC1vZmYtYnk6IHN4YXV3c2sgPHN4YXV3c2tAMTYzLmNvbT4KPj4gPj4gLS0tCj4+ID4+
+wqAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1jYWRlbmNlLmMgfCAxMiArKysrKysrLS0tLS0KPj4g
+Pj7CoCAxIGZpbGUgY2hhbmdlZCwgNyBpbnNlcnRpb25zKCspLCA1IGRlbGV0aW9ucygtKQo+PiA+
+Pgo+PiA+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1jYWRlbmNlLmMgYi9k
+cml2ZXJzL2kyYy9idXNzZXMvaTJjLWNhZGVuY2UuYwo+PiA+PiBpbmRleCBiMTM2MDU3MTgyOTEu
+LmUxMDA0OGQ3NTI0YSAxMDA2NDQKPj4gPj4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1j
+YWRlbmNlLmMKPj4gPj4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1jYWRlbmNlLmMKPj4g
+Pj4gQEAgLTU0OCwxMCArNTQ4LDYgQEAgc3RhdGljIGludCBjZG5zX2kyY19wcm9jZXNzX21zZyhz
+dHJ1Y3QgY2Ruc19pMmMgKmlkLCBzdHJ1Y3QgaTJjX21zZyAqbXNnLAo+PiA+PsKgwqDCoMKgwqDC
+oMKgwqAgY2Ruc19pMmNfd3JpdGVyZWcoQ0ROU19JMkNfSVhSX0FMTF9JTlRSX01BU0ssCj4+ID4+
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBDRE5T
+X0kyQ19JRFJfT0ZGU0VUKTsKPj4gPj4KPj4gPj4gLcKgwqDCoMKgwqDCoCAvKiBJZiBpdCBpcyBi
+dXMgYXJiaXRyYXRpb24gZXJyb3IsIHRyeSBhZ2FpbiAqLwo+PiA+PiAtwqDCoMKgwqDCoMKgIGlm
+IChpZC0+ZXJyX3N0YXR1cyAmIENETlNfSTJDX0lYUl9BUkJfTE9TVCkKPj4gPj4gLcKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0dXJuIC1FQUdBSU47Cj4+ID4+IC0KPj4gPj7CoMKgwqDC
+oMKgwqDCoMKgIHJldHVybiAwOwo+PiA+PsKgIH0KPj4gPj4KPj4gPj4gQEAgLTYxNywxMyArNjEz
+LDE5IEBAIHN0YXRpYyBpbnQgY2Ruc19pMmNfbWFzdGVyX3hmZXIoc3RydWN0IGkyY19hZGFwdGVy
+ICphZGFwLCBzdHJ1Y3QgaTJjX21zZyAqbXNncywKPj4gPj7CoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgaWQtPmJ1c19ob2xkX2ZsYWcgPSAwOwo+PiA+Pgo+
+PiA+PsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHJldCA9IGNkbnNfaTJjX3Byb2Nl
+c3NfbXNnKGlkLCBtc2dzLCBhZGFwKTsKPj4gPj4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqAgaWYgKHJldCkKPj4gPj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgaWYgKCFyZXQp
+Cj4+ID4+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGdv
+dG8gb3V0Owo+PiA+Pgo+PiA+SW4gY2FzZcKgIHRoZSBBcmJpdHJhdGlvbiBlcnJvciBoYXBwZW5k
+wqAgdGhlIGNkbnNfaTJjX3Byb2Nlc3NfbXNnIHdvdWxkIHJldHVybiAwCj4+ID5hbmQgd2Ugd2ls
+bCBtaXNzIHRoZSBjaGVja8KgIGJlbG93Lgo+PiA+Cj4+ID5BbSBJIG1pc3Npbmcgc29tZXRoaW5n
+ID8KPj4gPgo+PiA+PsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIC8qIFJlcG9ydCB0
+aGUgb3RoZXIgZXJyb3IgaW50ZXJydXB0cyB0byBhcHBsaWNhdGlvbiAqLwo+PiA+PsKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGlmIChpZC0+ZXJyX3N0YXR1cykgewo+PiA+PsKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBjZG5zX2kyY19tYXN0
+ZXJfcmVzZXQoYWRhcCk7Cj4+ID4+Cj4+ID4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoCAvKiBJZiBpdCBpcyBidXMgYXJiaXRyYXRpb24gZXJyb3IsIHRyeSBh
+Z2FpbiAqLwo+PiA+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqAgaWYgKGlkLT5lcnJfc3RhdHVzICYgQ0ROU19JMkNfSVhSX0FSQl9MT1NUKSB7Cj4+ID4+ICvC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqAgcmV0ID0gLUVBR0FJTjsKPj4gPj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBnb3RvIG91dDsKPj4gPj4gK8KgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIH0KPj4gPj4gKwo+PiA+PsKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBpZiAoaWQtPmVycl9zdGF0
+dXMgJiBDRE5TX0kyQ19JWFJfTkFDSykgewo+PiA+PsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0ID0gLUVOWElPOwo+PiA+
+PsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqAgZ290byBvdXQ7Cj4+ID4+IC0tCj4+ID4+IDIuMTkuMgo+PiA+Pgo+PiA+Pgo+Pgo+
+PiBJbiBjZG5zX2kyY19wcm9jZXNzX21zZyBwcm9jZXNzLCB3aGVuIGRldGVjdCBhcmJpdHJhdGlv
+biBsb3N0IGVycm9yIHJldHVybiAtRUFHQUlOIHRvwqAgY2Ruc19pMmNfbWFzdGVyX3hmZXIswqAg
+bm90IHJldHVybiAwCj4+IHRoYXQgbWVhbiBjZG5zX2kyY19wcm9jZXNzX21zZ8KgIGp1c3QgZ28g
+b3V0IGlnbm9yZSBlcnJvciBjaGVjayBhbmTCoCBwcm9ibGVtIG9jY3VyLCBTbyB3ZSBzaG91bGQg
+ZG8gc29tZXRoaW5nIHdoZW4gYXJiaXRyYXRpb24gZXJyb3IgZGV0ZWN0Lgo+Cj5BcmJpdHJhdGlv
+biBsb3N0IGlzIGZpbmUgaG93IGFib3V0IG90aGVyIGVycm9ycyBsaWtlIE5BQ0suIAoKPj4gPj4g
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgcmV0ID0gY2Ruc19pMmNfcHJvY2Vzc19tc2coaWQsIG1z
+Z3MsIGFkYXApOwo+PiA+PiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGlmIChyZXQpCj4+ID4+ICsg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgaWYgKCFyZXQpCj4+ID4+IMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIGdvdG8gb3V0OwoKWWVzLCB5b3UncmUgcmlnaHQsIMKgVGhpcyBwbGFj
+ZSBJIHNob3VsZCd0IG1ha2UgYW55IGNoYW5nZSwgwqBwZXJmZWN0IHNvbHV0aW9uIQoKPj4gPj4K
+Pj4gPj4gLSDCoCDCoCDCoCAvKiBJZiBpdCBpcyBidXMgYXJiaXRyYXRpb24gZXJyb3IsIHRyeSBh
+Z2FpbiAqLwo+PiA+PiAtIMKgIMKgIMKgIGlmIChpZC0+ZXJyX3N0YXR1cyAmIENETlNfSTJDX0lY
+Ul9BUkJfTE9TVCkKPj4gPj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCByZXR1cm4gLUVBR0FJTjsK
+Pj4gPj4gLQo+PiA+PiDCoCDCoCDCoCDCoCByZXR1cm4gMDsKPj4gPj4gwqB9CgoKPj4gPj4gwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgLyogUmVwb3J0IHRoZSBvdGhlciBlcnJvciBpbnRlcnJ1cHRz
+IHRvIGFwcGxpY2F0aW9uICovCj4+ID4+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGlmIChpZC0+
+ZXJyX3N0YXR1cykgewo+PiA+PiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBj
+ZG5zX2kyY19tYXN0ZXJfcmVzZXQoYWRhcCk7Cj4+ID4+Cj4+ID4+ICsgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgLyogSWYgaXQgaXMgYnVzIGFyYml0cmF0aW9uIGVycm9yLCB0cnkg
+YWdhaW4gKi8KPj4gPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBpZiAoaWQt
+PmVycl9zdGF0dXMgJiBDRE5TX0kyQ19JWFJfQVJCX0xPU1QpIHsKPj4gPj4gKyDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCByZXQgPSAtRUFHQUlOOwo+PiA+PiAr
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIGdvdG8gb3V0Owo+
+PiA+PiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIH0KPj4gPj4gKwoKTWF5YmUg
+SnVzdCByZW1vdmUgQXJiaXRyYXRpb24gbG9zdCBEZXRlY3QgcGFydCBmcm9tIMKgY2Ruc19pMmNf
+cHJvY2Vzc19tc2cgZnVuY3Rpb24sIMKgdGhlbiBhZGQgdG8gY2Ruc19pMmNfbWFzdGVyX3hmZXIs
+IMKgRG8geW91IHRoaW5rPwoKCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5l
+bEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4v
+bGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
