@@ -1,123 +1,61 @@
-From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Subject: Re: Re: [PATCH] i2c: cadence: try reset when master receive error interrupts
-Date: Mon, 18 Feb 2019 13:29:10 +0530
-Message-ID: <CAKfKVtH7Sui0RWTk_unh3vfbtC7b_CnqAjmMF5s3fPHccRnYsw@mail.gmail.com>
-References: <20190129195214.30272-1-sxauwsk@163.com> <CAKfKVtELqoNNJB0qB88ghGoVrdV2-Ez1DjvmT3dZifntdV0GQg@mail.gmail.com>
- <2019021615501780626817@163.com> <CAKfKVtGu3dzSR71-Rsp8SR8nq8-XhY5FrgDvxv9iu_L-TyL5+Q@mail.gmail.com>
- <2019021815163582329937@163.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH V1] i2c: tegra: fix tegra186 hw supported features
+Date: Mon, 18 Feb 2019 09:42:27 +0100
+Message-ID: <20190218084227.GB19363@ulmo>
+References: <1550334787-27703-1-git-send-email-skomatineni@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="mxv5cy4qt+RJ9ypb"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2019021815163582329937@163.com>
+Content-Disposition: inline
+In-Reply-To: <1550334787-27703-1-git-send-email-skomatineni@nvidia.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "sxauwsk@163.com" <sxauwsk@163.com>
-Cc: "michal.simek" <michal.simek@xilinx.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+To: Sowjanya Komatineni <skomatineni@nvidia.com>
+Cc: jonathanh@nvidia.com, talho@nvidia.com, wsa@the-dreams.de, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 18, 2019 at 12:48 PM sxauwsk@163.com <sxauwsk@163.com> wrote:
->
-> Hi , Shubhrajyoti
->
-> >Hi ,
-> >On Sat, Feb 16, 2019 at 1:21 PM sxauwsk@163.com <sxauwsk@163.com> wrote:
-> >>
-> >> >Hi Sxauwsk,
-> >> >
-> >> >On Wed, Jan 30, 2019 at 3:13 PM sxauwsk <sxauwsk@163.com> wrote:
-> >> >>
-> >> >> When the adapter receive error interrupts, such as NACK, arbitration lost,
-> >> >> cdns_i2c_master_xfer return to the caller directly instead of resuming
-> >> >> the adapter which resulted in the adapter being out of control.
-> >> >>
-> >> >> So when driver detect err_status then try to repair and fix it.
-> >> >>
-> >> >> Signed-off-by: sxauwsk <sxauwsk@163.com>
-> >> >> ---
-> >> >>  drivers/i2c/busses/i2c-cadence.c | 12 +++++++-----
-> >> >>  1 file changed, 7 insertions(+), 5 deletions(-)
-> >> >>
-> >> >> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-> >> >> index b13605718291..e10048d7524a 100644
-> >> >> --- a/drivers/i2c/busses/i2c-cadence.c
-> >> >> +++ b/drivers/i2c/busses/i2c-cadence.c
-> >> >> @@ -548,10 +548,6 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
-> >> >>         cdns_i2c_writereg(CDNS_I2C_IXR_ALL_INTR_MASK,
-> >> >>                           CDNS_I2C_IDR_OFFSET);
-> >> >>
-> >> >> -       /* If it is bus arbitration error, try again */
-> >> >> -       if (id->err_status & CDNS_I2C_IXR_ARB_LOST)
-> >> >> -               return -EAGAIN;
-> >> >> -
-> >> >>         return 0;
-> >> >>  }
-> >> >>
-> >> >> @@ -617,13 +613,19 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-> >> >>                         id->bus_hold_flag = 0;
-> >> >>
-> >> >>                 ret = cdns_i2c_process_msg(id, msgs, adap);
-> >> >> -               if (ret)
-> >> >> +               if (!ret)
-> >> >>                         goto out;
-> >> >>
-> >> >In case  the Arbitration error happend  the cdns_i2c_process_msg would return 0
-> >> >and we will miss the check  below.
-> >> >
-> >> >Am I missing something ?
-> >> >
-> >> >>                 /* Report the other error interrupts to application */
-> >> >>                 if (id->err_status) {
-> >> >>                         cdns_i2c_master_reset(adap);
-> >> >>
-> >> >> +                       /* If it is bus arbitration error, try again */
-> >> >> +                       if (id->err_status & CDNS_I2C_IXR_ARB_LOST) {
-> >> >> +                               ret = -EAGAIN;
-> >> >> +                               goto out;
-> >> >> +                       }
-> >> >> +
-> >> >>                         if (id->err_status & CDNS_I2C_IXR_NACK) {
-> >> >>                                 ret = -ENXIO;
-> >> >>                                 goto out;
-> >> >> --
-> >> >> 2.19.2
-> >> >>
-> >> >>
-> >>
-> >> In cdns_i2c_process_msg process, when detect arbitration lost error return -EAGAIN to  cdns_i2c_master_xfer,  not return 0
-> >> that mean cdns_i2c_process_msg  just go out ignore error check and  problem occur, So we should do something when arbitration error detect.
-> >
-> >Arbitration lost is fine how about other errors like NACK.
->
-> >> >>                 ret = cdns_i2c_process_msg(id, msgs, adap);
-> >> >> -               if (ret)
-> >> >> +               if (!ret)
-> >> >>                         goto out;
->
-> Yes, you're right,  This place I should't make any change,  perfect solution!
->
-> >> >>
-> >> >> -       /* If it is bus arbitration error, try again */
-> >> >> -       if (id->err_status & CDNS_I2C_IXR_ARB_LOST)
-> >> >> -               return -EAGAIN;
-> >> >> -
-> >> >>         return 0;
-> >> >>  }
->
->
-> >> >>                 /* Report the other error interrupts to application */
-> >> >>                 if (id->err_status) {
-> >> >>                         cdns_i2c_master_reset(adap);
-> >> >>
-> >> >> +                       /* If it is bus arbitration error, try again */
-> >> >> +                       if (id->err_status & CDNS_I2C_IXR_ARB_LOST) {
-> >> >> +                               ret = -EAGAIN;
-> >> >> +                               goto out;
-> >> >> +                       }
-> >> >> +
->
-> Maybe Just remove Arbitration lost Detect part from  cdns_i2c_process_msg function,  then add to cdns_i2c_master_xfer,  Do you think?
 
-I agree.
->
->
->
->
+--mxv5cy4qt+RJ9ypb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sat, Feb 16, 2019 at 08:33:07AM -0800, Sowjanya Komatineni wrote:
+> Tegra186 does not support multi-master mode and also there is no
+> master fifo control register.
+>=20
+> This patch fixes supported features of Tegra186 and prevents
+> crashing during boot as master fifo control register are not
+> present on Tegra186 and prior.
+>=20
+> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+> ---
+>  drivers/i2c/busses/i2c-tegra.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+
+We really should've caught this earlier. Jon, let's think about ways to
+make it easier to catch these things in the future on our test system.
+
+Acked-by: Thierry Reding <treding@nvidia.com>
+
+--mxv5cy4qt+RJ9ypb
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlxqb/MACgkQ3SOs138+
+s6FagxAAvWuwDorw34oreWqmswSIdriQUXtzQQ2p9LQUN4DBp1QRekITOsZejuQH
+Ci/HhUghBwqNihkwNwARevAHl2VdswnachySJKOXHCaTYu0jz3qP6xjCSQvKR7WC
+U2FUzzgCDW4eeZCh1dYaBOdUevgYFhE9PGoM1SxA+8lV0udsan3G8wF+NoQ4gB/r
+l4NCEPz5YndOBvSTQqJWkmHMJ0b0QcwOrigLQAYDM8l/GFmlYS6ZmwvG5ebRhdbt
+b7j3A3KfoUGsZjsd90jU7d3DE/f7r/pRW5vL3kcc7iIgR6L/0yss13MNbMuotjK4
+ivzMDcz/rASl4WbnSP3POP8TPtE7AlVcXxjadZU7sNHDNWW/HjNnYVaTPwYRxbvc
+XgyY0oW5sx266NyLP4fvvvFT7iFBSwtLWq0arsgAU7gUgkFPNKRLwJ3FbrpBIkrH
+tY+nzlq1Uvhk+pso5V3xe0K+Qv19uO7Ocwg8PZE60auIN92HeXtiqelf0rG9QU//
+ZcmbOgqv7Y9485AS5/hAre1cMXMDv9pUMsWjCb8v9bhzDx6Ct+3bNR9mF0GzAWnS
+vFpTCwXlRwmb2Zj68qub39vkRxUbNcatLJ3u+XO6iw6Zanv73CrHR4kABnBYU8jL
+e+vjnfrW2rLKmrLn8p/8FIa6B8IM9F5nE/geENvEz/+dG3FJtbo=
+=XEK2
+-----END PGP SIGNATURE-----
+
+--mxv5cy4qt+RJ9ypb--
