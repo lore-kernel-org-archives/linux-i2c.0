@@ -1,45 +1,40 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 0/2] eeprom: at24: new property
-Date: Tue, 19 Feb 2019 13:39:38 +0100
-Message-ID: <20190219123938.GA4867@kroah.com>
-References: <20190205135934.18841-1-brgl@bgdev.pl>
- <CAMRc=MdRgmOwcaytv83pOHGYGwsskCVx3gRqaatg8sMDShmnLw@mail.gmail.com>
+From: Qii Wang <qii.wang@mediatek.com>
+Subject: Re: [PATCH v3 5/6] dt-bindings: i2c: Add Mediatek MT8183 i2c binding
+Date: Tue, 19 Feb 2019 21:13:43 +0800
+Message-ID: <1550582023.30065.52.camel@mhfsdcap03>
+References: <1548057574-8061-1-git-send-email-qii.wang@mediatek.com>
+         <1548057574-8061-6-git-send-email-qii.wang@mediatek.com>
+         <20190205131641.GF12401@kunai> <1550109268.30065.13.camel@mhfsdcap03>
+         <20190215090257.geumssb2cucs7rzt@ninjato>
+         <1550316723.30065.44.camel@mhfsdcap03>
+         <20190216122915.hchghozcn7ntdkbm@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAMRc=MdRgmOwcaytv83pOHGYGwsskCVx3gRqaatg8sMDShmnLw@mail.gmail.com>
+In-Reply-To: <20190216122915.hchghozcn7ntdkbm@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, ryder.lee@mediatek.com, xinping.qian@mediatek.com, liguo.zhang@mediatek.com, Rob Herring <robh@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Feb 12, 2019 at 03:12:05PM +0100, Bartosz Golaszewski wrote:
-> wt., 5 lut 2019 o 15:00 Bartosz Golaszewski <brgl@bgdev.pl> napisał(a):
-> >
-> > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> >
-> > Microchip 24aa02t EEPROM is compatible with Atmel 24c02 except that
-> > it's visible on 8 i2c slave addresses. We already support such a
-> > use case with hard-coded config for 'atmel,24c00'. Let's add a more
-> > flexible device tree property - 'num-addresses' - to the binding
-> > document and support it in the driver.
-> >
-> > Bartosz Golaszewski (2):
-> >   dt-bindings: at24: add the 'num-addresses' property
-> >   eeprom: at24: implement support for 'num-addresses' property
-> >
-> >  Documentation/devicetree/bindings/eeprom/at24.txt |  3 +++
-> >  drivers/misc/eeprom/at24.c                        | 13 ++++++++-----
-> >  2 files changed, 11 insertions(+), 5 deletions(-)
-> >
-> > --
-> > 2.20.1
-> >
+On Sat, 2019-02-16 at 13:29 +0100, Wolfram Sang wrote:
+> > Maybe you think that MT8183 SoC only has the I3C controllers. Actually,
+> > there are I2C and I3C controllers on MT8183 SoC. We will remove
+> > "mediatek,share-i3c" for I2C controller driver, so these patches are
+> > just to support the I2C controllers on MT8183 SoC. For the I3C
+> > controller we will send some new patches which are based on i3c
+> > framework directories(kernel/drivers/i3c), not based on
+> > i2c-mt65xx.c.
 > 
-> If there are no objections, I will apply these in 2 days and include
-> them in the PR for v5.1.
+> Sounds perfect to me. If it turns out that the I3C driver can share
+> things with the I2C driver, we can discuss it then. But unless we have
+> an I3C driver and know for sure, the above strategy seems good to me.
+> 
 
-No objections from me:
-	Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Can I push the V4 patches of I2C controller driver now? or you just want
+an I3C driver that is compatible with the I2C controller?
+
+According to our plan, I2C controller will use
+i2c-mt65xx.c(kernel/drivers/i2c/busses/)and I3C controller will use
+i3c-xxx.c(kernel/drivers/i3c/master/)
