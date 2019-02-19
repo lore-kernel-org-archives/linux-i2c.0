@@ -1,49 +1,45 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: [PATCH V4 2/2] i2c: tegra: remove multi-master support
-Date: Mon, 18 Feb 2019 20:50:25 -0800
-Message-ID: <1550551825-1245-2-git-send-email-skomatineni@nvidia.com>
-References: <1550551825-1245-1-git-send-email-skomatineni@nvidia.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 0/2] eeprom: at24: new property
+Date: Tue, 19 Feb 2019 13:39:38 +0100
+Message-ID: <20190219123938.GA4867@kroah.com>
+References: <20190205135934.18841-1-brgl@bgdev.pl>
+ <CAMRc=MdRgmOwcaytv83pOHGYGwsskCVx3gRqaatg8sMDShmnLw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1550551825-1245-1-git-send-email-skomatineni@nvidia.com>
+Content-Disposition: inline
+In-Reply-To: <CAMRc=MdRgmOwcaytv83pOHGYGwsskCVx3gRqaatg8sMDShmnLw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: thierry.reding@gmail.com, jonathanh@nvidia.com, talho@nvidia.com, skomatineni@nvidia.com
-Cc: wsa@the-dreams.de, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Arnd Bergmann <arnd@arndb.de>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-multi-master support is defeatured on Tegra210 and Tegra186 due to
-known bugs.
+On Tue, Feb 12, 2019 at 03:12:05PM +0100, Bartosz Golaszewski wrote:
+> wt., 5 lut 2019 o 15:00 Bartosz Golaszewski <brgl@bgdev.pl> napisał(a):
+> >
+> > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> >
+> > Microchip 24aa02t EEPROM is compatible with Atmel 24c02 except that
+> > it's visible on 8 i2c slave addresses. We already support such a
+> > use case with hard-coded config for 'atmel,24c00'. Let's add a more
+> > flexible device tree property - 'num-addresses' - to the binding
+> > document and support it in the driver.
+> >
+> > Bartosz Golaszewski (2):
+> >   dt-bindings: at24: add the 'num-addresses' property
+> >   eeprom: at24: implement support for 'num-addresses' property
+> >
+> >  Documentation/devicetree/bindings/eeprom/at24.txt |  3 +++
+> >  drivers/misc/eeprom/at24.c                        | 13 ++++++++-----
+> >  2 files changed, 11 insertions(+), 5 deletions(-)
+> >
+> > --
+> > 2.20.1
+> >
+> 
+> If there are no objections, I will apply these in 2 days and include
+> them in the PR for v5.1.
 
-This patch removes multi-master support for Tegra210 and Tegra186
-i2c hw feature.
-
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
----
- drivers/i2c/busses/i2c-tegra.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index e6851904acc1..26f686bc3491 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -1409,7 +1409,7 @@ static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
- 	.clk_divisor_fast_mode = 0x19,
- 	.clk_divisor_fast_plus_mode = 0x10,
- 	.has_config_load_reg = true,
--	.has_multi_master_mode = true,
-+	.has_multi_master_mode = false,
- 	.has_slcg_override_reg = true,
- 	.has_mst_fifo = false,
- 	.quirks = &tegra_i2c_quirks,
-@@ -1434,7 +1434,7 @@ static const struct tegra_i2c_hw_feature tegra186_i2c_hw = {
- 	.clk_divisor_fast_mode = 0x19,
- 	.clk_divisor_fast_plus_mode = 0x10,
- 	.has_config_load_reg = true,
--	.has_multi_master_mode = true,
-+	.has_multi_master_mode = false,
- 	.has_slcg_override_reg = true,
- 	.has_mst_fifo = false,
- 	.quirks = &tegra_i2c_quirks,
--- 
-2.7.4
+No objections from me:
+	Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
