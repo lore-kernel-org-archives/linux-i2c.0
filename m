@@ -1,38 +1,65 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: [PATCH V3] i2c: tegra: fix tegra186 hw feature support
-Date: Mon, 18 Feb 2019 13:12:40 -0800
-Message-ID: <1550524360-29008-1-git-send-email-skomatineni@nvidia.com>
+From: Shikai Wang <sxauwsk@163.com>
+Subject: [PATCH v2] i2c: cadence: try reset when master receive arbitration
+ lost
+Date: Tue, 19 Feb 2019 09:24:47 +0800
+Message-ID: <20190219012447.5900-1-sxauwsk@163.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: thierry.reding@gmail.com, jonathanh@nvidia.com, talho@nvidia.com, skomatineni@nvidia.com
-Cc: wsa@the-dreams.de, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Shikai Wang <sxauwsk@163.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Tegra186 does not have master fifo control register and instead
-uses fifo control register like prior tegra chipset.
+When the adapter receive arbitration lost error interrupts,
+cdns_i2c_master_xfer return to the caller directly instead of resetting
+the adapter which resulted in the adapter being out of control.
 
-This patch fixes this and prevents crashing during boot when
-accessing fifo control registers.
+So when driver detect err_status such as arbitration lost,
+then try to repair and fix it.
 
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Reviewed-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Signed-off-by: Shikai Wang <sxauwsk@163.com>
 ---
- drivers/i2c/busses/i2c-tegra.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-cadence.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index a4cd79c9f7a7..e6851904acc1 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -1436,7 +1436,7 @@ static const struct tegra_i2c_hw_feature tegra186_i2c_hw = {
- 	.has_config_load_reg = true,
- 	.has_multi_master_mode = true,
- 	.has_slcg_override_reg = true,
--	.has_mst_fifo = true,
-+	.has_mst_fifo = false,
- 	.quirks = &tegra_i2c_quirks,
- 	.supports_bus_clear = true,
- 	.has_apb_dma = false,
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index b13605718291..595b0d56ff1a 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -548,10 +548,6 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
+ 	cdns_i2c_writereg(CDNS_I2C_IXR_ALL_INTR_MASK,
+ 			  CDNS_I2C_IDR_OFFSET);
+ 
+-	/* If it is bus arbitration error, try again */
+-	if (id->err_status & CDNS_I2C_IXR_ARB_LOST)
+-		return -EAGAIN;
+-
+ 	return 0;
+ }
+ 
+@@ -624,6 +620,12 @@ static int cdns_i2c_master_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 		if (id->err_status) {
+ 			cdns_i2c_master_reset(adap);
+ 
++			/* If it is bus arbitration error, try again */
++			if (id->err_status & CDNS_I2C_IXR_ARB_LOST) {
++				ret = -EAGAIN;
++				goto out;
++			}
++
+ 			if (id->err_status & CDNS_I2C_IXR_NACK) {
+ 				ret = -ENXIO;
+ 				goto out;
 -- 
-2.7.4
+2.19.2
