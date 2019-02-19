@@ -1,50 +1,75 @@
-From: Sowjanya Komatineni <skomatineni@nvidia.com>
-Subject: [PATCH V5 2/2] i2c: tegra: remove multi-master support
-Date: Tue, 19 Feb 2019 09:28:52 -0800
-Message-ID: <1550597332-21018-2-git-send-email-skomatineni@nvidia.com>
-References: <1550597332-21018-1-git-send-email-skomatineni@nvidia.com>
+From: Jim Broadus <jbroadus@gmail.com>
+Subject: [PATCH] i2c: Allow recovery of the initial IRQ by an I2C client device.
+Date: Tue, 19 Feb 2019 11:30:27 -0800
+Message-ID: <20190219193027.13882-1-jbroadus@gmail.com>
+References: <CAKgEEwsOHqV-PtJnc-5nXAuH3BVitXWt80eoENJa3wZ6vGZDpw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1550597332-21018-1-git-send-email-skomatineni@nvidia.com>
+In-Reply-To: <CAKgEEwsOHqV-PtJnc-5nXAuH3BVitXWt80eoENJa3wZ6vGZDpw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: thierry.reding@gmail.com, jonathanh@nvidia.com, talho@nvidia.com, skomatineni@nvidia.com
-Cc: wsa@the-dreams.de, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: ckeepax@opensource.cirrus.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Jim Broadus <jbroadus@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Multi-master support is defeatured on Tegra210 and Tegra186 due to
-known bugs.
+A previous change allowed I2C client devices to discover new IRQs upon
+reprobe by clearing the IRQ in i2c_device_remove. However, if an IRQ was
+assigned in i2c_new_device, that information is lost.
 
-This patch removes multi-master support for Tegra210 and Tegra186
-I2C HW feature.
+For example, the touchscreen and trackpad devices on a Dell Inspiron laptop
+are I2C devices whose IRQs are defined by ACPI extended IRQ types. The
+client device structures are initialized during an ACPI walk. After
+removing the i2c_hid device, modprobe fails.
 
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+This change caches the initial IRQ value in i2c_new_device and then resets
+the client device IRQ to the initial value in i2c_device_remove.
+
+Fixes: 6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
+Signed-off-by: Jim Broadus <jbroadus@gmail.com>
 ---
- drivers/i2c/busses/i2c-tegra.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core-base.c | 9 +++++----
+ include/linux/i2c.h         | 1 +
+ 2 files changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index e6851904acc1..26f686bc3491 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -1409,7 +1409,7 @@ static const struct tegra_i2c_hw_feature tegra210_i2c_hw = {
- 	.clk_divisor_fast_mode = 0x19,
- 	.clk_divisor_fast_plus_mode = 0x10,
- 	.has_config_load_reg = true,
--	.has_multi_master_mode = true,
-+	.has_multi_master_mode = false,
- 	.has_slcg_override_reg = true,
- 	.has_mst_fifo = false,
- 	.quirks = &tegra_i2c_quirks,
-@@ -1434,7 +1434,7 @@ static const struct tegra_i2c_hw_feature tegra186_i2c_hw = {
- 	.clk_divisor_fast_mode = 0x19,
- 	.clk_divisor_fast_plus_mode = 0x10,
- 	.has_config_load_reg = true,
--	.has_multi_master_mode = true,
-+	.has_multi_master_mode = false,
- 	.has_slcg_override_reg = true,
- 	.has_mst_fifo = false,
- 	.quirks = &tegra_i2c_quirks,
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 28460f6a60cc..af87a16ac3a5 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -430,7 +430,7 @@ static int i2c_device_remove(struct device *dev)
+ 	dev_pm_clear_wake_irq(&client->dev);
+ 	device_init_wakeup(&client->dev, false);
+ 
+-	client->irq = 0;
++	client->irq = client->init_irq;
+ 
+ 	return status;
+ }
+@@ -741,10 +741,11 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+ 	client->flags = info->flags;
+ 	client->addr = info->addr;
+ 
+-	client->irq = info->irq;
+-	if (!client->irq)
+-		client->irq = i2c_dev_irq_from_resources(info->resources,
++	client->init_irq = info->irq;
++	if (!client->init_irq)
++		client->init_irq = i2c_dev_irq_from_resources(info->resources,
+ 							 info->num_resources);
++	client->irq = client->init_irq;
+ 
+ 	strlcpy(client->name, info->type, sizeof(client->name));
+ 
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 65b4eaed1d96..7e748648c7d3 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -333,6 +333,7 @@ struct i2c_client {
+ 	char name[I2C_NAME_SIZE];
+ 	struct i2c_adapter *adapter;	/* the adapter we sit on	*/
+ 	struct device dev;		/* the device structure		*/
++	int init_irq;			/* irq set at initialization	*/
+ 	int irq;			/* irq issued by device		*/
+ 	struct list_head detected;
+ #if IS_ENABLED(CONFIG_I2C_SLAVE)
 -- 
-2.7.4
+2.20.1
