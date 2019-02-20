@@ -1,106 +1,115 @@
-From: Gareth Williams <gareth.williams.jx@renesas.com>
-Subject: [PATCH v3 2/2] i2c: designware: Add support for a bus clock
-Date: Wed, 20 Feb 2019 15:50:03 +0000
-Message-ID: <1550677803-29716-3-git-send-email-gareth.williams.jx@renesas.com>
-References: <1550677803-29716-1-git-send-email-gareth.williams.jx@renesas.com>
+From: Jon Hunter <jonathanh@nvidia.com>
+Subject: Re: [PATCH V19 5/7] i2c: tegra: Add DMA support
+Date: Wed, 20 Feb 2019 18:02:05 +0000
+Message-ID: <a98faf49-98f5-7b85-8acd-0fd6a4c8b426@nvidia.com>
+References: <1549998408-9137-1-git-send-email-skomatineni@nvidia.com>
+ <1549998408-9137-5-git-send-email-skomatineni@nvidia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1550677803-29716-1-git-send-email-gareth.williams.jx@renesas.com>
+In-Reply-To: <1549998408-9137-5-git-send-email-skomatineni@nvidia.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org
-Cc: Phil Edworthy <phil.edworthy@renesas.com>, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Gareth Williams <gareth.williams.jx@renesas.com>
+To: Sowjanya Komatineni <skomatineni@nvidia.com>, thierry.reding@gmail.com, mkarthik@nvidia.com, smohammed@nvidia.com, talho@nvidia.com
+Cc: wsa@the-dreams.de, peda@axentia.se, digetx@gmail.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Phil Edworthy <phil.edworthy@renesas.com>
 
-The Synopsys I2C Controller has a bus clock, but most SoCs hide this away.
-However, on some SoCs you need to explicity enable the bus clock in order
-to access the registers. Therefore, add support for an optional bus clock.
+On 12/02/2019 19:06, Sowjanya Komatineni wrote:
+> This patch adds DMA support for Tegra I2C.
+> 
+> Tegra I2C TX and RX FIFO depth is 8 words. PIO mode is used for
+> transfer size of the max FIFO depth and DMA mode is used for
+> transfer size higher than max FIFO depth to save CPU overhead.
+> 
+> PIO mode needs full intervention of CPU to fill or empty FIFO's
+> and also need to service multiple data requests interrupt for the
+> same transaction. This adds delay between data bytes of the same
+> transfer when CPU is fully loaded and some slave devices has
+> internal timeout for no bus activity and stops transaction to
+> avoid bus hang. DMA mode is helpful in such cases.
+> 
+> DMA mode is also helpful for Large transfers during downloading or
+> uploading FW over I2C to some external devices.
+> 
+> Tegra210 and prior Tegra chips use APBDMA driver which is replaced
+> with GPCDMA on Tegra186 and Tegra194.
+> This patch uses has_apb_dma flag in hw_feature to differentiate
+> DMA driver change between Tegra chipset.
+> 
+> APBDMA driver is registered from module-init level and this patch
+> also has a change to register I2C driver at module-init level
+> rather than subsys-init to avoid deferring I2C probe till APBDMA
+> driver is registered.
+> 
+> Acked-by: Thierry Reding <treding@nvidia.com>
+> Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+> Tested-by: Dmitry Osipenko <digetx@gmail.com>
+> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
 
-Signed-off-by: Phil Edworthy <phil.edworthy@renesas.com>
-Signed-off-by: Gareth Williams <gareth.williams.jx@renesas.com>
----
-v3:
- - busclk renamed to pclk.
- - Added comment with dw_i2c_dev struct definition describing pclk.
- - Added enable rollback of first clock if second fails to enable.
-v2:
- - Use new devm_clk_get_optional() function as it simplifies handling when
-   the optional clock is not present.
----
- drivers/i2c/busses/i2c-designware-common.c  | 18 ++++++++++++++++--
- drivers/i2c/busses/i2c-designware-core.h    |  2 ++
- drivers/i2c/busses/i2c-designware-platdrv.c |  5 +++++
- 3 files changed, 23 insertions(+), 2 deletions(-)
+...
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index a473011..5f70078 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -251,13 +251,27 @@ unsigned long i2c_dw_clk_rate(struct dw_i2c_dev *dev)
- 
- int i2c_dw_prepare_clk(struct dw_i2c_dev *dev, bool prepare)
- {
-+	int ret;
-+
- 	if (IS_ERR(dev->clk))
- 		return PTR_ERR(dev->clk);
- 
--	if (prepare)
--		return clk_prepare_enable(dev->clk);
-+	if (prepare) {
-+		/* Optional bus clock */
-+		ret = clk_prepare_enable(dev->pclk);
-+		if (ret)
-+			return ret;
-+
-+		ret = clk_prepare_enable(dev->clk);
-+		if (ret)
-+			clk_disable_unprepare(dev->pclk);
-+
-+		return ret;
-+	}
- 
- 	clk_disable_unprepare(dev->clk);
-+	clk_disable_unprepare(dev->pclk);
-+
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(i2c_dw_prepare_clk);
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index b4a0b2b..e88c711 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -177,6 +177,7 @@
-  * @base: IO registers pointer
-  * @cmd_complete: tx completion indicator
-  * @clk: input reference clock
-+ * @pclk: clock required to access the registers
-  * @slave: represent an I2C slave device
-  * @cmd_err: run time hadware error code
-  * @msgs: points to an array of messages currently being transferred
-@@ -226,6 +227,7 @@ struct dw_i2c_dev {
- 	void __iomem		*ext;
- 	struct completion	cmd_complete;
- 	struct clk		*clk;
-+	struct clk		*pclk;
- 	struct reset_control	*rst;
- 	struct i2c_client		*slave;
- 	u32			(*get_clk_rate_khz) (struct dw_i2c_dev *dev);
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 9eaac3b..c550fb2 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -346,6 +346,11 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	else
- 		i2c_dw_configure_master(dev);
- 
-+	/* Optional bus clock */
-+	dev->pclk = devm_clk_get_optional(&pdev->dev, "pclk");
-+	if (IS_ERR(dev->pclk))
-+		return PTR_ERR(dev->pclk);
-+
- 	dev->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (!i2c_dw_prepare_clk(dev, true)) {
- 		u64 clk_khz;
+> +static int tegra_i2c_init_dma(struct tegra_i2c_dev *i2c_dev)
+> +{
+> +	struct dma_chan *chan;
+> +	u32 *dma_buf;
+> +	dma_addr_t dma_phys;
+> +	int err;
+> +
+> +	if (!IS_ENABLED(CONFIG_TEGRA20_APB_DMA) ||
+> +	    !i2c_dev->hw->has_apb_dma) {
+> +		err = -ENODEV;
+> +		goto err_out;
+> +	}
+> +
+> +	chan = dma_request_slave_channel_reason(i2c_dev->dev, "rx");
+> +	if (IS_ERR(chan)) {
+> +		err = PTR_ERR(chan);
+> +		goto err_out;
+> +	}
+> +
+> +	i2c_dev->rx_dma_chan = chan;
+> +
+> +	chan = dma_request_slave_channel_reason(i2c_dev->dev, "tx");
+> +	if (IS_ERR(chan)) {
+> +		err = PTR_ERR(chan);
+> +		goto err_out;
+> +	}
+> +
+> +	i2c_dev->tx_dma_chan = chan;
+> +
+> +	dma_buf = dma_alloc_coherent(i2c_dev->dev, i2c_dev->dma_buf_size,
+> +				     &dma_phys, GFP_KERNEL | __GFP_NOWARN);
+> +	if (!dma_buf) {
+> +		dev_err(i2c_dev->dev, "failed to allocate the DMA buffer\n");
+> +		err = -ENOMEM;
+> +		goto err_out;
+> +	}
+> +
+> +	i2c_dev->dma_buf = dma_buf;
+> +	i2c_dev->dma_phys = dma_phys;
+> +	return 0;
+> +
+> +err_out:
+> +	tegra_i2c_release_dma(i2c_dev);
+> +	if (err != -EPROBE_DEFER) {
+> +		dev_err(i2c_dev->dev, "cannot use DMA: %d\n", err);
+> +		dev_err(i2c_dev->dev, "fallbacking to PIO\n");
+> +		return 0;
+> +	}
+I think that the above should be a dev_dbg print or re-worked in someway
+because now for Tegra194 which does not have an APB DMA I see ...
+
+[       6.093234] ERR KERN tegra-i2c 31c0000.i2c: cannot use DMA: -19
+[       6.096847] ERR KERN tegra-i2c 31c0000.i2c: falling back to PIO
+
+Given that the APB DMA is not supported for Tegra186/Tegra194, there is
+no point in printing these error messages. Now it looks like something
+is wrong but really it is not :-(
+
+Cheers
+Jon
+
 -- 
-2.7.4
+nvpublic
