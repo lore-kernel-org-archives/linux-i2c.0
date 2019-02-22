@@ -1,44 +1,128 @@
-From: Hsin-Yi Wang <hsinyi@chromium.org>
-Subject: Re: [PATCH] i2c: mediatek: modify threshold passed to i2c_get_dma_safe_msg_buf()
-Date: Fri, 22 Feb 2019 14:04:11 +0800
-Message-ID: <CAJMQK-jzvMBD_AaB7XMJtMqNWiEin25bem4Zo9T5W86Z-U=Tww@mail.gmail.com>
-References: <20190215090202.157100-1-hsinyi@chromium.org> <20190215090959.soxkf3ho3or2geme@ninjato>
- <CAJMQK-jrpnfzKNYh01Pg6QydSSa-=6x44Pj1wwMdXw7G3x-ybA@mail.gmail.com>
- <20190215092500.6q3hqnoufyowiqaz@ninjato> <20190215163657.fs6t7p3vqez53su3@ninjato>
+From: Ludovic Desroches <ludovic.desroches@microchip.com>
+Subject: [PATCH v5 0/3] i2c: at91: slave mode support
+Date: Fri, 22 Feb 2019 10:25:19 +0100
+Message-ID: <20190222092522.4913-1-ludovic.desroches@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190215163657.fs6t7p3vqez53su3@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-arm-kernel@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Jun Gao <jun.gao@mediatek.com>, Ryder Lee <ryder.lee@mediatek.com>, linux-i2c@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, qii.wang@mediatek.com
+To: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: me@jue.yt, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org, wsa@the-dreams.de, andriy.shevchenko@linux.intel.com, Ludovic Desroches <ludovic.desroches@microchip.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Thanks for the solution.
-Previously we were testing if the driver can handle zero-length
-transfer, but it turns out it will timeout. (Also checked this from
-mtk's datasheet)
-Adding original owner qii.wang to verify that. We'll apply this after
-verification.
+[Ludovic Desroches: see Changes section]
 
-On Sat, Feb 16, 2019 at 12:36 AM Wolfram Sang <wsa@the-dreams.de> wrote:
->
->
-> >> > Ok, I can add a check in another patch. Should we return NULL pointer
-> >> > if msg->len is 0 or print out some warnings? Thanks.
-> >>
-> >> No warning, msg->len == 0 is a valid setting. But interesting question:
-> >> I was about to say NULL, but your driver would assume ENOMEM there and
-> >> discard the message which is also not correct since msg->len == 0 is a
-> >> valid setting. So, should we just return msg->buf then? Will this work
-> >> with your driver? Can it handle zero-length transfers?
-> >
-> > dma_map_single(i2c->dev, msg->buf , msgs->len, DMA_TO_DEVICE); breaks
-> > kernel if msgs->len is 0, so I think it doesn't handle zero-length transfer.
->
-> Please don't drop the lists.
->
-> Then, the correct solution is to forbid those transfer with this
-> controller. Check I2C_AQ_NO_ZERO_LEN. Also, update the functionality
-> like this .. (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK).
->
+Based on the discussion we had on the i2c-linux list [1], I wrote a patch for
+AT91 hardware and tried to fulfill the Linux I2C slave interface description
+[2] as good as possible. This enables aforementioned hardware to act as an I2C
+slave that can be accessed by a remote I2C master.
+
+I have tested this patchset successfully on an ATSAMA5D27.
+
+                                 ^  3.3V   ^  3.3V
+    +-----------------------+    |         |         +-----------------------+
+    | Slave: ATSAMA5D27     |   +-+       +-+        | Master: ATSAMA5D35    |
+    | with i2c-slave-eeprom |   | | 100k  | | 100k   | with i2cset           |
+    +-------------------+-+-+   +-+       +-+        +-+-+-------------------+
+                        | |      |         |           | |
+                        | +------+---------|---(SDA)---+ |
+                        +------------------+---(SCL)-----+
+
+    Schematic: Connection of slave and master with 100kOhm pullup resistors.
+
+On the master the following BASH script has been used to stress the slave.
+
+        root@emblinux:~# cat ./stress.sh
+        #!/bin/bash
+        I=0
+        while true
+        do
+                if i2cset -y -r 1 0x64 0 $I w | grep mismatch
+                then
+                        echo "$(date): Error in transmission ${I}"
+                fi
+                ((I++))
+                if [ $I -eq 65536 ]
+                then
+                        I=0
+                        echo "$(date): Sent 65536 transmissions"
+                fi
+        done
+
+After running the script for some time I had the following output. To me this
+looks promising :)
+
+        root@emblinux:~# ./stress.sh
+        Thu Nov  9 13:58:45 CTE 2017: Sent 65536 transmissions
+        Thu Nov  9 14:35:20 CTE 2017: Sent 65536 transmissions
+        Thu Nov  9 15:12:11 CTE 2017: Sent 65536 transmissions
+        Thu Nov  9 15:49:04 CTE 2017: Sent 65536 transmissions
+        Thu Nov  9 16:26:00 CTE 2017: Sent 65536 transmissions
+        Thu Nov  9 17:03:07 UTC 2017: Sent 65536 transmissions
+        Thu Nov  9 17:40:15 UTC 2017: Sent 65536 transmissions
+
+        If you have some hardware with an at91-i2c interface included at hand, I really
+        would appreciate if you can run the test script on your hardware and test this
+        driver.
+        Thu Nov  9 17:40:15 UTC 2017: Sent 65536 transmissions
+
+        If you have some hardware with an at91-i2c interface included at hand, I really
+        would appreciate if you can run the test script on your hardware and test this
+        driver.
+
+Best regards
+  Juergen
+
+
+[Ludovic Desroches]
+Changes in v5:
+ - use SPDX for licence
+ - replace IF_ENABLED par defined to solve compilation issue when
+   selected as module.
+Changes in v4:
+ - rebased on next-20181224
+ - update Kconfig part to state that this feature is experimental.
+ - tested quickly on a single board, SAMA5D2 Xplained, i2c-gpio as master, OK.
+Changes in v3:
+ - rebase (cherry-pick was enough)
+ - fix checkpatch errors
+ - tests:
+   - hangs with a SAMA5D4 (master and slave on different busses) after about
+   100 transfers. It's the first time I do this test.
+   - some mismatches with a SAMA5D4 as slave and a SAMA5D2 as master
+   I don't know if it's a regression. I don't remember having seen this
+   behavior previously.
+   I think it's worth taking those patches even if there are some possible
+   bugs. It'll allow to get more people using it and so to consolidate the
+   slave mode support.
+
+Changes in v2:
+ - Implemented all suggestions made by Ludovic. (Thank you!)
+ - Reworked the IRQ handler completely. Have a look in patch 3 fort further
+   details.
+
+[1] https://marc.info/?t=150824004800001&r=1&w=1
+[2] https://www.kernel.org/doc/Documentation/i2c/slave-interface
+
+Juergen Fitschen (3):
+  i2c: at91: segregate master mode specific code from probe and init
+    func
+  i2c: at91: split driver into core and master file
+  i2c: at91: added slave mode support
+
+ MAINTAINERS                                   |   3 +-
+ drivers/i2c/busses/Kconfig                    |  13 +
+ drivers/i2c/busses/Makefile                   |   4 +
+ drivers/i2c/busses/i2c-at91-core.c            | 376 ++++++++++++++
+ .../busses/{i2c-at91.c => i2c-at91-master.c}  | 459 +-----------------
+ drivers/i2c/busses/i2c-at91-slave.c           | 143 ++++++
+ drivers/i2c/busses/i2c-at91.h                 | 175 +++++++
+ 7 files changed, 721 insertions(+), 452 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-at91-core.c
+ rename drivers/i2c/busses/{i2c-at91.c => i2c-at91-master.c} (66%)
+ create mode 100644 drivers/i2c/busses/i2c-at91-slave.c
+ create mode 100644 drivers/i2c/busses/i2c-at91.h
+
+-- 
+2.20.1
