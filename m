@@ -1,58 +1,71 @@
-From: Jim Broadus <jbroadus@gmail.com>
-Subject: Re: [PATCH] i2c: Allow recovery of the initial IRQ by an I2C client device.
-Date: Fri, 22 Feb 2019 10:47:32 -0800
-Message-ID: <CAKgEEwt6ciUA27+c-v0qjwkGN3gdF95DF9msh4yQVArCCQ+irA@mail.gmail.com>
-References: <CAKgEEwsOHqV-PtJnc-5nXAuH3BVitXWt80eoENJa3wZ6vGZDpw@mail.gmail.com>
- <20190219193027.13882-1-jbroadus@gmail.com> <20190221232609.d4vxl3osj6mwooey@katana>
- <CAO-hwJ+4-sxwbdpzjTKyZ10SBv743JUF0sTFPJ4YRXURuR_CNQ@mail.gmail.com>
- <20190222102335.GA1771@kunai> <20190222103019.GD130153@ediswmail.ad.cirrus.com>
- <20190222113159.GB1771@kunai>
+From: Ray Jui <ray.jui@broadcom.com>
+Subject: Re: [PATCH v5 0/8] iProc I2C slave mode and NIC mode
+Date: Fri, 22 Feb 2019 12:04:21 -0800
+Message-ID: <5c5ed177-0e9e-6271-518c-6956a7a6c554@broadcom.com>
+References: <20190214175725.60462-1-ray.jui@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190222113159.GB1771@kunai>
+In-Reply-To: <20190214175725.60462-1-ray.jui@broadcom.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Charles Keepax <ckeepax@opensource.cirrus.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linux I2C <linux-i2c@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Feb 22, 2019 at 3:32 AM Wolfram Sang <wsa@the-dreams.de> wrote:
->
->
-> > > > But I still have the feeling that the problem is not solved at the
-> > > > right place. In i2c_new_device() we are storing parts of the fields of
-> > > > struct i2c_board_info, and when resetting the irq we are losing
-> > > > information. This patch solves that, but I wonder if the IRQ should
-> > > > not be 'simply' set in i2c_device_probe(). This means we also need to
-> > > > store the .resources of info, but I have a feeling this will be less
-> > > > error prone in the future.
-> > > >
-> > > > But this is just my guts telling me something is not right. I would
-> > > > perfectly understand if we want to get this merged ASAP.
-> > > >
-> > > > So given that the code is correct, this is my:
-> > > > Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > > >
-> > > > But at least I have expressed my feelings :)
-> > >
-> > > Which I can relate to very much. I see the code solves the issue but my
-> > > feeling is that we are patching around something which should be handled
-> > > differently in general.
-> > >
-> > > Is somebody willing to research this further?
-> > >
-> > > Thanks for your input.
-> > >
-> >
-> > I would be willing to have more of a look at it but am slightly
-> > nervous I am not right person as all the systems I currently work
-> > with are DT based so don't really exemplify the issue at all.
->
-> Thank you! Well, I'll be there, too. Discussing, reviewing, testing. And
-> if we have Benjamin for that on board as well, then I think we have a
-> good start for that task :) Others are more than welcome to join, too,
-> of course.
->
+Hi Wolfram,
 
-I'm also more familiar with device-tree (just came across this on my personal
-laptop) but happy to review and test at the risk of learning something.
+Rob has reviewed all DT binding related changes from this patch series.
+Could you please help to review the I2C driver related changes when you
+have time?
+
+Thanks,
+
+Ray
+
+On 2/14/2019 9:57 AM, Ray Jui wrote:
+> This patch series adds the following support to the iProc I2C driver:
+> - Increase maximum read transfer size to 255 bytes
+> - I2C slave mode
+> - Polling mode
+> - NIC I2C mode
+> 
+> This patch series is based on kernel v5.0-rc3 and available at:
+> https://github.com/Broadcom/arm64-linux.git
+> branch: i2c-slave-v5
+> 
+> Changes from v4:
+>  - Add more detailed explanations in the device tree binding document
+>    changes, to address Rob's review comments
+> 
+> Changes from v3:
+>  - Various minor fixes on commit messages and commits
+>  - Rebased to v5.0-rc3
+> 
+> Changes from v2:
+>  - Address Ray's review comments.
+> 
+> Changes from v1:
+>  - Rebased to Linux v5.0.0-rc2
+> 
+> Ray Jui (1):
+>   dt-bindings: i2c: iproc: make 'interrupts' optional
+> 
+> Rayagonda Kokatanur (5):
+>   i2c: iproc: add polling support
+>   i2c: iproc: use wrapper for read/write access
+>   dt-bindings: i2c: iproc: add "brcm,iproc-nic-i2c" compatible string
+>   i2c: iproc: add NIC I2C support
+>   arm64: dts: Stingray: Add NIC i2c device node
+> 
+> Shreesha Rajashekar (2):
+>   i2c: iproc: Extend I2C read up to 255 bytes
+>   i2c: iproc: Add slave mode support
+> 
+>  .../bindings/i2c/brcm,iproc-i2c.txt           |  17 +-
+>  .../boot/dts/broadcom/stingray/stingray.dtsi  |  18 +
+>  drivers/i2c/busses/Kconfig                    |   1 +
+>  drivers/i2c/busses/i2c-bcm-iproc.c            | 758 +++++++++++++++---
+>  4 files changed, 663 insertions(+), 131 deletions(-)
+> 
