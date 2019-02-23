@@ -1,74 +1,56 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 1/6] dt-bindings: soc: qcom: Add interconnect binding for
- GENI QUP
-Date: Fri, 22 Feb 2019 18:26:55 -0600
-Message-ID: <20190223002655.GA6631@bogus>
-References: <1548138816-1149-1-git-send-email-alokc@codeaurora.org>
- <1548138816-1149-2-git-send-email-alokc@codeaurora.org>
- <20190123170758.GB512@tuxbook-pro>
- <5ca1ce61-c458-5550-f89d-ab361f1ec456@linaro.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH V5 1/2] i2c: tegra: remove master fifo support on tegra186
+Date: Sat, 23 Feb 2019 10:29:06 +0100
+Message-ID: <20190223092906.GA1018@kunai>
+References: <1550597332-21018-1-git-send-email-skomatineni@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="ZPt4rx8FFjLCG7dd"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <5ca1ce61-c458-5550-f89d-ab361f1ec456@linaro.org>
+In-Reply-To: <1550597332-21018-1-git-send-email-skomatineni@nvidia.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Georgi Djakov <georgi.djakov@linaro.org>
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>, Alok Chauhan <alokc@codeaurora.org>, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-serial@vger.kernel.org, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Mark Rutland <mark.rutland@arm.com>, dianders@chromium.org, swboyd@chromium.org
+To: Sowjanya Komatineni <skomatineni@nvidia.com>
+Cc: thierry.reding@gmail.com, jonathanh@nvidia.com, talho@nvidia.com, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jan 23, 2019 at 08:41:20PM +0200, Georgi Djakov wrote:
-> Hi,
-> 
-> On 1/23/19 19:07, Bjorn Andersson wrote:
-> > On Mon 21 Jan 22:33 PST 2019, Alok Chauhan wrote:
-> > 
-> >> Add documentation for the interconnect and interconnect-names bindings
-> >> for the GENI QUP as detailed by bindings/interconnect/interconnect.txt.
-> >>
-> >> Signed-off-by: Alok Chauhan <alokc@codeaurora.org>
-> >> ---
-> >>  Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt | 10 ++++++++++
-> >>  1 file changed, 10 insertions(+)
-> >>
-> >> diff --git a/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt b/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
-> >> index dab7ca9..44d7e02 100644
-> >> --- a/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
-> >> +++ b/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
-> >> @@ -17,6 +17,12 @@ Required properties if child node exists:
-> >>  - #address-cells: 	Must be <1> for Serial Engine Address
-> >>  - #size-cells: 		Must be <1> for Serial Engine Address Size
-> >>  - ranges: 		Must be present
-> >> +- interconnects:	phandle to a interconnect provider. Please refer
-> >> +			../interconnect/interconnect.txt for details.
-> >> +			Must be 2 paths corresponding to 2 AXI ports.
-> >> +- interconnect-names:	Port names to differentiate between the
-> > 
-> > s/Port names/Path names/
-> > 
-> >> +			2 interconnect paths defined with interconnect
-> >> +			specifier.
-> > 
-> > These two names are significant in that they must match what the driver
-> > expects, hence you must actually specify them here.
-> > 
-> > And as the scope of these strings are local to the QUP node you can omit
-> > "qup" from them, so make them "memory" and "config" (or perhaps iface,
-> > to match the clock naming?).
-> 
-> Actually there was a discussion in the past where we decided include
-> both the src and dst endpoint names in this property so that there is
-> some symmetry with the "interconnects" property. It would be nice to be
-> consistent across different drivers at least for now.
-> If we want to denote the master and slave ports here, my two cents would
-> be for "qup-mem" and "cpu-qup" or something similar?
 
-Well, there's a proposal from Maxime to add 'dma-memory' or something. 
-You all need to sort this out.
+--ZPt4rx8FFjLCG7dd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I assume config or cpu-qup is for register access? Why is this needed? 
-That should get described thru the DT tree. The interconnect stuff was 
-supposed to be for the non-cpu centric view (i.e. DMA masters). Maybe 
-it's fine, but that's not my initial reaction.
+On Tue, Feb 19, 2019 at 09:28:51AM -0800, Sowjanya Komatineni wrote:
+> Tegra186 does not have master FIFO  control register and instead
+> uses FIFO control register like prior Tegra chipset.
+>=20
+> This patch fixes this and prevents crashing during boot when
+> accessing FIFO control registers.
+>=20
+> Acked-by: Thierry Reding <treding@nvidia.com>
+> Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
 
-Rob
+Applied to for-next, thanks!
+
+
+--ZPt4rx8FFjLCG7dd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxxEl4ACgkQFA3kzBSg
+Kbb67A//TtevoTcMomvXfKynfNuH+woFBsFGBYhH6Ln8zZecJnJMVi9T+gi2Bzuh
+8x23z7IWPiVyEhnByVPxOwXx97IlEMVPMNut2Y0+BTbLNDfBzY+Ii4qUoFGrHaIV
+8e6MUAi2gkmJRWTxTZvZwgCkgSczUBbQB7n5WHmKK9Gihc0AvGr+XTLCBzDZRVik
+VgnbKJqeRjWfnkOZ3KXhXtTVyitSAxL/Z91xbBrMqPiU4z5NTLRGWckD2RwSbBfm
+sEe5jEmqJZgyz3rPLUBZYTzemMXhXmYRNlx7Nbw8fuVEiq6bT852CKTzoMeYASqR
+TwHpDOi5PMtV9ZTrWpgd1Kli1HzsJ2RCUYgOnzzoGTUWRo8tpc0VdehdNmQHutPf
+lU6AxV4V4Jaul0wxnRtxhxUk0YyDTykikmsJq37wa0DFMHo6u40eU4JVRndQyMgg
+nbyhIgJjukvi+OX6nOT0QXAzewkCCrBqptNrKPnFiFyw9TxRhaBBDkopf/F/osjR
+zYCaeV8HTyebZ2UD30pSdoieHJGs8FZiDgun3stx/HymzuqjaYghIC28sM5hhjY3
+r0nDbTdlDne0qI6ufGHqBvw9wX69X6SNCIoEDnsSpSsVLq/HchMaUdzvIihe+2AT
+hA2PFUsoE+mI2dxn9zIUImILBQsrYGsw35NMah63tYfh4rkoYHA=
+=JAvd
+-----END PGP SIGNATURE-----
+
+--ZPt4rx8FFjLCG7dd--
