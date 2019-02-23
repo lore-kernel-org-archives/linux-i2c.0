@@ -1,79 +1,40 @@
-From: Andreas Kemnade <andreas@kemnade.info>
-Subject: [PATCH] mfd: twl-core: disable irq while suspended
-Date: Sat, 23 Feb 2019 12:47:54 +0100
-Message-ID: <20190223114754.16286-1-andreas@kemnade.info>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH] mfd: twl-core: disable irq while suspended
+Date: Sat, 23 Feb 2019 10:23:23 -0800
+Message-ID: <20190223182323.GA39872@atomide.com>
+References: <20190223114754.16286-1-andreas@kemnade.info>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190223114754.16286-1-andreas@kemnade.info>
 Sender: linux-kernel-owner@vger.kernel.org
-To: tony@atomide.com, lee.jones@linaro.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Dave Gerlach <d-gerlach@ti.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Keerthy <j-keerthy@ti.com>, Tero Kristo <t-kristo@ti.com>, letux-kernel@openphoenux.org
-Cc: Andreas Kemnade <andreas@kemnade.info>
+To: Andreas Kemnade <andreas@kemnade.info>
+Cc: lee.jones@linaro.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Dave Gerlach <d-gerlach@ti.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Keerthy <j-keerthy@ti.com>, Tero Kristo <t-kristo@ti.com>, letux-kernel@openphoenux.org
 List-Id: linux-i2c@vger.kernel.org
 
-Since commit
-6e2bd956936 ("i2c: omap: Use noirq system sleep pm ops to idle device for suspend")
-on gta04 we have handle_twl4030_pih() called in situations where pm_runtime_get()
-in i2c-omap.c returns -EACCES.
-[   86.474365] Freezing remaining freezable tasks ... (elapsed 0.002 seconds) done.
-[   86.485473] printk: Suspending console(s) (use no_console_suspend to debug)
-[   86.555572] Disabling non-boot CPUs ...
-[   86.555664] Successfully put all powerdomains to target state
-[   86.563720] twl: Read failed (mod 1, reg 0x01 count 1)
-[   86.563751] twl4030: I2C error -13 reading PIH ISR
-[   86.563812] twl: Read failed (mod 1, reg 0x01 count 1)
-[   86.563812] twl4030: I2C error -13 reading PIH ISR
-[   86.563873] twl: Read failed (mod 1, reg 0x01 count 1)
-[   86.563903] twl4030: I2C error -13 reading PIH ISR
+* Andreas Kemnade <andreas@kemnade.info> [190223 11:48]:
+> Since commit
+> 6e2bd956936 ("i2c: omap: Use noirq system sleep pm ops to idle device for suspend")
+> on gta04 we have handle_twl4030_pih() called in situations where pm_runtime_get()
+> in i2c-omap.c returns -EACCES.
+> [   86.474365] Freezing remaining freezable tasks ... (elapsed 0.002 seconds) done.
+> [   86.485473] printk: Suspending console(s) (use no_console_suspend to debug)
+> [   86.555572] Disabling non-boot CPUs ...
+> [   86.555664] Successfully put all powerdomains to target state
+> [   86.563720] twl: Read failed (mod 1, reg 0x01 count 1)
+> [   86.563751] twl4030: I2C error -13 reading PIH ISR
+> [   86.563812] twl: Read failed (mod 1, reg 0x01 count 1)
+> [   86.563812] twl4030: I2C error -13 reading PIH ISR
+> [   86.563873] twl: Read failed (mod 1, reg 0x01 count 1)
+> [   86.563903] twl4030: I2C error -13 reading PIH ISR
+> 
+> This happens when we wakeup via something behing twl4030
+> (powerbutton or rtc alarm).
+> This goes on for minutes until the system is finally resumed.
+> Disable the irq on suspend and enable it on resume to avoid
+> having i2c access problems when the irq registers are checked.
 
-This happens when we wakeup via something behing twl4030
-(powerbutton or rtc alarm).
-This goes on for minutes until the system is finally resumed.
-Disable the irq on suspend and enable it on resume to avoid
-having i2c access problems when the irq registers are checked.
+Thanks for fixing this, still works fine for me for rtcwake:
 
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
----
- drivers/mfd/twl-core.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
-
-diff --git a/drivers/mfd/twl-core.c b/drivers/mfd/twl-core.c
-index 299016bc46d9..104477b512a2 100644
---- a/drivers/mfd/twl-core.c
-+++ b/drivers/mfd/twl-core.c
-@@ -1245,6 +1245,28 @@ twl_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	return status;
- }
- 
-+static int __maybe_unused twl_suspend(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+
-+	if (client->irq)
-+		disable_irq(client->irq);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused twl_resume(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+
-+	if (client->irq)
-+		enable_irq(client->irq);
-+
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(twl_dev_pm_ops, twl_suspend, twl_resume);
-+
- static const struct i2c_device_id twl_ids[] = {
- 	{ "twl4030", TWL4030_VAUX2 },	/* "Triton 2" */
- 	{ "twl5030", 0 },		/* T2 updated */
-@@ -1262,6 +1284,7 @@ static const struct i2c_device_id twl_ids[] = {
- /* One Client Driver , 4 Clients */
- static struct i2c_driver twl_driver = {
- 	.driver.name	= DRIVER_NAME,
-+	.driver.pm	= &twl_dev_pm_ops,
- 	.id_table	= twl_ids,
- 	.probe		= twl_probe,
- 	.remove		= twl_remove,
--- 
-2.11.0
+Tested-by: Tony Lindgren <tony@atomide.com>
