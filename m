@@ -1,56 +1,74 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: Allow recovery of the initial IRQ by an I2C client
- device.
-Date: Sat, 23 Feb 2019 00:16:31 +0100
-Message-ID: <20190222231631.GA964@kunai>
-References: <CAKgEEwsOHqV-PtJnc-5nXAuH3BVitXWt80eoENJa3wZ6vGZDpw@mail.gmail.com>
- <20190219193027.13882-1-jbroadus@gmail.com>
- <20190221232609.d4vxl3osj6mwooey@katana>
- <CAO-hwJ+4-sxwbdpzjTKyZ10SBv743JUF0sTFPJ4YRXURuR_CNQ@mail.gmail.com>
- <20190222102335.GA1771@kunai>
- <20190222103019.GD130153@ediswmail.ad.cirrus.com>
- <20190222113159.GB1771@kunai>
- <CAKgEEwt6ciUA27+c-v0qjwkGN3gdF95DF9msh4yQVArCCQ+irA@mail.gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 1/6] dt-bindings: soc: qcom: Add interconnect binding for
+ GENI QUP
+Date: Fri, 22 Feb 2019 18:26:55 -0600
+Message-ID: <20190223002655.GA6631@bogus>
+References: <1548138816-1149-1-git-send-email-alokc@codeaurora.org>
+ <1548138816-1149-2-git-send-email-alokc@codeaurora.org>
+ <20190123170758.GB512@tuxbook-pro>
+ <5ca1ce61-c458-5550-f89d-ab361f1ec456@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="x+6KMIRAuhnl3hBn"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAKgEEwt6ciUA27+c-v0qjwkGN3gdF95DF9msh4yQVArCCQ+irA@mail.gmail.com>
+In-Reply-To: <5ca1ce61-c458-5550-f89d-ab361f1ec456@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jim Broadus <jbroadus@gmail.com>
-Cc: Charles Keepax <ckeepax@opensource.cirrus.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linux I2C <linux-i2c@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Georgi Djakov <georgi.djakov@linaro.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>, Alok Chauhan <alokc@codeaurora.org>, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-serial@vger.kernel.org, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Mark Rutland <mark.rutland@arm.com>, dianders@chromium.org, swboyd@chromium.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, Jan 23, 2019 at 08:41:20PM +0200, Georgi Djakov wrote:
+> Hi,
+> 
+> On 1/23/19 19:07, Bjorn Andersson wrote:
+> > On Mon 21 Jan 22:33 PST 2019, Alok Chauhan wrote:
+> > 
+> >> Add documentation for the interconnect and interconnect-names bindings
+> >> for the GENI QUP as detailed by bindings/interconnect/interconnect.txt.
+> >>
+> >> Signed-off-by: Alok Chauhan <alokc@codeaurora.org>
+> >> ---
+> >>  Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt | 10 ++++++++++
+> >>  1 file changed, 10 insertions(+)
+> >>
+> >> diff --git a/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt b/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
+> >> index dab7ca9..44d7e02 100644
+> >> --- a/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
+> >> +++ b/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
+> >> @@ -17,6 +17,12 @@ Required properties if child node exists:
+> >>  - #address-cells: 	Must be <1> for Serial Engine Address
+> >>  - #size-cells: 		Must be <1> for Serial Engine Address Size
+> >>  - ranges: 		Must be present
+> >> +- interconnects:	phandle to a interconnect provider. Please refer
+> >> +			../interconnect/interconnect.txt for details.
+> >> +			Must be 2 paths corresponding to 2 AXI ports.
+> >> +- interconnect-names:	Port names to differentiate between the
+> > 
+> > s/Port names/Path names/
+> > 
+> >> +			2 interconnect paths defined with interconnect
+> >> +			specifier.
+> > 
+> > These two names are significant in that they must match what the driver
+> > expects, hence you must actually specify them here.
+> > 
+> > And as the scope of these strings are local to the QUP node you can omit
+> > "qup" from them, so make them "memory" and "config" (or perhaps iface,
+> > to match the clock naming?).
+> 
+> Actually there was a discussion in the past where we decided include
+> both the src and dst endpoint names in this property so that there is
+> some symmetry with the "interconnects" property. It would be nice to be
+> consistent across different drivers at least for now.
+> If we want to denote the master and slave ports here, my two cents would
+> be for "qup-mem" and "cpu-qup" or something similar?
 
---x+6KMIRAuhnl3hBn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Well, there's a proposal from Maxime to add 'dma-memory' or something. 
+You all need to sort this out.
 
-> I'm also more familiar with device-tree (just came across this on my personal
-> laptop) but happy to review and test at the risk of learning something.
+I assume config or cpu-qup is for register access? Why is this needed? 
+That should get described thru the DT tree. The interconnect stuff was 
+supposed to be for the non-cpu centric view (i.e. DMA masters). Maybe 
+it's fine, but that's not my initial reaction.
 
-:) Thanks!
-
-
---x+6KMIRAuhnl3hBn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxwgsoACgkQFA3kzBSg
-KbZWIw//bLuc3UE2tTT73xv6LhwWQWxZtL1y34bk7ICAoiT/iHkkJ33ELPMz/ETV
-WAxXgBv0UgxwT3aYXH/QP8vngYqVXwNdYCBY72AeyWvMGw7hO8vrSEqLMmjP3/8v
-EoJgcHrg8IenQS/NH/g45T7BjUVyFEtZQrPzJQnwqzvc6xPdcoOiRujZ9grLXW6l
-7SB3qMzTLkkSb1DDqAVXKakQVdsK9rsCqG0l0Vj1Wr+k8OTD/k/674eNbkS8Q1Et
-0thVx7ki3S16BGnYxrA3gYn2U6ZRoO8tahRmKYPCDcMSMNFmcD0XkpBxiv3RCax3
-6NuCbXHjrrDxTt8wKEScFUfe9uUeq/aAwTxb4Wh0dJVkBhEPlbHnbBUBecxV/qaq
-x5F9q72zfOb6i+jRAjsdgHJwdmJkPICErJe3yHVeJyUECV/0gnPt25R3fCnENGCD
-sRVIgKiTTX5t5be5Lox6HiG1YI9MFnUkKG4OEQIKJncEdJ2uGm1m8G47+V/3pdOW
-UjcN6Qhy2w+g/0V5oDisBXye65oNfFUvLnMEeZdj8d/qI+LZNOKNsX2sCllp8iQC
-B2ZwrgMeJr60sb7twi7ze2gMSGtq7kVJgAgz5wJx1apS0124VhXmqSKgoKRi8la3
-Ne1SQAtu0qJBM3jmw8T7RVnbrtMb1fkEB8KPXXenUwmhNZmtBkw=
-=Nypg
------END PGP SIGNATURE-----
-
---x+6KMIRAuhnl3hBn--
+Rob
