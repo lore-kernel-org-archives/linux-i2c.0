@@ -1,40 +1,76 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH] mfd: twl-core: disable irq while suspended
-Date: Sat, 23 Feb 2019 10:23:23 -0800
-Message-ID: <20190223182323.GA39872@atomide.com>
-References: <20190223114754.16286-1-andreas@kemnade.info>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: Allow recovery of the initial IRQ by an I2C client
+ device.
+Date: Sun, 24 Feb 2019 14:51:33 +0100
+Message-ID: <20190224135133.GC1245@kunai>
+References: <CAKgEEwsOHqV-PtJnc-5nXAuH3BVitXWt80eoENJa3wZ6vGZDpw@mail.gmail.com>
+ <20190219193027.13882-1-jbroadus@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="dkEUBIird37B8yKS"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190223114754.16286-1-andreas@kemnade.info>
+In-Reply-To: <20190219193027.13882-1-jbroadus@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andreas Kemnade <andreas@kemnade.info>
-Cc: lee.jones@linaro.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Dave Gerlach <d-gerlach@ti.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Keerthy <j-keerthy@ti.com>, Tero Kristo <t-kristo@ti.com>, letux-kernel@openphoenux.org
+To: Jim Broadus <jbroadus@gmail.com>
+Cc: ckeepax@opensource.cirrus.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-i2c@vger.kernel.org
 
-* Andreas Kemnade <andreas@kemnade.info> [190223 11:48]:
-> Since commit
-> 6e2bd956936 ("i2c: omap: Use noirq system sleep pm ops to idle device for suspend")
-> on gta04 we have handle_twl4030_pih() called in situations where pm_runtime_get()
-> in i2c-omap.c returns -EACCES.
-> [   86.474365] Freezing remaining freezable tasks ... (elapsed 0.002 seconds) done.
-> [   86.485473] printk: Suspending console(s) (use no_console_suspend to debug)
-> [   86.555572] Disabling non-boot CPUs ...
-> [   86.555664] Successfully put all powerdomains to target state
-> [   86.563720] twl: Read failed (mod 1, reg 0x01 count 1)
-> [   86.563751] twl4030: I2C error -13 reading PIH ISR
-> [   86.563812] twl: Read failed (mod 1, reg 0x01 count 1)
-> [   86.563812] twl4030: I2C error -13 reading PIH ISR
-> [   86.563873] twl: Read failed (mod 1, reg 0x01 count 1)
-> [   86.563903] twl4030: I2C error -13 reading PIH ISR
-> 
-> This happens when we wakeup via something behing twl4030
-> (powerbutton or rtc alarm).
-> This goes on for minutes until the system is finally resumed.
-> Disable the irq on suspend and enable it on resume to avoid
-> having i2c access problems when the irq registers are checked.
 
-Thanks for fixing this, still works fine for me for rtcwake:
+--dkEUBIird37B8yKS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Tested-by: Tony Lindgren <tony@atomide.com>
+On Tue, Feb 19, 2019 at 11:30:27AM -0800, Jim Broadus wrote:
+> A previous change allowed I2C client devices to discover new IRQs upon
+> reprobe by clearing the IRQ in i2c_device_remove. However, if an IRQ was
+> assigned in i2c_new_device, that information is lost.
+>=20
+> For example, the touchscreen and trackpad devices on a Dell Inspiron lapt=
+op
+> are I2C devices whose IRQs are defined by ACPI extended IRQ types. The
+> client device structures are initialized during an ACPI walk. After
+> removing the i2c_hid device, modprobe fails.
+>=20
+> This change caches the initial IRQ value in i2c_new_device and then resets
+> the client device IRQ to the initial value in i2c_device_remove.
+>=20
+> Fixes: 6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
+> Signed-off-by: Jim Broadus <jbroadus@gmail.com>
+
+Applied to for-next, thanks!
+
+I didn't want to apply to for-current because I didn't feel comfortable
+changing the I2C core in this very last days before the release.
+
+It will hit linus tree during next merge window and go back to older
+releases via stable.
+
+That all being said, I'd really love to see the proper fix (move irq
+assignment from init to probe time) being worked on rather soonish
+before we forget all the details we know at this moment. I'll be there
+for it.
+
+
+--dkEUBIird37B8yKS
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxyoWQACgkQFA3kzBSg
+Kbazgg//bM6XAh0HokHCQRRLpv3rOJLsay9p6F2gRVw6scYR1QbpZG03nPtzOm/S
+UAgXONZIHCaorIqpn/XLv5fFjzGtQExl0hR9iRd8hwnwflAVdkdAYbdTq1+J4hYx
+Rs6nMmkUYZOpPbl9XonGz7rfm5kijmUt4A9Y4lY3J/mMQvBgKGsDz5ro4YQQQADv
+KVJd+FggH7qr9bbRp97WDJGcS94H6po8nU9pvSRc1bMXzYjmusNO8dkAn90RQZb7
+XKfCxaKrt077rAvYMJGYp7Q1rCbvuLvB007bOQ6D4R1lby6oDZtWwad0XWAmSp36
+bMqFriFWKA0a1SbaAnBaSo6F7d196ASb8c70bPsyqyntf/Z7hvfjqwIBzEJowbzE
+SNFLwGTmHQH0tAJFomXH1ampmwUZyiA9MRsGbEpOsjYBVhQu07x/YqrWQv+nTnoF
+NEx9aQ/3d2297EA9eGPZFoFXNzeUuRVUswYhA6HnIwfBLJ8f6h7zus4wjQhFvR0H
+l7M8ieAn+CrZNbgwErbmG5iFwdJumsJTB+zlwiaDSioxJEWj0pPNfX7Z5z/zIwjV
+jlr+esoyUtwBX4nDCohWc/qhhRcIw+RVCIzQbNaVPlHTBmSzQ269Kw61nhPAcsIB
+MJOx6YJP6A/xnko/XQuBYJPbn1mm1vzSout2wJq06SuwmJietKQ=
+=cEYW
+-----END PGP SIGNATURE-----
+
+--dkEUBIird37B8yKS--
