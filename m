@@ -1,76 +1,36 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: Allow recovery of the initial IRQ by an I2C client
- device.
-Date: Sun, 24 Feb 2019 14:51:33 +0100
-Message-ID: <20190224135133.GC1245@kunai>
-References: <CAKgEEwsOHqV-PtJnc-5nXAuH3BVitXWt80eoENJa3wZ6vGZDpw@mail.gmail.com>
- <20190219193027.13882-1-jbroadus@gmail.com>
+From: Gareth Williams <gareth.williams.jx@renesas.com>
+Subject: RE: [PATCH v4 0/2] i2c: designware: Add support for a bus clock
+Date: Mon, 25 Feb 2019 09:28:16 +0000
+Message-ID: <TYAPR01MB4015D859E542280ABB5D9DC2DF7A0@TYAPR01MB4015.jpnprd01.prod.outlook.com>
+References: <1550765459-14519-1-git-send-email-gareth.williams.jx@renesas.com>
+ <20190223093207.GC1018@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="dkEUBIird37B8yKS"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190219193027.13882-1-jbroadus@gmail.com>
+In-Reply-To: <20190223093207.GC1018@kunai>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jim Broadus <jbroadus@gmail.com>
-Cc: ckeepax@opensource.cirrus.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Phil Edworthy <phil.edworthy@renesas.com>
 List-Id: linux-i2c@vger.kernel.org
 
+> On Sat, Feb 23, 2019 at 09:32 +0100, wsa@the-dreams.de wrote:
+>> On Thu, Feb 21, 2019 at 04:10:57PM +0000, Gareth Williams wrote:
+>> The Synopsys I2C Controller has a peripheral clock that some SoCs
+>> require to access the registers. This series also details the new
+>> clock property in the bindings documentation.
+>
+> On Sat, Feb 23, 2019 at 09:32 +0100, wsa@the-dreams.de wrote:
+> Your SoB is missing for patch 1. And besides my ack, I'd still like some =
+feedback from the actual driver maintainers.
 
---dkEUBIird37B8yKS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Feb 19, 2019 at 11:30:27AM -0800, Jim Broadus wrote:
-> A previous change allowed I2C client devices to discover new IRQs upon
-> reprobe by clearing the IRQ in i2c_device_remove. However, if an IRQ was
-> assigned in i2c_new_device, that information is lost.
->=20
-> For example, the touchscreen and trackpad devices on a Dell Inspiron lapt=
-op
-> are I2C devices whose IRQs are defined by ACPI extended IRQ types. The
-> client device structures are initialized during an ACPI walk. After
-> removing the i2c_hid device, modprobe fails.
->=20
-> This change caches the initial IRQ value in i2c_new_device and then resets
-> the client device IRQ to the initial value in i2c_device_remove.
->=20
-> Fixes: 6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
-> Signed-off-by: Jim Broadus <jbroadus@gmail.com>
-
-Applied to for-next, thanks!
-
-I didn't want to apply to for-current because I didn't feel comfortable
-changing the I2C core in this very last days before the release.
-
-It will hit linus tree during next merge window and go back to older
-releases via stable.
-
-That all being said, I'd really love to see the proper fix (move irq
-assignment from init to probe time) being worked on rather soonish
-before we forget all the details we know at this moment. I'll be there
-for it.
+Thanks for the feedback Wolfram. I will wait for input from the driver main=
+tainers.
 
 
---dkEUBIird37B8yKS
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlxyoWQACgkQFA3kzBSg
-Kbazgg//bM6XAh0HokHCQRRLpv3rOJLsay9p6F2gRVw6scYR1QbpZG03nPtzOm/S
-UAgXONZIHCaorIqpn/XLv5fFjzGtQExl0hR9iRd8hwnwflAVdkdAYbdTq1+J4hYx
-Rs6nMmkUYZOpPbl9XonGz7rfm5kijmUt4A9Y4lY3J/mMQvBgKGsDz5ro4YQQQADv
-KVJd+FggH7qr9bbRp97WDJGcS94H6po8nU9pvSRc1bMXzYjmusNO8dkAn90RQZb7
-XKfCxaKrt077rAvYMJGYp7Q1rCbvuLvB007bOQ6D4R1lby6oDZtWwad0XWAmSp36
-bMqFriFWKA0a1SbaAnBaSo6F7d196ASb8c70bPsyqyntf/Z7hvfjqwIBzEJowbzE
-SNFLwGTmHQH0tAJFomXH1ampmwUZyiA9MRsGbEpOsjYBVhQu07x/YqrWQv+nTnoF
-NEx9aQ/3d2297EA9eGPZFoFXNzeUuRVUswYhA6HnIwfBLJ8f6h7zus4wjQhFvR0H
-l7M8ieAn+CrZNbgwErbmG5iFwdJumsJTB+zlwiaDSioxJEWj0pPNfX7Z5z/zIwjV
-jlr+esoyUtwBX4nDCohWc/qhhRcIw+RVCIzQbNaVPlHTBmSzQ269Kw61nhPAcsIB
-MJOx6YJP6A/xnko/XQuBYJPbn1mm1vzSout2wJq06SuwmJietKQ=
-=cEYW
------END PGP SIGNATURE-----
-
---dkEUBIird37B8yKS--
+Renesas Electronics Europe GmbH,Geschaeftsfuehrer/President : Michael Hanna=
+wald, Sitz der Gesellschaft/Registered office: Duesseldorf, Arcadiastrasse =
+10, 40472 Duesseldorf, Germany,Handelsregister/Commercial Register: Duessel=
+dorf, HRB 3708 USt-IDNr./Tax identification no.: DE 119353406 WEEE-Reg.-Nr.=
+/WEEE reg. no.: DE 14978647
