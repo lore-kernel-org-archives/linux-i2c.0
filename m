@@ -1,116 +1,90 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v5 2/3] i2c: at91: split driver into core and master file
-Date: Mon, 25 Feb 2019 12:34:44 +0200
-Message-ID: <20190225103444.GR9224@smile.fi.intel.com>
-References: <20190222092522.4913-1-ludovic.desroches@microchip.com>
- <20190222092522.4913-3-ludovic.desroches@microchip.com>
+From: Georgi Djakov <georgi.djakov@linaro.org>
+Subject: Re: [PATCH 1/6] dt-bindings: soc: qcom: Add interconnect binding for
+ GENI QUP
+Date: Mon, 25 Feb 2019 19:39:34 +0200
+Message-ID: <9318130e-0c2c-c1c1-6ad1-b8bc8ec0c223@linaro.org>
+References: <1548138816-1149-1-git-send-email-alokc@codeaurora.org>
+ <1548138816-1149-2-git-send-email-alokc@codeaurora.org>
+ <20190123170758.GB512@tuxbook-pro>
+ <5ca1ce61-c458-5550-f89d-ab361f1ec456@linaro.org>
+ <20190223002655.GA6631@bogus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190222092522.4913-3-ludovic.desroches@microchip.com>
+In-Reply-To: <20190223002655.GA6631@bogus>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ludovic Desroches <ludovic.desroches@microchip.com>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, me@jue.yt, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org, wsa@the-dreams.de
+To: Rob Herring <robh@kernel.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>, Alok Chauhan <alokc@codeaurora.org>, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-serial@vger.kernel.org, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Mark Rutland <mark.rutland@arm.com>, dianders@chromium.org, swboyd@chromium.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Feb 22, 2019 at 10:25:21AM +0100, Ludovic Desroches wrote:
-> From: Juergen Fitschen <me@jue.yt>
+On 2/23/19 02:26, Rob Herring wrote:
+> On Wed, Jan 23, 2019 at 08:41:20PM +0200, Georgi Djakov wrote:
+>> Hi,
+>>
+>> On 1/23/19 19:07, Bjorn Andersson wrote:
+>>> On Mon 21 Jan 22:33 PST 2019, Alok Chauhan wrote:
+>>>
+>>>> Add documentation for the interconnect and interconnect-names bindings
+>>>> for the GENI QUP as detailed by bindings/interconnect/interconnect.txt.
+>>>>
+>>>> Signed-off-by: Alok Chauhan <alokc@codeaurora.org>
+>>>> ---
+>>>>  Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt | 10 ++++++++++
+>>>>  1 file changed, 10 insertions(+)
+>>>>
+>>>> diff --git a/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt b/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
+>>>> index dab7ca9..44d7e02 100644
+>>>> --- a/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
+>>>> +++ b/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
+>>>> @@ -17,6 +17,12 @@ Required properties if child node exists:
+>>>>  - #address-cells: 	Must be <1> for Serial Engine Address
+>>>>  - #size-cells: 		Must be <1> for Serial Engine Address Size
+>>>>  - ranges: 		Must be present
+>>>> +- interconnects:	phandle to a interconnect provider. Please refer
+>>>> +			../interconnect/interconnect.txt for details.
+>>>> +			Must be 2 paths corresponding to 2 AXI ports.
+>>>> +- interconnect-names:	Port names to differentiate between the
+>>>
+>>> s/Port names/Path names/
+>>>
+>>>> +			2 interconnect paths defined with interconnect
+>>>> +			specifier.
+>>>
+>>> These two names are significant in that they must match what the driver
+>>> expects, hence you must actually specify them here.
+>>>
+>>> And as the scope of these strings are local to the QUP node you can omit
+>>> "qup" from them, so make them "memory" and "config" (or perhaps iface,
+>>> to match the clock naming?).
+>>
+>> Actually there was a discussion in the past where we decided include
+>> both the src and dst endpoint names in this property so that there is
+>> some symmetry with the "interconnects" property. It would be nice to be
+>> consistent across different drivers at least for now.
+>> If we want to denote the master and slave ports here, my two cents would
+>> be for "qup-mem" and "cpu-qup" or something similar?
 > 
-> The single file i2c-at91.c has been split into core code (i2c-at91-core.c)
-> and master mode specific code (i2c-at91-master.c). This should enhance
-> maintainability and reduce ifdeffery for slave mode related code.
-> 
-> The code itself hasn't been touched. Shared functions only had to be made
-> non-static. Furthermore, includes have been cleaned up.
+> Well, there's a proposal from Maxime to add 'dma-memory' or something. 
+> You all need to sort this out.
 
-Since it's a split of existing code, consider my comments as a way to improve
-it afterwards.
+Agree. I haven't commented on the latest MBUS patches yet. Meanwhile i
+am trying to get a better understanding of the hardware. In general if
+there are no better suggestions, i am fine with adding a specific name
+to handle this kind of dma transfers.
 
-> +static struct at91_twi_pdata *at91_twi_get_driver_data(
-> +					struct platform_device *pdev)
-> +{
-> +	if (pdev->dev.of_node) {
-> +		const struct of_device_id *match;
-> +		match = of_match_node(atmel_twi_dt_ids, pdev->dev.of_node);
-> +		if (!match)
-> +			return NULL;
-> +		return (struct at91_twi_pdata *)match->data;
-> +	}
-> +	return (struct at91_twi_pdata *) platform_get_device_id(pdev)->driver_data;
+> I assume config or cpu-qup is for register access? Why is this needed? 
+> That should get described thru the DT tree. The interconnect stuff was 
+> supposed to be for the non-cpu centric view (i.e. DMA masters). Maybe 
+> it's fine, but that's not my initial reaction.
 
+Yes, cpu-qup should be for register access. Alok, please correct me if i
+am wrong, but I believe this is a separate bus used only for
+configuration access to some HW blocks. This bus might be disabled by
+default and we may need to request some bandwidth in order to enable it.
+It's described as a separate path in DT and we are trying to give it a
+meaningful name.
 
-
-One may do the following instead:
-	struct at91_twi_pdata *data;
-
-	data = device_get_match_data(&pdev->dev);
-	if (data)
-		return data;
-	return ...
-
-And if you ever will switch old platform to somelike unified interface for
-device properties, I would recommend to use device_property_* instead of
-of_property_* and so on.
-
-> +}
-
-> +#include <linux/clk.h>
-> +#include <linux/completion.h>
-> +#include <linux/dma-mapping.h>
-> +#include <linux/dmaengine.h>
-> +#include <linux/i2c.h>
-> +#include <linux/platform_data/dma-atmel.h>
-> +#include <linux/platform_device.h>
-
-Are all those anyhow in use in this header file?
-
-> +#define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
-
-Wouldn't be better to use _MS here and call actual conversion whenever it's
-needed?
-
-> +#define AT91_I2C_DMA_THRESHOLD	8			/* enable DMA if transfer size is bigger than this threshold */
-
-> +#define AUTOSUSPEND_TIMEOUT		2000
-
-_MS ?
-
-> +#define	AT91_TWI_SR		0x0020	/* Status Register */
-> +#define	AT91_TWI_TXCOMP		BIT(0)	/* Transmission Complete */
-> +#define	AT91_TWI_RXRDY		BIT(1)	/* Receive Holding Register Ready */
-> +#define	AT91_TWI_TXRDY		BIT(2)	/* Transmit Holding Register Ready */
-> +#define	AT91_TWI_OVRE		BIT(6)	/* Overrun Error */
-> +#define	AT91_TWI_UNRE		BIT(7)	/* Underrun Error */
-> +#define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
-> +#define	AT91_TWI_LOCK		BIT(23) /* TWI Lock due to Frame Errors */
-> +
-> +#define	AT91_TWI_INT_MASK \
-> +	(AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY | AT91_TWI_NACK)
-> +
-> +#define	AT91_TWI_IER		0x0024	/* Interrupt Enable Register */
-> +#define	AT91_TWI_IDR		0x0028	/* Interrupt Disable Register */
-> +#define	AT91_TWI_IMR		0x002c	/* Interrupt Mask Register */
-> +#define	AT91_TWI_RHR		0x0030	/* Receive Holding Register */
-> +#define	AT91_TWI_THR		0x0034	/* Transmit Holding Register */
-> +
-> +#define	AT91_TWI_ACR		0x0040	/* Alternative Command Register */
-> +#define	AT91_TWI_ACR_DATAL(len)	((len) & 0xff)
-> +#define	AT91_TWI_ACR_DIR	BIT(8)
-> +
-> +#define	AT91_TWI_FMR		0x0050	/* FIFO Mode Register */
-> +#define	AT91_TWI_FMR_TXRDYM(mode)	(((mode) & 0x3) << 0)
-
-> +#define	AT91_TWI_FMR_TXRDYM_MASK	(0x3 << 0)
-
-GENMASK() ?
-
-> +#define	AT91_TWI_FMR_RXRDYM(mode)	(((mode) & 0x3) << 4)
-
-> +#define	AT91_TWI_FMR_RXRDYM_MASK	(0x3 << 4)
-
-Ditto.
-
--- 
-With Best Regards,
-Andy Shevchenko
+Thanks,
+Georgi
