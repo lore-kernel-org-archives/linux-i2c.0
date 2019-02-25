@@ -1,96 +1,115 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v5 0/3] i2c: at91: slave mode support
-Date: Mon, 25 Feb 2019 12:24:09 +0200
-Message-ID: <20190225102409.GQ9224@smile.fi.intel.com>
+Subject: Re: [PATCH v5 2/3] i2c: at91: split driver into core and master file
+Date: Mon, 25 Feb 2019 12:34:44 +0200
+Message-ID: <20190225103444.GR9224@smile.fi.intel.com>
 References: <20190222092522.4913-1-ludovic.desroches@microchip.com>
+ <20190222092522.4913-3-ludovic.desroches@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190222092522.4913-1-ludovic.desroches@microchip.com>
+In-Reply-To: <20190222092522.4913-3-ludovic.desroches@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Ludovic Desroches <ludovic.desroches@microchip.com>
 Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, me@jue.yt, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org, wsa@the-dreams.de
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Feb 22, 2019 at 10:25:19AM +0100, Ludovic Desroches wrote:
-> [Ludovic Desroches: see Changes section]
+On Fri, Feb 22, 2019 at 10:25:21AM +0100, Ludovic Desroches wrote:
+> From: Juergen Fitschen <me@jue.yt>
 > 
-> Based on the discussion we had on the i2c-linux list [1], I wrote a patch for
-> AT91 hardware and tried to fulfill the Linux I2C slave interface description
-> [2] as good as possible. This enables aforementioned hardware to act as an I2C
-> slave that can be accessed by a remote I2C master.
+> The single file i2c-at91.c has been split into core code (i2c-at91-core.c)
+> and master mode specific code (i2c-at91-master.c). This should enhance
+> maintainability and reduce ifdeffery for slave mode related code.
 > 
-> I have tested this patchset successfully on an ATSAMA5D27.
-> 
->                                  ^  3.3V   ^  3.3V
->     +-----------------------+    |         |         +-----------------------+
->     | Slave: ATSAMA5D27     |   +-+       +-+        | Master: ATSAMA5D35    |
->     | with i2c-slave-eeprom |   | | 100k  | | 100k   | with i2cset           |
->     +-------------------+-+-+   +-+       +-+        +-+-+-------------------+
->                         | |      |         |           | |
->                         | +------+---------|---(SDA)---+ |
->                         +------------------+---(SCL)-----+
-> 
->     Schematic: Connection of slave and master with 100kOhm pullup resistors.
-> 
-> On the master the following BASH script has been used to stress the slave.
-> 
->         root@emblinux:~# cat ./stress.sh
+> The code itself hasn't been touched. Shared functions only had to be made
+> non-static. Furthermore, includes have been cleaned up.
 
->         #!/bin/bash
+Since it's a split of existing code, consider my comments as a way to improve
+it afterwards.
 
-Not everybody has bash in their environments. See below, how easily to switch
-to regular shell.
+> +static struct at91_twi_pdata *at91_twi_get_driver_data(
+> +					struct platform_device *pdev)
+> +{
+> +	if (pdev->dev.of_node) {
+> +		const struct of_device_id *match;
+> +		match = of_match_node(atmel_twi_dt_ids, pdev->dev.of_node);
+> +		if (!match)
+> +			return NULL;
+> +		return (struct at91_twi_pdata *)match->data;
+> +	}
+> +	return (struct at91_twi_pdata *) platform_get_device_id(pdev)->driver_data;
 
-#!/bin/sh
 
->         I=0
->         while true
->         do
->                 if i2cset -y -r 1 0x64 0 $I w | grep mismatch
->                 then
->                         echo "$(date): Error in transmission ${I}"
->                 fi
 
->                 ((I++))
+One may do the following instead:
+	struct at91_twi_pdata *data;
 
-I=$(($I+1))
+	data = device_get_match_data(&pdev->dev);
+	if (data)
+		return data;
+	return ...
 
->                 if [ $I -eq 65536 ]
->                 then
->                         I=0
->                         echo "$(date): Sent 65536 transmissions"
->                 fi
+And if you ever will switch old platform to somelike unified interface for
+device properties, I would recommend to use device_property_* instead of
+of_property_* and so on.
 
-This one can be optimized to
+> +}
 
-for I in $(seq 65536); do
-...
-done
+> +#include <linux/clk.h>
+> +#include <linux/completion.h>
+> +#include <linux/dma-mapping.h>
+> +#include <linux/dmaengine.h>
+> +#include <linux/i2c.h>
+> +#include <linux/platform_data/dma-atmel.h>
+> +#include <linux/platform_device.h>
 
->         done
-> 
-> After running the script for some time I had the following output. To me this
-> looks promising :)
-> 
->         root@emblinux:~# ./stress.sh
->         Thu Nov  9 13:58:45 CTE 2017: Sent 65536 transmissions
->         Thu Nov  9 14:35:20 CTE 2017: Sent 65536 transmissions
->         Thu Nov  9 15:12:11 CTE 2017: Sent 65536 transmissions
->         Thu Nov  9 15:49:04 CTE 2017: Sent 65536 transmissions
->         Thu Nov  9 16:26:00 CTE 2017: Sent 65536 transmissions
->         Thu Nov  9 17:03:07 UTC 2017: Sent 65536 transmissions
->         Thu Nov  9 17:40:15 UTC 2017: Sent 65536 transmissions
-> 
->         If you have some hardware with an at91-i2c interface included at hand, I really
->         would appreciate if you can run the test script on your hardware and test this
->         driver.
->         Thu Nov  9 17:40:15 UTC 2017: Sent 65536 transmissions
-> 
->         If you have some hardware with an at91-i2c interface included at hand, I really
->         would appreciate if you can run the test script on your hardware and test this
->         driver.
+Are all those anyhow in use in this header file?
+
+> +#define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
+
+Wouldn't be better to use _MS here and call actual conversion whenever it's
+needed?
+
+> +#define AT91_I2C_DMA_THRESHOLD	8			/* enable DMA if transfer size is bigger than this threshold */
+
+> +#define AUTOSUSPEND_TIMEOUT		2000
+
+_MS ?
+
+> +#define	AT91_TWI_SR		0x0020	/* Status Register */
+> +#define	AT91_TWI_TXCOMP		BIT(0)	/* Transmission Complete */
+> +#define	AT91_TWI_RXRDY		BIT(1)	/* Receive Holding Register Ready */
+> +#define	AT91_TWI_TXRDY		BIT(2)	/* Transmit Holding Register Ready */
+> +#define	AT91_TWI_OVRE		BIT(6)	/* Overrun Error */
+> +#define	AT91_TWI_UNRE		BIT(7)	/* Underrun Error */
+> +#define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
+> +#define	AT91_TWI_LOCK		BIT(23) /* TWI Lock due to Frame Errors */
+> +
+> +#define	AT91_TWI_INT_MASK \
+> +	(AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY | AT91_TWI_NACK)
+> +
+> +#define	AT91_TWI_IER		0x0024	/* Interrupt Enable Register */
+> +#define	AT91_TWI_IDR		0x0028	/* Interrupt Disable Register */
+> +#define	AT91_TWI_IMR		0x002c	/* Interrupt Mask Register */
+> +#define	AT91_TWI_RHR		0x0030	/* Receive Holding Register */
+> +#define	AT91_TWI_THR		0x0034	/* Transmit Holding Register */
+> +
+> +#define	AT91_TWI_ACR		0x0040	/* Alternative Command Register */
+> +#define	AT91_TWI_ACR_DATAL(len)	((len) & 0xff)
+> +#define	AT91_TWI_ACR_DIR	BIT(8)
+> +
+> +#define	AT91_TWI_FMR		0x0050	/* FIFO Mode Register */
+> +#define	AT91_TWI_FMR_TXRDYM(mode)	(((mode) & 0x3) << 0)
+
+> +#define	AT91_TWI_FMR_TXRDYM_MASK	(0x3 << 0)
+
+GENMASK() ?
+
+> +#define	AT91_TWI_FMR_RXRDYM(mode)	(((mode) & 0x3) << 4)
+
+> +#define	AT91_TWI_FMR_RXRDYM_MASK	(0x3 << 4)
+
+Ditto.
 
 -- 
 With Best Regards,
