@@ -1,36 +1,97 @@
-From: Gareth Williams <gareth.williams.jx@renesas.com>
-Subject: RE: [PATCH v4 0/2] i2c: designware: Add support for a bus clock
-Date: Mon, 25 Feb 2019 09:28:16 +0000
-Message-ID: <TYAPR01MB4015D859E542280ABB5D9DC2DF7A0@TYAPR01MB4015.jpnprd01.prod.outlook.com>
-References: <1550765459-14519-1-git-send-email-gareth.williams.jx@renesas.com>
- <20190223093207.GC1018@kunai>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v5 0/3] i2c: at91: slave mode support
+Date: Mon, 25 Feb 2019 12:24:09 +0200
+Message-ID: <20190225102409.GQ9224@smile.fi.intel.com>
+References: <20190222092522.4913-1-ludovic.desroches@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190223093207.GC1018@kunai>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190222092522.4913-1-ludovic.desroches@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Phil Edworthy <phil.edworthy@renesas.com>
+To: Ludovic Desroches <ludovic.desroches@microchip.com>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, me@jue.yt, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org, wsa@the-dreams.de
 List-Id: linux-i2c@vger.kernel.org
 
-> On Sat, Feb 23, 2019 at 09:32 +0100, wsa@the-dreams.de wrote:
->> On Thu, Feb 21, 2019 at 04:10:57PM +0000, Gareth Williams wrote:
->> The Synopsys I2C Controller has a peripheral clock that some SoCs
->> require to access the registers. This series also details the new
->> clock property in the bindings documentation.
->
-> On Sat, Feb 23, 2019 at 09:32 +0100, wsa@the-dreams.de wrote:
-> Your SoB is missing for patch 1. And besides my ack, I'd still like some =
-feedback from the actual driver maintainers.
+On Fri, Feb 22, 2019 at 10:25:19AM +0100, Ludovic Desroches wrote:
+> [Ludovic Desroches: see Changes section]
+> 
+> Based on the discussion we had on the i2c-linux list [1], I wrote a patch for
+> AT91 hardware and tried to fulfill the Linux I2C slave interface description
+> [2] as good as possible. This enables aforementioned hardware to act as an I2C
+> slave that can be accessed by a remote I2C master.
+> 
+> I have tested this patchset successfully on an ATSAMA5D27.
+> 
+>                                  ^  3.3V   ^  3.3V
+>     +-----------------------+    |         |         +-----------------------+
+>     | Slave: ATSAMA5D27     |   +-+       +-+        | Master: ATSAMA5D35    |
+>     | with i2c-slave-eeprom |   | | 100k  | | 100k   | with i2cset           |
+>     +-------------------+-+-+   +-+       +-+        +-+-+-------------------+
+>                         | |      |         |           | |
+>                         | +------+---------|---(SDA)---+ |
+>                         +------------------+---(SCL)-----+
+> 
+>     Schematic: Connection of slave and master with 100kOhm pullup resistors.
+> 
+> On the master the following BASH script has been used to stress the slave.
+> 
+>         root@emblinux:~# cat ./stress.sh
 
-Thanks for the feedback Wolfram. I will wait for input from the driver main=
-tainers.
+>         #!/bin/bash
 
+Not everybody has bash in their environments. See below, how easily to switch
+to regular shell.
 
-Renesas Electronics Europe GmbH,Geschaeftsfuehrer/President : Michael Hanna=
-wald, Sitz der Gesellschaft/Registered office: Duesseldorf, Arcadiastrasse =
-10, 40472 Duesseldorf, Germany,Handelsregister/Commercial Register: Duessel=
-dorf, HRB 3708 USt-IDNr./Tax identification no.: DE 119353406 WEEE-Reg.-Nr.=
-/WEEE reg. no.: DE 14978647
+#!/bin/sh
+
+>         I=0
+>         while true
+>         do
+>                 if i2cset -y -r 1 0x64 0 $I w | grep mismatch
+>                 then
+>                         echo "$(date): Error in transmission ${I}"
+>                 fi
+
+>                 ((I++))
+
+I=$(($I+1))
+
+>                 if [ $I -eq 65536 ]
+>                 then
+>                         I=0
+>                         echo "$(date): Sent 65536 transmissions"
+>                 fi
+
+This one can be optimized to
+
+for I in $(seq 65536); do
+...
+done
+
+>         done
+> 
+> After running the script for some time I had the following output. To me this
+> looks promising :)
+> 
+>         root@emblinux:~# ./stress.sh
+>         Thu Nov  9 13:58:45 CTE 2017: Sent 65536 transmissions
+>         Thu Nov  9 14:35:20 CTE 2017: Sent 65536 transmissions
+>         Thu Nov  9 15:12:11 CTE 2017: Sent 65536 transmissions
+>         Thu Nov  9 15:49:04 CTE 2017: Sent 65536 transmissions
+>         Thu Nov  9 16:26:00 CTE 2017: Sent 65536 transmissions
+>         Thu Nov  9 17:03:07 UTC 2017: Sent 65536 transmissions
+>         Thu Nov  9 17:40:15 UTC 2017: Sent 65536 transmissions
+> 
+>         If you have some hardware with an at91-i2c interface included at hand, I really
+>         would appreciate if you can run the test script on your hardware and test this
+>         driver.
+>         Thu Nov  9 17:40:15 UTC 2017: Sent 65536 transmissions
+> 
+>         If you have some hardware with an at91-i2c interface included at hand, I really
+>         would appreciate if you can run the test script on your hardware and test this
+>         driver.
+
+-- 
+With Best Regards,
+Andy Shevchenko
