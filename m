@@ -1,90 +1,45 @@
-From: Georgi Djakov <georgi.djakov@linaro.org>
-Subject: Re: [PATCH 1/6] dt-bindings: soc: qcom: Add interconnect binding for
- GENI QUP
-Date: Mon, 25 Feb 2019 19:39:34 +0200
-Message-ID: <9318130e-0c2c-c1c1-6ad1-b8bc8ec0c223@linaro.org>
-References: <1548138816-1149-1-git-send-email-alokc@codeaurora.org>
- <1548138816-1149-2-git-send-email-alokc@codeaurora.org>
- <20190123170758.GB512@tuxbook-pro>
- <5ca1ce61-c458-5550-f89d-ab361f1ec456@linaro.org>
- <20190223002655.GA6631@bogus>
+From: Qii Wang <qii.wang@mediatek.com>
+Subject: [PATCH v5 0/5] add i2c support for mt8183
+Date: Tue, 26 Feb 2019 21:10:55 +0800
+Message-ID: <1551186660-16902-1-git-send-email-qii.wang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190223002655.GA6631@bogus>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>, Alok Chauhan <alokc@codeaurora.org>, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, linux-serial@vger.kernel.org, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, Mark Rutland <mark.rutland@arm.com>, dianders@chromium.org, swboyd@chromium.org
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, qii.wang@mediatek.com, xinping.qian@mediatek.com, liguo.zhang@mediatek.com, robh@kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2/23/19 02:26, Rob Herring wrote:
-> On Wed, Jan 23, 2019 at 08:41:20PM +0200, Georgi Djakov wrote:
->> Hi,
->>
->> On 1/23/19 19:07, Bjorn Andersson wrote:
->>> On Mon 21 Jan 22:33 PST 2019, Alok Chauhan wrote:
->>>
->>>> Add documentation for the interconnect and interconnect-names bindings
->>>> for the GENI QUP as detailed by bindings/interconnect/interconnect.txt.
->>>>
->>>> Signed-off-by: Alok Chauhan <alokc@codeaurora.org>
->>>> ---
->>>>  Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt | 10 ++++++++++
->>>>  1 file changed, 10 insertions(+)
->>>>
->>>> diff --git a/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt b/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
->>>> index dab7ca9..44d7e02 100644
->>>> --- a/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
->>>> +++ b/Documentation/devicetree/bindings/soc/qcom/qcom,geni-se.txt
->>>> @@ -17,6 +17,12 @@ Required properties if child node exists:
->>>>  - #address-cells: 	Must be <1> for Serial Engine Address
->>>>  - #size-cells: 		Must be <1> for Serial Engine Address Size
->>>>  - ranges: 		Must be present
->>>> +- interconnects:	phandle to a interconnect provider. Please refer
->>>> +			../interconnect/interconnect.txt for details.
->>>> +			Must be 2 paths corresponding to 2 AXI ports.
->>>> +- interconnect-names:	Port names to differentiate between the
->>>
->>> s/Port names/Path names/
->>>
->>>> +			2 interconnect paths defined with interconnect
->>>> +			specifier.
->>>
->>> These two names are significant in that they must match what the driver
->>> expects, hence you must actually specify them here.
->>>
->>> And as the scope of these strings are local to the QUP node you can omit
->>> "qup" from them, so make them "memory" and "config" (or perhaps iface,
->>> to match the clock naming?).
->>
->> Actually there was a discussion in the past where we decided include
->> both the src and dst endpoint names in this property so that there is
->> some symmetry with the "interconnects" property. It would be nice to be
->> consistent across different drivers at least for now.
->> If we want to denote the master and slave ports here, my two cents would
->> be for "qup-mem" and "cpu-qup" or something similar?
-> 
-> Well, there's a proposal from Maxime to add 'dma-memory' or something. 
-> You all need to sort this out.
+This series are based on 5.0-rc1 and provide five patches to support
+mt8183 IC.
 
-Agree. I haven't commented on the latest MBUS patches yet. Meanwhile i
-am trying to get a better understanding of the hardware. In general if
-there are no better suggestions, i am fine with adding a specific name
-to handle this kind of dma transfers.
+Main changes compared to v4:
+--modify the commit of arb clock dt-binding
+--split a patch(3/3) into three(3/5 4/5 5/5)
 
-> I assume config or cpu-qup is for register access? Why is this needed? 
-> That should get described thru the DT tree. The interconnect stuff was 
-> supposed to be for the non-cpu centric view (i.e. DMA masters). Maybe 
-> it's fine, but that's not my initial reaction.
+Main changes compared to v3:
+--remove the patches which have been applied to for-next
+--remove i2c fallback for i3c controller 
 
-Yes, cpu-qup should be for register access. Alok, please correct me if i
-am wrong, but I believe this is a separate bus used only for
-configuration access to some HW blocks. This bus might be disabled by
-default and we may need to request some bandwidth in order to enable it.
-It's described as a separate path in DT and we are trying to give it a
-meaningful name.
+Main changes compared to v2:
+--update commit message
+--add Reviewed-by from Rob Herring, Nicolas and Sean
 
-Thanks,
-Georgi
+Main changes compared to v1:
+--remove useless dt-binding for mt7629
+--split a patch into two(2/6 3/6)
+--muti-user feature was dropped
+
+Qii Wang (5):
+  i2c: mediatek: Add offsets array for new i2c registers
+  dt-bindings: i2c: Add Mediatek MT8183 i2c binding
+  i2c: mediatek: Add arb clock in i2c driver
+  i2c: mediatek: Add i2c and apdma sync in i2c driver
+  i2c: mediatek: Add i2c support for MediaTek MT8183
+
+ Documentation/devicetree/bindings/i2c/i2c-mtk.txt |   4 +-
+ drivers/i2c/busses/i2c-mt65xx.c                   | 246 ++++++++++++++++------
+ 2 files changed, 188 insertions(+), 62 deletions(-)
+
+-- 
+1.9.1
