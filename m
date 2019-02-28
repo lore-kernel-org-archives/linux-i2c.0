@@ -1,7 +1,7 @@
 From: Robert Shearman <robertshearman@gmail.com>
-Subject: [PATCH v4 3/3] i2c: mux: pca954x: allow management of device idle state via sysfs
-Date: Thu, 28 Feb 2019 11:43:43 +0000
-Message-ID: <20190228114343.36443-4-robertshearman@gmail.com>
+Subject: [PATCH v4 1/3] i2c: mux: pca954x: remove support for unused platform data
+Date: Thu, 28 Feb 2019 11:43:41 +0000
+Message-ID: <20190228114343.36443-2-robertshearman@gmail.com>
 References: <20190228114343.36443-1-robertshearman@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,202 +14,70 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Robert Shearman <robert.shearman@att.com>
 
-The behaviour, by default, to not deselect after each transfer is
-unsafe when there is a device with an address that conflicts with
-another device on another mux on the same parent bus, and it
-may not be convenient to use devicetree to set the deselect mux,
-e.g. when running on x86_64 when ACPI is used to discover most of the
-device hierarchy.
-
-Therefore, provide the ability to set the idle state behaviour using a
-new sysfs file, idle_state as a complement to the method of
-instantiating the device via sysfs. The possible behaviours are
-disconnect, i.e. to deselect all channels from the mux, as-is (the
-default), i.e. leave the last channel selected, and set a
-predetermined channel.
-
-The current behaviour of leaving the channel as-is after each
-transaction is preserved.
+There are no in-tree users of the pca954x platform data and the
+per-channel deselect configuration complicates efforts to export the
+configuration to user-space in a way that could be applied to other
+muxes. Therefore, remove support for the pca954x platform data.
 
 Signed-off-by: Robert Shearman <robert.shearman@att.com>
 ---
- .../ABI/testing/sysfs-bus-i2c-devices-pca954x | 20 +++++
- drivers/i2c/muxes/i2c-mux-pca954x.c           | 85 +++++++++++++++++--
- 2 files changed, 97 insertions(+), 8 deletions(-)
- create mode 100644 Documentation/ABI/testing/sysfs-bus-i2c-devices-pca954x
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 23 +++--------------------
+ 1 file changed, 3 insertions(+), 20 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-i2c-devices-pca954x b/Documentation/ABI/testing/sysfs-bus-i2c-devices-pca954x
-new file mode 100644
-index 000000000000..0b0de8cd0d13
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-bus-i2c-devices-pca954x
-@@ -0,0 +1,20 @@
-+What:		/sys/bus/i2c/.../idle_state
-+Date:		January 2019
-+KernelVersion:	5.2
-+Contact:	Robert Shearman <robert.shearman@att.com>
-+Description:
-+		Value that exists only for mux devices that can be
-+		written to control the behaviour of the multiplexer on
-+		idle. Possible values:
-+		-2 - disconnect on idle, i.e. deselect the last used
-+		     channel, which is useful when there is a device
-+		     with an address that conflicts with another
-+		     device on another mux on the same parent bus.
-+		-1 - leave the mux as-is, which is the most optimal
-+		     setting in terms of I2C operations and is the
-+		     default mode.
-+		0..<nchans> - set the mux to a predetermined channel,
-+		     which is useful if there is one channel that is
-+		     used almost always, and you want to reduce the
-+		     latency for normal operations after rare
-+		     transactions on other channels
 diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index e32fef560684..923aa3a5a3dc 100644
+index bfabf985e830..e32fef560684 100644
 --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
 +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -49,6 +49,7 @@
+@@ -46,7 +46,6 @@
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+ #include <linux/of_irq.h>
+-#include <linux/platform_data/pca954x.h>
  #include <linux/pm.h>
  #include <linux/slab.h>
  #include <linux/spinlock.h>
-+#include <dt-bindings/mux/mux.h>
- 
- #define PCA954X_MAX_NCHANS 8
- 
-@@ -84,7 +85,9 @@ struct pca954x {
- 	const struct chip_desc *chip;
- 
- 	u8 last_chan;		/* last register value */
--	u8 deselect;
-+	/* MUX_IDLE_AS_IS, MUX_IDLE_DISCONNECT or >= 0 for channel */
-+	s8 idle_state;
-+
- 	struct i2c_client *client;
- 
- 	struct irq_domain *irq;
-@@ -253,15 +256,71 @@ static int pca954x_deselect_mux(struct i2c_mux_core *muxc, u32 chan)
+@@ -348,14 +347,13 @@ static int pca954x_probe(struct i2c_client *client,
+ 			 const struct i2c_device_id *id)
  {
- 	struct pca954x *data = i2c_mux_priv(muxc);
- 	struct i2c_client *client = data->client;
-+	s8 idle_state;
-+
-+	idle_state = READ_ONCE(data->idle_state);
-+	if (idle_state >= 0)
-+		/* Set the mux back to a predetermined channel */
-+		return pca954x_select_chan(muxc, idle_state);
-+
-+	if (idle_state == MUX_IDLE_DISCONNECT) {
-+		/* Deselect active channel */
-+		data->last_chan = 0;
-+		return pca954x_reg_write(muxc->parent, client,
-+					 data->last_chan);
-+	}
+ 	struct i2c_adapter *adap = client->adapter;
+-	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	struct device *dev = &client->dev;
+ 	struct device_node *np = dev->of_node;
+ 	bool idle_disconnect_dt;
+ 	struct gpio_desc *gpio;
+-	int num, force, class;
+ 	struct i2c_mux_core *muxc;
+ 	struct pca954x *data;
++	int num;
+ 	int ret;
  
--	if (!(data->deselect & (1 << chan)))
--		return 0;
-+	/* otherwise leave as-is */
- 
--	/* Deselect active channel */
--	data->last_chan = 0;
--	return pca954x_reg_write(muxc->parent, client, data->last_chan);
-+	return 0;
-+}
-+
-+static ssize_t idle_state_show(struct device *dev,
-+				    struct device_attribute *attr,
-+				    char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
-+	struct pca954x *data = i2c_mux_priv(muxc);
-+
-+	return sprintf(buf, "%d\n", READ_ONCE(data->idle_state));
-+}
-+
-+static ssize_t idle_state_store(struct device *dev,
-+				struct device_attribute *attr,
-+				const char *buf, size_t count)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
-+	struct pca954x *data = i2c_mux_priv(muxc);
-+	int val;
-+	int ret;
-+
-+	ret = kstrtoint(buf, 0, &val);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (val != MUX_IDLE_AS_IS && val != MUX_IDLE_DISCONNECT &&
-+	    (val < 0 || val >= data->chip->nchans))
-+		return -EINVAL;
-+
-+	i2c_lock_bus(muxc->parent, I2C_LOCK_SEGMENT);
-+
-+	WRITE_ONCE(data->idle_state, val);
-+	/*
-+	 * Set the mux into a state consistent with the new
-+	 * idle_state.
-+	 */
-+	if (data->last_chan || val != MUX_IDLE_DISCONNECT)
-+		ret = pca954x_deselect_mux(muxc, 0);
-+
-+	i2c_unlock_bus(muxc->parent, I2C_LOCK_SEGMENT);
-+
-+	return ret < 0 ? ret : count;
- }
- 
-+static DEVICE_ATTR_RW(idle_state);
-+
- static irqreturn_t pca954x_irq_handler(int irq, void *dev_id)
- {
- 	struct pca954x *data = dev_id;
-@@ -328,8 +387,11 @@ static int pca954x_irq_setup(struct i2c_mux_core *muxc)
- static void pca954x_cleanup(struct i2c_mux_core *muxc)
- {
- 	struct pca954x *data = i2c_mux_priv(muxc);
-+	struct i2c_client *client = data->client;
- 	int c, irq;
- 
-+	device_remove_file(&client->dev, &dev_attr_idle_state);
-+
- 	if (data->irq) {
- 		for (c = 0; c < data->chip->nchans; c++) {
- 			irq = irq_find_mapping(data->irq, c);
-@@ -410,9 +472,12 @@ static int pca954x_probe(struct i2c_client *client,
- 	}
- 
- 	data->last_chan = 0;		   /* force the first selection */
-+	data->idle_state = MUX_IDLE_AS_IS;
- 
- 	idle_disconnect_dt = np &&
- 		of_property_read_bool(np, "i2c-mux-idle-disconnect");
-+	if (idle_disconnect_dt)
-+		data->idle_state = MUX_IDLE_DISCONNECT;
- 
- 	ret = pca954x_irq_setup(muxc);
- 	if (ret)
-@@ -420,8 +485,6 @@ static int pca954x_probe(struct i2c_client *client,
+ 	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_BYTE))
+@@ -422,24 +420,9 @@ static int pca954x_probe(struct i2c_client *client,
  
  	/* Now create an adapter for each channel */
  	for (num = 0; num < data->chip->nchans; num++) {
--		data->deselect |= idle_disconnect_dt << num;
+-		bool idle_disconnect_pd = false;
 -
- 		ret = i2c_mux_add_adapter(muxc, 0, num, 0);
+-		force = 0;			  /* dynamic adap number */
+-		class = 0;			  /* no class by default */
+-		if (pdata) {
+-			if (num < pdata->num_modes) {
+-				/* force static number */
+-				force = pdata->modes[num].adap_id;
+-				class = pdata->modes[num].class;
+-			} else
+-				/* discard unconfigured channels */
+-				break;
+-			idle_disconnect_pd = pdata->modes[num].deselect_on_exit;
+-		}
+-		data->deselect |= (idle_disconnect_pd ||
+-				   idle_disconnect_dt) << num;
++		data->deselect |= idle_disconnect_dt << num;
+ 
+-		ret = i2c_mux_add_adapter(muxc, force, num, class);
++		ret = i2c_mux_add_adapter(muxc, 0, num, 0);
  		if (ret)
  			goto fail_cleanup;
-@@ -436,6 +499,12 @@ static int pca954x_probe(struct i2c_client *client,
- 			goto fail_cleanup;
  	}
- 
-+	/*
-+	 * The attr probably isn't going to be needed in most cases,
-+	 * so don't fail completely on error.
-+	 */
-+	device_create_file(dev, &dev_attr_idle_state);
-+
- 	dev_info(dev, "registered %d multiplexed busses for I2C %s %s\n",
- 		 num, data->chip->muxtype == pca954x_ismux
- 				? "mux" : "switch", client->name);
 -- 
 2.20.1
