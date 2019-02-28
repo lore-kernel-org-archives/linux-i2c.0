@@ -1,117 +1,102 @@
-From: Gareth Williams <gareth.williams.jx@renesas.com>
-Subject: [PATCH v5 2/2] i2c: designware: Add support for an interface clock
-Date: Thu, 28 Feb 2019 13:52:10 +0000
-Message-ID: <1551361930-24434-3-git-send-email-gareth.williams.jx@renesas.com>
-References: <1551361930-24434-1-git-send-email-gareth.williams.jx@renesas.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1551361930-24434-1-git-send-email-gareth.williams.jx@renesas.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org
-Cc: Phil Edworthy <phil.edworthy@renesas.com>, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Gareth Williams <gareth.williams.jx@renesas.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 56/64] i2c: omap: Use noirq system sleep pm ops to idle device for suspend
+Date: Thu, 28 Feb 2019 10:10:57 -0500
+Message-ID: <20190228151105.11277-56-sashal@kernel.org>
+References: <20190228151105.11277-1-sashal@kernel.org>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190228151105.11277-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Tony Lindgren <tony@atomide.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Phil Edworthy <phil.edworthy@renesas.com>
+From: Tony Lindgren <tony@atomide.com>
 
-The Synopsys I2C Controller has an interface clock, but most SoCs hide
-this away. However, on some SoCs you need to explicitly enable the
-interface clock in order to access the registers. Therefore, add 
-support for an optional interface clock.
+[ Upstream commit c6e2bd956936d925748581e4d0294f10f1d92f2c ]
 
-Signed-off-by: Phil Edworthy <phil.edworthy@renesas.com>
-Signed-off-by: Gareth Williams <gareth.williams.jx@renesas.com>
-Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+We currently get the following error with pixcir_ts driver during a
+suspend resume cycle:
+
+omap_i2c 4802a000.i2c: controller timed out
+pixcir_ts 1-005c: pixcir_int_enable: can't read reg 0x34 : -110
+pixcir_ts 1-005c: Failed to disable interrupt generation: -110
+pixcir_ts 1-005c: Failed to stop
+dpm_run_callback(): pixcir_i2c_ts_resume+0x0/0x98
+[pixcir_i2c_ts] returns -110
+PM: Device 1-005c failed to resume: error -110
+
+And at least am437x based devices with pixcir_ts will fail to resume
+to a touchscreen that is configured as the wakeup-source in device
+tree for these devices.
+
+This is because pixcir_ts tries to reconfigure it's registers for
+noirq suspend which fails. This also leaves i2c-omap in enabled state
+for suspend.
+
+Let's fix the pixcir_ts issue and make sure i2c-omap is suspended by
+adding SET_NOIRQ_SYSTEM_SLEEP_PM_OPS.
+
+Let's also get rid of some ifdefs while at it and replace them with
+__maybe_unused as SET_RUNTIME_PM_OPS and SET_NOIRQ_SYSTEM_SLEEP_PM_OPS
+already deal with the various PM Kconfig options.
+
+Reported-by: Keerthy <j-keerthy@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Vignesh R <vigneshr@ti.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-v5:
- - Updated comments to reference "interface clock" instead of
-   "peripheral clock".
- - Corrected spelling in commit message, changing "explicity" to
-   "explicitly".
-v4:
- - Updated comments to reference "peripheral clock"
-   instead of "bus clock".
- - Added Wolfram's Acked-by
-v3:
- - busclk renamed to pclk.
- - Added comment with dw_i2c_dev struct definition describing pclk.
- - Added enable rollback of first clock if second fails to enable.
-v2:
- - Use new devm_clk_get_optional() function as it simplifies handling when
-   the optional clock is not present.
----
- drivers/i2c/busses/i2c-designware-common.c  | 18 ++++++++++++++++--
- drivers/i2c/busses/i2c-designware-core.h    |  2 ++
- drivers/i2c/busses/i2c-designware-platdrv.c |  5 +++++
- 3 files changed, 23 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-omap.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index a473011..2de7452 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -251,13 +251,27 @@ unsigned long i2c_dw_clk_rate(struct dw_i2c_dev *dev)
- 
- int i2c_dw_prepare_clk(struct dw_i2c_dev *dev, bool prepare)
- {
-+	int ret;
-+
- 	if (IS_ERR(dev->clk))
- 		return PTR_ERR(dev->clk);
- 
--	if (prepare)
--		return clk_prepare_enable(dev->clk);
-+	if (prepare) {
-+		/* Optional interface clock */
-+		ret = clk_prepare_enable(dev->pclk);
-+		if (ret)
-+			return ret;
-+
-+		ret = clk_prepare_enable(dev->clk);
-+		if (ret)
-+			clk_disable_unprepare(dev->pclk);
-+
-+		return ret;
-+	}
- 
- 	clk_disable_unprepare(dev->clk);
-+	clk_disable_unprepare(dev->pclk);
-+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 65d06a8193074..2ac86096ddd95 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1498,8 +1498,7 @@ static int omap_i2c_remove(struct platform_device *pdev)
  	return 0;
  }
- EXPORT_SYMBOL_GPL(i2c_dw_prepare_clk);
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index b4a0b2b..e88c711 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -177,6 +177,7 @@
-  * @base: IO registers pointer
-  * @cmd_complete: tx completion indicator
-  * @clk: input reference clock
-+ * @pclk: clock required to access the registers
-  * @slave: represent an I2C slave device
-  * @cmd_err: run time hadware error code
-  * @msgs: points to an array of messages currently being transferred
-@@ -226,6 +227,7 @@ struct dw_i2c_dev {
- 	void __iomem		*ext;
- 	struct completion	cmd_complete;
- 	struct clk		*clk;
-+	struct clk		*pclk;
- 	struct reset_control	*rst;
- 	struct i2c_client		*slave;
- 	u32			(*get_clk_rate_khz) (struct dw_i2c_dev *dev);
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 9eaac3b..97129f5 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -346,6 +346,11 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	else
- 		i2c_dw_configure_master(dev);
  
-+	/* Optional interface clock */
-+	dev->pclk = devm_clk_get_optional(&pdev->dev, "pclk");
-+	if (IS_ERR(dev->pclk))
-+		return PTR_ERR(dev->pclk);
-+
- 	dev->clk = devm_clk_get(&pdev->dev, NULL);
- 	if (!i2c_dw_prepare_clk(dev, true)) {
- 		u64 clk_khz;
+-#ifdef CONFIG_PM
+-static int omap_i2c_runtime_suspend(struct device *dev)
++static int __maybe_unused omap_i2c_runtime_suspend(struct device *dev)
+ {
+ 	struct omap_i2c_dev *omap = dev_get_drvdata(dev);
+ 
+@@ -1525,7 +1524,7 @@ static int omap_i2c_runtime_suspend(struct device *dev)
+ 	return 0;
+ }
+ 
+-static int omap_i2c_runtime_resume(struct device *dev)
++static int __maybe_unused omap_i2c_runtime_resume(struct device *dev)
+ {
+ 	struct omap_i2c_dev *omap = dev_get_drvdata(dev);
+ 
+@@ -1540,20 +1539,18 @@ static int omap_i2c_runtime_resume(struct device *dev)
+ }
+ 
+ static const struct dev_pm_ops omap_i2c_pm_ops = {
++	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
++				      pm_runtime_force_resume)
+ 	SET_RUNTIME_PM_OPS(omap_i2c_runtime_suspend,
+ 			   omap_i2c_runtime_resume, NULL)
+ };
+-#define OMAP_I2C_PM_OPS (&omap_i2c_pm_ops)
+-#else
+-#define OMAP_I2C_PM_OPS NULL
+-#endif /* CONFIG_PM */
+ 
+ static struct platform_driver omap_i2c_driver = {
+ 	.probe		= omap_i2c_probe,
+ 	.remove		= omap_i2c_remove,
+ 	.driver		= {
+ 		.name	= "omap_i2c",
+-		.pm	= OMAP_I2C_PM_OPS,
++		.pm	= &omap_i2c_pm_ops,
+ 		.of_match_table = of_match_ptr(omap_i2c_of_match),
+ 	},
+ };
 -- 
-2.7.4
+2.19.1
