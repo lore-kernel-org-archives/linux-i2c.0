@@ -1,102 +1,86 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.20 70/81] i2c: omap: Use noirq system sleep pm ops to idle device for suspend
-Date: Thu, 28 Feb 2019 10:08:02 -0500
-Message-ID: <20190228150813.10256-70-sashal@kernel.org>
-References: <20190228150813.10256-1-sashal@kernel.org>
+From: Andreas Kemnade <andreas@kemnade.info>
+Subject: Re: [PATCH] mfd: twl-core: disable irq while suspended
+Date: Fri, 1 Mar 2019 07:45:11 +0100
+Message-ID: <20190301074511.2d15aacc@kemnade.info>
+References: <20190223114754.16286-1-andreas@kemnade.info>
+        <20190223182323.GA39872@atomide.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/N40uUVtxTp0XE0kd_lnYTyP"; protocol="application/pgp-signature"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190228150813.10256-1-sashal@kernel.org>
+In-Reply-To: <20190223182323.GA39872@atomide.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Tony Lindgren <tony@atomide.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Tony Lindgren <tony@atomide.com>
+Cc: lee.jones@linaro.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Dave Gerlach <d-gerlach@ti.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Keerthy <j-keerthy@ti.com>, Tero Kristo <t-kristo@ti.com>, letux-kernel@openphoenux.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+--Sig_/N40uUVtxTp0XE0kd_lnYTyP
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-[ Upstream commit c6e2bd956936d925748581e4d0294f10f1d92f2c ]
+Hi,
 
-We currently get the following error with pixcir_ts driver during a
-suspend resume cycle:
+On Sat, 23 Feb 2019 10:23:23 -0800
+Tony Lindgren <tony@atomide.com> wrote:
 
-omap_i2c 4802a000.i2c: controller timed out
-pixcir_ts 1-005c: pixcir_int_enable: can't read reg 0x34 : -110
-pixcir_ts 1-005c: Failed to disable interrupt generation: -110
-pixcir_ts 1-005c: Failed to stop
-dpm_run_callback(): pixcir_i2c_ts_resume+0x0/0x98
-[pixcir_i2c_ts] returns -110
-PM: Device 1-005c failed to resume: error -110
+> * Andreas Kemnade <andreas@kemnade.info> [190223 11:48]:
+> > Since commit
+> > 6e2bd956936 ("i2c: omap: Use noirq system sleep pm ops to idle device f=
+or suspend")
+> > on gta04 we have handle_twl4030_pih() called in situations where pm_run=
+time_get()
+> > in i2c-omap.c returns -EACCES.
+> > [   86.474365] Freezing remaining freezable tasks ... (elapsed 0.002 se=
+conds) done.
+> > [   86.485473] printk: Suspending console(s) (use no_console_suspend to=
+ debug)
+> > [   86.555572] Disabling non-boot CPUs ...
+> > [   86.555664] Successfully put all powerdomains to target state
+> > [   86.563720] twl: Read failed (mod 1, reg 0x01 count 1)
+> > [   86.563751] twl4030: I2C error -13 reading PIH ISR
+> > [   86.563812] twl: Read failed (mod 1, reg 0x01 count 1)
+> > [   86.563812] twl4030: I2C error -13 reading PIH ISR
+> > [   86.563873] twl: Read failed (mod 1, reg 0x01 count 1)
+> > [   86.563903] twl4030: I2C error -13 reading PIH ISR
+> >=20
+> > This happens when we wakeup via something behing twl4030
+> > (powerbutton or rtc alarm).
+> > This goes on for minutes until the system is finally resumed.
+> > Disable the irq on suspend and enable it on resume to avoid
+> > having i2c access problems when the irq registers are checked. =20
+>=20
+> Thanks for fixing this, still works fine for me for rtcwake:
+>=20
+> Tested-by: Tony Lindgren <tony@atomide.com>
+>=20
+hmm, in which version we will see this regression fixed?
 
-And at least am437x based devices with pixcir_ts will fail to resume
-to a touchscreen that is configured as the wakeup-source in device
-tree for these devices.
+I consider this whole thing as a reminder to finally
+improve my automated test facilities and finally add the suspend/power
+consumption test scripts I have to it so I can catch such things earlier.
 
-This is because pixcir_ts tries to reconfigure it's registers for
-noirq suspend which fails. This also leaves i2c-omap in enabled state
-for suspend.
+Regards,
+Andreas
 
-Let's fix the pixcir_ts issue and make sure i2c-omap is suspended by
-adding SET_NOIRQ_SYSTEM_SLEEP_PM_OPS.
+--Sig_/N40uUVtxTp0XE0kd_lnYTyP
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
 
-Let's also get rid of some ifdefs while at it and replace them with
-__maybe_unused as SET_RUNTIME_PM_OPS and SET_NOIRQ_SYSTEM_SLEEP_PM_OPS
-already deal with the various PM Kconfig options.
+-----BEGIN PGP SIGNATURE-----
 
-Reported-by: Keerthy <j-keerthy@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Acked-by: Vignesh R <vigneshr@ti.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/busses/i2c-omap.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+iQIzBAEBCAAdFiEEPIWxmAFyOaBcwCpFl4jFM1s/ye8FAlx41PcACgkQl4jFM1s/
+ye95PBAAjch8QEbm1Xjq6d2frVDCzM1NZTy4094hu42wz0Ku+VkXIZ5TlTBi+r//
+FqDoodgDMPKus/QxKNsRzv5bVXZmRTt07QLWTmMih5HykoGvZAHdiVbH2wWMtMME
+a4snuBjsCVnKilEceTn8Mghe5xMDbtSUPPM9pIQYegPR6iePzqCJX8l1KcAc6uQH
+4SHCqtXOpP/cp07Y9MmqLWShvc3IWRdSo9qofqcDhZBhezCuHbJ33p2XKsY+21rM
+6i0guXjNVYLgPWHGFQ6JUUE5PDMAgts2u1wcgOHL+Siae5KRxbaE0F4h8gzAi++1
+gnRKfg+p4uZ7RjgbPrb18U2CDNDr9GbCvFH0clXyuW5NTLfxL6i6YYqF13bciztC
+5QvN4E/vVmXfE+i8TrOjVxyOGCxlZWrFgj8pTS0kbjzURakbhyYywPz4YNMCQhP7
+U7fYvYveNqCmof0KZ5JA+aSqo9uRVHbcY9OZ6SoBzQGg4MoMx1JDFdEshSsM2i0a
++mYxEo9zpngH7VeMWT3v00xCRMQi6MD2moKLWkHNP2vxAOkAAXf8O4tcuGl2ceFF
+sI+V5gqTAzoZiS2TfeX1+sA2LNz13y7xrLTN0gFctWiiMGh4H5fc1XMvDF2j2qyw
+dp9F6wGNgqM3aGPyiTv0L894cv7w6XkIg4b5OzTKtiAWsPzu1TY=
+=iIvs
+-----END PGP SIGNATURE-----
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index b1086bfb04656..cd9c65f3d404f 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1500,8 +1500,7 @@ static int omap_i2c_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--#ifdef CONFIG_PM
--static int omap_i2c_runtime_suspend(struct device *dev)
-+static int __maybe_unused omap_i2c_runtime_suspend(struct device *dev)
- {
- 	struct omap_i2c_dev *omap = dev_get_drvdata(dev);
- 
-@@ -1527,7 +1526,7 @@ static int omap_i2c_runtime_suspend(struct device *dev)
- 	return 0;
- }
- 
--static int omap_i2c_runtime_resume(struct device *dev)
-+static int __maybe_unused omap_i2c_runtime_resume(struct device *dev)
- {
- 	struct omap_i2c_dev *omap = dev_get_drvdata(dev);
- 
-@@ -1542,20 +1541,18 @@ static int omap_i2c_runtime_resume(struct device *dev)
- }
- 
- static const struct dev_pm_ops omap_i2c_pm_ops = {
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
-+				      pm_runtime_force_resume)
- 	SET_RUNTIME_PM_OPS(omap_i2c_runtime_suspend,
- 			   omap_i2c_runtime_resume, NULL)
- };
--#define OMAP_I2C_PM_OPS (&omap_i2c_pm_ops)
--#else
--#define OMAP_I2C_PM_OPS NULL
--#endif /* CONFIG_PM */
- 
- static struct platform_driver omap_i2c_driver = {
- 	.probe		= omap_i2c_probe,
- 	.remove		= omap_i2c_remove,
- 	.driver		= {
- 		.name	= "omap_i2c",
--		.pm	= OMAP_I2C_PM_OPS,
-+		.pm	= &omap_i2c_pm_ops,
- 		.of_match_table = of_match_ptr(omap_i2c_of_match),
- 	},
- };
--- 
-2.19.1
+--Sig_/N40uUVtxTp0XE0kd_lnYTyP--
