@@ -1,86 +1,57 @@
-From: Andreas Kemnade <andreas@kemnade.info>
-Subject: Re: [PATCH] mfd: twl-core: disable irq while suspended
-Date: Fri, 1 Mar 2019 07:45:11 +0100
-Message-ID: <20190301074511.2d15aacc@kemnade.info>
-References: <20190223114754.16286-1-andreas@kemnade.info>
-        <20190223182323.GA39872@atomide.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v5 2/2] i2c: designware: Add support for an interface
+ clock
+Date: Fri, 1 Mar 2019 16:53:07 +0200
+Message-ID: <080b8edd-168e-d71a-b4c2-985460a51e53@linux.intel.com>
+References: <1551361930-24434-1-git-send-email-gareth.williams.jx@renesas.com>
+ <1551361930-24434-3-git-send-email-gareth.williams.jx@renesas.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/N40uUVtxTp0XE0kd_lnYTyP"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190223182323.GA39872@atomide.com>
+In-Reply-To: <1551361930-24434-3-git-send-email-gareth.williams.jx@renesas.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: lee.jones@linaro.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Dave Gerlach <d-gerlach@ti.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Keerthy <j-keerthy@ti.com>, Tero Kristo <t-kristo@ti.com>, letux-kernel@openphoenux.org
+To: Gareth Williams <gareth.williams.jx@renesas.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org
+Cc: Phil Edworthy <phil.edworthy@renesas.com>, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
---Sig_/N40uUVtxTp0XE0kd_lnYTyP
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On 2/28/19 3:52 PM, Gareth Williams wrote:
+> From: Phil Edworthy <phil.edworthy@renesas.com>
+> 
+> The Synopsys I2C Controller has an interface clock, but most SoCs hide
+> this away. However, on some SoCs you need to explicitly enable the
+> interface clock in order to access the registers. Therefore, add
+> support for an optional interface clock.
+> 
+> Signed-off-by: Phil Edworthy <phil.edworthy@renesas.com>
+> Signed-off-by: Gareth Williams <gareth.williams.jx@renesas.com>
+> Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+> v5:
+>   - Updated comments to reference "interface clock" instead of
+>     "peripheral clock".
+>   - Corrected spelling in commit message, changing "explicity" to
+>     "explicitly".
+> v4:
+>   - Updated comments to reference "peripheral clock"
+>     instead of "bus clock".
+>   - Added Wolfram's Acked-by
+> v3:
+>   - busclk renamed to pclk.
+>   - Added comment with dw_i2c_dev struct definition describing pclk.
+>   - Added enable rollback of first clock if second fails to enable.
+> v2:
+>   - Use new devm_clk_get_optional() function as it simplifies handling when
+>     the optional clock is not present.
+> ---
+>   drivers/i2c/busses/i2c-designware-common.c  | 18 ++++++++++++++++--
+>   drivers/i2c/busses/i2c-designware-core.h    |  2 ++
+>   drivers/i2c/busses/i2c-designware-platdrv.c |  5 +++++
+>   3 files changed, 23 insertions(+), 2 deletions(-)
+> 
+Build & boot tested on linux-next that has the required commit
+60b8f0ddf1a9 ("clk: Add (devm_)clk_get_optional() functions").
 
-Hi,
-
-On Sat, 23 Feb 2019 10:23:23 -0800
-Tony Lindgren <tony@atomide.com> wrote:
-
-> * Andreas Kemnade <andreas@kemnade.info> [190223 11:48]:
-> > Since commit
-> > 6e2bd956936 ("i2c: omap: Use noirq system sleep pm ops to idle device f=
-or suspend")
-> > on gta04 we have handle_twl4030_pih() called in situations where pm_run=
-time_get()
-> > in i2c-omap.c returns -EACCES.
-> > [   86.474365] Freezing remaining freezable tasks ... (elapsed 0.002 se=
-conds) done.
-> > [   86.485473] printk: Suspending console(s) (use no_console_suspend to=
- debug)
-> > [   86.555572] Disabling non-boot CPUs ...
-> > [   86.555664] Successfully put all powerdomains to target state
-> > [   86.563720] twl: Read failed (mod 1, reg 0x01 count 1)
-> > [   86.563751] twl4030: I2C error -13 reading PIH ISR
-> > [   86.563812] twl: Read failed (mod 1, reg 0x01 count 1)
-> > [   86.563812] twl4030: I2C error -13 reading PIH ISR
-> > [   86.563873] twl: Read failed (mod 1, reg 0x01 count 1)
-> > [   86.563903] twl4030: I2C error -13 reading PIH ISR
-> >=20
-> > This happens when we wakeup via something behing twl4030
-> > (powerbutton or rtc alarm).
-> > This goes on for minutes until the system is finally resumed.
-> > Disable the irq on suspend and enable it on resume to avoid
-> > having i2c access problems when the irq registers are checked. =20
->=20
-> Thanks for fixing this, still works fine for me for rtcwake:
->=20
-> Tested-by: Tony Lindgren <tony@atomide.com>
->=20
-hmm, in which version we will see this regression fixed?
-
-I consider this whole thing as a reminder to finally
-improve my automated test facilities and finally add the suspend/power
-consumption test scripts I have to it so I can catch such things earlier.
-
-Regards,
-Andreas
-
---Sig_/N40uUVtxTp0XE0kd_lnYTyP
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEPIWxmAFyOaBcwCpFl4jFM1s/ye8FAlx41PcACgkQl4jFM1s/
-ye95PBAAjch8QEbm1Xjq6d2frVDCzM1NZTy4094hu42wz0Ku+VkXIZ5TlTBi+r//
-FqDoodgDMPKus/QxKNsRzv5bVXZmRTt07QLWTmMih5HykoGvZAHdiVbH2wWMtMME
-a4snuBjsCVnKilEceTn8Mghe5xMDbtSUPPM9pIQYegPR6iePzqCJX8l1KcAc6uQH
-4SHCqtXOpP/cp07Y9MmqLWShvc3IWRdSo9qofqcDhZBhezCuHbJ33p2XKsY+21rM
-6i0guXjNVYLgPWHGFQ6JUUE5PDMAgts2u1wcgOHL+Siae5KRxbaE0F4h8gzAi++1
-gnRKfg+p4uZ7RjgbPrb18U2CDNDr9GbCvFH0clXyuW5NTLfxL6i6YYqF13bciztC
-5QvN4E/vVmXfE+i8TrOjVxyOGCxlZWrFgj8pTS0kbjzURakbhyYywPz4YNMCQhP7
-U7fYvYveNqCmof0KZ5JA+aSqo9uRVHbcY9OZ6SoBzQGg4MoMx1JDFdEshSsM2i0a
-+mYxEo9zpngH7VeMWT3v00xCRMQi6MD2moKLWkHNP2vxAOkAAXf8O4tcuGl2ceFF
-sI+V5gqTAzoZiS2TfeX1+sA2LNz13y7xrLTN0gFctWiiMGh4H5fc1XMvDF2j2qyw
-dp9F6wGNgqM3aGPyiTv0L894cv7w6XkIg4b5OzTKtiAWsPzu1TY=
-=iIvs
------END PGP SIGNATURE-----
-
---Sig_/N40uUVtxTp0XE0kd_lnYTyP--
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
