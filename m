@@ -1,57 +1,38 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH v5 2/2] i2c: designware: Add support for an interface
- clock
-Date: Fri, 1 Mar 2019 16:53:07 +0200
-Message-ID: <080b8edd-168e-d71a-b4c2-985460a51e53@linux.intel.com>
-References: <1551361930-24434-1-git-send-email-gareth.williams.jx@renesas.com>
- <1551361930-24434-3-git-send-email-gareth.williams.jx@renesas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH v2 7/7] i2c: algo: bit: HACK! add atomic callback
+Date: Sat,  2 Mar 2019 14:47:35 +0100
+Message-ID: <20190302134735.4393-8-wsa+renesas@sang-engineering.com>
+References: <20190302134735.4393-1-wsa+renesas@sang-engineering.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1551361930-24434-3-git-send-email-gareth.williams.jx@renesas.com>
-Content-Language: en-US
+In-Reply-To: <20190302134735.4393-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Gareth Williams <gareth.williams.jx@renesas.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org
-Cc: Phil Edworthy <phil.edworthy@renesas.com>, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Keerthy <j-keerthy@ti.com>, Peter Rosin <peda@axentia.se>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Stefan Lengfeld <contact@stefanchrist.eu>, Phil Reid <preid@electromag.com.au>, Tero Kristo <t-kristo@ti.com>, linux-omap@vger.kernel.org, linux-tegra@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2/28/19 3:52 PM, Gareth Williams wrote:
-> From: Phil Edworthy <phil.edworthy@renesas.com>
-> 
-> The Synopsys I2C Controller has an interface clock, but most SoCs hide
-> this away. However, on some SoCs you need to explicitly enable the
-> interface clock in order to access the registers. Therefore, add
-> support for an optional interface clock.
-> 
-> Signed-off-by: Phil Edworthy <phil.edworthy@renesas.com>
-> Signed-off-by: Gareth Williams <gareth.williams.jx@renesas.com>
-> Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
-> v5:
->   - Updated comments to reference "interface clock" instead of
->     "peripheral clock".
->   - Corrected spelling in commit message, changing "explicity" to
->     "explicitly".
-> v4:
->   - Updated comments to reference "peripheral clock"
->     instead of "bus clock".
->   - Added Wolfram's Acked-by
-> v3:
->   - busclk renamed to pclk.
->   - Added comment with dw_i2c_dev struct definition describing pclk.
->   - Added enable rollback of first clock if second fails to enable.
-> v2:
->   - Use new devm_clk_get_optional() function as it simplifies handling when
->     the optional clock is not present.
-> ---
->   drivers/i2c/busses/i2c-designware-common.c  | 18 ++++++++++++++++--
->   drivers/i2c/busses/i2c-designware-core.h    |  2 ++
->   drivers/i2c/busses/i2c-designware-platdrv.c |  5 +++++
->   3 files changed, 23 insertions(+), 2 deletions(-)
-> 
-Build & boot tested on linux-next that has the required commit
-60b8f0ddf1a9 ("clk: Add (devm_)clk_get_optional() functions").
+This is only for testing and will work only for bitbanging which is done
+without generating irqs. Not for upstream!
 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/algos/i2c-algo-bit.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
+index 5e5990a83da5..a9c361947de1 100644
+--- a/drivers/i2c/algos/i2c-algo-bit.c
++++ b/drivers/i2c/algos/i2c-algo-bit.c
+@@ -615,8 +615,9 @@ static u32 bit_func(struct i2c_adapter *adap)
+ /* -----exported algorithm data: -------------------------------------	*/
+ 
+ const struct i2c_algorithm i2c_bit_algo = {
+-	.master_xfer	= bit_xfer,
+-	.functionality	= bit_func,
++	.master_xfer = bit_xfer,
++	.master_xfer_atomic = bit_xfer,
++	.functionality = bit_func,
+ };
+ EXPORT_SYMBOL(i2c_bit_algo);
+ 
+-- 
+2.11.0
