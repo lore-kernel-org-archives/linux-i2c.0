@@ -1,7 +1,7 @@
 From: Bich HEMON <bich.hemon@st.com>
-Subject: [PATCH 0/2]  Patches for i2c-stm32 device tree bindings
-Date: Wed, 6 Mar 2019 15:11:50 +0000
-Message-ID: <1551885100-22207-1-git-send-email-bich.hemon@st.com>
+Subject: [PATCH] i2c: i2c-stm32f7: Fix SDADEL minimum formula
+Date: Wed, 6 Mar 2019 15:12:16 +0000
+Message-ID: <1551885125-22295-1-git-send-email-bich.hemon@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
@@ -12,15 +12,28 @@ To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxim
 Cc: Bich HEMON <bich.hemon@st.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This patchset provides dt-bindings updates for I2C.
+From: Nicolas Le Bayon <nicolas.le.bayon@st.com>
 
-Bich Hemon (2):
-  dt-bindings: i2c-stm32: remove extra spaces
-  dt-bindings: i2c-stm32: update optional properties for
-    stm32h7/stm32mp1
+It conforms with Reference Manual I2C timing section.
 
- .../devicetree/bindings/i2c/i2c-stm32.txt          | 37 +++++++++++-----------
- 1 file changed, 19 insertions(+), 18 deletions(-)
+Signed-off-by: Nicolas Le Bayon <nicolas.le.bayon@st.com>
+Signed-off-by: Bich Hemon <bich.hemon@st.com>
+---
+ drivers/i2c/busses/i2c-stm32f7.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index 13e1213..4284fc9 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -432,7 +432,7 @@ static int stm32f7_i2c_compute_timing(struct stm32f7_i2c_dev *i2c_dev,
+ 		 STM32F7_I2C_ANALOG_FILTER_DELAY_MAX : 0);
+ 	dnf_delay = setup->dnf * i2cclk;
+ 
+-	sdadel_min = setup->fall_time - i2c_specs[setup->speed].hddat_min -
++	sdadel_min = i2c_specs[setup->speed].hddat_min + setup->fall_time -
+ 		af_delay_min - (setup->dnf + 3) * i2cclk;
+ 
+ 	sdadel_max = i2c_specs[setup->speed].vddat_max - setup->rise_time -
 -- 
 1.9.1
