@@ -1,165 +1,80 @@
-From: Nicolas Boichat <drinkcat@chromium.org>
-Subject: Re: [PATCH v5 5/5] i2c: mediatek: Add i2c support for MediaTek MT8183
-Date: Wed, 6 Mar 2019 18:52:35 +0800
-Message-ID: <CANMq1KBMwWEegui9439q2wVVLRyp6XT8=Om8H7EYGCR6bJw=eg@mail.gmail.com>
-References: <1551186660-16902-1-git-send-email-qii.wang@mediatek.com> <1551186660-16902-6-git-send-email-qii.wang@mediatek.com>
+From: Bich HEMON <bich.hemon@st.com>
+Subject: [PATCH 1/2] dt-bindings: i2c-stm32: remove extra spaces
+Date: Wed, 6 Mar 2019 15:11:51 +0000
+Message-ID: <1551885100-22207-2-git-send-email-bich.hemon@st.com>
+References: <1551885100-22207-1-git-send-email-bich.hemon@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1551186660-16902-6-git-send-email-qii.wang@mediatek.com>
+In-Reply-To: <1551885100-22207-1-git-send-email-bich.hemon@st.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Qii Wang <qii.wang@mediatek.com>
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, lkml <linux-kernel@vger.kernel.org>, "moderated list:ARM/Mediatek SoC support" <linux-mediatek@lists.infradead.org>, srv_heupstream <srv_heupstream@mediatek.com>, Leilk Liu <leilk.liu@mediatek.com>, xinping.qian@mediatek.com, liguo.zhang@mediatek.com, Rob Herring <robh@kernel.org>
+To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre TORGUE <alexandre.torgue@st.com>, Pierre Yves MORDRET <pierre-yves.mordret@st.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-stm32@st-md-mailman.stormreply.com" <linux-stm32@st-md-mailman.stormreply.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Bich HEMON <bich.hemon@st.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Feb 26, 2019 at 9:11 PM Qii Wang <qii.wang@mediatek.com> wrote:
->
-> Add i2c compatible for MT8183. Compare to MT2712 i2c controller,
-> MT8183 has different register offsets. Ltiming_reg is added to
-> adjust low width of SCL. Arb clock and dma_sync are needed.
->
-> Signed-off-by: Qii Wang <qii.wang@mediatek.com>
-> ---
->  drivers/i2c/busses/i2c-mt65xx.c |   53 +++++++++++++++++++++++++++++++++++++--
->  1 file changed, 51 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-> index 75d88e1..82eedbd 100644
-> --- a/drivers/i2c/busses/i2c-mt65xx.c
-> +++ b/drivers/i2c/busses/i2c-mt65xx.c
-> @@ -133,6 +133,8 @@ enum I2C_REGS_OFFSET {
->         OFFSET_DEBUGCTRL,
->         OFFSET_TRANSFER_LEN_AUX,
->         OFFSET_CLOCK_DIV,
-> +       /* MT8183 only regs */
-> +       OFFSET_LTIMING,
->  };
->
->  static const u16 mt_i2c_regs_v1[] = {
-> @@ -162,6 +164,32 @@ enum I2C_REGS_OFFSET {
->         [OFFSET_CLOCK_DIV] = 0x70,
->  };
->
-> +static const u16 mt_i2c_regs_v2[] = {
-> +       [OFFSET_DATA_PORT] = 0x0,
-> +       [OFFSET_SLAVE_ADDR] = 0x4,
-> +       [OFFSET_INTR_MASK] = 0x8,
-> +       [OFFSET_INTR_STAT] = 0xc,
-> +       [OFFSET_CONTROL] = 0x10,
-> +       [OFFSET_TRANSFER_LEN] = 0x14,
-> +       [OFFSET_TRANSAC_LEN] = 0x18,
-> +       [OFFSET_DELAY_LEN] = 0x1c,
-> +       [OFFSET_TIMING] = 0x20,
-> +       [OFFSET_START] = 0x24,
-> +       [OFFSET_EXT_CONF] = 0x28,
-> +       [OFFSET_LTIMING] = 0x2c,
-> +       [OFFSET_HS] = 0x30,
-> +       [OFFSET_IO_CONFIG] = 0x34,
-> +       [OFFSET_FIFO_ADDR_CLR] = 0x38,
-> +       [OFFSET_TRANSFER_LEN_AUX] = 0x44,
-> +       [OFFSET_CLOCK_DIV] = 0x48,
-> +       [OFFSET_SOFTRESET] = 0x50,
-> +       [OFFSET_DEBUGSTAT] = 0xe0,
-> +       [OFFSET_DEBUGCTRL] = 0xe8,
-> +       [OFFSET_FIFO_STAT] = 0xf4,
-> +       [OFFSET_FIFO_THRESH] = 0xf8,
-> +       [OFFSET_DCM_EN] = 0xf88,
-> +};
-> +
->  struct mtk_i2c_compatible {
->         const struct i2c_adapter_quirks *quirks;
->         const u16 *regs;
-> @@ -195,6 +223,7 @@ struct mtk_i2c {
->         enum mtk_trans_op op;
->         u16 timing_reg;
->         u16 high_speed_reg;
-> +       u16 ltiming_reg;
->         unsigned char auto_restart;
->         bool ignore_restart_irq;
->         const struct mtk_i2c_compatible *dev_comp;
-> @@ -271,12 +300,24 @@ struct mtk_i2c {
->         .dma_sync = 0,
->  };
->
-> +static const struct mtk_i2c_compatible mt8183_compat = {
-> +       .regs = mt_i2c_regs_v2,
-> +       .pmic_i2c = 0,
-> +       .dcm = 0,
-> +       .auto_restart = 1,
-> +       .aux_len_reg = 1,
-> +       .support_33bits = 1,
-> +       .timing_adjust = 1,
-> +       .dma_sync = 1,
-> +};
-> +
->  static const struct of_device_id mtk_i2c_of_match[] = {
->         { .compatible = "mediatek,mt2712-i2c", .data = &mt2712_compat },
->         { .compatible = "mediatek,mt6577-i2c", .data = &mt6577_compat },
->         { .compatible = "mediatek,mt6589-i2c", .data = &mt6589_compat },
->         { .compatible = "mediatek,mt7622-i2c", .data = &mt7622_compat },
->         { .compatible = "mediatek,mt8173-i2c", .data = &mt8173_compat },
-> +       { .compatible = "mediatek,mt8183-i2c", .data = &mt8183_compat },
->         {}
->  };
->  MODULE_DEVICE_TABLE(of, mtk_i2c_of_match);
-> @@ -361,6 +402,8 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
->
->         mtk_i2c_writew(i2c, i2c->timing_reg, OFFSET_TIMING);
->         mtk_i2c_writew(i2c, i2c->high_speed_reg, OFFSET_HS);
-> +       if (i2c->dev_comp->regs == mt_i2c_regs_v2)
-> +               mtk_i2c_writew(i2c, i2c->ltiming_reg, OFFSET_LTIMING);
+Remove extra spaces before colons.
 
-Matthias wasn't super happy with this. One way is to add another field
-in the compatible string. Another may be to have
-mt_i2c_regs_v1[OFFSET_LTIMING] point at, say 0xffff (#define this as
-I2C_REG_INVALID or something), and test for that?
+Signed-off-by: Bich Hemon <bich.hemon@st.com>
+---
+ .../devicetree/bindings/i2c/i2c-stm32.txt          | 26 +++++++++++-----------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
-Either way would scale better if we end up with more than 2 versions
-of the register set in the future.
-
->         /* If use i2c pin from PMIC mt6397 side, need set PATH_DIR first */
->         if (i2c->have_pmic)
-> @@ -460,6 +503,8 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
->         unsigned int clk_src;
->         unsigned int step_cnt;
->         unsigned int sample_cnt;
-> +       unsigned int l_step_cnt;
-> +       unsigned int l_sample_cnt;
->         unsigned int target_speed;
->         int ret;
->
-> @@ -469,11 +514,11 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
->         if (target_speed > MAX_FS_MODE_SPEED) {
->                 /* Set master code speed register */
->                 ret = mtk_i2c_calculate_speed(i2c, clk_src, MAX_FS_MODE_SPEED,
-> -                                             &step_cnt, &sample_cnt);
-> +                                             &l_step_cnt, &l_sample_cnt);
->                 if (ret < 0)
->                         return ret;
->
-> -               i2c->timing_reg = (sample_cnt << 8) | step_cnt;
-> +               i2c->timing_reg = (l_sample_cnt << 8) | l_step_cnt;
->
->                 /* Set the high speed mode register */
->                 ret = mtk_i2c_calculate_speed(i2c, clk_src, target_speed,
-> @@ -483,6 +528,8 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
->
->                 i2c->high_speed_reg = I2C_TIME_DEFAULT_VALUE |
->                         (sample_cnt << 12) | (step_cnt << 8);
-> +               i2c->ltiming_reg = (l_sample_cnt << 6) | l_step_cnt |
-> +                                  (sample_cnt << 12) | (step_cnt << 9);
->         } else {
->                 ret = mtk_i2c_calculate_speed(i2c, clk_src, target_speed,
->                                               &step_cnt, &sample_cnt);
-> @@ -493,6 +540,8 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
->
->                 /* Disable the high speed transaction */
->                 i2c->high_speed_reg = I2C_TIME_CLR_VALUE;
-> +
-> +               i2c->ltiming_reg = (sample_cnt << 6) | step_cnt;
->         }
->
->         return 0;
-> --
-> 1.7.9.5
->
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+index 69240e1..7d054f1 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+@@ -1,11 +1,11 @@
+ * I2C controller embedded in STMicroelectronics STM32 I2C platform
+ 
+-Required properties :
+-- compatible : Must be one of the following
++Required properties:
++- compatible: Must be one of the following
+   - "st,stm32f4-i2c"
+   - "st,stm32f7-i2c"
+-- reg : Offset and length of the register set for the device
+-- interrupts : Must contain the interrupt id for I2C event and then the
++- reg: Offset and length of the register set for the device
++- interrupts: Must contain the interrupt id for I2C event and then the
+   interrupt id for I2C error.
+ - resets: Must contain the phandle to the reset controller.
+ - clocks: Must contain the input clock of the I2C instance.
+@@ -14,25 +14,25 @@ Required properties :
+ - #address-cells = <1>;
+ - #size-cells = <0>;
+ 
+-Optional properties :
+-- clock-frequency : Desired I2C bus clock frequency in Hz. If not specified,
++Optional properties:
++- clock-frequency: Desired I2C bus clock frequency in Hz. If not specified,
+   the default 100 kHz frequency will be used.
+   For STM32F4 SoC Standard-mode and Fast-mode are supported, possible values are
+   100000 and 400000.
+   For STM32F7 SoC, Standard-mode, Fast-mode and Fast-mode Plus are supported,
+   possible values are 100000, 400000 and 1000000.
+-- i2c-scl-rising-time-ns : Only for STM32F7, I2C SCL Rising time for the board
++- i2c-scl-rising-time-ns: Only for STM32F7, I2C SCL Rising time for the board
+   (default: 25)
+-- i2c-scl-falling-time-ns : Only for STM32F7, I2C SCL Falling time for the board
++- i2c-scl-falling-time-ns: Only for STM32F7, I2C SCL Falling time for the board
+   (default: 10)
+   I2C Timings are derived from these 2 values
+-- st,syscfg-fmp:  Only for STM32F7, use to set Fast Mode Plus bit within SYSCFG
++- st,syscfg-fmp: Only for STM32F7, use to set Fast Mode Plus bit within SYSCFG
+   whether Fast Mode Plus speed is selected by slave.
+-	1st cell : phandle to syscfg
+-	2nd cell : register offset within SYSCFG
+-	3rd cell : register bitmask for FMP bit
++	1st cell: phandle to syscfg
++	2nd cell: register offset within SYSCFG
++	3rd cell: register bitmask for FMP bit
+ 
+-Example :
++Example:
+ 
+ 	i2c@40005400 {
+ 		compatible = "st,stm32f4-i2c";
+-- 
+1.9.1
