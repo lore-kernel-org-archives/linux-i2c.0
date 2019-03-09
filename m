@@ -1,69 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: sis630: correct format strings
-Date: Sat, 9 Mar 2019 10:54:46 +0100
-Message-ID: <20190309095446.GE1340@kunai>
-References: <20190302141836.24638-1-louis@kragniz.eu>
+Subject: Re: [PATCH] i2c: i2c-stm32f7: Fix SDADEL minimum formula
+Date: Sat, 9 Mar 2019 11:13:40 +0100
+Message-ID: <20190309101340.GH1340@kunai>
+References: <1551885125-22295-1-git-send-email-bich.hemon@st.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="YkJPYEFdoxh/AXLE"
+        protocol="application/pgp-signature"; boundary="dDnEQgWzhgf+8aPe"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190302141836.24638-1-louis@kragniz.eu>
+In-Reply-To: <1551885125-22295-1-git-send-email-bich.hemon@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Louis Taylor <louis@kragniz.eu>
-Cc: jdelvare@suse.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com, ndesaulniers@google.com, jflat@chromium.org
+To: Bich HEMON <bich.hemon@st.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre TORGUE <alexandre.torgue@st.com>, Pierre Yves MORDRET <pierre-yves.mordret@st.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-stm32@st-md-mailman.stormreply.com" <linux-stm32@st-md-mailman.stormreply.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---YkJPYEFdoxh/AXLE
+--dDnEQgWzhgf+8aPe
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Mar 02, 2019 at 02:18:36PM +0000, Louis Taylor wrote:
-> When compiling with -Wformat, clang warns:
+On Wed, Mar 06, 2019 at 03:12:16PM +0000, Bich HEMON wrote:
+> From: Nicolas Le Bayon <nicolas.le.bayon@st.com>
 >=20
-> drivers/i2c/busses/i2c-sis630.c:482:4: warning: format specifies type
->       'unsigned short' but the argument has type 'int' [-Wformat]
->                         smbus_base + SMB_STS,
->                         ^~~~~~~~~~~~~~~~~~~~
+> It conforms with Reference Manual I2C timing section.
 >=20
-> drivers/i2c/busses/i2c-sis630.c:483:4: warning: format specifies type
->       'unsigned short' but the argument has type 'int' [-Wformat]
->                         smbus_base + SMB_STS + SIS630_SMB_IOREGION - 1);
->                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->=20
-> drivers/i2c/busses/i2c-sis630.c:531:37: warning: format specifies type
->       'unsigned short' but the argument has type 'int' [-Wformat]
->                  "SMBus SIS630 adapter at %04hx", smbus_base + SMB_STS);
->                                           ~~~~~   ^~~~~~~~~~~~~~~~~~~~
->=20
-> This patch fixes the format strings to use the format type for int.
->=20
-> Link: https://github.com/ClangBuiltLinux/linux/issues/378
-> Signed-off-by: Louis Taylor <louis@kragniz.eu>
+> Signed-off-by: Nicolas Le Bayon <nicolas.le.bayon@st.com>
+> Signed-off-by: Bich Hemon <bich.hemon@st.com>
 
-Changed Jean's SoB to Rev-by and applied to for-current, thanks!
+Applied to for-current, thanks!
 
 
---YkJPYEFdoxh/AXLE
+--dDnEQgWzhgf+8aPe
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyDjWUACgkQFA3kzBSg
-Kba4BA//URuSLZFn9QiesoENmp23IEa9uj3gb+Ur18/pJ7muucYLqj+GGrZ9HdD8
-NBbhUhqulclF1Cfwm354o/eoTl8JzMKUxwox0IMn93B5PdvIDxmTvmynleNVsSHp
-2biWLGIdgk+jKm9ylNUdhGDcc9FDq1p82rK2stWjq9iI+A1nSkabxauzh5res+ZT
-NWJEkhHi0GfXC0P/Xoec1D+m0EpV7ll16QrNkHeFADntZ00y7Z3wEx9Gw7zuIwGb
-h0vvWp/M+Pmx5d09dOYQT/+PjR0M5q0Dq7vCVx1bqb3/G8I/jt8QX2hkjLY3IFu2
-mzTMJC6hU9Wvm9zLLjXjC7osFS1QaAzx+dgGA4nTudOWlmiNsxYmGHzsr6BHCkbQ
-SlfnI+5WHqgKcxbgEofqHsXioawowMOJAV17YS7v2tAlarMLYRpHif5wu/nbmZxR
-i547iTLGtow8hgYJiYPmrd6LulJiYMKq+JLO4EQFV62LsPZGqXnvQwdr3dnOMmto
-14sLgYYsbf+m4tHoo6OaidBD//MHVDHOJ6yvEZYrEHWfo03Zp8CVPH4aBMaJL7hq
-wKdkIc+I0a+J/39NuOhgjYeRXjzt0bl3bYlyKD5ldiQ+eNML1DhXZU6eQ/TvT2vu
-dGZKwJdGEYGbcweoMoT6NZjPaO7v9J+qGXZ6/qhdykGYTMteprk=
-=5puZ
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyDkdEACgkQFA3kzBSg
+KbbSphAAskJuy5T8s8xTMRUdsSM01BnbclYC/krVWBZ6DI/8iTD43g3iycVYzrPZ
+GsqMQ8p4u+Iaz2od7b3ktJimjjNYamVn0NZjEj4+12WXijm4hg+uG6b/Z/HQsWWX
+gXnrBck0Z1CUMvHRbRXl1B58eDu3RY5tmLAUa+FpDtyKopc+yzK5lZuZaL93ZlgE
+MR6NWVyBHzx7tShkgNja5riQKaBMX1hNtE3Av1pFSMtYtsIQT+AaQf+QMI5FTtSw
+5HTOQw9zg7VGervtttN4N6FxQCLb9xeWVjxuO0oz7ue9nztUG5HqA1FLYTa5pYCJ
+Web44xspncMJF+2tmVki57CnICinQqBdtbiH567wHClDuPeW/U7/r9l5q0v7DPEs
+xZzneg4LPE9AoLxlkVNY4jYQZQwnJ1Vv5weiOlfEZpZLwDN6ESaNbH/l2QkeryRG
+f2eahSSLJW4T6osEoTA0pA4B5ipcL//7MSnZftsNFSfC9bzLWXfUuY5na+/KW3V8
+dk62VmP6LBUqysYxjKASvtu3aNV0ibCwKoI/j5iAVOvbXWAKsQ+EenZMmTWmSK68
+/lfbLc7X2TZ3gHHVrzvkiYTWV19ZlN+24NgaIFOraAzf3U/aHJi2G4fppBGs3i0O
+74gbgKqHMwwxgPfnfSJJcHs31ekm9aiwS/kVdWl8t8amQRD/vOI=
+=ihtV
 -----END PGP SIGNATURE-----
 
---YkJPYEFdoxh/AXLE--
+--dDnEQgWzhgf+8aPe--
