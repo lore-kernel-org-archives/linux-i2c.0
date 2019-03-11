@@ -1,58 +1,78 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 1/2] i2c: i2c-designware-platdrv: Allow a dynamic adap.
- nr without an ACPI fwnode
-Date: Mon, 11 Mar 2019 14:52:07 +0200
-Message-ID: <20190311125207.GR9224@smile.fi.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 2/2] mfd: intel-lpss: Add "linux,use-dynamic-adapter-nr"
+ device-prop to i2c-devices
+Date: Mon, 11 Mar 2019 20:15:55 +0100
+Message-ID: <20190311191555.4dc2wbwqesqmn2kq@ninjato>
 References: <20190311112216.31391-1-hdegoede@redhat.com>
- <20190311112216.31391-2-hdegoede@redhat.com>
+ <20190311112216.31391-3-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="65wlv6bh3hk7fgyp"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190311112216.31391-2-hdegoede@redhat.com>
+In-Reply-To: <20190311112216.31391-3-hdegoede@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Hans de Goede <hdegoede@redhat.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Mar 11, 2019 at 12:22:15PM +0100, Hans de Goede wrote:
-> Before this commit the i2c-designware-platdrv assumes that if the pdev
-> has an apci-companion it should use a dynamic adapter-nr and otherwise
-> it will use pdev->id as adapter-nr.
-> 
+
+--65wlv6bh3hk7fgyp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Mar 11, 2019 at 12:22:16PM +0100, Hans de Goede wrote:
+> The i2c-designware-platdrv assumes that if the pdev has an apci-companion
+> it should use a dynamic adapter-nr and otherwise it will use pdev->id as
+> adapter-nr.
+>=20
 > On some devices e.g. the Apollo Lake using Acer TravelMate Spin B118,
 > some of the LPSS i2c-adapters are enumerated through PCI and do not have
 > an ACPI fwnode. These devices are handled as mfd devices so they end up
 > using the i2c-designware-platdrv driver.
-> 
+>=20
 > This results in the i2c-adapter being registered with the mfd generated
 > pdev->id as adapter-nr, which conflicts with existing adapters, triggering
 > a WARN(id < 0, "couldn't get idr") in i2c-core-base.c and causing the
 > adapter registration to fail.
-> 
-> This commit adds support for setting a "linux,use-dynamic-adapter-nr"
-> device property on the device to make i2c-designware-platdrv use dynamic
-> adapter-nrs on devices without an ACPI fwnode, together with changes to
-> drivers/mfd/intel-lpss-pci.c to set this, this fixes the WARN.
-> 
+>=20
+> To fix this the i2c-designware-platdrv now also supports a
+> "linux,use-dynamic-adapter-nr" device-property, which tells it to use a
+> dynamic adapter nr even if there is no ACPI fwnode for the device.
+>=20
+> This commit adds this device-property to the properties list for PCI
+> enumerated LPSS i2c-adapters.
+>=20
+> BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=3D1687065
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-> Before this commit the setting of the adapter.nr was somewhat convoluted,
-> in the acpi_companion case it was set from dw_i2c_acpi_configure, in the
-> non acpi_companion case it was set from dw_i2c_set_fifo_size() based on
-> tx_fifo_depth not being set yet. This commit also cleans this up.
+You need to CC the devicetree ML on such patches. However, I am afraid I
+can pretty much NACK this one already. This is a Linux configuration
+item and DT is only for describing HW.
 
-Can we split this to two patches, i.e. one is almost the same as this one,
-except the second one adds a new property check to the conditional?
+Maybe the designware maintainers have a better idea how to achieve what
+you need.
 
-If you agree to do so, you may add mine Rb tag to the first one out of three.
 
-> Note the "linux,use-dynamic-adapter-nr" is meant for kernel internal use
-> only, therefor it is NOT documented under Documents/devicetree/bindings.
+--65wlv6bh3hk7fgyp
+Content-Type: application/pgp-signature; name="signature.asc"
 
-To the second and third ones, can we rather check if the device has fwnode
-either ACPI or swnode? AFAIU now we have swnode assigned during MFD device
-registration and can easily distinguish this w/o any additional properties.
+-----BEGIN PGP SIGNATURE-----
 
--- 
-With Best Regards,
-Andy Shevchenko
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyGs+sACgkQFA3kzBSg
+Kbb7MA//dTFm2uJgtmWTwBlX6sv2c8KRgO7GDWntvUTY28kOHNx/Ow6noezZBgds
+UXsUVjHXsdFiqClRrTewJVqzSLTAg4H8dtN1PTmjLfcPTLj/GJr4hAgpc7Ue6nbk
+DrzxwTY1OsSQUkJf5q85ReIUyE2vDmadokxeIf08hwE6HZ/FHlrbCFx6ooGkKoL7
+R8y59uyo7npXa4uEPniSB0lRue6EbnHkNvni0HoJwzWXJcEsH8yyOBjJOz9ufugw
+/ih25THatp/7q7Z7GO10Dh+v4vJ/ezY++DfLMslUsjWxep/6+fc2I+YtmJz0a2zu
+6u2K1Emewd7Rp0RnETHzUjxUippHdCgx8nkKS95DZCME3IdfhRBTcYolC8t726BH
+kt043d3+j14KBKXPpqKhlIS0tYdlbZsYhJYAWi9tnggeWT6ZfBsG7HcEypEPNyik
++OFf2eobzLua+BR+dkI0jylCSVOTjvoOzdbhifiI9GxcaSf7ke/gv2GLqwvDqMT0
+UKaVwfKQIoZuoPQjf1d3eqOszHmUZOlkYNkQkyJLhEIG18HitrkViIatyUG7HWQv
+eh3Vv84gDvAacBiQcyIp98T458MDLbbf3XfSAT3+v6czBD912vTz1D+vNBoX1dAD
+Y2wfvW5QGF4PhZ9kDQeZCcqn90M+kw0rQxMkm75e9hV8odqRjJI=
+=cXel
+-----END PGP SIGNATURE-----
+
+--65wlv6bh3hk7fgyp--
