@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 3.18 5/6] i2c: cadence: Fix the hold bit setting
-Date: Mon, 11 Mar 2019 15:59:50 -0400
-Message-ID: <20190311195951.139741-5-sashal@kernel.org>
-References: <20190311195951.139741-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 7/8] i2c: cadence: Fix the hold bit setting
+Date: Mon, 11 Mar 2019 15:59:37 -0400
+Message-ID: <20190311195938.139603-7-sashal@kernel.org>
+References: <20190311195938.139603-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190311195951.139741-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190311195938.139603-1-sashal@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -34,10 +34,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index c604f4c3ac0d..c50a015018fe 100644
+index 84deed6571bd..6d32e6da3110 100644
 --- a/drivers/i2c/busses/i2c-cadence.c
 +++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -320,8 +320,10 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
+@@ -378,8 +378,10 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
  	 * Check for the message size against FIFO depth and set the
  	 * 'hold bus' bit if it is greater than FIFO depth.
  	 */
@@ -49,7 +49,7 @@ index c604f4c3ac0d..c50a015018fe 100644
  
  	cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
  
-@@ -375,8 +377,11 @@ static void cdns_i2c_msend(struct cdns_i2c *id)
+@@ -436,8 +438,11 @@ static void cdns_i2c_msend(struct cdns_i2c *id)
  	 * Check for the message size against FIFO depth and set the
  	 * 'hold bus' bit if it is greater than FIFO depth.
  	 */
