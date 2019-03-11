@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 41/44] i2c: cadence: Fix the hold bit setting
-Date: Mon, 11 Mar 2019 15:56:57 -0400
-Message-ID: <20190311195700.138462-41-sashal@kernel.org>
-References: <20190311195700.138462-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.20 48/52] i2c: cadence: Fix the hold bit setting
+Date: Mon, 11 Mar 2019 15:55:12 -0400
+Message-ID: <20190311195516.137772-48-sashal@kernel.org>
+References: <20190311195516.137772-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190311195700.138462-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190311195516.137772-1-sashal@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
