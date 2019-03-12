@@ -1,67 +1,78 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH 1/2] i2c: i2c-designware-platdrv: Allow a dynamic adap.
- nr without an ACPI fwnode
-Date: Tue, 12 Mar 2019 17:05:13 +0200
-Message-ID: <20190312150513.GE9224@smile.fi.intel.com>
-References: <20190311112216.31391-1-hdegoede@redhat.com>
- <20190311112216.31391-2-hdegoede@redhat.com>
- <c519b0ea-670d-defe-5870-c6258c19ff74@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC PATCH v2 0/7] i2c: core: introduce atomic transfers
+Date: Tue, 12 Mar 2019 16:45:01 +0100
+Message-ID: <20190312154501.6v2symbq6eutp6dj@ninjato>
+References: <20190302134735.4393-1-wsa+renesas@sang-engineering.com>
+ <CAHp75Vc-WYUJgaDPuWUn-_0Cizq=MG7N2cdHJxaEbad+xntcjQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="zkokbbl47s6o5i5w"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <c519b0ea-670d-defe-5870-c6258c19ff74@linux.intel.com>
+In-Reply-To: <CAHp75Vc-WYUJgaDPuWUn-_0Cizq=MG7N2cdHJxaEbad+xntcjQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, Keerthy <j-keerthy@ti.com>, Peter Rosin <peda@axentia.se>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Stefan Lengfeld <contact@stefanchrist.eu>, Phil Reid <preid@electromag.com.au>, Tero Kristo <t-kristo@ti.com>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-tegra@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Mar 12, 2019 at 04:47:48PM +0200, Jarkko Nikula wrote:
-> On 3/11/19 1:22 PM, Hans de Goede wrote:
-> > Before this commit the i2c-designware-platdrv assumes that if the pdev
-> > has an apci-companion it should use a dynamic adapter-nr and otherwise
-> > it will use pdev->id as adapter-nr.
-> > 
-> > On some devices e.g. the Apollo Lake using Acer TravelMate Spin B118,
-> > some of the LPSS i2c-adapters are enumerated through PCI and do not have
-> > an ACPI fwnode. These devices are handled as mfd devices so they end up
-> > using the i2c-designware-platdrv driver.
-> > 
-> > This results in the i2c-adapter being registered with the mfd generated
-> > pdev->id as adapter-nr, which conflicts with existing adapters, triggering
-> > a WARN(id < 0, "couldn't get idr") in i2c-core-base.c and causing the
-> > adapter registration to fail.
-> > 
-> I went thinking would we get a regression if we switch the
-> i2c-designware-platdrv to dynamic numbering unconditionally?
-> 
-> Only drivers/mfd/intel-lpss.c and drivers/mfd/intel_quark_i2c_gpio.c
-> register platform device "i2c_designware" and otherwise in the driver itself
-> for known ACPI IDs and device tree bindings.
-> 
-> Things should be fine for ACPI cases if slave devices are also described in
-> ACPI tables. As far as I've understood with device tree matching adapter
-> number is irrelevant in slave device registration?
 
-Seems like Hans came to the same conclusion.
+--zkokbbl47s6o5i5w
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Andy: could you tell by commit 918fe70cf475 ("mfd: intel_quark_i2c_gpio:
-> support devices behind i2c bus") are those devices described in ACPI or in
-> some i2c_board_infos with referring to fixed adapter number either in or out
-> of kernel tree code?
 
-As far as I remember they are coming from ACPI, but you may easily check on
-real hardware we have in our lab.
+> > So, finally, here is the second RFC for supporting I2C transfers in ato=
+mic
+> > contexts (i.e. very late). This will need some text because I tried som=
+e things
+> > on the way but had to discard them. However, I think it is important to=
+ have
+> > that documented.
+>=20
+> > Sorry, no TLDR; text here - I think this topic deserves a few words ;)
+>=20
+> Thank you for this work! It was indeed interesting reading.
 
-> Then drivers/platform/chrome/chromeos_laptop.c is the only code searching
-> for adapter named as "Synopsys DesignWare I2C adapter" without assuming any
-> fixed adapter numbering.
+Thanks, glad to hear that :)
 
-> What's unclear to me can there be device tree cases where i2c-designware
-> probing comes with pdev->id not starting from zero or in different order?
-> I.e. would it make difference do we use pdev->id or dynamic adapter
-> numbering?
+> And since your series is targetting some exiting use cases, I would
+> drop as well academic variants of brain-damaged hw design, I think it
+> worth to go.
 
--- 
-With Best Regards,
-Andy Shevchenko
+Well, yes and no. I am with you that some complicated muxed setups could
+be argued to be way over the top. However, with the panic
+fault-injector, I can get my simple "PMIC directly (even exclusively)
+attached to root adapter" setup to stall. By simply ignoring the lock,
+such setups could work again. But this series does not implement this
+because it would need a redesign, i.e. tie into i2c_transfer and not
+later in __i2c_transfer.
+
+Yet, before doing this, I was interested in discussion if ignoring the
+lock is really desirable.
+
+This series seems like a valid approach to me if we still want to
+respect the locking.
+
+
+--zkokbbl47s6o5i5w
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyH0/0ACgkQFA3kzBSg
+Kbb02g//bFuyt6ZF0xKTx4YGhpVUmqDkQpdYzmFvXr2J4/UUeL43QsGvO4P05zuh
+in13OeiEaWgo1tnE6u9E+DrzEDzPNRiTwER4SB24KbymIncuoyNhBE0UIbuglcbE
+j1XUxgKQMl4YhZuTKGWZVuBCFaPty4vSxSzjrYgE2pk59ETbZiKOplCkklTHhfVX
+u77k21N3rO8DJpqhRAsEc2hA5hIH8PTw/TfDlwC6/QQNmHZDHxBS7Ae6t36mkhSS
+jHhI17n+oXL/WJqcQp0vPaU7rXuS8ZMw9VuoB/djEuZC7POxydKERicPKUKpcM8x
+iFBWBP370FOQGXxOnCUrwz6j9cooR3D7frKliTmQYWn3WKf1mf7lcW1cVqpxzp5h
+U+PbpWwI1ZmqixC2XhNfhmKuWaLfIcCj0UacaSge0Fya+P1nIg+RSnm0OBuMa0uW
+wKrVXMKUPcDY8IFcqygQE0kkmPnws5kQI1/mN62efcLmI5+Z/zNNx+y1Axyv8Mq8
+dteeml5Ig8tiRzUDLBmCv/MYMDEJTi4guZe7NLPCz04Z8TGMgXtp0bkoFM5TRwET
+iWl3w9okHcetxUO8Mf2RkS80p6yy0b0B1Z9ND4IjcSkvunXxRl+ygtwjHtd68iZK
+ujH2j4D5SGLXuygLnSsjpJXRzN+FjoXnuF1Y880JSCoNhJ6aL0c=
+=rDLe
+-----END PGP SIGNATURE-----
+
+--zkokbbl47s6o5i5w--
