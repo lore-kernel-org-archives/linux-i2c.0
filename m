@@ -1,66 +1,59 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.20 48/52] i2c: cadence: Fix the hold bit setting
-Date: Mon, 11 Mar 2019 15:55:12 -0400
-Message-ID: <20190311195516.137772-48-sashal@kernel.org>
-References: <20190311195516.137772-1-sashal@kernel.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: i2c-stm32f7: Fix SDADEL minimum formula
+Date: Tue, 12 Mar 2019 14:00:51 +0100
+Message-ID: <20190312130051.kngknb26tikzsm7j@ninjato>
+References: <1551885125-22295-1-git-send-email-bich.hemon@st.com>
+ <20190309101340.GH1340@kunai>
+ <20190309105021.GI1340@kunai>
+ <36e0aec2-8fb8-d584-daee-1b3427f1067e@st.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="is76gvcv4mjw7ial"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190311195516.137772-1-sashal@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <36e0aec2-8fb8-d584-daee-1b3427f1067e@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+To: Bich HEMON <bich.hemon@st.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre TORGUE <alexandre.torgue@st.com>, Pierre Yves MORDRET <pierre-yves.mordret@st.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-stm32@st-md-mailman.stormreply.com" <linux-stm32@st-md-mailman.stormreply.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
 
-[ Upstream commit d358def706880defa4c9e87381c5bf086a97d5f9 ]
+--is76gvcv4mjw7ial
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-In case the hold bit is not needed we are carrying the old values.
-Fix the same by resetting the bit when not needed.
 
-Fixes the sporadic i2c bus lockups on National Instruments
-Zynq-based devices.
+> > Do you have a Fixes tag for this?
+> >=20
+>=20
+> Fixes: aeb068c57214858b638d5ee627bb4a831f98771e ("i2c: i2c-stm32f7: add=
+=20
+> driver")
+>=20
+> Will you change the commit message or do you want me to resend the patch?
 
-Fixes: df8eb5691c48 ("i2c: Add driver for Cadence I2C controller")
-Reported-by: Kyle Roeschley <kyle.roeschley@ni.com>
-Acked-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-Tested-by: Kyle Roeschley <kyle.roeschley@ni.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/busses/i2c-cadence.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+I'll fix it. Thanks for this info!
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index b13605718291..d917cefc5a19 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -382,8 +382,10 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
- 	 * Check for the message size against FIFO depth and set the
- 	 * 'hold bus' bit if it is greater than FIFO depth.
- 	 */
--	if (id->recv_count > CDNS_I2C_FIFO_DEPTH)
-+	if ((id->recv_count > CDNS_I2C_FIFO_DEPTH)  || id->bus_hold_flag)
- 		ctrl_reg |= CDNS_I2C_CR_HOLD;
-+	else
-+		ctrl_reg = ctrl_reg & ~CDNS_I2C_CR_HOLD;
- 
- 	cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
- 
-@@ -440,8 +442,11 @@ static void cdns_i2c_msend(struct cdns_i2c *id)
- 	 * Check for the message size against FIFO depth and set the
- 	 * 'hold bus' bit if it is greater than FIFO depth.
- 	 */
--	if (id->send_count > CDNS_I2C_FIFO_DEPTH)
-+	if ((id->send_count > CDNS_I2C_FIFO_DEPTH) || id->bus_hold_flag)
- 		ctrl_reg |= CDNS_I2C_CR_HOLD;
-+	else
-+		ctrl_reg = ctrl_reg & ~CDNS_I2C_CR_HOLD;
-+
- 	cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
- 
- 	/* Clear the interrupts in interrupt status register. */
--- 
-2.19.1
+
+--is76gvcv4mjw7ial
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyHrYMACgkQFA3kzBSg
+KbZT1g//bRBMzXRZ84ILbD3iczv55pWU32XqytQZVYE0B4meki6Az4h3se4n4AmM
+z8jL7OxLEmXzA22MbqRxhXvI3e3U3yBh65PGD2855Fv/Q9n/R7NxDEesvCU3aI+y
+O7eKUXMMqaOc1DcgiPw2dpxxsneUEYTtk7EE+1lYCOXK9BkXA9ZX7VQLg493bQxj
+RHRK/5+YK/Sj+mdaJktY73k3NZiB3qJ4gK9EoMVu+/W6wBpSHpknuSmFxPNUxUSF
+8UKETR0DvY0TOqYqpNdRLI8jR+UM2wTIe+yBLXK6oBSMFFkk3hanyfYt78VjVxlG
+lUnStJ18G7orGmwOpmf2xNX7kNgtz6CLgMFLX//AL9qouw8hhf2/SzNft+j4TDKx
+i3TcCGRV5tjGk/NMAHVhIPD9Qfbhs998uaNPFa91flnOALfGAL7Sjp8dT7I5APIG
+QB9qhQrBsQlg0pkm419Sa9A9F0PNWe1mwhP7rXBNpYU1S3fRPnyp0SPg4iSSIve0
+l4U+doq+3biw0Mb5WRhx28WrePKYXHe57PRx5Fm6wNHEkP401HeblF83Xo/bM+Zi
+y2SNRSNHWqVndxSiRt3/uQ543p+xzOQvwFuO3DTezJ+iizI6ukIGnWZAnQloTVIt
+P+HA478TJktkWOT7vXeS2b+hM5hFQbxoQ2yqnHcWuXn03vN6jEU=
+=WcWM
+-----END PGP SIGNATURE-----
+
+--is76gvcv4mjw7ial--
