@@ -1,59 +1,62 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i2c-stm32f7: Fix SDADEL minimum formula
-Date: Tue, 12 Mar 2019 14:00:51 +0100
-Message-ID: <20190312130051.kngknb26tikzsm7j@ninjato>
-References: <1551885125-22295-1-git-send-email-bich.hemon@st.com>
- <20190309101340.GH1340@kunai>
- <20190309105021.GI1340@kunai>
- <36e0aec2-8fb8-d584-daee-1b3427f1067e@st.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH 1/2] i2c: i2c-designware-platdrv: Allow a dynamic adap. nr
+ without an ACPI fwnode
+Date: Tue, 12 Mar 2019 16:47:48 +0200
+Message-ID: <c519b0ea-670d-defe-5870-c6258c19ff74@linux.intel.com>
+References: <20190311112216.31391-1-hdegoede@redhat.com>
+ <20190311112216.31391-2-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="is76gvcv4mjw7ial"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <36e0aec2-8fb8-d584-daee-1b3427f1067e@st.com>
+In-Reply-To: <20190311112216.31391-2-hdegoede@redhat.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bich HEMON <bich.hemon@st.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre TORGUE <alexandre.torgue@st.com>, Pierre Yves MORDRET <pierre-yves.mordret@st.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-stm32@st-md-mailman.stormreply.com" <linux-stm32@st-md-mailman.stormreply.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Lee Jones <lee.jones@linaro.org>
+Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi
 
---is76gvcv4mjw7ial
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 3/11/19 1:22 PM, Hans de Goede wrote:
+> Before this commit the i2c-designware-platdrv assumes that if the pdev
+> has an apci-companion it should use a dynamic adapter-nr and otherwise
+> it will use pdev->id as adapter-nr.
+> 
+> On some devices e.g. the Apollo Lake using Acer TravelMate Spin B118,
+> some of the LPSS i2c-adapters are enumerated through PCI and do not have
+> an ACPI fwnode. These devices are handled as mfd devices so they end up
+> using the i2c-designware-platdrv driver.
+> 
+> This results in the i2c-adapter being registered with the mfd generated
+> pdev->id as adapter-nr, which conflicts with existing adapters, triggering
+> a WARN(id < 0, "couldn't get idr") in i2c-core-base.c and causing the
+> adapter registration to fail.
+> 
+I went thinking would we get a regression if we switch the 
+i2c-designware-platdrv to dynamic numbering unconditionally?
 
+Only drivers/mfd/intel-lpss.c and drivers/mfd/intel_quark_i2c_gpio.c 
+register platform device "i2c_designware" and otherwise in the driver 
+itself for known ACPI IDs and device tree bindings.
 
-> > Do you have a Fixes tag for this?
-> >=20
->=20
-> Fixes: aeb068c57214858b638d5ee627bb4a831f98771e ("i2c: i2c-stm32f7: add=
-=20
-> driver")
->=20
-> Will you change the commit message or do you want me to resend the patch?
+Things should be fine for ACPI cases if slave devices are also described 
+in ACPI tables. As far as I've understood with device tree matching 
+adapter number is irrelevant in slave device registration?
 
-I'll fix it. Thanks for this info!
+Andy: could you tell by commit 918fe70cf475 ("mfd: intel_quark_i2c_gpio: 
+support devices behind i2c bus") are those devices described in ACPI or 
+in some i2c_board_infos with referring to fixed adapter number either in 
+or out of kernel tree code?
 
+Then drivers/platform/chrome/chromeos_laptop.c is the only code 
+searching for adapter named as "Synopsys DesignWare I2C adapter" without 
+assuming any fixed adapter numbering.
 
---is76gvcv4mjw7ial
-Content-Type: application/pgp-signature; name="signature.asc"
+What's unclear to me can there be device tree cases where i2c-designware 
+probing comes with pdev->id not starting from zero or in different 
+order? I.e. would it make difference do we use pdev->id or dynamic 
+adapter numbering?
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyHrYMACgkQFA3kzBSg
-KbZT1g//bRBMzXRZ84ILbD3iczv55pWU32XqytQZVYE0B4meki6Az4h3se4n4AmM
-z8jL7OxLEmXzA22MbqRxhXvI3e3U3yBh65PGD2855Fv/Q9n/R7NxDEesvCU3aI+y
-O7eKUXMMqaOc1DcgiPw2dpxxsneUEYTtk7EE+1lYCOXK9BkXA9ZX7VQLg493bQxj
-RHRK/5+YK/Sj+mdaJktY73k3NZiB3qJ4gK9EoMVu+/W6wBpSHpknuSmFxPNUxUSF
-8UKETR0DvY0TOqYqpNdRLI8jR+UM2wTIe+yBLXK6oBSMFFkk3hanyfYt78VjVxlG
-lUnStJ18G7orGmwOpmf2xNX7kNgtz6CLgMFLX//AL9qouw8hhf2/SzNft+j4TDKx
-i3TcCGRV5tjGk/NMAHVhIPD9Qfbhs998uaNPFa91flnOALfGAL7Sjp8dT7I5APIG
-QB9qhQrBsQlg0pkm419Sa9A9F0PNWe1mwhP7rXBNpYU1S3fRPnyp0SPg4iSSIve0
-l4U+doq+3biw0Mb5WRhx28WrePKYXHe57PRx5Fm6wNHEkP401HeblF83Xo/bM+Zi
-y2SNRSNHWqVndxSiRt3/uQ543p+xzOQvwFuO3DTezJ+iizI6ukIGnWZAnQloTVIt
-P+HA478TJktkWOT7vXeS2b+hM5hFQbxoQ2yqnHcWuXn03vN6jEU=
-=WcWM
------END PGP SIGNATURE-----
-
---is76gvcv4mjw7ial--
+-- 
+Jarkko
