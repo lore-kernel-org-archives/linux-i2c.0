@@ -1,36 +1,115 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v4 3/3] i2c: mux: pca954x: allow management of device
- idle state via sysfs
-Date: Wed, 13 Mar 2019 14:14:10 -0700
-Message-ID: <20190313211410.GB32331@kroah.com>
-References: <20190228114343.36443-1-robertshearman@gmail.com>
- <20190228114343.36443-4-robertshearman@gmail.com>
- <e07248e6-4987-b7a1-327a-7d30a3e5cdf5@axentia.se>
- <20190313152044.GD10250@kroah.com>
- <20190313163610.qbuexiowfcqgqndu@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 5.1
+Date: Fri, 15 Mar 2019 12:00:14 +0100
+Message-ID: <20190315110010.GA2084@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190313163610.qbuexiowfcqgqndu@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Peter Rosin <peda@axentia.se>, Robert Shearman <robertshearman@gmail.com>, Guenter Roeck <linux@roeck-us.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Robert Shearman <robert.shearman@att.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Mar 13, 2019 at 05:36:10PM +0100, Wolfram Sang wrote:
-> Hi Greg,
-> 
-> > > I was wondering if you think the below ABI addition looks sane to you?
-> > I am not the i2c maintainer :)
-> 
-> Peter is the i2c-mux maintainer, so I trust him very much on the I2C
-> side of things. We just wondered if you'd notice a general flaw when
-> exposing such an interface to userspace.
 
-Ah, I see.  No, looks fine to me, it's a single value, well documented,
-should be just fine.
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-thanks,
+Linus,
 
-greg k-h
+I2C has a set of driver bugfixes and an improvement for a core helper which
+would be nice to have in your tree before rc1.
+
+Please pull.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit ea295481b6e313b4ea3ca2720ffcafd6005b5643:
+
+  Merge tag 'xarray-5.1-rc1' of git://git.infradead.org/users/willy/linux-dax (2019-03-11 20:06:18 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
+
+for you to fetch changes up to cd86d1403bb4c80e443d736b2a692cbf68a9f471:
+
+  i2c: i2c-designware-platdrv: Always use a dynamic adapter number (2019-03-13 18:07:10 +0100)
+
+----------------------------------------------------------------
+Hans de Goede (2):
+      i2c: i2c-designware-platdrv: Cleanup setting of the adapter number
+      i2c: i2c-designware-platdrv: Always use a dynamic adapter number
+
+Hiromitsu Yamasaki (1):
+      i2c: rcar: fix concurrency issue related to ICDMAER
+
+Hsin-Yi Wang (1):
+      i2c: mediatek: modify threshold passed to i2c_get_dma_safe_msg_buf()
+
+Louis Taylor (1):
+      i2c: sis630: correct format strings
+
+Nicolas Le Bayon (1):
+      i2c: i2c-stm32f7: Fix SDADEL minimum formula
+
+Wolfram Sang (2):
+      i2c: rcar: explain the lockless design
+      i2c: add extra check to safe DMA buffer helper
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Andy Shevchenko (1):
+      (Rev.) i2c: i2c-designware-platdrv: Cleanup setting of the adapter number
+
+Hsin-Yi Wang (1):
+      (Rev.) i2c: add extra check to safe DMA buffer helper
+
+Jean Delvare (1):
+      (Rev.) i2c: sis630: correct format strings
+
+Nick Desaulniers (1):
+      (Rev.) i2c: sis630: correct format strings
+
+Pierre-Yves MORDRET (1):
+      (Rev.) i2c: i2c-stm32f7: Fix SDADEL minimum formula
+
+Simon Horman (2):
+      (Rev.) i2c: rcar: explain the lockless design
+      (Rev.) i2c: rcar: fix concurrency issue related to ICDMAER
+
+ drivers/i2c/busses/i2c-designware-platdrv.c |  7 +++----
+ drivers/i2c/busses/i2c-mt65xx.c             |  8 ++++----
+ drivers/i2c/busses/i2c-rcar.c               | 15 ++++++++++++---
+ drivers/i2c/busses/i2c-sis630.c             |  4 ++--
+ drivers/i2c/busses/i2c-stm32f7.c            |  2 +-
+ drivers/i2c/i2c-core-base.c                 |  9 +++++++--
+ 6 files changed, 29 insertions(+), 16 deletions(-)
+
+--PNTmBPCT7hxwcZjr
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyLhbUACgkQFA3kzBSg
+KbYF4Q//VLbxU5YTETiRpZ8Kt0TkhbrtJv5axJDSziQxCU7vEqr/hr7zbsE9HIQ1
+CcNb389VFRcMeCMWi+PGfUkEsAqdNsCBiNjjuZ3oGLeITxx5xvUmoapdON+nVAKd
++LaM3+NFZPW4D1GoNFnj3Hsn5f3Uoqc7mUzOhICTgKIRv3NdUtjheMnsJTmOCw67
+ay/5eNtd10gh2I1U1BXYlJcGfyEJBVkrWKPCJa7y+Tz/4dv2RPCpmmuIeRcO4zE7
+ILJGNqmuhhnxwN4rL7aex3g7STl1+IjFv6CsuFRxfwEhb72j6Q+YgAZoQH065SFC
+R3Jik9Uot/r+LkzBCF0lW1Klis4ldWutkLUmwm1C+YmZOONB9v2thPf93OBuRLKV
+qQHV8NfxZQld3LjNaHVN3XxtRdInwrwPvG7iSMdCMBrTRAoUOJmYZjd9UArgqxfa
+Ec9s9gKx7jAYb1jKPwPk3FteMKi2+POiMj4PKTdSAhM6tk8xy1Y5gdTI75Vu7g3Z
+Uo6pEgm8Wt6HZvWr4LDDcHjIuPAxa8b1hx/XlxIGOtLrdERvgKKWOdCwvF+KWCVY
+BeaDmGZJi6Zim4rbjqdA+ANWeeJMLvXNb52JgwhvM9RiDsNSM9pLxZbB9xGF85WI
+iE3Ido4ZCoJyLn3vtdJE7NKKcvUnZYhxp2LFQlB1kmkuRzZkwFg=
+=VfU/
+-----END PGP SIGNATURE-----
+
+--PNTmBPCT7hxwcZjr--
