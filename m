@@ -1,115 +1,66 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 5.1
-Date: Fri, 15 Mar 2019 12:00:14 +0100
-Message-ID: <20190315110010.GA2084@kunai>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [RFC PATCH v2 1/7] i2c: apply coding style for struct i2c_adapter
+Date: Fri, 15 Mar 2019 13:15:51 +0100
+Message-ID: <20190315121550.53hhzjy57hndp2w5@verge.net.au>
+References: <20190302134735.4393-1-wsa+renesas@sang-engineering.com>
+ <20190302134735.4393-2-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <20190302134735.4393-2-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Keerthy <j-keerthy@ti.com>, Peter Rosin <peda@axentia.se>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Stefan Lengfeld <contact@stefanchrist.eu>, Phil Reid <preid@electromag.com.au>, Tero Kristo <t-kristo@ti.com>, linux-omap@vger.kernel.org, linux-tegra@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Sat, Mar 02, 2019 at 02:47:29PM +0100, Wolfram Sang wrote:
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
---PNTmBPCT7hxwcZjr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
 
-Linus,
-
-I2C has a set of driver bugfixes and an improvement for a core helper which
-would be nice to have in your tree before rc1.
-
-Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit ea295481b6e313b4ea3ca2720ffcafd6005b5643:
-
-  Merge tag 'xarray-5.1-rc1' of git://git.infradead.org/users/willy/linux-dax (2019-03-11 20:06:18 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
-
-for you to fetch changes up to cd86d1403bb4c80e443d736b2a692cbf68a9f471:
-
-  i2c: i2c-designware-platdrv: Always use a dynamic adapter number (2019-03-13 18:07:10 +0100)
-
-----------------------------------------------------------------
-Hans de Goede (2):
-      i2c: i2c-designware-platdrv: Cleanup setting of the adapter number
-      i2c: i2c-designware-platdrv: Always use a dynamic adapter number
-
-Hiromitsu Yamasaki (1):
-      i2c: rcar: fix concurrency issue related to ICDMAER
-
-Hsin-Yi Wang (1):
-      i2c: mediatek: modify threshold passed to i2c_get_dma_safe_msg_buf()
-
-Louis Taylor (1):
-      i2c: sis630: correct format strings
-
-Nicolas Le Bayon (1):
-      i2c: i2c-stm32f7: Fix SDADEL minimum formula
-
-Wolfram Sang (2):
-      i2c: rcar: explain the lockless design
-      i2c: add extra check to safe DMA buffer helper
-
-
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Andy Shevchenko (1):
-      (Rev.) i2c: i2c-designware-platdrv: Cleanup setting of the adapter number
-
-Hsin-Yi Wang (1):
-      (Rev.) i2c: add extra check to safe DMA buffer helper
-
-Jean Delvare (1):
-      (Rev.) i2c: sis630: correct format strings
-
-Nick Desaulniers (1):
-      (Rev.) i2c: sis630: correct format strings
-
-Pierre-Yves MORDRET (1):
-      (Rev.) i2c: i2c-stm32f7: Fix SDADEL minimum formula
-
-Simon Horman (2):
-      (Rev.) i2c: rcar: explain the lockless design
-      (Rev.) i2c: rcar: fix concurrency issue related to ICDMAER
-
- drivers/i2c/busses/i2c-designware-platdrv.c |  7 +++----
- drivers/i2c/busses/i2c-mt65xx.c             |  8 ++++----
- drivers/i2c/busses/i2c-rcar.c               | 15 ++++++++++++---
- drivers/i2c/busses/i2c-sis630.c             |  4 ++--
- drivers/i2c/busses/i2c-stm32f7.c            |  2 +-
- drivers/i2c/i2c-core-base.c                 |  9 +++++++--
- 6 files changed, 29 insertions(+), 16 deletions(-)
-
---PNTmBPCT7hxwcZjr
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyLhbUACgkQFA3kzBSg
-KbYF4Q//VLbxU5YTETiRpZ8Kt0TkhbrtJv5axJDSziQxCU7vEqr/hr7zbsE9HIQ1
-CcNb389VFRcMeCMWi+PGfUkEsAqdNsCBiNjjuZ3oGLeITxx5xvUmoapdON+nVAKd
-+LaM3+NFZPW4D1GoNFnj3Hsn5f3Uoqc7mUzOhICTgKIRv3NdUtjheMnsJTmOCw67
-ay/5eNtd10gh2I1U1BXYlJcGfyEJBVkrWKPCJa7y+Tz/4dv2RPCpmmuIeRcO4zE7
-ILJGNqmuhhnxwN4rL7aex3g7STl1+IjFv6CsuFRxfwEhb72j6Q+YgAZoQH065SFC
-R3Jik9Uot/r+LkzBCF0lW1Klis4ldWutkLUmwm1C+YmZOONB9v2thPf93OBuRLKV
-qQHV8NfxZQld3LjNaHVN3XxtRdInwrwPvG7iSMdCMBrTRAoUOJmYZjd9UArgqxfa
-Ec9s9gKx7jAYb1jKPwPk3FteMKi2+POiMj4PKTdSAhM6tk8xy1Y5gdTI75Vu7g3Z
-Uo6pEgm8Wt6HZvWr4LDDcHjIuPAxa8b1hx/XlxIGOtLrdERvgKKWOdCwvF+KWCVY
-BeaDmGZJi6Zim4rbjqdA+ANWeeJMLvXNb52JgwhvM9RiDsNSM9pLxZbB9xGF85WI
-iE3Ido4ZCoJyLn3vtdJE7NKKcvUnZYhxp2LFQlB1kmkuRzZkwFg=
-=VfU/
------END PGP SIGNATURE-----
-
---PNTmBPCT7hxwcZjr--
+> ---
+>  include/linux/i2c.h | 23 +++++++++++++----------
+>  1 file changed, 13 insertions(+), 10 deletions(-)
+> 
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 383510b4f083..758a6db864c9 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -517,20 +517,23 @@ i2c_register_board_info(int busnum, struct i2c_board_info const *info,
+>   * Documentation file Documentation/i2c/fault-codes.
+>   */
+>  struct i2c_algorithm {
+> -	/* If an adapter algorithm can't do I2C-level access, set master_xfer
+> -	   to NULL. If an adapter algorithm can do SMBus access, set
+> -	   smbus_xfer. If set to NULL, the SMBus protocol is simulated
+> -	   using common I2C messages */
+> -	/* master_xfer should return the number of messages successfully
+> -	   processed, or a negative value on error */
+> +	/*
+> +	 * If an adapter algorithm can't do I2C-level access, set master_xfer
+> +	 * to NULL. If an adapter algorithm can do SMBus access, set
+> +	 * smbus_xfer. If set to NULL, the SMBus protocol is simulated
+> +	 * using common I2C messages.
+> +	 *
+> +	 * master_xfer should return the number of messages successfully
+> +	 * processed, or a negative value on error
+> +	 */
+>  	int (*master_xfer)(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>  			   int num);
+> -	int (*smbus_xfer) (struct i2c_adapter *adap, u16 addr,
+> -			   unsigned short flags, char read_write,
+> -			   u8 command, int size, union i2c_smbus_data *data);
+> +	int (*smbus_xfer)(struct i2c_adapter *adap, u16 addr,
+> +			  unsigned short flags, char read_write,
+> +			  u8 command, int size, union i2c_smbus_data *data);
+>  
+>  	/* To determine what the adapter supports */
+> -	u32 (*functionality) (struct i2c_adapter *);
+> +	u32 (*functionality)(struct i2c_adapter *adap);
+>  
+>  #if IS_ENABLED(CONFIG_I2C_SLAVE)
+>  	int (*reg_slave)(struct i2c_client *client);
+> -- 
+> 2.11.0
+> 
