@@ -1,60 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 2/2] i2c: designware: Add support for an interface
- clock
-Date: Wed, 20 Mar 2019 17:58:20 +0100
-Message-ID: <20190320165820.pjydd5ophxoulwza@ninjato>
-References: <1551361930-24434-1-git-send-email-gareth.williams.jx@renesas.com>
- <1551361930-24434-3-git-send-email-gareth.williams.jx@renesas.com>
+Subject: Re: [PATCH] i2c: i2c-stm32f7: improve loopback in timing algorithm
+Date: Wed, 20 Mar 2019 18:00:59 +0100
+Message-ID: <20190320170059.2bkw4e62wo2vugbo@ninjato>
+References: <1551885142-22365-1-git-send-email-bich.hemon@st.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="xfr6vjbdofsxw5tr"
+        protocol="application/pgp-signature"; boundary="jlxgfbkaiqonc2hk"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1551361930-24434-3-git-send-email-gareth.williams.jx@renesas.com>
+In-Reply-To: <1551885142-22365-1-git-send-email-bich.hemon@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Gareth Williams <gareth.williams.jx@renesas.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Phil Edworthy <phil.edworthy@renesas.com>, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+To: Bich HEMON <bich.hemon@st.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre TORGUE <alexandre.torgue@st.com>, Pierre Yves MORDRET <pierre-yves.mordret@st.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-stm32@st-md-mailman.stormreply.com" <linux-stm32@st-md-mailman.stormreply.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---xfr6vjbdofsxw5tr
+--jlxgfbkaiqonc2hk
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 28, 2019 at 01:52:10PM +0000, Gareth Williams wrote:
-> From: Phil Edworthy <phil.edworthy@renesas.com>
+On Wed, Mar 06, 2019 at 03:12:32PM +0000, Bich HEMON wrote:
+> From: Nicolas Le Bayon <nicolas.le.bayon@st.com>
 >=20
-> The Synopsys I2C Controller has an interface clock, but most SoCs hide
-> this away. However, on some SoCs you need to explicitly enable the
-> interface clock in order to access the registers. Therefore, add=20
-> support for an optional interface clock.
+> This avoids useless loops inside the I2C timing algorithm.
+> Actually, we support only one possible solution per prescaler value.
+> So after finding a solution with a prescaler, the algorithm can
+> switch directly to the next prescaler value.
 >=20
-> Signed-off-by: Phil Edworthy <phil.edworthy@renesas.com>
-> Signed-off-by: Gareth Williams <gareth.williams.jx@renesas.com>
-> Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Signed-off-by: Nicolas Le Bayon <nicolas.le.bayon@st.com>
+> Signed-off-by: Bich Hemon <bich.hemon@st.com>
 
 Applied to for-next, thanks!
 
+Pierre-Yves, there are two binding patches for stm32 still open, if you
+have some time for it...
 
---xfr6vjbdofsxw5tr
+
+--jlxgfbkaiqonc2hk
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyScSsACgkQFA3kzBSg
-Kba/Fw//ZY5silg+MDSe2w4nAQY0r1OsdEGU1eHK7QCZlVV8NtBAkThhCsXNDFFK
-SI05H3PSl1VhMzWlD+hAwX4REJ27xqeoFtgKwSrN/BoxYmxK8/3p3TPRBOgbYdaB
-3H8kFD0TChviM+tIDPnUGWK/AiQ+FYl0QG/VUgJN1xkhf3AVj2fIruoU7pwyAI1a
-HOTvJf1yDp0yAKK/WCerDd5NaUfVI/XqKUf4sx+p8BTBt7KWnHrDrQOj5GrEMg6g
-he/BwENfDMaGbSBhMPWJEWxvwG/8G3e49C1w66xxwhBGSEH/MEyR+pVA1p+uDjfL
-OMrdtxrlOTntamR0wGbKBV7dY9Bgz0zrbpd8dhV9Qc9WWrqHaaYeP36LgKIyAcib
-SmWKEumv0b7uRhlM/kvH7yP7lwFdzLUXTzVvyGbQonbywimHs20DPtymxDaixsHv
-bqybg99UXSB4I+MRhm3KChsurNv05jVZQavPQOeqihqNFG6yysZWYQd/HW5Z8/cl
-LKUhtvRbMtcSk/jUf16ioiq1qymUTAwLnAcYIs5kVINXdVsWUyJDAtis6QOI+bDP
-R6dwjontf8gpQSp2tP/ISOFfIiR/IRK8/Iw6S4ma3UqrIU5MfOHUtfGgVrpVPOlR
-/q9Fj6R03Z97GbqQaLbfoDs7S0VVO06ZggqZb4PikONM17dp4uw=
-=tTfE
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlySccsACgkQFA3kzBSg
+Kbb1CA//RsWBLBogKq3sIipw89QpsZf+f5oNMl9ha+Olr8DPSwDWjJrvu3HNcdyw
+Zl/jht9fZZj4exyIDePoGwu+ezJXcf+JOeKLyRuCHkf2Y8BYnsimC8D6HwuDe9SU
+K7qR7j+Hqww6EcJKNwxfhWYc+ie4uUEUhGRuhTOTXkcp/Qd4qXZnfKZ8jN0jYGaJ
++T6q9JAvc4BLdF9S2frIvWSPnWPmpbgWOQ9edC6YMuzn0MBDPU29DiKLcGMrWSud
+iXtj+cZpAPDYuox0Q7cC0Ot9rUPyJlSyz7glZzkQBTUhKTwaFxLwmODB6Pfp8AXY
+HkFr3IHhEFH4QQHDtO1GFhQTvcxMph0Fdyo0jFs/c8OfWv1OVwKqR0v3/krdpaNm
+HYhhdeR4cXkldmTH+iYtQirHskcB5TAzc7W8JhVBspgO15hiUi2HYaljTo9NjseP
+tpXoCNrhqtjZjzSr3cxOLKhKWAPQDclFLbXxHXAXczJxDW4T+FtDNuitCLyrGw42
+U7hl4aPO4QCkA3mNZpgeJRaJsW2zoiXKq8Qx6ShzOF18iseV8Aw6SjP8v1oJdUEl
+WImd+oE2RPwujAkXfagPhFaAP9rJYegSV27P5OUKggnGQ55GOQFrrpbQPuJy8Ky/
+z7rvk9UEy/jXQCXUdsaGS8PSZCaKQbvDEWsGH625BrDKATq3M/M=
+=+MDo
 -----END PGP SIGNATURE-----
 
---xfr6vjbdofsxw5tr--
+--jlxgfbkaiqonc2hk--
