@@ -1,83 +1,116 @@
-From: Florian Fainelli <f.fainelli@gmail.com>
-Subject: Re: [PATCH v5 0/8] iProc I2C slave mode and NIC mode
-Date: Fri, 22 Mar 2019 09:40:36 -0700
-Message-ID: <c06896b8-d3dc-2d3e-1d12-b2f2c2a09410@gmail.com>
-References: <20190214175725.60462-1-ray.jui@broadcom.com>
- <5c5ed177-0e9e-6271-518c-6956a7a6c554@broadcom.com>
+From: Fabien Parent <fparent@baylibre.com>
+Subject: [PATCH 00/24] arm64: mediatek: add support for Pumpkin MT8516 board
+Date: Sat, 23 Mar 2019 22:15:48 +0100
+Message-ID: <20190323211612.860-1-fparent@baylibre.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5c5ed177-0e9e-6271-518c-6956a7a6c554@broadcom.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ray Jui <ray.jui@broadcom.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: matthias.bgg@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com
+Cc: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, ryder.lee@mediatek.com, linux-watchdog@vger.kernel.org, jjian.zhou@mediatek.com, wenzhen.yu@mediatek.com, stephane.leprovost@mediatek.com, sean.wang@kernel.org, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org, yong.mao@mediatek.com, linux-spi@vger.kernel.org, linux-gpio@vger.kernel.org, linux-mediatek@lists.infradead.org, hsin-hsiung.wang@mediatek.com, linux-serial@vger.kernel.org, Fabien Parent <fparent@baylibre.com>, linux-clk@vger.kernel.org, chaotian.jing@mediatek.com, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2/22/19 12:04 PM, Ray Jui wrote:
-> Hi Wolfram,
-> 
-> Rob has reviewed all DT binding related changes from this patch series.
-> Could you please help to review the I2C driver related changes when you
-> have time?
+The pumpkin board is designed by Gossamer Engineering and is
+using a MediaTek SoC. The board currently comes in two available
+version: MT8516 SoC and MT8167 SoC.
 
-Wolfram, did you queue those patches yet? The dt-binding patch has been
-reviewed by Rob, therefore I am going to queue up patch 8 for the ARM
-SoC pull request for 5.2. Let me know if that does not align with when
-you plan on sending the i2c changes, thanks!
+The board provides the following IOs: eMMC, NAND, SD card, USB 2 type-A,
+Ethernet, Wi-Fi, Bluetooth, Audio (jack out, 2 PDM port, 1 analog in),
+serial over USB, and an expansion header.
 
-> 
-> Thanks,
-> 
-> Ray
-> 
-> On 2/14/2019 9:57 AM, Ray Jui wrote:
->> This patch series adds the following support to the iProc I2C driver:
->> - Increase maximum read transfer size to 255 bytes
->> - I2C slave mode
->> - Polling mode
->> - NIC I2C mode
->>
->> This patch series is based on kernel v5.0-rc3 and available at:
->> https://github.com/Broadcom/arm64-linux.git
->> branch: i2c-slave-v5
->>
->> Changes from v4:
->>  - Add more detailed explanations in the device tree binding document
->>    changes, to address Rob's review comments
->>
->> Changes from v3:
->>  - Various minor fixes on commit messages and commits
->>  - Rebased to v5.0-rc3
->>
->> Changes from v2:
->>  - Address Ray's review comments.
->>
->> Changes from v1:
->>  - Rebased to Linux v5.0.0-rc2
->>
->> Ray Jui (1):
->>   dt-bindings: i2c: iproc: make 'interrupts' optional
->>
->> Rayagonda Kokatanur (5):
->>   i2c: iproc: add polling support
->>   i2c: iproc: use wrapper for read/write access
->>   dt-bindings: i2c: iproc: add "brcm,iproc-nic-i2c" compatible string
->>   i2c: iproc: add NIC I2C support
->>   arm64: dts: Stingray: Add NIC i2c device node
->>
->> Shreesha Rajashekar (2):
->>   i2c: iproc: Extend I2C read up to 255 bytes
->>   i2c: iproc: Add slave mode support
->>
->>  .../bindings/i2c/brcm,iproc-i2c.txt           |  17 +-
->>  .../boot/dts/broadcom/stingray/stingray.dtsi  |  18 +
->>  drivers/i2c/busses/Kconfig                    |   1 +
->>  drivers/i2c/busses/i2c-bcm-iproc.c            | 758 +++++++++++++++---
->>  4 files changed, 663 insertions(+), 131 deletions(-)
->>
+This patch series adds the basic board support to be able to boot
+on the eMMC of the MT8516 based Pumpkin board.
 
+The board is using a MT6392 PMIC.
+
+Fabien Parent (24):
+  dt-bindings: regulator: add support for MT6392
+  regulator: mt6392: Add support for MT6392 regulator
+  dt-bindings: pwrap: mediatek: add pwrap support for MT8516
+  soc: mediatek: pwrap: add missing check on rstc
+  soc: mediatek: pwrap: add support for MT8516 pwrap
+  mfd: mt6397: Add support for MT6397 pmic
+  arm64: dts: mt6392: Add PMIC mt6392 dtsi
+  dt-bindings: mmc: mtk-sd: add mtk-sd support for MT8516
+  mmc: mtk-sd: check for valid optional memory resource
+  mmc: mtk-sd: add support for MT8516
+  dt-bindings: mediatek: topckgen: add support for MT8516
+  dt-bindings: mediatek: infracfg: add support for MT8516
+  dt-bindings: mediatek: apmixedsys: add support for MT8516
+  clk: mediatek: add clock driver for MT8516
+  dt-bindings: pinctrl: pinctrl-mt65xx: add support for MT8516
+  pinctrl: mediatek: Add MT8516 Pinctrl driver
+  dt-bindings: wdog: mtk-wdt: add support for MT851
+  dt-bindings: timer: mtk-timer: add support for MT8516
+  dt-bindings: spi: spi-mt65xx: add support for MT8516
+  dt-bindings: serial: mtk-uart: add support for MT8516
+  dt-bindings: irq: mtk,sysirq: add support for MT8516
+  dt-bindings: i2c: i2c-mtk: add support for MT8516
+  arm64: dts: mediatek: add dtsi for MT8516
+  arm64: dts: mediatek: add pumpkin board dts
+
+ .../arm/mediatek/mediatek,apmixedsys.txt      |    1 +
+ .../arm/mediatek/mediatek,infracfg.txt        |    1 +
+ .../arm/mediatek/mediatek,topckgen.txt        |    1 +
+ .../devicetree/bindings/i2c/i2c-mtk.txt       |    1 +
+ .../interrupt-controller/mediatek,sysirq.txt  |    3 +-
+ .../devicetree/bindings/mmc/mtk-sd.txt        |    1 +
+ .../bindings/pinctrl/pinctrl-mt65xx.txt       |    1 +
+ .../bindings/regulator/mt6392-regulator.txt   |  220 +++
+ .../devicetree/bindings/serial/mtk-uart.txt   |    1 +
+ .../bindings/soc/mediatek/pwrap.txt           |    1 +
+ .../devicetree/bindings/spi/spi-mt65xx.txt    |    1 +
+ .../bindings/timer/mediatek,mtk-timer.txt     |    1 +
+ .../devicetree/bindings/watchdog/mtk-wdt.txt  |    1 +
+ arch/arm64/boot/dts/mediatek/Makefile         |    1 +
+ arch/arm64/boot/dts/mediatek/mt6392.dtsi      |  208 +++
+ arch/arm64/boot/dts/mediatek/mt8516-pinfunc.h |  663 +++++++++
+ .../boot/dts/mediatek/mt8516-pumpkin.dts      |   19 +
+ arch/arm64/boot/dts/mediatek/mt8516.dtsi      |  409 ++++++
+ .../boot/dts/mediatek/pumpkin-common.dtsi     |  210 +++
+ .../dts/mediatek/pumpkin-emmc-common.dtsi     |   75 ++
+ drivers/clk/mediatek/Kconfig                  |    9 +
+ drivers/clk/mediatek/Makefile                 |    1 +
+ drivers/clk/mediatek/clk-mt8516.c             |  815 ++++++++++++
+ drivers/mfd/mt6397-core.c                     |   96 ++
+ drivers/mmc/host/mtk-sd.c                     |   19 +-
+ drivers/pinctrl/mediatek/Kconfig              |    7 +
+ drivers/pinctrl/mediatek/Makefile             |    1 +
+ drivers/pinctrl/mediatek/pinctrl-mt8516.c     |  384 ++++++
+ drivers/pinctrl/mediatek/pinctrl-mtk-mt8516.h | 1182 +++++++++++++++++
+ drivers/regulator/Kconfig                     |    9 +
+ drivers/regulator/Makefile                    |    1 +
+ drivers/regulator/mt6392-regulator.c          |  490 +++++++
+ drivers/soc/mediatek/mtk-pmic-wrap.c          |  109 +-
+ include/dt-bindings/clock/mt8516-clk.h        |  211 +++
+ include/linux/mfd/mt6392/core.h               |   42 +
+ include/linux/mfd/mt6392/registers.h          |  487 +++++++
+ include/linux/regulator/mt6392-regulator.h    |   40 +
+ 37 files changed, 5717 insertions(+), 5 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/regulator/mt6392-regulator.txt
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt6392.dtsi
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt8516-pinfunc.h
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt8516-pumpkin.dts
+ create mode 100644 arch/arm64/boot/dts/mediatek/mt8516.dtsi
+ create mode 100644 arch/arm64/boot/dts/mediatek/pumpkin-common.dtsi
+ create mode 100644 arch/arm64/boot/dts/mediatek/pumpkin-emmc-common.dtsi
+ create mode 100644 drivers/clk/mediatek/clk-mt8516.c
+ create mode 100644 drivers/pinctrl/mediatek/pinctrl-mt8516.c
+ create mode 100644 drivers/pinctrl/mediatek/pinctrl-mtk-mt8516.h
+ create mode 100644 drivers/regulator/mt6392-regulator.c
+ create mode 100644 include/dt-bindings/clock/mt8516-clk.h
+ create mode 100644 include/linux/mfd/mt6392/core.h
+ create mode 100644 include/linux/mfd/mt6392/registers.h
+ create mode 100644 include/linux/regulator/mt6392-regulator.h
 
 -- 
-Florian
+2.20.1
