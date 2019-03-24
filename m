@@ -1,53 +1,59 @@
-From: Fabien Parent <fparent@baylibre.com>
-Subject: Re: [PATCH 09/24] mmc: mtk-sd: check for valid optional memory resource
-Date: Sun, 24 Mar 2019 16:18:45 +0100
-Message-ID: <CAOwMV_zkHMZv8y_8C9kRCUsPtSbm+vPkJUNzU-_LK5=OhTkiPw@mail.gmail.com>
-References: <20190323211612.860-1-fparent@baylibre.com> <20190323211612.860-10-fparent@baylibre.com>
- <1553398466.26628.0.camel@mtksdaap41>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v5 0/3] i2c: at91: slave mode support
+Date: Sun, 24 Mar 2019 22:44:09 +0100
+Message-ID: <20190324214409.GA6934@kunai>
+References: <20190222092522.4913-1-ludovic.desroches@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1553398466.26628.0.camel@mtksdaap41>
+Content-Disposition: inline
+In-Reply-To: <20190222092522.4913-1-ludovic.desroches@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Yingjoe Chen <yingjoe.chen@mediatek.com>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>, robh+dt@kernel.org, mark.rutland@arm.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, ryder.lee@mediatek.com, linux-watchdog@vger.kernel.org, jjian.zhou@mediatek.com, wenzhen.yu@mediatek.com, Stephane Le Provost <stephane.leprovost@mediatek.com>, sean.wang@kernel.org, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org, yong.mao@mediatek.com, linux-spi@vger.kernel.org, linux-gpio@vger.kernel.org, linux-mediatek@lists.infradead.org, hsin-hsiung.wang@mediatek.com, linux-serial@vger.kernel.org, linux-clk@vger.kernel.org, Chaotian Jing <chaotian.jing@mediatek.com>, linux-i2c@vger.kernel.org
+To: Ludovic Desroches <ludovic.desroches@microchip.com>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, me@jue.yt, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org, andriy.shevchenko@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Mar 24, 2019 at 4:34 AM Yingjoe Chen <yingjoe.chen@mediatek.com> wrote:
->
-> On Sat, 2019-03-23 at 22:15 +0100, Fabien Parent wrote:
-> > 'top_base' memory region is optional. Check that the resource is valid
-> > before using it. This avoid getting a "invalid resource" error message
-> > printed by the kernel.
-> >
-> > Signed-off-by: Fabien Parent <fparent@baylibre.com>
-> > ---
-> >  drivers/mmc/host/mtk-sd.c | 8 +++++---
-> >  1 file changed, 5 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
-> > index 833ef0590af8..573aa127d00b 100644
-> > --- a/drivers/mmc/host/mtk-sd.c
-> > +++ b/drivers/mmc/host/mtk-sd.c
-> > @@ -2123,9 +2123,11 @@ static int msdc_drv_probe(struct platform_device *pdev)
-> >       }
-> >
-> >       res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-> > -     host->top_base = devm_ioremap_resource(&pdev->dev, res);
-> > -     if (IS_ERR(host->top_base))
-> > -             host->top_base = NULL;
-> > +     if (ret) {
->
-> This should be res?
 
-Indeed. Thanks, I will fix it in v2.
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > +             host->top_base = devm_ioremap_resource(&pdev->dev, res);
-> > +             if (IS_ERR(host->top_base))
-> > +                     host->top_base = NULL;
-> > +     }
-> >
-> >       ret = mmc_regulator_get_supply(mmc);
-> >       if (ret)
->
->
+On Fri, Feb 22, 2019 at 10:25:19AM +0100, Ludovic Desroches wrote:
+> [Ludovic Desroches: see Changes section]
+>=20
+> Based on the discussion we had on the i2c-linux list [1], I wrote a patch=
+ for
+> AT91 hardware and tried to fulfill the Linux I2C slave interface descript=
+ion
+> [2] as good as possible. This enables aforementioned hardware to act as a=
+n I2C
+> slave that can be accessed by a remote I2C master.
+
+After this was successfully checked by buildbot in a seperate branch:
+
+Applied to for-next, thanks!
+
+
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyX+iQACgkQFA3kzBSg
+Kbabrg/8CbHndAD7O6/74B5m4f+lShCnhoWG2L0gbgaqTWd0tbgS/0CisLsSyv2/
+N/BDaNdGGE+gBx8G55e2e0NfsohRUpMvdDOvrI/juCJW5T9xJreLC9OviYaI2rhY
+S7HhrLaoDebK7gnRAi7prQFnA7edAwyQcy0Cc/3etuTnp6dI/d0TNqBDo91QlBHQ
+ABhJtg1BvX7zZngUSm8vyn0cwGNE5HDoaJVBkUxe1PXuzM4EBeB7f5ODiiFFlmBy
+N7cNwMEa3qfUD8KY31LFHBdE2Ds5uS/KTKAbH5c+HnVzIXztbwwtX5WCiyygywFn
+d2peA67zb706tGe0QcGLiE6QQGUhkUZ6rlkujd/5Oi3NnbfXkQnmPQh18bgECZfU
+7fd3AZnqIl4IC0Qem99sIieWKEn2e621TXig/0xgyloJ0QD/h/PmE7Fze4tULWsY
+lt1ZJKVcsVUdLHRnB05drY2m1FjfkjsVKkoe0kJcSO9AOmaj08jjQm9koD5BRnqj
+1RcckO9IAyq1m41bhaGulLLxhUkD9GSErDQd5L7nVhDhN39WC6jr5RgFIwIAOoM6
+nNB5YDe14KkP239zhbBgoNq1fDsqeMexNh8seHheqKIIaC7FC7VauP5o+o0glrhR
+fXcBxXwekk4jnvHXXvWZHR59ygonuKy1uKqb5HiLkLEaDevdWL8=
+=N1yE
+-----END PGP SIGNATURE-----
+
+--r5Pyd7+fXNt84Ff3--
