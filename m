@@ -1,59 +1,97 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 0/3] i2c: at91: slave mode support
-Date: Sun, 24 Mar 2019 22:44:09 +0100
-Message-ID: <20190324214409.GA6934@kunai>
-References: <20190222092522.4913-1-ludovic.desroches@microchip.com>
+Subject: Re: [PATCH v2 1/2] i2c: enable buses to save their clock frequency
+ in adapter
+Date: Sun, 24 Mar 2019 23:09:13 +0100
+Message-ID: <20190324220913.GB6934@kunai>
+References: <20181210084111.6938-1-tudor.ambarus@microchip.com>
+ <20181210084111.6938-2-tudor.ambarus@microchip.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190222092522.4913-1-ludovic.desroches@microchip.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ludovic Desroches <ludovic.desroches@microchip.com>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, me@jue.yt, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org, andriy.shevchenko@linux.intel.com
+Content-Type: multipart/mixed; boundary="===============0748313467624848221=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20181210084111.6938-2-tudor.ambarus@microchip.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Tudor.Ambarus@microchip.com
+Cc: alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---r5Pyd7+fXNt84Ff3
+--===============0748313467624848221==
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="A6N2fC+uXW/VQSAv"
+Content-Disposition: inline
+
+
+--A6N2fC+uXW/VQSAv
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 22, 2019 at 10:25:19AM +0100, Ludovic Desroches wrote:
-> [Ludovic Desroches: see Changes section]
->=20
-> Based on the discussion we had on the i2c-linux list [1], I wrote a patch=
- for
-> AT91 hardware and tried to fulfill the Linux I2C slave interface descript=
-ion
-> [2] as good as possible. This enables aforementioned hardware to act as a=
-n I2C
-> slave that can be accessed by a remote I2C master.
+Hi Tudor,
 
-After this was successfully checked by buildbot in a seperate branch:
+thanks for your patience! Now that the at91 refactoring for the I2C
+slave support is merged, we can keep going forward with your patches. As
+I told you personally, I am positive in general about this change.
 
-Applied to for-next, thanks!
+> +	u32 bus_freq_hz;
+
+Why not unsigned int?
+
+I also think we should have accessor functions for this new member. They
+will be very simple currently because we don't really support changing
+the bus frequency at runtime. However, I can see that it could be added
+somewhen on top of this change, and then we need to extend the accessor
+functions with some locking.
+
+For now, I think this can be solved with simple policy: The value has to
+be set before calling i2c_add_adapter(). Also, we should define that '0'
+means 'value not set'.
+
+So far about my thoughts. Any more comments from the list are welcome!
+
+Thanks,
+
+   Wolfram
 
 
---r5Pyd7+fXNt84Ff3
+--A6N2fC+uXW/VQSAv
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyX+iQACgkQFA3kzBSg
-Kbabrg/8CbHndAD7O6/74B5m4f+lShCnhoWG2L0gbgaqTWd0tbgS/0CisLsSyv2/
-N/BDaNdGGE+gBx8G55e2e0NfsohRUpMvdDOvrI/juCJW5T9xJreLC9OviYaI2rhY
-S7HhrLaoDebK7gnRAi7prQFnA7edAwyQcy0Cc/3etuTnp6dI/d0TNqBDo91QlBHQ
-ABhJtg1BvX7zZngUSm8vyn0cwGNE5HDoaJVBkUxe1PXuzM4EBeB7f5ODiiFFlmBy
-N7cNwMEa3qfUD8KY31LFHBdE2Ds5uS/KTKAbH5c+HnVzIXztbwwtX5WCiyygywFn
-d2peA67zb706tGe0QcGLiE6QQGUhkUZ6rlkujd/5Oi3NnbfXkQnmPQh18bgECZfU
-7fd3AZnqIl4IC0Qem99sIieWKEn2e621TXig/0xgyloJ0QD/h/PmE7Fze4tULWsY
-lt1ZJKVcsVUdLHRnB05drY2m1FjfkjsVKkoe0kJcSO9AOmaj08jjQm9koD5BRnqj
-1RcckO9IAyq1m41bhaGulLLxhUkD9GSErDQd5L7nVhDhN39WC6jr5RgFIwIAOoM6
-nNB5YDe14KkP239zhbBgoNq1fDsqeMexNh8seHheqKIIaC7FC7VauP5o+o0glrhR
-fXcBxXwekk4jnvHXXvWZHR59ygonuKy1uKqb5HiLkLEaDevdWL8=
-=N1yE
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyYAAkACgkQFA3kzBSg
+KbYFdQ/8D0r9Q2iDBaKL+JQ7rhQYIU5+/eyYfJq3PbUdnUhA4IyPZonMtzUvUnib
+HfkKZdmB/DCE0mUlS5dB2T5NGMObGqfaMEGydzVI9h+h0pCrrQ7LQVj8DOA2lKEV
+g5WVuo/mT/P8bwYMei5Oo/bUe3pLUcl4/rOhySVl5Ns8+QKsPjNWMi+asmP5AdHY
+w2FsfuWzxnb7Pp59BVUk8Fv4nIHSu6s+xTxMm832MEPhO0l/gybXl/RbGnm5fyLo
+4jr0FtDm5vpH90CcW0TzV5zBgMWxSMHn1VQx8t7lEGDe9noUZvOr8ttGZ1XaSf/4
+BzcGRKQsaN+EfjQOQ8hFfTxVYaIgdCv64OlEyAxi4Wk5P/KywMEUtihAPznjfaWz
+IAGw2GorsaH/izQq+WLHqmJBkUmiKduevUTo4SkCcz/RFH+EHqZDkRXAW7DxOF2W
+z7y1+YEPLr1D1R5B95mI2xeZ545u2lpW1PImjTJcSwiKNq4maTTNOMOk1hB/nMfJ
+Mu2WOrRmQosouuryU3Ma/1sNh5kJMAdd3nvKj2szVRAQM8kokXXswbih7q/LvWnv
+/u9nwFiHUDibsB9mJeew42iHGqRRqV+sP/cQEOtWLqW2gM5k/0kiqbLobYmyX/2N
+6o6DWMitZM5FYZjKYor+86fDEzRhrJ0VBBKNWORVeq1omSNS6go=
+=MkdM
 -----END PGP SIGNATURE-----
 
---r5Pyd7+fXNt84Ff3--
+--A6N2fC+uXW/VQSAv--
+
+
+--===============0748313467624848221==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============0748313467624848221==--
