@@ -1,41 +1,109 @@
-From: helgaas@kernel.org
-Subject: [PATCH] i2c: isch: Remove unnecessary acpi.h include
-Date: Mon, 25 Mar 2019 13:36:52 -0500
-Message-ID: <20190325183652.252175-1-helgaas@kernel.org>
+From: Leo Li <leoyang.li@nxp.com>
+Subject: RE: [RESEND] i2c: imx: defer probing on dma channel request
+Date: Mon, 25 Mar 2019 19:15:27 +0000
+Message-ID: <AM6PR04MB58633D7FDB038AFADD5547218F5E0@AM6PR04MB5863.eurprd04.prod.outlook.com>
+References: <20190325153016.12626-1-laurentiu.tudor@nxp.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190325153016.12626-1-laurentiu.tudor@nxp.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>
+To: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Ying Zhang <ying.zhang22455@nxp.com>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, "upstream-release@linux.nxdi.nxp.com" <upstream-release@linux.nxdi.nxp.com>, Laurentiu Tudor <laurentiu.tudor@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
 
-54fb4a05af0a ("i2c: Check for ACPI resource conflicts") included
-<linux/acpi.h> so we could use acpi_check_region().  fd46a0064af1 ("i2c:
-convert i2c-isch to platform_device") removed the use of
-acpi_check_region() but not the include.
 
-Remove the now-unnecessary include of <linux/acpi.h>.  No functional change
-intended.
+> -----Original Message-----
+> From: laurentiu.tudor@nxp.com <laurentiu.tudor@nxp.com>
+> Sent: Monday, March 25, 2019 10:30 AM
+> To: linux-i2c@vger.kernel.org; Ying Zhang <ying.zhang22455@nxp.com>
+> Cc: linux-arm-kernel@lists.infradead.org; linux-kernel@vger.kernel.org;
+> shawnguo@kernel.org; s.hauer@pengutronix.de; kernel@pengutronix.de;
+> festevam@gmail.com; dl-linux-imx <linux-imx@nxp.com>; upstream-
+> release@linux.nxdi.nxp.com; Leo Li <leoyang.li@nxp.com>; Laurentiu Tudor
+> <laurentiu.tudor@nxp.com>
+> Subject: [RESEND] i2c: imx: defer probing on dma channel request
+>=20
+> From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+>=20
+> If the dma controller is not yet probed, defer i2c probe.
+> The error path in probe was slightly modified (no functional change) to a=
+void
+> triggering this WARN_ON():
+> "cg-pll0-div1 already disabled
+> WARNING: CPU: 1 PID: 1 at drivers/clk/clk.c:828 clk_core_disable+0xa8/0xb=
+0"
 
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
----
- drivers/i2c/busses/i2c-isch.c | 1 -
- 1 file changed, 1 deletion(-)
+You are removing clk_disable_unprepare() from all error paths except the ir=
+q error.  Not sure why this is needed.
 
-diff --git a/drivers/i2c/busses/i2c-isch.c b/drivers/i2c/busses/i2c-isch.c
-index 5c754bf659e2..f64c1d72f73f 100644
---- a/drivers/i2c/busses/i2c-isch.c
-+++ b/drivers/i2c/busses/i2c-isch.c
-@@ -30,7 +30,6 @@
- #include <linux/ioport.h>
- #include <linux/i2c.h>
- #include <linux/io.h>
--#include <linux/acpi.h>
- 
- /* SCH SMBus address offsets */
- #define SMBHSTCNT	(0 + sch_smba)
--- 
-2.21.0.392.gf8f6787159e-goog
+>=20
+> Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+> ---
+>  drivers/i2c/busses/i2c-imx.c | 21 +++++++++++++--------
+>  1 file changed, 13 insertions(+), 8 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c =
+index
+> 42fed40198a0..4e34b1572756 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -1111,7 +1111,8 @@ static int i2c_imx_probe(struct platform_device
+> *pdev)
+>  				pdev->name, i2c_imx);
+>  	if (ret) {
+>  		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
+> -		goto clk_disable;
+> +		clk_disable_unprepare(i2c_imx->clk);
+> +		return ret;
+>  	}
+>=20
+>  	/* Init queue */
+> @@ -1161,19 +1162,25 @@ static int i2c_imx_probe(struct platform_device
+> *pdev)
+>  	pm_runtime_mark_last_busy(&pdev->dev);
+>  	pm_runtime_put_autosuspend(&pdev->dev);
+>=20
+> +	/* Init DMA config if supported */
+> +	ret =3D i2c_imx_dma_request(i2c_imx, phy_addr);
+> +	if (ret) {
+> +		if (ret !=3D -EPROBE_DEFER)
+> +			dev_info(&pdev->dev, "can't use DMA, using PIO
+> instead.\n");
+> +		else
+> +			goto del_adapter;
+> +	}
+> +
+>  	dev_dbg(&i2c_imx->adapter.dev, "claimed irq %d\n", irq);
+>  	dev_dbg(&i2c_imx->adapter.dev, "device resources: %pR\n", res);
+>  	dev_dbg(&i2c_imx->adapter.dev, "adapter name: \"%s\"\n",
+>  		i2c_imx->adapter.name);
+>=20
+> -	/* Init DMA config if supported */
+> -	ret =3D i2c_imx_dma_request(i2c_imx, phy_addr);
+> -	if (ret < 0)
+> -		goto clk_notifier_unregister;
+> -
+>  	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
+>  	return 0;   /* Return OK */
+>=20
+> +del_adapter:
+> +	i2c_del_adapter(&i2c_imx->adapter);
+>  clk_notifier_unregister:
+>  	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
+>  rpm_disable:
+> @@ -1182,8 +1189,6 @@ static int i2c_imx_probe(struct platform_device
+> *pdev)
+>  	pm_runtime_set_suspended(&pdev->dev);
+>  	pm_runtime_dont_use_autosuspend(&pdev->dev);
+>=20
+> -clk_disable:
+> -	clk_disable_unprepare(i2c_imx->clk);
+>  	return ret;
+>  }
+>=20
+> --
+> 2.17.1
