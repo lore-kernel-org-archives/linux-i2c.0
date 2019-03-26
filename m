@@ -1,109 +1,39 @@
-From: Leo Li <leoyang.li@nxp.com>
-Subject: RE: [RESEND] i2c: imx: defer probing on dma channel request
-Date: Mon, 25 Mar 2019 19:15:27 +0000
-Message-ID: <AM6PR04MB58633D7FDB038AFADD5547218F5E0@AM6PR04MB5863.eurprd04.prod.outlook.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [RESEND] i2c: imx: defer probing on dma channel request
+Date: Tue, 26 Mar 2019 10:24:03 +0000
+Message-ID: <dcba97d5-639f-2f41-70ff-0ee9de9031d5@axentia.se>
 References: <20190325153016.12626-1-laurentiu.tudor@nxp.com>
+ <873b5aeb-e20a-de6b-515e-bc8fcc263452@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190325153016.12626-1-laurentiu.tudor@nxp.com>
+In-Reply-To: <873b5aeb-e20a-de6b-515e-bc8fcc263452@arm.com>
 Content-Language: en-US
+Content-ID: <CDFA7677229FB2449D8D943498F321F6@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Ying Zhang <ying.zhang22455@nxp.com>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, "upstream-release@linux.nxdi.nxp.com" <upstream-release@linux.nxdi.nxp.com>, Laurentiu Tudor <laurentiu.tudor@nxp.com>
+To: Steven Price <steven.price@arm.com>, "laurentiu.tudor@nxp.com" <laurentiu.tudor@nxp.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "ying.zhang22455@nxp.com" <ying.zhang22455@nxp.com>
+Cc: "upstream-release@linux.nxdi.nxp.com" <upstream-release@linux.nxdi.nxp.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "leoyang.li@nxp.com" <leoyang.li@nxp.com>, "linux-imx@nxp.com" <linux-imx@nxp.com>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
-
-> -----Original Message-----
-> From: laurentiu.tudor@nxp.com <laurentiu.tudor@nxp.com>
-> Sent: Monday, March 25, 2019 10:30 AM
-> To: linux-i2c@vger.kernel.org; Ying Zhang <ying.zhang22455@nxp.com>
-> Cc: linux-arm-kernel@lists.infradead.org; linux-kernel@vger.kernel.org;
-> shawnguo@kernel.org; s.hauer@pengutronix.de; kernel@pengutronix.de;
-> festevam@gmail.com; dl-linux-imx <linux-imx@nxp.com>; upstream-
-> release@linux.nxdi.nxp.com; Leo Li <leoyang.li@nxp.com>; Laurentiu Tudor
-> <laurentiu.tudor@nxp.com>
-> Subject: [RESEND] i2c: imx: defer probing on dma channel request
->=20
-> From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
->=20
-> If the dma controller is not yet probed, defer i2c probe.
-> The error path in probe was slightly modified (no functional change) to a=
-void
-> triggering this WARN_ON():
-> "cg-pll0-div1 already disabled
-> WARNING: CPU: 1 PID: 1 at drivers/clk/clk.c:828 clk_core_disable+0xa8/0xb=
-0"
-
-You are removing clk_disable_unprepare() from all error paths except the ir=
-q error.  Not sure why this is needed.
-
->=20
-> Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-> ---
->  drivers/i2c/busses/i2c-imx.c | 21 +++++++++++++--------
->  1 file changed, 13 insertions(+), 8 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c =
-index
-> 42fed40198a0..4e34b1572756 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -1111,7 +1111,8 @@ static int i2c_imx_probe(struct platform_device
-> *pdev)
->  				pdev->name, i2c_imx);
->  	if (ret) {
->  		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
-> -		goto clk_disable;
-> +		clk_disable_unprepare(i2c_imx->clk);
-> +		return ret;
->  	}
->=20
->  	/* Init queue */
-> @@ -1161,19 +1162,25 @@ static int i2c_imx_probe(struct platform_device
-> *pdev)
->  	pm_runtime_mark_last_busy(&pdev->dev);
->  	pm_runtime_put_autosuspend(&pdev->dev);
->=20
-> +	/* Init DMA config if supported */
-> +	ret =3D i2c_imx_dma_request(i2c_imx, phy_addr);
-> +	if (ret) {
-> +		if (ret !=3D -EPROBE_DEFER)
-> +			dev_info(&pdev->dev, "can't use DMA, using PIO
-> instead.\n");
-> +		else
-> +			goto del_adapter;
-> +	}
-> +
->  	dev_dbg(&i2c_imx->adapter.dev, "claimed irq %d\n", irq);
->  	dev_dbg(&i2c_imx->adapter.dev, "device resources: %pR\n", res);
->  	dev_dbg(&i2c_imx->adapter.dev, "adapter name: \"%s\"\n",
->  		i2c_imx->adapter.name);
->=20
-> -	/* Init DMA config if supported */
-> -	ret =3D i2c_imx_dma_request(i2c_imx, phy_addr);
-> -	if (ret < 0)
-> -		goto clk_notifier_unregister;
-> -
->  	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
->  	return 0;   /* Return OK */
->=20
-> +del_adapter:
-> +	i2c_del_adapter(&i2c_imx->adapter);
->  clk_notifier_unregister:
->  	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
->  rpm_disable:
-> @@ -1182,8 +1189,6 @@ static int i2c_imx_probe(struct platform_device
-> *pdev)
->  	pm_runtime_set_suspended(&pdev->dev);
->  	pm_runtime_dont_use_autosuspend(&pdev->dev);
->=20
-> -clk_disable:
-> -	clk_disable_unprepare(i2c_imx->clk);
->  	return ret;
->  }
->=20
-> --
-> 2.17.1
+T24gMjAxOS0wMy0yNSAxODoxMiwgU3RldmVuIFByaWNlIHdyb3RlOg0KPiBPbiAyNS8wMy8yMDE5
+IDE1OjMwLCBsYXVyZW50aXUudHVkb3JAbnhwLmNvbSB3cm90ZToNCj4+IEZyb206IExhdXJlbnRp
+dSBUdWRvciA8bGF1cmVudGl1LnR1ZG9yQG54cC5jb20+DQo+Pg0KPj4gSWYgdGhlIGRtYSBjb250
+cm9sbGVyIGlzIG5vdCB5ZXQgcHJvYmVkLCBkZWZlciBpMmMgcHJvYmUuDQo+PiBUaGUgZXJyb3Ig
+cGF0aCBpbiBwcm9iZSB3YXMgc2xpZ2h0bHkgbW9kaWZpZWQgKG5vIGZ1bmN0aW9uYWwgY2hhbmdl
+KQ0KDQoqc25pcCoNCg0KPj4gQEAgLTExNjEsMTkgKzExNjIsMjUgQEAgc3RhdGljIGludCBpMmNf
+aW14X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+PiAgCXBtX3J1bnRpbWVf
+bWFya19sYXN0X2J1c3koJnBkZXYtPmRldik7DQo+PiAgCXBtX3J1bnRpbWVfcHV0X2F1dG9zdXNw
+ZW5kKCZwZGV2LT5kZXYpOw0KPj4gIA0KPj4gKwkvKiBJbml0IERNQSBjb25maWcgaWYgc3VwcG9y
+dGVkICovDQo+PiArCXJldCA9IGkyY19pbXhfZG1hX3JlcXVlc3QoaTJjX2lteCwgcGh5X2FkZHIp
+Ow0KPj4gKwlpZiAocmV0KSB7DQo+PiArCQlpZiAocmV0ICE9IC1FUFJPQkVfREVGRVIpDQo+PiAr
+CQkJZGV2X2luZm8oJnBkZXYtPmRldiwgImNhbid0IHVzZSBETUEsIHVzaW5nIFBJTyBpbnN0ZWFk
+LlxuIik7DQo+PiArCQllbHNlDQo+PiArCQkJZ290byBkZWxfYWRhcHRlcjsNCj4+ICsJfQ0KPj4g
+Kw0KPiANCj4gVGhpcyBjYW4gYmUgc2ltcGxpZmllZCBieSByZXZlcnNpbmcgdGhlIGNvbmRpdGlv
+bjoNCj4gDQo+IAlpZiAocmV0KSB7DQo+IAkJaWYgKHJldCA9PSAtRVBST0JFX0RFRkVSKQ0KPiAJ
+CQlnb3RvIGRlbF9hZGFwdGVyOw0KPiAJCWRldl9pbmZvKCk7DQo+IAl9DQo+IA0KPiBvciBldmVu
+Og0KPiANCj4gCWlmIChyZXQgPT0gLUVQUk9CRV9ERUZFUikNCj4gCQlnb3RvIGRlbF9hZGFwdGVy
+Ow0KPiAJZWxzZSBpZiAocmV0KQ0KPiAJCWRldl9pbmZvKCk7DQo+IA0KDQpXaGlsZSB3ZSdyZSBs
+b29raW5nIGZvciBzdHVmZiB0byB0YWtlIG91dCwgemFwIHRoZSAiZWxzZSIuLi4NCg0KCWlmIChy
+ZXQgPT0gLUVQUk9CRV9ERUZFUikNCgkJZ290byBkZWxfYWRhcHRlcjsNCglpZiAocmV0KQ0KCQlk
+ZXZfaW5mbyguLi4pOw0KDQpDaGVlcnMsDQpQZXRlcg0K
