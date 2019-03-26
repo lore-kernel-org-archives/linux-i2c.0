@@ -1,16 +1,16 @@
-From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Subject: Re: [RESEND] i2c: imx: defer probing on dma channel request
-Date: Tue, 26 Mar 2019 11:52:41 +0000
-Message-ID: <7c702cc4-4bb6-02e8-6c2d-1686de503c85@nxp.com>
-References: <20190325153016.12626-1-laurentiu.tudor@nxp.com>
- <873b5aeb-e20a-de6b-515e-bc8fcc263452@arm.com>
+From: Stefan Lengfeld <contact@stefanchrist.eu>
+Subject: Re: [RFC PATCH v2 6/7] i2c: tegra-bpmp: convert to use new atomic
+ callbacks
+Date: Tue, 26 Mar 2019 21:20:05 +0100
+Message-ID: <20190326202005.s3ktyth42lfjirx2@porty>
+References: <20190302134735.4393-1-wsa+renesas@sang-engineering.com>
+ <20190302134735.4393-7-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <873b5aeb-e20a-de6b-515e-bc8fcc263452@arm.com>
-Content-Language: en-US
-Content-ID: <3C8F1440CFA3E043A3530EFD5C69E812@eurprd04.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <20190302134735.4393-7-wsa+renesas@sang-engineering.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -20,83 +20,61 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Steven Price <steven.price@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Ying Zhang <ying.zhang22455@nxp.com>
-Cc: "upstream-release@linux.nxdi.nxp.com" <upstream-release@linux.nxdi.nxp.com>, "festevam@gmail.com" <festevam@gmail.com>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Leo Li <leoyang.li@nxp.com>, dl-linux-imx <linux-imx@nxp.com>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Tero Kristo <t-kristo@ti.com>, Phil Reid <preid@electromag.com.au>, Tony Lindgren <tony@atomide.com>, Keerthy <j-keerthy@ti.com>, linux-kernel@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-renesas-soc@vger.kernel.org, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Peter Rosin <peda@axentia.se>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Steve,
+Hi Wolfram,
 
-Thanks for the review! Few comments inline.
-
-On 25.03.2019 19:12, Steven Price wrote:
-> On 25/03/2019 15:30, laurentiu.tudor@nxp.com wrote:
->> From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
->>
->> If the dma controller is not yet probed, defer i2c probe.
->> The error path in probe was slightly modified (no functional change)
+On Sat, Mar 02, 2019 at 02:47:34PM +0100, Wolfram Sang wrote:
+> The driver did handle this internally, convert it to use the new
+> callbacks.
 > 
-> There is a functional change for cases like:
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  drivers/i2c/busses/i2c-tegra-bpmp.c | 27 ++++++++++++++++++++++-----
+>  1 file changed, 22 insertions(+), 5 deletions(-)
 > 
->> 	ret = pm_runtime_get_sync(&pdev->dev);
->> 	if (ret < 0)
->> 		goto rpm_disable;
+
+[...]
+
+> @@ -268,6 +270,20 @@ static int tegra_bpmp_i2c_xfer(struct i2c_adapter *adapter,
+>  	return num;
+>  }
+>  
+> +static int tegra_bpmp_i2c_xfer(struct i2c_adapter *adapter,
+> +			       struct i2c_msg *msgs, int num)
+> +
+> +{
+> +	return tegra_bpmp_i2c_xfer_common(adapter, msgs, num, false);
+> +}
+> +
+> +static int tegra_bpmp_i2c_xfer_atomic(struct i2c_adapter *adapter,
+> +				      struct i2c_msg *msgs, int num)
+> +
+
+Here and between the function prototype of 'tegra_bpmp_i2c_xfer' and
+it's function body is a unneeded blank line. Nitpick.
+
+Kind regards,
+    Stefan
+
+> +{
+> +	return tegra_bpmp_i2c_xfer_common(adapter, msgs, num, true);
+> +}
+> +
+>  static u32 tegra_bpmp_i2c_func(struct i2c_adapter *adapter)
+>  {
+>  	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR |
+> @@ -276,6 +292,7 @@ static u32 tegra_bpmp_i2c_func(struct i2c_adapter *adapter)
+>  
+>  static const struct i2c_algorithm tegra_bpmp_i2c_algo = {
+>  	.master_xfer = tegra_bpmp_i2c_xfer,
+> +	.master_xfer_atomic = tegra_bpmp_i2c_xfer_atomic,
+>  	.functionality = tegra_bpmp_i2c_func,
+>  };
+>  
+> -- 
+> 2.11.0
 > 
-> ...as rpm_disable will no longer fall through to the call of
-> clk_disable_unprepare().
-
-Good point, I missed that.
-
->> to avoid triggering this WARN_ON():
->> "cg-pll0-div1 already disabled
->> WARNING: CPU: 1 PID: 1 at drivers/clk/clk.c:828 clk_core_disable+0xa8/0xb0"
 > 
-> I'm also not sure how this WARN_ON was hit. i2c_imx_probe() calls
-> clk_prepare_enable() which should increment the reference count. So it
-> should always be possible to decrememt the enable_count. What am I missing?
-
-I am no longer able to replicate this. Perhaps in the mean time changes 
-in the clk core fixed this corner case.
-
->> Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
->> ---
->>   drivers/i2c/busses/i2c-imx.c | 21 +++++++++++++--------
->>   1 file changed, 13 insertions(+), 8 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
->> index 42fed40198a0..4e34b1572756 100644
->> --- a/drivers/i2c/busses/i2c-imx.c
->> +++ b/drivers/i2c/busses/i2c-imx.c
->> @@ -1111,7 +1111,8 @@ static int i2c_imx_probe(struct platform_device *pdev)
->>   				pdev->name, i2c_imx);
->>   	if (ret) {
->>   		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
->> -		goto clk_disable;
->> +		clk_disable_unprepare(i2c_imx->clk);
->> +		return ret;
->>   	}
->>   
->>   	/* Init queue */
->> @@ -1161,19 +1162,25 @@ static int i2c_imx_probe(struct platform_device *pdev)
->>   	pm_runtime_mark_last_busy(&pdev->dev);
->>   	pm_runtime_put_autosuspend(&pdev->dev);
->>   
->> +	/* Init DMA config if supported */
->> +	ret = i2c_imx_dma_request(i2c_imx, phy_addr);
->> +	if (ret) {
->> +		if (ret != -EPROBE_DEFER)
->> +			dev_info(&pdev->dev, "can't use DMA, using PIO instead.\n");
->> +		else
->> +			goto del_adapter;
->> +	}
->> +
-> 
-> This can be simplified by reversing the condition:
-
-Well, in the mean time I just found out that this commit [1] fixes the 
-issue I was seeing so I think the patch is no longer needed.
-
-[1] 
-https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git/commit/?h=i2c/for-next&id=e1ab9a468e3b1
-
----
-Best Regards, Laurentiu
