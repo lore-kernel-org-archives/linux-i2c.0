@@ -1,7 +1,7 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 098/262] i2c: Allow recovery of the initial IRQ by an I2C client device.
-Date: Wed, 27 Mar 2019 13:59:13 -0400
-Message-ID: <20190327180158.10245-98-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 009/262] i2c: sis630: correct format strings
+Date: Wed, 27 Mar 2019 13:57:44 -0400
+Message-ID: <20190327180158.10245-9-sashal@kernel.org>
 References: <20190327180158.10245-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,77 +9,63 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190327180158.10245-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Jim Broadus <jbroadus@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Cc: Louis Taylor <louis@kragniz.eu>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jim Broadus <jbroadus@gmail.com>
+From: Louis Taylor <louis@kragniz.eu>
 
-[ Upstream commit 93b6604c5a669d84e45fe5129294875bf82eb1ff ]
+[ Upstream commit 60f7691c624b41a05bfc3493d9b0519e7951b7ef ]
 
-A previous change allowed I2C client devices to discover new IRQs upon
-reprobe by clearing the IRQ in i2c_device_remove. However, if an IRQ was
-assigned in i2c_new_device, that information is lost.
+When compiling with -Wformat, clang warns:
 
-For example, the touchscreen and trackpad devices on a Dell Inspiron laptop
-are I2C devices whose IRQs are defined by ACPI extended IRQ types. The
-client device structures are initialized during an ACPI walk. After
-removing the i2c_hid device, modprobe fails.
+drivers/i2c/busses/i2c-sis630.c:482:4: warning: format specifies type
+      'unsigned short' but the argument has type 'int' [-Wformat]
+                        smbus_base + SMB_STS,
+                        ^~~~~~~~~~~~~~~~~~~~
 
-This change caches the initial IRQ value in i2c_new_device and then resets
-the client device IRQ to the initial value in i2c_device_remove.
+drivers/i2c/busses/i2c-sis630.c:483:4: warning: format specifies type
+      'unsigned short' but the argument has type 'int' [-Wformat]
+                        smbus_base + SMB_STS + SIS630_SMB_IOREGION - 1);
+                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Fixes: 6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
-Signed-off-by: Jim Broadus <jbroadus@gmail.com>
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-[wsa: this is an easy to backport fix for the regression. We will
-refactor the code to handle irq assignments better in general.]
+drivers/i2c/busses/i2c-sis630.c:531:37: warning: format specifies type
+      'unsigned short' but the argument has type 'int' [-Wformat]
+                 "SMBus SIS630 adapter at %04hx", smbus_base + SMB_STS);
+                                          ~~~~~   ^~~~~~~~~~~~~~~~~~~~
+
+This patch fixes the format strings to use the format type for int.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/378
+Signed-off-by: Louis Taylor <louis@kragniz.eu>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-core-base.c | 9 +++++----
- include/linux/i2c.h         | 1 +
- 2 files changed, 6 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-sis630.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 28460f6a60cc..af87a16ac3a5 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -430,7 +430,7 @@ static int i2c_device_remove(struct device *dev)
- 	dev_pm_clear_wake_irq(&client->dev);
- 	device_init_wakeup(&client->dev, false);
+diff --git a/drivers/i2c/busses/i2c-sis630.c b/drivers/i2c/busses/i2c-sis630.c
+index 1e6805b5cef2..a57aa4fe51a4 100644
+--- a/drivers/i2c/busses/i2c-sis630.c
++++ b/drivers/i2c/busses/i2c-sis630.c
+@@ -478,7 +478,7 @@ static int sis630_setup(struct pci_dev *sis630_dev)
+ 	if (!request_region(smbus_base + SMB_STS, SIS630_SMB_IOREGION,
+ 			    sis630_driver.name)) {
+ 		dev_err(&sis630_dev->dev,
+-			"I/O Region 0x%04hx-0x%04hx for SMBus already in use.\n",
++			"I/O Region 0x%04x-0x%04x for SMBus already in use.\n",
+ 			smbus_base + SMB_STS,
+ 			smbus_base + SMB_STS + SIS630_SMB_IOREGION - 1);
+ 		retval = -EBUSY;
+@@ -528,7 +528,7 @@ static int sis630_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	sis630_adapter.dev.parent = &dev->dev;
  
--	client->irq = 0;
-+	client->irq = client->init_irq;
+ 	snprintf(sis630_adapter.name, sizeof(sis630_adapter.name),
+-		 "SMBus SIS630 adapter at %04hx", smbus_base + SMB_STS);
++		 "SMBus SIS630 adapter at %04x", smbus_base + SMB_STS);
  
- 	return status;
+ 	return i2c_add_adapter(&sis630_adapter);
  }
-@@ -741,10 +741,11 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
- 	client->flags = info->flags;
- 	client->addr = info->addr;
- 
--	client->irq = info->irq;
--	if (!client->irq)
--		client->irq = i2c_dev_irq_from_resources(info->resources,
-+	client->init_irq = info->irq;
-+	if (!client->init_irq)
-+		client->init_irq = i2c_dev_irq_from_resources(info->resources,
- 							 info->num_resources);
-+	client->irq = client->init_irq;
- 
- 	strlcpy(client->name, info->type, sizeof(client->name));
- 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 65b4eaed1d96..7e748648c7d3 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -333,6 +333,7 @@ struct i2c_client {
- 	char name[I2C_NAME_SIZE];
- 	struct i2c_adapter *adapter;	/* the adapter we sit on	*/
- 	struct device dev;		/* the device structure		*/
-+	int init_irq;			/* irq set at initialization	*/
- 	int irq;			/* irq issued by device		*/
- 	struct list_head detected;
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
 -- 
 2.19.1
