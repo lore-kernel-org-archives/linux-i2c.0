@@ -1,71 +1,73 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 006/192] i2c: sis630: correct format strings
-Date: Wed, 27 Mar 2019 14:07:18 -0400
-Message-ID: <20190327181025.13507-6-sashal@kernel.org>
-References: <20190327181025.13507-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 180/262] i2c: of: Try to find an I2C adapter matching the parent
+Date: Wed, 27 Mar 2019 14:00:35 -0400
+Message-ID: <20190327180158.10245-180-sashal@kernel.org>
+References: <20190327180158.10245-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190327181025.13507-1-sashal@kernel.org>
+In-Reply-To: <20190327180158.10245-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Louis Taylor <louis@kragniz.eu>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Cc: Thierry Reding <treding@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Louis Taylor <louis@kragniz.eu>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 60f7691c624b41a05bfc3493d9b0519e7951b7ef ]
+[ Upstream commit e814e688413aabd7b0d75e2a8ed1caa472951dec ]
 
-When compiling with -Wformat, clang warns:
+If an I2C adapter doesn't match the provided device tree node, also try
+matching the parent's device tree node. This allows finding an adapter
+based on the device node of the parent device that was used to register
+it.
 
-drivers/i2c/busses/i2c-sis630.c:482:4: warning: format specifies type
-      'unsigned short' but the argument has type 'int' [-Wformat]
-                        smbus_base + SMB_STS,
-                        ^~~~~~~~~~~~~~~~~~~~
+This fixes a regression on Tegra124-based Chromebooks (Nyan) where the
+eDP controller registers an I2C adapter that is used to read to EDID.
+After commit 993a815dcbb2 ("dt-bindings: panel: Add missing .txt
+suffix") this stopped working because the I2C adapter could no longer
+be found. The approach in this patch fixes the regression without
+introducing the issues that the above commit solved.
 
-drivers/i2c/busses/i2c-sis630.c:483:4: warning: format specifies type
-      'unsigned short' but the argument has type 'int' [-Wformat]
-                        smbus_base + SMB_STS + SIS630_SMB_IOREGION - 1);
-                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-drivers/i2c/busses/i2c-sis630.c:531:37: warning: format specifies type
-      'unsigned short' but the argument has type 'int' [-Wformat]
-                 "SMBus SIS630 adapter at %04hx", smbus_base + SMB_STS);
-                                          ~~~~~   ^~~~~~~~~~~~~~~~~~~~
-
-This patch fixes the format strings to use the format type for int.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/378
-Signed-off-by: Louis Taylor <louis@kragniz.eu>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Fixes: 17ab7806de0c ("drm: don't link DP aux i2c adapter to the hardware device node")
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Tested-by: Tristan Bastian <tristan-c.bastian@gmx.de>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-sis630.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core-of.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-sis630.c b/drivers/i2c/busses/i2c-sis630.c
-index 1e6805b5cef2..a57aa4fe51a4 100644
---- a/drivers/i2c/busses/i2c-sis630.c
-+++ b/drivers/i2c/busses/i2c-sis630.c
-@@ -478,7 +478,7 @@ static int sis630_setup(struct pci_dev *sis630_dev)
- 	if (!request_region(smbus_base + SMB_STS, SIS630_SMB_IOREGION,
- 			    sis630_driver.name)) {
- 		dev_err(&sis630_dev->dev,
--			"I/O Region 0x%04hx-0x%04hx for SMBus already in use.\n",
-+			"I/O Region 0x%04x-0x%04x for SMBus already in use.\n",
- 			smbus_base + SMB_STS,
- 			smbus_base + SMB_STS + SIS630_SMB_IOREGION - 1);
- 		retval = -EBUSY;
-@@ -528,7 +528,7 @@ static int sis630_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	sis630_adapter.dev.parent = &dev->dev;
- 
- 	snprintf(sis630_adapter.name, sizeof(sis630_adapter.name),
--		 "SMBus SIS630 adapter at %04hx", smbus_base + SMB_STS);
-+		 "SMBus SIS630 adapter at %04x", smbus_base + SMB_STS);
- 
- 	return i2c_add_adapter(&sis630_adapter);
+diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
+index 6cb7ad608bcd..0f01cdba9d2c 100644
+--- a/drivers/i2c/i2c-core-of.c
++++ b/drivers/i2c/i2c-core-of.c
+@@ -121,6 +121,17 @@ static int of_dev_node_match(struct device *dev, void *data)
+ 	return dev->of_node == data;
  }
+ 
++static int of_dev_or_parent_node_match(struct device *dev, void *data)
++{
++	if (dev->of_node == data)
++		return 1;
++
++	if (dev->parent)
++		return dev->parent->of_node == data;
++
++	return 0;
++}
++
+ /* must call put_device() when done with returned i2c_client device */
+ struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
+ {
+@@ -145,7 +156,8 @@ struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
+ 	struct device *dev;
+ 	struct i2c_adapter *adapter;
+ 
+-	dev = bus_find_device(&i2c_bus_type, NULL, node, of_dev_node_match);
++	dev = bus_find_device(&i2c_bus_type, NULL, node,
++			      of_dev_or_parent_node_match);
+ 	if (!dev)
+ 		return NULL;
+ 
 -- 
 2.19.1
