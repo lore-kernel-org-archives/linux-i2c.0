@@ -1,73 +1,159 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 180/262] i2c: of: Try to find an I2C adapter matching the parent
-Date: Wed, 27 Mar 2019 14:00:35 -0400
-Message-ID: <20190327180158.10245-180-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 102/262] i2c: designware: Do not allow i2c_dw_xfer() calls while suspended
+Date: Wed, 27 Mar 2019 13:59:17 -0400
+Message-ID: <20190327180158.10245-102-sashal@kernel.org>
 References: <20190327180158.10245-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <stable-owner@vger.kernel.org>
 In-Reply-To: <20190327180158.10245-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Thierry Reding <treding@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit e814e688413aabd7b0d75e2a8ed1caa472951dec ]
+[ Upstream commit 2751541555382dfa7661bcfaac3ee0fac49f505d ]
 
-If an I2C adapter doesn't match the provided device tree node, also try
-matching the parent's device tree node. This allows finding an adapter
-based on the device node of the parent device that was used to register
-it.
+On most Intel Bay- and Cherry-Trail systems the PMIC is connected over I2C
+and the PMIC is accessed through various means by the _PS0 and _PS3 ACPI
+methods (power on / off methods) of various devices.
 
-This fixes a regression on Tegra124-based Chromebooks (Nyan) where the
-eDP controller registers an I2C adapter that is used to read to EDID.
-After commit 993a815dcbb2 ("dt-bindings: panel: Add missing .txt
-suffix") this stopped working because the I2C adapter could no longer
-be found. The approach in this patch fixes the regression without
-introducing the issues that the above commit solved.
+This leads to suspend/resume ordering problems where a device may be
+resumed and get its _PS0 method executed before the I2C controller is
+resumed. On Cherry Trail this leads to errors like these:
 
-Fixes: 17ab7806de0c ("drm: don't link DP aux i2c adapter to the hardware device node")
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Tested-by: Tristan Bastian <tristan-c.bastian@gmx.de>
+     i2c_designware 808622C1:06: controller timed out
+     ACPI Error: AE_ERROR, Returned by Handler for [UserDefinedRegion]
+     ACPI Error: Method parse/execution failed \_SB.P18W._ON, AE_ERROR
+     video LNXVIDEO:00: Failed to change power state to D0
+
+But on Bay Trail this caused I2C reads to seem to succeed, but they end
+up returning wrong data, which ends up getting written back by the typical
+read-modify-write cycle done to turn on various power-resources.
+
+Debugging the problems caused by this silent data corruption is quite
+nasty. This commit adds a check which disallows i2c_dw_xfer() calls to
+happen until the controller's resume method has completed.
+
+Which turns the silent data corruption into getting these errors in
+dmesg instead:
+
+    i2c_designware 80860F41:04: Error i2c_dw_xfer call while suspended
+    ACPI Error: AE_ERROR, Returned by Handler for [UserDefinedRegion]
+    ACPI Error: Method parse/execution failed \_SB.PCI0.GFX0._PS0, AE_ERROR
+
+Which is much better.
+
+Note the above errors are an example of issues which this patch will
+help to debug, the actual fix requires fixing the suspend order and
+this has been fixed by a different commit.
+
+Note the setting / clearing of the suspended flag in the suspend / resume
+methods is NOT protected by i2c_lock_bus(). This is intentional as these
+methods get called from i2c_dw_xfer() (through pm_runtime_get/put) a nd
+i2c_dw_xfer() is called with the i2c_bus_lock held, so otherwise we would
+deadlock. This means that there is a theoretical race between a non runtime
+suspend and the suspended check in i2c_dw_xfer(), this is not a problem
+since normally we should not hit the race and this check is primarily a
+debugging tool so hitting the check if there are suspend/resume ordering
+problems does not need to be 100% reliable.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-core-of.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-designware-core.h    | 2 ++
+ drivers/i2c/busses/i2c-designware-master.c  | 6 ++++++
+ drivers/i2c/busses/i2c-designware-pcidrv.c  | 7 ++++++-
+ drivers/i2c/busses/i2c-designware-platdrv.c | 3 +++
+ 4 files changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
-index 6cb7ad608bcd..0f01cdba9d2c 100644
---- a/drivers/i2c/i2c-core-of.c
-+++ b/drivers/i2c/i2c-core-of.c
-@@ -121,6 +121,17 @@ static int of_dev_node_match(struct device *dev, void *data)
- 	return dev->of_node == data;
- }
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index b4a0b2b99a78..6b4ef1d38fb2 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -215,6 +215,7 @@
+  * @disable_int: function to disable all interrupts
+  * @init: function to initialize the I2C hardware
+  * @mode: operation mode - DW_IC_MASTER or DW_IC_SLAVE
++ * @suspended: set to true if the controller is suspended
+  *
+  * HCNT and LCNT parameters can be used if the platform knows more accurate
+  * values than the one computed based only on the input clock frequency.
+@@ -270,6 +271,7 @@ struct dw_i2c_dev {
+ 	int			(*set_sda_hold_time)(struct dw_i2c_dev *dev);
+ 	int			mode;
+ 	struct i2c_bus_recovery_info rinfo;
++	bool			suspended;
+ };
  
-+static int of_dev_or_parent_node_match(struct device *dev, void *data)
-+{
-+	if (dev->of_node == data)
-+		return 1;
+ #define ACCESS_SWAP		0x00000001
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index 8d1bc44d2530..bb8e3f149979 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -426,6 +426,12 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 
+ 	pm_runtime_get_sync(dev->dev);
+ 
++	if (dev->suspended) {
++		dev_err(dev->dev, "Error %s call while suspended\n", __func__);
++		ret = -ESHUTDOWN;
++		goto done_nolock;
++	}
 +
-+	if (dev->parent)
-+		return dev->parent->of_node == data;
-+
-+	return 0;
-+}
-+
- /* must call put_device() when done with returned i2c_client device */
- struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
+ 	reinit_completion(&dev->cmd_complete);
+ 	dev->msgs = msgs;
+ 	dev->msgs_num = num;
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index d50f80487214..76810deb2de6 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -176,6 +176,7 @@ static int i2c_dw_pci_suspend(struct device *dev)
+ 	struct pci_dev *pdev = to_pci_dev(dev);
+ 	struct dw_i2c_dev *i_dev = pci_get_drvdata(pdev);
+ 
++	i_dev->suspended = true;
+ 	i_dev->disable(i_dev);
+ 
+ 	return 0;
+@@ -185,8 +186,12 @@ static int i2c_dw_pci_resume(struct device *dev)
  {
-@@ -145,7 +156,8 @@ struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
- 	struct device *dev;
- 	struct i2c_adapter *adapter;
+ 	struct pci_dev *pdev = to_pci_dev(dev);
+ 	struct dw_i2c_dev *i_dev = pci_get_drvdata(pdev);
++	int ret;
  
--	dev = bus_find_device(&i2c_bus_type, NULL, node, of_dev_node_match);
-+	dev = bus_find_device(&i2c_bus_type, NULL, node,
-+			      of_dev_or_parent_node_match);
- 	if (!dev)
- 		return NULL;
+-	return i_dev->init(i_dev);
++	ret = i_dev->init(i_dev);
++	i_dev->suspended = false;
++
++	return ret;
+ }
+ #endif
  
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 9eaac3be1f63..ead5e7de3e4d 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -454,6 +454,8 @@ static int dw_i2c_plat_suspend(struct device *dev)
+ {
+ 	struct dw_i2c_dev *i_dev = dev_get_drvdata(dev);
+ 
++	i_dev->suspended = true;
++
+ 	if (i_dev->shared_with_punit)
+ 		return 0;
+ 
+@@ -471,6 +473,7 @@ static int dw_i2c_plat_resume(struct device *dev)
+ 		i2c_dw_prepare_clk(i_dev, true);
+ 
+ 	i_dev->init(i_dev);
++	i_dev->suspended = false;
+ 
+ 	return 0;
+ }
 -- 
 2.19.1
