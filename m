@@ -1,65 +1,124 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [RFC PATCH] i2c: remove use of in_atomic()
-Date: Wed, 27 Mar 2019 22:12:56 +0100
-Message-ID: <20190327211256.17232-1-wsa+renesas@sang-engineering.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v5 2/8] i2c: iproc: Add slave mode support
+Date: Wed, 27 Mar 2019 23:14:52 +0100
+Message-ID: <20190327221452.GA15396@kunai>
+References: <20190214175725.60462-1-ray.jui@broadcom.com>
+ <20190214175725.60462-3-ray.jui@broadcom.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190214175725.60462-3-ray.jui@broadcom.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Frederic Weisbecker <fweisbec@gmail.com>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Ray Jui <ray.jui@broadcom.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, Shreesha Rajashekar <shreesha.rajashekar@broadcom.com>, Michael Cheng <ccheng@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Commit cea443a81c9c ("i2c: Support i2c_transfer in atomic contexts")
-added in_atomic() to the I2C core. However, the use of in_atomic()
-outside of core kernel code is discouraged and was already[1] when this
-code was added in early 2008. The above commit was a preparation for
-b7a3670131c7 ("i2c-pxa: Add polling transfer"). Its commit message says
-explicitly it was added "for cases where I2C transactions have to occur
-at times interrups are disabled". So, the intention was 'disabled
-interrupts'. This matches the use cases for atomic I2C transfers I have
-seen so far: very late communication (mostly to a PMIC) to powerdown or
-reboot the system. For those cases, interrupts are disabled then. It
-doesn't seem that in_atomic() adds value.
 
-Note that only ~10 out of ~120 bus master drivers support atomic
-transfers, mostly by polling always when no irq is supplied. A generic
-I2C client driver cannot assume support for atomic transfers. This is
-currently a platform-dependent corner case.
-
-The I2C core will soon gain an extra callback into bus drivers
-especially for atomic transfers to make them more generic. The code
-deciding which transfer to use (atomic/non-atomic) should mimic the
-behaviour which locking to use (trylock/lock). Because I don't want to
-add more in_atomic() to the I2C core, this patch simply removes it.
-
-[1] https://lwn.net/Articles/274695/
-
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
-
-So, I had to dive into this in_atomic() topic and this is what I
-concluded. I don't see any reasonable constellation where this could
-cause a regression, but I am all open for missing something and being
-pointed to it. This is why the patch is RFC. I'd really welcome
-comments. Thanks!
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
- drivers/i2c/i2c-core-base.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> +static void bcm_iproc_i2c_slave_init(
+> +	struct bcm_iproc_i2c_dev *iproc_i2c, bool need_reset)
+> +{
+> +	u32 val;
+> +
+> +	if (need_reset) {
+> +		/* put controller in reset */
+> +		val =3D readl(iproc_i2c->base + CFG_OFFSET);
+> +		val |=3D BIT(CFG_RESET_SHIFT);
+> +		writel(val, iproc_i2c->base + CFG_OFFSET);
+> +
+> +		/* wait 100 usec per spec */
+> +		udelay(100);
+> +
+> +		/* bring controller out of reset */
+> +		val &=3D ~(BIT(CFG_RESET_SHIFT));
+> +		writel(val, iproc_i2c->base + CFG_OFFSET);
+> +	}
+> +
+> +	/* flush TX/RX FIFOs */
+> +	val =3D (BIT(S_FIFO_RX_FLUSH_SHIFT) | BIT(S_FIFO_TX_FLUSH_SHIFT));
+> +	writel(val, iproc_i2c->base + S_FIFO_CTRL_OFFSET);
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 38af18645133..943bebeec3ed 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -1946,7 +1946,7 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 	 *    one (discarding status on the second message) or errno
- 	 *    (discarding status on the first one).
- 	 */
--	if (in_atomic() || irqs_disabled()) {
-+	if (irqs_disabled()) {
- 		ret = i2c_trylock_bus(adap, I2C_LOCK_SEGMENT);
- 		if (!ret)
- 			/* I2C activity is ongoing. */
--- 
-2.19.1
+Will flushing FIFOs work when a slave is register while a master
+transfer is on-going at the same time?
+
+> +
+> +	/* RANDOM SLAVE STRETCH time - 20ms*/
+
+What is a "random stretch time"? 20ms sounds like a lot. Also, missing
+space before comment terminator.
+
+> @@ -224,22 +473,25 @@ static int bcm_iproc_i2c_init(struct bcm_iproc_i2c_=
+dev *iproc_i2c)
+> =20
+>  	/* put controller in reset */
+>  	val =3D readl(iproc_i2c->base + CFG_OFFSET);
+> -	val |=3D 1 << CFG_RESET_SHIFT;
+> -	val &=3D ~(1 << CFG_EN_SHIFT);
+> +	val |=3D BIT(CFG_RESET_SHIFT);
+> +	val &=3D ~(BIT(CFG_EN_SHIFT));
+>  	writel(val, iproc_i2c->base + CFG_OFFSET);
+> =20
+>  	/* wait 100 usec per spec */
+>  	udelay(100);
+> =20
+>  	/* bring controller out of reset */
+> -	val &=3D ~(1 << CFG_RESET_SHIFT);
+> +	val &=3D ~(BIT(CFG_RESET_SHIFT));
+>  	writel(val, iproc_i2c->base + CFG_OFFSET);
+> =20
+>  	/* flush TX/RX FIFOs and set RX FIFO threshold to zero */
+> -	val =3D (1 << M_FIFO_RX_FLUSH_SHIFT) | (1 << M_FIFO_TX_FLUSH_SHIFT);
+> +	val =3D (BIT(M_FIFO_RX_FLUSH_SHIFT) | BIT(M_FIFO_TX_FLUSH_SHIFT));
+>  	writel(val, iproc_i2c->base + M_FIFO_CTRL_OFFSET);
+>  	/* disable all interrupts */
+> -	writel(0, iproc_i2c->base + IE_OFFSET);
+> +	val =3D readl(iproc_i2c->base + IE_OFFSET);
+> +	val &=3D ~(IE_M_ALL_INTERRUPT_MASK <<
+> +			IE_M_ALL_INTERRUPT_SHIFT);
+> +	writel(val, iproc_i2c->base + IE_OFFSET);
+
+This block looks unrelated, but I won't be too strict here...
+
+> +	case M_CMD_STATUS_FIFO_UNDERRUN:
+> +		dev_dbg(iproc_i2c->device, "FIFO under-run\n");
+> +		return -ENXIO;
+> +
+> +	case M_CMD_STATUS_RX_FIFO_FULL:
+> +		dev_dbg(iproc_i2c->device, "Master Rx FIFO full > 10ms\n");
+> +		return -ETIMEDOUT;
+> +
+
+=2E.. however, this looks really unrelated to me. This is about master
+transmission, or?
+
+Rest looks OK.
+
+
+--a8Wt8u1KmwUX3Y2C
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyb9dcACgkQFA3kzBSg
+KbYvFQ//Z+N9U4yZ41ffQw2ciDW9/bABxl29fya7wzHtKzk0h1w0WYA174nmWoZX
+GLr9ulh+NL5aAmQuLBoawUsn0Z7Yh+Pf2yLWv9LbRVqfnuEzIrQE9nzk4I5eG0VE
+7XBO08s+LMpyx+L55+dlztYqWCfa1+CvCsH4q4bMlMLjL3dQDnEP0i6L2nbtUs/S
+yyQOZa7mPF1ISETxDyMeaqZa+NiJNC+T2r2QH2utnKg6eDBFybQ79NtaBdxxbCMq
+ZP5NKUrTcl4c+yHEtpZIfpcHfZwASlp9t8kFXthb0ohRorhDHoXmjFLTLnebteEJ
+I3CzhREgiZqc8YYnduJ/um1O8H1+EwQ3HxWt+q4LFZ0Ldnr/H3vvBQwGjmyUNwwP
+VOm/ETtwyRoN95Pv9Ny60rRY1Ht6nCqJpbWI8uatozb0DzdXldD0gBbGrXBujwDR
+so1131GoaEM0Di32fR1QbkckswrFMCRWEAqP2m93ajpppFoCM4u3HNsX+XKuz0rS
+ufQqhAVoFa1yzdPnfVniz1wkagbZ6/kBDet3LGYNIeeCvw3ZaZw0Pu+N5L685Me5
+Z1qpwni5g1ukEkyCNx3F/2+TM9ROXMmaR/WwTEJVm72bpDU9NUP8yXeFBovhiO7M
+7wZKkII2VNA3KG1MJd/wykhxcVDbNpo0l59N1XEBM/DuODhaE2Y=
+=AuIn
+-----END PGP SIGNATURE-----
+
+--a8Wt8u1KmwUX3Y2C--
