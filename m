@@ -1,57 +1,102 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 2/8] i2c: iproc: Add slave mode support
-Date: Wed, 27 Mar 2019 23:41:52 +0100
-Message-ID: <20190327224152.GA19245@kunai>
-References: <20190214175725.60462-1-ray.jui@broadcom.com>
- <20190214175725.60462-3-ray.jui@broadcom.com>
- <20190327221452.GA15396@kunai>
+From: Aisheng Dong <aisheng.dong@nxp.com>
+Subject: RE: [RESEND] i2c: imx: defer probing on dma channel request
+Date: Thu, 28 Mar 2019 07:31:20 +0000
+Message-ID: <AM0PR04MB4211B411E79CD286AB33E25580590@AM0PR04MB4211.eurprd04.prod.outlook.com>
+References: <20190325153016.12626-1-laurentiu.tudor@nxp.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190327221452.GA15396@kunai>
+In-Reply-To: <20190325153016.12626-1-laurentiu.tudor@nxp.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ray Jui <ray.jui@broadcom.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, Shreesha Rajashekar <shreesha.rajashekar@broadcom.com>, Michael Cheng <ccheng@broadcom.com>
+To: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Ying Zhang <ying.zhang22455@nxp.com>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, "upstream-release@linux.nxdi.nxp.com" <upstream-release@linux.nxdi.nxp.com>, Leo Li <leoyang.li@nxp.com>, Laurentiu Tudor <laurentiu.tudor@nxp.com>, Andy Duan <fugang.duan@nxp.com>, Clark Wang <xiaoning.wang@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-
---4Ckj6UjgE2iN1+kY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-
-> > +	/* flush TX/RX FIFOs */
-> > +	val =3D (BIT(S_FIFO_RX_FLUSH_SHIFT) | BIT(S_FIFO_TX_FLUSH_SHIFT));
-> > +	writel(val, iproc_i2c->base + S_FIFO_CTRL_OFFSET);
+> From: laurentiu.tudor@nxp.com [mailto:laurentiu.tudor@nxp.com]
+> Sent: Monday, March 25, 2019 11:30 PM
 >=20
-> Will flushing FIFOs work when a slave is register while a master
-> transfer is on-going at the same time?
+> From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+>=20
+> If the dma controller is not yet probed, defer i2c probe.
+> The error path in probe was slightly modified (no functional change) to a=
+void
+> triggering this WARN_ON():
+> "cg-pll0-div1 already disabled
+> WARNING: CPU: 1 PID: 1 at drivers/clk/clk.c:828 clk_core_disable+0xa8/0xb=
+0"
 
-Sorry, my bad, this can't happen. Registering a slave is protected by
-the adapter lock.
+We may need more information to understand how this issue happens and it's =
+also
+better to put them in commit message to help review.
 
+Regards
+Dong Aisheng
 
---4Ckj6UjgE2iN1+kY
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyb/DAACgkQFA3kzBSg
-KbZN8Q//eSDQHv6MeKmwMRekegPzcadxm/hDQDIQUXHCjJ9CvIxQVtlU7qLmmMdv
-zeN78fBCGvLGuKXg+zWWEl/E/7Grp4V9SsAw03/fd3P0t8YfyHEy6qPCkTj12vyW
-di04vwF1BMPRTK2aBYukG+PsyadGkGpusS9foTFGue/53lcksx7g6IgG3jknwSEJ
-RHmbHwMBI3WllQWQp3gcpOudmglHZuqmXbOTkf2BrrMPZ2DqO/GZa0Nv7nlyE7St
-vag7Nbho9kisogNiVUEPC9TT0xYCTGVYBGVeXep5o85zcKacNCow5SAOUoFeIZuP
-3XFGjkxnIIyXlBRR0PIL6KFxRXyN7y2HYfU4qeA8Xet8oHcdfqcRXsSJUGcREo4M
-6VBtZjslLywN92cub+rZkJQ5Kd+5dauPDjYFRyZfUnB5R6kbOK1BOb3B8HjEESEl
-oOSUxAudMSmCSqeqKNP0qTOX8vFXMG9MU71QBpet37OUeHVpjgrw0VNb1BenA61x
-dphA5IB/H8Fi1GIEI5mjl61BgnICJZjPYdqS8hXeB2aQsYr/fhUax7R47FXmESfQ
-kd6N2BW7wZ69HotE7YP3jMc9gJMtjq5oN0/OcLEZVQPR0/hLR3VALb61F7w6Errw
-6kCRUU75IpN2bJKzAej3cf2vAVD1t4hx70F0xuiDQjPzwoHJ/b8=
-=k9RI
------END PGP SIGNATURE-----
-
---4Ckj6UjgE2iN1+kY--
+>=20
+> Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+> ---
+>  drivers/i2c/busses/i2c-imx.c | 21 +++++++++++++--------
+>  1 file changed, 13 insertions(+), 8 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c =
+index
+> 42fed40198a0..4e34b1572756 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -1111,7 +1111,8 @@ static int i2c_imx_probe(struct platform_device
+> *pdev)
+>  				pdev->name, i2c_imx);
+>  	if (ret) {
+>  		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
+> -		goto clk_disable;
+> +		clk_disable_unprepare(i2c_imx->clk);
+> +		return ret;
+>  	}
+>=20
+>  	/* Init queue */
+> @@ -1161,19 +1162,25 @@ static int i2c_imx_probe(struct platform_device
+> *pdev)
+>  	pm_runtime_mark_last_busy(&pdev->dev);
+>  	pm_runtime_put_autosuspend(&pdev->dev);
+>=20
+> +	/* Init DMA config if supported */
+> +	ret =3D i2c_imx_dma_request(i2c_imx, phy_addr);
+> +	if (ret) {
+> +		if (ret !=3D -EPROBE_DEFER)
+> +			dev_info(&pdev->dev, "can't use DMA, using PIO instead.\n");
+> +		else
+> +			goto del_adapter;
+> +	}
+> +
+>  	dev_dbg(&i2c_imx->adapter.dev, "claimed irq %d\n", irq);
+>  	dev_dbg(&i2c_imx->adapter.dev, "device resources: %pR\n", res);
+>  	dev_dbg(&i2c_imx->adapter.dev, "adapter name: \"%s\"\n",
+>  		i2c_imx->adapter.name);
+>=20
+> -	/* Init DMA config if supported */
+> -	ret =3D i2c_imx_dma_request(i2c_imx, phy_addr);
+> -	if (ret < 0)
+> -		goto clk_notifier_unregister;
+> -
+>  	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
+>  	return 0;   /* Return OK */
+>=20
+> +del_adapter:
+> +	i2c_del_adapter(&i2c_imx->adapter);
+>  clk_notifier_unregister:
+>  	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
+>  rpm_disable:
+> @@ -1182,8 +1189,6 @@ static int i2c_imx_probe(struct platform_device
+> *pdev)
+>  	pm_runtime_set_suspended(&pdev->dev);
+>  	pm_runtime_dont_use_autosuspend(&pdev->dev);
+>=20
+> -clk_disable:
+> -	clk_disable_unprepare(i2c_imx->clk);
+>  	return ret;
+>  }
+>=20
+> --
+> 2.17.1
