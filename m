@@ -1,102 +1,60 @@
-From: Aisheng Dong <aisheng.dong@nxp.com>
-Subject: RE: [RESEND] i2c: imx: defer probing on dma channel request
-Date: Thu, 28 Mar 2019 07:31:20 +0000
-Message-ID: <AM0PR04MB4211B411E79CD286AB33E25580590@AM0PR04MB4211.eurprd04.prod.outlook.com>
-References: <20190325153016.12626-1-laurentiu.tudor@nxp.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [RFC PATCH] i2c: remove use of in_atomic()
+Date: Thu, 28 Mar 2019 09:10:02 +0100
+Message-ID: <CAMuHMdVHWNcrjXGSPaK9XTTuGEaPPpwp6gzy8XD10_TYNF1PJQ@mail.gmail.com>
+References: <20190327211256.17232-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190325153016.12626-1-laurentiu.tudor@nxp.com>
-Content-Language: en-US
+In-Reply-To: <20190327211256.17232-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Ying Zhang <ying.zhang22455@nxp.com>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, "upstream-release@linux.nxdi.nxp.com" <upstream-release@linux.nxdi.nxp.com>, Leo Li <leoyang.li@nxp.com>, Laurentiu Tudor <laurentiu.tudor@nxp.com>, Andy Duan <fugang.duan@nxp.com>, Clark Wang <xiaoning.wang@nxp.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Frederic Weisbecker <fweisbec@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Ingo Molnar <mingo@kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> From: laurentiu.tudor@nxp.com [mailto:laurentiu.tudor@nxp.com]
-> Sent: Monday, March 25, 2019 11:30 PM
->=20
-> From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
->=20
-> If the dma controller is not yet probed, defer i2c probe.
-> The error path in probe was slightly modified (no functional change) to a=
-void
-> triggering this WARN_ON():
-> "cg-pll0-div1 already disabled
-> WARNING: CPU: 1 PID: 1 at drivers/clk/clk.c:828 clk_core_disable+0xa8/0xb=
-0"
+Hi Wolfram,
 
-We may need more information to understand how this issue happens and it's =
-also
-better to put them in commit message to help review.
+On Wed, Mar 27, 2019 at 10:13 PM Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> Commit cea443a81c9c ("i2c: Support i2c_transfer in atomic contexts")
+> added in_atomic() to the I2C core. However, the use of in_atomic()
+> outside of core kernel code is discouraged and was already[1] when this
+> code was added in early 2008. The above commit was a preparation for
+> b7a3670131c7 ("i2c-pxa: Add polling transfer"). Its commit message says
+> explicitly it was added "for cases where I2C transactions have to occur
+> at times interrups are disabled". So, the intention was 'disabled
+> interrupts'. This matches the use cases for atomic I2C transfers I have
+> seen so far: very late communication (mostly to a PMIC) to powerdown or
+> reboot the system. For those cases, interrupts are disabled then. It
+> doesn't seem that in_atomic() adds value.
+>
+> Note that only ~10 out of ~120 bus master drivers support atomic
+> transfers, mostly by polling always when no irq is supplied. A generic
+> I2C client driver cannot assume support for atomic transfers. This is
+> currently a platform-dependent corner case.
+>
+> The I2C core will soon gain an extra callback into bus drivers
+> especially for atomic transfers to make them more generic. The code
+> deciding which transfer to use (atomic/non-atomic) should mimic the
+> behaviour which locking to use (trylock/lock). Because I don't want to
+> add more in_atomic() to the I2C core, this patch simply removes it.
+>
+> [1] https://lwn.net/Articles/274695/
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Regards
-Dong Aisheng
+LGTM, so:
+Ackeded-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
->=20
-> Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-> ---
->  drivers/i2c/busses/i2c-imx.c | 21 +++++++++++++--------
->  1 file changed, 13 insertions(+), 8 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c =
-index
-> 42fed40198a0..4e34b1572756 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -1111,7 +1111,8 @@ static int i2c_imx_probe(struct platform_device
-> *pdev)
->  				pdev->name, i2c_imx);
->  	if (ret) {
->  		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
-> -		goto clk_disable;
-> +		clk_disable_unprepare(i2c_imx->clk);
-> +		return ret;
->  	}
->=20
->  	/* Init queue */
-> @@ -1161,19 +1162,25 @@ static int i2c_imx_probe(struct platform_device
-> *pdev)
->  	pm_runtime_mark_last_busy(&pdev->dev);
->  	pm_runtime_put_autosuspend(&pdev->dev);
->=20
-> +	/* Init DMA config if supported */
-> +	ret =3D i2c_imx_dma_request(i2c_imx, phy_addr);
-> +	if (ret) {
-> +		if (ret !=3D -EPROBE_DEFER)
-> +			dev_info(&pdev->dev, "can't use DMA, using PIO instead.\n");
-> +		else
-> +			goto del_adapter;
-> +	}
-> +
->  	dev_dbg(&i2c_imx->adapter.dev, "claimed irq %d\n", irq);
->  	dev_dbg(&i2c_imx->adapter.dev, "device resources: %pR\n", res);
->  	dev_dbg(&i2c_imx->adapter.dev, "adapter name: \"%s\"\n",
->  		i2c_imx->adapter.name);
->=20
-> -	/* Init DMA config if supported */
-> -	ret =3D i2c_imx_dma_request(i2c_imx, phy_addr);
-> -	if (ret < 0)
-> -		goto clk_notifier_unregister;
-> -
->  	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
->  	return 0;   /* Return OK */
->=20
-> +del_adapter:
-> +	i2c_del_adapter(&i2c_imx->adapter);
->  clk_notifier_unregister:
->  	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
->  rpm_disable:
-> @@ -1182,8 +1189,6 @@ static int i2c_imx_probe(struct platform_device
-> *pdev)
->  	pm_runtime_set_suspended(&pdev->dev);
->  	pm_runtime_dont_use_autosuspend(&pdev->dev);
->=20
-> -clk_disable:
-> -	clk_disable_unprepare(i2c_imx->clk);
->  	return ret;
->  }
->=20
-> --
-> 2.17.1
+But please wait for Peter and/or Frederic to give their fiat, too.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
