@@ -1,41 +1,40 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [RFC PATCH v2 5/7] i2c: busses: omap: Add the
- master_xfer_irqless hook
-Date: Fri, 29 Mar 2019 10:45:56 +0100
-Message-ID: <20190329094556.wsdusg24ldy52ocw@verge.net.au>
-References: <20190302134735.4393-1-wsa+renesas@sang-engineering.com>
- <20190302134735.4393-6-wsa+renesas@sang-engineering.com>
- <20190315124717.x3do5evok5syipo7@verge.net.au>
- <20190315131435.GE9224@smile.fi.intel.com>
- <20190327135045.GE5345@kunai>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: laurentiu.tudor@nxp.com
+Subject: [PATCH] i2c: imx: don't leak the i2c adapter on error
+Date: Fri, 29 Mar 2019 14:48:17 +0200
+Message-ID: <20190329124817.6717-1-laurentiu.tudor@nxp.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190327135045.GE5345@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Keerthy <j-keerthy@ti.com>, Peter Rosin <peda@axentia.se>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Stefan Lengfeld <contact@stefanchrist.eu>, Phil Reid <preid@electromag.com.au>, Tero Kristo <t-kristo@ti.com>, linux-omap@vger.kernel.org, linux-tegra@vger.kernel.org
+To: linux-i2c@vger.kernel.org, wsa+renesas@sang-engineering.com
+Cc: linux-imx@nxp.com, kernel@pengutronix.de, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, leoyang.li@nxp.com, Laurentiu Tudor <laurentiu.tudor@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Mar 27, 2019 at 02:50:45PM +0100, Wolfram Sang wrote:
-> 
-> > > > +		if (!ret)
-> > > > +			timeout = 1;
-> > > > +		else
-> > > > +			timeout = 0;
-> > > 
-> > > 
-> > > nit: the following might be cleaner
-> > > 
-> > > 		ret = !!timeout;
-> > > 
-> > 
-> > Other way around, perhaps,
-> > 
-> >       timeout = !ret;
-> 
-> I saw that but didn't want to modify this patch. But yes, this is easy
-> enough and looks a lot better.
+From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
 
-Thanks, I don't think this needs to block progress.
+Make sure to free the i2c adapter on the error exit path.
+
+Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+---
+ drivers/i2c/busses/i2c-imx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 42fed40198a0..2dfd33f48cd8 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1169,11 +1169,13 @@ static int i2c_imx_probe(struct platform_device *pdev)
+ 	/* Init DMA config if supported */
+ 	ret = i2c_imx_dma_request(i2c_imx, phy_addr);
+ 	if (ret < 0)
+-		goto clk_notifier_unregister;
++		goto del_adapter;
+ 
+ 	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
+ 	return 0;   /* Return OK */
+ 
++del_adapter:
++	 i2c_del_adapter(&i2c_imx->adapter);
+ clk_notifier_unregister:
+ 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
+ rpm_disable:
+-- 
+2.17.1
