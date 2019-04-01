@@ -1,51 +1,85 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] i2c: isch: Remove unnecessary acpi.h include
-Date: Mon, 01 Apr 2019 17:07:20 +0200
-Message-ID: <1554131240.6965.5.camel@suse.de>
-References: <20190325183652.252175-1-helgaas@kernel.org>
-         <CAErSpo6_VMJ8nP9sA2xZffsMXdG3bKKv8WL0skyTTbuLe4WtJQ@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC PATCH] i2c: remove use of in_atomic()
+Date: Mon, 1 Apr 2019 17:13:52 +0200
+Message-ID: <20190401151352.tf7ljaqpzic6hlj3@ninjato>
+References: <20190327211256.17232-1-wsa+renesas@sang-engineering.com>
+ <20190401104756.GK11158@hirez.programming.kicks-ass.net>
+ <20190401111323.ajvo4drongc6dtel@ninjato>
+ <20190401112109.GB12232@hirez.programming.kicks-ass.net>
+ <20190401115414.hxrqqjujvwczdafz@ninjato>
+ <20190401134224.GD12232@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAErSpo6_VMJ8nP9sA2xZffsMXdG3bKKv8WL0skyTTbuLe4WtJQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bjorn Helgaas <bhelgaas@google.com>, Bjorn Helgaas <helgaas@kernel.org>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mukesh Ojha <mojha@codeaurora.org>, Wolfram Sang <wsa@the-dreams.de>
+Content-Type: multipart/mixed; boundary="===============1442273164098100259=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190401134224.GD12232@hirez.programming.kicks-ass.net>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Frederic Weisbecker <fweisbec@gmail.com>, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Bjorn,
 
-On Mon, 2019-04-01 at 08:50 -0500, Bjorn Helgaas wrote:
-> On Mon, Mar 25, 2019 at 1:37 PM <helgaas@kernel.org> wrote:
-> > 
-> > From: Bjorn Helgaas <bhelgaas@google.com>
-> > 
-> > 54fb4a05af0a ("i2c: Check for ACPI resource conflicts") included
-> > <linux/acpi.h> so we could use acpi_check_region().  fd46a0064af1 ("i2c:
-> > convert i2c-isch to platform_device") removed the use of
-> > acpi_check_region() but not the include.
-> > 
-> > Remove the now-unnecessary include of <linux/acpi.h>.  No functional change
-> > intended.
-> > 
-> > Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-> 
-> Added
-> 
->     Fixes: fd46a0064af1 ("i2c: convert i2c-isch to platform_device")
->     Reviewed-by: Jean Delvare <jdelvare@suse.de>
->     Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-> 
-> on my local branch.
-> 
-> Jean, would you like me to repost this with the updates?  I assume you
-> will merge this (just based on get_maintainer.pl)?
+--===============1442273164098100259==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="5q7udkjw363natoy"
+Content-Disposition: inline
 
-No, Wolfram prefers to pick all the i2c patches into his own branch,
-I'm only giving my Reviewed-by. So your question is for him.
 
-Thanks,
--- 
-Jean Delvare
-SUSE L3 Support
+--5q7udkjw363natoy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> Looking at kernel_restart_prepare(), we set SYSTEM_REBOOT in normal
+> context, specifically it just did a blocking notifier call.
+>=20
+> So no, you'll have to combine the two.
+
+I see now. Combining the two is still readable, but I'll abstract this
+away into some 'i2c_is_atomic_xfer_mode()' helper with proper
+explanation. Thank you for the input!
+
+
+--5q7udkjw363natoy
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyiKrAACgkQFA3kzBSg
+Kbb9fhAAgdxtR0YZkUVqgbe0pJ84u9zEPK81oMzK0wiWAJDrE+loguZeKFd2rsYd
+Yn5ovyhRmkmXqBgMug/iR7mhmj/+IX6TAF0VJMuQce7liMApUqJB7XHVnDUdHLaZ
+Jpb1w3VN4JjUPEdp3eRKPR4ECzScz3MLV1voP8LMjHP0q6kyWxN2GdecmRH7LyjY
+Q++GClmliiPhRosMtEd6yBf921rMzQTYYvt//zWXBauofv8cyZlhce7b31tQl5Pb
+uiNidBTG9otaRUjxbcNHYwTM3NFGv7fwTwljhksHpU5XxdDmDEV3QdBCKu1GVvZw
+EnK/nPpVUNzOta9+wMDQyt48VYzFzO/iLrxZqr8fc+HtKolnawdETIA37ZJ389XT
+wEcVVPZibe+PFBf3iiqBeBpWUIyyo3ruX5R38g5Wn0zWX7lfxHn8ZTYu6Fz6NF6f
+Z98/HFIYDzWTU95JFIYTogJHhybZGBPLUaGXcCXzAZ3lE7HsmboM5uPZ0WKtoWrf
+B9AzsHaNewBnNEHCDbApE/4CrActL82mN3xJ1vUVSEL9+l6pFkzs3wLzNJfmYgFg
+udS+a/biNW8HrfthNpu5pwqF6WteelT56fJVMklXo5hEH7ou+IOBBVrmgbZL5oDO
+I44J68uuTC4L18ekouyY0Znzr/LsDRfSOvSm6nmBzz7Fh5CTBro=
+=FYTW
+-----END PGP SIGNATURE-----
+
+--5q7udkjw363natoy--
+
+
+--===============1442273164098100259==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============1442273164098100259==--
