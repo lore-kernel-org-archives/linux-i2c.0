@@ -1,85 +1,90 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC PATCH] i2c: remove use of in_atomic()
-Date: Mon, 1 Apr 2019 17:13:52 +0200
-Message-ID: <20190401151352.tf7ljaqpzic6hlj3@ninjato>
-References: <20190327211256.17232-1-wsa+renesas@sang-engineering.com>
- <20190401104756.GK11158@hirez.programming.kicks-ass.net>
- <20190401111323.ajvo4drongc6dtel@ninjato>
- <20190401112109.GB12232@hirez.programming.kicks-ass.net>
- <20190401115414.hxrqqjujvwczdafz@ninjato>
- <20190401134224.GD12232@hirez.programming.kicks-ass.net>
+From: Bjorn Helgaas <bhelgaas@google.com>
+Subject: Re: [PATCH] i2c: isch: Remove unnecessary acpi.h include
+Date: Mon, 1 Apr 2019 14:37:19 -0500
+Message-ID: <CAErSpo6MJFJO3s4NZ61CPZngbSaOhG-s5wLJyCQbwvdcnuBP1Q@mail.gmail.com>
+References: <20190325183652.252175-1-helgaas@kernel.org> <CAErSpo6_VMJ8nP9sA2xZffsMXdG3bKKv8WL0skyTTbuLe4WtJQ@mail.gmail.com>
+ <20190401140806.GB4570@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1442273164098100259=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190401134224.GD12232@hirez.programming.kicks-ass.net>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Frederic Weisbecker <fweisbec@gmail.com>, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@kernel.org>, linux-arm-kernel@lists.infradead.org
+Content-Type: multipart/mixed; boundary="000000000000cda31005857d26e9"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190401140806.GB4570@kunai>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Bjorn Helgaas <helgaas@kernel.org>, Jean Delvare <jdelvare@suse.com>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mukesh Ojha <mojha@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
+--000000000000cda31005857d26e9
+Content-Type: text/plain; charset="UTF-8"
 
---===============1442273164098100259==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="5q7udkjw363natoy"
-Content-Disposition: inline
+On Mon, Apr 1, 2019 at 9:08 AM Wolfram Sang <wsa@the-dreams.de> wrote:
+>
+>
+> > > From: Bjorn Helgaas <bhelgaas@google.com>
+> > >
+> > > 54fb4a05af0a ("i2c: Check for ACPI resource conflicts") included
+> > > <linux/acpi.h> so we could use acpi_check_region().  fd46a0064af1 ("i2c:
+> > > convert i2c-isch to platform_device") removed the use of
+> > > acpi_check_region() but not the include.
+> > >
+> > > Remove the now-unnecessary include of <linux/acpi.h>.  No functional change
+> > > intended.
+> > >
+> > > Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+> >
+> > Added
+> >
+> >     Fixes: fd46a0064af1 ("i2c: convert i2c-isch to platform_device")
+> >     Reviewed-by: Jean Delvare <jdelvare@suse.de>
+> >     Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+> >
+> > on my local branch.
+> >
+> > Jean, would you like me to repost this with the updates?  I assume you
+> > will merge this (just based on get_maintainer.pl)?
+>
+> I will apply it, now that it has Jean's Rev-by. I assume this is
+> for-next material despite the Fixes tag?
 
+Definitely for-next material, not for the current release.  Jean
+suggested the Fixes tag, I think since it's related to a specific
+commit and could be backported together with that commit.
 
---5q7udkjw363natoy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Should there be a MAINTAINERS update to clarify who applies patches to
+drivers/i2c/busses/i2c-isch.c?  Right now, get_maintainers.pl doesn't
+mention you (Wolfram).
 
+Patch with tags attached in case it's useful to you (sorry, I'm
+saddled with gmail right now and can't include it inline).
 
-> Looking at kernel_restart_prepare(), we set SYSTEM_REBOOT in normal
-> context, specifically it just did a blocking notifier call.
->=20
-> So no, you'll have to combine the two.
+--000000000000cda31005857d26e9
+Content-Type: text/x-patch; charset="US-ASCII";
+	name="0001-i2c-isch-Remove-unnecessary-acpi.h-include.patch"
+Content-Disposition: attachment;
+	filename="0001-i2c-isch-Remove-unnecessary-acpi.h-include.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <f_jtyr8zu10>
+X-Attachment-Id: f_jtyr8zu10
 
-I see now. Combining the two is still readable, but I'll abstract this
-away into some 'i2c_is_atomic_xfer_mode()' helper with proper
-explanation. Thank you for the input!
-
-
---5q7udkjw363natoy
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyiKrAACgkQFA3kzBSg
-Kbb9fhAAgdxtR0YZkUVqgbe0pJ84u9zEPK81oMzK0wiWAJDrE+loguZeKFd2rsYd
-Yn5ovyhRmkmXqBgMug/iR7mhmj/+IX6TAF0VJMuQce7liMApUqJB7XHVnDUdHLaZ
-Jpb1w3VN4JjUPEdp3eRKPR4ECzScz3MLV1voP8LMjHP0q6kyWxN2GdecmRH7LyjY
-Q++GClmliiPhRosMtEd6yBf921rMzQTYYvt//zWXBauofv8cyZlhce7b31tQl5Pb
-uiNidBTG9otaRUjxbcNHYwTM3NFGv7fwTwljhksHpU5XxdDmDEV3QdBCKu1GVvZw
-EnK/nPpVUNzOta9+wMDQyt48VYzFzO/iLrxZqr8fc+HtKolnawdETIA37ZJ389XT
-wEcVVPZibe+PFBf3iiqBeBpWUIyyo3ruX5R38g5Wn0zWX7lfxHn8ZTYu6Fz6NF6f
-Z98/HFIYDzWTU95JFIYTogJHhybZGBPLUaGXcCXzAZ3lE7HsmboM5uPZ0WKtoWrf
-B9AzsHaNewBnNEHCDbApE/4CrActL82mN3xJ1vUVSEL9+l6pFkzs3wLzNJfmYgFg
-udS+a/biNW8HrfthNpu5pwqF6WteelT56fJVMklXo5hEH7ou+IOBBVrmgbZL5oDO
-I44J68uuTC4L18ekouyY0Znzr/LsDRfSOvSm6nmBzz7Fh5CTBro=
-=FYTW
------END PGP SIGNATURE-----
-
---5q7udkjw363natoy--
-
-
---===============1442273164098100259==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============1442273164098100259==--
+RnJvbSAzNmZiZGFiODlmNWI4YWEyZDM2MTZiZDI4OWUyYzY5NWZkM2MwZjliIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBCam9ybiBIZWxnYWFzIDxiaGVsZ2Fhc0Bnb29nbGUuY29tPgpE
+YXRlOiBUdWUsIDMwIE9jdCAyMDE4IDE0OjEyOjM2IC0wNTAwClN1YmplY3Q6IFtQQVRDSF0gaTJj
+OiBpc2NoOiBSZW1vdmUgdW5uZWNlc3NhcnkgYWNwaS5oIGluY2x1ZGUKCjU0ZmI0YTA1YWYwYSAo
+ImkyYzogQ2hlY2sgZm9yIEFDUEkgcmVzb3VyY2UgY29uZmxpY3RzIikgaW5jbHVkZWQKPGxpbnV4
+L2FjcGkuaD4gc28gd2UgY291bGQgdXNlIGFjcGlfY2hlY2tfcmVnaW9uKCkuICBmZDQ2YTAwNjRh
+ZjEgKCJpMmM6CmNvbnZlcnQgaTJjLWlzY2ggdG8gcGxhdGZvcm1fZGV2aWNlIikgcmVtb3ZlZCB0
+aGUgdXNlIG9mCmFjcGlfY2hlY2tfcmVnaW9uKCkgYnV0IG5vdCB0aGUgaW5jbHVkZS4KClJlbW92
+ZSB0aGUgbm93LXVubmVjZXNzYXJ5IGluY2x1ZGUgb2YgPGxpbnV4L2FjcGkuaD4uICBObyBmdW5j
+dGlvbmFsIGNoYW5nZQppbnRlbmRlZC4KCkZpeGVzOiBmZDQ2YTAwNjRhZjEgKCJpMmM6IGNvbnZl
+cnQgaTJjLWlzY2ggdG8gcGxhdGZvcm1fZGV2aWNlIikKU2lnbmVkLW9mZi1ieTogQmpvcm4gSGVs
+Z2FhcyA8YmhlbGdhYXNAZ29vZ2xlLmNvbT4KUmV2aWV3ZWQtYnk6IEplYW4gRGVsdmFyZSA8amRl
+bHZhcmVAc3VzZS5kZT4KUmV2aWV3ZWQtYnk6IE11a2VzaCBPamhhIDxtb2poYUBjb2RlYXVyb3Jh
+Lm9yZz4KLS0tCiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlzY2guYyB8IDEgLQogMSBmaWxlIGNo
+YW5nZWQsIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJj
+LWlzY2guYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaXNjaC5jCmluZGV4IDVjNzU0YmY2NTll
+Mi4uZjY0YzFkNzJmNzNmIDEwMDY0NAotLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlzY2gu
+YworKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlzY2guYwpAQCAtMzAsNyArMzAsNiBAQAog
+I2luY2x1ZGUgPGxpbnV4L2lvcG9ydC5oPgogI2luY2x1ZGUgPGxpbnV4L2kyYy5oPgogI2luY2x1
+ZGUgPGxpbnV4L2lvLmg+Ci0jaW5jbHVkZSA8bGludXgvYWNwaS5oPgogCiAvKiBTQ0ggU01CdXMg
+YWRkcmVzcyBvZmZzZXRzICovCiAjZGVmaW5lIFNNQkhTVENOVAkoMCArIHNjaF9zbWJhKQotLSAK
+Mi4yMS4wLjM5Mi5nZjhmNjc4NzE1OWUtZ29vZwoK
+--000000000000cda31005857d26e9--
