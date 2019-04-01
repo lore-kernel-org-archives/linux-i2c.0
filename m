@@ -1,52 +1,58 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [RFC PATCH] i2c: remove use of in_atomic()
-Date: Mon, 1 Apr 2019 15:42:24 +0200
-Message-ID: <20190401134224.GD12232@hirez.programming.kicks-ass.net>
-References: <20190327211256.17232-1-wsa+renesas@sang-engineering.com>
- <20190401104756.GK11158@hirez.programming.kicks-ass.net>
- <20190401111323.ajvo4drongc6dtel@ninjato>
- <20190401112109.GB12232@hirez.programming.kicks-ass.net>
- <20190401115414.hxrqqjujvwczdafz@ninjato>
+From: Bjorn Helgaas <bhelgaas@google.com>
+Subject: Re: [PATCH] i2c: isch: Remove unnecessary acpi.h include
+Date: Mon, 1 Apr 2019 08:50:30 -0500
+Message-ID: <CAErSpo6_VMJ8nP9sA2xZffsMXdG3bKKv8WL0skyTTbuLe4WtJQ@mail.gmail.com>
+References: <20190325183652.252175-1-helgaas@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190401115414.hxrqqjujvwczdafz@ninjato>
+In-Reply-To: <20190325183652.252175-1-helgaas@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Frederic Weisbecker <fweisbec@gmail.com>, Ingo Molnar <mingo@kernel.org>, Thomas Gleixner <tglx@linutronix.de>
+To: Bjorn Helgaas <helgaas@kernel.org>
+Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mukesh Ojha <mojha@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 01, 2019 at 01:54:14PM +0200, Wolfram Sang wrote:
->=20
-> > > "This matches the use cases for atomic I2C transfers I have seen so f=
-ar:
-> > > very late communication (mostly to a PMIC) to powerdown or reboot the
-> > > system."
-> >=20
-> > Ah, sorry, I missed that.
-> >=20
-> > > And yes, I would never recommend a HW design to use I2C for shutting
-> > > down/rebooting. But such HW is out there.
-> >=20
-> > Can we then make the whole thing conditional on:
-> >=20
-> >   system_state > SYSTEM_RUNNING
-> >=20
-> > Such that we're sure to never trigger this under any other conditions?
->=20
-> Oh, we can for sure modify the code to something else. Actually, this is
-> why I was calling out to you. I was never comfortable with the old
-> 'in_atomic() || irqs_disabled()' code, but wasn't sure what would be an
-> adequate replacement which will not risk regressions.
->=20
-> The above condition makes much more sense to me and is also much more
-> readable. Can it simply replace irqs_disabled()? Are interrupts already
-> disabled for system_state > SYSTEM_RUNNING? (I got a bit lost in the
-> code paths when trying to figure it out)
+On Mon, Mar 25, 2019 at 1:37 PM <helgaas@kernel.org> wrote:
+>
+> From: Bjorn Helgaas <bhelgaas@google.com>
+>
+> 54fb4a05af0a ("i2c: Check for ACPI resource conflicts") included
+> <linux/acpi.h> so we could use acpi_check_region().  fd46a0064af1 ("i2c:
+> convert i2c-isch to platform_device") removed the use of
+> acpi_check_region() but not the include.
+>
+> Remove the now-unnecessary include of <linux/acpi.h>.  No functional change
+> intended.
+>
+> Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 
-Looking at kernel_restart_prepare(), we set SYSTEM_REBOOT in normal
-context, specifically it just did a blocking notifier call.
+Added
 
-So no, you'll have to combine the two.
+    Fixes: fd46a0064af1 ("i2c: convert i2c-isch to platform_device")
+    Reviewed-by: Jean Delvare <jdelvare@suse.de>
+    Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+
+on my local branch.
+
+Jean, would you like me to repost this with the updates?  I assume you
+will merge this (just based on get_maintainer.pl)?
+
+> ---
+>  drivers/i2c/busses/i2c-isch.c | 1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-isch.c b/drivers/i2c/busses/i2c-isch.c
+> index 5c754bf659e2..f64c1d72f73f 100644
+> --- a/drivers/i2c/busses/i2c-isch.c
+> +++ b/drivers/i2c/busses/i2c-isch.c
+> @@ -30,7 +30,6 @@
+>  #include <linux/ioport.h>
+>  #include <linux/i2c.h>
+>  #include <linux/io.h>
+> -#include <linux/acpi.h>
+>
+>  /* SCH SMBus address offsets */
+>  #define SMBHSTCNT      (0 + sch_smba)
+> --
+> 2.21.0.392.gf8f6787159e-goog
+>
