@@ -1,49 +1,46 @@
-From: Mukesh Ojha <mojha@codeaurora.org>
-Subject: Re: [PATCH] i2c: isch: Remove unnecessary acpi.h include
-Date: Sun, 31 Mar 2019 15:01:32 +0530
-Message-ID: <26166856-a177-ff92-a204-db7005a2aa05@codeaurora.org>
-References: <20190325183652.252175-1-helgaas@kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: laurentiu.tudor@nxp.com
+Subject: [PATCH v2] i2c: imx: don't leak the i2c adapter on error
+Date: Mon,  1 Apr 2019 13:14:37 +0300
+Message-ID: <20190401101437.9626-1-laurentiu.tudor@nxp.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190325183652.252175-1-helgaas@kernel.org>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: helgaas@kernel.org, Jean Delvare <jdelvare@suse.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>
+To: u.kleine-koenig@pengutronix.de, mojha@codeaurora.org, linux-i2c@vger.kernel.org, wsa+renesas@sang-engineering.com
+Cc: linux-imx@nxp.com, kernel@pengutronix.de, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, leoyang.li@nxp.com, Laurentiu Tudor <laurentiu.tudor@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
 
-On 3/26/2019 12:06 AM, helgaas@kernel.org wrote:
-> From: Bjorn Helgaas <bhelgaas@google.com>
->
-> 54fb4a05af0a ("i2c: Check for ACPI resource conflicts") included
-> <linux/acpi.h> so we could use acpi_check_region().  fd46a0064af1 ("i2c:
-> convert i2c-isch to platform_device") removed the use of
-> acpi_check_region() but not the include.
->
-> Remove the now-unnecessary include of <linux/acpi.h>.  No functional change
-> intended.
->
-> Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Make sure to free the i2c adapter on the error exit path.
+
+Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
 Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Reviewed-by: Uwe Kleine-Konig <u.kleine-koenig@pengutronix.de>
+Fixes: e1ab9a468e3b ("i2c: imx: improve the error handling in i2c_imx_dma_request()")
+---
+Changes in v2:
+ - fixed formatting glitch
 
-Cheers,
--Mukesh
-> ---
->   drivers/i2c/busses/i2c-isch.c | 1 -
->   1 file changed, 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-isch.c b/drivers/i2c/busses/i2c-isch.c
-> index 5c754bf659e2..f64c1d72f73f 100644
-> --- a/drivers/i2c/busses/i2c-isch.c
-> +++ b/drivers/i2c/busses/i2c-isch.c
-> @@ -30,7 +30,6 @@
->   #include <linux/ioport.h>
->   #include <linux/i2c.h>
->   #include <linux/io.h>
-> -#include <linux/acpi.h>
->   
->   /* SCH SMBus address offsets */
->   #define SMBHSTCNT	(0 + sch_smba)
+ drivers/i2c/busses/i2c-imx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 42fed40198a0..c0c3043b5d61 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1169,11 +1169,13 @@ static int i2c_imx_probe(struct platform_device *pdev)
+ 	/* Init DMA config if supported */
+ 	ret = i2c_imx_dma_request(i2c_imx, phy_addr);
+ 	if (ret < 0)
+-		goto clk_notifier_unregister;
++		goto del_adapter;
+ 
+ 	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
+ 	return 0;   /* Return OK */
+ 
++del_adapter:
++	i2c_del_adapter(&i2c_imx->adapter);
+ clk_notifier_unregister:
+ 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
+ rpm_disable:
+-- 
+2.17.1
