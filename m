@@ -1,64 +1,113 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 7/8] i2c: iproc: add NIC I2C support
-Date: Tue, 2 Apr 2019 12:27:34 +0200
-Message-ID: <20190402102733.GD2960@kunai>
-References: <20190214175725.60462-1-ray.jui@broadcom.com>
- <20190214175725.60462-8-ray.jui@broadcom.com>
+From: Qii Wang <qii.wang@mediatek.com>
+Subject: [PATCH RESEND v6 3/6] i2c: mediatek: Add arb clock in i2c driver
+Date: Tue, 2 Apr 2019 20:35:57 +0800
+Message-ID: <1554208560-14817-4-git-send-email-qii.wang@mediatek.com>
+References: <1554208560-14817-1-git-send-email-qii.wang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="6WlEvdN9Dv0WHSBl"
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190214175725.60462-8-ray.jui@broadcom.com>
+In-Reply-To: <1554208560-14817-1-git-send-email-qii.wang@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ray Jui <ray.jui@broadcom.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+To: wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, qii.wang@mediatek.com, xinping.qian@mediatek.com, liguo.zhang@mediatek.com, robh@kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+When two i2c controllers are internally connected to the same
+GPIO pins, the arb clock is needed to ensure that the waveforms
+do not interfere with each other. And we also need to enable
+the interrupt to find arb lost, old i2c controllers also have
+the bit.
 
---6WlEvdN9Dv0WHSBl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Qii Wang <qii.wang@mediatek.com>
+Reviewed-by: Nicolas Boichat <drinkcat@chromium.org>
+---
+ drivers/i2c/busses/i2c-mt65xx.c |   25 ++++++++++++++++++++++---
+ 1 file changed, 22 insertions(+), 3 deletions(-)
 
-
-> +#define IDM_CTRL_DIRECT_OFFSET       0x00
-
-And this IDM thing is also never used outside of the I2C context? In
-other words, it also doesn't need a seperate DT node?
-
-
-> +	/* indicates no slave mode support */
-> +	bool no_slave;
-
-I would suggest to not use a flag, but to nullify the {un}reg_slave
-callbacks in probe depending on the type. That will also tell the
-i2c-core that slave functionality is not supported. And you can use if
-(!algo->reg_slave) as a flag, too.
-
-> +	iproc_i2c->type =
-> +		(enum bcm_iproc_i2c_type) of_device_get_match_data(&pdev->dev);
-
-No need to cast a void*.
-
-
---6WlEvdN9Dv0WHSBl
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyjORUACgkQFA3kzBSg
-KbZmdw/9GNjBVJL/3oOGEZFDISLOBXCpa+MekxPn+H439sj9T661k+CV8XQZH12K
-TcchO9mzMA4w5nMFPKYGw3+aJ6cZXbXuvYwZfXu97u8zrfrN6dLcR4erWZi7/yMR
-Ckk0e2lcuOzXVp8JAiLtpWnix1dvc6c0vm4F50n+fD8UjGCkIn/Ur+syRCwsQnMB
-JD3Fb8m/Y+g0OSGOLtbJCg4UFnnz4rDrIecRUfUZgukKpL6alRyiKoE2ldQUecrh
-8ftdrE0DA0FGnByRjboeLEWWUxMFAF3a3C4OFmytZ8P9nqihTfhwoRIfFLupmywU
-bUPHN00gol6EHw1tGPxu2KxuJ0n/yRgGr7ASw+CBbvDgpWhha4hBShT/bCfIufcq
-1vIDA5M2wkG12FLn9MbwjjCXAR7WuWZbqI65UgwU4f9OKsbhC28S3siirKUSnRGg
-KR5Kv5jTgSZVSSdjWNG5xS1xKh1sp8iQUcQQRaOua60FqmHY1HvKc6HLogLJK5gH
-j/ByoLKqy16KTG1uOSmVEtEdNEQ5xiba84UvncJrIQcrvZnZlSQZml8EQ4njoK9Q
-vfQmCl7Tyx+S+GKSnMABvsHhvhf1GZf0EFYagwTPUZi4lsoK4Gvu2vu3YvD3D5Zn
-CqjsZsUHqW1jLPNYv9hDHO5eov/ZpRa7kJwuxcwmGLuvwbneSFU=
-=vf6X
------END PGP SIGNATURE-----
-
---6WlEvdN9Dv0WHSBl--
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index be36018..1a7235e 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -35,6 +35,7 @@
+ #include <linux/slab.h>
+ 
+ #define I2C_RS_TRANSFER			(1 << 4)
++#define I2C_ARB_LOST			(1 << 3)
+ #define I2C_HS_NACKERR			(1 << 2)
+ #define I2C_ACKERR			(1 << 1)
+ #define I2C_TRANSAC_COMP		(1 << 0)
+@@ -181,6 +182,7 @@ struct mtk_i2c {
+ 	struct clk *clk_main;		/* main clock for i2c bus */
+ 	struct clk *clk_dma;		/* DMA clock for i2c via DMA */
+ 	struct clk *clk_pmic;		/* PMIC clock for i2c from PMIC */
++	struct clk *clk_arb;		/* Arbitrator clock for i2c */
+ 	bool have_pmic;			/* can use i2c pins from PMIC */
+ 	bool use_push_pull;		/* IO config push-pull mode */
+ 
+@@ -299,8 +301,18 @@ static int mtk_i2c_clock_enable(struct mtk_i2c *i2c)
+ 		if (ret)
+ 			goto err_pmic;
+ 	}
++
++	if (i2c->clk_arb) {
++		ret = clk_prepare_enable(i2c->clk_arb);
++		if (ret)
++			goto err_arb;
++	}
++
+ 	return 0;
+ 
++err_arb:
++	if (i2c->have_pmic)
++		clk_disable_unprepare(i2c->clk_pmic);
+ err_pmic:
+ 	clk_disable_unprepare(i2c->clk_main);
+ err_main:
+@@ -311,6 +323,9 @@ static int mtk_i2c_clock_enable(struct mtk_i2c *i2c)
+ 
+ static void mtk_i2c_clock_disable(struct mtk_i2c *i2c)
+ {
++	if (i2c->clk_arb)
++		clk_disable_unprepare(i2c->clk_arb);
++
+ 	if (i2c->have_pmic)
+ 		clk_disable_unprepare(i2c->clk_pmic);
+ 
+@@ -519,13 +534,13 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 
+ 	/* Clear interrupt status */
+ 	mtk_i2c_writew(i2c, restart_flag | I2C_HS_NACKERR | I2C_ACKERR |
+-	       I2C_TRANSAC_COMP, OFFSET_INTR_STAT);
++			    I2C_ARB_LOST | I2C_TRANSAC_COMP, OFFSET_INTR_STAT);
+ 
+ 	mtk_i2c_writew(i2c, I2C_FIFO_ADDR_CLR, OFFSET_FIFO_ADDR_CLR);
+ 
+ 	/* Enable interrupt */
+ 	mtk_i2c_writew(i2c, restart_flag | I2C_HS_NACKERR | I2C_ACKERR |
+-	       I2C_TRANSAC_COMP, OFFSET_INTR_MASK);
++			    I2C_ARB_LOST | I2C_TRANSAC_COMP, OFFSET_INTR_MASK);
+ 
+ 	/* Set transfer and transaction len */
+ 	if (i2c->op == I2C_MASTER_WRRD) {
+@@ -659,7 +674,7 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+ 
+ 	/* Clear interrupt mask */
+ 	mtk_i2c_writew(i2c, ~(restart_flag | I2C_HS_NACKERR | I2C_ACKERR |
+-	       I2C_TRANSAC_COMP), OFFSET_INTR_MASK);
++			    I2C_ARB_LOST | I2C_TRANSAC_COMP), OFFSET_INTR_MASK);
+ 
+ 	if (i2c->op == I2C_MASTER_WR) {
+ 		dma_unmap_single(i2c->dev, wpaddr,
+@@ -884,6 +899,10 @@ static int mtk_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(i2c->clk_dma);
+ 	}
+ 
++	i2c->clk_arb = devm_clk_get(&pdev->dev, "arb");
++	if (IS_ERR(i2c->clk_arb))
++		i2c->clk_arb = NULL;
++
+ 	clk = i2c->clk_main;
+ 	if (i2c->have_pmic) {
+ 		i2c->clk_pmic = devm_clk_get(&pdev->dev, "pmic");
+-- 
+1.7.9.5
