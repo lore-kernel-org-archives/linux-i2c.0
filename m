@@ -1,200 +1,54 @@
 From: Qii Wang <qii.wang@mediatek.com>
-Subject: [PATCH RESEND v6 5/6] i2c: mediatek: Add i2c support for MediaTek MT8183
-Date: Tue, 2 Apr 2019 20:35:59 +0800
-Message-ID: <1554208560-14817-6-git-send-email-qii.wang@mediatek.com>
-References: <1554208560-14817-1-git-send-email-qii.wang@mediatek.com>
+Subject: [PATCH RESEND v6 0/6] add i2c support for mt8183
+Date: Tue, 2 Apr 2019 20:35:54 +0800
+Message-ID: <1554208560-14817-1-git-send-email-qii.wang@mediatek.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1554208560-14817-1-git-send-email-qii.wang@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de
 Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, qii.wang@mediatek.com, xinping.qian@mediatek.com, liguo.zhang@mediatek.com, robh@kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add i2c compatible for MT8183. Compare to MT2712 i2c controller,
-MT8183 has different register offsets. Ltiming_reg is added to
-adjust low width of SCL. Arb clock and dma_sync are needed.
+This series are based on 5.1-rc1 and the patch
+https://patchwork.kernel.org/patch/10856987/(for dts)
+We provide six patches to support mt8183 IC.
 
-Signed-off-by: Qii Wang <qii.wang@mediatek.com>
-Reviewed-by: Nicolas Boichat <drinkcat@chromium.org>
----
- drivers/i2c/busses/i2c-mt65xx.c |   62 +++++++++++++++++++++++++++++++++++++--
- 1 file changed, 60 insertions(+), 2 deletions(-)
+Main changes compared to v5:
+--add i2c controller nodes in mt8183.dtsi
+--add a note that old i2c controllers also have I2C_ARB_LOST bit
+--add a flag(ltiming_adjust) to avoid unnecessary settings
+--add Reviewed-by from Rob Herring, Nicolas and Matthias
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 6137ad7..745b0d0 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -133,6 +133,7 @@ enum I2C_REGS_OFFSET {
- 	OFFSET_DEBUGCTRL,
- 	OFFSET_TRANSFER_LEN_AUX,
- 	OFFSET_CLOCK_DIV,
-+	OFFSET_LTIMING,
- };
- 
- static const u16 mt_i2c_regs_v1[] = {
-@@ -162,6 +163,32 @@ enum I2C_REGS_OFFSET {
- 	[OFFSET_CLOCK_DIV] = 0x70,
- };
- 
-+static const u16 mt_i2c_regs_v2[] = {
-+	[OFFSET_DATA_PORT] = 0x0,
-+	[OFFSET_SLAVE_ADDR] = 0x4,
-+	[OFFSET_INTR_MASK] = 0x8,
-+	[OFFSET_INTR_STAT] = 0xc,
-+	[OFFSET_CONTROL] = 0x10,
-+	[OFFSET_TRANSFER_LEN] = 0x14,
-+	[OFFSET_TRANSAC_LEN] = 0x18,
-+	[OFFSET_DELAY_LEN] = 0x1c,
-+	[OFFSET_TIMING] = 0x20,
-+	[OFFSET_START] = 0x24,
-+	[OFFSET_EXT_CONF] = 0x28,
-+	[OFFSET_LTIMING] = 0x2c,
-+	[OFFSET_HS] = 0x30,
-+	[OFFSET_IO_CONFIG] = 0x34,
-+	[OFFSET_FIFO_ADDR_CLR] = 0x38,
-+	[OFFSET_TRANSFER_LEN_AUX] = 0x44,
-+	[OFFSET_CLOCK_DIV] = 0x48,
-+	[OFFSET_SOFTRESET] = 0x50,
-+	[OFFSET_DEBUGSTAT] = 0xe0,
-+	[OFFSET_DEBUGCTRL] = 0xe8,
-+	[OFFSET_FIFO_STAT] = 0xf4,
-+	[OFFSET_FIFO_THRESH] = 0xf8,
-+	[OFFSET_DCM_EN] = 0xf88,
-+};
-+
- struct mtk_i2c_compatible {
- 	const struct i2c_adapter_quirks *quirks;
- 	const u16 *regs;
-@@ -172,6 +199,7 @@ struct mtk_i2c_compatible {
- 	unsigned char support_33bits: 1;
- 	unsigned char timing_adjust: 1;
- 	unsigned char dma_sync: 1;
-+	unsigned char ltiming_adjust: 1;
- };
- 
- struct mtk_i2c {
-@@ -195,6 +223,7 @@ struct mtk_i2c {
- 	enum mtk_trans_op op;
- 	u16 timing_reg;
- 	u16 high_speed_reg;
-+	u16 ltiming_reg;
- 	unsigned char auto_restart;
- 	bool ignore_restart_irq;
- 	const struct mtk_i2c_compatible *dev_comp;
-@@ -222,6 +251,7 @@ struct mtk_i2c {
- 	.support_33bits = 1,
- 	.timing_adjust = 1,
- 	.dma_sync = 0,
-+	.ltiming_adjust = 0,
- };
- 
- static const struct mtk_i2c_compatible mt6577_compat = {
-@@ -234,6 +264,7 @@ struct mtk_i2c {
- 	.support_33bits = 0,
- 	.timing_adjust = 0,
- 	.dma_sync = 0,
-+	.ltiming_adjust = 0,
- };
- 
- static const struct mtk_i2c_compatible mt6589_compat = {
-@@ -246,6 +277,7 @@ struct mtk_i2c {
- 	.support_33bits = 0,
- 	.timing_adjust = 0,
- 	.dma_sync = 0,
-+	.ltiming_adjust = 0,
- };
- 
- static const struct mtk_i2c_compatible mt7622_compat = {
-@@ -258,6 +290,7 @@ struct mtk_i2c {
- 	.support_33bits = 0,
- 	.timing_adjust = 0,
- 	.dma_sync = 0,
-+	.ltiming_adjust = 0,
- };
- 
- static const struct mtk_i2c_compatible mt8173_compat = {
-@@ -269,6 +302,19 @@ struct mtk_i2c {
- 	.support_33bits = 1,
- 	.timing_adjust = 0,
- 	.dma_sync = 0,
-+	.ltiming_adjust = 0,
-+};
-+
-+static const struct mtk_i2c_compatible mt8183_compat = {
-+	.regs = mt_i2c_regs_v2,
-+	.pmic_i2c = 0,
-+	.dcm = 0,
-+	.auto_restart = 1,
-+	.aux_len_reg = 1,
-+	.support_33bits = 1,
-+	.timing_adjust = 1,
-+	.dma_sync = 1,
-+	.ltiming_adjust = 1,
- };
- 
- static const struct of_device_id mtk_i2c_of_match[] = {
-@@ -277,6 +323,7 @@ struct mtk_i2c {
- 	{ .compatible = "mediatek,mt6589-i2c", .data = &mt6589_compat },
- 	{ .compatible = "mediatek,mt7622-i2c", .data = &mt7622_compat },
- 	{ .compatible = "mediatek,mt8173-i2c", .data = &mt8173_compat },
-+	{ .compatible = "mediatek,mt8183-i2c", .data = &mt8183_compat },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, mtk_i2c_of_match);
-@@ -361,6 +408,8 @@ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
- 
- 	mtk_i2c_writew(i2c, i2c->timing_reg, OFFSET_TIMING);
- 	mtk_i2c_writew(i2c, i2c->high_speed_reg, OFFSET_HS);
-+	if (i2c->dev_comp->ltiming_adjust)
-+		mtk_i2c_writew(i2c, i2c->ltiming_reg, OFFSET_LTIMING);
- 
- 	/* If use i2c pin from PMIC mt6397 side, need set PATH_DIR first */
- 	if (i2c->have_pmic)
-@@ -460,6 +509,8 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
- 	unsigned int clk_src;
- 	unsigned int step_cnt;
- 	unsigned int sample_cnt;
-+	unsigned int l_step_cnt;
-+	unsigned int l_sample_cnt;
- 	unsigned int target_speed;
- 	int ret;
- 
-@@ -469,11 +520,11 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
- 	if (target_speed > MAX_FS_MODE_SPEED) {
- 		/* Set master code speed register */
- 		ret = mtk_i2c_calculate_speed(i2c, clk_src, MAX_FS_MODE_SPEED,
--					      &step_cnt, &sample_cnt);
-+					      &l_step_cnt, &l_sample_cnt);
- 		if (ret < 0)
- 			return ret;
- 
--		i2c->timing_reg = (sample_cnt << 8) | step_cnt;
-+		i2c->timing_reg = (l_sample_cnt << 8) | l_step_cnt;
- 
- 		/* Set the high speed mode register */
- 		ret = mtk_i2c_calculate_speed(i2c, clk_src, target_speed,
-@@ -483,6 +534,10 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
- 
- 		i2c->high_speed_reg = I2C_TIME_DEFAULT_VALUE |
- 			(sample_cnt << 12) | (step_cnt << 8);
-+
-+		if (i2c->dev_comp->ltiming_adjust)
-+			i2c->ltiming_reg = (l_sample_cnt << 6) | l_step_cnt |
-+					   (sample_cnt << 12) | (step_cnt << 9);
- 	} else {
- 		ret = mtk_i2c_calculate_speed(i2c, clk_src, target_speed,
- 					      &step_cnt, &sample_cnt);
-@@ -493,6 +548,9 @@ static int mtk_i2c_set_speed(struct mtk_i2c *i2c, unsigned int parent_clk)
- 
- 		/* Disable the high speed transaction */
- 		i2c->high_speed_reg = I2C_TIME_CLR_VALUE;
-+
-+		if (i2c->dev_comp->ltiming_adjust)
-+			i2c->ltiming_reg = (sample_cnt << 6) | step_cnt;
- 	}
- 
- 	return 0;
+Main changes compared to v4:
+--modify the commit of arb clock dt-binding
+--split a patch(3/3) into three(3/5 4/5 5/5)
+
+Main changes compared to v3:
+--remove the patches which have been applied to for-next
+--remove i2c fallback for i3c controller 
+
+Main changes compared to v2:
+--update commit message
+--add Reviewed-by from Rob Herring, Nicolas and Sean
+
+Main changes compared to v1:
+--remove useless dt-binding for mt7629
+--split a patch into two(2/6 3/6)
+--muti-user feature was dropped
+
+Qii Wang (6):
+  i2c: mediatek: Add offsets array for new i2c registers
+  dt-bindings: i2c: Add Mediatek MT8183 i2c binding
+  i2c: mediatek: Add arb clock in i2c driver
+  i2c: mediatek: Add i2c and apdma sync in i2c driver
+  i2c: mediatek: Add i2c support for MediaTek MT8183
+  dts: arm64: mt8183: Add I2C nodes
+
+ Documentation/devicetree/bindings/i2c/i2c-mtk.txt |    4 +-
+ arch/arm64/boot/dts/mediatek/mt8183.dtsi          |  192 ++++++++++++++++
+ drivers/i2c/busses/i2c-mt65xx.c                   |  255 ++++++++++++++++-----
+ 3 files changed, 389 insertions(+), 62 deletions(-)
+
 -- 
 1.7.9.5
