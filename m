@@ -1,53 +1,78 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 04/12] i2c: mux: populate the new *_atomic callbacks
-Date: Wed, 3 Apr 2019 15:17:12 +0000
-Message-ID: <59d32414-3859-d614-dc41-cc0a1bc63301@axentia.se>
-References: <20190403124019.8947-1-wsa+renesas@sang-engineering.com>
- <20190403124019.8947-5-wsa+renesas@sang-engineering.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v6 0/9] iProc I2C slave mode and NIC mode
+Date: Wed, 3 Apr 2019 22:44:23 +0200
+Message-ID: <20190403204423.btgtke3tmt7pkr3j@ninjato>
+References: <20190403011830.3254-1-ray.jui@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="gaiqb3qmgvc3uh4b"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190403124019.8947-5-wsa+renesas@sang-engineering.com>
-Content-Language: en-US
-Content-ID: <59CEFE5B4A4970489A9BEEEE3545A485@eurprd02.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <20190403011830.3254-1-ray.jui@broadcom.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Cc: "linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Stefan Lengfeld <contact@stefanchrist.eu>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Ray Jui <ray.jui@broadcom.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOS0wNC0wMyAxNDo0MCwgV29sZnJhbSBTYW5nIHdyb3RlOg0KPiBJZiB0aGUgcGFyZW50
-IGFkYXB0ZXIgaGFzIGF0b21pY194ZmVyIGNhbGxiYWNrcywgcG9wdWxhdGUgdGhlbSBmb3IgdGhl
-DQo+IG11eCBhZGFwdGVyIGFzIHdlbGwuIFdlIGNhbiB1c2UgdGhlIHNhbWUgdHJhbnNsYXRpb24g
-ZnVuY3Rpb24gYXMgZm9yIHRoZQ0KPiBub24tYXRvbWljIHhmZXIgY2FsbGJhY2suDQo+IA0KPiBT
-aWduZWQtb2ZmLWJ5OiBXb2xmcmFtIFNhbmcgPHdzYStyZW5lc2FzQHNhbmctZW5naW5lZXJpbmcu
-Y29tPg0KPiAtLS0NCj4gIGRyaXZlcnMvaTJjL2kyYy1tdXguYyB8IDYgKysrKysrDQo+ICAxIGZp
-bGUgY2hhbmdlZCwgNiBpbnNlcnRpb25zKCspDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9p
-MmMvaTJjLW11eC5jIGIvZHJpdmVycy9pMmMvaTJjLW11eC5jDQo+IGluZGV4IGYzMzA2OTBiNDEy
-NS4uNjAzMjUyZmExMjg0IDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL2kyYy9pMmMtbXV4LmMNCj4g
-KysrIGIvZHJpdmVycy9pMmMvaTJjLW11eC5jDQo+IEBAIC0zMTAsMTIgKzMxMCwxOCBAQCBpbnQg
-aTJjX211eF9hZGRfYWRhcHRlcihzdHJ1Y3QgaTJjX211eF9jb3JlICptdXhjLA0KPiAgCQllbHNl
-DQo+ICAJCQlwcml2LT5hbGdvLm1hc3Rlcl94ZmVyID0gX19pMmNfbXV4X21hc3Rlcl94ZmVyOw0K
-PiAgCX0NCj4gKwlpZiAocGFyZW50LT5hbGdvLT5tYXN0ZXJfeGZlcl9hdG9taWMpDQo+ICsJCXBy
-aXYtPmFsZ28ubWFzdGVyX3hmZXJfYXRvbWljID0gcHJpdi0+YWxnby5tYXN0ZXJfeGZlcjsNCj4g
-Kw0KPiAgCWlmIChwYXJlbnQtPmFsZ28tPnNtYnVzX3hmZXIpIHsNCj4gIAkJaWYgKG11eGMtPm11
-eF9sb2NrZWQpDQo+ICAJCQlwcml2LT5hbGdvLnNtYnVzX3hmZXIgPSBpMmNfbXV4X3NtYnVzX3hm
-ZXI7DQo+ICAJCWVsc2UNCj4gIAkJCXByaXYtPmFsZ28uc21idXNfeGZlciA9IF9faTJjX211eF9z
-bWJ1c194ZmVyOw0KPiAgCX0NCj4gKwlpZiAocGFyZW50LT5hbGdvLT5zbWJ1c194ZmVyX2F0b21p
-YykNCj4gKwkJcHJpdi0+YWxnby5zbWJ1c194ZmVyX2F0b21pYyA9IHByaXYtPmFsZ28uc21idXNf
-eGZlcjsNCj4gKw0KPiAgCXByaXYtPmFsZ28uZnVuY3Rpb25hbGl0eSA9IGkyY19tdXhfZnVuY3Rp
-b25hbGl0eTsNCj4gIA0KPiAgCS8qIE5vdyBmaWxsIG91dCBuZXcgYWRhcHRlciBzdHJ1Y3R1cmUg
-Ki8NCj4gDQoNCkhtbW0sIHdoYXQgaGFwcGVucyBpZiBhIGRyaXZlciBpbXBsZW1lbnRzIC5tYXN0
-ZXJfeGZlciBhbmQgcmVsaWVzIG9uDQplbXVsYXRpb24gZm9yIFNNQnVzLCBhbmQgdGhlbiBzb21l
-b25lIGltcGxlbWVudHMgLnNtYnVzX3hmZXJfYXRvbWljDQp0byBoYW5kbGUgc29tZSBjb3JuZXIg
-Y2FzZSBhdCBwb3dlci1kb3duPw0KDQpUaGVuIHNvbWVvbmUgaGlkZXMgdGhlIHBvd2VyLWRvd24g
-ZGV2aWNlIGJlaGluZCBhIG11eC4gVGhhdCB3b3VsZCBlbmQNCndpdGggeGZlcnMgZGVzdGluZWQg
-Zm9yIC5zbWJ1c194ZmVyX2F0b21pYyBiZWluZyBlbXVsYXRlZCBieSB0aGUNCm5vbi1hdG9taWMg
-Lm1hc3Rlcl94ZmVyLCBubz8NCg0KTWF5YmUgdG9vIHdlaXJkIHRvIGNhcmUgYWJvdXQ/DQoNCkkg
-Z3Vlc3MgdGhlIHF1ZXN0aW9uIGlzIGlmIGl0IGlzIGFsbG93ZWQgdG8gaGF2ZSAubWFzdGVyX3hm
-ZXJfYXRvbWljDQpidXQgbm90IC5tYXN0ZXJfeGZlciAoYW5kIHNpbWlsYXJseSBmb3IgLnNtYnVz
-X3hmZXJ7LF9hdG9taWN9KT8gTWF5YmUNCnRoYXQgZGVjaXNpb24gc2hvdWxkIGJlIG1hZGUgZXhw
-bGljaXQ/IEFuZCBwZXJoYXBzIGVuZm9yY2VkPw0KDQpJIGRvbid0IGNhcmUgZGVlcGx5IGFib3V0
-IHRoZSBhYm92ZSB0aG91Z2gsIHNvIGZlZWwgZnJlZSB0byBkbw0Kc29tZXRoaW5nIGFib3V0IGl0
-LCBvcg0KDQpSZXZpZXdlZC1ieTogUGV0ZXIgUm9zaW4gPHBlZGFAYXhlbnRpYS5zZT4NCg0KQ2hl
-ZXJzLA0KUGV0ZXINCg==
+
+--gaiqb3qmgvc3uh4b
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Apr 02, 2019 at 06:18:21PM -0700, Ray Jui wrote:
+> This patch series adds the following support to the iProc I2C driver:
+> - Increase maximum read transfer size to 255 bytes
+> - I2C slave mode
+> - Polling mode
+> - NIC I2C mode
+>=20
+> This patch series is based on kernel v5.1-rc3 and available at:
+> https://github.com/Broadcom/arm64-linux.git
+> branch: i2c-slave-v6
+>=20
+> Changes from v5:
+>  - Address various comments from Wolfram
+
+In the future, please write in detail what you changed. I review so many
+patches that I can't recall all my comments on every patch.
+
+That being said, all patches applied to for-next, thanks!
+
+Can be fixed incrementally, my code checkers complain about:
+
+    CPPCHECK
+drivers/i2c/busses/i2c-bcm-iproc.c:720:14: warning: Shifting signed 32-bit =
+value by 31 bits is undefined behaviour [shiftTooManyBitsSigned]
+    val |=3D 1 << M_TX_WR_STATUS_SHIFT;
+             ^
+drivers/i2c/busses/i2c-bcm-iproc.c:847:13: warning: Shifting signed 32-bit =
+value by 31 bits is undefined behaviour [shiftTooManyBitsSigned]
+ val &=3D ~(1 << TIM_CFG_MODE_400_SHIFT);
+            ^
+drivers/i2c/busses/i2c-bcm-iproc.c:998:13: warning: Shifting signed 32-bit =
+value by 31 bits is undefined behaviour [shiftTooManyBitsSigned]
+ val &=3D ~(1 << TIM_CFG_MODE_400_SHIFT);
+
+
+--gaiqb3qmgvc3uh4b
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlylGyIACgkQFA3kzBSg
+KbacLg//WGHt+fUGF8nDYQKJyHBwFfi0NNQNNBnCpwCEdnXra1d7pp3hs2rcKcvQ
+UEayjxajINusfafeT84eFqIEC0qLxRSrYs2nDOKY1V+S88j+K3zJLoToSHjKbNZa
+41JvzQ18CgaLANnp2laqrJC/oP4EWhsnOpfjjDVixvPHWNg1SkIhCDyKAmoLN9k7
+pJ2ZmKCn0rIya9R0bane8LSHVDiLLFhjdDoOLLNO5jD3++eXQBoNdikMpBl2WUZ/
+U7lAGEKjtXMxirLKCmkkZFFF0oQe1kEM5zT9B0X8Ox+r3UbFidHwx2Qj67hfmAAf
+7OdpU4GZ9KgcC60wfF0C6g79r6qBjNh7lutlHNmbOA4iLpLw7hQ6d2EJ6NxbuhJV
+NcEQBqPAS9gJb6fO6CifdSf7L/cR32QAF1i+JF4g9cZqVegdLt8T3oyt//sC+nAi
+rhMQBb63PzlzAA3lVS8TrhKq6DmcBTiwwwdjP9QQomz9RdEyBg7UGTNlV5eM5TfQ
+3DcKGvBzJ+QzKZrdYT1F57bFMD+GtBpBSDL4/KprcnL4G+0Z0PjwP2kvbp++NDGC
+Ux3/AYMGKMC0sfb2IuHCBMK8ROeR4nRDgS38c6jlwacyD+iRHF2BjELlESGVIWpf
+t8oIuiLK1S0CQo7zPOL45I2Y1Oubaxq/ujXCA3rQU662+nBWlSc=
+=5xqG
+-----END PGP SIGNATURE-----
+
+--gaiqb3qmgvc3uh4b--
