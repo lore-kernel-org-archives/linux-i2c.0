@@ -1,95 +1,65 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] axxia-i2c: use auto cmd for last message
-Date: Wed, 3 Apr 2019 22:54:02 +0200
-Message-ID: <20190403205402.dr2uolmpew45xoxd@ninjato>
-References: <20190328111858.GA17086@localhost.localdomain>
+From: Ray Jui <ray.jui@broadcom.com>
+Subject: Re: [PATCH v6 0/9] iProc I2C slave mode and NIC mode
+Date: Wed, 3 Apr 2019 13:56:54 -0700
+Message-ID: <a34e914a-ac8e-421e-f75c-f595bc678219@broadcom.com>
+References: <20190403011830.3254-1-ray.jui@broadcom.com>
+ <20190403204423.btgtke3tmt7pkr3j@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="6l3yfohu3gsj3jo7"
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190328111858.GA17086@localhost.localdomain>
+In-Reply-To: <20190403204423.btgtke3tmt7pkr3j@ninjato>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---6l3yfohu3gsj3jo7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 4/3/2019 1:44 PM, Wolfram Sang wrote:
+> On Tue, Apr 02, 2019 at 06:18:21PM -0700, Ray Jui wrote:
+>> This patch series adds the following support to the iProc I2C driver:
+>> - Increase maximum read transfer size to 255 bytes
+>> - I2C slave mode
+>> - Polling mode
+>> - NIC I2C mode
+>>
+>> This patch series is based on kernel v5.1-rc3 and available at:
+>> https://github.com/Broadcom/arm64-linux.git
+>> branch: i2c-slave-v6
+>>
+>> Changes from v5:
+>>  - Address various comments from Wolfram
+> 
+> In the future, please write in detail what you changed. I review so many
+> patches that I can't recall all my comments on every patch.
+> 
 
-Hi,
+Sure will do next time.
 
-On Thu, Mar 28, 2019 at 11:19:45AM +0000, Adamski, Krzysztof (Nokia - PL/Wr=
-oclaw) wrote:
-> Some recent commits to this driver were trying to make sure the TSS
-> interrupt is not generated on busy system due to 25ms timer expiring
-> between commands. It can still happen, however if STOP command is not
-> issued on time at the end of the transmission. If wait_for_completion in
-> axxia_i2c_xfer_msg() would not return after 25ms of getting an
-> interrupt, TSS will be generated and idev->err_msg will be set to
-> -ETIMEDOUT which will be returned from the axxia_i2c_xfer_msg(), even
-> though the transfer did actually succeed (STOP is automatically issued
-> when TSS triggers).
->=20
-> Fortunately, apart from already used manual and sequence commands, the
-> controller also has so called auto command. It works just like manual
-> mode but it but an automatic STOP is issued when either transfer length
-> is met or NAK is received from slave device.
->=20
-> This patch changes the axxia_i2c_xfer_msg() function so that auto
-> command is used for last message in transaction letting hardware manage
-> issuing STOP. TSS is disabled just after command transferring last
-> message finishes. Auto command, just like sequence, ends with SS
-> interrupt instead of SNS so handling of both had to be unified.
->=20
-> The axxia_i2c_stop() is no longer needed as the transfer can only end
-> with following conditions:
-> - fully successful - then last message was send by AUTO command and STOP
->   was issued automatically
-> - NAK received - STOP is issued automatically by controller
-> - arbitration lost - STOP should not be issued as we don't control the
->   bus
-> - IP interrupt received - this is sent when transfer length is set to 0
->   for auto/sequence command. The check for that is done before START is
->   send so no STOP is required
-> - TSS received between commands - STOP is issued by the controller
+> That being said, all patches applied to for-next, thanks!
+> 
 
-I am not sure. Is this a bugfix (=3D for-current) or more a new feature (=3D
-for-next)?
+Thanks!
 
-> Signed-off-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
-> Reviewed-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+> Can be fixed incrementally, my code checkers complain about:
+> 
+>     CPPCHECK
+> drivers/i2c/busses/i2c-bcm-iproc.c:720:14: warning: Shifting signed 32-bit value by 31 bits is undefined behaviour [shiftTooManyBitsSigned]
+>     val |= 1 << M_TX_WR_STATUS_SHIFT;
+>              ^
+> drivers/i2c/busses/i2c-bcm-iproc.c:847:13: warning: Shifting signed 32-bit value by 31 bits is undefined behaviour [shiftTooManyBitsSigned]
+>  val &= ~(1 << TIM_CFG_MODE_400_SHIFT);
+>             ^
+> drivers/i2c/busses/i2c-bcm-iproc.c:998:13: warning: Shifting signed 32-bit value by 31 bits is undefined behaviour [shiftTooManyBitsSigned]
+>  val &= ~(1 << TIM_CFG_MODE_400_SHIFT);
+> 
 
-I trust you that Alexander gave the review, but it would be a tad more
-'open development' if he could give it as a reply to your patch on the
-mailing list.
+I'll submit an incremental patch to fix the above warnings. I think we
+can convert all '1 << XXX' syntax in this driver to 'BIT(XXX)'. It will
+fix all of the above warnings and make the code more readable.
 
 Thanks,
 
-   Wolfram
-
-
---6l3yfohu3gsj3jo7
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlylHWoACgkQFA3kzBSg
-KbbsKQ/+P9zFtuRRIvAsHKTSBI0uhB4PfJGhVOi6dZdCkw/LKN5j77iixqkIMRZE
-dPXic+LoF7BycMHN+0WJF9qAhnBf9xAvoPCjBwTg15AnpsZlM/q79vqPVYuTmIe2
-SsMWyWbtz+Et9jwRVKaIAkP+CWtZMrA1p0dB3w//blQ32/uE8qj54sugQgdjmRcg
-IHNUlv2s1RjrJM5UcU1HAYP0lU5UR6oTlDKa/MdOKcuPM8Aem4vE+ZPLG8CUPJvf
-Sa+DoUL3yjcmwfz2ghovfi6IhrID5+LY/laFacc3t+vkF3KoLFn2PrBUDqphM3Wj
-8A/li8vEuGYL6uucveKzD1+96Y7tkVdWOSgBDlHX6LBkTWCj+r24QULm3WGmpltd
-XM/QUz7xHPdiQdY2dYbgF+yVpijUNLWS9KeBJFeA3wdXUbzIhBxk4AubVCbLrAKa
-b/j8DKZ4V4cHQEYQGyMvvnDSQ87+WGArvUWCnfcijaTd593emQ5dQ+/xUBHGZyy6
-ojIw9V8aZcjLRaysBJxodmWZ8sRJk5IdCuCTET4DEpykxzRVpgybAVMg8xOg8O1c
-Ho0DrwRJuV3d8Lwv1s0QYPN+fS6SMXmP0SLm7gATuSxnq23KQsdE7GaeqrNdMPUs
-nA+qbM850iKZPfxuKntrQsqW7E9CoVdOOM6DdnsxwmW2plgN24Y=
-=J56r
------END PGP SIGNATURE-----
-
---6l3yfohu3gsj3jo7--
+Ray
