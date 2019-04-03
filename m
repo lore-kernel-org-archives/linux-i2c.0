@@ -1,51 +1,78 @@
-From: Ray Jui <ray.jui@broadcom.com>
-Subject: [PATCH v6 9/9] arm64: dts: Stingray: Add NIC i2c device node
-Date: Tue,  2 Apr 2019 18:18:30 -0700
-Message-ID: <20190403011830.3254-10-ray.jui@broadcom.com>
-References: <20190403011830.3254-1-ray.jui@broadcom.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH 01/12] i2c: remove use of in_atomic()
+Date: Wed,  3 Apr 2019 14:40:08 +0200
+Message-ID: <20190403124019.8947-2-wsa+renesas@sang-engineering.com>
+References: <20190403124019.8947-1-wsa+renesas@sang-engineering.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190403011830.3254-1-ray.jui@broadcom.com>
+In-Reply-To: <20190403124019.8947-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, Ray Jui <ray.jui@broadcom.com>
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Peter Rosin <peda@axentia.se>, Stefan Lengfeld <contact@stefanchrist.eu>, linux-omap@vger.kernel.org, linux-tegra@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+Commit cea443a81c9c ("i2c: Support i2c_transfer in atomic contexts")
+added in_atomic() to the I2C core. However, the use of in_atomic()
+outside of core kernel code is discouraged and was already[1] when this
+code was added in early 2008. The above commit was a preparation for
+commit b7a3670131c7 ("i2c-pxa: Add polling transfer"). Its commit
+message says explicitly it was added "for cases where I2C transactions
+have to occur at times interrup[t]s are disabled". So, the intention was
+'disabled interrupts'. This matches the use cases for atomic I2C
+transfers I have seen so far: very late communication (mostly to a PMIC)
+to powerdown or reboot the system. For those cases, interrupts are
+disabled then. It doesn't seem that in_atomic() adds value.
 
-Add NIC i2c device node.
+After a discussion with Peter Zijlstra[2], we came up with a better set
+of conditionals to match the use case.
 
-Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+The I2C core will soon gain an extra callback into bus drivers
+especially for atomic transfers to make them more generic. The code
+deciding which transfer to use (atomic/non-atomic) should mimic the
+behaviour which locking to use (trylock/lock). This is why we add a
+helper for it.
+
+[1] https://lwn.net/Articles/274695/
+[2] http://patchwork.ozlabs.org/patch/1067437/
+
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- .../boot/dts/broadcom/stingray/stingray.dtsi   | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/i2c/i2c-core-base.c |  2 +-
+ drivers/i2c/i2c-core.h      | 10 ++++++++++
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi b/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi
-index 35c4670c00d1..69306fbd14b4 100644
---- a/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi
-@@ -612,4 +612,22 @@
- 			status = "disabled";
- 		};
- 	};
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 38af18645133..f8502064cd6b 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1946,7 +1946,7 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 	 *    one (discarding status on the second message) or errno
+ 	 *    (discarding status on the first one).
+ 	 */
+-	if (in_atomic() || irqs_disabled()) {
++	if (i2c_in_atomic_xfer_mode()) {
+ 		ret = i2c_trylock_bus(adap, I2C_LOCK_SEGMENT);
+ 		if (!ret)
+ 			/* I2C activity is ongoing. */
+diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
+index 37576f50fe20..9d8526415b26 100644
+--- a/drivers/i2c/i2c-core.h
++++ b/drivers/i2c/i2c-core.h
+@@ -29,6 +29,16 @@ extern int		__i2c_first_dynamic_bus_num;
+ 
+ int i2c_check_7bit_addr_validity_strict(unsigned short addr);
+ 
++/*
++ * We only allow atomic transfers for very late communication, e.g. to send
++ * the powerdown command to a PMIC. Atomic transfers are a corner case and not
++ * for generic use!
++ */
++static inline bool i2c_in_atomic_xfer_mode(void)
++{
++	return system_state > SYSTEM_RUNNING && irqs_disabled();
++}
 +
-+	nic-hsls {
-+		compatible = "simple-bus";
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		ranges = <0x0 0x0  0x0 0x7fffffff>;
-+
-+		nic_i2c0: i2c@60826100 {
-+			compatible = "brcm,iproc-nic-i2c";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <0x60826100 0x100>,
-+			      <0x60e00408 0x1000>;
-+			brcm,ape-hsls-addr-mask = <0x03400000>;
-+			clock-frequency = <100000>;
-+			status = "disabled";
-+		};
-+	};
- };
+ #ifdef CONFIG_ACPI
+ const struct acpi_device_id *
+ i2c_acpi_match_device(const struct acpi_device_id *matches,
 -- 
-2.17.1
+2.11.0
