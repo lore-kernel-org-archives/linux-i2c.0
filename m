@@ -1,57 +1,95 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: imx: don't leak the i2c adapter on error
-Date: Wed, 3 Apr 2019 22:47:56 +0200
-Message-ID: <20190403204756.mbc7zc5klfd5zydg@ninjato>
-References: <20190401101437.9626-1-laurentiu.tudor@nxp.com>
+Subject: Re: [PATCH] axxia-i2c: use auto cmd for last message
+Date: Wed, 3 Apr 2019 22:54:02 +0200
+Message-ID: <20190403205402.dr2uolmpew45xoxd@ninjato>
+References: <20190328111858.GA17086@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="e5bv5jrwovk4okep"
+        protocol="application/pgp-signature"; boundary="6l3yfohu3gsj3jo7"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190401101437.9626-1-laurentiu.tudor@nxp.com>
+In-Reply-To: <20190328111858.GA17086@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: laurentiu.tudor@nxp.com
-Cc: u.kleine-koenig@pengutronix.de, mojha@codeaurora.org, linux-i2c@vger.kernel.org, wsa+renesas@sang-engineering.com, linux-imx@nxp.com, kernel@pengutronix.de, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, leoyang.li@nxp.com
+To: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---e5bv5jrwovk4okep
+--6l3yfohu3gsj3jo7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 01, 2019 at 01:14:37PM +0300, laurentiu.tudor@nxp.com wrote:
-> From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Hi,
+
+On Thu, Mar 28, 2019 at 11:19:45AM +0000, Adamski, Krzysztof (Nokia - PL/Wr=
+oclaw) wrote:
+> Some recent commits to this driver were trying to make sure the TSS
+> interrupt is not generated on busy system due to 25ms timer expiring
+> between commands. It can still happen, however if STOP command is not
+> issued on time at the end of the transmission. If wait_for_completion in
+> axxia_i2c_xfer_msg() would not return after 25ms of getting an
+> interrupt, TSS will be generated and idev->err_msg will be set to
+> -ETIMEDOUT which will be returned from the axxia_i2c_xfer_msg(), even
+> though the transfer did actually succeed (STOP is automatically issued
+> when TSS triggers).
 >=20
-> Make sure to free the i2c adapter on the error exit path.
+> Fortunately, apart from already used manual and sequence commands, the
+> controller also has so called auto command. It works just like manual
+> mode but it but an automatic STOP is issued when either transfer length
+> is met or NAK is received from slave device.
 >=20
-> Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-> Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-> Reviewed-by: Uwe Kleine-Konig <u.kleine-koenig@pengutronix.de>
-> Fixes: e1ab9a468e3b ("i2c: imx: improve the error handling in i2c_imx_dma=
-_request()")
+> This patch changes the axxia_i2c_xfer_msg() function so that auto
+> command is used for last message in transaction letting hardware manage
+> issuing STOP. TSS is disabled just after command transferring last
+> message finishes. Auto command, just like sequence, ends with SS
+> interrupt instead of SNS so handling of both had to be unified.
+>=20
+> The axxia_i2c_stop() is no longer needed as the transfer can only end
+> with following conditions:
+> - fully successful - then last message was send by AUTO command and STOP
+>   was issued automatically
+> - NAK received - STOP is issued automatically by controller
+> - arbitration lost - STOP should not be issued as we don't control the
+>   bus
+> - IP interrupt received - this is sent when transfer length is set to 0
+>   for auto/sequence command. The check for that is done before START is
+>   send so no STOP is required
+> - TSS received between commands - STOP is issued by the controller
 
-Applied to for-current, thanks!
+I am not sure. Is this a bugfix (=3D for-current) or more a new feature (=3D
+for-next)?
+
+> Signed-off-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
+> Reviewed-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+
+I trust you that Alexander gave the review, but it would be a tad more
+'open development' if he could give it as a reply to your patch on the
+mailing list.
+
+Thanks,
+
+   Wolfram
 
 
---e5bv5jrwovk4okep
+--6l3yfohu3gsj3jo7
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlylG/sACgkQFA3kzBSg
-KbY7NA/+OYTlxmIrzeQ96oMeThGobNltt9M5/8SMQzFO/sx9hUKRDFH2whp2ZVHB
-UOFKvbfGUQUd1M24eRxqsrvqAQDxjfrOHRzZgxiCzCbGYdcgHeIr+IJjb9O7xxAm
-ImAFZaTfsVxr0r6pwRLxmo/e7ID9rvq4uRDyu5k3u/CW0RZ1iT09/NbuiUFWV2Lr
-yJYHNpHKz+kr1dAkxMGTOMUpdxSmQpHaNa89mPnPzgP6O8vdanJod+7kun6NGDTU
-hAFO0HosTwbnVR2WySVLPITryXSpwg69oaaGyKkntjBwxbsulvP3olkk/+2d4+8N
-GDkjOmEtfoTXMYdOEmzX5Il5ATjs1BSwoEKDjSBM2+VwzKWgioOQlwfh2xdKHZpp
-oQp5Ug9Xt4bPsXJkZA13/BCBkR79JzdTJZZwAB+GoYIYAiPBtmg4vNcEIwjTqCSS
-RhowyLiadlKtBBFl4/x6Bre4XS4m77mzl+U9RV5mqqFIqYnWjgRCzKxg6c5IsHTZ
-9VU1w9Q2FGFqktNqMyRKJkj82RRI+xhaOI5J62GlNsnKJZ03lrzma9fUSkrZHV0d
-FTOjWjIktcP+oBW0v1jRBahuDhTOfdEq2pqIIbHTi7Sa0eN8q1/8yuNRc9+yLEXq
-GgH6i7jlC/V7rbi+vOxp7G/vIeo0b+AfUJAtC9r4jq3rZjW9Pj8=
-=Oe0l
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlylHWoACgkQFA3kzBSg
+KbbsKQ/+P9zFtuRRIvAsHKTSBI0uhB4PfJGhVOi6dZdCkw/LKN5j77iixqkIMRZE
+dPXic+LoF7BycMHN+0WJF9qAhnBf9xAvoPCjBwTg15AnpsZlM/q79vqPVYuTmIe2
+SsMWyWbtz+Et9jwRVKaIAkP+CWtZMrA1p0dB3w//blQ32/uE8qj54sugQgdjmRcg
+IHNUlv2s1RjrJM5UcU1HAYP0lU5UR6oTlDKa/MdOKcuPM8Aem4vE+ZPLG8CUPJvf
+Sa+DoUL3yjcmwfz2ghovfi6IhrID5+LY/laFacc3t+vkF3KoLFn2PrBUDqphM3Wj
+8A/li8vEuGYL6uucveKzD1+96Y7tkVdWOSgBDlHX6LBkTWCj+r24QULm3WGmpltd
+XM/QUz7xHPdiQdY2dYbgF+yVpijUNLWS9KeBJFeA3wdXUbzIhBxk4AubVCbLrAKa
+b/j8DKZ4V4cHQEYQGyMvvnDSQ87+WGArvUWCnfcijaTd593emQ5dQ+/xUBHGZyy6
+ojIw9V8aZcjLRaysBJxodmWZ8sRJk5IdCuCTET4DEpykxzRVpgybAVMg8xOg8O1c
+Ho0DrwRJuV3d8Lwv1s0QYPN+fS6SMXmP0SLm7gATuSxnq23KQsdE7GaeqrNdMPUs
+nA+qbM850iKZPfxuKntrQsqW7E9CoVdOOM6DdnsxwmW2plgN24Y=
+=J56r
 -----END PGP SIGNATURE-----
 
---e5bv5jrwovk4okep--
+--6l3yfohu3gsj3jo7--
