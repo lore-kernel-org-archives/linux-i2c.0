@@ -1,47 +1,63 @@
 From: Ray Jui <ray.jui@broadcom.com>
-Subject: Re: [PATCH v5 7/8] i2c: iproc: add NIC I2C support
-Date: Tue, 2 Apr 2019 18:10:52 -0700
-Message-ID: <8a731837-b21b-c2ae-fe0f-3c8943b587e3@broadcom.com>
-References: <20190214175725.60462-1-ray.jui@broadcom.com>
- <20190214175725.60462-8-ray.jui@broadcom.com> <20190402102733.GD2960@kunai>
- <a1a7a9c9-be4e-c582-d0d5-feccba4022ab@broadcom.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
+Subject: [PATCH v6 0/9] iProc I2C slave mode and NIC mode
+Date: Tue,  2 Apr 2019 18:18:21 -0700
+Message-ID: <20190403011830.3254-1-ray.jui@broadcom.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a1a7a9c9-be4e-c582-d0d5-feccba4022ab@broadcom.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, Ray Jui <ray.jui@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
+This patch series adds the following support to the iProc I2C driver:
+- Increase maximum read transfer size to 255 bytes
+- I2C slave mode
+- Polling mode
+- NIC I2C mode
 
+This patch series is based on kernel v5.1-rc3 and available at:
+https://github.com/Broadcom/arm64-linux.git
+branch: i2c-slave-v6
 
-On 4/2/2019 10:57 AM, Ray Jui wrote:
-> 
-> 
-> On 4/2/2019 3:27 AM, Wolfram Sang wrote:
+Changes from v5:
+ - Address various comments from Wolfram
+ - Rebase to v5.1-rc3
 
-[...]
+Changes from v4:
+ - Add more detailed explanations in the device tree binding document
+   changes, to address Rob's review comments
 
->>> +	iproc_i2c->type =
->>> +		(enum bcm_iproc_i2c_type) of_device_get_match_data(&pdev->dev);
->>
->> No need to cast a void*.
->>
+Changes from v3:
+ - Various minor fixes on commit messages and commits
+ - Rebased to v5.0-rc3
 
-In fact, we do need to type cast here since 'iproc_i2c->type' is NOT a
-pointer:
+Changes from v2:
+ - Address Ray's review comments.
 
-drivers/i2c/busses/i2c-bcm-iproc.c:870:18: error: incompatible types
-when assigning to type ‘enum bcm_iproc_i2c_type’ from type ‘const void *’
-  iproc_i2c->type = of_device_get_match_data(&pdev->dev);
-                  ^
-> 
-> Yes will fix.
-> 
-> Thanks,
-> 
-> Ray
-> 
+Changes from v1:
+ - Rebased to Linux v5.0.0-rc2
+
+Michael Cheng (1):
+  i2c: iproc: Add support for more master error status
+
+Ray Jui (1):
+  dt-bindings: i2c: iproc: make 'interrupts' optional
+
+Rayagonda Kokatanur (5):
+  i2c: iproc: add polling support
+  i2c: iproc: use wrapper for read/write access
+  dt-bindings: i2c: iproc: add "brcm,iproc-nic-i2c" compatible string
+  i2c: iproc: add NIC I2C support
+  arm64: dts: Stingray: Add NIC i2c device node
+
+Shreesha Rajashekar (2):
+  i2c: iproc: Extend I2C read up to 255 bytes
+  i2c: iproc: Add slave mode support
+
+ .../bindings/i2c/brcm,iproc-i2c.txt           |  17 +-
+ .../boot/dts/broadcom/stingray/stingray.dtsi  |  18 +
+ drivers/i2c/busses/Kconfig                    |   1 +
+ drivers/i2c/busses/i2c-bcm-iproc.c            | 758 +++++++++++++++---
+ 4 files changed, 662 insertions(+), 132 deletions(-)
+
+-- 
+2.17.1
