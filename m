@@ -1,78 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v6 0/9] iProc I2C slave mode and NIC mode
-Date: Wed, 3 Apr 2019 22:44:23 +0200
-Message-ID: <20190403204423.btgtke3tmt7pkr3j@ninjato>
-References: <20190403011830.3254-1-ray.jui@broadcom.com>
+Subject: Re: [PATCH v2] i2c: imx: don't leak the i2c adapter on error
+Date: Wed, 3 Apr 2019 22:47:56 +0200
+Message-ID: <20190403204756.mbc7zc5klfd5zydg@ninjato>
+References: <20190401101437.9626-1-laurentiu.tudor@nxp.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="gaiqb3qmgvc3uh4b"
+        protocol="application/pgp-signature"; boundary="e5bv5jrwovk4okep"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190403011830.3254-1-ray.jui@broadcom.com>
+In-Reply-To: <20190401101437.9626-1-laurentiu.tudor@nxp.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ray Jui <ray.jui@broadcom.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+To: laurentiu.tudor@nxp.com
+Cc: u.kleine-koenig@pengutronix.de, mojha@codeaurora.org, linux-i2c@vger.kernel.org, wsa+renesas@sang-engineering.com, linux-imx@nxp.com, kernel@pengutronix.de, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, leoyang.li@nxp.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---gaiqb3qmgvc3uh4b
+--e5bv5jrwovk4okep
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 02, 2019 at 06:18:21PM -0700, Ray Jui wrote:
-> This patch series adds the following support to the iProc I2C driver:
-> - Increase maximum read transfer size to 255 bytes
-> - I2C slave mode
-> - Polling mode
-> - NIC I2C mode
+On Mon, Apr 01, 2019 at 01:14:37PM +0300, laurentiu.tudor@nxp.com wrote:
+> From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
 >=20
-> This patch series is based on kernel v5.1-rc3 and available at:
-> https://github.com/Broadcom/arm64-linux.git
-> branch: i2c-slave-v6
+> Make sure to free the i2c adapter on the error exit path.
 >=20
-> Changes from v5:
->  - Address various comments from Wolfram
+> Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+> Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+> Reviewed-by: Uwe Kleine-Konig <u.kleine-koenig@pengutronix.de>
+> Fixes: e1ab9a468e3b ("i2c: imx: improve the error handling in i2c_imx_dma=
+_request()")
 
-In the future, please write in detail what you changed. I review so many
-patches that I can't recall all my comments on every patch.
-
-That being said, all patches applied to for-next, thanks!
-
-Can be fixed incrementally, my code checkers complain about:
-
-    CPPCHECK
-drivers/i2c/busses/i2c-bcm-iproc.c:720:14: warning: Shifting signed 32-bit =
-value by 31 bits is undefined behaviour [shiftTooManyBitsSigned]
-    val |=3D 1 << M_TX_WR_STATUS_SHIFT;
-             ^
-drivers/i2c/busses/i2c-bcm-iproc.c:847:13: warning: Shifting signed 32-bit =
-value by 31 bits is undefined behaviour [shiftTooManyBitsSigned]
- val &=3D ~(1 << TIM_CFG_MODE_400_SHIFT);
-            ^
-drivers/i2c/busses/i2c-bcm-iproc.c:998:13: warning: Shifting signed 32-bit =
-value by 31 bits is undefined behaviour [shiftTooManyBitsSigned]
- val &=3D ~(1 << TIM_CFG_MODE_400_SHIFT);
+Applied to for-current, thanks!
 
 
---gaiqb3qmgvc3uh4b
+--e5bv5jrwovk4okep
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlylGyIACgkQFA3kzBSg
-KbacLg//WGHt+fUGF8nDYQKJyHBwFfi0NNQNNBnCpwCEdnXra1d7pp3hs2rcKcvQ
-UEayjxajINusfafeT84eFqIEC0qLxRSrYs2nDOKY1V+S88j+K3zJLoToSHjKbNZa
-41JvzQ18CgaLANnp2laqrJC/oP4EWhsnOpfjjDVixvPHWNg1SkIhCDyKAmoLN9k7
-pJ2ZmKCn0rIya9R0bane8LSHVDiLLFhjdDoOLLNO5jD3++eXQBoNdikMpBl2WUZ/
-U7lAGEKjtXMxirLKCmkkZFFF0oQe1kEM5zT9B0X8Ox+r3UbFidHwx2Qj67hfmAAf
-7OdpU4GZ9KgcC60wfF0C6g79r6qBjNh7lutlHNmbOA4iLpLw7hQ6d2EJ6NxbuhJV
-NcEQBqPAS9gJb6fO6CifdSf7L/cR32QAF1i+JF4g9cZqVegdLt8T3oyt//sC+nAi
-rhMQBb63PzlzAA3lVS8TrhKq6DmcBTiwwwdjP9QQomz9RdEyBg7UGTNlV5eM5TfQ
-3DcKGvBzJ+QzKZrdYT1F57bFMD+GtBpBSDL4/KprcnL4G+0Z0PjwP2kvbp++NDGC
-Ux3/AYMGKMC0sfb2IuHCBMK8ROeR4nRDgS38c6jlwacyD+iRHF2BjELlESGVIWpf
-t8oIuiLK1S0CQo7zPOL45I2Y1Oubaxq/ujXCA3rQU662+nBWlSc=
-=5xqG
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlylG/sACgkQFA3kzBSg
+KbY7NA/+OYTlxmIrzeQ96oMeThGobNltt9M5/8SMQzFO/sx9hUKRDFH2whp2ZVHB
+UOFKvbfGUQUd1M24eRxqsrvqAQDxjfrOHRzZgxiCzCbGYdcgHeIr+IJjb9O7xxAm
+ImAFZaTfsVxr0r6pwRLxmo/e7ID9rvq4uRDyu5k3u/CW0RZ1iT09/NbuiUFWV2Lr
+yJYHNpHKz+kr1dAkxMGTOMUpdxSmQpHaNa89mPnPzgP6O8vdanJod+7kun6NGDTU
+hAFO0HosTwbnVR2WySVLPITryXSpwg69oaaGyKkntjBwxbsulvP3olkk/+2d4+8N
+GDkjOmEtfoTXMYdOEmzX5Il5ATjs1BSwoEKDjSBM2+VwzKWgioOQlwfh2xdKHZpp
+oQp5Ug9Xt4bPsXJkZA13/BCBkR79JzdTJZZwAB+GoYIYAiPBtmg4vNcEIwjTqCSS
+RhowyLiadlKtBBFl4/x6Bre4XS4m77mzl+U9RV5mqqFIqYnWjgRCzKxg6c5IsHTZ
+9VU1w9Q2FGFqktNqMyRKJkj82RRI+xhaOI5J62GlNsnKJZ03lrzma9fUSkrZHV0d
+FTOjWjIktcP+oBW0v1jRBahuDhTOfdEq2pqIIbHTi7Sa0eN8q1/8yuNRc9+yLEXq
+GgH6i7jlC/V7rbi+vOxp7G/vIeo0b+AfUJAtC9r4jq3rZjW9Pj8=
+=Oe0l
 -----END PGP SIGNATURE-----
 
---gaiqb3qmgvc3uh4b--
+--e5bv5jrwovk4okep--
