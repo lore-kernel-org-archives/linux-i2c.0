@@ -1,73 +1,61 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v6 0/9] iProc I2C slave mode and NIC mode
-Date: Thu, 4 Apr 2019 08:16:01 +0200
-Message-ID: <20190404061601.c7sbti2zyu6tsoyw@katana>
-References: <20190403011830.3254-1-ray.jui@broadcom.com>
- <20190403204423.btgtke3tmt7pkr3j@ninjato>
- <06dff712-151b-f188-d154-3130d56d01d8@gmail.com>
+From: "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
+Subject: Re: [PATCH] axxia-i2c: use auto cmd for last message
+Date: Thu, 4 Apr 2019 09:06:43 +0000
+Message-ID: <75b57678-2c55-102a-31ba-2f33bdf5f90b@nokia.com>
+References: <20190328111858.GA17086@localhost.localdomain>
+ <20190403205402.dr2uolmpew45xoxd@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="nuqsrixpylmauw4w"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <06dff712-151b-f188-d154-3130d56d01d8@gmail.com>
+In-Reply-To: <20190403205402.dr2uolmpew45xoxd@ninjato>
+Content-Language: en-US
+Content-ID: <BBA23CB037C0CB40ADAA1C73BDF84E97@eurprd07.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Ray Jui <ray.jui@broadcom.com>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---nuqsrixpylmauw4w
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Apr 03, 2019 at 03:20:14PM -0700, Florian Fainelli wrote:
-> On 4/3/19 1:44 PM, Wolfram Sang wrote:
-> > On Tue, Apr 02, 2019 at 06:18:21PM -0700, Ray Jui wrote:
-> >> This patch series adds the following support to the iProc I2C driver:
-> >> - Increase maximum read transfer size to 255 bytes
-> >> - I2C slave mode
-> >> - Polling mode
-> >> - NIC I2C mode
-> >>
-> >> This patch series is based on kernel v5.1-rc3 and available at:
-> >> https://github.com/Broadcom/arm64-linux.git
-> >> branch: i2c-slave-v6
-> >>
-> >> Changes from v5:
-> >>  - Address various comments from Wolfram
-> >=20
-> > In the future, please write in detail what you changed. I review so many
-> > patches that I can't recall all my comments on every patch.
-> >=20
-> > That being said, all patches applied to for-next, thanks!
->=20
-> OK, I will drop patch #9 from my queue then, thanks.
-
-Sorry, I meant patches 1-8 applied, assuming patch 9 was already taken.
-I usually don't pick up DTS patches, so I'd be happy if you could keep
-#9 in your tree.
-
-
---nuqsrixpylmauw4w
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlyloR0ACgkQFA3kzBSg
-KbaJkw//RcBa5KxvEuhAkwsWdS8X9lWErh6M1DVqlE6esIV5BzyjO+AcpQ4gfGTq
-aPcO/Im6utF5SWnnHgnYwvCv/CKP9sA1ha5FWMmkd8aIZ5dHcrESvA3kKWKpirsZ
-5bkphYdM2llcoxLEKJ361zVRoxIxhJ53HBuRDqv8jI7z8UFwU3CX1Io5a51ZiwcE
-T5xJpIkdqq/N2vH24T8PS5nmUYO8ir7mImua/wM374RjqAmP+v/pS+lolBW8E6Dg
-t+a6YIZ8pu3x8a3cz6EBZfhcvBiuZx/w0IOBFgSShmozJZUlOBjSrC76B3Puwu0M
-Xj8Q7xRLlfXzuqTuCLOzAzGbnQa8uf23WXaAfHgzL1DwKEg6uuPVp594sWqyKRaz
-Imps+m1Whii+u74Uvzf8Ig7keC9+5ho8xMlS4GQC5le6ZIrqxmcQUYWFnP4uVYhV
-4ymcsTOeoJu7dABW8VTc9VCPYc/2olP8Xi4EXq1CE9k1Mr2sFbbTaq/FwiHFd8Eh
-1RIR/D8sEMAVByWc9kjKfA+suCu8+0wzmebUo9NjTKvdfxqkQpc7fY51zqvKepys
-9TXPAFFafNnZ/PCoSZXJCex5nauCFJMeKkJZHMDDQPyN2nTDCM+msp1JBVNyzIR9
-0tKmVqSUen8WMVWrij6+xfsUIIDBK6h2A2ainrrFv76mfc3zruA=
-=yCr3
------END PGP SIGNATURE-----
-
---nuqsrixpylmauw4w--
+SGVsbG8gV29sZnJhbSwNCg0KT24gMDMvMDQvMjAxOSAyMjo1NCwgV29sZnJhbSBTYW5nIHdyb3Rl
+Og0KPj4gU29tZSByZWNlbnQgY29tbWl0cyB0byB0aGlzIGRyaXZlciB3ZXJlIHRyeWluZyB0byBt
+YWtlIHN1cmUgdGhlIFRTUw0KPj4gaW50ZXJydXB0IGlzIG5vdCBnZW5lcmF0ZWQgb24gYnVzeSBz
+eXN0ZW0gZHVlIHRvIDI1bXMgdGltZXIgZXhwaXJpbmcNCj4+IGJldHdlZW4gY29tbWFuZHMuIEl0
+IGNhbiBzdGlsbCBoYXBwZW4sIGhvd2V2ZXIgaWYgU1RPUCBjb21tYW5kIGlzIG5vdA0KPj4gaXNz
+dWVkIG9uIHRpbWUgYXQgdGhlIGVuZCBvZiB0aGUgdHJhbnNtaXNzaW9uLiBJZiB3YWl0X2Zvcl9j
+b21wbGV0aW9uIGluDQo+PiBheHhpYV9pMmNfeGZlcl9tc2coKSB3b3VsZCBub3QgcmV0dXJuIGFm
+dGVyIDI1bXMgb2YgZ2V0dGluZyBhbg0KPj4gaW50ZXJydXB0LCBUU1Mgd2lsbCBiZSBnZW5lcmF0
+ZWQgYW5kIGlkZXYtPmVycl9tc2cgd2lsbCBiZSBzZXQgdG8NCj4+IC1FVElNRURPVVQgd2hpY2gg
+d2lsbCBiZSByZXR1cm5lZCBmcm9tIHRoZSBheHhpYV9pMmNfeGZlcl9tc2coKSwgZXZlbg0KPj4g
+dGhvdWdoIHRoZSB0cmFuc2ZlciBkaWQgYWN0dWFsbHkgc3VjY2VlZCAoU1RPUCBpcyBhdXRvbWF0
+aWNhbGx5IGlzc3VlZA0KPj4gd2hlbiBUU1MgdHJpZ2dlcnMpLg0KPj4NCj4+IEZvcnR1bmF0ZWx5
+LCBhcGFydCBmcm9tIGFscmVhZHkgdXNlZCBtYW51YWwgYW5kIHNlcXVlbmNlIGNvbW1hbmRzLCB0
+aGUNCj4+IGNvbnRyb2xsZXIgYWxzbyBoYXMgc28gY2FsbGVkIGF1dG8gY29tbWFuZC4gSXQgd29y
+a3MganVzdCBsaWtlIG1hbnVhbA0KPj4gbW9kZSBidXQgaXQgYnV0IGFuIGF1dG9tYXRpYyBTVE9Q
+IGlzIGlzc3VlZCB3aGVuIGVpdGhlciB0cmFuc2ZlciBsZW5ndGgNCj4+IGlzIG1ldCBvciBOQUsg
+aXMgcmVjZWl2ZWQgZnJvbSBzbGF2ZSBkZXZpY2UuDQo+Pg0KPj4gVGhpcyBwYXRjaCBjaGFuZ2Vz
+IHRoZSBheHhpYV9pMmNfeGZlcl9tc2coKSBmdW5jdGlvbiBzbyB0aGF0IGF1dG8NCj4+IGNvbW1h
+bmQgaXMgdXNlZCBmb3IgbGFzdCBtZXNzYWdlIGluIHRyYW5zYWN0aW9uIGxldHRpbmcgaGFyZHdh
+cmUgbWFuYWdlDQo+PiBpc3N1aW5nIFNUT1AuIFRTUyBpcyBkaXNhYmxlZCBqdXN0IGFmdGVyIGNv
+bW1hbmQgdHJhbnNmZXJyaW5nIGxhc3QNCj4+IG1lc3NhZ2UgZmluaXNoZXMuIEF1dG8gY29tbWFu
+ZCwganVzdCBsaWtlIHNlcXVlbmNlLCBlbmRzIHdpdGggU1MNCj4+IGludGVycnVwdCBpbnN0ZWFk
+IG9mIFNOUyBzbyBoYW5kbGluZyBvZiBib3RoIGhhZCB0byBiZSB1bmlmaWVkLg0KPj4NCj4+IFRo
+ZSBheHhpYV9pMmNfc3RvcCgpIGlzIG5vIGxvbmdlciBuZWVkZWQgYXMgdGhlIHRyYW5zZmVyIGNh
+biBvbmx5IGVuZA0KPj4gd2l0aCBmb2xsb3dpbmcgY29uZGl0aW9uczoNCj4+IC0gZnVsbHkgc3Vj
+Y2Vzc2Z1bCAtIHRoZW4gbGFzdCBtZXNzYWdlIHdhcyBzZW5kIGJ5IEFVVE8gY29tbWFuZCBhbmQg
+U1RPUA0KPj4gICB3YXMgaXNzdWVkIGF1dG9tYXRpY2FsbHkNCj4+IC0gTkFLIHJlY2VpdmVkIC0g
+U1RPUCBpcyBpc3N1ZWQgYXV0b21hdGljYWxseSBieSBjb250cm9sbGVyDQo+PiAtIGFyYml0cmF0
+aW9uIGxvc3QgLSBTVE9QIHNob3VsZCBub3QgYmUgaXNzdWVkIGFzIHdlIGRvbid0IGNvbnRyb2wg
+dGhlDQo+PiAgIGJ1cw0KPj4gLSBJUCBpbnRlcnJ1cHQgcmVjZWl2ZWQgLSB0aGlzIGlzIHNlbnQg
+d2hlbiB0cmFuc2ZlciBsZW5ndGggaXMgc2V0IHRvIDANCj4+ICAgZm9yIGF1dG8vc2VxdWVuY2Ug
+Y29tbWFuZC4gVGhlIGNoZWNrIGZvciB0aGF0IGlzIGRvbmUgYmVmb3JlIFNUQVJUIGlzDQo+PiAg
+IHNlbmQgc28gbm8gU1RPUCBpcyByZXF1aXJlZA0KPj4gLSBUU1MgcmVjZWl2ZWQgYmV0d2VlbiBj
+b21tYW5kcyAtIFNUT1AgaXMgaXNzdWVkIGJ5IHRoZSBjb250cm9sbGVyDQo+IEkgYW0gbm90IHN1
+cmUuIElzIHRoaXMgYSBidWdmaXggKD0gZm9yLWN1cnJlbnQpIG9yIG1vcmUgYSBuZXcgZmVhdHVy
+ZSAoPQ0KPiBmb3ItbmV4dCk/DQo+IA0KPj4gU2lnbmVkLW9mZi1ieTogS3J6eXN6dG9mIEFkYW1z
+a2kgPGtyenlzenRvZi5hZGFtc2tpQG5va2lhLmNvbT4NCj4+IFJldmlld2VkLWJ5OiBBbGV4YW5k
+ZXIgU3ZlcmRsaW4gPGFsZXhhbmRlci5zdmVyZGxpbkBub2tpYS5jb20+DQo+IEkgdHJ1c3QgeW91
+IHRoYXQgQWxleGFuZGVyIGdhdmUgdGhlIHJldmlldywgYnV0IGl0IHdvdWxkIGJlIGEgdGFkIG1v
+cmUNCj4gJ29wZW4gZGV2ZWxvcG1lbnQnIGlmIGhlIGNvdWxkIGdpdmUgaXQgYXMgYSByZXBseSB0
+byB5b3VyIHBhdGNoIG9uIHRoZQ0KPiBtYWlsaW5nIGxpc3QuDQoNCnN1cmUsIGhlcmUgaXQgaXM6
+DQpSZXZpZXdlZC1ieTogQWxleGFuZGVyIFN2ZXJkbGluIDxhbGV4YW5kZXIuc3ZlcmRsaW5Abm9r
+aWEuY29tPg0KDQotLSANCkJlc3QgcmVnYXJkcywNCkFsZXhhbmRlciBTdmVyZGxpbi4NCg==
