@@ -1,71 +1,244 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 00/12] i2c: core: introduce atomic transfers
-Date: Mon, 15 Apr 2019 14:50:53 +0200
-Message-ID: <20190415125053.GB11768@kunai>
-References: <20190403124019.8947-1-wsa+renesas@sang-engineering.com>
- <20190403131510.GE9224@smile.fi.intel.com>
- <20190415120611.euidifhshkf5yqns@ninjato>
- <20190415123554.GQ9224@smile.fi.intel.com>
- <20190415124829.GR9224@smile.fi.intel.com>
+From: Matthias Brugger <matthias.bgg@gmail.com>
+Subject: Re: [PATCH RESEND v6 6/6] dts: arm64: mt8183: Add I2C nodes
+Date: Mon, 15 Apr 2019 19:23:07 +0200
+Message-ID: <dc21ff44-bbe5-4072-3102-c2a92a1b8be3@gmail.com>
+References: <1554208560-14817-1-git-send-email-qii.wang@mediatek.com>
+ <1554208560-14817-7-git-send-email-qii.wang@mediatek.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ftEhullJWpWg/VHq"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190415124829.GR9224@smile.fi.intel.com>
+In-Reply-To: <1554208560-14817-7-git-send-email-qii.wang@mediatek.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Peter Rosin <peda@axentia.se>, Stefan Lengfeld <contact@stefanchrist.eu>, linux-omap@vger.kernel.org, linux-tegra@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
+To: Qii Wang <qii.wang@mediatek.com>, wsa@the-dreams.de
+Cc: devicetree@vger.kernel.org, srv_heupstream@mediatek.com, robh@kernel.org, leilk.liu@mediatek.com, xinping.qian@mediatek.com, linux-kernel@vger.kernel.org, liguo.zhang@mediatek.com, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Qii Wang,
 
---ftEhullJWpWg/VHq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 02/04/2019 14:36, Qii Wang wrote:
+> This patch adds i2c nodes for I2C controllers
+> 
+> Signed-off-by: Qii Wang <qii.wang@mediatek.com>
+> ---
+>  arch/arm64/boot/dts/mediatek/mt8183.dtsi |  192 ++++++++++++++++++++++++++++++
+>  1 file changed, 192 insertions(+)
+> 
 
-On Mon, Apr 15, 2019 at 03:48:29PM +0300, Andy Shevchenko wrote:
-> On Mon, Apr 15, 2019 at 03:35:54PM +0300, Andy Shevchenko wrote:
-> > On Mon, Apr 15, 2019 at 02:06:11PM +0200, Wolfram Sang wrote:
-> > > On Wed, Apr 03, 2019 at 04:15:10PM +0300, Andy Shevchenko wrote:
-> > > > On Wed, Apr 03, 2019 at 02:40:07PM +0200, Wolfram Sang wrote:
-> > > >=20
-> > > > FWIW,
-> > > >=20
-> > > > Reviewed-by Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > > >=20
-> > > > for patches 1-5,12.
-> > >=20
-> > > Thanks for the review, Andy! May I ask you once more to tag the patch=
-es
-> > > individually so patchwork can pick them up for me?
-> >=20
-> > It seems I already cleaned up them from my mailbox. I can check if it's
-> > available in another one.
->=20
-> Done!
+No upstream version of the dtsi file present right now. But we are getting
+slowly there. Please rebase and resubmit when basic support got accepted. Thanks
+a lot.
+Matthias
 
-Thanks a ton!
-
-
---ftEhullJWpWg/VHq
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAly0fi0ACgkQFA3kzBSg
-KbbLjRAAqfHD5UY9gFoiFgkPv39u6VVy20ibtN9AUHIFRnNxRkc+YqhXWNTAVr1T
-F510KWtG4S9JtrXCXf/N39bXtZZyLYfl0pFHdRc02z5cF7ChThHjX2MFYLQM72dH
-hzOvo/PHEk7efsNfF54sv72od4Tf8gIHMH1qYEL1OkZqMd2F5//7oV7zfOyksTXp
-sPZSj69Sq/eIuAtloMmKh4s6uJDzkj8epuXFw08Llr+oOzLXwbkrzIjGTTAUz62o
-i+1EKlLwMaCZLET8/4EQ4nPfeZDxacW+u2GAgn0q+UTxHO0dPbcZtPmGGwmvlGDH
-BA4Kwu16qhpfC8p88DrQ4Sr3Hee+1VbQ8ID1XhCbzSombf389iJfTMCAl7UajrAm
-MKbEHQnsTENys7Z+9gQG+A+Puhy9qnLWxMYr84v+qw/EaxzEI8jL2f5sgnc8qYLV
-R7ETEFNtyjKhb9lOrh34vgHfLYqNs15E5zuBJ4vKu1Q9cF7wiyDegbfFy6BmFF3s
-OHejKvXHxs8M2I93K5I72LmsApm6IGqDuK3eeenxzem5YCUOqxb2HGNfZzNj2L3q
-n7xbx3Dazss4rValbODKOQi2wvkgvh9vUDPyxZ3yYLkOz0NDwkntI5RSROOF5L2t
-acqUdHKMtgoLeaDAiCvMwpqj7vCKYZCcmVRCXLiUTC1GAGvLGsw=
-=XbuZ
------END PGP SIGNATURE-----
-
---ftEhullJWpWg/VHq--
+> diff --git a/arch/arm64/boot/dts/mediatek/mt8183.dtsi b/arch/arm64/boot/dts/mediatek/mt8183.dtsi
+> index 75c4881..3dde2be 100644
+> --- a/arch/arm64/boot/dts/mediatek/mt8183.dtsi
+> +++ b/arch/arm64/boot/dts/mediatek/mt8183.dtsi
+> @@ -16,6 +16,21 @@
+>  	#address-cells = <2>;
+>  	#size-cells = <2>;
+>  
+> +	aliases {
+> +		i2c0 = &i2c0;
+> +		i2c1 = &i2c1;
+> +		i2c2 = &i2c2;
+> +		i2c3 = &i2c3;
+> +		i2c4 = &i2c4;
+> +		i2c5 = &i2c5;
+> +		i2c6 = &i2c6;
+> +		i2c7 = &i2c7;
+> +		i2c8 = &i2c8;
+> +		i2c9 = &i2c9;
+> +		i2c10 = &i2c10;
+> +		i2c11 = &i2c11;
+> +	};
+> +
+>  	cpus {
+>  		#address-cells = <1>;
+>  		#size-cells = <0>;
+> @@ -299,6 +314,183 @@
+>  			status = "disabled";
+>  		};
+>  
+> +		i2c6: i2c@11005000 {
+> +			compatible = "mediatek,mt8183-i2c";
+> +			reg = <0 0x11005000 0 0x1000>,
+> +				<0 0x11000600 0 0x80>;
+> +			interrupts = <GIC_SPI 87 IRQ_TYPE_LEVEL_LOW>;
+> +			clocks = <&infracfg CLK_INFRA_I2C6>,
+> +				 <&infracfg CLK_INFRA_AP_DMA>;
+> +			clock-names = "main", "dma";
+> +			clock-div = <1>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c0: i2c@11007000 {
+> +			compatible = "mediatek,mt8183-i2c";
+> +			reg = <0 0x11007000 0 0x1000>,
+> +				<0 0x11000080 0 0x80>;
+> +			interrupts = <GIC_SPI 81 IRQ_TYPE_LEVEL_LOW>;
+> +			clocks = <&infracfg CLK_INFRA_I2C0>,
+> +				 <&infracfg CLK_INFRA_AP_DMA>;
+> +			clock-names = "main", "dma";
+> +			clock-div = <1>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c4: i2c@11008000 {
+> +			compatible = "mediatek,mt8183-i2c";
+> +			id = <4>;
+> +			reg = <0 0x11008000 0 0x1000>,
+> +				<0 0x11000100 0 0x80>;
+> +			interrupts = <GIC_SPI 82 IRQ_TYPE_LEVEL_LOW>;
+> +			clocks = <&infracfg CLK_INFRA_I2C1>,
+> +				 <&infracfg CLK_INFRA_AP_DMA>,
+> +				 <&infracfg CLK_INFRA_I2C1_ARBITER>;
+> +			clock-names = "main", "dma","arb";
+> +			clock-div = <1>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c2: i2c@11009000 {
+> +			compatible = "mediatek,mt8183-i2c";
+> +			reg = <0 0x11009000 0 0x1000>,
+> +				<0 0x11000280 0 0x80>;
+> +			interrupts = <GIC_SPI 83 IRQ_TYPE_LEVEL_LOW>;
+> +			clocks = <&infracfg CLK_INFRA_I2C2>,
+> +				 <&infracfg CLK_INFRA_AP_DMA>,
+> +				 <&infracfg CLK_INFRA_I2C2_ARBITER>;
+> +			clock-names = "main", "dma", "arb";
+> +			clock-div = <1>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c3: i2c@1100f000 {
+> +			compatible = "mediatek,mt8183-i2c";
+> +			reg = <0 0x1100f000 0 0x1000>,
+> +				<0 0x11000400 0 0x80>;
+> +			interrupts = <GIC_SPI 84 IRQ_TYPE_LEVEL_LOW>;
+> +			clocks = <&infracfg CLK_INFRA_I2C3>,
+> +				 <&infracfg CLK_INFRA_AP_DMA>;
+> +			clock-names = "main", "dma";
+> +			clock-div = <1>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c1: i2c@11011000 {
+> +			compatible = "mediatek,mt8183-i2c";
+> +			reg = <0 0x11011000 0 0x1000>,
+> +				<0 0x11000480 0 0x80>;
+> +			interrupts = <GIC_SPI 85 IRQ_TYPE_LEVEL_LOW>;
+> +			clocks = <&infracfg CLK_INFRA_I2C4>,
+> +				 <&infracfg CLK_INFRA_AP_DMA>;
+> +			clock-names = "main", "dma";
+> +			clock-div = <1>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			status = "disabled";
+> +		};
+> +
+> +
+> +		i2c9: i2c@11014000 {
+> +			compatible = "mediatek,mt8183-i2c";
+> +			reg = <0 0x11014000 0 0x1000>,
+> +				<0 0x11000180 0 0x80>;
+> +			interrupts = <GIC_SPI 131 IRQ_TYPE_LEVEL_LOW>;
+> +			clocks = <&infracfg CLK_INFRA_I2C1_IMM>,
+> +				 <&infracfg CLK_INFRA_AP_DMA>,
+> +				 <&infracfg CLK_INFRA_I2C1_ARBITER>;
+> +			clock-names = "main", "dma", "arb";
+> +			clock-div = <1>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c10: i2c@11015000 {
+> +			compatible = "mediatek,mt8183-i2c";
+> +			reg = <0 0x11015000 0 0x1000>,
+> +				<0 0x11000300 0 0x80>;
+> +			interrupts = <GIC_SPI 132 IRQ_TYPE_LEVEL_LOW>;
+> +			clocks = <&infracfg CLK_INFRA_I2C2_IMM>,
+> +				 <&infracfg CLK_INFRA_AP_DMA>,
+> +				 <&infracfg CLK_INFRA_I2C2_ARBITER>;
+> +			clock-names = "main", "dma", "arb";
+> +			clock-div = <1>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c5: i2c@11016000 {
+> +			compatible = "mediatek,mt8183-i2c";
+> +			reg = <0 0x11016000 0 0x1000>,
+> +				<0 0x11000500 0 0x80>;
+> +			interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_LOW>;
+> +			clocks = <&infracfg CLK_INFRA_I2C5>,
+> +				 <&infracfg CLK_INFRA_AP_DMA>,
+> +				 <&infracfg CLK_INFRA_I2C5_ARBITER>;
+> +			clock-names = "main", "dma", "arb";
+> +			clock-div = <1>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c11: i2c@11017000 {
+> +			compatible = "mediatek,mt8183-i2c";
+> +			reg = <0 0x11017000 0 0x1000>,
+> +				<0 0x11000580 0 0x80>;
+> +			interrupts = <GIC_SPI 133 IRQ_TYPE_LEVEL_LOW>;
+> +			clocks = <&infracfg CLK_INFRA_I2C5_IMM>,
+> +				 <&infracfg CLK_INFRA_AP_DMA>,
+> +				 <&infracfg CLK_INFRA_I2C5_ARBITER>;
+> +			clock-names = "main", "dma", "arb";
+> +			clock-div = <1>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			status = "disabled";
+> +		};
+> +
+> +
+> +		i2c7: i2c@1101a000 {
+> +			compatible = "mediatek,mt8183-i2c";
+> +			reg = <0 0x1101a000 0 0x1000>,
+> +				<0 0x11000680 0 0x80>;
+> +			interrupts = <GIC_SPI 88 IRQ_TYPE_LEVEL_LOW>;
+> +			clocks = <&infracfg CLK_INFRA_I2C7>,
+> +				 <&infracfg CLK_INFRA_AP_DMA>;
+> +			clock-names = "main", "dma";
+> +			clock-div = <1>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c8: i2c@1101b000 {
+> +			compatible = "mediatek,mt8183-i2c";
+> +			reg = <0 0x1101b000 0 0x1000>,
+> +				<0 0x11000700 0 0x80>;
+> +			interrupts = <GIC_SPI 89 IRQ_TYPE_LEVEL_LOW>;
+> +			clocks = <&infracfg CLK_INFRA_I2C8>,
+> +				 <&infracfg CLK_INFRA_AP_DMA>;
+> +			clock-names = "main", "dma";
+> +			clock-div = <1>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			status = "disabled";
+> +		};
+> +
+>  		audiosys: syscon@11220000 {
+>  			compatible = "mediatek,mt8183-audiosys", "syscon";
+>  			reg = <0 0x11220000 0 0x1000>;
+> 
