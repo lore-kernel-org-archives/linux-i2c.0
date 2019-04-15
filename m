@@ -1,67 +1,62 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] i2c: iproc: Change driver to use 'BIT' macro
-Date: Mon, 15 Apr 2019 06:56:13 +0000
-Message-ID: <c47c6ec2-6d6f-8885-932c-35390783f55b@axentia.se>
-References: <20190403210535.32236-1-ray.jui@broadcom.com>
- <f28f604a-55a4-7542-0e13-a92a83ab2144@axentia.se>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH RESEND v6 0/6] add i2c support for mt8183
+Date: Mon, 15 Apr 2019 13:30:37 +0200
+Message-ID: <20190415113037.GA2751@kunai>
+References: <1554208560-14817-1-git-send-email-qii.wang@mediatek.com>
+ <20190404230916.GA964@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <f28f604a-55a4-7542-0e13-a92a83ab2144@axentia.se>
-Content-Language: en-US
-Content-ID: <9361E4A128769543AFC221925C9353DE@eurprd02.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <20190404230916.GA964@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ray Jui <ray.jui@broadcom.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "bcm-kernel-feedback-list@broadcom.com" <bcm-kernel-feedback-list@broadcom.com>, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+To: Qii Wang <qii.wang@mediatek.com>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, xinping.qian@mediatek.com, liguo.zhang@mediatek.com, robh@kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOS0wNC0xMyAwMDo1OSwgUGV0ZXIgUm9zaW4gd3JvdGU6DQo+IE9uIDIwMTktMDQtMDMg
-MjM6MDUsIFJheSBKdWkgd3JvdGU6DQo+PiBDaGFuZ2UgdGhlIGlQcm9jIEkyQyBkcml2ZXIgdG8g
-dXNlIHRoZSAnQklUJyBtYWNybyBmcm9tIGFsbCAnMSA8PCBYWFgnDQo+PiBiaXQgb3BlcmF0aW9u
-cyB0byBnZXQgcmlkIG9mIGNvbXBpbGVyIHdhcm5pbmcgYW5kIGltcHJvdmUgcmVhZGFiaWxpdHkg
-b2YNCj4+IHRoZSBjb2RlDQo+IA0KPiBBbGw/IEkgc2VlIGxvdHMgbW9yZSAnMSA8PCBYWFhfU0hJ
-RlQnIG1hdGNoZXMuIEkgbWlnaHQgYmUgYmVoaW5kIHRob3VnaD8NCg0KSSB2ZXJpZmllZCB0aGF0
-LCBhbmQgeWVzIGluZGVlZCwgSSB3YXMgYmVoaW5kLiBUaGF0IHNhaWQsIHNlZSBiZWxvdy4uLg0K
-DQo+IEFueXdheSwgaWYgeW91IGFyZSBjbGVhbmluZyB1cCwgSSdtIGp1c3QgZmxhZ2dpbmcgdGhh
-dCBCSVQoWFhYX1NISUZUKSBsb29rcw0KPiBhIGJpdCBjbHVua3kgdG8gbWUuIFlvdSBtaWdodCBj
-b25zaWRlciByZW5hbWluZyBhbGwgdGhvc2Ugc2luZ2xlLWJpdA0KPiBYWFhfU0hJRlQgbWFjcm9z
-IHRvIHNpbXBsZSBiZQ0KPiANCj4gI2RlZmluZSBYWFggQklUKDx4eHg+KQ0KPiANCj4gaW5zdGVh
-ZCBvZg0KPiANCj4gI2RlZmluZSBYWFhfU0hJRlQgPHh4eD4NCj4gDQo+IGJ1dCB0aGF0IHRyaWdn
-ZXJzIG1vcmUgY2h1cm4sIHNvIGlzIG9idmlvdXNseSBtb3JlIGVycm9yIHByb25lLiBZb3UgbWln
-aHQNCj4gbm90IGRhcmUgaXQ/DQo+IA0KPiBDaGVlcnMsDQo+IFBldGVyDQo+IA0KPj4gU2lnbmVk
-LW9mZi1ieTogUmF5IEp1aSA8cmF5Lmp1aUBicm9hZGNvbS5jb20+DQo+PiAtLS0NCj4+ICBkcml2
-ZXJzL2kyYy9idXNzZXMvaTJjLWJjbS1pcHJvYy5jIHwgNiArKystLS0NCj4+ICAxIGZpbGUgY2hh
-bmdlZCwgMyBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQ0KPj4NCj4+IGRpZmYgLS1naXQg
-YS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWJjbS1pcHJvYy5jIGIvZHJpdmVycy9pMmMvYnVzc2Vz
-L2kyYy1iY20taXByb2MuYw0KPj4gaW5kZXggNTYyOTQyZDBjMDVjLi5hODQ1YjhkZWNhYzggMTAw
-NjQ0DQo+PiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWJjbS1pcHJvYy5jDQo+PiArKysg
-Yi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWJjbS1pcHJvYy5jDQo+PiBAQCAtNzE3LDcgKzcxNyw3
-IEBAIHN0YXRpYyBpbnQgYmNtX2lwcm9jX2kyY194ZmVyX3NpbmdsZV9tc2coc3RydWN0IGJjbV9p
-cHJvY19pMmNfZGV2ICppcHJvY19pMmMsDQo+PiAgDQo+PiAgCQkJLyogbWFyayB0aGUgbGFzdCBi
-eXRlICovDQo+PiAgCQkJaWYgKGkgPT0gbXNnLT5sZW4gLSAxKQ0KPj4gLQkJCQl2YWwgfD0gMSA8
-PCBNX1RYX1dSX1NUQVRVU19TSElGVDsNCj4+ICsJCQkJdmFsIHw9IEJJVChNX1RYX1dSX1NUQVRV
-U19TSElGVCk7DQo+PiAgDQo+PiAgCQkJaXByb2NfaTJjX3dyX3JlZyhpcHJvY19pMmMsIE1fVFhf
-T0ZGU0VULCB2YWwpOw0KPj4gIAkJfQ0KPj4gQEAgLTg0NCw3ICs4NDQsNyBAQCBzdGF0aWMgaW50
-IGJjbV9pcHJvY19pMmNfY2ZnX3NwZWVkKHN0cnVjdCBiY21faXByb2NfaTJjX2RldiAqaXByb2Nf
-aTJjKQ0KPj4gIA0KPj4gIAlpcHJvY19pMmMtPmJ1c19zcGVlZCA9IGJ1c19zcGVlZDsNCj4+ICAJ
-dmFsID0gaXByb2NfaTJjX3JkX3JlZyhpcHJvY19pMmMsIFRJTV9DRkdfT0ZGU0VUKTsNCj4+IC0J
-dmFsICY9IH4oMSA8PCBUSU1fQ0ZHX01PREVfNDAwX1NISUZUKTsNCj4+ICsJdmFsICY9IH5CSVQo
-VElNX0NGR19NT0RFXzQwMF9TSElGVCk7DQo+PiAgCXZhbCB8PSAoYnVzX3NwZWVkID09IDQwMDAw
-MCkgPDwgVElNX0NGR19NT0RFXzQwMF9TSElGVDsNCg0KVGhlc2UgdHdvIHN0YXRlbWVudHMgbm93
-IG5vIGxvbmdlciAibWF0Y2giLiBPbmUgdXNlcyBCSVQgYW5kIHRoZSBvdGhlciBvcGVuDQpjb2Rl
-cyB0aGUgc2hpZnQuIEkgdGhpbmsgdGhhdCdzIGJhZC4gTG9zaW5nIHRoZSBfU0hJRlQgc3VmZml4
-IGFuZCBpbmNsdWRpbmcNCkJJVCBpbiB0aGUgbWFjcm8gZXhwYW5zaW9uLCBhcyBzdWdnZXN0ZWQg
-YWJvdmUsIHlpZWxkczoNCg0KCXZhbCAmPSB+VElNX0NGR19NT0RFXzQwMDsNCglpZiAoYnVzX3Nw
-ZWVkID09IDQwMDAwMCkNCgkJdmFsIHw9IFRJTV9DRkdfTU9ERV80MDA7DQoNCndoaWNoIGlzIHBl
-cmhhcHMgb25lIG1vcmUgbGluZSwgYnV0IGFsc28gbW9yZSByZWFkYWJsZSBJTU8uDQoNCkJ1dCBh
-bGwgdGhpcyBpcyBvZiBjb3Vyc2UgaW4gZGVlcCBuaXQtcGljay10ZXJyaXRvcnkuLi4NCg0KQ2hl
-ZXJzLA0KUGV0ZXINCg0KPj4gIAlpcHJvY19pMmNfd3JfcmVnKGlwcm9jX2kyYywgVElNX0NGR19P
-RkZTRVQsIHZhbCk7DQo+PiAgDQo+PiBAQCAtOTk1LDcgKzk5NSw3IEBAIHN0YXRpYyBpbnQgYmNt
-X2lwcm9jX2kyY19yZXN1bWUoc3RydWN0IGRldmljZSAqZGV2KQ0KPj4gIA0KPj4gIAkvKiBjb25m
-aWd1cmUgdG8gdGhlIGRlc2lyZWQgYnVzIHNwZWVkICovDQo+PiAgCXZhbCA9IGlwcm9jX2kyY19y
-ZF9yZWcoaXByb2NfaTJjLCBUSU1fQ0ZHX09GRlNFVCk7DQo+PiAtCXZhbCAmPSB+KDEgPDwgVElN
-X0NGR19NT0RFXzQwMF9TSElGVCk7DQo+PiArCXZhbCAmPSB+QklUKFRJTV9DRkdfTU9ERV80MDBf
-U0hJRlQpOw0KPj4gIAl2YWwgfD0gKGlwcm9jX2kyYy0+YnVzX3NwZWVkID09IDQwMDAwMCkgPDwg
-VElNX0NGR19NT0RFXzQwMF9TSElGVDsNCj4+ICAJaXByb2NfaTJjX3dyX3JlZyhpcHJvY19pMmMs
-IFRJTV9DRkdfT0ZGU0VULCB2YWwpOw0KPj4gIA0KPj4NCj4gDQoNCg==
+
+--vtzGhvizbBRQ85DL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Apr 05, 2019 at 01:09:16AM +0200, Wolfram Sang wrote:
+> On Tue, Apr 02, 2019 at 08:35:54PM +0800, Qii Wang wrote:
+> > This series are based on 5.1-rc1 and the patch
+> > https://patchwork.kernel.org/patch/10856987/(for dts)
+> > We provide six patches to support mt8183 IC.
+> >=20
+> > Main changes compared to v5:
+> > --add i2c controller nodes in mt8183.dtsi
+> > --add a note that old i2c controllers also have I2C_ARB_LOST bit
+> > --add a flag(ltiming_adjust) to avoid unnecessary settings
+> > --add Reviewed-by from Rob Herring, Nicolas and Matthias
+>=20
+> Well, it seems you missed Rob's Rev-by. No need to resend, I can add it.
+> I just wonder if Matthias wants to have another look at this?
+
+Thanks Matthias! Patches 1-5 applied to for-next.
+
+
+--vtzGhvizbBRQ85DL
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAly0a1kACgkQFA3kzBSg
+KbaRqw//W6Yqr4N1qOn8OrTcXiGxV2kYIlJZGifVdPC87dDKQuV+c10MmePB/zgL
+mwdrFlvO0nKQE8cVzTB594+DJR/icbR7kQ4pRNXQaNKqzzHv9V021VPlWiFyklbF
+TKheBbdXSG4GWcIOzQWmukrMPuZONGtyQzWJdrVHlDrifXnbwchXw5rGsq7yvRxr
+E3nweabEvp2sRSyw0k1yzd9/I9aOGyfFuRnrYIEZ4HRL+7NUOzb3LCZLtRcTKUEM
+sx6fJpMs5GzCwMwSYl2Kh1Fn4xUhvjSBzSZ5Yt6Usz03nvNiXLX4pvWNp98Ert4k
+2QB0VWY9FdwmHDI0kUOdzBkNzTRRHc1kuiOgofOZjxYzGM/9zKAucVRbTGK5Jr/7
+bMbLToxDNKrXMVwQ8G/t0PcwbGboquhhnOS5Sb/G47NumDNmWqEOZ4coH8gu5y5H
+Cnf57CQKbH9NFmnSh7ovMqVeGDOfSapgiVrjjNrwZ8iEUeSCpO/3d503emWW97Xq
+OVWw28npGySAdprdUrilUtJAW+xyeIN8LZ+z+oO3+ns5Av2pIbsBz10h5ooSyq6b
+cHTHVW3TMlbFiWaEKvMwm1IpOL4qkLdGZJhqZX2xmfWzIIivCa9CvUw5LZqIImn4
+NYmiP8mDh2Kwhsigpzho8qAXeodpTI0d8QTb1ecTp3/qezbLGGw=
+=U4jH
+-----END PGP SIGNATURE-----
+
+--vtzGhvizbBRQ85DL--
