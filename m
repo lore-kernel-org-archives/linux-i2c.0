@@ -1,44 +1,72 @@
-From: Matthias Brugger <matthias.bgg@gmail.com>
-Subject: Re: [PATCH 19/24] dt-bindings: spi: spi-mt65xx: add support for
- MT8516
-Date: Wed, 17 Apr 2019 10:19:20 +0200
-Message-ID: <de48f4db-2d03-e47a-48ba-45cc884fc088@gmail.com>
-References: <20190323211612.860-1-fparent@baylibre.com>
- <20190323211612.860-20-fparent@baylibre.com>
- <5bc3fbfa-6d7e-08d3-116c-a8f78bc680cd@gmail.com>
- <20190416142814.GB4834@sirena.org.uk>
+From: Pu Wen <puwen@hygon.cn>
+Subject: [PATCH] i2c-piix4: Add Hygon Dhyana SMBus support
+Date: Wed, 17 Apr 2019 18:53:39 +0800
+Message-ID: <1555498419-6136-1-git-send-email-puwen@hygon.cn>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190416142814.GB4834@sirena.org.uk>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: Fabien Parent <fparent@baylibre.com>, robh+dt@kernel.org, mark.rutland@arm.com, sean.wang@kernel.org, ryder.lee@mediatek.com, hsin-hsiung.wang@mediatek.com, wenzhen.yu@mediatek.com, chaotian.jing@mediatek.com, yong.mao@mediatek.com, jjian.zhou@mediatek.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-mmc@vger.kernel.org, linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org, linux-spi@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-clk@vger.kernel.org, stephane.leprovost@mediatek.com
+Content-Type: text/plain
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: jdelvare@suse.com, bp@alien8.de
+Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org, linux-i2c@vger.kernel.org, Pu Wen <puwen@hygon.cn>
 List-Id: linux-i2c@vger.kernel.org
 
+The Hygon Dhyana CPU has the SMBus device with PCI device ID 0x790b,
+which is the same as AMD CZ SMBus device. So add Hygon Dhyana support
+to the i2c-piix4 driver by using the code path of AMD.
 
+Cc: <stable@vger.kernel.org> # v5.0+
+Signed-off-by: Pu Wen <puwen@hygon.cn>
+---
+ drivers/i2c/busses/i2c-piix4.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-On 16/04/2019 16:28, Mark Brown wrote:
-> On Tue, Apr 16, 2019 at 09:55:41AM +0200, Matthias Brugger wrote:
->> On 23/03/2019 22:16, Fabien Parent wrote:
->>> Add binding documentation of spi-mt65xx for MT8516 SoC.
-> 
->>> Signed-off-by: Fabien Parent <fparent@baylibre.com> --- 
->>> Documentation/devicetree/bindings/spi/spi-mt65xx.txt | 1 + 1 file
->>> changed, 1 insertion(+)
-> 
->> applied to v5.1-next/dts64
-> 
->> Mark let me know if you want to take it through your tree and I drop the
->> patch.
-> 
-> Yes, DT bindings generally get reviewed in the subsystem :(
-> 
-
-I already dropped it due to some comments from Lei Liu:
-https://patchwork.kernel.org/patch/10867251/
-
-Regards,
-Matthias
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 90946a8..9db9d9d 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -289,6 +289,9 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 	     PIIX4_dev->revision >= 0x41) ||
+ 	    (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD &&
+ 	     PIIX4_dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS &&
++	     PIIX4_dev->revision >= 0x49) ||
++	    (PIIX4_dev->vendor == PCI_VENDOR_ID_HYGON &&
++	     PIIX4_dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS &&
+ 	     PIIX4_dev->revision >= 0x49))
+ 		smb_en = 0x00;
+ 	else
+@@ -361,7 +364,8 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 		 piix4_smba, i2ccfg >> 4);
+ 
+ 	/* Find which register is used for port selection */
+-	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD) {
++	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD ||
++	    PIIX4_dev->vendor == PCI_VENDOR_ID_HYGON) {
+ 		switch (PIIX4_dev->device) {
+ 		case PCI_DEVICE_ID_AMD_KERNCZ_SMBUS:
+ 			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_KERNCZ;
+@@ -794,6 +798,7 @@ static const struct pci_device_id piix4_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_HYGON, PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
+ 		     PCI_DEVICE_ID_SERVERWORKS_OSB4) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
+@@ -904,11 +909,13 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	if ((dev->vendor == PCI_VENDOR_ID_ATI &&
+ 	     dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
+ 	     dev->revision >= 0x40) ||
+-	    dev->vendor == PCI_VENDOR_ID_AMD) {
++	    dev->vendor == PCI_VENDOR_ID_AMD ||
++	    dev->vendor == PCI_VENDOR_ID_HYGON) {
+ 		bool notify_imc = false;
+ 		is_sb800 = true;
+ 
+-		if (dev->vendor == PCI_VENDOR_ID_AMD &&
++		if ((dev->vendor == PCI_VENDOR_ID_AMD ||
++		     dev->vendor == PCI_VENDOR_ID_HYGON) &&
+ 		    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
+ 			u8 imc;
+ 
+-- 
+2.7.4
