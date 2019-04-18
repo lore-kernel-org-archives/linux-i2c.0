@@ -1,109 +1,85 @@
-From: Ray Jui <ray.jui@broadcom.com>
+From: Peter Rosin <peda@axentia.se>
 Subject: Re: [PATCH] i2c: iproc: Change driver to use 'BIT' macro
-Date: Wed, 17 Apr 2019 16:48:32 -0700
-Message-ID: <bd0c7b0f-1936-dd1e-b8f3-ebafebdea252@broadcom.com>
+Date: Thu, 18 Apr 2019 06:21:37 +0000
+Message-ID: <497d0668-3065-a357-72ca-a7e79fc9cfb0@axentia.se>
 References: <20190403210535.32236-1-ray.jui@broadcom.com>
  <f28f604a-55a4-7542-0e13-a92a83ab2144@axentia.se>
  <c47c6ec2-6d6f-8885-932c-35390783f55b@axentia.se>
+ <bd0c7b0f-1936-dd1e-b8f3-ebafebdea252@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <c47c6ec2-6d6f-8885-932c-35390783f55b@axentia.se>
+In-Reply-To: <bd0c7b0f-1936-dd1e-b8f3-ebafebdea252@broadcom.com>
 Content-Language: en-US
+Content-ID: <7A97424730BC9D46BA6D1E24285AF823@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
+To: Ray Jui <ray.jui@broadcom.com>, Wolfram Sang <wsa@the-dreams.de>
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "bcm-kernel-feedback-list@broadcom.com" <bcm-kernel-feedback-list@broadcom.com>, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
-
-
-On 4/14/2019 11:56 PM, Peter Rosin wrote:
-> On 2019-04-13 00:59, Peter Rosin wrote:
->> On 2019-04-03 23:05, Ray Jui wrote:
->>> Change the iProc I2C driver to use the 'BIT' macro from all '1 << XXX'
->>> bit operations to get rid of compiler warning and improve readability of
->>> the code
->>
->> All? I see lots more '1 << XXX_SHIFT' matches. I might be behind though?
-> 
-> I verified that, and yes indeed, I was behind. That said, see below...
-> 
-
-Right. Previous change that this change depends on is already queued in
-i2c/for-next.
-
->> Anyway, if you are cleaning up, I'm just flagging that BIT(XXX_SHIFT) looks
->> a bit clunky to me. You might consider renaming all those single-bit
->> XXX_SHIFT macros to simple be
->>
->> #define XXX BIT(<xxx>)
->>
->> instead of
->>
->> #define XXX_SHIFT <xxx>
->>
->> but that triggers more churn, so is obviously more error prone. You might
->> not dare it?
->>
-
-With the current code, I don't see how that is cleaner. With XXX_SHIFT
-specified, it makes it very clear to the user that the define a for a
-bit location within a register. You can argue and say it makes the
-define longer, but not less clear.
-
->> Cheers,
->> Peter
->>
->>> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
->>> ---
->>>  drivers/i2c/busses/i2c-bcm-iproc.c | 6 +++---
->>>  1 file changed, 3 insertions(+), 3 deletions(-)
->>>
->>> diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
->>> index 562942d0c05c..a845b8decac8 100644
->>> --- a/drivers/i2c/busses/i2c-bcm-iproc.c
->>> +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
->>> @@ -717,7 +717,7 @@ static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
->>>  
->>>  			/* mark the last byte */
->>>  			if (i == msg->len - 1)
->>> -				val |= 1 << M_TX_WR_STATUS_SHIFT;
->>> +				val |= BIT(M_TX_WR_STATUS_SHIFT);
->>>  
->>>  			iproc_i2c_wr_reg(iproc_i2c, M_TX_OFFSET, val);
->>>  		}
->>> @@ -844,7 +844,7 @@ static int bcm_iproc_i2c_cfg_speed(struct bcm_iproc_i2c_dev *iproc_i2c)
->>>  
->>>  	iproc_i2c->bus_speed = bus_speed;
->>>  	val = iproc_i2c_rd_reg(iproc_i2c, TIM_CFG_OFFSET);
->>> -	val &= ~(1 << TIM_CFG_MODE_400_SHIFT);
->>> +	val &= ~BIT(TIM_CFG_MODE_400_SHIFT);
->>>  	val |= (bus_speed == 400000) << TIM_CFG_MODE_400_SHIFT;
-> 
-> These two statements now no longer "match". One uses BIT and the other open
-> codes the shift. I think that's bad. Losing the _SHIFT suffix and including
-> BIT in the macro expansion, as suggested above, yields:
-> 
-> 	val &= ~TIM_CFG_MODE_400;
-> 	if (bus_speed == 400000)
-> 		val |= TIM_CFG_MODE_400;
-> 
-> which is perhaps one more line, but also more readable IMO.
-> 
-
-A single line with evaluation embedded is nice and clean to me. I guess
-this is subjective.
-
-I'll leave the decision to Wolfram. If he also prefers the above change
-to be made, sure. Otherwise, I'll leave it as it is.
-
-> But all this is of course in deep nit-pick-territory...
-> 
-> Cheers,
-> Peter
-> 
-
-Thanks,
-
-Ray
+T24gMjAxOS0wNC0xOCAwMTo0OCwgUmF5IEp1aSB3cm90ZToNCj4gDQo+IA0KPiBPbiA0LzE0LzIw
+MTkgMTE6NTYgUE0sIFBldGVyIFJvc2luIHdyb3RlOg0KPj4gT24gMjAxOS0wNC0xMyAwMDo1OSwg
+UGV0ZXIgUm9zaW4gd3JvdGU6DQo+Pj4gT24gMjAxOS0wNC0wMyAyMzowNSwgUmF5IEp1aSB3cm90
+ZToNCj4+Pj4gQ2hhbmdlIHRoZSBpUHJvYyBJMkMgZHJpdmVyIHRvIHVzZSB0aGUgJ0JJVCcgbWFj
+cm8gZnJvbSBhbGwgJzEgPDwgWFhYJw0KPj4+PiBiaXQgb3BlcmF0aW9ucyB0byBnZXQgcmlkIG9m
+IGNvbXBpbGVyIHdhcm5pbmcgYW5kIGltcHJvdmUgcmVhZGFiaWxpdHkgb2YNCj4+Pj4gdGhlIGNv
+ZGUNCj4+Pg0KPj4+IEFsbD8gSSBzZWUgbG90cyBtb3JlICcxIDw8IFhYWF9TSElGVCcgbWF0Y2hl
+cy4gSSBtaWdodCBiZSBiZWhpbmQgdGhvdWdoPw0KPj4NCj4+IEkgdmVyaWZpZWQgdGhhdCwgYW5k
+IHllcyBpbmRlZWQsIEkgd2FzIGJlaGluZC4gVGhhdCBzYWlkLCBzZWUgYmVsb3cuLi4NCj4+DQo+
+IA0KPiBSaWdodC4gUHJldmlvdXMgY2hhbmdlIHRoYXQgdGhpcyBjaGFuZ2UgZGVwZW5kcyBvbiBp
+cyBhbHJlYWR5IHF1ZXVlZCBpbg0KPiBpMmMvZm9yLW5leHQuDQo+IA0KPj4+IEFueXdheSwgaWYg
+eW91IGFyZSBjbGVhbmluZyB1cCwgSSdtIGp1c3QgZmxhZ2dpbmcgdGhhdCBCSVQoWFhYX1NISUZU
+KSBsb29rcw0KPj4+IGEgYml0IGNsdW5reSB0byBtZS4gWW91IG1pZ2h0IGNvbnNpZGVyIHJlbmFt
+aW5nIGFsbCB0aG9zZSBzaW5nbGUtYml0DQo+Pj4gWFhYX1NISUZUIG1hY3JvcyB0byBzaW1wbGUg
+YmUNCj4+Pg0KPj4+ICNkZWZpbmUgWFhYIEJJVCg8eHh4PikNCj4+Pg0KPj4+IGluc3RlYWQgb2YN
+Cj4+Pg0KPj4+ICNkZWZpbmUgWFhYX1NISUZUIDx4eHg+DQo+Pj4NCj4+PiBidXQgdGhhdCB0cmln
+Z2VycyBtb3JlIGNodXJuLCBzbyBpcyBvYnZpb3VzbHkgbW9yZSBlcnJvciBwcm9uZS4gWW91IG1p
+Z2h0DQo+Pj4gbm90IGRhcmUgaXQ/DQo+Pj4NCj4gDQo+IFdpdGggdGhlIGN1cnJlbnQgY29kZSwg
+SSBkb24ndCBzZWUgaG93IHRoYXQgaXMgY2xlYW5lci4gV2l0aCBYWFhfU0hJRlQNCj4gc3BlY2lm
+aWVkLCBpdCBtYWtlcyBpdCB2ZXJ5IGNsZWFyIHRvIHRoZSB1c2VyIHRoYXQgdGhlIGRlZmluZSBh
+IGZvciBhDQo+IGJpdCBsb2NhdGlvbiB3aXRoaW4gYSByZWdpc3Rlci4gWW91IGNhbiBhcmd1ZSBh
+bmQgc2F5IGl0IG1ha2VzIHRoZQ0KPiBkZWZpbmUgbG9uZ2VyLCBidXQgbm90IGxlc3MgY2xlYXIu
+DQo+IA0KPj4+IENoZWVycywNCj4+PiBQZXRlcg0KPj4+DQo+Pj4+IFNpZ25lZC1vZmYtYnk6IFJh
+eSBKdWkgPHJheS5qdWlAYnJvYWRjb20uY29tPg0KPj4+PiAtLS0NCj4+Pj4gIGRyaXZlcnMvaTJj
+L2J1c3Nlcy9pMmMtYmNtLWlwcm9jLmMgfCA2ICsrKy0tLQ0KPj4+PiAgMSBmaWxlIGNoYW5nZWQs
+IDMgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkNCj4+Pj4NCj4+Pj4gZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYmNtLWlwcm9jLmMgYi9kcml2ZXJzL2kyYy9idXNzZXMv
+aTJjLWJjbS1pcHJvYy5jDQo+Pj4+IGluZGV4IDU2Mjk0MmQwYzA1Yy4uYTg0NWI4ZGVjYWM4IDEw
+MDY0NA0KPj4+PiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWJjbS1pcHJvYy5jDQo+Pj4+
+ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYmNtLWlwcm9jLmMNCj4+Pj4gQEAgLTcxNyw3
+ICs3MTcsNyBAQCBzdGF0aWMgaW50IGJjbV9pcHJvY19pMmNfeGZlcl9zaW5nbGVfbXNnKHN0cnVj
+dCBiY21faXByb2NfaTJjX2RldiAqaXByb2NfaTJjLA0KPj4+PiAgDQo+Pj4+ICAJCQkvKiBtYXJr
+IHRoZSBsYXN0IGJ5dGUgKi8NCj4+Pj4gIAkJCWlmIChpID09IG1zZy0+bGVuIC0gMSkNCj4+Pj4g
+LQkJCQl2YWwgfD0gMSA8PCBNX1RYX1dSX1NUQVRVU19TSElGVDsNCj4+Pj4gKwkJCQl2YWwgfD0g
+QklUKE1fVFhfV1JfU1RBVFVTX1NISUZUKTsNCj4+Pj4gIA0KPj4+PiAgCQkJaXByb2NfaTJjX3dy
+X3JlZyhpcHJvY19pMmMsIE1fVFhfT0ZGU0VULCB2YWwpOw0KPj4+PiAgCQl9DQo+Pj4+IEBAIC04
+NDQsNyArODQ0LDcgQEAgc3RhdGljIGludCBiY21faXByb2NfaTJjX2NmZ19zcGVlZChzdHJ1Y3Qg
+YmNtX2lwcm9jX2kyY19kZXYgKmlwcm9jX2kyYykNCj4+Pj4gIA0KPj4+PiAgCWlwcm9jX2kyYy0+
+YnVzX3NwZWVkID0gYnVzX3NwZWVkOw0KPj4+PiAgCXZhbCA9IGlwcm9jX2kyY19yZF9yZWcoaXBy
+b2NfaTJjLCBUSU1fQ0ZHX09GRlNFVCk7DQo+Pj4+IC0JdmFsICY9IH4oMSA8PCBUSU1fQ0ZHX01P
+REVfNDAwX1NISUZUKTsNCj4+Pj4gKwl2YWwgJj0gfkJJVChUSU1fQ0ZHX01PREVfNDAwX1NISUZU
+KTsNCj4+Pj4gIAl2YWwgfD0gKGJ1c19zcGVlZCA9PSA0MDAwMDApIDw8IFRJTV9DRkdfTU9ERV80
+MDBfU0hJRlQ7DQo+Pg0KPj4gVGhlc2UgdHdvIHN0YXRlbWVudHMgbm93IG5vIGxvbmdlciAibWF0
+Y2giLiBPbmUgdXNlcyBCSVQgYW5kIHRoZSBvdGhlciBvcGVuDQo+PiBjb2RlcyB0aGUgc2hpZnQu
+IEkgdGhpbmsgdGhhdCdzIGJhZC4gTG9zaW5nIHRoZSBfU0hJRlQgc3VmZml4IGFuZCBpbmNsdWRp
+bmcNCj4+IEJJVCBpbiB0aGUgbWFjcm8gZXhwYW5zaW9uLCBhcyBzdWdnZXN0ZWQgYWJvdmUsIHlp
+ZWxkczoNCj4+DQo+PiAJdmFsICY9IH5USU1fQ0ZHX01PREVfNDAwOw0KPj4gCWlmIChidXNfc3Bl
+ZWQgPT0gNDAwMDAwKQ0KPj4gCQl2YWwgfD0gVElNX0NGR19NT0RFXzQwMDsNCj4+DQo+PiB3aGlj
+aCBpcyBwZXJoYXBzIG9uZSBtb3JlIGxpbmUsIGJ1dCBhbHNvIG1vcmUgcmVhZGFibGUgSU1PLg0K
+Pj4NCj4gDQo+IEEgc2luZ2xlIGxpbmUgd2l0aCBldmFsdWF0aW9uIGVtYmVkZGVkIGlzIG5pY2Ug
+YW5kIGNsZWFuIHRvIG1lLiBJIGd1ZXNzDQo+IHRoaXMgaXMgc3ViamVjdGl2ZS4NCg0KVGhlICJw
+cm9ibGVtIiBJIGhhZCB3aGVuIEkgbG9va2VkIGF0IHRoZSBkcml2ZXIgd2FzIG5vdCBhbnkgb25l
+IHNwZWNpZmljDQppbnN0YW5jZS4gSXQgd2FzIGp1c3QgdGhhdCwgZm9yIG15IHRhc3RlLCB0aGUg
+Y29kZSBoYWQgdG9vIG1hbnkgc2hpZnRzDQpldGMgaW5saW5lIHdpdGggdGhlIHJlYWwgY29kZS4g
+UmVwbGFjaW5nIDEgPDwgeHl6X1NISUZUIHdpdGggQklUKHh5el9TSElGVCkNCmlzIG5vdCBhIHJl
+YWwgaW1wcm92ZW1lbnQsIHRoZXkgYXJlIGp1c3QgYWJvdXQgZXF1YWwgdG8gbWUsIGl0J3MganVz
+dCB0aGF0DQp0aGVyZSBhcmUgc3RpbGwgdG9vIG1hbnkgbWVjaGFuaWNhbCB0aGluZ3MgaGFwcGVu
+aW5nIHRoYXQgY291bGQgZWFzaWx5IGJlDQp0dWNrZWQgYXdheSB3aXRoIHRoZSBzdWdnZXN0ZWQg
+YXBwcm9hY2guDQoNCj4gSSdsbCBsZWF2ZSB0aGUgZGVjaXNpb24gdG8gV29sZnJhbS4gSWYgaGUg
+YWxzbyBwcmVmZXJzIHRoZSBhYm92ZSBjaGFuZ2UNCj4gdG8gYmUgbWFkZSwgc3VyZS4gT3RoZXJ3
+aXNlLCBJJ2xsIGxlYXZlIGl0IGFzIGl0IGlzLg0KDQpCdXQgaWYgeW91IHNlZSBubyB2YWx1ZSBp
+biBteSBzdWdnZXN0aW9uIGFuZC9vciBkb24ndCB3aGF0IHRvIHRha2UgdGhlDQpjbGVhbnVwIG9u
+ZSBzdGVwIGZ1cnRoZXIsIHRoZW4ganVzdCBsZWF2ZSBpdCBhcy1pcy4NCg0KPj4gQnV0IGFsbCB0
+aGlzIGlzIG9mIGNvdXJzZSBpbiBkZWVwIG5pdC1waWNrLXRlcnJpdG9yeS4uLg0KPj4NCj4+IENo
+ZWVycywNCj4+IFBldGVyDQo+Pg0KPiANCj4gVGhhbmtzLA0KPiANCj4gUmF5DQo+IA0KDQo=
