@@ -1,85 +1,59 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] i2c: iproc: Change driver to use 'BIT' macro
-Date: Thu, 18 Apr 2019 06:21:37 +0000
-Message-ID: <497d0668-3065-a357-72ca-a7e79fc9cfb0@axentia.se>
-References: <20190403210535.32236-1-ray.jui@broadcom.com>
- <f28f604a-55a4-7542-0e13-a92a83ab2144@axentia.se>
- <c47c6ec2-6d6f-8885-932c-35390783f55b@axentia.se>
- <bd0c7b0f-1936-dd1e-b8f3-ebafebdea252@broadcom.com>
+From: Fabien Parent <fparent@baylibre.com>
+Subject: Re: [PATCH 19/24] dt-bindings: spi: spi-mt65xx: add support for MT8516
+Date: Thu, 18 Apr 2019 10:05:13 +0200
+Message-ID: <CAOwMV_yKAm1zar6buhe25O56AkAX8e0nXnm4GmqhvHC-yagKfQ@mail.gmail.com>
+References: <20190323211612.860-1-fparent@baylibre.com> <20190323211612.860-20-fparent@baylibre.com>
+ <5bc3fbfa-6d7e-08d3-116c-a8f78bc680cd@gmail.com> <1555403151.7441.4.camel@mhfsdcap03>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <bd0c7b0f-1936-dd1e-b8f3-ebafebdea252@broadcom.com>
-Content-Language: en-US
-Content-ID: <7A97424730BC9D46BA6D1E24285AF823@eurprd02.prod.outlook.com>
+In-Reply-To: <1555403151.7441.4.camel@mhfsdcap03>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ray Jui <ray.jui@broadcom.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "bcm-kernel-feedback-list@broadcom.com" <bcm-kernel-feedback-list@broadcom.com>, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+To: lei liu <leilk.liu@mediatek.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Mark Brown <broonie@kernel.org>, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, ryder.lee@mediatek.com, linux-watchdog@vger.kernel.org, jjian.zhou@mediatek.com, wenzhen.yu@mediatek.com, Stephane Le Provost <stephane.leprovost@mediatek.com>, sean.wang@kernel.org, linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org, yong.mao@mediatek.com, linux-spi@vger.kernel.org, linux-gpio@vger.kernel.org, linux-mediatek@lists.infradead.org, hsin-hsiung.wang@mediatek.com, linux-serial@vger.kernel.org, linux-clk@vger.kernel.org, Chaotian Jing <chaotian.jing@mediatek.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOS0wNC0xOCAwMTo0OCwgUmF5IEp1aSB3cm90ZToNCj4gDQo+IA0KPiBPbiA0LzE0LzIw
-MTkgMTE6NTYgUE0sIFBldGVyIFJvc2luIHdyb3RlOg0KPj4gT24gMjAxOS0wNC0xMyAwMDo1OSwg
-UGV0ZXIgUm9zaW4gd3JvdGU6DQo+Pj4gT24gMjAxOS0wNC0wMyAyMzowNSwgUmF5IEp1aSB3cm90
-ZToNCj4+Pj4gQ2hhbmdlIHRoZSBpUHJvYyBJMkMgZHJpdmVyIHRvIHVzZSB0aGUgJ0JJVCcgbWFj
-cm8gZnJvbSBhbGwgJzEgPDwgWFhYJw0KPj4+PiBiaXQgb3BlcmF0aW9ucyB0byBnZXQgcmlkIG9m
-IGNvbXBpbGVyIHdhcm5pbmcgYW5kIGltcHJvdmUgcmVhZGFiaWxpdHkgb2YNCj4+Pj4gdGhlIGNv
-ZGUNCj4+Pg0KPj4+IEFsbD8gSSBzZWUgbG90cyBtb3JlICcxIDw8IFhYWF9TSElGVCcgbWF0Y2hl
-cy4gSSBtaWdodCBiZSBiZWhpbmQgdGhvdWdoPw0KPj4NCj4+IEkgdmVyaWZpZWQgdGhhdCwgYW5k
-IHllcyBpbmRlZWQsIEkgd2FzIGJlaGluZC4gVGhhdCBzYWlkLCBzZWUgYmVsb3cuLi4NCj4+DQo+
-IA0KPiBSaWdodC4gUHJldmlvdXMgY2hhbmdlIHRoYXQgdGhpcyBjaGFuZ2UgZGVwZW5kcyBvbiBp
-cyBhbHJlYWR5IHF1ZXVlZCBpbg0KPiBpMmMvZm9yLW5leHQuDQo+IA0KPj4+IEFueXdheSwgaWYg
-eW91IGFyZSBjbGVhbmluZyB1cCwgSSdtIGp1c3QgZmxhZ2dpbmcgdGhhdCBCSVQoWFhYX1NISUZU
-KSBsb29rcw0KPj4+IGEgYml0IGNsdW5reSB0byBtZS4gWW91IG1pZ2h0IGNvbnNpZGVyIHJlbmFt
-aW5nIGFsbCB0aG9zZSBzaW5nbGUtYml0DQo+Pj4gWFhYX1NISUZUIG1hY3JvcyB0byBzaW1wbGUg
-YmUNCj4+Pg0KPj4+ICNkZWZpbmUgWFhYIEJJVCg8eHh4PikNCj4+Pg0KPj4+IGluc3RlYWQgb2YN
-Cj4+Pg0KPj4+ICNkZWZpbmUgWFhYX1NISUZUIDx4eHg+DQo+Pj4NCj4+PiBidXQgdGhhdCB0cmln
-Z2VycyBtb3JlIGNodXJuLCBzbyBpcyBvYnZpb3VzbHkgbW9yZSBlcnJvciBwcm9uZS4gWW91IG1p
-Z2h0DQo+Pj4gbm90IGRhcmUgaXQ/DQo+Pj4NCj4gDQo+IFdpdGggdGhlIGN1cnJlbnQgY29kZSwg
-SSBkb24ndCBzZWUgaG93IHRoYXQgaXMgY2xlYW5lci4gV2l0aCBYWFhfU0hJRlQNCj4gc3BlY2lm
-aWVkLCBpdCBtYWtlcyBpdCB2ZXJ5IGNsZWFyIHRvIHRoZSB1c2VyIHRoYXQgdGhlIGRlZmluZSBh
-IGZvciBhDQo+IGJpdCBsb2NhdGlvbiB3aXRoaW4gYSByZWdpc3Rlci4gWW91IGNhbiBhcmd1ZSBh
-bmQgc2F5IGl0IG1ha2VzIHRoZQ0KPiBkZWZpbmUgbG9uZ2VyLCBidXQgbm90IGxlc3MgY2xlYXIu
-DQo+IA0KPj4+IENoZWVycywNCj4+PiBQZXRlcg0KPj4+DQo+Pj4+IFNpZ25lZC1vZmYtYnk6IFJh
-eSBKdWkgPHJheS5qdWlAYnJvYWRjb20uY29tPg0KPj4+PiAtLS0NCj4+Pj4gIGRyaXZlcnMvaTJj
-L2J1c3Nlcy9pMmMtYmNtLWlwcm9jLmMgfCA2ICsrKy0tLQ0KPj4+PiAgMSBmaWxlIGNoYW5nZWQs
-IDMgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkNCj4+Pj4NCj4+Pj4gZGlmZiAtLWdpdCBh
-L2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYmNtLWlwcm9jLmMgYi9kcml2ZXJzL2kyYy9idXNzZXMv
-aTJjLWJjbS1pcHJvYy5jDQo+Pj4+IGluZGV4IDU2Mjk0MmQwYzA1Yy4uYTg0NWI4ZGVjYWM4IDEw
-MDY0NA0KPj4+PiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWJjbS1pcHJvYy5jDQo+Pj4+
-ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYmNtLWlwcm9jLmMNCj4+Pj4gQEAgLTcxNyw3
-ICs3MTcsNyBAQCBzdGF0aWMgaW50IGJjbV9pcHJvY19pMmNfeGZlcl9zaW5nbGVfbXNnKHN0cnVj
-dCBiY21faXByb2NfaTJjX2RldiAqaXByb2NfaTJjLA0KPj4+PiAgDQo+Pj4+ICAJCQkvKiBtYXJr
-IHRoZSBsYXN0IGJ5dGUgKi8NCj4+Pj4gIAkJCWlmIChpID09IG1zZy0+bGVuIC0gMSkNCj4+Pj4g
-LQkJCQl2YWwgfD0gMSA8PCBNX1RYX1dSX1NUQVRVU19TSElGVDsNCj4+Pj4gKwkJCQl2YWwgfD0g
-QklUKE1fVFhfV1JfU1RBVFVTX1NISUZUKTsNCj4+Pj4gIA0KPj4+PiAgCQkJaXByb2NfaTJjX3dy
-X3JlZyhpcHJvY19pMmMsIE1fVFhfT0ZGU0VULCB2YWwpOw0KPj4+PiAgCQl9DQo+Pj4+IEBAIC04
-NDQsNyArODQ0LDcgQEAgc3RhdGljIGludCBiY21faXByb2NfaTJjX2NmZ19zcGVlZChzdHJ1Y3Qg
-YmNtX2lwcm9jX2kyY19kZXYgKmlwcm9jX2kyYykNCj4+Pj4gIA0KPj4+PiAgCWlwcm9jX2kyYy0+
-YnVzX3NwZWVkID0gYnVzX3NwZWVkOw0KPj4+PiAgCXZhbCA9IGlwcm9jX2kyY19yZF9yZWcoaXBy
-b2NfaTJjLCBUSU1fQ0ZHX09GRlNFVCk7DQo+Pj4+IC0JdmFsICY9IH4oMSA8PCBUSU1fQ0ZHX01P
-REVfNDAwX1NISUZUKTsNCj4+Pj4gKwl2YWwgJj0gfkJJVChUSU1fQ0ZHX01PREVfNDAwX1NISUZU
-KTsNCj4+Pj4gIAl2YWwgfD0gKGJ1c19zcGVlZCA9PSA0MDAwMDApIDw8IFRJTV9DRkdfTU9ERV80
-MDBfU0hJRlQ7DQo+Pg0KPj4gVGhlc2UgdHdvIHN0YXRlbWVudHMgbm93IG5vIGxvbmdlciAibWF0
-Y2giLiBPbmUgdXNlcyBCSVQgYW5kIHRoZSBvdGhlciBvcGVuDQo+PiBjb2RlcyB0aGUgc2hpZnQu
-IEkgdGhpbmsgdGhhdCdzIGJhZC4gTG9zaW5nIHRoZSBfU0hJRlQgc3VmZml4IGFuZCBpbmNsdWRp
-bmcNCj4+IEJJVCBpbiB0aGUgbWFjcm8gZXhwYW5zaW9uLCBhcyBzdWdnZXN0ZWQgYWJvdmUsIHlp
-ZWxkczoNCj4+DQo+PiAJdmFsICY9IH5USU1fQ0ZHX01PREVfNDAwOw0KPj4gCWlmIChidXNfc3Bl
-ZWQgPT0gNDAwMDAwKQ0KPj4gCQl2YWwgfD0gVElNX0NGR19NT0RFXzQwMDsNCj4+DQo+PiB3aGlj
-aCBpcyBwZXJoYXBzIG9uZSBtb3JlIGxpbmUsIGJ1dCBhbHNvIG1vcmUgcmVhZGFibGUgSU1PLg0K
-Pj4NCj4gDQo+IEEgc2luZ2xlIGxpbmUgd2l0aCBldmFsdWF0aW9uIGVtYmVkZGVkIGlzIG5pY2Ug
-YW5kIGNsZWFuIHRvIG1lLiBJIGd1ZXNzDQo+IHRoaXMgaXMgc3ViamVjdGl2ZS4NCg0KVGhlICJw
-cm9ibGVtIiBJIGhhZCB3aGVuIEkgbG9va2VkIGF0IHRoZSBkcml2ZXIgd2FzIG5vdCBhbnkgb25l
-IHNwZWNpZmljDQppbnN0YW5jZS4gSXQgd2FzIGp1c3QgdGhhdCwgZm9yIG15IHRhc3RlLCB0aGUg
-Y29kZSBoYWQgdG9vIG1hbnkgc2hpZnRzDQpldGMgaW5saW5lIHdpdGggdGhlIHJlYWwgY29kZS4g
-UmVwbGFjaW5nIDEgPDwgeHl6X1NISUZUIHdpdGggQklUKHh5el9TSElGVCkNCmlzIG5vdCBhIHJl
-YWwgaW1wcm92ZW1lbnQsIHRoZXkgYXJlIGp1c3QgYWJvdXQgZXF1YWwgdG8gbWUsIGl0J3MganVz
-dCB0aGF0DQp0aGVyZSBhcmUgc3RpbGwgdG9vIG1hbnkgbWVjaGFuaWNhbCB0aGluZ3MgaGFwcGVu
-aW5nIHRoYXQgY291bGQgZWFzaWx5IGJlDQp0dWNrZWQgYXdheSB3aXRoIHRoZSBzdWdnZXN0ZWQg
-YXBwcm9hY2guDQoNCj4gSSdsbCBsZWF2ZSB0aGUgZGVjaXNpb24gdG8gV29sZnJhbS4gSWYgaGUg
-YWxzbyBwcmVmZXJzIHRoZSBhYm92ZSBjaGFuZ2UNCj4gdG8gYmUgbWFkZSwgc3VyZS4gT3RoZXJ3
-aXNlLCBJJ2xsIGxlYXZlIGl0IGFzIGl0IGlzLg0KDQpCdXQgaWYgeW91IHNlZSBubyB2YWx1ZSBp
-biBteSBzdWdnZXN0aW9uIGFuZC9vciBkb24ndCB3aGF0IHRvIHRha2UgdGhlDQpjbGVhbnVwIG9u
-ZSBzdGVwIGZ1cnRoZXIsIHRoZW4ganVzdCBsZWF2ZSBpdCBhcy1pcy4NCg0KPj4gQnV0IGFsbCB0
-aGlzIGlzIG9mIGNvdXJzZSBpbiBkZWVwIG5pdC1waWNrLXRlcnJpdG9yeS4uLg0KPj4NCj4+IENo
-ZWVycywNCj4+IFBldGVyDQo+Pg0KPiANCj4gVGhhbmtzLA0KPiANCj4gUmF5DQo+IA0KDQo=
+On Tue, Apr 16, 2019 at 10:25 AM lei liu <leilk.liu@mediatek.com> wrote:
+>
+> On Tue, 2019-04-16 at 09:55 +0200, Matthias Brugger wrote:
+> >
+> > On 23/03/2019 22:16, Fabien Parent wrote:
+> > > Add binding documentation of spi-mt65xx for MT8516 SoC.
+> > >
+> > > Signed-off-by: Fabien Parent <fparent@baylibre.com>
+> > > ---
+> > >  Documentation/devicetree/bindings/spi/spi-mt65xx.txt | 1 +
+> > >  1 file changed, 1 insertion(+)
+> > >
+> >
+> >
+> > applied to v5.1-next/dts64
+> >
+> > Mark let me know if you want to take it through your tree and I drop the patch.
+> >
+> > > diff --git a/Documentation/devicetree/bindings/spi/spi-mt65xx.txt b/Documentation/devicetree/bindings/spi/spi-mt65xx.txt
+> > > index 69c356767cf8..69ac5976b952 100644
+> > > --- a/Documentation/devicetree/bindings/spi/spi-mt65xx.txt
+> > > +++ b/Documentation/devicetree/bindings/spi/spi-mt65xx.txt
+> > > @@ -10,6 +10,7 @@ Required properties:
+> > >      - mediatek,mt8135-spi: for mt8135 platforms
+> > >      - mediatek,mt8173-spi: for mt8173 platforms
+> > >      - mediatek,mt8183-spi: for mt8183 platforms
+> > > +    - "mediatek,mt8516-spi", "mediatek,mt2701-spi": for mt8516 platforms
+> Hi Fabien,
+> mt8516 SPI design comes from mt2712 and it's different from mt2701. Here
+> it should compatible with mt2712.
+
+Ok, thanks. I will retry with the mt2712 compatible.
+
+> > >
+> > >  - #address-cells: should be 1.
+> > >
+> > >
+> >
+> > _______________________________________________
+> > Linux-mediatek mailing list
+> > Linux-mediatek@lists.infradead.org
+> > http://lists.infradead.org/mailman/listinfo/linux-mediatek
+>
+>
