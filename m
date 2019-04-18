@@ -1,139 +1,116 @@
-From: Ray Jui <ray.jui@broadcom.com>
+From: Peter Rosin <peda@axentia.se>
 Subject: Re: [PATCH] i2c: iproc: Change driver to use 'BIT' macro
-Date: Thu, 18 Apr 2019 10:25:40 -0700
-Message-ID: <477ebe18-68e0-f5c8-e7a0-5476b6a886db@broadcom.com>
+Date: Thu, 18 Apr 2019 21:27:14 +0000
+Message-ID: <0d88af3b-e877-cd80-9537-ecde2d2d0e94@axentia.se>
 References: <20190403210535.32236-1-ray.jui@broadcom.com>
  <f28f604a-55a4-7542-0e13-a92a83ab2144@axentia.se>
  <c47c6ec2-6d6f-8885-932c-35390783f55b@axentia.se>
  <bd0c7b0f-1936-dd1e-b8f3-ebafebdea252@broadcom.com>
  <497d0668-3065-a357-72ca-a7e79fc9cfb0@axentia.se>
+ <477ebe18-68e0-f5c8-e7a0-5476b6a886db@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <497d0668-3065-a357-72ca-a7e79fc9cfb0@axentia.se>
+In-Reply-To: <477ebe18-68e0-f5c8-e7a0-5476b6a886db@broadcom.com>
 Content-Language: en-US
+Content-ID: <EAE936D2C7FE2943B403A59873C9356C@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
+To: Ray Jui <ray.jui@broadcom.com>, Wolfram Sang <wsa@the-dreams.de>
 Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "bcm-kernel-feedback-list@broadcom.com" <bcm-kernel-feedback-list@broadcom.com>, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
-
-
-On 4/17/2019 11:21 PM, Peter Rosin wrote:
-> On 2019-04-18 01:48, Ray Jui wrote:
->>
->>
->> On 4/14/2019 11:56 PM, Peter Rosin wrote:
->>> On 2019-04-13 00:59, Peter Rosin wrote:
->>>> On 2019-04-03 23:05, Ray Jui wrote:
->>>>> Change the iProc I2C driver to use the 'BIT' macro from all '1 << XXX'
->>>>> bit operations to get rid of compiler warning and improve readability of
->>>>> the code
->>>>
->>>> All? I see lots more '1 << XXX_SHIFT' matches. I might be behind though?
->>>
->>> I verified that, and yes indeed, I was behind. That said, see below...
->>>
->>
->> Right. Previous change that this change depends on is already queued in
->> i2c/for-next.
->>
->>>> Anyway, if you are cleaning up, I'm just flagging that BIT(XXX_SHIFT) looks
->>>> a bit clunky to me. You might consider renaming all those single-bit
->>>> XXX_SHIFT macros to simple be
->>>>
->>>> #define XXX BIT(<xxx>)
->>>>
->>>> instead of
->>>>
->>>> #define XXX_SHIFT <xxx>
->>>>
->>>> but that triggers more churn, so is obviously more error prone. You might
->>>> not dare it?
->>>>
->>
->> With the current code, I don't see how that is cleaner. With XXX_SHIFT
->> specified, it makes it very clear to the user that the define a for a
->> bit location within a register. You can argue and say it makes the
->> define longer, but not less clear.
->>
->>>> Cheers,
->>>> Peter
->>>>
->>>>> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
->>>>> ---
->>>>>  drivers/i2c/busses/i2c-bcm-iproc.c | 6 +++---
->>>>>  1 file changed, 3 insertions(+), 3 deletions(-)
->>>>>
->>>>> diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
->>>>> index 562942d0c05c..a845b8decac8 100644
->>>>> --- a/drivers/i2c/busses/i2c-bcm-iproc.c
->>>>> +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
->>>>> @@ -717,7 +717,7 @@ static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
->>>>>  
->>>>>  			/* mark the last byte */
->>>>>  			if (i == msg->len - 1)
->>>>> -				val |= 1 << M_TX_WR_STATUS_SHIFT;
->>>>> +				val |= BIT(M_TX_WR_STATUS_SHIFT);
->>>>>  
->>>>>  			iproc_i2c_wr_reg(iproc_i2c, M_TX_OFFSET, val);
->>>>>  		}
->>>>> @@ -844,7 +844,7 @@ static int bcm_iproc_i2c_cfg_speed(struct bcm_iproc_i2c_dev *iproc_i2c)
->>>>>  
->>>>>  	iproc_i2c->bus_speed = bus_speed;
->>>>>  	val = iproc_i2c_rd_reg(iproc_i2c, TIM_CFG_OFFSET);
->>>>> -	val &= ~(1 << TIM_CFG_MODE_400_SHIFT);
->>>>> +	val &= ~BIT(TIM_CFG_MODE_400_SHIFT);
->>>>>  	val |= (bus_speed == 400000) << TIM_CFG_MODE_400_SHIFT;
->>>
->>> These two statements now no longer "match". One uses BIT and the other open
->>> codes the shift. I think that's bad. Losing the _SHIFT suffix and including
->>> BIT in the macro expansion, as suggested above, yields:
->>>
->>> 	val &= ~TIM_CFG_MODE_400;
->>> 	if (bus_speed == 400000)
->>> 		val |= TIM_CFG_MODE_400;
->>>
->>> which is perhaps one more line, but also more readable IMO.
->>>
->>
->> A single line with evaluation embedded is nice and clean to me. I guess
->> this is subjective.
-> 
-> The "problem" I had when I looked at the driver was not any one specific
-> instance. It was just that, for my taste, the code had too many shifts
-> etc inline with the real code. Replacing 1 << xyz_SHIFT with BIT(xyz_SHIFT)
-> is not a real improvement, they are just about equal to me, it's just that
-> there are still too many mechanical things happening that could easily be
-> tucked away with the suggested approach.
-> 
-
-Right, for your taste. Like I said, I feel this is very subjective. To
-me, and many other I2C driver owners (I just checked how many other I2C
-drivers also appear to prefer to use XXX_SHIFT and there are a lot of
-them), using XXX_SHIFT makes it more clear that the define is intended
-to be used for bit shift operation.
-
->> I'll leave the decision to Wolfram. If he also prefers the above change
->> to be made, sure. Otherwise, I'll leave it as it is.
-> 
-> But if you see no value in my suggestion and/or don't what to take the
-> cleanup one step further, then just leave it as-is.
-> 
-
-Again, this is subjective. Personally I do not feel this is "cleanup one
-step further". To me, this change will make the code less clear on the
-intended operation.
-
->>> But all this is of course in deep nit-pick-territory...
->>>
->>> Cheers,
->>> Peter
->>>
->>
->> Thanks,
->>
->> Ray
->>
-> 
+T24gMjAxOS0wNC0xOCAxOToyNSwgUmF5IEp1aSB3cm90ZToNCj4gDQo+IA0KPiBPbiA0LzE3LzIw
+MTkgMTE6MjEgUE0sIFBldGVyIFJvc2luIHdyb3RlOg0KPj4gT24gMjAxOS0wNC0xOCAwMTo0OCwg
+UmF5IEp1aSB3cm90ZToNCj4+Pg0KPj4+DQo+Pj4gT24gNC8xNC8yMDE5IDExOjU2IFBNLCBQZXRl
+ciBSb3NpbiB3cm90ZToNCj4+Pj4gT24gMjAxOS0wNC0xMyAwMDo1OSwgUGV0ZXIgUm9zaW4gd3Jv
+dGU6DQo+Pj4+PiBPbiAyMDE5LTA0LTAzIDIzOjA1LCBSYXkgSnVpIHdyb3RlOg0KPj4+Pj4+IENo
+YW5nZSB0aGUgaVByb2MgSTJDIGRyaXZlciB0byB1c2UgdGhlICdCSVQnIG1hY3JvIGZyb20gYWxs
+ICcxIDw8IFhYWCcNCj4+Pj4+PiBiaXQgb3BlcmF0aW9ucyB0byBnZXQgcmlkIG9mIGNvbXBpbGVy
+IHdhcm5pbmcgYW5kIGltcHJvdmUgcmVhZGFiaWxpdHkgb2YNCj4+Pj4+PiB0aGUgY29kZQ0KPj4+
+Pj4NCj4+Pj4+IEFsbD8gSSBzZWUgbG90cyBtb3JlICcxIDw8IFhYWF9TSElGVCcgbWF0Y2hlcy4g
+SSBtaWdodCBiZSBiZWhpbmQgdGhvdWdoPw0KPj4+Pg0KPj4+PiBJIHZlcmlmaWVkIHRoYXQsIGFu
+ZCB5ZXMgaW5kZWVkLCBJIHdhcyBiZWhpbmQuIFRoYXQgc2FpZCwgc2VlIGJlbG93Li4uDQo+Pj4+
+DQo+Pj4NCj4+PiBSaWdodC4gUHJldmlvdXMgY2hhbmdlIHRoYXQgdGhpcyBjaGFuZ2UgZGVwZW5k
+cyBvbiBpcyBhbHJlYWR5IHF1ZXVlZCBpbg0KPj4+IGkyYy9mb3ItbmV4dC4NCj4+Pg0KPj4+Pj4g
+QW55d2F5LCBpZiB5b3UgYXJlIGNsZWFuaW5nIHVwLCBJJ20ganVzdCBmbGFnZ2luZyB0aGF0IEJJ
+VChYWFhfU0hJRlQpIGxvb2tzDQo+Pj4+PiBhIGJpdCBjbHVua3kgdG8gbWUuIFlvdSBtaWdodCBj
+b25zaWRlciByZW5hbWluZyBhbGwgdGhvc2Ugc2luZ2xlLWJpdA0KPj4+Pj4gWFhYX1NISUZUIG1h
+Y3JvcyB0byBzaW1wbGUgYmUNCj4+Pj4+DQo+Pj4+PiAjZGVmaW5lIFhYWCBCSVQoPHh4eD4pDQo+
+Pj4+Pg0KPj4+Pj4gaW5zdGVhZCBvZg0KPj4+Pj4NCj4+Pj4+ICNkZWZpbmUgWFhYX1NISUZUIDx4
+eHg+DQo+Pj4+Pg0KPj4+Pj4gYnV0IHRoYXQgdHJpZ2dlcnMgbW9yZSBjaHVybiwgc28gaXMgb2J2
+aW91c2x5IG1vcmUgZXJyb3IgcHJvbmUuIFlvdSBtaWdodA0KPj4+Pj4gbm90IGRhcmUgaXQ/DQo+
+Pj4+Pg0KPj4+DQo+Pj4gV2l0aCB0aGUgY3VycmVudCBjb2RlLCBJIGRvbid0IHNlZSBob3cgdGhh
+dCBpcyBjbGVhbmVyLiBXaXRoIFhYWF9TSElGVA0KPj4+IHNwZWNpZmllZCwgaXQgbWFrZXMgaXQg
+dmVyeSBjbGVhciB0byB0aGUgdXNlciB0aGF0IHRoZSBkZWZpbmUgYSBmb3IgYQ0KPj4+IGJpdCBs
+b2NhdGlvbiB3aXRoaW4gYSByZWdpc3Rlci4gWW91IGNhbiBhcmd1ZSBhbmQgc2F5IGl0IG1ha2Vz
+IHRoZQ0KPj4+IGRlZmluZSBsb25nZXIsIGJ1dCBub3QgbGVzcyBjbGVhci4NCj4+Pg0KPj4+Pj4g
+Q2hlZXJzLA0KPj4+Pj4gUGV0ZXINCj4+Pj4+DQo+Pj4+Pj4gU2lnbmVkLW9mZi1ieTogUmF5IEp1
+aSA8cmF5Lmp1aUBicm9hZGNvbS5jb20+DQo+Pj4+Pj4gLS0tDQo+Pj4+Pj4gIGRyaXZlcnMvaTJj
+L2J1c3Nlcy9pMmMtYmNtLWlwcm9jLmMgfCA2ICsrKy0tLQ0KPj4+Pj4+ICAxIGZpbGUgY2hhbmdl
+ZCwgMyBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQ0KPj4+Pj4+DQo+Pj4+Pj4gZGlmZiAt
+LWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYmNtLWlwcm9jLmMgYi9kcml2ZXJzL2kyYy9i
+dXNzZXMvaTJjLWJjbS1pcHJvYy5jDQo+Pj4+Pj4gaW5kZXggNTYyOTQyZDBjMDVjLi5hODQ1Yjhk
+ZWNhYzggMTAwNjQ0DQo+Pj4+Pj4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1iY20taXBy
+b2MuYw0KPj4+Pj4+ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYmNtLWlwcm9jLmMNCj4+
+Pj4+PiBAQCAtNzE3LDcgKzcxNyw3IEBAIHN0YXRpYyBpbnQgYmNtX2lwcm9jX2kyY194ZmVyX3Np
+bmdsZV9tc2coc3RydWN0IGJjbV9pcHJvY19pMmNfZGV2ICppcHJvY19pMmMsDQo+Pj4+Pj4gIA0K
+Pj4+Pj4+ICAJCQkvKiBtYXJrIHRoZSBsYXN0IGJ5dGUgKi8NCj4+Pj4+PiAgCQkJaWYgKGkgPT0g
+bXNnLT5sZW4gLSAxKQ0KPj4+Pj4+IC0JCQkJdmFsIHw9IDEgPDwgTV9UWF9XUl9TVEFUVVNfU0hJ
+RlQ7DQo+Pj4+Pj4gKwkJCQl2YWwgfD0gQklUKE1fVFhfV1JfU1RBVFVTX1NISUZUKTsNCj4+Pj4+
+PiAgDQo+Pj4+Pj4gIAkJCWlwcm9jX2kyY193cl9yZWcoaXByb2NfaTJjLCBNX1RYX09GRlNFVCwg
+dmFsKTsNCj4+Pj4+PiAgCQl9DQo+Pj4+Pj4gQEAgLTg0NCw3ICs4NDQsNyBAQCBzdGF0aWMgaW50
+IGJjbV9pcHJvY19pMmNfY2ZnX3NwZWVkKHN0cnVjdCBiY21faXByb2NfaTJjX2RldiAqaXByb2Nf
+aTJjKQ0KPj4+Pj4+ICANCj4+Pj4+PiAgCWlwcm9jX2kyYy0+YnVzX3NwZWVkID0gYnVzX3NwZWVk
+Ow0KPj4+Pj4+ICAJdmFsID0gaXByb2NfaTJjX3JkX3JlZyhpcHJvY19pMmMsIFRJTV9DRkdfT0ZG
+U0VUKTsNCj4+Pj4+PiAtCXZhbCAmPSB+KDEgPDwgVElNX0NGR19NT0RFXzQwMF9TSElGVCk7DQo+
+Pj4+Pj4gKwl2YWwgJj0gfkJJVChUSU1fQ0ZHX01PREVfNDAwX1NISUZUKTsNCj4+Pj4+PiAgCXZh
+bCB8PSAoYnVzX3NwZWVkID09IDQwMDAwMCkgPDwgVElNX0NGR19NT0RFXzQwMF9TSElGVDsNCj4+
+Pj4NCj4+Pj4gVGhlc2UgdHdvIHN0YXRlbWVudHMgbm93IG5vIGxvbmdlciAibWF0Y2giLiBPbmUg
+dXNlcyBCSVQgYW5kIHRoZSBvdGhlciBvcGVuDQo+Pj4+IGNvZGVzIHRoZSBzaGlmdC4gSSB0aGlu
+ayB0aGF0J3MgYmFkLiBMb3NpbmcgdGhlIF9TSElGVCBzdWZmaXggYW5kIGluY2x1ZGluZw0KPj4+
+PiBCSVQgaW4gdGhlIG1hY3JvIGV4cGFuc2lvbiwgYXMgc3VnZ2VzdGVkIGFib3ZlLCB5aWVsZHM6
+DQo+Pj4+DQo+Pj4+IAl2YWwgJj0gflRJTV9DRkdfTU9ERV80MDA7DQo+Pj4+IAlpZiAoYnVzX3Nw
+ZWVkID09IDQwMDAwMCkNCj4+Pj4gCQl2YWwgfD0gVElNX0NGR19NT0RFXzQwMDsNCj4+Pj4NCj4+
+Pj4gd2hpY2ggaXMgcGVyaGFwcyBvbmUgbW9yZSBsaW5lLCBidXQgYWxzbyBtb3JlIHJlYWRhYmxl
+IElNTy4NCj4+Pj4NCj4+Pg0KPj4+IEEgc2luZ2xlIGxpbmUgd2l0aCBldmFsdWF0aW9uIGVtYmVk
+ZGVkIGlzIG5pY2UgYW5kIGNsZWFuIHRvIG1lLiBJIGd1ZXNzDQo+Pj4gdGhpcyBpcyBzdWJqZWN0
+aXZlLg0KPj4NCj4+IFRoZSAicHJvYmxlbSIgSSBoYWQgd2hlbiBJIGxvb2tlZCBhdCB0aGUgZHJp
+dmVyIHdhcyBub3QgYW55IG9uZSBzcGVjaWZpYw0KPj4gaW5zdGFuY2UuIEl0IHdhcyBqdXN0IHRo
+YXQsIGZvciBteSB0YXN0ZSwgdGhlIGNvZGUgaGFkIHRvbyBtYW55IHNoaWZ0cw0KPj4gZXRjIGlu
+bGluZSB3aXRoIHRoZSByZWFsIGNvZGUuIFJlcGxhY2luZyAxIDw8IHh5el9TSElGVCB3aXRoIEJJ
+VCh4eXpfU0hJRlQpDQo+PiBpcyBub3QgYSByZWFsIGltcHJvdmVtZW50LCB0aGV5IGFyZSBqdXN0
+IGFib3V0IGVxdWFsIHRvIG1lLCBpdCdzIGp1c3QgdGhhdA0KPj4gdGhlcmUgYXJlIHN0aWxsIHRv
+byBtYW55IG1lY2hhbmljYWwgdGhpbmdzIGhhcHBlbmluZyB0aGF0IGNvdWxkIGVhc2lseSBiZQ0K
+Pj4gdHVja2VkIGF3YXkgd2l0aCB0aGUgc3VnZ2VzdGVkIGFwcHJvYWNoLg0KPj4NCj4gDQo+IFJp
+Z2h0LCBmb3IgeW91ciB0YXN0ZS4gTGlrZSBJIHNhaWQsIEkgZmVlbCB0aGlzIGlzIHZlcnkgc3Vi
+amVjdGl2ZS4gVG8NCj4gbWUsIGFuZCBtYW55IG90aGVyIEkyQyBkcml2ZXIgb3duZXJzIChJIGp1
+c3QgY2hlY2tlZCBob3cgbWFueSBvdGhlciBJMkMNCj4gZHJpdmVycyBhbHNvIGFwcGVhciB0byBw
+cmVmZXIgdG8gdXNlIFhYWF9TSElGVCBhbmQgdGhlcmUgYXJlIGEgbG90IG9mDQo+IHRoZW0pLCB1
+c2luZyBYWFhfU0hJRlQgbWFrZXMgaXQgbW9yZSBjbGVhciB0aGF0IHRoZSBkZWZpbmUgaXMgaW50
+ZW5kZWQNCj4gdG8gYmUgdXNlZCBmb3IgYml0IHNoaWZ0IG9wZXJhdGlvbi4NCg0KV2hpY2ggaXMg
+YSB2ZXJ5IHN0cmFuZ2UgdGhpbmcgdG8gc2F5IGFib3V0IG15IHN1Z2dlc3Rpb24uIFRoZXJlIGlz
+IG5vIG5lZWQNCmZvciBhIF9TSElGVCBzdWZmaXggZm9yIHRoZSBtYWNybyBuYW1lcyBpZiB0aGV5
+IGFyZSBub3QgZ29pbmcgdG8gdXNlZCBpbg0Kc2hpZnRzISBUaGF0J3MgdGhlIHdob2xlIGZyaWdn
+aW4gcG9pbnQuDQoNClJlZ2FyZGluZyBvdGhlciBJMkMgZHJpdmVycywgSSBqdXN0IGhhZCBhIGJy
+aWVmIGxvb2sgYXQgYWJvdXQgMTAgb3Igc28NCnBpY2tlZCBhdCByYW5kb20sIGFuZCBOT05FIG9m
+IHRoZW0gdXNlIHRoZSBYWFhfU0hJRlQgcGFyYWRpZ20gdGhhdCB0aGlzDQpkcml2ZXIgaXMgdXNp
+bmcuIFRoZSBvbmVzIEkgcGlja2VkIHdlcmU6DQoNCmkyYy1hY29ybi5jDQppMmMtYWxpNTYzLmMN
+CmkyYy1hbHRlcmEuYw0KaTJjLWF0OTEuYw0KaTJjLWNtcC5jDQppMmMtZGF2aW5jaS5jDQppMmMt
+ZGlnaWNvbG9yLmMNCmkyYy1lbGVrdG9yLmMNCmkyYy1zdC5jDQoNClRoZSBvbmx5IG9uZSBJIGxv
+b2tlZCBhdCBub3QgZG9pbmcgaXQgdGhlIHdheSBJIHN1Z2dlc3RlZCBpcyBpMmMtZGxuMi5jDQp3
+aGljaCBkb2VzIG5vdCBhcHBlYXIgdG8gbmVlZCBhbnkgcmVnaXN0ZXIgZmllbGQgYWNjZXNzZXMg
+YXQgYWxsLg0KDQpTbywgcGVyaGFwcyB5b3Ugc2hvdWxkIHJlYWQgdGhlIHN1Z2dlc3Rpb24gYWdh
+aW4gd2l0aCBtb3JlIGNhcmU/IE9yIG5vdC4NCkFueXdheSwgSSdtIG5vdCBnb2luZyB0byB3YXN0
+ZSBhbnkgbW9yZSB0aW1lIGhlcmUuDQoNCkNoZWVycywNClBldGVyDQoNCj4gDQo+Pj4gSSdsbCBs
+ZWF2ZSB0aGUgZGVjaXNpb24gdG8gV29sZnJhbS4gSWYgaGUgYWxzbyBwcmVmZXJzIHRoZSBhYm92
+ZSBjaGFuZ2UNCj4+PiB0byBiZSBtYWRlLCBzdXJlLiBPdGhlcndpc2UsIEknbGwgbGVhdmUgaXQg
+YXMgaXQgaXMuDQo+Pg0KPj4gQnV0IGlmIHlvdSBzZWUgbm8gdmFsdWUgaW4gbXkgc3VnZ2VzdGlv
+biBhbmQvb3IgZG9uJ3Qgd2hhdCB0byB0YWtlIHRoZQ0KPj4gY2xlYW51cCBvbmUgc3RlcCBmdXJ0
+aGVyLCB0aGVuIGp1c3QgbGVhdmUgaXQgYXMtaXMuDQo+Pg0KPiANCj4gQWdhaW4sIHRoaXMgaXMg
+c3ViamVjdGl2ZS4gUGVyc29uYWxseSBJIGRvIG5vdCBmZWVsIHRoaXMgaXMgImNsZWFudXAgb25l
+DQo+IHN0ZXAgZnVydGhlciIuIFRvIG1lLCB0aGlzIGNoYW5nZSB3aWxsIG1ha2UgdGhlIGNvZGUg
+bGVzcyBjbGVhciBvbiB0aGUNCj4gaW50ZW5kZWQgb3BlcmF0aW9uLg0KPiANCj4+Pj4gQnV0IGFs
+bCB0aGlzIGlzIG9mIGNvdXJzZSBpbiBkZWVwIG5pdC1waWNrLXRlcnJpdG9yeS4uLg0KPj4+Pg0K
+Pj4+PiBDaGVlcnMsDQo+Pj4+IFBldGVyDQo+Pj4+DQo+Pj4NCj4+PiBUaGFua3MsDQo+Pj4NCj4+
+PiBSYXkNCj4+Pg0KPj4NCg0K
