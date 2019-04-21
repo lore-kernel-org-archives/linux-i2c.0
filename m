@@ -1,69 +1,33 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: at91: fix TXRDY interrupt spam
-Date: Fri, 19 Apr 2019 20:29:33 +0200
-Message-ID: <20190419182933.24pdqa73iu7wz74c@ninjato>
-References: <1555680298-518-1-git-send-email-raag.jadav@einfochips.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH] i2c: mux: demux-pinctrl: use struct_size() in
+ devm_kzalloc()
+Date: Sun, 21 Apr 2019 18:15:21 +0000
+Message-ID: <d7950904-23ee-98e2-9a55-77e7cb802e0d@axentia.se>
+References: <20190104174327.GA30932@embeddedor> <20190104180612.GE3009@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="qtvxrzjs5n7q77of"
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1555680298-518-1-git-send-email-raag.jadav@einfochips.com>
+In-Reply-To: <20190104180612.GE3009@kunai>
+Content-Language: en-US
+Content-ID: <A3712A6FD9B7FC49A185DF7E87C89FEF@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Raag Jadav <raag.jadav@einfochips.com>
-Cc: Ludovic Desroches <ludovic.desroches@microchip.com>, Nicolas Ferre <nicolas.ferre@microchip.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 2019-01-04 19:06, Wolfram Sang wrote:
+>=20
+>> Instead of leaving these open-coded and prone to type mistakes, we can
+>> now use the new struct_size() helper:
+>=20
+> I am okay with this patch in general. However, I think the name of the
+> helper 'struct_size' is a bit unfortunate. I really wondered on the
+> first read why it needs 3 arguments to find out a struct size. I only
+> understood on the second read. I think 'trailing_array_struct_size'
+> would be way more clearer what it does.
 
---qtvxrzjs5n7q77of
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I read that as an Acked-by... :-)
 
-
-> *************************************************************************************************************************************************************
-> eInfochips Business Disclaimer: This e-mail message and all
-> attachments transmitted with it are intended solely for the use of the
-> addressee and may contain legally privileged and confidential
-> information. If the reader of this message is not the intended
-> recipient, or an employee or agent responsible for delivering this
-> message to the intended recipient, you are hereby notified that any
-> dissemination, distribution, copying, or other use of this message or
-> its attachments is strictly prohibited. If you have received this
-> message in error, please notify the sender immediately by replying to
-> this message and please delete it from your computer. Any views
-> expressed in this message are those of the individual sender unless
-> otherwise stated. Company has taken enough precautions to prevent the
-> spread of viruses. However the company accepts no liability for any
-> damage caused by any virus transmitted by this email.
-> *************************************************************************************************************************************************************
-
-Your patch might be correct, but as a general rule we do not accept it
-with a disclaimer like this. I mean we spread your patch all over the
-world if it is accepted :) Could you ask your company to drop the
-disclaimer when employees communicate with free software projects? Or if
-it is OK with them if you use another email address?
-
-Oh, and your mail had no To: header, please use the i2c-list next time.
-
-
---qtvxrzjs5n7q77of
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAly6E4gACgkQFA3kzBSg
-KbZwBw/+M5rrKbDEcWUlL/kFHEr3e+Z6Ya64LulfpCSAgsalaufAUaOMcr88UQAK
-40uTdyrGL+hnr1s2A9K9sGnkmKs0omrasWis26PYxyduVawzhCV/nXAS8RhlRFOA
-ou6XOyh1Fey4otajXXQQUwOVJ9RvELYDxqx1f9Un1lhzTUx51glLt3BfxeukgckV
-QUykOrJU4dEFwEOX8i8UZZk/MQS8d/x4SDMou/E8IKCHW3h34kTd4WT/z+9CVdgf
-xtD7TZNEsJv0zf1vcCFY1xoTmJL8TWG9f/c2WVYXyMzyNn1fQDfs8Q57L5oDEz3y
-1Swzt7ZjZTFRZ9Tc6jZVWP3yERk8+tCilKnuESbVyozrA6awyZYpA25nXjB9gozb
-5LVAdWQnMrRnvT54NH2YZlflM4ST6BLajZmFOZ6EAOjUzLgFP1IZnP13Hs5tQjtg
-xEvnA7kaNe24JJSXnqfRUyHBTCBDOh30BBGD5ccLEzkdqHauHLAa9bHF99HgeNp+
-GFzPhOYXYZ6+5vfZhWQJb5UvyfQCBFgQeW2L8alNYZloPicn71Ecm/6oSKn547O2
-PEgWmnz6345/nhnRpLsXAGX6INEEsxafSq+ClWAKn9aIce2BW/aS0LgvkWSFHI4U
-QKcA7odUeK3/pMzIsT5VZfNSV7bUNX+Tgz1yRYGb8+Epz8CElNU=
-=R7nI
------END PGP SIGNATURE-----
-
---qtvxrzjs5n7q77of--
+Cheers,
+Peter
