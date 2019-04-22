@@ -1,72 +1,92 @@
-From: Pu Wen <puwen@hygon.cn>
-Subject: [RFC PATCH RESEND] i2c-piix4: Add Hygon Dhyana SMBus support
-Date: Mon, 22 Apr 2019 21:10:07 +0800
-Message-ID: <1555938607-2865-1-git-send-email-puwen@hygon.cn>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 35/98] i2c: i801: Add support for Intel Comet Lake
+Date: Mon, 22 Apr 2019 15:41:02 -0400
+Message-ID: <20190422194205.10404-35-sashal@kernel.org>
+References: <20190422194205.10404-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: jdelvare@suse.com, bp@alien8.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, Pu Wen <puwen@hygon.cn>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190422194205.10404-1-sashal@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The Hygon Dhyana CPU has the SMBus device with PCI device ID 0x790b,
-which is the same as AMD CZ SMBus device. So add Hygon Dhyana support
-to the i2c-piix4 driver by using the code path of AMD.
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Cc: <stable@vger.kernel.org> # v5.0+
-Signed-off-by: Pu Wen <puwen@hygon.cn>
+[ Upstream commit 5cd1c56c42beb6d228cc8d4373fdc5f5ec78a5ad ]
+
+Add PCI ID for Intel Comet Lake PCH.
+
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-piix4.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ Documentation/i2c/busses/i2c-i801 | 1 +
+ drivers/i2c/busses/Kconfig        | 1 +
+ drivers/i2c/busses/i2c-i801.c     | 4 ++++
+ 3 files changed, 6 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 90946a8..9db9d9d 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -289,6 +289,9 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 	     PIIX4_dev->revision >= 0x41) ||
- 	    (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD &&
- 	     PIIX4_dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS &&
-+	     PIIX4_dev->revision >= 0x49) ||
-+	    (PIIX4_dev->vendor == PCI_VENDOR_ID_HYGON &&
-+	     PIIX4_dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS &&
- 	     PIIX4_dev->revision >= 0x49))
- 		smb_en = 0x00;
- 	else
-@@ -361,7 +364,8 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 		 piix4_smba, i2ccfg >> 4);
+diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
+index d1ee484a787d..ee9984f35868 100644
+--- a/Documentation/i2c/busses/i2c-i801
++++ b/Documentation/i2c/busses/i2c-i801
+@@ -36,6 +36,7 @@ Supported adapters:
+   * Intel Cannon Lake (PCH)
+   * Intel Cedar Fork (PCH)
+   * Intel Ice Lake (PCH)
++  * Intel Comet Lake (PCH)
+    Datasheets: Publicly available at the Intel website
  
- 	/* Find which register is used for port selection */
--	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD) {
-+	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD ||
-+	    PIIX4_dev->vendor == PCI_VENDOR_ID_HYGON) {
- 		switch (PIIX4_dev->device) {
- 		case PCI_DEVICE_ID_AMD_KERNCZ_SMBUS:
- 			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_KERNCZ;
-@@ -794,6 +798,7 @@ static const struct pci_device_id piix4_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_HYGON, PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
- 		     PCI_DEVICE_ID_SERVERWORKS_OSB4) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
-@@ -904,11 +909,13 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	if ((dev->vendor == PCI_VENDOR_ID_ATI &&
- 	     dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
- 	     dev->revision >= 0x40) ||
--	    dev->vendor == PCI_VENDOR_ID_AMD) {
-+	    dev->vendor == PCI_VENDOR_ID_AMD ||
-+	    dev->vendor == PCI_VENDOR_ID_HYGON) {
- 		bool notify_imc = false;
- 		is_sb800 = true;
+ On Intel Patsburg and later chipsets, both the normal host SMBus controller
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index f2c681971201..f8979abb9a19 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -131,6 +131,7 @@ config I2C_I801
+ 	    Cannon Lake (PCH)
+ 	    Cedar Fork (PCH)
+ 	    Ice Lake (PCH)
++	    Comet Lake (PCH)
  
--		if (dev->vendor == PCI_VENDOR_ID_AMD &&
-+		if ((dev->vendor == PCI_VENDOR_ID_AMD ||
-+		     dev->vendor == PCI_VENDOR_ID_HYGON) &&
- 		    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
- 			u8 imc;
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-i801.
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index c91e145ef5a5..679c6c41f64b 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -71,6 +71,7 @@
+  * Cannon Lake-LP (PCH)		0x9da3	32	hard	yes	yes	yes
+  * Cedar Fork (PCH)		0x18df	32	hard	yes	yes	yes
+  * Ice Lake-LP (PCH)		0x34a3	32	hard	yes	yes	yes
++ * Comet Lake (PCH)		0x02a3	32	hard	yes	yes	yes
+  *
+  * Features supported by this driver:
+  * Software PEC				no
+@@ -240,6 +241,7 @@
+ #define PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS	0xa223
+ #define PCI_DEVICE_ID_INTEL_KABYLAKE_PCH_H_SMBUS	0xa2a3
+ #define PCI_DEVICE_ID_INTEL_CANNONLAKE_H_SMBUS		0xa323
++#define PCI_DEVICE_ID_INTEL_COMETLAKE_SMBUS		0x02a3
  
+ struct i801_mux_config {
+ 	char *gpio_chip;
+@@ -1038,6 +1040,7 @@ static const struct pci_device_id i801_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_CANNONLAKE_H_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_CANNONLAKE_LP_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICELAKE_LP_SMBUS) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_COMETLAKE_SMBUS) },
+ 	{ 0, }
+ };
+ 
+@@ -1534,6 +1537,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	case PCI_DEVICE_ID_INTEL_DNV_SMBUS:
+ 	case PCI_DEVICE_ID_INTEL_KABYLAKE_PCH_H_SMBUS:
+ 	case PCI_DEVICE_ID_INTEL_ICELAKE_LP_SMBUS:
++	case PCI_DEVICE_ID_INTEL_COMETLAKE_SMBUS:
+ 		priv->features |= FEATURE_I2C_BLOCK_READ;
+ 		priv->features |= FEATURE_IRQ;
+ 		priv->features |= FEATURE_SMBUS_PEC;
 -- 
-2.7.4
+2.19.1
