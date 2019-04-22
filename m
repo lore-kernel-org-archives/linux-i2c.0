@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 35/98] i2c: i801: Add support for Intel Comet Lake
-Date: Mon, 22 Apr 2019 15:41:02 -0400
-Message-ID: <20190422194205.10404-35-sashal@kernel.org>
-References: <20190422194205.10404-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 26/68] i2c: i801: Add support for Intel Comet Lake
+Date: Mon, 22 Apr 2019 15:44:34 -0400
+Message-ID: <20190422194516.11634-26-sashal@kernel.org>
+References: <20190422194516.11634-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190422194205.10404-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190422194516.11634-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -41,7 +41,7 @@ index d1ee484a787d..ee9984f35868 100644
  
  On Intel Patsburg and later chipsets, both the normal host SMBus controller
 diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index f2c681971201..f8979abb9a19 100644
+index ac4b09642f63..8f803812ea24 100644
 --- a/drivers/i2c/busses/Kconfig
 +++ b/drivers/i2c/busses/Kconfig
 @@ -131,6 +131,7 @@ config I2C_I801
