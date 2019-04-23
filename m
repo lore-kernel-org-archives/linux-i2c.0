@@ -1,45 +1,40 @@
-From: Raag Jadav <raagjadav@gmail.com>
-Subject: [PATCH] i2c: at91: handle TXRDY interrupt spam
-Date: Tue, 23 Apr 2019 13:06:48 +0530
-Message-ID: <1556005008-6318-1-git-send-email-raagjadav@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 15/24] dt-bindings: pinctrl: pinctrl-mt65xx: add support
+ for MT8516
+Date: Tue, 23 Apr 2019 13:01:00 +0200
+Message-ID: <CACRpkdZ8gq+hGRT6EAyP2w9K0jz5RAzWeZ6_UrW+v-BOjd-wbg@mail.gmail.com>
+References: <20190323211612.860-1-fparent@baylibre.com> <20190323211612.860-16-fparent@baylibre.com>
+ <CACRpkdZZ6-+MVdK4bOP4SHxQ8uQ8zENcir7DSteHy4g+B5uySQ@mail.gmail.com> <b1e4eb6c-0d53-0307-99e4-9fef9e2b33d8@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <b1e4eb6c-0d53-0307-99e4-9fef9e2b33d8@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Raag Jadav <raagjadav@gmail.com>
+To: Matthias Brugger <matthias.bgg@gmail.com>
+Cc: Fabien Parent <fparent@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sean Wang <sean.wang@kernel.org>, Ryder Lee <ryder.lee@mediatek.com>, hsin-hsiung.wang@mediatek.com, wenzhen.yu@mediatek.com, Chaotian Jing <chaotian.jing@mediatek.com>, Yong Mao <yong.mao@mediatek.com>, jjian.zhou@mediatek.com, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org, Linux ARM <linux-arm-kernel@lists.infradead.org>, "moderated list:ARM/Mediatek SoC support" <linux-mediatek@lists.infradead.org>, linux-mmc <linux-mmc@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, linux-serial@
 List-Id: linux-i2c@vger.kernel.org
 
-Performing i2c write operation while SDA or SCL line is held
-or grounded by slave device, we go into infinite at91_twi_write_next_byte
-loop with TXRDY interrupt spam.
+On Tue, Apr 16, 2019 at 11:12 AM Matthias Brugger
+<matthias.bgg@gmail.com> wrote:
 
-Signed-off-by: Raag Jadav <raagjadav@gmail.com>
----
- drivers/i2c/busses/i2c-at91.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+> Hi Linus,
+>
+> On 08/04/2019 22:44, Linus Walleij wrote:
+> > On Sat, Mar 23, 2019 at 10:17 PM Fabien Parent <fparent@baylibre.com> wrote:
+> >
+> >> Add binding documentation of pinctrl-mt65xx for MT8516 SoC.
+> >>
+> >> Signed-off-by: Fabien Parent <fparent@baylibre.com>
+> >
+> > Patch applied with Rob's ACK.
+> >
+>
+> I don't see this in your for-next branch. Did the patch got lost?
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 3f3e8b3..b2f5fdb 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -72,6 +72,7 @@
- #define	AT91_TWI_TXCOMP		BIT(0)	/* Transmission Complete */
- #define	AT91_TWI_RXRDY		BIT(1)	/* Receive Holding Register Ready */
- #define	AT91_TWI_TXRDY		BIT(2)	/* Transmit Holding Register Ready */
-+#define	AT91_TWI_SVREAD		BIT(3)	/* Slave Read */
- #define	AT91_TWI_OVRE		BIT(6)	/* Overrun Error */
- #define	AT91_TWI_UNRE		BIT(7)	/* Underrun Error */
- #define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
-@@ -571,7 +572,10 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
- 		at91_disable_twi_interrupts(dev);
- 		complete(&dev->cmd_complete);
- 	} else if (irqstatus & AT91_TWI_TXRDY) {
--		at91_twi_write_next_byte(dev);
-+		if ((status & AT91_TWI_SVREAD) && (dev->buf_len == 0))
-+			at91_twi_write(dev, AT91_TWI_IDR, AT91_TWI_TXRDY);
-+		else
-+			at91_twi_write_next_byte(dev);
- 	}
- 
- 	/* catch error flags */
--- 
-2.7.4
+I usually push the devel branch to be tested by the build robots
+and then mix down the for-next branch.
+
+Recent week(s) the build robot was not responding so it got delayed.
+
+Yours,
+Linus Walleij
