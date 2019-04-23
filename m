@@ -1,92 +1,45 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 26/68] i2c: i801: Add support for Intel Comet Lake
-Date: Mon, 22 Apr 2019 15:44:34 -0400
-Message-ID: <20190422194516.11634-26-sashal@kernel.org>
-References: <20190422194516.11634-1-sashal@kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190422194516.11634-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+From: Raag Jadav <raagjadav@gmail.com>
+Subject: [PATCH] i2c: at91: handle TXRDY interrupt spam
+Date: Tue, 23 Apr 2019 13:06:48 +0530
+Message-ID: <1556005008-6318-1-git-send-email-raagjadav@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Raag Jadav <raagjadav@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Performing i2c write operation while SDA or SCL line is held
+or grounded by slave device, we go into infinite at91_twi_write_next_byte
+loop with TXRDY interrupt spam.
 
-[ Upstream commit 5cd1c56c42beb6d228cc8d4373fdc5f5ec78a5ad ]
-
-Add PCI ID for Intel Comet Lake PCH.
-
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin (Microsoft) <sashal@kernel.org>
+Signed-off-by: Raag Jadav <raagjadav@gmail.com>
 ---
- Documentation/i2c/busses/i2c-i801 | 1 +
- drivers/i2c/busses/Kconfig        | 1 +
- drivers/i2c/busses/i2c-i801.c     | 4 ++++
- 3 files changed, 6 insertions(+)
+ drivers/i2c/busses/i2c-at91.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
-index d1ee484a787d..ee9984f35868 100644
---- a/Documentation/i2c/busses/i2c-i801
-+++ b/Documentation/i2c/busses/i2c-i801
-@@ -36,6 +36,7 @@ Supported adapters:
-   * Intel Cannon Lake (PCH)
-   * Intel Cedar Fork (PCH)
-   * Intel Ice Lake (PCH)
-+  * Intel Comet Lake (PCH)
-    Datasheets: Publicly available at the Intel website
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 3f3e8b3..b2f5fdb 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -72,6 +72,7 @@
+ #define	AT91_TWI_TXCOMP		BIT(0)	/* Transmission Complete */
+ #define	AT91_TWI_RXRDY		BIT(1)	/* Receive Holding Register Ready */
+ #define	AT91_TWI_TXRDY		BIT(2)	/* Transmit Holding Register Ready */
++#define	AT91_TWI_SVREAD		BIT(3)	/* Slave Read */
+ #define	AT91_TWI_OVRE		BIT(6)	/* Overrun Error */
+ #define	AT91_TWI_UNRE		BIT(7)	/* Underrun Error */
+ #define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
+@@ -571,7 +572,10 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
+ 		at91_disable_twi_interrupts(dev);
+ 		complete(&dev->cmd_complete);
+ 	} else if (irqstatus & AT91_TWI_TXRDY) {
+-		at91_twi_write_next_byte(dev);
++		if ((status & AT91_TWI_SVREAD) && (dev->buf_len == 0))
++			at91_twi_write(dev, AT91_TWI_IDR, AT91_TWI_TXRDY);
++		else
++			at91_twi_write_next_byte(dev);
+ 	}
  
- On Intel Patsburg and later chipsets, both the normal host SMBus controller
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index ac4b09642f63..8f803812ea24 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -131,6 +131,7 @@ config I2C_I801
- 	    Cannon Lake (PCH)
- 	    Cedar Fork (PCH)
- 	    Ice Lake (PCH)
-+	    Comet Lake (PCH)
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-i801.
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index c91e145ef5a5..679c6c41f64b 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -71,6 +71,7 @@
-  * Cannon Lake-LP (PCH)		0x9da3	32	hard	yes	yes	yes
-  * Cedar Fork (PCH)		0x18df	32	hard	yes	yes	yes
-  * Ice Lake-LP (PCH)		0x34a3	32	hard	yes	yes	yes
-+ * Comet Lake (PCH)		0x02a3	32	hard	yes	yes	yes
-  *
-  * Features supported by this driver:
-  * Software PEC				no
-@@ -240,6 +241,7 @@
- #define PCI_DEVICE_ID_INTEL_LEWISBURG_SSKU_SMBUS	0xa223
- #define PCI_DEVICE_ID_INTEL_KABYLAKE_PCH_H_SMBUS	0xa2a3
- #define PCI_DEVICE_ID_INTEL_CANNONLAKE_H_SMBUS		0xa323
-+#define PCI_DEVICE_ID_INTEL_COMETLAKE_SMBUS		0x02a3
- 
- struct i801_mux_config {
- 	char *gpio_chip;
-@@ -1038,6 +1040,7 @@ static const struct pci_device_id i801_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_CANNONLAKE_H_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_CANNONLAKE_LP_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICELAKE_LP_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_COMETLAKE_SMBUS) },
- 	{ 0, }
- };
- 
-@@ -1534,6 +1537,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	case PCI_DEVICE_ID_INTEL_DNV_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_KABYLAKE_PCH_H_SMBUS:
- 	case PCI_DEVICE_ID_INTEL_ICELAKE_LP_SMBUS:
-+	case PCI_DEVICE_ID_INTEL_COMETLAKE_SMBUS:
- 		priv->features |= FEATURE_I2C_BLOCK_READ;
- 		priv->features |= FEATURE_IRQ;
- 		priv->features |= FEATURE_SMBUS_PEC;
+ 	/* catch error flags */
 -- 
-2.19.1
+2.7.4
