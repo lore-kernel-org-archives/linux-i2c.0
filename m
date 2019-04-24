@@ -1,53 +1,44 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: iproc: Change driver to use 'BIT' macro
-Date: Tue, 23 Apr 2019 23:36:29 +0200
-Message-ID: <20190423213629.GF5659@kunai>
-References: <20190403210535.32236-1-ray.jui@broadcom.com>
+From: Serge Semin <fancer.lancer@gmail.com>
+Subject: [PATCH 0/5] i2c-mux-gpio: Split plat- and dt-specific code up
+Date: Wed, 24 Apr 2019 15:34:09 +0300
+Message-ID: <20190424123414.25311-1-fancer.lancer@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="OzxllxdKGCiKxUZM"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190403210535.32236-1-ray.jui@broadcom.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ray Jui <ray.jui@broadcom.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+To: Peter Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>
+Cc: Serge Semin <Sergey.Semin@t-platforms.ru>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+The main idea of this patchset was to add the dt-based GPIOs support
+in i2c-mux-gpio driver. In particular we needed to have the full GPIOs
+specifier being handled including the dt-flags like GPIO_ACTIVE_HIGH,
+GPIO_ACTIVE_LOW, etc. Due to using a legacy GPIO interface the former
+driver implementation didn't provide this ability.
 
---OzxllxdKGCiKxUZM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On the way of adding the full dt-GPIO flags support a small set of
+refactorings has been done in order to keep the platform_data-based
+systems support, make the code more readable and the alterations - clearer.
+In general the whole changes might be considered as the plat- and dt-
+specific code split up. In first patch we unpinned the platform-specific
+method of GPIO-chip probing. The second patch makes the driver to return
+an error if of-based (last resort path) failed to retrieve the driver
+private data. The next three patches is the sequence of initial channel
+info retrieval, platform_data-specific code isolation and finally full
+dt-based GPIOs request method introduction. The last patch does what
+we inteded this patchset for in the first place - adds the full dt-GPIO
+specifiers support.
 
-On Wed, Apr 03, 2019 at 02:05:35PM -0700, Ray Jui wrote:
-> Change the iProc I2C driver to use the 'BIT' macro from all '1 << XXX'
-> bit operations to get rid of compiler warning and improve readability of
-> the code
->=20
-> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
 
-Applied to for-next, thanks!
+Serge Semin (5):
+  i2c-mux-gpio: Unpin a platform-based device initialization
+  i2c-mux-gpio: Return an error if no config data found
+  i2c-mux-gpio: Save initial channel number to the idle data field
+  i2c-mux-gpio: Unpin the platform-specific GPIOs request code
+  i2c-mux-gpio: Create of-based GPIOs request method
 
+ drivers/i2c/muxes/i2c-mux-gpio.c | 224 ++++++++++++++++++++-----------
+ 1 file changed, 146 insertions(+), 78 deletions(-)
 
---OzxllxdKGCiKxUZM
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAly/hV0ACgkQFA3kzBSg
-KbYSSQ//U28cZhOdvdRpOtnjksOrWPT0G7du60YMy/1ypLWNaFg2Nt/c+EOEhyiM
-ACPJIPzeM2AEP753ce42qnqFKdzvszUJQ4pMoTL0WYwjmc/6ocYee+fLLAgKOWQb
-jMcMpOJVSJBzLcc9HDYkF+Lz370WRmdW6cIayFUxysleTnBM4PVGY+e1cDiR3rjv
-t55jRtWEjfszyPZqiIAHgVuUumfZp0MZykrJawwY2y2RadP7TlpM29bD6om97pcl
-q4cJfmckD74RZi/fD45qWzxDwPOH1wAshwj5z/sOBorzuJbPLB/d3+iexsk3Uu+T
-HxkxhmNtLnyYhNnPQmAtcsJJB5PvMPmnT6Lu3zxz5cuGvXv3PKBsHanHE1LXeVxD
-ZcejqDuW+j0fzhC9CrCb2/IF6zFBIc2M/PIG2LOp+MlE0mDcwJ7HKvVfSrGdTWV2
-eHH4zycZIgyjwSHeNcTklZbCFnAqmpnnqPsftsEatJYjBZRw0kktn6Wd+anWrT1v
-wMXHFauJ7n7OTdEBOJ2IvgpbswdqoM6T30kZRZH7fsWyitHfOiwIO7cHhjeYKTYE
-iA6zACp28KQaxaMf1SDVbDGrVgYYikwyi5qQmWleS1VhVWcuB64/FigXaHqwCWOe
-rZNSu8mfgZvMTVKbp1aZy++mhYr1LQNscuLWOgvdbwaymmJqJQo=
-=/key
------END PGP SIGNATURE-----
-
---OzxllxdKGCiKxUZM--
+-- 
+2.21.0
