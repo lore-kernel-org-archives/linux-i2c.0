@@ -1,63 +1,54 @@
-From: Serge Semin <fancer.lancer@gmail.com>
-Subject: [PATCH 2/5] i2c-mux-gpio: Return an error if no config data found
-Date: Wed, 24 Apr 2019 15:34:11 +0300
-Message-ID: <20190424123414.25311-3-fancer.lancer@gmail.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH 0/5] i2c-mux-gpio: Split plat- and dt-specific code up
+Date: Wed, 24 Apr 2019 21:25:24 +0000
+Message-ID: <93214e50-6f69-0e7a-c725-5e95c1bbdb45@axentia.se>
 References: <20190424123414.25311-1-fancer.lancer@gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190424123414.25311-1-fancer.lancer@gmail.com>
+Content-Language: en-US
+Content-ID: <0F0053282C19444F860CB7D90E1FCFC3@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>
-Cc: Serge Semin <Sergey.Semin@t-platforms.ru>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Serge Semin <fancer.lancer@gmail.com>, Peter Korsgaard <peter.korsgaard@barco.com>
+Cc: Serge Semin <Sergey.Semin@t-platforms.ru>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-It's pointless and might be even errors prone to proceed with further
-initialization if neither of- no platform-based settings were discovered.
-Just return an error in this case.
-
-Signed-off-by: Serge Semin <fancer.lancer@gmail.com>
----
- drivers/i2c/muxes/i2c-mux-gpio.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-index 24cf6ec02e75..a14fe132b0c3 100644
---- a/drivers/i2c/muxes/i2c-mux-gpio.c
-+++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-@@ -132,7 +132,7 @@ static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
- static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
- 					struct platform_device *pdev)
- {
--	return 0;
-+	return -EINVAL;
- }
- #endif
- 
-@@ -142,6 +142,9 @@ static int i2c_mux_gpio_probe_plat(struct gpiomux *mux,
- 	struct i2c_mux_gpio_platform_data *data = dev_get_platdata(&pdev->dev);
- 	struct gpio_chip *gpio;
- 
-+	if (!data)
-+		return -EINVAL;
-+
- 	/*
- 	 * If a GPIO chip name is provided, the GPIO pin numbers provided are
- 	 * relative to its base GPIO number. Otherwise they are absolute.
-@@ -175,11 +178,10 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
- 	if (!mux)
- 		return -ENOMEM;
- 
--	if (!dev_get_platdata(&pdev->dev))
-+	ret = i2c_mux_gpio_probe_plat(mux, pdev);
-+	if (ret)
- 		ret = i2c_mux_gpio_probe_dt(mux, pdev);
--	else
--		ret = i2c_mux_gpio_probe_plat(mux, pdev);
--	if (ret < 0)
-+	if (ret)
- 		return ret;
- 
- 	parent = i2c_get_adapter(mux->data.parent);
--- 
-2.21.0
+T24gMjAxOS0wNC0yNCAxNDozNCwgU2VyZ2UgU2VtaW4gd3JvdGU6DQo+IFRoZSBtYWluIGlkZWEg
+b2YgdGhpcyBwYXRjaHNldCB3YXMgdG8gYWRkIHRoZSBkdC1iYXNlZCBHUElPcyBzdXBwb3J0DQo+
+IGluIGkyYy1tdXgtZ3BpbyBkcml2ZXIuIEluIHBhcnRpY3VsYXIgd2UgbmVlZGVkIHRvIGhhdmUg
+dGhlIGZ1bGwgR1BJT3MNCj4gc3BlY2lmaWVyIGJlaW5nIGhhbmRsZWQgaW5jbHVkaW5nIHRoZSBk
+dC1mbGFncyBsaWtlIEdQSU9fQUNUSVZFX0hJR0gsDQo+IEdQSU9fQUNUSVZFX0xPVywgZXRjLiBE
+dWUgdG8gdXNpbmcgYSBsZWdhY3kgR1BJTyBpbnRlcmZhY2UgdGhlIGZvcm1lcg0KPiBkcml2ZXIg
+aW1wbGVtZW50YXRpb24gZGlkbid0IHByb3ZpZGUgdGhpcyBhYmlsaXR5Lg0KDQpJJ20gY3VyaW91
+cyB3aHkgYWN0aXZlIGxvdy9oaWdoIGlzIG9mIGFueSBpbXBvcnRhbmNlPyBUaGF0IHdpbGwgb25s
+eSBhZmZlY3QNCnRoZSBzdGF0ZSBudW1iZXJpbmcsIGJ1dCBJIGZhaWwgdG8gc2VlIGFueSByZWxl
+dmFuY2UgaW4gdGhhdCBudW1iZXJpbmcuIEl0J3MNCmp1c3QgbnVtYmVycywgbm8/DQoNCklmIGFs
+bCB0aGUgcGlucyBhcmUgaW52ZXJ0ZWQgKGFueXRoaW5nIGVsc2Ugc2VlbXMgdmVyeSBzdHJhbmdl
+KSwganVzdA0KcmV2ZXJzZSB0aGUgb3JkZXIuIEkuZS4gZm9yIGEgNC13YXkgbXV4LCB1c2UgMywg
+MiwgMSwgMCBpbnN0ZWFkIG9mDQowLCAxLCAyLCAzLg0KDQpXaHkgbm90Pw0KDQpDaGVlcnMsDQpQ
+ZXRlcg0KDQo+IE9uIHRoZSB3YXkgb2YgYWRkaW5nIHRoZSBmdWxsIGR0LUdQSU8gZmxhZ3Mgc3Vw
+cG9ydCBhIHNtYWxsIHNldCBvZg0KPiByZWZhY3RvcmluZ3MgaGFzIGJlZW4gZG9uZSBpbiBvcmRl
+ciB0byBrZWVwIHRoZSBwbGF0Zm9ybV9kYXRhLWJhc2VkDQo+IHN5c3RlbXMgc3VwcG9ydCwgbWFr
+ZSB0aGUgY29kZSBtb3JlIHJlYWRhYmxlIGFuZCB0aGUgYWx0ZXJhdGlvbnMgLSBjbGVhcmVyLg0K
+PiBJbiBnZW5lcmFsIHRoZSB3aG9sZSBjaGFuZ2VzIG1pZ2h0IGJlIGNvbnNpZGVyZWQgYXMgdGhl
+IHBsYXQtIGFuZCBkdC0NCj4gc3BlY2lmaWMgY29kZSBzcGxpdCB1cC4gSW4gZmlyc3QgcGF0Y2gg
+d2UgdW5waW5uZWQgdGhlIHBsYXRmb3JtLXNwZWNpZmljDQo+IG1ldGhvZCBvZiBHUElPLWNoaXAg
+cHJvYmluZy4gVGhlIHNlY29uZCBwYXRjaCBtYWtlcyB0aGUgZHJpdmVyIHRvIHJldHVybg0KPiBh
+biBlcnJvciBpZiBvZi1iYXNlZCAobGFzdCByZXNvcnQgcGF0aCkgZmFpbGVkIHRvIHJldHJpZXZl
+IHRoZSBkcml2ZXINCj4gcHJpdmF0ZSBkYXRhLiBUaGUgbmV4dCB0aHJlZSBwYXRjaGVzIGlzIHRo
+ZSBzZXF1ZW5jZSBvZiBpbml0aWFsIGNoYW5uZWwNCj4gaW5mbyByZXRyaWV2YWwsIHBsYXRmb3Jt
+X2RhdGEtc3BlY2lmaWMgY29kZSBpc29sYXRpb24gYW5kIGZpbmFsbHkgZnVsbA0KPiBkdC1iYXNl
+ZCBHUElPcyByZXF1ZXN0IG1ldGhvZCBpbnRyb2R1Y3Rpb24uIFRoZSBsYXN0IHBhdGNoIGRvZXMg
+d2hhdA0KPiB3ZSBpbnRlZGVkIHRoaXMgcGF0Y2hzZXQgZm9yIGluIHRoZSBmaXJzdCBwbGFjZSAt
+IGFkZHMgdGhlIGZ1bGwgZHQtR1BJTw0KPiBzcGVjaWZpZXJzIHN1cHBvcnQuDQo+IA0KPiANCj4g
+U2VyZ2UgU2VtaW4gKDUpOg0KPiAgIGkyYy1tdXgtZ3BpbzogVW5waW4gYSBwbGF0Zm9ybS1iYXNl
+ZCBkZXZpY2UgaW5pdGlhbGl6YXRpb24NCj4gICBpMmMtbXV4LWdwaW86IFJldHVybiBhbiBlcnJv
+ciBpZiBubyBjb25maWcgZGF0YSBmb3VuZA0KPiAgIGkyYy1tdXgtZ3BpbzogU2F2ZSBpbml0aWFs
+IGNoYW5uZWwgbnVtYmVyIHRvIHRoZSBpZGxlIGRhdGEgZmllbGQNCj4gICBpMmMtbXV4LWdwaW86
+IFVucGluIHRoZSBwbGF0Zm9ybS1zcGVjaWZpYyBHUElPcyByZXF1ZXN0IGNvZGUNCj4gICBpMmMt
+bXV4LWdwaW86IENyZWF0ZSBvZi1iYXNlZCBHUElPcyByZXF1ZXN0IG1ldGhvZA0KPiANCj4gIGRy
+aXZlcnMvaTJjL211eGVzL2kyYy1tdXgtZ3Bpby5jIHwgMjI0ICsrKysrKysrKysrKysrKysrKysr
+LS0tLS0tLS0tLS0NCj4gIDEgZmlsZSBjaGFuZ2VkLCAxNDYgaW5zZXJ0aW9ucygrKSwgNzggZGVs
+ZXRpb25zKC0pDQo+IA0KDQo=
