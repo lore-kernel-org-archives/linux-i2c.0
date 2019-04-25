@@ -1,85 +1,155 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 3/5] i2c-mux-gpio: Save initial channel number to the idle
- data field
-Date: Thu, 25 Apr 2019 19:32:10 +0000
-Message-ID: <c30abb31-f6f1-f789-7735-8b11b5d8d4fc@axentia.se>
+From: Serge Semin <fancer.lancer@gmail.com>
+Subject: Re: [PATCH 0/5] i2c-mux-gpio: Split plat- and dt-specific code up
+Date: Thu, 25 Apr 2019 23:03:07 +0300
+Message-ID: <20190425200306.fo7r2rcxluj27qgu@mobilestation>
 References: <20190424123414.25311-1-fancer.lancer@gmail.com>
- <20190424123414.25311-4-fancer.lancer@gmail.com>
- <7c8d4751-f5f7-ee2a-c411-a985b81d61a3@axentia.se>
- <20190425155325.voqlrmbdblo7xhtx@mobilestation>
+ <93214e50-6f69-0e7a-c725-5e95c1bbdb45@axentia.se>
+ <20190425143755.vmz3l52hrxtqu43z@mobilestation>
+ <04133a9c-8c79-9143-5f5a-563124cb9524@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190425155325.voqlrmbdblo7xhtx@mobilestation>
-Content-Language: en-US
-Content-ID: <5EF4F2A1BFB4F943BB45A3A65C0244C1@eurprd02.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <04133a9c-8c79-9143-5f5a-563124cb9524@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Serge Semin <fancer.lancer@gmail.com>
+To: Peter Rosin <peda@axentia.se>
 Cc: Peter Korsgaard <peter.korsgaard@barco.com>, Serge Semin <Sergey.Semin@t-platforms.ru>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOS0wNC0yNSAxNzo1MywgU2VyZ2UgU2VtaW4gd3JvdGU6DQo+IE9uIFdlZCwgQXByIDI0
-LCAyMDE5IGF0IDA5OjI2OjIyUE0gKzAwMDAsIFBldGVyIFJvc2luIHdyb3RlOg0KPj4gT24gMjAx
-OS0wNC0yNCAxNDozNCwgU2VyZ2UgU2VtaW4gd3JvdGU6DQo+Pj4gSW4gY2FzZSBpZiB0aGUgaWRs
-ZSBzdGF0ZSBoYXMgYmVlbiBzcGVjaWZpZWQgaW4gdGhlIGRhdGEgc3RydWN0dXJlLA0KPj4+IHRo
-ZSBpZGxlIHZhcmlhYmxlIGlzIGxlZnQgdW50b3VjaGVkIGFzIGJlZm9yZSwgc28gdG8ga2VlcCBh
-IGRlZmF1bHQNCj4+PiBjaGFubmVsIG51bWJlciBlbmFibGVkIGluIHRoZSBtdXggaWRsZSBzdGF0
-ZS4gQnV0IGlmIGEgcGxhdGZvcm0gZG9lc24ndA0KPj4+IHNwZWNpZnkgd2hpY2ggY2hhbm5lbCBp
-cyBnb2luZyB0byBiZSBlbmFibGVkIGJ5IGRlZmF1bHQsIHdlIGFzIGJlZm9yZQ0KPj4+IGRvbid0
-IHNldHVwIHRoZSBkZXNlbGVjdCBjYWxsYmFjaywgYnV0IHRoZSBpbml0aWFsIHN0YXRlIGlzIHNh
-dmVkIGluIHRoZQ0KPj4+IGlkbGUgdmFyaWFibGUgZm9yIGZ1cnRoZXIgaW5pdGlhbGl6YXRpb24u
-IFdlIGNhbiBzYWZlbHkgZG8gdGhpcyBoZXJlDQo+Pj4gc2luY2UgdGhhdCB2YXJpYWJsZSBpcyB1
-c2VkIGZvciBpbml0aWFsIHN0YXRlIHNldHRpbmcgb25seSwgd2hlbiBubw0KPj4+IGlkbGluZyBs
-YW5lIGlzIHNwZWNpZmllZC4NCj4+DQo+PiBXaGlsZSB0aGlzIHN1YnRsZXR5IGlzICptYXliZSog
-b2ssIGEgY29tbWVudCBhYm91dCBpdCBiZWxvbmdzIGluIHRoZQ0KPj4gKmNvZGUqIHdoZXJlIGl0
-IHdpbGwgYmUgc2VlbiB3aGVuIHRoZSBuZXh0IHBlcnNvbiBtYWtlcyBjaGFuZ2VzLg0KPj4NCj4+
-IEJ1dCB3aHkgbm90IGV4dGVuZCB0aGUgc3RydWN0IHdpdGggdGhlIGluaXRpYWwgc3RhdGU/IEhv
-dyBtYW55IG9mDQo+PiB0aGVzZSBtdXhlcyBkbyB5b3UgZXhwZWN0IHRvIGV4aXN0IGluIGEgc3lz
-dGVtPyBNdWx0aXBsaWVkIGJ5IGENCj4+IGNvdXBsZSBvZiBieXRlcy4gV2hvIGNhcmVzPw0KPj4N
-Cj4gDQo+IEkgYWN0dWFsbHkgdGhvdWdodCBhYm91dCB0aGlzIHdoZW4gc3RhcnRlZCB3b3JraW5n
-IG9uIHRoZSBwYXRjaHNldC4NCj4gVGhhdCB0aW1lIHNhdmluZyB0aGUgaW5pdGlhbCB2YWx1ZSBp
-biB0aGUgaWRsZSB2YXJpYWJsZSBzZWVtZWQgbGlrZSBhDQo+IGdvb2QgaWRlYS4gSSBldmVuIHB1
-dCBhIHNtYWxsIGNvbW1lbnQgaW4gdGhlIGNvZGUgYWJvdXQgdGhpcy4NCg0KT2gsIEkgbWlzc2Vk
-IHRoYXQuIENyYXAsIGFuZCBzb3JyeSENCg0KPiBBbnl3YXkgbGV0cyBhZGQgYSBuZXcgZmllbGQg
-dG8gInN0cnVjdCBncGlvbXV4IiBzdHJ1Y3R1cmUgYW5kIHVzZQ0KPiBpdCBhcyBhIGNvbnRhaW5l
-ciBmb3IgaW5pdGlhbCB2YWx1ZS4gSXQgaXMgYWxzbyBhIGdvb2QgYWx0ZXJuYXRpdmUuDQo+IEkn
-bGwgZG8gdGhpcyBpbiBhIHYyIHBhdGNoc2V0Lg0KDQpHb29kLiBUaGFua3MhDQoNCkNoZWVycywN
-ClBldGVyDQoNCj4gLVNlcmdleQ0KPiANCj4+IENoZWVycywNCj4+IFBldGVyDQo+Pg0KPj4+DQo+
-Pj4gVGhlIHJlYXNvbiBvZiB0aGlzIGNoYW5nZSBpcyB0byBwcmVwYXJlIHRoZSBjb2RlIGZvciBm
-dXR1cmUgR1BJT3MgcmVxdWVzdA0KPj4+IHBhdGggYmVpbmcgc3BsaXQgdXAgaW50byBvZi0gYW5k
-IHBsYXQtIGJhc2VkIG1ldGhvZHMuIFRoZSBpZGxlIHZhcmlhYmxlDQo+Pj4gaGVyZSBpcyB1c2Vk
-IGFzIGEgY29udGFpbmVyIG9mIHRoZSBpbml0aWFsIHN0YXRlIGZvciBib3RoIG9mIHRoZSBwYXRo
-cyBpbg0KPj4+IGNhc2Ugb2YgaWRsZS1jaGFubmVsIGlzbid0IHNwZWNpZmllZC4NCj4+Pg0KPj4+
-IFNpZ25lZC1vZmYtYnk6IFNlcmdlIFNlbWluIDxmYW5jZXIubGFuY2VyQGdtYWlsLmNvbT4NCj4+
-PiAtLS0NCj4+PiAgZHJpdmVycy9pMmMvbXV4ZXMvaTJjLW11eC1ncGlvLmMgfCAxNSArKysrKysr
-Ky0tLS0tLS0NCj4+PiAgMSBmaWxlIGNoYW5nZWQsIDggaW5zZXJ0aW9ucygrKSwgNyBkZWxldGlv
-bnMoLSkNCj4+Pg0KPj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9tdXhlcy9pMmMtbXV4LWdw
-aW8uYyBiL2RyaXZlcnMvaTJjL211eGVzL2kyYy1tdXgtZ3Bpby5jDQo+Pj4gaW5kZXggYTE0ZmUx
-MzJiMGMzLi41MzVjODNjNDMzNzEgMTAwNjQ0DQo+Pj4gLS0tIGEvZHJpdmVycy9pMmMvbXV4ZXMv
-aTJjLW11eC1ncGlvLmMNCj4+PiArKysgYi9kcml2ZXJzL2kyYy9tdXhlcy9pMmMtbXV4LWdwaW8u
-Yw0KPj4+IEBAIC0xNzEsNyArMTcxLDYgQEAgc3RhdGljIGludCBpMmNfbXV4X2dwaW9fcHJvYmUo
-c3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4+PiAgCXN0cnVjdCBncGlvbXV4ICptdXg7
-DQo+Pj4gIAlzdHJ1Y3QgaTJjX2FkYXB0ZXIgKnBhcmVudDsNCj4+PiAgCXN0cnVjdCBpMmNfYWRh
-cHRlciAqcm9vdDsNCj4+PiAtCXVuc2lnbmVkIGluaXRpYWxfc3RhdGU7DQo+Pj4gIAlpbnQgaSwg
-cmV0Ow0KPj4+ICANCj4+PiAgCW11eCA9IGRldm1fa3phbGxvYygmcGRldi0+ZGV2LCBzaXplb2Yo
-Km11eCksIEdGUF9LRVJORUwpOw0KPj4+IEBAIC0yMDQsMTIgKzIwMywxNCBAQCBzdGF0aWMgaW50
-IGkyY19tdXhfZ3Bpb19wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQ0KPj4+ICAN
-Cj4+PiAgCW11eGMtPm11eF9sb2NrZWQgPSB0cnVlOw0KPj4+ICANCj4+PiAtCWlmIChtdXgtPmRh
-dGEuaWRsZSAhPSBJMkNfTVVYX0dQSU9fTk9fSURMRSkgew0KPj4+IC0JCWluaXRpYWxfc3RhdGUg
-PSBtdXgtPmRhdGEuaWRsZTsNCj4+PiArCS8qDQo+Pj4gKwkgKiBTZXQgZGVzY2VsZWN0IGNhbGxi
-YWNrIGlmIGlkbGUgc3RhdGUgaGFzIGJlZW4gc2V0dXAgb3RoZXJ3aXNlIGp1c3QNCg0KU3BlbGxp
-bmcgImRlc2VsZWN0Ig0KDQo+Pj4gKwkgKiB1c2UgdGhlIGlkbGUgdmFyaWFibGUgdG8gc3RvcmUg
-dGhlIGluaXRpYWwgbXV4ZXIgdmFsdWUuDQo+Pj4gKwkgKi8NCj4+PiArCWlmIChtdXgtPmRhdGEu
-aWRsZSAhPSBJMkNfTVVYX0dQSU9fTk9fSURMRSkNCj4+PiAgCQltdXhjLT5kZXNlbGVjdCA9IGky
-Y19tdXhfZ3Bpb19kZXNlbGVjdDsNCj4+PiAtCX0gZWxzZSB7DQo+Pj4gLQkJaW5pdGlhbF9zdGF0
-ZSA9IG11eC0+ZGF0YS52YWx1ZXNbMF07DQo+Pj4gLQl9DQo+Pj4gKwllbHNlDQo+Pj4gKwkJbXV4
-LT5kYXRhLmlkbGUgPSBtdXgtPmRhdGEudmFsdWVzWzBdOw0KPj4+ICANCj4+PiAgCWZvciAoaSA9
-IDA7IGkgPCBtdXgtPmRhdGEubl9ncGlvczsgaSsrKSB7DQo+Pj4gIAkJc3RydWN0IGRldmljZSAq
-Z3Bpb19kZXY7DQo+Pj4gQEAgLTIyNCw3ICsyMjUsNyBAQCBzdGF0aWMgaW50IGkyY19tdXhfZ3Bp
-b19wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQ0KPj4+ICAJCX0NCj4+PiAgDQo+
-Pj4gIAkJcmV0ID0gZ3Bpb19kaXJlY3Rpb25fb3V0cHV0KG11eC0+Z3Bpb19iYXNlICsgbXV4LT5k
-YXRhLmdwaW9zW2ldLA0KPj4+IC0JCQkJCSAgICBpbml0aWFsX3N0YXRlICYgKDEgPDwgaSkpOw0K
-Pj4+ICsJCQkJCSAgICBtdXgtPmRhdGEuaWRsZSAmICgxIDw8IGkpKTsNCj4+PiAgCQlpZiAocmV0
-KSB7DQo+Pj4gIAkJCWRldl9lcnIoJnBkZXYtPmRldiwNCj4+PiAgCQkJCSJGYWlsZWQgdG8gc2V0
-IGRpcmVjdGlvbiBvZiBHUElPICVkIHRvIG91dHB1dFxuIiwNCj4+Pg0KPj4NCg0K
+On Thu, Apr 25, 2019 at 07:21:02PM +0000, Peter Rosin wrote:
+> On 2019-04-25 16:37, Serge Semin wrote:
+> > On Wed, Apr 24, 2019 at 09:25:24PM +0000, Peter Rosin wrote:
+> > 
+> > Hello Peter,
+> > 
+> >> On 2019-04-24 14:34, Serge Semin wrote:
+> >>> The main idea of this patchset was to add the dt-based GPIOs support
+> >>> in i2c-mux-gpio driver. In particular we needed to have the full GPIOs
+> >>> specifier being handled including the dt-flags like GPIO_ACTIVE_HIGH,
+> >>> GPIO_ACTIVE_LOW, etc. Due to using a legacy GPIO interface the former
+> >>> driver implementation didn't provide this ability.
+> >>
+> >> I'm curious why active low/high is of any importance? That will only affect
+> >> the state numbering, but I fail to see any relevance in that numbering. It's
+> >> just numbers, no?
+> >>
+> >> If all the pins are inverted (anything else seems very strange), just
+> >> reverse the order. I.e. for a 4-way mux, use 3, 2, 1, 0 instead of
+> >> 0, 1, 2, 3.
+> >>
+> >> Why not?
+> > 
+> > I may misunderstood you, but active low/high flag has nothing to do with
+> > pins ordering. It is relevant to an individual pin setting, most likely
+> > related with hardware setup.
+> 
+> I was not talking about pin order. I was obviously referring to the
+> state order.
+> 
+> > Here is a simple example:
+> > i2cmux {
+> >                 compatible = "i2c-mux-gpio";
+> >                 mux-gpios = <&gpioa 0 GPIO_ACTIVE_LOW
+> >                              &control 2 GPIO_ACTIVE_HIGH
+> >                              &last 5 GPIO_ACTIVE_LOW>;
+> > };
+> 
+> So, with this, instead of having two pins active-low and using state 3,
+> you could use state 6 with all pins active-high. Same thing. I.e., use
+> "state ^ 5" instead of the "direct" state (whatever that is, the state
+> numbers have no real meaning, they are just numbers).
+> 
+> > In this setup we've got some i2c-mux with GPIOs-driven channel selector.
+> > First channel is selected by GPIO#0 of controller &gpioa, second one -
+> > by GPIO#2 of controller &control and third - by GPIO#3 of controller
+> > &last. In accordance with the i2c_mux_gpio_set() method of i2c-mux-gpio
+> > driver a GPIO from this set will be driven high in case of a corresponding
+> > mux channel being enabled. But as you can see from the "mux-gpios" property
+> > these GPIOs aren't identical. First of all they belong to different
+> > controller and most importantly they've got different active-attribute.
+> > This attribute actually means the straight or inverted activation policy.
+> > So in case of ACTIVE_HIGH flag you get a straight policy. If you set GPIO'
+> > value the hardware pin will be driven high, and if you clear it GPIO'
+> > value the hardware pin will be pushed to ground. In case ACTIVE_LOW flag
+> > is specified, the GPIO and actual hardware pin values are inverted.
+> > So if you set GPIO to one, the hardware pin will be driven to zero,
+> > and vise-versa. All this logic is implemented in the gpiod subsystem
+> > of the kernel and can be defined in dts scripts, while legacy GPIO
+> > subsystem relied on the drivers to handle this.
+> > 
+> > Yeah, it might be confusing, but some hardware is designed this way, so
+> > the ordinary GPIO outputs are inverted on the way to the i2c-mux channel
+> > activators. For instance in case if some level-shifter is used as a single
+> > channel i2c-mux and we don't want i2c-bus being always connected to a bus
+> > behind it. Such level-shifters are usually activated by ACTIVE_LOW signals.
+> 
+> See above, you could just adjust the state numbers instead.
+> 
+
+Ahh, now I see what you meant. Sorry for explaining the obvious.)
+
+It is definitely a solution in case if active-low pins used for channel
+selection, but it seems more like a hack than a best choice. The main
+problem is that the hardware programmer needs to take into account the
+active-{low,high} flags when assigning the reg-values of subnodes. While in
+case if these flags are supported by GPIO subsystem itself, the reg
+properties can be the same as if all GPIOs were active-high. As for me
+this is a good simplification, which also makes the i2c-mux-gpio nodes
+more readable. 
+
+> > In addition there are other than ACTIVE_LOW/ACTIVE_HIGH flags available for
+> > GPIOs in dts, like GPIO_PUSH_PULL, GPIO_OPEN_DRAIN, GPIO_OPEN_SOURCE, which are
+> > also specific not only to the GPIO functionality but to the target port and
+> > hardware design in general. So the support of dt- GPIO-specifiers is very
+> > important to properly describe the hardware setup.
+> 
+> These things are another matter. I thought this was supposed to be
+> controlled with pinctrl drivers, but now that I look I see that gpio
+> drivers can do this directly without help from pinctrl. That's just
+> not how it has been done on the platforms I have been using...
+> 
+> So, ok, but open-drain/open-source/push-pull should perhaps have been
+> mentioned more prominently. (I now see that I managed to read past a
+> mention of open-drain in the commit message for 5/5)
+> 
+
+Yeah, these flags is another positive side of supporting the full dt GPIO
+specifiers.
+
+-Sergey
+
+> Cheers,
+> Peter
+> 
+> > -Sergey
+> > 
+> >>
+> >> Cheers,
+> >> Peter
+> >>
+> >>> On the way of adding the full dt-GPIO flags support a small set of
+> >>> refactorings has been done in order to keep the platform_data-based
+> >>> systems support, make the code more readable and the alterations - clearer.
+> >>> In general the whole changes might be considered as the plat- and dt-
+> >>> specific code split up. In first patch we unpinned the platform-specific
+> >>> method of GPIO-chip probing. The second patch makes the driver to return
+> >>> an error if of-based (last resort path) failed to retrieve the driver
+> >>> private data. The next three patches is the sequence of initial channel
+> >>> info retrieval, platform_data-specific code isolation and finally full
+> >>> dt-based GPIOs request method introduction. The last patch does what
+> >>> we inteded this patchset for in the first place - adds the full dt-GPIO
+> >>> specifiers support.
+> >>>
+> >>>
+> >>> Serge Semin (5):
+> >>>   i2c-mux-gpio: Unpin a platform-based device initialization
+> >>>   i2c-mux-gpio: Return an error if no config data found
+> >>>   i2c-mux-gpio: Save initial channel number to the idle data field
+> >>>   i2c-mux-gpio: Unpin the platform-specific GPIOs request code
+> >>>   i2c-mux-gpio: Create of-based GPIOs request method
+> >>>
+> >>>  drivers/i2c/muxes/i2c-mux-gpio.c | 224 ++++++++++++++++++++-----------
+> >>>  1 file changed, 146 insertions(+), 78 deletions(-)
+> >>>
+> >>
+> 
