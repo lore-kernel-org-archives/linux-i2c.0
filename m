@@ -1,104 +1,119 @@
-From: Serge Semin <fancer.lancer@gmail.com>
-Subject: Re: [PATCH 3/5] i2c-mux-gpio: Save initial channel number to the
- idle data field
-Date: Thu, 25 Apr 2019 18:53:26 +0300
-Message-ID: <20190425155325.voqlrmbdblo7xhtx@mobilestation>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH 0/5] i2c-mux-gpio: Split plat- and dt-specific code up
+Date: Thu, 25 Apr 2019 19:21:02 +0000
+Message-ID: <04133a9c-8c79-9143-5f5a-563124cb9524@axentia.se>
 References: <20190424123414.25311-1-fancer.lancer@gmail.com>
- <20190424123414.25311-4-fancer.lancer@gmail.com>
- <7c8d4751-f5f7-ee2a-c411-a985b81d61a3@axentia.se>
+ <93214e50-6f69-0e7a-c725-5e95c1bbdb45@axentia.se>
+ <20190425143755.vmz3l52hrxtqu43z@mobilestation>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <7c8d4751-f5f7-ee2a-c411-a985b81d61a3@axentia.se>
+In-Reply-To: <20190425143755.vmz3l52hrxtqu43z@mobilestation>
+Content-Language: en-US
+Content-ID: <42C8E88529D6E8468B8D60D5A03395EB@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
+To: Serge Semin <fancer.lancer@gmail.com>
 Cc: Peter Korsgaard <peter.korsgaard@barco.com>, Serge Semin <Sergey.Semin@t-platforms.ru>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Apr 24, 2019 at 09:26:22PM +0000, Peter Rosin wrote:
-> On 2019-04-24 14:34, Serge Semin wrote:
-> > In case if the idle state has been specified in the data structure,
-> > the idle variable is left untouched as before, so to keep a default
-> > channel number enabled in the mux idle state. But if a platform doesn't
-> > specify which channel is going to be enabled by default, we as before
-> > don't setup the deselect callback, but the initial state is saved in the
-> > idle variable for further initialization. We can safely do this here
-> > since that variable is used for initial state setting only, when no
-> > idling lane is specified.
-> 
-> While this subtlety is *maybe* ok, a comment about it belongs in the
-> *code* where it will be seen when the next person makes changes.
-> 
-> But why not extend the struct with the initial state? How many of
-> these muxes do you expect to exist in a system? Multiplied by a
-> couple of bytes. Who cares?
-> 
-
-I actually thought about this when started working on the patchset.
-That time saving the initial value in the idle variable seemed like a
-good idea. I even put a small comment in the code about this.
-
-Anyway lets add a new field to "struct gpiomux" structure and use
-it as a container for initial value. It is also a good alternative.
-I'll do this in a v2 patchset.
-
--Sergey
-
-> Cheers,
-> Peter
-> 
-> > 
-> > The reason of this change is to prepare the code for future GPIOs request
-> > path being split up into of- and plat- based methods. The idle variable
-> > here is used as a container of the initial state for both of the paths in
-> > case of idle-channel isn't specified.
-> > 
-> > Signed-off-by: Serge Semin <fancer.lancer@gmail.com>
-> > ---
-> >  drivers/i2c/muxes/i2c-mux-gpio.c | 15 ++++++++-------
-> >  1 file changed, 8 insertions(+), 7 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-> > index a14fe132b0c3..535c83c43371 100644
-> > --- a/drivers/i2c/muxes/i2c-mux-gpio.c
-> > +++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-> > @@ -171,7 +171,6 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
-> >  	struct gpiomux *mux;
-> >  	struct i2c_adapter *parent;
-> >  	struct i2c_adapter *root;
-> > -	unsigned initial_state;
-> >  	int i, ret;
-> >  
-> >  	mux = devm_kzalloc(&pdev->dev, sizeof(*mux), GFP_KERNEL);
-> > @@ -204,12 +203,14 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
-> >  
-> >  	muxc->mux_locked = true;
-> >  
-> > -	if (mux->data.idle != I2C_MUX_GPIO_NO_IDLE) {
-> > -		initial_state = mux->data.idle;
-> > +	/*
-> > +	 * Set descelect callback if idle state has been setup otherwise just
-> > +	 * use the idle variable to store the initial muxer value.
-> > +	 */
-> > +	if (mux->data.idle != I2C_MUX_GPIO_NO_IDLE)
-> >  		muxc->deselect = i2c_mux_gpio_deselect;
-> > -	} else {
-> > -		initial_state = mux->data.values[0];
-> > -	}
-> > +	else
-> > +		mux->data.idle = mux->data.values[0];
-> >  
-> >  	for (i = 0; i < mux->data.n_gpios; i++) {
-> >  		struct device *gpio_dev;
-> > @@ -224,7 +225,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
-> >  		}
-> >  
-> >  		ret = gpio_direction_output(mux->gpio_base + mux->data.gpios[i],
-> > -					    initial_state & (1 << i));
-> > +					    mux->data.idle & (1 << i));
-> >  		if (ret) {
-> >  			dev_err(&pdev->dev,
-> >  				"Failed to set direction of GPIO %d to output\n",
-> > 
-> 
+T24gMjAxOS0wNC0yNSAxNjozNywgU2VyZ2UgU2VtaW4gd3JvdGU6DQo+IE9uIFdlZCwgQXByIDI0
+LCAyMDE5IGF0IDA5OjI1OjI0UE0gKzAwMDAsIFBldGVyIFJvc2luIHdyb3RlOg0KPiANCj4gSGVs
+bG8gUGV0ZXIsDQo+IA0KPj4gT24gMjAxOS0wNC0yNCAxNDozNCwgU2VyZ2UgU2VtaW4gd3JvdGU6
+DQo+Pj4gVGhlIG1haW4gaWRlYSBvZiB0aGlzIHBhdGNoc2V0IHdhcyB0byBhZGQgdGhlIGR0LWJh
+c2VkIEdQSU9zIHN1cHBvcnQNCj4+PiBpbiBpMmMtbXV4LWdwaW8gZHJpdmVyLiBJbiBwYXJ0aWN1
+bGFyIHdlIG5lZWRlZCB0byBoYXZlIHRoZSBmdWxsIEdQSU9zDQo+Pj4gc3BlY2lmaWVyIGJlaW5n
+IGhhbmRsZWQgaW5jbHVkaW5nIHRoZSBkdC1mbGFncyBsaWtlIEdQSU9fQUNUSVZFX0hJR0gsDQo+
+Pj4gR1BJT19BQ1RJVkVfTE9XLCBldGMuIER1ZSB0byB1c2luZyBhIGxlZ2FjeSBHUElPIGludGVy
+ZmFjZSB0aGUgZm9ybWVyDQo+Pj4gZHJpdmVyIGltcGxlbWVudGF0aW9uIGRpZG4ndCBwcm92aWRl
+IHRoaXMgYWJpbGl0eS4NCj4+DQo+PiBJJ20gY3VyaW91cyB3aHkgYWN0aXZlIGxvdy9oaWdoIGlz
+IG9mIGFueSBpbXBvcnRhbmNlPyBUaGF0IHdpbGwgb25seSBhZmZlY3QNCj4+IHRoZSBzdGF0ZSBu
+dW1iZXJpbmcsIGJ1dCBJIGZhaWwgdG8gc2VlIGFueSByZWxldmFuY2UgaW4gdGhhdCBudW1iZXJp
+bmcuIEl0J3MNCj4+IGp1c3QgbnVtYmVycywgbm8/DQo+Pg0KPj4gSWYgYWxsIHRoZSBwaW5zIGFy
+ZSBpbnZlcnRlZCAoYW55dGhpbmcgZWxzZSBzZWVtcyB2ZXJ5IHN0cmFuZ2UpLCBqdXN0DQo+PiBy
+ZXZlcnNlIHRoZSBvcmRlci4gSS5lLiBmb3IgYSA0LXdheSBtdXgsIHVzZSAzLCAyLCAxLCAwIGlu
+c3RlYWQgb2YNCj4+IDAsIDEsIDIsIDMuDQo+Pg0KPj4gV2h5IG5vdD8NCj4gDQo+IEkgbWF5IG1p
+c3VuZGVyc3Rvb2QgeW91LCBidXQgYWN0aXZlIGxvdy9oaWdoIGZsYWcgaGFzIG5vdGhpbmcgdG8g
+ZG8gd2l0aA0KPiBwaW5zIG9yZGVyaW5nLiBJdCBpcyByZWxldmFudCB0byBhbiBpbmRpdmlkdWFs
+IHBpbiBzZXR0aW5nLCBtb3N0IGxpa2VseQ0KPiByZWxhdGVkIHdpdGggaGFyZHdhcmUgc2V0dXAu
+DQoNCkkgd2FzIG5vdCB0YWxraW5nIGFib3V0IHBpbiBvcmRlci4gSSB3YXMgb2J2aW91c2x5IHJl
+ZmVycmluZyB0byB0aGUNCnN0YXRlIG9yZGVyLg0KDQo+IEhlcmUgaXMgYSBzaW1wbGUgZXhhbXBs
+ZToNCj4gaTJjbXV4IHsNCj4gICAgICAgICAgICAgICAgIGNvbXBhdGlibGUgPSAiaTJjLW11eC1n
+cGlvIjsNCj4gICAgICAgICAgICAgICAgIG11eC1ncGlvcyA9IDwmZ3Bpb2EgMCBHUElPX0FDVElW
+RV9MT1cNCj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAmY29udHJvbCAyIEdQSU9fQUNU
+SVZFX0hJR0gNCj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAmbGFzdCA1IEdQSU9fQUNU
+SVZFX0xPVz47DQo+IH07DQoNClNvLCB3aXRoIHRoaXMsIGluc3RlYWQgb2YgaGF2aW5nIHR3byBw
+aW5zIGFjdGl2ZS1sb3cgYW5kIHVzaW5nIHN0YXRlIDMsDQp5b3UgY291bGQgdXNlIHN0YXRlIDYg
+d2l0aCBhbGwgcGlucyBhY3RpdmUtaGlnaC4gU2FtZSB0aGluZy4gSS5lLiwgdXNlDQoic3RhdGUg
+XiA1IiBpbnN0ZWFkIG9mIHRoZSAiZGlyZWN0IiBzdGF0ZSAod2hhdGV2ZXIgdGhhdCBpcywgdGhl
+IHN0YXRlDQpudW1iZXJzIGhhdmUgbm8gcmVhbCBtZWFuaW5nLCB0aGV5IGFyZSBqdXN0IG51bWJl
+cnMpLg0KDQo+IEluIHRoaXMgc2V0dXAgd2UndmUgZ290IHNvbWUgaTJjLW11eCB3aXRoIEdQSU9z
+LWRyaXZlbiBjaGFubmVsIHNlbGVjdG9yLg0KPiBGaXJzdCBjaGFubmVsIGlzIHNlbGVjdGVkIGJ5
+IEdQSU8jMCBvZiBjb250cm9sbGVyICZncGlvYSwgc2Vjb25kIG9uZSAtDQo+IGJ5IEdQSU8jMiBv
+ZiBjb250cm9sbGVyICZjb250cm9sIGFuZCB0aGlyZCAtIGJ5IEdQSU8jMyBvZiBjb250cm9sbGVy
+DQo+ICZsYXN0LiBJbiBhY2NvcmRhbmNlIHdpdGggdGhlIGkyY19tdXhfZ3Bpb19zZXQoKSBtZXRo
+b2Qgb2YgaTJjLW11eC1ncGlvDQo+IGRyaXZlciBhIEdQSU8gZnJvbSB0aGlzIHNldCB3aWxsIGJl
+IGRyaXZlbiBoaWdoIGluIGNhc2Ugb2YgYSBjb3JyZXNwb25kaW5nDQo+IG11eCBjaGFubmVsIGJl
+aW5nIGVuYWJsZWQuIEJ1dCBhcyB5b3UgY2FuIHNlZSBmcm9tIHRoZSAibXV4LWdwaW9zIiBwcm9w
+ZXJ0eQ0KPiB0aGVzZSBHUElPcyBhcmVuJ3QgaWRlbnRpY2FsLiBGaXJzdCBvZiBhbGwgdGhleSBi
+ZWxvbmcgdG8gZGlmZmVyZW50DQo+IGNvbnRyb2xsZXIgYW5kIG1vc3QgaW1wb3J0YW50bHkgdGhl
+eSd2ZSBnb3QgZGlmZmVyZW50IGFjdGl2ZS1hdHRyaWJ1dGUuDQo+IFRoaXMgYXR0cmlidXRlIGFj
+dHVhbGx5IG1lYW5zIHRoZSBzdHJhaWdodCBvciBpbnZlcnRlZCBhY3RpdmF0aW9uIHBvbGljeS4N
+Cj4gU28gaW4gY2FzZSBvZiBBQ1RJVkVfSElHSCBmbGFnIHlvdSBnZXQgYSBzdHJhaWdodCBwb2xp
+Y3kuIElmIHlvdSBzZXQgR1BJTycNCj4gdmFsdWUgdGhlIGhhcmR3YXJlIHBpbiB3aWxsIGJlIGRy
+aXZlbiBoaWdoLCBhbmQgaWYgeW91IGNsZWFyIGl0IEdQSU8nDQo+IHZhbHVlIHRoZSBoYXJkd2Fy
+ZSBwaW4gd2lsbCBiZSBwdXNoZWQgdG8gZ3JvdW5kLiBJbiBjYXNlIEFDVElWRV9MT1cgZmxhZw0K
+PiBpcyBzcGVjaWZpZWQsIHRoZSBHUElPIGFuZCBhY3R1YWwgaGFyZHdhcmUgcGluIHZhbHVlcyBh
+cmUgaW52ZXJ0ZWQuDQo+IFNvIGlmIHlvdSBzZXQgR1BJTyB0byBvbmUsIHRoZSBoYXJkd2FyZSBw
+aW4gd2lsbCBiZSBkcml2ZW4gdG8gemVybywNCj4gYW5kIHZpc2UtdmVyc2EuIEFsbCB0aGlzIGxv
+Z2ljIGlzIGltcGxlbWVudGVkIGluIHRoZSBncGlvZCBzdWJzeXN0ZW0NCj4gb2YgdGhlIGtlcm5l
+bCBhbmQgY2FuIGJlIGRlZmluZWQgaW4gZHRzIHNjcmlwdHMsIHdoaWxlIGxlZ2FjeSBHUElPDQo+
+IHN1YnN5c3RlbSByZWxpZWQgb24gdGhlIGRyaXZlcnMgdG8gaGFuZGxlIHRoaXMuDQo+IA0KPiBZ
+ZWFoLCBpdCBtaWdodCBiZSBjb25mdXNpbmcsIGJ1dCBzb21lIGhhcmR3YXJlIGlzIGRlc2lnbmVk
+IHRoaXMgd2F5LCBzbw0KPiB0aGUgb3JkaW5hcnkgR1BJTyBvdXRwdXRzIGFyZSBpbnZlcnRlZCBv
+biB0aGUgd2F5IHRvIHRoZSBpMmMtbXV4IGNoYW5uZWwNCj4gYWN0aXZhdG9ycy4gRm9yIGluc3Rh
+bmNlIGluIGNhc2UgaWYgc29tZSBsZXZlbC1zaGlmdGVyIGlzIHVzZWQgYXMgYSBzaW5nbGUNCj4g
+Y2hhbm5lbCBpMmMtbXV4IGFuZCB3ZSBkb24ndCB3YW50IGkyYy1idXMgYmVpbmcgYWx3YXlzIGNv
+bm5lY3RlZCB0byBhIGJ1cw0KPiBiZWhpbmQgaXQuIFN1Y2ggbGV2ZWwtc2hpZnRlcnMgYXJlIHVz
+dWFsbHkgYWN0aXZhdGVkIGJ5IEFDVElWRV9MT1cgc2lnbmFscy4NCg0KU2VlIGFib3ZlLCB5b3Ug
+Y291bGQganVzdCBhZGp1c3QgdGhlIHN0YXRlIG51bWJlcnMgaW5zdGVhZC4NCg0KPiBJbiBhZGRp
+dGlvbiB0aGVyZSBhcmUgb3RoZXIgdGhhbiBBQ1RJVkVfTE9XL0FDVElWRV9ISUdIIGZsYWdzIGF2
+YWlsYWJsZSBmb3INCj4gR1BJT3MgaW4gZHRzLCBsaWtlIEdQSU9fUFVTSF9QVUxMLCBHUElPX09Q
+RU5fRFJBSU4sIEdQSU9fT1BFTl9TT1VSQ0UsIHdoaWNoIGFyZQ0KPiBhbHNvIHNwZWNpZmljIG5v
+dCBvbmx5IHRvIHRoZSBHUElPIGZ1bmN0aW9uYWxpdHkgYnV0IHRvIHRoZSB0YXJnZXQgcG9ydCBh
+bmQNCj4gaGFyZHdhcmUgZGVzaWduIGluIGdlbmVyYWwuIFNvIHRoZSBzdXBwb3J0IG9mIGR0LSBH
+UElPLXNwZWNpZmllcnMgaXMgdmVyeQ0KPiBpbXBvcnRhbnQgdG8gcHJvcGVybHkgZGVzY3JpYmUg
+dGhlIGhhcmR3YXJlIHNldHVwLg0KDQpUaGVzZSB0aGluZ3MgYXJlIGFub3RoZXIgbWF0dGVyLiBJ
+IHRob3VnaHQgdGhpcyB3YXMgc3VwcG9zZWQgdG8gYmUNCmNvbnRyb2xsZWQgd2l0aCBwaW5jdHJs
+IGRyaXZlcnMsIGJ1dCBub3cgdGhhdCBJIGxvb2sgSSBzZWUgdGhhdCBncGlvDQpkcml2ZXJzIGNh
+biBkbyB0aGlzIGRpcmVjdGx5IHdpdGhvdXQgaGVscCBmcm9tIHBpbmN0cmwuIFRoYXQncyBqdXN0
+DQpub3QgaG93IGl0IGhhcyBiZWVuIGRvbmUgb24gdGhlIHBsYXRmb3JtcyBJIGhhdmUgYmVlbiB1
+c2luZy4uLg0KDQpTbywgb2ssIGJ1dCBvcGVuLWRyYWluL29wZW4tc291cmNlL3B1c2gtcHVsbCBz
+aG91bGQgcGVyaGFwcyBoYXZlIGJlZW4NCm1lbnRpb25lZCBtb3JlIHByb21pbmVudGx5LiAoSSBu
+b3cgc2VlIHRoYXQgSSBtYW5hZ2VkIHRvIHJlYWQgcGFzdCBhDQptZW50aW9uIG9mIG9wZW4tZHJh
+aW4gaW4gdGhlIGNvbW1pdCBtZXNzYWdlIGZvciA1LzUpDQoNCkNoZWVycywNClBldGVyDQoNCj4g
+LVNlcmdleQ0KPiANCj4+DQo+PiBDaGVlcnMsDQo+PiBQZXRlcg0KPj4NCj4+PiBPbiB0aGUgd2F5
+IG9mIGFkZGluZyB0aGUgZnVsbCBkdC1HUElPIGZsYWdzIHN1cHBvcnQgYSBzbWFsbCBzZXQgb2YN
+Cj4+PiByZWZhY3RvcmluZ3MgaGFzIGJlZW4gZG9uZSBpbiBvcmRlciB0byBrZWVwIHRoZSBwbGF0
+Zm9ybV9kYXRhLWJhc2VkDQo+Pj4gc3lzdGVtcyBzdXBwb3J0LCBtYWtlIHRoZSBjb2RlIG1vcmUg
+cmVhZGFibGUgYW5kIHRoZSBhbHRlcmF0aW9ucyAtIGNsZWFyZXIuDQo+Pj4gSW4gZ2VuZXJhbCB0
+aGUgd2hvbGUgY2hhbmdlcyBtaWdodCBiZSBjb25zaWRlcmVkIGFzIHRoZSBwbGF0LSBhbmQgZHQt
+DQo+Pj4gc3BlY2lmaWMgY29kZSBzcGxpdCB1cC4gSW4gZmlyc3QgcGF0Y2ggd2UgdW5waW5uZWQg
+dGhlIHBsYXRmb3JtLXNwZWNpZmljDQo+Pj4gbWV0aG9kIG9mIEdQSU8tY2hpcCBwcm9iaW5nLiBU
+aGUgc2Vjb25kIHBhdGNoIG1ha2VzIHRoZSBkcml2ZXIgdG8gcmV0dXJuDQo+Pj4gYW4gZXJyb3Ig
+aWYgb2YtYmFzZWQgKGxhc3QgcmVzb3J0IHBhdGgpIGZhaWxlZCB0byByZXRyaWV2ZSB0aGUgZHJp
+dmVyDQo+Pj4gcHJpdmF0ZSBkYXRhLiBUaGUgbmV4dCB0aHJlZSBwYXRjaGVzIGlzIHRoZSBzZXF1
+ZW5jZSBvZiBpbml0aWFsIGNoYW5uZWwNCj4+PiBpbmZvIHJldHJpZXZhbCwgcGxhdGZvcm1fZGF0
+YS1zcGVjaWZpYyBjb2RlIGlzb2xhdGlvbiBhbmQgZmluYWxseSBmdWxsDQo+Pj4gZHQtYmFzZWQg
+R1BJT3MgcmVxdWVzdCBtZXRob2QgaW50cm9kdWN0aW9uLiBUaGUgbGFzdCBwYXRjaCBkb2VzIHdo
+YXQNCj4+PiB3ZSBpbnRlZGVkIHRoaXMgcGF0Y2hzZXQgZm9yIGluIHRoZSBmaXJzdCBwbGFjZSAt
+IGFkZHMgdGhlIGZ1bGwgZHQtR1BJTw0KPj4+IHNwZWNpZmllcnMgc3VwcG9ydC4NCj4+Pg0KPj4+
+DQo+Pj4gU2VyZ2UgU2VtaW4gKDUpOg0KPj4+ICAgaTJjLW11eC1ncGlvOiBVbnBpbiBhIHBsYXRm
+b3JtLWJhc2VkIGRldmljZSBpbml0aWFsaXphdGlvbg0KPj4+ICAgaTJjLW11eC1ncGlvOiBSZXR1
+cm4gYW4gZXJyb3IgaWYgbm8gY29uZmlnIGRhdGEgZm91bmQNCj4+PiAgIGkyYy1tdXgtZ3Bpbzog
+U2F2ZSBpbml0aWFsIGNoYW5uZWwgbnVtYmVyIHRvIHRoZSBpZGxlIGRhdGEgZmllbGQNCj4+PiAg
+IGkyYy1tdXgtZ3BpbzogVW5waW4gdGhlIHBsYXRmb3JtLXNwZWNpZmljIEdQSU9zIHJlcXVlc3Qg
+Y29kZQ0KPj4+ICAgaTJjLW11eC1ncGlvOiBDcmVhdGUgb2YtYmFzZWQgR1BJT3MgcmVxdWVzdCBt
+ZXRob2QNCj4+Pg0KPj4+ICBkcml2ZXJzL2kyYy9tdXhlcy9pMmMtbXV4LWdwaW8uYyB8IDIyNCAr
+KysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tDQo+Pj4gIDEgZmlsZSBjaGFuZ2VkLCAxNDYg
+aW5zZXJ0aW9ucygrKSwgNzggZGVsZXRpb25zKC0pDQo+Pj4NCj4+DQoNCg==
