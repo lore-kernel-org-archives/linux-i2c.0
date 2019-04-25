@@ -1,120 +1,102 @@
 From: Serge Semin <fancer.lancer@gmail.com>
-Subject: Re: [PATCH 0/5] i2c-mux-gpio: Split plat- and dt-specific code up
-Date: Thu, 25 Apr 2019 23:03:07 +0300
-Message-ID: <20190425200306.fo7r2rcxluj27qgu@mobilestation>
+Subject: Re: [PATCH 2/5] i2c-mux-gpio: Return an error if no config data found
+Date: Thu, 25 Apr 2019 23:09:49 +0300
+Message-ID: <20190425200948.bj5h7svga727havo@mobilestation>
 References: <20190424123414.25311-1-fancer.lancer@gmail.com>
- <93214e50-6f69-0e7a-c725-5e95c1bbdb45@axentia.se>
- <20190425143755.vmz3l52hrxtqu43z@mobilestation>
- <04133a9c-8c79-9143-5f5a-563124cb9524@axentia.se>
+ <20190424123414.25311-3-fancer.lancer@gmail.com>
+ <4e7c9184-03a2-f1d3-2ed0-a761d76b9654@axentia.se>
+ <20190425154736.emjumxqimzgvzrla@mobilestation>
+ <3366ab5c-ced5-cfe1-c93e-d50ce795c2aa@axentia.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <04133a9c-8c79-9143-5f5a-563124cb9524@axentia.se>
+In-Reply-To: <3366ab5c-ced5-cfe1-c93e-d50ce795c2aa@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Peter Rosin <peda@axentia.se>
 Cc: Peter Korsgaard <peter.korsgaard@barco.com>, Serge Semin <Sergey.Semin@t-platforms.ru>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Apr 25, 2019 at 07:21:02PM +0000, Peter Rosin wrote:
-> On 2019-04-25 16:37, Serge Semin wrote:
-> > On Wed, Apr 24, 2019 at 09:25:24PM +0000, Peter Rosin wrote:
-> > 
-> > Hello Peter,
-> > 
+On Thu, Apr 25, 2019 at 07:28:52PM +0000, Peter Rosin wrote:
+> On 2019-04-25 17:47, Serge Semin wrote:
+> > On Wed, Apr 24, 2019 at 09:25:50PM +0000, Peter Rosin wrote:
 > >> On 2019-04-24 14:34, Serge Semin wrote:
-> >>> The main idea of this patchset was to add the dt-based GPIOs support
-> >>> in i2c-mux-gpio driver. In particular we needed to have the full GPIOs
-> >>> specifier being handled including the dt-flags like GPIO_ACTIVE_HIGH,
-> >>> GPIO_ACTIVE_LOW, etc. Due to using a legacy GPIO interface the former
-> >>> driver implementation didn't provide this ability.
+> >>> It's pointless and might be even errors prone to proceed with further
+> >>> initialization if neither of- no platform-based settings were discovered.
+> >>> Just return an error in this case.
+> >>>
+> >>> Signed-off-by: Serge Semin <fancer.lancer@gmail.com>
+> >>> ---
+> >>>  drivers/i2c/muxes/i2c-mux-gpio.c | 12 +++++++-----
+> >>>  1 file changed, 7 insertions(+), 5 deletions(-)
+> >>>
+> >>> diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
+> >>> index 24cf6ec02e75..a14fe132b0c3 100644
+> >>> --- a/drivers/i2c/muxes/i2c-mux-gpio.c
+> >>> +++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+> >>> @@ -132,7 +132,7 @@ static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
+> >>>  static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
+> >>>  					struct platform_device *pdev)
+> >>>  {
+> >>> -	return 0;
+> >>> +	return -EINVAL;
+> >>>  }
+> >>>  #endif
+> >>>  
+> >>> @@ -142,6 +142,9 @@ static int i2c_mux_gpio_probe_plat(struct gpiomux *mux,
+> >>>  	struct i2c_mux_gpio_platform_data *data = dev_get_platdata(&pdev->dev);
+> >>>  	struct gpio_chip *gpio;
+> >>>  
+> >>> +	if (!data)
+> >>> +		return -EINVAL;
+> >>> +
+> >>>  	/*
+> >>>  	 * If a GPIO chip name is provided, the GPIO pin numbers provided are
+> >>>  	 * relative to its base GPIO number. Otherwise they are absolute.
+> >>> @@ -175,11 +178,10 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+> >>>  	if (!mux)
+> >>>  		return -ENOMEM;
+> >>>  
+> >>> -	if (!dev_get_platdata(&pdev->dev))
+> >>> +	ret = i2c_mux_gpio_probe_plat(mux, pdev);
+> >>> +	if (ret)
+> >>>  		ret = i2c_mux_gpio_probe_dt(mux, pdev);
+> >>> -	else
+> >>> -		ret = i2c_mux_gpio_probe_plat(mux, pdev);
+> >>> -	if (ret < 0)
+> >>> +	if (ret)
+> >>>  		return ret;
 > >>
-> >> I'm curious why active low/high is of any importance? That will only affect
-> >> the state numbering, but I fail to see any relevance in that numbering. It's
-> >> just numbers, no?
+> >> I notice that after this patch, all probe failures from non-dt configs
+> >> will return -EINVAL from the dummy i2c_mux_gpio_probe_dt that gets
+> >> called on i2c_mux_gpio_probe_plat failure.
 > >>
-> >> If all the pins are inverted (anything else seems very strange), just
-> >> reverse the order. I.e. for a 4-way mux, use 3, 2, 1, 0 instead of
-> >> 0, 1, 2, 3.
+> >> So, any -EPROBE_DEFER is now lost. That probably doesn't fly.
 > >>
-> >> Why not?
 > > 
-> > I may misunderstood you, but active low/high flag has nothing to do with
-> > pins ordering. It is relevant to an individual pin setting, most likely
-> > related with hardware setup.
+> > So what do you suggest then?
 > 
-> I was not talking about pin order. I was obviously referring to the
-> state order.
+> I don't know, I'm just pointing out that you are breaking probe-defer.
 > 
-> > Here is a simple example:
-> > i2cmux {
-> >                 compatible = "i2c-mux-gpio";
-> >                 mux-gpios = <&gpioa 0 GPIO_ACTIVE_LOW
-> >                              &control 2 GPIO_ACTIVE_HIGH
-> >                              &last 5 GPIO_ACTIVE_LOW>;
-> > };
-> 
-> So, with this, instead of having two pins active-low and using state 3,
-> you could use state 6 with all pins active-high. Same thing. I.e., use
-> "state ^ 5" instead of the "direct" state (whatever that is, the state
-> numbers have no real meaning, they are just numbers).
-> 
-> > In this setup we've got some i2c-mux with GPIOs-driven channel selector.
-> > First channel is selected by GPIO#0 of controller &gpioa, second one -
-> > by GPIO#2 of controller &control and third - by GPIO#3 of controller
-> > &last. In accordance with the i2c_mux_gpio_set() method of i2c-mux-gpio
-> > driver a GPIO from this set will be driven high in case of a corresponding
-> > mux channel being enabled. But as you can see from the "mux-gpios" property
-> > these GPIOs aren't identical. First of all they belong to different
-> > controller and most importantly they've got different active-attribute.
-> > This attribute actually means the straight or inverted activation policy.
-> > So in case of ACTIVE_HIGH flag you get a straight policy. If you set GPIO'
-> > value the hardware pin will be driven high, and if you clear it GPIO'
-> > value the hardware pin will be pushed to ground. In case ACTIVE_LOW flag
-> > is specified, the GPIO and actual hardware pin values are inverted.
-> > So if you set GPIO to one, the hardware pin will be driven to zero,
-> > and vise-versa. All this logic is implemented in the gpiod subsystem
-> > of the kernel and can be defined in dts scripts, while legacy GPIO
-> > subsystem relied on the drivers to handle this.
+> >                              We can return to something like:
+> > if (dev_get_platdata(&pdev->dev))
+> >     ret = i2c_mux_gpio_probe_plat(mux, pdev);
+> > else
+> >     ret = i2c_mux_gpio_probe_dt(mux, pdev);
 > > 
-> > Yeah, it might be confusing, but some hardware is designed this way, so
-> > the ordinary GPIO outputs are inverted on the way to the i2c-mux channel
-> > activators. For instance in case if some level-shifter is used as a single
-> > channel i2c-mux and we don't want i2c-bus being always connected to a bus
-> > behind it. Such level-shifters are usually activated by ACTIVE_LOW signals.
+> > In this case there is no falling back to dt. Just either plat- or of-based
+> > initialization. The same can be done for i2c_mux_gpio_request_*() methods.
 > 
-> See above, you could just adjust the state numbers instead.
+> Works for me, I fail to see why it is interesting with a fallback
+> anyway? If you supply platform data, that is supposed to take
+> precedence. No?
 > 
-
-Ahh, now I see what you meant. Sorry for explaining the obvious.)
-
-It is definitely a solution in case if active-low pins used for channel
-selection, but it seems more like a hack than a best choice. The main
-problem is that the hardware programmer needs to take into account the
-active-{low,high} flags when assigning the reg-values of subnodes. While in
-case if these flags are supported by GPIO subsystem itself, the reg
-properties can be the same as if all GPIOs were active-high. As for me
-this is a good simplification, which also makes the i2c-mux-gpio nodes
-more readable. 
-
-> > In addition there are other than ACTIVE_LOW/ACTIVE_HIGH flags available for
-> > GPIOs in dts, like GPIO_PUSH_PULL, GPIO_OPEN_DRAIN, GPIO_OPEN_SOURCE, which are
-> > also specific not only to the GPIO functionality but to the target port and
-> > hardware design in general. So the support of dt- GPIO-specifiers is very
-> > important to properly describe the hardware setup.
-> 
-> These things are another matter. I thought this was supposed to be
-> controlled with pinctrl drivers, but now that I look I see that gpio
-> drivers can do this directly without help from pinctrl. That's just
-> not how it has been done on the platforms I have been using...
-> 
-> So, ok, but open-drain/open-source/push-pull should perhaps have been
-> mentioned more prominently. (I now see that I managed to read past a
-> mention of open-drain in the commit message for 5/5)
+> If the platform data fails, I'd rather not have the code run into the
+> weeds attempting stuff that's not even supposed to work...
 > 
 
-Yeah, these flags is another positive side of supporting the full dt GPIO
-specifiers.
+Yeah, you are right. Adding fallback pattern here was a bad idea.
+I'll fix it in the next patchset version.
 
 -Sergey
 
@@ -123,33 +105,11 @@ specifiers.
 > 
 > > -Sergey
 > > 
-> >>
 > >> Cheers,
 > >> Peter
 > >>
-> >>> On the way of adding the full dt-GPIO flags support a small set of
-> >>> refactorings has been done in order to keep the platform_data-based
-> >>> systems support, make the code more readable and the alterations - clearer.
-> >>> In general the whole changes might be considered as the plat- and dt-
-> >>> specific code split up. In first patch we unpinned the platform-specific
-> >>> method of GPIO-chip probing. The second patch makes the driver to return
-> >>> an error if of-based (last resort path) failed to retrieve the driver
-> >>> private data. The next three patches is the sequence of initial channel
-> >>> info retrieval, platform_data-specific code isolation and finally full
-> >>> dt-based GPIOs request method introduction. The last patch does what
-> >>> we inteded this patchset for in the first place - adds the full dt-GPIO
-> >>> specifiers support.
-> >>>
-> >>>
-> >>> Serge Semin (5):
-> >>>   i2c-mux-gpio: Unpin a platform-based device initialization
-> >>>   i2c-mux-gpio: Return an error if no config data found
-> >>>   i2c-mux-gpio: Save initial channel number to the idle data field
-> >>>   i2c-mux-gpio: Unpin the platform-specific GPIOs request code
-> >>>   i2c-mux-gpio: Create of-based GPIOs request method
-> >>>
-> >>>  drivers/i2c/muxes/i2c-mux-gpio.c | 224 ++++++++++++++++++++-----------
-> >>>  1 file changed, 146 insertions(+), 78 deletions(-)
+> >>>  
+> >>>  	parent = i2c_get_adapter(mux->data.parent);
 > >>>
 > >>
 > 
