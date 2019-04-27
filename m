@@ -1,65 +1,113 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH v2] i2c: i801: Register optional lis3lv02d i2c device on
- Dell machines
-Date: Sat, 27 Apr 2019 08:48:55 +0200
-Message-ID: <20190427064855.omawrv2vmcehsspb@pali>
-References: <20180131120348.azy25aqvn5wrdkeh@pali>
- <CAHp75Vf=-RQvCtS684Q5+X=YKmZXgP_1kr0to8BGZX0jQAsuZw@mail.gmail.com>
- <20180212153012.vffvjmz26ifyxbj5@pali>
- <CAHp75VfF+qwCXcr3yuayE-Z+UG9wuMOKfGzLhdyPk79daEi9gQ@mail.gmail.com>
- <20180213150004.5d2v7y7wwuure4io@pali>
- <CAHp75VfxgbFiDxyrqyMRE8s85L1_EzkVvrA1NGYA5_su=5oGVQ@mail.gmail.com>
- <20180213165023.xmzovx7fd3gdljxw@pali>
- <20180226203255.lnnzipipjz5l2itz@ninjato>
- <20180308225330.5ywfokfhxcl5j3ju@pali>
- <20180418114610.rohdk5mnzv4km4z2@pali>
+From: Pu Wen <puwen@hygon.cn>
+Subject: [RFC PATCH v2] i2c-piix4: Add Hygon Dhyana SMBus support
+Date: Sat, 27 Apr 2019 09:07:44 +0800
+Message-ID: <1556327264-31730-1-git-send-email-puwen@hygon.cn>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="mvpru5kfdrmq6sqf"
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20180418114610.rohdk5mnzv4km4z2@pali>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis Kletnieks <Valdis.Kletnieks@vt.edu>, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <Mario_Limonciello@dell.com>, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>
+To: jdelvare@suse.com, bp@alien8.de
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Pu Wen <puwen@hygon.cn>
 List-Id: linux-i2c@vger.kernel.org
 
+The Hygon Dhyana CPU has the SMBus device with PCI device ID 0x790b,
+which is the same as AMD CZ SMBus device. So add Hygon Dhyana support
+to the i2c-piix4 driver by using the code path of AMD.
 
---mvpru5kfdrmq6sqf
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Pu Wen <puwen@hygon.cn>
+---
+v1->v2:
+  - Remove the revision number checking for Hygon SMBus device.
+  - Document the new supported chipset in drivers/i2c/busses/Kconfig
+    and Documentation/i2c/busses/i2c-piix4 as well as in the header
+	comment of i2c-piix4.c.
 
-On Wednesday 18 April 2018 13:46:10 Pali Roh=C3=A1r wrote:
-> On Thursday 08 March 2018 23:53:30 Pali Roh=C3=A1r wrote:
-> > On Monday 26 February 2018 21:32:55 Wolfram Sang wrote:
-> > >=20
-> > > > I'm not maintainer of i2c-i801.ko, Jean Delvare & Wolfram Sang are.
-> > > > Therefore instructing future contributors would be up to them.
-> > >=20
-> > > This is really Jean's realm.
-> > >=20
-> >=20
-> > Jean, ping.
->=20
-> Jean, gently ping again. Waiting for your maintainer response/decision
-> on this problem.
+ Documentation/i2c/busses/i2c-piix4 |  2 ++
+ drivers/i2c/busses/Kconfig         |  1 +
+ drivers/i2c/busses/i2c-piix4.c     | 15 +++++++++++----
+ 3 files changed, 14 insertions(+), 4 deletions(-)
 
-Jean, one year passed without any answer. May you response to this
-thread about this patch?
-
---=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---mvpru5kfdrmq6sqf
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCXMP7VQAKCRCL8Mk9A+RD
-UpvnAKCTDm3RX8cPc1mcZbuH/1GAVEkwlgCgmt/6wZDdcJMcJNBFkEhvi8oD/ig=
-=FtHj
------END PGP SIGNATURE-----
-
---mvpru5kfdrmq6sqf--
+diff --git a/Documentation/i2c/busses/i2c-piix4 b/Documentation/i2c/busses/i2c-piix4
+index aa959fd..2703bc3 100644
+--- a/Documentation/i2c/busses/i2c-piix4
++++ b/Documentation/i2c/busses/i2c-piix4
+@@ -15,6 +15,8 @@ Supported adapters:
+     http://support.amd.com/us/Embedded_TechDocs/44413.pdf
+   * AMD Hudson-2, ML, CZ
+     Datasheet: Not publicly available
++  * Hygon CZ
++    Datasheet: Not publicly available
+   * Standard Microsystems (SMSC) SLC90E66 (Victory66) southbridge
+     Datasheet: Publicly available at the SMSC website http://www.smsc.com
+ 
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index f8979ab..50ec2e4 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -176,6 +176,7 @@ config I2C_PIIX4
+ 	    AMD Hudson-2
+ 	    AMD ML
+ 	    AMD CZ
++	    Hygon CZ
+ 	    Serverworks OSB4
+ 	    Serverworks CSB5
+ 	    Serverworks CSB6
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 90946a8..e9a0514 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -19,6 +19,7 @@
+ 	Serverworks OSB4, CSB5, CSB6, HT-1000, HT-1100
+ 	ATI IXP200, IXP300, IXP400, SB600, SB700/SP5100, SB800
+ 	AMD Hudson-2, ML, CZ
++	Hygon CZ
+ 	SMSC Victory66
+ 
+    Note: we assume there can only be one device, with one or more
+@@ -289,7 +290,9 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 	     PIIX4_dev->revision >= 0x41) ||
+ 	    (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD &&
+ 	     PIIX4_dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS &&
+-	     PIIX4_dev->revision >= 0x49))
++	     PIIX4_dev->revision >= 0x49) ||
++	    (PIIX4_dev->vendor == PCI_VENDOR_ID_HYGON &&
++	     PIIX4_dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS))
+ 		smb_en = 0x00;
+ 	else
+ 		smb_en = (aux) ? 0x28 : 0x2c;
+@@ -361,7 +364,8 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+ 		 piix4_smba, i2ccfg >> 4);
+ 
+ 	/* Find which register is used for port selection */
+-	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD) {
++	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD ||
++	    PIIX4_dev->vendor == PCI_VENDOR_ID_HYGON) {
+ 		switch (PIIX4_dev->device) {
+ 		case PCI_DEVICE_ID_AMD_KERNCZ_SMBUS:
+ 			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_KERNCZ;
+@@ -794,6 +798,7 @@ static const struct pci_device_id piix4_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_HYGON, PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
+ 		     PCI_DEVICE_ID_SERVERWORKS_OSB4) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
+@@ -904,11 +909,13 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	if ((dev->vendor == PCI_VENDOR_ID_ATI &&
+ 	     dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
+ 	     dev->revision >= 0x40) ||
+-	    dev->vendor == PCI_VENDOR_ID_AMD) {
++	    dev->vendor == PCI_VENDOR_ID_AMD ||
++	    dev->vendor == PCI_VENDOR_ID_HYGON) {
+ 		bool notify_imc = false;
+ 		is_sb800 = true;
+ 
+-		if (dev->vendor == PCI_VENDOR_ID_AMD &&
++		if ((dev->vendor == PCI_VENDOR_ID_AMD ||
++		     dev->vendor == PCI_VENDOR_ID_HYGON) &&
+ 		    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
+ 			u8 imc;
+ 
+-- 
+2.7.4
