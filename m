@@ -1,41 +1,65 @@
-From: Pu Wen <puwen@hygon.cn>
-Subject: Re: [RFC PATCH RESEND] i2c-piix4: Add Hygon Dhyana SMBus support
-Date: Sat, 27 Apr 2019 10:37:49 +0800
-Message-ID: <8ec649c6-5282-6fb1-a1ee-a88dc897d644@hygon.cn>
-References: <1555938607-2865-1-git-send-email-puwen@hygon.cn>
- <20190426113751.77befab1@endymion>
- <0c895129-23af-2fc6-0c99-61348a69f961@hygon.cn>
- <1556297285.22365.4.camel@suse.de>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH v2] i2c: i801: Register optional lis3lv02d i2c device on
+ Dell machines
+Date: Sat, 27 Apr 2019 08:48:55 +0200
+Message-ID: <20190427064855.omawrv2vmcehsspb@pali>
+References: <20180131120348.azy25aqvn5wrdkeh@pali>
+ <CAHp75Vf=-RQvCtS684Q5+X=YKmZXgP_1kr0to8BGZX0jQAsuZw@mail.gmail.com>
+ <20180212153012.vffvjmz26ifyxbj5@pali>
+ <CAHp75VfF+qwCXcr3yuayE-Z+UG9wuMOKfGzLhdyPk79daEi9gQ@mail.gmail.com>
+ <20180213150004.5d2v7y7wwuure4io@pali>
+ <CAHp75VfxgbFiDxyrqyMRE8s85L1_EzkVvrA1NGYA5_su=5oGVQ@mail.gmail.com>
+ <20180213165023.xmzovx7fd3gdljxw@pali>
+ <20180226203255.lnnzipipjz5l2itz@ninjato>
+ <20180308225330.5ywfokfhxcl5j3ju@pali>
+ <20180418114610.rohdk5mnzv4km4z2@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <1556297285.22365.4.camel@suse.de>
-Content-Language: en-US
-Sender: stable-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: "bp@alien8.de" <bp@alien8.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, stable <stable@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="mvpru5kfdrmq6sqf"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20180418114610.rohdk5mnzv4km4z2@pali>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis Kletnieks <Valdis.Kletnieks@vt.edu>, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <Mario_Limonciello@dell.com>, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 2019/4/27 0:48, Jean Delvare wrote:
-> On Fri, 2019-04-26 at 22:23 +0800, Pu Wen wrote:
->> On 2019/4/26 17:38, Jean Delvare wrote:
->>> I would like you to also document the new supported chipset in
->>> drivers/i2c/busses/Kconfig and Documentation/i2c/busses/i2c-piix4 as
->>> well as in the header comment of i2c-piix4.c itself. I know it seems
->>> redundant but it helps the user know which driver they need.
->>
->> Because Hygon uses the same PCI device ID of AMD's, so is it appropriate
->> to document with the name "Hygon CZ" or just "Hygon"?
-> 
-> "Hygon CZ" please, as Hygon is the vendor not the device, and I can
 
-Okay.
+--mvpru5kfdrmq6sqf
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> imagine you may create more devices in the future.
+On Wednesday 18 April 2018 13:46:10 Pali Roh=C3=A1r wrote:
+> On Thursday 08 March 2018 23:53:30 Pali Roh=C3=A1r wrote:
+> > On Monday 26 February 2018 21:32:55 Wolfram Sang wrote:
+> > >=20
+> > > > I'm not maintainer of i2c-i801.ko, Jean Delvare & Wolfram Sang are.
+> > > > Therefore instructing future contributors would be up to them.
+> > >=20
+> > > This is really Jean's realm.
+> > >=20
+> >=20
+> > Jean, ping.
+>=20
+> Jean, gently ping again. Waiting for your maintainer response/decision
+> on this problem.
 
-Surely.
+Jean, one year passed without any answer. May you response to this
+thread about this patch?
 
--- 
-Regards,
-Pu Wen
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--mvpru5kfdrmq6sqf
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCXMP7VQAKCRCL8Mk9A+RD
+UpvnAKCTDm3RX8cPc1mcZbuH/1GAVEkwlgCgmt/6wZDdcJMcJNBFkEhvi8oD/ig=
+=FtHj
+-----END PGP SIGNATURE-----
+
+--mvpru5kfdrmq6sqf--
