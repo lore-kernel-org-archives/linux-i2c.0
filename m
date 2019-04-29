@@ -1,69 +1,41 @@
-From: Ludovic Desroches <ludovic.desroches@microchip.com>
-Subject: Re: [PATCH] i2c: at91: handle TXRDY interrupt spam
-Date: Mon, 29 Apr 2019 11:00:05 +0200
-Message-ID: <20190429090005.f6ydghzu5n5yruav@M43218.corp.atmel.com>
-References: <1556005008-6318-1-git-send-email-raagjadav@gmail.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [RFC PATCH v2] i2c-piix4: Add Hygon Dhyana SMBus support
+Date: Mon, 29 Apr 2019 16:26:17 +0200
+Message-ID: <20190429162617.3b936981@endymion>
+References: <1556327264-31730-1-git-send-email-puwen@hygon.cn>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1556005008-6318-1-git-send-email-raagjadav@gmail.com>
+In-Reply-To: <1556327264-31730-1-git-send-email-puwen@hygon.cn>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Raag Jadav <raagjadav@gmail.com>
-Cc: linux-i2c@vger.kernel.org, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Pu Wen <puwen@hygon.cn>
+Cc: bp@alien8.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Raag,
-
-On Tue, Apr 23, 2019 at 01:06:48PM +0530, Raag Jadav wrote:
-> External E-Mail
+On Sat, 27 Apr 2019 09:07:44 +0800, Pu Wen wrote:
+> The Hygon Dhyana CPU has the SMBus device with PCI device ID 0x790b,
+> which is the same as AMD CZ SMBus device. So add Hygon Dhyana support
+> to the i2c-piix4 driver by using the code path of AMD.
 > 
-> 
-> Performing i2c write operation while SDA or SCL line is held
-> or grounded by slave device, we go into infinite at91_twi_write_next_byte
-> loop with TXRDY interrupt spam.
-
-Sorry but I am not sure to have the full picture, the controller is in
-slave or master mode?
-
-SVREAD is only used in slave mode. When SVREAD is set, it means that a read
-access is performed and your issue concerns the write operation.
-
-Regards
-
-Ludovic
-
-> 
-> Signed-off-by: Raag Jadav <raagjadav@gmail.com>
+> Signed-off-by: Pu Wen <puwen@hygon.cn>
 > ---
->  drivers/i2c/busses/i2c-at91.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
+> v1->v2:
+>   - Remove the revision number checking for Hygon SMBus device.
+>   - Document the new supported chipset in drivers/i2c/busses/Kconfig
+>     and Documentation/i2c/busses/i2c-piix4 as well as in the header
+> 	comment of i2c-piix4.c.
 > 
-> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> index 3f3e8b3..b2f5fdb 100644
-> --- a/drivers/i2c/busses/i2c-at91.c
-> +++ b/drivers/i2c/busses/i2c-at91.c
-> @@ -72,6 +72,7 @@
->  #define	AT91_TWI_TXCOMP		BIT(0)	/* Transmission Complete */
->  #define	AT91_TWI_RXRDY		BIT(1)	/* Receive Holding Register Ready */
->  #define	AT91_TWI_TXRDY		BIT(2)	/* Transmit Holding Register Ready */
-> +#define	AT91_TWI_SVREAD		BIT(3)	/* Slave Read */
->  #define	AT91_TWI_OVRE		BIT(6)	/* Overrun Error */
->  #define	AT91_TWI_UNRE		BIT(7)	/* Underrun Error */
->  #define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
-> @@ -571,7 +572,10 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
->  		at91_disable_twi_interrupts(dev);
->  		complete(&dev->cmd_complete);
->  	} else if (irqstatus & AT91_TWI_TXRDY) {
-> -		at91_twi_write_next_byte(dev);
-> +		if ((status & AT91_TWI_SVREAD) && (dev->buf_len == 0))
-> +			at91_twi_write(dev, AT91_TWI_IDR, AT91_TWI_TXRDY);
-> +		else
-> +			at91_twi_write_next_byte(dev);
->  	}
->  
->  	/* catch error flags */
-> -- 
-> 2.7.4
-> 
-> 
+>  Documentation/i2c/busses/i2c-piix4 |  2 ++
+>  drivers/i2c/busses/Kconfig         |  1 +
+>  drivers/i2c/busses/i2c-piix4.c     | 15 +++++++++++----
+>  3 files changed, 14 insertions(+), 4 deletions(-)
+> (...)
+
+Looks good to me now, thanks.
+
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+
+-- 
+Jean Delvare
+SUSE L3 Support
