@@ -1,25 +1,37 @@
-From: Aisheng Dong <aisheng.dong@nxp.com>
-Subject: RE: [PATCH] i2c: imx-lpi2c: Use __maybe_unused instead of #if
- CONFIG_PM_SLEEP
-Date: Tue, 30 Apr 2019 08:10:21 +0000
-Message-ID: <AM0PR04MB42114EDECD01526E128A323E803A0@AM0PR04MB4211.eurprd04.prod.outlook.com>
-References: <1556607314-32401-1-git-send-email-Anson.Huang@nxp.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Subject: Re: [PATCH 1/2] i2c: imx: I2C Driver doesn't consider I2C_IPGCLK_SEL
+ RCW bit when using ls1046a SoC
+Date: Tue, 30 Apr 2019 14:50:43 +0200
+Message-ID: <20190430125043.weqwzim4gpsvtkfe@pengutronix.de>
+References: <20190430044719.30720-1-chuanhua.han@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1556607314-32401-1-git-send-email-Anson.Huang@nxp.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190430044719.30720-1-chuanhua.han@nxp.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Anson Huang <anson.huang@nxp.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: dl-linux-imx <linux-imx@nxp.com>
+To: Chuanhua Han <chuanhua.han@nxp.com>
+Cc: shawnguo@kernel.org, leoyang.li@nxp.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, festevam@gmail.com, linux-imx@nxp.com, wsa+renesas@sang-engineering.com, u.kleine-koenig@pengutronix.de, eha@deif.com, linux@rempel-privat.de, l.stach@pengutronix.de, peda@axentia.se, sumit.batra@nxp.com
 List-Id: linux-i2c@vger.kernel.org
 
-PiBGcm9tOiBBbnNvbiBIdWFuZw0KPiBTZW50OiBUdWVzZGF5LCBBcHJpbCAzMCwgMjAxOSAzOjAw
-IFBNDQo+IFN1YmplY3Q6IFtQQVRDSF0gaTJjOiBpbXgtbHBpMmM6IFVzZSBfX21heWJlX3VudXNl
-ZCBpbnN0ZWFkIG9mICNpZg0KPiBDT05GSUdfUE1fU0xFRVANCj4gDQo+IFVzZSBfX21heWJlX3Vu
-dXNlZCBmb3IgcG93ZXIgbWFuYWdlbWVudCByZWxhdGVkIGZ1bmN0aW9ucyBpbnN0ZWFkIG9mICNp
-Zg0KPiBDT05GSUdfUE1fU0xFRVAgdG8gc2ltcGx5IHRoZSBjb2RlLg0KPiANCj4gU2lnbmVkLW9m
-Zi1ieTogQW5zb24gSHVhbmcgPEFuc29uLkh1YW5nQG54cC5jb20+DQoNCkFja2VkLWJ5OiBEb25n
-IEFpc2hlbmcgPGFpc2hlbmcuZG9uZ0BueHAuY29tPg0KDQpSZWdhcmRzDQpEb25nIEFpc2hlbmcN
-Cg0K
+On Tue, Apr 30, 2019 at 12:47:18PM +0800, Chuanhua Han wrote:
+> The current kernel driver does not consider I2C_IPGCLK_SEL (424 bit
+> of RCW) in deciding  i2c_clk_rate in function i2c_imx_set_clk()
+> { 0 Platform clock/4, 1 Platform clock/2}.
+> 
+> When using ls1046a SoC, this populates incorrect value in IBFD register
+> if I2C_IPGCLK_SEL = 0, which generates half of the desired Clock.
+> 
+> Therefore, if ls1046a SoC is used, we need to set the i2c clock
+> according to the corresponding RCW.
+
+So the clock driver reports the wrong clock. Please fix the clock driver
+then.
+
+Sascha
+
+-- 
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
