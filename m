@@ -1,60 +1,66 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: I2C delay due to maintainer illness
-Date: Tue, 30 Apr 2019 19:37:44 +0200
-Message-ID: <20190430173744.GA22352@kunai>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="zYM0uCDKw75PZbzx"
+From: Asmaa Mnebhi <Asmaa@mellanox.com>
+Subject: [PATCH v4 0/1] Add support for IPMB driver
+Date: Tue, 30 Apr 2019 13:58:44 -0400
+Message-ID: <cover.1556645340.git.Asmaa@mellanox.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: minyard@acm.org, wsa@the-dreams.de, vadimp@mellanox.com, michaelsh@mellanox.com
+Cc: Asmaa Mnebhi <Asmaa@mellanox.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Thank you for your feedback Vadim. I have addressed your comments.
 
---zYM0uCDKw75PZbzx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+1) You are correct. This driver is not specific to Mellanox so I
+have removed the Mellanox attribute.
 
-Hi people,
+2) I have added a documentation file called IPMB.txt which explains
+how this module works and how it should be instantiated. It is very
+similar to the existing linux i2c-slave-eeprom module.
 
-sadly, I have been tied to bed for a few days now, not in a condition to
-really work on I2C, and this will not change until the weekend. I will
-try hard to send out another pull request for 5.1, to get things fixed
-properly, but only super trivial patches will be applied on top of my
-current for-next (5.2). All this assuming there won't be another rc.
+The HW for my testing works as follows:
+A BMC is connected to a Satellite MC via I2C (I2C is equivalent to
+IPMB). The BMC initiates the IPMB requests and sends them via I2C.
+Obviously the BMC needs its own driver to do this which I haven't
+included in this code. We have no intent of upstreaming that at the
+moment.
+This ipmb-dev-int driver is to be loaded and instantiated on the
+Satellite MC to be able to receive IPMB requests. These IPMB request
+messages will be picked up by a user space program such (in my case
+it is OpenIPMI) to handle the request and generate a response.
+The response will be then passed from the user program back to
+kernel space. Then this driver would send that response back to
+the BMC.
 
-I think it is annoying, sure, but no catastrophe. However, it shows that
-I am the single-point-of-failure for I2C patches, what I don't like.
-Like I said before, I am open to group maintainership. If you think you
-are a reliable candidate, please get in touch with me.
+3) You asked the following:
 
-So much for now, I hope you all are in good health!
+"Is it expected to be zero in vaid case?"
+The 8 least significant bits of the sum is always expected to be 0
+in the case where the checksum is valid. I have added a comment
+for clarifications.
 
-Happy hacking,
+"why do you need this cast?"
+buf[++ipmb_dev_p->msg_idx]=(u8)(client->addr<<1)
+This is because client->addr is of type unsigned short which is
+2 bytes so it is safer to typecast it to u8 (u8* buf)
 
-   Wolfram
+"It could be only single ipmb-dev within the system? Couldn't
+it be few, like master/slave for example?"
+My understanding of your question is that: what if we have multiple
+instances of ipmb-dev-int, that we register it under different
+addresses?
+This driver only works as a slave so it will only be instantiated
+once on the Satellite MC under one slave address.
 
+Asmaa Mnebhi (1):
+  Add support for IPMB driver
 
---zYM0uCDKw75PZbzx
-Content-Type: application/pgp-signature; name="signature.asc"
+ Documentation/IPMB.txt           |  53 ++++++
+ drivers/char/ipmi/Kconfig        |   8 +
+ drivers/char/ipmi/Makefile       |   1 +
+ drivers/char/ipmi/ipmb_dev_int.c | 381 +++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 443 insertions(+)
+ create mode 100644 Documentation/IPMB.txt
+ create mode 100644 drivers/char/ipmi/ipmb_dev_int.c
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzIh+MACgkQFA3kzBSg
-KbbR7xAAmcwlIAXsgt5HQGQH9KBD+AyyubmSecTho85M/o/s3tLj4lTD7ejsop3a
-70WSZfkcYtDZQHFLBewAWIomRWEmmvFEcrcRxVL1zPLFSTwNQtddY/6rjs6G+Ylz
-GRHq9KWxOKCzUvP6stS6733CVFv08R0E8yMh+8dXAJWjZ1i4PKl+Wo33/I5/IXTa
-KQNVtnNNnM6SjaYAz48qDRhVBTSlWGSYapKyAe06OGBW3nXwAJr7sjnXGeTQJqtk
-okWbu5Ylx1XnhXwa7JASS7tda73gNacE8z38TgbCD7XqCqcMLa1jsO5FJQ4jU3vN
-8SrIuSUqSiDOv+jvxlzpp2AcYQppz6jL7kq9FqavVthlU7D7G3ghmkeOiyVbLsrh
-7z7NKE9FvJyWUmYgRIqdLPSrIVyDvj1R0EEphAYXgBkpWJlRVIVKIYkVzEzOg7oE
-tHhSW69n1ScQQLRK5T8Rp271UjaIKOBwbT2GKn16k66XZG9YKdc3zp+zt/tYXEuh
-5/pm/Vp9zXfOP8NaYBf3dsvyFGqjoePkuLEIrXSCjYEQYOht4ysGw0j4L4AccAUx
-1WfEcGVCPhWMNA/noo8KdECQwtvp5X3Jni+Rn2F2ypOvx9puTKN1Yq55GnKWNTZC
-Rw8VR1oFF4ne+JsW5CrWQOmtC8qNv5loOzh1IkJSMc2cjGf8IFE=
-=P27L
------END PGP SIGNATURE-----
-
---zYM0uCDKw75PZbzx--
+-- 
+2.1.2
