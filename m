@@ -1,80 +1,41 @@
-From: Raag Jadav <raagjadav@gmail.com>
-Subject: Re: [PATCH] i2c: at91: handle TXRDY interrupt spam
-Date: Tue, 30 Apr 2019 04:03:32 +0530
-Message-ID: <20190429223332.GA3908@pc>
-References: <1556005008-6318-1-git-send-email-raagjadav@gmail.com>
- <20190429090005.f6ydghzu5n5yruav@M43218.corp.atmel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Chuanhua Han <chuanhua.han@nxp.com>
+Subject: [PATCH 1/3] dt-bindings: i2c: add optional mul-value property to binding
+Date: Tue, 30 Apr 2019 12:32:40 +0800
+Message-ID: <20190430043242.29687-1-chuanhua.han@nxp.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190429090005.f6ydghzu5n5yruav@M43218.corp.atmel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ludovic Desroches <ludovic.desroches@microchip.com>
-Cc: linux-i2c@vger.kernel.org, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: robh+dt@kernel.org, mark.rutland@arm.com, shawnguo@kernel.org, s.hauer@pengutronix.de, leoyang.li@nxp.com
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, kernel@pengutronix.de, linux-imx@nxp.com, festevam@gmail.com, wsa+renesas@sang-engineering.com, u.kleine-koenig@pengutronix.de, eha@deif.com, linux@rempel-privat.de, sumit.batra@nxp.com, l.stach@pengutronix.de, peda@axentia.se, Chuanhua Han <chuanhua.han@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 29, 2019 at 11:00:05AM +0200, Ludovic Desroches wrote:
-> Hello Raag,
-> 
-> On Tue, Apr 23, 2019 at 01:06:48PM +0530, Raag Jadav wrote:
-> > External E-Mail
-> > 
-> > 
-> > Performing i2c write operation while SDA or SCL line is held
-> > or grounded by slave device, we go into infinite at91_twi_write_next_byte
-> > loop with TXRDY interrupt spam.
-> 
-> Sorry but I am not sure to have the full picture, the controller is in
-> slave or master mode?
-> 
-> SVREAD is only used in slave mode. When SVREAD is set, it means that a read
-> access is performed and your issue concerns the write operation.
-> 
-> Regards
-> 
-> Ludovic
+NXP Layerscape SoC have up to three MUL options available for all
+divider values, we choice of MUL determines the internal monitor rate
+of the I2C bus (SCL and SDA signals):
+A lower MUL value results in a higher sampling rate of the I2C signals.
+A higher MUL value results in a lower sampling rate of the I2C signals.
 
-Yes, even though the datasheet suggests that SVREAD is irrelevant in master mode,
-TXRDY and SVREAD are the only ones being set in status register upon reproducing the issue.
-Couldn't think of a better way to handle such strange behaviour.
-Any suggestions would be appreciated.
+So in Optional properties we added our custom mul-value property in the
+binding to select which mul option for the device tree i2c controller
+node.
 
-Cheers,
-Raag
+Signed-off-by: Chuanhua Han <chuanhua.han@nxp.com>
+---
+ Documentation/devicetree/bindings/i2c/i2c-imx.txt | 3 +++
+ 1 file changed, 3 insertions(+)
 
-> 
-> > 
-> > Signed-off-by: Raag Jadav <raagjadav@gmail.com>
-> > ---
-> >  drivers/i2c/busses/i2c-at91.c | 6 +++++-
-> >  1 file changed, 5 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> > index 3f3e8b3..b2f5fdb 100644
-> > --- a/drivers/i2c/busses/i2c-at91.c
-> > +++ b/drivers/i2c/busses/i2c-at91.c
-> > @@ -72,6 +72,7 @@
-> >  #define	AT91_TWI_TXCOMP		BIT(0)	/* Transmission Complete */
-> >  #define	AT91_TWI_RXRDY		BIT(1)	/* Receive Holding Register Ready */
-> >  #define	AT91_TWI_TXRDY		BIT(2)	/* Transmit Holding Register Ready */
-> > +#define	AT91_TWI_SVREAD		BIT(3)	/* Slave Read */
-> >  #define	AT91_TWI_OVRE		BIT(6)	/* Overrun Error */
-> >  #define	AT91_TWI_UNRE		BIT(7)	/* Underrun Error */
-> >  #define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
-> > @@ -571,7 +572,10 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
-> >  		at91_disable_twi_interrupts(dev);
-> >  		complete(&dev->cmd_complete);
-> >  	} else if (irqstatus & AT91_TWI_TXRDY) {
-> > -		at91_twi_write_next_byte(dev);
-> > +		if ((status & AT91_TWI_SVREAD) && (dev->buf_len == 0))
-> > +			at91_twi_write(dev, AT91_TWI_IDR, AT91_TWI_TXRDY);
-> > +		else
-> > +			at91_twi_write_next_byte(dev);
-> >  	}
-> >  
-> >  	/* catch error flags */
-> > -- 
-> > 2.7.4
-> > 
-> > 
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx.txt b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
+index b967544590e8..ba8e7b7b3fa8 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-imx.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
+@@ -18,6 +18,9 @@ Optional properties:
+ - sda-gpios: specify the gpio related to SDA pin
+ - pinctrl: add extra pinctrl to configure i2c pins to gpio function for i2c
+   bus recovery, call it "gpio" state
++- mul-value: NXP Layerscape SoC have up to three MUL options available for
++all I2C divider values, it describes which MUL we choose to use for the driver,
++the values should be 1,2,4.
+ 
+ Examples:
+ 
+-- 
+2.17.1
