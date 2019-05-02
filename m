@@ -1,53 +1,103 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: Prevent runtime suspend of adapter when Host Notify
- is required
-Date: Thu, 2 May 2019 15:32:24 +0300
-Message-ID: <7f989564-e994-5be6-02da-2838639efe59@linux.intel.com>
-References: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
- <20190430155637.1B45E21743@mail.kernel.org>
+From: Ludovic Desroches <ludovic.desroches@microchip.com>
+Subject: Re: [PATCH] i2c: at91: handle TXRDY interrupt spam
+Date: Thu, 2 May 2019 16:01:16 +0200
+Message-ID: <20190502140116.rim72idpgvq4h4vc@M43218.corp.atmel.com>
+References: <1556005008-6318-1-git-send-email-raagjadav@gmail.com>
+ <20190429090005.f6ydghzu5n5yruav@M43218.corp.atmel.com>
+ <20190429223332.GA3908@pc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190430155637.1B45E21743@mail.kernel.org>
-Content-Language: en-US
-Sender: stable-owner@vger.kernel.org
-To: Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org, Charles Keepax <ckeepax@opensource.cirrus.com>
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190429223332.GA3908@pc>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Raag Jadav <raagjadav@gmail.com>
+Cc: linux-kernel@vger.kernel.org, alexandre.belloni@bootlin.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 4/30/19 6:56 PM, Sasha Levin wrote:
-> Hi,
-> 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: c5eb1190074c PCI / PM: Allow runtime PM without callback functions.
-> 
-> The bot has tested the following trees: v5.0.10, v4.19.37.
-> 
-> v5.0.10: Build OK!
-> v4.19.37: Failed to apply! Possible dependencies:
->      6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
->      93b6604c5a66 ("i2c: Allow recovery of the initial IRQ by an I2C client device.")
+On Tue, Apr 30, 2019 at 04:03:32AM +0530, Raag Jadav wrote:
+> External E-Mail
 > 
 > 
-> How should we proceed with this patch?
+> On Mon, Apr 29, 2019 at 11:00:05AM +0200, Ludovic Desroches wrote:
+> > Hello Raag,
+> > 
+> > On Tue, Apr 23, 2019 at 01:06:48PM +0530, Raag Jadav wrote:
+> > > External E-Mail
+> > > 
+> > > 
+> > > Performing i2c write operation while SDA or SCL line is held
+> > > or grounded by slave device, we go into infinite at91_twi_write_next_byte
+> > > loop with TXRDY interrupt spam.
+> > 
+> > Sorry but I am not sure to have the full picture, the controller is in
+> > slave or master mode?
+> > 
+> > SVREAD is only used in slave mode. When SVREAD is set, it means that a read
+> > access is performed and your issue concerns the write operation.
+> > 
+> > Regards
+> > 
+> > Ludovic
 > 
-There's also dependency to commit
-b9bb3fdf4e87 ("i2c: Remove unnecessary call to irq_find_mapping")
+> Yes, even though the datasheet suggests that SVREAD is irrelevant in master mode,
+> TXRDY and SVREAD are the only ones being set in status register upon reproducing the issue.
+> Couldn't think of a better way to handle such strange behaviour.
+> Any suggestions would be appreciated.
 
-Without it 93b6604c5a66 doesn't apply.
+I have the confirmation that you can't rely on the SVREAD flag when in
+master mode. This flag should always have the same value.
 
-Otherwise my patch don't have dependency into these so I can have 
-another version for 4.19 if needed.
+I am trying to understand what could lead to your situation. Can you
+give me more details. What kind of device it is? What does lead to this
+situation? Does it happen randomly or not?
 
-I got impression from the mail thread for 6f108dd70d30 that it could be 
-also stable material but cannot really judge.
+Regards
 
-Charles: does your commits b9bb3fdf4e87 and 6f108dd70d30 with the fix 
-93b6604c5a66 qualify for 4.19? (background: my fix doesn't apply without 
-them but doesn't depend on them).
+Ludovic
 
--- 
-Jarkko
+> 
+> Cheers,
+> Raag
+> 
+> > 
+> > > 
+> > > Signed-off-by: Raag Jadav <raagjadav@gmail.com>
+> > > ---
+> > >  drivers/i2c/busses/i2c-at91.c | 6 +++++-
+> > >  1 file changed, 5 insertions(+), 1 deletion(-)
+> > > 
+> > > diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> > > index 3f3e8b3..b2f5fdb 100644
+> > > --- a/drivers/i2c/busses/i2c-at91.c
+> > > +++ b/drivers/i2c/busses/i2c-at91.c
+> > > @@ -72,6 +72,7 @@
+> > >  #define	AT91_TWI_TXCOMP		BIT(0)	/* Transmission Complete */
+> > >  #define	AT91_TWI_RXRDY		BIT(1)	/* Receive Holding Register Ready */
+> > >  #define	AT91_TWI_TXRDY		BIT(2)	/* Transmit Holding Register Ready */
+> > > +#define	AT91_TWI_SVREAD		BIT(3)	/* Slave Read */
+> > >  #define	AT91_TWI_OVRE		BIT(6)	/* Overrun Error */
+> > >  #define	AT91_TWI_UNRE		BIT(7)	/* Underrun Error */
+> > >  #define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
+> > > @@ -571,7 +572,10 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
+> > >  		at91_disable_twi_interrupts(dev);
+> > >  		complete(&dev->cmd_complete);
+> > >  	} else if (irqstatus & AT91_TWI_TXRDY) {
+> > > -		at91_twi_write_next_byte(dev);
+> > > +		if ((status & AT91_TWI_SVREAD) && (dev->buf_len == 0))
+> > > +			at91_twi_write(dev, AT91_TWI_IDR, AT91_TWI_TXRDY);
+> > > +		else
+> > > +			at91_twi_write_next_byte(dev);
+> > >  	}
+> > >  
+> > >  	/* catch error flags */
+> > > -- 
+> > > 2.7.4
+> > > 
+> > > 
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> 
