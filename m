@@ -1,51 +1,40 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 1/3] dt-bindings: i2c: add optional mul-value property to
- binding
-Date: Thu, 2 May 2019 15:59:01 -0500
-Message-ID: <20190502205901.GA24224@bogus>
-References: <20190430043242.29687-1-chuanhua.han@nxp.com>
+From: Vadim Pasternak <vadimp@mellanox.com>
+Subject: RE: [PATCH v4 0/1] Add support for IPMB driver
+Date: Thu, 2 May 2019 21:14:46 +0000
+Message-ID: <AM6PR05MB522465330E2C594B0309AE78A2340@AM6PR05MB5224.eurprd05.prod.outlook.com>
+References: <cover.1556645340.git.Asmaa@mellanox.com>
+ <AM6PR05MB5224FCACBD4EF55F3890EC6AA23A0@AM6PR05MB5224.eurprd05.prod.outlook.com>
+ <VI1PR05MB62392EDC0FD3C960519C91ABDA340@VI1PR05MB6239.eurprd05.prod.outlook.com>
+ <20190502194954.GJ6623@minyard.net>
+ <VI1PR05MB6239E3C9B9BBBA226DCFDD12DA340@VI1PR05MB6239.eurprd05.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190430043242.29687-1-chuanhua.han@nxp.com>
+In-Reply-To: <VI1PR05MB6239E3C9B9BBBA226DCFDD12DA340@VI1PR05MB6239.eurprd05.prod.outlook.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Chuanhua Han <chuanhua.han@nxp.com>
-Cc: mark.rutland@arm.com, shawnguo@kernel.org, s.hauer@pengutronix.de, leoyang.li@nxp.com, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, kernel@pengutronix.de, linux-imx@nxp.com, festevam@gmail.com, wsa+renesas@sang-engineering.com, u.kleine-koenig@pengutronix.de, eha@deif.com, linux@rempel-privat.de, sumit.batra@nxp.com, l.stach@pengutronix.de, peda@axentia.se
+To: Asmaa Mnebhi <Asmaa@mellanox.com>, "minyard@acm.org" <minyard@acm.org>
+Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, Michael Shych <michaelsh@mellanox.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 30, 2019 at 12:32:40PM +0800, Chuanhua Han wrote:
-> NXP Layerscape SoC have up to three MUL options available for all
-> divider values, we choice of MUL determines the internal monitor rate
-> of the I2C bus (SCL and SDA signals):
-> A lower MUL value results in a higher sampling rate of the I2C signals.
-> A higher MUL value results in a lower sampling rate of the I2C signals.
-> 
-> So in Optional properties we added our custom mul-value property in the
-> binding to select which mul option for the device tree i2c controller
-> node.
-> 
-> Signed-off-by: Chuanhua Han <chuanhua.han@nxp.com>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-imx.txt | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx.txt b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-> index b967544590e8..ba8e7b7b3fa8 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-> @@ -18,6 +18,9 @@ Optional properties:
->  - sda-gpios: specify the gpio related to SDA pin
->  - pinctrl: add extra pinctrl to configure i2c pins to gpio function for i2c
->    bus recovery, call it "gpio" state
-> +- mul-value: NXP Layerscape SoC have up to three MUL options available for
-> +all I2C divider values, it describes which MUL we choose to use for the driver,
-> +the values should be 1,2,4.
+ [...]
+> >
+> > >>Better, if you can avoid cast.
+> > >>Would compiler warn if you use for example rol16(client->addr, 1) &
+> GENMASK(7, 0); or something like it?
+> > I thought it wouldn't be too much of an issue to use typecast here sinc=
+e other
+> existing ipmi drivers use typecasting: bt-bmc.c, kcs_bmc_aspeed.c,
+> kcs_bmc_npcm7xx.c all use (u8) typecasting.
+> > But if you really think it is worth it, I could do that.
+> > I just think it is not as straight forward to read this code as using a=
+ simple
+> typecast. Some might wonder why a GENMASK is needed in this case.
+> >
 
-Needs a vendor prefix. I don't find 'value' to add anything nor do I 
-understand what MUL is.
+Hi Asmaa,
 
-If it is determined by SoC rather than board, then it should perhaps be 
-implied by compatible.
+I will not insist in case it's OK with maintainers.
 
-Rob
+ [...]
