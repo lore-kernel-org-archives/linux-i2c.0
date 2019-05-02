@@ -1,71 +1,75 @@
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH] i2c: Prevent runtime suspend of adapter when Host Notify
  is required
-Date: Thu, 2 May 2019 16:32:51 +0100
-Message-ID: <20190502153251.GG81578@ediswmail.ad.cirrus.com>
+Date: Thu, 2 May 2019 18:43:46 +0200
+Message-ID: <20190502164346.GE11535@kunai>
 References: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
- <20190430155637.1B45E21743@mail.kernel.org>
- <7f989564-e994-5be6-02da-2838639efe59@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="lkTb+7nhmha7W+c3"
 Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <7f989564-e994-5be6-02da-2838639efe59@linux.intel.com>
+In-Reply-To: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
 Sender: stable-owner@vger.kernel.org
 To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Keijo Vaara <ferdasyn@rocketmail.com>, linux-input@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>, "Rafael J . Wysocki" <rafael@kernel.org>, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, May 02, 2019 at 03:32:24PM +0300, Jarkko Nikula wrote:
-> On 4/30/19 6:56 PM, Sasha Levin wrote:
-> >This commit has been processed because it contains a "Fixes:" tag,
-> >fixing commit: c5eb1190074c PCI / PM: Allow runtime PM without callback functions.
-> >
-> >The bot has tested the following trees: v5.0.10, v4.19.37.
-> >
-> >v5.0.10: Build OK!
-> >v4.19.37: Failed to apply! Possible dependencies:
-> >     6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
-> >     93b6604c5a66 ("i2c: Allow recovery of the initial IRQ by an I2C client device.")
-> >
-> >
-> >How should we proceed with this patch?
-> >
-> There's also dependency to commit
-> b9bb3fdf4e87 ("i2c: Remove unnecessary call to irq_find_mapping")
-> 
-> Without it 93b6604c5a66 doesn't apply.
-> 
-> Otherwise my patch don't have dependency into these so I can have
-> another version for 4.19 if needed.
-> 
-> I got impression from the mail thread for 6f108dd70d30 that it could
-> be also stable material but cannot really judge.
-> 
-> Charles: does your commits b9bb3fdf4e87 and 6f108dd70d30 with the
-> fix 93b6604c5a66 qualify for 4.19? (background: my fix doesn't apply
-> without them but doesn't depend on them).
-> 
 
-b9bb3fdf4e87 ("i2c: Remove unnecessary call to irq_find_mapping")
+--lkTb+7nhmha7W+c3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I don't think this one would make sense to backport it's not
-fixing any issues it just removes a redundant call. The call just
-repeats work it does no harm.
+On Tue, Apr 30, 2019 at 05:23:22PM +0300, Jarkko Nikula wrote:
+> Multiple users have reported their Synaptics touchpad has stopped
+> working between v4.20.1 and v4.20.2 when using SMBus interface.
+>=20
+> The culprit for this appeared to be commit c5eb1190074c ("PCI / PM: Allow
+> runtime PM without callback functions") that fixed the runtime PM for
+> i2c-i801 SMBus adapter. Those Synaptics touchpad are using i2c-i801
+> for SMBus communication and testing showed they are able to get back
+> working by preventing the runtime suspend of adapter.
+>=20
+> Normally when i2c-i801 SMBus adapter transmits with the client it resumes
+> before operation and autosuspends after.
+>=20
+> However, if client requires SMBus Host Notify protocol, what those
+> Synaptics touchpads do, then the host adapter must not go to runtime
+> suspend since then it cannot process incoming SMBus Host Notify commands
+> the client may send.
+>=20
+> Fix this by keeping I2C/SMBus adapter active in case client requires
+> Host Notify.
+>=20
+> Reported-by: Keijo Vaara <ferdasyn@rocketmail.com>
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D203297
+> Fixes: c5eb1190074c ("PCI / PM: Allow runtime PM without callback functio=
+ns")
+> Cc: stable@vger.kernel.org # v4.20+
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
-93b6604c5a66 ("i2c: Allow recovery of the initial IRQ by an I2C client device.")
+Applied to for-current-fixed, thanks!
 
-These two are much more of a grey area, they do fix an actual
-issue, although that issue only happens when you unbind and
-rebind both an I2C device and the device providing its IRQs. A
-couple of us have been trying to look for a better fix as well
-which further complicates matters.
 
-I would suggest you just backport your patch and leave these
-ones. As evidenced by the fixup patch there is a slight chance
-of regressions from backporting this fix and the issue it
-fixes is clearly not something people are normally hitting.
+--lkTb+7nhmha7W+c3
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Thanks,
-Charles
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzLHkIACgkQFA3kzBSg
+KbapUw/9HnAdtGdXtSUvcCCDZyaj63rtRr7jniT8OaAnIjxxSc0xYa8lH5ZnXbSy
+igBMbL7aluqtHG3T3RkiNdAaT2FIs4le5jWfH7ypxBz2nr8XlUuSayA/ogrSm1XU
+uhLKNoPamnouY90dpuvu8wUej8WS9sSPHVayu1AYKYTDOnVYwl3cqPnmQw7DzdWg
+SXJZ7MyfpzTm0S9QBUtzWFkFaty2DtyuWwf7rDo18crnJo+DqslztO1By81Xc41p
+GFScFOBvHXdyY38eHMrDo851sns2WHPeoTox3x3Un0oXHEYg1m67urD1+xK13oOf
+AETuz8kwfeXc/z1hrsv4b9jCKFgYUOXStOc4o/Ig6R6R9Y2rEJi141hLoVEBhv0x
+y2jDsB4RCbsF5pTcJ+L98QCEb1XihELU3VoYvx2HwpgIgbqh/0OgQpqwof2XSMyd
+97XrZf9rCAMLeOyElPat5j7EUPPsw1o2ebf2921lJYfTDjIQyp8pRsLcH967zX4d
+sjtcmRACBgDqdMF/DsShHr25mTJtEg47dvoUWLx98uDj2ryDMdkZmgMhVooAs21t
+fjE/oJ8jTZURPiMoHhs6rEx0FgoUN0KgpOf5rMMY92SzB5NdnCdHVteZuIklgQZw
+52S/MxLZpMPWxPfw7qtWWssSdd1+qIKHn0fCAsMZIoNLgBJGDN4=
+=m1ON
+-----END PGP SIGNATURE-----
+
+--lkTb+7nhmha7W+c3--
