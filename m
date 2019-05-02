@@ -1,64 +1,53 @@
-From: Keijo Vaara <ferdasyn@rocketmail.com>
-Subject: Re: [PATCH] i2c: Prevent runtime suspend of adapter when Host
- Notify is required
-Date: Thu, 2 May 2019 08:07:58 +0000 (UTC)
-Message-ID: <1541197134.3231703.1556784478268@mail.yahoo.com>
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH] i2c: Prevent runtime suspend of adapter when Host Notify
+ is required
+Date: Thu, 2 May 2019 15:32:24 +0300
+Message-ID: <7f989564-e994-5be6-02da-2838639efe59@linux.intel.com>
 References: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
+ <20190430155637.1B45E21743@mail.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
+In-Reply-To: <20190430155637.1B45E21743@mail.kernel.org>
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>, "Rafael J . Wysocki" <rafael@kernel.org>, stable@vger.kernel.org
+To: Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org, Charles Keepax <ckeepax@opensource.cirrus.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 30, 2019 at 4:23 PM Jarkko Nikula
-<jarkko.nikula@linux.intel.com> wrote:
->
-> ---
-> Keijo: could you test this does it fix the issue you reported? This is
-> practically the same diff I sent earlier what you probably haven't tested=
- yet.
-> I wanted to send a commitable fix in case it works since I'll be out of
-> office in a few coming days.
-> ---
->=C2=A0 drivers/i2c/i2c-core-base.c | 4 ++++
->=C2=A0 1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 38af18645133..8149c9e32b69 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -327,6 +327,8 @@ static int i2c_device_probe(struct device *dev)
->
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (client->flags =
-& I2C_CLIENT_HOST_NOTIFY) {
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 dev_dbg(dev, "Using Host Notify IRQ\n");
-> +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 /* Keep adapter active when Host Notify is required */
-> +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 pm_runtime_get_sync(&client->adapter->dev);
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 irq =3D i2c_smbus_host_notify_to_irq(client);
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 } else if (dev->of=
-_node) {
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 irq =3D of_irq_get_byname(dev->of_node, "irq");
-> @@ -431,6 +433,8 @@ static int i2c_device_remove(struct device *dev)
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 device_init_wakeup(&client->dev, false);
->
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 client->irq =3D client->init_irq;
-> +=C2=A0 =C2=A0 =C2=A0 if (client->flags & I2C_CLIENT_HOST_NOTIFY)
-> +=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 pm_runtime_put(&client-=
->adapter->dev);
->
->=C2=A0 =C2=A0 =C2=A0 =C2=A0 return status;
->=C2=A0 }
-> --
-> 2.20.1
->
+On 4/30/19 6:56 PM, Sasha Levin wrote:
+> Hi,
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: c5eb1190074c PCI / PM: Allow runtime PM without callback functions.
+> 
+> The bot has tested the following trees: v5.0.10, v4.19.37.
+> 
+> v5.0.10: Build OK!
+> v4.19.37: Failed to apply! Possible dependencies:
+>      6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
+>      93b6604c5a66 ("i2c: Allow recovery of the initial IRQ by an I2C client device.")
+> 
+> 
+> How should we proceed with this patch?
+> 
+There's also dependency to commit
+b9bb3fdf4e87 ("i2c: Remove unnecessary call to irq_find_mapping")
 
-Thanks guys, I've tested the patch and can confirm it fixes the issue.
+Without it 93b6604c5a66 doesn't apply.
+
+Otherwise my patch don't have dependency into these so I can have 
+another version for 4.19 if needed.
+
+I got impression from the mail thread for 6f108dd70d30 that it could be 
+also stable material but cannot really judge.
+
+Charles: does your commits b9bb3fdf4e87 and 6f108dd70d30 with the fix 
+93b6604c5a66 qualify for 4.19? (background: my fix doesn't apply without 
+them but doesn't depend on them).
+
+-- 
+Jarkko
