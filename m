@@ -1,99 +1,53 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 5.1
-Date: Fri, 3 May 2019 18:21:42 +0200
-Message-ID: <20190503162138.GA7676@kunai>
+Subject: Re: [PATCH] i2c: imx-lpi2c: Use __maybe_unused instead of #if
+ CONFIG_PM_SLEEP
+Date: Fri, 3 May 2019 16:52:01 +0200
+Message-ID: <20190503145201.GE24385@kunai>
+References: <1556607314-32401-1-git-send-email-Anson.Huang@nxp.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
+        protocol="application/pgp-signature"; boundary="ey/N+yb7u/X9mFhi"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <1556607314-32401-1-git-send-email-Anson.Huang@nxp.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Anson Huang <anson.huang@nxp.com>
+Cc: Aisheng Dong <aisheng.dong@nxp.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, dl-linux-imx <linux-imx@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---d6Gm4EdcadzBjdND
+--ey/N+yb7u/X9mFhi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Linus,
+On Tue, Apr 30, 2019 at 07:00:02AM +0000, Anson Huang wrote:
+> Use __maybe_unused for power management related functions
+> instead of #if CONFIG_PM_SLEEP to simply the code.
+>=20
+> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
 
-here are I2C driver bugfixes and a MAINTAINERS update for you.
-
-Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit 085b7755808aa11f78ab9377257e1dad2e6fa4bb:
-
-  Linux 5.1-rc6 (2019-04-21 10:45:57 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
-
-for you to fetch changes up to 72bfcee11cf89509795c56b0e40a3785ab00bbdd:
-
-  i2c: Prevent runtime suspend of adapter when Host Notify is required (2019-05-02 18:42:15 +0200)
-
-----------------------------------------------------------------
-Anson Huang (1):
-      i2c: imx: correct the method of getting private data in notifier_call
-
-Ard Biesheuvel (1):
-      i2c: synquacer: fix enumeration of slave devices
-
-Jarkko Nikula (1):
-      i2c: Prevent runtime suspend of adapter when Host Notify is required
-
-Wolfram Sang (2):
-      i2c: designware: ratelimit 'transfer when suspended' errors
-      MAINTAINERS: friendly takeover of i2c-gpio driver
+Applied to for-next, thanks!
 
 
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Andy Shevchenko (1):
-      (Rev.) i2c: designware: ratelimit 'transfer when suspended' errors
-
-Dong Aisheng (1):
-      (Rev.) i2c: imx: correct the method of getting private data in notifier_call
-
-Keijo Vaara (1):
-      (Test) i2c: Prevent runtime suspend of adapter when Host Notify is required
-
-skidnik (1):
-      (Test) i2c: designware: ratelimit 'transfer when suspended' errors
-
- MAINTAINERS                                | 2 +-
- drivers/i2c/busses/i2c-designware-master.c | 3 +--
- drivers/i2c/busses/i2c-imx.c               | 4 ++--
- drivers/i2c/busses/i2c-synquacer.c         | 2 ++
- drivers/i2c/i2c-core-base.c                | 4 ++++
- 5 files changed, 10 insertions(+), 5 deletions(-)
-
---d6Gm4EdcadzBjdND
+--ey/N+yb7u/X9mFhi
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzMao0ACgkQFA3kzBSg
-Kbbjpw/9E3A3lvEj8FUzoo/MNGa20QlRyFg+ho91Td6FCuytM0ojNsygaNs7E9G1
-Lmy+n/3WX7LKMuQCykHItyC0KARp9VRG0Y30etCYO/gTW6llIdAbbcB14QO3y4qz
-5SfVCKBgzdODlKiVYlTc3+iM7Wu5FfUtd2qfO1wN/uXDSZduBYN+8p21M80AMOt/
-ZiEklFNRwMSZfMeDTWX+uCBGQxvxiOrq3OwuuPrOEak8PxQ+JjO8eGszEJK3o4z3
-YD+K3pfwNeC18HnMUoCXKNRUcRFueQxsL5M4w/PcEK+h13PpgyZupvH6iNnBrDqp
-4M8LXH7mgX7395FjWnKQ60LW/SibbZLQCNs23SgpqnDz6LQsue/7aOMRrpbsjZmM
-jrA2cf7yq72Y7UvQsO0vmvVfQUyWfRbEkKO3N0kE1nVWs0z6trxipbNfS0YDTeqj
-rdHLfZEfXFemAxRTqj0TdjHCOp/4GGbL4AKaYYAlS/86Zo6G84N6IPj+DRV9sXEY
-pMf8VePaS7VNR+cGOkiIQCEiiC2R6fsWSYLR+ap93ylmvSSi+D7zcDkZ3haEIXca
-sL6vbHbmAxaevRmByF1VRWBsySq3/2ICmAq8Fx8XieXptafEMRYCIvVA3YWebukX
-maSSI9VNKCcZay+lF6JUPGMi5lI9VVT7dmmWXm2cDI6PfR+g8Ic=
-=sLYt
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzMVZEACgkQFA3kzBSg
+Kba7pRAAsCwWRMqP8Z9JiWuNOqYNSCChv9BFTD+NYuI10hGXBROtML9ZAMdmlXAz
+b3vuwRselOKxChnnLH59XrroG7Mlfahh4fZSP+BvslAtXB5WFJMI3SshzL06gd0a
+ethOMyoS1XaO9VYk7+6UyqR3tUERTNgc8d3cRz7zMR12z8dFZAICsjIjGqsmTwcc
+XM9ZeIikuCGuJpUCY2RMfrA+FPLN+rzM91xYBM2O4Pu4sxmKdJKoB3baKsksUuef
+akHGHPXLvIrWnMO8kVFhIQnqbQB8j6sL4RUUIPYLo8hUUrC4tvmd7IQcQh+4ug2f
+madEaETWrRIW/WSFcH5EMgH6bII9e2rIpHkZsAW55Kf7EsWcMK3Uo6wsol80Z9HS
+wMLb2Zz1/fEi51NaC+E9XX/4rPyPIEYP3TQ7y2zqzCCPxhfl24ywjyfBfmVI4QDW
+r/u4fyfSDg960h5DgqGhpM7oaJkX/T6bJgKoXPNkMAMiGQwR26FIhBzmh5bxkDdS
+zI07PC0wMnN1Bzl1sIVBQov46s7WMN783xenfjTY9+IVRj9vlcHwAb0NiyvF+gcl
+q8dzyppY8aSWsB/QRgZRwfzfb4u8kV1fefbZX89XYFESUeHmT7vDMhHs3etRhPaO
+P5BVyarrEjcOg/2+2CZNiCBZysUa/BXa/BIIO/16gWW6e8JXsrA=
+=hoAm
 -----END PGP SIGNATURE-----
 
---d6Gm4EdcadzBjdND--
+--ey/N+yb7u/X9mFhi--
