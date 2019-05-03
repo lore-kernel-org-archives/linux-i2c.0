@@ -1,24 +1,39 @@
-From: pr-tracker-bot@kernel.org
-Subject: Re: [PULL REQUEST] i2c for 5.1
-Date: Fri, 03 May 2019 19:05:03 +0000
-Message-ID: <155691030371.24034.10570742928000347312.pr-tracker-bot@kernel.org>
-References: <20190503162138.GA7676@kunai>
+From: Asmaa Mnebhi <Asmaa@mellanox.com>
+Subject: [PATCH v6 0/1] Add support for IPMB driver
+Date: Fri,  3 May 2019 18:34:40 -0400
+Message-ID: <cover.1556921955.git.Asmaa@mellanox.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190503162138.GA7676@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+To: minyard@acm.org, wsa@the-dreams.de, vadimp@mellanox.com, michaelsh@mellanox.com
+Cc: Asmaa Mnebhi <Asmaa@mellanox.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The pull request you sent on Fri, 3 May 2019 18:21:42 +0200:
+Hi Vadim,
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
+I apologize I forgot to address your previous comment concerning
+the ACPI table. I have added the ACPI device id as well as documented
+it for whomever wants to use either the ACPI table or device tree.
+I did not need that for my testing due to our internal build tools/
+code structure.
+But I have tested with the device tree and ACPI table as well and
+it works fine.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/82463436a7fa40345c6febf0baa4c954af506ca6
+I have addressed your comment concerning using macros instead of magic numbers.
 
-Thank you!
+Also, since both you and Corey suggest to not use typecasting,
+I will probably change it to GENMASK in my next update. I am waiting
+for one more advocate against typecasting!
+
+Asmaa Mnebhi (1):
+  Add support for IPMB driver
+
+ Documentation/IPMB.txt           | 103 ++++++++++
+ drivers/char/ipmi/Kconfig        |   8 +
+ drivers/char/ipmi/Makefile       |   1 +
+ drivers/char/ipmi/ipmb_dev_int.c | 397 +++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 509 insertions(+)
+ create mode 100644 Documentation/IPMB.txt
+ create mode 100644 drivers/char/ipmi/ipmb_dev_int.c
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+2.1.2
