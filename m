@@ -1,117 +1,99 @@
-From: Pu Wen <puwen@hygon.cn>
-Subject: [PATCH v2 RESEND] i2c-piix4: Add Hygon Dhyana SMBus support
-Date: Tue, 30 Apr 2019 00:08:43 +0800
-Message-ID: <1556554123-5894-1-git-send-email-puwen@hygon.cn>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 5.1
+Date: Fri, 3 May 2019 18:21:42 +0200
+Message-ID: <20190503162138.GA7676@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: jdelvare@suse.com, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Pu Wen <puwen@hygon.cn>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-The Hygon Dhyana CPU has the SMBus device with PCI device ID 0x790b,
-which is the same as AMD CZ SMBus device. So add Hygon Dhyana support
-to the i2c-piix4 driver by using the code path of AMD.
 
-Signed-off-by: Pu Wen <puwen@hygon.cn>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
----
-v2 RESEND:
-  - Add 'Reviewed-by' tag from Jean Delvare.
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-v1->v2:
-  - Remove the revision number checking for Hygon SMBus device.
-  - Document the new supported chipset in drivers/i2c/busses/Kconfig
-    and Documentation/i2c/busses/i2c-piix4 as well as in the header
-	comment of i2c-piix4.c.
+Linus,
 
- Documentation/i2c/busses/i2c-piix4 |  2 ++
- drivers/i2c/busses/Kconfig         |  1 +
- drivers/i2c/busses/i2c-piix4.c     | 15 +++++++++++----
- 3 files changed, 14 insertions(+), 4 deletions(-)
+here are I2C driver bugfixes and a MAINTAINERS update for you.
 
-diff --git a/Documentation/i2c/busses/i2c-piix4 b/Documentation/i2c/busses/i2c-piix4
-index aa959fd..2703bc3 100644
---- a/Documentation/i2c/busses/i2c-piix4
-+++ b/Documentation/i2c/busses/i2c-piix4
-@@ -15,6 +15,8 @@ Supported adapters:
-     http://support.amd.com/us/Embedded_TechDocs/44413.pdf
-   * AMD Hudson-2, ML, CZ
-     Datasheet: Not publicly available
-+  * Hygon CZ
-+    Datasheet: Not publicly available
-   * Standard Microsystems (SMSC) SLC90E66 (Victory66) southbridge
-     Datasheet: Publicly available at the SMSC website http://www.smsc.com
- 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index f8979ab..50ec2e4 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -176,6 +176,7 @@ config I2C_PIIX4
- 	    AMD Hudson-2
- 	    AMD ML
- 	    AMD CZ
-+	    Hygon CZ
- 	    Serverworks OSB4
- 	    Serverworks CSB5
- 	    Serverworks CSB6
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 90946a8..e9a0514 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -19,6 +19,7 @@
- 	Serverworks OSB4, CSB5, CSB6, HT-1000, HT-1100
- 	ATI IXP200, IXP300, IXP400, SB600, SB700/SP5100, SB800
- 	AMD Hudson-2, ML, CZ
-+	Hygon CZ
- 	SMSC Victory66
- 
-    Note: we assume there can only be one device, with one or more
-@@ -289,7 +290,9 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 	     PIIX4_dev->revision >= 0x41) ||
- 	    (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD &&
- 	     PIIX4_dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS &&
--	     PIIX4_dev->revision >= 0x49))
-+	     PIIX4_dev->revision >= 0x49) ||
-+	    (PIIX4_dev->vendor == PCI_VENDOR_ID_HYGON &&
-+	     PIIX4_dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS))
- 		smb_en = 0x00;
- 	else
- 		smb_en = (aux) ? 0x28 : 0x2c;
-@@ -361,7 +364,8 @@ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
- 		 piix4_smba, i2ccfg >> 4);
- 
- 	/* Find which register is used for port selection */
--	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD) {
-+	if (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD ||
-+	    PIIX4_dev->vendor == PCI_VENDOR_ID_HYGON) {
- 		switch (PIIX4_dev->device) {
- 		case PCI_DEVICE_ID_AMD_KERNCZ_SMBUS:
- 			piix4_port_sel_sb800 = SB800_PIIX4_PORT_IDX_KERNCZ;
-@@ -794,6 +798,7 @@ static const struct pci_device_id piix4_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_HYGON, PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
- 		     PCI_DEVICE_ID_SERVERWORKS_OSB4) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
-@@ -904,11 +909,13 @@ static int piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	if ((dev->vendor == PCI_VENDOR_ID_ATI &&
- 	     dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
- 	     dev->revision >= 0x40) ||
--	    dev->vendor == PCI_VENDOR_ID_AMD) {
-+	    dev->vendor == PCI_VENDOR_ID_AMD ||
-+	    dev->vendor == PCI_VENDOR_ID_HYGON) {
- 		bool notify_imc = false;
- 		is_sb800 = true;
- 
--		if (dev->vendor == PCI_VENDOR_ID_AMD &&
-+		if ((dev->vendor == PCI_VENDOR_ID_AMD ||
-+		     dev->vendor == PCI_VENDOR_ID_HYGON) &&
- 		    dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS) {
- 			u8 imc;
- 
--- 
-2.7.4
+Please pull.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit 085b7755808aa11f78ab9377257e1dad2e6fa4bb:
+
+  Linux 5.1-rc6 (2019-04-21 10:45:57 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
+
+for you to fetch changes up to 72bfcee11cf89509795c56b0e40a3785ab00bbdd:
+
+  i2c: Prevent runtime suspend of adapter when Host Notify is required (2019-05-02 18:42:15 +0200)
+
+----------------------------------------------------------------
+Anson Huang (1):
+      i2c: imx: correct the method of getting private data in notifier_call
+
+Ard Biesheuvel (1):
+      i2c: synquacer: fix enumeration of slave devices
+
+Jarkko Nikula (1):
+      i2c: Prevent runtime suspend of adapter when Host Notify is required
+
+Wolfram Sang (2):
+      i2c: designware: ratelimit 'transfer when suspended' errors
+      MAINTAINERS: friendly takeover of i2c-gpio driver
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Andy Shevchenko (1):
+      (Rev.) i2c: designware: ratelimit 'transfer when suspended' errors
+
+Dong Aisheng (1):
+      (Rev.) i2c: imx: correct the method of getting private data in notifier_call
+
+Keijo Vaara (1):
+      (Test) i2c: Prevent runtime suspend of adapter when Host Notify is required
+
+skidnik (1):
+      (Test) i2c: designware: ratelimit 'transfer when suspended' errors
+
+ MAINTAINERS                                | 2 +-
+ drivers/i2c/busses/i2c-designware-master.c | 3 +--
+ drivers/i2c/busses/i2c-imx.c               | 4 ++--
+ drivers/i2c/busses/i2c-synquacer.c         | 2 ++
+ drivers/i2c/i2c-core-base.c                | 4 ++++
+ 5 files changed, 10 insertions(+), 5 deletions(-)
+
+--d6Gm4EdcadzBjdND
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzMao0ACgkQFA3kzBSg
+Kbbjpw/9E3A3lvEj8FUzoo/MNGa20QlRyFg+ho91Td6FCuytM0ojNsygaNs7E9G1
+Lmy+n/3WX7LKMuQCykHItyC0KARp9VRG0Y30etCYO/gTW6llIdAbbcB14QO3y4qz
+5SfVCKBgzdODlKiVYlTc3+iM7Wu5FfUtd2qfO1wN/uXDSZduBYN+8p21M80AMOt/
+ZiEklFNRwMSZfMeDTWX+uCBGQxvxiOrq3OwuuPrOEak8PxQ+JjO8eGszEJK3o4z3
+YD+K3pfwNeC18HnMUoCXKNRUcRFueQxsL5M4w/PcEK+h13PpgyZupvH6iNnBrDqp
+4M8LXH7mgX7395FjWnKQ60LW/SibbZLQCNs23SgpqnDz6LQsue/7aOMRrpbsjZmM
+jrA2cf7yq72Y7UvQsO0vmvVfQUyWfRbEkKO3N0kE1nVWs0z6trxipbNfS0YDTeqj
+rdHLfZEfXFemAxRTqj0TdjHCOp/4GGbL4AKaYYAlS/86Zo6G84N6IPj+DRV9sXEY
+pMf8VePaS7VNR+cGOkiIQCEiiC2R6fsWSYLR+ap93ylmvSSi+D7zcDkZ3haEIXca
+sL6vbHbmAxaevRmByF1VRWBsySq3/2ICmAq8Fx8XieXptafEMRYCIvVA3YWebukX
+maSSI9VNKCcZay+lF6JUPGMi5lI9VVT7dmmWXm2cDI6PfR+g8Ic=
+=sLYt
+-----END PGP SIGNATURE-----
+
+--d6Gm4EdcadzBjdND--
