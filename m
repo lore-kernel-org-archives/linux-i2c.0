@@ -1,23 +1,49 @@
-From: Aisheng Dong <aisheng.dong@nxp.com>
-Subject: RE: [PATCH] i2c: imx: Use __maybe_unused instead of #if CONFIG_PM
-Date: Sun, 5 May 2019 07:31:21 +0000
-Message-ID: <AM0PR04MB4211C748DF192A56F3FE8E8280370@AM0PR04MB4211.eurprd04.prod.outlook.com>
-References: <1557026820-29428-1-git-send-email-Anson.Huang@nxp.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
+Subject: Re: [PATCH] i2c: bcm2835: Model Divider in CCF
+Date: Sun, 5 May 2019 12:36:29 +0200
+Message-ID: <610c7594-85c9-72db-63a6-6e632e9586aa@i2se.com>
+References: <20190505034339.30778-1-nh6z@nh6z.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1557026820-29428-1-git-send-email-Anson.Huang@nxp.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190505034339.30778-1-nh6z@nh6z.net>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Anson Huang <anson.huang@nxp.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, "wsa+renesas@sang-engineering.com" <wsa+renesas@sang-engineering.com>, "u.kleine-koenig@pengutronix.de" <u.kleine-koenig@pengutronix.de>, "eha@deif.com" <eha@deif.com>, "linux@rempel-privat.de" <linux@rempel-privat.de>, Laurentiu Tudor <laurentiu.tudor@nxp.com>, "peda@axentia.se" <peda@axentia.se>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: dl-linux-imx <linux-imx@nxp.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Annaliese McDermond <nh6z@nh6z.net>, eric@anholt.net, f.fainelli@gmail.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
+Cc: team@nwdigitalradio.com
 List-Id: linux-i2c@vger.kernel.org
 
-PiBGcm9tOiBBbnNvbiBIdWFuZw0KPiBTZW50OiBTdW5kYXksIE1heSA1LCAyMDE5IDExOjMyIEFN
-DQo+IFN1YmplY3Q6IFtQQVRDSF0gaTJjOiBpbXg6IFVzZSBfX21heWJlX3VudXNlZCBpbnN0ZWFk
-IG9mICNpZiBDT05GSUdfUE0NCj4gDQo+IFVzZSBfX21heWJlX3VudXNlZCBmb3IgcnVudGltZSBQ
-TSByZWxhdGVkIGZ1bmN0aW9ucyBpbnN0ZWFkIG9mICNpZg0KPiBDT05GSUdfUE0gdG8gc2ltcGx5
-IHRoZSBjb2RlLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogQW5zb24gSHVhbmcgPEFuc29uLkh1YW5n
-QG54cC5jb20+DQoNClJldmlld2VkLWJ5OiBEb25nIEFpc2hlbmcgPGFpc2hlbmcuZG9uZ0BueHAu
-Y29tPg0KDQpSZWdhcmRzDQpEb25nIEFpc2hlbmcNCg==
+Hi Annaliese,
+
+Am 05.05.19 um 05:43 schrieb Annaliese McDermond:
+> Model the I2C bus clock divider as a part of the Core Clock Framework.
+> Primarily this removes the clk_get_rate() call from each transfer.
+> This call causes problems for slave drivers that themselves have
+> internal clock components that are controlled by an I2C interface.
+> When the slave's internal clock component is prepared, the prepare
+> lock is obtained, and it makes calls to the I2C subsystem to
+> command the hardware to activate the clock.  In order to perform
+> the I2C transfer, this driver sets the divider, which requires
+> it to get the parent clock rate, which it does with clk_get_rate().
+> Unfortunately, this function will try to take the clock prepare
+> lock, which is already held by the slave's internal clock calls
+> creating a deadlock.
+
+i think i understand the problem, but could you please explain the
+specific use case where this happend?
+
+I suspect bcm2835 is not the only platform which is affected, so it
+would be better to fix this in general.
+
+Regards
+
+Stefan
