@@ -1,76 +1,55 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] i2c: Prevent runtime suspend of adapter when Host Notify
- is required
-Date: Sun, 5 May 2019 14:54:40 +0200
-Message-ID: <20190505125440.GA25640@kroah.com>
-References: <20190430142322.15013-1-jarkko.nikula@linux.intel.com>
- <20190430155637.1B45E21743@mail.kernel.org>
- <7f989564-e994-5be6-02da-2838639efe59@linux.intel.com>
- <20190502153251.GG81578@ediswmail.ad.cirrus.com>
+From: Florian Fainelli <f.fainelli-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: bcm2835: Model Divider in CCF
+Date: Sun, 5 May 2019 10:13:34 -0700
+Message-ID: <c43eb848-23cd-4b0c-638d-3bb0df58ed31@gmail.com>
+References: <20190505034339.30778-1-nh6z@nh6z.net>
+ <610c7594-85c9-72db-63a6-6e632e9586aa@i2se.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190502153251.GG81578@ediswmail.ad.cirrus.com>
-Sender: stable-owner@vger.kernel.org
-To: Charles Keepax <ckeepax@opensource.cirrus.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, stable@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <610c7594-85c9-72db-63a6-6e632e9586aa-eS4NqCHxEME@public.gmane.org>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rpi-kernel>,
+ <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-rpi-kernel/>
+List-Post: <mailto:linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rpi-kernel>,
+ <mailto:linux-rpi-kernel-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "linux-rpi-kernel" <linux-rpi-kernel-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-rpi-kernel-bounces+glkr-linux-rpi-kernel=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>, Annaliese McDermond <nh6z-fFIq/eER6g8@public.gmane.org>, eric-WhKQ6XTQaPysTnJN9+BGXg@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: team-ZZiVVnAreWfLmAkTNIzhqdBPR1lH4CV8@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, May 02, 2019 at 04:32:51PM +0100, Charles Keepax wrote:
-> On Thu, May 02, 2019 at 03:32:24PM +0300, Jarkko Nikula wrote:
-> > On 4/30/19 6:56 PM, Sasha Levin wrote:
-> > >This commit has been processed because it contains a "Fixes:" tag,
-> > >fixing commit: c5eb1190074c PCI / PM: Allow runtime PM without callback functions.
-> > >
-> > >The bot has tested the following trees: v5.0.10, v4.19.37.
-> > >
-> > >v5.0.10: Build OK!
-> > >v4.19.37: Failed to apply! Possible dependencies:
-> > >     6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
-> > >     93b6604c5a66 ("i2c: Allow recovery of the initial IRQ by an I2C client device.")
-> > >
-> > >
-> > >How should we proceed with this patch?
-> > >
-> > There's also dependency to commit
-> > b9bb3fdf4e87 ("i2c: Remove unnecessary call to irq_find_mapping")
-> > 
-> > Without it 93b6604c5a66 doesn't apply.
-> > 
-> > Otherwise my patch don't have dependency into these so I can have
-> > another version for 4.19 if needed.
-> > 
-> > I got impression from the mail thread for 6f108dd70d30 that it could
-> > be also stable material but cannot really judge.
-> > 
-> > Charles: does your commits b9bb3fdf4e87 and 6f108dd70d30 with the
-> > fix 93b6604c5a66 qualify for 4.19? (background: my fix doesn't apply
-> > without them but doesn't depend on them).
-> > 
-> 
-> b9bb3fdf4e87 ("i2c: Remove unnecessary call to irq_find_mapping")
-> 
-> I don't think this one would make sense to backport it's not
-> fixing any issues it just removes a redundant call. The call just
-> repeats work it does no harm.
-> 
-> 6f108dd70d30 ("i2c: Clear client->irq in i2c_device_remove")
-> 93b6604c5a66 ("i2c: Allow recovery of the initial IRQ by an I2C client device.")
-> 
-> These two are much more of a grey area, they do fix an actual
-> issue, although that issue only happens when you unbind and
-> rebind both an I2C device and the device providing its IRQs. A
-> couple of us have been trying to look for a better fix as well
-> which further complicates matters.
-> 
-> I would suggest you just backport your patch and leave these
-> ones. As evidenced by the fixup patch there is a slight chance
-> of regressions from backporting this fix and the issue it
-> fixes is clearly not something people are normally hitting.
 
-I've queued all of these up now, as they make sense to have for 4.19.y.
 
-thanks,
+On 5/5/2019 3:36 AM, Stefan Wahren wrote:
+> Hi Annaliese,
+> 
+> Am 05.05.19 um 05:43 schrieb Annaliese McDermond:
+>> Model the I2C bus clock divider as a part of the Core Clock Framework.
+>> Primarily this removes the clk_get_rate() call from each transfer.
+>> This call causes problems for slave drivers that themselves have
+>> internal clock components that are controlled by an I2C interface.
+>> When the slave's internal clock component is prepared, the prepare
+>> lock is obtained, and it makes calls to the I2C subsystem to
+>> command the hardware to activate the clock.  In order to perform
+>> the I2C transfer, this driver sets the divider, which requires
+>> it to get the parent clock rate, which it does with clk_get_rate().
+>> Unfortunately, this function will try to take the clock prepare
+>> lock, which is already held by the slave's internal clock calls
+>> creating a deadlock.
+> 
+> i think i understand the problem, but could you please explain the
+> specific use case where this happend?
+> 
+> I suspect bcm2835 is not the only platform which is affected, so it
+> would be better to fix this in general.
 
-greg k-h
+Agreed, if you could identify i2c bus drivers that support changing the
+bus clock and move the registration of the bus 'struct clk' into the i2c
+core that would scale a lot better.
+-- 
+Florian
