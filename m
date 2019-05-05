@@ -1,61 +1,138 @@
-From: Annaliese McDermond <nh6z@nh6z.net>
-Subject: Re: [PATCH] i2c: bcm2835: Model Divider in CCF
-Date: Sun, 5 May 2019 10:21:49 -0700
-Message-ID: <362948E6-B012-4F3D-89B7-396141C7E596@nh6z.net>
-References: <20190505034339.30778-1-nh6z@nh6z.net>
- <610c7594-85c9-72db-63a6-6e632e9586aa@i2se.com>
- <c43eb848-23cd-4b0c-638d-3bb0df58ed31@gmail.com>
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <c43eb848-23cd-4b0c-638d-3bb0df58ed31@gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Stefan Wahren <stefan.wahren@i2se.com>, wsa@the-dreams.de, team@nwdigitalradio.com, eric@anholt.net, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+From: Ruslan Babayev <ruslan@babayev.com>
+Subject: [PATCH] net: phy: sfp: enable i2c-bus detection on ACPI based systems
+Date: Sun,  5 May 2019 12:34:34 -0700
+Message-ID: <20190505193435.3248-1-ruslan@babayev.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Russell King <linux@armlinux.org.uk>, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Heiner Kallweit <hkallweit1@gmail.com>
+Cc: xe-linux-external@cisco.com, "David S. Miller" <davem@davemloft.net>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Cgo+IE9uIE1heSA1LCAyMDE5LCBhdCAxMDoxMyBBTSwgRmxvcmlhbiBGYWluZWxsaSA8Zi5mYWlu
-ZWxsaUBnbWFpbC5jb20+IHdyb3RlOgo+IAo+IAo+IAo+IE9uIDUvNS8yMDE5IDM6MzYgQU0sIFN0
-ZWZhbiBXYWhyZW4gd3JvdGU6Cj4+IEhpIEFubmFsaWVzZSwKPj4gCj4+IEFtIDA1LjA1LjE5IHVt
-IDA1OjQzIHNjaHJpZWIgQW5uYWxpZXNlIE1jRGVybW9uZDoKPj4+IE1vZGVsIHRoZSBJMkMgYnVz
-IGNsb2NrIGRpdmlkZXIgYXMgYSBwYXJ0IG9mIHRoZSBDb3JlIENsb2NrIEZyYW1ld29yay4KPj4+
-IFByaW1hcmlseSB0aGlzIHJlbW92ZXMgdGhlIGNsa19nZXRfcmF0ZSgpIGNhbGwgZnJvbSBlYWNo
-IHRyYW5zZmVyLgo+Pj4gVGhpcyBjYWxsIGNhdXNlcyBwcm9ibGVtcyBmb3Igc2xhdmUgZHJpdmVy
-cyB0aGF0IHRoZW1zZWx2ZXMgaGF2ZQo+Pj4gaW50ZXJuYWwgY2xvY2sgY29tcG9uZW50cyB0aGF0
-IGFyZSBjb250cm9sbGVkIGJ5IGFuIEkyQyBpbnRlcmZhY2UuCj4+PiBXaGVuIHRoZSBzbGF2ZSdz
-IGludGVybmFsIGNsb2NrIGNvbXBvbmVudCBpcyBwcmVwYXJlZCwgdGhlIHByZXBhcmUKPj4+IGxv
-Y2sgaXMgb2J0YWluZWQsIGFuZCBpdCBtYWtlcyBjYWxscyB0byB0aGUgSTJDIHN1YnN5c3RlbSB0
-bwo+Pj4gY29tbWFuZCB0aGUgaGFyZHdhcmUgdG8gYWN0aXZhdGUgdGhlIGNsb2NrLiAgSW4gb3Jk
-ZXIgdG8gcGVyZm9ybQo+Pj4gdGhlIEkyQyB0cmFuc2ZlciwgdGhpcyBkcml2ZXIgc2V0cyB0aGUg
-ZGl2aWRlciwgd2hpY2ggcmVxdWlyZXMKPj4+IGl0IHRvIGdldCB0aGUgcGFyZW50IGNsb2NrIHJh
-dGUsIHdoaWNoIGl0IGRvZXMgd2l0aCBjbGtfZ2V0X3JhdGUoKS4KPj4+IFVuZm9ydHVuYXRlbHks
-IHRoaXMgZnVuY3Rpb24gd2lsbCB0cnkgdG8gdGFrZSB0aGUgY2xvY2sgcHJlcGFyZQo+Pj4gbG9j
-aywgd2hpY2ggaXMgYWxyZWFkeSBoZWxkIGJ5IHRoZSBzbGF2ZSdzIGludGVybmFsIGNsb2NrIGNh
-bGxzCj4+PiBjcmVhdGluZyBhIGRlYWRsb2NrLgo+PiAKPj4gaSB0aGluayBpIHVuZGVyc3RhbmQg
-dGhlIHByb2JsZW0sIGJ1dCBjb3VsZCB5b3UgcGxlYXNlIGV4cGxhaW4gdGhlCj4+IHNwZWNpZmlj
-IHVzZSBjYXNlIHdoZXJlIHRoaXMgaGFwcGVuZD8KPj4gCj4+IEkgc3VzcGVjdCBiY20yODM1IGlz
-IG5vdCB0aGUgb25seSBwbGF0Zm9ybSB3aGljaCBpcyBhZmZlY3RlZCwgc28gaXQKPj4gd291bGQg
-YmUgYmV0dGVyIHRvIGZpeCB0aGlzIGluIGdlbmVyYWwuCj4gCj4gQWdyZWVkLCBpZiB5b3UgY291
-bGQgaWRlbnRpZnkgaTJjIGJ1cyBkcml2ZXJzIHRoYXQgc3VwcG9ydCBjaGFuZ2luZyB0aGUKPiBi
-dXMgY2xvY2sgYW5kIG1vdmUgdGhlIHJlZ2lzdHJhdGlvbiBvZiB0aGUgYnVzICdzdHJ1Y3QgY2xr
-JyBpbnRvIHRoZSBpMmMKPiBjb3JlIHRoYXQgd291bGQgc2NhbGUgYSBsb3QgYmV0dGVyLgoKVGhp
-cyBpc27igJl0IG5lY2Vzc2FyaWx5IGJlY2F1c2Ugb2YgY2hhbmdpbmcgdGhlIGJ1cyBjbG9jay4g
-IFRoaXMgaXMKYmVjYXVzZSBvbmUgb2YgdGhlIHBhcmVudHMgb2YgdGhlIGJ1cyBjbG9jayBjb3Vs
-ZCBjaGFuZ2UuICBUaGlzIG5lY2Vzc2l0YXRlcwpyZXNldHRpbmcgdGhlIGRpdmlkZXIgZmVlZGlu
-ZyB0aGUgYnVzIGNsb2NrIG9mIHRoZSBpMmMgZGV2aWNlIHNvIHRoYXQKaXQgc3RpbGwgcHJvZHVj
-ZXMgdGhlIGRlc2lyZWQgZnJlcXVlbmN5LgoKSSB3b3VsZCBpbWFnaW5lIHRoYXQgbm90IGV2ZXJ5
-IGRldmljZSBoYXMgYW4gaW50ZXJuYWwgZGl2aWRlciB0aGF0IGhlbHBzCmNyZWF0ZSB0aGUgYnVz
-IGZyZXF1ZW5jeS4gIEkgY291bGQgdmVyeSB3ZWxsIGJlIHdyb25nLgoKPiAtLSAKPiBGbG9yaWFu
-CgotLQpBbm5hbGllc2UgTWNEZXJtb25kCm5oNnpAbmg2ei5uZXQKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxp
-c3QKbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZy
-YWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
+Signed-off-by: Ruslan Babayev <ruslan@babayev.com>
+Cc: xe-linux-external@cisco.com
+---
+ drivers/i2c/i2c-core-acpi.c |  3 ++-
+ drivers/net/phy/sfp.c       | 33 +++++++++++++++++++++++++--------
+ include/linux/i2c.h         |  6 ++++++
+ 3 files changed, 33 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 272800692088..964687534754 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -337,7 +337,7 @@ static int i2c_acpi_find_match_device(struct device *dev, void *data)
+ 	return ACPI_COMPANION(dev) == data;
+ }
+ 
+-static struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
++struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
+ {
+ 	struct device *dev;
+ 
+@@ -345,6 +345,7 @@ static struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
+ 			      i2c_acpi_find_match_adapter);
+ 	return dev ? i2c_verify_adapter(dev) : NULL;
+ }
++EXPORT_SYMBOL_GPL(i2c_acpi_find_adapter_by_handle);
+ 
+ static struct i2c_client *i2c_acpi_find_client_by_adev(struct acpi_device *adev)
+ {
+diff --git a/drivers/net/phy/sfp.c b/drivers/net/phy/sfp.c
+index d4635c2178d1..7a6c8df8899b 100644
+--- a/drivers/net/phy/sfp.c
++++ b/drivers/net/phy/sfp.c
+@@ -9,6 +9,7 @@
+ #include <linux/module.h>
+ #include <linux/mutex.h>
+ #include <linux/of.h>
++#include <linux/acpi.h>
+ #include <linux/phy.h>
+ #include <linux/platform_device.h>
+ #include <linux/rtnetlink.h>
+@@ -1783,6 +1784,7 @@ static int sfp_probe(struct platform_device *pdev)
+ {
+ 	const struct sff_data *sff;
+ 	struct sfp *sfp;
++	struct i2c_adapter *i2c = NULL;
+ 	bool poll = false;
+ 	int irq, err, i;
+ 
+@@ -1801,7 +1803,6 @@ static int sfp_probe(struct platform_device *pdev)
+ 	if (pdev->dev.of_node) {
+ 		struct device_node *node = pdev->dev.of_node;
+ 		const struct of_device_id *id;
+-		struct i2c_adapter *i2c;
+ 		struct device_node *np;
+ 
+ 		id = of_match_node(sfp_of_match, node);
+@@ -1818,14 +1819,30 @@ static int sfp_probe(struct platform_device *pdev)
+ 
+ 		i2c = of_find_i2c_adapter_by_node(np);
+ 		of_node_put(np);
+-		if (!i2c)
+-			return -EPROBE_DEFER;
+-
+-		err = sfp_i2c_configure(sfp, i2c);
+-		if (err < 0) {
+-			i2c_put_adapter(i2c);
+-			return err;
++	} else if (ACPI_COMPANION(&pdev->dev)) {
++		struct acpi_device *adev = ACPI_COMPANION(&pdev->dev);
++		struct fwnode_handle *fw = acpi_fwnode_handle(adev);
++		struct fwnode_reference_args args;
++		struct acpi_handle *acpi_handle;
++		int ret;
++
++		ret = acpi_node_get_property_reference(fw, "i2c-bus", 0, &args);
++		if (ACPI_FAILURE(ret) || !is_acpi_device_node(args.fwnode)) {
++			dev_err(&pdev->dev, "missing 'i2c-bus' property\n");
++			return -ENODEV;
+ 		}
++
++		acpi_handle = ACPI_HANDLE_FWNODE(args.fwnode);
++		i2c = i2c_acpi_find_adapter_by_handle(acpi_handle);
++	}
++
++	if (!i2c)
++		return -EPROBE_DEFER;
++
++	err = sfp_i2c_configure(sfp, i2c);
++	if (err < 0) {
++		i2c_put_adapter(i2c);
++		return err;
+ 	}
+ 
+ 	for (i = 0; i < GPIO_MAX; i++)
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 383510b4f083..24859a26f167 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -33,6 +33,7 @@
+ #include <linux/rtmutex.h>
+ #include <linux/irqdomain.h>		/* for Host Notify IRQ */
+ #include <linux/of.h>		/* for struct device_node */
++#include <linux/acpi.h>		/* for acpi_handle */
+ #include <linux/swab.h>		/* for swab16 */
+ #include <uapi/linux/i2c.h>
+ 
+@@ -977,6 +978,7 @@ bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
+ u32 i2c_acpi_find_bus_speed(struct device *dev);
+ struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
+ 				       struct i2c_board_info *info);
++struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle);
+ #else
+ static inline bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
+ 					     struct acpi_resource_i2c_serialbus **i2c)
+@@ -992,6 +994,10 @@ static inline struct i2c_client *i2c_acpi_new_device(struct device *dev,
+ {
+ 	return NULL;
+ }
++struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
++{
++	return NULL;
++}
+ #endif /* CONFIG_ACPI */
+ 
+ #endif /* _LINUX_I2C_H */
+-- 
+2.17.1
