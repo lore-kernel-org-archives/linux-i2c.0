@@ -1,38 +1,54 @@
-From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-Subject: [PATCH v1 v1 0/3] Add dt bindings to support I2C on sifive devices and a fix for polling mode i2c transfers.
-Date: Mon,  6 May 2019 18:23:57 +0530
-Message-ID: <1557147240-29551-1-git-send-email-sagar.kadam@sifive.com>
+From: Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [PATCH net-next 2/2] net: phy: sfp: enable i2c-bus detection on
+ ACPI based systems
+Date: Mon, 6 May 2019 14:55:23 +0200
+Message-ID: <20190506125523.GA15291@lunn.ch>
+References: <20190505220524.37266-3-ruslan@babayev.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190505220524.37266-3-ruslan@babayev.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: robh+dt@kernel.org, mark.rutland@arm.com, palmer@sifive.com, paul.walmsley@sifive.com, sagar.kadam@sifive.com, peter@korsgaard.com, andrew@lunn.ch, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Ruslan Babayev <ruslan@babayev.com>
+Cc: linux@armlinux.org.uk, f.fainelli@gmail.com, hkallweit1@gmail.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, davem@davemloft.net, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, xe-linux-external@cisco.com
 List-Id: linux-i2c@vger.kernel.org
 
-The patch is based on mainline v5.1 and is intended to add DT-bindings for Opencore based I2C device 
-support in FU540 SoC, available on HiFive unleashed board (Rev A00), and also provide a workaround to 
-make I2C polling mode interface work with FU540 chipsets.
+On Sun, May 05, 2019 at 03:05:23PM -0700, Ruslan Babayev wrote:
+> Lookup I2C adapter using the "i2c-bus" device property on ACPI based
+> systems similar to how it's done with DT.
+> 
+> An example DSD describing an SFP on an ACPI based system:
+> 
+> Device (SFP0)
+> {
+>     Name (_HID, "PRP0001")
+>     Name (_DSD, Package ()
+>     {
+>         ToUUID ("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+>         Package () {
+>             Package () { "compatible", "sff,sfp" },
+>             Package () { "i2c-bus", \_SB.PCI0.RP01.I2C.MUX.CH0 },
+>         },
+>     })
+> }
 
-The polling mode workaround patch fixes the CPU stall issue, when-ever i2c transfer are initiated 
+Hi Ruslan
 
-This workaround checks if it's a FU540 chipset based on device tree information, and check's for open
-core's IF(interrupt flag) and TIP flags to break from the polling loop upon completion of transfer.
+So this gives you the I2C bus. But what about the 6 GPIOs? And the
+maximum power property? You are defining the ACPI interface which from
+now on everybody has to follow. So it would be good to make it
+complete. ACPI also seems to be poorly documented. There does not
+appear to be anything like Documentation/devicetree. So having one
+patch, with a good commit message, which implements everything makes
+it easier for those that follow.
 
-To test the patch, a PMOD-AD2 sensor is connected to HiFive Unleashed board over J1 connector, and 
-appropriate device node is added into board specific device tree as per the information provided in 
-dt-bindings in Documentation/devicetree/bindings/i2c/i2c-sifive.txt.
-Without this workaround, the CPU stall's infinitely.
+This appears to be enough to get a very minimal SFP instantiated. But
+then what?  How are you using it? How do you instantiate a Phylink
+instance for the MAC? How do you link the SFP to the Phylink?
 
-Busybox i2c utilities used to verify workaround : i2cdetect, i2cdump, i2cset, i2cget
+Before accepting this patch, i would like to know more about the
+complete solution.
 
-
-Sagar Shrikant Kadam (3):
-  dt-bindings: i2c: add documentation for adding SiFive I2C driver
-  i2c-ocore: sifive: add support for i2c device on FU540-c000 SoC.
-  i2c-ocores: sifive: add polling mode workaround for FU540-C000 SoC.
-
- .../devicetree/bindings/i2c/i2c-sifive.txt         | 29 +++++++++++++++++++
- drivers/i2c/busses/i2c-ocores.c                    | 33 +++++++++++++++++++---
- 2 files changed, 58 insertions(+), 4 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-sifive.txt
-
--- 
-1.9.1
+Thanks
+	Andrew
