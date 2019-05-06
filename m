@@ -1,76 +1,60 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH 1/2] eeprom: ee1004: Move selected page detection to a
- separate function
-Date: Mon, 6 May 2019 15:15:39 +0200
-Message-ID: <20190506151539.69ee75e8@endymion>
+Subject: [PATCH 2/2] eeprom: ee1004: Deal with nack on page selection
+Date: Mon, 6 May 2019 15:16:56 +0200
+Message-ID: <20190506151656.47494e56@endymion>
+References: <20190506151539.69ee75e8@endymion>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190506151539.69ee75e8@endymion>
 Sender: linux-kernel-owner@vger.kernel.org
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linux I2C <linux-i2c@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-No functional change, this is in preparation for future needs.
+Some EE1004 implementations will not properly ack page selection
+commands. They still set the page correctly, so there is no actual
+error. Deal with this case gracefully by checking the currently
+selected page after we receive a nack. If the page is set right then
+we can continue.
 
 Signed-off-by: Jean Delvare <jdelvare@suse.de>
 Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 Cc: Arnd Bergmann <arnd@arndb.de>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/eeprom/ee1004.c |   31 +++++++++++++++++++++----------
- 1 file changed, 21 insertions(+), 10 deletions(-)
+ drivers/misc/eeprom/ee1004.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- linux-5.0.orig/drivers/misc/eeprom/ee1004.c	2019-05-06 11:23:14.833319076 +0200
-+++ linux-5.0/drivers/misc/eeprom/ee1004.c	2019-05-06 11:56:58.478375343 +0200
-@@ -57,6 +57,24 @@ MODULE_DEVICE_TABLE(i2c, ee1004_ids);
- 
- /*-------------------------------------------------------------------------*/
- 
-+static int ee1004_get_current_page(void)
-+{
-+	int err;
-+
-+	err = i2c_smbus_read_byte(ee1004_set_page[0]);
-+	if (err == -ENXIO) {
-+		/* Nack means page 1 is selected */
-+		return 1;
-+	}
-+	if (err < 0) {
-+		/* Anything else is a real error, bail out */
-+		return err;
-+	}
-+
-+	/* Ack means page 0 is selected, returned value meaningless */
-+	return 0;
-+}
-+
- static ssize_t ee1004_eeprom_read(struct i2c_client *client, char *buf,
- 				  unsigned int offset, size_t count)
- {
-@@ -190,17 +208,10 @@ static int ee1004_probe(struct i2c_clien
- 	}
- 
- 	/* Remember current page to avoid unneeded page select */
--	err = i2c_smbus_read_byte(ee1004_set_page[0]);
--	if (err == -ENXIO) {
--		/* Nack means page 1 is selected */
--		ee1004_current_page = 1;
--	} else if (err < 0) {
--		/* Anything else is a real error, bail out */
-+	err = ee1004_get_current_page();
-+	if (err < 0)
- 		goto err_clients;
--	} else {
--		/* Ack means page 0 is selected, returned value meaningless */
--		ee1004_current_page = 0;
--	}
-+	ee1004_current_page = err;
- 	dev_dbg(&client->dev, "Currently selected page: %d\n",
- 		ee1004_current_page);
- 	mutex_unlock(&ee1004_bus_lock);
-
+--- linux-5.0.orig/drivers/misc/eeprom/ee1004.c	2019-05-06 11:57:14.333572368 +0200
++++ linux-5.0/drivers/misc/eeprom/ee1004.c	2019-05-06 15:11:06.009718220 +0200
+@@ -1,7 +1,7 @@
+ /*
+  * ee1004 - driver for DDR4 SPD EEPROMs
+  *
+- * Copyright (C) 2017 Jean Delvare
++ * Copyright (C) 2017-2019 Jean Delvare
+  *
+  * Based on the at24 driver:
+  * Copyright (C) 2005-2007 David Brownell
+@@ -124,6 +124,16 @@ static ssize_t ee1004_read(struct file *
+ 			/* Data is ignored */
+ 			status = i2c_smbus_write_byte(ee1004_set_page[page],
+ 						      0x00);
++			if (status == -ENXIO) {
++				/*
++				 * Don't give up just yet. Some memory
++				 * modules will select the page but not
++				 * ack the command. Check which page is
++				 * selected now.
++				 */
++				if (ee1004_get_current_page() == page)
++					status = 0;
++			}
+ 			if (status < 0) {
+ 				dev_err(dev, "Failed to select page %d (%d)\n",
+ 					page, status);
 
 -- 
 Jean Delvare
