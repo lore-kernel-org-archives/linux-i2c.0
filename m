@@ -1,54 +1,59 @@
-From: Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [PATCH net-next 2/2] net: phy: sfp: enable i2c-bus detection on
- ACPI based systems
-Date: Mon, 6 May 2019 14:55:23 +0200
-Message-ID: <20190506125523.GA15291@lunn.ch>
-References: <20190505220524.37266-3-ruslan@babayev.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Subject: [PATCH v1 v1 1/3] dt-bindings: i2c: add documentation for adding SiFive I2C driver
+Date: Mon,  6 May 2019 18:23:58 +0530
+Message-ID: <1557147240-29551-2-git-send-email-sagar.kadam@sifive.com>
+References: <1557147240-29551-1-git-send-email-sagar.kadam@sifive.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190505220524.37266-3-ruslan@babayev.com>
+In-Reply-To: <1557147240-29551-1-git-send-email-sagar.kadam@sifive.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ruslan Babayev <ruslan@babayev.com>
-Cc: linux@armlinux.org.uk, f.fainelli@gmail.com, hkallweit1@gmail.com, mika.westerberg@linux.intel.com, wsa@the-dreams.de, davem@davemloft.net, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, xe-linux-external@cisco.com
+To: robh+dt@kernel.org, mark.rutland@arm.com, palmer@sifive.com, paul.walmsley@sifive.com, sagar.kadam@sifive.com, peter@korsgaard.com, andrew@lunn.ch, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, May 05, 2019 at 03:05:23PM -0700, Ruslan Babayev wrote:
-> Lookup I2C adapter using the "i2c-bus" device property on ACPI based
-> systems similar to how it's done with DT.
-> 
-> An example DSD describing an SFP on an ACPI based system:
-> 
-> Device (SFP0)
-> {
->     Name (_HID, "PRP0001")
->     Name (_DSD, Package ()
->     {
->         ToUUID ("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
->         Package () {
->             Package () { "compatible", "sff,sfp" },
->             Package () { "i2c-bus", \_SB.PCI0.RP01.I2C.MUX.CH0 },
->         },
->     })
-> }
+Add DT binding for OpenCore's based i2c device as found in
+FU540 Chipset on HiFive Unleashed Platform (Rev A00).
 
-Hi Ruslan
+The doc explains, how to add DT support for I2C devices.
 
-So this gives you the I2C bus. But what about the 6 GPIOs? And the
-maximum power property? You are defining the ACPI interface which from
-now on everybody has to follow. So it would be good to make it
-complete. ACPI also seems to be poorly documented. There does not
-appear to be anything like Documentation/devicetree. So having one
-patch, with a good commit message, which implements everything makes
-it easier for those that follow.
+Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+---
+ .../devicetree/bindings/i2c/i2c-sifive.txt         | 29 ++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-sifive.txt
 
-This appears to be enough to get a very minimal SFP instantiated. But
-then what?  How are you using it? How do you instantiate a Phylink
-instance for the MAC? How do you link the SFP to the Phylink?
-
-Before accepting this patch, i would like to know more about the
-complete solution.
-
-Thanks
-	Andrew
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-sifive.txt b/Documentation/devicetree/bindings/i2c/i2c-sifive.txt
+new file mode 100644
+index 0000000..2a0fc9b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-sifive.txt
+@@ -0,0 +1,29 @@
++SiFive I2C controller Device Tree Bindings
++-------------------------------------------------
++
++Required properties:
++
++- compatible		: Should be "sifive,<chipset>-i2c" for a particular chip or
++			  "sifive,i2c<ver>" for a general I2C block.
++			  For FU540 chipset the supported compatible string is "sifive,fu540-c000-i2c".
++- reg			: Physical base address and size of I2C registers map.
++- reg-names		: Should contain the resource reg names.
++- clocks		: Must reference the frequency given to the controller.
++- #address-cells	: Must be '1'.
++- #size-cells		: Must be '0'.
++- clock-frequency	: desired I2C bus clock frequency.
++
++Example:
++	i2c@10030000 {
++			compatible = "sifive,i2c0","sifive,fu540-c000-i2c";
++			reg = <0x0 0x10030000 0x0 0x1000>;
++			reg-names = "i2c-control";
++			clocks = <&tlclk>;
++			clock-frequency = <100000>;
++
++			reg-shift = <2>;
++			reg-io-width = <1>;
++
++			#address-cells = <1>;
++			#size-cells = <0>;
++	};
+-- 
+1.9.1
