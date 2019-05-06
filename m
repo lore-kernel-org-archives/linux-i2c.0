@@ -1,196 +1,41 @@
-From: Raag Jadav <raagjadav@gmail.com>
-Subject: Re: [PATCH] i2c: at91: handle TXRDY interrupt spam
-Date: Mon, 6 May 2019 21:32:40 +0530
-Message-ID: <20190506160240.GA3156@pc>
-References: <1556005008-6318-1-git-send-email-raagjadav@gmail.com>
- <20190429090005.f6ydghzu5n5yruav@M43218.corp.atmel.com>
- <20190429223332.GA3908@pc>
- <20190502140116.rim72idpgvq4h4vc@M43218.corp.atmel.com>
- <20190503235851.GA4242@pc>
- <408ff580-3633-f510-4223-50064f93024a@microchip.com>
+From: Sagar Kadam <sagar.kadam@sifive.com>
+Subject: Re: [PATCH v1 v1 1/3] dt-bindings: i2c: add documentation for adding
+ SiFive I2C driver
+Date: Mon, 6 May 2019 23:11:25 +0530
+Message-ID: <CAARK3H=fY=Y9GDR-t6RLBV4wOEduPD++F5NKAayNGeuHudrtew@mail.gmail.com>
+References: <1557147240-29551-1-git-send-email-sagar.kadam@sifive.com>
+ <1557147240-29551-2-git-send-email-sagar.kadam@sifive.com> <20190506131919.GC15291@lunn.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <408ff580-3633-f510-4223-50064f93024a@microchip.com>
+In-Reply-To: <20190506131919.GC15291@lunn.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eugen.Hristev@microchip.com, ludovic.desroches@microchip.com
-Cc: alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, Palmer Dabbelt <palmer@sifive.com>, Paul Walmsley <paul.walmsley@sifive.com>, peter@korsgaard.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 06, 2019 at 08:19:01AM +0000, Eugen.Hristev@microchip.com wrote:
-> 
-> 
-> On 04.05.2019 02:58, Raag Jadav wrote:
-> 
-> > On Thu, May 02, 2019 at 04:01:16PM +0200, Ludovic Desroches wrote:
-> >> On Tue, Apr 30, 2019 at 04:03:32AM +0530, Raag Jadav wrote:
-> >>> External E-Mail
-> >>>
-> >>>
-> >>> On Mon, Apr 29, 2019 at 11:00:05AM +0200, Ludovic Desroches wrote:
-> >>>> Hello Raag,
-> >>>>
-> >>>> On Tue, Apr 23, 2019 at 01:06:48PM +0530, Raag Jadav wrote:
-> >>>>> External E-Mail
-> >>>>>
-> >>>>>
-> >>>>> Performing i2c write operation while SDA or SCL line is held
-> >>>>> or grounded by slave device, we go into infinite at91_twi_write_next_byte
-> >>>>> loop with TXRDY interrupt spam.
-> >>>>
-> >>>> Sorry but I am not sure to have the full picture, the controller is in
-> >>>> slave or master mode?
-> >>>>
-> >>>> SVREAD is only used in slave mode. When SVREAD is set, it means that a read
-> >>>> access is performed and your issue concerns the write operation.
-> >>>>
-> >>>> Regards
-> >>>>
-> >>>> Ludovic
-> >>>
-> >>> Yes, even though the datasheet suggests that SVREAD is irrelevant in master mode,
-> >>> TXRDY and SVREAD are the only ones being set in status register upon reproducing the issue.
-> >>> Couldn't think of a better way to handle such strange behaviour.
-> >>> Any suggestions would be appreciated.
-> >>
-> >> I have the confirmation that you can't rely on the SVREAD flag when in
-> >> master mode. This flag should always have the same value.
-> >>
-> >> I am trying to understand what could lead to your situation. Can you
-> >> give me more details. What kind of device it is? What does lead to this
-> >> situation? Does it happen randomly or not?
-> > 
-> > One of the sama5d2 based board I worked on, was having trouble complete its boot
-> > because of a faulty i2c device, which was randomly holding down the SDA line
-> > on i2c write operation, not allowing the controller to complete its transmission,
-> > causing a massive TXRDY interrupt spam, ultimately hanging the processor.
-> > 
-> > Another strange observation was that SVREAD was being set in the status register
-> > along with TXRDY, every time I reproduced the issue.
-> > You can reproduce it by simply grounding the SDA line and performing i2c write
-> > on the bus.
-> > 
-> > Note that NACK, LOCK or TXCOMP are never set as the transmission never completes.
-> > I'm not sure why slave bits are being set in master mode,
-> > but it's been working reliably for me.
-> > 
-> > This patch doesn't recover the SDA line. It just prevents the processor from
-> > getting hanged in case of i2c bus lockup.
-> 
-> Hello,
-> 
-> I have noticed the same hanging at some points... In my case it is 
-> because of this patch:
-> 
-> commit e8f39e9fc0e0b7bce24922da925af820bacb8ef8
-> Author: David Engraf <david.engraf@sysgo.com>
-> Date:   Thu Apr 26 11:53:14 2018 +0200
-> 
-> 
-> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> index bfd1fdf..3f3e8b3 100644
-> --- a/drivers/i2c/busses/i2c-at91.c
-> +++ b/drivers/i2c/busses/i2c-at91.c
-> @@ -518,8 +518,16 @@ static irqreturn_t atmel_twi_interrupt(int irq, 
-> void *dev_id)
->           * the RXRDY interrupt first in order to not keep garbage data 
-> in the
->           * Receive Holding Register for the next transfer.
->           */
-> -       if (irqstatus & AT91_TWI_RXRDY)
-> -               at91_twi_read_next_byte(dev);
-> +       if (irqstatus & AT91_TWI_RXRDY) {
-> +               /*
-> +                * Read all available bytes at once by polling RXRDY 
-> usable w/
-> +                * and w/o FIFO. With FIFO enabled we could also read 
-> RXFL and
-> +                * avoid polling RXRDY.
-> +                */
-> +               do {
-> +                       at91_twi_read_next_byte(dev);
-> +               } while (at91_twi_read(dev, AT91_TWI_SR) & AT91_TWI_RXRDY);
-> +       }
-> 
-> 
-> In my opinion having a do/while with an exit condition relying solely on 
-> a bit read from hardware is unacceptable in IRQ context - kernel can 
-> hang here.
-> A timeout would be a solution...
-> 
-> For me, reverting this patch solves hanging issues.
-> 
-> Hope this helps,
-> 
-> Eugen
+On Mon, May 6, 2019 at 6:49 PM Andrew Lunn <andrew@lunn.ch> wrote:
+>
+> On Mon, May 06, 2019 at 06:23:58PM +0530, Sagar Shrikant Kadam wrote:
+> > Add DT binding for OpenCore's based i2c device as found in
+> > FU540 Chipset on HiFive Unleashed Platform (Rev A00).
+> >
+> > The doc explains, how to add DT support for I2C devices.
+> >
+> > Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+> > ---
+> >  .../devicetree/bindings/i2c/i2c-sifive.txt         | 29 ++++++++++++++++++++++
+> >  1 file changed, 29 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-sifive.txt
+>
+> Hi Sagar
+>
+> Please extend the existing i2c-ocores.txt file, not add a new file.
 
-Thank you for your input, but my issue concerns i2c write operation.
-I haven't noticed any issue with i2c read yet.
-But given the same scenario, it could be true for RXRDY as well.
+Hi Andrew,
+Thanks for your review.
+Yes I will extend the i2c-ocores.txt to support sifive devices, and
+will submit a v2 of this patch.
 
-Cheers,
-Raag
-
-> 
-> > 
-> > Cheers,
-> > Raag
-> > 
-> >>
-> >> Regards
-> >>
-> >> Ludovic
-> >>
-> >>>
-> >>> Cheers,
-> >>> Raag
-> >>>
-> >>>>
-> >>>>>
-> >>>>> Signed-off-by: Raag Jadav <raagjadav@gmail.com>
-> >>>>> ---
-> >>>>>   drivers/i2c/busses/i2c-at91.c | 6 +++++-
-> >>>>>   1 file changed, 5 insertions(+), 1 deletion(-)
-> >>>>>
-> >>>>> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> >>>>> index 3f3e8b3..b2f5fdb 100644
-> >>>>> --- a/drivers/i2c/busses/i2c-at91.c
-> >>>>> +++ b/drivers/i2c/busses/i2c-at91.c
-> >>>>> @@ -72,6 +72,7 @@
-> >>>>>   #define	AT91_TWI_TXCOMP		BIT(0)	/* Transmission Complete */
-> >>>>>   #define	AT91_TWI_RXRDY		BIT(1)	/* Receive Holding Register Ready */
-> >>>>>   #define	AT91_TWI_TXRDY		BIT(2)	/* Transmit Holding Register Ready */
-> >>>>> +#define	AT91_TWI_SVREAD		BIT(3)	/* Slave Read */
-> >>>>>   #define	AT91_TWI_OVRE		BIT(6)	/* Overrun Error */
-> >>>>>   #define	AT91_TWI_UNRE		BIT(7)	/* Underrun Error */
-> >>>>>   #define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
-> >>>>> @@ -571,7 +572,10 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
-> >>>>>   		at91_disable_twi_interrupts(dev);
-> >>>>>   		complete(&dev->cmd_complete);
-> >>>>>   	} else if (irqstatus & AT91_TWI_TXRDY) {
-> >>>>> -		at91_twi_write_next_byte(dev);
-> >>>>> +		if ((status & AT91_TWI_SVREAD) && (dev->buf_len == 0))
-> >>>>> +			at91_twi_write(dev, AT91_TWI_IDR, AT91_TWI_TXRDY);
-> >>>>> +		else
-> >>>>> +			at91_twi_write_next_byte(dev);
-> >>>>>   	}
-> >>>>>   
-> >>>>>   	/* catch error flags */
-> >>>>> -- 
-> >>>>> 2.7.4
-> >>>>>
-> >>>>>
-> >>>
-> >>> _______________________________________________
-> >>> linux-arm-kernel mailing list
-> >>> linux-arm-kernel@lists.infradead.org
-> >>> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> >>>
-> > 
-> > _______________________________________________
-> > linux-arm-kernel mailing list
-> > linux-arm-kernel@lists.infradead.org
-> > http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> > 
-> > 
+>
+>        Andrew
