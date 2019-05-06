@@ -1,110 +1,77 @@
-From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-Subject: [PATCH v1 v1 3/3] i2c-ocores: sifive: add polling mode workaround for FU540-C000 SoC.
-Date: Mon,  6 May 2019 18:24:00 +0530
-Message-ID: <1557147240-29551-4-git-send-email-sagar.kadam@sifive.com>
-References: <1557147240-29551-1-git-send-email-sagar.kadam@sifive.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: [PATCH 1/2] eeprom: ee1004: Move selected page detection to a
+ separate function
+Date: Mon, 6 May 2019 15:15:39 +0200
+Message-ID: <20190506151539.69ee75e8@endymion>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1557147240-29551-1-git-send-email-sagar.kadam@sifive.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: robh+dt@kernel.org, mark.rutland@arm.com, palmer@sifive.com, paul.walmsley@sifive.com, sagar.kadam@sifive.com, peter@korsgaard.com, andrew@lunn.ch, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The i2c-ocore driver already has a polling mode interface.But it needs
-a workaround for FU540 Chipset on HiFive unleashed board (RevA00).
-There is an erratum in FU540 chip that prevents interrupt driven i2c
-transfers from working, and also the I2C controller's interrupt bit
-cannot be cleared if set, due to this the existing i2c polling mode
-interface added in mainline earlier doesn't work, and CPU stall's
-infinitely, when-ever i2c transfer is initiated.
+No functional change, this is in preparation for future needs.
 
-	commit 69c8c0c0efa8 ("i2c: ocores: add polling interface")
-
-The workaround / fix is particularly for FU540-COOO SoC.
-
-Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-ocores.c | 28 ++++++++++++++++++++++++----
- 1 file changed, 24 insertions(+), 4 deletions(-)
+ drivers/misc/eeprom/ee1004.c |   31 +++++++++++++++++++++----------
+ 1 file changed, 21 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index 7bf7b0c..08cdfed 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -27,6 +27,7 @@
- #include <linux/jiffies.h>
+--- linux-5.0.orig/drivers/misc/eeprom/ee1004.c	2019-05-06 11:23:14.833319076 +0200
++++ linux-5.0/drivers/misc/eeprom/ee1004.c	2019-05-06 11:56:58.478375343 +0200
+@@ -57,6 +57,24 @@ MODULE_DEVICE_TABLE(i2c, ee1004_ids);
  
- #define OCORES_FLAG_POLL BIT(0)
-+#define SIFIVE_FLAG_POLL BIT(1)
+ /*-------------------------------------------------------------------------*/
  
- /*
-  * 'process_lock' exists because ocores_process() and ocores_process_timeout()
-@@ -239,8 +240,13 @@ static irqreturn_t ocores_isr(int irq, void *dev_id)
- 	struct ocores_i2c *i2c = dev_id;
- 	u8 stat = oc_getreg(i2c, OCI2C_STATUS);
- 
--	if (!(stat & OCI2C_STAT_IF))
-+	if (i2c->flags && SIFIVE_FLAG_POLL) {
-+		if (stat & OCI2C_STAT_IF)
-+			if (!(stat & OCI2C_STAT_BUSY))
-+				return IRQ_NONE;
-+	} else if (!(stat & OCI2C_STAT_IF)) {
- 		return IRQ_NONE;
++static int ee1004_get_current_page(void)
++{
++	int err;
++
++	err = i2c_smbus_read_byte(ee1004_set_page[0]);
++	if (err == -ENXIO) {
++		/* Nack means page 1 is selected */
++		return 1;
 +	}
- 
- 	ocores_process(i2c, stat);
- 
-@@ -356,6 +362,11 @@ static void ocores_process_polling(struct ocores_i2c *i2c)
- 		ret = ocores_isr(-1, i2c);
- 		if (ret == IRQ_NONE)
- 			break; /* all messages have been transferred */
-+		else {
-+			if (i2c->flags && SIFIVE_FLAG_POLL)
-+				if (i2c->state == STATE_DONE)
-+					break;
-+		}
- 	}
- }
- 
-@@ -406,7 +417,7 @@ static int ocores_xfer(struct i2c_adapter *adap,
++	if (err < 0) {
++		/* Anything else is a real error, bail out */
++		return err;
++	}
++
++	/* Ack means page 0 is selected, returned value meaningless */
++	return 0;
++}
++
+ static ssize_t ee1004_eeprom_read(struct i2c_client *client, char *buf,
+ 				  unsigned int offset, size_t count)
  {
- 	struct ocores_i2c *i2c = i2c_get_adapdata(adap);
- 
--	if (i2c->flags & OCORES_FLAG_POLL)
-+	if ((i2c->flags & OCORES_FLAG_POLL) || (i2c->flags & SIFIVE_FLAG_POLL))
- 		return ocores_xfer_polling(adap, msgs, num);
- 	return ocores_xfer_core(i2c, msgs, num, false);
- }
-@@ -597,6 +608,7 @@ static int ocores_i2c_probe(struct platform_device *pdev)
- {
- 	struct ocores_i2c *i2c;
- 	struct ocores_i2c_platform_data *pdata;
-+	const struct of_device_id *match;
- 	struct resource *res;
- 	int irq;
- 	int ret;
-@@ -678,13 +690,21 @@ static int ocores_i2c_probe(struct platform_device *pdev)
- 
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq == -ENXIO) {
--		i2c->flags |= OCORES_FLAG_POLL;
-+		/*
-+		 * Set a SIFIVE_FLAG_POLL to enable workaround for FU540
-+		 * in polling mode interface of i2c-ocore driver.
-+		 */
-+		match = of_match_node(ocores_i2c_match, pdev->dev.of_node);
-+		if (match && (long)match->data == TYPE_SIFIVE_REV0)
-+			i2c->flags |= SIFIVE_FLAG_POLL;
-+		else
-+			i2c->flags |= OCORES_FLAG_POLL;
- 	} else {
- 		if (irq < 0)
- 			return irq;
+@@ -190,17 +208,10 @@ static int ee1004_probe(struct i2c_clien
  	}
  
--	if (!(i2c->flags & OCORES_FLAG_POLL)) {
-+	if (!(i2c->flags & (OCORES_FLAG_POLL | SIFIVE_FLAG_POLL))) {
- 		ret = devm_request_irq(&pdev->dev, irq, ocores_isr, 0,
- 				       pdev->name, i2c);
- 		if (ret) {
+ 	/* Remember current page to avoid unneeded page select */
+-	err = i2c_smbus_read_byte(ee1004_set_page[0]);
+-	if (err == -ENXIO) {
+-		/* Nack means page 1 is selected */
+-		ee1004_current_page = 1;
+-	} else if (err < 0) {
+-		/* Anything else is a real error, bail out */
++	err = ee1004_get_current_page();
++	if (err < 0)
+ 		goto err_clients;
+-	} else {
+-		/* Ack means page 0 is selected, returned value meaningless */
+-		ee1004_current_page = 0;
+-	}
++	ee1004_current_page = err;
+ 	dev_dbg(&client->dev, "Currently selected page: %d\n",
+ 		ee1004_current_page);
+ 	mutex_unlock(&ee1004_bus_lock);
+
+
 -- 
-1.9.1
+Jean Delvare
+SUSE L3 Support
