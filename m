@@ -1,47 +1,32 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 2/2] eeprom: ee1004: Deal with nack on page selection
-Date: Mon, 6 May 2019 17:16:52 +0200
-Message-ID: <20190506171652.3ba909de@endymion>
-References: <20190506151539.69ee75e8@endymion>
-        <20190506151656.47494e56@endymion>
-        <04843f27-bb0f-d631-32c8-80cd122b7399@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Asmaa Mnebhi <Asmaa@mellanox.com>
+Subject: [PATCH v7 0/1] Add support for IPMB driver
+Date: Mon,  6 May 2019 11:29:28 -0400
+Message-ID: <cover.1557156354.git.Asmaa@mellanox.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <04843f27-bb0f-d631-32c8-80cd122b7399@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: minyard@acm.org, wsa@the-dreams.de, vadimp@mellanox.com, michaelsh@mellanox.com
+Cc: Asmaa Mnebhi <Asmaa@mellanox.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 6 May 2019 17:03:20 +0300, Jarkko Nikula wrote:
-> On 5/6/19 4:16 PM, Jean Delvare wrote:
-> > Some EE1004 implementations will not properly ack page selection
-> > commands. They still set the page correctly, so there is no actual
-> > error. Deal with this case gracefully by checking the currently
-> > selected page after we receive a nack. If the page is set right then
-> > we can continue.
-> > 
-> > Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> > Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> > Cc: Arnd Bergmann <arnd@arndb.de>
-> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > ---
-> >   drivers/misc/eeprom/ee1004.c |   12 +++++++++++-
-> >   1 file changed, 11 insertions(+), 1 deletion(-)
->
-> Does Dreamcat4 deserve reported and tested by tags here? I guess 
-> anonymous address is fine with those tags?
+Hi Vadim,
 
-My assumption is that someone who posts anonymously in the first place
-has no desire to be credited for anything or even mentioned anywhere.
+I have addressed your comments:
+1) removed typecasting and replaced it with a macro to get the 8 bit
+address. I think it is more readable this way.
+2) added space
 
-> (I re-tested these two patches on top of v5.1 and they make decode-dimms 
-> working on a machine with 2-4 * Crucial DD4 dimms)
+Thank you for your feedback!
 
-Thank you very much.
+Asmaa Mnebhi (1):
+  Add support for IPMB driver
+
+ Documentation/IPMB.txt           | 103 ++++++++++
+ drivers/char/ipmi/Kconfig        |   8 +
+ drivers/char/ipmi/Makefile       |   1 +
+ drivers/char/ipmi/ipmb_dev_int.c | 399 +++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 511 insertions(+)
+ create mode 100644 Documentation/IPMB.txt
+ create mode 100644 drivers/char/ipmi/ipmb_dev_int.c
 
 -- 
-Jean Delvare
-SUSE L3 Support
+2.1.2
