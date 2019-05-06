@@ -1,48 +1,57 @@
-From: Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [PATCH net-next 2/2] net: phy: sfp: enable i2c-bus detection on
- ACPI based systems
-Date: Mon, 6 May 2019 21:40:19 +0200
-Message-ID: <20190506194019.GB25013@lunn.ch>
-References: <20190505220524.37266-3-ruslan@babayev.com>
- <20190506045951.GB2895@lahna.fi.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190506045951.GB2895@lahna.fi.intel.com>
-Sender: netdev-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Ruslan Babayev <ruslan@babayev.com>, linux@armlinux.org.uk, f.fainelli@gmail.com, hkallweit1@gmail.com, wsa@the-dreams.de, davem@davemloft.net, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, xe-linux-external@cisco.com
+From: Annaliese McDermond <nh6z@nh6z.net>
+Subject: Re: [PATCH] i2c: bcm2835: Model Divider in CCF
+Date: Mon, 6 May 2019 15:56:58 -0700
+Message-ID: <C611AB4D-7674-438D-BB95-9F83852043EA@nh6z.net>
+References: <20190505034339.30778-1-nh6z@nh6z.net> <87o94fo3h0.fsf@anholt.net>
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <87o94fo3h0.fsf@anholt.net>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Eric Anholt <eric@anholt.net>
+Cc: Stefan Wahren <stefan.wahren@i2se.com>, Florian Fainelli <f.fainelli@gmail.com>, swarren@wwwdotorg.org, wsa@the-dreams.de, team@nwdigitalradio.com, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 06, 2019 at 07:59:51AM +0300, Mika Westerberg wrote:
-> On Sun, May 05, 2019 at 03:05:23PM -0700, Ruslan Babayev wrote:
-> > Lookup I2C adapter using the "i2c-bus" device property on ACPI based
-> > systems similar to how it's done with DT.
-> > 
-> > An example DSD describing an SFP on an ACPI based system:
-> > 
-> > Device (SFP0)
-> > {
-> >     Name (_HID, "PRP0001")
-> >     Name (_DSD, Package ()
-> >     {
-> >         ToUUID ("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-> >         Package () {
-> >             Package () { "compatible", "sff,sfp" },
-> >             Package () { "i2c-bus", \_SB.PCI0.RP01.I2C.MUX.CH0 },
-> 
-> Hmm, ACPI has I2cSerialBusV2() resource for this purpose. Why you are not
-> using that?
-
-Hi Mika
-
-Does that reference the bus as a whole, or a device on the bus?
-
-The SFP subsystem needs a reference to the bus as a whole. There can
-be an at24 like EEPROM at addresses 0x50 and 0x51. There can be an
-MDIO bus encapsulated in i2c at addresses 0x40-0x5f, excluding 0x50
-and 0x51. What actually is there depends on the SFP module which is
-plugged into the SFP cage, and it is all hot-plugable.
-
-	Andrew
+Cgo+IE9uIE1heSA2LCAyMDE5LCBhdCAxMToxNCBBTSwgRXJpYyBBbmhvbHQgPGVyaWNAYW5ob2x0
+Lm5ldD4gd3JvdGU6Cj4gCj4gQW5uYWxpZXNlIE1jRGVybW9uZCA8bmg2ekBuaDZ6Lm5ldD4gd3Jp
+dGVzOgo+IAo+PiBNb2RlbCB0aGUgSTJDIGJ1cyBjbG9jayBkaXZpZGVyIGFzIGEgcGFydCBvZiB0
+aGUgQ29yZSBDbG9jayBGcmFtZXdvcmsuCj4+IFByaW1hcmlseSB0aGlzIHJlbW92ZXMgdGhlIGNs
+a19nZXRfcmF0ZSgpIGNhbGwgZnJvbSBlYWNoIHRyYW5zZmVyLgo+PiBUaGlzIGNhbGwgY2F1c2Vz
+IHByb2JsZW1zIGZvciBzbGF2ZSBkcml2ZXJzIHRoYXQgdGhlbXNlbHZlcyBoYXZlCj4+IGludGVy
+bmFsIGNsb2NrIGNvbXBvbmVudHMgdGhhdCBhcmUgY29udHJvbGxlZCBieSBhbiBJMkMgaW50ZXJm
+YWNlLgo+PiBXaGVuIHRoZSBzbGF2ZSdzIGludGVybmFsIGNsb2NrIGNvbXBvbmVudCBpcyBwcmVw
+YXJlZCwgdGhlIHByZXBhcmUKPj4gbG9jayBpcyBvYnRhaW5lZCwgYW5kIGl0IG1ha2VzIGNhbGxz
+IHRvIHRoZSBJMkMgc3Vic3lzdGVtIHRvCj4+IGNvbW1hbmQgdGhlIGhhcmR3YXJlIHRvIGFjdGl2
+YXRlIHRoZSBjbG9jay4gIEluIG9yZGVyIHRvIHBlcmZvcm0KPj4gdGhlIEkyQyB0cmFuc2Zlciwg
+dGhpcyBkcml2ZXIgc2V0cyB0aGUgZGl2aWRlciwgd2hpY2ggcmVxdWlyZXMKPj4gaXQgdG8gZ2V0
+IHRoZSBwYXJlbnQgY2xvY2sgcmF0ZSwgd2hpY2ggaXQgZG9lcyB3aXRoIGNsa19nZXRfcmF0ZSgp
+Lgo+PiBVbmZvcnR1bmF0ZWx5LCB0aGlzIGZ1bmN0aW9uIHdpbGwgdHJ5IHRvIHRha2UgdGhlIGNs
+b2NrIHByZXBhcmUKPj4gbG9jaywgd2hpY2ggaXMgYWxyZWFkeSBoZWxkIGJ5IHRoZSBzbGF2ZSdz
+IGludGVybmFsIGNsb2NrIGNhbGxzCj4+IGNyZWF0aW5nIGEgZGVhZGxvY2suCj4+IAo+PiBNb2Rl
+bGluZyB0aGUgZGl2aWRlciBpbiB0aGUgQ0NGIG5hdGl2ZWx5IHJlbW92ZXMgdGhpcyBkZXBlbmRl
+bmN5Cj4+IGFuZCB0aGUgZGl2aWRlciB2YWx1ZSBpcyBvbmx5IHNldCB1cG9uIGNoYW5naW5nIHRo
+ZSBidXMgY2xvY2sKPj4gZnJlcXVlbmN5IG9yIGNoYW5nZXMgaW4gdGhlIHBhcmVudCBjbG9jayB0
+aGF0IGNhc2NhZGUgZG93biB0byB0aGlzCj4+IGRpdmlzb3IuICBUaGlzIG9idmlhdGVzIHRoZSBu
+ZWVkIHRvIHNldCB0aGUgZGl2aWRlciB3aXRoIGV2ZXJ5Cj4+IHRyYW5zZmVyIGFuZCBhdm9pZHMg
+dGhlIGRlYWRsb2NrIGRlc2NyaWJlZCBhYm92ZS4gIEl0IGFsc28gc2hvdWxkCj4+IHByb3ZpZGUg
+YmV0dGVyIGNsb2NrIGRlYnVnZ2luZyBhbmQgc2F2ZSBhIGZldyBjeWNsZXMgb24gZWFjaAo+PiB0
+cmFuc2ZlciBkdWUgdG8gbm90IGhhdmluZyB0byByZWNhbGN1YXRlIHRoZSBkaXZpZGVyIHZhbHVl
+Lgo+IAo+IEFueSBjaGFuY2Ugd2UgY291bGQgcmV1c2UgY2xrX3JlZ2lzdGVyX2RpdmlkZXIoKSBp
+bnN0ZWFkIG9mIGhhdmluZyBvdXIKPiBvd24gc2V0L3JvdW5kL3JlY2FsYyByYXRlIGltcGxlbWVu
+dGF0aW9ucz8KCkVyaWMgLS0KCknigJlkIGxvdmUgdG8sIGJ1dCB0aGUgc2V0X3JhdGUgaW1wbGVt
+ZW50YXRpb24gaW5jbHVkZXMgc2V0dGluZyB0aGUKQkNNMjgzNV9JMkNfRkVETF9TSElGVCBhbmQg
+QkNNMjgzNV9JMkNfUkVETF9TSElGVCByZWdpc3RlcnMgZm9yIHRoZSAKcmlzaW5nIGFuZCBmYWxs
+aW5nIGVkZ2UgZGVsYXkgb24gdGhlIEkyQyBidXMgYmFzZWQgb24gd2hhdCB0aGUgZGl2aWRlcgp2
+YWx1ZSBpcy4KCi0tCkFubmFsaWVzZSBNY0Rlcm1vbmQKbmg2ekBuaDZ6Lm5ldApfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1h
+aWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xp
+c3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
