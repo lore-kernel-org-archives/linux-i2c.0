@@ -1,44 +1,47 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v2 0/3] i2c-mux-gpio: Split plat- and dt-specific code up
-Date: Tue, 7 May 2019 09:17:38 +0000
-Message-ID: <689e1a7b-8544-6bbf-2fa1-a5845895a917@axentia.se>
-References: <20190424123414.25311-1-fancer.lancer@gmail.com>
- <20190425232028.9333-1-fancer.lancer@gmail.com>
- <20190507090210.hn6vgcjg2q6tysbp@mobilestation>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH net-next 2/2] net: phy: sfp: enable i2c-bus detection on
+ ACPI based systems
+Date: Tue, 7 May 2019 12:29:46 +0300
+Message-ID: <20190507092946.GS2895@lahna.fi.intel.com>
+References: <20190505220524.37266-3-ruslan@babayev.com>
+ <20190506045951.GB2895@lahna.fi.intel.com>
+ <871s1bv4aw.fsf@babayev.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190507090210.hn6vgcjg2q6tysbp@mobilestation>
-Content-Language: en-US
-Content-ID: <CEFCC296A803D44186FE37F4BF1C9B9C@eurprd02.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <871s1bv4aw.fsf@babayev.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Serge Semin <fancer.lancer@gmail.com>, Peter Korsgaard <peter.korsgaard@barco.com>
-Cc: Serge Semin <Sergey.Semin@t-platforms.ru>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Ruslan Babayev <ruslan@babayev.com>
+Cc: linux@armlinux.org.uk, andrew@lunn.ch, f.fainelli@gmail.com, hkallweit1@gmail.com, wsa@the-dreams.de, davem@davemloft.net, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, xe-linux-external@cisco.com
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOS0wNS0wNyAxMTowMiwgU2VyZ2UgU2VtaW4gd3JvdGU6DQo+IEhlbGxvIGZvbGtzLA0K
-PiANCj4gQW55IHVwZGF0ZXMgb24gdGhpcyBwYXRjaHNldCBzdGF0dXM/IEkgaGF2ZW4ndCBnb3Qg
-YW55IGNvbW1lbnQgb24gdjIsIGJ1dA0KPiBpbnN0ZWFkIGEgbm90aWZpY2F0aW9uIGFib3V0IHRo
-ZSBzdGF0dXMgY2hhbmdlIHdhcyBzZW50IHRvIG1lOg0KPiANCj4+ICogbGludXgtaTJjOiBbdjIs
-MS8zXSBpMmMtbXV4LWdwaW86IFVucGluIGEgcGxhdGZvcm0tYmFzZWQgZGV2aWNlIGluaXRpYWxp
-emF0aW9uDQo+PiAgICAgLSBodHRwOi8vcGF0Y2h3b3JrLm96bGFicy5vcmcvcGF0Y2gvMTA5MTEy
-MC8NCj4+ICAgICAtIGZvcjogTGludXggSTJDIGRldmVsb3BtZW50DQo+PiAgICB3YXM6IE5ldw0K
-Pj4gICAgbm93OiBTdXBlcnNlZGVkDQo+Pg0KPj4gKiBsaW51eC1pMmM6IFt2MiwyLzNdIGkyYy1t
-dXgtZ3BpbzogVW5waW4gdGhlIHBsYXRmb3JtLXNwZWNpZmljIEdQSU9zIHJlcXVlc3QgY29kZQ0K
-Pj4gICAgIC0gaHR0cDovL3BhdGNod29yay5vemxhYnMub3JnL3BhdGNoLzEwOTExMjIvDQo+PiAg
-ICAgLSBmb3I6IExpbnV4IEkyQyBkZXZlbG9wbWVudA0KPj4gICAgd2FzOiBOZXcNCj4+ICAgIG5v
-dzogU3VwZXJzZWRlZA0KPj4NCj4+ICogbGludXgtaTJjOiBbdjIsMy8zXSBpMmMtbXV4LWdwaW86
-IENyZWF0ZSBvZi1iYXNlZCBHUElPcyByZXF1ZXN0IG1ldGhvZA0KPj4gICAgIC0gaHR0cDovL3Bh
-dGNod29yay5vemxhYnMub3JnL3BhdGNoLzEwOTExMjEvDQo+PiAgICAgLSBmb3I6IExpbnV4IEky
-QyBkZXZlbG9wbWVudA0KPj4gICAgd2FzOiBOZXcNCj4+ICAgIG5vdzogU3VwZXJzZWRlZA0KPiAN
-Cj4gSSBtYXkgbWlzdW5kZXJzdGFuZCBzb21ldGhpbmcsIGJ1dCBob3cgY29tZSB0aGUgdjIgcGF0
-Y2hzZXQgc3dpdGNoZWQgdG8gYmUgc3VwZXJzZWRlZA0KPiB3aGlsZSBpdCBpcyB0aGUgbGFzdCBw
-YXRjaHNldCB2ZXJzaW9uIEkndmUgc2VudD8NCg0KVGhhdCB3YXMgbXkgbWlzdGFrZS4gUGF0Y2h3
-b3JrIGdvdCBjb25mdXNlZCB3aGVuIHYyIHdhcyBzZW50IGFzIGEgcmVwbHkgdG8NCnNvbWV0aGlu
-ZyBpbiB0aGUgdjEgdHJlZSwgYW5kIG1hcmtlZCBhbGwgOCBwYXRjaGVzIGFzICJ2MiIuIFRoZW4g
-SSBpbiB0dXJuDQpnb3QgY29uZnVzZWQgYnkgdGhhdCwgYW5kIGNoYW5nZWQgc3RhdHVzIG9uIHRo
-ZSB3cm9uZyBzZXQuIFNvcnJ5IQ0KDQpTbywgdGhhbmtzIGZvciB0aGUgaGVhZHMgdXAsIGl0IHNo
-b3VsZCBiZSBmaXhlZCBub3cuDQoNCkFzIGZvciBjb21tZW50cyBvbiB0aGUgcGF0Y2hlcywgSSdt
-IHBlcnNvbmFsbHkgYnVyaWVkIGluIHdvcmsgYW5kIG90aGVycw0KbWF5IGhhdmUgdGhlIG1lcmdl
-IHdpbmRvdyB0byBmb2N1cyBvbi4uLg0KDQpDaGVlcnMsDQpQZXRlcg0K
+On Mon, May 06, 2019 at 11:14:15AM -0700, Ruslan Babayev wrote:
+> 
+> Mika Westerberg writes:
+> 
+> > On Sun, May 05, 2019 at 03:05:23PM -0700, Ruslan Babayev wrote:
+> >> Lookup I2C adapter using the "i2c-bus" device property on ACPI based
+> >> systems similar to how it's done with DT.
+> >> 
+> >> An example DSD describing an SFP on an ACPI based system:
+> >> 
+> >> Device (SFP0)
+> >> {
+> >>     Name (_HID, "PRP0001")
+> >>     Name (_DSD, Package ()
+> >>     {
+> >>         ToUUID ("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+> >>         Package () {
+> >>             Package () { "compatible", "sff,sfp" },
+> >>             Package () { "i2c-bus", \_SB.PCI0.RP01.I2C.MUX.CH0 },
+> >
+> > Hmm, ACPI has I2cSerialBusV2() resource for this purpose. Why you are not
+> > using that?
+> 
+> I am not an ACPI expert, but my understanding is I2cSerialBusV2() is
+> used for slave connections. I am trying to reference an I2C controller
+> here.
+
+Ah, the device itself is not sitting on an I2C bus? In that case I
+agree, I2CSerialBusV2() is not correct here.
