@@ -1,88 +1,87 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/3] dt-bindings: i2c: add optional mul-value property to
- binding
-Date: Tue, 7 May 2019 10:40:03 +0200
-Message-ID: <20190507084002.GA25688@kunai>
-References: <20190430043242.29687-1-chuanhua.han@nxp.com>
- <20190502205901.GA24224@bogus>
+From: Serge Semin <fancer.lancer@gmail.com>
+Subject: Re: [PATCH v2 0/3] i2c-mux-gpio: Split plat- and dt-specific code up
+Date: Tue, 7 May 2019 12:02:12 +0300
+Message-ID: <20190507090210.hn6vgcjg2q6tysbp@mobilestation>
+References: <20190424123414.25311-1-fancer.lancer@gmail.com>
+ <20190425232028.9333-1-fancer.lancer@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190502205901.GA24224@bogus>
+In-Reply-To: <20190425232028.9333-1-fancer.lancer@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Chuanhua Han <chuanhua.han@nxp.com>, mark.rutland@arm.com, shawnguo@kernel.org, s.hauer@pengutronix.de, leoyang.li@nxp.com, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, kernel@pengutronix.de, linux-imx@nxp.com, festevam@gmail.com, wsa+renesas@sang-engineering.com, u.kleine-koenig@pengutronix.de, eha@deif.com, linux@rempel-privat.de, sumit.batra@nxp.com, l.stach@pengutronix.de, peda@axentia.se
+To: Peter Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>
+Cc: Serge Semin <Sergey.Semin@t-platforms.ru>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hello folks,
 
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Any updates on this patchset status? I haven't got any comment on v2, but
+instead a notification about the status change was sent to me:
 
-On Thu, May 02, 2019 at 03:59:01PM -0500, Rob Herring wrote:
-> On Tue, Apr 30, 2019 at 12:32:40PM +0800, Chuanhua Han wrote:
-> > NXP Layerscape SoC have up to three MUL options available for all
-> > divider values, we choice of MUL determines the internal monitor rate
-> > of the I2C bus (SCL and SDA signals):
-> > A lower MUL value results in a higher sampling rate of the I2C signals.
-> > A higher MUL value results in a lower sampling rate of the I2C signals.
-> >=20
-> > So in Optional properties we added our custom mul-value property in the
-> > binding to select which mul option for the device tree i2c controller
-> > node.
-> >=20
-> > Signed-off-by: Chuanhua Han <chuanhua.han@nxp.com>
-> > ---
-> >  Documentation/devicetree/bindings/i2c/i2c-imx.txt | 3 +++
-> >  1 file changed, 3 insertions(+)
-> >=20
-> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx.txt b/Docume=
-ntation/devicetree/bindings/i2c/i2c-imx.txt
-> > index b967544590e8..ba8e7b7b3fa8 100644
-> > --- a/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-> > +++ b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-> > @@ -18,6 +18,9 @@ Optional properties:
-> >  - sda-gpios: specify the gpio related to SDA pin
-> >  - pinctrl: add extra pinctrl to configure i2c pins to gpio function fo=
-r i2c
-> >    bus recovery, call it "gpio" state
-> > +- mul-value: NXP Layerscape SoC have up to three MUL options available=
- for
-> > +all I2C divider values, it describes which MUL we choose to use for th=
-e driver,
-> > +the values should be 1,2,4.
->=20
-> Needs a vendor prefix. I don't find 'value' to add anything nor do I=20
-> understand what MUL is.
->=20
-> If it is determined by SoC rather than board, then it should perhaps be=
-=20
-> implied by compatible.
+> * linux-i2c: [v2,1/3] i2c-mux-gpio: Unpin a platform-based device initialization
+>     - http://patchwork.ozlabs.org/patch/1091120/
+>     - for: Linux I2C development
+>    was: New
+>    now: Superseded
+>
+> * linux-i2c: [v2,2/3] i2c-mux-gpio: Unpin the platform-specific GPIOs request code
+>     - http://patchwork.ozlabs.org/patch/1091122/
+>     - for: Linux I2C development
+>    was: New
+>    now: Superseded
+>
+> * linux-i2c: [v2,3/3] i2c-mux-gpio: Create of-based GPIOs request method
+>     - http://patchwork.ozlabs.org/patch/1091121/
+>     - for: Linux I2C development
+>    was: New
+>    now: Superseded
 
-I was wondering the same.
+I may misunderstand something, but how come the v2 patchset switched to be superseded
+while it is the last patchset version I've sent?
 
+-Sergey
 
---0OAP2g/MAC+5xKAE
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzRRF8ACgkQFA3kzBSg
-KbbUbRAApE4I45wTxiU40khw2A2mDLGqByh6dKjqeRVRHGsUrLdKN3tptV5pVqgM
-LdX5QFuA4Hp1TEkPLhuie+S7y0DfcN1NQEOPtP2ofZFTcMV93MhvZ7W2KEegnbld
-RzvlIcqxMHoQgDBsJunkOcZuqUVicSwYETYXsbFGBAMJGTzhZR4Sh2Qt0VNRUmwu
-UMFuBqnnhDXBkl7VSeKXDgjctCJnVaiyqj2jnz5HD4eOBtHj7zvPXnSYyMfYhrUL
-Z6TXVxdloC6j8noqtORUM4YmlleDepXqp/L2SGRhZ1Qi55XQd6oexxiP7ndDZV0W
-WRu3GaJOtXyOQYqeYMkfLbUPn90FkDLCFun1HKPBO07fcX/qWZmZnoXVX2799odV
-jofYTj6X0ILs79fIUT8wAUnMCmEgjgPOynl57loP4f8lh6VoWeDAEI1nwCoPxi0l
-TKabxPYDHpbT7vFP2eaR7/dXQxb+pgLNMUeqzPpIQ7XnSHrLl+7nrhVDcpzSWTr2
-ci6eWscPRJNr/OVa0wd+L4nthna/K89ZApK4zf9aioBTLPZ/EEZscAJ/YuZiJZ2d
-ZtwvTt6ewEz6D5OF6vsNjn7FOuqp7CIEhyPqFU+E5SC3iO05TqBhb9w34F5mO2oK
-Oswf5Q47JpcE4stdbVJa7ZTUd+P8gfmH+X71qLQzcU3wujem2K4=
-=cq07
------END PGP SIGNATURE-----
-
---0OAP2g/MAC+5xKAE--
+On Fri, Apr 26, 2019 at 02:20:25AM +0300, Serge Semin wrote:
+> The main idea of this patchset was to add the full dt GPIOs specifier
+> support in i2c-mux-gpio driver. In particular we needed to have the
+> full GPIOs specifier being handled including the flags like GPIO_ACTIVE_HIGH,
+> GPIO_ACTIVE_LOW, GPIO_PUSH_PULL, GPIO_OPEN_DRAIN or GPIO_OPEN_SOURCE.
+> Due to using a legacy GPIO interface the former driver implementation
+> didn't provide this ability.
+> 
+> On the way of adding the full dt-GPIO flags support a small set of
+> refactorings has been done in order to keep the platform_data-based
+> systems support, make the code more readable and the alterations - clearer.
+> In general the whole changes might be considered as the plat- and dt-
+> specific code split up. In the first patch we unpinned the platform-specific
+> method of GPIO-chip probing. The second patch introduces a new initial_state
+> value field into the "gpiomux" structure. The third one is responsible for
+> GPIO request loop isoltaing into a dedicated function. At this stage common
+> it is a common function for both dt- and plat- code paths. Finally last
+> patch introduces a full dt-based GPIOs request method, which uses
+> gpiod_get_from_of_node() method in order to parse the corresponding dt GPIO
+> specifiers with their falgs. The last patch does what we inteded this patchset
+> for in the first place - adds the full dt-GPIO specifiers support.
+> 
+> Changelog v2
+> - Remove fallback pattern when selecting the dt- or plat-based code paths.
+>   (Cause the patch "i2c-mux-gpio: Return an error if no onfig data found"
+>    removal.)
+> - Use a dedicated initial_state variable to keep the initial channels selector
+>   state. (Causes the patch "i2c-mux-gpio: Save initial channel number to the
+>   idle" removal.)
+> - Mention open-drain, open-source flags in the patchset descriptions.
+> 
+> 
+> Serge Semin (3):
+>   i2c-mux-gpio: Unpin a platform-based device initialization
+>   i2c-mux-gpio: Unpin the platform-specific GPIOs request code
+>   i2c-mux-gpio: Create of-based GPIOs request method
+> 
+>  drivers/i2c/muxes/i2c-mux-gpio.c | 226 ++++++++++++++++++++-----------
+>  1 file changed, 146 insertions(+), 80 deletions(-)
+> 
+> -- 
+> 2.21.0
+> 
