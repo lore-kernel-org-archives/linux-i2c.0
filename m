@@ -1,15 +1,11 @@
-From: Annaliese McDermond <nh6z@nh6z.net>
-Subject: Re: [PATCH] i2c: bcm2835: Model Divider in CCF
-Date: Tue, 7 May 2019 06:10:56 -0700
-Message-ID: <F9C09952-3F75-44E7-94A6-1055ADA5A0A8@nh6z.net>
-References: <20190505034339.30778-1-nh6z@nh6z.net> <87o94fo3h0.fsf@anholt.net>
- <C611AB4D-7674-438D-BB95-9F83852043EA@nh6z.net>
- <878svivq8y.fsf@anholt.net>
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Yingjoe Chen <yingjoe.chen@mediatek.com>
+Subject: [PATCH] i2c: dev: fix potential memory leak in i2cdev_ioctl_rdwr
+Date: Tue, 7 May 2019 22:20:32 +0800
+Message-ID: <1557238832-10723-1-git-send-email-yingjoe.chen@mediatek.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <878svivq8y.fsf@anholt.net>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -19,38 +15,33 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Eric Anholt <eric@anholt.net>
-Cc: Stefan Wahren <stefan.wahren@i2se.com>, Florian Fainelli <f.fainelli@gmail.com>, swarren@wwwdotorg.org, wsa@the-dreams.de, NWDR Team <team@nwdigitalradio.com>, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <khali@linux-fr.org>
+Cc: srv_heupstream@mediatek.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, Yingjoe Chen <yingjoe.chen@mediatek.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Cgo+IE9uIE1heSA2LCAyMDE5LCBhdCA5OjMyIFBNLCBFcmljIEFuaG9sdCA8ZXJpY0BhbmhvbHQu
-bmV0PiB3cm90ZToKPiAKPiBBbm5hbGllc2UgTWNEZXJtb25kIDxuaDZ6QG5oNnoubmV0PiB3cml0
-ZXM6Cj4gCj4+PiBPbiBNYXkgNiwgMjAxOSwgYXQgMTE6MTQgQU0sIEVyaWMgQW5ob2x0IDxlcmlj
-QGFuaG9sdC5uZXQ+IHdyb3RlOgo+Pj4gCj4+PiBBbnkgY2hhbmNlIHdlIGNvdWxkIHJldXNlIGNs
-a19yZWdpc3Rlcl9kaXZpZGVyKCkgaW5zdGVhZCBvZiBoYXZpbmcgb3VyCj4+PiBvd24gc2V0L3Jv
-dW5kL3JlY2FsYyByYXRlIGltcGxlbWVudGF0aW9ucz8KPj4gCj4+IEVyaWMgLS0KPj4gCj4+IEni
-gJlkIGxvdmUgdG8sIGJ1dCB0aGUgc2V0X3JhdGUgaW1wbGVtZW50YXRpb24gaW5jbHVkZXMgc2V0
-dGluZyB0aGUKPj4gQkNNMjgzNV9JMkNfRkVETF9TSElGVCBhbmQgQkNNMjgzNV9JMkNfUkVETF9T
-SElGVCByZWdpc3RlcnMgZm9yIHRoZSAKPj4gcmlzaW5nIGFuZCBmYWxsaW5nIGVkZ2UgZGVsYXkg
-b24gdGhlIEkyQyBidXMgYmFzZWQgb24gd2hhdCB0aGUgZGl2aWRlcgo+PiB2YWx1ZSBpcy4KPiAK
-PiBIbW0uICBJIHJhbiBpbnRvIHRoYXQgaW4gY2xrLWJjbTI4MzUuYyBhcyB3ZWxsLCBhbmQgdGhl
-IHNvbHV0aW9uIHdhcwo+IHRoYXQgYmNtMjgzNV9yZWdpc3Rlcl9wbGxfZGl2aWRlcigpIHNldHMg
-dXAgdGhlIGRpdmlkZXIgc3RydWN0dXJlIGFuZAo+IHRoZW4gcmV1c2VzIGNsa19kaXZpZGVyX29w
-cy5yb3VuZF9yYXRlKCkgYW5kIC5yZWNhbGNfcmF0ZSgpCgpJ4oCZbSBub3Qgc3VyZSB0aGlzIG1h
-a2VzIGEgbG90IG9mIHNlbnNlIGluIHRoaXMgcGFydGljdWxhciBjYXNlLiAgSeKAmWQgc3RpbGwK
-aGF2ZSB0byBrZWVwIHRoZSBiY20yODM1X2kyY19yZWdpc3Rlcl9kaXYoKSBmdW5jdGlvbiwgYW5k
-IHJlYWxseSBJ4oCZZCBvbmx5CmJlIHNhdmluZyBoYXZpbmcgdG8gaW1wbGVtZW50IHJvdW5kX3Jh
-dGUoKSBhbmQgcmVjYWxjX3JhdGUoKS4gIFRoZSB0cmFkZW9mZgppcyB0aGF0IHRoZSBjb21tb24g
-cm91bmRfcmF0ZSBhbmQgcmVjYWxjIHJhdGUgYXJlIG11Y2ggbW9yZSBjb21wbGV4IGFuZApyZXF1
-aXJlIGEgbW9yZSBjb21wbGV4IHByaXZhdGUgc3RydWN0dXJlIChjbGtfZGl2aWRlcikgd2hpY2gg
-YWxzbyAKcHJlY2x1ZGVzIG15IHVzZSBvZiB0aGUgY29tbW9uIGJjbTI4MzVfaTJjX3dyaXRlbCgp
-IHVzZWQgaW4gdGhlIHJlc3Qgb2YKdGhlIGRyaXZlciBiZWNhdXNlIEkgbm8gbG9uZ2VyIGhhdmUg
-YSBwb2ludGVyIHRvIHRoZSBiY20yODM1X2kyY19kZXYKc3RydWN0dXJlIHRoYXQgSSBuZWVkIHRv
-IGNhbGwgaXQgaW4gc2V0X3JhdGUoKS4KCkkgZ2V0IHRoZSBkZXNpcmUgdG8gcmV1c2UgY29kZSBh
-bmQgdG8gdXNlIGNvbW1vbiBzdHJ1Y3R1cmVzIHdoZW5ldmVyCnBvc3NpYmxlLiAgSXQganVzdCBz
-ZWVtcyB0byBtZSB0aGF0IGdvaW5nIGRvd24gdGhpcyBwYXRoIGxlYWRzIHRvIG1vcmUKb3ZlcmFs
-bCBjb2RlIHRoYXTigJlzIGxlc3Mgc3RyYWlnaHQgZm9yd2FyZC4gICBNYXliZSBJ4oCZbSB3cm9u
-Zy4KCi0tCkFubmFsaWVzZSBNY0Rlcm1vbmQKbmg2ekBuaDZ6Lm5ldApfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcg
-bGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmlu
-ZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
+If I2C_M_RECV_LEN check failed, msgs[i].buf allocated by memdup_user
+will not be freed. Pump index up so it will be freed.
+
+Fixes: 838bfa6049fb ("i2c-dev: Add support for I2C_M_RECV_LEN")
+Signed-off-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
+---
+Only check arm64 defconfig build pass.
+I haven't test it since it just fix memleak for error cases.
+---
+ drivers/i2c/i2c-dev.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index 3f7b9af..776f366 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -283,6 +283,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+ 			    msgs[i].len < 1 || msgs[i].buf[0] < 1 ||
+ 			    msgs[i].len < msgs[i].buf[0] +
+ 					     I2C_SMBUS_BLOCK_MAX) {
++				i++;
+ 				res = -EINVAL;
+ 				break;
+ 			}
+-- 
+1.9.1
