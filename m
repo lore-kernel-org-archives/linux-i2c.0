@@ -1,244 +1,88 @@
-From: Stefan Wahren <stefan.wahren@i2se.com>
-Subject: Re: [PATCH] i2c: bcm2835: Model Divider in CCF
-Date: Tue, 7 May 2019 08:11:15 +0200
-Message-ID: <f4765697-9ce7-8b40-707a-23fae3e8580f@i2se.com>
-References: <20190505034339.30778-1-nh6z@nh6z.net>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/3] dt-bindings: i2c: add optional mul-value property to
+ binding
+Date: Tue, 7 May 2019 10:40:03 +0200
+Message-ID: <20190507084002.GA25688@kunai>
+References: <20190430043242.29687-1-chuanhua.han@nxp.com>
+ <20190502205901.GA24224@bogus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190505034339.30778-1-nh6z@nh6z.net>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Annaliese McDermond <nh6z@nh6z.net>, eric@anholt.net, f.fainelli@gmail.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
-Cc: team@nwdigitalradio.com
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190502205901.GA24224@bogus>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: Chuanhua Han <chuanhua.han@nxp.com>, mark.rutland@arm.com, shawnguo@kernel.org, s.hauer@pengutronix.de, leoyang.li@nxp.com, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, kernel@pengutronix.de, linux-imx@nxp.com, festevam@gmail.com, wsa+renesas@sang-engineering.com, u.kleine-koenig@pengutronix.de, eha@deif.com, linux@rempel-privat.de, sumit.batra@nxp.com, l.stach@pengutronix.de, peda@axentia.se
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
 
-assuming Wolfram is fine with this approach, my comments below
+--0OAP2g/MAC+5xKAE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Am 05.05.19 um 05:43 schrieb Annaliese McDermond:
-> ...
->
-> Signed-off-by: Annaliese McDermond <nh6z@nh6z.net>
-> ---
->  drivers/i2c/busses/i2c-bcm2835.c | 143 +++++++++++++++++++++++--------
->  1 file changed, 108 insertions(+), 35 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-> index d2fbb4bb4a43..1f9f60b80618 100644
-> --- a/drivers/i2c/busses/i2c-bcm2835.c
-> +++ b/drivers/i2c/busses/i2c-bcm2835.c
-> @@ -4,6 +4,8 @@
->   */
->  
->  #include <linux/clk.h>
-> +#include <linux/clkdev.h>
-> +#include <linux/clk-provider.h>
->  #include <linux/completion.h>
->  #include <linux/err.h>
->  #include <linux/i2c.h>
-> @@ -51,9 +53,7 @@
->  struct bcm2835_i2c_dev {
->  	struct device *dev;
->  	void __iomem *regs;
-> -	struct clk *clk;
->  	int irq;
-> -	u32 bus_clk_rate;
->  	struct i2c_adapter adapter;
->  	struct completion completion;
->  	struct i2c_msg *curr_msg;
-> @@ -74,26 +74,28 @@ static inline u32 bcm2835_i2c_readl(struct bcm2835_i2c_dev *i2c_dev, u32 reg)
->  	return readl(i2c_dev->regs + reg);
->  }
->  
-> -static int bcm2835_i2c_set_divider(struct bcm2835_i2c_dev *i2c_dev)
-> +#define to_clk_bcm2835_i2c(_hw) container_of(_hw, struct clk_bcm2835_i2c, hw)
-> +struct clk_bcm2835_i2c {
-> +	struct clk_hw hw;
-> +	struct bcm2835_i2c_dev *i2c_dev;
-> +};
-> +
-> +static int clk_bcm2835_i2c_set_rate(struct clk_hw *hw, unsigned long rate,
-> +				unsigned long parent_rate)
->  {
-> +	struct clk_bcm2835_i2c *div = to_clk_bcm2835_i2c(hw);
-> +
-please avoid such whitespace changes, i assume checkpatch.pl would
-complain about this
->  	u32 divider, redl, fedl;
->  
-> -	divider = DIV_ROUND_UP(clk_get_rate(i2c_dev->clk),
-> -			       i2c_dev->bus_clk_rate);
-> -	/*
-> -	 * Per the datasheet, the register is always interpreted as an even
-> -	 * number, by rounding down. In other words, the LSB is ignored. So,
-> -	 * if the LSB is set, increment the divider to avoid any issue.
-> -	 */
-please try to keep this comment somewhere
-> +	divider = DIV_ROUND_UP(parent_rate, rate);
->  	if (divider & 1)
->  		divider++;
-> +
->  	if ((divider < BCM2835_I2C_CDIV_MIN) ||
-> -	    (divider > BCM2835_I2C_CDIV_MAX)) {
-> -		dev_err_ratelimited(i2c_dev->dev, "Invalid clock-frequency\n");
-> +	    (divider > BCM2835_I2C_CDIV_MAX))
->  		return -EINVAL;
-> -	}
->  
-> -	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DIV, divider);
-> +	bcm2835_i2c_writel(div->i2c_dev, BCM2835_I2C_DIV, divider);
->  
->  	/*
->  	 * Number of core clocks to wait after falling edge before
-> @@ -108,12 +110,72 @@ static int bcm2835_i2c_set_divider(struct bcm2835_i2c_dev *i2c_dev)
->  	 */
->  	redl = max(divider / 4, 1u);
->  
-> -	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DEL,
-> +	bcm2835_i2c_writel(div->i2c_dev, BCM2835_I2C_DEL,
->  			   (fedl << BCM2835_I2C_FEDL_SHIFT) |
->  			   (redl << BCM2835_I2C_REDL_SHIFT));
-> +
-this whitespace change is unrelated
->  	return 0;
->  }
->  
-> +static long clk_bcm2835_i2c_round_rate(struct clk_hw *hw, unsigned long rate,
-> +				unsigned long *parent_rate)
-> +{
-> +	u32 divider;
-> +
-> +	divider = DIV_ROUND_UP(*parent_rate, rate);
-this could go into one line
-> +	if (divider & 1)
-> +		divider++;
-> +
-> +	if ((divider < BCM2835_I2C_CDIV_MIN) ||
-> +	    (divider > BCM2835_I2C_CDIV_MAX))
-> +		return -EINVAL;
-> +
-> +	return DIV_ROUND_UP(*parent_rate, divider);
-> +}
-> +
-> +static unsigned long clk_bcm2835_i2c_recalc_rate(struct clk_hw *hw,
-> +						unsigned long parent_rate)
-> +{
-> +	struct clk_bcm2835_i2c *div = to_clk_bcm2835_i2c(hw);
-> +
-same here, no empty line between the declarations
-> +	u32 divider;
-> +
-> +	divider = bcm2835_i2c_readl(div->i2c_dev, BCM2835_I2C_DIV);
-> +
-> +	return DIV_ROUND_UP(parent_rate, divider);
-> +}
-> +
-> +static const struct clk_ops clk_bcm2835_i2c_ops = {
-> +	.set_rate = clk_bcm2835_i2c_set_rate,
-> +	.round_rate = clk_bcm2835_i2c_round_rate,
-> +	.recalc_rate = clk_bcm2835_i2c_recalc_rate,
-> +};
-> +
-> +static struct clk *bcm2835_i2c_register_div(struct device *dev,
-> +					const char *mclk_name,
-> +					struct bcm2835_i2c_dev *i2c_dev)
-> +{
-> +	struct clk_init_data init;
-> +	struct clk_bcm2835_i2c *priv;
-> +	const char *devname = dev_name(dev);
-> +
-> +	init.ops = &clk_bcm2835_i2c_ops;
-> +	init.name = "bcm2835-i2c";
-> +	init.parent_names = (const char* []) { mclk_name };
-> +	init.num_parents = 1;
-> +	init.flags = 0;
-> +
-> +	priv = devm_kzalloc(dev, sizeof(struct clk_bcm2835_i2c), GFP_KERNEL);
-> +	if (priv == NULL)
-> +		return (struct clk *) -ENOMEM;
-ERR_PTR(-ENOMEM) ?
-> +
-> +	priv->hw.init = &init;
-> +	priv->i2c_dev = i2c_dev;
-> +
-> +	clk_hw_register_clkdev(&priv->hw, init.name, devname);
-> +	return devm_clk_register(dev, &priv->hw);
-> +}
-> +
->  static void bcm2835_fill_txfifo(struct bcm2835_i2c_dev *i2c_dev)
->  {
->  	u32 val;
-> @@ -271,7 +333,7 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
->  {
->  	struct bcm2835_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
->  	unsigned long time_left;
-> -	int i, ret;
-> +	int i;
->  
->  	for (i = 0; i < (num - 1); i++)
->  		if (msgs[i].flags & I2C_M_RD) {
-> @@ -280,10 +342,6 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
->  			return -EOPNOTSUPP;
->  		}
->  
-> -	ret = bcm2835_i2c_set_divider(i2c_dev);
-> -	if (ret)
-> -		return ret;
-> -
->  	i2c_dev->curr_msg = msgs;
->  	i2c_dev->num_msgs = num;
->  	reinit_completion(&i2c_dev->completion);
-> @@ -338,6 +396,9 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
->  	struct resource *mem, *irq;
->  	int ret;
->  	struct i2c_adapter *adap;
-> +	const char *mclk_name;
-> +	struct clk *bus_clk;
-> +	u32 bus_clk_rate;
->  
->  	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
->  	if (!i2c_dev)
-> @@ -351,21 +412,6 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
->  	if (IS_ERR(i2c_dev->regs))
->  		return PTR_ERR(i2c_dev->regs);
->  
-> -	i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
-> -	if (IS_ERR(i2c_dev->clk)) {
-> -		if (PTR_ERR(i2c_dev->clk) != -EPROBE_DEFER)
-> -			dev_err(&pdev->dev, "Could not get clock\n");
-> -		return PTR_ERR(i2c_dev->clk);
-> -	}
-> -
-> -	ret = of_property_read_u32(pdev->dev.of_node, "clock-frequency",
-> -				   &i2c_dev->bus_clk_rate);
-> -	if (ret < 0) {
-> -		dev_warn(&pdev->dev,
-> -			 "Could not read clock-frequency property\n");
-> -		i2c_dev->bus_clk_rate = 100000;
-> -	}
-> -
->  	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
->  	if (!irq) {
->  		dev_err(&pdev->dev, "No IRQ resource\n");
-> @@ -380,6 +426,30 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
->  		return -ENODEV;
->  	}
->  
-> +	mclk_name = of_clk_get_parent_name(pdev->dev.of_node, 0);
-> +
-> +	bus_clk = bcm2835_i2c_register_div(&pdev->dev, mclk_name, i2c_dev);
+On Thu, May 02, 2019 at 03:59:01PM -0500, Rob Herring wrote:
+> On Tue, Apr 30, 2019 at 12:32:40PM +0800, Chuanhua Han wrote:
+> > NXP Layerscape SoC have up to three MUL options available for all
+> > divider values, we choice of MUL determines the internal monitor rate
+> > of the I2C bus (SCL and SDA signals):
+> > A lower MUL value results in a higher sampling rate of the I2C signals.
+> > A higher MUL value results in a lower sampling rate of the I2C signals.
+> >=20
+> > So in Optional properties we added our custom mul-value property in the
+> > binding to select which mul option for the device tree i2c controller
+> > node.
+> >=20
+> > Signed-off-by: Chuanhua Han <chuanhua.han@nxp.com>
+> > ---
+> >  Documentation/devicetree/bindings/i2c/i2c-imx.txt | 3 +++
+> >  1 file changed, 3 insertions(+)
+> >=20
+> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-imx.txt b/Docume=
+ntation/devicetree/bindings/i2c/i2c-imx.txt
+> > index b967544590e8..ba8e7b7b3fa8 100644
+> > --- a/Documentation/devicetree/bindings/i2c/i2c-imx.txt
+> > +++ b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
+> > @@ -18,6 +18,9 @@ Optional properties:
+> >  - sda-gpios: specify the gpio related to SDA pin
+> >  - pinctrl: add extra pinctrl to configure i2c pins to gpio function fo=
+r i2c
+> >    bus recovery, call it "gpio" state
+> > +- mul-value: NXP Layerscape SoC have up to three MUL options available=
+ for
+> > +all I2C divider values, it describes which MUL we choose to use for th=
+e driver,
+> > +the values should be 1,2,4.
+>=20
+> Needs a vendor prefix. I don't find 'value' to add anything nor do I=20
+> understand what MUL is.
+>=20
+> If it is determined by SoC rather than board, then it should perhaps be=
+=20
+> implied by compatible.
 
-this function could return an error, so we better handle this
+I was wondering the same.
 
-Thanks Stefan
+
+--0OAP2g/MAC+5xKAE
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzRRF8ACgkQFA3kzBSg
+KbbUbRAApE4I45wTxiU40khw2A2mDLGqByh6dKjqeRVRHGsUrLdKN3tptV5pVqgM
+LdX5QFuA4Hp1TEkPLhuie+S7y0DfcN1NQEOPtP2ofZFTcMV93MhvZ7W2KEegnbld
+RzvlIcqxMHoQgDBsJunkOcZuqUVicSwYETYXsbFGBAMJGTzhZR4Sh2Qt0VNRUmwu
+UMFuBqnnhDXBkl7VSeKXDgjctCJnVaiyqj2jnz5HD4eOBtHj7zvPXnSYyMfYhrUL
+Z6TXVxdloC6j8noqtORUM4YmlleDepXqp/L2SGRhZ1Qi55XQd6oexxiP7ndDZV0W
+WRu3GaJOtXyOQYqeYMkfLbUPn90FkDLCFun1HKPBO07fcX/qWZmZnoXVX2799odV
+jofYTj6X0ILs79fIUT8wAUnMCmEgjgPOynl57loP4f8lh6VoWeDAEI1nwCoPxi0l
+TKabxPYDHpbT7vFP2eaR7/dXQxb+pgLNMUeqzPpIQ7XnSHrLl+7nrhVDcpzSWTr2
+ci6eWscPRJNr/OVa0wd+L4nthna/K89ZApK4zf9aioBTLPZ/EEZscAJ/YuZiJZ2d
+ZtwvTt6ewEz6D5OF6vsNjn7FOuqp7CIEhyPqFU+E5SC3iO05TqBhb9w34F5mO2oK
+Oswf5Q47JpcE4stdbVJa7ZTUd+P8gfmH+X71qLQzcU3wujem2K4=
+=cq07
+-----END PGP SIGNATURE-----
+
+--0OAP2g/MAC+5xKAE--
