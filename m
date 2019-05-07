@@ -1,87 +1,44 @@
-From: Serge Semin <fancer.lancer@gmail.com>
+From: Peter Rosin <peda@axentia.se>
 Subject: Re: [PATCH v2 0/3] i2c-mux-gpio: Split plat- and dt-specific code up
-Date: Tue, 7 May 2019 12:02:12 +0300
-Message-ID: <20190507090210.hn6vgcjg2q6tysbp@mobilestation>
+Date: Tue, 7 May 2019 09:17:38 +0000
+Message-ID: <689e1a7b-8544-6bbf-2fa1-a5845895a917@axentia.se>
 References: <20190424123414.25311-1-fancer.lancer@gmail.com>
  <20190425232028.9333-1-fancer.lancer@gmail.com>
+ <20190507090210.hn6vgcjg2q6tysbp@mobilestation>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190425232028.9333-1-fancer.lancer@gmail.com>
+In-Reply-To: <20190507090210.hn6vgcjg2q6tysbp@mobilestation>
+Content-Language: en-US
+Content-ID: <CEFCC296A803D44186FE37F4BF1C9B9C@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>
-Cc: Serge Semin <Sergey.Semin@t-platforms.ru>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Serge Semin <fancer.lancer@gmail.com>, Peter Korsgaard <peter.korsgaard@barco.com>
+Cc: Serge Semin <Sergey.Semin@t-platforms.ru>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello folks,
-
-Any updates on this patchset status? I haven't got any comment on v2, but
-instead a notification about the status change was sent to me:
-
-> * linux-i2c: [v2,1/3] i2c-mux-gpio: Unpin a platform-based device initialization
->     - http://patchwork.ozlabs.org/patch/1091120/
->     - for: Linux I2C development
->    was: New
->    now: Superseded
->
-> * linux-i2c: [v2,2/3] i2c-mux-gpio: Unpin the platform-specific GPIOs request code
->     - http://patchwork.ozlabs.org/patch/1091122/
->     - for: Linux I2C development
->    was: New
->    now: Superseded
->
-> * linux-i2c: [v2,3/3] i2c-mux-gpio: Create of-based GPIOs request method
->     - http://patchwork.ozlabs.org/patch/1091121/
->     - for: Linux I2C development
->    was: New
->    now: Superseded
-
-I may misunderstand something, but how come the v2 patchset switched to be superseded
-while it is the last patchset version I've sent?
-
--Sergey
-
-On Fri, Apr 26, 2019 at 02:20:25AM +0300, Serge Semin wrote:
-> The main idea of this patchset was to add the full dt GPIOs specifier
-> support in i2c-mux-gpio driver. In particular we needed to have the
-> full GPIOs specifier being handled including the flags like GPIO_ACTIVE_HIGH,
-> GPIO_ACTIVE_LOW, GPIO_PUSH_PULL, GPIO_OPEN_DRAIN or GPIO_OPEN_SOURCE.
-> Due to using a legacy GPIO interface the former driver implementation
-> didn't provide this ability.
-> 
-> On the way of adding the full dt-GPIO flags support a small set of
-> refactorings has been done in order to keep the platform_data-based
-> systems support, make the code more readable and the alterations - clearer.
-> In general the whole changes might be considered as the plat- and dt-
-> specific code split up. In the first patch we unpinned the platform-specific
-> method of GPIO-chip probing. The second patch introduces a new initial_state
-> value field into the "gpiomux" structure. The third one is responsible for
-> GPIO request loop isoltaing into a dedicated function. At this stage common
-> it is a common function for both dt- and plat- code paths. Finally last
-> patch introduces a full dt-based GPIOs request method, which uses
-> gpiod_get_from_of_node() method in order to parse the corresponding dt GPIO
-> specifiers with their falgs. The last patch does what we inteded this patchset
-> for in the first place - adds the full dt-GPIO specifiers support.
-> 
-> Changelog v2
-> - Remove fallback pattern when selecting the dt- or plat-based code paths.
->   (Cause the patch "i2c-mux-gpio: Return an error if no onfig data found"
->    removal.)
-> - Use a dedicated initial_state variable to keep the initial channels selector
->   state. (Causes the patch "i2c-mux-gpio: Save initial channel number to the
->   idle" removal.)
-> - Mention open-drain, open-source flags in the patchset descriptions.
-> 
-> 
-> Serge Semin (3):
->   i2c-mux-gpio: Unpin a platform-based device initialization
->   i2c-mux-gpio: Unpin the platform-specific GPIOs request code
->   i2c-mux-gpio: Create of-based GPIOs request method
-> 
->  drivers/i2c/muxes/i2c-mux-gpio.c | 226 ++++++++++++++++++++-----------
->  1 file changed, 146 insertions(+), 80 deletions(-)
-> 
-> -- 
-> 2.21.0
-> 
+T24gMjAxOS0wNS0wNyAxMTowMiwgU2VyZ2UgU2VtaW4gd3JvdGU6DQo+IEhlbGxvIGZvbGtzLA0K
+PiANCj4gQW55IHVwZGF0ZXMgb24gdGhpcyBwYXRjaHNldCBzdGF0dXM/IEkgaGF2ZW4ndCBnb3Qg
+YW55IGNvbW1lbnQgb24gdjIsIGJ1dA0KPiBpbnN0ZWFkIGEgbm90aWZpY2F0aW9uIGFib3V0IHRo
+ZSBzdGF0dXMgY2hhbmdlIHdhcyBzZW50IHRvIG1lOg0KPiANCj4+ICogbGludXgtaTJjOiBbdjIs
+MS8zXSBpMmMtbXV4LWdwaW86IFVucGluIGEgcGxhdGZvcm0tYmFzZWQgZGV2aWNlIGluaXRpYWxp
+emF0aW9uDQo+PiAgICAgLSBodHRwOi8vcGF0Y2h3b3JrLm96bGFicy5vcmcvcGF0Y2gvMTA5MTEy
+MC8NCj4+ICAgICAtIGZvcjogTGludXggSTJDIGRldmVsb3BtZW50DQo+PiAgICB3YXM6IE5ldw0K
+Pj4gICAgbm93OiBTdXBlcnNlZGVkDQo+Pg0KPj4gKiBsaW51eC1pMmM6IFt2MiwyLzNdIGkyYy1t
+dXgtZ3BpbzogVW5waW4gdGhlIHBsYXRmb3JtLXNwZWNpZmljIEdQSU9zIHJlcXVlc3QgY29kZQ0K
+Pj4gICAgIC0gaHR0cDovL3BhdGNod29yay5vemxhYnMub3JnL3BhdGNoLzEwOTExMjIvDQo+PiAg
+ICAgLSBmb3I6IExpbnV4IEkyQyBkZXZlbG9wbWVudA0KPj4gICAgd2FzOiBOZXcNCj4+ICAgIG5v
+dzogU3VwZXJzZWRlZA0KPj4NCj4+ICogbGludXgtaTJjOiBbdjIsMy8zXSBpMmMtbXV4LWdwaW86
+IENyZWF0ZSBvZi1iYXNlZCBHUElPcyByZXF1ZXN0IG1ldGhvZA0KPj4gICAgIC0gaHR0cDovL3Bh
+dGNod29yay5vemxhYnMub3JnL3BhdGNoLzEwOTExMjEvDQo+PiAgICAgLSBmb3I6IExpbnV4IEky
+QyBkZXZlbG9wbWVudA0KPj4gICAgd2FzOiBOZXcNCj4+ICAgIG5vdzogU3VwZXJzZWRlZA0KPiAN
+Cj4gSSBtYXkgbWlzdW5kZXJzdGFuZCBzb21ldGhpbmcsIGJ1dCBob3cgY29tZSB0aGUgdjIgcGF0
+Y2hzZXQgc3dpdGNoZWQgdG8gYmUgc3VwZXJzZWRlZA0KPiB3aGlsZSBpdCBpcyB0aGUgbGFzdCBw
+YXRjaHNldCB2ZXJzaW9uIEkndmUgc2VudD8NCg0KVGhhdCB3YXMgbXkgbWlzdGFrZS4gUGF0Y2h3
+b3JrIGdvdCBjb25mdXNlZCB3aGVuIHYyIHdhcyBzZW50IGFzIGEgcmVwbHkgdG8NCnNvbWV0aGlu
+ZyBpbiB0aGUgdjEgdHJlZSwgYW5kIG1hcmtlZCBhbGwgOCBwYXRjaGVzIGFzICJ2MiIuIFRoZW4g
+SSBpbiB0dXJuDQpnb3QgY29uZnVzZWQgYnkgdGhhdCwgYW5kIGNoYW5nZWQgc3RhdHVzIG9uIHRo
+ZSB3cm9uZyBzZXQuIFNvcnJ5IQ0KDQpTbywgdGhhbmtzIGZvciB0aGUgaGVhZHMgdXAsIGl0IHNo
+b3VsZCBiZSBmaXhlZCBub3cuDQoNCkFzIGZvciBjb21tZW50cyBvbiB0aGUgcGF0Y2hlcywgSSdt
+IHBlcnNvbmFsbHkgYnVyaWVkIGluIHdvcmsgYW5kIG90aGVycw0KbWF5IGhhdmUgdGhlIG1lcmdl
+IHdpbmRvdyB0byBmb2N1cyBvbi4uLg0KDQpDaGVlcnMsDQpQZXRlcg0K
