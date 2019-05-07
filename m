@@ -1,47 +1,62 @@
-From: Yingjoe Chen <yingjoe.chen@mediatek.com>
-Subject: [PATCH] i2c: dev: fix potential memory leak in i2cdev_ioctl_rdwr
-Date: Tue, 7 May 2019 22:20:32 +0800
-Message-ID: <1557238832-10723-1-git-send-email-yingjoe.chen@mediatek.com>
+From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Subject: [PATCH v2 v2 0/3] Extend dt bindings to support I2C on sifive devices and a fix broken IRQ in polling mode.
+Date: Tue,  7 May 2019 20:45:05 +0530
+Message-ID: <1557242108-13580-1-git-send-email-sagar.kadam@sifive.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <khali@linux-fr.org>
-Cc: srv_heupstream@mediatek.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, Yingjoe Chen <yingjoe.chen@mediatek.com>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="US-ASCII"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: robh+dt@kernel.org, mark.rutland@arm.com, peter@korsgaard.com, andrew@lunn.ch, palmer@sifive.com, paul.walmsley@sifive.com, sagar.kadam@sifive.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-If I2C_M_RECV_LEN check failed, msgs[i].buf allocated by memdup_user
-will not be freed. Pump index up so it will be freed.
+The patch is based on mainline v5.1 and extends DT-bindings for Opencore based I2C device in FU540 
+SoC, available on HiFive unleashed board (Rev A00), and also provides a workaround for broken IRQ
+which affect I2C polling mode interface on FU540 chipsets. 
 
-Fixes: 838bfa6049fb ("i2c-dev: Add support for I2C_M_RECV_LEN")
-Signed-off-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
----
-Only check arm64 defconfig build pass.
-I haven't test it since it just fix memleak for error cases.
----
- drivers/i2c/i2c-dev.c | 1 +
- 1 file changed, 1 insertion(+)
+The polling mode workaround patch fixes the CPU stall issue, when-ever i2c transfer are initiated.
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 3f7b9af..776f366 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -283,6 +283,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
- 			    msgs[i].len < 1 || msgs[i].buf[0] < 1 ||
- 			    msgs[i].len < msgs[i].buf[0] +
- 					     I2C_SMBUS_BLOCK_MAX) {
-+				i++;
- 				res = -EINVAL;
- 				break;
- 			}
+This workaround checks if it's a FU540 chipset based on device tree information, and check's for open
+core's IF(interrupt flag) and TIP flags to break from the polling loop upon completion of transfer.
+
+To test the patch, a PMOD-AD2 sensor is connected to HiFive Unleashed board over J1 connector, and 
+appropriate device node is added into board specific device tree as per the information provided in 
+dt-bindings in Documentation/devicetree/bindings/i2c/i2c-sifive.txt.
+Without this workaround, the CPU stall's infinitely.
+
+Busybox i2c utilities used to verify workaround : i2cdetect, i2cdump, i2cset, i2cget
+
+
+Patch History:
+
+V0<->V1:
+-Incorporate review comments from Andrew
+-Extend dt bindings into i2c-ocores.txt instead of adding new file
+-Rename SIFIVE_FLAG_POLL to OCORES_FLAG_BROKEN_IRQ
+
+V0:
+-Update dt bindings for sifive i2c devices
+-Fix broken IRQ affecting i2c polling mode interface.
+
+
+Sagar Shrikant Kadam (3):
+  dt-bindings: i2c: extend existing opencore bindings.
+  i2c-ocore: sifive: add support for i2c device on FU540-c000 SoC.
+  i2c-ocores: sifive: add polling mode workaround for FU540-C000 SoC.
+
+ .../devicetree/bindings/i2c/i2c-ocores.txt         | 20 +++++++++++++
+ drivers/i2c/busses/i2c-ocores.c                    | 33 +++++++++++++++++++---
+ 2 files changed, 49 insertions(+), 4 deletions(-)
+
 -- 
 1.9.1
+
+
+-- 
+The information transmitted is intended only for the person or entity to 
+which it is addressed and may contain confidential and/or privileged 
+material. If you are not the intended recipient of this message please do 
+not read, copy, use or disclose this communication and notify the sender 
+immediately. It should be noted that any review, retransmission, 
+dissemination or other use of, or taking action or reliance upon, this 
+information by persons or entities other than the intended recipient is 
+prohibited.
