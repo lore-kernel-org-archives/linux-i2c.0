@@ -1,68 +1,56 @@
-From: Russell King - ARM Linux admin <linux@armlinux.org.uk>
-Subject: Re: [PATCH net-next 2/2] net: phy: sfp: enable i2c-bus detection on
- ACPI based systems
-Date: Tue, 7 May 2019 11:40:28 +0100
-Message-ID: <20190507104028.zf34wxr7hgwdwa64@shell.armlinux.org.uk>
-References: <20190505220524.37266-3-ruslan@babayev.com>
- <20190506045951.GB2895@lahna.fi.intel.com>
- <871s1bv4aw.fsf@babayev.com>
- <20190507092946.GS2895@lahna.fi.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190507092946.GS2895@lahna.fi.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Ruslan Babayev <ruslan@babayev.com>, andrew@lunn.ch, f.fainelli@gmail.com, hkallweit1@gmail.com, wsa@the-dreams.de, davem@davemloft.net, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, xe-linux-external@cisco.com
+From: Annaliese McDermond <nh6z@nh6z.net>
+Subject: Re: [PATCH] i2c: bcm2835: Model Divider in CCF
+Date: Tue, 7 May 2019 06:10:56 -0700
+Message-ID: <F9C09952-3F75-44E7-94A6-1055ADA5A0A8@nh6z.net>
+References: <20190505034339.30778-1-nh6z@nh6z.net> <87o94fo3h0.fsf@anholt.net>
+ <C611AB4D-7674-438D-BB95-9F83852043EA@nh6z.net>
+ <878svivq8y.fsf@anholt.net>
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <878svivq8y.fsf@anholt.net>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Eric Anholt <eric@anholt.net>
+Cc: Stefan Wahren <stefan.wahren@i2se.com>, Florian Fainelli <f.fainelli@gmail.com>, swarren@wwwdotorg.org, wsa@the-dreams.de, NWDR Team <team@nwdigitalradio.com>, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 07, 2019 at 12:29:46PM +0300, Mika Westerberg wrote:
-> On Mon, May 06, 2019 at 11:14:15AM -0700, Ruslan Babayev wrote:
-> > 
-> > Mika Westerberg writes:
-> > 
-> > > On Sun, May 05, 2019 at 03:05:23PM -0700, Ruslan Babayev wrote:
-> > >> Lookup I2C adapter using the "i2c-bus" device property on ACPI based
-> > >> systems similar to how it's done with DT.
-> > >> 
-> > >> An example DSD describing an SFP on an ACPI based system:
-> > >> 
-> > >> Device (SFP0)
-> > >> {
-> > >>     Name (_HID, "PRP0001")
-> > >>     Name (_DSD, Package ()
-> > >>     {
-> > >>         ToUUID ("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-> > >>         Package () {
-> > >>             Package () { "compatible", "sff,sfp" },
-> > >>             Package () { "i2c-bus", \_SB.PCI0.RP01.I2C.MUX.CH0 },
-> > >
-> > > Hmm, ACPI has I2cSerialBusV2() resource for this purpose. Why you are not
-> > > using that?
-> > 
-> > I am not an ACPI expert, but my understanding is I2cSerialBusV2() is
-> > used for slave connections. I am trying to reference an I2C controller
-> > here.
-> 
-> Ah, the device itself is not sitting on an I2C bus? In that case I
-> agree, I2CSerialBusV2() is not correct here.
-
-There are several possibilities:
-
-- Identifying information in EEPROM-like device at 0x50.
-- Optional diagnostics information and measurements at 0x51.
-- Optional network PHY at some other address.
-
-Hence, we need access to the bus to be able to parse the EEPROM without
-interfering with the AT24 driver that would otherwise bind to it, to
-be able to read the diagnostics, and to probe for the network PHY
-without needing to have a big table of module vendors/descriptions to
-PHY information (and therefore limiting our SFP support to only
-"approved" known modules (which, common with big-name switches, pisses
-users off and is widely seen as a vendor lock-in measure.)
-
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line in suburbia: sync at 12.1Mbps down 622kbps up
-According to speedtest.net: 11.9Mbps down 500kbps up
+Cgo+IE9uIE1heSA2LCAyMDE5LCBhdCA5OjMyIFBNLCBFcmljIEFuaG9sdCA8ZXJpY0BhbmhvbHQu
+bmV0PiB3cm90ZToKPiAKPiBBbm5hbGllc2UgTWNEZXJtb25kIDxuaDZ6QG5oNnoubmV0PiB3cml0
+ZXM6Cj4gCj4+PiBPbiBNYXkgNiwgMjAxOSwgYXQgMTE6MTQgQU0sIEVyaWMgQW5ob2x0IDxlcmlj
+QGFuaG9sdC5uZXQ+IHdyb3RlOgo+Pj4gCj4+PiBBbnkgY2hhbmNlIHdlIGNvdWxkIHJldXNlIGNs
+a19yZWdpc3Rlcl9kaXZpZGVyKCkgaW5zdGVhZCBvZiBoYXZpbmcgb3VyCj4+PiBvd24gc2V0L3Jv
+dW5kL3JlY2FsYyByYXRlIGltcGxlbWVudGF0aW9ucz8KPj4gCj4+IEVyaWMgLS0KPj4gCj4+IEni
+gJlkIGxvdmUgdG8sIGJ1dCB0aGUgc2V0X3JhdGUgaW1wbGVtZW50YXRpb24gaW5jbHVkZXMgc2V0
+dGluZyB0aGUKPj4gQkNNMjgzNV9JMkNfRkVETF9TSElGVCBhbmQgQkNNMjgzNV9JMkNfUkVETF9T
+SElGVCByZWdpc3RlcnMgZm9yIHRoZSAKPj4gcmlzaW5nIGFuZCBmYWxsaW5nIGVkZ2UgZGVsYXkg
+b24gdGhlIEkyQyBidXMgYmFzZWQgb24gd2hhdCB0aGUgZGl2aWRlcgo+PiB2YWx1ZSBpcy4KPiAK
+PiBIbW0uICBJIHJhbiBpbnRvIHRoYXQgaW4gY2xrLWJjbTI4MzUuYyBhcyB3ZWxsLCBhbmQgdGhl
+IHNvbHV0aW9uIHdhcwo+IHRoYXQgYmNtMjgzNV9yZWdpc3Rlcl9wbGxfZGl2aWRlcigpIHNldHMg
+dXAgdGhlIGRpdmlkZXIgc3RydWN0dXJlIGFuZAo+IHRoZW4gcmV1c2VzIGNsa19kaXZpZGVyX29w
+cy5yb3VuZF9yYXRlKCkgYW5kIC5yZWNhbGNfcmF0ZSgpCgpJ4oCZbSBub3Qgc3VyZSB0aGlzIG1h
+a2VzIGEgbG90IG9mIHNlbnNlIGluIHRoaXMgcGFydGljdWxhciBjYXNlLiAgSeKAmWQgc3RpbGwK
+aGF2ZSB0byBrZWVwIHRoZSBiY20yODM1X2kyY19yZWdpc3Rlcl9kaXYoKSBmdW5jdGlvbiwgYW5k
+IHJlYWxseSBJ4oCZZCBvbmx5CmJlIHNhdmluZyBoYXZpbmcgdG8gaW1wbGVtZW50IHJvdW5kX3Jh
+dGUoKSBhbmQgcmVjYWxjX3JhdGUoKS4gIFRoZSB0cmFkZW9mZgppcyB0aGF0IHRoZSBjb21tb24g
+cm91bmRfcmF0ZSBhbmQgcmVjYWxjIHJhdGUgYXJlIG11Y2ggbW9yZSBjb21wbGV4IGFuZApyZXF1
+aXJlIGEgbW9yZSBjb21wbGV4IHByaXZhdGUgc3RydWN0dXJlIChjbGtfZGl2aWRlcikgd2hpY2gg
+YWxzbyAKcHJlY2x1ZGVzIG15IHVzZSBvZiB0aGUgY29tbW9uIGJjbTI4MzVfaTJjX3dyaXRlbCgp
+IHVzZWQgaW4gdGhlIHJlc3Qgb2YKdGhlIGRyaXZlciBiZWNhdXNlIEkgbm8gbG9uZ2VyIGhhdmUg
+YSBwb2ludGVyIHRvIHRoZSBiY20yODM1X2kyY19kZXYKc3RydWN0dXJlIHRoYXQgSSBuZWVkIHRv
+IGNhbGwgaXQgaW4gc2V0X3JhdGUoKS4KCkkgZ2V0IHRoZSBkZXNpcmUgdG8gcmV1c2UgY29kZSBh
+bmQgdG8gdXNlIGNvbW1vbiBzdHJ1Y3R1cmVzIHdoZW5ldmVyCnBvc3NpYmxlLiAgSXQganVzdCBz
+ZWVtcyB0byBtZSB0aGF0IGdvaW5nIGRvd24gdGhpcyBwYXRoIGxlYWRzIHRvIG1vcmUKb3ZlcmFs
+bCBjb2RlIHRoYXTigJlzIGxlc3Mgc3RyYWlnaHQgZm9yd2FyZC4gICBNYXliZSBJ4oCZbSB3cm9u
+Zy4KCi0tCkFubmFsaWVzZSBNY0Rlcm1vbmQKbmg2ekBuaDZ6Lm5ldApfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcg
+bGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmlu
+ZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
