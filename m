@@ -1,60 +1,57 @@
 From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-Subject: [PATCH v2 v2 1/3] dt-bindings: i2c: extend existing opencore bindings.
-Date: Tue,  7 May 2019 20:45:06 +0530
-Message-ID: <1557242108-13580-2-git-send-email-sagar.kadam@sifive.com>
+Subject: [PATCH v2 v2 2/3] i2c-ocore: sifive: add support for i2c device on
+ FU540-c000 SoC.
+Date: Tue,  7 May 2019 20:45:07 +0530
+Message-ID: <1557242108-13580-3-git-send-email-sagar.kadam@sifive.com>
 References: <1557242108-13580-1-git-send-email-sagar.kadam@sifive.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1557242108-13580-1-git-send-email-sagar.kadam@sifive.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
 To: robh+dt@kernel.org, mark.rutland@arm.com, peter@korsgaard.com, andrew@lunn.ch, palmer@sifive.com, paul.walmsley@sifive.com, sagar.kadam@sifive.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add FU540-C000 specific device tree bindings to already
-available i2-ocores file. This device is available on
-HiFive Unleashed Rev A00 board.
+Update device id table for Opencores I2C master used in HiFive Unleashed
+platform having FU540-c000 chipset.
 
 Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-ocores.txt | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/i2c/busses/i2c-ocores.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-index 17bef9a..f6bcf90 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-@@ -2,6 +2,7 @@ Device tree configuration for i2c-ocores
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index 4e1a077..7bf7b0c 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -85,6 +85,7 @@ struct ocores_i2c {
  
- Required properties:
- - compatible      : "opencores,i2c-ocores" or "aeroflexgaisler,i2cmst"
-+                    "sifive,fu540-c000-i2c" or "sifive,i2c0"
- - reg             : bus address start and address range size of device
- - interrupts      : interrupt number
- - clocks          : handle to the controller clock; see the note below.
-@@ -67,3 +68,22 @@ or
- 			reg = <0x60>;
- 		};
- 	};
-+or
-+	/*
-+	  An Opencore based I2C node in FU540-C000 chip from SiFive
-+	  This chip has a hardware erratum for broken IRQ
-+	  so it's recommended not to define interrupt in the device node
-+	*/
-+	i2c@10030000 {
-+			compatible = "sifive,i2c0","sifive,fu540-c000-i2c";
-+			reg = <0x0 0x10030000 0x0 0x1000>;
-+			reg-names = "i2c-control";
-+			clocks = <&tlclk>;
-+			clock-frequency = <100000>;
-+
-+			reg-shift = <2>;
-+			reg-io-width = <1>;
-+
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+	};
+ #define TYPE_OCORES		0
+ #define TYPE_GRLIB		1
++#define TYPE_SIFIVE_REV0	2
+ 
+ static void oc_setreg_8(struct ocores_i2c *i2c, int reg, u8 value)
+ {
+@@ -465,6 +466,10 @@ static u32 ocores_func(struct i2c_adapter *adap)
+ 		.data = (void *)TYPE_OCORES,
+ 	},
+ 	{
++		.compatible = "sifive,fu540-c000-i2c",
++		.data = (void *)TYPE_SIFIVE_REV0,
++	},
++	{
+ 		.compatible = "aeroflexgaisler,i2cmst",
+ 		.data = (void *)TYPE_GRLIB,
+ 	},
 -- 
 1.9.1
 
