@@ -1,76 +1,30 @@
-From: Chuanhua Han <chuanhua.han@nxp.com>
-Subject: RE: [EXT] Re: [PATCH 1/3] dt-bindings: i2c: add optional mul-value
- property to binding
-Date: Wed, 8 May 2019 11:44:50 +0000
-Message-ID: <AM0PR04MB43537B281229FA847CE6F2B897320@AM0PR04MB4353.eurprd04.prod.outlook.com>
-References: <20190430043242.29687-1-chuanhua.han@nxp.com>
- <20190502205901.GA24224@bogus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190502205901.GA24224@bogus>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Rob Herring <robh@kernel.org>
-Cc: "mark.rutland@arm.com" <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Sumit Batra <sumit.batra@nxp.com>, "eha@deif.com" <eha@deif.com>, "festevam@gmail.com" <festevam@gmail.com>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Leo Li <leoyang.li@nxp.com>, "wsa+renesas@sang-engineering.com" <wsa+renesas@sang-engineering.com>, "l.stach@pengutronix.de" <l.stach@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "u.kleine-koenig@pengutronix.de" <u.kleine-koenig@pengutronix.de>, "linux@rempel-privat.de" <linux@rempel-privat.de>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "peda@axentia.se" <peda@axentia.se>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>dl-linux-imx <l>
+From: Asmaa Mnebhi <Asmaa@mellanox.com>
+Subject: [PATCH v9 0/1] Add support for IPMB driver
+Date: Wed,  8 May 2019 09:46:43 -0400
+Message-ID: <cover.1557322882.git.Asmaa@mellanox.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: minyard@acm.org, wsa@the-dreams.de, vadimp@mellanox.com, michaelsh@mellanox.com, rdunlap@infradead.org
+Cc: Asmaa Mnebhi <Asmaa@mellanox.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogUm9iIEhlcnJpbmcgPHJv
-YmhAa2VybmVsLm9yZz4NCj4gU2VudDogMjAxOcTqNdTCM8jVIDQ6NTkNCj4gVG86IENodWFuaHVh
-IEhhbiA8Y2h1YW5odWEuaGFuQG54cC5jb20+DQo+IENjOiBtYXJrLnJ1dGxhbmRAYXJtLmNvbTsg
-c2hhd25ndW9Aa2VybmVsLm9yZzsgcy5oYXVlckBwZW5ndXRyb25peC5kZTsNCj4gTGVvIExpIDxs
-ZW95YW5nLmxpQG54cC5jb20+OyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOw0KPiBkZXZp
-Y2V0cmVlQHZnZXIua2VybmVsLm9yZzsgbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQu
-b3JnOw0KPiBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnOyBrZXJuZWxAcGVuZ3V0cm9uaXguZGU7
-IGRsLWxpbnV4LWlteA0KPiA8bGludXgtaW14QG54cC5jb20+OyBmZXN0ZXZhbUBnbWFpbC5jb207
-DQo+IHdzYStyZW5lc2FzQHNhbmctZW5naW5lZXJpbmcuY29tOyB1LmtsZWluZS1rb2VuaWdAcGVu
-Z3V0cm9uaXguZGU7DQo+IGVoYUBkZWlmLmNvbTsgbGludXhAcmVtcGVsLXByaXZhdC5kZTsgU3Vt
-aXQgQmF0cmEgPHN1bWl0LmJhdHJhQG54cC5jb20+Ow0KPiBsLnN0YWNoQHBlbmd1dHJvbml4LmRl
-OyBwZWRhQGF4ZW50aWEuc2UNCj4gU3ViamVjdDogW0VYVF0gUmU6IFtQQVRDSCAxLzNdIGR0LWJp
-bmRpbmdzOiBpMmM6IGFkZCBvcHRpb25hbCBtdWwtdmFsdWUNCj4gcHJvcGVydHkgdG8gYmluZGlu
-Zw0KPiANCj4gQ2F1dGlvbjogRVhUIEVtYWlsDQo+IA0KPiBPbiBUdWUsIEFwciAzMCwgMjAxOSBh
-dCAxMjozMjo0MFBNICswODAwLCBDaHVhbmh1YSBIYW4gd3JvdGU6DQo+ID4gTlhQIExheWVyc2Nh
-cGUgU29DIGhhdmUgdXAgdG8gdGhyZWUgTVVMIG9wdGlvbnMgYXZhaWxhYmxlIGZvciBhbGwNCj4g
-PiBkaXZpZGVyIHZhbHVlcywgd2UgY2hvaWNlIG9mIE1VTCBkZXRlcm1pbmVzIHRoZSBpbnRlcm5h
-bCBtb25pdG9yIHJhdGUNCj4gPiBvZiB0aGUgSTJDIGJ1cyAoU0NMIGFuZCBTREEgc2lnbmFscyk6
-DQo+ID4gQSBsb3dlciBNVUwgdmFsdWUgcmVzdWx0cyBpbiBhIGhpZ2hlciBzYW1wbGluZyByYXRl
-IG9mIHRoZSBJMkMgc2lnbmFscy4NCj4gPiBBIGhpZ2hlciBNVUwgdmFsdWUgcmVzdWx0cyBpbiBh
-IGxvd2VyIHNhbXBsaW5nIHJhdGUgb2YgdGhlIEkyQyBzaWduYWxzLg0KPiA+DQo+ID4gU28gaW4g
-T3B0aW9uYWwgcHJvcGVydGllcyB3ZSBhZGRlZCBvdXIgY3VzdG9tIG11bC12YWx1ZSBwcm9wZXJ0
-eSBpbg0KPiA+IHRoZSBiaW5kaW5nIHRvIHNlbGVjdCB3aGljaCBtdWwgb3B0aW9uIGZvciB0aGUg
-ZGV2aWNlIHRyZWUgaTJjDQo+ID4gY29udHJvbGxlciBub2RlLg0KPiA+DQo+ID4gU2lnbmVkLW9m
-Zi1ieTogQ2h1YW5odWEgSGFuIDxjaHVhbmh1YS5oYW5AbnhwLmNvbT4NCj4gPiAtLS0NCj4gPiAg
-RG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtaW14LnR4dCB8IDMgKysr
-DQo+ID4gIDEgZmlsZSBjaGFuZ2VkLCAzIGluc2VydGlvbnMoKykNCj4gPg0KPiA+IGRpZmYgLS1n
-aXQgYS9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1pbXgudHh0DQo+
-ID4gYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1pbXgudHh0DQo+
-ID4gaW5kZXggYjk2NzU0NDU5MGU4Li5iYThlN2I3YjNmYTggMTAwNjQ0DQo+ID4gLS0tIGEvRG9j
-dW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtaW14LnR4dA0KPiA+ICsrKyBi
-L0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLWlteC50eHQNCj4gPiBA
-QCAtMTgsNiArMTgsOSBAQCBPcHRpb25hbCBwcm9wZXJ0aWVzOg0KPiA+ICAtIHNkYS1ncGlvczog
-c3BlY2lmeSB0aGUgZ3BpbyByZWxhdGVkIHRvIFNEQSBwaW4NCj4gPiAgLSBwaW5jdHJsOiBhZGQg
-ZXh0cmEgcGluY3RybCB0byBjb25maWd1cmUgaTJjIHBpbnMgdG8gZ3BpbyBmdW5jdGlvbiBmb3Ig
-aTJjDQo+ID4gICAgYnVzIHJlY292ZXJ5LCBjYWxsIGl0ICJncGlvIiBzdGF0ZQ0KPiA+ICstIG11
-bC12YWx1ZTogTlhQIExheWVyc2NhcGUgU29DIGhhdmUgdXAgdG8gdGhyZWUgTVVMIG9wdGlvbnMN
-Cj4gPiArYXZhaWxhYmxlIGZvciBhbGwgSTJDIGRpdmlkZXIgdmFsdWVzLCBpdCBkZXNjcmliZXMg
-d2hpY2ggTVVMIHdlDQo+ID4gK2Nob29zZSB0byB1c2UgZm9yIHRoZSBkcml2ZXIsIHRoZSB2YWx1
-ZXMgc2hvdWxkIGJlIDEsMiw0Lg0KPiANCj4gTmVlZHMgYSB2ZW5kb3IgcHJlZml4LiBJIGRvbid0
-IGZpbmQgJ3ZhbHVlJyB0byBhZGQgYW55dGhpbmcgbm9yIGRvIEkgdW5kZXJzdGFuZA0KPiB3aGF0
-IE1VTCBpcy4NClllcyx5b3UgYXJlIHJpZ2h0IQ0KPiANCj4gSWYgaXQgaXMgZGV0ZXJtaW5lZCBi
-eSBTb0MgcmF0aGVyIHRoYW4gYm9hcmQsIHRoZW4gaXQgc2hvdWxkIHBlcmhhcHMgYmUgaW1wbGll
-ZA0KPiBieSBjb21wYXRpYmxlLg0KVGhpcyBpcyBkZXRlcm1pbmVkIGJ5IHRoZSBTT0MsIGJ1dCBp
-dCBoYXMgdGhyZWUgb3B0aW9ucyB0byBjaG9vc2UgZnJvbSwgDQpzbyBJIHRoaW5rIGl0J3MgYmV0
-dGVyIHRvIHVzZSB0aGUgb3B0aW9uYWwgb3B0aW9uIGluc3RlYWQgb2YgY29tcGF0aWJsZQ0KDQo+
-IA0KPiBSb2INCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-CmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5m
-cmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xp
-bnV4LWFybS1rZXJuZWwK
+Addressed Randy's comments about the documentation.
+
+Those instructions are for any software engineer who wants
+to build this driver and load it onto their system.
+
+Thank you.
+
+Asmaa Mnebhi (1):
+  Add support for IPMB driver
+
+ Documentation/IPMB.txt           | 103 +++++++++++
+ drivers/char/ipmi/Kconfig        |   8 +
+ drivers/char/ipmi/Makefile       |   1 +
+ drivers/char/ipmi/ipmb_dev_int.c | 382 +++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 494 insertions(+)
+ create mode 100644 Documentation/IPMB.txt
+ create mode 100644 drivers/char/ipmi/ipmb_dev_int.c
+
+-- 
+2.1.2
