@@ -1,80 +1,202 @@
-From: Nicholas Mc Guire <hofrat@osadl.org>
-Subject: [PATCH] i2c: tegra: use busendiannes variable
-Date: Thu,  9 May 2019 02:48:57 +0200
-Message-ID: <1557362937-6591-1-git-send-email-hofrat@osadl.org>
+From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+Subject: [PATCH 1/1] i2c: iproc: Add multi byte read-write support for slave mode
+Date: Thu,  9 May 2019 09:35:17 +0530
+Message-ID: <1557374717-14603-1-git-send-email-rayagonda.kokatanur@broadcom.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Laxman Dewangan <ldewangan@nvidia.com>
-Cc: Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.org>
+To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+Cc: linux-i2c@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Ray Jui <ray.jui@broadcom.com>, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Michael Cheng <ccheng@broadcom.com>, Srinath Mannam <srinath.mannam@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Converting from bus to host endiannes was done using the same variable
-which makes sparse unhappy as it can not verify the endiannes handling
-properly. To allow sparse to verify endiannes handling a __le32 is
-introduced. This patch does not actually change the code logic while
-the binary does change due to limit on instruction re-ordering induced
-by the additional constraint.
+Add multiple byte read-write support for slave mode.
 
-Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
 ---
+ drivers/i2c/busses/i2c-bcm-iproc.c | 117 +++++++++++++++++--------------------
+ 1 file changed, 53 insertions(+), 64 deletions(-)
 
-Problem located by an experimental coccinelle script to locate
-patters that make sparse unhappy (false positives):
-
-sparse was complaining about:
-drivers/i2c/busses/i2c-tegra.c:596:23: warning: cast to restricted __le32
-
-Note that the binary does change in this case - from inspection of the
-.lst files it seems that the introduction of the __le32 limits
-the re-ordering options for the compiler so one instruction
-position changed (ldr     r1, [sp, #4]) but from my understanding
-that does not change the program logic here.
-
-Patch was compile-tested with: tegra_defconfig (implies I2C_TEGRA=y)
-
-Patch is against 5.1 (localversion-next is next-20190508)
-
- drivers/i2c/busses/i2c-tegra.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index ebaa78d..cbaddcc 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -543,18 +543,19 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
- static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
- {
- 	u32 val;
-+	__le32 busval;
- 	int tx_fifo_avail;
- 	u8 *buf = i2c_dev->msg_buf;
- 	size_t buf_remaining = i2c_dev->msg_buf_remaining;
- 	int words_to_transfer;
+diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
+index a845b8d..2c7f145 100644
+--- a/drivers/i2c/busses/i2c-bcm-iproc.c
++++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+@@ -165,12 +165,6 @@ enum i2c_slave_read_status {
+ 	I2C_SLAVE_RX_END,
+ };
  
- 	if (i2c_dev->hw->has_mst_fifo) {
--		val = i2c_readl(i2c_dev, I2C_MST_FIFO_STATUS);
--		tx_fifo_avail = (val & I2C_MST_FIFO_STATUS_TX_MASK) >>
-+		busval = i2c_readl(i2c_dev, I2C_MST_FIFO_STATUS);
-+		tx_fifo_avail = (busval & I2C_MST_FIFO_STATUS_TX_MASK) >>
- 			I2C_MST_FIFO_STATUS_TX_SHIFT;
- 	} else {
--		val = i2c_readl(i2c_dev, I2C_FIFO_STATUS);
--		tx_fifo_avail = (val & I2C_FIFO_STATUS_TX_MASK) >>
-+		busval = i2c_readl(i2c_dev, I2C_FIFO_STATUS);
-+		tx_fifo_avail = (busval & I2C_FIFO_STATUS_TX_MASK) >>
- 			I2C_FIFO_STATUS_TX_SHIFT;
+-enum i2c_slave_xfer_dir {
+-	I2C_SLAVE_DIR_READ = 0,
+-	I2C_SLAVE_DIR_WRITE,
+-	I2C_SLAVE_DIR_NONE,
+-};
+-
+ enum bus_speed_index {
+ 	I2C_SPD_100K = 0,
+ 	I2C_SPD_400K,
+@@ -203,7 +197,6 @@ struct bcm_iproc_i2c_dev {
+ 	struct i2c_msg *msg;
+ 
+ 	struct i2c_client *slave;
+-	enum i2c_slave_xfer_dir xfer_dir;
+ 
+ 	/* bytes that have been transferred */
+ 	unsigned int tx_bytes;
+@@ -219,7 +212,8 @@ struct bcm_iproc_i2c_dev {
+ 		| BIT(IS_M_RX_THLD_SHIFT))
+ 
+ #define ISR_MASK_SLAVE (BIT(IS_S_START_BUSY_SHIFT)\
+-		| BIT(IS_S_RX_EVENT_SHIFT) | BIT(IS_S_RD_EVENT_SHIFT))
++		| BIT(IS_S_RX_EVENT_SHIFT) | BIT(IS_S_RD_EVENT_SHIFT)\
++		| BIT(IS_S_TX_UNDERRUN_SHIFT))
+ 
+ static int bcm_iproc_i2c_reg_slave(struct i2c_client *slave);
+ static int bcm_iproc_i2c_unreg_slave(struct i2c_client *slave);
+@@ -297,15 +291,11 @@ static void bcm_iproc_i2c_slave_init(
+ 	/* clear all pending slave interrupts */
+ 	iproc_i2c_wr_reg(iproc_i2c, IS_OFFSET, ISR_MASK_SLAVE);
+ 
+-	/* Enable interrupt register for any READ event */
+-	val = BIT(IE_S_RD_EVENT_SHIFT);
+ 	/* Enable interrupt register to indicate a valid byte in receive fifo */
+-	val |= BIT(IE_S_RX_EVENT_SHIFT);
++	val = BIT(IE_S_RX_EVENT_SHIFT);
+ 	/* Enable interrupt register for the Slave BUSY command */
+ 	val |= BIT(IE_S_START_BUSY_SHIFT);
+ 	iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
+-
+-	iproc_i2c->xfer_dir = I2C_SLAVE_DIR_NONE;
+ }
+ 
+ static void bcm_iproc_i2c_check_slave_status(
+@@ -314,8 +304,11 @@ static void bcm_iproc_i2c_check_slave_status(
+ 	u32 val;
+ 
+ 	val = iproc_i2c_rd_reg(iproc_i2c, S_CMD_OFFSET);
+-	val = (val >> S_CMD_STATUS_SHIFT) & S_CMD_STATUS_MASK;
++	/* status is valid only when START_BUSY is cleared after it was set */
++	if (val & BIT(S_CMD_START_BUSY_SHIFT))
++		return;
+ 
++	val = (val >> S_CMD_STATUS_SHIFT) & S_CMD_STATUS_MASK;
+ 	if (val == S_CMD_STATUS_TIMEOUT) {
+ 		dev_err(iproc_i2c->device, "slave random stretch time timeout\n");
+ 
+@@ -327,70 +320,66 @@ static void bcm_iproc_i2c_check_slave_status(
+ }
+ 
+ static bool bcm_iproc_i2c_slave_isr(struct bcm_iproc_i2c_dev *iproc_i2c,
+-				u32 status)
++				    u32 status)
+ {
+-	u8 value;
+ 	u32 val;
+-	u32 rd_status;
+-	u32 tmp;
++	u8 value, rx_status;
+ 
+-	/* Start of transaction. check address and populate the direction */
+-	if (iproc_i2c->xfer_dir == I2C_SLAVE_DIR_NONE) {
+-		tmp = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
+-		rd_status = (tmp >> S_RX_STATUS_SHIFT) & S_RX_STATUS_MASK;
+-		/* This condition checks whether the request is a new request */
+-		if (((rd_status == I2C_SLAVE_RX_START) &&
+-			(status & BIT(IS_S_RX_EVENT_SHIFT))) ||
+-			((rd_status == I2C_SLAVE_RX_END) &&
+-			(status & BIT(IS_S_RD_EVENT_SHIFT)))) {
+-
+-			/* Last bit is W/R bit.
+-			 * If 1 then its a read request(by master).
+-			 */
+-			iproc_i2c->xfer_dir = tmp & SLAVE_READ_WRITE_BIT_MASK;
+-			if (iproc_i2c->xfer_dir == I2C_SLAVE_DIR_WRITE)
+-				i2c_slave_event(iproc_i2c->slave,
+-					I2C_SLAVE_READ_REQUESTED, &value);
+-			else
+-				i2c_slave_event(iproc_i2c->slave,
++	/* Slave RX byte receive */
++	if (status & BIT(IS_S_RX_EVENT_SHIFT)) {
++		val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
++		rx_status = (val >> S_RX_STATUS_SHIFT) & S_RX_STATUS_MASK;
++		if (rx_status == I2C_SLAVE_RX_START) {
++			/* Start of SMBUS for Master write */
++			i2c_slave_event(iproc_i2c->slave,
+ 					I2C_SLAVE_WRITE_REQUESTED, &value);
+-		}
+-	}
+ 
+-	/* read request from master */
+-	if ((status & BIT(IS_S_RD_EVENT_SHIFT)) &&
+-		(iproc_i2c->xfer_dir == I2C_SLAVE_DIR_WRITE)) {
+-		i2c_slave_event(iproc_i2c->slave,
+-			I2C_SLAVE_READ_PROCESSED, &value);
+-		iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
++			val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
++			value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
++			i2c_slave_event(iproc_i2c->slave,
++					I2C_SLAVE_WRITE_RECEIVED, &value);
++		} else if (status & BIT(IS_S_RD_EVENT_SHIFT)) {
++			/* Start of SMBUS for Master Read */
++			i2c_slave_event(iproc_i2c->slave,
++					I2C_SLAVE_READ_REQUESTED, &value);
++			iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
+ 
+-		val = BIT(S_CMD_START_BUSY_SHIFT);
+-		iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
+-	}
++			val = BIT(S_CMD_START_BUSY_SHIFT);
++			iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
+ 
+-	/* write request from master */
+-	if ((status & BIT(IS_S_RX_EVENT_SHIFT)) &&
+-		(iproc_i2c->xfer_dir == I2C_SLAVE_DIR_READ)) {
+-		val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
+-		/* Its a write request by Master to Slave.
+-		 * We read data present in receive FIFO
+-		 */
+-		value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
++			/*
++			 * Enable interrupt for TX FIFO becomes empty and
++			 * less than PKT_LENGTH bytes were output on the SMBUS
++			 */
++			val = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
++			val |= BIT(IE_S_TX_UNDERRUN_SHIFT);
++			iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
++		} else {
++			/* Master write other than start */
++			value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
++			i2c_slave_event(iproc_i2c->slave,
++					I2C_SLAVE_WRITE_RECEIVED, &value);
++		}
++	} else if (status & BIT(IS_S_TX_UNDERRUN_SHIFT)) {
++		/* Master read other than start */
+ 		i2c_slave_event(iproc_i2c->slave,
+-			I2C_SLAVE_WRITE_RECEIVED, &value);
+-
+-		/* check the status for the last byte of the transaction */
+-		rd_status = (val >> S_RX_STATUS_SHIFT) & S_RX_STATUS_MASK;
+-		if (rd_status == I2C_SLAVE_RX_END)
+-			iproc_i2c->xfer_dir = I2C_SLAVE_DIR_NONE;
++				I2C_SLAVE_READ_PROCESSED, &value);
+ 
+-		dev_dbg(iproc_i2c->device, "\nread value = 0x%x\n", value);
++		iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
++		val = BIT(S_CMD_START_BUSY_SHIFT);
++		iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
  	}
  
-@@ -592,8 +593,8 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	 */
- 	if (tx_fifo_avail > 0 && buf_remaining > 0) {
- 		BUG_ON(buf_remaining > 3);
--		memcpy(&val, buf, buf_remaining);
--		val = le32_to_cpu(val);
-+		memcpy(&busval, buf, buf_remaining);
-+		val = le32_to_cpu(busval);
+ 	/* Stop */
+ 	if (status & BIT(IS_S_START_BUSY_SHIFT)) {
+ 		i2c_slave_event(iproc_i2c->slave, I2C_SLAVE_STOP, &value);
+-		iproc_i2c->xfer_dir = I2C_SLAVE_DIR_NONE;
++		/*
++		 * Enable interrupt for TX FIFO becomes empty and
++		 * less than PKT_LENGTH bytes were output on the SMBUS
++		 */
++		val = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
++		val &= ~BIT(IE_S_TX_UNDERRUN_SHIFT);
++		iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
+ 	}
  
- 		/* Again update before writing to FIFO to make sure isr sees. */
- 		i2c_dev->msg_buf_remaining = 0;
+ 	/* clear interrupt status */
 -- 
-2.1.4
+1.9.1
