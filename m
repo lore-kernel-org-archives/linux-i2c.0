@@ -1,8 +1,8 @@
-From: Sumit Batra <sumit.batra@nxp.com>
-Subject: RE: [EXT] Re: [PATCH 1/2] i2c: imx: I2C Driver doesn't consider
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Subject: Re: [EXT] Re: [PATCH 1/2] i2c: imx: I2C Driver doesn't consider
  I2C_IPGCLK_SEL RCW bit when using ls1046a SoC
-Date: Thu, 9 May 2019 05:10:01 +0000
-Message-ID: <AM6PR04MB462986872E11FE0E0E60344AEF330@AM6PR04MB4629.eurprd04.prod.outlook.com>
+Date: Thu, 9 May 2019 09:48:51 +0200
+Message-ID: <20190509074851.czcjlpfm2iooqjv4@pengutronix.de>
 References: <20190430044719.30720-1-chuanhua.han@nxp.com>
  <20190430125043.weqwzim4gpsvtkfe@pengutronix.de>
  <AM6PR04MB43571B8D52C1FE9ED20DBA1D97360@AM6PR04MB4357.eurprd04.prod.outlook.com>
@@ -10,135 +10,62 @@ References: <20190430044719.30720-1-chuanhua.han@nxp.com>
  <AM0PR04MB43534A9B1A146DEFA929844C97320@AM0PR04MB4353.eurprd04.prod.outlook.com>
  <AM6PR04MB4629DEDAAA6559EBBD20E974EF330@AM6PR04MB4629.eurprd04.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <AM6PR04MB4629DEDAAA6559EBBD20E974EF330@AM6PR04MB4629.eurprd04.prod.outlook.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Chuanhua Han <chuanhua.han@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>
-Cc: "shawnguo@kernel.org" <shawnguo@kernel.org>, Leo Li <leoyang.li@nxp.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "festevam@gmail.com" <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, "wsa+renesas@sang-engineering.com" <wsa+renesas@sang-engineering.com>, "u.kleine-koenig@pengutronix.de" <u.kleine-koenig@pengutronix.de>, "eha@deif.com" <eha@deif.com>, "linux@rempel-privat.de" <linux@rempel-privat.de>, "l.stach@pengutronix.de" <l.stach@pengutronix.de>
+To: Sumit Batra <sumit.batra@nxp.com>
+Cc: Chuanhua Han <chuanhua.han@nxp.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, Leo Li <leoyang.li@nxp.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "festevam@gmail.com" <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, "wsa+renesas@sang-engineering.com" <wsa+renesas@sang-engineering.com>, "u.kleine-koenig@pengutronix.de" <u.kleine-koenig@pengutronix.de>, "eha@deif.com" <eha@deif.com>, "linux@rempel-privat.de" <linux@rempel-privat.de>, l.stach@pe
 List-Id: linux-i2c@vger.kernel.org
 
-DQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBTdW1pdCBCYXRyYSANClNlbnQ6
-IFRodXJzZGF5LCBNYXkgOSwgMjAxOSAxMDowNiBBTQ0KVG86IENodWFuaHVhIEhhbiA8Y2h1YW5o
-dWEuaGFuQG54cC5jb20+OyBTYXNjaGEgSGF1ZXIgPHMuaGF1ZXJAcGVuZ3V0cm9uaXguZGU+DQpD
-Yzogc2hhd25ndW9Aa2VybmVsLm9yZzsgTGVvIExpIDxsZW95YW5nLmxpQG54cC5jb20+OyByb2Jo
-K2R0QGtlcm5lbC5vcmc7IG1hcmsucnV0bGFuZEBhcm0uY29tOyBsaW51eC1rZXJuZWxAdmdlci5r
-ZXJuZWwub3JnOyBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnOyBsaW51eC1hcm0ta2VybmVsQGxp
-c3RzLmluZnJhZGVhZC5vcmc7IGRldmljZXRyZWVAdmdlci5rZXJuZWwub3JnOyBmZXN0ZXZhbUBn
-bWFpbC5jb207IGRsLWxpbnV4LWlteCA8bGludXgtaW14QG54cC5jb20+OyB3c2ErcmVuZXNhc0Bz
-YW5nLWVuZ2luZWVyaW5nLmNvbTsgdS5rbGVpbmUta29lbmlnQHBlbmd1dHJvbml4LmRlOyBlaGFA
-ZGVpZi5jb207IGxpbnV4QHJlbXBlbC1wcml2YXQuZGU7IGwuc3RhY2hAcGVuZ3V0cm9uaXguZGU7
-IHBlZGFAYXhlbnRpYS5zZQ0KU3ViamVjdDogUkU6IFtFWFRdIFJlOiBbUEFUQ0ggMS8yXSBpMmM6
-IGlteDogSTJDIERyaXZlciBkb2Vzbid0IGNvbnNpZGVyIEkyQ19JUEdDTEtfU0VMIFJDVyBiaXQg
-d2hlbiB1c2luZyBsczEwNDZhIFNvQw0KDQpIaSBTYXNjaGEsDQpQbGVhc2UgY2hlY2sgbXkgY29t
-bWVudA0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogQ2h1YW5odWEgSGFuIA0K
-U2VudDogV2VkbmVzZGF5LCBNYXkgOCwgMjAxOSA1OjA1IFBNDQpUbzogU2FzY2hhIEhhdWVyIDxz
-LmhhdWVyQHBlbmd1dHJvbml4LmRlPg0KQ2M6IHNoYXduZ3VvQGtlcm5lbC5vcmc7IExlbyBMaSA8
-bGVveWFuZy5saUBueHAuY29tPjsgcm9iaCtkdEBrZXJuZWwub3JnOyBtYXJrLnJ1dGxhbmRAYXJt
-LmNvbTsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgbGludXgtaTJjQHZnZXIua2VybmVs
-Lm9yZzsgbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnOyBkZXZpY2V0cmVlQHZn
-ZXIua2VybmVsLm9yZzsgZmVzdGV2YW1AZ21haWwuY29tOyBkbC1saW51eC1pbXggPGxpbnV4LWlt
-eEBueHAuY29tPjsgd3NhK3JlbmVzYXNAc2FuZy1lbmdpbmVlcmluZy5jb207IHUua2xlaW5lLWtv
-ZW5pZ0BwZW5ndXRyb25peC5kZTsgZWhhQGRlaWYuY29tOyBsaW51eEByZW1wZWwtcHJpdmF0LmRl
-OyBsLnN0YWNoQHBlbmd1dHJvbml4LmRlOyBwZWRhQGF4ZW50aWEuc2U7IFN1bWl0IEJhdHJhIDxz
-dW1pdC5iYXRyYUBueHAuY29tPg0KU3ViamVjdDogUkU6IFtFWFRdIFJlOiBbUEFUQ0ggMS8yXSBp
-MmM6IGlteDogSTJDIERyaXZlciBkb2Vzbid0IGNvbnNpZGVyIEkyQ19JUEdDTEtfU0VMIFJDVyBi
-aXQgd2hlbiB1c2luZyBsczEwNDZhIFNvQw0KDQoNCg0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2Ut
-LS0tLQ0KPiBGcm9tOiBTYXNjaGEgSGF1ZXIgPHMuaGF1ZXJAcGVuZ3V0cm9uaXguZGU+DQo+IFNl
-bnQ6IDIwMTnlubQ15pyINuaXpSAxNTozOA0KPiBUbzogQ2h1YW5odWEgSGFuIDxjaHVhbmh1YS5o
-YW5AbnhwLmNvbT4NCj4gQ2M6IHNoYXduZ3VvQGtlcm5lbC5vcmc7IExlbyBMaSA8bGVveWFuZy5s
-aUBueHAuY29tPjsgDQo+IHJvYmgrZHRAa2VybmVsLm9yZzsgbWFyay5ydXRsYW5kQGFybS5jb207
-IA0KPiBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyBsaW51eC1pMmNAdmdlci5rZXJuZWwu
-b3JnOyANCj4gbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnOw0KPiBkZXZpY2V0
-cmVlQHZnZXIua2VybmVsLm9yZzsgZmVzdGV2YW1AZ21haWwuY29tOyBkbC1saW51eC1pbXggDQo+
-IDxsaW51eC1pbXhAbnhwLmNvbT47IHdzYStyZW5lc2FzQHNhbmctZW5naW5lZXJpbmcuY29tOyAN
-Cj4gdS5rbGVpbmUta29lbmlnQHBlbmd1dHJvbml4LmRlOyBlaGFAZGVpZi5jb207IGxpbnV4QHJl
-bXBlbC1wcml2YXQuZGU7IA0KPiBsLnN0YWNoQHBlbmd1dHJvbml4LmRlOyBwZWRhQGF4ZW50aWEu
-c2U7IFN1bWl0IEJhdHJhIA0KPiA8c3VtaXQuYmF0cmFAbnhwLmNvbT4NCj4gU3ViamVjdDogUmU6
-IFtFWFRdIFJlOiBbUEFUQ0ggMS8yXSBpMmM6IGlteDogSTJDIERyaXZlciBkb2Vzbid0IA0KPiBj
-b25zaWRlciBJMkNfSVBHQ0xLX1NFTCBSQ1cgYml0IHdoZW4gdXNpbmcgbHMxMDQ2YSBTb0MNCj4g
-DQo+IENhdXRpb246IEVYVCBFbWFpbA0KPiANCj4gT24gU2F0LCBNYXkgMDQsIDIwMTkgYXQgMDk6
-Mjg6NDhBTSArMDAwMCwgQ2h1YW5odWEgSGFuIHdyb3RlOg0KPiA+DQo+ID4NCj4gPiA+IC0tLS0t
-T3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+ID4gPiBGcm9tOiBTYXNjaGEgSGF1ZXIgPHMuaGF1ZXJA
-cGVuZ3V0cm9uaXguZGU+DQo+ID4gPiBTZW50OiAyMDE55bm0NOaciDMw5pelIDIwOjUxDQo+ID4g
-PiBUbzogQ2h1YW5odWEgSGFuIDxjaHVhbmh1YS5oYW5AbnhwLmNvbT4NCj4gPiA+IENjOiBzaGF3
-bmd1b0BrZXJuZWwub3JnOyBMZW8gTGkgPGxlb3lhbmcubGlAbnhwLmNvbT47DQo+ID4gPiByb2Jo
-K2R0QGtlcm5lbC5vcmc7IG1hcmsucnV0bGFuZEBhcm0uY29tOw0KPiA+ID4gbGludXgta2VybmVs
-QHZnZXIua2VybmVsLm9yZzsgbGludXgtaTJjQHZnZXIua2VybmVsLm9yZzsgDQo+ID4gPiBsaW51
-eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmc7DQo+ID4gPiBkZXZpY2V0cmVlQHZnZXIu
-a2VybmVsLm9yZzsgZmVzdGV2YW1AZ21haWwuY29tOyBkbC1saW51eC1pbXggDQo+ID4gPiA8bGlu
-dXgtaW14QG54cC5jb20+OyB3c2ErcmVuZXNhc0BzYW5nLWVuZ2luZWVyaW5nLmNvbTsgDQo+ID4g
-PiB1LmtsZWluZS1rb2VuaWdAcGVuZ3V0cm9uaXguZGU7IGVoYUBkZWlmLmNvbTsgDQo+ID4gPiBs
-aW51eEByZW1wZWwtcHJpdmF0LmRlOyBsLnN0YWNoQHBlbmd1dHJvbml4LmRlOyBwZWRhQGF4ZW50
-aWEuc2U7IA0KPiA+ID4gU3VtaXQgQmF0cmEgPHN1bWl0LmJhdHJhQG54cC5jb20+DQo+ID4gPiBT
-dWJqZWN0OiBbRVhUXSBSZTogW1BBVENIIDEvMl0gaTJjOiBpbXg6IEkyQyBEcml2ZXIgZG9lc24n
-dCANCj4gPiA+IGNvbnNpZGVyIEkyQ19JUEdDTEtfU0VMIFJDVyBiaXQgd2hlbiB1c2luZyBsczEw
-NDZhIFNvQw0KPiA+ID4NCj4gPiA+IENhdXRpb246IEVYVCBFbWFpbA0KPiA+ID4NCj4gPiA+IE9u
-IFR1ZSwgQXByIDMwLCAyMDE5IGF0IDEyOjQ3OjE4UE0gKzA4MDAsIENodWFuaHVhIEhhbiB3cm90
-ZToNCj4gPiA+ID4gVGhlIGN1cnJlbnQga2VybmVsIGRyaXZlciBkb2VzIG5vdCBjb25zaWRlciBJ
-MkNfSVBHQ0xLX1NFTCAoNDI0IA0KPiA+ID4gPiBiaXQgb2YNCj4gPiA+ID4gUkNXKSBpbiBkZWNp
-ZGluZyAgaTJjX2Nsa19yYXRlIGluIGZ1bmN0aW9uIGkyY19pbXhfc2V0X2NsaygpIHsgMCANCj4g
-PiA+ID4gUGxhdGZvcm0gY2xvY2svNCwgMSBQbGF0Zm9ybSBjbG9jay8yfS4NCj4gPiA+ID4NCj4g
-PiA+ID4gV2hlbiB1c2luZyBsczEwNDZhIFNvQywgdGhpcyBwb3B1bGF0ZXMgaW5jb3JyZWN0IHZh
-bHVlIGluIElCRkQgDQo+ID4gPiA+IHJlZ2lzdGVyIGlmIEkyQ19JUEdDTEtfU0VMID0gMCwgd2hp
-Y2ggZ2VuZXJhdGVzIGhhbGYgb2YgdGhlIGRlc2lyZWQgQ2xvY2suDQo+ID4gPiA+DQo+ID4gPiA+
-IFRoZXJlZm9yZSwgaWYgbHMxMDQ2YSBTb0MgaXMgdXNlZCwgd2UgbmVlZCB0byBzZXQgdGhlIGky
-YyBjbG9jayANCj4gPiA+ID4gYWNjb3JkaW5nIHRvIHRoZSBjb3JyZXNwb25kaW5nIFJDVy4NCj4g
-PiA+DQo+ID4gPiBTbyB0aGUgY2xvY2sgZHJpdmVyIHJlcG9ydHMgdGhlIHdyb25nIGNsb2NrLiBQ
-bGVhc2UgZml4IHRoZSBjbG9jayBkcml2ZXIgdGhlbi4NCj4gPiBObywgdGhpcyBpcyBhIHByb2Js
-ZW0gd2l0aCB0aGUgaTJjIGRyaXZlci4gSXQgaXMgbm90IGEgcHJvYmxlbSB3aXRoIA0KPiA+IHRo
-ZSBjbG9jayBkcml2ZXIsIHNvIHRoZSBpMmMgZHJpdmVyIG5lZWRzIHRvIGJlIG1vZGlmaWVkLg0K
-PiANCj4gU28gaG93IGRvZXMgdGhpcyBSQ1cgYml0IGdldCBldmFsdWF0ZWQ/IA0KQWNjb3JkaW5n
-IHRvIHRoZSByZWZlcmVuY2UgbWFudWFsDQo+IG9ubHkgb25lIGNsb2NrIGdvZXMgdG8gdGhlIGky
-YyBtb2R1bGUgKGRlc2NyaWJlZCBhcyAxLzIgUGxhdGZvcm0NCj4gQ2xvY2spIGFuZCB0aGUgaTJj
-IG1vZHVsZSBvbmx5IHRha2VzIG9uZSBjbG9jay4gU28gaXQgc2VlbXMgdGhlcmUgbXVzdCANCj4g
-YmUgYSAvMiBkaXZpZGVyIHNvbWV3aGVyZSwgZWl0aGVyIGluIGVhY2ggaTJjIG1vZHVsZSBvciBz
-b21ld2hlcmUgDQo+IG91dHNpZGUuIENhbiB5b3VyIElDIGd1eXMgdGVsbCB5b3Ugd2hlcmUgaXQg
-aXM/DQpJIG5lZWQgdG8gY29uZmlybSB0aGlzIHdpdGggdGhlIElDIHRlYW0NCltTdW1pdCBCYXRy
-YV0gVGhlcmUgYXJlIDIgcGxhY2VzIHdoZXJlIGNsb2NrIGRpdmlzaW9uIHRha2VzIHBsYWNlIC0N
-CiAgICAgICAgICAgICAgMSkgVGhlcmUgaXMgYSBjbG9jayBkaXZpZGVyIG91dHNpZGUgb2YgSTJD
-IGJsb2NrLCB3aGljaCBtYWtlcyB0aGUgY2xvY2sgcmVhY2hpbmcgSTJDIG1vZHVsZSBhcyAtIFBs
-YXRmb3JtIENsb2NrLzINCgkyKSBUaGVyZSBpcyBhbm90aGVyIGNsb2NrIGRpdmlkZXIgd2hpY2gg
-c3BlY2lmaWNhbGx5IGRpdmlkZXMgdGhlIGNsb2NrIHRvIHRoZSBJMkMgYmxvY2ssIGJhc2VkIG9u
-IFJDVyBiaXQgNDI0IChpZiA0MjR0aCBiaXQgaXMgMCB0aGVuIHRoZSBiYXVkIGNsb2NrIHNvdXJj
-ZSBpcyBQbGF0Zm9ybSBDbG9jay80LCBpZiA0MjR0aCBiaXQgaXMgMSB0aGVuIGl0IHJlbWFpbnMg
-UGxhdGZvcm0gQ2xvY2svMikNCiAgICAgICAgICAgICAgMykgTm93IGJhc2VkIG9uIHRoZSB3aGF0
-IGlzIHRoZSBkZXNpcmVkIFNDTCB2YWx1ZSAoMTAwS0h6IGV0YykgYW5kIHRoZSBjbG9jayB3aGlj
-aCBpcyByZWNlaXZlZCBieSBJMkMgYmxvY2ssIHRoZXJlIGlzIGEgY2FsY3VsYXRpb24gdGhhdCBn
-b2VzIG9uIGluc2lkZSB0aGUgSTJDIGRyaXZlciBtb2R1bGUgd2hpY2ggaXMgdXNlZCB0byBtYXAg
-YSB2YWx1ZSBpbiB0aGlzIGlteF9pMmNfY2xrX2RpdiB0YWJsZS4NCiAgICAgICAgICAgICAgICAg
-IFRoaXMgdmFsdWUgaXMgdXNlZCB0byBwcm9ncmFtIHRoZSBJTVhfSTJDX0lGRFIgcmVnaXN0ZXIg
-b2YgdGhlIEkyQyBibG9jay4gTm93IGlmIHdlIGRvbid0IGNvbnNpZGVyIHRoZSBSQ1cgYml0IDQy
-NCBpbiBvdXIgSTJDIGRyaXZlciBjYWxjdWxhdGlvbiB0aGVuIHRoZSBJTVhfSTJDX0lGRFIgdmFs
-dWUgdGhhdCBnZXRzIHNldCBtYWtlcyBTQ0wgaGFsZiBvZiB3aGF0IGlzIGRlc2lyZWQgYnkgdGhl
-IHVzZXIuDQogICAgICAgICAgICAgICAgICBUaGlzIGlzIGJlY2F1c2UgaWYgeW91IG1ha2UgdGhl
-IFJDVyA0MjR0aCBiaXQgYXMgMCB0aGVuIGFueWhvdyBJMkMgYmxvY2sgKGhhcmR3YXJlKSB3aWxs
-IHJlY2VpdmUgUGxhdGZvcm0gQ2xvY2svNCwgYnV0IHRoZSBkcml2ZXIgKHNpbmNlIGl0IGhhcyBu
-b3QgY29uc2lkZXJlZCB0aGlzIGJpdCkgd2lsbCBjb25zaWRlciBpdCBhcyBQbGF0Zm9ybSBDbG9j
-ay8yIHNvIGl0J2xsIHByb2dyYW0gYSBiaWdnZXIgZGl2aWRlciBmcm9tICAgICAgIA0KICAgICAg
-ICAgICAgICAgICAgdGhlIGlteF9pMmNfY2xrX2RpdiB0YWJsZQkJDQpbU3VtaXQgQmF0cmFdIEp1
-c3QgdG8gY2xhcmlmeS4uLiAgUGxhdGZvcm0gQ2xvY2svMiBoYXBwZW5zIGZvciBtYW55IGJsb2Nr
-cyBpbiB0aGUgc3lzdGVtLCBidXQgdGhpcyBSQ1cgNDI0dGggYml0IGlzIHNwZWNpZmljIGZvciBJ
-MkMgbW9kdWxlcyAoc3BlY2lmaWNhbGx5IGluIGxzMTA0NmEpLCBub3cgZm9yIHRoaXMgb25lIFJD
-VyBiaXQgd2hpY2ggaXMgc3BlY2lmaWMgdG8gSTJDIG1vZHVsZSBkbyB5b3UgdGhpbmsgaXQgaXMg
-YWR2aXNhYmxlIHRvIGNoYW5nZSB0aGUgY2xvY2sgZHJpdmVyICA/DQo+IA0KPiBPbmUgcmVhc29u
-IEkgc3VnZ2VzdGVkIHRoZSBjbG9jayBkcml2ZXIgaXMgdGhhdCB0aGUgY2xvY2sgZHJpdmVyIA0K
-PiBjb250YWlucyBTb0Mgc3BlY2lmaWMgY29kZSBhbHJlYWR5LCBzbyBpdCBzaG91bGQgYmUgZWFz
-aWVyIHRvIGludGVncmF0ZSB0aGVyZS4NCkl0IHNlZW1zIGluYXBwcm9wcmlhdGUgdG8gcHV0IHRo
-ZSBjbG9jayBmcmVxdWVuY3kgZGl2aXNpb24gbW9kaWZpY2F0aW9uIG9mIGkyYyBpbiB0aGUgY2xv
-Y2sgZHJpdmVyLCBiZWNhdXNlIHRoZSBjbG9jayBkcml2ZXIgaXMgZm9yIGFsbCBJUCBhbmQgaXMg
-YSB1bml2ZXJzYWwgY29kZSwgc28gSSB0aGluayBpdCBpcyBiZXR0ZXIgdG8gbW9kaWZ5IHRoZSBj
-bG9jayBpbiB0aGUgSVAgZHJpdmVyLg0KPiANCj4gU2FzY2hhDQo+IA0KPiANCj4gLS0NCj4gUGVu
-Z3V0cm9uaXggZS5LLiAgICAgICAgICAgICAgICAgICAgICAgICAgIHwNCj4gfA0KPiBJbmR1c3Ry
-aWFsIExpbnV4IFNvbHV0aW9ucyAgICAgICAgICAgICAgICAgfA0KPiBodHRwczovL2V1cjAxLnNh
-ZmVsaW5rcy5wcm90ZWN0aW9uLm91dGxvb2suY29tLz91cmw9aHR0cCUzQSUyRiUyRnd3dy5wDQo+
-IGUgbmd1dHJvbml4LmRlJTJGJmFtcDtkYXRhPTAyJTdDMDElN0NjaHVhbmh1YS5oYW4lNDBueHAu
-Y29tJTdDYjJkDQo+IDQ2ODA2OTljNDQ4ZTg1MTQzMDhkNmQxZjViZjgyJTdDNjg2ZWExZDNiYzJi
-NGM2ZmE5MmNkOTljNWMzMDE2Mw0KPiA1JTdDMCU3QzAlN0M2MzY5MjcyNTA3NDM1MTY1NjMmYW1w
-O3NkYXRhPXBGZENiaURYRSUyRkRsbDAxWDlOag0KPiBIZzNTQ0RwRUN6Z3JyOE1MdFlCZEtINWMl
-M0QmYW1wO3Jlc2VydmVkPTAgIHwgUGVpbmVyIFN0ci4gNi04LCAzMTEzNyANCj4gSGlsZGVzaGVp
-bSwgR2VybWFueSB8IFBob25lOiArNDktNTEyMS0yMDY5MTctMA0KPiB8DQo+IEFtdHNnZXJpY2h0
-IEhpbGRlc2hlaW0sIEhSQSAyNjg2ICAgICAgICAgICB8IEZheDoNCj4gKzQ5LTUxMjEtMjA2OTE3
-LTU1NTUgfA0K
+On Thu, May 09, 2019 at 04:35:33AM +0000, Sumit Batra wrote:
+> > > > So the clock driver reports the wrong clock. Please fix the clock driver then.
+> > > No, this is a problem with the i2c driver. It is not a problem with 
+> > > the clock driver, so the i2c driver needs to be modified.
+> > 
+> > So how does this RCW bit get evaluated? 
+> According to the reference manual
+> > only one clock goes to the i2c module (described as 1/2 Platform
+> > Clock) and the i2c module only takes one clock. So it seems there must 
+> > be a /2 divider somewhere, either in each i2c module or somewhere 
+> > outside. Can your IC guys tell you where it is?
+> I need to confirm this with the IC team
+
+[Reformated a bit to make it readable]:
+
+> There are 2 places where clock division takes place -
+> 
+> 1) There is a clock divider outside of I2C block, which makes the clock reaching
+>    I2C module as - Platform Clock/2
+> 2) There is another clock divider which specifically divides the clock to the I2C block,
+>    based on RCW bit 424 (if 424th bit is 0 then the baud clock source is Platform Clock/4,
+>    if 424th bit is 1 then it remains Platform Clock/2)
+
+So there is a clock divider which based on RCW bit 424 divides the clock
+*to* the i2c module. This suggests the divider is outside of the i2c
+module itself and thus part of the clock module.
+
+We could argue that this divider sits between the clock module and the
+i2c module, but for sure it's not in the i2c module. I really suggest to
+put this SoC specific into the SoC specific clock driver rather than
+littering the i2c driver with it.
+
+Sascha
+
+> 
+> Now based on the what is the desired SCL value (100KHz etc) and the clock which is
+> received by I2C block, there is a calculation that goes on inside the I2C driver
+> module which is used to map a value in this imx_i2c_clk_div table. This value is used
+> to program the IMX_I2C_IFDR register of the I2C block. Now if we don't consider the
+> RCW bit 424 in our I2C driver calculation then the IMX_I2C_IFDR value that gets set
+> makes SCL half of what is desired by the user. This is because if you make the RCW
+> 424th bit as 0 then anyhow I2C block (hardware) will receive Platform Clock/4, but
+> the driver (since it has not considered this bit) will consider it as Platform Clock/2
+> so it'll program a bigger divider from the imx_i2c_clk_div table
+
+-- 
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
