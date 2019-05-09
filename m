@@ -1,202 +1,125 @@
-From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Subject: [PATCH 1/1] i2c: iproc: Add multi byte read-write support for slave mode
-Date: Thu,  9 May 2019 09:51:48 +0530
-Message-ID: <1557375708-14830-1-git-send-email-rayagonda.kokatanur@broadcom.com>
+From: Sumit Batra <sumit.batra@nxp.com>
+Subject: RE: [EXT] Re: [PATCH 1/2] i2c: imx: I2C Driver doesn't consider
+ I2C_IPGCLK_SEL RCW bit when using ls1046a SoC
+Date: Thu, 9 May 2019 04:35:33 +0000
+Message-ID: <AM6PR04MB4629DEDAAA6559EBBD20E974EF330@AM6PR04MB4629.eurprd04.prod.outlook.com>
+References: <20190430044719.30720-1-chuanhua.han@nxp.com>
+ <20190430125043.weqwzim4gpsvtkfe@pengutronix.de>
+ <AM6PR04MB43571B8D52C1FE9ED20DBA1D97360@AM6PR04MB4357.eurprd04.prod.outlook.com>
+ <20190506073735.ctzybytamu44pbvv@pengutronix.de>
+ <AM0PR04MB43534A9B1A146DEFA929844C97320@AM0PR04MB4353.eurprd04.prod.outlook.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <AM0PR04MB43534A9B1A146DEFA929844C97320@AM0PR04MB4353.eurprd04.prod.outlook.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
-Cc: linux-i2c@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Ray Jui <ray.jui@broadcom.com>, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Michael Cheng <ccheng@broadcom.com>, Srinath Mannam <srinath.mannam@broadcom.com>
+To: Chuanhua Han <chuanhua.han@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>
+Cc: "shawnguo@kernel.org" <shawnguo@kernel.org>, Leo Li <leoyang.li@nxp.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "festevam@gmail.com" <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, "wsa+renesas@sang-engineering.com" <wsa+renesas@sang-engineering.com>, "u.kleine-koenig@pengutronix.de" <u.kleine-koenig@pengutronix.de>, "eha@deif.com" <eha@deif.com>, "linux@rempel-privat.de" <linux@rempel-privat.de>, "l.stach@pengutronix.de" <l.stach@pengutronix.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Add multiple byte read-write support for slave mode.
-
-Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
----
- drivers/i2c/busses/i2c-bcm-iproc.c | 117 +++++++++++++++++--------------------
- 1 file changed, 53 insertions(+), 64 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-index a845b8d..2c7f145 100644
---- a/drivers/i2c/busses/i2c-bcm-iproc.c
-+++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-@@ -165,12 +165,6 @@ enum i2c_slave_read_status {
- 	I2C_SLAVE_RX_END,
- };
- 
--enum i2c_slave_xfer_dir {
--	I2C_SLAVE_DIR_READ = 0,
--	I2C_SLAVE_DIR_WRITE,
--	I2C_SLAVE_DIR_NONE,
--};
--
- enum bus_speed_index {
- 	I2C_SPD_100K = 0,
- 	I2C_SPD_400K,
-@@ -203,7 +197,6 @@ struct bcm_iproc_i2c_dev {
- 	struct i2c_msg *msg;
- 
- 	struct i2c_client *slave;
--	enum i2c_slave_xfer_dir xfer_dir;
- 
- 	/* bytes that have been transferred */
- 	unsigned int tx_bytes;
-@@ -219,7 +212,8 @@ struct bcm_iproc_i2c_dev {
- 		| BIT(IS_M_RX_THLD_SHIFT))
- 
- #define ISR_MASK_SLAVE (BIT(IS_S_START_BUSY_SHIFT)\
--		| BIT(IS_S_RX_EVENT_SHIFT) | BIT(IS_S_RD_EVENT_SHIFT))
-+		| BIT(IS_S_RX_EVENT_SHIFT) | BIT(IS_S_RD_EVENT_SHIFT)\
-+		| BIT(IS_S_TX_UNDERRUN_SHIFT))
- 
- static int bcm_iproc_i2c_reg_slave(struct i2c_client *slave);
- static int bcm_iproc_i2c_unreg_slave(struct i2c_client *slave);
-@@ -297,15 +291,11 @@ static void bcm_iproc_i2c_slave_init(
- 	/* clear all pending slave interrupts */
- 	iproc_i2c_wr_reg(iproc_i2c, IS_OFFSET, ISR_MASK_SLAVE);
- 
--	/* Enable interrupt register for any READ event */
--	val = BIT(IE_S_RD_EVENT_SHIFT);
- 	/* Enable interrupt register to indicate a valid byte in receive fifo */
--	val |= BIT(IE_S_RX_EVENT_SHIFT);
-+	val = BIT(IE_S_RX_EVENT_SHIFT);
- 	/* Enable interrupt register for the Slave BUSY command */
- 	val |= BIT(IE_S_START_BUSY_SHIFT);
- 	iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
--
--	iproc_i2c->xfer_dir = I2C_SLAVE_DIR_NONE;
- }
- 
- static void bcm_iproc_i2c_check_slave_status(
-@@ -314,8 +304,11 @@ static void bcm_iproc_i2c_check_slave_status(
- 	u32 val;
- 
- 	val = iproc_i2c_rd_reg(iproc_i2c, S_CMD_OFFSET);
--	val = (val >> S_CMD_STATUS_SHIFT) & S_CMD_STATUS_MASK;
-+	/* status is valid only when START_BUSY is cleared after it was set */
-+	if (val & BIT(S_CMD_START_BUSY_SHIFT))
-+		return;
- 
-+	val = (val >> S_CMD_STATUS_SHIFT) & S_CMD_STATUS_MASK;
- 	if (val == S_CMD_STATUS_TIMEOUT) {
- 		dev_err(iproc_i2c->device, "slave random stretch time timeout\n");
- 
-@@ -327,70 +320,66 @@ static void bcm_iproc_i2c_check_slave_status(
- }
- 
- static bool bcm_iproc_i2c_slave_isr(struct bcm_iproc_i2c_dev *iproc_i2c,
--				u32 status)
-+				    u32 status)
- {
--	u8 value;
- 	u32 val;
--	u32 rd_status;
--	u32 tmp;
-+	u8 value, rx_status;
- 
--	/* Start of transaction. check address and populate the direction */
--	if (iproc_i2c->xfer_dir == I2C_SLAVE_DIR_NONE) {
--		tmp = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
--		rd_status = (tmp >> S_RX_STATUS_SHIFT) & S_RX_STATUS_MASK;
--		/* This condition checks whether the request is a new request */
--		if (((rd_status == I2C_SLAVE_RX_START) &&
--			(status & BIT(IS_S_RX_EVENT_SHIFT))) ||
--			((rd_status == I2C_SLAVE_RX_END) &&
--			(status & BIT(IS_S_RD_EVENT_SHIFT)))) {
--
--			/* Last bit is W/R bit.
--			 * If 1 then its a read request(by master).
--			 */
--			iproc_i2c->xfer_dir = tmp & SLAVE_READ_WRITE_BIT_MASK;
--			if (iproc_i2c->xfer_dir == I2C_SLAVE_DIR_WRITE)
--				i2c_slave_event(iproc_i2c->slave,
--					I2C_SLAVE_READ_REQUESTED, &value);
--			else
--				i2c_slave_event(iproc_i2c->slave,
-+	/* Slave RX byte receive */
-+	if (status & BIT(IS_S_RX_EVENT_SHIFT)) {
-+		val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
-+		rx_status = (val >> S_RX_STATUS_SHIFT) & S_RX_STATUS_MASK;
-+		if (rx_status == I2C_SLAVE_RX_START) {
-+			/* Start of SMBUS for Master write */
-+			i2c_slave_event(iproc_i2c->slave,
- 					I2C_SLAVE_WRITE_REQUESTED, &value);
--		}
--	}
- 
--	/* read request from master */
--	if ((status & BIT(IS_S_RD_EVENT_SHIFT)) &&
--		(iproc_i2c->xfer_dir == I2C_SLAVE_DIR_WRITE)) {
--		i2c_slave_event(iproc_i2c->slave,
--			I2C_SLAVE_READ_PROCESSED, &value);
--		iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
-+			val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
-+			value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
-+			i2c_slave_event(iproc_i2c->slave,
-+					I2C_SLAVE_WRITE_RECEIVED, &value);
-+		} else if (status & BIT(IS_S_RD_EVENT_SHIFT)) {
-+			/* Start of SMBUS for Master Read */
-+			i2c_slave_event(iproc_i2c->slave,
-+					I2C_SLAVE_READ_REQUESTED, &value);
-+			iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
- 
--		val = BIT(S_CMD_START_BUSY_SHIFT);
--		iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
--	}
-+			val = BIT(S_CMD_START_BUSY_SHIFT);
-+			iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
- 
--	/* write request from master */
--	if ((status & BIT(IS_S_RX_EVENT_SHIFT)) &&
--		(iproc_i2c->xfer_dir == I2C_SLAVE_DIR_READ)) {
--		val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
--		/* Its a write request by Master to Slave.
--		 * We read data present in receive FIFO
--		 */
--		value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
-+			/*
-+			 * Enable interrupt for TX FIFO becomes empty and
-+			 * less than PKT_LENGTH bytes were output on the SMBUS
-+			 */
-+			val = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
-+			val |= BIT(IE_S_TX_UNDERRUN_SHIFT);
-+			iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
-+		} else {
-+			/* Master write other than start */
-+			value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
-+			i2c_slave_event(iproc_i2c->slave,
-+					I2C_SLAVE_WRITE_RECEIVED, &value);
-+		}
-+	} else if (status & BIT(IS_S_TX_UNDERRUN_SHIFT)) {
-+		/* Master read other than start */
- 		i2c_slave_event(iproc_i2c->slave,
--			I2C_SLAVE_WRITE_RECEIVED, &value);
--
--		/* check the status for the last byte of the transaction */
--		rd_status = (val >> S_RX_STATUS_SHIFT) & S_RX_STATUS_MASK;
--		if (rd_status == I2C_SLAVE_RX_END)
--			iproc_i2c->xfer_dir = I2C_SLAVE_DIR_NONE;
-+				I2C_SLAVE_READ_PROCESSED, &value);
- 
--		dev_dbg(iproc_i2c->device, "\nread value = 0x%x\n", value);
-+		iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
-+		val = BIT(S_CMD_START_BUSY_SHIFT);
-+		iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
- 	}
- 
- 	/* Stop */
- 	if (status & BIT(IS_S_START_BUSY_SHIFT)) {
- 		i2c_slave_event(iproc_i2c->slave, I2C_SLAVE_STOP, &value);
--		iproc_i2c->xfer_dir = I2C_SLAVE_DIR_NONE;
-+		/*
-+		 * Enable interrupt for TX FIFO becomes empty and
-+		 * less than PKT_LENGTH bytes were output on the SMBUS
-+		 */
-+		val = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
-+		val &= ~BIT(IE_S_TX_UNDERRUN_SHIFT);
-+		iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
- 	}
- 
- 	/* clear interrupt status */
--- 
-1.9.1
+SGkgU2FzY2hhLA0KUGxlYXNlIGNoZWNrIG15IGNvbW1lbnQNCg0KLS0tLS1PcmlnaW5hbCBNZXNz
+YWdlLS0tLS0NCkZyb206IENodWFuaHVhIEhhbiANClNlbnQ6IFdlZG5lc2RheSwgTWF5IDgsIDIw
+MTkgNTowNSBQTQ0KVG86IFNhc2NoYSBIYXVlciA8cy5oYXVlckBwZW5ndXRyb25peC5kZT4NCkNj
+OiBzaGF3bmd1b0BrZXJuZWwub3JnOyBMZW8gTGkgPGxlb3lhbmcubGlAbnhwLmNvbT47IHJvYmgr
+ZHRAa2VybmVsLm9yZzsgbWFyay5ydXRsYW5kQGFybS5jb207IGxpbnV4LWtlcm5lbEB2Z2VyLmtl
+cm5lbC5vcmc7IGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWFybS1rZXJuZWxAbGlz
+dHMuaW5mcmFkZWFkLm9yZzsgZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7IGZlc3RldmFtQGdt
+YWlsLmNvbTsgZGwtbGludXgtaW14IDxsaW51eC1pbXhAbnhwLmNvbT47IHdzYStyZW5lc2FzQHNh
+bmctZW5naW5lZXJpbmcuY29tOyB1LmtsZWluZS1rb2VuaWdAcGVuZ3V0cm9uaXguZGU7IGVoYUBk
+ZWlmLmNvbTsgbGludXhAcmVtcGVsLXByaXZhdC5kZTsgbC5zdGFjaEBwZW5ndXRyb25peC5kZTsg
+cGVkYUBheGVudGlhLnNlOyBTdW1pdCBCYXRyYSA8c3VtaXQuYmF0cmFAbnhwLmNvbT4NClN1Ympl
+Y3Q6IFJFOiBbRVhUXSBSZTogW1BBVENIIDEvMl0gaTJjOiBpbXg6IEkyQyBEcml2ZXIgZG9lc24n
+dCBjb25zaWRlciBJMkNfSVBHQ0xLX1NFTCBSQ1cgYml0IHdoZW4gdXNpbmcgbHMxMDQ2YSBTb0MN
+Cg0KDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU2FzY2hhIEhhdWVy
+IDxzLmhhdWVyQHBlbmd1dHJvbml4LmRlPg0KPiBTZW50OiAyMDE55bm0NeaciDbml6UgMTU6MzgN
+Cj4gVG86IENodWFuaHVhIEhhbiA8Y2h1YW5odWEuaGFuQG54cC5jb20+DQo+IENjOiBzaGF3bmd1
+b0BrZXJuZWwub3JnOyBMZW8gTGkgPGxlb3lhbmcubGlAbnhwLmNvbT47IA0KPiByb2JoK2R0QGtl
+cm5lbC5vcmc7IG1hcmsucnV0bGFuZEBhcm0uY29tOyANCj4gbGludXgta2VybmVsQHZnZXIua2Vy
+bmVsLm9yZzsgbGludXgtaTJjQHZnZXIua2VybmVsLm9yZzsgDQo+IGxpbnV4LWFybS1rZXJuZWxA
+bGlzdHMuaW5mcmFkZWFkLm9yZzsNCj4gZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7IGZlc3Rl
+dmFtQGdtYWlsLmNvbTsgZGwtbGludXgtaW14IA0KPiA8bGludXgtaW14QG54cC5jb20+OyB3c2Er
+cmVuZXNhc0BzYW5nLWVuZ2luZWVyaW5nLmNvbTsgDQo+IHUua2xlaW5lLWtvZW5pZ0BwZW5ndXRy
+b25peC5kZTsgZWhhQGRlaWYuY29tOyBsaW51eEByZW1wZWwtcHJpdmF0LmRlOyANCj4gbC5zdGFj
+aEBwZW5ndXRyb25peC5kZTsgcGVkYUBheGVudGlhLnNlOyBTdW1pdCBCYXRyYSANCj4gPHN1bWl0
+LmJhdHJhQG54cC5jb20+DQo+IFN1YmplY3Q6IFJlOiBbRVhUXSBSZTogW1BBVENIIDEvMl0gaTJj
+OiBpbXg6IEkyQyBEcml2ZXIgZG9lc24ndCANCj4gY29uc2lkZXIgSTJDX0lQR0NMS19TRUwgUkNX
+IGJpdCB3aGVuIHVzaW5nIGxzMTA0NmEgU29DDQo+IA0KPiBDYXV0aW9uOiBFWFQgRW1haWwNCj4g
+DQo+IE9uIFNhdCwgTWF5IDA0LCAyMDE5IGF0IDA5OjI4OjQ4QU0gKzAwMDAsIENodWFuaHVhIEhh
+biB3cm90ZToNCj4gPg0KPiA+DQo+ID4gPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiA+
+ID4gRnJvbTogU2FzY2hhIEhhdWVyIDxzLmhhdWVyQHBlbmd1dHJvbml4LmRlPg0KPiA+ID4gU2Vu
+dDogMjAxOeW5tDTmnIgzMOaXpSAyMDo1MQ0KPiA+ID4gVG86IENodWFuaHVhIEhhbiA8Y2h1YW5o
+dWEuaGFuQG54cC5jb20+DQo+ID4gPiBDYzogc2hhd25ndW9Aa2VybmVsLm9yZzsgTGVvIExpIDxs
+ZW95YW5nLmxpQG54cC5jb20+Ow0KPiA+ID4gcm9iaCtkdEBrZXJuZWwub3JnOyBtYXJrLnJ1dGxh
+bmRAYXJtLmNvbTsNCj4gPiA+IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWky
+Y0B2Z2VyLmtlcm5lbC5vcmc7IA0KPiA+ID4gbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRl
+YWQub3JnOw0KPiA+ID4gZGV2aWNldHJlZUB2Z2VyLmtlcm5lbC5vcmc7IGZlc3RldmFtQGdtYWls
+LmNvbTsgZGwtbGludXgtaW14IA0KPiA+ID4gPGxpbnV4LWlteEBueHAuY29tPjsgd3NhK3JlbmVz
+YXNAc2FuZy1lbmdpbmVlcmluZy5jb207IA0KPiA+ID4gdS5rbGVpbmUta29lbmlnQHBlbmd1dHJv
+bml4LmRlOyBlaGFAZGVpZi5jb207IA0KPiA+ID4gbGludXhAcmVtcGVsLXByaXZhdC5kZTsgbC5z
+dGFjaEBwZW5ndXRyb25peC5kZTsgcGVkYUBheGVudGlhLnNlOyANCj4gPiA+IFN1bWl0IEJhdHJh
+IDxzdW1pdC5iYXRyYUBueHAuY29tPg0KPiA+ID4gU3ViamVjdDogW0VYVF0gUmU6IFtQQVRDSCAx
+LzJdIGkyYzogaW14OiBJMkMgRHJpdmVyIGRvZXNuJ3QgDQo+ID4gPiBjb25zaWRlciBJMkNfSVBH
+Q0xLX1NFTCBSQ1cgYml0IHdoZW4gdXNpbmcgbHMxMDQ2YSBTb0MNCj4gPiA+DQo+ID4gPiBDYXV0
+aW9uOiBFWFQgRW1haWwNCj4gPiA+DQo+ID4gPiBPbiBUdWUsIEFwciAzMCwgMjAxOSBhdCAxMjo0
+NzoxOFBNICswODAwLCBDaHVhbmh1YSBIYW4gd3JvdGU6DQo+ID4gPiA+IFRoZSBjdXJyZW50IGtl
+cm5lbCBkcml2ZXIgZG9lcyBub3QgY29uc2lkZXIgSTJDX0lQR0NMS19TRUwgKDQyNCANCj4gPiA+
+ID4gYml0IG9mDQo+ID4gPiA+IFJDVykgaW4gZGVjaWRpbmcgIGkyY19jbGtfcmF0ZSBpbiBmdW5j
+dGlvbiBpMmNfaW14X3NldF9jbGsoKSB7IDAgDQo+ID4gPiA+IFBsYXRmb3JtIGNsb2NrLzQsIDEg
+UGxhdGZvcm0gY2xvY2svMn0uDQo+ID4gPiA+DQo+ID4gPiA+IFdoZW4gdXNpbmcgbHMxMDQ2YSBT
+b0MsIHRoaXMgcG9wdWxhdGVzIGluY29ycmVjdCB2YWx1ZSBpbiBJQkZEIA0KPiA+ID4gPiByZWdp
+c3RlciBpZiBJMkNfSVBHQ0xLX1NFTCA9IDAsIHdoaWNoIGdlbmVyYXRlcyBoYWxmIG9mIHRoZSBk
+ZXNpcmVkIENsb2NrLg0KPiA+ID4gPg0KPiA+ID4gPiBUaGVyZWZvcmUsIGlmIGxzMTA0NmEgU29D
+IGlzIHVzZWQsIHdlIG5lZWQgdG8gc2V0IHRoZSBpMmMgY2xvY2sgDQo+ID4gPiA+IGFjY29yZGlu
+ZyB0byB0aGUgY29ycmVzcG9uZGluZyBSQ1cuDQo+ID4gPg0KPiA+ID4gU28gdGhlIGNsb2NrIGRy
+aXZlciByZXBvcnRzIHRoZSB3cm9uZyBjbG9jay4gUGxlYXNlIGZpeCB0aGUgY2xvY2sgZHJpdmVy
+IHRoZW4uDQo+ID4gTm8sIHRoaXMgaXMgYSBwcm9ibGVtIHdpdGggdGhlIGkyYyBkcml2ZXIuIEl0
+IGlzIG5vdCBhIHByb2JsZW0gd2l0aCANCj4gPiB0aGUgY2xvY2sgZHJpdmVyLCBzbyB0aGUgaTJj
+IGRyaXZlciBuZWVkcyB0byBiZSBtb2RpZmllZC4NCj4gDQo+IFNvIGhvdyBkb2VzIHRoaXMgUkNX
+IGJpdCBnZXQgZXZhbHVhdGVkPyANCkFjY29yZGluZyB0byB0aGUgcmVmZXJlbmNlIG1hbnVhbA0K
+PiBvbmx5IG9uZSBjbG9jayBnb2VzIHRvIHRoZSBpMmMgbW9kdWxlIChkZXNjcmliZWQgYXMgMS8y
+IFBsYXRmb3JtDQo+IENsb2NrKSBhbmQgdGhlIGkyYyBtb2R1bGUgb25seSB0YWtlcyBvbmUgY2xv
+Y2suIFNvIGl0IHNlZW1zIHRoZXJlIG11c3QgDQo+IGJlIGEgLzIgZGl2aWRlciBzb21ld2hlcmUs
+IGVpdGhlciBpbiBlYWNoIGkyYyBtb2R1bGUgb3Igc29tZXdoZXJlIA0KPiBvdXRzaWRlLiBDYW4g
+eW91ciBJQyBndXlzIHRlbGwgeW91IHdoZXJlIGl0IGlzPw0KSSBuZWVkIHRvIGNvbmZpcm0gdGhp
+cyB3aXRoIHRoZSBJQyB0ZWFtDQpbU3VtaXQgQmF0cmFdIFRoZXJlIGFyZSAyIHBsYWNlcyB3aGVy
+ZSBjbG9jayBkaXZpc2lvbiB0YWtlcyBwbGFjZSAtDQogICAgICAgICAgICAgIDEpIFRoZXJlIGlz
+IGEgY2xvY2sgZGl2aWRlciBvdXRzaWRlIG9mIEkyQyBibG9jaywgd2hpY2ggbWFrZXMgdGhlIGNs
+b2NrIHJlYWNoaW5nIEkyQyBtb2R1bGUgYXMgLSBQbGF0Zm9ybSBDbG9jay8yDQoJMikgVGhlcmUg
+aXMgYW5vdGhlciBjbG9jayBkaXZpZGVyIHdoaWNoIHNwZWNpZmljYWxseSBkaXZpZGVzIHRoZSBj
+bG9jayB0byB0aGUgSTJDIGJsb2NrLCBiYXNlZCBvbiBSQ1cgYml0IDQyNCAoaWYgNDI0dGggYml0
+IGlzIDAgdGhlbiB0aGUgYmF1ZCBjbG9jayBzb3VyY2UgaXMgUGxhdGZvcm0gQ2xvY2svNCwgaWYg
+NDI0dGggYml0IGlzIDEgdGhlbiBpdCByZW1haW5zIFBsYXRmb3JtIENsb2NrLzIpDQogICAgICAg
+ICAgICAgIDMpIE5vdyBiYXNlZCBvbiB0aGUgd2hhdCBpcyB0aGUgZGVzaXJlZCBTQ0wgdmFsdWUg
+KDEwMEtIeiBldGMpIGFuZCB0aGUgY2xvY2sgd2hpY2ggaXMgcmVjZWl2ZWQgYnkgSTJDIGJsb2Nr
+LCB0aGVyZSBpcyBhIGNhbGN1bGF0aW9uIHRoYXQgZ29lcyBvbiBpbnNpZGUgdGhlIEkyQyBkcml2
+ZXIgbW9kdWxlIHdoaWNoIGlzIHVzZWQgdG8gbWFwIGEgdmFsdWUgaW4gdGhpcyBpbXhfaTJjX2Ns
+a19kaXYgdGFibGUuDQogICAgICAgICAgICAgICAgICBUaGlzIHZhbHVlIGlzIHVzZWQgdG8gcHJv
+Z3JhbSB0aGUgSU1YX0kyQ19JRkRSIHJlZ2lzdGVyIG9mIHRoZSBJMkMgYmxvY2suIE5vdyBpZiB3
+ZSBkb24ndCBjb25zaWRlciB0aGUgUkNXIGJpdCA0MjQgaW4gb3VyIEkyQyBkcml2ZXIgY2FsY3Vs
+YXRpb24gdGhlbiB0aGUgSU1YX0kyQ19JRkRSIHZhbHVlIHRoYXQgZ2V0cyBzZXQgbWFrZXMgU0NM
+IGhhbGYgb2Ygd2hhdCBpcyBkZXNpcmVkIGJ5IHRoZSB1c2VyLg0KICAgICAgICAgICAgICAgICAg
+VGhpcyBpcyBiZWNhdXNlIGlmIHlvdSBtYWtlIHRoZSBSQ1cgNDI0dGggYml0IGFzIDAgdGhlbiBh
+bnlob3cgSTJDIGJsb2NrIChoYXJkd2FyZSkgd2lsbCByZWNlaXZlIFBsYXRmb3JtIENsb2NrLzQs
+IGJ1dCB0aGUgZHJpdmVyIChzaW5jZSBpdCBoYXMgbm90IGNvbnNpZGVyZWQgdGhpcyBiaXQpIHdp
+bGwgY29uc2lkZXIgaXQgYXMgUGxhdGZvcm0gQ2xvY2svMiBzbyBpdCdsbCBwcm9ncmFtIGEgYmln
+Z2VyIGRpdmlkZXIgZnJvbSAgICAgdGhlIGlteF9pMmNfY2xrX2RpdiB0YWJsZQkJDQo+IA0KPiBP
+bmUgcmVhc29uIEkgc3VnZ2VzdGVkIHRoZSBjbG9jayBkcml2ZXIgaXMgdGhhdCB0aGUgY2xvY2sg
+ZHJpdmVyIA0KPiBjb250YWlucyBTb0Mgc3BlY2lmaWMgY29kZSBhbHJlYWR5LCBzbyBpdCBzaG91
+bGQgYmUgZWFzaWVyIHRvIGludGVncmF0ZSB0aGVyZS4NCkl0IHNlZW1zIGluYXBwcm9wcmlhdGUg
+dG8gcHV0IHRoZSBjbG9jayBmcmVxdWVuY3kgZGl2aXNpb24gbW9kaWZpY2F0aW9uIG9mIGkyYyBp
+biB0aGUgY2xvY2sgZHJpdmVyLCBiZWNhdXNlIHRoZSBjbG9jayBkcml2ZXIgaXMgZm9yIGFsbCBJ
+UCBhbmQgaXMgYSB1bml2ZXJzYWwgY29kZSwgc28gSSB0aGluayBpdCBpcyBiZXR0ZXIgdG8gbW9k
+aWZ5IHRoZSBjbG9jayBpbiB0aGUgSVAgZHJpdmVyLg0KPiANCj4gU2FzY2hhDQo+IA0KPiANCj4g
+LS0NCj4gUGVuZ3V0cm9uaXggZS5LLiAgICAgICAgICAgICAgICAgICAgICAgICAgIHwNCj4gfA0K
+PiBJbmR1c3RyaWFsIExpbnV4IFNvbHV0aW9ucyAgICAgICAgICAgICAgICAgfA0KPiBodHRwczov
+L2V1cjAxLnNhZmVsaW5rcy5wcm90ZWN0aW9uLm91dGxvb2suY29tLz91cmw9aHR0cCUzQSUyRiUy
+Rnd3dy5wDQo+IGUgbmd1dHJvbml4LmRlJTJGJmFtcDtkYXRhPTAyJTdDMDElN0NjaHVhbmh1YS5o
+YW4lNDBueHAuY29tJTdDYjJkDQo+IDQ2ODA2OTljNDQ4ZTg1MTQzMDhkNmQxZjViZjgyJTdDNjg2
+ZWExZDNiYzJiNGM2ZmE5MmNkOTljNWMzMDE2Mw0KPiA1JTdDMCU3QzAlN0M2MzY5MjcyNTA3NDM1
+MTY1NjMmYW1wO3NkYXRhPXBGZENiaURYRSUyRkRsbDAxWDlOag0KPiBIZzNTQ0RwRUN6Z3JyOE1M
+dFlCZEtINWMlM0QmYW1wO3Jlc2VydmVkPTAgIHwgUGVpbmVyIFN0ci4gNi04LCAzMTEzNyANCj4g
+SGlsZGVzaGVpbSwgR2VybWFueSB8IFBob25lOiArNDktNTEyMS0yMDY5MTctMA0KPiB8DQo+IEFt
+dHNnZXJpY2h0IEhpbGRlc2hlaW0sIEhSQSAyNjg2ICAgICAgICAgICB8IEZheDoNCj4gKzQ5LTUx
+MjEtMjA2OTE3LTU1NTUgfA0K
