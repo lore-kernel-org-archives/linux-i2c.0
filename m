@@ -1,7 +1,7 @@
 From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
 Subject: [PATCH 1/1] i2c: iproc: Add multi byte read-write support for slave mode
-Date: Thu,  9 May 2019 09:35:17 +0530
-Message-ID: <1557374717-14603-1-git-send-email-rayagonda.kokatanur@broadcom.com>
+Date: Thu,  9 May 2019 09:51:48 +0530
+Message-ID: <1557375708-14830-1-git-send-email-rayagonda.kokatanur@broadcom.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
