@@ -1,24 +1,48 @@
-From: pr-tracker-bot@kernel.org
-Subject: Re: [PULL REQUEST] i2c for 5.2
-Date: Thu, 09 May 2019 22:15:15 +0000
-Message-ID: <155744011521.23477.7035277562607237397.pr-tracker-bot@kernel.org>
-References: <20190509191132.GA9306@kunai>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
+Subject: [PATCH 3/3] i2c: i801: avoid panic if ioreamp fails
+Date: Fri, 10 May 2019 11:03:20 +0800
+Message-ID: <20190510030320.109154-3-wangkefeng.wang@huawei.com>
+References: <20190510030320.109154-1-wangkefeng.wang@huawei.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190509191132.GA9306@kunai>
+In-Reply-To: <20190510030320.109154-1-wangkefeng.wang@huawei.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+To: linux-kernel@vger.kernel.org
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>, Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Hulk Robot <hulkci@huawei.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The pull request you sent on Thu, 9 May 2019 21:11:55 +0200:
+If ioremap fails, NULL pointer dereference will happen and
+leading to a kernel panic when access the virtual address
+in check_signature().
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-5.2
+Fix it by check the return value of ioremap.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/45182e4e1f8ac04708ca7508c51d9103f07d81ab
+Cc: Jean Delvare <jdelvare@suse.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+---
+ drivers/i2c/busses/i2c-i801.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-Thank you!
-
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 679c6c41f64b..fc6ccb8aba17 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1068,7 +1068,10 @@ static void __init input_apanel_init(void)
+ 	void __iomem *bios;
+ 	const void __iomem *p;
+ 
+-	bios = ioremap(0xF0000, 0x10000); /* Can't fail */
++	bios = ioremap(0xF0000, 0x10000);
++	if (!base)
++		return -ENOMEM;
++
+ 	p = bios_signature(bios);
+ 	if (p) {
+ 		/* just use the first address */
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+2.20.1
