@@ -1,204 +1,113 @@
-From: Ludovic Desroches <ludovic.desroches@microchip.com>
-Subject: Re: [PATCH] i2c: at91: handle TXRDY interrupt spam
-Date: Tue, 14 May 2019 10:52:09 +0200
-Message-ID: <20190514085209.pud5sqrxn2zjrqix@M43218.corp.atmel.com>
-References: <1556005008-6318-1-git-send-email-raagjadav@gmail.com>
- <20190429090005.f6ydghzu5n5yruav@M43218.corp.atmel.com>
- <20190429223332.GA3908@pc>
- <20190502140116.rim72idpgvq4h4vc@M43218.corp.atmel.com>
- <20190503235851.GA4242@pc>
- <408ff580-3633-f510-4223-50064f93024a@microchip.com>
+From: Sagar Kadam <sagar.kadam@sifive.com>
+Subject: Re: [PATCH v2 v2 1/3] dt-bindings: i2c: extend existing opencore bindings.
+Date: Tue, 14 May 2019 18:20:17 +0530
+Message-ID: <CAARK3HkTCGWg4CAo1LmQHmf4_NFukjTwO1LAHjgSTS+R_5CRSg@mail.gmail.com>
+References: <1557242108-13580-1-git-send-email-sagar.kadam@sifive.com>
+ <1557242108-13580-2-git-send-email-sagar.kadam@sifive.com> <20190513205615.GA5844@bogus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <408ff580-3633-f510-4223-50064f93024a@microchip.com>
+In-Reply-To: <20190513205615.GA5844@bogus>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eugen Hristev - M18282 <Eugen.Hristev@microchip.com>
-Cc: Raag Jadav <raagjadav@gmail.com>, "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Rob Herring <robh@kernel.org>
+Cc: mark.rutland@arm.com, peter@korsgaard.com, Andrew Lunn <andrew@lunn.ch>, Palmer Dabbelt <palmer@sifive.com>, Paul Walmsley <paul.walmsley@sifive.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 06, 2019 at 10:19:01AM +0200, Eugen Hristev - M18282 wrote:
-> 
-> 
-> On 04.05.2019 02:58, Raag Jadav wrote:
-> 
-> > On Thu, May 02, 2019 at 04:01:16PM +0200, Ludovic Desroches wrote:
-> >> On Tue, Apr 30, 2019 at 04:03:32AM +0530, Raag Jadav wrote:
-> >>> External E-Mail
-> >>>
-> >>>
-> >>> On Mon, Apr 29, 2019 at 11:00:05AM +0200, Ludovic Desroches wrote:
-> >>>> Hello Raag,
-> >>>>
-> >>>> On Tue, Apr 23, 2019 at 01:06:48PM +0530, Raag Jadav wrote:
-> >>>>> External E-Mail
-> >>>>>
-> >>>>>
-> >>>>> Performing i2c write operation while SDA or SCL line is held
-> >>>>> or grounded by slave device, we go into infinite at91_twi_write_next_byte
-> >>>>> loop with TXRDY interrupt spam.
-> >>>>
-> >>>> Sorry but I am not sure to have the full picture, the controller is in
-> >>>> slave or master mode?
-> >>>>
-> >>>> SVREAD is only used in slave mode. When SVREAD is set, it means that a read
-> >>>> access is performed and your issue concerns the write operation.
-> >>>>
-> >>>> Regards
-> >>>>
-> >>>> Ludovic
-> >>>
-> >>> Yes, even though the datasheet suggests that SVREAD is irrelevant in master mode,
-> >>> TXRDY and SVREAD are the only ones being set in status register upon reproducing the issue.
-> >>> Couldn't think of a better way to handle such strange behaviour.
-> >>> Any suggestions would be appreciated.
-> >>
-> >> I have the confirmation that you can't rely on the SVREAD flag when in
-> >> master mode. This flag should always have the same value.
-> >>
-> >> I am trying to understand what could lead to your situation. Can you
-> >> give me more details. What kind of device it is? What does lead to this
-> >> situation? Does it happen randomly or not?
-> > 
-> > One of the sama5d2 based board I worked on, was having trouble complete its boot
-> > because of a faulty i2c device, which was randomly holding down the SDA line
-> > on i2c write operation, not allowing the controller to complete its transmission,
-> > causing a massive TXRDY interrupt spam, ultimately hanging the processor.
-> > 
-> > Another strange observation was that SVREAD was being set in the status register
-> > along with TXRDY, every time I reproduced the issue.
-> > You can reproduce it by simply grounding the SDA line and performing i2c write
-> > on the bus.
-> > 
-> > Note that NACK, LOCK or TXCOMP are never set as the transmission never completes.
-> > I'm not sure why slave bits are being set in master mode,
-> > but it's been working reliably for me.
-> > 
-> > This patch doesn't recover the SDA line. It just prevents the processor from
-> > getting hanged in case of i2c bus lockup.
-> 
-> Hello,
-> 
-> I have noticed the same hanging at some points... In my case it is 
-> because of this patch:
-> 
-> commit e8f39e9fc0e0b7bce24922da925af820bacb8ef8
-> Author: David Engraf <david.engraf@sysgo.com>
-> Date:   Thu Apr 26 11:53:14 2018 +0200
-> 
+Hello Rob,
 
-Good to know.
+Thank you for the review.
 
-> 
-> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> index bfd1fdf..3f3e8b3 100644
-> --- a/drivers/i2c/busses/i2c-at91.c
-> +++ b/drivers/i2c/busses/i2c-at91.c
-> @@ -518,8 +518,16 @@ static irqreturn_t atmel_twi_interrupt(int irq, 
-> void *dev_id)
->           * the RXRDY interrupt first in order to not keep garbage data 
-> in the
->           * Receive Holding Register for the next transfer.
->           */
-> -       if (irqstatus & AT91_TWI_RXRDY)
-> -               at91_twi_read_next_byte(dev);
-> +       if (irqstatus & AT91_TWI_RXRDY) {
-> +               /*
-> +                * Read all available bytes at once by polling RXRDY 
-> usable w/
-> +                * and w/o FIFO. With FIFO enabled we could also read 
-> RXFL and
-> +                * avoid polling RXRDY.
-> +                */
-> +               do {
-> +                       at91_twi_read_next_byte(dev);
-> +               } while (at91_twi_read(dev, AT91_TWI_SR) & AT91_TWI_RXRDY);
-> +       }
-> 
-> 
-> In my opinion having a do/while with an exit condition relying solely on 
-> a bit read from hardware is unacceptable in IRQ context - kernel can 
-> hang here.
-> A timeout would be a solution...
+On Tue, May 14, 2019 at 2:26 AM Rob Herring <robh@kernel.org> wrote:
+>
+> On Tue, May 07, 2019 at 08:45:06PM +0530, Sagar Shrikant Kadam wrote:
+> > Add FU540-C000 specific device tree bindings to already
+> > available i2-ocores file. This device is available on
+> > HiFive Unleashed Rev A00 board.
+> >
+> > Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+> > ---
+> >  Documentation/devicetree/bindings/i2c/i2c-ocores.txt | 20 ++++++++++++++++++++
+> >  1 file changed, 20 insertions(+)
+> >
+> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+> > index 17bef9a..f6bcf90 100644
+> > --- a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+> > +++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+> > @@ -2,6 +2,7 @@ Device tree configuration for i2c-ocores
+> >
+> >  Required properties:
+> >  - compatible      : "opencores,i2c-ocores" or "aeroflexgaisler,i2cmst"
+> > +                    "sifive,fu540-c000-i2c" or "sifive,i2c0"
+>
+> If this is Opencores IP, does it really follow the Sifive versioning
+> convention? If so, please reference sifive-blocks-ip-versioning.txt
+> (which appears to have missed going upstream). Also, referencing the IP
+> repository would be good too. If this IP block doesn't follow the same
+> convention, then don't try using it for this binding.
+>
+Yes, the sifive,fu540-c000-i2c is a SoC specific compatibility string,
+this way SoC specific
+workaround's or bugs, can be handled in the software and the ip-block
+specific compatibility
+string "sifive,<ip-block-name><integer version number>" i.e.
+sifive,i2c0 is IP block specific compatibility
+string. Please let me know if I need some correction here?
+I will also update reference for sifive-blocks-ip-versioning and the
+ip repository into next version of patch.
 
-You're right with a faulty hardware it can lead to disaster. As you
-mentionned issues with this patch, the end of loop condition is not good
-as it can stay true indefinitely.
+> >  - reg             : bus address start and address range size of device
+> >  - interrupts      : interrupt number
+> >  - clocks          : handle to the controller clock; see the note below.
+> > @@ -67,3 +68,22 @@ or
+> >                       reg = <0x60>;
+> >               };
+> >       };
+> > +or
+>
+> Just a new compatible isn't really a reason to add an example.
+>
+> > +     /*
+> > +       An Opencore based I2C node in FU540-C000 chip from SiFive
+> > +       This chip has a hardware erratum for broken IRQ
+> > +       so it's recommended not to define interrupt in the device node
+>
+> Then interrupts needs to be optional.
+True, I will move interrupts and interrupt parent into optional section
+>
+> > +     */
+> > +     i2c@10030000 {
+> > +                     compatible = "sifive,i2c0","sifive,fu540-c000-i2c";
+> > +                     reg = <0x0 0x10030000 0x0 0x1000>;
+> > +                     reg-names = "i2c-control";
+>
+> Not doucmented.
+In v1, I had added a new binding file as sifive-i2c-ocores.txt for
+SiFive i2c core.
+After Andrew's suggestion,  extending the available i2c-ocores.txt
+seemed to be a better idea rather than adding a new file.
+so added an example node which is HiFive specific in the existing file.
+Please let me know if I need to handle this in a different way.
 
-For sure a timeout is a solution but its value can be controversial.
-Maybe there is a better combination of flags to check in the status
-register. I'll see this point too.
-
-Regards
-
-Ludovic
-
-> 
-> For me, reverting this patch solves hanging issues.
-> 
-> Hope this helps,
-> 
-> Eugen
-> 
-> > 
-> > Cheers,
-> > Raag
-> > 
-> >>
-> >> Regards
-> >>
-> >> Ludovic
-> >>
-> >>>
-> >>> Cheers,
-> >>> Raag
-> >>>
-> >>>>
-> >>>>>
-> >>>>> Signed-off-by: Raag Jadav <raagjadav@gmail.com>
-> >>>>> ---
-> >>>>>   drivers/i2c/busses/i2c-at91.c | 6 +++++-
-> >>>>>   1 file changed, 5 insertions(+), 1 deletion(-)
-> >>>>>
-> >>>>> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> >>>>> index 3f3e8b3..b2f5fdb 100644
-> >>>>> --- a/drivers/i2c/busses/i2c-at91.c
-> >>>>> +++ b/drivers/i2c/busses/i2c-at91.c
-> >>>>> @@ -72,6 +72,7 @@
-> >>>>>   #define	AT91_TWI_TXCOMP		BIT(0)	/* Transmission Complete */
-> >>>>>   #define	AT91_TWI_RXRDY		BIT(1)	/* Receive Holding Register Ready */
-> >>>>>   #define	AT91_TWI_TXRDY		BIT(2)	/* Transmit Holding Register Ready */
-> >>>>> +#define	AT91_TWI_SVREAD		BIT(3)	/* Slave Read */
-> >>>>>   #define	AT91_TWI_OVRE		BIT(6)	/* Overrun Error */
-> >>>>>   #define	AT91_TWI_UNRE		BIT(7)	/* Underrun Error */
-> >>>>>   #define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
-> >>>>> @@ -571,7 +572,10 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
-> >>>>>   		at91_disable_twi_interrupts(dev);
-> >>>>>   		complete(&dev->cmd_complete);
-> >>>>>   	} else if (irqstatus & AT91_TWI_TXRDY) {
-> >>>>> -		at91_twi_write_next_byte(dev);
-> >>>>> +		if ((status & AT91_TWI_SVREAD) && (dev->buf_len == 0))
-> >>>>> +			at91_twi_write(dev, AT91_TWI_IDR, AT91_TWI_TXRDY);
-> >>>>> +		else
-> >>>>> +			at91_twi_write_next_byte(dev);
-> >>>>>   	}
-> >>>>>   
-> >>>>>   	/* catch error flags */
-> >>>>> -- 
-> >>>>> 2.7.4
-> >>>>>
-> >>>>>
-> >>>
-> >>> _______________________________________________
-> >>> linux-arm-kernel mailing list
-> >>> linux-arm-kernel@lists.infradead.org
-> >>> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> >>>
-> > 
-> > _______________________________________________
-> > linux-arm-kernel mailing list
-> > linux-arm-kernel@lists.infradead.org
-> > http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> > 
-> > 
+>
+> > +                     clocks = <&tlclk>;
+> > +                     clock-frequency = <100000>;
+> > +
+> > +                     reg-shift = <2>;
+> > +                     reg-io-width = <1>;
+> > +
+> > +                     #address-cells = <1>;
+> > +                     #size-cells = <0>;
+> > +     };
+> > --
+> > 1.9.1
+> >
+> >
+> > --
+> > The information transmitted is intended only for the person or entity to
+> > which it is addressed and may contain confidential and/or privileged
+> > material. If you are not the intended recipient of this message please do
+> > not read, copy, use or disclose this communication and notify the sender
+> > immediately. It should be noted that any review, retransmission,
+> > dissemination or other use of, or taking action or reliance upon, this
+> > information by persons or entities other than the intended recipient is
+> > prohibited
