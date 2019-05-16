@@ -1,55 +1,54 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 31/34] i2c: designware: ratelimit 'transfer when suspended' errors
-Date: Thu, 16 May 2019 07:39:28 -0400
-Message-ID: <20190516113932.8348-31-sashal@kernel.org>
-References: <20190516113932.8348-1-sashal@kernel.org>
+From: Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [PATCH v3 3/3] i2c-ocores: sifive: add polling mode workaround
+ for FU540-C000 SoC
+Date: Thu, 16 May 2019 14:31:20 +0200
+Message-ID: <20190516123120.GB14298@lunn.ch>
+References: <1557983320-14461-1-git-send-email-sagar.kadam@sifive.com>
+ <1557983320-14461-4-git-send-email-sagar.kadam@sifive.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190516113932.8348-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, skidnik <skidnik@gmail.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1557983320-14461-4-git-send-email-sagar.kadam@sifive.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, peter@korsgaard.com, palmer@sifive.com, paul.walmsley@sifive.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> @@ -682,13 +693,24 @@ static int ocores_i2c_probe(struct platform_device *pdev)
+>  
+>  	irq = platform_get_irq(pdev, 0);
+>  	if (irq == -ENXIO) {
+> -		i2c->flags |= OCORES_FLAG_POLL;
+> +		/*
+> +		 * Set a OCORES_FLAG_BROKEN_IRQ to enable workaround for
+> +		 * FU540-C000 SoC in polling mode interface of i2c-ocore driver.
+> +		 * Else enable default polling mode interface for SIFIVE/OCORE
+> +		 * device types.
+> +		 */
+> +		match = of_match_node(ocores_i2c_match, pdev->dev.of_node);
+> +		if (match && (long)match->data ==
+> +				(TYPE_SIFIVE_REV0 | OCORES_FLAG_BROKEN_IRQ))
 
-[ Upstream commit 6bac9bc273cdab6157ad7a2ead09400aabfc445b ]
+This looks wrong. You added:
 
-There are two problems with dev_err() here. One: It is not ratelimited.
-Two: We don't see which driver tried to transfer something with a
-suspended adapter. Switch to dev_WARN_ONCE to fix both issues. Drawback
-is that we don't see if multiple drivers are trying to transfer while
-suspended. They need to be discovered one after the other now. This is
-better than a high CPU load because a really broken driver might try to
-resend endlessly.
++       {
++               .compatible = "sifive,fu540-c000-i2c",
++               .data = (void *)TYPE_SIFIVE_REV0,
++       },
++       {
++               .compatible = "sifive,i2c0",
++               .data = (void *)TYPE_SIFIVE_REV0,
++       },
 
-Link: https://bugs.archlinux.org/task/62391
-Fixes: 275154155538 ("i2c: designware: Do not allow i2c_dw_xfer() calls while suspended")
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reported-by: skidnik <skidnik@gmail.com>
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: skidnik <skidnik@gmail.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/busses/i2c-designware-master.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+So match->data just has TYPE_SIFIVE_REV0.
 
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index bb8e3f1499796..d464799e40a30 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -426,8 +426,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 
- 	pm_runtime_get_sync(dev->dev);
- 
--	if (dev->suspended) {
--		dev_err(dev->dev, "Error %s call while suspended\n", __func__);
-+	if (dev_WARN_ONCE(dev->dev, dev->suspended, "Transfer while suspended\n")) {
- 		ret = -ESHUTDOWN;
- 		goto done_nolock;
- 	}
--- 
-2.20.1
+> +			i2c->flags |= OCORES_FLAG_BROKEN_IRQ;
+> +		else
+> +			i2c->flags |= OCORES_FLAG_POLL;
+
+These two don't need to be exclusive. It makes more sense to say
+SIFIVE needs to poll and it its IRQ is broken. A lot of your other
+changes then go away.
+
+       Andrew
