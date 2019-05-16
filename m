@@ -1,58 +1,55 @@
 From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-Subject: [PATCH v3 0/3] Extend dt bindings to support I2C on sifive devices and a fix broken IRQ in polling mode.
-Date: Thu, 16 May 2019 10:38:37 +0530
-Message-ID: <1557983320-14461-1-git-send-email-sagar.kadam@sifive.com>
+Subject: [PATCH v3 1/3] dt-bindings: i2c: extend existing opencore bindings.
+Date: Thu, 16 May 2019 10:38:38 +0530
+Message-ID: <1557983320-14461-2-git-send-email-sagar.kadam@sifive.com>
+References: <1557983320-14461-1-git-send-email-sagar.kadam@sifive.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1557983320-14461-1-git-send-email-sagar.kadam@sifive.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: robh+dt@kernel.org, mark.rutland@arm.com, peter@korsgaard.com, andrew@lunn.ch, palmer@sifive.com, paul.walmsley@sifive.com, sagar.kadam@sifive.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The patch is based on mainline v5.1 and extends DT-bindings for Opencore based I2C IP block reimplemented 
-in FU540 SoC, available on HiFive unleashed board (Rev A00), and also provides a workaround for broken IRQ
-which affects the already available I2C polling mode interface in mainline, for FU540-C000 chipsets. 
+Add FU540-C000 specific device tree bindings to already
+available i2-ocores file. This device is available on
+HiFive Unleashed Rev A00 board. Move interrupt and interrupt
+parents under optional property list as these can be optional.
 
-The polling mode workaround patch fixes the CPU stall issue, when-ever i2c transfer are initiated.
+The FU540-C000 SoC from sifive, has an Opencore's I2C block
+reimplementation.
 
-This workaround checks if it's a FU540 chipset based on device tree information, and check's for open
-core's IF(interrupt flag) and TIP flags to break from the polling loop upon completion of transfer.
+The DT compatibility string for this IP is present in HDL and available at.
+https://github.com/sifive/sifive-blocks/blob/master/src/main/scala/devices/i2c/I2C.scala#L73
 
-To test the patch, a PMOD-AD2 sensor is connected to HiFive Unleashed board over J1 connector, and 
-appropriate device node is added into board specific device tree as per the information provided in 
-dt-bindings in Documentation/devicetree/bindings/i2c/i2c-sifive.txt.
-Without this workaround, the CPU stall's infinitely.
+Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+---
+ Documentation/devicetree/bindings/i2c/i2c-ocores.txt | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-Busybox i2c utilities used to verify workaround : i2cdetect, i2cdump, i2cset, i2cget
-
-
-Patch History:
-
-V2<->V3:
--Incorporated review comments on v2 patch as follows:
--Rectified compatibility string sequence with the most specific one at the first (dt bindings). 
--Moved interrupts and interrupt-parent under optional property list (dt-bindings).
--Updated reference to sifive-blocks-ip-versioning.txt and URL to IP repository used (dt-bindings).
--Removed example for i2c0 device node from binding doc (dt-bindings).
--Included sifive,i2c0 device under compatibility table in i2c-ocores driver (i2c-ocores).
--Updated polling mode hooks for SoC specific fix to handle broken IRQ (i2c-ocores).
-
-
-V1<->V2:
--Incorporate review comments from Andrew
--Extend dt bindings into i2c-ocores.txt instead of adding new file
--Rename SIFIVE_FLAG_POLL to OCORES_FLAG_BROKEN_IRQ
-
-V1:
--Update dt bindings for sifive i2c devices
--Fix broken IRQ affecting i2c polling mode interface.
-
-Sagar Shrikant Kadam (3):
-  dt-bindings: i2c: extend existing opencore bindings.
-  i2c-ocore: sifive: add support for i2c device on FU540-c000 SoC.
-  i2c-ocores: sifive: add polling mode workaround for FU540-C000 SoC
-
- .../devicetree/bindings/i2c/i2c-ocores.txt         |  7 +++-
- drivers/i2c/busses/i2c-ocores.c                    | 41 +++++++++++++++++++---
- 2 files changed, 42 insertions(+), 6 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+index 17bef9a..b73960e 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+@@ -2,8 +2,11 @@ Device tree configuration for i2c-ocores
+ 
+ Required properties:
+ - compatible      : "opencores,i2c-ocores" or "aeroflexgaisler,i2cmst"
++                    "sifive,fu540-c000-i2c" or "sifive,i2c0".
++		    for Opencore based I2C IP block reimplemented in
++		    FU540-C000 SoC.Please refer sifive-blocks-ip-versioning.txt
++		    for additional details.
+ - reg             : bus address start and address range size of device
+-- interrupts      : interrupt number
+ - clocks          : handle to the controller clock; see the note below.
+                     Mutually exclusive with opencores,ip-clock-frequency
+ - opencores,ip-clock-frequency: frequency of the controller clock in Hz;
+@@ -12,6 +15,8 @@ Required properties:
+ - #size-cells     : should be <0>
+ 
+ Optional properties:
++- interrupt-parent: handle to interrupt controller.
++- interrupts      : interrupt number.
+ - clock-frequency : frequency of bus clock in Hz; see the note below.
+                     Defaults to 100 KHz when the property is not specified
+ - reg-shift       : device register offsets are shifted by this value
 -- 
 1.9.1
