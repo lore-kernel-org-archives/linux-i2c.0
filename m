@@ -1,220 +1,58 @@
-From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Subject: Re: [PATCH 1/1] i2c: iproc: Add multi byte read-write support for
- slave mode
-Date: Wed, 15 May 2019 21:58:05 +0530
-Message-ID: <CAHO=5PGA5qawSQsn1T-sjDnc8W-n61cQRY-yD8+jfJ6KMgMcZA@mail.gmail.com>
-References: <1557375708-14830-1-git-send-email-rayagonda.kokatanur@broadcom.com>
- <508d6d50-29a6-dfa7-8e25-b64fa2cbbb8a@broadcom.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Subject: [PATCH v3 0/3] Extend dt bindings to support I2C on sifive devices and a fix broken IRQ in polling mode.
+Date: Thu, 16 May 2019 10:38:37 +0530
+Message-ID: <1557983320-14461-1-git-send-email-sagar.kadam@sifive.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <508d6d50-29a6-dfa7-8e25-b64fa2cbbb8a@broadcom.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ray Jui <ray.jui@broadcom.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, BCM Kernel Feedback <bcm-kernel-feedback-list@broadcom.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Michael Cheng <ccheng@broadcom.com>, Srinath Mannam <srinath.mannam@broadcom.com>
+To: robh+dt@kernel.org, mark.rutland@arm.com, peter@korsgaard.com, andrew@lunn.ch, palmer@sifive.com, paul.walmsley@sifive.com, sagar.kadam@sifive.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-No change,  it's just duplicate, please ignore first patch and review
-second patch.
+The patch is based on mainline v5.1 and extends DT-bindings for Opencore based I2C IP block reimplemented 
+in FU540 SoC, available on HiFive unleashed board (Rev A00), and also provides a workaround for broken IRQ
+which affects the already available I2C polling mode interface in mainline, for FU540-C000 chipsets. 
 
-Best regards
-Rayagonda
+The polling mode workaround patch fixes the CPU stall issue, when-ever i2c transfer are initiated.
+
+This workaround checks if it's a FU540 chipset based on device tree information, and check's for open
+core's IF(interrupt flag) and TIP flags to break from the polling loop upon completion of transfer.
+
+To test the patch, a PMOD-AD2 sensor is connected to HiFive Unleashed board over J1 connector, and 
+appropriate device node is added into board specific device tree as per the information provided in 
+dt-bindings in Documentation/devicetree/bindings/i2c/i2c-sifive.txt.
+Without this workaround, the CPU stall's infinitely.
+
+Busybox i2c utilities used to verify workaround : i2cdetect, i2cdump, i2cset, i2cget
 
 
+Patch History:
 
-On Thu, May 9, 2019 at 9:58 PM Ray Jui <ray.jui@broadcom.com> wrote:
->
-> Why is the email sent twice? What has changed?
->
-> On 5/8/2019 9:21 PM, Rayagonda Kokatanur wrote:
-> > Add multiple byte read-write support for slave mode.
-> >
-> > Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-> > Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
-> > ---
-> >  drivers/i2c/busses/i2c-bcm-iproc.c | 117 +++++++++++++++++--------------------
-> >  1 file changed, 53 insertions(+), 64 deletions(-)
-> >
-> > diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-> > index a845b8d..2c7f145 100644
-> > --- a/drivers/i2c/busses/i2c-bcm-iproc.c
-> > +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-> > @@ -165,12 +165,6 @@ enum i2c_slave_read_status {
-> >       I2C_SLAVE_RX_END,
-> >  };
-> >
-> > -enum i2c_slave_xfer_dir {
-> > -     I2C_SLAVE_DIR_READ = 0,
-> > -     I2C_SLAVE_DIR_WRITE,
-> > -     I2C_SLAVE_DIR_NONE,
-> > -};
-> > -
-> >  enum bus_speed_index {
-> >       I2C_SPD_100K = 0,
-> >       I2C_SPD_400K,
-> > @@ -203,7 +197,6 @@ struct bcm_iproc_i2c_dev {
-> >       struct i2c_msg *msg;
-> >
-> >       struct i2c_client *slave;
-> > -     enum i2c_slave_xfer_dir xfer_dir;
-> >
-> >       /* bytes that have been transferred */
-> >       unsigned int tx_bytes;
-> > @@ -219,7 +212,8 @@ struct bcm_iproc_i2c_dev {
-> >               | BIT(IS_M_RX_THLD_SHIFT))
-> >
-> >  #define ISR_MASK_SLAVE (BIT(IS_S_START_BUSY_SHIFT)\
-> > -             | BIT(IS_S_RX_EVENT_SHIFT) | BIT(IS_S_RD_EVENT_SHIFT))
-> > +             | BIT(IS_S_RX_EVENT_SHIFT) | BIT(IS_S_RD_EVENT_SHIFT)\
-> > +             | BIT(IS_S_TX_UNDERRUN_SHIFT))
-> >
-> >  static int bcm_iproc_i2c_reg_slave(struct i2c_client *slave);
-> >  static int bcm_iproc_i2c_unreg_slave(struct i2c_client *slave);
-> > @@ -297,15 +291,11 @@ static void bcm_iproc_i2c_slave_init(
-> >       /* clear all pending slave interrupts */
-> >       iproc_i2c_wr_reg(iproc_i2c, IS_OFFSET, ISR_MASK_SLAVE);
-> >
-> > -     /* Enable interrupt register for any READ event */
-> > -     val = BIT(IE_S_RD_EVENT_SHIFT);
-> >       /* Enable interrupt register to indicate a valid byte in receive fifo */
-> > -     val |= BIT(IE_S_RX_EVENT_SHIFT);
-> > +     val = BIT(IE_S_RX_EVENT_SHIFT);
-> >       /* Enable interrupt register for the Slave BUSY command */
-> >       val |= BIT(IE_S_START_BUSY_SHIFT);
-> >       iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
-> > -
-> > -     iproc_i2c->xfer_dir = I2C_SLAVE_DIR_NONE;
-> >  }
-> >
-> >  static void bcm_iproc_i2c_check_slave_status(
-> > @@ -314,8 +304,11 @@ static void bcm_iproc_i2c_check_slave_status(
-> >       u32 val;
-> >
-> >       val = iproc_i2c_rd_reg(iproc_i2c, S_CMD_OFFSET);
-> > -     val = (val >> S_CMD_STATUS_SHIFT) & S_CMD_STATUS_MASK;
-> > +     /* status is valid only when START_BUSY is cleared after it was set */
-> > +     if (val & BIT(S_CMD_START_BUSY_SHIFT))
-> > +             return;
-> >
-> > +     val = (val >> S_CMD_STATUS_SHIFT) & S_CMD_STATUS_MASK;
-> >       if (val == S_CMD_STATUS_TIMEOUT) {
-> >               dev_err(iproc_i2c->device, "slave random stretch time timeout\n");
-> >
-> > @@ -327,70 +320,66 @@ static void bcm_iproc_i2c_check_slave_status(
-> >  }
-> >
-> >  static bool bcm_iproc_i2c_slave_isr(struct bcm_iproc_i2c_dev *iproc_i2c,
-> > -                             u32 status)
-> > +                                 u32 status)
-> >  {
-> > -     u8 value;
-> >       u32 val;
-> > -     u32 rd_status;
-> > -     u32 tmp;
-> > +     u8 value, rx_status;
-> >
-> > -     /* Start of transaction. check address and populate the direction */
-> > -     if (iproc_i2c->xfer_dir == I2C_SLAVE_DIR_NONE) {
-> > -             tmp = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
-> > -             rd_status = (tmp >> S_RX_STATUS_SHIFT) & S_RX_STATUS_MASK;
-> > -             /* This condition checks whether the request is a new request */
-> > -             if (((rd_status == I2C_SLAVE_RX_START) &&
-> > -                     (status & BIT(IS_S_RX_EVENT_SHIFT))) ||
-> > -                     ((rd_status == I2C_SLAVE_RX_END) &&
-> > -                     (status & BIT(IS_S_RD_EVENT_SHIFT)))) {
-> > -
-> > -                     /* Last bit is W/R bit.
-> > -                      * If 1 then its a read request(by master).
-> > -                      */
-> > -                     iproc_i2c->xfer_dir = tmp & SLAVE_READ_WRITE_BIT_MASK;
-> > -                     if (iproc_i2c->xfer_dir == I2C_SLAVE_DIR_WRITE)
-> > -                             i2c_slave_event(iproc_i2c->slave,
-> > -                                     I2C_SLAVE_READ_REQUESTED, &value);
-> > -                     else
-> > -                             i2c_slave_event(iproc_i2c->slave,
-> > +     /* Slave RX byte receive */
-> > +     if (status & BIT(IS_S_RX_EVENT_SHIFT)) {
-> > +             val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
-> > +             rx_status = (val >> S_RX_STATUS_SHIFT) & S_RX_STATUS_MASK;
-> > +             if (rx_status == I2C_SLAVE_RX_START) {
-> > +                     /* Start of SMBUS for Master write */
-> > +                     i2c_slave_event(iproc_i2c->slave,
-> >                                       I2C_SLAVE_WRITE_REQUESTED, &value);
-> > -             }
-> > -     }
-> >
-> > -     /* read request from master */
-> > -     if ((status & BIT(IS_S_RD_EVENT_SHIFT)) &&
-> > -             (iproc_i2c->xfer_dir == I2C_SLAVE_DIR_WRITE)) {
-> > -             i2c_slave_event(iproc_i2c->slave,
-> > -                     I2C_SLAVE_READ_PROCESSED, &value);
-> > -             iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
-> > +                     val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
-> > +                     value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
-> > +                     i2c_slave_event(iproc_i2c->slave,
-> > +                                     I2C_SLAVE_WRITE_RECEIVED, &value);
-> > +             } else if (status & BIT(IS_S_RD_EVENT_SHIFT)) {
-> > +                     /* Start of SMBUS for Master Read */
-> > +                     i2c_slave_event(iproc_i2c->slave,
-> > +                                     I2C_SLAVE_READ_REQUESTED, &value);
-> > +                     iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
-> >
-> > -             val = BIT(S_CMD_START_BUSY_SHIFT);
-> > -             iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
-> > -     }
-> > +                     val = BIT(S_CMD_START_BUSY_SHIFT);
-> > +                     iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
-> >
-> > -     /* write request from master */
-> > -     if ((status & BIT(IS_S_RX_EVENT_SHIFT)) &&
-> > -             (iproc_i2c->xfer_dir == I2C_SLAVE_DIR_READ)) {
-> > -             val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
-> > -             /* Its a write request by Master to Slave.
-> > -              * We read data present in receive FIFO
-> > -              */
-> > -             value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
-> > +                     /*
-> > +                      * Enable interrupt for TX FIFO becomes empty and
-> > +                      * less than PKT_LENGTH bytes were output on the SMBUS
-> > +                      */
-> > +                     val = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
-> > +                     val |= BIT(IE_S_TX_UNDERRUN_SHIFT);
-> > +                     iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
-> > +             } else {
-> > +                     /* Master write other than start */
-> > +                     value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
-> > +                     i2c_slave_event(iproc_i2c->slave,
-> > +                                     I2C_SLAVE_WRITE_RECEIVED, &value);
-> > +             }
-> > +     } else if (status & BIT(IS_S_TX_UNDERRUN_SHIFT)) {
-> > +             /* Master read other than start */
-> >               i2c_slave_event(iproc_i2c->slave,
-> > -                     I2C_SLAVE_WRITE_RECEIVED, &value);
-> > -
-> > -             /* check the status for the last byte of the transaction */
-> > -             rd_status = (val >> S_RX_STATUS_SHIFT) & S_RX_STATUS_MASK;
-> > -             if (rd_status == I2C_SLAVE_RX_END)
-> > -                     iproc_i2c->xfer_dir = I2C_SLAVE_DIR_NONE;
-> > +                             I2C_SLAVE_READ_PROCESSED, &value);
-> >
-> > -             dev_dbg(iproc_i2c->device, "\nread value = 0x%x\n", value);
-> > +             iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
-> > +             val = BIT(S_CMD_START_BUSY_SHIFT);
-> > +             iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
-> >       }
-> >
-> >       /* Stop */
-> >       if (status & BIT(IS_S_START_BUSY_SHIFT)) {
-> >               i2c_slave_event(iproc_i2c->slave, I2C_SLAVE_STOP, &value);
-> > -             iproc_i2c->xfer_dir = I2C_SLAVE_DIR_NONE;
-> > +             /*
-> > +              * Enable interrupt for TX FIFO becomes empty and
-> > +              * less than PKT_LENGTH bytes were output on the SMBUS
-> > +              */
-> > +             val = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
-> > +             val &= ~BIT(IE_S_TX_UNDERRUN_SHIFT);
-> > +             iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
-> >       }
-> >
-> >       /* clear interrupt status */
-> >
+V2<->V3:
+-Incorporated review comments on v2 patch as follows:
+-Rectified compatibility string sequence with the most specific one at the first (dt bindings). 
+-Moved interrupts and interrupt-parent under optional property list (dt-bindings).
+-Updated reference to sifive-blocks-ip-versioning.txt and URL to IP repository used (dt-bindings).
+-Removed example for i2c0 device node from binding doc (dt-bindings).
+-Included sifive,i2c0 device under compatibility table in i2c-ocores driver (i2c-ocores).
+-Updated polling mode hooks for SoC specific fix to handle broken IRQ (i2c-ocores).
+
+
+V1<->V2:
+-Incorporate review comments from Andrew
+-Extend dt bindings into i2c-ocores.txt instead of adding new file
+-Rename SIFIVE_FLAG_POLL to OCORES_FLAG_BROKEN_IRQ
+
+V1:
+-Update dt bindings for sifive i2c devices
+-Fix broken IRQ affecting i2c polling mode interface.
+
+Sagar Shrikant Kadam (3):
+  dt-bindings: i2c: extend existing opencore bindings.
+  i2c-ocore: sifive: add support for i2c device on FU540-c000 SoC.
+  i2c-ocores: sifive: add polling mode workaround for FU540-C000 SoC
+
+ .../devicetree/bindings/i2c/i2c-ocores.txt         |  7 +++-
+ drivers/i2c/busses/i2c-ocores.c                    | 41 +++++++++++++++++++---
+ 2 files changed, 42 insertions(+), 6 deletions(-)
+
+-- 
+1.9.1
