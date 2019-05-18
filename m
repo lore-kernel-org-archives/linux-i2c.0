@@ -1,67 +1,94 @@
-From: Annaliese McDermond <nh6z@nh6z.net>
-Subject: Re: [PATCH v2] i2c: bcm2835: Model Divider in CCF
-Date: Thu, 16 May 2019 18:55:48 -0700
-Message-ID: <2E6EDCD1-E0B1-4859-BD75-EF411D3D4C6B@nh6z.net>
-References: <20190508071227.18609-1-nh6z@nh6z.net>
- <4174B26B-4E3A-4CCA-A5ED-BE62A3B5E66A@nh6z.net> <20190516075848.GA1033@kunai>
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190516075848.GA1033@kunai>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: stefan.wahren@i2se.com, f.fainelli@gmail.com, swarren@wwwdotorg.org, team@nwdigitalradio.com, Eric Anholt <eric@anholt.net>, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 5.2
+Date: Sat, 18 May 2019 13:01:01 +0200
+Message-ID: <20190518110057.GA8674@kunai>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="HlL+5n6rz5pIUxbD"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-V29sZnJhbSAtLQoKVGhhbmsgeW91IHZlcnkgbXVjaCBmb3IgeW91ciByZXNwb25zZS4KCj4gT24g
-TWF5IDE2LCAyMDE5LCBhdCAxMjo1OCBBTSwgV29sZnJhbSBTYW5nIDx3c2FAdGhlLWRyZWFtcy5k
-ZT4gd3JvdGU6Cj4gCj4gSGkgQW5uYWxpZXNlLAo+IAo+IE9uIFdlZCwgTWF5IDE1LCAyMDE5IGF0
-IDEwOjM3OjAzUE0gLTA3MDAsIEFubmFsaWVzZSBNY0Rlcm1vbmQgd3JvdGU6Cj4+IEnigJltIGp1
-c3QgZm9sbG93aW5nIHVwIG9uIHRoaXMgc2luY2UgSSBoYXZlbuKAmXQgaGVhcmQgYW55dGhpbmcg
-c2luY2UgSSBzdWJtaXR0ZWQgdGhlCj4+IHYyIHBhdGNoIGEgd2VlayBhZ28uICBXb2xmcmFtLCBk
-b2VzIHRoaXMgbG9vayBsaWtlIGEgc2FuZSBhcHByb2FjaD8gIFN0ZWZhbiwKPj4gd2VyZSBteSBj
-aGFuZ2VzIGluIHYyIGFjY2VwdGFibGU/Cj4gCj4gVGhlcmUgaXMgYSBiaXQgb2Ygb3ZlcmhlYWQg
-aW52b2x2ZWQsIGJ1dCBjb25jZXB0dWFsbHkgaXQgbG9va3MgbGlrZSBhbgo+IGVsZWdhbnQgc29s
-dXRpb24gdG8gbWUuIEhvd2V2ZXIsIEkgYW0gbm90IGFuIGV4cGVydCBvZiBDQ0YuIEdyZXBwaW5n
-Cj4gdGhyb3VnaCBrZXJuZWwgc291cmNlcywgSSBkb24ndCBzZWUgbWFueSBjbG9ja3MgZGVmaW5l
-ZCBvdXRzaWRlCj4gZHJpdmVycy9jbGsuIFNvLCBJJ2QgYXBwcmVjaWF0ZSBpZiB3ZSBjb3VsZCBn
-ZXQgc29tZSBhY2svZmVlZGJhY2sgZnJvbQo+IG9uZSBvZiB0aGUgQ0NGIGV4cGVydHMvbWFpbnRh
-aW5lcnMuCgpJIHdhcyBhbHNvIHNpbWlsYXJseSBuZXJ2b3VzIGFib3V0IGEgY2xvY2sgcHJvdmlk
-ZXIgYmVpbmcgb3V0c2lkZSBvZiAKZHJpdmVycy9jbGssIGVzcGVjaWFsbHkgc2luY2Ugb25lIG9m
-IHRoZSBpbnN0YW5jZXMgb2YgdGhhdCBJIHdyb3RlLgoKV2hlbiB3cml0aW5nIHRoaXMsIHRoZXJl
-IHdhcyBhIGNlcnRhaW4gbG9naWMgdG8gcHV0dGluZyB0aGlzIGluc2lkZSBvZgpjbGstYmNtMjgz
-NS5jIGluc3RlYWQuICBFcmljIG1heSBsaWtlIHRoaXMgYXBwcm9hY2ggYmV0dGVyIGJlY2F1c2Ug
-dGhlcmUKd2lsbCBwcm9iYWJseSBiZSBtb3JlIGNvZGUgcmV1c2Ugb2Ygc29tZSBvZiB0aGUgZGl2
-aWRlcnMgaGUgdXNlcyBpbiB0aGF0CmRyaXZlci4gIAoKTXkgY29uY2VybiB3YXMgc3Vycm91bmRp
-bmcgdGhlIGNyb3NzIHBvbGxlbmF0aW9uIG9mIHRoZSBpMmMgYW5kCmNsb2NrIGRyaXZlcnMgdG8g
-YSBjZXJ0YWluIGV4dGVudC4gIFlvdSBoYXZlIHRvIGJlIGFibGUgdG8gc2V0IHRoZQpGRURMX1NI
-SUZUIGFuZCBSRURMX1NISUZUIHJlZ2lzdGVycyB3aGVuIHlvdSBjaGFuZ2UgdGhlIGNsb2NrIHJh
-dGUuCllvdSBjYW7igJl0IGRvIGl0IGluIHRoZSB0cmFuc2ZlciBmdW5jdGlvbiBsaWtlIHdhcyBk
-b25lIGJlZm9yZSBiZWNhdXNlCml0IHJlcXVpcmVzIGEgY2FsbCB0byBjbGtfZ2V0X3JhdGUoKSB3
-aGljaCBjYW4gZGVhZGxvY2sgaW4gdGhlCmNvbmRpdGlvbnMgSSBlbmNvdW50ZXJlZC4gIFlvdeKA
-mWQgaGF2ZSB0byBtb3ZlIHRob3NlIGNhbGxzIHRvIHRoZQpjbGstYmNtMjgzNSBkcml2ZXIgaW5z
-dGVhZC4KCk15IG5lcnZvdXNuZXNzIHN1cnJvdW5kaW5nIG1vdmluZyB0aGUgY29kZSBpbnRvIHRo
-ZSBjbG9jayBkcml2ZXIKcmF0aGVyIHRoYW4gdGhlIGkyYyBkcml2ZXIgaXMgdGhhdCBJIGRvbuKA
-mXQga25vdyBob3cgZGVwZW5kZW50IHRoZXkKYXJlIG9uIG9uZSBhbm90aGVyLiAgRG8gd2UgYW50
-aWNpcGF0ZSB0aGF0IHRoZXJlIG1heSBiZSBhIHVzZSBmb3IKdGhlIGkyYy1iY20yODM1IGRyaXZl
-ciB3aXRob3V0IHRoZSBjbGstYmNtMjgzNSBkcml2ZXI/ICBBc2tpbmcgdGhlCnF1ZXN0aW9uIHZl
-cnkgd2VsbCBtYXkgYmUgcHJlbWF0dXJlIG9wdGltaXphdGlvbiBmb3IgYSBjb25kaXRpb24KdGhh
-dCBtYXkgbmV2ZXIgZXhpc3QuICBJ4oCZbSB0aGlua2luZyBtYXliZSBFcmljIGhhcyBzb21lIG1v
-cmUKaW5zaWdodCBpbnRvIHRoaXM/CgpUaGUgb3RoZXIgbWlub3IgaXNzdWUgaXMgdGhhdCBpdOKA
-mXMgZ29pbmcgdG8gcmVxdWlyZSBhIGNoYW5nZSB0byB0aGUKYmNtMjgzNSBEVCB0byBjaGFuZ2Ug
-dGhlIGNsb2NrIHBvaW50ZXIgdG8gdGhlIGRpdmlkZXIuCgpJZiBpdCBmaXRzIGJldHRlciBpbiB0
-aGUgY2xrLWJjbTI4MzUgZHJpdmVyLCBJ4oCZbSBoYXBweSB0byBzdWJtaXQgYQpwYXRjaCB0aGF0
-IHB1dHMgaXQgdGhlcmUuICBKdXN0IGxldCBtZSBrbm93IGFuZCBJIGNhbiB3b3JrIG9uIGl0LgoK
-LS0KQW5uYWxpZXNlIE1jRGVybW9uZApuaDZ6QG5oNnoubmV0Cl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0
-CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFk
-ZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
+
+--HlL+5n6rz5pIUxbD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Linus,
+
+here are some I2C core API additions which are kind of simple but
+enhance error checking for users a lot, especially by returning errno
+now. There are wrappers to still support the old API but it will be
+removed once all users are converted.
+
+This comes a bit later in a seperate pull request because of my recent
+illness. It would be great to have it merged in this cycle, however, so
+we can start converting the users (spread across many subsystems) right
+away.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit a6a4b66bd8f41922c543f7a820c66ed59c25995e:
+
+  Merge tag 'for-linus-20190516' of git://git.kernel.dk/linux-block (2019-05-16 19:10:37 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
+
+for you to fetch changes up to b8f5fe3bc5b9318d95770a09a480c31aced20cd2:
+
+  i2c: core: add device-managed version of i2c_new_dummy (2019-05-17 19:29:40 +0200)
+
+----------------------------------------------------------------
+Heiner Kallweit (2):
+      i2c: core: improve return value handling of i2c_new_device and i2c_new_dummy
+      i2c: core: add device-managed version of i2c_new_dummy
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Bartosz Golaszewski (2):
+      (Rev.) i2c: core: add device-managed version of i2c_new_dummy
+      (Rev.) i2c: core: improve return value handling of i2c_new_device and i2c_new_dummy
+
+Kieran Bingham (2):
+      (Rev.) i2c: core: add device-managed version of i2c_new_dummy
+      (Rev.) i2c: core: improve return value handling of i2c_new_device and i2c_new_dummy
+
+Peter Rosin (2):
+      (Rev.) i2c: core: add device-managed version of i2c_new_dummy
+      (Rev.) i2c: core: improve return value handling of i2c_new_device and i2c_new_dummy
+
+ Documentation/driver-model/devres.txt |   3 +
+ drivers/i2c/i2c-core-base.c           | 118 ++++++++++++++++++++++++++++++----
+ include/linux/i2c.h                   |   3 +
+ 3 files changed, 111 insertions(+), 13 deletions(-)
+
+--HlL+5n6rz5pIUxbD
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzf5eUACgkQFA3kzBSg
+KbZqThAAhQ2f9nbSeq51qCX9xRC95AxfJUnD+8JZhxegajCysG8OkpJaPkRA1g+f
+fV2I1Jkm7Cg60Vn9QxdOcXPc4HMhu8iSgLEmPGcQOk4tHJ7b9kjNZOgp0xTuHmat
+qmRWahtg58Qt71aJCda/Xr9IP/8n/Dckd93O8In1oTOOSoF20+d17HzCDri8Qc1i
+A7HDY7Ii/UDU/MAXP1W35O6fG++WhCLxjbQ1XTVRRGvYJJ6sAnZrAY94xoYWl/nQ
+F01zr5SKw6So1sxp1/M0P3ZcRyvNK3POBvOSrgl01Hhyo5kaOoVZYr1AV4tVvhZV
+MUWTnnCgiKnwIpHyCg0aJY5n/d6MJNoJo33cqdrHKvhE3CaIP0FaDJ1+dlh9jzS1
+DInaIkbDgLXUPs3GRUPvCfhIsm9JcKYke1WEE5JwtYIK5HZCv4KNwX46Rf2RiXJ/
+tO5sMOGM2jN72cN8uQPEbeb8pURKTApG9oBjTbiiKFVCQ0VyN/6pL7FFCwOQxqCL
+o/961twNqmGyC5dayQXJ4CjpoJHKeLxRjK8AcvZsRMB+kAdVyBr2Jc+O+uSLKNn1
+Bq0xOMAGqXcz5YZ5xLvJh5gDTAHhrBD3ni7w04Yqkdu4yB2CFZxVDaNeuhLzDF0m
++Rfg4RE4ogW/M7x++gnD5YvCg5zNO68wqNdUoWHWDYOEMebEuus=
+=SdzT
+-----END PGP SIGNATURE-----
+
+--HlL+5n6rz5pIUxbD--
