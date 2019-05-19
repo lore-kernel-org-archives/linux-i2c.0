@@ -1,7 +1,7 @@
 From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 1/2] eeprom: at24: use devm_i2c_new_dummy_device()
-Date: Sun, 19 May 2019 22:40:11 +0200
-Message-ID: <20190519204012.31861-2-brgl@bgdev.pl>
+Subject: [PATCH 2/2] eeprom: at24: drop unnecessary label
+Date: Sun, 19 May 2019 22:40:12 +0200
+Message-ID: <20190519204012.31861-3-brgl@bgdev.pl>
 References: <20190519204012.31861-1-brgl@bgdev.pl>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,95 +14,83 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Now that it's upstream, use the resource managed version
-of i2c_new_dummy().
+If we move the nvmem registration above the pm enable calls and the
+test read, we can drop the error label and make the code more readable
+as there's now only a single place where we must call
+pm_runtime_disable() in error path.
 
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 ---
- drivers/misc/eeprom/at24.c | 28 ++++++----------------------
- 1 file changed, 6 insertions(+), 22 deletions(-)
+ drivers/misc/eeprom/at24.c | 43 ++++++++++++++++----------------------
+ 1 file changed, 18 insertions(+), 25 deletions(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 63aa541c9608..9ea196f0749f 100644
+index 9ea196f0749f..0bc0a45fb98e 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
-@@ -507,14 +507,6 @@ static const struct at24_chip_data *at24_get_chip_data(struct device *dev)
- 	return cdata;
- }
- 
--static void at24_remove_dummy_clients(struct at24_data *at24)
--{
--	int i;
--
--	for (i = 1; i < at24->num_addresses; i++)
--		i2c_unregister_device(at24->client[i].client);
--}
--
- static int at24_make_dummy_client(struct at24_data *at24, unsigned int index,
- 				  struct regmap_config *regmap_config)
- {
-@@ -527,8 +519,8 @@ static int at24_make_dummy_client(struct at24_data *at24, unsigned int index,
- 	dev = &base_client->dev;
- 	addr = base_client->addr + index;
- 
--	dummy_client = i2c_new_dummy(base_client->adapter,
--				     base_client->addr + index);
-+	dummy_client = devm_i2c_new_dummy_device(dev, base_client->adapter,
-+						 base_client->addr + index);
- 	if (!dummy_client) {
- 		dev_err(dev, "address 0x%02x unavailable\n", addr);
- 		return -EADDRINUSE;
-@@ -693,10 +685,8 @@ static int at24_probe(struct i2c_client *client)
- 	/* use dummy devices for multiple-address chips */
- 	for (i = 1; i < num_addresses; i++) {
- 		err = at24_make_dummy_client(at24, i, &regmap_config);
--		if (err) {
--			at24_remove_dummy_clients(at24);
-+		if (err)
+@@ -689,23 +689,6 @@ static int at24_probe(struct i2c_client *client)
  			return err;
--		}
  	}
  
- 	i2c_set_clientdata(client, at24);
-@@ -713,7 +703,7 @@ static int at24_probe(struct i2c_client *client)
- 	pm_runtime_idle(dev);
- 	if (err) {
- 		err = -ENODEV;
--		goto err_clients;
-+		goto err_runtime_pm;
- 	}
- 
+-	i2c_set_clientdata(client, at24);
+-
+-	/* enable runtime pm */
+-	pm_runtime_set_active(dev);
+-	pm_runtime_enable(dev);
+-
+-	/*
+-	 * Perform a one-byte test read to verify that the
+-	 * chip is functional.
+-	 */
+-	err = at24_read(at24, 0, &test_byte, 1);
+-	pm_runtime_idle(dev);
+-	if (err) {
+-		err = -ENODEV;
+-		goto err_runtime_pm;
+-	}
+-
  	nvmem_config.name = dev_name(dev);
-@@ -733,7 +723,7 @@ static int at24_probe(struct i2c_client *client)
+ 	nvmem_config.dev = dev;
+ 	nvmem_config.read_only = !writable;
+@@ -721,9 +704,24 @@ static int at24_probe(struct i2c_client *client)
+ 	nvmem_config.size = byte_len;
+ 
  	at24->nvmem = devm_nvmem_register(dev, &nvmem_config);
- 	if (IS_ERR(at24->nvmem)) {
- 		err = PTR_ERR(at24->nvmem);
--		goto err_clients;
-+		goto err_runtime_pm;
+-	if (IS_ERR(at24->nvmem)) {
+-		err = PTR_ERR(at24->nvmem);
+-		goto err_runtime_pm;
++	if (IS_ERR(at24->nvmem))
++		return PTR_ERR(at24->nvmem);
++
++	i2c_set_clientdata(client, at24);
++
++	/* enable runtime pm */
++	pm_runtime_set_active(dev);
++	pm_runtime_enable(dev);
++
++	/*
++	 * Perform a one-byte test read to verify that the
++	 * chip is functional.
++	 */
++	err = at24_read(at24, 0, &test_byte, 1);
++	pm_runtime_idle(dev);
++	if (err) {
++		pm_runtime_disable(dev);
++		return -ENODEV;
  	}
  
  	dev_info(dev, "%u byte %s EEPROM, %s, %u bytes/write\n",
-@@ -742,8 +732,7 @@ static int at24_probe(struct i2c_client *client)
+@@ -731,11 +729,6 @@ static int at24_probe(struct i2c_client *client)
+ 		 writable ? "writable" : "read-only", at24->write_max);
  
  	return 0;
- 
--err_clients:
--	at24_remove_dummy_clients(at24);
-+err_runtime_pm:
- 	pm_runtime_disable(dev);
- 
- 	return err;
-@@ -751,11 +740,6 @@ static int at24_probe(struct i2c_client *client)
+-
+-err_runtime_pm:
+-	pm_runtime_disable(dev);
+-
+-	return err;
+ }
  
  static int at24_remove(struct i2c_client *client)
- {
--	struct at24_data *at24;
--
--	at24 = i2c_get_clientdata(client);
--
--	at24_remove_dummy_clients(at24);
- 	pm_runtime_disable(&client->dev);
- 	pm_runtime_set_suspended(&client->dev);
- 
 -- 
 2.21.0
