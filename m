@@ -1,43 +1,31 @@
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: Re: [PATCH 1/2] eeprom: at24: use devm_i2c_new_dummy_device()
-Date: Mon, 20 May 2019 08:14:23 +0200
-Message-ID: <CAMpxmJW=T_hZAkyhsE+Wi7qhJBE2bviNfaGCJJta0s8g85+9Pg@mail.gmail.com>
-References: <20190519204012.31861-1-brgl@bgdev.pl> <20190519204012.31861-2-brgl@bgdev.pl>
- <20190519205235.GA19630@kunai>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH v2 0/2] at24: use devm_i2c_new_dummy_device()
+Date: Mon, 20 May 2019 09:10:40 +0200
+Message-ID: <20190520071042.21072-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190519205235.GA19630@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Bartosz Golaszewski <brgl@bgdev.pl>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-niedz., 19 maj 2019 o 22:52 Wolfram Sang <wsa@the-dreams.de> napisa=C5=82(a=
-):
->
->
-> > Now that it's upstream, use the resource managed version
-> > of i2c_new_dummy().
->
-> That was fast :)
->
-> > -     dummy_client =3D i2c_new_dummy(base_client->adapter,
-> > -                                  base_client->addr + index);
-> > +     dummy_client =3D devm_i2c_new_dummy_device(dev, base_client->adap=
-ter,
-> > +                                              base_client->addr + inde=
-x);
-> >       if (!dummy_client) {
->
-> Oh well, the confusion starts already :/ devm_i2c_new_dummy_device()
-> returns an ERR_PTR.
->
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Ugh, sorry for that, especially since I followed the discussion on
-that series. :(
+Now that we have a resource managed version of i2c_new_dummy_device(),
+use it in at24.
 
-I should not be sending out patches late on Sundays I guess.
+v1 -> v2:
+- i2c_new_dummy_device() returns ERR_PTR(), not NULL so check the value
+  correctly
+- remove the no longer needed i2c_unregister_device() in error path
 
-Bart
+Bartosz Golaszewski (2):
+  eeprom: at24: use devm_i2c_new_dummy_device()
+  eeprom: at24: drop unnecessary label
+
+ drivers/misc/eeprom/at24.c | 75 ++++++++++++--------------------------
+ 1 file changed, 24 insertions(+), 51 deletions(-)
+
+-- 
+2.21.0
