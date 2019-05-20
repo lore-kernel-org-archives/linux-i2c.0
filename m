@@ -1,96 +1,55 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v2 2/2] eeprom: at24: drop unnecessary label
-Date: Mon, 20 May 2019 09:10:42 +0200
-Message-ID: <20190520071042.21072-3-brgl@bgdev.pl>
-References: <20190520071042.21072-1-brgl@bgdev.pl>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
+Subject: [PATCH 5/5] i2c: core: Tidy up handling of init_irq
+Date: Mon, 20 May 2019 09:49:36 +0100
+Message-ID: <20190520084936.10590-6-ckeepax@opensource.cirrus.com>
+References: <20190520084936.10590-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190520071042.21072-1-brgl@bgdev.pl>
+In-Reply-To: <20190520084936.10590-1-ckeepax@opensource.cirrus.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
+Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Only set init_irq during i2c_device_new and only handle client->irq on
+the probe/remove paths.
 
-If we move the nvmem registration above the pm enable calls and the
-test read, we can drop the error label and make the code more readable
-as there's now only a single place where we must call
-pm_runtime_disable() in error path.
-
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 ---
- drivers/misc/eeprom/at24.c | 43 ++++++++++++++++----------------------
- 1 file changed, 18 insertions(+), 25 deletions(-)
+ drivers/i2c/i2c-core-base.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index bdeec0777029..ba8e73812644 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -685,23 +685,6 @@ static int at24_probe(struct i2c_client *client)
- 			return err;
- 	}
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index f958b50c78c04..c0a52802d23e7 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -322,6 +322,8 @@ static int i2c_device_probe(struct device *dev)
  
--	i2c_set_clientdata(client, at24);
--
--	/* enable runtime pm */
--	pm_runtime_set_active(dev);
--	pm_runtime_enable(dev);
--
--	/*
--	 * Perform a one-byte test read to verify that the
--	 * chip is functional.
--	 */
--	err = at24_read(at24, 0, &test_byte, 1);
--	pm_runtime_idle(dev);
--	if (err) {
--		err = -ENODEV;
--		goto err_runtime_pm;
--	}
--
- 	nvmem_config.name = dev_name(dev);
- 	nvmem_config.dev = dev;
- 	nvmem_config.read_only = !writable;
-@@ -717,9 +700,24 @@ static int at24_probe(struct i2c_client *client)
- 	nvmem_config.size = byte_len;
+ 	driver = to_i2c_driver(dev->driver);
  
- 	at24->nvmem = devm_nvmem_register(dev, &nvmem_config);
--	if (IS_ERR(at24->nvmem)) {
--		err = PTR_ERR(at24->nvmem);
--		goto err_runtime_pm;
-+	if (IS_ERR(at24->nvmem))
-+		return PTR_ERR(at24->nvmem);
++	client->irq = client->init_irq;
 +
-+	i2c_set_clientdata(client, at24);
-+
-+	/* enable runtime pm */
-+	pm_runtime_set_active(dev);
-+	pm_runtime_enable(dev);
-+
-+	/*
-+	 * Perform a one-byte test read to verify that the
-+	 * chip is functional.
-+	 */
-+	err = at24_read(at24, 0, &test_byte, 1);
-+	pm_runtime_idle(dev);
-+	if (err) {
-+		pm_runtime_disable(dev);
-+		return -ENODEV;
- 	}
+ 	if (!client->irq && !driver->disable_i2c_core_irq_mapping) {
+ 		int irq = -ENOENT;
  
- 	dev_info(dev, "%u byte %s EEPROM, %s, %u bytes/write\n",
-@@ -727,11 +725,6 @@ static int at24_probe(struct i2c_client *client)
- 		 writable ? "writable" : "read-only", at24->write_max);
+@@ -432,7 +434,7 @@ static int i2c_device_remove(struct device *dev)
+ 	dev_pm_clear_wake_irq(&client->dev);
+ 	device_init_wakeup(&client->dev, false);
  
- 	return 0;
--
--err_runtime_pm:
--	pm_runtime_disable(dev);
--
--	return err;
- }
+-	client->irq = client->init_irq;
++	client->irq = 0;
+ 	if (client->flags & I2C_CLIENT_HOST_NOTIFY)
+ 		pm_runtime_put(&client->adapter->dev);
  
- static int at24_remove(struct i2c_client *client)
+@@ -749,7 +751,6 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
+ 	if (!client->init_irq)
+ 		client->init_irq = i2c_dev_irq_from_resources(info->resources,
+ 							 info->num_resources);
+-	client->irq = client->init_irq;
+ 
+ 	strlcpy(client->name, info->type, sizeof(client->name));
+ 
 -- 
-2.21.0
+2.11.0
