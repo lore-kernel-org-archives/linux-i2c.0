@@ -1,61 +1,43 @@
-From: Sagar Kadam <sagar.kadam@sifive.com>
-Subject: Re: [PATCH v3 3/3] i2c-ocores: sifive: add polling mode workaround
- for FU540-C000 SoC
-Date: Mon, 20 May 2019 09:50:21 +0530
-Message-ID: <CAARK3HkPuvsoVh=b2Kn43ubhME6vqpFLoboBM8OGOnb-d3FN8A@mail.gmail.com>
-References: <1557983320-14461-1-git-send-email-sagar.kadam@sifive.com>
- <1557983320-14461-4-git-send-email-sagar.kadam@sifive.com> <20190516130720.GE14298@lunn.ch>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: Re: [PATCH 1/2] eeprom: at24: use devm_i2c_new_dummy_device()
+Date: Mon, 20 May 2019 08:14:23 +0200
+Message-ID: <CAMpxmJW=T_hZAkyhsE+Wi7qhJBE2bviNfaGCJJta0s8g85+9Pg@mail.gmail.com>
+References: <20190519204012.31861-1-brgl@bgdev.pl> <20190519204012.31861-2-brgl@bgdev.pl>
+ <20190519205235.GA19630@kunai>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190516130720.GE14298@lunn.ch>
+In-Reply-To: <20190519205235.GA19630@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, peter@korsgaard.com, Palmer Dabbelt <palmer@sifive.com>, Paul Walmsley <paul.walmsley@sifive.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andrew,
+niedz., 19 maj 2019 o 22:52 Wolfram Sang <wsa@the-dreams.de> napisa=C5=82(a=
+):
+>
+>
+> > Now that it's upstream, use the resource managed version
+> > of i2c_new_dummy().
+>
+> That was fast :)
+>
+> > -     dummy_client =3D i2c_new_dummy(base_client->adapter,
+> > -                                  base_client->addr + index);
+> > +     dummy_client =3D devm_i2c_new_dummy_device(dev, base_client->adap=
+ter,
+> > +                                              base_client->addr + inde=
+x);
+> >       if (!dummy_client) {
+>
+> Oh well, the confusion starts already :/ devm_i2c_new_dummy_device()
+> returns an ERR_PTR.
+>
 
-On Thu, May 16, 2019 at 6:37 PM Andrew Lunn <andrew@lunn.ch> wrote:
->
-> On Thu, May 16, 2019 at 10:38:40AM +0530, Sagar Shrikant Kadam wrote:
-> > The i2c-ocore driver already has a polling mode interface.But it needs
-> > a workaround for FU540 Chipset on HiFive unleashed board (RevA00).
-> > There is an erratum in FU540 chip that prevents interrupt driven i2c
-> > transfers from working, and also the I2C controller's interrupt bit
-> > cannot be cleared if set, due to this the existing i2c polling mode
-> > interface added in mainline earlier doesn't work, and CPU stall's
-> > infinitely, when-ever i2c transfer is initiated.
-> >
-> > Ref:previous polling mode support in mainline
-> >
-> >       commit 69c8c0c0efa8 ("i2c: ocores: add polling interface")
-> >
-> > The workaround / fix under OCORES_FLAG_BROKEN_IRQ is particularly for
-> > FU540-COOO SoC.
-> >
-> > Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-> > ---
-> >  drivers/i2c/busses/i2c-ocores.c | 34 ++++++++++++++++++++++++++++------
-> >  1 file changed, 28 insertions(+), 6 deletions(-)
-> >
-> > diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-> > index aee1d86..00ee45c 100644
-> > --- a/drivers/i2c/busses/i2c-ocores.c
-> > +++ b/drivers/i2c/busses/i2c-ocores.c
-> > @@ -27,6 +27,7 @@
-> >  #include <linux/jiffies.h>
-> >
-> >  #define OCORES_FLAG_POLL BIT(0)
-> > +#define OCORES_FLAG_BROKEN_IRQ BIT(2) /* Broken IRQ in HiFive Unleashed */
->
-> Hi Sigar
->
-> BIT(1). Don't leave a gap.
+Ugh, sorry for that, especially since I followed the discussion on
+that series. :(
 
-I will remove the gap and update this in V4.
+I should not be sending out patches late on Sundays I guess.
 
-Thanks,
-Sagar
->
->         Andrew
+Bart
