@@ -1,59 +1,61 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] eeprom: at24: use devm_i2c_new_dummy_device()
-Date: Sun, 19 May 2019 22:52:35 +0200
-Message-ID: <20190519205235.GA19630@kunai>
-References: <20190519204012.31861-1-brgl@bgdev.pl>
- <20190519204012.31861-2-brgl@bgdev.pl>
+From: Sagar Kadam <sagar.kadam@sifive.com>
+Subject: Re: [PATCH v3 3/3] i2c-ocores: sifive: add polling mode workaround
+ for FU540-C000 SoC
+Date: Mon, 20 May 2019 09:50:21 +0530
+Message-ID: <CAARK3HkPuvsoVh=b2Kn43ubhME6vqpFLoboBM8OGOnb-d3FN8A@mail.gmail.com>
+References: <1557983320-14461-1-git-send-email-sagar.kadam@sifive.com>
+ <1557983320-14461-4-git-send-email-sagar.kadam@sifive.com> <20190516130720.GE14298@lunn.ch>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190519204012.31861-2-brgl@bgdev.pl>
+In-Reply-To: <20190516130720.GE14298@lunn.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, peter@korsgaard.com, Palmer Dabbelt <palmer@sifive.com>, Paul Walmsley <paul.walmsley@sifive.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Andrew,
 
---gBBFr7Ir9EOA20Yy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Thu, May 16, 2019 at 6:37 PM Andrew Lunn <andrew@lunn.ch> wrote:
+>
+> On Thu, May 16, 2019 at 10:38:40AM +0530, Sagar Shrikant Kadam wrote:
+> > The i2c-ocore driver already has a polling mode interface.But it needs
+> > a workaround for FU540 Chipset on HiFive unleashed board (RevA00).
+> > There is an erratum in FU540 chip that prevents interrupt driven i2c
+> > transfers from working, and also the I2C controller's interrupt bit
+> > cannot be cleared if set, due to this the existing i2c polling mode
+> > interface added in mainline earlier doesn't work, and CPU stall's
+> > infinitely, when-ever i2c transfer is initiated.
+> >
+> > Ref:previous polling mode support in mainline
+> >
+> >       commit 69c8c0c0efa8 ("i2c: ocores: add polling interface")
+> >
+> > The workaround / fix under OCORES_FLAG_BROKEN_IRQ is particularly for
+> > FU540-COOO SoC.
+> >
+> > Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+> > ---
+> >  drivers/i2c/busses/i2c-ocores.c | 34 ++++++++++++++++++++++++++++------
+> >  1 file changed, 28 insertions(+), 6 deletions(-)
+> >
+> > diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+> > index aee1d86..00ee45c 100644
+> > --- a/drivers/i2c/busses/i2c-ocores.c
+> > +++ b/drivers/i2c/busses/i2c-ocores.c
+> > @@ -27,6 +27,7 @@
+> >  #include <linux/jiffies.h>
+> >
+> >  #define OCORES_FLAG_POLL BIT(0)
+> > +#define OCORES_FLAG_BROKEN_IRQ BIT(2) /* Broken IRQ in HiFive Unleashed */
+>
+> Hi Sigar
+>
+> BIT(1). Don't leave a gap.
 
+I will remove the gap and update this in V4.
 
-> Now that it's upstream, use the resource managed version
-> of i2c_new_dummy().
-
-That was fast :)
-
-> -	dummy_client = i2c_new_dummy(base_client->adapter,
-> -				     base_client->addr + index);
-> +	dummy_client = devm_i2c_new_dummy_device(dev, base_client->adapter,
-> +						 base_client->addr + index);
->  	if (!dummy_client) {
-
-Oh well, the confusion starts already :/ devm_i2c_new_dummy_device()
-returns an ERR_PTR.
-
-
---gBBFr7Ir9EOA20Yy
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzhwg8ACgkQFA3kzBSg
-KbaunhAAnL04MZbjXegMV2akY03VuGzVoHwLdRndBqHOlG33ZNd0u4Wmf+fDv0ju
-ddWxKuGDH7XShPa4n29ohHIIY4F6urlQV0zrs5eBS5vHLu+GEmeeXkic+a2wn3CA
-O/Xnkgo5N7CXPGv9sTDX+IY3W86ZiKrioj8LcXXVdNcwNm15qGCgbN8ncUzxNrp5
-XbJFjGFdoFcBpigZPqK3Pu44yRgdKfBS3eyEzGxwHcVQhaCbxysjMGRtfZwmqDKY
-gJT2t3f7hXgK8gvcR4E/XvAT+v3TCvMWw9PiYEKhB+KmxDAQPEIGZFjptPpqsgcF
-BCkABUuuknAx4Hl9OaqwrmezyAAnTZorIQUO2RYGk0pydiXEp5wvB6OREdxsARax
-CYCptB747v+dkTUZ3ieoJeqj++lMpwH08jqydR3vIstJ7/mZ8YWJLxh/yIX4ew8D
-XWj5VXFhleRi+AkfoV5ZT1mkJ1nZcUVMZTExhigkRYLipuyxjfbpwrlOwnpeBB2u
-hj7gJ6yGxSlZRCr/kUXxBt5lHKe4677babpk1iQDXcyHK+EgXfJSbwu7K1FDXj2C
-b8bWTaPgk8U8fw83BEtYQFruUdn2frsxSRex+qEmLdCHuLW3OCh//8sEbQ60vOsQ
-h8r27tRSssN1RcQS36Vhrh8lgtR1ikXZnQfilyp+QSukd6BMMt4=
-=jlLR
------END PGP SIGNATURE-----
-
---gBBFr7Ir9EOA20Yy--
+Thanks,
+Sagar
+>
+>         Andrew
