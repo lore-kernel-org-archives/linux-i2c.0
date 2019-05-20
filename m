@@ -1,7 +1,7 @@
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH 5/5] i2c: core: Tidy up handling of init_irq
-Date: Mon, 20 May 2019 09:49:36 +0100
-Message-ID: <20190520084936.10590-6-ckeepax@opensource.cirrus.com>
+Subject: [PATCH 1/5] i2c: acpi: Factor out getting the IRQ from ACPI
+Date: Mon, 20 May 2019 09:49:32 +0100
+Message-ID: <20190520084936.10590-2-ckeepax@opensource.cirrus.com>
 References: <20190520084936.10590-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,44 +12,76 @@ To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
 Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Only set init_irq during i2c_device_new and only handle client->irq on
-the probe/remove paths.
+In preparation for future refactoring factor out the fetch of the IRQ
+into its own helper function.
 
-Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 ---
- drivers/i2c/i2c-core-base.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core-acpi.c | 40 +++++++++++++++++++++++++---------------
+ 1 file changed, 25 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index f958b50c78c04..c0a52802d23e7 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -322,6 +322,8 @@ static int i2c_device_probe(struct device *dev)
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 2728006920888..c3ac3ea184317 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -137,13 +137,35 @@ static int i2c_acpi_do_lookup(struct acpi_device *adev,
+ 	return 0;
+ }
  
- 	driver = to_i2c_driver(dev->driver);
- 
-+	client->irq = client->init_irq;
++static int i2c_acpi_get_irq(struct acpi_device *adev, int *irq)
++{
++	struct list_head resource_list;
++	struct resource_entry *entry;
++	int ret;
 +
- 	if (!client->irq && !driver->disable_i2c_core_irq_mapping) {
- 		int irq = -ENOENT;
++	INIT_LIST_HEAD(&resource_list);
++
++	ret = acpi_dev_get_resources(adev, &resource_list, NULL, NULL);
++	if (ret < 0)
++		return -EINVAL;
++
++	resource_list_for_each_entry(entry, &resource_list) {
++		if (resource_type(entry->res) == IORESOURCE_IRQ) {
++			*irq = entry->res->start;
++			break;
++		}
++	}
++
++	acpi_dev_free_resource_list(&resource_list);
++
++	return 0;
++}
++
+ static int i2c_acpi_get_info(struct acpi_device *adev,
+ 			     struct i2c_board_info *info,
+ 			     struct i2c_adapter *adapter,
+ 			     acpi_handle *adapter_handle)
+ {
+-	struct list_head resource_list;
+-	struct resource_entry *entry;
+ 	struct i2c_acpi_lookup lookup;
+ 	int ret;
  
-@@ -432,7 +434,7 @@ static int i2c_device_remove(struct device *dev)
- 	dev_pm_clear_wake_irq(&client->dev);
- 	device_init_wakeup(&client->dev, false);
+@@ -175,19 +197,7 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
+ 		*adapter_handle = lookup.adapter_handle;
  
--	client->irq = client->init_irq;
-+	client->irq = 0;
- 	if (client->flags & I2C_CLIENT_HOST_NOTIFY)
- 		pm_runtime_put(&client->adapter->dev);
+ 	/* Then fill IRQ number if any */
+-	INIT_LIST_HEAD(&resource_list);
+-	ret = acpi_dev_get_resources(adev, &resource_list, NULL, NULL);
+-	if (ret < 0)
+-		return -EINVAL;
+-
+-	resource_list_for_each_entry(entry, &resource_list) {
+-		if (resource_type(entry->res) == IORESOURCE_IRQ) {
+-			info->irq = entry->res->start;
+-			break;
+-		}
+-	}
+-
+-	acpi_dev_free_resource_list(&resource_list);
++	i2c_acpi_get_irq(adev, &info->irq);
  
-@@ -749,7 +751,6 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
- 	if (!client->init_irq)
- 		client->init_irq = i2c_dev_irq_from_resources(info->resources,
- 							 info->num_resources);
--	client->irq = client->init_irq;
- 
- 	strlcpy(client->name, info->type, sizeof(client->name));
- 
+ 	acpi_set_modalias(adev, dev_name(&adev->dev), info->type,
+ 			  sizeof(info->type));
 -- 
 2.11.0
