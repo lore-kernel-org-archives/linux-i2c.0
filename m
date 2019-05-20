@@ -1,55 +1,63 @@
 From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-Subject: [PATCH v5 1/3] dt-bindings: i2c: extend existing opencore bindings.
-Date: Mon, 20 May 2019 19:41:16 +0530
-Message-ID: <1558361478-4381-2-git-send-email-sagar.kadam@sifive.com>
+Subject: [PATCH v5 2/3] i2c-ocores: sifive: add support for i2c device on
+ FU540-c000 SoC.
+Date: Mon, 20 May 2019 19:41:17 +0530
+Message-ID: <1558361478-4381-3-git-send-email-sagar.kadam@sifive.com>
 References: <1558361478-4381-1-git-send-email-sagar.kadam@sifive.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
 In-Reply-To: <1558361478-4381-1-git-send-email-sagar.kadam@sifive.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
 To: robh+dt@kernel.org, mark.rutland@arm.com, peter@korsgaard.com, andrew@lunn.ch, palmer@sifive.com, paul.walmsley@sifive.com, sagar.kadam@sifive.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add FU540-C000 specific device tree bindings to already
-available i2-ocores file. This device is available on
-HiFive Unleashed Rev A00 board. Move interrupt and interrupt
-parents under optional property list as these can be optional.
+Update device id table for Opencore's I2C master based re-implementation
+used in FU540-c000 chipset on HiFive Unleashed platform.
 
-The FU540-C000 SoC from sifive, has an Opencore's I2C block
-reimplementation.
-
-The DT compatibility string for this IP is present in HDL and available at.
-https://github.com/sifive/sifive-blocks/blob/master/src/main/scala/devices/i2c/I2C.scala#L73
+Device ID's include Sifive, soc-specific device for chip specific tweaks
+and sifive IP block specific device for generic programming model.
 
 Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-ocores.txt | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-ocores.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-index 17bef9a..b73960e 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-@@ -2,8 +2,11 @@ Device tree configuration for i2c-ocores
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index 4e1a077..aee1d86 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -85,6 +85,7 @@ struct ocores_i2c {
  
- Required properties:
- - compatible      : "opencores,i2c-ocores" or "aeroflexgaisler,i2cmst"
-+                    "sifive,fu540-c000-i2c" or "sifive,i2c0".
-+		    for Opencore based I2C IP block reimplemented in
-+		    FU540-C000 SoC.Please refer sifive-blocks-ip-versioning.txt
-+		    for additional details.
- - reg             : bus address start and address range size of device
--- interrupts      : interrupt number
- - clocks          : handle to the controller clock; see the note below.
-                     Mutually exclusive with opencores,ip-clock-frequency
- - opencores,ip-clock-frequency: frequency of the controller clock in Hz;
-@@ -12,6 +15,8 @@ Required properties:
- - #size-cells     : should be <0>
+ #define TYPE_OCORES		0
+ #define TYPE_GRLIB		1
++#define TYPE_SIFIVE_REV0	2
  
- Optional properties:
-+- interrupt-parent: handle to interrupt controller.
-+- interrupts      : interrupt number.
- - clock-frequency : frequency of bus clock in Hz; see the note below.
-                     Defaults to 100 KHz when the property is not specified
- - reg-shift       : device register offsets are shifted by this value
+ static void oc_setreg_8(struct ocores_i2c *i2c, int reg, u8 value)
+ {
+@@ -468,6 +469,14 @@ static u32 ocores_func(struct i2c_adapter *adap)
+ 		.compatible = "aeroflexgaisler,i2cmst",
+ 		.data = (void *)TYPE_GRLIB,
+ 	},
++	{
++		.compatible = "sifive,fu540-c000-i2c",
++		.data = (void *)TYPE_SIFIVE_REV0,
++	},
++	{
++		.compatible = "sifive,i2c0",
++		.data = (void *)TYPE_SIFIVE_REV0,
++	},
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, ocores_i2c_match);
 -- 
 1.9.1
