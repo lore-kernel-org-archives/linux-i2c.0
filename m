@@ -1,11 +1,13 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 0/8] arm: add I2C DT binding docs to various platforms
-Date: Tue, 21 May 2019 10:21:29 +0200
-Message-ID: <20190521082137.2889-1-wsa@the-dreams.de>
+Subject: [PATCH 1/8] MAINTAINERS: add I2C DT bindings to Zynq platform
+Date: Tue, 21 May 2019 10:21:30 +0200
+Message-ID: <20190521082137.2889-2-wsa@the-dreams.de>
+References: <20190521082137.2889-1-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190521082137.2889-1-wsa@the-dreams.de>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -16,26 +18,27 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-arm-kernel@lists.infradead.org
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Cc: Michal Simek <michal.simek@xilinx.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Some I2C drivers entries in MAINTAINERS miss their DT bindings docs.
-This series fixes that. Because these drivers are all embedded in their
-platform entries, I suggest the respective maintainers pick them up via
-their tree. If you prefer that I take them via I2C, let me know.
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Cc: Michal Simek <michal.simek@xilinx.com>
+---
+ MAINTAINERS | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Wolfram Sang (8):
-  MAINTAINERS: add I2C DT bindings to Zynq platform
-  MAINTAINERS: add I2C DT bindings to DaVinci platform
-  MAINTAINERS: add I2C DT bindings to LPC platforms
-  MAINTAINERS: add I2C DT bindings to Nomadik/U300 platforms
-  MAINTAINERS: add I2C DT bindings to Rockchip platform
-  MAINTAINERS: add I2C DT bindings to STI architecture
-  MAINTAINERS: add I2C DT bindings to Versatile platform
-  MAINTAINERS: add I2C DT bindings to vt8500 architecture
-
- MAINTAINERS | 11 +++++++++++
- 1 file changed, 11 insertions(+)
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 509a8e6d2dcc..5cb019f8e597 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2532,6 +2532,8 @@ F:	drivers/cpuidle/cpuidle-zynq.c
+ F:	drivers/block/xsysace.c
+ N:	zynq
+ N:	xilinx
++F:	Documentation/devicetree/bindings/i2c/i2c-cadence.txt
++F:	Documentation/devicetree/bindings/i2c/i2c-xiic.txt
+ F:	drivers/clocksource/timer-cadence-ttc.c
+ F:	drivers/i2c/busses/i2c-cadence.c
+ F:	drivers/mmc/host/sdhci-of-arasan.c
 -- 
 2.19.1
