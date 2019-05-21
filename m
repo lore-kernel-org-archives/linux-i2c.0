@@ -1,52 +1,37 @@
-From: Sagar Kadam <sagar.kadam@sifive.com>
-Subject: Re: [PATCH v5 3/3] i2c-ocores: sifive: add polling mode workaround
- for FU540-C000 SoC.
-Date: Tue, 21 May 2019 14:27:54 +0530
-Message-ID: <CAARK3Hn4-amRV-knDa5UR8J68DKxWaBnC3O98KvciNpbwbsAGA@mail.gmail.com>
-References: <1558361478-4381-1-git-send-email-sagar.kadam@sifive.com>
- <1558361478-4381-4-git-send-email-sagar.kadam@sifive.com> <mvm7eakjjf7.fsf@suse.de>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH 1/5] i2c: acpi: Factor out getting the IRQ from ACPI
+Date: Tue, 21 May 2019 14:17:10 +0300
+Message-ID: <20190521111710.GW2781@lahna.fi.intel.com>
+References: <20190520084936.10590-1-ckeepax@opensource.cirrus.com>
+ <20190520084936.10590-2-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <mvm7eakjjf7.fsf@suse.de>
+Content-Disposition: inline
+In-Reply-To: <20190520084936.10590-2-ckeepax@opensource.cirrus.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andreas Schwab <schwab@suse.de>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, peter@korsgaard.com, Andrew Lunn <andrew@lunn.ch>, Palmer Dabbelt <palmer@sifive.com>, Paul Walmsley <paul.walmsley@sifive.com>, Linux I2C <linux-i2c@vger.kernel.org>, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Charles Keepax <ckeepax@opensource.cirrus.com>
+Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Thanks Andreas,
-Yes, I rebased to v5.2-rc1 and observed that there have been changes
-in polling interface, and i2c->flags is not longer being used for
-setting the polling mode. I am working on a way to hook in the fix for
-broken IRQ and will submit it in v6.
+On Mon, May 20, 2019 at 09:49:32AM +0100, Charles Keepax wrote:
+> In preparation for future refactoring factor out the fetch of the IRQ
+> into its own helper function.
+> 
+> Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+> ---
+>  drivers/i2c/i2c-core-acpi.c | 40 +++++++++++++++++++++++++---------------
+>  1 file changed, 25 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+> index 2728006920888..c3ac3ea184317 100644
+> --- a/drivers/i2c/i2c-core-acpi.c
+> +++ b/drivers/i2c/i2c-core-acpi.c
+> @@ -137,13 +137,35 @@ static int i2c_acpi_do_lookup(struct acpi_device *adev,
+>  	return 0;
+>  }
+>  
+> +static int i2c_acpi_get_irq(struct acpi_device *adev, int *irq)
 
-Thanks & BR,
-Sagar Kadam
-
-On Tue, May 21, 2019 at 2:03 PM Andreas Schwab <schwab@suse.de> wrote:
->
-> On Mai 20 2019, Sagar Shrikant Kadam <sagar.kadam@sifive.com> wrote:
->
-> > The i2c-ocore driver already has a polling mode interface.But it needs
-> > a workaround for FU540 Chipset on HiFive unleashed board (RevA00).
-> > There is an erratum in FU540 chip that prevents interrupt driven i2c
-> > transfers from working, and also the I2C controller's interrupt bit
-> > cannot be cleared if set, due to this the existing i2c polling mode
-> > interface added in mainline earlier doesn't work, and CPU stall's
-> > infinitely, when-ever i2c transfer is initiated.
-> >
-> > Ref:previous polling mode support in mainline
-> >
-> >       commit 69c8c0c0efa8 ("i2c: ocores: add polling interface")
-> >
-> > The workaround / fix under OCORES_FLAG_BROKEN_IRQ is particularly for
-> > FU540-COOO SoC.
->
-> After commit dd7dbf0eb090 this no longer fits.
->
-> Andreas.
->
-> --
-> Andreas Schwab, SUSE Labs, schwab@suse.de
-> GPG Key fingerprint = 0196 BAD8 1CE9 1970 F4BE  1748 E4D4 88E3 0EEA B9D7
-> "And now for something completely different."
+I think here the function should return irq instead, and negative errno
+in case of failure.
