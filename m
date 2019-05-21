@@ -1,34 +1,41 @@
-From: Sekhar Nori <nsekhar@ti.com>
-Subject: Re: [PATCH 2/8] MAINTAINERS: add I2C DT bindings to DaVinci platform
-Date: Tue, 21 May 2019 14:00:27 +0530
-Message-ID: <d969bea7-73fc-862b-de3a-1d761adc1ce9@ti.com>
-References: <20190521082137.2889-1-wsa@the-dreams.de>
- <20190521082137.2889-3-wsa@the-dreams.de>
+From: Andreas Schwab <schwab@suse.de>
+Subject: Re: [PATCH v5 3/3] i2c-ocores: sifive: add polling mode workaround for FU540-C000 SoC.
+Date: Tue, 21 May 2019 10:33:48 +0200
+Message-ID: <mvm7eakjjf7.fsf@suse.de>
+References: <1558361478-4381-1-git-send-email-sagar.kadam@sifive.com>
+        <1558361478-4381-4-git-send-email-sagar.kadam@sifive.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190521082137.2889-3-wsa@the-dreams.de>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org
-Cc: linux-i2c@vger.kernel.org, Kevin Hilman <khilman@kernel.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1558361478-4381-4-git-send-email-sagar.kadam@sifive.com> (Sagar
+        Shrikant Kadam's message of "Mon, 20 May 2019 19:41:18 +0530")
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Cc: robh+dt@kernel.org, mark.rutland@arm.com, peter@korsgaard.com, andrew@lunn.ch, palmer@sifive.com, paul.walmsley@sifive.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 21/05/19 1:51 PM, Wolfram Sang wrote:
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Sekhar Nori <nsekhar@ti.com>
-> Cc: Kevin Hilman <khilman@kernel.org>
+On Mai 20 2019, Sagar Shrikant Kadam <sagar.kadam@sifive.com> wrote:
 
-Acked-by: Sekhar Nori <nsekhar@ti.com>
+> The i2c-ocore driver already has a polling mode interface.But it needs
+> a workaround for FU540 Chipset on HiFive unleashed board (RevA00).
+> There is an erratum in FU540 chip that prevents interrupt driven i2c
+> transfers from working, and also the I2C controller's interrupt bit
+> cannot be cleared if set, due to this the existing i2c polling mode
+> interface added in mainline earlier doesn't work, and CPU stall's
+> infinitely, when-ever i2c transfer is initiated.
+>
+> Ref:previous polling mode support in mainline
+>
+> 	commit 69c8c0c0efa8 ("i2c: ocores: add polling interface")
+>
+> The workaround / fix under OCORES_FLAG_BROKEN_IRQ is particularly for
+> FU540-COOO SoC.
 
-Thanks
-Sekhar
+After commit dd7dbf0eb090 this no longer fits.
+
+Andreas.
+
+-- 
+Andreas Schwab, SUSE Labs, schwab@suse.de
+GPG Key fingerprint = 0196 BAD8 1CE9 1970 F4BE  1748 E4D4 88E3 0EEA B9D7
+"And now for something completely different."
