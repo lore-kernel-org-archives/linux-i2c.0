@@ -1,16 +1,15 @@
-From: Patrice CHOTARD <patrice.chotard@st.com>
-Subject: Re: [PATCH 6/8] MAINTAINERS: add I2C DT bindings to STI architecture
-Date: Tue, 21 May 2019 08:55:14 +0000
-Message-ID: <f1035a9b-c6a8-5e6e-4b08-81b5f6b473db@st.com>
+From: Michal Simek <michal.simek@xilinx.com>
+Subject: Re: [PATCH 1/8] MAINTAINERS: add I2C DT bindings to Zynq platform
+Date: Tue, 21 May 2019 10:55:29 +0200
+Message-ID: <997813fc-ca05-3847-7ad1-068e8cb5be57@xilinx.com>
 References: <20190521082137.2889-1-wsa@the-dreams.de>
- <20190521082137.2889-7-wsa@the-dreams.de>
+ <20190521082137.2889-2-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190521082137.2889-7-wsa@the-dreams.de>
+In-Reply-To: <20190521082137.2889-2-wsa@the-dreams.de>
 Content-Language: en-US
-Content-ID: <DA23ABE00F0C4542881DD9049BF3D5C5@st.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -20,33 +19,33 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org
+Cc: linux-i2c@vger.kernel.org, Michal Simek <michal.simek@xilinx.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram
-
-On 5/21/19 10:21 AM, Wolfram Sang wrote:
+On 21. 05. 19 10:21, Wolfram Sang wrote:
 > Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Patrice Chotard <patrice.chotard@st.com>
+> Cc: Michal Simek <michal.simek@xilinx.com>
 > ---
->  MAINTAINERS | 1 +
->  1 file changed, 1 insertion(+)
+>  MAINTAINERS | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
 > diff --git a/MAINTAINERS b/MAINTAINERS
-> index 09f32866bdef..cce1173be35c 100644
+> index 509a8e6d2dcc..5cb019f8e597 100644
 > --- a/MAINTAINERS
 > +++ b/MAINTAINERS
-> @@ -2281,6 +2281,7 @@ M:	Patrice Chotard <patrice.chotard@st.com>
->  L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
->  W:	http://www.stlinux.com
->  S:	Maintained
-> +F:	Documentation/devicetree/bindings/i2c/i2c-st.txt
->  F:	arch/arm/mach-sti/
->  F:	arch/arm/boot/dts/sti*
->  F:	drivers/char/hw_random/st-rng.c
+> @@ -2532,6 +2532,8 @@ F:	drivers/cpuidle/cpuidle-zynq.c
+>  F:	drivers/block/xsysace.c
+>  N:	zynq
+>  N:	xilinx
+> +F:	Documentation/devicetree/bindings/i2c/i2c-cadence.txt
+> +F:	Documentation/devicetree/bindings/i2c/i2c-xiic.txt
+>  F:	drivers/clocksource/timer-cadence-ttc.c
+>  F:	drivers/i2c/busses/i2c-cadence.c
+>  F:	drivers/mmc/host/sdhci-of-arasan.c
 > 
 
-Acked-by: Patrice Chotard <patrice.chotard@st.com>
+Reviewed-by: Michal Simek <michal.simek@xilinx.com>
 
-Thanks
+Thanks,
+Michal
