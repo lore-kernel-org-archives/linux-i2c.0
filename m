@@ -1,86 +1,44 @@
-From: Sagar Kadam <sagar.kadam@sifive.com>
-Subject: Re: [PATCH v5 1/3] dt-bindings: i2c: extend existing opencore bindings.
-Date: Tue, 21 May 2019 09:18:53 +0530
-Message-ID: <CAARK3HkkjOzubSQzHc5aMy8yyZaBwn6AuFJ-yMLdQDK6Vh7vdw@mail.gmail.com>
-References: <1558361478-4381-1-git-send-email-sagar.kadam@sifive.com>
- <1558361478-4381-2-git-send-email-sagar.kadam@sifive.com> <CAL_Jsq+6uL+wqi=5cp1X9JdBfmLDzGz5UjwfqKCCESyhsemnhQ@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 2/8] MAINTAINERS: add I2C DT bindings to DaVinci platform
+Date: Tue, 21 May 2019 10:21:31 +0200
+Message-ID: <20190521082137.2889-3-wsa@the-dreams.de>
+References: <20190521082137.2889-1-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAL_Jsq+6uL+wqi=5cp1X9JdBfmLDzGz5UjwfqKCCESyhsemnhQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Andrew Lunn <andrew@lunn.ch>, peter@korsgaard.com, devicetree@vger.kernel.org, Palmer Dabbelt <palmer@sifive.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Paul Walmsley <paul.walmsley@sifive.com>, linux-riscv@lists.infradead.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190521082137.2889-1-wsa@the-dreams.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: Kevin Hilman <khilman@kernel.org>, Sekhar Nori <nsekhar@ti.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Rob,
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Cc: Sekhar Nori <nsekhar@ti.com>
+Cc: Kevin Hilman <khilman@kernel.org>
+---
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-
-On Mon, May 20, 2019 at 8:07 PM Rob Herring <robh+dt@kernel.org> wrote:
->
-> On Mon, May 20, 2019 at 9:12 AM Sagar Shrikant Kadam
-> <sagar.kadam@sifive.com> wrote:
-> >
-> > Add FU540-C000 specific device tree bindings to already
-> > available i2-ocores file. This device is available on
-> > HiFive Unleashed Rev A00 board. Move interrupt and interrupt
-> > parents under optional property list as these can be optional.
-> >
-> > The FU540-C000 SoC from sifive, has an Opencore's I2C block
-> > reimplementation.
-> >
-> > The DT compatibility string for this IP is present in HDL and available at.
-> > https://github.com/sifive/sifive-blocks/blob/master/src/main/scala/devices/i2c/I2C.scala#L73
-> >
-> > Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-> > ---
-> >  Documentation/devicetree/bindings/i2c/i2c-ocores.txt | 7 ++++++-
-> >  1 file changed, 6 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-> > index 17bef9a..b73960e 100644
-> > --- a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-> > +++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-> > @@ -2,8 +2,11 @@ Device tree configuration for i2c-ocores
-> >
-> >  Required properties:
-> >  - compatible      : "opencores,i2c-ocores" or "aeroflexgaisler,i2cmst"
-> > +                    "sifive,fu540-c000-i2c" or "sifive,i2c0".
->
-> It's not an OR because both are required. Please reformat to 1 valid
-> combination per line.
-Yes, will rectify it in V6.
-
-> > +                   for Opencore based I2C IP block reimplemented in
-> > +                   FU540-C000 SoC.Please refer sifive-blocks-ip-versioning.txt
-> > +                   for additional details.
-> >  - reg             : bus address start and address range size of device
-> > -- interrupts      : interrupt number
-> >  - clocks          : handle to the controller clock; see the note below.
-> >                      Mutually exclusive with opencores,ip-clock-frequency
-> >  - opencores,ip-clock-frequency: frequency of the controller clock in Hz;
-> > @@ -12,6 +15,8 @@ Required properties:
-> >  - #size-cells     : should be <0>
-> >
-> >  Optional properties:
-> > +- interrupt-parent: handle to interrupt controller.
->
-> Drop this. interrupt-parent is implied.
->
-Sure, will exclude it in v6.
-
-> > +- interrupts      : interrupt number.
-> >  - clock-frequency : frequency of bus clock in Hz; see the note below.
-> >                      Defaults to 100 KHz when the property is not specified
-> >  - reg-shift       : device register offsets are shifted by this value
-> > --
-> > 1.9.1
-> >
->
-> _______________________________________________
-> linux-riscv mailing list
-> linux-riscv@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-riscv
-
-Thanks,
-Sagar
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 5cb019f8e597..90abfe11b05c 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -15684,6 +15684,7 @@ R:	Bartosz Golaszewski <bgolaszewski@baylibre.com>
+ L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/nsekhar/linux-davinci.git
+ S:	Supported
++F:	Documentation/devicetree/bindings/i2c/i2c-davinci.txt
+ F:	arch/arm/mach-davinci/
+ F:	drivers/i2c/busses/i2c-davinci.c
+ F:	arch/arm/boot/dts/da850*
+-- 
+2.19.1
