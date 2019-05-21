@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 3/8] MAINTAINERS: add I2C DT bindings to LPC platforms
-Date: Tue, 21 May 2019 10:21:32 +0200
-Message-ID: <20190521082137.2889-4-wsa@the-dreams.de>
+Subject: [PATCH 4/8] MAINTAINERS: add I2C DT bindings to Nomadik/U300 platforms
+Date: Tue, 21 May 2019 10:21:33 +0200
+Message-ID: <20190521082137.2889-5-wsa@the-dreams.de>
 References: <20190521082137.2889-1-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,34 +18,27 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-arm-kernel@lists.infradead.org
-Cc: Vladimir Zapolskiy <vz@mleia.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Cc: Vladimir Zapolskiy <vz@mleia.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
 ---
  MAINTAINERS | 2 ++
  1 file changed, 2 insertions(+)
 
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 90abfe11b05c..01b5579cfa07 100644
+index 01b5579cfa07..1a60cd98aad5 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -1782,6 +1782,7 @@ ARM/LPC18XX ARCHITECTURE
- M:	Vladimir Zapolskiy <vz@mleia.com>
+@@ -1921,6 +1921,8 @@ ARM/NOMADIK/U300/Ux500 ARCHITECTURES
+ M:	Linus Walleij <linus.walleij@linaro.org>
  L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
  S:	Maintained
-+F:	Documentation/devicetree/bindings/i2c/i2c-lpc2k.txt
- F:	arch/arm/boot/dts/lpc43*
- F:	drivers/i2c/busses/i2c-lpc2k.c
- F:	drivers/memory/pl172.c
-@@ -1795,6 +1796,7 @@ M:	Sylvain Lemieux <slemieux.tyco@gmail.com>
- L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
- T:	git git://github.com/vzapolskiy/linux-lpc32xx.git
- S:	Maintained
-+F:	Documentation/devicetree/bindings/i2c/i2c-pnx.txt
- F:	arch/arm/boot/dts/lpc32*
- F:	arch/arm/mach-lpc32xx/
- F:	drivers/i2c/busses/i2c-pnx.c
++F:	Documentation/devicetree/bindings/i2c/i2c-nomadik.txt
++F:	Documentation/devicetree/bindings/i2c/i2c-stu300.txt
+ F:	arch/arm/mach-nomadik/
+ F:	arch/arm/mach-u300/
+ F:	arch/arm/mach-ux500/
 -- 
 2.19.1
