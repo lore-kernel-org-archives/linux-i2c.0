@@ -1,49 +1,66 @@
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH 0/5] I2C IRQ Probe Improvements
-Date: Tue, 21 May 2019 16:04:57 +0100
-Message-ID: <20190521150502.27305-1-ckeepax@opensource.cirrus.com>
+Subject: [PATCH 4/5] i2c: core: Move ACPI gpio IRQ handling into i2c_acpi_get_irq
+Date: Tue, 21 May 2019 16:05:01 +0100
+Message-ID: <20190521150502.27305-5-ckeepax@opensource.cirrus.com>
+References: <20190521150502.27305-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190521150502.27305-1-ckeepax@opensource.cirrus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
 Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Apologies for the resend adding Andy and Jarkko.
+It makes sense to contain all the ACPI IRQ handling in a single helper
+function.
 
-This series attempts to align as much IRQ handling into the
-probe path as possible. Note that I don't have a great setup
-for testing these patches so they are mostly just build tested
-and need careful review and testing before any of them are
-merged.
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+---
 
-The series brings the ACPI path inline with the way the device
-tree path handles the IRQ entirely at probe time. However,
-it still leaves any IRQ specified through the board_info as
-being handled at device time. In that case we need to cache
-something from the board_info until probe time, which leaves
-any alternative solution with something basically the same as
-the current handling although perhaps caching more stuff.
+Note that this one is somewhat interesting, it seems the search
+through the resource list is done against the companion device
+of the adapter but the GPIO search is done against the companion
+device of the client. It feels to me like these really should
+be done on the same device, and certainly this is what SPI
+does (both against the equivalent of the adapter). Perhaps
+someone with more ACPI knowledge than myself could comment?
 
 Thanks,
 Charles
 
-See previous discussions:
- - https://lkml.org/lkml/2019/2/15/989
- - https://www.spinics.net/lists/linux-i2c/msg39541.html
+ drivers/i2c/i2c-core-acpi.c | 3 +++
+ drivers/i2c/i2c-core-base.c | 4 ----
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
-Charles Keepax (5):
-  i2c: acpi: Factor out getting the IRQ from ACPI
-  i2c: acpi: Use available IRQ helper functions
-  i2c: core: Move ACPI IRQ handling to probe time
-  i2c: core: Move ACPI gpio IRQ handling into i2c_acpi_get_irq
-  i2c: core: Tidy up handling of init_irq
-
- drivers/i2c/i2c-core-acpi.c | 50 ++++++++++++++++++++++++++++++---------------
- drivers/i2c/i2c-core-base.c | 11 +++++-----
- drivers/i2c/i2c-core.h      |  9 ++++++++
- 3 files changed, 48 insertions(+), 22 deletions(-)
-
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index e332760bf9ebc..0c882d956e9a4 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -164,6 +164,9 @@ int i2c_acpi_get_irq(struct i2c_client *client, int *irq)
+ 
+ 	acpi_dev_free_resource_list(&resource_list);
+ 
++	if (*irq < 0)
++		*irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(&client->dev), 0);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index c1afa17a76bfc..f958b50c78c04 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -336,10 +336,6 @@ static int i2c_device_probe(struct device *dev)
+ 				irq = of_irq_get(dev->of_node, 0);
+ 		} else if (ACPI_COMPANION(dev)) {
+ 			i2c_acpi_get_irq(client, &irq);
+-
+-			if (irq == -ENOENT)
+-				irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev),
+-							    0);
+ 		}
+ 		if (irq == -EPROBE_DEFER)
+ 			return irq;
 -- 
 2.11.0
