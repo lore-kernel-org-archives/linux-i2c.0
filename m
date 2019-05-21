@@ -1,47 +1,86 @@
 From: Sagar Kadam <sagar.kadam@sifive.com>
-Subject: Re: [PATCH v5 3/3] i2c-ocores: sifive: add polling mode workaround
- for FU540-C000 SoC.
-Date: Mon, 20 May 2019 20:50:06 +0530
-Message-ID: <CAARK3HnG4qg64cc_fjffxGp5EVTLdmWdkMVDx3YvK=coGAuqHw@mail.gmail.com>
+Subject: Re: [PATCH v5 1/3] dt-bindings: i2c: extend existing opencore bindings.
+Date: Tue, 21 May 2019 09:18:53 +0530
+Message-ID: <CAARK3HkkjOzubSQzHc5aMy8yyZaBwn6AuFJ-yMLdQDK6Vh7vdw@mail.gmail.com>
 References: <1558361478-4381-1-git-send-email-sagar.kadam@sifive.com>
- <1558361478-4381-4-git-send-email-sagar.kadam@sifive.com> <20190520145216.GD22024@lunn.ch>
+ <1558361478-4381-2-git-send-email-sagar.kadam@sifive.com> <CAL_Jsq+6uL+wqi=5cp1X9JdBfmLDzGz5UjwfqKCCESyhsemnhQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190520145216.GD22024@lunn.ch>
+In-Reply-To: <CAL_Jsq+6uL+wqi=5cp1X9JdBfmLDzGz5UjwfqKCCESyhsemnhQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, peter@korsgaard.com, Palmer Dabbelt <palmer@sifive.com>, Paul Walmsley <paul.walmsley@sifive.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, Andrew Lunn <andrew@lunn.ch>, peter@korsgaard.com, devicetree@vger.kernel.org, Palmer Dabbelt <palmer@sifive.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Paul Walmsley <paul.walmsley@sifive.com>, linux-riscv@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 20, 2019 at 8:22 PM Andrew Lunn <andrew@lunn.ch> wrote:
+Hi Rob,
+
+
+On Mon, May 20, 2019 at 8:07 PM Rob Herring <robh+dt@kernel.org> wrote:
 >
-> On Mon, May 20, 2019 at 07:41:18PM +0530, Sagar Shrikant Kadam wrote:
-> > The i2c-ocore driver already has a polling mode interface.But it needs
-> > a workaround for FU540 Chipset on HiFive unleashed board (RevA00).
-> > There is an erratum in FU540 chip that prevents interrupt driven i2c
-> > transfers from working, and also the I2C controller's interrupt bit
-> > cannot be cleared if set, due to this the existing i2c polling mode
-> > interface added in mainline earlier doesn't work, and CPU stall's
-> > infinitely, when-ever i2c transfer is initiated.
+> On Mon, May 20, 2019 at 9:12 AM Sagar Shrikant Kadam
+> <sagar.kadam@sifive.com> wrote:
 > >
-> > Ref:previous polling mode support in mainline
+> > Add FU540-C000 specific device tree bindings to already
+> > available i2-ocores file. This device is available on
+> > HiFive Unleashed Rev A00 board. Move interrupt and interrupt
+> > parents under optional property list as these can be optional.
 > >
-> >       commit 69c8c0c0efa8 ("i2c: ocores: add polling interface")
+> > The FU540-C000 SoC from sifive, has an Opencore's I2C block
+> > reimplementation.
 > >
-> > The workaround / fix under OCORES_FLAG_BROKEN_IRQ is particularly for
-> > FU540-COOO SoC.
+> > The DT compatibility string for this IP is present in HDL and available at.
+> > https://github.com/sifive/sifive-blocks/blob/master/src/main/scala/devices/i2c/I2C.scala#L73
 > >
 > > Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+> > ---
+> >  Documentation/devicetree/bindings/i2c/i2c-ocores.txt | 7 ++++++-
+> >  1 file changed, 6 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+> > index 17bef9a..b73960e 100644
+> > --- a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+> > +++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+> > @@ -2,8 +2,11 @@ Device tree configuration for i2c-ocores
+> >
+> >  Required properties:
+> >  - compatible      : "opencores,i2c-ocores" or "aeroflexgaisler,i2cmst"
+> > +                    "sifive,fu540-c000-i2c" or "sifive,i2c0".
 >
-> Much better, thanks.
-My pleasure Andrew.
-Appreciate your timely review and response.
+> It's not an OR because both are required. Please reformat to 1 valid
+> combination per line.
+Yes, will rectify it in V6.
 
+> > +                   for Opencore based I2C IP block reimplemented in
+> > +                   FU540-C000 SoC.Please refer sifive-blocks-ip-versioning.txt
+> > +                   for additional details.
+> >  - reg             : bus address start and address range size of device
+> > -- interrupts      : interrupt number
+> >  - clocks          : handle to the controller clock; see the note below.
+> >                      Mutually exclusive with opencores,ip-clock-frequency
+> >  - opencores,ip-clock-frequency: frequency of the controller clock in Hz;
+> > @@ -12,6 +15,8 @@ Required properties:
+> >  - #size-cells     : should be <0>
+> >
+> >  Optional properties:
+> > +- interrupt-parent: handle to interrupt controller.
 >
-> Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+> Drop this. interrupt-parent is implied.
 >
->     Andrew
+Sure, will exclude it in v6.
+
+> > +- interrupts      : interrupt number.
+> >  - clock-frequency : frequency of bus clock in Hz; see the note below.
+> >                      Defaults to 100 KHz when the property is not specified
+> >  - reg-shift       : device register offsets are shifted by this value
+> > --
+> > 1.9.1
+> >
+>
+> _______________________________________________
+> linux-riscv mailing list
+> linux-riscv@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-riscv
 
 Thanks,
 Sagar
