@@ -1,7 +1,7 @@
 From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-Subject: [PATCH v7 1/3] dt-bindings: i2c: extend existing opencore bindings.
-Date: Wed, 22 May 2019 14:29:32 +0530
-Message-ID: <1558515574-11155-2-git-send-email-sagar.kadam@sifive.com>
+Subject: [PATCH v7 2/3] i2c-ocores: sifive: add support for i2c device on FU540-c000 SoC.
+Date: Wed, 22 May 2019 14:29:33 +0530
+Message-ID: <1558515574-11155-3-git-send-email-sagar.kadam@sifive.com>
 References: <1558515574-11155-1-git-send-email-sagar.kadam@sifive.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1558515574-11155-1-git-send-email-sagar.kadam@sifive.com>
@@ -9,51 +9,43 @@ Sender: linux-kernel-owner@vger.kernel.org
 To: robh+dt@kernel.org, mark.rutland@arm.com, peter@korsgaard.com, andrew@lunn.ch, palmer@sifive.com, paul.walmsley@sifive.com, sagar.kadam@sifive.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Reformatted compatibility strings to one valid combination on
-each line.
-Add FU540-C000 specific device tree bindings to already available
-i2-ocores file. This device is available on
-HiFive Unleashed Rev A00 board. Move interrupt under optional
-property list as this can be optional.
+Update device id table for Opencore's I2C master based re-implementation
+used in FU540-c000 chipset on HiFive Unleashed platform.
 
-The FU540-C000 SoC from sifive, has an Opencore's I2C block
-reimplementation.
-
-The DT compatibility string for this IP is present in HDL and available at.
-https://github.com/sifive/sifive-blocks/blob/master/src/main/scala/devices/i2c/I2C.scala#L73
+Device ID's include Sifive, soc-specific device for chip specific tweaks
+and sifive IP block specific device for generic programming model.
 
 Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-ocores.txt | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-ocores.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-index 17bef9a..db96951 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-@@ -1,9 +1,13 @@
- Device tree configuration for i2c-ocores
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index c3dabee..b334fa2 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -82,6 +82,7 @@ struct ocores_i2c {
  
- Required properties:
--- compatible      : "opencores,i2c-ocores" or "aeroflexgaisler,i2cmst"
-+- compatible      : "opencores,i2c-ocores",
-+                    "aeroflexgaisler,i2cmst",
-+                    "sifive,fu540-c000-i2c","sifive,i2c0".
-+                    For Opencore based I2C IP block reimplemented in
-+                    FU540-C000 SoC.Please refer sifive-blocks-ip-versioning.txt
-+                    for additional details.
- - reg             : bus address start and address range size of device
--- interrupts      : interrupt number
- - clocks          : handle to the controller clock; see the note below.
-                     Mutually exclusive with opencores,ip-clock-frequency
- - opencores,ip-clock-frequency: frequency of the controller clock in Hz;
-@@ -12,6 +16,7 @@ Required properties:
- - #size-cells     : should be <0>
+ #define TYPE_OCORES		0
+ #define TYPE_GRLIB		1
++#define TYPE_SIFIVE_REV0	2
  
- Optional properties:
-+- interrupts      : interrupt number.
- - clock-frequency : frequency of bus clock in Hz; see the note below.
-                     Defaults to 100 KHz when the property is not specified
- - reg-shift       : device register offsets are shifted by this value
+ static void oc_setreg_8(struct ocores_i2c *i2c, int reg, u8 value)
+ {
+@@ -462,6 +463,14 @@ static u32 ocores_func(struct i2c_adapter *adap)
+ 		.compatible = "aeroflexgaisler,i2cmst",
+ 		.data = (void *)TYPE_GRLIB,
+ 	},
++	{
++		.compatible = "sifive,fu540-c000-i2c",
++		.data = (void *)TYPE_SIFIVE_REV0,
++	},
++	{
++		.compatible = "sifive,i2c0",
++		.data = (void *)TYPE_SIFIVE_REV0,
++	},
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, ocores_i2c_match);
 -- 
 1.9.1
