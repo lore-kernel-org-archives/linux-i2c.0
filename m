@@ -1,62 +1,80 @@
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: Re: [PATCH 4/5] i2c: core: Move ACPI gpio IRQ handling into
- i2c_acpi_get_irq
-Date: Wed, 22 May 2019 09:19:05 +0100
-Message-ID: <20190522081905.GC99937@ediswmail.ad.cirrus.com>
-References: <20190521150502.27305-1-ckeepax@opensource.cirrus.com>
- <20190521150502.27305-5-ckeepax@opensource.cirrus.com>
- <20190521172726.GO9224@smile.fi.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Subject: [PATCH v7 0/3] Extend dt bindings to support I2C on sifive devices and a fix broken IRQ in polling mode.
+Date: Wed, 22 May 2019 14:29:31 +0530
+Message-ID: <1558515574-11155-1-git-send-email-sagar.kadam@sifive.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190521172726.GO9224@smile.fi.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: wsa@the-dreams.de, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
+To: robh+dt@kernel.org, mark.rutland@arm.com, peter@korsgaard.com, andrew@lunn.ch, palmer@sifive.com, paul.walmsley@sifive.com, sagar.kadam@sifive.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 21, 2019 at 08:27:26PM +0300, Andy Shevchenko wrote:
-> On Tue, May 21, 2019 at 04:05:01PM +0100, Charles Keepax wrote:
-> > It makes sense to contain all the ACPI IRQ handling in a single helper
-> > function.
-> 
-> > Note that this one is somewhat interesting, it seems the search
-> > through the resource list is done against the companion device
-> > of the adapter but the GPIO search is done against the companion
-> > device of the client. It feels to me like these really should
-> > be done on the same device, and certainly this is what SPI
-> > does (both against the equivalent of the adapter). Perhaps
-> > someone with more ACPI knowledge than myself could comment?
-> 
-> It would be interesting to see the path how you come to this conclusion.
-> 
+The patch is based on mainline v5.2-rc1 and extends DT-bindings for Opencore based I2C IP block reimplemented
+in FU540 SoC, available on HiFive unleashed board (Rev A00), and also provides a workaround for broken IRQ
+which affects the already available I2C polling mode interface in mainline, for FU540-C000 chipsets.
 
-Apologies but I am not sure which conclusion you are referencing.
-Assuming it is them being called with different acpi_device's.
-It is perhaps me misunderstanding things but it looks like
-i2c_acpi_get_info implies the adev should correspond to the
-adapter. Where as acpi_dev_gpio_irq_get is called with the result
-of ACPI_COMPANION(dev) where dev is client->dev.
+The polling mode workaround patch fixes the CPU stall issue, when-ever i2c transfer are initiated.
 
-> >  	acpi_dev_free_resource_list(&resource_list);
-> >  
-> > +	if (*irq < 0)
-> > +		*irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(&client->dev), 0);
-> 
-> I think adev here is what we may use here.
-> 
+This workaround checks if it's a FU540 chipset based on device tree information, and check's for open
+core's IF(interrupt flag) and BUSY flags to break from the polling loop upon completion of transfer.
 
-Indeed that is what I would have expected as well, I will update
-the code to do so and hopefully any issues will come out in
-testing.
+To test the patch, a PMOD-AD2 sensor is connected to HiFive Unleashed board over J1 connector, and
+appropriate device node is added into board specific device tree as per the information provided in
+dt-bindings in Documentation/devicetree/bindings/i2c/i2c-ocores.txt.
+Without this workaround, the CPU stall's infinitely.
 
-> You may put assert here and see if it happens when you test your series.
-> 
+Busybox i2c utilities used to verify workaround : i2cdetect, i2cdump, i2cset, i2cget
 
-Alas I don't have a good way to test this series, they come out
-of some additional work Wolfram wanted based on some issues
-caused by a device tree fix I made a while back.
 
-Thanks,
-Charles
+Patch History:
+V6<->V7:
+-Rectified space and tab issue in dt bindings strings.
+-Implemented workaround based on i2c->flags, as per review comment on v6.
+
+V5<->V6:
+-Incorporated suggestions on v5 patch as follows:
+-Reformatted compatibility strings in dt doc with one valid combination on each line.
+-Removed interrupt-parents from optional property list. 
+-With rebase to v5.2-rc1, the v5 variant of polling workaround PATCH becomes in-compatible.
+ Till kernel v5.1 the polling mode was enabled based on i2c->flags, wherease in kernel v5.2-rc1 polling mode is set as
+ master transfer algorithim at probe time itself, and i2c->flags checks are removed.
+-Modified v5 to check for SiFive device type in polling function and include the workaround/fix for broken IRQ.
+
+v4<->V5:
+-Removed un-necessary checks of OCORES_FLAG_BROKEN_IRQ.
+
+V3<->V4:
+-Incorporated suggestions on v3 patch as follows:
+-OCORES_FLAG_BROKEN_IRQ BIT position rectified.
+-Updated BORKEN_IRQ flag checks such that if sifive device (Fu540-C000) is identified,then use polling mode as IRQ is broken.
+
+V2<->V3:
+-Incorporated review comments on v2 patch as follows:
+-Rectified compatibility string sequence with the most specific one at the first (dt bindings). 
+-Moved interrupts and interrupt-parent under optional property list (dt-bindings).
+-Updated reference to sifive-blocks-ip-versioning.txt and URL to IP repository used (dt-bindings).
+-Removed example for i2c0 device node from binding doc (dt-bindings).
+-Included sifive,i2c0 device under compatibility table in i2c-ocores driver (i2c-ocores).
+-Updated polling mode hooks for SoC specific fix to handle broken IRQ (i2c-ocores).
+
+
+V1<->V2:
+-Incorporate review comments from Andrew
+-Extend dt bindings into i2c-ocores.txt instead of adding new file
+-Rename SIFIVE_FLAG_POLL to OCORES_FLAG_BROKEN_IRQ
+
+V1:
+-Update dt bindings for sifive i2c devices
+-Fix broken IRQ affecting i2c polling mode interface.
+
+
+
+Sagar Shrikant Kadam (3):
+  dt-bindings: i2c: extend existing opencore bindings.
+  i2c-ocores: sifive: add support for i2c device on FU540-c000 SoC.
+  i2c-ocores: sifive: add polling mode workaround for FU540-C000 SoC.
+
+ .../devicetree/bindings/i2c/i2c-ocores.txt         |  9 ++++--
+ drivers/i2c/busses/i2c-ocores.c                    | 33 ++++++++++++++++++++--
+ 2 files changed, 38 insertions(+), 4 deletions(-)
+
+-- 
+1.9.1
