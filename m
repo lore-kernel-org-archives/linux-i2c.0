@@ -1,16 +1,18 @@
 From: Andrew Lunn <andrew@lunn.ch>
 Subject: Re: [PATCH v7 3/3] i2c-ocores: sifive: add polling mode workaround
  for FU540-C000 SoC.
-Date: Wed, 22 May 2019 21:45:29 +0200
-Message-ID: <20190522194529.GJ7281@lunn.ch>
+Date: Thu, 23 May 2019 14:34:35 +0200
+Message-ID: <20190523123435.GA15531@lunn.ch>
 References: <1558515574-11155-1-git-send-email-sagar.kadam@sifive.com>
  <1558515574-11155-4-git-send-email-sagar.kadam@sifive.com>
+ <20190522194529.GJ7281@lunn.ch>
+ <CAARK3HmMVibudG2CFLBoMSAqnraXyirTL6CXYo1T_XJEuGJy7Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <1558515574-11155-4-git-send-email-sagar.kadam@sifive.com>
+In-Reply-To: <CAARK3HmMVibudG2CFLBoMSAqnraXyirTL6CXYo1T_XJEuGJy7Q@mail.gmail.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
@@ -20,30 +22,16 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
  <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
 Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
-To: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, peter@korsgaard.com, palmer@sifive.com, linux-kernel@vger.kernel.org, robh+dt@kernel.org, linux-i2c@vger.kernel.org, paul.walmsley@sifive.com, linux-riscv@lists.infradead.org
+To: Sagar Kadam <sagar.kadam@sifive.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, peter@korsgaard.com, Palmer Dabbelt <palmer@sifive.com>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Paul Walmsley <paul.walmsley@sifive.com>, linux-riscv@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 22, 2019 at 02:29:34PM +0530, Sagar Shrikant Kadam wrote:
-> The i2c-ocore driver already has a polling mode interface.But it needs
-> a workaround for FU540 Chipset on HiFive unleashed board (RevA00).
-> There is an erratum in FU540 chip that prevents interrupt driven i2c
-> transfers from working, and also the I2C controller's interrupt bit
-> cannot be cleared if set, due to this the existing i2c polling mode
-> interface added in mainline earlier doesn't work, and CPU stall's
-> infinitely, when-ever i2c transfer is initiated.
-> 
-> Ref:
-> 	commit dd7dbf0eb090 ("i2c: ocores: refactor setup for polling")
-> 
-> The workaround / fix under OCORES_FLAG_BROKEN_IRQ is particularly for
-> FU540-COOO SoC.
-> 
-> The polling function identifies a SiFive device based on the device node
-> and enables the workaround.
-> 
-> Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+> Thank you Andrew for reviewing the patch set.
+> Can you please let me know weather you or Peter will be pick up the patch
+> for v5.3 or they  should go in via some other tree?
 
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Hi Sagar
 
-    Andrew
+Wolfram Sang should pick the patchset up.
+
+	Andrew
