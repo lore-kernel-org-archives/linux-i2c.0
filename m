@@ -1,43 +1,34 @@
-From: Qiang Zhao <qiang.zhao@nxp.com>
-Subject: [PATCH] i2c: layerscape: use PIO when fail to request dma channel
-Date: Fri, 24 May 2019 03:03:36 +0000
-Message-ID: <20190524030514.14082-1-qiang.zhao@nxp.com>
+From: Sagar Kadam <sagar.kadam@sifive.com>
+Subject: Re: [PATCH v7 3/3] i2c-ocores: sifive: add polling mode workaround
+ for FU540-C000 SoC.
+Date: Fri, 24 May 2019 10:35:35 +0530
+Message-ID: <CAARK3Hk42cAPwiLiKMRJgau3WesCEtQkpvaG_KwMCfnV6ih3PA@mail.gmail.com>
+References: <1558515574-11155-1-git-send-email-sagar.kadam@sifive.com>
+ <1558515574-11155-4-git-send-email-sagar.kadam@sifive.com>
+ <20190522194529.GJ7281@lunn.ch> <CAARK3HmMVibudG2CFLBoMSAqnraXyirTL6CXYo1T_XJEuGJy7Q@mail.gmail.com>
+ <20190523123435.GA15531@lunn.ch> <CAARK3H=BPT3aGUGiQvov5aqFRNVTSeyqJ-bNGw6uEoU7c8iiJg@mail.gmail.com>
+ <20190523135350.GA4985@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
+In-Reply-To: <20190523135350.GA4985@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "shawnguo@kernel.org" <shawnguo@kernel.org>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Qiang Zhao <qiang.zhao@nxp.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, peter@korsgaard.com, Palmer Dabbelt <palmer@sifive.com>, Paul Walmsley <paul.walmsley@sifive.com>, Linux I2C <linux-i2c@vger.kernel.org>, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-V2hlbiBmYWlsIHRvIHJlcXVlc3QgRE1BIFRYL1JYIGNoYW5uZWwsIHVzZSBQSU8gaW5zdGVhZCBm
-b3IgbGF5ZXJzY2FwZS4NCg0KU2lnbmVkLW9mZi1ieTogWmhhbyBRaWFuZyA8cWlhbmcuemhhb0Bu
-eHAuY29tPg0KLS0tDQogZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pbXguYyB8IDExICsrKysrKysr
-KysrDQogMSBmaWxlIGNoYW5nZWQsIDExIGluc2VydGlvbnMoKykNCg0KZGlmZiAtLWdpdCBhL2Ry
-aXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5j
-DQppbmRleCA5OGIyNzg2MTNjZjIuLjM5YTVhYjRjZjMzMiAxMDA2NDQNCi0tLSBhL2RyaXZlcnMv
-aTJjL2J1c3Nlcy9pMmMtaW14LmMNCisrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMN
-CkBAIC0zNDcsOSArMzQ3LDEzIEBAIHN0YXRpYyBpbnQgaTJjX2lteF9kbWFfcmVxdWVzdChzdHJ1
-Y3QgaW14X2kyY19zdHJ1Y3QgKmkyY19pbXgsDQogDQogCWRtYS0+Y2hhbl90eCA9IGRtYV9yZXF1
-ZXN0X2NoYW4oZGV2LCAidHgiKTsNCiAJaWYgKElTX0VSUihkbWEtPmNoYW5fdHgpKSB7DQorI2lm
-ZGVmIENPTkZJR19BUkNIX0xBWUVSU0NBUEUNCisJCWRldl9kYmcoZGV2LCAiY2FuJ3QgcmVxdWVz
-dCBETUEgdHggY2hhbm5lbFxuIik7DQorI2Vsc2UNCiAJCXJldCA9IFBUUl9FUlIoZG1hLT5jaGFu
-X3R4KTsNCiAJCWlmIChyZXQgIT0gLUVOT0RFViAmJiByZXQgIT0gLUVQUk9CRV9ERUZFUikNCiAJ
-CQlkZXZfZXJyKGRldiwgImNhbid0IHJlcXVlc3QgRE1BIHR4IGNoYW5uZWwgKCVkKVxuIiwgcmV0
-KTsNCisjZW5kaWYNCiAJCWdvdG8gZmFpbF9hbDsNCiAJfQ0KIA0KQEAgLTM2Niw5ICszNzAsMTMg
-QEAgc3RhdGljIGludCBpMmNfaW14X2RtYV9yZXF1ZXN0KHN0cnVjdCBpbXhfaTJjX3N0cnVjdCAq
-aTJjX2lteCwNCiANCiAJZG1hLT5jaGFuX3J4ID0gZG1hX3JlcXVlc3RfY2hhbihkZXYsICJyeCIp
-Ow0KIAlpZiAoSVNfRVJSKGRtYS0+Y2hhbl9yeCkpIHsNCisjaWZkZWYgQ09ORklHX0FSQ0hfTEFZ
-RVJTQ0FQRQ0KKwkJZGV2X2RiZyhkZXYsICJjYW4ndCByZXF1ZXN0IERNQSByeCBjaGFubmVsXG4i
-KTsNCisjZWxzZQ0KIAkJcmV0ID0gUFRSX0VSUihkbWEtPmNoYW5fcngpOw0KIAkJaWYgKHJldCAh
-PSAtRU5PREVWICYmIHJldCAhPSAtRVBST0JFX0RFRkVSKQ0KIAkJCWRldl9lcnIoZGV2LCAiY2Fu
-J3QgcmVxdWVzdCBETUEgcnggY2hhbm5lbCAoJWQpXG4iLCByZXQpOw0KKyNlbmRpZg0KIAkJZ290
-byBmYWlsX3R4Ow0KIAl9DQogDQpAQCAtMzk2LDYgKzQwNCw5IEBAIHN0YXRpYyBpbnQgaTJjX2lt
-eF9kbWFfcmVxdWVzdChzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QgKmkyY19pbXgsDQogCWRtYV9yZWxl
-YXNlX2NoYW5uZWwoZG1hLT5jaGFuX3R4KTsNCiBmYWlsX2FsOg0KIAlkZXZtX2tmcmVlKGRldiwg
-ZG1hKTsNCisjaWZkZWYgQ09ORklHX0FSQ0hfTEFZRVJTQ0FQRQ0KKwlkZXZfaW5mbyhkZXYsICJj
-YW4ndCB1c2UgRE1BLCB1c2luZyBQSU8gaW5zdGVhZC5cbiIpOw0KKyNlbmRpZg0KIAkvKiByZXR1
-cm4gc3VjY2Vzc2Z1bGx5IGlmIHRoZXJlIGlzIG5vIGRtYSBzdXBwb3J0ICovDQogCXJldHVybiBy
-ZXQgPT0gLUVOT0RFViA/IDAgOiByZXQ7DQogfQ0KLS0gDQoyLjE3LjENCg0K
+On Thu, May 23, 2019 at 7:23 PM Wolfram Sang <wsa@the-dreams.de> wrote:
+>
+>
+> > Ok, Great. Do we need to write to him about this patchset?
+>
+> Nope. Hint: You can dig in the mail archives studying older patches to
+> see how things work. I do this as well because things may work
+> differently per subsystem.
+>
+
+Thanks Wolfram for confirming on this.
+I will do check in the mail archives for additional info.
+
+Regards,
+Sagar Kadam
