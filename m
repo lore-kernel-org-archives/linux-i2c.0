@@ -1,56 +1,48 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: Allow selecting BCM2835 I2C controllers on
- ARCH_BRCMSTB
-Date: Mon, 27 May 2019 21:21:56 +0200
-Message-ID: <20190527192156.GF8808@kunai>
-References: <20190509210438.28223-1-f.fainelli@gmail.com>
+Subject: Re: [PATCH] i2c: i2c-meson: update with SPDX Licence identifier
+Date: Mon, 27 May 2019 21:27:49 +0200
+Message-ID: <20190527192749.GH8808@kunai>
+References: <20190520140133.29230-1-narmstrong@baylibre.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="dWYAkE0V1FpFQHQ3"
+        protocol="application/pgp-signature"; boundary="fd5uyaI9j6xoeUBo"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190509210438.28223-1-f.fainelli@gmail.com>
+In-Reply-To: <20190520140133.29230-1-narmstrong@baylibre.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Florian Fainelli <f.fainelli@gmail.com>
-Cc: linux-arm-kernel@lists.infradead.org, Kamal Dasu <kdasu.kdev@gmail.com>, Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Vignesh R <vigneshr@ti.com>, Eddie James <eajames@linux.vnet.ibm.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Ajay Gupta <ajayg@nvidia.com>, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, Juergen Fitschen <jfi@ssv-embedded.de>, Elie Morisse <syniurge@gmail.com>, "open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+To: Neil Armstrong <narmstrong@baylibre.com>
+Cc: linux-i2c@vger.kernel.org, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---dWYAkE0V1FpFQHQ3
+--fd5uyaI9j6xoeUBo
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 09, 2019 at 02:04:36PM -0700, Florian Fainelli wrote:
-> From: Kamal Dasu <kdasu.kdev@gmail.com>
->=20
-> ARCH_BRCMSTB platforms have the BCM2835 I2C controllers, allow
-> selecting the i2c-bcm2835 driver on such platforms.
->=20
-> Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
-> Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+On Mon, May 20, 2019 at 04:01:33PM +0200, Neil Armstrong wrote:
+> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
 
 Applied to for-next, thanks!
 
 
---dWYAkE0V1FpFQHQ3
+--fd5uyaI9j6xoeUBo
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzsONQACgkQFA3kzBSg
-KbYiRQ//Rt13LD4OiH6Oi2ARvnFvTNUEFodH7gJfdfIQqEGg6uTRfRJMdh9pPFgN
-SbhXmxB0Jy9J65kG06L1OZoPmsykZOvlxdcdXU8/OOUALe7Uz/P9UW4stPAb+PE6
-Qpa7i50R/Sl8xaDxNFXw2pjHdOU/dO4zFkw+pGaGXB8YxxtiVp2ZBebBD3dtsgGv
-PEDxTmcFwC2xv7eLBVXE+rEbpAu8QB5EwijobxMUdGjl7x0z3T0Adb2HRY0FviQH
-TxX06BfENtqiZAiLKSLsGj4jxdb1YrrCVeleBZMu0nFpgrZmemVMrysfSPbm9EAB
-GHcAG6QYx82EDuosRui3BcJ7ZKu5tDp9nlv04p8MCikem5PG0oNQYHSrt46ghvVb
-ahSaT3qMC7VuzkRrJapraLKtjVaMfM4b8B/zyLOV1B9ZTMhO82o9R+XEUWRO0rXl
-TpTF/Lk0hwj0ZtgQMB+uL2SqdwaxjRm/ZBbRyEalURESBJ28DjuBBd70S7Na5107
-pDqZvCyC0dv3y8g/t1QL5Z5BAh+GvqtbXBLJJsSWftJl3/MscpeZiRk8xEENjPX5
-rzeDtYUHab+XxCwG/rEiJXQNt3B7S5lAzQPASpzhootAjFxKy+qlroORnZ1tmy1S
-fnzI/jTN4KIGJSWSV4RjW2dFeo+L4q2g5bglwqDJ6e+fI6DHils=
-=wyGP
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzsOjUACgkQFA3kzBSg
+KbaYSA//TFmFra9bHioYQUzuLUYfWjuNTdMDp1eSOgV3TgyPsUclPYxfHZ/QnZB6
+Y3SUSEHuMx3B7spJRgQ1L4JlNfCiAkPWUIY5BNUWLsvgwr9+by0DDzhchKmuudKx
+Dp1KeQZs6oKMoeIc7l7+R6opQblhjgcOTLR1VDs8mzgx17tY4JbylZhM8iHR89eW
+FGmKzIOrTHP+YjbWBjl8W04cc0msPXQrKXZYwfc8fhfQl01OwpkxK0/06TRWiRdT
+7m7JIe7a8WVPtouTe/8+bQGZR+gC5kKcEpNpgHn4oca8GIN9Fp3UyYRuMorhbeGq
+RlDEwKNJao1pSWj26VMXt8ge3mActfacMZ9FnNP3shZG1YJ0zAqKWosrkMgAkZsg
+ofZWNALPi/u/7scmPC5/ISElC4CwEMv8BfMRylDjeXcUTHVc/YA9pwCcJtdpfSaf
+drj06QQGzvhW6UCaNagQBngw0OAqzOgOzYylxNa74ITFpNSby6a7Il1Yd1KqyodK
+7cMNBwl/Nf4qFwgw1NHHMvtcW40lxVS4w2FscJuhOZCqd9rGq1NOd36s8ery3+Vs
+S3sq5u7Vj50YHomDjJ9LhTVM51CCAowf5SIYhcOSE268qBGQ1qeFeucRWg9ZaN3t
+2tozseYX9pAzc1hZ4CMOodM5OI9l5RwEO5F63S5CHhnkbLUNqc4=
+=+oHq
 -----END PGP SIGNATURE-----
 
---dWYAkE0V1FpFQHQ3--
+--fd5uyaI9j6xoeUBo--
