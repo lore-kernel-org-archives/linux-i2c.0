@@ -1,7 +1,7 @@
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH v2 6/6] i2c: core: Tidy up handling of init_irq
-Date: Mon, 27 May 2019 16:19:32 +0100
-Message-ID: <20190527151932.14310-6-ckeepax@opensource.cirrus.com>
+Subject: [PATCH v2 2/6] i2c: acpi: Use available IRQ helper functions
+Date: Mon, 27 May 2019 16:19:28 +0100
+Message-ID: <20190527151932.14310-2-ckeepax@opensource.cirrus.com>
 References: <20190527151932.14310-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,50 +12,70 @@ To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
 Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Only set init_irq during i2c_device_new and only handle client->irq on
-the probe/remove paths.
+Use the available IRQ helper functions, most of the functions have
+additional helpful side affects like configuring the trigger type of the
+IRQ.
 
-Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 ---
 
-No changes since v1.
+Changes since v1:
+ - Moved earlier in the patch series.
 
-Thanks,
-Charles
+ drivers/i2c/i2c-core-acpi.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
- drivers/i2c/i2c-core-base.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 684ea2665d994..6d4904cdf58ac 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -322,6 +322,8 @@ static int i2c_device_probe(struct device *dev)
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 2728006920888..4b0387d040698 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -137,14 +137,25 @@ static int i2c_acpi_do_lookup(struct acpi_device *adev,
+ 	return 0;
+ }
  
- 	driver = to_i2c_driver(dev->driver);
- 
-+	client->irq = client->init_irq;
++static int i2c_acpi_add_resource(struct acpi_resource *ares, void *data)
++{
++	int *irq = data;
++	struct resource r;
 +
- 	if (!client->irq && !driver->disable_i2c_core_irq_mapping) {
- 		int irq = -ENOENT;
++	if (*irq < 0 && acpi_dev_resource_interrupt(ares, 0, &r))
++		*irq = i2c_dev_irq_from_resources(&r, 1);
++
++	return 1; /* No need to add resource to the list */
++}
++
+ static int i2c_acpi_get_info(struct acpi_device *adev,
+ 			     struct i2c_board_info *info,
+ 			     struct i2c_adapter *adapter,
+ 			     acpi_handle *adapter_handle)
+ {
+ 	struct list_head resource_list;
+-	struct resource_entry *entry;
+ 	struct i2c_acpi_lookup lookup;
++	int irq = -ENOENT;
+ 	int ret;
  
-@@ -432,7 +434,7 @@ static int i2c_device_remove(struct device *dev)
- 	dev_pm_clear_wake_irq(&client->dev);
- 	device_init_wakeup(&client->dev, false);
+ 	memset(&lookup, 0, sizeof(lookup));
+@@ -176,16 +187,13 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
  
--	client->irq = client->init_irq;
-+	client->irq = 0;
- 	if (client->flags & I2C_CLIENT_HOST_NOTIFY)
- 		pm_runtime_put(&client->adapter->dev);
+ 	/* Then fill IRQ number if any */
+ 	INIT_LIST_HEAD(&resource_list);
+-	ret = acpi_dev_get_resources(adev, &resource_list, NULL, NULL);
++	ret = acpi_dev_get_resources(adev, &resource_list,
++				     i2c_acpi_add_resource, &irq);
+ 	if (ret < 0)
+ 		return -EINVAL;
  
-@@ -749,7 +751,6 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
- 	if (!client->init_irq)
- 		client->init_irq = i2c_dev_irq_from_resources(info->resources,
- 							 info->num_resources);
--	client->irq = client->init_irq;
+-	resource_list_for_each_entry(entry, &resource_list) {
+-		if (resource_type(entry->res) == IORESOURCE_IRQ) {
+-			info->irq = entry->res->start;
+-			break;
+-		}
+-	}
++	if (irq >= 0)
++		info->irq = irq;
  
- 	strlcpy(client->name, info->type, sizeof(client->name));
+ 	acpi_dev_free_resource_list(&resource_list);
  
 -- 
 2.11.0
