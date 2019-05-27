@@ -1,157 +1,231 @@
-From: Maxime Ripard <maxime.ripard@bootlin.com>
-Subject: [PATCH 1/2] dt-bindings: i2c: sun6i-p2wi: Add YAML schemas
-Date: Sat, 25 May 2019 16:18:20 +0200
-Message-ID: <20190525141821.20082-1-maxime.ripard@bootlin.com>
+From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+Subject: Re: [PATCH 1/1] i2c: iproc: Add multi byte read-write support for
+ slave mode
+Date: Mon, 27 May 2019 08:58:45 +0530
+Message-ID: <CAHO=5PFTenqnyrP0xBJ95cq0XUukzAgwF4g=xi8Rwj6HxFZD=g@mail.gmail.com>
+References: <1557375708-14830-1-git-send-email-rayagonda.kokatanur@broadcom.com>
+ <508d6d50-29a6-dfa7-8e25-b64fa2cbbb8a@broadcom.com> <CAHO=5PGA5qawSQsn1T-sjDnc8W-n61cQRY-yD8+jfJ6KMgMcZA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Chen-Yu Tsai <wens@csie.org>, Maxime Ripard <maxime.ripard@bootlin.com>
-Cc: devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAHO=5PGA5qawSQsn1T-sjDnc8W-n61cQRY-yD8+jfJ6KMgMcZA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ray Jui <ray.jui@broadcom.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org
+Cc: Mark Rutland <mark.rutland@arm.com>, BCM Kernel Feedback <bcm-kernel-feedback-list@broadcom.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Michael Cheng <ccheng@broadcom.com>, Srinath Mannam <srinath.mannam@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Switch the DT binding to a YAML schema to enable the DT validation.
+Hi All,
 
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
----
- .../i2c/allwinner,sun6i-a31-p2wi.yaml         | 71 +++++++++++++++++++
- .../bindings/i2c/i2c-sun6i-p2wi.txt           | 41 -----------
- 2 files changed, 71 insertions(+), 41 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/i2c/allwinner,sun6i-a31-p2wi.yaml
- delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-sun6i-p2wi.txt
+Please review the patch and let me know your review comments if any.
 
-diff --git a/Documentation/devicetree/bindings/i2c/allwinner,sun6i-a31-p2wi.yaml b/Documentation/devicetree/bindings/i2c/allwinner,sun6i-a31-p2wi.yaml
-new file mode 100644
-index 000000000000..780a33080140
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/allwinner,sun6i-a31-p2wi.yaml
-@@ -0,0 +1,71 @@
-+# SPDX-License-Identifier: GPL-2.0
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/i2c/allwinner,sun6i-a31-p2wi.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Allwinner A31 P2WI (Push/Pull 2 Wires Interface) Device Tree Bindings
-+
-+maintainers:
-+  - Chen-Yu Tsai <wens@csie.org>
-+  - Maxime Ripard <maxime.ripard@bootlin.com>
-+
-+allOf:
-+  - $ref: /schemas/i2c/i2c-controller.yaml#
-+
-+properties:
-+  "#address-cells":
-+    const: 1
-+
-+  "#size-cells":
-+    const: 0
-+
-+  compatible:
-+    const: allwinner,sun6i-a31-p2wi
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 1
-+
-+  resets:
-+    maxItems: 1
-+
-+  clock-frequency:
-+    minimum: 1
-+    maximum: 6000000
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - clocks
-+  - resets
-+
-+# FIXME: We should set it, but it would report all the generic
-+# properties as additional properties.
-+# additionalProperties: false
-+
-+examples:
-+  - |
-+    p2wi@1f03400 {
-+      compatible = "allwinner,sun6i-a31-p2wi";
-+      reg = <0x01f03400 0x400>;
-+      interrupts = <0 39 4>;
-+      clocks = <&apb0_gates 3>;
-+      clock-frequency = <6000000>;
-+      resets = <&apb0_rst 3>;
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+
-+      axp221: pmic@68 {
-+        compatible = "x-powers,axp221";
-+        reg = <0x68>;
-+      };
-+    };
-+
-+...
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-sun6i-p2wi.txt b/Documentation/devicetree/bindings/i2c/i2c-sun6i-p2wi.txt
-deleted file mode 100644
-index 49df0053347a..000000000000
---- a/Documentation/devicetree/bindings/i2c/i2c-sun6i-p2wi.txt
-+++ /dev/null
-@@ -1,41 +0,0 @@
--
--* Allwinner P2WI (Push/Pull 2 Wire Interface) controller
--
--Required properties :
--
-- - reg             : Offset and length of the register set for the device.
-- - compatible      : Should one of the following:
--                     - "allwinner,sun6i-a31-p2wi"
-- - interrupts      : The interrupt line connected to the P2WI peripheral.
-- - clocks          : The gate clk connected to the P2WI peripheral.
-- - resets          : The reset line connected to the P2WI peripheral.
--
--Optional properties :
--
-- - clock-frequency : Desired P2WI bus clock frequency in Hz. If not set the
--default frequency is 100kHz
--
--A P2WI may contain one child node encoding a P2WI slave device.
--
--Slave device properties:
--  Required properties:
--   - reg           : the I2C slave address used during the initialization
--                     process to switch from I2C to P2WI mode
--
--Example:
--
--	p2wi@1f03400 {
--		compatible = "allwinner,sun6i-a31-p2wi";
--		reg = <0x01f03400 0x400>;
--		interrupts = <0 39 4>;
--		clocks = <&apb0_gates 3>;
--		clock-frequency = <6000000>;
--		resets = <&apb0_rst 3>;
--
--		axp221: pmic@68 {
--			compatible = "x-powers,axp221";
--			reg = <0x68>;
--
--			/* ... */
--		};
--	};
--- 
-2.21.0
+Best regards,
+Rayagonda
+
+
+On Wed, May 15, 2019 at 9:58 PM Rayagonda Kokatanur
+<rayagonda.kokatanur@broadcom.com> wrote:
+>
+> No change,  it's just duplicate, please ignore first patch and review
+> second patch.
+>
+> Best regards
+> Rayagonda
+>
+>
+>
+> On Thu, May 9, 2019 at 9:58 PM Ray Jui <ray.jui@broadcom.com> wrote:
+> >
+> > Why is the email sent twice? What has changed?
+> >
+> > On 5/8/2019 9:21 PM, Rayagonda Kokatanur wrote:
+> > > Add multiple byte read-write support for slave mode.
+> > >
+> > > Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+> > > Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
+> > > ---
+> > >  drivers/i2c/busses/i2c-bcm-iproc.c | 117 +++++++++++++++++--------------------
+> > >  1 file changed, 53 insertions(+), 64 deletions(-)
+> > >
+> > > diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
+> > > index a845b8d..2c7f145 100644
+> > > --- a/drivers/i2c/busses/i2c-bcm-iproc.c
+> > > +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+> > > @@ -165,12 +165,6 @@ enum i2c_slave_read_status {
+> > >       I2C_SLAVE_RX_END,
+> > >  };
+> > >
+> > > -enum i2c_slave_xfer_dir {
+> > > -     I2C_SLAVE_DIR_READ = 0,
+> > > -     I2C_SLAVE_DIR_WRITE,
+> > > -     I2C_SLAVE_DIR_NONE,
+> > > -};
+> > > -
+> > >  enum bus_speed_index {
+> > >       I2C_SPD_100K = 0,
+> > >       I2C_SPD_400K,
+> > > @@ -203,7 +197,6 @@ struct bcm_iproc_i2c_dev {
+> > >       struct i2c_msg *msg;
+> > >
+> > >       struct i2c_client *slave;
+> > > -     enum i2c_slave_xfer_dir xfer_dir;
+> > >
+> > >       /* bytes that have been transferred */
+> > >       unsigned int tx_bytes;
+> > > @@ -219,7 +212,8 @@ struct bcm_iproc_i2c_dev {
+> > >               | BIT(IS_M_RX_THLD_SHIFT))
+> > >
+> > >  #define ISR_MASK_SLAVE (BIT(IS_S_START_BUSY_SHIFT)\
+> > > -             | BIT(IS_S_RX_EVENT_SHIFT) | BIT(IS_S_RD_EVENT_SHIFT))
+> > > +             | BIT(IS_S_RX_EVENT_SHIFT) | BIT(IS_S_RD_EVENT_SHIFT)\
+> > > +             | BIT(IS_S_TX_UNDERRUN_SHIFT))
+> > >
+> > >  static int bcm_iproc_i2c_reg_slave(struct i2c_client *slave);
+> > >  static int bcm_iproc_i2c_unreg_slave(struct i2c_client *slave);
+> > > @@ -297,15 +291,11 @@ static void bcm_iproc_i2c_slave_init(
+> > >       /* clear all pending slave interrupts */
+> > >       iproc_i2c_wr_reg(iproc_i2c, IS_OFFSET, ISR_MASK_SLAVE);
+> > >
+> > > -     /* Enable interrupt register for any READ event */
+> > > -     val = BIT(IE_S_RD_EVENT_SHIFT);
+> > >       /* Enable interrupt register to indicate a valid byte in receive fifo */
+> > > -     val |= BIT(IE_S_RX_EVENT_SHIFT);
+> > > +     val = BIT(IE_S_RX_EVENT_SHIFT);
+> > >       /* Enable interrupt register for the Slave BUSY command */
+> > >       val |= BIT(IE_S_START_BUSY_SHIFT);
+> > >       iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
+> > > -
+> > > -     iproc_i2c->xfer_dir = I2C_SLAVE_DIR_NONE;
+> > >  }
+> > >
+> > >  static void bcm_iproc_i2c_check_slave_status(
+> > > @@ -314,8 +304,11 @@ static void bcm_iproc_i2c_check_slave_status(
+> > >       u32 val;
+> > >
+> > >       val = iproc_i2c_rd_reg(iproc_i2c, S_CMD_OFFSET);
+> > > -     val = (val >> S_CMD_STATUS_SHIFT) & S_CMD_STATUS_MASK;
+> > > +     /* status is valid only when START_BUSY is cleared after it was set */
+> > > +     if (val & BIT(S_CMD_START_BUSY_SHIFT))
+> > > +             return;
+> > >
+> > > +     val = (val >> S_CMD_STATUS_SHIFT) & S_CMD_STATUS_MASK;
+> > >       if (val == S_CMD_STATUS_TIMEOUT) {
+> > >               dev_err(iproc_i2c->device, "slave random stretch time timeout\n");
+> > >
+> > > @@ -327,70 +320,66 @@ static void bcm_iproc_i2c_check_slave_status(
+> > >  }
+> > >
+> > >  static bool bcm_iproc_i2c_slave_isr(struct bcm_iproc_i2c_dev *iproc_i2c,
+> > > -                             u32 status)
+> > > +                                 u32 status)
+> > >  {
+> > > -     u8 value;
+> > >       u32 val;
+> > > -     u32 rd_status;
+> > > -     u32 tmp;
+> > > +     u8 value, rx_status;
+> > >
+> > > -     /* Start of transaction. check address and populate the direction */
+> > > -     if (iproc_i2c->xfer_dir == I2C_SLAVE_DIR_NONE) {
+> > > -             tmp = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
+> > > -             rd_status = (tmp >> S_RX_STATUS_SHIFT) & S_RX_STATUS_MASK;
+> > > -             /* This condition checks whether the request is a new request */
+> > > -             if (((rd_status == I2C_SLAVE_RX_START) &&
+> > > -                     (status & BIT(IS_S_RX_EVENT_SHIFT))) ||
+> > > -                     ((rd_status == I2C_SLAVE_RX_END) &&
+> > > -                     (status & BIT(IS_S_RD_EVENT_SHIFT)))) {
+> > > -
+> > > -                     /* Last bit is W/R bit.
+> > > -                      * If 1 then its a read request(by master).
+> > > -                      */
+> > > -                     iproc_i2c->xfer_dir = tmp & SLAVE_READ_WRITE_BIT_MASK;
+> > > -                     if (iproc_i2c->xfer_dir == I2C_SLAVE_DIR_WRITE)
+> > > -                             i2c_slave_event(iproc_i2c->slave,
+> > > -                                     I2C_SLAVE_READ_REQUESTED, &value);
+> > > -                     else
+> > > -                             i2c_slave_event(iproc_i2c->slave,
+> > > +     /* Slave RX byte receive */
+> > > +     if (status & BIT(IS_S_RX_EVENT_SHIFT)) {
+> > > +             val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
+> > > +             rx_status = (val >> S_RX_STATUS_SHIFT) & S_RX_STATUS_MASK;
+> > > +             if (rx_status == I2C_SLAVE_RX_START) {
+> > > +                     /* Start of SMBUS for Master write */
+> > > +                     i2c_slave_event(iproc_i2c->slave,
+> > >                                       I2C_SLAVE_WRITE_REQUESTED, &value);
+> > > -             }
+> > > -     }
+> > >
+> > > -     /* read request from master */
+> > > -     if ((status & BIT(IS_S_RD_EVENT_SHIFT)) &&
+> > > -             (iproc_i2c->xfer_dir == I2C_SLAVE_DIR_WRITE)) {
+> > > -             i2c_slave_event(iproc_i2c->slave,
+> > > -                     I2C_SLAVE_READ_PROCESSED, &value);
+> > > -             iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
+> > > +                     val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
+> > > +                     value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
+> > > +                     i2c_slave_event(iproc_i2c->slave,
+> > > +                                     I2C_SLAVE_WRITE_RECEIVED, &value);
+> > > +             } else if (status & BIT(IS_S_RD_EVENT_SHIFT)) {
+> > > +                     /* Start of SMBUS for Master Read */
+> > > +                     i2c_slave_event(iproc_i2c->slave,
+> > > +                                     I2C_SLAVE_READ_REQUESTED, &value);
+> > > +                     iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
+> > >
+> > > -             val = BIT(S_CMD_START_BUSY_SHIFT);
+> > > -             iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
+> > > -     }
+> > > +                     val = BIT(S_CMD_START_BUSY_SHIFT);
+> > > +                     iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
+> > >
+> > > -     /* write request from master */
+> > > -     if ((status & BIT(IS_S_RX_EVENT_SHIFT)) &&
+> > > -             (iproc_i2c->xfer_dir == I2C_SLAVE_DIR_READ)) {
+> > > -             val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
+> > > -             /* Its a write request by Master to Slave.
+> > > -              * We read data present in receive FIFO
+> > > -              */
+> > > -             value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
+> > > +                     /*
+> > > +                      * Enable interrupt for TX FIFO becomes empty and
+> > > +                      * less than PKT_LENGTH bytes were output on the SMBUS
+> > > +                      */
+> > > +                     val = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
+> > > +                     val |= BIT(IE_S_TX_UNDERRUN_SHIFT);
+> > > +                     iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
+> > > +             } else {
+> > > +                     /* Master write other than start */
+> > > +                     value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
+> > > +                     i2c_slave_event(iproc_i2c->slave,
+> > > +                                     I2C_SLAVE_WRITE_RECEIVED, &value);
+> > > +             }
+> > > +     } else if (status & BIT(IS_S_TX_UNDERRUN_SHIFT)) {
+> > > +             /* Master read other than start */
+> > >               i2c_slave_event(iproc_i2c->slave,
+> > > -                     I2C_SLAVE_WRITE_RECEIVED, &value);
+> > > -
+> > > -             /* check the status for the last byte of the transaction */
+> > > -             rd_status = (val >> S_RX_STATUS_SHIFT) & S_RX_STATUS_MASK;
+> > > -             if (rd_status == I2C_SLAVE_RX_END)
+> > > -                     iproc_i2c->xfer_dir = I2C_SLAVE_DIR_NONE;
+> > > +                             I2C_SLAVE_READ_PROCESSED, &value);
+> > >
+> > > -             dev_dbg(iproc_i2c->device, "\nread value = 0x%x\n", value);
+> > > +             iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
+> > > +             val = BIT(S_CMD_START_BUSY_SHIFT);
+> > > +             iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
+> > >       }
+> > >
+> > >       /* Stop */
+> > >       if (status & BIT(IS_S_START_BUSY_SHIFT)) {
+> > >               i2c_slave_event(iproc_i2c->slave, I2C_SLAVE_STOP, &value);
+> > > -             iproc_i2c->xfer_dir = I2C_SLAVE_DIR_NONE;
+> > > +             /*
+> > > +              * Enable interrupt for TX FIFO becomes empty and
+> > > +              * less than PKT_LENGTH bytes were output on the SMBUS
+> > > +              */
+> > > +             val = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
+> > > +             val &= ~BIT(IE_S_TX_UNDERRUN_SHIFT);
+> > > +             iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
+> > >       }
+> > >
+> > >       /* clear interrupt status */
+> > >
