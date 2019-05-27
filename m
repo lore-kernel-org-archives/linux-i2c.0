@@ -1,7 +1,7 @@
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH v2 3/6] i2c: acpi: Factor out getting the IRQ from ACPI
-Date: Mon, 27 May 2019 16:19:29 +0100
-Message-ID: <20190527151932.14310-3-ckeepax@opensource.cirrus.com>
+Subject: [PATCH v2 6/6] i2c: core: Tidy up handling of init_irq
+Date: Mon, 27 May 2019 16:19:32 +0100
+Message-ID: <20190527151932.14310-6-ckeepax@opensource.cirrus.com>
 References: <20190527151932.14310-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,78 +12,50 @@ To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
 Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-In preparation for future refactoring factor out the fetch of the IRQ
-into its own helper function.
+Only set init_irq during i2c_device_new and only handle client->irq on
+the probe/remove paths.
 
+Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 ---
 
-Changes since v1:
- - Update function to just return the IRQ rather than use a pointer
-   argument.
+No changes since v1.
 
 Thanks,
 Charles
 
- drivers/i2c/i2c-core-acpi.c | 33 +++++++++++++++++++++------------
- 1 file changed, 21 insertions(+), 12 deletions(-)
+ drivers/i2c/i2c-core-base.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 4b0387d040698..f28d702dc6a89 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -148,14 +148,30 @@ static int i2c_acpi_add_resource(struct acpi_resource *ares, void *data)
- 	return 1; /* No need to add resource to the list */
- }
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 684ea2665d994..6d4904cdf58ac 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -322,6 +322,8 @@ static int i2c_device_probe(struct device *dev)
  
-+static int i2c_acpi_get_irq(struct acpi_device *adev)
-+{
-+	struct list_head resource_list;
-+	int irq = -ENOENT;
-+	int ret;
-+
-+	INIT_LIST_HEAD(&resource_list);
-+
-+	ret = acpi_dev_get_resources(adev, &resource_list,
-+				     i2c_acpi_add_resource, &irq);
-+	if (ret < 0)
-+		return -EINVAL;
-+
-+	acpi_dev_free_resource_list(&resource_list);
-+
-+	return irq;
-+}
-+
- static int i2c_acpi_get_info(struct acpi_device *adev,
- 			     struct i2c_board_info *info,
- 			     struct i2c_adapter *adapter,
- 			     acpi_handle *adapter_handle)
- {
--	struct list_head resource_list;
- 	struct i2c_acpi_lookup lookup;
--	int irq = -ENOENT;
- 	int ret;
+ 	driver = to_i2c_driver(dev->driver);
  
- 	memset(&lookup, 0, sizeof(lookup));
-@@ -186,16 +202,9 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
- 		*adapter_handle = lookup.adapter_handle;
++	client->irq = client->init_irq;
++
+ 	if (!client->irq && !driver->disable_i2c_core_irq_mapping) {
+ 		int irq = -ENOENT;
  
- 	/* Then fill IRQ number if any */
--	INIT_LIST_HEAD(&resource_list);
--	ret = acpi_dev_get_resources(adev, &resource_list,
--				     i2c_acpi_add_resource, &irq);
--	if (ret < 0)
--		return -EINVAL;
--
--	if (irq >= 0)
--		info->irq = irq;
--
--	acpi_dev_free_resource_list(&resource_list);
-+	ret = i2c_acpi_get_irq(adev);
-+	if (ret >= 0)
-+		info->irq = ret;
+@@ -432,7 +434,7 @@ static int i2c_device_remove(struct device *dev)
+ 	dev_pm_clear_wake_irq(&client->dev);
+ 	device_init_wakeup(&client->dev, false);
  
- 	acpi_set_modalias(adev, dev_name(&adev->dev), info->type,
- 			  sizeof(info->type));
+-	client->irq = client->init_irq;
++	client->irq = 0;
+ 	if (client->flags & I2C_CLIENT_HOST_NOTIFY)
+ 		pm_runtime_put(&client->adapter->dev);
+ 
+@@ -749,7 +751,6 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
+ 	if (!client->init_irq)
+ 		client->init_irq = i2c_dev_irq_from_resources(info->resources,
+ 							 info->num_resources);
+-	client->irq = client->init_irq;
+ 
+ 	strlcpy(client->name, info->type, sizeof(client->name));
+ 
 -- 
 2.11.0
