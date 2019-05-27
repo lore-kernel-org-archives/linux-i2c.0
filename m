@@ -1,104 +1,216 @@
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH v2 4/6] i2c: core: Move ACPI IRQ handling to probe time
-Date: Mon, 27 May 2019 16:19:30 +0100
-Message-ID: <20190527151932.14310-4-ckeepax@opensource.cirrus.com>
-References: <20190527151932.14310-1-ckeepax@opensource.cirrus.com>
+From: Ray Jui <ray.jui@broadcom.com>
+Subject: Re: [PATCH 1/1] i2c: iproc: Add multi byte read-write support for
+ slave mode
+Date: Mon, 27 May 2019 09:26:38 -0700
+Message-ID: <7e073311-fff6-736a-5ae2-a29ceac25f3b@broadcom.com>
+References: <1557375708-14830-1-git-send-email-rayagonda.kokatanur@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190527151932.14310-1-ckeepax@opensource.cirrus.com>
+In-Reply-To: <1557375708-14830-1-git-send-email-rayagonda.kokatanur@broadcom.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
-Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
+To: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+Cc: linux-i2c@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Michael Cheng <ccheng@broadcom.com>, Srinath Mannam <srinath.mannam@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Bring the ACPI path in sync with the device tree path and handle all the
-IRQ fetching at probe time. This leaves the only IRQ handling at device
-registration time being that which is passed directly through the board
-info as either a resource or an actual IRQ number.
+Hi Rayagonda,
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
----
+On 5/8/2019 9:21 PM, Rayagonda Kokatanur wrote:
+> Add multiple byte read-write support for slave mode.
+> 
+> Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+> Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
+> ---
+>  drivers/i2c/busses/i2c-bcm-iproc.c | 117 +++++++++++++++++--------------------
+>  1 file changed, 53 insertions(+), 64 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
+> index a845b8d..2c7f145 100644
+> --- a/drivers/i2c/busses/i2c-bcm-iproc.c
+> +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+> @@ -165,12 +165,6 @@ enum i2c_slave_read_status {
+>  	I2C_SLAVE_RX_END,
+>  };
+>  
+> -enum i2c_slave_xfer_dir {
+> -	I2C_SLAVE_DIR_READ = 0,
+> -	I2C_SLAVE_DIR_WRITE,
+> -	I2C_SLAVE_DIR_NONE,
+> -};
+> -
+>  enum bus_speed_index {
+>  	I2C_SPD_100K = 0,
+>  	I2C_SPD_400K,
+> @@ -203,7 +197,6 @@ struct bcm_iproc_i2c_dev {
+>  	struct i2c_msg *msg;
+>  
+>  	struct i2c_client *slave;
+> -	enum i2c_slave_xfer_dir xfer_dir;
+>  
+>  	/* bytes that have been transferred */
+>  	unsigned int tx_bytes;
+> @@ -219,7 +212,8 @@ struct bcm_iproc_i2c_dev {
+>  		| BIT(IS_M_RX_THLD_SHIFT))
+>  
+>  #define ISR_MASK_SLAVE (BIT(IS_S_START_BUSY_SHIFT)\
+> -		| BIT(IS_S_RX_EVENT_SHIFT) | BIT(IS_S_RD_EVENT_SHIFT))
+> +		| BIT(IS_S_RX_EVENT_SHIFT) | BIT(IS_S_RD_EVENT_SHIFT)\
+> +		| BIT(IS_S_TX_UNDERRUN_SHIFT))
+>  
+>  static int bcm_iproc_i2c_reg_slave(struct i2c_client *slave);
+>  static int bcm_iproc_i2c_unreg_slave(struct i2c_client *slave);
+> @@ -297,15 +291,11 @@ static void bcm_iproc_i2c_slave_init(
+>  	/* clear all pending slave interrupts */
+>  	iproc_i2c_wr_reg(iproc_i2c, IS_OFFSET, ISR_MASK_SLAVE);
+>  
+> -	/* Enable interrupt register for any READ event */
+> -	val = BIT(IE_S_RD_EVENT_SHIFT);
+>  	/* Enable interrupt register to indicate a valid byte in receive fifo */
+> -	val |= BIT(IE_S_RX_EVENT_SHIFT);
+> +	val = BIT(IE_S_RX_EVENT_SHIFT);
+>  	/* Enable interrupt register for the Slave BUSY command */
+>  	val |= BIT(IE_S_START_BUSY_SHIFT);
+>  	iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
+> -
+> -	iproc_i2c->xfer_dir = I2C_SLAVE_DIR_NONE;
+>  }
+>  
+>  static void bcm_iproc_i2c_check_slave_status(
+> @@ -314,8 +304,11 @@ static void bcm_iproc_i2c_check_slave_status(
+>  	u32 val;
+>  
+>  	val = iproc_i2c_rd_reg(iproc_i2c, S_CMD_OFFSET);
+> -	val = (val >> S_CMD_STATUS_SHIFT) & S_CMD_STATUS_MASK;
+> +	/* status is valid only when START_BUSY is cleared after it was set */
+> +	if (val & BIT(S_CMD_START_BUSY_SHIFT))
+> +		return;
+>  
+> +	val = (val >> S_CMD_STATUS_SHIFT) & S_CMD_STATUS_MASK;
+>  	if (val == S_CMD_STATUS_TIMEOUT) {
+>  		dev_err(iproc_i2c->device, "slave random stretch time timeout\n");
+>  
+> @@ -327,70 +320,66 @@ static void bcm_iproc_i2c_check_slave_status(
+>  }
+>  
+>  static bool bcm_iproc_i2c_slave_isr(struct bcm_iproc_i2c_dev *iproc_i2c,
+> -				u32 status)
+> +				    u32 status)
+>  {
+> -	u8 value;
+>  	u32 val;
+> -	u32 rd_status;
+> -	u32 tmp;
+> +	u8 value, rx_status;
+>  
+> -	/* Start of transaction. check address and populate the direction */
+> -	if (iproc_i2c->xfer_dir == I2C_SLAVE_DIR_NONE) {
+> -		tmp = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
+> -		rd_status = (tmp >> S_RX_STATUS_SHIFT) & S_RX_STATUS_MASK;
+> -		/* This condition checks whether the request is a new request */
+> -		if (((rd_status == I2C_SLAVE_RX_START) &&
+> -			(status & BIT(IS_S_RX_EVENT_SHIFT))) ||
+> -			((rd_status == I2C_SLAVE_RX_END) &&
+> -			(status & BIT(IS_S_RD_EVENT_SHIFT)))) {
+> -
+> -			/* Last bit is W/R bit.
+> -			 * If 1 then its a read request(by master).
+> -			 */
+> -			iproc_i2c->xfer_dir = tmp & SLAVE_READ_WRITE_BIT_MASK;
+> -			if (iproc_i2c->xfer_dir == I2C_SLAVE_DIR_WRITE)
+> -				i2c_slave_event(iproc_i2c->slave,
+> -					I2C_SLAVE_READ_REQUESTED, &value);
+> -			else
+> -				i2c_slave_event(iproc_i2c->slave,
+> +	/* Slave RX byte receive */
+> +	if (status & BIT(IS_S_RX_EVENT_SHIFT)) {
+> +		val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
+> +		rx_status = (val >> S_RX_STATUS_SHIFT) & S_RX_STATUS_MASK;
+> +		if (rx_status == I2C_SLAVE_RX_START) {
+> +			/* Start of SMBUS for Master write */
+> +			i2c_slave_event(iproc_i2c->slave,
+>  					I2C_SLAVE_WRITE_REQUESTED, &value);
+> -		}
+> -	}
+>  
+> -	/* read request from master */
+> -	if ((status & BIT(IS_S_RD_EVENT_SHIFT)) &&
+> -		(iproc_i2c->xfer_dir == I2C_SLAVE_DIR_WRITE)) {
+> -		i2c_slave_event(iproc_i2c->slave,
+> -			I2C_SLAVE_READ_PROCESSED, &value);
+> -		iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
+> +			val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
+> +			value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
+> +			i2c_slave_event(iproc_i2c->slave,
+> +					I2C_SLAVE_WRITE_RECEIVED, &value);
+> +		} else if (status & BIT(IS_S_RD_EVENT_SHIFT)) {
+> +			/* Start of SMBUS for Master Read */
+> +			i2c_slave_event(iproc_i2c->slave,
+> +					I2C_SLAVE_READ_REQUESTED, &value);
+> +			iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
+>  
+> -		val = BIT(S_CMD_START_BUSY_SHIFT);
+> -		iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
+> -	}
+> +			val = BIT(S_CMD_START_BUSY_SHIFT);
+> +			iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
+>  
+> -	/* write request from master */
+> -	if ((status & BIT(IS_S_RX_EVENT_SHIFT)) &&
+> -		(iproc_i2c->xfer_dir == I2C_SLAVE_DIR_READ)) {
+> -		val = iproc_i2c_rd_reg(iproc_i2c, S_RX_OFFSET);
+> -		/* Its a write request by Master to Slave.
+> -		 * We read data present in receive FIFO
+> -		 */
+> -		value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
+> +			/*
+> +			 * Enable interrupt for TX FIFO becomes empty and
+> +			 * less than PKT_LENGTH bytes were output on the SMBUS
+> +			 */
+> +			val = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
+> +			val |= BIT(IE_S_TX_UNDERRUN_SHIFT);
+> +			iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
+> +		} else {
+> +			/* Master write other than start */
+> +			value = (u8)((val >> S_RX_DATA_SHIFT) & S_RX_DATA_MASK);
+> +			i2c_slave_event(iproc_i2c->slave,
+> +					I2C_SLAVE_WRITE_RECEIVED, &value);
+> +		}
+> +	} else if (status & BIT(IS_S_TX_UNDERRUN_SHIFT)) {
+> +		/* Master read other than start */
+>  		i2c_slave_event(iproc_i2c->slave,
+> -			I2C_SLAVE_WRITE_RECEIVED, &value);
+> -
+> -		/* check the status for the last byte of the transaction */
+> -		rd_status = (val >> S_RX_STATUS_SHIFT) & S_RX_STATUS_MASK;
+> -		if (rd_status == I2C_SLAVE_RX_END)
+> -			iproc_i2c->xfer_dir = I2C_SLAVE_DIR_NONE;
+> +				I2C_SLAVE_READ_PROCESSED, &value);
+>  
+> -		dev_dbg(iproc_i2c->device, "\nread value = 0x%x\n", value);
+> +		iproc_i2c_wr_reg(iproc_i2c, S_TX_OFFSET, value);
+> +		val = BIT(S_CMD_START_BUSY_SHIFT);
+> +		iproc_i2c_wr_reg(iproc_i2c, S_CMD_OFFSET, val);
+>  	}
+>  
+>  	/* Stop */
+>  	if (status & BIT(IS_S_START_BUSY_SHIFT)) {
+>  		i2c_slave_event(iproc_i2c->slave, I2C_SLAVE_STOP, &value);
+> -		iproc_i2c->xfer_dir = I2C_SLAVE_DIR_NONE;
+> +		/*
+> +		 * Enable interrupt for TX FIFO becomes empty and
+> +		 * less than PKT_LENGTH bytes were output on the SMBUS
+> +		 */
+> +		val = iproc_i2c_rd_reg(iproc_i2c, IE_OFFSET);
+> +		val &= ~BIT(IE_S_TX_UNDERRUN_SHIFT);
+> +		iproc_i2c_wr_reg(iproc_i2c, IE_OFFSET, val);
+>  	}
+>  
+>  	/* clear interrupt status */
+> 
 
-Changes since v1:
- - Kept function call on a single line despite going a couple characters
-   over line length.
+This was already reviewed internally. I just reviewed it again and it
+looks fine to me. Thanks.
 
-Thanks,
-Charles
-
- drivers/i2c/i2c-core-acpi.c | 8 ++------
- drivers/i2c/i2c-core-base.c | 5 ++++-
- drivers/i2c/i2c-core.h      | 7 +++++++
- 3 files changed, 13 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index f28d702dc6a89..133fa9fa239f7 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -148,8 +148,9 @@ static int i2c_acpi_add_resource(struct acpi_resource *ares, void *data)
- 	return 1; /* No need to add resource to the list */
- }
- 
--static int i2c_acpi_get_irq(struct acpi_device *adev)
-+int i2c_acpi_get_irq(struct i2c_client *client)
- {
-+	struct acpi_device *adev = ACPI_COMPANION(&client->adapter->dev);
- 	struct list_head resource_list;
- 	int irq = -ENOENT;
- 	int ret;
-@@ -201,11 +202,6 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
- 	if (adapter_handle)
- 		*adapter_handle = lookup.adapter_handle;
- 
--	/* Then fill IRQ number if any */
--	ret = i2c_acpi_get_irq(adev);
--	if (ret >= 0)
--		info->irq = ret;
--
- 	acpi_set_modalias(adev, dev_name(&adev->dev), info->type,
- 			  sizeof(info->type));
- 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 84bf11b25a120..b6b009bfe842b 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -335,7 +335,10 @@ static int i2c_device_probe(struct device *dev)
- 			if (irq == -EINVAL || irq == -ENODATA)
- 				irq = of_irq_get(dev->of_node, 0);
- 		} else if (ACPI_COMPANION(dev)) {
--			irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
-+			irq = i2c_acpi_get_irq(client);
-+
-+			if (irq == -ENOENT)
-+				irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
- 		}
- 		if (irq == -EPROBE_DEFER)
- 			return irq;
-diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
-index 8f3a08dc73a25..15c1411f35f07 100644
---- a/drivers/i2c/i2c-core.h
-+++ b/drivers/i2c/i2c-core.h
-@@ -72,6 +72,8 @@ const struct acpi_device_id *
- i2c_acpi_match_device(const struct acpi_device_id *matches,
- 		      struct i2c_client *client);
- void i2c_acpi_register_devices(struct i2c_adapter *adap);
-+
-+int i2c_acpi_get_irq(struct i2c_client *client);
- #else /* CONFIG_ACPI */
- static inline void i2c_acpi_register_devices(struct i2c_adapter *adap) { }
- static inline const struct acpi_device_id *
-@@ -80,6 +82,11 @@ i2c_acpi_match_device(const struct acpi_device_id *matches,
- {
- 	return NULL;
- }
-+
-+static inline int i2c_acpi_get_irq(struct i2c_client *client)
-+{
-+	return 0;
-+}
- #endif /* CONFIG_ACPI */
- extern struct notifier_block i2c_acpi_notifier;
- 
--- 
-2.11.0
+Reviewed-by: Ray Jui <ray.jui@broadcom.com>
