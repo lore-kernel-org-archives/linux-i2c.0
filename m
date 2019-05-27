@@ -1,58 +1,60 @@
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH v2 1/6] i2c: core: Allow whole core to use i2c_dev_irq_from_resources
-Date: Mon, 27 May 2019 16:19:27 +0100
-Message-ID: <20190527151932.14310-1-ckeepax@opensource.cirrus.com>
+Subject: [PATCH v2 5/6] i2c: core: Move ACPI gpio IRQ handling into i2c_acpi_get_irq
+Date: Mon, 27 May 2019 16:19:31 +0100
+Message-ID: <20190527151932.14310-5-ckeepax@opensource.cirrus.com>
+References: <20190527151932.14310-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190527151932.14310-1-ckeepax@opensource.cirrus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
 Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Remove the static from i2c_dev_irq_from _resources so that other parts
-of the core code can use this helper function.
+It makes sense to contain all the ACPI IRQ handling in a single helper
+function.
 
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 ---
 
-Patch new since v1, factored out from Use available IRQ helper
-functions.
+Changes since v1:
+ - Use adev directly in i2c_acpi_get_irq
 
 Thanks,
 Charles
 
- drivers/i2c/i2c-core-base.c | 4 ++--
- drivers/i2c/i2c-core.h      | 2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core-acpi.c | 3 +++
+ drivers/i2c/i2c-core-base.c | 3 ---
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index d389d4fb0623a..84bf11b25a120 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -687,8 +687,8 @@ static void i2c_dev_set_name(struct i2c_adapter *adap,
- 		     i2c_encode_flags_to_addr(client));
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 133fa9fa239f7..5d612b99c569b 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -164,6 +164,9 @@ int i2c_acpi_get_irq(struct i2c_client *client)
+ 
+ 	acpi_dev_free_resource_list(&resource_list);
+ 
++	if (irq == -ENOENT)
++		irq = acpi_dev_gpio_irq_get(adev, 0);
++
+ 	return irq;
  }
  
--static int i2c_dev_irq_from_resources(const struct resource *resources,
--				      unsigned int num_resources)
-+int i2c_dev_irq_from_resources(const struct resource *resources,
-+			       unsigned int num_resources)
- {
- 	struct irq_data *irqd;
- 	int i;
-diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
-index c88cfef813431..8f3a08dc73a25 100644
---- a/drivers/i2c/i2c-core.h
-+++ b/drivers/i2c/i2c-core.h
-@@ -28,6 +28,8 @@ extern struct list_head	__i2c_board_list;
- extern int		__i2c_first_dynamic_bus_num;
- 
- int i2c_check_7bit_addr_validity_strict(unsigned short addr);
-+int i2c_dev_irq_from_resources(const struct resource *resources,
-+			       unsigned int num_resources);
- 
- /*
-  * We only allow atomic transfers for very late communication, e.g. to send
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index b6b009bfe842b..684ea2665d994 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -336,9 +336,6 @@ static int i2c_device_probe(struct device *dev)
+ 				irq = of_irq_get(dev->of_node, 0);
+ 		} else if (ACPI_COMPANION(dev)) {
+ 			irq = i2c_acpi_get_irq(client);
+-
+-			if (irq == -ENOENT)
+-				irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
+ 		}
+ 		if (irq == -EPROBE_DEFER)
+ 			return irq;
 -- 
 2.11.0
