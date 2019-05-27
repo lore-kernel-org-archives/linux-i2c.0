@@ -1,38 +1,25 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH net-next v2 1/2] i2c: acpi: export
- i2c_acpi_find_adapter_by_handle
-Date: Mon, 27 May 2019 11:39:43 +0300
-Message-ID: <20190527083943.GX2781@lahna.fi.intel.com>
-References: <20190505193435.3248-1-ruslan@babayev.com>
- <20190525005302.27164-1-ruslan@babayev.com>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH 10/10] docs: fix broken documentation links
+Date: Mon, 27 May 2019 10:43:39 +0200
+Message-ID: <CAJZ5v0iiSo=yoyZTt6ddf5fBRGy1wSvzmA-ZaHH33nivkSp22Q@mail.gmail.com>
+References: <cover.1558362030.git.mchehab+samsung@kernel.org> <4fd1182b4a41feb2447c7ccde4d7f0a6b3c92686.1558362030.git.mchehab+samsung@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190525005302.27164-1-ruslan@babayev.com>
+In-Reply-To: <4fd1182b4a41feb2447c7ccde4d7f0a6b3c92686.1558362030.git.mchehab+samsung@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ruslan Babayev <ruslan@babayev.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, xe-linux-external@cisco.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, the arch/x86 maintainers <x86@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, "open list:EDAC-CORE" <linux-edac@vger.kernel.org>, netdev <netdev@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-amlogic@lists.infradead.org, linux-arm-msm <linux-arm-msm@vger.kernel.org>, linux-gpio@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, xen-devel@lists.xenproject.org, Platform Driver <pl>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, May 24, 2019 at 05:53:01PM -0700, Ruslan Babayev wrote:
-> +struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle);
->  #else
->  static inline bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
->  					     struct acpi_resource_i2c_serialbus **i2c)
-> @@ -996,6 +998,10 @@ static inline struct i2c_client *i2c_acpi_new_device(struct device *dev,
->  {
->  	return NULL;
->  }
-> +struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
+On Mon, May 20, 2019 at 4:48 PM Mauro Carvalho Chehab
+<mchehab+samsung@kernel.org> wrote:
+>
+> Mostly due to x86 and acpi conversion, several documentation
+> links are still pointing to the old file. Fix them.
+>
+> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 
-This should be static inline, I think.
+For the ACPI part:
 
-> +{
-> +	return NULL;
-> +}
->  #endif /* CONFIG_ACPI */
->  
->  #endif /* _LINUX_I2C_H */
-> -- 
-> 2.17.1
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
