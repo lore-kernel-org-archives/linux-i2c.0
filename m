@@ -1,48 +1,53 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i2c-meson: update with SPDX Licence identifier
-Date: Mon, 27 May 2019 21:27:49 +0200
-Message-ID: <20190527192749.GH8808@kunai>
-References: <20190520140133.29230-1-narmstrong@baylibre.com>
+Subject: Re: [PATCH] i2c: jz4780: Drop dependency on MACH_JZ4780
+Date: Mon, 27 May 2019 21:39:22 +0200
+Message-ID: <20190527193922.GJ8808@kunai>
+References: <20190522170516.15086-1-paul@crapouillou.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="fd5uyaI9j6xoeUBo"
+        protocol="application/pgp-signature"; boundary="kr14OxHsRwZHHqxS"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190520140133.29230-1-narmstrong@baylibre.com>
+In-Reply-To: <20190522170516.15086-1-paul@crapouillou.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Neil Armstrong <narmstrong@baylibre.com>
-Cc: linux-i2c@vger.kernel.org, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Paul Cercueil <paul@crapouillou.net>
+Cc: od@zcrc.me, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---fd5uyaI9j6xoeUBo
+--kr14OxHsRwZHHqxS
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 20, 2019 at 04:01:33PM +0200, Neil Armstrong wrote:
-> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+On Wed, May 22, 2019 at 07:05:16PM +0200, Paul Cercueil wrote:
+> Depending on MACH_JZ4780 prevent us from creating a generic kernel that
+> works on more than one MIPS board. Instead, we just depend on MIPS being
+> set.
+>=20
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 
 Applied to for-next, thanks!
 
 
---fd5uyaI9j6xoeUBo
+--kr14OxHsRwZHHqxS
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzsOjUACgkQFA3kzBSg
-KbaYSA//TFmFra9bHioYQUzuLUYfWjuNTdMDp1eSOgV3TgyPsUclPYxfHZ/QnZB6
-Y3SUSEHuMx3B7spJRgQ1L4JlNfCiAkPWUIY5BNUWLsvgwr9+by0DDzhchKmuudKx
-Dp1KeQZs6oKMoeIc7l7+R6opQblhjgcOTLR1VDs8mzgx17tY4JbylZhM8iHR89eW
-FGmKzIOrTHP+YjbWBjl8W04cc0msPXQrKXZYwfc8fhfQl01OwpkxK0/06TRWiRdT
-7m7JIe7a8WVPtouTe/8+bQGZR+gC5kKcEpNpgHn4oca8GIN9Fp3UyYRuMorhbeGq
-RlDEwKNJao1pSWj26VMXt8ge3mActfacMZ9FnNP3shZG1YJ0zAqKWosrkMgAkZsg
-ofZWNALPi/u/7scmPC5/ISElC4CwEMv8BfMRylDjeXcUTHVc/YA9pwCcJtdpfSaf
-drj06QQGzvhW6UCaNagQBngw0OAqzOgOzYylxNa74ITFpNSby6a7Il1Yd1KqyodK
-7cMNBwl/Nf4qFwgw1NHHMvtcW40lxVS4w2FscJuhOZCqd9rGq1NOd36s8ery3+Vs
-S3sq5u7Vj50YHomDjJ9LhTVM51CCAowf5SIYhcOSE268qBGQ1qeFeucRWg9ZaN3t
-2tozseYX9pAzc1hZ4CMOodM5OI9l5RwEO5F63S5CHhnkbLUNqc4=
-=+oHq
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzsPOoACgkQFA3kzBSg
+KbY7Nw//c4+JJyfBfaiAxWqQVmZ2jb25asyRJSNcP/Ln7IScKam6hOMX/IMwEvTg
+3t0n+baRVBq6WuQrXaZViEfyGld20WYF/Lh1NREq9nC+1Oe84K56gvDFPrBuNXrV
+AGBrbB7NxTfiAmGu4nsMgvnOIOsGMreMS6vf4hRZEh6l5ZxoBgVGTHo0zYUfSiAY
+HB12SU8KgTzZuS2l2CGj9hZBplwU5a/fhjnXdUgdSorvs5vfCqJSJSOSUddQq32A
+HQxdVqbcjKQyMgMFZNZ/cZEdMX4wFaYH8212V/LXNEEzO9ZPVzAgnXDSqZ/Kb7rL
+HmOEupgR614Eg1q6fXzMXUFb3bT4HSnx+gWdl/KllZ/Sy5iTlwafhp1YklboaZE3
+6KGBbmpYWIzuvBVUjSxE2C01NfrYZQ8AijACUx8PRDcu/yrc0HNbTaVeAZH1tgyo
+zvqOe4YUd0XcShVDY6cWe3Qt4YLsBKBoMA0ysnjf1bKwMZtxTzzOXffXFcPF/7AN
+Qr7Z+6qSGXeUoF/Cz1oitk3zdhv1YSXhF+EdBjhwyz1ekEGqNKJiVQIyDuGnxy/z
+HyfQHwi2hWCc2ssUSbqki3sZ9B2/F3Rw2FABw2lxxwCYbAyIYwDlvuv7UOSHjs7W
+3AXluDU6VPVOAnqjQhDl9cSS1hQJCL+0yGwBADxjkbcCWEndTI8=
+=mF0b
 -----END PGP SIGNATURE-----
 
---fd5uyaI9j6xoeUBo--
+--kr14OxHsRwZHHqxS--
