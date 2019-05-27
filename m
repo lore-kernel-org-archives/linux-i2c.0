@@ -1,53 +1,42 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: jz4780: Drop dependency on MACH_JZ4780
-Date: Mon, 27 May 2019 21:39:22 +0200
-Message-ID: <20190527193922.GJ8808@kunai>
-References: <20190522170516.15086-1-paul@crapouillou.net>
+Subject: [PATCH] MAINTAINERS: Karthikeyan Ramasubramanian is MIA
+Date: Mon, 27 May 2019 21:45:45 +0200
+Message-ID: <20190527194545.20013-1-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="kr14OxHsRwZHHqxS"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190522170516.15086-1-paul@crapouillou.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Paul Cercueil <paul@crapouillou.net>
-Cc: od@zcrc.me, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Alok Chauhan <alokc@codeaurora.org>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
+A mail just bounced back with "user unknown":
 
---kr14OxHsRwZHHqxS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+550 5.1.1 <kramasub@codeaurora.org> User doesn't exist
 
-On Wed, May 22, 2019 at 07:05:16PM +0200, Paul Cercueil wrote:
-> Depending on MACH_JZ4780 prevent us from creating a generic kernel that
-> works on more than one MIPS board. Instead, we just depend on MIPS being
-> set.
->=20
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+I also couldn't find a more recent address in git history. So, remove
+this stale entry.
 
-Applied to for-next, thanks!
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
 
+I'd happily drop this patch if we can get a sign of life and a recent
+email address.
 
---kr14OxHsRwZHHqxS
-Content-Type: application/pgp-signature; name="signature.asc"
+ MAINTAINERS | 1 -
+ 1 file changed, 1 deletion(-)
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzsPOoACgkQFA3kzBSg
-KbY7Nw//c4+JJyfBfaiAxWqQVmZ2jb25asyRJSNcP/Ln7IScKam6hOMX/IMwEvTg
-3t0n+baRVBq6WuQrXaZViEfyGld20WYF/Lh1NREq9nC+1Oe84K56gvDFPrBuNXrV
-AGBrbB7NxTfiAmGu4nsMgvnOIOsGMreMS6vf4hRZEh6l5ZxoBgVGTHo0zYUfSiAY
-HB12SU8KgTzZuS2l2CGj9hZBplwU5a/fhjnXdUgdSorvs5vfCqJSJSOSUddQq32A
-HQxdVqbcjKQyMgMFZNZ/cZEdMX4wFaYH8212V/LXNEEzO9ZPVzAgnXDSqZ/Kb7rL
-HmOEupgR614Eg1q6fXzMXUFb3bT4HSnx+gWdl/KllZ/Sy5iTlwafhp1YklboaZE3
-6KGBbmpYWIzuvBVUjSxE2C01NfrYZQ8AijACUx8PRDcu/yrc0HNbTaVeAZH1tgyo
-zvqOe4YUd0XcShVDY6cWe3Qt4YLsBKBoMA0ysnjf1bKwMZtxTzzOXffXFcPF/7AN
-Qr7Z+6qSGXeUoF/Cz1oitk3zdhv1YSXhF+EdBjhwyz1ekEGqNKJiVQIyDuGnxy/z
-HyfQHwi2hWCc2ssUSbqki3sZ9B2/F3Rw2FABw2lxxwCYbAyIYwDlvuv7UOSHjs7W
-3AXluDU6VPVOAnqjQhDl9cSS1hQJCL+0yGwBADxjkbcCWEndTI8=
-=mF0b
------END PGP SIGNATURE-----
-
---kr14OxHsRwZHHqxS--
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 429c6c624861..9e38c8be2de4 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -13043,7 +13043,6 @@ F:	Documentation/devicetree/bindings/net/qcom,dwmac.txt
+ 
+ QUALCOMM GENERIC INTERFACE I2C DRIVER
+ M:	Alok Chauhan <alokc@codeaurora.org>
+-M:	Karthikeyan Ramasubramanian <kramasub@codeaurora.org>
+ L:	linux-i2c@vger.kernel.org
+ L:	linux-arm-msm@vger.kernel.org
+ S:	Supported
+-- 
+2.19.1
