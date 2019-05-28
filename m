@@ -1,7 +1,7 @@
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH v3 6/6] i2c: core: Tidy up handling of init_irq
-Date: Tue, 28 May 2019 15:29:00 +0100
-Message-ID: <20190528142900.24147-6-ckeepax@opensource.cirrus.com>
+Subject: [PATCH v3 4/6] i2c: core: Move ACPI IRQ handling to probe time
+Date: Tue, 28 May 2019 15:28:58 +0100
+Message-ID: <20190528142900.24147-4-ckeepax@opensource.cirrus.com>
 References: <20190528142900.24147-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,50 +12,100 @@ To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
 Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Only set init_irq during i2c_device_new and only handle client->irq on
-the probe/remove paths.
+Bring the ACPI path in sync with the device tree path and handle all the
+IRQ fetching at probe time. This leaves the only IRQ handling at device
+registration time being that which is passed directly through the board
+info as either a resource or an actual IRQ number.
 
-Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 ---
 
-No changes since v2.
+Changes since v2:
+ - Add kernel doc for i2c_acpi_get_irq
 
 Thanks,
 Charles
 
- drivers/i2c/i2c-core-base.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core-acpi.c | 16 ++++++++++------
+ drivers/i2c/i2c-core-base.c |  5 ++++-
+ drivers/i2c/i2c-core.h      |  7 +++++++
+ 3 files changed, 21 insertions(+), 7 deletions(-)
 
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index c107f260e252f..62a938c17cbd2 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -148,8 +148,17 @@ static int i2c_acpi_add_resource(struct acpi_resource *ares, void *data)
+ 	return 1; /* No need to add resource to the list */
+ }
+ 
+-static int i2c_acpi_get_irq(struct acpi_device *adev)
++/**
++ * i2c_acpi_get_irq - get device IRQ number from ACPI
++ * @client: Pointer to the I2C client device
++ *
++ * Find the IRQ number used by a specific client device.
++ *
++ * Return: The IRQ number or an error code.
++ */
++int i2c_acpi_get_irq(struct i2c_client *client)
+ {
++	struct acpi_device *adev = ACPI_COMPANION(&client->adapter->dev);
+ 	struct list_head resource_list;
+ 	int irq = -ENOENT;
+ 	int ret;
+@@ -201,11 +210,6 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
+ 	if (adapter_handle)
+ 		*adapter_handle = lookup.adapter_handle;
+ 
+-	/* Then fill IRQ number if any */
+-	ret = i2c_acpi_get_irq(adev);
+-	if (ret > 0)
+-		info->irq = ret;
+-
+ 	acpi_set_modalias(adev, dev_name(&adev->dev), info->type,
+ 			  sizeof(info->type));
+ 
 diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 684ea2665d994..6d4904cdf58ac 100644
+index 84bf11b25a120..b6b009bfe842b 100644
 --- a/drivers/i2c/i2c-core-base.c
 +++ b/drivers/i2c/i2c-core-base.c
-@@ -322,6 +322,8 @@ static int i2c_device_probe(struct device *dev)
- 
- 	driver = to_i2c_driver(dev->driver);
- 
-+	client->irq = client->init_irq;
+@@ -335,7 +335,10 @@ static int i2c_device_probe(struct device *dev)
+ 			if (irq == -EINVAL || irq == -ENODATA)
+ 				irq = of_irq_get(dev->of_node, 0);
+ 		} else if (ACPI_COMPANION(dev)) {
+-			irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
++			irq = i2c_acpi_get_irq(client);
 +
- 	if (!client->irq && !driver->disable_i2c_core_irq_mapping) {
- 		int irq = -ENOENT;
- 
-@@ -432,7 +434,7 @@ static int i2c_device_remove(struct device *dev)
- 	dev_pm_clear_wake_irq(&client->dev);
- 	device_init_wakeup(&client->dev, false);
- 
--	client->irq = client->init_irq;
-+	client->irq = 0;
- 	if (client->flags & I2C_CLIENT_HOST_NOTIFY)
- 		pm_runtime_put(&client->adapter->dev);
- 
-@@ -749,7 +751,6 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
- 	if (!client->init_irq)
- 		client->init_irq = i2c_dev_irq_from_resources(info->resources,
- 							 info->num_resources);
--	client->irq = client->init_irq;
- 
- 	strlcpy(client->name, info->type, sizeof(client->name));
++			if (irq == -ENOENT)
++				irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
+ 		}
+ 		if (irq == -EPROBE_DEFER)
+ 			return irq;
+diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
+index 8f3a08dc73a25..15c1411f35f07 100644
+--- a/drivers/i2c/i2c-core.h
++++ b/drivers/i2c/i2c-core.h
+@@ -72,6 +72,8 @@ const struct acpi_device_id *
+ i2c_acpi_match_device(const struct acpi_device_id *matches,
+ 		      struct i2c_client *client);
+ void i2c_acpi_register_devices(struct i2c_adapter *adap);
++
++int i2c_acpi_get_irq(struct i2c_client *client);
+ #else /* CONFIG_ACPI */
+ static inline void i2c_acpi_register_devices(struct i2c_adapter *adap) { }
+ static inline const struct acpi_device_id *
+@@ -80,6 +82,11 @@ i2c_acpi_match_device(const struct acpi_device_id *matches,
+ {
+ 	return NULL;
+ }
++
++static inline int i2c_acpi_get_irq(struct i2c_client *client)
++{
++	return 0;
++}
+ #endif /* CONFIG_ACPI */
+ extern struct notifier_block i2c_acpi_notifier;
  
 -- 
 2.11.0
