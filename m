@@ -1,62 +1,58 @@
-From: "Adamski, Krzysztof (Nokia - PL/Wroclaw)"
-        <krzysztof.adamski@nokia.com>
-Subject: [PATCH] hwmon: pmbus: protect read-modify-write with lock
-Date: Tue, 28 May 2019 09:08:21 +0000
-Message-ID: <20190528090746.GA31184@localhost.localdomain>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v2] i2c: i801: Register optional lis3lv02d i2c device on
+ Dell machines
+Date: Tue, 28 May 2019 11:19:53 +0200
+Message-ID: <20190528111953.0e5415f4@endymion>
+References: <CAHp75VdWA-0a_FeicHSi_FfWurQ9EvkdW0raqgoRVySTyxDJ0Q@mail.gmail.com>
+        <20180128144509.pobnj7cayc4psgrj@pali>
+        <CAHp75VdU1OMTqLcDuzhQMHuX9rMhjw6p3CkSWaW5Y4kOy8ggqg@mail.gmail.com>
+        <20180131120348.azy25aqvn5wrdkeh@pali>
+        <CAHp75Vf=-RQvCtS684Q5+X=YKmZXgP_1kr0to8BGZX0jQAsuZw@mail.gmail.com>
+        <20180212153012.vffvjmz26ifyxbj5@pali>
+        <CAHp75VfF+qwCXcr3yuayE-Z+UG9wuMOKfGzLhdyPk79daEi9gQ@mail.gmail.com>
+        <20180213150004.5d2v7y7wwuure4io@pali>
+        <CAHp75VfxgbFiDxyrqyMRE8s85L1_EzkVvrA1NGYA5_su=5oGVQ@mail.gmail.com>
+        <20180213165023.xmzovx7fd3gdljxw@pali>
+        <20180226203255.lnnzipipjz5l2itz@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
-Content-ID: <3E7B0680287AFA4E9AFE88ABE2A0BAC9@eurprd07.prod.outlook.com>
+In-Reply-To: <20180226203255.lnnzipipjz5l2itz@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: Pali =?UTF-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>, Andy Shevchenko <andy.shevchenko@gmail.com>, Jean Delvare <jdelvare@suse.com>, =?UTF-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis Kletnieks <Valdis.Kletnieks@vt.edu>, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario Limonciello <Mario_Limonciello@dell.com>, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The operation done in the pmbus_update_fan() function is a
-read-modify-write operation but it lacks any kind of lock protection
-which may cause problems if run more than once simultaneously. This
-patch uses an existing update_lock mutex to fix this problem.
+On Mon, 26 Feb 2018 21:32:55 +0100, Wolfram Sang wrote:
+> > I'm not maintainer of i2c-i801.ko, Jean Delvare & Wolfram Sang are.
+> > Therefore instructing future contributors would be up to them.  
+> 
+> This is really Jean's realm.
 
-Signed-off-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
----
- drivers/hwmon/pmbus/pmbus_core.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+Sorry for the delay. As a general rule I'm all in favor of
+instantiating I2C devices from i2c-i801 when we can, as it makes the
+user's life easier. However I agree with Andy that:
+1* We want to have an explicit list of supported ACPI device IDs, not a
+   just a prefix.
+2* We don't want to over-engineer it with a common header file or an
+   exported symbol. I see no problem with duplicating the lists if 2
+   drivers happen to be needed on the same set of devices. This is
+   easily managed by adding a comment before each list that the other
+   list may need to be kept in sync. It also gives us the flexibility
+   to *not* keep them in sync if needed.
 
-diff --git a/drivers/hwmon/pmbus/pmbus_core.c b/drivers/hwmon/pmbus/pmbus_c=
-ore.c
-index ef7ee90ee785..94adbede7912 100644
---- a/drivers/hwmon/pmbus/pmbus_core.c
-+++ b/drivers/hwmon/pmbus/pmbus_core.c
-@@ -268,6 +268,7 @@ int pmbus_update_fan(struct i2c_client *client, int pag=
-e, int id,
- 	int rv;
- 	u8 to;
-=20
-+	mutex_lock(&data->update_lock);
- 	from =3D pmbus_read_byte_data(client, page,
- 				    pmbus_fan_config_registers[id]);
- 	if (from < 0)
-@@ -278,11 +279,15 @@ int pmbus_update_fan(struct i2c_client *client, int p=
-age, int id,
- 		rv =3D pmbus_write_byte_data(client, page,
- 					   pmbus_fan_config_registers[id], to);
- 		if (rv < 0)
--			return rv;
-+			goto out;
- 	}
-=20
--	return _pmbus_write_word_data(client, page,
--				      pmbus_fan_command_registers[id], command);
-+	rv =3D _pmbus_write_word_data(client, page,
-+				    pmbus_fan_command_registers[id], command);
-+
-+out:
-+	mutex_lock(&data->update_lock);
-+	return rv;
- }
- EXPORT_SYMBOL_GPL(pmbus_update_fan);
-=20
---=20
-2.20.1
+Instantiating the I2C device from dell-smo8800 doesn't seem practical
+because that driver has no idea about the i2c subsystem in the first
+place.
+
+What worries me is that we seem to have 2 drivers binding to the same
+device (the accelerometer), one natively (lis3lv02d), and one through
+an ACPI layer (dell-smo8800). I don't really understand why this is
+needed (don't they serve the same purpose?) nor how it can be safe
+(what guarantees that both drivers won't attempt to access the hardware
+at the same time?)
+
+-- 
+Jean Delvare
+SUSE L3 Support
