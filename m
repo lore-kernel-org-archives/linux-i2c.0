@@ -1,179 +1,65 @@
-From: Russell King - ARM Linux admin <linux@armlinux.org.uk>
-Subject: Re: [net-next,v3 2/2] net: phy: sfp: enable i2c-bus detection on
- ACPI based systems
-Date: Tue, 28 May 2019 11:53:23 +0100
-Message-ID: <20190528105323.ty6pxxvsh6ccz2l6@shell.armlinux.org.uk>
-References: <20190528032213.19839-1-ruslan@babayev.com>
- <20190528032213.19839-3-ruslan@babayev.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
+Subject: Re: [PATCH v2 2/6] i2c: acpi: Use available IRQ helper functions
+Date: Tue, 28 May 2019 12:13:08 +0100
+Message-ID: <20190528111308.GF28362@ediswmail.ad.cirrus.com>
+References: <20190527151932.14310-1-ckeepax@opensource.cirrus.com>
+ <20190527151932.14310-2-ckeepax@opensource.cirrus.com>
+ <20190528103028.GA2781@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190528032213.19839-3-ruslan@babayev.com>
+In-Reply-To: <20190528103028.GA2781@lahna.fi.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ruslan Babayev <ruslan@babayev.com>
-Cc: mika.westerberg@linux.intel.com, wsa@the-dreams.de, andrew@lunn.ch, f.fainelli@gmail.com, hkallweit1@gmail.com, davem@davemloft.net, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, xe-linux-external@cisco.com
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: wsa@the-dreams.de, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 27, 2019 at 08:22:13PM -0700, Ruslan Babayev wrote:
-> Lookup I2C adapter using the "i2c-bus" device property on ACPI based
-> systems similar to how it's done with DT.
+On Tue, May 28, 2019 at 01:30:28PM +0300, Mika Westerberg wrote:
+> On Mon, May 27, 2019 at 04:19:28PM +0100, Charles Keepax wrote:
+> >  static int i2c_acpi_get_info(struct acpi_device *adev,
+> >  			     struct i2c_board_info *info,
+> >  			     struct i2c_adapter *adapter,
+> >  			     acpi_handle *adapter_handle)
+> >  {
+> >  	struct list_head resource_list;
+> > -	struct resource_entry *entry;
+> >  	struct i2c_acpi_lookup lookup;
+> > +	int irq = -ENOENT;
+> >  	int ret;
+> >  
+> >  	memset(&lookup, 0, sizeof(lookup));
+> > @@ -176,16 +187,13 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
+> >  
+> >  	/* Then fill IRQ number if any */
+> >  	INIT_LIST_HEAD(&resource_list);
+> > -	ret = acpi_dev_get_resources(adev, &resource_list, NULL, NULL);
+> > +	ret = acpi_dev_get_resources(adev, &resource_list,
+> > +				     i2c_acpi_add_resource, &irq);
+> >  	if (ret < 0)
+> >  		return -EINVAL;
+> >  
+> > -	resource_list_for_each_entry(entry, &resource_list) {
+> > -		if (resource_type(entry->res) == IORESOURCE_IRQ) {
+> > -			info->irq = entry->res->start;
+> > -			break;
+> > -		}
+> > -	}
+> > +	if (irq >= 0)
 > 
-> An example DSD describing an SFP on an ACPI based system:
+> Since 0 is not valid IRQ, I think this should be written like:
 > 
-> Device (SFP0)
-> {
->     Name (_HID, "PRP0001")
->     Name (_CRS, ResourceTemplate()
->     {
->         GpioIo(Exclusive, PullDefault, 0, 0, IoRestrictionNone,
->                "\\_SB.PCI0.RP01.GPIO", 0, ResourceConsumer)
->             { 0, 1, 2, 3, 4 }
->     })
->     Name (_DSD, Package ()
->     {
->         ToUUID ("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
->         Package () {
->             Package () { "compatible", "sff,sfp" },
->             Package () { "i2c-bus", \_SB.PCI0.RP01.I2C.MUX.CH0 },
->             Package () { "maximum-power-milliwatt", 1000 },
->             Package () { "tx-disable-gpios", Package () { ^SFP0, 0, 0, 1} },
->             Package () { "reset-gpio",       Package () { ^SFP0, 0, 1, 1} },
->             Package () { "mod-def0-gpios",   Package () { ^SFP0, 0, 2, 1} },
->             Package () { "tx-fault-gpios",   Package () { ^SFP0, 0, 3, 0} },
->             Package () { "los-gpios",        Package () { ^SFP0, 0, 4, 1} },
->         },
->     })
-> }
-> 
-> Device (PHY0)
-> {
->     Name (_HID, "PRP0001")
->     Name (_DSD, Package ()
->     {
->         ToUUID ("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
->         Package () {
->             Package () { "compatible", "ethernet-phy-ieee802.3-c45" },
->             Package () { "sfp", \_SB.PCI0.RP01.SFP0 },
->             Package () { "managed", "in-band-status" },
->             Package () { "phy-mode", "sgmii" },
->         },
->     })
-> }
-> 
-> Signed-off-by: Ruslan Babayev <ruslan@babayev.com>
-> Cc: xe-linux-external@cisco.com
-
-Looks mostly fine to me, thanks.  A few comments below, mostly minor.
-The way we handle the non-DT and non-ACPI case needs addressing though.
-
-> ---
->  drivers/net/phy/sfp.c | 33 +++++++++++++++++++++++++--------
->  1 file changed, 25 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/net/phy/sfp.c b/drivers/net/phy/sfp.c
-> index d4635c2178d1..7a6c8df8899b 100644
-> --- a/drivers/net/phy/sfp.c
-> +++ b/drivers/net/phy/sfp.c
-> @@ -9,6 +9,7 @@
->  #include <linux/module.h>
->  #include <linux/mutex.h>
->  #include <linux/of.h>
-> +#include <linux/acpi.h>
->  #include <linux/phy.h>
->  #include <linux/platform_device.h>
->  #include <linux/rtnetlink.h>
-
-These includes are arranged in alphabetical order, is there a reason
-why we need acpi.h out of order here?
-
-> @@ -1783,6 +1784,7 @@ static int sfp_probe(struct platform_device *pdev)
->  {
->  	const struct sff_data *sff;
->  	struct sfp *sfp;
-> +	struct i2c_adapter *i2c = NULL;
-
-Please move this one line above, I think that will be neater.
-
-I'm also debating whether we should have it initialised to null - see
-below.
-
->  	bool poll = false;
->  	int irq, err, i;
->  
-> @@ -1801,7 +1803,6 @@ static int sfp_probe(struct platform_device *pdev)
->  	if (pdev->dev.of_node) {
->  		struct device_node *node = pdev->dev.of_node;
->  		const struct of_device_id *id;
-> -		struct i2c_adapter *i2c;
->  		struct device_node *np;
->  
->  		id = of_match_node(sfp_of_match, node);
-> @@ -1818,14 +1819,30 @@ static int sfp_probe(struct platform_device *pdev)
->  
->  		i2c = of_find_i2c_adapter_by_node(np);
->  		of_node_put(np);
-> -		if (!i2c)
-> -			return -EPROBE_DEFER;
-> -
-> -		err = sfp_i2c_configure(sfp, i2c);
-> -		if (err < 0) {
-> -			i2c_put_adapter(i2c);
-> -			return err;
-> +	} else if (ACPI_COMPANION(&pdev->dev)) {
-> +		struct acpi_device *adev = ACPI_COMPANION(&pdev->dev);
-> +		struct fwnode_handle *fw = acpi_fwnode_handle(adev);
-> +		struct fwnode_reference_args args;
-> +		struct acpi_handle *acpi_handle;
-> +		int ret;
-> +
-> +		ret = acpi_node_get_property_reference(fw, "i2c-bus", 0, &args);
-> +		if (ACPI_FAILURE(ret) || !is_acpi_device_node(args.fwnode)) {
-> +			dev_err(&pdev->dev, "missing 'i2c-bus' property\n");
-> +			return -ENODEV;
->  		}
-> +
-> +		acpi_handle = ACPI_HANDLE_FWNODE(args.fwnode);
-> +		i2c = i2c_acpi_find_adapter_by_handle(acpi_handle);
-> +	}
-
-If we don't have DT, and we don't have ACPI, there isn't a way that
-we can find the I2C adapter, so I think we probably ought to fail the
-probe here, rather than...
-
-> +
-> +	if (!i2c)
-> +		return -EPROBE_DEFER;
-
-deferring in that case.  So, basically:
-
-	struct i2c_adapter *i2c;
-
-	if (pdev->dev.of_node) {
-		...
-	} else if (ACPI_COMPANION(&pdev->dev)) {
-		...
-	} else {
-		return -EINVAL;
-	}
-
-	if (!i2c)
-		return -EPROBE_DEFER;
-
-> +
-> +	err = sfp_i2c_configure(sfp, i2c);
-> +	if (err < 0) {
-> +		i2c_put_adapter(i2c);
-> +		return err;
->  	}
->  
->  	for (i = 0; i < GPIO_MAX; i++)
-> -- 
-> 2.19.2
-> 
+> 	if (irg > 0)
 > 
 
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line in suburbia: sync at 12.1Mbps down 622kbps up
-According to speedtest.net: 11.9Mbps down 500kbps up
+Yeah sorry thought IRQs were like GPIOs where 0 is a valid
+number, will update the patches.
+
+Thanks,
+Charles
+> > +		info->irq = irq;
+> >  
+> >  	acpi_dev_free_resource_list(&resource_list);
+> >  
+> > -- 
+> > 2.11.0
