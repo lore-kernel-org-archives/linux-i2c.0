@@ -1,48 +1,47 @@
-From: Stefan Wahren <stefan.wahren@i2se.com>
-Subject: Re: [PATCH v2] i2c: bcm2835: Model Divider in CCF
-Date: Tue, 28 May 2019 09:52:21 +0200
-Message-ID: <716a7b8a-c2f8-a3c4-0b3a-be3cb26a6c12@i2se.com>
-References: <20190508071227.18609-1-nh6z@nh6z.net>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
+Subject: Re: [PATCH v2 3/6] i2c: acpi: Factor out getting the IRQ from ACPI
+Date: Tue, 28 May 2019 09:37:59 +0100
+Message-ID: <20190528083759.GE28362@ediswmail.ad.cirrus.com>
+References: <20190527151932.14310-1-ckeepax@opensource.cirrus.com>
+ <20190527151932.14310-3-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190508071227.18609-1-nh6z@nh6z.net>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Annaliese McDermond <nh6z@nh6z.net>, eric@anholt.net, f.fainelli@gmail.com, wsa@the-dreams.de, swarren@wwwdotorg.org, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
-Cc: team@nwdigitalradio.com
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190527151932.14310-3-ckeepax@opensource.cirrus.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
+Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Annaliese,
-
-thank you for mention that we have multiple I2C interfaces.
-
-On 08.05.19 09:12, Annaliese McDermond wrote:
-> +
-> +static struct clk *bcm2835_i2c_register_div(struct device *dev,
-> +					const char *mclk_name,
-> +					struct bcm2835_i2c_dev *i2c_dev)
+On Mon, May 27, 2019 at 04:19:29PM +0100, Charles Keepax wrote:
+> In preparation for future refactoring factor out the fetch of the IRQ
+> into its own helper function.
+> 
+> Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+> ---
+>  
+> +static int i2c_acpi_get_irq(struct acpi_device *adev)
 > +{
-> +	struct clk_init_data init;
-> +	struct clk_bcm2835_i2c *priv;
-> +	const char *devname = dev_name(dev);
+> +	struct list_head resource_list;
+> +	int irq = -ENOENT;
+> +	int ret;
 > +
-> +	init.ops = &clk_bcm2835_i2c_ops;
-> +	init.name = "bcm2835-i2c";
+> +	INIT_LIST_HEAD(&resource_list);
+> +
+> +	ret = acpi_dev_get_resources(adev, &resource_list,
+> +				     i2c_acpi_add_resource, &irq);
+> +	if (ret < 0)
+> +		return -EINVAL;
+> +
+> +	acpi_dev_free_resource_list(&resource_list);
+> +
+> +	return irq;
+> +}
+> +
 
-Does this work intentionally in case i2c-0 and i2c-1 are used at the
-same time?
+Sorry just noticed I forgot to add the kernel doc. Will fix that
+up in the next spin, or do an incremental patch.
 
-Please also check the output of /sys/kernel/debug/clk/clk_summary
-
-Regards
-Stefan
+Thanks,
+Charles
