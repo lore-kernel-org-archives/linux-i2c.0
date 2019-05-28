@@ -1,88 +1,57 @@
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH v3 3/6] i2c: acpi: Factor out getting the IRQ from ACPI
-Date: Tue, 28 May 2019 15:28:57 +0100
-Message-ID: <20190528142900.24147-3-ckeepax@opensource.cirrus.com>
-References: <20190528142900.24147-1-ckeepax@opensource.cirrus.com>
+Subject: [PATCH v3 1/6] i2c: core: Allow whole core to use i2c_dev_irq_from_resources
+Date: Tue, 28 May 2019 15:28:55 +0100
+Message-ID: <20190528142900.24147-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190528142900.24147-1-ckeepax@opensource.cirrus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
 Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-In preparation for future refactoring factor out the fetch of the IRQ
-into its own helper function.
+Remove the static from i2c_dev_irq_from _resources so that other parts
+of the core code can use this helper function.
 
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 ---
 
-Changes since v2:
- - Don't consider zero to be a valid IRQ number
+No changes since v2.
 
 Thanks,
 Charles
 
- drivers/i2c/i2c-core-acpi.c | 33 +++++++++++++++++++++------------
- 1 file changed, 21 insertions(+), 12 deletions(-)
+ drivers/i2c/i2c-core-base.c | 4 ++--
+ drivers/i2c/i2c-core.h      | 2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index bc82b44f85860..c107f260e252f 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -148,14 +148,30 @@ static int i2c_acpi_add_resource(struct acpi_resource *ares, void *data)
- 	return 1; /* No need to add resource to the list */
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index d389d4fb0623a..84bf11b25a120 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -687,8 +687,8 @@ static void i2c_dev_set_name(struct i2c_adapter *adap,
+ 		     i2c_encode_flags_to_addr(client));
  }
  
-+static int i2c_acpi_get_irq(struct acpi_device *adev)
-+{
-+	struct list_head resource_list;
-+	int irq = -ENOENT;
-+	int ret;
-+
-+	INIT_LIST_HEAD(&resource_list);
-+
-+	ret = acpi_dev_get_resources(adev, &resource_list,
-+				     i2c_acpi_add_resource, &irq);
-+	if (ret < 0)
-+		return -EINVAL;
-+
-+	acpi_dev_free_resource_list(&resource_list);
-+
-+	return irq;
-+}
-+
- static int i2c_acpi_get_info(struct acpi_device *adev,
- 			     struct i2c_board_info *info,
- 			     struct i2c_adapter *adapter,
- 			     acpi_handle *adapter_handle)
+-static int i2c_dev_irq_from_resources(const struct resource *resources,
+-				      unsigned int num_resources)
++int i2c_dev_irq_from_resources(const struct resource *resources,
++			       unsigned int num_resources)
  {
--	struct list_head resource_list;
- 	struct i2c_acpi_lookup lookup;
--	int irq = -ENOENT;
- 	int ret;
+ 	struct irq_data *irqd;
+ 	int i;
+diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
+index c88cfef813431..8f3a08dc73a25 100644
+--- a/drivers/i2c/i2c-core.h
++++ b/drivers/i2c/i2c-core.h
+@@ -28,6 +28,8 @@ extern struct list_head	__i2c_board_list;
+ extern int		__i2c_first_dynamic_bus_num;
  
- 	memset(&lookup, 0, sizeof(lookup));
-@@ -186,16 +202,9 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
- 		*adapter_handle = lookup.adapter_handle;
+ int i2c_check_7bit_addr_validity_strict(unsigned short addr);
++int i2c_dev_irq_from_resources(const struct resource *resources,
++			       unsigned int num_resources);
  
- 	/* Then fill IRQ number if any */
--	INIT_LIST_HEAD(&resource_list);
--	ret = acpi_dev_get_resources(adev, &resource_list,
--				     i2c_acpi_add_resource, &irq);
--	if (ret < 0)
--		return -EINVAL;
--
--	if (irq > 0)
--		info->irq = irq;
--
--	acpi_dev_free_resource_list(&resource_list);
-+	ret = i2c_acpi_get_irq(adev);
-+	if (ret > 0)
-+		info->irq = ret;
- 
- 	acpi_set_modalias(adev, dev_name(&adev->dev), info->type,
- 			  sizeof(info->type));
+ /*
+  * We only allow atomic transfers for very late communication, e.g. to send
 -- 
 2.11.0
