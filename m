@@ -1,98 +1,62 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: bcm2835: Model Divider in CCF
-Date: Mon, 27 May 2019 22:20:14 +0200
-Message-ID: <20190527202014.GA20304@kunai>
-References: <20190508071227.18609-1-nh6z@nh6z.net>
- <4174B26B-4E3A-4CCA-A5ED-BE62A3B5E66A@nh6z.net>
- <20190516075848.GA1033@kunai>
- <2E6EDCD1-E0B1-4859-BD75-EF411D3D4C6B@nh6z.net>
- <20190527191534.GD8808@kunai>
- <E711B8C3-85B8-435C-97FD-E62BCB88B679@nh6z.net>
+From: Ruslan Babayev <ruslan@babayev.com>
+Subject: Re: [PATCH net-next v2 1/2] i2c: acpi: export i2c_acpi_find_adapter_by_handle
+Date: Mon, 27 May 2019 19:03:44 -0700
+Message-ID: <874l5f9vy7.fsf@babayev.com>
+References: <20190505193435.3248-1-ruslan@babayev.com> <20190525005302.27164-1-ruslan@babayev.com> <20190527184743.GA8808@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5618548645493503419=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <E711B8C3-85B8-435C-97FD-E62BCB88B679@nh6z.net>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Annaliese McDermond <nh6z@nh6z.net>
-Cc: Stefan Wahren <stefan.wahren@i2se.com>, Florian Fainelli <f.fainelli@gmail.com>, swarren@wwwdotorg.org, NWDR Team <team@nwdigitalradio.com>, Eric Anholt <eric@anholt.net>, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-reply-to: <20190527184743.GA8808@kunai>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Ruslan Babayev <ruslan@babayev.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, xe-linux-external@cisco.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============5618548645493503419==
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="Kj7319i9nmIyA2yE"
-Content-Disposition: inline
+Wolfram Sang writes:
 
+> On Fri, May 24, 2019 at 05:53:01PM -0700, Ruslan Babayev wrote:
+>> This allows drivers to lookup i2c adapters on ACPI based systems similar=
+ to
+>> of_get_i2c_adapter_by_node() with DT based systems.
+>>=20
+>> Signed-off-by: Ruslan Babayev <ruslan@babayev.com>
+>> Cc: xe-linux-external@cisco.com
+>
+> Please have a look how your patches look in my inbox:
+>
+> May 05 Ruslan Babayev  ( 129) [PATCH] net: phy: sfp: enable i2c-bus detec=
+tion on ACPI based systems
+> May 05 Ruslan Babayev  (  65) =E2=94=9C=E2=94=80>[PATCH 1/2] i2c: acpi: e=
+xport i2c_acpi_find_adapter_by_handle
+> May 24 Ruslan Babayev  (  65) =E2=94=94=E2=94=80>[PATCH net-next v2 1/2] =
+i2c: acpi: export i2c_acpi_find_adapter_by_handle
+> May 05 Ruslan Babayev  (  65) [PATCH net-next 1/2] i2c: acpi: export i2c_=
+acpi_find_adapter_by_handle
+> May 06 Ruslan Babayev  (   3) =E2=94=9C=E2=94=80>[PATCH RFC v2 net-next] =
+Enable SFP support on ACPI
+> May 06 Ruslan Babayev  (  65) =E2=94=9C=E2=94=80>[PATCH RFC v2 net-next 1=
+/2] i2c: acpi: export i2c_acpi_find_adapter_by_handle
+> May 06 Ruslan Babayev  ( 120) =E2=94=94=E2=94=80>[PATCH RFC v2 net-next 2=
+/2] net: phy: sfp: enable i2c-bus detection on ACPI based systems
+> May 07 Ruslan Babayev  ( 154)   =E2=94=94=E2=94=80&=E2=94=80>
+> May 07 Ruslan Babayev  (  10)     =E2=94=94=E2=94=80>
+> May 22 Ruslan Babayev  (  29)       =E2=94=94=E2=94=80>
+> May 05 Ruslan Babayev  (  93) [PATCH net-next 2/2] net: phy: sfp: enable =
+i2c-bus detection on ACPI based systems
+> May 06 Ruslan Babayev  (  25) =E2=94=9C=E2=94=80&=E2=94=80>
+> May 06 Ruslan Babayev  (  99) =E2=94=94=E2=94=80&=E2=94=80>
+>
+> This is highly confusing, and super hard to find out which patches belong
+> together. v2 2/2 seems even missing. Please resend this as a new series w=
+ithout
+> any in-reply-to, and a fresh cover-letter, so I know which one to apply t=
+o my
+> tree.
+>
+> Thanks,
+>
+>    Wolfram
 
---Kj7319i9nmIyA2yE
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, May 27, 2019 at 01:00:00PM -0700, Annaliese McDermond wrote:
->=20
-> > On May 27, 2019, at 12:15 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> >=20
-> > Regardless which solution is favoured, I am going to apply this patch in
-> > a minute:
-> >=20
-> > http://patchwork.ozlabs.org/patch/1097688/
-> >=20
-> > It enables this driver for ARCH_BRCMSTB. So, the solution should work
-> > for this as well. (I don't know any of these platforms well)
->=20
-> I did some looking the other day, and I had forgotten that the RPi has 3
-> of the i2c-bcm2835 devices each with their own divider that sits in their
-> register space.  This makes me think the correct solution would be for
-> the divider to be controlled in the driver as was in my original patch.
-> Otherwise we=E2=80=99d have to make three different dividers in the bcm28=
-35-clk
-> driver, and the i2c driver would no longer work for other platforms.
-
-I am getting more and more convinced of the original patch even without
-CCF acks. Others?
-
-
---Kj7319i9nmIyA2yE
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzsRnoACgkQFA3kzBSg
-KbZ3Ig//bhLKH92dCBPaAdPCOobKJXl0WATDzHS3BEtr6DP1TTNBsUD5wBwUt7Rc
-gsfQF+nupWjX/ZzIMLFYhSA3UPz3G+F0WfeGXlHPKU3AWaCworIXr19ueovykBsI
-gF4JxmeWLIhjnogATB0ATUTPMiBiVtQYsfNjyzkTCwBNQaZKy8EKeSpV0Lo1pY4R
-3We7Ly8uFMyZpI6Xa9Q39rhuEpP3XMEQ3ex346eVdkSFVsn/GtlW79yJcYPuE2iH
-gk0HJarmM5UVuCQJwq2XKxhk7TTMc1cYLpWhRMkMqbR/7++WKjEX1ugSt/bSzyEW
-4rhv5tTpErXAUngtr/v21eXVvQ3to0mffd181t2qmMJjdCivLrj46usB5o64LgRW
-D/jvT6eDeTPpor7eGGfd6KJgzgLHDcEN/PB/61U0f82k31zT93flvZueZa12JO4R
-9zTU4YmG4qwO/coflGIwkgytmFVoKakQAtCkuylH9YqhKay51scrlbvZtVTLn87f
-Wy1H7cgotBXKQtA4NtOj20UKp0g0FTdT0fZBQlaCJeSsChEvjBR7y4xXvxl4sEQO
-GCBwu4sGvqfueTi0bl1W4kuTJLsHQiw7uB2a4wtj6kFZ6blsolODrUyO6hkIM4XR
-38nY4771iZVDSQHApx7VwIcmTEIsdVgrVs62c521ybNcbFV7ZH0=
-=eW6M
------END PGP SIGNATURE-----
-
---Kj7319i9nmIyA2yE--
-
-
---===============5618548645493503419==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============5618548645493503419==--
+Will do, sorry about that.
