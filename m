@@ -1,59 +1,36 @@
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH v3 5/6] i2c: core: Move ACPI gpio IRQ handling into i2c_acpi_get_irq
-Date: Tue, 28 May 2019 15:28:59 +0100
-Message-ID: <20190528142900.24147-5-ckeepax@opensource.cirrus.com>
-References: <20190528142900.24147-1-ckeepax@opensource.cirrus.com>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH v2 1/2] eeprom: at24: use devm_i2c_new_dummy_device()
+Date: Tue, 28 May 2019 17:57:50 +0200
+Message-ID: <CAMRc=MdcY0Qx2ZDM7ogwc8BH-cT61ovukg=U6G8k9ZDgR488UQ@mail.gmail.com>
+References: <20190520071042.21072-1-brgl@bgdev.pl> <20190520071042.21072-2-brgl@bgdev.pl>
+ <20190520130837.iglqohsyi5kyj55y@katana>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190528142900.24147-1-ckeepax@opensource.cirrus.com>
+In-Reply-To: <20190520130837.iglqohsyi5kyj55y@katana>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
-Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-It makes sense to contain all the ACPI IRQ handling in a single helper
-function.
+pon., 20 maj 2019 o 15:08 Wolfram Sang <wsa@the-dreams.de> napisa=C5=82(a):
+>
+> On Mon, May 20, 2019 at 09:10:41AM +0200, Bartosz Golaszewski wrote:
+> > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> >
+> > Now that it's upstream, use the resource managed version
+> > of i2c_new_dummy_device().
+> >
+> > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+>
+> Looks good now (not tested, though):
+>
+> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>
+> Thanks!
+>
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
----
+Applied.
 
-No changes since v2.
-
-Thanks,
-Charles
-
- drivers/i2c/i2c-core-acpi.c | 3 +++
- drivers/i2c/i2c-core-base.c | 3 ---
- 2 files changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 62a938c17cbd2..42d53fe91c7ed 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -172,6 +172,9 @@ int i2c_acpi_get_irq(struct i2c_client *client)
- 
- 	acpi_dev_free_resource_list(&resource_list);
- 
-+	if (irq == -ENOENT)
-+		irq = acpi_dev_gpio_irq_get(adev, 0);
-+
- 	return irq;
- }
- 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index b6b009bfe842b..684ea2665d994 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -336,9 +336,6 @@ static int i2c_device_probe(struct device *dev)
- 				irq = of_irq_get(dev->of_node, 0);
- 		} else if (ACPI_COMPANION(dev)) {
- 			irq = i2c_acpi_get_irq(client);
--
--			if (irq == -ENOENT)
--				irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
- 		}
- 		if (irq == -EPROBE_DEFER)
- 			return irq;
--- 
-2.11.0
+Bart
