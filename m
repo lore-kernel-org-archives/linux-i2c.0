@@ -1,40 +1,27 @@
 From: Ruslan Babayev <ruslan@babayev.com>
-Subject: Re: [PATCH net-next v2 1/2] i2c: acpi: export i2c_acpi_find_adapter_by_handle
-Date: Mon, 27 May 2019 19:26:53 -0700
-Message-ID: <8736kz9uvm.fsf@babayev.com>
-References: <20190505193435.3248-1-ruslan@babayev.com> <20190525005302.27164-1-ruslan@babayev.com> <20190527083943.GX2781@lahna.fi.intel.com>
+Subject: [net-next,v3 0/2] Enable SFP on ACPI based systems
+Date: Mon, 27 May 2019 20:22:11 -0700
+Message-ID: <20190528032213.19839-1-ruslan@babayev.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <20190527083943.GX2781@lahna.fi.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Ruslan Babayev <ruslan@babayev.com>, Wolfram Sang <wsa@the-dreams.de>, xe-linux-external@cisco.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+To: mika.westerberg@linux.intel.com, wsa@the-dreams.de, linux@armlinux.org.uk, andrew@lunn.ch, f.fainelli@gmail.com, hkallweit1@gmail.com, davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Changes:
+v2: more descriptive commit body
+v3: made 'i2c_acpi_find_adapter_by_handle' static inline
 
-Mika Westerberg writes:
+Ruslan Babayev (2):
+  i2c: acpi: export i2c_acpi_find_adapter_by_handle
+  net: phy: sfp: enable i2c-bus detection on ACPI based systems
 
-> On Fri, May 24, 2019 at 05:53:01PM -0700, Ruslan Babayev wrote:
->> +struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle);
->>  #else
->>  static inline bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
->>  					     struct acpi_resource_i2c_serialbus **i2c)
->> @@ -996,6 +998,10 @@ static inline struct i2c_client *i2c_acpi_new_device(struct device *dev,
->>  {
->>  	return NULL;
->>  }
->> +struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
->
-> This should be static inline, I think.
->
->> +{
->> +	return NULL;
->> +}
->>  #endif /* CONFIG_ACPI */
->>  
->>  #endif /* _LINUX_I2C_H */
->> -- 
->> 2.17.1
+ drivers/i2c/i2c-core-acpi.c |  3 ++-
+ drivers/net/phy/sfp.c       | 33 +++++++++++++++++++++++++--------
+ include/linux/i2c.h         |  6 ++++++
+ 3 files changed, 33 insertions(+), 9 deletions(-)
 
-Thanks Mika, will make the change and repost the patches.
+-- 
+2.19.2
