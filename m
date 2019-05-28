@@ -1,65 +1,34 @@
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: Re: [PATCH v2 2/6] i2c: acpi: Use available IRQ helper functions
-Date: Tue, 28 May 2019 12:13:08 +0100
-Message-ID: <20190528111308.GF28362@ediswmail.ad.cirrus.com>
-References: <20190527151932.14310-1-ckeepax@opensource.cirrus.com>
- <20190527151932.14310-2-ckeepax@opensource.cirrus.com>
- <20190528103028.GA2781@lahna.fi.intel.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 4/8] MAINTAINERS: add I2C DT bindings to Nomadik/U300
+ platforms
+Date: Tue, 28 May 2019 13:59:25 +0200
+Message-ID: <CACRpkdYUA_tOFLpk7GEnAfqp+vyLCu6PDGLngCYG1E0F6RUkow@mail.gmail.com>
+References: <20190521082137.2889-1-wsa@the-dreams.de>
+ <20190521082137.2889-5-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190528103028.GA2781@lahna.fi.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: wsa@the-dreams.de, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190521082137.2889-5-wsa@the-dreams.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, Linux ARM <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 28, 2019 at 01:30:28PM +0300, Mika Westerberg wrote:
-> On Mon, May 27, 2019 at 04:19:28PM +0100, Charles Keepax wrote:
-> >  static int i2c_acpi_get_info(struct acpi_device *adev,
-> >  			     struct i2c_board_info *info,
-> >  			     struct i2c_adapter *adapter,
-> >  			     acpi_handle *adapter_handle)
-> >  {
-> >  	struct list_head resource_list;
-> > -	struct resource_entry *entry;
-> >  	struct i2c_acpi_lookup lookup;
-> > +	int irq = -ENOENT;
-> >  	int ret;
-> >  
-> >  	memset(&lookup, 0, sizeof(lookup));
-> > @@ -176,16 +187,13 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
-> >  
-> >  	/* Then fill IRQ number if any */
-> >  	INIT_LIST_HEAD(&resource_list);
-> > -	ret = acpi_dev_get_resources(adev, &resource_list, NULL, NULL);
-> > +	ret = acpi_dev_get_resources(adev, &resource_list,
-> > +				     i2c_acpi_add_resource, &irq);
-> >  	if (ret < 0)
-> >  		return -EINVAL;
-> >  
-> > -	resource_list_for_each_entry(entry, &resource_list) {
-> > -		if (resource_type(entry->res) == IORESOURCE_IRQ) {
-> > -			info->irq = entry->res->start;
-> > -			break;
-> > -		}
-> > -	}
-> > +	if (irq >= 0)
-> 
-> Since 0 is not valid IRQ, I think this should be written like:
-> 
-> 	if (irg > 0)
-> 
+On Tue, May 21, 2019 at 10:21 AM Wolfram Sang <wsa@the-dreams.de> wrote:
 
-Yeah sorry thought IRQs were like GPIOs where 0 is a valid
-number, will update the patches.
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Cc: Linus Walleij <linus.walleij@linaro.org>
 
-Thanks,
-Charles
-> > +		info->irq = irq;
-> >  
-> >  	acpi_dev_free_resource_list(&resource_list);
-> >  
-> > -- 
-> > 2.11.0
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+
+Yours,
+Linus Walleij
