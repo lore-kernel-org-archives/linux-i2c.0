@@ -1,33 +1,88 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 7/8] MAINTAINERS: add I2C DT bindings to Versatile platform
-Date: Tue, 28 May 2019 13:59:57 +0200
-Message-ID: <CACRpkdbbmqLn4BZmyZBdVTB48fL-OUsAGkpsicGft3rdDCL4pA@mail.gmail.com>
-References: <20190521082137.2889-1-wsa@the-dreams.de>
- <20190521082137.2889-8-wsa@the-dreams.de>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
+Subject: [PATCH v3 3/6] i2c: acpi: Factor out getting the IRQ from ACPI
+Date: Tue, 28 May 2019 15:28:57 +0100
+Message-ID: <20190528142900.24147-3-ckeepax@opensource.cirrus.com>
+References: <20190528142900.24147-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190521082137.2889-8-wsa@the-dreams.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Linux ARM <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190528142900.24147-1-ckeepax@opensource.cirrus.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
+Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 21, 2019 at 10:21 AM Wolfram Sang <wsa@the-dreams.de> wrote:
+In preparation for future refactoring factor out the fetch of the IRQ
+into its own helper function.
 
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+---
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Changes since v2:
+ - Don't consider zero to be a valid IRQ number
 
-Yours,
-Linus Walleij
+Thanks,
+Charles
+
+ drivers/i2c/i2c-core-acpi.c | 33 +++++++++++++++++++++------------
+ 1 file changed, 21 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index bc82b44f85860..c107f260e252f 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -148,14 +148,30 @@ static int i2c_acpi_add_resource(struct acpi_resource *ares, void *data)
+ 	return 1; /* No need to add resource to the list */
+ }
+ 
++static int i2c_acpi_get_irq(struct acpi_device *adev)
++{
++	struct list_head resource_list;
++	int irq = -ENOENT;
++	int ret;
++
++	INIT_LIST_HEAD(&resource_list);
++
++	ret = acpi_dev_get_resources(adev, &resource_list,
++				     i2c_acpi_add_resource, &irq);
++	if (ret < 0)
++		return -EINVAL;
++
++	acpi_dev_free_resource_list(&resource_list);
++
++	return irq;
++}
++
+ static int i2c_acpi_get_info(struct acpi_device *adev,
+ 			     struct i2c_board_info *info,
+ 			     struct i2c_adapter *adapter,
+ 			     acpi_handle *adapter_handle)
+ {
+-	struct list_head resource_list;
+ 	struct i2c_acpi_lookup lookup;
+-	int irq = -ENOENT;
+ 	int ret;
+ 
+ 	memset(&lookup, 0, sizeof(lookup));
+@@ -186,16 +202,9 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
+ 		*adapter_handle = lookup.adapter_handle;
+ 
+ 	/* Then fill IRQ number if any */
+-	INIT_LIST_HEAD(&resource_list);
+-	ret = acpi_dev_get_resources(adev, &resource_list,
+-				     i2c_acpi_add_resource, &irq);
+-	if (ret < 0)
+-		return -EINVAL;
+-
+-	if (irq > 0)
+-		info->irq = irq;
+-
+-	acpi_dev_free_resource_list(&resource_list);
++	ret = i2c_acpi_get_irq(adev);
++	if (ret > 0)
++		info->irq = ret;
+ 
+ 	acpi_set_modalias(adev, dev_name(&adev->dev), info->type,
+ 			  sizeof(info->type));
+-- 
+2.11.0
