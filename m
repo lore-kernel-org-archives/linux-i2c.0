@@ -1,15 +1,14 @@
 From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 4/8] MAINTAINERS: add I2C DT bindings to Nomadik/U300
- platforms
-Date: Tue, 28 May 2019 13:59:25 +0200
-Message-ID: <CACRpkdYUA_tOFLpk7GEnAfqp+vyLCu6PDGLngCYG1E0F6RUkow@mail.gmail.com>
+Subject: Re: [PATCH 7/8] MAINTAINERS: add I2C DT bindings to Versatile platform
+Date: Tue, 28 May 2019 13:59:57 +0200
+Message-ID: <CACRpkdbbmqLn4BZmyZBdVTB48fL-OUsAGkpsicGft3rdDCL4pA@mail.gmail.com>
 References: <20190521082137.2889-1-wsa@the-dreams.de>
- <20190521082137.2889-5-wsa@the-dreams.de>
+ <20190521082137.2889-8-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190521082137.2889-5-wsa@the-dreams.de>
+In-Reply-To: <20190521082137.2889-8-wsa@the-dreams.de>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
