@@ -1,13 +1,13 @@
 From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] i2c: mux: Use struct_size() in devm_kzalloc()
-Date: Wed, 29 May 2019 11:20:14 -0500
-Message-ID: <20190529162014.GA27389@embeddedor>
+Subject: [PATCH] eeprom: at24: use struct_size() in devm_kzalloc()
+Date: Wed, 29 May 2019 11:30:52 -0500
+Message-ID: <20190529163052.GA29158@embeddedor>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
+To: Bartosz Golaszewski <bgolaszewski@baylibre.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 List-Id: linux-i2c@vger.kernel.org
 
@@ -20,33 +20,46 @@ struct foo {
     struct boo entry[];
 };
 
-instance = devm_kzalloc(dev, sizeof(struct foo) + count * sizeof(struct boo), GFP_KERNEL);
+size = sizeof(struct foo) + count * sizeof(struct boo);
+instance = devm_kzalloc(dev, size, GFP_KERNEL);
 
 Instead of leaving these open-coded and prone to type mistakes, we can
 now use the new struct_size() helper:
 
 instance = devm_kzalloc(dev, struct_size(instance, entry, count), GFP_KERNEL);
 
+Notice that, in this case, variable at24_size is not necessary, hence it
+is removed.
+
 This code was detected with the help of Coccinelle.
 
 Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 ---
- drivers/i2c/i2c-mux.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/misc/eeprom/at24.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 603252fa1284..8d5e4c6fdd8e 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -243,8 +243,7 @@ struct i2c_mux_core *i2c_mux_alloc(struct i2c_adapter *parent,
- {
- 	struct i2c_mux_core *muxc;
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index ba8e73812644..78ba6b1917a8 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -568,7 +568,6 @@ static int at24_probe(struct i2c_client *client)
+ 	unsigned int i, num_addresses;
+ 	struct at24_data *at24;
+ 	struct regmap *regmap;
+-	size_t at24_size;
+ 	bool writable;
+ 	u8 test_byte;
+ 	int err;
+@@ -652,8 +651,8 @@ static int at24_probe(struct i2c_client *client)
+ 	if (IS_ERR(regmap))
+ 		return PTR_ERR(regmap);
  
--	muxc = devm_kzalloc(dev, sizeof(*muxc)
--			    + max_adapters * sizeof(muxc->adapter[0])
-+	muxc = devm_kzalloc(dev, struct_size(muxc, adapter, max_adapters)
- 			    + sizeof_priv, GFP_KERNEL);
- 	if (!muxc)
- 		return NULL;
+-	at24_size = sizeof(*at24) + num_addresses * sizeof(struct at24_client);
+-	at24 = devm_kzalloc(dev, at24_size, GFP_KERNEL);
++	at24 = devm_kzalloc(dev, struct_size(at24, client, num_addresses),
++			    GFP_KERNEL);
+ 	if (!at24)
+ 		return -ENOMEM;
+ 
 -- 
 2.21.0
