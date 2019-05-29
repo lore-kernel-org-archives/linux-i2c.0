@@ -1,52 +1,52 @@
-From: Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [PATCH v8 3/3] i2c-ocores: sifive: add polling mode workaround
- for FU540-C000 SoC.
-Date: Wed, 29 May 2019 17:53:46 +0200
-Message-ID: <20190529155346.GA18059@lunn.ch>
-References: <1559104047-13920-1-git-send-email-sagar.kadam@sifive.com>
- <1559104047-13920-4-git-send-email-sagar.kadam@sifive.com>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] i2c: mux: Use struct_size() in devm_kzalloc()
+Date: Wed, 29 May 2019 11:20:14 -0500
+Message-ID: <20190529162014.GA27389@embeddedor>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1559104047-13920-4-git-send-email-sagar.kadam@sifive.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
-To: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, peter@korsgaard.com, palmer@sifive.com, linux-kernel@vger.kernel.org, robh+dt@kernel.org, linux-i2c@vger.kernel.org, paul.walmsley@sifive.com, linux-riscv@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 29, 2019 at 09:57:27AM +0530, Sagar Shrikant Kadam wrote:
-> The i2c-ocore driver already has a polling mode interface.But it needs
-> a workaround for FU540 Chipset on HiFive unleashed board (RevA00).
-> There is an erratum in FU540 chip that prevents interrupt driven i2c
-> transfers from working, and also the I2C controller's interrupt bit
-> cannot be cleared if set, due to this the existing i2c polling mode
-> interface added in mainline earlier doesn't work, and CPU stall's
-> infinitely, when-ever i2c transfer is initiated.
-> 
-> Ref:
-> 	commit dd7dbf0eb090 ("i2c: ocores: refactor setup for polling")
-> 
-> The workaround / fix under OCORES_FLAG_BROKEN_IRQ is particularly for
-> FU540-COOO SoC.
-> 
-> The polling function identifies a SiFive device based on the device node
-> and enables the workaround.
-> 
-> Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+One of the more common cases of allocation size calculations is finding
+the size of a structure that has a zero-sized array at the end, along
+with memory for some number of elements for that array. For example:
 
-Hi Sagar
+struct foo {
+    int stuff;
+    struct boo entry[];
+};
 
-When you repost, you are supposed to add any reviewed-by, or acked-by
-tags you received.
+instance = devm_kzalloc(dev, sizeof(struct foo) + count * sizeof(struct boo), GFP_KERNEL);
 
-     Andrew
+Instead of leaving these open-coded and prone to type mistakes, we can
+now use the new struct_size() helper:
+
+instance = devm_kzalloc(dev, struct_size(instance, entry, count), GFP_KERNEL);
+
+This code was detected with the help of Coccinelle.
+
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ drivers/i2c/i2c-mux.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index 603252fa1284..8d5e4c6fdd8e 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -243,8 +243,7 @@ struct i2c_mux_core *i2c_mux_alloc(struct i2c_adapter *parent,
+ {
+ 	struct i2c_mux_core *muxc;
+ 
+-	muxc = devm_kzalloc(dev, sizeof(*muxc)
+-			    + max_adapters * sizeof(muxc->adapter[0])
++	muxc = devm_kzalloc(dev, struct_size(muxc, adapter, max_adapters)
+ 			    + sizeof_priv, GFP_KERNEL);
+ 	if (!muxc)
+ 		return NULL;
+-- 
+2.21.0
