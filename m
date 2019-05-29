@@ -1,24 +1,36 @@
 From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v3 6/6] i2c: core: Tidy up handling of init_irq
-Date: Wed, 29 May 2019 10:44:22 +0300
-Message-ID: <20190529074422.GW2781@lahna.fi.intel.com>
-References: <20190528142900.24147-1-ckeepax@opensource.cirrus.com>
- <20190528142900.24147-6-ckeepax@opensource.cirrus.com>
+Subject: Re: [net-next,v4 0/2] Enable SFP on ACPI based systems
+Date: Wed, 29 May 2019 12:48:18 +0300
+Message-ID: <20190529094818.GF2781@lahna.fi.intel.com>
+References: <20190528230233.26772-1-ruslan@babayev.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190528142900.24147-6-ckeepax@opensource.cirrus.com>
+In-Reply-To: <20190528230233.26772-1-ruslan@babayev.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Charles Keepax <ckeepax@opensource.cirrus.com>
-Cc: wsa@the-dreams.de, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
+To: Ruslan Babayev <ruslan@babayev.com>
+Cc: wsa@the-dreams.de, linux@armlinux.org.uk, andrew@lunn.ch, f.fainelli@gmail.com, hkallweit1@gmail.com, davem@davemloft.net, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 28, 2019 at 03:29:00PM +0100, Charles Keepax wrote:
-> Only set init_irq during i2c_device_new and only handle client->irq on
-> the probe/remove paths.
+On Tue, May 28, 2019 at 04:02:31PM -0700, Ruslan Babayev wrote:
+> Changes:
+> v2:
+> 	- more descriptive commit body
+> v3:
+> 	- made 'i2c_acpi_find_adapter_by_handle' static inline
+> v4:
+> 	- don't initialize i2c_adapter to NULL. Instead see below...
+> 	- handle the case of neither DT nor ACPI present as invalid.
+> 	- alphabetical includes.
+> 	- use has_acpi_companion().
+> 	- use the same argument name in i2c_acpi_find_adapter_by_handle()
+> 	  in both stubbed and non-stubbed cases.
 > 
-> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+> Ruslan Babayev (2):
+>   i2c: acpi: export i2c_acpi_find_adapter_by_handle
+>   net: phy: sfp: enable i2c-bus detection on ACPI based systems
+
+For the series,
 
 Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
