@@ -1,499 +1,134 @@
-From: Eduardo Valentin <eduval@amazon.com>
-Subject: Re: [PATCH i2c/slave-mqueue v5] i2c: slave-mqueue: add a slave
- backend to receive and queue messages
-Date: Wed, 29 May 2019 16:11:00 -0700
-Message-ID: <20190529231100.GA18339@u40b0340c692b58f6553c.ant.amazon.com>
-References: <1524503192-4176-1-git-send-email-haiyue.wang@linux.intel.com>
- <20190523220345.GA3417@u40b0340c692b58f6553c.ant.amazon.com>
- <35a9d066-c732-cb00-04a5-438c948915ae@linux.intel.com>
- <20190524173353.GA6428@u40b0340c692b58f6553c.ant.amazon.com>
- <bf1e8f0b-5bd0-fb43-c19b-9487603b9ee3@linux.intel.com>
+From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 00/22] Some documentation fixes
+Date: Wed, 29 May 2019 20:23:31 -0300
+Message-ID: <cover.1559171394.git.mchehab+samsung@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <bf1e8f0b-5bd0-fb43-c19b-9487603b9ee3@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Wang, Haiyue" <haiyue.wang@linux.intel.com>
-Cc: Eduardo Valentin <eduval@amazon.com>, wsa@the-dreams.de, brendanhiggins@google.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org, jarkko.nikula@linux.intel.com, andriy.shevchenko@intel.com, jae.hyun.yoo@linux.intel.com
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Cc: alsa-devel@alsa-project.org, kvm@vger.kernel.org, linux-pci@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, keyrings@vger.kernel.org, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kselftest@vger.kernel.org, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, devel@driverdev.osuosl.org, Jonathan Corbet <corbet@lwn.net>, x86@kernel.org, linux-acpi@vger.kernel.org, xen-devel@lists.xenproject.org, devicetree@vger.kernel.org, linux-pm@vger.kernel.org, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-gpio@vger.kernel.org, linux-amlogic@lists.infradead.org, bpf@vger.kernel.org, devel@acpica.org, patches@opensource.cirrus.com, linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, netdev@vger.kernel.org, linux-integrity@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
-
-On Sat, May 25, 2019 at 01:10:46PM +0800, Wang, Haiyue wrote:
-> 
-> 在 2019-05-25 01:33, Eduardo Valentin 写道:
-> >Hey,
-> >
-> >On Fri, May 24, 2019 at 10:43:16AM +0800, Wang, Haiyue wrote:
-> >>Thanks for interest, the design idea is from:
-> >>
-> >>https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/i2c/i2c-slave-eeprom.c?h=v5.2-rc1
-> >>
-> >>and
-> >>
-> >>https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/i2c/slave-interface
-> >>
-> >>Then you will get the answer. ;-)
-> >Well, maybe :-) see further comments inline..
-> Please see in line. And how about the test result in your real system ? It
-> works as expected ?
-> >>BR,
-> >>
-> >>Haiyue
-> >>
-> >>
-> >>在 2019-05-24 06:03, Eduardo Valentin 写道:
-> >>>Hey Wang,
-> >>>
-> >>>On Tue, Apr 24, 2018 at 01:06:32AM +0800, Haiyue Wang wrote:
-> >>>>Some protocols over I2C are designed for bi-directional transferring
-> >>>>messages by using I2C Master Write protocol. Like the MCTP (Management
-> >>>>Component Transport Protocol) and IPMB (Intelligent Platform Management
-> >>>>Bus), they both require that the userspace can receive messages from
-> >>>>I2C dirvers under slave mode.
-> >>>>
-> >>>>This new slave mqueue backend is used to receive and queue messages, it
-> >>>>will exposes these messages to userspace by sysfs bin file.
-> >>>>
-> >>>>Signed-off-by: Haiyue Wang <haiyue.wang@linux.intel.com>
-> >>>>---
-> >>>>v4 -> v5:
-> >>>>  - Typo: bellowing -> the below
-> >>>>
-> >>>>v3 -> v4:
-> >>>>  - Drop the small message after receiving I2C STOP.
-> >>>>
-> >>>>v2 -> v3:
-> >>>>  - Just remove the ';' after the end '}' of i2c_slave_mqueue_probe().
-> >>>>
-> >>>>v1 -> v2:
-> >>>>  - Change MQ_MSGBUF_SIZE and MQ_QUEUE_SIZE to be configurable by Kconfig.
-> >>>>---
-> >>>>  Documentation/i2c/slave-mqueue-backend.rst | 125 ++++++++++++++++++
-> >>>>  drivers/i2c/Kconfig                        |  25 ++++
-> >>>>  drivers/i2c/Makefile                       |   1 +
-> >>>>  drivers/i2c/i2c-slave-mqueue.c             | 203 +++++++++++++++++++++++++++++
-> >>>>  4 files changed, 354 insertions(+)
-> >>>>  create mode 100644 Documentation/i2c/slave-mqueue-backend.rst
-> >>>>  create mode 100644 drivers/i2c/i2c-slave-mqueue.c
-> >>>>
-> >>>>diff --git a/Documentation/i2c/slave-mqueue-backend.rst b/Documentation/i2c/slave-mqueue-backend.rst
-> >>>>new file mode 100644
-> >>>>index 0000000..3966cf0
-> >>>>--- /dev/null
-> >>>>+++ b/Documentation/i2c/slave-mqueue-backend.rst
-> >>>>@@ -0,0 +1,125 @@
-> >>>>+.. SPDX-License-Identifier: GPL-2.0
-> >>>>+
-> >>>>+=====================================
-> >>>>+Linux I2C slave message queue backend
-> >>>>+=====================================
-> >>>>+
-> >>>>+:Author: Haiyue Wang <haiyue.wang@linux.intel.com>
-> >>>>+
-> >>>>+Some protocols over I2C/SMBus are designed for bi-directional transferring
-> >>>>+messages by using I2C Master Write protocol. This requires that both sides
-> >>>>+of the communication have slave addresses.
-> >>>>+
-> >>>>+Like MCTP (Management Component Transport Protocol) and IPMB (Intelligent
-> >>>>+Platform Management Bus), they both require that the userspace can receive
-> >>>>+messages from i2c dirvers under slave mode.
-> >>>>+
-> >>>>+This I2C slave mqueue (message queue) backend is used to receive and queue
-> >>>>+messages from the remote i2c intelligent device; and it will add the target
-> >>>>+slave address (with R/W# bit is always 0) into the message at the first byte,
-> >>>>+so that userspace can use this byte to dispatch the messages into different
-> >>>>+handling modules. Also, like IPMB, the address byte is in its message format,
-> >>>>+it needs it to do checksum.
-> >>>>+
-> >>>>+For messages are time related, so this backend will flush the oldest message
-> >>>>+to queue the newest one.
-> >>>>+
-> >>>>+Link
-> >>>>+----
-> >>>>+`Intelligent Platform Management Bus
-> >>>>+Communications Protocol Specification
-> >>>>+<https://www.intel.com/content/dam/www/public/us/en/documents/product-briefs/ipmp-spec-v1.0.pdf>`_
-> >>>>+
-> >>>>+`Management Component Transport Protocol (MCTP)
-> >>>>+SMBus/I2C Transport Binding Specification
-> >>>>+<https://www.dmtf.org/sites/default/files/standards/documents/DSP0237_1.1.0.pdf>`_
-> >>>>+
-> >>>>+How to use
-> >>>>+----------
-> >>>>+For example, the I2C5 bus has slave address 0x10, the below command will create
-> >>>>+the related message queue interface:
-> >>>>+
-> >>>>+    echo slave-mqueue 0x1010 > /sys/bus/i2c/devices/i2c-5/new_device
-> >>>>+
-> >>>>+Then you can dump the messages like this:
-> >>>>+
-> >>>>+    hexdump -C /sys/bus/i2c/devices/5-1010/slave-mqueue
-> >>>>+
-> >>>>+Code Example
-> >>>>+------------
-> >>>>+*Note: call 'lseek' before 'read', this is a requirement from kernfs' design.*
-> >>>>+
-> >>>>+::
-> >>>>+
-> >>>>+  #include <sys/types.h>
-> >>>>+  #include <sys/stat.h>
-> >>>>+  #include <unistd.h>
-> >>>>+  #include <poll.h>
-> >>>>+  #include <time.h>
-> >>>>+  #include <fcntl.h>
-> >>>>+  #include <stdio.h>
-> >>>>+
-> >>>>+  int main(int argc, char *argv[])
-> >>>>+  {
-> >>>>+          int i, r;
-> >>>>+          struct pollfd pfd;
-> >>>>+          struct timespec ts;
-> >>>>+          unsigned char data[256];
-> >>>>+
-> >>>>+          pfd.fd = open(argv[1], O_RDONLY | O_NONBLOCK);
-> >>>>+          if (pfd.fd < 0)
-> >>>>+                  return -1;
-> >>>>+
-> >>>>+          pfd.events = POLLPRI;
-> >>>>+
-> >>>>+          while (1) {
-> >>>>+                  r = poll(&pfd, 1, 5000);
-> >>>>+
-> >>>>+                  if (r < 0)
-> >>>>+                          break;
-> >>>>+
-> >>>>+                  if (r == 0 || !(pfd.revents & POLLPRI))
-> >>>>+                          continue;
-> >>>>+
-> >>>>+                  lseek(pfd.fd, 0, SEEK_SET);
-> >>>>+                  r = read(pfd.fd, data, sizeof(data));
-> >>>>+                  if (r <= 0)
-> >>>>+                          continue;
-> >>>>+
-> >>>>+                  clock_gettime(CLOCK_MONOTONIC, &ts);
-> >>>>+                  printf("[%ld.%.9ld] :", ts.tv_sec, ts.tv_nsec);
-> >>>>+                  for (i = 0; i < r; i++)
-> >>>>+                          printf(" %02x", data[i]);
-> >>>>+                  printf("\n");
-> >>>>+          }
-> >>>>+
-> >>>>+          close(pfd.fd);
-> >>>>+
-> >>>>+          return 0;
-> >>>>+  }
-> >>>>+
-> >>>>+Result
-> >>>>+------
-> >>>>+*./a.out "/sys/bus/i2c/devices/5-1010/slave-mqueue"*
-> >>>>+
-> >>>>+::
-> >>>>+
-> >>>>+  [10183.232500449] : 20 18 c8 2c 78 01 5b
-> >>>>+  [10183.479358348] : 20 18 c8 2c 78 01 5b
-> >>>>+  [10183.726556812] : 20 18 c8 2c 78 01 5b
-> >>>>+  [10183.972605863] : 20 18 c8 2c 78 01 5b
-> >>>>+  [10184.220124772] : 20 18 c8 2c 78 01 5b
-> >>>>+  [10184.467764166] : 20 18 c8 2c 78 01 5b
-> >>>>+  [10193.233421784] : 20 18 c8 2c 7c 01 57
-> >>>>+  [10193.480273460] : 20 18 c8 2c 7c 01 57
-> >>>>+  [10193.726788733] : 20 18 c8 2c 7c 01 57
-> >>>>+  [10193.972781945] : 20 18 c8 2c 7c 01 57
-> >>>>+  [10194.220487360] : 20 18 c8 2c 7c 01 57
-> >>>>+  [10194.468089259] : 20 18 c8 2c 7c 01 57
-> >>>>+  [10203.233433099] : 20 18 c8 2c 80 01 53
-> >>>>+  [10203.481058715] : 20 18 c8 2c 80 01 53
-> >>>>+  [10203.727610472] : 20 18 c8 2c 80 01 53
-> >>>>+  [10203.974044856] : 20 18 c8 2c 80 01 53
-> >>>>+  [10204.220734634] : 20 18 c8 2c 80 01 53
-> >>>>+  [10204.468461664] : 20 18 c8 2c 80 01 53
-> >>>>+
-> >>>>diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
-> >>>>index efc3354..31e57d2 100644
-> >>>>--- a/drivers/i2c/Kconfig
-> >>>>+++ b/drivers/i2c/Kconfig
-> >>>>@@ -118,6 +118,31 @@ if I2C_SLAVE
-> >>>>  config I2C_SLAVE_EEPROM
-> >>>>  	tristate "I2C eeprom slave driver"
-> >>>>+config I2C_SLAVE_MQUEUE_MESSAGE_SIZE
-> >>>>+	int "The message size of I2C mqueue slave"
-> >>>>+	default 120
-> >>>>+
-> >>>>+config I2C_SLAVE_MQUEUE_QUEUE_SIZE
-> >>>>+	int "The queue size of I2C mqueue slave"
-> >>>>+	default 32
-> >>>>+	help
-> >>>>+	  This number MUST be power of 2.
-> >>>>+
-> >>>>+config I2C_SLAVE_MQUEUE
-> >>>>+	tristate "I2C mqueue (message queue) slave driver"
-> >>>>+	select I2C_SLAVE_MQUEUE_MESSAGE_SIZE
-> >>>>+	select I2C_SLAVE_MQUEUE_QUEUE_SIZE
-> >>>>+	help
-> >>>>+	  Some protocols over I2C are designed for bi-directional transferring
-> >>>>+	  messages by using I2C Master Write protocol. This driver is used to
-> >>>>+	  receive and queue messages from the remote I2C device.
-> >>>>+
-> >>>>+	  Userspace can get the messages by reading sysfs file that this driver
-> >>>>+	  exposes.
-> >>>>+
-> >>>>+	  This support is also available as a module. If so, the module will be
-> >>>>+	  called i2c-slave-mqueue.
-> >>>>+
-> >>>>  endif
-> >>>>  config I2C_DEBUG_CORE
-> >>>>diff --git a/drivers/i2c/Makefile b/drivers/i2c/Makefile
-> >>>>index 72c94c6..7ec287b 100644
-> >>>>--- a/drivers/i2c/Makefile
-> >>>>+++ b/drivers/i2c/Makefile
-> >>>>@@ -16,6 +16,7 @@ obj-$(CONFIG_I2C_MUX)		+= i2c-mux.o
-> >>>>  obj-y				+= algos/ busses/ muxes/
-> >>>>  obj-$(CONFIG_I2C_STUB)		+= i2c-stub.o
-> >>>>  obj-$(CONFIG_I2C_SLAVE_EEPROM)	+= i2c-slave-eeprom.o
-> >>>>+obj-$(CONFIG_I2C_SLAVE_MQUEUE)	+= i2c-slave-mqueue.o
-> >>>>  ccflags-$(CONFIG_I2C_DEBUG_CORE) := -DDEBUG
-> >>>>  CFLAGS_i2c-core-base.o := -Wno-deprecated-declarations
-> >>>>diff --git a/drivers/i2c/i2c-slave-mqueue.c b/drivers/i2c/i2c-slave-mqueue.c
-> >>>>new file mode 100644
-> >>>>index 0000000..424f435
-> >>>>--- /dev/null
-> >>>>+++ b/drivers/i2c/i2c-slave-mqueue.c
-> >>>>@@ -0,0 +1,203 @@
-> >>>>+// SPDX-License-Identifier: GPL-2.0
-> >>>>+// Copyright (c) 2017 - 2018, Intel Corporation.
-> >>>>+
-> >>>>+#include <linux/i2c.h>
-> >>>>+#include <linux/kernel.h>
-> >>>>+#include <linux/module.h>
-> >>>>+#include <linux/of.h>
-> >>>>+#include <linux/slab.h>
-> >>>>+#include <linux/spinlock.h>
-> >>>>+#include <linux/sysfs.h>
-> >>>>+
-> >>>>+#define MQ_MSGBUF_SIZE		CONFIG_I2C_SLAVE_MQUEUE_MESSAGE_SIZE
-> >>>>+#define MQ_QUEUE_SIZE		CONFIG_I2C_SLAVE_MQUEUE_QUEUE_SIZE
-> >>>>+#define MQ_QUEUE_NEXT(x)	(((x) + 1) & (MQ_QUEUE_SIZE - 1))
-> >>>>+
-> >>>>+struct mq_msg {
-> >>>>+	int	len;
-> >>>>+	u8	*buf;
-> >>>>+};
-> >>>>+
-> >>>>+struct mq_queue {
-> >>>>+	struct bin_attribute	bin;
-> >>>>+	struct kernfs_node	*kn;
-> >>>>+
-> >>>>+	spinlock_t		lock; /* spinlock for queue index handling */
-> >>>I wonder why you decided to lock only in/out accesses and not the mq_queue struct.
-> >>>
-> >>>>+	int			in;
-> >>>>+	int			out;
-> >>>>+
-> >>>>+	struct mq_msg		*curr;
-> >>>>+	int			truncated; /* drop current if truncated */
-> >>>>+	struct mq_msg		queue[MQ_QUEUE_SIZE];
-> >>>>+};
-> >>>>+
-> >>>>+static int i2c_slave_mqueue_callback(struct i2c_client *client,
-> >>>>+				     enum i2c_slave_event event, u8 *val)
-> >>>>+{
-> >>>>+	struct mq_queue *mq = i2c_get_clientdata(client);
-> >>>>+	struct mq_msg *msg = mq->curr;
-> >>>>+	int ret = 0;
-> >>>>+
-> >>>>+	switch (event) {
-> >>>>+	case I2C_SLAVE_WRITE_REQUESTED:
-> >>>>+		mq->truncated = 0;
-> >>>>+
-> >>>>+		msg->len = 1;
-> >>>>+		msg->buf[0] = client->addr << 1;
-> >>>>+		break;
-> >>>>+
-> >>>>+	case I2C_SLAVE_WRITE_RECEIVED:
-> >>>>+		if (msg->len < MQ_MSGBUF_SIZE) {
-> >>>>+			msg->buf[msg->len++] = *val;
-> >>>Do we need to lock the accesses to msg->buf? how about to msg->len?
-> >
-> >this code goes access and modify data here, e.g. msg->len and msg->buf.
-> >
-> >On this case (I2C_SLAVE_WRITE_RECEIVED), this code wont protect access.
-> >
-> >This can cause concurrence issues if you receive an IRQ when the user
-> >is on your bin_read().
-> 
-> User will not touch 'msg = mq->curr;', just touch 'msg =
-> &mq->queue[mq->out];'
-
-
-What happens if mq->curr == mq->queue[mq->out]?
-
-
-> 
-> >>>>+		} else {
-> >>>>+			dev_err(&client->dev, "message is truncated!\n");
-> >>>>+			mq->truncated = 1;
-> >>>>+			ret = -EINVAL;
-> >>>>+		}
-> >>>>+		break;
-> >>>>+
-> >>>>+	case I2C_SLAVE_STOP:
-> >>>>+		if (unlikely(mq->truncated || msg->len < 2))
-> >>>>+			break;
-> >>>>+
-> >>>>+		spin_lock(&mq->lock);
-> >>>>+		mq->in = MQ_QUEUE_NEXT(mq->in);
-> >>>>+		mq->curr = &mq->queue[mq->in];
-> >>>>+		mq->curr->len = 0;
-> >>>>+
-> >>>>+		/* Flush the oldest message */
-> >>>>+		if (mq->out == mq->in)
-> >>>>+			mq->out = MQ_QUEUE_NEXT(mq->out);
-> >>>>+		spin_unlock(&mq->lock);
-> >>>>+
-> >Here you protect most of it, but you still access msg->len for read.. with no protection.
-> >
-> >>>>+		kernfs_notify(mq->kn);
-> >>>>+		break;
-> >>>>+
-> >>>>+	default:
-> >>>>+		*val = 0xFF;
-> >>>>+		break;
-> >>>>+	}
-> >>>>+
-> >>>>+	return ret;
-> >>>>+}
-> >>>>+
-> >>>>+static ssize_t i2c_slave_mqueue_bin_read(struct file *filp,
-> >>>>+					 struct kobject *kobj,
-> >>>>+					 struct bin_attribute *attr,
-> >>>>+					 char *buf, loff_t pos, size_t count)
-> >>>>+{
-> >>>>+	struct mq_queue *mq;
-> >>>>+	struct mq_msg *msg;
-> >>>>+	unsigned long flags;
-> >>>>+	bool more = false;
-> >>>>+	ssize_t ret = 0;
-> >>>>+
-> >>>>+	mq = dev_get_drvdata(container_of(kobj, struct device, kobj));
-> >>>>+
-> >>>>+	spin_lock_irqsave(&mq->lock, flags);
-> >>>>+	if (mq->out != mq->in) {
-> >>>>+		msg = &mq->queue[mq->out];
-> >>>>+
-> >>>>+		if (msg->len <= count) {
-> >>>>+			ret = msg->len;
-> >>>>+			memcpy(buf, msg->buf, ret);
-> >>>Is buf a userspace pointer? should it be a copy_to_user() here?
-> The buf is the memory in kernel sysfs module.
-
-Yup, got it.
-
-> >>>>+		} else {
-> >>>>+			ret = -EOVERFLOW; /* Drop this HUGE one. */
-> >>>>+		}
-> >>>>+
-> >>>>+		mq->out = MQ_QUEUE_NEXT(mq->out);
-> >>>>+		if (mq->out != mq->in)
-> >>>>+			more = true;
-> >>>>+	}
-> >>>>+	spin_unlock_irqrestore(&mq->lock, flags);
-> >>>>+
-> >>>>+	if (more)
-> >>>>+		kernfs_notify(mq->kn);
-> >>>>+
-> >>>>+	return ret;
-> >>>>+}
-> >>>>+
-> >>>>+static int i2c_slave_mqueue_probe(struct i2c_client *client,
-> >>>>+				  const struct i2c_device_id *id)
-> >>>>+{
-> >>>>+	struct device *dev = &client->dev;
-> >>>>+	struct mq_queue *mq;
-> >>>>+	int ret, i;
-> >>>>+	void *buf;
-> >>>>+
-> >>>>+	mq = devm_kzalloc(dev, sizeof(*mq), GFP_KERNEL);
-> >>>>+	if (!mq)
-> >>>>+		return -ENOMEM;
-> >>>>+
-> >>>>+	BUILD_BUG_ON(!is_power_of_2(MQ_QUEUE_SIZE));
-> >>>>+
-> >>>>+	buf = devm_kmalloc_array(dev, MQ_QUEUE_SIZE, MQ_MSGBUF_SIZE,
-> >>>>+				 GFP_KERNEL);
-> >>>>+	if (!buf)
-> >>>>+		return -ENOMEM;
-> >>>>+
-> >>>>+	for (i = 0; i < MQ_QUEUE_SIZE; i++)
-> >>>>+		mq->queue[i].buf = buf + i * MQ_MSGBUF_SIZE;
-> >>>>+
-> >>>>+	i2c_set_clientdata(client, mq);
-> >>>>+
-> >>>>+	spin_lock_init(&mq->lock);
-> >>>>+	mq->curr = &mq->queue[0];
-> >>>>+
-> >>>>+	sysfs_bin_attr_init(&mq->bin);
-> >>>>+	mq->bin.attr.name = "slave-mqueue";
-> >>>>+	mq->bin.attr.mode = 0400;
-> >>>>+	mq->bin.read = i2c_slave_mqueue_bin_read;
-> >>>>+	mq->bin.size = MQ_MSGBUF_SIZE * MQ_QUEUE_SIZE;
-> >>>>+
-> >>>>+	ret = sysfs_create_bin_file(&dev->kobj, &mq->bin);
-> >>>>+	if (ret)
-> >>>>+		return ret;
-> >>>>+
-> >>>>+	mq->kn = kernfs_find_and_get(dev->kobj.sd, mq->bin.attr.name);
-> >>>>+	if (!mq->kn) {
-> >>>>+		sysfs_remove_bin_file(&dev->kobj, &mq->bin);
-> >>>>+		return -EFAULT;
-> >>>>+	}
-> >>>>+
-> >>>>+	ret = i2c_slave_register(client, i2c_slave_mqueue_callback);
-> >>>>+	if (ret) {
-> >>>>+		kernfs_put(mq->kn);
-> >>>>+		sysfs_remove_bin_file(&dev->kobj, &mq->bin);
-> >>>>+		return ret;
-> >>>>+	}
-> >>>>+
-> >>>>+	return 0;
-> >>>>+}
-> >>>>+
-> >>>>+static int i2c_slave_mqueue_remove(struct i2c_client *client)
-> >>>>+{
-> >>>>+	struct mq_queue *mq = i2c_get_clientdata(client);
-> >>>>+
-> >>>>+	i2c_slave_unregister(client);
-> >>>>+
-> >>>>+	kernfs_put(mq->kn);
-> >>>>+	sysfs_remove_bin_file(&client->dev.kobj, &mq->bin);
-> >>>>+
-> >>>>+	return 0;
-> >>>>+}
-> >>>>+
-> >>>>+static const struct i2c_device_id i2c_slave_mqueue_id[] = {
-> >>>>+	{ "slave-mqueue", 0 },
-> >>>>+	{ }
-> >>>>+};
-> >>>>+MODULE_DEVICE_TABLE(i2c, i2c_slave_mqueue_id);
-> >>>>+
-> >>>>+static struct i2c_driver i2c_slave_mqueue_driver = {
-> >>>>+	.driver = {
-> >>>>+		.name	= "i2c-slave-mqueue",
-> >>>>+	},
-> >>>>+	.probe		= i2c_slave_mqueue_probe,
-> >>>>+	.remove		= i2c_slave_mqueue_remove,
-> >>>>+	.id_table	= i2c_slave_mqueue_id,
-> >>>>+};
-> >>>>+module_i2c_driver(i2c_slave_mqueue_driver);
-> >>>>+
-> >>>>+MODULE_LICENSE("GPL v2");
-> >>>>+MODULE_AUTHOR("Haiyue Wang <haiyue.wang@linux.intel.com>");
-> >>>>+MODULE_DESCRIPTION("I2C slave mode for receiving and queuing messages");
-> >>>>-- 
-> >>>>2.7.4
-> >>>>
-
--- 
-All the best,
-Eduardo Valentin
+Rml4IHNldmVyYWwgd2FybmluZ3MgYW5kIGJyb2tlbiBsaW5rcy4KClRoaXMgc2VyaWVzIHdhcyBn
+ZW5lcmF0ZWQgYWdhaW5zdCBsaW51eC1uZXh0LCBidXQgd2FzIHJlYmFzZWQgdG8gYmUgYXBwbGll
+ZCBhdApkb2NzLW5leHQuIEl0IHNob3VsZCBhcHBseSBjbGVhbmx5IG9uIGVpdGhlciB0cmVlLgoK
+VGhlcmUncyBhIGdpdCB0cmVlIHdpdGggYWxsIG9mIHRoZW0gYXBwbGllZCBvbiB0aGUgdG9wIG9m
+IGRvY3MvZG9jcy1uZXh0CmF0OgoKaHR0cHM6Ly9naXQubGludXh0di5vcmcvbWNoZWhhYi9leHBl
+cmltZW50YWwuZ2l0L2xvZy8/aD1maXhfZG9jX2xpbmtzX3YyCgoKTWF1cm8gQ2FydmFsaG8gQ2hl
+aGFiICgyMSk6CiAgQUJJOiBzeXNmcy1kZXZpY2VzLXN5c3RlbS1jcHU6IHBvaW50IHRvIHRoZSBy
+aWdodCBkb2NzCiAgaXNkbjogbUlTRE46IHJlbW92ZSBhIGJvZ3VzIHJlZmVyZW5jZSB0byBhIG5v
+bi1leGlzdGluZyBkb2MKICBkdDogZml4IGJyb2tlbiByZWZlcmVuY2VzIHRvIG5hbmQudHh0CiAg
+ZG9jczogemhfQ046IGdldCByaWQgb2YgYmFzaWNfcHJvZmlsaW5nLnR4dAogIGRvYzogaXRfSVQ6
+IGZpeCByZWZlcmVuY2UgdG8gbWFnaWMtbnVtYmVyLnJzdAogIGRvY3M6IG1tOiBudW1hcGVyZi5y
+c3Q6IGdldCByaWQgb2YgYSBidWlsZCB3YXJuaW5nCiAgZG9jczogYnBmOiBnZXQgcmlkIG9mIHR3
+byB3YXJuaW5ncwogIGRvY3M6IG1hcmsgb3JwaGFuIGRvY3VtZW50cyBhcyBzdWNoCiAgZG9jczog
+YW1kLW1lbW9yeS1lbmNyeXB0aW9uLnJzdCBnZXQgcmlkIG9mIHdhcm5pbmdzCiAgZ3B1OiBhbWRn
+cHU6IGZpeCBicm9rZW4gYW1kZ3B1X2RtYV9idWYuYyByZWZlcmVuY2VzCiAgZ3B1OiBpOTE1LnJz
+dDogRml4IHJlZmVyZW5jZXMgdG8gcmVuYW1lZCBmaWxlcwogIGRvY3M6IHpoX0NOOiBhdm9pZCBk
+dXBsaWNhdGUgY2l0YXRpb24gcmVmZXJlbmNlcwogIGRvY3M6IHZtOiBobW0ucnN0OiBmaXggc29t
+ZSB3YXJuaW5ncwogIGRvY3M6IGl0OiBsaWNlbnNlLXJ1bGVzLnJzdDogZ2V0IHJpZCBvZiB3YXJu
+aW5ncwogIGRvY3M6IGdwaW86IGRyaXZlci5yc3Q6IGZpeCBhIGJhZCB0YWcKICBkb2NzOiBzb3Vu
+ZHdpcmU6IGxvY2tpbmc6IGZpeCB0YWdzIGZvciBhIGNvZGUtYmxvY2sKICBkb2NzOiBzZWN1cml0
+eTogdHJ1c3RlZC1lbmNyeXB0ZWQucnN0OiBmaXggY29kZS1ibG9jayB0YWcKICBkb2NzOiBzZWN1
+cml0eTogY29yZS5yc3Q6IEZpeCBzZXZlcmFsIHdhcm5pbmdzCiAgZG9jczogbmV0OiBkcGlvLWRy
+aXZlci5yc3Q6IGZpeCB0d28gY29kZWJsb2NrIHdhcm5pbmdzCiAgZG9jczogbmV0OiBzamExMTA1
+LnJzdDogZml4IHRhYmxlIGZvcm1hdAogIGRvY3M6IGZpeCBicm9rZW4gZG9jdW1lbnRhdGlvbiBs
+aW5rcwoKT3R0byBTYWJhcnQgKDEpOgogIG1mZDogbWFkZXJhOiBGaXggYmFkIHJlZmVyZW5jZSB0
+byBwaW5jdHJsLnR4dCBmaWxlCgogLi4uL0FCSS90ZXN0aW5nL3N5c2ZzLWRldmljZXMtc3lzdGVt
+LWNwdSAgICAgIHwgIDMgKy0KIERvY3VtZW50YXRpb24vYWNjZWxlcmF0b3JzL29jeGwucnN0ICAg
+ICAgICAgICB8ICAyICsKIERvY3VtZW50YXRpb24vYWNwaS9kc2QvbGVkcy50eHQgICAgICAgICAg
+ICAgICB8ICAyICstCiAuLi4vYWRtaW4tZ3VpZGUva2VybmVsLXBhcmFtZXRlcnMucnN0ICAgICAg
+ICAgfCAgNiArLQogLi4uL2FkbWluLWd1aWRlL2tlcm5lbC1wYXJhbWV0ZXJzLnR4dCAgICAgICAg
+IHwgMTYgKystLS0KIERvY3VtZW50YXRpb24vYWRtaW4tZ3VpZGUvbW0vbnVtYXBlcmYucnN0ICAg
+ICB8ICA1ICstCiBEb2N1bWVudGF0aW9uL2FkbWluLWd1aWRlL3Jhcy5yc3QgICAgICAgICAgICAg
+fCAgMiArLQogRG9jdW1lbnRhdGlvbi9hcm0vc3RtMzIvb3ZlcnZpZXcucnN0ICAgICAgICAgIHwg
+IDIgKwogLi4uL2FybS9zdG0zMi9zdG0zMmY0Mjktb3ZlcnZpZXcucnN0ICAgICAgICAgIHwgIDIg
+KwogLi4uL2FybS9zdG0zMi9zdG0zMmY3NDYtb3ZlcnZpZXcucnN0ICAgICAgICAgIHwgIDIgKwog
+Li4uL2FybS9zdG0zMi9zdG0zMmY3Njktb3ZlcnZpZXcucnN0ICAgICAgICAgIHwgIDIgKwogLi4u
+L2FybS9zdG0zMi9zdG0zMmg3NDMtb3ZlcnZpZXcucnN0ICAgICAgICAgIHwgIDIgKwogLi4uL2Fy
+bS9zdG0zMi9zdG0zMm1wMTU3LW92ZXJ2aWV3LnJzdCAgICAgICAgIHwgIDIgKwogRG9jdW1lbnRh
+dGlvbi9icGYvYnRmLnJzdCAgICAgICAgICAgICAgICAgICAgIHwgIDIgKwogLi4uL2JpbmRpbmdz
+L210ZC9hbWxvZ2ljLG1lc29uLW5hbmQudHh0ICAgICAgIHwgIDIgKy0KIC4uLi9kZXZpY2V0cmVl
+L2JpbmRpbmdzL210ZC9ncG1jLW5hbmQudHh0ICAgICB8ICAyICstCiAuLi4vZGV2aWNldHJlZS9i
+aW5kaW5ncy9tdGQvbWFydmVsbC1uYW5kLnR4dCAgfCAgMiArLQogLi4uL2RldmljZXRyZWUvYmlu
+ZGluZ3MvbXRkL3RhbmdvLW5hbmQudHh0ICAgIHwgIDIgKy0KIC4uLi9kZXZpY2V0cmVlL2JpbmRp
+bmdzL25ldC9mc2wtZW5ldGMudHh0ICAgICB8ICA3ICstCiAuLi4vYmluZGluZ3MvcGNpL2FtbG9n
+aWMsbWVzb24tcGNpZS50eHQgICAgICAgfCAgMiArLQogLi4uL3JlZ3VsYXRvci9xY29tLHJwbWgt
+cmVndWxhdG9yLnR4dCAgICAgICAgIHwgIDIgKy0KIC4uLi9kZXZpY2V0cmVlL2Jvb3Rpbmctd2l0
+aG91dC1vZi50eHQgICAgICAgICB8ICAyICstCiBEb2N1bWVudGF0aW9uL2RyaXZlci1hcGkvZ3Bp
+by9ib2FyZC5yc3QgICAgICAgfCAgMiArLQogRG9jdW1lbnRhdGlvbi9kcml2ZXItYXBpL2dwaW8v
+Y29uc3VtZXIucnN0ICAgIHwgIDIgKy0KIERvY3VtZW50YXRpb24vZHJpdmVyLWFwaS9ncGlvL2Ry
+aXZlci5yc3QgICAgICB8ICAyICstCiAuLi4vZHJpdmVyLWFwaS9zb3VuZHdpcmUvbG9ja2luZy5y
+c3QgICAgICAgICAgfCAgNCArLQogLi4uL2Zpcm13YXJlLWd1aWRlL2FjcGkvZW51bWVyYXRpb24u
+cnN0ICAgICAgIHwgIDIgKy0KIC4uLi9maXJtd2FyZS1ndWlkZS9hY3BpL21ldGhvZC10cmFjaW5n
+LnJzdCAgICB8ICAyICstCiBEb2N1bWVudGF0aW9uL2dwdS9hbWRncHUucnN0ICAgICAgICAgICAg
+ICAgICAgfCAgNCArLQogRG9jdW1lbnRhdGlvbi9ncHUvaTkxNS5yc3QgICAgICAgICAgICAgICAg
+ICAgIHwgIDYgKy0KIERvY3VtZW50YXRpb24vZ3B1L21zbS1jcmFzaC1kdW1wLnJzdCAgICAgICAg
+ICB8ICAyICsKIERvY3VtZW50YXRpb24vaTJjL2luc3RhbnRpYXRpbmctZGV2aWNlcyAgICAgICB8
+ICAyICstCiBEb2N1bWVudGF0aW9uL2ludGVyY29ubmVjdC9pbnRlcmNvbm5lY3QucnN0ICAgfCAg
+MiArCiBEb2N1bWVudGF0aW9uL2xhcHRvcHMvbGctbGFwdG9wLnJzdCAgICAgICAgICAgfCAgMiAr
+CiAuLi4vZnJlZXNjYWxlL2RwYWEyL2RwaW8tZHJpdmVyLnJzdCAgICAgICAgICAgfCAgNCArLQog
+RG9jdW1lbnRhdGlvbi9uZXR3b3JraW5nL2RzYS9zamExMTA1LnJzdCAgICAgIHwgIDYgKy0KIERv
+Y3VtZW50YXRpb24vcG93ZXJwYy9pc2EtdmVyc2lvbnMucnN0ICAgICAgICB8ICAyICsKIERvY3Vt
+ZW50YXRpb24vc2VjdXJpdHkva2V5cy9jb3JlLnJzdCAgICAgICAgICB8IDE2ICsrKy0tCiAuLi4v
+c2VjdXJpdHkva2V5cy90cnVzdGVkLWVuY3J5cHRlZC5yc3QgICAgICAgfCAgNCArLQogRG9jdW1l
+bnRhdGlvbi9zeXNjdGwva2VybmVsLnR4dCAgICAgICAgICAgICAgIHwgIDQgKy0KIC4uLi90cmFu
+c2xhdGlvbnMvaXRfSVQvcHJvY2Vzcy9ob3d0by5yc3QgICAgICB8ICAyICstCiAuLi4vaXRfSVQv
+cHJvY2Vzcy9saWNlbnNlLXJ1bGVzLnJzdCAgICAgICAgICAgfCAyOCArKysrLS0tLQogLi4uL2l0
+X0lUL3Byb2Nlc3MvbWFnaWMtbnVtYmVyLnJzdCAgICAgICAgICAgIHwgIDIgKy0KIC4uLi9pdF9J
+VC9wcm9jZXNzL3N0YWJsZS1rZXJuZWwtcnVsZXMucnN0ICAgICB8ICA0ICstCiAuLi4vdHJhbnNs
+YXRpb25zL3poX0NOL2Jhc2ljX3Byb2ZpbGluZy50eHQgICAgfCA3MSAtLS0tLS0tLS0tLS0tLS0t
+LS0tCiAuLi4vdHJhbnNsYXRpb25zL3poX0NOL3Byb2Nlc3MvNC5Db2RpbmcucnN0ICAgfCAgMiAr
+LQogLi4uL3poX0NOL3Byb2Nlc3MvbWFuYWdlbWVudC1zdHlsZS5yc3QgICAgICAgIHwgIDQgKy0K
+IC4uLi96aF9DTi9wcm9jZXNzL3Byb2dyYW1taW5nLWxhbmd1YWdlLnJzdCAgICB8IDI4ICsrKyst
+LS0tCiAuLi4vdmlydHVhbC9rdm0vYW1kLW1lbW9yeS1lbmNyeXB0aW9uLnJzdCAgICAgfCAgNSAr
+KwogRG9jdW1lbnRhdGlvbi92aXJ0dWFsL2t2bS92Y3B1LXJlcXVlc3RzLnJzdCAgIHwgIDIgKwog
+RG9jdW1lbnRhdGlvbi92bS9obW0ucnN0ICAgICAgICAgICAgICAgICAgICAgIHwgIDkgKystCiBE
+b2N1bWVudGF0aW9uL3g4Ni94ODZfNjQvNWxldmVsLXBhZ2luZy5yc3QgICAgfCAgMiArLQogRG9j
+dW1lbnRhdGlvbi94ODYveDg2XzY0L2Jvb3Qtb3B0aW9ucy5yc3QgICAgIHwgIDQgKy0KIC4uLi94
+ODYveDg2XzY0L2Zha2UtbnVtYS1mb3ItY3B1c2V0cy5yc3QgICAgICB8ICAyICstCiBNQUlOVEFJ
+TkVSUyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgNiArLQogYXJjaC9hcm0v
+S2NvbmZpZyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KIGFyY2gvYXJtNjQv
+a2VybmVsL2tleGVjX2ltYWdlLmMgICAgICAgICAgICAgICB8ICAyICstCiBhcmNoL3Bvd2VycGMv
+S2NvbmZpZyAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMiArLQogYXJjaC94ODYvS2NvbmZp
+ZyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgMTYgKystLS0KIGFyY2gveDg2L0tjb25m
+aWcuZGVidWcgICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCiBhcmNoL3g4Ni9ib290L2hl
+YWRlci5TICAgICAgICAgICAgICAgICAgICAgICAgfCAgMiArLQogYXJjaC94ODYvZW50cnkvZW50
+cnlfNjQuUyAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KIGFyY2gveDg2L2luY2x1ZGUvYXNt
+L2Jvb3RwYXJhbV91dGlscy5oICAgICAgICB8ICAyICstCiBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9w
+YWdlXzY0X3R5cGVzLmggICAgICAgICAgfCAgMiArLQogYXJjaC94ODYvaW5jbHVkZS9hc20vcGd0
+YWJsZV82NF90eXBlcy5oICAgICAgIHwgIDIgKy0KIGFyY2gveDg2L2tlcm5lbC9jcHUvbWljcm9j
+b2RlL2FtZC5jICAgICAgICAgICB8ICAyICstCiBhcmNoL3g4Ni9rZXJuZWwva2V4ZWMtYnppbWFn
+ZTY0LmMgICAgICAgICAgICAgfCAgMiArLQogYXJjaC94ODYva2VybmVsL3BjaS1kbWEuYyAgICAg
+ICAgICAgICAgICAgICAgIHwgIDIgKy0KIGFyY2gveDg2L21tL3RsYi5jICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICB8ICAyICstCiBhcmNoL3g4Ni9wbGF0Zm9ybS9wdmgvZW5saWdodGVuLmMg
+ICAgICAgICAgICAgfCAgMiArLQogZHJpdmVycy9hY3BpL0tjb25maWcgICAgICAgICAgICAgICAg
+ICAgICAgICAgIHwgMTAgKy0tCiBkcml2ZXJzL2lzZG4vbUlTRE4vZHNwX2NvcmUuYyAgICAgICAg
+ICAgICAgICAgfCAgMiAtCiBkcml2ZXJzL25ldC9ldGhlcm5ldC9mYXJhZGF5L2Z0Z21hYzEwMC5j
+ICAgICAgfCAgMiArLQogLi4uL2ZpZWxkYnVzL0RvY3VtZW50YXRpb24vZmllbGRidXNfZGV2LnR4
+dCAgIHwgIDQgKy0KIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyAgICAgICAgICAgICAgICAgICAgICAg
+ICB8ICAyICstCiBpbmNsdWRlL2FjcGkvYWNwaV9kcml2ZXJzLmggICAgICAgICAgICAgICAgICAg
+fCAgMiArLQogaW5jbHVkZS9saW51eC9mc19jb250ZXh0LmggICAgICAgICAgICAgICAgICAgIHwg
+IDIgKy0KIGluY2x1ZGUvbGludXgvbHNtX2hvb2tzLmggICAgICAgICAgICAgICAgICAgICB8ICAy
+ICstCiBpbmNsdWRlL2xpbnV4L21mZC9tYWRlcmEvcGRhdGEuaCAgICAgICAgICAgICAgfCAgMyAr
+LQogbW0vS2NvbmZpZyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0K
+IHNlY3VyaXR5L0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCiB0
+b29scy9pbmNsdWRlL2xpbnV4L2Vyci5oICAgICAgICAgICAgICAgICAgICAgfCAgMiArLQogLi4u
+L0RvY3VtZW50YXRpb24vc3RhY2stdmFsaWRhdGlvbi50eHQgICAgICAgIHwgIDQgKy0KIHRvb2xz
+L3Rlc3Rpbmcvc2VsZnRlc3RzL3g4Ni9wcm90ZWN0aW9uX2tleXMuYyB8ICAyICstCiA4NCBmaWxl
+cyBjaGFuZ2VkLCAxODMgaW5zZXJ0aW9ucygrKSwgMjEyIGRlbGV0aW9ucygtKQogZGVsZXRlIG1v
+ZGUgMTAwNjQ0IERvY3VtZW50YXRpb24vdHJhbnNsYXRpb25zL3poX0NOL2Jhc2ljX3Byb2ZpbGlu
+Zy50eHQKCi0tIAoyLjIxLjAKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVz
+a3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9k
+cmktZGV2ZWw=
