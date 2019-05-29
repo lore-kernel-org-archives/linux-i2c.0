@@ -1,78 +1,48 @@
-From: Ruslan Babayev <ruslan@babayev.com>
-Subject: [net-next,v4 1/2] i2c: acpi: export i2c_acpi_find_adapter_by_handle
-Date: Tue, 28 May 2019 16:02:32 -0700
-Message-ID: <20190528230233.26772-2-ruslan@babayev.com>
-References: <20190528230233.26772-1-ruslan@babayev.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20190528230233.26772-1-ruslan@babayev.com>
-Sender: netdev-owner@vger.kernel.org
-To: mika.westerberg@linux.intel.com, wsa@the-dreams.de, linux@armlinux.org.uk, andrew@lunn.ch, f.fainelli@gmail.com, hkallweit1@gmail.com, davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, xe-linux-external@cisco.com
+From: Annaliese McDermond <nh6z@nh6z.net>
+Subject: Re: [PATCH v2] i2c: bcm2835: Model Divider in CCF
+Date: Tue, 28 May 2019 20:01:56 -0700
+Message-ID: <ACF57AF2-51C9-4884-BC65-126221CDAB5B@nh6z.net>
+References: <20190508071227.18609-1-nh6z@nh6z.net>
+ <716a7b8a-c2f8-a3c4-0b3a-be3cb26a6c12@i2se.com>
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <716a7b8a-c2f8-a3c4-0b3a-be3cb26a6c12@i2se.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Stefan Wahren <stefan.wahren@i2se.com>
+Cc: f.fainelli@gmail.com, swarren@wwwdotorg.org, wsa@the-dreams.de, team@nwdigitalradio.com, eric@anholt.net, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This allows drivers to lookup i2c adapters on ACPI based systems similar to
-of_get_i2c_adapter_by_node() with DT based systems.
-
-Signed-off-by: Ruslan Babayev <ruslan@babayev.com>
-Cc: xe-linux-external@cisco.com
----
- drivers/i2c/i2c-core-acpi.c | 3 ++-
- include/linux/i2c.h         | 6 ++++++
- 2 files changed, 8 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 272800692088..964687534754 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -337,7 +337,7 @@ static int i2c_acpi_find_match_device(struct device *dev, void *data)
- 	return ACPI_COMPANION(dev) == data;
- }
- 
--static struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
-+struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
- {
- 	struct device *dev;
- 
-@@ -345,6 +345,7 @@ static struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
- 			      i2c_acpi_find_match_adapter);
- 	return dev ? i2c_verify_adapter(dev) : NULL;
- }
-+EXPORT_SYMBOL_GPL(i2c_acpi_find_adapter_by_handle);
- 
- static struct i2c_client *i2c_acpi_find_client_by_adev(struct acpi_device *adev)
- {
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 1308126fc384..e982b8913b73 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -14,6 +14,7 @@
- #ifndef _LINUX_I2C_H
- #define _LINUX_I2C_H
- 
-+#include <linux/acpi.h>		/* for acpi_handle */
- #include <linux/mod_devicetable.h>
- #include <linux/device.h>	/* for struct device */
- #include <linux/sched.h>	/* for completion */
-@@ -981,6 +982,7 @@ bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
- u32 i2c_acpi_find_bus_speed(struct device *dev);
- struct i2c_client *i2c_acpi_new_device(struct device *dev, int index,
- 				       struct i2c_board_info *info);
-+struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle);
- #else
- static inline bool i2c_acpi_get_i2c_resource(struct acpi_resource *ares,
- 					     struct acpi_resource_i2c_serialbus **i2c)
-@@ -996,6 +998,10 @@ static inline struct i2c_client *i2c_acpi_new_device(struct device *dev,
- {
- 	return NULL;
- }
-+static inline struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
-+{
-+	return NULL;
-+}
- #endif /* CONFIG_ACPI */
- 
- #endif /* _LINUX_I2C_H */
--- 
-2.19.2
+Cgo+IE9uIE1heSAyOCwgMjAxOSwgYXQgMTI6NTIgQU0sIFN0ZWZhbiBXYWhyZW4gPHN0ZWZhbi53
+YWhyZW5AaTJzZS5jb20+IHdyb3RlOgo+IAo+IEhpIEFubmFsaWVzZSwKPiAKPiB0aGFuayB5b3Ug
+Zm9yIG1lbnRpb24gdGhhdCB3ZSBoYXZlIG11bHRpcGxlIEkyQyBpbnRlcmZhY2VzLgo+IAo+IE9u
+IDA4LjA1LjE5IDA5OjEyLCBBbm5hbGllc2UgTWNEZXJtb25kIHdyb3RlOgo+PiArCj4+ICtzdGF0
+aWMgc3RydWN0IGNsayAqYmNtMjgzNV9pMmNfcmVnaXN0ZXJfZGl2KHN0cnVjdCBkZXZpY2UgKmRl
+diwKPj4gKwkJCQkJY29uc3QgY2hhciAqbWNsa19uYW1lLAo+PiArCQkJCQlzdHJ1Y3QgYmNtMjgz
+NV9pMmNfZGV2ICppMmNfZGV2KQo+PiArewo+PiArCXN0cnVjdCBjbGtfaW5pdF9kYXRhIGluaXQ7
+Cj4+ICsJc3RydWN0IGNsa19iY20yODM1X2kyYyAqcHJpdjsKPj4gKwljb25zdCBjaGFyICpkZXZu
+YW1lID0gZGV2X25hbWUoZGV2KTsKPj4gKwo+PiArCWluaXQub3BzID0gJmNsa19iY20yODM1X2ky
+Y19vcHM7Cj4+ICsJaW5pdC5uYW1lID0gImJjbTI4MzUtaTJjIjsKPiAKPiBEb2VzIHRoaXMgd29y
+ayBpbnRlbnRpb25hbGx5IGluIGNhc2UgaTJjLTAgYW5kIGkyYy0xIGFyZSB1c2VkIGF0IHRoZQo+
+IHNhbWUgdGltZT8KCkl0IHNob3VsZCB3b3JrIGZpbmUuICBUaGUgY2xvY2tzIGFyZSBhbGwgcmVn
+aXN0ZXJlZCBzZXBhcmF0ZWx5IGFuZCBwYXNzZWQKdGhlIHBvaW50ZXIgdG8gdGhlIHN0cnVjdCBk
+ZXZpY2UgZm9yIHRoZSBpbnRlcmZhY2UuICBUaGlzIGtlZXBzIGl0CmFjY2Vzc2luZyB0aGUgY29y
+cmVjdCByZWdpc3RlcnMgYW5kIHN1Y2guCgo+IFBsZWFzZSBhbHNvIGNoZWNrIHRoZSBvdXRwdXQg
+b2YgL3N5cy9rZXJuZWwvZGVidWcvY2xrL2Nsa19zdW1tYXJ5CgpUaGV54oCZbGwgY29tZSB1cCB3
+aXRoIHRoZSBzYW1lIG5hbWUgaW4gdGhlIGN1cnJlbnQgY29kZSBpbiB0aGUgZGVidWcKb3V0cHV0
+LiAgSSBhZ3JlZSB0aGlzIGlzIG1pbGRseSBjb25mdXNpbmcgYW5kIEnigJlsbCBzcGluIGFub3Ro
+ZXIgdmVyc2lvbgpvZiB0aGUgcGF0Y2ggdG8gZ2l2ZSB0aGVtIHVuaXF1ZSBjbG9jayBuYW1lcyBp
+biBjbGtfc3VtbWFyeS4KCj4gUmVnYXJkcwo+IFN0ZWZhbgo+IAoKLS0KQW5uYWxpZXNlIE1jRGVy
+bW9ub2QKbmg2ekBuaDZ6Lm5ldApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVs
+QGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9s
+aXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
