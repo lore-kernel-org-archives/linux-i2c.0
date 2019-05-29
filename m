@@ -1,48 +1,104 @@
-From: Annaliese McDermond <nh6z@nh6z.net>
-Subject: Re: [PATCH v2] i2c: bcm2835: Model Divider in CCF
-Date: Tue, 28 May 2019 20:01:56 -0700
-Message-ID: <ACF57AF2-51C9-4884-BC65-126221CDAB5B@nh6z.net>
-References: <20190508071227.18609-1-nh6z@nh6z.net>
- <716a7b8a-c2f8-a3c4-0b3a-be3cb26a6c12@i2se.com>
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <716a7b8a-c2f8-a3c4-0b3a-be3cb26a6c12@i2se.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Stefan Wahren <stefan.wahren@i2se.com>
-Cc: f.fainelli@gmail.com, swarren@wwwdotorg.org, wsa@the-dreams.de, team@nwdigitalradio.com, eric@anholt.net, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Subject: [PATCH v8 3/3] i2c-ocores: sifive: add polling mode workaround for FU540-C000 SoC.
+Date: Wed, 29 May 2019 09:56:18 +0530
+Message-ID: <1559103978-13852-1-git-send-email-sagar.kadam@sifive.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: robh+dt@kernel.org, mark.rutland@arm.com, peter@korsgaard.com, andrew@lunn.ch, palmer@sifive.com, paul.walmsley@sifive.com, sagar.kadam@sifive.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Cgo+IE9uIE1heSAyOCwgMjAxOSwgYXQgMTI6NTIgQU0sIFN0ZWZhbiBXYWhyZW4gPHN0ZWZhbi53
-YWhyZW5AaTJzZS5jb20+IHdyb3RlOgo+IAo+IEhpIEFubmFsaWVzZSwKPiAKPiB0aGFuayB5b3Ug
-Zm9yIG1lbnRpb24gdGhhdCB3ZSBoYXZlIG11bHRpcGxlIEkyQyBpbnRlcmZhY2VzLgo+IAo+IE9u
-IDA4LjA1LjE5IDA5OjEyLCBBbm5hbGllc2UgTWNEZXJtb25kIHdyb3RlOgo+PiArCj4+ICtzdGF0
-aWMgc3RydWN0IGNsayAqYmNtMjgzNV9pMmNfcmVnaXN0ZXJfZGl2KHN0cnVjdCBkZXZpY2UgKmRl
-diwKPj4gKwkJCQkJY29uc3QgY2hhciAqbWNsa19uYW1lLAo+PiArCQkJCQlzdHJ1Y3QgYmNtMjgz
-NV9pMmNfZGV2ICppMmNfZGV2KQo+PiArewo+PiArCXN0cnVjdCBjbGtfaW5pdF9kYXRhIGluaXQ7
-Cj4+ICsJc3RydWN0IGNsa19iY20yODM1X2kyYyAqcHJpdjsKPj4gKwljb25zdCBjaGFyICpkZXZu
-YW1lID0gZGV2X25hbWUoZGV2KTsKPj4gKwo+PiArCWluaXQub3BzID0gJmNsa19iY20yODM1X2ky
-Y19vcHM7Cj4+ICsJaW5pdC5uYW1lID0gImJjbTI4MzUtaTJjIjsKPiAKPiBEb2VzIHRoaXMgd29y
-ayBpbnRlbnRpb25hbGx5IGluIGNhc2UgaTJjLTAgYW5kIGkyYy0xIGFyZSB1c2VkIGF0IHRoZQo+
-IHNhbWUgdGltZT8KCkl0IHNob3VsZCB3b3JrIGZpbmUuICBUaGUgY2xvY2tzIGFyZSBhbGwgcmVn
-aXN0ZXJlZCBzZXBhcmF0ZWx5IGFuZCBwYXNzZWQKdGhlIHBvaW50ZXIgdG8gdGhlIHN0cnVjdCBk
-ZXZpY2UgZm9yIHRoZSBpbnRlcmZhY2UuICBUaGlzIGtlZXBzIGl0CmFjY2Vzc2luZyB0aGUgY29y
-cmVjdCByZWdpc3RlcnMgYW5kIHN1Y2guCgo+IFBsZWFzZSBhbHNvIGNoZWNrIHRoZSBvdXRwdXQg
-b2YgL3N5cy9rZXJuZWwvZGVidWcvY2xrL2Nsa19zdW1tYXJ5CgpUaGV54oCZbGwgY29tZSB1cCB3
-aXRoIHRoZSBzYW1lIG5hbWUgaW4gdGhlIGN1cnJlbnQgY29kZSBpbiB0aGUgZGVidWcKb3V0cHV0
-LiAgSSBhZ3JlZSB0aGlzIGlzIG1pbGRseSBjb25mdXNpbmcgYW5kIEnigJlsbCBzcGluIGFub3Ro
-ZXIgdmVyc2lvbgpvZiB0aGUgcGF0Y2ggdG8gZ2l2ZSB0aGVtIHVuaXF1ZSBjbG9jayBuYW1lcyBp
-biBjbGtfc3VtbWFyeS4KCj4gUmVnYXJkcwo+IFN0ZWZhbgo+IAoKLS0KQW5uYWxpZXNlIE1jRGVy
-bW9ub2QKbmg2ekBuaDZ6Lm5ldApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVs
-QGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9s
-aXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
+The i2c-ocore driver already has a polling mode interface.But it needs
+a workaround for FU540 Chipset on HiFive unleashed board (RevA00).
+There is an erratum in FU540 chip that prevents interrupt driven i2c
+transfers from working, and also the I2C controller's interrupt bit
+cannot be cleared if set, due to this the existing i2c polling mode
+interface added in mainline earlier doesn't work, and CPU stall's
+infinitely, when-ever i2c transfer is initiated.
+
+Ref:
+	commit dd7dbf0eb090 ("i2c: ocores: refactor setup for polling")
+
+The workaround / fix under OCORES_FLAG_BROKEN_IRQ is particularly for
+FU540-COOO SoC.
+
+The polling function identifies a SiFive device based on the device node
+and enables the workaround.
+
+Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+---
+ drivers/i2c/busses/i2c-ocores.c | 24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index b334fa2..4117f1a 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -35,6 +35,7 @@ struct ocores_i2c {
+ 	int iobase;
+ 	u32 reg_shift;
+ 	u32 reg_io_width;
++	unsigned long flags;
+ 	wait_queue_head_t wait;
+ 	struct i2c_adapter adap;
+ 	struct i2c_msg *msg;
+@@ -84,6 +85,8 @@ struct ocores_i2c {
+ #define TYPE_GRLIB		1
+ #define TYPE_SIFIVE_REV0	2
+ 
++#define OCORES_FLAG_BROKEN_IRQ BIT(1) /* Broken IRQ for FU540-C000 SoC */
++
+ static void oc_setreg_8(struct ocores_i2c *i2c, int reg, u8 value)
+ {
+ 	iowrite8(value, i2c->base + (reg << i2c->reg_shift));
+@@ -236,9 +239,12 @@ static irqreturn_t ocores_isr(int irq, void *dev_id)
+ 	struct ocores_i2c *i2c = dev_id;
+ 	u8 stat = oc_getreg(i2c, OCI2C_STATUS);
+ 
+-	if (!(stat & OCI2C_STAT_IF))
++	if (i2c->flags & OCORES_FLAG_BROKEN_IRQ) {
++		if ((stat & OCI2C_STAT_IF) && !(stat & OCI2C_STAT_BUSY))
++			return IRQ_NONE;
++	} else if (!(stat & OCI2C_STAT_IF)) {
+ 		return IRQ_NONE;
+-
++	}
+ 	ocores_process(i2c, stat);
+ 
+ 	return IRQ_HANDLED;
+@@ -353,6 +359,11 @@ static void ocores_process_polling(struct ocores_i2c *i2c)
+ 		ret = ocores_isr(-1, i2c);
+ 		if (ret == IRQ_NONE)
+ 			break; /* all messages have been transferred */
++		else {
++			if (i2c->flags & OCORES_FLAG_BROKEN_IRQ)
++				if (i2c->state == STATE_DONE)
++					break;
++		}
+ 	}
+ }
+ 
+@@ -595,6 +606,7 @@ static int ocores_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct ocores_i2c *i2c;
+ 	struct ocores_i2c_platform_data *pdata;
++	const struct of_device_id *match;
+ 	struct resource *res;
+ 	int irq;
+ 	int ret;
+@@ -677,6 +689,14 @@ static int ocores_i2c_probe(struct platform_device *pdev)
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq == -ENXIO) {
+ 		ocores_algorithm.master_xfer = ocores_xfer_polling;
++
++		/*
++		 * Set in OCORES_FLAG_BROKEN_IRQ to enable workaround for
++		 * FU540-C000 SoC in polling mode.
++		 */
++		match = of_match_node(ocores_i2c_match, pdev->dev.of_node);
++		if (match && (long)match->data == TYPE_SIFIVE_REV0)
++			i2c->flags |= OCORES_FLAG_BROKEN_IRQ;
+ 	} else {
+ 		if (irq < 0)
+ 			return irq;
+-- 
+1.9.1
