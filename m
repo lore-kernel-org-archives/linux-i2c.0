@@ -1,218 +1,81 @@
-From: Bitan Biswas <bbiswas@nvidia.com>
-Subject: [PATCH V2] drivers: i2c: tegra: fix checkpatch defects
-Date: Wed, 29 May 2019 23:14:10 -0700
-Message-ID: <1559196850-7007-1-git-send-email-bbiswas@nvidia.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 22/22] docs: fix broken documentation links
+Date: Thu, 30 May 2019 09:21:14 +0200
+Message-ID: <20190530072110.GA1776@kunai>
+References: <cover.1559171394.git.mchehab+samsung@kernel.org>
+	<f9fecacbe4ce0b2b3aed38d71ae3753f2daf3ce3.1559171394.git.mchehab+samsung@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Bitan Biswas <bbiswas@nvidia.com>
+Content-Type: multipart/mixed; boundary="===============7056596839086667031=="
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <f9fecacbe4ce0b2b3aed38d71ae3753f2daf3ce3.1559171394.git.mchehab+samsung@kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Andy Lutomirski <luto@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Will Deacon <will.deacon@arm.com>, Pavel Tatashin <pasha.tatashin@oracle.com>, Paul Mackerras <paulus@samba.org>, Alessia Mantegazza <amantegazza@vaga.pv.it>, Jakub Wilk <jwilk@jwilk.net>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, "Paul E. McKenney" <paulmck@linux.ibm.com>, Kevin Hilman <khilman@baylibre.com>, James Morris <jmorris@namei.org>, linux-acpi@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, xen-devel@lists.xenproject.org, Alexander Popov <alex.popov@linux.com>, Qian Cai <cai@lca.pw>, Al Viro <viro@zeniv.linux.org.uk>, Thomas Preston <thomas.preston@codethink.co.uk>, Thomas Gleixner <tglx@linutronix.de>, Kairui Song <kasong@redhat.com>, Ding Xiang <di>
 List-Id: linux-i2c@vger.kernel.org
 
-Fix checkpatch.pl warning(s)/error(s)/check(s) in i2c-tegra.c
-except for BUG/BUG_ON checks
 
-Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
----
- drivers/i2c/busses/i2c-tegra.c | 54 +++++++++++++++++++++++-------------------
- 1 file changed, 30 insertions(+), 24 deletions(-)
+--===============7056596839086667031==
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="fUYQa+Pmc3FrFX/N"
+Content-Disposition: inline
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index ebaa78d..59f19d3 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -112,7 +112,7 @@
- #define I2C_CLKEN_OVERRIDE			0x090
- #define I2C_MST_CORE_CLKEN_OVR			BIT(0)
- 
--#define I2C_CONFIG_LOAD_TIMEOUT			1000000
-+#define I2C_CONFIG_LOAD_TMOUT			1000000
- 
- #define I2C_MST_FIFO_CONTROL			0x0b4
- #define I2C_MST_FIFO_CONTROL_RX_FLUSH		BIT(0)
-@@ -280,6 +280,7 @@ struct tegra_i2c_dev {
- 	u32 bus_clk_rate;
- 	u16 clk_divisor_non_hs_mode;
- 	bool is_multimaster_mode;
-+	/* xfer_lock: lock to serialize transfer submission and processing */
- 	spinlock_t xfer_lock;
- 	struct dma_chan *tx_dma_chan;
- 	struct dma_chan *rx_dma_chan;
-@@ -306,7 +307,7 @@ static u32 dvc_readl(struct tegra_i2c_dev *i2c_dev, unsigned long reg)
-  * to the I2C block inside the DVC block
-  */
- static unsigned long tegra_i2c_reg_addr(struct tegra_i2c_dev *i2c_dev,
--	unsigned long reg)
-+					unsigned long reg)
- {
- 	if (i2c_dev->is_dvc)
- 		reg += (reg >= I2C_TX_FIFO) ? 0x10 : 0x40;
-@@ -314,7 +315,7 @@ static unsigned long tegra_i2c_reg_addr(struct tegra_i2c_dev *i2c_dev,
- }
- 
- static void i2c_writel(struct tegra_i2c_dev *i2c_dev, u32 val,
--	unsigned long reg)
-+		       unsigned long reg)
- {
- 	writel(val, i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg));
- 
-@@ -329,13 +330,13 @@ static u32 i2c_readl(struct tegra_i2c_dev *i2c_dev, unsigned long reg)
- }
- 
- static void i2c_writesl(struct tegra_i2c_dev *i2c_dev, void *data,
--	unsigned long reg, int len)
-+			unsigned long reg, int len)
- {
- 	writesl(i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg), data, len);
- }
- 
- static void i2c_readsl(struct tegra_i2c_dev *i2c_dev, void *data,
--	unsigned long reg, int len)
-+		       unsigned long reg, int len)
- {
- 	readsl(i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg), data, len);
- }
-@@ -486,7 +487,7 @@ static int tegra_i2c_flush_fifos(struct tegra_i2c_dev *i2c_dev)
- 			dev_warn(i2c_dev->dev, "timeout waiting for fifo flush\n");
- 			return -ETIMEDOUT;
- 		}
--		msleep(1);
-+		usleep_range(1000, 2000);
- 	}
- 	return 0;
- }
-@@ -680,10 +681,11 @@ static int tegra_i2c_wait_for_config_load(struct tegra_i2c_dev *i2c_dev)
- 		i2c_writel(i2c_dev, I2C_MSTR_CONFIG_LOAD, I2C_CONFIG_LOAD);
- 		if (in_interrupt())
- 			err = readl_poll_timeout_atomic(addr, val, val == 0,
--					1000, I2C_CONFIG_LOAD_TIMEOUT);
-+							1000,
-+							I2C_CONFIG_LOAD_TMOUT);
- 		else
--			err = readl_poll_timeout(addr, val, val == 0,
--					1000, I2C_CONFIG_LOAD_TIMEOUT);
-+			err = readl_poll_timeout(addr, val, val == 0, 1000,
-+						 I2C_CONFIG_LOAD_TMOUT);
- 
- 		if (err) {
- 			dev_warn(i2c_dev->dev,
-@@ -863,11 +865,13 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 		}
- 
- 		if (!i2c_dev->msg_read && (status & I2C_INT_TX_FIFO_DATA_REQ)) {
--			if (i2c_dev->msg_buf_remaining)
--				tegra_i2c_fill_tx_fifo(i2c_dev);
--			else
-+			if (i2c_dev->msg_buf_remaining) {
-+				if (tegra_i2c_fill_tx_fifo(i2c_dev))
-+					goto err;
-+			} else {
- 				tegra_i2c_mask_irq(i2c_dev,
- 						   I2C_INT_TX_FIFO_DATA_REQ);
-+			}
- 		}
- 	}
- 
-@@ -1024,7 +1028,7 @@ static int tegra_i2c_issue_bus_clear(struct i2c_adapter *adap)
- }
- 
- static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
--	struct i2c_msg *msg, enum msg_end_type end_state)
-+			      struct i2c_msg *msg, enum msg_end_type end_state)
- {
- 	u32 packet_header;
- 	u32 int_mask;
-@@ -1034,7 +1038,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	u32 *buffer = NULL;
- 	int err = 0;
- 	bool dma;
--	u16 xfer_time = 100;
-+	u16 xfer_tm = 100;
- 
- 	tegra_i2c_flush_fifos(i2c_dev);
- 
-@@ -1058,7 +1062,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	 * Transfer time in mSec = Total bits / transfer rate
- 	 * Total bits = 9 bits per byte (including ACK bit) + Start & stop bits
- 	 */
--	xfer_time += DIV_ROUND_CLOSEST(((xfer_size * 9) + 2) * MSEC_PER_SEC,
-+	xfer_tm += DIV_ROUND_CLOSEST(((xfer_size * 9) + 2) * MSEC_PER_SEC,
- 					i2c_dev->bus_clk_rate);
- 	spin_lock_irqsave(&i2c_dev->xfer_lock, flags);
- 
-@@ -1137,7 +1141,8 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 				goto unlock;
- 			}
- 		} else {
--			tegra_i2c_fill_tx_fifo(i2c_dev);
-+			if (tegra_i2c_fill_tx_fifo(i2c_dev))
-+				goto unlock;
- 		}
- 	}
- 
-@@ -1161,9 +1166,9 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 		if (err)
- 			return err;
- 
--		time_left = wait_for_completion_timeout(
--						&i2c_dev->dma_complete,
--						msecs_to_jiffies(xfer_time));
-+		time_left =
-+			wait_for_completion_timeout(&i2c_dev->dma_complete,
-+						    msecs_to_jiffies(xfer_tm));
- 		if (time_left == 0) {
- 			dev_err(i2c_dev->dev, "DMA transfer timeout\n");
- 			dmaengine_terminate_sync(i2c_dev->msg_read ?
-@@ -1189,7 +1194,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	}
- 
- 	time_left = wait_for_completion_timeout(&i2c_dev->msg_complete,
--						msecs_to_jiffies(xfer_time));
-+						msecs_to_jiffies(xfer_tm));
- 	tegra_i2c_mask_irq(i2c_dev, int_mask);
- 
- 	if (time_left == 0) {
-@@ -1225,7 +1230,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- }
- 
- static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
--	int num)
-+			  int num)
- {
- 	struct tegra_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
- 	int i;
-@@ -1273,12 +1278,12 @@ static void tegra_i2c_parse_dt(struct tegra_i2c_dev *i2c_dev)
- 	int ret;
- 
- 	ret = of_property_read_u32(np, "clock-frequency",
--			&i2c_dev->bus_clk_rate);
-+				   &i2c_dev->bus_clk_rate);
- 	if (ret)
- 		i2c_dev->bus_clk_rate = 100000; /* default clock rate */
- 
- 	i2c_dev->is_multimaster_mode = of_property_read_bool(np,
--			"multi-master");
-+							     "multi-master");
- }
- 
- static const struct i2c_algorithm tegra_i2c_algo = {
-@@ -1622,7 +1627,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	}
- 
- 	ret = devm_request_irq(&pdev->dev, i2c_dev->irq,
--			tegra_i2c_isr, 0, dev_name(&pdev->dev), i2c_dev);
-+			       tegra_i2c_isr, 0, dev_name(&pdev->dev), i2c_dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to request irq %i\n", i2c_dev->irq);
- 		goto release_dma;
-@@ -1691,6 +1696,7 @@ static const struct dev_pm_ops tegra_i2c_pm = {
- 	SET_RUNTIME_PM_OPS(tegra_i2c_runtime_suspend, tegra_i2c_runtime_resume,
- 			   NULL)
- };
-+
- #define TEGRA_I2C_PM	(&tegra_i2c_pm)
- #else
- #define TEGRA_I2C_PM	NULL
--- 
-2.7.4
+
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, May 29, 2019 at 08:23:53PM -0300, Mauro Carvalho Chehab wrote:
+> Mostly due to x86 and acpi conversion, several documentation
+> links are still pointing to the old file. Fix them.
+>=20
+> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+
+Didn't I ack this already?
+
+For the I2C part:
+
+Reviewed-by: Wolfram Sang <wsa@the-dreams.de>
+
+
+--fUYQa+Pmc3FrFX/N
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzvhGEACgkQFA3kzBSg
+KbZPRxAAhFPNKyTqg0No7kzvML2PBj9puH4y5gi/QPmIpGm4lHZikJFOlq9rgwR+
+PNNz1an8lJFTrFan9VvG36hYv4zCcWm80yw2U9xZfBOk1QRHUN5jTbC8UdGyCYh+
+Vo1yR3nEWEODI3yIS8kvTwlFWENBd5YA7O4GllMR1Ink+IPkc+60ji8Rt+VNZuFp
+J8tzUF5tCJlUFQYTgf8fSFvM+hA1shd0gnHRUNGKIBNLONCg9mbWBODwSfZi/VcV
+5J2t00XQuI/cXPk/I5Hm1XHxQKuaV/pQmcTDkrYB/ZFkPOUxqP6PM/I5S+usHBDr
+7CHd3KxR04qYdmaNac8E3NOqnN4xvGMVAGpO5mvvJ0lwSVvVsdMCETSjZ8pjfnXO
+pfDKBThEmJLVp9PdG5pVz1MwHv20PXAYax1rujWRjWIFdr/E8HyoW/qurTZf/bTs
+tQc63rAg5QHrF177J3WR13tZp+zpVN0KL061qk9J65j3aDMsyProevJz2RN/cQzX
+3630pUKa6S/q7r/t2yfL//sGW5K1nbWj3XdtpSZKvyp8KUmEM41oi48rkwMdMGL9
+aB7uRlDM/0J+WIRHeXSMJ50Yfk0rKjdAuyKbhWU9+nwgPaTxUW6KMLsRhjV1K57Y
+VK46VL1PX9nHY6d5572YnbuNT5Nzxeazz5nuBYHTLFDyBkyHHL8=
+=MWyf
+-----END PGP SIGNATURE-----
+
+--fUYQa+Pmc3FrFX/N--
+
+--===============7056596839086667031==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7056596839086667031==--
