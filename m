@@ -1,83 +1,70 @@
-From: Sagar Kadam <sagar.kadam@sifive.com>
-Subject: Re: [PATCH v8 1/3] dt-bindings: i2c: extend existing opencore
- bindings.
-Date: Thu, 30 May 2019 09:27:31 +0530
-Message-ID: <CAARK3Hm0F+6qAh5LYbqnfn5LeDyptyBy+_DZxAxxFg5bhe8Uxg@mail.gmail.com>
-References: <1559104047-13920-1-git-send-email-sagar.kadam@sifive.com>
- <1559104047-13920-2-git-send-email-sagar.kadam@sifive.com>
+From: Eduardo Valentin <eduval@amazon.com>
+Subject: Re: [PATCH i2c/slave-mqueue v5] i2c: slave-mqueue: add a slave
+ backend to receive and queue messages
+Date: Wed, 29 May 2019 21:02:17 -0700
+Message-ID: <20190530040217.GB17772@u40b0340c692b58f6553c.ant.amazon.com>
+References: <1524503192-4176-1-git-send-email-haiyue.wang@linux.intel.com>
+ <20190523220345.GA3417@u40b0340c692b58f6553c.ant.amazon.com>
+ <35a9d066-c732-cb00-04a5-438c948915ae@linux.intel.com>
+ <20190524173353.GA6428@u40b0340c692b58f6553c.ant.amazon.com>
+ <bf1e8f0b-5bd0-fb43-c19b-9487603b9ee3@linux.intel.com>
+ <20190529231100.GA18339@u40b0340c692b58f6553c.ant.amazon.com>
+ <75cb9514-bb3a-9c3b-05df-0c3517bd775a@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1559104047-13920-2-git-send-email-sagar.kadam@sifive.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
-List-Post: <mailto:linux-riscv@lists.infradead.org>
-List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
- <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
-Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
-To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, peter@korsgaard.com, Andrew Lunn <andrew@lunn.ch>, Palmer Dabbelt <palmer@sifive.com>, Paul Walmsley <paul.walmsley@sifive.com>, Sagar Kadam <sagar.kadam@sifive.com>, Linux I2C <linux-i2c@vger.kernel.org>, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <75cb9514-bb3a-9c3b-05df-0c3517bd775a@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Wang, Haiyue" <haiyue.wang@linux.intel.com>
+Cc: Eduardo Valentin <eduval@amazon.com>, wsa@the-dreams.de, brendanhiggins@google.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org, jarkko.nikula@linux.intel.com, andriy.shevchenko@intel.com, jae.hyun.yoo@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Rob,
+On Thu, May 30, 2019 at 09:33:34AM +0800, Wang, Haiyue wrote:
+> 
+> 在 2019-05-30 07:11, Eduardo Valentin 写道:
+> >>>>>>+
+> >>>>>>+	case I2C_SLAVE_WRITE_RECEIVED:
+> >>>>>>+		if (msg->len < MQ_MSGBUF_SIZE) {
+> >>>>>>+			msg->buf[msg->len++] = *val;
+> >>>>>Do we need to lock the accesses to msg->buf? how about to msg->len?
+> >>>this code goes access and modify data here, e.g. msg->len and msg->buf.
+> >>>
+> >>>On this case (I2C_SLAVE_WRITE_RECEIVED), this code wont protect access.
+> >>>
+> >>>This can cause concurrence issues if you receive an IRQ when the user
+> >>>is on your bin_read().
+> >>User will not touch 'msg = mq->curr;', just touch 'msg =
+> >>&mq->queue[mq->out];'
+> >What happens if mq->curr == mq->queue[mq->out]?
+> >
+> 1. The Read will check.
+> 
+> +	spin_lock_irqsave(&mq->lock, flags);
+> +	if (mq->out != mq->in) {
+> +		msg = &mq->queue[mq->out];
+> 
+> 2. Flush the oldeast message. ^_^
+> 
+> +	case I2C_SLAVE_STOP:
+> +		if (unlikely(mq->truncated || msg->len < 2))
+> +			break;
+> +
+> +		spin_lock(&mq->lock);
+> +		mq->in = MQ_QUEUE_NEXT(mq->in);
+> +		mq->curr = &mq->queue[mq->in];
+> +		mq->curr->len = 0;
+> +
+> +		/* Flush the oldest message */
+> +		if (mq->out == mq->in)
+> +			mq->out = MQ_QUEUE_NEXT(mq->out);
 
-Please let me know if this patch is as per your requirements/comments
-you mentioned earlier.
+Yeah, I see. We keep on dropping messages (old ones) when the queue is full...
 
-Thanks & Regards,
-Sagar Kadam
-On Wed, May 29, 2019 at 9:57 AM Sagar Shrikant Kadam
-<sagar.kadam@sifive.com> wrote:
->
-> Reformatted compatibility strings to one valid combination on
-> each line.
-> Add FU540-C000 specific device tree bindings to already available
-> i2-ocores file. This device is available on
-> HiFive Unleashed Rev A00 board. Move interrupt under optional
-> property list as this can be optional.
->
-> The FU540-C000 SoC from sifive, has an Opencore's I2C block
-> reimplementation.
->
-> The DT compatibility string for this IP is present in HDL and available at.
-> https://github.com/sifive/sifive-blocks/blob/master/src/main/scala/devices/i2c/I2C.scala#L73
->
-> Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-ocores.txt | 9 +++++++--
->  1 file changed, 7 insertions(+), 2 deletions(-)
->
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-> index 17bef9a..6b25a80 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-> @@ -1,9 +1,13 @@
->  Device tree configuration for i2c-ocores
->
->  Required properties:
-> -- compatible      : "opencores,i2c-ocores" or "aeroflexgaisler,i2cmst"
-> +- compatible      : "opencores,i2c-ocores"
-> +                    "aeroflexgaisler,i2cmst"
-> +                    "sifive,fu540-c000-i2c", "sifive,i2c0"
-> +                    For Opencore based I2C IP block reimplemented in
-> +                    FU540-C000 SoC. Please refer to sifive-blocks-ip-versioning.txt
-> +                    for additional details.
->  - reg             : bus address start and address range size of device
-> -- interrupts      : interrupt number
->  - clocks          : handle to the controller clock; see the note below.
->                      Mutually exclusive with opencores,ip-clock-frequency
->  - opencores,ip-clock-frequency: frequency of the controller clock in Hz;
-> @@ -12,6 +16,7 @@ Required properties:
->  - #size-cells     : should be <0>
->
->  Optional properties:
-> +- interrupts      : interrupt number.
->  - clock-frequency : frequency of bus clock in Hz; see the note below.
->                      Defaults to 100 KHz when the property is not specified
->  - reg-shift       : device register offsets are shifted by this value
-> --
-> 1.9.1
->
+> +		spin_unlock(&mq->lock);
+> 
+
+-- 
+All the best,
+Eduardo Valentin
