@@ -1,50 +1,83 @@
 From: Sagar Kadam <sagar.kadam@sifive.com>
-Subject: Re: [PATCH v8 3/3] i2c-ocores: sifive: add polling mode workaround
- for FU540-C000 SoC.
-Date: Thu, 30 May 2019 09:25:14 +0530
-Message-ID: <CAARK3HnRq_pZHsS0CMbDx==P0VGb1V3AZyg078bhD49+i70TqA@mail.gmail.com>
+Subject: Re: [PATCH v8 1/3] dt-bindings: i2c: extend existing opencore
+ bindings.
+Date: Thu, 30 May 2019 09:27:31 +0530
+Message-ID: <CAARK3Hm0F+6qAh5LYbqnfn5LeDyptyBy+_DZxAxxFg5bhe8Uxg@mail.gmail.com>
 References: <1559104047-13920-1-git-send-email-sagar.kadam@sifive.com>
- <1559104047-13920-4-git-send-email-sagar.kadam@sifive.com> <20190529155346.GA18059@lunn.ch>
+ <1559104047-13920-2-git-send-email-sagar.kadam@sifive.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190529155346.GA18059@lunn.ch>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, peter@korsgaard.com, Palmer Dabbelt <palmer@sifive.com>, Paul Walmsley <paul.walmsley@sifive.com>, Linux I2C <linux-i2c@vger.kernel.org>, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1559104047-13920-2-git-send-email-sagar.kadam@sifive.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
+To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, peter@korsgaard.com, Andrew Lunn <andrew@lunn.ch>, Palmer Dabbelt <palmer@sifive.com>, Paul Walmsley <paul.walmsley@sifive.com>, Sagar Kadam <sagar.kadam@sifive.com>, Linux I2C <linux-i2c@vger.kernel.org>, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 29, 2019 at 9:23 PM Andrew Lunn <andrew@lunn.ch> wrote:
->
-> On Wed, May 29, 2019 at 09:57:27AM +0530, Sagar Shrikant Kadam wrote:
-> > The i2c-ocore driver already has a polling mode interface.But it needs
-> > a workaround for FU540 Chipset on HiFive unleashed board (RevA00).
-> > There is an erratum in FU540 chip that prevents interrupt driven i2c
-> > transfers from working, and also the I2C controller's interrupt bit
-> > cannot be cleared if set, due to this the existing i2c polling mode
-> > interface added in mainline earlier doesn't work, and CPU stall's
-> > infinitely, when-ever i2c transfer is initiated.
-> >
-> > Ref:
-> >       commit dd7dbf0eb090 ("i2c: ocores: refactor setup for polling")
-> >
-> > The workaround / fix under OCORES_FLAG_BROKEN_IRQ is particularly for
-> > FU540-COOO SoC.
-> >
-> > The polling function identifies a SiFive device based on the device node
-> > and enables the workaround.
-> >
-> > Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
->
-> Hi Sagar
->
-> When you repost, you are supposed to add any reviewed-by, or acked-by
-> tags you received.
+Hello Rob,
 
-Sorry Andrew, I missed it.
-I will repost it, with acked by Andrew Lunn as you had Acknowledged it earlier
->
->      Andrew
+Please let me know if this patch is as per your requirements/comments
+you mentioned earlier.
 
-Thanks,
-Sagar
+Thanks & Regards,
+Sagar Kadam
+On Wed, May 29, 2019 at 9:57 AM Sagar Shrikant Kadam
+<sagar.kadam@sifive.com> wrote:
+>
+> Reformatted compatibility strings to one valid combination on
+> each line.
+> Add FU540-C000 specific device tree bindings to already available
+> i2-ocores file. This device is available on
+> HiFive Unleashed Rev A00 board. Move interrupt under optional
+> property list as this can be optional.
+>
+> The FU540-C000 SoC from sifive, has an Opencore's I2C block
+> reimplementation.
+>
+> The DT compatibility string for this IP is present in HDL and available at.
+> https://github.com/sifive/sifive-blocks/blob/master/src/main/scala/devices/i2c/I2C.scala#L73
+>
+> Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-ocores.txt | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
+>
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+> index 17bef9a..6b25a80 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+> @@ -1,9 +1,13 @@
+>  Device tree configuration for i2c-ocores
+>
+>  Required properties:
+> -- compatible      : "opencores,i2c-ocores" or "aeroflexgaisler,i2cmst"
+> +- compatible      : "opencores,i2c-ocores"
+> +                    "aeroflexgaisler,i2cmst"
+> +                    "sifive,fu540-c000-i2c", "sifive,i2c0"
+> +                    For Opencore based I2C IP block reimplemented in
+> +                    FU540-C000 SoC. Please refer to sifive-blocks-ip-versioning.txt
+> +                    for additional details.
+>  - reg             : bus address start and address range size of device
+> -- interrupts      : interrupt number
+>  - clocks          : handle to the controller clock; see the note below.
+>                      Mutually exclusive with opencores,ip-clock-frequency
+>  - opencores,ip-clock-frequency: frequency of the controller clock in Hz;
+> @@ -12,6 +16,7 @@ Required properties:
+>  - #size-cells     : should be <0>
+>
+>  Optional properties:
+> +- interrupts      : interrupt number.
+>  - clock-frequency : frequency of bus clock in Hz; see the note below.
+>                      Defaults to 100 KHz when the property is not specified
+>  - reg-shift       : device register offsets are shifted by this value
+> --
+> 1.9.1
+>
