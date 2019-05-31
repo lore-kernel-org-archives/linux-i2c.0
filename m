@@ -1,44 +1,52 @@
-From: Russell King - ARM Linux admin <linux@armlinux.org.uk>
-Subject: Re: [net-next,v4 0/2] Enable SFP on ACPI based systems
-Date: Fri, 31 May 2019 19:33:20 +0100
-Message-ID: <20190531183320.vrle32ps5jga37pn@shell.armlinux.org.uk>
-References: <20190528230233.26772-1-ruslan@babayev.com>
- <20190530.112759.2023290429676344968.davem@davemloft.net>
- <20190531125751.GB951@kunai>
- <20190531.112208.2148170988874389736.davem@davemloft.net>
+From: Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [PATCH REPOST v8 3/3] i2c-ocores: sifive: add polling mode
+ workaround for FU540-C000 SoC.
+Date: Fri, 31 May 2019 20:52:19 +0200
+Message-ID: <20190531185219.GD23821@lunn.ch>
+References: <1559327423-13001-1-git-send-email-sagar.kadam@sifive.com>
+ <1559327423-13001-4-git-send-email-sagar.kadam@sifive.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <20190531.112208.2148170988874389736.davem@davemloft.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
-Cc: wsa@the-dreams.de, ruslan@babayev.com, mika.westerberg@linux.intel.com, andrew@lunn.ch, f.fainelli@gmail.com, hkallweit1@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
+In-Reply-To: <1559327423-13001-4-git-send-email-sagar.kadam@sifive.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-riscv/>
+List-Post: <mailto:linux-riscv@lists.infradead.org>
+List-Help: <mailto:linux-riscv-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-riscv>,
+ <mailto:linux-riscv-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-riscv" <linux-riscv-bounces@lists.infradead.org>
+Errors-To: linux-riscv-bounces+glpr-linux-riscv=m.gmane.org@lists.infradead.org
+To: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, peter@korsgaard.com, palmer@sifive.com, linux-kernel@vger.kernel.org, robh+dt@kernel.org, linux-i2c@vger.kernel.org, paul.walmsley@sifive.com, linux-riscv@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, May 31, 2019 at 11:22:08AM -0700, David Miller wrote:
-> From: Wolfram Sang <wsa@the-dreams.de>
-> Date: Fri, 31 May 2019 14:57:52 +0200
+On Sat, Jun 01, 2019 at 12:00:23AM +0530, Sagar Shrikant Kadam wrote:
+> The i2c-ocore driver already has a polling mode interface.But it needs
+> a workaround for FU540 Chipset on HiFive unleashed board (RevA00).
+> There is an erratum in FU540 chip that prevents interrupt driven i2c
+> transfers from working, and also the I2C controller's interrupt bit
+> cannot be cleared if set, due to this the existing i2c polling mode
+> interface added in mainline earlier doesn't work, and CPU stall's
+> infinitely, when-ever i2c transfer is initiated.
 > 
-> >> Series applied.
-> > 
-> > Could you make a small immutable branch for me to pull into my I2C tree?
-> > I have some changes for i2c.h pending and want to minimize merge
-> > conflicts.
+> Ref:
+> 	commit dd7dbf0eb090 ("i2c: ocores: refactor setup for polling")
 > 
-> I already put other changes into net-next and also just merged 'net'
-> into 'net-next' and pushed that out to git.kernel.org, so I don't know
-> how I can still do that for you.
+> The workaround / fix under OCORES_FLAG_BROKEN_IRQ is particularly for
+> FU540-COOO SoC.
 > 
-> If it's still possible I'm willing to learn just show me what to do :)
+> The polling function identifies a SiFive device based on the device node
+> and enables the workaround.
+> 
+> Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
+> Acked-by: Andrew Lunn <andrew@lunn.ch>
 
-i don't think it's possible - not with the changes having already
-been merged yesterday, and presumably published shortly thereafter.
+Please read:
 
-The tree contains 231 other changes wrt 5.2-rc2 up to the requested
-point, which I doubt Wolfram will want.
+https://lkml.org/lkml/2019/5/22/954
 
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line in suburbia: sync at 12.1Mbps down 622kbps up
-According to speedtest.net: 11.9Mbps down 500kbps up
+	Andrew
