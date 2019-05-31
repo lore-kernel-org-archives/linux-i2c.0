@@ -1,107 +1,44 @@
-From: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-Subject: [PATCH REPOST v8 3/3] i2c-ocores: sifive: add polling mode workaround for FU540-C000 SoC.
-Date: Sat,  1 Jun 2019 00:00:23 +0530
-Message-ID: <1559327423-13001-4-git-send-email-sagar.kadam@sifive.com>
-References: <1559327423-13001-1-git-send-email-sagar.kadam@sifive.com>
+From: Russell King - ARM Linux admin <linux@armlinux.org.uk>
+Subject: Re: [net-next,v4 0/2] Enable SFP on ACPI based systems
+Date: Fri, 31 May 2019 19:33:20 +0100
+Message-ID: <20190531183320.vrle32ps5jga37pn@shell.armlinux.org.uk>
+References: <20190528230233.26772-1-ruslan@babayev.com>
+ <20190530.112759.2023290429676344968.davem@davemloft.net>
+ <20190531125751.GB951@kunai>
+ <20190531.112208.2148170988874389736.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1559327423-13001-1-git-send-email-sagar.kadam@sifive.com>
+Content-Disposition: inline
+In-Reply-To: <20190531.112208.2148170988874389736.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: robh+dt@kernel.org, mark.rutland@arm.com, peter@korsgaard.com, andrew@lunn.ch, palmer@sifive.com, paul.walmsley@sifive.com, sagar.kadam@sifive.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: wsa@the-dreams.de, ruslan@babayev.com, mika.westerberg@linux.intel.com, andrew@lunn.ch, f.fainelli@gmail.com, hkallweit1@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The i2c-ocore driver already has a polling mode interface.But it needs
-a workaround for FU540 Chipset on HiFive unleashed board (RevA00).
-There is an erratum in FU540 chip that prevents interrupt driven i2c
-transfers from working, and also the I2C controller's interrupt bit
-cannot be cleared if set, due to this the existing i2c polling mode
-interface added in mainline earlier doesn't work, and CPU stall's
-infinitely, when-ever i2c transfer is initiated.
+On Fri, May 31, 2019 at 11:22:08AM -0700, David Miller wrote:
+> From: Wolfram Sang <wsa@the-dreams.de>
+> Date: Fri, 31 May 2019 14:57:52 +0200
+> 
+> >> Series applied.
+> > 
+> > Could you make a small immutable branch for me to pull into my I2C tree?
+> > I have some changes for i2c.h pending and want to minimize merge
+> > conflicts.
+> 
+> I already put other changes into net-next and also just merged 'net'
+> into 'net-next' and pushed that out to git.kernel.org, so I don't know
+> how I can still do that for you.
+> 
+> If it's still possible I'm willing to learn just show me what to do :)
 
-Ref:
-	commit dd7dbf0eb090 ("i2c: ocores: refactor setup for polling")
+i don't think it's possible - not with the changes having already
+been merged yesterday, and presumably published shortly thereafter.
 
-The workaround / fix under OCORES_FLAG_BROKEN_IRQ is particularly for
-FU540-COOO SoC.
+The tree contains 231 other changes wrt 5.2-rc2 up to the requested
+point, which I doubt Wolfram will want.
 
-The polling function identifies a SiFive device based on the device node
-and enables the workaround.
-
-Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-Acked-by: Andrew Lunn <andrew@lunn.ch>
----
- drivers/i2c/busses/i2c-ocores.c | 24 ++++++++++++++++++++++--
- 1 file changed, 22 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index b334fa2..4117f1a 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -35,6 +35,7 @@ struct ocores_i2c {
- 	int iobase;
- 	u32 reg_shift;
- 	u32 reg_io_width;
-+	unsigned long flags;
- 	wait_queue_head_t wait;
- 	struct i2c_adapter adap;
- 	struct i2c_msg *msg;
-@@ -84,6 +85,8 @@ struct ocores_i2c {
- #define TYPE_GRLIB		1
- #define TYPE_SIFIVE_REV0	2
- 
-+#define OCORES_FLAG_BROKEN_IRQ BIT(1) /* Broken IRQ for FU540-C000 SoC */
-+
- static void oc_setreg_8(struct ocores_i2c *i2c, int reg, u8 value)
- {
- 	iowrite8(value, i2c->base + (reg << i2c->reg_shift));
-@@ -236,9 +239,12 @@ static irqreturn_t ocores_isr(int irq, void *dev_id)
- 	struct ocores_i2c *i2c = dev_id;
- 	u8 stat = oc_getreg(i2c, OCI2C_STATUS);
- 
--	if (!(stat & OCI2C_STAT_IF))
-+	if (i2c->flags & OCORES_FLAG_BROKEN_IRQ) {
-+		if ((stat & OCI2C_STAT_IF) && !(stat & OCI2C_STAT_BUSY))
-+			return IRQ_NONE;
-+	} else if (!(stat & OCI2C_STAT_IF)) {
- 		return IRQ_NONE;
--
-+	}
- 	ocores_process(i2c, stat);
- 
- 	return IRQ_HANDLED;
-@@ -353,6 +359,11 @@ static void ocores_process_polling(struct ocores_i2c *i2c)
- 		ret = ocores_isr(-1, i2c);
- 		if (ret == IRQ_NONE)
- 			break; /* all messages have been transferred */
-+		else {
-+			if (i2c->flags & OCORES_FLAG_BROKEN_IRQ)
-+				if (i2c->state == STATE_DONE)
-+					break;
-+		}
- 	}
- }
- 
-@@ -595,6 +606,7 @@ static int ocores_i2c_probe(struct platform_device *pdev)
- {
- 	struct ocores_i2c *i2c;
- 	struct ocores_i2c_platform_data *pdata;
-+	const struct of_device_id *match;
- 	struct resource *res;
- 	int irq;
- 	int ret;
-@@ -677,6 +689,14 @@ static int ocores_i2c_probe(struct platform_device *pdev)
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq == -ENXIO) {
- 		ocores_algorithm.master_xfer = ocores_xfer_polling;
-+
-+		/*
-+		 * Set in OCORES_FLAG_BROKEN_IRQ to enable workaround for
-+		 * FU540-C000 SoC in polling mode.
-+		 */
-+		match = of_match_node(ocores_i2c_match, pdev->dev.of_node);
-+		if (match && (long)match->data == TYPE_SIFIVE_REV0)
-+			i2c->flags |= OCORES_FLAG_BROKEN_IRQ;
- 	} else {
- 		if (irq < 0)
- 			return irq;
 -- 
-1.9.1
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line in suburbia: sync at 12.1Mbps down 622kbps up
+According to speedtest.net: 11.9Mbps down 500kbps up
