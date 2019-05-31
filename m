@@ -1,76 +1,59 @@
 From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: Re: [PATCH] eeprom: at24: use struct_size() in devm_kzalloc()
-Date: Fri, 31 May 2019 09:10:06 +0200
-Message-ID: <CAMpxmJV_RQ-V8DMfsOSqRjY_HAys4cpmppUCffCwDWCrFchmLQ@mail.gmail.com>
-References: <20190529163052.GA29158@embeddedor>
+Subject: Re: [PATCH -next] eeprom: at24: Remove set but not used variable 'addr'
+Date: Fri, 31 May 2019 09:10:25 +0200
+Message-ID: <CAMpxmJVDk1whp+YJXJO7QZKOR0e_EkU4TakJqRei0xF5Ay_Log@mail.gmail.com>
+References: <20190529145954.14500-1-yuehaibing@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190529163052.GA29158@embeddedor>
+In-Reply-To: <20190529145954.14500-1-yuehaibing@huawei.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-i2c <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: YueHaibing <yuehaibing@huawei.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg KH <gregkh@linuxfoundation.org>, LKML <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-=C5=9Br., 29 maj 2019 o 18:30 Gustavo A. R. Silva <gustavo@embeddedor.com>
-napisa=C5=82(a):
+=C5=9Br., 29 maj 2019 o 17:00 YueHaibing <yuehaibing@huawei.com> napisa=C5=
+=82(a):
 >
-> One of the more common cases of allocation size calculations is finding
-> the size of a structure that has a zero-sized array at the end, along
-> with memory for some number of elements for that array. For example:
+> Fixes gcc '-Wunused-but-set-variable' warning:
 >
-> struct foo {
->     int stuff;
->     struct boo entry[];
-> };
+> drivers/misc/eeprom/at24.c: In function at24_make_dummy_client:
+> drivers/misc/eeprom/at24.c:514:21: warning: variable addr set but not use=
+d [-Wunused-but-set-variable]
 >
-> size =3D sizeof(struct foo) + count * sizeof(struct boo);
-> instance =3D devm_kzalloc(dev, size, GFP_KERNEL);
+> It's not used since commit e7308628d0ae ("eeprom:
+> at24: use devm_i2c_new_dummy_device()")
 >
-> Instead of leaving these open-coded and prone to type mistakes, we can
-> now use the new struct_size() helper:
->
-> instance =3D devm_kzalloc(dev, struct_size(instance, entry, count), GFP_K=
-ERNEL);
->
-> Notice that, in this case, variable at24_size is not necessary, hence it
-> is removed.
->
-> This code was detected with the help of Coccinelle.
->
-> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 > ---
->  drivers/misc/eeprom/at24.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
+>  drivers/misc/eeprom/at24.c | 2 --
+>  1 file changed, 2 deletions(-)
 >
 > diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index ba8e73812644..78ba6b1917a8 100644
+> index ba8e73812644..fa730bb342e8 100644
 > --- a/drivers/misc/eeprom/at24.c
 > +++ b/drivers/misc/eeprom/at24.c
-> @@ -568,7 +568,6 @@ static int at24_probe(struct i2c_client *client)
->         unsigned int i, num_addresses;
->         struct at24_data *at24;
+> @@ -511,13 +511,11 @@ static int at24_make_dummy_client(struct at24_data =
+*at24, unsigned int index,
+>                                   struct regmap_config *regmap_config)
+>  {
+>         struct i2c_client *base_client, *dummy_client;
+> -       unsigned short int addr;
 >         struct regmap *regmap;
-> -       size_t at24_size;
->         bool writable;
->         u8 test_byte;
->         int err;
-> @@ -652,8 +651,8 @@ static int at24_probe(struct i2c_client *client)
->         if (IS_ERR(regmap))
->                 return PTR_ERR(regmap);
+>         struct device *dev;
 >
-> -       at24_size =3D sizeof(*at24) + num_addresses * sizeof(struct at24_=
-client);
-> -       at24 =3D devm_kzalloc(dev, at24_size, GFP_KERNEL);
-> +       at24 =3D devm_kzalloc(dev, struct_size(at24, client, num_addresse=
-s),
-> +                           GFP_KERNEL);
->         if (!at24)
->                 return -ENOMEM;
+>         base_client =3D at24->client[0].client;
+>         dev =3D &base_client->dev;
+> -       addr =3D base_client->addr + index;
 >
+>         dummy_client =3D devm_i2c_new_dummy_device(dev, base_client->adap=
+ter,
+>                                                  base_client->addr + inde=
+x);
 > --
-> 2.21.0
+> 2.17.1
+>
 >
 
 Applied, thanks!
