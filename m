@@ -1,52 +1,31 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: David Miller <davem@davemloft.net>
 Subject: Re: [net-next,v4 0/2] Enable SFP on ACPI based systems
-Date: Fri, 31 May 2019 14:57:52 +0200
-Message-ID: <20190531125751.GB951@kunai>
+Date: Fri, 31 May 2019 11:22:08 -0700 (PDT)
+Message-ID: <20190531.112208.2148170988874389736.davem@davemloft.net>
 References: <20190528230233.26772-1-ruslan@babayev.com>
- <20190530.112759.2023290429676344968.davem@davemloft.net>
+        <20190530.112759.2023290429676344968.davem@davemloft.net>
+        <20190531125751.GB951@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="5I6of5zJg18YgZEa"
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190530.112759.2023290429676344968.davem@davemloft.net>
+In-Reply-To: <20190531125751.GB951@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
+To: wsa@the-dreams.de
 Cc: ruslan@babayev.com, mika.westerberg@linux.intel.com, linux@armlinux.org.uk, andrew@lunn.ch, f.fainelli@gmail.com, hkallweit1@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+From: Wolfram Sang <wsa@the-dreams.de>
+Date: Fri, 31 May 2019 14:57:52 +0200
 
---5I6of5zJg18YgZEa
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+>> Series applied.
+> 
+> Could you make a small immutable branch for me to pull into my I2C tree?
+> I have some changes for i2c.h pending and want to minimize merge
+> conflicts.
 
-Hi David,
+I already put other changes into net-next and also just merged 'net'
+into 'net-next' and pushed that out to git.kernel.org, so I don't know
+how I can still do that for you.
 
-> Series applied.
-
-Could you make a small immutable branch for me to pull into my I2C tree?
-I have some changes for i2c.h pending and want to minimize merge
-conflicts.
-
-
---5I6of5zJg18YgZEa
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzxJM8ACgkQFA3kzBSg
-Kbb1wA//fn1qdw/P/G4yYAQFHakA9HK+3BNgDFHQN/ZdkCgDS26rlttDdYLIadRl
-IphKCvNM3KLp38dlIOPUbtXGMHbNGNLTARUe13eQGSnI2EPhAjMot9CRWlRzAzFO
-NzFG7OgtL1t8zv/ttDiJl4RD4+N4TR9s3s2mqNdDRIyWXj3ltSU6wy4AgYEbiAWP
-39Hp+Tk+xCfvo4ZSOEGQWijMpMjc6LNFtCvd5M7Dv8kBeSAA6bNdVlvLZcw/+fc4
-MyWfbf3ROERN4m8hlYEBskJDNQPapnQeOGwsX0L1qD+uUaisz2UHW6YK7RE49/oO
-cee9ITU7Nq+ru1QfSLRvJa0THZ3YRT1Zha3XU5yPVELLf237yJ0htfrDj49L8UKU
-p9pQmBpRCM9ZtrHfcYNykimrgA+xHStwLL0qCFbiyKjLbN1M8ru7+331BalYIYZ2
-U5ZcjDW5niA5IEDOtDkcDfup77yYlQTiuS1j8KHPzBnFOz0nPezSeJkIuIK5aPoH
-nqUKtfIk6sSJ7xrQW5HPEq7pRnjHvjToz1wpL0n5d6W5JnppcPwdIiK1PJaYBZd9
-6V+EXMlPuqwaxLTFxT/eyXhWtGolXN6HQwaITaLSCTIfGq9UOAebK6d1AvdLLq77
-LTk8JZusICbWyGl+6j8fprxQNBfGUonOQNgy8QpzZI3QqRnbgCA=
-=89Ll
------END PGP SIGNATURE-----
-
---5I6of5zJg18YgZEa--
+If it's still possible I'm willing to learn just show me what to do :)
