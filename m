@@ -1,35 +1,54 @@
-From: Dmitry Osipenko <digetx@gmail.com>
-Subject: Re: [PATCH V2] drivers: i2c: tegra: fix checkpatch defects
-Date: Fri, 31 May 2019 15:45:06 +0300
-Message-ID: <2d83ad21-b012-1b3e-fc9a-741972ee3ba9@gmail.com>
-References: <1559196850-7007-1-git-send-email-bbiswas@nvidia.com>
- <e9e3d8b0-a76a-81a9-1110-2d07ba1c787f@gmail.com>
- <911e52ed-8f3c-583a-7610-e38723219eca@gmail.com>
- <b86b9104-1754-531f-70b9-3c1a5d347b9b@nvidia.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [net-next,v4 0/2] Enable SFP on ACPI based systems
+Date: Fri, 31 May 2019 14:56:28 +0200
+Message-ID: <20190531125628.GA951@kunai>
+References: <20190528230233.26772-1-ruslan@babayev.com>
+ <20190529094818.GF2781@lahna.fi.intel.com>
+ <20190529155132.GZ18059@lunn.ch>
+ <20190531062740.GQ2781@lahna.fi.intel.com>
+ <20190531064842.GA1058@kunai>
+ <20190531120513.GB18608@lunn.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <b86b9104-1754-531f-70b9-3c1a5d347b9b@nvidia.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190531120513.GB18608@lunn.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bitan Biswas <bbiswas@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Ruslan Babayev <ruslan@babayev.com>, linux@armlinux.org.uk, f.fainelli@gmail.com, hkallweit1@gmail.com, davem@davemloft.net, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-31.05.2019 12:04, Bitan Biswas пишет:
-> 
-> 
-> On 5/30/19 4:43 AM, Dmitry Osipenko wrote:
->> 30.05.2019 14:36, Dmitry Osipenko пишет:
->>> 30.05.2019 9:14, Bitan Biswas пишет:
->>>> Fix checkpatch.pl warning(s)/error(s)/check(s) in i2c-tegra.c
->>>> except for BUG/BUG_ON checks
->>>
->>> Please turn the BUG_ON's into WARN_ON's. The machine won't go on fire,
->>> hence there is absolutely no good reason in making system unusable on a
->>> software bug. BUG_ON may be more useful for development, but not for a
->>> casual daily usage.
-> I shall update the patch to remove the BUG/BUG_ON calls.
 
-Please replace them with WARN_ON_ONCE.
+--DocE+STaALJfprDB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+> Maybe he can create a smaller immutable branch for you.
+
+Yeah, that's what I was basically asking for, but probably should reply
+to his mail.
+
+
+--DocE+STaALJfprDB
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzxJHcACgkQFA3kzBSg
+KbZ/Zg/+N3b5FeN2MagU71YxoN8a9FgQsNW7Sy0U8X1de5MHBp+3lifh3mkDGf7j
+BnxWA8GzyHMhabtHy4N8GVhnb7f0jFTgTI3bvhsklvOkicG1k7O6IK4nUx7ddUqd
+/bb/PEFj0EEIACra2itO45dxh+mHhiPQPproTzJCoHJ9V68evyft9fxqMczLZlgL
+2BOOo0gPG4n4WEhpyXGp3ecaEqpTBZwjuZVSRdGajXkGFGVWsxFEqtLnGMoe7IOo
+YS4Wuz6fGch0F46TvYVf5sI2R8QuejUpJ5Op34kseinniCQ1JRoTOlLj6pueWVFp
+DWnw3U7bgPApwwkYIfdVWXMS8CYBHvrxqtavJNBxTcYrWfL/AAsCH0Lg4HkUKDjv
+ycnC66plq2BMk3KlmMftmCwaVbAlIUvKLQoLsLiEChTS2W7ctppq6A9oOonhuPzH
+3aWqS2oQwHm1FRus1uC1K2j/eWMOojiZUsFIL428BeJPZjPu0n2IK3qp0K28pktK
+hxyUiFt3YrC82mCO7VFX0dUvFHAJ2H5rniWlt5XbDv1kRQW/TpaTQfz9kPWfn0Ud
+50+duo5d5Qxxa5XnZuKwCNBf2qd8Qut+xVZjSv0jx/9bR6fqUb2Ko4MkeE7MShEO
+003MzY6cj/PRBBE1PBLh/EI8JFIT23s4EQYxkxxJkUs04atRPZc=
+=BnCX
+-----END PGP SIGNATURE-----
+
+--DocE+STaALJfprDB--
