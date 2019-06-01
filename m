@@ -1,13 +1,12 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 5/8] MAINTAINERS: add I2C DT bindings to Rockchip platform
-Date: Sat, 1 Jun 2019 13:40:13 +0200
-Message-ID: <20190601114013.GB1993@kunai>
+Subject: Re: [PATCH 0/8] arm: add I2C DT binding docs to various platforms
+Date: Sat, 1 Jun 2019 13:40:58 +0200
+Message-ID: <20190601114057.GD1993@kunai>
 References: <20190521082137.2889-1-wsa@the-dreams.de>
- <20190521082137.2889-6-wsa@the-dreams.de> <2847662.8Nn05j9K3f@phil>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6462828992298005958=="
+Content-Type: multipart/mixed; boundary="===============6615525343984428413=="
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <2847662.8Nn05j9K3f@phil>
+In-Reply-To: <20190521082137.2889-1-wsa@the-dreams.de>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -17,55 +16,54 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Heiko Stuebner <heiko@sntech.de>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============6462828992298005958==
+--===============6615525343984428413==
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="EuxKj2iCbKjpUGkD"
+	protocol="application/pgp-signature"; boundary="cQXOx3fnlpmgJsTP"
 Content-Disposition: inline
 
 
---EuxKj2iCbKjpUGkD
+--cQXOx3fnlpmgJsTP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
+On Tue, May 21, 2019 at 10:21:29AM +0200, Wolfram Sang wrote:
+> Some I2C drivers entries in MAINTAINERS miss their DT bindings docs.
+> This series fixes that. Because these drivers are all embedded in their
+> platform entries, I suggest the respective maintainers pick them up via
+> their tree. If you prefer that I take them via I2C, let me know.
 
-> not sure if you want me to apply this or just want to pick it up
-> yourself (I don't have a hard preference here). In any case, if you
-> want to pick it up, it is obviously
-
-I wrote in the cover-letter that I prefer individual trees, but it was
-obviously a bad place to put this information :) I applied all of them
-now to my tree.
+Series applied to for-current!
 
 
---EuxKj2iCbKjpUGkD
+--cQXOx3fnlpmgJsTP
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzyZB0ACgkQFA3kzBSg
-Kba11Q/5AV9hlZwLtWZWE/tE2Uv19SMgNFUfEG77ztCK9v7CC8Q7R25f4Apo874p
-q0dpNtr+s6B1e0RitDSIWcLIq5rselMu0pAreLoVYQg26JFDgycX7CC4g44yP//z
-acFmPlvFCbV0PxruHdHj8cW68q1d8zKxz74ovjhmulXxFGSsHv6jpCDPGMi0naZ1
-ZcGBzJSQ9G9niEFBghCganhjQijT8qkkHEQeo1TbZpk2Lttg9MsYKy8kis7m8Poo
-tHPUl+PxtaweRqyMaiqpST5EIM4w/EMpghsvYte89XatCX+cXlxIfj6Cng19rIgl
-zPeYw2Iz8caf5ZzenoJeNl9GluoiCoNkgzQ44ebKY9+bgsxj0da5m6vBjLwFdjHC
-FUKENYNt8KZOIGV5Mlzkf1j/baeqCdjYB+BbZY4yIjk806pIGnLxXh1z7tTAQUaS
-VlQ2VQBfhuRMIsRJ/fpcKzUwqIehaUV2CjuCbbcpjdl+vlmHEIxMOYzFzTO61UD3
-seILueIOKuTLtqGEusyaYq6qlpEgxumHXnshTHQsZgJudqwWSKFwWsIcnkTEiHRg
-d3+u/L4ddYbuLcqmcFedIGD+EwAJDOIqLGnsQtHZNSk1ZKBdDIB/rnv9lsm08hC8
-te4hoVIU2/hQFSg1h5Ag5ptj1IAVmVlaH+qAkZrHvye85jpih1A=
-=jkah
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzyZEkACgkQFA3kzBSg
+KbZBKQ/+J6xdC3F2JIYkJ0e0Ru0FGHiSqVM11jQh/EUyMUWXXwTdyNBO3qyENIEO
+sVFLcJSINSMYWAEB2KR1qnhCYC8JVNSmhy5/hbc5Qhl5AOAQ6gv7m2zEnX0R3S0V
+dJc0+xXhOQZWQZdG033+MAKdlMcz+1EslOs4JnHCWBQcT9saB3jlk2zEY1VLnJEK
+xgM/TvQGA3WL1FNtHBn7hdb0ZmcxBlIeHvW7WefoVLCeK2r+05k/UzfW+pDMhZB5
++K7uU4g9wyXA1U+KSHtnZyqUtv2XxnRHMNdwG7LMHq5oTLynqu168odEkTDMaaI6
+lXjqMIN9iZVD5OqNbugLbVHBSdxcmFqcmvUxXtQhL2/+tH0x9c2BFPqqlB0BhcVm
+uMwGwkE5AQbO/Foide6AOBtHAXrjCy2pZPbktW2BQIE2Cc7VkIWRo2URZsdrS+nL
+t8cgYYMDi3dIlfdU1n1KMyTuO6fspbTPHa8tP0dDlux0o6A38yRLbTWs1VFimhS/
+Y0+nkBY0oCbmoBXcEwGr1iSkby4MJRxzwj0m850k6rCtq8kMziBgJVetzHHPoRU3
+gjgCgr+LMqwItJ79LeWv9nevjJIwMLhxuq8ivzGMOT/udJTUSZ41laXY2kv9ZXsg
+O1jQhoR5bjZrCZ5GIeJ9MJfdSHIG3vUUf1Fl/A0QrzDJFgIgljY=
+=zv7P
 -----END PGP SIGNATURE-----
 
---EuxKj2iCbKjpUGkD--
+--cQXOx3fnlpmgJsTP--
 
 
---===============6462828992298005958==
+--===============6615525343984428413==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -76,4 +74,4 @@ linux-arm-kernel mailing list
 linux-arm-kernel@lists.infradead.org
 http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
---===============6462828992298005958==--
+--===============6615525343984428413==--
