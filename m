@@ -1,99 +1,49 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 5.2
-Date: Sun, 2 Jun 2019 08:24:02 +0200
-Message-ID: <20190602062356.GA1616@kunai>
+From: Stefan Wahren <stefan.wahren@i2se.com>
+Subject: Re: [PATCH v3] i2c: bcm2835: Model Divider in CCF
+Date: Sun, 2 Jun 2019 09:40:54 +0200
+Message-ID: <31580e1f-60d2-f13b-dcfe-6bc6e75e9285@i2se.com>
+References: <20190529042912.12956-1-nh6z@nh6z.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190529042912.12956-1-nh6z@nh6z.net>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Annaliese McDermond <nh6z@nh6z.net>, eric@anholt.net, f.fainelli@gmail.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
+Cc: team@nwdigitalradio.com
 List-Id: linux-i2c@vger.kernel.org
 
+Am 29.05.19 um 06:29 schrieb Annaliese McDermond:
+> Model the I2C bus clock divider as a part of the Core Clock Framework.
+> Primarily this removes the clk_get_rate() call from each transfer.
+> This call causes problems for slave drivers that themselves have
+> internal clock components that are controlled by an I2C interface.
+> When the slave's internal clock component is prepared, the prepare
+> lock is obtained, and it makes calls to the I2C subsystem to
+> command the hardware to activate the clock.  In order to perform
+> the I2C transfer, this driver sets the divider, which requires
+> it to get the parent clock rate, which it does with clk_get_rate().
+> Unfortunately, this function will try to take the clock prepare
+> lock, which is already held by the slave's internal clock calls
+> creating a deadlock.
+>
+> Modeling the divider in the CCF natively removes this dependency
+> and the divider value is only set upon changing the bus clock
+> frequency or changes in the parent clock that cascade down to this
+> divisor.  This obviates the need to set the divider with every
+> transfer and avoids the deadlock described above.  It also should
+> provide better clock debugging and save a few cycles on each
+> transfer due to not having to recalcuate the divider value.
+>
+> Signed-off-by: Annaliese McDermond <nh6z@nh6z.net>
 
---9jxsPFA5p3P2qPhR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Linus,
-
-I2C has for you a memleak fix for the core, two driver bugfixes, as well
-as fixing missing file patterns to MAINTAINERS.
-
-Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit cd6c84d8f0cdc911df435bb075ba22ce3c605b07:
-
-  Linux 5.2-rc2 (2019-05-26 16:49:19 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to c8552db31d5e70f0311be031b22292bf256791da:
-
-  MAINTAINERS: add I2C DT bindings to ARM platforms (2019-06-01 14:52:13 +0200)
-
-----------------------------------------------------------------
-Masahisa Kojima (1):
-      i2c: synquacer: fix synquacer_i2c_doxfer() return value
-
-Vadim Pasternak (1):
-      i2c: mlxcpld: Fix wrong initialization order in probe
-
-Wolfram Sang (2):
-      MAINTAINERS: add DT bindings to i2c drivers
-      MAINTAINERS: add I2C DT bindings to ARM platforms
-
-Yingjoe Chen (1):
-      i2c: dev: fix potential memory leak in i2cdev_ioctl_rdwr
-
-
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Andrew Lunn (1):
-      (Rev.) MAINTAINERS: add DT bindings to i2c drivers
-
-Heiko Stuebner (1):
-      (Rev.) MAINTAINERS: add I2C DT bindings to ARM platforms
-
-Linus Walleij (1):
-      (Rev.) MAINTAINERS: add I2C DT bindings to ARM platforms
-
-Michal Simek (1):
-      (Rev.) MAINTAINERS: add I2C DT bindings to ARM platforms
-
- MAINTAINERS                        | 18 ++++++++++++++++++
- drivers/i2c/busses/i2c-mlxcpld.c   |  2 +-
- drivers/i2c/busses/i2c-synquacer.c |  2 +-
- drivers/i2c/i2c-dev.c              |  1 +
- 4 files changed, 21 insertions(+), 2 deletions(-)
-
---9jxsPFA5p3P2qPhR
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzza3cACgkQFA3kzBSg
-KbYKVRAAtJp1SvqEyUMCJKsSvsj67n7lEiL6A+YEDHqjU4joBDorP/x8ZnnWnVgl
-T7MK1bQaiDxMOkyhSax+iFu+ufRigYlB+7He5zm+jvqbAkHVOn1BNY7ROF+up4n6
-HGP1xsoQBWCMsz6HeXyL/WDJ3yLUVt9tz8tpaBlBKpmUOZUdnHJKUUIft3tuIhZ7
-FT+LVrtQfYewUiKBajM8DK+8+YlJt0ttNhdD1BazTuP2ZyQhF6+KZXzNUOCM3UeE
-9pMDiJaFI0lskHKSNu0OS18kgoCCXll0o79iFbOOKyZtPkgThvg01TuSssrk/n4I
-livz1w6KKx/AExhcld7qIX322pjznXkcl0UrGPL9/7vrdjrml17FErWZG4sHUeXZ
-DdALAo+oQVsJymaHnEaPPU8b3vJKzk3TVv/qpWbsfWYjvOW0nKkFfojhp8j39EXm
-OF87XcyW6VjEIASY65DJFgEl7z7ngqFEyju6XIthx060UBrnFrXSoUF1ZuqkzjJP
-eKZgBTaF7T50CSnj9uIQNaVkZ8nkOcmj6EAPsj4fZ4ByiGnp92cvTKGXMkZKtvPp
-xB+VfG3X+umLXTZJjZ4WHOgoWpnGPqz0DMDsoYeBcSAHlmbYOKwE4V42Ez04cWT8
-6KxBMfG9RXe0TyF0kTFGw0p9+nq3bSQc48CfdW2KhY11IOLPByI=
-=QTnz
------END PGP SIGNATURE-----
-
---9jxsPFA5p3P2qPhR--
+Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
