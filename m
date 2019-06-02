@@ -1,54 +1,99 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [net-next,v4 0/2] Enable SFP on ACPI based systems
-Date: Sat, 1 Jun 2019 14:47:26 +0200
-Message-ID: <20190601124726.GB11008@kunai>
-References: <20190528230233.26772-1-ruslan@babayev.com>
- <20190530.112759.2023290429676344968.davem@davemloft.net>
- <20190531125751.GB951@kunai>
- <20190531.112208.2148170988874389736.davem@davemloft.net>
+Subject: [PULL REQUEST] i2c for 5.2
+Date: Sun, 2 Jun 2019 08:24:02 +0200
+Message-ID: <20190602062356.GA1616@kunai>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="0eh6TmSyL6TZE2Uz"
+        protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190531.112208.2148170988874389736.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
-Cc: ruslan@babayev.com, mika.westerberg@linux.intel.com, linux@armlinux.org.uk, andrew@lunn.ch, f.fainelli@gmail.com, hkallweit1@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
 
---0eh6TmSyL6TZE2Uz
+--9jxsPFA5p3P2qPhR
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
+Linus,
 
-> I already put other changes into net-next and also just merged 'net'
-> into 'net-next' and pushed that out to git.kernel.org, so I don't know
-> how I can still do that for you.
+I2C has for you a memleak fix for the core, two driver bugfixes, as well
+as fixing missing file patterns to MAINTAINERS.
 
-Okay, it is just one patch. I will apply it to my tree as well. Should
-be good enough.
+Please pull.
+
+Thanks,
+
+   Wolfram
 
 
---0eh6TmSyL6TZE2Uz
+The following changes since commit cd6c84d8f0cdc911df435bb075ba22ce3c605b07:
+
+  Linux 5.2-rc2 (2019-05-26 16:49:19 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to c8552db31d5e70f0311be031b22292bf256791da:
+
+  MAINTAINERS: add I2C DT bindings to ARM platforms (2019-06-01 14:52:13 +0200)
+
+----------------------------------------------------------------
+Masahisa Kojima (1):
+      i2c: synquacer: fix synquacer_i2c_doxfer() return value
+
+Vadim Pasternak (1):
+      i2c: mlxcpld: Fix wrong initialization order in probe
+
+Wolfram Sang (2):
+      MAINTAINERS: add DT bindings to i2c drivers
+      MAINTAINERS: add I2C DT bindings to ARM platforms
+
+Yingjoe Chen (1):
+      i2c: dev: fix potential memory leak in i2cdev_ioctl_rdwr
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Andrew Lunn (1):
+      (Rev.) MAINTAINERS: add DT bindings to i2c drivers
+
+Heiko Stuebner (1):
+      (Rev.) MAINTAINERS: add I2C DT bindings to ARM platforms
+
+Linus Walleij (1):
+      (Rev.) MAINTAINERS: add I2C DT bindings to ARM platforms
+
+Michal Simek (1):
+      (Rev.) MAINTAINERS: add I2C DT bindings to ARM platforms
+
+ MAINTAINERS                        | 18 ++++++++++++++++++
+ drivers/i2c/busses/i2c-mlxcpld.c   |  2 +-
+ drivers/i2c/busses/i2c-synquacer.c |  2 +-
+ drivers/i2c/i2c-dev.c              |  1 +
+ 4 files changed, 21 insertions(+), 2 deletions(-)
+
+--9jxsPFA5p3P2qPhR
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzyc94ACgkQFA3kzBSg
-Kba1Xg//aW4eaS0Z0rjf0K6tZgQP/48mTRKsBSGJbqDaoTdMP4K0tJjB8hmIvCzL
-LLS5ydN6/w5izMs4NF3SpyrvU7AXTUwVj8ikR7PEZogYdD2vd2MBQYfdPOWwbQXC
-WMghLuaGV/6OBoS3f13yjm+yrdVv5cVzwZI7abdgbIR2QEz+wKHaYnmyUbu+YRzH
-itWmNRtFsiTYhJv+DKZrjz6HzbK+F9zKVNU03nt0coIAFmiYDxCBM23wzacMH56p
-KtnW1RvsYId7x+Rbvk9I6c9YNJ8Rt+ttHOJwDOebY54jfQQt/2K+guhTEi+SDMm9
-gjsH1XbZyhj6I9hr4aaK8jAf6n8gmUtqvO78rKKmXJ5WbIo80Vc1/7aUykKk+2yv
-te3Yyiwqj8la57z6x64CtfeA6irEIj9tVXuKslNxJwguR8k/kqDIO5f0qawfi7Ti
-ZYxOC/JG2dnWp5Y/Cea1oM5b5J2JMIiCYpe84k4rosqaHUgJhjAO1VhhUpJhiYVD
-rtyfjdKqAUqx0sQo/K1Cji04QnMWJgDbiwaCCtsoEqScUV/JLj1efLn+r4VoP1BD
-u+69vxyf4hHGoeDK1qvjwbKxHToPjkI+NqsPSqGQCBJJvIkXG7QXQZWROJZ2OcBX
-SdGkrtvqKSz1Nr0QzGfjdEDm7Qrka31s+dxeKcDGvc85mSyLOaw=
-=i+6S
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlzza3cACgkQFA3kzBSg
+KbYKVRAAtJp1SvqEyUMCJKsSvsj67n7lEiL6A+YEDHqjU4joBDorP/x8ZnnWnVgl
+T7MK1bQaiDxMOkyhSax+iFu+ufRigYlB+7He5zm+jvqbAkHVOn1BNY7ROF+up4n6
+HGP1xsoQBWCMsz6HeXyL/WDJ3yLUVt9tz8tpaBlBKpmUOZUdnHJKUUIft3tuIhZ7
+FT+LVrtQfYewUiKBajM8DK+8+YlJt0ttNhdD1BazTuP2ZyQhF6+KZXzNUOCM3UeE
+9pMDiJaFI0lskHKSNu0OS18kgoCCXll0o79iFbOOKyZtPkgThvg01TuSssrk/n4I
+livz1w6KKx/AExhcld7qIX322pjznXkcl0UrGPL9/7vrdjrml17FErWZG4sHUeXZ
+DdALAo+oQVsJymaHnEaPPU8b3vJKzk3TVv/qpWbsfWYjvOW0nKkFfojhp8j39EXm
+OF87XcyW6VjEIASY65DJFgEl7z7ngqFEyju6XIthx060UBrnFrXSoUF1ZuqkzjJP
+eKZgBTaF7T50CSnj9uIQNaVkZ8nkOcmj6EAPsj4fZ4ByiGnp92cvTKGXMkZKtvPp
+xB+VfG3X+umLXTZJjZ4WHOgoWpnGPqz0DMDsoYeBcSAHlmbYOKwE4V42Ez04cWT8
+6KxBMfG9RXe0TyF0kTFGw0p9+nq3bSQc48CfdW2KhY11IOLPByI=
+=QTnz
 -----END PGP SIGNATURE-----
 
---0eh6TmSyL6TZE2Uz--
+--9jxsPFA5p3P2qPhR--
