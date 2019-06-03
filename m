@@ -1,68 +1,125 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH 22/22] docs: fix broken documentation links
-Date: Mon, 3 Jun 2019 16:41:17 +0100
-Message-ID: <20190603154117.GW2456@sirena.org.uk>
-References: <cover.1559171394.git.mchehab+samsung@kernel.org>
-	<f9fecacbe4ce0b2b3aed38d71ae3753f2daf3ce3.1559171394.git.mchehab+samsung@kernel.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v9 1/1] Add support for IPMB driver
+Date: Mon, 3 Jun 2019 22:13:26 +0200
+Message-ID: <20190603201325.GC2383@kunai>
+References: <cover.1557322882.git.Asmaa@mellanox.com>
+ <a4d9fe418013b604e7224bf3038c294da42d5534.1557322882.git.Asmaa@mellanox.com>
+ <20190519140231.GA7291@kunai>
+ <VI1PR05MB623971FF6F956A091840716DDA060@VI1PR05MB6239.eurprd05.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8239485151609244520=="
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <f9fecacbe4ce0b2b3aed38d71ae3753f2daf3ce3.1559171394.git.mchehab+samsung@kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc: Andrew Lunn <andrew@lunn.ch>, Andy Lutomirski <luto@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Catalin Marinas <catalin.marinas@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Will Deacon <will.deacon@arm.com>, Pavel Tatashin <pasha.tatashin@oracle.com>, Paul Mackerras <paulus@samba.org>, Alessia Mantegazza <amantegazza@vaga.pv.it>, Jakub Wilk <jwilk@jwilk.net>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, "Paul E. McKenney" <paulmck@linux.ibm.com>, Kevin Hilman <khilman@baylibre.com>, James Morris <jmorris@namei.org>, linux-acpi@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, xen-devel@lists.xenproject.org, Alexander Popov <alex.popov@linux.com>, Qian Cai <cai@lca.pw>, Al Viro <viro@zeniv.linux.org.uk>, Thomas Preston <thomas.preston@codethink.co.uk>, Thomas Gleixner <tglx@linutronix.de>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="9Ek0hoCL9XbhcSqy"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <VI1PR05MB623971FF6F956A091840716DDA060@VI1PR05MB6239.eurprd05.prod.outlook.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Asmaa Mnebhi <Asmaa@mellanox.com>
+Cc: "minyard@acm.org" <minyard@acm.org>, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, "rdunlap@infradead.org" <rdunlap@infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============8239485151609244520==
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="ULJ2Z7kCM1hyNsWd"
-Content-Disposition: inline
-
-
---ULJ2Z7kCM1hyNsWd
+--9Ek0hoCL9XbhcSqy
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 29, 2019 at 08:23:53PM -0300, Mauro Carvalho Chehab wrote:
-> Mostly due to x86 and acpi conversion, several documentation
-> links are still pointing to the old file. Fix them.
+Hi Asmaa,
 
-Acked-by: Mark Brown <broonie@kernel.org>
+sorry for the long wait. I missed this mail was still sitting in my
+Drafts folder :(
 
---ULJ2Z7kCM1hyNsWd
+> >> Am I overlooking something? Why are you protecting an atomic_read with=
+ a spinlock?
+>=20
+> A thread would lock the ipmb_dev->lock spinlock (above) for all the code =
+below ONLY IF the atomic_read for the request_queue_len reports a value dif=
+ferent from 0:
+
+Well, not really. The spinlock is taken _before_ the atomic read. But
+the read is atomic, so there should be no need. I am asking if the code
+could look like this?
+
++	while (!atomic_read(&ipmb_dev->request_queue_len)) {
++		if (non_blocking)
++			return -EAGAIN;
++
++		res =3D wait_event_interruptible(ipmb_dev->wait_queue,
++				atomic_read(&ipmb_dev->request_queue_len));
++		if (res)
++			return res;
++	}
++
++	spin_lock_irqsave(&ipmb_dev->lock, flags);
++	if (list_empty(&ipmb_dev->request_queue)) {
+
+> if (list_empty(&ipmb_dev->request_queue)) {
+> 260 +               dev_err(&ipmb_dev->client->dev, "request_queue is emp=
+ty\n");
+> 261 +               spin_unlock_irqrestore(&ipmb_dev->lock, flags);
+
+The unlock operation could come before the dev_err. We don't need to
+protect the printout and save time with the spinlock held.
+
+> > +	rq_sa =3D msg[RQ_SA_8BIT_IDX] >> 1;
+> > +	netf_rq_lun =3D msg[NETFN_LUN_IDX];
+> > +	/*
+> > +	 * subtract rq_sa and netf_rq_lun from the length of the msg passed to
+> > +	 * i2c_smbus_write_block_data_local
+> > +	 */
+> > +	msg_len =3D msg[IPMB_MSG_LEN_IDX] - SMBUS_MSG_HEADER_LENGTH;
+> > +
+> > +	strcpy(rq_client.name, "ipmb_requester");
+> > +	rq_client.adapter =3D ipmb_dev->client->adapter;
+> > +	rq_client.flags =3D ipmb_dev->client->flags;
+> > +	rq_client.addr =3D rq_sa;
+>=20
+> >> Is it possible to determine in a race-free way if rq_sa (which came
+> >> from userspace AFAIU) is really the address from which the request
+> >> came in (again if I understood all this correctly)?
+> Yes there is. I see 2 options:
+>=20
+> 1) This is less explicit than option 2 but uses existing code and is
+> simpler. we can use the ipmb_verify_checksum1 function since the IPMB
+> response format is as follows:
+> Byte 1: rq_sa
+> Byte 2: netfunction/rqLUN
+> Byte 3: checksum1
+
+Hmmm, does that really prove that rq_sa is the same address the request
+came from? Or does it only prove that the response packet is not
+mangled?
+
+> So if checksum1 is verified, it means rq_sa is correct.
+>=20
+> 2) I am not sure we want this but have a global variable which stores
+> the address of the requester once the first request is received. We
+> would compare that address with the one received from userspace in the
+> code above.
+
+Can there be only one requester in the system?
+
+Thanks,
+
+   Wolfram
+
+--9Ek0hoCL9XbhcSqy
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlz1P5wACgkQJNaLcl1U
-h9CgCQf+J9k75rt3mgSxGm21PStcBWah+jHorcSB3vAFo/VgwBXCI7/qQymUKkNd
-rUN0absPBGdyjsU+iDp0RrGijvdavWuigfic8bEJ/z2tbzj1I3+XRrah0tiPgdrF
-6/uFF/xfdYflsvBqmmu+/uXwwvzWtE/DITZ/m7fXcUjk8uahw4sWCAiyoPAqgUCL
-otIcJ8/L/0bQ2oiDiLTBqWp/NcOepodvjV5BcRyh49dwR0RDdBVxfdjyVboI9WQN
-YK9ZiCa/QaQRl0S5ce7bPH/c4U+mujmla7rE8icfqRDhtsMuXa+JvQMCPEIfnzxe
-kGqmVHCLVcqZZ5sJZOMLQSVlIsbckw==
-=aP8U
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlz1f2UACgkQFA3kzBSg
+KbZe1A//dZCx+YmQNFnYXW6fwX4hm2JFolCqtolCDfbAEKvqcqgEf7VwQ0Qoy4wm
+P+RbEvYTBlnvPfk01PM8Kbe3D79xGgjGLAzfaLyVN5khGiQguK1nWND76tSxAkws
+otCtiiNEcVv0z2uRGheJZWZvmANEt9nzbwqcyJzqaCDZKATQNstu1ClkWrIZLxJ4
+rqXP2mPGJHAv7KzquR5dlpAmAz8yxA0uqoUzQoKbWuchg6fSKbIp7JzVePJvGI7o
+7U/pNuhQ7hJ/tAPrj5fWELHjazDsDUkgu/vsQObvps1ixUuCFymFk+7l2tmPCAnX
+OzFNk79jBbh3YgpSAqMLqPi9ftMrn6so7c3JzchzXzrmAvRmLvf/ChBwTIB8fGZi
+f7958PVOdDr5c386w9EOLB0q9MLc5ONLDlKO96SVnvC8kLrq1iylbpRm17xmJywb
+29Aao9YdsjIoijXsuskYV02XxMGh4JxgrewBOq0IcAuit/YWKsJldp1RyMuWESjM
+gdptkXyp69N1Y6wVL72zkDNB2Cd6NWpoCu4mJDgb6XfX/zv2hadXIgL4yq4cZncx
+61wRgMM0F0MZEiXGsC85qlryaZuBUFdlZnKj1sBbkaRdvDbSpykE1NcGvOti1fIM
+UIYYy9E2Vo/VzPxXR4Gx5JO+6UTjvX2onpJgPAbGOTAiC8Yn53s=
+=REap
 -----END PGP SIGNATURE-----
 
---ULJ2Z7kCM1hyNsWd--
-
---===============8239485151609244520==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8239485151609244520==--
+--9Ek0hoCL9XbhcSqy--
