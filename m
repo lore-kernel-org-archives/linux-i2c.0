@@ -1,105 +1,96 @@
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-Subject: Re: [PATCH 2/3] i2c: slave-mqueue: add a slave backend to receive
- and queue messages
-Date: Tue, 4 Jun 2019 20:16:11 +0300
-Message-ID: <20190604171611.GS9224@smile.fi.intel.com>
-References: <20190531043347.4196-1-eduval@amazon.com>
- <20190531043347.4196-3-eduval@amazon.com>
+From: Eric Anholt <eric@anholt.net>
+Subject: Re: [PATCH v3] i2c: bcm2835: Model Divider in CCF
+Date: Tue, 04 Jun 2019 12:26:44 -0700
+Message-ID: <87pnnt6tjf.fsf@anholt.net>
+References: <20190529042912.12956-1-nh6z@nh6z.net>
+ <31580e1f-60d2-f13b-dcfe-6bc6e75e9285@i2se.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190531043347.4196-3-eduval@amazon.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eduardo Valentin <eduval@amazon.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Haiyue Wang <haiyue.wang@linux.intel.com>, jarkko.nikula@linux.intel.com, brendanhiggins@google.com, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============2481001482613569044=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <31580e1f-60d2-f13b-dcfe-6bc6e75e9285@i2se.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Stefan Wahren <stefan.wahren@i2se.com>, Annaliese McDermond <nh6z@nh6z.net>, f.fainelli@gmail.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
+Cc: team@nwdigitalradio.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, May 30, 2019 at 09:33:46PM -0700, Eduardo Valentin wrote:
-> From: Haiyue Wang <haiyue.wang@linux.intel.com>
-> 
-> Some protocols over I2C are designed for bi-directional transferring
-> messages by using I2C Master Write protocol. Like the MCTP (Management
-> Component Transport Protocol) and IPMB (Intelligent Platform Management
-> Bus), they both require that the userspace can receive messages from
-> I2C dirvers under slave mode.
-> 
-> This new slave mqueue backend is used to receive and queue messages, it
-> will exposes these messages to userspace by sysfs bin file.
-> 
-> Note: DT interface and a couple of minor fixes here and there
-> by Eduardo, so I kept the original authorship here.
+--===============2481001482613569044==
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha512; protocol="application/pgp-signature"
 
-> +#define MQ_MSGBUF_SIZE		CONFIG_I2C_SLAVE_MQUEUE_MESSAGE_SIZE
-> +#define MQ_QUEUE_SIZE		CONFIG_I2C_SLAVE_MQUEUE_QUEUE_SIZE
+--=-=-=
+Content-Type: text/plain
 
-> +#define MQ_QUEUE_NEXT(x)	(((x) + 1) & (MQ_QUEUE_SIZE - 1))
+Stefan Wahren <stefan.wahren@i2se.com> writes:
 
-Also possible ((x + 1) % ..._SIZE)
+> Am 29.05.19 um 06:29 schrieb Annaliese McDermond:
+>> Model the I2C bus clock divider as a part of the Core Clock Framework.
+>> Primarily this removes the clk_get_rate() call from each transfer.
+>> This call causes problems for slave drivers that themselves have
+>> internal clock components that are controlled by an I2C interface.
+>> When the slave's internal clock component is prepared, the prepare
+>> lock is obtained, and it makes calls to the I2C subsystem to
+>> command the hardware to activate the clock.  In order to perform
+>> the I2C transfer, this driver sets the divider, which requires
+>> it to get the parent clock rate, which it does with clk_get_rate().
+>> Unfortunately, this function will try to take the clock prepare
+>> lock, which is already held by the slave's internal clock calls
+>> creating a deadlock.
+>>
+>> Modeling the divider in the CCF natively removes this dependency
+>> and the divider value is only set upon changing the bus clock
+>> frequency or changes in the parent clock that cascade down to this
+>> divisor.  This obviates the need to set the divider with every
+>> transfer and avoids the deadlock described above.  It also should
+>> provide better clock debugging and save a few cycles on each
+>> transfer due to not having to recalcuate the divider value.
+>>
+>> Signed-off-by: Annaliese McDermond <nh6z@nh6z.net>
+>
+> Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
 
-> +	mq = dev_get_drvdata(container_of(kobj, struct device, kobj));
+FWIW, also:
 
-kobj_to_dev()
+Reviewed-by: Eric Anholt <eric@anholt.net>
 
-> +static int i2c_slave_mqueue_probe(struct i2c_client *client,
-> +				  const struct i2c_device_id *id)
-> +{
-> +	struct device *dev = &client->dev;
-> +	struct mq_queue *mq;
-> +	int ret, i;
-> +	void *buf;
-> +
-> +	mq = devm_kzalloc(dev, sizeof(*mq), GFP_KERNEL);
-> +	if (!mq)
-> +		return -ENOMEM;
-> +
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> +	BUILD_BUG_ON(!is_power_of_2(MQ_QUEUE_SIZE));
+-----BEGIN PGP SIGNATURE-----
 
-Perhaps start function with this kind of assertions?
-
-> +
-> +	buf = devm_kmalloc_array(dev, MQ_QUEUE_SIZE, MQ_MSGBUF_SIZE,
-> +				 GFP_KERNEL);
-> +	if (!buf)
-> +		return -ENOMEM;
-> +
-> +	for (i = 0; i < MQ_QUEUE_SIZE; i++)
-> +		mq->queue[i].buf = buf + i * MQ_MSGBUF_SIZE;
+iQIzBAEBCgAdFiEE/JuuFDWp9/ZkuCBXtdYpNtH8nugFAlz2xfQACgkQtdYpNtH8
+nugysA//bZbeBZr4HJvvzsJhUkxzSPImOH4/xN2nzZVCVPXWro2fQXPC/WRTdl5K
+/WA44cuxN/zAfFwzOQgPs3LRRQiddJZsiKMhSiZeu4+Wu9vQP4vCoFU6lZHoZzGq
+XL3N29LzHldvQ4OY7wOsYDgPZrR1EKoP0nqeH8K/ayJ1m1bGVv0SypbdyAGRDPH3
+t39/xMXBDhgLjFd8u5rSDObqVLDo3W6yJDyb4n7Jd61qomrIqCzwPWT6/P2cxr7o
+70p85EcGXejuwPEez5SCbMY452e5LmHFyTa99aRf69KYEfXm9Ut6/uGjohlINIzk
+isMZFI2wIKt7BKpjDep3LaQAlO+B5S7m21rqcHB0BT/yarY4tPdA1M65L+eSMN00
+MVoCwpI4Xy9dN0R2YuXiwBFtGChXEcqwbct9TkBd49nbjQIslBQQUOgCWKWyfXwX
+Qa/pxuXl8vVVI2F+ACFBPaM4EVt6mYS7Uc12PokM8XU2tiIWklzaPIjEQlI4LSVr
+uj1cxcAc5aSbSfioenbPeNCYFO8AxlwtRdAIk4CQz2yD7PNmkzUnkqnKGyjOngCt
+S026/jbBITOpIvGVEdeXzAfKTwkNsNqj2R2Bul5SSIr3u3pUxcUoTUhpFXnzf39H
+CXJZTCowSW8/5Fk6UxQ4RFSfuVUXF8cQmjgkvL+8VLKITVTMBS0=
+=djj2
+-----END PGP SIGNATURE-----
+--=-=-=--
 
 
-Just wondering if kfifo API can bring an advantage here?
+--===============2481001482613569044==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> +	return 0;
-> +}
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
-> +static const struct of_device_id i2c_slave_mqueue_of_match[] = {
-> +	{
-> +		.compatible = "i2c-slave-mqueue",
-> +	},
-
-> +	{ },
-
-No need for comma here.
-
-> +};
-
-> +
-> +static struct i2c_driver i2c_slave_mqueue_driver = {
-> +	.driver = {
-> +		.name	= "i2c-slave-mqueue",
-
-> +		.of_match_table = of_match_ptr(i2c_slave_mqueue_of_match),
-
-Wouldn't compiler warn you due to unused data?
-Perhaps drop of_match_ptr() for good...
-
-> +	},
-> +	.probe		= i2c_slave_mqueue_probe,
-> +	.remove		= i2c_slave_mqueue_remove,
-> +	.id_table	= i2c_slave_mqueue_id,
-> +};
-
--- 
-With Best Regards,
-Andy Shevchenko
+--===============2481001482613569044==--
