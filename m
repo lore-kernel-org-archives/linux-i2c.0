@@ -1,96 +1,261 @@
-From: Eric Anholt <eric@anholt.net>
-Subject: Re: [PATCH v3] i2c: bcm2835: Model Divider in CCF
-Date: Tue, 04 Jun 2019 12:26:44 -0700
-Message-ID: <87pnnt6tjf.fsf@anholt.net>
-References: <20190529042912.12956-1-nh6z@nh6z.net>
- <31580e1f-60d2-f13b-dcfe-6bc6e75e9285@i2se.com>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH v3] i2c: i801: Register optional lis3lv02d i2c device on
+ Dell machines
+Date: Wed, 5 Jun 2019 00:30:34 +0200
+Message-ID: <20190604223034.quik44psi43wu4hf@pali>
+References: <20180127133209.28995-1-pali.rohar@gmail.com>
+ <20190602132003.1911-1-pali.rohar@gmail.com>
+ <20190604165729.4b67222f@endymion>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2481001482613569044=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <31580e1f-60d2-f13b-dcfe-6bc6e75e9285@i2se.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Stefan Wahren <stefan.wahren@i2se.com>, Annaliese McDermond <nh6z@nh6z.net>, f.fainelli@gmail.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
-Cc: team@nwdigitalradio.com
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="eca7kglr7r7hy3co"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190604165729.4b67222f@endymion>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis.Kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario_Limonciello@dell.com, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============2481001482613569044==
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha512; protocol="application/pgp-signature"
 
---=-=-=
-Content-Type: text/plain
+--eca7kglr7r7hy3co
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Stefan Wahren <stefan.wahren@i2se.com> writes:
+Hi!
 
-> Am 29.05.19 um 06:29 schrieb Annaliese McDermond:
->> Model the I2C bus clock divider as a part of the Core Clock Framework.
->> Primarily this removes the clk_get_rate() call from each transfer.
->> This call causes problems for slave drivers that themselves have
->> internal clock components that are controlled by an I2C interface.
->> When the slave's internal clock component is prepared, the prepare
->> lock is obtained, and it makes calls to the I2C subsystem to
->> command the hardware to activate the clock.  In order to perform
->> the I2C transfer, this driver sets the divider, which requires
->> it to get the parent clock rate, which it does with clk_get_rate().
->> Unfortunately, this function will try to take the clock prepare
->> lock, which is already held by the slave's internal clock calls
->> creating a deadlock.
->>
->> Modeling the divider in the CCF natively removes this dependency
->> and the divider value is only set upon changing the bus clock
->> frequency or changes in the parent clock that cascade down to this
->> divisor.  This obviates the need to set the divider with every
->> transfer and avoids the deadlock described above.  It also should
->> provide better clock debugging and save a few cycles on each
->> transfer due to not having to recalcuate the divider value.
->>
->> Signed-off-by: Annaliese McDermond <nh6z@nh6z.net>
->
-> Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
+On Tuesday 04 June 2019 16:57:29 Jean Delvare wrote:
+> Hi Pali,
+>=20
+> Next time, please start a new thread for a new version of a patch.
 
-FWIW, also:
+Ok!
 
-Reviewed-by: Eric Anholt <eric@anholt.net>
+> On Sun,  2 Jun 2019 15:20:03 +0200, Pali Roh=C3=A1r wrote:
+> > Dell platform team told us that some (DMI whitelisted) Dell Latitude
+> > machines have ST microelectronics accelerometer at i2c address 0x29.
+> >=20
+> > Presence of that ST microelectronics accelerometer is verified by exist=
+ence
+> > of SMO88xx ACPI device which represent that accelerometer. Unfortunately
+> > ACPI device does not specify i2c address.
+> >=20
+> > This patch registers lis3lv02d device for selected Dell Latitude machin=
+es
+> > at i2c address 0x29 after detection. And for Dell Vostro V131 machine at
+> > i2c address 0x1d which was manually detected.
+> >=20
+> > Finally commit a7ae81952cda ("i2c: i801: Allow ACPI SystemIO OpRegion to
+> > conflict with PCI BAR") allowed to use i2c-i801 driver on Dell machines=
+ so
+> > lis3lv02d correctly initialize accelerometer.
+> >=20
+> > Tested on Dell Latitude E6440.
+> >=20
+> > Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+> >=20
+> > ---
+> > Changes since v2:
+> >  * Use explicit list of SMOxx ACPI devices
+> >=20
+> > Changes since v1:
+> >  * Added Dell Vostro V131 based on Micha=C5=82 K=C4=99pie=C5=84 testing
+> >  * Changed DMI product structure to include also i2c address
+> > ---
+> >  drivers/i2c/busses/i2c-i801.c       | 118 ++++++++++++++++++++++++++++=
+++++++++
+> >  drivers/platform/x86/dell-smo8800.c |   1 +
+> >  2 files changed, 119 insertions(+)
+> >=20
+> > diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i80=
+1.c
+> > index ac7f7817dc89..2ac8ff41cc24 100644
+> > --- a/drivers/i2c/busses/i2c-i801.c
+> > +++ b/drivers/i2c/busses/i2c-i801.c
+> > @@ -1134,6 +1134,121 @@ static void dmi_check_onboard_devices(const str=
+uct dmi_header *dm, void *adap)
+> >  	}
+> >  }
+> > =20
+> > +/* NOTE: Keep this list in sync with drivers/platform/x86/dell-smo8800=
+=2Ec */
+> > +static const struct acpi_device_id acpi_smo8800_ids[] =3D {
+> > +	{ "SMO8800", 0 },
+> > +	{ "SMO8801", 0 },
+> > +	{ "SMO8810", 0 },
+> > +	{ "SMO8811", 0 },
+> > +	{ "SMO8820", 0 },
+> > +	{ "SMO8821", 0 },
+> > +	{ "SMO8830", 0 },
+> > +	{ "SMO8831", 0 },
+> > +};
+> > +
+> > +static acpi_status check_acpi_smo88xx_device(acpi_handle obj_handle,
+> > +					     u32 nesting_level,
+> > +					     void *context,
+> > +					     void **return_value)
+> > +{
+> > +	struct acpi_device_info *info;
+> > +	acpi_status status;
+> > +	char *hid;
+> > +	int i;
+> > +
+> > +	status =3D acpi_get_object_info(obj_handle, &info);
+> > +	if (!ACPI_SUCCESS(status) || !(info->valid & ACPI_VALID_HID))
+> > +		return AE_OK;
+> > +
+> > +	hid =3D info->hardware_id.string;
+> > +	if (!hid)
+> > +		return AE_OK;
+> > +
+> > +	for (i =3D 0; i < ARRAY_SIZE(acpi_smo8800_ids); ++i) {
+> > +		if (strcmp(hid, acpi_smo8800_ids[i].id) =3D=3D 0) {
+> > +			*((bool *)return_value) =3D true;
+> > +			return AE_CTRL_TERMINATE;
+> > +		}
+> > +	}
+> > +
+> > +	return AE_OK;
+> > +
+>=20
+> Unneeded blank line.
 
---=-=-=
+Ok.
+
+> > +}
+> > +
+> > +static bool is_dell_system_with_lis3lv02d(void)
+> > +{
+> > +	bool found;
+> > +	acpi_status status;
+> > +	const char *vendor;
+> > +
+> > +	vendor =3D dmi_get_system_info(DMI_SYS_VENDOR);
+> > +	if (strcmp(vendor, "Dell Inc.") !=3D 0)
+> > +		return false;
+> > +
+> > +	/*
+> > +	 * Check that ACPI device SMO88xx exists and is enabled. That ACPI
+>=20
+> I see how you check that the device exists, but not that it is enabled.
+
+Hm.. you are right. I will add missing check.
+
+> > +	 * device represent our ST microelectronics lis3lv02d accelerometer b=
+ut
+> > +	 * unfortunately without any other information (like i2c address).
+>=20
+> I2C
+
+I will change i2c to I2C in whole patch.
+
+> > +	 */
+> > +	found =3D false;
+> > +	status =3D acpi_get_devices(NULL, check_acpi_smo88xx_device, NULL,
+> > +				  (void **)&found);
+> > +	if (!ACPI_SUCCESS(status) || !found)
+> > +		return false;
+> > +
+> > +	return true;
+>=20
+> Looks more complex than it needs to be. You don't really care about the
+> status, as in the end you return the same on error as you do when no
+> device is found. So I think you can simply go with:
+>=20
+> 	found =3D false;
+> 	acpi_get_devices(NULL, check_acpi_smo88xx_device, NULL,
+> 				  (void **)&found);
+>=20
+> 	return found;
+
+Ok, it really simplify that check.
+
+>=20
+> > +}
+> > +
+> > +/*
+> > + * Accelerometer's i2c address is not specified in DMI nor ACPI,
+>=20
+> I2C
+>=20
+> > + * so it is needed to define mapping table based on DMI product names.
+> > + */
+> > +static struct {
+>=20
+> Any reason to not make it const?
+
+No, I will make it const.
+
+> > +	const char *dmi_product_name;
+> > +	unsigned short i2c_addr;
+> > +} dell_lis3lv02d_devices[] =3D {
+> > +	/*
+> > +	 * Dell platform team told us that these Latitude devices have
+> > +	 * ST microelectronics accelerometer at i2c address 0x29.
+>=20
+> I2C
+>=20
+> > +	 */
+> > +	{ "Latitude E5250",     0x29 },
+> > +	{ "Latitude E5450",     0x29 },
+> > +	{ "Latitude E5550",     0x29 },
+> > +	{ "Latitude E6440",     0x29 },
+> > +	{ "Latitude E6440 ATG", 0x29 },
+> > +	{ "Latitude E6540",     0x29 },
+> > +	/*
+> > +	 * Additional individual entries were added after verification.
+> > +	 */
+> > +	{ "Vostro V131",        0x1d },
+> > +};
+> > +
+> > +static void register_dell_lis3lv02d_i2c_device(struct i801_priv *priv)
+> > +{
+> > +	struct i2c_board_info info;
+> > +	const char *dmi_product_name;
+> > +	int i;
+> > +
+> > +	dmi_product_name =3D dmi_get_system_info(DMI_PRODUCT_NAME);
+> > +	for (i =3D 0; i < ARRAY_SIZE(dell_lis3lv02d_devices); ++i) {
+> > +		if (strcmp(dmi_product_name,
+> > +			   dell_lis3lv02d_devices[i].dmi_product_name) =3D=3D 0)
+> > +			break;
+> > +	}
+> > +
+> > +	if (i =3D=3D ARRAY_SIZE(dell_lis3lv02d_devices)) {
+> > +		dev_warn(&priv->pci_dev->dev,
+> > +			 "Accelerometer lis3lv02d is present on i2c bus but its"
+>=20
+> i2c bus -> SMBus
+>=20
+> > +			 " i2c address is unknown, skipping registration...\n");
+>=20
+> I2C (or just s/i2c //, as it's kind of redundant)
+>=20
+> Suspension points not really needed IMHO.
+
+Ok, it will be in V4 which I sent in few minutes.
+
+> > +		return;
+> > +	}
+> > + (...)
+>=20
+> All the rest looks good to me.
+>=20
+> Thanks,
+
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--eca7kglr7r7hy3co
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEE/JuuFDWp9/ZkuCBXtdYpNtH8nugFAlz2xfQACgkQtdYpNtH8
-nugysA//bZbeBZr4HJvvzsJhUkxzSPImOH4/xN2nzZVCVPXWro2fQXPC/WRTdl5K
-/WA44cuxN/zAfFwzOQgPs3LRRQiddJZsiKMhSiZeu4+Wu9vQP4vCoFU6lZHoZzGq
-XL3N29LzHldvQ4OY7wOsYDgPZrR1EKoP0nqeH8K/ayJ1m1bGVv0SypbdyAGRDPH3
-t39/xMXBDhgLjFd8u5rSDObqVLDo3W6yJDyb4n7Jd61qomrIqCzwPWT6/P2cxr7o
-70p85EcGXejuwPEez5SCbMY452e5LmHFyTa99aRf69KYEfXm9Ut6/uGjohlINIzk
-isMZFI2wIKt7BKpjDep3LaQAlO+B5S7m21rqcHB0BT/yarY4tPdA1M65L+eSMN00
-MVoCwpI4Xy9dN0R2YuXiwBFtGChXEcqwbct9TkBd49nbjQIslBQQUOgCWKWyfXwX
-Qa/pxuXl8vVVI2F+ACFBPaM4EVt6mYS7Uc12PokM8XU2tiIWklzaPIjEQlI4LSVr
-uj1cxcAc5aSbSfioenbPeNCYFO8AxlwtRdAIk4CQz2yD7PNmkzUnkqnKGyjOngCt
-S026/jbBITOpIvGVEdeXzAfKTwkNsNqj2R2Bul5SSIr3u3pUxcUoTUhpFXnzf39H
-CXJZTCowSW8/5Fk6UxQ4RFSfuVUXF8cQmjgkvL+8VLKITVTMBS0=
-=djj2
+iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCXPbxCAAKCRCL8Mk9A+RD
+UmSYAKCDBhuuIH1W7/2goRbozB6f9Pw11QCdGPIqJhmPcVKPoecrt7BLyZd1wa4=
+=cnP+
 -----END PGP SIGNATURE-----
---=-=-=--
 
-
---===============2481001482613569044==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============2481001482613569044==--
+--eca7kglr7r7hy3co--
