@@ -1,7 +1,7 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 6/8] usb: dwc3: qcom: Add support for booting with ACPI
-Date: Tue,  4 Jun 2019 11:44:53 +0100
-Message-ID: <20190604104455.8877-6-lee.jones@linaro.org>
+Subject: [PATCH 4/8] pinctrl: qcom: sdm845: Provide ACPI support
+Date: Tue,  4 Jun 2019 11:44:51 +0100
+Message-ID: <20190604104455.8877-4-lee.jones@linaro.org>
 References: <20190604104455.8877-1-lee.jones@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190604104455.8877-1-lee.jones@linaro.org>
@@ -10,355 +10,113 @@ To: alokc@codeaurora.org, kramasub@codeaurora.org, andy.gross@linaro.org, david.
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, jlhugo@gmail.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-In Linux, the DWC3 core exists as its own independent platform device.
-Thus when describing relationships in Device Tree, the current default
-boot configuration table option, the DWC3 core often resides as a child
-of the platform specific node.  Both of which are given their own
-address space descriptions and the drivers can be mostly agnostic to
-each other.
+This patch provides basic support for booting with ACPI instead
+of the currently supported Device Tree.  When doing so there are a
+couple of differences which we need to taken into consideration.
 
-However, other Operating Systems have taken a more monolithic approach,
-which is evident in the configuration ACPI tables for the Qualcomm
-Snapdragon SDM850, where all DWC3 (core and platform) components are
-described under a single IO memory region.
+Firstly, the SDM850 ACPI tables omit information pertaining to the
+4 reserved GPIOs on the platform.  If Linux attempts to touch/
+initialise any of these lines, the firmware will restart the
+platform.
 
-To ensure successful booting using the supplied ACPI tables, we need to
-devise a way to chop up the address regions provided and subsequently
-register the DWC3 core with the resultant information, which is
-precisely what this patch aims to achieve.
+Secondly, when booting with ACPI, it is expected that the firmware
+will set-up things like; Regulators, Clocks, Pin Functions, etc in
+their ideal configuration.  Thus, the possible Pin Functions
+available to this platform are not advertised when providing the
+higher GPIOD/Pinctrl APIs with pin information.
 
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/usb/dwc3/Kconfig     |   2 +-
- drivers/usb/dwc3/dwc3-qcom.c | 194 ++++++++++++++++++++++++++++++-----
- 2 files changed, 170 insertions(+), 26 deletions(-)
+ drivers/pinctrl/qcom/Kconfig          |  2 +-
+ drivers/pinctrl/qcom/pinctrl-sdm845.c | 35 ++++++++++++++++++++++++++-
+ 2 files changed, 35 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/dwc3/Kconfig b/drivers/usb/dwc3/Kconfig
-index 2b1494460d0c..6dab3fd1e233 100644
---- a/drivers/usb/dwc3/Kconfig
-+++ b/drivers/usb/dwc3/Kconfig
-@@ -116,7 +116,7 @@ config USB_DWC3_ST
- config USB_DWC3_QCOM
- 	tristate "Qualcomm Platform"
- 	depends on EXTCON && (ARCH_QCOM || COMPILE_TEST)
--	depends on OF
-+	depends on (OF || ACPI)
- 	default USB_DWC3
- 	help
- 	  Some Qualcomm SoCs use DesignWare Core IP for USB2/3
-diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
-index 184df4daa590..349bf549ee44 100644
---- a/drivers/usb/dwc3/dwc3-qcom.c
-+++ b/drivers/usb/dwc3/dwc3-qcom.c
-@@ -4,6 +4,7 @@
-  * Inspired by dwc3-of-simple.c
+diff --git a/drivers/pinctrl/qcom/Kconfig b/drivers/pinctrl/qcom/Kconfig
+index 2e66ab72c10b..aafbe932424f 100644
+--- a/drivers/pinctrl/qcom/Kconfig
++++ b/drivers/pinctrl/qcom/Kconfig
+@@ -168,7 +168,7 @@ config PINCTRL_SDM660
+ 
+ config PINCTRL_SDM845
+        tristate "Qualcomm Technologies Inc SDM845 pin controller driver"
+-       depends on GPIOLIB && OF
++       depends on GPIOLIB && (OF || ACPI)
+        select PINCTRL_MSM
+        help
+          This is the pinctrl, pinmux, pinconf and gpiolib driver for the
+diff --git a/drivers/pinctrl/qcom/pinctrl-sdm845.c b/drivers/pinctrl/qcom/pinctrl-sdm845.c
+index c97f20fca5fd..7188bee3cf3e 100644
+--- a/drivers/pinctrl/qcom/pinctrl-sdm845.c
++++ b/drivers/pinctrl/qcom/pinctrl-sdm845.c
+@@ -3,6 +3,7 @@
+  * Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
   */
  
 +#include <linux/acpi.h>
- #include <linux/io.h>
+ #include <linux/module.h>
  #include <linux/of.h>
- #include <linux/clk.h>
-@@ -38,6 +39,20 @@
- #define PWR_EVNT_LPM_IN_L2_MASK			BIT(4)
- #define PWR_EVNT_LPM_OUT_L2_MASK		BIT(5)
+ #include <linux/platform_device.h>
+@@ -1277,6 +1278,10 @@ static const struct msm_pingroup sdm845_groups[] = {
+ 	UFS_RESET(ufs_reset, 0x99f000),
+ };
  
-+#define SDM845_QSCRATCH_BASE_OFFSET		0xf8800
-+#define SDM845_QSCRATCH_SIZE			0x400
-+#define SDM845_DWC3_CORE_SIZE			0xcd00
-+
-+struct dwc3_acpi_pdata {
-+	u32			qscratch_base_offset;
-+	u32			qscratch_base_size;
-+	u32			dwc3_core_base_size;
-+	int			hs_phy_irq_index;
-+	int			dp_hs_phy_irq_index;
-+	int			dm_hs_phy_irq_index;
-+	int			ss_phy_irq_index;
++static const int sdm845_acpi_reserved_gpios[] = {
++	0, 1, 2, 3, 81, 82, 83, 84, -1
 +};
 +
- struct dwc3_qcom {
- 	struct device		*dev;
- 	void __iomem		*qscratch_base;
-@@ -56,6 +71,8 @@ struct dwc3_qcom {
- 	struct notifier_block	vbus_nb;
- 	struct notifier_block	host_nb;
+ static const struct msm_pinctrl_soc_data sdm845_pinctrl = {
+ 	.pins = sdm845_pins,
+ 	.npins = ARRAY_SIZE(sdm845_pins),
+@@ -1284,14 +1289,41 @@ static const struct msm_pinctrl_soc_data sdm845_pinctrl = {
+ 	.nfunctions = ARRAY_SIZE(sdm845_functions),
+ 	.groups = sdm845_groups,
+ 	.ngroups = ARRAY_SIZE(sdm845_groups),
++	.reserved_gpios = sdm845_acpi_reserved_gpios,
++	.ngpios = 150,
++};
++
++static const struct msm_pinctrl_soc_data sdm845_acpi_pinctrl = {
++	.pins = sdm845_pins,
++	.npins = ARRAY_SIZE(sdm845_pins),
++	.groups = sdm845_groups,
++	.ngroups = ARRAY_SIZE(sdm845_groups),
++	.reserved_gpios = sdm845_acpi_reserved_gpios,
+ 	.ngpios = 150,
+ };
  
-+	struct dwc3_acpi_pdata	*acpi_pdata;
-+
- 	enum usb_dr_mode	mode;
- 	bool			is_suspended;
- 	bool			pm_suspended;
-@@ -300,12 +317,32 @@ static void dwc3_qcom_select_utmi_clk(struct dwc3_qcom *qcom)
- 			  PIPE_UTMI_CLK_DIS);
- }
- 
-+static int dwc3_qcom_get_irq(struct platform_device *pdev,
-+			     const char *name, int num)
-+{
-+	if (pdev->dev.of_node) {
-+		return platform_get_irq_byname(pdev, name);
-+	} else if (ACPI_HANDLE(&pdev->dev)) {
-+		return platform_get_irq(pdev, num);
-+	} else
-+		dev_err(&pdev->dev, "Neither ACPI nor DT enabled\n");
-+
-+	return -EINVAL;
-+}
-+
- static int dwc3_qcom_setup_irq(struct platform_device *pdev)
+ static int sdm845_pinctrl_probe(struct platform_device *pdev)
  {
- 	struct dwc3_qcom *qcom = platform_get_drvdata(pdev);
- 	int irq, ret;
- 
--	irq = platform_get_irq_byname(pdev, "hs_phy_irq");
-+	if (ACPI_HANDLE(&pdev->dev) && !qcom->acpi_pdata) {
-+		dev_err(&pdev->dev, "No ACPI platform data supplied\n");
+-	return msm_pinctrl_probe(pdev, &sdm845_pinctrl);
++	int ret;
++
++	if (pdev->dev.of_node) {
++		ret = msm_pinctrl_probe(pdev, &sdm845_pinctrl);
++	} else if (ACPI_HANDLE(&pdev->dev)) {
++		ret = msm_pinctrl_probe(pdev, &sdm845_acpi_pinctrl);
++	} else {
++		dev_err(&pdev->dev, "DT and ACPI disabled\n");
 +		return -EINVAL;
 +	}
 +
-+	irq = dwc3_qcom_get_irq(pdev, "hs_phy_irq",
-+				qcom->acpi_pdata ?
-+				qcom->acpi_pdata->hs_phy_irq_index : -1);
- 	if (irq > 0) {
- 		/* Keep wakeup interrupts disabled until suspend */
- 		irq_set_status_flags(irq, IRQ_NOAUTOEN);
-@@ -320,7 +357,9 @@ static int dwc3_qcom_setup_irq(struct platform_device *pdev)
- 		qcom->hs_phy_irq = irq;
- 	}
- 
--	irq = platform_get_irq_byname(pdev, "dp_hs_phy_irq");
-+	irq = dwc3_qcom_get_irq(pdev, "dp_hs_phy_irq",
-+				qcom->acpi_pdata ?
-+				qcom->acpi_pdata->dp_hs_phy_irq_index : -1);
- 	if (irq > 0) {
- 		irq_set_status_flags(irq, IRQ_NOAUTOEN);
- 		ret = devm_request_threaded_irq(qcom->dev, irq, NULL,
-@@ -334,7 +373,9 @@ static int dwc3_qcom_setup_irq(struct platform_device *pdev)
- 		qcom->dp_hs_phy_irq = irq;
- 	}
- 
--	irq = platform_get_irq_byname(pdev, "dm_hs_phy_irq");
-+	irq = dwc3_qcom_get_irq(pdev, "dm_hs_phy_irq",
-+				qcom->acpi_pdata ?
-+				qcom->acpi_pdata->dm_hs_phy_irq_index : -1);
- 	if (irq > 0) {
- 		irq_set_status_flags(irq, IRQ_NOAUTOEN);
- 		ret = devm_request_threaded_irq(qcom->dev, irq, NULL,
-@@ -348,7 +389,9 @@ static int dwc3_qcom_setup_irq(struct platform_device *pdev)
- 		qcom->dm_hs_phy_irq = irq;
- 	}
- 
--	irq = platform_get_irq_byname(pdev, "ss_phy_irq");
-+	irq = dwc3_qcom_get_irq(pdev, "ss_phy_irq",
-+				qcom->acpi_pdata ?
-+				qcom->acpi_pdata->ss_phy_irq_index : -1);
- 	if (irq > 0) {
- 		irq_set_status_flags(irq, IRQ_NOAUTOEN);
- 		ret = devm_request_threaded_irq(qcom->dev, irq, NULL,
-@@ -373,7 +416,7 @@ static int dwc3_qcom_clk_init(struct dwc3_qcom *qcom, int count)
- 
- 	qcom->num_clocks = count;
- 
--	if (!count)
-+	if (!count || ACPI_HANDLE(dev))
- 		return 0;
- 
- 	qcom->clks = devm_kcalloc(dev, qcom->num_clocks,
-@@ -409,12 +452,28 @@ static int dwc3_qcom_clk_init(struct dwc3_qcom *qcom, int count)
- 	return 0;
++	return ret;
  }
  
-+static const struct dwc3_acpi_pdata sdm845_acpi_pdata = {
-+	.qscratch_base_offset = SDM845_QSCRATCH_BASE_OFFSET,
-+	.qscratch_base_size = SDM845_QSCRATCH_SIZE,
-+	.dwc3_core_base_size = SDM845_DWC3_CORE_SIZE,
-+	.hs_phy_irq_index = 1,
-+	.dp_hs_phy_irq_index = 4,
-+	.dm_hs_phy_irq_index = 3,
-+	.ss_phy_irq_index = 2
-+};
-+
-+static const struct acpi_device_id dwc3_qcom_acpi_match[] = {
-+	{ "QCOM2430", (unsigned long)&sdm845_acpi_pdata },
++static const struct acpi_device_id sdm845_pinctrl_acpi_match[] = {
++	{ "QCOM0217"},
 +	{ },
 +};
-+MODULE_DEVICE_TABLE(acpi, dwc3_qcom_acpi_match);
++MODULE_DEVICE_TABLE(acpi, sdm845_pinctrl_acpi_match);
 +
- static int dwc3_qcom_probe(struct platform_device *pdev)
- {
- 	struct device_node	*np = pdev->dev.of_node, *dwc3_np;
- 	struct device		*dev = &pdev->dev;
- 	struct dwc3_qcom	*qcom;
--	struct resource		*res;
-+	struct resource		*res, *parent_res = NULL, *child_res = NULL;
- 	int			ret, i;
- 	bool			ignore_pipe_clk;
- 
-@@ -425,6 +484,17 @@ static int dwc3_qcom_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, qcom);
- 	qcom->dev = &pdev->dev;
- 
-+	if (ACPI_HANDLE(dev)) {
-+		const struct acpi_device_id *match;
-+
-+		match = acpi_match_device(dwc3_qcom_acpi_match, dev);
-+		if (!match || !match->driver_data) {
-+			dev_err(&pdev->dev, "no supporting ACPI device data\n");
-+			return -EINVAL;
-+		}
-+		qcom->acpi_pdata = (struct dwc3_acpi_pdata *)match->driver_data;
-+	}
-+
- 	qcom->resets = devm_reset_control_array_get_optional_exclusive(dev);
- 	if (IS_ERR(qcom->resets)) {
- 		ret = PTR_ERR(qcom->resets);
-@@ -454,7 +524,21 @@ static int dwc3_qcom_probe(struct platform_device *pdev)
- 	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	qcom->qscratch_base = devm_ioremap_resource(dev, res);
-+
-+	if (ACPI_HANDLE(dev)) {
-+		parent_res = kmemdup(res, sizeof(struct resource), GFP_KERNEL);
-+		if (!parent_res)
-+			return -ENOMEM;
-+
-+		parent_res->start = res->start +
-+			qcom->acpi_pdata->qscratch_base_offset;
-+		parent_res->end = parent_res->start +
-+			qcom->acpi_pdata->qscratch_base_size;
-+	} else {
-+		parent_res = res;
-+	}
-+
-+	qcom->qscratch_base = devm_ioremap_resource(dev, parent_res);
- 	if (IS_ERR(qcom->qscratch_base)) {
- 		dev_err(dev, "failed to map qscratch, err=%d\n", ret);
- 		ret = PTR_ERR(qcom->qscratch_base);
-@@ -462,13 +546,8 @@ static int dwc3_qcom_probe(struct platform_device *pdev)
- 	}
- 
- 	ret = dwc3_qcom_setup_irq(pdev);
--	if (ret)
--		goto clk_disable;
--
--	dwc3_np = of_get_child_by_name(np, "dwc3");
--	if (!dwc3_np) {
--		dev_err(dev, "failed to find dwc3 core child\n");
--		ret = -ENODEV;
-+	if (ret) {
-+		dev_err(dev, "failed to setup IRQs, err=%d\n", ret);
- 		goto clk_disable;
- 	}
- 
-@@ -481,17 +560,74 @@ static int dwc3_qcom_probe(struct platform_device *pdev)
- 	if (ignore_pipe_clk)
- 		dwc3_qcom_select_utmi_clk(qcom);
- 
--	ret = of_platform_populate(np, NULL, NULL, dev);
--	if (ret) {
--		dev_err(dev, "failed to register dwc3 core - %d\n", ret);
--		goto clk_disable;
--	}
-+	if (ACPI_HANDLE(dev)) {
-+		int irq;
- 
--	qcom->dwc3 = of_find_device_by_node(dwc3_np);
--	if (!qcom->dwc3) {
--		dev_err(&pdev->dev, "failed to get dwc3 platform device\n");
--		ret = -ENODEV;
--		goto depopulate;
-+		qcom->dwc3 = platform_device_alloc("dwc3", PLATFORM_DEVID_AUTO);
-+		if (!qcom->dwc3) {
-+			ret = -ENOMEM;
-+			goto clk_disable;
-+		}
-+
-+		qcom->dwc3->dev.parent = dev;
-+		qcom->dwc3->dev.type = dev->type;
-+		qcom->dwc3->dev.dma_mask = dev->dma_mask;
-+		qcom->dwc3->dev.dma_parms = dev->dma_parms;
-+		qcom->dwc3->dev.coherent_dma_mask = dev->coherent_dma_mask;
-+
-+		child_res = kcalloc(2, sizeof(*child_res), GFP_KERNEL);
-+		if (!child_res) {
-+			ret = -ENOMEM;
-+			goto platform_unalloc;
-+		}
-+
-+		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+		if (!res) {
-+			dev_err(&pdev->dev, "failed to get memory resource\n");
-+			ret = -ENODEV;
-+			goto platform_unalloc;
-+		}
-+
-+		child_res[0].flags = res->flags;
-+		child_res[0].start = res->start;
-+		child_res[0].end = child_res[0].start +
-+			qcom->acpi_pdata->dwc3_core_base_size;
-+
-+		irq = platform_get_irq(pdev, 0);
-+		child_res[1].flags = IORESOURCE_IRQ;
-+		child_res[1].start = child_res[1].end = irq;
-+
-+		ret = platform_device_add_resources(qcom->dwc3, child_res, 2);
-+		if (ret) {
-+			dev_err(&pdev->dev, "failed to add resources\n");
-+			goto platform_unalloc;
-+		}
-+
-+		ret = platform_device_add(qcom->dwc3);
-+		if (ret) {
-+			dev_err(&pdev->dev, "failed to add device\n");
-+			goto platform_unalloc;
-+		}
-+	} else {
-+		dwc3_np = of_get_child_by_name(np, "dwc3");
-+		if (!dwc3_np) {
-+			dev_err(dev, "failed to find dwc3 core child\n");
-+			ret = -ENODEV;
-+			goto clk_disable;
-+		}
-+
-+		ret = of_platform_populate(np, NULL, NULL, dev);
-+		if (ret) {
-+			dev_err(dev, "failed to register dwc3 core - %d\n", ret);
-+			goto clk_disable;
-+		}
-+
-+		qcom->dwc3 = of_find_device_by_node(dwc3_np);
-+		if (!qcom->dwc3) {
-+			dev_err(&pdev->dev, "failed to get dwc3 platform device\n");
-+			ret = -ENODEV;
-+			goto depopulate;
-+		}
- 	}
- 
- 	qcom->mode = usb_get_dr_mode(&qcom->dwc3->dev);
-@@ -514,7 +650,14 @@ static int dwc3_qcom_probe(struct platform_device *pdev)
- 	return 0;
- 
- depopulate:
--	of_platform_depopulate(&pdev->dev);
-+platform_unalloc:
-+	if (child_res)
-+		kfree(child_res);
-+
-+	if (np)
-+		of_platform_depopulate(&pdev->dev);
-+	else
-+		platform_device_put(pdev);
- clk_disable:
- 	for (i = qcom->num_clocks - 1; i >= 0; i--) {
- 		clk_disable_unprepare(qcom->clks[i]);
-@@ -608,6 +751,7 @@ static struct platform_driver dwc3_qcom_driver = {
- 		.name	= "dwc3-qcom",
- 		.pm	= &dwc3_qcom_dev_pm_ops,
- 		.of_match_table	= dwc3_qcom_of_match,
-+		.acpi_match_table = ACPI_PTR(dwc3_qcom_acpi_match),
+ static const struct of_device_id sdm845_pinctrl_of_match[] = {
+ 	{ .compatible = "qcom,sdm845-pinctrl", },
+ 	{ },
+@@ -1302,6 +1334,7 @@ static struct platform_driver sdm845_pinctrl_driver = {
+ 		.name = "sdm845-pinctrl",
+ 		.pm = &msm_pinctrl_dev_pm_ops,
+ 		.of_match_table = sdm845_pinctrl_of_match,
++		.acpi_match_table = ACPI_PTR(sdm845_pinctrl_acpi_match),
  	},
- };
- 
+ 	.probe = sdm845_pinctrl_probe,
+ 	.remove = msm_pinctrl_remove,
 -- 
 2.17.1
