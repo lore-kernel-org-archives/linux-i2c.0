@@ -1,47 +1,56 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 2/8] i2c: i2c-qcom-geni: Signify successful driver probe
-Date: Tue,  4 Jun 2019 11:44:49 +0100
-Message-ID: <20190604104455.8877-2-lee.jones@linaro.org>
+Subject: [PATCH 7/8] usb: dwc3: qcom: Start USB in 'host mode' on the SDM845
+Date: Tue,  4 Jun 2019 11:44:54 +0100
+Message-ID: <20190604104455.8877-7-lee.jones@linaro.org>
 References: <20190604104455.8877-1-lee.jones@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190604104455.8877-1-lee.jones@linaro.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: alokc@codeaurora.org, kramasub@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, bjorn.andersson@linaro.org, linus.walleij@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org
-Cc: linux-arm-msm@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, jlhugo@gmail.com, Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, jlhugo@gmail.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The Qualcomm Geni I2C driver currently probes silently which can be
-confusing when debugging potential issues.  Add a low level (INFO)
-print when each I2C controller is successfully initially set-up.
+When booting with Device Tree, the current default boot configuration
+table option, the request to boot via 'host mode' comes from the
+"dr_mode" property.  A property of the same name can be used inside
+ACPI tables too.  However it is missing from the SDM845's ACPI tables
+so we have to supply this information using Platform Device Properites
+instead.
 
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/i2c/busses/i2c-qcom-geni.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/dwc3/dwc3-qcom.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 0fa93b448e8d..e27466d77767 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -598,6 +598,8 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 		return ret;
- 	}
+diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
+index 349bf549ee44..f21fdd6cdd1a 100644
+--- a/drivers/usb/dwc3/dwc3-qcom.c
++++ b/drivers/usb/dwc3/dwc3-qcom.c
+@@ -468,6 +468,11 @@ static const struct acpi_device_id dwc3_qcom_acpi_match[] = {
+ };
+ MODULE_DEVICE_TABLE(acpi, dwc3_qcom_acpi_match);
  
-+	dev_info(&pdev->dev, "Geni-I2C adaptor successfully added\n");
++static const struct property_entry dwc3_qcom_acpi_properties[] = {
++	PROPERTY_ENTRY_STRING("dr_mode", "host"),
++	{}
++};
 +
- 	return 0;
- }
+ static int dwc3_qcom_probe(struct platform_device *pdev)
+ {
+ 	struct device_node	*np = pdev->dev.of_node, *dwc3_np;
+@@ -603,6 +608,13 @@ static int dwc3_qcom_probe(struct platform_device *pdev)
+ 			goto platform_unalloc;
+ 		}
  
++		ret = platform_device_add_properties(qcom->dwc3,
++						     dwc3_qcom_acpi_properties);
++		if (ret < 0) {
++			dev_err(&pdev->dev, "failed to add properties\n");
++			goto platform_unalloc;
++		}
++
+ 		ret = platform_device_add(qcom->dwc3);
+ 		if (ret) {
+ 			dev_err(&pdev->dev, "failed to add device\n");
 -- 
 2.17.1
