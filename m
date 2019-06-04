@@ -1,123 +1,172 @@
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
 Subject: Re: [PATCH 22/22] docs: fix broken documentation links
-Date: Tue, 4 Jun 2019 06:46:14 -0300
-Message-ID: <20190604064614.67cde821@coco.lan>
+Date: Tue, 4 Jun 2019 06:58:02 -0300
+Message-ID: <20190604065802.47a9d24b@coco.lan>
 References: <cover.1559171394.git.mchehab+samsung@kernel.org>
-	<f9fecacbe4ce0b2b3aed38d71ae3753f2daf3ce3.1559171394.git.mchehab+samsung@kernel.org>
-	<64e136de-1a7b-3436-9675-44ea9fa7b64a@c-s.fr>
+ <f9fecacbe4ce0b2b3aed38d71ae3753f2daf3ce3.1559171394.git.mchehab+samsung@kernel.org>
+ <64e136de-1a7b-3436-9675-44ea9fa7b64a@c-s.fr>
+ <20190604064614.67cde821@coco.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <64e136de-1a7b-3436-9675-44ea9fa7b64a@c-s.fr>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
+In-Reply-To: <20190604064614.67cde821@coco.lan>
+List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
+List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
+ <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
+Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
+Sender: "Linuxppc-dev"
+ <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
 To: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Andrew Lunn <andrew@lunn.ch>, Thomas Preston <thomas.preston@codethink.co.uk>, Wolfram Sang <wsa@the-dreams.de>, Catalin Marinas <catalin.marinas@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Will Deacon <will.deacon@arm.com>, Russell King <linux@armlinux.org.uk>, Paul Mackerras <paulus@samba.org>, Alessia Mantegazza <amantegazza@vaga.pv.it>, Jakub Wilk <jwilk@jwilk.net>, AKASHI Takahiro <takahiro.akashi@linaro.org>, Kevin Hilman <khilman@baylibre.com>, James Morris <jmorris@namei.org>, linux-acpi@vger.kernel.org, Andy Gross <agross@kernel.org>, xen-devel@lists.xenproject.org, Alexander Popov <alex.popov@linux.com>, Qian Cai <cai@lca.pw>, Al Viro <viro@zeniv.linux.org.uk>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Kairui Song <kasong@redhat.com>, Quentin Perret <quentin.perret@arm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.or>
+Cc: Andrew Lunn <andrew@lunn.ch>, Thomas Preston <thomas.preston@codethink.co.uk>, Wolfram Sang <wsa@the-dreams.de>, Catalin Marinas <catalin.marinas@arm.com>, Linus Walleij <linus.walleij@linaro.org>, Will Deacon <will.deacon@arm.com>, Russell King <linux@armlinux.org.uk>, Paul Mackerras <paulus@samba.org>, Alessia Mantegazza <amantegazza@vaga.pv.it>, Jakub Wilk <jwilk@jwilk.net>, AKASHI Takahiro <takahiro.akashi@linaro.org>, Kevin Hilman <khilman@baylibre.com>, James Morris <jmorris@namei.org>, linux-acpi@vger.kernel.org, Andy Gross <agross@kernel.org>, xen-devel@lists.xenproject.org, Jason Wang <jasowang@redhat.com>, Alexander Popov <alex.popov@linux.com>, Qian Cai <cai@lca.pw>, Al Viro <viro@zeniv.linux.org.uk>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Kairui Song <kasong@redhat.com>, Quentin Perret <quentin.perret@arm.com>, Greg
 List-Id: linux-i2c@vger.kernel.org
 
-RW0gTW9uLCAzIEp1biAyMDE5IDA5OjM0OjE1ICswMjAwCkNocmlzdG9waGUgTGVyb3kgPGNocmlz
-dG9waGUubGVyb3lAYy1zLmZyPiBlc2NyZXZldToKCj4gTGUgMzAvMDUvMjAxOSDDoCAwMToyMywg
-TWF1cm8gQ2FydmFsaG8gQ2hlaGFiIGEgw6ljcml0wqA6Cj4gPiBNb3N0bHkgZHVlIHRvIHg4NiBh
-bmQgYWNwaSBjb252ZXJzaW9uLCBzZXZlcmFsIGRvY3VtZW50YXRpb24KPiA+IGxpbmtzIGFyZSBz
-dGlsbCBwb2ludGluZyB0byB0aGUgb2xkIGZpbGUuIEZpeCB0aGVtLgo+ID4gCj4gPiBTaWduZWQt
-b2ZmLWJ5OiBNYXVybyBDYXJ2YWxobyBDaGVoYWIgPG1jaGVoYWIrc2Ftc3VuZ0BrZXJuZWwub3Jn
-Pgo+ID4gLS0tCj4gPiAgIERvY3VtZW50YXRpb24vYWNwaS9kc2QvbGVkcy50eHQgICAgICAgICAg
-ICAgICAgICB8ICAyICstCj4gPiAgIERvY3VtZW50YXRpb24vYWRtaW4tZ3VpZGUva2VybmVsLXBh
-cmFtZXRlcnMucnN0ICB8ICA2ICsrKy0tLQo+ID4gICBEb2N1bWVudGF0aW9uL2FkbWluLWd1aWRl
-L2tlcm5lbC1wYXJhbWV0ZXJzLnR4dCAgfCAxNiArKysrKysrKy0tLS0tLS0tCj4gPiAgIERvY3Vt
-ZW50YXRpb24vYWRtaW4tZ3VpZGUvcmFzLnJzdCAgICAgICAgICAgICAgICB8ICAyICstCj4gPiAg
-IC4uLi9kZXZpY2V0cmVlL2JpbmRpbmdzL25ldC9mc2wtZW5ldGMudHh0ICAgICAgICB8ICA3ICsr
-Ky0tLS0KPiA+ICAgLi4uL2JpbmRpbmdzL3BjaS9hbWxvZ2ljLG1lc29uLXBjaWUudHh0ICAgICAg
-ICAgIHwgIDIgKy0KPiA+ICAgLi4uL2JpbmRpbmdzL3JlZ3VsYXRvci9xY29tLHJwbWgtcmVndWxh
-dG9yLnR4dCAgIHwgIDIgKy0KPiA+ICAgRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2Jvb3Rpbmct
-d2l0aG91dC1vZi50eHQgIHwgIDIgKy0KPiA+ICAgRG9jdW1lbnRhdGlvbi9kcml2ZXItYXBpL2dw
-aW8vYm9hcmQucnN0ICAgICAgICAgIHwgIDIgKy0KPiA+ICAgRG9jdW1lbnRhdGlvbi9kcml2ZXIt
-YXBpL2dwaW8vY29uc3VtZXIucnN0ICAgICAgIHwgIDIgKy0KPiA+ICAgLi4uL2Zpcm13YXJlLWd1
-aWRlL2FjcGkvZW51bWVyYXRpb24ucnN0ICAgICAgICAgIHwgIDIgKy0KPiA+ICAgLi4uL2Zpcm13
-YXJlLWd1aWRlL2FjcGkvbWV0aG9kLXRyYWNpbmcucnN0ICAgICAgIHwgIDIgKy0KPiA+ICAgRG9j
-dW1lbnRhdGlvbi9pMmMvaW5zdGFudGlhdGluZy1kZXZpY2VzICAgICAgICAgIHwgIDIgKy0KPiA+
-ICAgRG9jdW1lbnRhdGlvbi9zeXNjdGwva2VybmVsLnR4dCAgICAgICAgICAgICAgICAgIHwgIDQg
-KystLQo+ID4gICAuLi4vdHJhbnNsYXRpb25zL2l0X0lUL3Byb2Nlc3MvaG93dG8ucnN0ICAgICAg
-ICAgfCAgMiArLQo+ID4gICAuLi4vaXRfSVQvcHJvY2Vzcy9zdGFibGUta2VybmVsLXJ1bGVzLnJz
-dCAgICAgICAgfCAgNCArKy0tCj4gPiAgIC4uLi90cmFuc2xhdGlvbnMvemhfQ04vcHJvY2Vzcy80
-LkNvZGluZy5yc3QgICAgICB8ICAyICstCj4gPiAgIERvY3VtZW50YXRpb24veDg2L3g4Nl82NC81
-bGV2ZWwtcGFnaW5nLnJzdCAgICAgICB8ICAyICstCj4gPiAgIERvY3VtZW50YXRpb24veDg2L3g4
-Nl82NC9ib290LW9wdGlvbnMucnN0ICAgICAgICB8ICA0ICsrLS0KPiA+ICAgLi4uL3g4Ni94ODZf
-NjQvZmFrZS1udW1hLWZvci1jcHVzZXRzLnJzdCAgICAgICAgIHwgIDIgKy0KPiA+ICAgTUFJTlRB
-SU5FUlMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDYgKysrLS0tCj4g
-PiAgIGFyY2gvYXJtL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAy
-ICstCj4gPiAgIGFyY2gvYXJtNjQva2VybmVsL2tleGVjX2ltYWdlLmMgICAgICAgICAgICAgICAg
-ICB8ICAyICstCj4gPiAgIGFyY2gvcG93ZXJwYy9LY29uZmlnICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICB8ICAyICstCj4gPiAgIGFyY2gveDg2L0tjb25maWcgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICB8IDE2ICsrKysrKysrLS0tLS0tLS0KPiA+ICAgYXJjaC94ODYvS2NvbmZp
-Zy5kZWJ1ZyAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+ICAgYXJjaC94ODYv
-Ym9vdC9oZWFkZXIuUyAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+ICAgYXJj
-aC94ODYvZW50cnkvZW50cnlfNjQuUyAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+
-ICAgYXJjaC94ODYvaW5jbHVkZS9hc20vYm9vdHBhcmFtX3V0aWxzLmggICAgICAgICAgIHwgIDIg
-Ky0KPiA+ICAgYXJjaC94ODYvaW5jbHVkZS9hc20vcGFnZV82NF90eXBlcy5oICAgICAgICAgICAg
-IHwgIDIgKy0KPiA+ICAgYXJjaC94ODYvaW5jbHVkZS9hc20vcGd0YWJsZV82NF90eXBlcy5oICAg
-ICAgICAgIHwgIDIgKy0KPiA+ICAgYXJjaC94ODYva2VybmVsL2NwdS9taWNyb2NvZGUvYW1kLmMg
-ICAgICAgICAgICAgIHwgIDIgKy0KPiA+ICAgYXJjaC94ODYva2VybmVsL2tleGVjLWJ6aW1hZ2U2
-NC5jICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+ICAgYXJjaC94ODYva2VybmVsL3BjaS1kbWEu
-YyAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+ICAgYXJjaC94ODYvbW0vdGxiLmMg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+ICAgYXJjaC94ODYvcGxh
-dGZvcm0vcHZoL2VubGlnaHRlbi5jICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+ICAgZHJpdmVy
-cy9hY3BpL0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgMTAgKysrKystLS0t
-LQo+ID4gICBkcml2ZXJzL25ldC9ldGhlcm5ldC9mYXJhZGF5L2Z0Z21hYzEwMC5jICAgICAgICAg
-fCAgMiArLQo+ID4gICAuLi4vZmllbGRidXMvRG9jdW1lbnRhdGlvbi9maWVsZGJ1c19kZXYudHh0
-ICAgICAgfCAgNCArKy0tCj4gPiAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICB8ICAyICstCj4gPiAgIGluY2x1ZGUvYWNwaS9hY3BpX2RyaXZlcnMuaCAg
-ICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4gPiAgIGluY2x1ZGUvbGludXgvZnNfY29udGV4
-dC5oICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4gPiAgIGluY2x1ZGUvbGludXgvbHNt
-X2hvb2tzLmggICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4gPiAgIG1tL0tjb25maWcg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4gPiAgIHNlY3Vy
-aXR5L0tjb25maWcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAyICstCj4gPiAg
-IHRvb2xzL2luY2x1ZGUvbGludXgvZXJyLmggICAgICAgICAgICAgICAgICAgICAgICB8ICAyICst
-Cj4gPiAgIHRvb2xzL29ianRvb2wvRG9jdW1lbnRhdGlvbi9zdGFjay12YWxpZGF0aW9uLnR4dCB8
-ICA0ICsrLS0KPiA+ICAgdG9vbHMvdGVzdGluZy9zZWxmdGVzdHMveDg2L3Byb3RlY3Rpb25fa2V5
-cy5jICAgIHwgIDIgKy0KPiA+ICAgNDggZmlsZXMgY2hhbmdlZCwgNzcgaW5zZXJ0aW9ucygrKSwg
-NzggZGVsZXRpb25zKC0pICAKPiAKPiBbLi4uXQo+IAo+ID4gZGlmZiAtLWdpdCBhL2FyY2gvcG93
-ZXJwYy9LY29uZmlnIGIvYXJjaC9wb3dlcnBjL0tjb25maWcKPiA+IGluZGV4IDhjMWM2MzYzMDhj
-OC4uZTg2OGQyYmQ0OGI4IDEwMDY0NAo+ID4gLS0tIGEvYXJjaC9wb3dlcnBjL0tjb25maWcKPiA+
-ICsrKyBiL2FyY2gvcG93ZXJwYy9LY29uZmlnCj4gPiBAQCAtODk4LDcgKzg5OCw3IEBAIGNvbmZp
-ZyBQUENfTUVNX0tFWVMKPiA+ICAgCSAgcGFnZS1iYXNlZCBwcm90ZWN0aW9ucywgYnV0IHdpdGhv
-dXQgcmVxdWlyaW5nIG1vZGlmaWNhdGlvbiBvZiB0aGUKPiA+ICAgCSAgcGFnZSB0YWJsZXMgd2hl
-biBhbiBhcHBsaWNhdGlvbiBjaGFuZ2VzIHByb3RlY3Rpb24gZG9tYWlucy4KPiA+ICAgCj4gPiAt
-CSAgRm9yIGRldGFpbHMsIHNlZSBEb2N1bWVudGF0aW9uL3ZtL3Byb3RlY3Rpb24ta2V5cy5yc3QK
-PiA+ICsJICBGb3IgZGV0YWlscywgc2VlIERvY3VtZW50YXRpb24veDg2L3Byb3RlY3Rpb24ta2V5
-cy5yc3QgIAo+IAo+IEl0IGxvb2tzIHN0cmFuZ2UgdG8gcmVmZXJlbmNlIGFuIHg4NiBmaWxlLCBm
-b3IgcG93ZXJwYyBhcmNoLgoKSW5kZWVkLiBZZXQsIHNlZWtpbmcgZm9yIHRoZSBBUEkgZG9jdW1l
-bnRlZCB0aGVyZToKCiAkIGdpdCBncmVwIC1sIHBrZXlfbXByb3RlY3QKRG9jdW1lbnRhdGlvbi94
-ODYvcHJvdGVjdGlvbi1rZXlzLnJzdAphcmNoL2FscGhhL2tlcm5lbC9zeXNjYWxscy9zeXNjYWxs
-LnRibAphcmNoL2FybS90b29scy9zeXNjYWxsLnRibAphcmNoL2FybTY0L2luY2x1ZGUvYXNtL3Vu
-aXN0ZDMyLmgKYXJjaC9pYTY0L2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsLnRibAphcmNoL202OGsv
-a2VybmVsL3N5c2NhbGxzL3N5c2NhbGwudGJsCmFyY2gvbWljcm9ibGF6ZS9rZXJuZWwvc3lzY2Fs
-bHMvc3lzY2FsbC50YmwKYXJjaC9taXBzL2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsX24zMi50YmwK
-YXJjaC9taXBzL2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsX242NC50YmwKYXJjaC9taXBzL2tlcm5l
-bC9zeXNjYWxscy9zeXNjYWxsX28zMi50YmwKYXJjaC9wYXJpc2Mva2VybmVsL3N5c2NhbGxzL3N5
-c2NhbGwudGJsCmFyY2gvcG93ZXJwYy9rZXJuZWwvc3lzY2FsbHMvc3lzY2FsbC50YmwKYXJjaC9z
-MzkwL2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsLnRibAphcmNoL3NoL2tlcm5lbC9zeXNjYWxscy9z
-eXNjYWxsLnRibAphcmNoL3NwYXJjL2tlcm5lbC9zeXNjYWxscy9zeXNjYWxsLnRibAphcmNoL3g4
-Ni9lbnRyeS9zeXNjYWxscy9zeXNjYWxsXzMyLnRibAphcmNoL3g4Ni9lbnRyeS9zeXNjYWxscy9z
-eXNjYWxsXzY0LnRibAphcmNoL3h0ZW5zYS9rZXJuZWwvc3lzY2FsbHMvc3lzY2FsbC50YmwKaW5j
-bHVkZS9saW51eC9zeXNjYWxscy5oCmluY2x1ZGUvdWFwaS9hc20tZ2VuZXJpYy91bmlzdGQuaApr
-ZXJuZWwvc3lzX25pLmMKbW0vbXByb3RlY3QuYwp0b29scy9pbmNsdWRlL3VhcGkvYXNtLWdlbmVy
-aWMvdW5pc3RkLmgKdG9vbHMvcGVyZi9hcmNoL3Bvd2VycGMvZW50cnkvc3lzY2FsbHMvc3lzY2Fs
-bC50YmwKdG9vbHMvcGVyZi9hcmNoL3g4Ni9lbnRyeS9zeXNjYWxscy9zeXNjYWxsXzY0LnRibAp0
-b29scy9wZXJmL2J1aWx0aW4tdHJhY2UuYwp0b29scy90ZXN0aW5nL3NlbGZ0ZXN0cy94ODYvcHJv
-dGVjdGlvbl9rZXlzLmMKCkRlc3BpdGUgYmVpbmcgdXNlZCBvbiBzZXZlcmFsIGFyY2hzLCB0aGUg
-b25seSBkb2N1bWVudGF0aW9uIGZvciBpdAppcyBpbnNpZGUgdGhlIHg4NiBkaXJlY3RvcnksIGFz
-IGl0IHNlZW1zIHRoYXQgdGhpcyBpcyBub3QKYXJjaC1zcGVjaWZpYy4KClBlcmhhcHMgdGhlIGZp
-bGUgc2hvdWxkLCBpbnN0ZWFkLCBiZSBtb3ZlZCB0byBhbm90aGVyIGJvb2suCgpUaGFua3MsCk1h
-dXJvCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+Em Tue, 4 Jun 2019 06:46:14 -0300
+Mauro Carvalho Chehab <mchehab+samsung@kernel.org> escreveu:
+
+> Em Mon, 3 Jun 2019 09:34:15 +0200
+> Christophe Leroy <christophe.leroy@c-s.fr> escreveu:
+> 
+
+> > [...]
+> > 
+> > > diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+> > > index 8c1c636308c8..e868d2bd48b8 100644
+> > > --- a/arch/powerpc/Kconfig
+> > > +++ b/arch/powerpc/Kconfig
+> > > @@ -898,7 +898,7 @@ config PPC_MEM_KEYS
+> > >   	  page-based protections, but without requiring modification of the
+> > >   	  page tables when an application changes protection domains.
+> > >   
+> > > -	  For details, see Documentation/vm/protection-keys.rst
+> > > +	  For details, see Documentation/x86/protection-keys.rst  
+> > 
+> > It looks strange to reference an x86 file, for powerpc arch.
+> 
+> Indeed. Yet, seeking for the API documented there:
+> 
+>  $ git grep -l pkey_mprotect
+> Documentation/x86/protection-keys.rst
+> arch/alpha/kernel/syscalls/syscall.tbl
+> arch/arm/tools/syscall.tbl
+> arch/arm64/include/asm/unistd32.h
+> arch/ia64/kernel/syscalls/syscall.tbl
+> arch/m68k/kernel/syscalls/syscall.tbl
+> arch/microblaze/kernel/syscalls/syscall.tbl
+> arch/mips/kernel/syscalls/syscall_n32.tbl
+> arch/mips/kernel/syscalls/syscall_n64.tbl
+> arch/mips/kernel/syscalls/syscall_o32.tbl
+> arch/parisc/kernel/syscalls/syscall.tbl
+> arch/powerpc/kernel/syscalls/syscall.tbl
+> arch/s390/kernel/syscalls/syscall.tbl
+> arch/sh/kernel/syscalls/syscall.tbl
+> arch/sparc/kernel/syscalls/syscall.tbl
+> arch/x86/entry/syscalls/syscall_32.tbl
+> arch/x86/entry/syscalls/syscall_64.tbl
+> arch/xtensa/kernel/syscalls/syscall.tbl
+> include/linux/syscalls.h
+> include/uapi/asm-generic/unistd.h
+> kernel/sys_ni.c
+> mm/mprotect.c
+> tools/include/uapi/asm-generic/unistd.h
+> tools/perf/arch/powerpc/entry/syscalls/syscall.tbl
+> tools/perf/arch/x86/entry/syscalls/syscall_64.tbl
+> tools/perf/builtin-trace.c
+> tools/testing/selftests/x86/protection_keys.c
+> 
+> Despite being used on several archs, the only documentation for it
+> is inside the x86 directory, as it seems that this is not
+> arch-specific.
+> 
+> Perhaps the file should, instead, be moved to another book.
+
+I guess the best is to have this inside the core-api book.
+
+Patch enclosed.
+
+Regards,
+Mauro
+
+
+[PATCH] docs: move protection-keys.rst to the core-api book
+
+This document is used by multiple architectures:
+
+	$ echo $(git grep -l  pkey_mprotect arch|cut -d'/' -f 2|sort|uniq)
+	alpha arm arm64 ia64 m68k microblaze mips parisc powerpc s390 sh sparc x86 xtensa
+
+So, let's move it to the core book and adjust the links to it
+accordingly.
+
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+
+diff --git a/Documentation/core-api/index.rst b/Documentation/core-api/index.rst
+index ee1bb8983a88..2466a4c51031 100644
+--- a/Documentation/core-api/index.rst
++++ b/Documentation/core-api/index.rst
+@@ -34,6 +34,7 @@ Core utilities
+    timekeeping
+    boot-time-mm
+    memory-hotplug
++   protection-keys
+ 
+ 
+ Interfaces for kernel debugging
+diff --git a/Documentation/x86/protection-keys.rst b/Documentation/core-api/protection-keys.rst
+similarity index 100%
+rename from Documentation/x86/protection-keys.rst
+rename to Documentation/core-api/protection-keys.rst
+diff --git a/Documentation/x86/index.rst b/Documentation/x86/index.rst
+index ae36fc5fc649..f2de1b2d3ac7 100644
+--- a/Documentation/x86/index.rst
++++ b/Documentation/x86/index.rst
+@@ -19,7 +19,6 @@ x86-specific Documentation
+    tlb
+    mtrr
+    pat
+-   protection-keys
+    intel_mpx
+    amd-memory-encryption
+    pti
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 8c1c636308c8..3b795a0cab62 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -898,7 +898,7 @@ config PPC_MEM_KEYS
+ 	  page-based protections, but without requiring modification of the
+ 	  page tables when an application changes protection domains.
+ 
+-	  For details, see Documentation/vm/protection-keys.rst
++	  For details, see Documentation/core-api/protection-keys.rst
+ 
+ 	  If unsure, say y.
+ 
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 2bbbd4d1ba31..d87d53fcd261 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -1911,7 +1911,7 @@ config X86_INTEL_MEMORY_PROTECTION_KEYS
+ 	  page-based protections, but without requiring modification of the
+ 	  page tables when an application changes protection domains.
+ 
+-	  For details, see Documentation/x86/protection-keys.txt
++	  For details, see Documentation/core-api/protection-keys.rst
+ 
+ 	  If unsure, say y.
+ 
+diff --git a/tools/testing/selftests/x86/protection_keys.c b/tools/testing/selftests/x86/protection_keys.c
+index 5d546dcdbc80..480995bceefa 100644
+--- a/tools/testing/selftests/x86/protection_keys.c
++++ b/tools/testing/selftests/x86/protection_keys.c
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0
+ /*
+- * Tests x86 Memory Protection Keys (see Documentation/x86/protection-keys.txt)
++ * Tests x86 Memory Protection Keys (see Documentation/core-api/protection-keys.rst)
+  *
+  * There are examples in here of:
+  *  * how to set protection keys on memory
