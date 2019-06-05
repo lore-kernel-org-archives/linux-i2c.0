@@ -1,70 +1,107 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v2 3/8] pinctrl: msm: Add ability for drivers to supply a
- reserved GPIO list
-Date: Sat, 8 Jun 2019 16:22:03 +0200
-Message-ID: <CACRpkdZmBe6ucmekLUNkypDKx=eAXqtwdYNpZzwByzuWb-sjDA@mail.gmail.com>
-References: <20190607082901.6491-1-lee.jones@linaro.org>
- <20190607082901.6491-3-lee.jones@linaro.org>
- <CAKv+Gu-1QhX-9aNhFJauc9NVe6ceQQueE8Kd14031XJ-2yaupA@mail.gmail.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH 02/10] mfd / platform: cros_ec: Move
+ cros-ec core driver out from MFD
+Date: Wed, 5 Jun 2019 10:31:30 +0200
+Message-ID: <20190605083130.GC10944@ulmo>
+References: <20190604152019.16100-1-enric.balletbo@collabora.com>
+ <20190604152019.16100-3-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <CAKv+Gu-1QhX-9aNhFJauc9NVe6ceQQueE8Kd14031XJ-2yaupA@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Felipe Balbi <balbi@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, linux-usb <linux-usb@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, David Brown <david.brown@linaro.org>, alokc@codeaurora.org, linux-i2c <linux-i2c@vger.kernel.org>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Andy Gross <andy.gross@linaro.org>, Jeffrey Hugo <jlhugo@gmail.com>, Lee Jones <lee.jones@linaro.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+Content-Type: multipart/mixed; boundary="===============9163445621879607833=="
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <20190604152019.16100-3-enric.balletbo@collabora.com>
+List-Unsubscribe: <https://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <https://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: "Alsa-devel" <alsa-devel-bounces@alsa-project.org>
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: gwendal@chromium.org, Banajit Goswami <bgoswami@codeaurora.org>, Vignesh R <vigneshr@ti.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, Mark Brown <broonie@kernel.org>, Juergen Fitschen <jfi@ssv-embedded.de>, alsa-devel@alsa-project.org, Stefan Agner <stefan@agner.ch>, Sebastian Reichel <sre@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>, Guenter Roeck <groeck@chromium.org>, kernel@collabora.com, dtor@chromium.org, Lars-Peter Clausen <lars@metafoo.de>, Jean Delvare <jdelvare@suse.de>, Jacky Bai <ping.bai@nxp.com>, linux-rtc@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Sean
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jun 7, 2019 at 1:10 PM Ard Biesheuvel <ard.biesheuvel@linaro.org> wrote:
-> On Fri, 7 Jun 2019 at 10:29, Lee Jones <lee.jones@linaro.org> wrote:
-> >
-> > When booting MSM based platforms with Device Tree or some ACPI
-> > implementations, it is possible to provide a list of reserved pins
-> > via the 'gpio-reserved-ranges' and 'gpios' properties respectively.
-> > However some ACPI tables are not populated with this information,
-> > thus it has to come from a knowledgable device driver instead.
-> >
-> > Here we provide the MSM common driver with additional support to
-> > parse this informtion and correctly populate the widely used
-> > 'valid_mask'.
-> >
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
->
-> I'm not sure if this is the correct approach. Presumably, on ACPI
-> systems, all the pinctl stuff is already set up by the firmware, and
-> so we shouldn't touch *any* pins unless they have been requested
-> explicitly. Is there any way we can support this in the current
-> framework?
 
-I don't suppose anything but the GPIO portions of the pinctrl
-driver is ever used under ACPI. I guess in an ideal ACPI world
-noone (like userspace) would ever use a GPIO because ACPI
-would have all GPIOs assigned a particular purpose, so accessing
-any of them would lead to a crash.
+--===============9163445621879607833==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="i7F3eY7HS/tUJxUd"
+Content-Disposition: inline
 
-But in practice it seems a lot of GPIOs are available and used
-for example by userspace hacks, so just blacklisting the ones
-that cannot be accessed by the GPIO subsystem seems like
-a viable compromise.
 
-Then we have the ACPI paradigm of pin control being controlled
-by ACPI: this is also great in theory, but it seems like the ACPI
-firmware has in cases forgot or omitted to implement some of
-it and people need to access it anyways. The people writing the
-default firmware cannot think out or test all usecases, so some
-will be left open-ended to non-firmware authoring users. This is why
-drivers/pinctrl/intel/* exists despite being for exclusively
-ACPI platforms. Being able to control pins also from the kernel
-has become a viable compromise.
+--i7F3eY7HS/tUJxUd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yours,
-Linus Walleij
+On Tue, Jun 04, 2019 at 05:20:11PM +0200, Enric Balletbo i Serra wrote:
+> Now, the ChromeOS EC core driver has nothing related to an MFD device, so
+> move that driver from the MFD subsystem to the platform/chrome subsystem.
+>=20
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> ---
+>=20
+>  drivers/extcon/Kconfig                     |  2 +-
+>  drivers/hid/Kconfig                        |  2 +-
+>  drivers/i2c/busses/Kconfig                 |  2 +-
+>  drivers/iio/common/cros_ec_sensors/Kconfig |  2 +-
+>  drivers/input/keyboard/Kconfig             |  2 +-
+>  drivers/media/platform/Kconfig             |  3 +--
+>  drivers/mfd/Kconfig                        | 14 +-------------
+>  drivers/mfd/Makefile                       |  2 --
+>  drivers/platform/chrome/Kconfig            | 21 +++++++++++++++++----
+>  drivers/platform/chrome/Makefile           |  1 +
+>  drivers/{mfd =3D> platform/chrome}/cros_ec.c |  0
+>  drivers/power/supply/Kconfig               |  2 +-
+>  drivers/pwm/Kconfig                        |  2 +-
+>  drivers/rtc/Kconfig                        |  2 +-
+>  sound/soc/qcom/Kconfig                     |  2 +-
+>  15 files changed, 29 insertions(+), 30 deletions(-)
+>  rename drivers/{mfd =3D> platform/chrome}/cros_ec.c (100%)
+[...]
+> diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
+> index dff5a93f7daa..99946e1bcc73 100644
+> --- a/drivers/pwm/Kconfig
+> +++ b/drivers/pwm/Kconfig
+> @@ -145,7 +145,7 @@ config PWM_CRC
+> =20
+>  config PWM_CROS_EC
+>  	tristate "ChromeOS EC PWM driver"
+> -	depends on MFD_CROS_EC
+> +	depends on CROS_EC
+>  	help
+>  	  PWM driver for exposing a PWM attached to the ChromeOS Embedded
+>  	  Controller.
+
+Acked-by: Thierry Reding <thierry.reding@gmail.com>
+
+--i7F3eY7HS/tUJxUd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAlz3feIACgkQ3SOs138+
+s6Gy8BAAkwnYWSW1eAUYvq+hgX/m5frnbMQpHfgHuzP1fIoXXZAIP2aZmQ8jzens
+bbiMtRR63rGaYjCMdalUKbxtH6ogZFHx+aiH/cZVHNr+rW198oW3/nGoWG05uVBq
+WH0mlDsfAQ3/sR1hcUUhvCiPh+oExShLhOYz8zTJKHIHwtSDt8ep0yIOKPVKwknW
+mIT7n2RFSSRvXaJ7RnuG61YPKk+BoJZ2X7BKkYKynAsBAQgyFSHOqOSLl6+JiNRZ
+6pKL0uxqbf/x7b0FxrbToI0h8KzTi6kzccBznW/wgs92Ta/rxHx//7NZmFlNMuIR
+c6nAIXY2msir5vVnflr2wn5tdzaQN35lWchGOEyiIiBgJntYAlR1AOPpdCSpkcUU
+6BBH6YfFfvsBmioBshMFiFM7gVYRMvE1FSPJjfqWXe4qjyTZN2Yi/oaD6FkB9HoW
+T8p9ORKVUKsRCt11RF1tt6AnpZoSXBYMZOaENDTIsS+PDyXdYJNLqPHWo6S1C5qh
+Mb8zCBwgoxRek4DUsvi5l4QFiJ/I28zrwDq5cyMqVn8IJCNfGezRIgLpvN4E6LHn
+tIWlBwUiVzsoCRy0OpQ5xPLn4H2ExNgVN+tc8P83kAmw9wPyo5agzN24dywWGvEI
+kDcf6Sw7cyd0yyR7XTjglPxQHb5t2UX/HHXEoSeXY7TBfGU1YgY=
+=oUZw
+-----END PGP SIGNATURE-----
+
+--i7F3eY7HS/tUJxUd--
+
+--===============9163445621879607833==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+
+--===============9163445621879607833==--
