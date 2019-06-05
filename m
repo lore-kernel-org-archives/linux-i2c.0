@@ -1,68 +1,95 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 7/8] usb: dwc3: qcom: Start USB in 'host mode' on the SDM845
-Date: Wed,  5 Jun 2019 12:43:01 +0100
-Message-ID: <20190605114302.22509-7-lee.jones@linaro.org>
-References: <20190605114302.22509-1-lee.jones@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190605114302.22509-1-lee.jones@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 1/8] i2c: i2c-qcom-geni: Provide support for ACPI
+Date: Wed,  5 Jun 2019 12:42:55 +0100
+Message-ID: <20190605114302.22509-1-lee.jones@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: alokc@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, bjorn.andersson@linaro.org, linus.walleij@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, jlhugo@gmail.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, jlhugo@gmail.com, Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-When booting with Device Tree, the current default boot configuration
-table option, the request to boot via 'host mode' comes from the
-'dr_mode' property.  A property of the same name can be used inside
-ACPI tables too.  However it is missing from the SDM845's ACPI tables
-so we have to supply this information using Platform Device Properties
-instead.
-
-This does not change the behaviour of any currently supported devices.
-The property is only set on ACPI enabled platforms, thus for H/W
-booting DT, unless a 'dr_mode' property is present, the default is
-still OTG (On-The-Go) as per [0].  Any new ACPI devices added will
-also be able to over-ride this implementation by providing a 'dr_mode'
-property in their ACPI tables.  In cases where 'dr_mode' is omitted
-from the tables AND 'host mode' should not be the default (very
-unlikely), then we will have to add some way of choosing between them
-at run time - most likely by ACPI HID.
-
-[0] Documentation/devicetree/bindings/usb/generic.txt
+Add a match table to allow automatic probing of ACPI device
+QCOM0220.  Ignore clock attainment errors.  Set default clock
+frequency value.
 
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/usb/dwc3/dwc3-qcom.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/i2c/busses/i2c-qcom-geni.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
-index 1e1f12b7991d..55ba04254e38 100644
---- a/drivers/usb/dwc3/dwc3-qcom.c
-+++ b/drivers/usb/dwc3/dwc3-qcom.c
-@@ -444,6 +444,11 @@ static int dwc3_qcom_clk_init(struct dwc3_qcom *qcom, int count)
- 	return 0;
- }
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index db075bc0d952..0fa93b448e8d 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0
+ // Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
  
-+static const struct property_entry dwc3_qcom_acpi_properties[] = {
-+	PROPERTY_ENTRY_STRING("dr_mode", "host"),
-+	{}
++#include <linux/acpi.h>
+ #include <linux/clk.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/err.h>
+@@ -483,6 +484,12 @@ static const struct i2c_algorithm geni_i2c_algo = {
+ 	.functionality	= geni_i2c_func,
+ };
+ 
++static const struct acpi_device_id geni_i2c_acpi_match[] = {
++	{ "QCOM0220"},
++	{ },
 +};
++MODULE_DEVICE_TABLE(acpi, geni_i2c_acpi_match);
 +
- static int dwc3_qcom_acpi_register_core(struct platform_device *pdev)
+ static int geni_i2c_probe(struct platform_device *pdev)
  {
- 	struct dwc3_qcom 	*qcom = platform_get_drvdata(pdev);
-@@ -488,6 +493,13 @@ static int dwc3_qcom_acpi_register_core(struct platform_device *pdev)
- 		goto out;
+ 	struct geni_i2c_dev *gi2c;
+@@ -502,7 +509,7 @@ static int geni_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(gi2c->se.base);
+ 
+ 	gi2c->se.clk = devm_clk_get(&pdev->dev, "se");
+-	if (IS_ERR(gi2c->se.clk)) {
++	if (IS_ERR(gi2c->se.clk) && !ACPI_HANDLE(&pdev->dev)) {
+ 		ret = PTR_ERR(gi2c->se.clk);
+ 		dev_err(&pdev->dev, "Err getting SE Core clk %d\n", ret);
+ 		return ret;
+@@ -510,12 +517,19 @@ static int geni_i2c_probe(struct platform_device *pdev)
+ 
+ 	ret = device_property_read_u32(&pdev->dev, "clock-frequency",
+ 							&gi2c->clk_freq_out);
+-	if (ret) {
++	if (ret && !ACPI_HANDLE(&pdev->dev)) {
+ 		dev_info(&pdev->dev,
+ 			"Bus frequency not specified, default to 100kHz.\n");
+ 		gi2c->clk_freq_out = KHZ(100);
  	}
  
-+	ret = platform_device_add_properties(qcom->dwc3,
-+					     dwc3_qcom_acpi_properties);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "failed to add properties\n");
-+		goto out;
++	if (ACPI_HANDLE(&pdev->dev)) {
++		ACPI_COMPANION_SET(&gi2c->adap.dev, ACPI_COMPANION(&pdev->dev));
++
++		/* Using default, same as the !ACPI case above */
++		gi2c->clk_freq_out = KHZ(100);
 +	}
 +
- 	ret = platform_device_add(qcom->dwc3);
- 	if (ret)
- 		dev_err(&pdev->dev, "failed to add device\n");
+ 	gi2c->irq = platform_get_irq(pdev, 0);
+ 	if (gi2c->irq < 0) {
+ 		dev_err(&pdev->dev, "IRQ error for i2c-geni\n");
+@@ -660,6 +674,7 @@ static struct platform_driver geni_i2c_driver = {
+ 		.name = "geni_i2c",
+ 		.pm = &geni_i2c_pm_ops,
+ 		.of_match_table = geni_i2c_dt_match,
++		.acpi_match_table = ACPI_PTR(geni_i2c_acpi_match),
+ 	},
+ };
+ 
 -- 
 2.17.1
