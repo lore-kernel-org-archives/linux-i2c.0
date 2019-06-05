@@ -1,51 +1,65 @@
 From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH 2/8] i2c: i2c-qcom-geni: Signify successful driver probe
-Date: Tue, 4 Jun 2019 23:20:20 -0700
-Message-ID: <20190605062020.GL22737@tuxbook-pro>
+Subject: Re: [PATCH 6/8] usb: dwc3: qcom: Add support for booting with ACPI
+Date: Tue, 4 Jun 2019 23:35:07 -0700
+Message-ID: <20190605063507.GM22737@tuxbook-pro>
 References: <20190604104455.8877-1-lee.jones@linaro.org>
- <20190604104455.8877-2-lee.jones@linaro.org>
+ <20190604104455.8877-6-lee.jones@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190604104455.8877-2-lee.jones@linaro.org>
+In-Reply-To: <20190604104455.8877-6-lee.jones@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Lee Jones <lee.jones@linaro.org>
 Cc: alokc@codeaurora.org, kramasub@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, linus.walleij@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, jlhugo@gmail.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 On Tue 04 Jun 03:44 PDT 2019, Lee Jones wrote:
-
-> The Qualcomm Geni I2C driver currently probes silently which can be
-> confusing when debugging potential issues.  Add a low level (INFO)
-> print when each I2C controller is successfully initially set-up.
-> 
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> ---
->  drivers/i2c/busses/i2c-qcom-geni.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-> index 0fa93b448e8d..e27466d77767 100644
-> --- a/drivers/i2c/busses/i2c-qcom-geni.c
-> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
-> @@ -598,6 +598,8 @@ static int geni_i2c_probe(struct platform_device *pdev)
->  		return ret;
->  	}
+> diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
+[..]
+> @@ -373,7 +416,7 @@ static int dwc3_qcom_clk_init(struct dwc3_qcom *qcom, int count)
 >  
-> +	dev_info(&pdev->dev, "Geni-I2C adaptor successfully added\n");
-> +
+>  	qcom->num_clocks = count;
+>  
+> -	if (!count)
+> +	if (!count || ACPI_HANDLE(dev))
+>  		return 0;
 
-I would prefer that we do not add such prints, as it would be to accept
-the downstream behaviour of spamming the log to the point where no one
-will ever look through it.
+Afaict you call this with count = of_count_phandle_with_args(), which
+should be 0. But why not skip calling this at all?
 
-Regards,
-Bjorn
-
+>  
+>  	qcom->clks = devm_kcalloc(dev, qcom->num_clocks,
+> @@ -409,12 +452,28 @@ static int dwc3_qcom_clk_init(struct dwc3_qcom *qcom, int count)
 >  	return 0;
 >  }
 >  
-> -- 
-> 2.17.1
-> 
+> +static const struct dwc3_acpi_pdata sdm845_acpi_pdata = {
+> +	.qscratch_base_offset = SDM845_QSCRATCH_BASE_OFFSET,
+> +	.qscratch_base_size = SDM845_QSCRATCH_SIZE,
+> +	.dwc3_core_base_size = SDM845_DWC3_CORE_SIZE,
+> +	.hs_phy_irq_index = 1,
+> +	.dp_hs_phy_irq_index = 4,
+> +	.dm_hs_phy_irq_index = 3,
+> +	.ss_phy_irq_index = 2
+> +};
+> +
+> +static const struct acpi_device_id dwc3_qcom_acpi_match[] = {
+> +	{ "QCOM2430", (unsigned long)&sdm845_acpi_pdata },
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(acpi, dwc3_qcom_acpi_match);
+
+Analog to of_device_get_match_data() there seems to be a
+acpi_device_get_match_data(), if you use this you should be able to
+have you acpi_device_id array next to the of_device_id.
+
+> +
+>  static int dwc3_qcom_probe(struct platform_device *pdev)
+
+It seems that all that's left unconditional on ACPI_HANDLE() in this
+function are the optional pieces and the tail. Wouldn't it be cleaner to
+split it out in different functions?
+
+Regards,
+Bjorn
