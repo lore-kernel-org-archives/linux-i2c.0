@@ -1,133 +1,80 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Lee Jones <lee.jones@linaro.org>
 Subject: Re: [PATCH 7/8] usb: dwc3: qcom: Start USB in 'host mode' on the
  SDM845
-Date: Wed, 5 Jun 2019 12:14:53 -0700
-Message-ID: <20190605191453.GJ4814@minitux>
+Date: Wed, 5 Jun 2019 20:29:26 +0100
+Message-ID: <20190605192926.GW4797@dell>
 References: <20190604104455.8877-1-lee.jones@linaro.org>
  <20190604104455.8877-7-lee.jones@linaro.org>
  <20190605070029.GN22737@tuxbook-pro>
  <20190605083454.GO4797@dell>
+ <20190605191453.GJ4814@minitux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190605083454.GO4797@dell>
+In-Reply-To: <20190605191453.GJ4814@minitux>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
+To: Bjorn Andersson <bjorn.andersson@linaro.org>
 Cc: alokc@codeaurora.org, kramasub@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, linus.walleij@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, jlhugo@gmail.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed 05 Jun 01:34 PDT 2019, Lee Jones wrote:
+On Wed, 05 Jun 2019, Bjorn Andersson wrote:
 
-> On Wed, 05 Jun 2019, Bjorn Andersson wrote:
+> On Wed 05 Jun 01:34 PDT 2019, Lee Jones wrote:
 > 
-> > On Tue 04 Jun 03:44 PDT 2019, Lee Jones wrote:
+> > On Wed, 05 Jun 2019, Bjorn Andersson wrote:
 > > 
-> > > When booting with Device Tree, the current default boot configuration
-> > > table option, the request to boot via 'host mode' comes from the
-> > > "dr_mode" property.
-> > 
-> > This has been the default on the MTP, but this is changing as this is
-> > causing issues when connected downstream from a hub (the typical
-> > development case for the primary USB port of a phone like device) and
-> > more importantly we don't have support for the PMIC blocks that control
-> > VBUS.
-> 
-> My point is not about which mode is currently chosen.  It's more about
-> the capability of choosing which mode is appropriate for a given
-> system via DT.
-> 
-> > Once these issues are resolved the dr_mode would be "otg".
-> 
-> OTG doesn't work on this H/W, so we need to specify "host" mode.
-> 
-
-My objection is that when you say "this H/W" you mean a particular
-product, but you're making this decision for all SDM845 based products
-using ACPI.
-
-I don't know if there is a Windows phone based on SDM845, but if there
-is then I don't think forcing it to host would be correct.
-
-> > > A property of the same name can be used inside
-> > > ACPI tables too.  However it is missing from the SDM845's ACPI tables
-> > > so we have to supply this information using Platform Device Properites
-> > > instead.
+> > > On Tue 04 Jun 03:44 PDT 2019, Lee Jones wrote:
 > > > 
-> > 
-> > Afaict this would install a fall-back property, so in the case that we
-> > have specified dr_mode in DT (or ACPI) that would take precedence. So
-> 
-> That's correct.
-> 
-> > the commit message should reflect that this redefines the default choice
-> > to be "host", rather than "otg".
-> 
-> No problem.
-> 
-> > Which is in conflict with what's described for dr_mode in
-> > Documentation/devicetree/bindings/usb/generic.txt
-> 
-> This implementation only affects ACPI based platforms.  When booting
-> with DT, the description in that DT related document is still
-> accurate.
-> 
-
-You're right, I got lost between the patches and the sprinkled if
-(ACPI_HANDLE()) in the probe. This is only added for ACPI.
-
-> > And this driver is used on a range of different Qualcomm platforms, so I
-> > don't think this is SDM845 specific.
-> 
-> ACPI based platforms?
-> 
-> All the ones I've seen use the XHCI USB driver directly ("PNP0D10").
->  
-
-MSM8998 (835) has the same controller, so this should affect those
-laptops as well.
-
-Regards,
-Bjorn
-
-> > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > > ---
-> > >  drivers/usb/dwc3/dwc3-qcom.c | 12 ++++++++++++
-> > >  1 file changed, 12 insertions(+)
+> > > > When booting with Device Tree, the current default boot configuration
+> > > > table option, the request to boot via 'host mode' comes from the
+> > > > "dr_mode" property.
 > > > 
-> > > diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
-> > > index 349bf549ee44..f21fdd6cdd1a 100644
-> > > --- a/drivers/usb/dwc3/dwc3-qcom.c
-> > > +++ b/drivers/usb/dwc3/dwc3-qcom.c
-> > > @@ -468,6 +468,11 @@ static const struct acpi_device_id dwc3_qcom_acpi_match[] = {
-> > >  };
-> > >  MODULE_DEVICE_TABLE(acpi, dwc3_qcom_acpi_match);
-> > >  
-> > > +static const struct property_entry dwc3_qcom_acpi_properties[] = {
-> > > +	PROPERTY_ENTRY_STRING("dr_mode", "host"),
-> > > +	{}
-> > > +};
-> > > +
-> > >  static int dwc3_qcom_probe(struct platform_device *pdev)
-> > >  {
-> > >  	struct device_node	*np = pdev->dev.of_node, *dwc3_np;
-> > > @@ -603,6 +608,13 @@ static int dwc3_qcom_probe(struct platform_device *pdev)
-> > >  			goto platform_unalloc;
-> > >  		}
-> > >  
-> > > +		ret = platform_device_add_properties(qcom->dwc3,
-> > > +						     dwc3_qcom_acpi_properties);
-> > > +		if (ret < 0) {
-> > > +			dev_err(&pdev->dev, "failed to add properties\n");
-> > > +			goto platform_unalloc;
-> > > +		}
-> > > +
-> > >  		ret = platform_device_add(qcom->dwc3);
-> > >  		if (ret) {
-> > >  			dev_err(&pdev->dev, "failed to add device\n");
+> > > This has been the default on the MTP, but this is changing as this is
+> > > causing issues when connected downstream from a hub (the typical
+> > > development case for the primary USB port of a phone like device) and
+> > > more importantly we don't have support for the PMIC blocks that control
+> > > VBUS.
+> > 
+> > My point is not about which mode is currently chosen.  It's more about
+> > the capability of choosing which mode is appropriate for a given
+> > system via DT.
+> > 
+> > > Once these issues are resolved the dr_mode would be "otg".
+> > 
+> > OTG doesn't work on this H/W, so we need to specify "host" mode.
 > 
-> -- 
-> Lee Jones [?????????]
-> Linaro Services Technical Lead
-> Linaro.org ??? Open source software for ARM SoCs
-> Follow Linaro: Facebook | Twitter | Blog
+> My objection is that when you say "this H/W" you mean a particular
+> product, but you're making this decision for all SDM845 based products
+> using ACPI.
+> 
+> I don't know if there is a Windows phone based on SDM845, but if there
+> is then I don't think forcing it to host would be correct.
+
+You mean if someone wanted to boot Linux on a Windows phone?  Not sure
+how likely that is, but even if a) there is an SDM845 based Windows
+phone and b) someone is crazy enough to run Linux on it, it should be
+trivial for them to conduct some device matching and choose a
+different property based on the result.
+
+[...]
+
+> > > And this driver is used on a range of different Qualcomm platforms, so I
+> > > don't think this is SDM845 specific.
+> > 
+> > ACPI based platforms?
+> > 
+> > All the ones I've seen use the XHCI USB driver directly ("PNP0D10").
+> 
+> MSM8998 (835) has the same controller, so this should affect those
+> laptops as well.
+
+This would also be the correct configuration for them too.  OTG
+doesn't make much sense for a laptop form factor.
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
