@@ -1,14 +1,11 @@
 From: Maxime Ripard <maxime.ripard@bootlin.com>
-Subject: Re: [PATCH 2/2] dt-bindings: i2c: mv64xxx: Add YAML schemas
-Date: Wed, 5 Jun 2019 14:11:25 +0200
-Message-ID: <20190605121125.4p2eyt7zhtai652b@flea>
-References: <20190525141821.20082-1-maxime.ripard@bootlin.com>
- <20190525141821.20082-2-maxime.ripard@bootlin.com>
- <87k1e2k98v.fsf@FE-laptop>
+Subject: [PATCH v2 1/2] dt-bindings: i2c: sun6i-p2wi: Add YAML schemas
+Date: Wed,  5 Jun 2019 14:29:35 +0200
+Message-ID: <20190605122936.11972-1-maxime.ripard@bootlin.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2931956928720380166=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <87k1e2k98v.fsf@FE-laptop>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -18,81 +15,143 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Chen-Yu Tsai <wens@csie.org>, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, Frank Rowand <frowand.list@gmail.com>, linux-arm-kernel@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Frank Rowand <frowand.list@gmail.com>, Chen-Yu Tsai <wens@csie.org>, Maxime Ripard <maxime.ripard@bootlin.com>, Gregory Clement <gregory.clement@bootlin.com>
+Cc: devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
+Switch the DT binding to a YAML schema to enable the DT validation.
 
---===============2931956928720380166==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="jcggnhf3ykfk7lac"
-Content-Disposition: inline
+Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+---
+ .../i2c/allwinner,sun6i-a31-p2wi.yaml         | 71 +++++++++++++++++++
+ .../bindings/i2c/i2c-sun6i-p2wi.txt           | 41 -----------
+ 2 files changed, 71 insertions(+), 41 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/allwinner,sun6i-a31-p2wi.yaml
+ delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-sun6i-p2wi.txt
 
-
---jcggnhf3ykfk7lac
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi,
-
-On Mon, Jun 03, 2019 at 04:56:48PM +0200, Gregory CLEMENT wrote:
-> > +++ b/Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
-> > @@ -0,0 +1,106 @@
-> > +# SPDX-License-Identifier: GPL-2.0
-> > +%YAML 1.2
-> > +---
-> > +$id: http://devicetree.org/schemas/i2c/marvell,mv64xxx-i2c.yaml#
-> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > +
-> > +title: Marvell MV64XXX I2C Controller Device Tree Bindings
-> > +
-> > +maintainers:
-> > +  - Chen-Yu Tsai <wens@csie.org>
-> > +  - Maxime Ripard <maxime.ripard@bootlin.com>
->
-> If you take over the maintenanceship and became maintainer for this
-> driver, then update the MAINTAINERS files too. For now it was assigned
-> to me, but I don't mind letting this for both of you.
->
-> Actually I gave my acked-by to a patch from Wolfram adding the
-> Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt file to the "I2C
-> MV64XXX MARVELL AND ALLWINNER DRIVER" entry "MAINTAINERS: add DT
-> bindings to i2c-mv64xxx" so I guess this patch have to be discarded or
-> at least updated.
-
-Sorry for that, it's definitely not intentional. I'll fix it and resend.
-
-Thanks!
-Maxime
-
---
-Maxime Ripard, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
-
---jcggnhf3ykfk7lac
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCXPexbQAKCRDj7w1vZxhR
-xe/dAP9810+E+YG6xK7o/znoo25OToisA4qAfR89Ox8darfLQgEAjPOHR1jQl2S+
-xakb+9c/vF+oAFjJD//9cLNS1UOxHgE=
-=JR2U
------END PGP SIGNATURE-----
-
---jcggnhf3ykfk7lac--
-
-
---===============2931956928720380166==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============2931956928720380166==--
+diff --git a/Documentation/devicetree/bindings/i2c/allwinner,sun6i-a31-p2wi.yaml b/Documentation/devicetree/bindings/i2c/allwinner,sun6i-a31-p2wi.yaml
+new file mode 100644
+index 000000000000..780a33080140
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/allwinner,sun6i-a31-p2wi.yaml
+@@ -0,0 +1,71 @@
++# SPDX-License-Identifier: GPL-2.0
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/allwinner,sun6i-a31-p2wi.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Allwinner A31 P2WI (Push/Pull 2 Wires Interface) Device Tree Bindings
++
++maintainers:
++  - Chen-Yu Tsai <wens@csie.org>
++  - Maxime Ripard <maxime.ripard@bootlin.com>
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++
++properties:
++  "#address-cells":
++    const: 1
++
++  "#size-cells":
++    const: 0
++
++  compatible:
++    const: allwinner,sun6i-a31-p2wi
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  resets:
++    maxItems: 1
++
++  clock-frequency:
++    minimum: 1
++    maximum: 6000000
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++  - resets
++
++# FIXME: We should set it, but it would report all the generic
++# properties as additional properties.
++# additionalProperties: false
++
++examples:
++  - |
++    p2wi@1f03400 {
++      compatible = "allwinner,sun6i-a31-p2wi";
++      reg = <0x01f03400 0x400>;
++      interrupts = <0 39 4>;
++      clocks = <&apb0_gates 3>;
++      clock-frequency = <6000000>;
++      resets = <&apb0_rst 3>;
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      axp221: pmic@68 {
++        compatible = "x-powers,axp221";
++        reg = <0x68>;
++      };
++    };
++
++...
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-sun6i-p2wi.txt b/Documentation/devicetree/bindings/i2c/i2c-sun6i-p2wi.txt
+deleted file mode 100644
+index 49df0053347a..000000000000
+--- a/Documentation/devicetree/bindings/i2c/i2c-sun6i-p2wi.txt
++++ /dev/null
+@@ -1,41 +0,0 @@
+-
+-* Allwinner P2WI (Push/Pull 2 Wire Interface) controller
+-
+-Required properties :
+-
+- - reg             : Offset and length of the register set for the device.
+- - compatible      : Should one of the following:
+-                     - "allwinner,sun6i-a31-p2wi"
+- - interrupts      : The interrupt line connected to the P2WI peripheral.
+- - clocks          : The gate clk connected to the P2WI peripheral.
+- - resets          : The reset line connected to the P2WI peripheral.
+-
+-Optional properties :
+-
+- - clock-frequency : Desired P2WI bus clock frequency in Hz. If not set the
+-default frequency is 100kHz
+-
+-A P2WI may contain one child node encoding a P2WI slave device.
+-
+-Slave device properties:
+-  Required properties:
+-   - reg           : the I2C slave address used during the initialization
+-                     process to switch from I2C to P2WI mode
+-
+-Example:
+-
+-	p2wi@1f03400 {
+-		compatible = "allwinner,sun6i-a31-p2wi";
+-		reg = <0x01f03400 0x400>;
+-		interrupts = <0 39 4>;
+-		clocks = <&apb0_gates 3>;
+-		clock-frequency = <6000000>;
+-		resets = <&apb0_rst 3>;
+-
+-		axp221: pmic@68 {
+-			compatible = "x-powers,axp221";
+-			reg = <0x68>;
+-
+-			/* ... */
+-		};
+-	};
+-- 
+2.21.0
