@@ -1,14 +1,14 @@
 From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH 4/8] pinctrl: qcom: sdm845: Provide ACPI support
-Date: Tue, 4 Jun 2019 23:17:21 -0700
-Message-ID: <20190605061721.GK22737@tuxbook-pro>
+Subject: Re: [PATCH 2/8] i2c: i2c-qcom-geni: Signify successful driver probe
+Date: Tue, 4 Jun 2019 23:20:20 -0700
+Message-ID: <20190605062020.GL22737@tuxbook-pro>
 References: <20190604104455.8877-1-lee.jones@linaro.org>
- <20190604104455.8877-4-lee.jones@linaro.org>
+ <20190604104455.8877-2-lee.jones@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190604104455.8877-4-lee.jones@linaro.org>
+In-Reply-To: <20190604104455.8877-2-lee.jones@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Lee Jones <lee.jones@linaro.org>
 Cc: alokc@codeaurora.org, kramasub@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, linus.walleij@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, jlhugo@gmail.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.org
@@ -16,125 +16,36 @@ List-Id: linux-i2c@vger.kernel.org
 
 On Tue 04 Jun 03:44 PDT 2019, Lee Jones wrote:
 
-> This patch provides basic support for booting with ACPI instead
-> of the currently supported Device Tree.  When doing so there are a
-> couple of differences which we need to taken into consideration.
-> 
-> Firstly, the SDM850 ACPI tables omit information pertaining to the
-> 4 reserved GPIOs on the platform.  If Linux attempts to touch/
-> initialise any of these lines, the firmware will restart the
-> platform.
-> 
-> Secondly, when booting with ACPI, it is expected that the firmware
-> will set-up things like; Regulators, Clocks, Pin Functions, etc in
-> their ideal configuration.  Thus, the possible Pin Functions
-> available to this platform are not advertised when providing the
-> higher GPIOD/Pinctrl APIs with pin information.
+> The Qualcomm Geni I2C driver currently probes silently which can be
+> confusing when debugging potential issues.  Add a low level (INFO)
+> print when each I2C controller is successfully initially set-up.
 > 
 > Signed-off-by: Lee Jones <lee.jones@linaro.org>
 > ---
->  drivers/pinctrl/qcom/Kconfig          |  2 +-
->  drivers/pinctrl/qcom/pinctrl-sdm845.c | 35 ++++++++++++++++++++++++++-
->  2 files changed, 35 insertions(+), 2 deletions(-)
+>  drivers/i2c/busses/i2c-qcom-geni.c | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> diff --git a/drivers/pinctrl/qcom/Kconfig b/drivers/pinctrl/qcom/Kconfig
-> index 2e66ab72c10b..aafbe932424f 100644
-> --- a/drivers/pinctrl/qcom/Kconfig
-> +++ b/drivers/pinctrl/qcom/Kconfig
-> @@ -168,7 +168,7 @@ config PINCTRL_SDM660
+> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+> index 0fa93b448e8d..e27466d77767 100644
+> --- a/drivers/i2c/busses/i2c-qcom-geni.c
+> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+> @@ -598,6 +598,8 @@ static int geni_i2c_probe(struct platform_device *pdev)
+>  		return ret;
+>  	}
 >  
->  config PINCTRL_SDM845
->         tristate "Qualcomm Technologies Inc SDM845 pin controller driver"
-> -       depends on GPIOLIB && OF
-> +       depends on GPIOLIB && (OF || ACPI)
->         select PINCTRL_MSM
->         help
->           This is the pinctrl, pinmux, pinconf and gpiolib driver for the
-> diff --git a/drivers/pinctrl/qcom/pinctrl-sdm845.c b/drivers/pinctrl/qcom/pinctrl-sdm845.c
-> index c97f20fca5fd..7188bee3cf3e 100644
-> --- a/drivers/pinctrl/qcom/pinctrl-sdm845.c
-> +++ b/drivers/pinctrl/qcom/pinctrl-sdm845.c
-> @@ -3,6 +3,7 @@
->   * Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
->   */
->  
-> +#include <linux/acpi.h>
->  #include <linux/module.h>
->  #include <linux/of.h>
->  #include <linux/platform_device.h>
-> @@ -1277,6 +1278,10 @@ static const struct msm_pingroup sdm845_groups[] = {
->  	UFS_RESET(ufs_reset, 0x99f000),
->  };
->  
-> +static const int sdm845_acpi_reserved_gpios[] = {
-> +	0, 1, 2, 3, 81, 82, 83, 84, -1
-> +};
+> +	dev_info(&pdev->dev, "Geni-I2C adaptor successfully added\n");
 > +
->  static const struct msm_pinctrl_soc_data sdm845_pinctrl = {
->  	.pins = sdm845_pins,
->  	.npins = ARRAY_SIZE(sdm845_pins),
-> @@ -1284,14 +1289,41 @@ static const struct msm_pinctrl_soc_data sdm845_pinctrl = {
->  	.nfunctions = ARRAY_SIZE(sdm845_functions),
->  	.groups = sdm845_groups,
->  	.ngroups = ARRAY_SIZE(sdm845_groups),
-> +	.reserved_gpios = sdm845_acpi_reserved_gpios,
 
-The reason why put these in DT is because the list is board/firmware
-dependent. E.g. the firmware on db845c does not support the peripherals
-that sits on these 8 pins and as such these are not reserved.
-
-But given that the two structs looks identical now, did you perhaps not
-intend to add.reserved_gpios for the non-ACPI case?
+I would prefer that we do not add such prints, as it would be to accept
+the downstream behaviour of spamming the log to the point where no one
+will ever look through it.
 
 Regards,
 Bjorn
 
-> +	.ngpios = 150,
-> +};
-> +
-> +static const struct msm_pinctrl_soc_data sdm845_acpi_pinctrl = {
-> +	.pins = sdm845_pins,
-> +	.npins = ARRAY_SIZE(sdm845_pins),
-> +	.groups = sdm845_groups,
-> +	.ngroups = ARRAY_SIZE(sdm845_groups),
-> +	.reserved_gpios = sdm845_acpi_reserved_gpios,
->  	.ngpios = 150,
->  };
->  
->  static int sdm845_pinctrl_probe(struct platform_device *pdev)
->  {
-> -	return msm_pinctrl_probe(pdev, &sdm845_pinctrl);
-> +	int ret;
-> +
-> +	if (pdev->dev.of_node) {
-> +		ret = msm_pinctrl_probe(pdev, &sdm845_pinctrl);
-> +	} else if (ACPI_HANDLE(&pdev->dev)) {
-> +		ret = msm_pinctrl_probe(pdev, &sdm845_acpi_pinctrl);
-> +	} else {
-> +		dev_err(&pdev->dev, "DT and ACPI disabled\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	return ret;
+>  	return 0;
 >  }
 >  
-> +static const struct acpi_device_id sdm845_pinctrl_acpi_match[] = {
-> +	{ "QCOM0217"},
-> +	{ },
-> +};
-> +MODULE_DEVICE_TABLE(acpi, sdm845_pinctrl_acpi_match);
-> +
->  static const struct of_device_id sdm845_pinctrl_of_match[] = {
->  	{ .compatible = "qcom,sdm845-pinctrl", },
->  	{ },
-> @@ -1302,6 +1334,7 @@ static struct platform_driver sdm845_pinctrl_driver = {
->  		.name = "sdm845-pinctrl",
->  		.pm = &msm_pinctrl_dev_pm_ops,
->  		.of_match_table = sdm845_pinctrl_of_match,
-> +		.acpi_match_table = ACPI_PTR(sdm845_pinctrl_acpi_match),
->  	},
->  	.probe = sdm845_pinctrl_probe,
->  	.remove = msm_pinctrl_remove,
 > -- 
 > 2.17.1
 > 
