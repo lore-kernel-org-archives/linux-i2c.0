@@ -1,63 +1,54 @@
-From: Lee Jones <lee.jones@linaro.org>
+From: Johan Hovold <johan@kernel.org>
 Subject: Re: [PATCH 2/8] i2c: i2c-qcom-geni: Signify successful driver probe
-Date: Wed, 5 Jun 2019 09:49:21 +0100
-Message-ID: <20190605084921.GQ4797@dell>
+Date: Wed, 5 Jun 2019 10:55:27 +0200
+Message-ID: <20190605085527.GE29637@localhost>
 References: <20190604104455.8877-1-lee.jones@linaro.org>
  <20190604104455.8877-2-lee.jones@linaro.org>
- <20190605062020.GL22737@tuxbook-pro> <20190605071625.GK4797@dell>
- <20190605075656.GC29637@localhost> <20190605082047.GM4797@dell>
+ <20190605062020.GL22737@tuxbook-pro>
+ <20190605071625.GK4797@dell>
+ <20190605075656.GC29637@localhost>
+ <20190605082047.GM4797@dell>
  <20190605083353.GD29637@localhost>
+ <20190605084921.GQ4797@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190605083353.GD29637@localhost>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Johan Hovold <johan@kernel.org>
-Cc: balbi@kernel.org, david.brown@linaro.org, gregkh@linuxfoundation.org, linus.walleij@linaro.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Bjorn Andersson <bjorn.andersson@linaro.org>, wsa+renesas@sang-engineering.com, alokc@codeaurora.org, kramasub@codeaurora.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-msm@vger.kernel.org, andy.gross@linaro.org, jlhugo@gmail.com, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <20190605084921.GQ4797@dell>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Johan Hovold <johan@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, balbi@kernel.org, wsa+renesas@sang-engineering.com, gregkh@linuxfoundation.org, linus.walleij@linaro.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, david.brown@linaro.org, alokc@codeaurora.org, kramasub@codeaurora.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-msm@vger.kernel.org, andy.gross@linaro.org, jlhugo@gmail.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gV2VkLCAwNSBKdW4gMjAxOSwgSm9oYW4gSG92b2xkIHdyb3RlOgoKPiBPbiBXZWQsIEp1biAw
-NSwgMjAxOSBhdCAwOToyMDo0N0FNICswMTAwLCBMZWUgSm9uZXMgd3JvdGU6Cj4gPiBPbiBXZWQs
-IDA1IEp1biAyMDE5LCBKb2hhbiBIb3ZvbGQgd3JvdGU6Cj4gCj4gPiA+IE5vLCB3ZSBkb24ndCBh
-ZGQgbm9pc2UgbGlrZSB0aGlzIHRvIHRoZSBsb2dzIGp1c3QgYmVjYXVzZSBpdCBtYXkgYmUKPiA+
-ID4gdXNlZnVsIHdoaWxlIGRlYnVnZ2luZy4gRXZlbiBvbmUtbGluZXJzIGFkZCB1cC4KPiA+IAo+
-ID4gT25lIGxpbmUgcGVyIGRldmljZSBpcyBzaG91bGQgbm90IGNhdXNlIGFuIGlzc3VlLgo+ID4g
-Cj4gPiBQcm9ibGVtcyBvY2N1ciB3aGVuIGRldmVsb3BlcnMgdHJ5IHRvIHByaW50IGFsbCBraW5k
-cyBvZiBkZXZpY2UKPiA+IHNwZWNpZmljcyB0byB0aGUgYm9vdCBsb2cuICBBIHNpbXBsZSwgc2lu
-Z2xlIGxpbmUgZm9yIHN1Y2ggYW4KPiA+IGltcG9ydGFudCBkZXZpY2UvY29udHJvbGxlciBoYXMg
-bW9yZSBiZW5lZml0cyB0aGFuIGRyYXdiYWNrcy4KPiAKPiBXaGF0IGFib3V0IHRoZSB0aG91c2Fu
-ZHMgb2YgcHJvYmUgZnVuY3Rpb25zIHdoaWNoIGRvIG5vdCBjdXJyZW50bHkgc3BhbQo+IHRoZSBs
-b2dzPyBJZiB5b3Ugd2FudCB0byBzZWUgYWxsIHN1Y2Nlc3NmdWwgcHJvYmVzIHJlbGlhYmx5LCB5
-b3UgdGVsbAo+IGRyaXZlciBjb3JlIHRvIHByaW50IGl0Lgo+IAo+ID4gPiBUaGVyZSBhcmUgcGxl
-bnR5IG9mIG9wdGlvbnMgZm9yIGRlYnVnZ2luZyBhbHJlYWR5IHJhbmdpbmcgZnJvbSBhZGRpbmcg
-YQo+ID4gPiB0ZW1wb3JhcnkgZGV2X2luZm8oKSB0byB0aGUgcHJvYmUgZnVuY3Rpb24gaW4gcXVl
-c3Rpb24gdG8gdXNpbmcgZHluYW1pYwo+ID4gPiBkZWJ1Z2dpbmcgdG8gaGF2ZSBkcml2ZXIgY29y
-ZSBsb2cgZXZlcnkgc3VjY2Vzc2Z1bCBwcm9iZS4KPiA+IAo+ID4gVGhpcyBpcyB3aGF0IEkgZW5k
-ZWQgdXAgZG9pbmcuICBJdCB3YXMgdGltZSBjb25zdW1pbmcgdG8gcGFyc2UgdGhvdWdoCj4gPiBh
-IGxvZyBvZiB0aGF0IHNpemUgd2hlbiB5b3UgaGF2ZSBubyBwYWdpbmcgb3Iga2V5Ym9hcmQuCj4g
-Cj4gV2l0aCB0aGUgcmlnaHQgY29tbWFuZC1saW5lIG9wdGlvbiB0byBlbmFibGUgZHluYW1pYyBk
-ZWJ1Z2dpbmcgeW91IGdldAo+IG9uZSBsaW5lIHBlciBzdWNjZXNzZnVsIHByb2JlLCBqdXN0IGxp
-a2UgeW91IHdhbnRlZC4gT3IgYXJlIHlvdSBub3cKPiBzYXlpbmcgdGhhdCBvbmUtbGluZSBwZXIg
-ZGV2aWNlIGlzIHRvbyBtdWNoIGFmdGVyIGFsbD8gOykKCldoaWNoIGNvbW1hbmQgbGluZSBvcHRp
-b24gYXJlIHlvdSBwZXJ0YWluaW5nIHRvPwoKPiA+ID4gQW5kIGluIHRoaXMgY2FzZSB5b3Ugc2F5
-IHRoZSBkcml2ZXIgd2FzIGluIGZhY3QgYWxyZWFkeSBib3VuZDsgdGhhdCBjYW4KPiA+ID4gZWFz
-aWx5IGJlIHZlcmlmaWVkIHRocm91Z2ggc3lzZnMgdG9vIGluIGNhc2UgdGhpbmdzIGFyZW4ndCBi
-ZWhhdmluZyB0aGUKPiA+ID4gd2F5IHlvdSBleHBlY3QuCj4gPiAKPiA+IE5vdCBpbiBhIG5vbi1i
-b290aW5nIHN5c3RlbSB3aXRoIG5vIGtleWJvYXJkIHlvdSBjYW4ndC4gOykKPiAKPiBGYWlyIGVu
-b3VnaCwgYnV0IHRoZSBhYm92ZSB3b3VsZCBzdGlsbCB3b3JrLgoKLS0gCkxlZSBKb25lcyBb5p2O
-55C85pavXQpMaW5hcm8gU2VydmljZXMgVGVjaG5pY2FsIExlYWQKTGluYXJvLm9yZyDilIIgT3Bl
-biBzb3VyY2Ugc29mdHdhcmUgZm9yIEFSTSBTb0NzCkZvbGxvdyBMaW5hcm86IEZhY2Vib29rIHwg
-VHdpdHRlciB8IEJsb2cKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlz
-dHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL2xpbnV4LWFybS1rZXJuZWwK
+On Wed, Jun 05, 2019 at 09:49:21AM +0100, Lee Jones wrote:
+> On Wed, 05 Jun 2019, Johan Hovold wrote:
+> 
+> > On Wed, Jun 05, 2019 at 09:20:47AM +0100, Lee Jones wrote:
+> > > On Wed, 05 Jun 2019, Johan Hovold wrote:
+ 
+> > > > There are plenty of options for debugging already ranging from adding a
+> > > > temporary dev_info() to the probe function in question to using dynamic
+> > > > debugging to have driver core log every successful probe.
+> > > 
+> > > This is what I ended up doing.  It was time consuming to parse though
+> > > a log of that size when you have no paging or keyboard.
+> > 
+> > With the right command-line option to enable dynamic debugging you get
+> > one line per successful probe, just like you wanted. Or are you now
+> > saying that one-line per device is too much after all? ;)
+> 
+> Which command line option are you pertaining to?
+
+To enable dynamic debugging in driver core you could use something like
+
+	CONFIG_CMDLINE="dyndbg=\"func really_probe =p\""
+
+That gives you two printouts per successful probe, for example:
+
+	bus: 'usb-serial': really_probe: probing driver edgeport_ti_1 with device ttyUSB0
+	bus: 'usb-serial': really_probe: bound device ttyUSB0 to driver edgeport_ti_1
+
+Or you can of course just change the corresponding pr_debug to pr_info
+while debugging.
+
+Johan
