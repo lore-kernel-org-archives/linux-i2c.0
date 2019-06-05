@@ -1,56 +1,112 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH 2/8] i2c: i2c-qcom-geni: Signify successful driver probe
-Date: Wed, 5 Jun 2019 10:33:53 +0200
-Message-ID: <20190605083353.GD29637@localhost>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 7/8] usb: dwc3: qcom: Start USB in 'host mode' on the
+ SDM845
+Date: Wed, 5 Jun 2019 09:34:54 +0100
+Message-ID: <20190605083454.GO4797@dell>
 References: <20190604104455.8877-1-lee.jones@linaro.org>
- <20190604104455.8877-2-lee.jones@linaro.org>
- <20190605062020.GL22737@tuxbook-pro>
- <20190605071625.GK4797@dell>
- <20190605075656.GC29637@localhost>
- <20190605082047.GM4797@dell>
+ <20190604104455.8877-7-lee.jones@linaro.org>
+ <20190605070029.GN22737@tuxbook-pro>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190605082047.GM4797@dell>
+In-Reply-To: <20190605070029.GN22737@tuxbook-pro>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Johan Hovold <johan@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, balbi@kernel.org, wsa+renesas@sang-engineering.com, gregkh@linuxfoundation.org, linus.walleij@linaro.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, david.brown@linaro.org, alokc@codeaurora.org, kramasub@codeaurora.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-msm@vger.kernel.org, andy.gross@linaro.org, jlhugo@gmail.com, linux-arm-kernel@lists.infradead.org
+To: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: alokc@codeaurora.org, kramasub@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, linus.walleij@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, jlhugo@gmail.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 05, 2019 at 09:20:47AM +0100, Lee Jones wrote:
-> On Wed, 05 Jun 2019, Johan Hovold wrote:
+On Wed, 05 Jun 2019, Bjorn Andersson wrote:
 
-> > No, we don't add noise like this to the logs just because it may be
-> > useful while debugging. Even one-liners add up.
+> On Tue 04 Jun 03:44 PDT 2019, Lee Jones wrote:
 > 
-> One line per device is should not cause an issue.
+> > When booting with Device Tree, the current default boot configuration
+> > table option, the request to boot via 'host mode' comes from the
+> > "dr_mode" property.
 > 
-> Problems occur when developers try to print all kinds of device
-> specifics to the boot log.  A simple, single line for such an
-> important device/controller has more benefits than drawbacks.
+> This has been the default on the MTP, but this is changing as this is
+> causing issues when connected downstream from a hub (the typical
+> development case for the primary USB port of a phone like device) and
+> more importantly we don't have support for the PMIC blocks that control
+> VBUS.
 
-What about the thousands of probe functions which do not currently spam
-the logs? If you want to see all successful probes reliably, you tell
-driver core to print it.
+My point is not about which mode is currently chosen.  It's more about
+the capability of choosing which mode is appropriate for a given
+system via DT.
 
-> > There are plenty of options for debugging already ranging from adding a
-> > temporary dev_info() to the probe function in question to using dynamic
-> > debugging to have driver core log every successful probe.
+> Once these issues are resolved the dr_mode would be "otg".
+
+OTG doesn't work on this H/W, so we need to specify "host" mode.
+
+> > A property of the same name can be used inside
+> > ACPI tables too.  However it is missing from the SDM845's ACPI tables
+> > so we have to supply this information using Platform Device Properites
+> > instead.
+> > 
 > 
-> This is what I ended up doing.  It was time consuming to parse though
-> a log of that size when you have no paging or keyboard.
+> Afaict this would install a fall-back property, so in the case that we
+> have specified dr_mode in DT (or ACPI) that would take precedence. So
 
-With the right command-line option to enable dynamic debugging you get
-one line per successful probe, just like you wanted. Or are you now
-saying that one-line per device is too much after all? ;)
+That's correct.
 
-> > And in this case you say the driver was in fact already bound; that can
-> > easily be verified through sysfs too in case things aren't behaving the
-> > way you expect.
-> 
-> Not in a non-booting system with no keyboard you can't. ;)
+> the commit message should reflect that this redefines the default choice
+> to be "host", rather than "otg".
 
-Fair enough, but the above would still work.
+No problem.
 
-Johan
+> Which is in conflict with what's described for dr_mode in
+> Documentation/devicetree/bindings/usb/generic.txt
+
+This implementation only affects ACPI based platforms.  When booting
+with DT, the description in that DT related document is still
+accurate.
+
+> And this driver is used on a range of different Qualcomm platforms, so I
+> don't think this is SDM845 specific.
+
+ACPI based platforms?
+
+All the ones I've seen use the XHCI USB driver directly ("PNP0D10").
+ 
+> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > ---
+> >  drivers/usb/dwc3/dwc3-qcom.c | 12 ++++++++++++
+> >  1 file changed, 12 insertions(+)
+> > 
+> > diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
+> > index 349bf549ee44..f21fdd6cdd1a 100644
+> > --- a/drivers/usb/dwc3/dwc3-qcom.c
+> > +++ b/drivers/usb/dwc3/dwc3-qcom.c
+> > @@ -468,6 +468,11 @@ static const struct acpi_device_id dwc3_qcom_acpi_match[] = {
+> >  };
+> >  MODULE_DEVICE_TABLE(acpi, dwc3_qcom_acpi_match);
+> >  
+> > +static const struct property_entry dwc3_qcom_acpi_properties[] = {
+> > +	PROPERTY_ENTRY_STRING("dr_mode", "host"),
+> > +	{}
+> > +};
+> > +
+> >  static int dwc3_qcom_probe(struct platform_device *pdev)
+> >  {
+> >  	struct device_node	*np = pdev->dev.of_node, *dwc3_np;
+> > @@ -603,6 +608,13 @@ static int dwc3_qcom_probe(struct platform_device *pdev)
+> >  			goto platform_unalloc;
+> >  		}
+> >  
+> > +		ret = platform_device_add_properties(qcom->dwc3,
+> > +						     dwc3_qcom_acpi_properties);
+> > +		if (ret < 0) {
+> > +			dev_err(&pdev->dev, "failed to add properties\n");
+> > +			goto platform_unalloc;
+> > +		}
+> > +
+> >  		ret = platform_device_add(qcom->dwc3);
+> >  		if (ret) {
+> >  			dev_err(&pdev->dev, "failed to add device\n");
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
