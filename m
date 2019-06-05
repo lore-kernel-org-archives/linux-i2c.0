@@ -1,60 +1,69 @@
-From: Lee Jones <lee.jones@linaro.org>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Subject: Re: [PATCH 2/8] i2c: i2c-qcom-geni: Signify successful driver probe
-Date: Wed, 5 Jun 2019 08:16:25 +0100
-Message-ID: <20190605071625.GK4797@dell>
-References: <20190604104455.8877-1-lee.jones@linaro.org>
- <20190604104455.8877-2-lee.jones@linaro.org>
- <20190605062020.GL22737@tuxbook-pro>
+Date: Wed, 5 Jun 2019 09:22:59 +0200
+Message-ID: <CAKv+Gu_YcdePUkkCGdP5DC9rxCUAshgOzU32pViAp2CbmAaJuw@mail.gmail.com>
+References: <20190604104455.8877-1-lee.jones@linaro.org> <20190604104455.8877-2-lee.jones@linaro.org>
+ <20190605062020.GL22737@tuxbook-pro> <20190605071625.GK4797@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20190605062020.GL22737@tuxbook-pro>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: balbi@kernel.org, wsa+renesas@sang-engineering.com, gregkh@linuxfoundation.org, linus.walleij@linaro.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, david.brown@linaro.org, alokc@codeaurora.org, kramasub@codeaurora.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-msm@vger.kernel.org, andy.gross@linaro.org, jlhugo@gmail.com, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190605071625.GK4797@dell>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>, balbi@kernel.org, wsa+renesas@sang-engineering.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, linux-usb <linux-usb@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, David Brown <david.brown@linaro.org>, alokc@codeaurora.org, kramasub@codeaurora.org, linux-i2c <linux-i2c@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, Andy Gross <andy.gross@linaro.org>, Jeffrey Hugo <jlhugo@gmail.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gVHVlLCAwNCBKdW4gMjAxOSwgQmpvcm4gQW5kZXJzc29uIHdyb3RlOgoKPiBPbiBUdWUgMDQg
-SnVuIDAzOjQ0IFBEVCAyMDE5LCBMZWUgSm9uZXMgd3JvdGU6Cj4gCj4gPiBUaGUgUXVhbGNvbW0g
-R2VuaSBJMkMgZHJpdmVyIGN1cnJlbnRseSBwcm9iZXMgc2lsZW50bHkgd2hpY2ggY2FuIGJlCj4g
-PiBjb25mdXNpbmcgd2hlbiBkZWJ1Z2dpbmcgcG90ZW50aWFsIGlzc3Vlcy4gIEFkZCBhIGxvdyBs
-ZXZlbCAoSU5GTykKPiA+IHByaW50IHdoZW4gZWFjaCBJMkMgY29udHJvbGxlciBpcyBzdWNjZXNz
-ZnVsbHkgaW5pdGlhbGx5IHNldC11cC4KPiA+IAo+ID4gU2lnbmVkLW9mZi1ieTogTGVlIEpvbmVz
-IDxsZWUuam9uZXNAbGluYXJvLm9yZz4KPiA+IC0tLQo+ID4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9p
-MmMtcWNvbS1nZW5pLmMgfCAyICsrCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygr
-KQo+ID4gCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1xY29tLWdlbmku
-YyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtcWNvbS1nZW5pLmMKPiA+IGluZGV4IDBmYTkzYjQ0
-OGU4ZC4uZTI3NDY2ZDc3NzY3IDEwMDY0NAo+ID4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2ky
-Yy1xY29tLWdlbmkuYwo+ID4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1xY29tLWdlbmku
-Ywo+ID4gQEAgLTU5OCw2ICs1OTgsOCBAQCBzdGF0aWMgaW50IGdlbmlfaTJjX3Byb2JlKHN0cnVj
-dCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpCj4gPiAgCQlyZXR1cm4gcmV0Owo+ID4gIAl9Cj4gPiAg
-Cj4gPiArCWRldl9pbmZvKCZwZGV2LT5kZXYsICJHZW5pLUkyQyBhZGFwdG9yIHN1Y2Nlc3NmdWxs
-eSBhZGRlZFxuIik7Cj4gPiArCj4gCj4gSSB3b3VsZCBwcmVmZXIgdGhhdCB3ZSBkbyBub3QgYWRk
-IHN1Y2ggcHJpbnRzLCBhcyBpdCB3b3VsZCBiZSB0byBhY2NlcHQKPiB0aGUgZG93bnN0cmVhbSBi
-ZWhhdmlvdXIgb2Ygc3BhbW1pbmcgdGhlIGxvZyB0byB0aGUgcG9pbnQgd2hlcmUgbm8gb25lCj4g
-d2lsbCBldmVyIGxvb2sgdGhyb3VnaCBpdC4KCldlIHNob3VsZCBiZSBhYmxlIHRvIGZpbmQgYSBt
-aWRkbGUgZ3JvdW5kLiAgU3BhbW1pbmcgdGhlIGxvZyB3aXRoIGFsbApzb3J0cyBvZiBkZXZpY2Ug
-c3BlY2lmaWMgaW5mb3JtYXRpb24vZGVidWcgaXMgb2J2aW91c2x5IG5vdApjb25zdHJ1Y3RpdmUs
-IGJ1dCBhIHNpbmdsZSBsaW5lciB0byBhZHZlcnRpc2UgdGhhdCBhbiBpbXBvcnRhbnQKZGV2aWNl
-L2NvbnRyb2xsZXIgaGFzIGJlZW4gc3VjY2Vzc2Z1bGx5IGluaXRpYWxpc2VkIGlzIG1vcmUgaGVs
-cGZ1bAp0aGFuIGl0IGlzIGhpbmRlcm91cy4KClRoaXMgcHJpbnQgd2FzIGFkZGVkIGR1ZSB0byB0
-aGUgc2lsZW50IGluaXRpYWxpc2F0aW9uIGNvc3RpbmcgbWUKc2V2ZXJhbCBob3VycyBvZiBkZWJ1
-Z2dpbmcgQUNQSSBkZXZpY2UvZHJpdmVyIGNvZGUgKGFsYmVpdCBsZWFybmluZyBhCmxvdCBhYm91
-dCBBQ1BJIGFzIEkgZ28pIGp1c3QgdG8gZmluZCBvdXQgdGhhdCBpdCB3YXMgYWxyZWFkeSBkb2lu
-ZyB0aGUKcmlnaHQgdGhpbmcgLSBqdXN0IHZlcnkgcXVpZXRseS4KCi0tIApMZWUgSm9uZXMgW+ad
-jueQvOaWr10KTGluYXJvIFNlcnZpY2VzIFRlY2huaWNhbCBMZWFkCkxpbmFyby5vcmcg4pSCIE9w
-ZW4gc291cmNlIHNvZnR3YXJlIGZvciBBUk0gU29DcwpGb2xsb3cgTGluYXJvOiBGYWNlYm9vayB8
-IFR3aXR0ZXIgfCBCbG9nCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxp
-c3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0
-aW5mby9saW51eC1hcm0ta2VybmVsCg==
+On Wed, 5 Jun 2019 at 09:16, Lee Jones <lee.jones@linaro.org> wrote:
+>
+> On Tue, 04 Jun 2019, Bjorn Andersson wrote:
+>
+> > On Tue 04 Jun 03:44 PDT 2019, Lee Jones wrote:
+> >
+> > > The Qualcomm Geni I2C driver currently probes silently which can be
+> > > confusing when debugging potential issues.  Add a low level (INFO)
+> > > print when each I2C controller is successfully initially set-up.
+> > >
+> > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > > ---
+> > >  drivers/i2c/busses/i2c-qcom-geni.c | 2 ++
+> > >  1 file changed, 2 insertions(+)
+> > >
+> > > diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+> > > index 0fa93b448e8d..e27466d77767 100644
+> > > --- a/drivers/i2c/busses/i2c-qcom-geni.c
+> > > +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+> > > @@ -598,6 +598,8 @@ static int geni_i2c_probe(struct platform_device *pdev)
+> > >             return ret;
+> > >     }
+> > >
+> > > +   dev_info(&pdev->dev, "Geni-I2C adaptor successfully added\n");
+> > > +
+> >
+> > I would prefer that we do not add such prints, as it would be to accept
+> > the downstream behaviour of spamming the log to the point where no one
+> > will ever look through it.
+>
+> We should be able to find a middle ground.  Spamming the log with all
+> sorts of device specific information/debug is obviously not
+> constructive, but a single liner to advertise that an important
+> device/controller has been successfully initialised is more helpful
+> than it is hinderous.
+>
+> This print was added due to the silent initialisation costing me
+> several hours of debugging ACPI device/driver code (albeit learning a
+> lot about ACPI as I go) just to find out that it was already doing the
+> right thing - just very quietly.
+>
+
+I agree.
+
+There are numerous EHCI drivers IIRC which, if compiled in,
+unconditionally print some blurb, whether you have the hardware or
+not, which is pretty annoying.
+
+In this case, however, having a single line per successfully probed
+device (containing the dev_name and perhaps the MMIO base address or
+some other identifying feature) is pretty useful, and shouldn't be
+regarded as log spamming imo. dev_info() honours the 'quiet' kernel
+command line parameter, and so you will only see the message if you
+actually look at the log.
