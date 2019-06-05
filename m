@@ -1,88 +1,100 @@
-From: Neil Armstrong <narmstrong@baylibre.com>
-Subject: Re: [PATCH 06/10] mfd / platform: cros_ec: Reorganize platform and
- mfd includes
-Date: Wed, 5 Jun 2019 16:26:11 +0200
-Message-ID: <9054d7c4-883b-b9b5-4c94-02b8d627c337@baylibre.com>
-References: <20190604152019.16100-1-enric.balletbo@collabora.com>
- <20190604152019.16100-7-enric.balletbo@collabora.com>
+From: Eduardo Valentin <eduval@amazon.com>
+Subject: Re: [PATCH 2/3] i2c: slave-mqueue: add a slave backend to receive
+ and queue messages
+Date: Wed, 5 Jun 2019 07:31:58 -0700
+Message-ID: <20190605143158.GB1534@u40b0340c692b58f6553c.ant.amazon.com>
+References: <20190531043347.4196-1-eduval@amazon.com>
+ <20190531043347.4196-3-eduval@amazon.com>
+ <20190604171611.GS9224@smile.fi.intel.com>
+ <20190605032709.GA1534@u40b0340c692b58f6553c.ant.amazon.com>
+ <CAHp75Vdaeprj0hFXukMqDi_dnK9-vA-O-OTRiGY6y3aGrNHUjQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190604152019.16100-7-enric.balletbo@collabora.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CAHp75Vdaeprj0hFXukMqDi_dnK9-vA-O-OTRiGY6y3aGrNHUjQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>, linux-kernel@vger.kernel.org
-Cc: gwendal@chromium.org, Guenter Roeck <groeck@chromium.org>, Benson Leung <bleung@chromium.org>, Lee Jones <lee.jones@linaro.org>, kernel@collabora.com, dtor@chromium.org, Mauro Carvalho Chehab <mchehab@kernel.org>, alsa-devel@alsa-project.org, Alessandro Zummo <a.zummo@towertech.it>, linux-iio@vger.kernel.org, Fabien Lahoudere <fabien.lahoudere@collabora.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, linux-rtc@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>, Brian Norris <briannorris@chromium.org>, Chanwoo Choi <cw00.choi@samsung.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Sebastian Reichel <sre@kernel.org>, Rushikesh S Kadam <rushikesh.s.kadam@intel.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Eduardo Valentin <eduval@amazon.com>, Andy Shevchenko <andriy.shevchenko@intel.com>, Wolfram Sang <wsa@the-dreams.de>, Haiyue Wang <haiyue.wang@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Brendan Higgins <brendanhiggins@google.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 04/06/2019 17:20, Enric Balletbo i Serra wrote:
-> There is a bit of mess between cros-ec mfd includes and platform
-> includes. For example, we have a linux/mfd/cros_ec.h include that
-> exports the interface implemented in platform/chrome/cros_ec_proto.c. Or
-> we have a linux/mfd/cros_ec_commands.h file that is non related to the
-> multifunction device (in the sense that is not exporting any function of
-> the mfd device). This causes crossed includes between mfd and
-> platform/chrome subsystems and makes the code difficult to read, apart
-> from creating 'curious' situations where a platform/chrome driver includes
-> a linux/mfd/cros_ec.h file just to get the exported functions that are
-> implemented in another platform/chrome driver.
+On Wed, Jun 05, 2019 at 11:25:39AM +0300, Andy Shevchenko wrote:
+> On Wed, Jun 5, 2019 at 6:30 AM Eduardo Valentin <eduval@amazon.com> wrote:
+> >
+> > Hey Andry,
+> >
+> > Long time no seeing :-)
 > 
-> In order to have a better separation on what the cros-ec multifunction
-> driver does and what the cros-ec core provides move and rework the
-> affected includes doing:
+> True!
 > 
->  - Move cros_ec_commands.h to include/linux/platform_data/cros_ec_commands.h
->  - Get rid of the parts that are implemented in the platform/chrome/cros_ec_proto.c
->    driver from include/linux/mfd/cros_ec.h to a new file
->    include/linux/platform_data/cros_ec_proto.h
->  - Update all the drivers with the new includes, so
->    - Drivers that only need to know about the protocol include
->      - linux/platform_data/cros_ec_proto.h
->      - linux/platform_data/cros_ec_commands.h
->    - Drivers that need to know about the cros-ec mfd device also include
->      - linux/mfd/cros_ec.h
 > 
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> ---
+> > > > +#define MQ_MSGBUF_SIZE             CONFIG_I2C_SLAVE_MQUEUE_MESSAGE_SIZE
+> > > > +#define MQ_QUEUE_SIZE              CONFIG_I2C_SLAVE_MQUEUE_QUEUE_SIZE
+> > >
+> > > > +#define MQ_QUEUE_NEXT(x)   (((x) + 1) & (MQ_QUEUE_SIZE - 1))
+> > >
+> > > Also possible ((x + 1) % ..._SIZE)
+> >
+> > Right.. but I suppose the original idea is to avoid divisions on the hotpath.
+> >
+> > So, I am actually fine with the limitation of only using power of 2.
 > 
->  drivers/extcon/extcon-usbc-cros-ec.c          |   3 +-
->  drivers/hid/hid-google-hammer.c               |   4 +-
->  drivers/i2c/busses/i2c-cros-ec-tunnel.c       |   4 +-
->  drivers/iio/accel/cros_ec_accel_legacy.c      |   3 +-
->  .../common/cros_ec_sensors/cros_ec_sensors.c  |   3 +-
->  .../cros_ec_sensors/cros_ec_sensors_core.c    |   3 +-
->  drivers/iio/light/cros_ec_light_prox.c        |   3 +-
->  drivers/iio/pressure/cros_ec_baro.c           |   3 +-
->  drivers/input/keyboard/cros_ec_keyb.c         |   4 +-
->  .../media/platform/cros-ec-cec/cros-ec-cec.c  |   4 +-
->  drivers/mfd/cros_ec_dev.c                     |   3 +-
->  drivers/platform/chrome/cros_ec.c             |   3 +-
->  drivers/platform/chrome/cros_ec_chardev.c     |   4 +-
->  drivers/platform/chrome/cros_ec_debugfs.c     |   3 +-
->  drivers/platform/chrome/cros_ec_i2c.c         |   4 +-
->  drivers/platform/chrome/cros_ec_lightbar.c    |   3 +-
->  drivers/platform/chrome/cros_ec_lpc.c         |   4 +-
->  drivers/platform/chrome/cros_ec_lpc_reg.c     |   4 +-
->  drivers/platform/chrome/cros_ec_proto.c       |   3 +-
->  drivers/platform/chrome/cros_ec_rpmsg.c       |   4 +-
->  drivers/platform/chrome/cros_ec_spi.c         |   4 +-
->  drivers/platform/chrome/cros_ec_sysfs.c       |   3 +-
->  drivers/platform/chrome/cros_ec_trace.c       |   2 +-
->  drivers/platform/chrome/cros_ec_trace.h       |   4 +-
->  drivers/platform/chrome/cros_ec_vbc.c         |   3 +-
->  drivers/platform/chrome/cros_usbpd_logger.c   |   5 +-
->  drivers/power/supply/cros_usbpd-charger.c     |   5 +-
->  drivers/pwm/pwm-cros-ec.c                     |   4 +-
->  drivers/rtc/rtc-cros-ec.c                     |   3 +-
->  .../linux/iio/common/cros_ec_sensors_core.h   |   3 +-
->  include/linux/mfd/cros_ec.h                   | 306 -----------------
->  .../{mfd => platform_data}/cros_ec_commands.h |   0
->  include/linux/platform_data/cros_ec_proto.h   | 315 ++++++++++++++++++
->  sound/soc/codecs/cros_ec_codec.c              |   4 +-
->  34 files changed, 379 insertions(+), 351 deletions(-)
->  rename include/linux/{mfd => platform_data}/cros_ec_commands.h (100%)
->  create mode 100644 include/linux/platform_data/cros_ec_proto.h
-> 
+> The original code implies that anyway, so, my proposal doesn't
+> restrict it any farther.
 
-Acked-by: Neil Armstrong <narmstrong@baylibre.com> # for the cros-ec-cec part
+Well, yes, but the point is you would be switching from a simple AND (&) operation
+to a division...
+
+I am keeping the power of 2 dep so that we can keep this with a simple &.
+
+> > > > +   {
+> > > > +           .compatible = "i2c-slave-mqueue",
+> > > > +   },
+> > >
+> > > > +   { },
+> > >
+> > > No need for comma here.
+> >
+> > It does not hurt to have it either :-)
+> 
+> It's just a protection against some weird cases of adding entries
+> behind the terminator.
+
+Fair..
+
+> 
+> > > > +           .of_match_table = of_match_ptr(i2c_slave_mqueue_of_match),
+> > >
+> > > Wouldn't compiler warn you due to unused data?
+> > > Perhaps drop of_match_ptr() for good...
+> >
+> >
+> > Not sure what you meant here. I dont see any compiler warning.
+> > Also, of_match_ptr seams to be well spread in the kernel.
+> 
+> If this will be compiled with CONFIG_OF=n...
+
+I see.. I obviously did not test with that config..
+
+> Though I didn't check all dependencies to see if it even possible. In
+> any case of_match_ptr() is redundant in both cases here.
+> Either you need to protect i2c_slave_mqueue_of_match with #ifdef
+> CONFIG_OF, or drop the macro use.
+
+I will wrap it into CONFIG_OF..
+
+> 
+> P.S. Taking into account the last part, I would wait for v7 with that
+> fixed followed by fixing other nits.
+
+I agree, the warn on CONFIG_OF=n is enough to spin out an extra version.
+I will include the other nits too.
+
+> 
+> -- 
+> With Best Regards,
+> Andy Shevchenko
+
+-- 
+All the best,
+Eduardo Valentin
