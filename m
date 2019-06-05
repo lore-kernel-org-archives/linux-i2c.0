@@ -1,48 +1,52 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 2/8] i2c: i2c-qcom-geni: Signify successful driver probe
-Date: Wed, 5 Jun 2019 19:49:41 +0100
-Message-ID: <20190605184941.GU4797@dell>
+Subject: Re: [PATCH 7/8] usb: dwc3: qcom: Start USB in 'host mode' on the
+ SDM845
+Date: Wed, 5 Jun 2019 19:50:35 +0100
+Message-ID: <20190605185035.GV4797@dell>
 References: <20190604104455.8877-1-lee.jones@linaro.org>
- <20190604104455.8877-2-lee.jones@linaro.org>
- <20190605062020.GL22737@tuxbook-pro>
- <20190605071625.GK4797@dell>
- <20190605075656.GC29637@localhost>
- <20190605082047.GM4797@dell>
- <20190605083353.GD29637@localhost>
- <20190605084921.GQ4797@dell>
- <20190605085527.GE29637@localhost>
- <20190605141812.GA962@kunai>
+ <20190604104455.8877-7-lee.jones@linaro.org>
+ <20190605070029.GN22737@tuxbook-pro>
+ <20190605083454.GO4797@dell>
+ <d9ba98e6-3caf-62fc-45ca-944cb718b7e4@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190605141812.GA962@kunai>
+In-Reply-To: <d9ba98e6-3caf-62fc-45ca-944cb718b7e4@codeaurora.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Johan Hovold <johan@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, balbi@kernel.org, wsa+renesas@sang-engineering.com, gregkh@linuxfoundation.org, linus.walleij@linaro.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, david.brown@linaro.org, alokc@codeaurora.org, kramasub@codeaurora.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-msm@vger.kernel.org, andy.gross@linaro.org, jlhugo@gmail.com, linux-arm-kernel@lists.infradead.org
+To: Jeffrey Hugo <jhugo@codeaurora.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>, balbi@kernel.org, wsa+renesas@sang-engineering.com, gregkh@linuxfoundation.org, linus.walleij@linaro.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, david.brown@linaro.org, alokc@codeaurora.org, kramasub@codeaurora.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-msm@vger.kernel.org, andy.gross@linaro.org, jlhugo@gmail.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 05 Jun 2019, Wolfram Sang wrote:
+On Wed, 05 Jun 2019, Jeffrey Hugo wrote:
 
-> 
-> > To enable dynamic debugging in driver core you could use something like
+> On 6/5/2019 2:34 AM, Lee Jones wrote:
+> > On Wed, 05 Jun 2019, Bjorn Andersson wrote:
 > > 
-> > 	CONFIG_CMDLINE="dyndbg=\"func really_probe =p\""
+> > > On Tue 04 Jun 03:44 PDT 2019, Lee Jones wrote:
+> > > 
+> > > > When booting with Device Tree, the current default boot configuration
+> > > > table option, the request to boot via 'host mode' comes from the
+> > > > "dr_mode" property.
+> > > 
+> > > This has been the default on the MTP, but this is changing as this is
+> > > causing issues when connected downstream from a hub (the typical
+> > > development case for the primary USB port of a phone like device) and
+> > > more importantly we don't have support for the PMIC blocks that control
+> > > VBUS.
 > > 
-> > That gives you two printouts per successful probe, for example:
+> > My point is not about which mode is currently chosen.  It's more about
+> > the capability of choosing which mode is appropriate for a given
+> > system via DT.
 > > 
-> > 	bus: 'usb-serial': really_probe: probing driver edgeport_ti_1 with device ttyUSB0
-> > 	bus: 'usb-serial': really_probe: bound device ttyUSB0 to driver edgeport_ti_1
+> > > Once these issues are resolved the dr_mode would be "otg".
+> > 
+> > OTG doesn't work on this H/W, so we need to specify "host" mode.
 > 
-> I agree that this scales much better than adding strings to every
-> driver. Also, the driver core will report failed probes other than
-> -ENODEV, or?
-> 
-> Regarding this patch, however, I don't care much. I'll let the driver
-> maintainers decide.
+> How have you made that determination?
 
-I've downgraded this to dev_dbg() in v2.
+I enabled OTG and plugged in all of the things.
 
 -- 
 Lee Jones [李琼斯]
