@@ -1,100 +1,83 @@
-From: Eduardo Valentin <eduval@amazon.com>
-Subject: Re: [PATCH 2/3] i2c: slave-mqueue: add a slave backend to receive
- and queue messages
-Date: Wed, 5 Jun 2019 07:31:58 -0700
-Message-ID: <20190605143158.GB1534@u40b0340c692b58f6553c.ant.amazon.com>
-References: <20190531043347.4196-1-eduval@amazon.com>
- <20190531043347.4196-3-eduval@amazon.com>
- <20190604171611.GS9224@smile.fi.intel.com>
- <20190605032709.GA1534@u40b0340c692b58f6553c.ant.amazon.com>
- <CAHp75Vdaeprj0hFXukMqDi_dnK9-vA-O-OTRiGY6y3aGrNHUjQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
+Subject: [PATCH 04/13] drivers: Add generic helper to match by of_node
+Date: Wed,  5 Jun 2019 16:13:41 +0100
+Message-ID: <1559747630-28065-5-git-send-email-suzuki.poulose@arm.com>
+References: <1559747630-28065-1-git-send-email-suzuki.poulose@arm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAHp75Vdaeprj0hFXukMqDi_dnK9-vA-O-OTRiGY6y3aGrNHUjQ@mail.gmail.com>
+In-Reply-To: <1559747630-28065-1-git-send-email-suzuki.poulose@arm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Eduardo Valentin <eduval@amazon.com>, Andy Shevchenko <andriy.shevchenko@intel.com>, Wolfram Sang <wsa@the-dreams.de>, Haiyue Wang <haiyue.wang@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Brendan Higgins <brendanhiggins@google.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: gregkh@linuxfoundation.org, rafael@kernel.org, suzuki.poulose@arm.com, Alan Tull <atull@kernel.org>, Andrew Lunn <andrew@lunn.ch>, Daniel Vetter <daniel@ffwll.ch>, David Airlie <airlied@linux.ie>, "David S. Miller" <davem@davemloft.net>, devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org, Florian Fainelli <f.fainelli@gmail.com>, Frank Rowand <frowand.list@gmail.com>, Heiner Kallweit <hkallweit1@gmail.com>, Jiri Slaby <jslaby@suse.com>, Jonathan Hunter <jonathanh@nvidia.com>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, linux-fpga@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Mark Brown <broonie@kernel.org>, Mathieu Poirier <mathieu.poiri>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 05, 2019 at 11:25:39AM +0300, Andy Shevchenko wrote:
-> On Wed, Jun 5, 2019 at 6:30 AM Eduardo Valentin <eduval@amazon.com> wrote:
-> >
-> > Hey Andry,
-> >
-> > Long time no seeing :-)
-> 
-> True!
-> 
-> 
-> > > > +#define MQ_MSGBUF_SIZE             CONFIG_I2C_SLAVE_MQUEUE_MESSAGE_SIZE
-> > > > +#define MQ_QUEUE_SIZE              CONFIG_I2C_SLAVE_MQUEUE_QUEUE_SIZE
-> > >
-> > > > +#define MQ_QUEUE_NEXT(x)   (((x) + 1) & (MQ_QUEUE_SIZE - 1))
-> > >
-> > > Also possible ((x + 1) % ..._SIZE)
-> >
-> > Right.. but I suppose the original idea is to avoid divisions on the hotpath.
-> >
-> > So, I am actually fine with the limitation of only using power of 2.
-> 
-> The original code implies that anyway, so, my proposal doesn't
-> restrict it any farther.
+Add a helper to match device by the of_node. This will be later used
+to provide generic lookup functions by of_node.
 
-Well, yes, but the point is you would be switching from a simple AND (&) operation
-to a division...
+Cc: Alan Tull <atull@kernel.org>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: David Airlie <airlied@linux.ie>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: devicetree@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Frank Rowand <frowand.list@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Jiri Slaby <jslaby@suse.com>
+Cc: Jonathan Hunter <jonathanh@nvidia.com>
+Cc: Lee Jones <lee.jones@linaro.org>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: linux-fpga@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
+Cc: linux-spi@vger.kernel.org
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Maxime Ripard <maxime.ripard@bootlin.com>
+Cc: Moritz Fischer <mdf@kernel.org>
+Cc: Peter Rosin <peda@axentia.se>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Cc: Thor Thayer <thor.thayer@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Joe Perches <joe@perches.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+---
+ drivers/base/core.c    | 6 ++++++
+ include/linux/device.h | 2 ++
+ 2 files changed, 8 insertions(+)
 
-I am keeping the power of 2 dep so that we can keep this with a simple &.
-
-> > > > +   {
-> > > > +           .compatible = "i2c-slave-mqueue",
-> > > > +   },
-> > >
-> > > > +   { },
-> > >
-> > > No need for comma here.
-> >
-> > It does not hurt to have it either :-)
-> 
-> It's just a protection against some weird cases of adding entries
-> behind the terminator.
-
-Fair..
-
-> 
-> > > > +           .of_match_table = of_match_ptr(i2c_slave_mqueue_of_match),
-> > >
-> > > Wouldn't compiler warn you due to unused data?
-> > > Perhaps drop of_match_ptr() for good...
-> >
-> >
-> > Not sure what you meant here. I dont see any compiler warning.
-> > Also, of_match_ptr seams to be well spread in the kernel.
-> 
-> If this will be compiled with CONFIG_OF=n...
-
-I see.. I obviously did not test with that config..
-
-> Though I didn't check all dependencies to see if it even possible. In
-> any case of_match_ptr() is redundant in both cases here.
-> Either you need to protect i2c_slave_mqueue_of_match with #ifdef
-> CONFIG_OF, or drop the macro use.
-
-I will wrap it into CONFIG_OF..
-
-> 
-> P.S. Taking into account the last part, I would wait for v7 with that
-> fixed followed by fixing other nits.
-
-I agree, the warn on CONFIG_OF=n is enough to spin out an extra version.
-I will include the other nits too.
-
-> 
-> -- 
-> With Best Regards,
-> Andy Shevchenko
-
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index fd7511e..9211908 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -3328,3 +3328,9 @@ void device_set_of_node_from_dev(struct device *dev, const struct device *dev2)
+ 	dev->of_node_reused = true;
+ }
+ EXPORT_SYMBOL_GPL(device_set_of_node_from_dev);
++
++int device_match_of_node(struct device *dev, const void *np)
++{
++	return dev->of_node == np;
++}
++EXPORT_SYMBOL_GPL(device_match_of_node);
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 4d7c881..7093085 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -163,6 +163,8 @@ void subsys_dev_iter_init(struct subsys_dev_iter *iter,
+ struct device *subsys_dev_iter_next(struct subsys_dev_iter *iter);
+ void subsys_dev_iter_exit(struct subsys_dev_iter *iter);
+ 
++int device_match_of_node(struct device *dev, const void *np);
++
+ int bus_for_each_dev(struct bus_type *bus, struct device *start, void *data,
+ 		     int (*fn)(struct device *dev, void *data));
+ struct device *bus_find_device(struct bus_type *bus, struct device *start,
 -- 
-All the best,
-Eduardo Valentin
+2.7.4
