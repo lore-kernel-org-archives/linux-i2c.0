@@ -1,72 +1,41 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH 2/3] i2c: slave-mqueue: add a slave backend to receive and
- queue messages
-Date: Wed, 5 Jun 2019 11:25:39 +0300
-Message-ID: <CAHp75Vdaeprj0hFXukMqDi_dnK9-vA-O-OTRiGY6y3aGrNHUjQ@mail.gmail.com>
-References: <20190531043347.4196-1-eduval@amazon.com> <20190531043347.4196-3-eduval@amazon.com>
- <20190604171611.GS9224@smile.fi.intel.com> <20190605032709.GA1534@u40b0340c692b58f6553c.ant.amazon.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
+Subject: Re: [PATCH v3 2/6] i2c: acpi: Use available IRQ helper functions
+Date: Wed, 5 Jun 2019 09:26:41 +0100
+Message-ID: <20190605082641.GM28362@ediswmail.ad.cirrus.com>
+References: <20190528142900.24147-1-ckeepax@opensource.cirrus.com>
+ <20190528142900.24147-2-ckeepax@opensource.cirrus.com>
+ <20190604170052.GQ9224@smile.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190605032709.GA1534@u40b0340c692b58f6553c.ant.amazon.com>
+Content-Disposition: inline
+In-Reply-To: <20190604170052.GQ9224@smile.fi.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eduardo Valentin <eduval@amazon.com>
-Cc: Andy Shevchenko <andriy.shevchenko@intel.com>, Wolfram Sang <wsa@the-dreams.de>, Haiyue Wang <haiyue.wang@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Brendan Higgins <brendanhiggins@google.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c <linux-i2c@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: wsa@the-dreams.de, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 5, 2019 at 6:30 AM Eduardo Valentin <eduval@amazon.com> wrote:
->
-> Hey Andry,
->
-> Long time no seeing :-)
+On Tue, Jun 04, 2019 at 08:00:52PM +0300, Andy Shevchenko wrote:
+> On Tue, May 28, 2019 at 03:28:56PM +0100, Charles Keepax wrote:
+> > Use the available IRQ helper functions, most of the functions have
+> > additional helpful side affects like configuring the trigger type of the
+> > IRQ.
+> > 
+> 
+> You do here two things, i.e.
+> - splitting out helper function
+> - converting it to use helpers
+> 
+> I would split the patch to do exact these steps separately, e.g.:
+> - splitting out to a local helper
+> - replacing open coded stuff with existing helpers
+> 
 
-True!
+This can't really be done like this, the helper is called by
+acpi_dev_get_resources and I need the acpi_resource from that to
+call acpi_dev_resource_interrupt. I guess I could do a separate
+patch to start using i2c_dev_irq_from_resource if that would be
+preferrable? But I think the rest needs to stay together.
 
-
-> > > +#define MQ_MSGBUF_SIZE             CONFIG_I2C_SLAVE_MQUEUE_MESSAGE_SIZE
-> > > +#define MQ_QUEUE_SIZE              CONFIG_I2C_SLAVE_MQUEUE_QUEUE_SIZE
-> >
-> > > +#define MQ_QUEUE_NEXT(x)   (((x) + 1) & (MQ_QUEUE_SIZE - 1))
-> >
-> > Also possible ((x + 1) % ..._SIZE)
->
-> Right.. but I suppose the original idea is to avoid divisions on the hotpath.
->
-> So, I am actually fine with the limitation of only using power of 2.
-
-The original code implies that anyway, so, my proposal doesn't
-restrict it any farther.
-> > > +   {
-> > > +           .compatible = "i2c-slave-mqueue",
-> > > +   },
-> >
-> > > +   { },
-> >
-> > No need for comma here.
->
-> It does not hurt to have it either :-)
-
-It's just a protection against some weird cases of adding entries
-behind the terminator.
-
-> > > +           .of_match_table = of_match_ptr(i2c_slave_mqueue_of_match),
-> >
-> > Wouldn't compiler warn you due to unused data?
-> > Perhaps drop of_match_ptr() for good...
->
->
-> Not sure what you meant here. I dont see any compiler warning.
-> Also, of_match_ptr seams to be well spread in the kernel.
-
-If this will be compiled with CONFIG_OF=n...
-Though I didn't check all dependencies to see if it even possible. In
-any case of_match_ptr() is redundant in both cases here.
-Either you need to protect i2c_slave_mqueue_of_match with #ifdef
-CONFIG_OF, or drop the macro use.
-
-P.S. Taking into account the last part, I would wait for v7 with that
-fixed followed by fixing other nits.
-
--- 
-With Best Regards,
-Andy Shevchenko
+Thanks,
+Charles
