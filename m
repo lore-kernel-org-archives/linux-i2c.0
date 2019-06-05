@@ -1,93 +1,51 @@
-From: Asmaa Mnebhi <Asmaa@mellanox.com>
-Subject: RE: [PATCH v9 1/1] Add support for IPMB driver
-Date: Wed, 5 Jun 2019 18:08:26 +0000
-Message-ID: <VI1PR05MB62395CD09037E588E20E30EADA160@VI1PR05MB6239.eurprd05.prod.outlook.com>
-References: <cover.1557322882.git.Asmaa@mellanox.com>
- <a4d9fe418013b604e7224bf3038c294da42d5534.1557322882.git.Asmaa@mellanox.com>
- <20190519140231.GA7291@kunai>
- <VI1PR05MB623971FF6F956A091840716DDA060@VI1PR05MB6239.eurprd05.prod.outlook.com>
- <20190603201325.GC2383@kunai>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 2/8] i2c: i2c-qcom-geni: Signify successful driver probe
+Date: Wed, 5 Jun 2019 19:49:41 +0100
+Message-ID: <20190605184941.GU4797@dell>
+References: <20190604104455.8877-1-lee.jones@linaro.org>
+ <20190604104455.8877-2-lee.jones@linaro.org>
+ <20190605062020.GL22737@tuxbook-pro>
+ <20190605071625.GK4797@dell>
+ <20190605075656.GC29637@localhost>
+ <20190605082047.GM4797@dell>
+ <20190605083353.GD29637@localhost>
+ <20190605084921.GQ4797@dell>
+ <20190605085527.GE29637@localhost>
+ <20190605141812.GA962@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190603201325.GC2383@kunai>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190605141812.GA962@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "minyard@acm.org" <minyard@acm.org>, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>, "rdunlap@infradead.org" <rdunlap@infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: Johan Hovold <johan@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, balbi@kernel.org, wsa+renesas@sang-engineering.com, gregkh@linuxfoundation.org, linus.walleij@linaro.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, david.brown@linaro.org, alokc@codeaurora.org, kramasub@codeaurora.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-msm@vger.kernel.org, andy.gross@linaro.org, jlhugo@gmail.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgV29sZnJhbSwNCg0KVGhhbmsgeW91IGZvciB5b3VyIHJlc3BvbnNlLiBQbGVhc2Ugc2VlIG15
-IGlubGluZSByZXNwb25zZS4NCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IFdv
-bGZyYW0gU2FuZyA8d3NhQHRoZS1kcmVhbXMuZGU+IA0KU2VudDogTW9uZGF5LCBKdW5lIDMsIDIw
-MTkgNDoxMyBQTQ0KVG86IEFzbWFhIE1uZWJoaSA8QXNtYWFAbWVsbGFub3guY29tPg0KQ2M6IG1p
-bnlhcmRAYWNtLm9yZzsgVmFkaW0gUGFzdGVybmFrIDx2YWRpbXBAbWVsbGFub3guY29tPjsgTWlj
-aGFlbCBTaHljaCA8bWljaGFlbHNoQG1lbGxhbm94LmNvbT47IHJkdW5sYXBAaW5mcmFkZWFkLm9y
-ZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsgbGludXgtaTJjQHZnZXIua2VybmVsLm9y
-Zw0KU3ViamVjdDogUmU6IFtQQVRDSCB2OSAxLzFdIEFkZCBzdXBwb3J0IGZvciBJUE1CIGRyaXZl
-cg0KDQpIaSBBc21hYSwNCg0Kc29ycnkgZm9yIHRoZSBsb25nIHdhaXQuIEkgbWlzc2VkIHRoaXMg
-bWFpbCB3YXMgc3RpbGwgc2l0dGluZyBpbiBteSBEcmFmdHMgZm9sZGVyIDooDQoNCj4gPj4gQW0g
-SSBvdmVybG9va2luZyBzb21ldGhpbmc/IFdoeSBhcmUgeW91IHByb3RlY3RpbmcgYW4gYXRvbWlj
-X3JlYWQgd2l0aCBhIHNwaW5sb2NrPw0KPiANCj4gQSB0aHJlYWQgd291bGQgbG9jayB0aGUgaXBt
-Yl9kZXYtPmxvY2sgc3BpbmxvY2sgKGFib3ZlKSBmb3IgYWxsIHRoZSBjb2RlIGJlbG93IE9OTFkg
-SUYgdGhlIGF0b21pY19yZWFkIGZvciB0aGUgcmVxdWVzdF9xdWV1ZV9sZW4gcmVwb3J0cyBhIHZh
-bHVlIGRpZmZlcmVudCBmcm9tIDA6DQoNCldlbGwsIG5vdCByZWFsbHkuIFRoZSBzcGlubG9jayBp
-cyB0YWtlbiBfYmVmb3JlXyB0aGUgYXRvbWljIHJlYWQuIEJ1dCB0aGUgcmVhZCBpcyBhdG9taWMs
-IHNvIHRoZXJlIHNob3VsZCBiZSBubyBuZWVkLiBJIGFtIGFza2luZyBpZiB0aGUgY29kZSBjb3Vs
-ZCBsb29rIGxpa2UgdGhpcz8NCg0KKwl3aGlsZSAoIWF0b21pY19yZWFkKCZpcG1iX2Rldi0+cmVx
-dWVzdF9xdWV1ZV9sZW4pKSB7DQorCQlpZiAobm9uX2Jsb2NraW5nKQ0KKwkJCXJldHVybiAtRUFH
-QUlOOw0KKw0KKwkJcmVzID0gd2FpdF9ldmVudF9pbnRlcnJ1cHRpYmxlKGlwbWJfZGV2LT53YWl0
-X3F1ZXVlLA0KKwkJCQlhdG9taWNfcmVhZCgmaXBtYl9kZXYtPnJlcXVlc3RfcXVldWVfbGVuKSk7
-DQorCQlpZiAocmVzKQ0KKwkJCXJldHVybiByZXM7DQorCX0NCisNCisJc3Bpbl9sb2NrX2lycXNh
-dmUoJmlwbWJfZGV2LT5sb2NrLCBmbGFncyk7DQorCWlmIChsaXN0X2VtcHR5KCZpcG1iX2Rldi0+
-cmVxdWVzdF9xdWV1ZSkpIHsNCg0KPiBpZiAobGlzdF9lbXB0eSgmaXBtYl9kZXYtPnJlcXVlc3Rf
-cXVldWUpKSB7DQo+IDI2MCArICAgICAgICAgICAgICAgZGV2X2VycigmaXBtYl9kZXYtPmNsaWVu
-dC0+ZGV2LCAicmVxdWVzdF9xdWV1ZSBpcyBlbXB0eVxuIik7DQo+IDI2MSArICAgICAgICAgICAg
-ICAgc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmaXBtYl9kZXYtPmxvY2ssIGZsYWdzKTsNCg0KVGhl
-IHVubG9jayBvcGVyYXRpb24gY291bGQgY29tZSBiZWZvcmUgdGhlIGRldl9lcnIuIFdlIGRvbid0
-IG5lZWQgdG8gcHJvdGVjdCB0aGUgcHJpbnRvdXQgYW5kIHNhdmUgdGltZSB3aXRoIHRoZSBzcGlu
-bG9jayBoZWxkLg0KDQpTb3VuZHMgZ29vZCB0byBtZS4gSSB3aWxsIHBvc3QgYSBuZXcgcGF0Y2gg
-c2hvcnRseS4NCg0KPiA+ICsJcnFfc2EgPSBtc2dbUlFfU0FfOEJJVF9JRFhdID4+IDE7DQo+ID4g
-KwluZXRmX3JxX2x1biA9IG1zZ1tORVRGTl9MVU5fSURYXTsNCj4gPiArCS8qDQo+ID4gKwkgKiBz
-dWJ0cmFjdCBycV9zYSBhbmQgbmV0Zl9ycV9sdW4gZnJvbSB0aGUgbGVuZ3RoIG9mIHRoZSBtc2cg
-cGFzc2VkIHRvDQo+ID4gKwkgKiBpMmNfc21idXNfd3JpdGVfYmxvY2tfZGF0YV9sb2NhbA0KPiA+
-ICsJICovDQo+ID4gKwltc2dfbGVuID0gbXNnW0lQTUJfTVNHX0xFTl9JRFhdIC0gU01CVVNfTVNH
-X0hFQURFUl9MRU5HVEg7DQo+ID4gKw0KPiA+ICsJc3RyY3B5KHJxX2NsaWVudC5uYW1lLCAiaXBt
-Yl9yZXF1ZXN0ZXIiKTsNCj4gPiArCXJxX2NsaWVudC5hZGFwdGVyID0gaXBtYl9kZXYtPmNsaWVu
-dC0+YWRhcHRlcjsNCj4gPiArCXJxX2NsaWVudC5mbGFncyA9IGlwbWJfZGV2LT5jbGllbnQtPmZs
-YWdzOw0KPiA+ICsJcnFfY2xpZW50LmFkZHIgPSBycV9zYTsNCj4gDQo+ID4+IElzIGl0IHBvc3Np
-YmxlIHRvIGRldGVybWluZSBpbiBhIHJhY2UtZnJlZSB3YXkgaWYgcnFfc2EgKHdoaWNoIGNhbWUg
-DQo+ID4+IGZyb20gdXNlcnNwYWNlIEFGQUlVKSBpcyByZWFsbHkgdGhlIGFkZHJlc3MgZnJvbSB3
-aGljaCB0aGUgcmVxdWVzdCANCj4gPj4gY2FtZSBpbiAoYWdhaW4gaWYgSSB1bmRlcnN0b29kIGFs
-bCB0aGlzIGNvcnJlY3RseSk/DQo+IFllcyB0aGVyZSBpcy4gSSBzZWUgMiBvcHRpb25zOg0KPiAN
-Cj4gMSkgVGhpcyBpcyBsZXNzIGV4cGxpY2l0IHRoYW4gb3B0aW9uIDIgYnV0IHVzZXMgZXhpc3Rp
-bmcgY29kZSBhbmQgaXMgDQo+IHNpbXBsZXIuIHdlIGNhbiB1c2UgdGhlIGlwbWJfdmVyaWZ5X2No
-ZWNrc3VtMSBmdW5jdGlvbiBzaW5jZSB0aGUgSVBNQiANCj4gcmVzcG9uc2UgZm9ybWF0IGlzIGFz
-IGZvbGxvd3M6DQo+IEJ5dGUgMTogcnFfc2ENCj4gQnl0ZSAyOiBuZXRmdW5jdGlvbi9ycUxVTg0K
-PiBCeXRlIDM6IGNoZWNrc3VtMQ0KDQpIbW1tLCBkb2VzIHRoYXQgcmVhbGx5IHByb3ZlIHRoYXQg
-cnFfc2EgaXMgdGhlIHNhbWUgYWRkcmVzcyB0aGUgcmVxdWVzdCBjYW1lIGZyb20/IE9yIGRvZXMg
-aXQgb25seSBwcm92ZSB0aGF0IHRoZSByZXNwb25zZSBwYWNrZXQgaXMgbm90IG1hbmdsZWQ/DQpZ
-b3UgYXJlIGNvcnJlY3QuIFRoaXMgbWFpbmx5IHByb3ZlcyB0aGF0IHRoZSByZXNwb25zZSBwYWNr
-ZXQgaXMgbm90IG1hbmdsZWQuDQoNCj4gU28gaWYgY2hlY2tzdW0xIGlzIHZlcmlmaWVkLCBpdCBt
-ZWFucyBycV9zYSBpcyBjb3JyZWN0Lg0KPiANCj4gMikgSSBhbSBub3Qgc3VyZSB3ZSB3YW50IHRo
-aXMgYnV0IGhhdmUgYSBnbG9iYWwgdmFyaWFibGUgd2hpY2ggc3RvcmVzIA0KPiB0aGUgYWRkcmVz
-cyBvZiB0aGUgcmVxdWVzdGVyIG9uY2UgdGhlIGZpcnN0IHJlcXVlc3QgaXMgcmVjZWl2ZWQuIFdl
-IA0KPiB3b3VsZCBjb21wYXJlIHRoYXQgYWRkcmVzcyB3aXRoIHRoZSBvbmUgcmVjZWl2ZWQgZnJv
-bSB1c2Vyc3BhY2UgaW4gdGhlIA0KPiBjb2RlIGFib3ZlLg0KDQpDYW4gdGhlcmUgYmUgb25seSBv
-bmUgcmVxdWVzdGVyIGluIHRoZSBzeXN0ZW0/DQoNClRoZXJlIGNhbiBiZSBtdWx0aXBsZSByZXF1
-ZXN0ZXJzIGluIHRoZSBzeXN0ZW0gYnV0IHRoaXMgZHJpdmVyIHdhcyBkZXNpZ25lZCBpbiBhIHdh
-eSB0aGF0IGl0IGNyZWF0ZXMgYSBzZXBhcmF0ZSBkZXZpY2UgZmlsZSBjYWxsZWQgImlwbWItPHNt
-YnVzIG51bWJlcj4iIGZvciBlYWNoIEkyQyBtYXN0ZXIgY29ubmVjdGVkIHRvIHRoaXMgc2xhdmUg
-ZGV2aWNlLg0KU28gZm9yIGV4YW1wbGUsIGlmIHdlIGhhdmUgQk1DIzAgY29ubmVjdGVkIHRvIHRo
-aXMgc2xhdmUgZGV2aWNlIHZpYSBidXMgMSBhbmQgQk1DIzEgY29ubmVjdGVkIHRvIHRoaXMgc2xh
-dmUgZGV2aWNlIHZpYSBidXMgMTIsDQpUaGVuIHdlIHdvdWxkIGhhdmUgMiBkZXZpY2UgZmlsZXM6
-DQovZGV2L2lwbWItMSBmb3IgQk1DIzANCi9kZXYvaXBtYi0xMiBmb3IgQk1DIzENClNvIHdlIHdv
-dWxkIGhhdmUgMiBkZXZpY2UgaW5zdGFuY2VzIG9mIGlwbWJfZGV2X2ludC4NCk9mIGNvdXJzZSwg
-d2UgYXNzdW1lZCBmcm9tIHRoZSBiZWdpbm5pbmcgdGhhdCBub3QgbWFueSBwZW9wbGUgd2FudCB0
-byBoYXZlIHN1Y2ggcG9vciBkZXNpZ24gd2hlcmUgdGhleSB3b3VsZCBoYXZlIGFuIGkyYyBzbGF2
-ZSAocmVzcG9uZGVyKSB3aGljaCBoYXMgMiBtYXN0ZXJzIChyZXF1ZXN0ZXJzKSBvbiB0aGUgc2Ft
-ZSBidXMuIPCfmJ0NCg0KQW55d2F5cywgSSB3aWxsIGNyZWF0ZSBhICBnbG9iYWwgdmFyaWFibGUg
-dTggcmVmZXJlbmNlX3JxX3NhW01BWF9CVVNfTlVNQkVSXSAgd2hpY2ggaG9sZHMgdGhlIGFkZHJl
-c3Mgb2YgdGhlIHJlcXVlc3RlciBkZXBlbmRpbmcgb24gdGhlIEkyQyBidXMgbnVtYmVyLg0KDQpU
-aGFua3MuDQpBc21hZQ0KDQpUaGFua3MsDQoNCiAgIFdvbGZyYW0NCg==
+On Wed, 05 Jun 2019, Wolfram Sang wrote:
+
+> 
+> > To enable dynamic debugging in driver core you could use something like
+> > 
+> > 	CONFIG_CMDLINE="dyndbg=\"func really_probe =p\""
+> > 
+> > That gives you two printouts per successful probe, for example:
+> > 
+> > 	bus: 'usb-serial': really_probe: probing driver edgeport_ti_1 with device ttyUSB0
+> > 	bus: 'usb-serial': really_probe: bound device ttyUSB0 to driver edgeport_ti_1
+> 
+> I agree that this scales much better than adding strings to every
+> driver. Also, the driver core will report failed probes other than
+> -ENODEV, or?
+> 
+> Regarding this patch, however, I don't care much. I'll let the driver
+> maintainers decide.
+
+I've downgraded this to dev_dbg() in v2.
+
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
