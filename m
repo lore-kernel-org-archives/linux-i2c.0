@@ -1,41 +1,56 @@
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: Re: [PATCH v3 2/6] i2c: acpi: Use available IRQ helper functions
-Date: Wed, 5 Jun 2019 09:26:41 +0100
-Message-ID: <20190605082641.GM28362@ediswmail.ad.cirrus.com>
-References: <20190528142900.24147-1-ckeepax@opensource.cirrus.com>
- <20190528142900.24147-2-ckeepax@opensource.cirrus.com>
- <20190604170052.GQ9224@smile.fi.intel.com>
+From: Johan Hovold <johan@kernel.org>
+Subject: Re: [PATCH 2/8] i2c: i2c-qcom-geni: Signify successful driver probe
+Date: Wed, 5 Jun 2019 10:33:53 +0200
+Message-ID: <20190605083353.GD29637@localhost>
+References: <20190604104455.8877-1-lee.jones@linaro.org>
+ <20190604104455.8877-2-lee.jones@linaro.org>
+ <20190605062020.GL22737@tuxbook-pro>
+ <20190605071625.GK4797@dell>
+ <20190605075656.GC29637@localhost>
+ <20190605082047.GM4797@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190604170052.GQ9224@smile.fi.intel.com>
+In-Reply-To: <20190605082047.GM4797@dell>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: wsa@the-dreams.de, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Johan Hovold <johan@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, balbi@kernel.org, wsa+renesas@sang-engineering.com, gregkh@linuxfoundation.org, linus.walleij@linaro.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, david.brown@linaro.org, alokc@codeaurora.org, kramasub@codeaurora.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-msm@vger.kernel.org, andy.gross@linaro.org, jlhugo@gmail.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 04, 2019 at 08:00:52PM +0300, Andy Shevchenko wrote:
-> On Tue, May 28, 2019 at 03:28:56PM +0100, Charles Keepax wrote:
-> > Use the available IRQ helper functions, most of the functions have
-> > additional helpful side affects like configuring the trigger type of the
-> > IRQ.
-> > 
-> 
-> You do here two things, i.e.
-> - splitting out helper function
-> - converting it to use helpers
-> 
-> I would split the patch to do exact these steps separately, e.g.:
-> - splitting out to a local helper
-> - replacing open coded stuff with existing helpers
-> 
+On Wed, Jun 05, 2019 at 09:20:47AM +0100, Lee Jones wrote:
+> On Wed, 05 Jun 2019, Johan Hovold wrote:
 
-This can't really be done like this, the helper is called by
-acpi_dev_get_resources and I need the acpi_resource from that to
-call acpi_dev_resource_interrupt. I guess I could do a separate
-patch to start using i2c_dev_irq_from_resource if that would be
-preferrable? But I think the rest needs to stay together.
+> > No, we don't add noise like this to the logs just because it may be
+> > useful while debugging. Even one-liners add up.
+> 
+> One line per device is should not cause an issue.
+> 
+> Problems occur when developers try to print all kinds of device
+> specifics to the boot log.  A simple, single line for such an
+> important device/controller has more benefits than drawbacks.
 
-Thanks,
-Charles
+What about the thousands of probe functions which do not currently spam
+the logs? If you want to see all successful probes reliably, you tell
+driver core to print it.
+
+> > There are plenty of options for debugging already ranging from adding a
+> > temporary dev_info() to the probe function in question to using dynamic
+> > debugging to have driver core log every successful probe.
+> 
+> This is what I ended up doing.  It was time consuming to parse though
+> a log of that size when you have no paging or keyboard.
+
+With the right command-line option to enable dynamic debugging you get
+one line per successful probe, just like you wanted. Or are you now
+saying that one-line per device is too much after all? ;)
+
+> > And in this case you say the driver was in fact already bound; that can
+> > easily be verified through sysfs too in case things aren't behaving the
+> > way you expect.
+> 
+> Not in a non-booting system with no keyboard you can't. ;)
+
+Fair enough, but the above would still work.
+
+Johan
