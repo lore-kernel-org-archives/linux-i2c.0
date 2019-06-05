@@ -1,107 +1,70 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 4/8] pinctrl: qcom: sdm845: Provide ACPI support
-Date: Wed, 5 Jun 2019 08:31:33 +0100
-Message-ID: <20190605073133.GL4797@dell>
+From: Johan Hovold <johan@kernel.org>
+Subject: Re: [PATCH 2/8] i2c: i2c-qcom-geni: Signify successful driver probe
+Date: Wed, 5 Jun 2019 09:56:56 +0200
+Message-ID: <20190605075656.GC29637@localhost>
 References: <20190604104455.8877-1-lee.jones@linaro.org>
- <20190604104455.8877-4-lee.jones@linaro.org>
- <20190605061721.GK22737@tuxbook-pro>
+ <20190604104455.8877-2-lee.jones@linaro.org>
+ <20190605062020.GL22737@tuxbook-pro>
+ <20190605071625.GK4797@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190605061721.GK22737@tuxbook-pro>
+In-Reply-To: <20190605071625.GK4797@dell>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: alokc@codeaurora.org, kramasub@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, linus.walleij@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, jlhugo@gmail.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>, balbi@kernel.org, wsa+renesas@sang-engineering.com, gregkh@linuxfoundation.org, linus.walleij@linaro.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, david.brown@linaro.org, alokc@codeaurora.org, kramasub@codeaurora.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-msm@vger.kernel.org, andy.gross@linaro.org, jlhugo@gmail.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 04 Jun 2019, Bjorn Andersson wrote:
-
-> On Tue 04 Jun 03:44 PDT 2019, Lee Jones wrote:
+On Wed, Jun 05, 2019 at 08:16:25AM +0100, Lee Jones wrote:
+> On Tue, 04 Jun 2019, Bjorn Andersson wrote:
 > 
-> > This patch provides basic support for booting with ACPI instead
-> > of the currently supported Device Tree.  When doing so there are a
-> > couple of differences which we need to taken into consideration.
+> > On Tue 04 Jun 03:44 PDT 2019, Lee Jones wrote:
 > > 
-> > Firstly, the SDM850 ACPI tables omit information pertaining to the
-> > 4 reserved GPIOs on the platform.  If Linux attempts to touch/
-> > initialise any of these lines, the firmware will restart the
-> > platform.
+> > > The Qualcomm Geni I2C driver currently probes silently which can be
+> > > confusing when debugging potential issues.  Add a low level (INFO)
+> > > print when each I2C controller is successfully initially set-up.
+> > > 
+> > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > > ---
+> > >  drivers/i2c/busses/i2c-qcom-geni.c | 2 ++
+> > >  1 file changed, 2 insertions(+)
+> > > 
+> > > diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+> > > index 0fa93b448e8d..e27466d77767 100644
+> > > --- a/drivers/i2c/busses/i2c-qcom-geni.c
+> > > +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+> > > @@ -598,6 +598,8 @@ static int geni_i2c_probe(struct platform_device *pdev)
+> > >  		return ret;
+> > >  	}
+> > >  
+> > > +	dev_info(&pdev->dev, "Geni-I2C adaptor successfully added\n");
+> > > +
 > > 
-> > Secondly, when booting with ACPI, it is expected that the firmware
-> > will set-up things like; Regulators, Clocks, Pin Functions, etc in
-> > their ideal configuration.  Thus, the possible Pin Functions
-> > available to this platform are not advertised when providing the
-> > higher GPIOD/Pinctrl APIs with pin information.
-> > 
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > ---
-> >  drivers/pinctrl/qcom/Kconfig          |  2 +-
-> >  drivers/pinctrl/qcom/pinctrl-sdm845.c | 35 ++++++++++++++++++++++++++-
-> >  2 files changed, 35 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/pinctrl/qcom/Kconfig b/drivers/pinctrl/qcom/Kconfig
-> > index 2e66ab72c10b..aafbe932424f 100644
-> > --- a/drivers/pinctrl/qcom/Kconfig
-> > +++ b/drivers/pinctrl/qcom/Kconfig
-> > @@ -168,7 +168,7 @@ config PINCTRL_SDM660
-> >  
-> >  config PINCTRL_SDM845
-> >         tristate "Qualcomm Technologies Inc SDM845 pin controller driver"
-> > -       depends on GPIOLIB && OF
-> > +       depends on GPIOLIB && (OF || ACPI)
-> >         select PINCTRL_MSM
-> >         help
-> >           This is the pinctrl, pinmux, pinconf and gpiolib driver for the
-> > diff --git a/drivers/pinctrl/qcom/pinctrl-sdm845.c b/drivers/pinctrl/qcom/pinctrl-sdm845.c
-> > index c97f20fca5fd..7188bee3cf3e 100644
-> > --- a/drivers/pinctrl/qcom/pinctrl-sdm845.c
-> > +++ b/drivers/pinctrl/qcom/pinctrl-sdm845.c
-> > @@ -3,6 +3,7 @@
-> >   * Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
-> >   */
-> >  
-> > +#include <linux/acpi.h>
-> >  #include <linux/module.h>
-> >  #include <linux/of.h>
-> >  #include <linux/platform_device.h>
-> > @@ -1277,6 +1278,10 @@ static const struct msm_pingroup sdm845_groups[] = {
-> >  	UFS_RESET(ufs_reset, 0x99f000),
-> >  };
-> >  
-> > +static const int sdm845_acpi_reserved_gpios[] = {
-> > +	0, 1, 2, 3, 81, 82, 83, 84, -1
-> > +};
-> > +
-> >  static const struct msm_pinctrl_soc_data sdm845_pinctrl = {
-> >  	.pins = sdm845_pins,
-> >  	.npins = ARRAY_SIZE(sdm845_pins),
-> > @@ -1284,14 +1289,41 @@ static const struct msm_pinctrl_soc_data sdm845_pinctrl = {
-> >  	.nfunctions = ARRAY_SIZE(sdm845_functions),
-> >  	.groups = sdm845_groups,
-> >  	.ngroups = ARRAY_SIZE(sdm845_groups),
-> > +	.reserved_gpios = sdm845_acpi_reserved_gpios,
+> > I would prefer that we do not add such prints, as it would be to accept
+> > the downstream behaviour of spamming the log to the point where no one
+> > will ever look through it.
 > 
-> The reason why put these in DT is because the list is board/firmware
-> dependent. E.g. the firmware on db845c does not support the peripherals
-> that sits on these 8 pins and as such these are not reserved.
+> We should be able to find a middle ground.  Spamming the log with all
+> sorts of device specific information/debug is obviously not
+> constructive, but a single liner to advertise that an important
+> device/controller has been successfully initialised is more helpful
+> than it is hinderous.
+> 
+> This print was added due to the silent initialisation costing me
+> several hours of debugging ACPI device/driver code (albeit learning a
+> lot about ACPI as I go) just to find out that it was already doing the
+> right thing - just very quietly.
 
-If we need to be more particular about which platform(s) this affects,
-we could add matching based on their differences (some ACPI HID or F/W
-version/descriptor, etc) as and when we enable them for booting with
-ACPI.
+No, we don't add noise like this to the logs just because it may be
+useful while debugging. Even one-liners add up.
 
-> But given that the two structs looks identical now, did you perhaps not
-> intend to add.reserved_gpios for the non-ACPI case?
+There are plenty of options for debugging already ranging from adding a
+temporary dev_info() to the probe function in question to using dynamic
+debugging to have driver core log every successful probe.
 
-Given your example above, I think it's best that we let the
-configuration tables advertise these in the first instance.  I only
-add them here because it is not possible to obtain them from
-elsewhere.
+And in this case you say the driver was in fact already bound; that can
+easily be verified through sysfs too in case things aren't behaving the
+way you expect.
 
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Johan
