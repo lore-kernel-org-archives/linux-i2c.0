@@ -1,112 +1,42 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 7/8] usb: dwc3: qcom: Start USB in 'host mode' on the
- SDM845
-Date: Wed, 5 Jun 2019 09:34:54 +0100
-Message-ID: <20190605083454.GO4797@dell>
-References: <20190604104455.8877-1-lee.jones@linaro.org>
- <20190604104455.8877-7-lee.jones@linaro.org>
- <20190605070029.GN22737@tuxbook-pro>
+From: Vignesh Raghavendra <vigneshr@ti.com>
+Subject: [PATCH] dt-bindings: i2c: omap: Add new compatible for J721E SoCs
+Date: Wed, 5 Jun 2019 14:15:04 +0530
+Message-ID: <20190605084504.2777-1-vigneshr@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190605070029.GN22737@tuxbook-pro>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: alokc@codeaurora.org, kramasub@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, linus.walleij@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, jlhugo@gmail.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.org
+To: Vignesh R <vigneshr@ti.com>, Rob Herring <robh+dt@kernel.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 05 Jun 2019, Bjorn Andersson wrote:
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-> On Tue 04 Jun 03:44 PDT 2019, Lee Jones wrote:
-> 
-> > When booting with Device Tree, the current default boot configuration
-> > table option, the request to boot via 'host mode' comes from the
-> > "dr_mode" property.
-> 
-> This has been the default on the MTP, but this is changing as this is
-> causing issues when connected downstream from a hub (the typical
-> development case for the primary USB port of a phone like device) and
-> more importantly we don't have support for the PMIC blocks that control
-> VBUS.
+J721E SoCs have same I2C IP as OMAP SoCs. Add new compatible to
+handle J721E SoCs.
 
-My point is not about which mode is currently chosen.  It's more about
-the capability of choosing which mode is appropriate for a given
-system via DT.
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+---
 
-> Once these issues are resolved the dr_mode would be "otg".
+Initial support for J721E Platform is proposed here:
+https://lore.kernel.org/patchwork/cover/1077382/
 
-OTG doesn't work on this H/W, so we need to specify "host" mode.
+ Documentation/devicetree/bindings/i2c/i2c-omap.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-> > A property of the same name can be used inside
-> > ACPI tables too.  However it is missing from the SDM845's ACPI tables
-> > so we have to supply this information using Platform Device Properites
-> > instead.
-> > 
-> 
-> Afaict this would install a fall-back property, so in the case that we
-> have specified dr_mode in DT (or ACPI) that would take precedence. So
-
-That's correct.
-
-> the commit message should reflect that this redefines the default choice
-> to be "host", rather than "otg".
-
-No problem.
-
-> Which is in conflict with what's described for dr_mode in
-> Documentation/devicetree/bindings/usb/generic.txt
-
-This implementation only affects ACPI based platforms.  When booting
-with DT, the description in that DT related document is still
-accurate.
-
-> And this driver is used on a range of different Qualcomm platforms, so I
-> don't think this is SDM845 specific.
-
-ACPI based platforms?
-
-All the ones I've seen use the XHCI USB driver directly ("PNP0D10").
- 
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > ---
-> >  drivers/usb/dwc3/dwc3-qcom.c | 12 ++++++++++++
-> >  1 file changed, 12 insertions(+)
-> > 
-> > diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
-> > index 349bf549ee44..f21fdd6cdd1a 100644
-> > --- a/drivers/usb/dwc3/dwc3-qcom.c
-> > +++ b/drivers/usb/dwc3/dwc3-qcom.c
-> > @@ -468,6 +468,11 @@ static const struct acpi_device_id dwc3_qcom_acpi_match[] = {
-> >  };
-> >  MODULE_DEVICE_TABLE(acpi, dwc3_qcom_acpi_match);
-> >  
-> > +static const struct property_entry dwc3_qcom_acpi_properties[] = {
-> > +	PROPERTY_ENTRY_STRING("dr_mode", "host"),
-> > +	{}
-> > +};
-> > +
-> >  static int dwc3_qcom_probe(struct platform_device *pdev)
-> >  {
-> >  	struct device_node	*np = pdev->dev.of_node, *dwc3_np;
-> > @@ -603,6 +608,13 @@ static int dwc3_qcom_probe(struct platform_device *pdev)
-> >  			goto platform_unalloc;
-> >  		}
-> >  
-> > +		ret = platform_device_add_properties(qcom->dwc3,
-> > +						     dwc3_qcom_acpi_properties);
-> > +		if (ret < 0) {
-> > +			dev_err(&pdev->dev, "failed to add properties\n");
-> > +			goto platform_unalloc;
-> > +		}
-> > +
-> >  		ret = platform_device_add(qcom->dwc3);
-> >  		if (ret) {
-> >  			dev_err(&pdev->dev, "failed to add device\n");
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-omap.txt b/Documentation/devicetree/bindings/i2c/i2c-omap.txt
+index 4b90ba9f31b7..a44573d7c118 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-omap.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-omap.txt
+@@ -7,6 +7,7 @@ Required properties :
+ 	"ti,omap3-i2c" for OMAP3 SoCs
+ 	"ti,omap4-i2c" for OMAP4+ SoCs
+ 	"ti,am654-i2c", "ti,omap4-i2c" for AM654 SoCs
++	"ti,j721e-i2c", "ti,omap4-i2c" for J721E SoCs
+ - ti,hwmods : Must be "i2c<n>", n being the instance number (1-based)
+ - #address-cells = <1>;
+ - #size-cells = <0>;
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.21.0
