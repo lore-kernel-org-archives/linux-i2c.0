@@ -1,87 +1,60 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 6/8] usb: dwc3: qcom: Add support for booting with ACPI
-Date: Wed, 5 Jun 2019 08:09:28 +0100
-Message-ID: <20190605070928.GJ4797@dell>
+Subject: Re: [PATCH 2/8] i2c: i2c-qcom-geni: Signify successful driver probe
+Date: Wed, 5 Jun 2019 08:16:25 +0100
+Message-ID: <20190605071625.GK4797@dell>
 References: <20190604104455.8877-1-lee.jones@linaro.org>
- <20190604104455.8877-6-lee.jones@linaro.org>
- <20190605063507.GM22737@tuxbook-pro>
+ <20190604104455.8877-2-lee.jones@linaro.org>
+ <20190605062020.GL22737@tuxbook-pro>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <20190605063507.GM22737@tuxbook-pro>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20190605062020.GL22737@tuxbook-pro>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: alokc@codeaurora.org, kramasub@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, linus.walleij@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, jlhugo@gmail.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.org
+Cc: balbi@kernel.org, wsa+renesas@sang-engineering.com, gregkh@linuxfoundation.org, linus.walleij@linaro.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, david.brown@linaro.org, alokc@codeaurora.org, kramasub@codeaurora.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-msm@vger.kernel.org, andy.gross@linaro.org, jlhugo@gmail.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 04 Jun 2019, Bjorn Andersson wrote:
-
-> On Tue 04 Jun 03:44 PDT 2019, Lee Jones wrote:
-> > diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
-> [..]
-> > @@ -373,7 +416,7 @@ static int dwc3_qcom_clk_init(struct dwc3_qcom *qcom, int count)
-> >  
-> >  	qcom->num_clocks = count;
-> >  
-> > -	if (!count)
-> > +	if (!count || ACPI_HANDLE(dev))
-> >  		return 0;
-> 
-> Afaict you call this with count = of_count_phandle_with_args(), which
-> should be 0. But why not skip calling this at all?
-
-Actually count can be <0, which is why I must have needed it at the
-beginning.  There is another patch in this set which checks for
-errors, thus the ACPI_HANDLE() call should now be superfluous.  I
-will test and remove it.
-
-> >  	qcom->clks = devm_kcalloc(dev, qcom->num_clocks,
-> > @@ -409,12 +452,28 @@ static int dwc3_qcom_clk_init(struct dwc3_qcom *qcom, int count)
-> >  	return 0;
-> >  }
-> >  
-> > +static const struct dwc3_acpi_pdata sdm845_acpi_pdata = {
-> > +	.qscratch_base_offset = SDM845_QSCRATCH_BASE_OFFSET,
-> > +	.qscratch_base_size = SDM845_QSCRATCH_SIZE,
-> > +	.dwc3_core_base_size = SDM845_DWC3_CORE_SIZE,
-> > +	.hs_phy_irq_index = 1,
-> > +	.dp_hs_phy_irq_index = 4,
-> > +	.dm_hs_phy_irq_index = 3,
-> > +	.ss_phy_irq_index = 2
-> > +};
-> > +
-> > +static const struct acpi_device_id dwc3_qcom_acpi_match[] = {
-> > +	{ "QCOM2430", (unsigned long)&sdm845_acpi_pdata },
-> > +	{ },
-> > +};
-> > +MODULE_DEVICE_TABLE(acpi, dwc3_qcom_acpi_match);
-> 
-> Analog to of_device_get_match_data() there seems to be a
-> acpi_device_get_match_data(), if you use this you should be able to
-> have you acpi_device_id array next to the of_device_id.
-
-Do you mean "Analogous"?
-
-I will try to group them, thanks.
-
-> > +
-> >  static int dwc3_qcom_probe(struct platform_device *pdev)
-> 
-> It seems that all that's left unconditional on ACPI_HANDLE() in this
-> function are the optional pieces and the tail. Wouldn't it be cleaner to
-> split it out in different functions?
-
-There are ~50 lines of shared code in dwc3_qcom_probe(), most of it is
-interspersed between the configuration table (DT, ACPI) pieces, which
-is why it's formatted in the current way.
-
-I can split a few things out into separate functions if you think
-it'll help.
-
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+T24gVHVlLCAwNCBKdW4gMjAxOSwgQmpvcm4gQW5kZXJzc29uIHdyb3RlOgoKPiBPbiBUdWUgMDQg
+SnVuIDAzOjQ0IFBEVCAyMDE5LCBMZWUgSm9uZXMgd3JvdGU6Cj4gCj4gPiBUaGUgUXVhbGNvbW0g
+R2VuaSBJMkMgZHJpdmVyIGN1cnJlbnRseSBwcm9iZXMgc2lsZW50bHkgd2hpY2ggY2FuIGJlCj4g
+PiBjb25mdXNpbmcgd2hlbiBkZWJ1Z2dpbmcgcG90ZW50aWFsIGlzc3Vlcy4gIEFkZCBhIGxvdyBs
+ZXZlbCAoSU5GTykKPiA+IHByaW50IHdoZW4gZWFjaCBJMkMgY29udHJvbGxlciBpcyBzdWNjZXNz
+ZnVsbHkgaW5pdGlhbGx5IHNldC11cC4KPiA+IAo+ID4gU2lnbmVkLW9mZi1ieTogTGVlIEpvbmVz
+IDxsZWUuam9uZXNAbGluYXJvLm9yZz4KPiA+IC0tLQo+ID4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9p
+MmMtcWNvbS1nZW5pLmMgfCAyICsrCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygr
+KQo+ID4gCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1xY29tLWdlbmku
+YyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtcWNvbS1nZW5pLmMKPiA+IGluZGV4IDBmYTkzYjQ0
+OGU4ZC4uZTI3NDY2ZDc3NzY3IDEwMDY0NAo+ID4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2ky
+Yy1xY29tLWdlbmkuYwo+ID4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1xY29tLWdlbmku
+Ywo+ID4gQEAgLTU5OCw2ICs1OTgsOCBAQCBzdGF0aWMgaW50IGdlbmlfaTJjX3Byb2JlKHN0cnVj
+dCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpCj4gPiAgCQlyZXR1cm4gcmV0Owo+ID4gIAl9Cj4gPiAg
+Cj4gPiArCWRldl9pbmZvKCZwZGV2LT5kZXYsICJHZW5pLUkyQyBhZGFwdG9yIHN1Y2Nlc3NmdWxs
+eSBhZGRlZFxuIik7Cj4gPiArCj4gCj4gSSB3b3VsZCBwcmVmZXIgdGhhdCB3ZSBkbyBub3QgYWRk
+IHN1Y2ggcHJpbnRzLCBhcyBpdCB3b3VsZCBiZSB0byBhY2NlcHQKPiB0aGUgZG93bnN0cmVhbSBi
+ZWhhdmlvdXIgb2Ygc3BhbW1pbmcgdGhlIGxvZyB0byB0aGUgcG9pbnQgd2hlcmUgbm8gb25lCj4g
+d2lsbCBldmVyIGxvb2sgdGhyb3VnaCBpdC4KCldlIHNob3VsZCBiZSBhYmxlIHRvIGZpbmQgYSBt
+aWRkbGUgZ3JvdW5kLiAgU3BhbW1pbmcgdGhlIGxvZyB3aXRoIGFsbApzb3J0cyBvZiBkZXZpY2Ug
+c3BlY2lmaWMgaW5mb3JtYXRpb24vZGVidWcgaXMgb2J2aW91c2x5IG5vdApjb25zdHJ1Y3RpdmUs
+IGJ1dCBhIHNpbmdsZSBsaW5lciB0byBhZHZlcnRpc2UgdGhhdCBhbiBpbXBvcnRhbnQKZGV2aWNl
+L2NvbnRyb2xsZXIgaGFzIGJlZW4gc3VjY2Vzc2Z1bGx5IGluaXRpYWxpc2VkIGlzIG1vcmUgaGVs
+cGZ1bAp0aGFuIGl0IGlzIGhpbmRlcm91cy4KClRoaXMgcHJpbnQgd2FzIGFkZGVkIGR1ZSB0byB0
+aGUgc2lsZW50IGluaXRpYWxpc2F0aW9uIGNvc3RpbmcgbWUKc2V2ZXJhbCBob3VycyBvZiBkZWJ1
+Z2dpbmcgQUNQSSBkZXZpY2UvZHJpdmVyIGNvZGUgKGFsYmVpdCBsZWFybmluZyBhCmxvdCBhYm91
+dCBBQ1BJIGFzIEkgZ28pIGp1c3QgdG8gZmluZCBvdXQgdGhhdCBpdCB3YXMgYWxyZWFkeSBkb2lu
+ZyB0aGUKcmlnaHQgdGhpbmcgLSBqdXN0IHZlcnkgcXVpZXRseS4KCi0tIApMZWUgSm9uZXMgW+ad
+jueQvOaWr10KTGluYXJvIFNlcnZpY2VzIFRlY2huaWNhbCBMZWFkCkxpbmFyby5vcmcg4pSCIE9w
+ZW4gc291cmNlIHNvZnR3YXJlIGZvciBBUk0gU29DcwpGb2xsb3cgTGluYXJvOiBGYWNlYm9vayB8
+IFR3aXR0ZXIgfCBCbG9nCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxp
+c3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0
+aW5mby9saW51eC1hcm0ta2VybmVsCg==
