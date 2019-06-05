@@ -1,263 +1,199 @@
-From: Bitan Biswas <bbiswas@nvidia.com>
-Subject: [PATCH V3] drivers: i2c: tegra: fix checkpatch defects
-Date: Wed, 5 Jun 2019 23:31:00 -0700
-Message-ID: <1559802660-6636-1-git-send-email-bbiswas@nvidia.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
+Subject: [PATCH 00/13] drivers: Introduce generic device lookup helpers
+Date: Wed,  5 Jun 2019 16:13:37 +0100
+Message-ID: <1559747630-28065-1-git-send-email-suzuki.poulose@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Bitan Biswas <bbiswas@nvidia.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Lunn <andrew@lunn.ch>, Shyam Sundar S K <shyam-sundar.s-k@amd.com>, rafael@kernel.org, Will Deacon <will.deacon@arm.com>, Ulf Hansson <ulf.hansson@linaro.org>, dri-devel@lists.freedesktop.org, Pavel Machek <pavel@ucw.cz>, Stefan Schmidt <stefan@datenfreihafen.org>, Wolfram Sang <wsa@the-dreams.de>, linux-acpi@vger.kernel.org, Doug Ledford <dledford@redhat.com>, Jiri Slaby <jslaby@suse.com>, Tomas Winkler <tomas.winkler@intel.com>, Dan Murphy <dmurphy@ti.com>, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, Seung-Woo Kim <sw0312.kim@samsung.com>, linux-spi@vger.kernel.org, Joe Perches <joe@perches.com>, linux-wpan@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, David Airlie <airlied@linux.ie>, "Rafael J . Wysocki " <rjw@rjwysocki.net>, Thierry Reding <thierry.reding@gmail.com>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>linux-
 List-Id: linux-i2c@vger.kernel.org
 
-Fix checkpatch.pl warning(s)/error(s)/check(s) in i2c-tegra.c
-
-Remove redundant BUG_ON calls or replace with WARN_ON_ONCE
-as needed. Replace BUG() with error handling code.
-
-Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
----
- drivers/i2c/busses/i2c-tegra.c | 66 +++++++++++++++++++++++-------------------
- 1 file changed, 36 insertions(+), 30 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 76b7926..06864d5 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -112,7 +112,7 @@
- #define I2C_CLKEN_OVERRIDE			0x090
- #define I2C_MST_CORE_CLKEN_OVR			BIT(0)
- 
--#define I2C_CONFIG_LOAD_TIMEOUT			1000000
-+#define I2C_CONFIG_LOAD_TMOUT			1000000
- 
- #define I2C_MST_FIFO_CONTROL			0x0b4
- #define I2C_MST_FIFO_CONTROL_RX_FLUSH		BIT(0)
-@@ -280,6 +280,7 @@ struct tegra_i2c_dev {
- 	u32 bus_clk_rate;
- 	u16 clk_divisor_non_hs_mode;
- 	bool is_multimaster_mode;
-+	/* xfer_lock: lock to serialize transfer submission and processing */
- 	spinlock_t xfer_lock;
- 	struct dma_chan *tx_dma_chan;
- 	struct dma_chan *rx_dma_chan;
-@@ -306,7 +307,7 @@ static u32 dvc_readl(struct tegra_i2c_dev *i2c_dev, unsigned long reg)
-  * to the I2C block inside the DVC block
-  */
- static unsigned long tegra_i2c_reg_addr(struct tegra_i2c_dev *i2c_dev,
--	unsigned long reg)
-+					unsigned long reg)
- {
- 	if (i2c_dev->is_dvc)
- 		reg += (reg >= I2C_TX_FIFO) ? 0x10 : 0x40;
-@@ -314,7 +315,7 @@ static unsigned long tegra_i2c_reg_addr(struct tegra_i2c_dev *i2c_dev,
- }
- 
- static void i2c_writel(struct tegra_i2c_dev *i2c_dev, u32 val,
--	unsigned long reg)
-+		       unsigned long reg)
- {
- 	writel(val, i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg));
- 
-@@ -329,13 +330,13 @@ static u32 i2c_readl(struct tegra_i2c_dev *i2c_dev, unsigned long reg)
- }
- 
- static void i2c_writesl(struct tegra_i2c_dev *i2c_dev, void *data,
--	unsigned long reg, int len)
-+			unsigned long reg, int len)
- {
- 	writesl(i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg), data, len);
- }
- 
- static void i2c_readsl(struct tegra_i2c_dev *i2c_dev, void *data,
--	unsigned long reg, int len)
-+		       unsigned long reg, int len)
- {
- 	readsl(i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg), data, len);
- }
-@@ -486,7 +487,7 @@ static int tegra_i2c_flush_fifos(struct tegra_i2c_dev *i2c_dev)
- 			dev_warn(i2c_dev->dev, "timeout waiting for fifo flush\n");
- 			return -ETIMEDOUT;
- 		}
--		msleep(1);
-+		usleep_range(1000, 2000);
- 	}
- 	return 0;
- }
-@@ -525,7 +526,6 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	 * prevent overwriting past the end of buf
- 	 */
- 	if (rx_fifo_avail > 0 && buf_remaining > 0) {
--		BUG_ON(buf_remaining > 3);
- 		val = i2c_readl(i2c_dev, I2C_RX_FIFO);
- 		val = cpu_to_le32(val);
- 		memcpy(buf, &val, buf_remaining);
-@@ -533,7 +533,6 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
- 		rx_fifo_avail--;
- 	}
- 
--	BUG_ON(rx_fifo_avail > 0 && buf_remaining > 0);
- 	i2c_dev->msg_buf_remaining = buf_remaining;
- 	i2c_dev->msg_buf = buf;
- 
-@@ -591,7 +590,6 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	 * boundary and fault.
- 	 */
- 	if (tx_fifo_avail > 0 && buf_remaining > 0) {
--		BUG_ON(buf_remaining > 3);
- 		memcpy(&val, buf, buf_remaining);
- 		val = le32_to_cpu(val);
- 
-@@ -680,10 +678,11 @@ static int tegra_i2c_wait_for_config_load(struct tegra_i2c_dev *i2c_dev)
- 		i2c_writel(i2c_dev, I2C_MSTR_CONFIG_LOAD, I2C_CONFIG_LOAD);
- 		if (in_interrupt())
- 			err = readl_poll_timeout_atomic(addr, val, val == 0,
--					1000, I2C_CONFIG_LOAD_TIMEOUT);
-+							1000,
-+							I2C_CONFIG_LOAD_TMOUT);
- 		else
--			err = readl_poll_timeout(addr, val, val == 0,
--					1000, I2C_CONFIG_LOAD_TIMEOUT);
-+			err = readl_poll_timeout(addr, val, val == 0, 1000,
-+						 I2C_CONFIG_LOAD_TMOUT);
- 
- 		if (err) {
- 			dev_warn(i2c_dev->dev,
-@@ -858,16 +857,21 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 		if (i2c_dev->msg_read && (status & I2C_INT_RX_FIFO_DATA_REQ)) {
- 			if (i2c_dev->msg_buf_remaining)
- 				tegra_i2c_empty_rx_fifo(i2c_dev);
--			else
--				BUG();
-+			else {
-+				dev_err(i2c_dev->dev, "unexpected rx data request\n");
-+				i2c_dev->msg_err |= I2C_ERR_UNEXPECTED_STATUS;
-+				goto err;
-+			}
- 		}
- 
- 		if (!i2c_dev->msg_read && (status & I2C_INT_TX_FIFO_DATA_REQ)) {
--			if (i2c_dev->msg_buf_remaining)
--				tegra_i2c_fill_tx_fifo(i2c_dev);
--			else
-+			if (i2c_dev->msg_buf_remaining) {
-+				if (tegra_i2c_fill_tx_fifo(i2c_dev))
-+					goto err;
-+			} else {
- 				tegra_i2c_mask_irq(i2c_dev,
- 						   I2C_INT_TX_FIFO_DATA_REQ);
-+			}
- 		}
- 	}
- 
-@@ -885,7 +889,7 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 	if (status & I2C_INT_PACKET_XFER_COMPLETE) {
- 		if (i2c_dev->is_curr_dma_xfer)
- 			i2c_dev->msg_buf_remaining = 0;
--		BUG_ON(i2c_dev->msg_buf_remaining);
-+		WARN_ON_ONCE(i2c_dev->msg_buf_remaining);
- 		complete(&i2c_dev->msg_complete);
- 	}
- 	goto done;
-@@ -1024,7 +1028,7 @@ static int tegra_i2c_issue_bus_clear(struct i2c_adapter *adap)
- }
- 
- static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
--	struct i2c_msg *msg, enum msg_end_type end_state)
-+			      struct i2c_msg *msg, enum msg_end_type end_state)
- {
- 	u32 packet_header;
- 	u32 int_mask;
-@@ -1034,7 +1038,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	u32 *buffer = NULL;
- 	int err = 0;
- 	bool dma;
--	u16 xfer_time = 100;
-+	u16 xfer_tm = 100;
- 
- 	tegra_i2c_flush_fifos(i2c_dev);
- 
-@@ -1058,7 +1062,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	 * Transfer time in mSec = Total bits / transfer rate
- 	 * Total bits = 9 bits per byte (including ACK bit) + Start & stop bits
- 	 */
--	xfer_time += DIV_ROUND_CLOSEST(((xfer_size * 9) + 2) * MSEC_PER_SEC,
-+	xfer_tm += DIV_ROUND_CLOSEST(((xfer_size * 9) + 2) * MSEC_PER_SEC,
- 					i2c_dev->bus_clk_rate);
- 	spin_lock_irqsave(&i2c_dev->xfer_lock, flags);
- 
-@@ -1137,7 +1141,8 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 				goto unlock;
- 			}
- 		} else {
--			tegra_i2c_fill_tx_fifo(i2c_dev);
-+			if (tegra_i2c_fill_tx_fifo(i2c_dev))
-+				goto unlock;
- 		}
- 	}
- 
-@@ -1161,9 +1166,9 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 		if (err)
- 			return err;
- 
--		time_left = wait_for_completion_timeout(
--						&i2c_dev->dma_complete,
--						msecs_to_jiffies(xfer_time));
-+		time_left =
-+			wait_for_completion_timeout(&i2c_dev->dma_complete,
-+						    msecs_to_jiffies(xfer_tm));
- 		if (time_left == 0) {
- 			dev_err(i2c_dev->dev, "DMA transfer timeout\n");
- 			dmaengine_terminate_sync(i2c_dev->msg_read ?
-@@ -1189,7 +1194,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	}
- 
- 	time_left = wait_for_completion_timeout(&i2c_dev->msg_complete,
--						msecs_to_jiffies(xfer_time));
-+						msecs_to_jiffies(xfer_tm));
- 	tegra_i2c_mask_irq(i2c_dev, int_mask);
- 
- 	if (time_left == 0) {
-@@ -1225,7 +1230,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- }
- 
- static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
--	int num)
-+			  int num)
- {
- 	struct tegra_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
- 	int i;
-@@ -1273,12 +1278,12 @@ static void tegra_i2c_parse_dt(struct tegra_i2c_dev *i2c_dev)
- 	int ret;
- 
- 	ret = of_property_read_u32(np, "clock-frequency",
--			&i2c_dev->bus_clk_rate);
-+				   &i2c_dev->bus_clk_rate);
- 	if (ret)
- 		i2c_dev->bus_clk_rate = 100000; /* default clock rate */
- 
- 	i2c_dev->is_multimaster_mode = of_property_read_bool(np,
--			"multi-master");
-+							     "multi-master");
- }
- 
- static const struct i2c_algorithm tegra_i2c_algo = {
-@@ -1622,7 +1627,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	}
- 
- 	ret = devm_request_irq(&pdev->dev, i2c_dev->irq,
--			tegra_i2c_isr, 0, dev_name(&pdev->dev), i2c_dev);
-+			       tegra_i2c_isr, 0, dev_name(&pdev->dev), i2c_dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to request irq %i\n", i2c_dev->irq);
- 		goto release_dma;
-@@ -1714,6 +1719,7 @@ static const struct dev_pm_ops tegra_i2c_pm = {
- 	SET_RUNTIME_PM_OPS(tegra_i2c_runtime_suspend, tegra_i2c_runtime_resume,
- 			   NULL)
- };
-+
- #define TEGRA_I2C_PM	(&tegra_i2c_pm)
- #else
- #define TEGRA_I2C_PM	NULL
--- 
-2.7.4
+V2UgaGF2ZSBkZXZpY2UgaXRlcmF0b3JzIHRvIGZpbmQgYSBwYXJ0aWN1bGFyIGRldmljZSBtYXRj
+aGluZyBhIGNyaXRlcmlhCmZvciBhIGdpdmVuIGJ1cy9jbGFzcy9kcml2ZXIuIGkuZSwge2J1cyxj
+bGFzcyxkcml2ZXJ9X2ZpbmRfZGV2aWNlKCkgQVBJcy4KVGhlIG1hdGNoaW5nIGNyaXRlcmlhIGlz
+IGEgZnVuY3Rpb24gcG9pbnRlciBmb3IgdGhlIEFQSXMuIE9mdGVuIHRoZSBsb29rdXAKaXMgYmFz
+ZWQgb24gYSBnZW5lcmljIHByb3BlcnR5IG9mIGEgZGV2aWNlIChlLmcsIG5hbWUsIGZ3bm9kZSwg
+b2Ygbm9kZSBwb2ludGVyCm9yIGRldmljZSB0eXBlKSByYXRoZXIgdGhhbiBhIGRyaXZlciBzcGVj
+aWZpYyBpbmZvcm1hdGlvbi4gSG93ZXZlciwgZWFjaCBkcml2ZXIKd3JpdGVzIHVwIGl0cyBvd24g
+Im1hdGNoIiBmdW5jdGlvbiwgc3BpbGxpbmcgdGhlIHNpbWlsYXIgbWF0Y2ggZnVuY3Rpb25zIGFs
+bApvdmVyIHRoZSBkcml2ZXIgc3Vic3lzdGVtcy4KCkFkZGl0aW9uYWxseSB0aGUgcHJvdG90eXBl
+IGZvciB0aGUgIm1hdGNoIiBmdW5jdGlvbnMgYWNjZXB0ZWQgYnkgdGhlIGFib3ZlIEFQSXMKaGF2
+ZSBhIG1pbnV0ZSBkaWZmZXJlbmNlIHdoaWNoIHByZXZlbnRzIHVzIG90aGVyd2lzZSBzaGFyaW5n
+IHRoZSBtYXRjaCBmdW5jdGlvbnMuCmkuZSwKCWludCAoKm1hdGNoKShzdHJ1Y3QgZGV2aWNlICpk
+ZXYsIHZvaWQgKmRhdGEpIGZvciB7YnVzL2RyaXZlcn1fZmluZF9kZXZpY2UoKQoJICB2cwoJaW50
+ICgqbWF0Y2gpKHN0cnVjdCBkZXZpY2UgKmRldiwgY29uc3Qgdm9pZCAqKSBmb3IgY2xhc3NfZmlu
+ZF9kZXZpY2UoKQoKSWYgd2UgcHJvbW90ZSB0aGUgZm9ybWVyIHRvIGFjY2VwdCBhICJjb25zdCB2
+b2lkKiIgcGFyYW1ldGVyLCB3ZSBjb3VsZCBzaGFyZSBvbmUKc2luZ2xlIG1hdGNoIGZ1bmN0aW9u
+IGZvciBhbGwgdGhlIGhlbHBlcnMuIFRoaXMgc2VyaWVzIGFjaGlldmVzIHRoZSBmb2xsb3dpbmc6
+CgogMSkgVW5pZnkgdGhlIHByb3RvdHlwZSBmb3IgIm1hdGNoIiBmdW5jdGlvbnMgYWNjZXB0ZWQg
+YnkgdGhlIGRldmljZSBsb29rdXAgQVBJcy4KIDIpIEludHJvZHVjZSBnZW5lcmljIG1hdGNoIGZ1
+bmN0aW9ucyB0byBtYXRjaCBkZXZpY2VzIGJ5IHRoZSBnZW5lcmljIGF0dHJpYnV0ZXMKICAgIG9m
+IGEgZGV2aWNlIChlLmcsIG5hbWUsIGZ3bm9kZSwgb2Zfbm9kZSBhbmQgZGV2dCkuCgpBbHNvLCBp
+biBvcmRlciB0byBwcmV2ZW50IGNyZWF0aW9uIG9mIHN1Y2ggbWF0Y2ggZnVuY3Rpb25zIGluIHRo
+ZSBmdXR1cmUsCndlIGludHJvZHVjZSB3cmFwcGVyIGZ1bmN0aW9ucyBmb3IgdGhlIGxvb2sgdXAg
+QVBJcywgd2hpY2ggYXV0b21hdGljYWxseQp1c2VzIHRoZSBhcHByb3ByaWF0ZSBtYXRjaCBmdW5j
+dGlvbnMuCgppLmUsCgl7YnVzL2NsYXNzL2RyaXZlcn1fZmluZF9kZXZpY2VfYnlfbmFtZQoJe2J1
+cy9jbGFzcy9kcml2ZXJ9X2ZpbmRfZGV2aWNlX2J5X29mX25vZGUKCXtidXMvY2xhc3MvZHJpdmVy
+fV9maW5kX2RldmljZV9ieV9md25vZGUKCXtidXMvY2xhc3MvZHJpdmVyfV9maW5kX2RldmljZV9i
+eV9kZXZ0CgpBZGRpdGlvbmFsbHksIHRoaXMgc2VyaWVzIGFsc28gYWRkcyB3cmFwcGVyIGZvciBm
+aW5kaW5nIGEgZGV2aWNlIGJ5IG1hdGNoaW5nCmEgZGV2aWNlIGRyaXZlciBmb3IgcGxhdGZvcm0g
+YnVzIGRldmljZXMgLSBwbGF0Zm9ybV9maW5kX2RldmljZV9ieV9kcml2ZXIoKSB0bwphdm9pZCBh
+IGZldyBkcml2ZXJzIGhhcmQgY29kaW5nIHRoZSBwbGF0Zm9ybSBidXMgc3BlY2lmaWMgZGV0YWls
+cy4KClRoaXMgaXMgcGFydCAxIG9mIHJldmlzZWQgdmVyc2lvbiBvZiB0aGUgc2VyaWVzIHBvc3Rl
+ZCBoZXJlIFswXSwgdG8gYWxsb3cgZm9yIGJldHRlcgptYW5hZ2VtZW50IG9mIHRoZSBtZXJnaW5n
+LiBQYXJ0IDIgb2YgdGhlIHNlcmllcywgd2hlcmUgdGhlc2UgbmV3IGhlbHBlcnMgYXJlIGNvbnN1
+bWVkCmJ5IHRoZSBpbmRpdmlkdWFsIGRyaXZlciBzdWJzeXN0ZW1zIHdpbGwgYmUgcG9zdGVkIG9u
+Y2UgdGhpcyBpcyBzZXJpZXMgaXMgbWVyZ2VkLgpUaGUgZW50aXJlIHRyZWUgd2l0aCBib3RoIHRo
+ZSBwYXJ0cyBpbiBpcyBhdmFpbGFibGUgYXQgWzFdCgpbMF0gaHR0cHM6Ly9tYXJjLmluZm8vP2k9
+MTU1OTU3NzAyMy01NTgtMS1naXQtc2VuZC1lbWFpbC1zdXp1a2kucG91bG9zZUBhcm0uY29tClsx
+XSBnaXQ6Ly9saW51eC1hcm0ub3JnL2xpbnV4LXNrcC5naXQgZHJpdmVyLWNsZWFudXAvdjEKCkNj
+OiBBbGFuIFR1bGwgPGF0dWxsQGtlcm5lbC5vcmc+CkNjOiBBbGVzc2FuZHJvIFp1bW1vIDxhLnp1
+bW1vQHRvd2VydGVjaC5pdD4KQ2M6IEFsZXhhbmRlciBBcmluZyA8YWxleC5hcmluZ0BnbWFpbC5j
+b20+CkNjOiBBbGV4YW5kZXIgU2hpc2hraW4gPGFsZXhhbmRlci5zaGlzaGtpbkBsaW51eC5pbnRl
+bC5jb20+CkNjOiBBbGV4YW5kcmUgQmVsbG9uaSA8YWxleGFuZHJlLmJlbGxvbmlAYm9vdGxpbi5j
+b20+CkNjOiBBbmRyZWFzIE5vZXZlciA8YW5kcmVhcy5ub2V2ZXJAZ21haWwuY29tPgpDYzogQW5k
+cmV3IEx1bm4gPGFuZHJld0BsdW5uLmNoPgpDYzogQXJuZCBCZXJnbWFubiA8YXJuZEBhcm5kYi5k
+ZT4KQ2M6IEJqb3JuIEhlbGdhYXMgPGJoZWxnYWFzQGdvb2dsZS5jb20+CkNjOiBDb3JleSBNaW55
+YXJkIDxtaW55YXJkQGFjbS5vcmc+CkNjOiBEYW5pZWwgVmV0dGVyIDxkYW5pZWxAZmZ3bGwuY2g+
+CkNjOiBEYW4gTXVycGh5IDxkbXVycGh5QHRpLmNvbT4KQ2M6IERhdmlkIEFpcmxpZSA8YWlybGll
+ZEBsaW51eC5pZT4KQ2M6IERhdmlkIEtlcnNobmVyIDxkYXZpZC5rZXJzaG5lckB1bmlzeXMuY29t
+PgpDYzogIkRhdmlkIFMuIE1pbGxlciIgPGRhdmVtQGRhdmVtbG9mdC5uZXQ+CkNjOiBEb3VnIExl
+ZGZvcmQgPGRsZWRmb3JkQHJlZGhhdC5jb20+CkNjOiBkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0
+b3Aub3JnCkNjOiBFbGllIE1vcmlzc2UgPHN5bml1cmdlQGdtYWlsLmNvbT4KQ2M6IEVyaWMgQW5o
+b2x0IDxlcmljQGFuaG9sdC5uZXQ+CkNjOiBGZWxpcGUgQmFsYmkgPGJhbGJpQGtlcm5lbC5vcmc+
+CkNjOiBGbG9yaWFuIEZhaW5lbGxpIDxmLmZhaW5lbGxpQGdtYWlsLmNvbT4KQ2M6IEZyYW5rIFJv
+d2FuZCA8ZnJvd2FuZC5saXN0QGdtYWlsLmNvbT4KQ2M6IEdyYW50IExpa2VseSA8Z3JhbnQubGlr
+ZWx5QGFybS5jb20+CkNjOiBHcmVnIEtyb2FoLUhhcnRtYW4gPGdyZWdraEBsaW51eGZvdW5kYXRp
+b24ub3JnPgpDYzogR3J5Z29yaWkgU3RyYXNoa28gPGdyeWdvcmlpLnN0cmFzaGtvQHRpLmNvbT4K
+Q2M6IEhhcmFsZCBGcmV1ZGVuYmVyZ2VyIDxmcmV1ZGVAbGludXguaWJtLmNvbT4KQ2M6IEhhcnRt
+dXQgS25hYWNrIDxrbmFhY2suaEBnbXguZGU+CkNjOiBIZWlra2kgS3JvZ2VydXMgPGhlaWtraS5r
+cm9nZXJ1c0BsaW51eC5pbnRlbC5jb20+CkNjOiBIZWlrbyBDYXJzdGVucyA8aGVpa28uY2Fyc3Rl
+bnNAZGUuaWJtLmNvbT4KQ2M6ICJIZWlrbyBTdMO8Ym5lciIgPGhlaWtvQHNudGVjaC5kZT4KQ2M6
+IEhlaWtvIFN0dWVibmVyIDxoZWlrb0BzbnRlY2guZGU+CkNjOiBIZWluZXIgS2FsbHdlaXQgPGhr
+YWxsd2VpdDFAZ21haWwuY29tPgpDYzogSW5raSBEYWUgPGlua2kuZGFlQHNhbXN1bmcuY29tPgpD
+YzogSmFjZWsgQW5hc3pld3NraSA8amFjZWsuYW5hc3pld3NraUBnbWFpbC5jb20+CkNjOiAiSmFt
+ZXMgRS5KLiBCb3R0b21sZXkiIDxqZWpiQGxpbnV4LmlibS5jb20+CkNjOiBKYXNvbiBHdW50aG9y
+cGUgPGpnZ0B6aWVwZS5jYT4KQ2M6IEppcmkgU2xhYnkgPGpzbGFieUBzdXNlLmNvbT4KQ2M6IEpv
+ZSBQZXJjaGVzIDxqb2VAcGVyY2hlcy5jb20+CkNjOiBKb2VyZyBSb2VkZWwgPGpvcm9AOGJ5dGVz
+Lm9yZz4KQ2M6IEpvbmF0aGFuIENhbWVyb24gPGppYzIzQGtlcm5lbC5vcmc+CkNjOiBKb25hdGhh
+biBIdW50ZXIgPGpvbmF0aGFuaEBudmlkaWEuY29tPgpDYzogTGVlIEpvbmVzIDxsZWUuam9uZXNA
+bGluYXJvLm9yZz4KQ2M6IExlbiBCcm93biA8bGVuYkBrZXJuZWwub3JnCkNjOiBMaWFtIEdpcmR3
+b29kIDxsZ2lyZHdvb2RAZ21haWwuY29tPgpDYzogTWFhcnRlbiBMYW5raG9yc3QgPG1hYXJ0ZW4u
+bGFua2hvcnN0QGxpbnV4LmludGVsLmNvbT4KQ2M6IE1hcmsgQnJvd24gPGJyb29uaWVAa2VybmVs
+Lm9yZz4KQ2M6ICJNYXJ0aW4gSy4gUGV0ZXJzZW4iIDxtYXJ0aW4ucGV0ZXJzZW5Ab3JhY2xlLmNv
+bT4KQ2M6IE1hdGhpZXUgUG9pcmllciA8bWF0aGlldS5wb2lyaWVyQGxpbmFyby5vcmc+CkNjOiBN
+YXhpbWUgQ29xdWVsaW4gPG1jb3F1ZWxpbi5zdG0zMkBnbWFpbC5jb20+CkNjOiBNYXhpbWUgUmlw
+YXJkIDxtYXhpbWUucmlwYXJkQGJvb3RsaW4uY29tPgpDYzogTWljaGFlbCBKYW1ldCA8bWljaGFl
+bC5qYW1ldEBpbnRlbC5jb20+CkNjOiBNaWthIFdlc3RlcmJlcmcgPG1pa2Eud2VzdGVyYmVyZ0Bs
+aW51eC5pbnRlbC5jb20+CkNjOiBNb3JpdHogRmlzY2hlciA8bWRmQGtlcm5lbC5vcmc+CkNjOiBO
+ZWhhbCBTaGFoIDxuZWhhbC1iYWt1bGNoYW5kcmEuc2hhaEBhbWQuY29tPgpDYzogT2xpdmVyIE5l
+dWt1bSA8b25ldWt1bUBzdXNlLmNvbT4KQ2M6IFBhdmVsIE1hY2hlayA8cGF2ZWxAdWN3LmN6PgpD
+YzogUGV0ZXIgT2JlcnBhcmxlaXRlciA8b2JlcnBhckBsaW51eC5pYm0uY29tPgpDYzogUGV0ZXIg
+Um9zaW4gPHBlZGFAYXhlbnRpYS5zZT4KQ2M6ICJSYWZhZWwgSi4gV3lzb2NraSIgPHJhZmFlbC5q
+Lnd5c29ja2lAaW50ZWwuY29tPgpDYzogIlJhZmFlbCBKLiBXeXNvY2tpIiA8cmFmYWVsQGtlcm5l
+bC5vcmc+CkNjOiBSYWZhZWwgSi4gV3lzb2NraSIgPHJqd0Byand5c29ja2kubmV0PgpDYzogUm9i
+IEhlcnJpbmcgPHJvYmgrZHRAa2VybmVsLm9yZz4KQ2M6IFJvYmluIE11cnBoeSA8cm9iaW4ubXVy
+cGh5QGFybS5jb20+CkNjOiBSdXNzZWxsIEtpbmcgPGxpbnV4QGFybWxpbnV4Lm9yZy51az4KQ2M6
+IFNhbmR5IEh1YW5nIDxoamNAcm9jay1jaGlwcy5jb20+CkNjOiBTZWJhc3RpYW4gQW5kcnplaiBT
+aWV3aW9yIDxiaWdlYXN5QGxpbnV0cm9uaXguZGU+CkNjOiBTZWJhc3RpYW4gT3R0IDxzZWJvdHRA
+bGludXguaWJtLmNvbT4KQ2M6IFNldW5nLVdvbyBLaW0gPHN3MDMxMi5raW1Ac2Ftc3VuZy5jb20+
+CkNjOiBTaHlhbSBTdW5kYXIgUyBLIDxzaHlhbS1zdW5kYXIucy1rQGFtZC5jb20+CkNjOiBTcmlu
+aXZhcyBLYW5kYWdhdGxhIDxzcmluaXZhcy5rYW5kYWdhdGxhQGxpbmFyby5vcmc+CkNjOiBTdGVm
+YW4gU2NobWlkdCA8c3RlZmFuQGRhdGVuZnJlaWhhZmVuLm9yZz4KQ2M6IFRha2FzaGkgSXdhaSA8
+dGl3YWlAc3VzZS5jb20+CkNjOiBUaGllcnJ5IFJlZGluZyA8dGhpZXJyeS5yZWRpbmdAZ21haWwu
+Y29tPgpDYzogVGhvciBUaGF5ZXIgPHRob3IudGhheWVyQGxpbnV4LmludGVsLmNvbT4KQ2M6IFRv
+bWFzIFdpbmtsZXIgPHRvbWFzLndpbmtsZXJAaW50ZWwuY29tPgpDYzogVWxmIEhhbnNzb24gPHVs
+Zi5oYW5zc29uQGxpbmFyby5vcmc+CkNjOiBXaWxsIERlYWNvbiA8d2lsbC5kZWFjb25AYXJtLmNv
+bT4KQ2M6IFdvbGZyYW0gU2FuZyA8d3NhQHRoZS1kcmVhbXMuZGU+CkNjOiBkZXZpY2V0cmVlQHZn
+ZXIua2VybmVsLm9yZwpDYzogbGludXgtYWNwaUB2Z2VyLmtlcm5lbC5vcmcKQ2M6IGxpbnV4LWZw
+Z2FAdmdlci5rZXJuZWwub3JnCkNjOiBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnCkNjOiBsaW51
+eC1sZWRzQHZnZXIua2VybmVsLm9yZwpDYzogbGludXgtcm9ja2NoaXBAbGlzdHMuaW5mcmFkZWFk
+Lm9yZwpDYzogbGludXgtcnRjQHZnZXIua2VybmVsLm9yZwpDYzogbGludXgtc3BpQHZnZXIua2Vy
+bmVsLm9yZwpDYzogbGludXgtdXNiQHZnZXIua2VybmVsLm9yZwpDYzogbGludXgtd3BhbkB2Z2Vy
+Lmtlcm5lbC5vcmcKClN1enVraSBLIFBvdWxvc2UgKDEzKToKICBhY3BpOiB1dGlsczogQ2xlYW51
+cCBhY3BpX2Rldl9tYXRjaF9jYgogIGJ1c19maW5kX2RldmljZTogVW5pZnkgdGhlIG1hdGNoIGNh
+bGxiYWNrIHdpdGggY2xhc3NfZmluZF9kZXZpY2UKICBkcml2ZXJfZmluZF9kZXZpY2U6IFVuaWZ5
+IHRoZSBtYXRjaCBmdW5jdGlvbiB3aXRoIGNsYXNzX2ZpbmRfZGV2aWNlKCkKICBkcml2ZXJzOiBB
+ZGQgZ2VuZXJpYyBoZWxwZXIgdG8gbWF0Y2ggYnkgb2Zfbm9kZQogIGRyaXZlcnM6IEFkZCBnZW5l
+cmljIGhlbHBlciB0byBtYXRjaCBieSBmd25vZGUKICBkcml2ZXJzOiBBZGQgZ2VuZXJpYyBoZWxw
+ZXIgdG8gbWF0Y2ggYnkgZGV2dAogIGRyaXZlcnM6IEFkZCBnZW5lcmljIG1hdGNoIGhlbHBlciBi
+eSBBQ1BJX0NPTVBBTklPTiBkZXZpY2UKICBkcml2ZXJzOiBBZGQgZ2VuZXJpYyBoZWxwZXIgdG8g
+bWF0Y2ggYnkgbmFtZQogIGRyaXZlcnM6IEFkZCBnZW5lcmljIGhlbHBlciB0byBtYXRjaCBhbnkg
+ZGV2aWNlCiAgZHJpdmVyczogSW50cm9kdWNlIHZhcmlhbnRzIG9mIGNsYXNzX2ZpbmRfZGV2aWNl
+KCkKICBkcml2ZXJzOiBJbnRyb2R1Y2UgdmFyaWFudHMgZm9yIGJ1c19maW5kX2RldmljZSgpCiAg
+ZHJpdmVyczogSW50cm9kdWNlIHZhcmlhbnRzIG9mIGRyaXZlcl9maW5kX2RldmljZSgpCiAgcGxh
+dGZvcm06IEFkZCBwbGF0Zm9ybV9maW5kX2RldmljZV9ieV9kcml2ZXIoKSBoZWxwZXIKCiBhcmNo
+L3Bvd2VycGMvcGxhdGZvcm1zL3BzZXJpZXMvaWJtZWJ1cy5jICAgICAgICAgICB8ICAgNCArLQog
+ZHJpdmVycy9hY3BpL2FjcGlfbHBzcy5jICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDQg
+Ky0KIGRyaXZlcnMvYWNwaS9zbGVlcC5jICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwg
+ICAyICstCiBkcml2ZXJzL2FjcGkvdXRpbHMuYyAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICB8ICAxMSArLQogZHJpdmVycy9hbWJhL3RlZ3JhLWFoYi5jICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgfCAgIDQgKy0KIGRyaXZlcnMvYmFzZS9idXMuYyAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIHwgIDI4ICstLQogZHJpdmVycy9iYXNlL2NvcmUuYyAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgfCAgMzYgKysrKwogZHJpdmVycy9iYXNlL2RldmNvbi5jICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgfCAgIDIgKy0KIGRyaXZlcnMvYmFzZS9kcml2ZXIuYyAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIHwgICA0ICstCiBkcml2ZXJzL2Jhc2UvcGxhdGZvcm0u
+YyAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAxNCArKwogZHJpdmVycy9jaGFyL2lwbWkv
+aXBtaV9tc2doYW5kbGVyLmMgICAgICAgICAgICAgICAgfCAgIDggKy0KIGRyaXZlcnMvY2hhci9p
+cG1pL2lwbWlfc2lfcGxhdGZvcm0uYyAgICAgICAgICAgICAgIHwgICAyICstCiBkcml2ZXJzL2Zp
+cm13YXJlL2VmaS9kZXYtcGF0aC1wYXJzZXIuYyAgICAgICAgICAgICB8ICAgNCArLQogZHJpdmVy
+cy9ncHUvZHJtL2RybV9taXBpX2RzaS5jICAgICAgICAgICAgICAgICAgICAgfCAgIDIgKy0KIGRy
+aXZlcnMvZ3B1L2RybS90ZWdyYS9kYy5jICAgICAgICAgICAgICAgICAgICAgICAgIHwgICA0ICst
+CiBkcml2ZXJzL2h3dHJhY2luZy9jb3Jlc2lnaHQvY29yZXNpZ2h0LmMgICAgICAgICAgICB8ICAg
+NiArLQogZHJpdmVycy9od3RyYWNpbmcvY29yZXNpZ2h0L29mX2NvcmVzaWdodC5jICAgICAgICAg
+fCAgIDIgKy0KIGRyaXZlcnMvaHd0cmFjaW5nL2ludGVsX3RoL2NvcmUuYyAgICAgICAgICAgICAg
+ICAgIHwgICA1ICstCiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWFtZC1tcDItcGNpLmMgICAgICAg
+ICAgICAgICB8ICAgMiArLQogZHJpdmVycy9pMmMvaTJjLWNvcmUtYWNwaS5jICAgICAgICAgICAg
+ICAgICAgICAgICAgfCAgIDQgKy0KIGRyaXZlcnMvaTJjL2kyYy1jb3JlLW9mLmMgICAgICAgICAg
+ICAgICAgICAgICAgICAgIHwgICA0ICstCiBkcml2ZXJzL2lpby9pbmtlcm4uYyAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICB8ICAgMiArLQogZHJpdmVycy9pbmZpbmliYW5kL2h3L2hucy9o
+bnNfcm9jZV9od192MS5jICAgICAgICAgfCAgIDIgKy0KIGRyaXZlcnMvaW9tbXUvYXJtLXNtbXUt
+djMuYyAgICAgICAgICAgICAgICAgICAgICAgIHwgICAyICstCiBkcml2ZXJzL2lvbW11L2FybS1z
+bW11LmMgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgMiArLQogZHJpdmVycy9tZmQvYWx0
+ZXJhLXN5c21nci5jICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDQgKy0KIGRyaXZlcnMvbWZk
+L3N5c2Nvbi5jICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAyICstCiBkcml2ZXJz
+L25ldC9ldGhlcm5ldC9oaXNpbGljb24vaG5zL2huc19kc2FmX21pc2MuYyB8ICAgMiArLQogZHJp
+dmVycy9uZXQvZXRoZXJuZXQvdGkvY3Bzdy1waHktc2VsLmMgICAgICAgICAgICAgfCAgIDQgKy0K
+IGRyaXZlcnMvbmV0L2V0aGVybmV0L3RpL2RhdmluY2lfZW1hYy5jICAgICAgICAgICAgIHwgICAy
+ICstCiBkcml2ZXJzL25ldC9ldGhlcm5ldC90b3NoaWJhL3RjMzU4MTUuYyAgICAgICAgICAgICB8
+ICAgNCArLQogZHJpdmVycy9udm1lbS9jb3JlLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgfCAgIDIgKy0KIGRyaXZlcnMvb2Yvb2ZfbWRpby5jICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIHwgICAyICstCiBkcml2ZXJzL29mL3BsYXRmb3JtLmMgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICB8ICAgMiArLQogZHJpdmVycy9wY2kvcHJvYmUuYyAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgfCAgIDIgKy0KIGRyaXZlcnMvcGNpL3NlYXJjaC5jICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIHwgICA0ICstCiBkcml2ZXJzL3MzOTAvY2lvL2Njd2dyb3VwLmMg
+ICAgICAgICAgICAgICAgICAgICAgICB8ICAgMiArLQogZHJpdmVycy9zMzkwL2Npby9jaHNjX3Nj
+aC5jICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDIgKy0KIGRyaXZlcnMvczM5MC9jaW8vY3Nz
+LmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICA0ICstCiBkcml2ZXJzL3MzOTAvY2lv
+L2RldmljZS5jICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgNiArLQogZHJpdmVycy9zMzkw
+L2Npby9zY20uYyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDQgKy0KIGRyaXZlcnMv
+czM5MC9jcnlwdG8vYXBfYnVzLmMgICAgICAgICAgICAgICAgICAgICAgIHwgICA4ICstCiBkcml2
+ZXJzL3Njc2kvc2NzaV9wcm9jLmMgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgMiArLQog
+ZHJpdmVycy9zcGkvc3BpLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDQg
+Ky0KIGRyaXZlcnMvc3RhZ2luZy9tb3N0L2NvcmUuYyAgICAgICAgICAgICAgICAgICAgICAgIHwg
+ICA0ICstCiBkcml2ZXJzL3RodW5kZXJib2x0L3N3aXRjaC5jICAgICAgICAgICAgICAgICAgICAg
+ICB8ICAgNCArLQogZHJpdmVycy91c2IvY29yZS9kZXZpby5jICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgfCAgIDQgKy0KIGRyaXZlcnMvdXNiL2NvcmUvdXNiLmMgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIHwgICA0ICstCiBkcml2ZXJzL3VzYi9waHkvcGh5LWFtMzM1eC1jb250cm9sLmMg
+ICAgICAgICAgICAgICB8ICAgNCArLQogZHJpdmVycy91c2IvcGh5L3BoeS1pc3AxMzAxLmMgICAg
+ICAgICAgICAgICAgICAgICAgfCAgIDQgKy0KIGRyaXZlcnMvdmlzb3JidXMvdmlzb3JidXNfbWFp
+bi5jICAgICAgICAgICAgICAgICAgIHwgICA0ICstCiBpbmNsdWRlL2xpbnV4L2RldmljZS5oICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICB8IDE4OCArKysrKysrKysrKysrKysrKysrKy0KIGlu
+Y2x1ZGUvbGludXgvcGxhdGZvcm1fZGV2aWNlLmggICAgICAgICAgICAgICAgICAgIHwgICAzICsK
+IHNvdW5kL3NvYy9yb2NrY2hpcC9yazMzOTlfZ3J1X3NvdW5kLmMgICAgICAgICAgICAgIHwgICAy
+ICstCiA1NCBmaWxlcyBjaGFuZ2VkLCAzMjAgaW5zZXJ0aW9ucygrKSwgMTIzIGRlbGV0aW9ucygt
+KQoKLS0gCjIuNy40CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5v
+cmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2
+ZWw=
