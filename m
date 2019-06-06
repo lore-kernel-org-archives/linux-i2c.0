@@ -1,111 +1,211 @@
-From: Dmitry Osipenko <digetx@gmail.com>
-Subject: Re: [PATCH V2] i2c: busses: tegra: Add suspend-resume support
-Date: Thu, 6 Jun 2019 18:34:55 +0300
-Message-ID: <3d4ea007-e289-6b52-5321-68a7399e62d7@gmail.com>
-References: <1559800475-5446-1-git-send-email-bbiswas@nvidia.com>
- <bf93e88f-cbed-3bb0-223a-74ad0b08aa9e@gmail.com>
- <5871f51b-11d4-8bc9-6f40-4a91f2aab8f8@nvidia.com>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH v4] i2c: i801: Register optional lis3lv02d I2C device on
+ Dell machines
+Date: Thu, 6 Jun 2019 17:48:00 +0200
+Message-ID: <20190606154800.dpxl7hph5535faya@pali>
+References: <20190604223303.31945-1-pali.rohar@gmail.com>
+ <20190606165309.4a3c81c0@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="wpsgrcaxabs4jmr5"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <5871f51b-11d4-8bc9-6f40-4a91f2aab8f8@nvidia.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190606165309.4a3c81c0@endymion>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bitan Biswas <bbiswas@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis.Kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario_Limonciello@dell.com, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-06.06.2019 16:58, Bitan Biswas пишет:
-> 
-> 
-> On 6/6/19 5:06 AM, Dmitry Osipenko wrote:
->> 06.06.2019 8:54, Bitan Biswas пишет:
->>> Post suspend I2C registers have power on reset values. Before any
->>> transfer initialize I2C registers to prevent I2C transfer timeout
->>> and implement suspend and resume callbacks needed. Fix below errors
->>> post suspend:
->>>
->>> 1) Tegra I2C transfer timeout during jetson tx2 resume:
->>>
->>> [   27.520613] pca953x 1-0074: calling pca953x_resume+0x0/0x1b0 @
->>> 2939, parent: i2c-1
->>> [   27.633623] tegra-i2c 3160000.i2c: i2c transfer timed out
->>> [   27.639162] pca953x 1-0074: Unable to sync registers 0x3-0x5. -110
->>> [   27.645336] pca953x 1-0074: Failed to sync GPIO dir registers: -110
->>> [   27.651596] PM: dpm_run_callback(): pca953x_resume+0x0/0x1b0
->>> returns -110
->>> [   27.658375] pca953x 1-0074: pca953x_resume+0x0/0x1b0 returned -110
->>> after 127152 usecs
->>> [   27.666194] PM: Device 1-0074 failed to resume: error -110
->>>
->>> 2) Tegra I2C transfer timeout error on jetson Xavier post resume.
->>>
->>> Remove i2c bus lock-unlock calls in resume callback as
->>> i2c_mark_adapter_*
->>> (suspended-resumed) help ensure i2c core calls from client are not
->>> executed before i2c-tegra resume.
->>>
->>> Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
->>> ---
->>>   drivers/i2c/busses/i2c-tegra.c | 23 +++++++++++++++++++++++
->>>   1 file changed, 23 insertions(+)
->>>
->>> diff --git a/drivers/i2c/busses/i2c-tegra.c
->>> b/drivers/i2c/busses/i2c-tegra.c
->>> index ebaa78d..76b7926 100644
->>> --- a/drivers/i2c/busses/i2c-tegra.c
->>> +++ b/drivers/i2c/busses/i2c-tegra.c
->>> @@ -1687,7 +1687,30 @@ static int tegra_i2c_remove(struct
->>> platform_device *pdev)
->>>   }
->>>     #ifdef CONFIG_PM_SLEEP
->>> +static int tegra_i2c_suspend(struct device *dev)
->>> +{
->>> +    struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
->>> +
->>> +    i2c_mark_adapter_suspended(&i2c_dev->adapter);
->>> +
->>> +    return 0;
->>> +}
->>> +
->>> +static int tegra_i2c_resume(struct device *dev)
->>> +{
->>> +    struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
->>> +    int ret;
->>> +
->>> +    ret = tegra_i2c_init(i2c_dev, false);
->>> +    if (ret)
->>> +        return ret;
->>
->> We're expecting that tegra_i2c_init returns a error code on a failure
->> and nothing else, hence it will be a bit more expressive to name the
->> returned variable as "err". There is nothing wrong with yours variant,
->> this is just a very minor recommendation from me. Please note that a bit
->> more wise choice of the names makes easier to follow the code for other
->> people and hence results in a cleaner code.
-> Agreed.
-> 
->>
->>> +
->>> +    i2c_mark_adapter_resumed(&i2c_dev->adapter);
->>
->> Please add a blank line here for a better readability and to make the
->> patch consistent. You added the blank line in a similar case of
->> tegra_i2c_suspend() and this makes it inconsistent.
->>
-> OK.
-> 
->>> +    return 0;
->>> +}
->>> +
->>>   static const struct dev_pm_ops tegra_i2c_pm = {
->>> +    SET_SYSTEM_SLEEP_PM_OPS(tegra_i2c_suspend, tegra_i2c_resume)
->>>       SET_RUNTIME_PM_OPS(tegra_i2c_runtime_suspend,
->>> tegra_i2c_runtime_resume,
->>>                  NULL)
->>>   };
->>>
-> I shall send updated patch with suggested changes.
 
-Yes, please.
+--wpsgrcaxabs4jmr5
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi!
+
+On Thursday 06 June 2019 16:53:09 Jean Delvare wrote:
+> Hi Pali,
+>=20
+> On Wed,  5 Jun 2019 00:33:03 +0200, Pali Roh=C3=A1r wrote:
+> > Dell platform team told us that some (DMI whitelisted) Dell Latitude
+> > machines have ST microelectronics accelerometer at I2C address 0x29.
+> >=20
+> > Presence of that ST microelectronics accelerometer is verified by exist=
+ence
+> > of SMO88xx ACPI device which represent that accelerometer. Unfortunately
+> > ACPI device does not specify I2C address.
+> >=20
+> > This patch registers lis3lv02d device for selected Dell Latitude machin=
+es
+> > at I2C address 0x29 after detection. And for Dell Vostro V131 machine at
+> > I2C address 0x1d which was manually detected.
+> >=20
+> > Finally commit a7ae81952cda ("i2c: i801: Allow ACPI SystemIO OpRegion to
+> > conflict with PCI BAR") allowed to use i2c-i801 driver on Dell machines=
+ so
+> > lis3lv02d correctly initialize accelerometer.
+> >=20
+> > Tested on Dell Latitude E6440.
+> >=20
+> > Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
+> >=20
+> > ---
+> > Changes since v3:
+> >  * Use char * [] type for list of acpi ids
+> >  * Check that SMO88xx acpi device is present, enabled and functioning
+> >  * Simplify usage of acpi_get_devices()
+> >  * Change i2c to I2C
+> >  * Make dell_lis3lv02d_devices const
+> >=20
+> > Changes since v2:
+> >  * Use explicit list of SMOxx ACPI devices
+> >=20
+> > Changes since v1:
+> >  * Added Dell Vostro V131 based on Micha=C5=82 K=C4=99pie=C5=84 testing
+> >  * Changed DMI product structure to include also i2c address
+> > ---
+> >  drivers/i2c/busses/i2c-i801.c       | 123 ++++++++++++++++++++++++++++=
+++++++++
+> >  drivers/platform/x86/dell-smo8800.c |   1 +
+> >  2 files changed, 124 insertions(+)
+> >=20
+> > diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i80=
+1.c
+> > index ac7f7817dc89..9060d4b16f4f 100644
+> > --- a/drivers/i2c/busses/i2c-i801.c
+> > +++ b/drivers/i2c/busses/i2c-i801.c
+> > @@ -1134,6 +1134,126 @@ static void dmi_check_onboard_devices(const str=
+uct dmi_header *dm, void *adap)
+> >  	}
+> >  }
+> > =20
+> > +/* NOTE: Keep this list in sync with drivers/platform/x86/dell-smo8800=
+=2Ec */
+> > +static const char *const acpi_smo8800_ids[] =3D {
+> > +	"SMO8800",
+> > +	"SMO8801",
+> > +	"SMO8810",
+> > +	"SMO8811",
+> > +	"SMO8820",
+> > +	"SMO8821",
+> > +	"SMO8830",
+> > +	"SMO8831",
+> > +};
+> > +
+> > +static acpi_status check_acpi_smo88xx_device(acpi_handle obj_handle,
+> > +					     u32 nesting_level,
+> > +					     void *context,
+> > +					     void **return_value)
+> > +{
+> > +	struct acpi_device_info *info;
+> > +	unsigned long long sta;
+> > +	acpi_status status;
+> > +	char *hid;
+> > +	int i;
+> > +
+> > +	status =3D acpi_bus_get_status_handle(obj_handle, &sta);
+> > +	if (!ACPI_SUCCESS(status))
+> > +		return AE_OK;
+> > +	if (!(sta & (ACPI_STA_DEVICE_PRESENT |
+> > +		     ACPI_STA_DEVICE_ENABLED |
+> > +		     ACPI_STA_DEVICE_FUNCTIONING)))
+> > +		return AE_OK;
+>=20
+> This is testing that *either* bit is set. Is it what you intend to
+> achieve, or would you rather want to ensure that *all* these bits are
+> set?
+
+Of course, it is wrong. Thanks for catch. We should ignore apci devices
+which are not present, which are disabled or which are not functioning.
+
+Now I looked into acpi_get_devices() implementation and it call
+acpi_ns_get_device_callback() function callback for every device. At the
+end that function calls user supplied check_acpi_smo88xx_device
+function.
+
+And acpi_ns_get_device_callback() already ignores acpi devices which do
+not have ACPI_STA_DEVICE_PRESENT or ACPI_STA_DEVICE_FUNCTIONING flag.
+
+According to acpi documentation when ACPI_STA_DEVICE_PRESENT is not set
+then ACPI_STA_DEVICE_ENABLED also cannot be set.
+
+So the whole acpi_bus_get_status_handle() is not needed at all as
+acpi_get_devices() via acpi_ns_get_device_callback() already filter
+unsuitable acpi devices.
+
+I guess that I already did this investigation in past and added comment
+"exists and is enabled" which is below near acpi_get_devices() call. But
+as I wrote this patch more then year ago I forgot about it.
+
+I will remove that check. Do you have any suggestion what to write into
+comment so other readers in future would know that we do not need to
+check anything with _STA acpi method?
+
+> > +
+> > +	status =3D acpi_get_object_info(obj_handle, &info);
+> > +	if (!ACPI_SUCCESS(status) || !(info->valid & ACPI_VALID_HID))
+> > +		return AE_OK;
+> > +
+> > +	hid =3D info->hardware_id.string;
+> > +	if (!hid)
+> > +		return AE_OK;
+> > +
+> > +	for (i =3D 0; i < ARRAY_SIZE(acpi_smo8800_ids); ++i) {
+> > +		if (strcmp(hid, acpi_smo8800_ids[i]) =3D=3D 0) {
+> > +			*((bool *)return_value) =3D true;
+> > +			return AE_CTRL_TERMINATE;
+> > +		}
+> > +	}
+> > +
+> > +	return AE_OK;
+> > +}
+> > +
+> > +static bool is_dell_system_with_lis3lv02d(void)
+> > +{
+> > +	bool found;
+> > +	const char *vendor;
+> > +
+> > +	vendor =3D dmi_get_system_info(DMI_SYS_VENDOR);
+> > +	if (strcmp(vendor, "Dell Inc.") !=3D 0)
+> > +		return false;
+> > +
+> > +	/*
+> > +	 * Check that ACPI device SMO88xx exists and is enabled. That ACPI
+> > +	 * device represent our ST microelectronics lis3lv02d accelerometer b=
+ut
+> > +	 * unfortunately without any other information (like I2C address).
+> > +	 */
+> > +	found =3D false;
+> > +	acpi_get_devices(NULL, check_acpi_smo88xx_device, NULL,
+> > +				  (void **)&found);
+>=20
+> Alignment is incorrect now - but don't resend just for this.
+>=20
+> > +
+> > +	return found;
+> > +}
+> > (...)
+>=20
+> Everything else looks good to me now. Has the latest version of your
+> patch been tested on real hardware?
+
+Yes, I'm testing it on E6440 machine which is still in use (it is nice
+piece from Dell). Otherwise I would not spend time on this patch after
+such long time :-)
+
+--=20
+Pali Roh=C3=A1r
+pali.rohar@gmail.com
+
+--wpsgrcaxabs4jmr5
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQS4VrIQdKium2krgIWL8Mk9A+RDUgUCXPk1rgAKCRCL8Mk9A+RD
+UkJ9AKC1koqr40BYRIwTt6n7xeEmCBB80gCeLrLXC2hibjAfwVe25W4dmxyHcgw=
+=y9Ym
+-----END PGP SIGNATURE-----
+
+--wpsgrcaxabs4jmr5--
