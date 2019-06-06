@@ -1,55 +1,45 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC PATCH 22/57] drivers: i2c: Use generic helper to match
- device by acpi_dev
-Date: Thu, 6 Jun 2019 22:03:37 +0200
-Message-ID: <20190606200337.GA8739@kunai>
-References: <1559577023-558-1-git-send-email-suzuki.poulose@arm.com>
- <1559577023-558-23-git-send-email-suzuki.poulose@arm.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH V4] drivers: i2c: tegra: fix checkpatch defects
+Date: Thu, 6 Jun 2019 20:45:52 +0000
+Message-ID: <8df7648d-c5bd-7179-6368-66dab9b7fa39@axentia.se>
+References: <1559806523-1352-1-git-send-email-bbiswas@nvidia.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1559577023-558-23-git-send-email-suzuki.poulose@arm.com>
+In-Reply-To: <1559806523-1352-1-git-send-email-bbiswas@nvidia.com>
+Content-Language: en-US
+Content-ID: <943E35E38B91464398F28017D5F4F6A1@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org
+To: Bitan Biswas <bbiswas@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-
---Nq2Wo0NMKNjxTN9z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> -	dev = bus_find_device(&i2c_bus_type, NULL, adev,
-> -			      i2c_acpi_find_match_device);
-> +	dev = bus_find_device(&i2c_bus_type, NULL, adev, device_match_acpi_dev);
-
-In general, this looks like a nice cleanup which I am in favour of.
-However, I didn't understand why ACPI uses bus_find_device() but OF has
-a seperate helper bus_find_device_by_of_node(). Why this inconsistency
-of having a seperate helper here and not there?
-
-
---Nq2Wo0NMKNjxTN9z
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlz5cZQACgkQFA3kzBSg
-KbYI6RAAmuWimkzjk/bPvsyMSJT3Pdc1H0CMg9BNC6Bd2OqG7K4a1PfRpVueZddY
-5OVWpmoHhEjXBFHDqI7inEhQ61ecuwlOeM0qIJEq5uU7CQKrEjgOc2BWp1AeiEr0
-+5YvEVnIdSikPDL6M+W2fWGiyAt1hgxM+Dg9M4qmuQhU9EvJnvTuA3bw5/ld4Jtb
-tx9MaBAwvuzXwIwHN+95neWe7uTB5jrB3Asiuj3F2R48aOytMQgFLVKL+bLAziJM
-JJabLD0K7L91r1hSPnNBpHmcHGL/MfaUFoEA/Ne2l4bucK6c1ni9y42UF8owI51u
-y8UT3l+1iANReVlZZ6Wqc3tQtNV4R+8uUq6sA/so3Uq/tO3FPLLoXNbv/Vq5HZU/
-UKWeAUkLGdBJ+9kL8XheUPVFL7OxHlab61DmvRDKnrQwZI0Q0FuVFhWEXdeAXI0c
-wnBcPzhTVb05mmym6z59aMcLWEQVo+uZzlNPAWpm2NMUaHWtGji1/tXdWJWKSU4H
-zucPjBz4Co0DAr4h/kLfmaLhvuV3dlxLtbMyZxytTPmERbXJu1kVJJURG8fxUviK
-QZvGDKbuRpHvyU7bzV/qvtSgBFjKkt9cpnMBe1x0OylV3R7hB5dInbuwfOQcEa6v
-loX4SLD9M8rMN4Z9c5CYd0BnR8Fe3DiVqU1IVO2CEh/5lkmvT0U=
-=7meo
------END PGP SIGNATURE-----
-
---Nq2Wo0NMKNjxTN9z--
+T24gMjAxOS0wNi0wNiAwOTozNSwgQml0YW4gQmlzd2FzIHdyb3RlOg0KPiBGaXggY2hlY2twYXRj
+aC5wbCB3YXJuaW5nKHMpL2Vycm9yKHMpL2NoZWNrKHMpIGluIGkyYy10ZWdyYS5jDQo+IA0KPiBS
+ZW1vdmUgcmVkdW5kYW50IEJVR19PTiBjYWxscyBvciByZXBsYWNlIHdpdGggV0FSTl9PTl9PTkNF
+DQo+IGFzIG5lZWRlZC4gUmVwbGFjZSBCVUcoKSB3aXRoIGVycm9yIGhhbmRsaW5nIGNvZGUuDQo+
+IERlZmluZSBJMkNfRVJSX1VORVhQRUNURURfU1RBVFVTIGZvciBlcnJvciBoYW5kbGluZy4NCj4g
+DQo+IFNpZ25lZC1vZmYtYnk6IEJpdGFuIEJpc3dhcyA8YmJpc3dhc0BudmlkaWEuY29tPg0KPiAt
+LS0NCj4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtdGVncmEuYyB8IDY3ICsrKysrKysrKysrKysr
+KysrKysrKysrLS0tLS0tLS0tLS0tLS0tLS0tLQ0KPiAgMSBmaWxlIGNoYW5nZWQsIDM3IGluc2Vy
+dGlvbnMoKyksIDMwIGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJj
+L2J1c3Nlcy9pMmMtdGVncmEuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtdGVncmEuYw0KPiBp
+bmRleCA3NmI3OTI2Li41NWE1ZDg3IDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMv
+aTJjLXRlZ3JhLmMNCj4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy10ZWdyYS5jDQo+IEBA
+IC03OCw2ICs3OCw3IEBADQo+ICAjZGVmaW5lIEkyQ19FUlJfTk9fQUNLCQkJCTB4MDENCj4gICNk
+ZWZpbmUgSTJDX0VSUl9BUkJJVFJBVElPTl9MT1NUCQkweDAyDQo+ICAjZGVmaW5lIEkyQ19FUlJf
+VU5LTk9XTl9JTlRFUlJVUFQJCTB4MDQNCj4gKyNkZWZpbmUgSTJDX0VSUl9VTkVYUEVDVEVEX1NU
+QVRVUyAgICAgICAgICAgICAgIDB4MDgNCg0KVXNlIHRhYnMgbGlrZSB0aGUgdGhlIHN1cnJvdW5k
+aW5nIGNvZGUuIEFuZCBwZXJoYXBzIGNvbnZlcnQgYWxsDQp0aGVzZSBmbGFncyB0byB1c2UgdGhl
+IEJJVCgpIG1hY3JvPw0KDQo+ICANCj4gICNkZWZpbmUgUEFDS0VUX0hFQURFUjBfSEVBREVSX1NJ
+WkVfU0hJRlQJMjgNCj4gICNkZWZpbmUgUEFDS0VUX0hFQURFUjBfUEFDS0VUX0lEX1NISUZUCQkx
+Ng0KPiBAQCAtMTEyLDcgKzExMyw3IEBADQo+ICAjZGVmaW5lIEkyQ19DTEtFTl9PVkVSUklERQkJ
+CTB4MDkwDQo+ICAjZGVmaW5lIEkyQ19NU1RfQ09SRV9DTEtFTl9PVlIJCQlCSVQoMCkNCj4gIA0K
+PiAtI2RlZmluZSBJMkNfQ09ORklHX0xPQURfVElNRU9VVAkJCTEwMDAwMDANCj4gKyNkZWZpbmUg
+STJDX0NPTkZJR19MT0FEX1RNT1VUCQkJMTAwMDAwMA0KDQpTaW1pbGFyIHRvIHhmZXJfdG0gYWxy
+ZWFkeSBtZW50aW9uZWQgYnkgRG1pdHJ5OyBqdXN0IGtlZXAgaXQgYXMNCi4uLl9USU1FT1VUIGFu
+ZCBpZ25vcmUgY2hlY2twYXRjaCBvbiB0aGlzIGlzc3VlLiBPciBqdWdnbGUgdGhlDQpjb2RlIGlu
+IHNvbWUgb3RoZXIgd2F5IHRvIHBhY2lmeSBjaGVja3BhdGNoLiBFLmcuIGFiYnJldmlhdGUNCkNP
+TkZJRyBpbnN0ZWFkPyBPciBzb21ldGhpbmcuIENPTkYgaXMgd2F5IGVhc2llciB0byByZWFkIHRo
+YW4NClRNT1VUIElNSE8uLi4NCg0KQ2hlZXJzLA0KUGV0ZXINCg==
