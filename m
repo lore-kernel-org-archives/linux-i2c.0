@@ -1,99 +1,58 @@
-From: Dmitry Osipenko <digetx@gmail.com>
-Subject: Re: [PATCH V1] i2c: busses: tegra: Add suspend-resume support
-Date: Thu, 6 Jun 2019 14:52:24 +0300
-Message-ID: <d5803f1d-0895-08b8-4851-cd8afad830c6@gmail.com>
-References: <1559195718-6693-1-git-send-email-bbiswas@nvidia.com>
- <c8bad04b-67ef-bcdf-04df-4aa61271e81c@gmail.com>
- <9142282b-ab76-53a0-13ce-c43b8adc575f@nvidia.com>
- <4f14a218-332c-0263-c6c5-73a13b2446f0@gmail.com>
- <caa17a53-6f29-411b-9a84-58ff019752ff@nvidia.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH V4] drivers: i2c: tegra: fix checkpatch defects
+Date: Thu, 6 Jun 2019 13:57:06 +0200
+Message-ID: <20190606115705.6j2oigsm2imvvqh7@ninjato>
+References: <1559806523-1352-1-git-send-email-bbiswas@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="elce2mn4beyzveti"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <caa17a53-6f29-411b-9a84-58ff019752ff@nvidia.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1559806523-1352-1-git-send-email-bbiswas@nvidia.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bitan Biswas <bbiswas@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
+To: Bitan Biswas <bbiswas@nvidia.com>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-06.06.2019 8:43, Bitan Biswas пишет:
-> 
-> 
-> On 5/31/19 5:43 AM, Dmitry Osipenko wrote:
->> 31.05.2019 11:50, Bitan Biswas пишет:
->>>
->>>
->>> On 5/30/19 4:27 AM, Dmitry Osipenko wrote:
->>>> 30.05.2019 8:55, Bitan Biswas пишет:
->>>>> Post suspend I2C registers have power on reset values. Before any
->>>>> transfer initialize I2C registers to prevent I2C transfer timeout
->>>>> and implement suspend and resume callbacks needed. Fix below errors
->>>>> post suspend:
->>>>>
->>>>> 1) Tegra I2C transfer timeout during jetson tx2 resume:
->>>>>
->>>>> [   27.520613] pca953x 1-0074: calling pca953x_resume+0x0/0x1b0 @
->>>>> 2939, parent: i2c-1
->>>>> [   27.633623] tegra-i2c 3160000.i2c: i2c transfer timed out
->>>>> [   27.639162] pca953x 1-0074: Unable to sync registers 0x3-0x5. -110
->>>>> [   27.645336] pca953x 1-0074: Failed to sync GPIO dir registers: -110
->>>>> [   27.651596] PM: dpm_run_callback(): pca953x_resume+0x0/0x1b0
->>>>> returns -110
->>>>> [   27.658375] pca953x 1-0074: pca953x_resume+0x0/0x1b0 returned -110
->>>>> after 127152 usecs
->>>>> [   27.666194] PM: Device 1-0074 failed to resume: error -110
->>>>>
->>>>> 2) Tegra I2C transfer timeout error on jetson Xavier post resume.
->>>>>
->>>>> Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
->>>>> ---
->>>>>    drivers/i2c/busses/i2c-tegra.c | 24 ++++++++++++++++++++++++
->>>>>    1 file changed, 24 insertions(+)
->>>>>
->>>>> diff --git a/drivers/i2c/busses/i2c-tegra.c
->>>>> b/drivers/i2c/busses/i2c-tegra.c
->>>>> index ebaa78d..f6a377f 100644
->>>>> --- a/drivers/i2c/busses/i2c-tegra.c
->>>>> +++ b/drivers/i2c/busses/i2c-tegra.c
->>>>> @@ -1687,9 +1687,33 @@ static int tegra_i2c_remove(struct
->>>>> platform_device *pdev)
->>>>>    }
->>>>>      #ifdef CONFIG_PM_SLEEP
->>>>> +static int tegra_i2c_suspend(struct device *dev)
->>>>> +{
->>>>> +    struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
->>>>> +
->>>>> +    i2c_mark_adapter_suspended(&i2c_dev->adapter);
->>>>> +
->>>>> +    return 0;
->>>>> +}
->>>>> +
->>>>> +static int tegra_i2c_resume(struct device *dev)
->>>>> +{
->>>>> +    struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
->>>>> +    int ret;
->>>>> +
->>>>> +    i2c_lock_bus(&i2c_dev->adapter, I2C_LOCK_ROOT_ADAPTER);
->>>>> +    ret = tegra_i2c_init(i2c_dev, false);
->>>>> +    i2c_unlock_bus(&i2c_dev->adapter, I2C_LOCK_ROOT_ADAPTER);
->>>>
->>>> Why the locking is needed here?
->>>
->>> async resume could result in stress test issues if some client accesses
->>> the i2c instance. This ensures the i2c instance is locked till the
->>> initialization is complete.
->>
->> 1) This doesn't make much sense.. if client could access I2C during of
->> tegra_i2c_init execution, then what stops it to perform the access
->> before the lock is taken?
-> Client resumes will start after I2C instance resume because of driver
-> dependency. Since lock is the first call in i2c-tegra I believe I2C
-> calls of client will not start.
 
-You're incorrectly assuming that client can start resuming in the middle
-of the controller's resume process. I2C client's resume won't start
-until tegra_i2c_resume() is finished completely. That is because child
-drivers are resumed only after theirs parent is ready and this is
-guaranteed by the drivers core.
+--elce2mn4beyzveti
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Jun 06, 2019 at 12:35:23AM -0700, Bitan Biswas wrote:
+> Fix checkpatch.pl warning(s)/error(s)/check(s) in i2c-tegra.c
+>=20
+> Remove redundant BUG_ON calls or replace with WARN_ON_ONCE
+> as needed. Replace BUG() with error handling code.
+> Define I2C_ERR_UNEXPECTED_STATUS for error handling.
+>=20
+> Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
+
+I wonder why you didn't fix this checkpatch defect?
+
+WARNING: A patch subject line should describe the change not the tool that =
+found it
+
+
+--elce2mn4beyzveti
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlz4/40ACgkQFA3kzBSg
+KbapPQ//Wqml+UIJlWSm5inlWvFznTdF9x+06WbPj4JYk7x7ab4nHQYEdX+qLC2I
+d5QejH2ouSSJ60gTNMbRu6QhwtULhhUnrtBf07qdq4o/TfVqvQsQ+HcjvQnn905w
+03gYunTuwaLjup5CZYNAGRR1lWTnWlC8hJlG2NXXiYYkuW4luGYH0jdp+yQom4ip
+4rZ85sOtRA/1IZWw+MKLQwyHQRy8rVMdGoAZ2/3+qsnfLmylsVdGfVvesXQvLsj3
+vd4f9G5+GfgHbJPJ6XMfyGwho8sxr8XUz7Oxy59DSfSvcQsO8LvgxsDD3Byex7DC
+dsH+PopNEgmDhbuh/oWkfHpChPPxsSDoI4zm6TVKNGwOEC/0fj1Dqs9QI9TL0Soy
+GMVy03XNKE8Q3vc1+kZV3wNAwJSPvVde6pT+AB+GfsxOcmxZj9Wpoo7lgfxsnx+G
+N5vWRkidksphWMOPcUHxcBYqm1VgcqBY0U+z4yxkbMV9PWBG4glE0usq7aSub44z
+qOB8TsUc3b/CV1asWz6M3QBGZk8GnS2KVfN8nK+MlzL6kXG/KpEkNF4qs2diY8Ca
+o1UA2Q0NWNSP15S/UFCkqzP5+CtsVel5Kw6O3LJ9jXvhDuTwOWrxn11BdbvAdDvC
+UJMBbSwCF4Deo/O/kiG9Kcqj188lZKhoze4zv7e+Oxv2niPmgmE=
+=8tXa
+-----END PGP SIGNATURE-----
+
+--elce2mn4beyzveti--
