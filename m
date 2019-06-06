@@ -1,170 +1,84 @@
-From: Lorenzo Bianconi <lorenzo@kernel.org>
-Subject: Re: [PATCH v2 3/3] iio: imu: st_lsm6dsx: add i3c basic support for
- LSM6DSO and LSM6DSR
-Date: Thu, 6 Jun 2019 18:58:43 +0200
-Message-ID: <20190606165841.GA10356@localhost.localdomain>
+From: Vitor Soares <Vitor.Soares@synopsys.com>
+Subject: RE: [PATCH v2 2/3] i3c: add i3c_get_device_id helper
+Date: Thu, 6 Jun 2019 16:58:51 +0000
+Message-ID: <13D59CF9CEBAF94592A12E8AE55501350AABE7DC@DE02WEMBXB.internal.synopsys.com>
 References: <cover.1559831663.git.vitor.soares@synopsys.com>
- <6195f3cd21636a5f85c0107b5c3b217be868a4b9.1559831663.git.vitor.soares@synopsys.com>
+        <eaa9eb66df6b4c9b577aec46fd440b99d763a5a2.1559831663.git.vitor.soares@synopsys.com>
+ <20190606171755.0feb8998@collabora.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <6195f3cd21636a5f85c0107b5c3b217be868a4b9.1559831663.git.vitor.soares@synopsys.com>
+In-Reply-To: <20190606171755.0feb8998@collabora.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vitor Soares <Vitor.Soares@synopsys.com>
-Cc: linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-i3c@lists.infradead.org, linux-kernel@vger.kernel.org, broonie@kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org, bbrezillon@kernel.org, Joao.Pinto@synopsys.com, lorenzo.bianconi83@gmail.com
+To: Boris Brezillon <boris.brezillon@collabora.com>, Vitor Soares <Vitor.Soares@synopsys.com>
+Cc: "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-i3c@lists.infradead.org" <linux-i3c@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "broonie@kernel.org" <broonie@kernel.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "rafael@kernel.org" <rafael@kernel.org>, "bbrezillon@kernel.org" <bbrezillon@kernel.org>, "Joao.Pinto@synopsys.com" <Joao.Pinto@synopsys.com>, "lorenzo.bianconi83@gmail.com" <lorenzo.bianconi83@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Boris,
 
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+From: Boris Brezillon <boris.brezillon@collabora.com>
+Date: Thu, Jun 06, 2019 at 16:17:55
 
-> For today the st_lsm6dsx driver support LSM6DSO and LSM6DSR sensor only in
-> spi and i2c mode.
+> On Thu,  6 Jun 2019 17:12:03 +0200
+> Vitor Soares <Vitor.Soares@synopsys.com> wrote:
 >=20
-> The LSM6DSO and LSM6DSR are also i3c capable so lets give i3c support to
-> them.
+> > This helper return the i3c_device_id structure in order the client
+> > have access to the driver data.
+> >=20
+> > Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
+> > ---
+> > Changes in v2:
+> >   move this function to drivers/i3c/device.c
+> >=20
+> >  drivers/i3c/device.c       | 8 ++++++++
+> >  include/linux/i3c/device.h | 1 +
+> >  2 files changed, 9 insertions(+)
+> >=20
+> > diff --git a/drivers/i3c/device.c b/drivers/i3c/device.c
+> > index 69cc040..a6d0796 100644
+> > --- a/drivers/i3c/device.c
+> > +++ b/drivers/i3c/device.c
+> > @@ -200,6 +200,14 @@ struct i3c_device *dev_to_i3cdev(struct device *de=
+v)
+> >  }
+> >  EXPORT_SYMBOL_GPL(dev_to_i3cdev);
+> > =20
+> > +const struct i3c_device_id *i3c_get_device_id(struct i3c_device *i3cde=
+v)
+> > +{
+> > +	const struct i3c_driver *i3cdrv =3D drv_to_i3cdrv(i3cdev->dev.driver)=
+;
+> > +
+> > +	return i3cdrv->id_table;
+> > +}
+> > +EXPORT_SYMBOL_GPL(i3c_get_device_id);
 >=20
-> Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
-> ---
-
-Hi Vitor,
-
-just a nit inline, but you can add my acked-by for st_lsm6dsx part in v3
-
-Acked-by: Lorenzo Bianconi <lorenzo@kernel.org>
-
-Regards,
-Lorenzo
-
-> Changes in v2:
->   Add support for LSM6DSR
->   Set pm_ops to st_lsm6dsx_pm_ops
->=20
->  drivers/iio/imu/st_lsm6dsx/Kconfig          |  8 ++-
->  drivers/iio/imu/st_lsm6dsx/Makefile         |  1 +
->  drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_i3c.c | 76 +++++++++++++++++++++++=
-++++++
->  3 files changed, 84 insertions(+), 1 deletion(-)
->  create mode 100644 drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_i3c.c
->=20
-> diff --git a/drivers/iio/imu/st_lsm6dsx/Kconfig b/drivers/iio/imu/st_lsm6=
-dsx/Kconfig
-> index 002a423..8115936 100644
-> --- a/drivers/iio/imu/st_lsm6dsx/Kconfig
-> +++ b/drivers/iio/imu/st_lsm6dsx/Kconfig
-> @@ -2,11 +2,12 @@
-> =20
->  config IIO_ST_LSM6DSX
->  	tristate "ST_LSM6DSx driver for STM 6-axis IMU MEMS sensors"
-> -	depends on (I2C || SPI)
-> +	depends on (I2C || SPI || I3C)
->  	select IIO_BUFFER
->  	select IIO_KFIFO_BUF
->  	select IIO_ST_LSM6DSX_I2C if (I2C)
->  	select IIO_ST_LSM6DSX_SPI if (SPI_MASTER)
-> +	select IIO_ST_LSM6DSX_I3C if (I3C)
->  	help
->  	  Say yes here to build support for STMicroelectronics LSM6DSx imu
->  	  sensor. Supported devices: lsm6ds3, lsm6ds3h, lsm6dsl, lsm6dsm,
-> @@ -24,3 +25,8 @@ config IIO_ST_LSM6DSX_SPI
->  	tristate
->  	depends on IIO_ST_LSM6DSX
->  	select REGMAP_SPI
-> +
-
-[...]
-
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/i3c/device.h>
-> +#include <linux/i3c/master.h>
-> +#include <linux/slab.h>
-> +#include <linux/of.h>
-> +#include <linux/regmap.h>
-> +
-> +#include "st_lsm6dsx.h"
-> +
-> +#define NAME_SIZE	32
-> +
-> +struct st_lsm6dsx_i3c_data {
-> +	const char name[NAME_SIZE];
-> +	enum st_lsm6dsx_hw_id id;
-> +};
-> +
-> +enum st_lsm6dsx_i3c_data_id {
-> +	ST_LSM6DSO_I3C_DATA_ID,
-> +	ST_LSM6DSR_I3C_DATA_ID,
-> +};
-
-do we really need them? maybe just use hw_data[n] adding a comment to indic=
-ate
-the related sensor defining st_lsm6dsx_i3c_ids[]
-
-> +
-> +static const struct st_lsm6dsx_i3c_data hw_data[] =3D {
-> +	{ ST_LSM6DSO_DEV_NAME, ST_LSM6DSO_ID },
-> +	{ ST_LSM6DSR_DEV_NAME, ST_LSM6DSR_ID },
-> +};
-> +
-> +static const struct regmap_config st_lsm6dsx_i3c_regmap_config =3D {
-> +	.reg_bits =3D 8,
-> +	.val_bits =3D 8,
-> +};
-> +
-> +static int st_lsm6dsx_i3c_probe(struct i3c_device *i3cdev)
-> +{
-> +	const struct i3c_device_id *id =3D i3c_get_device_id(i3cdev);
-> +	const struct st_lsm6dsx_i3c_data *hw_data =3D id->data;
-> +	struct regmap *regmap;
-> +
-> +	regmap =3D devm_regmap_init_i3c(i3cdev, &st_lsm6dsx_i3c_regmap_config);
-> +	if (IS_ERR(regmap)) {
-> +		dev_err(&i3cdev->dev, "Failed to register i3c regmap %d\n",
-> +			(int)PTR_ERR(regmap));
-> +		return PTR_ERR(regmap);
-> +	}
-> +
-> +	return st_lsm6dsx_probe(&i3cdev->dev, 0, hw_data->id,
-> +				hw_data->name, regmap);
-> +}
-> +
-> +static const struct i3c_device_id st_lsm6dsx_i3c_ids[] =3D {
-> +	I3C_DEVICE(0x0104, 0x006C, &hw_data[ST_LSM6DSO_I3C_DATA_ID]),
-> +	I3C_DEVICE(0x0104, 0x006B, &hw_data[ST_LSM6DSR_I3C_DATA_ID]),
-> +	{ /* sentinel */ },
-> +};
-> +MODULE_DEVICE_TABLE(i3c, st_lsm6dsx_i3c_ids);
-> +
-> +static struct i3c_driver st_lsm6dsx_driver =3D {
-> +	.driver =3D {
-> +		.name =3D "st_lsm6dsx_i3c",
-> +		.pm =3D &st_lsm6dsx_pm_ops,
-> +	},
-> +	.probe =3D st_lsm6dsx_i3c_probe,
-> +	.id_table =3D st_lsm6dsx_i3c_ids,
-> +};
-> +module_i3c_driver(st_lsm6dsx_driver);
-> +
-> +MODULE_AUTHOR("Vitor Soares <vitor.soares@synopsys.com>");
-> +MODULE_DESCRIPTION("STMicroelectronics st_lsm6dsx i3c driver");
-> +MODULE_LICENSE("GPL v2");
-> --=20
-> 2.7.4
+> That's not what I asked. I told you to expose i3c_device_match_id()
+> which already exists and is in master.c. What you really want is to get
+> the device_id entry that matches your device, not the first entry in
+> the table...
 >=20
 
---mP3DRpeJDSE+ciuQ
-Content-Type: application/pgp-signature; name="signature.asc"
+I didn't see it has the full table.
+I will change it.
 
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQTquNwa3Txd3rGGn7Y6cBh0uS2trAUCXPlGPwAKCRA6cBh0uS2t
-rPqMAP44h3ZeX39OaxRtCeAjFaVA461EPlzIZOpxST1c3RRKvwD/S/enVcgJjWIc
-SSwRn2zrrKVUs7mYZsyKAcRBo9+Pvgs=
-=G/Yz
------END PGP SIGNATURE-----
-
---mP3DRpeJDSE+ciuQ--
+> > +
+> >  /**
+> >   * i3c_driver_register_with_owner() - register an I3C device driver
+> >   *
+> > diff --git a/include/linux/i3c/device.h b/include/linux/i3c/device.h
+> > index 5ecb055..e0415e1 100644
+> > --- a/include/linux/i3c/device.h
+> > +++ b/include/linux/i3c/device.h
+> > @@ -187,6 +187,7 @@ static inline struct i3c_driver *drv_to_i3cdrv(stru=
+ct device_driver *drv)
+> > =20
+> >  struct device *i3cdev_to_dev(struct i3c_device *i3cdev);
+> >  struct i3c_device *dev_to_i3cdev(struct device *dev);
+> > +const struct i3c_device_id *i3c_get_device_id(struct i3c_device *i3cde=
+v);
+> > =20
+> >  static inline void i3cdev_set_drvdata(struct i3c_device *i3cdev,
+> >  				      void *data)
