@@ -1,48 +1,33 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 0/3] Add ST lsm6dso i3c support
-Date: Thu, 6 Jun 2019 18:25:23 +0200
-Message-ID: <20190606162522.GA3782@kunai>
+From: Vitor Soares <Vitor.Soares@synopsys.com>
+Subject: RE: [PATCH v2 0/3] Add ST lsm6dso i3c support
+Date: Thu, 6 Jun 2019 16:42:34 +0000
+Message-ID: <13D59CF9CEBAF94592A12E8AE55501350AABE7B3@DE02WEMBXB.internal.synopsys.com>
 References: <cover.1559831663.git.vitor.soares@synopsys.com>
+ <20190606162522.GA3782@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1559831663.git.vitor.soares@synopsys.com>
+In-Reply-To: <20190606162522.GA3782@kunai>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vitor Soares <Vitor.Soares@synopsys.com>
-Cc: linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-i3c@lists.infradead.org, linux-kernel@vger.kernel.org, broonie@kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org, bbrezillon@kernel.org, Joao.Pinto@synopsys.com, lorenzo.bianconi83@gmail.com
+To: Wolfram Sang <wsa@the-dreams.de>, Vitor Soares <Vitor.Soares@synopsys.com>
+Cc: "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-i3c@lists.infradead.org" <linux-i3c@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "broonie@kernel.org" <broonie@kernel.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "rafael@kernel.org" <rafael@kernel.org>, "bbrezillon@kernel.org" <bbrezillon@kernel.org>, "Joao.Pinto@synopsys.com" <Joao.Pinto@synopsys.com>, "lorenzo.bianconi83@gmail.com" <lorenzo.bianconi83@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---2oS5YaxWCcQjTEyO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I think I2C ecosystem is also part interested in I3C due the=20
+compatibility and maybe they can provide some feedback.
+If you think differently, sorry I will remove I2C list next time.
 
-On Thu, Jun 06, 2019 at 05:12:01PM +0200, Vitor Soares wrote:
-> This patch series add i3c support for STM LSM6DSO and LSM6DSR sensors.
+Regards,
+Vitor Soares
 
-Why is the I2C list on CC? Is there something relevant I missed?
+From: Wolfram Sang <wsa@the-dreams.de>
+Date: Thu, Jun 06, 2019 at 17:25:23
 
-
---2oS5YaxWCcQjTEyO
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlz5Pm4ACgkQFA3kzBSg
-KbapNg//cBKxDRaQW1S7u+5yCetAmE74WJLlzFtJOzL0oS+qcPOsi5YATvPGnu/1
-k+bPwNGKf3MT1fvax7/qcZjGxLsiGqUfx7AkDYwUEK9Z1Uy6ZN+zdvGjNw9hw5mB
-vbF4un8buF3bMxM31ggNx3nQL28SXKgnCiqKkyL/7Ohr1x9jodcSeCrZlLsDjebm
-x68IPtUsPZkd3sVfUEdirkoBuX7j0H0dbzUyoxYM/Zfooo79uDH/pXKhiBMWQmtK
-vixrFUwZdPO3i2hUtvG4K+8gMUNfH7Z0bLBRVV3P8yZ1Zae0IcBPilJUZifirOLr
-8BOxiI03pzrn1LbOG0HkB6RcsgnSaHWZmycLyWJmdcrm6TDzq8e/eCFs9ZhVl0Hx
-12OSitCoI2oX8GJnW2uCdruh/twfwXtZMOvJpaRHFApGQbnH+FRIfC9Bm3+Jrt/K
-z0baLeWx4fl+YDeKyHhtNcTR0o3hAT7yMiNDDU2duYiCbpH7/+Bp6Pun61WHsPSX
-aNmH0UwyPyRQNxrVHi3ytxSfJQ/Zi/dr9XI+ls2idGR5OnjpZhUR1QxNd84Rm529
-WTBKK/1ygE72ulUl5aX45FcyGEVLf6QMjDRBAJZebVXNVcEYQauMr/C/JjFUMQN1
-1Nitl/qlfEf4FITpEWE351oJF3RjrNgmSmpyEI0vNccDLOVl134=
-=/qTU
------END PGP SIGNATURE-----
-
---2oS5YaxWCcQjTEyO--
+> On Thu, Jun 06, 2019 at 05:12:01PM +0200, Vitor Soares wrote:
+> > This patch series add i3c support for STM LSM6DSO and LSM6DSR sensors.
+>=20
+> Why is the I2C list on CC? Is there something relevant I missed?
