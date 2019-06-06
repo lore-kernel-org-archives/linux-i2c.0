@@ -1,68 +1,220 @@
-From: Boris Brezillon <boris.brezillon@collabora.com>
-Subject: Re: [PATCH v2 2/3] i3c: add i3c_get_device_id helper
-Date: Thu, 6 Jun 2019 17:17:55 +0200
-Message-ID: <20190606171755.0feb8998@collabora.com>
-References: <cover.1559831663.git.vitor.soares@synopsys.com>
-        <eaa9eb66df6b4c9b577aec46fd440b99d763a5a2.1559831663.git.vitor.soares@synopsys.com>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH V4] drivers: i2c: tegra: fix checkpatch defects
+Date: Thu, 6 Jun 2019 18:34:24 +0300
+Message-ID: <eafab1bf-82bb-ecbb-e3b3-332c3db620c2@gmail.com>
+References: <1559806523-1352-1-git-send-email-bbiswas@nvidia.com>
+ <bbe8ef0e-fdef-613c-9758-6525b60e5992@gmail.com>
+ <e8c2f722-eeaa-7449-d4fb-6caf0466bcc8@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <eaa9eb66df6b4c9b577aec46fd440b99d763a5a2.1559831663.git.vitor.soares@synopsys.com>
+In-Reply-To: <e8c2f722-eeaa-7449-d4fb-6caf0466bcc8@nvidia.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vitor Soares <Vitor.Soares@synopsys.com>
-Cc: linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-i3c@lists.infradead.org, linux-kernel@vger.kernel.org, broonie@kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org, bbrezillon@kernel.org, Joao.Pinto@synopsys.com, lorenzo.bianconi83@gmail.com
+To: Bitan Biswas <bbiswas@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu,  6 Jun 2019 17:12:03 +0200
-Vitor Soares <Vitor.Soares@synopsys.com> wrote:
-
-> This helper return the i3c_device_id structure in order the client
-> have access to the driver data.
+06.06.2019 17:02, Bitan Biswas пишет:
 > 
-> Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
-> ---
-> Changes in v2:
->   move this function to drivers/i3c/device.c
 > 
->  drivers/i3c/device.c       | 8 ++++++++
->  include/linux/i3c/device.h | 1 +
->  2 files changed, 9 insertions(+)
-> 
-> diff --git a/drivers/i3c/device.c b/drivers/i3c/device.c
-> index 69cc040..a6d0796 100644
-> --- a/drivers/i3c/device.c
-> +++ b/drivers/i3c/device.c
-> @@ -200,6 +200,14 @@ struct i3c_device *dev_to_i3cdev(struct device *dev)
->  }
->  EXPORT_SYMBOL_GPL(dev_to_i3cdev);
->  
-> +const struct i3c_device_id *i3c_get_device_id(struct i3c_device *i3cdev)
-> +{
-> +	const struct i3c_driver *i3cdrv = drv_to_i3cdrv(i3cdev->dev.driver);
-> +
-> +	return i3cdrv->id_table;
-> +}
-> +EXPORT_SYMBOL_GPL(i3c_get_device_id);
+> On 6/6/19 4:39 AM, Dmitry Osipenko wrote:
+>> 06.06.2019 10:35, Bitan Biswas пишет:
+>>> Fix checkpatch.pl warning(s)/error(s)/check(s) in i2c-tegra.c
+>>>
+>>> Remove redundant BUG_ON calls or replace with WARN_ON_ONCE
+>>> as needed. Replace BUG() with error handling code.
+>>> Define I2C_ERR_UNEXPECTED_STATUS for error handling.
+>>>
+>>> Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
+>>> ---
+>>>   drivers/i2c/busses/i2c-tegra.c | 67
+>>> +++++++++++++++++++++++-------------------
+>>>   1 file changed, 37 insertions(+), 30 deletions(-)
+>>>
+>>> diff --git a/drivers/i2c/busses/i2c-tegra.c
+>>> b/drivers/i2c/busses/i2c-tegra.c
+>>> index 76b7926..55a5d87 100644
+>>> --- a/drivers/i2c/busses/i2c-tegra.c
+>>> +++ b/drivers/i2c/busses/i2c-tegra.c
+>>> @@ -78,6 +78,7 @@
+>>>   #define I2C_ERR_NO_ACK                0x01
+>>>   #define I2C_ERR_ARBITRATION_LOST        0x02
+>>>   #define I2C_ERR_UNKNOWN_INTERRUPT        0x04
+>>> +#define I2C_ERR_UNEXPECTED_STATUS               0x08
+>>>     #define PACKET_HEADER0_HEADER_SIZE_SHIFT    28
+>>>   #define PACKET_HEADER0_PACKET_ID_SHIFT        16
+>>> @@ -112,7 +113,7 @@
+>>>   #define I2C_CLKEN_OVERRIDE            0x090
+>>>   #define I2C_MST_CORE_CLKEN_OVR            BIT(0)
+>>>   -#define I2C_CONFIG_LOAD_TIMEOUT            1000000
+>>> +#define I2C_CONFIG_LOAD_TMOUT            1000000
+>>>     #define I2C_MST_FIFO_CONTROL            0x0b4
+>>>   #define I2C_MST_FIFO_CONTROL_RX_FLUSH        BIT(0)
+>>> @@ -280,6 +281,7 @@ struct tegra_i2c_dev {
+>>>       u32 bus_clk_rate;
+>>>       u16 clk_divisor_non_hs_mode;
+>>>       bool is_multimaster_mode;
+>>> +    /* xfer_lock: lock to serialize transfer submission and
+>>> processing */
+>>>       spinlock_t xfer_lock;
+>>>       struct dma_chan *tx_dma_chan;
+>>>       struct dma_chan *rx_dma_chan;
+>>> @@ -306,7 +308,7 @@ static u32 dvc_readl(struct tegra_i2c_dev
+>>> *i2c_dev, unsigned long reg)
+>>>    * to the I2C block inside the DVC block
+>>>    */
+>>>   static unsigned long tegra_i2c_reg_addr(struct tegra_i2c_dev *i2c_dev,
+>>> -    unsigned long reg)
+>>> +                    unsigned long reg)
+>>>   {
+>>>       if (i2c_dev->is_dvc)
+>>>           reg += (reg >= I2C_TX_FIFO) ? 0x10 : 0x40;
+>>> @@ -314,7 +316,7 @@ static unsigned long tegra_i2c_reg_addr(struct
+>>> tegra_i2c_dev *i2c_dev,
+>>>   }
+>>>     static void i2c_writel(struct tegra_i2c_dev *i2c_dev, u32 val,
+>>> -    unsigned long reg)
+>>> +               unsigned long reg)
+>>>   {
+>>>       writel(val, i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg));
+>>>   @@ -329,13 +331,13 @@ static u32 i2c_readl(struct tegra_i2c_dev
+>>> *i2c_dev, unsigned long reg)
+>>>   }
+>>>     static void i2c_writesl(struct tegra_i2c_dev *i2c_dev, void *data,
+>>> -    unsigned long reg, int len)
+>>> +            unsigned long reg, int len)
+>>>   {
+>>>       writesl(i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg), data,
+>>> len);
+>>>   }
+>>>     static void i2c_readsl(struct tegra_i2c_dev *i2c_dev, void *data,
+>>> -    unsigned long reg, int len)
+>>> +               unsigned long reg, int len)
+>>>   {
+>>>       readsl(i2c_dev->base + tegra_i2c_reg_addr(i2c_dev, reg), data,
+>>> len);
+>>>   }
+>>> @@ -486,7 +488,7 @@ static int tegra_i2c_flush_fifos(struct
+>>> tegra_i2c_dev *i2c_dev)
+>>>               dev_warn(i2c_dev->dev, "timeout waiting for fifo
+>>> flush\n");
+>>>               return -ETIMEDOUT;
+>>>           }
+>>> -        msleep(1);
+>>> +        usleep_range(1000, 2000);
+>>>       }
+>>>       return 0;
+>>>   }
+>>> @@ -525,7 +527,6 @@ static int tegra_i2c_empty_rx_fifo(struct
+>>> tegra_i2c_dev *i2c_dev)
+>>>        * prevent overwriting past the end of buf
+>>>        */
+>>>       if (rx_fifo_avail > 0 && buf_remaining > 0) {
+>>> -        BUG_ON(buf_remaining > 3);
+>>>           val = i2c_readl(i2c_dev, I2C_RX_FIFO);
+>>>           val = cpu_to_le32(val);
+>>>           memcpy(buf, &val, buf_remaining);
+>>> @@ -533,7 +534,6 @@ static int tegra_i2c_empty_rx_fifo(struct
+>>> tegra_i2c_dev *i2c_dev)
+>>>           rx_fifo_avail--;
+>>>       }
+>>>   -    BUG_ON(rx_fifo_avail > 0 && buf_remaining > 0);
+>>>       i2c_dev->msg_buf_remaining = buf_remaining;
+>>>       i2c_dev->msg_buf = buf;
+>>>   @@ -591,7 +591,6 @@ static int tegra_i2c_fill_tx_fifo(struct
+>>> tegra_i2c_dev *i2c_dev)
+>>>        * boundary and fault.
+>>>        */
+>>>       if (tx_fifo_avail > 0 && buf_remaining > 0) {
+>>> -        BUG_ON(buf_remaining > 3);
+>>>           memcpy(&val, buf, buf_remaining);
+>>>           val = le32_to_cpu(val);
+>>>   @@ -680,10 +679,11 @@ static int
+>>> tegra_i2c_wait_for_config_load(struct tegra_i2c_dev *i2c_dev)
+>>>           i2c_writel(i2c_dev, I2C_MSTR_CONFIG_LOAD, I2C_CONFIG_LOAD);
+>>>           if (in_interrupt())
+>>>               err = readl_poll_timeout_atomic(addr, val, val == 0,
+>>> -                    1000, I2C_CONFIG_LOAD_TIMEOUT);
+>>> +                            1000,
+>>> +                            I2C_CONFIG_LOAD_TMOUT);
+>>>           else
+>>> -            err = readl_poll_timeout(addr, val, val == 0,
+>>> -                    1000, I2C_CONFIG_LOAD_TIMEOUT);
+>>> +            err = readl_poll_timeout(addr, val, val == 0, 1000,
+>>> +                         I2C_CONFIG_LOAD_TMOUT);
+>>>             if (err) {
+>>>               dev_warn(i2c_dev->dev,
+>>> @@ -858,16 +858,21 @@ static irqreturn_t tegra_i2c_isr(int irq, void
+>>> *dev_id)
+>>>           if (i2c_dev->msg_read && (status &
+>>> I2C_INT_RX_FIFO_DATA_REQ)) {
+>>>               if (i2c_dev->msg_buf_remaining)
+>>>                   tegra_i2c_empty_rx_fifo(i2c_dev);
+>>> -            else
+>>> -                BUG();
+>>> +            else {
+>>> +                dev_err(i2c_dev->dev, "unexpected rx data request\n");
+>>> +                i2c_dev->msg_err |= I2C_ERR_UNEXPECTED_STATUS;
+>>> +                goto err;
+>>> +            }
+>>>           }
+>>>             if (!i2c_dev->msg_read && (status &
+>>> I2C_INT_TX_FIFO_DATA_REQ)) {
+>>> -            if (i2c_dev->msg_buf_remaining)
+>>> -                tegra_i2c_fill_tx_fifo(i2c_dev);
+>>> -            else
+>>> +            if (i2c_dev->msg_buf_remaining) {
+>>> +                if (tegra_i2c_fill_tx_fifo(i2c_dev))
+>>> +                    goto err;
+>>> +            } else {
+>>>                   tegra_i2c_mask_irq(i2c_dev,
+>>>                              I2C_INT_TX_FIFO_DATA_REQ);
+>>> +            }
+>>>           }
+>>>       }
+>>>   @@ -885,7 +890,7 @@ static irqreturn_t tegra_i2c_isr(int irq, void
+>>> *dev_id)
+>>>       if (status & I2C_INT_PACKET_XFER_COMPLETE) {
+>>>           if (i2c_dev->is_curr_dma_xfer)
+>>>               i2c_dev->msg_buf_remaining = 0;
+>>> -        BUG_ON(i2c_dev->msg_buf_remaining);
+>>> +        WARN_ON_ONCE(i2c_dev->msg_buf_remaining);
+>>>           complete(&i2c_dev->msg_complete);
+>>>       }
+>>>       goto done;
+>>> @@ -1024,7 +1029,7 @@ static int tegra_i2c_issue_bus_clear(struct
+>>> i2c_adapter *adap)
+>>>   }
+>>>     static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+>>> -    struct i2c_msg *msg, enum msg_end_type end_state)
+>>> +                  struct i2c_msg *msg, enum msg_end_type end_state)
+>>>   {
+>>>       u32 packet_header;
+>>>       u32 int_mask;
+>>> @@ -1034,7 +1039,7 @@ static int tegra_i2c_xfer_msg(struct
+>>> tegra_i2c_dev *i2c_dev,
+>>>       u32 *buffer = NULL;
+>>>       int err = 0;
+>>>       bool dma;
+>>> -    u16 xfer_time = 100;
+>>> +    u16 xfer_tm = 100;
+>>
+>> Why xfer_time is renamed? It is much more important to keep code
+>> readable rather than to satisfy checkpatch. You should *not* follow
+>> checkpatch recommendations where they do not make much sense. The
+>> xfer_tm is a less intuitive naming and hence it harms readability of the
+>> code. Hence it is better to have "lines over 80 chars" in this
+>> particular case.
+> Agreed. I shall share updated patch.
 
-That's not what I asked. I told you to expose i3c_device_match_id()
-which already exists and is in master.c. What you really want is to get
-the device_id entry that matches your device, not the first entry in
-the table...
+Yes, please.
 
-> +
->  /**
->   * i3c_driver_register_with_owner() - register an I3C device driver
->   *
-> diff --git a/include/linux/i3c/device.h b/include/linux/i3c/device.h
-> index 5ecb055..e0415e1 100644
-> --- a/include/linux/i3c/device.h
-> +++ b/include/linux/i3c/device.h
-> @@ -187,6 +187,7 @@ static inline struct i3c_driver *drv_to_i3cdrv(struct device_driver *drv)
->  
->  struct device *i3cdev_to_dev(struct i3c_device *i3cdev);
->  struct i3c_device *dev_to_i3cdev(struct device *dev);
-> +const struct i3c_device_id *i3c_get_device_id(struct i3c_device *i3cdev);
->  
->  static inline void i3cdev_set_drvdata(struct i3c_device *i3cdev,
->  				      void *data)
+>>
+>> Also, please don't skip review comments. I already pointed out the above
+>> in the answer to previous version of the patch.
+>>
+> I apologize for the oversight. I shall be more careful in future.
+
+No problems ;)
