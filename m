@@ -1,69 +1,201 @@
 From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v2 1/3] regmap: add i3c bus support
-Date: Fri, 7 Jun 2019 13:25:08 +0100
-Message-ID: <20190607122508.GG2456@sirena.org.uk>
-References: <cover.1559831663.git.vitor.soares@synopsys.com>
- <ff5e96bdd6b2789122afe1980bb20cfa22900760.1559831663.git.vitor.soares@synopsys.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="V+NFTlk1jviwRvZ9"
+Subject: Applied "regmap: add i3c bus support" to the regmap tree
+Date: Fri,  7 Jun 2019 13:27:17 +0100 (BST)
+Message-ID: <20190607122718.0C2F5440046@finisterre.sirena.org.uk>
+References: <ff5e96bdd6b2789122afe1980bb20cfa22900760.1559831663.git.vitor.soares@synopsys.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 In-Reply-To: <ff5e96bdd6b2789122afe1980bb20cfa22900760.1559831663.git.vitor.soares@synopsys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Vitor Soares <Vitor.Soares@synopsys.com>
-Cc: linux-iio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-i3c@lists.infradead.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org, bbrezillon@kernel.org, Joao.Pinto@synopsys.com, lorenzo.bianconi83@gmail.com
+Cc: bbrezillon@kernel.org, broonie@kernel.org, gregkh@linuxfoundation.org, Joao.Pinto@synopsys.com, linux-i2c@vger.kernel.org, linux-i3c@lists.infradead.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, lorenzo.bianconi83@gmail.comMark Brown <broonie@kernel.org>, rafael@kernel.org, Vitor Soares <vitor.soares@synopsys.com>
 List-Id: linux-i2c@vger.kernel.org
 
+The patch
 
---V+NFTlk1jviwRvZ9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+   regmap: add i3c bus support
 
-On Thu, Jun 06, 2019 at 05:12:02PM +0200, Vitor Soares wrote:
-> Add basic support for i3c bus.
-> This is a simple implementation that only give support
-> for SDR Read and Write commands.
+has been applied to the regmap tree at
 
-The following changes since commit a188339ca5a396acc588e5851ed7e19f66b0ebd9:
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git for-5.3
 
-  Linux 5.2-rc1 (2019-05-19 15:47:09 -0700)
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.  
 
-are available in the Git repository at:
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git tags/regmap-i3c
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
 
-for you to fetch changes up to 6445500b43129baac36c56d629cf1dd9e1104167:
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
 
-  regmap: add i3c bus support (2019-06-07 13:09:55 +0100)
+Thanks,
+Mark
 
-----------------------------------------------------------------
-regmap: Add I3C bus support
+>From 6445500b43129baac36c56d629cf1dd9e1104167 Mon Sep 17 00:00:00 2001
+From: Vitor Soares <Vitor.Soares@synopsys.com>
+Date: Thu, 6 Jun 2019 17:12:02 +0200
+Subject: [PATCH] regmap: add i3c bus support
 
-----------------------------------------------------------------
-Vitor Soares (1):
-      regmap: add i3c bus support
+Add basic support for i3c bus.
+This is a simple implementation that only give support
+for SDR Read and Write commands.
 
+Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+---
  drivers/base/regmap/Kconfig      |  6 +++-
  drivers/base/regmap/Makefile     |  1 +
- drivers/base/regmap/regmap-i3c.c | 60 ++++++++++++++++++++++++++++++++++++++++
- include/linux/regmap.h           | 20 ++++++++++++++
+ drivers/base/regmap/regmap-i3c.c | 60 ++++++++++++++++++++++++++++++++
+ include/linux/regmap.h           | 20 +++++++++++
  4 files changed, 86 insertions(+), 1 deletion(-)
  create mode 100644 drivers/base/regmap/regmap-i3c.c
 
---V+NFTlk1jviwRvZ9
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlz6V58ACgkQJNaLcl1U
-h9Bgrwf/RXFqk+t+LK0ZAHmeClzyFdvIjZIVL4GILktZ8eCNYn2qztVNFZFCen7N
-w6a1vXa3vIwsMEKzreQRjalsBa/8GwnKtnXfJNKME9CVnuK9W9QYxSEocYRvllWk
-ZqNj1fYGVsaGDxQ8KQAWZIP3bCF5z/aEZF3F2P+F29OuFVXuyER25r6IojVWO6mx
-6ZQySCocUFPeEWj0iin552BqmHTsOjfzUaBz9SIJAjfkxRY8vsROqKcSAfO4dqDV
-ZDLAqtE+b8mTsHPDjaEpJXN+rWZtwEahCgAUEBHLgYbAFPhnxwou+LhDv5zMZAYN
-iCswU76fTiqPiH3IkR1gE2AN+IExXA==
-=gpGF
------END PGP SIGNATURE-----
-
---V+NFTlk1jviwRvZ9--
+diff --git a/drivers/base/regmap/Kconfig b/drivers/base/regmap/Kconfig
+index 6ad5ef48b61e..c8bbf5322720 100644
+--- a/drivers/base/regmap/Kconfig
++++ b/drivers/base/regmap/Kconfig
+@@ -4,7 +4,7 @@
+ # subsystems should select the appropriate symbols.
+ 
+ config REGMAP
+-	default y if (REGMAP_I2C || REGMAP_SPI || REGMAP_SPMI || REGMAP_W1 || REGMAP_AC97 || REGMAP_MMIO || REGMAP_IRQ)
++	default y if (REGMAP_I2C || REGMAP_SPI || REGMAP_SPMI || REGMAP_W1 || REGMAP_AC97 || REGMAP_MMIO || REGMAP_IRQ || REGMAP_I3C)
+ 	select IRQ_DOMAIN if REGMAP_IRQ
+ 	bool
+ 
+@@ -49,3 +49,7 @@ config REGMAP_SOUNDWIRE
+ config REGMAP_SCCB
+ 	tristate
+ 	depends on I2C
++
++config REGMAP_I3C
++	tristate
++	depends on I3C
+diff --git a/drivers/base/regmap/Makefile b/drivers/base/regmap/Makefile
+index f5b4e8851d00..ff6c7d8ec1cd 100644
+--- a/drivers/base/regmap/Makefile
++++ b/drivers/base/regmap/Makefile
+@@ -16,3 +16,4 @@ obj-$(CONFIG_REGMAP_IRQ) += regmap-irq.o
+ obj-$(CONFIG_REGMAP_W1) += regmap-w1.o
+ obj-$(CONFIG_REGMAP_SOUNDWIRE) += regmap-sdw.o
+ obj-$(CONFIG_REGMAP_SCCB) += regmap-sccb.o
++obj-$(CONFIG_REGMAP_I3C) += regmap-i3c.o
+diff --git a/drivers/base/regmap/regmap-i3c.c b/drivers/base/regmap/regmap-i3c.c
+new file mode 100644
+index 000000000000..1578fb506683
+--- /dev/null
++++ b/drivers/base/regmap/regmap-i3c.c
+@@ -0,0 +1,60 @@
++// SPDX-License-Identifier: GPL-2.0
++// Copyright (c) 2018 Synopsys, Inc. and/or its affiliates.
++
++#include <linux/regmap.h>
++#include <linux/i3c/device.h>
++#include <linux/i3c/master.h>
++#include <linux/module.h>
++
++static int regmap_i3c_write(void *context, const void *data, size_t count)
++{
++	struct device *dev = context;
++	struct i3c_device *i3c = dev_to_i3cdev(dev);
++	struct i3c_priv_xfer xfers[] = {
++		{
++			.rnw = false,
++			.len = count,
++			.data.out = data,
++		},
++	};
++
++	return i3c_device_do_priv_xfers(i3c, xfers, 1);
++}
++
++static int regmap_i3c_read(void *context,
++			   const void *reg, size_t reg_size,
++			   void *val, size_t val_size)
++{
++	struct device *dev = context;
++	struct i3c_device *i3c = dev_to_i3cdev(dev);
++	struct i3c_priv_xfer xfers[2];
++
++	xfers[0].rnw = false;
++	xfers[0].len = reg_size;
++	xfers[0].data.out = reg;
++
++	xfers[1].rnw = true;
++	xfers[1].len = val_size;
++	xfers[1].data.in = val;
++
++	return i3c_device_do_priv_xfers(i3c, xfers, 2);
++}
++
++static struct regmap_bus regmap_i3c = {
++	.write = regmap_i3c_write,
++	.read = regmap_i3c_read,
++};
++
++struct regmap *__devm_regmap_init_i3c(struct i3c_device *i3c,
++				      const struct regmap_config *config,
++				      struct lock_class_key *lock_key,
++				      const char *lock_name)
++{
++	return __devm_regmap_init(&i3c->dev, &regmap_i3c, &i3c->dev, config,
++				  lock_key, lock_name);
++}
++EXPORT_SYMBOL_GPL(__devm_regmap_init_i3c);
++
++MODULE_AUTHOR("Vitor Soares <vitor.soares@synopsys.com>");
++MODULE_DESCRIPTION("Regmap I3C Module");
++MODULE_LICENSE("GPL v2");
+diff --git a/include/linux/regmap.h b/include/linux/regmap.h
+index daeec7dbd65c..f65984d98b07 100644
+--- a/include/linux/regmap.h
++++ b/include/linux/regmap.h
+@@ -25,6 +25,7 @@ struct module;
+ struct clk;
+ struct device;
+ struct i2c_client;
++struct i3c_device;
+ struct irq_domain;
+ struct slim_device;
+ struct spi_device;
+@@ -624,6 +625,10 @@ struct regmap *__devm_regmap_init_slimbus(struct slim_device *slimbus,
+ 				 const struct regmap_config *config,
+ 				 struct lock_class_key *lock_key,
+ 				 const char *lock_name);
++struct regmap *__devm_regmap_init_i3c(struct i3c_device *i3c,
++				 const struct regmap_config *config,
++				 struct lock_class_key *lock_key,
++				 const char *lock_name);
+ /*
+  * Wrapper for regmap_init macros to include a unique lockdep key and name
+  * for each call. No-op if CONFIG_LOCKDEP is not set.
+@@ -982,6 +987,21 @@ bool regmap_ac97_default_volatile(struct device *dev, unsigned int reg);
+ #define devm_regmap_init_slimbus(slimbus, config)			\
+ 	__regmap_lockdep_wrapper(__devm_regmap_init_slimbus, #config,	\
+ 				slimbus, config)
++
++/**
++ * devm_regmap_init_i3c() - Initialise managed register map
++ *
++ * @i3c: Device that will be interacted with
++ * @config: Configuration for register map
++ *
++ * The return value will be an ERR_PTR() on error or a valid pointer
++ * to a struct regmap.  The regmap will be automatically freed by the
++ * device management code.
++ */
++#define devm_regmap_init_i3c(i3c, config)				\
++	__regmap_lockdep_wrapper(__devm_regmap_init_i3c, #config,	\
++				i3c, config)
++
+ int regmap_mmio_attach_clk(struct regmap *map, struct clk *clk);
+ void regmap_mmio_detach_clk(struct regmap *map);
+ void regmap_exit(struct regmap *map);
+-- 
+2.20.1
