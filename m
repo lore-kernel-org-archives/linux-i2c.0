@@ -1,69 +1,62 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5] i2c: i801: Register optional lis3lv02d I2C device on
- Dell machines
-Date: Sat, 8 Jun 2019 00:15:58 +0200
-Message-ID: <20190607221558.GB869@kunai>
-References: <20190606181845.14091-1-pali.rohar@gmail.com>
+Subject: Re: [PATCH] hwmon: pmbus: protect read-modify-write with lock
+Date: Sat, 8 Jun 2019 00:32:18 +0200
+Message-ID: <20190607223217.GE869@kunai>
+References: <20190528090746.GA31184@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="A6N2fC+uXW/VQSAv"
+        protocol="application/pgp-signature"; boundary="HnQK338I3UIa/qiP"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190606181845.14091-1-pali.rohar@gmail.com>
+In-Reply-To: <20190528090746.GA31184@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Cc: Jean Delvare <jdelvare@suse.com>, =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>, Steven Honeyman <stevenhoneyman@gmail.com>, Valdis.Kletnieks@vt.edu, Jochen Eisinger <jochen@penguin-breeder.org>, Gabriele Mazzotta <gabriele.mzt@gmail.com>, Andy Lutomirski <luto@kernel.org>, Mario_Limonciello@dell.com, Alex Hung <alex.hung@canonical.com>, Takashi Iwai <tiwai@suse.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org
+To: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---A6N2fC+uXW/VQSAv
-Content-Type: text/plain; charset=utf-8
+--HnQK338I3UIa/qiP
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 06, 2019 at 08:18:45PM +0200, Pali Roh=C3=A1r wrote:
-> Dell platform team told us that some (DMI whitelisted) Dell Latitude
-> machines have ST microelectronics accelerometer at I2C address 0x29.
+On Tue, May 28, 2019 at 09:08:21AM +0000, Adamski, Krzysztof (Nokia - PL/Wr=
+oclaw) wrote:
+> The operation done in the pmbus_update_fan() function is a
+> read-modify-write operation but it lacks any kind of lock protection
+> which may cause problems if run more than once simultaneously. This
+> patch uses an existing update_lock mutex to fix this problem.
 >=20
-> Presence of that ST microelectronics accelerometer is verified by existen=
-ce
-> of SMO88xx ACPI device which represent that accelerometer. Unfortunately
-> ACPI device does not specify I2C address.
->=20
-> This patch registers lis3lv02d device for selected Dell Latitude machines
-> at I2C address 0x29 after detection. And for Dell Vostro V131 machine at
-> I2C address 0x1d which was manually detected.
->=20
-> Finally commit a7ae81952cda ("i2c: i801: Allow ACPI SystemIO OpRegion to
-> conflict with PCI BAR") allowed to use i2c-i801 driver on Dell machines so
-> lis3lv02d correctly initialize accelerometer.
->=20
-> Tested on Dell Latitude E6440.
->=20
-> Signed-off-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
->=20
+> Signed-off-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
 
-Applied to for-next, thanks for keeping at it!
+Please use get_maintainer to find the people responsible for this file.
+It is not my realm.
+
+> +out:
+> +	mutex_lock(&data->update_lock);
+
+Despite the above, have you tested the code? This likely should be
+mutex_unlock?
 
 
---A6N2fC+uXW/VQSAv
+--HnQK338I3UIa/qiP
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlz64h4ACgkQFA3kzBSg
-KbYD+g//aii1FojuiA4U0z0/JO99KdQT+W2HhcekFjKUQnnnsgLBw18QuP9AuaMC
-NG9HPCOP5o+7Q4kp85NEEKtbtLjNavO7vnfKydPbijv/ekNapQ+ZghA85ZEKmdX2
-b+D1vTQuHCcIueVJhJEnMCfWUo+MOKTyeXQL01piA8r8JvcQcbp3I9JWs4ul/ihN
-ggNnS3uJreXwMyM/Aulbhj3Ql9CVYZuhOswSI1BnMEtPdN9j/Y27yceWUF6lB7jw
-5QgBBmmFTvNTgQ2Rv7gZt+gr7jO+kYSkfMSXf0gMOzSFhjXsbHmSks7hNUuWVmkL
-L6VB9Lg1Iyl0Km1atYD2q7nA/8WCQuE/8AyidUQV+HxvEebypCdlj3y+baT33nbr
-VD16iosdzxGqNZpTalSzG/+QHvfrMQiem1tovZjhj/icW/o5khK53AGiLN1TFZVh
-S/o9R1SqiV5eLrShMZJp9RJSsVvoFOw3HG8mWjTZltYLwwfefmmITGJ8TDsjH3oV
-nyIQv2Ypo/6HCZGQ63x3TbK+OaQpdZJ1z3Rmbts6yKwJpE+nLPu6pZ0afFIYh39k
-ur0RZbSnvjAtHLNgQ1nU/84T+O+Fxn7K1qw/KpLZJaQkQM/qpxTsYPJNwk1F718/
-D30urkkl+PFQq68JZ3MU7wx3UxP+7V6wAd1B48Nvj9vFnPfif8E=
-=Ntf9
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlz65fEACgkQFA3kzBSg
+KbYJ0w//UZ891A5ERJxc0KfiTONdubv82Tq6XlgvMzF6NBLXovXj4QGY/Cai1j+u
+d4yIv6YReQoS4Zsd5hNKoQk2vTtI7TF2yCTWjffQWRvXyOppQ8vmoAOlxUsCV4lU
+UJAotgCnlwo4KZKjKEAYMv0X5cbwByWcswyz8W3ZAKEVfVePw3EiAj37EO2bfRXw
+QG66Y8jBPzphQU0BzxZxq5xlv+tYJnE804uXnOrqqxDaKA2jo8lyEO7iRPrTSOP0
+UvA19GIA5Tgw5wLLfHxRR+Ewday9+hcAr1pWhpqYKrZvJadXJgZ4wVVOql9RNkMe
+PEJe5aGxPCvgvc1nRe3lN49iGE/lKAOA6zA5RJPfmXf46S4lQGi+tDX46hWzxNh7
+SKM5Fkc+ieWs1Z1BidMlDmYvXwdeCALFcbMo6/HBdeXkOob4Y1j4PrOysCd936u3
+Kv8zSvw2z0qbd/2mdqjanFzIGABXPZAuS65cs8yci9P6pLdyu2siBIEDIKUf2HDm
+OI8TBwu6y1DwER2EW8l07njzo5CzvTWanYwBi2sh7pJsCxGKGaszFni82C+pNPOh
+pvdmoKp9RI+nWZ5fLDIiq7TQk5mPmVspw4zKlqB48MgVAUrH163NPWyoJSeGyBd5
+om4tv4lmJTWx5no5UPg1oj7U6hJojFoFpyg0tE48bfIFCUE+uLM=
+=6s6f
 -----END PGP SIGNATURE-----
 
---A6N2fC+uXW/VQSAv--
+--HnQK338I3UIa/qiP--
