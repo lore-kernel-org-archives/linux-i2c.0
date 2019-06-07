@@ -1,7 +1,7 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH v2 5/8] soc: qcom: geni: Add support for ACPI
-Date: Fri,  7 Jun 2019 09:28:58 +0100
-Message-ID: <20190607082901.6491-5-lee.jones@linaro.org>
+Subject: [PATCH v2 7/8] usb: dwc3: qcom: Start USB in 'host mode' on the SDM845
+Date: Fri,  7 Jun 2019 09:29:00 +0100
+Message-ID: <20190607082901.6491-7-lee.jones@linaro.org>
 References: <20190607082901.6491-1-lee.jones@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190607082901.6491-1-lee.jones@linaro.org>
@@ -10,69 +10,59 @@ To: alokc@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+ren
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, jlhugo@gmail.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-When booting with ACPI as the active set of configuration tables,
-all; clocks, regulators, pin functions ect are expected to be at
-their ideal values/levels/rates, thus the associated frameworks
-are unavailable.  Ensure calls to these APIs are shielded when
-ACPI is enabled.
+When booting with Device Tree, the current default boot configuration
+table option, the request to boot via 'host mode' comes from the
+'dr_mode' property.  A property of the same name can be used inside
+ACPI tables too.  However it is missing from the SDM845's ACPI tables
+so we have to supply this information using Platform Device Properties
+instead.
+
+This does not change the behaviour of any currently supported devices.
+The property is only set on ACPI enabled platforms, thus for H/W
+booting DT, unless a 'dr_mode' property is present, the default is
+still OTG (On-The-Go) as per [0].  Any new ACPI devices added will
+also be able to over-ride this implementation by providing a 'dr_mode'
+property in their ACPI tables.  In cases where 'dr_mode' is omitted
+from the tables AND 'host mode' should not be the default (very
+unlikely), then we will have to add some way of choosing between them
+at run time - most likely by ACPI HID.
+
+[0] Documentation/devicetree/bindings/usb/generic.txt
 
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/soc/qcom/qcom-geni-se.c | 21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ drivers/usb/dwc3/dwc3-qcom.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
-index 6b8ef01472e9..cff0a413e59a 100644
---- a/drivers/soc/qcom/qcom-geni-se.c
-+++ b/drivers/soc/qcom/qcom-geni-se.c
-@@ -1,6 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- // Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
+diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
+index 1e1f12b7991d..55ba04254e38 100644
+--- a/drivers/usb/dwc3/dwc3-qcom.c
++++ b/drivers/usb/dwc3/dwc3-qcom.c
+@@ -444,6 +444,11 @@ static int dwc3_qcom_clk_init(struct dwc3_qcom *qcom, int count)
+ 	return 0;
+ }
  
-+#include <linux/acpi.h>
- #include <linux/clk.h>
- #include <linux/slab.h>
- #include <linux/dma-mapping.h>
-@@ -450,6 +451,9 @@ int geni_se_resources_off(struct geni_se *se)
- {
- 	int ret;
- 
-+	if (ACPI_HANDLE(se->dev))
-+		return 0;
++static const struct property_entry dwc3_qcom_acpi_properties[] = {
++	PROPERTY_ENTRY_STRING("dr_mode", "host"),
++	{}
++};
 +
- 	ret = pinctrl_pm_select_sleep_state(se->dev);
- 	if (ret)
- 		return ret;
-@@ -487,6 +491,9 @@ int geni_se_resources_on(struct geni_se *se)
+ static int dwc3_qcom_acpi_register_core(struct platform_device *pdev)
  {
- 	int ret;
- 
-+	if (ACPI_HANDLE(se->dev))
-+		return 0;
-+
- 	ret = geni_se_clks_on(se);
- 	if (ret)
- 		return ret;
-@@ -724,12 +731,14 @@ static int geni_se_probe(struct platform_device *pdev)
- 	if (IS_ERR(wrapper->base))
- 		return PTR_ERR(wrapper->base);
- 
--	wrapper->ahb_clks[0].id = "m-ahb";
--	wrapper->ahb_clks[1].id = "s-ahb";
--	ret = devm_clk_bulk_get(dev, NUM_AHB_CLKS, wrapper->ahb_clks);
--	if (ret) {
--		dev_err(dev, "Err getting AHB clks %d\n", ret);
--		return ret;
-+	if (!ACPI_HANDLE(&pdev->dev)) {
-+		wrapper->ahb_clks[0].id = "m-ahb";
-+		wrapper->ahb_clks[1].id = "s-ahb";
-+		ret = devm_clk_bulk_get(dev, NUM_AHB_CLKS, wrapper->ahb_clks);
-+		if (ret) {
-+			dev_err(dev, "Err getting AHB clks %d\n", ret);
-+			return ret;
-+		}
+ 	struct dwc3_qcom 	*qcom = platform_get_drvdata(pdev);
+@@ -488,6 +493,13 @@ static int dwc3_qcom_acpi_register_core(struct platform_device *pdev)
+ 		goto out;
  	}
  
- 	dev_set_drvdata(dev, wrapper);
++	ret = platform_device_add_properties(qcom->dwc3,
++					     dwc3_qcom_acpi_properties);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "failed to add properties\n");
++		goto out;
++	}
++
+ 	ret = platform_device_add(qcom->dwc3);
+ 	if (ret)
+ 		dev_err(&pdev->dev, "failed to add device\n");
 -- 
 2.17.1
