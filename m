@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 13/34] misc: isl29003: simplify getting the adapter of a client
-Date: Sat,  8 Jun 2019 12:55:52 +0200
-Message-ID: <20190608105619.593-14-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 14/34] misc: tsl2550: simplify getting the adapter of a client
+Date: Sat,  8 Jun 2019 12:55:53 +0200
+Message-ID: <20190608105619.593-15-wsa+renesas@sang-engineering.com>
 References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -20,21 +20,21 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Please apply to your subsystem tree.
 
- drivers/misc/isl29003.c | 2 +-
+ drivers/misc/tsl2550.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/isl29003.c b/drivers/misc/isl29003.c
-index 3431a825f24e..5d0d0c3bad85 100644
---- a/drivers/misc/isl29003.c
-+++ b/drivers/misc/isl29003.c
-@@ -377,7 +377,7 @@ static int isl29003_init_client(struct i2c_client *client)
- static int isl29003_probe(struct i2c_client *client,
- 				    const struct i2c_device_id *id)
+diff --git a/drivers/misc/tsl2550.c b/drivers/misc/tsl2550.c
+index 5b7afd6190fe..09db397df287 100644
+--- a/drivers/misc/tsl2550.c
++++ b/drivers/misc/tsl2550.c
+@@ -336,7 +336,7 @@ static struct i2c_driver tsl2550_driver;
+ static int tsl2550_probe(struct i2c_client *client,
+ 				   const struct i2c_device_id *id)
  {
 -	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
 +	struct i2c_adapter *adapter = client->adapter;
- 	struct isl29003_data *data;
- 	int err = 0;
+ 	struct tsl2550_data *data;
+ 	int *opmode, err = 0;
  
 -- 
 2.19.1
