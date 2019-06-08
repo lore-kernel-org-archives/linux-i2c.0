@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 09/20] i2c: dev: fix potential memory leak in i2cdev_ioctl_rdwr
-Date: Sat,  8 Jun 2019 07:47:45 -0400
-Message-ID: <20190608114756.9742-9-sashal@kernel.org>
-References: <20190608114756.9742-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 17/31] i2c: dev: fix potential memory leak in i2cdev_ioctl_rdwr
+Date: Sat,  8 Jun 2019 07:46:28 -0400
+Message-ID: <20190608114646.9415-17-sashal@kernel.org>
+References: <20190608114646.9415-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190608114756.9742-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190608114646.9415-1-sashal@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Yingjoe Chen <yingjoe.chen@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
