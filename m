@@ -1,297 +1,309 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH 02/10] mfd / platform: cros_ec: Move
- cros-ec core driver out from MFD
-Date: Sat, 8 Jun 2019 13:02:59 +0100
-Message-ID: <20190608130259.338a13a7@archlinux>
-References: <20190604152019.16100-1-enric.balletbo@collabora.com>
- <20190604152019.16100-3-enric.balletbo@collabora.com>
+From: Annaliese McDermond <nh6z@nh6z.net>
+Subject: [PATCH v4] i2c: bcm2835: Model Divider in CCF
+Date: Sat,  8 Jun 2019 10:14:43 -0700
+Message-ID: <20190608171443.14484-1-nh6z@nh6z.net>
+References: <20190529042912.12956-1-nh6z@nh6z.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <20190604152019.16100-3-enric.balletbo@collabora.com>
-List-Unsubscribe: <https://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <https://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: "Alsa-devel" <alsa-devel-bounces@alsa-project.org>
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: gwendal@chromium.org, Banajit Goswami <bgoswami@codeaurora.org>, Vignesh R <vigneshr@ti.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.org, Mark Brown <broonie@kernel.org>, Juergen Fitschen <jfi@ssv-embedded.de>, alsa-devel@alsa-project.org, Stefan Agner <stefan@agner.ch>, Sebastian Reichel <sre@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Karthikeyan Ramasubramanian <kramasub@codeaurora.org>, linux-i2c@vger.kernel.org, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>, Guenter Roeck <groeck@chromium.org>, kernel@collabora.com, dtor@chromium.org, Lars-Peter Clausen <lars@metafoo.de>, Jean Delvare <jdelvare@suse.de>, Jacky Bai <ping.bai@nxp.com>, linux-rtc@vger.kernel.org, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Sean
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190529042912.12956-1-nh6z@nh6z.net>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: eric@anholt.net, stefan.wahren@i2se.com, f.fainelli@gmail.com, wsa@the-dreams.de, swarren@wwwdotorg.org, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
+Cc: team@nwdigitalradio.com, Annaliese McDermond <nh6z@nh6z.net>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue,  4 Jun 2019 17:20:11 +0200
-Enric Balletbo i Serra <enric.balletbo@collabora.com> wrote:
+Model the I2C bus clock divider as a part of the Core Clock Framework.
+Primarily this removes the clk_get_rate() call from each transfer.
+This call causes problems for slave drivers that themselves have
+internal clock components that are controlled by an I2C interface.
+When the slave's internal clock component is prepared, the prepare
+lock is obtained, and it makes calls to the I2C subsystem to
+command the hardware to activate the clock.  In order to perform
+the I2C transfer, this driver sets the divider, which requires
+it to get the parent clock rate, which it does with clk_get_rate().
+Unfortunately, this function will try to take the clock prepare
+lock, which is already held by the slave's internal clock calls
+creating a deadlock.
 
-> Now, the ChromeOS EC core driver has nothing related to an MFD device, so
-> move that driver from the MFD subsystem to the platform/chrome subsystem.
-> 
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com> #for the IIO parts.
-> ---
-> 
->  drivers/extcon/Kconfig                     |  2 +-
->  drivers/hid/Kconfig                        |  2 +-
->  drivers/i2c/busses/Kconfig                 |  2 +-
->  drivers/iio/common/cros_ec_sensors/Kconfig |  2 +-
->  drivers/input/keyboard/Kconfig             |  2 +-
->  drivers/media/platform/Kconfig             |  3 +--
->  drivers/mfd/Kconfig                        | 14 +-------------
->  drivers/mfd/Makefile                       |  2 --
->  drivers/platform/chrome/Kconfig            | 21 +++++++++++++++++----
->  drivers/platform/chrome/Makefile           |  1 +
->  drivers/{mfd => platform/chrome}/cros_ec.c |  0
->  drivers/power/supply/Kconfig               |  2 +-
->  drivers/pwm/Kconfig                        |  2 +-
->  drivers/rtc/Kconfig                        |  2 +-
->  sound/soc/qcom/Kconfig                     |  2 +-
->  15 files changed, 29 insertions(+), 30 deletions(-)
->  rename drivers/{mfd => platform/chrome}/cros_ec.c (100%)
-> 
-> diff --git a/drivers/extcon/Kconfig b/drivers/extcon/Kconfig
-> index 6f5af4196b8d..0ebc599c5e51 100644
-> --- a/drivers/extcon/Kconfig
-> +++ b/drivers/extcon/Kconfig
-> @@ -169,7 +169,7 @@ config EXTCON_USB_GPIO
->  
->  config EXTCON_USBC_CROS_EC
->  	tristate "ChromeOS Embedded Controller EXTCON support"
-> -	depends on MFD_CROS_EC
-> +	depends on CROS_EC
->  	help
->  	  Say Y here to enable USB Type C cable detection extcon support when
->  	  using Chrome OS EC based USB Type-C ports.
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 3872e03d9a59..a958b9625bba 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -376,7 +376,7 @@ config HOLTEK_FF
->  
->  config HID_GOOGLE_HAMMER
->  	tristate "Google Hammer Keyboard"
-> -	depends on USB_HID && LEDS_CLASS && MFD_CROS_EC
-> +	depends on USB_HID && LEDS_CLASS && CROS_EC
->  	---help---
->  	Say Y here if you have a Google Hammer device.
->  
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index ee5dfb5aee2a..42a224d08ec7 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -1336,7 +1336,7 @@ config I2C_SIBYTE
->  
->  config I2C_CROS_EC_TUNNEL
->  	tristate "ChromeOS EC tunnel I2C bus"
-> -	depends on MFD_CROS_EC
-> +	depends on CROS_EC
->  	help
->  	  If you say yes here you get an I2C bus that will tunnel i2c commands
->  	  through to the other side of the ChromeOS EC to the i2c bus
-> diff --git a/drivers/iio/common/cros_ec_sensors/Kconfig b/drivers/iio/common/cros_ec_sensors/Kconfig
-> index f9bf7ff7fcaf..55999104cd44 100644
-> --- a/drivers/iio/common/cros_ec_sensors/Kconfig
-> +++ b/drivers/iio/common/cros_ec_sensors/Kconfig
-> @@ -4,7 +4,7 @@
->  #
->  config IIO_CROS_EC_SENSORS_CORE
->  	tristate "ChromeOS EC Sensors Core"
-> -	depends on SYSFS && MFD_CROS_EC
-> +	depends on SYSFS && CROS_EC
->  	select IIO_BUFFER
->  	select IIO_TRIGGERED_BUFFER
->  	help
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index 7c4f19dab34f..64555cc8d83e 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -729,7 +729,7 @@ config KEYBOARD_W90P910
->  config KEYBOARD_CROS_EC
->  	tristate "ChromeOS EC keyboard"
->  	select INPUT_MATRIXKMAP
-> -	depends on MFD_CROS_EC
-> +	depends on CROS_EC
->  	help
->  	  Say Y here to enable the matrix keyboard used by ChromeOS devices
->  	  and implemented on the ChromeOS EC. You must enable one bus option
-> diff --git a/drivers/media/platform/Kconfig b/drivers/media/platform/Kconfig
-> index f2b5f27ebacb..adec7a0bfe1e 100644
-> --- a/drivers/media/platform/Kconfig
-> +++ b/drivers/media/platform/Kconfig
-> @@ -558,10 +558,9 @@ if CEC_PLATFORM_DRIVERS
->  
->  config VIDEO_CROS_EC_CEC
->  	tristate "ChromeOS EC CEC driver"
-> -	depends on MFD_CROS_EC
-> +	depends on CROS_EC
->  	select CEC_CORE
->  	select CEC_NOTIFIER
-> -	select CHROME_PLATFORMS
->  	select CROS_EC_PROTO
->  	help
->  	  If you say yes here you will get support for the
-> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index a17d275bf1d4..ad0a5de74ef2 100644
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
-> @@ -211,21 +211,9 @@ config MFD_AXP20X_RSB
->  	  components like regulators or the PEK (Power Enable Key) under the
->  	  corresponding menus.
->  
-> -config MFD_CROS_EC
-> -	tristate "ChromeOS Embedded Controller"
-> -	select MFD_CORE
-> -	select CHROME_PLATFORMS
-> -	select CROS_EC_PROTO
-> -	depends on X86 || ARM || ARM64 || COMPILE_TEST
-> -	help
-> -	  If you say Y here you get support for the ChromeOS Embedded
-> -	  Controller (EC) providing keyboard, battery and power services.
-> -	  You also need to enable the driver for the bus you are using. The
-> -	  protocol for talking to the EC is defined by the bus driver.
-> -
->  config MFD_CROS_EC_CHARDEV
->  	tristate "Chrome OS Embedded Controller userspace device interface"
-> -	depends on MFD_CROS_EC
-> +	depends on CROS_EC
->  	---help---
->  	  This driver adds support to talk with the ChromeOS EC from userspace.
->  
-> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-> index 52b1a90ff515..32327dc6bb45 100644
-> --- a/drivers/mfd/Makefile
-> +++ b/drivers/mfd/Makefile
-> @@ -13,8 +13,6 @@ obj-$(CONFIG_MFD_ASIC3)		+= asic3.o tmio_core.o
->  obj-$(CONFIG_ARCH_BCM2835)	+= bcm2835-pm.o
->  obj-$(CONFIG_MFD_BCM590XX)	+= bcm590xx.o
->  obj-$(CONFIG_MFD_BD9571MWV)	+= bd9571mwv.o
-> -cros_ec_core-objs		:= cros_ec.o
-> -obj-$(CONFIG_MFD_CROS_EC)	+= cros_ec_core.o
->  obj-$(CONFIG_MFD_CROS_EC_CHARDEV) += cros_ec_dev.o
->  obj-$(CONFIG_MFD_EXYNOS_LPASS)	+= exynos-lpass.o
->  
-> diff --git a/drivers/platform/chrome/Kconfig b/drivers/platform/chrome/Kconfig
-> index 35bb5a2663f0..9417b982ad92 100644
-> --- a/drivers/platform/chrome/Kconfig
-> +++ b/drivers/platform/chrome/Kconfig
-> @@ -50,9 +50,22 @@ config CHROMEOS_TBMC
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called chromeos_tbmc.
->  
-> +config CROS_EC
-> +	tristate "ChromeOS Embedded Controller"
-> +	select CROS_EC_PROTO
-> +	depends on X86 || ARM || ARM64 || COMPILE_TEST
-> +	help
-> +	  If you say Y here you get support for the ChromeOS Embedded
-> +	  Controller (EC) providing keyboard, battery and power services.
-> +	  You also need to enable the driver for the bus you are using. The
-> +	  protocol for talking to the EC is defined by the bus driver.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called cros_ec.
-> +
->  config CROS_EC_I2C
->  	tristate "ChromeOS Embedded Controller (I2C)"
-> -	depends on MFD_CROS_EC && I2C
-> +	depends on CROS_EC && I2C
->  
->  	help
->  	  If you say Y here, you get support for talking to the ChromeOS
-> @@ -62,7 +75,7 @@ config CROS_EC_I2C
->  
->  config CROS_EC_RPMSG
->  	tristate "ChromeOS Embedded Controller (rpmsg)"
-> -	depends on MFD_CROS_EC && RPMSG && OF
-> +	depends on CROS_EC && RPMSG && OF
->  	help
->  	  If you say Y here, you get support for talking to the ChromeOS EC
->  	  through rpmsg. This uses a simple byte-level protocol with a
-> @@ -87,7 +100,7 @@ config CROS_EC_ISHTP
->  
->  config CROS_EC_SPI
->  	tristate "ChromeOS Embedded Controller (SPI)"
-> -	depends on MFD_CROS_EC && SPI
-> +	depends on CROS_EC && SPI
->  
->  	---help---
->  	  If you say Y here, you get support for talking to the ChromeOS EC
-> @@ -97,7 +110,7 @@ config CROS_EC_SPI
->  
->  config CROS_EC_LPC
->          tristate "ChromeOS Embedded Controller (LPC)"
-> -        depends on MFD_CROS_EC && ACPI && (X86 || COMPILE_TEST)
-> +        depends on CROS_EC && ACPI && (X86 || COMPILE_TEST)
->          help
->            If you say Y here, you get support for talking to the ChromeOS EC
->            over an LPC bus. This uses a simple byte-level protocol with a
-> diff --git a/drivers/platform/chrome/Makefile b/drivers/platform/chrome/Makefile
-> index c5583c48d1e5..ebb57e21923b 100644
-> --- a/drivers/platform/chrome/Makefile
-> +++ b/drivers/platform/chrome/Makefile
-> @@ -6,6 +6,7 @@ CFLAGS_cros_ec_trace.o:=		-I$(src)
->  obj-$(CONFIG_CHROMEOS_LAPTOP)		+= chromeos_laptop.o
->  obj-$(CONFIG_CHROMEOS_PSTORE)		+= chromeos_pstore.o
->  obj-$(CONFIG_CHROMEOS_TBMC)		+= chromeos_tbmc.o
-> +obj-$(CONFIG_CROS_EC)			+= cros_ec.o
->  obj-$(CONFIG_CROS_EC_I2C)		+= cros_ec_i2c.o
->  obj-$(CONFIG_CROS_EC_ISHTP)		+= cros_ec_ishtp.o
->  obj-$(CONFIG_CROS_EC_RPMSG)		+= cros_ec_rpmsg.o
-> diff --git a/drivers/mfd/cros_ec.c b/drivers/platform/chrome/cros_ec.c
-> similarity index 100%
-> rename from drivers/mfd/cros_ec.c
-> rename to drivers/platform/chrome/cros_ec.c
-> diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
-> index dd7da41f230c..e05140771845 100644
-> --- a/drivers/power/supply/Kconfig
-> +++ b/drivers/power/supply/Kconfig
-> @@ -656,7 +656,7 @@ config CHARGER_RT9455
->  
->  config CHARGER_CROS_USBPD
->  	tristate "ChromeOS EC based USBPD charger"
-> -	depends on MFD_CROS_EC
-> +	depends on CROS_EC
->  	default n
->  	help
->  	  Say Y here to enable ChromeOS EC based USBPD charger
-> diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
-> index dff5a93f7daa..99946e1bcc73 100644
-> --- a/drivers/pwm/Kconfig
-> +++ b/drivers/pwm/Kconfig
-> @@ -145,7 +145,7 @@ config PWM_CRC
->  
->  config PWM_CROS_EC
->  	tristate "ChromeOS EC PWM driver"
-> -	depends on MFD_CROS_EC
-> +	depends on CROS_EC
->  	help
->  	  PWM driver for exposing a PWM attached to the ChromeOS Embedded
->  	  Controller.
-> diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-> index 5c0790eed656..4eb311569fc4 100644
-> --- a/drivers/rtc/Kconfig
-> +++ b/drivers/rtc/Kconfig
-> @@ -1265,7 +1265,7 @@ config RTC_DRV_ZYNQMP
->  
->  config RTC_DRV_CROS_EC
->  	tristate "Chrome OS EC RTC driver"
-> -	depends on MFD_CROS_EC
-> +	depends on CROS_EC
->  	help
->  	  If you say yes here you will get support for the
->  	  Chrome OS Embedded Controller's RTC.
-> diff --git a/sound/soc/qcom/Kconfig b/sound/soc/qcom/Kconfig
-> index 8e3e86619b35..60086858e920 100644
-> --- a/sound/soc/qcom/Kconfig
-> +++ b/sound/soc/qcom/Kconfig
-> @@ -99,7 +99,7 @@ config SND_SOC_MSM8996
->  
->  config SND_SOC_SDM845
->  	tristate "SoC Machine driver for SDM845 boards"
-> -	depends on QCOM_APR && MFD_CROS_EC && I2C
-> +	depends on QCOM_APR && CROS_EC && I2C
->  	select SND_SOC_QDSP6
->  	select SND_SOC_QCOM_COMMON
->  	select SND_SOC_RT5663
+Modeling the divider in the CCF natively removes this dependency
+and the divider value is only set upon changing the bus clock
+frequency or changes in the parent clock that cascade down to this
+divisor.  This obviates the need to set the divider with every
+transfer and avoids the deadlock described above.  It also should
+provide better clock debugging and save a few cycles on each
+transfer due to not having to recalcuate the divider value.
+
+Signed-off-by: Annaliese McDermond <nh6z@nh6z.net>
+Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
+Reviewed-by: Eric Anholt <eric@anholt.net>
+---
+Changes in v4:
+ - Removed unneccessary devm_clk_unregister() call
+
+Changes in v3:
+ - Changed name of clock to include the i2c device name to make
+   for easier debugging when using /sys/kernel/debug/clk/clk_summary
+
+Changes in v2:
+ - Remove empty whitespace between declarations
+ - Preserve comment regarding register rounding
+ - Consolodate declarations and initial assignments
+ - Return proper error pointer from bcm2835_i2c_register_div()
+ - Properly handle return value from bcm2835_i2c_register_div()
+   in bcm2835_i2c_probe()
+ - Refactor divider calulation code into separate function
+ - Use clk_set_rate_exclusive() to ensure the clock is not
+   modified by other consumers
+ - Deregister clock in bcm2835_i2c_remove() to properly clean up
+   after ourselves
+
+ drivers/i2c/busses/i2c-bcm2835.c | 145 ++++++++++++++++++++++++-------
+ 1 file changed, 114 insertions(+), 31 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index d2fbb4bb4a43..5b556274cdb6 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -4,6 +4,8 @@
+  */
+ 
+ #include <linux/clk.h>
++#include <linux/clkdev.h>
++#include <linux/clk-provider.h>
+ #include <linux/completion.h>
+ #include <linux/err.h>
+ #include <linux/i2c.h>
+@@ -51,9 +53,7 @@
+ struct bcm2835_i2c_dev {
+ 	struct device *dev;
+ 	void __iomem *regs;
+-	struct clk *clk;
+ 	int irq;
+-	u32 bus_clk_rate;
+ 	struct i2c_adapter adapter;
+ 	struct completion completion;
+ 	struct i2c_msg *curr_msg;
+@@ -74,12 +74,17 @@ static inline u32 bcm2835_i2c_readl(struct bcm2835_i2c_dev *i2c_dev, u32 reg)
+ 	return readl(i2c_dev->regs + reg);
+ }
+ 
+-static int bcm2835_i2c_set_divider(struct bcm2835_i2c_dev *i2c_dev)
++#define to_clk_bcm2835_i2c(_hw) container_of(_hw, struct clk_bcm2835_i2c, hw)
++struct clk_bcm2835_i2c {
++	struct clk_hw hw;
++	struct bcm2835_i2c_dev *i2c_dev;
++};
++
++static int clk_bcm2835_i2c_calc_divider(unsigned long rate,
++				unsigned long parent_rate)
+ {
+-	u32 divider, redl, fedl;
++	u32 divider = DIV_ROUND_UP(parent_rate, rate);
+ 
+-	divider = DIV_ROUND_UP(clk_get_rate(i2c_dev->clk),
+-			       i2c_dev->bus_clk_rate);
+ 	/*
+ 	 * Per the datasheet, the register is always interpreted as an even
+ 	 * number, by rounding down. In other words, the LSB is ignored. So,
+@@ -88,12 +93,23 @@ static int bcm2835_i2c_set_divider(struct bcm2835_i2c_dev *i2c_dev)
+ 	if (divider & 1)
+ 		divider++;
+ 	if ((divider < BCM2835_I2C_CDIV_MIN) ||
+-	    (divider > BCM2835_I2C_CDIV_MAX)) {
+-		dev_err_ratelimited(i2c_dev->dev, "Invalid clock-frequency\n");
++	    (divider > BCM2835_I2C_CDIV_MAX))
+ 		return -EINVAL;
+-	}
+ 
+-	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DIV, divider);
++	return divider;
++}
++
++static int clk_bcm2835_i2c_set_rate(struct clk_hw *hw, unsigned long rate,
++				unsigned long parent_rate)
++{
++	struct clk_bcm2835_i2c *div = to_clk_bcm2835_i2c(hw);
++	u32 redl, fedl;
++	u32 divider = clk_bcm2835_i2c_calc_divider(rate, parent_rate);
++
++	if (divider == -EINVAL)
++		return -EINVAL;
++
++	bcm2835_i2c_writel(div->i2c_dev, BCM2835_I2C_DIV, divider);
+ 
+ 	/*
+ 	 * Number of core clocks to wait after falling edge before
+@@ -108,12 +124,62 @@ static int bcm2835_i2c_set_divider(struct bcm2835_i2c_dev *i2c_dev)
+ 	 */
+ 	redl = max(divider / 4, 1u);
+ 
+-	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DEL,
++	bcm2835_i2c_writel(div->i2c_dev, BCM2835_I2C_DEL,
+ 			   (fedl << BCM2835_I2C_FEDL_SHIFT) |
+ 			   (redl << BCM2835_I2C_REDL_SHIFT));
+ 	return 0;
+ }
+ 
++static long clk_bcm2835_i2c_round_rate(struct clk_hw *hw, unsigned long rate,
++				unsigned long *parent_rate)
++{
++	u32 divider = clk_bcm2835_i2c_calc_divider(rate, *parent_rate);
++
++	return DIV_ROUND_UP(*parent_rate, divider);
++}
++
++static unsigned long clk_bcm2835_i2c_recalc_rate(struct clk_hw *hw,
++						unsigned long parent_rate)
++{
++	struct clk_bcm2835_i2c *div = to_clk_bcm2835_i2c(hw);
++	u32 divider = bcm2835_i2c_readl(div->i2c_dev, BCM2835_I2C_DIV);
++
++	return DIV_ROUND_UP(parent_rate, divider);
++}
++
++static const struct clk_ops clk_bcm2835_i2c_ops = {
++	.set_rate = clk_bcm2835_i2c_set_rate,
++	.round_rate = clk_bcm2835_i2c_round_rate,
++	.recalc_rate = clk_bcm2835_i2c_recalc_rate,
++};
++
++static struct clk *bcm2835_i2c_register_div(struct device *dev,
++					const char *mclk_name,
++					struct bcm2835_i2c_dev *i2c_dev)
++{
++	struct clk_init_data init;
++	struct clk_bcm2835_i2c *priv;
++	char name[32];
++
++	snprintf(name, sizeof(name), "%s_div", dev_name(dev));
++
++	init.ops = &clk_bcm2835_i2c_ops;
++	init.name = name;
++	init.parent_names = (const char* []) { mclk_name };
++	init.num_parents = 1;
++	init.flags = 0;
++
++	priv = devm_kzalloc(dev, sizeof(struct clk_bcm2835_i2c), GFP_KERNEL);
++	if (priv == NULL)
++		return ERR_PTR(-ENOMEM);
++
++	priv->hw.init = &init;
++	priv->i2c_dev = i2c_dev;
++
++	clk_hw_register_clkdev(&priv->hw, "div", dev_name(dev));
++	return devm_clk_register(dev, &priv->hw);
++}
++
+ static void bcm2835_fill_txfifo(struct bcm2835_i2c_dev *i2c_dev)
+ {
+ 	u32 val;
+@@ -271,7 +337,7 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+ {
+ 	struct bcm2835_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
+ 	unsigned long time_left;
+-	int i, ret;
++	int i;
+ 
+ 	for (i = 0; i < (num - 1); i++)
+ 		if (msgs[i].flags & I2C_M_RD) {
+@@ -280,10 +346,6 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+ 			return -EOPNOTSUPP;
+ 		}
+ 
+-	ret = bcm2835_i2c_set_divider(i2c_dev);
+-	if (ret)
+-		return ret;
+-
+ 	i2c_dev->curr_msg = msgs;
+ 	i2c_dev->num_msgs = num;
+ 	reinit_completion(&i2c_dev->completion);
+@@ -338,6 +400,9 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 	struct resource *mem, *irq;
+ 	int ret;
+ 	struct i2c_adapter *adap;
++	const char *mclk_name;
++	struct clk *bus_clk;
++	u32 bus_clk_rate;
+ 
+ 	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
+ 	if (!i2c_dev)
+@@ -351,21 +416,6 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 	if (IS_ERR(i2c_dev->regs))
+ 		return PTR_ERR(i2c_dev->regs);
+ 
+-	i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (IS_ERR(i2c_dev->clk)) {
+-		if (PTR_ERR(i2c_dev->clk) != -EPROBE_DEFER)
+-			dev_err(&pdev->dev, "Could not get clock\n");
+-		return PTR_ERR(i2c_dev->clk);
+-	}
+-
+-	ret = of_property_read_u32(pdev->dev.of_node, "clock-frequency",
+-				   &i2c_dev->bus_clk_rate);
+-	if (ret < 0) {
+-		dev_warn(&pdev->dev,
+-			 "Could not read clock-frequency property\n");
+-		i2c_dev->bus_clk_rate = 100000;
+-	}
+-
+ 	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+ 	if (!irq) {
+ 		dev_err(&pdev->dev, "No IRQ resource\n");
+@@ -380,6 +430,35 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
+ 
++	mclk_name = of_clk_get_parent_name(pdev->dev.of_node, 0);
++
++	bus_clk = bcm2835_i2c_register_div(&pdev->dev, mclk_name, i2c_dev);
++
++	if (IS_ERR(bus_clk)) {
++		dev_err(&pdev->dev, "Could not register clock\n");
++		return PTR_ERR(bus_clk);
++	}
++
++	ret = of_property_read_u32(pdev->dev.of_node, "clock-frequency",
++				   &bus_clk_rate);
++	if (ret < 0) {
++		dev_warn(&pdev->dev,
++			 "Could not read clock-frequency property\n");
++		bus_clk_rate = 100000;
++	}
++
++	ret = clk_set_rate_exclusive(bus_clk, bus_clk_rate);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "Could not set clock frequency\n");
++		return ret;
++	}
++
++	ret = clk_prepare_enable(bus_clk);
++	if (ret) {
++		dev_err(&pdev->dev, "Couldn't prepare clock");
++		return ret;
++	}
++
+ 	adap = &i2c_dev->adapter;
+ 	i2c_set_adapdata(adap, i2c_dev);
+ 	adap->owner = THIS_MODULE;
+@@ -402,6 +481,10 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ static int bcm2835_i2c_remove(struct platform_device *pdev)
+ {
+ 	struct bcm2835_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
++	struct clk *bus_clk = devm_clk_get(i2c_dev->dev, "div");
++
++	clk_rate_exclusive_put(bus_clk);
++	clk_disable_unprepare(bus_clk);
+ 
+ 	free_irq(i2c_dev->irq, i2c_dev);
+ 	i2c_del_adapter(&i2c_dev->adapter);
+-- 
+2.19.1
