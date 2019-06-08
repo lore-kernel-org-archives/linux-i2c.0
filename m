@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 30/34] rtc: rx8025: simplify getting the adapter of a client
-Date: Sat,  8 Jun 2019 12:56:09 +0200
-Message-ID: <20190608105619.593-31-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 28/34] rtc: rv8803: simplify getting the adapter of a client
+Date: Sat,  8 Jun 2019 12:56:07 +0200
+Message-ID: <20190608105619.593-29-wsa+renesas@sang-engineering.com>
 References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -20,21 +20,21 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Please apply to your subsystem tree.
 
- drivers/rtc/rtc-rx8025.c | 2 +-
+ drivers/rtc/rtc-rv8803.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-rx8025.c b/drivers/rtc/rtc-rx8025.c
-index fddc996cb38d..781fa992afab 100644
---- a/drivers/rtc/rtc-rx8025.c
-+++ b/drivers/rtc/rtc-rx8025.c
-@@ -504,7 +504,7 @@ static void rx8025_sysfs_unregister(struct device *dev)
- static int rx8025_probe(struct i2c_client *client,
+diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
+index 0b102c3cf5a4..fc5243400108 100644
+--- a/drivers/rtc/rtc-rv8803.c
++++ b/drivers/rtc/rtc-rv8803.c
+@@ -517,7 +517,7 @@ static int rx8900_trickle_charger_init(struct rv8803_data *rv8803)
+ static int rv8803_probe(struct i2c_client *client,
  			const struct i2c_device_id *id)
  {
 -	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
 +	struct i2c_adapter *adapter = client->adapter;
- 	struct rx8025_data *rx8025;
- 	int err = 0;
- 
+ 	struct rv8803_data *rv8803;
+ 	int err, flags;
+ 	struct nvmem_config nvmem_cfg = {
 -- 
 2.19.1
