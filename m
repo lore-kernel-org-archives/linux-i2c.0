@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 20/34] power: supply: max17040_battery: simplify getting the adapter of a client
-Date: Sat,  8 Jun 2019 12:55:59 +0200
-Message-ID: <20190608105619.593-21-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 21/34] power: supply: max17042_battery: simplify getting the adapter of a client
+Date: Sat,  8 Jun 2019 12:56:00 +0200
+Message-ID: <20190608105619.593-22-wsa+renesas@sang-engineering.com>
 References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -20,21 +20,21 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Please apply to your subsystem tree.
 
- drivers/power/supply/max17040_battery.c | 2 +-
+ drivers/power/supply/max17042_battery.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/max17040_battery.c b/drivers/power/supply/max17040_battery.c
-index 91cafc7bed30..62499018e68b 100644
---- a/drivers/power/supply/max17040_battery.c
-+++ b/drivers/power/supply/max17040_battery.c
-@@ -193,7 +193,7 @@ static const struct power_supply_desc max17040_battery_desc = {
- static int max17040_probe(struct i2c_client *client,
+diff --git a/drivers/power/supply/max17042_battery.c b/drivers/power/supply/max17042_battery.c
+index 581c6bd23388..64f3358eaa3c 100644
+--- a/drivers/power/supply/max17042_battery.c
++++ b/drivers/power/supply/max17042_battery.c
+@@ -1005,7 +1005,7 @@ static void max17042_stop_work(void *data)
+ static int max17042_probe(struct i2c_client *client,
  			const struct i2c_device_id *id)
  {
 -	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
 +	struct i2c_adapter *adapter = client->adapter;
+ 	const struct power_supply_desc *max17042_desc = &max17042_psy_desc;
  	struct power_supply_config psy_cfg = {};
- 	struct max17040_chip *chip;
- 
+ 	const struct acpi_device_id *acpi_id = NULL;
 -- 
 2.19.1
