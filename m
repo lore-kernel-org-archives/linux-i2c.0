@@ -1,56 +1,56 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 27/49] i2c: mlxcpld: Fix wrong initialization order in probe
-Date: Sat,  8 Jun 2019 07:42:08 -0400
-Message-ID: <20190608114232.8731-27-sashal@kernel.org>
-References: <20190608114232.8731-1-sashal@kernel.org>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH 09/34] media: i2c: mt9p031: simplify getting the adapter
+ of a client
+Date: Sat, 8 Jun 2019 14:42:59 +0300
+Message-ID: <20190608114259.GB4786@pendragon.ideasonboard.com>
+References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
+ <20190608105619.593-10-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190608114232.8731-1-sashal@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190608105619.593-10-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vadim Pasternak <vadimp@mellanox.com>, Wolfram Sang <wsa@the-dreams.de>, stable@kernel.org, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@mellanox.com>
+Hi Wolfram,
 
-[ Upstream commit 13067ef73f337336e3149f5bb9f3fd05fe7f87a0 ]
+Thank you for the patch.
 
-Fix wrong order in probing routine initialization - field `base_addr'
-is used before it's initialized. Move assignment of 'priv->base_addr`
-to the beginning, prior the call to mlxcpld_i2c_read_comm().
-Wrong order caused the first read of capability register to be executed
-at wrong offset 0x0 instead of 0x2000. By chance it was a "good
-garbage" at 0x0 offset.
+On Sat, Jun 08, 2019 at 12:55:48PM +0200, Wolfram Sang wrote:
+> We have a dedicated pointer for that, so use it. Much easier to read and
+> less computation involved.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Fixes: 313ce648b5a4 ("i2c: mlxcpld: Add support for extended transaction length for i2c-mlxcpld")
-Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Cc: stable@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/busses/i2c-mlxcpld.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-diff --git a/drivers/i2c/busses/i2c-mlxcpld.c b/drivers/i2c/busses/i2c-mlxcpld.c
-index 745ed43a22d6..2fd717d8dd30 100644
---- a/drivers/i2c/busses/i2c-mlxcpld.c
-+++ b/drivers/i2c/busses/i2c-mlxcpld.c
-@@ -503,6 +503,7 @@ static int mlxcpld_i2c_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, priv);
- 
- 	priv->dev = &pdev->dev;
-+	priv->base_addr = MLXPLAT_CPLD_LPC_I2C_BASE_ADDR;
- 
- 	/* Register with i2c layer */
- 	mlxcpld_i2c_adapter.timeout = usecs_to_jiffies(MLXCPLD_I2C_XFER_TO);
-@@ -518,7 +519,6 @@ static int mlxcpld_i2c_probe(struct platform_device *pdev)
- 		mlxcpld_i2c_adapter.nr = pdev->id;
- 	priv->adap = mlxcpld_i2c_adapter;
- 	priv->adap.dev.parent = &pdev->dev;
--	priv->base_addr = MLXPLAT_CPLD_LPC_I2C_BASE_ADDR;
- 	i2c_set_adapdata(&priv->adap, priv);
- 
- 	err = i2c_add_numbered_adapter(&priv->adap);
+and taken in my tree.
+
+> ---
+> 
+> Please apply to your subsystem tree.
+> 
+>  drivers/media/i2c/mt9p031.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/media/i2c/mt9p031.c b/drivers/media/i2c/mt9p031.c
+> index 715be3632b01..5d824dd33edd 100644
+> --- a/drivers/media/i2c/mt9p031.c
+> +++ b/drivers/media/i2c/mt9p031.c
+> @@ -1034,7 +1034,7 @@ static int mt9p031_probe(struct i2c_client *client,
+>  			 const struct i2c_device_id *did)
+>  {
+>  	struct mt9p031_platform_data *pdata = mt9p031_get_pdata(client);
+> -	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
+> +	struct i2c_adapter *adapter = client->adapter;
+>  	struct mt9p031 *mt9p031;
+>  	unsigned int i;
+>  	int ret;
+
 -- 
-2.20.1
+Regards,
+
+Laurent Pinchart
