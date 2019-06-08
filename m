@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 22/34] power: supply: rt5033_battery: simplify getting the adapter of a client
-Date: Sat,  8 Jun 2019 12:56:01 +0200
-Message-ID: <20190608105619.593-23-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 20/34] power: supply: max17040_battery: simplify getting the adapter of a client
+Date: Sat,  8 Jun 2019 12:55:59 +0200
+Message-ID: <20190608105619.593-21-wsa+renesas@sang-engineering.com>
 References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -20,21 +20,21 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Please apply to your subsystem tree.
 
- drivers/power/supply/rt5033_battery.c | 2 +-
+ drivers/power/supply/max17040_battery.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/rt5033_battery.c b/drivers/power/supply/rt5033_battery.c
-index bcdd83048492..508f825ff190 100644
---- a/drivers/power/supply/rt5033_battery.c
-+++ b/drivers/power/supply/rt5033_battery.c
-@@ -118,7 +118,7 @@ static const struct power_supply_desc rt5033_battery_desc = {
- static int rt5033_battery_probe(struct i2c_client *client,
- 		const struct i2c_device_id *id)
+diff --git a/drivers/power/supply/max17040_battery.c b/drivers/power/supply/max17040_battery.c
+index 91cafc7bed30..62499018e68b 100644
+--- a/drivers/power/supply/max17040_battery.c
++++ b/drivers/power/supply/max17040_battery.c
+@@ -193,7 +193,7 @@ static const struct power_supply_desc max17040_battery_desc = {
+ static int max17040_probe(struct i2c_client *client,
+ 			const struct i2c_device_id *id)
  {
 -	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
 +	struct i2c_adapter *adapter = client->adapter;
  	struct power_supply_config psy_cfg = {};
- 	struct rt5033_battery *battery;
- 	u32 ret;
+ 	struct max17040_chip *chip;
+ 
 -- 
 2.19.1
