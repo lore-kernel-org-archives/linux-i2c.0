@@ -1,51 +1,43 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH 03/34] iio: light: bh1780: simplify getting the adapter
- of a client
-Date: Sat, 8 Jun 2019 12:39:45 +0100
-Message-ID: <20190608123945.4bef51e0@archlinux>
-References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
-        <20190608105619.593-4-wsa+renesas@sang-engineering.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 39/70] i2c: dev: fix potential memory leak in i2cdev_ioctl_rdwr
+Date: Sat,  8 Jun 2019 07:39:18 -0400
+Message-ID: <20190608113950.8033-39-sashal@kernel.org>
+References: <20190608113950.8033-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190608105619.593-4-wsa+renesas@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190608113950.8033-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Yingjoe Chen <yingjoe.chen@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat,  8 Jun 2019 12:55:42 +0200
-Wolfram Sang <wsa+renesas@sang-engineering.com> wrote:
+From: Yingjoe Chen <yingjoe.chen@mediatek.com>
 
-> We have a dedicated pointer for that, so use it. Much easier to read and
-> less computation involved.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Applied to the togreg branch of iio.git and pushed out as testing for
-the autobuilders to play with it.
+[ Upstream commit a0692f0eef91354b62c2b4c94954536536be5425 ]
 
-Thanks,
+If I2C_M_RECV_LEN check failed, msgs[i].buf allocated by memdup_user
+will not be freed. Pump index up so it will be freed.
 
-Jonathan
+Fixes: 838bfa6049fb ("i2c-dev: Add support for I2C_M_RECV_LEN")
+Signed-off-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/i2c/i2c-dev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-> ---
-> 
-> Please apply to your subsystem tree.
-> 
->  drivers/iio/light/bh1780.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/iio/light/bh1780.c b/drivers/iio/light/bh1780.c
-> index 340d64d0ac59..a8361006dcd9 100644
-> --- a/drivers/iio/light/bh1780.c
-> +++ b/drivers/iio/light/bh1780.c
-> @@ -146,7 +146,7 @@ static int bh1780_probe(struct i2c_client *client,
->  {
->  	int ret;
->  	struct bh1780_data *bh1780;
-> -	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
-> +	struct i2c_adapter *adapter = client->adapter;
->  	struct iio_dev *indio_dev;
->  
->  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE))
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index 3f7b9af11137..776f36690448 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -283,6 +283,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+ 			    msgs[i].len < 1 || msgs[i].buf[0] < 1 ||
+ 			    msgs[i].len < msgs[i].buf[0] +
+ 					     I2C_SMBUS_BLOCK_MAX) {
++				i++;
+ 				res = -EINVAL;
+ 				break;
+ 			}
+-- 
+2.20.1
