@@ -1,25 +1,25 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 15/34] mtd: maps: pismo: simplify getting the adapter of a
- client
-Date: Sat,  8 Jun 2019 12:55:54 +0200
-Message-ID: <20190608105619.593-16-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 31/34] staging: media: soc_camera: imx074: simplify getting
+ the adapter of a client
+Date: Sat,  8 Jun 2019 12:56:10 +0200
+Message-ID: <20190608105619.593-32-wsa+renesas@sang-engineering.com>
 References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
-List-Post: <mailto:linux-mtd@lists.infradead.org>
-List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
- <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-mtd" <linux-mtd-bounces@lists.infradead.org>
-Errors-To: linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-i2c@vger.kernel.org
-Cc: Vignesh Raghavendra <vigneshr@ti.com>, Marek Vasut <marek.vasut@gmail.com>, Richard Weinberger <richard@nod.at>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-mtd@lists.infradead.org, Miquel Raynal <miquel.raynal@bootlin.com>, Brian Norris <computersforpeace@gmail.com>, David Woodhouse <dwmw2@infradead.org>
+Cc: devel@driverdev.osuosl.org, Fabio Estevam <festevam@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Sascha Hauer <s.hauer@pengutronix.de>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, NXP Linux Team <linux-imx@nxp.com>, Pengutronix Kernel Team <kernel@pengutronix.de>, Mauro Carvalho Chehab <mchehab@kernel.org>, Shawn Guo <shawnguo@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 We have a dedicated pointer for that, so use it. Much easier to read and
@@ -30,26 +30,21 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Please apply to your subsystem tree.
 
- drivers/mtd/maps/pismo.c | 2 +-
+ drivers/staging/media/soc_camera/imx074.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/maps/pismo.c b/drivers/mtd/maps/pismo.c
-index 788d4996e2c1..7fcae3af435c 100644
---- a/drivers/mtd/maps/pismo.c
-+++ b/drivers/mtd/maps/pismo.c
-@@ -211,7 +211,7 @@ static int pismo_remove(struct i2c_client *client)
- static int pismo_probe(struct i2c_client *client,
- 		       const struct i2c_device_id *id)
+diff --git a/drivers/staging/media/soc_camera/imx074.c b/drivers/staging/media/soc_camera/imx074.c
+index d907aa62f898..14240b74cdd0 100644
+--- a/drivers/staging/media/soc_camera/imx074.c
++++ b/drivers/staging/media/soc_camera/imx074.c
+@@ -409,7 +409,7 @@ static int imx074_probe(struct i2c_client *client,
+ 			const struct i2c_device_id *did)
  {
+ 	struct imx074 *priv;
 -	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
 +	struct i2c_adapter *adapter = client->adapter;
- 	struct pismo_pdata *pdata = client->dev.platform_data;
- 	struct pismo_eeprom eeprom;
- 	struct pismo_data *pismo;
+ 	struct soc_camera_subdev_desc *ssdd = soc_camera_i2c_to_desc(client);
+ 	int ret;
+ 
 -- 
 2.19.1
-
-
-______________________________________________________
-Linux MTD discussion mailing list
-http://lists.infradead.org/mailman/listinfo/linux-mtd/
