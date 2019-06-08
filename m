@@ -1,43 +1,55 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 39/70] i2c: dev: fix potential memory leak in i2cdev_ioctl_rdwr
-Date: Sat,  8 Jun 2019 07:39:18 -0400
-Message-ID: <20190608113950.8033-39-sashal@kernel.org>
-References: <20190608113950.8033-1-sashal@kernel.org>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: Re: [PATCH 02/34] gpu: drm: bridge: sii9234: simplify getting the
+ adapter of a client
+Date: Sat, 8 Jun 2019 14:40:36 +0300
+Message-ID: <20190608114036.GA4786@pendragon.ideasonboard.com>
+References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
+ <20190608105619.593-3-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190608113950.8033-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Yingjoe Chen <yingjoe.chen@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+Content-Disposition: inline
+In-Reply-To: <20190608105619.593-3-wsa+renesas@sang-engineering.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Yingjoe Chen <yingjoe.chen@mediatek.com>
-
-[ Upstream commit a0692f0eef91354b62c2b4c94954536536be5425 ]
-
-If I2C_M_RECV_LEN check failed, msgs[i].buf allocated by memdup_user
-will not be freed. Pump index up so it will be freed.
-
-Fixes: 838bfa6049fb ("i2c-dev: Add support for I2C_M_RECV_LEN")
-Signed-off-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/i2c-dev.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 3f7b9af11137..776f36690448 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -283,6 +283,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
- 			    msgs[i].len < 1 || msgs[i].buf[0] < 1 ||
- 			    msgs[i].len < msgs[i].buf[0] +
- 					     I2C_SMBUS_BLOCK_MAX) {
-+				i++;
- 				res = -EINVAL;
- 				break;
- 			}
--- 
-2.20.1
+SGkgV29sZnJhbSwKClRoYW5rIHlvdSBmb3IgdGhlIHBhdGNoLgoKT24gU2F0LCBKdW4gMDgsIDIw
+MTkgYXQgMTI6NTU6NDFQTSArMDIwMCwgV29sZnJhbSBTYW5nIHdyb3RlOgo+IFdlIGhhdmUgYSBk
+ZWRpY2F0ZWQgcG9pbnRlciBmb3IgdGhhdCwgc28gdXNlIGl0LiBNdWNoIGVhc2llciB0byByZWFk
+IGFuZAo+IGxlc3MgY29tcHV0YXRpb24gaW52b2x2ZWQuCj4gCj4gU2lnbmVkLW9mZi1ieTogV29s
+ZnJhbSBTYW5nIDx3c2ErcmVuZXNhc0BzYW5nLWVuZ2luZWVyaW5nLmNvbT4KClJldmlld2VkLWJ5
+OiBMYXVyZW50IFBpbmNoYXJ0IDxsYXVyZW50LnBpbmNoYXJ0QGlkZWFzb25ib2FyZC5jb20+Cgo+
+IC0tLQo+IAo+IFBsZWFzZSBhcHBseSB0byB5b3VyIHN1YnN5c3RlbSB0cmVlLgo+IAo+ICBkcml2
+ZXJzL2dwdS9kcm0vYnJpZGdlL3NpaTkyMzQuYyB8IDQgKystLQo+ICAxIGZpbGUgY2hhbmdlZCwg
+MiBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJz
+L2dwdS9kcm0vYnJpZGdlL3NpaTkyMzQuYyBiL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2Uvc2lpOTIz
+NC5jCj4gaW5kZXggYjM2YmJhZmIwZTQzLi4yNWQ0YWQ4YzdhZDYgMTAwNjQ0Cj4gLS0tIGEvZHJp
+dmVycy9ncHUvZHJtL2JyaWRnZS9zaWk5MjM0LmMKPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vYnJp
+ZGdlL3NpaTkyMzQuYwo+IEBAIC04MTUsNyArODE1LDcgQEAgc3RhdGljIGlycXJldHVybl90IHNp
+aTkyMzRfaXJxX3RocmVhZChpbnQgaXJxLCB2b2lkICpkYXRhKQo+ICBzdGF0aWMgaW50IHNpaTky
+MzRfaW5pdF9yZXNvdXJjZXMoc3RydWN0IHNpaTkyMzQgKmN0eCwKPiAgCQkJCSAgc3RydWN0IGky
+Y19jbGllbnQgKmNsaWVudCkKPiAgewo+IC0Jc3RydWN0IGkyY19hZGFwdGVyICphZGFwdGVyID0g
+dG9faTJjX2FkYXB0ZXIoY2xpZW50LT5kZXYucGFyZW50KTsKPiArCXN0cnVjdCBpMmNfYWRhcHRl
+ciAqYWRhcHRlciA9IGNsaWVudC0+YWRhcHRlcjsKPiAgCWludCByZXQ7Cj4gIAo+ICAJaWYgKCFj
+dHgtPmRldi0+b2Zfbm9kZSkgewo+IEBAIC04OTcsNyArODk3LDcgQEAgc3RhdGljIGNvbnN0IHN0
+cnVjdCBkcm1fYnJpZGdlX2Z1bmNzIHNpaTkyMzRfYnJpZGdlX2Z1bmNzID0gewo+ICBzdGF0aWMg
+aW50IHNpaTkyMzRfcHJvYmUoc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCwKPiAgCQkJIGNvbnN0
+IHN0cnVjdCBpMmNfZGV2aWNlX2lkICppZCkKPiAgewo+IC0Jc3RydWN0IGkyY19hZGFwdGVyICph
+ZGFwdGVyID0gdG9faTJjX2FkYXB0ZXIoY2xpZW50LT5kZXYucGFyZW50KTsKPiArCXN0cnVjdCBp
+MmNfYWRhcHRlciAqYWRhcHRlciA9IGNsaWVudC0+YWRhcHRlcjsKPiAgCXN0cnVjdCBzaWk5MjM0
+ICpjdHg7Cj4gIAlzdHJ1Y3QgZGV2aWNlICpkZXYgPSAmY2xpZW50LT5kZXY7Cj4gIAlpbnQgcmV0
+OwoKLS0gClJlZ2FyZHMsCgpMYXVyZW50IFBpbmNoYXJ0Cl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fCmRyaS1kZXZlbCBtYWlsaW5nIGxpc3QKZHJpLWRldmVs
+QGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3RzLmZyZWVkZXNrdG9wLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL2RyaS1kZXZlbA==
