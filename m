@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 17/34] power: supply: bq24257_charger: simplify getting the adapter of a client
-Date: Sat,  8 Jun 2019 12:55:56 +0200
-Message-ID: <20190608105619.593-18-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 16/34] power: supply: bq24190_charger: simplify getting the adapter of a client
+Date: Sat,  8 Jun 2019 12:55:55 +0200
+Message-ID: <20190608105619.593-17-wsa+renesas@sang-engineering.com>
 References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -20,21 +20,21 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Please apply to your subsystem tree.
 
- drivers/power/supply/bq24257_charger.c | 2 +-
+ drivers/power/supply/bq24190_charger.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/bq24257_charger.c b/drivers/power/supply/bq24257_charger.c
-index 7eb58f10e092..eb151687beb3 100644
---- a/drivers/power/supply/bq24257_charger.c
-+++ b/drivers/power/supply/bq24257_charger.c
-@@ -950,7 +950,7 @@ static int bq24257_fw_probe(struct bq24257_device *bq)
- static int bq24257_probe(struct i2c_client *client,
- 			 const struct i2c_device_id *id)
+diff --git a/drivers/power/supply/bq24190_charger.c b/drivers/power/supply/bq24190_charger.c
+index cc0dfdc9e85a..ec03521c46d1 100644
+--- a/drivers/power/supply/bq24190_charger.c
++++ b/drivers/power/supply/bq24190_charger.c
+@@ -1700,7 +1700,7 @@ static int bq24190_get_config(struct bq24190_dev_info *bdi)
+ static int bq24190_probe(struct i2c_client *client,
+ 		const struct i2c_device_id *id)
  {
 -	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
 +	struct i2c_adapter *adapter = client->adapter;
  	struct device *dev = &client->dev;
- 	const struct acpi_device_id *acpi_id;
- 	struct bq24257_device *bq;
+ 	struct power_supply_config charger_cfg = {}, battery_cfg = {};
+ 	struct bq24190_dev_info *bdi;
 -- 
 2.19.1
