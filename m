@@ -1,15 +1,25 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 32/34] staging: media: soc_camera: mt9t031: simplify getting the adapter of a client
-Date: Sat,  8 Jun 2019 12:56:11 +0200
-Message-ID: <20190608105619.593-33-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 15/34] mtd: maps: pismo: simplify getting the adapter of a
+ client
+Date: Sat,  8 Jun 2019 12:55:54 +0200
+Message-ID: <20190608105619.593-16-wsa+renesas@sang-engineering.com>
 References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org>
 In-Reply-To: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mtd>,
+ <mailto:linux-mtd-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-mtd/>
+List-Post: <mailto:linux-mtd@lists.infradead.org>
+List-Help: <mailto:linux-mtd-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mtd>,
+ <mailto:linux-mtd-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-mtd" <linux-mtd-bounces@lists.infradead.org>
+Errors-To: linux-mtd-bounces+gldm-linux-mtd-36=gmane.org@lists.infradead.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-media@vger.kernel.org, devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org
+Cc: Vignesh Raghavendra <vigneshr@ti.com>, Marek Vasut <marek.vasut@gmail.com>, Richard Weinberger <richard@nod.at>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-mtd@lists.infradead.org, Miquel Raynal <miquel.raynal@bootlin.com>, Brian Norris <computersforpeace@gmail.com>, David Woodhouse <dwmw2@infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
 We have a dedicated pointer for that, so use it. Much easier to read and
@@ -20,21 +30,26 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Please apply to your subsystem tree.
 
- drivers/staging/media/soc_camera/mt9t031.c | 2 +-
+ drivers/mtd/maps/pismo.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/soc_camera/mt9t031.c b/drivers/staging/media/soc_camera/mt9t031.c
-index 615ae9df2c57..c14f23221544 100644
---- a/drivers/staging/media/soc_camera/mt9t031.c
-+++ b/drivers/staging/media/soc_camera/mt9t031.c
-@@ -751,7 +751,7 @@ static int mt9t031_probe(struct i2c_client *client,
+diff --git a/drivers/mtd/maps/pismo.c b/drivers/mtd/maps/pismo.c
+index 788d4996e2c1..7fcae3af435c 100644
+--- a/drivers/mtd/maps/pismo.c
++++ b/drivers/mtd/maps/pismo.c
+@@ -211,7 +211,7 @@ static int pismo_remove(struct i2c_client *client)
+ static int pismo_probe(struct i2c_client *client,
+ 		       const struct i2c_device_id *id)
  {
- 	struct mt9t031 *mt9t031;
- 	struct soc_camera_subdev_desc *ssdd = soc_camera_i2c_to_desc(client);
 -	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
 +	struct i2c_adapter *adapter = client->adapter;
- 	int ret;
- 
- 	if (!ssdd) {
+ 	struct pismo_pdata *pdata = client->dev.platform_data;
+ 	struct pismo_eeprom eeprom;
+ 	struct pismo_data *pismo;
 -- 
 2.19.1
+
+
+______________________________________________________
+Linux MTD discussion mailing list
+http://lists.infradead.org/mailman/listinfo/linux-mtd/
