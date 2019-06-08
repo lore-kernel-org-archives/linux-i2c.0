@@ -1,56 +1,43 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH 09/34] media: i2c: mt9p031: simplify getting the adapter
- of a client
-Date: Sat, 8 Jun 2019 14:42:59 +0300
-Message-ID: <20190608114259.GB4786@pendragon.ideasonboard.com>
-References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
- <20190608105619.593-10-wsa+renesas@sang-engineering.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 07/13] i2c: dev: fix potential memory leak in i2cdev_ioctl_rdwr
+Date: Sat,  8 Jun 2019 07:48:39 -0400
+Message-ID: <20190608114847.9973-7-sashal@kernel.org>
+References: <20190608114847.9973-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190608105619.593-10-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190608114847.9973-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Yingjoe Chen <yingjoe.chen@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+From: Yingjoe Chen <yingjoe.chen@mediatek.com>
 
-Thank you for the patch.
+[ Upstream commit a0692f0eef91354b62c2b4c94954536536be5425 ]
 
-On Sat, Jun 08, 2019 at 12:55:48PM +0200, Wolfram Sang wrote:
-> We have a dedicated pointer for that, so use it. Much easier to read and
-> less computation involved.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+If I2C_M_RECV_LEN check failed, msgs[i].buf allocated by memdup_user
+will not be freed. Pump index up so it will be freed.
 
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Fixes: 838bfa6049fb ("i2c-dev: Add support for I2C_M_RECV_LEN")
+Signed-off-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/i2c/i2c-dev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-and taken in my tree.
-
-> ---
-> 
-> Please apply to your subsystem tree.
-> 
->  drivers/media/i2c/mt9p031.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/media/i2c/mt9p031.c b/drivers/media/i2c/mt9p031.c
-> index 715be3632b01..5d824dd33edd 100644
-> --- a/drivers/media/i2c/mt9p031.c
-> +++ b/drivers/media/i2c/mt9p031.c
-> @@ -1034,7 +1034,7 @@ static int mt9p031_probe(struct i2c_client *client,
->  			 const struct i2c_device_id *did)
->  {
->  	struct mt9p031_platform_data *pdata = mt9p031_get_pdata(client);
-> -	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
-> +	struct i2c_adapter *adapter = client->adapter;
->  	struct mt9p031 *mt9p031;
->  	unsigned int i;
->  	int ret;
-
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index 57e3790c87b1..e56b774e7cf9 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -295,6 +295,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+ 			    rdwr_pa[i].buf[0] < 1 ||
+ 			    rdwr_pa[i].len < rdwr_pa[i].buf[0] +
+ 					     I2C_SMBUS_BLOCK_MAX) {
++				i++;
+ 				res = -EINVAL;
+ 				break;
+ 			}
 -- 
-Regards,
-
-Laurent Pinchart
+2.20.1
