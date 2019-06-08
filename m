@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 21/34] power: supply: max17042_battery: simplify getting the adapter of a client
-Date: Sat,  8 Jun 2019 12:56:00 +0200
-Message-ID: <20190608105619.593-22-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 17/34] power: supply: bq24257_charger: simplify getting the adapter of a client
+Date: Sat,  8 Jun 2019 12:55:56 +0200
+Message-ID: <20190608105619.593-18-wsa+renesas@sang-engineering.com>
 References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -20,21 +20,21 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Please apply to your subsystem tree.
 
- drivers/power/supply/max17042_battery.c | 2 +-
+ drivers/power/supply/bq24257_charger.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/max17042_battery.c b/drivers/power/supply/max17042_battery.c
-index 581c6bd23388..64f3358eaa3c 100644
---- a/drivers/power/supply/max17042_battery.c
-+++ b/drivers/power/supply/max17042_battery.c
-@@ -1005,7 +1005,7 @@ static void max17042_stop_work(void *data)
- static int max17042_probe(struct i2c_client *client,
- 			const struct i2c_device_id *id)
+diff --git a/drivers/power/supply/bq24257_charger.c b/drivers/power/supply/bq24257_charger.c
+index 7eb58f10e092..eb151687beb3 100644
+--- a/drivers/power/supply/bq24257_charger.c
++++ b/drivers/power/supply/bq24257_charger.c
+@@ -950,7 +950,7 @@ static int bq24257_fw_probe(struct bq24257_device *bq)
+ static int bq24257_probe(struct i2c_client *client,
+ 			 const struct i2c_device_id *id)
  {
 -	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
 +	struct i2c_adapter *adapter = client->adapter;
- 	const struct power_supply_desc *max17042_desc = &max17042_psy_desc;
- 	struct power_supply_config psy_cfg = {};
- 	const struct acpi_device_id *acpi_id = NULL;
+ 	struct device *dev = &client->dev;
+ 	const struct acpi_device_id *acpi_id;
+ 	struct bq24257_device *bq;
 -- 
 2.19.1
