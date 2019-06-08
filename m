@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 07/13] i2c: dev: fix potential memory leak in i2cdev_ioctl_rdwr
-Date: Sat,  8 Jun 2019 07:48:39 -0400
-Message-ID: <20190608114847.9973-7-sashal@kernel.org>
-References: <20190608114847.9973-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 09/20] i2c: dev: fix potential memory leak in i2cdev_ioctl_rdwr
+Date: Sat,  8 Jun 2019 07:47:45 -0400
+Message-ID: <20190608114756.9742-9-sashal@kernel.org>
+References: <20190608114756.9742-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190608114847.9973-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190608114756.9742-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Yingjoe Chen <yingjoe.chen@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -28,10 +28,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 57e3790c87b1..e56b774e7cf9 100644
+index 00e8e675cbeb..eaa312bc3a3c 100644
 --- a/drivers/i2c/i2c-dev.c
 +++ b/drivers/i2c/i2c-dev.c
-@@ -295,6 +295,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+@@ -297,6 +297,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
  			    rdwr_pa[i].buf[0] < 1 ||
  			    rdwr_pa[i].len < rdwr_pa[i].buf[0] +
  					     I2C_SMBUS_BLOCK_MAX) {
