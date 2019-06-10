@@ -1,90 +1,44 @@
-From: Bitan Biswas <bbiswas@nvidia.com>
-Subject: [PATCH V3 6/6] i2c: tegra: remove BUG, BUG_ON
-Date: Sun, 9 Jun 2019 22:08:44 -0700
-Message-ID: <1560143324-21754-6-git-send-email-bbiswas@nvidia.com>
-References: <1560143324-21754-1-git-send-email-bbiswas@nvidia.com>
+From: "Adamski, Krzysztof (Nokia - PL/Wroclaw)"
+        <krzysztof.adamski@nokia.com>
+Subject: Re: [PATCH] hwmon: pmbus: protect read-modify-write with lock
+Date: Mon, 10 Jun 2019 06:36:46 +0000
+Message-ID: <20190610063639.GA18981@localhost.localdomain>
+References: <20190528090746.GA31184@localhost.localdomain>
+ <20190607223217.GE869@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1560143324-21754-1-git-send-email-bbiswas@nvidia.com>
+In-Reply-To: <20190607223217.GE869@kunai>
+Content-Language: en-US
+Content-ID: <405DED71A7499E42BD0DDDC2705F4D70@eurprd07.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Osipenko <digetx@gmail.com>
-Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Bitan Biswas <bbiswas@nvidia.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Remove redundant BUG_ON calls or replace with WARN_ON_ONCE
-as needed. Replace BUG() with error handling code.
-Define I2C_ERR_UNEXPECTED_STATUS for error handling.
+On Sat, Jun 08, 2019 at 12:32:18AM +0200, Wolfram Sang wrote:
+>On Tue, May 28, 2019 at 09:08:21AM +0000, Adamski, Krzysztof (Nokia - PL/W=
+roclaw) wrote:
+>> The operation done in the pmbus_update_fan() function is a
+>> read-modify-write operation but it lacks any kind of lock protection
+>> which may cause problems if run more than once simultaneously. This
+>> patch uses an existing update_lock mutex to fix this problem.
+>>
+>> Signed-off-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
+>
+>Please use get_maintainer to find the people responsible for this file.
+>It is not my realm.
+>
+>> +out:
+>> +	mutex_lock(&data->update_lock);
+>
+>Despite the above, have you tested the code? This likely should be
+>mutex_unlock?
+>
 
-Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
----
- drivers/i2c/busses/i2c-tegra.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+Sorry for that, I made a mistake and used wrong command to generate the
+patch and send it to the wrong list of people. You can ignore this
+patchset, it was resent to the proper mailing list instead.
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 4dfb4c1..d9e99b4 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -73,6 +73,7 @@
- #define I2C_ERR_NO_ACK				BIT(0)
- #define I2C_ERR_ARBITRATION_LOST		BIT(1)
- #define I2C_ERR_UNKNOWN_INTERRUPT		BIT(2)
-+#define I2C_ERR_UNEXPECTED_STATUS		BIT(3)
- 
- #define PACKET_HEADER0_HEADER_SIZE_SHIFT	28
- #define PACKET_HEADER0_PACKET_ID_SHIFT		16
-@@ -515,7 +516,6 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	 * prevent overwriting past the end of buf
- 	 */
- 	if (rx_fifo_avail > 0 && buf_remaining > 0) {
--		BUG_ON(buf_remaining > 3);
- 		val = i2c_readl(i2c_dev, I2C_RX_FIFO);
- 		val = cpu_to_le32(val);
- 		memcpy(buf, &val, buf_remaining);
-@@ -523,7 +523,6 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
- 		rx_fifo_avail--;
- 	}
- 
--	BUG_ON(rx_fifo_avail > 0 && buf_remaining > 0);
- 	i2c_dev->msg_buf_remaining = buf_remaining;
- 	i2c_dev->msg_buf = buf;
- 
-@@ -581,7 +580,6 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	 * boundary and fault.
- 	 */
- 	if (tx_fifo_avail > 0 && buf_remaining > 0) {
--		BUG_ON(buf_remaining > 3);
- 		memcpy(&val, buf, buf_remaining);
- 		val = le32_to_cpu(val);
- 
-@@ -847,10 +845,13 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 
- 	if (!i2c_dev->is_curr_dma_xfer) {
- 		if (i2c_dev->msg_read && (status & I2C_INT_RX_FIFO_DATA_REQ)) {
--			if (i2c_dev->msg_buf_remaining)
-+			if (i2c_dev->msg_buf_remaining) {
- 				tegra_i2c_empty_rx_fifo(i2c_dev);
--			else
--				BUG();
-+			} else {
-+				dev_err(i2c_dev->dev, "unexpected rx data request\n");
-+				i2c_dev->msg_err |= I2C_ERR_UNEXPECTED_STATUS;
-+				goto err;
-+			}
- 		}
- 
- 		if (!i2c_dev->msg_read && (status & I2C_INT_TX_FIFO_DATA_REQ)) {
-@@ -876,7 +877,10 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 	if (status & I2C_INT_PACKET_XFER_COMPLETE) {
- 		if (i2c_dev->is_curr_dma_xfer)
- 			i2c_dev->msg_buf_remaining = 0;
--		BUG_ON(i2c_dev->msg_buf_remaining);
-+		if (WARN_ON_ONCE(i2c_dev->msg_buf_remaining)) {
-+			i2c_dev->msg_err |= I2C_ERR_UNKNOWN_INTERRUPT;
-+			goto err;
-+		}
- 		complete(&i2c_dev->msg_complete);
- 	}
- 	goto done;
--- 
-2.7.4
+Krzysztof
