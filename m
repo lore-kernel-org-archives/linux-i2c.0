@@ -1,93 +1,56 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v3 4/8] pinctrl: qcom: sdm845: Provide ACPI support
-Date: Mon, 10 Jun 2019 10:22:45 +0100
-Message-ID: <20190610092245.GN4797@dell>
-References: <20190610084213.1052-1-lee.jones@linaro.org>
- <20190610084213.1052-4-lee.jones@linaro.org>
- <CAKv+Gu_s7i8JC4cv-dJMvm1_0cGzzhzf+Dxu0rxcF7iugF=vHg@mail.gmail.com>
- <20190610085542.GL4797@dell>
- <CAKv+Gu8rhxciy1cOG3B3pda9+p4R_COGrrqa7S_Rj9y2HeBxYw@mail.gmail.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH 0/3] treewide: simplify getting the adapter of an I2C client, part2
+Date: Mon, 10 Jun 2019 11:51:53 +0200
+Message-ID: <20190610095157.11814-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAKv+Gu8rhxciy1cOG3B3pda9+p4R_COGrrqa7S_Rj9y2HeBxYw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: alokc@codeaurora.org, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, wsa+renesas@sang-engineering.com, Bjorn Andersson <bjorn.andersson@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, balbi@kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jeffrey Hugo <jlhugo@gmail.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, linux-usb <linux-usb@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: linux-i2c@vger.kernel.org
+Cc: Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa+renesas@sang-engineering.com>, devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 10 Jun 2019, Ard Biesheuvel wrote:
+This is a small follow-up series to a larger cleanup series already
+sent:
 
-> On Mon, 10 Jun 2019 at 10:55, Lee Jones <lee.jones@linaro.org> wrote:
-> >
-> > On Mon, 10 Jun 2019, Ard Biesheuvel wrote:
-> >
-> > > On Mon, 10 Jun 2019 at 10:42, Lee Jones <lee.jones@linaro.org> wrote:
-> > > >
-> > > > This patch provides basic support for booting with ACPI instead
-> > > > of the currently supported Device Tree.  When doing so there are a
-> > > > couple of differences which we need to taken into consideration.
-> > > >
-> > > > Firstly, the SDM850 ACPI tables omit information pertaining to the
-> > > > 4 reserved GPIOs on the platform.  If Linux attempts to touch/
-> > > > initialise any of these lines, the firmware will restart the
-> > > > platform.
-> > > >
-> > > > Secondly, when booting with ACPI, it is expected that the firmware
-> > > > will set-up things like; Regulators, Clocks, Pin Functions, etc in
-> > > > their ideal configuration.  Thus, the possible Pin Functions
-> > > > available to this platform are not advertised when providing the
-> > > > higher GPIOD/Pinctrl APIs with pin information.
-> > > >
-> > > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > >
-> > > For the ACPI probing boilerplate:
-> > > Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> > >
-> > > *However*, I really don't like hardcoding reserved GPIOs like this.
-> > > What guarantee do we have that each and every ACPI system
-> > > incorporating the QCOM0217 device has the exact same list of reserved
-> > > GPIOs?
-> >
-> > This is SDM845 specific, so the chances are reduced.
-> 
-> You don't know that.
+http://patchwork.ozlabs.org/project/linux-i2c/list/?series=112605
+("treewide: simplify getting the adapter of an I2C client")
 
-All the evidence I have to hand tells me that this is the case.  Even
-on very closely related variants Qualcomm uses different H/W blocks
-for GPIO.
+These drivers use a bit different but still unnecessarily complex way to
+determine the adapter of a client. Thanks to Peter Rosin for pointing
+them out. They have been fixed manually, no need for a coccinelle script
+here. Build tested, too. From the previous cover-letter:
 
-> > However, if another SDM845 variant does crop up, also lacking the
-> > "gpios" property, we will have to find another differentiating factor
-> > between them and conduct some matching.  What else can you do with
-> > platforms supporting non-complete/non-forthcoming ACPI tables?
-> >
-> 
-> Either we don't touch any pins at all if they are not referenced
-> explicitly anywhere
+The I2C core populates the parent pointer of a client as:
+	client->dev.parent = &client->adapter->dev;
 
-I guess this would require an API change, which is out of scope of
-this patch-set.  Happy to change this implementation later if the
-subsystem allows for it though.
+Now take into consideration that
+	to_i2c_adapter(&adapter->dev);
 
-> or we parse the PEP tables, which seem to cover
-> some of this information (if Bjorn's analysis is correct)
+is a complicated way of saying 'adapter', then we can even formally
+prove that the complicated expression can be simplified by using
+client->adapter.
 
-Maybe someone can conduct some further work on this when we start to
-enable or write a driver for the PEP (Windows-compatible System Power
-Management Controller).  The tables for the PEP look pretty complex,
-so this task would be extremely difficult if not impossible without
-Qualcomm's help.  I wouldn't even know how to extrapolate this
-information from the tables.
+A branch can be found here:
 
-> (if Bjorn's analysis is correct)
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/no_to_adapter
 
-Bjorn is about to provide his Reviewed-by for this implementation.
+Please apply the patches to the individual subsystem trees. There are no
+dependencies.
+
+Thanks and kind regards,
+
+   Wolfram
+
+Wolfram Sang (3):
+  hwmon: lm90: simplify getting the adapter of a client
+  leds: is31fl319x: simplify getting the adapter of a client
+  of: unittest: simplify getting the adapter of a client
+
+ drivers/hwmon/lm90.c           | 2 +-
+ drivers/leds/leds-is31fl319x.c | 2 +-
+ drivers/of/unittest.c          | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.19.1
