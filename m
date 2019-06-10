@@ -1,7 +1,7 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH v3 2/8] i2c: i2c-qcom-geni: Signify successful driver probe
-Date: Mon, 10 Jun 2019 09:42:07 +0100
-Message-ID: <20190610084213.1052-2-lee.jones@linaro.org>
+Subject: [PATCH v3 8/8] usb: dwc3: qcom: Improve error handling
+Date: Mon, 10 Jun 2019 09:42:13 +0100
+Message-ID: <20190610084213.1052-8-lee.jones@linaro.org>
 References: <20190610084213.1052-1-lee.jones@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190610084213.1052-1-lee.jones@linaro.org>
@@ -10,28 +10,31 @@ To: alokc@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+ren
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The Qualcomm Geni I2C driver currently probes silently which can be
-confusing when debugging potential issues.  Add a low level (INFO)
-print when each I2C controller is successfully initially set-up.
+dwc3_qcom_clk_init() is called with of_count_phandle_with_args() as an
+argument.  If of_count_phandle_with_args() returns an error, the number
+of clocks will be a negative value and will lead to undefined behaviour.
+
+Ensure we check for an error before attempting to blindly use the value.
 
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 ---
- drivers/i2c/busses/i2c-qcom-geni.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/dwc3/dwc3-qcom.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 9e3b8a98688d..a89bfce5388e 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -596,6 +596,8 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 		return ret;
- 	}
+diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
+index 55ba04254e38..e4dac82abd7d 100644
+--- a/drivers/usb/dwc3/dwc3-qcom.c
++++ b/drivers/usb/dwc3/dwc3-qcom.c
+@@ -409,6 +409,9 @@ static int dwc3_qcom_clk_init(struct dwc3_qcom *qcom, int count)
+ 	if (!np || !count)
+ 		return 0;
  
-+	dev_dbg(&pdev->dev, "Geni-I2C adaptor successfully added\n");
++	if (count < 0)
++		return count;
 +
- 	return 0;
- }
+ 	qcom->num_clocks = count;
  
+ 	qcom->clks = devm_kcalloc(dev, qcom->num_clocks,
 -- 
 2.17.1
