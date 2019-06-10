@@ -1,75 +1,68 @@
-From: Bitan Biswas <bbiswas@nvidia.com>
-Subject: [PATCH V4 6/6] i2c: tegra: remove BUG, BUG_ON
-Date: Mon, 10 Jun 2019 10:08:35 -0700
-Message-ID: <1560186515-30797-6-git-send-email-bbiswas@nvidia.com>
-References: <1560186515-30797-1-git-send-email-bbiswas@nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Mark Brown <broonie@kernel.org>
+Subject: Applied "regulator: max8952: simplify getting the adapter of a client" to the regulator tree
+Date: Mon, 10 Jun 2019 18:34:46 +0100 (BST)
+Message-ID: <20190610173446.B100A440046@finisterre.sirena.org.uk>
+References: <20190608105619.593-26-wsa+renesas@sang-engineering.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1560186515-30797-1-git-send-email-bbiswas@nvidia.com>
+In-Reply-To: <20190608105619.593-26-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Osipenko <digetx@gmail.com>
-Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Bitan Biswas <bbiswas@nvidia.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Liam Girdwood <lgirdwood@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Remove redundant BUG_ON calls or replace with WARN_ON_ONCE
-as needed. Remove BUG() and make Rx and Tx case handling
-similar.
+The patch
 
-Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
+   regulator: max8952: simplify getting the adapter of a client
+
+has been applied to the regulator tree at
+
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git for-5.3
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.  
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark
+
+>From 6b96092a6bfa65566dda2f5a68a559a743b8d132 Mon Sep 17 00:00:00 2001
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Date: Sat, 8 Jun 2019 12:56:04 +0200
+Subject: [PATCH] regulator: max8952: simplify getting the adapter of a client
+
+We have a dedicated pointer for that, so use it. Much easier to read and
+less computation involved.
+
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 ---
- drivers/i2c/busses/i2c-tegra.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/regulator/max8952.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 4dfb4c1..30619d6 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -515,7 +515,6 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	 * prevent overwriting past the end of buf
- 	 */
- 	if (rx_fifo_avail > 0 && buf_remaining > 0) {
--		BUG_ON(buf_remaining > 3);
- 		val = i2c_readl(i2c_dev, I2C_RX_FIFO);
- 		val = cpu_to_le32(val);
- 		memcpy(buf, &val, buf_remaining);
-@@ -523,7 +522,6 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
- 		rx_fifo_avail--;
- 	}
- 
--	BUG_ON(rx_fifo_avail > 0 && buf_remaining > 0);
- 	i2c_dev->msg_buf_remaining = buf_remaining;
- 	i2c_dev->msg_buf = buf;
- 
-@@ -581,7 +579,6 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	 * boundary and fault.
- 	 */
- 	if (tx_fifo_avail > 0 && buf_remaining > 0) {
--		BUG_ON(buf_remaining > 3);
- 		memcpy(&val, buf, buf_remaining);
- 		val = le32_to_cpu(val);
- 
-@@ -850,7 +847,8 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 			if (i2c_dev->msg_buf_remaining)
- 				tegra_i2c_empty_rx_fifo(i2c_dev);
- 			else
--				BUG();
-+				tegra_i2c_mask_irq(i2c_dev,
-+						   I2C_INT_RX_FIFO_DATA_REQ);
- 		}
- 
- 		if (!i2c_dev->msg_read && (status & I2C_INT_TX_FIFO_DATA_REQ)) {
-@@ -876,7 +874,10 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 	if (status & I2C_INT_PACKET_XFER_COMPLETE) {
- 		if (i2c_dev->is_curr_dma_xfer)
- 			i2c_dev->msg_buf_remaining = 0;
--		BUG_ON(i2c_dev->msg_buf_remaining);
-+		if (WARN_ON_ONCE(i2c_dev->msg_buf_remaining)) {
-+			i2c_dev->msg_err |= I2C_ERR_UNKNOWN_INTERRUPT;
-+			goto err;
-+		}
- 		complete(&i2c_dev->msg_complete);
- 	}
- 	goto done;
+diff --git a/drivers/regulator/max8952.c b/drivers/regulator/max8952.c
+index cf2a2912cb1b..451237efb359 100644
+--- a/drivers/regulator/max8952.c
++++ b/drivers/regulator/max8952.c
+@@ -192,7 +192,7 @@ static struct max8952_platform_data *max8952_parse_dt(struct device *dev)
+ static int max8952_pmic_probe(struct i2c_client *client,
+ 		const struct i2c_device_id *i2c_id)
+ {
+-	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
++	struct i2c_adapter *adapter = client->adapter;
+ 	struct max8952_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	struct regulator_config config = { };
+ 	struct max8952_data *max8952;
 -- 
-2.7.4
+2.20.1
