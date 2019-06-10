@@ -1,7 +1,7 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH v3 5/8] soc: qcom: geni: Add support for ACPI
-Date: Mon, 10 Jun 2019 09:42:10 +0100
-Message-ID: <20190610084213.1052-5-lee.jones@linaro.org>
+Subject: [PATCH v3 3/8] pinctrl: msm: Add ability for drivers to supply a reserved GPIO list
+Date: Mon, 10 Jun 2019 09:42:08 +0100
+Message-ID: <20190610084213.1052-3-lee.jones@linaro.org>
 References: <20190610084213.1052-1-lee.jones@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190610084213.1052-1-lee.jones@linaro.org>
@@ -10,69 +10,72 @@ To: alokc@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+ren
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-When booting with ACPI as the active set of configuration tables,
-all; clocks, regulators, pin functions ect are expected to be at
-their ideal values/levels/rates, thus the associated frameworks
-are unavailable.  Ensure calls to these APIs are shielded when
-ACPI is enabled.
+When booting MSM based platforms with Device Tree or some ACPI
+implementations, it is possible to provide a list of reserved pins
+via the 'gpio-reserved-ranges' and 'gpios' properties respectively.
+However some ACPI tables are not populated with this information,
+thus it has to come from a knowledgable device driver instead.
+
+Here we provide the MSM common driver with additional support to
+parse this informtion and correctly populate the widely used
+'valid_mask'.
 
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 ---
- drivers/soc/qcom/qcom-geni-se.c | 21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ drivers/pinctrl/qcom/pinctrl-msm.c | 18 ++++++++++++++++++
+ drivers/pinctrl/qcom/pinctrl-msm.h |  1 +
+ 2 files changed, 19 insertions(+)
 
-diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
-index 6b8ef01472e9..d5cf953b4337 100644
---- a/drivers/soc/qcom/qcom-geni-se.c
-+++ b/drivers/soc/qcom/qcom-geni-se.c
-@@ -1,6 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- // Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
- 
-+#include <linux/acpi.h>
- #include <linux/clk.h>
- #include <linux/slab.h>
- #include <linux/dma-mapping.h>
-@@ -450,6 +451,9 @@ int geni_se_resources_off(struct geni_se *se)
- {
+diff --git a/drivers/pinctrl/qcom/pinctrl-msm.c b/drivers/pinctrl/qcom/pinctrl-msm.c
+index ee8119879c4c..3ac740b36508 100644
+--- a/drivers/pinctrl/qcom/pinctrl-msm.c
++++ b/drivers/pinctrl/qcom/pinctrl-msm.c
+@@ -607,8 +607,23 @@ static int msm_gpio_init_valid_mask(struct gpio_chip *chip)
  	int ret;
+ 	unsigned int len, i;
+ 	unsigned int max_gpios = pctrl->soc->ngpios;
++	const int *reserved = pctrl->soc->reserved_gpios;
+ 	u16 *tmp;
  
-+	if (has_acpi_companion(se->dev))
-+		return 0;
-+
- 	ret = pinctrl_pm_select_sleep_state(se->dev);
- 	if (ret)
- 		return ret;
-@@ -487,6 +491,9 @@ int geni_se_resources_on(struct geni_se *se)
- {
- 	int ret;
- 
-+	if (has_acpi_companion(se->dev))
-+		return 0;
-+
- 	ret = geni_se_clks_on(se);
- 	if (ret)
- 		return ret;
-@@ -724,12 +731,14 @@ static int geni_se_probe(struct platform_device *pdev)
- 	if (IS_ERR(wrapper->base))
- 		return PTR_ERR(wrapper->base);
- 
--	wrapper->ahb_clks[0].id = "m-ahb";
--	wrapper->ahb_clks[1].id = "s-ahb";
--	ret = devm_clk_bulk_get(dev, NUM_AHB_CLKS, wrapper->ahb_clks);
--	if (ret) {
--		dev_err(dev, "Err getting AHB clks %d\n", ret);
--		return ret;
-+	if (!has_acpi_companion(&pdev->dev)) {
-+		wrapper->ahb_clks[0].id = "m-ahb";
-+		wrapper->ahb_clks[1].id = "s-ahb";
-+		ret = devm_clk_bulk_get(dev, NUM_AHB_CLKS, wrapper->ahb_clks);
-+		if (ret) {
-+			dev_err(dev, "Err getting AHB clks %d\n", ret);
-+			return ret;
++	/* Driver provided reserved list overrides DT and ACPI */
++	if (reserved) {
++		bitmap_fill(chip->valid_mask, max_gpios);
++		for (i = 0; reserved[i] >= 0; i++) {
++			if (i >= max_gpios || reserved[i] >= max_gpios) {
++				dev_err(pctrl->dev, "invalid list of reserved GPIOs\n");
++				return -EINVAL;
++			}
++			clear_bit(reserved[i], chip->valid_mask);
 +		}
- 	}
++
++		return 0;
++	}
++
+ 	/* The number of GPIOs in the ACPI tables */
+ 	len = ret = device_property_read_u16_array(pctrl->dev, "gpios", NULL,
+ 						   0);
+@@ -964,6 +979,9 @@ static void msm_gpio_irq_handler(struct irq_desc *desc)
  
- 	dev_set_drvdata(dev, wrapper);
+ static bool msm_gpio_needs_valid_mask(struct msm_pinctrl *pctrl)
+ {
++	if (pctrl->soc->reserved_gpios)
++		return true;
++
+ 	return device_property_read_u16_array(pctrl->dev, "gpios", NULL, 0) > 0;
+ }
+ 
+diff --git a/drivers/pinctrl/qcom/pinctrl-msm.h b/drivers/pinctrl/qcom/pinctrl-msm.h
+index c12048e54a6f..23b93ae92269 100644
+--- a/drivers/pinctrl/qcom/pinctrl-msm.h
++++ b/drivers/pinctrl/qcom/pinctrl-msm.h
+@@ -121,6 +121,7 @@ struct msm_pinctrl_soc_data {
+ 	bool pull_no_keeper;
+ 	const char *const *tiles;
+ 	unsigned int ntiles;
++	const int *reserved_gpios;
+ };
+ 
+ extern const struct dev_pm_ops msm_pinctrl_dev_pm_ops;
 -- 
 2.17.1
