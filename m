@@ -1,78 +1,86 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 3/8] pinctrl: msm: Add ability for drivers to supply a
- reserved GPIO list
-Date: Mon, 10 Jun 2019 09:02:58 +0100
-Message-ID: <20190610080258.GI4797@dell>
-References: <20190605114302.22509-1-lee.jones@linaro.org>
- <20190605114302.22509-3-lee.jones@linaro.org>
- <20190608040610.GJ24059@builder>
+Subject: [PATCH v3 1/8] i2c: i2c-qcom-geni: Provide support for ACPI
+Date: Mon, 10 Jun 2019 09:42:06 +0100
+Message-ID: <20190610084213.1052-1-lee.jones@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190608040610.GJ24059@builder>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: alokc@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, linus.walleij@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, jlhugo@gmail.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: alokc@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, bjorn.andersson@linaro.org, linus.walleij@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org, ard.biesheuvel@linaro.org, jlhugo@gmail.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.org
+Cc: Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 07 Jun 2019, Bjorn Andersson wrote:
+Add a match table to allow automatic probing of ACPI device
+QCOM0220.  Ignore clock attainment errors.  Set default clock
+frequency value.
 
-> On Wed 05 Jun 04:42 PDT 2019, Lee Jones wrote:
-> 
-> > When booting MSM based platforms with Device Tree or some ACPI
-> > implementations, it is possible to provide a list of reserved pins
-> > via the 'gpio-reserved-ranges' and 'gpios' properties respectively.
-> > However some ACPI tables are not populated with this information,
-> > thus it has to come from a knowledgable device driver instead.
-> > 
-> > Here we provide the MSM common driver with additional support to
-> > parse this informtion and correctly populate the widely used
-> > 'valid_mask'.
-> > 
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > ---
-> >  drivers/pinctrl/qcom/pinctrl-msm.c | 18 ++++++++++++++++++
-> >  drivers/pinctrl/qcom/pinctrl-msm.h |  1 +
-> >  2 files changed, 19 insertions(+)
-> > 
-> > diff --git a/drivers/pinctrl/qcom/pinctrl-msm.c b/drivers/pinctrl/qcom/pinctrl-msm.c
-> > index ee8119879c4c..3ac740b36508 100644
-> > --- a/drivers/pinctrl/qcom/pinctrl-msm.c
-> > +++ b/drivers/pinctrl/qcom/pinctrl-msm.c
-> > @@ -607,8 +607,23 @@ static int msm_gpio_init_valid_mask(struct gpio_chip *chip)
-> >  	int ret;
-> >  	unsigned int len, i;
-> >  	unsigned int max_gpios = pctrl->soc->ngpios;
-> > +	const int *reserved = pctrl->soc->reserved_gpios;
-> >  	u16 *tmp;
-> >  
-> > +	/* Driver provided reserved list overrides DT and ACPI */
-> > +	if (reserved) {
-> > +		bitmap_fill(chip->valid_mask, max_gpios);
-> > +		for (i = 0; reserved[i] >= 0; i++) {
-> > +			if (i >= max_gpios || reserved[i] >= max_gpios) {
-> 
-> reserved is a list of GPIOs to reserve, I don't see a reason to check
-> if that list is longer than the number of GPIOs (i.e. the first half of
-> the condition).
-> 
-> It wouldn't make sense to be, but there's no logical issue with it and I
-> had to read the conditional a few extra times to be sure what was going
-> on.
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/i2c/busses/i2c-qcom-geni.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-If nothing else, it's an early hard stop in case someone forgot to
-terminate the reserved array.
-
-> Apart from that you have my
-> 
-> Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-
-Thanks Bjorn.
-
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index db075bc0d952..9e3b8a98688d 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0
+ // Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
+ 
++#include <linux/acpi.h>
+ #include <linux/clk.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/err.h>
+@@ -483,6 +484,14 @@ static const struct i2c_algorithm geni_i2c_algo = {
+ 	.functionality	= geni_i2c_func,
+ };
+ 
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id geni_i2c_acpi_match[] = {
++	{ "QCOM0220"},
++	{ },
++};
++MODULE_DEVICE_TABLE(acpi, geni_i2c_acpi_match);
++#endif
++
+ static int geni_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct geni_i2c_dev *gi2c;
+@@ -502,7 +511,7 @@ static int geni_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(gi2c->se.base);
+ 
+ 	gi2c->se.clk = devm_clk_get(&pdev->dev, "se");
+-	if (IS_ERR(gi2c->se.clk)) {
++	if (IS_ERR(gi2c->se.clk) && !has_acpi_companion(&pdev->dev)) {
+ 		ret = PTR_ERR(gi2c->se.clk);
+ 		dev_err(&pdev->dev, "Err getting SE Core clk %d\n", ret);
+ 		return ret;
+@@ -516,6 +525,9 @@ static int geni_i2c_probe(struct platform_device *pdev)
+ 		gi2c->clk_freq_out = KHZ(100);
+ 	}
+ 
++	if (has_acpi_companion(&pdev->dev))
++		ACPI_COMPANION_SET(&gi2c->adap.dev, ACPI_COMPANION(&pdev->dev));
++
+ 	gi2c->irq = platform_get_irq(pdev, 0);
+ 	if (gi2c->irq < 0) {
+ 		dev_err(&pdev->dev, "IRQ error for i2c-geni\n");
+@@ -660,6 +672,7 @@ static struct platform_driver geni_i2c_driver = {
+ 		.name = "geni_i2c",
+ 		.pm = &geni_i2c_pm_ops,
+ 		.of_match_table = geni_i2c_dt_match,
++		.acpi_match_table = ACPI_PTR(geni_i2c_acpi_match),
+ 	},
+ };
+ 
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.17.1
