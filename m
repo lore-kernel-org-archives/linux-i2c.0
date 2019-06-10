@@ -1,89 +1,98 @@
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: Re: [PATCH v3 4/8] pinctrl: qcom: sdm845: Provide ACPI support
-Date: Mon, 10 Jun 2019 12:20:30 +0200
-Message-ID: <CAKv+Gu94ES4_SjkmAMaAgwCtsx_YmOn0=yaeM9GFjPCCxrANoQ@mail.gmail.com>
-References: <20190610084213.1052-1-lee.jones@linaro.org> <20190610084213.1052-4-lee.jones@linaro.org>
- <CAKv+Gu_s7i8JC4cv-dJMvm1_0cGzzhzf+Dxu0rxcF7iugF=vHg@mail.gmail.com>
- <20190610085542.GL4797@dell> <CAKv+Gu8rhxciy1cOG3B3pda9+p4R_COGrrqa7S_Rj9y2HeBxYw@mail.gmail.com>
- <20190610092245.GN4797@dell>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH V3 6/6] i2c: tegra: remove BUG, BUG_ON
+Date: Mon, 10 Jun 2019 13:30:05 +0300
+Message-ID: <89190a56-bc79-7c07-9b21-ebdfb532df30@gmail.com>
+References: <1560143324-21754-1-git-send-email-bbiswas@nvidia.com>
+ <1560143324-21754-6-git-send-email-bbiswas@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190610092245.GN4797@dell>
+In-Reply-To: <1560143324-21754-6-git-send-email-bbiswas@nvidia.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: alokc@codeaurora.org, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, wsa+renesas@sang-engineering.com, Bjorn Andersson <bjorn.andersson@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, balbi@kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jeffrey Hugo <jlhugo@gmail.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, linux-usb <linux-usb@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Bitan Biswas <bbiswas@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 10 Jun 2019 at 11:22, Lee Jones <lee.jones@linaro.org> wrote:
->
-> On Mon, 10 Jun 2019, Ard Biesheuvel wrote:
->
-> > On Mon, 10 Jun 2019 at 10:55, Lee Jones <lee.jones@linaro.org> wrote:
-> > >
-> > > On Mon, 10 Jun 2019, Ard Biesheuvel wrote:
-> > >
-> > > > On Mon, 10 Jun 2019 at 10:42, Lee Jones <lee.jones@linaro.org> wrote:
-> > > > >
-> > > > > This patch provides basic support for booting with ACPI instead
-> > > > > of the currently supported Device Tree.  When doing so there are a
-> > > > > couple of differences which we need to taken into consideration.
-> > > > >
-> > > > > Firstly, the SDM850 ACPI tables omit information pertaining to the
-> > > > > 4 reserved GPIOs on the platform.  If Linux attempts to touch/
-> > > > > initialise any of these lines, the firmware will restart the
-> > > > > platform.
-> > > > >
-> > > > > Secondly, when booting with ACPI, it is expected that the firmware
-> > > > > will set-up things like; Regulators, Clocks, Pin Functions, etc in
-> > > > > their ideal configuration.  Thus, the possible Pin Functions
-> > > > > available to this platform are not advertised when providing the
-> > > > > higher GPIOD/Pinctrl APIs with pin information.
-> > > > >
-> > > > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > > >
-> > > > For the ACPI probing boilerplate:
-> > > > Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> > > >
-> > > > *However*, I really don't like hardcoding reserved GPIOs like this.
-> > > > What guarantee do we have that each and every ACPI system
-> > > > incorporating the QCOM0217 device has the exact same list of reserved
-> > > > GPIOs?
-> > >
-> > > This is SDM845 specific, so the chances are reduced.
-> >
-> > You don't know that.
->
-> All the evidence I have to hand tells me that this is the case.  Even
-> on very closely related variants Qualcomm uses different H/W blocks
-> for GPIO.
->
-> > > However, if another SDM845 variant does crop up, also lacking the
-> > > "gpios" property, we will have to find another differentiating factor
-> > > between them and conduct some matching.  What else can you do with
-> > > platforms supporting non-complete/non-forthcoming ACPI tables?
-> > >
-> >
-> > Either we don't touch any pins at all if they are not referenced
-> > explicitly anywhere
->
-> I guess this would require an API change, which is out of scope of
-> this patch-set.  Happy to change this implementation later if the
-> subsystem allows for it though.
->
-> > or we parse the PEP tables, which seem to cover
-> > some of this information (if Bjorn's analysis is correct)
->
-> Maybe someone can conduct some further work on this when we start to
-> enable or write a driver for the PEP (Windows-compatible System Power
-> Management Controller).  The tables for the PEP look pretty complex,
-> so this task would be extremely difficult if not impossible without
-> Qualcomm's help.  I wouldn't even know how to extrapolate this
-> information from the tables.
->
-> > (if Bjorn's analysis is correct)
->
-> Bjorn is about to provide his Reviewed-by for this implementation.
->
+10.06.2019 8:08, Bitan Biswas пишет:
+> Remove redundant BUG_ON calls or replace with WARN_ON_ONCE
+> as needed. Replace BUG() with error handling code.
+> Define I2C_ERR_UNEXPECTED_STATUS for error handling.
+> 
+> Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
+> ---
+>  drivers/i2c/busses/i2c-tegra.c | 18 +++++++++++-------
+>  1 file changed, 11 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+> index 4dfb4c1..d9e99b4 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -73,6 +73,7 @@
+>  #define I2C_ERR_NO_ACK				BIT(0)
+>  #define I2C_ERR_ARBITRATION_LOST		BIT(1)
+>  #define I2C_ERR_UNKNOWN_INTERRUPT		BIT(2)
+> +#define I2C_ERR_UNEXPECTED_STATUS		BIT(3)
+>  
+>  #define PACKET_HEADER0_HEADER_SIZE_SHIFT	28
+>  #define PACKET_HEADER0_PACKET_ID_SHIFT		16
+> @@ -515,7 +516,6 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
+>  	 * prevent overwriting past the end of buf
+>  	 */
+>  	if (rx_fifo_avail > 0 && buf_remaining > 0) {
+> -		BUG_ON(buf_remaining > 3);
+>  		val = i2c_readl(i2c_dev, I2C_RX_FIFO);
+>  		val = cpu_to_le32(val);
+>  		memcpy(buf, &val, buf_remaining);
+> @@ -523,7 +523,6 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
+>  		rx_fifo_avail--;
+>  	}
+>  
+> -	BUG_ON(rx_fifo_avail > 0 && buf_remaining > 0);
+>  	i2c_dev->msg_buf_remaining = buf_remaining;
+>  	i2c_dev->msg_buf = buf;
+>  
+> @@ -581,7 +580,6 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
+>  	 * boundary and fault.
+>  	 */
+>  	if (tx_fifo_avail > 0 && buf_remaining > 0) {
+> -		BUG_ON(buf_remaining > 3);
+>  		memcpy(&val, buf, buf_remaining);
+>  		val = le32_to_cpu(val);
+>  
+> @@ -847,10 +845,13 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+>  
+>  	if (!i2c_dev->is_curr_dma_xfer) {
+>  		if (i2c_dev->msg_read && (status & I2C_INT_RX_FIFO_DATA_REQ)) {
+> -			if (i2c_dev->msg_buf_remaining)
+> +			if (i2c_dev->msg_buf_remaining) {
+>  				tegra_i2c_empty_rx_fifo(i2c_dev);
+> -			else
+> -				BUG();
+> +			} else {
+> +				dev_err(i2c_dev->dev, "unexpected rx data request\n");
+> +				i2c_dev->msg_err |= I2C_ERR_UNEXPECTED_STATUS;
+> +				goto err;
+> +			}
+>  		}
+>  
+>  		if (!i2c_dev->msg_read && (status & I2C_INT_TX_FIFO_DATA_REQ)) {
+> @@ -876,7 +877,10 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+>  	if (status & I2C_INT_PACKET_XFER_COMPLETE) {
+>  		if (i2c_dev->is_curr_dma_xfer)
+>  			i2c_dev->msg_buf_remaining = 0;
+> -		BUG_ON(i2c_dev->msg_buf_remaining);
+> +		if (WARN_ON_ONCE(i2c_dev->msg_buf_remaining)) {
+> +			i2c_dev->msg_err |= I2C_ERR_UNKNOWN_INTERRUPT;
+> +			goto err;
+> +		}
+>  		complete(&i2c_dev->msg_complete);
+>  	}
+>  	goto done;
+> 
 
-If Bjorn can live with it, then so can I.
+It looks nearly ideal now, although there is still one thing that could
+be improved. We're going to print a error message in a case of RX and
+spew a warning on a similar case of TX, this makes code inconsistent.
+Let's switch to either a error message or just a warning in both places.
