@@ -1,154 +1,121 @@
-From: Dmitry Osipenko <digetx@gmail.com>
-Subject: Re: [PATCH V4 6/6] i2c: tegra: remove BUG, BUG_ON
-Date: Tue, 11 Jun 2019 00:00:24 +0300
-Message-ID: <e733bcb0-ea8c-61d1-e6b5-cee8b7696c70@gmail.com>
-References: <1560186515-30797-1-git-send-email-bbiswas@nvidia.com>
- <1560186515-30797-6-git-send-email-bbiswas@nvidia.com>
- <06ab30b6-bf79-c628-0a04-d0307511a06f@gmail.com>
- <851d7837-5b98-228e-d8c9-3c41be1fb2e0@nvidia.com>
+From: Rob Herring <robh+dt@kernel.org>
+Subject: Re: [PATCH v2 1/2] dt-bindings: i2c: sun6i-p2wi: Add YAML schemas
+Date: Mon, 10 Jun 2019 15:34:18 -0600
+Message-ID: <CAL_JsqKC7uP0J14A8_CvPhbZkoSRNWSpS1ee+Q4sG013jY=JeQ@mail.gmail.com>
+References: <20190605122936.11972-1-maxime.ripard@bootlin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <851d7837-5b98-228e-d8c9-3c41be1fb2e0@nvidia.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bitan Biswas <bbiswas@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190605122936.11972-1-maxime.ripard@bootlin.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Maxime Ripard <maxime.ripard@bootlin.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Gregory Clement <gregory.clement@bootlin.com>, Chen-Yu Tsai <wens@csie.org>, Linux I2C <linux-i2c@vger.kernel.org>, Frank Rowand <frowand.list@gmail.com>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-10.06.2019 22:41, Bitan Biswas пишет:
-> 
-> 
-> On 6/10/19 11:12 AM, Dmitry Osipenko wrote:
->> 10.06.2019 20:08, Bitan Biswas пишет:
->>> Remove redundant BUG_ON calls or replace with WARN_ON_ONCE
->>> as needed. Remove BUG() and make Rx and Tx case handling
->>> similar.
->>>
->>> Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
->>> ---
->>>   drivers/i2c/busses/i2c-tegra.c | 11 ++++++-----
->>>   1 file changed, 6 insertions(+), 5 deletions(-)
->>
->> Looks that this is still not correct. What if it transfer-complete flag
->> is set and buffer is full on RX? In this case the transfer will succeed
->> while it was a failure.
->>
->>> diff --git a/drivers/i2c/busses/i2c-tegra.c
->>> b/drivers/i2c/busses/i2c-tegra.c
->>> index 4dfb4c1..30619d6 100644
->>> --- a/drivers/i2c/busses/i2c-tegra.c
->>> +++ b/drivers/i2c/busses/i2c-tegra.c
->>> @@ -515,7 +515,6 @@ static int tegra_i2c_empty_rx_fifo(struct
->>> tegra_i2c_dev *i2c_dev)
->>>        * prevent overwriting past the end of buf
->>>        */
->>>       if (rx_fifo_avail > 0 && buf_remaining > 0) {
->>> -        BUG_ON(buf_remaining > 3);
->>
->> Actually error should be returned here since out-of-bounds memory
->> accesses must be avoided, hence:
->>
->>     if (WARN_ON_ONCE(buf_remaining > 3))
->>         return -EINVAL;
-> buf_remaining will be less than equal to 3 because of the expression
-> earlier
-> https://elixir.bootlin.com/linux/v5.2-rc4/source/drivers/i2c/busses/i2c-tegra.c#L520
-> 
+On Wed, Jun 5, 2019 at 6:29 AM Maxime Ripard <maxime.ripard@bootlin.com> wrote:
+>
+> Switch the DT binding to a YAML schema to enable the DT validation.
+>
+> Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+> ---
+>  .../i2c/allwinner,sun6i-a31-p2wi.yaml         | 71 +++++++++++++++++++
+>  .../bindings/i2c/i2c-sun6i-p2wi.txt           | 41 -----------
+>  2 files changed, 71 insertions(+), 41 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/allwinner,sun6i-a31-p2wi.yaml
+>  delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-sun6i-p2wi.txt
+>
+> diff --git a/Documentation/devicetree/bindings/i2c/allwinner,sun6i-a31-p2wi.yaml b/Documentation/devicetree/bindings/i2c/allwinner,sun6i-a31-p2wi.yaml
+> new file mode 100644
+> index 000000000000..780a33080140
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/allwinner,sun6i-a31-p2wi.yaml
+> @@ -0,0 +1,71 @@
+> +# SPDX-License-Identifier: GPL-2.0
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/i2c/allwinner,sun6i-a31-p2wi.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Allwinner A31 P2WI (Push/Pull 2 Wires Interface) Device Tree Bindings
+> +
+> +maintainers:
+> +  - Chen-Yu Tsai <wens@csie.org>
+> +  - Maxime Ripard <maxime.ripard@bootlin.com>
+> +
+> +allOf:
+> +  - $ref: /schemas/i2c/i2c-controller.yaml#
+> +
+> +properties:
+> +  "#address-cells":
+> +    const: 1
+> +
+> +  "#size-cells":
+> +    const: 0
 
-Ah yes, indeed!
+These 2 are covered by i2c-controller.yaml, right?
 
-> 
->>
->>>           val = i2c_readl(i2c_dev, I2C_RX_FIFO);
->>>           val = cpu_to_le32(val);
->>>           memcpy(buf, &val, buf_remaining);
->>> @@ -523,7 +522,6 @@ static int tegra_i2c_empty_rx_fifo(struct
->>> tegra_i2c_dev *i2c_dev)
->>>           rx_fifo_avail--;
->>>       }
->>>   -    BUG_ON(rx_fifo_avail > 0 && buf_remaining > 0);
->>
->> Better not to ignore this as well:
->>
->>     if (WARN_ON_ONCE(rx_fifo_avail > 0 &&
->>              buf_remaining > 0))
->>         return -EINVAL;
->>
-> Please check below line.
-> https://elixir.bootlin.com/linux/v5.2-rc4/source/drivers/i2c/busses/i2c-tegra.c#L532
-> 
-> 
-> It ensures that buf_remaining will be 0 and we never hit the BUG_ON as
-> follows:
+> +
+> +  compatible:
+> +    const: allwinner,sun6i-a31-p2wi
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  interrupts:
+> +    maxItems: 1
+> +
+> +  clocks:
+> +    maxItems: 1
+> +
+> +  resets:
+> +    maxItems: 1
+> +
+> +  clock-frequency:
+> +    minimum: 1
+> +    maximum: 6000000
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - interrupts
+> +  - clocks
+> +  - resets
+> +
+> +# FIXME: We should set it, but it would report all the generic
+> +# properties as additional properties.
+> +# additionalProperties: false
+> +
+> +examples:
+> +  - |
+> +    p2wi@1f03400 {
 
-[1] Okay, but it doesn't ensure about rx_fifo_avail. So it could be:
+i2c@...
 
-	if (WARN_ON_ONCE(rx_fifo_avail))
-		return -EINVAL;
+That should fail on the schema (I need to get the schema checking of
+examples finished.)
 
->>> -    BUG_ON(rx_fifo_avail > 0 && buf_remaining > 0);
-> 
->>>       i2c_dev->msg_buf_remaining = buf_remaining;
->>>       i2c_dev->msg_buf = buf;
->>>   @@ -581,7 +579,6 @@ static int tegra_i2c_fill_tx_fifo(struct
->>> tegra_i2c_dev *i2c_dev)
->>>        * boundary and fault.
->>>        */
->>>       if (tx_fifo_avail > 0 && buf_remaining > 0) {
->>> -        BUG_ON(buf_remaining > 3);
->>
->> And here, cause this will corrupt stack:
->>
->>         if (WARN_ON_ONCE(buf_remaining > 3))
->>             return -EINVAL;
->>
-> Please check the line
-> https://elixir.bootlin.com/linux/v5.2-rc4/source/drivers/i2c/busses/i2c-tegra.c#L576
-> 
-> 
-> It ensures buf_remaining will be less or equal to 3.
-
-Okay, agree here.
-
->>>           memcpy(&val, buf, buf_remaining);
->>>           val = le32_to_cpu(val);
->>>   @@ -850,7 +847,8 @@ static irqreturn_t tegra_i2c_isr(int irq, void
->>> *dev_id)
->>>               if (i2c_dev->msg_buf_remaining)
->>>                   tegra_i2c_empty_rx_fifo(i2c_dev);
->>>               else
->>> -                BUG();
->>> +                tegra_i2c_mask_irq(i2c_dev,
->>> +                           I2C_INT_RX_FIFO_DATA_REQ);
->>
->> Then here:
->>
->>     if (WARN_ON_ONCE(!i2c_dev->msg_buf_remaining) ||
->>         tegra_i2c_empty_rx_fifo(i2c_dev)) {
->>         i2c_dev->msg_err |= I2C_ERR_UNKNOWN_INTERRUPT;
->>         goto err;
->>     }
->>
-> Can you please elaborate why the condition needs to be as follows
-> instead of " if (WARN_ON_ONCE(i2c_dev->msg_buf_remaining)) " ?
-> 
->>     if (WARN_ON_ONCE(!i2c_dev->msg_buf_remaining) ||
->>         tegra_i2c_empty_rx_fifo(i2c_dev)) {
-
-Because this is a "receive" transfer and hence it is a error condition
-if the data-message was already fully received and then there is another
-request from hardware to receive more data. So
-"!i2c_dev->msg_buf_remaining" is the error condition here because there
-is no more space in the buffer.
-
-Looking at this again, seems checking for "if
-(WARN_ON_ONCE(rx_fifo_avail))" in the above hunk [1] will be already
-enough since a not fully drained RX FIFO means that there is no enough
-space in the buffer. Then it could be:
-
-        if (tegra_i2c_empty_rx_fifo(i2c_dev)) {
-                i2c_dev->msg_err |= I2C_ERR_UNKNOWN_INTERRUPT;
-                goto err;
-	}
+> +      compatible = "allwinner,sun6i-a31-p2wi";
+> +      reg = <0x01f03400 0x400>;
+> +      interrupts = <0 39 4>;
+> +      clocks = <&apb0_gates 3>;
+> +      clock-frequency = <6000000>;
+> +      resets = <&apb0_rst 3>;
+> +      #address-cells = <1>;
+> +      #size-cells = <0>;
+> +
+> +      axp221: pmic@68 {
+> +        compatible = "x-powers,axp221";
+> +        reg = <0x68>;
+> +      };
+> +    };
+> +
+> +...
