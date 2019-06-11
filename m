@@ -1,14 +1,13 @@
 From: Rob Herring <robh+dt@kernel.org>
-Subject: Re: [PATCH v3 2/2] dt-bindings: i2c: mv64xxx: Add YAML schemas
-Date: Tue, 11 Jun 2019 09:33:42 -0600
-Message-ID: <CAL_JsqLXFaDsfrzBc6dUwsuBrhWs=w2m-pXjFBdQ_sm685kf2Q@mail.gmail.com>
+Subject: Re: [PATCH v3 1/2] dt-bindings: i2c: sun6i-p2wi: Add YAML schemas
+Date: Tue, 11 Jun 2019 09:34:22 -0600
+Message-ID: <CAL_JsqK7F+6W_GGAtkjv-tiou9s1tMDcB+2yshrDqoTU1V65KQ@mail.gmail.com>
 References: <20190611090309.7930-1-maxime.ripard@bootlin.com>
- <20190611090309.7930-2-maxime.ripard@bootlin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190611090309.7930-2-maxime.ripard@bootlin.com>
+In-Reply-To: <20190611090309.7930-1-maxime.ripard@bootlin.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -30,16 +29,14 @@ On Tue, Jun 11, 2019 at 3:03 AM Maxime Ripard <maxime.ripard@bootlin.com> wrote:
 >
 > ---
 >
-> Changes from v2:
->   - Remove the copy/pasted example and use the one we had before
->
-> Changes from v1:
->   - Fix the maintainers
+> Changes from v2
+>   - Remove redundant constraints on address-cells and size-cells
+>   - Fix the example
 > ---
->  .../devicetree/bindings/i2c/i2c-mv64xxx.txt   |  64 ---------
->  .../bindings/i2c/marvell,mv64xxx-i2c.yaml     | 124 ++++++++++++++++++
->  2 files changed, 124 insertions(+), 64 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
->  create mode 100644 Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
+>  .../i2c/allwinner,sun6i-a31-p2wi.yaml         | 65 +++++++++++++++++++
+>  .../bindings/i2c/i2c-sun6i-p2wi.txt           | 41 ------------
+>  2 files changed, 65 insertions(+), 41 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/allwinner,sun6i-a31-p2wi.yaml
+>  delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-sun6i-p2wi.txt
 
 Reviewed-by: Rob Herring <robh@kernel.org>
