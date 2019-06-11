@@ -1,7 +1,7 @@
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH v4 2/7] i2c: acpi: Use available IRQ helper functions
-Date: Tue, 11 Jun 2019 13:30:56 +0100
-Message-ID: <20190611123101.25264-3-ckeepax@opensource.cirrus.com>
+Subject: [PATCH v4 4/7] i2c: core: Make i2c_acpi_get_irq available to the rest of the I2C core
+Date: Tue, 11 Jun 2019 13:30:58 +0100
+Message-ID: <20190611123101.25264-5-ckeepax@opensource.cirrus.com>
 References: <20190611123101.25264-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,90 +12,87 @@ To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
 Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Use the available IRQ helper functions, most of the functions have
-additional helpful side affects like configuring the trigger type of the
-IRQ.
+In preparation for more refactoring make i2c_acpi_get_irq available
+outside i2c-core-acpi.c.
 
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 ---
 
-No changes since v3.
-
-Apologies Andy but I really can't see a sensible way to split this
-patch up. I have tried moving the resource_list_for_each_loop
-into a function in one patch then switching to using
-acpi_dev_resource_interrupt and i2c_dev_irq_from_resource, but the
-function is basically a completely different function ie. all the
-arguments are different and the purpose is different. So it makes
-no sense, and it is very ping pong. I tried doing the switch to
-i2c_dev_irq_from_resources as a separate patch which isn't so bad,
-but feels pointless as it is such a small change, let me know if you
-really want me to send that version.
-
-Basically the switch to the helper function and the use of
-acpi_dev_resource_interrupt are intrinsically linked, so there isn't
-really a sensible way to split those up. If you still want some
-changes I am afraid you will have to be more specific in what you are
-looking for.
+Changes since v3:
+ - Move the change to use the helper function from i2c-core-base into its own patch.
 
 Thanks,
 Charles
 
- drivers/i2c/i2c-core-acpi.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ drivers/i2c/i2c-core-acpi.c | 15 +++++++++++++--
+ drivers/i2c/i2c-core.h      |  7 +++++++
+ 2 files changed, 20 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index f1d648962b223..47d5b1c5ec9e0 100644
+index 7d4d66ba752d4..35966cc337dde 100644
 --- a/drivers/i2c/i2c-core-acpi.c
 +++ b/drivers/i2c/i2c-core-acpi.c
-@@ -133,14 +133,25 @@ static int i2c_acpi_do_lookup(struct acpi_device *adev,
- 	return 0;
+@@ -144,8 +144,17 @@ static int i2c_acpi_add_resource(struct acpi_resource *ares, void *data)
+ 	return 1; /* No need to add resource to the list */
  }
  
-+static int i2c_acpi_add_resource(struct acpi_resource *ares, void *data)
-+{
-+	int *irq = data;
-+	struct resource r;
-+
-+	if (*irq <= 0 && acpi_dev_resource_interrupt(ares, 0, &r))
-+		*irq = i2c_dev_irq_from_resources(&r, 1);
-+
-+	return 1; /* No need to add resource to the list */
-+}
+-static int i2c_acpi_get_irq(struct acpi_device *adev)
++/**
++ * i2c_acpi_get_irq - get device IRQ number from ACPI
++ * @client: Pointer to the I2C client device
++ *
++ * Find the IRQ number used by a specific client device.
++ *
++ * Return: The IRQ number or an error code.
++ */
++int i2c_acpi_get_irq(struct i2c_client *client)
+ {
++	struct acpi_device *adev = ACPI_COMPANION(&client->adapter->dev);
+ 	struct list_head resource_list;
+ 	int irq = -ENOENT;
+ 	int ret;
+@@ -162,6 +171,8 @@ static int i2c_acpi_get_irq(struct acpi_device *adev)
+ 	return irq;
+ }
+ 
++static struct i2c_client *i2c_acpi_find_client_by_adev(struct acpi_device *adev);
 +
  static int i2c_acpi_get_info(struct acpi_device *adev,
  			     struct i2c_board_info *info,
  			     struct i2c_adapter *adapter,
- 			     acpi_handle *adapter_handle)
- {
- 	struct list_head resource_list;
--	struct resource_entry *entry;
- 	struct i2c_acpi_lookup lookup;
-+	int irq = -ENOENT;
- 	int ret;
- 
- 	memset(&lookup, 0, sizeof(lookup));
-@@ -172,16 +183,13 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
+@@ -198,7 +209,7 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
+ 		*adapter_handle = lookup.adapter_handle;
  
  	/* Then fill IRQ number if any */
- 	INIT_LIST_HEAD(&resource_list);
--	ret = acpi_dev_get_resources(adev, &resource_list, NULL, NULL);
-+	ret = acpi_dev_get_resources(adev, &resource_list,
-+				     i2c_acpi_add_resource, &irq);
- 	if (ret < 0)
- 		return -EINVAL;
+-	ret = i2c_acpi_get_irq(adev);
++	ret = i2c_acpi_get_irq(i2c_acpi_find_client_by_adev(adev));
+ 	if (ret > 0)
+ 		info->irq = ret;
  
--	resource_list_for_each_entry(entry, &resource_list) {
--		if (resource_type(entry->res) == IORESOURCE_IRQ) {
--			info->irq = entry->res->start;
--			break;
--		}
--	}
-+	if (irq > 0)
-+		info->irq = irq;
- 
- 	acpi_dev_free_resource_list(&resource_list);
+diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
+index 2a3b28bf826b1..517d98be68d25 100644
+--- a/drivers/i2c/i2c-core.h
++++ b/drivers/i2c/i2c-core.h
+@@ -63,6 +63,8 @@ const struct acpi_device_id *
+ i2c_acpi_match_device(const struct acpi_device_id *matches,
+ 		      struct i2c_client *client);
+ void i2c_acpi_register_devices(struct i2c_adapter *adap);
++
++int i2c_acpi_get_irq(struct i2c_client *client);
+ #else /* CONFIG_ACPI */
+ static inline void i2c_acpi_register_devices(struct i2c_adapter *adap) { }
+ static inline const struct acpi_device_id *
+@@ -71,6 +73,11 @@ i2c_acpi_match_device(const struct acpi_device_id *matches,
+ {
+ 	return NULL;
+ }
++
++static inline int i2c_acpi_get_irq(struct i2c_client *client)
++{
++	return 0;
++}
+ #endif /* CONFIG_ACPI */
+ extern struct notifier_block i2c_acpi_notifier;
  
 -- 
 2.11.0
