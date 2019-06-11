@@ -1,65 +1,71 @@
-From: Asmaa Mnebhi <Asmaa@mellanox.com>
-Subject: RE: [PATCH v12 1/1] Add support for IPMB driver
-Date: Tue, 11 Jun 2019 13:28:29 +0000
-Message-ID: <VI1PR05MB62398E3DADCD067A23BBC53BDAED0@VI1PR05MB6239.eurprd05.prod.outlook.com>
-References: <cover.1560192707.git.Asmaa@mellanox.com>
- <319690553a0da2a1e80b400941341081b383e5f1.1560192707.git.Asmaa@mellanox.com>
- <54f3c0e0-7aaa-9078-5328-50e8f709ebae@infradead.org>
+From: Rob Herring <robh+dt@kernel.org>
+Subject: Re: [PATCH v2 1/2] dt-bindings: i2c: sun6i-p2wi: Add YAML schemas
+Date: Tue, 11 Jun 2019 08:50:37 -0600
+Message-ID: <CAL_JsqL3cua3u2gNTzHEdgFU0On5J9ziPZeFNiTpu5HS=SJoDA@mail.gmail.com>
+References: <20190605122936.11972-1-maxime.ripard@bootlin.com>
+ <CAL_JsqKC7uP0J14A8_CvPhbZkoSRNWSpS1ee+Q4sG013jY=JeQ@mail.gmail.com>
+ <20190611090641.byr6mpywkfmbhrbk@flea>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <54f3c0e0-7aaa-9078-5328-50e8f709ebae@infradead.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Randy Dunlap <rdunlap@infradead.org>, "minyard@acm.org" <minyard@acm.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190611090641.byr6mpywkfmbhrbk@flea>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Maxime Ripard <maxime.ripard@bootlin.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Gregory Clement <gregory.clement@bootlin.com>, Chen-Yu Tsai <wens@csie.org>, Linux I2C <linux-i2c@vger.kernel.org>, Frank Rowand <frowand.list@gmail.com>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SGVsbG8gUmFuZHksDQoNClBsZWFzZSByZWZlciB0byB0aGUgc2xhdmUtaW50ZXJmYWNlIGxpbnV4
-IGRvY3VtZW50YXRpb246DQpodHRwczovL3d3dy5rZXJuZWwub3JnL2RvYy9Eb2N1bWVudGF0aW9u
-L2kyYy9zbGF2ZS1pbnRlcmZhY2UNCg0KVGhhbmtzLg0KQXNtYWENCg0KLS0tLS1PcmlnaW5hbCBN
-ZXNzYWdlLS0tLS0NCkZyb206IFJhbmR5IER1bmxhcCA8cmR1bmxhcEBpbmZyYWRlYWQub3JnPiAN
-ClNlbnQ6IE1vbmRheSwgSnVuZSAxMCwgMjAxOSA1OjU2IFBNDQpUbzogQXNtYWEgTW5lYmhpIDxB
-c21hYUBtZWxsYW5veC5jb20+OyBtaW55YXJkQGFjbS5vcmc7IHdzYUB0aGUtZHJlYW1zLmRlOyBW
-YWRpbSBQYXN0ZXJuYWsgPHZhZGltcEBtZWxsYW5veC5jb20+OyBNaWNoYWVsIFNoeWNoIDxtaWNo
-YWVsc2hAbWVsbGFub3guY29tPg0KQ2M6IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IGxp
-bnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBbUEFUQ0ggdjEyIDEvMV0gQWRk
-IHN1cHBvcnQgZm9yIElQTUIgZHJpdmVyDQoNCk9uIDYvMTAvMTkgMTE6NTcgQU0sIEFzbWFhIE1u
-ZWJoaSB3cm90ZToNCj4gU3VwcG9ydCByZWNlaXZpbmcgSVBNQiByZXF1ZXN0cyBvbiBhIFNhdGVs
-bGl0ZSBNQyBmcm9tIHRoZSBCTUMuDQo+IE9uY2UgYSByZXNwb25zZSBpcyByZWFkeSwgdGhpcyBk
-cml2ZXIgd2lsbCBzZW5kIGJhY2sgYSByZXNwb25zZSB0byB0aGUgDQo+IEJNQyB2aWEgdGhlIElQ
-TUIgY2hhbm5lbC4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEFzbWFhIE1uZWJoaSA8QXNtYWFAbWVs
-bGFub3guY29tPg0KPiBBY2tlZC1ieTogdmFkaW1wQG1lbGxhbm94LmNvbQ0KPiAtLS0NCj4gIERv
-Y3VtZW50YXRpb24vSVBNQi50eHQgICAgICAgICAgIHwgMTAzICsrKysrKysrKysrDQo+ICBkcml2
-ZXJzL2NoYXIvaXBtaS9LY29uZmlnICAgICAgICB8ICAgOCArDQo+ICBkcml2ZXJzL2NoYXIvaXBt
-aS9NYWtlZmlsZSAgICAgICB8ICAgMSArDQo+ICBkcml2ZXJzL2NoYXIvaXBtaS9pcG1iX2Rldl9p
-bnQuYyB8IDM2NCANCj4gKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrDQo+
-ICA0IGZpbGVzIGNoYW5nZWQsIDQ3NiBpbnNlcnRpb25zKCspDQo+ICBjcmVhdGUgbW9kZSAxMDA2
-NDQgRG9jdW1lbnRhdGlvbi9JUE1CLnR4dCAgY3JlYXRlIG1vZGUgMTAwNjQ0IA0KPiBkcml2ZXJz
-L2NoYXIvaXBtaS9pcG1iX2Rldl9pbnQuYw0KPiANCj4gZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRp
-b24vSVBNQi50eHQgYi9Eb2N1bWVudGF0aW9uL0lQTUIudHh0IG5ldyBmaWxlIA0KPiBtb2RlIDEw
-MDY0NCBpbmRleCAwMDAwMDAwLi43MTYwZDUzDQo+IC0tLSAvZGV2L251bGwNCj4gKysrIGIvRG9j
-dW1lbnRhdGlvbi9JUE1CLnR4dA0KPiBAQCAtMCwwICsxLDEwMyBAQA0KDQpbLi4uXQ0KDQo+ICtJ
-bnN0YW50aWF0ZSB0aGUgZGV2aWNlDQo+ICstLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQo+ICsNCj4g
-K0FmdGVyIGxvYWRpbmcgdGhlIGRyaXZlciwgeW91IGNhbiBpbnN0YW50aWF0ZSB0aGUgZGV2aWNl
-IGFzIGRlc2NyaWJlZCANCj4gK2luICdEb2N1bWVudGF0aW9uL2kyYy9pbnN0YW50aWF0aW5nLWRl
-dmljZXMnLg0KPiArSWYgeW91IGhhdmUgbXVsdGlwbGUgQk1DcywgZWFjaCBjb25uZWN0ZWQgdG8g
-eW91ciBTYXRlbGxpdGUgTUMgdmlhIGEgDQo+ICtkaWZmZXJlbnQgSTJDIGJ1cywgeW91IGNhbiBp
-bnN0YW50aWF0ZSBhIGRldmljZSBmb3IgZWFjaCBvZiB0aG9zZSANCj4gK0JNQ3MuDQo+ICtUaGUg
-bmFtZSBvZiB0aGUgaW5zdGFudGlhdGVkIGRldmljZSBjb250YWlucyB0aGUgSTJDIGJ1cyBudW1i
-ZXIgDQo+ICthc3NvY2lhdGVkIHdpdGggaXQgYXMgZm9sbG93czoNCj4gKw0KPiArQk1DMSAtLS0t
-LS0gSVBNQi9JMkMgYnVzIDEgLS0tLS0tLS0tfCAgIC9kZXYvaXBtYi0xDQo+ICsJCQkJU2F0ZWxs
-aXRlIE1DDQo+ICtCTUMxIC0tLS0tLSBJUE1CL0kyQyBidXMgMiAtLS0tLS0tLS18ICAgL2Rldi9p
-cG1iLTINCj4gKw0KPiArRm9yIGluc3RhbmNlLCB5b3UgY2FuIGluc3RhbnRpYXRlIHRoZSBpcG1i
-LWRldi1pbnQgZGV2aWNlIGZyb20gdXNlciANCj4gK3NwYWNlIGF0IHRoZSA3IGJpdCBhZGRyZXNz
-IDB4MTAgb24gYnVzIDI6DQo+ICsNCj4gKyAgIyBlY2hvIGlwbWItZGV2IDB4MTAxMCA+IC9zeXMv
-YnVzL2kyYy9kZXZpY2VzL2kyYy0yL25ld19kZXZpY2UNCg0KVGhpcyBpcyBjb25mdXNpbmcuDQoN
-CkNhbiB5b3UgY2xhcmlmeSBob3cgdGhlIDctYml0IGFkZHJlc3MgaXMgZXh0cmFjdGVkIGZyb20g
-dGhhdCBoZXggbnVtYmVyPw0KSXMgdGhlIDctYml0IGFkZHJlc3MgcmVwZWF0ZWQgKGR1cGxpY2F0
-ZWQpPw0KSXMgdGhlIDctYml0IGFkZHJlc3MgdGhlIGxvdyBvcmRlciAobG93IGJpdHMpIDB4MTAg
-b3IgdGhlIDB4MTAgYXQgYml0cw0KMTUtOCAob3IgMTQtOCk/DQoNCj4gK1RoaXMgd2lsbCBjcmVh
-dGUgdGhlIGRldmljZSBmaWxlIC9kZXYvaXBtYi0yLCB3aGljaCBjYW4gYmUgYWNjZXNzZWQgDQo+
-ICtieSB0aGUgdXNlciBzcGFjZSBwcm9ncmFtLiBUaGUgZGV2aWNlIG5lZWRzIHRvIGJlIGluc3Rh
-bnRpYXRlZCBiZWZvcmUgDQo+ICtydW5uaW5nIHRoZSB1c2VyIHNwYWNlIHByb2dyYW0uDQoNCnRo
-YW5rcy4NCi0tDQp+UmFuZHkNCg==
+On Tue, Jun 11, 2019 at 3:06 AM Maxime Ripard <maxime.ripard@bootlin.com> wrote:
+>
+> Hi Rob,
+>
+> On Mon, Jun 10, 2019 at 03:34:18PM -0600, Rob Herring wrote:
+> > On Wed, Jun 5, 2019 at 6:29 AM Maxime Ripard <maxime.ripard@bootlin.com> wrote:
+> > > +properties:
+> > > +  "#address-cells":
+> > > +    const: 1
+> > > +
+> > > +  "#size-cells":
+> > > +    const: 0
+> >
+> > These 2 are covered by i2c-controller.yaml, right?
+>
+> Indeed, I've removed them.
+>
+> > > +examples:
+> > > +  - |
+> > > +    p2wi@1f03400 {
+> >
+> > i2c@...
+> >
+> > That should fail on the schema (I need to get the schema checking of
+> > examples finished.)
+>
+> That would be great :) The compilation of the examples alone already
+> caught a good number of examples that weren't even compiling.
+
+I'm primarily waiting on a dtc change to be accepted[1]. Feel free to
+review/ack.
+
+> Speaking of examples, one thing that would be great too would be to
+> allow the usage of our C headers. It's not supported at the moment,
+> and this often ends up with an example that is less readable than the
+> actual DT.
+
+It should be. You just have to add them. See
+Documentation/devicetree/bindings/timer/intel,ixp4xx-timer.yaml for
+example.
+
+Maybe the common interrupt and gpio ones should be added by default.
+
+Rob
+
+[1] https://www.spinics.net/lists/devicetree-compiler/msg02709.html
