@@ -1,112 +1,130 @@
 From: Bjorn Andersson <bjorn.andersson@linaro.org>
 Subject: Re: [PATCH v3 4/8] pinctrl: qcom: sdm845: Provide ACPI support
-Date: Tue, 11 Jun 2019 11:39:45 -0700
-Message-ID: <20190611183945.GP4814@minitux>
+Date: Tue, 11 Jun 2019 11:40:13 -0700
+Message-ID: <20190611184013.GQ4814@minitux>
 References: <20190610084213.1052-1-lee.jones@linaro.org>
  <20190610084213.1052-4-lee.jones@linaro.org>
- <CAKv+Gu_s7i8JC4cv-dJMvm1_0cGzzhzf+Dxu0rxcF7iugF=vHg@mail.gmail.com>
- <20190610085542.GL4797@dell>
- <CAKv+Gu8rhxciy1cOG3B3pda9+p4R_COGrrqa7S_Rj9y2HeBxYw@mail.gmail.com>
- <20190610092245.GN4797@dell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190610092245.GN4797@dell>
+In-Reply-To: <20190610084213.1052-4-lee.jones@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Lee Jones <lee.jones@linaro.org>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>, alokc@codeaurora.org, Andy Gross <andy.gross@linaro.org>, David Brown <david.brown@linaro.org>, wsa+renesas@sang-engineering.com, Linus Walleij <linus.walleij@linaro.org>, balbi@kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jeffrey Hugo <jlhugo@gmail.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, linux-usb <linux-usb@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: alokc@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, linus.walleij@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org, ard.biesheuvel@linaro.org, jlhugo@gmail.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon 10 Jun 02:22 PDT 2019, Lee Jones wrote:
+On Mon 10 Jun 01:42 PDT 2019, Lee Jones wrote:
 
-> On Mon, 10 Jun 2019, Ard Biesheuvel wrote:
+> This patch provides basic support for booting with ACPI instead
+> of the currently supported Device Tree.  When doing so there are a
+> couple of differences which we need to taken into consideration.
 > 
-> > On Mon, 10 Jun 2019 at 10:55, Lee Jones <lee.jones@linaro.org> wrote:
-> > >
-> > > On Mon, 10 Jun 2019, Ard Biesheuvel wrote:
-> > >
-> > > > On Mon, 10 Jun 2019 at 10:42, Lee Jones <lee.jones@linaro.org> wrote:
-> > > > >
-> > > > > This patch provides basic support for booting with ACPI instead
-> > > > > of the currently supported Device Tree.  When doing so there are a
-> > > > > couple of differences which we need to taken into consideration.
-> > > > >
-> > > > > Firstly, the SDM850 ACPI tables omit information pertaining to the
-> > > > > 4 reserved GPIOs on the platform.  If Linux attempts to touch/
-> > > > > initialise any of these lines, the firmware will restart the
-> > > > > platform.
-> > > > >
-> > > > > Secondly, when booting with ACPI, it is expected that the firmware
-> > > > > will set-up things like; Regulators, Clocks, Pin Functions, etc in
-> > > > > their ideal configuration.  Thus, the possible Pin Functions
-> > > > > available to this platform are not advertised when providing the
-> > > > > higher GPIOD/Pinctrl APIs with pin information.
-> > > > >
-> > > > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> > > >
-> > > > For the ACPI probing boilerplate:
-> > > > Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> > > >
-> > > > *However*, I really don't like hardcoding reserved GPIOs like this.
-> > > > What guarantee do we have that each and every ACPI system
-> > > > incorporating the QCOM0217 device has the exact same list of reserved
-> > > > GPIOs?
-> > >
-> > > This is SDM845 specific, so the chances are reduced.
-> > 
-> > You don't know that.
+> Firstly, the SDM850 ACPI tables omit information pertaining to the
+> 4 reserved GPIOs on the platform.  If Linux attempts to touch/
+> initialise any of these lines, the firmware will restart the
+> platform.
 > 
-> All the evidence I have to hand tells me that this is the case.  Even
-> on very closely related variants Qualcomm uses different H/W blocks
-> for GPIO.
+> Secondly, when booting with ACPI, it is expected that the firmware
+> will set-up things like; Regulators, Clocks, Pin Functions, etc in
+> their ideal configuration.  Thus, the possible Pin Functions
+> available to this platform are not advertised when providing the
+> higher GPIOD/Pinctrl APIs with pin information.
 > 
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
 
-I presume with this you mean that e.g. the 835 laptops doesn't sport a
-QCOM0217?
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-> > > However, if another SDM845 variant does crop up, also lacking the
-> > > "gpios" property, we will have to find another differentiating factor
-> > > between them and conduct some matching.  What else can you do with
-> > > platforms supporting non-complete/non-forthcoming ACPI tables?
-> > >
-> > 
-> > Either we don't touch any pins at all if they are not referenced
-> > explicitly anywhere
+> ---
+>  drivers/pinctrl/qcom/Kconfig          |  2 +-
+>  drivers/pinctrl/qcom/pinctrl-sdm845.c | 36 ++++++++++++++++++++++++++-
+>  2 files changed, 36 insertions(+), 2 deletions(-)
 > 
-> I guess this would require an API change, which is out of scope of
-> this patch-set.  Happy to change this implementation later if the
-> subsystem allows for it though.
-> 
-
-Last time we discussed this the _only_ offender was the loop issuing a
-get_direction() on all descs towards the end of
-gpiochip_add_data_with_key()
-
-> > or we parse the PEP tables, which seem to cover
-> > some of this information (if Bjorn's analysis is correct)
-> 
-> Maybe someone can conduct some further work on this when we start to
-> enable or write a driver for the PEP (Windows-compatible System Power
-> Management Controller).  The tables for the PEP look pretty complex,
-> so this task would be extremely difficult if not impossible without
-> Qualcomm's help.  I wouldn't even know how to extrapolate this
-> information from the tables.
-> 
-
-Yeah that looks quite different, so I'm not sure how to tie that into
-the current driver. But I'm fine with adding this for now, if PEP brings
-a different approach we can always rip this out later.
-
-Regards,
-Bjorn
-
-> > (if Bjorn's analysis is correct)
-> 
-> Bjorn is about to provide his Reviewed-by for this implementation.
-> 
+> diff --git a/drivers/pinctrl/qcom/Kconfig b/drivers/pinctrl/qcom/Kconfig
+> index 2e66ab72c10b..aafbe932424f 100644
+> --- a/drivers/pinctrl/qcom/Kconfig
+> +++ b/drivers/pinctrl/qcom/Kconfig
+> @@ -168,7 +168,7 @@ config PINCTRL_SDM660
+>  
+>  config PINCTRL_SDM845
+>         tristate "Qualcomm Technologies Inc SDM845 pin controller driver"
+> -       depends on GPIOLIB && OF
+> +       depends on GPIOLIB && (OF || ACPI)
+>         select PINCTRL_MSM
+>         help
+>           This is the pinctrl, pinmux, pinconf and gpiolib driver for the
+> diff --git a/drivers/pinctrl/qcom/pinctrl-sdm845.c b/drivers/pinctrl/qcom/pinctrl-sdm845.c
+> index c97f20fca5fd..98a438dba711 100644
+> --- a/drivers/pinctrl/qcom/pinctrl-sdm845.c
+> +++ b/drivers/pinctrl/qcom/pinctrl-sdm845.c
+> @@ -3,6 +3,7 @@
+>   * Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
+>   */
+>  
+> +#include <linux/acpi.h>
+>  #include <linux/module.h>
+>  #include <linux/of.h>
+>  #include <linux/platform_device.h>
+> @@ -1277,6 +1278,10 @@ static const struct msm_pingroup sdm845_groups[] = {
+>  	UFS_RESET(ufs_reset, 0x99f000),
+>  };
+>  
+> +static const int sdm845_acpi_reserved_gpios[] = {
+> +	0, 1, 2, 3, 81, 82, 83, 84, -1
+> +};
+> +
+>  static const struct msm_pinctrl_soc_data sdm845_pinctrl = {
+>  	.pins = sdm845_pins,
+>  	.npins = ARRAY_SIZE(sdm845_pins),
+> @@ -1287,11 +1292,39 @@ static const struct msm_pinctrl_soc_data sdm845_pinctrl = {
+>  	.ngpios = 150,
+>  };
+>  
+> +static const struct msm_pinctrl_soc_data sdm845_acpi_pinctrl = {
+> +	.pins = sdm845_pins,
+> +	.npins = ARRAY_SIZE(sdm845_pins),
+> +	.groups = sdm845_groups,
+> +	.ngroups = ARRAY_SIZE(sdm845_groups),
+> +	.reserved_gpios = sdm845_acpi_reserved_gpios,
+> +	.ngpios = 150,
+> +};
+> +
+>  static int sdm845_pinctrl_probe(struct platform_device *pdev)
+>  {
+> -	return msm_pinctrl_probe(pdev, &sdm845_pinctrl);
+> +	int ret;
+> +
+> +	if (pdev->dev.of_node) {
+> +		ret = msm_pinctrl_probe(pdev, &sdm845_pinctrl);
+> +	} else if (has_acpi_companion(&pdev->dev)) {
+> +		ret = msm_pinctrl_probe(pdev, &sdm845_acpi_pinctrl);
+> +	} else {
+> +		dev_err(&pdev->dev, "DT and ACPI disabled\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	return ret;
+>  }
+>  
+> +#if CONFIG_ACPI
+> +static const struct acpi_device_id sdm845_pinctrl_acpi_match[] = {
+> +	{ "QCOM0217"},
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(acpi, sdm845_pinctrl_acpi_match);
+> +#endif
+> +
+>  static const struct of_device_id sdm845_pinctrl_of_match[] = {
+>  	{ .compatible = "qcom,sdm845-pinctrl", },
+>  	{ },
+> @@ -1302,6 +1335,7 @@ static struct platform_driver sdm845_pinctrl_driver = {
+>  		.name = "sdm845-pinctrl",
+>  		.pm = &msm_pinctrl_dev_pm_ops,
+>  		.of_match_table = sdm845_pinctrl_of_match,
+> +		.acpi_match_table = ACPI_PTR(sdm845_pinctrl_acpi_match),
+>  	},
+>  	.probe = sdm845_pinctrl_probe,
+>  	.remove = msm_pinctrl_remove,
 > -- 
-> Lee Jones [?????????]
-> Linaro Services Technical Lead
-> Linaro.org ??? Open source software for ARM SoCs
-> Follow Linaro: Facebook | Twitter | Blog
+> 2.17.1
+> 
