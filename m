@@ -1,63 +1,65 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v4 0/7] I2C IRQ Probe Improvements
-Date: Tue, 11 Jun 2019 15:51:28 +0300
-Message-ID: <20190611125128.GV9224@smile.fi.intel.com>
-References: <20190611123101.25264-1-ckeepax@opensource.cirrus.com>
+From: Asmaa Mnebhi <Asmaa@mellanox.com>
+Subject: RE: [PATCH v12 1/1] Add support for IPMB driver
+Date: Tue, 11 Jun 2019 13:28:29 +0000
+Message-ID: <VI1PR05MB62398E3DADCD067A23BBC53BDAED0@VI1PR05MB6239.eurprd05.prod.outlook.com>
+References: <cover.1560192707.git.Asmaa@mellanox.com>
+ <319690553a0da2a1e80b400941341081b383e5f1.1560192707.git.Asmaa@mellanox.com>
+ <54f3c0e0-7aaa-9078-5328-50e8f709ebae@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190611123101.25264-1-ckeepax@opensource.cirrus.com>
+In-Reply-To: <54f3c0e0-7aaa-9078-5328-50e8f709ebae@infradead.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Charles Keepax <ckeepax@opensource.cirrus.com>
-Cc: wsa@the-dreams.de, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
+To: Randy Dunlap <rdunlap@infradead.org>, "minyard@acm.org" <minyard@acm.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, Vadim Pasternak <vadimp@mellanox.com>, Michael Shych <michaelsh@mellanox.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 11, 2019 at 01:30:54PM +0100, Charles Keepax wrote:
-> This series attempts to align as much IRQ handling into the
-> probe path as possible. Note that I don't have a great setup
-> for testing these patches so they are mostly just build tested
-> and need careful review and testing before any of them are
-> merged.
-> 
-> The series brings the ACPI path inline with the way the device
-> tree path handles the IRQ entirely at probe time. However,
-> it still leaves any IRQ specified through the board_info as
-> being handled at device time. In that case we need to cache
-> something from the board_info until probe time, which leaves
-> any alternative solution with something basically the same as
-> the current handling although perhaps caching more stuff.
-
-Thank you!
-This one looks good.
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
-> 
-> Thanks,
-> Charles
-> 
-> See previous discussions:
->  - https://lkml.org/lkml/2019/2/15/989
->  - https://www.spinics.net/lists/linux-i2c/msg39541.html
-> 
-> Charles Keepax (7):
->   i2c: core: Allow whole core to use i2c_dev_irq_from_resources
->   i2c: acpi: Use available IRQ helper functions
->   i2c: acpi: Factor out getting the IRQ from ACPI
->   i2c: core: Make i2c_acpi_get_irq available to the rest of the I2C core
->   i2c: core: Move ACPI IRQ handling to probe time
->   i2c: core: Move ACPI gpio IRQ handling into i2c_acpi_get_irq
->   i2c: core: Tidy up handling of init_irq
-> 
->  drivers/i2c/i2c-core-acpi.c | 58 ++++++++++++++++++++++++++++++++-------------
->  drivers/i2c/i2c-core-base.c | 11 +++++----
->  drivers/i2c/i2c-core.h      |  9 +++++++
->  3 files changed, 56 insertions(+), 22 deletions(-)
-> 
-> -- 
-> 2.11.0
-> 
-
--- 
-With Best Regards,
-Andy Shevchenko
+SGVsbG8gUmFuZHksDQoNClBsZWFzZSByZWZlciB0byB0aGUgc2xhdmUtaW50ZXJmYWNlIGxpbnV4
+IGRvY3VtZW50YXRpb246DQpodHRwczovL3d3dy5rZXJuZWwub3JnL2RvYy9Eb2N1bWVudGF0aW9u
+L2kyYy9zbGF2ZS1pbnRlcmZhY2UNCg0KVGhhbmtzLg0KQXNtYWENCg0KLS0tLS1PcmlnaW5hbCBN
+ZXNzYWdlLS0tLS0NCkZyb206IFJhbmR5IER1bmxhcCA8cmR1bmxhcEBpbmZyYWRlYWQub3JnPiAN
+ClNlbnQ6IE1vbmRheSwgSnVuZSAxMCwgMjAxOSA1OjU2IFBNDQpUbzogQXNtYWEgTW5lYmhpIDxB
+c21hYUBtZWxsYW5veC5jb20+OyBtaW55YXJkQGFjbS5vcmc7IHdzYUB0aGUtZHJlYW1zLmRlOyBW
+YWRpbSBQYXN0ZXJuYWsgPHZhZGltcEBtZWxsYW5veC5jb20+OyBNaWNoYWVsIFNoeWNoIDxtaWNo
+YWVsc2hAbWVsbGFub3guY29tPg0KQ2M6IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IGxp
+bnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBbUEFUQ0ggdjEyIDEvMV0gQWRk
+IHN1cHBvcnQgZm9yIElQTUIgZHJpdmVyDQoNCk9uIDYvMTAvMTkgMTE6NTcgQU0sIEFzbWFhIE1u
+ZWJoaSB3cm90ZToNCj4gU3VwcG9ydCByZWNlaXZpbmcgSVBNQiByZXF1ZXN0cyBvbiBhIFNhdGVs
+bGl0ZSBNQyBmcm9tIHRoZSBCTUMuDQo+IE9uY2UgYSByZXNwb25zZSBpcyByZWFkeSwgdGhpcyBk
+cml2ZXIgd2lsbCBzZW5kIGJhY2sgYSByZXNwb25zZSB0byB0aGUgDQo+IEJNQyB2aWEgdGhlIElQ
+TUIgY2hhbm5lbC4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEFzbWFhIE1uZWJoaSA8QXNtYWFAbWVs
+bGFub3guY29tPg0KPiBBY2tlZC1ieTogdmFkaW1wQG1lbGxhbm94LmNvbQ0KPiAtLS0NCj4gIERv
+Y3VtZW50YXRpb24vSVBNQi50eHQgICAgICAgICAgIHwgMTAzICsrKysrKysrKysrDQo+ICBkcml2
+ZXJzL2NoYXIvaXBtaS9LY29uZmlnICAgICAgICB8ICAgOCArDQo+ICBkcml2ZXJzL2NoYXIvaXBt
+aS9NYWtlZmlsZSAgICAgICB8ICAgMSArDQo+ICBkcml2ZXJzL2NoYXIvaXBtaS9pcG1iX2Rldl9p
+bnQuYyB8IDM2NCANCj4gKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrDQo+
+ICA0IGZpbGVzIGNoYW5nZWQsIDQ3NiBpbnNlcnRpb25zKCspDQo+ICBjcmVhdGUgbW9kZSAxMDA2
+NDQgRG9jdW1lbnRhdGlvbi9JUE1CLnR4dCAgY3JlYXRlIG1vZGUgMTAwNjQ0IA0KPiBkcml2ZXJz
+L2NoYXIvaXBtaS9pcG1iX2Rldl9pbnQuYw0KPiANCj4gZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRp
+b24vSVBNQi50eHQgYi9Eb2N1bWVudGF0aW9uL0lQTUIudHh0IG5ldyBmaWxlIA0KPiBtb2RlIDEw
+MDY0NCBpbmRleCAwMDAwMDAwLi43MTYwZDUzDQo+IC0tLSAvZGV2L251bGwNCj4gKysrIGIvRG9j
+dW1lbnRhdGlvbi9JUE1CLnR4dA0KPiBAQCAtMCwwICsxLDEwMyBAQA0KDQpbLi4uXQ0KDQo+ICtJ
+bnN0YW50aWF0ZSB0aGUgZGV2aWNlDQo+ICstLS0tLS0tLS0tLS0tLS0tLS0tLS0tDQo+ICsNCj4g
+K0FmdGVyIGxvYWRpbmcgdGhlIGRyaXZlciwgeW91IGNhbiBpbnN0YW50aWF0ZSB0aGUgZGV2aWNl
+IGFzIGRlc2NyaWJlZCANCj4gK2luICdEb2N1bWVudGF0aW9uL2kyYy9pbnN0YW50aWF0aW5nLWRl
+dmljZXMnLg0KPiArSWYgeW91IGhhdmUgbXVsdGlwbGUgQk1DcywgZWFjaCBjb25uZWN0ZWQgdG8g
+eW91ciBTYXRlbGxpdGUgTUMgdmlhIGEgDQo+ICtkaWZmZXJlbnQgSTJDIGJ1cywgeW91IGNhbiBp
+bnN0YW50aWF0ZSBhIGRldmljZSBmb3IgZWFjaCBvZiB0aG9zZSANCj4gK0JNQ3MuDQo+ICtUaGUg
+bmFtZSBvZiB0aGUgaW5zdGFudGlhdGVkIGRldmljZSBjb250YWlucyB0aGUgSTJDIGJ1cyBudW1i
+ZXIgDQo+ICthc3NvY2lhdGVkIHdpdGggaXQgYXMgZm9sbG93czoNCj4gKw0KPiArQk1DMSAtLS0t
+LS0gSVBNQi9JMkMgYnVzIDEgLS0tLS0tLS0tfCAgIC9kZXYvaXBtYi0xDQo+ICsJCQkJU2F0ZWxs
+aXRlIE1DDQo+ICtCTUMxIC0tLS0tLSBJUE1CL0kyQyBidXMgMiAtLS0tLS0tLS18ICAgL2Rldi9p
+cG1iLTINCj4gKw0KPiArRm9yIGluc3RhbmNlLCB5b3UgY2FuIGluc3RhbnRpYXRlIHRoZSBpcG1i
+LWRldi1pbnQgZGV2aWNlIGZyb20gdXNlciANCj4gK3NwYWNlIGF0IHRoZSA3IGJpdCBhZGRyZXNz
+IDB4MTAgb24gYnVzIDI6DQo+ICsNCj4gKyAgIyBlY2hvIGlwbWItZGV2IDB4MTAxMCA+IC9zeXMv
+YnVzL2kyYy9kZXZpY2VzL2kyYy0yL25ld19kZXZpY2UNCg0KVGhpcyBpcyBjb25mdXNpbmcuDQoN
+CkNhbiB5b3UgY2xhcmlmeSBob3cgdGhlIDctYml0IGFkZHJlc3MgaXMgZXh0cmFjdGVkIGZyb20g
+dGhhdCBoZXggbnVtYmVyPw0KSXMgdGhlIDctYml0IGFkZHJlc3MgcmVwZWF0ZWQgKGR1cGxpY2F0
+ZWQpPw0KSXMgdGhlIDctYml0IGFkZHJlc3MgdGhlIGxvdyBvcmRlciAobG93IGJpdHMpIDB4MTAg
+b3IgdGhlIDB4MTAgYXQgYml0cw0KMTUtOCAob3IgMTQtOCk/DQoNCj4gK1RoaXMgd2lsbCBjcmVh
+dGUgdGhlIGRldmljZSBmaWxlIC9kZXYvaXBtYi0yLCB3aGljaCBjYW4gYmUgYWNjZXNzZWQgDQo+
+ICtieSB0aGUgdXNlciBzcGFjZSBwcm9ncmFtLiBUaGUgZGV2aWNlIG5lZWRzIHRvIGJlIGluc3Rh
+bnRpYXRlZCBiZWZvcmUgDQo+ICtydW5uaW5nIHRoZSB1c2VyIHNwYWNlIHByb2dyYW0uDQoNCnRo
+YW5rcy4NCi0tDQp+UmFuZHkNCg==
