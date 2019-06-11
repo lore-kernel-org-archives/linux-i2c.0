@@ -1,71 +1,72 @@
-From: Rob Herring <robh+dt@kernel.org>
-Subject: Re: [PATCH v2 1/2] dt-bindings: i2c: sun6i-p2wi: Add YAML schemas
-Date: Tue, 11 Jun 2019 08:50:37 -0600
-Message-ID: <CAL_JsqL3cua3u2gNTzHEdgFU0On5J9ziPZeFNiTpu5HS=SJoDA@mail.gmail.com>
-References: <20190605122936.11972-1-maxime.ripard@bootlin.com>
- <CAL_JsqKC7uP0J14A8_CvPhbZkoSRNWSpS1ee+Q4sG013jY=JeQ@mail.gmail.com>
- <20190611090641.byr6mpywkfmbhrbk@flea>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v4 0/7] I2C IRQ Probe Improvements
+Date: Tue, 11 Jun 2019 17:16:58 +0200
+Message-ID: <CAO-hwJ+qSXwZ-5sAiZ55-r_PXp9pvnE1XEaE_v3SBnxzQQNH4g@mail.gmail.com>
+References: <20190611123101.25264-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190611090641.byr6mpywkfmbhrbk@flea>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Maxime Ripard <maxime.ripard@bootlin.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Gregory Clement <gregory.clement@bootlin.com>, Chen-Yu Tsai <wens@csie.org>, Linux I2C <linux-i2c@vger.kernel.org>, Frank Rowand <frowand.list@gmail.com>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190611123101.25264-1-ckeepax@opensource.cirrus.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Charles Keepax <ckeepax@opensource.cirrus.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, mika.westerberg@linux.intel.com, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Linux I2C <linux-i2c@vger.kernel.org>, linux-acpi@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Jim Broadus <jbroadus@gmail.com>, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 11, 2019 at 3:06 AM Maxime Ripard <maxime.ripard@bootlin.com> wrote:
+On Tue, Jun 11, 2019 at 2:31 PM Charles Keepax
+<ckeepax@opensource.cirrus.com> wrote:
 >
-> Hi Rob,
+> This series attempts to align as much IRQ handling into the
+> probe path as possible. Note that I don't have a great setup
+> for testing these patches so they are mostly just build tested
+> and need careful review and testing before any of them are
+> merged.
 >
-> On Mon, Jun 10, 2019 at 03:34:18PM -0600, Rob Herring wrote:
-> > On Wed, Jun 5, 2019 at 6:29 AM Maxime Ripard <maxime.ripard@bootlin.com> wrote:
-> > > +properties:
-> > > +  "#address-cells":
-> > > +    const: 1
-> > > +
-> > > +  "#size-cells":
-> > > +    const: 0
-> >
-> > These 2 are covered by i2c-controller.yaml, right?
+> The series brings the ACPI path inline with the way the device
+> tree path handles the IRQ entirely at probe time. However,
+> it still leaves any IRQ specified through the board_info as
+> being handled at device time. In that case we need to cache
+> something from the board_info until probe time, which leaves
+> any alternative solution with something basically the same as
+> the current handling although perhaps caching more stuff.
+
+Hmm, I still haven't pinpointed the issue, but I wanted to give a test
+of the series and I have:
+[    5.511806] i2c_hid i2c-DLL075B:01: HID over i2c has not been
+provided an Int IRQ
+[    5.511825] i2c_hid: probe of i2c-DLL075B:01 failed with error -22
+
+So it seems that there is something wrong happening when fetching the
+IRQ and providing it to i2c-hid.
+
+That was on a Dell XPS 9360.
+
+Bisecting is starting.
+
+Cheers,
+Benjamin
+
 >
-> Indeed, I've removed them.
+> Thanks,
+> Charles
 >
-> > > +examples:
-> > > +  - |
-> > > +    p2wi@1f03400 {
-> >
-> > i2c@...
-> >
-> > That should fail on the schema (I need to get the schema checking of
-> > examples finished.)
+> See previous discussions:
+>  - https://lkml.org/lkml/2019/2/15/989
+>  - https://www.spinics.net/lists/linux-i2c/msg39541.html
 >
-> That would be great :) The compilation of the examples alone already
-> caught a good number of examples that weren't even compiling.
-
-I'm primarily waiting on a dtc change to be accepted[1]. Feel free to
-review/ack.
-
-> Speaking of examples, one thing that would be great too would be to
-> allow the usage of our C headers. It's not supported at the moment,
-> and this often ends up with an example that is less readable than the
-> actual DT.
-
-It should be. You just have to add them. See
-Documentation/devicetree/bindings/timer/intel,ixp4xx-timer.yaml for
-example.
-
-Maybe the common interrupt and gpio ones should be added by default.
-
-Rob
-
-[1] https://www.spinics.net/lists/devicetree-compiler/msg02709.html
+> Charles Keepax (7):
+>   i2c: core: Allow whole core to use i2c_dev_irq_from_resources
+>   i2c: acpi: Use available IRQ helper functions
+>   i2c: acpi: Factor out getting the IRQ from ACPI
+>   i2c: core: Make i2c_acpi_get_irq available to the rest of the I2C core
+>   i2c: core: Move ACPI IRQ handling to probe time
+>   i2c: core: Move ACPI gpio IRQ handling into i2c_acpi_get_irq
+>   i2c: core: Tidy up handling of init_irq
+>
+>  drivers/i2c/i2c-core-acpi.c | 58 ++++++++++++++++++++++++++++++++-------------
+>  drivers/i2c/i2c-core-base.c | 11 +++++----
+>  drivers/i2c/i2c-core.h      |  9 +++++++
+>  3 files changed, 56 insertions(+), 22 deletions(-)
+>
+> --
+> 2.11.0
+>
