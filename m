@@ -1,13 +1,14 @@
 From: Maxime Ripard <maxime.ripard@bootlin.com>
-Subject: Re: [PATCH v2 1/2] dt-bindings: i2c: sun6i-p2wi: Add YAML schemas
-Date: Tue, 11 Jun 2019 11:06:41 +0200
-Message-ID: <20190611090641.byr6mpywkfmbhrbk@flea>
+Subject: Re: [PATCH v2 2/2] dt-bindings: i2c: mv64xxx: Add YAML schemas
+Date: Tue, 11 Jun 2019 11:07:14 +0200
+Message-ID: <20190611090714.sjqyo4cqyh7l4li2@flea>
 References: <20190605122936.11972-1-maxime.ripard@bootlin.com>
- <CAL_JsqKC7uP0J14A8_CvPhbZkoSRNWSpS1ee+Q4sG013jY=JeQ@mail.gmail.com>
+ <20190605122936.11972-2-maxime.ripard@bootlin.com>
+ <CAL_JsqJczoTpq=8BS5FwL3TJmitZp9e4Mh4oXcvgOMdRmoURvQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2657846540150869915=="
+Content-Type: multipart/mixed; boundary="===============6313579398122538006=="
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <CAL_JsqKC7uP0J14A8_CvPhbZkoSRNWSpS1ee+Q4sG013jY=JeQ@mail.gmail.com>
+In-Reply-To: <CAL_JsqJczoTpq=8BS5FwL3TJmitZp9e4Mh4oXcvgOMdRmoURvQ@mail.gmail.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -22,48 +23,30 @@ Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Wolfram San
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============2657846540150869915==
+--===============6313579398122538006==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="tp4lyww3y3wdgyv5"
+	protocol="application/pgp-signature"; boundary="i4ldgqqqixlfi53r"
 Content-Disposition: inline
 
 
---tp4lyww3y3wdgyv5
+--i4ldgqqqixlfi53r
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Hi Rob,
-
-On Mon, Jun 10, 2019 at 03:34:18PM -0600, Rob Herring wrote:
-> On Wed, Jun 5, 2019 at 6:29 AM Maxime Ripard <maxime.ripard@bootlin.com> wrote:
-> > +properties:
-> > +  "#address-cells":
-> > +    const: 1
-> > +
-> > +  "#size-cells":
-> > +    const: 0
->
-> These 2 are covered by i2c-controller.yaml, right?
-
-Indeed, I've removed them.
-
+On Mon, Jun 10, 2019 at 03:37:17PM -0600, Rob Herring wrote:
 > > +examples:
 > > +  - |
-> > +    p2wi@1f03400 {
+> > +    timer {
 >
-> i2c@...
+> timer?
 >
-> That should fail on the schema (I need to get the schema checking of
-> examples finished.)
+> (and missing unit-address)
 
-That would be great :) The compilation of the examples alone already
-caught a good number of examples that weren't even compiling.
+Yeah, sorry, this is a copy and paste issue..
 
-Speaking of examples, one thing that would be great too would be to
-allow the usage of our C headers. It's not supported at the moment,
-and this often ends up with an example that is less readable than the
-actual DT.
+I've fixed it in v3.
 
+Thanks!
 Maxime
 
 --
@@ -71,21 +54,21 @@ Maxime Ripard, Bootlin
 Embedded Linux and Kernel engineering
 https://bootlin.com
 
---tp4lyww3y3wdgyv5
+--i4ldgqqqixlfi53r
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCXP9vIQAKCRDj7w1vZxhR
-xeGlAP4rbegd1UDuKXUKFF3WhWS1KZK+o17bmmgQWsh+mRKxCwEAp601hbl4LHuW
-G1FzOaVHASk0Y180ji5wRzDpQS2E2gw=
-=1utz
+iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCXP9vQgAKCRDj7w1vZxhR
+xVKXAP0RF4cYMBzsD/TKvd2+MSBUJprWGV+yr32Y+uRWTlAbRAD9EcJQoYoITgBA
+6SZNHmYk4JttNkI5odc971TTyVX0UAw=
+=XakM
 -----END PGP SIGNATURE-----
 
---tp4lyww3y3wdgyv5--
+--i4ldgqqqixlfi53r--
 
 
---===============2657846540150869915==
+--===============6313579398122538006==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -96,4 +79,4 @@ linux-arm-kernel mailing list
 linux-arm-kernel@lists.infradead.org
 http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
---===============2657846540150869915==--
+--===============6313579398122538006==--
