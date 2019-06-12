@@ -1,73 +1,113 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 1/8] i2c: i2c-qcom-geni: Provide support for ACPI
-Date: Wed, 12 Jun 2019 12:44:59 +0200
-Message-ID: <20190612104459.gvji3qxym5s4odfq@ninjato>
-References: <20190610084213.1052-1-lee.jones@linaro.org>
- <20190612103453.ccet2pneairnlpcc@ninjato>
- <20190612104011.GA4660@dell>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
+Subject: Re: [PATCH v2] i2c: i2c-stm32f7: fix the get_irq error cases
+Date: Wed, 12 Jun 2019 14:29:58 +0200
+Message-ID: <6fe9c4cc-d7ed-aad8-b8f8-240a4888aaa8@st.com>
+References: <1558020594-1498-1-git-send-email-fabrice.gasnier@st.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ozob5i4arnc7fie4"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190612104011.GA4660@dell>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: alokc@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, bjorn.andersson@linaro.org, linus.walleij@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org, ard.biesheuvel@linaro.org, jlhugo@gmail.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1558020594-1498-1-git-send-email-fabrice.gasnier@st.com>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: wsa@the-dreams.de, pierre-yves.mordret@st.com
+Cc: alexandre.torgue@st.com, marc.w.gonzalez@free.fr, linux-kernel@vger.kernel.org, fabien.dessenne@st.com, linux-i2c@vger.kernel.org, mcoquelin.stm32@gmail.com, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 5/16/19 5:29 PM, Fabrice Gasnier wrote:
+> During probe, return the "get_irq" error value instead of -EINVAL which
+> allows the driver to be deferred probed if needed.
+> Fix also the case where of_irq_get() returns a negative value.
+> Note :
+> On failure of_irq_get() returns 0 or a negative value while
+> platform_get_irq() returns a negative value.
+> 
+> Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
+> 
+> Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+> Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
+> Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+> ---
+> Changes in v2:
+> - Also check for irq == 0 that means "does not exist" as pointed out by
+>   Marc
 
---ozob5i4arnc7fie4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Wolfram, all,
 
+Gentle ping on this patch
 
-> There are no cross-subsystem build dependencies on any of these
-> patches.  The only reason they are bundled together in the same
-> patch-set is for cross-subsystem visibility and understanding.
->=20
-> There is wide interest in these devices.
+Best Regards,
+Fabrice
 
-I see. That would have been a great cover-letter, Lee ;) Thanks for the
-heads up!
-
->=20
-> > Also, the current maintainer entry for this driver looks like:
-> >=20
-> > drivers/i2c/busses/i2c-qcom-geni.c:
-> >         Andy Gross <agross@kernel.org> (maintainer:ARM/QUALCOMM SUPPORT)
-> >         David Brown <david.brown@linaro.org> (maintainer:ARM/QUALCOMM S=
-UPPORT)
-> >         Alok Chauhan <alokc@codeaurora.org> (supporter:QUALCOMM GENERIC=
- INTERFACE I2C DRIVER)
-> >=20
-> > I didn't hear from those people yet, would be great to have their acks.
->=20
-> I will see if I can rouse them from their slumber.
-
-Please do. If they are not to reach, we probably need to update the
-entry...
-
-
---ozob5i4arnc7fie4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0A16sACgkQFA3kzBSg
-KbYxGA/9HiQnj0VnFh9GoFzMImS2pCdkGgsTJeZ+9OUV4xzVVVJ5IqvMsTVveAa2
-G8UW1TqfWoeNwaAW5z1DITb/F2FOhx162e7Qce8C5xYNJfybOJYixAvlkyjVBi0H
-fT4/ei14NJgNsy2cGs2UUSwKqwMmR7iom3DQQc3w6fMBiXciQGKNXJ7Gr1iatsg7
-jbOMUZ+SzeSLsfQutWvNR8kiN0K0AEnj9f5Q2nxPtwoK0cSx6HxH7x3KA6QK4NlO
-tOY4FrVg4yXCu2arTUcp+1PBo2E9svLocqZwyxa1bJyeIZYNMI9XJXoliMNdMsJF
-spDGdaHB3OPG1ipES/W6559y9MCdebjqlnE2JiSGmhNlrU+TIgj4q862zHTL9wyN
-Ugpc5IMvaVafCfUJTqLHF/lGKfs4J5d568psLyJamY9XqVWG1LY+s/RQtD1OMATU
-dfDs2ONGEbVK8Okvpck8cgPn25bOn0R67Kn5K31PX6qUhlggxeGl5laOhhdzg1h5
-80Or9O8URxb6SHStnsgy8uA9OF3gpfKnmE6PVXxfIShQiCz3UxC9l/j46zlObUPV
-Z1XeHI2cT0cjSTfgclEyM0Q33DyECfH3uTPuc0erjqNj+qWVxV506GsAOmU09GEP
-lXw8C3DCPAdqrxO/bcIi8xlY//b0s9uEHokcV5lutndaQFyj+oE=
-=E6Gx
------END PGP SIGNATURE-----
-
---ozob5i4arnc7fie4--
+> ---
+>  drivers/i2c/busses/i2c-stm32f7.c | 26 ++++++++++++++------------
+>  1 file changed, 14 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+> index 4284fc9..d7d7dd7 100644
+> --- a/drivers/i2c/busses/i2c-stm32f7.c
+> +++ b/drivers/i2c/busses/i2c-stm32f7.c
+> @@ -25,7 +25,6 @@
+>  #include <linux/module.h>
+>  #include <linux/of.h>
+>  #include <linux/of_address.h>
+> -#include <linux/of_irq.h>
+>  #include <linux/of_platform.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/pinctrl/consumer.h>
+> @@ -1812,15 +1811,14 @@ static struct i2c_algorithm stm32f7_i2c_algo = {
+>  
+>  static int stm32f7_i2c_probe(struct platform_device *pdev)
+>  {
+> -	struct device_node *np = pdev->dev.of_node;
+>  	struct stm32f7_i2c_dev *i2c_dev;
+>  	const struct stm32f7_i2c_setup *setup;
+>  	struct resource *res;
+> -	u32 irq_error, irq_event, clk_rate, rise_time, fall_time;
+> +	u32 clk_rate, rise_time, fall_time;
+>  	struct i2c_adapter *adap;
+>  	struct reset_control *rst;
+>  	dma_addr_t phy_addr;
+> -	int ret;
+> +	int irq_error, irq_event, ret;
+>  
+>  	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
+>  	if (!i2c_dev)
+> @@ -1832,16 +1830,20 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
+>  		return PTR_ERR(i2c_dev->base);
+>  	phy_addr = (dma_addr_t)res->start;
+>  
+> -	irq_event = irq_of_parse_and_map(np, 0);
+> -	if (!irq_event) {
+> -		dev_err(&pdev->dev, "IRQ event missing or invalid\n");
+> -		return -EINVAL;
+> +	irq_event = platform_get_irq(pdev, 0);
+> +	if (irq_event <= 0) {
+> +		if (irq_event != -EPROBE_DEFER)
+> +			dev_err(&pdev->dev, "Failed to get IRQ event: %d\n",
+> +				irq_event);
+> +		return irq_event ? irq_event : -ENODEV;
+>  	}
+>  
+> -	irq_error = irq_of_parse_and_map(np, 1);
+> -	if (!irq_error) {
+> -		dev_err(&pdev->dev, "IRQ error missing or invalid\n");
+> -		return -EINVAL;
+> +	irq_error = platform_get_irq(pdev, 1);
+> +	if (irq_error <= 0) {
+> +		if (irq_error != -EPROBE_DEFER)
+> +			dev_err(&pdev->dev, "Failed to get IRQ error: %d\n",
+> +				irq_error);
+> +		return irq_error ? irq_error : -ENODEV;
+>  	}
+>  
+>  	i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
+> 
