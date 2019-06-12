@@ -1,7 +1,7 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH v4 3/6] soc: qcom: geni: Add support for ACPI
-Date: Wed, 12 Jun 2019 15:26:51 +0100
-Message-ID: <20190612142654.9639-4-lee.jones@linaro.org>
+Subject: [PATCH v4 2/6] i2c: i2c-qcom-geni: Signify successful driver probe
+Date: Wed, 12 Jun 2019 15:26:50 +0100
+Message-ID: <20190612142654.9639-3-lee.jones@linaro.org>
 References: <20190612142654.9639-1-lee.jones@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190612142654.9639-1-lee.jones@linaro.org>
@@ -10,70 +10,29 @@ To: alokc@codeaurora.org, agross@kernel.org, david.brown@linaro.org, wsa+renesas
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.or, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-When booting with ACPI as the active set of configuration tables,
-all; clocks, regulators, pin functions ect are expected to be at
-their ideal values/levels/rates, thus the associated frameworks
-are unavailable.  Ensure calls to these APIs are shielded when
-ACPI is enabled.
+The Qualcomm Geni I2C driver currently probes silently which can be
+confusing when debugging potential issues.  Add a low level (INFO)
+print when each I2C controller is successfully initially set-up.
 
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 ---
- drivers/soc/qcom/qcom-geni-se.c | 21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-qcom-geni.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
-index 6b8ef01472e9..d5cf953b4337 100644
---- a/drivers/soc/qcom/qcom-geni-se.c
-+++ b/drivers/soc/qcom/qcom-geni-se.c
-@@ -1,6 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- // Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
- 
-+#include <linux/acpi.h>
- #include <linux/clk.h>
- #include <linux/slab.h>
- #include <linux/dma-mapping.h>
-@@ -450,6 +451,9 @@ int geni_se_resources_off(struct geni_se *se)
- {
- 	int ret;
- 
-+	if (has_acpi_companion(se->dev))
-+		return 0;
-+
- 	ret = pinctrl_pm_select_sleep_state(se->dev);
- 	if (ret)
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index 9e3b8a98688d..a89bfce5388e 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -596,6 +596,8 @@ static int geni_i2c_probe(struct platform_device *pdev)
  		return ret;
-@@ -487,6 +491,9 @@ int geni_se_resources_on(struct geni_se *se)
- {
- 	int ret;
- 
-+	if (has_acpi_companion(se->dev))
-+		return 0;
-+
- 	ret = geni_se_clks_on(se);
- 	if (ret)
- 		return ret;
-@@ -724,12 +731,14 @@ static int geni_se_probe(struct platform_device *pdev)
- 	if (IS_ERR(wrapper->base))
- 		return PTR_ERR(wrapper->base);
- 
--	wrapper->ahb_clks[0].id = "m-ahb";
--	wrapper->ahb_clks[1].id = "s-ahb";
--	ret = devm_clk_bulk_get(dev, NUM_AHB_CLKS, wrapper->ahb_clks);
--	if (ret) {
--		dev_err(dev, "Err getting AHB clks %d\n", ret);
--		return ret;
-+	if (!has_acpi_companion(&pdev->dev)) {
-+		wrapper->ahb_clks[0].id = "m-ahb";
-+		wrapper->ahb_clks[1].id = "s-ahb";
-+		ret = devm_clk_bulk_get(dev, NUM_AHB_CLKS, wrapper->ahb_clks);
-+		if (ret) {
-+			dev_err(dev, "Err getting AHB clks %d\n", ret);
-+			return ret;
-+		}
  	}
  
- 	dev_set_drvdata(dev, wrapper);
++	dev_dbg(&pdev->dev, "Geni-I2C adaptor successfully added\n");
++
+ 	return 0;
+ }
+ 
 -- 
 2.17.1
