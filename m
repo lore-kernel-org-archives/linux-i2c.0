@@ -1,107 +1,116 @@
-From: "Wang, Haiyue" <haiyue.wang@linux.intel.com>
-Subject: Re: [PATCHv7 1/3] dt-bindings: i2c: document bindings for
- i2c-slave-mqueue
-Date: Wed, 12 Jun 2019 10:46:43 +0800
-Message-ID: <b3e5ac5c-baf7-bc8a-701a-4af3b8983155@linux.intel.com>
-References: <20190605164651.15991-1-eduval@amazon.com>
- <20190605164651.15991-2-eduval@amazon.com> <20190611231425.GA29500@bogus>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v3 7/8] usb: dwc3: qcom: Start USB in 'host mode' on the
+ SDM845
+Date: Wed, 12 Jun 2019 06:57:36 +0100
+Message-ID: <20190612055736.GO4797@dell>
+References: <20190610084213.1052-1-lee.jones@linaro.org>
+ <20190610084213.1052-7-lee.jones@linaro.org>
+ <20190611223349.GS4814@minitux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=gbk; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190611231425.GA29500@bogus>
+Content-Disposition: inline
+In-Reply-To: <20190611223349.GS4814@minitux>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>, Eduardo Valentin <eduval@amazon.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, jarkko.nikula@linux.intel.com, andriy.shevchenko@intel.com, brendanhiggins@google.com, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: alokc@codeaurora.org, andy.gross@linaro.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, linus.walleij@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org, ard.biesheuvel@linaro.org, jlhugo@gmail.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, 11 Jun 2019, Bjorn Andersson wrote:
 
-‘⁄ 2019-06-12 07:14, Rob Herring –¥µ¿:
-> On Wed, Jun 05, 2019 at 09:46:49AM -0700, Eduardo Valentin wrote:
->> Document the i2c-slave-mqueue binding by adding
->> descriptor, required properties, and example.
->>
->> Cc: Rob Herring <robh+dt@kernel.org>
->> Cc: Mark Rutland <mark.rutland@arm.com>
->> Cc: Wolfram Sang <wsa@the-dreams.de>
->> Cc: linux-i2c@vger.kernel.org
->> Cc: devicetree@vger.kernel.org
->> Cc: linux-kernel@vger.kernel.org
->> Signed-off-by: Eduardo Valentin <eduval@amazon.com>
->> ---
->>
->> Changes from V6 to V7:
->> - none
->>
->>   .../bindings/i2c/i2c-slave-mqueue.txt         | 34 +++++++++++++++++++
->>   1 file changed, 34 insertions(+)
->>   create mode 100644 Documentation/devicetree/bindings/i2c/i2c-slave-mqueue.txt
->>
->> diff --git a/Documentation/devicetree/bindings/i2c/i2c-slave-mqueue.txt b/Documentation/devicetree/bindings/i2c/i2c-slave-mqueue.txt
->> new file mode 100644
->> index 000000000000..eb1881a4fc0e
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/i2c/i2c-slave-mqueue.txt
->> @@ -0,0 +1,34 @@
->> +===============================================
->> +Device Tree for I2C slave message queue backend
->> +===============================================
->> +
->> +Some protocols over I2C/SMBus are designed for bi-directional transferring
->> +messages by using I2C Master Write protocol. This requires that both sides
->> +of the communication have slave addresses.
-> So the address 0x10 in the example below is the address of the I2C
-> controller?
->
->> +
->> +This I2C slave mqueue (message queue) is used to receive and queue
-Hi Rob, This is mqueue comes from, not from specs directly.
->> +messages from the remote i2c intelligent device; and it will add the target
->> +slave address (with R/W# bit is always 0) into the message at the first byte.
->> +
->> +Links
->> +----
->> +`Intelligent Platform Management Bus
->> +Communications Protocol Specification
->> +<https://www.intel.com/content/dam/www/public/us/en/documents/product-briefs/ipmp-spec-v1.0.pdf>`_
->> +
->> +`Management Component Transport Protocol (MCTP)
->> +SMBus/I2C Transport Binding Specification
->> +<https://www.dmtf.org/sites/default/files/standards/documents/DSP0237_1.1.0.pdf>`_
->> +
->> +Required Properties:
->> +- compatible		: should be "i2c-slave-mqueue"
-> There is no mention of mqueue (or queue) in these specs. Where does that
-> come from? Perhaps something more closely matching the protocol would be
-> better name.
->
->> +- reg			: slave address
->> +
->> +Example:
->> +
->> +i2c {
-> Would there be other slaves?
->
-> The common binding states 'multi-master' property should be present.
->
-> I need a more complete example.
->
->> +	slave_mqueue: i2c-slave-mqueue {
->> +		compatible = "i2c-slave-mqueue";
->> +		reg = <0x10>;
+> On Mon 10 Jun 01:42 PDT 2019, Lee Jones wrote:
+> 
+> > When booting with Device Tree, the current default boot configuration
+> > table option, the request to boot via 'host mode' comes from the
+> > 'dr_mode' property.
+> 
+> As I said in my previous review, the default mode for SDM845 is OTG. For
+> the MTP specifically we specify the default mode to be peripheral (was
+> host).
+> 
+> 
+> The remaining thing that worries me with this patch is that I do expect
+> that at least one of the USB-C ports is OTG. But I am not able to
+> conclude anything regarding this and host-only is a good default for
+> this type of device, so I suggest that we merge this.
 
-Hi Eduardo,
+Right.  So one thing to consider is that Qualcomm Mobile Dept. do not
+use ACPI for Linux, so this patch-set only affects the Laptop
+form factor devices, where 'host' is the expected mode.
 
-Looks like the slave reg missed the key value bit:
+> Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 
+Thanks for taking the time to review this Bjorn.
 
-https://elinux.org/images/f/f6/ELCE15-WolframSang-ShinyNewI2CSlaveFramework.pdf
+Hopefully we can get Felipe's attention soon.
 
-Example: reg = <(I2C_OWN_SLAVE_ADDRESS | 0x42)>;
+Felipe,
 
+One thing to think about when taking Bjorn's Reviewed-by into
+consideration; although we both work for Linaro, we actually operate
+in different teams.  Bjorn is on the Qualcomm Landing Team, and as an
+ex-Qualcomm employee he is in an excellent position to review these
+patches, thus his Review should carry more weight than the usual
+co-worker review IMHO.
 
->> +	};
->> +};
->> -- 
->> 2.21.0
->>
+TIA.
+
+> > A property of the same name can be used inside
+> > ACPI tables too.  However it is missing from the SDM845's ACPI tables
+> > so we have to supply this information using Platform Device Properties
+> > instead.
+> > 
+> > This does not change the behaviour of any currently supported devices.
+> > The property is only set on ACPI enabled platforms, thus for H/W
+> > booting DT, unless a 'dr_mode' property is present, the default is
+> > still OTG (On-The-Go) as per [0].  Any new ACPI devices added will
+> > also be able to over-ride this implementation by providing a 'dr_mode'
+> > property in their ACPI tables.  In cases where 'dr_mode' is omitted
+> > from the tables AND 'host mode' should not be the default (very
+> > unlikely), then we will have to add some way of choosing between them
+> > at run time - most likely by ACPI HID.
+> > 
+> > [0] Documentation/devicetree/bindings/usb/generic.txt
+> > 
+> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > ---
+> >  drivers/usb/dwc3/dwc3-qcom.c | 12 ++++++++++++
+> >  1 file changed, 12 insertions(+)
+> > 
+> > diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
+> > index 1e1f12b7991d..55ba04254e38 100644
+> > --- a/drivers/usb/dwc3/dwc3-qcom.c
+> > +++ b/drivers/usb/dwc3/dwc3-qcom.c
+> > @@ -444,6 +444,11 @@ static int dwc3_qcom_clk_init(struct dwc3_qcom *qcom, int count)
+> >  	return 0;
+> >  }
+> >  
+> > +static const struct property_entry dwc3_qcom_acpi_properties[] = {
+> > +	PROPERTY_ENTRY_STRING("dr_mode", "host"),
+> > +	{}
+> > +};
+> > +
+> >  static int dwc3_qcom_acpi_register_core(struct platform_device *pdev)
+> >  {
+> >  	struct dwc3_qcom 	*qcom = platform_get_drvdata(pdev);
+> > @@ -488,6 +493,13 @@ static int dwc3_qcom_acpi_register_core(struct platform_device *pdev)
+> >  		goto out;
+> >  	}
+> >  
+> > +	ret = platform_device_add_properties(qcom->dwc3,
+> > +					     dwc3_qcom_acpi_properties);
+> > +	if (ret < 0) {
+> > +		dev_err(&pdev->dev, "failed to add properties\n");
+> > +		goto out;
+> > +	}
+> > +
+> >  	ret = platform_device_add(qcom->dwc3);
+> >  	if (ret)
+> >  		dev_err(&pdev->dev, "failed to add device\n");
+
+-- 
+Lee Jones [ÊùéÁêºÊñØ]
+Linaro Services Technical Lead
+Linaro.org ‚îÇ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
