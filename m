@@ -1,57 +1,121 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH 32/34] staging: media: soc_camera: mt9t031: simplify
- getting the adapter of a client
-Date: Thu, 13 Jun 2019 11:54:10 +0200
-Message-ID: <20190613095410.3wxbrwy62x5ohwen@verge.net.au>
-References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
- <20190608105619.593-33-wsa+renesas@sang-engineering.com>
+From: Maxime Ripard <maxime.ripard@bootlin.com>
+Subject: Re: [PATCH v2 1/2] dt-bindings: i2c: sun6i-p2wi: Add YAML schemas
+Date: Wed, 12 Jun 2019 17:38:18 +0200
+Message-ID: <20190612153818.q5xj5su33krlignu@flea>
+References: <20190605122936.11972-1-maxime.ripard@bootlin.com>
+ <CAL_JsqKC7uP0J14A8_CvPhbZkoSRNWSpS1ee+Q4sG013jY=JeQ@mail.gmail.com>
+ <20190611090641.byr6mpywkfmbhrbk@flea>
+ <CAL_JsqL3cua3u2gNTzHEdgFU0On5J9ziPZeFNiTpu5HS=SJoDA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
-Content-Disposition: inline
-In-Reply-To: <20190608105619.593-33-wsa+renesas@sang-engineering.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
-List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
-List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
- <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: driverdev-devel-bounces@linuxdriverproject.org
-Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: devel@driverdev.osuosl.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============5426759145756999558=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CAL_JsqL3cua3u2gNTzHEdgFU0On5J9ziPZeFNiTpu5HS=SJoDA@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Gregory Clement <gregory.clement@bootlin.com>, Chen-Yu Tsai <wens@csie.org>, Linux I2C <linux-i2c@vger.kernel.org>, Frank Rowand <frowand.list@gmail.com>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Jun 08, 2019 at 12:56:11PM +0200, Wolfram Sang wrote:
-> We have a dedicated pointer for that, so use it. Much easier to read and
-> less computation involved.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+--===============5426759145756999558==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="jqnskoivfbu5krfp"
+Content-Disposition: inline
 
-> ---
-> 
-> Please apply to your subsystem tree.
-> 
->  drivers/staging/media/soc_camera/mt9t031.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/staging/media/soc_camera/mt9t031.c b/drivers/staging/media/soc_camera/mt9t031.c
-> index 615ae9df2c57..c14f23221544 100644
-> --- a/drivers/staging/media/soc_camera/mt9t031.c
-> +++ b/drivers/staging/media/soc_camera/mt9t031.c
-> @@ -751,7 +751,7 @@ static int mt9t031_probe(struct i2c_client *client,
->  {
->  	struct mt9t031 *mt9t031;
->  	struct soc_camera_subdev_desc *ssdd = soc_camera_i2c_to_desc(client);
-> -	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
-> +	struct i2c_adapter *adapter = client->adapter;
->  	int ret;
->  
->  	if (!ssdd) {
-> -- 
-> 2.19.1
-> 
+
+--jqnskoivfbu5krfp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi,
+
+On Tue, Jun 11, 2019 at 08:50:37AM -0600, Rob Herring wrote:
+> On Tue, Jun 11, 2019 at 3:06 AM Maxime Ripard <maxime.ripard@bootlin.com> wrote:
+> >
+> > Hi Rob,
+> >
+> > On Mon, Jun 10, 2019 at 03:34:18PM -0600, Rob Herring wrote:
+> > > On Wed, Jun 5, 2019 at 6:29 AM Maxime Ripard <maxime.ripard@bootlin.com> wrote:
+> > > > +properties:
+> > > > +  "#address-cells":
+> > > > +    const: 1
+> > > > +
+> > > > +  "#size-cells":
+> > > > +    const: 0
+> > >
+> > > These 2 are covered by i2c-controller.yaml, right?
+> >
+> > Indeed, I've removed them.
+> >
+> > > > +examples:
+> > > > +  - |
+> > > > +    p2wi@1f03400 {
+> > >
+> > > i2c@...
+> > >
+> > > That should fail on the schema (I need to get the schema checking of
+> > > examples finished.)
+> >
+> > That would be great :) The compilation of the examples alone already
+> > caught a good number of examples that weren't even compiling.
+>
+> I'm primarily waiting on a dtc change to be accepted[1]. Feel free to
+> review/ack.
+
+I guess it's too late now :)
+
+> > Speaking of examples, one thing that would be great too would be to
+> > allow the usage of our C headers. It's not supported at the moment,
+> > and this often ends up with an example that is less readable than the
+> > actual DT.
+>
+> It should be. You just have to add them. See
+> Documentation/devicetree/bindings/timer/intel,ixp4xx-timer.yaml for
+> example.
+
+Hmmm, I'm pretty sure I tried this before. I'll try again.
+
+> Maybe the common interrupt and gpio ones should be added by default.
+
+I guess so, yeah. The GIC too is pretty common
+
+Maxime
+
+--
+Maxime Ripard, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
+
+--jqnskoivfbu5krfp
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCXQEcaQAKCRDj7w1vZxhR
+xWTgAP9WB+1aXtMSPMtLHzMJKOV6r1RNowdkygnwiE+cBDkvOAD7BDqmviqSzzZt
+6saIUD3M+DBgvkUTsko4s0nJ4Wp+1AQ=
+=GewT
+-----END PGP SIGNATURE-----
+
+--jqnskoivfbu5krfp--
+
+
+--===============5426759145756999558==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============5426759145756999558==--
