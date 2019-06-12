@@ -1,7 +1,7 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH v4 6/6] usb: dwc3: qcom: Improve error handling
-Date: Wed, 12 Jun 2019 15:26:54 +0100
-Message-ID: <20190612142654.9639-7-lee.jones@linaro.org>
+Subject: [PATCH v4 5/6] usb: dwc3: qcom: Start USB in 'host mode' on the SDM845
+Date: Wed, 12 Jun 2019 15:26:53 +0100
+Message-ID: <20190612142654.9639-6-lee.jones@linaro.org>
 References: <20190612142654.9639-1-lee.jones@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190612142654.9639-1-lee.jones@linaro.org>
@@ -10,31 +10,60 @@ To: alokc@codeaurora.org, agross@kernel.org, david.brown@linaro.org, wsa+renesas
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.or, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-dwc3_qcom_clk_init() is called with of_count_phandle_with_args() as an
-argument.  If of_count_phandle_with_args() returns an error, the number
-of clocks will be a negative value and will lead to undefined behaviour.
+When booting with Device Tree, the current default boot configuration
+table option, the request to boot via 'host mode' comes from the
+'dr_mode' property.  A property of the same name can be used inside
+ACPI tables too.  However it is missing from the SDM845's ACPI tables
+so we have to supply this information using Platform Device Properties
+instead.
 
-Ensure we check for an error before attempting to blindly use the value.
+This does not change the behaviour of any currently supported devices.
+The property is only set on ACPI enabled platforms, thus for H/W
+booting DT, unless a 'dr_mode' property is present, the default is
+still OTG (On-The-Go) as per [0].  Any new ACPI devices added will
+also be able to over-ride this implementation by providing a 'dr_mode'
+property in their ACPI tables.  In cases where 'dr_mode' is omitted
+from the tables AND 'host mode' should not be the default (very
+unlikely), then we will have to add some way of choosing between them
+at run time - most likely by ACPI HID.
+
+[0] Documentation/devicetree/bindings/usb/generic.txt
 
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 ---
- drivers/usb/dwc3/dwc3-qcom.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/dwc3/dwc3-qcom.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
 diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
-index 55ba04254e38..e4dac82abd7d 100644
+index 1e1f12b7991d..55ba04254e38 100644
 --- a/drivers/usb/dwc3/dwc3-qcom.c
 +++ b/drivers/usb/dwc3/dwc3-qcom.c
-@@ -409,6 +409,9 @@ static int dwc3_qcom_clk_init(struct dwc3_qcom *qcom, int count)
- 	if (!np || !count)
- 		return 0;
+@@ -444,6 +444,11 @@ static int dwc3_qcom_clk_init(struct dwc3_qcom *qcom, int count)
+ 	return 0;
+ }
  
-+	if (count < 0)
-+		return count;
++static const struct property_entry dwc3_qcom_acpi_properties[] = {
++	PROPERTY_ENTRY_STRING("dr_mode", "host"),
++	{}
++};
 +
- 	qcom->num_clocks = count;
+ static int dwc3_qcom_acpi_register_core(struct platform_device *pdev)
+ {
+ 	struct dwc3_qcom 	*qcom = platform_get_drvdata(pdev);
+@@ -488,6 +493,13 @@ static int dwc3_qcom_acpi_register_core(struct platform_device *pdev)
+ 		goto out;
+ 	}
  
- 	qcom->clks = devm_kcalloc(dev, qcom->num_clocks,
++	ret = platform_device_add_properties(qcom->dwc3,
++					     dwc3_qcom_acpi_properties);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "failed to add properties\n");
++		goto out;
++	}
++
+ 	ret = platform_device_add(qcom->dwc3);
+ 	if (ret)
+ 		dev_err(&pdev->dev, "failed to add device\n");
 -- 
 2.17.1
