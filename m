@@ -1,62 +1,92 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V5 6/7] i2c: tegra: fix PIO rx/tx residual transfer check
-Date: Wed, 12 Jun 2019 12:24:58 +0200
-Message-ID: <20190612102458.liieiohnprfyyvs6@ninjato>
-References: <1560250274-18499-1-git-send-email-bbiswas@nvidia.com>
- <1560250274-18499-6-git-send-email-bbiswas@nvidia.com>
+Subject: Re: [PATCH v3 1/8] i2c: i2c-qcom-geni: Provide support for ACPI
+Date: Wed, 12 Jun 2019 12:34:53 +0200
+Message-ID: <20190612103453.ccet2pneairnlpcc@ninjato>
+References: <20190610084213.1052-1-lee.jones@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="t3rkxinhkpc76bjs"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1560250274-18499-6-git-send-email-bbiswas@nvidia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bitan Biswas <bbiswas@nvidia.com>
-Cc: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Dmitry Osipenko <digetx@gmail.com>, Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
+Content-Type: multipart/mixed; boundary="===============5829541328941561870=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190610084213.1052-1-lee.jones@linaro.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: balbi@kernel.org, linux-usb@vger.kernel.org, wsa+renesas@sang-engineering.com, gregkh@linuxfoundation.org, linus.walleij@linaro.org, ard.biesheuvel@linaro.org, linux-kernel@vger.kernel.org, bjorn.andersson@linaro.org, david.brown@linaro.org, alokc@codeaurora.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, linux-arm-msm@vger.kernel.org, andy.gross@linaro.org, jlhugo@gmail.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---t3rkxinhkpc76bjs
+--===============5829541328941561870==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="o2p7l3jstr6cxok3"
+Content-Disposition: inline
+
+
+--o2p7l3jstr6cxok3
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 11, 2019 at 03:51:13AM -0700, Bitan Biswas wrote:
-> Fix expression for residual bytes(less than word) transfer
-> in I2C PIO mode RX/TX.
+On Mon, Jun 10, 2019 at 09:42:06AM +0100, Lee Jones wrote:
+> Add a match table to allow automatic probing of ACPI device
+> QCOM0220.  Ignore clock attainment errors.  Set default clock
+> frequency value.
 >=20
-> Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
 
-I applied patches 1-5 to my for-next tree now. No need to resend them
-anymore, you can focus on the remaining patches now.
+Sadly, there is no cover-letter describing if there is a dependency or
+not. I assume there is, otherwise I would get the I2C patches only? But
+what is the suggested way upstream then?
 
-Question: The nominal maintainer for this driver is
+Also, the current maintainer entry for this driver looks like:
 
-        Laxman Dewangan <ldewangan@nvidia.com> (supporter:TEGRA I2C DRIVER)
+drivers/i2c/busses/i2c-qcom-geni.c:
+        Andy Gross <agross@kernel.org> (maintainer:ARM/QUALCOMM SUPPORT)
+        David Brown <david.brown@linaro.org> (maintainer:ARM/QUALCOMM SUPPO=
+RT)
+        Alok Chauhan <alokc@codeaurora.org> (supporter:QUALCOMM GENERIC INT=
+ERFACE I2C DRIVER)
 
-I wonder if he is still around and interested?
-
-That aside, thanks a lot Dmitry for the review of this series!
+I didn't hear from those people yet, would be great to have their acks.
 
 
---t3rkxinhkpc76bjs
+--o2p7l3jstr6cxok3
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0A0vkACgkQFA3kzBSg
-KbZ9mw//T4O3hoJ/kzky0Dkl2XSb0PlOZ2Bw61yaBOQYAQgHggU7wP0OfFki5Gfq
-4yxLGVDoKxGLNBOG6cdtkTFMMQKauZxRzoEkBjfWXYNfV37LDWoBIuS7HEPAAcgv
-2Kix3fbeOaEcozQz+czeVq5MKC9C/oniYGOsLNWYLJn0PIFDmqbj9Q/cQh/1prrX
-ACkMyvdrsHdm7kZLDAFY+6llztTf0CK7d1isXfnCTmlym2rj5aaU+jXfRMjdYOX9
-VJlJg4HSs85Tw9SpRCjKbgGO2zzP8YaNhhoNuVycFuj43M2TPV+4fqRKDFnyKi8y
-4LMotA1S2ikbptkvEhtdZ+sggAx65cwu6O4Uc+C1xnux6BWQamjnhgj7kPyauzzC
-3zs6bNFedSjgGRHR3u4eH6sStcM38/p+CgrGkhBq0VOA4p5aQr+xv5OfiTS5kh1z
-P9zzOI+VT0rCqRBdkZTOhSrbkr6/4GdvwvXsqHVlihrEOG0C+RvOih765Tm27DVQ
-Ey0ynpMFdVdb9rlJrdDjHMdlZVdy/JyrPqcpw1HZfhN2THDRzyBBr7itV0jabcWY
-XmD88PnRbE/VUk4eqxeC2FVumEYMB06k+9dQ7HwJyMumyCFIBz6rdHmWDnZxPvt0
-CypA65YWeTbZ6ptOJls/EsbiMqhrMdnUUmifAoof/KAyrDLE4MY=
-=Mw1x
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0A1U0ACgkQFA3kzBSg
+KbaoxBAAhggdoyYJ7Ory41uJZnpyS7E81TmUKsmVqsSij9MOr2pAO6ksoixVcsKJ
+o+uoFROtUHSJfi/0ZzdMkt9qn50fRBn525tiT+IirJnXotAS8f9eTtzZwl14wBCS
++yVDItXLHA5jJqBwgGQeGAzn+/PuGOdp4NxsATnAOEh9QJyVjHppT7nUQGBv6yrH
+qEgQCLKuywZbsg/GSwwyZ0TfWFbVgenGRiVCWyYNEMQeGntZWG9/JF6ad0C+x7+P
+GYPM83p0krqDMIfWCh/P1M02Tu++P+IB68u4cHwZvDDpKFTqgthSENVPdZYJ4RB4
+irJUfrFJPOV+JNit85YZfAqV8gkt4bPWXm6+h/sOD2LyK2P5A7+X9+l5pyb7EJl6
+t6YPDfHl1Z7dP8rgKzbBkyhPS0KJS0XoC5JyPm7YsYWYywMAOIqd4GDP869ZQGD8
+FTbgmw9hsU9KA+j78B7DmgasSRUutFQLoSAKZLK+HTXPg8Zsa/XWA4m6zN1xH1Dp
+KEo+IF0ioEhbhSNqN8PzfKr1OJcaW07Fw61syO497VS5d2JXml4mseeUGRBSXOwG
+hD4R3Jv30x/U9HzyYVmjV5qS+P9hIcwrIKKWNIND0+kXwGsWYBD/pl4BQZfcufA8
+qvL2wQs5sTFynh8ZgAvv6vczs7Nlsb/08XrEJjRm8hYpXu+8s9U=
+=xlPb
 -----END PGP SIGNATURE-----
 
---t3rkxinhkpc76bjs--
+--o2p7l3jstr6cxok3--
+
+
+--===============5829541328941561870==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============5829541328941561870==--
