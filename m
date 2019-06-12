@@ -1,77 +1,78 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: Re: [PATCH 02/34] gpu: drm: bridge: sii9234: simplify getting the
- adapter of a client
-Date: Wed, 12 Jun 2019 16:04:10 +0200
-Message-ID: <87d7a499-22b8-5e9f-8da2-54c83d1c4b2d@samsung.com>
-References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
-        <20190608105619.593-3-wsa+renesas@sang-engineering.com>
-        <CGME20190608114101epcas3p4127647ce1c8224b4d777585bfa8e31d1@epcas3p4.samsung.com>
-        <20190608114036.GA4786@pendragon.ideasonboard.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+From: Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH v4 1/6] i2c: i2c-qcom-geni: Provide support for ACPI
+Date: Wed, 12 Jun 2019 15:26:49 +0100
+Message-ID: <20190612142654.9639-2-lee.jones@linaro.org>
+References: <20190612142654.9639-1-lee.jones@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190608114036.GA4786@pendragon.ideasonboard.com>
-Content-Language: en-US
+In-Reply-To: <20190612142654.9639-1-lee.jones@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+To: alokc@codeaurora.org, agross@kernel.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, bjorn.andersson@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org, ard.biesheuvel@linaro.org, jlhugo@gmail.com
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.or, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 08.06.2019 13:40, Laurent Pinchart wrote:
-> Hi Wolfram,
->
-> Thank you for the patch.
->
-> On Sat, Jun 08, 2019 at 12:55:41PM +0200, Wolfram Sang wrote:
->> We have a dedicated pointer for that, so use it. Much easier to read and
->> less computation involved.
->>
->> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Add a match table to allow automatic probing of ACPI device
+QCOM0220.  Ignore clock attainment errors.  Set default clock
+frequency value.
 
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+---
+ drivers/i2c/busses/i2c-qcom-geni.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-Queued to drm-misc-next.
-
-
-Laurent, for unknown reason patchwork does not collect yours tags, and
-it is not the 1st time, added manually.
-
-
-Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
-
- --
-Regards
-Andrzej
-
-
->
->> ---
->>
->> Please apply to your subsystem tree.
->>
->>  drivers/gpu/drm/bridge/sii9234.c | 4 ++--
->>  1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/gpu/drm/bridge/sii9234.c b/drivers/gpu/drm/bridge/sii9234.c
->> index b36bbafb0e43..25d4ad8c7ad6 100644
->> --- a/drivers/gpu/drm/bridge/sii9234.c
->> +++ b/drivers/gpu/drm/bridge/sii9234.c
->> @@ -815,7 +815,7 @@ static irqreturn_t sii9234_irq_thread(int irq, void *data)
->>  static int sii9234_init_resources(struct sii9234 *ctx,
->>  				  struct i2c_client *client)
->>  {
->> -	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
->> +	struct i2c_adapter *adapter = client->adapter;
->>  	int ret;
->>  
->>  	if (!ctx->dev->of_node) {
->> @@ -897,7 +897,7 @@ static const struct drm_bridge_funcs sii9234_bridge_funcs = {
->>  static int sii9234_probe(struct i2c_client *client,
->>  			 const struct i2c_device_id *id)
->>  {
->> -	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
->> +	struct i2c_adapter *adapter = client->adapter;
->>  	struct sii9234 *ctx;
->>  	struct device *dev = &client->dev;
->>  	int ret;
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index db075bc0d952..9e3b8a98688d 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0
+ // Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
+ 
++#include <linux/acpi.h>
+ #include <linux/clk.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/err.h>
+@@ -483,6 +484,14 @@ static const struct i2c_algorithm geni_i2c_algo = {
+ 	.functionality	= geni_i2c_func,
+ };
+ 
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id geni_i2c_acpi_match[] = {
++	{ "QCOM0220"},
++	{ },
++};
++MODULE_DEVICE_TABLE(acpi, geni_i2c_acpi_match);
++#endif
++
+ static int geni_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct geni_i2c_dev *gi2c;
+@@ -502,7 +511,7 @@ static int geni_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(gi2c->se.base);
+ 
+ 	gi2c->se.clk = devm_clk_get(&pdev->dev, "se");
+-	if (IS_ERR(gi2c->se.clk)) {
++	if (IS_ERR(gi2c->se.clk) && !has_acpi_companion(&pdev->dev)) {
+ 		ret = PTR_ERR(gi2c->se.clk);
+ 		dev_err(&pdev->dev, "Err getting SE Core clk %d\n", ret);
+ 		return ret;
+@@ -516,6 +525,9 @@ static int geni_i2c_probe(struct platform_device *pdev)
+ 		gi2c->clk_freq_out = KHZ(100);
+ 	}
+ 
++	if (has_acpi_companion(&pdev->dev))
++		ACPI_COMPANION_SET(&gi2c->adap.dev, ACPI_COMPANION(&pdev->dev));
++
+ 	gi2c->irq = platform_get_irq(pdev, 0);
+ 	if (gi2c->irq < 0) {
+ 		dev_err(&pdev->dev, "IRQ error for i2c-geni\n");
+@@ -660,6 +672,7 @@ static struct platform_driver geni_i2c_driver = {
+ 		.name = "geni_i2c",
+ 		.pm = &geni_i2c_pm_ops,
+ 		.of_match_table = geni_i2c_dt_match,
++		.acpi_match_table = ACPI_PTR(geni_i2c_acpi_match),
+ 	},
+ };
+ 
+-- 
+2.17.1
