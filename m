@@ -1,121 +1,87 @@
-From: Maxime Ripard <maxime.ripard@bootlin.com>
-Subject: Re: [PATCH v2 1/2] dt-bindings: i2c: sun6i-p2wi: Add YAML schemas
-Date: Wed, 12 Jun 2019 17:38:18 +0200
-Message-ID: <20190612153818.q5xj5su33krlignu@flea>
-References: <20190605122936.11972-1-maxime.ripard@bootlin.com>
- <CAL_JsqKC7uP0J14A8_CvPhbZkoSRNWSpS1ee+Q4sG013jY=JeQ@mail.gmail.com>
- <20190611090641.byr6mpywkfmbhrbk@flea>
- <CAL_JsqL3cua3u2gNTzHEdgFU0On5J9ziPZeFNiTpu5HS=SJoDA@mail.gmail.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
+Subject: Re: [PATCH v4 4/7] i2c: core: Make i2c_acpi_get_irq available to the
+ rest of the I2C core
+Date: Thu, 13 Jun 2019 16:06:11 +0100
+Message-ID: <20190613150611.GV28362@ediswmail.ad.cirrus.com>
+References: <20190611123101.25264-1-ckeepax@opensource.cirrus.com>
+ <20190611123101.25264-5-ckeepax@opensource.cirrus.com>
+ <20190612152718.GC2640@lahna.fi.intel.com>
+ <20190613084858.GU28362@ediswmail.ad.cirrus.com>
+ <CAO-hwJL-U0n5oFP-QXX8rD2Fxt9mDOKp-AknRN6QwXEhZsUBYg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5426759145756999558=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <CAL_JsqL3cua3u2gNTzHEdgFU0On5J9ziPZeFNiTpu5HS=SJoDA@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Gregory Clement <gregory.clement@bootlin.com>, Chen-Yu Tsai <wens@csie.org>, Linux I2C <linux-i2c@vger.kernel.org>, Frank Rowand <frowand.list@gmail.com>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAO-hwJL-U0n5oFP-QXX8rD2Fxt9mDOKp-AknRN6QwXEhZsUBYg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Linux I2C <linux-i2c@vger.kernel.org>, linux-acpi@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, Jim Broadus <jbroadus@gmail.com>, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-
---===============5426759145756999558==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="jqnskoivfbu5krfp"
-Content-Disposition: inline
-
-
---jqnskoivfbu5krfp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi,
-
-On Tue, Jun 11, 2019 at 08:50:37AM -0600, Rob Herring wrote:
-> On Tue, Jun 11, 2019 at 3:06 AM Maxime Ripard <maxime.ripard@bootlin.com> wrote:
+On Thu, Jun 13, 2019 at 11:32:47AM +0200, Benjamin Tissoires wrote:
+> On Thu, Jun 13, 2019 at 10:49 AM Charles Keepax
+> <ckeepax@opensource.cirrus.com> wrote:
 > >
-> > Hi Rob,
-> >
-> > On Mon, Jun 10, 2019 at 03:34:18PM -0600, Rob Herring wrote:
-> > > On Wed, Jun 5, 2019 at 6:29 AM Maxime Ripard <maxime.ripard@bootlin.com> wrote:
-> > > > +properties:
-> > > > +  "#address-cells":
-> > > > +    const: 1
-> > > > +
-> > > > +  "#size-cells":
-> > > > +    const: 0
+> > On Wed, Jun 12, 2019 at 06:27:18PM +0300, Mika Westerberg wrote:
+> > > On Tue, Jun 11, 2019 at 01:30:58PM +0100, Charles Keepax wrote:
+> > > > In preparation for more refactoring make i2c_acpi_get_irq available
+> > > > outside i2c-core-acpi.c.
+> > > >
+> > > > Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+> > > > ---
+> > > >
+> > > > Changes since v3:
+> > > >  - Move the change to use the helper function from i2c-core-base into its own patch.
+> > > >
+> > > > Thanks,
+> > > > Charles
+> > > >
+> > > >  drivers/i2c/i2c-core-acpi.c | 15 +++++++++++++--
+> > > >  drivers/i2c/i2c-core.h      |  7 +++++++
+> > > >  2 files changed, 20 insertions(+), 2 deletions(-)
+> > > >
+> > > > diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+> > > > index 7d4d66ba752d4..35966cc337dde 100644
+> > > > --- a/drivers/i2c/i2c-core-acpi.c
+> > > > +++ b/drivers/i2c/i2c-core-acpi.c
+> > > > @@ -144,8 +144,17 @@ static int i2c_acpi_add_resource(struct acpi_resource *ares, void *data)
+> > > >     return 1; /* No need to add resource to the list */
+> > > >  }
+> > > >
+> > > > -static int i2c_acpi_get_irq(struct acpi_device *adev)
+> > > > +/**
+> > > > + * i2c_acpi_get_irq - get device IRQ number from ACPI
+> > > > + * @client: Pointer to the I2C client device
+> > > > + *
+> > > > + * Find the IRQ number used by a specific client device.
+> > > > + *
+> > > > + * Return: The IRQ number or an error code.
+> > > > + */
+> > > > +int i2c_acpi_get_irq(struct i2c_client *client)
+> > > >  {
+> > > > +   struct acpi_device *adev = ACPI_COMPANION(&client->adapter->dev);
 > > >
-> > > These 2 are covered by i2c-controller.yaml, right?
-> >
-> > Indeed, I've removed them.
-> >
-> > > > +examples:
-> > > > +  - |
-> > > > +    p2wi@1f03400 {
+> > > Is this adev checked for being NULL somewhere below before it is being
+> > > dereferenced?
 > > >
-> > > i2c@...
+> > > It could explain the issue Benjamin is seeing.
 > > >
-> > > That should fail on the schema (I need to get the schema checking of
-> > > examples finished.)
 > >
-> > That would be great :) The compilation of the examples alone already
-> > caught a good number of examples that weren't even compiling.
->
-> I'm primarily waiting on a dtc change to be accepted[1]. Feel free to
-> review/ack.
+> > Yeah could be that or just for some reason this isn't returning
+> > the same adev as we previously had. I will do some digging see if
+> > I can find any likely culprits.
+> 
+> That was almost the culprit: client is NULL here.
+> So the call of i2c_acpi_find_client_by_adev(adev) fails.
+> 
+> I guess this explains why the next commit is also not working :)
+> 
 
-I guess it's too late now :)
+Ah.. yeah because at this stage this code is probably running
+before that client has been created I think, this crept in on
+that last splitting of the patch into two. Let me see if I can
+come up with a new solution and do a new version. Thank you very
+much for the help going through this.
 
-> > Speaking of examples, one thing that would be great too would be to
-> > allow the usage of our C headers. It's not supported at the moment,
-> > and this often ends up with an example that is less readable than the
-> > actual DT.
->
-> It should be. You just have to add them. See
-> Documentation/devicetree/bindings/timer/intel,ixp4xx-timer.yaml for
-> example.
-
-Hmmm, I'm pretty sure I tried this before. I'll try again.
-
-> Maybe the common interrupt and gpio ones should be added by default.
-
-I guess so, yeah. The GIC too is pretty common
-
-Maxime
-
---
-Maxime Ripard, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
-
---jqnskoivfbu5krfp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCXQEcaQAKCRDj7w1vZxhR
-xWTgAP9WB+1aXtMSPMtLHzMJKOV6r1RNowdkygnwiE+cBDkvOAD7BDqmviqSzzZt
-6saIUD3M+DBgvkUTsko4s0nJ4Wp+1AQ=
-=GewT
------END PGP SIGNATURE-----
-
---jqnskoivfbu5krfp--
-
-
---===============5426759145756999558==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============5426759145756999558==--
+Thanks,
+Charles
