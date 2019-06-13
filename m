@@ -1,63 +1,66 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v4 4/7] i2c: core: Make i2c_acpi_get_irq available to the
- rest of the I2C core
-Date: Wed, 12 Jun 2019 18:27:18 +0300
-Message-ID: <20190612152718.GC2640@lahna.fi.intel.com>
-References: <20190611123101.25264-1-ckeepax@opensource.cirrus.com>
- <20190611123101.25264-5-ckeepax@opensource.cirrus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190611123101.25264-5-ckeepax@opensource.cirrus.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Charles Keepax <ckeepax@opensource.cirrus.com>
-Cc: wsa@the-dreams.de, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
+From: Annaliese McDermond <nh6z@nh6z.net>
+Subject: Re: [PATCH v4] i2c: bcm2835: Model Divider in CCF
+Date: Wed, 12 Jun 2019 22:09:21 -0700
+Message-ID: <2E838B63-DD8D-40AC-AA31-7C0FEF8B4424@nh6z.net>
+References: <20190529042912.12956-1-nh6z@nh6z.net>
+ <20190608171443.14484-1-nh6z@nh6z.net>
+ <20190612104107.ndbo55ii2w3ahtzr@ninjato>
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190612104107.ndbo55ii2w3ahtzr@ninjato>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Stefan Wahren <stefan.wahren@i2se.com>, Florian Fainelli <f.fainelli@gmail.com>, swarren@wwwdotorg.org, NWDR Team <team@nwdigitalradio.com>, Eric Anholt <eric@anholt.net>, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 11, 2019 at 01:30:58PM +0100, Charles Keepax wrote:
-> In preparation for more refactoring make i2c_acpi_get_irq available
-> outside i2c-core-acpi.c.
-> 
-> Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-> ---
-> 
-> Changes since v3:
->  - Move the change to use the helper function from i2c-core-base into its own patch.
-> 
-> Thanks,
-> Charles
-> 
->  drivers/i2c/i2c-core-acpi.c | 15 +++++++++++++--
->  drivers/i2c/i2c-core.h      |  7 +++++++
->  2 files changed, 20 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-> index 7d4d66ba752d4..35966cc337dde 100644
-> --- a/drivers/i2c/i2c-core-acpi.c
-> +++ b/drivers/i2c/i2c-core-acpi.c
-> @@ -144,8 +144,17 @@ static int i2c_acpi_add_resource(struct acpi_resource *ares, void *data)
->  	return 1; /* No need to add resource to the list */
->  }
->  
-> -static int i2c_acpi_get_irq(struct acpi_device *adev)
-> +/**
-> + * i2c_acpi_get_irq - get device IRQ number from ACPI
-> + * @client: Pointer to the I2C client device
-> + *
-> + * Find the IRQ number used by a specific client device.
-> + *
-> + * Return: The IRQ number or an error code.
-> + */
-> +int i2c_acpi_get_irq(struct i2c_client *client)
->  {
-> +	struct acpi_device *adev = ACPI_COMPANION(&client->adapter->dev);
-
-Is this adev checked for being NULL somewhere below before it is being
-dereferenced?
-
-It could explain the issue Benjamin is seeing.
-
->  	struct list_head resource_list;
->  	int irq = -ENOENT;
->  	int ret;
+Cgo+IE9uIEp1biAxMiwgMjAxOSwgYXQgMzo0MSBBTSwgV29sZnJhbSBTYW5nIDx3c2FAdGhlLWRy
+ZWFtcy5kZT4gd3JvdGU6Cj4gCj4gT24gU2F0LCBKdW4gMDgsIDIwMTkgYXQgMTA6MTQ6NDNBTSAt
+MDcwMCwgQW5uYWxpZXNlIE1jRGVybW9uZCB3cm90ZToKPj4gTW9kZWwgdGhlIEkyQyBidXMgY2xv
+Y2sgZGl2aWRlciBhcyBhIHBhcnQgb2YgdGhlIENvcmUgQ2xvY2sgRnJhbWV3b3JrLgo+PiBQcmlt
+YXJpbHkgdGhpcyByZW1vdmVzIHRoZSBjbGtfZ2V0X3JhdGUoKSBjYWxsIGZyb20gZWFjaCB0cmFu
+c2Zlci4KPj4gVGhpcyBjYWxsIGNhdXNlcyBwcm9ibGVtcyBmb3Igc2xhdmUgZHJpdmVycyB0aGF0
+IHRoZW1zZWx2ZXMgaGF2ZQo+PiBpbnRlcm5hbCBjbG9jayBjb21wb25lbnRzIHRoYXQgYXJlIGNv
+bnRyb2xsZWQgYnkgYW4gSTJDIGludGVyZmFjZS4KPj4gV2hlbiB0aGUgc2xhdmUncyBpbnRlcm5h
+bCBjbG9jayBjb21wb25lbnQgaXMgcHJlcGFyZWQsIHRoZSBwcmVwYXJlCj4+IGxvY2sgaXMgb2J0
+YWluZWQsIGFuZCBpdCBtYWtlcyBjYWxscyB0byB0aGUgSTJDIHN1YnN5c3RlbSB0bwo+PiBjb21t
+YW5kIHRoZSBoYXJkd2FyZSB0byBhY3RpdmF0ZSB0aGUgY2xvY2suICBJbiBvcmRlciB0byBwZXJm
+b3JtCj4+IHRoZSBJMkMgdHJhbnNmZXIsIHRoaXMgZHJpdmVyIHNldHMgdGhlIGRpdmlkZXIsIHdo
+aWNoIHJlcXVpcmVzCj4+IGl0IHRvIGdldCB0aGUgcGFyZW50IGNsb2NrIHJhdGUsIHdoaWNoIGl0
+IGRvZXMgd2l0aCBjbGtfZ2V0X3JhdGUoKS4KPj4gVW5mb3J0dW5hdGVseSwgdGhpcyBmdW5jdGlv
+biB3aWxsIHRyeSB0byB0YWtlIHRoZSBjbG9jayBwcmVwYXJlCj4+IGxvY2ssIHdoaWNoIGlzIGFs
+cmVhZHkgaGVsZCBieSB0aGUgc2xhdmUncyBpbnRlcm5hbCBjbG9jayBjYWxscwo+PiBjcmVhdGlu
+ZyBhIGRlYWRsb2NrLgo+PiAKPj4gTW9kZWxpbmcgdGhlIGRpdmlkZXIgaW4gdGhlIENDRiBuYXRp
+dmVseSByZW1vdmVzIHRoaXMgZGVwZW5kZW5jeQo+PiBhbmQgdGhlIGRpdmlkZXIgdmFsdWUgaXMg
+b25seSBzZXQgdXBvbiBjaGFuZ2luZyB0aGUgYnVzIGNsb2NrCj4+IGZyZXF1ZW5jeSBvciBjaGFu
+Z2VzIGluIHRoZSBwYXJlbnQgY2xvY2sgdGhhdCBjYXNjYWRlIGRvd24gdG8gdGhpcwo+PiBkaXZp
+c29yLiAgVGhpcyBvYnZpYXRlcyB0aGUgbmVlZCB0byBzZXQgdGhlIGRpdmlkZXIgd2l0aCBldmVy
+eQo+PiB0cmFuc2ZlciBhbmQgYXZvaWRzIHRoZSBkZWFkbG9jayBkZXNjcmliZWQgYWJvdmUuICBJ
+dCBhbHNvIHNob3VsZAo+PiBwcm92aWRlIGJldHRlciBjbG9jayBkZWJ1Z2dpbmcgYW5kIHNhdmUg
+YSBmZXcgY3ljbGVzIG9uIGVhY2gKPj4gdHJhbnNmZXIgZHVlIHRvIG5vdCBoYXZpbmcgdG8gcmVj
+YWxjdWF0ZSB0aGUgZGl2aWRlciB2YWx1ZS4KPj4gCj4+IFNpZ25lZC1vZmYtYnk6IEFubmFsaWVz
+ZSBNY0Rlcm1vbmQgPG5oNnpAbmg2ei5uZXQ+Cj4+IEFja2VkLWJ5OiBTdGVmYW4gV2FocmVuIDxz
+dGVmYW4ud2FocmVuQGkyc2UuY29tPgo+PiBSZXZpZXdlZC1ieTogRXJpYyBBbmhvbHQgPGVyaWNA
+YW5ob2x0Lm5ldD4KPiAKPiBBcHBsaWVkIHRvIGZvci1uZXh0LCB0aGFua3MgZm9yIGtlZXBpbmcg
+YXQgdGhpcyEKClRoYW5rcyBmb3IgeW91ciBwYXRpZW5jZSB3aXRoIHRoaXMuICBJIGtub3cgaXTi
+gJlzIGhhcmQgdG8gZGVhbCB3aXRoCm5ld2VyIGZvbGtzIHNvbWV0aW1lcywgYnV0IEkgcmVhbGx5
+IGFwcHJlY2lhdGUgeW91ciBmb3JiZWFyYW5jZS4KCj4gQW5kIHRoYW5rcyB0byBhbGwKPiByZXZp
+ZXdlcnMsIHRvby4KClRoYW5rcyB0b28gdG8gRXJpYyBhbmQgU3RlZmFuLiAgSWYgeW914oCZcmUg
+ZXZlciBpbiB0aGUgRXVnZW5lLCBPUiBhcmVhCmxvb2sgbWUgdXAgZm9yIGEgZnJlZSBiZXZlcmFn
+ZSBvZiB5b3VyIGNob2ljZS4gOikKCj4gKE9uZSBtaW5vciB0aGluZzogbmV4dCB0aW1lLCBwbGVh
+c2Ugc3RhcnQgYSBuZXcgdGhyZWFkIHdoZW4gc2VuZGluZyBhCj4gbmV3IHBhdGNoLiBUaGlzIG1h
+a2VzIGFwcGx5aW5nIHBhdGNoZXMgZWFzaWVyLikKCknigJlsbCBkZWZpbml0ZWx5IGRvIHNvIG5l
+eHQgdGltZS4gIFRoYW5rIHlvdS4KCi0tCkFubmFsaWVzZSBNY0Rlcm1vbmQKbmg2ekBuaDZ6Lm5l
+dApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1h
+cm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5v
+cmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0t
+a2VybmVsCg==
