@@ -1,57 +1,48 @@
 From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH 34/34] usb: typec: tcpm: fusb302: simplify getting the
+Subject: Re: [PATCH 24/34] power: supply: sbs-manager: simplify getting the
  adapter of a client
-Date: Thu, 13 Jun 2019 11:54:52 +0200
-Message-ID: <20190613095452.qim3khiqcz2iwkbr@verge.net.au>
+Date: Thu, 13 Jun 2019 11:53:07 +0200
+Message-ID: <20190613095306.buqsgqylp2vm7cbb@verge.net.au>
 References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
- <20190608105619.593-35-wsa+renesas@sang-engineering.com>
- <bb8439e5-f56a-c848-180f-1feddbb198fe@roeck-us.net>
+ <20190608105619.593-25-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <bb8439e5-f56a-c848-180f-1feddbb198fe@roeck-us.net>
+In-Reply-To: <20190608105619.593-25-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Jun 08, 2019 at 05:59:17AM -0700, Guenter Roeck wrote:
-> On 6/8/19 3:56 AM, Wolfram Sang wrote:
-> > We have a dedicated pointer for that, so use it. Much easier to read and
-> > less computation involved.
-> > 
-> > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Sat, Jun 08, 2019 at 12:56:03PM +0200, Wolfram Sang wrote:
+> We have a dedicated pointer for that, so use it. Much easier to read and
+> less computation involved.
 > 
-> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
 
+> ---
 > 
-> > ---
-> > 
-> > Please apply to your subsystem tree.
-> > 
-> >   drivers/usb/typec/tcpm/fusb302.c | 3 +--
-> >   1 file changed, 1 insertion(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/usb/typec/tcpm/fusb302.c b/drivers/usb/typec/tcpm/fusb302.c
-> > index 7302f7501ec9..c524088246ee 100644
-> > --- a/drivers/usb/typec/tcpm/fusb302.c
-> > +++ b/drivers/usb/typec/tcpm/fusb302.c
-> > @@ -1697,13 +1697,12 @@ static int fusb302_probe(struct i2c_client *client,
-> >   			 const struct i2c_device_id *id)
-> >   {
-> >   	struct fusb302_chip *chip;
-> > -	struct i2c_adapter *adapter;
-> > +	struct i2c_adapter *adapter = client->adapter;
-> >   	struct device *dev = &client->dev;
-> >   	const char *name;
-> >   	int ret = 0;
-> >   	u32 v;
-> > -	adapter = to_i2c_adapter(client->dev.parent);
-> >   	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_I2C_BLOCK)) {
-> >   		dev_err(&client->dev,
-> >   			"I2C/SMBus block functionality not supported!\n");
-> > 
+> Please apply to your subsystem tree.
+> 
+>  drivers/power/supply/sbs-manager.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/power/supply/sbs-manager.c b/drivers/power/supply/sbs-manager.c
+> index cb6e8f66c7a2..4c29a89df968 100644
+> --- a/drivers/power/supply/sbs-manager.c
+> +++ b/drivers/power/supply/sbs-manager.c
+> @@ -317,7 +317,7 @@ static const struct power_supply_desc sbsm_default_psy_desc = {
+>  static int sbsm_probe(struct i2c_client *client,
+>  		      const struct i2c_device_id *id)
+>  {
+> -	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
+> +	struct i2c_adapter *adapter = client->adapter;
+>  	struct sbsm_data *data;
+>  	struct device *dev = &client->dev;
+>  	struct power_supply_desc *psy_desc;
+> -- 
+> 2.19.1
 > 
