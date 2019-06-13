@@ -1,24 +1,48 @@
 From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH 07/34] media: i2c: mt9m001: simplify getting the adapter
+Subject: Re: [PATCH 10/34] media: i2c: ov2640: simplify getting the adapter
  of a client
-Date: Thu, 13 Jun 2019 11:47:34 +0200
-Message-ID: <20190613094734.c26pbix5tlazxkby@verge.net.au>
+Date: Thu, 13 Jun 2019 11:48:18 +0200
+Message-ID: <20190613094818.v5xdf4uogv64uxyq@verge.net.au>
 References: <20190608105619.593-1-wsa+renesas@sang-engineering.com>
- <20190608105619.593-8-wsa+renesas@sang-engineering.com>
+ <20190608105619.593-11-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190608105619.593-8-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190608105619.593-11-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Cc: linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Jun 08, 2019 at 12:55:46PM +0200, Wolfram Sang wrote:
+On Sat, Jun 08, 2019 at 12:55:49PM +0200, Wolfram Sang wrote:
 > We have a dedicated pointer for that, so use it. Much easier to read and
 > less computation involved.
 > 
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+
+> ---
+> 
+> Please apply to your subsystem tree.
+> 
+>  drivers/media/i2c/ov2640.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/media/i2c/ov2640.c b/drivers/media/i2c/ov2640.c
+> index 83031cfc7914..30e7e6b2b293 100644
+> --- a/drivers/media/i2c/ov2640.c
+> +++ b/drivers/media/i2c/ov2640.c
+> @@ -1197,7 +1197,7 @@ static int ov2640_probe(struct i2c_client *client,
+>  			const struct i2c_device_id *did)
+>  {
+>  	struct ov2640_priv	*priv;
+> -	struct i2c_adapter	*adapter = to_i2c_adapter(client->dev.parent);
+> +	struct i2c_adapter	*adapter = client->adapter;
+>  	int			ret;
+>  
+>  	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA)) {
+> -- 
+> 2.19.1
+> 
