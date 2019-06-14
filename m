@@ -1,49 +1,54 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v2 21/28] drivers: Introduce
- bus_find_device_by_acpi_dev() helper
-Date: Fri, 14 Jun 2019 19:08:26 +0100
-Message-ID: <20190614180826.GH5316@sirena.org.uk>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 06/28] drivers: Add generic helper to match by of_node
+Date: Fri, 14 Jun 2019 22:31:44 +0200
+Message-ID: <20190614203144.GB7991@kunai>
 References: <1560534863-15115-1-git-send-email-suzuki.poulose@arm.com>
- <1560534863-15115-22-git-send-email-suzuki.poulose@arm.com>
+ <1560534863-15115-7-git-send-email-suzuki.poulose@arm.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="r21wuLfwIlf/vvzy"
+        protocol="application/pgp-signature"; boundary="EuxKj2iCbKjpUGkD"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1560534863-15115-22-git-send-email-suzuki.poulose@arm.com>
+In-Reply-To: <1560534863-15115-7-git-send-email-suzuki.poulose@arm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org, Alan Tull <atull@kernel.org>, Andrew Lunn <andrew@lunn.ch>, Daniel Vetter <daniel@ffwll.ch>, David Airlie <airlied@linux.ie>, "David S. Miller" <davem@davemloft.net>, devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org, Florian Fainelli <f.fainelli@gmail.com>, Frank Rowand <frowand.list@gmail.com>, Heiner Kallweit <hkallweit1@gmail.com>, Jiri Slaby <jslaby@suse.com>, Jonathan Hunter <jonathanh@nvidia.com>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, linux-fpga@vger.kernel.org, linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Mark Brown <broonie@kernel.org>, Mathieu Poirier <mathieu>
 List-Id: linux-i2c@vger.kernel.org
 
 
---r21wuLfwIlf/vvzy
+--EuxKj2iCbKjpUGkD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Jun 14, 2019 at 06:54:16PM +0100, Suzuki K Poulose wrote:
-> Add a wrapper to bus_find_device() to search for a device
-> by the ACPI COMPANION device, reusing the generic match function.
-> Also convert the existing users to make use of the new helper.
+> +
+> +int device_match_of_node(struct device *dev, const void *np)
+> +{
+> +	return dev->of_node == np;
+> +}
+> +EXPORT_SYMBOL_GPL(device_match_of_node);
 
-Acked-by: Mark Brown <broonie@kernel.org>
+Is it an option to 'static inline' this simple function in the header,
+saving the EXPORT?
 
-This might have merge issues, I just applied some changes to the ACPI
-parsing code the other day.
 
---r21wuLfwIlf/vvzy
+--EuxKj2iCbKjpUGkD
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl0D4pkACgkQJNaLcl1U
-h9AmVQf/WWt5yCgqJS2hZ0wFS5SWw5i/JVNB1OTySWW4UwV8kzMIO9QKAQcU7Bjt
-DSD24i2mUo/SaKBH+15eddgJLLJp4TNDVS8nKqhT+otXOn2usObZBjsVRtWwflu0
-fqz3PoaUimH0t+spe5Zc6PeDh5vQZSnqlodIq4Z0enShaVZorKbLNWodISJFEGV3
-F8AuiHutx8XotM8N3d5082oq84OJrKco7j0OMGNwZK0iP3oCWjjSZLPY9nAVhHVr
-2Jb+oYxGskwzQGJTb1522E0Y8H8ZYjqYrpOXW0Sg+tbSP9gxoxOoJFnOzMQUlcAI
-3khjbxrC4r6AoHawwMjUOc5V/BunEQ==
-=t8zE
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0EBDAACgkQFA3kzBSg
+KbZQeg/+MjmzU/IJj8oHfL4ndVmHrnLSPM/0OA0J/USTiS12dT9fwVXWkkaLZlRR
+cZkTt2QJ3UkAf+rbhooH8c/uo56rhY/LLFM7CT+4b360BZ1CYaVT8ttPRYSs5jtC
+CV9vMHwMl1kI1vAg5uSMb0EIjR/0dEl4Q8ol4MYMYqR7fusVx+qGRnVPW9zePbEI
+x3F/0woDahhQj0i12ETLSl2ONa8A54M1BgmOHRdcbfrdEnuUnyb0gmnKJDuQu7pz
+MDYW2ILMYPOewsH3DJSHpH7HuzgDTjqlgmWIBlKn0EbpgMT2UqyuoxHJ1lkOh4yk
+llNaipn5AyS6IbodA4F5TZu2NHJkPhwUgfCy9rXUG5/IGYPq43f9DjLNEzNqHhMI
+4nZi5EGx6o8Y5641xf3hZxRjDqu610k19RX3QSOXZxLoOQ9+CSFEwfXxIVDgD11o
+B4NMXI6cD3cddQgHfSyUNKDCn9lNMLk7uqbuXnAGEbreQ5InjVBgeZ3O59mDaVrW
+1qR3/yup3CR/nOLPdfzR2E4yiwTAKc+B4Vo52DP8X6OnQR/u/05CCTKHaeh8SOjT
+uP31ar1Au18BDkCxNuw4NijvDnIGAjqTO/0GLV2m5ViWAeq1nAMpIoCIiR6dhMpK
+naLg0mc136SskefQhRyOrVOmm7rLHV9oQmzG7Lb8maF3BNuStsk=
+=CJt5
 -----END PGP SIGNATURE-----
 
---r21wuLfwIlf/vvzy--
+--EuxKj2iCbKjpUGkD--
