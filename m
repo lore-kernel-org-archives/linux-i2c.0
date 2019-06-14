@@ -1,66 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH REPOST v8 1/3] dt-bindings: i2c: extend existing opencore
- bindings.
-Date: Fri, 14 Jun 2019 22:58:41 +0200
-Message-ID: <20190614205841.GC17899@ninjato>
+Subject: Re: [PATCH REPOST v8 2/3] i2c-ocores: sifive: add support for i2c
+ device on FU540-c000 SoC.
+Date: Fri, 14 Jun 2019 22:58:46 +0200
+Message-ID: <20190614205846.GD17899@ninjato>
 References: <1559369475-15374-1-git-send-email-sagar.kadam@sifive.com>
- <1559369475-15374-2-git-send-email-sagar.kadam@sifive.com>
+ <1559369475-15374-3-git-send-email-sagar.kadam@sifive.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="QRj9sO5tAVLaXnSD"
+        protocol="application/pgp-signature"; boundary="wULyF7TL5taEdwHz"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1559369475-15374-2-git-send-email-sagar.kadam@sifive.com>
+In-Reply-To: <1559369475-15374-3-git-send-email-sagar.kadam@sifive.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
 Cc: robh+dt@kernel.org, mark.rutland@arm.com, peter@korsgaard.com, andrew@lunn.ch, palmer@sifive.com, paul.walmsley@sifive.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---QRj9sO5tAVLaXnSD
+--wULyF7TL5taEdwHz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jun 01, 2019 at 11:41:13AM +0530, Sagar Shrikant Kadam wrote:
-> Reformatted compatibility strings to one valid combination on
-> each line.
-> Add FU540-C000 specific device tree bindings to already available
-> i2-ocores file. This device is available on
-> HiFive Unleashed Rev A00 board. Move interrupt under optional
-> property list as this can be optional.
+On Sat, Jun 01, 2019 at 11:41:14AM +0530, Sagar Shrikant Kadam wrote:
+> Update device id table for Opencore's I2C master based re-implementation
+> used in FU540-c000 chipset on HiFive Unleashed platform.
 >=20
-> The FU540-C000 SoC from sifive, has an Opencore's I2C block
-> reimplementation.
->=20
-> The DT compatibility string for this IP is present in HDL and available a=
-t.
-> https://github.com/sifive/sifive-blocks/blob/master/src/main/scala/device=
-s/i2c/I2C.scala#L73
+> Device ID's include Sifive, soc-specific device for chip specific tweaks
+> and sifive IP block specific device for generic programming model.
 >=20
 > Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
 
 Applied to for-next, thanks!
 
 
---QRj9sO5tAVLaXnSD
+--wULyF7TL5taEdwHz
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0ECoAACgkQFA3kzBSg
-Kbao1Q/7Bww4MUaBPH3+ZywBjlJ45ehCw3ulD5lfN/Avf0GJLLlm2qGIm/BSe9/x
-V80NkEuQC1ythfVxiq+edDN+Wy5yFtsKLhkjbKzgwYTsoMBx0AbHTjXujIGo03+t
-iIg2/9I/Arq+u/5g+HCDk0/4asDMVMBJVa3bniKbClWfuJ7ggWH/UbmOGXfelX7I
-HpaokQT/+D8sdtibkIdt4/rgvos/3h8NC4h2CTFywsBu+A62xwiMGpORJ1yWubto
-xfr6uu6Rme7if+pyvu5Oxy/FV+UJshX6+6qSI/wvJnrQx1gh/GcKr6Pz7OLk9Pvw
-BNgMy5MCLRfMCUUScrCZgjFiGFkZ4vrebE2sJ1+DW7gGPnDrsSatN0oxpn/r4Abn
-OI4HsSjxtFZWcBz54prvGIzXYc+9bJcACgyeJRPVEDdvVGZDX3Mg5teIgbJbt9iD
-CHp8DMgfdThiIr1cYn9ORF2miTXCaWs735qjM/8QckH4Bfd6cfoDIn5KDjo/1Th5
-E6aQBheFFaq85DV74R/sdXXbpRQhrVBj/Cz3SgXhgj66ooHtdVBpNdXeSDon54XG
-5v+LQrcexKmF0NlEFlyqeaajxnaB0kJQnXBzz1iqeg5Tkk/Gho70zFFUYhw4OFUM
-F4hXCxq7vwHamFM6W68gMEcY0vPh/QqpNNYiSjWoEKn+PR3ZTt0=
-=fkzZ
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0ECoYACgkQFA3kzBSg
+KbZncA//eWbyOsRWDI1ivLjGr5LHGf287LZ5FaaXD5xse31wxiWmSniRKi7NDK10
+wypljEvTKDvbG10DllABXn8XgyxRtBNRAzdLqFFTOmX6dpIds8Rqmd+J4sS0lQKV
+00TCpBCKYNI519/eGwNWFHIYM+HuBdM6xX9yNJKygvLfz8zD7vJPoSlabA3iKY4o
++iWwOAxrVtEUMseiUUXXlpuFy/aPdJesxo4tzaj1bTV+yAh2jqrog7RoQebbNKe+
+rrb35JxIJmJtOcys5dTymk7eQzbQMqWnwMslRnwkPBR+Mmjb6ldLGC2IWdHTUkJt
+JO6sf/trxQVmoZkO9GGMZBAZHrLlvY8HMMAtzf7KUdqK7eaGmDNujbND2QUaSebB
+HKMRVVv2tOzOvtCAiP1YgozZoOm4a51su0GkMxzyoNLu0bBN2TY0pfBPaTjrfVep
+IJ/DYy4eN3FORffr5iBrJQMhFAD1KxXOKbxqW23ibGXjnLb8I2sp4N0zbi6808XM
+atKpgpqMJMXGrg1MEFrkv0JWM9XIWCgMRrwKcNGnsRBEaG6pMuwv+zKU51M2oYyW
+6I3gy4/REKWhyJF6v09GxGeASLMzbjaa/T1VFxIL4SDcM2OsUXAIFKL6+st8YbUL
+tBAE8nnK0uRngRDEaCesK+RK4hUhzRDJnHj2hJiH82PSO5XIb3A=
+=AX75
 -----END PGP SIGNATURE-----
 
---QRj9sO5tAVLaXnSD--
+--wULyF7TL5taEdwHz--
