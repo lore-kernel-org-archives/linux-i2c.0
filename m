@@ -1,59 +1,81 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 2/6] i2c: i2c-qcom-geni: Signify successful driver
- probe
-Date: Fri, 14 Jun 2019 23:17:31 +0200
-Message-ID: <20190614211731.GI17899@ninjato>
-References: <20190612142654.9639-1-lee.jones@linaro.org>
- <20190612142654.9639-3-lee.jones@linaro.org>
+From: Serge Semin <fancer.lancer@gmail.com>
+Subject: [PATCH] i2c: mux-gpio: Use "mux" con_id to find channel GPIOs
+Date: Sat, 15 Jun 2019 00:47:49 +0300
+Message-ID: <20190614214748.2389-1-fancer.lancer@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="PWfwoUCx3AFJRUBq"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190612142654.9639-3-lee.jones@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: alokc@codeaurora.org, agross@kernel.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, bjorn.andersson@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org, ard.biesheuvel@linaro.org, jlhugo@gmail.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.or
+To: Jean Delvare <jdelvare@suse.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>
+Cc: Serge Semin <Sergey.Semin@t-platforms.ru>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Recent patch - ("i2c: mux/i801: Switch to use descriptor passing")
+altered the i2c-mux-gpio driver to use the GPIO-descriptor
+based interface to find and request the GPIOs then being utilized
+to select and deselect the channels of GPIO-driven i2c-muxes. Even
+though the proposed modification was correct for the platform_data-based
+systems, it was invalid for the OF-based ones and caused the kernel
+to crash at the driver probe procedure. There were two problems with
+that modification. First of all the gpiod_count() and gpiod_get_index()
+were called with NULL con_id. Due to this the methods couldn't find
+the "mux-gpios" OF-properties and returned the -ENOENT error. Secondly
+the return value of gpiod_count() wasn't checked for being negative,
+which in case of an error caused the driver to crash. This patch
+is intended to fix the described problems.
 
---PWfwoUCx3AFJRUBq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Fixes: - ("i2c: mux/i801: Switch to use descriptor passing")
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Peter Rosin <peda@axentia.se>
+Cc: Jean Delvare <jdelvare@suse.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Serge Semin <fancer.lancer@gmail.com>
+---
+ drivers/i2c/busses/i2c-i801.c    |  2 +-
+ drivers/i2c/muxes/i2c-mux-gpio.c | 10 +++++-----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-On Wed, Jun 12, 2019 at 03:26:50PM +0100, Lee Jones wrote:
-> The Qualcomm Geni I2C driver currently probes silently which can be
-> confusing when debugging potential issues.  Add a low level (INFO)
-> print when each I2C controller is successfully initially set-up.
->=20
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-
-Applied to for-next, thanks!
-
-Alok, are you still there? Your ack is missed here...
-
-
---PWfwoUCx3AFJRUBq
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0EDusACgkQFA3kzBSg
-KbaF5A//eOUYXPdT2ti6Q1bKBj1UFPE+GDDgTGN5/r9/yp/CvXDI2rmQRzYZ4Hzw
-gu+c+ZlfvgufyiS3nOri6r8RgiSRqWPRUCKK+PZNGdiYg7bjmHGSzYj3QwprXu6Y
-vorDbXJ8AsnSr3/LAqO+vwzxwJIUdUNu51svi+IYKw0t+v7mbxfSKbl6vTCmrums
-DepavKTDuQKnoLD6RX7E89ffTw/wvnR5kR/kGlIeAmcOHYCWyNZhdmrNLSqhZdmf
-Ki1TTIq8D0dHoVKia0GdkcCBeegTHBpfwkiDzRl9ubpPaZen6T3ny5mrbyTWV2wF
-Xn3H7nYSiT2jbY35k09RINb1G2YSc6zHClcgIAdx0OO9Zs1OXV4s5sdHvjzHR1ep
-SbpBxZ+ndXOt+Eyo4aXSpK8In3noXs0RZiw+kf7DxUKQWOb465hHb7aX7cCwp2Fv
-kjHYMgizH6agnT5ApVTa4GLF/NQ2uTj+EmWjgwhFmPWsnfjS1rCOrvWkizGx1dpn
-55ROyQ1sS8fIRk4lhKJa0H54up9gg4ql07O0qMvkwRUkLvBnEedob5AapJp2jg2b
-FKH9EhHky3pgSWkrlChUiNcRsBtF9IKORupVYGjhDfKGo+dQMvrEhgFIpcPINk2E
-1zRvv6B2/eRrDN13n6Kztrfil3fRYOEYmbSn01W7loWGu51o2LE=
-=OtA8
------END PGP SIGNATURE-----
-
---PWfwoUCx3AFJRUBq--
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index a377d94968af..ec54b5b4f1a1 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -1276,7 +1276,7 @@ static int i801_add_mux(struct i801_priv *priv)
+ 	for (i = 0; i < mux_config->n_gpios; i++) {
+ 		lookup->table[i].chip_label = mux_config->gpio_chip;
+ 		lookup->table[i].chip_hwnum = mux_config->gpios[i];
+-		lookup->table[i].con_id = NULL;
++		lookup->table[i].con_id = "mux";
+ 	}
+ 	gpiod_add_lookup_table(lookup);
+ 	priv->lookup = lookup;
+diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
+index b9578f668fb2..1ea097dc8d5d 100644
+--- a/drivers/i2c/muxes/i2c-mux-gpio.c
++++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+@@ -130,10 +130,10 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+ 			sizeof(mux->data));
+ 	}
+ 
+-	ngpios = gpiod_count(&pdev->dev, NULL);
+-	if (!ngpios) {
+-		dev_err(&pdev->dev, "no gpios provided\n");
+-		return -EINVAL;
++	ngpios = gpiod_count(&pdev->dev, "mux");
++	if (ngpios <= 0) {
++		dev_err(&pdev->dev, "no valid gpios provided\n");
++		return ngpios ?: -EINVAL;
+ 	}
+ 	mux->ngpios = ngpios;
+ 
+@@ -173,7 +173,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+ 			flag = GPIOD_OUT_HIGH;
+ 		else
+ 			flag = GPIOD_OUT_LOW;
+-		gpiod = devm_gpiod_get_index(&pdev->dev, NULL, i, flag);
++		gpiod = devm_gpiod_get_index(&pdev->dev, "mux", i, flag);
+ 		if (IS_ERR(gpiod)) {
+ 			ret = PTR_ERR(gpiod);
+ 			goto alloc_failed;
+-- 
+2.21.0
