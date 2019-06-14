@@ -1,81 +1,108 @@
 From: Serge Semin <fancer.lancer@gmail.com>
-Subject: [PATCH] i2c: mux-gpio: Use "mux" con_id to find channel GPIOs
-Date: Sat, 15 Jun 2019 00:47:49 +0300
-Message-ID: <20190614214748.2389-1-fancer.lancer@gmail.com>
+Subject: Re: [PATCH v2 2/3] i2c-mux-gpio: Unpin the platform-specific GPIOs
+ request code
+Date: Sat, 15 Jun 2019 00:58:45 +0300
+Message-ID: <20190614215844.2ueoqadvj5dqbaua@mobilestation>
+References: <20190425232028.9333-1-fancer.lancer@gmail.com>
+ <20190425232028.9333-3-fancer.lancer@gmail.com>
+ <783250dd-87c0-b3cc-0e90-7978605a9b07@axentia.se>
+ <20190614163134.zs5xyuqvp25ahbng@mobilestation>
+ <fb96ba56-4754-a962-ceea-4fd50ee59c69@axentia.se>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <fb96ba56-4754-a962-ceea-4fd50ee59c69@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>
-Cc: Serge Semin <Sergey.Semin@t-platforms.ru>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>
+Cc: Peter Korsgaard <peter.korsgaard@barco.com>, Serge Semin <Sergey.Semin@t-platforms.ru>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jean Delvare <jdelvare@suse.com>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Recent patch - ("i2c: mux/i801: Switch to use descriptor passing")
-altered the i2c-mux-gpio driver to use the GPIO-descriptor
-based interface to find and request the GPIOs then being utilized
-to select and deselect the channels of GPIO-driven i2c-muxes. Even
-though the proposed modification was correct for the platform_data-based
-systems, it was invalid for the OF-based ones and caused the kernel
-to crash at the driver probe procedure. There were two problems with
-that modification. First of all the gpiod_count() and gpiod_get_index()
-were called with NULL con_id. Due to this the methods couldn't find
-the "mux-gpios" OF-properties and returned the -ENOENT error. Secondly
-the return value of gpiod_count() wasn't checked for being negative,
-which in case of an error caused the driver to crash. This patch
-is intended to fix the described problems.
+On Fri, Jun 14, 2019 at 06:04:33PM +0000, Peter Rosin wrote:
+> On 2019-06-14 18:31, Serge Semin wrote:
+> > Hello Peter,
+> > 
+> > On Sun, Jun 09, 2019 at 09:34:54PM +0000, Peter Rosin wrote:
+> >> On 2019-04-26 01:20, Serge Semin wrote:
+> >>> The GPIOs request loop can be safely moved to a separate function.
+> >>> First of all it shall improve the code readability. Secondly the
+> >>> initialization loop at this point is used for both of- and
+> >>> platform_data-based initialization paths, but it will be changed in
+> >>> the next patch, so by isolating the code we'll simplify the future
+> >>> work.
+> >>
+> >> This patch is just preparatory for patch 3/3, as I see it. And since
+> >> I'm not really fond of the end result after patch 3/3, I'm going to
+> >> sum up my issues here, instead of trying do it piecemeal in the two
+> >> patches.
+> >>
+> >> Linus and Jean, for your convenience, link to this patch series [1].
+> >>
+> >> While I agree with the goal (to use the more flexible gpiod functions
+> >> to get at the gpio descriptors), the cost is too high when the init
+> >> code for platform and OF is basically completely separated. I much
+> >> prefer the approach taken by Linus [2], which instead converts the
+> >> platform interface and its single user to use gpio descriptors instead
+> >> of the legacy gpio interface. The i2c-mux-gpio code then has the
+> >> potential to take a unified approach to the given gpio descriptors,
+> >> wherever they are originating from, which is much nicer than the
+> >> code-fork in this series.
+> >>
+> >> I also think it is pretty pointless to first split the code into
+> >> platform and OF paths, just so that the next patch (from Linus) can
+> >> unify the two paths again. I'd like to skip the intermediate step.
+> >>
+> >> So, I'm hoping for the following to happen.
+> >> 1. Sergey sends a revised patch for patch 1/3.
+> >> 2. I put the patch on the for-next branch.
+> >> 3. Linus rebases his patch on top of that (while thinking about
+> >>    the questions raised by Sergey).
+> >> 4. Sergey tests the result, I and Jean review it, then possibly
+> >>    go back to 3.
+> >> 5. I put the patch on the for-next branch.
+> >>
+> >> Is that ok? Or is someone insisting that we take a detour?
+> >>
+> > 
+> > The series was intended to add the gpiod support to the i2c-mux-gpio driver
+> > (see the cover letter of the series). So the last patch is the most valuable
+> > one. Without it the whole series is nothing but a small readability improvement.
+> > So it is pointless to merge the first patch only.
+> 
+> Agreed on all points, except perhaps for the "refuse" part below and
+> that the readability improvement of patch 1/3 is perhaps not all that
+> pointless.
+> 
+> > Anyway since you refuse to add the last patch and the first patch is actually
+> > pointless without the rest of the series, and I would have to spend my time to
+> > resubmit the v3 of the first patch anyway, it was much easier to test the
+> > current version of the Linus' patch and make it working for OF-based platforms.
+> > Additionally the Linus' patch also reaches the main goal of this patchset.
+> 
+> I'm very pleased that you do not feel totally put off, and are willing
+> to help even if we end up storing your series in /dev/null. Kudos!
+> 
+> > I don't know what would be the appropriate way to send the updated version of
+> > the Linus' patch. So I just attached the v4 of it to this email. Shall I better
+> > send it in reply to the Linus' patch series?
+> 
+> I get the impression that you have already done the work? In that case,
+> how I would proceed would depend on how big the difference is. If it's
+> just a few one-liners here and there, I think I would make a detailed
+> review comment so that it is easy for Linus to incorporate the needed
+> changes. If it's anything even remotely complex I would post an
+> incremental patch. Of course, the former does not exclude the latter,
+> but I do think an incremental patch is better than a repost.
+> 
 
-Fixes: - ("i2c: mux/i801: Switch to use descriptor passing")
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Peter Rosin <peda@axentia.se>
-Cc: Jean Delvare <jdelvare@suse.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Serge Semin <fancer.lancer@gmail.com>
----
- drivers/i2c/busses/i2c-i801.c    |  2 +-
- drivers/i2c/muxes/i2c-mux-gpio.c | 10 +++++-----
- 2 files changed, 6 insertions(+), 6 deletions(-)
+Yes, I tested the Linus' patch on my OF-based platform (though had to port to
+kernel 4.9) and found two problems. The incremental patch, which fixes them is
+send to you with mailing lists and everyone involved being Cc'ed.
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index a377d94968af..ec54b5b4f1a1 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -1276,7 +1276,7 @@ static int i801_add_mux(struct i801_priv *priv)
- 	for (i = 0; i < mux_config->n_gpios; i++) {
- 		lookup->table[i].chip_label = mux_config->gpio_chip;
- 		lookup->table[i].chip_hwnum = mux_config->gpios[i];
--		lookup->table[i].con_id = NULL;
-+		lookup->table[i].con_id = "mux";
- 	}
- 	gpiod_add_lookup_table(lookup);
- 	priv->lookup = lookup;
-diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-index b9578f668fb2..1ea097dc8d5d 100644
---- a/drivers/i2c/muxes/i2c-mux-gpio.c
-+++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-@@ -130,10 +130,10 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
- 			sizeof(mux->data));
- 	}
- 
--	ngpios = gpiod_count(&pdev->dev, NULL);
--	if (!ngpios) {
--		dev_err(&pdev->dev, "no gpios provided\n");
--		return -EINVAL;
-+	ngpios = gpiod_count(&pdev->dev, "mux");
-+	if (ngpios <= 0) {
-+		dev_err(&pdev->dev, "no valid gpios provided\n");
-+		return ngpios ?: -EINVAL;
- 	}
- 	mux->ngpios = ngpios;
- 
-@@ -173,7 +173,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
- 			flag = GPIOD_OUT_HIGH;
- 		else
- 			flag = GPIOD_OUT_LOW;
--		gpiod = devm_gpiod_get_index(&pdev->dev, NULL, i, flag);
-+		gpiod = devm_gpiod_get_index(&pdev->dev, "mux", i, flag);
- 		if (IS_ERR(gpiod)) {
- 			ret = PTR_ERR(gpiod);
- 			goto alloc_failed;
--- 
-2.21.0
+Regards,
+-Sergey
+
+> Thanks again!
+> 
+> Cheers,
+> Peter
