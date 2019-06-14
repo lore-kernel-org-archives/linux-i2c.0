@@ -1,80 +1,161 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 5.2
-Date: Fri, 14 Jun 2019 18:45:53 +0200
-Message-ID: <20190614164549.GA6067@kunai>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH V6] i2c: tegra: remove BUG, BUG_ON
+Date: Fri, 14 Jun 2019 20:51:51 +0300
+Message-ID: <504e19d0-05dd-dc80-3aaf-cdab8f88002d@gmail.com>
+References: <1560527438-30150-1-git-send-email-bbiswas@nvidia.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="IJpNTDwzlM2Ie8A6"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <1560527438-30150-1-git-send-email-bbiswas@nvidia.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+To: Bitan Biswas <bbiswas@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
+14.06.2019 18:50, Bitan Biswas пишет:
+> Remove redundant BUG_ON calls or replace with WARN_ON_ONCE
+> as needed. Remove BUG() and mask Rx interrupt similar as Tx
+> for message fully sent case. Add WARN_ON_ONCE check
+> for non-zero rx_fifo_avail in tegra_i2c_empty_rx_fifo()
+> after all processing. Error handling in tegra_i2c_empty_rx_fifo
+> caller is also added.
+> 
+> Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
+> ---
+>  drivers/i2c/busses/i2c-tegra.c | 46 ++++++++++++++++++++++++++++++++++--------
+>  1 file changed, 38 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+> index 4dfb4c1..26a7c8c 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -73,6 +73,7 @@
+>  #define I2C_ERR_NO_ACK				BIT(0)
+>  #define I2C_ERR_ARBITRATION_LOST		BIT(1)
+>  #define I2C_ERR_UNKNOWN_INTERRUPT		BIT(2)
+> +#define I2C_ERR_UNEXPECTED_STATUS		BIT(3)
 
---IJpNTDwzlM2Ie8A6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+What about I2C_ERR_RX_BUFFER_OVERFLOW?
 
-Linus,
+>  #define PACKET_HEADER0_HEADER_SIZE_SHIFT	28
+>  #define PACKET_HEADER0_PACKET_ID_SHIFT		16
+> @@ -515,15 +516,23 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
+>  	 * prevent overwriting past the end of buf
+>  	 */
+>  	if (rx_fifo_avail > 0 && buf_remaining > 0) {
+> -		BUG_ON(buf_remaining > 3);
+> +		/* buf_remaining > 3 check not needed as rx_fifo_avail == 0
+> +		 * when (words_to_transfer was > rx_fifo_avail) earlier
+> +		 * in this function
+> +		 */
 
-I2C has two simple but wanted driver fixes for you.
+Please start all multiline comments with an empty "/*", it should be the correct
+style. There are some places in the kernel where style like yours is used, but I
+assume they are not very correct. Besides, yours variant is not consistent with the
+style of the rest of comments in this source file. And put a dot in the end for
+completeness. Same for the other comments in this patch.
 
-Please pull.
+>  		val = i2c_readl(i2c_dev, I2C_RX_FIFO);
+>  		val = cpu_to_le32(val);
+>  		memcpy(buf, &val, buf_remaining);
+>  		buf_remaining = 0;
+>  		rx_fifo_avail--;
+>  	}
 
-Thanks,
+Please add a newline here. All logical parts of the code should be separated to ease
+reading and following.
 
-   Wolfram
+> +	if (WARN_ON_ONCE(rx_fifo_avail))
+> +		return -EINVAL;
+>  
+> -	BUG_ON(rx_fifo_avail > 0 && buf_remaining > 0);
+> +	/* buf_remaining > 0 at this point can only have rx_fifo_avail == 0
+> +	 * as this corresponds to (words_to_transfer was > rx_fifo_avail)
+> +	 * case earlier in this function
+> +	 */
+>  	i2c_dev->msg_buf_remaining = buf_remaining;
+>  	i2c_dev->msg_buf = buf;
+>  
+> @@ -581,7 +590,10 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
+>  	 * boundary and fault.
+>  	 */
+>  	if (tx_fifo_avail > 0 && buf_remaining > 0) {
+> -		BUG_ON(buf_remaining > 3);
+> +		/* buf_remaining > 3 check not needed as tx_fifo_avail == 0
+> +		 * when (words_to_transfer was > tx_fifo_avail) earlier
+> +		 * in this function for non-zero words_to_transfer
+> +		 */
+>  		memcpy(&val, buf, buf_remaining);
+>  		val = le32_to_cpu(val);
+>  
+> @@ -811,6 +823,7 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+>  	u32 status;
+>  	const u32 status_err = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
+>  	struct tegra_i2c_dev *i2c_dev = dev_id;
+> +	int err_val;
+>  
+>  	status = i2c_readl(i2c_dev, I2C_INT_STATUS);
+>  
+> @@ -847,10 +860,21 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+>  
+>  	if (!i2c_dev->is_curr_dma_xfer) {
+>  		if (i2c_dev->msg_read && (status & I2C_INT_RX_FIFO_DATA_REQ)) {
+> -			if (i2c_dev->msg_buf_remaining)
+> -				tegra_i2c_empty_rx_fifo(i2c_dev);
+> -			else
+> -				BUG();
+> +			err_val = tegra_i2c_empty_rx_fifo(i2c_dev);
+> +			if ((!(i2c_dev->msg_buf_remaining)) &&
 
+Let's move this check into tegra_i2c_empty_rx_fifo() and return -EINVAL for that case.
+This will make code to look cleaner.
 
-The following changes since commit d1fdb6d8f6a4109a4263176c84b899076a5f8008:
+> +			    (!(status & I2C_INT_PACKET_XFER_COMPLETE)) &&
 
-  Linux 5.2-rc4 (2019-06-08 20:24:46 -0700)
+It shouldn't matter that XFER_COMPLETE is set if RX FIFO isn't fully emptied because
+it always shall be emptied. Hence this check is not needed and we should error out
+regardless.
 
-are available in the Git repository at:
+> +			    err_val) {
+> +				/*
+> +				 * Overflow error condition: message fully sent,
+> +				 * with no XFER_COMPLETE interrupt but hardware
+> +				 * asks to transfer more.
+> +				 */
+> +				tegra_i2c_mask_irq(i2c_dev,
+> +						   I2C_INT_RX_FIFO_DATA_REQ);
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+No need to mask RX_FIFO_DATA_REQ here because all interrupts are masked on "goto
+err:", hence just remove the tegra_i2c_mask_irq().
 
-for you to fetch changes up to a0cac264a86fbf4d6cb201fbbb73c1d335e3248a:
+> +				i2c_dev->msg_err |=
+> +					I2C_ERR_UNEXPECTED_STATUS;
 
-  i2c: pca-platform: Fix GPIO lookup code (2019-06-12 12:54:06 +0200)
+No need to split this into two lines because it's less than 80 chars, write this in a
+single line.
 
-----------------------------------------------------------------
-Linus Walleij (1):
-      i2c: pca-platform: Fix GPIO lookup code
+> +				goto err;
+> +			}
+>  		}
+>  
+>  		if (!i2c_dev->msg_read && (status & I2C_INT_TX_FIFO_DATA_REQ)) {
+> @@ -876,7 +900,13 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+>  	if (status & I2C_INT_PACKET_XFER_COMPLETE) {
+>  		if (i2c_dev->is_curr_dma_xfer)
+>  			i2c_dev->msg_buf_remaining = 0;
+> -		BUG_ON(i2c_dev->msg_buf_remaining);
+> +		/* Underflow error condition: XFER_COMPLETE before message
+> +		 * fully sent.
+> +		 */
+> +		if (WARN_ON_ONCE(i2c_dev->msg_buf_remaining)) {
+> +			i2c_dev->msg_err |= I2C_ERR_UNKNOWN_INTERRUPT;
+> +			goto err;
+> +		}
+>  		complete(&i2c_dev->msg_complete);
+>  	}
+>  	goto done;
+> 
 
-Russell King (1):
-      i2c: acorn: fix i2c warning
-
-
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Chris Packham (1):
-      (Rev.) i2c: pca-platform: Fix GPIO lookup code
-
- drivers/i2c/busses/i2c-acorn.c        | 1 +
- drivers/i2c/busses/i2c-pca-platform.c | 3 +--
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
---IJpNTDwzlM2Ie8A6
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0DzzgACgkQFA3kzBSg
-Kba3eRAAj75yROtt+RiswrwgCX3rqNUMIjxEnXTBqs/yr9g+DvMtQ2nDd5t9al+e
-2njvH5nCf5JU4cwgZhkfyYrDzYiZgvcb9+Womv816DHBw4tkFix6LLihEt/aNv2h
-MGYB7ChfC+8iBGIONrjDGcOnSKh3vGZmjKpwRepDwpL+aXFFAr+LKG/CTUVY9cC3
-qw0IWvc9Kr1dScxd2owjMTaUodMMS2CpsNKkazgC7/Czhf1PM+frcLcTSE2bXG2f
-77Z2WZGgCENyulbeMFEs7XMWx6CnM88MchyQoRj+ReqXwaceCb0j/U8XT52zSZcY
-BP4MrOx/5IvSmF5Q7HAXG9lc1eyZcnxWRiVnCH3MWA8BKkga8UOWe7QpSgGXt8nW
-3bH3YWUHDyLkOP8BxO7tSSaSQEYgGAZA37yYOCVGaHEYqbGjM/uPEWYnd93WyY0A
-K1LllsG+9VzXKNDOEBhQJ9U539slg13b7ZGbYhczxVCzEq9qYkIAcfWmPrc1iiC5
-oz75ZwXozH9yXir6/V6p2qXp9/FGrQk7dMw1gzPClYGwlQkiwmuG/fMQIc8O/s7x
-OxEoc4xm/VzxIOar7nFjWC0Tzq1JZuCxsWHGUB5ek6X6HOaRW1I62B2xwUYciOVs
-jwV6/2L0tRl+UfY3KPmADTTrgXKKwGUwYKPDH9CCVMp297ubpVA=
-=tPdC
------END PGP SIGNATURE-----
-
---IJpNTDwzlM2Ie8A6--
+Please address comments in the next revision.
