@@ -1,116 +1,109 @@
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
-Subject: [PATCH v2 21/28] drivers: Introduce bus_find_device_by_acpi_dev() helper
-Date: Fri, 14 Jun 2019 18:54:16 +0100
-Message-ID: <1560534863-15115-22-git-send-email-suzuki.poulose@arm.com>
-References: <1560534863-15115-1-git-send-email-suzuki.poulose@arm.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v2 2/3] i2c-mux-gpio: Unpin the platform-specific GPIOs
+ request code
+Date: Fri, 14 Jun 2019 18:04:33 +0000
+Message-ID: <fb96ba56-4754-a962-ceea-4fd50ee59c69@axentia.se>
+References: <20190425232028.9333-1-fancer.lancer@gmail.com>
+ <20190425232028.9333-3-fancer.lancer@gmail.com>
+ <783250dd-87c0-b3cc-0e90-7978605a9b07@axentia.se>
+ <20190614163134.zs5xyuqvp25ahbng@mobilestation>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1560534863-15115-1-git-send-email-suzuki.poulose@arm.com>
+In-Reply-To: <20190614163134.zs5xyuqvp25ahbng@mobilestation>
+Content-Language: en-US
+Content-ID: <08FE068E0DDD4D4BA3CCFA48B999AAE3@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: gregkh@linuxfoundation.org, rafael@kernel.org, suzuki.poulose@arm.com, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Mark Brown <broonie@kernel.org>
+To: Serge Semin <fancer.lancer@gmail.com>
+Cc: Peter Korsgaard <peter.korsgaard@barco.com>, Serge Semin <Sergey.Semin@t-platforms.ru>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jean Delvare <jdelvare@suse.com>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add a wrapper to bus_find_device() to search for a device
-by the ACPI COMPANION device, reusing the generic match function.
-Also convert the existing users to make use of the new helper.
+On 2019-06-14 18:31, Serge Semin wrote:
+> Hello Peter,
+>=20
+> On Sun, Jun 09, 2019 at 09:34:54PM +0000, Peter Rosin wrote:
+>> On 2019-04-26 01:20, Serge Semin wrote:
+>>> The GPIOs request loop can be safely moved to a separate function.
+>>> First of all it shall improve the code readability. Secondly the
+>>> initialization loop at this point is used for both of- and
+>>> platform_data-based initialization paths, but it will be changed in
+>>> the next patch, so by isolating the code we'll simplify the future
+>>> work.
+>>
+>> This patch is just preparatory for patch 3/3, as I see it. And since
+>> I'm not really fond of the end result after patch 3/3, I'm going to
+>> sum up my issues here, instead of trying do it piecemeal in the two
+>> patches.
+>>
+>> Linus and Jean, for your convenience, link to this patch series [1].
+>>
+>> While I agree with the goal (to use the more flexible gpiod functions
+>> to get at the gpio descriptors), the cost is too high when the init
+>> code for platform and OF is basically completely separated. I much
+>> prefer the approach taken by Linus [2], which instead converts the
+>> platform interface and its single user to use gpio descriptors instead
+>> of the legacy gpio interface. The i2c-mux-gpio code then has the
+>> potential to take a unified approach to the given gpio descriptors,
+>> wherever they are originating from, which is much nicer than the
+>> code-fork in this series.
+>>
+>> I also think it is pretty pointless to first split the code into
+>> platform and OF paths, just so that the next patch (from Linus) can
+>> unify the two paths again. I'd like to skip the intermediate step.
+>>
+>> So, I'm hoping for the following to happen.
+>> 1. Sergey sends a revised patch for patch 1/3.
+>> 2. I put the patch on the for-next branch.
+>> 3. Linus rebases his patch on top of that (while thinking about
+>>    the questions raised by Sergey).
+>> 4. Sergey tests the result, I and Jean review it, then possibly
+>>    go back to 3.
+>> 5. I put the patch on the for-next branch.
+>>
+>> Is that ok? Or is someone insisting that we take a detour?
+>>
+>=20
+> The series was intended to add the gpiod support to the i2c-mux-gpio driv=
+er
+> (see the cover letter of the series). So the last patch is the most valua=
+ble
+> one. Without it the whole series is nothing but a small readability impro=
+vement.
+> So it is pointless to merge the first patch only.
 
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
----
- drivers/i2c/i2c-core-acpi.c |  8 +-------
- drivers/spi/spi.c           |  8 +-------
- include/linux/device.h      | 22 ++++++++++++++++++++++
- 3 files changed, 24 insertions(+), 14 deletions(-)
+Agreed on all points, except perhaps for the "refuse" part below and
+that the readability improvement of patch 1/3 is perhaps not all that
+pointless.
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 8af35f11..7c6435c 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -328,11 +328,6 @@ static int i2c_acpi_find_match_adapter(struct device *dev, const void *data)
- 	return ACPI_HANDLE(dev) == (acpi_handle)data;
- }
- 
--static int i2c_acpi_find_match_device(struct device *dev, const void *data)
--{
--	return ACPI_COMPANION(dev) == data;
--}
--
- static struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
- {
- 	struct device *dev;
-@@ -346,8 +341,7 @@ static struct i2c_client *i2c_acpi_find_client_by_adev(struct acpi_device *adev)
- {
- 	struct device *dev;
- 
--	dev = bus_find_device(&i2c_bus_type, NULL, adev,
--			      i2c_acpi_find_match_device);
-+	dev = bus_find_device_by_acpi_dev(&i2c_bus_type, adev);
- 	return dev ? i2c_verify_client(dev) : NULL;
- }
- 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index cc4d83e..8737d69 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -3627,11 +3627,6 @@ static int spi_acpi_controller_match(struct device *dev, const void *data)
- 	return ACPI_COMPANION(dev->parent) == data;
- }
- 
--static int spi_acpi_device_match(struct device *dev, const void *data)
--{
--	return ACPI_COMPANION(dev) == data;
--}
--
- static struct spi_controller *acpi_spi_find_controller_by_adev(struct acpi_device *adev)
- {
- 	struct device *dev;
-@@ -3651,8 +3646,7 @@ static struct spi_device *acpi_spi_find_device_by_adev(struct acpi_device *adev)
- {
- 	struct device *dev;
- 
--	dev = bus_find_device(&spi_bus_type, NULL, adev, spi_acpi_device_match);
--
-+	dev = bus_find_device_by_acpi_dev(&spi_bus_type, adev);
- 	return dev ? to_spi_device(dev) : NULL;
- }
- 
-diff --git a/include/linux/device.h b/include/linux/device.h
-index 1c137ab..6768e2b 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -235,6 +235,28 @@ bus_find_next_device(struct bus_type *bus,struct device *cur)
- 	return bus_find_device(bus, cur, NULL, device_match_any);
- }
- 
-+#ifdef CONFIG_ACPI
-+struct acpi_device;
-+
-+/**
-+ * bus_find_device_by_acpi_dev : device iterator for locating a particular device
-+ * matching the ACPI COMPANION device.
-+ * @bus: bus type
-+ * @adev: ACPI COMPANION device to match.
-+ */
-+static inline struct device *
-+bus_find_device_by_acpi_dev(struct bus_type *bus, const struct acpi_device *adev)
-+{
-+	return bus_find_device(bus, NULL, adev, device_match_acpi_dev);
-+}
-+#else
-+static inline struct device *
-+bus_find_device_by_acpi_dev(struct bus_type *bus, const void *adev)
-+{
-+	return NULL;
-+}
-+#endif
-+
- struct device *subsys_find_device_by_id(struct bus_type *bus, unsigned int id,
- 					struct device *hint);
- int bus_for_each_drv(struct bus_type *bus, struct device_driver *start,
--- 
-2.7.4
+> Anyway since you refuse to add the last patch and the first patch is actu=
+ally
+> pointless without the rest of the series, and I would have to spend my ti=
+me to
+> resubmit the v3 of the first patch anyway, it was much easier to test the
+> current version of the Linus' patch and make it working for OF-based plat=
+forms.
+> Additionally the Linus' patch also reaches the main goal of this patchset=
+.
+
+I'm very pleased that you do not feel totally put off, and are willing
+to help even if we end up storing your series in /dev/null. Kudos!
+
+> I don't know what would be the appropriate way to send the updated versio=
+n of
+> the Linus' patch. So I just attached the v4 of it to this email. Shall I =
+better
+> send it in reply to the Linus' patch series?
+
+I get the impression that you have already done the work? In that case,
+how I would proceed would depend on how big the difference is. If it's
+just a few one-liners here and there, I think I would make a detailed
+review comment so that it is easy for Linus to incorporate the needed
+changes. If it's anything even remotely complex I would post an
+incremental patch. Of course, the former does not exclude the latter,
+but I do think an incremental patch is better than a repost.
+
+Thanks again!
+
+Cheers,
+Peter
