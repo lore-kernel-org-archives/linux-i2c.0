@@ -1,86 +1,125 @@
-From: Dmitry Osipenko <digetx@gmail.com>
-Subject: Re: [PATCH V5 6/7] i2c: tegra: fix PIO rx/tx residual transfer check
-Date: Fri, 14 Jun 2019 16:02:25 +0300
-Message-ID: <d2c97291-6392-d614-5cd9-1490a816548c@gmail.com>
-References: <1560250274-18499-1-git-send-email-bbiswas@nvidia.com>
- <1560250274-18499-6-git-send-email-bbiswas@nvidia.com>
- <42ce2523-dab9-0cdf-e8ff-42631dd161b7@gmail.com>
- <78140337-dca0-e340-a501-9e37eca6cc87@nvidia.com>
- <9cb7123a-1ebd-3a93-60dc-c8f57f60270b@gmail.com>
- <e795ddcf-dd11-4e39-2a94-b663e5ecb35b@nvidia.com>
+From: Bitan Biswas <bbiswas@nvidia.com>
+Subject: [PATCH V6] i2c: tegra: remove BUG, BUG_ON
+Date: Fri, 14 Jun 2019 08:50:38 -0700
+Message-ID: <1560527438-30150-1-git-send-email-bbiswas@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e795ddcf-dd11-4e39-2a94-b663e5ecb35b@nvidia.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bitan Biswas <bbiswas@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
+To: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Osipenko <digetx@gmail.com>
+Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Bitan Biswas <bbiswas@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-14.06.2019 12:50, Bitan Biswas пишет:
-> 
-> 
-> On 6/13/19 5:28 AM, Dmitry Osipenko wrote:
->> 13.06.2019 14:30, Bitan Biswas пишет:
->>>
->>>
->>> On 6/12/19 7:30 AM, Dmitry Osipenko wrote:
->>>> 11.06.2019 13:51, Bitan Biswas пишет:
->>>>> Fix expression for residual bytes(less than word) transfer
->>>>> in I2C PIO mode RX/TX.
->>>>>
->>>>> Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
->>>>> ---
->>>>
->>>> [snip]
->>>>
->>>>>            /*
->>>>> -         * Update state before writing to FIFO.  If this casues us
->>>>> +         * Update state before writing to FIFO.  If this causes us
->>>>>             * to finish writing all bytes (AKA buf_remaining goes to
->>>>> 0) we
->>>>>             * have a potential for an interrupt (PACKET_XFER_COMPLETE is
->>>>> -         * not maskable).  We need to make sure that the isr sees
->>>>> -         * buf_remaining as 0 and doesn't call us back re-entrantly.
->>>>> +         * not maskable).
->>>>>             */
->>>>>            buf_remaining -= words_to_transfer * BYTES_PER_FIFO_WORD;
->>>>
->>>> Looks like the comment could be removed altogether because it doesn't
->>>> make sense since interrupt handler is under xfer_lock which is kept
->>>> locked during of tegra_i2c_xfer_msg().
->>> I would push a separate patch to remove this comment because of
->>> xfer_lock in ISR now.
->>>
->>>>
->>>> Moreover the comment says that "PACKET_XFER_COMPLETE is not maskable",
->>>> but then what I2C_INT_PACKET_XFER_COMPLETE masking does?
->>>>
->>> I2C_INT_PACKET_XFER_COMPLETE masking support available in Tegra chips
->>> newer than Tegra30 allows one to not see interrupt after Packet transfer
->>> complete. With the xfer_lock in ISR the scenario discussed in comment
->>> can be ignored.
->>
->> Also note that xfer_lock could be removed and replaced with a just
->> irq_enable/disable() calls in tegra_i2c_xfer_msg() because we only care
->> about IRQ not firing during of the preparation process.
-> This should need sufficient testing hence let us do it in a different series.
+Remove redundant BUG_ON calls or replace with WARN_ON_ONCE
+as needed. Remove BUG() and mask Rx interrupt similar as Tx
+for message fully sent case. Add WARN_ON_ONCE check
+for non-zero rx_fifo_avail in tegra_i2c_empty_rx_fifo()
+after all processing. Error handling in tegra_i2c_empty_rx_fifo
+caller is also added.
 
-I don't think that there is much to test here since obviously it should work.
+Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
+---
+ drivers/i2c/busses/i2c-tegra.c | 46 ++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 38 insertions(+), 8 deletions(-)
 
->>
->> It also looks like tegra_i2c_[un]nmask_irq isn't really needed and all
->> IRQ's could be simply unmasked during the driver's probe, in that case
->> it may worth to add a kind of "in-progress" flag to catch erroneous
->> interrupts.
->>
-> TX interrupt needs special handling if this change is done. Hence I think it should be
-> taken up after sufficient testing in a separate patch.
-
-This one is indeed a bit more trickier. Probably another alternative could be to keep GIC
-interrupt disabled while no transfer is performed, then you'll have to request interrupt
-in a disabled state using IRQ_NOAUTOEN flag.
-
-And yes, that all should be a separate changes if you're going to implement them.
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 4dfb4c1..26a7c8c 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -73,6 +73,7 @@
+ #define I2C_ERR_NO_ACK				BIT(0)
+ #define I2C_ERR_ARBITRATION_LOST		BIT(1)
+ #define I2C_ERR_UNKNOWN_INTERRUPT		BIT(2)
++#define I2C_ERR_UNEXPECTED_STATUS		BIT(3)
+ 
+ #define PACKET_HEADER0_HEADER_SIZE_SHIFT	28
+ #define PACKET_HEADER0_PACKET_ID_SHIFT		16
+@@ -515,15 +516,23 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
+ 	 * prevent overwriting past the end of buf
+ 	 */
+ 	if (rx_fifo_avail > 0 && buf_remaining > 0) {
+-		BUG_ON(buf_remaining > 3);
++		/* buf_remaining > 3 check not needed as rx_fifo_avail == 0
++		 * when (words_to_transfer was > rx_fifo_avail) earlier
++		 * in this function
++		 */
+ 		val = i2c_readl(i2c_dev, I2C_RX_FIFO);
+ 		val = cpu_to_le32(val);
+ 		memcpy(buf, &val, buf_remaining);
+ 		buf_remaining = 0;
+ 		rx_fifo_avail--;
+ 	}
++	if (WARN_ON_ONCE(rx_fifo_avail))
++		return -EINVAL;
+ 
+-	BUG_ON(rx_fifo_avail > 0 && buf_remaining > 0);
++	/* buf_remaining > 0 at this point can only have rx_fifo_avail == 0
++	 * as this corresponds to (words_to_transfer was > rx_fifo_avail)
++	 * case earlier in this function
++	 */
+ 	i2c_dev->msg_buf_remaining = buf_remaining;
+ 	i2c_dev->msg_buf = buf;
+ 
+@@ -581,7 +590,10 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
+ 	 * boundary and fault.
+ 	 */
+ 	if (tx_fifo_avail > 0 && buf_remaining > 0) {
+-		BUG_ON(buf_remaining > 3);
++		/* buf_remaining > 3 check not needed as tx_fifo_avail == 0
++		 * when (words_to_transfer was > tx_fifo_avail) earlier
++		 * in this function for non-zero words_to_transfer
++		 */
+ 		memcpy(&val, buf, buf_remaining);
+ 		val = le32_to_cpu(val);
+ 
+@@ -811,6 +823,7 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 	u32 status;
+ 	const u32 status_err = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
+ 	struct tegra_i2c_dev *i2c_dev = dev_id;
++	int err_val;
+ 
+ 	status = i2c_readl(i2c_dev, I2C_INT_STATUS);
+ 
+@@ -847,10 +860,21 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 
+ 	if (!i2c_dev->is_curr_dma_xfer) {
+ 		if (i2c_dev->msg_read && (status & I2C_INT_RX_FIFO_DATA_REQ)) {
+-			if (i2c_dev->msg_buf_remaining)
+-				tegra_i2c_empty_rx_fifo(i2c_dev);
+-			else
+-				BUG();
++			err_val = tegra_i2c_empty_rx_fifo(i2c_dev);
++			if ((!(i2c_dev->msg_buf_remaining)) &&
++			    (!(status & I2C_INT_PACKET_XFER_COMPLETE)) &&
++			    err_val) {
++				/*
++				 * Overflow error condition: message fully sent,
++				 * with no XFER_COMPLETE interrupt but hardware
++				 * asks to transfer more.
++				 */
++				tegra_i2c_mask_irq(i2c_dev,
++						   I2C_INT_RX_FIFO_DATA_REQ);
++				i2c_dev->msg_err |=
++					I2C_ERR_UNEXPECTED_STATUS;
++				goto err;
++			}
+ 		}
+ 
+ 		if (!i2c_dev->msg_read && (status & I2C_INT_TX_FIFO_DATA_REQ)) {
+@@ -876,7 +900,13 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 	if (status & I2C_INT_PACKET_XFER_COMPLETE) {
+ 		if (i2c_dev->is_curr_dma_xfer)
+ 			i2c_dev->msg_buf_remaining = 0;
+-		BUG_ON(i2c_dev->msg_buf_remaining);
++		/* Underflow error condition: XFER_COMPLETE before message
++		 * fully sent.
++		 */
++		if (WARN_ON_ONCE(i2c_dev->msg_buf_remaining)) {
++			i2c_dev->msg_err |= I2C_ERR_UNKNOWN_INTERRUPT;
++			goto err;
++		}
+ 		complete(&i2c_dev->msg_complete);
+ 	}
+ 	goto done;
+-- 
+2.7.4
