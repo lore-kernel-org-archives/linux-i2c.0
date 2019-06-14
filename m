@@ -1,69 +1,76 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH REPOST v8 3/3] i2c-ocores: sifive: add polling mode
- workaround for FU540-C000 SoC.
-Date: Fri, 14 Jun 2019 22:58:49 +0200
-Message-ID: <20190614205849.GE17899@ninjato>
-References: <1559369475-15374-1-git-send-email-sagar.kadam@sifive.com>
- <1559369475-15374-4-git-send-email-sagar.kadam@sifive.com>
+Subject: Re: [PATCH V3] i2c: busses: tegra: Add suspend-resume support
+Date: Fri, 14 Jun 2019 23:11:29 +0200
+Message-ID: <20190614211129.GG17899@ninjato>
+References: <1559885867-10190-1-git-send-email-bbiswas@nvidia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ffoCPvUAPMgSXi6H"
+        protocol="application/pgp-signature"; boundary="iAL9S67WQOXgEPD9"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1559369475-15374-4-git-send-email-sagar.kadam@sifive.com>
+In-Reply-To: <1559885867-10190-1-git-send-email-bbiswas@nvidia.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-Cc: robh+dt@kernel.org, mark.rutland@arm.com, peter@korsgaard.com, andrew@lunn.ch, palmer@sifive.com, paul.walmsley@sifive.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Bitan Biswas <bbiswas@nvidia.com>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---ffoCPvUAPMgSXi6H
+--iAL9S67WQOXgEPD9
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jun 01, 2019 at 11:41:15AM +0530, Sagar Shrikant Kadam wrote:
-> The i2c-ocore driver already has a polling mode interface.But it needs
-> a workaround for FU540 Chipset on HiFive unleashed board (RevA00).
-> There is an erratum in FU540 chip that prevents interrupt driven i2c
-> transfers from working, and also the I2C controller's interrupt bit
-> cannot be cleared if set, due to this the existing i2c polling mode
-> interface added in mainline earlier doesn't work, and CPU stall's
-> infinitely, when-ever i2c transfer is initiated.
+On Thu, Jun 06, 2019 at 10:37:47PM -0700, Bitan Biswas wrote:
+> Post suspend I2C registers have power on reset values. Before any
+> transfer initialize I2C registers to prevent I2C transfer timeout
+> and implement suspend and resume callbacks needed. Fix below errors
+> post suspend:
 >=20
-> Ref:
-> 	commit dd7dbf0eb090 ("i2c: ocores: refactor setup for polling")
+> 1) Tegra I2C transfer timeout during jetson tx2 resume:
 >=20
-> The workaround / fix under OCORES_FLAG_BROKEN_IRQ is particularly for
-> FU540-COOO SoC.
+> [   27.520613] pca953x 1-0074: calling pca953x_resume+0x0/0x1b0 @ 2939, p=
+arent: i2c-1
+> [   27.633623] tegra-i2c 3160000.i2c: i2c transfer timed out
+> [   27.639162] pca953x 1-0074: Unable to sync registers 0x3-0x5. -110
+> [   27.645336] pca953x 1-0074: Failed to sync GPIO dir registers: -110
+> [   27.651596] PM: dpm_run_callback(): pca953x_resume+0x0/0x1b0 returns -=
+110
+> [   27.658375] pca953x 1-0074: pca953x_resume+0x0/0x1b0 returned -110 aft=
+er 127152 usecs
+> [   27.666194] PM: Device 1-0074 failed to resume: error -110
 >=20
-> The polling function identifies a SiFive device based on the device node
-> and enables the workaround.
+> 2) Tegra I2C transfer timeout error on jetson Xavier post resume.
 >=20
-> Signed-off-by: Sagar Shrikant Kadam <sagar.kadam@sifive.com>
-> Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+> Remove i2c bus lock-unlock calls in resume callback as i2c_mark_adapter_*
+> (suspended-resumed) help ensure i2c core calls from client are not
+> executed before i2c-tegra resume.
+>=20
+> Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
 
 Applied to for-next, thanks!
 
+Without a maintainer ack, this is an exception this time. Should we add
+Dmitry as another maintainer or reviewer at least?
 
---ffoCPvUAPMgSXi6H
+
+--iAL9S67WQOXgEPD9
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0ECokACgkQFA3kzBSg
-KbYR0hAAk0+oxNuosxpSqRdd+ybkY+5wQ4XEOSZddRvI05A8Q94hlKrrGbuZVXrf
-NRg2i6cA1Zdvdvcheg0AVYY/1h9yfC+Vi8paSeXOiOq/D1o+GK4fCQnR8CONTqkD
-8qHWFmqYInEeVbAxNoo7rInrlS47HavEvrOGg2Qpkmljz0kDqUZrGhgY9eaQ8mOH
-8xMRooOzMniLx9uFVE+KmmOkaBetmoCJERVdnmKWqabV3r9sJs0Wvdhmrxjrdxhl
-dA56SfVMhpg+JoGiApkvUOhjTAQQabEVmSbtQuxCAb9gwQHV7gV3pYQqoalp08cg
-xLJNjGntX+kvtUcc7y1qa1HTKKPIBEk3Vsr3j8Toy8CKMI1uU4NI6FzZZ6Cl+lfU
-fwoiIZYqOBeCNOpQlZYYdqsWTcmMzfIQuIghSl2RWl1ak7PSrBPG+ZXtzf7/E9CC
-nTDLbMoe7LnYVjBt517jZCAtlrDfr02QmoGTIcFQFEsovI3m+/1F+eu2rXxbEEhM
-L1/Eo6iX6hFGyCwyEnyxEGdEohH7IYyiMk17VCPGQRvk4YX0TRHPJntOHYPPhoWR
-sxdkqyj8WgsdkhH+ZnGb2x48ArHw1wdayiZ0qE67Hht7zj2oBVxDaKHaVxzlv/lW
-9RcwLLMTjYQrpZIiCiERDVBwK3usDOs3LbodTC7g4Tp1uQ9aYZ8=
-=c6hW
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0EDYEACgkQFA3kzBSg
+KbatyRAAq25OtkV3cyL//wLtpPgiZySC7XMTWyb09F1aXkX69Iz9IQdZYmIhMc4d
+Ro1OEv1h2R4sS+iN6LAVWyjyA2VyYKYTPmu8ap64AcEulRgW8RRXYOByMc/6ZuNn
+PSVJhy3yTyyPaFugZBrKtd1I6pwZ0RIzaDkgFIBYYRmP9vZzKU2k0LowgNlUcatp
+3rJUMfmZtsZgTWEinbIGTJO6qW9joHdB320mGaS2rEoAVZDu4HNBV/+y9AZzstXT
+/2I5iXRp+/YCDhy0nek0X8joT5WMFMUwaCY9nGmkZ8eLEi0SNW/7f1u/zRlRgNEf
+BLsnphrzIsTaDUIfvs4+hv9Pe34lBZPuhMGnxw55jQePhcOSbIdHIWkhlYQ+56k6
+LraTrKh0NuYSV9kPbaTB8CI2bT/BZ3cXpseMUSuaYNVBRjaUDWNe+f4YT33corgx
+RCLdIRvmnRcIRkIoJit/zAO6rPvCeLsjOc6msSkwdDulAKkX8A7O//6X1zJbwkS7
+B22J0WMP12JUCx7Wis4DVYcZFs+5PKSbKe+0woRavBltd6DmRD5M/ilYt3l59yci
+L7EgB3lYyS7CLjd74tpqJ+XW+DNe5nX4ssrwDFMK5KPWYvOjCWxjC3Qq7jMyVWTA
+77GMA8UB+dLdyvNXpi5Kozgy7ud46IXWtg8gihcUIVd5HEU9Mco=
+=SrVB
 -----END PGP SIGNATURE-----
 
---ffoCPvUAPMgSXi6H--
+--iAL9S67WQOXgEPD9--
