@@ -1,108 +1,24 @@
-From: Serge Semin <fancer.lancer@gmail.com>
-Subject: Re: [PATCH v2 2/3] i2c-mux-gpio: Unpin the platform-specific GPIOs
- request code
-Date: Sat, 15 Jun 2019 00:58:45 +0300
-Message-ID: <20190614215844.2ueoqadvj5dqbaua@mobilestation>
-References: <20190425232028.9333-1-fancer.lancer@gmail.com>
- <20190425232028.9333-3-fancer.lancer@gmail.com>
- <783250dd-87c0-b3cc-0e90-7978605a9b07@axentia.se>
- <20190614163134.zs5xyuqvp25ahbng@mobilestation>
- <fb96ba56-4754-a962-ceea-4fd50ee59c69@axentia.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: pr-tracker-bot@kernel.org
+Subject: Re: [PULL REQUEST] i2c for 5.2
+Date: Sat, 15 Jun 2019 01:55:05 +0000
+Message-ID: <156056370528.9443.16281348104646164725.pr-tracker-bot@kernel.org>
+References: <20190614164549.GA6067@kunai>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <fb96ba56-4754-a962-ceea-4fd50ee59c69@axentia.se>
+In-Reply-To: <20190614164549.GA6067@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Peter Korsgaard <peter.korsgaard@barco.com>, Serge Semin <Sergey.Semin@t-platforms.ru>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jean Delvare <jdelvare@suse.com>, Linus Walleij <linus.walleij@linaro.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jun 14, 2019 at 06:04:33PM +0000, Peter Rosin wrote:
-> On 2019-06-14 18:31, Serge Semin wrote:
-> > Hello Peter,
-> > 
-> > On Sun, Jun 09, 2019 at 09:34:54PM +0000, Peter Rosin wrote:
-> >> On 2019-04-26 01:20, Serge Semin wrote:
-> >>> The GPIOs request loop can be safely moved to a separate function.
-> >>> First of all it shall improve the code readability. Secondly the
-> >>> initialization loop at this point is used for both of- and
-> >>> platform_data-based initialization paths, but it will be changed in
-> >>> the next patch, so by isolating the code we'll simplify the future
-> >>> work.
-> >>
-> >> This patch is just preparatory for patch 3/3, as I see it. And since
-> >> I'm not really fond of the end result after patch 3/3, I'm going to
-> >> sum up my issues here, instead of trying do it piecemeal in the two
-> >> patches.
-> >>
-> >> Linus and Jean, for your convenience, link to this patch series [1].
-> >>
-> >> While I agree with the goal (to use the more flexible gpiod functions
-> >> to get at the gpio descriptors), the cost is too high when the init
-> >> code for platform and OF is basically completely separated. I much
-> >> prefer the approach taken by Linus [2], which instead converts the
-> >> platform interface and its single user to use gpio descriptors instead
-> >> of the legacy gpio interface. The i2c-mux-gpio code then has the
-> >> potential to take a unified approach to the given gpio descriptors,
-> >> wherever they are originating from, which is much nicer than the
-> >> code-fork in this series.
-> >>
-> >> I also think it is pretty pointless to first split the code into
-> >> platform and OF paths, just so that the next patch (from Linus) can
-> >> unify the two paths again. I'd like to skip the intermediate step.
-> >>
-> >> So, I'm hoping for the following to happen.
-> >> 1. Sergey sends a revised patch for patch 1/3.
-> >> 2. I put the patch on the for-next branch.
-> >> 3. Linus rebases his patch on top of that (while thinking about
-> >>    the questions raised by Sergey).
-> >> 4. Sergey tests the result, I and Jean review it, then possibly
-> >>    go back to 3.
-> >> 5. I put the patch on the for-next branch.
-> >>
-> >> Is that ok? Or is someone insisting that we take a detour?
-> >>
-> > 
-> > The series was intended to add the gpiod support to the i2c-mux-gpio driver
-> > (see the cover letter of the series). So the last patch is the most valuable
-> > one. Without it the whole series is nothing but a small readability improvement.
-> > So it is pointless to merge the first patch only.
-> 
-> Agreed on all points, except perhaps for the "refuse" part below and
-> that the readability improvement of patch 1/3 is perhaps not all that
-> pointless.
-> 
-> > Anyway since you refuse to add the last patch and the first patch is actually
-> > pointless without the rest of the series, and I would have to spend my time to
-> > resubmit the v3 of the first patch anyway, it was much easier to test the
-> > current version of the Linus' patch and make it working for OF-based platforms.
-> > Additionally the Linus' patch also reaches the main goal of this patchset.
-> 
-> I'm very pleased that you do not feel totally put off, and are willing
-> to help even if we end up storing your series in /dev/null. Kudos!
-> 
-> > I don't know what would be the appropriate way to send the updated version of
-> > the Linus' patch. So I just attached the v4 of it to this email. Shall I better
-> > send it in reply to the Linus' patch series?
-> 
-> I get the impression that you have already done the work? In that case,
-> how I would proceed would depend on how big the difference is. If it's
-> just a few one-liners here and there, I think I would make a detailed
-> review comment so that it is easy for Linus to incorporate the needed
-> changes. If it's anything even remotely complex I would post an
-> incremental patch. Of course, the former does not exclude the latter,
-> but I do think an incremental patch is better than a repost.
-> 
+The pull request you sent on Fri, 14 Jun 2019 18:45:53 +0200:
 
-Yes, I tested the Linus' patch on my OF-based platform (though had to port to
-kernel 4.9) and found two problems. The incremental patch, which fixes them is
-send to you with mailing lists and everyone involved being Cc'ed.
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
 
-Regards,
--Sergey
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/5dcedf4600f8708150b89485d25cead88bff08a4
 
-> Thanks again!
-> 
-> Cheers,
-> Peter
+Thank you!
+
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
