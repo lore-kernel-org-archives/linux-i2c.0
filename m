@@ -1,50 +1,35 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] i2c: mux-gpio: Use "mux" con_id to find channel GPIOs
-Date: Sun, 16 Jun 2019 09:02:59 +0000
-Message-ID: <ed6362c5-4d8a-456b-4e13-0f0531105018@axentia.se>
-References: <20190614214748.2389-1-fancer.lancer@gmail.com>
- <CAHp75VcwP8DzhqfOn=cbcRQtd8WrnuoFPT6GCU754drTZePheg@mail.gmail.com>
- <20190615232406.ni3ausfjaz5qowib@mobilestation>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH V3] i2c: busses: tegra: Add suspend-resume support
+Date: Sun, 16 Jun 2019 16:56:06 +0300
+Message-ID: <69a9a7e3-f885-b6ab-60bb-a1165ce2db23@gmail.com>
+References: <1559885867-10190-1-git-send-email-bbiswas@nvidia.com>
+ <20190614211129.GG17899@ninjato>
+ <758d6dc2-f044-6be3-6896-196ef477d393@nvidia.com>
+ <20190615045405.GA1023@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190615232406.ni3ausfjaz5qowib@mobilestation>
+In-Reply-To: <20190615045405.GA1023@kunai>
 Content-Language: en-US
-Content-ID: <68F8486A23654344898961D93B04DB41@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Serge Semin <fancer.lancer@gmail.com>, Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Jean Delvare <jdelvare@suse.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Serge Semin <Sergey.Semin@t-platforms.ru>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>, Bitan Biswas <bbiswas@nvidia.com>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOS0wNi0xNiAwMToyNCwgU2VyZ2UgU2VtaW4gd3JvdGU6DQo+IE9uIFNhdCwgSnVuIDE1
-LCAyMDE5IGF0IDAyOjQzOjA5UE0gKzAzMDAsIEFuZHkgU2hldmNoZW5rbyB3cm90ZToNCj4+IE9u
-IFNhdCwgSnVuIDE1LCAyMDE5IGF0IDEyOjUxIEFNIFNlcmdlIFNlbWluIDxmYW5jZXIubGFuY2Vy
-QGdtYWlsLmNvbT4gd3JvdGU6DQo+Pj4NCj4+PiBSZWNlbnQgcGF0Y2ggLSAoImkyYzogbXV4L2k4
-MDE6IFN3aXRjaCB0byB1c2UgZGVzY3JpcHRvciBwYXNzaW5nIikNCj4+PiBhbHRlcmVkIHRoZSBp
-MmMtbXV4LWdwaW8gZHJpdmVyIHRvIHVzZSB0aGUgR1BJTy1kZXNjcmlwdG9yDQo+Pj4gYmFzZWQg
-aW50ZXJmYWNlIHRvIGZpbmQgYW5kIHJlcXVlc3QgdGhlIEdQSU9zIHRoZW4gYmVpbmcgdXRpbGl6
-ZWQNCj4+PiB0byBzZWxlY3QgYW5kIGRlc2VsZWN0IHRoZSBjaGFubmVscyBvZiBHUElPLWRyaXZl
-biBpMmMtbXV4ZXMuIEV2ZW4NCj4+PiB0aG91Z2ggdGhlIHByb3Bvc2VkIG1vZGlmaWNhdGlvbiB3
-YXMgY29ycmVjdCBmb3IgdGhlIHBsYXRmb3JtX2RhdGEtYmFzZWQNCj4+PiBzeXN0ZW1zLCBpdCB3
-YXMgaW52YWxpZCBmb3IgdGhlIE9GLWJhc2VkIG9uZXMgYW5kIGNhdXNlZCB0aGUga2VybmVsDQo+
-Pj4gdG8gY3Jhc2ggYXQgdGhlIGRyaXZlciBwcm9iZSBwcm9jZWR1cmUuIFRoZXJlIHdlcmUgdHdv
-IHByb2JsZW1zIHdpdGgNCj4+PiB0aGF0IG1vZGlmaWNhdGlvbi4gRmlyc3Qgb2YgYWxsIHRoZSBn
-cGlvZF9jb3VudCgpIGFuZCBncGlvZF9nZXRfaW5kZXgoKQ0KPj4+IHdlcmUgY2FsbGVkIHdpdGgg
-TlVMTCBjb25faWQuDQo+Pg0KPj4gSSBhbHdheXMgdGhvdWdodCB0aGF0IHRoaXMgbWVhbnMgImNv
-dW50IG1lIGFsbCBHUElPJ3MgZm9yIHRoaXMgZGV2aWNlDQo+PiBkZXNwaXRlIHRoZWlyIG5hbWVz
-IiBhbmQgImdldCBtZSBHUElPIGJ5IGluZGV4IGRlc3BpdGUgaXQncyBuYW1lIi4NCj4+IFdoYXQn
-cyB3ZW50IHdyb25nPw0KPj4NCj4gDQo+IE5vLiBJdCdzIHdyb25nIGFzIGZhciBhcyBJIGNhbiBz
-ZWUgZm9yIGtlcm5lbHMgNC40LCA0LjkgYW5kIHRoZSBtb2Rlcm4NCj4gNS4yLjAtcmNYLiBkdF9n
-cGlvX2NvdW50KCkvb2ZfZmluZF9ncGlvKCl3aWxsIGFsd2F5cyB0cnkgdG8gY291bnQvcmVxdWVz
-dA0KPiBlaXRoZXIgIjxjb25faWQ+LWdwaW8ocykiIG9yICJncGlvKHMpIiBHUElPcyBpbiB0aGUg
-ZGV2aWNlIG9mLW5vZGUuIFdoaWxlDQo+IHBsYXRmb3JtX2dwaW9fY291bnQoKS9ncGlvZF9maW5k
-KCkgd2lsbCB0YWtlIGludG8gYWNjb3VudCBHUElPcyB3aXRoIG1hdGNoaW5nDQo+IDxjb25faWQ+
-J3MgZXZlbiBpZiBpdCBpcyBOVUxMLg0KDQpSaWdodCwgdGhpcyBpcyBteSByZWFkaW5nIHRvLiBG
-b3IgdGhlIE9GIGNhc2UsIGdwaW9kX2NvdW50IGNhbGxzIGR0X2dwaW9fY291bnQNCndoaWNoIGhh
-cyBubyB3YXkgdG8gZmluZCBncGlvcyB1bmxlc3MgdGhleSBhcmUgZXhwbGljaXRseSBuYW1lZC4g
-QW5kIE5VTEwNCnNpbXBseSBtZWFucyB1bm5hbWVkICh3aGljaCBpcyBub3QgdGhlIGNhc2UgaGVy
-ZSkuIFRoZSBmdW5jdGlvbiBzaW1wbHkgZG9lcw0Kbm90IGRvIGFueSB0cmF3bGluZyBmb3IgZ3Bp
-b3MgaXQgaGFzIG5vdCBiZWVuIHRvbGQgYWJvdXQuDQoNCkxpbnVzLCBjYXJlIHRvIHNxdWFzaCB0
-aGlzIGluY3JlbWVudGFsIGludG8geW91ciBwYXRjaCBhbmQgcmVzZW5kIHdpdGggcHJvcGVyDQpj
-cmVkaXQgYWRkZWQ/DQoNCkNoZWVycywNClBldGVyDQo=
+15.06.2019 7:54, Wolfram Sang пишет:
+> 
+>>> Without a maintainer ack, this is an exception this time. Should we add
+>>> Dmitry as another maintainer or reviewer at least?
+>>>
+>> I shall followup with Maintainer for ACK in future I2C tegra patches.
+> 
+> This comment was not directed at you, sorry if that was not clear. It
+> was more for Laxman, Thierry, Jonathan, and Dmitry (if he is
+> interested).
+> 
+
+I don't mind at all to review and test patches for the driver and can propose myself
+as a reviewer if that helps and if there are no objections from the Tegra maintainers.
+My primary interest is to have my devices working after next kernel update, but I also
+like to review patches in general if they are touching area that I'm familiar with.
