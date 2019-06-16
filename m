@@ -1,53 +1,50 @@
-From: Serge Semin <fancer.lancer@gmail.com>
+From: Peter Rosin <peda@axentia.se>
 Subject: Re: [PATCH] i2c: mux-gpio: Use "mux" con_id to find channel GPIOs
-Date: Sun, 16 Jun 2019 02:24:07 +0300
-Message-ID: <20190615232406.ni3ausfjaz5qowib@mobilestation>
+Date: Sun, 16 Jun 2019 09:02:59 +0000
+Message-ID: <ed6362c5-4d8a-456b-4e13-0f0531105018@axentia.se>
 References: <20190614214748.2389-1-fancer.lancer@gmail.com>
  <CAHp75VcwP8DzhqfOn=cbcRQtd8WrnuoFPT6GCU754drTZePheg@mail.gmail.com>
+ <20190615232406.ni3ausfjaz5qowib@mobilestation>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAHp75VcwP8DzhqfOn=cbcRQtd8WrnuoFPT6GCU754drTZePheg@mail.gmail.com>
+In-Reply-To: <20190615232406.ni3ausfjaz5qowib@mobilestation>
+Content-Language: en-US
+Content-ID: <68F8486A23654344898961D93B04DB41@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Jean Delvare <jdelvare@suse.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>, Serge Semin <Sergey.Semin@t-platforms.ru>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Serge Semin <fancer.lancer@gmail.com>, Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Jean Delvare <jdelvare@suse.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Serge Semin <Sergey.Semin@t-platforms.ru>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Jun 15, 2019 at 02:43:09PM +0300, Andy Shevchenko wrote:
-> On Sat, Jun 15, 2019 at 12:51 AM Serge Semin <fancer.lancer@gmail.com> wrote:
-> >
-> > Recent patch - ("i2c: mux/i801: Switch to use descriptor passing")
-> > altered the i2c-mux-gpio driver to use the GPIO-descriptor
-> > based interface to find and request the GPIOs then being utilized
-> > to select and deselect the channels of GPIO-driven i2c-muxes. Even
-> > though the proposed modification was correct for the platform_data-based
-> > systems, it was invalid for the OF-based ones and caused the kernel
-> > to crash at the driver probe procedure. There were two problems with
-> > that modification. First of all the gpiod_count() and gpiod_get_index()
-> > were called with NULL con_id.
-> 
-> I always thought that this means "count me all GPIO's for this device
-> despite their names" and "get me GPIO by index despite it's name".
-> What's went wrong?
-> 
-
-No. It's wrong as far as I can see for kernels 4.4, 4.9 and the modern
-5.2.0-rcX. dt_gpio_count()/of_find_gpio()will always try to count/request
-either "<con_id>-gpio(s)" or "gpio(s)" GPIOs in the device of-node. While
-platform_gpio_count()/gpiod_find() will take into account GPIOs with matching
-<con_id>'s even if it is NULL.
-
-Regards,
--Sergey
-
-> 
-> > Due to this the methods couldn't find
-> > the "mux-gpios" OF-properties and returned the -ENOENT error. Secondly
-> > the return value of gpiod_count() wasn't checked for being negative,
-> > which in case of an error caused the driver to crash. This patch
-> > is intended to fix the described problems.
-> 
-> -- 
-> With Best Regards,
-> Andy Shevchenko
+T24gMjAxOS0wNi0xNiAwMToyNCwgU2VyZ2UgU2VtaW4gd3JvdGU6DQo+IE9uIFNhdCwgSnVuIDE1
+LCAyMDE5IGF0IDAyOjQzOjA5UE0gKzAzMDAsIEFuZHkgU2hldmNoZW5rbyB3cm90ZToNCj4+IE9u
+IFNhdCwgSnVuIDE1LCAyMDE5IGF0IDEyOjUxIEFNIFNlcmdlIFNlbWluIDxmYW5jZXIubGFuY2Vy
+QGdtYWlsLmNvbT4gd3JvdGU6DQo+Pj4NCj4+PiBSZWNlbnQgcGF0Y2ggLSAoImkyYzogbXV4L2k4
+MDE6IFN3aXRjaCB0byB1c2UgZGVzY3JpcHRvciBwYXNzaW5nIikNCj4+PiBhbHRlcmVkIHRoZSBp
+MmMtbXV4LWdwaW8gZHJpdmVyIHRvIHVzZSB0aGUgR1BJTy1kZXNjcmlwdG9yDQo+Pj4gYmFzZWQg
+aW50ZXJmYWNlIHRvIGZpbmQgYW5kIHJlcXVlc3QgdGhlIEdQSU9zIHRoZW4gYmVpbmcgdXRpbGl6
+ZWQNCj4+PiB0byBzZWxlY3QgYW5kIGRlc2VsZWN0IHRoZSBjaGFubmVscyBvZiBHUElPLWRyaXZl
+biBpMmMtbXV4ZXMuIEV2ZW4NCj4+PiB0aG91Z2ggdGhlIHByb3Bvc2VkIG1vZGlmaWNhdGlvbiB3
+YXMgY29ycmVjdCBmb3IgdGhlIHBsYXRmb3JtX2RhdGEtYmFzZWQNCj4+PiBzeXN0ZW1zLCBpdCB3
+YXMgaW52YWxpZCBmb3IgdGhlIE9GLWJhc2VkIG9uZXMgYW5kIGNhdXNlZCB0aGUga2VybmVsDQo+
+Pj4gdG8gY3Jhc2ggYXQgdGhlIGRyaXZlciBwcm9iZSBwcm9jZWR1cmUuIFRoZXJlIHdlcmUgdHdv
+IHByb2JsZW1zIHdpdGgNCj4+PiB0aGF0IG1vZGlmaWNhdGlvbi4gRmlyc3Qgb2YgYWxsIHRoZSBn
+cGlvZF9jb3VudCgpIGFuZCBncGlvZF9nZXRfaW5kZXgoKQ0KPj4+IHdlcmUgY2FsbGVkIHdpdGgg
+TlVMTCBjb25faWQuDQo+Pg0KPj4gSSBhbHdheXMgdGhvdWdodCB0aGF0IHRoaXMgbWVhbnMgImNv
+dW50IG1lIGFsbCBHUElPJ3MgZm9yIHRoaXMgZGV2aWNlDQo+PiBkZXNwaXRlIHRoZWlyIG5hbWVz
+IiBhbmQgImdldCBtZSBHUElPIGJ5IGluZGV4IGRlc3BpdGUgaXQncyBuYW1lIi4NCj4+IFdoYXQn
+cyB3ZW50IHdyb25nPw0KPj4NCj4gDQo+IE5vLiBJdCdzIHdyb25nIGFzIGZhciBhcyBJIGNhbiBz
+ZWUgZm9yIGtlcm5lbHMgNC40LCA0LjkgYW5kIHRoZSBtb2Rlcm4NCj4gNS4yLjAtcmNYLiBkdF9n
+cGlvX2NvdW50KCkvb2ZfZmluZF9ncGlvKCl3aWxsIGFsd2F5cyB0cnkgdG8gY291bnQvcmVxdWVz
+dA0KPiBlaXRoZXIgIjxjb25faWQ+LWdwaW8ocykiIG9yICJncGlvKHMpIiBHUElPcyBpbiB0aGUg
+ZGV2aWNlIG9mLW5vZGUuIFdoaWxlDQo+IHBsYXRmb3JtX2dwaW9fY291bnQoKS9ncGlvZF9maW5k
+KCkgd2lsbCB0YWtlIGludG8gYWNjb3VudCBHUElPcyB3aXRoIG1hdGNoaW5nDQo+IDxjb25faWQ+
+J3MgZXZlbiBpZiBpdCBpcyBOVUxMLg0KDQpSaWdodCwgdGhpcyBpcyBteSByZWFkaW5nIHRvLiBG
+b3IgdGhlIE9GIGNhc2UsIGdwaW9kX2NvdW50IGNhbGxzIGR0X2dwaW9fY291bnQNCndoaWNoIGhh
+cyBubyB3YXkgdG8gZmluZCBncGlvcyB1bmxlc3MgdGhleSBhcmUgZXhwbGljaXRseSBuYW1lZC4g
+QW5kIE5VTEwNCnNpbXBseSBtZWFucyB1bm5hbWVkICh3aGljaCBpcyBub3QgdGhlIGNhc2UgaGVy
+ZSkuIFRoZSBmdW5jdGlvbiBzaW1wbHkgZG9lcw0Kbm90IGRvIGFueSB0cmF3bGluZyBmb3IgZ3Bp
+b3MgaXQgaGFzIG5vdCBiZWVuIHRvbGQgYWJvdXQuDQoNCkxpbnVzLCBjYXJlIHRvIHNxdWFzaCB0
+aGlzIGluY3JlbWVudGFsIGludG8geW91ciBwYXRjaCBhbmQgcmVzZW5kIHdpdGggcHJvcGVyDQpj
+cmVkaXQgYWRkZWQ/DQoNCkNoZWVycywNClBldGVyDQo=
