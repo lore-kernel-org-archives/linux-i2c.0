@@ -1,11 +1,15 @@
 From: Fabrice Gasnier <fabrice.gasnier@st.com>
-Subject: [PATCH v3] i2c: i2c-stm32f7: fix the get_irq error cases
-Date: Mon, 17 Jun 2019 09:53:01 +0200
-Message-ID: <1560757981-10532-1-git-send-email-fabrice.gasnier@st.com>
+Subject: Re: [PATCH v2] i2c: i2c-stm32f7: fix the get_irq error cases
+Date: Mon, 17 Jun 2019 09:54:31 +0200
+Message-ID: <b1fb50c0-b5ee-dd73-0b8e-f025dd843cbe@st.com>
+References: <1558020594-1498-1-git-send-email-fabrice.gasnier@st.com>
+ <20190614205322.GA17899@ninjato>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190614205322.GA17899@ninjato>
+Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -15,91 +19,34 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: wsa@the-dreams.de, pierre-yves.mordret@st.com
-Cc: alexandre.torgue@st.com, marc.w.gonzalez@free.fr, linux-kernel@vger.kernel.org, fabien.dessenne@st.com, linux-i2c@vger.kernel.org, mcoquelin.stm32@gmail.com, fabrice.gasnier@st.com, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: alexandre.torgue@st.com, pierre-yves.mordret@st.com, marc.w.gonzalez@free.fr, linux-kernel@vger.kernel.org, fabien.dessenne@st.com, linux-i2c@vger.kernel.org, mcoquelin.stm32@gmail.com, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-During probe, return the "get_irq" error value instead of -EINVAL which
-allows the driver to be deferred probed if needed.
-Fix also the case where of_irq_get() returns a negative value.
-Note :
-On failure of_irq_get() returns 0 or a negative value while
-platform_get_irq() returns a negative value.
+On 6/14/19 10:53 PM, Wolfram Sang wrote:
+> Hi Fabrice,
+> 
+>> +		return irq_event ? irq_event : -ENODEV;
+> 
+> Maybe -ENOENT instead of -ENODEV? I mean you have a dev_err there, so
+> the driver core should probably also complain?
+> 
+> You could also shorten the ternary operator to:
+> 
+> 	return irq_event ? : -E<whatyouprefer>;
+> 
+> However, both are minor nits. If you prefer to keep the patch as is,
+> fine with me.
 
-Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
+Hi Wolfram,
 
-Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
----
-Changes in v3:
-- return -ENOENT instead of -ENODEV and shorten the ternary operator as
-  suggested by Wolfram.
-Changes in v2:
-- Also check for irq == 0 that means "does not exist" as pointed out by
-  Marc
----
- drivers/i2c/busses/i2c-stm32f7.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+Thanks for reviewing,
+I've sent a v3 with your suggestions.
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 4284fc9..432b701 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -25,7 +25,6 @@
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/of_address.h>
--#include <linux/of_irq.h>
- #include <linux/of_platform.h>
- #include <linux/platform_device.h>
- #include <linux/pinctrl/consumer.h>
-@@ -1812,15 +1811,14 @@ static struct i2c_algorithm stm32f7_i2c_algo = {
- 
- static int stm32f7_i2c_probe(struct platform_device *pdev)
- {
--	struct device_node *np = pdev->dev.of_node;
- 	struct stm32f7_i2c_dev *i2c_dev;
- 	const struct stm32f7_i2c_setup *setup;
- 	struct resource *res;
--	u32 irq_error, irq_event, clk_rate, rise_time, fall_time;
-+	u32 clk_rate, rise_time, fall_time;
- 	struct i2c_adapter *adap;
- 	struct reset_control *rst;
- 	dma_addr_t phy_addr;
--	int ret;
-+	int irq_error, irq_event, ret;
- 
- 	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
- 	if (!i2c_dev)
-@@ -1832,16 +1830,20 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 		return PTR_ERR(i2c_dev->base);
- 	phy_addr = (dma_addr_t)res->start;
- 
--	irq_event = irq_of_parse_and_map(np, 0);
--	if (!irq_event) {
--		dev_err(&pdev->dev, "IRQ event missing or invalid\n");
--		return -EINVAL;
-+	irq_event = platform_get_irq(pdev, 0);
-+	if (irq_event <= 0) {
-+		if (irq_event != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "Failed to get IRQ event: %d\n",
-+				irq_event);
-+		return irq_event ? : -ENOENT;
- 	}
- 
--	irq_error = irq_of_parse_and_map(np, 1);
--	if (!irq_error) {
--		dev_err(&pdev->dev, "IRQ error missing or invalid\n");
--		return -EINVAL;
-+	irq_error = platform_get_irq(pdev, 1);
-+	if (irq_error <= 0) {
-+		if (irq_error != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "Failed to get IRQ error: %d\n",
-+				irq_error);
-+		return irq_error ? : -ENOENT;
- 	}
- 
- 	i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
--- 
-2.7.4
+Regards,
+Fabrice
+> 
+> Regards,
+> 
+>    Wolfram
+> 
