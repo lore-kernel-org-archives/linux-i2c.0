@@ -1,61 +1,100 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 21/28] drivers: Introduce
- bus_find_device_by_acpi_dev() helper
-Date: Mon, 17 Jun 2019 12:07:21 +0200
-Message-ID: <20190617100721.GC3502@kunai>
-References: <1560534863-15115-1-git-send-email-suzuki.poulose@arm.com>
- <1560534863-15115-22-git-send-email-suzuki.poulose@arm.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH v4 3/6] soc: qcom: geni: Add support for ACPI
+Date: Mon, 17 Jun 2019 11:14:33 +0100
+Message-ID: <20190617101433.GF16364@dell>
+References: <20190612142654.9639-1-lee.jones@linaro.org>
+ <20190612142654.9639-4-lee.jones@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="z4+8/lEcDcG5Ke9S"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1560534863-15115-22-git-send-email-suzuki.poulose@arm.com>
+In-Reply-To: <20190612142654.9639-4-lee.jones@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, rafael@kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Mark Brown <broonie@kernel.org>
+To: alokc@codeaurora.org, agross@kernel.org, david.brown@linaro.org, wsa+renesas@sang-engineering.com, bjorn.andersson@linaro.org, balbi@kernel.org, gregkh@linuxfoundation.org, ard.biesheuvel@linaro.org, jlhugo@gmail.com
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-usb@vger.kernel.or
 List-Id: linux-i2c@vger.kernel.org
 
+David, Andy,
 
---z4+8/lEcDcG5Ke9S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Since there does not appear to be any other Maintainers for this
+file/subsystem, one of you guys are going to have to at least
+review/ack it.
 
-On Fri, Jun 14, 2019 at 06:54:16PM +0100, Suzuki K Poulose wrote:
-> Add a wrapper to bus_find_device() to search for a device
-> by the ACPI COMPANION device, reusing the generic match function.
-> Also convert the existing users to make use of the new helper.
->=20
-> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: linux-i2c@vger.kernel.org
-> Cc: Mark Brown <broonie@kernel.org>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Which route do changes to this file usually take?
 
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
+At worst I can take them, but I need maintainer Acks to do so.
 
+===========================
 
---z4+8/lEcDcG5Ke9S
-Content-Type: application/pgp-signature; name="signature.asc"
+> When booting with ACPI as the active set of configuration tables,
+> all; clocks, regulators, pin functions ect are expected to be at
+> their ideal values/levels/rates, thus the associated frameworks
+> are unavailable.  Ensure calls to these APIs are shielded when
+> ACPI is enabled.
+> 
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+> ---
+>  drivers/soc/qcom/qcom-geni-se.c | 21 +++++++++++++++------
+>  1 file changed, 15 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
+> index 6b8ef01472e9..d5cf953b4337 100644
+> --- a/drivers/soc/qcom/qcom-geni-se.c
+> +++ b/drivers/soc/qcom/qcom-geni-se.c
+> @@ -1,6 +1,7 @@
+>  // SPDX-License-Identifier: GPL-2.0
+>  // Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
+>  
+> +#include <linux/acpi.h>
+>  #include <linux/clk.h>
+>  #include <linux/slab.h>
+>  #include <linux/dma-mapping.h>
+> @@ -450,6 +451,9 @@ int geni_se_resources_off(struct geni_se *se)
+>  {
+>  	int ret;
+>  
+> +	if (has_acpi_companion(se->dev))
+> +		return 0;
+> +
+>  	ret = pinctrl_pm_select_sleep_state(se->dev);
+>  	if (ret)
+>  		return ret;
+> @@ -487,6 +491,9 @@ int geni_se_resources_on(struct geni_se *se)
+>  {
+>  	int ret;
+>  
+> +	if (has_acpi_companion(se->dev))
+> +		return 0;
+> +
+>  	ret = geni_se_clks_on(se);
+>  	if (ret)
+>  		return ret;
+> @@ -724,12 +731,14 @@ static int geni_se_probe(struct platform_device *pdev)
+>  	if (IS_ERR(wrapper->base))
+>  		return PTR_ERR(wrapper->base);
+>  
+> -	wrapper->ahb_clks[0].id = "m-ahb";
+> -	wrapper->ahb_clks[1].id = "s-ahb";
+> -	ret = devm_clk_bulk_get(dev, NUM_AHB_CLKS, wrapper->ahb_clks);
+> -	if (ret) {
+> -		dev_err(dev, "Err getting AHB clks %d\n", ret);
+> -		return ret;
+> +	if (!has_acpi_companion(&pdev->dev)) {
+> +		wrapper->ahb_clks[0].id = "m-ahb";
+> +		wrapper->ahb_clks[1].id = "s-ahb";
+> +		ret = devm_clk_bulk_get(dev, NUM_AHB_CLKS, wrapper->ahb_clks);
+> +		if (ret) {
+> +			dev_err(dev, "Err getting AHB clks %d\n", ret);
+> +			return ret;
+> +		}
+>  	}
+>  
+>  	dev_set_drvdata(dev, wrapper);
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0HZlkACgkQFA3kzBSg
-KbaBHw/9E5Yuiz3lxNRvEtcUo1jwCtaX2BvdRSaSEqrNq/ORPGcut400uZTWAVF1
-OKU0Cr459TChlC1nrRXlnaUAIW9IcfBoXArAFrUHZ0p13YGFMXGx6bSBDMnOTcBU
-N4FurU7C49pFQUtFExquLbI3vDghhKp1BozLynwZlLpOkucuXF5tSG6h53qhQK3E
-5ZFkKWxJ48/IBucKm/sd7XevwnzmVQMhDIAM7mC3ZIh2gVMmSIo1ckp1RWZWhVTB
-XSkaVRC78L6uKrhghLJxgVjR/jJHfR/KhqRW3sImeNi7Ee4wVtd0qBKePYSLQoT4
-XoZ//8hgRUuB3+6STEnbe/umVDTiMNra3EyvpfA8eisSOn6d0oJ+SwRolrB4yUGy
-Wrv1BSN0HLeIc1kohZoonpRANHqAyhe4EwrEMpDxCsA9oEgJEIhkQxJB/NjImZ9D
-J7ReXnoBkhwlowqrQJM19EacmBG3+SEOecGY4sILiP1yyujbX4kvref65ZV++Jre
-Iy2D76p2pJ4UlBHcyandAruG9hHCxI2fUVLV9xPn+aGWMsErwyigW2quAL1189H0
-70tbCqSExrtPFD7EEezKQst3PVt6j2/9yRp5IfJJ5nUT3az3nszCxdkcOQYWmYOz
-SrMWr72UQttvTuiLgl/nXhl6f7W0CvLpOL11w91GfDuvWqpnmG8=
-=RcVr
------END PGP SIGNATURE-----
-
---z4+8/lEcDcG5Ke9S--
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
