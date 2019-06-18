@@ -1,50 +1,67 @@
-From: Bitan Biswas <bbiswas@nvidia.com>
-Subject: Re: [PATCH V9] i2c: tegra: remove BUG() macro
-Date: Tue, 18 Jun 2019 04:52:39 -0700
-Message-ID: <2724f809-fe0b-810c-6236-d94a1efc2112@nvidia.com>
-References: <1560856182-26072-1-git-send-email-bbiswas@nvidia.com>
- <e1bf5aac-5528-3e54-0f41-5a1bbabce419@gmail.com>
+From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH] docs: fix some broken references due to txt->rst renames
+Date: Tue, 18 Jun 2019 10:33:58 -0300
+Message-ID: <6f09587b7678f2fb378d736f45a02ffa9412cc99.1560864716.git.mchehab+samsung@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e1bf5aac-5528-3e54-0f41-5a1bbabce419@gmail.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Osipenko <digetx@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
+To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Ajay Gupta <ajayg@nvidia.com>, Amit Kucheria <amit.kucheria@linaro.org>, Sudeep Holla <sudeep.holla@arm.com>, Otto Sabart <ottosabart@seberm.com>, Li Yang <leoyang.li@nxp.com>, Will Deacon <will.deacon@arm.com>, devicetree@vger.kernel.org, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+There are three left-overs from the recent file renames,
+probably due to some other conflicting patch.
 
+Fix them.
 
-On 6/18/19 4:29 AM, Dmitry Osipenko wrote:
-> 18.06.2019 14:09, Bitan Biswas =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
->> The usage of BUG() macro is generally discouraged in kernel, unless
->> it's a problem that results in a physical damage or loss of data.
->> This patch removes unnecessary BUG() macros and replaces the rest
->> with warning.
->>
->> Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
->> ---
->>   drivers/i2c/busses/i2c-tegra.c | 47 ++++++++++++++++++++++++++++++++++=
-+-------
->>   1 file changed, 39 insertions(+), 8 deletions(-)
->=20
-> Thank you very much! Please keep applying all the advises that were given=
- to you
-> during the reviews in the future patches.
-Thank you Dmitry for the review inputs and patience. I shall try to keep=20
-the advices in mind for future reviews.
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+---
 
+This patch is against today's next-20190617 branch. Not sure if it
+will apply cleanly at -docs tree. If not,  Please let me know for me to
+split.
 
->=20
-> I made a quick test and no problems spotted, all warning spots are silent=
-.
->=20
-> Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-> Tested-by: Dmitry Osipenko <digetx@gmail.com>
->=20
-Also, Thank you for help in testing the patch at your end.
+ Documentation/devicetree/bindings/arm/idle-states.txt | 2 +-
+ drivers/gpu/drm/i915/intel_runtime_pm.h               | 2 +-
+ drivers/i2c/busses/i2c-nvidia-gpu.c                   | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
--regards,
-  Bitan
+diff --git a/Documentation/devicetree/bindings/arm/idle-states.txt b/Documentation/devicetree/bindings/arm/idle-states.txt
+index 3bdbe675b9e6..d8d9aa7167e8 100644
+--- a/Documentation/devicetree/bindings/arm/idle-states.txt
++++ b/Documentation/devicetree/bindings/arm/idle-states.txt
+@@ -703,4 +703,4 @@ cpus {
+     https://www.devicetree.org/specifications/
+ 
+ [6] ARM Linux Kernel documentation - Booting AArch64 Linux
+-    Documentation/arm64/booting.txt
++    Documentation/arm64/booting.rst
+diff --git a/drivers/gpu/drm/i915/intel_runtime_pm.h b/drivers/gpu/drm/i915/intel_runtime_pm.h
+index f2d6299a8161..3cb391cd81c1 100644
+--- a/drivers/gpu/drm/i915/intel_runtime_pm.h
++++ b/drivers/gpu/drm/i915/intel_runtime_pm.h
+@@ -44,7 +44,7 @@ enum i915_drm_suspend_mode {
+  * to be disabled. This shouldn't happen and we'll print some error messages in
+  * case it happens.
+  *
+- * For more, read the Documentation/power/runtime_pm.txt.
++ * For more, read the Documentation/power/runtime_pm.rst.
+  */
+ struct intel_runtime_pm {
+ 	atomic_t wakeref_count;
+diff --git a/drivers/i2c/busses/i2c-nvidia-gpu.c b/drivers/i2c/busses/i2c-nvidia-gpu.c
+index cfc76b5de726..5a1235fd86bb 100644
+--- a/drivers/i2c/busses/i2c-nvidia-gpu.c
++++ b/drivers/i2c/busses/i2c-nvidia-gpu.c
+@@ -364,7 +364,7 @@ static void gpu_i2c_remove(struct pci_dev *pdev)
+ /*
+  * We need gpu_i2c_suspend() even if it is stub, for runtime pm to work
+  * correctly. Without it, lspci shows runtime pm status as "D0" for the card.
+- * Documentation/power/pci.txt also insists for driver to provide this.
++ * Documentation/power/pci.rst also insists for driver to provide this.
+  */
+ static __maybe_unused int gpu_i2c_suspend(struct device *dev)
+ {
+-- 
+2.21.0
