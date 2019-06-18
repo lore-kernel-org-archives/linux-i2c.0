@@ -1,7 +1,7 @@
 From: Bitan Biswas <bbiswas@nvidia.com>
-Subject: [PATCH V8] i2c: tegra: remove BUG() macro
-Date: Mon, 17 Jun 2019 21:29:45 -0700
-Message-ID: <1560832186-17001-1-git-send-email-bbiswas@nvidia.com>
+Subject: [PATCH V1] i2c: tegra: disable irq in tegra_i2c_xfer_msg
+Date: Mon, 17 Jun 2019 22:23:06 -0700
+Message-ID: <1560835386-2865-1-git-send-email-bbiswas@nvidia.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -10,117 +10,91 @@ To: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>,
 Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Bitan Biswas <bbiswas@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The usage of BUG() macro is generally discouraged in kernel, unless
-it's a problem that results in a physical damage or loss of data.
-This patch removes unnecessary BUG() macros and replaces the rest
-with warning.
+Synchronize ISR and tegra_i2c_xfer_msg execution
+by disabling interrupt. This avoids spinlock usage
+for same purpose.
 
 Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
 ---
- drivers/i2c/busses/i2c-tegra.c | 49 +++++++++++++++++++++++++++++++++++-------
- 1 file changed, 41 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-tegra.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 4dfb4c1..6fb545e 100644
+index 6fb545e..ccc7fae 100644
 --- a/drivers/i2c/busses/i2c-tegra.c
 +++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -73,6 +73,7 @@
- #define I2C_ERR_NO_ACK				BIT(0)
- #define I2C_ERR_ARBITRATION_LOST		BIT(1)
- #define I2C_ERR_UNKNOWN_INTERRUPT		BIT(2)
-+#define I2C_ERR_RX_BUFFER_OVERFLOW		BIT(3)
+@@ -240,7 +240,6 @@ struct tegra_i2c_hw_feature {
+  * @bus_clk_rate: current I2C bus clock rate
+  * @clk_divisor_non_hs_mode: clock divider for non-high-speed modes
+  * @is_multimaster_mode: track if I2C controller is in multi-master mode
+- * @xfer_lock: lock to serialize transfer submission and processing
+  * @tx_dma_chan: DMA transmit channel
+  * @rx_dma_chan: DMA receive channel
+  * @dma_phys: handle to DMA resources
+@@ -270,8 +269,6 @@ struct tegra_i2c_dev {
+ 	u32 bus_clk_rate;
+ 	u16 clk_divisor_non_hs_mode;
+ 	bool is_multimaster_mode;
+-	/* xfer_lock: lock to serialize transfer submission and processing */
+-	spinlock_t xfer_lock;
+ 	struct dma_chan *tx_dma_chan;
+ 	struct dma_chan *rx_dma_chan;
+ 	dma_addr_t dma_phys;
+@@ -835,7 +832,6 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
  
- #define PACKET_HEADER0_HEADER_SIZE_SHIFT	28
- #define PACKET_HEADER0_PACKET_ID_SHIFT		16
-@@ -489,6 +490,13 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	size_t buf_remaining = i2c_dev->msg_buf_remaining;
- 	int words_to_transfer;
+ 	status = i2c_readl(i2c_dev, I2C_INT_STATUS);
  
-+	/*
-+	 * Catch overflow due to message fully sent before
-+	 * check for RX FIFO availability.
-+	 */
-+	if (WARN_ON_ONCE(!(i2c_dev->msg_buf_remaining)))
-+		return -EINVAL;
-+
- 	if (i2c_dev->hw->has_mst_fifo) {
- 		val = i2c_readl(i2c_dev, I2C_MST_FIFO_STATUS);
- 		rx_fifo_avail = (val & I2C_MST_FIFO_STATUS_RX_MASK) >>
-@@ -515,7 +523,11 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	 * prevent overwriting past the end of buf
+-	spin_lock(&i2c_dev->xfer_lock);
+ 	if (status == 0) {
+ 		dev_warn(i2c_dev->dev, "irq status 0 %08x %08x %08x\n",
+ 			 i2c_readl(i2c_dev, I2C_PACKET_TRANSFER_STATUS),
+@@ -935,7 +931,6 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 
+ 	complete(&i2c_dev->msg_complete);
+ done:
+-	spin_unlock(&i2c_dev->xfer_lock);
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -1054,7 +1049,6 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 	u32 packet_header;
+ 	u32 int_mask;
+ 	unsigned long time_left;
+-	unsigned long flags;
+ 	size_t xfer_size;
+ 	u32 *buffer = NULL;
+ 	int err = 0;
+@@ -1085,7 +1079,10 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
  	 */
- 	if (rx_fifo_avail > 0 && buf_remaining > 0) {
--		BUG_ON(buf_remaining > 3);
-+		/*
-+		 * buf_remaining > 3 check not needed as rx_fifo_avail == 0
-+		 * when (words_to_transfer was > rx_fifo_avail) earlier
-+		 * in this function.
-+		 */
- 		val = i2c_readl(i2c_dev, I2C_RX_FIFO);
- 		val = cpu_to_le32(val);
- 		memcpy(buf, &val, buf_remaining);
-@@ -523,7 +535,12 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
- 		rx_fifo_avail--;
- 	}
+ 	xfer_time += DIV_ROUND_CLOSEST(((xfer_size * 9) + 2) * MSEC_PER_SEC,
+ 					i2c_dev->bus_clk_rate);
+-	spin_lock_irqsave(&i2c_dev->xfer_lock, flags);
++	if (!i2c_dev->irq_disabled) {
++		disable_irq_nosync(i2c_dev->irq);
++		i2c_dev->irq_disabled = true;
++	}
  
--	BUG_ON(rx_fifo_avail > 0 && buf_remaining > 0);
-+	/*
-+	 * RX FIFO must be drained in Overflow case.
-+	 */
-+	if (WARN_ON_ONCE(rx_fifo_avail))
-+		return -EINVAL;
-+
- 	i2c_dev->msg_buf_remaining = buf_remaining;
- 	i2c_dev->msg_buf = buf;
+ 	int_mask = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
+ 	tegra_i2c_unmask_irq(i2c_dev, int_mask);
+@@ -1180,7 +1177,10 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 		i2c_readl(i2c_dev, I2C_INT_MASK));
  
-@@ -581,7 +598,11 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	 * boundary and fault.
- 	 */
- 	if (tx_fifo_avail > 0 && buf_remaining > 0) {
--		BUG_ON(buf_remaining > 3);
-+		/*
-+		 * buf_remaining > 3 check not needed as tx_fifo_avail == 0
-+		 * when (words_to_transfer was > tx_fifo_avail) earlier
-+		 * in this function for non-zero words_to_transfer.
-+		 */
- 		memcpy(&val, buf, buf_remaining);
- 		val = le32_to_cpu(val);
+ unlock:
+-	spin_unlock_irqrestore(&i2c_dev->xfer_lock, flags);
++	if (i2c_dev->irq_disabled) {
++		i2c_dev->irq_disabled = false;
++		enable_irq(i2c_dev->irq);
++	}
  
-@@ -847,10 +868,15 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 	if (dma) {
+ 		if (err)
+@@ -1576,7 +1576,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 				I2C_PACKET_HEADER_SIZE;
+ 	init_completion(&i2c_dev->msg_complete);
+ 	init_completion(&i2c_dev->dma_complete);
+-	spin_lock_init(&i2c_dev->xfer_lock);
  
- 	if (!i2c_dev->is_curr_dma_xfer) {
- 		if (i2c_dev->msg_read && (status & I2C_INT_RX_FIFO_DATA_REQ)) {
--			if (i2c_dev->msg_buf_remaining)
--				tegra_i2c_empty_rx_fifo(i2c_dev);
--			else
--				BUG();
-+			if (tegra_i2c_empty_rx_fifo(i2c_dev)) {
-+				/*
-+				 * Overflow error condition: message fully sent,
-+				 * with no XFER_COMPLETE interrupt but hardware
-+				 * asks to transfer more.
-+				 */
-+				i2c_dev->msg_err |= I2C_ERR_RX_BUFFER_OVERFLOW;
-+				goto err;
-+			}
- 		}
- 
- 		if (!i2c_dev->msg_read && (status & I2C_INT_TX_FIFO_DATA_REQ)) {
-@@ -876,7 +902,14 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 	if (status & I2C_INT_PACKET_XFER_COMPLETE) {
- 		if (i2c_dev->is_curr_dma_xfer)
- 			i2c_dev->msg_buf_remaining = 0;
--		BUG_ON(i2c_dev->msg_buf_remaining);
-+		/*
-+		 * Underflow error condition: XFER_COMPLETE before message
-+		 * fully sent.
-+		 */
-+		if (WARN_ON_ONCE(i2c_dev->msg_buf_remaining)) {
-+			i2c_dev->msg_err |= I2C_ERR_UNKNOWN_INTERRUPT;
-+			goto err;
-+		}
- 		complete(&i2c_dev->msg_complete);
- 	}
- 	goto done;
+ 	if (!i2c_dev->hw->has_single_clk_source) {
+ 		fast_clk = devm_clk_get(&pdev->dev, "fast-clk");
 -- 
 2.7.4
