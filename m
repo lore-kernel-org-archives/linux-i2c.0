@@ -1,96 +1,124 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH V2] i2c: tegra: disable irq in tegra_i2c_xfer_msg
-Date: Tue, 18 Jun 2019 09:41:55 +0000
-Message-ID: <d911ad6c-477f-7946-c0c4-ac7e86d15ceb@axentia.se>
-References: <1560847368-16069-1-git-send-email-bbiswas@nvidia.com>
+From: Bitan Biswas <bbiswas@nvidia.com>
+Subject: [PATCH V9] i2c: tegra: remove BUG() macro
+Date: Tue, 18 Jun 2019 04:09:42 -0700
+Message-ID: <1560856182-26072-1-git-send-email-bbiswas@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1560847368-16069-1-git-send-email-bbiswas@nvidia.com>
-Content-Language: en-US
-Content-ID: <27E9B971228C324985661CDD2D33B01C@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bitan Biswas <bbiswas@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Osipenko <digetx@gmail.com>
-Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
+To: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Osipenko <digetx@gmail.com>
+Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Bitan Biswas <bbiswas@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOS0wNi0xOCAxMDo0MiwgQml0YW4gQmlzd2FzIHdyb3RlOg0KPiB0ZWdyYV9pMmNfeGZl
-cl9tc2cgaW5pdGlhdGVzIHRoZSBJMkMgdHJhbnNmZXIgaW4gRE1BDQo+IG9yIFBJTyBtb2RlLiBJ
-dCBpbnZvbHZlcyBzdGVwcyB0aGF0IG5lZWQgRklGTyByZWdpc3Rlcg0KPiBhY2Nlc3MsIERNQSBB
-UEkgY2FsbHMgbGlrZSBkbWFfc3luY19zaW5nbGVfZm9yX2RldmljZSwgZXRjLg0KPiBUZWdyYSBJ
-MkMgSVNSIGhhcyBjYWxscyB0byB0ZWdyYV9pMmNfZW1wdHlfcnhfZmlmbyBpbiBQSU8gbW9kZQ0K
-PiBhbmQgaW4gRE1BL1BJTyBtb2RlIHdyaXRlcyBkaWZmZXJlbnQgSTJDIHJlZ2lzdGVycyBpbmNs
-dWRpbmcNCj4gSTJDIGludGVycnVwdCBzdGF0dXMuIElTUiBjYW5ub3Qgc3RhcnQgcHJvY2Vzc2lu
-Zw0KPiBiZWZvcmUgdGhlIHByZXBhcmF0aW9uIHN0ZXAgYXQgdGVncmFfaTJjX3hmZXJfbXNnIGlz
-IGNvbXBsZXRlLg0KPiBIZW5jZSwgYSBzeW5jaHJvbml6YXRpb24gYmV0d2VlbiBJU1IgYW5kIHRl
-Z3JhX2kyY194ZmVyX21zZw0KPiBpcyBpbiBwbGFjZSB0b2RheSB1c2luZyBzcGlubG9jay4NCj4g
-DQo+IFNwaW5sb2NrIGJ1c3kgd2FpdHMgYW5kIGNhbiBhZGQgYXZvaWRhYmxlIGRlbGF5cy4NCj4g
-DQo+IEluIHRoaXMgcGF0Y2ggbmVlZGVkIHN5bmNocm9uaXphdGlvbiBpcyBhY2hpZXZlZCBieSBk
-aXNhYmxpbmcNCj4gSTJDIGludGVycnVwdCBkdXJpbmcgcHJlcGFyYXRpb24gc3RlcCBhbmQgZW5h
-YmxpbmcgaW50ZXJydXB0DQo+IG9uY2UgcHJlcGFyYXRpb24gaXMgb3ZlciBhbmQgc3BpbmxvY2sg
-aXMgbm8gbG9uZ2VyIG5lZWRlZC4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEJpdGFuIEJpc3dhcyA8
-YmJpc3dhc0BudmlkaWEuY29tPg0KPiAtLS0NCj4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtdGVn
-cmEuYyB8IDE3ICsrKysrKysrLS0tLS0tLS0tDQo+ICAxIGZpbGUgY2hhbmdlZCwgOCBpbnNlcnRp
-b25zKCspLCA5IGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1
-c3Nlcy9pMmMtdGVncmEuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtdGVncmEuYw0KPiBpbmRl
-eCA2ZmI1NDVlLi5jY2M3ZmFlIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJj
-LXRlZ3JhLmMNCj4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy10ZWdyYS5jDQo+IEBAIC0y
-NDAsNyArMjQwLDYgQEAgc3RydWN0IHRlZ3JhX2kyY19od19mZWF0dXJlIHsNCj4gICAqIEBidXNf
-Y2xrX3JhdGU6IGN1cnJlbnQgSTJDIGJ1cyBjbG9jayByYXRlDQo+ICAgKiBAY2xrX2Rpdmlzb3Jf
-bm9uX2hzX21vZGU6IGNsb2NrIGRpdmlkZXIgZm9yIG5vbi1oaWdoLXNwZWVkIG1vZGVzDQo+ICAg
-KiBAaXNfbXVsdGltYXN0ZXJfbW9kZTogdHJhY2sgaWYgSTJDIGNvbnRyb2xsZXIgaXMgaW4gbXVs
-dGktbWFzdGVyIG1vZGUNCj4gLSAqIEB4ZmVyX2xvY2s6IGxvY2sgdG8gc2VyaWFsaXplIHRyYW5z
-ZmVyIHN1Ym1pc3Npb24gYW5kIHByb2Nlc3NpbmcNCj4gICAqIEB0eF9kbWFfY2hhbjogRE1BIHRy
-YW5zbWl0IGNoYW5uZWwNCj4gICAqIEByeF9kbWFfY2hhbjogRE1BIHJlY2VpdmUgY2hhbm5lbA0K
-PiAgICogQGRtYV9waHlzOiBoYW5kbGUgdG8gRE1BIHJlc291cmNlcw0KPiBAQCAtMjcwLDggKzI2
-OSw2IEBAIHN0cnVjdCB0ZWdyYV9pMmNfZGV2IHsNCj4gIAl1MzIgYnVzX2Nsa19yYXRlOw0KPiAg
-CXUxNiBjbGtfZGl2aXNvcl9ub25faHNfbW9kZTsNCj4gIAlib29sIGlzX211bHRpbWFzdGVyX21v
-ZGU7DQo+IC0JLyogeGZlcl9sb2NrOiBsb2NrIHRvIHNlcmlhbGl6ZSB0cmFuc2ZlciBzdWJtaXNz
-aW9uIGFuZCBwcm9jZXNzaW5nICovDQo+IC0Jc3BpbmxvY2tfdCB4ZmVyX2xvY2s7DQo+ICAJc3Ry
-dWN0IGRtYV9jaGFuICp0eF9kbWFfY2hhbjsNCj4gIAlzdHJ1Y3QgZG1hX2NoYW4gKnJ4X2RtYV9j
-aGFuOw0KPiAgCWRtYV9hZGRyX3QgZG1hX3BoeXM7DQo+IEBAIC04MzUsNyArODMyLDYgQEAgc3Rh
-dGljIGlycXJldHVybl90IHRlZ3JhX2kyY19pc3IoaW50IGlycSwgdm9pZCAqZGV2X2lkKQ0KPiAg
-DQo+ICAJc3RhdHVzID0gaTJjX3JlYWRsKGkyY19kZXYsIEkyQ19JTlRfU1RBVFVTKTsNCj4gIA0K
-PiAtCXNwaW5fbG9jaygmaTJjX2Rldi0+eGZlcl9sb2NrKTsNCj4gIAlpZiAoc3RhdHVzID09IDAp
-IHsNCj4gIAkJZGV2X3dhcm4oaTJjX2Rldi0+ZGV2LCAiaXJxIHN0YXR1cyAwICUwOHggJTA4eCAl
-MDh4XG4iLA0KPiAgCQkJIGkyY19yZWFkbChpMmNfZGV2LCBJMkNfUEFDS0VUX1RSQU5TRkVSX1NU
-QVRVUyksDQo+IEBAIC05MzUsNyArOTMxLDYgQEAgc3RhdGljIGlycXJldHVybl90IHRlZ3JhX2ky
-Y19pc3IoaW50IGlycSwgdm9pZCAqZGV2X2lkKQ0KPiAgDQo+ICAJY29tcGxldGUoJmkyY19kZXYt
-Pm1zZ19jb21wbGV0ZSk7DQo+ICBkb25lOg0KPiAtCXNwaW5fdW5sb2NrKCZpMmNfZGV2LT54ZmVy
-X2xvY2spOw0KPiAgCXJldHVybiBJUlFfSEFORExFRDsNCj4gIH0NCj4gIA0KPiBAQCAtMTA1NCw3
-ICsxMDQ5LDYgQEAgc3RhdGljIGludCB0ZWdyYV9pMmNfeGZlcl9tc2coc3RydWN0IHRlZ3JhX2ky
-Y19kZXYgKmkyY19kZXYsDQo+ICAJdTMyIHBhY2tldF9oZWFkZXI7DQo+ICAJdTMyIGludF9tYXNr
-Ow0KPiAgCXVuc2lnbmVkIGxvbmcgdGltZV9sZWZ0Ow0KPiAtCXVuc2lnbmVkIGxvbmcgZmxhZ3M7
-DQo+ICAJc2l6ZV90IHhmZXJfc2l6ZTsNCj4gIAl1MzIgKmJ1ZmZlciA9IE5VTEw7DQo+ICAJaW50
-IGVyciA9IDA7DQo+IEBAIC0xMDg1LDcgKzEwNzksMTAgQEAgc3RhdGljIGludCB0ZWdyYV9pMmNf
-eGZlcl9tc2coc3RydWN0IHRlZ3JhX2kyY19kZXYgKmkyY19kZXYsDQo+ICAJICovDQo+ICAJeGZl
-cl90aW1lICs9IERJVl9ST1VORF9DTE9TRVNUKCgoeGZlcl9zaXplICogOSkgKyAyKSAqIE1TRUNf
-UEVSX1NFQywNCj4gIAkJCQkJaTJjX2Rldi0+YnVzX2Nsa19yYXRlKTsNCj4gLQlzcGluX2xvY2tf
-aXJxc2F2ZSgmaTJjX2Rldi0+eGZlcl9sb2NrLCBmbGFncyk7DQo+ICsJaWYgKCFpMmNfZGV2LT5p
-cnFfZGlzYWJsZWQpIHsNCj4gKwkJZGlzYWJsZV9pcnFfbm9zeW5jKGkyY19kZXYtPmlycSk7DQoN
-CldoeSBkbyB5b3UgdXNlIC4uLl9ub3N5bmMgaW4gdGhpcyBjb250ZXh0PyBEbyB5b3Ugbm90IGNh
-cmUgYWJvdXQgZXhhY3RseSB3aGVuDQp0aGUgaXJxIGlzIGFjdHVhbGx5IGRpc2FibGVkPyBNYXli
-ZSB5b3UgbXVzdCB1c2UgX25vc3luYywgSSBkb24ndCBrbm93LCBidXQgSQ0KZ2V0IHRoZSBmZWVs
-aW5nIHRoYXQgeW91IGp1c3QgY29waWVkIHRoZSBjb2RlIGZyb20gdGhlIElTUi4gQW55d2F5LCB0
-aGUNCnF1ZXN0aW9uIGlzIGlmIHRoaXMgaXMgc3RpbGwgYWRlcXVhdGUgc3luY2hyb25pemF0aW9u
-PyBFdmVyeXRoaW5nIG1pZ2h0IHZlcnkNCndlbGwgYmUgc2FmZSBhbmQgaW4gb3JkZXIsIGJ1dCB0
-aGlzIGlzIG5vdCBjbGVhciB0byBtZSBmcm9tIG5laXRoZXIgdGhlIGNvZGUsDQp0aGUgKG5vbmV4
-aXN0aW5nKSBjb21tZW50cyBub3IgdGhlIHBhdGNoIGRlc2NyaXB0aW9uLg0KDQpJJ20gbm8gSVJR
-IGV4cGVydCwgSSdtIGp1c3QgYXNraW5nIHF1ZXN0aW9ucy4uLg0KDQpDaGVlcnMsDQpQZXRlcg0K
-DQo+ICsJCWkyY19kZXYtPmlycV9kaXNhYmxlZCA9IHRydWU7DQo+ICsJfQ0KPiAgDQo+ICAJaW50
-X21hc2sgPSBJMkNfSU5UX05PX0FDSyB8IEkyQ19JTlRfQVJCSVRSQVRJT05fTE9TVDsNCj4gIAl0
-ZWdyYV9pMmNfdW5tYXNrX2lycShpMmNfZGV2LCBpbnRfbWFzayk7DQo+IEBAIC0xMTgwLDcgKzEx
-NzcsMTAgQEAgc3RhdGljIGludCB0ZWdyYV9pMmNfeGZlcl9tc2coc3RydWN0IHRlZ3JhX2kyY19k
-ZXYgKmkyY19kZXYsDQo+ICAJCWkyY19yZWFkbChpMmNfZGV2LCBJMkNfSU5UX01BU0spKTsNCj4g
-IA0KPiAgdW5sb2NrOg0KPiAtCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJmkyY19kZXYtPnhmZXJf
-bG9jaywgZmxhZ3MpOw0KPiArCWlmIChpMmNfZGV2LT5pcnFfZGlzYWJsZWQpIHsNCj4gKwkJaTJj
-X2Rldi0+aXJxX2Rpc2FibGVkID0gZmFsc2U7DQo+ICsJCWVuYWJsZV9pcnEoaTJjX2Rldi0+aXJx
-KTsNCj4gKwl9DQo+ICANCj4gIAlpZiAoZG1hKSB7DQo+ICAJCWlmIChlcnIpDQo+IEBAIC0xNTc2
-LDcgKzE1NzYsNiBAQCBzdGF0aWMgaW50IHRlZ3JhX2kyY19wcm9iZShzdHJ1Y3QgcGxhdGZvcm1f
-ZGV2aWNlICpwZGV2KQ0KPiAgCQkJCUkyQ19QQUNLRVRfSEVBREVSX1NJWkU7DQo+ICAJaW5pdF9j
-b21wbGV0aW9uKCZpMmNfZGV2LT5tc2dfY29tcGxldGUpOw0KPiAgCWluaXRfY29tcGxldGlvbigm
-aTJjX2Rldi0+ZG1hX2NvbXBsZXRlKTsNCj4gLQlzcGluX2xvY2tfaW5pdCgmaTJjX2Rldi0+eGZl
-cl9sb2NrKTsNCj4gIA0KPiAgCWlmICghaTJjX2Rldi0+aHctPmhhc19zaW5nbGVfY2xrX3NvdXJj
-ZSkgew0KPiAgCQlmYXN0X2NsayA9IGRldm1fY2xrX2dldCgmcGRldi0+ZGV2LCAiZmFzdC1jbGsi
-KTsNCj4gDQoNCg==
+The usage of BUG() macro is generally discouraged in kernel, unless
+it's a problem that results in a physical damage or loss of data.
+This patch removes unnecessary BUG() macros and replaces the rest
+with warning.
+
+Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
+---
+ drivers/i2c/busses/i2c-tegra.c | 47 +++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 39 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 4dfb4c1..e9ff96d 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -73,6 +73,7 @@
+ #define I2C_ERR_NO_ACK				BIT(0)
+ #define I2C_ERR_ARBITRATION_LOST		BIT(1)
+ #define I2C_ERR_UNKNOWN_INTERRUPT		BIT(2)
++#define I2C_ERR_RX_BUFFER_OVERFLOW		BIT(3)
+ 
+ #define PACKET_HEADER0_HEADER_SIZE_SHIFT	28
+ #define PACKET_HEADER0_PACKET_ID_SHIFT		16
+@@ -489,6 +490,13 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
+ 	size_t buf_remaining = i2c_dev->msg_buf_remaining;
+ 	int words_to_transfer;
+ 
++	/*
++	 * Catch overflow due to message fully sent
++	 * before the check for RX FIFO availability.
++	 */
++	if (WARN_ON_ONCE(!(i2c_dev->msg_buf_remaining)))
++		return -EINVAL;
++
+ 	if (i2c_dev->hw->has_mst_fifo) {
+ 		val = i2c_readl(i2c_dev, I2C_MST_FIFO_STATUS);
+ 		rx_fifo_avail = (val & I2C_MST_FIFO_STATUS_RX_MASK) >>
+@@ -515,7 +523,11 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
+ 	 * prevent overwriting past the end of buf
+ 	 */
+ 	if (rx_fifo_avail > 0 && buf_remaining > 0) {
+-		BUG_ON(buf_remaining > 3);
++		/*
++		 * buf_remaining > 3 check not needed as rx_fifo_avail == 0
++		 * when (words_to_transfer was > rx_fifo_avail) earlier
++		 * in this function.
++		 */
+ 		val = i2c_readl(i2c_dev, I2C_RX_FIFO);
+ 		val = cpu_to_le32(val);
+ 		memcpy(buf, &val, buf_remaining);
+@@ -523,7 +535,10 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
+ 		rx_fifo_avail--;
+ 	}
+ 
+-	BUG_ON(rx_fifo_avail > 0 && buf_remaining > 0);
++	/* RX FIFO must be drained, otherwise it's an Overflow case. */
++	if (WARN_ON_ONCE(rx_fifo_avail))
++		return -EINVAL;
++
+ 	i2c_dev->msg_buf_remaining = buf_remaining;
+ 	i2c_dev->msg_buf = buf;
+ 
+@@ -581,7 +596,11 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
+ 	 * boundary and fault.
+ 	 */
+ 	if (tx_fifo_avail > 0 && buf_remaining > 0) {
+-		BUG_ON(buf_remaining > 3);
++		/*
++		 * buf_remaining > 3 check not needed as tx_fifo_avail == 0
++		 * when (words_to_transfer was > tx_fifo_avail) earlier
++		 * in this function for non-zero words_to_transfer.
++		 */
+ 		memcpy(&val, buf, buf_remaining);
+ 		val = le32_to_cpu(val);
+ 
+@@ -847,10 +866,15 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 
+ 	if (!i2c_dev->is_curr_dma_xfer) {
+ 		if (i2c_dev->msg_read && (status & I2C_INT_RX_FIFO_DATA_REQ)) {
+-			if (i2c_dev->msg_buf_remaining)
+-				tegra_i2c_empty_rx_fifo(i2c_dev);
+-			else
+-				BUG();
++			if (tegra_i2c_empty_rx_fifo(i2c_dev)) {
++				/*
++				 * Overflow error condition: message fully sent,
++				 * with no XFER_COMPLETE interrupt but hardware
++				 * asks to transfer more.
++				 */
++				i2c_dev->msg_err |= I2C_ERR_RX_BUFFER_OVERFLOW;
++				goto err;
++			}
+ 		}
+ 
+ 		if (!i2c_dev->msg_read && (status & I2C_INT_TX_FIFO_DATA_REQ)) {
+@@ -876,7 +900,14 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 	if (status & I2C_INT_PACKET_XFER_COMPLETE) {
+ 		if (i2c_dev->is_curr_dma_xfer)
+ 			i2c_dev->msg_buf_remaining = 0;
+-		BUG_ON(i2c_dev->msg_buf_remaining);
++		/*
++		 * Underflow error condition: XFER_COMPLETE before message
++		 * fully sent.
++		 */
++		if (WARN_ON_ONCE(i2c_dev->msg_buf_remaining)) {
++			i2c_dev->msg_err |= I2C_ERR_UNKNOWN_INTERRUPT;
++			goto err;
++		}
+ 		complete(&i2c_dev->msg_complete);
+ 	}
+ 	goto done;
+-- 
+2.7.4
