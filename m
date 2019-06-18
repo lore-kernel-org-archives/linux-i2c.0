@@ -1,11 +1,13 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Daniel Vetter <daniel@ffwll.ch>
 Subject: Re: [PATCH] docs: fix some broken references due to txt->rst renames
-Date: Tue, 18 Jun 2019 15:41:30 +0200
-Message-ID: <20190618134130.GA4516@kunai>
+Date: Tue, 18 Jun 2019 15:58:05 +0200
+Message-ID: <20190618135804.GZ12905@phenom.ffwll.local>
 References: <6f09587b7678f2fb378d736f45a02ffa9412cc99.1560864716.git.mchehab+samsung@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0758588320=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <dri-devel-bounces@lists.freedesktop.org>
+Content-Disposition: inline
 In-Reply-To: <6f09587b7678f2fb378d736f45a02ffa9412cc99.1560864716.git.mchehab+samsung@kernel.org>
 List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
  <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
@@ -20,61 +22,52 @@ To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org, Ajay Gupta <ajayg@nvidia.com>, Jonathan Corbet <corbet@lwn.net>, David Airlie <airlied@linux.ie>, intel-gfx@lists.freedesktop.org, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-i2c@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Amit Kucheria <amit.kucheria@linaro.org>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Li Yang <leoyang.li@nxp.com>, Sudeep Holla <sudeep.holla@arm.com>, Otto Sabart <ottosabart@seberm.com>
 List-Id: linux-i2c@vger.kernel.org
 
-
---===============0758588320==
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
-Content-Disposition: inline
-
-
---d6Gm4EdcadzBjdND
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Jun 18, 2019 at 10:33:58AM -0300, Mauro Carvalho Chehab wrote:
-> There are three left-overs from the recent file renames,
-> probably due to some other conflicting patch.
->=20
-> Fix them.
->=20
-> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-
-Thanks!
-
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
-
-
---d6Gm4EdcadzBjdND
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0I6gIACgkQFA3kzBSg
-KbYPmw//S9ererLqN6V1mN1Ixbn0CfKZGd1MAB4a/0PZiXPpCngdRfAog04KBXjI
-xYSX76wEzxv0+SiwU8kElhD15w/9Vjm9vZ8SCYRv2xBSE7W3xd+fv2gDAQf+pb2p
-bHJ5pTs8PRCqJcVLmZirsJ2vvOA1C6NYmb9Sjb4hH4u4+i9fqc0RKjOrO2OZCHx2
-3T6xcu0INuJm1RNX0gHHk06mGjfMUm6unYYHJkOMeup4HTUqDmYvX4U1g/3sIAIy
-kOPwW1ggkEJDebdxyc1uNft0yZKznjx7iOkP/p6wacCUI56jmCMniAt36f76OV8L
-C9Bks/dr9tp4M3z0Jbxa9oJWhc+e8KA/WNgXXnyCCDVg1idhaGgWkW59S05Spu0H
-PgprhEo5QYdT1GvEO28eP+kuFKi7HN5VvOJy794jFkjOPH0A9HK/f1CXmjp9cv3V
-nZhMOzohbh18AXwOG3T4eF9gL3u0WsPK2EH35oFjxH7ty6tmV5CkpVBgzWH1EBxq
-K44uWCs6H6SX3e0Cq5FRgGdvjlpFwQZT4Hbf3IfmukTzurdCi9YSPI228IdLmCPa
-uncvdbThBK4o/O6ndCqx04bEmPEUJdzcYuBlqi38lTonwzN4jvOyabM65Mt/HhW7
-4sy6hg/cLkPuX8tBpKWJoT13jqVTjRvjnxemkSq06yAmOznSxs4=
-=lZcZ
------END PGP SIGNATURE-----
-
---d6Gm4EdcadzBjdND--
-
---===============0758588320==
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
-
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
-IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
-dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVs
-
---===============0758588320==--
+T24gVHVlLCBKdW4gMTgsIDIwMTkgYXQgMTA6MzM6NThBTSAtMDMwMCwgTWF1cm8gQ2FydmFsaG8g
+Q2hlaGFiIHdyb3RlOgo+IFRoZXJlIGFyZSB0aHJlZSBsZWZ0LW92ZXJzIGZyb20gdGhlIHJlY2Vu
+dCBmaWxlIHJlbmFtZXMsCj4gcHJvYmFibHkgZHVlIHRvIHNvbWUgb3RoZXIgY29uZmxpY3Rpbmcg
+cGF0Y2guCj4gCj4gRml4IHRoZW0uCj4gCj4gU2lnbmVkLW9mZi1ieTogTWF1cm8gQ2FydmFsaG8g
+Q2hlaGFiIDxtY2hlaGFiK3NhbXN1bmdAa2VybmVsLm9yZz4KPiAtLS0KPiAKPiBUaGlzIHBhdGNo
+IGlzIGFnYWluc3QgdG9kYXkncyBuZXh0LTIwMTkwNjE3IGJyYW5jaC4gTm90IHN1cmUgaWYgaXQK
+PiB3aWxsIGFwcGx5IGNsZWFubHkgYXQgLWRvY3MgdHJlZS4gSWYgbm90LCAgUGxlYXNlIGxldCBt
+ZSBrbm93IGZvciBtZSB0bwo+IHNwbGl0LgoKQWNrZWQtYnk6IERhbmllbCBWZXR0ZXIgPGRhbmll
+bC52ZXR0ZXJAZmZ3bGwuY2g+Cj4gCj4gIERvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5n
+cy9hcm0vaWRsZS1zdGF0ZXMudHh0IHwgMiArLQo+ICBkcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRl
+bF9ydW50aW1lX3BtLmggICAgICAgICAgICAgICB8IDIgKy0KPiAgZHJpdmVycy9pMmMvYnVzc2Vz
+L2kyYy1udmlkaWEtZ3B1LmMgICAgICAgICAgICAgICAgICAgfCAyICstCj4gIDMgZmlsZXMgY2hh
+bmdlZCwgMyBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQo+IAo+IGRpZmYgLS1naXQgYS9E
+b2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvYXJtL2lkbGUtc3RhdGVzLnR4dCBiL0Rv
+Y3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9hcm0vaWRsZS1zdGF0ZXMudHh0Cj4gaW5k
+ZXggM2JkYmU2NzViOWU2Li5kOGQ5YWE3MTY3ZTggMTAwNjQ0Cj4gLS0tIGEvRG9jdW1lbnRhdGlv
+bi9kZXZpY2V0cmVlL2JpbmRpbmdzL2FybS9pZGxlLXN0YXRlcy50eHQKPiArKysgYi9Eb2N1bWVu
+dGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvYXJtL2lkbGUtc3RhdGVzLnR4dAo+IEBAIC03MDMs
+NCArNzAzLDQgQEAgY3B1cyB7Cj4gICAgICBodHRwczovL3d3dy5kZXZpY2V0cmVlLm9yZy9zcGVj
+aWZpY2F0aW9ucy8KPiAgCj4gIFs2XSBBUk0gTGludXggS2VybmVsIGRvY3VtZW50YXRpb24gLSBC
+b290aW5nIEFBcmNoNjQgTGludXgKPiAtICAgIERvY3VtZW50YXRpb24vYXJtNjQvYm9vdGluZy50
+eHQKPiArICAgIERvY3VtZW50YXRpb24vYXJtNjQvYm9vdGluZy5yc3QKPiBkaWZmIC0tZ2l0IGEv
+ZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcnVudGltZV9wbS5oIGIvZHJpdmVycy9ncHUvZHJt
+L2k5MTUvaW50ZWxfcnVudGltZV9wbS5oCj4gaW5kZXggZjJkNjI5OWE4MTYxLi4zY2IzOTFjZDgx
+YzEgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcnVudGltZV9wbS5o
+Cj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcnVudGltZV9wbS5oCj4gQEAgLTQ0
+LDcgKzQ0LDcgQEAgZW51bSBpOTE1X2RybV9zdXNwZW5kX21vZGUgewo+ICAgKiB0byBiZSBkaXNh
+YmxlZC4gVGhpcyBzaG91bGRuJ3QgaGFwcGVuIGFuZCB3ZSdsbCBwcmludCBzb21lIGVycm9yIG1l
+c3NhZ2VzIGluCj4gICAqIGNhc2UgaXQgaGFwcGVucy4KPiAgICoKPiAtICogRm9yIG1vcmUsIHJl
+YWQgdGhlIERvY3VtZW50YXRpb24vcG93ZXIvcnVudGltZV9wbS50eHQuCj4gKyAqIEZvciBtb3Jl
+LCByZWFkIHRoZSBEb2N1bWVudGF0aW9uL3Bvd2VyL3J1bnRpbWVfcG0ucnN0Lgo+ICAgKi8KPiAg
+c3RydWN0IGludGVsX3J1bnRpbWVfcG0gewo+ICAJYXRvbWljX3Qgd2FrZXJlZl9jb3VudDsKPiBk
+aWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1udmlkaWEtZ3B1LmMgYi9kcml2ZXJz
+L2kyYy9idXNzZXMvaTJjLW52aWRpYS1ncHUuYwo+IGluZGV4IGNmYzc2YjVkZTcyNi4uNWExMjM1
+ZmQ4NmJiIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbnZpZGlhLWdwdS5j
+Cj4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1udmlkaWEtZ3B1LmMKPiBAQCAtMzY0LDcg
+KzM2NCw3IEBAIHN0YXRpYyB2b2lkIGdwdV9pMmNfcmVtb3ZlKHN0cnVjdCBwY2lfZGV2ICpwZGV2
+KQo+ICAvKgo+ICAgKiBXZSBuZWVkIGdwdV9pMmNfc3VzcGVuZCgpIGV2ZW4gaWYgaXQgaXMgc3R1
+YiwgZm9yIHJ1bnRpbWUgcG0gdG8gd29yawo+ICAgKiBjb3JyZWN0bHkuIFdpdGhvdXQgaXQsIGxz
+cGNpIHNob3dzIHJ1bnRpbWUgcG0gc3RhdHVzIGFzICJEMCIgZm9yIHRoZSBjYXJkLgo+IC0gKiBE
+b2N1bWVudGF0aW9uL3Bvd2VyL3BjaS50eHQgYWxzbyBpbnNpc3RzIGZvciBkcml2ZXIgdG8gcHJv
+dmlkZSB0aGlzLgo+ICsgKiBEb2N1bWVudGF0aW9uL3Bvd2VyL3BjaS5yc3QgYWxzbyBpbnNpc3Rz
+IGZvciBkcml2ZXIgdG8gcHJvdmlkZSB0aGlzLgo+ICAgKi8KPiAgc3RhdGljIF9fbWF5YmVfdW51
+c2VkIGludCBncHVfaTJjX3N1c3BlbmQoc3RydWN0IGRldmljZSAqZGV2KQo+ICB7Cj4gLS0gCj4g
+Mi4yMS4wCj4gCj4gCgotLSAKRGFuaWVsIFZldHRlcgpTb2Z0d2FyZSBFbmdpbmVlciwgSW50ZWwg
+Q29ycG9yYXRpb24KaHR0cDovL2Jsb2cuZmZ3bGwuY2gKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxA
+bGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxt
+YW4vbGlzdGluZm8vZHJpLWRldmVs
