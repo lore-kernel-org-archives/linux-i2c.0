@@ -1,73 +1,127 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] docs: fix some broken references due to txt->rst renames
-Date: Tue, 18 Jun 2019 15:58:05 +0200
-Message-ID: <20190618135804.GZ12905@phenom.ffwll.local>
-References: <6f09587b7678f2fb378d736f45a02ffa9412cc99.1560864716.git.mchehab+samsung@kernel.org>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: Re: [PATCH V2] i2c: tegra: disable irq in tegra_i2c_xfer_msg
+Date: Tue, 18 Jun 2019 21:26:51 +0300
+Message-ID: <cda89c10-c597-ce90-98dd-5cc13ee9b83d@gmail.com>
+References: <1560847368-16069-1-git-send-email-bbiswas@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <6f09587b7678f2fb378d736f45a02ffa9412cc99.1560864716.git.mchehab+samsung@kernel.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, dri-devel@lists.freedesktop.org, Ajay Gupta <ajayg@nvidia.com>, Jonathan Corbet <corbet@lwn.net>, David Airlie <airlied@linux.ie>, intel-gfx@lists.freedesktop.org, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-i2c@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Amit Kucheria <amit.kucheria@linaro.org>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Li Yang <leoyang.li@nxp.com>, Sudeep Holla <sudeep.holla@arm.com>, Otto Sabart <ottosabart@seberm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1560847368-16069-1-git-send-email-bbiswas@nvidia.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bitan Biswas <bbiswas@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gVHVlLCBKdW4gMTgsIDIwMTkgYXQgMTA6MzM6NThBTSAtMDMwMCwgTWF1cm8gQ2FydmFsaG8g
-Q2hlaGFiIHdyb3RlOgo+IFRoZXJlIGFyZSB0aHJlZSBsZWZ0LW92ZXJzIGZyb20gdGhlIHJlY2Vu
-dCBmaWxlIHJlbmFtZXMsCj4gcHJvYmFibHkgZHVlIHRvIHNvbWUgb3RoZXIgY29uZmxpY3Rpbmcg
-cGF0Y2guCj4gCj4gRml4IHRoZW0uCj4gCj4gU2lnbmVkLW9mZi1ieTogTWF1cm8gQ2FydmFsaG8g
-Q2hlaGFiIDxtY2hlaGFiK3NhbXN1bmdAa2VybmVsLm9yZz4KPiAtLS0KPiAKPiBUaGlzIHBhdGNo
-IGlzIGFnYWluc3QgdG9kYXkncyBuZXh0LTIwMTkwNjE3IGJyYW5jaC4gTm90IHN1cmUgaWYgaXQK
-PiB3aWxsIGFwcGx5IGNsZWFubHkgYXQgLWRvY3MgdHJlZS4gSWYgbm90LCAgUGxlYXNlIGxldCBt
-ZSBrbm93IGZvciBtZSB0bwo+IHNwbGl0LgoKQWNrZWQtYnk6IERhbmllbCBWZXR0ZXIgPGRhbmll
-bC52ZXR0ZXJAZmZ3bGwuY2g+Cj4gCj4gIERvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5n
-cy9hcm0vaWRsZS1zdGF0ZXMudHh0IHwgMiArLQo+ICBkcml2ZXJzL2dwdS9kcm0vaTkxNS9pbnRl
-bF9ydW50aW1lX3BtLmggICAgICAgICAgICAgICB8IDIgKy0KPiAgZHJpdmVycy9pMmMvYnVzc2Vz
-L2kyYy1udmlkaWEtZ3B1LmMgICAgICAgICAgICAgICAgICAgfCAyICstCj4gIDMgZmlsZXMgY2hh
-bmdlZCwgMyBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQo+IAo+IGRpZmYgLS1naXQgYS9E
-b2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvYXJtL2lkbGUtc3RhdGVzLnR4dCBiL0Rv
-Y3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9hcm0vaWRsZS1zdGF0ZXMudHh0Cj4gaW5k
-ZXggM2JkYmU2NzViOWU2Li5kOGQ5YWE3MTY3ZTggMTAwNjQ0Cj4gLS0tIGEvRG9jdW1lbnRhdGlv
-bi9kZXZpY2V0cmVlL2JpbmRpbmdzL2FybS9pZGxlLXN0YXRlcy50eHQKPiArKysgYi9Eb2N1bWVu
-dGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvYXJtL2lkbGUtc3RhdGVzLnR4dAo+IEBAIC03MDMs
-NCArNzAzLDQgQEAgY3B1cyB7Cj4gICAgICBodHRwczovL3d3dy5kZXZpY2V0cmVlLm9yZy9zcGVj
-aWZpY2F0aW9ucy8KPiAgCj4gIFs2XSBBUk0gTGludXggS2VybmVsIGRvY3VtZW50YXRpb24gLSBC
-b290aW5nIEFBcmNoNjQgTGludXgKPiAtICAgIERvY3VtZW50YXRpb24vYXJtNjQvYm9vdGluZy50
-eHQKPiArICAgIERvY3VtZW50YXRpb24vYXJtNjQvYm9vdGluZy5yc3QKPiBkaWZmIC0tZ2l0IGEv
-ZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcnVudGltZV9wbS5oIGIvZHJpdmVycy9ncHUvZHJt
-L2k5MTUvaW50ZWxfcnVudGltZV9wbS5oCj4gaW5kZXggZjJkNjI5OWE4MTYxLi4zY2IzOTFjZDgx
-YzEgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcnVudGltZV9wbS5o
-Cj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcnVudGltZV9wbS5oCj4gQEAgLTQ0
-LDcgKzQ0LDcgQEAgZW51bSBpOTE1X2RybV9zdXNwZW5kX21vZGUgewo+ICAgKiB0byBiZSBkaXNh
-YmxlZC4gVGhpcyBzaG91bGRuJ3QgaGFwcGVuIGFuZCB3ZSdsbCBwcmludCBzb21lIGVycm9yIG1l
-c3NhZ2VzIGluCj4gICAqIGNhc2UgaXQgaGFwcGVucy4KPiAgICoKPiAtICogRm9yIG1vcmUsIHJl
-YWQgdGhlIERvY3VtZW50YXRpb24vcG93ZXIvcnVudGltZV9wbS50eHQuCj4gKyAqIEZvciBtb3Jl
-LCByZWFkIHRoZSBEb2N1bWVudGF0aW9uL3Bvd2VyL3J1bnRpbWVfcG0ucnN0Lgo+ICAgKi8KPiAg
-c3RydWN0IGludGVsX3J1bnRpbWVfcG0gewo+ICAJYXRvbWljX3Qgd2FrZXJlZl9jb3VudDsKPiBk
-aWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1udmlkaWEtZ3B1LmMgYi9kcml2ZXJz
-L2kyYy9idXNzZXMvaTJjLW52aWRpYS1ncHUuYwo+IGluZGV4IGNmYzc2YjVkZTcyNi4uNWExMjM1
-ZmQ4NmJiIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbnZpZGlhLWdwdS5j
-Cj4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1udmlkaWEtZ3B1LmMKPiBAQCAtMzY0LDcg
-KzM2NCw3IEBAIHN0YXRpYyB2b2lkIGdwdV9pMmNfcmVtb3ZlKHN0cnVjdCBwY2lfZGV2ICpwZGV2
-KQo+ICAvKgo+ICAgKiBXZSBuZWVkIGdwdV9pMmNfc3VzcGVuZCgpIGV2ZW4gaWYgaXQgaXMgc3R1
-YiwgZm9yIHJ1bnRpbWUgcG0gdG8gd29yawo+ICAgKiBjb3JyZWN0bHkuIFdpdGhvdXQgaXQsIGxz
-cGNpIHNob3dzIHJ1bnRpbWUgcG0gc3RhdHVzIGFzICJEMCIgZm9yIHRoZSBjYXJkLgo+IC0gKiBE
-b2N1bWVudGF0aW9uL3Bvd2VyL3BjaS50eHQgYWxzbyBpbnNpc3RzIGZvciBkcml2ZXIgdG8gcHJv
-dmlkZSB0aGlzLgo+ICsgKiBEb2N1bWVudGF0aW9uL3Bvd2VyL3BjaS5yc3QgYWxzbyBpbnNpc3Rz
-IGZvciBkcml2ZXIgdG8gcHJvdmlkZSB0aGlzLgo+ICAgKi8KPiAgc3RhdGljIF9fbWF5YmVfdW51
-c2VkIGludCBncHVfaTJjX3N1c3BlbmQoc3RydWN0IGRldmljZSAqZGV2KQo+ICB7Cj4gLS0gCj4g
-Mi4yMS4wCj4gCj4gCgotLSAKRGFuaWVsIFZldHRlcgpTb2Z0d2FyZSBFbmdpbmVlciwgSW50ZWwg
-Q29ycG9yYXRpb24KaHR0cDovL2Jsb2cuZmZ3bGwuY2gKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxA
-bGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxt
-YW4vbGlzdGluZm8vZHJpLWRldmVs
+18.06.2019 11:42, Bitan Biswas пишет:
+> tegra_i2c_xfer_msg initiates the I2C transfer in DMA
+> or PIO mode. It involves steps that need FIFO register
+> access, DMA API calls like dma_sync_single_for_device, etc.
+> Tegra I2C ISR has calls to tegra_i2c_empty_rx_fifo in PIO mode
+> and in DMA/PIO mode writes different I2C registers including
+> I2C interrupt status. ISR cannot start processing
+> before the preparation step at tegra_i2c_xfer_msg is complete.
+> Hence, a synchronization between ISR and tegra_i2c_xfer_msg
+> is in place today using spinlock.
+
+Please use full 75 chars per-line, this should make commit message to look better.
+
+> Spinlock busy waits and can add avoidable delays.
+> 
+> In this patch needed synchronization is achieved by disabling
+> I2C interrupt during preparation step and enabling interrupt
+> once preparation is over and spinlock is no longer needed.
+> 
+> Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
+> ---
+>  drivers/i2c/busses/i2c-tegra.c | 17 ++++++++---------
+>  1 file changed, 8 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+> index 6fb545e..ccc7fae 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -240,7 +240,6 @@ struct tegra_i2c_hw_feature {
+>   * @bus_clk_rate: current I2C bus clock rate
+>   * @clk_divisor_non_hs_mode: clock divider for non-high-speed modes
+>   * @is_multimaster_mode: track if I2C controller is in multi-master mode
+> - * @xfer_lock: lock to serialize transfer submission and processing
+>   * @tx_dma_chan: DMA transmit channel
+>   * @rx_dma_chan: DMA receive channel
+>   * @dma_phys: handle to DMA resources
+> @@ -270,8 +269,6 @@ struct tegra_i2c_dev {
+>  	u32 bus_clk_rate;
+>  	u16 clk_divisor_non_hs_mode;
+>  	bool is_multimaster_mode;
+> -	/* xfer_lock: lock to serialize transfer submission and processing */
+> -	spinlock_t xfer_lock;
+>  	struct dma_chan *tx_dma_chan;
+>  	struct dma_chan *rx_dma_chan;
+>  	dma_addr_t dma_phys;
+> @@ -835,7 +832,6 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+>  
+>  	status = i2c_readl(i2c_dev, I2C_INT_STATUS);
+>  
+> -	spin_lock(&i2c_dev->xfer_lock);
+>  	if (status == 0) {
+>  		dev_warn(i2c_dev->dev, "irq status 0 %08x %08x %08x\n",
+>  			 i2c_readl(i2c_dev, I2C_PACKET_TRANSFER_STATUS),
+> @@ -935,7 +931,6 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+>  
+>  	complete(&i2c_dev->msg_complete);
+>  done:
+> -	spin_unlock(&i2c_dev->xfer_lock);
+>  	return IRQ_HANDLED;
+>  }
+>  
+> @@ -1054,7 +1049,6 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+>  	u32 packet_header;
+>  	u32 int_mask;
+>  	unsigned long time_left;
+> -	unsigned long flags;
+>  	size_t xfer_size;
+>  	u32 *buffer = NULL;
+>  	int err = 0;
+> @@ -1085,7 +1079,10 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+>  	 */
+>  	xfer_time += DIV_ROUND_CLOSEST(((xfer_size * 9) + 2) * MSEC_PER_SEC,
+>  					i2c_dev->bus_clk_rate);
+> -	spin_lock_irqsave(&i2c_dev->xfer_lock, flags);
+> +	if (!i2c_dev->irq_disabled) {
+> +		disable_irq_nosync(i2c_dev->irq);
+> +		i2c_dev->irq_disabled = true;
+> +	}
+
+1) Peter correctly pointed out in the other email that the disabling should be synced.
+But see more below in 3.
+
+2) i2c_dev->irq_disabled == true can't ever be the case here because tegra_i2c_init()
+re-enables interrupt in a case of error condition. Hence interrupt always enabled at
+the beginning of the transfer.
+
+3) In my previous answer I was suggesting to request IRQ in a disabled state, this
+will allow to remove i2c_dev->irq_disabled completely.
+
+Then the tegra_i2c_xfer_msg() will have to enable IRQ after completion of the
+transfer-preparation process and disable IRQ once transfer is done (both success and
+failure cases). This is actually not a bad additional motivation for this patch, to
+keep CPU's interrupt disabled while idling and not to only rely on interrupt masking
+of the I2C hardware.
+
+4) ISR should simply return IRQ_NONE when interrupt status is 0 and allow kernel core
+to disable the faulty interrupt itself. There will be "unhandled interrupt" error
+message in KMSG log, following the disabling.
+
+5) In order to request IRQ in a disabled state, the IRQ_NOAUTOEN flag need to be set
+before the requesting, like this:
+
+    irq_set_status_flags(irq, IRQ_NOAUTOEN);
+
+    devm_request_irq(&pdev->dev, irq...);
+
+In a result of combining 3-5, both i2c_dev->irq_disabled and i2c_dev->irq variables
+become obsolete and could be removed in addition to xfer_lock. That all is a good
+cleanup in my opinion.
+
+[snip]
