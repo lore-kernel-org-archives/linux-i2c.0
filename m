@@ -1,59 +1,164 @@
-From: Annaliese McDermond <nh6z@nh6z.net>
-Subject: Re: [PATCH v4] i2c: bcm2835: Model Divider in CCF
-Date: Wed, 19 Jun 2019 00:56:48 -0700
-Message-ID: <EBC4BB44-5ED9-4C88-B371-A85774DB16B4@nh6z.net>
-References: <20190529042912.12956-1-nh6z@nh6z.net>
- <20190608171443.14484-1-nh6z@nh6z.net>
- <cd25e228-c3e1-2a01-14e3-fe9a5198c78d@i2se.com>
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
+From: Jon Hunter <jonathanh@nvidia.com>
+Subject: Re: [PATCH V2] i2c: tegra: disable irq in tegra_i2c_xfer_msg
+Date: Wed, 19 Jun 2019 09:58:16 +0100
+Message-ID: <d29aa32d-55ef-c98b-00cd-f836bf003662@nvidia.com>
+References: <1560847368-16069-1-git-send-email-bbiswas@nvidia.com>
+ <cda89c10-c597-ce90-98dd-5cc13ee9b83d@gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <cd25e228-c3e1-2a01-14e3-fe9a5198c78d@i2se.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Stefan Wahren <stefan.wahren@i2se.com>
-Cc: f.fainelli@gmail.com, swarren@wwwdotorg.org, wsa@the-dreams.de, team@nwdigitalradio.com, eric@anholt.net, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cda89c10-c597-ce90-98dd-5cc13ee9b83d@gmail.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Osipenko <digetx@gmail.com>, Bitan Biswas <bbiswas@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-U3RlZmFuIC0tCgo+IE9uIEp1biAxOSwgMjAxOSwgYXQgMTI6MTYgQU0sIFN0ZWZhbiBXYWhyZW4g
-PHN0ZWZhbi53YWhyZW5AaTJzZS5jb20+IHdyb3RlOgo+IAo+IEhpIEFubmFsaWVzZSwKPiAKPiBP
-biAwOC4wNi4xOSAxOToxNCwgQW5uYWxpZXNlIE1jRGVybW9uZCB3cm90ZToKPj4gTW9kZWwgdGhl
-IEkyQyBidXMgY2xvY2sgZGl2aWRlciBhcyBhIHBhcnQgb2YgdGhlIENvcmUgQ2xvY2sgRnJhbWV3
-b3JrLgo+PiBQcmltYXJpbHkgdGhpcyByZW1vdmVzIHRoZSBjbGtfZ2V0X3JhdGUoKSBjYWxsIGZy
-b20gZWFjaCB0cmFuc2Zlci4KPj4gVGhpcyBjYWxsIGNhdXNlcyBwcm9ibGVtcyBmb3Igc2xhdmUg
-ZHJpdmVycyB0aGF0IHRoZW1zZWx2ZXMgaGF2ZQo+PiBpbnRlcm5hbCBjbG9jayBjb21wb25lbnRz
-IHRoYXQgYXJlIGNvbnRyb2xsZWQgYnkgYW4gSTJDIGludGVyZmFjZS4KPj4gV2hlbiB0aGUgc2xh
-dmUncyBpbnRlcm5hbCBjbG9jayBjb21wb25lbnQgaXMgcHJlcGFyZWQsIHRoZSBwcmVwYXJlCj4+
-IGxvY2sgaXMgb2J0YWluZWQsIGFuZCBpdCBtYWtlcyBjYWxscyB0byB0aGUgSTJDIHN1YnN5c3Rl
-bSB0bwo+PiBjb21tYW5kIHRoZSBoYXJkd2FyZSB0byBhY3RpdmF0ZSB0aGUgY2xvY2suICBJbiBv
-cmRlciB0byBwZXJmb3JtCj4+IHRoZSBJMkMgdHJhbnNmZXIsIHRoaXMgZHJpdmVyIHNldHMgdGhl
-IGRpdmlkZXIsIHdoaWNoIHJlcXVpcmVzCj4+IGl0IHRvIGdldCB0aGUgcGFyZW50IGNsb2NrIHJh
-dGUsIHdoaWNoIGl0IGRvZXMgd2l0aCBjbGtfZ2V0X3JhdGUoKS4KPj4gVW5mb3J0dW5hdGVseSwg
-dGhpcyBmdW5jdGlvbiB3aWxsIHRyeSB0byB0YWtlIHRoZSBjbG9jayBwcmVwYXJlCj4+IGxvY2ss
-IHdoaWNoIGlzIGFscmVhZHkgaGVsZCBieSB0aGUgc2xhdmUncyBpbnRlcm5hbCBjbG9jayBjYWxs
-cwo+PiBjcmVhdGluZyBhIGRlYWRsb2NrLgo+PiAKPj4gTW9kZWxpbmcgdGhlIGRpdmlkZXIgaW4g
-dGhlIENDRiBuYXRpdmVseSByZW1vdmVzIHRoaXMgZGVwZW5kZW5jeQo+PiBhbmQgdGhlIGRpdmlk
-ZXIgdmFsdWUgaXMgb25seSBzZXQgdXBvbiBjaGFuZ2luZyB0aGUgYnVzIGNsb2NrCj4+IGZyZXF1
-ZW5jeSBvciBjaGFuZ2VzIGluIHRoZSBwYXJlbnQgY2xvY2sgdGhhdCBjYXNjYWRlIGRvd24gdG8g
-dGhpcwo+PiBkaXZpc29yLiAgVGhpcyBvYnZpYXRlcyB0aGUgbmVlZCB0byBzZXQgdGhlIGRpdmlk
-ZXIgd2l0aCBldmVyeQo+PiB0cmFuc2ZlciBhbmQgYXZvaWRzIHRoZSBkZWFkbG9jayBkZXNjcmli
-ZWQgYWJvdmUuICBJdCBhbHNvIHNob3VsZAo+PiBwcm92aWRlIGJldHRlciBjbG9jayBkZWJ1Z2dp
-bmcgYW5kIHNhdmUgYSBmZXcgY3ljbGVzIG9uIGVhY2gKPj4gdHJhbnNmZXIgZHVlIHRvIG5vdCBo
-YXZpbmcgdG8gcmVjYWxjdWF0ZSB0aGUgZGl2aWRlciB2YWx1ZS4KPj4gCj4gaSd2ZSBzZWVuIHJl
-cG9ydHMgWzFdLCBbMl0gdGhhdCB0aGlzIGNvbW1pdCBjYXVzZXMgdHJvdWJsZS4KPiAKPiBDb3Vs
-ZCB5b3UgcGxlYXNlIGxvb2sgaW50byB0aGVtPwoKCknigJlsbCBzZWUgaWYgSSBjYW4gbG9vayBp
-bnRvIHRoZXNlIGFuZCBzZWUgd2hhdOKAmXMgdXAuCgoKPiBUaGFua3MKPiAKPiBbMV0gLSBodHRw
-czovL3d3dy5yYXNwYmVycnlwaS5vcmcvZm9ydW1zL3ZpZXd0b3BpYy5waHA/Zj00NCZ0PTI0Mjg1
-Ngo+IFsyXSAtIGh0dHBzOi8vYXJjaGxpbnV4YXJtLm9yZy9mb3J1bS92aWV3dG9waWMucGhwP2Y9
-MjMmdD0xMzcxOQoKLS0KQW5uYWxpZXNlIE1jRGVybW9uZApuaDZ6QG5oNnoubmV0Cl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwg
-bWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8v
-bGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
+
+On 18/06/2019 19:26, Dmitry Osipenko wrote:
+> 18.06.2019 11:42, Bitan Biswas =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+>> tegra_i2c_xfer_msg initiates the I2C transfer in DMA
+>> or PIO mode. It involves steps that need FIFO register
+>> access, DMA API calls like dma_sync_single_for_device, etc.
+>> Tegra I2C ISR has calls to tegra_i2c_empty_rx_fifo in PIO mode
+>> and in DMA/PIO mode writes different I2C registers including
+>> I2C interrupt status. ISR cannot start processing
+>> before the preparation step at tegra_i2c_xfer_msg is complete.
+>> Hence, a synchronization between ISR and tegra_i2c_xfer_msg
+>> is in place today using spinlock.
+>=20
+> Please use full 75 chars per-line, this should make commit message to loo=
+k better.
+>=20
+>> Spinlock busy waits and can add avoidable delays.
+>>
+>> In this patch needed synchronization is achieved by disabling
+>> I2C interrupt during preparation step and enabling interrupt
+>> once preparation is over and spinlock is no longer needed.
+>>
+>> Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
+>> ---
+>>  drivers/i2c/busses/i2c-tegra.c | 17 ++++++++---------
+>>  1 file changed, 8 insertions(+), 9 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-teg=
+ra.c
+>> index 6fb545e..ccc7fae 100644
+>> --- a/drivers/i2c/busses/i2c-tegra.c
+>> +++ b/drivers/i2c/busses/i2c-tegra.c
+>> @@ -240,7 +240,6 @@ struct tegra_i2c_hw_feature {
+>>   * @bus_clk_rate: current I2C bus clock rate
+>>   * @clk_divisor_non_hs_mode: clock divider for non-high-speed modes
+>>   * @is_multimaster_mode: track if I2C controller is in multi-master mod=
+e
+>> - * @xfer_lock: lock to serialize transfer submission and processing
+>>   * @tx_dma_chan: DMA transmit channel
+>>   * @rx_dma_chan: DMA receive channel
+>>   * @dma_phys: handle to DMA resources
+>> @@ -270,8 +269,6 @@ struct tegra_i2c_dev {
+>>  	u32 bus_clk_rate;
+>>  	u16 clk_divisor_non_hs_mode;
+>>  	bool is_multimaster_mode;
+>> -	/* xfer_lock: lock to serialize transfer submission and processing */
+>> -	spinlock_t xfer_lock;
+>>  	struct dma_chan *tx_dma_chan;
+>>  	struct dma_chan *rx_dma_chan;
+>>  	dma_addr_t dma_phys;
+>> @@ -835,7 +832,6 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_=
+id)
+>> =20
+>>  	status =3D i2c_readl(i2c_dev, I2C_INT_STATUS);
+>> =20
+>> -	spin_lock(&i2c_dev->xfer_lock);
+>>  	if (status =3D=3D 0) {
+>>  		dev_warn(i2c_dev->dev, "irq status 0 %08x %08x %08x\n",
+>>  			 i2c_readl(i2c_dev, I2C_PACKET_TRANSFER_STATUS),
+>> @@ -935,7 +931,6 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_=
+id)
+>> =20
+>>  	complete(&i2c_dev->msg_complete);
+>>  done:
+>> -	spin_unlock(&i2c_dev->xfer_lock);
+>>  	return IRQ_HANDLED;
+>>  }
+>> =20
+>> @@ -1054,7 +1049,6 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev=
+ *i2c_dev,
+>>  	u32 packet_header;
+>>  	u32 int_mask;
+>>  	unsigned long time_left;
+>> -	unsigned long flags;
+>>  	size_t xfer_size;
+>>  	u32 *buffer =3D NULL;
+>>  	int err =3D 0;
+>> @@ -1085,7 +1079,10 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_de=
+v *i2c_dev,
+>>  	 */
+>>  	xfer_time +=3D DIV_ROUND_CLOSEST(((xfer_size * 9) + 2) * MSEC_PER_SEC,
+>>  					i2c_dev->bus_clk_rate);
+>> -	spin_lock_irqsave(&i2c_dev->xfer_lock, flags);
+>> +	if (!i2c_dev->irq_disabled) {
+>> +		disable_irq_nosync(i2c_dev->irq);
+>> +		i2c_dev->irq_disabled =3D true;
+>> +	}
+>=20
+> 1) Peter correctly pointed out in the other email that the disabling shou=
+ld be synced.
+> But see more below in 3.
+>=20
+> 2) i2c_dev->irq_disabled =3D=3D true can't ever be the case here because =
+tegra_i2c_init()
+> re-enables interrupt in a case of error condition. Hence interrupt always=
+ enabled at
+> the beginning of the transfer.
+>=20
+> 3) In my previous answer I was suggesting to request IRQ in a disabled st=
+ate, this
+> will allow to remove i2c_dev->irq_disabled completely.
+>=20
+> Then the tegra_i2c_xfer_msg() will have to enable IRQ after completion of=
+ the
+> transfer-preparation process and disable IRQ once transfer is done (both =
+success and
+> failure cases). This is actually not a bad additional motivation for this=
+ patch, to
+> keep CPU's interrupt disabled while idling and not to only rely on interr=
+upt masking
+> of the I2C hardware.
+>=20
+> 4) ISR should simply return IRQ_NONE when interrupt status is 0 and allow=
+ kernel core
+> to disable the faulty interrupt itself. There will be "unhandled interrup=
+t" error
+> message in KMSG log, following the disabling.
+>=20
+> 5) In order to request IRQ in a disabled state, the IRQ_NOAUTOEN flag nee=
+d to be set
+> before the requesting, like this:
+>=20
+>     irq_set_status_flags(irq, IRQ_NOAUTOEN);
+>=20
+>     devm_request_irq(&pdev->dev, irq...);
+>=20
+> In a result of combining 3-5, both i2c_dev->irq_disabled and i2c_dev->irq=
+ variables
+> become obsolete and could be removed in addition to xfer_lock. That all i=
+s a good
+> cleanup in my opinion.
+
+I see, so basically you are simplifying the code by waiting to enable
+the interrupt until the transfer is ready and hence you can eliminate
+the need for the spinlock. OK, that would make sense. This really needs
+to be describe better in the changelog.
+
+Also what about the tegra_i2c_unmask/mask_irq? Can these be eliminated?
+
+Finally, what about tegra_i2c_issue_bus_clear()? This requires
+interrupts as well.
+
+Cheers
+Jon
+
+--=20
+nvpublic
