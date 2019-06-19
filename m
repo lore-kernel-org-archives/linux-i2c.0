@@ -1,15 +1,15 @@
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Annaliese McDermond <nh6z@nh6z.net>
 Subject: Re: [PATCH v4] i2c: bcm2835: Model Divider in CCF
-Date: Wed, 19 Jun 2019 09:16:38 +0200
-Message-ID: <cd25e228-c3e1-2a01-14e3-fe9a5198c78d@i2se.com>
+Date: Wed, 19 Jun 2019 00:56:48 -0700
+Message-ID: <EBC4BB44-5ED9-4C88-B371-A85774DB16B4@nh6z.net>
 References: <20190529042912.12956-1-nh6z@nh6z.net>
  <20190608171443.14484-1-nh6z@nh6z.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+ <cd25e228-c3e1-2a01-14e3-fe9a5198c78d@i2se.com>
+Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190608171443.14484-1-nh6z@nh6z.net>
-Content-Language: en-US
+In-Reply-To: <cd25e228-c3e1-2a01-14e3-fe9a5198c78d@i2se.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -19,39 +19,41 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Annaliese McDermond <nh6z@nh6z.net>, eric@anholt.net, f.fainelli@gmail.com, wsa@the-dreams.de, swarren@wwwdotorg.org, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
-Cc: team@nwdigitalradio.com
+To: Stefan Wahren <stefan.wahren@i2se.com>
+Cc: f.fainelli@gmail.com, swarren@wwwdotorg.org, wsa@the-dreams.de, team@nwdigitalradio.com, eric@anholt.net, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Annaliese,
-
-On 08.06.19 19:14, Annaliese McDermond wrote:
-> Model the I2C bus clock divider as a part of the Core Clock Framework.
-> Primarily this removes the clk_get_rate() call from each transfer.
-> This call causes problems for slave drivers that themselves have
-> internal clock components that are controlled by an I2C interface.
-> When the slave's internal clock component is prepared, the prepare
-> lock is obtained, and it makes calls to the I2C subsystem to
-> command the hardware to activate the clock.  In order to perform
-> the I2C transfer, this driver sets the divider, which requires
-> it to get the parent clock rate, which it does with clk_get_rate().
-> Unfortunately, this function will try to take the clock prepare
-> lock, which is already held by the slave's internal clock calls
-> creating a deadlock.
->
-> Modeling the divider in the CCF natively removes this dependency
-> and the divider value is only set upon changing the bus clock
-> frequency or changes in the parent clock that cascade down to this
-> divisor.  This obviates the need to set the divider with every
-> transfer and avoids the deadlock described above.  It also should
-> provide better clock debugging and save a few cycles on each
-> transfer due to not having to recalcuate the divider value.
->
-i've seen reports [1], [2] that this commit causes trouble.
-
-Could you please look into them?
-
-Thanks
-
-[1] - https://www.raspberrypi.org/forums/viewtopic.php?f=44&t=242856
-[2] - https://archlinuxarm.org/forum/viewtopic.php?f=23&t=13719
+U3RlZmFuIC0tCgo+IE9uIEp1biAxOSwgMjAxOSwgYXQgMTI6MTYgQU0sIFN0ZWZhbiBXYWhyZW4g
+PHN0ZWZhbi53YWhyZW5AaTJzZS5jb20+IHdyb3RlOgo+IAo+IEhpIEFubmFsaWVzZSwKPiAKPiBP
+biAwOC4wNi4xOSAxOToxNCwgQW5uYWxpZXNlIE1jRGVybW9uZCB3cm90ZToKPj4gTW9kZWwgdGhl
+IEkyQyBidXMgY2xvY2sgZGl2aWRlciBhcyBhIHBhcnQgb2YgdGhlIENvcmUgQ2xvY2sgRnJhbWV3
+b3JrLgo+PiBQcmltYXJpbHkgdGhpcyByZW1vdmVzIHRoZSBjbGtfZ2V0X3JhdGUoKSBjYWxsIGZy
+b20gZWFjaCB0cmFuc2Zlci4KPj4gVGhpcyBjYWxsIGNhdXNlcyBwcm9ibGVtcyBmb3Igc2xhdmUg
+ZHJpdmVycyB0aGF0IHRoZW1zZWx2ZXMgaGF2ZQo+PiBpbnRlcm5hbCBjbG9jayBjb21wb25lbnRz
+IHRoYXQgYXJlIGNvbnRyb2xsZWQgYnkgYW4gSTJDIGludGVyZmFjZS4KPj4gV2hlbiB0aGUgc2xh
+dmUncyBpbnRlcm5hbCBjbG9jayBjb21wb25lbnQgaXMgcHJlcGFyZWQsIHRoZSBwcmVwYXJlCj4+
+IGxvY2sgaXMgb2J0YWluZWQsIGFuZCBpdCBtYWtlcyBjYWxscyB0byB0aGUgSTJDIHN1YnN5c3Rl
+bSB0bwo+PiBjb21tYW5kIHRoZSBoYXJkd2FyZSB0byBhY3RpdmF0ZSB0aGUgY2xvY2suICBJbiBv
+cmRlciB0byBwZXJmb3JtCj4+IHRoZSBJMkMgdHJhbnNmZXIsIHRoaXMgZHJpdmVyIHNldHMgdGhl
+IGRpdmlkZXIsIHdoaWNoIHJlcXVpcmVzCj4+IGl0IHRvIGdldCB0aGUgcGFyZW50IGNsb2NrIHJh
+dGUsIHdoaWNoIGl0IGRvZXMgd2l0aCBjbGtfZ2V0X3JhdGUoKS4KPj4gVW5mb3J0dW5hdGVseSwg
+dGhpcyBmdW5jdGlvbiB3aWxsIHRyeSB0byB0YWtlIHRoZSBjbG9jayBwcmVwYXJlCj4+IGxvY2ss
+IHdoaWNoIGlzIGFscmVhZHkgaGVsZCBieSB0aGUgc2xhdmUncyBpbnRlcm5hbCBjbG9jayBjYWxs
+cwo+PiBjcmVhdGluZyBhIGRlYWRsb2NrLgo+PiAKPj4gTW9kZWxpbmcgdGhlIGRpdmlkZXIgaW4g
+dGhlIENDRiBuYXRpdmVseSByZW1vdmVzIHRoaXMgZGVwZW5kZW5jeQo+PiBhbmQgdGhlIGRpdmlk
+ZXIgdmFsdWUgaXMgb25seSBzZXQgdXBvbiBjaGFuZ2luZyB0aGUgYnVzIGNsb2NrCj4+IGZyZXF1
+ZW5jeSBvciBjaGFuZ2VzIGluIHRoZSBwYXJlbnQgY2xvY2sgdGhhdCBjYXNjYWRlIGRvd24gdG8g
+dGhpcwo+PiBkaXZpc29yLiAgVGhpcyBvYnZpYXRlcyB0aGUgbmVlZCB0byBzZXQgdGhlIGRpdmlk
+ZXIgd2l0aCBldmVyeQo+PiB0cmFuc2ZlciBhbmQgYXZvaWRzIHRoZSBkZWFkbG9jayBkZXNjcmli
+ZWQgYWJvdmUuICBJdCBhbHNvIHNob3VsZAo+PiBwcm92aWRlIGJldHRlciBjbG9jayBkZWJ1Z2dp
+bmcgYW5kIHNhdmUgYSBmZXcgY3ljbGVzIG9uIGVhY2gKPj4gdHJhbnNmZXIgZHVlIHRvIG5vdCBo
+YXZpbmcgdG8gcmVjYWxjdWF0ZSB0aGUgZGl2aWRlciB2YWx1ZS4KPj4gCj4gaSd2ZSBzZWVuIHJl
+cG9ydHMgWzFdLCBbMl0gdGhhdCB0aGlzIGNvbW1pdCBjYXVzZXMgdHJvdWJsZS4KPiAKPiBDb3Vs
+ZCB5b3UgcGxlYXNlIGxvb2sgaW50byB0aGVtPwoKCknigJlsbCBzZWUgaWYgSSBjYW4gbG9vayBp
+bnRvIHRoZXNlIGFuZCBzZWUgd2hhdOKAmXMgdXAuCgoKPiBUaGFua3MKPiAKPiBbMV0gLSBodHRw
+czovL3d3dy5yYXNwYmVycnlwaS5vcmcvZm9ydW1zL3ZpZXd0b3BpYy5waHA/Zj00NCZ0PTI0Mjg1
+Ngo+IFsyXSAtIGh0dHBzOi8vYXJjaGxpbnV4YXJtLm9yZy9mb3J1bS92aWV3dG9waWMucGhwP2Y9
+MjMmdD0xMzcxOQoKLS0KQW5uYWxpZXNlIE1jRGVybW9uZApuaDZ6QG5oNnoubmV0Cl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwg
+bWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8v
+bGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
