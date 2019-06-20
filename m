@@ -1,7 +1,7 @@
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH v5 1/7] i2c: core: Allow whole core to use i2c_dev_irq_from_resources
-Date: Thu, 20 Jun 2019 14:34:14 +0100
-Message-ID: <20190620133420.4632-2-ckeepax@opensource.cirrus.com>
+Subject: [PATCH v5 7/7] i2c: core: Tidy up handling of init_irq
+Date: Thu, 20 Jun 2019 14:34:20 +0100
+Message-ID: <20190620133420.4632-8-ckeepax@opensource.cirrus.com>
 References: <20190620133420.4632-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,9 +12,10 @@ To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
 Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Remove the static from i2c_dev_irq_from _resources so that other parts
-of the core code can use this helper function.
+Only set init_irq during i2c_device_new and only handle client->irq on
+the probe/remove paths.
 
+Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
@@ -25,37 +26,38 @@ No changes since v4.
 Thanks,
 Charles
 
- drivers/i2c/i2c-core-base.c | 4 ++--
- drivers/i2c/i2c-core.h      | 2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core-base.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 2569e97f9bf35..8a303246d534b 100644
+index 95a0380286c1c..a3dbaefe4ca66 100644
 --- a/drivers/i2c/i2c-core-base.c
 +++ b/drivers/i2c/i2c-core-base.c
-@@ -679,8 +679,8 @@ static void i2c_dev_set_name(struct i2c_adapter *adap,
- 		     i2c_encode_flags_to_addr(client));
- }
+@@ -314,6 +314,8 @@ static int i2c_device_probe(struct device *dev)
  
--static int i2c_dev_irq_from_resources(const struct resource *resources,
--				      unsigned int num_resources)
-+int i2c_dev_irq_from_resources(const struct resource *resources,
-+			       unsigned int num_resources)
- {
- 	struct irq_data *irqd;
- 	int i;
-diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
-index 851c11b4c0f3a..2a3b28bf826b1 100644
---- a/drivers/i2c/i2c-core.h
-+++ b/drivers/i2c/i2c-core.h
-@@ -19,6 +19,8 @@ extern struct list_head	__i2c_board_list;
- extern int		__i2c_first_dynamic_bus_num;
+ 	driver = to_i2c_driver(dev->driver);
  
- int i2c_check_7bit_addr_validity_strict(unsigned short addr);
-+int i2c_dev_irq_from_resources(const struct resource *resources,
-+			       unsigned int num_resources);
++	client->irq = client->init_irq;
++
+ 	if (!client->irq && !driver->disable_i2c_core_irq_mapping) {
+ 		int irq = -ENOENT;
  
- /*
-  * We only allow atomic transfers for very late communication, e.g. to send
+@@ -424,7 +426,7 @@ static int i2c_device_remove(struct device *dev)
+ 	dev_pm_clear_wake_irq(&client->dev);
+ 	device_init_wakeup(&client->dev, false);
+ 
+-	client->irq = client->init_irq;
++	client->irq = 0;
+ 	if (client->flags & I2C_CLIENT_HOST_NOTIFY)
+ 		pm_runtime_put(&client->adapter->dev);
+ 
+@@ -741,7 +743,6 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
+ 	if (!client->init_irq)
+ 		client->init_irq = i2c_dev_irq_from_resources(info->resources,
+ 							 info->num_resources);
+-	client->irq = client->init_irq;
+ 
+ 	strlcpy(client->name, info->type, sizeof(client->name));
+ 
 -- 
 2.11.0
