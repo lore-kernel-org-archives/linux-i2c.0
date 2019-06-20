@@ -1,50 +1,45 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v5 3/7] i2c: acpi: Factor out getting the IRQ from ACPI
-Date: Thu, 20 Jun 2019 17:54:32 +0300
-Message-ID: <20190620145432.GD9224@smile.fi.intel.com>
+Subject: Re: [PATCH v5 4/7] i2c: core: Make i2c_acpi_get_irq available to the
+ rest of the I2C core
+Date: Thu, 20 Jun 2019 17:59:50 +0300
+Message-ID: <20190620145950.GE9224@smile.fi.intel.com>
 References: <20190620133420.4632-1-ckeepax@opensource.cirrus.com>
- <20190620133420.4632-4-ckeepax@opensource.cirrus.com>
+ <20190620133420.4632-5-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190620133420.4632-4-ckeepax@opensource.cirrus.com>
+In-Reply-To: <20190620133420.4632-5-ckeepax@opensource.cirrus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Charles Keepax <ckeepax@opensource.cirrus.com>
 Cc: wsa@the-dreams.de, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jun 20, 2019 at 02:34:16PM +0100, Charles Keepax wrote:
-> In preparation for future refactoring factor out the fetch of the IRQ
-> into its own helper function.
+On Thu, Jun 20, 2019 at 02:34:17PM +0100, Charles Keepax wrote:
+> In preparation for more refactoring make i2c_acpi_get_irq available
+> outside i2c-core-acpi.c.
 
-> +static int i2c_acpi_get_irq(struct acpi_device *adev)
-> +{
-> +	struct list_head resource_list;
-> +	int irq = -ENOENT;
-> +	int ret;
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+
+I'm not sure Rb tags are suitable for patches 4 and 5 since the changes made.
+
+> +struct acpi_device;
+
+Hmm... Doesn't acpi.h define that for !ACPI case?
+
+>  #ifdef CONFIG_ACPI
+>  const struct acpi_device_id *
+>  i2c_acpi_match_device(const struct acpi_device_id *matches,
+>  		      struct i2c_client *client);
+>  void i2c_acpi_register_devices(struct i2c_adapter *adap);
 > +
-> +	INIT_LIST_HEAD(&resource_list);
-> +
-> +	ret = acpi_dev_get_resources(adev, &resource_list,
-> +				     i2c_acpi_add_resource, &irq);
-> +	if (ret < 0)
+> +int i2c_acpi_get_irq(struct acpi_device *adev);
 
-> +		return -EINVAL;
+Since you call this afterwards with struct device from which companion is
+derived, can't we directly use struct device as a parameter?
 
-Can't we return ret value?
-
-> +
-> +	acpi_dev_free_resource_list(&resource_list);
-> +
-> +	return irq;
-> +}
-
-> +	ret = i2c_acpi_get_irq(adev);
-> +	if (ret > 0)
-> +		info->irq = ret;
-
-And on error we do not bail out. This changes the behaviour.
+Yes, in case of adev call, it might be &adev->dev I suppose?
 
 -- 
 With Best Regards,
