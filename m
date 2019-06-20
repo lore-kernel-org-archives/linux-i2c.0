@@ -1,76 +1,135 @@
-From: Tao Ren <taoren@fb.com>
-Subject: Re: [PATCH 1/2] i2c: aspeed: allow to customize base clock divisor
-Date: Thu, 20 Jun 2019 02:28:06 +0000
-Message-ID: <aefd4de2-31b4-1332-7cc0-92cc04fea045@fb.com>
-References: <20190619205009.4176588-1-taoren@fb.com>
- <CAFd5g45TMtXcuqONdkpN_K+c0O+wUw8wkGzcQfV+sO8p5Krc9w@mail.gmail.com>
- <18565fcf-3dc1-b671-f826-e4417e4ad284@fb.com>
- <4c8b9ca5e84db7db67ad552d8fdbaa17d11b6432.camel@kernel.crashing.org>
+From: Bitan Biswas <bbiswas@nvidia.com>
+Subject: Re: [PATCH V9] i2c: tegra: remove BUG() macro
+Date: Wed, 19 Jun 2019 22:00:51 -0700
+Message-ID: <a2a94eb5-c3c3-24bb-e7a6-0d02f2546f94@nvidia.com>
+References: <1560856182-26072-1-git-send-email-bbiswas@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <4c8b9ca5e84db7db67ad552d8fdbaa17d11b6432.camel@kernel.crashing.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1560856182-26072-1-git-send-email-bbiswas@nvidia.com>
 Content-Language: en-US
-Content-ID: <8840564E23F9E849A053530EEF97466C@namprd15.prod.outlook.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Brendan Higgins <brendanhiggins@google.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree <devicetree@vger.kernel.org>, "ryan_chen@aspeedtech.com" <ryan_chen@aspeedtech.com>, "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>, Andrew Jeffery <andrew@aj.id.au>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Linux ARM <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@the-dreams.de>, Dmitry Osipenko <digetx@gmail.com>
+Cc: Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 6/19/19 4:02 PM, Benjamin Herrenschmidt wrote:
-> On Wed, 2019-06-19 at 22:32 +0000, Tao Ren wrote:
->> Thank you for the quick response, Brendan.
->>
->> Aspeed I2C bus frequency is defined by 3 parameters
->> (base_clk_divisor, clk_high_width, clk_low_width), and I choose
->> base_clk_divisor because it controls all the Aspeed I2C timings (such
->> as setup time and hold time). Once base_clk_divisor is decided
->> (either by the current logic in i2c-aspeed driver or manually set in
->> device tree), clk_high_width and clk_low_width will be calculated by
->> i2c-aspeed driver to meet the specified I2C bus speed.
->>
->> For example, by setting I2C bus frequency to 100KHz on AST2500
->> platform, (base_clock_divisor, clk_high_width, clk_low_width) is set
->> to (3, 15, 14) by our driver. But some slave devices (on CMM i2c-8
->> and Minipack i2c-0) NACK byte transactions with the default timing
->> setting: the issue can be resolved by setting base_clk_divisor to 4,
->> and (clk_high_width, clk_low_width) will be set to (7, 7) by our i2c-
->> aspeed driver to achieve similar I2C bus speed.
->>
->> Not sure if my answer helps to address your concerns, but kindly let
->> me know if you have further questions/suggestions.
+
+
+On 6/18/19 4:09 AM, Bitan Biswas wrote:
+> The usage of BUG() macro is generally discouraged in kernel, unless
+> it's a problem that results in a physical damage or loss of data.
+> This patch removes unnecessary BUG() macros and replaces the rest
+> with warning.
 > 
-> Did you look at the resulting output on a scope ? I'm curious what
-> might be wrong.... 
+> Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
+> ---
+>   drivers/i2c/busses/i2c-tegra.c | 47 +++++++++++++++++++++++++++++++++++-------
+>   1 file changed, 39 insertions(+), 8 deletions(-)
 > 
-> CCing Ryan from Aspeed, he might have some idea.
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+> index 4dfb4c1..e9ff96d 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -73,6 +73,7 @@
+>   #define I2C_ERR_NO_ACK				BIT(0)
+>   #define I2C_ERR_ARBITRATION_LOST		BIT(1)
+>   #define I2C_ERR_UNKNOWN_INTERRUPT		BIT(2)
+> +#define I2C_ERR_RX_BUFFER_OVERFLOW		BIT(3)
+>   
+>   #define PACKET_HEADER0_HEADER_SIZE_SHIFT	28
+>   #define PACKET_HEADER0_PACKET_ID_SHIFT		16
+> @@ -489,6 +490,13 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
+>   	size_t buf_remaining = i2c_dev->msg_buf_remaining;
+>   	int words_to_transfer;
+>   
+> +	/*
+> +	 * Catch overflow due to message fully sent
+> +	 * before the check for RX FIFO availability.
+> +	 */
+> +	if (WARN_ON_ONCE(!(i2c_dev->msg_buf_remaining)))
+> +		return -EINVAL;
+> +
+>   	if (i2c_dev->hw->has_mst_fifo) {
+>   		val = i2c_readl(i2c_dev, I2C_MST_FIFO_STATUS);
+>   		rx_fifo_avail = (val & I2C_MST_FIFO_STATUS_RX_MASK) >>
+> @@ -515,7 +523,11 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
+>   	 * prevent overwriting past the end of buf
+>   	 */
+>   	if (rx_fifo_avail > 0 && buf_remaining > 0) {
+> -		BUG_ON(buf_remaining > 3);
+> +		/*
+> +		 * buf_remaining > 3 check not needed as rx_fifo_avail == 0
+> +		 * when (words_to_transfer was > rx_fifo_avail) earlier
+> +		 * in this function.
+> +		 */
+>   		val = i2c_readl(i2c_dev, I2C_RX_FIFO);
+>   		val = cpu_to_le32(val);
+>   		memcpy(buf, &val, buf_remaining);
+> @@ -523,7 +535,10 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
+>   		rx_fifo_avail--;
+>   	}
+>   
+> -	BUG_ON(rx_fifo_avail > 0 && buf_remaining > 0);
+> +	/* RX FIFO must be drained, otherwise it's an Overflow case. */
+> +	if (WARN_ON_ONCE(rx_fifo_avail))
+> +		return -EINVAL;
+> +
+>   	i2c_dev->msg_buf_remaining = buf_remaining;
+>   	i2c_dev->msg_buf = buf;
+>   
+> @@ -581,7 +596,11 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
+>   	 * boundary and fault.
+>   	 */
+>   	if (tx_fifo_avail > 0 && buf_remaining > 0) {
+> -		BUG_ON(buf_remaining > 3);
+> +		/*
+> +		 * buf_remaining > 3 check not needed as tx_fifo_avail == 0
+> +		 * when (words_to_transfer was > tx_fifo_avail) earlier
+> +		 * in this function for non-zero words_to_transfer.
+> +		 */
+>   		memcpy(&val, buf, buf_remaining);
+>   		val = le32_to_cpu(val);
+>   
+> @@ -847,10 +866,15 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+>   
+>   	if (!i2c_dev->is_curr_dma_xfer) {
+>   		if (i2c_dev->msg_read && (status & I2C_INT_RX_FIFO_DATA_REQ)) {
+> -			if (i2c_dev->msg_buf_remaining)
+> -				tegra_i2c_empty_rx_fifo(i2c_dev);
+> -			else
+> -				BUG();
+> +			if (tegra_i2c_empty_rx_fifo(i2c_dev)) {
+> +				/*
+> +				 * Overflow error condition: message fully sent,
+> +				 * with no XFER_COMPLETE interrupt but hardware
+> +				 * asks to transfer more.
+> +				 */
+> +				i2c_dev->msg_err |= I2C_ERR_RX_BUFFER_OVERFLOW;
+> +				goto err;
+> +			}
+>   		}
+>   
+>   		if (!i2c_dev->msg_read && (status & I2C_INT_TX_FIFO_DATA_REQ)) {
+> @@ -876,7 +900,14 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+>   	if (status & I2C_INT_PACKET_XFER_COMPLETE) {
+>   		if (i2c_dev->is_curr_dma_xfer)
+>   			i2c_dev->msg_buf_remaining = 0;
+> -		BUG_ON(i2c_dev->msg_buf_remaining);
+> +		/*
+> +		 * Underflow error condition: XFER_COMPLETE before message
+> +		 * fully sent.
+> +		 */
+> +		if (WARN_ON_ONCE(i2c_dev->msg_buf_remaining)) {
+> +			i2c_dev->msg_err |= I2C_ERR_UNKNOWN_INTERRUPT;
+> +			goto err;
+> +		}
+>   		complete(&i2c_dev->msg_complete);
+>   	}
+>   	goto done;
 > 
-> Could it be that with some specific dividers you have more jitter ?
-> Still, i2c devices tend to be rather robust vs crappy clocks unless you
-> are massively out of bounds, which makes me wonder whether something
-> else might be wrong in your setup.
-> 
-> Cheers,
-> Ben.
 
-I've reached out to hardware team to see if they can provide more inputs (such as protocol decoder output) but so far I don't have such data. I'm suspecting it's caused by I2C timing mainly because:
+Please get back if there are any further comments regarding this patch.
 
-1) the intermittent i2c transaction failures always happen to slave devices which are furthest away from ASPEED chip.
-
-2) As the i2c-aspeed driver in my kernel 4.1 tree (derived from ASPEED SDK) works properly, and I copied I2CD04 (Clock and AC Timing Control) register value from kernel 4.1 and applied to the latest upstream driver: the transaction failure is fixed :)
-
-Thank you Ben for looking into the issue and involving more experts (Ryan) for discussion. I have been suffering from the problem for several months and I'm looking forward for proper/right solutions.
-
-
-Cheers,
-
-Tao
+-regards,
+  Bitan
