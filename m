@@ -1,62 +1,74 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v5 0/7] I2C IRQ Probe Improvements
-Date: Thu, 20 Jun 2019 18:00:39 +0300
-Message-ID: <20190620150039.GF9224@smile.fi.intel.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
+Subject: Re: [PATCH v5 2/7] i2c: acpi: Use available IRQ helper functions
+Date: Thu, 20 Jun 2019 16:11:15 +0100
+Message-ID: <20190620151115.GA54126@ediswmail.ad.cirrus.com>
 References: <20190620133420.4632-1-ckeepax@opensource.cirrus.com>
+ <20190620133420.4632-3-ckeepax@opensource.cirrus.com>
+ <20190620145221.GC9224@smile.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190620133420.4632-1-ckeepax@opensource.cirrus.com>
+In-Reply-To: <20190620145221.GC9224@smile.fi.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Charles Keepax <ckeepax@opensource.cirrus.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: wsa@the-dreams.de, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jun 20, 2019 at 02:34:13PM +0100, Charles Keepax wrote:
-> This series attempts to align as much IRQ handling into the
-> probe path as possible. Note that I don't have a great setup
-> for testing these patches so they are mostly just build tested
-> and need careful review and testing before any of them are
-> merged.
+On Thu, Jun 20, 2019 at 05:52:21PM +0300, Andy Shevchenko wrote:
+> On Thu, Jun 20, 2019 at 02:34:15PM +0100, Charles Keepax wrote:
+> > Use the available IRQ helper functions, most of the functions have
+> > additional helpful side affects like configuring the trigger type of the
+> > IRQ.
+> > 
+> > Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 > 
-> The series brings the ACPI path inline with the way the device
-> tree path handles the IRQ entirely at probe time. However,
-> it still leaves any IRQ specified through the board_info as
-> being handled at device time. In that case we need to cache
-> something from the board_info until probe time, which leaves
-> any alternative solution with something basically the same as
-> the current handling although perhaps caching more stuff.
-
-Thank you for an update.
-I asked few last minute questions on per patch basis.
-
+> Some last minute observations / questions.
 > 
-> Thanks,
-> Charles
+> > +	struct resource r;
+> > +
+> > +	if (*irq <= 0 && acpi_dev_resource_interrupt(ares, 0, &r))
+> > +		*irq = i2c_dev_irq_from_resources(&r, 1);
+> > +
+> > +	return 1; /* No need to add resource to the list */
 > 
-> See previous discussions:
->  - https://lkml.org/lkml/2019/2/15/989
->  - https://www.spinics.net/lists/linux-i2c/msg39541.html
-> 
-> Charles Keepax (7):
->   i2c: core: Allow whole core to use i2c_dev_irq_from_resources
->   i2c: acpi: Use available IRQ helper functions
->   i2c: acpi: Factor out getting the IRQ from ACPI
->   i2c: core: Make i2c_acpi_get_irq available to the rest of the I2C core
->   i2c: core: Move ACPI IRQ handling to probe time
->   i2c: core: Move ACPI gpio IRQ handling into i2c_acpi_get_irq
->   i2c: core: Tidy up handling of init_irq
-> 
->  drivers/i2c/i2c-core-acpi.c | 57 +++++++++++++++++++++++++++++++--------------
->  drivers/i2c/i2c-core-base.c | 11 +++++----
->  drivers/i2c/i2c-core.h      | 11 +++++++++
->  3 files changed, 57 insertions(+), 22 deletions(-)
-> 
-> -- 
-> 2.11.0
+> If we don't add it to the list, do we still need to manage the empty
+> resource_list below?
 > 
 
--- 
-With Best Regards,
-Andy Shevchenko
+I think you are right looking closely I think we can skip this. I
+might update the comment here to make it clear the list needs
+freed if this is changed though.
+
+> >  	/* Then fill IRQ number if any */
+> >  	INIT_LIST_HEAD(&resource_list);
+> > -	ret = acpi_dev_get_resources(adev, &resource_list, NULL, NULL);
+> > +	ret = acpi_dev_get_resources(adev, &resource_list,
+> > +				     i2c_acpi_add_resource, &irq);
+> >  	if (ret < 0)
+> >  		return -EINVAL;
+> >  
+> > -	resource_list_for_each_entry(entry, &resource_list) {
+> > -		if (resource_type(entry->res) == IORESOURCE_IRQ) {
+> > -			info->irq = entry->res->start;
+> > -			break;
+> > -		}
+> > -	}
+> 
+> > +	if (irq > 0)
+> > +		info->irq = irq;
+> 
+> Hmm... can't we just assign it directly inside the _add_resource() call back as
+> original code did?
+> 
+
+Again I think you are correct here, my thinking had been to
+preserve the original functionality of only overwriting the value
+in info->irq if we found one. But it looks like all callers don't
+pass anything meaningful in this field so changing that behaviour
+shouldn't matter.
+
+Thanks,
+Charles
