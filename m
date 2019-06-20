@@ -1,58 +1,35 @@
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: Re: [PATCH v5 4/7] i2c: core: Make i2c_acpi_get_irq available to the
- rest of the I2C core
-Date: Thu, 20 Jun 2019 16:12:50 +0100
-Message-ID: <20190620151250.GB54126@ediswmail.ad.cirrus.com>
-References: <20190620133420.4632-1-ckeepax@opensource.cirrus.com>
- <20190620133420.4632-5-ckeepax@opensource.cirrus.com>
- <20190620145950.GE9224@smile.fi.intel.com>
+From: Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH] docs: fix some broken references due to txt->rst
+ renames
+Date: Thu, 20 Jun 2019 14:14:40 -0600
+Message-ID: <20190620141440.5e352241@lwn.net>
+References: <6f09587b7678f2fb378d736f45a02ffa9412cc99.1560864716.git.mchehab+samsung@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190620145950.GE9224@smile.fi.intel.com>
+In-Reply-To: <6f09587b7678f2fb378d736f45a02ffa9412cc99.1560864716.git.mchehab+samsung@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: wsa@the-dreams.de, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
+To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Ajay Gupta <ajayg@nvidia.com>, Amit Kucheria <amit.kucheria@linaro.org>, Sudeep Holla <sudeep.holla@arm.com>, Otto Sabart <ottosabart@seberm.com>, Li Yang <leoyang.li@nxp.com>, Will Deacon <will.deacon@arm.com>, devicetree@vger.kernel.org, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jun 20, 2019 at 05:59:50PM +0300, Andy Shevchenko wrote:
-> On Thu, Jun 20, 2019 at 02:34:17PM +0100, Charles Keepax wrote:
-> > In preparation for more refactoring make i2c_acpi_get_irq available
-> > outside i2c-core-acpi.c.
-> 
-> > Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> 
-> I'm not sure Rb tags are suitable for patches 4 and 5 since the changes made.
-> 
+On Tue, 18 Jun 2019 10:33:58 -0300
+Mauro Carvalho Chehab <mchehab+samsung@kernel.org> wrote:
 
-Apologies I figured the changes were small enough will remove for
-any changes in future.
-
-> > +struct acpi_device;
+> here are three left-overs from the recent file renames,
+> probably due to some other conflicting patch.
 > 
-> Hmm... Doesn't acpi.h define that for !ACPI case?
+> Fix them.
 > 
-
-Pretty sure I was getting a build error in that case.
-
-> >  #ifdef CONFIG_ACPI
-> >  const struct acpi_device_id *
-> >  i2c_acpi_match_device(const struct acpi_device_id *matches,
-> >  		      struct i2c_client *client);
-> >  void i2c_acpi_register_devices(struct i2c_adapter *adap);
-> > +
-> > +int i2c_acpi_get_irq(struct acpi_device *adev);
+> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+> ---
 > 
-> Since you call this afterwards with struct device from which companion is
-> derived, can't we directly use struct device as a parameter?
-> 
-> Yes, in case of adev call, it might be &adev->dev I suppose?
-> 
+> This patch is against today's next-20190617 branch. Not sure if it
+> will apply cleanly at -docs tree. If not,  Please let me know for me to
+> split.
 
-A good idea I will investigate and do a respin taking in the
-other comments too.
+Indeed it does not; one of the files being patched doesn't even exist in
+my world...
 
-Thanks,
-Charles
+jon
