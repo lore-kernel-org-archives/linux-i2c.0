@@ -1,74 +1,58 @@
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: Re: [PATCH v5 2/7] i2c: acpi: Use available IRQ helper functions
-Date: Thu, 20 Jun 2019 16:11:15 +0100
-Message-ID: <20190620151115.GA54126@ediswmail.ad.cirrus.com>
+Subject: Re: [PATCH v5 4/7] i2c: core: Make i2c_acpi_get_irq available to the
+ rest of the I2C core
+Date: Thu, 20 Jun 2019 16:12:50 +0100
+Message-ID: <20190620151250.GB54126@ediswmail.ad.cirrus.com>
 References: <20190620133420.4632-1-ckeepax@opensource.cirrus.com>
- <20190620133420.4632-3-ckeepax@opensource.cirrus.com>
- <20190620145221.GC9224@smile.fi.intel.com>
+ <20190620133420.4632-5-ckeepax@opensource.cirrus.com>
+ <20190620145950.GE9224@smile.fi.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190620145221.GC9224@smile.fi.intel.com>
+In-Reply-To: <20190620145950.GE9224@smile.fi.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: wsa@the-dreams.de, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jun 20, 2019 at 05:52:21PM +0300, Andy Shevchenko wrote:
-> On Thu, Jun 20, 2019 at 02:34:15PM +0100, Charles Keepax wrote:
-> > Use the available IRQ helper functions, most of the functions have
-> > additional helpful side affects like configuring the trigger type of the
-> > IRQ.
-> > 
-> > Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+On Thu, Jun 20, 2019 at 05:59:50PM +0300, Andy Shevchenko wrote:
+> On Thu, Jun 20, 2019 at 02:34:17PM +0100, Charles Keepax wrote:
+> > In preparation for more refactoring make i2c_acpi_get_irq available
+> > outside i2c-core-acpi.c.
+> 
 > > Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+> > Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 > 
-> Some last minute observations / questions.
+> I'm not sure Rb tags are suitable for patches 4 and 5 since the changes made.
 > 
-> > +	struct resource r;
+
+Apologies I figured the changes were small enough will remove for
+any changes in future.
+
+> > +struct acpi_device;
+> 
+> Hmm... Doesn't acpi.h define that for !ACPI case?
+> 
+
+Pretty sure I was getting a build error in that case.
+
+> >  #ifdef CONFIG_ACPI
+> >  const struct acpi_device_id *
+> >  i2c_acpi_match_device(const struct acpi_device_id *matches,
+> >  		      struct i2c_client *client);
+> >  void i2c_acpi_register_devices(struct i2c_adapter *adap);
 > > +
-> > +	if (*irq <= 0 && acpi_dev_resource_interrupt(ares, 0, &r))
-> > +		*irq = i2c_dev_irq_from_resources(&r, 1);
-> > +
-> > +	return 1; /* No need to add resource to the list */
+> > +int i2c_acpi_get_irq(struct acpi_device *adev);
 > 
-> If we don't add it to the list, do we still need to manage the empty
-> resource_list below?
+> Since you call this afterwards with struct device from which companion is
+> derived, can't we directly use struct device as a parameter?
 > 
-
-I think you are right looking closely I think we can skip this. I
-might update the comment here to make it clear the list needs
-freed if this is changed though.
-
-> >  	/* Then fill IRQ number if any */
-> >  	INIT_LIST_HEAD(&resource_list);
-> > -	ret = acpi_dev_get_resources(adev, &resource_list, NULL, NULL);
-> > +	ret = acpi_dev_get_resources(adev, &resource_list,
-> > +				     i2c_acpi_add_resource, &irq);
-> >  	if (ret < 0)
-> >  		return -EINVAL;
-> >  
-> > -	resource_list_for_each_entry(entry, &resource_list) {
-> > -		if (resource_type(entry->res) == IORESOURCE_IRQ) {
-> > -			info->irq = entry->res->start;
-> > -			break;
-> > -		}
-> > -	}
-> 
-> > +	if (irq > 0)
-> > +		info->irq = irq;
-> 
-> Hmm... can't we just assign it directly inside the _add_resource() call back as
-> original code did?
+> Yes, in case of adev call, it might be &adev->dev I suppose?
 > 
 
-Again I think you are correct here, my thinking had been to
-preserve the original functionality of only overwriting the value
-in info->irq if we found one. But it looks like all callers don't
-pass anything meaningful in this field so changing that behaviour
-shouldn't matter.
+A good idea I will investigate and do a respin taking in the
+other comments too.
 
 Thanks,
 Charles
