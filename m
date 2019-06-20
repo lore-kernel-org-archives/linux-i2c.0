@@ -1,45 +1,61 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v5 4/7] i2c: core: Make i2c_acpi_get_irq available to the
- rest of the I2C core
-Date: Thu, 20 Jun 2019 17:59:50 +0300
-Message-ID: <20190620145950.GE9224@smile.fi.intel.com>
+Subject: Re: [PATCH v5 0/7] I2C IRQ Probe Improvements
+Date: Thu, 20 Jun 2019 18:00:39 +0300
+Message-ID: <20190620150039.GF9224@smile.fi.intel.com>
 References: <20190620133420.4632-1-ckeepax@opensource.cirrus.com>
- <20190620133420.4632-5-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190620133420.4632-5-ckeepax@opensource.cirrus.com>
+In-Reply-To: <20190620133420.4632-1-ckeepax@opensource.cirrus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Charles Keepax <ckeepax@opensource.cirrus.com>
 Cc: wsa@the-dreams.de, mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jun 20, 2019 at 02:34:17PM +0100, Charles Keepax wrote:
-> In preparation for more refactoring make i2c_acpi_get_irq available
-> outside i2c-core-acpi.c.
+On Thu, Jun 20, 2019 at 02:34:13PM +0100, Charles Keepax wrote:
+> This series attempts to align as much IRQ handling into the
+> probe path as possible. Note that I don't have a great setup
+> for testing these patches so they are mostly just build tested
+> and need careful review and testing before any of them are
+> merged.
+> 
+> The series brings the ACPI path inline with the way the device
+> tree path handles the IRQ entirely at probe time. However,
+> it still leaves any IRQ specified through the board_info as
+> being handled at device time. In that case we need to cache
+> something from the board_info until probe time, which leaves
+> any alternative solution with something basically the same as
+> the current handling although perhaps caching more stuff.
 
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Thank you for an update.
+I asked few last minute questions on per patch basis.
 
-I'm not sure Rb tags are suitable for patches 4 and 5 since the changes made.
-
-> +struct acpi_device;
-
-Hmm... Doesn't acpi.h define that for !ACPI case?
-
->  #ifdef CONFIG_ACPI
->  const struct acpi_device_id *
->  i2c_acpi_match_device(const struct acpi_device_id *matches,
->  		      struct i2c_client *client);
->  void i2c_acpi_register_devices(struct i2c_adapter *adap);
-> +
-> +int i2c_acpi_get_irq(struct acpi_device *adev);
-
-Since you call this afterwards with struct device from which companion is
-derived, can't we directly use struct device as a parameter?
-
-Yes, in case of adev call, it might be &adev->dev I suppose?
+> 
+> Thanks,
+> Charles
+> 
+> See previous discussions:
+>  - https://lkml.org/lkml/2019/2/15/989
+>  - https://www.spinics.net/lists/linux-i2c/msg39541.html
+> 
+> Charles Keepax (7):
+>   i2c: core: Allow whole core to use i2c_dev_irq_from_resources
+>   i2c: acpi: Use available IRQ helper functions
+>   i2c: acpi: Factor out getting the IRQ from ACPI
+>   i2c: core: Make i2c_acpi_get_irq available to the rest of the I2C core
+>   i2c: core: Move ACPI IRQ handling to probe time
+>   i2c: core: Move ACPI gpio IRQ handling into i2c_acpi_get_irq
+>   i2c: core: Tidy up handling of init_irq
+> 
+>  drivers/i2c/i2c-core-acpi.c | 57 +++++++++++++++++++++++++++++++--------------
+>  drivers/i2c/i2c-core-base.c | 11 +++++----
+>  drivers/i2c/i2c-core.h      | 11 +++++++++
+>  3 files changed, 57 insertions(+), 22 deletions(-)
+> 
+> -- 
+> 2.11.0
+> 
 
 -- 
 With Best Regards,
