@@ -1,14 +1,11 @@
 From: Annaliese McDermond <nh6z@nh6z.net>
-Subject: [PATCH v2 1/2] i2c: bcm2835: Move IRQ request after clock code in
- probe
-Date: Fri, 21 Jun 2019 03:52:49 -0700
-Message-ID: <20190621105250.19858-2-nh6z@nh6z.net>
-References: <20190621105250.19858-1-nh6z@nh6z.net>
+Subject: [PATCH v2 0/2] i2c: bcm2835: Fixes for clock changes in probe function
+Date: Fri, 21 Jun 2019 03:52:48 -0700
+Message-ID: <20190621105250.19858-1-nh6z@nh6z.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190621105250.19858-1-nh6z@nh6z.net>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -22,64 +19,29 @@ To: eric@anholt.net, wahrenst@gmx.net, f.fainelli@gmail.com, wsa@the-dreams.de, 
 Cc: team@nwdigitalradio.com, Annaliese McDermond <nh6z@nh6z.net>
 List-Id: linux-i2c@vger.kernel.org
 
-If any of the clock code in the probe fails and returns, the IRQ
-will not be freed.  Moving the IRQ request to last allows it to
-be freed on any errors further up in the probe function.  devm_
-calls can apparently not be used because there are some potential
-race conditions that will arise.
+An issue was reported in [1] and [2] that the latest version of the i2c
+driver was not properly loading.  After analysis it was determined that
+the new clock code was failiing because the i2c driver was trying to
+load before the bcm2835-clk driver when not loaded as a module. This is
+fixed by actually attempting to grab a reference to the clock and failing
+out with a EPROBE_DEFER if it's not there.  This gives the other drivers
+an opportunity to load.
 
-Fixes: bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF")
+This series also fixes a related bug where the clock setup code in the
+probe function could cause an issue where the IRQ would be requested
+by the driver and never freed in case of some clock setup failure.  The
+patch moves this IRQ code to the end of the probe function where it will
+not cause this issue.
 
-Signed-off-by: Annaliese McDermond <nh6z@nh6z.net>
----
- drivers/i2c/busses/i2c-bcm2835.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+[1] - https://www.raspberrypi.org/forums/viewtopic.php?f=44&t=242856
+[2] - https://archlinuxarm.org/forum/viewtopic.php?f=23&t=13719
 
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index 108d2ae4632c..27b2f204c693 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -521,20 +521,6 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 	if (IS_ERR(i2c_dev->regs))
- 		return PTR_ERR(i2c_dev->regs);
- 
--	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
--	if (!irq) {
--		dev_err(&pdev->dev, "No IRQ resource\n");
--		return -ENODEV;
--	}
--	i2c_dev->irq = irq->start;
--
--	ret = request_irq(i2c_dev->irq, bcm2835_i2c_isr, IRQF_SHARED,
--			  dev_name(&pdev->dev), i2c_dev);
--	if (ret) {
--		dev_err(&pdev->dev, "Could not request IRQ\n");
--		return -ENODEV;
--	}
--
- 	mclk_name = of_clk_get_parent_name(pdev->dev.of_node, 0);
- 
- 	bus_clk = bcm2835_i2c_register_div(&pdev->dev, mclk_name, i2c_dev);
-@@ -564,6 +550,20 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
-+	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
-+	if (!irq) {
-+		dev_err(&pdev->dev, "No IRQ resource\n");
-+		return -ENODEV;
-+	}
-+	i2c_dev->irq = irq->start;
-+
-+	ret = request_irq(i2c_dev->irq, bcm2835_i2c_isr, IRQF_SHARED,
-+			  dev_name(&pdev->dev), i2c_dev);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Could not request IRQ\n");
-+		return -ENODEV;
-+	}
-+
- 	adap = &i2c_dev->adapter;
- 	i2c_set_adapdata(adap, i2c_dev);
- 	adap->owner = THIS_MODULE;
+Annaliese McDermond (2):
+  i2c: bcm2835: Move IRQ request after clock code in probe
+  i2c: bcm2835: Ensure clock exists when probing
+
+ drivers/i2c/busses/i2c-bcm2835.c | 42 +++++++++++++++++++-------------
+ 1 file changed, 25 insertions(+), 17 deletions(-)
+
 -- 
 2.19.1
