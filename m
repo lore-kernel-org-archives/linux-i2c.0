@@ -1,44 +1,55 @@
-From: Stefan Wahren <wahrenst@gmx.net>
-Subject: Re: [PATCH] i2c: bcm2835: Ensure clock exists when probing
-Date: Fri, 21 Jun 2019 07:18:25 +0200
-Message-ID: <4dc45e03-7c83-b0b9-7579-c06d028e0baa@gmx.net>
-References: <20190621042626.19998-1-nh6z@nh6z.net>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
+Subject: [PATCH v6 6/7] i2c: core: Move ACPI gpio IRQ handling into i2c_acpi_get_irq
+Date: Fri, 21 Jun 2019 11:08:14 +0100
+Message-ID: <20190621100815.12417-7-ckeepax@opensource.cirrus.com>
+References: <20190621100815.12417-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190621042626.19998-1-nh6z@nh6z.net>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Annaliese McDermond <nh6z@nh6z.net>, eric@anholt.net, stefan.wahren@i2se.com, f.fainelli@gmail.com, wsa@the-dreams.de, swarren@wwwdotorg.org, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
-Cc: team@nwdigitalradio.com
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190621100815.12417-1-ckeepax@opensource.cirrus.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
+Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Annaliese,
+It makes sense to contain all the ACPI IRQ handling in a single helper
+function.
 
-Am 21.06.19 um 06:26 schrieb Annaliese McDermond:
-> Probe function fails to recognize that upstram clock actually
-s/upstram/upstream/
-> doesn't yet exist because clock driver has not been initialized.
-> Actually try to go get the clock and test for its existence
-> before trying to set up a downstream clock based upon it.
->
-> This fixes a bug that causes the i2c driver not to work with
-> monolithic kernels.
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+---
+ drivers/i2c/i2c-core-acpi.c | 3 +++
+ drivers/i2c/i2c-core-base.c | 3 ---
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-I suggest to split the change into 2 patches (first reorder probing,
-second clock) with a small cover letter. This makes the changes more
-obvious and easier to review. Please also add a Fixes tags to see the
-related commit.
-
-Btw please use my new maintainer mail address
-
-Thanks Stefan
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index aaca1e216be66..042c1cb148bc6 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -169,6 +169,9 @@ int i2c_acpi_get_irq(struct device *dev)
+ 
+ 	acpi_dev_free_resource_list(&resource_list);
+ 
++	if (irq == -ENOENT)
++		irq = acpi_dev_gpio_irq_get(adev, 0);
++
+ 	return irq;
+ }
+ 
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 34de732598533..87a2ad8f41a76 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -328,9 +328,6 @@ static int i2c_device_probe(struct device *dev)
+ 				irq = of_irq_get(dev->of_node, 0);
+ 		} else if (ACPI_COMPANION(dev)) {
+ 			irq = i2c_acpi_get_irq(dev);
+-
+-			if (irq == -ENOENT)
+-				irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
+ 		}
+ 		if (irq == -EPROBE_DEFER)
+ 			return irq;
+-- 
+2.11.0
