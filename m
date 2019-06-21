@@ -1,60 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/3] include: linux: i2c: more helpers for declaring i2c
- drivers
-Date: Fri, 21 Jun 2019 23:17:44 +0200
-Message-ID: <20190621211744.GC950@kunai>
-References: <1560796779-17117-1-git-send-email-info@metux.net>
+Subject: Re: [PATCH V9] i2c: tegra: remove BUG() macro
+Date: Fri, 21 Jun 2019 23:26:40 +0200
+Message-ID: <20190621212640.GF950@kunai>
+References: <1560856182-26072-1-git-send-email-bbiswas@nvidia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="da4uJneut+ArUgXk"
+        protocol="application/pgp-signature"; boundary="vA66WO2vHvL/CRSR"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1560796779-17117-1-git-send-email-info@metux.net>
+In-Reply-To: <1560856182-26072-1-git-send-email-bbiswas@nvidia.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Cc: linux-kernel@vger.kernel.org, linus.walleij@linaro.org, bgolaszewski@baylibre.com, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Bitan Biswas <bbiswas@nvidia.com>
+Cc: Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <treding@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Dmitry Osipenko <digetx@gmail.com>, Shardar Mohammed <smohammed@nvidia.com>, Sowjanya Komatineni <skomatineni@nvidia.com>, Mantravadi Karthik <mkarthik@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---da4uJneut+ArUgXk
+--vA66WO2vHvL/CRSR
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 17, 2019 at 08:39:37PM +0200, Enrico Weigelt, metux IT consult =
-wrote:
-> From: Enrico Weigelt <info@metux.net>
+On Tue, Jun 18, 2019 at 04:09:42AM -0700, Bitan Biswas wrote:
+> The usage of BUG() macro is generally discouraged in kernel, unless
+> it's a problem that results in a physical damage or loss of data.
+> This patch removes unnecessary BUG() macros and replaces the rest
+> with warning.
 >=20
-> Add more helper macros for trivial driver init cases, similar to the
-> already existing module_i2c_driver()+friends - now for those which
-> are initialized at other stages (eg. by subsys_initcall()).
->=20
-> This helps to further reduce driver init boilerplate.
+> Signed-off-by: Bitan Biswas <bbiswas@nvidia.com>
 
-Uh, no! Using subsys_initcall is an old fashioned hack to work around
-boot time dependencies. Unless there are very strong arguments, I
-usually do not accept them anymore. So, any simplification of that sends
-out the wrong message.
+Applied to for-next, thanks!
 
 
---da4uJneut+ArUgXk
+--vA66WO2vHvL/CRSR
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0NSXgACgkQFA3kzBSg
-KbZjXw/7BDQPWzOvqZPNd97wNb483GXB/NYxRB2BDp1AfM5gWiuL/Bboumrl55JP
-p4olpY5+yuKMld0e4kFyNHAwtLYwrYtSxu/BORhV4Cw4J0JdgaCuw6fcOEgQ2nze
-vE4rBvCZ5iQHWCG077uhNkH1SdO9yiIadcycWst7DhFCCIPj5o5SNNXM6xdnLUO1
-DVcZkiO8yqQGemySpJXRGlQH6qQ3JEVTOaliWB8A49JFioI9zNkMEUyLxzw2vNvL
-PCfcDjTIDa0nwgFxoty5FNK/UJRBMwO9GOGqUfSemS/INjYp4OQ8e6q+IGYWVSUE
-0uwkg/aYvvKLCEPtBOspdRO+larQQIlkykicBDRRzzbbjG4CNgc0pyZCK1u15yQb
-Ag1T55ThdT4DS9dgWnPjHnTh6Zb3Ge3KuJu2WuwGitlA+XPKCWMIESUwZ4gyTJd/
-joshHaK0TvtqtRVxvtcEqo8JCXHd1IH0OWx/pacGPW9NkmBpjTRHIo1xGPwzFnkj
-PyC8qyh/rSDZyfVvGXDcdYOqCzj6Rznqh9rcSgGqxKWKDNaCjwk8xa3p5weahKIc
-gPJF8Z/VflyKGhpTBzFRGMpigvqfwINbWvVOi8T9FLlEkAFGNa4Ty/hI3d+xY6dj
-pNu2XykPMevZrYs2y2JDiQ1Zb+66MBl6ES5FLspJ6NV52t58wZ0=
-=5ptx
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0NS5AACgkQFA3kzBSg
+KbZGAQ/+POOwqL1aPhZCqfwAJ5oAN9IH0Mf/A2wreDZee1OnVZFXd51w3hlSweSD
+NlqQuCl42kk06T1F1epfCCh7n1jsLliF9WbvVfY8eXsjXQ4BR0HELwMF8ZAJ321S
+0qQhVG36klBTu2uj/4iR5J2i+4k0xQA/REMG8gyeY6yfaOucfx+9Mlk6oMyk82c8
+QUNhuHjWEyabSmTMnMXN2UYGi38OzjydkolrDu3rFc0AtyiqF8h7bAa9Yz7p4SZi
+hP+/JpZUpzoldhiCLnfPautGYB3r8lrPV9qBMDiKgsEg64RQHzRGdCMZkIT66fwa
+c2fJcuMdV3JPEO1COYCOKhi8VLt3t51+U3lqZiik+OyEyTBcLQzdLdzzp87Z9nE+
+M/J2QFqBeI5CpcghbluwJinfbGOG/7jc5hDnJ250G8J43HE2AKJre2cGIbNaOsNi
++UHZvP3B12nrhIwAeLCyvdwLKczHO9ZIT9GaQBPox8siWiXWVYqLa+ZD10Z8G1qx
+7sIEvgYykkX2oy82LbwByA7OGivv8atiN/ReB3SHMGGeY3nWcKneDdk3zkW8KYX7
+4YAI7HPFqqbcFTODJiDi3pnmJo16/a1FBKnjCM6FShMjGTObe45ysMzhBAT+aRrU
+Z2/a823reAyjrSU/k3NELeyqcCbdCxMQbiLbiWFXCHmTg1Jrupo=
+=abNm
 -----END PGP SIGNATURE-----
 
---da4uJneut+ArUgXk--
+--vA66WO2vHvL/CRSR--
