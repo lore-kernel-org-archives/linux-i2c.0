@@ -1,61 +1,49 @@
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH v6 1/7] i2c: core: Allow whole core to use i2c_dev_irq_from_resources
-Date: Fri, 21 Jun 2019 11:08:09 +0100
-Message-ID: <20190621100815.12417-2-ckeepax@opensource.cirrus.com>
-References: <20190621100815.12417-1-ckeepax@opensource.cirrus.com>
+Subject: [PATCH v6 0/7] I2C IRQ Probe Improvements
+Date: Fri, 21 Jun 2019 11:08:08 +0100
+Message-ID: <20190621100815.12417-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190621100815.12417-1-ckeepax@opensource.cirrus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
 Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Remove the static from i2c_dev_irq_from _resources so that other parts
-of the core code can use this helper function.
+This series attempts to align as much IRQ handling into the
+probe path as possible. Note that I don't have a great setup
+for testing these patches so they are mostly just build tested
+and need careful review and testing before any of them are
+merged.
 
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
----
-
-No changes since v5.
+The series brings the ACPI path inline with the way the device
+tree path handles the IRQ entirely at probe time. However,
+it still leaves any IRQ specified through the board_info as
+being handled at device time. In that case we need to cache
+something from the board_info until probe time, which leaves
+any alternative solution with something basically the same as
+the current handling although perhaps caching more stuff.
 
 Thanks,
 Charles
 
- drivers/i2c/i2c-core-base.c | 4 ++--
- drivers/i2c/i2c-core.h      | 2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+See previous discussions:
+ - https://lkml.org/lkml/2019/2/15/989
+ - https://www.spinics.net/lists/linux-i2c/msg39541.html
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 2569e97f9bf35..8a303246d534b 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -679,8 +679,8 @@ static void i2c_dev_set_name(struct i2c_adapter *adap,
- 		     i2c_encode_flags_to_addr(client));
- }
- 
--static int i2c_dev_irq_from_resources(const struct resource *resources,
--				      unsigned int num_resources)
-+int i2c_dev_irq_from_resources(const struct resource *resources,
-+			       unsigned int num_resources)
- {
- 	struct irq_data *irqd;
- 	int i;
-diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
-index 851c11b4c0f3a..2a3b28bf826b1 100644
---- a/drivers/i2c/i2c-core.h
-+++ b/drivers/i2c/i2c-core.h
-@@ -19,6 +19,8 @@ extern struct list_head	__i2c_board_list;
- extern int		__i2c_first_dynamic_bus_num;
- 
- int i2c_check_7bit_addr_validity_strict(unsigned short addr);
-+int i2c_dev_irq_from_resources(const struct resource *resources,
-+			       unsigned int num_resources);
- 
- /*
-  * We only allow atomic transfers for very late communication, e.g. to send
+Charles Keepax (7):
+  i2c: core: Allow whole core to use i2c_dev_irq_from_resources
+  i2c: acpi: Use available IRQ helper functions
+  i2c: acpi: Factor out getting the IRQ from ACPI
+  i2c: core: Make i2c_acpi_get_irq available to the rest of the I2C core
+  i2c: core: Move ACPI IRQ handling to probe time
+  i2c: core: Move ACPI gpio IRQ handling into i2c_acpi_get_irq
+  i2c: core: Tidy up handling of init_irq
+
+ drivers/i2c/i2c-core-acpi.c | 59 ++++++++++++++++++++++++++++++++-------------
+ drivers/i2c/i2c-core-base.c | 11 +++++----
+ drivers/i2c/i2c-core.h      |  9 +++++++
+ 3 files changed, 57 insertions(+), 22 deletions(-)
+
 -- 
 2.11.0
