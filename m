@@ -1,86 +1,85 @@
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH v6 2/7] i2c: acpi: Use available IRQ helper functions
-Date: Fri, 21 Jun 2019 11:08:10 +0100
-Message-ID: <20190621100815.12417-3-ckeepax@opensource.cirrus.com>
-References: <20190621100815.12417-1-ckeepax@opensource.cirrus.com>
+From: Annaliese McDermond <nh6z@nh6z.net>
+Subject: [PATCH v2 1/2] i2c: bcm2835: Move IRQ request after clock code in
+ probe
+Date: Fri, 21 Jun 2019 03:52:49 -0700
+Message-ID: <20190621105250.19858-2-nh6z@nh6z.net>
+References: <20190621105250.19858-1-nh6z@nh6z.net>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190621100815.12417-1-ckeepax@opensource.cirrus.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
-Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190621105250.19858-1-nh6z@nh6z.net>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: eric@anholt.net, wahrenst@gmx.net, f.fainelli@gmail.com, wsa@the-dreams.de, swarren@wwwdotorg.org, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
+Cc: team@nwdigitalradio.com, Annaliese McDermond <nh6z@nh6z.net>
 List-Id: linux-i2c@vger.kernel.org
 
-Use the available IRQ helper functions, most of the functions have
-additional helpful side affects like configuring the trigger type of the
-IRQ.
+If any of the clock code in the probe fails and returns, the IRQ
+will not be freed.  Moving the IRQ request to last allows it to
+be freed on any errors further up in the probe function.  devm_
+calls can apparently not be used because there are some potential
+race conditions that will arise.
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Fixes: bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF")
+
+Signed-off-by: Annaliese McDermond <nh6z@nh6z.net>
 ---
+ drivers/i2c/busses/i2c-bcm2835.c | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-Changes since v5:
- - Pass info->irq to i2c_acpi_add_resource directly
- - Remove call to acpi_dev_free_resource_list since we never add
-   anything to the list.
-
-Thanks,
-Charles
-
- drivers/i2c/i2c-core-acpi.c | 25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index f1d648962b223..3951e352317ff 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -133,13 +133,24 @@ static int i2c_acpi_do_lookup(struct acpi_device *adev,
- 	return 0;
- }
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index 108d2ae4632c..27b2f204c693 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -521,20 +521,6 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 	if (IS_ERR(i2c_dev->regs))
+ 		return PTR_ERR(i2c_dev->regs);
  
-+static int i2c_acpi_add_resource(struct acpi_resource *ares, void *data)
-+{
-+	int *irq = data;
-+	struct resource r;
-+
-+	if (*irq <= 0 && acpi_dev_resource_interrupt(ares, 0, &r))
-+		*irq = i2c_dev_irq_from_resources(&r, 1);
-+
-+	/* No need to add resource to the list, free list if this changes */
-+	return 1;
-+}
-+
- static int i2c_acpi_get_info(struct acpi_device *adev,
- 			     struct i2c_board_info *info,
- 			     struct i2c_adapter *adapter,
- 			     acpi_handle *adapter_handle)
- {
- 	struct list_head resource_list;
--	struct resource_entry *entry;
- 	struct i2c_acpi_lookup lookup;
- 	int ret;
- 
-@@ -172,19 +183,11 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
- 
- 	/* Then fill IRQ number if any */
- 	INIT_LIST_HEAD(&resource_list);
--	ret = acpi_dev_get_resources(adev, &resource_list, NULL, NULL);
-+	ret = acpi_dev_get_resources(adev, &resource_list,
-+				     i2c_acpi_add_resource, &info->irq);
- 	if (ret < 0)
- 		return -EINVAL;
- 
--	resource_list_for_each_entry(entry, &resource_list) {
--		if (resource_type(entry->res) == IORESOURCE_IRQ) {
--			info->irq = entry->res->start;
--			break;
--		}
+-	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+-	if (!irq) {
+-		dev_err(&pdev->dev, "No IRQ resource\n");
+-		return -ENODEV;
+-	}
+-	i2c_dev->irq = irq->start;
+-
+-	ret = request_irq(i2c_dev->irq, bcm2835_i2c_isr, IRQF_SHARED,
+-			  dev_name(&pdev->dev), i2c_dev);
+-	if (ret) {
+-		dev_err(&pdev->dev, "Could not request IRQ\n");
+-		return -ENODEV;
 -	}
 -
--	acpi_dev_free_resource_list(&resource_list);
--
- 	acpi_set_modalias(adev, dev_name(&adev->dev), info->type,
- 			  sizeof(info->type));
+ 	mclk_name = of_clk_get_parent_name(pdev->dev.of_node, 0);
  
+ 	bus_clk = bcm2835_i2c_register_div(&pdev->dev, mclk_name, i2c_dev);
+@@ -564,6 +550,20 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
++	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
++	if (!irq) {
++		dev_err(&pdev->dev, "No IRQ resource\n");
++		return -ENODEV;
++	}
++	i2c_dev->irq = irq->start;
++
++	ret = request_irq(i2c_dev->irq, bcm2835_i2c_isr, IRQF_SHARED,
++			  dev_name(&pdev->dev), i2c_dev);
++	if (ret) {
++		dev_err(&pdev->dev, "Could not request IRQ\n");
++		return -ENODEV;
++	}
++
+ 	adap = &i2c_dev->adapter;
+ 	i2c_set_adapdata(adap, i2c_dev);
+ 	adap->owner = THIS_MODULE;
 -- 
-2.11.0
+2.19.1
