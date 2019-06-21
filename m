@@ -1,46 +1,60 @@
-From: Stefan Wahren <wahrenst@gmx.net>
-Subject: Re: [PATCH v2 0/2] i2c: bcm2835: Fixes for clock changes in probe
- function
-Date: Fri, 21 Jun 2019 19:11:48 +0200
-Message-ID: <7d23a83f-4e3a-5186-78b2-2183e636b0af@gmx.net>
-References: <20190621105250.19858-1-nh6z@nh6z.net>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3] i2c: i2c-stm32f7: fix the get_irq error cases
+Date: Fri, 21 Jun 2019 23:14:02 +0200
+Message-ID: <20190621211402.GB950@kunai>
+References: <1560757981-10532-1-git-send-email-fabrice.gasnier@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190621105250.19858-1-nh6z@nh6z.net>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Annaliese McDermond <nh6z@nh6z.net>, eric@anholt.net, f.fainelli@gmail.com, wsa@the-dreams.de, swarren@wwwdotorg.org, linux-i2c@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org
-Cc: team@nwdigitalradio.com
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="l76fUT7nc3MelDdI"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1560757981-10532-1-git-send-email-fabrice.gasnier@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Fabrice Gasnier <fabrice.gasnier@st.com>
+Cc: pierre-yves.mordret@st.com, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, marc.w.gonzalez@free.fr, fabien.dessenne@st.com
 List-Id: linux-i2c@vger.kernel.org
 
-Am 21.06.19 um 12:52 schrieb Annaliese McDermond:
-> An issue was reported in [1] and [2] that the latest version of the i2c
-> driver was not properly loading.  After analysis it was determined that
-> the new clock code was failiing because the i2c driver was trying to
-> load before the bcm2835-clk driver when not loaded as a module. This is
-> fixed by actually attempting to grab a reference to the clock and failing
-> out with a EPROBE_DEFER if it's not there.  This gives the other drivers
-> an opportunity to load.
->
-> This series also fixes a related bug where the clock setup code in the
-> probe function could cause an issue where the IRQ would be requested
-> by the driver and never freed in case of some clock setup failure.  The
-> patch moves this IRQ code to the end of the probe function where it will
-> not cause this issue.
->
-> [1] - https://www.raspberrypi.org/forums/viewtopic.php?f=44&t=242856
-> [2] - https://archlinuxarm.org/forum/viewtopic.php?f=23&t=13719
 
-This whole series is:
+--l76fUT7nc3MelDdI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: Stefan Wahren <wahrenst@gmx.net>
+On Mon, Jun 17, 2019 at 09:53:01AM +0200, Fabrice Gasnier wrote:
+> During probe, return the "get_irq" error value instead of -EINVAL which
+> allows the driver to be deferred probed if needed.
+> Fix also the case where of_irq_get() returns a negative value.
+> Note :
+> On failure of_irq_get() returns 0 or a negative value while
+> platform_get_irq() returns a negative value.
+>=20
+> Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
+>=20
+> Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+> Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
+> Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+
+Applied to for-next, thanks!
+
+
+--l76fUT7nc3MelDdI
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0NSJoACgkQFA3kzBSg
+KbaKLg/+IDVBZI+FWBpYna0/CpvmO5Uyzx0xj2RFArNr4l7IySOTfA79vSKuZ+cx
+VB+ap4ihOQ5gta95Jt7ZFgHj1h81yy/5ER2C8yCbn9NNkv5NjF3HvVSNaolQuU4q
+LIDq5JjlKMOExTBuRFfDvDC4jnTAPZcIv9KfxsC98tK4u47jzh2GIAnrX/BjIydl
+khpnpg1KwbS52qFfm6OxxKtZBZrIJg42kEt7IH7AYG3IqpE52zO0Xg92e5HVdRJV
+KP/E13T5YZXONCzT8ZB4vYiPC0lpl3QFCEO1VpwVCTM/AqxTA573L9GOmoFurPra
+6vkNeUgZdfBXvTvIQo1Qteuuim8NfpZMy/Q44WZUDNVG5VEGzlDFli3j3z5GON9r
+c0N1SbA9ev+U+4Lrw+6N+RLG3VKNiEAKLILKWzP3Kc4KOlRZDa6mxgTdHL3E9i86
+stVEayxqkOZPiTtmb8AaJz513cWFMIlnqolWZqgl5hXL80JHE7lmebA7xC0GzN6z
+o8V33npjYNMPH8vaS4Fm+2Huo3q95A1DccuN3xqhx6WClG3vrpkImyBOKEla15NT
+Ox70qsmBi2q+rXdqcM/g5gaedc/568Le2FT/whNDxr3mJ8o6lGfwRDupZFKGN8Vm
+8LJRUVAA5fokwSR9C1IJfHHJgGi47RA8dBJy3pLJWV4BbjrbGtg=
+=etZv
+-----END PGP SIGNATURE-----
+
+--l76fUT7nc3MelDdI--
