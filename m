@@ -1,60 +1,46 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
 Subject: Re: [PATCH 1/3] include: linux: i2c: more helpers for declaring i2c
  drivers
-Date: Mon, 24 Jun 2019 10:44:27 +0200
-Message-ID: <20190624084427.GA1014@kunai>
+Date: Mon, 24 Jun 2019 10:59:17 +0200
+Message-ID: <205d0ef7-d487-006b-d104-88958f40e197@metux.net>
 References: <1560796779-17117-1-git-send-email-info@metux.net>
- <20190621211744.GC950@kunai>
- <c669a041-f025-693a-492a-80ce888db737@metux.net>
+ <20190621211744.GC950@kunai> <c669a041-f025-693a-492a-80ce888db737@metux.net>
+ <20190624084427.GA1014@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <c669a041-f025-693a-492a-80ce888db737@metux.net>
+In-Reply-To: <20190624084427.GA1014@kunai>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
+To: Wolfram Sang <wsa@the-dreams.de>
 Cc: "Enrico Weigelt, metux IT consult" <info@metux.net>, linux-kernel@vger.kernel.org, linus.walleij@linaro.org, bgolaszewski@baylibre.com, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 24.06.19 10:44, Wolfram Sang wrote:
 
---9jxsPFA5p3P2qPhR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> The correct solution is to fix the boot dependency in the affected I2C
+> client drivers. That definately needs HW and thorough testing.
+> 
+> It may also need something better than the current deferred probe. Big
+> topic.
+
+So, then the current approach of using subsys_initcall() can't be
+changed easily, right now. But planned for the future (or at least
+not introducing new caes).
+
+But: how does that conflict w/ just moving the existing redundant
+pieces into a helper macro ? The logic stays the same - just using
+a shorter notation. (assuming my patch isn't buggy ;-)).
+
+I can add a remark in the function documentation that this shall
+only by used in rare cases, and maybe something like "that's just
+legacy  - introducing  new caller is most certainly wrong" ;-)
 
 
-> Okay, what's the correct initialization method then ?
-> Just convert it to already existing module_i2c_driver() ?
+--mtx
 
-"module_platform_driver" you mean? That's tricky because it can
-introduce regressions easily. I had one situation where one wanted
-subsys_init and one wanted module_init.
-
-The correct solution is to fix the boot dependency in the affected I2C
-client drivers. That definately needs HW and thorough testing.
-
-It may also need something better than the current deferred probe. Big
-topic.
-
-
---9jxsPFA5p3P2qPhR
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0QjWcACgkQFA3kzBSg
-Kba6KQ/+IrEzoHbD83+bm8LnEjqeS/uxQqdU5H+QGLisgt8JNWkTX98cpx6LRTex
-NiAXDmg6yvZxOew2cB+lTdcbs/4N9BhTdRlYpCwpT+f28udsB1eeKRVWmQRfI1Op
-j9sVIIK5CyvIKfnX6nNYKplz1Hiq+5Plstigjqu695n78nLhKPFAMNvIOi/3JuQq
-Pcyy9AAxFFU6stvxLb6jtFTW9IMK6NYy4UUQB/b5CGFdAenmdrFbQyHZQq6JaU1r
-QigZ9wafmD/nUCXy5yfVAU6Fe14+OZyf+r81eKK8Wcsa4q82eLMjXmSAMe1xestF
-1NNDy8B3/vr5B/pgfjNu6nIwZ+zkUDZxTdMULm0tHgbNG83ZDhafVRbkuhBaDmeU
-7d/y7+zDeZh8yDNGh7G6N++Y6CDMBmK5hpoSAf6vixQNp3MJr1qoFU6diZlUAtIc
-MeFj18lSRF0sjzxWAYA6Fy64zA/1bqpC3mR+rOqCeK6Lgv1TZ0+VY7CQMfbx/5MH
-4MA5bDKacpUoL9FGS6JZl/F+HteIuTP1YYXkaiEk/utUZCB1pdv4F5JWtIoXs66w
-U5W+FprEMJRGuf51YRXcr43FWCm13QhXUDSi8qN70dC8UqGMvf61jW8MICskROx2
-Af12uBnPkqsS2OanoYNdnQJvxUWQaCJKBXdla2j3vQHDo4KxNLY=
-=PWGk
------END PGP SIGNATURE-----
-
---9jxsPFA5p3P2qPhR--
+-- 
+Enrico Weigelt, metux IT consult
+Free software and Linux embedded engineering
+info@metux.net -- +49-151-27565287
