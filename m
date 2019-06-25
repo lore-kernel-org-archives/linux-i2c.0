@@ -1,46 +1,47 @@
-From: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
-Subject: Re: [PATCH 1/3] include: linux: i2c: more helpers for declaring i2c
- drivers
-Date: Mon, 24 Jun 2019 10:59:17 +0200
-Message-ID: <205d0ef7-d487-006b-d104-88958f40e197@metux.net>
-References: <1560796779-17117-1-git-send-email-info@metux.net>
- <20190621211744.GC950@kunai> <c669a041-f025-693a-492a-80ce888db737@metux.net>
- <20190624084427.GA1014@kunai>
+From: <Eugen.Hristev@microchip.com>
+Subject: [PATCH v2 0/9] i2c: at91: filters support for at91 SoCs
+Date: Tue, 25 Jun 2019 08:04:41 +0000
+Message-ID: <1561449642-26956-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190624084427.GA1014@kunai>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "Enrico Weigelt, metux IT consult" <info@metux.net>, linux-kernel@vger.kernel.org, linus.walleij@linaro.org, bgolaszewski@baylibre.com, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+To: robh+dt@kernel.org, mark.rutland@arm.com, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, Ludovic.Desroches@microchip.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: Eugen.Hristev@microchip.com
 List-Id: linux-i2c@vger.kernel.org
 
-On 24.06.19 10:44, Wolfram Sang wrote:
-
-> The correct solution is to fix the boot dependency in the affected I2C
-> client drivers. That definately needs HW and thorough testing.
-> 
-> It may also need something better than the current deferred probe. Big
-> topic.
-
-So, then the current approach of using subsys_initcall() can't be
-changed easily, right now. But planned for the future (or at least
-not introducing new caes).
-
-But: how does that conflict w/ just moving the existing redundant
-pieces into a helper macro ? The logic stays the same - just using
-a shorter notation. (assuming my patch isn't buggy ;-)).
-
-I can add a remark in the function documentation that this shall
-only by used in rare cases, and maybe something like "that's just
-legacy  - introducing  new caller is most certainly wrong" ;-)
-
-
---mtx
-
--- 
-Enrico Weigelt, metux IT consult
-Free software and Linux embedded engineering
-info@metux.net -- +49-151-27565287
+RnJvbTogRXVnZW4gSHJpc3RldiA8ZXVnZW4uaHJpc3RldkBtaWNyb2NoaXAuY29tPg0KDQpUaGlz
+IHNlcmllcyBhZGRzIHRoZSBzdXBwb3J0IGZvciBpMmMgZmlsdGVyczogYW5hbG9nIGFuZCBkaWdp
+dGFsIGZpbHRlcg0KDQpkaWdpdGFsIGZpbHRlciBpcyBhdmFpbGFibGUgZm9yIHNhbWE1ZDQNCmFu
+IGFkdmFuY2VkIGRpZ2l0YWwgZmlsdGVyIHRoYXQgYWxsb3dzIHRocmVzaG9sZCBjb25maWd1cmF0
+aW9uIGlzIGF2YWlsYWJsZQ0KZm9yIHNhbWE1ZDIgYW5kIHNhbTl4NjANCmFuYWxvZyBmaWx0ZXJp
+bmcgaXMgYXZhaWxhYmxlIGZvciBzYW1hNWQyIGFuZCBzYW05eDYwDQoNClRoaXMgc2VyaWVzIGFs
+c28gYWRkcyBwbGF0Zm9ybSBkYXRhIGZvciBzYW05eDYwIHRvIHRoZSBkcml2ZXINCg0KSW4gdGhp
+cyBzZXJpZXMgdmVyc2lvbiwgdGhlIGVuYWJsZW1lbnQgb2YgdGhlIGZpbHRlcnMgaXMgdmlhIERl
+dmljZSB0cmVlLA0KYXMgcmVxdWVzdGVkIGJ5IEFsZXhhbmRyZSBCZWxsb25pLiBUaGUgUENCL2Jv
+YXJkIHNwZWNpZmljIG5vaXNlIGlzIGhhcmR3YXJlDQpkZXBlbmRlbnQuDQoNClRoZSBwbGF0Zm9y
+bSBkYXRhIHByb3BlcnRpZXMga2VlcCB0aGUgc2FtZSBwYXR0ZXJuIDogc2V0IGZvciBlYWNoIFNv
+Qw0KdHJ1ZS9mYWxzZSB2YWx1ZSBhcyBpdCBpcyBkb25lIGZvciBwcmV2aW91cyBwcm9wZXJ0aWVz
+Lg0KDQpDaGFuZ2VzIGluIHYyOg0KLSBhZGRlZCBkZXZpY2UgdHJlZSBiaW5kaW5ncyBhbmQgc3Vw
+cG9ydCBmb3IgZW5hYmxlLWFuYS1maWx0IGFuZA0KZW5hYmxlLWRpZy1maWx0DQotIGFkZGVkIHRo
+ZSBuZXcgcHJvcGVydGllcyB0byB0aGUgRFQgZm9yIHNhbWE1ZDRfeHBsYWluZWQvc2FtYTVkMl94
+cGxhaW5lZA0KDQpFdWdlbiBIcmlzdGV2ICg5KToNCiAgZHQtYmluZGluZ3M6IGkyYzogYXQ5MTog
+YWRkIG5ldyBjb21wYXRpYmxlDQogIGkyYzogYXQ5MTogYWRkIG5ldyBwbGF0Zm9ybSBzdXBwb3J0
+IGZvciBzYW05eDYwDQogIGR0LWJpbmRpbmdzOiBpMmM6IGF0OTE6IGFkZCBiaW5kaW5nIGZvciBl
+bmFibGUtZGlnLWZpbHRyDQogIGkyYzogYXQ5MTogYWRkIHN1cHBvcnQgZm9yIGRpZ2l0YWwgZmls
+dGVyaW5nDQogIGkyYzogYXQ5MTogYWRkIHN1cHBvcnQgZm9yIGFkdmFuY2VkIGRpZ2l0YWwgZmls
+dGVyaW5nDQogIGR0LWJpbmRpbmdzOiBpMmM6IGF0OTE6IGFkZCBiaW5kaW5nIGZvciBlbmFibGUt
+YW5hLWZpbHQNCiAgaTJjOiBhdDkxOiBhZGQgc3VwcG9ydCBmb3IgYW5hbG9nIGZpbHRlcmluZw0K
+ICBBUk06IGR0czogYXQ5MTogc2FtYTVkMl94cGxhaW5lZDogYWRkIGFuYWxvZ2ljIGFuZCBkaWdp
+dGFsIGZpbHRlciBmb3INCiAgICBpMmMNCiAgQVJNOiBkdHM6IGF0OTE6IHNhbWE1ZDRfeHBsYWlu
+ZWQ6IGFkZCBhbmFsb2dpYyBmaWx0ZXIgZm9yIGkyYw0KDQogRG9jdW1lbnRhdGlvbi9kZXZpY2V0
+cmVlL2JpbmRpbmdzL2kyYy9pMmMtYXQ5MS50eHQgfCAxMSArKysrKystDQogYXJjaC9hcm0vYm9v
+dC9kdHMvYXQ5MS1zYW1hNWQyX3hwbGFpbmVkLmR0cyAgICAgICAgfCAgNCArKysNCiBhcmNoL2Fy
+bS9ib290L2R0cy9hdDkxLXNhbWE1ZDRfeHBsYWluZWQuZHRzICAgICAgICB8ICAxICsNCiBkcml2
+ZXJzL2kyYy9idXNzZXMvaTJjLWF0OTEtY29yZS5jICAgICAgICAgICAgICAgICB8IDM4ICsrKysr
+KysrKysrKysrKysrKysrKysNCiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWF0OTEtbWFzdGVyLmMg
+ICAgICAgICAgICAgICB8IDI0ICsrKysrKysrKysrKysrDQogZHJpdmVycy9pMmMvYnVzc2VzL2ky
+Yy1hdDkxLmggICAgICAgICAgICAgICAgICAgICAgfCAxMiArKysrKysrDQogNiBmaWxlcyBjaGFu
+Z2VkLCA4OSBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pDQoNCi0tIA0KMi43LjQNCg0K
