@@ -1,51 +1,43 @@
-From: <Eugen.Hristev@microchip.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Subject: Re: [PATCH v2 6/9] dt-bindings: i2c: at91: add binding for
  enable-ana-filt
-Date: Tue, 25 Jun 2019 09:14:13 +0000
-Message-ID: <84628b5e-bea7-7d91-f790-f3a2650040fa@microchip.com>
+Date: Tue, 25 Jun 2019 11:31:56 +0200
+Message-ID: <20190625093156.GF5690@piout.net>
 References: <1561449642-26956-1-git-send-email-eugen.hristev@microchip.com>
  <1561449642-26956-7-git-send-email-eugen.hristev@microchip.com>
  <4e81d3c9-25f3-ca6e-f2d5-17fad5905bb8@axentia.se>
+ <84628b5e-bea7-7d91-f790-f3a2650040fa@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4e81d3c9-25f3-ca6e-f2d5-17fad5905bb8@axentia.se>
-Content-Language: en-US
-Content-ID: <21506B8E5B03ED40A516D9564C071A00@namprd11.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <84628b5e-bea7-7d91-f790-f3a2650040fa@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: peda@axentia.se, robh+dt@kernel.org, mark.rutland@arm.com, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, Ludovic.Desroches@microchip.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Eugen.Hristev@microchip.com
+Cc: peda@axentia.se, robh+dt@kernel.org, mark.rutland@arm.com, Nicolas.Ferre@microchip.com, Ludovic.Desroches@microchip.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-DQoNCk9uIDI1LjA2LjIwMTkgMTE6NTUsIFBldGVyIFJvc2luIHdyb3RlOg0KDQo+IA0KPiBPbiAy
-MDE5LTA2LTI1IDEwOjA1LCBFdWdlbi5IcmlzdGV2QG1pY3JvY2hpcC5jb20gd3JvdGU6DQo+PiBG
-cm9tOiBFdWdlbiBIcmlzdGV2IDxldWdlbi5ocmlzdGV2QG1pY3JvY2hpcC5jb20+DQo+Pg0KPj4g
-QWRkIGJpbmRpbmcgc3BlY2lmaWNhdGlvbiBmb3IgYW5hbG9naWMgZmlsdGVyIGluc2lkZSB0aGUg
-aTJjIGNvbnRyb2xsZXINCj4gDQo+IHMvYW5hbG9naWMvdGhlIGFuYWxvZy8NCj4gDQo+PiBTaWdu
-ZWQtb2ZmLWJ5OiBFdWdlbiBIcmlzdGV2IDxldWdlbi5ocmlzdGV2QG1pY3JvY2hpcC5jb20+DQo+
-PiAtLS0NCj4+ICAgRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtYXQ5
-MS50eHQgfCA0ICsrKysNCj4+ICAgMSBmaWxlIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKQ0KPj4N
-Cj4+IGRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2ky
-Yy1hdDkxLnR4dCBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLWF0
-OTEudHh0DQo+PiBpbmRleCA4MjY4NTk1Li4yMGQzMzRjIDEwMDY0NA0KPj4gLS0tIGEvRG9jdW1l
-bnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtYXQ5MS50eHQNCj4+ICsrKyBiL0Rv
-Y3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLWF0OTEudHh0DQo+PiBAQCAt
-MjMsNiArMjMsOSBAQCBPcHRpb25hbCBwcm9wZXJ0aWVzOg0KPj4gICAtIGVuYWJsZS1kaWctZmls
-dDogRW5hYmxlIHRoZSBidWlsdC1pbiBkaWdpdGFsIGZpbHRlciBvbiB0aGUgaTJjIGxpbmVzLA0K
-Pj4gICAgIHNwZWNpZmljYWxseSByZXF1aXJlZCBkZXBlbmRpbmcgb24gdGhlIGhhcmR3YXJlIFBD
-Qi9ib2FyZCBhbmQgaWYgdGhlDQo+PiAgICAgdmVyc2lvbiBvZiB0aGUgY29udHJvbGxlciBpbmNs
-dWRlcyBpdC4NCj4+ICstIGVuYWJsZS1hbmEtZmlsdDogRW5hYmxlIHRoZSBidWlsdC1pbiBhbmFs
-b2dpYyBmaWx0ZXIgb24gdGhlIGkyYyBsaW5lcywNCj4+ICsgIHNwZWNpZmljYWxseSByZXF1aXJl
-ZCBkZXBlbmRpbmcgb24gdGhlIGhhcmR3YXJlIFBDQi9ib2FyZCBhbmQgaWYgdGhlDQo+PiArICB2
-ZXJzaW9uIG9mIHRoZSBjb250cm9sbGVyIGluY2x1ZGVzIGl0Lg0KPj4gICAtIENoaWxkIG5vZGVz
-IGNvbmZvcm1pbmcgdG8gaTJjIGJ1cyBiaW5kaW5nDQo+PiAgIA0KPj4gICBFeGFtcGxlcyA6DQo+
-PiBAQCAtNjAsNiArNjMsNyBAQCBpMmMwOiBpMmNAZjgwMzQ2MDAgew0KPj4gICAJYXRtZWwsZmlm
-by1zaXplID0gPDE2PjsNCj4+ICAgCWkyYy1zZGEtaG9sZC10aW1lLW5zID0gPDMzNj47DQo+PiAg
-IAllbmFibGUtZGlnLWZpbHQ7DQo+PiArCWVuYWJsZS1hbmEtZmlsdDsNCj4gDQo+IFBlcmhhcHMN
-Cj4gDQo+IAltaWNyb2NoaXAsZGlnaXRhbC1maWx0ZXI7DQo+IAltaWNyb2NoaXAsYW5hbG9nLWZp
-bHRlcjsNCj4gDQo+ID8NCg0KSGkgUGV0ZXIsDQoNClRoYW5rcyBmb3IgcmV2aWV3aW5nLiBUaGUg
-bmFtZSBvZiB0aGUgcHJvcGVydHkgZG9lcyBub3QgbWF0dGVyIG11Y2ggdG8gDQptZSwgYW5kIHdl
-IGhhdmUgcHJvcGVydGllcyBwcmVmaXhlZCB3aXRoIHZlbmRvciwgYW5kIHNvbWUgYXJlIG5vdC4N
-Cg0KQEFsZXhhbmRyZSBCZWxsb25pOiB3aGljaCBuYW1lIHlvdSB0aGluayBpdCdzIGJlc3QgPw0K
-DQpFdWdlbg0KDQo+IA0KPiBDaGVlcnMsDQo+IFBldGVyDQo+IA0KPj4gICANCj4+ICAgCXdtODcz
-MTogd204NzMxQDFhIHsNCj4+ICAgCQljb21wYXRpYmxlID0gIndtODczMSI7DQo+Pg0KPiANCg==
+On 25/06/2019 09:14:13+0000, Eugen.Hristev@microchip.com wrote:
+> > Perhaps
+> > 
+> > 	microchip,digital-filter;
+> > 	microchip,analog-filter;
+> > 
+> > ?
+> 
+> Hi Peter,
+> 
+> Thanks for reviewing. The name of the property does not matter much to 
+> me, and we have properties prefixed with vendor, and some are not.
+> 
+> @Alexandre Belloni: which name you think it's best ?
+> 
+
+I'm not sure, it depends on whether Wolfram thinks it is generic enough
+to be used without a vendor prefix.
+
+
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
