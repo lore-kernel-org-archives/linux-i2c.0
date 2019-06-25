@@ -1,101 +1,32 @@
-From: AceLan Kao <acelan.kao@canonical.com>
-Subject: [PATCH] i2c: designware: Add disable runtime pm quirk
-Date: Tue, 25 Jun 2019 16:30:51 +0800
-Message-ID: <20190625083051.30332-1-acelan.kao@canonical.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v2 9/9] ARM: dts: at91: sama5d4_xplained: add analogic
+ filter for i2c
+Date: Tue, 25 Jun 2019 08:51:27 +0000
+Message-ID: <8b964ca4-58b6-5560-b06a-da3ad98dd36d@axentia.se>
+References: <1561449642-26956-1-git-send-email-eugen.hristev@microchip.com>
+ <1561449642-26956-10-git-send-email-eugen.hristev@microchip.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1561449642-26956-10-git-send-email-eugen.hristev@microchip.com>
+Content-Language: en-US
+Content-ID: <30346D7CF884B04D8E7CF466AED05481@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Eugen.Hristev@microchip.com" <Eugen.Hristev@microchip.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "Nicolas.Ferre@microchip.com" <Nicolas.Ferre@microchip.com>, "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>, "Ludovic.Desroches@microchip.com" <Ludovic.Desroches@microchip.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Dell machines come with goodix touchpad IC suffer from the double click
-issue if the Designware I2C adapter enters runtime suspend.
-
-It's because the goodix re-assert the interrupt if host doesn't read the
-data within 100ms and designware takes a longer time to wake up from
-runtime suspend. In the case, it got a second interrupt during
-resuming, so it thinks it's a double click.
-
-There is no simple way to fix this, it's a firmware issue and goodix
-agrees to fix this in their firmware on next release, but this issue
-still affects the machines that don't come with an updated firmware. So,
-add a quirk to mark those machines and avoid the designware from
-entering runtime suspend.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=202683
-
-Signed-off-by: AceLan Kao <acelan.kao@canonical.com>
----
- drivers/i2c/busses/i2c-designware-master.c | 30 ++++++++++++++++++++--
- 1 file changed, 28 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index d464799e40a3..4048a66355f6 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -9,6 +9,7 @@
-  * Copyright (C) 2009 Provigent Ltd.
-  */
- #include <linux/delay.h>
-+#include <linux/dmi.h>
- #include <linux/err.h>
- #include <linux/errno.h>
- #include <linux/export.h>
-@@ -22,6 +23,25 @@
- 
- #include "i2c-designware-core.h"
- 
-+static int no_runtime_pm;
-+static const struct dmi_system_id i2c_dw_no_runtime_pm[] = {
-+	{
-+		.ident = "Dell Inspiron 5390",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 5390"),
-+		},
-+	},
-+	{
-+		.ident = "Dell Vostro 5390",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Vostro 5390"),
-+		},
-+	},
-+	{ }
-+};
-+
- static void i2c_dw_configure_fifo_master(struct dw_i2c_dev *dev)
- {
- 	/* Configure Tx/Rx FIFO threshold levels */
-@@ -424,7 +444,8 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 
- 	dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
- 
--	pm_runtime_get_sync(dev->dev);
-+	if (!no_runtime_pm)
-+		pm_runtime_get_sync(dev->dev);
- 
- 	if (dev_WARN_ONCE(dev->dev, dev->suspended, "Transfer while suspended\n")) {
- 		ret = -ESHUTDOWN;
-@@ -501,7 +522,8 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 
- done_nolock:
- 	pm_runtime_mark_last_busy(dev->dev);
--	pm_runtime_put_autosuspend(dev->dev);
-+	if (!no_runtime_pm)
-+		pm_runtime_put_autosuspend(dev->dev);
- 
- 	return ret;
- }
-@@ -733,6 +755,10 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
- 	if (ret)
- 		return ret;
- 
-+	no_runtime_pm = dmi_check_system(i2c_dw_no_runtime_pm);
-+	if (no_runtime_pm)
-+		__pm_runtime_disable(dev->dev, true);
-+
- 	/*
- 	 * Increment PM usage count during adapter registration in order to
- 	 * avoid possible spurious runtime suspend when adapter device is
--- 
-2.17.1
+T24gMjAxOS0wNi0yNSAxMDowNSwgRXVnZW4uSHJpc3RldkBtaWNyb2NoaXAuY29tIHdyb3RlOg0K
+PiBGcm9tOiBFdWdlbiBIcmlzdGV2IDxldWdlbi5ocmlzdGV2QG1pY3JvY2hpcC5jb20+DQo+IA0K
+PiBBZGQgcHJvcGVydHkgZm9yIGRpZ2l0YWwgZmlsdGVyIGZvciBpMmMwIG5vZGUgc2FtYTVkNF94
+cGxhaW5lZA0KDQpUaGlzIGRvZXMgbm90IG1hdGNoIHRoZSBiZWxvdyBodW5rLg0KDQpDaGVlcnMs
+DQpQZXRlcg0KDQo+IFNpZ25lZC1vZmYtYnk6IEV1Z2VuIEhyaXN0ZXYgPGV1Z2VuLmhyaXN0ZXZA
+bWljcm9jaGlwLmNvbT4NCj4gLS0tDQo+ICBhcmNoL2FybS9ib290L2R0cy9hdDkxLXNhbWE1ZDRf
+eHBsYWluZWQuZHRzIHwgMSArDQo+ICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKykNCj4g
+DQo+IGRpZmYgLS1naXQgYS9hcmNoL2FybS9ib290L2R0cy9hdDkxLXNhbWE1ZDRfeHBsYWluZWQu
+ZHRzIGIvYXJjaC9hcm0vYm9vdC9kdHMvYXQ5MS1zYW1hNWQ0X3hwbGFpbmVkLmR0cw0KPiBpbmRl
+eCBmZGZjMzdkLi4wNjA2OGRjIDEwMDY0NA0KPiAtLS0gYS9hcmNoL2FybS9ib290L2R0cy9hdDkx
+LXNhbWE1ZDRfeHBsYWluZWQuZHRzDQo+ICsrKyBiL2FyY2gvYXJtL2Jvb3QvZHRzL2F0OTEtc2Ft
+YTVkNF94cGxhaW5lZC5kdHMNCj4gQEAgLTQ5LDYgKzQ5LDcgQEANCj4gIAkJCX07DQo+ICANCj4g
+IAkJCWkyYzA6IGkyY0BmODAxNDAwMCB7DQo+ICsJCQkJZW5hYmxlLWFuYS1maWx0Ow0KPiAgCQkJ
+CXN0YXR1cyA9ICJva2F5IjsNCj4gIAkJCX07DQo+ICANCj4gDQoNCg==
