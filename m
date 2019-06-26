@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 44/51] i2c: pca-platform: Fix GPIO lookup code
-Date: Tue, 25 Jun 2019 23:41:00 -0400
-Message-ID: <20190626034117.23247-44-sashal@kernel.org>
-References: <20190626034117.23247-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 28/34] i2c: pca-platform: Fix GPIO lookup code
+Date: Tue, 25 Jun 2019 23:43:29 -0400
+Message-ID: <20190626034335.23767-28-sashal@kernel.org>
+References: <20190626034335.23767-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190626034117.23247-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190626034335.23767-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Linus Walleij <linus.walleij@linaro.org>, Chris Packham <chris.packham@alliedtelesis.co.nz>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
