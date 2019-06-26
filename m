@@ -1,98 +1,60 @@
-From: AceLan Kao <acelan.kao@canonical.com>
-Subject: Re: [PATCH] i2c: designware: Add disable runtime pm quirk
-Date: Wed, 26 Jun 2019 10:32:57 +0800
-Message-ID: <CAFv23QnaKMs9bjS9ry_L4K7wskUqNR2AsgDG-v+fah2XO7EpKw@mail.gmail.com>
-References: <20190625083051.30332-1-acelan.kao@canonical.com> <a3469010-829c-16dc-be83-6fe9b3021530@linux.intel.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 44/51] i2c: pca-platform: Fix GPIO lookup code
+Date: Tue, 25 Jun 2019 23:41:00 -0400
+Message-ID: <20190626034117.23247-44-sashal@kernel.org>
+References: <20190626034117.23247-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a3469010-829c-16dc-be83-6fe9b3021530@linux.intel.com>
+In-Reply-To: <20190626034117.23247-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Linus Walleij <linus.walleij@linaro.org>, Chris Packham <chris.packham@alliedtelesis.co.nz>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Adding I2C_HID_QUIRK_NO_RUNTIME_PM quirk doesn't help on this issue.
-Actually, Goodix touchpad already has that PM quirk in the list for other issue.
-        { I2C_VENDOR_ID_GOODIX, I2C_DEVICE_ID_GOODIX_01F0,
-               I2C_HID_QUIRK_NO_RUNTIME_PM },
-I also modify the code as you suggested, but no luck.
+From: Linus Walleij <linus.walleij@linaro.org>
 
-It's not Goodix takes time to wakeup, it's designware I2C controller.
-Designware doesn't do anything wrong here, it's Goodix set the interrupt timeout
-that leads to the issue, so we have to prevent designware from runtime
-suspended.
+[ Upstream commit a0cac264a86fbf4d6cb201fbbb73c1d335e3248a ]
 
-Jarkko Nikula <jarkko.nikula@linux.intel.com> 於 2019年6月25日 週二 下午9:38寫道：
->
-> On 6/25/19 11:30 AM, AceLan Kao wrote:
-> > Dell machines come with goodix touchpad IC suffer from the double click
-> > issue if the Designware I2C adapter enters runtime suspend.
-> >
-> > It's because the goodix re-assert the interrupt if host doesn't read the
-> > data within 100ms and designware takes a longer time to wake up from
-> > runtime suspend. In the case, it got a second interrupt during
-> > resuming, so it thinks it's a double click.
-> >
-> > There is no simple way to fix this, it's a firmware issue and goodix
-> > agrees to fix this in their firmware on next release, but this issue
-> > still affects the machines that don't come with an updated firmware. So,
-> > add a quirk to mark those machines and avoid the designware from
-> > entering runtime suspend.
-> >
-> > Link: https://bugzilla.kernel.org/show_bug.cgi?id=202683
-> >
-> > Signed-off-by: AceLan Kao <acelan.kao@canonical.com>
-> > ---
-> >   drivers/i2c/busses/i2c-designware-master.c | 30 ++++++++++++++++++++--
-> >   1 file changed, 28 insertions(+), 2 deletions(-)
-> >
-> I think better place to have this fixed is in
-> drivers/hid/i2c-hid/i2c-hid-core.c by forcing the adapter device active
-> when communicating with such touchpad.
->
-> In that way only bus where touchpad is connected stays active, not all
-> and makes sure issue is handled also if that touchpad is ever connected
-> to any other I2C adapter than Designware.
->
-> I did something similar in the commit 72bfcee11cf8 ("i2c: Prevent
-> runtime suspend of adapter when Host Notify is required"). Not exactly
-> same issue but similar idea.
->
-> By looking at i2c-hid-core.c I saw a few i2c-hid devices have
-> I2C_HID_QUIRK_NO_RUNTIME_PM. Could you test how does this Goodix behave
-> if only i2c-hid device runtime PM is prevented not I2C adapter?
->
-> A very quick test would be to comment out those lines below:
->
-> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c
-> b/drivers/hid/i2c-hid/i2c-hid-core.c
-> index 90164fed08d3..bd3e6570c45e 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-> @@ -1156,8 +1156,8 @@ static int i2c_hid_probe(struct i2c_client *client,
->                 goto err_mem_free;
->         }
->
-> -       if (!(ihid->quirks & I2C_HID_QUIRK_NO_RUNTIME_PM))
-> -               pm_runtime_put(&client->dev);
-> +//     if (!(ihid->quirks & I2C_HID_QUIRK_NO_RUNTIME_PM))
-> +//             pm_runtime_put(&client->dev);
->
->         return 0;
->
-> @@ -1183,8 +1183,8 @@ static int i2c_hid_remove(struct i2c_client *client)
->         struct i2c_hid *ihid = i2c_get_clientdata(client);
->         struct hid_device *hid;
->
-> -       if (!(ihid->quirks & I2C_HID_QUIRK_NO_RUNTIME_PM))
-> -               pm_runtime_get_sync(&client->dev);
-> +//     if (!(ihid->quirks & I2C_HID_QUIRK_NO_RUNTIME_PM))
-> +//             pm_runtime_get_sync(&client->dev);
->         pm_runtime_disable(&client->dev);
->         pm_runtime_set_suspended(&client->dev);
->         pm_runtime_put_noidle(&client->dev);
->
-> --
-> Jarkko
+The devm_gpiod_request_gpiod() call will add "-gpios" to
+any passed connection ID before looking it up.
+
+I do not think the reset GPIO on this platform is named
+"reset-gpios-gpios" but rather "reset-gpios" in the device
+tree, so fix this up so that we get a proper reset GPIO
+handle.
+
+Also drop the inclusion of the legacy GPIO header.
+
+Fixes: 0e8ce93bdceb ("i2c: pca-platform: add devicetree awareness")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/i2c/busses/i2c-pca-platform.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
+index de3fe6e828cb..f50afa8e3cba 100644
+--- a/drivers/i2c/busses/i2c-pca-platform.c
++++ b/drivers/i2c/busses/i2c-pca-platform.c
+@@ -21,7 +21,6 @@
+ #include <linux/platform_device.h>
+ #include <linux/i2c-algo-pca.h>
+ #include <linux/platform_data/i2c-pca-platform.h>
+-#include <linux/gpio.h>
+ #include <linux/gpio/consumer.h>
+ #include <linux/io.h>
+ #include <linux/of.h>
+@@ -173,7 +172,7 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
+ 	i2c->adap.dev.parent = &pdev->dev;
+ 	i2c->adap.dev.of_node = np;
+ 
+-	i2c->gpio = devm_gpiod_get_optional(&pdev->dev, "reset-gpios", GPIOD_OUT_LOW);
++	i2c->gpio = devm_gpiod_get_optional(&pdev->dev, "reset", GPIOD_OUT_LOW);
+ 	if (IS_ERR(i2c->gpio))
+ 		return PTR_ERR(i2c->gpio);
+ 
+-- 
+2.20.1
