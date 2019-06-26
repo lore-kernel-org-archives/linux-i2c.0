@@ -1,47 +1,48 @@
-From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: Re: [PATCH] dt-bindings: i2c-stm32: document optional dmas
-Date: Wed, 26 Jun 2019 16:16:48 +0200
-Message-ID: <7d521d13-de38-1d6b-83c1-927e6cad38e1@st.com>
-References: <1559655253-27008-1-git-send-email-fabrice.gasnier@st.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
+Subject: [PATCH v7 0/6] I2C IRQ Probe Improvements
+Date: Wed, 26 Jun 2019 16:02:56 +0100
+Message-ID: <20190626150302.22703-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1559655253-27008-1-git-send-email-fabrice.gasnier@st.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Fabrice Gasnier <fabrice.gasnier@st.com>, wsa@the-dreams.de, robh+dt@kernel.org
-Cc: mark.rutland@arm.com, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
+Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi
+This series attempts to align as much IRQ handling into the
+probe path as possible. Note that I don't have a great setup
+for testing these patches so they are mostly just build tested
+and need careful review and testing before any of them are
+merged.
 
-It looks good to me
+The series brings the ACPI path inline with the way the device
+tree path handles the IRQ entirely at probe time. However,
+it still leaves any IRQ specified through the board_info as
+being handled at device time. In that case we need to cache
+something from the board_info until probe time, which leaves
+any alternative solution with something basically the same as
+the current handling although perhaps caching more stuff.
 
-Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Thanks,
+Charles
 
-Thx
+See previous discussions:
+ - https://lkml.org/lkml/2019/2/15/989
+ - https://www.spinics.net/lists/linux-i2c/msg39541.html
 
-On 6/4/19 3:34 PM, Fabrice Gasnier wrote:
-> Add missing documentation for "dmas" and "dma-names" properties that can be
-> used on i2c-stm32.
-> 
-> Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-stm32.txt | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
-> index f334738..ce3df2ff 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-stm32.txt
-> @@ -21,6 +21,8 @@ Optional properties:
->    100000 and 400000.
->    For STM32F7, STM32H7 and STM32MP1 SoCs, Standard-mode, Fast-mode and Fast-mode
->    Plus are supported, possible values are 100000, 400000 and 1000000.
-> +- dmas: List of phandles to rx and tx DMA channels. Refer to stm32-dma.txt.
-> +- dma-names: List of dma names. Valid names are: "rx" and "tx".
->  - i2c-scl-rising-time-ns: I2C SCL Rising time for the board (default: 25)
->    For STM32F7, STM32H7 and STM32MP1 only.
->  - i2c-scl-falling-time-ns: I2C SCL Falling time for the board (default: 10)
-> 
+Charles Keepax (6):
+  i2c: core: Allow whole core to use i2c_dev_irq_from_resources
+  i2c: acpi: Use available IRQ helper functions
+  i2c: acpi: Factor out getting the IRQ from ACPI
+  i2c: core: Move ACPI IRQ handling to probe time
+  i2c: core: Move ACPI gpio IRQ handling into i2c_acpi_get_irq
+  i2c: core: Tidy up handling of init_irq
+
+ drivers/i2c/i2c-core-acpi.c | 59 ++++++++++++++++++++++++++++++++-------------
+ drivers/i2c/i2c-core-base.c | 11 +++++----
+ drivers/i2c/i2c-core.h      |  9 +++++++
+ 3 files changed, 57 insertions(+), 22 deletions(-)
+
+-- 
+2.11.0
