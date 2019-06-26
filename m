@@ -1,7 +1,7 @@
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH v7 2/6] i2c: acpi: Use available IRQ helper functions
-Date: Wed, 26 Jun 2019 16:02:58 +0100
-Message-ID: <20190626150302.22703-3-ckeepax@opensource.cirrus.com>
+Subject: [PATCH v7 1/6] i2c: core: Allow whole core to use i2c_dev_irq_from_resources
+Date: Wed, 26 Jun 2019 16:02:57 +0100
+Message-ID: <20190626150302.22703-2-ckeepax@opensource.cirrus.com>
 References: <20190626150302.22703-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,10 +12,11 @@ To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
 Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Use the available IRQ helper functions, most of the functions have
-additional helpful side affects like configuring the trigger type of the
-IRQ.
+Remove the static from i2c_dev_irq_from _resources so that other parts
+of the core code can use this helper function.
 
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 ---
 
@@ -24,60 +25,37 @@ No change since v6.
 Thanks,
 Charles
 
- drivers/i2c/i2c-core-acpi.c | 25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
+ drivers/i2c/i2c-core-base.c | 4 ++--
+ drivers/i2c/i2c-core.h      | 2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index f1d648962b223..3951e352317ff 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -133,13 +133,24 @@ static int i2c_acpi_do_lookup(struct acpi_device *adev,
- 	return 0;
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 2569e97f9bf35..8a303246d534b 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -679,8 +679,8 @@ static void i2c_dev_set_name(struct i2c_adapter *adap,
+ 		     i2c_encode_flags_to_addr(client));
  }
  
-+static int i2c_acpi_add_resource(struct acpi_resource *ares, void *data)
-+{
-+	int *irq = data;
-+	struct resource r;
-+
-+	if (*irq <= 0 && acpi_dev_resource_interrupt(ares, 0, &r))
-+		*irq = i2c_dev_irq_from_resources(&r, 1);
-+
-+	/* No need to add resource to the list, free list if this changes */
-+	return 1;
-+}
-+
- static int i2c_acpi_get_info(struct acpi_device *adev,
- 			     struct i2c_board_info *info,
- 			     struct i2c_adapter *adapter,
- 			     acpi_handle *adapter_handle)
+-static int i2c_dev_irq_from_resources(const struct resource *resources,
+-				      unsigned int num_resources)
++int i2c_dev_irq_from_resources(const struct resource *resources,
++			       unsigned int num_resources)
  {
- 	struct list_head resource_list;
--	struct resource_entry *entry;
- 	struct i2c_acpi_lookup lookup;
- 	int ret;
+ 	struct irq_data *irqd;
+ 	int i;
+diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
+index 851c11b4c0f3a..2a3b28bf826b1 100644
+--- a/drivers/i2c/i2c-core.h
++++ b/drivers/i2c/i2c-core.h
+@@ -19,6 +19,8 @@ extern struct list_head	__i2c_board_list;
+ extern int		__i2c_first_dynamic_bus_num;
  
-@@ -172,19 +183,11 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
+ int i2c_check_7bit_addr_validity_strict(unsigned short addr);
++int i2c_dev_irq_from_resources(const struct resource *resources,
++			       unsigned int num_resources);
  
- 	/* Then fill IRQ number if any */
- 	INIT_LIST_HEAD(&resource_list);
--	ret = acpi_dev_get_resources(adev, &resource_list, NULL, NULL);
-+	ret = acpi_dev_get_resources(adev, &resource_list,
-+				     i2c_acpi_add_resource, &info->irq);
- 	if (ret < 0)
- 		return -EINVAL;
- 
--	resource_list_for_each_entry(entry, &resource_list) {
--		if (resource_type(entry->res) == IORESOURCE_IRQ) {
--			info->irq = entry->res->start;
--			break;
--		}
--	}
--
--	acpi_dev_free_resource_list(&resource_list);
--
- 	acpi_set_modalias(adev, dev_name(&adev->dev), info->type,
- 			  sizeof(info->type));
- 
+ /*
+  * We only allow atomic transfers for very late communication, e.g. to send
 -- 
 2.11.0
