@@ -1,7 +1,7 @@
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH v8 3/6] i2c: acpi: Factor out getting the IRQ from ACPI
-Date: Thu, 27 Jun 2019 10:24:08 +0100
-Message-ID: <20190627092411.26123-4-ckeepax@opensource.cirrus.com>
+Subject: [PATCH v8 5/6] i2c: core: Move ACPI gpio IRQ handling into i2c_acpi_get_irq
+Date: Thu, 27 Jun 2019 10:24:10 +0100
+Message-ID: <20190627092411.26123-6-ckeepax@opensource.cirrus.com>
 References: <20190627092411.26123-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,75 +12,49 @@ To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
 Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-In preparation for future refactoring factor out the fetch of the IRQ
-into its own helper function. Whilst we are at it update the handling
-to return the actual error code returned from acpi_dev_get_resources
-as well.
+It makes sense to contain all the ACPI IRQ handling in a single helper
+function.
 
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
 ---
 
-Changes since v7:
- - Leave call to acpi_dev_free_resource_list
+No change since v7.
 
 Thanks,
 Charles
 
- drivers/i2c/i2c-core-acpi.c | 29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ drivers/i2c/i2c-core-acpi.c | 3 +++
+ drivers/i2c/i2c-core-base.c | 3 ---
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 1820f18a4e5f9..3eb65f113c13b 100644
+index eaf45cf8e5b91..3707823efa850 100644
 --- a/drivers/i2c/i2c-core-acpi.c
 +++ b/drivers/i2c/i2c-core-acpi.c
-@@ -144,12 +144,29 @@ static int i2c_acpi_add_resource(struct acpi_resource *ares, void *data)
- 	return 1; /* No need to add resource to the list */
+@@ -168,6 +168,9 @@ int i2c_acpi_get_irq(struct i2c_client *client)
+ 
+ 	acpi_dev_free_resource_list(&resource_list);
+ 
++	if (irq == -ENOENT)
++		irq = acpi_dev_gpio_irq_get(adev, 0);
++
+ 	return irq;
  }
  
-+static int i2c_acpi_get_irq(struct acpi_device *adev)
-+{
-+	struct list_head resource_list;
-+	int irq = -ENOENT;
-+	int ret;
-+
-+	INIT_LIST_HEAD(&resource_list);
-+
-+	ret = acpi_dev_get_resources(adev, &resource_list,
-+				     i2c_acpi_add_resource, &irq);
-+	if (ret < 0)
-+		return ret;
-+
-+	acpi_dev_free_resource_list(&resource_list);
-+
-+	return irq;
-+}
-+
- static int i2c_acpi_get_info(struct acpi_device *adev,
- 			     struct i2c_board_info *info,
- 			     struct i2c_adapter *adapter,
- 			     acpi_handle *adapter_handle)
- {
--	struct list_head resource_list;
- 	struct i2c_acpi_lookup lookup;
- 	int ret;
- 
-@@ -181,13 +198,9 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
- 		*adapter_handle = lookup.adapter_handle;
- 
- 	/* Then fill IRQ number if any */
--	INIT_LIST_HEAD(&resource_list);
--	ret = acpi_dev_get_resources(adev, &resource_list,
--				     i2c_acpi_add_resource, &info->irq);
--	if (ret < 0)
--		return -EINVAL;
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index c8fa2b825dcef..f0e1d338c7ddf 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -328,9 +328,6 @@ static int i2c_device_probe(struct device *dev)
+ 				irq = of_irq_get(dev->of_node, 0);
+ 		} else if (ACPI_COMPANION(dev)) {
+ 			irq = i2c_acpi_get_irq(client);
 -
--	acpi_dev_free_resource_list(&resource_list);
-+	info->irq = i2c_acpi_get_irq(adev);
-+	if (info->irq < 0)
-+		return info->irq;
- 
- 	acpi_set_modalias(adev, dev_name(&adev->dev), info->type,
- 			  sizeof(info->type));
+-			if (irq == -ENOENT)
+-				irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
+ 		}
+ 		if (irq == -EPROBE_DEFER)
+ 			return irq;
 -- 
 2.11.0
