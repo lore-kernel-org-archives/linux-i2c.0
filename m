@@ -1,111 +1,48 @@
 From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH v8 4/6] i2c: core: Move ACPI IRQ handling to probe time
-Date: Thu, 27 Jun 2019 10:24:09 +0100
-Message-ID: <20190627092411.26123-5-ckeepax@opensource.cirrus.com>
-References: <20190627092411.26123-1-ckeepax@opensource.cirrus.com>
+Subject: [PATCH v8 0/6] I2C IRQ Probe Improvements
+Date: Thu, 27 Jun 2019 10:24:05 +0100
+Message-ID: <20190627092411.26123-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190627092411.26123-1-ckeepax@opensource.cirrus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, mika.westerberg@linux.intel.com
 Cc: jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
-Bring the ACPI path in sync with the device tree path and handle all the
-IRQ fetching at probe time. This leaves the only IRQ handling at device
-registration time being that which is passed directly through the board
-info as either a resource or an actual IRQ number.
+This series attempts to align as much IRQ handling into the
+probe path as possible. Note that I don't have a great setup
+for testing these patches so they are mostly just build tested
+and need careful review and testing before any of them are
+merged.
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
----
-
-No change since v7.
+The series brings the ACPI path inline with the way the device
+tree path handles the IRQ entirely at probe time. However,
+it still leaves any IRQ specified through the board_info as
+being handled at device time. In that case we need to cache
+something from the board_info until probe time, which leaves
+any alternative solution with something basically the same as
+the current handling although perhaps caching more stuff.
 
 Thanks,
 Charles
 
- drivers/i2c/i2c-core-acpi.c | 16 ++++++++++------
- drivers/i2c/i2c-core-base.c |  5 ++++-
- drivers/i2c/i2c-core.h      |  7 +++++++
- 3 files changed, 21 insertions(+), 7 deletions(-)
+See previous discussions:
+ - https://lkml.org/lkml/2019/2/15/989
+ - https://www.spinics.net/lists/linux-i2c/msg39541.html
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 3eb65f113c13b..eaf45cf8e5b91 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -144,8 +144,17 @@ static int i2c_acpi_add_resource(struct acpi_resource *ares, void *data)
- 	return 1; /* No need to add resource to the list */
- }
- 
--static int i2c_acpi_get_irq(struct acpi_device *adev)
-+/**
-+ * i2c_acpi_get_irq - get device IRQ number from ACPI
-+ * @client: Pointer to the I2C client device
-+ *
-+ * Find the IRQ number used by a specific client device.
-+ *
-+ * Return: The IRQ number or an error code.
-+ */
-+int i2c_acpi_get_irq(struct i2c_client *client)
- {
-+	struct acpi_device *adev = ACPI_COMPANION(&client->dev);
- 	struct list_head resource_list;
- 	int irq = -ENOENT;
- 	int ret;
-@@ -197,11 +206,6 @@ static int i2c_acpi_get_info(struct acpi_device *adev,
- 	if (adapter_handle)
- 		*adapter_handle = lookup.adapter_handle;
- 
--	/* Then fill IRQ number if any */
--	info->irq = i2c_acpi_get_irq(adev);
--	if (info->irq < 0)
--		return info->irq;
--
- 	acpi_set_modalias(adev, dev_name(&adev->dev), info->type,
- 			  sizeof(info->type));
- 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 2a0a9cc8b8fbd..c8fa2b825dcef 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -327,7 +327,10 @@ static int i2c_device_probe(struct device *dev)
- 			if (irq == -EINVAL || irq == -ENODATA)
- 				irq = of_irq_get(dev->of_node, 0);
- 		} else if (ACPI_COMPANION(dev)) {
--			irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
-+			irq = i2c_acpi_get_irq(client);
-+
-+			if (irq == -ENOENT)
-+				irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
- 		}
- 		if (irq == -EPROBE_DEFER)
- 			return irq;
-diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
-index 2a3b28bf826b1..517d98be68d25 100644
---- a/drivers/i2c/i2c-core.h
-+++ b/drivers/i2c/i2c-core.h
-@@ -63,6 +63,8 @@ const struct acpi_device_id *
- i2c_acpi_match_device(const struct acpi_device_id *matches,
- 		      struct i2c_client *client);
- void i2c_acpi_register_devices(struct i2c_adapter *adap);
-+
-+int i2c_acpi_get_irq(struct i2c_client *client);
- #else /* CONFIG_ACPI */
- static inline void i2c_acpi_register_devices(struct i2c_adapter *adap) { }
- static inline const struct acpi_device_id *
-@@ -71,6 +73,11 @@ i2c_acpi_match_device(const struct acpi_device_id *matches,
- {
- 	return NULL;
- }
-+
-+static inline int i2c_acpi_get_irq(struct i2c_client *client)
-+{
-+	return 0;
-+}
- #endif /* CONFIG_ACPI */
- extern struct notifier_block i2c_acpi_notifier;
- 
+Charles Keepax (6):
+  i2c: core: Allow whole core to use i2c_dev_irq_from_resources
+  i2c: acpi: Use available IRQ helper functions
+  i2c: acpi: Factor out getting the IRQ from ACPI
+  i2c: core: Move ACPI IRQ handling to probe time
+  i2c: core: Move ACPI gpio IRQ handling into i2c_acpi_get_irq
+  i2c: core: Tidy up handling of init_irq
+
+ drivers/i2c/i2c-core-acpi.c | 58 ++++++++++++++++++++++++++++++++-------------
+ drivers/i2c/i2c-core-base.c | 11 +++++----
+ drivers/i2c/i2c-core.h      |  9 +++++++
+ 3 files changed, 56 insertions(+), 22 deletions(-)
+
 -- 
 2.11.0
