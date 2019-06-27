@@ -1,65 +1,53 @@
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: I2C filtering (was Re: [PATCH v2 6/9] dt-bindings: i2c: at91:
- add binding for enable-ana-filt)
-Date: Thu, 27 Jun 2019 15:22:00 +0200
-Message-ID: <20190627132200.GK3692@piout.net>
+From: <Eugen.Hristev@microchip.com>
+Subject: Re: I2C filtering (was Re: [PATCH v2 6/9] dt-bindings: i2c: at91: add
+ binding for enable-ana-filt)
+Date: Thu, 27 Jun 2019 13:31:39 +0000
+Message-ID: <eb2d87b7-437c-53ee-a1ca-37c4d3fadea6@microchip.com>
 References: <1561449642-26956-1-git-send-email-eugen.hristev@microchip.com>
  <1561449642-26956-7-git-send-email-eugen.hristev@microchip.com>
  <4e81d3c9-25f3-ca6e-f2d5-17fad5905bb8@axentia.se>
  <84628b5e-bea7-7d91-f790-f3a2650040fa@microchip.com>
- <20190625093156.GF5690@piout.net>
- <20190625095533.GC1688@kunai>
+ <20190625093156.GF5690@piout.net> <20190625095533.GC1688@kunai>
+ <20190627132200.GK3692@piout.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190625095533.GC1688@kunai>
+In-Reply-To: <20190627132200.GK3692@piout.net>
+Content-Language: en-US
+Content-ID: <20927CEDF033F540A4940D155C88D127@namprd11.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Eugen.Hristev@microchip.com, peda@axentia.se, robh+dt@kernel.org, mark.rutland@arm.com, Nicolas.Ferre@microchip.com, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+To: alexandre.belloni@bootlin.com, wsa@the-dreams.de
+Cc: peda@axentia.se, robh+dt@kernel.org, mark.rutland@arm.com, Nicolas.Ferre@microchip.com, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, pierre-yves.mordret@st.com
 List-Id: linux-i2c@vger.kernel.org
 
-On 25/06/2019 11:55:33+0200, Wolfram Sang wrote:
-> On Tue, Jun 25, 2019 at 11:31:56AM +0200, Alexandre Belloni wrote:
-> > On 25/06/2019 09:14:13+0000, Eugen.Hristev@microchip.com wrote:
-> > > > Perhaps
-> > > > 
-> > > > 	microchip,digital-filter;
-> > > > 	microchip,analog-filter;
-> > > > 
-> > > > ?
-> > > 
-> > > Hi Peter,
-> > > 
-> > > Thanks for reviewing. The name of the property does not matter much to 
-> > > me, and we have properties prefixed with vendor, and some are not.
-> > > 
-> > > @Alexandre Belloni: which name you think it's best ?
-> > > 
-> > 
-> > I'm not sure, it depends on whether Wolfram thinks it is generic enough
-> > to be used without a vendor prefix.
-> 
-> I could imagine that we design a generic property for filters. The ones
-> above make me wonder, though, because they are bool. I'd think you can
-> configure the filters in some way, too?
-> 
-
-Apart from enabling the filter there is indeed one configuration
-setting, the maximum pulse width of spikes to be suppressed by the input
-filter.
-
-> I never used such filtering, so I am unaware of the parameters needed /
-> suitable. Quick grepping through I2C master drivers reveals that
-> i2c-stm32f7.c also handles filters, but only with default values. Maybe
-> DT configuration would be benefitial to that driver, too?
-> 
-> Adding some people to CC.
-> 
-
-
-
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+DQoNCk9uIDI3LjA2LjIwMTkgMTY6MjIsIEFsZXhhbmRyZSBCZWxsb25pIHdyb3RlOg0KPiBFeHRl
+cm5hbCBFLU1haWwNCj4gDQo+IA0KPiBPbiAyNS8wNi8yMDE5IDExOjU1OjMzKzAyMDAsIFdvbGZy
+YW0gU2FuZyB3cm90ZToNCj4+IE9uIFR1ZSwgSnVuIDI1LCAyMDE5IGF0IDExOjMxOjU2QU0gKzAy
+MDAsIEFsZXhhbmRyZSBCZWxsb25pIHdyb3RlOg0KPj4+IE9uIDI1LzA2LzIwMTkgMDk6MTQ6MTMr
+MDAwMCwgRXVnZW4uSHJpc3RldkBtaWNyb2NoaXAuY29tIHdyb3RlOg0KPj4+Pj4gUGVyaGFwcw0K
+Pj4+Pj4NCj4+Pj4+IAltaWNyb2NoaXAsZGlnaXRhbC1maWx0ZXI7DQo+Pj4+PiAJbWljcm9jaGlw
+LGFuYWxvZy1maWx0ZXI7DQo+Pj4+Pg0KPj4+Pj4gPw0KPj4+Pg0KPj4+PiBIaSBQZXRlciwNCj4+
+Pj4NCj4+Pj4gVGhhbmtzIGZvciByZXZpZXdpbmcuIFRoZSBuYW1lIG9mIHRoZSBwcm9wZXJ0eSBk
+b2VzIG5vdCBtYXR0ZXIgbXVjaCB0bw0KPj4+PiBtZSwgYW5kIHdlIGhhdmUgcHJvcGVydGllcyBw
+cmVmaXhlZCB3aXRoIHZlbmRvciwgYW5kIHNvbWUgYXJlIG5vdC4NCj4+Pj4NCj4+Pj4gQEFsZXhh
+bmRyZSBCZWxsb25pOiB3aGljaCBuYW1lIHlvdSB0aGluayBpdCdzIGJlc3QgPw0KPj4+Pg0KPj4+
+DQo+Pj4gSSdtIG5vdCBzdXJlLCBpdCBkZXBlbmRzIG9uIHdoZXRoZXIgV29sZnJhbSB0aGlua3Mg
+aXQgaXMgZ2VuZXJpYyBlbm91Z2gNCj4+PiB0byBiZSB1c2VkIHdpdGhvdXQgYSB2ZW5kb3IgcHJl
+Zml4Lg0KPj4NCj4+IEkgY291bGQgaW1hZ2luZSB0aGF0IHdlIGRlc2lnbiBhIGdlbmVyaWMgcHJv
+cGVydHkgZm9yIGZpbHRlcnMuIFRoZSBvbmVzDQo+PiBhYm92ZSBtYWtlIG1lIHdvbmRlciwgdGhv
+dWdoLCBiZWNhdXNlIHRoZXkgYXJlIGJvb2wuIEknZCB0aGluayB5b3UgY2FuDQo+PiBjb25maWd1
+cmUgdGhlIGZpbHRlcnMgaW4gc29tZSB3YXksIHRvbz8NCj4+DQo+IA0KPiBBcGFydCBmcm9tIGVu
+YWJsaW5nIHRoZSBmaWx0ZXIgdGhlcmUgaXMgaW5kZWVkIG9uZSBjb25maWd1cmF0aW9uDQo+IHNl
+dHRpbmcsIHRoZSBtYXhpbXVtIHB1bHNlIHdpZHRoIG9mIHNwaWtlcyB0byBiZSBzdXBwcmVzc2Vk
+IGJ5IHRoZSBpbnB1dA0KPiBmaWx0ZXIuDQoNCkhlbGxvLA0KDQpUaGlzIGlzIGEgbnVtYmVyIDAg
+dG8gNyAoMyBiaXRzKSB0aGF0IHJlcHJlc2VudHMgdGhlIHdpZHRoIG9mIHRoZSBzcGlrZSANCmlu
+IHBlcmlwaCBjbG9jayBjeWNsZXMuDQpJIGFtIGxvb2tpbmcgdG8gc2VlIHdoYXQgaXMgUEFERkNG
+RyAsIGFzIGl0J3MgcmVsYXRlZCB0byB0aGUgUEFEIGFuYWxvZyANCmZpbHRlciBjb25maWd1cmF0
+aW9uLiBJdCBtYXkgYmUgdW51c2VkIGJ5IHRoZSBmaWx0ZXIuDQoNCkV1Z2VuDQoNCj4gDQo+PiBJ
+IG5ldmVyIHVzZWQgc3VjaCBmaWx0ZXJpbmcsIHNvIEkgYW0gdW5hd2FyZSBvZiB0aGUgcGFyYW1l
+dGVycyBuZWVkZWQgLw0KPj4gc3VpdGFibGUuIFF1aWNrIGdyZXBwaW5nIHRocm91Z2ggSTJDIG1h
+c3RlciBkcml2ZXJzIHJldmVhbHMgdGhhdA0KPj4gaTJjLXN0bTMyZjcuYyBhbHNvIGhhbmRsZXMg
+ZmlsdGVycywgYnV0IG9ubHkgd2l0aCBkZWZhdWx0IHZhbHVlcy4gTWF5YmUNCj4+IERUIGNvbmZp
+Z3VyYXRpb24gd291bGQgYmUgYmVuZWZpdGlhbCB0byB0aGF0IGRyaXZlciwgdG9vPw0KPj4NCj4+
+IEFkZGluZyBzb21lIHBlb3BsZSB0byBDQy4NCj4+DQo+IA0KPiANCj4gDQo=
