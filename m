@@ -1,53 +1,72 @@
-From: <Eugen.Hristev@microchip.com>
-Subject: Re: I2C filtering (was Re: [PATCH v2 6/9] dt-bindings: i2c: at91: add
- binding for enable-ana-filt)
-Date: Thu, 27 Jun 2019 13:31:39 +0000
-Message-ID: <eb2d87b7-437c-53ee-a1ca-37c4d3fadea6@microchip.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: I2C filtering (was Re: [PATCH v2 6/9] dt-bindings: i2c: at91:
+ add binding for enable-ana-filt)
+Date: Thu, 27 Jun 2019 15:34:40 +0200
+Message-ID: <20190627133440.GA7158@ninjato>
 References: <1561449642-26956-1-git-send-email-eugen.hristev@microchip.com>
  <1561449642-26956-7-git-send-email-eugen.hristev@microchip.com>
  <4e81d3c9-25f3-ca6e-f2d5-17fad5905bb8@axentia.se>
  <84628b5e-bea7-7d91-f790-f3a2650040fa@microchip.com>
- <20190625093156.GF5690@piout.net> <20190625095533.GC1688@kunai>
+ <20190625093156.GF5690@piout.net>
+ <20190625095533.GC1688@kunai>
  <20190627132200.GK3692@piout.net>
+ <eb2d87b7-437c-53ee-a1ca-37c4d3fadea6@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="7AUc2qLy4jB3hD7Z"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190627132200.GK3692@piout.net>
-Content-Language: en-US
-Content-ID: <20927CEDF033F540A4940D155C88D127@namprd11.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <eb2d87b7-437c-53ee-a1ca-37c4d3fadea6@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: alexandre.belloni@bootlin.com, wsa@the-dreams.de
-Cc: peda@axentia.se, robh+dt@kernel.org, mark.rutland@arm.com, Nicolas.Ferre@microchip.com, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, pierre-yves.mordret@st.com
+To: Eugen.Hristev@microchip.com
+Cc: alexandre.belloni@bootlin.com, peda@axentia.se, robh+dt@kernel.org, mark.rutland@arm.com, Nicolas.Ferre@microchip.com, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, pierre-yves.mordret@st.com
 List-Id: linux-i2c@vger.kernel.org
 
-DQoNCk9uIDI3LjA2LjIwMTkgMTY6MjIsIEFsZXhhbmRyZSBCZWxsb25pIHdyb3RlOg0KPiBFeHRl
-cm5hbCBFLU1haWwNCj4gDQo+IA0KPiBPbiAyNS8wNi8yMDE5IDExOjU1OjMzKzAyMDAsIFdvbGZy
-YW0gU2FuZyB3cm90ZToNCj4+IE9uIFR1ZSwgSnVuIDI1LCAyMDE5IGF0IDExOjMxOjU2QU0gKzAy
-MDAsIEFsZXhhbmRyZSBCZWxsb25pIHdyb3RlOg0KPj4+IE9uIDI1LzA2LzIwMTkgMDk6MTQ6MTMr
-MDAwMCwgRXVnZW4uSHJpc3RldkBtaWNyb2NoaXAuY29tIHdyb3RlOg0KPj4+Pj4gUGVyaGFwcw0K
-Pj4+Pj4NCj4+Pj4+IAltaWNyb2NoaXAsZGlnaXRhbC1maWx0ZXI7DQo+Pj4+PiAJbWljcm9jaGlw
-LGFuYWxvZy1maWx0ZXI7DQo+Pj4+Pg0KPj4+Pj4gPw0KPj4+Pg0KPj4+PiBIaSBQZXRlciwNCj4+
-Pj4NCj4+Pj4gVGhhbmtzIGZvciByZXZpZXdpbmcuIFRoZSBuYW1lIG9mIHRoZSBwcm9wZXJ0eSBk
-b2VzIG5vdCBtYXR0ZXIgbXVjaCB0bw0KPj4+PiBtZSwgYW5kIHdlIGhhdmUgcHJvcGVydGllcyBw
-cmVmaXhlZCB3aXRoIHZlbmRvciwgYW5kIHNvbWUgYXJlIG5vdC4NCj4+Pj4NCj4+Pj4gQEFsZXhh
-bmRyZSBCZWxsb25pOiB3aGljaCBuYW1lIHlvdSB0aGluayBpdCdzIGJlc3QgPw0KPj4+Pg0KPj4+
-DQo+Pj4gSSdtIG5vdCBzdXJlLCBpdCBkZXBlbmRzIG9uIHdoZXRoZXIgV29sZnJhbSB0aGlua3Mg
-aXQgaXMgZ2VuZXJpYyBlbm91Z2gNCj4+PiB0byBiZSB1c2VkIHdpdGhvdXQgYSB2ZW5kb3IgcHJl
-Zml4Lg0KPj4NCj4+IEkgY291bGQgaW1hZ2luZSB0aGF0IHdlIGRlc2lnbiBhIGdlbmVyaWMgcHJv
-cGVydHkgZm9yIGZpbHRlcnMuIFRoZSBvbmVzDQo+PiBhYm92ZSBtYWtlIG1lIHdvbmRlciwgdGhv
-dWdoLCBiZWNhdXNlIHRoZXkgYXJlIGJvb2wuIEknZCB0aGluayB5b3UgY2FuDQo+PiBjb25maWd1
-cmUgdGhlIGZpbHRlcnMgaW4gc29tZSB3YXksIHRvbz8NCj4+DQo+IA0KPiBBcGFydCBmcm9tIGVu
-YWJsaW5nIHRoZSBmaWx0ZXIgdGhlcmUgaXMgaW5kZWVkIG9uZSBjb25maWd1cmF0aW9uDQo+IHNl
-dHRpbmcsIHRoZSBtYXhpbXVtIHB1bHNlIHdpZHRoIG9mIHNwaWtlcyB0byBiZSBzdXBwcmVzc2Vk
-IGJ5IHRoZSBpbnB1dA0KPiBmaWx0ZXIuDQoNCkhlbGxvLA0KDQpUaGlzIGlzIGEgbnVtYmVyIDAg
-dG8gNyAoMyBiaXRzKSB0aGF0IHJlcHJlc2VudHMgdGhlIHdpZHRoIG9mIHRoZSBzcGlrZSANCmlu
-IHBlcmlwaCBjbG9jayBjeWNsZXMuDQpJIGFtIGxvb2tpbmcgdG8gc2VlIHdoYXQgaXMgUEFERkNG
-RyAsIGFzIGl0J3MgcmVsYXRlZCB0byB0aGUgUEFEIGFuYWxvZyANCmZpbHRlciBjb25maWd1cmF0
-aW9uLiBJdCBtYXkgYmUgdW51c2VkIGJ5IHRoZSBmaWx0ZXIuDQoNCkV1Z2VuDQoNCj4gDQo+PiBJ
-IG5ldmVyIHVzZWQgc3VjaCBmaWx0ZXJpbmcsIHNvIEkgYW0gdW5hd2FyZSBvZiB0aGUgcGFyYW1l
-dGVycyBuZWVkZWQgLw0KPj4gc3VpdGFibGUuIFF1aWNrIGdyZXBwaW5nIHRocm91Z2ggSTJDIG1h
-c3RlciBkcml2ZXJzIHJldmVhbHMgdGhhdA0KPj4gaTJjLXN0bTMyZjcuYyBhbHNvIGhhbmRsZXMg
-ZmlsdGVycywgYnV0IG9ubHkgd2l0aCBkZWZhdWx0IHZhbHVlcy4gTWF5YmUNCj4+IERUIGNvbmZp
-Z3VyYXRpb24gd291bGQgYmUgYmVuZWZpdGlhbCB0byB0aGF0IGRyaXZlciwgdG9vPw0KPj4NCj4+
-IEFkZGluZyBzb21lIHBlb3BsZSB0byBDQy4NCj4+DQo+IA0KPiANCj4gDQo=
+
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> > Apart from enabling the filter there is indeed one configuration
+> > setting, the maximum pulse width of spikes to be suppressed by the input
+> > filter.
+
+Yup, this is what I anticipated.
+
+> This is a number 0 to 7 (3 bits) that represents the width of the spike=
+=20
+> in periph clock cycles.
+
+For a generic binding, we would need some time-value as a parameter and
+convert it to clock cycles in the driver then, I'd think.
+
+> I am looking to see what is PADFCFG , as it's related to the PAD analog=
+=20
+> filter configuration. It may be unused by the filter.
+
+Thanks!
+
+
+--7AUc2qLy4jB3hD7Z
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0UxewACgkQFA3kzBSg
+KbbBxw/+PKlsndFyCPTuBvbsZv6QYFNcJSE6IMOwxnfLjInOoY8cAl/2uc55yh8K
+uVXgbOdp9bQEtjjgva8oMOZdT+8N6EOqm+Bjqu2Nw44UsQ6HQXUM+LJU9J35Me4T
+USjBCsZL+3rf9SUBq4xDSUa05wBuKN0ZC1Mss55kkBD/R4ULrd9VoVx0rpSe6oAF
+/XQeBDsWhqDG15zoZysXgQ/he7kLCGgtPf+dz0vA80JefsflXEyrr3Al9rggVP/F
+gK3+4UqBE8YLn0Iepd0HKsk7z3Qs7uLfjZex7fbd9Ul81JCN2yHn4PFIuV+NJf86
+C7Nh7zYojp41vxBF1llxMvm+2E4z23KkQ/SKmTqOshOxxEcYH2OdfvuWPyLBctHr
+Ex3IKFo/wESvBs12NPz1AAC/EadHG6elpaHNkdNaGjWMA4eIchDF+vaVXVsr34gT
+FYSfwVLHx4WZEKBzF+jWds5EBUbNWhSF0+e5vBOkL6BsGJpU5PTgxuvbO3L6jqCj
+nbCIkxFFM+pJCcwnb1eaDG9I9IUb1962hciz4tjFWMLog+QJdtWrwSk+az1237Jc
+0okdeuwS1ztxn84GLBuELSkDizc0GlYEJbz0+ICd2ZLXXFRwytpC/b3Sj/QgGOWM
+GNZtPtRGoadH2jxHySVRG+j9veFm1US51dR4b25SHUzlWyAR62A=
+=tCqi
+-----END PGP SIGNATURE-----
+
+--7AUc2qLy4jB3hD7Z--
