@@ -1,65 +1,45 @@
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5/9] docs: fix some broken references due to txt->rst renames
-Date: Fri, 28 Jun 2019 09:12:27 -0300
-Message-ID: <5ebb42791ebe353c346b44d6bd8f2c03d61d1115.1561723736.git.mchehab+samsung@kernel.org>
-References: <cover.1561723736.git.mchehab+samsung@kernel.org>
+From: Neil Horman <nhorman@tuxdriver.com>
+Subject: Re: [PATCH 19/87] i2c: busses: Remove call to memset after
+ dmam_alloc_coherent
+Date: Fri, 28 Jun 2019 12:13:43 -0400
+Message-ID: <20190628161343.GB14635@hmswarspite.think-freely.org>
+References: <20190627173653.2833-1-huangfq.daxian@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <cover.1561723736.git.mchehab+samsung@kernel.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Ajay Gupta <ajayg@nvidia.com>, Jonathan Corbet <corbet@lwn.net>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>, intel-gfx@lists.freedesktop.org, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@infradead.org>, Rob Herring <robh+dt@kernel.org>, dri-devel@lists.freedesktop.org, Rodrigo Vivi <rodrigo.vivi@intel.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190627173653.2833-1-huangfq.daxian@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Fuqian Huang <huangfq.daxian@gmail.com>
+Cc: Seth Heasley <seth.heasley@intel.com>, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-VGhlcmUgYXJlIHRocmVlIGxlZnQtb3ZlcnMgZnJvbSB0aGUgcmVjZW50IGZpbGUgcmVuYW1lcywK
-cHJvYmFibHkgZHVlIHRvIHNvbWUgb3RoZXIgY29uZmxpY3RpbmcgcGF0Y2guCgpGaXggdGhlbS4K
-ClNpZ25lZC1vZmYtYnk6IE1hdXJvIENhcnZhbGhvIENoZWhhYiA8bWNoZWhhYitzYW1zdW5nQGtl
-cm5lbC5vcmc+CkFja2VkLWJ5OiBXb2xmcmFtIFNhbmcgPHdzYUB0aGUtZHJlYW1zLmRlPgpBY2tl
-ZC1ieTogRGFuaWVsIFZldHRlciA8ZGFuaWVsLnZldHRlckBmZndsbC5jaD4KLS0tCiBEb2N1bWVu
-dGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvYXJtL2lkbGUtc3RhdGVzLnR4dCB8IDIgKy0KIGRy
-aXZlcnMvZ3B1L2RybS9pOTE1L2ludGVsX3J1bnRpbWVfcG0uaCAgICAgICAgICAgICAgIHwgMiAr
-LQogZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1udmlkaWEtZ3B1LmMgICAgICAgICAgICAgICAgICAg
-fCAyICstCiAzIGZpbGVzIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkK
-CmRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvYXJtL2lkbGUt
-c3RhdGVzLnR4dCBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9hcm0vaWRsZS1z
-dGF0ZXMudHh0CmluZGV4IDNiZGJlNjc1YjllNi4uZDhkOWFhNzE2N2U4IDEwMDY0NAotLS0gYS9E
-b2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvYXJtL2lkbGUtc3RhdGVzLnR4dAorKysg
-Yi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvYXJtL2lkbGUtc3RhdGVzLnR4dApA
-QCAtNzAzLDQgKzcwMyw0IEBAIGNwdXMgewogICAgIGh0dHBzOi8vd3d3LmRldmljZXRyZWUub3Jn
-L3NwZWNpZmljYXRpb25zLwogCiBbNl0gQVJNIExpbnV4IEtlcm5lbCBkb2N1bWVudGF0aW9uIC0g
-Qm9vdGluZyBBQXJjaDY0IExpbnV4Ci0gICAgRG9jdW1lbnRhdGlvbi9hcm02NC9ib290aW5nLnR4
-dAorICAgIERvY3VtZW50YXRpb24vYXJtNjQvYm9vdGluZy5yc3QKZGlmZiAtLWdpdCBhL2RyaXZl
-cnMvZ3B1L2RybS9pOTE1L2ludGVsX3J1bnRpbWVfcG0uaCBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1
-L2ludGVsX3J1bnRpbWVfcG0uaAppbmRleCA0NzNjNDg1MGMwMWQuLjJlZThmOTUyMmUwNSAxMDA2
-NDQKLS0tIGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvaW50ZWxfcnVudGltZV9wbS5oCisrKyBiL2Ry
-aXZlcnMvZ3B1L2RybS9pOTE1L2ludGVsX3J1bnRpbWVfcG0uaApAQCAtNDUsNyArNDUsNyBAQCBl
-bnVtIGk5MTVfZHJtX3N1c3BlbmRfbW9kZSB7CiAgKiB0byBiZSBkaXNhYmxlZC4gVGhpcyBzaG91
-bGRuJ3QgaGFwcGVuIGFuZCB3ZSdsbCBwcmludCBzb21lIGVycm9yIG1lc3NhZ2VzIGluCiAgKiBj
-YXNlIGl0IGhhcHBlbnMuCiAgKgotICogRm9yIG1vcmUsIHJlYWQgdGhlIERvY3VtZW50YXRpb24v
-cG93ZXIvcnVudGltZV9wbS50eHQuCisgKiBGb3IgbW9yZSwgcmVhZCB0aGUgRG9jdW1lbnRhdGlv
-bi9wb3dlci9ydW50aW1lX3BtLnJzdC4KICAqLwogc3RydWN0IGludGVsX3J1bnRpbWVfcG0gewog
-CWF0b21pY190IHdha2VyZWZfY291bnQ7CmRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMv
-aTJjLW52aWRpYS1ncHUuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbnZpZGlhLWdwdS5jCmlu
-ZGV4IGNmYzc2YjVkZTcyNi4uNWExMjM1ZmQ4NmJiIDEwMDY0NAotLS0gYS9kcml2ZXJzL2kyYy9i
-dXNzZXMvaTJjLW52aWRpYS1ncHUuYworKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW52aWRp
-YS1ncHUuYwpAQCAtMzY0LDcgKzM2NCw3IEBAIHN0YXRpYyB2b2lkIGdwdV9pMmNfcmVtb3ZlKHN0
-cnVjdCBwY2lfZGV2ICpwZGV2KQogLyoKICAqIFdlIG5lZWQgZ3B1X2kyY19zdXNwZW5kKCkgZXZl
-biBpZiBpdCBpcyBzdHViLCBmb3IgcnVudGltZSBwbSB0byB3b3JrCiAgKiBjb3JyZWN0bHkuIFdp
-dGhvdXQgaXQsIGxzcGNpIHNob3dzIHJ1bnRpbWUgcG0gc3RhdHVzIGFzICJEMCIgZm9yIHRoZSBj
-YXJkLgotICogRG9jdW1lbnRhdGlvbi9wb3dlci9wY2kudHh0IGFsc28gaW5zaXN0cyBmb3IgZHJp
-dmVyIHRvIHByb3ZpZGUgdGhpcy4KKyAqIERvY3VtZW50YXRpb24vcG93ZXIvcGNpLnJzdCBhbHNv
-IGluc2lzdHMgZm9yIGRyaXZlciB0byBwcm92aWRlIHRoaXMuCiAgKi8KIHN0YXRpYyBfX21heWJl
-X3VudXNlZCBpbnQgZ3B1X2kyY19zdXNwZW5kKHN0cnVjdCBkZXZpY2UgKmRldikKIHsKLS0gCjIu
-MjEuMAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJp
-LWRldmVsIG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBz
-Oi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVs
+On Fri, Jun 28, 2019 at 01:36:51AM +0800, Fuqian Huang wrote:
+> In commit af7ddd8a627c
+> ("Merge tag 'dma-mapping-4.21' of git://git.infradead.org/users/hch/dma-mapping"),
+> dmam_alloc_coherent has already zeroed the memory.
+> So memset is not needed.
+> 
+> Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
+> ---
+>  drivers/i2c/busses/i2c-ismt.c | 2 --
+>  1 file changed, 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+> index 02d23edb2fb1..2f95e25a10f7 100644
+> --- a/drivers/i2c/busses/i2c-ismt.c
+> +++ b/drivers/i2c/busses/i2c-ismt.c
+> @@ -781,8 +781,6 @@ static int ismt_dev_init(struct ismt_priv *priv)
+>  	if (!priv->hw)
+>  		return -ENOMEM;
+>  
+> -	memset(priv->hw, 0, (ISMT_DESC_ENTRIES * sizeof(struct ismt_desc)));
+> -
+>  	priv->head = 0;
+>  	init_completion(&priv->cmp);
+>  
+> -- 
+> 2.11.0
+> 
+> 
+Acked-by: Neil Horman <nhorman@tuxdriver.com>
