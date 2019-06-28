@@ -1,39 +1,50 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH v2 08/27] i2c: busses: remove memset after
- dmam_alloc_coherent
-Date: Fri, 28 Jun 2019 09:22:31 +0300
-Message-ID: <f97d130f-0906-05cb-6f08-bb84bf32ff02@linux.intel.com>
-References: <20190628024711.15203-1-huangfq.daxian@gmail.com>
+From: Vignesh Raghavendra <vigneshr@ti.com>
+Subject: Re: [PATCH] dt-bindings: i2c: omap: Add new compatible for J721E SoCs
+Date: Fri, 28 Jun 2019 14:22:54 +0530
+Message-ID: <a6cc4e71-e717-2f6e-5662-84067e1b979f@ti.com>
+References: <20190605084504.2777-1-vigneshr@ti.com>
+ <20190626134302.GM801@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190628024711.15203-1-huangfq.daxian@gmail.com>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190626134302.GM801@ninjato>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Fuqian Huang <huangfq.daxian@gmail.com>
-Cc: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi
 
-On 6/28/19 5:47 AM, Fuqian Huang wrote:
-> In commit af7ddd8a627c
-> ("Merge tag 'dma-mapping-4.21' of git://git.infradead.org/users/hch/dma-mapping"),
-> dmam_alloc_coherent has already zeroed the memory.
-> So memset is not needed.
+
+On 26/06/19 7:13 PM, Wolfram Sang wrote:
+> On Wed, Jun 05, 2019 at 02:15:04PM +0530, Vignesh Raghavendra wrote:
+>> From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+>>
+>> J721E SoCs have same I2C IP as OMAP SoCs. Add new compatible to
+>> handle J721E SoCs.
+>>
+>> Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+>> Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
 > 
-> Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
-> ---
->   drivers/i2c/busses/i2c-ismt.c | 2 --
->   1 file changed, 2 deletions(-)
+> Applied to for-next, thanks!
 > 
-It would be better to refer actual commit or commits that implement that 
-zeroing rather than merge point in commit log if possible.
 
-At quick look commit 518a2f1925c3 ("dma-mapping: zero memory returned 
-from dma_alloc_*") is the one but I'm not really an expert here to say 
-is that alone enough.
+Thanks!
 
--- 
-Jarkko
+> Sorry for the delay, I was waiting for an ack to show up. I totally
+> missed you are the maintainer :( Won't happen again!
+> 
+
+No worries :)
+
+Regards
+Vignesh
