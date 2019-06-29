@@ -1,74 +1,67 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 08/27] i2c: busses: remove memset after
- dmam_alloc_coherent
-Date: Sat, 29 Jun 2019 13:12:01 +0200
-Message-ID: <20190629111201.GD1685@kunai>
-References: <20190628024711.15203-1-huangfq.daxian@gmail.com>
- <f97d130f-0906-05cb-6f08-bb84bf32ff02@linux.intel.com>
+Subject: Re: [PATCH v7 0/6] I2C IRQ Probe Improvements
+Date: Sat, 29 Jun 2019 13:29:22 +0200
+Message-ID: <20190629112921.GE1685@kunai>
+References: <20190626150302.22703-1-ckeepax@opensource.cirrus.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="9UV9rz0O2dU/yYYn"
+        protocol="application/pgp-signature"; boundary="M/SuVGWktc5uNpra"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <f97d130f-0906-05cb-6f08-bb84bf32ff02@linux.intel.com>
+In-Reply-To: <20190626150302.22703-1-ckeepax@opensource.cirrus.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Fuqian Huang <huangfq.daxian@gmail.com>, Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Charles Keepax <ckeepax@opensource.cirrus.com>
+Cc: mika.westerberg@linux.intel.com, jarkko.nikula@linux.intel.com, andriy.shevchenko@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, benjamin.tissoires@redhat.com, jbroadus@gmail.com, patches@opensource.cirrus.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---9UV9rz0O2dU/yYYn
+--M/SuVGWktc5uNpra
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 28, 2019 at 09:22:31AM +0300, Jarkko Nikula wrote:
-> Hi
+On Wed, Jun 26, 2019 at 04:02:56PM +0100, Charles Keepax wrote:
+> This series attempts to align as much IRQ handling into the
+> probe path as possible. Note that I don't have a great setup
+> for testing these patches so they are mostly just build tested
+> and need careful review and testing before any of them are
+> merged.
 >=20
-> On 6/28/19 5:47 AM, Fuqian Huang wrote:
-> > In commit af7ddd8a627c
-> > ("Merge tag 'dma-mapping-4.21' of git://git.infradead.org/users/hch/dma=
--mapping"),
-> > dmam_alloc_coherent has already zeroed the memory.
-> > So memset is not needed.
-> >=20
-> > Signed-off-by: Fuqian Huang <huangfq.daxian@gmail.com>
-> > ---
-> >   drivers/i2c/busses/i2c-ismt.c | 2 --
-> >   1 file changed, 2 deletions(-)
-> >=20
-> It would be better to refer actual commit or commits that implement that
-> zeroing rather than merge point in commit log if possible.
->=20
-> At quick look commit 518a2f1925c3 ("dma-mapping: zero memory returned from
-> dma_alloc_*") is the one but I'm not really an expert here to say is that
-> alone enough.
+> The series brings the ACPI path inline with the way the device
+> tree path handles the IRQ entirely at probe time. However,
+> it still leaves any IRQ specified through the board_info as
+> being handled at device time. In that case we need to cache
+> something from the board_info until probe time, which leaves
+> any alternative solution with something basically the same as
+> the current handling although perhaps caching more stuff.
 
-Fuqian, can you clarify if the commit pointed by Jarkko is enough as a
-reference or if it really needs the merge tag?
+Ehrm, I somehow lost the cover-letter from v8, so I am replying here.
+Sorry for the noise.
 
-Also, please include the tags you collected in v1 when sending v2 (and
-there was no significant code change).
+So, since all patches have the review from Mika and Andy (thanks!), I
+applied v8 now to for-next. I had a glimpse, too, and thought it was
+ready to go. But I didn't really review myself, I trust you guys. Thank
+you, Charles, for your efforts working on this one!
 
 
---9UV9rz0O2dU/yYYn
+--M/SuVGWktc5uNpra
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0XR4EACgkQFA3kzBSg
-KbbyKxAAo8H1xdyo+DJXLvoGJaIJwtZtFYMYbqV/4kbepBwkTC2JdQo7WJtHzHFJ
-hE6Yolc+goA0hmOfgEYVICD3LZ80qDMDbrCl6MVckY66Y6DfPSp2UFngP/EthnE8
-rbvlaNaNilx/vf3uUVWV0dNnX7XLJb05p+lRl4a4lHqTHI3oyo+9ZWDzZeMTZ4I4
-Aal6G2XT4HM0B43eEvhSPEB41dmFzY0NsbADS8tS7sDWMfQKDWfY1lagrj6oO9P7
-3UzXR0aSzXq7BpSiltHRUhxtBq+xyGU6zPudCS3RGUOi89ynEn2hwkwXegFoBvmt
-UBlROiXFuCObQzZZlqrrDgsC4dNvYKYTzZobH79c6NQ0nvsM5j5526A4sRM9c6QM
-88x09WQBLvohloLPlMfMa3ikXf9F03tD0Qr1pzgwh4BrdVhkAWslZyZDNyYK1j4d
-xcXOVjY/zj452mH7snhwbydcAdAMd4JWKiOUsOh44UHEJASekz0HcDIrhvJF9wKP
-kOXzRbbPrg2x3f26NZ88Eo3aSWkvKJ74Ly0YTk9aHvBucbHTyg3cR/r0dN2HWRXH
-Nwmz+IMSWbLyLckhE4LsVTunuCAGawf07u5uaAMFUA9WnrOOUlW1onksS/aatL93
-xqXY7MOqYzNsgf0FFi6EBul6aqq7U9FMWKKRazAC1op2aFRRVSE=
-=18LR
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0XS40ACgkQFA3kzBSg
+KbaMYA/+PjsJLq8bemY+KXXj66YNG2qLcNss3uXlAq0Czj2/IE1VSN0S/N86Zccn
++QtDfmfIdpCqqAzs0N0D6N7pr4olIcrUlbz/FFLg4v0Dtn8ybYTT9QPDK6zAOrSq
+cTUBJjNVcMhENVby9rXISu/uwr09Cq1C7chdZlYeq/etaDFgJEclr/U4aZrnjTJ1
+JMzD6/CWn0d2OkUKCjdFvGtDDbrxRNnCOXMuEM3fkqyR3Usg28kMqr9NhMxJe3jg
+0CO5DgpeVTwAaGeyrKsGhNxcbpgw0u4Dr4i9tkV6F3hea/1fKshy/DuMZ5o46q19
+Qn1F4L7XlsE5ATLHpw6QXgZ/ZY8CRW3XJ3r5p0E5M9PVlb2hyKb8qygK8/yaOuMt
+g2c96OSh2fQpz7X4FdLTjRfwX9Qz4q2uAOUIckq1TzyTkqqs83MliX6r5P6l6WfT
++rAqqJcBaIgZE9K91EFyhq0wTasyfSH0Cl11gMOE0DFUG8Wxp0o8uTpUwA1HIAT6
+W9T24bkyyqcK4fPclCwT0NhTAqaHOStu3Zi5F7M4htiXvjQwE+qEW5WZ5MW09PPf
+dfPvqm9g6xfyPkdQcaZEL7KMaBvGHjlDbt5+5wcqerdKqJsOELkD/Huq4R09ym7w
+0qZxWB2aLRaDn1M88KJ5komdYV6NC13QPTh1t8OonctwizFOAuY=
+=dIfh
 -----END PGP SIGNATURE-----
 
---9UV9rz0O2dU/yYYn--
+--M/SuVGWktc5uNpra--
