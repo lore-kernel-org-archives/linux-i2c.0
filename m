@@ -1,63 +1,59 @@
-From: Jochen Friedrich <jochen@scram.de>
-Subject: Re: [PATCH] i2c: remove casting dma_alloc
-Date: Sat, 29 Jun 2019 13:41:02 +0200
-Message-ID: <7ae3d130-b835-4966-b21d-3ad7dac86046@email.android.com>
-References: <20190629113424.GH1685@kunai>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCHv7 1/3] dt-bindings: i2c: document bindings for
+ i2c-slave-mqueue
+Date: Mon, 1 Jul 2019 14:42:18 +0200
+Message-ID: <20190701124218.GA4399@kunai>
+References: <20190605164651.15991-1-eduval@amazon.com>
+ <20190605164651.15991-2-eduval@amazon.com>
+ <20190611231425.GA29500@bogus>
+ <b3e5ac5c-baf7-bc8a-701a-4af3b8983155@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/html; charset=utf-8
-Content-Transfer-Encoding: base64
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <20190629113424.GH1685@kunai>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Vasyl Gomonovych <gomonovych@gmail.com>, linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="KsGdsel6WgEHnImy"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <b3e5ac5c-baf7-bc8a-701a-4af3b8983155@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Wang, Haiyue" <haiyue.wang@linux.intel.com>
+Cc: Rob Herring <robh@kernel.org>, Eduardo Valentin <eduval@amazon.com>, jarkko.nikula@linux.intel.com, andriy.shevchenko@intel.com, brendanhiggins@google.com, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-PGRpdiBkaXI9J2F1dG8nPkhpIFdvbGZyYW0sPGRpdiBkaXI9ImF1dG8iPjxicj48L2Rpdj48ZGl2
-IGRpcj0iYXV0byI+eWVzLCBJJ20gc3RpbGwgaGVyZS4gSG93ZXZlciwgSSBkb24ndCBoYXZlIHRo
-ZSBoYXJkd2FyZSBhbnltb3JlIHRvIHRlc3QgdGhlIHBhdGNoLjwvZGl2PjxkaXYgZGlyPSJhdXRv
-Ij48YnI+PC9kaXY+PGRpdiBkaXI9ImF1dG8iPlRoYW5rcywgSm9jaGVuJm5ic3A7PC9kaXY+PC9k
-aXY+PGRpdiBjbGFzcz0iZ21haWxfZXh0cmEiPjxicj48ZGl2IGNsYXNzPSJnbWFpbF9xdW90ZSI+
-QW0gMjkuMDYuMjAxOSAxMzozNCBzY2hyaWViIFdvbGZyYW0gU2FuZyAmbHQ7d3NhQHRoZS1kcmVh
-bXMuZGUmZ3Q7OjxiciB0eXBlPSJhdHRyaWJ1dGlvbiIgLz48YmxvY2txdW90ZSBjbGFzcz0icXVv
-dGUiIHN0eWxlPSJtYXJnaW46MCAwIDAgLjhleDtib3JkZXItbGVmdDoxcHggI2NjYyBzb2xpZDtw
-YWRkaW5nLWxlZnQ6MWV4Ij48cCBkaXI9Imx0ciI+T24gU3VuLCBKdW4gMjMsIDIwMTkgYXQgMTE6
-MTM6NTNQTSArMDIwMCwgVmFzeWwgR29tb25vdnljaCB3cm90ZTomIzEzOzxicj4KJmd0OyBGcm9t
-OiBWYXN5bCAmbHQ7Z29tb25vdnljaEBnbWFpbC5jb20mZ3Q7JiMxMzs8YnI+CiZndDsgJiMxMzs8
-YnI+CiZndDsgR2VuZXJhdGVkIGJ5OiZuYnNwOyBhbGxvY19jYXN0LmNvY2NpJiMxMzs8YnI+CiZn
-dDsgJiMxMzs8YnI+CiZndDsgU2lnbmVkLW9mZi1ieTogVmFzeWwgJmx0O2dvbW9ub3Z5Y2hAZ21h
-aWwuY29tJmd0OyYjMTM7PGJyPgomIzEzOzxicj4KWW91ciBvdGhlciBwYXRjaGVzIGluIGdpdCBo
-aXN0b3J5IGhhdmUgeW91ciBmdWxsIG5hbWUuIFdoeSBub3QgdGhpcyBvbmU/JiMxMzs8YnI+CiYj
-MTM7PGJyPgpASm9jaGVuOiBhcmUgeW91IHN0aWxsIHRoZXJlLCB5b3VyIGFjayB3b3VsZCBiZSB2
-ZXJ5IHdlbGNvbWUuJiMxMzs8YnI+CiYjMTM7PGJyPgomZ3Q7IC0tLSYjMTM7PGJyPgomZ3Q7Jm5i
-c3A7IGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtY3BtLmMgfCA0ICsrKy0mIzEzOzxicj4KJmd0OyZu
-YnNwOyAxIGZpbGUgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pJiMxMzs8
-YnI+CiZndDsgJiMxMzs8YnI+CiZndDsgZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9p
-MmMtY3BtLmMgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWNwbS5jJiMxMzs8YnI+CiZndDsgaW5k
-ZXggMTg3OTAwNTk0ZTNkLi4xMjEzZTE5MzJjY2IgMTAwNjQ0JiMxMzs8YnI+CiZndDsgLS0tIGEv
-ZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1jcG0uYyYjMTM7PGJyPgomZ3Q7ICsrKyBiL2RyaXZlcnMv
-aTJjL2J1c3Nlcy9pMmMtY3BtLmMmIzEzOzxicj4KJmd0OyBAQCAtNTMxLDcgKzUzMSw5IEBAIHN0
-YXRpYyBpbnQgY3BtX2kyY19zZXR1cChzdHJ1Y3QgY3BtX2kyYyAqY3BtKSYjMTM7PGJyPgomZ3Q7
-Jm5ic3A7ICYjOTsmIzk7fSYjMTM7PGJyPgomZ3Q7Jm5ic3A7ICYjOTsmIzk7b3V0X2JlMzIoJmFt
-cDtyYmRmW2ldLmNiZF9idWZhZGRyLCAoKGNwbS0mZ3Q7cnhkbWFbaV0gKyAxKSAmYW1wOyB+MSkp
-OyYjMTM7PGJyPgomZ3Q7Jm5ic3A7ICYjMTM7PGJyPgomZ3Q7IC0mIzk7JiM5O2NwbS0mZ3Q7dHhi
-dWZbaV0gPSAodW5zaWduZWQgY2hhciAqKWRtYV9hbGxvY19jb2hlcmVudCgmYW1wO2NwbS0mZ3Q7
-b2ZkZXYtJmd0O2RldiwgQ1BNX01BWF9SRUFEICsgMSwgJmFtcDtjcG0tJmd0O3R4ZG1hW2ldLCBH
-RlBfS0VSTkVMKTsmIzEzOzxicj4KJmd0OyArJiM5OyYjOTtjcG0tJmd0O3R4YnVmW2ldID0gZG1h
-X2FsbG9jX2NvaGVyZW50KCZhbXA7Y3BtLSZndDtvZmRldi0mZ3Q7ZGV2LCYjMTM7PGJyPgomZ3Q7
-ICsmIzk7JiM5OyYjOTsmIzk7JiM5OyYjOTsmbmJzcDsmbmJzcDsgQ1BNX01BWF9SRUFEICsgMSwm
-IzEzOzxicj4KJmd0OyArJiM5OyYjOTsmIzk7JiM5OyYjOTsmIzk7Jm5ic3A7Jm5ic3A7ICZhbXA7
-Y3BtLSZndDt0eGRtYVtpXSwgR0ZQX0tFUk5FTCk7JiMxMzs8YnI+CiZndDsmbmJzcDsgJiM5OyYj
-OTtpZiAoIWNwbS0mZ3Q7dHhidWZbaV0pIHsmIzEzOzxicj4KJmd0OyZuYnNwOyAmIzk7JiM5OyYj
-OTtyZXQgPSAtRU5PTUVNOyYjMTM7PGJyPgomZ3Q7Jm5ic3A7ICYjOTsmIzk7JiM5O2dvdG8gb3V0
-X211cmFtOyYjMTM7PGJyPgomZ3Q7IC0tICYjMTM7PGJyPgomZ3Q7IDIuMTcuMSYjMTM7PGJyPgom
-Z3Q7ICYjMTM7PGJyPgo8L3A+CjwvYmxvY2txdW90ZT48L2Rpdj48YnI+PC9kaXY+
+
+--KsGdsel6WgEHnImy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> Looks like the slave reg missed the key value bit:
+>=20
+>=20
+> https://elinux.org/images/f/f6/ELCE15-WolframSang-ShinyNewI2CSlaveFramewo=
+rk.pdf
+>=20
+> Example: reg =3D <(I2C_OWN_SLAVE_ADDRESS | 0x42)>;
+
+Yes.
+
+
+--KsGdsel6WgEHnImy
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0Z/6YACgkQFA3kzBSg
+KbYYWw//eSVKk0pxgmvKMkr3qLS+I+sytYlhN5VtnDJhdVFrxi5wdKyIF4liX0A0
+nR1H+nnK76LlveIMWsWNSIOm44UNckqlcoNpfucCTgRBssPoS1vvrkbZtIzb/Sdj
+v3RaA6417TOkdrfm6T5IcLoKtR8Au9oydZpowrfyqWDxMw/D0JABGZvpfo6tKrnU
+a29NmaNzi4zdPBtK51uT0pCHbCGk4lAwl4uRtsss75kDIXgtsXud1gDQUhhuX+VO
+0WDdo1jg4WcTu5hsX/vPmxONH27eQmkFQEnWvYgvrhpjf96C1eXFfgEe1xQijlJx
+w2p21LlgpziCLVZp5Ae+YhMDheZ1Z7MDflGBeZlsSDRtRuOx8JHp23VC/6/5hK5C
+1IRI7qQ/Ql464Zy15KRw/6KlH5eIVfo3+s4ikc3gMoaDrfAW9J1U++BgqQbA6ZIn
+lcK7eezlmCBZ9eu79v0miGsEH5wI1nD+X6ch/peOIWMH36SnH7bFTsUtXlM5jrLq
+2yuUEbgldT2JTs7Tabayfc/26Ku58k4FeWqKI0VAlxJb4jRUudlixqntVtGqhdHW
+99elcR6mcfohFx5jzhc8ui4YagyLr8z9BQeDVG2CsNAFRT5WvQBtPDFIPx+OxFTb
+B9ZSFj38jdmlOqPAmbXiTJNNNzdCkr2ca9Oloz1prFq6HXyJ0qQ=
+=Clag
+-----END PGP SIGNATURE-----
+
+--KsGdsel6WgEHnImy--
