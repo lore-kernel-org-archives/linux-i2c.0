@@ -1,57 +1,71 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: tegra: Add Dmitry as a reviewer
-Date: Fri, 5 Jul 2019 20:49:48 +0200
-Message-ID: <20190705184947.GJ4717@kunai>
-References: <20190623174655.25445-1-digetx@gmail.com>
+Subject: [PULL REQUEST] i2c for 5.2
+Date: Fri, 5 Jul 2019 21:21:29 +0200
+Message-ID: <20190705192126.GA13751@kunai>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="apbmkPN6Hu/1dI3g"
+        protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190623174655.25445-1-digetx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Osipenko <digetx@gmail.com>
-Cc: Thierry Reding <thierry.reding@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
 
---apbmkPN6Hu/1dI3g
+--envbJBWh7q8WU6mo
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jun 23, 2019 at 08:46:55PM +0300, Dmitry Osipenko wrote:
-> I'm contributing to Tegra's upstream development in general and happened
-> to review the Tegra's I2C patches for awhile because I'm actively using
-> upstream kernel on all of my Tegra-powered devices and initially some of
-> the submitted patches were getting my attention since they were causing
-> problems. Recently Wolfram Sang asked whether I'm interested in becoming
-> a reviewer for the driver and I don't mind at all.
->=20
-> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Linus,
 
-Applied to for-current with a comment that Thierry acked this in the
-mail thread prior this patch. Thanks!
+I2C has a MAINTAINERS update which will be benfitial for developers, so
+let's add it right away.
+
+Please pull.
+
+Thanks,
+
+   Wolfram
 
 
---apbmkPN6Hu/1dI3g
+The following changes since commit 6fbc7275c7a9ba97877050335f290341a1fd8dbf:
+
+  Linux 5.2-rc7 (2019-06-30 11:25:36 +0800)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to f3a3ea28edd9a17588fede4ff53bc02d986cf4d1:
+
+  i2c: tegra: Add Dmitry as a reviewer (2019-07-05 20:46:56 +0200)
+
+----------------------------------------------------------------
+Dmitry Osipenko (1):
+      i2c: tegra: Add Dmitry as a reviewer
+
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
+
+--envbJBWh7q8WU6mo
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0fm8sACgkQFA3kzBSg
-KbZY2Q/+JxDQL3UNgJmHcRs3I4U9y2MsEo6jLh6uYCGKEqZgDGIVHCTOFz47yia4
-nSuDFqwe4K4X8obmzJUT8lP5sr9A8atNWZOrWBCoB/WG9WNbzgYXnhY2wy6NdFP0
-VZ96OF+O91U0OkDtemY+4kuFihfLj/iwbhZ8uGBptFVRdkmy1L8aFoxXzGf8Onz9
-a5CXn0IDgBU224KqY9f02fvmWlNtii8jPgJZ4E/FdnvIioX0CrZYZW2p9yldDAHG
-9CVGCFAlqB2Vpcdb+ZFVSiJY0YIFgRciVhH7itNryh2tHbG7zHltiH0k09CYZGUu
-VQ03yyceQsIeJQoVq054LWHOwckMNldMwnhZW5eWkebgNI4g5BieMY0ES0+i21EJ
-WqsopjL2kWs+Vq9n4QY5wu0ocucjULfiP/BlZ0wQblPQbreQUJ6z+HiSpIcV0DOd
-jVeN78LH10Za9t7NKGAsbBLZSErHRJltFFSrKSKi58WgdpaoM1MzMU33ku/MiFft
-W9LPhg1BOiob64sUXHD8uFOCYFXTrbdusgtfNCZYRlFg/d+mOZdJG2Dn3Ajc6Q3w
-znWC/4uq5CMmxoUAmPxDnrj/PtyxEsTjMRJlbgnuUPTYcxUvzL4jkLOlcZIan9HH
-2O4pj7dRV9pv4i4DZUDVAUW4hCQdvmb5/iHm8sn/Pes06ja2MSI=
-=v1gr
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0fozEACgkQFA3kzBSg
+KbbvtxAAtDtIFBQq4LzR8NsNxLg1RYtW/63y/WUMrikqCqG2DoUApdTy1IrOPrXJ
+jSCeJOHNh2KVDLYRbIu6Ry2MdJNsvQvgez1QBgDPgkPV3byLQoYSLbGzwMQ8dBsX
+QbmAEF+8jzuxF2jq4fjF1tHZUfZJssuBaeQ3Uj1ayDW/M8VuM3jGsdSISB16KVWN
+KpotLElxS17Ddubo+qb1zyED7qxqZPTGhQsyaNKw8it/5Vl7jvUBCgvfQyZSvjaC
+osMkgLYbSMsJvSUV/eWHbs6q8NDK9XD1dwSIwg+tkOIz7ZKxtTHecHJz7ilhgJWW
+mzhYMyp7mMPeD9dTQOntGR83qfj7hJjLibcA0ybMMAPAlOrTuOvj6YHmP/tkIJBj
+4nwhaMmPQKKL1BhNd430tFMMWLOIUIEMtwshkpqSJ+KthrU0vSyGmdSB1h6TKWsk
+Tf0r8uwaQHuSTjSYBtMkB8aa+Mrw6swsArfazCr+E6/pO497hF0TsyoXKvacNX/Q
+Th+xwO5MdaWekOyTfufNGdhJXMmfTWj6LBH4c0l2ZCoapm3RO7Wx4maFPTXmKSC5
++DGIUi0BJ2tIClcura0zLLYql5NphILON7rfCy09AhAOOajo3fPre36qLNvudy1D
+GWsBkCQVfP2Gyekbfa3bBeqWKc5aRL62uSlebIZcORWi2Px7p6E=
+=dvvr
 -----END PGP SIGNATURE-----
 
---apbmkPN6Hu/1dI3g--
+--envbJBWh7q8WU6mo--
