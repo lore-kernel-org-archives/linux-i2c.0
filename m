@@ -1,91 +1,88 @@
-From: Dmitry Osipenko <digetx@gmail.com>
-Subject: [PATCH v1] i2c: tegra: Compile PM functions unconditionally
-Date: Mon,  8 Jul 2019 02:12:34 +0300
-Message-ID: <20190707231234.11679-1-digetx@gmail.com>
+From: AceLan Kao <acelan.kao@canonical.com>
+Subject: Re: [PATCH] i2c: designware: Add disable runtime pm quirk
+Date: Mon, 8 Jul 2019 14:18:09 +0800
+Message-ID: <CAFv23Qmo_f=FEVM2ZOfL-8SvP624doY-OxU_T091uweKwJJ7QA@mail.gmail.com>
+References: <20190625083051.30332-1-acelan.kao@canonical.com>
+ <a3469010-829c-16dc-be83-6fe9b3021530@linux.intel.com> <CAFv23QnaKMs9bjS9ry_L4K7wskUqNR2AsgDG-v+fah2XO7EpKw@mail.gmail.com>
+ <5c14537d-b6aa-b478-fdd8-29f690b15e07@linux.intel.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <5c14537d-b6aa-b478-fdd8-29f690b15e07@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>, Kai Heng Feng <kai.heng.feng@canonical.com>, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The I2C driver fails to probe if CONFIG_PM_SLEEP=n because runtime PM
-doesn't depend on the PM sleep and in this case the runtime PM ops are
-not included in the driver, resulting in I2C clock not being enabled.
-It's much cleaner to simply allow compiler to remove the dead code
-instead of messing with the #ifdefs.
+Hi Jarkko,
 
-This patch fixes such errors when CONFIG_PM_SLEEP=n:
+Sorry, I lost track of this thread and didn't understand what you want
+me to try.
+I'm willing to try it if you can explain it more.
 
-  tegra-i2c 7000c400.i2c: timeout waiting for fifo flush
-  tegra-i2c 7000c400.i2c: Failed to initialize i2c controller
+My colleague comes out another solution for this issue
+   https://lkml.org/lkml/2019/7/5/17
+and it explains why it takes up to 100ms to wake up.
+This solution is more aggressive to zero the d3cold_delay and it looks
+like the delay is not necessary.
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
----
- drivers/i2c/busses/i2c-tegra.c | 16 +++++-----------
- 1 file changed, 5 insertions(+), 11 deletions(-)
+Anyway, we have two different proposed solutions now, my proposed
+solution is specific to the listed platforms, but we may have to
+extent the list(platforms which uses the old firmware),
+the other proposed solution from my colleague is generic and apply to
+all platforms which loads intel-lpss-pci driver, it may lead to
+unexpected regressions which we don't see now.
+Please give some suggestions, thanks.
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 9fcb13beeb8f..18f0ceed9f1b 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -636,7 +636,7 @@ static void tegra_dvc_init(struct tegra_i2c_dev *i2c_dev)
- 	dvc_writel(i2c_dev, val, DVC_CTRL_REG1);
- }
- 
--static int tegra_i2c_runtime_resume(struct device *dev)
-+static int __maybe_unused tegra_i2c_runtime_resume(struct device *dev)
- {
- 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
- 	int ret;
-@@ -665,7 +665,7 @@ static int tegra_i2c_runtime_resume(struct device *dev)
- 	return 0;
- }
- 
--static int tegra_i2c_runtime_suspend(struct device *dev)
-+static int __maybe_unused tegra_i2c_runtime_suspend(struct device *dev)
- {
- 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
- 
-@@ -1711,8 +1711,7 @@ static int tegra_i2c_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--#ifdef CONFIG_PM_SLEEP
--static int tegra_i2c_suspend(struct device *dev)
-+static int __maybe_unused tegra_i2c_suspend(struct device *dev)
- {
- 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
- 
-@@ -1721,7 +1720,7 @@ static int tegra_i2c_suspend(struct device *dev)
- 	return 0;
- }
- 
--static int tegra_i2c_resume(struct device *dev)
-+static int __maybe_unused tegra_i2c_resume(struct device *dev)
- {
- 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
- 	int err;
-@@ -1741,18 +1740,13 @@ static const struct dev_pm_ops tegra_i2c_pm = {
- 			   NULL)
- };
- 
--#define TEGRA_I2C_PM	(&tegra_i2c_pm)
--#else
--#define TEGRA_I2C_PM	NULL
--#endif
--
- static struct platform_driver tegra_i2c_driver = {
- 	.probe   = tegra_i2c_probe,
- 	.remove  = tegra_i2c_remove,
- 	.driver  = {
- 		.name  = "tegra-i2c",
- 		.of_match_table = tegra_i2c_of_match,
--		.pm    = TEGRA_I2C_PM,
-+		.pm    = &tegra_i2c_pm,
- 	},
- };
- 
--- 
-2.22.0
+Best regards,
+AceLan Kao.
+
+Jarkko Nikula <jarkko.nikula@linux.intel.com> 於 2019年6月26日 週三 下午2:27寫道：
+>
+> On 6/26/19 5:32 AM, AceLan Kao wrote:
+> > Adding I2C_HID_QUIRK_NO_RUNTIME_PM quirk doesn't help on this issue.
+> > Actually, Goodix touchpad already has that PM quirk in the list for other issue.
+> >          { I2C_VENDOR_ID_GOODIX, I2C_DEVICE_ID_GOODIX_01F0,
+> >                 I2C_HID_QUIRK_NO_RUNTIME_PM },
+> > I also modify the code as you suggested, but no luck.
+> >
+> Yeah, I realized it won't help as the i2c-hid device is anyway powered
+> on constantly when the device is open by the pm_runtime_get_sync() call
+> in i2c_hid_open().
+>
+> > It's not Goodix takes time to wakeup, it's designware I2C controller.
+> > Designware doesn't do anything wrong here, it's Goodix set the interrupt timeout
+> > that leads to the issue, so we have to prevent designware from runtime
+> > suspended.
+> > But only on that bus where Goodix is connected and open by user space.
+> What I mean something like below:
+>
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c
+> b/drivers/hid/i2c-hid/i2c-hid-core.c
+> index 90164fed08d3..bbeaa39ddc23 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+> @@ -795,6 +795,9 @@ static int i2c_hid_open(struct hid_device *hid)
+>         struct i2c_hid *ihid = i2c_get_clientdata(client);
+>         int ret = 0;
+>
+> +       /* some quirk test here */
+> +       pm_runtime_get_sync(&client->adapter->dev);
+> +
+>         ret = pm_runtime_get_sync(&client->dev);
+>         if (ret < 0)
+>                 return ret;
+> @@ -812,6 +815,9 @@ static void i2c_hid_close(struct hid_device *hid)
+>
+>         /* Save some power */
+>         pm_runtime_put(&client->dev);
+> +
+> +       /* some quirk test here */
+> +       pm_runtime_put(&client->adapter->dev);
+>   }
+>
+>   static int i2c_hid_power(struct hid_device *hid, int lvl)
+>
+> --
+> Jarkko
