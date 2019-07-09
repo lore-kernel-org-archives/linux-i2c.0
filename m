@@ -1,7 +1,8 @@
 From: <Eugen.Hristev@microchip.com>
-Subject: [PATCH v3 7/9] i2c: at91: add support for analog filtering
-Date: Tue, 9 Jul 2019 13:19:48 +0000
-Message-ID: <1562678049-17581-8-git-send-email-eugen.hristev@microchip.com>
+Subject: [PATCH v3 8/9] ARM: dts: at91: sama5d2_xplained: add analog and
+ digital filter for i2c
+Date: Tue, 9 Jul 2019 13:19:51 +0000
+Message-ID: <1562678049-17581-9-git-send-email-eugen.hristev@microchip.com>
 References: <1562678049-17581-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -16,167 +17,38 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Eugen Hristev <eugen.hristev@microchip.com>
 
-Add support for analog filtering for i2c lines.
-The sama5d2 and sam9x60 support this feature.
+Add property for analog and digital filter for i2c1 and i2c2 nodes
+for sama5d2_xplained
 
 Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
 ---
- drivers/i2c/busses/i2c-at91-core.c   |  9 +++++++++
- drivers/i2c/busses/i2c-at91-master.c | 18 ++++++++++++++----
- drivers/i2c/busses/i2c-at91.h        |  3 +++
- 3 files changed, 26 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/at91-sama5d2_xplained.dts | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-at91-core.c b/drivers/i2c/busses/i2c-at=
-91-core.c
-index 3bbe37c..d2840ba 100644
---- a/drivers/i2c/busses/i2c-at91-core.c
-+++ b/drivers/i2c/busses/i2c-at91-core.c
-@@ -70,6 +70,7 @@ static struct at91_twi_pdata at91rm9200_config =3D {
- 	.has_hold_field =3D false,
- 	.has_dig_filtr =3D false,
- 	.has_adv_dig_filtr =3D false,
-+	.has_ana_filtr =3D false,
- };
+diff --git a/arch/arm/boot/dts/at91-sama5d2_xplained.dts b/arch/arm/boot/dt=
+s/at91-sama5d2_xplained.dts
+index 808e399..965326c 100644
+--- a/arch/arm/boot/dts/at91-sama5d2_xplained.dts
++++ b/arch/arm/boot/dts/at91-sama5d2_xplained.dts
+@@ -334,6 +334,9 @@
+ 					pinctrl-names =3D "default";
+ 					pinctrl-0 =3D <&pinctrl_flx4_default>;
+ 					atmel,fifo-size =3D <16>;
++					i2c-ana-filter;
++					i2c-dig-filter;
++					i2c-filter-width-ns =3D <35>;
+ 					status =3D "okay";
+ 				};
+ 			};
+@@ -342,6 +345,9 @@
+ 				dmas =3D <0>, <0>;
+ 				pinctrl-names =3D "default";
+ 				pinctrl-0 =3D <&pinctrl_i2c1_default>;
++				i2c-ana-filter;
++				i2c-dig-filter;
++				i2c-filter-width-ns =3D <35>;
+ 				status =3D "okay";
 =20
- static struct at91_twi_pdata at91sam9261_config =3D {
-@@ -80,6 +81,7 @@ static struct at91_twi_pdata at91sam9261_config =3D {
- 	.has_hold_field =3D false,
- 	.has_dig_filtr =3D false,
- 	.has_adv_dig_filtr =3D false,
-+	.has_ana_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata at91sam9260_config =3D {
-@@ -90,6 +92,7 @@ static struct at91_twi_pdata at91sam9260_config =3D {
- 	.has_hold_field =3D false,
- 	.has_dig_filtr =3D false,
- 	.has_adv_dig_filtr =3D false,
-+	.has_ana_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata at91sam9g20_config =3D {
-@@ -100,6 +103,7 @@ static struct at91_twi_pdata at91sam9g20_config =3D {
- 	.has_hold_field =3D false,
- 	.has_dig_filtr =3D false,
- 	.has_adv_dig_filtr =3D false,
-+	.has_ana_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata at91sam9g10_config =3D {
-@@ -110,6 +114,7 @@ static struct at91_twi_pdata at91sam9g10_config =3D {
- 	.has_hold_field =3D false,
- 	.has_dig_filtr =3D false,
- 	.has_adv_dig_filtr =3D false,
-+	.has_ana_filtr =3D false,
- };
-=20
- static const struct platform_device_id at91_twi_devtypes[] =3D {
-@@ -142,6 +147,7 @@ static struct at91_twi_pdata at91sam9x5_config =3D {
- 	.has_hold_field =3D false,
- 	.has_dig_filtr =3D false,
- 	.has_adv_dig_filtr =3D false,
-+	.has_ana_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata sama5d4_config =3D {
-@@ -152,6 +158,7 @@ static struct at91_twi_pdata sama5d4_config =3D {
- 	.has_hold_field =3D true,
- 	.has_dig_filtr =3D true,
- 	.has_adv_dig_filtr =3D false,
-+	.has_ana_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata sama5d2_config =3D {
-@@ -162,6 +169,7 @@ static struct at91_twi_pdata sama5d2_config =3D {
- 	.has_hold_field =3D true,
- 	.has_dig_filtr =3D true,
- 	.has_adv_dig_filtr =3D true,
-+	.has_ana_filtr =3D true,
- };
-=20
- static struct at91_twi_pdata sam9x60_config =3D {
-@@ -172,6 +180,7 @@ static struct at91_twi_pdata sam9x60_config =3D {
- 	.has_hold_field =3D true,
- 	.has_dig_filtr =3D true,
- 	.has_adv_dig_filtr =3D true,
-+	.has_ana_filtr =3D true,
- };
-=20
- static const struct of_device_id atmel_twi_dt_ids[] =3D {
-diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-=
-at91-master.c
-index 344fd26..4b89610 100644
---- a/drivers/i2c/busses/i2c-at91-master.c
-+++ b/drivers/i2c/busses/i2c-at91-master.c
-@@ -32,6 +32,7 @@
- void at91_init_twi_bus_master(struct at91_twi_dev *dev)
- {
- 	struct at91_twi_pdata *pdata =3D dev->pdata;
-+	u32 filtr =3D 0;
-=20
- 	/* FIFO should be enabled immediately after the software reset */
- 	if (dev->fifo_size)
-@@ -42,13 +43,20 @@ void at91_init_twi_bus_master(struct at91_twi_dev *dev)
-=20
- 	/* enable digital filter */
- 	if (pdata->has_dig_filtr && dev->enable_dig_filt)
--		at91_twi_write(dev, AT91_TWI_FILTR, AT91_TWI_FILTR_FILT);
-+		filtr |=3D AT91_TWI_FILTR_FILT;
-=20
- 	/* enable advanced digital filter */
- 	if (pdata->has_adv_dig_filtr && dev->enable_dig_filt)
--		at91_twi_write(dev, AT91_TWI_FILTR, AT91_TWI_FILTR_FILT |
--			       (AT91_TWI_FILTR_THRES(dev->filter_width) &
--				AT91_TWI_FILTR_THRES_MASK));
-+		filtr |=3D AT91_TWI_FILTR_FILT |
-+			 (AT91_TWI_FILTR_THRES(dev->filter_width) &
-+			 AT91_TWI_FILTR_THRES_MASK);
-+
-+	/* enable analog filter */
-+	if (pdata->has_ana_filtr && dev->enable_ana_filt)
-+		filtr |=3D AT91_TWI_FILTR_PADFEN;
-+
-+	if (filtr)
-+		at91_twi_write(dev, AT91_TWI_FILTR, filtr);
- }
-=20
- /*
-@@ -825,6 +833,8 @@ int at91_twi_probe_master(struct platform_device *pdev,
- 	dev->enable_dig_filt =3D of_property_read_bool(pdev->dev.of_node,
- 						     "i2c-dig-filter");
-=20
-+	dev->enable_ana_filt =3D of_property_read_bool(pdev->dev.of_node,
-+						     "i2c-ana-filter");
- 	at91_calc_twi_clock(dev);
-=20
- 	dev->adapter.algo =3D &at91_twi_algorithm;
-diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
-index d7cf01e3..977a67b 100644
---- a/drivers/i2c/busses/i2c-at91.h
-+++ b/drivers/i2c/busses/i2c-at91.h
-@@ -86,6 +86,7 @@
-=20
- #define AT91_TWI_FILTR		0x0044
- #define AT91_TWI_FILTR_FILT	BIT(0)
-+#define AT91_TWI_FILTR_PADFEN	BIT(1)
- #define AT91_TWI_FILTR_THRES(v)		((v) << 8)
- #define AT91_TWI_FILTR_THRES_MAX	7
- #define AT91_TWI_FILTR_THRES_MASK	GENMASK(10, 8)
-@@ -116,6 +117,7 @@ struct at91_twi_pdata {
- 	bool has_hold_field;
- 	bool has_dig_filtr;
- 	bool has_adv_dig_filtr;
-+	bool has_ana_filtr;
- 	struct at_dma_slave dma_slave;
- };
-=20
-@@ -154,6 +156,7 @@ struct at91_twi_dev {
- 	struct i2c_client *slave;
- #endif
- 	bool enable_dig_filt;
-+	bool enable_ana_filt;
- 	u32 filter_width;
- };
-=20
+ 				at24@54 {
 --=20
 2.7.4
