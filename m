@@ -1,7 +1,8 @@
 From: <Eugen.Hristev@microchip.com>
-Subject: [PATCH v3 1/9] dt-bindings: i2c: at91: add new compatible
-Date: Tue, 9 Jul 2019 13:19:29 +0000
-Message-ID: <1562678049-17581-2-git-send-email-eugen.hristev@microchip.com>
+Subject: [PATCH v3 2/9] dt-bindings: i2c: add bindings for i2c analog and
+ digital filter
+Date: Tue, 9 Jul 2019 13:19:33 +0000
+Message-ID: <1562678049-17581-3-git-send-email-eugen.hristev@microchip.com>
 References: <1562678049-17581-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -16,28 +17,40 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Eugen Hristev <eugen.hristev@microchip.com>
 
-Add compatible for new Microchip SoC, sam9x60
+Some i2c controllers have a built-in digital or analog filter.
+This is specifically required depending on the hardware PCB/board.
+Some controllers also allow specifying the maximum width of the
+spikes that can be filtered. The width length can be specified in nanosecon=
+ds.
 
 Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-at91.txt | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/i2c/i2c.txt | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Documenta=
-tion/devicetree/bindings/i2c/i2c-at91.txt
-index b7cec17..2210f43 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-@@ -3,7 +3,8 @@ I2C for Atmel platforms
- Required properties :
- - compatible : Must be "atmel,at91rm9200-i2c", "atmel,at91sam9261-i2c",
-      "atmel,at91sam9260-i2c", "atmel,at91sam9g20-i2c", "atmel,at91sam9g10-=
-i2c",
--     "atmel,at91sam9x5-i2c", "atmel,sama5d4-i2c" or "atmel,sama5d2-i2c"
-+     "atmel,at91sam9x5-i2c", "atmel,sama5d4-i2c", "atmel,sama5d2-i2c" or
-+     "microchip,sam9x60-i2c"
- - reg: physical base address of the controller and length of memory mapped
-      region.
- - interrupts: interrupt number to the cpu.
+diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/=
+devicetree/bindings/i2c/i2c.txt
+index 44efafd..a2d31aa 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+@@ -55,6 +55,17 @@ wants to support one of the below features, it should ad=
+apt the bindings below.
+ 	Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
+ 	specification.
+=20
++- i2c-ana-filter
++	Enable analog filter for i2c lines.
++
++- i2c-dig-filter
++	Enable digital filter for i2c lines.
++
++- i2c-filter-width-ns
++	Width of spikes which can be filtered by either digital or analog
++	filters (i2c-ana-filtr or i2c-dig-filtr). This width is specified
++	in nanoseconds.
++
+ - interrupts
+ 	interrupts used by the device.
+=20
 --=20
 2.7.4
