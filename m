@@ -1,96 +1,78 @@
-From: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Subject: Re: [PATCH] i2c: core: make exported functions non-static
-Date: Tue, 9 Jul 2019 11:25:54 +0100
-Message-ID: <f843944d-2721-d200-19dd-7b624ca592c4@ideasonboard.com>
-References: <20190707210419.14868-1-efremov@linux.com>
-Reply-To: kieran.bingham+renesas@ideasonboard.com
+From: <Eugen.Hristev@microchip.com>
+Subject: [PATCH v3 0/9] i2c: add support for filters
+Date: Tue, 9 Jul 2019 13:19:26 +0000
+Message-ID: <1562678049-17581-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190707210419.14868-1-efremov@linux.com>
-Content-Language: en-GB
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Denis Efremov <efremov@linux.com>, Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: wsa@the-dreams.de, peda@axentia.se, mark.rutland@arm.com, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, pierre-yves.mordret@st.com, alexandre.belloni@bootlin.com, robh+dt@kernel.org
+Cc: Nicolas.Ferre@microchip.com, Eugen.Hristev@microchip.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Denis,
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-Thank you for the patch,
+Hello,
 
-On 07/07/2019 22:04, Denis Efremov wrote:
-> The functions i2c_new_client_device and i2c_new_dummy_device are declared
-> static and marked EXPORT_SYMBOL_GPL(), which is at best an odd combination.
-> Because the functions were decided to be a part of API, this commit removes
-> the static attributes and adds the declarations to the header.
+This series adds support for analog and digital filters for i2c controllers
 
-I'm afraid I think Wolfram pipped you to the post on this one.
+This series is based on the series:
+[PATCH v2 0/9] i2c: at91: filters support for at91 SoCs
+and enhanced to add the bindings for all controllers plus an extra binding
+for the width of the spikes in nanoseconds.
 
-He posted a very similar fix [0] on the 24th June.
+First, bindings are created for
+'i2c-ana-filter'
+'i2c-dig-filter'
+'i2c-filter-width-ns'
 
-[0]
-https://lore.kernel.org/linux-renesas-soc/20190624170402.6944-1-wsa+renesas@sang-engineering.com/
+The support is added in the i2c core to retrieve filter width and add it
+to the timings structure.
+Next, the at91 driver is enhanced for supporting digital filter, advanced
+digital filter (with selectable spike width) and the analog filter.
 
-I believe his patch is already applied and on it's way through the trees.
+Finally the device tree for two boards are modified to make use of the
+new properties.
 
-Regards
+This series is the result of the comments on the ML in the direction
+requested: to make the bindings globally available for i2c drivers.
 
-Kieran
+Changes in v3:
+- made bindings global for i2c controllers and modified accordingly
+- gave up PADFCDF bit because it's a lack in datasheet
+- the computation on the width of the spike is based on periph clock as it
+is done for hold time.
 
+Changes in v2:
+- added device tree bindings and support for enable-ana-filt and
+enable-dig-filt
+- added the new properties to the DT for sama5d4_xplained/sama5d2_xplained
 
-> Fixes: 7159dbdae3c5 ("i2c: core: improve return value handling of i2c_new_device and i2c_new_dummy")
-> Signed-off-by: Denis Efremov <efremov@linux.com>
-> ---
->  drivers/i2c/i2c-core-base.c | 4 ++--
->  include/linux/i2c.h         | 7 +++++++
->  2 files changed, 9 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 9e43508d4567..7792fa40fc32 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -721,7 +721,7 @@ static int i2c_dev_irq_from_resources(const struct resource *resources,
->   * This returns the new i2c client, which may be saved for later use with
->   * i2c_unregister_device(); or an ERR_PTR to describe the error.
->   */
-> -static struct i2c_client *
-> +struct i2c_client *
->  i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
->  {
->  	struct i2c_client	*client;
-> @@ -887,7 +887,7 @@ static struct i2c_driver dummy_driver = {
->   * This returns the new i2c client, which should be saved for later use with
->   * i2c_unregister_device(); or an ERR_PTR to describe the error.
->   */
-> -static struct i2c_client *
-> +struct i2c_client *
->  i2c_new_dummy_device(struct i2c_adapter *adapter, u16 address)
->  {
->  	struct i2c_board_info info = {
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 1308126fc384..fa42f6f594ce 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -436,6 +436,10 @@ struct i2c_board_info {
->  extern struct i2c_client *
->  i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info);
->  
-> +extern struct i2c_client *
-> +i2c_new_client_device(struct i2c_adapter *adap,
-> +			struct i2c_board_info const *info);
-> +
->  /* If you don't know the exact address of an I2C device, use this variant
->   * instead, which can probe for device presence in a list of possible
->   * addresses. The "probe" callback function is optional. If it is provided,
-> @@ -457,6 +461,9 @@ extern int i2c_probe_func_quick_read(struct i2c_adapter *, unsigned short addr);
->  extern struct i2c_client *
->  i2c_new_dummy(struct i2c_adapter *adap, u16 address);
->  
-> +extern struct i2c_client *
-> +i2c_new_dummy_device(struct i2c_adapter *adap, u16 address);
-> +
->  extern struct i2c_client *
->  devm_i2c_new_dummy_device(struct device *dev, struct i2c_adapter *adap, u16 address);
->  
-> 
+Eugen Hristev (9):
+  dt-bindings: i2c: at91: add new compatible
+  dt-bindings: i2c: add bindings for i2c analog and digital filter
+  i2c: add support for filter-width-ns optional property
+  i2c: at91: add new platform support for sam9x60
+  i2c: at91: add support for digital filtering
+  i2c: at91: add support for advanced digital filtering
+  i2c: at91: add support for analog filtering
+  ARM: dts: at91: sama5d2_xplained: add analog and digital filter for
+    i2c
+  ARM: dts: at91: sama5d4_xplained: add analog filter for i2c
+
+ Documentation/devicetree/bindings/i2c/i2c-at91.txt |  3 +-
+ Documentation/devicetree/bindings/i2c/i2c.txt      | 11 +++++
+ arch/arm/boot/dts/at91-sama5d2_xplained.dts        |  6 +++
+ arch/arm/boot/dts/at91-sama5d4_xplained.dts        |  1 +
+ drivers/i2c/busses/i2c-at91-core.c                 | 38 +++++++++++++++++
+ drivers/i2c/busses/i2c-at91-master.c               | 49 ++++++++++++++++++=
+++--
+ drivers/i2c/busses/i2c-at91.h                      | 13 ++++++
+ drivers/i2c/i2c-core-base.c                        |  2 +
+ include/linux/i2c.h                                |  2 +
+ 9 files changed, 121 insertions(+), 4 deletions(-)
+
+--=20
+2.7.4
