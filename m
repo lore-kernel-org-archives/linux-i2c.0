@@ -1,105 +1,96 @@
-From: Jon Hunter <jonathanh@nvidia.com>
-Subject: Re: [PATCH v1] i2c: tegra: Compile PM functions unconditionally
-Date: Tue, 9 Jul 2019 11:12:12 +0100
-Message-ID: <13be0f2e-2131-2e0d-d39f-9f1c964b8698@nvidia.com>
-References: <20190707231234.11679-1-digetx@gmail.com>
+From: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Subject: Re: [PATCH] i2c: core: make exported functions non-static
+Date: Tue, 9 Jul 2019 11:25:54 +0100
+Message-ID: <f843944d-2721-d200-19dd-7b624ca592c4@ideasonboard.com>
+References: <20190707210419.14868-1-efremov@linux.com>
+Reply-To: kieran.bingham+renesas@ideasonboard.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190707231234.11679-1-digetx@gmail.com>
-Content-Language: en-US
+In-Reply-To: <20190707210419.14868-1-efremov@linux.com>
+Content-Language: en-GB
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Osipenko <digetx@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Laxman Dewangan <ldewangan@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Denis Efremov <efremov@linux.com>, Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Denis,
 
-On 08/07/2019 00:12, Dmitry Osipenko wrote:
-> The I2C driver fails to probe if CONFIG_PM_SLEEP=n because runtime PM
-> doesn't depend on the PM sleep and in this case the runtime PM ops are
-> not included in the driver, resulting in I2C clock not being enabled.
-> It's much cleaner to simply allow compiler to remove the dead code
-> instead of messing with the #ifdefs.
-> 
-> This patch fixes such errors when CONFIG_PM_SLEEP=n:
-> 
->   tegra-i2c 7000c400.i2c: timeout waiting for fifo flush
->   tegra-i2c 7000c400.i2c: Failed to initialize i2c controller
-> 
-> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Thank you for the patch,
+
+On 07/07/2019 22:04, Denis Efremov wrote:
+> The functions i2c_new_client_device and i2c_new_dummy_device are declared
+> static and marked EXPORT_SYMBOL_GPL(), which is at best an odd combination.
+> Because the functions were decided to be a part of API, this commit removes
+> the static attributes and adds the declarations to the header.
+
+I'm afraid I think Wolfram pipped you to the post on this one.
+
+He posted a very similar fix [0] on the 24th June.
+
+[0]
+https://lore.kernel.org/linux-renesas-soc/20190624170402.6944-1-wsa+renesas@sang-engineering.com/
+
+I believe his patch is already applied and on it's way through the trees.
+
+Regards
+
+Kieran
+
+
+> Fixes: 7159dbdae3c5 ("i2c: core: improve return value handling of i2c_new_device and i2c_new_dummy")
+> Signed-off-by: Denis Efremov <efremov@linux.com>
 > ---
->  drivers/i2c/busses/i2c-tegra.c | 16 +++++-----------
->  1 file changed, 5 insertions(+), 11 deletions(-)
+>  drivers/i2c/i2c-core-base.c | 4 ++--
+>  include/linux/i2c.h         | 7 +++++++
+>  2 files changed, 9 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-> index 9fcb13beeb8f..18f0ceed9f1b 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -636,7 +636,7 @@ static void tegra_dvc_init(struct tegra_i2c_dev *i2c_dev)
->  	dvc_writel(i2c_dev, val, DVC_CTRL_REG1);
->  }
->  
-> -static int tegra_i2c_runtime_resume(struct device *dev)
-> +static int __maybe_unused tegra_i2c_runtime_resume(struct device *dev)
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index 9e43508d4567..7792fa40fc32 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -721,7 +721,7 @@ static int i2c_dev_irq_from_resources(const struct resource *resources,
+>   * This returns the new i2c client, which may be saved for later use with
+>   * i2c_unregister_device(); or an ERR_PTR to describe the error.
+>   */
+> -static struct i2c_client *
+> +struct i2c_client *
+>  i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
 >  {
->  	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
->  	int ret;
-> @@ -665,7 +665,7 @@ static int tegra_i2c_runtime_resume(struct device *dev)
->  	return 0;
->  }
->  
-> -static int tegra_i2c_runtime_suspend(struct device *dev)
-> +static int __maybe_unused tegra_i2c_runtime_suspend(struct device *dev)
+>  	struct i2c_client	*client;
+> @@ -887,7 +887,7 @@ static struct i2c_driver dummy_driver = {
+>   * This returns the new i2c client, which should be saved for later use with
+>   * i2c_unregister_device(); or an ERR_PTR to describe the error.
+>   */
+> -static struct i2c_client *
+> +struct i2c_client *
+>  i2c_new_dummy_device(struct i2c_adapter *adapter, u16 address)
 >  {
->  	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+>  	struct i2c_board_info info = {
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 1308126fc384..fa42f6f594ce 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -436,6 +436,10 @@ struct i2c_board_info {
+>  extern struct i2c_client *
+>  i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info);
 >  
-> @@ -1711,8 +1711,7 @@ static int tegra_i2c_remove(struct platform_device *pdev)
->  	return 0;
->  }
+> +extern struct i2c_client *
+> +i2c_new_client_device(struct i2c_adapter *adap,
+> +			struct i2c_board_info const *info);
+> +
+>  /* If you don't know the exact address of an I2C device, use this variant
+>   * instead, which can probe for device presence in a list of possible
+>   * addresses. The "probe" callback function is optional. If it is provided,
+> @@ -457,6 +461,9 @@ extern int i2c_probe_func_quick_read(struct i2c_adapter *, unsigned short addr);
+>  extern struct i2c_client *
+>  i2c_new_dummy(struct i2c_adapter *adap, u16 address);
 >  
-> -#ifdef CONFIG_PM_SLEEP
-> -static int tegra_i2c_suspend(struct device *dev)
-> +static int __maybe_unused tegra_i2c_suspend(struct device *dev)
->  {
->  	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+> +extern struct i2c_client *
+> +i2c_new_dummy_device(struct i2c_adapter *adap, u16 address);
+> +
+>  extern struct i2c_client *
+>  devm_i2c_new_dummy_device(struct device *dev, struct i2c_adapter *adap, u16 address);
 >  
-> @@ -1721,7 +1720,7 @@ static int tegra_i2c_suspend(struct device *dev)
->  	return 0;
->  }
->  
-> -static int tegra_i2c_resume(struct device *dev)
-> +static int __maybe_unused tegra_i2c_resume(struct device *dev)
->  {
->  	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
->  	int err;
-> @@ -1741,18 +1740,13 @@ static const struct dev_pm_ops tegra_i2c_pm = {
->  			   NULL)
->  };
->  
-> -#define TEGRA_I2C_PM	(&tegra_i2c_pm)
-> -#else
-> -#define TEGRA_I2C_PM	NULL
-> -#endif
-> -
->  static struct platform_driver tegra_i2c_driver = {
->  	.probe   = tegra_i2c_probe,
->  	.remove  = tegra_i2c_remove,
->  	.driver  = {
->  		.name  = "tegra-i2c",
->  		.of_match_table = tegra_i2c_of_match,
-> -		.pm    = TEGRA_I2C_PM,
-> +		.pm    = &tegra_i2c_pm,
->  	},
->  };
->  
-
-Looks good to me.
-
-Acked-by: Jon Hunter <jonathanh@nvidia.com>
-
-Cheers
-Jon
-
--- 
-nvpublic
+> 
