@@ -1,8 +1,7 @@
 From: <Eugen.Hristev@microchip.com>
-Subject: [PATCH v3 9/9] ARM: dts: at91: sama5d4_xplained: add digital filter
- for i2c
-Date: Tue, 9 Jul 2019 13:19:54 +0000
-Message-ID: <1562678049-17581-10-git-send-email-eugen.hristev@microchip.com>
+Subject: [PATCH v3 3/9] i2c: add support for filter-width-ns optional property
+Date: Tue, 9 Jul 2019 13:19:36 +0000
+Message-ID: <1562678049-17581-4-git-send-email-eugen.hristev@microchip.com>
 References: <1562678049-17581-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -17,25 +16,54 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Eugen Hristev <eugen.hristev@microchip.com>
 
-Add property for digital filter for i2c0 node sama5d4_xplained
+This optional timing property specifies the width of the spikes on the i2c
+lines (in ns) that can be filtered out by built-in analog or digital filter=
+s
+which are embedded in some i2c controllers.
+Include it in the timings structure and read it as integer property.
 
 Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
 ---
- arch/arm/boot/dts/at91-sama5d4_xplained.dts | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/i2c-core-base.c | 2 ++
+ include/linux/i2c.h         | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/arch/arm/boot/dts/at91-sama5d4_xplained.dts b/arch/arm/boot/dt=
-s/at91-sama5d4_xplained.dts
-index fdfc37d..298113c 100644
---- a/arch/arm/boot/dts/at91-sama5d4_xplained.dts
-+++ b/arch/arm/boot/dts/at91-sama5d4_xplained.dts
-@@ -49,6 +49,7 @@
- 			};
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 9e43508..73d1c62 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1658,6 +1658,8 @@ void i2c_parse_fw_timings(struct device *dev, struct =
+i2c_timings *t, bool use_de
+ 		t->sda_fall_ns =3D t->scl_fall_ns;
 =20
- 			i2c0: i2c@f8014000 {
-+				i2c-dig-filter;
- 				status =3D "okay";
- 			};
+ 	device_property_read_u32(dev, "i2c-sda-hold-time-ns", &t->sda_hold_ns);
++
++	device_property_read_u32(dev, "i2c-filter-width-ns", &t->filter_width_ns)=
+;
+ }
+ EXPORT_SYMBOL_GPL(i2c_parse_fw_timings);
 =20
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 1308126..dfb6525 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -563,6 +563,7 @@ struct i2c_lock_operations {
+  * @scl_int_delay_ns: time IP core additionally needs to setup SCL in ns
+  * @sda_fall_ns: time SDA signal takes to fall in ns; t(f) in the I2C spec=
+ification
+  * @sda_hold_ns: time IP core additionally needs to hold SDA in ns
++ * @filter_width_ns: width in ns of spikes on i2c lines that the IP core c=
+an filter out
+  */
+ struct i2c_timings {
+ 	u32 bus_freq_hz;
+@@ -571,6 +572,7 @@ struct i2c_timings {
+ 	u32 scl_int_delay_ns;
+ 	u32 sda_fall_ns;
+ 	u32 sda_hold_ns;
++	u32 filter_width_ns;
+ };
+=20
+ /**
 --=20
 2.7.4
