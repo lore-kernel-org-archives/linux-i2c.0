@@ -1,34 +1,50 @@
-From: Marc Gonzalez <marc.w.gonzalez@free.fr>
-Subject: Re: [RFC] SW connection between DVB Transport Stream demuxer and
- I2C-based frontend
-Date: Wed, 10 Jul 2019 17:07:34 +0200
-Message-ID: <ae5896d2-3046-8c28-2419-c5a932050c95@free.fr>
-References: <5e35b4fb-646d-6428-f372-ee47d7352cd6@free.fr>
- <7d47a978-5307-a2c8-acc2-f29ce7567bd5@axentia.se>
- <12b7118b-5118-cc43-2d0b-aff9650914a5@free.fr>
+From: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Subject: [PATCH 1/6] media: radio: si4713: Convert to new i2c device probe()
+Date: Wed, 10 Jul 2019 22:51:44 +0100
+Message-ID: <20190710215149.9208-2-kieran.bingham+renesas@ideasonboard.com>
+References: <20190710215149.9208-1-kieran.bingham+renesas@ideasonboard.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <12b7118b-5118-cc43-2d0b-aff9650914a5@free.fr>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Peter Rosin <peda@axentia.se>, I2C <linux-i2c@vger.kernel.org>, linux-media <linux-media@vger.kernel.org>, GPIO <linux-gpio@vger.kernel.org>
-Cc: Peter Korsgaard <peter@korsgaard.com>, Jeffrey Hugo <jeffrey.l.hugo@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Brad Love <brad@nextdimension.cc>, =?UTF-8?Q?Jonathan_Neusch=c3=a4fer?= <j.neuschaefer@gmx.net>, Bjorn Andersson <bjorn.andersson@linaro.org>, Antti Palosaari <crope@iki.fi>, Simon Horman <horms+renesas@verge.net.au>, Mauro Carvalho Chehab <mchehab@kernel.org>, Olli Salonen <olli.salonen@iki.fi>, Linux ARM <linux-arm-kernel@lists.infradead.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190710215149.9208-1-kieran.bingham+renesas@ideasonboard.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-media@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>, Eduardo Valentin <edubezval@gmail.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Kate Stewart <kstewart@linuxfoundation.org>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, Thomas Gleixner <tglx@linutronix.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/07/2019 15:52, Marc Gonzalez wrote:
+The I2C core framework provides a simplified probe framework from commit
+b8a1a4cd5a98 ("i2c: Provide a temporary .probe_new() call-back type").
 
-> Your solution works great. It's refreshing to have stuff work
-> out-of-the-box!
+This driver does not utilise the i2c_device_id table in the probe, so we can
+easily convert it to utilise the simplfied i2c driver registration.
 
-Arg! I spoke too soon. For some reason, si2157_init() is not being
-called when it should. I'm trying to trace it down...
+Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+---
+ drivers/media/radio/si4713/si4713.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/media/radio/si4713/si4713.c b/drivers/media/radio/si4713/si4713.c
+index 7d97de2fa56c..7f3aee495ed3 100644
+--- a/drivers/media/radio/si4713/si4713.c
++++ b/drivers/media/radio/si4713/si4713.c
+@@ -1427,8 +1427,7 @@ static const struct v4l2_ctrl_config si4713_alt_freqs_ctrl = {
+  * I2C driver interface
+  */
+ /* si4713_probe - probe for the device */
+-static int si4713_probe(struct i2c_client *client,
+-					const struct i2c_device_id *id)
++static int si4713_probe(struct i2c_client *client)
+ {
+ 	struct si4713_device *sdev;
+ 	struct v4l2_ctrl_handler *hdl;
+@@ -1660,7 +1659,7 @@ static struct i2c_driver si4713_i2c_driver = {
+ 		.name	= "si4713",
+ 		.of_match_table = of_match_ptr(si4713_of_match),
+ 	},
+-	.probe		= si4713_probe,
++	.probe_new	= si4713_probe,
+ 	.remove         = si4713_remove,
+ 	.id_table       = si4713_id,
+ };
+-- 
+2.20.1
