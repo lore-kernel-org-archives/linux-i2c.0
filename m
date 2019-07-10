@@ -1,7 +1,7 @@
 From: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Subject: [PATCH 5/6] media: i2c: et8ek8: Convert to new i2c device probe()
-Date: Wed, 10 Jul 2019 22:51:48 +0100
-Message-ID: <20190710215149.9208-6-kieran.bingham+renesas@ideasonboard.com>
+Subject: [PATCH 3/6] media: i2c: smiapp: Convert to new i2c device probe()
+Date: Wed, 10 Jul 2019 22:51:46 +0100
+Message-ID: <20190710215149.9208-4-kieran.bingham+renesas@ideasonboard.com>
 References: <20190710215149.9208-1-kieran.bingham+renesas@ideasonboard.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,7 +9,7 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190710215149.9208-1-kieran.bingham+renesas@ideasonboard.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org, linux-media@vger.kernel.org, linux-renesas-soc@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>, Pavel Machek <pavel@ucw.cz>, Sakari Ailus <sakari.ailus@iki.fi>, Mauro Carvalho Chehab <mchehab@kernel.org>, open list <linux-kernel@vger.kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>, Sakari Ailus <sakari.ailus@iki.fi>, Mauro Carvalho Chehab <mchehab@kernel.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
 The I2C core framework provides a simplified probe framework from commit
@@ -20,31 +20,31 @@ easily convert it to utilise the simplfied i2c driver registration.
 
 Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
 ---
- drivers/media/i2c/et8ek8/et8ek8_driver.c | 5 ++---
+ drivers/media/i2c/smiapp/smiapp-core.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/i2c/et8ek8/et8ek8_driver.c b/drivers/media/i2c/et8ek8/et8ek8_driver.c
-index e6c06cb75d33..256acf73d5ea 100644
---- a/drivers/media/i2c/et8ek8/et8ek8_driver.c
-+++ b/drivers/media/i2c/et8ek8/et8ek8_driver.c
-@@ -1396,8 +1396,7 @@ static int __maybe_unused et8ek8_resume(struct device *dev)
- 	return __et8ek8_set_power(sensor, true);
+diff --git a/drivers/media/i2c/smiapp/smiapp-core.c b/drivers/media/i2c/smiapp/smiapp-core.c
+index 2d78e846d822..9adf8e034e7d 100644
+--- a/drivers/media/i2c/smiapp/smiapp-core.c
++++ b/drivers/media/i2c/smiapp/smiapp-core.c
+@@ -2847,8 +2847,7 @@ static struct smiapp_hwconfig *smiapp_get_hwconfig(struct device *dev)
+ 	return NULL;
  }
  
--static int et8ek8_probe(struct i2c_client *client,
+-static int smiapp_probe(struct i2c_client *client,
 -			const struct i2c_device_id *devid)
-+static int et8ek8_probe(struct i2c_client *client)
++static int smiapp_probe(struct i2c_client *client)
  {
- 	struct et8ek8_sensor *sensor;
- 	struct device *dev = &client->dev;
-@@ -1504,7 +1503,7 @@ static struct i2c_driver et8ek8_i2c_driver = {
- 		.pm	= &et8ek8_pm_ops,
- 		.of_match_table	= et8ek8_of_table,
+ 	struct smiapp_sensor *sensor;
+ 	struct smiapp_hwconfig *hwcfg = smiapp_get_hwconfig(&client->dev);
+@@ -3172,7 +3171,7 @@ static struct i2c_driver smiapp_i2c_driver = {
+ 		.name = SMIAPP_NAME,
+ 		.pm = &smiapp_pm_ops,
  	},
--	.probe		= et8ek8_probe,
-+	.probe_new	= et8ek8_probe,
- 	.remove		= __exit_p(et8ek8_remove),
- 	.id_table	= et8ek8_id_table,
+-	.probe	= smiapp_probe,
++	.probe_new = smiapp_probe,
+ 	.remove	= smiapp_remove,
+ 	.id_table = smiapp_id_table,
  };
 -- 
 2.20.1
