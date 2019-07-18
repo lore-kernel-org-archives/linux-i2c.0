@@ -1,58 +1,120 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] dt-bindings: i2c: Add MediaTek i2c AC timing binding
-Date: Wed, 17 Jul 2019 15:29:23 +0200
-Message-ID: <20190717132923.GC1458@kunai>
-References: <1560240715-22595-1-git-send-email-qii.wang@mediatek.com>
- <1560240715-22595-2-git-send-email-qii.wang@mediatek.com>
- <20190626133941.GL801@ninjato>
- <1563368121.16970.7.camel@mhfsdcap03>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH] ACPI: support for NXP i2c controller
+Date: Thu, 18 Jul 2019 10:45:10 +0200
+Message-ID: <4848044.j3iIk1DuVf@kreacher>
+References: <20190711102601.20582-1-chuanhua.han@nxp.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="GZVR6ND4mMseVXL/"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1563368121.16970.7.camel@mhfsdcap03>
+In-Reply-To: <20190711102601.20582-1-chuanhua.han@nxp.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Qii Wang <qii.wang@mediatek.com>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, srv_heupstream@mediatek.com, leilk.liu@mediatek.com, matthias.bgg@gmail.com, robh+dt@kernel.org
+To: Chuanhua Han <chuanhua.han@nxp.com>
+Cc: lenb@kernel.org, shawnguo@kernel.org, s.hauer@pengutronix.de, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, leoyang.li@nxp.com, Meenakshi Aggarwal <meenakshi.aggarwal@nxp.com>, Udit Kumar <udit.kumar@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On Thursday, July 11, 2019 12:26:01 PM CEST Chuanhua Han wrote:
+> Enable NXP i2c controller to boot with ACPI
+> 
+> Signed-off-by: Meenakshi Aggarwal <meenakshi.aggarwal@nxp.com>
+> Signed-off-by: Udit Kumar <udit.kumar@nxp.com>
+> Signed-off-by: Chuanhua Han <chuanhua.han@nxp.com>
 
---GZVR6ND4mMseVXL/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In case you want this to go in through the i2c tree:
 
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-> > Can't you use those to derive your values from that? Which ones are you=
- missing
-> > if not?
->=20
-> I have take a little time to develop a new patch which based on your
-> suggestions, and it tested OK. Thanks for your suggestions, I will
-> update the patch after I test it fully.
+or in case you want me to take it, please let me know, but I will need an ACK
+from the i2c side then.
 
-Great news, thanks!
-
-
---GZVR6ND4mMseVXL/
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl0vIrMACgkQFA3kzBSg
-KbZc3A/+MaKqaXoxfLhF7cf/4W3pivQuZ1XwN1uUj0ywybWz2dxrakkTsTS5kCSF
-D2GRUcGvTLGKod/BaV/wIfdFVeyYPGoh38C2LSEcc2zTWl3CO+CyiJ35rAUvVhKe
-DoxAxfkR4LSUpzTJUi26asAWZggVjEBZkWQQxhyJma8txPhAtuOg2Dp9J6w8oZtO
-Ufj5c1FbF8r3q82ah5dmHqs924Q6WHUhBQXQf3eGNRJgqY/np4XHB5TZkOVj1uCW
-qQhUIx4xBooJa1cSXGr7kA6nSay+zIX++F5R9hbxkGSCFcGZXei0owslreNQsyDf
-rHMEc9JoZ5wXIMVjzPoxRwWrxDVIGdqfkqrmSDBjmYq4CDOAWvBZUIjgsy1E9d9R
-YPX5zj3Fvinui4/dxqADBLuAoinkw3NAYg14KCAzIzXbOLwetnGXxoIaiLE2v8PT
-qaTbtnIIhG9n/gaSQIQ3lDwTsa6dxv7FS3++6h+RFhAQ8XsaNKvYTgvmVrV4jKvs
-Rr3Kg+m/MdEiWHceoa6tPM96kiWlQAQLq1yN1B06DMoFBkr4S7pjOe6LCYFG7AfP
-Cu8nEykpDz6DT6KVwjefQpH14gTGH4TSjvpuXQLfjKB5k5sfi+NIif3+v3tJUBoE
-8KH9/iRcWMwVKm36gyugDLIa4xfsb5fj0v2Lk1ZL4dvw75Z2JiU=
-=K/nF
------END PGP SIGNATURE-----
-
---GZVR6ND4mMseVXL/--
+> ---
+>  drivers/acpi/acpi_apd.c      |  6 ++++++
+>  drivers/i2c/busses/i2c-imx.c | 15 +++++++++++++++
+>  2 files changed, 21 insertions(+)
+> 
+> diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
+> index ff47317..cf8566c 100644
+> --- a/drivers/acpi/acpi_apd.c
+> +++ b/drivers/acpi/acpi_apd.c
+> @@ -165,6 +165,11 @@ static const struct apd_device_desc thunderx2_i2c_desc = {
+>  	.fixed_clk_rate = 125000000,
+>  };
+>  
+> +static const struct apd_device_desc nxp_i2c_desc = {
+> +	.setup = acpi_apd_setup,
+> +	.fixed_clk_rate = 350000000,
+> +};
+> +
+>  static const struct apd_device_desc hip08_spi_desc = {
+>  	.setup = acpi_apd_setup,
+>  	.fixed_clk_rate = 250000000,
+> @@ -238,6 +243,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
+>  	{ "HISI02A1", APD_ADDR(hip07_i2c_desc) },
+>  	{ "HISI02A2", APD_ADDR(hip08_i2c_desc) },
+>  	{ "HISI0173", APD_ADDR(hip08_spi_desc) },
+> +	{ "NXP0001", APD_ADDR(nxp_i2c_desc) },
+>  #endif
+>  	{ }
+>  };
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index b1b8b93..99f9b96 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -44,6 +44,7 @@
+>  #include <linux/pm_runtime.h>
+>  #include <linux/sched.h>
+>  #include <linux/slab.h>
+> +#include <linux/acpi.h>
+>  
+>  /* This will be the driver name the kernel reports */
+>  #define DRIVER_NAME "imx-i2c"
+> @@ -255,6 +256,12 @@ static const struct of_device_id i2c_imx_dt_ids[] = {
+>  };
+>  MODULE_DEVICE_TABLE(of, i2c_imx_dt_ids);
+>  
+> +static const struct acpi_device_id i2c_imx_acpi_ids[] = {
+> +	{"NXP0001", .driver_data = (kernel_ulong_t)&vf610_i2c_hwdata},
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(acpi, i2c_imx_acpi_ids);
+> +
+>  static inline int is_imx1_i2c(struct imx_i2c_struct *i2c_imx)
+>  {
+>  	return i2c_imx->hwdata->devtype == IMX1_I2C;
+> @@ -1052,6 +1059,9 @@ static int i2c_imx_probe(struct platform_device *pdev)
+>  {
+>  	const struct of_device_id *of_id = of_match_device(i2c_imx_dt_ids,
+>  							   &pdev->dev);
+> +	const struct acpi_device_id *acpi_id =
+> +			acpi_match_device(i2c_imx_acpi_ids,
+> +					  &pdev->dev);
+>  	struct imx_i2c_struct *i2c_imx;
+>  	struct resource *res;
+>  	struct imxi2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
+> @@ -1079,6 +1089,9 @@ static int i2c_imx_probe(struct platform_device *pdev)
+>  
+>  	if (of_id)
+>  		i2c_imx->hwdata = of_id->data;
+> +	else if (acpi_id)
+> +		i2c_imx->hwdata = (struct imx_i2c_hwdata *)
+> +				acpi_id->driver_data;
+>  	else
+>  		i2c_imx->hwdata = (struct imx_i2c_hwdata *)
+>  				platform_get_device_id(pdev)->driver_data;
+> @@ -1091,6 +1104,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
+>  	i2c_imx->adapter.nr		= pdev->id;
+>  	i2c_imx->adapter.dev.of_node	= pdev->dev.of_node;
+>  	i2c_imx->base			= base;
+> +	ACPI_COMPANION_SET(&i2c_imx->adapter.dev, ACPI_COMPANION(&pdev->dev));
+>  
+>  	/* Get I2C clock */
+>  	i2c_imx->clk = devm_clk_get(&pdev->dev, NULL);
+> @@ -1253,6 +1267,7 @@ static struct platform_driver i2c_imx_driver = {
+>  		.name = DRIVER_NAME,
+>  		.pm = &i2c_imx_pm_ops,
+>  		.of_match_table = i2c_imx_dt_ids,
+> +		.acpi_match_table = ACPI_PTR(i2c_imx_acpi_ids),
+>  	},
+>  	.id_table = imx_i2c_devtype,
+>  };
+> 
