@@ -1,120 +1,104 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH] ACPI: support for NXP i2c controller
-Date: Thu, 18 Jul 2019 10:45:10 +0200
-Message-ID: <4848044.j3iIk1DuVf@kreacher>
+From: Chuanhua Han <chuanhua.han@nxp.com>
+Subject: RE: [EXT] Re: [PATCH] ACPI: support for NXP i2c controller
+Date: Thu, 18 Jul 2019 08:48:31 +0000
+Message-ID: <AM6PR04MB435762D38C6CA133A97C037097C80@AM6PR04MB4357.eurprd04.prod.outlook.com>
 References: <20190711102601.20582-1-chuanhua.han@nxp.com>
+ <4848044.j3iIk1DuVf@kreacher>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190711102601.20582-1-chuanhua.han@nxp.com>
+In-Reply-To: <4848044.j3iIk1DuVf@kreacher>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Chuanhua Han <chuanhua.han@nxp.com>
-Cc: lenb@kernel.org, shawnguo@kernel.org, s.hauer@pengutronix.de, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, leoyang.li@nxp.com, Meenakshi Aggarwal <meenakshi.aggarwal@nxp.com>, Udit Kumar <udit.kumar@nxp.com>
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: "lenb@kernel.org" <lenb@kernel.org>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Leo Li <leoyang.li@nxp.com>, Meenakshi Aggarwal <meenakshi.aggarwal@nxp.com>, Udit Kumar <udit.kumar@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday, July 11, 2019 12:26:01 PM CEST Chuanhua Han wrote:
-> Enable NXP i2c controller to boot with ACPI
-> 
-> Signed-off-by: Meenakshi Aggarwal <meenakshi.aggarwal@nxp.com>
-> Signed-off-by: Udit Kumar <udit.kumar@nxp.com>
-> Signed-off-by: Chuanhua Han <chuanhua.han@nxp.com>
-
-In case you want this to go in through the i2c tree:
-
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
-or in case you want me to take it, please let me know, but I will need an ACK
-from the i2c side then.
-
-> ---
->  drivers/acpi/acpi_apd.c      |  6 ++++++
->  drivers/i2c/busses/i2c-imx.c | 15 +++++++++++++++
->  2 files changed, 21 insertions(+)
-> 
-> diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
-> index ff47317..cf8566c 100644
-> --- a/drivers/acpi/acpi_apd.c
-> +++ b/drivers/acpi/acpi_apd.c
-> @@ -165,6 +165,11 @@ static const struct apd_device_desc thunderx2_i2c_desc = {
->  	.fixed_clk_rate = 125000000,
->  };
->  
-> +static const struct apd_device_desc nxp_i2c_desc = {
-> +	.setup = acpi_apd_setup,
-> +	.fixed_clk_rate = 350000000,
-> +};
-> +
->  static const struct apd_device_desc hip08_spi_desc = {
->  	.setup = acpi_apd_setup,
->  	.fixed_clk_rate = 250000000,
-> @@ -238,6 +243,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
->  	{ "HISI02A1", APD_ADDR(hip07_i2c_desc) },
->  	{ "HISI02A2", APD_ADDR(hip08_i2c_desc) },
->  	{ "HISI0173", APD_ADDR(hip08_spi_desc) },
-> +	{ "NXP0001", APD_ADDR(nxp_i2c_desc) },
->  #endif
->  	{ }
->  };
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index b1b8b93..99f9b96 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -44,6 +44,7 @@
->  #include <linux/pm_runtime.h>
->  #include <linux/sched.h>
->  #include <linux/slab.h>
-> +#include <linux/acpi.h>
->  
->  /* This will be the driver name the kernel reports */
->  #define DRIVER_NAME "imx-i2c"
-> @@ -255,6 +256,12 @@ static const struct of_device_id i2c_imx_dt_ids[] = {
->  };
->  MODULE_DEVICE_TABLE(of, i2c_imx_dt_ids);
->  
-> +static const struct acpi_device_id i2c_imx_acpi_ids[] = {
-> +	{"NXP0001", .driver_data = (kernel_ulong_t)&vf610_i2c_hwdata},
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(acpi, i2c_imx_acpi_ids);
-> +
->  static inline int is_imx1_i2c(struct imx_i2c_struct *i2c_imx)
->  {
->  	return i2c_imx->hwdata->devtype == IMX1_I2C;
-> @@ -1052,6 +1059,9 @@ static int i2c_imx_probe(struct platform_device *pdev)
->  {
->  	const struct of_device_id *of_id = of_match_device(i2c_imx_dt_ids,
->  							   &pdev->dev);
-> +	const struct acpi_device_id *acpi_id =
-> +			acpi_match_device(i2c_imx_acpi_ids,
-> +					  &pdev->dev);
->  	struct imx_i2c_struct *i2c_imx;
->  	struct resource *res;
->  	struct imxi2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
-> @@ -1079,6 +1089,9 @@ static int i2c_imx_probe(struct platform_device *pdev)
->  
->  	if (of_id)
->  		i2c_imx->hwdata = of_id->data;
-> +	else if (acpi_id)
-> +		i2c_imx->hwdata = (struct imx_i2c_hwdata *)
-> +				acpi_id->driver_data;
->  	else
->  		i2c_imx->hwdata = (struct imx_i2c_hwdata *)
->  				platform_get_device_id(pdev)->driver_data;
-> @@ -1091,6 +1104,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
->  	i2c_imx->adapter.nr		= pdev->id;
->  	i2c_imx->adapter.dev.of_node	= pdev->dev.of_node;
->  	i2c_imx->base			= base;
-> +	ACPI_COMPANION_SET(&i2c_imx->adapter.dev, ACPI_COMPANION(&pdev->dev));
->  
->  	/* Get I2C clock */
->  	i2c_imx->clk = devm_clk_get(&pdev->dev, NULL);
-> @@ -1253,6 +1267,7 @@ static struct platform_driver i2c_imx_driver = {
->  		.name = DRIVER_NAME,
->  		.pm = &i2c_imx_pm_ops,
->  		.of_match_table = i2c_imx_dt_ids,
-> +		.acpi_match_table = ACPI_PTR(i2c_imx_acpi_ids),
->  	},
->  	.id_table = imx_i2c_devtype,
->  };
-> 
+SGksIFJhZmFlbCBKLiBXeXNvY2tpDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4g
+RnJvbTogUmFmYWVsIEouIFd5c29ja2kgPHJqd0Byand5c29ja2kubmV0Pg0KPiBTZW50OiAyMDE5
+xOo31MIxOMjVIDE2OjQ1DQo+IFRvOiBDaHVhbmh1YSBIYW4gPGNodWFuaHVhLmhhbkBueHAuY29t
+Pg0KPiBDYzogbGVuYkBrZXJuZWwub3JnOyBzaGF3bmd1b0BrZXJuZWwub3JnOyBzLmhhdWVyQHBl
+bmd1dHJvbml4LmRlOw0KPiBsaW51eC1hY3BpQHZnZXIua2VybmVsLm9yZzsgbGludXgta2VybmVs
+QHZnZXIua2VybmVsLm9yZzsNCj4gbGludXgtaTJjQHZnZXIua2VybmVsLm9yZzsgbGludXgtYXJt
+LWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnOyBMZW8gTGkNCj4gPGxlb3lhbmcubGlAbnhwLmNv
+bT47IE1lZW5ha3NoaSBBZ2dhcndhbCA8bWVlbmFrc2hpLmFnZ2Fyd2FsQG54cC5jb20+Ow0KPiBV
+ZGl0IEt1bWFyIDx1ZGl0Lmt1bWFyQG54cC5jb20+DQo+IFN1YmplY3Q6IFtFWFRdIFJlOiBbUEFU
+Q0hdIEFDUEk6IHN1cHBvcnQgZm9yIE5YUCBpMmMgY29udHJvbGxlcg0KPiANCj4gQ2F1dGlvbjog
+RVhUIEVtYWlsDQo+IA0KPiBPbiBUaHVyc2RheSwgSnVseSAxMSwgMjAxOSAxMjoyNjowMSBQTSBD
+RVNUIENodWFuaHVhIEhhbiB3cm90ZToNCj4gPiBFbmFibGUgTlhQIGkyYyBjb250cm9sbGVyIHRv
+IGJvb3Qgd2l0aCBBQ1BJDQo+ID4NCj4gPiBTaWduZWQtb2ZmLWJ5OiBNZWVuYWtzaGkgQWdnYXJ3
+YWwgPG1lZW5ha3NoaS5hZ2dhcndhbEBueHAuY29tPg0KPiA+IFNpZ25lZC1vZmYtYnk6IFVkaXQg
+S3VtYXIgPHVkaXQua3VtYXJAbnhwLmNvbT4NCj4gPiBTaWduZWQtb2ZmLWJ5OiBDaHVhbmh1YSBI
+YW4gPGNodWFuaHVhLmhhbkBueHAuY29tPg0KPiANCj4gSW4gY2FzZSB5b3Ugd2FudCB0aGlzIHRv
+IGdvIGluIHRocm91Z2ggdGhlIGkyYyB0cmVlOg0KPiANCj4gQWNrZWQtYnk6IFJhZmFlbCBKLiBX
+eXNvY2tpIDxyYWZhZWwuai53eXNvY2tpQGludGVsLmNvbT4NCj4gDQo+IG9yIGluIGNhc2UgeW91
+IHdhbnQgbWUgdG8gdGFrZSBpdCwgcGxlYXNlIGxldCBtZSBrbm93LCBidXQgSSB3aWxsIG5lZWQg
+YW4gQUNLDQo+IGZyb20gdGhlIGkyYyBzaWRlIHRoZW4uDQpJJ20gc29ycnksIEkgZG9uJ3QgcXVp
+dGUgdW5kZXJzdGFuZA0KPiANCj4gPiAtLS0NCj4gPiAgZHJpdmVycy9hY3BpL2FjcGlfYXBkLmMg
+ICAgICB8ICA2ICsrKysrKw0KPiA+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5jIHwgMTUg
+KysrKysrKysrKysrKysrDQo+ID4gIDIgZmlsZXMgY2hhbmdlZCwgMjEgaW5zZXJ0aW9ucygrKQ0K
+PiA+DQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvYWNwaS9hY3BpX2FwZC5jIGIvZHJpdmVycy9h
+Y3BpL2FjcGlfYXBkLmMgaW5kZXgNCj4gPiBmZjQ3MzE3Li5jZjg1NjZjIDEwMDY0NA0KPiA+IC0t
+LSBhL2RyaXZlcnMvYWNwaS9hY3BpX2FwZC5jDQo+ID4gKysrIGIvZHJpdmVycy9hY3BpL2FjcGlf
+YXBkLmMNCj4gPiBAQCAtMTY1LDYgKzE2NSwxMSBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IGFwZF9k
+ZXZpY2VfZGVzYw0KPiB0aHVuZGVyeDJfaTJjX2Rlc2MgPSB7DQo+ID4gICAgICAgLmZpeGVkX2Ns
+a19yYXRlID0gMTI1MDAwMDAwLA0KPiA+ICB9Ow0KPiA+DQo+ID4gK3N0YXRpYyBjb25zdCBzdHJ1
+Y3QgYXBkX2RldmljZV9kZXNjIG54cF9pMmNfZGVzYyA9IHsNCj4gPiArICAgICAuc2V0dXAgPSBh
+Y3BpX2FwZF9zZXR1cCwNCj4gPiArICAgICAuZml4ZWRfY2xrX3JhdGUgPSAzNTAwMDAwMDAsDQo+
+ID4gK307DQo+ID4gKw0KPiA+ICBzdGF0aWMgY29uc3Qgc3RydWN0IGFwZF9kZXZpY2VfZGVzYyBo
+aXAwOF9zcGlfZGVzYyA9IHsNCj4gPiAgICAgICAuc2V0dXAgPSBhY3BpX2FwZF9zZXR1cCwNCj4g
+PiAgICAgICAuZml4ZWRfY2xrX3JhdGUgPSAyNTAwMDAwMDAsDQo+ID4gQEAgLTIzOCw2ICsyNDMs
+NyBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IGFjcGlfZGV2aWNlX2lkDQo+IGFjcGlfYXBkX2Rldmlj
+ZV9pZHNbXSA9IHsNCj4gPiAgICAgICB7ICJISVNJMDJBMSIsIEFQRF9BRERSKGhpcDA3X2kyY19k
+ZXNjKSB9LA0KPiA+ICAgICAgIHsgIkhJU0kwMkEyIiwgQVBEX0FERFIoaGlwMDhfaTJjX2Rlc2Mp
+IH0sDQo+ID4gICAgICAgeyAiSElTSTAxNzMiLCBBUERfQUREUihoaXAwOF9zcGlfZGVzYykgfSwN
+Cj4gPiArICAgICB7ICJOWFAwMDAxIiwgQVBEX0FERFIobnhwX2kyY19kZXNjKSB9LA0KPiA+ICAj
+ZW5kaWYNCj4gPiAgICAgICB7IH0NCj4gPiAgfTsNCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9p
+MmMvYnVzc2VzL2kyYy1pbXguYw0KPiA+IGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pbXguYyBp
+bmRleCBiMWI4YjkzLi45OWY5Yjk2IDEwMDY0NA0KPiA+IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nl
+cy9pMmMtaW14LmMNCj4gPiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5jDQo+ID4g
+QEAgLTQ0LDYgKzQ0LDcgQEANCj4gPiAgI2luY2x1ZGUgPGxpbnV4L3BtX3J1bnRpbWUuaD4NCj4g
+PiAgI2luY2x1ZGUgPGxpbnV4L3NjaGVkLmg+DQo+ID4gICNpbmNsdWRlIDxsaW51eC9zbGFiLmg+
+DQo+ID4gKyNpbmNsdWRlIDxsaW51eC9hY3BpLmg+DQo+ID4NCj4gPiAgLyogVGhpcyB3aWxsIGJl
+IHRoZSBkcml2ZXIgbmFtZSB0aGUga2VybmVsIHJlcG9ydHMgKi8gICNkZWZpbmUNCj4gPiBEUklW
+RVJfTkFNRSAiaW14LWkyYyINCj4gPiBAQCAtMjU1LDYgKzI1NiwxMiBAQCBzdGF0aWMgY29uc3Qg
+c3RydWN0IG9mX2RldmljZV9pZCBpMmNfaW14X2R0X2lkc1tdDQo+ID4gPSB7ICB9OyAgTU9EVUxF
+X0RFVklDRV9UQUJMRShvZiwgaTJjX2lteF9kdF9pZHMpOw0KPiA+DQo+ID4gK3N0YXRpYyBjb25z
+dCBzdHJ1Y3QgYWNwaV9kZXZpY2VfaWQgaTJjX2lteF9hY3BpX2lkc1tdID0gew0KPiA+ICsgICAg
+IHsiTlhQMDAwMSIsIC5kcml2ZXJfZGF0YSA9IChrZXJuZWxfdWxvbmdfdCkmdmY2MTBfaTJjX2h3
+ZGF0YX0sDQo+ID4gKyAgICAgeyB9DQo+ID4gK307DQo+ID4gK01PRFVMRV9ERVZJQ0VfVEFCTEUo
+YWNwaSwgaTJjX2lteF9hY3BpX2lkcyk7DQo+ID4gKw0KPiA+ICBzdGF0aWMgaW5saW5lIGludCBp
+c19pbXgxX2kyYyhzdHJ1Y3QgaW14X2kyY19zdHJ1Y3QgKmkyY19pbXgpICB7DQo+ID4gICAgICAg
+cmV0dXJuIGkyY19pbXgtPmh3ZGF0YS0+ZGV2dHlwZSA9PSBJTVgxX0kyQzsgQEAgLTEwNTIsNiAr
+MTA1OSw5DQo+ID4gQEAgc3RhdGljIGludCBpMmNfaW14X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9k
+ZXZpY2UgKnBkZXYpICB7DQo+ID4gICAgICAgY29uc3Qgc3RydWN0IG9mX2RldmljZV9pZCAqb2Zf
+aWQgPSBvZl9tYXRjaF9kZXZpY2UoaTJjX2lteF9kdF9pZHMsDQo+ID4NCj4gJnBkZXYtPmRldik7
+DQo+ID4gKyAgICAgY29uc3Qgc3RydWN0IGFjcGlfZGV2aWNlX2lkICphY3BpX2lkID0NCj4gPiAr
+ICAgICAgICAgICAgICAgICAgICAgYWNwaV9tYXRjaF9kZXZpY2UoaTJjX2lteF9hY3BpX2lkcywN
+Cj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJnBkZXYtPmRldik7
+DQo+ID4gICAgICAgc3RydWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14Ow0KPiA+ICAgICAgIHN0
+cnVjdCByZXNvdXJjZSAqcmVzOw0KPiA+ICAgICAgIHN0cnVjdCBpbXhpMmNfcGxhdGZvcm1fZGF0
+YSAqcGRhdGEgPQ0KPiA+IGRldl9nZXRfcGxhdGRhdGEoJnBkZXYtPmRldik7IEBAIC0xMDc5LDYg
+KzEwODksOSBAQCBzdGF0aWMgaW50DQo+ID4gaTJjX2lteF9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1f
+ZGV2aWNlICpwZGV2KQ0KPiA+DQo+ID4gICAgICAgaWYgKG9mX2lkKQ0KPiA+ICAgICAgICAgICAg
+ICAgaTJjX2lteC0+aHdkYXRhID0gb2ZfaWQtPmRhdGE7DQo+ID4gKyAgICAgZWxzZSBpZiAoYWNw
+aV9pZCkNCj4gPiArICAgICAgICAgICAgIGkyY19pbXgtPmh3ZGF0YSA9IChzdHJ1Y3QgaW14X2ky
+Y19od2RhdGEgKikNCj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICBhY3BpX2lkLT5k
+cml2ZXJfZGF0YTsNCj4gPiAgICAgICBlbHNlDQo+ID4gICAgICAgICAgICAgICBpMmNfaW14LT5o
+d2RhdGEgPSAoc3RydWN0IGlteF9pMmNfaHdkYXRhICopDQo+ID4NCj4gPiBwbGF0Zm9ybV9nZXRf
+ZGV2aWNlX2lkKHBkZXYpLT5kcml2ZXJfZGF0YTsNCj4gPiBAQCAtMTA5MSw2ICsxMTA0LDcgQEAg
+c3RhdGljIGludCBpMmNfaW14X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UNCj4gKnBkZXYp
+DQo+ID4gICAgICAgaTJjX2lteC0+YWRhcHRlci5uciAgICAgICAgICAgICA9IHBkZXYtPmlkOw0K
+PiA+ICAgICAgIGkyY19pbXgtPmFkYXB0ZXIuZGV2Lm9mX25vZGUgICAgPSBwZGV2LT5kZXYub2Zf
+bm9kZTsNCj4gPiAgICAgICBpMmNfaW14LT5iYXNlICAgICAgICAgICAgICAgICAgID0gYmFzZTsN
+Cj4gPiArICAgICBBQ1BJX0NPTVBBTklPTl9TRVQoJmkyY19pbXgtPmFkYXB0ZXIuZGV2LA0KPiA+
+ICsgQUNQSV9DT01QQU5JT04oJnBkZXYtPmRldikpOw0KPiA+DQo+ID4gICAgICAgLyogR2V0IEky
+QyBjbG9jayAqLw0KPiA+ICAgICAgIGkyY19pbXgtPmNsayA9IGRldm1fY2xrX2dldCgmcGRldi0+
+ZGV2LCBOVUxMKTsgQEAgLTEyNTMsNg0KPiA+ICsxMjY3LDcgQEAgc3RhdGljIHN0cnVjdCBwbGF0
+Zm9ybV9kcml2ZXIgaTJjX2lteF9kcml2ZXIgPSB7DQo+ID4gICAgICAgICAgICAgICAubmFtZSA9
+IERSSVZFUl9OQU1FLA0KPiA+ICAgICAgICAgICAgICAgLnBtID0gJmkyY19pbXhfcG1fb3BzLA0K
+PiA+ICAgICAgICAgICAgICAgLm9mX21hdGNoX3RhYmxlID0gaTJjX2lteF9kdF9pZHMsDQo+ID4g
+KyAgICAgICAgICAgICAuYWNwaV9tYXRjaF90YWJsZSA9IEFDUElfUFRSKGkyY19pbXhfYWNwaV9p
+ZHMpLA0KPiA+ICAgICAgIH0sDQo+ID4gICAgICAgLmlkX3RhYmxlID0gaW14X2kyY19kZXZ0eXBl
+LA0KPiA+ICB9Ow0KPiA+DQo+IA0KPiANCj4gDQoNCg==
