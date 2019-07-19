@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 063/141] i2c: stm32f7: fix the get_irq error cases
-Date: Fri, 19 Jul 2019 00:01:28 -0400
-Message-ID: <20190719040246.15945-63-sashal@kernel.org>
-References: <20190719040246.15945-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 042/101] i2c: stm32f7: fix the get_irq error cases
+Date: Fri, 19 Jul 2019 00:06:33 -0400
+Message-ID: <20190719040732.17285-42-sashal@kernel.org>
+References: <20190719040732.17285-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190719040246.15945-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190719040732.17285-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Fabrice Gasnier <fabrice.gasnier@st.com>, Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, Fabien Dessenne <fabien.dessenne@st.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -34,18 +34,18 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 14 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 4284fc991cfd..432b701ccf38 100644
+index a492da9fd0d3..ac9c9486b834 100644
 --- a/drivers/i2c/busses/i2c-stm32f7.c
 +++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -25,7 +25,6 @@
+@@ -24,7 +24,6 @@
  #include <linux/module.h>
  #include <linux/of.h>
  #include <linux/of_address.h>
 -#include <linux/of_irq.h>
  #include <linux/of_platform.h>
  #include <linux/platform_device.h>
- #include <linux/pinctrl/consumer.h>
-@@ -1812,15 +1811,14 @@ static struct i2c_algorithm stm32f7_i2c_algo = {
+ #include <linux/reset.h>
+@@ -1782,15 +1781,14 @@ static struct i2c_algorithm stm32f7_i2c_algo = {
  
  static int stm32f7_i2c_probe(struct platform_device *pdev)
  {
@@ -63,7 +63,7 @@ index 4284fc991cfd..432b701ccf38 100644
  
  	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
  	if (!i2c_dev)
-@@ -1832,16 +1830,20 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
+@@ -1802,16 +1800,20 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
  		return PTR_ERR(i2c_dev->base);
  	phy_addr = (dma_addr_t)res->start;
  
