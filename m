@@ -1,45 +1,62 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 3/3] iio: pressure: hp03: convert to i2c_new_dummy_device
-Date: Mon, 22 Jul 2019 19:26:13 +0200
-Message-ID: <20190722172613.3890-4-wsa+renesas@sang-engineering.com>
-References: <20190722172613.3890-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 00/14] mfd: convert subsystem to i2c_new_dummy_device()
+Date: Mon, 22 Jul 2019 19:26:07 +0200
+Message-ID: <20190722172623.4166-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190722172613.3890-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
-ERRPTR which we use in error handling.
+This series is part of a tree-wide movement to replace the I2C API call
+'i2c_new_dummy' which returns NULL with its new counterpart returning an
+ERRPTR.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
+The series was generated with coccinelle (audited afterwards, of course) and
+build tested by me and by buildbot. No tests on HW have been performed.
 
-Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
+The branch is based on v5.3-rc1. A branch (with some more stuff included) can
+be found here:
 
- drivers/iio/pressure/hp03.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/i2c/new_dummy
 
-diff --git a/drivers/iio/pressure/hp03.c b/drivers/iio/pressure/hp03.c
-index f00102577fd5..026ba15ef68f 100644
---- a/drivers/iio/pressure/hp03.c
-+++ b/drivers/iio/pressure/hp03.c
-@@ -243,10 +243,10 @@ static int hp03_probe(struct i2c_client *client,
- 	 * which has it's dedicated I2C address and contains
- 	 * the calibration constants for the sensor.
- 	 */
--	priv->eeprom_client = i2c_new_dummy(client->adapter, HP03_EEPROM_ADDR);
--	if (!priv->eeprom_client) {
-+	priv->eeprom_client = i2c_new_dummy_device(client->adapter, HP03_EEPROM_ADDR);
-+	if (IS_ERR(priv->eeprom_client)) {
- 		dev_err(dev, "New EEPROM I2C device failed\n");
--		return -ENODEV;
-+		return PTR_ERR(priv->eeprom_client);
- 	}
- 
- 	priv->eeprom_regmap = regmap_init_i2c(priv->eeprom_client,
+Some drivers still need to be manually converted. Patches for those will be
+sent out individually.
+
+
+Wolfram Sang (14):
+  mfd: 88pm800: convert to i2c_new_dummy_device
+  mfd: 88pm860x-core: convert to i2c_new_dummy_device
+  mfd: ab3100-core: convert to i2c_new_dummy_device
+  mfd: bcm590xx: convert to i2c_new_dummy_device
+  mfd: da9150-core: convert to i2c_new_dummy_device
+  mfd: max14577: convert to i2c_new_dummy_device
+  mfd: max77693: convert to i2c_new_dummy_device
+  mfd: max77843: convert to i2c_new_dummy_device
+  mfd: max8907: convert to i2c_new_dummy_device
+  mfd: max8925-i2c: convert to i2c_new_dummy_device
+  mfd: max8997: convert to i2c_new_dummy_device
+  mfd: max8998: convert to i2c_new_dummy_device
+  mfd: palmas: convert to i2c_new_dummy_device
+  mfd: twl-core: convert to i2c_new_dummy_device
+
+ drivers/mfd/88pm800.c       | 12 ++++++------
+ drivers/mfd/88pm860x-core.c |  6 +++---
+ drivers/mfd/ab3100-core.c   |  6 +++---
+ drivers/mfd/bcm590xx.c      |  6 +++---
+ drivers/mfd/da9150-core.c   |  6 +++---
+ drivers/mfd/max14577.c      |  6 +++---
+ drivers/mfd/max77693.c      | 12 ++++++------
+ drivers/mfd/max77843.c      |  6 +++---
+ drivers/mfd/max8907.c       |  6 +++---
+ drivers/mfd/max8925-i2c.c   | 12 ++++++------
+ drivers/mfd/max8997.c       | 18 +++++++++---------
+ drivers/mfd/max8998.c       |  6 +++---
+ drivers/mfd/palmas.c        |  6 +++---
+ drivers/mfd/twl-core.c      |  6 +++---
+ 14 files changed, 57 insertions(+), 57 deletions(-)
+
 -- 
 2.20.1
