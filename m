@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 4/8] media: dvb-frontends: mn88473: convert to i2c_new_dummy_device
-Date: Mon, 22 Jul 2019 19:25:58 +0200
-Message-ID: <20190722172604.3572-5-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 8/8] media: usb: go7007: s2250-board: convert to i2c_new_dummy_device
+Date: Mon, 22 Jul 2019 19:26:02 +0200
+Message-ID: <20190722172604.3572-9-wsa+renesas@sang-engineering.com>
 References: <20190722172604.3572-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,7 +9,7 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20190722172604.3572-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
@@ -20,38 +20,25 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
 
- drivers/media/dvb-frontends/mn88473.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/media/usb/go7007/s2250-board.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/mn88473.c b/drivers/media/dvb-frontends/mn88473.c
-index 08118b38533b..71cedce6c7d0 100644
---- a/drivers/media/dvb-frontends/mn88473.c
-+++ b/drivers/media/dvb-frontends/mn88473.c
-@@ -657,9 +657,9 @@ static int mn88473_probe(struct i2c_client *client,
- 	 * Also, register bank 2 do not support sequential I/O. Only single
- 	 * register write or read is allowed to that bank.
- 	 */
--	dev->client[1] = i2c_new_dummy(client->adapter, 0x1a);
--	if (dev->client[1] == NULL) {
--		ret = -ENODEV;
-+	dev->client[1] = i2c_new_dummy_device(client->adapter, 0x1a);
-+	if (IS_ERR(dev->client[1])) {
-+		ret = PTR_ERR(dev->client[1]);
- 		dev_err(&client->dev, "I2C registration failed\n");
- 		if (ret)
- 			goto err_regmap_0_regmap_exit;
-@@ -671,9 +671,9 @@ static int mn88473_probe(struct i2c_client *client,
- 	}
- 	i2c_set_clientdata(dev->client[1], dev);
+diff --git a/drivers/media/usb/go7007/s2250-board.c b/drivers/media/usb/go7007/s2250-board.c
+index 179d4d642dae..49e75a1a1f3f 100644
+--- a/drivers/media/usb/go7007/s2250-board.c
++++ b/drivers/media/usb/go7007/s2250-board.c
+@@ -505,9 +505,9 @@ static int s2250_probe(struct i2c_client *client,
+ 	struct go7007 *go = i2c_get_adapdata(adapter);
+ 	struct go7007_usb *usb = go->hpi_context;
  
--	dev->client[2] = i2c_new_dummy(client->adapter, 0x1c);
--	if (dev->client[2] == NULL) {
--		ret = -ENODEV;
-+	dev->client[2] = i2c_new_dummy_device(client->adapter, 0x1c);
-+	if (IS_ERR(dev->client[2])) {
-+		ret = PTR_ERR(dev->client[2]);
- 		dev_err(&client->dev, "2nd I2C registration failed\n");
- 		if (ret)
- 			goto err_regmap_1_regmap_exit;
+-	audio = i2c_new_dummy(adapter, TLV320_ADDRESS >> 1);
+-	if (audio == NULL)
+-		return -ENOMEM;
++	audio = i2c_new_dummy_device(adapter, TLV320_ADDRESS >> 1);
++	if (IS_ERR(audio))
++		return PTR_ERR(audio);
+ 
+ 	state = kzalloc(sizeof(struct s2250), GFP_KERNEL);
+ 	if (state == NULL) {
 -- 
 2.20.1
