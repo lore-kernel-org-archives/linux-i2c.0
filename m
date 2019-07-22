@@ -1,47 +1,40 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 3/3] hwmon: w83781d: convert to i2c_new_dummy_device
+Subject: [PATCH 0/3] iio: convert subsystem to i2c_new_dummy_device()
 Date: Mon, 22 Jul 2019 19:26:10 +0200
-Message-ID: <20190722172611.3797-4-wsa+renesas@sang-engineering.com>
-References: <20190722172611.3797-1-wsa+renesas@sang-engineering.com>
+Message-ID: <20190722172613.3890-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190722172611.3797-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
-ERRPTR which we use in error handling.
+This series is part of a tree-wide movement to replace the I2C API call
+'i2c_new_dummy' which returns NULL with its new counterpart returning an
+ERRPTR.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
+The series was generated with coccinelle (audited afterwards, of course) and
+build tested by me and by buildbot. No tests on HW have been performed.
 
-Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
+The branch is based on v5.3-rc1. A branch (with some more stuff included) can
+be found here:
 
- drivers/hwmon/w83781d.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/i2c/new_dummy
 
-diff --git a/drivers/hwmon/w83781d.c b/drivers/hwmon/w83781d.c
-index d2c04b6a3f2b..015f1ea31966 100644
---- a/drivers/hwmon/w83781d.c
-+++ b/drivers/hwmon/w83781d.c
-@@ -894,12 +894,12 @@ w83781d_detect_subclients(struct i2c_client *new_client)
- 	}
- 
- 	for (i = 0; i < num_sc; i++) {
--		data->lm75[i] = i2c_new_dummy(adapter, sc_addr[i]);
--		if (!data->lm75[i]) {
-+		data->lm75[i] = i2c_new_dummy_device(adapter, sc_addr[i]);
-+		if (IS_ERR(data->lm75[i])) {
- 			dev_err(&new_client->dev,
- 				"Subclient %d registration at address 0x%x failed.\n",
- 				i, sc_addr[i]);
--			err = -ENOMEM;
-+			err = PTR_ERR(data->lm75[i]);
- 			if (i == 1)
- 				goto ERROR_SC_3;
- 			goto ERROR_SC_2;
+Some drivers still need to be manually converted. Patches for those will be
+sent out individually.
+
+
+Wolfram Sang (3):
+  iio: light: cm36651: convert to i2c_new_dummy_device
+  iio: light: veml6070: convert to i2c_new_dummy_device
+  iio: pressure: hp03: convert to i2c_new_dummy_device
+
+ drivers/iio/light/cm36651.c  | 12 ++++++------
+ drivers/iio/light/veml6070.c |  6 +++---
+ drivers/iio/pressure/hp03.c  |  6 +++---
+ 3 files changed, 12 insertions(+), 12 deletions(-)
+
 -- 
 2.20.1
