@@ -1,15 +1,15 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 7/8] media: i2c: adv7511-v4l2: convert to i2c_new_dummy_device
-Date: Mon, 22 Jul 2019 19:26:01 +0200
-Message-ID: <20190722172604.3572-8-wsa+renesas@sang-engineering.com>
-References: <20190722172604.3572-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 3/3] hwmon: w83781d: convert to i2c_new_dummy_device
+Date: Mon, 22 Jul 2019 19:26:10 +0200
+Message-ID: <20190722172611.3797-4-wsa+renesas@sang-engineering.com>
+References: <20190722172611.3797-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190722172604.3572-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190722172611.3797-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
@@ -20,56 +20,28 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
 
- drivers/media/i2c/adv7511-v4l2.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/hwmon/w83781d.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/i2c/adv7511-v4l2.c b/drivers/media/i2c/adv7511-v4l2.c
-index 2ad6bdf1a9fc..7db94267bcab 100644
---- a/drivers/media/i2c/adv7511-v4l2.c
-+++ b/drivers/media/i2c/adv7511-v4l2.c
-@@ -1872,11 +1872,11 @@ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *
- 		goto err_entity;
+diff --git a/drivers/hwmon/w83781d.c b/drivers/hwmon/w83781d.c
+index d2c04b6a3f2b..015f1ea31966 100644
+--- a/drivers/hwmon/w83781d.c
++++ b/drivers/hwmon/w83781d.c
+@@ -894,12 +894,12 @@ w83781d_detect_subclients(struct i2c_client *new_client)
  	}
  
--	state->i2c_edid = i2c_new_dummy(client->adapter,
-+	state->i2c_edid = i2c_new_dummy_device(client->adapter,
- 					state->i2c_edid_addr >> 1);
--	if (state->i2c_edid == NULL) {
-+	if (IS_ERR(state->i2c_edid)) {
- 		v4l2_err(sd, "failed to register edid i2c client\n");
--		err = -ENOMEM;
-+		err = PTR_ERR(state->i2c_edid);
- 		goto err_entity;
- 	}
- 
-@@ -1889,11 +1889,11 @@ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *
- 	}
- 
- 	if (state->pdata.cec_clk) {
--		state->i2c_cec = i2c_new_dummy(client->adapter,
-+		state->i2c_cec = i2c_new_dummy_device(client->adapter,
- 					       state->i2c_cec_addr >> 1);
--		if (state->i2c_cec == NULL) {
-+		if (IS_ERR(state->i2c_cec)) {
- 			v4l2_err(sd, "failed to register cec i2c client\n");
+ 	for (i = 0; i < num_sc; i++) {
+-		data->lm75[i] = i2c_new_dummy(adapter, sc_addr[i]);
+-		if (!data->lm75[i]) {
++		data->lm75[i] = i2c_new_dummy_device(adapter, sc_addr[i]);
++		if (IS_ERR(data->lm75[i])) {
+ 			dev_err(&new_client->dev,
+ 				"Subclient %d registration at address 0x%x failed.\n",
+ 				i, sc_addr[i]);
 -			err = -ENOMEM;
-+			err = PTR_ERR(state->i2c_cec);
- 			goto err_unreg_edid;
- 		}
- 		adv7511_wr(sd, 0xe2, 0x00); /* power up cec section */
-@@ -1901,10 +1901,10 @@ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *
- 		adv7511_wr(sd, 0xe2, 0x01); /* power down cec section */
- 	}
- 
--	state->i2c_pktmem = i2c_new_dummy(client->adapter, state->i2c_pktmem_addr >> 1);
--	if (state->i2c_pktmem == NULL) {
-+	state->i2c_pktmem = i2c_new_dummy_device(client->adapter, state->i2c_pktmem_addr >> 1);
-+	if (IS_ERR(state->i2c_pktmem)) {
- 		v4l2_err(sd, "failed to register pktmem i2c client\n");
--		err = -ENOMEM;
-+		err = PTR_ERR(state->i2c_pktmem);
- 		goto err_unreg_cec;
- 	}
- 
++			err = PTR_ERR(data->lm75[i]);
+ 			if (i == 1)
+ 				goto ERROR_SC_3;
+ 			goto ERROR_SC_2;
 -- 
 2.20.1
