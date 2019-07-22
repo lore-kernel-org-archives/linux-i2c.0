@@ -1,44 +1,40 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 2/8] media: dvb-frontends: mn88443x: convert to i2c_new_dummy_device
-Date: Mon, 22 Jul 2019 19:25:56 +0200
-Message-ID: <20190722172604.3572-3-wsa+renesas@sang-engineering.com>
-References: <20190722172604.3572-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH] leds: is31fl319x: simplify getting the adapter of a client
+Date: Mon, 22 Jul 2019 20:14:16 +0200
+Message-ID: <20190722181416.6743-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190722172604.3572-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Dan Murphy <dmurphy@ti.com>, linux-leds@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
-ERRPTR which we use in error handling.
+We have a dedicated pointer for that, so use it. Much easier to read and
+less computation involved.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
+ drivers/leds/leds-is31fl319x.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
-
- drivers/media/dvb-frontends/mn88443x.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/media/dvb-frontends/mn88443x.c b/drivers/media/dvb-frontends/mn88443x.c
-index 9ec1aeef03d5..e4528784f847 100644
---- a/drivers/media/dvb-frontends/mn88443x.c
-+++ b/drivers/media/dvb-frontends/mn88443x.c
-@@ -722,9 +722,9 @@ static int mn88443x_probe(struct i2c_client *client,
- 	 * Chip has two I2C addresses for each satellite/terrestrial system.
- 	 * ISDB-T uses address ISDB-S + 4, so we register a dummy client.
- 	 */
--	chip->client_t = i2c_new_dummy(client->adapter, client->addr + 4);
--	if (!chip->client_t)
--		return -ENODEV;
-+	chip->client_t = i2c_new_dummy_device(client->adapter, client->addr + 4);
-+	if (IS_ERR(chip->client_t))
-+		return PTR_ERR(chip->client_t);
+diff --git a/drivers/leds/leds-is31fl319x.c b/drivers/leds/leds-is31fl319x.c
+index 2d077b8edd0e..ca6634b8683c 100644
+--- a/drivers/leds/leds-is31fl319x.c
++++ b/drivers/leds/leds-is31fl319x.c
+@@ -333,12 +333,11 @@ static int is31fl319x_probe(struct i2c_client *client,
+ {
+ 	struct is31fl319x_chip *is31;
+ 	struct device *dev = &client->dev;
+-	struct i2c_adapter *adapter = to_i2c_adapter(dev->parent);
+ 	int err;
+ 	int i = 0;
+ 	u32 aggregated_led_microamp = IS31FL319X_CURRENT_MAX;
  
- 	chip->regmap_t = devm_regmap_init_i2c(chip->client_t, &regmap_config);
- 	if (IS_ERR(chip->regmap_t)) {
+-	if (!i2c_check_functionality(adapter, I2C_FUNC_I2C))
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
+ 		return -EIO;
+ 
+ 	is31 = devm_kzalloc(&client->dev, sizeof(*is31), GFP_KERNEL);
 -- 
 2.20.1
