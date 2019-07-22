@@ -1,62 +1,55 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 00/14] mfd: convert subsystem to i2c_new_dummy_device()
-Date: Mon, 22 Jul 2019 19:26:07 +0200
-Message-ID: <20190722172623.4166-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 07/14] mfd: max77693: convert to i2c_new_dummy_device
+Date: Mon, 22 Jul 2019 19:26:14 +0200
+Message-ID: <20190722172623.4166-8-wsa+renesas@sang-engineering.com>
+References: <20190722172623.4166-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190722172623.4166-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Chanwoo Choi <cw00.choi@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This series is part of a tree-wide movement to replace the I2C API call
-'i2c_new_dummy' which returns NULL with its new counterpart returning an
-ERRPTR.
+Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
+ERRPTR which we use in error handling.
 
-The series was generated with coccinelle (audited afterwards, of course) and
-build tested by me and by buildbot. No tests on HW have been performed.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-The branch is based on v5.3-rc1. A branch (with some more stuff included) can
-be found here:
+Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/i2c/new_dummy
+ drivers/mfd/max77693.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Some drivers still need to be manually converted. Patches for those will be
-sent out individually.
-
-
-Wolfram Sang (14):
-  mfd: 88pm800: convert to i2c_new_dummy_device
-  mfd: 88pm860x-core: convert to i2c_new_dummy_device
-  mfd: ab3100-core: convert to i2c_new_dummy_device
-  mfd: bcm590xx: convert to i2c_new_dummy_device
-  mfd: da9150-core: convert to i2c_new_dummy_device
-  mfd: max14577: convert to i2c_new_dummy_device
-  mfd: max77693: convert to i2c_new_dummy_device
-  mfd: max77843: convert to i2c_new_dummy_device
-  mfd: max8907: convert to i2c_new_dummy_device
-  mfd: max8925-i2c: convert to i2c_new_dummy_device
-  mfd: max8997: convert to i2c_new_dummy_device
-  mfd: max8998: convert to i2c_new_dummy_device
-  mfd: palmas: convert to i2c_new_dummy_device
-  mfd: twl-core: convert to i2c_new_dummy_device
-
- drivers/mfd/88pm800.c       | 12 ++++++------
- drivers/mfd/88pm860x-core.c |  6 +++---
- drivers/mfd/ab3100-core.c   |  6 +++---
- drivers/mfd/bcm590xx.c      |  6 +++---
- drivers/mfd/da9150-core.c   |  6 +++---
- drivers/mfd/max14577.c      |  6 +++---
- drivers/mfd/max77693.c      | 12 ++++++------
- drivers/mfd/max77843.c      |  6 +++---
- drivers/mfd/max8907.c       |  6 +++---
- drivers/mfd/max8925-i2c.c   | 12 ++++++------
- drivers/mfd/max8997.c       | 18 +++++++++---------
- drivers/mfd/max8998.c       |  6 +++---
- drivers/mfd/palmas.c        |  6 +++---
- drivers/mfd/twl-core.c      |  6 +++---
- 14 files changed, 57 insertions(+), 57 deletions(-)
-
+diff --git a/drivers/mfd/max77693.c b/drivers/mfd/max77693.c
+index 901d99d65924..596ed85cab3b 100644
+--- a/drivers/mfd/max77693.c
++++ b/drivers/mfd/max77693.c
+@@ -183,17 +183,17 @@ static int max77693_i2c_probe(struct i2c_client *i2c,
+ 	} else
+ 		dev_info(max77693->dev, "device ID: 0x%x\n", reg_data);
+ 
+-	max77693->i2c_muic = i2c_new_dummy(i2c->adapter, I2C_ADDR_MUIC);
+-	if (!max77693->i2c_muic) {
++	max77693->i2c_muic = i2c_new_dummy_device(i2c->adapter, I2C_ADDR_MUIC);
++	if (IS_ERR(max77693->i2c_muic)) {
+ 		dev_err(max77693->dev, "Failed to allocate I2C device for MUIC\n");
+-		return -ENODEV;
++		return PTR_ERR(max77693->i2c_muic);
+ 	}
+ 	i2c_set_clientdata(max77693->i2c_muic, max77693);
+ 
+-	max77693->i2c_haptic = i2c_new_dummy(i2c->adapter, I2C_ADDR_HAPTIC);
+-	if (!max77693->i2c_haptic) {
++	max77693->i2c_haptic = i2c_new_dummy_device(i2c->adapter, I2C_ADDR_HAPTIC);
++	if (IS_ERR(max77693->i2c_haptic)) {
+ 		dev_err(max77693->dev, "Failed to allocate I2C device for Haptic\n");
+-		ret = -ENODEV;
++		ret = PTR_ERR(max77693->i2c_haptic);
+ 		goto err_i2c_haptic;
+ 	}
+ 	i2c_set_clientdata(max77693->i2c_haptic, max77693);
 -- 
 2.20.1
