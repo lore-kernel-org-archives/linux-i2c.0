@@ -1,44 +1,38 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 1/4] rtc: isl12026: convert to i2c_new_dummy_device
-Date: Mon, 22 Jul 2019 19:26:15 +0200
-Message-ID: <20190722172618.4061-2-wsa+renesas@sang-engineering.com>
-References: <20190722172618.4061-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 0/2] misc: convert subsystem to i2c_new_dummy_device()
+Date: Mon, 22 Jul 2019 19:26:14 +0200
+Message-ID: <20190722172616.3982-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190722172618.4061-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
-ERRPTR which we use in error handling.
+This series is part of a tree-wide movement to replace the I2C API call
+'i2c_new_dummy' which returns NULL with its new counterpart returning an
+ERRPTR.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
+The series was generated with coccinelle (audited afterwards, of course) and
+build tested by me and by buildbot. No tests on HW have been performed.
 
-Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
+The branch is based on v5.3-rc1. A branch (with some more stuff included) can
+be found here:
 
- drivers/rtc/rtc-isl12026.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/i2c/new_dummy
 
-diff --git a/drivers/rtc/rtc-isl12026.c b/drivers/rtc/rtc-isl12026.c
-index 97f594f9667c..5b6b17fb6d62 100644
---- a/drivers/rtc/rtc-isl12026.c
-+++ b/drivers/rtc/rtc-isl12026.c
-@@ -454,9 +454,9 @@ static int isl12026_probe_new(struct i2c_client *client)
- 
- 	isl12026_force_power_modes(client);
- 
--	priv->nvm_client = i2c_new_dummy(client->adapter, ISL12026_EEPROM_ADDR);
--	if (!priv->nvm_client)
--		return -ENOMEM;
-+	priv->nvm_client = i2c_new_dummy_device(client->adapter, ISL12026_EEPROM_ADDR);
-+	if (IS_ERR(priv->nvm_client))
-+		return PTR_ERR(priv->nvm_client);
- 
- 	priv->rtc = devm_rtc_allocate_device(&client->dev);
- 	ret = PTR_ERR_OR_ZERO(priv->rtc);
+Some drivers still need to be manually converted. Patches for those will be
+sent out individually.
+
+
+Wolfram Sang (2):
+  misc: eeprom: ee1004: convert to i2c_new_dummy_device
+  misc: eeprom: max6875: convert to i2c_new_dummy_device
+
+ drivers/misc/eeprom/ee1004.c  | 6 +++---
+ drivers/misc/eeprom/max6875.c | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
 -- 
 2.20.1
