@@ -1,20 +1,20 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 2/3] hwmon: smm665: convert to i2c_new_dummy_device
-Date: Mon, 22 Jul 2019 11:29:08 -0700
-Message-ID: <20190722182908.GA16788@roeck-us.net>
+Subject: Re: [PATCH 3/3] hwmon: w83781d: convert to i2c_new_dummy_device
+Date: Mon, 22 Jul 2019 11:30:06 -0700
+Message-ID: <20190722183006.GA16898@roeck-us.net>
 References: <20190722172611.3797-1-wsa+renesas@sang-engineering.com>
- <20190722172611.3797-3-wsa+renesas@sang-engineering.com>
+ <20190722172611.3797-4-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190722172611.3797-3-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190722172611.3797-4-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>, linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jul 22, 2019 at 07:26:09PM +0200, Wolfram Sang wrote:
+On Mon, Jul 22, 2019 at 07:26:10PM +0200, Wolfram Sang wrote:
 > Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
 > ERRPTR which we use in error handling.
 > 
@@ -29,24 +29,26 @@ Guenter
 > 
 > Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
 > 
->  drivers/hwmon/smm665.c | 6 +++---
+>  drivers/hwmon/w83781d.c | 6 +++---
 >  1 file changed, 3 insertions(+), 3 deletions(-)
 > 
-> diff --git a/drivers/hwmon/smm665.c b/drivers/hwmon/smm665.c
-> index d8c91c2cb8cf..6eff14fe395d 100644
-> --- a/drivers/hwmon/smm665.c
-> +++ b/drivers/hwmon/smm665.c
-> @@ -586,10 +586,10 @@ static int smm665_probe(struct i2c_client *client,
+> diff --git a/drivers/hwmon/w83781d.c b/drivers/hwmon/w83781d.c
+> index d2c04b6a3f2b..015f1ea31966 100644
+> --- a/drivers/hwmon/w83781d.c
+> +++ b/drivers/hwmon/w83781d.c
+> @@ -894,12 +894,12 @@ w83781d_detect_subclients(struct i2c_client *new_client)
+>  	}
 >  
->  	data->client = client;
->  	data->type = id->driver_data;
-> -	data->cmdreg = i2c_new_dummy(adapter, (client->addr & ~SMM665_REGMASK)
-> +	data->cmdreg = i2c_new_dummy_device(adapter, (client->addr & ~SMM665_REGMASK)
->  				     | SMM665_CMDREG_BASE);
-> -	if (!data->cmdreg)
-> -		return -ENOMEM;
-> +	if (IS_ERR(data->cmdreg))
-> +		return PTR_ERR(data->cmdreg);
->  
->  	switch (data->type) {
->  	case smm465:
+>  	for (i = 0; i < num_sc; i++) {
+> -		data->lm75[i] = i2c_new_dummy(adapter, sc_addr[i]);
+> -		if (!data->lm75[i]) {
+> +		data->lm75[i] = i2c_new_dummy_device(adapter, sc_addr[i]);
+> +		if (IS_ERR(data->lm75[i])) {
+>  			dev_err(&new_client->dev,
+>  				"Subclient %d registration at address 0x%x failed.\n",
+>  				i, sc_addr[i]);
+> -			err = -ENOMEM;
+> +			err = PTR_ERR(data->lm75[i]);
+>  			if (i == 1)
+>  				goto ERROR_SC_3;
+>  			goto ERROR_SC_2;
