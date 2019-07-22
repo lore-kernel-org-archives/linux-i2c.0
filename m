@@ -1,50 +1,44 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 0/8] media: convert subsystem to i2c_new_dummy_device()
-Date: Mon, 22 Jul 2019 19:25:54 +0200
-Message-ID: <20190722172604.3572-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 2/8] media: dvb-frontends: mn88443x: convert to i2c_new_dummy_device
+Date: Mon, 22 Jul 2019 19:25:56 +0200
+Message-ID: <20190722172604.3572-3-wsa+renesas@sang-engineering.com>
+References: <20190722172604.3572-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190722172604.3572-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This series is part of a tree-wide movement to replace the I2C API call
-'i2c_new_dummy' which returns NULL with its new counterpart returning an
-ERRPTR.
+Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
+ERRPTR which we use in error handling.
 
-The series was generated with coccinelle (audited afterwards, of course) and
-build tested by me and by buildbot. No tests on HW have been performed.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-The branch is based on v5.3-rc1. A branch (with some more stuff included) can
-be found here:
+Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/i2c/new_dummy
+ drivers/media/dvb-frontends/mn88443x.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Some drivers still need to be manually converted. Patches for those will be
-sent out individually.
-
-
-Wolfram Sang (8):
-  media: dvb-frontends: cxd2820r_core: convert to i2c_new_dummy_device
-  media: dvb-frontends: mn88443x: convert to i2c_new_dummy_device
-  media: dvb-frontends: mn88472: convert to i2c_new_dummy_device
-  media: dvb-frontends: mn88473: convert to i2c_new_dummy_device
-  media: i2c: ad9389b: convert to i2c_new_dummy_device
-  media: i2c: adv7180: convert to i2c_new_dummy_device
-  media: i2c: adv7511-v4l2: convert to i2c_new_dummy_device
-  media: usb: go7007: s2250-board: convert to i2c_new_dummy_device
-
- drivers/media/dvb-frontends/cxd2820r_core.c |  6 +++---
- drivers/media/dvb-frontends/mn88443x.c      |  6 +++---
- drivers/media/dvb-frontends/mn88472.c       | 12 ++++++------
- drivers/media/dvb-frontends/mn88473.c       | 12 ++++++------
- drivers/media/i2c/ad9389b.c                 |  6 +++---
- drivers/media/i2c/adv7180.c                 | 12 ++++++------
- drivers/media/i2c/adv7511-v4l2.c            | 18 +++++++++---------
- drivers/media/usb/go7007/s2250-board.c      |  6 +++---
- 8 files changed, 39 insertions(+), 39 deletions(-)
-
+diff --git a/drivers/media/dvb-frontends/mn88443x.c b/drivers/media/dvb-frontends/mn88443x.c
+index 9ec1aeef03d5..e4528784f847 100644
+--- a/drivers/media/dvb-frontends/mn88443x.c
++++ b/drivers/media/dvb-frontends/mn88443x.c
+@@ -722,9 +722,9 @@ static int mn88443x_probe(struct i2c_client *client,
+ 	 * Chip has two I2C addresses for each satellite/terrestrial system.
+ 	 * ISDB-T uses address ISDB-S + 4, so we register a dummy client.
+ 	 */
+-	chip->client_t = i2c_new_dummy(client->adapter, client->addr + 4);
+-	if (!chip->client_t)
+-		return -ENODEV;
++	chip->client_t = i2c_new_dummy_device(client->adapter, client->addr + 4);
++	if (IS_ERR(chip->client_t))
++		return PTR_ERR(chip->client_t);
+ 
+ 	chip->regmap_t = devm_regmap_init_i2c(chip->client_t, &regmap_config);
+ 	if (IS_ERR(chip->regmap_t)) {
 -- 
 2.20.1
