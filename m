@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 1/2] misc: eeprom: ee1004: convert to i2c_new_dummy_device
-Date: Mon, 22 Jul 2019 19:26:15 +0200
-Message-ID: <20190722172616.3982-2-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 2/2] misc: eeprom: max6875: convert to i2c_new_dummy_device
+Date: Mon, 22 Jul 2019 19:26:16 +0200
+Message-ID: <20190722172616.3982-3-wsa+renesas@sang-engineering.com>
 References: <20190722172616.3982-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -20,29 +20,25 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
 
- drivers/misc/eeprom/ee1004.c | 6 +++---
+ drivers/misc/eeprom/max6875.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/misc/eeprom/ee1004.c b/drivers/misc/eeprom/ee1004.c
-index 6f00c33cfe22..b081c67416d7 100644
---- a/drivers/misc/eeprom/ee1004.c
-+++ b/drivers/misc/eeprom/ee1004.c
-@@ -195,13 +195,13 @@ static int ee1004_probe(struct i2c_client *client,
- 	mutex_lock(&ee1004_bus_lock);
- 	if (++ee1004_dev_count == 1) {
- 		for (cnr = 0; cnr < 2; cnr++) {
--			ee1004_set_page[cnr] = i2c_new_dummy(client->adapter,
-+			ee1004_set_page[cnr] = i2c_new_dummy_device(client->adapter,
- 						EE1004_ADDR_SET_PAGE + cnr);
--			if (!ee1004_set_page[cnr]) {
-+			if (IS_ERR(ee1004_set_page[cnr])) {
- 				dev_err(&client->dev,
- 					"address 0x%02x unavailable\n",
- 					EE1004_ADDR_SET_PAGE + cnr);
--				err = -EADDRINUSE;
-+				err = PTR_ERR(ee1004_set_page[cnr]);
- 				goto err_clients;
- 			}
- 		}
+diff --git a/drivers/misc/eeprom/max6875.c b/drivers/misc/eeprom/max6875.c
+index 4d0cb90f4aeb..9da81f6d4a1c 100644
+--- a/drivers/misc/eeprom/max6875.c
++++ b/drivers/misc/eeprom/max6875.c
+@@ -150,9 +150,9 @@ static int max6875_probe(struct i2c_client *client,
+ 		return -ENOMEM;
+ 
+ 	/* A fake client is created on the odd address */
+-	data->fake_client = i2c_new_dummy(client->adapter, client->addr + 1);
+-	if (!data->fake_client) {
+-		err = -ENOMEM;
++	data->fake_client = i2c_new_dummy_device(client->adapter, client->addr + 1);
++	if (IS_ERR(data->fake_client)) {
++		err = PTR_ERR(data->fake_client);
+ 		goto exit_kfree;
+ 	}
+ 
 -- 
 2.20.1
