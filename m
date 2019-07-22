@@ -1,54 +1,50 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 3/3] hwmon: w83781d: convert to i2c_new_dummy_device
-Date: Mon, 22 Jul 2019 11:30:06 -0700
-Message-ID: <20190722183006.GA16898@roeck-us.net>
-References: <20190722172611.3797-1-wsa+renesas@sang-engineering.com>
- <20190722172611.3797-4-wsa+renesas@sang-engineering.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: Re: [PATCH 0/4] rtc: convert subsystem to i2c_new_dummy_device()
+Date: Mon, 22 Jul 2019 22:50:55 +0200
+Message-ID: <20190722205055.GE24911@piout.net>
+References: <20190722172618.4061-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190722172611.3797-4-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190722172618.4061-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>, linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jul 22, 2019 at 07:26:10PM +0200, Wolfram Sang wrote:
-> Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
-> ERRPTR which we use in error handling.
+On 22/07/2019 19:26:14+0200, Wolfram Sang wrote:
+> This series is part of a tree-wide movement to replace the I2C API call
+> 'i2c_new_dummy' which returns NULL with its new counterpart returning an
+> ERRPTR.
 > 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> The series was generated with coccinelle (audited afterwards, of course) and
+> build tested by me and by buildbot. No tests on HW have been performed.
+> 
+> The branch is based on v5.3-rc1. A branch (with some more stuff included) can
+> be found here:
+> 
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/i2c/new_dummy
+> 
+> Some drivers still need to be manually converted. Patches for those will be
+> sent out individually.
+> 
+> 
+> Wolfram Sang (4):
+>   rtc: isl12026: convert to i2c_new_dummy_device
+>   rtc: max77686: convert to i2c_new_dummy_device
+>   rtc: s35390a: convert to i2c_new_dummy_device
+>   rtc: s5m: convert to i2c_new_dummy_device
+> 
+>  drivers/rtc/rtc-isl12026.c | 6 +++---
+>  drivers/rtc/rtc-max77686.c | 6 +++---
+>  drivers/rtc/rtc-s35390a.c  | 6 +++---
+>  drivers/rtc/rtc-s5m.c      | 6 +++---
+>  4 files changed, 12 insertions(+), 12 deletions(-)
+> 
+All applied, thanks!
 
-Applied to hwmon-next.
-
-Thanks,
-Guenter
-
-> ---
-> 
-> Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
-> 
->  drivers/hwmon/w83781d.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hwmon/w83781d.c b/drivers/hwmon/w83781d.c
-> index d2c04b6a3f2b..015f1ea31966 100644
-> --- a/drivers/hwmon/w83781d.c
-> +++ b/drivers/hwmon/w83781d.c
-> @@ -894,12 +894,12 @@ w83781d_detect_subclients(struct i2c_client *new_client)
->  	}
->  
->  	for (i = 0; i < num_sc; i++) {
-> -		data->lm75[i] = i2c_new_dummy(adapter, sc_addr[i]);
-> -		if (!data->lm75[i]) {
-> +		data->lm75[i] = i2c_new_dummy_device(adapter, sc_addr[i]);
-> +		if (IS_ERR(data->lm75[i])) {
->  			dev_err(&new_client->dev,
->  				"Subclient %d registration at address 0x%x failed.\n",
->  				i, sc_addr[i]);
-> -			err = -ENOMEM;
-> +			err = PTR_ERR(data->lm75[i]);
->  			if (i == 1)
->  				goto ERROR_SC_3;
->  			goto ERROR_SC_2;
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
