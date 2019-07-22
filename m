@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 11/14] mfd: max8997: convert to i2c_new_dummy_device
-Date: Mon, 22 Jul 2019 19:26:18 +0200
-Message-ID: <20190722172623.4166-12-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 10/14] mfd: max8925-i2c: convert to i2c_new_dummy_device
+Date: Mon, 22 Jul 2019 19:26:17 +0200
+Message-ID: <20190722172623.4166-11-wsa+renesas@sang-engineering.com>
 References: <20190722172623.4166-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -20,47 +20,37 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
 
- drivers/mfd/max8997.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/mfd/max8925-i2c.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/mfd/max8997.c b/drivers/mfd/max8997.c
-index 8c06c09e36d1..68d8f2b95287 100644
---- a/drivers/mfd/max8997.c
-+++ b/drivers/mfd/max8997.c
-@@ -185,25 +185,25 @@ static int max8997_i2c_probe(struct i2c_client *i2c,
+diff --git a/drivers/mfd/max8925-i2c.c b/drivers/mfd/max8925-i2c.c
+index 20bb19b71109..114e905bef25 100644
+--- a/drivers/mfd/max8925-i2c.c
++++ b/drivers/mfd/max8925-i2c.c
+@@ -176,18 +176,18 @@ static int max8925_probe(struct i2c_client *client,
+ 	dev_set_drvdata(chip->dev, chip);
+ 	mutex_init(&chip->io_lock);
  
- 	mutex_init(&max8997->iolock);
- 
--	max8997->rtc = i2c_new_dummy(i2c->adapter, I2C_ADDR_RTC);
--	if (!max8997->rtc) {
-+	max8997->rtc = i2c_new_dummy_device(i2c->adapter, I2C_ADDR_RTC);
-+	if (IS_ERR(max8997->rtc)) {
- 		dev_err(max8997->dev, "Failed to allocate I2C device for RTC\n");
+-	chip->rtc = i2c_new_dummy(chip->i2c->adapter, RTC_I2C_ADDR);
+-	if (!chip->rtc) {
++	chip->rtc = i2c_new_dummy_device(chip->i2c->adapter, RTC_I2C_ADDR);
++	if (IS_ERR(chip->rtc)) {
+ 		dev_err(chip->dev, "Failed to allocate I2C device for RTC\n");
 -		return -ENODEV;
-+		return PTR_ERR(max8997->rtc);
++		return PTR_ERR(chip->rtc);
  	}
- 	i2c_set_clientdata(max8997->rtc, max8997);
+ 	i2c_set_clientdata(chip->rtc, chip);
  
--	max8997->haptic = i2c_new_dummy(i2c->adapter, I2C_ADDR_HAPTIC);
--	if (!max8997->haptic) {
-+	max8997->haptic = i2c_new_dummy_device(i2c->adapter, I2C_ADDR_HAPTIC);
-+	if (IS_ERR(max8997->haptic)) {
- 		dev_err(max8997->dev, "Failed to allocate I2C device for Haptic\n");
--		ret = -ENODEV;
-+		ret = PTR_ERR(max8997->haptic);
- 		goto err_i2c_haptic;
+-	chip->adc = i2c_new_dummy(chip->i2c->adapter, ADC_I2C_ADDR);
+-	if (!chip->adc) {
++	chip->adc = i2c_new_dummy_device(chip->i2c->adapter, ADC_I2C_ADDR);
++	if (IS_ERR(chip->adc)) {
+ 		dev_err(chip->dev, "Failed to allocate I2C device for ADC\n");
+ 		i2c_unregister_device(chip->rtc);
+-		return -ENODEV;
++		return PTR_ERR(chip->adc);
  	}
- 	i2c_set_clientdata(max8997->haptic, max8997);
+ 	i2c_set_clientdata(chip->adc, chip);
  
--	max8997->muic = i2c_new_dummy(i2c->adapter, I2C_ADDR_MUIC);
--	if (!max8997->muic) {
-+	max8997->muic = i2c_new_dummy_device(i2c->adapter, I2C_ADDR_MUIC);
-+	if (IS_ERR(max8997->muic)) {
- 		dev_err(max8997->dev, "Failed to allocate I2C device for MUIC\n");
--		ret = -ENODEV;
-+		ret = PTR_ERR(max8997->muic);
- 		goto err_i2c_muic;
- 	}
- 	i2c_set_clientdata(max8997->muic, max8997);
 -- 
 2.20.1
