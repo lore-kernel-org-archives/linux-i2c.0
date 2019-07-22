@@ -1,24 +1,15 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 03/14] mfd: ab3100-core: convert to i2c_new_dummy_device
-Date: Mon, 22 Jul 2019 19:26:10 +0200
-Message-ID: <20190722172623.4166-4-wsa+renesas@sang-engineering.com>
-References: <20190722172623.4166-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 7/8] media: i2c: adv7511-v4l2: convert to i2c_new_dummy_device
+Date: Mon, 22 Jul 2019 19:26:01 +0200
+Message-ID: <20190722172604.3572-8-wsa+renesas@sang-engineering.com>
+References: <20190722172604.3572-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190722172623.4166-1-wsa+renesas@sang-engineering.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190722172604.3572-1-wsa+renesas@sang-engineering.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linus Walleij <linus.walleij@linaro.org>, Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
@@ -29,25 +20,55 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
 
- drivers/mfd/ab3100-core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/i2c/adv7511-v4l2.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/mfd/ab3100-core.c b/drivers/mfd/ab3100-core.c
-index e350ab64238e..7e007df857b8 100644
---- a/drivers/mfd/ab3100-core.c
-+++ b/drivers/mfd/ab3100-core.c
-@@ -896,10 +896,10 @@ static int ab3100_probe(struct i2c_client *client,
- 		 &ab3100->chip_name[0]);
+diff --git a/drivers/media/i2c/adv7511-v4l2.c b/drivers/media/i2c/adv7511-v4l2.c
+index 2ad6bdf1a9fc..7db94267bcab 100644
+--- a/drivers/media/i2c/adv7511-v4l2.c
++++ b/drivers/media/i2c/adv7511-v4l2.c
+@@ -1872,11 +1872,11 @@ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *
+ 		goto err_entity;
+ 	}
  
- 	/* Attach a second dummy i2c_client to the test register address */
--	ab3100->testreg_client = i2c_new_dummy(client->adapter,
-+	ab3100->testreg_client = i2c_new_dummy_device(client->adapter,
- 					       client->addr + 1);
--	if (!ab3100->testreg_client) {
+-	state->i2c_edid = i2c_new_dummy(client->adapter,
++	state->i2c_edid = i2c_new_dummy_device(client->adapter,
+ 					state->i2c_edid_addr >> 1);
+-	if (state->i2c_edid == NULL) {
++	if (IS_ERR(state->i2c_edid)) {
+ 		v4l2_err(sd, "failed to register edid i2c client\n");
 -		err = -ENOMEM;
-+	if (IS_ERR(ab3100->testreg_client)) {
-+		err = PTR_ERR(ab3100->testreg_client);
- 		goto exit_no_testreg_client;
++		err = PTR_ERR(state->i2c_edid);
+ 		goto err_entity;
+ 	}
+ 
+@@ -1889,11 +1889,11 @@ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *
+ 	}
+ 
+ 	if (state->pdata.cec_clk) {
+-		state->i2c_cec = i2c_new_dummy(client->adapter,
++		state->i2c_cec = i2c_new_dummy_device(client->adapter,
+ 					       state->i2c_cec_addr >> 1);
+-		if (state->i2c_cec == NULL) {
++		if (IS_ERR(state->i2c_cec)) {
+ 			v4l2_err(sd, "failed to register cec i2c client\n");
+-			err = -ENOMEM;
++			err = PTR_ERR(state->i2c_cec);
+ 			goto err_unreg_edid;
+ 		}
+ 		adv7511_wr(sd, 0xe2, 0x00); /* power up cec section */
+@@ -1901,10 +1901,10 @@ static int adv7511_probe(struct i2c_client *client, const struct i2c_device_id *
+ 		adv7511_wr(sd, 0xe2, 0x01); /* power down cec section */
+ 	}
+ 
+-	state->i2c_pktmem = i2c_new_dummy(client->adapter, state->i2c_pktmem_addr >> 1);
+-	if (state->i2c_pktmem == NULL) {
++	state->i2c_pktmem = i2c_new_dummy_device(client->adapter, state->i2c_pktmem_addr >> 1);
++	if (IS_ERR(state->i2c_pktmem)) {
+ 		v4l2_err(sd, "failed to register pktmem i2c client\n");
+-		err = -ENOMEM;
++		err = PTR_ERR(state->i2c_pktmem);
+ 		goto err_unreg_cec;
  	}
  
 -- 
