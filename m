@@ -1,47 +1,42 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 14/14] mfd: twl-core: convert to i2c_new_dummy_device
-Date: Mon, 22 Jul 2019 19:26:21 +0200
-Message-ID: <20190722172623.4166-15-wsa+renesas@sang-engineering.com>
-References: <20190722172623.4166-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 2/2] media: ir-kbd-i2c: remove outdated comments
+Date: Mon, 22 Jul 2019 19:26:32 +0200
+Message-ID: <20190722172632.4402-3-wsa+renesas@sang-engineering.com>
+References: <20190722172632.4402-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190722172623.4166-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190722172632.4402-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Tony Lindgren <tony@atomide.com>, Lee Jones <lee.jones@linaro.org>, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
-ERRPTR which we use in error handling.
+The "free memory" comment is obsolete since 2013 and the other ones
+explain the obvious. Just remove the comments.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
+ drivers/media/i2c/ir-kbd-i2c.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
-
- drivers/mfd/twl-core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/mfd/twl-core.c b/drivers/mfd/twl-core.c
-index 448d9397ff04..20cf8cfe4f3b 100644
---- a/drivers/mfd/twl-core.c
-+++ b/drivers/mfd/twl-core.c
-@@ -1141,12 +1141,12 @@ twl_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		if (i == 0) {
- 			twl->client = client;
- 		} else {
--			twl->client = i2c_new_dummy(client->adapter,
-+			twl->client = i2c_new_dummy_device(client->adapter,
- 						    client->addr + i);
--			if (!twl->client) {
-+			if (IS_ERR(twl->client)) {
- 				dev_err(&client->dev,
- 					"can't attach client %d\n", i);
--				status = -ENOMEM;
-+				status = PTR_ERR(twl->client);
- 				goto fail;
- 			}
- 		}
+diff --git a/drivers/media/i2c/ir-kbd-i2c.c b/drivers/media/i2c/ir-kbd-i2c.c
+index f46717052efc..30fde0e025c9 100644
+--- a/drivers/media/i2c/ir-kbd-i2c.c
++++ b/drivers/media/i2c/ir-kbd-i2c.c
+@@ -916,13 +916,9 @@ static int ir_remove(struct i2c_client *client)
+ {
+ 	struct IR_i2c *ir = i2c_get_clientdata(client);
+ 
+-	/* kill outstanding polls */
+ 	cancel_delayed_work_sync(&ir->work);
+-
+-	/* unregister device */
+ 	rc_unregister_device(ir->rc);
+ 
+-	/* free memory */
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
