@@ -1,86 +1,90 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 044/171] i2c: nvidia-gpu: resume ccgx i2c client
-Date: Thu, 18 Jul 2019 23:54:35 -0400
-Message-ID: <20190719035643.14300-44-sashal@kernel.org>
-References: <20190719035643.14300-1-sashal@kernel.org>
+From: Marc Gonzalez <marc.w.gonzalez@free.fr>
+Subject: Re: [RFC v2] DT-based tuner/demod init
+Date: Mon, 22 Jul 2019 12:54:40 +0200
+Message-ID: <7c7f05bc-26e6-7671-a5e2-265775744096@free.fr>
+References: <6d38f9b1-a8cd-803d-b330-f92f7bcf08ca@free.fr>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190719035643.14300-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Ajay Gupta <ajayg@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <6d38f9b1-a8cd-803d-b330-f92f7bcf08ca@free.fr>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-media <linux-media@vger.kernel.org>, I2C <linux-i2c@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>
+Cc: DT <devicetree@vger.kernel.org>, Peter Korsgaard <peter@korsgaard.com>, Jeffrey Hugo <jeffrey.l.hugo@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, Brad Love <brad@nextdimension.cc>, =?UTF-8?Q?Jonathan_Neusch=c3=a4fer?= <j.neuschaefer@gmx.net>, Bjorn Andersson <bjorn.andersson@linaro.org>, Antti Palosaari <crope@iki.fi>, Peter Rosin <peda@axentia.se>, Simon Horman <horms+renesas@verge.net.au>, Mauro Carvalho Chehab <mchehab@kernel.org>, Olli Salonen <olli.salonen@iki.fi>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Ajay Gupta <ajayg@nvidia.com>
-
-[ Upstream commit 9f2e244d0a39eb437f98324ac315e605e48636db ]
-
-Cypress USB Type-C CCGx controller firmware version 3.1.10
-(which is being used in many NVIDIA GPU cards) has known issue of
-not triggering interrupt when a USB device is hot plugged to runtime
-resume the controller. If any GPU card gets latest kernel with runtime
-pm support but does not get latest fixed firmware then also it should
-continue to work and therefore a workaround is required to check for
-any connector change event
-
-The workaround is to request runtime resume of i2c client
-which is UCSI Cypress CCGx driver. CCG driver will call the ISR
-for any connector change event only if NVIDIA GPU has old
-CCG firmware with the known issue.
-
-Signed-off-by: Ajay Gupta <ajayg@nvidia.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/busses/i2c-nvidia-gpu.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-nvidia-gpu.c b/drivers/i2c/busses/i2c-nvidia-gpu.c
-index 1c8f708f212b..ee2412b7459c 100644
---- a/drivers/i2c/busses/i2c-nvidia-gpu.c
-+++ b/drivers/i2c/busses/i2c-nvidia-gpu.c
-@@ -51,6 +51,7 @@ struct gpu_i2c_dev {
- 	void __iomem *regs;
- 	struct i2c_adapter adapter;
- 	struct i2c_board_info *gpu_ccgx_ucsi;
-+	struct i2c_client *ccgx_client;
- };
- 
- static void gpu_enable_i2c_bus(struct gpu_i2c_dev *i2cd)
-@@ -261,8 +262,6 @@ static const struct property_entry ccgx_props[] = {
- 
- static int gpu_populate_client(struct gpu_i2c_dev *i2cd, int irq)
- {
--	struct i2c_client *ccgx_client;
--
- 	i2cd->gpu_ccgx_ucsi = devm_kzalloc(i2cd->dev,
- 					   sizeof(*i2cd->gpu_ccgx_ucsi),
- 					   GFP_KERNEL);
-@@ -274,8 +273,8 @@ static int gpu_populate_client(struct gpu_i2c_dev *i2cd, int irq)
- 	i2cd->gpu_ccgx_ucsi->addr = 0x8;
- 	i2cd->gpu_ccgx_ucsi->irq = irq;
- 	i2cd->gpu_ccgx_ucsi->properties = ccgx_props;
--	ccgx_client = i2c_new_device(&i2cd->adapter, i2cd->gpu_ccgx_ucsi);
--	if (!ccgx_client)
-+	i2cd->ccgx_client = i2c_new_device(&i2cd->adapter, i2cd->gpu_ccgx_ucsi);
-+	if (!i2cd->ccgx_client)
- 		return -ENODEV;
- 
- 	return 0;
-@@ -354,6 +353,13 @@ static __maybe_unused int gpu_i2c_resume(struct device *dev)
- 	struct gpu_i2c_dev *i2cd = dev_get_drvdata(dev);
- 
- 	gpu_enable_i2c_bus(i2cd);
-+	/*
-+	 * Runtime resume ccgx client so that it can see for any
-+	 * connector change event. Old ccg firmware has known
-+	 * issue of not triggering interrupt when a device is
-+	 * connected to runtime resume the controller.
-+	 */
-+	pm_request_resume(&i2cd->ccgx_client->dev);
- 	return 0;
- }
- 
--- 
-2.20.1
+T24gMTEvMDcvMjAxOSAxODoyMSwgTWFyYyBHb256YWxleiB3cm90ZToKCj4gVGhpcyBpcyBhIGZv
+bGxvdy11cCBSRkMgdG8gbXkgZmlyc3QgcmVxdWVzdCBmb3IgY29tbWVudHM6Cj4gIltSRkNdIFNX
+IGNvbm5lY3Rpb24gYmV0d2VlbiBEVkIgVHJhbnNwb3J0IFN0cmVhbSBkZW11eGVyIGFuZCBJMkMt
+YmFzZWQgZnJvbnRlbmQiCj4gaHR0cHM6Ly93d3cuc3Bpbmljcy5uZXQvbGlzdHMvYXJtLWtlcm5l
+bC9tc2c3Mzk5NzIuaHRtbAo+IAo+IEJhY2tncm91bmQ6IG15IFNvQyBwcm92aWRlcyBhICJUcmFu
+c3BvcnQgU3RyZWFtIEludGVyZmFjZSIgb24tY2hpcAo+IChmb3Igd2hpY2ggSSB3cm90ZSBhIHNt
+YWxsIGRyaXZlciwgdHNpZi5jKSBhcyB3ZWxsIGFzIGEgdHVuZXIvZGVtb2QgY29tYm8KPiAoc2ky
+MTQxL3NpMjE2OCkgb24gdGhlIGJvYXJkLgo+IAo+IE15IG9yaWdpbmFsIGdvYWwgd2FzOiBiZWlu
+ZyBhYmxlIHRvIGxpbmsgdGhlIHR1bmVyL2RlbW9kIGZyb20gdGhlIGRldmljZSB0cmVlLAo+IGlu
+c3RlYWQgb2YgaGFyZC1jb2RpbmcgdGhlbSBpbiB0aGUgVFNJRiBkcml2ZXIuCj4gCj4gKFBsZWFz
+ZSBzZWUgdGhlIHJlc3VsdGluZyBjb2RlIGF0IHRoZSBlbmQgb2YgdGhpcyBtZXNzYWdlKQoKQmVs
+b3cgaXMgYW4gYW5hbHlzaXMgb2YgdGhlIHByb3Bvc2VkIGRyaXZlciwgYWZ0ZXIgYSBmZXcgZXhj
+aGFuZ2VzIHdpdGggTWF1cm8Kb24gSVJDLgoKCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbWVkaWEv
+cGxhdGZvcm0vdHNpZi5jIGIvZHJpdmVycy9tZWRpYS9wbGF0Zm9ybS90c2lmLmMKPiBuZXcgZmls
+ZSBtb2RlIDEwMDY0NAo+IGluZGV4IDAwMDAwMDAwMDAwMC4uYjEzNmYzMzRlOWM2Cj4gLS0tIC9k
+ZXYvbnVsbAo+ICsrKyBiL2RyaXZlcnMvbWVkaWEvcGxhdGZvcm0vdHNpZi5jCj4gQEAgLTAsMCAr
+MSwxODUgQEAKPiArI2luY2x1ZGUgPGxpbnV4L2Nsay5oPgo+ICsjaW5jbHVkZSA8bGludXgvaW50
+ZXJydXB0Lmg+Cj4gKyNpbmNsdWRlIDxsaW51eC9wbGF0Zm9ybV9kZXZpY2UuaD4KPiArI2luY2x1
+ZGUgPG1lZGlhL2R2Yl9mcm9udGVuZC5oPgo+ICsjaW5jbHVkZSA8bWVkaWEvZHZiX2RlbXV4Lmg+
+Cj4gKyNpbmNsdWRlIDxtZWRpYS9kbXhkZXYuaD4KPiArCj4gKy8qIFRTSUYgcmVnaXN0ZXIgb2Zm
+c2V0cyAqLwo+ICsjZGVmaW5lIFRTSUZfU1RTX0NUTAkweDAJLyogc3RhdHVzIGFuZCBjb250cm9s
+ICovCj4gKyNkZWZpbmUgVFNJRl9EQVRBX1BPUlQJMHgxMDAKPiArCj4gKy8qIFRTSUZfU1RTX0NU
+TCBiaXRzICovCj4gKyNkZWZpbmUgRU5BQkxFX0lSUQlCSVQoMjgpCj4gKyNkZWZpbmUgVFNJRl9T
+VE9QCUJJVCgzKQo+ICsjZGVmaW5lIFRTSUZfU1RBUlQJQklUKDApCj4gKwo+ICtzdHJ1Y3QgdHNp
+ZiB7Cj4gKwl2b2lkIF9faW9tZW0gKmJhc2U7Cj4gKwlzdHJ1Y3QgY2xrICpjbGs7Cj4gKwlpbnQg
+cmVmX2NvdW50OyAvKioqIFRPRE86IHVzZSBhdG9taWNfdCA/Pz8gb3IgcmVmY291bnRfdCA/Pz8g
+b3Iga3JlZiA/Pz8gKioqLwo+ICsJdTMyIGJ1Zls0OF07Cj4gKwlzdHJ1Y3QgZHZiX2Zyb250ZW5k
+ICpmZTsKPiArCS8qKiogRE8gSSBORUVEIEFMTCA0ICoqKi8KPiArCS8vc3RydWN0IGRteF9mcm9u
+dGVuZCBkbXhfZnJvbnRlbmQ7Cj4gKwlzdHJ1Y3QgZHZiX2FkYXB0ZXIgZHZiX2FkYXB0ZXI7Cj4g
+KwlzdHJ1Y3QgZHZiX2RlbXV4IGR2Yl9kZW11eDsKPiArCXN0cnVjdCBkbXhkZXYgZG14ZGV2Owo+
+ICt9Owo+ICsKPiArc3RhdGljIGludCBzdGFydF90c2lmKHN0cnVjdCBkdmJfZGVtdXhfZmVlZCAq
+ZmVlZCkKPiArewo+ICsJc3RydWN0IHRzaWYgKnRzaWYgPSBmZWVkLT5kZW11eC0+cHJpdjsKPiAr
+CXByaW50aygiJXM6IGZlZWQgUElEPSV1XG4iLCBfX2Z1bmNfXywgZmVlZC0+cGlkKTsKPiArCj4g
+KwlpZiAodHNpZi0+cmVmX2NvdW50KysgPT0gMCkgewo+ICsJCXUzMiB2YWwgPSBUU0lGX1NUQVJU
+IHwgRU5BQkxFX0lSUSB8IEJJVCgyOSk7Cj4gKwkJd3JpdGVsX3JlbGF4ZWQodmFsLCB0c2lmLT5i
+YXNlICsgVFNJRl9TVFNfQ1RMKTsKPiArCX0KPiArCj4gKwlyZXR1cm4gMDsKPiArfQo+ICsKPiAr
+c3RhdGljIGludCBzdG9wX3RzaWYoc3RydWN0IGR2Yl9kZW11eF9mZWVkICpmZWVkKQo+ICt7Cj4g
+KwlzdHJ1Y3QgdHNpZiAqdHNpZiA9IGZlZWQtPmRlbXV4LT5wcml2Owo+ICsJcHJpbnRrKCIlczog
+ZmVlZCBQSUQ9JXVcbiIsIF9fZnVuY19fLCBmZWVkLT5waWQpOwo+ICsKPiArCWlmICgtLXRzaWYt
+PnJlZl9jb3VudCA9PSAwKSB7Cj4gKwkJd3JpdGVsX3JlbGF4ZWQoVFNJRl9TVE9QLCB0c2lmLT5i
+YXNlICsgVFNJRl9TVFNfQ1RMKTsKPiArCX0KPiArCj4gKwlyZXR1cm4gMDsKPiArfQo+ICsKPiAr
+c3RhdGljIGlycXJldHVybl90IHRzaWZfaXNyKGludCBpcnEsIHZvaWQgKmFyZykKPiArewo+ICsJ
+aW50IGk7Cj4gKwl1MzIgc3RhdHVzOwo+ICsJc3RydWN0IHRzaWYgKnRzaWYgPSBhcmc7Cj4gKwo+
+ICsJc3RhdHVzID0gcmVhZGxfcmVsYXhlZCh0c2lmLT5iYXNlICsgVFNJRl9TVFNfQ1RMKTsKPiAr
+CXdyaXRlbF9yZWxheGVkKHN0YXR1cywgdHNpZi0+YmFzZSArIFRTSUZfU1RTX0NUTCk7Cj4gKwo+
+ICsJZm9yIChpID0gMDsgaSA8IDQ4OyArK2kpCj4gKwkJdHNpZi0+YnVmW2ldID0gcmVhZGxfcmVs
+YXhlZCh0c2lmLT5iYXNlICsgVFNJRl9EQVRBX1BPUlQpOwo+ICsKPiArCWR2Yl9kbXhfc3dmaWx0
+ZXJfcGFja2V0cygmdHNpZi0+ZHZiX2RlbXV4LCAodm9pZCAqKXRzaWYtPmJ1ZiwgMSk7Cj4gKwo+
+ICsJcmV0dXJuIElSUV9IQU5ETEVEOwo+ICt9CgpXaGF0IG1heSBub3QgYmUgYXBwYXJlbnQgaGVy
+ZSBpcyB0aGF0IChpbiB0aGlzIG1vZGUpIHRoZSBIVyBnZW5lcmF0ZXMKb25lIGludGVycnVwdCBm
+b3IgKmV2ZXJ5KiAqc2luZ2xlKiBUUyBwYWNrZXQgKGkuZS4gMTUwNCBiaXRzKS4gQW5kIGl0CmNh
+biBidWZmZXIgb25seSBhIHNpbmdsZSBwYWNrZXQuIFByZXR0eSBoYXJkIHJlYWwtdGltZSBjb25z
+dHJhaW50cy4uLgoKU2luY2UgSSdtIGRlYWxpbmcgd2l0aCAyNSBNYnBzIHN0cmVhbXMgKEZyZW5j
+aCBEVkItVDIgbXVsdGlwbGV4KQoyNSoxMGU2IC8gMTUwNCA9IDE2NjAwIHBhY2tldHMgcGVyIHNl
+Y29uZCAtLSBpLmUuIDYwIMK1cyBiZXR3ZWVuIElSUXMKCkV2ZW4gYWZ0ZXI6CgoxKSBtb3Zpbmcg
+dGhlIElTUiB0byBpdHMgb3duIGRlZGljYXRlZCBjb3JlLAoyKSBtb3ZpbmcgZHZiX2RteF9zd2Zp
+bHRlcl9wYWNrZXRzKCkgdG8gYSB3b3JrX3F1ZXVlLAozKSByZW1vdmluZyBpbnRlcnJ1cHQgbWFz
+a2luZyBmcm9tIERWQiBmdW5jdGlvbnMsCjQpIHVzaW5nIGxhcmdlIFNXIGJ1ZmZlcnMgKDEwMjQg
+VFMgcGFja2V0cykKCkkgc3RpbGwgZHJvcCBhIGZldyBwYWNrZXRzIGhlcmUgYW5kIHRoZXJlICh+
+MSBwZXIgbWludXRlKS4KCkNvbmNsdXNpb246IGl0IHNlZW1zIHRoaXMgSFcgbW9kZSBjYW5ub3Qg
+d29yayByZWxpYWJseSBvbiB0aGUgdHlwZXMKb2Ygc3RyZWFtcyBJJ20gaW50ZXJlc3RlZCBpbi4g
+VGh1cywgdGhlcmUncyBubyBwb2ludCBpbiBzdXBwb3J0aW5nIGl0CmluIHRoZSBmaW5hbCBkcml2
+ZXIuIEkgbmVlZCB0byB0ZXN0ICJhZHZhbmNlZCIgbW9kZS4KClJlZ2FyZHMuCgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1h
+aWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xp
+c3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
