@@ -1,55 +1,60 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 1/3] iio: light: cm36651: convert to i2c_new_dummy_device
-Date: Mon, 22 Jul 2019 19:26:11 +0200
-Message-ID: <20190722172613.3890-2-wsa+renesas@sang-engineering.com>
-References: <20190722172613.3890-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH] net: sfc: falcon: convert to i2c_new_dummy_device
+Date: Mon, 22 Jul 2019 19:26:35 +0200
+Message-ID: <20190722172635.4535-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190722172613.3890-1-wsa+renesas@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Kevin Tsai <ktsai@capellamicro.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Solarflare linux maintainers <linux-net-drivers@solarflare.com>, Edward Cree <ecree@solarflare.com>, Martin Habets <mhabets@solarflare.com>, "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
+Move from i2c_new_dummy() to i2c_new_dummy_device(). So, we now get an
 ERRPTR which we use in error handling.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
 
-Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
+Only build tested. Part of a tree-wide move to deprecate
+i2c_new_dummy().
 
- drivers/iio/light/cm36651.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/sfc/falcon/falcon_boards.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/iio/light/cm36651.c b/drivers/iio/light/cm36651.c
-index 7702c2bcbcfa..1019d625adb1 100644
---- a/drivers/iio/light/cm36651.c
-+++ b/drivers/iio/light/cm36651.c
-@@ -646,18 +646,18 @@ static int cm36651_probe(struct i2c_client *client,
- 	i2c_set_clientdata(client, indio_dev);
+diff --git a/drivers/net/ethernet/sfc/falcon/falcon_boards.c b/drivers/net/ethernet/sfc/falcon/falcon_boards.c
+index 839189dab98e..189ce9b9dfa7 100644
+--- a/drivers/net/ethernet/sfc/falcon/falcon_boards.c
++++ b/drivers/net/ethernet/sfc/falcon/falcon_boards.c
+@@ -454,13 +454,13 @@ static int sfe4001_init(struct ef4_nic *efx)
  
- 	cm36651->client = client;
--	cm36651->ps_client = i2c_new_dummy(client->adapter,
-+	cm36651->ps_client = i2c_new_dummy_device(client->adapter,
- 						     CM36651_I2C_ADDR_PS);
--	if (!cm36651->ps_client) {
-+	if (IS_ERR(cm36651->ps_client)) {
- 		dev_err(&client->dev, "%s: new i2c device failed\n", __func__);
--		ret = -ENODEV;
-+		ret = PTR_ERR(cm36651->ps_client);
- 		goto error_disable_reg;
- 	}
+ #if IS_ENABLED(CONFIG_SENSORS_LM90)
+ 	board->hwmon_client =
+-		i2c_new_device(&board->i2c_adap, &sfe4001_hwmon_info);
++		i2c_new_client_device(&board->i2c_adap, &sfe4001_hwmon_info);
+ #else
+ 	board->hwmon_client =
+-		i2c_new_dummy(&board->i2c_adap, sfe4001_hwmon_info.addr);
++		i2c_new_dummy_device(&board->i2c_adap, sfe4001_hwmon_info.addr);
+ #endif
+-	if (!board->hwmon_client)
+-		return -EIO;
++	if (IS_ERR(board->hwmon_client))
++		return PTR_ERR(board->hwmon_client);
  
--	cm36651->ara_client = i2c_new_dummy(client->adapter, CM36651_ARA);
--	if (!cm36651->ara_client) {
-+	cm36651->ara_client = i2c_new_dummy_device(client->adapter, CM36651_ARA);
-+	if (IS_ERR(cm36651->ara_client)) {
- 		dev_err(&client->dev, "%s: new i2c device failed\n", __func__);
--		ret = -ENODEV;
-+		ret = PTR_ERR(cm36651->ara_client);
- 		goto error_i2c_unregister_ps;
+ 	/* Raise board/PHY high limit from 85 to 90 degrees Celsius */
+ 	rc = i2c_smbus_write_byte_data(board->hwmon_client,
+@@ -468,9 +468,9 @@ static int sfe4001_init(struct ef4_nic *efx)
+ 	if (rc)
+ 		goto fail_hwmon;
+ 
+-	board->ioexp_client = i2c_new_dummy(&board->i2c_adap, PCA9539);
+-	if (!board->ioexp_client) {
+-		rc = -EIO;
++	board->ioexp_client = i2c_new_dummy_device(&board->i2c_adap, PCA9539);
++	if (IS_ERR(board->ioexp_client)) {
++		rc = PTR_ERR(board->ioexp_client);
+ 		goto fail_hwmon;
  	}
  
 -- 
