@@ -1,40 +1,45 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 0/3] iio: convert subsystem to i2c_new_dummy_device()
-Date: Mon, 22 Jul 2019 19:26:10 +0200
-Message-ID: <20190722172613.3890-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 2/3] iio: light: veml6070: convert to i2c_new_dummy_device
+Date: Mon, 22 Jul 2019 19:26:12 +0200
+Message-ID: <20190722172613.3890-3-wsa+renesas@sang-engineering.com>
+References: <20190722172613.3890-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190722172613.3890-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This series is part of a tree-wide movement to replace the I2C API call
-'i2c_new_dummy' which returns NULL with its new counterpart returning an
-ERRPTR.
+Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
+ERRPTR which we use in error handling.
 
-The series was generated with coccinelle (audited afterwards, of course) and
-build tested by me and by buildbot. No tests on HW have been performed.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-The branch is based on v5.3-rc1. A branch (with some more stuff included) can
-be found here:
+Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/i2c/new_dummy
+ drivers/iio/light/veml6070.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Some drivers still need to be manually converted. Patches for those will be
-sent out individually.
-
-
-Wolfram Sang (3):
-  iio: light: cm36651: convert to i2c_new_dummy_device
-  iio: light: veml6070: convert to i2c_new_dummy_device
-  iio: pressure: hp03: convert to i2c_new_dummy_device
-
- drivers/iio/light/cm36651.c  | 12 ++++++------
- drivers/iio/light/veml6070.c |  6 +++---
- drivers/iio/pressure/hp03.c  |  6 +++---
- 3 files changed, 12 insertions(+), 12 deletions(-)
-
+diff --git a/drivers/iio/light/veml6070.c b/drivers/iio/light/veml6070.c
+index a3138e1b5803..0be553ad5989 100644
+--- a/drivers/iio/light/veml6070.c
++++ b/drivers/iio/light/veml6070.c
+@@ -158,10 +158,10 @@ static int veml6070_probe(struct i2c_client *client,
+ 	indio_dev->name = VEML6070_DRV_NAME;
+ 	indio_dev->modes = INDIO_DIRECT_MODE;
+ 
+-	data->client2 = i2c_new_dummy(client->adapter, VEML6070_ADDR_DATA_LSB);
+-	if (!data->client2) {
++	data->client2 = i2c_new_dummy_device(client->adapter, VEML6070_ADDR_DATA_LSB);
++	if (IS_ERR(data->client2)) {
+ 		dev_err(&client->dev, "i2c device for second chip address failed\n");
+-		return -ENODEV;
++		return PTR_ERR(data->client2);
+ 	}
+ 
+ 	data->config = VEML6070_IT_10 | VEML6070_COMMAND_RSRVD |
 -- 
 2.20.1
