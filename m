@@ -1,38 +1,48 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 0/2] misc: convert subsystem to i2c_new_dummy_device()
-Date: Mon, 22 Jul 2019 19:26:14 +0200
-Message-ID: <20190722172616.3982-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 1/2] misc: eeprom: ee1004: convert to i2c_new_dummy_device
+Date: Mon, 22 Jul 2019 19:26:15 +0200
+Message-ID: <20190722172616.3982-2-wsa+renesas@sang-engineering.com>
+References: <20190722172616.3982-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190722172616.3982-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This series is part of a tree-wide movement to replace the I2C API call
-'i2c_new_dummy' which returns NULL with its new counterpart returning an
-ERRPTR.
+Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
+ERRPTR which we use in error handling.
 
-The series was generated with coccinelle (audited afterwards, of course) and
-build tested by me and by buildbot. No tests on HW have been performed.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-The branch is based on v5.3-rc1. A branch (with some more stuff included) can
-be found here:
+Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/i2c/new_dummy
+ drivers/misc/eeprom/ee1004.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Some drivers still need to be manually converted. Patches for those will be
-sent out individually.
-
-
-Wolfram Sang (2):
-  misc: eeprom: ee1004: convert to i2c_new_dummy_device
-  misc: eeprom: max6875: convert to i2c_new_dummy_device
-
- drivers/misc/eeprom/ee1004.c  | 6 +++---
- drivers/misc/eeprom/max6875.c | 6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
-
+diff --git a/drivers/misc/eeprom/ee1004.c b/drivers/misc/eeprom/ee1004.c
+index 6f00c33cfe22..b081c67416d7 100644
+--- a/drivers/misc/eeprom/ee1004.c
++++ b/drivers/misc/eeprom/ee1004.c
+@@ -195,13 +195,13 @@ static int ee1004_probe(struct i2c_client *client,
+ 	mutex_lock(&ee1004_bus_lock);
+ 	if (++ee1004_dev_count == 1) {
+ 		for (cnr = 0; cnr < 2; cnr++) {
+-			ee1004_set_page[cnr] = i2c_new_dummy(client->adapter,
++			ee1004_set_page[cnr] = i2c_new_dummy_device(client->adapter,
+ 						EE1004_ADDR_SET_PAGE + cnr);
+-			if (!ee1004_set_page[cnr]) {
++			if (IS_ERR(ee1004_set_page[cnr])) {
+ 				dev_err(&client->dev,
+ 					"address 0x%02x unavailable\n",
+ 					EE1004_ADDR_SET_PAGE + cnr);
+-				err = -EADDRINUSE;
++				err = PTR_ERR(ee1004_set_page[cnr]);
+ 				goto err_clients;
+ 			}
+ 		}
 -- 
 2.20.1
