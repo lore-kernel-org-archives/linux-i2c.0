@@ -1,32 +1,33 @@
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: Re: [PATCH 07/14] mfd: max77693: convert to i2c_new_dummy_device
-Date: Tue, 23 Jul 2019 19:35:45 +0200
-Message-ID: <20190723173545.GB6317@kozik-lap>
-References: <20190722172623.4166-1-wsa+renesas@sang-engineering.com>
- <20190722172623.4166-8-wsa+renesas@sang-engineering.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c: busses: Use dev_get_drvdata where possible
+Date: Tue, 23 Jul 2019 20:34:52 +0200
+Message-ID: <20190723203452.5714f142@endymion>
+References: <20190723111110.11121-1-hslester96@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190722172623.4166-8-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190723111110.11121-1-hslester96@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Lee Jones <lee.jones@linaro.org>, linux-kernel@vger.kernel.org
+To: Chuhong Yuan <hslester96@gmail.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jul 22, 2019 at 07:26:14PM +0200, Wolfram Sang wrote:
-> Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
-> ERRPTR which we use in error handling.
+On Tue, 23 Jul 2019 19:11:10 +0800, Chuhong Yuan wrote:
+> Instead of using to_pci_dev + pci_get_drvdata,
+> use dev_get_drvdata to make code simpler.
 > 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
 > ---
-> 
-> Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
-> 
->  drivers/mfd/max77693.c | 12 ++++++------
->  1 file changed, 6 insertions(+), 6 deletions(-)
+>  drivers/i2c/busses/i2c-designware-pcidrv.c | 6 ++----
+>  drivers/i2c/busses/i2c-i801.c              | 3 +--
+>  2 files changed, 3 insertions(+), 6 deletions(-)
+> (...)
 
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Looks good to me, thanks.
 
-Best regards,
-Krzysztof
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+
+-- 
+Jean Delvare
+SUSE L3 Support
