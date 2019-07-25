@@ -1,54 +1,63 @@
-From: Baolin Wang <baolin.wang@linaro.org>
-Subject: [PATCH 3/3] i2c: sprd: Validate the return value of clock initialization
-Date: Thu, 25 Jul 2019 15:56:18 +0800
-Message-ID: <5f64dc0eedb348b15442f31f2f22f5bded7cd6ef.1564041157.git.baolin.wang@linaro.org>
-References: <c9e2c50b54577e4b5cb7cc424f4c6de5f116cf60.1564041157.git.baolin.wang@linaro.org>
+From: Sean Young <sean@mess.org>
+Subject: Re: [PATCH 1/2] media: ir-kbd-i2c: prevent potential NULL pointer
+ access
+Date: Thu, 25 Jul 2019 11:44:53 +0100
+Message-ID: <20190725104453.5kqusisyg44zbbcy@gofer.mess.org>
+References: <20190722172632.4402-1-wsa+renesas@sang-engineering.com>
+ <20190722172632.4402-2-wsa+renesas@sang-engineering.com>
+ <20190725051202.o47mz4unbn63z6uk@gofer.mess.org>
+ <20190725075538.GB1323@kunai>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <c9e2c50b54577e4b5cb7cc424f4c6de5f116cf60.1564041157.git.baolin.wang@linaro.org>
-In-Reply-To: <c9e2c50b54577e4b5cb7cc424f4c6de5f116cf60.1564041157.git.baolin.wang@linaro.org>
-References: <c9e2c50b54577e4b5cb7cc424f4c6de5f116cf60.1564041157.git.baolin.wang@linaro.org>
+Content-Disposition: inline
+In-Reply-To: <20190725075538.GB1323@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa+renesas@sang-engineering.com, orsonzhai@gmail.com, zhang.lyra@gmail.com
-Cc: baolin.wang@linaro.org, vincent.guittot@linaro.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The 'enable' clock of I2C master is required, we should return an error
-if failed to get the 'enable' clock, to make sure the I2C driver can be
-defer probe if the clock resource is not ready.
+Hi Wolfram,
 
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
----
- drivers/i2c/busses/i2c-sprd.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+On Thu, Jul 25, 2019 at 09:55:38AM +0200, Wolfram Sang wrote:
+> Hi Sean,
+> 
+> thanks for the review!
+> 
+> On Thu, Jul 25, 2019 at 06:12:02AM +0100, Sean Young wrote:
+> > On Mon, Jul 22, 2019 at 07:26:31PM +0200, Wolfram Sang wrote:
+> > > i2c_new_dummy() can fail returning a NULL pointer. The code does not
+> > > bail out in this case and the returned pointer is blindly used.
+> > 
+> > I don't see how. The existing code tries to set up the tx part; if
+> > i2c_new_dummy() return NULL then the rcdev is registered without tx,
+> > and tx_c is never used.
+> 
+> Yes, you are totally right. I missed that the send_block function is
+> also only called iff zilog_init succeeded. Thanks for the heads up and
+> sorry for the noise.
 
-diff --git a/drivers/i2c/busses/i2c-sprd.c b/drivers/i2c/busses/i2c-sprd.c
-index bbcb056..b432e75 100644
---- a/drivers/i2c/busses/i2c-sprd.c
-+++ b/drivers/i2c/busses/i2c-sprd.c
-@@ -466,9 +466,9 @@ static int sprd_i2c_clk_init(struct sprd_i2c *i2c_dev)
- 
- 	i2c_dev->clk = devm_clk_get(i2c_dev->dev, "enable");
- 	if (IS_ERR(i2c_dev->clk)) {
--		dev_warn(i2c_dev->dev, "i2c%d can't get the enable clock\n",
--			 i2c_dev->adap.nr);
--		i2c_dev->clk = NULL;
-+		dev_err(i2c_dev->dev, "i2c%d can't get the enable clock\n",
-+			i2c_dev->adap.nr);
-+		return PTR_ERR(i2c_dev->clk);
- 	}
- 
- 	return 0;
-@@ -519,7 +519,10 @@ static int sprd_i2c_probe(struct platform_device *pdev)
- 	if (i2c_dev->bus_freq != 100000 && i2c_dev->bus_freq != 400000)
- 		return -EINVAL;
- 
--	sprd_i2c_clk_init(i2c_dev);
-+	ret = sprd_i2c_clk_init(i2c_dev);
-+	if (ret)
-+		return ret;
-+
- 	platform_set_drvdata(pdev, i2c_dev);
- 
- 	ret = clk_prepare_enable(i2c_dev->clk);
--- 
-1.7.9.5
+Not at all, thank you for the patch.
+
+> > > Convert
+> > > to devm_i2c_new_dummy_device() which returns an ERR_PTR and also bail
+> > > out when failing the validity check.
+> > 
+> > Possibly I was being overly cautious with not bailing out if tx can't
+> > be registered; moving to devm is probably a good idea. However the
+> > commit message is misleading, because the existing code has no
+> > NULL pointer access.
+> 
+> Yep, I will resend with a proper commit message. Technically, there is
+> no need to bail out anymore because there is no NULL pointer access. My
+> tendency is now to not bail out and keep the old behaviour (registering
+> without tx). What do you think?
+
+Since I write this code I've got pretty much every model with this zilog
+transmitter/receiver, and they all work fine, including different firmware
+versions. If there is a problem it would be nice to hear about it, and
+not silently swallow the error. I think.
+
+Thanks,
+
+Sean
