@@ -1,7 +1,7 @@
 From: Baolin Wang <baolin.wang@linaro.org>
-Subject: [PATCH 2/3] i2c: sprd: Change to use devm_platform_ioremap_resource()
-Date: Thu, 25 Jul 2019 15:56:17 +0800
-Message-ID: <29fa51009a97e6b7d8622190810b7505819ac0b2.1564041157.git.baolin.wang@linaro.org>
+Subject: [PATCH 3/3] i2c: sprd: Validate the return value of clock initialization
+Date: Thu, 25 Jul 2019 15:56:18 +0800
+Message-ID: <5f64dc0eedb348b15442f31f2f22f5bded7cd6ef.1564041157.git.baolin.wang@linaro.org>
 References: <c9e2c50b54577e4b5cb7cc424f4c6de5f116cf60.1564041157.git.baolin.wang@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <c9e2c50b54577e4b5cb7cc424f4c6de5f116cf60.1564041157.git.baolin.wang@linaro.org>
@@ -12,35 +12,43 @@ To: wsa+renesas@sang-engineering.com, orsonzhai@gmail.com, zhang.lyra@gmail.com
 Cc: baolin.wang@linaro.org, vincent.guittot@linaro.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Use the new helper that wraps the calls to platform_get_resource()
-and devm_ioremap_resource() together.
+The 'enable' clock of I2C master is required, we should return an error
+if failed to get the 'enable' clock, to make sure the I2C driver can be
+defer probe if the clock resource is not ready.
 
 Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 ---
- drivers/i2c/busses/i2c-sprd.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-sprd.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-sprd.c b/drivers/i2c/busses/i2c-sprd.c
-index 8002835..bbcb056 100644
+index bbcb056..b432e75 100644
 --- a/drivers/i2c/busses/i2c-sprd.c
 +++ b/drivers/i2c/busses/i2c-sprd.c
-@@ -478,7 +478,6 @@ static int sprd_i2c_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
- 	struct sprd_i2c *i2c_dev;
--	struct resource *res;
- 	u32 prop;
- 	int ret;
+@@ -466,9 +466,9 @@ static int sprd_i2c_clk_init(struct sprd_i2c *i2c_dev)
  
-@@ -488,8 +487,7 @@ static int sprd_i2c_probe(struct platform_device *pdev)
- 	if (!i2c_dev)
- 		return -ENOMEM;
+ 	i2c_dev->clk = devm_clk_get(i2c_dev->dev, "enable");
+ 	if (IS_ERR(i2c_dev->clk)) {
+-		dev_warn(i2c_dev->dev, "i2c%d can't get the enable clock\n",
+-			 i2c_dev->adap.nr);
+-		i2c_dev->clk = NULL;
++		dev_err(i2c_dev->dev, "i2c%d can't get the enable clock\n",
++			i2c_dev->adap.nr);
++		return PTR_ERR(i2c_dev->clk);
+ 	}
  
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	i2c_dev->base = devm_ioremap_resource(dev, res);
-+	i2c_dev->base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(i2c_dev->base))
- 		return PTR_ERR(i2c_dev->base);
+ 	return 0;
+@@ -519,7 +519,10 @@ static int sprd_i2c_probe(struct platform_device *pdev)
+ 	if (i2c_dev->bus_freq != 100000 && i2c_dev->bus_freq != 400000)
+ 		return -EINVAL;
  
+-	sprd_i2c_clk_init(i2c_dev);
++	ret = sprd_i2c_clk_init(i2c_dev);
++	if (ret)
++		return ret;
++
+ 	platform_set_drvdata(pdev, i2c_dev);
+ 
+ 	ret = clk_prepare_enable(i2c_dev->clk);
 -- 
 1.7.9.5
