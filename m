@@ -1,83 +1,60 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] media: ir-kbd-i2c: prevent potential NULL pointer
- access
-Date: Thu, 25 Jul 2019 09:55:38 +0200
-Message-ID: <20190725075538.GB1323@kunai>
-References: <20190722172632.4402-1-wsa+renesas@sang-engineering.com>
- <20190722172632.4402-2-wsa+renesas@sang-engineering.com>
- <20190725051202.o47mz4unbn63z6uk@gofer.mess.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="neYutvxvOLaeuPCA"
+From: Baolin Wang <baolin.wang@linaro.org>
+Subject: [PATCH 1/3] i2c: sprd: Make I2C driver can be built as a module
+Date: Thu, 25 Jul 2019 15:56:16 +0800
+Message-ID: <c9e2c50b54577e4b5cb7cc424f4c6de5f116cf60.1564041157.git.baolin.wang@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190725051202.o47mz4unbn63z6uk@gofer.mess.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sean Young <sean@mess.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
+To: wsa+renesas@sang-engineering.com, orsonzhai@gmail.com, zhang.lyra@gmail.com
+Cc: baolin.wang@linaro.org, vincent.guittot@linaro.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Now there is no need to keep our I2C driver to be initialized so early,
+thus changing to module level and let it can be built as a module,
+meanwhile adding some module information.
 
---neYutvxvOLaeuPCA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
+---
+ drivers/i2c/busses/Kconfig    |    2 +-
+ drivers/i2c/busses/i2c-sprd.c |   10 +++++-----
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-Hi Sean,
-
-thanks for the review!
-
-On Thu, Jul 25, 2019 at 06:12:02AM +0100, Sean Young wrote:
-> On Mon, Jul 22, 2019 at 07:26:31PM +0200, Wolfram Sang wrote:
-> > i2c_new_dummy() can fail returning a NULL pointer. The code does not
-> > bail out in this case and the returned pointer is blindly used.
->=20
-> I don't see how. The existing code tries to set up the tx part; if
-> i2c_new_dummy() return NULL then the rcdev is registered without tx,
-> and tx_c is never used.
-
-Yes, you are totally right. I missed that the send_block function is
-also only called iff zilog_init succeeded. Thanks for the heads up and
-sorry for the noise.
-
->=20
-> > Convert
-> > to devm_i2c_new_dummy_device() which returns an ERR_PTR and also bail
-> > out when failing the validity check.
->=20
-> Possibly I was being overly cautious with not bailing out if tx can't
-> be registered; moving to devm is probably a good idea. However the
-> commit message is misleading, because the existing code has no
-> NULL pointer access.
-
-Yep, I will resend with a proper commit message. Technically, there is
-no need to bail out anymore because there is no NULL pointer access. My
-tendency is now to not bail out and keep the old behaviour (registering
-without tx). What do you think?
-
-Regards,
-
-   Wolfram
-
-
---neYutvxvOLaeuPCA
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl05YHoACgkQFA3kzBSg
-Kbb0Fg//T+O24dPRZUIRCXb4QStDI05XO3V3ecMujrNrRI3ZVB/TX3AQFQ14WKAu
-W3p7vv/8BxSRDhrLvEFzEOuSSxTzp4HjU7//jo8OkbccUrK2Sd9OAC/IXstHGcR6
-BVO49QDcRF7BGVfQOoxwo4pjNxg9EMRPlmcaOzvZ6FhHC/jbRn9DmkRgDaWbDPba
-dpjCiqlbihvCkcDkIPEfCuOTmEOZaceBKWKgawJ2eoN+0MivCPbRkoT0fdSa00H4
-qiAbSrWvH+hg96+fkp8AJeDx3wkRC/YQQA4HL9ibJLiPv8qkImqu0oOhZ2y6VwYt
-ek9LSUO/eAgRu+KYPbjoS2oAml/oqZFB9XSFg4NCNDAGU0qLznCpe3TJ6WqAsrwI
-hA69F9vECYLx22YH/Zg6mRaf0Zyb49yoFIRKj3ZqtEwVys6a4170c6C3iR8qEycK
-i4qHJzWn37P7lblZvc4Do5uo5yx6qNZKSFWSzH5qNGMhMl1qMErMQ7aASGH0/dD9
-RguCYcVMwPpsaItrUDE2P78DPSPdXRpCOoY8iwYjHhyaZ5BFQKUVz0l7L/gqAOyy
-O3YKbBoQrzCLC/Iu8iRsleqiL+s8+KUfz5jyeoPncRMoygtv8lgB+NUPZY7VAgL8
-1FGG4/REIoTIUVn7Wen8lVvuQiLGj2XjcJ78m1dosv2JeIi2Gz4=
-=XMJb
------END PGP SIGNATURE-----
-
---neYutvxvOLaeuPCA--
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 09367fc..69f1931 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -977,7 +977,7 @@ config I2C_SIRF
+ 	  will be called i2c-sirf.
+ 
+ config I2C_SPRD
+-	bool "Spreadtrum I2C interface"
++	tristate "Spreadtrum I2C interface"
+ 	depends on I2C=y && ARCH_SPRD
+ 	help
+ 	  If you say yes to this option, support will be included for the
+diff --git a/drivers/i2c/busses/i2c-sprd.c b/drivers/i2c/busses/i2c-sprd.c
+index 9611235..8002835 100644
+--- a/drivers/i2c/busses/i2c-sprd.c
++++ b/drivers/i2c/busses/i2c-sprd.c
+@@ -12,6 +12,7 @@
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
++#include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
+@@ -644,8 +645,7 @@ static int __maybe_unused sprd_i2c_runtime_resume(struct device *dev)
+ 	},
+ };
+ 
+-static int sprd_i2c_init(void)
+-{
+-	return platform_driver_register(&sprd_i2c_driver);
+-}
+-arch_initcall_sync(sprd_i2c_init);
++module_platform_driver(sprd_i2c_driver);
++
++MODULE_DESCRIPTION("Spreadtrum I2C master controller driver");
++MODULE_LICENSE("GPL v2");
+-- 
+1.7.9.5
