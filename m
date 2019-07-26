@@ -1,16 +1,14 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 1/7] docs: fix broken doc references due to renames
-Date: Fri, 26 Jul 2019 16:24:50 +0200
-Message-ID: <20190726142450.GJ15868@phenom.ffwll.local>
-References: <cover.1564140865.git.mchehab+samsung@kernel.org>
- <430ed96cb234805d1deb216e8c8559da22cc6bac.1564140865.git.mchehab+samsung@kernel.org>
- <CAL_JsqK_rfHehrKW_NS89BOV0=dYoao0H=zOzG=D-724vKduKw@mail.gmail.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH v3 2/7] drivers: Introduce device lookup variants by
+ of_node
+Date: Fri, 26 Jul 2019 18:18:02 +0100
+Message-ID: <20190726171802.GD55803@sirena.org.uk>
+References: <20190723221838.12024-1-suzuki.poulose@arm.com>
+ <20190723221838.12024-3-suzuki.poulose@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============0854465654=="
 Return-path: <dri-devel-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <CAL_JsqK_rfHehrKW_NS89BOV0=dYoao0H=zOzG=D-724vKduKw@mail.gmail.com>
+In-Reply-To: <20190723221838.12024-3-suzuki.poulose@arm.com>
 List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
  <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
 List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
@@ -20,35 +18,52 @@ List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
  <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
 Errors-To: dri-devel-bounces@lists.freedesktop.org
 Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Andrea Parri <andrea.parri@amarulasolutions.com>, Ajay Gupta <ajayg@nvidia.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Akira Yokosawa <akiyks@gmail.com>, Lai Jiangshan <jiangshanlai@gmail.com>, Jerry Hoemann <jerry.hoemann@hpe.com>, dri-devel <dri-devel@lists.freedesktop.org>, David Howells <dhowells@redhat.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Joel Fernandes <joel@joelfernandes.org>, "Paul E. McKenney" <paulmck@linux.ibm.com>, Will Deacon <will@kernel.org>, "open list:GENERIC INCLUDE/ASM HEADER FILES" <linux-arch@vger.kernel.org>, SCSI <linux-scsi@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Wolfram Sang <wsa@the-dreams.de>, esc.storagedev@microsemi.com, Maxime Ripard <maxime.ripard@bootlin.com>, Ingo Molnar <mingo@>
+To: Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Thor Thayer <thor.thayer@linux.intel.com>, rafael@kernel.org, Maxime Ripard <maxime.ripard@bootlin.com>, linux-fpga@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, linux-i2c@vger.kernel.org, Frank Rowand <frowand.list@gmail.com>, Florian Fainelli <f.fainelli@gmail.com>, linux-rockchip@lists.infradead.org, Lee Jones <lee.jones@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, Jiri Slaby <jslaby@suse.com>, devicetree@vger.kernel.org, Alan Tull <atull@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Rob Herring <robh+dt@kernel.org>, Moritz Fischer <mdf@kernel.org>, linux-arm-kernel@lists.infradead.org, Mathieu Poirier <mathieu.poirier@linaro.org>, gregkh@linuxfoundation.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gRnJpLCBKdWwgMjYsIDIwMTkgYXQgMDc6NDE6MzVBTSAtMDYwMCwgUm9iIEhlcnJpbmcgd3Jv
-dGU6Cj4gT24gRnJpLCBKdWwgMjYsIDIwMTkgYXQgNTo0NyBBTSBNYXVybyBDYXJ2YWxobyBDaGVo
-YWIKPiA8bWNoZWhhYitzYW1zdW5nQGtlcm5lbC5vcmc+IHdyb3RlOgo+ID4KPiA+IFNvbWUgZmls
-ZXMgZ290IHJlbmFtZWQgYnV0IHByb2JhYmx5IGR1ZSB0byBzb21lIG1lcmdlIGNvbmZsaWN0cywK
-PiA+IGEgZmV3IHJlZmVyZW5jZXMgc3RpbGwgcG9pbnQgdG8gdGhlIG9sZCBsb2NhdGlvbnMuCj4g
-Pgo+ID4gU2lnbmVkLW9mZi1ieTogTWF1cm8gQ2FydmFsaG8gQ2hlaGFiIDxtY2hlaGFiK3NhbXN1
-bmdAa2VybmVsLm9yZz4KPiA+IEFja2VkLWJ5OiBXb2xmcmFtIFNhbmcgPHdzYUB0aGUtZHJlYW1z
-LmRlPiAjIEkyQyBwYXJ0Cj4gPiBSZXZpZXdlZC1ieTogSmVycnkgSG9lbWFubiA8amVycnkuaG9l
-bWFubkBocGUuY29tPiAjIGhwd2R0LnJzdAo+ID4gLS0tCj4gPiAgRG9jdW1lbnRhdGlvbi9SQ1Uv
-cmN1bGlzdF9udWxscy50eHQgICAgICAgICAgICAgICAgICAgfCAgMiArLQo+ID4gIERvY3VtZW50
-YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9hcm0vaWRsZS1zdGF0ZXMudHh0IHwgIDIgKy0KPiA+
-ICBEb2N1bWVudGF0aW9uL2xvY2tpbmcvc3BpbmxvY2tzLnJzdCAgICAgICAgICAgICAgICAgICB8
-ICA0ICsrLS0KPiA+ICBEb2N1bWVudGF0aW9uL21lbW9yeS1iYXJyaWVycy50eHQgICAgICAgICAg
-ICAgICAgICAgICB8ICAyICstCj4gPiAgRG9jdW1lbnRhdGlvbi90cmFuc2xhdGlvbnMva29fS1Iv
-bWVtb3J5LWJhcnJpZXJzLnR4dCAgfCAgMiArLQo+ID4gIERvY3VtZW50YXRpb24vd2F0Y2hkb2cv
-aHB3ZHQucnN0ICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+ICBNQUlOVEFJTkVSUyAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8IDEwICsrKysrLS0tLS0K
-PiA+ICBkcml2ZXJzL2dwdS9kcm0vZHJtX21vZGVzLmMgICAgICAgICAgICAgICAgICAgICAgICAg
-ICB8ICAyICstCgpmb3IgdGhlIGRybSBwYXJ0OgoKQWNrZWQtYnk6IERhbmllbCBWZXR0ZXIgPGRh
-bmllbC52ZXR0ZXJAZmZ3bGwuY2g+Cgo+ID4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbnZpZGlh
-LWdwdS5jICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiA+ICBkcml2ZXJzL3Njc2kvaHBzYS5j
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICA0ICsrLS0KPiA+ICAxMCBmaWxl
-cyBjaGFuZ2VkLCAxNiBpbnNlcnRpb25zKCspLCAxNiBkZWxldGlvbnMoLSkKPiAKPiBBY2tlZC1i
-eTogUm9iIEhlcnJpbmcgPHJvYmhAa2VybmVsLm9yZz4KCi0tIApEYW5pZWwgVmV0dGVyClNvZnR3
-YXJlIEVuZ2luZWVyLCBJbnRlbCBDb3Jwb3JhdGlvbgpodHRwOi8vYmxvZy5mZndsbC5jaApfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFp
-bGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5m
-cmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWw=
+
+--===============0854465654==
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="fOHHtNG4YXGJ0yqR"
+Content-Disposition: inline
+
+
+--fOHHtNG4YXGJ0yqR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Tue, Jul 23, 2019 at 11:18:33PM +0100, Suzuki K Poulose wrote:
+> Introduce wrappers for {bus/driver/class}_find_device() to
+> locate devices by its of_node.
+
+Acked-by: Mark Brown <broonie@kernel.org>
+
+--fOHHtNG4YXGJ0yqR
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl07NckACgkQJNaLcl1U
+h9A0GAf/Qv4GC1ywijdMO9/GL0PzTuBBqL46oM94b0OCt9PYllKoQ2MkrwSN+eAS
+DGfHngyqVnoUtqjC/RksDFvWLJ7/Hg6BRJf0zkPspIu7s/DC2tW4x7C8CTIvfbF3
+LbDl5DdTKcj/+2cS7yypDLGUkmUVs0pmfQJ5e9gk0l8qX8UUIoycnIQCKtctvUlr
+LZgOv6gh5nuo2Vh8vuJIMi9rUHfe8zeSvMhnDhM/cU4ufM81bxjTeRw/9wdv1KOO
+WLCRZm1nIAYCZajxTVgQdYhI/c7w6Dl9ZSc9/dJmzVp5RZyoV7KYT6IcjRwPVnRt
+UZpTwC9oSD2mXZB30cpoNy7JmGFAKw==
+=+DYp
+-----END PGP SIGNATURE-----
+
+--fOHHtNG4YXGJ0yqR--
+
+--===============0854465654==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
+
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
+IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVs
+
+--===============0854465654==--
