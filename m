@@ -1,48 +1,62 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH v2 1/2] eeprom: at24: make spd world-readable again
-Date: Sun, 28 Jul 2019 18:41:38 +0200
-Message-ID: <20190728184138.78afc30f@endymion>
+Subject: [PATCH v2 2/2] nvmem: Use the same permissions for eeprom as for
+ nvmem
+Date: Sun, 28 Jul 2019 18:42:55 +0200
+Message-ID: <20190728184255.563332e6@endymion>
+References: <20190728184138.78afc30f@endymion>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190728184138.78afc30f@endymion>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Linux I2C <linux-i2c@vger.kernel.org>
 Cc: Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Bartosz Golaszewski <brgl@bgdev.pl>, Arnd Bergmann <arnd@arndb.de>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The integration of the at24 driver into the nvmem framework broke the
-world-readability of spd EEPROMs. Fix it.
+The compatibility "eeprom" attribute is currently root-only no
+matter what the configuration says. The "nvmem" attribute does
+respect the setting of the root_only configuration bit, so do the
+same for "eeprom".
 
 Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Fixes: 57d155506dd5 ("eeprom: at24: extend driver to plug into the NVMEM framework")
+Fixes: b6c217ab9be6 ("nvmem: Add backwards compatibility support for older EEPROM drivers.")
 Cc: Andrew Lunn <andrew@lunn.ch>
 Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: Bartosz Golaszewski <brgl@bgdev.pl>
 Cc: Arnd Bergmann <arnd@arndb.de>
 ---
-Note: This is only the 1st half of the fix, the nvmem core driver
-also needs to be fixed.
-
 Changes since V1:
  * Split into 2 patches, one to the at24 driver and one to the nvmem
-   core.
+   core. drivers/nvmem/nvmem-sysfs.c |   15 +++++++++++----
 
- drivers/misc/eeprom/at24.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- linux-5.1.orig/drivers/misc/eeprom/at24.c	2019-07-28 16:52:06.550918923 +0200
-+++ linux-5.1/drivers/misc/eeprom/at24.c	2019-07-28 16:53:28.104167083 +0200
-@@ -719,7 +719,7 @@ static int at24_probe(struct i2c_client
- 	nvmem_config.name = dev_name(dev);
- 	nvmem_config.dev = dev;
- 	nvmem_config.read_only = !writable;
--	nvmem_config.root_only = true;
-+	nvmem_config.root_only = !(flags & AT24_FLAG_IRUGO);
- 	nvmem_config.owner = THIS_MODULE;
- 	nvmem_config.compat = true;
- 	nvmem_config.base_dev = dev;
+--- linux-5.2.orig/drivers/nvmem/nvmem-sysfs.c	2019-07-08 00:41:56.000000000 +0200
++++ linux-5.2/drivers/nvmem/nvmem-sysfs.c	2019-07-28 18:06:53.105140893 +0200
+@@ -224,10 +224,17 @@ int nvmem_sysfs_setup_compat(struct nvme
+ 	if (!config->base_dev)
+ 		return -EINVAL;
+ 
+-	if (nvmem->read_only)
+-		nvmem->eeprom = bin_attr_ro_root_nvmem;
+-	else
+-		nvmem->eeprom = bin_attr_rw_root_nvmem;
++	if (nvmem->read_only) {
++		if (config->root_only)
++			nvmem->eeprom = bin_attr_ro_root_nvmem;
++		else
++			nvmem->eeprom = bin_attr_ro_nvmem;
++	} else {
++		if (config->root_only)
++			nvmem->eeprom = bin_attr_rw_root_nvmem;
++		else
++			nvmem->eeprom = bin_attr_rw_nvmem;
++	}
+ 	nvmem->eeprom.attr.name = "eeprom";
+ 	nvmem->eeprom.size = nvmem->size;
+ #ifdef CONFIG_DEBUG_LOCK_ALLOC
 
 
 -- 
