@@ -1,53 +1,50 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH 3/3] iio: pressure: hp03: convert to
- i2c_new_dummy_device
-Date: Sat, 27 Jul 2019 20:59:00 +0100
-Message-ID: <20190727205900.0cbc4064@archlinux>
-References: <20190722172613.3890-1-wsa+renesas@sang-engineering.com>
-        <20190722172613.3890-4-wsa+renesas@sang-engineering.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: [PATCH v2 1/2] eeprom: at24: make spd world-readable again
+Date: Sun, 28 Jul 2019 18:41:38 +0200
+Message-ID: <20190728184138.78afc30f@endymion>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190722172613.3890-4-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linux I2C <linux-i2c@vger.kernel.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Bartosz Golaszewski <brgl@bgdev.pl>, Arnd Bergmann <arnd@arndb.de>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 22 Jul 2019 19:26:13 +0200
-Wolfram Sang <wsa+renesas@sang-engineering.com> wrote:
+The integration of the at24 driver into the nvmem framework broke the
+world-readability of spd EEPROMs. Fix it.
 
-> Move from i2c_new_dummy() to i2c_new_dummy_device(), so we now get an
-> ERRPTR which we use in error handling.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Fixes: 57d155506dd5 ("eeprom: at24: extend driver to plug into the NVMEM framework")
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Arnd Bergmann <arnd@arndb.de>
+---
+Note: This is only the 1st half of the fix, the nvmem core driver
+also needs to be fixed.
 
-Applied, thanks.
+Changes since V1:
+ * Split into 2 patches, one to the at24 driver and one to the nvmem
+   core.
 
-J
-> ---
-> 
-> Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
-> 
->  drivers/iio/pressure/hp03.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/iio/pressure/hp03.c b/drivers/iio/pressure/hp03.c
-> index f00102577fd5..026ba15ef68f 100644
-> --- a/drivers/iio/pressure/hp03.c
-> +++ b/drivers/iio/pressure/hp03.c
-> @@ -243,10 +243,10 @@ static int hp03_probe(struct i2c_client *client,
->  	 * which has it's dedicated I2C address and contains
->  	 * the calibration constants for the sensor.
->  	 */
-> -	priv->eeprom_client = i2c_new_dummy(client->adapter, HP03_EEPROM_ADDR);
-> -	if (!priv->eeprom_client) {
-> +	priv->eeprom_client = i2c_new_dummy_device(client->adapter, HP03_EEPROM_ADDR);
-> +	if (IS_ERR(priv->eeprom_client)) {
->  		dev_err(dev, "New EEPROM I2C device failed\n");
-> -		return -ENODEV;
-> +		return PTR_ERR(priv->eeprom_client);
->  	}
->  
->  	priv->eeprom_regmap = regmap_init_i2c(priv->eeprom_client,
+ drivers/misc/eeprom/at24.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-5.1.orig/drivers/misc/eeprom/at24.c	2019-07-28 16:52:06.550918923 +0200
++++ linux-5.1/drivers/misc/eeprom/at24.c	2019-07-28 16:53:28.104167083 +0200
+@@ -719,7 +719,7 @@ static int at24_probe(struct i2c_client
+ 	nvmem_config.name = dev_name(dev);
+ 	nvmem_config.dev = dev;
+ 	nvmem_config.read_only = !writable;
+-	nvmem_config.root_only = true;
++	nvmem_config.root_only = !(flags & AT24_FLAG_IRUGO);
+ 	nvmem_config.owner = THIS_MODULE;
+ 	nvmem_config.compat = true;
+ 	nvmem_config.base_dev = dev;
+
+
+-- 
+Jean Delvare
+SUSE L3 Support
