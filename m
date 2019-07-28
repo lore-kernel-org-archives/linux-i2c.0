@@ -1,71 +1,48 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v2 2/2] nvmem: Use the same permissions for eeprom as for nvmem
-Date: Sun, 28 Jul 2019 18:50:58 +0200
-Message-ID: <CAMRc=Mc6mB56zkhOzvBsJtyePx3H6DvVLLSYwPChBNoyD_zR2w@mail.gmail.com>
-References: <20190728184138.78afc30f@endymion> <20190728184255.563332e6@endymion>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] i2c: s3c2410: Mark expected switch fall-through
+Date: Sun, 28 Jul 2019 18:51:38 -0500
+Message-ID: <20190728235138.GA23429@embeddedor>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190728184255.563332e6@endymion>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, LKML <linux-kernel@vger.kernel.org>
+To: Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Kees Cook <keescook@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
 
-niedz., 28 lip 2019 o 18:43 Jean Delvare <jdelvare@suse.de> napisa=C5=82(a)=
-:
->
-> The compatibility "eeprom" attribute is currently root-only no
-> matter what the configuration says. The "nvmem" attribute does
-> respect the setting of the root_only configuration bit, so do the
-> same for "eeprom".
->
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> Fixes: b6c217ab9be6 ("nvmem: Add backwards compatibility support for olde=
-r EEPROM drivers.")
-> Cc: Andrew Lunn <andrew@lunn.ch>
-> Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Bartosz Golaszewski <brgl@bgdev.pl>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> ---
-> Changes since V1:
->  * Split into 2 patches, one to the at24 driver and one to the nvmem
->    core. drivers/nvmem/nvmem-sysfs.c |   15 +++++++++++----
->
->  1 file changed, 11 insertions(+), 4 deletions(-)
->
-> --- linux-5.2.orig/drivers/nvmem/nvmem-sysfs.c  2019-07-08 00:41:56.00000=
-0000 +0200
-> +++ linux-5.2/drivers/nvmem/nvmem-sysfs.c       2019-07-28 18:06:53.10514=
-0893 +0200
-> @@ -224,10 +224,17 @@ int nvmem_sysfs_setup_compat(struct nvme
->         if (!config->base_dev)
->                 return -EINVAL;
->
-> -       if (nvmem->read_only)
-> -               nvmem->eeprom =3D bin_attr_ro_root_nvmem;
-> -       else
-> -               nvmem->eeprom =3D bin_attr_rw_root_nvmem;
-> +       if (nvmem->read_only) {
-> +               if (config->root_only)
-> +                       nvmem->eeprom =3D bin_attr_ro_root_nvmem;
-> +               else
-> +                       nvmem->eeprom =3D bin_attr_ro_nvmem;
-> +       } else {
-> +               if (config->root_only)
-> +                       nvmem->eeprom =3D bin_attr_rw_root_nvmem;
-> +               else
-> +                       nvmem->eeprom =3D bin_attr_rw_nvmem;
-> +       }
->         nvmem->eeprom.attr.name =3D "eeprom";
->         nvmem->eeprom.size =3D nvmem->size;
->  #ifdef CONFIG_DEBUG_LOCK_ALLOC
->
->
-> --
-> Jean Delvare
-> SUSE L3 Support
+Mark switch cases where we are expecting to fall through.
 
-Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+This patch fixes the following warning:
+
+drivers/i2c/busses/i2c-s3c2410.c: In function 'i2c_s3c_irq_nextbyte':
+drivers/i2c/busses/i2c-s3c2410.c:431:6: warning: this statement may fall through [-Wimplicit-fallthrough=]
+   if (i2c->state == STATE_READ)
+      ^
+drivers/i2c/busses/i2c-s3c2410.c:439:2: note: here
+  case STATE_WRITE:
+  ^~~~
+
+Notice that, in this particular case, the code comment is
+modified in accordance with what GCC is expecting to find.
+
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ drivers/i2c/busses/i2c-s3c2410.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index d97fb857b0ea..c98ef4c4a0c9 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -435,6 +435,7 @@ static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
+ 		 * fall through to the write state, as we will need to
+ 		 * send a byte as well
+ 		 */
++		/* Fall through */
+ 
+ 	case STATE_WRITE:
+ 		/*
+-- 
+2.22.0
