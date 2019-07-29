@@ -1,36 +1,60 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: busses: Use dev_get_drvdata where possible
-Date: Mon, 29 Jul 2019 16:23:38 +0300
-Message-ID: <c58ef749-fae3-8df5-2d20-59d766256409@linux.intel.com>
-References: <20190723111110.11121-1-hslester96@gmail.com>
- <20190723203452.5714f142@endymion>
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH] i2c: s3c2410: Mark expected switch fall-through
+Date: Mon, 29 Jul 2019 09:34:55 -0700
+Message-ID: <201907290934.959721D@keescook>
+References: <20190728235138.GA23429@embeddedor>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190723203452.5714f142@endymion>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190728235138.GA23429@embeddedor>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>, Chuhong Yuan <hslester96@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>
 List-Id: linux-i2c@vger.kernel.org
 
-On 7/23/19 9:34 PM, Jean Delvare wrote:
-> On Tue, 23 Jul 2019 19:11:10 +0800, Chuhong Yuan wrote:
->> Instead of using to_pci_dev + pci_get_drvdata,
->> use dev_get_drvdata to make code simpler.
->>
->> Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
->> ---
->>   drivers/i2c/busses/i2c-designware-pcidrv.c | 6 ++----
->>   drivers/i2c/busses/i2c-i801.c              | 3 +--
->>   2 files changed, 3 insertions(+), 6 deletions(-)
->> (...)
+On Sun, Jul 28, 2019 at 06:51:38PM -0500, Gustavo A. R. Silva wrote:
+> Mark switch cases where we are expecting to fall through.
 > 
-> Looks good to me, thanks.
+> This patch fixes the following warning:
 > 
-> Reviewed-by: Jean Delvare <jdelvare@suse.de>
+> drivers/i2c/busses/i2c-s3c2410.c: In function 'i2c_s3c_irq_nextbyte':
+> drivers/i2c/busses/i2c-s3c2410.c:431:6: warning: this statement may fall through [-Wimplicit-fallthrough=]
+>    if (i2c->state == STATE_READ)
+>       ^
+> drivers/i2c/busses/i2c-s3c2410.c:439:2: note: here
+>   case STATE_WRITE:
+>   ^~~~
 > 
-For the i2c-designware-pcidrv.c
+> Notice that, in this particular case, the code comment is
+> modified in accordance with what GCC is expecting to find.
+> 
+> Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+
+-Kees
+
+> ---
+>  drivers/i2c/busses/i2c-s3c2410.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+> index d97fb857b0ea..c98ef4c4a0c9 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -435,6 +435,7 @@ static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
+>  		 * fall through to the write state, as we will need to
+>  		 * send a byte as well
+>  		 */
+> +		/* Fall through */
+>  
+>  	case STATE_WRITE:
+>  		/*
+> -- 
+> 2.22.0
+> 
+
+-- 
+Kees Cook
