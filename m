@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH v2 1/2] media: ir-kbd-i2c: convert to i2c_new_dummy_device()
-Date: Tue, 30 Jul 2019 19:55:54 +0200
-Message-ID: <20190730175555.14098-2-wsa+renesas@sang-engineering.com>
+Subject: [PATCH v2 2/2] media: ir-kbd-i2c: remove outdated comments
+Date: Tue, 30 Jul 2019 19:55:55 +0200
+Message-ID: <20190730175555.14098-3-wsa+renesas@sang-engineering.com>
 References: <20190730175555.14098-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,58 +12,35 @@ To: linux-i2c@vger.kernel.org
 Cc: Sean Young <sean@mess.org>, linux-media@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Convert this driver to use the new i2c_new_dummy_device() call and bail
-out if the dummy device cannot be registered to make failure more
-visible to the user.
+The "free memory" comment is obsolete since 2013 and the other ones
+explain the obvious. Just remove the comments.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
-
 Change since v1:
 
-* reworded commit message because there was no NULL ptr access
+* none
 
- drivers/media/i2c/ir-kbd-i2c.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ drivers/media/i2c/ir-kbd-i2c.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
 diff --git a/drivers/media/i2c/ir-kbd-i2c.c b/drivers/media/i2c/ir-kbd-i2c.c
-index 876d7587a1da..f46717052efc 100644
+index f46717052efc..30fde0e025c9 100644
 --- a/drivers/media/i2c/ir-kbd-i2c.c
 +++ b/drivers/media/i2c/ir-kbd-i2c.c
-@@ -885,9 +885,12 @@ static int ir_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	INIT_DELAYED_WORK(&ir->work, ir_work);
+@@ -916,13 +916,9 @@ static int ir_remove(struct i2c_client *client)
+ {
+ 	struct IR_i2c *ir = i2c_get_clientdata(client);
  
- 	if (probe_tx) {
--		ir->tx_c = i2c_new_dummy(client->adapter, 0x70);
--		if (!ir->tx_c) {
-+		ir->tx_c = devm_i2c_new_dummy_device(&client->dev,
-+						     client->adapter, 0x70);
-+		if (IS_ERR(ir->tx_c)) {
- 			dev_err(&client->dev, "failed to setup tx i2c address");
-+			err = PTR_ERR(ir->tx_c);
-+			goto err_out_free;
- 		} else if (!zilog_init(ir)) {
- 			ir->carrier = 38000;
- 			ir->duty_cycle = 40;
-@@ -904,9 +907,6 @@ static int ir_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	return 0;
- 
-  err_out_free:
--	if (ir->tx_c)
--		i2c_unregister_device(ir->tx_c);
--
- 	/* Only frees rc if it were allocated internally */
- 	rc_free_device(rc);
- 	return err;
-@@ -919,9 +919,6 @@ static int ir_remove(struct i2c_client *client)
- 	/* kill outstanding polls */
+-	/* kill outstanding polls */
  	cancel_delayed_work_sync(&ir->work);
- 
--	if (ir->tx_c)
--		i2c_unregister_device(ir->tx_c);
 -
- 	/* unregister device */
+-	/* unregister device */
  	rc_unregister_device(ir->rc);
+ 
+-	/* free memory */
+ 	return 0;
+ }
  
 -- 
 2.20.1
