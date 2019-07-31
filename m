@@ -1,37 +1,58 @@
-From: Stephen Boyd <swboyd@chromium.org>
-Subject: Re: [PATCH v6 18/57] i2c: Remove dev_err() usage after platform_get_irq()
-Date: Wed, 31 Jul 2019 07:46:47 -0700
-Message-ID: <5d41a9d8.1c69fb81.bdbb9.bea3@mx.google.com>
-References: <20190730181557.90391-1-swboyd@chromium.org> <20190730181557.90391-19-swboyd@chromium.org> <20190731143011.GB1680@kunai>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/6] media: radio: si4713: Convert to new i2c device
+ probe()
+Date: Wed, 31 Jul 2019 21:51:26 +0200
+Message-ID: <20190731195125.GC4084@kunai>
+References: <20190710215149.9208-1-kieran.bingham+renesas@ideasonboard.com>
+ <20190710215149.9208-2-kieran.bingham+renesas@ideasonboard.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="VywGB/WGlW4DM4P8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190731143011.GB1680@kunai>
+Content-Disposition: inline
+In-Reply-To: <20190710215149.9208-2-kieran.bingham+renesas@ideasonboard.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Cc: linux-i2c@vger.kernel.org, linux-media@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Eduardo Valentin <edubezval@gmail.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Kate Stewart <kstewart@linuxfoundation.org>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, Thomas Gleixner <tglx@linutronix.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Quoting Wolfram Sang (2019-07-31 07:30:11)
-> > -dev_err(...);
->=20
-> What about pr_err, ...?
 
-Sure. I haven't tried to find these ones or pr_warn(), etc.
+--VywGB/WGlW4DM4P8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, Jul 10, 2019 at 10:51:44PM +0100, Kieran Bingham wrote:
+> The I2C core framework provides a simplified probe framework from commit
+> b8a1a4cd5a98 ("i2c: Provide a temporary .probe_new() call-back type").
 >=20
-> > While we're here, remove braces on if statements that only have one
-> > statement (manually).
+> This driver does not utilise the i2c_device_id table in the probe, so we =
+can
+> easily convert it to utilise the simplfied i2c driver registration.
 >=20
-> You can let cocci do this for you, too. From the top of my head:
->=20
-> if (...)
-> - {
->  S
-> - }
->=20
-> with S being a statement and this rule depending on the matching rule.
->=20
+> Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
 
-Cool thanks for the tip! I'll have to try it out.
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+
+--VywGB/WGlW4DM4P8
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1B8T0ACgkQFA3kzBSg
+Kbb4ow//ZyIbTtU3Gr7nelWX2UfX2+F1vwzZbtgIYAS2iyewaz4oPj8VXZcbblWy
+zRtRkoQDziaj2SmU/3t+lxEc3Hr+j4359IrunnTW31Tcgd6vxM26AHya+UTSbIFy
+sEG64k0/FuMxkGqkR8NoL2oS+o++SzLeV371TJh1M9e36vsHU/HdwFPqiolbtNX2
+lkpUt/o4CWtie0kKlCpzmNzO0HpQo8GA1DCJChtmaofs2bDiPVDzNNYzHkkwIgoj
+Zhg49yc4625/EBSmESYatT/liiWaIJqAzsNnrQH1opjjT8Gh7O7QUfbZmjjlf9ju
+phCvn3vJ1wSKJgOjG7gmJXfDFZ/hwsUWP7fLjuPpHVOVjBdRaghdvc1XPYtJZBst
+Mg80LJNgrskkwVOOO4GefcikHcfodZyFkvxvYxC0tMUIXY8yy/FLacL+2oYMjudU
+o6lyb8x+jlJ1/fjuCBtWXNuC9Yi47/4kSzCL6glfHmrr59rVv0NeXALQI0Z61C0S
+IdUXAbiwNq7OlfPw/utZyPDeqxpTVutjL612vvvo6fQVIzLvjZ93TyGa0sjuVaM1
+INmhbTwatAvb5If3oavyKkOeffxOt0Fwc35H06nnDp9k1fEbqHmOp2J2NhEjZykf
+skIIX4vClxrNKFLKe+aRZHu0jpj3fkR1lNv3BNlagmcjLnePhE0=
+=sfK1
+-----END PGP SIGNATURE-----
+
+--VywGB/WGlW4DM4P8--
