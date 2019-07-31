@@ -1,52 +1,97 @@
-From: Anders Roxell <anders.roxell@linaro.org>
-Subject: [PATCH] i2c: core: remove unused function
-Date: Wed, 31 Jul 2019 12:56:42 +0200
-Message-ID: <20190731105642.29664-1-anders.roxell@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH] i2c: core: Use DEVICE_ATTR_RW() helper macros
+Date: Wed, 31 Jul 2019 14:48:30 +0200
+Message-ID: <20190731124830.14613-1-geert+renesas@glider.be>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: mika.westerberg@linux.intel.com, wsa@the-dreams.de
-Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
 List-Id: linux-i2c@vger.kernel.org
 
-GCC warns taht function 'i2c_acpi_find_match_adapter()' is not used.
+Convert the i2c core sysfs attributes from DEVICE_ATTR() to
+DEVICE_ATTR_RW(), to reduce boilerplate.
+This requires renaming some functions.
 
-../drivers/i2c/i2c-core-acpi.c:347:12: warning:
-  ‘i2c_acpi_find_match_adapter’ defined but not used [-Wunused-function]
- static int i2c_acpi_find_match_adapter(struct device *dev, const void *data)
-            ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+Although no suitable macro exists for the delete_device attribute,
+rename i2c_sysfs_delete_device() to delete_device_store() for
+consistency.
 
-Rework to remove the function 'i2c_acpi_find_match_adapter()'.
-
-Fixes: 00500147cbd3 ("drivers: Introduce device lookup variants by ACPI_COMPANION device")
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
- drivers/i2c/i2c-core-acpi.c | 11 -----------
- 1 file changed, 11 deletions(-)
+ drivers/i2c/i2c-core-base.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index bc80aafb521f..bb6b39fe343a 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -344,17 +344,6 @@ u32 i2c_acpi_find_bus_speed(struct device *dev)
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index f26ed495d38420b3..f66cfdf4d0e6b1d6 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -451,15 +451,15 @@ static void i2c_client_dev_release(struct device *dev)
  }
- EXPORT_SYMBOL_GPL(i2c_acpi_find_bus_speed);
  
--static int i2c_acpi_find_match_adapter(struct device *dev, const void *data)
--{
--	struct i2c_adapter *adapter = i2c_verify_adapter(dev);
--
--	if (!adapter)
--		return 0;
--
--	return ACPI_HANDLE(dev) == (acpi_handle)data;
--}
--
--
- struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
+ static ssize_t
+-show_name(struct device *dev, struct device_attribute *attr, char *buf)
++name_show(struct device *dev, struct device_attribute *attr, char *buf)
  {
- 	struct device *dev = bus_find_device_by_acpi_dev(&i2c_bus_type, handle);
+ 	return sprintf(buf, "%s\n", dev->type == &i2c_client_type ?
+ 		       to_i2c_client(dev)->name : to_i2c_adapter(dev)->name);
+ }
+-static DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
++static DEVICE_ATTR_RO(name);
+ 
+ static ssize_t
+-show_modalias(struct device *dev, struct device_attribute *attr, char *buf)
++modalias_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	int len;
+@@ -474,7 +474,7 @@ show_modalias(struct device *dev, struct device_attribute *attr, char *buf)
+ 
+ 	return sprintf(buf, "%s%s\n", I2C_MODULE_PREFIX, client->name);
+ }
+-static DEVICE_ATTR(modalias, S_IRUGO, show_modalias, NULL);
++static DEVICE_ATTR_RO(modalias);
+ 
+ static struct attribute *i2c_dev_attrs[] = {
+ 	&dev_attr_name.attr,
+@@ -1041,8 +1041,8 @@ EXPORT_SYMBOL_GPL(i2c_adapter_depth);
+  * the user to provide incorrect parameters.
+  */
+ static ssize_t
+-i2c_sysfs_new_device(struct device *dev, struct device_attribute *attr,
+-		     const char *buf, size_t count)
++new_device_store(struct device *dev, struct device_attribute *attr,
++		 const char *buf, size_t count)
+ {
+ 	struct i2c_adapter *adap = to_i2c_adapter(dev);
+ 	struct i2c_board_info info;
+@@ -1097,7 +1097,7 @@ i2c_sysfs_new_device(struct device *dev, struct device_attribute *attr,
+ 
+ 	return count;
+ }
+-static DEVICE_ATTR(new_device, S_IWUSR, NULL, i2c_sysfs_new_device);
++static DEVICE_ATTR_WO(new_device);
+ 
+ /*
+  * And of course let the users delete the devices they instantiated, if
+@@ -1109,8 +1109,8 @@ static DEVICE_ATTR(new_device, S_IWUSR, NULL, i2c_sysfs_new_device);
+  * the user to delete the wrong device.
+  */
+ static ssize_t
+-i2c_sysfs_delete_device(struct device *dev, struct device_attribute *attr,
+-			const char *buf, size_t count)
++delete_device_store(struct device *dev, struct device_attribute *attr,
++		    const char *buf, size_t count)
+ {
+ 	struct i2c_adapter *adap = to_i2c_adapter(dev);
+ 	struct i2c_client *client, *next;
+@@ -1153,7 +1153,7 @@ i2c_sysfs_delete_device(struct device *dev, struct device_attribute *attr,
+ 	return res;
+ }
+ static DEVICE_ATTR_IGNORE_LOCKDEP(delete_device, S_IWUSR, NULL,
+-				   i2c_sysfs_delete_device);
++				  delete_device_store);
+ 
+ static struct attribute *i2c_adapter_attrs[] = {
+ 	&dev_attr_name.attr,
 -- 
-2.20.1
+2.17.1
