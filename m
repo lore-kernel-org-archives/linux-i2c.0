@@ -1,63 +1,52 @@
-From: Ray Jui <ray.jui@broadcom.com>
-Subject: Re: [PATCH v1 1/1] i2c: iproc: Fix i2c master read more than 63 bytes
-Date: Tue, 30 Jul 2019 13:53:24 -0700
-Message-ID: <8b8d83ce-70ba-eacd-7ea3-6f8425f1e0fc@broadcom.com>
-References: <1563956907-21255-1-git-send-email-rayagonda.kokatanur@broadcom.com>
+From: Anders Roxell <anders.roxell@linaro.org>
+Subject: [PATCH] i2c: core: remove unused function
+Date: Wed, 31 Jul 2019 12:56:42 +0200
+Message-ID: <20190731105642.29664-1-anders.roxell@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1563956907-21255-1-git-send-email-rayagonda.kokatanur@broadcom.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Florian Fainelli <f.fainelli@gmail.com>
+To: mika.westerberg@linux.intel.com, wsa@the-dreams.de
+Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Rayagonda,
+GCC warns taht function 'i2c_acpi_find_match_adapter()' is not used.
 
-On 7/24/2019 1:28 AM, Rayagonda Kokatanur wrote:
-> Use SMBUS_MASTER_DATA_READ.MASTER_RD_STATUS bit to check for RX
-> FIFO empty condition because SMBUS_MASTER_FIFO_CONTROL.MASTER_RX_PKT_COUNT
-> is not updated for read >= 64 bytes. This fixes the issue when trying to
-> read from the I2C slave more than 63 bytes.
-> 
-> Fixes: c24b8d574b7c ("i2c: iproc: Extend I2C read up to 255 bytes")
-> 
-> Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-> ---
->  drivers/i2c/busses/i2c-bcm-iproc.c | 10 ++++++----
->  1 file changed, 6 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-> index 2c7f145..d7fd76b 100644
-> --- a/drivers/i2c/busses/i2c-bcm-iproc.c
-> +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-> @@ -392,16 +392,18 @@ static bool bcm_iproc_i2c_slave_isr(struct bcm_iproc_i2c_dev *iproc_i2c,
->  static void bcm_iproc_i2c_read_valid_bytes(struct bcm_iproc_i2c_dev *iproc_i2c)
->  {
->  	struct i2c_msg *msg = iproc_i2c->msg;
-> +	uint32_t val;
->  
->  	/* Read valid data from RX FIFO */
->  	while (iproc_i2c->rx_bytes < msg->len) {
-> -		if (!((iproc_i2c_rd_reg(iproc_i2c, M_FIFO_CTRL_OFFSET) >> M_FIFO_RX_CNT_SHIFT)
-> -		      & M_FIFO_RX_CNT_MASK))
-> +		val = iproc_i2c_rd_reg(iproc_i2c, M_RX_OFFSET);
-> +
-> +		/* rx fifo empty */
-> +		if (!((val >> M_RX_STATUS_SHIFT) & M_RX_STATUS_MASK))
->  			break;
->  
->  		msg->buf[iproc_i2c->rx_bytes] =
-> -			(iproc_i2c_rd_reg(iproc_i2c, M_RX_OFFSET) >>
-> -			M_RX_DATA_SHIFT) & M_RX_DATA_MASK;
-> +			(val >> M_RX_DATA_SHIFT) & M_RX_DATA_MASK;
->  		iproc_i2c->rx_bytes++;
->  	}
->  }
-> 
+../drivers/i2c/i2c-core-acpi.c:347:12: warning:
+  ‘i2c_acpi_find_match_adapter’ defined but not used [-Wunused-function]
+ static int i2c_acpi_find_match_adapter(struct device *dev, const void *data)
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Thanks for the fix. This fix looks good to me!
+Rework to remove the function 'i2c_acpi_find_match_adapter()'.
 
-Reviewed-by: Ray Jui <ray.jui@broadcom.com>
+Fixes: 00500147cbd3 ("drivers: Introduce device lookup variants by ACPI_COMPANION device")
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+---
+ drivers/i2c/i2c-core-acpi.c | 11 -----------
+ 1 file changed, 11 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index bc80aafb521f..bb6b39fe343a 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -344,17 +344,6 @@ u32 i2c_acpi_find_bus_speed(struct device *dev)
+ }
+ EXPORT_SYMBOL_GPL(i2c_acpi_find_bus_speed);
+ 
+-static int i2c_acpi_find_match_adapter(struct device *dev, const void *data)
+-{
+-	struct i2c_adapter *adapter = i2c_verify_adapter(dev);
+-
+-	if (!adapter)
+-		return 0;
+-
+-	return ACPI_HANDLE(dev) == (acpi_handle)data;
+-}
+-
+-
+ struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
+ {
+ 	struct device *dev = bus_find_device_by_acpi_dev(&i2c_bus_type, handle);
+-- 
+2.20.1
