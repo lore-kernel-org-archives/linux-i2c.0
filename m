@@ -1,160 +1,241 @@
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
-Subject: [PATCH v3 0/7] drivers: Add generic device lookup helpers
-Date: Tue, 23 Jul 2019 23:18:31 +0100
-Message-ID: <20190723221838.12024-1-suzuki.poulose@arm.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v3 5/7] drivers: Introduce device lookup variants by
+ ACPI_COMPANION device
+Date: Thu, 1 Aug 2019 14:58:56 +0300
+Message-ID: <20190801115856.GS23480@smile.fi.intel.com>
+References: <20190723221838.12024-1-suzuki.poulose@arm.com>
+ <20190723221838.12024-6-suzuki.poulose@arm.com>
+ <20190726202353.GA963@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Lunn <andrew@lunn.ch>, Alexander Aring <alex.aring@gmail.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, rafael@kernel.org, Alexander Shishkin <alexander.shishkin@linux.intel.com>, linux-fpga@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, dri-devel@lists.freedesktop.org, Peter Oberparleiter <oberpar@linux.ibm.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Elie Morisse <syniurge@gmail.com>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, linux-i2c@vger.kernel.org, Pavel Machek <pavel@ucw.cz>, Shyam Sundar S K <shyam-sundar.s-k@amd.com>, Frank Rowand <frowand.list@gmail.com>, linux-leds@vger.kernel.org, linux-rtc@vger.kernel.org, Maxime Ripard <maxime.ripard@bootlin.com>, Florian Fainelli <f.fainelli@gmail.com>, linux-acpi@vger.ker
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <20190726202353.GA963@kunai>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: rafael@kernel.org, gregkh@linuxfoundation.org, Suzuki K Poulose <suzuki.poulose@arm.com>, linux-kernel@vger.kernel.org, linux-spi@vger.kernel.org, linux-acpi@vger.kernel.org, Mark Brown <broonie@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-arm-kernel@lists.infradead.org, Len Brown <lenb@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-V2UgaGF2ZSBkZXZpY2UgaXRlcmF0b3JzIHRvIGZpbmQgYSBwYXJ0aWN1bGFyIGRldmljZSBtYXRj
-aGluZyBhIGNyaXRlcmlhCmZvciBhIGdpdmVuIGJ1cy9jbGFzcy9kcml2ZXIuIGkuZSwge2J1cyxj
-bGFzcyxkcml2ZXJ9X2ZpbmRfZGV2aWNlKCkKQVBJcy4gVGhlIG1hdGNoaW5nIGNyaXRlcmlhIGlz
-IGEgZnVuY3Rpb24gcG9pbnRlciBmb3IgdGhlIEFQSXMuIE9mdGVuIHRoZQpsb29rdXAgaXMgYmFz
-ZWQgb24gYSBnZW5lcmljIHByb3BlcnR5IG9mIGEgZGV2aWNlIChlLmcsIG5hbWUsIGZ3bm9kZSwg
-b2Ygbm9kZQpwb2ludGVyIG9yIGRldmljZSB0eXBlKSByYXRoZXIgdGhhbiBhIGRyaXZlciBzcGVj
-aWZpYyBpbmZvcm1hdGlvbi4gSG93ZXZlciwgZWFjaApkcml2ZXIgd3JpdGVzIHVwIGl0cyBvd24g
-Im1hdGNoIiBmdW5jdGlvbiwgc3BpbGxpbmcgdGhlIHNpbWlsYXIgbWF0Y2ggZnVuY3Rpb25zCmFs
-bCBvdmVyIHRoZSBkcml2ZXIgc3Vic3lzdGVtcy4KClRoaXMgc2VyaWVzIGFkZHMgZGV2aWNlIG1h
-dGNoIGhlbHBlcnMgYnkgZ2VuZXJpYyBkZXZpY2UgcHJvcGVydGllcyBvZiBhIGRldmljZS4KVXNp
-bmcgdGhlc2UgZ2VuZXJpYyBtYXRjaCBmdW5jdGlvbnMsIGludHJvZHVjZSB3cmFwcGVycyB0byB0
-aGUgZXhpc3RpbmcKICpfZmluZF9kZXZpY2UoKSBoZWxwZXJzIGFuZCBjb252ZXJ0cyB0aGUgZXhp
-c3RpbmcgdXNlcnMgdG8gdXNlIHRoZSBuZXcgd3JhcHBlcnMuCiBpLmUsCgl7YnVzL2NsYXNzL2Ry
-aXZlcn1fZmluZF9kZXZpY2VfYnlfbmFtZSgpCgl7YnVzL2NsYXNzL2RyaXZlcn1fZmluZF9kZXZp
-Y2VfYnlfZndub2RlKCkKCXtidXMvY2xhc3MvZHJpdmVyfV9maW5kX2RldmljZV9ieV9kZXZ0KCkK
-CXtidXMvY2xhc3MvZHJpdmVyfV9maW5kX2RldmljZV9ieV9hY3BpX2RldigpCgpBbHNvIGFkZHMg
-YSB3cmFwcGVyIGZvciBmaW5kaW5nIGEgcGxhdGZvcm0gZGV2aWNlIGJ5IGRyaXZlciwgdG8gYXZv
-aWQKc3BpbGxpbmcgdGhlIHBsYXRmb3JtX2J1cyBpbnRlcm5hbHMgaW4gdGhlIGluZGl2aWR1YWwg
-ZHJpdmVycy4gQXBwbGllcwpvbiA1LjMtcmMxLgoKICAgWzBdIGdpdDovL2xpbnV4LWFybS5vcmcv
-bGludXgtc2twLmdpdCBkcml2ZXItY2xlYW51cC92MwpSRkNbMV0gaHR0cHM6Ly9tYXJjLmluZm8v
-P2k9MTU1OTU3NzAyMy01NTgtMS1naXQtc2VuZC1lbWFpbC1zdXp1a2kucG91bG9zZUBhcm0uY29t
-ClYxIFsyXSBodHRwczovL21hcmMuaW5mby8/aT0xNTU5NzQ3NjMwLTI4MDY1LTEtZ2l0LXNlbmQt
-ZW1haWwtc3V6dWtpLnBvdWxvc2VAYXJtLmNvbQpWMiBbM10gaHR0cHM6Ly9tYXJjLmluZm8vP2k9
-MTU2MDUzNDg2My0xNTExNS0xLWdpdC1zZW5kLWVtYWlsLXN1enVraS5wb3Vsb3NlQGFybS5jb20K
-CkNoYW5nZXMgc2luY2UgdjI6CiAtIE1lcmdlIHRoZSBkZXZpY2UgbWF0Y2ggaGVscGVyIGludHJv
-ZHVjdGlvbiBwYXRjaCB3aXRoIHRoZSB2YXJpYW50cwogICBvZiB0aGUgaGVscGVycywgZm9yIGJl
-dHRlciByZXZpZXcuCiAtIFVzZSBwbGF0Zm9ybV9maW5kX2RldmljZV9ieV9kcml2ZXIgZm9yIG1j
-ZGUgZHJtIGRyaXZlci4KCkNjOiBBbGFuIFR1bGwgPGF0dWxsQGtlcm5lbC5vcmc+CkNjOiBBbGVz
-c2FuZHJvIFp1bW1vIDxhLnp1bW1vQHRvd2VydGVjaC5pdD4KQ2M6IEFsZXhhbmRlciBBcmluZyA8
-YWxleC5hcmluZ0BnbWFpbC5jb20+CkNjOiBBbGV4YW5kZXIgU2hpc2hraW4gPGFsZXhhbmRlci5z
-aGlzaGtpbkBsaW51eC5pbnRlbC5jb20+CkNjOiBBbGV4YW5kcmUgQmVsbG9uaSA8YWxleGFuZHJl
-LmJlbGxvbmlAYm9vdGxpbi5jb20+CkNjOiBBbmRyZXcgTHVubiA8YW5kcmV3QGx1bm4uY2g+CkNj
-OiBBcm5kIEJlcmdtYW5uIDxhcm5kQGFybmRiLmRlPgpDYzogQmpvcm4gSGVsZ2FhcyA8YmhlbGdh
-YXNAZ29vZ2xlLmNvbT4KQ2M6IERhbmllbCBWZXR0ZXIgPGRhbmllbEBmZndsbC5jaD4KQ2M6IERh
-biBNdXJwaHkgPGRtdXJwaHlAdGkuY29tPgpDYzogRGF2aWQgQWlybGllIDxhaXJsaWVkQGxpbnV4
-LmllPgpDYzogIkRhdmlkIFMuIE1pbGxlciIgPGRhdmVtQGRhdmVtbG9mdC5uZXQ+CkNjOiBkZXZp
-Y2V0cmVlQHZnZXIua2VybmVsLm9yZwpDYzogRG91ZyBMZWRmb3JkIDxkbGVkZm9yZEByZWRoYXQu
-Y29tPgpDYzogZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpDYzogRWxpZSBNb3Jpc3Nl
-IDxzeW5pdXJnZUBnbWFpbC5jb20+CkNjOiBFcmljIEFuaG9sdCA8ZXJpY0BhbmhvbHQubmV0PgpD
-YzogRmxvcmlhbiBGYWluZWxsaSA8Zi5mYWluZWxsaUBnbWFpbC5jb20+CkNjOiBGcmFuayBSb3dh
-bmQgPGZyb3dhbmQubGlzdEBnbWFpbC5jb20+CkNjOiBHcmVnIEtyb2FoLUhhcnRtYW4gPGdyZWdr
-aEBsaW51eGZvdW5kYXRpb24ub3JnPgpDYzogSGFyYWxkIEZyZXVkZW5iZXJnZXIgPGZyZXVkZUBs
-aW51eC5pYm0uY29tPgpDYzogSGVpa2tpIEtyb2dlcnVzIDxoZWlra2kua3JvZ2VydXNAbGludXgu
-aW50ZWwuY29tPgpDYzogSGVpa28gQ2Fyc3RlbnMgPGhlaWtvLmNhcnN0ZW5zQGRlLmlibS5jb20+
-CkNjOiAiSGVpa28gU3TDvGJuZXIiIDxoZWlrb0BzbnRlY2guZGU+CkNjOiBIZWlrbyBTdHVlYm5l
-ciA8aGVpa29Ac250ZWNoLmRlPgpDYzogSGVpbmVyIEthbGx3ZWl0IDxoa2FsbHdlaXQxQGdtYWls
-LmNvbT4KQ2M6IElua2kgRGFlIDxpbmtpLmRhZUBzYW1zdW5nLmNvbT4KQ2M6IEphY2VrIEFuYXN6
-ZXdza2kgPGphY2VrLmFuYXN6ZXdza2lAZ21haWwuY29tPgpDYzogIkphbWVzIEUuSi4gQm90dG9t
-bGV5IiA8amVqYkBsaW51eC5pYm0uY29tPgpDYzogSmFzb24gR3VudGhvcnBlIDxqZ2dAemllcGUu
-Y2E+CkNjOiBKaXJpIFNsYWJ5IDxqc2xhYnlAc3VzZS5jb20+CkNjOiBKb2UgUGVyY2hlcyA8am9l
-QHBlcmNoZXMuY29tPgpDYzogSm9lcmcgUm9lZGVsIDxqb3JvQDhieXRlcy5vcmc+CkNjOiBMZWUg
-Sm9uZXMgPGxlZS5qb25lc0BsaW5hcm8ub3JnPgpDYzogTGVuIEJyb3duIDxsZW5iQGtlcm5lbC5v
-cmc+CkNjOiBMaWFtIEdpcmR3b29kIDxsZ2lyZHdvb2RAZ21haWwuY29tPgpDYzogbGludXgtYWNw
-aUB2Z2VyLmtlcm5lbC5vcmcKQ2M6IGxpbnV4LWZwZ2FAdmdlci5rZXJuZWwub3JnCkNjOiBsaW51
-eC1pMmNAdmdlci5rZXJuZWwub3JnCkNjOiBsaW51eC1sZWRzQHZnZXIua2VybmVsLm9yZwpDYzog
-bGludXgtcm9ja2NoaXBAbGlzdHMuaW5mcmFkZWFkLm9yZwpDYzogbGludXgtcnRjQHZnZXIua2Vy
-bmVsLm9yZwpDYzogbGludXgtc3BpQHZnZXIua2VybmVsLm9yZwpDYzogbGludXgtdXNiQHZnZXIu
-a2VybmVsLm9yZwpDYzogbGludXgtd3BhbkB2Z2VyLmtlcm5lbC5vcmcKQ2M6IE1hYXJ0ZW4gTGFu
-a2hvcnN0IDxtYWFydGVuLmxhbmtob3JzdEBsaW51eC5pbnRlbC5jb20+CkNjOiBNYXJrIEJyb3du
-IDxicm9vbmllQGtlcm5lbC5vcmc+CkNjOiAiTWFydGluIEsuIFBldGVyc2VuIiA8bWFydGluLnBl
-dGVyc2VuQG9yYWNsZS5jb20+CkNjOiBNYXRoaWV1IFBvaXJpZXIgPG1hdGhpZXUucG9pcmllckBs
-aW5hcm8ub3JnPgpDYzogTWF4aW1lIENvcXVlbGluIDxtY29xdWVsaW4uc3RtMzJAZ21haWwuY29t
-PgpDYzogTWF4aW1lIFJpcGFyZCA8bWF4aW1lLnJpcGFyZEBib290bGluLmNvbT4KQ2M6IE1pa2Eg
-V2VzdGVyYmVyZyA8bWlrYS53ZXN0ZXJiZXJnQGxpbnV4LmludGVsLmNvbT4KQ2M6IE1vcml0eiBG
-aXNjaGVyIDxtZGZAa2VybmVsLm9yZz4KQ2M6IE5laGFsIFNoYWggPG5laGFsLWJha3VsY2hhbmRy
-YS5zaGFoQGFtZC5jb20+CkNjOiBPbGl2ZXIgTmV1a3VtIDxvbmV1a3VtQHN1c2UuY29tPgpDYzog
-UGF2ZWwgTWFjaGVrIDxwYXZlbEB1Y3cuY3o+CkNjOiBQZXRlciBPYmVycGFybGVpdGVyIDxvYmVy
-cGFyQGxpbnV4LmlibS5jb20+CkNjOiBQZXRlciBSb3NpbiA8cGVkYUBheGVudGlhLnNlPgpDYzog
-IlJhZmFlbCBKLiBXeXNvY2tpIiA8cmFmYWVsLmoud3lzb2NraUBpbnRlbC5jb20+CkNjOiAiUmFm
-YWVsIEouIFd5c29ja2kiIDxyYWZhZWxAa2VybmVsLm9yZz4KQ2M6IFJvYiBIZXJyaW5nIDxyb2Jo
-K2R0QGtlcm5lbC5vcmc+CkNjOiBSb2JpbiBNdXJwaHkgPHJvYmluLm11cnBoeUBhcm0uY29tPgpD
-YzogU2FuZHkgSHVhbmcgPGhqY0Byb2NrLWNoaXBzLmNvbT4KQ2M6IFNlYmFzdGlhbiBBbmRyemVq
-IFNpZXdpb3IgPGJpZ2Vhc3lAbGludXRyb25peC5kZT4KQ2M6IFNldW5nLVdvbyBLaW0gPHN3MDMx
-Mi5raW1Ac2Ftc3VuZy5jb20+CkNjOiBTaHlhbSBTdW5kYXIgUyBLIDxzaHlhbS1zdW5kYXIucy1r
-QGFtZC5jb20+CkNjOiBTcmluaXZhcyBLYW5kYWdhdGxhIDxzcmluaXZhcy5rYW5kYWdhdGxhQGxp
-bmFyby5vcmc+CkNjOiBTdGVmYW4gU2NobWlkdCA8c3RlZmFuQGRhdGVuZnJlaWhhZmVuLm9yZz4K
-Q2M6IFRha2FzaGkgSXdhaSA8dGl3YWlAc3VzZS5jb20+CkNjOiBUaG9yIFRoYXllciA8dGhvci50
-aGF5ZXJAbGludXguaW50ZWwuY29tPgpDYzogVG9tYXMgV2lua2xlciA8dG9tYXMud2lua2xlckBp
-bnRlbC5jb20+CkNjOiBVbGYgSGFuc3NvbiA8dWxmLmhhbnNzb25AbGluYXJvLm9yZz4KQ2M6IFdp
-bGwgRGVhY29uIDx3aWxsLmRlYWNvbkBhcm0uY29tPgpDYzogV29sZnJhbSBTYW5nIDx3c2FAdGhl
-LWRyZWFtcy5kZT4KClN1enVraSBLIFBvdWxvc2UgKDcpOgogIGRyaXZlcnM6IEludHJvZHVjZSBk
-ZXZpY2UgbG9va3VwIHZhcmlhbnRzIGJ5IG5hbWUKICBkcml2ZXJzOiBJbnRyb2R1Y2UgZGV2aWNl
-IGxvb2t1cCB2YXJpYW50cyBieSBvZl9ub2RlCiAgZHJpdmVyczogSW50cm9kdWNlIGRldmljZSBs
-b29rdXAgdmFyaWFudHMgYnkgZndub2RlCiAgZHJpdmVyczogSW50cm9kdWNlIGRldmljZSBsb29r
-dXAgdmFyaWFudHMgYnkgZGV2aWNlIHR5cGUKICBkcml2ZXJzOiBJbnRyb2R1Y2UgZGV2aWNlIGxv
-b2t1cCB2YXJpYW50cyBieSBBQ1BJX0NPTVBBTklPTiBkZXZpY2UKICBkcml2ZXJzOiBBZGQgZ2Vu
-ZXJpYyBoZWxwZXIgdG8gbWF0Y2ggYW55IGRldmljZQogIHBsYXRmb3JtOiBBZGQgcGxhdGZvcm1f
-ZmluZF9kZXZpY2VfYnlfZHJpdmVyKCkgaGVscGVyCgogZHJpdmVycy9hbWJhL3RlZ3JhLWFoYi5j
-ICAgICAgICAgICAgICAgICAgICAgIHwgIDExICstCiBkcml2ZXJzL2Jhc2UvYnVzLmMgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgfCAgMjQgLS0KIGRyaXZlcnMvYmFzZS9jb3JlLmMgICAgICAg
-ICAgICAgICAgICAgICAgICAgICB8ICAzOSArKy0KIGRyaXZlcnMvYmFzZS9kZXZjb24uYyAgICAg
-ICAgICAgICAgICAgICAgICAgICB8ICAgOCArLQogZHJpdmVycy9iYXNlL3BsYXRmb3JtLmMgICAg
-ICAgICAgICAgICAgICAgICAgIHwgIDE0ICsrCiBkcml2ZXJzL2ZwZ2EvZnBnYS1icmlkZ2UuYyAg
-ICAgICAgICAgICAgICAgICAgfCAgIDggKy0KIGRyaXZlcnMvZnBnYS9mcGdhLW1nci5jICAgICAg
-ICAgICAgICAgICAgICAgICB8ICAgOCArLQogZHJpdmVycy9ncHUvZHJtL2RybV9taXBpX2RzaS5j
-ICAgICAgICAgICAgICAgIHwgICA3ICstCiBkcml2ZXJzL2dwdS9kcm0vZXh5bm9zL2V4eW5vc19k
-cm1fZHJ2LmMgICAgICAgfCAgIDkgKy0KIGRyaXZlcnMvZ3B1L2RybS9tY2RlL21jZGVfZHJ2LmMg
-ICAgICAgICAgICAgICB8ICAgMyArLQogZHJpdmVycy9ncHUvZHJtL3JvY2tjaGlwL3JvY2tjaGlw
-X2RybV9kcnYuYyAgIHwgICAzICstCiBkcml2ZXJzL2dwdS9kcm0vdmM0L3ZjNF9kcnYuYyAgICAg
-ICAgICAgICAgICAgfCAgIDMgKy0KIC4uLi9od3RyYWNpbmcvY29yZXNpZ2h0L2NvcmVzaWdodC1w
-bGF0Zm9ybS5jICB8ICAxMSArLQogZHJpdmVycy9od3RyYWNpbmcvY29yZXNpZ2h0L2NvcmVzaWdo
-dC1wcml2LmggIHwgICAyIC0KIGRyaXZlcnMvaHd0cmFjaW5nL2NvcmVzaWdodC9jb3Jlc2lnaHQu
-YyAgICAgICB8ICAgNCArLQogZHJpdmVycy9od3RyYWNpbmcvaW50ZWxfdGgvY29yZS5jICAgICAg
-ICAgICAgIHwgIDEwICstCiBkcml2ZXJzL2h3dHJhY2luZy9zdG0vY29yZS5jICAgICAgICAgICAg
-ICAgICAgfCAgIDkgKy0KIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYW1kLW1wMi1wY2kuYyAgICAg
-ICAgICB8ICAgOCArLQogZHJpdmVycy9pMmMvaTJjLWNvcmUtYWNwaS5jICAgICAgICAgICAgICAg
-ICAgIHwgIDExICstCiBkcml2ZXJzL2kyYy9pMmMtY29yZS1vZi5jICAgICAgICAgICAgICAgICAg
-ICAgfCAgIDcgKy0KIGRyaXZlcnMvaW5maW5pYmFuZC9ody9obnMvaG5zX3JvY2VfaHdfdjEuYyAg
-ICB8ICAgOCArLQogZHJpdmVycy9pb21tdS9hcm0tc21tdS12My5jICAgICAgICAgICAgICAgICAg
-IHwgICA5ICstCiBkcml2ZXJzL2lvbW11L2FybS1zbW11LmMgICAgICAgICAgICAgICAgICAgICAg
-fCAgIDkgKy0KIGRyaXZlcnMvbGVkcy9sZWQtY2xhc3MuYyAgICAgICAgICAgICAgICAgICAgICB8
-ICAgOSArLQogZHJpdmVycy9tZmQvYWx0ZXJhLXN5c21nci5jICAgICAgICAgICAgICAgICAgIHwg
-IDE0ICstCiBkcml2ZXJzL21pc2MvbWVpL21haW4uYyAgICAgICAgICAgICAgICAgICAgICAgfCAg
-IDkgKy0KIGRyaXZlcnMvbXV4L2NvcmUuYyAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAg
-NyArLQogLi4uL2V0aGVybmV0L2hpc2lsaWNvbi9obnMvaG5zX2RzYWZfbWlzYy5jICAgIHwgICA4
-ICstCiBkcml2ZXJzL25ldC9waHkvbWRpb19idXMuYyAgICAgICAgICAgICAgICAgICAgfCAgIDkg
-Ky0KIGRyaXZlcnMvbnZtZW0vY29yZS5jICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgNyAr
-LQogZHJpdmVycy9vZi9vZl9tZGlvLmMgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICA4ICst
-CiBkcml2ZXJzL29mL3BsYXRmb3JtLmMgICAgICAgICAgICAgICAgICAgICAgICAgfCAgIDcgKy0K
-IGRyaXZlcnMvcGNpL3Byb2JlLmMgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgNyArLQog
-ZHJpdmVycy9yZWd1bGF0b3Ivb2ZfcmVndWxhdG9yLmMgICAgICAgICAgICAgIHwgICA3ICstCiBk
-cml2ZXJzL3J0Yy9pbnRlcmZhY2UuYyAgICAgICAgICAgICAgICAgICAgICAgfCAgMTEgKy0KIGRy
-aXZlcnMvczM5MC9jaW8vY2N3Z3JvdXAuYyAgICAgICAgICAgICAgICAgICB8ICAxOCArLQogZHJp
-dmVycy9zMzkwL2Npby9kZXZpY2UuYyAgICAgICAgICAgICAgICAgICAgIHwgIDE1ICstCiBkcml2
-ZXJzL3MzOTAvY3J5cHRvL3pjcnlwdF9hcGkuYyAgICAgICAgICAgICAgfCAgMjIgKy0KIGRyaXZl
-cnMvc2NzaS9zY3NpX3Byb2MuYyAgICAgICAgICAgICAgICAgICAgICB8ICAgOSArLQogZHJpdmVy
-cy9zcGkvc3BpLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDI4ICstLQogZHJpdmVy
-cy90dHkvdHR5X2lvLmMgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICA4ICstCiBkcml2ZXJz
-L3VzYi9jb3JlL2RldmlvLmMgICAgICAgICAgICAgICAgICAgICAgfCAgIDggKy0KIGRyaXZlcnMv
-dXNiL3JvbGVzL2NsYXNzLmMgICAgICAgICAgICAgICAgICAgICB8ICAxNiArLQogZHJpdmVycy91
-c2IvdHlwZWMvY2xhc3MuYyAgICAgICAgICAgICAgICAgICAgIHwgIDE2ICstCiBpbmNsdWRlL2xp
-bnV4L2RldmljZS5oICAgICAgICAgICAgICAgICAgICAgICAgfCAyMzcgKysrKysrKysrKysrKysr
-KystCiBpbmNsdWRlL2xpbnV4L3BsYXRmb3JtX2RldmljZS5oICAgICAgICAgICAgICAgfCAgIDMg
-KwogbmV0L2llZWU4MDIxNTQvY29yZS5jICAgICAgICAgICAgICAgICAgICAgICAgIHwgICA3ICst
-CiBzb3VuZC9zb2Mvcm9ja2NoaXAvcmszMzk5X2dydV9zb3VuZC5jICAgICAgICAgfCAgIDkgKy0K
-IDQ4IGZpbGVzIGNoYW5nZWQsIDM0MSBpbnNlcnRpb25zKCspLCAzODMgZGVsZXRpb25zKC0pCgot
-LSAKMi4yMS4wCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcK
-aHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWw=
+On Fri, Jul 26, 2019 at 10:23:54PM +0200, Wolfram Sang wrote:
+> On Tue, Jul 23, 2019 at 11:18:36PM +0100, Suzuki K Poulose wrote:
+> > Add a generic helper to match a device by the ACPI_COMPANION device
+> > and provide wrappers for the device lookup APIs.
+> > 
+> > Cc: Len Brown <lenb@kernel.org>
+> > Cc: linux-acpi@vger.kernel.org
+> > Cc: linux-spi@vger.kernel.org
+> > Cc: Mark Brown <broonie@kernel.org>
+> > Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > Cc: Wolfram Sang <wsa@the-dreams.de>
+> > Cc: linux-i2c@vger.kernel.org
+> > Cc: Mark Brown <broonie@kernel.org>
+> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+> > Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+> 
+> From my side, OK:
+> 
+> Acked-by: Wolfram Sang <wsa@the-dreams.de> # I2C parts
+> 
+> yet you missed to cc the I2C ACPI maintainers. Done so now.
+
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+
+Thanks, Wolfram, for notifying.
+
+> 
+> > ---
+> >  drivers/base/core.c         |  6 ++++
+> >  drivers/i2c/i2c-core-acpi.c | 11 ++-----
+> >  drivers/spi/spi.c           |  8 +----
+> >  include/linux/device.h      | 65 +++++++++++++++++++++++++++++++++++++
+> >  4 files changed, 74 insertions(+), 16 deletions(-)
+> > 
+> > diff --git a/drivers/base/core.c b/drivers/base/core.c
+> > index 3abc32b60c0a..57d71bc2c559 100644
+> > --- a/drivers/base/core.c
+> > +++ b/drivers/base/core.c
+> > @@ -3373,3 +3373,9 @@ int device_match_devt(struct device *dev, const void *pdevt)
+> >  	return dev->devt == *(dev_t *)pdevt;
+> >  }
+> >  EXPORT_SYMBOL_GPL(device_match_devt);
+> > +
+> > +int device_match_acpi_dev(struct device *dev, const void *adev)
+> > +{
+> > +	return ACPI_COMPANION(dev) == adev;
+> > +}
+> > +EXPORT_SYMBOL(device_match_acpi_dev);
+> > diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+> > index 4dbbc9a35f65..bc80aafb521f 100644
+> > --- a/drivers/i2c/i2c-core-acpi.c
+> > +++ b/drivers/i2c/i2c-core-acpi.c
+> > @@ -354,17 +354,11 @@ static int i2c_acpi_find_match_adapter(struct device *dev, const void *data)
+> >  	return ACPI_HANDLE(dev) == (acpi_handle)data;
+> >  }
+> >  
+> > -static int i2c_acpi_find_match_device(struct device *dev, const void *data)
+> > -{
+> > -	return ACPI_COMPANION(dev) == data;
+> > -}
+> >  
+> >  struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
+> >  {
+> > -	struct device *dev;
+> > +	struct device *dev = bus_find_device_by_acpi_dev(&i2c_bus_type, handle);
+> >  
+> > -	dev = bus_find_device(&i2c_bus_type, NULL, handle,
+> > -			      i2c_acpi_find_match_adapter);
+> >  	return dev ? i2c_verify_adapter(dev) : NULL;
+> >  }
+> >  EXPORT_SYMBOL_GPL(i2c_acpi_find_adapter_by_handle);
+> > @@ -373,8 +367,7 @@ static struct i2c_client *i2c_acpi_find_client_by_adev(struct acpi_device *adev)
+> >  {
+> >  	struct device *dev;
+> >  
+> > -	dev = bus_find_device(&i2c_bus_type, NULL, adev,
+> > -			      i2c_acpi_find_match_device);
+> > +	dev = bus_find_device_by_acpi_dev(&i2c_bus_type, adev);
+> >  	return dev ? i2c_verify_client(dev) : NULL;
+> >  }
+> >  
+> > diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+> > index a591da87981a..c486a6f84c2c 100644
+> > --- a/drivers/spi/spi.c
+> > +++ b/drivers/spi/spi.c
+> > @@ -3741,11 +3741,6 @@ static int spi_acpi_controller_match(struct device *dev, const void *data)
+> >  	return ACPI_COMPANION(dev->parent) == data;
+> >  }
+> >  
+> > -static int spi_acpi_device_match(struct device *dev, const void *data)
+> > -{
+> > -	return ACPI_COMPANION(dev) == data;
+> > -}
+> > -
+> >  static struct spi_controller *acpi_spi_find_controller_by_adev(struct acpi_device *adev)
+> >  {
+> >  	struct device *dev;
+> > @@ -3765,8 +3760,7 @@ static struct spi_device *acpi_spi_find_device_by_adev(struct acpi_device *adev)
+> >  {
+> >  	struct device *dev;
+> >  
+> > -	dev = bus_find_device(&spi_bus_type, NULL, adev, spi_acpi_device_match);
+> > -
+> > +	dev = bus_find_device_by_acpi_dev(&spi_bus_type, adev);
+> >  	return dev ? to_spi_device(dev) : NULL;
+> >  }
+> >  
+> > diff --git a/include/linux/device.h b/include/linux/device.h
+> > index 93b2f55ef44e..7514ef3d3f1a 100644
+> > --- a/include/linux/device.h
+> > +++ b/include/linux/device.h
+> > @@ -168,6 +168,7 @@ int device_match_name(struct device *dev, const void *name);
+> >  int device_match_of_node(struct device *dev, const void *np);
+> >  int device_match_fwnode(struct device *dev, const void *fwnode);
+> >  int device_match_devt(struct device *dev, const void *pdevt);
+> > +int device_match_acpi_dev(struct device *dev, const void *adev);
+> >  
+> >  int bus_for_each_dev(struct bus_type *bus, struct device *start, void *data,
+> >  		     int (*fn)(struct device *dev, void *data));
+> > @@ -224,6 +225,28 @@ static inline struct device *bus_find_device_by_devt(struct bus_type *bus,
+> >  	return bus_find_device(bus, NULL, &devt, device_match_devt);
+> >  }
+> >  
+> > +#ifdef CONFIG_ACPI
+> > +struct acpi_device;
+> > +
+> > +/**
+> > + * bus_find_device_by_acpi_dev : device iterator for locating a particular device
+> > + * matching the ACPI COMPANION device.
+> > + * @bus: bus type
+> > + * @adev: ACPI COMPANION device to match.
+> > + */
+> > +static inline struct device *
+> > +bus_find_device_by_acpi_dev(struct bus_type *bus, const struct acpi_device *adev)
+> > +{
+> > +	return bus_find_device(bus, NULL, adev, device_match_acpi_dev);
+> > +}
+> > +#else
+> > +static inline struct device *
+> > +bus_find_device_by_acpi_dev(struct bus_type *bus, const void *adev)
+> > +{
+> > +	return NULL;
+> > +}
+> > +#endif
+> > +
+> >  struct device *subsys_find_device_by_id(struct bus_type *bus, unsigned int id,
+> >  					struct device *hint);
+> >  int bus_for_each_drv(struct bus_type *bus, struct device_driver *start,
+> > @@ -442,6 +465,27 @@ static inline struct device *driver_find_device_by_devt(struct device_driver *dr
+> >  	return driver_find_device(drv, NULL, &devt, device_match_devt);
+> >  }
+> >  
+> > +#ifdef CONFIG_ACPI
+> > +/**
+> > + * driver_find_device_by_acpi_dev : device iterator for locating a particular
+> > + * device matching the ACPI_COMPANION device.
+> > + * @driver: the driver we're iterating
+> > + * @adev: ACPI_COMPANION device to match.
+> > + */
+> > +static inline struct device *
+> > +driver_find_device_by_acpi_dev(struct device_driver *drv,
+> > +			       const struct acpi_device *adev)
+> > +{
+> > +	return driver_find_device(drv, NULL, adev, device_match_acpi_dev);
+> > +}
+> > +#else
+> > +static inline struct device *
+> > +driver_find_device_by_acpi_dev(struct device_driver *drv, const void *adev)
+> > +{
+> > +	return NULL;
+> > +}
+> > +#endif
+> > +
+> >  void driver_deferred_probe_add(struct device *dev);
+> >  int driver_deferred_probe_check_state(struct device *dev);
+> >  int driver_deferred_probe_check_state_continue(struct device *dev);
+> > @@ -620,6 +664,27 @@ static inline struct device *class_find_device_by_devt(struct class *class,
+> >  	return class_find_device(class, NULL, &devt, device_match_devt);
+> >  }
+> >  
+> > +#ifdef CONFIG_ACPI
+> > +struct acpi_device;
+> > +/**
+> > + * class_find_device_by_acpi_dev : device iterator for locating a particular
+> > + * device matching the ACPI_COMPANION device.
+> > + * @class: class type
+> > + * @adev: ACPI_COMPANION device to match.
+> > + */
+> > +static inline struct device *
+> > +class_find_device_by_acpi_dev(struct class *class, const struct acpi_device *adev)
+> > +{
+> > +	return class_find_device(class, NULL, adev, device_match_acpi_dev);
+> > +}
+> > +#else
+> > +static inline struct device *
+> > +class_find_device_by_acpi_dev(struct class *class, const void *adev)
+> > +{
+> > +	return NULL;
+> > +}
+> > +#endif
+> > +
+> >  struct class_attribute {
+> >  	struct attribute attr;
+> >  	ssize_t (*show)(struct class *class, struct class_attribute *attr,
+> > -- 
+> > 2.21.0
+> > 
+
+
+
+-- 
+With Best Regards,
+Andy Shevchenko
