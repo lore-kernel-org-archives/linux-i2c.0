@@ -1,57 +1,66 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] i2c: imx-lpi2c: use devm_platform_ioremap_resource()
- to simplify code
-Date: Thu, 1 Aug 2019 14:50:29 +0200
-Message-ID: <20190801125028.GI1659@ninjato>
-References: <20190717084017.30987-1-Anson.Huang@nxp.com>
- <20190717084017.30987-2-Anson.Huang@nxp.com>
+Subject: Re: [PATCH] i2c: s3c2410: Mark expected switch fall-through
+Date: Thu, 1 Aug 2019 15:01:42 +0200
+Message-ID: <20190801130141.GO1659@ninjato>
+References: <20190728235138.GA23429@embeddedor>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="mXDO3udm/xYWQeMQ"
+        protocol="application/pgp-signature"; boundary="sGwo475CiIwWEjLI"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190717084017.30987-2-Anson.Huang@nxp.com>
+In-Reply-To: <20190728235138.GA23429@embeddedor>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Anson.Huang@nxp.com
-Cc: aisheng.dong@nxp.com, shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com, wsa+renesas@sang-engineering.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Linux-imx@nxp.com
+To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Cc: Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, Kees Cook <keescook@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---mXDO3udm/xYWQeMQ
+--sGwo475CiIwWEjLI
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 17, 2019 at 04:40:17PM +0800, Anson.Huang@nxp.com wrote:
-> From: Anson Huang <Anson.Huang@nxp.com>
+On Sun, Jul 28, 2019 at 06:51:38PM -0500, Gustavo A. R. Silva wrote:
+> Mark switch cases where we are expecting to fall through.
 >=20
-> Use the new helper devm_platform_ioremap_resource() which wraps the
-> platform_get_resource() and devm_ioremap_resource() together, to
-> simplify the code.
+> This patch fixes the following warning:
 >=20
-> Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+> drivers/i2c/busses/i2c-s3c2410.c: In function 'i2c_s3c_irq_nextbyte':
+> drivers/i2c/busses/i2c-s3c2410.c:431:6: warning: this statement may fall =
+through [-Wimplicit-fallthrough=3D]
+>    if (i2c->state =3D=3D STATE_READ)
+>       ^
+> drivers/i2c/busses/i2c-s3c2410.c:439:2: note: here
+>   case STATE_WRITE:
+>   ^~~~
+>=20
+> Notice that, in this particular case, the code comment is
+> modified in accordance with what GCC is expecting to find.
+>=20
+> Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-Applied to for-next, thanks!
+Applied to for-current, thanks!
 
 
---mXDO3udm/xYWQeMQ
+--sGwo475CiIwWEjLI
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1C4BQACgkQFA3kzBSg
-Kbar1hAAquWHe0O3sEuqpFSEu1yKoyDSLzPeFYmaYzdz+Snz7NxsssYKw9wudKh4
-9+j0FsIKOQFzlDfXviOwYBsl94ixNziBtVPPFoWEtCSXKlAMCRfIVXT8SsIrY3SE
-/lIZY7jBKi9oRvBxWMImxP0iLS2HC6uIg/3fs5sAy4Hy1VKcn2mvMy7WZES8gFTR
-/Bc2v4Y2Y4cdTjzjy8MpRUthrYbYU06XHXp5RF3/UkEg2I7NU6bYDt+5OUTpv36c
-B/9vR/zk2kg9lhzrWRZqu3n91VY9KJB5ykfGBRHez+qJ3uFqnMGJn1zW9C73S6q/
-KKpkXcSJ14otSb3iq7KGlCjuQ7l18mEjFlYmemRtUTivOSmVIuCg57aGvhgduNfu
-kENj8whpMZo7M01121HGCtjo8r8aFKEQBoQ2mRqnakxyvzjmTu4Ljr0E4yZab52p
-RNOHUjbtZL/R0Dp/aWugfsiwqZiD0c4/rsubRSnJN5gHlk9ze1vD+zauF+DeIFqb
-oMRGa8mFtmPdaeNb9nSmbEBNzngBbiatr+DCMYogeRM6+AOjycAn86TOdxOvEPiB
-Xy7XllFoUuQvTXXeI79M7fZE2zH/NCcvqAtPYu2/Adt0bz+AW5InsRhG7pgdusAN
-u6rb/QzX13xSs5s/NsYDDGUll1KGrOoIcTDpmSghgsTpIwLzW7I=
-=S2Wq
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1C4rUACgkQFA3kzBSg
+Kba28RAApiI7u/wDnAuTCpteayRX5I68w5cXuFTG+gDegwQ3YOswZdkoM9v4W9pd
+rfQ84jLH0clY/G4g7qapeZltQIF9QUrknnCPjHQ0x7sp3pwg1QHVnaq58x6BasaP
+cQC/UAWpxY9Q0FqWE8g0Q4rCwsCtxRqLR1k+3gqzHpt6elXnApvsm0gfX6wHVZps
+7hWXbs49+RR8FEmGJr6CMR8tbkObH9RjS5HnIFlgG+jsxhuIABRRK3b70elZFBXx
+rGC+J5uUN9OgJn8qxSJ+6JlxVPRm4oimxJtiH6IkYCMYgINOXQUClLvkXFv4/Dzs
+ErS/Kk1EQoZ5jS9T44iZBh1LfY/NrR8gclTIrpmqjiPnrmx7RziaKplg/26VjuDN
+rkrCF8HOqC+aD1e3dGhBzxSLxs2PNQQcojjthdmXTFipHhteg3d2iMEjBXHG45yw
+I6dyfQpT+n0tjyWoh+DWOIxqD3NlXyyunym/gSEjir0bgnC7TaUQiKQ+xg3pspGd
+EnCcXA0TRuNncT7HElrt6wXMi7bnHOh1Fwlkb8cOhR2fxfL6EuSfsNhud3eDgLzU
+ow2sNRMl0wpJTYk50ypFHo2l8Bei1/4hRJUH6NYmmJAKaZ1Bakp/cMsY3v2XAj91
+3VNl2U3/o5snGmU3Rzjh5x1DMdzL5G+7Xl5dDGfe4aPfvZW+Rhg=
+=WUQP
 -----END PGP SIGNATURE-----
 
---mXDO3udm/xYWQeMQ--
+--sGwo475CiIwWEjLI--
