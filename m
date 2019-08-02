@@ -1,8 +1,7 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH v5 2/3] i2c: piix4: Fix probing of reserved ports on AMD
- Family 16h Model 30h
-Date: Fri, 2 Aug 2019 14:54:38 +0200
-Message-ID: <20190802145438.601c9a8c@endymion>
+Subject: [PATCH v5 3/3] i2c: piix4: Add ACPI support
+Date: Fri, 2 Aug 2019 14:55:26 +0200
+Message-ID: <20190802145526.6edba0a6@endymion>
 References: <20190802145109.38dd4045@endymion>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -14,14 +13,22 @@ To: Linux I2C <linux-i2c@vger.kernel.org>
 Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Andrew Cooks <acooks@rationali.st>, linux-acpi@vger.kernel.org, platypus-sw@opengear.com, "Tobin C . Harding" <me@tobin.cc>, Guenter Roeck <linux@roeck-us.net>, Will Wagner <willw@carallon.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Prevent bus timeouts and resets on Family 16h Model 30h by not probing
-reserved Ports 3 and 4.
+Enable the i2c-piix4 SMBus controller driver to enumerate I2C slave
+devices using ACPI. It builds on the related I2C mux device work
+in commit 8eb5c87a92c0 ("i2c: add ACPI support for I2C mux ports")
 
-According to the AMD BIOS and Kernel Developer's Guides (BKDG), Port 3
-and Port 4 are reserved on the following devices:
- - Family 15h Model 60h-6Fh
- - Family 15h Model 70h-7Fh
- - Family 16h Model 30h-3Fh
+In the i2c-piix4 driver the adapters are enumerated as:
+ Main SMBus adapter Port 0, Port 2, ..., aux port (i.e., ASF adapter)
+
+However, in the AMD BKDG documentation[1], the implied order of ports is:
+ Main SMBus adapter Port 0, ASF adapter, Port 2, Port 3, ...
+
+This ordering difference is unfortunate. We assume that ACPI
+developers will use the AMD documentation ordering, so we have to
+pass an extra parameter to piix4_add_adapter().
+
+[1] 52740 BIOS and Kernel Developer's Guide (BKDG) for AMD Family 16h
+Models 30h-3Fh Processors
 
 Based on earlier work by Andrew Cooks.
 
@@ -29,60 +36,69 @@ Reported-by: Andrew Cooks <andrew.cooks@opengear.com>
 Signed-off-by: Jean Delvare <jdelvare@suse.de>
 ---
 Changes since v4:
- * Fix subject line
- * Drop local variable port_count, use piix4_adapter_count
-   everywhere to represent the maximum number of main SMBus ports
- * Exclude early Hudson2 implementations from this change
+ * Fix code alignment (reported by Tobin C. Harding)
+ * Adjust to changes in previous patch
+ * Use the SMBus numbering documented by AMD
 
- drivers/i2c/busses/i2c-piix4.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-piix4.c |   18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
---- linux-5.2.orig/drivers/i2c/busses/i2c-piix4.c	2019-08-02 14:08:17.003820098 +0200
-+++ linux-5.2/drivers/i2c/busses/i2c-piix4.c	2019-08-02 14:15:38.284423549 +0200
-@@ -72,7 +72,8 @@
- #define PIIX4_BLOCK_DATA	0x14
- 
- /* Multi-port constants */
--#define PIIX4_MAX_ADAPTERS 4
-+#define PIIX4_MAX_ADAPTERS	4
-+#define HUDSON2_MAIN_PORTS	2 /* HUDSON2, KERNCZ reserves ports 3, 4 */
- 
- /* SB800 constants */
- #define SB800_PIIX4_SMB_IDX		0xcd6
-@@ -806,6 +807,7 @@ MODULE_DEVICE_TABLE (pci, piix4_ids);
- 
- static struct i2c_adapter *piix4_main_adapters[PIIX4_MAX_ADAPTERS];
- static struct i2c_adapter *piix4_aux_adapter;
-+static int piix4_adapter_count;
+--- linux-5.2.orig/drivers/i2c/busses/i2c-piix4.c	2019-08-02 14:26:02.197346075 +0200
++++ linux-5.2/drivers/i2c/busses/i2c-piix4.c	2019-08-02 14:40:40.990505068 +0200
+@@ -811,7 +811,8 @@ static int piix4_adapter_count;
  
  static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
  			     bool sb800_main, u8 port, bool notify_imc,
-@@ -865,7 +867,15 @@ static int piix4_add_adapters_sb800(stru
- 	int port;
- 	int retval;
+-			     const char *name, struct i2c_adapter **padap)
++			     u8 hw_port_nr, const char *name,
++			     struct i2c_adapter **padap)
+ {
+ 	struct i2c_adapter *adap;
+ 	struct i2c_piix4_adapdata *adapdata;
+@@ -843,6 +844,12 @@ static int piix4_add_adapter(struct pci_
+ 	/* set up the sysfs linkage to our parent device */
+ 	adap->dev.parent = &dev->dev;
  
--	for (port = 0; port < PIIX4_MAX_ADAPTERS; port++) {
-+	if (dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS ||
-+	    (dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS &&
-+	     dev->revision >= 0x1F)) {
-+		piix4_adapter_count = HUDSON2_MAIN_PORTS;
-+	} else {
-+		piix4_adapter_count = PIIX4_MAX_ADAPTERS;
++	if (has_acpi_companion(&dev->dev)) {
++		acpi_preset_companion(&adap->dev,
++				      ACPI_COMPANION(&dev->dev),
++				      hw_port_nr);
 +	}
 +
-+	for (port = 0; port < piix4_adapter_count; port++) {
+ 	snprintf(adap->name, sizeof(adap->name),
+ 		"SMBus PIIX4 adapter%s at %04x", name, smba);
+ 
+@@ -876,7 +883,10 @@ static int piix4_add_adapters_sb800(stru
+ 	}
+ 
+ 	for (port = 0; port < piix4_adapter_count; port++) {
++		u8 hw_port_nr = port == 0 ? 0 : port + 1;
++
  		retval = piix4_add_adapter(dev, smba, true, port, notify_imc,
++					   hw_port_nr,
  					   piix4_main_port_names_sb800[port],
  					   &piix4_main_adapters[port]);
-@@ -987,7 +997,7 @@ static void piix4_adap_remove(struct i2c
+ 		if (retval < 0)
+@@ -947,8 +957,8 @@ static int piix4_probe(struct pci_dev *d
+ 			return retval;
  
- static void piix4_remove(struct pci_dev *dev)
- {
--	int port = PIIX4_MAX_ADAPTERS;
-+	int port = piix4_adapter_count;
- 
- 	while (--port >= 0) {
- 		if (piix4_main_adapters[port]) {
+ 		/* Try to register main SMBus adapter, give up if we can't */
+-		retval = piix4_add_adapter(dev, retval, false, 0, false, "",
+-					   &piix4_main_adapters[0]);
++		retval = piix4_add_adapter(dev, retval, false, 0, false, 0,
++					   "", &piix4_main_adapters[0]);
+ 		if (retval < 0)
+ 			return retval;
+ 	}
+@@ -974,7 +984,7 @@ static int piix4_probe(struct pci_dev *d
+ 	if (retval > 0) {
+ 		/* Try to add the aux adapter if it exists,
+ 		 * piix4_add_adapter will clean up if this fails */
+-		piix4_add_adapter(dev, retval, false, 0, false,
++		piix4_add_adapter(dev, retval, false, 0, false, 1,
+ 				  is_sb800 ? piix4_aux_port_name_sb800 : "",
+ 				  &piix4_aux_adapter);
+ 	}
 
 -- 
 Jean Delvare
