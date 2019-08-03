@@ -1,105 +1,41 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH v5 3/3] i2c: piix4: Add ACPI support
-Date: Fri, 2 Aug 2019 14:55:26 +0200
-Message-ID: <20190802145526.6edba0a6@endymion>
-References: <20190802145109.38dd4045@endymion>
+From: Nishad Kamdar <nishadkamdar@gmail.com>
+Subject: [PATCH] i2c: stm32: Use the correct style for SPDX License Identifier
+Date: Sat, 3 Aug 2019 19:43:35 +0530
+Message-ID: <20190803141331.GA3588@nishad>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190802145109.38dd4045@endymion>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linux I2C <linux-i2c@vger.kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Andrew Cooks <acooks@rationali.st>, linux-acpi@vger.kernel.org, platypus-sw@opengear.com, "Tobin C . Harding" <me@tobin.cc>, Guenter Roeck <linux@roeck-us.net>, Will Wagner <willw@carallon.com>
+To: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Joe Perches <joe@perches.com>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Enable the i2c-piix4 SMBus controller driver to enumerate I2C slave
-devices using ACPI. It builds on the related I2C mux device work
-in commit 8eb5c87a92c0 ("i2c: add ACPI support for I2C mux ports")
+This patch corrects the SPDX License Identifier style
+in header file related to STM32 Driver for I2C hardware
+bus support.
+For C header files Documentation/process/license-rules.rst
+mandates C-like comments (opposed to C source files where
+C++ style should be used)
 
-In the i2c-piix4 driver the adapters are enumerated as:
- Main SMBus adapter Port 0, Port 2, ..., aux port (i.e., ASF adapter)
+Changes made by using a script provided by Joe Perches here:
+https://lkml.org/lkml/2019/2/7/46
 
-However, in the AMD BKDG documentation[1], the implied order of ports is:
- Main SMBus adapter Port 0, ASF adapter, Port 2, Port 3, ...
-
-This ordering difference is unfortunate. We assume that ACPI
-developers will use the AMD documentation ordering, so we have to
-pass an extra parameter to piix4_add_adapter().
-
-[1] 52740 BIOS and Kernel Developer's Guide (BKDG) for AMD Family 16h
-Models 30h-3Fh Processors
-
-Based on earlier work by Andrew Cooks.
-
-Reported-by: Andrew Cooks <andrew.cooks@opengear.com>
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Suggested-by: Joe Perches <joe@perches.com>
+Signed-off-by: Nishad Kamdar <nishadkamdar@gmail.com>
 ---
-Changes since v4:
- * Fix code alignment (reported by Tobin C. Harding)
- * Adjust to changes in previous patch
- * Use the SMBus numbering documented by AMD
+ drivers/i2c/busses/i2c-stm32.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- drivers/i2c/busses/i2c-piix4.c |   18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
-
---- linux-5.2.orig/drivers/i2c/busses/i2c-piix4.c	2019-08-02 14:26:02.197346075 +0200
-+++ linux-5.2/drivers/i2c/busses/i2c-piix4.c	2019-08-02 14:40:40.990505068 +0200
-@@ -811,7 +811,8 @@ static int piix4_adapter_count;
- 
- static int piix4_add_adapter(struct pci_dev *dev, unsigned short smba,
- 			     bool sb800_main, u8 port, bool notify_imc,
--			     const char *name, struct i2c_adapter **padap)
-+			     u8 hw_port_nr, const char *name,
-+			     struct i2c_adapter **padap)
- {
- 	struct i2c_adapter *adap;
- 	struct i2c_piix4_adapdata *adapdata;
-@@ -843,6 +844,12 @@ static int piix4_add_adapter(struct pci_
- 	/* set up the sysfs linkage to our parent device */
- 	adap->dev.parent = &dev->dev;
- 
-+	if (has_acpi_companion(&dev->dev)) {
-+		acpi_preset_companion(&adap->dev,
-+				      ACPI_COMPANION(&dev->dev),
-+				      hw_port_nr);
-+	}
-+
- 	snprintf(adap->name, sizeof(adap->name),
- 		"SMBus PIIX4 adapter%s at %04x", name, smba);
- 
-@@ -876,7 +883,10 @@ static int piix4_add_adapters_sb800(stru
- 	}
- 
- 	for (port = 0; port < piix4_adapter_count; port++) {
-+		u8 hw_port_nr = port == 0 ? 0 : port + 1;
-+
- 		retval = piix4_add_adapter(dev, smba, true, port, notify_imc,
-+					   hw_port_nr,
- 					   piix4_main_port_names_sb800[port],
- 					   &piix4_main_adapters[port]);
- 		if (retval < 0)
-@@ -947,8 +957,8 @@ static int piix4_probe(struct pci_dev *d
- 			return retval;
- 
- 		/* Try to register main SMBus adapter, give up if we can't */
--		retval = piix4_add_adapter(dev, retval, false, 0, false, "",
--					   &piix4_main_adapters[0]);
-+		retval = piix4_add_adapter(dev, retval, false, 0, false, 0,
-+					   "", &piix4_main_adapters[0]);
- 		if (retval < 0)
- 			return retval;
- 	}
-@@ -974,7 +984,7 @@ static int piix4_probe(struct pci_dev *d
- 	if (retval > 0) {
- 		/* Try to add the aux adapter if it exists,
- 		 * piix4_add_adapter will clean up if this fails */
--		piix4_add_adapter(dev, retval, false, 0, false,
-+		piix4_add_adapter(dev, retval, false, 0, false, 1,
- 				  is_sb800 ? piix4_aux_port_name_sb800 : "",
- 				  &piix4_aux_adapter);
- 	}
-
+diff --git a/drivers/i2c/busses/i2c-stm32.h b/drivers/i2c/busses/i2c-stm32.h
+index 868755f82f88..2c21893905a3 100644
+--- a/drivers/i2c/busses/i2c-stm32.h
++++ b/drivers/i2c/busses/i2c-stm32.h
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0
++/* SPDX-License-Identifier: GPL-2.0 */
+ /*
+  * i2c-stm32.h
+  *
 -- 
-Jean Delvare
-SUSE L3 Support
+2.17.1
