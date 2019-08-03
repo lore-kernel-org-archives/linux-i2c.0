@@ -1,41 +1,95 @@
-From: Nishad Kamdar <nishadkamdar@gmail.com>
-Subject: [PATCH] i2c: stm32: Use the correct style for SPDX License Identifier
-Date: Sat, 3 Aug 2019 19:43:35 +0530
-Message-ID: <20190803141331.GA3588@nishad>
+From: Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: Re: [PATCH v2 1/2] media: ir-kbd-i2c: convert to
+ i2c_new_dummy_device()
+Date: Sat, 3 Aug 2019 13:17:49 -0300
+Message-ID: <20190803131749.4d6517ab@coco.lan>
+References: <20190730175555.14098-1-wsa+renesas@sang-engineering.com>
+        <20190730175555.14098-2-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <20190730175555.14098-2-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Joe Perches <joe@perches.com>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Sean Young <sean@mess.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch corrects the SPDX License Identifier style
-in header file related to STM32 Driver for I2C hardware
-bus support.
-For C header files Documentation/process/license-rules.rst
-mandates C-like comments (opposed to C source files where
-C++ style should be used)
+Em Tue, 30 Jul 2019 19:55:54 +0200
+Wolfram Sang <wsa+renesas@sang-engineering.com> escreveu:
 
-Changes made by using a script provided by Joe Perches here:
-https://lkml.org/lkml/2019/2/7/46
+> Convert this driver to use the new i2c_new_dummy_device() call and bail
+> out if the dummy device cannot be registered to make failure more
+> visible to the user.
+> 
 
-Suggested-by: Joe Perches <joe@perches.com>
-Signed-off-by: Nishad Kamdar <nishadkamdar@gmail.com>
----
- drivers/i2c/busses/i2c-stm32.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Please don't do that.
 
-diff --git a/drivers/i2c/busses/i2c-stm32.h b/drivers/i2c/busses/i2c-stm32.h
-index 868755f82f88..2c21893905a3 100644
---- a/drivers/i2c/busses/i2c-stm32.h
-+++ b/drivers/i2c/busses/i2c-stm32.h
-@@ -1,4 +1,4 @@
--// SPDX-License-Identifier: GPL-2.0
-+/* SPDX-License-Identifier: GPL-2.0 */
- /*
-  * i2c-stm32.h
-  *
--- 
-2.17.1
+At first glance, devm_* sounds a good idea, but we had enough issues
+using it on media system.
+
+I don't mind mind much if some SoC specific would use it, but doing
+it on generic drivers is a very bad idea. We have removed almost all
+devm_* calls from the media system.
+
+The problem with devm is that it the de-allocation routines aren't
+called during device unbind. They happen a way later, only when the
+device itself is physically removed, or the driver is removed.
+
+That caused lots of headaches to debug memory lifetime issues on
+media.
+
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+> 
+> Change since v1:
+> 
+> * reworded commit message because there was no NULL ptr access
+> 
+>  drivers/media/i2c/ir-kbd-i2c.c | 13 +++++--------
+>  1 file changed, 5 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/media/i2c/ir-kbd-i2c.c b/drivers/media/i2c/ir-kbd-i2c.c
+> index 876d7587a1da..f46717052efc 100644
+> --- a/drivers/media/i2c/ir-kbd-i2c.c
+> +++ b/drivers/media/i2c/ir-kbd-i2c.c
+> @@ -885,9 +885,12 @@ static int ir_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  	INIT_DELAYED_WORK(&ir->work, ir_work);
+>  
+>  	if (probe_tx) {
+> -		ir->tx_c = i2c_new_dummy(client->adapter, 0x70);
+> -		if (!ir->tx_c) {
+> +		ir->tx_c = devm_i2c_new_dummy_device(&client->dev,
+> +						     client->adapter, 0x70);
+> +		if (IS_ERR(ir->tx_c)) {
+>  			dev_err(&client->dev, "failed to setup tx i2c address");
+> +			err = PTR_ERR(ir->tx_c);
+> +			goto err_out_free;
+>  		} else if (!zilog_init(ir)) {
+>  			ir->carrier = 38000;
+>  			ir->duty_cycle = 40;
+> @@ -904,9 +907,6 @@ static int ir_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  	return 0;
+>  
+>   err_out_free:
+> -	if (ir->tx_c)
+> -		i2c_unregister_device(ir->tx_c);
+> -
+>  	/* Only frees rc if it were allocated internally */
+>  	rc_free_device(rc);
+>  	return err;
+> @@ -919,9 +919,6 @@ static int ir_remove(struct i2c_client *client)
+>  	/* kill outstanding polls */
+>  	cancel_delayed_work_sync(&ir->work);
+>  
+> -	if (ir->tx_c)
+> -		i2c_unregister_device(ir->tx_c);
+> -
+>  	/* unregister device */
+>  	rc_unregister_device(ir->rc);
+>  
+
+
+
+Thanks,
+Mauro
