@@ -1,50 +1,46 @@
-From: Sean Young <sean@mess.org>
-Subject: Re: [PATCH v2 1/2] media: ir-kbd-i2c: convert to
- i2c_new_dummy_device()
-Date: Sun, 4 Aug 2019 03:57:29 +0100
-Message-ID: <20190804025728.5v5r42zmjn5onxl7@gofer.mess.org>
-References: <20190730175555.14098-1-wsa+renesas@sang-engineering.com>
- <20190730175555.14098-2-wsa+renesas@sang-engineering.com>
- <20190803131749.4d6517ab@coco.lan>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH][v4.9.y, v4.14.y] eeprom: at24: make spd world-readable again
+Date: Mon,  5 Aug 2019 10:01:25 +0200
+Message-ID: <20190805080125.20943-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190803131749.4d6517ab@coco.lan>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org, linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, Andrew Lunn <andrew@lunn.ch>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Bartosz Golaszewski <brgl@bgdev.pl>, Arnd Bergmann <arnd@arndb.de>, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Aug 03, 2019 at 01:17:49PM -0300, Mauro Carvalho Chehab wrote:
-> Em Tue, 30 Jul 2019 19:55:54 +0200
-> Wolfram Sang <wsa+renesas@sang-engineering.com> escreveu:
-> 
-> > Convert this driver to use the new i2c_new_dummy_device() call and bail
-> > out if the dummy device cannot be registered to make failure more
-> > visible to the user.
-> > 
-> 
-> Please don't do that.
-> 
-> At first glance, devm_* sounds a good idea, but we had enough issues
-> using it on media system.
-> 
-> I don't mind mind much if some SoC specific would use it, but doing
-> it on generic drivers is a very bad idea. We have removed almost all
-> devm_* calls from the media system.
-> 
-> The problem with devm is that it the de-allocation routines aren't
-> called during device unbind. They happen a way later, only when the
-> device itself is physically removed, or the driver is removed.
+From: Jean Delvare <jdelvare@suse.de>
 
-Yes, good point.
+The integration of the at24 driver into the nvmem framework broke the
+world-readability of spd EEPROMs. Fix it.
 
-> That caused lots of headaches to debug memory lifetime issues on
-> media.
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Cc: stable@vger.kernel.org
+Fixes: 57d155506dd5 ("eeprom: at24: extend driver to plug into the NVMEM framework")
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Arnd Bergmann <arnd@arndb.de>
+[Bartosz: backported the patch to older branches]
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+---
+ drivers/misc/eeprom/at24.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Indeed this becomes much more complex. Explicit freeing is much better.
-
-
-Thanks,
-Sean
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index a37b9b6a315a..2eef811764ad 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -777,7 +777,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	at24->nvmem_config.name = dev_name(&client->dev);
+ 	at24->nvmem_config.dev = &client->dev;
+ 	at24->nvmem_config.read_only = !writable;
+-	at24->nvmem_config.root_only = true;
++	at24->nvmem_config.root_only = !(chip.flags & AT24_FLAG_IRUGO);
+ 	at24->nvmem_config.owner = THIS_MODULE;
+ 	at24->nvmem_config.compat = true;
+ 	at24->nvmem_config.base_dev = &client->dev;
+-- 
+2.21.0
