@@ -1,54 +1,55 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/3] i2c: sprd: Change to use
- devm_platform_ioremap_resource()
-Date: Tue, 6 Aug 2019 22:41:08 +0200
-Message-ID: <20190806204108.GE911@ninjato>
+Subject: Re: [PATCH 3/3] i2c: sprd: Validate the return value of clock
+ initialization
+Date: Tue, 6 Aug 2019 22:41:13 +0200
+Message-ID: <20190806204113.GF911@ninjato>
 References: <c9e2c50b54577e4b5cb7cc424f4c6de5f116cf60.1564041157.git.baolin.wang@linaro.org>
- <29fa51009a97e6b7d8622190810b7505819ac0b2.1564041157.git.baolin.wang@linaro.org>
+ <5f64dc0eedb348b15442f31f2f22f5bded7cd6ef.1564041157.git.baolin.wang@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="84ND8YJRMFlzkrP4"
+        protocol="application/pgp-signature"; boundary="/QKKmeG/X/bPShih"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <29fa51009a97e6b7d8622190810b7505819ac0b2.1564041157.git.baolin.wang@linaro.org>
+In-Reply-To: <5f64dc0eedb348b15442f31f2f22f5bded7cd6ef.1564041157.git.baolin.wang@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Baolin Wang <baolin.wang@linaro.org>
 Cc: wsa+renesas@sang-engineering.com, orsonzhai@gmail.com, zhang.lyra@gmail.com, vincent.guittot@linaro.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---84ND8YJRMFlzkrP4
+--/QKKmeG/X/bPShih
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 25, 2019 at 03:56:17PM +0800, Baolin Wang wrote:
-> Use the new helper that wraps the calls to platform_get_resource()
-> and devm_ioremap_resource() together.
+On Thu, Jul 25, 2019 at 03:56:18PM +0800, Baolin Wang wrote:
+> The 'enable' clock of I2C master is required, we should return an error
+> if failed to get the 'enable' clock, to make sure the I2C driver can be
+> defer probe if the clock resource is not ready.
 >=20
 > Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 
 Applied to for-next, thanks!
 
 
---84ND8YJRMFlzkrP4
+--/QKKmeG/X/bPShih
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1J5eQACgkQFA3kzBSg
-KbYoWw/6Ay3QLXDyDjiOR0IQrT5EjvxtPTRSdk7QaFV+xDHgOhkhMABKjV1aojp3
-Zh4wX97PPlwNuiICoEXe982xJFHUHN6ntT5yk4JkALOaJdZsfCrjKfM/dYFfElsh
-7fxhJHj9aZ60hUOBaKcq5zaiNHhyzUtarOvJ7ehvsAd0MJvc5nB1qut/tj7TNTxy
-SMzYk8DVlgwF1OB8lYiV9FXdV6L8YUa8nsTS6prJQ8vcVIS/VnL/xO/j1fHwccOl
-70WkpIeJRX3OCR8dKME1X12BTmDeUoVAkGs2UfFrdSZQ37X4QCgcD8oCoBHtdJ+u
-50/8NnH92AFJWGl8WVyaNV5l1QfuiIBBRWB6cExdwL0MNKaBeil/eEsxhAEu6J3E
-L8qN6Xz0Gb92irtyP60YWGTYLiCCdqSul7XosXwCOficF1ooe0yNdO0W0UIjsvUK
-r1PFrQF1KPkztO2f5+BabIy1nqL68ZW47R12461pN5gVEy41NAEVYs2NsFr1zSm1
-quT893AuyfADEZwfdiOX5vYpZw8VV1BmJL8OwigLcv4WGwpBAMPkpQoUgrrBl7ei
-YWqzCI6Xn86d4et/sT4agRZXu8p0EDPeGYSZvzR7+PySP59eiuR9n+ntZz2kr2kt
-MeEo56iYp7TdVBlXBTlOyg9o1JCMZ1DoP9Vxvhk5TYPiZ64dTGI=
-=M37f
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1J5ekACgkQFA3kzBSg
+KbbKlQ/8DwrpeCTeauqKc96AvZbkjglv0XQwp7Fa2sjInYjc6fIKDvp/V7me4srf
+0pim0VtRiLcnp3G84v7FfAJXvR+0qqh+dQZUMCXcguAL2R5hJ0sad5Jx8Rmo0Kkv
+rvfzi7C3N/oEhTT6GFubZUKX+ptVCySl6LGo1xZj+mqYOVVlgy7VC4mb9GM3bFEU
+tc8lNTyBQf80YtUfLrrGKkHK6lgj6Mfl26CkTB6NhsV3APXASfVSr7aXv4v/wF1h
+CKQEnMbts0CJhTSyh5JGycwocVMXlBlUAyqg1T1NCRhdLuItlN/rOUqBBq5X9s6s
+IbqTaY9eROnSKG+x/8TlONF2ZnzLTsOn/3N/zv3IsHuDsyYf1y8yLigej19UZVEo
+u7R0LRcbRz7IMnXOx5MxJ56+phcyurg5kYv7Ngdl6V1UmPXEpAnjnHg7ZO4imV8w
+eobW+vRtqU7pIkX/YbxnUdj1PgtnpVkf5HbPj7EGv30v+5DxBMT0V4/JGf85fzZu
+yjkHr3LSc90SJOoH5UViqyUzEiOwh+n1g6iWNTr9FcWf1tSH037WCSG70aUIkN7s
+5/0IJwilXE21uQfvakiglA0xGJs+vufZg1+uN5zloFUcS+QGLb30nS25tUdnK9Xb
+4ENZntrcSDR8fuNbyORcCNxpB2iMsgloTlxpULkXQoTQZzYEyAY=
+=uc1V
 -----END PGP SIGNATURE-----
 
---84ND8YJRMFlzkrP4--
+--/QKKmeG/X/bPShih--
