@@ -1,36 +1,101 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: Re: [PATCH] i2c: designware: Fix unused variable warning in
- i2c_dw_init_recovery_info
-Date: Tue, 6 Aug 2019 11:36:21 +0300
-Message-ID: <2ddc2077-aefb-2330-3096-7473dc55f19c@linux.intel.com>
-References: <20190806075054.GA15418@embeddedor>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: core: remove unused function
+Date: Tue, 6 Aug 2019 22:33:14 +0200
+Message-ID: <20190806203314.GB911@ninjato>
+References: <20190731105642.29664-1-anders.roxell@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="1LKvkjL3sHcu1TtY"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190806075054.GA15418@embeddedor>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190731105642.29664-1-anders.roxell@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <uwe@kleine-koenig.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Anders Roxell <anders.roxell@linaro.org>
+Cc: mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi
 
-On 8/6/19 10:50 AM, Gustavo A. R. Silva wrote:
-> Fix the following warning:
-> 
-> drivers/i2c/busses/i2c-designware-master.c: In function ‘i2c_dw_init_recovery_info’:
-> drivers/i2c/busses/i2c-designware-master.c:658:6: warning: unused variable ‘r’ [-Wunused-variable]
->    int r;
->        ^
-> 
-> Fixes: 33eb09a02e8d ("i2c: designware: make use of devm_gpiod_get_optional")
-> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+--1LKvkjL3sHcu1TtY
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi Anders,
+
+On Wed, Jul 31, 2019 at 12:56:42PM +0200, Anders Roxell wrote:
+> GCC warns taht function 'i2c_acpi_find_match_adapter()' is not used.
+>=20
+> ../drivers/i2c/i2c-core-acpi.c:347:12: warning:
+>   =E2=80=98i2c_acpi_find_match_adapter=E2=80=99 defined but not used [-Wu=
+nused-function]
+>  static int i2c_acpi_find_match_adapter(struct device *dev, const void *d=
+ata)
+>             ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+>=20
+> Rework to remove the function 'i2c_acpi_find_match_adapter()'.
+>=20
+> Fixes: 00500147cbd3 ("drivers: Introduce device lookup variants by ACPI_C=
+OMPANION device")
+> Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+
+Can you resend with gkh and "Suzuki K Poulose <suzuki.poulose@arm.com>"
+added to CC? Greg maintains a branch with device_lookup changes and
+Suzuki is the author of it.
+
+Kind regards,
+
+   Wolfram
+
 > ---
-This was fixed yesterday, not applied yet though:
+>  drivers/i2c/i2c-core-acpi.c | 11 -----------
+>  1 file changed, 11 deletions(-)
+>=20
+> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+> index bc80aafb521f..bb6b39fe343a 100644
+> --- a/drivers/i2c/i2c-core-acpi.c
+> +++ b/drivers/i2c/i2c-core-acpi.c
+> @@ -344,17 +344,6 @@ u32 i2c_acpi_find_bus_speed(struct device *dev)
+>  }
+>  EXPORT_SYMBOL_GPL(i2c_acpi_find_bus_speed);
+> =20
+> -static int i2c_acpi_find_match_adapter(struct device *dev, const void *d=
+ata)
+> -{
+> -	struct i2c_adapter *adapter =3D i2c_verify_adapter(dev);
+> -
+> -	if (!adapter)
+> -		return 0;
+> -
+> -	return ACPI_HANDLE(dev) =3D=3D (acpi_handle)data;
+> -}
+> -
+> -
+>  struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
+>  {
+>  	struct device *dev =3D bus_find_device_by_acpi_dev(&i2c_bus_type, handl=
+e);
+> --=20
+> 2.20.1
+>=20
 
-https://www.spinics.net/lists/linux-i2c/msg41651.html
+--1LKvkjL3sHcu1TtY
+Content-Type: application/pgp-signature; name="signature.asc"
 
--- 
-Jarkko
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1J5AoACgkQFA3kzBSg
+KbZDTQ/6AmedFvfIwu9NlIhayf2vJHURysQINDdu+Qak547nivAllwlq4TQwhgW9
+yjifC0GCgdJZeSxkipNDgwQK+l0EgR4NuMypA1lqcH/r/0RoemNZRzM5kaR1leYl
++jx2AJdLsH8Jg4TJtxL5xnpNQmowDs6z2CtlkO7k6APCw8PE9ki2xhPVaR9VcSVk
+SZJhlnUQlVJUN7i/Y6ittUAMDxS/XM/+CmO74e+aFZa2snpQyoEJ2WhPzHUnbfHv
+gJjuZz6TyBSWCfNjDPcwUQkT0nTbq4XiGp5c3murLXkvFXPBI43MwNZRkyNyqyZy
+E0gk18rL5242nprX4ffsvfz5biO+Ab+WgZk1r670XlETLs25S1x/374fSSDRYHXk
+P1bKROABD829y5o0MlCt4T3vB7P/HFdmsaqJGePH0RUh0DL+yPHF3MXdGTxzwaC0
+ADtGRJ1jXfEeq+vGtDkCExfUJOM6xVIFW6g9zwvHN9gHsoTM2gbnmfxHDNqfNBEN
+foMxnzIZymeDgk0ZcYT0HNpD2OIBvfrtsQG1x9mbxew4CQU/6GgyVaFE4gHPzK9y
+5vLZw31J0fOfWhLgAr9upR1qWQ9zDZQytQ4AFGTRv64EJoAGTMPzlFBGDzszV5L6
+44Wn+sQjErHw2eIpaaeqJiRtv3f2NUxmwWzQDzxUIM/+7W8kgBM=
+=I0Kb
+-----END PGP SIGNATURE-----
+
+--1LKvkjL3sHcu1TtY--
