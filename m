@@ -1,101 +1,53 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: core: remove unused function
-Date: Tue, 6 Aug 2019 22:33:14 +0200
-Message-ID: <20190806203314.GB911@ninjato>
-References: <20190731105642.29664-1-anders.roxell@linaro.org>
+Subject: Re: [PATCH 1/3] i2c: sprd: Make I2C driver can be built as a module
+Date: Tue, 6 Aug 2019 22:41:04 +0200
+Message-ID: <20190806204104.GD911@ninjato>
+References: <c9e2c50b54577e4b5cb7cc424f4c6de5f116cf60.1564041157.git.baolin.wang@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="1LKvkjL3sHcu1TtY"
+        protocol="application/pgp-signature"; boundary="NtwzykIc2mflq5ck"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190731105642.29664-1-anders.roxell@linaro.org>
+In-Reply-To: <c9e2c50b54577e4b5cb7cc424f4c6de5f116cf60.1564041157.git.baolin.wang@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Anders Roxell <anders.roxell@linaro.org>
-Cc: mika.westerberg@linux.intel.com, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Baolin Wang <baolin.wang@linaro.org>
+Cc: wsa+renesas@sang-engineering.com, orsonzhai@gmail.com, zhang.lyra@gmail.com, vincent.guittot@linaro.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---1LKvkjL3sHcu1TtY
-Content-Type: text/plain; charset=utf-8
+--NtwzykIc2mflq5ck
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi Anders,
-
-On Wed, Jul 31, 2019 at 12:56:42PM +0200, Anders Roxell wrote:
-> GCC warns taht function 'i2c_acpi_find_match_adapter()' is not used.
+On Thu, Jul 25, 2019 at 03:56:16PM +0800, Baolin Wang wrote:
+> Now there is no need to keep our I2C driver to be initialized so early,
+> thus changing to module level and let it can be built as a module,
+> meanwhile adding some module information.
 >=20
-> ../drivers/i2c/i2c-core-acpi.c:347:12: warning:
->   =E2=80=98i2c_acpi_find_match_adapter=E2=80=99 defined but not used [-Wu=
-nused-function]
->  static int i2c_acpi_find_match_adapter(struct device *dev, const void *d=
-ata)
->             ^~~~~~~~~~~~~~~~~~~~~~~~~~~
->=20
-> Rework to remove the function 'i2c_acpi_find_match_adapter()'.
->=20
-> Fixes: 00500147cbd3 ("drivers: Introduce device lookup variants by ACPI_C=
-OMPANION device")
-> Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+> Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 
-Can you resend with gkh and "Suzuki K Poulose <suzuki.poulose@arm.com>"
-added to CC? Greg maintains a branch with device_lookup changes and
-Suzuki is the author of it.
+Applied to for-next, thanks!
 
-Kind regards,
 
-   Wolfram
-
-> ---
->  drivers/i2c/i2c-core-acpi.c | 11 -----------
->  1 file changed, 11 deletions(-)
->=20
-> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-> index bc80aafb521f..bb6b39fe343a 100644
-> --- a/drivers/i2c/i2c-core-acpi.c
-> +++ b/drivers/i2c/i2c-core-acpi.c
-> @@ -344,17 +344,6 @@ u32 i2c_acpi_find_bus_speed(struct device *dev)
->  }
->  EXPORT_SYMBOL_GPL(i2c_acpi_find_bus_speed);
-> =20
-> -static int i2c_acpi_find_match_adapter(struct device *dev, const void *d=
-ata)
-> -{
-> -	struct i2c_adapter *adapter =3D i2c_verify_adapter(dev);
-> -
-> -	if (!adapter)
-> -		return 0;
-> -
-> -	return ACPI_HANDLE(dev) =3D=3D (acpi_handle)data;
-> -}
-> -
-> -
->  struct i2c_adapter *i2c_acpi_find_adapter_by_handle(acpi_handle handle)
->  {
->  	struct device *dev =3D bus_find_device_by_acpi_dev(&i2c_bus_type, handl=
-e);
-> --=20
-> 2.20.1
->=20
-
---1LKvkjL3sHcu1TtY
+--NtwzykIc2mflq5ck
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1J5AoACgkQFA3kzBSg
-KbZDTQ/6AmedFvfIwu9NlIhayf2vJHURysQINDdu+Qak547nivAllwlq4TQwhgW9
-yjifC0GCgdJZeSxkipNDgwQK+l0EgR4NuMypA1lqcH/r/0RoemNZRzM5kaR1leYl
-+jx2AJdLsH8Jg4TJtxL5xnpNQmowDs6z2CtlkO7k6APCw8PE9ki2xhPVaR9VcSVk
-SZJhlnUQlVJUN7i/Y6ittUAMDxS/XM/+CmO74e+aFZa2snpQyoEJ2WhPzHUnbfHv
-gJjuZz6TyBSWCfNjDPcwUQkT0nTbq4XiGp5c3murLXkvFXPBI43MwNZRkyNyqyZy
-E0gk18rL5242nprX4ffsvfz5biO+Ab+WgZk1r670XlETLs25S1x/374fSSDRYHXk
-P1bKROABD829y5o0MlCt4T3vB7P/HFdmsaqJGePH0RUh0DL+yPHF3MXdGTxzwaC0
-ADtGRJ1jXfEeq+vGtDkCExfUJOM6xVIFW6g9zwvHN9gHsoTM2gbnmfxHDNqfNBEN
-foMxnzIZymeDgk0ZcYT0HNpD2OIBvfrtsQG1x9mbxew4CQU/6GgyVaFE4gHPzK9y
-5vLZw31J0fOfWhLgAr9upR1qWQ9zDZQytQ4AFGTRv64EJoAGTMPzlFBGDzszV5L6
-44Wn+sQjErHw2eIpaaeqJiRtv3f2NUxmwWzQDzxUIM/+7W8kgBM=
-=I0Kb
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1J5eAACgkQFA3kzBSg
+KbZPFBAAmf8B0A11/CmF52K0JXNqm9YZMEUiw89HIQ/EMTtRDivy/W/Ae/KUZ0Xs
+MtV28B3D6nBcHkuoKy+BYX+nNWUL63P9lZ0oV3YISzvzqUwdM+prBhppMfD3tTME
++n5zwHt3qOgDlTVdt1/2i2qzCnZgpTRsOCnudBKp9BY34QeY/5Qbc6Hr7DuwghAX
+R6bBwhxCRrzDyMtyjGlwSsYL9ioP9E81FZ1NqxUMCGbsww5Mh8xTOyYFx/e1+lJh
+kZV4pTTsNKYeekffRd42YPduhTzDJ3y9YRgCM+vl65tdd5bFB/sDoEGz4Se4FSy/
+arYmWNwMi1qv1gea7F70cz9JkwwHgKYArtHc8aQgZtEY1dqoXAozwmWDLZdUQGuO
+AbXIjoL7my5tb83bY7iZVcHGaHY4sUxTGWzMe5983bnMdepo6sgQMYIZhUi7Y4BS
+5l0J/1eJkiSVAcMCQX883ugnQ5aeLe51zDNViPZNgPfHZyLVcqoBwep59M2W4nHt
+zSaoQAJ1WMa5XOa8oE5G1y0Lh421ItcKakkHkp4Ecxlufi8W9Jy1CplRW+M2KDU9
+PRTgBGcm+FQ2AIhg9XNKUaRHOa1Z8Zl8WpAoo0JcZvSH59mSfkyRsXuy+CMqpX4i
+7cq1i7T2DuuP2EFjH9o3vwho75MWw9EzEKRCcrrFxTQBNXnngtQ=
+=Vh2q
 -----END PGP SIGNATURE-----
 
---1LKvkjL3sHcu1TtY--
+--NtwzykIc2mflq5ck--
