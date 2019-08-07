@@ -1,46 +1,72 @@
-From: Schrempf Frieder <frieder.schrempf@kontron.de>
-Subject: Re: [PATCH] i2c: imx: Allow the driver to be built for ARM64 SoCs
- such as i.MX8M
-Date: Wed, 7 Aug 2019 13:25:45 +0000
-Message-ID: <552fae9f-a28d-3dd4-c169-ab860180e794@kontron.de>
-References: <20190807114332.13312-1-frieder.schrempf@kontron.de>
- <2445092.UF1PKDTzN1@ws-140106>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c-axxia: support slave mode
+Date: Wed, 7 Aug 2019 17:19:44 +0200
+Message-ID: <20190807151943.GA2338@kunai>
+References: <20190801132129.GA5550@localhost.localdomain>
+ <20190806205124.GG911@ninjato>
+ <20190807070926.GB17104@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2445092.UF1PKDTzN1@ws-140106>
-Content-Language: en-US
-Content-ID: <F7B35F894732B74CB18AF4C07EB70188@snt-world.com>
+Content-Disposition: inline
+In-Reply-To: <20190807070926.GB17104@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alexander Stein <alexander.stein@mailbox.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Florian Fainelli <f.fainelli@gmail.com>, Juergen Fitschen <jfi@ssv-embedded.de>, Ajay Gupta <ajayg@nvidia.com>, Shreesha Rajashekar <shreesha.rajashekar@broadcom.com>, Vignesh R <vigneshr@ti.com>, Elie Morisse <syniurge@gmail.com>, Stefan Roese <sr@denx.de>, Paul Cercueil <paul@crapouillou.net>, Kamal Dasu <kdasu.kdev@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMDcuMDguMTkgMTQ6MDksIEFsZXhhbmRlciBTdGVpbiB3cm90ZToNCj4gT24gV2VkbmVzZGF5
-LCBBdWd1c3QgNywgMjAxOSwgMTo0NDowNiBQTSBDRVNUIFNjaHJlbXBmIEZyaWVkZXIgd3JvdGU6
-DQo+PiBGcm9tOiBGcmllZGVyIFNjaHJlbXBmIDxmcmllZGVyLnNjaHJlbXBmQGtvbnRyb24uZGU+
-DQo+Pg0KPj4gVGhlIGlteCBJMkMgY29udHJvbGxlciBpcyB1c2VkIGluIHNvbWUgQVJNNjQgU29D
-cyBzdWNoIGFzIGkuTVg4TS4NCj4+IFRvIG1ha2UgdXNlIG9mIGl0LCBhcHBlbmQgQVJNNjQgdG8g
-dGhlIGxpc3Qgb2YgZGVwZW5kZW5jaWVzLg0KPj4NCj4+IFNpZ25lZC1vZmYtYnk6IEZyaWVkZXIg
-U2NocmVtcGYgPGZyaWVkZXIuc2NocmVtcGZAa29udHJvbi5kZT4NCj4+IC0tLQ0KPj4gICBkcml2
-ZXJzL2kyYy9idXNzZXMvS2NvbmZpZyB8IDIgKy0NCj4+ICAgMSBmaWxlIGNoYW5nZWQsIDEgaW5z
-ZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0pDQo+Pg0KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJj
-L2J1c3Nlcy9LY29uZmlnIGIvZHJpdmVycy9pMmMvYnVzc2VzL0tjb25maWcNCj4+IGluZGV4IDA5
-MzY3ZmMwMTRjMy4uNDZiNjUzNjIxNTEzIDEwMDY0NA0KPj4gLS0tIGEvZHJpdmVycy9pMmMvYnVz
-c2VzL0tjb25maWcNCj4+ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9LY29uZmlnDQo+PiBAQCAt
-NjY0LDcgKzY2NCw3IEBAIGNvbmZpZyBJMkNfSU1HDQo+PiAgIA0KPj4gICBjb25maWcgSTJDX0lN
-WA0KPj4gICAJdHJpc3RhdGUgIklNWCBJMkMgaW50ZXJmYWNlIg0KPj4gLQlkZXBlbmRzIG9uIEFS
-Q0hfTVhDIHx8IEFSQ0hfTEFZRVJTQ0FQRSB8fCBDT0xERklSRQ0KPj4gKwlkZXBlbmRzIG9uIEFS
-Q0hfTVhDIHx8IEFSQ0hfTEFZRVJTQ0FQRSB8fCBDT0xERklSRSB8fCBBUk02NA0KPiANCj4gSSBk
-b24ndCB0aGluayB0aGlzIHNob3VsZCBiZSBuZWNlc3NhcnkgYXQgYWxsIGFzIEFSQ0hfTVhDIGlz
-IGFsc28gYXZhaWxhYmxlIGZvciBhcm02NCwgc2VlIGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHVi
-L3NjbS9saW51eC9rZXJuZWwvZ2l0L3RvcnZhbGRzL2xpbnV4LmdpdC90cmVlL2FyY2gvYXJtNjQv
-S2NvbmZpZy5wbGF0Zm9ybXMjbjE2Nw0KPiBJIHJhdGhlciB3b25kZXIgd2h5IEFSQ0hfTVhDIGlz
-IG5vdCBzZXQuIFNhbWUgZm9yIGZlYy4NCg0KWW91J3JlIHJpZ2h0IG9mIGNvdXJzZS4gSSBzb21l
-aG93IG1hbmFnZWQgdG8gbWVzcyB1cCBteSBkZWZjb25maWcuIEkgDQpzdGFydGVkIG92ZXIgd2l0
-aCBhIGNsZWFuIGNvbmZpZyBmcm9tIGFyY2gvYXJtNjQvY29uZmlncy9kZWZjb25maWcgYW5kIA0K
-ZXZlcnl0aGluZyBzZWVtcyBmaW5lIG5vdy4gU29ycnkgZm9yIHRoZSBub2lzZS4NCg0KPiANCj4+
-ICAgCWhlbHANCj4+ICAgCSAgU2F5IFkgaGVyZSBpZiB5b3Ugd2FudCB0byB1c2UgdGhlIElJQyBi
-dXMgY29udHJvbGxlciBvbg0KPj4gICAJICB0aGUgRnJlZXNjYWxlIGkuTVgvTVhDLCBMYXllcnNj
-YXBlIG9yIENvbGRGaXJlIHByb2Nlc3NvcnMuDQo+Pg0KPiANCj4gDQo+IA0KPiA=
+
+--DocE+STaALJfprDB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi Krzysztof,
+
+> Good point. I'll remove those verbose messages and maybe leave one or
+> two debug messages with just a summary of the status which will
+> hopefully be a good compromise. Will that be ok?
+
+Very likely :)
+
+> BTW, I have added this synchronize_irq() in unreg_slave callback just to
+> make sure it is save to set idev->slave to NULL already. Most of the
+> controllers do not have such a guard and I'm wondering why that wouldn't
+> be a problem for them. Like the i2c-rcar.c - isn't there a small race
+> condition if some slave interrupt triggers just before ICSIER is cleared
+> and somehow does not finish before priv->slave is set to NULL? This is
+> the situation I was afraid of and tried to solve by using this
+> synchronize_irq().
+
+You have an important point there. unreg_slave is protected by the
+adapter lock but this won't help if another master is requesting
+something, thus, causing interrupts.
+
+Phew, nearly all slave implementation need to fix this!
+
+Thanks a lot,
+
+   Wolfram
+
+
+--DocE+STaALJfprDB
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1K7AsACgkQFA3kzBSg
+KbZqLg//ZndtTIMkWdZJhNKdzLFLoEMXKdUX296NeiLxm3jjuWgWKAAXytTl4EJp
++jAaVlae+F2Dvui51kWTRINq1iyzj9kyvGxK+jkaBA7Rk1hRtMX8aUla0uJi5Gmy
+a2j/n8k4NTqnRo2p9QTqWOPWCGyfTfC6hHutFh3fkPiZRDcgawcqpMwGVMS+EDql
+SJEYy7si5Ifso0ya9M+RBrb5OyoKim5tbFuF2xcNWIhUTLlCp0l1qihsi3fIn4PF
+B8YoOHOEBgsPmkd+BcYP2MAK/KAr8tSyI6NKnXLN8bcN00HcvlYeDqwLrbdHqdpA
+z/kNH507dmJYDOtdD9oM5Ov1Gi2jLwVKkgyQzz+BwDYa1DXlmlYqJnpOXDthu2zn
+xzQohvZdqyFTdMALlFG+rqRaqxt5dsFlga3hpp/KYvKnPZ+sgU7og7ov3hcLGPuG
+AZPpgrEEBXf1OmeJ4u1wxDNGjc7caCYLecD9XQnrINX6UjYMkCOg8d7h5Cvl6N1w
+7c0oYPT8ZDCKBl2NQK0MBpnTU0rvKNa/yjCwZIZeDQxAkr0xYnMI8S9RycRAgTZH
+W98e1YYFA+Sbba2AjkwD3EpVKdETHQC06h7Y9pQVSKoz/ATES6URM1NTAQB3D0LE
+tr1zRnl6i452kYETMja5Y01Yk2drbKOq/YGqfgZKrZlZl2KvnPI=
+=THVX
+-----END PGP SIGNATURE-----
+
+--DocE+STaALJfprDB--
