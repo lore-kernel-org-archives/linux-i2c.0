@@ -1,238 +1,111 @@
-From: Sascha Hauer <s.hauer@pengutronix.de>
-Subject: Re: i2c: imx: support slave mode for imx I2C driver
-Date: Thu, 8 Aug 2019 16:18:14 +0200
-Message-ID: <20190808141814.wr4hlmbaek6p7dy2@pengutronix.de>
-References: <20190808035343.34120-1-biwen.li@nxp.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH RFT 1/3] hwmon: w83791d: convert to use devm_i2c_new_dummy_device
+Date: Thu,  8 Aug 2019 17:35:56 +0200
+Message-ID: <20190808153558.2362-2-wsa+renesas@sang-engineering.com>
+References: <20190808153558.2362-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190808035343.34120-1-biwen.li@nxp.com>
+In-Reply-To: <20190808153558.2362-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Biwen Li <biwen.li@nxp.com>
-Cc: shawnguo@kernel.org, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, laurentiu.tudor@nxp.com
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Marc Hulsman <m.hulsman@tudelft.nl>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+And simplify the error handling.
 
-On Thu, Aug 08, 2019 at 11:53:43AM +0800, Biwen Li wrote:
-> The patch supports slave mode for imx I2C driver
-> 
-> Signed-off-by: Biwen Li <biwen.li@nxp.com>
-> ---
->  drivers/i2c/busses/i2c-imx.c | 199 ++++++++++++++++++++++++++++++++---
->  1 file changed, 185 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index b1b8b938d7f4..f7583a9fa56f 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -202,6 +202,9 @@ struct imx_i2c_struct {
->  	struct pinctrl_state *pinctrl_pins_gpio;
->  
->  	struct imx_i2c_dma	*dma;
-> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
-> +	struct i2c_client		*slave;
-> +#endif /* CONFIG_I2C_SLAVE */
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/hwmon/w83791d.c | 32 +++++++++-----------------------
+ 1 file changed, 9 insertions(+), 23 deletions(-)
 
-Other drivers just do a "select I2C_SLAVE" in Kconfig to get rid of
-these #ifs. We should do the same.
-
->  };
->  
->  static const struct imx_i2c_hwdata imx1_i2c_hwdata = {
-> @@ -583,23 +586,40 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
->  	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
->  }
->  
-> -static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
-> +/* Clear interrupt flag bit */
-> +static void i2c_imx_clr_if_bit(struct imx_i2c_struct *i2c_imx)
->  {
-> -	struct imx_i2c_struct *i2c_imx = dev_id;
-> -	unsigned int temp;
-> +	unsigned int status;
->  
-> -	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
-> -	if (temp & I2SR_IIF) {
-> -		/* save status register */
-> -		i2c_imx->i2csr = temp;
-> -		temp &= ~I2SR_IIF;
-> -		temp |= (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IIF);
-> -		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
-> -		wake_up(&i2c_imx->queue);
-> -		return IRQ_HANDLED;
-> -	}
-> +	status = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
-> +	status &= ~I2SR_IIF;
-> +	status |= (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IIF);
-> +	imx_i2c_write_reg(status, i2c_imx, IMX_I2C_I2SR);
-> +}
-> +
-> +/* Clear arbitration lost bit */
-> +static void i2c_imx_clr_al_bit(struct imx_i2c_struct *i2c_imx)
-> +{
-> +	unsigned int status;
-> +
-> +	status = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
-> +	status &= ~I2SR_IAL;
-> +	imx_i2c_write_reg(status, i2c_imx, IMX_I2C_I2SR);
-> +}
->  
-> -	return IRQ_NONE;
-> +static irqreturn_t i2c_imx_master_isr(struct imx_i2c_struct *i2c_imx)
-> +{
-> +	unsigned int status;
-> +
-> +	dev_dbg(&i2c_imx->adapter.dev, "<%s>: master interrupt\n", __func__);
-
-Generally this driver has way too many dev_dbg spread around in hot
-pathes already. IMO adding more doesn't make the output more useful.
-
-> +
-> +	/* Save status register */
-> +	status = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
-> +	i2c_imx->i2csr = status | I2SR_IIF;
-> +
-> +	wake_up(&i2c_imx->queue);
-> +
-> +	return IRQ_HANDLED;
->  }
->  
->  static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
-> @@ -1043,11 +1063,162 @@ static u32 i2c_imx_func(struct i2c_adapter *adapter)
->  		| I2C_FUNC_SMBUS_READ_BLOCK_DATA;
->  }
->  
-> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
-> +static void i2c_imx_slave_init(struct imx_i2c_struct *i2c_imx)
-> +{
-> +	unsigned int temp;
-> +
-> +	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
-> +
-> +	/* Set slave addr. */
-> +	imx_i2c_write_reg((i2c_imx->slave->addr << 1), i2c_imx, IMX_I2C_IADR);
-> +
-> +	/* Disable i2c module */
-> +	temp = i2c_imx->hwdata->i2cr_ien_opcode
-> +			^ I2CR_IEN;
-
-unnecessary line break.
-
-> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> +
-> +	/* Reset status register */
-> +	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx,
-> +			  IMX_I2C_I2SR);
-> +
-> +	/* Enable module and enable interrupt from i2c module */
-> +	temp = i2c_imx->hwdata->i2cr_ien_opcode
-> +			| I2CR_IIEN;
-
-ditto.
-
-> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> +
-> +	/* Wait controller to be stable */
-> +	usleep_range(50, 150);
-> +}
-> +
-> +static irqreturn_t i2c_imx_slave_isr(struct imx_i2c_struct *i2c_imx)
-> +{
-> +	unsigned int status, ctl;
-> +	u8 value;
-> +
-> +	if (!i2c_imx->slave) {
-> +		dev_err(&i2c_imx->adapter.dev, "cannot deal with slave irq,i2c_imx->slave is null");
-> +		return IRQ_NONE;
-> +	}
-> +
-> +	status = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
-> +	ctl = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-> +	if (status & I2SR_IAL) { /* Arbitration lost */
-> +		i2c_imx_clr_al_bit(i2c_imx);
-> +	} else if (status & I2SR_IAAS) { /* Addressed as a slave */
-> +		if (status & I2SR_SRW) { /* Master wants to read from us*/
-> +			dev_dbg(&i2c_imx->adapter.dev, "read requested");
-> +			i2c_slave_event(i2c_imx->slave, I2C_SLAVE_READ_REQUESTED, &value);
-> +
-> +			/* Slave transimt */
-
-s/transimt/transmit/
-
-> +			ctl |= I2CR_MTX;
-> +			imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
-> +
-> +			/* Send data */
-> +			imx_i2c_write_reg(value, i2c_imx, IMX_I2C_I2DR);
-> +		} else { /* Master wants to write to us */
-> +			dev_dbg(&i2c_imx->adapter.dev, "write requested");
-> +			i2c_slave_event(i2c_imx->slave,	I2C_SLAVE_WRITE_REQUESTED, &value);
-> +
-> +			/* Slave receive */
-> +			ctl &= ~I2CR_MTX;
-> +			imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
-> +			/* Dummy read */
-> +			value = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
-
-value is unused, no need to assign a value to it.
-
-> +		}
-> +	} else {
-> +		if (!(ctl & I2CR_MTX)) { /* Receive mode */
-
-Since you have an 'else' path please convert this to positive logic.
-This makes it easier to read.
-
-> +			if (status & I2SR_IBB) { /* No STOP signal detected */
-> +				ctl &= ~I2CR_MTX;
-> +				imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
-> +
-> +				value = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
-> +				i2c_slave_event(i2c_imx->slave,	I2C_SLAVE_WRITE_RECEIVED, &value);
-> +			} else { /* STOP signal is detected */
-> +				dev_dbg(&i2c_imx->adapter.dev,
-> +					"STOP signal detected");
-> +				i2c_slave_event(i2c_imx->slave, I2C_SLAVE_STOP, &value);
-> +			}
-> +		} else { /* Transmit mode */
-> +			if (!(status & I2SR_RXAK)) {	/* Received ACK */
-
-Same here.
-
-> +				ctl |= I2CR_MTX;
-> +				imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
-> +
-> +				i2c_slave_event(i2c_imx->slave,	I2C_SLAVE_READ_PROCESSED, &value);
-> +
-> +				imx_i2c_write_reg(value, i2c_imx, IMX_I2C_I2DR);
-> +			} else { /* Received NAK */
-> +				ctl &= ~I2CR_MTX;
-> +				imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
-> +				value = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
-
-Also value unused.
-
-> +			}
-> +		}
-> +	}
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int i2c_imx_reg_slave(struct i2c_client *client)
-> +{
-> +	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(client->adapter);
-> +
-> +	if (i2c_imx->slave)
-> +		return -EINVAL;
-
-Better -EBUSY?
-
-Sascha
-
+diff --git a/drivers/hwmon/w83791d.c b/drivers/hwmon/w83791d.c
+index 050ad4201691..aad8d4da5802 100644
+--- a/drivers/hwmon/w83791d.c
++++ b/drivers/hwmon/w83791d.c
+@@ -1260,7 +1260,7 @@ static int w83791d_detect_subclients(struct i2c_client *client)
+ 	struct i2c_adapter *adapter = client->adapter;
+ 	struct w83791d_data *data = i2c_get_clientdata(client);
+ 	int address = client->addr;
+-	int i, id, err;
++	int i, id;
+ 	u8 val;
+ 
+ 	id = i2c_adapter_id(adapter);
+@@ -1272,8 +1272,7 @@ static int w83791d_detect_subclients(struct i2c_client *client)
+ 					"invalid subclient "
+ 					"address %d; must be 0x48-0x4f\n",
+ 					force_subclients[i]);
+-				err = -ENODEV;
+-				goto error_sc_0;
++				return -ENODEV;
+ 			}
+ 		}
+ 		w83791d_write(client, W83791D_REG_I2C_SUBADDR,
+@@ -1283,29 +1282,22 @@ static int w83791d_detect_subclients(struct i2c_client *client)
+ 
+ 	val = w83791d_read(client, W83791D_REG_I2C_SUBADDR);
+ 	if (!(val & 0x08))
+-		data->lm75[0] = i2c_new_dummy(adapter, 0x48 + (val & 0x7));
++		data->lm75[0] = devm_i2c_new_dummy_device(&client->dev, adapter,
++							  0x48 + (val & 0x7));
+ 	if (!(val & 0x80)) {
+-		if ((data->lm75[0] != NULL) &&
++		if (!IS_ERR(data->lm75[0]) &&
+ 				((val & 0x7) == ((val >> 4) & 0x7))) {
+ 			dev_err(&client->dev,
+ 				"duplicate addresses 0x%x, "
+ 				"use force_subclient\n",
+ 				data->lm75[0]->addr);
+-			err = -ENODEV;
+-			goto error_sc_1;
++			return -ENODEV;
+ 		}
+-		data->lm75[1] = i2c_new_dummy(adapter,
+-					      0x48 + ((val >> 4) & 0x7));
++		data->lm75[1] = devm_i2c_new_dummy_device(&client->dev, adapter,
++							  0x48 + ((val >> 4) & 0x7));
+ 	}
+ 
+ 	return 0;
+-
+-/* Undo inits in case of errors */
+-
+-error_sc_1:
+-	i2c_unregister_device(data->lm75[0]);
+-error_sc_0:
+-	return err;
+ }
+ 
+ 
+@@ -1394,7 +1386,7 @@ static int w83791d_probe(struct i2c_client *client,
+ 	/* Register sysfs hooks */
+ 	err = sysfs_create_group(&client->dev.kobj, &w83791d_group);
+ 	if (err)
+-		goto error3;
++		return err;
+ 
+ 	/* Check if pins of fan/pwm 4-5 are in use as GPIO */
+ 	has_fanpwm45 = w83791d_read(client, W83791D_REG_GPIO) & 0x10;
+@@ -1419,9 +1411,6 @@ static int w83791d_probe(struct i2c_client *client,
+ 		sysfs_remove_group(&client->dev.kobj, &w83791d_group_fanpwm45);
+ error4:
+ 	sysfs_remove_group(&client->dev.kobj, &w83791d_group);
+-error3:
+-	i2c_unregister_device(data->lm75[0]);
+-	i2c_unregister_device(data->lm75[1]);
+ 	return err;
+ }
+ 
+@@ -1432,9 +1421,6 @@ static int w83791d_remove(struct i2c_client *client)
+ 	hwmon_device_unregister(data->hwmon_dev);
+ 	sysfs_remove_group(&client->dev.kobj, &w83791d_group);
+ 
+-	i2c_unregister_device(data->lm75[0]);
+-	i2c_unregister_device(data->lm75[1]);
+-
+ 	return 0;
+ }
+ 
 -- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+2.20.1
