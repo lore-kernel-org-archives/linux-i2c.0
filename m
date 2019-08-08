@@ -1,39 +1,101 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH RFT 0/3] hwmon: convert remaining drivers to i2c_new_dummy_device()
-Date: Thu,  8 Aug 2019 17:35:55 +0200
-Message-ID: <20190808153558.2362-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH RFT 3/3] hwmon: w83793d: convert to use devm_i2c_new_dummy_device
+Date: Thu,  8 Aug 2019 17:35:58 +0200
+Message-ID: <20190808153558.2362-4-wsa+renesas@sang-engineering.com>
+References: <20190808153558.2362-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190808153558.2362-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Rudolf Marek <r.marek@assembler.cz>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This series is part of a tree-wide movement to replace the I2C API call
-'i2c_new_dummy' which returns NULL with its new counterpart returning an
-ERRPTR.
+And simplify the error handling.
 
-This series fixes the remaining hwmon drivers which could not be
-converted by my cocci script. So, I did it manually, yet all drivers
-still follow the same pattern. Build tested by me and by buildbot. No
-tests on HW have been performed, so testing is appreciated.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/hwmon/w83793.c | 30 ++++++++----------------------
+ 1 file changed, 8 insertions(+), 22 deletions(-)
 
-The branch is based on v5.3-rc2. A branch (with some more stuff included) can
-be found here:
-
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/i2c/new_dummy
-
-
-Wolfram Sang (3):
-  hwmon: w83791d: convert to use devm_i2c_new_dummy_device
-  hwmon: w83792d: convert to use devm_i2c_new_dummy_device
-  hwmon: w83793d: convert to use devm_i2c_new_dummy_device
-
- drivers/hwmon/w83791d.c | 32 +++++++++-----------------------
- drivers/hwmon/w83792d.c | 32 +++++++++-----------------------
- drivers/hwmon/w83793.c  | 30 ++++++++----------------------
- 3 files changed, 26 insertions(+), 68 deletions(-)
-
+diff --git a/drivers/hwmon/w83793.c b/drivers/hwmon/w83793.c
+index 46f5dfec8d0a..9df48b70c70c 100644
+--- a/drivers/hwmon/w83793.c
++++ b/drivers/hwmon/w83793.c
+@@ -1551,9 +1551,6 @@ static int w83793_remove(struct i2c_client *client)
+ 	for (i = 0; i < ARRAY_SIZE(w83793_temp); i++)
+ 		device_remove_file(dev, &w83793_temp[i].dev_attr);
+ 
+-	i2c_unregister_device(data->lm75[0]);
+-	i2c_unregister_device(data->lm75[1]);
+-
+ 	/* Decrease data reference counter */
+ 	mutex_lock(&watchdog_data_mutex);
+ 	kref_put(&data->kref, w83793_release_resources);
+@@ -1565,7 +1562,7 @@ static int w83793_remove(struct i2c_client *client)
+ static int
+ w83793_detect_subclients(struct i2c_client *client)
+ {
+-	int i, id, err;
++	int i, id;
+ 	int address = client->addr;
+ 	u8 tmp;
+ 	struct i2c_adapter *adapter = client->adapter;
+@@ -1580,8 +1577,7 @@ w83793_detect_subclients(struct i2c_client *client)
+ 					"invalid subclient "
+ 					"address %d; must be 0x48-0x4f\n",
+ 					force_subclients[i]);
+-				err = -EINVAL;
+-				goto ERROR_SC_0;
++				return -EINVAL;
+ 			}
+ 		}
+ 		w83793_write_value(client, W83793_REG_I2C_SUBADDR,
+@@ -1591,28 +1587,21 @@ w83793_detect_subclients(struct i2c_client *client)
+ 
+ 	tmp = w83793_read_value(client, W83793_REG_I2C_SUBADDR);
+ 	if (!(tmp & 0x08))
+-		data->lm75[0] = i2c_new_dummy(adapter, 0x48 + (tmp & 0x7));
++		data->lm75[0] = devm_i2c_new_dummy_device(&client->dev, adapter,
++							  0x48 + (tmp & 0x7));
+ 	if (!(tmp & 0x80)) {
+-		if ((data->lm75[0] != NULL)
++		if (!IS_ERR(data->lm75[0])
+ 		    && ((tmp & 0x7) == ((tmp >> 4) & 0x7))) {
+ 			dev_err(&client->dev,
+ 				"duplicate addresses 0x%x, "
+ 				"use force_subclients\n", data->lm75[0]->addr);
+-			err = -ENODEV;
+-			goto ERROR_SC_1;
++			return -ENODEV;
+ 		}
+-		data->lm75[1] = i2c_new_dummy(adapter,
+-					      0x48 + ((tmp >> 4) & 0x7));
++		data->lm75[1] = devm_i2c_new_dummy_device(&client->dev, adapter,
++							  0x48 + ((tmp >> 4) & 0x7));
+ 	}
+ 
+ 	return 0;
+-
+-	/* Undo inits in case of errors */
+-
+-ERROR_SC_1:
+-	i2c_unregister_device(data->lm75[0]);
+-ERROR_SC_0:
+-	return err;
+ }
+ 
+ /* Return 0 if detection is successful, -ENODEV otherwise */
+@@ -1945,9 +1934,6 @@ static int w83793_probe(struct i2c_client *client,
+ 
+ 	for (i = 0; i < ARRAY_SIZE(w83793_temp); i++)
+ 		device_remove_file(dev, &w83793_temp[i].dev_attr);
+-
+-	i2c_unregister_device(data->lm75[0]);
+-	i2c_unregister_device(data->lm75[1]);
+ free_mem:
+ 	kfree(data);
+ exit:
 -- 
 2.20.1
