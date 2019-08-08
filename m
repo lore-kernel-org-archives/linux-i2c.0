@@ -1,219 +1,299 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH] i2c: replace i2c_new_secondary_device with an ERR_PTR
- variant
-Date: Thu, 8 Aug 2019 19:04:34 +0300
-Message-ID: <20190808160434.GT6055@pendragon.ideasonboard.com>
-References: <20190722172600.3452-1-wsa+renesas@sang-engineering.com>
- <9b71c556-bd70-4d29-dba5-fbeaefb5f3b4@ideasonboard.com>
- <20190808155709.GA1316@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: i2c: imx: support slave mode for imx I2C driver
+Date: Thu, 8 Aug 2019 22:02:02 +0200
+Message-ID: <20190808200202.GA6609@ninjato>
+References: <20190808035343.34120-1-biwen.li@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190808155709.GA1316@ninjato>
+In-Reply-To: <20190808035343.34120-1-biwen.li@nxp.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Kieran Bingham <kieran.bingham@ideasonboard.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Andrzej Hajda <a.hajda@samsung.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Mauro Carvalho Chehab <mchehab@kernel.org>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
+To: Biwen Li <biwen.li@nxp.com>, Joshua Frkuska <joshua_frkuska@mentor.com>
+Cc: shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, laurentiu.tudor@nxp.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Aug 08, 2019 at 05:57:09PM +0200, Wolfram Sang wrote:
-> On Tue, Jul 23, 2019 at 04:47:09PM +0100, Kieran Bingham wrote:
-> > On 22/07/2019 18:26, Wolfram Sang wrote:
-> > > In the general move to have i2c_new_*_device functions which return
-> > > ERR_PTR instead of NULL, this patch converts i2c_new_secondary_device().
-> > > 
-> > > There are only few users, so this patch converts the I2C core and all
-> > > users in one go. The function gets renamed to i2c_new_ancillary_device()
-> > > so out-of-tree users will get a build failure to understand they need to
-> > > adapt their error checking code.
-> > > 
-> > > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> > > ---
-> > > 
-> > > Kindly asking for acks/revs/tests from people knowing the modified
-> > > drivers.
-> > 
-> > Certainly, this looks good for the adv748x.
-> > 
-> > The ADV7511, and adv7604 are not mine, but they also look fine to me.
-> > 
-> > Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-> 
-> Thanks, Kieran! Gently pinging for acks for ADV7511 and ADV7604.
 
-For the adv7511 driver,
+--7JfCtLOvnd9MIVvH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+On Thu, Aug 08, 2019 at 11:53:43AM +0800, Biwen Li wrote:
+> The patch supports slave mode for imx I2C driver
+>=20
+> Signed-off-by: Biwen Li <biwen.li@nxp.com>
 
-For the adv7604 driver, please see below.
+Wow, this is much simpler than the other approach flying around:
 
-> > >  drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 18 +++++++++---------
-> > >  drivers/i2c/i2c-core-base.c                  | 10 +++++-----
-> > >  drivers/media/i2c/adv748x/adv748x-core.c     |  6 +++---
-> > >  drivers/media/i2c/adv7604.c                  | 10 +++++-----
-> > >  include/linux/i2c.h                          |  2 +-
-> > >  5 files changed, 23 insertions(+), 23 deletions(-)
-> > > 
-> > > diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-> > > index f6d2681f6927..9e13e466e72c 100644
-> > > --- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-> > > +++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
-> > > @@ -981,10 +981,10 @@ static int adv7511_init_cec_regmap(struct adv7511 *adv)
-> > >  {
-> > >  	int ret;
-> > >  
-> > > -	adv->i2c_cec = i2c_new_secondary_device(adv->i2c_main, "cec",
-> > > +	adv->i2c_cec = i2c_new_ancillary_device(adv->i2c_main, "cec",
-> > >  						ADV7511_CEC_I2C_ADDR_DEFAULT);
-> > > -	if (!adv->i2c_cec)
-> > > -		return -EINVAL;
-> > > +	if (IS_ERR(adv->i2c_cec))
-> > > +		return PTR_ERR(adv->i2c_cec);
-> > >  	i2c_set_clientdata(adv->i2c_cec, adv);
-> > >  
-> > >  	adv->regmap_cec = devm_regmap_init_i2c(adv->i2c_cec,
-> > > @@ -1165,20 +1165,20 @@ static int adv7511_probe(struct i2c_client *i2c, const struct i2c_device_id *id)
-> > >  
-> > >  	adv7511_packet_disable(adv7511, 0xffff);
-> > >  
-> > > -	adv7511->i2c_edid = i2c_new_secondary_device(i2c, "edid",
-> > > +	adv7511->i2c_edid = i2c_new_ancillary_device(i2c, "edid",
-> > >  					ADV7511_EDID_I2C_ADDR_DEFAULT);
-> > > -	if (!adv7511->i2c_edid) {
-> > > -		ret = -EINVAL;
-> > > +	if (IS_ERR(adv7511->i2c_edid)) {
-> > > +		ret = PTR_ERR(adv7511->i2c_edid);
-> > >  		goto uninit_regulators;
-> > >  	}
-> > >  
-> > >  	regmap_write(adv7511->regmap, ADV7511_REG_EDID_I2C_ADDR,
-> > >  		     adv7511->i2c_edid->addr << 1);
-> > >  
-> > > -	adv7511->i2c_packet = i2c_new_secondary_device(i2c, "packet",
-> > > +	adv7511->i2c_packet = i2c_new_ancillary_device(i2c, "packet",
-> > >  					ADV7511_PACKET_I2C_ADDR_DEFAULT);
-> > > -	if (!adv7511->i2c_packet) {
-> > > -		ret = -EINVAL;
-> > > +	if (IS_ERR(adv7511->i2c_packet)) {
-> > > +		ret = PTR_ERR(adv7511->i2c_packet);
-> > >  		goto err_i2c_unregister_edid;
-> > >  	}
-> > >  
-> > > diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> > > index f26ed495d384..76cb91e064b8 100644
-> > > --- a/drivers/i2c/i2c-core-base.c
-> > > +++ b/drivers/i2c/i2c-core-base.c
-> > > @@ -966,7 +966,7 @@ struct i2c_client *devm_i2c_new_dummy_device(struct device *dev,
-> > >  EXPORT_SYMBOL_GPL(devm_i2c_new_dummy_device);
-> > >  
-> > >  /**
-> > > - * i2c_new_secondary_device - Helper to get the instantiated secondary address
-> > > + * i2c_new_ancillary_device - Helper to get the instantiated secondary address
-> > >   * and create the associated device
-> > >   * @client: Handle to the primary client
-> > >   * @name: Handle to specify which secondary address to get
-> > > @@ -985,9 +985,9 @@ EXPORT_SYMBOL_GPL(devm_i2c_new_dummy_device);
-> > >   * cell whose "reg-names" value matches the slave name.
-> > >   *
-> > >   * This returns the new i2c client, which should be saved for later use with
-> > > - * i2c_unregister_device(); or NULL to indicate an error.
-> > > + * i2c_unregister_device(); or an ERR_PTR to describe the error.
-> > >   */
-> > > -struct i2c_client *i2c_new_secondary_device(struct i2c_client *client,
-> > > +struct i2c_client *i2c_new_ancillary_device(struct i2c_client *client,
-> > >  						const char *name,
-> > >  						u16 default_addr)
-> > >  {
-> > > @@ -1002,9 +1002,9 @@ struct i2c_client *i2c_new_secondary_device(struct i2c_client *client,
-> > >  	}
-> > >  
-> > >  	dev_dbg(&client->adapter->dev, "Address for %s : 0x%x\n", name, addr);
-> > > -	return i2c_new_dummy(client->adapter, addr);
-> > > +	return i2c_new_dummy_device(client->adapter, addr);
-> > >  }
-> > > -EXPORT_SYMBOL_GPL(i2c_new_secondary_device);
-> > > +EXPORT_SYMBOL_GPL(i2c_new_ancillary_device);
-> > >  
-> > >  /* ------------------------------------------------------------------------- */
-> > >  
-> > > diff --git a/drivers/media/i2c/adv748x/adv748x-core.c b/drivers/media/i2c/adv748x/adv748x-core.c
-> > > index f57cd77a32fa..2567de2b0037 100644
-> > > --- a/drivers/media/i2c/adv748x/adv748x-core.c
-> > > +++ b/drivers/media/i2c/adv748x/adv748x-core.c
-> > > @@ -183,14 +183,14 @@ static int adv748x_initialise_clients(struct adv748x_state *state)
-> > >  	int ret;
-> > >  
-> > >  	for (i = ADV748X_PAGE_DPLL; i < ADV748X_PAGE_MAX; ++i) {
-> > > -		state->i2c_clients[i] = i2c_new_secondary_device(
-> > > +		state->i2c_clients[i] = i2c_new_ancillary_device(
-> > >  				state->client,
-> > >  				adv748x_default_addresses[i].name,
-> > >  				adv748x_default_addresses[i].default_addr);
-> > >  
-> > > -		if (state->i2c_clients[i] == NULL) {
-> > > +		if (IS_ERR(state->i2c_clients[i])) {
-> > >  			adv_err(state, "failed to create i2c client %u\n", i);
-> > > -			return -ENOMEM;
-> > > +			return PTR_ERR(state->i2c_clients[i]);
-> > >  		}
-> > >  
-> > >  		ret = adv748x_configure_regmap(state, i);
-> > > diff --git a/drivers/media/i2c/adv7604.c b/drivers/media/i2c/adv7604.c
-> > > index 28a84bf9f8a9..8ed1d9b59dd2 100644
-> > > --- a/drivers/media/i2c/adv7604.c
-> > > +++ b/drivers/media/i2c/adv7604.c
-> > > @@ -2878,14 +2878,14 @@ static struct i2c_client *adv76xx_dummy_client(struct v4l2_subdev *sd,
-> > >  	struct i2c_client *new_client;
-> > >  
-> > >  	if (pdata && pdata->i2c_addresses[page])
-> > > -		new_client = i2c_new_dummy(client->adapter,
-> > > +		new_client = i2c_new_dummy_device(client->adapter,
-> > >  					   pdata->i2c_addresses[page]);
-> > >  	else
-> > > -		new_client = i2c_new_secondary_device(client,
-> > > +		new_client = i2c_new_ancillary_device(client,
-> > >  				adv76xx_default_addresses[page].name,
-> > >  				adv76xx_default_addresses[page].default_addr);
-> > >  
-> > > -	if (new_client)
-> > > +	if (!IS_ERR(new_client))
-> > >  		io_write(sd, io_reg, new_client->addr << 1);
-> > >  
-> > >  	return new_client;
-> > > @@ -3520,8 +3520,8 @@ static int adv76xx_probe(struct i2c_client *client,
-> > >  			continue;
-> > >  
-> > >  		state->i2c_clients[i] = adv76xx_dummy_client(sd, i);
-> > > -		if (!state->i2c_clients[i]) {
-> > > -			err = -EINVAL;
-> > > +		if (IS_ERR(state->i2c_clients[i])) {
-> > > +			err = PTR_ERR(state->i2c_clients[i]);
-> > >  			v4l2_err(sd, "failed to create i2c client %u\n", i);
-> > >  			goto err_i2c;
+http://patchwork.ozlabs.org/patch/1124048/
 
-This will call adv76xx_unregister_clients(), which will try to
-i2c_unregister_device() all non-NULL i2c_clients entries. You need to
-either set the entry to NULL here, or update
-adv76xx_unregister_clients() to skip IS_ERR() entries. My preference
-would be to store the return value of adv76xx_dummy_client() in a local
-variable here, and set state->i2c_clients[i] after the error check.
+Can this one be master and slave on the same bus, too?
 
-> > >  		}
-> > > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> > > index fa5552c2307b..ebbe024dd9e0 100644
-> > > --- a/include/linux/i2c.h
-> > > +++ b/include/linux/i2c.h
-> > > @@ -473,7 +473,7 @@ extern struct i2c_client *
-> > >  devm_i2c_new_dummy_device(struct device *dev, struct i2c_adapter *adap, u16 address);
-> > >  
-> > >  extern struct i2c_client *
-> > > -i2c_new_secondary_device(struct i2c_client *client,
-> > > +i2c_new_ancillary_device(struct i2c_client *client,
-> > >  				const char *name,
-> > >  				u16 default_addr);
-> > >  
+CCing the author of the other patch.
 
--- 
-Regards,
+> ---
+>  drivers/i2c/busses/i2c-imx.c | 199 ++++++++++++++++++++++++++++++++---
+>  1 file changed, 185 insertions(+), 14 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index b1b8b938d7f4..f7583a9fa56f 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -202,6 +202,9 @@ struct imx_i2c_struct {
+>  	struct pinctrl_state *pinctrl_pins_gpio;
+> =20
+>  	struct imx_i2c_dma	*dma;
+> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
+> +	struct i2c_client		*slave;
+> +#endif /* CONFIG_I2C_SLAVE */
+>  };
+> =20
+>  static const struct imx_i2c_hwdata imx1_i2c_hwdata =3D {
+> @@ -583,23 +586,40 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c=
+_imx)
+>  	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+>  }
+> =20
+> -static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+> +/* Clear interrupt flag bit */
+> +static void i2c_imx_clr_if_bit(struct imx_i2c_struct *i2c_imx)
+>  {
+> -	struct imx_i2c_struct *i2c_imx =3D dev_id;
+> -	unsigned int temp;
+> +	unsigned int status;
+> =20
+> -	temp =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> -	if (temp & I2SR_IIF) {
+> -		/* save status register */
+> -		i2c_imx->i2csr =3D temp;
+> -		temp &=3D ~I2SR_IIF;
+> -		temp |=3D (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IIF);
+> -		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
+> -		wake_up(&i2c_imx->queue);
+> -		return IRQ_HANDLED;
+> -	}
+> +	status =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> +	status &=3D ~I2SR_IIF;
+> +	status |=3D (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IIF);
+> +	imx_i2c_write_reg(status, i2c_imx, IMX_I2C_I2SR);
+> +}
+> +
+> +/* Clear arbitration lost bit */
+> +static void i2c_imx_clr_al_bit(struct imx_i2c_struct *i2c_imx)
+> +{
+> +	unsigned int status;
+> +
+> +	status =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> +	status &=3D ~I2SR_IAL;
+> +	imx_i2c_write_reg(status, i2c_imx, IMX_I2C_I2SR);
+> +}
+> =20
+> -	return IRQ_NONE;
+> +static irqreturn_t i2c_imx_master_isr(struct imx_i2c_struct *i2c_imx)
+> +{
+> +	unsigned int status;
+> +
+> +	dev_dbg(&i2c_imx->adapter.dev, "<%s>: master interrupt\n", __func__);
+> +
+> +	/* Save status register */
+> +	status =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> +	i2c_imx->i2csr =3D status | I2SR_IIF;
+> +
+> +	wake_up(&i2c_imx->queue);
+> +
+> +	return IRQ_HANDLED;
+>  }
+> =20
+>  static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+> @@ -1043,11 +1063,162 @@ static u32 i2c_imx_func(struct i2c_adapter *adap=
+ter)
+>  		| I2C_FUNC_SMBUS_READ_BLOCK_DATA;
+>  }
+> =20
+> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
+> +static void i2c_imx_slave_init(struct imx_i2c_struct *i2c_imx)
+> +{
+> +	unsigned int temp;
+> +
+> +	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+> +
+> +	/* Set slave addr. */
+> +	imx_i2c_write_reg((i2c_imx->slave->addr << 1), i2c_imx, IMX_I2C_IADR);
+> +
+> +	/* Disable i2c module */
+> +	temp =3D i2c_imx->hwdata->i2cr_ien_opcode
+> +			^ I2CR_IEN;
+> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> +
+> +	/* Reset status register */
+> +	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx,
+> +			  IMX_I2C_I2SR);
+> +
+> +	/* Enable module and enable interrupt from i2c module */
+> +	temp =3D i2c_imx->hwdata->i2cr_ien_opcode
+> +			| I2CR_IIEN;
+> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> +
+> +	/* Wait controller to be stable */
+> +	usleep_range(50, 150);
+> +}
+> +
+> +static irqreturn_t i2c_imx_slave_isr(struct imx_i2c_struct *i2c_imx)
+> +{
+> +	unsigned int status, ctl;
+> +	u8 value;
+> +
+> +	if (!i2c_imx->slave) {
+> +		dev_err(&i2c_imx->adapter.dev, "cannot deal with slave irq,i2c_imx->sl=
+ave is null");
+> +		return IRQ_NONE;
+> +	}
+> +
+> +	status =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> +	ctl =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> +	if (status & I2SR_IAL) { /* Arbitration lost */
+> +		i2c_imx_clr_al_bit(i2c_imx);
+> +	} else if (status & I2SR_IAAS) { /* Addressed as a slave */
+> +		if (status & I2SR_SRW) { /* Master wants to read from us*/
+> +			dev_dbg(&i2c_imx->adapter.dev, "read requested");
+> +			i2c_slave_event(i2c_imx->slave, I2C_SLAVE_READ_REQUESTED, &value);
+> +
+> +			/* Slave transimt */
+> +			ctl |=3D I2CR_MTX;
+> +			imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
+> +
+> +			/* Send data */
+> +			imx_i2c_write_reg(value, i2c_imx, IMX_I2C_I2DR);
+> +		} else { /* Master wants to write to us */
+> +			dev_dbg(&i2c_imx->adapter.dev, "write requested");
+> +			i2c_slave_event(i2c_imx->slave,	I2C_SLAVE_WRITE_REQUESTED, &value);
+> +
+> +			/* Slave receive */
+> +			ctl &=3D ~I2CR_MTX;
+> +			imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
+> +			/* Dummy read */
+> +			value =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
+> +		}
+> +	} else {
+> +		if (!(ctl & I2CR_MTX)) { /* Receive mode */
+> +			if (status & I2SR_IBB) { /* No STOP signal detected */
+> +				ctl &=3D ~I2CR_MTX;
+> +				imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
+> +
+> +				value =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
+> +				i2c_slave_event(i2c_imx->slave,	I2C_SLAVE_WRITE_RECEIVED, &value);
+> +			} else { /* STOP signal is detected */
+> +				dev_dbg(&i2c_imx->adapter.dev,
+> +					"STOP signal detected");
+> +				i2c_slave_event(i2c_imx->slave, I2C_SLAVE_STOP, &value);
+> +			}
+> +		} else { /* Transmit mode */
+> +			if (!(status & I2SR_RXAK)) {	/* Received ACK */
+> +				ctl |=3D I2CR_MTX;
+> +				imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
+> +
+> +				i2c_slave_event(i2c_imx->slave,	I2C_SLAVE_READ_PROCESSED, &value);
+> +
+> +				imx_i2c_write_reg(value, i2c_imx, IMX_I2C_I2DR);
+> +			} else { /* Received NAK */
+> +				ctl &=3D ~I2CR_MTX;
+> +				imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
+> +				value =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
+> +			}
+> +		}
+> +	}
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int i2c_imx_reg_slave(struct i2c_client *client)
+> +{
+> +	struct imx_i2c_struct *i2c_imx =3D i2c_get_adapdata(client->adapter);
+> +
+> +	if (i2c_imx->slave)
+> +		return -EINVAL;
+> +
+> +	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+> +	i2c_imx->slave =3D client;
+> +
+> +	i2c_imx_slave_init(i2c_imx);
+> +
+> +	return 0;
+> +}
+> +
+> +static int i2c_imx_unreg_slave(struct i2c_client *client)
+> +{
+> +	struct imx_i2c_struct *i2c_imx =3D i2c_get_adapdata(client->adapter);
+> +
+> +	if (!i2c_imx->slave)
+> +		return -EINVAL;
+> +
+> +	i2c_imx->slave =3D NULL;
+> +
+> +	return 0;
+> +}
+> +#endif /* CONFIG_I2C_SLAVE */
+> +
+>  static const struct i2c_algorithm i2c_imx_algo =3D {
+>  	.master_xfer	=3D i2c_imx_xfer,
+>  	.functionality	=3D i2c_imx_func,
+> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
+> +	.reg_slave	=3D i2c_imx_reg_slave,
+> +	.unreg_slave	=3D i2c_imx_unreg_slave,
+> +#endif /* CONFIG_I2C_SLAVE */
+>  };
+> =20
+> +static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+> +{
+> +	struct imx_i2c_struct *i2c_imx =3D dev_id;
+> +	unsigned int status, ctl;
+> +	irqreturn_t irq_status =3D IRQ_NONE;
+> +
+> +	status =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> +	ctl =3D imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> +
+> +	if (status & I2SR_IIF) {
+> +		i2c_imx_clr_if_bit(i2c_imx);
+> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
+> +		if (ctl & I2CR_MSTA)
+> +			irq_status =3D i2c_imx_master_isr(i2c_imx);
+> +		else
+> +			irq_status =3D i2c_imx_slave_isr(i2c_imx);
+> +#else
+> +		irq_status =3D i2c_imx_master_isr(i2c_imx);
+> +
+> +#endif /* CONFIG_I2C_SLAVE */
+> +	}
+> +
+> +	return irq_status;
+> +}
+> +
+>  static int i2c_imx_probe(struct platform_device *pdev)
+>  {
+>  	const struct of_device_id *of_id =3D of_match_device(i2c_imx_dt_ids,
+> --=20
+> 2.17.1
+>=20
 
-Laurent Pinchart
+--7JfCtLOvnd9MIVvH
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1Mf7UACgkQFA3kzBSg
+KbbIdRAAmY+CmZvnxzaoFKgN0BZt09R2Y3W+z+3mpuJC4EC9WDc3zZxrLAJBtXKB
+m5GiooGqY9tYfxKDEcZgnAbsg0+duHDCBi7Ky7qrgiyawIo8ZbhRCpa4LSzA0QRN
++FmL91PDIJcqxd4xIU6UKJRFrKCpWeR4iYOAVuF/3PtPlIpzgVRZvvi5/fFAaIHx
+2gGvdGAx9eMtAs7HMA7/GMYalzex4EuGBuP+U5rXP6tUBNh+pSzJtqof9WFwGV/N
+OmUBLCd6dVoLbJcT1F47gxqC4mEo8SKsgv2rMlYS5GQIInVU7/p6uER/Yr5zHERS
+Z/phPdfMhqmATRIOBKdrgDRBPfAwHU9tuBep8glR0MpfjiejrZLWri4kTJ18nPy5
+znVN0QiLU4rFNyHOn716AS9ykzmRd1a2ujs5nT8vRd6ccNxi9zLAT68VuYY62HLS
+iWaVjx5kCgfx/W9GZMs0e++i+I3wca40LpeLMvP56wGjrBh+VfoMQVeKk3IONgYQ
+6fECaczR3Fop5W3pYf8+n/rekOw9u1fEIFz4FDLxxb+Rjsiu60/5o99MgU+Zd8+C
+z42/FHVuhdZE93Y9kfudirKPBen05s6qdnbEr98DZhMJZ0oT7RBCLsfRl5kIqWgH
+mOYmOGy4u7m4h+CLHmlrYDdVOnBPj5JnAqvqJdyqm47YC1OgrvU=
+=2lFt
+-----END PGP SIGNATURE-----
+
+--7JfCtLOvnd9MIVvH--
