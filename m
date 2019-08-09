@@ -1,7 +1,7 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 5/7] ARM: xscale: fix multi-cpu compilation
-Date: Fri,  9 Aug 2019 18:33:19 +0200
-Message-ID: <20190809163334.489360-5-arnd@arndb.de>
+Subject: [PATCH 6/7] ARM: iop32x: make mach/uncompress.h independent of mach/hardware.h
+Date: Fri,  9 Aug 2019 18:33:20 +0200
+Message-ID: <20190809163334.489360-6-arnd@arndb.de>
 References: <20190809162956.488941-1-arnd@arndb.de>
  <20190809163334.489360-1-arnd@arndb.de>
 Mime-Version: 1.0
@@ -13,49 +13,49 @@ To: soc@kernel.org
 Cc: Arnd Bergmann <arnd@arndb.de>, Russell King <linux@armlinux.org.uk>, Dan Williams <dan.j.williams@intel.com>, Vinod Koul <vkoul@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, dmaengine@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Building a combined ARMv4+XScale kernel produces these
-and other build failures:
-
-/tmp/copypage-xscale-3aa821.s: Assembler messages:
-/tmp/copypage-xscale-3aa821.s:167: Error: selected processor does not support `pld [r7,#0]' in ARM mode
-/tmp/copypage-xscale-3aa821.s:168: Error: selected processor does not support `pld [r7,#32]' in ARM mode
-/tmp/copypage-xscale-3aa821.s:169: Error: selected processor does not support `pld [r1,#0]' in ARM mode
-/tmp/copypage-xscale-3aa821.s:170: Error: selected processor does not support `pld [r1,#32]' in ARM mode
-/tmp/copypage-xscale-3aa821.s:171: Error: selected processor does not support `pld [r7,#64]' in ARM mode
-/tmp/copypage-xscale-3aa821.s:176: Error: selected processor does not support `ldrd r4,r5,[r7],#8' in ARM mode
-/tmp/copypage-xscale-3aa821.s:180: Error: selected processor does not support `strd r4,r5,[r1],#8' in ARM mode
-
-Add an explict .arch armv5 in the inline assembly to allow the ARMv5
-specific instructions regardless of the compiler -march= target.
+All supported uarts use the same address: IQ80321_UART and IQ31244_UART
+are both defined to the default value of 0xfe800000. By using that as
+the address unconditionally, all dependencies on other machine headers
+can be avoided.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/arm/mm/copypage-xscale.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm/mach-iop32x/include/mach/uncompress.h | 18 ++----------------
+ 1 file changed, 2 insertions(+), 16 deletions(-)
 
-diff --git a/arch/arm/mm/copypage-xscale.c b/arch/arm/mm/copypage-xscale.c
-index 61d834157bc0..382e1c2855e8 100644
---- a/arch/arm/mm/copypage-xscale.c
-+++ b/arch/arm/mm/copypage-xscale.c
-@@ -42,6 +42,7 @@ static void mc_copy_user_page(void *from, void *to)
- 	 * when prefetching destination as well.  (NP)
- 	 */
- 	asm volatile ("\
-+.arch xscale					\n\
- 	pld	[%0, #0]			\n\
- 	pld	[%0, #32]			\n\
- 	pld	[%1, #0]			\n\
-@@ -106,8 +107,9 @@ void
- xscale_mc_clear_user_highpage(struct page *page, unsigned long vaddr)
+diff --git a/arch/arm/mach-iop32x/include/mach/uncompress.h b/arch/arm/mach-iop32x/include/mach/uncompress.h
+index ed4ac3e28fa1..c8548875d942 100644
+--- a/arch/arm/mach-iop32x/include/mach/uncompress.h
++++ b/arch/arm/mach-iop32x/include/mach/uncompress.h
+@@ -6,9 +6,8 @@
+ #include <asm/types.h>
+ #include <asm/mach-types.h>
+ #include <linux/serial_reg.h>
+-#include <mach/hardware.h>
+ 
+-volatile u8 *uart_base;
++#define uart_base ((volatile u8 *)0xfe800000)
+ 
+ #define TX_DONE		(UART_LSR_TEMT | UART_LSR_THRE)
+ 
+@@ -23,17 +22,4 @@ static inline void flush(void)
  {
- 	void *ptr, *kaddr = kmap_atomic(page);
--	asm volatile(
--	"mov	r1, %2				\n\
-+	asm volatile("\
-+.arch xscale					\n\
-+	mov	r1, %2				\n\
- 	mov	r2, #0				\n\
- 	mov	r3, #0				\n\
- 1:	mov	ip, %0				\n\
+ }
+ 
+-static __inline__ void __arch_decomp_setup(unsigned long arch_id)
+-{
+-	if (machine_is_iq80321())
+-		uart_base = (volatile u8 *)IQ80321_UART;
+-	else if (machine_is_iq31244() || machine_is_em7210())
+-		uart_base = (volatile u8 *)IQ31244_UART;
+-	else
+-		uart_base = (volatile u8 *)0xfe800000;
+-}
+-
+-/*
+- * nothing to do
+- */
+-#define arch_decomp_setup()	__arch_decomp_setup(arch_id)
++#define arch_decomp_setup() do { } while (0)
 -- 
 2.20.0
