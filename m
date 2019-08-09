@@ -1,7 +1,7 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 3/7] dma: iop-adma: use correct printk format strings
-Date: Fri,  9 Aug 2019 18:33:17 +0200
-Message-ID: <20190809163334.489360-3-arnd@arndb.de>
+Subject: [PATCH 4/7] dma: iop-adma: allow building without platform headers
+Date: Fri,  9 Aug 2019 18:33:18 +0200
+Message-ID: <20190809163334.489360-4-arnd@arndb.de>
 References: <20190809162956.488941-1-arnd@arndb.de>
  <20190809163334.489360-1-arnd@arndb.de>
 Mime-Version: 1.0
@@ -13,97 +13,131 @@ To: soc@kernel.org
 Cc: Arnd Bergmann <arnd@arndb.de>, Russell King <linux@armlinux.org.uk>, Dan Williams <dan.j.williams@intel.com>, Vinod Koul <vkoul@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, dmaengine@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-When compile-testing on other architectures, we get lots of warnings
-about incorrect format strings, like:
+Now that iop3xx and iop13xx are gone, the iop-adma driver no
+longer needs to deal with incompatible register layout defined
+in machine specific header files.
 
-   drivers/dma/iop-adma.c: In function 'iop_adma_alloc_slots':
-   drivers/dma/iop-adma.c:307:6: warning: format '%x' expects argument of type 'unsigned int', but argument 6 has type 'dma_addr_t {aka long long unsigned int}' [-Wformat=]
+Move the iop32x specific definitions into drivers/dma/iop-adma.h
+and the platform_data into include/linux/platform_data/dma-iop32x.h,
+and change the machine code to no longer reference those.
 
-   drivers/dma/iop-adma.c: In function 'iop_adma_prep_dma_memcpy':
->> drivers/dma/iop-adma.c:518:40: warning: format '%u' expects argument of type 'unsigned int', but argument 5 has type 'size_t {aka long unsigned int}' [-Wformat=]
-
-Use %zu for printing size_t as required, and cast the dma_addr_t
-arguments to 'u64' for printing with %llx. Ideally this should use
-the %pad format string, but that requires an lvalue argument that
-doesn't work here.
+The DMA0_ID/DMA1_ID/AAU_ID macros are required as part of the
+platform data interface and still need to be visible, so move
+those from one header to the other.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/dma/iop-adma.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ arch/arm/mach-iop32x/include/mach/adma.h                   | 6 ------
+ arch/arm/plat-iop/adma.c                                   | 3 +--
+ drivers/dma/Kconfig                                        | 4 ++--
+ drivers/dma/iop-adma.c                                     | 3 +--
+ .../asm/hardware/iop3xx-adma.h => drivers/dma/iop-adma.h   | 7 +------
+ .../iop_adma.h => include/linux/platform_data/dma-iop32x.h | 4 ++++
+ 6 files changed, 9 insertions(+), 18 deletions(-)
+ delete mode 100644 arch/arm/mach-iop32x/include/mach/adma.h
+ rename arch/arm/include/asm/hardware/iop3xx-adma.h => drivers/dma/iop-adma.h (99%)
+ rename arch/arm/include/asm/hardware/iop_adma.h => include/linux/platform_data/dma-iop32x.h (98%)
 
+diff --git a/arch/arm/mach-iop32x/include/mach/adma.h b/arch/arm/mach-iop32x/include/mach/adma.h
+deleted file mode 100644
+index 2b20063123ad..000000000000
+--- a/arch/arm/mach-iop32x/include/mach/adma.h
++++ /dev/null
+@@ -1,6 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef IOP32X_ADMA_H
+-#define IOP32X_ADMA_H
+-#include <asm/hardware/iop3xx-adma.h>
+-#endif
+-
+diff --git a/arch/arm/plat-iop/adma.c b/arch/arm/plat-iop/adma.c
+index 368496471e60..601cc9c11b07 100644
+--- a/arch/arm/plat-iop/adma.c
++++ b/arch/arm/plat-iop/adma.c
+@@ -6,8 +6,7 @@
+ #include <linux/platform_device.h>
+ #include <asm/hardware/iop3xx.h>
+ #include <linux/dma-mapping.h>
+-#include <mach/adma.h>
+-#include <asm/hardware/iop_adma.h>
++#include <linux/platform_data/dma-iop32x.h>
+ 
+ #define IRQ_DMA0_EOT IRQ_IOP32X_DMA0_EOT
+ #define IRQ_DMA0_EOC IRQ_IOP32X_DMA0_EOC
+diff --git a/drivers/dma/Kconfig b/drivers/dma/Kconfig
+index cc84863bc52b..7c511e3db4c8 100644
+--- a/drivers/dma/Kconfig
++++ b/drivers/dma/Kconfig
+@@ -294,8 +294,8 @@ config INTEL_IOATDMA
+ 	  If unsure, say N.
+ 
+ config INTEL_IOP_ADMA
+-	tristate "Intel IOP ADMA support"
+-	depends on ARCH_IOP32X
++	tristate "Intel IOP32x ADMA support"
++	depends on ARCH_IOP32X || COMPILE_TEST
+ 	select DMA_ENGINE
+ 	select ASYNC_TX_ENABLE_CHANNEL_SWITCH
+ 	help
 diff --git a/drivers/dma/iop-adma.c b/drivers/dma/iop-adma.c
-index 7857b54770d1..aebdd671651a 100644
+index aebdd671651a..03f4a588cf7f 100644
 --- a/drivers/dma/iop-adma.c
 +++ b/drivers/dma/iop-adma.c
-@@ -117,9 +117,9 @@ static void __iop_adma_slot_cleanup(struct iop_adma_chan *iop_chan)
- 	list_for_each_entry_safe(iter, _iter, &iop_chan->chain,
- 					chain_node) {
- 		pr_debug("\tcookie: %d slot: %d busy: %d "
--			"this_desc: %#x next_desc: %#x ack: %d\n",
-+			"this_desc: %#x next_desc: %#llx ack: %d\n",
- 			iter->async_tx.cookie, iter->idx, busy,
--			iter->async_tx.phys, iop_desc_get_next_desc(iter),
-+			iter->async_tx.phys, (u64)iop_desc_get_next_desc(iter),
- 			async_tx_test_ack(&iter->async_tx));
- 		prefetch(_iter);
- 		prefetch(&_iter->async_tx);
-@@ -307,9 +307,9 @@ iop_adma_alloc_slots(struct iop_adma_chan *iop_chan, int num_slots,
- 				int i;
- 				dev_dbg(iop_chan->device->common.dev,
- 					"allocated slot: %d "
--					"(desc %p phys: %#x) slots_per_op %d\n",
-+					"(desc %p phys: %#llx) slots_per_op %d\n",
- 					iter->idx, iter->hw_desc,
--					iter->async_tx.phys, slots_per_op);
-+					(u64)iter->async_tx.phys, slots_per_op);
+@@ -22,8 +22,7 @@
+ #include <linux/raid/pq.h>
+ #include <linux/slab.h>
  
- 				/* pre-ack all but the last descriptor */
- 				if (num_slots != slots_per_op)
-@@ -517,7 +517,7 @@ iop_adma_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dma_dest,
- 		return NULL;
- 	BUG_ON(len > IOP_ADMA_MAX_BYTE_COUNT);
+-#include <mach/adma.h>
+-
++#include "iop-adma.h"
+ #include "dmaengine.h"
  
--	dev_dbg(iop_chan->device->common.dev, "%s len: %u\n",
-+	dev_dbg(iop_chan->device->common.dev, "%s len: %zu\n",
- 		__func__, len);
+ #define to_iop_adma_chan(chan) container_of(chan, struct iop_adma_chan, common)
+diff --git a/arch/arm/include/asm/hardware/iop3xx-adma.h b/drivers/dma/iop-adma.h
+similarity index 99%
+rename from arch/arm/include/asm/hardware/iop3xx-adma.h
+rename to drivers/dma/iop-adma.h
+index 6d998df17efd..c499c9578f00 100644
+--- a/arch/arm/include/asm/hardware/iop3xx-adma.h
++++ b/drivers/dma/iop-adma.h
+@@ -6,8 +6,7 @@
+ #define _ADMA_H
+ #include <linux/types.h>
+ #include <linux/io.h>
+-#include <mach/hardware.h>
+-#include <asm/hardware/iop_adma.h>
++#include <linux/platform_data/dma-iop32x.h>
  
- 	spin_lock_bh(&iop_chan->lock);
-@@ -550,7 +550,7 @@ iop_adma_prep_dma_xor(struct dma_chan *chan, dma_addr_t dma_dest,
- 	BUG_ON(len > IOP_ADMA_XOR_MAX_BYTE_COUNT);
+ /* Memory copy units */
+ #define DMA_CCR(chan)		(chan->mmr_base + 0x0)
+@@ -34,10 +33,6 @@
+ #define AAU_EDCR1_IDX	17
+ #define AAU_EDCR2_IDX	26
  
- 	dev_dbg(iop_chan->device->common.dev,
--		"%s src_cnt: %d len: %u flags: %lx\n",
-+		"%s src_cnt: %d len: %zu flags: %lx\n",
- 		__func__, src_cnt, len, flags);
+-#define DMA0_ID 0
+-#define DMA1_ID 1
+-#define AAU_ID 2
+-
+ struct iop3xx_aau_desc_ctrl {
+ 	unsigned int int_en:1;
+ 	unsigned int blk1_cmd_ctrl:3;
+diff --git a/arch/arm/include/asm/hardware/iop_adma.h b/include/linux/platform_data/dma-iop32x.h
+similarity index 98%
+rename from arch/arm/include/asm/hardware/iop_adma.h
+rename to include/linux/platform_data/dma-iop32x.h
+index bcedbab90ac0..ac83cff89549 100644
+--- a/arch/arm/include/asm/hardware/iop_adma.h
++++ b/include/linux/platform_data/dma-iop32x.h
+@@ -17,6 +17,10 @@
+ #endif
+ #define iop_paranoia(x) BUG_ON(IOP_PARANOIA && (x))
  
- 	spin_lock_bh(&iop_chan->lock);
-@@ -583,7 +583,7 @@ iop_adma_prep_dma_xor_val(struct dma_chan *chan, dma_addr_t *dma_src,
- 	if (unlikely(!len))
- 		return NULL;
- 
--	dev_dbg(iop_chan->device->common.dev, "%s src_cnt: %d len: %u\n",
-+	dev_dbg(iop_chan->device->common.dev, "%s src_cnt: %d len: %zu\n",
- 		__func__, src_cnt, len);
- 
- 	spin_lock_bh(&iop_chan->lock);
-@@ -621,7 +621,7 @@ iop_adma_prep_dma_pq(struct dma_chan *chan, dma_addr_t *dst, dma_addr_t *src,
- 	BUG_ON(len > IOP_ADMA_XOR_MAX_BYTE_COUNT);
- 
- 	dev_dbg(iop_chan->device->common.dev,
--		"%s src_cnt: %d len: %u flags: %lx\n",
-+		"%s src_cnt: %d len: %zu flags: %lx\n",
- 		__func__, src_cnt, len, flags);
- 
- 	if (dmaf_p_disabled_continue(flags))
-@@ -684,7 +684,7 @@ iop_adma_prep_dma_pq_val(struct dma_chan *chan, dma_addr_t *pq, dma_addr_t *src,
- 		return NULL;
- 	BUG_ON(len > IOP_ADMA_XOR_MAX_BYTE_COUNT);
- 
--	dev_dbg(iop_chan->device->common.dev, "%s src_cnt: %d len: %u\n",
-+	dev_dbg(iop_chan->device->common.dev, "%s src_cnt: %d len: %zu\n",
- 		__func__, src_cnt, len);
- 
- 	spin_lock_bh(&iop_chan->lock);
++#define DMA0_ID 0
++#define DMA1_ID 1
++#define AAU_ID 2
++
+ /**
+  * struct iop_adma_device - internal representation of an ADMA device
+  * @pdev: Platform device
 -- 
 2.20.0
