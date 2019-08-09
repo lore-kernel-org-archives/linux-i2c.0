@@ -1,73 +1,110 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: replace i2c_new_secondary_device with an ERR_PTR
- variant
-Date: Fri, 9 Aug 2019 17:41:03 +0200
-Message-ID: <20190809154103.GC5099@ninjato>
-References: <20190722172600.3452-1-wsa+renesas@sang-engineering.com>
- <9b71c556-bd70-4d29-dba5-fbeaefb5f3b4@ideasonboard.com>
- <20190808155709.GA1316@ninjato>
- <20190808160434.GT6055@pendragon.ideasonboard.com>
+From: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
+Subject: Re: [PATCH v5 0/3] Enable ACPI-defined peripherals on i2c-piix4 SMBus
+Date: Fri, 9 Aug 2019 17:53:08 +0200
+Message-ID: <01de7b0c-7579-048b-312c-122dddc23c64@metux.net>
+References: <20190802145109.38dd4045@endymion>
+ <b013c33b-da11-ce5e-08d4-0b24a8575109@metux.net>
+ <20190809103340.2ef24523@endymion>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="4ZLFUWh1odzi/v6L"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190808160434.GT6055@pendragon.ideasonboard.com>
+In-Reply-To: <20190809103340.2ef24523@endymion>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Kieran Bingham <kieran.bingham@ideasonboard.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Andrzej Hajda <a.hajda@samsung.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Mauro Carvalho Chehab <mchehab@kernel.org>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Andrew Cooks <acooks@rationali.st>, linux-acpi@vger.kernel.org, platypus-sw@opengear.com, "Tobin C . Harding" <me@tobin.cc>, Guenter Roeck <linux@roeck-us.net>, Will Wagner <willw@carallon.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On 09.08.19 10:33, Jean Delvare wrote:
 
---4ZLFUWh1odzi/v6L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-Hi Laurent,
+> Unfortunately not. I only picked up from where Andrew Cooks left, due
+> to me being way too slow to review his patches. 
 
-> > > > +		if (IS_ERR(state->i2c_clients[i])) {
-> > > > +			err =3D PTR_ERR(state->i2c_clients[i]);
-> > > >  			v4l2_err(sd, "failed to create i2c client %u\n", i);
-> > > >  			goto err_i2c;
->=20
-> This will call adv76xx_unregister_clients(), which will try to
-> i2c_unregister_device() all non-NULL i2c_clients entries. You need to
+@Andrew: can you tell us more about this ?
 
-Uh, right! Sorry for missing this :(
+> I was able to test the first 2 patches which fix bugs, but
+> not the 3rd one which deals with ACPI devices. There does not seem to
+> be any such device on the 2 test machines I have remotely access to.
 
-> either set the entry to NULL here, or update
-> adv76xx_unregister_clients() to skip IS_ERR() entries. My preference
-> would be to store the return value of adv76xx_dummy_client() in a local
-> variable here, and set state->i2c_clients[i] after the error check.
+Did you already test on apu2/apu3 ?
+If not, maybe you could prepare a queue that I could test.
 
-I implemented your preference and simplified
-adv76xx_unregister_clients() because i2c_unregister_device is NULL
-pointer aware. New patch coming in a minute.
+>> Does the probing need some special BIOS support (or do the necessary
+>> table entries already come from aegesa) ?
+> 
+> I assume that ACPI devices are declared in one of the ACPI tables, so
+> it comes from the "BIOS", yes, whatever form it takes these days.
 
-Thanks for the review,
+hmm, so we'll yet have to find out whether these entries are actually
+present on actual machines in the field and potentially stick w/
+board specific platform drivers.
 
-   Wolfram
+I had hoped I could do all the probing of things like gpio, etc, from
+firmware (grmpf, w/ oftree all of that would be pretty trivial :o),
+but I doubt that it will work. Even w/ fairly recent gpio support in
+ACPI (IIRC my apu's dont have this yet), we're still lacking the
+actual assignment of the gpios (LEDs, Keys, ...).
+
+> I remember noticing long ago that SMBus ports were using GPIO pins, so
+> these pins could be used for SMBus or for any other purpose. 
+
+You mean via bit banging ? Or smbus and gpio shared behind a pinmux ?
+
+That might explain the strange holes in the register set (actually,
+never tried using anything undocumented as gpio).
+
+Did you find some documents you could send over ?
+
+> I could
+> not find any way to figure out from the registers if a given pin pair
+> was used for SMBus or not, which is pretty bad because it means we are
+> blindly instantiating ALL possible SMBus ports even if some of the pins
+> are used for a completely different purpose. 
+
+Do you know the addresses of the smbus port registers ?
+
+These are the gpio registers I've found out - relative to fch base
+(0xFED80000) plus gpio offset (0x1500):
+
+/*
+  * gpio register index definitions
+  */
+#define AMD_FCH_GPIO_REG_GPIO49         0x40
+#define AMD_FCH_GPIO_REG_GPIO50         0x41
+#define AMD_FCH_GPIO_REG_GPIO51         0x42
+#define AMD_FCH_GPIO_REG_GPIO59_DEVSLP0 0x43
+#define AMD_FCH_GPIO_REG_GPIO57         0x44
+#define AMD_FCH_GPIO_REG_GPIO58         0x45
+#define AMD_FCH_GPIO_REG_GPIO59_DEVSLP1 0x46
+#define AMD_FCH_GPIO_REG_GPIO64         0x47
+#define AMD_FCH_GPIO_REG_GPIO68         0x48
+#define AMD_FCH_GPIO_REG_GPIO66_SPKR    0x5B
+#define AMD_FCH_GPIO_REG_GPIO71         0x4D
+#define AMD_FCH_GPIO_REG_GPIO32_GE1     0x59
+#define AMD_FCH_GPIO_REG_GPIO33_GE2     0x5A
+#define AMT_FCH_GPIO_REG_GEVT22         0x09
+
+(see: include/linux/platform_data/gpio/gpio-amd-fch.h)
+
+>> By the way: I'm considering collecting some hw documentation in the
+>> kernel tree (maybe Documentation/hardware/...) - do you folks think
+>> that's a good idea ?
+> 
+> No. Only documentation specifically related to the Linux kernel should
+> live in the kernel tree. OS-neutral documentation must go somewhere
+> else.
+
+hmm, but dts is also kinda documentation, isn't it ? ;-)
+
+Well, I'll probably start a separate project for that.
 
 
---4ZLFUWh1odzi/v6L
-Content-Type: application/pgp-signature; name="signature.asc"
+--mtx
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1NlAsACgkQFA3kzBSg
-KbYrtw//eax3sE64XT5D8MkAUjtfesOD/GYUTnTU9ceRn7IEMMJBWCSuw24W6t5i
-tESvfnVngDidODNAHxiAxTLt1fIKkjEPcwE3WVviODWS0vx2nqCidralMM1VsX1y
-4qZB6Ux1ESqmQe8DPFobbu2wCxXnPvqPz11BQyXb4DIlCVVyT5aQXSAtTc9+B8MU
-lZHU9yDBIkVneB6yIVp0H3nxxnXOsstFIQEHUbbIkMklgegyaqFWpzNLYSOtR1OZ
-RGBo9TrmK2abSXSIA3j2+TGhdO8EXrAtchoYa/PZMeR9npMCrdlraa7x8vXBMBji
-fTxZ2NuMbzPi5MWMvSxp6MILBK3MdO9Ph56VZs/RYAqDqkfvfvAbo8htSHglwxcY
-Qk2VxXKqUYs/vTOMwz4Zw45yR0ub1XGix+uxxmxq5P4rKRP7neHI5dq8cxMb5MfF
-YWBYdxzT3zbY2iMrx1QBRzgZZSPaR1aUuolkeo8qAyiyNz4yBG6A7gZqILGnx4Xq
-BEk69WTMCepDKrLiWB2m3G8m49e7StEaBF2D0F+RvV9jPu6CJ6p6tYGNT/Tqcop4
-t8RDnxY5nSpxz3VdWTLsKLvPUcMSKltb4yoTnj82Rpx/mc3sl0k2tldYsdk0/4rK
-op46MBBe0WNEEkbOEgyycC/x3iT/YOX15X9wTdYqM5idUUEdQ/Q=
-=Tjl7
------END PGP SIGNATURE-----
-
---4ZLFUWh1odzi/v6L--
+-- 
+Enrico Weigelt, metux IT consult
+Free software and Linux embedded engineering
+info@metux.net -- +49-151-27565287
