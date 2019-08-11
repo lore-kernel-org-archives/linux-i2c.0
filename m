@@ -1,55 +1,77 @@
-From: Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [PATCH 1/7] [RFC] ARM: remove Intel iop33x and iop13xx support
-Date: Fri, 9 Aug 2019 12:43:56 -0700
-Message-ID: <CAPcyv4juKU5TLU+3=xAw0Hq=6EeLSxKA4C9kR1YqEV8XuH7e2Q@mail.gmail.com>
-References: <20190809162956.488941-1-arnd@arndb.de> <20190809163334.489360-1-arnd@arndb.de>
- <CAA9_cmdDbBm0ookyqGJMcyLVFHkYHuR3mEeawQKS2UqYJoWWaQ@mail.gmail.com> <20190809183658.GA13294@shell.armlinux.org.uk>
+From: Andrew Cooks <acooks@rationali.st>
+Subject: Re: [PATCH v5 0/3] Enable ACPI-defined peripherals on i2c-piix4 SMBus
+Date: Sun, 11 Aug 2019 13:09:59 +1000
+Message-ID: <87e83cd9-e9a9-ee58-9ea3-7549ae3b0838@rationali.st>
+References: <20190802145109.38dd4045@endymion>
+ <b013c33b-da11-ce5e-08d4-0b24a8575109@metux.net>
+ <20190809103340.2ef24523@endymion>
+Reply-To: acooks@rationali.st
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190809183658.GA13294@shell.armlinux.org.uk>
+In-Reply-To: <20190809103340.2ef24523@endymion>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Russell King - ARM Linux admin <linux@armlinux.org.uk>
-Cc: Arnd Bergmann <arnd@arndb.de>, soc@kernel.org, Vinod Koul <vkoul@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dmaengine@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, Martin Michlmayr <tbm@cyrius.com>
+To: Jean Delvare <jdelvare@suse.de>, "Enrico Weigelt, metux IT consult" <lkml@metux.net>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, platypus-sw@opengear.com, "Tobin C . Harding" <me@tobin.cc>, Guenter Roeck <linux@roeck-us.net>, Will Wagner <willw@carallon.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Aug 9, 2019 at 11:37 AM Russell King - ARM Linux admin
-<linux@armlinux.org.uk> wrote:
->
-> On Fri, Aug 09, 2019 at 11:34:12AM -0700, Dan Williams wrote:
-> > [ add Martin (if cyrius.com address is still valid) ]
-> >
-> > On Fri, Aug 9, 2019 at 9:35 AM Arnd Bergmann <arnd@arndb.de> wrote:
-> > >
-> > > There are three families of IOP machines we support in Linux: iop32x
-> > > (which includes EP80219), iop33x and iop13xx (aka IOP34x aka WP8134x).
-> > >
-> > > All products we support in the kernel are based on the first of these,
-> > > iop32x, the other families only ever supported the Intel reference
-> > > boards but no actual machine anyone could ever buy.
-> > >
-> > > While one could clearly make them all three work in a single kernel
-> > > with some work, this takes the easy way out, removing the later two
-> > > platforms entirely, under the assumption that there are no remaining
-> > > users.
-> > >
-> > > Earlier versions of OpenWRT and Debian both had support for iop32x
-> > > but not the others, and they both dropped iop32x as well in their 2015
-> > > releases.
-> > >
-> > > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > > ---
-> > > I'm just guessing that iop32x is still needed, and the other two are
-> > > not. If anyone disagrees with that assessment, let me know so we
-> > > can come up with an alternative approach.
-> >
-> > I'm not sure who would scream if iop32x support went away as well, but
-> > I have not followed this space in years hence copying Martin.
-> >
-> > In any event:
-> >
-> > Acked-by: Dan Williams <dan.j.williams@intel.com>
->
-> Those of us who have and still run Thecus N2100's, for example?
 
-Nice! Good to hear.
+On 8/9/19 6:33 PM, Jean Delvare wrote:
+> Hi Enrico,
+>
+> On Thu, 8 Aug 2019 11:17:53 +0200, Enrico Weigelt, metux IT consult wrote:
+>> On 02.08.19 14:51, Jean Delvare wrote:
+>>> These patches fix a couple of issues with the i2c-piix4 driver on
+>>> AMD Family 16h Model 30h SoCs and add ACPI-based enumeration to the
+>>> i2c-piix4 driver.  
+>> Can you tell a little bit more about what devices are behind the smbus ?
+>> I recall the G-412 SoCs (such as on apu2+ boards) have an Hudson inside
+>> and fall into this category. (I'll have to check when back in office),
+>> so (as the apu2 platform driver maintainer) I'm very interested in this.
+> Unfortunately not. I only picked up from where Andrew Cooks left, due
+> to me being way too slow to review his patches. I did not want his work
+> to be lost. I was able to test the first 2 patches which fix bugs, but
+> not the 3rd one which deals with ACPI devices. There does not seem to
+> be any such device on the 2 test machines I have remotely access to.
+
+Thanks for taking a look at these patches and thanks for your many years of support and maintenance.
+
+The patches I submitted were developed for an commercial product, but I am not with the company anymore and do not have access to the hardware. This is the device: https://opengear.com/products/om2200-operations-manager/
+
+The specific peripheral that required ACPI support is the NCT7491, and a driver is available at https://github.com/opengear/nct7491-driver
+
+>> Does the probing need some special BIOS support (or do the necessary
+>> table entries already come from aegesa) ?
+> I assume that ACPI devices are declared in one of the ACPI tables, so
+> it comes from the "BIOS", yes, whatever form it takes these days.
+Yes, though unfortunately I didn't get a chance to submit this to the coreboot project and no longer have access to the source.
+>
+>> I have to admit, I'm still confused by the AMD documentation - haven't
+>> found a clear documentation on what peripherals exactly are in the
+>> G-412 SoC, just puzzled together that the FCH seems to be an Hudson,
+>> probably v2. There also seems to be some relation between smbus and
+>> gpio, but the gpio's are directly memory-mapped - no idea whether they
+>> just share the same base address register or the gpios are really behind
+>> smbus and some hw logic directy maps them into mmio space ...
+>> Do you happen to have some more information on that ?
+> I remember noticing long ago that SMBus ports were using GPIO pins, so
+> these pins could be used for SMBus or for any other purpose. I could
+> not find any way to figure out from the registers if a given pin pair
+> was used for SMBus or not, which is pretty bad because it means we are
+> blindly instantiating ALL possible SMBus ports even if some of the pins
+> are used for a completely different purpose. It was over 1 year ago
+> though, so I don't remember the details, and my findings then may not
+> apply to the most recent hardware.
+>
+>> By the way: I'm considering collecting some hw documentation in the
+>> kernel tree (maybe Documentation/hardware/...) - do you folks think
+>> that's a good idea ?
+> No. Only documentation specifically related to the Linux kernel should
+> live in the kernel tree. OS-neutral documentation must go somewhere
+> else.
+>
+Thanks,
+
+Andrew
