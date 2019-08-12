@@ -1,54 +1,78 @@
-From: Martin Michlmayr <tbm@cyrius.com>
-Subject: Re: [PATCH 1/7] [RFC] ARM: remove Intel iop33x and iop13xx support
-Date: Mon, 12 Aug 2019 11:44:56 +0200
-Message-ID: <20190812094456.GI10598@jirafa.cyrius.com>
-References: <20190809162956.488941-1-arnd@arndb.de>
- <20190809163334.489360-1-arnd@arndb.de>
- <CAA9_cmdDbBm0ookyqGJMcyLVFHkYHuR3mEeawQKS2UqYJoWWaQ@mail.gmail.com>
+From: Max Staudt <max@enpas.org>
+Subject: Re: [PATCH] i2c/busses: Add i2c-icy for I2C on m68k/Amiga
+Date: Mon, 12 Aug 2019 12:43:34 +0200
+Message-ID: <fe5cf25f-1804-dc45-7010-01e602b3f3e5@enpas.org>
+References: <20190811043253.24938-1-max@enpas.org>
+ <CAMuHMdVJJxjH-gPraW==smrkOOMcGYPKB8BPzrYPU4bstASX3A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAA9_cmdDbBm0ookyqGJMcyLVFHkYHuR3mEeawQKS2UqYJoWWaQ@mail.gmail.com>
+In-Reply-To: <CAMuHMdVJJxjH-gPraW==smrkOOMcGYPKB8BPzrYPU4bstASX3A@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Williams <dan.j.williams@intel.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, soc@kernel.org, Russell King <linux@armlinux.org.uk>, Vinod Koul <vkoul@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, linux-arm-kernel@lists.infradead.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dmaengine@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, Peter Teichmann <lists@peter-teichmann.de>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux/m68k <linux-m68k@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 List-Id: linux-i2c@vger.kernel.org
 
-* Dan Williams <dan.j.williams@intel.com> [2019-08-09 11:34]:
-> > Earlier versions of OpenWRT and Debian both had support for iop32x
-> > but not the others, and they both dropped iop32x as well in their 2015
-> > releases.
-> >
-> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > ---
-> > I'm just guessing that iop32x is still needed, and the other two are
-> > not. If anyone disagrees with that assessment, let me know so we
-> > can come up with an alternative approach.
+Hi Geert,
+
+Thanks for your feedback!
+Replies below.
+
+On 08/12/2019 11:37 AM, Geert Uytterhoeven wrote:
+> What about the RTC? The schematics show both a ds1620 and pcf8583.
+
+Oh no! I missed those in the original project, in my mind it didn't have any extra hardware at all.
+
+I only own the new board with the LTC2990, and I'm pretty sure there are more of these in circulation than the original board. So if it's okay, I'll skip the DS1620 and PCF8583.
+
+
+>> +static void icy_pcf_setbyte(void *data, int ctl, int val)
 > 
-> I'm not sure who would scream if iop32x support went away as well, but
-> I have not followed this space in years hence copying Martin.
+> icy_pcf_setpcf(), to match the callback name?
 
-I believe iop13xx were mostly Intel dev boards.  I'm not aware of any
-major devices based on iop33x.
+Fair. I kept the name when I cloned i2c-elektor.c.
 
-As Arnd points out, Debian used to have support for various iop32x
-devices.  While Debian hasn't supported iop32x in a number of years,
-these devices are still usable and in use (RMK being a prime example).
 
-So I think it's safe to drop iop33x/iop13xx while retaining support
-for iop32x.
+> zorro_request_device()?
+> Ah, there's no devm_*() variant yet. OK.
 
-As I was looking at my email archives, I saw an email from Peter
-Teichmann who was working on an iop33x based platform (around 2009) so
-I've copied him as well.
+Also, I only wanted to reserve the first 4 bytes. Thinking about it now, it makes more sense to reserve the whole AutoConfig'd space, as I don't know whether the bus GAL maps the PCF8584 across the whole 64k repeatedly.
 
-> In any event:
+
+>> +       /*
+>> +        * The 2019 a1k.org PCBs have an LTC2990 at 0x4c, so start
+>> +        * it automatically once ltc2990 is modprobed.
+>> +        *
+>> +        * in0 is the voltage of the internal 5V power supply.
+>> +        * temp1 is the temperature inside the chip.
+>> +        *
+>> +        * Configuration 0x18 enables all sensors on this PCB:
+>> +        *  # modprobe i2c-dev
+>> +        *  # i2cset 0 0x4c 1 0x18
 > 
-> Acked-by: Dan Williams <dan.j.williams@intel.com>
+> What's the reason for the i2cset command?
 
-Acked-by: Martin Michlmayr <tbm@cyrius.com>
+It sets the sensor modes in the LTC2990 and enables the three sensors listed below. I should have clarified this.
 
--- 
-Martin Michlmayr
-https://www.cyrius.com/
+I tried to integrate this in the driver, but ltc2990 only allows reading this configuration out of a device tree. Is there a good way to fake a DT entry in the init function?
+
+
+> 
+>> +        *  # modprobe ltc2990
+>> +        * in1 will be the voltage of the 5V rail, divided by 2.
+>> +        * in2 will be the voltage of the 12V rail, divided by 4.
+>> +        * temp3 will be measured using a PCB loop next the chip.
+>> +        */
+>> +       i2c->client_ltc2990 = i2c_new_probed_device(&i2c->adapter,
+>> +                                                   &icy_ltc2990_info,
+>> +                                                   icy_ltc2990_addresses,
+>> +                                                   NULL);
+>> +
+>> +       return 0;
+>> +}
+
+
+Thanks for your feedback,
+Max
