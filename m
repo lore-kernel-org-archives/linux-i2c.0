@@ -1,30 +1,77 @@
 From: Max Staudt <max@enpas.org>
-Subject: Re: [PATCH] i2c/busses: Add i2c-icy for I2C on m68k/Amiga
-Date: Tue, 13 Aug 2019 00:21:03 +0200
-Message-ID: <0d61e12f-5fc5-7cb6-755f-298ebf4c935f@enpas.org>
-References: <20190811043253.24938-1-max@enpas.org>
- <CAMuHMdVJJxjH-gPraW==smrkOOMcGYPKB8BPzrYPU4bstASX3A@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v2 2/4] i2c/busses/i2c-icy: Add LTC2990 present on 2019 board revision
+Date: Tue, 13 Aug 2019 01:52:35 +0200
+Message-ID: <20190812235237.21797-2-max@enpas.org>
+References: <20190812235237.21797-1-max@enpas.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAMuHMdVJJxjH-gPraW==smrkOOMcGYPKB8BPzrYPU4bstASX3A@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <20190812235237.21797-1-max@enpas.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux/m68k <linux-m68k@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+To: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>
+Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, glaubitz@physik.fu-berlin.de, Max Staudt <max@enpas.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/12/2019 11:37 AM, Geert Uytterhoeven wrote:
->> +       iowrite8(val, address);
-> 
-> As this is on a Zorro bus, z_writeb()?
+Since the 2019 a1k.org community re-print of these PCBs sports an
+LTC2990 hwmon chip as an example use case, let this driver autoprobe
+for that as well. If it is present, modprobing ltc2990 is sufficient.
 
-I forgot to ask about this.
+Signed-off-by: Max Staudt <max@enpas.org>
+---
+ drivers/i2c/busses/i2c-icy.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-What is the reasoning behind having a separate z_writeb() for Zorro?
-As far as I can see in arch/m68k/include/asm this maps 1:1 to a direct memory access, and it prohibits cross-arch code as in i2c-elektor.
-
-
-Thanks,
-Max
+diff --git a/drivers/i2c/busses/i2c-icy.c b/drivers/i2c/busses/i2c-icy.c
+index 7910f035b..8125683c5 100644
+--- a/drivers/i2c/busses/i2c-icy.c
++++ b/drivers/i2c/busses/i2c-icy.c
+@@ -59,6 +59,7 @@ struct icy_i2c {
+ 
+ 	void __iomem *reg_s0;
+ 	void __iomem *reg_s1;
++	struct i2c_client *client_ltc2990;
+ };
+ 
+ 
+@@ -105,6 +106,13 @@ static void icy_pcf_waitforpin(void *data)
+ /*
+  * Main i2c-icy part
+  */
++static struct i2c_board_info icy_ltc2990_info = {
++	I2C_BOARD_INFO("ltc2990", 0x4c),
++};
++
++static unsigned short const icy_ltc2990_addresses[] = {0x4c, I2C_CLIENT_END};
++
++
+ static int icy_probe(struct zorro_dev *z,
+ 			 const struct zorro_device_id *ent)
+ {
+@@ -153,6 +161,18 @@ static int icy_probe(struct zorro_dev *z,
+ 	dev_info(&z->dev, "ICY I2C controller at %#x, IRQ not implemented\n",
+ 		 z->resource.start);
+ 
++	/*
++	 * The 2019 a1k.org PCBs have an LTC2990 at 0x4c, so start
++	 * it automatically once ltc2990 is modprobed.
++	 *
++	 * in0 is the voltage of the internal 5V power supply.
++	 * temp1 is the temperature inside the chip.
++	 */
++	i2c->client_ltc2990 = i2c_new_probed_device(&i2c->adapter,
++						    &icy_ltc2990_info,
++						    icy_ltc2990_addresses,
++						    NULL);
++
+ 	return 0;
+ }
+ 
+@@ -160,6 +180,8 @@ static void icy_remove(struct zorro_dev *z)
+ {
+ 	struct icy_i2c *i2c = dev_get_drvdata(&z->dev);
+ 
++	i2c_unregister_device(i2c->client_ltc2990);
++
+ 	i2c_del_adapter(&i2c->adapter);
+ }
+ 
+-- 
+2.11.0
