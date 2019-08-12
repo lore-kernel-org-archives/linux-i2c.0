@@ -1,65 +1,199 @@
 From: Ray Jui <ray.jui@broadcom.com>
-Subject: Re: [PATCH v1 2/2] i2c: iproc: Add full name of devicetree node to
- adapter name
-Date: Mon, 12 Aug 2019 10:29:45 -0700
-Message-ID: <76f6d006-a0af-85ba-f893-f60e60bfc20d@broadcom.com>
-References: <1565235473-28461-1-git-send-email-rayagonda.kokatanur@broadcom.com>
- <1565235473-28461-3-git-send-email-rayagonda.kokatanur@broadcom.com>
+Subject: Re: [PATCH v1 1/1] i2c: iproc: Add i2c repeated start capability
+Date: Mon, 12 Aug 2019 10:33:42 -0700
+Message-ID: <a2b0ccc1-63d5-177d-2b54-d79c65057907@broadcom.com>
+References: <1565150941-27297-1-git-send-email-rayagonda.kokatanur@broadcom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1565235473-28461-3-git-send-email-rayagonda.kokatanur@broadcom.com>
+In-Reply-To: <1565150941-27297-1-git-send-email-rayagonda.kokatanur@broadcom.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Florian Fainelli <f.fainelli@gmail.com>, Lori Hikichi <lori.hikichi@broadcom.com>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Florian Fainelli <f.fainelli@gmail.com>, Lori Hikichi <lori.hikichi@broadcom.com>, Icarus Chau <icarus.chau@broadcom.com>, Shivaraj Shetty <sshetty1@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
-
-On 8/7/19 8:37 PM, Rayagonda Kokatanur wrote:
+On 8/6/19 9:09 PM, Rayagonda Kokatanur wrote:
 > From: Lori Hikichi <lori.hikichi@broadcom.com>
 > 
-> Add the full name of the devicetree node to the adapter name.
-> Without this change, all adapters have the same name making it difficult
-> to distinguish between multiple instances.
-> The most obvious way to see this is to use the utility i2c_detect.
-> e.g. "i2c-detect -l"
-> 
-> Before
-> i2c-1 i2c Broadcom iProc I2C adapter I2C adapter
-> i2c-0 i2c Broadcom iProc I2C adapter I2C adapter
-> 
-> After
-> i2c-1 i2c Broadcom iProc (i2c@e0000) I2C adapter
-> i2c-0 i2c Broadcom iProc (i2c@b0000) I2C adapter
-> 
-> Now it is easy to figure out which adapter maps to a which DT node.
+> Enable handling of i2c repeated start. The current code
+> handles a multi msg i2c transfer as separate i2c bus
+> transactions. This change will now handle this case
+> using the i2c repeated start protocol. The number of msgs
+> in a transfer is limited to two, and must be a write
+> followed by a read.
 > 
 > Signed-off-by: Lori Hikichi <lori.hikichi@broadcom.com>
 > Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+> Signed-off-by: Icarus Chau <icarus.chau@broadcom.com>
+> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+> Signed-off-by: Shivaraj Shetty <sshetty1@broadcom.com>
 > ---
->   drivers/i2c/busses/i2c-bcm-iproc.c | 4 +++-
->   1 file changed, 3 insertions(+), 1 deletion(-)
+
+Note this patch has gone through internal review and testing on various 
+I2C slave devices. It is introduced to work around limitation of our I2C 
+controller and allows it to work on certain I2C slave devices that are 
+sensitive and requires repeated start between transactions instead of a 
+stop.
+
+Given that my name is also on the Signed-off-by since I helped to 
+rewrite part of the patch, I'm not going to add my Reviewed-by tag here.
+
+Please help to review.
+
+Thanks,
+
+Ray
+
+>   drivers/i2c/busses/i2c-bcm-iproc.c | 70 +++++++++++++++++++++++++++++++-------
+>   1 file changed, 57 insertions(+), 13 deletions(-)
 > 
 > diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-> index 19ef2b0..183b220 100644
+> index d7fd76b..15fedcf 100644
 > --- a/drivers/i2c/busses/i2c-bcm-iproc.c
 > +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-> @@ -922,7 +922,9 @@ static int bcm_iproc_i2c_probe(struct platform_device *pdev)
+> @@ -81,6 +81,7 @@
+>   #define M_CMD_PROTOCOL_MASK          0xf
+>   #define M_CMD_PROTOCOL_BLK_WR        0x7
+>   #define M_CMD_PROTOCOL_BLK_RD        0x8
+> +#define M_CMD_PROTOCOL_PROCESS       0xa
+>   #define M_CMD_PEC_SHIFT              8
+>   #define M_CMD_RD_CNT_SHIFT           0
+>   #define M_CMD_RD_CNT_MASK            0xff
+> @@ -675,13 +676,20 @@ static int bcm_iproc_i2c_xfer_wait(struct bcm_iproc_i2c_dev *iproc_i2c,
+>   	return 0;
+>   }
 >   
->   	adap = &iproc_i2c->adapter;
->   	i2c_set_adapdata(adap, iproc_i2c);
-> -	strlcpy(adap->name, "Broadcom iProc I2C adapter", sizeof(adap->name));
-> +	snprintf(adap->name, sizeof(adap->name),
-> +		"Broadcom iProc (%s)",
-> +		of_node_full_name(iproc_i2c->device->of_node));
->   	adap->algo = &bcm_iproc_algo;
->   	adap->quirks = &bcm_iproc_i2c_quirks;
->   	adap->dev.parent = &pdev->dev;
+> -static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+> -					 struct i2c_msg *msg)
+> +/*
+> + * If 'process_call' is true, then this is a multi-msg transfer that requires
+> + * a repeated start between the messages.
+> + * More specifically, it must be a write (reg) followed by a read (data).
+> + * The i2c quirks are set to enforce this rule.
+> + */
+> +static int bcm_iproc_i2c_xfer_internal(struct bcm_iproc_i2c_dev *iproc_i2c,
+> +					struct i2c_msg *msgs, bool process_call)
+>   {
+>   	int i;
+>   	u8 addr;
+>   	u32 val, tmp, val_intr_en;
+>   	unsigned int tx_bytes;
+> +	struct i2c_msg *msg = &msgs[0];
+>   
+>   	/* check if bus is busy */
+>   	if (!!(iproc_i2c_rd_reg(iproc_i2c,
+> @@ -707,14 +715,29 @@ static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+>   			val = msg->buf[i];
+>   
+>   			/* mark the last byte */
+> -			if (i == msg->len - 1)
+> -				val |= BIT(M_TX_WR_STATUS_SHIFT);
+> +			if (!process_call && (i == msg->len - 1))
+> +				val |= 1 << M_TX_WR_STATUS_SHIFT;
+>   
+>   			iproc_i2c_wr_reg(iproc_i2c, M_TX_OFFSET, val);
+>   		}
+>   		iproc_i2c->tx_bytes = tx_bytes;
+>   	}
+>   
+> +	/* Process the read message if this is process call */
+> +	if (process_call) {
+> +		msg++;
+> +		iproc_i2c->msg = msg;  /* point to second msg */
+> +
+> +		/*
+> +		 * The last byte to be sent out should be a slave
+> +		 * address with read operation
+> +		 */
+> +		addr = msg->addr << 1 | 1;
+> +		/* mark it the last byte out */
+> +		val = addr | (1 << M_TX_WR_STATUS_SHIFT);
+> +		iproc_i2c_wr_reg(iproc_i2c, M_TX_OFFSET, val);
+> +	}
+> +
+>   	/* mark as incomplete before starting the transaction */
+>   	if (iproc_i2c->irq)
+>   		reinit_completion(&iproc_i2c->done);
+> @@ -733,7 +756,7 @@ static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+>   	 * underrun interrupt, which will be triggerred when the TX FIFO is
+>   	 * empty. When that happens we can then pump more data into the FIFO
+>   	 */
+> -	if (!(msg->flags & I2C_M_RD) &&
+> +	if (!process_call && !(msg->flags & I2C_M_RD) &&
+>   	    msg->len > iproc_i2c->tx_bytes)
+>   		val_intr_en |= BIT(IE_M_TX_UNDERRUN_SHIFT);
+>   
+> @@ -743,6 +766,8 @@ static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+>   	 */
+>   	val = BIT(M_CMD_START_BUSY_SHIFT);
+>   	if (msg->flags & I2C_M_RD) {
+> +		u32 protocol;
+> +
+>   		iproc_i2c->rx_bytes = 0;
+>   		if (msg->len > M_RX_FIFO_MAX_THLD_VALUE)
+>   			iproc_i2c->thld_bytes = M_RX_FIFO_THLD_VALUE;
+> @@ -758,7 +783,10 @@ static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+>   		/* enable the RX threshold interrupt */
+>   		val_intr_en |= BIT(IE_M_RX_THLD_SHIFT);
+>   
+> -		val |= (M_CMD_PROTOCOL_BLK_RD << M_CMD_PROTOCOL_SHIFT) |
+> +		protocol = process_call ?
+> +				M_CMD_PROTOCOL_PROCESS : M_CMD_PROTOCOL_BLK_RD;
+> +
+> +		val |= (protocol << M_CMD_PROTOCOL_SHIFT) |
+>   		       (msg->len << M_CMD_RD_CNT_SHIFT);
+>   	} else {
+>   		val |= (M_CMD_PROTOCOL_BLK_WR << M_CMD_PROTOCOL_SHIFT);
+> @@ -774,17 +802,31 @@ static int bcm_iproc_i2c_xfer(struct i2c_adapter *adapter,
+>   			      struct i2c_msg msgs[], int num)
+>   {
+>   	struct bcm_iproc_i2c_dev *iproc_i2c = i2c_get_adapdata(adapter);
+> -	int ret, i;
+> +	bool process_call = false;
+> +	int ret;
+>   
+> -	/* go through all messages */
+> -	for (i = 0; i < num; i++) {
+> -		ret = bcm_iproc_i2c_xfer_single_msg(iproc_i2c, &msgs[i]);
+> -		if (ret) {
+> -			dev_dbg(iproc_i2c->device, "xfer failed\n");
+> -			return ret;
+> +	if (num > 2) {
+> +		dev_err(iproc_i2c->device,
+> +			"Only support up to 2 messages. Current msg count %d\n",
+> +			num);
+> +		return -EOPNOTSUPP;
+> +	}
+> +
+> +	if (num == 2) {
+> +		/* Repeated start, use process call */
+> +		process_call = true;
+> +		if (msgs[1].flags & I2C_M_NOSTART) {
+> +			dev_err(iproc_i2c->device, "Invalid repeated start\n");
+> +			return -EOPNOTSUPP;
+>   		}
+>   	}
+>   
+> +	ret = bcm_iproc_i2c_xfer_internal(iproc_i2c, msgs, process_call);
+> +	if (ret) {
+> +		dev_dbg(iproc_i2c->device, "xfer failed\n");
+> +		return ret;
+> +	}
+> +
+>   	return num;
+>   }
+>   
+> @@ -806,6 +848,8 @@ static uint32_t bcm_iproc_i2c_functionality(struct i2c_adapter *adap)
+>   };
+>   
+>   static struct i2c_adapter_quirks bcm_iproc_i2c_quirks = {
+> +	.flags = I2C_AQ_COMB_WRITE_THEN_READ,
+> +	.max_comb_1st_msg_len = M_TX_RX_FIFO_SIZE,
+>   	.max_read_len = M_RX_MAX_READ_LEN,
+>   };
+>   
 > 
-
-Looks good, thanks!
-
-Reviewed-by: Ray Jui <ray.jui@broadcom.com>
