@@ -1,62 +1,41 @@
-From: lingyxu <lingyan.xu@nokia-sbell.com>
-Subject: [PATCH] i801_smbus: clear SMBALERT status bit and disable SMBALERT interrupt
-Date: Mon, 12 Aug 2019 10:40:34 +0800
-Message-ID: <1565577634-18264-1-git-send-email-lingyan.xu@nokia-sbell.com>
+From: Biwen Li <biwen.li@nxp.com>
+Subject: RE: [EXT] Re: i2c: imx: support slave mode for imx I2C driver
+Date: Mon, 12 Aug 2019 04:22:03 +0000
+Message-ID: <DB7PR04MB44909B080A8C8D53416F34058FD30@DB7PR04MB4490.eurprd04.prod.outlook.com>
+References: <20190808035343.34120-1-biwen.li@nxp.com>
+ <20190808200202.GA6609@ninjato>
+ <VI1PR04MB4495EA1A44120654B494EB3D8FD60@VI1PR04MB4495.eurprd04.prod.outlook.com>
+ <20190809151035.GB5099@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190809151035.GB5099@ninjato>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Wladislav Wiebe <wladislav.wiebe@nokia.com>, Krzysztof Adamski <krzysztof.adamski@nokia.com>, Lingyan Xu <lingyan.xu@nokia-sbell.com>
+To: Wolfram Sang <wsa@the-dreams.de>, Leo Li <leoyang.li@nxp.com>
+Cc: Joshua Frkuska <joshua_frkuska@mentor.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Laurentiu Tudor <laurentiu.tudor@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Lingyan Xu <lingyan.xu@nokia-sbell.com>
+> On Fri, Aug 09, 2019 at 03:18:01AM +0000, Biwen Li wrote:
+> > > > The patch supports slave mode for imx I2C driver
+> > > >
+> > > > Signed-off-by: Biwen Li <biwen.li@nxp.com>
+> > >
+> > > Wow, this is much simpler than the other approach flying around:
+> > >
+> > > http://patchwork.ozlabs.org/patch/1124048/
+> > >
+> > > Can this one be master and slave on the same bus, too?
+> > At the same time, the same bus is in master mode or slave mode.
+>=20
+> So, can someone kindly point out the key differences to me?
+The I2C module cannot be a master and a slave simultaneously.
+Such as: if the i2c module is used in slave mode with command
+'echo slave-24c02 0x64 > /sys/bus/i2c/devices/i2c-0/new_device',
+At the mean time, you cannot do master operations(i2cset/i2cget).=20
+You can switch mode from slave to master with command 'echo 0x64
+ > /sys/bus/i2c/devices/i2c-0/delete_device', then you can do master
+operations.
 
-In current i801 driver, SMBALERT interrupt is allowed
-(Slave Command Register bit2 is 0).
-But these is no handler for SMBALERT interrupt in i801_isr,
-if there is SMBALERT interrupt asserted and deasserted,
-i801 will have an irq flood for the related status bit is setted.
-
-So SMBALERT interrupt handler is needed, and also, SMBALERT interrupt
-will be generated from time to time if slave chip have some fault.
-So disable SMBALERT interrupt is also needed.
-
-About the solution,
-please see http://www.farnell.com/datasheets/1581967.pdf
-Page632 P640 for more.
-
-Signed-off-by: Lingyan Xu <lingyan.xu@nokia-sbell.com>
----
- drivers/i2c/busses/i2c-i801.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index f295693..033bafe 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -661,9 +661,11 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
- 	 * Clear irq sources and report transaction result.
- 	 * ->status must be cleared before the next transaction is started.
- 	 */
-+
-+	outb_p(status, SMBHSTSTS(priv));
-+
- 	status &= SMBHSTSTS_INTR | STATUS_ERROR_FLAGS;
- 	if (status) {
--		outb_p(status, SMBHSTSTS(priv));
- 		priv->status = status;
- 		wake_up(&priv->waitq);
- 	}
-@@ -1810,6 +1812,9 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	/* Default timeout in interrupt mode: 200 ms */
- 	priv->adapter.timeout = HZ / 5;
- 
-+	/* Disable SMBALERT interrupt */
-+	outb_p(inb_p(SMBSLVCMD(priv)) | BIT(2), SMBSLVCMD(priv));
-+
- 	if (dev->irq == IRQ_NOTCONNECTED)
- 		priv->features &= ~FEATURE_IRQ;
- 
--- 
-1.7.1
+Adding Leo to this version too.
