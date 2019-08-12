@@ -1,33 +1,62 @@
-From: Max Staudt <max@enpas.org>
-Subject: Re: [PATCH] i2c/busses: Add i2c-icy for I2C on m68k/Amiga
-Date: Sun, 11 Aug 2019 06:40:11 +0200
-Message-ID: <b3ea72a6-1d5a-4d9a-142f-ab0b6acbb157@enpas.org>
-References: <20190811043253.24938-1-max@enpas.org>
+From: lingyxu <lingyan.xu@nokia-sbell.com>
+Subject: [PATCH] i801_smbus: clear SMBALERT status bit and disable SMBALERT interrupt
+Date: Mon, 12 Aug 2019 10:40:34 +0800
+Message-ID: <1565577634-18264-1-git-send-email-lingyan.xu@nokia-sbell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190811043253.24938-1-max@enpas.org>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, glaubitz@physik.fu-berlin.de
+To: Jean Delvare <jdelvare@suse.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Wladislav Wiebe <wladislav.wiebe@nokia.com>, Krzysztof Adamski <krzysztof.adamski@nokia.com>, Lingyan Xu <lingyan.xu@nokia-sbell.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/11/2019 06:32 AM, Max Staudt wrote:
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -1300,6 +1300,17 @@ config I2C_ELEKTOR
->  	  This support is also available as a module.  If so, the module
->  	  will be called i2c-elektor.
->  
-> +config I2C_ICY
-> +	tristate "ICY Zorro card"
-> +	depends on ZORRO && BROKEN_ON_SMP
-> +	select I2C_ALGOPCF
+From: Lingyan Xu <lingyan.xu@nokia-sbell.com>
 
+In current i801 driver, SMBALERT interrupt is allowed
+(Slave Command Register bit2 is 0).
+But these is no handler for SMBALERT interrupt in i801_isr,
+if there is SMBALERT interrupt asserted and deasserted,
+i801 will have an irq flood for the related status bit is setted.
 
-I forgot to remove BROKEN_ON_SMP - I see no reason why this would be the case with the polling-only driver as it is now.
+So SMBALERT interrupt handler is needed, and also, SMBALERT interrupt
+will be generated from time to time if slave chip have some fault.
+So disable SMBALERT interrupt is also needed.
 
+About the solution,
+please see http://www.farnell.com/datasheets/1581967.pdf
+Page632 P640 for more.
 
-Max
+Signed-off-by: Lingyan Xu <lingyan.xu@nokia-sbell.com>
+---
+ drivers/i2c/busses/i2c-i801.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index f295693..033bafe 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -661,9 +661,11 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
+ 	 * Clear irq sources and report transaction result.
+ 	 * ->status must be cleared before the next transaction is started.
+ 	 */
++
++	outb_p(status, SMBHSTSTS(priv));
++
+ 	status &= SMBHSTSTS_INTR | STATUS_ERROR_FLAGS;
+ 	if (status) {
+-		outb_p(status, SMBHSTSTS(priv));
+ 		priv->status = status;
+ 		wake_up(&priv->waitq);
+ 	}
+@@ -1810,6 +1812,9 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	/* Default timeout in interrupt mode: 200 ms */
+ 	priv->adapter.timeout = HZ / 5;
+ 
++	/* Disable SMBALERT interrupt */
++	outb_p(inb_p(SMBSLVCMD(priv)) | BIT(2), SMBSLVCMD(priv));
++
+ 	if (dev->irq == IRQ_NOTCONNECTED)
+ 		priv->features &= ~FEATURE_IRQ;
+ 
+-- 
+1.7.1
