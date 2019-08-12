@@ -1,18 +1,18 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 04/14] mfd: bcm590xx: convert to i2c_new_dummy_device
-Date: Mon, 12 Aug 2019 08:47:00 +0100
-Message-ID: <20190812074700.GV4594@dell>
+Subject: Re: [PATCH 05/14] mfd: da9150-core: convert to i2c_new_dummy_device
+Date: Mon, 12 Aug 2019 08:47:08 +0100
+Message-ID: <20190812074708.GW4594@dell>
 References: <20190722172623.4166-1-wsa+renesas@sang-engineering.com>
- <20190722172623.4166-5-wsa+renesas@sang-engineering.com>
+ <20190722172623.4166-6-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190722172623.4166-5-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190722172623.4166-6-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Support Opensource <support.opensource@diasemi.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 On Mon, 22 Jul 2019, Wolfram Sang wrote:
@@ -25,7 +25,7 @@ On Mon, 22 Jul 2019, Wolfram Sang wrote:
 > 
 > Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
 > 
->  drivers/mfd/bcm590xx.c | 6 +++---
+>  drivers/mfd/da9150-core.c | 6 +++---
 >  1 file changed, 3 insertions(+), 3 deletions(-)
 
 Applied, thanks.
