@@ -1,41 +1,51 @@
-From: Biwen Li <biwen.li@nxp.com>
-Subject: RE: [EXT] Re: i2c: imx: support slave mode for imx I2C driver
-Date: Mon, 12 Aug 2019 04:22:03 +0000
-Message-ID: <DB7PR04MB44909B080A8C8D53416F34058FD30@DB7PR04MB4490.eurprd04.prod.outlook.com>
-References: <20190808035343.34120-1-biwen.li@nxp.com>
- <20190808200202.GA6609@ninjato>
- <VI1PR04MB4495EA1A44120654B494EB3D8FD60@VI1PR04MB4495.eurprd04.prod.outlook.com>
- <20190809151035.GB5099@ninjato>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
+Subject: [PATCH v1] MAINTAINERS: i2c-imx: take over maintainership
+Date: Mon, 12 Aug 2019 07:08:17 +0200
+Message-ID: <20190812050817.23279-1-o.rempel@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190809151035.GB5099@ninjato>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Leo Li <leoyang.li@nxp.com>
-Cc: Joshua Frkuska <joshua_frkuska@mentor.com>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Aisheng Dong <aisheng.dong@nxp.com>, Andrey Smirnov <andrew.smirnov@gmail.com>, Russell King - ARM Linux admin <linux@armlinux.org.uk>, Oleksij Rempel <o.rempel@pengutronix.de>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Chris Healy <cphealy@gmail.com>, linux-arm-kernel@lists.infradead.org, NXP Linux Team <linux-imx@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-> On Fri, Aug 09, 2019 at 03:18:01AM +0000, Biwen Li wrote:
-> > > > The patch supports slave mode for imx I2C driver
-> > > >
-> > > > Signed-off-by: Biwen Li <biwen.li@nxp.com>
-> > >
-> > > Wow, this is much simpler than the other approach flying around:
-> > >
-> > > http://patchwork.ozlabs.org/patch/1124048/
-> > >
-> > > Can this one be master and slave on the same bus, too?
-> > At the same time, the same bus is in master mode or slave mode.
->=20
-> So, can someone kindly point out the key differences to me?
-The I2C module cannot be a master and a slave simultaneously.
-Such as: if the i2c module is used in slave mode with command
-'echo slave-24c02 0x64 > /sys/bus/i2c/devices/i2c-0/new_device',
-At the mean time, you cannot do master operations(i2cset/i2cget).=20
-You can switch mode from slave to master with command 'echo 0x64
- > /sys/bus/i2c/devices/i2c-0/delete_device', then you can do master
-operations.
+I would like to maintain the i2c-imx driver. Since I work with
+different i.MX variants and have access to the hardware, I can spend
+some time on the reviewing of this driver.
 
-Adding Leo to this version too.
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+---
+ MAINTAINERS | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e81e60bd7c26..ddc1cf5cb0b9 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -6441,6 +6441,14 @@ S:	Maintained
+ F:	drivers/perf/fsl_imx8_ddr_perf.c
+ F:	Documentation/devicetree/bindings/perf/fsl-imx-ddr.txt
+ 
++FREESCALE IMX I2C DRIVER
++M:	Oleksij Rempel <o.rempel@pengutronix.de>
++R:	Pengutronix Kernel Team <kernel@pengutronix.de>
++L:	linux-i2c@vger.kernel.org
++S:	Maintained
++F:	drivers/i2c/busses/i2c-imx.c
++F:	Documentation/devicetree/bindings/i2c/i2c-imx.txt
++
+ FREESCALE IMX LPI2C DRIVER
+ M:	Dong Aisheng <aisheng.dong@nxp.com>
+ L:	linux-i2c@vger.kernel.org
+-- 
+2.20.1
