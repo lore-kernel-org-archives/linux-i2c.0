@@ -1,15 +1,15 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 06/14] mfd: max14577: convert to i2c_new_dummy_device
-Date: Mon, 12 Aug 2019 08:47:18 +0100
-Message-ID: <20190812074718.GX4594@dell>
+Subject: Re: [PATCH 07/14] mfd: max77693: convert to i2c_new_dummy_device
+Date: Mon, 12 Aug 2019 08:47:27 +0100
+Message-ID: <20190812074727.GY4594@dell>
 References: <20190722172623.4166-1-wsa+renesas@sang-engineering.com>
- <20190722172623.4166-7-wsa+renesas@sang-engineering.com>
+ <20190722172623.4166-8-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190722172623.4166-7-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190722172623.4166-8-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Cc: linux-i2c@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, linux-kernel@vger.kernel.org
@@ -25,8 +25,8 @@ On Mon, 22 Jul 2019, Wolfram Sang wrote:
 > 
 > Generated with coccinelle. Build tested by me and buildbot. Not tested on HW.
 > 
->  drivers/mfd/max14577.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+>  drivers/mfd/max77693.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
 
 Applied, thanks.
 
