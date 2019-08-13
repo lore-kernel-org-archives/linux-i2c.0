@@ -1,122 +1,41 @@
-From: Vinod Koul <vkoul@kernel.org>
-Subject: Re: [PATCH 3/7] dma: iop-adma: use correct printk format strings
-Date: Tue, 13 Aug 2019 10:03:55 +0530
-Message-ID: <20190813043355.GO12733@vkoul-mobl.Dlink>
-References: <20190809162956.488941-1-arnd@arndb.de>
- <20190809163334.489360-1-arnd@arndb.de>
- <20190809163334.489360-3-arnd@arndb.de>
+From: Denis Efremov <efremov@linux.com>
+Subject: [PATCH] MAINTAINERS: i2c mv64xxx: Update documentation path
+Date: Tue, 13 Aug 2019 09:09:13 +0300
+Message-ID: <20190813060913.14722-1-efremov@linux.com>
+References: <7cd8d12f59bcacd18a78f599b46dac555f7f16c0.camel@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190809163334.489360-3-arnd@arndb.de>
+In-Reply-To: <7cd8d12f59bcacd18a78f599b46dac555f7f16c0.camel@perches.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: soc@kernel.org, Russell King <linux@armlinux.org.uk>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, dmaengine@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Denis Efremov <efremov@linux.com>, joe@perches.com, Maxime Ripard <maxime.ripard@bootlin.com>, Gregory CLEMENT <gregory.clement@bootlin.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 09-08-19, 18:33, Arnd Bergmann wrote:
-> When compile-testing on other architectures, we get lots of warnings
-> about incorrect format strings, like:
-> 
->    drivers/dma/iop-adma.c: In function 'iop_adma_alloc_slots':
->    drivers/dma/iop-adma.c:307:6: warning: format '%x' expects argument of type 'unsigned int', but argument 6 has type 'dma_addr_t {aka long long unsigned int}' [-Wformat=]
-> 
->    drivers/dma/iop-adma.c: In function 'iop_adma_prep_dma_memcpy':
-> >> drivers/dma/iop-adma.c:518:40: warning: format '%u' expects argument of type 'unsigned int', but argument 5 has type 'size_t {aka long unsigned int}' [-Wformat=]
-> 
-> Use %zu for printing size_t as required, and cast the dma_addr_t
-> arguments to 'u64' for printing with %llx. Ideally this should use
-> the %pad format string, but that requires an lvalue argument that
-> doesn't work here.
+Update MAINTAINERS record to reflect the file move
+from i2c-mv64xxx.txt to marvell,mv64xxx-i2c.yaml.
 
-Please change title to "dmaengine: iop-adma: use correct printk format strings"
+Cc: Maxime Ripard <maxime.ripard@bootlin.com>
+Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
+Cc: linux-i2c@vger.kernel.org
+Fixes: f8bbde72ef44 ("dt-bindings: i2c: mv64xxx: Add YAML schemas")
+Signed-off-by: Denis Efremov <efremov@linux.com>
+---
+ MAINTAINERS | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-After that:
-
-Acked-by: Vinod Koul <vkoul@kernel.org>
-
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  drivers/dma/iop-adma.c | 18 +++++++++---------
->  1 file changed, 9 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/dma/iop-adma.c b/drivers/dma/iop-adma.c
-> index 7857b54770d1..aebdd671651a 100644
-> --- a/drivers/dma/iop-adma.c
-> +++ b/drivers/dma/iop-adma.c
-> @@ -117,9 +117,9 @@ static void __iop_adma_slot_cleanup(struct iop_adma_chan *iop_chan)
->  	list_for_each_entry_safe(iter, _iter, &iop_chan->chain,
->  					chain_node) {
->  		pr_debug("\tcookie: %d slot: %d busy: %d "
-> -			"this_desc: %#x next_desc: %#x ack: %d\n",
-> +			"this_desc: %#x next_desc: %#llx ack: %d\n",
->  			iter->async_tx.cookie, iter->idx, busy,
-> -			iter->async_tx.phys, iop_desc_get_next_desc(iter),
-> +			iter->async_tx.phys, (u64)iop_desc_get_next_desc(iter),
->  			async_tx_test_ack(&iter->async_tx));
->  		prefetch(_iter);
->  		prefetch(&_iter->async_tx);
-> @@ -307,9 +307,9 @@ iop_adma_alloc_slots(struct iop_adma_chan *iop_chan, int num_slots,
->  				int i;
->  				dev_dbg(iop_chan->device->common.dev,
->  					"allocated slot: %d "
-> -					"(desc %p phys: %#x) slots_per_op %d\n",
-> +					"(desc %p phys: %#llx) slots_per_op %d\n",
->  					iter->idx, iter->hw_desc,
-> -					iter->async_tx.phys, slots_per_op);
-> +					(u64)iter->async_tx.phys, slots_per_op);
->  
->  				/* pre-ack all but the last descriptor */
->  				if (num_slots != slots_per_op)
-> @@ -517,7 +517,7 @@ iop_adma_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dma_dest,
->  		return NULL;
->  	BUG_ON(len > IOP_ADMA_MAX_BYTE_COUNT);
->  
-> -	dev_dbg(iop_chan->device->common.dev, "%s len: %u\n",
-> +	dev_dbg(iop_chan->device->common.dev, "%s len: %zu\n",
->  		__func__, len);
->  
->  	spin_lock_bh(&iop_chan->lock);
-> @@ -550,7 +550,7 @@ iop_adma_prep_dma_xor(struct dma_chan *chan, dma_addr_t dma_dest,
->  	BUG_ON(len > IOP_ADMA_XOR_MAX_BYTE_COUNT);
->  
->  	dev_dbg(iop_chan->device->common.dev,
-> -		"%s src_cnt: %d len: %u flags: %lx\n",
-> +		"%s src_cnt: %d len: %zu flags: %lx\n",
->  		__func__, src_cnt, len, flags);
->  
->  	spin_lock_bh(&iop_chan->lock);
-> @@ -583,7 +583,7 @@ iop_adma_prep_dma_xor_val(struct dma_chan *chan, dma_addr_t *dma_src,
->  	if (unlikely(!len))
->  		return NULL;
->  
-> -	dev_dbg(iop_chan->device->common.dev, "%s src_cnt: %d len: %u\n",
-> +	dev_dbg(iop_chan->device->common.dev, "%s src_cnt: %d len: %zu\n",
->  		__func__, src_cnt, len);
->  
->  	spin_lock_bh(&iop_chan->lock);
-> @@ -621,7 +621,7 @@ iop_adma_prep_dma_pq(struct dma_chan *chan, dma_addr_t *dst, dma_addr_t *src,
->  	BUG_ON(len > IOP_ADMA_XOR_MAX_BYTE_COUNT);
->  
->  	dev_dbg(iop_chan->device->common.dev,
-> -		"%s src_cnt: %d len: %u flags: %lx\n",
-> +		"%s src_cnt: %d len: %zu flags: %lx\n",
->  		__func__, src_cnt, len, flags);
->  
->  	if (dmaf_p_disabled_continue(flags))
-> @@ -684,7 +684,7 @@ iop_adma_prep_dma_pq_val(struct dma_chan *chan, dma_addr_t *pq, dma_addr_t *src,
->  		return NULL;
->  	BUG_ON(len > IOP_ADMA_XOR_MAX_BYTE_COUNT);
->  
-> -	dev_dbg(iop_chan->device->common.dev, "%s src_cnt: %d len: %u\n",
-> +	dev_dbg(iop_chan->device->common.dev, "%s src_cnt: %d len: %zu\n",
->  		__func__, src_cnt, len);
->  
->  	spin_lock_bh(&iop_chan->lock);
-> -- 
-> 2.20.0
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 87ac0378186c..590dcebe627f 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -7505,7 +7505,7 @@ I2C MV64XXX MARVELL AND ALLWINNER DRIVER
+ M:	Gregory CLEMENT <gregory.clement@bootlin.com>
+ L:	linux-i2c@vger.kernel.org
+ S:	Maintained
+-F:	Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
++F:	Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
+ F:	drivers/i2c/busses/i2c-mv64xxx.c
+ 
+ I2C OVER PARALLEL PORT
 -- 
-~Vinod
+2.21.0
