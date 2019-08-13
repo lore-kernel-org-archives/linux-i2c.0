@@ -1,14 +1,11 @@
 From: Stefan Wahren <wahrenst@gmx.net>
-Subject: [PATCH V2 10/13] dt-bindings: arm: bcm2835: Add Raspberry Pi 4 to DT
- schema
-Date: Tue, 13 Aug 2019 18:20:45 +0200
-Message-ID: <1565713248-4906-11-git-send-email-wahrenst@gmx.net>
-References: <1565713248-4906-1-git-send-email-wahrenst@gmx.net>
+Subject: [PATCH V2 00/13] ARM: Add minimal Raspberry Pi 4 support
+Date: Tue, 13 Aug 2019 18:20:35 +0200
+Message-ID: <1565713248-4906-1-git-send-email-wahrenst@gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1565713248-4906-1-git-send-email-wahrenst@gmx.net>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -22,29 +19,114 @@ To: Eric Anholt <eric@anholt.net>, Florian Fainelli <f.fainelli@gmail.com>, Ray 
 Cc: devicetree@vger.kernel.org, Stefan Wahren <wahrenst@gmx.net>, bcm-kernel-feedback-list@broadcom.com, linux-rpi-kernel@lists.infradead.org, linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add new Raspberry Pi 4 to DT schema.
+This series adds minimal support for the new Raspberry Pi 4, so we are able
+to login via debug UART.
 
-Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
-Acked-by: Eric Anholt <eric@anholt.net>
----
- Documentation/devicetree/bindings/arm/bcm/bcm2835.yaml | 5 +++++
- 1 file changed, 5 insertions(+)
+Patch 1-2:   Prepare platform and DTS for the new SoC BMC2711
+Patch 3-6:   Enable clock support for BCM2711
+Patch 7-8:   Add I2C support for BCM2711
+Patch 9-12:  Add Raspberry Pi 4 DTS support
+Patch 13:    Update MAINTAINERS
 
-diff --git a/Documentation/devicetree/bindings/arm/bcm/bcm2835.yaml b/Documentation/devicetree/bindings/arm/bcm/bcm2835.yaml
-index 1a4be26..8c3bbad 100644
---- a/Documentation/devicetree/bindings/arm/bcm/bcm2835.yaml
-+++ b/Documentation/devicetree/bindings/arm/bcm/bcm2835.yaml
-@@ -15,6 +15,11 @@ properties:
-     const: '/'
-   compatible:
-     oneOf:
-+      - description: BCM2711 based Boards
-+        items:
-+          - enum:
-+              - raspberrypi,4-model-b
-+
-       - description: BCM2835 based Boards
-         items:
-           - enum:
+Unfortunately the Raspberry Pi Foundation didn't released a
+peripheral documentation for the new SoC yet. So we only have a preliminary
+datasheet [1] and reduced schematics [2].
+
+Known issues:
+Since Linux 5.3-rc1 DMA doesn't work properly on that platform.
+Nicolas Saenz Julienne investigates on that issue. As a temporary workaround
+i reverted the following patch to test this series:
+
+79a98672 "dma-mapping: remove dma_max_pfn"
+7559d612 "mmc: core: let the dma map ops handle bouncing"
+
+Changes in V2:
+- use separate board file for BCM2711
+- enable ARM_GIC for ARCH_BCM2835
+- add Acked-by and Reviewed-by
+- fix arm-pmu and timer nodes for BCM2711 reported by Marc Zyngier
+- enable HDMI at board level
+- move HDMI and pixelvalve into bcm2835-common.dtsi as suggested by Eric Anholt
+- fix DWC2 probing warning by setting USB role to peripheral
+- fix order of node references in bcm2711.dtsi
+- disable I2C clock stretching quirk for BCM2711
+- mark PLLD_PER as critical clock
+- make PLLH clock unavailable on BCM2711
+- fix compile warning in clk-bcm2835 for arm64
+
+Changes since RFC:
+- change BCM2838 -> BCM2711 as discussed in RFC
+- update MAINTAINERS accordingly
+- drop "spi: bcm2835: enable shared interrupt support" from series
+- squash all pinctrl-bcm2835 changes into one patch
+- introduce SoC specific clock registration as suggested by Florian
+- fix watchdog probing for Raspberry Pi 4
+- convert brcm,bcm2835.txt to json-schema
+- move VC4 node to bcm2835-common.dtsi
+- fallback to legacy pull config for Raspberry Pi 4
+- revert unintended change of mailbox in bcm283x.dtsi
+- add reference for arm64
+
+[1] - https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2711/rpi_DATA_2711_1p0_preliminary.pdf
+[2] - https://www.raspberrypi.org/documentation/hardware/raspberrypi/schematics/rpi_SCH_4b_4p0_reduced.pdf
+
+Stefan Wahren (13):
+  ARM: dts: bcm283x: Enable HDMI at board level
+  ARM: dts: bcm283x: Move BCM2835/6/7 specific to bcm2835-common.dtsi
+  dt-bindings: bcm2835-cprman: Add bcm2711 support
+  clk: bcm2835: Introduce SoC specific clock registration
+  clk: bcm2835: Add BCM2711_CLOCK_EMMC2 support
+  clk: bcm2835: Mark PLLD_PER as CRITICAL
+  dt-bindings: i2c: bcm2835: Add brcm,bcm2711 compatible
+  i2c: bcm2835: Avoid clk stretch quirk for BCM2711
+  dt-bindings: arm: Convert BCM2835 board/soc bindings to json-schema
+  dt-bindings: arm: bcm2835: Add Raspberry Pi 4 to DT schema
+  ARM: bcm: Add support for BCM2711 SoC
+  ARM: dts: Add minimal Raspberry Pi 4 support
+  MAINTAINERS: Add BCM2711 to BCM2835 ARCH
+
+ .../devicetree/bindings/arm/bcm/bcm2835.yaml       |  51 ++
+ .../devicetree/bindings/arm/bcm/brcm,bcm2835.txt   |  67 ---
+ .../bindings/clock/brcm,bcm2835-cprman.txt         |   4 +-
+ .../devicetree/bindings/i2c/brcm,bcm2835-i2c.txt   |   4 +-
+ MAINTAINERS                                        |   3 +-
+ arch/arm/boot/dts/Makefile                         |   1 +
+ arch/arm/boot/dts/bcm2711-rpi-4-b.dts              | 121 ++++
+ arch/arm/boot/dts/bcm2711.dtsi                     | 662 +++++++++++++++++++++
+ arch/arm/boot/dts/bcm2835-common.dtsi              | 183 ++++++
+ arch/arm/boot/dts/bcm2835-rpi-a-plus.dts           |   2 +
+ arch/arm/boot/dts/bcm2835-rpi-a.dts                |   2 +
+ arch/arm/boot/dts/bcm2835-rpi-b-plus.dts           |   2 +
+ arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts           |   2 +
+ arch/arm/boot/dts/bcm2835-rpi-b.dts                |   2 +
+ arch/arm/boot/dts/bcm2835-rpi-cm1-io1.dts          |   2 +
+ arch/arm/boot/dts/bcm2835-rpi-zero-w.dts           |   2 +
+ arch/arm/boot/dts/bcm2835-rpi-zero.dts             |   2 +
+ arch/arm/boot/dts/bcm2835-rpi.dtsi                 |   5 -
+ arch/arm/boot/dts/bcm2835.dtsi                     |   1 +
+ arch/arm/boot/dts/bcm2836-rpi-2-b.dts              |   2 +
+ arch/arm/boot/dts/bcm2836.dtsi                     |   1 +
+ arch/arm/boot/dts/bcm2837-rpi-3-a-plus.dts         |   2 +
+ arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts         |   2 +
+ arch/arm/boot/dts/bcm2837-rpi-3-b.dts              |   2 +
+ arch/arm/boot/dts/bcm2837-rpi-cm3-io3.dts          |   2 +
+ arch/arm/boot/dts/bcm2837.dtsi                     |   1 +
+ arch/arm/boot/dts/bcm283x-rpi-usb-peripheral.dtsi  |   7 +
+ arch/arm/boot/dts/bcm283x.dtsi                     | 168 +-----
+ arch/arm/mach-bcm/Kconfig                          |   3 +-
+ arch/arm/mach-bcm/Makefile                         |   3 +-
+ arch/arm/mach-bcm/bcm2711.c                        |  22 +
+ drivers/clk/bcm/clk-bcm2835.c                      | 133 ++++-
+ drivers/i2c/busses/i2c-bcm2835.c                   |  16 +-
+ include/dt-bindings/clock/bcm2835.h                |   2 +
+ 34 files changed, 1221 insertions(+), 263 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/arm/bcm/bcm2835.yaml
+ delete mode 100644 Documentation/devicetree/bindings/arm/bcm/brcm,bcm2835.txt
+ create mode 100644 arch/arm/boot/dts/bcm2711-rpi-4-b.dts
+ create mode 100644 arch/arm/boot/dts/bcm2711.dtsi
+ create mode 100644 arch/arm/boot/dts/bcm2835-common.dtsi
+ create mode 100644 arch/arm/boot/dts/bcm283x-rpi-usb-peripheral.dtsi
+ create mode 100644 arch/arm/mach-bcm/bcm2711.c
+
 --
 2.7.4
