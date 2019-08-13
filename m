@@ -1,70 +1,50 @@
-From: Max Staudt <max@enpas.org>
-Subject: [PATCH v2 4/4] i2c/busses/i2c-icy: Add platform_data for LTC2990
-Date: Tue, 13 Aug 2019 01:52:37 +0200
-Message-ID: <20190812235237.21797-4-max@enpas.org>
-References: <20190812235237.21797-1-max@enpas.org>
+From: Vinod Koul <vkoul@kernel.org>
+Subject: Re: [PATCH 2/7] dma: iop-adma: include prefetch.h
+Date: Tue, 13 Aug 2019 10:03:24 +0530
+Message-ID: <20190813043324.GN12733@vkoul-mobl.Dlink>
+References: <20190809162956.488941-1-arnd@arndb.de>
+ <20190809163334.489360-1-arnd@arndb.de>
+ <20190809163334.489360-2-arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190812235237.21797-1-max@enpas.org>
+Content-Disposition: inline
+In-Reply-To: <20190809163334.489360-2-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>
-Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, glaubitz@physik.fu-berlin.de, Max Staudt <max@enpas.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: soc@kernel.org, Russell King <linux@armlinux.org.uk>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, dmaengine@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, kbuild test robot <lkp@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This enables the three additional inputs available on the 2019 a1k.org
-reprint of the ICY board:
+On 09-08-19, 18:33, Arnd Bergmann wrote:
+> Compile-testing this driver fails on m68k without the
+> extra header inclusion.
 
-  in1 will be the voltage of the 5V rail, divided by 2.
-  in2 will be the voltage of the 12V rail, divided by 4.
-  temp3 will be measured using a PCB loop next the chip.
+Please change title to "dmaengine: iop-adma: include prefetch.h"
 
-Signed-off-by: Max Staudt <max@enpas.org>
----
- drivers/i2c/busses/i2c-icy.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+After that:
 
-diff --git a/drivers/i2c/busses/i2c-icy.c b/drivers/i2c/busses/i2c-icy.c
-index 8125683c5..6ad9910a0 100644
---- a/drivers/i2c/busses/i2c-icy.c
-+++ b/drivers/i2c/busses/i2c-icy.c
-@@ -42,6 +42,7 @@
- 
- #include <linux/i2c.h>
- #include <linux/i2c-algo-pcf.h>
-+#include <linux/platform_data/ltc2990.h>
- 
- #include <asm/amigaints.h>
- #include <linux/zorro.h>
-@@ -106,8 +107,21 @@ static void icy_pcf_waitforpin(void *data)
- /*
-  * Main i2c-icy part
-  */
-+static struct ltc2990_platform_data icy_ltc2990_platform_data = {
-+	/*
-+	 * Additional sensors exposed by this platform data:
-+	 *
-+	 * in1 will be the voltage of the 5V rail, divided by 2.
-+	 * in2 will be the voltage of the 12V rail, divided by 4.
-+	 * temp3 will be measured using a PCB loop next the chip.
-+	 */
-+	.meas_mode = {0, 3},
-+};
-+
- static struct i2c_board_info icy_ltc2990_info = {
--	I2C_BOARD_INFO("ltc2990", 0x4c),
-+	.type		= "ltc2990",
-+	.addr		= 0x4c,
-+	.platform_data	= &icy_ltc2990_platform_data,
- };
- 
- static unsigned short const icy_ltc2990_addresses[] = {0x4c, I2C_CLIENT_END};
-@@ -167,6 +181,8 @@ static int icy_probe(struct zorro_dev *z,
- 	 *
- 	 * in0 is the voltage of the internal 5V power supply.
- 	 * temp1 is the temperature inside the chip.
-+	 *
-+	 * See platform data above for in1, in2, temp3.
- 	 */
- 	i2c->client_ltc2990 = i2c_new_probed_device(&i2c->adapter,
- 						    &icy_ltc2990_info,
+Acked-by: Vinod Koul <vkoul@kernel.org>
+
+> Reported-by: kbuild test robot <lkp@intel.com>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  drivers/dma/iop-adma.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/dma/iop-adma.c b/drivers/dma/iop-adma.c
+> index c6c0143670d9..7857b54770d1 100644
+> --- a/drivers/dma/iop-adma.c
+> +++ b/drivers/dma/iop-adma.c
+> @@ -16,6 +16,7 @@
+>  #include <linux/spinlock.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/platform_device.h>
+> +#include <linux/prefetch.h>
+>  #include <linux/memory.h>
+>  #include <linux/ioport.h>
+>  #include <linux/raid/pq.h>
+> -- 
+> 2.20.0
+
 -- 
-2.11.0
+~Vinod
