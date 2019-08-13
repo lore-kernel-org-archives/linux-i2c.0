@@ -1,79 +1,60 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH v2 3/4] hwmon/ltc2990: Add platform_data support
-Date: Tue, 13 Aug 2019 10:27:37 +0200
-Message-ID: <CAMuHMdXHbjfrdusGB3qvcu1a=W65Ef1-NrvcCv1h9E9uicknLg@mail.gmail.com>
-References: <20190812235237.21797-1-max@enpas.org> <20190812235237.21797-3-max@enpas.org>
- <20190813080237.GA29986@roeck-us.net>
+From: Max Staudt <max@enpas.org>
+Subject: Re: [PATCH v2 2/4] i2c/busses/i2c-icy: Add LTC2990 present on 2019
+ board revision
+Date: Tue, 13 Aug 2019 11:49:05 +0200
+Message-ID: <fa145f84-4249-44da-57dc-10cfe25dbde3@enpas.org>
+References: <20190812235237.21797-1-max@enpas.org>
+ <20190812235237.21797-2-max@enpas.org>
+ <CAMuHMdX3NtKwxb6BJzJR1qLs5vC9zhU3d+cdrrHx4B9r1opkvQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190813080237.GA29986@roeck-us.net>
+In-Reply-To: <CAMuHMdX3NtKwxb6BJzJR1qLs5vC9zhU3d+cdrrHx4B9r1opkvQ@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Max Staudt <max@enpas.org>, Linux I2C <linux-i2c@vger.kernel.org>, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Linux/m68k <linux-m68k@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Linux/m68k <linux-m68k@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Günter,
+On 08/13/2019 09:03 AM, Geert Uytterhoeven wrote:
+> Hi Max,
+> 
+> On Tue, Aug 13, 2019 at 1:53 AM Max Staudt <max@enpas.org> wrote:
+>> Since the 2019 a1k.org community re-print of these PCBs sports an
+>> LTC2990 hwmon chip as an example use case, let this driver autoprobe
+>> for that as well. If it is present, modprobing ltc2990 is sufficient.
+>>
+>> Signed-off-by: Max Staudt <max@enpas.org>
+> 
+> Thanks for your patch!
+> 
+>> --- a/drivers/i2c/busses/i2c-icy.c
+>> +++ b/drivers/i2c/busses/i2c-icy.c
+>> @@ -160,6 +180,8 @@ static void icy_remove(struct zorro_dev *z)
+>>  {
+>>         struct icy_i2c *i2c = dev_get_drvdata(&z->dev);
+>>
+>> +       i2c_unregister_device(i2c->client_ltc2990);
+> 
+> Is this needed?
+> In my understanding, i2c_del_adapter() below takes care of that.
+It seems to do that in i2c_del_adapter():
 
-On Tue, Aug 13, 2019 at 10:02 AM Guenter Roeck <linux@roeck-us.net> wrote:
-> On Tue, Aug 13, 2019 at 01:52:36AM +0200, Max Staudt wrote:
-> > This allows code using i2c_new_device() to specify a measurement mode.
-> >
-> > Signed-off-by: Max Staudt <max@enpas.org>
-> > Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> > ---
-> >  drivers/hwmon/ltc2990.c               |  9 +++++++++
-> >  include/linux/platform_data/ltc2990.h | 11 +++++++++++
-> >  2 files changed, 20 insertions(+)
-> >  create mode 100644 include/linux/platform_data/ltc2990.h
-> >
-> > diff --git a/drivers/hwmon/ltc2990.c b/drivers/hwmon/ltc2990.c
-> > index f9431ad43..f19b9c50c 100644
-> > --- a/drivers/hwmon/ltc2990.c
-> > +++ b/drivers/hwmon/ltc2990.c
-> > @@ -14,6 +14,7 @@
-> >  #include <linux/kernel.h>
-> >  #include <linux/module.h>
-> >  #include <linux/of.h>
-> > +#include <linux/platform_data/ltc2990.h>
-> >
-> >  #define LTC2990_STATUS       0x00
-> >  #define LTC2990_CONTROL      0x01
-> > @@ -206,6 +207,7 @@ static int ltc2990_i2c_probe(struct i2c_client *i2c,
-> >       int ret;
-> >       struct device *hwmon_dev;
-> >       struct ltc2990_data *data;
-> > +     struct ltc2990_platform_data *pdata = dev_get_platdata(&i2c->dev);
-> >       struct device_node *of_node = i2c->dev.of_node;
-> >
-> >       if (!i2c_check_functionality(i2c->adapter, I2C_FUNC_SMBUS_BYTE_DATA |
-> > @@ -227,6 +229,13 @@ static int ltc2990_i2c_probe(struct i2c_client *i2c,
-> >               if (data->mode[0] & ~LTC2990_MODE0_MASK ||
-> >                   data->mode[1] & ~LTC2990_MODE1_MASK)
-> >                       return -EINVAL;
-> > +     } else if (pdata) {
-> > +             data->mode[0] = pdata->meas_mode[0];
-> > +             data->mode[1] = pdata->meas_mode[1];
-> > +
-> > +             if (data->mode[0] & ~LTC2990_MODE0_MASK ||
-> > +                 data->mode[1] & ~LTC2990_MODE1_MASK)
-> > +                     return -EINVAL;
->
-> I would prefer if the driver was modified to accept device
-> properties, and if those were set using the appropriate
-> fwnode function. Any reason for not doing that ?
+  device_for_each_child(&adap->dev, NULL, __unregister_dummy);
 
-That was my first thought as well, but isn't that limited to DT and ACPI
-properties (for now)?
 
-Gr{oetje,eeting}s,
+However, I'm not sure I'm supposed to do that. I went by Documentation/i2c/instantiating-devices, which in "Method 2" says:
 
-                        Geert
+  The driver which instantiated the I2C device is responsible for destroying
+  it on cleanup. This is done by calling i2c_unregister_device() on the
+  pointer that was earlier returned by i2c_new_device() or
+  i2c_new_probed_device().
 
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+So, what is preferred and why?
+
+
+Thanks!
+
+Max
