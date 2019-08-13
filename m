@@ -1,41 +1,45 @@
-From: Denis Efremov <efremov@linux.com>
-Subject: [PATCH] MAINTAINERS: i2c mv64xxx: Update documentation path
-Date: Tue, 13 Aug 2019 09:09:13 +0300
-Message-ID: <20190813060913.14722-1-efremov@linux.com>
-References: <7cd8d12f59bcacd18a78f599b46dac555f7f16c0.camel@perches.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] i2c/busses: Add i2c-icy for I2C on m68k/Amiga
+Date: Tue, 13 Aug 2019 08:53:14 +0200
+Message-ID: <CAMuHMdWr8VNBBVjgcu9wtdby-0pznEtg=GeVmAcrk78Of7gwNA@mail.gmail.com>
+References: <20190811043253.24938-1-max@enpas.org> <CAMuHMdVJJxjH-gPraW==smrkOOMcGYPKB8BPzrYPU4bstASX3A@mail.gmail.com>
+ <0d61e12f-5fc5-7cb6-755f-298ebf4c935f@enpas.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <7cd8d12f59bcacd18a78f599b46dac555f7f16c0.camel@perches.com>
+In-Reply-To: <0d61e12f-5fc5-7cb6-755f-298ebf4c935f@enpas.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Denis Efremov <efremov@linux.com>, joe@perches.com, Maxime Ripard <maxime.ripard@bootlin.com>, Gregory CLEMENT <gregory.clement@bootlin.com>, linux-i2c@vger.kernel.org
+To: Max Staudt <max@enpas.org>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux/m68k <linux-m68k@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Update MAINTAINERS record to reflect the file move
-from i2c-mv64xxx.txt to marvell,mv64xxx-i2c.yaml.
+Hi Max,
 
-Cc: Maxime Ripard <maxime.ripard@bootlin.com>
-Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc: linux-i2c@vger.kernel.org
-Fixes: f8bbde72ef44 ("dt-bindings: i2c: mv64xxx: Add YAML schemas")
-Signed-off-by: Denis Efremov <efremov@linux.com>
----
- MAINTAINERS | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Tue, Aug 13, 2019 at 12:21 AM Max Staudt <max@enpas.org> wrote:
+> On 08/12/2019 11:37 AM, Geert Uytterhoeven wrote:
+> >> +       iowrite8(val, address);
+> >
+> > As this is on a Zorro bus, z_writeb()?
+>
+> I forgot to ask about this.
+>
+> What is the reasoning behind having a separate z_writeb() for Zorro?
+> As far as I can see in arch/m68k/include/asm this maps 1:1 to a direct memory access, and it prohibits cross-arch code as in i2c-elektor.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 87ac0378186c..590dcebe627f 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -7505,7 +7505,7 @@ I2C MV64XXX MARVELL AND ALLWINNER DRIVER
- M:	Gregory CLEMENT <gregory.clement@bootlin.com>
- L:	linux-i2c@vger.kernel.org
- S:	Maintained
--F:	Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-+F:	Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
- F:	drivers/i2c/busses/i2c-mv64xxx.c
- 
- I2C OVER PARALLEL PORT
+write*() and friends are intended for PCI, and thus little endian, while
+the Zorro bus is big endian. For byte accesses this doesn't matter,
+obviously.
+
+Note that this predates iowrite*(), which does have *be variants.
+If you want to add compile-testing to your driver, using iowrite*() is fine.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
 -- 
-2.21.0
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
