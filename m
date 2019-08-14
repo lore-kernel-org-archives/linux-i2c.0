@@ -1,72 +1,32 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: axxia: support slave mode
-Date: Wed, 14 Aug 2019 15:13:35 +0200
-Message-ID: <20190814131335.GF9716@ninjato>
-References: <20190809091709.GA24838@localhost.localdomain>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 2/7] dma: iop-adma: include prefetch.h
+Date: Wed, 14 Aug 2019 17:29:03 +0200
+Message-ID: <CAK8P3a0jWunQFvt4bVn0GtqN5xwcnO2a1jO0EaqxWqw4VMGL5Q@mail.gmail.com>
+References: <20190809162956.488941-1-arnd@arndb.de> <20190809163334.489360-1-arnd@arndb.de>
+ <20190809163334.489360-2-arnd@arndb.de> <20190813043324.GN12733@vkoul-mobl.Dlink>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="ExXT7PjY8AI4Hyfa"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190809091709.GA24838@localhost.localdomain>
+In-Reply-To: <20190813043324.GN12733@vkoul-mobl.Dlink>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
+To: Vinod Koul <vkoul@kernel.org>
+Cc: soc@kernel.org, Russell King <linux@armlinux.org.uk>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dmaengine@vger.kernel.org, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, kbuild test robot <lkp@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, Aug 13, 2019 at 6:34 AM Vinod Koul <vkoul@kernel.org> wrote:
+>
+> On 09-08-19, 18:33, Arnd Bergmann wrote:
+> > Compile-testing this driver fails on m68k without the
+> > extra header inclusion.
+>
+> Please change title to "dmaengine: iop-adma: include prefetch.h"
+>
+> After that:
+>
+> Acked-by: Vinod Koul <vkoul@kernel.org>
 
---ExXT7PjY8AI4Hyfa
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Ok, thanks!
 
-Hi Krzysztof,
+One day I will remember all the subsystem prefixes. ;-)
 
-> - Reduced the number of dev_dbg messages.
-
-Yes, that looks good. Just some curly braces left over...
-
-> +		if (fifo_status & SLV_FIFO_STRC) {
-> +			i2c_slave_event(idev->slave,
-> +					I2C_SLAVE_WRITE_REQUESTED, &val);
-> +		}
-
-...
-
-> +	if (fifo_status & SLV_FIFO_RSC) {
-> +		readl(idev->base + SLV_DATA); /* dummy read */
-> +	}
-
-..
-
-> +	if (status & SLV_STATUS_SRC1) {
-> +		i2c_slave_event(idev->slave, I2C_SLAVE_STOP, &val);
-> +	}
-
-If you add '--strict' to checkpatch, it warns about two of them.
-
-Kind regards,
-
-   Wolfram
-
-
---ExXT7PjY8AI4Hyfa
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1UCPwACgkQFA3kzBSg
-KbaoMA//dE7z+rJCoGb69AGRmxmByWbLQyAaC2V5mZOKoXyQHZSQQYqMrhlTX1IN
-k5j2vXU4VQaAGVeSCRynDEdGzJgj9U8BsIF8pKJW5YdkAv/7rHmud03UaUGMM8bj
-zP5CzOksv9i/jY1pSBgbT8t23G/nCZkBsK5MyxSnWNQMqYlaO0N77esrqncOyrHM
-qOwv4pa1PjvHuCuh3CMfUie5ylPzMo5BMw0og7S0WIBnmgcIa2GVVDOtmg2yMnBF
-hFUgdZ2LzgGhJNBOxUeM6J7nYkxCVhsdiPZpDxo8oU8iinTyoyZT7fsBfHdkfeWz
-LvjUciYGnmeiuPTrVSC3My0no7humDW7LwECBzUXKxLE7geY/9yv/bX1LApa9nR9
-I8xIIThMVVGwhqNqN391HCJ96MAIb1VkgAQzoxRfshkd/z5hD4DwN+7hhUFLn0Fu
-go8NP1kPwf7kMKfvSDR3yuXKI11z+sybpzLcluJ6gCZBJ7YDMgCIjdOuxA+naH4a
-SFCXBoKcFQV7jlOU3EqKP9f5LBVO+dkGJ5365uxVEucjQ/H4maraizBB47C3G8us
-tn2SDULqPH82OQbrrcJnudFaaCItRJkJwbYGOze3jAVJnowB6VK/fgwsiMf803tq
-I/HZVAjMPIt/fAt1M/rgulL9JH2xJLeWVMAURF49B6olopxM3SY=
-=S//p
------END PGP SIGNATURE-----
-
---ExXT7PjY8AI4Hyfa--
+       Arnd
