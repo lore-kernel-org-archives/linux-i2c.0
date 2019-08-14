@@ -1,46 +1,62 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH v1] MAINTAINERS: i2c-imx: take over maintainership
-Date: Wed, 14 Aug 2019 13:33:44 +0200
-Message-ID: <20190814113344.5j7zh37nm36rlagr@pengutronix.de>
-References: <20190812050817.23279-1-o.rempel@pengutronix.de>
- <20190812064811.427cy7ahim54odkk@pengutronix.de>
- <20190814100224.GE1511@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: replace i2c_new_secondary_device with an ERR_PTR
+ variant
+Date: Wed, 14 Aug 2019 14:56:19 +0200
+Message-ID: <20190814125619.GC9716@ninjato>
+References: <20190809154047.9897-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="yLVHuoLXiP9kZBkt"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190814100224.GE1511@ninjato>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Aisheng Dong <aisheng.dong@nxp.com>, linux-arm-kernel@lists.infradead.org, Andrey Smirnov <andrew.smirnov@gmail.com>, Sascha Hauer <s.hauer@pengutronix.de>, Russell King - ARM Linux admin <linux@armlinux.org.uk>, Oleksij Rempel <o.rempel@pengutronix.de>, linux-i2c@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <fabio.estevam@nxp.com>, Shawn Guo <shawnguo@kernel.org>, Chris Healy <cphealy@gmail.com>, NXP Linux Team <linux-imx@nxp.com>
+In-Reply-To: <20190809154047.9897-1-wsa+renesas@sang-engineering.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Andrzej Hajda <a.hajda@samsung.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Kieran Bingham <kieran.bingham@ideasonboard.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Aug 14, 2019 at 12:02:25PM +0200, Wolfram Sang wrote:
-> =
 
-> > Even without this patch the generic "ARM/FREESCALE IMX / MXC ARM
-> > ARCHITECTURE" entry matches the i2c-imx driver.
-> =
+--yLVHuoLXiP9kZBkt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> It matches, but it didn't work well, I am afraid.
+On Fri, Aug 09, 2019 at 05:40:47PM +0200, Wolfram Sang wrote:
+> In the general move to have i2c_new_*_device functions which return
+> ERR_PTR instead of NULL, this patch converts i2c_new_secondary_device().
+>=20
+> There are only few users, so this patch converts the I2C core and all
+> users in one go. The function gets renamed to i2c_new_ancillary_device()
+> so out-of-tree users will get a build failure to understand they need to
+> adapt their error checking code.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com> # a=
+dv748x
+> Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com> # adv75=
+11
 
-I didn't intend to imply it worked well. Just thought it was sensible to
-point out that even with the newly added entry in MAINTAINERS the old
-entry still matches.
+Applied to for-next, thanks!
 
-Best regards
-Uwe
 
--- =
+--yLVHuoLXiP9kZBkt
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1UBPIACgkQFA3kzBSg
+KbbkPA/+IIbLYkWm/OQkI8SkV2391hNcFVtK/8MfhFix9inrSXUhFvv3QL9ufhXN
+VtGLFasJvv1ET5mro5Qhwd1GS/Eml5NdP7WwRLYaWaHTLLRmwGsSSzIuS7TooTON
++2Ro3fI+bwQ1GL7hDGdF4ElpTpHvoP8j3ejZK9cQMpUm8u8Wxyj6YJwUy62pppdh
+EtuNem5mXmQc8RQ4nQweOTu42aEUEawbOnE3AxUl6NkE7MpT9bAK5so25kksNfra
+GzwHgfLaMmg4Aw0+GHPxGKIKDLTJqEShl/d8xB2Y97TmFSTgpZaXZsBy6T+i5gfc
+imtcSuL2j6z6vw+iKKlqnFqk0GUwPvSDH+dNGvi4FO1UOGkXj1gf2AZim+uJz9Ge
+DtRH57A4q21asK1QB2rPgVCmkSE33bsoZOLF0XqzucUdij+MH1Sgs3RR8D4KaoBJ
+KkpeJtgUHPlnky7Tr/FZcdV/+YZaQsiZ3RkUcJnNOKIJFCEuy7m6tbfneEKT/GWz
+SsuNKWIlGtNGnG8rGXmZD4a805J8IjMqGre7LYpO6UdYXmEIvARJXMl2BmmapUJq
+nk/dZSw7hQYFfyge/Yg3ZuxQqZvVU26ZdNXDbZ1qEar5u/SbvlSO4x48yMviSJu9
+vXE9MYBv8Krq1PrZdrFSjiMRAUQ/y6KqkzKfpyEN16ya5ZOu9ew=
+=8vIL
+-----END PGP SIGNATURE-----
+
+--yLVHuoLXiP9kZBkt--
