@@ -1,32 +1,70 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 2/7] dma: iop-adma: include prefetch.h
-Date: Wed, 14 Aug 2019 17:29:03 +0200
-Message-ID: <CAK8P3a0jWunQFvt4bVn0GtqN5xwcnO2a1jO0EaqxWqw4VMGL5Q@mail.gmail.com>
-References: <20190809162956.488941-1-arnd@arndb.de> <20190809163334.489360-1-arnd@arndb.de>
- <20190809163334.489360-2-arnd@arndb.de> <20190813043324.GN12733@vkoul-mobl.Dlink>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v5 0/3] Enable ACPI-defined peripherals on i2c-piix4 SMBus
+Date: Wed, 14 Aug 2019 18:07:11 +0200
+Message-ID: <20190814160711.GA5816@kunai>
+References: <20190802145109.38dd4045@endymion>
+ <b013c33b-da11-ce5e-08d4-0b24a8575109@metux.net>
+ <20190809103340.2ef24523@endymion>
+ <01de7b0c-7579-048b-312c-122dddc23c64@metux.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190813043324.GN12733@vkoul-mobl.Dlink>
+Content-Disposition: inline
+In-Reply-To: <01de7b0c-7579-048b-312c-122dddc23c64@metux.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vinod Koul <vkoul@kernel.org>
-Cc: soc@kernel.org, Russell King <linux@armlinux.org.uk>, Dan Williams <dan.j.williams@intel.com>, Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dmaengine@vger.kernel.org, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, kbuild test robot <lkp@intel.com>
+To: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
+Cc: Jean Delvare <jdelvare@suse.de>, Linux I2C <linux-i2c@vger.kernel.org>, linux-kernel@vger.kernel.org, Andrew Cooks <acooks@rationali.st>, linux-acpi@vger.kernel.org, platypus-sw@opengear.com, "Tobin C . Harding" <me@tobin.cc>, Guenter Roeck <linux@roeck-us.net>, Will Wagner <willw@carallon.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Aug 13, 2019 at 6:34 AM Vinod Koul <vkoul@kernel.org> wrote:
->
-> On 09-08-19, 18:33, Arnd Bergmann wrote:
-> > Compile-testing this driver fails on m68k without the
-> > extra header inclusion.
->
-> Please change title to "dmaengine: iop-adma: include prefetch.h"
->
-> After that:
->
-> Acked-by: Vinod Koul <vkoul@kernel.org>
 
-Ok, thanks!
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-One day I will remember all the subsystem prefixes. ;-)
 
-       Arnd
+> > Unfortunately not. I only picked up from where Andrew Cooks left, due
+> > to me being way too slow to review his patches.
+>=20
+> @Andrew: can you tell us more about this ?
+
+Was the info Andrew supplied helpful to you?
+
+>=20
+> > I was able to test the first 2 patches which fix bugs, but
+> > not the 3rd one which deals with ACPI devices. There does not seem to
+> > be any such device on the 2 test machines I have remotely access to.
+>=20
+> Did you already test on apu2/apu3 ?
+> If not, maybe you could prepare a queue that I could test.
+
+Maybe I am missing something but can't you just apply these patches on a
+recent kernel?
+
+So, the discussion stalled, but I think the series is fine as is? If
+someone disagrees, please speak up. I want to apply patch 1 to
+for-current soon and the others to for-next, too.
+
+
+--LZvS9be/3tNcYl/X
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1UMaoACgkQFA3kzBSg
+KbZfHg/+PtVFnMuKKJxRrrr+D7Xz5UzKEh38nshbA37TJVz+nIbzDVVD7c+OoZav
+sAGEgKPEskjpmZUlC823T18Z25hOY3PCysPNs+3yr0QlfXk1G2rdvnDzfJQYyV1O
+QEhVeDqpGf92XKcX3dhshkev7CE524uAZtNs7fhUoz97ckcb+CMN+CrJnFVhA4lj
+HdDRQ2os8ys82wAbxkRhcif+SP6Qvb/rzMHHEaUhbFjAXs/awy5cLVEHhdNgDabB
+gnGPyXmg0F668DB5B0ZAMbWup8CJbVuUxg37usl4VsDN2HpTmUkfwWYqtdycDRUz
+B2S2CPv39PYQQyhTzXqTUctg/g3hYd+HfKXLwEh2+da7UWK7OjEFpnVmhNc4dCcH
++0nEkBUfMox8t4G5/lRZrt9m1TiHPEbdMP+ZdeHYpoPMdmkZKb9vwiz6dZRa554I
+Qyjquwg6IOmeGrbEeqPLu0ypeoS76sOJJ/pNQa2cePyqP53BC953Qpqo1cKGfSzJ
+NjU5qQJiTivAxE9g7I5A3cIXq0SqwjW68keNWSphMY/9cboeDabzprP4eqqCWjXj
+eR/AQcocWeQtyApSxzA1kmAF0oEcwQ4dwX04AvmKnQEpQSVEO7lQTif9Zh+Y6C3M
+81PFi6pjHFsaIaw2oehutcitFwHGefowMlMSYFdmciY9/ZMwbsE=
+=ebsn
+-----END PGP SIGNATURE-----
+
+--LZvS9be/3tNcYl/X--
