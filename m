@@ -1,62 +1,72 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: stm32: Use the correct style for SPDX License
- Identifier
-Date: Wed, 14 Aug 2019 14:58:08 +0200
-Message-ID: <20190814125808.GD9716@ninjato>
-References: <20190803141331.GA3588@nishad>
+Subject: Re: [PATCH v2] i2c: axxia: support slave mode
+Date: Wed, 14 Aug 2019 15:13:35 +0200
+Message-ID: <20190814131335.GF9716@ninjato>
+References: <20190809091709.GA24838@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="SO98HVl1bnMOfKZd"
+        protocol="application/pgp-signature"; boundary="ExXT7PjY8AI4Hyfa"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190803141331.GA3588@nishad>
+In-Reply-To: <20190809091709.GA24838@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nishad Kamdar <nishadkamdar@gmail.com>
-Cc: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@st.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Joe Perches <joe@perches.com>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: "Adamski, Krzysztof (Nokia - PL/Wroclaw)" <krzysztof.adamski@nokia.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---SO98HVl1bnMOfKZd
+--ExXT7PjY8AI4Hyfa
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sat, Aug 03, 2019 at 07:43:35PM +0530, Nishad Kamdar wrote:
-> This patch corrects the SPDX License Identifier style
-> in header file related to STM32 Driver for I2C hardware
-> bus support.
-> For C header files Documentation/process/license-rules.rst
-> mandates C-like comments (opposed to C source files where
-> C++ style should be used)
->=20
-> Changes made by using a script provided by Joe Perches here:
-> https://lkml.org/lkml/2019/2/7/46
->=20
-> Suggested-by: Joe Perches <joe@perches.com>
-> Signed-off-by: Nishad Kamdar <nishadkamdar@gmail.com>
+Hi Krzysztof,
 
-Pierre-Yves is on holiday and this patch is obviously correct, so
-applied to for-current, thanks!
+> - Reduced the number of dev_dbg messages.
+
+Yes, that looks good. Just some curly braces left over...
+
+> +		if (fifo_status & SLV_FIFO_STRC) {
+> +			i2c_slave_event(idev->slave,
+> +					I2C_SLAVE_WRITE_REQUESTED, &val);
+> +		}
+
+...
+
+> +	if (fifo_status & SLV_FIFO_RSC) {
+> +		readl(idev->base + SLV_DATA); /* dummy read */
+> +	}
+
+..
+
+> +	if (status & SLV_STATUS_SRC1) {
+> +		i2c_slave_event(idev->slave, I2C_SLAVE_STOP, &val);
+> +	}
+
+If you add '--strict' to checkpatch, it warns about two of them.
+
+Kind regards,
+
+   Wolfram
 
 
---SO98HVl1bnMOfKZd
+--ExXT7PjY8AI4Hyfa
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1UBWAACgkQFA3kzBSg
-KbZgmBAArH8glfhLKtTkL5UWa4RdGvAUOavsDcYcimkOpgqU9Lbh4CG7AqxoohDc
-4SqzUm4dZTlC5snKoTVPnO5vmsNouyjD85xud37NhdWYX1k4HTnKEpo2k8N/vop1
-ryZkczi52PVtxZSoIsfKNnAGB3wkyXSvGM7UnmTmc6PFnIQDTpGOSzgrV1HnXjFu
-YdTk301hifcdaHc/+JyvXL+arw30iwBgerzUlS3fAPURippr5qScbFR4Xevyozdu
-xJSzmc03vaniJ5KqYT6zhp3yik+NaZzc6zoqHk3B5XmQvM3VO4xK14TxbPK1exXS
-g8j7KsfoSjK/jidf/6pSTMoCp5+GnyQCBhzK0hcTTLxjcsKltICA+5sE2OjYdYSY
-4dG8vAZNOagcYPUyRD7J4sT1PHK+27O6n0k03et8pU8Lg+8IhWNcz8PfRpLVvkOr
-jIW6dzLHzZmtRJoa3CFIrWSTFfChd68u0O7EFxkqRfzqVLOfIZfS1kwK21LsXM6i
-uF7jLgs2F4fEOzdktw0NapEDVbVYS2AQbL9B+keiBdWpR9nfKJPjPiodpPeYxntn
-lnSCiiOTAWlVE5WxF+F+1ONza0M16uh5H9FM7dkHp5SpvJskxRrxDzG6rkGhI/SN
-Gxh3BXLtyVjUs4FlfqcZsm87aX4AGBy/zwEmpKpYqaRNe/ZKftM=
-=W0pC
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1UCPwACgkQFA3kzBSg
+KbaoMA//dE7z+rJCoGb69AGRmxmByWbLQyAaC2V5mZOKoXyQHZSQQYqMrhlTX1IN
+k5j2vXU4VQaAGVeSCRynDEdGzJgj9U8BsIF8pKJW5YdkAv/7rHmud03UaUGMM8bj
+zP5CzOksv9i/jY1pSBgbT8t23G/nCZkBsK5MyxSnWNQMqYlaO0N77esrqncOyrHM
+qOwv4pa1PjvHuCuh3CMfUie5ylPzMo5BMw0og7S0WIBnmgcIa2GVVDOtmg2yMnBF
+hFUgdZ2LzgGhJNBOxUeM6J7nYkxCVhsdiPZpDxo8oU8iinTyoyZT7fsBfHdkfeWz
+LvjUciYGnmeiuPTrVSC3My0no7humDW7LwECBzUXKxLE7geY/9yv/bX1LApa9nR9
+I8xIIThMVVGwhqNqN391HCJ96MAIb1VkgAQzoxRfshkd/z5hD4DwN+7hhUFLn0Fu
+go8NP1kPwf7kMKfvSDR3yuXKI11z+sybpzLcluJ6gCZBJ7YDMgCIjdOuxA+naH4a
+SFCXBoKcFQV7jlOU3EqKP9f5LBVO+dkGJ5365uxVEucjQ/H4maraizBB47C3G8us
+tn2SDULqPH82OQbrrcJnudFaaCItRJkJwbYGOze3jAVJnowB6VK/fgwsiMf803tq
+I/HZVAjMPIt/fAt1M/rgulL9JH2xJLeWVMAURF49B6olopxM3SY=
+=S//p
 -----END PGP SIGNATURE-----
 
---SO98HVl1bnMOfKZd--
+--ExXT7PjY8AI4Hyfa--
