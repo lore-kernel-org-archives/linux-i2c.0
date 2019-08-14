@@ -1,65 +1,58 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 2/4] i2c/busses/i2c-icy: Add LTC2990 present on 2019
- board revision
-Date: Wed, 14 Aug 2019 21:52:55 +0200
-Message-ID: <20190814195255.GC9756@kunai>
+From: Max Staudt <max@enpas.org>
+Subject: Re: [PATCH v2 1/4] i2c/busses: Add i2c-icy for I2C on m68k/Amiga
+Date: Thu, 15 Aug 2019 00:33:40 +0200
+Message-ID: <f33ef44e-61e8-0392-7f5c-5a0bd7b42fff@enpas.org>
 References: <20190812235237.21797-1-max@enpas.org>
- <20190812235237.21797-2-max@enpas.org>
- <CAMuHMdX3NtKwxb6BJzJR1qLs5vC9zhU3d+cdrrHx4B9r1opkvQ@mail.gmail.com>
- <fa145f84-4249-44da-57dc-10cfe25dbde3@enpas.org>
+ <20190814194714.GB9756@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="0vzXIDBeUiKkjNJl"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <fa145f84-4249-44da-57dc-10cfe25dbde3@enpas.org>
+In-Reply-To: <20190814194714.GB9756@kunai>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Max Staudt <max@enpas.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Linux I2C <linux-i2c@vger.kernel.org>, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Linux/m68k <linux-m68k@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, glaubitz@physik.fu-berlin.de
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---0vzXIDBeUiKkjNJl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-> However, I'm not sure I'm supposed to do that. I went by Documentation/i2=
-c/instantiating-devices, which in "Method 2" says:
->=20
->   The driver which instantiated the I2C device is responsible for destroy=
-ing
->   it on cleanup. This is done by calling i2c_unregister_device() on the
->   pointer that was earlier returned by i2c_new_device() or
->   i2c_new_probed_device().
->=20
->=20
-> So, what is preferred and why?
-
-What the documentation says is preferred. For consistency and because of
-the general "free what you allocated" rule. If we have arguments to
-change that for i2c_unregister_device(), we would need to do this
-tree-wide anyhow. Until then, the above is valid.
+Thanks for your input!
+Replies below.
 
 
---0vzXIDBeUiKkjNJl
-Content-Type: application/pgp-signature; name="signature.asc"
+On 08/14/2019 09:47 PM, Wolfram Sang wrote:
+>> +static int clock = 0x1c;
+>> +module_param(clock, int, 0444);
+> 
+> 'clock' determines the bus speed?
 
------BEGIN PGP SIGNATURE-----
+Yes, but it also determines the frequency of the oscillator driving the PCF8584. It doesn't usually need to be touched, the current setting drives at the maximum I2C bus speed, with the maximum oscillator (12 MHz).
+I kept it in because i2c-elektor also exposes it in the same way, and it seems useful.
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1UZpcACgkQFA3kzBSg
-KbYuLA//T5RLmOjnbgw4lXyUxahOGLly6DjT1JDvZCl0FtWCCiYDOVcRL5VOPKHY
-XjonlM4g0uO7wJsQz+LAh5DizpTF98gn1uRUbGuzEUEiGIWHQTKMX4Vj4/tPvi8X
-NDk86PKVlLVLQ1WpvB7oRDgcsRyUy3Px0qJ6cH8bRY1K8/IyszlWcYh0mfGEMre7
-wZhZz5w6tdOqrQB/3b9v6JH3nNwhcmKW3EM60fU8mO4iJwnEeD4zFF7FK00YxlPx
-Nap/D0IL6qqfhJuaE/TKC7a23TBSinmn/5NspHq7/vb2KpSqOBu61LtMNkmzzndO
-xWsCVx0IrS3mLwUz4ftDWvX3+qpdLsmJniQg476oP7cmzZ54t2mEPUWmEUqZO8wd
-5wIRTE+ZwBUhVByqmTc1AQzkVnRdRLGLO8WmQQNBJJc0tCmJP1XMdqEd3yb72SZV
-XpC86hGSDSL9klEsdNiNekjtix03VS6+gV64QOhe3l4Yxtuk2tTA6qeGyigySaLo
-H2We280Al6DybJsMbvOLdxL7/+f2io65HsN+nL2XGEXoL9P7DcJ14Tw5Qajw7GvJ
-RV3DVi2HC/KvMaJR7fTdChpnfoO9lp/bsvItsBfBUAnw5tVQJNgejYI82sspkvfV
-a6x14gbRb2+EdE2VQa5uauRd1rSiODq4MiDv7/glR5HKAM5uqdo=
-=t/J5
------END PGP SIGNATURE-----
 
---0vzXIDBeUiKkjNJl--
+>> +	i2c->adapter.class = I2C_CLASS_DEPRECATED;
+> 
+> This is only needed for drivers which used to have a class and decided
+> to drop it. You can leave it empty.
+
+Thanks, I'll drop it.
+
+
+>> +	algo_data->data = (void *)i2c;
+> 
+> You don't need the cast, do you?
+
+True. Dropped, thanks.
+
+
+>> +MODULE_LICENSE("GPL");
+> 
+> Your SPDX header says GPL 2.0 only.
+
+Thanks! I'll change it to "GPL v2", but unfortunately there is no option for "only" in include/linux/module.h.
+
+
+Cheers
+
+Max
