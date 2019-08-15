@@ -1,38 +1,63 @@
-From: Nishka Dasgupta <nishkadg.linux@gmail.com>
-Subject: [PATCH] i2c: stm32f7: Make structure stm32f7_i2c_algo constant
-Date: Thu, 15 Aug 2019 11:28:57 +0530
-Message-ID: <20190815055857.1944-1-nishkadg.linux@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2 1/4] i2c/busses: Add i2c-icy for I2C on m68k/Amiga
+Date: Thu, 15 Aug 2019 09:12:28 +0200
+Message-ID: <20190815071228.GA1054@kunai>
+References: <20190812235237.21797-1-max@enpas.org>
+ <20190814194714.GB9756@kunai>
+ <f33ef44e-61e8-0392-7f5c-5a0bd7b42fff@enpas.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="7AUc2qLy4jB3hD7Z"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <f33ef44e-61e8-0392-7f5c-5a0bd7b42fff@enpas.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: pierre-yves.mordret@st.com, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: Nishka Dasgupta <nishkadg.linux@gmail.com>
+To: Max Staudt <max@enpas.org>
+Cc: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, glaubitz@physik.fu-berlin.de
 List-Id: linux-i2c@vger.kernel.org
 
-Static structure stm32f7_i2c_algo, of type i2c_algorithm, is used only
-when it is assigned to constant field algo of a variable having type
-i2c_adapter. As stm32f7_i2c_algo is therefore never modified, make it
-const as well to protect it from unintended modification.
-Issue found with Coccinelle.
 
-Signed-off-by: Nishka Dasgupta <nishkadg.linux@gmail.com>
----
- drivers/i2c/busses/i2c-stm32f7.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 266d1c269b83..d36cf08461f7 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -1809,7 +1809,7 @@ static u32 stm32f7_i2c_func(struct i2c_adapter *adap)
- 		I2C_FUNC_SMBUS_I2C_BLOCK;
- }
- 
--static struct i2c_algorithm stm32f7_i2c_algo = {
-+static const struct i2c_algorithm stm32f7_i2c_algo = {
- 	.master_xfer = stm32f7_i2c_xfer,
- 	.smbus_xfer = stm32f7_i2c_smbus_xfer,
- 	.functionality = stm32f7_i2c_func,
--- 
-2.19.1
+
+> I kept it in because i2c-elektor also exposes it in the same way, and
+> it seems useful.
+
+Yeah, I noticed. I don't know how useful it is in practice (same for the
+getown callback) but I don't have better ideas, so let's just keep this
+to be consistent.
+
+> > Your SPDX header says GPL 2.0 only.
+>=20
+> Thanks! I'll change it to "GPL v2", but unfortunately there is no
+> option for "only" in include/linux/module.h.
+
+That's the correct option.
+
+Thanks!
+
+
+--7AUc2qLy4jB3hD7Z
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1VBdgACgkQFA3kzBSg
+KbZzuxAAhRPA+wt/Pg3SLLAnPHGwfDuJSXks2IBSp1ULDxYl2Bk2oy8ytkWwBzCE
+nEPUpfi4z2rnWTs7HxlG3DDIJb3ZNU4J4ZQPyz/H8MtTOgUHa03uWelac1C3/QWF
+fk4O4G5h1YHBQcYtvfqjjXyJYdLUHFkj89J0LOp6ij2bU233NSK0H1EXR8zeKKtK
+taJeBnY2zpH1z55iLUDWX7pa0hn+qDmutyuhDyh42eor2y0gOBKzAtL0M233K8ct
+KI9BXNlxe8cHecegJbpBzUmfy4UkGLPorlbk2Rk6v5pYw/4BaNh+WYq7bDybb46N
+tlu4Y84TNIwezVOBBBiZs+K+8WkOKOQVl7E//cQ50kSJwCsjRs05N+lhxhWbXI94
+VzYXyDnrgiMGitdHrijAOqz0g9ZfV+kxwr4DaEAciKIeyukkEp8m/+oDj2w4x8AD
+pfBvzQi3KN4gbXgtnwpfmFFSC6WNQFZXFQ/MdsrLeqYBguJRlTIhUXq6g8AVjfMH
+peqioG8ZQ8RX8zLA/+C0kzXTM8Gvl9E1khHEDx9rQFMPo/7Ps5JndnJOB4cFzaFl
+voo8uV+/2xIei44c1IOAevhLmF/Fv0Ep10vScpkbIQcEkrW43ju/8LVUnsxWFT5i
+NGAhtqAjm0NPKxbk1TI6WfDko1a6OqaR/H8CG3G287jynqQjnu8=
+=xppG
+-----END PGP SIGNATURE-----
+
+--7AUc2qLy4jB3hD7Z--
