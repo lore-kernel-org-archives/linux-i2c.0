@@ -1,36 +1,34 @@
 From: Max Staudt <max@enpas.org>
 Subject: Re: [PATCH v3 2/3] hwmon/ltc2990: Generalise DT to fwnode support
-Date: Thu, 15 Aug 2019 23:34:01 +0200
-Message-ID: <a0f06836-52b1-0302-8044-272df63b339f@enpas.org>
+Date: Fri, 16 Aug 2019 00:19:42 +0200
+Message-ID: <6920f2da-3139-6fc8-b02c-3678cc17912e@enpas.org>
 References: <20190815125802.16500-1-max@enpas.org>
- <20190815125802.16500-2-max@enpas.org> <20190815183300.GA18227@roeck-us.net>
+ <20190815125802.16500-2-max@enpas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190815183300.GA18227@roeck-us.net>
+In-Reply-To: <20190815125802.16500-2-max@enpas.org>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, glaubitz@physik.fu-berlin.de
+To: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>
+Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, glaubitz@physik.fu-berlin.de
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/15/2019 08:33 PM, Guenter Roeck wrote:
-> On Thu, Aug 15, 2019 at 02:58:01PM +0200, Max Staudt wrote:
->> ltc2990 will now use device_property_read_u32_array() instead of
->> of_property_read_u32_array() - allowing the use of software nodes
->> via fwnode_create_software_node().
->>
->> This allows code using i2c_new_device() to specify a default
->> measurement mode for the LTC2990.
->>
->> Signed-off-by: Max Staudt <max@enpas.org>
-> 
-> Applied to hwmon-next.
+On 08/15/2019 02:58 PM, Max Staudt wrote:
+> -	if (of_node) {
+> -		ret = of_property_read_u32_array(of_node, "lltc,meas-mode",
+> -						 data->mode, 2);
+> +	if (i2c->dev.of_node || i2c->dev.fwnode) {
 
-Hi Guenter,
+One more idea, would it be better here to do the following?
 
-Thank you for reviewing and taking this patch, as well as teaching me about swnode.
+	if (device_property_present(i2c->dev, "lltc,meas-mode")) {
+		ret = of_property_read_u32_array(of_node, "lltc,meas-mode",
+						 data->mode, 2);
+	}
 
+I'm happy to prepare a patch if you wish to have this in - just let me know whether it should be on top of the last one, or instead of it.
 
+Thanks,
 Max
