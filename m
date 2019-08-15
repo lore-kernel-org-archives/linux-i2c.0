@@ -1,47 +1,38 @@
 From: Nishka Dasgupta <nishkadg.linux@gmail.com>
-Subject: [PATCH] i2c: iproc: Make bcm_iproc_i2c_quirks constant
-Date: Thu, 15 Aug 2019 11:25:50 +0530
-Message-ID: <20190815055550.1588-1-nishkadg.linux@gmail.com>
+Subject: [PATCH] i2c: stm32f7: Make structure stm32f7_i2c_algo constant
+Date: Thu, 15 Aug 2019 11:28:57 +0530
+Message-ID: <20190815055857.1944-1-nishkadg.linux@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: rjui@broadcom.com, sbranden@broadcom.com, bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: pierre-yves.mordret@st.com, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 Cc: Nishka Dasgupta <nishkadg.linux@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Static structure bcm_iproc_i2c_quirks, of type i2c_adapter_quirks, is
-only used when being assigned to constant field quirks of a variable
-having type i2c_adapter. Hence make bcm_iproc_i2c_quirks constant as
-well to prevent it from unintended modification.
+Static structure stm32f7_i2c_algo, of type i2c_algorithm, is used only
+when it is assigned to constant field algo of a variable having type
+i2c_adapter. As stm32f7_i2c_algo is therefore never modified, make it
+const as well to protect it from unintended modification.
 Issue found with Coccinelle.
 
 Signed-off-by: Nishka Dasgupta <nishkadg.linux@gmail.com>
 ---
- drivers/i2c/busses/i2c-bcm-iproc.c | 2 +-
+ drivers/i2c/busses/i2c-stm32f7.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-index d7fd76baec92..e9f0e5b6eadc 100644
---- a/drivers/i2c/busses/i2c-bcm-iproc.c
-+++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-@@ -805,7 +805,7 @@ static struct i2c_algorithm bcm_iproc_algo = {
- 	.unreg_slave = bcm_iproc_i2c_unreg_slave,
- };
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index 266d1c269b83..d36cf08461f7 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -1809,7 +1809,7 @@ static u32 stm32f7_i2c_func(struct i2c_adapter *adap)
+ 		I2C_FUNC_SMBUS_I2C_BLOCK;
+ }
  
--static struct i2c_adapter_quirks bcm_iproc_i2c_quirks = {
-+static const struct i2c_adapter_quirks bcm_iproc_i2c_quirks = {
- 	.max_read_len = M_RX_MAX_READ_LEN,
- };
- 
+-static struct i2c_algorithm stm32f7_i2c_algo = {
++static const struct i2c_algorithm stm32f7_i2c_algo = {
+ 	.master_xfer = stm32f7_i2c_xfer,
+ 	.smbus_xfer = stm32f7_i2c_smbus_xfer,
+ 	.functionality = stm32f7_i2c_func,
 -- 
 2.19.1
