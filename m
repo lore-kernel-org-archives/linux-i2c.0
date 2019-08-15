@@ -1,68 +1,65 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Max <max@enpas.org>
 Subject: Re: [PATCH v2 1/4] i2c/busses: Add i2c-icy for I2C on m68k/Amiga
-Date: Thu, 15 Aug 2019 13:48:09 +0200
-Message-ID: <20190815114809.GA1916@kunai>
+Date: Thu, 15 Aug 2019 13:52:47 +0200
+Message-ID: <54185c85-8c26-916e-41b1-af9b55223e7b@enpas.org>
 References: <20190812235237.21797-1-max@enpas.org>
  <20190814194714.GB9756@kunai>
  <f33ef44e-61e8-0392-7f5c-5a0bd7b42fff@enpas.org>
  <20190815071228.GA1054@kunai>
  <276714fb-6b3a-1e99-0744-bfd037305724@enpas.org>
+ <20190815114809.GA1916@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="YiEDa0DAkWCtVeE4"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <276714fb-6b3a-1e99-0744-bfd037305724@enpas.org>
+In-Reply-To: <20190815114809.GA1916@kunai>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Max Staudt <max@enpas.org>
+To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, glaubitz@physik.fu-berlin.de
 List-Id: linux-i2c@vger.kernel.org
 
+On 08/15/2019 01:48 PM, Wolfram Sang wrote:
+>> Well, the other option is to remove it, and then add it back once
+>> somebody complains - which is unlikely to happen. The clock parameter
+>> is PCF8584 specific anyway, and  I think removing it is a good option,
+> 
+> My suggestion is to do that incrementally. First, get your driver
+> accepted. Second, do the cleanups which affect elektor as well later.
 
---YiEDa0DAkWCtVeE4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-> Well, the other option is to remove it, and then add it back once
-> somebody complains - which is unlikely to happen. The clock parameter
-> is PCF8584 specific anyway, and  I think removing it is a good option,
-
-My suggestion is to do that incrementally. First, get your driver
-accepted. Second, do the cleanups which affect elektor as well later.
-
-> as I've done the same with getown() (where in i2c-elektor, 'own' sets
-> the PCF8584's own address).
-
-I wondered about that. Can the PCF8584 really act as a slave, too?
-Somewhen I need to check its datasheet.
-
-> Question is, if I remove the parameter, I'd like it to be
-> non-destructive. Do you know of anything that can go wrong if the I2C
-> master is running the bus on a wrong clock?
-
-Not sure if I understand you correctly, but if the bus freq is too fast
-then devices won't respond. Too slow is not a problem.
+My suggestion is to not touch i2c-elektor at all for now, and remove the 'clock' parameter from the first iteration of i2c-icy. It can be added back in case someone complains, which I deem unlikely.
 
 
---YiEDa0DAkWCtVeE4
-Content-Type: application/pgp-signature; name="signature.asc"
+>> as I've done the same with getown() (where in i2c-elektor, 'own' sets
+>> the PCF8584's own address).
+> 
+> I wondered about that. Can the PCF8584 really act as a slave, too?
+> Somewhen I need to check its datasheet.
 
------BEGIN PGP SIGNATURE-----
+Yes it can, but this driver does not implement this.
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1VRnUACgkQFA3kzBSg
-KbZm5w//ZH5bqq0+UY1jHI1GqmJONqeU3hd2TQSeY1JC2ZO44Z+s5p/G/9bV1tJQ
-fU4JTMH46HRgwHP3NmmLlPXJ7IjQIPxEkRt63EJ7SNcLuRGUoB4vlRWLQlNFb6gV
-8+y9h6v/VjVUBIiL+INntV4EN7PHKOgic1unur9Mlmu+PxZJ0HP5gQfLgvTBYzy2
-KaPlhcgD+FMioAq2lLjioZadkDGnlR6teppe60ot9lBo1awbvV0iS4Shyc5kF8BH
-WohI+0Ipt+dkz76hsUFEd9FdxUZ+Uv7YQDvfHhjBKyECajeWGwgFC7ToB4aMj4V1
-ncFQBO+jHrs49Qn2d1st1QzpCru+zs02f8cb3H5cwYOQmIbXuhyGQKJcbM6+JBbe
-2iCbQ8Rk03QUSKsa7VB09l7bZEsaChMoT0Swb1R9BFV+PtfEyPWpnlU0HJ3nh516
-qEQfqjrQ+g9QMCEjnIYyKPvwDnmLBl4yxce4F5Su9O8N6gRAQuajnvVWAgs0NlTh
-s3yOm8tFVxzaMwgoEUp+sQwlgZuYWwb1iOQlgQWKFANpupLSRJ03M+d6Jp+EmjrK
-RVN01YsbiQmEQMCx/aMPKPpulXLD12briv+OLTVY/UxtuwC5RikHHl2rKkWtW8Oi
-eOEGP2+cYmZCXrSHhFN4n0wwgsS11aGyu2tnDQ4pMsanAZcnNf0=
-=5C0S
------END PGP SIGNATURE-----
+In fact, I just remembered that the own address, while set, is not used at all in master mode!
 
---YiEDa0DAkWCtVeE4--
+Quote from the datasheet:
+https://www.nxp.com/docs/en/data-sheet/PCF8584.pdf
+
+  6.4 Own address register S0'
+
+  When the PCF8584 is addressed as slave, this register
+  must be loaded with the 7-bit I 2 C-bus address to which the
+  PCF8584 is to respond. During initialization, the own
+  address register S0' must be written to, regardless
+  whether it is later used.
+
+
+>> Question is, if I remove the parameter, I'd like it to be
+>> non-destructive. Do you know of anything that can go wrong if the I2C
+>> master is running the bus on a wrong clock?
+> 
+> Not sure if I understand you correctly, but if the bus freq is too fast
+> then devices won't respond. Too slow is not a problem.
+
+Okay, so we don't care. Cool, then it's safe to kick the 'clock' parameter from i2c-icy. All 2019 boards (which should be the vast majority in existence) came with a 12 MHz oscillator AFAIK, so the default should be good.
+
+
+Max
