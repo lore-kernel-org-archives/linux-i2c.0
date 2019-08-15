@@ -1,65 +1,76 @@
-From: Max <max@enpas.org>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v2 1/4] i2c/busses: Add i2c-icy for I2C on m68k/Amiga
-Date: Thu, 15 Aug 2019 13:52:47 +0200
-Message-ID: <54185c85-8c26-916e-41b1-af9b55223e7b@enpas.org>
+Date: Thu, 15 Aug 2019 14:04:30 +0200
+Message-ID: <20190815120430.GB1916@kunai>
 References: <20190812235237.21797-1-max@enpas.org>
  <20190814194714.GB9756@kunai>
  <f33ef44e-61e8-0392-7f5c-5a0bd7b42fff@enpas.org>
  <20190815071228.GA1054@kunai>
  <276714fb-6b3a-1e99-0744-bfd037305724@enpas.org>
  <20190815114809.GA1916@kunai>
+ <54185c85-8c26-916e-41b1-af9b55223e7b@enpas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="tjCHc7DPkfUGtrlw"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190815114809.GA1916@kunai>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <54185c85-8c26-916e-41b1-af9b55223e7b@enpas.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+To: Max <max@enpas.org>
 Cc: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, glaubitz@physik.fu-berlin.de
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/15/2019 01:48 PM, Wolfram Sang wrote:
->> Well, the other option is to remove it, and then add it back once
->> somebody complains - which is unlikely to happen. The clock parameter
->> is PCF8584 specific anyway, and  I think removing it is a good option,
-> 
-> My suggestion is to do that incrementally. First, get your driver
-> accepted. Second, do the cleanups which affect elektor as well later.
 
-My suggestion is to not touch i2c-elektor at all for now, and remove the 'clock' parameter from the first iteration of i2c-icy. It can be added back in case someone complains, which I deem unlikely.
+--tjCHc7DPkfUGtrlw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
->> as I've done the same with getown() (where in i2c-elektor, 'own' sets
->> the PCF8584's own address).
-> 
-> I wondered about that. Can the PCF8584 really act as a slave, too?
-> Somewhen I need to check its datasheet.
+> My suggestion is to not touch i2c-elektor at all for now, and remove
+> the 'clock' parameter from the first iteration of i2c-icy. It can be
+> added back in case someone complains, which I deem unlikely.
 
-Yes it can, but this driver does not implement this.
+Full ack.
 
-In fact, I just remembered that the own address, while set, is not used at all in master mode!
+>   When the PCF8584 is addressed as slave, this register
+>   must be loaded with the 7-bit I 2 C-bus address to which the
+>   PCF8584 is to respond. During initialization, the own
+>   address register S0' must be written to, regardless
+>   whether it is later used.
 
-Quote from the datasheet:
-https://www.nxp.com/docs/en/data-sheet/PCF8584.pdf
+I see. It must be written a non-zero value to leave the monitor mode.
+But this really needs no callback, we can hardcode any non-zero value.
+If slave support is (ever) to be implemented, the own address will come
+=66rom the I2C core.
 
-  6.4 Own address register S0'
+> Okay, so we don't care. Cool, then it's safe to kick the 'clock'
+> parameter from i2c-icy. All 2019 boards (which should be the vast
+> majority in existence) came with a 12 MHz oscillator AFAIK, so the
+> default should be good.
 
-  When the PCF8584 is addressed as slave, this register
-  must be loaded with the 7-bit I 2 C-bus address to which the
-  PCF8584 is to respond. During initialization, the own
-  address register S0' must be written to, regardless
-  whether it is later used.
-
-
->> Question is, if I remove the parameter, I'd like it to be
->> non-destructive. Do you know of anything that can go wrong if the I2C
->> master is running the bus on a wrong clock?
-> 
-> Not sure if I understand you correctly, but if the bus freq is too fast
-> then devices won't respond. Too slow is not a problem.
-
-Okay, so we don't care. Cool, then it's safe to kick the 'clock' parameter from i2c-icy. All 2019 boards (which should be the vast majority in existence) came with a 12 MHz oscillator AFAIK, so the default should be good.
+Most drivers don't allow users to change the bus speed, so I think it is
+safe to remove.
 
 
-Max
+--tjCHc7DPkfUGtrlw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1VSk4ACgkQFA3kzBSg
+KbaiGBAAodEGPift49JeBi1yJrTTGr4RWOodih6yvhYigloZgzzCOjujdcDFc833
+5dB5EG7SwdqLD+Kwda8tbsCPgfuYXqtdVbJALZWlN7NyLQpA/0zOIPWM8OEZ5g4/
+1WWFZL403EJNRtDNAQ7EMa/gAw7IR5fqxP0CIbyuwmZ5AANyyxzXHJcUl5BY7leY
+qkKveL9sSbRRd2iKUEpu4bZCZXECZMeowqlaUz5Rmvi7bYAIUhe70GZE2jcDWALF
+EckGVh0BqnzWhjUck0AFpSScHQbwwj385JWlVEs2GfCiCppVvNp/FTLuytwgcDI0
+Xv86OeXeh7SyZD4SGwj5wdGd386K3y+Y0ozUeq/bPyal8+mziEAN/trWlBbLG//Z
+MNanwIB9Lp+5RXeLqXh7iDLTEEiLqZv3InaYXZq5PuNNKLePBMA10rDeg0+cruVX
+PWzJUlY2MfQUnqxP+yVCSJcaQ5R2EkUdIcSqIHoXDpaHq6tih5hq64tK+u4Q8pGS
+o9KdzPsNkqCHRypQ2HejoRBs9HzNz3TXYRhGWXPUL4wR6y7qmEC5UCxXZ7Hb2gLh
+aHPr3XFkdXUQr493p9qJiFvtU8opP8I/QhG3FC9yPfbbeKDcAKMclEwxyaHyZALE
+gzZ8CIiLXX6o+ID0pKFF2wXVmseASzZ8X2j3JmBhKaJU+Tff/Io=
+=l/xN
+-----END PGP SIGNATURE-----
+
+--tjCHc7DPkfUGtrlw--
