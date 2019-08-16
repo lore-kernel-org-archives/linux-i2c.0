@@ -1,55 +1,75 @@
-From: Russell King - ARM Linux admin <linux@armlinux.org.uk>
-Subject: Re: [PATCH 1/7] [RFC] ARM: remove Intel iop33x and iop13xx support
-Date: Fri, 16 Aug 2019 16:58:33 +0100
-Message-ID: <20190816155833.GL13294@shell.armlinux.org.uk>
-References: <20190809162956.488941-1-arnd@arndb.de>
- <20190809163334.489360-1-arnd@arndb.de>
- <CAA9_cmdDbBm0ookyqGJMcyLVFHkYHuR3mEeawQKS2UqYJoWWaQ@mail.gmail.com>
- <20190812094456.GI10598@jirafa.cyrius.com>
- <CACRpkdao8LF8g5qi_h+9BT9cHwmB4OadabkdGfP0sEFeLbmiLw@mail.gmail.com>
- <20190816154249.GA30291@darkstar.musicnaut.iki.fi>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 3/3] i2c/busses/i2c-icy: Add LTC2990 present on 2019
+ board revision
+Date: Fri, 16 Aug 2019 18:09:16 +0200
+Message-ID: <20190816160916.GA5858@kunai>
+References: <20190815125802.16500-1-max@enpas.org>
+ <20190815125802.16500-3-max@enpas.org>
+ <20190816115112.GA3507@kunai>
+ <513d49dd-70fc-a226-fdfd-598aadcfec05@enpas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190816154249.GA30291@darkstar.musicnaut.iki.fi>
+In-Reply-To: <513d49dd-70fc-a226-fdfd-598aadcfec05@enpas.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Martin Michlmayr <tbm@cyrius.com>, Peter Teichmann <lists@peter-teichmann.de>, Arnd Bergmann <arnd@arndb.de>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, soc@kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Vinod Koul <vkoul@kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, dmaengine@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>
+To: Max Staudt <max@enpas.org>
+Cc: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, glaubitz@physik.fu-berlin.de
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Aug 16, 2019 at 06:42:49PM +0300, Aaro Koskinen wrote:
-> Hi,
-> 
-> On Wed, Aug 14, 2019 at 10:36:01AM +0200, Linus Walleij wrote:
-> > On Mon, Aug 12, 2019 at 11:45 AM Martin Michlmayr <tbm@cyrius.com> wrote:
-> > > As Arnd points out, Debian used to have support for various iop32x
-> > > devices.  While Debian hasn't supported iop32x in a number of years,
-> > > these devices are still usable and in use (RMK being a prime example).
-> > 
-> > I suppose it could be a good idea to add support for iop32x to
-> > OpenWrt and/or OpenEmbedded, both of which support some
-> > pretty constrained systems.
-> 
-> This platform is not really too constrained... E.g. on N2100 you have
-> 512 MB RAM, SATA disks and gigabit ethernet. Not that different from
-> mvebu that Debian currently (?) supports. Maybe with multiplatform they
-> could support iop32x again.
 
-Probably not.  The kernel has a dividing line between ARMv5 and ARMv6
-where it's not possible to multiplatform across that boundary, so
-you're already needing separate kernel images there.
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Secondly, armhf distros won't be compatible with ARMv5, and to make
-them compatible will make performance on armhf suffer - you have to
-stop using barriers, exclusive load/store and a few other things.
-You have to rely on the kuser page exported by the kernel (which is
-now optional as it's deemed to be a security issue for ROP attacks)
-for some things that such a userspace requires - such as NPTL support.
 
-Effectively, ARMv5 is an entirely separate userspace distro from armhf.
+> > Braces for both blocks. Did you run checkpatch?
+>=20
+> I did, and it didn't say anything.
 
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line in suburbia: sync at 12.1Mbps down 622kbps up
-According to speedtest.net: 11.9Mbps down 500kbps up
+Hmm, strange, does is complain when you use '--strict'?
+
+> Turns out I misremembered the CodingStyle as having a corner case
+> where it doesn't. I'll fix the style - I dislike the above, too ;)
+
+Thanks!
+
+> Yes and no. Now that you mention it - the LTC2990 can be at four
+> addresses (0x4c - 0x4f), and there are jumpers (solder pads) on the
+> PCB to select its address. Shall I add all 4 addresses to the array?
+
+Yes, please.
+
+> It's also possible that there is no LTC2990 at all (because it's hard
+> to solder at home), and that's why we need to probe for it first. I
+> believe i2c_new[_client]_device doesn't do probing, but rather assumes
+> the device to be there. Correct?
+
+Correct. I assumed the sensor is always there. But it is not and can be
+at multiple addresses, so updating the array of addresses is the right
+thing to do(tm).
+
+
+--AhhlLboLdkugWU4S
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1W1SQACgkQFA3kzBSg
+Kbb15Q/9Fxje8eCVKx3e/loxQhqvd9xaHapbEZXDrB6fF77czkPwsNASNvz/Coyl
+Ru5qKJn3AErr8VyUSOXUDDnHDGqqdYzZwQY3uoaV6aN4xza0u29e7PokP7XeA/I6
+zYMK5mIcC7D0Sk+0/biF/Xi3mjpy7pVMeYgOa/xo7Pv8QW0zEITd4u/if2EBzw6n
+q8MCJDwZnqKQicmjdUMaYMl9yDDkEPrCI6HEYGkB0hgffYSwoxpxbeBbT3yhDqZO
+bruA80sIcu3vOa6+kN7jmogcAq8Kg5CUTNWUbINsXMyxqUfJxxKrH4IhrgjjvarY
+1FvmQOihKmkfE2Lp4NMR7tSciWQdRDlgW5gHrQqurr6msCRZ10E9Ylx/ABJ/hOvI
+dJontetvx06hz6JV8nVDLpk7Im6EtT4wU5kzirdpY4un9lgVe4/fm++hwFgHADbO
+ReUC6TBaqe38eVHJh2j1bYCgkMy42iNdwfRv4iDHsxk87diGRiJLIV69qlhxIWeD
+ynGdwgxnBlF110mwyyHwzXwQ8Gi+tW5NVWWOTL4ibfjCUH4KYUU/iT0N4UkgNDfm
+Yy+2u16Fe3GOLc6t15AuWmFFtP/lju6SaY+ngE6rArla1G4Iy/8jMdPEQn1ntTNr
+vtoE4oH4ckD1aEbF39uTzGz6jTUvJPnl5vmgT+fmf1R/trrR/zQ=
+=QAlX
+-----END PGP SIGNATURE-----
+
+--AhhlLboLdkugWU4S--
