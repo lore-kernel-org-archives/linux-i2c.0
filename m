@@ -1,13 +1,14 @@
 From: Bhushan Shah <bshah@kde.org>
-Subject: [PATCH v2 0/3] Enable the I2C nodes for Allwinner H6 CPU
-Date: Fri, 16 Aug 2019 12:17:07 +0530
-Message-ID: <20190816064710.18280-1-bshah@kde.org>
+Subject: [PATCH v2 3/3] arm64: allwinner: h6: add i2c0 node in PineH64
+Date: Fri, 16 Aug 2019 12:17:10 +0530
+Message-ID: <20190816064710.18280-4-bshah@kde.org>
 References: <20190811090503.32396-1-bshah@kde.org>
+ <20190816064710.18280-1-bshah@kde.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190811090503.32396-1-bshah@kde.org>
+In-Reply-To: <20190816064710.18280-1-bshah@kde.org>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -21,22 +22,35 @@ To: Icenowy Zheng <icenowy@aosc.io>, Rob Herring <robh+dt@kernel.org>, Mark Rutl
 Cc: Bhushan Shah <bshah@kde.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch series adds device-tree nodes for i2c nodes in the H6 dtsi,
-and enables it for the Pine H64.
+i2c0 bus is exposed by PI-2 BUS in the PineH64, model B.
 
+Signed-off-by: Bhushan Shah <bshah@kde.org>
+---
 Changes in v2:
-  - Add the SoC specific compatible string instead of re-using a31 one.
   - Don't enable the i2c0 node in PineH64 by default
 
-Bhushan Shah (3):
-  dt-bindings: i2c: mv64xxx: Add compatible for the H6 i2c node.
-  arm64: allwinner: h6: add I2C nodes
-  arm64: allwinner: h6: add i2c0 node in PineH64
+ arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dts | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
- .../bindings/i2c/marvell,mv64xxx-i2c.yaml     |  3 +
- .../boot/dts/allwinner/sun50i-h6-pine-h64.dts |  9 +++
- arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi  | 56 ++++++++++++++++++-
- 3 files changed, 67 insertions(+), 1 deletion(-)
-
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dts b/arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dts
+index 684d1daa3081..97d9b7c63fb3 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dts
+@@ -160,6 +160,15 @@
+ 	vcc-pg-supply = <&reg_aldo1>;
+ };
+ 
++/* This i2c interface is exposed on PI-2 BUS, Pin 3 (I2C_SDA) and 5 (I2C_SCL) */
++&i2c0 {
++	status = "disabled";
++};
++
++&i2c0_pins {
++	bias-pull-up;
++};
++
+ &r_i2c {
+ 	status = "okay";
+ 
 -- 
 2.17.1
