@@ -1,119 +1,54 @@
-From: Bhushan Shah <bshah@kde.org>
-Subject: [PATCH v2 2/3] arm64: allwinner: h6: add I2C nodes
-Date: Fri, 16 Aug 2019 12:17:09 +0530
-Message-ID: <20190816064710.18280-3-bshah@kde.org>
-References: <20190811090503.32396-1-bshah@kde.org>
- <20190816064710.18280-1-bshah@kde.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v3 2/3] hwmon/ltc2990: Generalise DT to fwnode support
+Date: Fri, 16 Aug 2019 09:32:46 +0200
+Message-ID: <CAMuHMdUYpkkmhxwTu7MGm6NiMfYs9SqjLKRPazuSEjRgpRavyg@mail.gmail.com>
+References: <20190815125802.16500-1-max@enpas.org> <20190815125802.16500-2-max@enpas.org>
+ <6920f2da-3139-6fc8-b02c-3678cc17912e@enpas.org> <20190815224341.GA12420@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190816064710.18280-1-bshah@kde.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Icenowy Zheng <icenowy@aosc.io>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Chen-Yu Tsai <wens@csie.org>, Wolfram Sang <wsa@the-dreams.de>, Gregory CLEMENT <gregory.clement@bootlin.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Cc: Bhushan Shah <bshah@kde.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190815224341.GA12420@roeck-us.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Max Staudt <max@enpas.org>, Linux I2C <linux-i2c@vger.kernel.org>, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Linux/m68k <linux-m68k@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Add device-tree nodes for i2c0 to i2c2, and also add relevant pinctrl
-nodes.
+On Fri, Aug 16, 2019 at 1:50 AM Guenter Roeck <linux@roeck-us.net> wrote:
+> On Fri, Aug 16, 2019 at 12:19:42AM +0200, Max Staudt wrote:
+> > On 08/15/2019 02:58 PM, Max Staudt wrote:
+> > > -   if (of_node) {
+> > > -           ret = of_property_read_u32_array(of_node, "lltc,meas-mode",
+> > > -                                            data->mode, 2);
+> > > +   if (i2c->dev.of_node || i2c->dev.fwnode) {
 
-Suggested-by: Icenowy Zheng <icenowy@aosc.io>
-Signed-off-by: Bhushan Shah <bshah@kde.org>
----
-Changes in v2:
-  - Add the SoC specific compatible string instead of re-using a31 one.
+I was just going to comment on this check...
 
- arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi | 56 +++++++++++++++++++-
- 1 file changed, 55 insertions(+), 1 deletion(-)
+> > One more idea, would it be better here to do the following?
+> >
+> >       if (device_property_present(i2c->dev, "lltc,meas-mode")) {
+> >               ret = of_property_read_u32_array(of_node, "lltc,meas-mode",
+> >                                                data->mode, 2);
+> >       }
+> >
+> > I'm happy to prepare a patch if you wish to have this in - just let me know whether it should be on top of the last one, or instead of it.
+>
+> That would be semantically different. The property is currently mandatory.
+> The above code would make it optional. This might work:
+>
+>         if (dev_fwnode(&i2c->dev)) {
+>                 ret = device_property_read_u32_array(...);
+>                 ...
+>         }
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi
-index bcecca17d61d..a1a329926540 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-h6.dtsi
-@@ -329,6 +329,21 @@
- 				function = "hdmi";
- 			};
- 
-+			i2c0_pins: i2c0-pins {
-+				pins = "PD25", "PD26";
-+				function = "i2c0";
-+			};
-+
-+			i2c1_pins: i2c1-pins {
-+				pins = "PH5", "PH6";
-+				function = "i2c1";
-+			};
-+
-+			i2c2_pins: i2c2-pins {
-+				pins = "PD23", "PD24";
-+				function = "i2c2";
-+			};
-+
- 			mmc0_pins: mmc0-pins {
- 				pins = "PF0", "PF1", "PF2", "PF3",
- 				       "PF4", "PF5";
-@@ -464,6 +479,45 @@
- 			status = "disabled";
- 		};
- 
-+		i2c0: i2c@5002000 {
-+			compatible = "allwinner,sun50i-h6-i2c";
-+			reg = <0x05002000 0x400>;
-+			interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&ccu CLK_BUS_I2C0>;
-+			resets = <&ccu RST_BUS_I2C0>;
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&i2c0_pins>;
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
-+
-+		i2c1: i2c@5002400 {
-+			compatible = "allwinner,sun50i-h6-i2c";
-+			reg = <0x05002400 0x400>;
-+			interrupts = <GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&ccu CLK_BUS_I2C1>;
-+			resets = <&ccu RST_BUS_I2C1>;
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&i2c1_pins>;
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
-+
-+		i2c2: i2c@5002800 {
-+			compatible = "allwinner,sun50i-h6-i2c";
-+			reg = <0x05002800 0x400>;
-+			interrupts = <GIC_SPI 6 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&ccu CLK_BUS_I2C2>;
-+			resets = <&ccu RST_BUS_I2C2>;
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&i2c2_pins>;
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+		};
-+
- 		emac: ethernet@5020000 {
- 			compatible = "allwinner,sun50i-h6-emac",
- 				     "allwinner,sun50i-a64-emac";
-@@ -795,7 +849,7 @@
- 		};
- 
- 		r_i2c: i2c@7081400 {
--			compatible = "allwinner,sun6i-a31-i2c";
-+			compatible = "allwinner,sun50i-h6-i2c";
- 			reg = <0x07081400 0x400>;
- 			interrupts = <GIC_SPI 107 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&r_ccu CLK_R_APB2_I2C>;
+Much better, thanks!
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
 -- 
-2.17.1
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
