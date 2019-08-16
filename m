@@ -1,27 +1,65 @@
-From: Rob Herring <robh+dt@kernel.org>
-Subject: Re: [PATCH v3 1/2] dt-bindings: i2c: mv64xxx: Add compatible for the
- H6 i2c node.
-Date: Fri, 16 Aug 2019 13:44:53 -0600
-Message-ID: <CAL_JsqK_j_AK5wa3cOw_SpVZAX+m_iSvnR+Sgh0dbqxYxHKr=Q@mail.gmail.com>
-References: <20190816064710.18280-1-bshah@kde.org> <20190816084309.27440-1-bshah@kde.org>
- <20190816084309.27440-2-bshah@kde.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/3] include: linux: i2c: more helpers for declaring i2c
+ drivers
+Date: Fri, 16 Aug 2019 21:56:40 +0200
+Message-ID: <20190816195640.GD6886@kunai>
+References: <1560796779-17117-1-git-send-email-info@metux.net>
+ <20190621211744.GC950@kunai>
+ <c669a041-f025-693a-492a-80ce888db737@metux.net>
+ <20190624084427.GA1014@kunai>
+ <205d0ef7-d487-006b-d104-88958f40e197@metux.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="eheScQNz3K90DVRs"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190816084309.27440-2-bshah@kde.org>
+Content-Disposition: inline
+In-Reply-To: <205d0ef7-d487-006b-d104-88958f40e197@metux.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bhushan Shah <bshah@kde.org>
-Cc: Icenowy Zheng <icenowy@aosc.io>, Mark Rutland <mark.rutland@arm.com>, Maxime Ripard <maxime.ripard@bootlin.com>, Chen-Yu Tsai <wens@csie.org>, Gregory CLEMENT <gregory.clement@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, Linux I2C <linux-i2c@vger.kernel.org>, devicetree@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" <linux-arm-kernel@lists.infradead.org>
+To: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
+Cc: "Enrico Weigelt, metux IT consult" <info@metux.net>, linux-kernel@vger.kernel.org, linus.walleij@linaro.org, bgolaszewski@baylibre.com, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Aug 16, 2019 at 2:44 AM Bhushan Shah <bshah@kde.org> wrote:
->
-> Allwinner H6 have a mv64xxx i2c interface available to be used.
->
-> Signed-off-by: Bhushan Shah <bshah@kde.org>
-> ---
->
->  Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml | 3 +++
->  1 file changed, 3 insertions(+)
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+--eheScQNz3K90DVRs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+(Found this mail in the offline draft folder of another laptop)
+
+> So, then the current approach of using subsys_initcall() can't be
+> changed easily, right now. But planned for the future (or at least
+> not introducing new caes).
+
+Yes.
+
+> But: how does that conflict w/ just moving the existing redundant
+> pieces into a helper macro ? The logic stays the same - just using
+> a shorter notation. (assuming my patch isn't buggy ;-)).
+
+It is not conflicting. My thinking is that such helpers, in general,
+scale better and are less error prone. But there is nothing to scale
+here.
+
+
+--eheScQNz3K90DVRs
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1XCngACgkQFA3kzBSg
+KbYWTRAAjHFuFmxp6ayjp/MNRyXYjcRadDc3TrI200+v/8QzljjpaQ4oBTmXoKPU
+2nqyXXulIQZU9Bfy4IxgNHkbv9X3Au5mC3rJP+Mp/77JfFyk5EDFl2sPWlg2gt2g
+kvgjFTv70bOso6Md3V88f0XppSFDj0rXJ33dMwTaDIEVVGBCE22o6ei0AQZfs5qb
+PS4UtuLBxD3nahjziH6GIbY69CxCOPgXcLY/WVT7FjhyQu+RmZzRVJ9MCJRyE7Nb
+2at41jzk1fMpsAligpgkVGRDLE2yvGgoDwiCWO96SqUsM/8ARmXk8PmHCUsn123G
+MJbtl9D96AkGSKTe3JRXuPkcztAzENWF8en+AT3OfMwuB5aXSv41UTCTEy61SWWV
+eQlCtX5h89NIreEmwU+n0tVpQG5Q0C3ds5toCHyuaXvSHWfucmMVbY/pDyezBuV+
+ON8qCGii7VJpsafs1ggn59bxKJJRRkztN5SVahqUAafIGNGNLZEQAl1S+fmVuEZn
+iadGjmQFnv89hDpniObnVvfV4hPYEaNOfrIDwydGpL4mB/wKLp/xLE+Oz3Qd0Okg
+d4JHRahfTM7Dq2YkWkd25jTkTe4UugGM1kxxOWIwjyYEM7mULa87npP2ZRCboIiv
+CEc8dk3c3Qke9oEtYsQ7SoXuLjtURRSsGgSr+rgQrk0AaMsXNVk=
+=QklQ
+-----END PGP SIGNATURE-----
+
+--eheScQNz3K90DVRs--
