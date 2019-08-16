@@ -1,77 +1,63 @@
-From: Maxime Ripard <maxime.ripard@bootlin.com>
+From: Bhushan Shah <bshah@kde.org>
 Subject: Re: [PATCH v2 3/3] arm64: allwinner: h6: add i2c0 node in PineH64
-Date: Fri, 16 Aug 2019 09:52:11 +0200
-Message-ID: <20190816075211.xaq54q2cdniwjpp3@flea>
+Date: Fri, 16 Aug 2019 13:51:14 +0530
+Message-ID: <20190816082114.GA18236@pyxis>
 References: <20190811090503.32396-1-bshah@kde.org>
  <20190816064710.18280-1-bshah@kde.org>
  <20190816064710.18280-4-bshah@kde.org>
+ <20190816075211.xaq54q2cdniwjpp3@flea>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ft24qo4b5lbfpatv"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190816064710.18280-4-bshah@kde.org>
+In-Reply-To: <20190816075211.xaq54q2cdniwjpp3@flea>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bhushan Shah <bshah@kde.org>
-Cc: Icenowy Zheng <icenowy@aosc.io>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Chen-Yu Tsai <wens@csie.org>, Wolfram Sang <wsa@the-dreams.de>, Gregory CLEMENT <gregory.clement@bootlin.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Maxime Ripard <maxime.ripard@bootlin.com>
+Cc: Bhushan Shah <bshah@kde.org>, Icenowy Zheng <icenowy@aosc.io>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Chen-Yu Tsai <wens@csie.org>, Wolfram Sang <wsa@the-dreams.de>, Gregory CLEMENT <gregory.clement@bootlin.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---ft24qo4b5lbfpatv
+--6c2NcOVqGQ03X4Wi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-65;5603;1c
-On Fri, Aug 16, 2019 at 12:17:10PM +0530, Bhushan Shah wrote:
-> i2c0 bus is exposed by PI-2 BUS in the PineH64, model B.
->
-> Signed-off-by: Bhushan Shah <bshah@kde.org>
-> ---
-> Changes in v2:
->   - Don't enable the i2c0 node in PineH64 by default
->
->  arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dts | 9 +++++++++
->  1 file changed, 9 insertions(+)
->
-> diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dts b/arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dts
-> index 684d1daa3081..97d9b7c63fb3 100644
-> --- a/arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dts
-> +++ b/arch/arm64/boot/dts/allwinner/sun50i-h6-pine-h64.dts
-> @@ -160,6 +160,15 @@
->  	vcc-pg-supply = <&reg_aldo1>;
->  };
->
-> +/* This i2c interface is exposed on PI-2 BUS, Pin 3 (I2C_SDA) and 5 (I2C_SCL) */
-> +&i2c0 {
-> +	status = "disabled";
-> +};
+On Fri, Aug 16, 2019 at 09:52:11AM +0200, Maxime Ripard wrote:
+> > +/* This i2c interface is exposed on PI-2 BUS, Pin 3 (I2C_SDA) and 5 (I=
+2C_SCL) */
+> > +&i2c0 {
+> > +	status =3D "disabled";
+> > +};
+>=20
+> This property is set to disabled in the DTSI already
 
-This property is set to disabled in the DTSI already
+I added this node here with disabled status due to comment from wens in
+previous revision, main reason being that serves as reference/pointer to
+people looking at how to enable i2c0.
 
-> +&i2c0_pins {
-> +	bias-pull-up;
-> +};
-> +
+I can remove it if you prefer.
 
-And this should be in the same overlay than the one that sets status
-to okay.
 
-Maxime
+--=20
+Bhushan Shah
+http://blog.bshah.in
+IRC Nick : bshah on Freenode
+GPG key fingerprint : 0AAC 775B B643 7A8D 9AF7 A3AC FE07 8411 7FBC E11D
 
---
-Maxime Ripard, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
-
---ft24qo4b5lbfpatv
+--6c2NcOVqGQ03X4Wi
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCXVZgqwAKCRDj7w1vZxhR
-xRnpAQCA1Dnh07ZLw+W8kJWaeBmCKi6OoeBA81ASauE2EwWjfAEApDyrf66lZnxn
-8aFeeQ7tNBJFyO0BUDMs+ClRbnuPawQ=
-=EKXH
+iQEzBAABCgAdFiEEs8s2ZVJUC+Bu6a2XEZaMRJKMrvwFAl1WZ3IACgkQEZaMRJKM
+rvzmrQgAs4UbPI/OrKjksQjR9SX73B9grk5BFXC1ueeuEriMeFJmXNCDe8p8TKOj
+5uuflxKRw958jtYLvMoc9Z+AQwJZG2oBjzP0X7s9aJAcXIKulQ9NIW6eQU7ZoiZD
+2F5Nwb8iYYq8v7OYd+t5I7yGzq/olO/tYvs2eIpPPHQDM7NqzYU+FLi4JcB8UUkL
+Mp7h9MrMtNQoY149/3F9QfaFyU77C3rirD0xqf59Lf4e+UVyk8u/eeYzMFemA7br
+5rJg+jDbOpJzb6Jn9bw8MMM9TKWs0rW8WyLy0xabATSNB6XEPCyCd/WxH+XzRP8c
+wA+Kb80TXdmtsgssKa1+/Llt/AYWew==
+=FgLh
 -----END PGP SIGNATURE-----
 
---ft24qo4b5lbfpatv--
+--6c2NcOVqGQ03X4Wi--
