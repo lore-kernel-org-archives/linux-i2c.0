@@ -1,65 +1,42 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/3] include: linux: i2c: more helpers for declaring i2c
- drivers
-Date: Fri, 16 Aug 2019 21:56:40 +0200
-Message-ID: <20190816195640.GD6886@kunai>
-References: <1560796779-17117-1-git-send-email-info@metux.net>
- <20190621211744.GC950@kunai>
- <c669a041-f025-693a-492a-80ce888db737@metux.net>
- <20190624084427.GA1014@kunai>
- <205d0ef7-d487-006b-d104-88958f40e197@metux.net>
+From: Stefan Wahren <wahrenst@gmx.net>
+Subject: Re: [PATCH V2 08/13] i2c: bcm2835: Avoid clk stretch quirk for BCM2711
+Date: Sat, 17 Aug 2019 09:32:01 +0200
+Message-ID: <bb924d04-b4a9-56c7-c7d5-31f3cc8c1da3@gmx.net>
+References: <1565713248-4906-1-git-send-email-wahrenst@gmx.net>
+ <1565713248-4906-9-git-send-email-wahrenst@gmx.net>
+ <20190814193628.GA9756@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="eheScQNz3K90DVRs"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <205d0ef7-d487-006b-d104-88958f40e197@metux.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
-Cc: "Enrico Weigelt, metux IT consult" <info@metux.net>, linux-kernel@vger.kernel.org, linus.walleij@linaro.org, bgolaszewski@baylibre.com, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190814193628.GA9756@kunai>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>, Scott Branden <sbranden@broadcom.com>, Stephen Boyd <sboyd@kernel.org>, Ray Jui <rjui@broadcom.com>, Michael Turquette <mturquette@baylibre.com>, Eric Anholt <eric@anholt.net>, Rob Herring <robh+dt@kernel.org>, bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---eheScQNz3K90DVRs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Am 14.08.19 um 21:36 schrieb Wolfram Sang:
+>>  static const struct of_device_id bcm2835_i2c_of_match[] = {
+>> -	{ .compatible = "brcm,bcm2835-i2c" },
+>> +	{ .compatible = "brcm,bcm2711-i2c", .data = (void *)NO_STRETCH_BUG },
+>> +	{ .compatible = "brcm,bcm2835-i2c", .data = (void *)STRETCH_BUG },
+> What about simply putting a pointer to the quirks data (or NULL) as
+> match_data? Then the code should be:
+>
+> adap->quirks = (cast)of_device_get_match_data(&pdev->dev);
 
+quirks = (const struct i2c_adapter_quirks *)of_device_get_match_data(dev);
 
-(Found this mail in the offline draft folder of another laptop)
-
-> So, then the current approach of using subsys_initcall() can't be
-> changed easily, right now. But planned for the future (or at least
-> not introducing new caes).
-
-Yes.
-
-> But: how does that conflict w/ just moving the existing redundant
-> pieces into a helper macro ? The logic stays the same - just using
-> a shorter notation. (assuming my patch isn't buggy ;-)).
-
-It is not conflicting. My thinking is that such helpers, in general,
-scale better and are less error prone. But there is nothing to scale
-here.
-
-
---eheScQNz3K90DVRs
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1XCngACgkQFA3kzBSg
-KbYWTRAAjHFuFmxp6ayjp/MNRyXYjcRadDc3TrI200+v/8QzljjpaQ4oBTmXoKPU
-2nqyXXulIQZU9Bfy4IxgNHkbv9X3Au5mC3rJP+Mp/77JfFyk5EDFl2sPWlg2gt2g
-kvgjFTv70bOso6Md3V88f0XppSFDj0rXJ33dMwTaDIEVVGBCE22o6ei0AQZfs5qb
-PS4UtuLBxD3nahjziH6GIbY69CxCOPgXcLY/WVT7FjhyQu+RmZzRVJ9MCJRyE7Nb
-2at41jzk1fMpsAligpgkVGRDLE2yvGgoDwiCWO96SqUsM/8ARmXk8PmHCUsn123G
-MJbtl9D96AkGSKTe3JRXuPkcztAzENWF8en+AT3OfMwuB5aXSv41UTCTEy61SWWV
-eQlCtX5h89NIreEmwU+n0tVpQG5Q0C3ds5toCHyuaXvSHWfucmMVbY/pDyezBuV+
-ON8qCGii7VJpsafs1ggn59bxKJJRRkztN5SVahqUAafIGNGNLZEQAl1S+fmVuEZn
-iadGjmQFnv89hDpniObnVvfV4hPYEaNOfrIDwydGpL4mB/wKLp/xLE+Oz3Qd0Okg
-d4JHRahfTM7Dq2YkWkd25jTkTe4UugGM1kxxOWIwjyYEM7mULa87npP2ZRCboIiv
-CEc8dk3c3Qke9oEtYsQ7SoXuLjtURRSsGgSr+rgQrk0AaMsXNVk=
-=QklQ
------END PGP SIGNATURE-----
-
---eheScQNz3K90DVRs--
+would hit the line limit. Do you insists on the cast, because it's
+actually not required?
