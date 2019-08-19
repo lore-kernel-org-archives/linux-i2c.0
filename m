@@ -1,34 +1,61 @@
 From: Max Staudt <max@enpas.org>
-Subject: Re: [PATCH v3 3/3] i2c/busses/i2c-icy: Add LTC2990 present on 2019
- board revision
-Date: Mon, 19 Aug 2019 13:22:54 +0200
-Message-ID: <c7997f14-dd3e-11c6-4ab8-8e7fbf4e926a@enpas.org>
-References: <20190815125802.16500-1-max@enpas.org>
- <20190815125802.16500-3-max@enpas.org> <20190816115112.GA3507@kunai>
- <513d49dd-70fc-a226-fdfd-598aadcfec05@enpas.org>
- <20190816160916.GA5858@kunai>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v5 2/3] hwmon/ltc2990: Generalise DT to fwnode support
+Date: Mon, 19 Aug 2019 14:16:17 +0200
+Message-ID: <20190819121618.16557-2-max@enpas.org>
+References: <20190819121618.16557-1-max@enpas.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190816160916.GA5858@kunai>
-Content-Language: en-US
+In-Reply-To: <20190819121618.16557-1-max@enpas.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, glaubitz@physik.fu-berlin.de
+To: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>
+Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, glaubitz@physik.fu-berlin.de, Max Staudt <max@enpas.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/16/2019 06:09 PM, Wolfram Sang wrote:
-> 
->>> Braces for both blocks. Did you run checkpatch?
->>
->> I did, and it didn't say anything.
-> 
-> Hmm, strange, does is complain when you use '--strict'?
+ltc2990 will now use device_property_read_u32_array() instead of
+of_property_read_u32_array() - allowing the use of software nodes
+via fwnode_create_software_node().
 
-Yes, --strict catches it. Thanks, I didn't know about that parameter.
+This allows code using i2c_new_device() to specify a default
+measurement mode for the LTC2990 via fwnode_create_software_node().
 
-I'll send a v5 with all requested fixes.
+Signed-off-by: Max Staudt <max@enpas.org>
+---
+ drivers/hwmon/ltc2990.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-
-Max
+diff --git a/drivers/hwmon/ltc2990.c b/drivers/hwmon/ltc2990.c
+index f9431ad43..53ff50517 100644
+--- a/drivers/hwmon/ltc2990.c
++++ b/drivers/hwmon/ltc2990.c
+@@ -13,7 +13,7 @@
+ #include <linux/i2c.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+-#include <linux/of.h>
++#include <linux/property.h>
+ 
+ #define LTC2990_STATUS	0x00
+ #define LTC2990_CONTROL	0x01
+@@ -206,7 +206,6 @@ static int ltc2990_i2c_probe(struct i2c_client *i2c,
+ 	int ret;
+ 	struct device *hwmon_dev;
+ 	struct ltc2990_data *data;
+-	struct device_node *of_node = i2c->dev.of_node;
+ 
+ 	if (!i2c_check_functionality(i2c->adapter, I2C_FUNC_SMBUS_BYTE_DATA |
+ 				     I2C_FUNC_SMBUS_WORD_DATA))
+@@ -218,9 +217,10 @@ static int ltc2990_i2c_probe(struct i2c_client *i2c,
+ 
+ 	data->i2c = i2c;
+ 
+-	if (of_node) {
+-		ret = of_property_read_u32_array(of_node, "lltc,meas-mode",
+-						 data->mode, 2);
++	if (dev_fwnode(&i2c->dev)) {
++		ret = device_property_read_u32_array(&i2c->dev,
++						     "lltc,meas-mode",
++						     data->mode, 2);
+ 		if (ret < 0)
+ 			return ret;
+ 
+-- 
+2.11.0
