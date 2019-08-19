@@ -1,148 +1,69 @@
-From: Max Staudt <max@enpas.org>
-Subject: [PATCH v5 3/3] i2c/busses/i2c-icy: Add LTC2990 present on 2019 board revision
-Date: Mon, 19 Aug 2019 14:16:18 +0200
-Message-ID: <20190819121618.16557-3-max@enpas.org>
-References: <20190819121618.16557-1-max@enpas.org>
+From: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
+Subject: Re: [PATCH v5 0/3] Enable ACPI-defined peripherals on i2c-piix4 SMBus
+Date: Mon, 19 Aug 2019 20:30:30 +0200
+Message-ID: <9019cce9-837f-97fc-0f3b-7503b8fc3717@metux.net>
+References: <20190802145109.38dd4045@endymion>
+ <b013c33b-da11-ce5e-08d4-0b24a8575109@metux.net>
+ <db725a3b-7b6e-ac79-ef1c-e601ff45c0f2@rationali.st>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190819121618.16557-1-max@enpas.org>
+In-Reply-To: <db725a3b-7b6e-ac79-ef1c-e601ff45c0f2@rationali.st>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>
-Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, glaubitz@physik.fu-berlin.de, Max Staudt <max@enpas.org>
+To: acooks@rationali.st, Jean Delvare <jdelvare@suse.de>, Linux I2C <linux-i2c@vger.kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, platypus-sw@opengear.com, "Tobin C . Harding" <me@tobin.cc>, Guenter Roeck <linux@roeck-us.net>, Will Wagner <willw@carallon.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Since the 2019 a1k.org community re-print of these PCBs sports an
-LTC2990 hwmon chip as an example use case, let this driver autoprobe
-for that as well. If it is present, modprobing ltc2990 is sufficient.
+On 11.08.19 04:52, Andrew Cooks wrote:
 
-The property_entry enables the three additional inputs available on
-this particular board:
+Hi,
 
-  in1 will be the voltage of the 5V rail, divided by 2.
-  in2 will be the voltage of the 12V rail, divided by 4.
-  temp3 will be measured using a PCB loop next the chip.
+> My initial work is based on a board that is similar to the APU2, but has additional peripherals connected to the smbus, including a NCT7491 thermal monitor/fan controller and PCA6524 GPIO controller. These are simply peripherals on a board variant, not 'platform' devices, so I didn't want to follow the platform driver approach that the APU2 GPIO driver uses.
 
-v5: Style
+Why are they not platform devices ?
 
-v4: Style
-    Added other possible addresses for LTC2990.
+IMHO, a platform device is something not on a bus that can do the
+probing/enumeration (like eg. pci or usb does).
 
-v3: Merged with initial LTC2990 support on ICY.
-    Moved defaults from platform_data to swnode.
-    Added note to Kconfig.
+Can these devices be probed directly by the bus they're connected to,
+or do you have a different definition of the term "platform device" ?
 
-Signed-off-by: Max Staudt <max@enpas.org>
----
- drivers/i2c/busses/Kconfig   |  3 +++
- drivers/i2c/busses/i2c-icy.c | 57 ++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 60 insertions(+)
+:O
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 9e57e1101..a311d07f3 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -1311,6 +1311,9 @@ config I2C_ICY
- 	  This support is also available as a module.  If so, the module
- 	  will be called i2c-icy.
- 
-+	  If you have a 2019 edition board with an LTC2990 sensor at address
-+	  0x4c, loading the module 'ltc2990' is sufficient to enable it.
-+
- config I2C_MLXCPLD
- 	tristate "Mellanox I2C driver"
- 	depends on X86_64
-diff --git a/drivers/i2c/busses/i2c-icy.c b/drivers/i2c/busses/i2c-icy.c
-index 20c0fbacf..6dd303dc1 100644
---- a/drivers/i2c/busses/i2c-icy.c
-+++ b/drivers/i2c/busses/i2c-icy.c
-@@ -53,6 +53,8 @@ struct icy_i2c {
- 
- 	void __iomem *reg_s0;
- 	void __iomem *reg_s1;
-+	struct fwnode_handle *ltc2990_fwnode;
-+	struct i2c_client *ltc2990_client;
- };
- 
- /*
-@@ -95,11 +97,34 @@ static void icy_pcf_waitforpin(void *data)
- /*
-  * Main i2c-icy part
-  */
-+static unsigned short const icy_ltc2990_addresses[] = {
-+	0x4c, 0x4d, 0x4e, 0x4f, I2C_CLIENT_END
-+};
-+
-+/*
-+ * Additional sensors exposed once this property is applied:
-+ *
-+ * in1 will be the voltage of the 5V rail, divided by 2.
-+ * in2 will be the voltage of the 12V rail, divided by 4.
-+ * temp3 will be measured using a PCB loop next the chip.
-+ */
-+static const u32 icy_ltc2990_meas_mode[] = {0, 3};
-+
-+static const struct property_entry icy_ltc2990_props[] = {
-+	PROPERTY_ENTRY_U32_ARRAY("lltc,meas-mode", icy_ltc2990_meas_mode),
-+	{ }
-+};
-+
- static int icy_probe(struct zorro_dev *z,
- 		     const struct zorro_device_id *ent)
- {
- 	struct icy_i2c *i2c;
- 	struct i2c_algo_pcf_data *algo_data;
-+	struct fwnode_handle *new_fwnode;
-+	struct i2c_board_info ltc2990_info = {
-+		.type		= "ltc2990",
-+		.addr		= 0x4c,
-+	};
- 
- 	i2c = devm_kzalloc(&z->dev, sizeof(*i2c), GFP_KERNEL);
- 	if (!i2c)
-@@ -141,6 +166,35 @@ static int icy_probe(struct zorro_dev *z,
- 	dev_info(&z->dev, "ICY I2C controller at %pa, IRQ not implemented\n",
- 		 &z->resource.start);
- 
-+	/*
-+	 * The 2019 a1k.org PCBs have an LTC2990 at 0x4c, so start
-+	 * it automatically once ltc2990 is modprobed.
-+	 *
-+	 * in0 is the voltage of the internal 5V power supply.
-+	 * temp1 is the temperature inside the chip.
-+	 *
-+	 * See property_entry above for in1, in2, temp3.
-+	 */
-+	new_fwnode = fwnode_create_software_node(icy_ltc2990_props, NULL);
-+	if (IS_ERR(new_fwnode)) {
-+		dev_info(&z->dev, "Failed to create fwnode for LTC2990, error: %ld\n",
-+			 PTR_ERR(new_fwnode));
-+	} else {
-+		/*
-+		 * Store the fwnode so we can destroy it on .remove().
-+		 * Only store it on success, as fwnode_remove_software_node()
-+		 * is NULL safe, but not PTR_ERR safe.
-+		 */
-+		i2c->ltc2990_fwnode = new_fwnode;
-+		ltc2990_info.fwnode = new_fwnode;
-+
-+		i2c->ltc2990_client =
-+			i2c_new_probed_device(&i2c->adapter,
-+					      &ltc2990_info,
-+					      icy_ltc2990_addresses,
-+					      NULL);
-+	}
-+
- 	return 0;
- }
- 
-@@ -148,6 +202,9 @@ static void icy_remove(struct zorro_dev *z)
- {
- 	struct icy_i2c *i2c = dev_get_drvdata(&z->dev);
- 
-+	i2c_unregister_device(i2c->ltc2990_client);
-+	fwnode_remove_software_node(i2c->ltc2990_fwnode);
-+
- 	i2c_del_adapter(&i2c->adapter);
- }
- 
+> SMBus (and I2C) peripherals can generally not be enumerated without some firmware support. It is possible to probe for specific devices on the bus (eg sensors-detect) but in general it is not feasible to let every supported device driver probe the bus for its device. ACPI and Devicetree provides the kernel with metadata for the device: type, address, calibrated set points for temperature, etc.
+
+Yes, I know. My question was whether these particular devices - if
+they're in the SoC itself - do need some extra support in BIOS
+(acpi entries, etc), that's not already in aegesa. Or in other words:
+do I need to patch my BIOS ?
+
+I was assuming these devices are in the SoC itself - correct me if
+I'm wrong.
+
+> Since the peripherals are not standard platform devices, they are not described by the ACPI tables provided by Coreboot or AMD, but it's not too difficult to create supplementary device description tables (ACPI) for non-standard devices. These can be added to coreboot, supplied to qemu as additional firmware files (see -acpitable arg), or built into the kernel (see https://www.kernel.org/doc/Documentation/acpi/ssdt-overlays.txt)
+
+Oh, I didn't know about SSDT overlays yet. That's interesting.
+
+Is it also possible to describe things like leds-gpio or gpio-keyboard ?
+Could be a nice idea to trim down my apu2 driver to not much more than
+a piece of configuration (just like we'd do on a DT-based system)
+
+> ACPI may be an ugly abomination, but it's what we're stuck with on x86 and it can only improve when more people get their hands on it.
+
+hmm, I'm planning to introduce DT to x86 (also patch up apu'2 coreboot
+do deliver a DT to the kernel) ... but just lacking time to get my hands
+dirty on this topic.
+
+> You might find it helpful to look at the coreboot source for the APU2 (src/mainboard/pcengines/apu2/gpio_ftns.h)
+
+In which version ?
+
+
+--mtx
+
 -- 
-2.11.0
+Enrico Weigelt, metux IT consult
+Free software and Linux embedded engineering
+info@metux.net -- +49-151-27565287
