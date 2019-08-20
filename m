@@ -1,13 +1,15 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH] i2c: cht-wc: drop check because i2c_unregister_device() is NULL safe
-Date: Tue, 20 Aug 2019 17:34:40 +0200
-Message-ID: <20190820153441.7693-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 2/2] media: i2c: adv7842: drop check because i2c_unregister_device() is NULL safe
+Date: Tue, 20 Aug 2019 17:34:41 +0200
+Message-ID: <20190820153441.7748-2-wsa+renesas@sang-engineering.com>
+References: <20190820153441.7748-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190820153441.7748-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Hans de Goede <hdegoede@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 No need to check the argument of i2c_unregister_device() because the
@@ -19,22 +21,52 @@ Build tested only, buildbot is happy, too.
 
 Please apply to your tree.
 
- drivers/i2c/busses/i2c-cht-wc.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/media/i2c/adv7842.c | 33 +++++++++++----------------------
+ 1 file changed, 11 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-wc.c
-index 66af44bfa67d..3e2608a65c06 100644
---- a/drivers/i2c/busses/i2c-cht-wc.c
-+++ b/drivers/i2c/busses/i2c-cht-wc.c
-@@ -363,8 +363,7 @@ static int cht_wc_i2c_adap_i2c_remove(struct platform_device *pdev)
+diff --git a/drivers/media/i2c/adv7842.c b/drivers/media/i2c/adv7842.c
+index ffc3d174c4a1..885619841719 100644
+--- a/drivers/media/i2c/adv7842.c
++++ b/drivers/media/i2c/adv7842.c
+@@ -3351,28 +3351,17 @@ static const struct v4l2_ctrl_config adv7842_ctrl_free_run_color = {
+ static void adv7842_unregister_clients(struct v4l2_subdev *sd)
  {
- 	struct cht_wc_i2c_adap *adap = platform_get_drvdata(pdev);
+ 	struct adv7842_state *state = to_state(sd);
+-	if (state->i2c_avlink)
+-		i2c_unregister_device(state->i2c_avlink);
+-	if (state->i2c_cec)
+-		i2c_unregister_device(state->i2c_cec);
+-	if (state->i2c_infoframe)
+-		i2c_unregister_device(state->i2c_infoframe);
+-	if (state->i2c_sdp_io)
+-		i2c_unregister_device(state->i2c_sdp_io);
+-	if (state->i2c_sdp)
+-		i2c_unregister_device(state->i2c_sdp);
+-	if (state->i2c_afe)
+-		i2c_unregister_device(state->i2c_afe);
+-	if (state->i2c_repeater)
+-		i2c_unregister_device(state->i2c_repeater);
+-	if (state->i2c_edid)
+-		i2c_unregister_device(state->i2c_edid);
+-	if (state->i2c_hdmi)
+-		i2c_unregister_device(state->i2c_hdmi);
+-	if (state->i2c_cp)
+-		i2c_unregister_device(state->i2c_cp);
+-	if (state->i2c_vdp)
+-		i2c_unregister_device(state->i2c_vdp);
++	i2c_unregister_device(state->i2c_avlink);
++	i2c_unregister_device(state->i2c_cec);
++	i2c_unregister_device(state->i2c_infoframe);
++	i2c_unregister_device(state->i2c_sdp_io);
++	i2c_unregister_device(state->i2c_sdp);
++	i2c_unregister_device(state->i2c_afe);
++	i2c_unregister_device(state->i2c_repeater);
++	i2c_unregister_device(state->i2c_edid);
++	i2c_unregister_device(state->i2c_hdmi);
++	i2c_unregister_device(state->i2c_cp);
++	i2c_unregister_device(state->i2c_vdp);
  
--	if (adap->client)
--		i2c_unregister_device(adap->client);
-+	i2c_unregister_device(adap->client);
- 	i2c_del_adapter(&adap->adapter);
- 	irq_domain_remove(adap->irq_domain);
- 
+ 	state->i2c_avlink = NULL;
+ 	state->i2c_cec = NULL;
 -- 
 2.20.1
