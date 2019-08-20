@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 23/27] i2c: emev2: avoid race when unregistering slave client
-Date: Tue, 20 Aug 2019 09:42:09 -0400
-Message-ID: <20190820134213.11279-23-sashal@kernel.org>
-References: <20190820134213.11279-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 5/7] i2c: emev2: avoid race when unregistering slave client
+Date: Tue, 20 Aug 2019 09:43:13 -0400
+Message-ID: <20190820134315.11720-5-sashal@kernel.org>
+References: <20190820134315.11720-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20190820134213.11279-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190820134315.11720-1-sashal@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Krzysztof Adamski <krzysztof.adamski@nokia.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -30,10 +30,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 12 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-emev2.c b/drivers/i2c/busses/i2c-emev2.c
-index 35b302d983e0d..959d4912ec0d5 100644
+index 96bb4e7490128..0218ba6eb26ab 100644
 --- a/drivers/i2c/busses/i2c-emev2.c
 +++ b/drivers/i2c/busses/i2c-emev2.c
-@@ -69,6 +69,7 @@ struct em_i2c_device {
+@@ -72,6 +72,7 @@ struct em_i2c_device {
  	struct completion msg_done;
  	struct clk *sclk;
  	struct i2c_client *slave;
@@ -41,7 +41,7 @@ index 35b302d983e0d..959d4912ec0d5 100644
  };
  
  static inline void em_clear_set_bit(struct em_i2c_device *priv, u8 clear, u8 set, u8 reg)
-@@ -339,6 +340,12 @@ static int em_i2c_unreg_slave(struct i2c_client *slave)
+@@ -342,6 +343,12 @@ static int em_i2c_unreg_slave(struct i2c_client *slave)
  
  	writeb(0, priv->base + I2C_OFS_SVA0);
  
@@ -54,7 +54,7 @@ index 35b302d983e0d..959d4912ec0d5 100644
  	priv->slave = NULL;
  
  	return 0;
-@@ -355,7 +362,7 @@ static int em_i2c_probe(struct platform_device *pdev)
+@@ -358,7 +365,7 @@ static int em_i2c_probe(struct platform_device *pdev)
  {
  	struct em_i2c_device *priv;
  	struct resource *r;
@@ -63,7 +63,7 @@ index 35b302d983e0d..959d4912ec0d5 100644
  
  	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
  	if (!priv)
-@@ -390,8 +397,8 @@ static int em_i2c_probe(struct platform_device *pdev)
+@@ -391,8 +398,8 @@ static int em_i2c_probe(struct platform_device *pdev)
  
  	em_i2c_reset(&priv->adap);
  
@@ -74,7 +74,7 @@ index 35b302d983e0d..959d4912ec0d5 100644
  				"em_i2c", priv);
  	if (ret)
  		goto err_clk;
-@@ -401,7 +408,8 @@ static int em_i2c_probe(struct platform_device *pdev)
+@@ -402,7 +409,8 @@ static int em_i2c_probe(struct platform_device *pdev)
  	if (ret)
  		goto err_clk;
  
