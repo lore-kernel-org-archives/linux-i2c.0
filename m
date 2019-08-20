@@ -1,80 +1,71 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 38/44] i2c: rcar: avoid race when unregistering slave client
-Date: Tue, 20 Aug 2019 09:40:22 -0400
-Message-ID: <20190820134028.10829-38-sashal@kernel.org>
-References: <20190820134028.10829-1-sashal@kernel.org>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH v5 2/3] hwmon/ltc2990: Generalise DT to fwnode support
+Date: Tue, 20 Aug 2019 08:07:35 -0700
+Message-ID: <20190820150735.GA12198@roeck-us.net>
+References: <20190819121618.16557-1-max@enpas.org>
+ <20190819121618.16557-2-max@enpas.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190820134028.10829-1-sashal@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190819121618.16557-2-max@enpas.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Krzysztof Adamski <krzysztof.adamski@nokia.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+To: Max Staudt <max@enpas.org>
+Cc: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, glaubitz@physik.fu-berlin.de
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Mon, Aug 19, 2019 at 02:16:17PM +0200, Max Staudt wrote:
+> ltc2990 will now use device_property_read_u32_array() instead of
+> of_property_read_u32_array() - allowing the use of software nodes
+> via fwnode_create_software_node().
+> 
+> This allows code using i2c_new_device() to specify a default
+> measurement mode for the LTC2990 via fwnode_create_software_node().
+> 
+> Signed-off-by: Max Staudt <max@enpas.org>
+> Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit 7b814d852af6944657c2961039f404c4490771c0 ]
+Applied to hwmon-next.
 
-After we disabled interrupts, there might still be an active one
-running. Sync before clearing the pointer to the slave device.
+Thanks,
+Guenter
 
-Fixes: de20d1857dd6 ("i2c: rcar: add slave support")
-Reported-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/busses/i2c-rcar.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index d39a4606f72d3..531c01100b560 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -139,6 +139,7 @@ struct rcar_i2c_priv {
- 	enum dma_data_direction dma_direction;
- 
- 	struct reset_control *rstc;
-+	int irq;
- };
- 
- #define rcar_i2c_priv_to_dev(p)		((p)->adap.dev.parent)
-@@ -861,9 +862,11 @@ static int rcar_unreg_slave(struct i2c_client *slave)
- 
- 	WARN_ON(!priv->slave);
- 
-+	/* disable irqs and ensure none is running before clearing ptr */
- 	rcar_i2c_write(priv, ICSIER, 0);
- 	rcar_i2c_write(priv, ICSCR, 0);
- 
-+	synchronize_irq(priv->irq);
- 	priv->slave = NULL;
- 
- 	pm_runtime_put(rcar_i2c_priv_to_dev(priv));
-@@ -918,7 +921,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	struct i2c_adapter *adap;
- 	struct device *dev = &pdev->dev;
- 	struct i2c_timings i2c_t;
--	int irq, ret;
-+	int ret;
- 
- 	/* Otherwise logic will break because some bytes must always use PIO */
- 	BUILD_BUG_ON_MSG(RCAR_MIN_DMA_LEN < 3, "Invalid min DMA length");
-@@ -984,10 +987,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 		pm_runtime_put(dev);
- 
- 
--	irq = platform_get_irq(pdev, 0);
--	ret = devm_request_irq(dev, irq, rcar_i2c_irq, 0, dev_name(dev), priv);
-+	priv->irq = platform_get_irq(pdev, 0);
-+	ret = devm_request_irq(dev, priv->irq, rcar_i2c_irq, 0, dev_name(dev), priv);
- 	if (ret < 0) {
--		dev_err(dev, "cannot get irq %d\n", irq);
-+		dev_err(dev, "cannot get irq %d\n", priv->irq);
- 		goto out_pm_disable;
- 	}
- 
--- 
-2.20.1
+> ---
+>  drivers/hwmon/ltc2990.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/hwmon/ltc2990.c b/drivers/hwmon/ltc2990.c
+> index f9431ad43..53ff50517 100644
+> --- a/drivers/hwmon/ltc2990.c
+> +++ b/drivers/hwmon/ltc2990.c
+> @@ -13,7 +13,7 @@
+>  #include <linux/i2c.h>
+>  #include <linux/kernel.h>
+>  #include <linux/module.h>
+> -#include <linux/of.h>
+> +#include <linux/property.h>
+>  
+>  #define LTC2990_STATUS	0x00
+>  #define LTC2990_CONTROL	0x01
+> @@ -206,7 +206,6 @@ static int ltc2990_i2c_probe(struct i2c_client *i2c,
+>  	int ret;
+>  	struct device *hwmon_dev;
+>  	struct ltc2990_data *data;
+> -	struct device_node *of_node = i2c->dev.of_node;
+>  
+>  	if (!i2c_check_functionality(i2c->adapter, I2C_FUNC_SMBUS_BYTE_DATA |
+>  				     I2C_FUNC_SMBUS_WORD_DATA))
+> @@ -218,9 +217,10 @@ static int ltc2990_i2c_probe(struct i2c_client *i2c,
+>  
+>  	data->i2c = i2c;
+>  
+> -	if (of_node) {
+> -		ret = of_property_read_u32_array(of_node, "lltc,meas-mode",
+> -						 data->mode, 2);
+> +	if (dev_fwnode(&i2c->dev)) {
+> +		ret = device_property_read_u32_array(&i2c->dev,
+> +						     "lltc,meas-mode",
+> +						     data->mode, 2);
+>  		if (ret < 0)
+>  			return ret;
+>  
