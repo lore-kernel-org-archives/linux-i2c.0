@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 5/7] i2c: emev2: avoid race when unregistering slave client
-Date: Tue, 20 Aug 2019 09:43:13 -0400
-Message-ID: <20190820134315.11720-5-sashal@kernel.org>
-References: <20190820134315.11720-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 09/12] i2c: emev2: avoid race when unregistering slave client
+Date: Tue, 20 Aug 2019 09:42:50 -0400
+Message-ID: <20190820134253.11562-9-sashal@kernel.org>
+References: <20190820134253.11562-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190820134315.11720-1-sashal@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190820134253.11562-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Krzysztof Adamski <krzysztof.adamski@nokia.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -30,7 +30,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 12 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-emev2.c b/drivers/i2c/busses/i2c-emev2.c
-index 96bb4e7490128..0218ba6eb26ab 100644
+index d2e84480fbe96..dd97e5d9f49a2 100644
 --- a/drivers/i2c/busses/i2c-emev2.c
 +++ b/drivers/i2c/busses/i2c-emev2.c
 @@ -72,6 +72,7 @@ struct em_i2c_device {
@@ -63,7 +63,7 @@ index 96bb4e7490128..0218ba6eb26ab 100644
  
  	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
  	if (!priv)
-@@ -391,8 +398,8 @@ static int em_i2c_probe(struct platform_device *pdev)
+@@ -393,8 +400,8 @@ static int em_i2c_probe(struct platform_device *pdev)
  
  	em_i2c_reset(&priv->adap);
  
@@ -74,7 +74,7 @@ index 96bb4e7490128..0218ba6eb26ab 100644
  				"em_i2c", priv);
  	if (ret)
  		goto err_clk;
-@@ -402,7 +409,8 @@ static int em_i2c_probe(struct platform_device *pdev)
+@@ -404,7 +411,8 @@ static int em_i2c_probe(struct platform_device *pdev)
  	if (ret)
  		goto err_clk;
  
