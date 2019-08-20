@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 08/12] i2c: rcar: avoid race when unregistering slave client
-Date: Tue, 20 Aug 2019 09:42:49 -0400
-Message-ID: <20190820134253.11562-8-sashal@kernel.org>
-References: <20190820134253.11562-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 38/44] i2c: rcar: avoid race when unregistering slave client
+Date: Tue, 20 Aug 2019 09:40:22 -0400
+Message-ID: <20190820134028.10829-38-sashal@kernel.org>
+References: <20190820134028.10829-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190820134253.11562-1-sashal@kernel.org>
+In-Reply-To: <20190820134028.10829-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Krzysztof Adamski <krzysztof.adamski@nokia.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
@@ -30,10 +30,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 3415733a93645..132c4a405bf83 100644
+index d39a4606f72d3..531c01100b560 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -144,6 +144,7 @@ struct rcar_i2c_priv {
+@@ -139,6 +139,7 @@ struct rcar_i2c_priv {
  	enum dma_data_direction dma_direction;
  
  	struct reset_control *rstc;
@@ -41,7 +41,7 @@ index 3415733a93645..132c4a405bf83 100644
  };
  
  #define rcar_i2c_priv_to_dev(p)		((p)->adap.dev.parent)
-@@ -813,9 +814,11 @@ static int rcar_unreg_slave(struct i2c_client *slave)
+@@ -861,9 +862,11 @@ static int rcar_unreg_slave(struct i2c_client *slave)
  
  	WARN_ON(!priv->slave);
  
@@ -53,16 +53,16 @@ index 3415733a93645..132c4a405bf83 100644
  	priv->slave = NULL;
  
  	pm_runtime_put(rcar_i2c_priv_to_dev(priv));
-@@ -866,7 +869,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+@@ -918,7 +921,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
  	struct i2c_adapter *adap;
  	struct device *dev = &pdev->dev;
  	struct i2c_timings i2c_t;
 -	int irq, ret;
 +	int ret;
  
- 	priv = devm_kzalloc(dev, sizeof(struct rcar_i2c_priv), GFP_KERNEL);
- 	if (!priv)
-@@ -927,10 +930,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	/* Otherwise logic will break because some bytes must always use PIO */
+ 	BUILD_BUG_ON_MSG(RCAR_MIN_DMA_LEN < 3, "Invalid min DMA length");
+@@ -984,10 +987,10 @@ static int rcar_i2c_probe(struct platform_device *pdev)
  		pm_runtime_put(dev);
  
  
