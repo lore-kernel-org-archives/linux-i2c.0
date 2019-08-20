@@ -1,37 +1,40 @@
-From: Max Staudt <max@enpas.org>
-Subject: Re: [PATCH v5 2/3] hwmon/ltc2990: Generalise DT to fwnode support
-Date: Tue, 20 Aug 2019 17:08:38 +0200
-Message-ID: <5aebf319-c958-da62-a232-c3851f8b47b9@enpas.org>
-References: <20190819121618.16557-1-max@enpas.org>
- <20190819121618.16557-2-max@enpas.org> <20190820150735.GA12198@roeck-us.net>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH] video: backlight: tosa_lcd: drop check because i2c_unregister_device() is NULL safe
+Date: Tue, 20 Aug 2019 17:34:39 +0200
+Message-ID: <20190820153439.7638-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190820150735.GA12198@roeck-us.net>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, glaubitz@physik.fu-berlin.de
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Lee Jones <lee.jones@linaro.org>, Daniel Thompson <daniel.thompson@linaro.org>, Jingoo Han <jingoohan1@gmail.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/20/2019 05:07 PM, Guenter Roeck wrote:
-> On Mon, Aug 19, 2019 at 02:16:17PM +0200, Max Staudt wrote:
->> ltc2990 will now use device_property_read_u32_array() instead of
->> of_property_read_u32_array() - allowing the use of software nodes
->> via fwnode_create_software_node().
->>
->> This allows code using i2c_new_device() to specify a default
->> measurement mode for the LTC2990 via fwnode_create_software_node().
->>
->> Signed-off-by: Max Staudt <max@enpas.org>
->> Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> 
-> Applied to hwmon-next.
-> 
-> Thanks,
-> Guenter
+No need to check the argument of i2c_unregister_device() because the
+function itself does it.
 
-Thanks for your help, reviewing, and applying!
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+Build tested only, buildbot is happy, too.
 
-Max
+Please apply to your tree.
+
+ drivers/video/backlight/tosa_lcd.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/video/backlight/tosa_lcd.c b/drivers/video/backlight/tosa_lcd.c
+index 65cb7578776f..29af8e27b6e5 100644
+--- a/drivers/video/backlight/tosa_lcd.c
++++ b/drivers/video/backlight/tosa_lcd.c
+@@ -222,8 +222,7 @@ static int tosa_lcd_remove(struct spi_device *spi)
+ {
+ 	struct tosa_lcd_data *data = spi_get_drvdata(spi);
+ 
+-	if (data->i2c)
+-		i2c_unregister_device(data->i2c);
++	i2c_unregister_device(data->i2c);
+ 
+ 	tosa_lcd_tg_off(data);
+ 
+-- 
+2.20.1
