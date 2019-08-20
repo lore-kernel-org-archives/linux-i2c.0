@@ -1,28 +1,88 @@
-From: Sebastian Duda <sebastian.duda@fau.de>
-Subject: Status of Subsystems - I2C/SMBUS ISMT DRIVER
-Date: Tue, 20 Aug 2019 15:23:25 +0200
-Message-ID: <97bcaca4-22f8-e17e-55b0-a19443c27bef@fau.de>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 39/44] i2c: emev2: avoid race when unregistering slave client
+Date: Tue, 20 Aug 2019 09:40:23 -0400
+Message-ID: <20190820134028.10829-39-sashal@kernel.org>
+References: <20190820134028.10829-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
+In-Reply-To: <20190820134028.10829-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, lukas.bulwahn@gmail.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Krzysztof Adamski <krzysztof.adamski@nokia.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Seth,
-hello Neil,
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-in my master thesis, I'm using the association of subsystems to 
-maintainers/reviewers and its status given in the MAINTAINERS file.
-During the research I noticed that there are several subsystems without 
-a status in the maintainers file. One of them is the subsystem 
-`I2C/SMBUS ISMT DRIVER` where you're mentioned as reviewers.
+[ Upstream commit d7437fc0d8291181debe032671a289b6bd93f46f ]
 
-Is it intended not to mention a status for your subsystems?
-What is the current status of your subsystem?
+After we disabled interrupts, there might still be an active one
+running. Sync before clearing the pointer to the slave device.
 
-Kind regards
-Sebastian Duda
+Fixes: c31d0a00021d ("i2c: emev2: add slave support")
+Reported-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Krzysztof Adamski <krzysztof.adamski@nokia.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/i2c/busses/i2c-emev2.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-emev2.c b/drivers/i2c/busses/i2c-emev2.c
+index 35b302d983e0d..959d4912ec0d5 100644
+--- a/drivers/i2c/busses/i2c-emev2.c
++++ b/drivers/i2c/busses/i2c-emev2.c
+@@ -69,6 +69,7 @@ struct em_i2c_device {
+ 	struct completion msg_done;
+ 	struct clk *sclk;
+ 	struct i2c_client *slave;
++	int irq;
+ };
+ 
+ static inline void em_clear_set_bit(struct em_i2c_device *priv, u8 clear, u8 set, u8 reg)
+@@ -339,6 +340,12 @@ static int em_i2c_unreg_slave(struct i2c_client *slave)
+ 
+ 	writeb(0, priv->base + I2C_OFS_SVA0);
+ 
++	/*
++	 * Wait for interrupt to finish. New slave irqs cannot happen because we
++	 * cleared the slave address and, thus, only extension codes will be
++	 * detected which do not use the slave ptr.
++	 */
++	synchronize_irq(priv->irq);
+ 	priv->slave = NULL;
+ 
+ 	return 0;
+@@ -355,7 +362,7 @@ static int em_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct em_i2c_device *priv;
+ 	struct resource *r;
+-	int irq, ret;
++	int ret;
+ 
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+@@ -390,8 +397,8 @@ static int em_i2c_probe(struct platform_device *pdev)
+ 
+ 	em_i2c_reset(&priv->adap);
+ 
+-	irq = platform_get_irq(pdev, 0);
+-	ret = devm_request_irq(&pdev->dev, irq, em_i2c_irq_handler, 0,
++	priv->irq = platform_get_irq(pdev, 0);
++	ret = devm_request_irq(&pdev->dev, priv->irq, em_i2c_irq_handler, 0,
+ 				"em_i2c", priv);
+ 	if (ret)
+ 		goto err_clk;
+@@ -401,7 +408,8 @@ static int em_i2c_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_clk;
+ 
+-	dev_info(&pdev->dev, "Added i2c controller %d, irq %d\n", priv->adap.nr, irq);
++	dev_info(&pdev->dev, "Added i2c controller %d, irq %d\n", priv->adap.nr,
++		 priv->irq);
+ 
+ 	return 0;
+ 
+-- 
+2.20.1
