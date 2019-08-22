@@ -1,74 +1,65 @@
-From: <Eugen.Hristev@microchip.com>
-Subject: Re: [PATCH v3 0/9] i2c: add support for filters
-Date: Thu, 22 Aug 2019 15:00:14 +0000
-Message-ID: <867070c3-02c8-da1b-04d9-0a1b628577de@microchip.com>
-References: <1562678049-17581-1-git-send-email-eugen.hristev@microchip.com>
- <20190712082044.6eteunzehyptsibk@M43218.corp.atmel.com>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: Re: [PATCH] platform: chrome: chromeos_laptop: drop checks of
+ NULL-safe functions
+Date: Thu, 22 Aug 2019 21:41:29 +0200
+Message-ID: <b6612ae3-9d6f-baf7-98db-f3d26f4a5108@collabora.com>
+References: <20190820153449.7866-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190712082044.6eteunzehyptsibk@M43218.corp.atmel.com>
-Content-Language: en-US
-Content-ID: <19D95610CCA5FD42B389A130ED300BED@namprd11.prod.outlook.com>
+In-Reply-To: <20190820153449.7866-1-wsa+renesas@sang-engineering.com>
+Content-Language: en-GB
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, pierre-yves.mordret@st.com, alexandre.belloni@bootlin.com, robh+dt@kernel.org
-Cc: peda@axentia.se, mark.rutland@arm.com, Nicolas.Ferre@microchip.com
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
+Cc: Benson Leung <bleung@chromium.org>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-DQoNCk9uIDEyLjA3LjIwMTkgMTE6MjAsIEx1ZG92aWMgRGVzcm9jaGVzIHdyb3RlOg0KPiBPbiBU
-dWUsIEp1bCAwOSwgMjAxOSBhdCAwMzoxOToyNlBNICswMjAwLCBFdWdlbiBIcmlzdGV2IC0gTTE4
-MjgyIHdyb3RlOg0KPj4gRnJvbTogRXVnZW4gSHJpc3RldiA8ZXVnZW4uaHJpc3RldkBtaWNyb2No
-aXAuY29tPg0KPj4NCj4+IEhlbGxvLA0KPj4NCj4+IFRoaXMgc2VyaWVzIGFkZHMgc3VwcG9ydCBm
-b3IgYW5hbG9nIGFuZCBkaWdpdGFsIGZpbHRlcnMgZm9yIGkyYyBjb250cm9sbGVycw0KPj4NCj4+
-IFRoaXMgc2VyaWVzIGlzIGJhc2VkIG9uIHRoZSBzZXJpZXM6DQo+PiBbUEFUQ0ggdjIgMC85XSBp
-MmM6IGF0OTE6IGZpbHRlcnMgc3VwcG9ydCBmb3IgYXQ5MSBTb0NzDQo+PiBhbmQgZW5oYW5jZWQg
-dG8gYWRkIHRoZSBiaW5kaW5ncyBmb3IgYWxsIGNvbnRyb2xsZXJzIHBsdXMgYW4gZXh0cmEgYmlu
-ZGluZw0KPj4gZm9yIHRoZSB3aWR0aCBvZiB0aGUgc3Bpa2VzIGluIG5hbm9zZWNvbmRzLg0KPj4N
-Cj4+IEZpcnN0LCBiaW5kaW5ncyBhcmUgY3JlYXRlZCBmb3INCj4+ICdpMmMtYW5hLWZpbHRlcicN
-Cj4+ICdpMmMtZGlnLWZpbHRlcicNCj4+ICdpMmMtZmlsdGVyLXdpZHRoLW5zJw0KPj4NCj4+IFRo
-ZSBzdXBwb3J0IGlzIGFkZGVkIGluIHRoZSBpMmMgY29yZSB0byByZXRyaWV2ZSBmaWx0ZXIgd2lk
-dGggYW5kIGFkZCBpdA0KPj4gdG8gdGhlIHRpbWluZ3Mgc3RydWN0dXJlLg0KPj4gTmV4dCwgdGhl
-IGF0OTEgZHJpdmVyIGlzIGVuaGFuY2VkIGZvciBzdXBwb3J0aW5nIGRpZ2l0YWwgZmlsdGVyLCBh
-ZHZhbmNlZA0KPj4gZGlnaXRhbCBmaWx0ZXIgKHdpdGggc2VsZWN0YWJsZSBzcGlrZSB3aWR0aCkg
-YW5kIHRoZSBhbmFsb2cgZmlsdGVyLg0KPj4NCj4+IEZpbmFsbHkgdGhlIGRldmljZSB0cmVlIGZv
-ciB0d28gYm9hcmRzIGFyZSBtb2RpZmllZCB0byBtYWtlIHVzZSBvZiB0aGUNCj4+IG5ldyBwcm9w
-ZXJ0aWVzLg0KPj4NCj4+IFRoaXMgc2VyaWVzIGlzIHRoZSByZXN1bHQgb2YgdGhlIGNvbW1lbnRz
-IG9uIHRoZSBNTCBpbiB0aGUgZGlyZWN0aW9uDQo+PiByZXF1ZXN0ZWQ6IHRvIG1ha2UgdGhlIGJp
-bmRpbmdzIGdsb2JhbGx5IGF2YWlsYWJsZSBmb3IgaTJjIGRyaXZlcnMuDQo+Pg0KPj4gQ2hhbmdl
-cyBpbiB2MzoNCj4+IC0gbWFkZSBiaW5kaW5ncyBnbG9iYWwgZm9yIGkyYyBjb250cm9sbGVycyBh
-bmQgbW9kaWZpZWQgYWNjb3JkaW5nbHkNCj4+IC0gZ2F2ZSB1cCBQQURGQ0RGIGJpdCBiZWNhdXNl
-IGl0J3MgYSBsYWNrIGluIGRhdGFzaGVldA0KPj4gLSB0aGUgY29tcHV0YXRpb24gb24gdGhlIHdp
-ZHRoIG9mIHRoZSBzcGlrZSBpcyBiYXNlZCBvbiBwZXJpcGggY2xvY2sgYXMgaXQNCj4+IGlzIGRv
-bmUgZm9yIGhvbGQgdGltZS4NCj4+DQo+PiBDaGFuZ2VzIGluIHYyOg0KPj4gLSBhZGRlZCBkZXZp
-Y2UgdHJlZSBiaW5kaW5ncyBhbmQgc3VwcG9ydCBmb3IgZW5hYmxlLWFuYS1maWx0IGFuZA0KPj4g
-ZW5hYmxlLWRpZy1maWx0DQo+PiAtIGFkZGVkIHRoZSBuZXcgcHJvcGVydGllcyB0byB0aGUgRFQg
-Zm9yIHNhbWE1ZDRfeHBsYWluZWQvc2FtYTVkMl94cGxhaW5lZA0KPj4NCj4+IEV1Z2VuIEhyaXN0
-ZXYgKDkpOg0KPj4gICAgZHQtYmluZGluZ3M6IGkyYzogYXQ5MTogYWRkIG5ldyBjb21wYXRpYmxl
-DQo+PiAgICBkdC1iaW5kaW5nczogaTJjOiBhZGQgYmluZGluZ3MgZm9yIGkyYyBhbmFsb2cgYW5k
-IGRpZ2l0YWwgZmlsdGVyDQo+PiAgICBpMmM6IGFkZCBzdXBwb3J0IGZvciBmaWx0ZXItd2lkdGgt
-bnMgb3B0aW9uYWwgcHJvcGVydHkNCj4+ICAgIGkyYzogYXQ5MTogYWRkIG5ldyBwbGF0Zm9ybSBz
-dXBwb3J0IGZvciBzYW05eDYwDQo+PiAgICBpMmM6IGF0OTE6IGFkZCBzdXBwb3J0IGZvciBkaWdp
-dGFsIGZpbHRlcmluZw0KPj4gICAgaTJjOiBhdDkxOiBhZGQgc3VwcG9ydCBmb3IgYWR2YW5jZWQg
-ZGlnaXRhbCBmaWx0ZXJpbmcNCj4+ICAgIGkyYzogYXQ5MTogYWRkIHN1cHBvcnQgZm9yIGFuYWxv
-ZyBmaWx0ZXJpbmcNCj4+ICAgIEFSTTogZHRzOiBhdDkxOiBzYW1hNWQyX3hwbGFpbmVkOiBhZGQg
-YW5hbG9nIGFuZCBkaWdpdGFsIGZpbHRlciBmb3INCj4+ICAgICAgaTJjDQo+PiAgICBBUk06IGR0
-czogYXQ5MTogc2FtYTVkNF94cGxhaW5lZDogYWRkIGFuYWxvZyBmaWx0ZXIgZm9yIGkyYw0KPj4N
-Cj4+ICAgRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtYXQ5MS50eHQg
-fCAgMyArLQ0KPj4gICBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy50
-eHQgICAgICB8IDExICsrKysrDQo+PiAgIGFyY2gvYXJtL2Jvb3QvZHRzL2F0OTEtc2FtYTVkMl94
-cGxhaW5lZC5kdHMgICAgICAgIHwgIDYgKysrDQo+PiAgIGFyY2gvYXJtL2Jvb3QvZHRzL2F0OTEt
-c2FtYTVkNF94cGxhaW5lZC5kdHMgICAgICAgIHwgIDEgKw0KPj4gICBkcml2ZXJzL2kyYy9idXNz
-ZXMvaTJjLWF0OTEtY29yZS5jICAgICAgICAgICAgICAgICB8IDM4ICsrKysrKysrKysrKysrKysr
-DQo+PiAgIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS1tYXN0ZXIuYyAgICAgICAgICAgICAg
-IHwgNDkgKysrKysrKysrKysrKysrKysrKystLQ0KPj4gICBkcml2ZXJzL2kyYy9idXNzZXMvaTJj
-LWF0OTEuaCAgICAgICAgICAgICAgICAgICAgICB8IDEzICsrKysrKw0KPj4gICBkcml2ZXJzL2ky
-Yy9pMmMtY29yZS1iYXNlLmMgICAgICAgICAgICAgICAgICAgICAgICB8ICAyICsNCj4+ICAgaW5j
-bHVkZS9saW51eC9pMmMuaCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMiArDQo+
-PiAgIDkgZmlsZXMgY2hhbmdlZCwgMTIxIGluc2VydGlvbnMoKyksIDQgZGVsZXRpb25zKC0pDQo+
-IA0KPiBIaSwNCj4gDQo+IEkgZG9uJ3Qga25vdyBpZiBpdCB3aWxsIGZpdCBvdGhlciB2ZW5kb3Jz
-IG5lZWQgY29uY2VybmluZyB0aGUgYmluZGluZw0KPiBidXQgZm9yIE1pY3JvY2hpcCBpdCBzb3Vu
-ZHMgZ29vZC4NCj4gDQo+IEFja2VkLWJ5OiBMdWRvdmljIERlc3JvY2hlcyA8bHVkb3ZpYy5kZXNy
-b2NoZXNAbWljcm9jaGlwLmNvbT4NCj4gZm9yIHRoZSB3aG9sZSBzZXJpZS4NCj4gDQo+IFJlZ2Fy
-ZHMNCj4gDQo+IEx1ZG92aWMNCj4gDQoNCkhlbGxvIFdvbGZyYW0sDQoNCldoYXQgaXMgdGhlIHBs
-YW4gZm9yIHRoaXMgcGF0Y2ggc2VyaWVzPw0KDQpUaGFua3MsDQpFdWdlbg0K
+Hi,
+
+On 20/8/19 17:34, Wolfram Sang wrote:
+> No need to check the argument of i2c_unregister_device() and
+> property_entries_free() because the functions do check it.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+Thanks, applied for chrome-platform-5.4
+
+Thanks,
+ Enric
+
+> ---
+> Build tested only, buildbot is happy, too.
+> 
+> Please apply to your tree.
+> 
+>  drivers/platform/chrome/chromeos_laptop.c | 10 +++-------
+>  1 file changed, 3 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/platform/chrome/chromeos_laptop.c b/drivers/platform/chrome/chromeos_laptop.c
+> index 7abbb6167766..8723bcf10c93 100644
+> --- a/drivers/platform/chrome/chromeos_laptop.c
+> +++ b/drivers/platform/chrome/chromeos_laptop.c
+> @@ -838,18 +838,14 @@ static void chromeos_laptop_destroy(const struct chromeos_laptop *cros_laptop)
+>  		i2c_dev = &cros_laptop->i2c_peripherals[i];
+>  		info = &i2c_dev->board_info;
+>  
+> -		if (i2c_dev->client)
+> -			i2c_unregister_device(i2c_dev->client);
+> -
+> -		if (info->properties)
+> -			property_entries_free(info->properties);
+> +		i2c_unregister_device(i2c_dev->client);
+> +		property_entries_free(info->properties);
+>  	}
+>  
+>  	for (i = 0; i < cros_laptop->num_acpi_peripherals; i++) {
+>  		acpi_dev = &cros_laptop->acpi_peripherals[i];
+>  
+> -		if (acpi_dev->properties)
+> -			property_entries_free(acpi_dev->properties);
+> +		property_entries_free(acpi_dev->properties);
+>  	}
+>  
+>  	kfree(cros_laptop->i2c_peripherals);
+> 
