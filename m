@@ -1,93 +1,42 @@
-From: Hsin-Yi Wang <hsinyi@chromium.org>
-Subject: [PATCH v2] i2c: mediatek: disable zero-length transfers for mt8183
-Date: Thu, 22 Aug 2019 17:45:17 +0800
-Message-ID: <20190822094516.55130-1-hsinyi@chromium.org>
+From: Federico Vaga <federico.vaga@cern.ch>
+Subject: [PATCH] i2c: ocores: use request_any_context_irq() to register IRQ handler
+Date: Thu, 22 Aug 2019 15:21:32 +0200
+Message-ID: <20190822132132.16557-1-federico.vaga@cern.ch>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Yingjoe Chen <yingjoe.chen@mediatek.com>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>, Qii Wang <qii.wang@mediatek.com>, Nicolas Boichat <drinkcat@chromium.org>, Jun Gao <jun.gao@mediatek.com>, Thomas Gleixner <tglx@linutronix.de>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, Alexandru M Stan <amstan@chromium.org>
+To: Andrew Lunn <andrew@lunn.ch>, Peter Korsgaard <peter@korsgaard.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Federico Vaga <federico.vaga@cern.ch>
 List-Id: linux-i2c@vger.kernel.org
 
-When doing i2cdetect quick write mode, we would get transfer
-error ENOMEM, and i2cdetect shows there's no device at the address.
-Quoting from mt8183 datasheet, the number of transfers to be
-transferred in one transaction should be set to bigger than 1,
-so we should forbid zero-length transfer and update functionality.
+The i2c-ocores device is an HDL component that get instantiated in FPGA.
+The software stack used to drive an FPGA can be very different, and the
+i2c-ocore ip-core must work in different context. With respect to this
+patch the IRQ controller behind this device, and its driver, can have
+different implementations (nested threads). For this reason, it is safer
+to use `request_any_context_irq()` to avoid errors at probe time.
 
-Incorrect return:
-localhost ~ # i2cdetect -q -y 0
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-00:          -- -- -- -- -- -- -- -- -- -- -- -- --
-10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-70: -- -- -- -- -- -- -- --
-
-After this patch:
-localhost ~ #  i2cdetect -q -y 0
-Error: Can't use SMBus Quick Write command on this bus
-
-localhost ~ #  i2cdetect -y 0
-Warning: Can't use SMBus Quick Write command, will skip some addresses
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-00:
-10:
-20:
-30: -- -- -- -- -- -- -- --
-40:
-50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-60:
-70:
-
-Reported-by: Alexandru M Stan <amstan@chromium.org>
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Signed-off-by: Federico Vaga <federico.vaga@cern.ch>
 ---
-Change from v1:
-* restore the order of algo and quirks
----
- drivers/i2c/busses/i2c-mt65xx.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-ocores.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 252edb433fdf..29eae1bf4f86 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -234,6 +234,10 @@ static const struct i2c_adapter_quirks mt7622_i2c_quirks = {
- 	.max_num_msgs = 255,
- };
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index 4117f1abc7c6..ca8b3ecfa93d 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -703,8 +703,9 @@ static int ocores_i2c_probe(struct platform_device *pdev)
+ 	}
  
-+static const struct i2c_adapter_quirks mt8183_i2c_quirks = {
-+	.flags = I2C_AQ_NO_ZERO_LEN,
-+};
-+
- static const struct mtk_i2c_compatible mt2712_compat = {
- 	.regs = mt_i2c_regs_v1,
- 	.pmic_i2c = 0,
-@@ -298,6 +302,7 @@ static const struct mtk_i2c_compatible mt8173_compat = {
- };
- 
- static const struct mtk_i2c_compatible mt8183_compat = {
-+	.quirks = &mt8183_i2c_quirks,
- 	.regs = mt_i2c_regs_v2,
- 	.pmic_i2c = 0,
- 	.dcm = 0,
-@@ -870,7 +875,11 @@ static irqreturn_t mtk_i2c_irq(int irqno, void *dev_id)
- 
- static u32 mtk_i2c_functionality(struct i2c_adapter *adap)
- {
--	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+	if (adap->quirks->flags & I2C_AQ_NO_ZERO_LEN)
-+		return I2C_FUNC_I2C |
-+			(I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
-+	else
-+		return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
- }
- 
- static const struct i2c_algorithm mtk_i2c_algorithm = {
+ 	if (ocores_algorithm.master_xfer != ocores_xfer_polling) {
+-		ret = devm_request_irq(&pdev->dev, irq, ocores_isr, 0,
+-				       pdev->name, i2c);
++		ret = devm_request_any_context_irq(&pdev->dev, irq,
++						   ocores_isr, 0,
++						   pdev->name, i2c);
+ 		if (ret) {
+ 			dev_err(&pdev->dev, "Cannot claim IRQ\n");
+ 			goto err_clk;
 -- 
-2.20.1
+2.15.0
