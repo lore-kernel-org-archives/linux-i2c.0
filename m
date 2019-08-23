@@ -1,65 +1,43 @@
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: Re: [PATCH] platform: chrome: chromeos_laptop: drop checks of
- NULL-safe functions
-Date: Thu, 22 Aug 2019 21:41:29 +0200
-Message-ID: <b6612ae3-9d6f-baf7-98db-f3d26f4a5108@collabora.com>
-References: <20190820153449.7866-1-wsa+renesas@sang-engineering.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 5/7] ARM: xscale: fix multi-cpu compilation
+Date: Fri, 23 Aug 2019 09:44:19 +0200
+Message-ID: <CACRpkdajapOw+fsEx1fqG3FL-n-WYmOUoGw_HGRHd730h+uv-w@mail.gmail.com>
+References: <20190809162956.488941-1-arnd@arndb.de> <20190809163334.489360-1-arnd@arndb.de>
+ <20190809163334.489360-5-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190820153449.7866-1-wsa+renesas@sang-engineering.com>
-Content-Language: en-GB
+In-Reply-To: <20190809163334.489360-5-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
-Cc: Benson Leung <bleung@chromium.org>, linux-kernel@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: soc@kernel.org, Russell King <linux@armlinux.org.uk>, Dan Williams <dan.j.williams@intel.com>, Vinod Koul <vkoul@kernel.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, dmaengine@vger.kernel.org, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On Fri, Aug 9, 2019 at 6:33 PM Arnd Bergmann <arnd@arndb.de> wrote:
 
-On 20/8/19 17:34, Wolfram Sang wrote:
-> No need to check the argument of i2c_unregister_device() and
-> property_entries_free() because the functions do check it.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Building a combined ARMv4+XScale kernel produces these
+> and other build failures:
+>
+> /tmp/copypage-xscale-3aa821.s: Assembler messages:
+> /tmp/copypage-xscale-3aa821.s:167: Error: selected processor does not support `pld [r7,#0]' in ARM mode
+> /tmp/copypage-xscale-3aa821.s:168: Error: selected processor does not support `pld [r7,#32]' in ARM mode
+> /tmp/copypage-xscale-3aa821.s:169: Error: selected processor does not support `pld [r1,#0]' in ARM mode
+> /tmp/copypage-xscale-3aa821.s:170: Error: selected processor does not support `pld [r1,#32]' in ARM mode
+> /tmp/copypage-xscale-3aa821.s:171: Error: selected processor does not support `pld [r7,#64]' in ARM mode
+> /tmp/copypage-xscale-3aa821.s:176: Error: selected processor does not support `ldrd r4,r5,[r7],#8' in ARM mode
+> /tmp/copypage-xscale-3aa821.s:180: Error: selected processor does not support `strd r4,r5,[r1],#8' in ARM mode
 
-Thanks, applied for chrome-platform-5.4
+OK we certainly need this.
 
-Thanks,
- Enric
+> Add an explict .arch armv5 in the inline assembly to allow the ARMv5
+> specific instructions regardless of the compiler -march= target.
 
-> ---
-> Build tested only, buildbot is happy, too.
-> 
-> Please apply to your tree.
-> 
->  drivers/platform/chrome/chromeos_laptop.c | 10 +++-------
->  1 file changed, 3 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/platform/chrome/chromeos_laptop.c b/drivers/platform/chrome/chromeos_laptop.c
-> index 7abbb6167766..8723bcf10c93 100644
-> --- a/drivers/platform/chrome/chromeos_laptop.c
-> +++ b/drivers/platform/chrome/chromeos_laptop.c
-> @@ -838,18 +838,14 @@ static void chromeos_laptop_destroy(const struct chromeos_laptop *cros_laptop)
->  		i2c_dev = &cros_laptop->i2c_peripherals[i];
->  		info = &i2c_dev->board_info;
->  
-> -		if (i2c_dev->client)
-> -			i2c_unregister_device(i2c_dev->client);
-> -
-> -		if (info->properties)
-> -			property_entries_free(info->properties);
-> +		i2c_unregister_device(i2c_dev->client);
-> +		property_entries_free(info->properties);
->  	}
->  
->  	for (i = 0; i < cros_laptop->num_acpi_peripherals; i++) {
->  		acpi_dev = &cros_laptop->acpi_peripherals[i];
->  
-> -		if (acpi_dev->properties)
-> -			property_entries_free(acpi_dev->properties);
-> +		property_entries_free(acpi_dev->properties);
->  	}
->  
->  	kfree(cros_laptop->i2c_peripherals);
-> 
+You probably mean...
+
+> +.arch xscale                                   \n\
+>         pld     [%0, #0]                        \n\
+
+Explicit .arch xscale rather than .arch armv5.
+
+Yours,
+Linus Walleij
