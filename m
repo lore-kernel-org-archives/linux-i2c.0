@@ -1,8 +1,7 @@
 From: Stefan Wahren <wahrenst@gmx.net>
-Subject: [PATCH 3/3] i2c: bcm2835: Add full name of devicetree node to adapter
- name
-Date: Tue, 27 Aug 2019 19:04:16 +0200
-Message-ID: <1566925456-5928-4-git-send-email-wahrenst@gmx.net>
+Subject: [PATCH 1/3] dt-bindings: i2c: bcm2835: Add brcm,bcm2711 compatible
+Date: Tue, 27 Aug 2019 19:04:14 +0200
+Message-ID: <1566925456-5928-2-git-send-email-wahrenst@gmx.net>
 References: <1566925456-5928-1-git-send-email-wahrenst@gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,28 +21,29 @@ To: Wolfram Sang <wsa@the-dreams.de>, Eric Anholt <eric@anholt.net>, Florian Fai
 Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Stefan Wahren <wahrenst@gmx.net>
 List-Id: linux-i2c@vger.kernel.org
 
-Inspired by Lori Hikichi's patch for iproc, this adds the full name of
-the devicetree node to the adapter name. With the introduction of
-BCM2711 it's very difficult to distinguish between the multiple instances.
+Add a new compatible for the BCM2711, which hasn't the clock stretch bug.
 
 Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+Reviewed-by: Eric Anholt <eric@anholt.net>
+Reviewed-by: Rob Herring <robh@kernel.org>
 ---
- drivers/i2c/busses/i2c-bcm2835.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index ab5502f..e01b2b5 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -472,7 +472,8 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 	i2c_set_adapdata(adap, i2c_dev);
- 	adap->owner = THIS_MODULE;
- 	adap->class = I2C_CLASS_DEPRECATED;
--	strlcpy(adap->name, "bcm2835 I2C adapter", sizeof(adap->name));
-+	snprintf(adap->name, sizeof(adap->name), "bcm2835 (%s)",
-+		 of_node_full_name(pdev->dev.of_node));
- 	adap->algo = &bcm2835_i2c_algo;
- 	adap->dev.parent = &pdev->dev;
- 	adap->dev.of_node = pdev->dev.of_node;
+diff --git a/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt b/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt
+index e9de375..c9a6587 100644
+--- a/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt
++++ b/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt
+@@ -1,7 +1,9 @@
+ Broadcom BCM2835 I2C controller
+
+ Required properties:
+-- compatible : Should be "brcm,bcm2835-i2c".
++- compatible : Should be one of:
++	"brcm,bcm2711-i2c"
++	"brcm,bcm2835-i2c"
+ - reg: Should contain register location and length.
+ - interrupts: Should contain interrupt.
+ - clocks : The clock feeding the I2C controller.
 --
 2.7.4
