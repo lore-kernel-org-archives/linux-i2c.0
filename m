@@ -1,16 +1,14 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH V2 07/13] dt-bindings: i2c: bcm2835: Add brcm,bcm2711
- compatible
-Date: Tue, 27 Aug 2019 11:00:37 -0500
-Message-ID: <20190827160037.GA13627@bogus>
-References: <1565713248-4906-1-git-send-email-wahrenst@gmx.net>
- <1565713248-4906-8-git-send-email-wahrenst@gmx.net>
+From: Stefan Wahren <wahrenst@gmx.net>
+Subject: [PATCH 3/3] i2c: bcm2835: Add full name of devicetree node to adapter
+ name
+Date: Tue, 27 Aug 2019 19:04:16 +0200
+Message-ID: <1566925456-5928-4-git-send-email-wahrenst@gmx.net>
+References: <1566925456-5928-1-git-send-email-wahrenst@gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <1565713248-4906-8-git-send-email-wahrenst@gmx.net>
+In-Reply-To: <1566925456-5928-1-git-send-email-wahrenst@gmx.net>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -20,16 +18,32 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-Cc: devicetree@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>, Scott Branden <sbranden@broadcom.com>, Wolfram Sang <wsa@the-dreams.de>, Ray Jui <rjui@broadcom.com>, Stefan Wahren <wahrenst@gmx.net>, Eric Anholt <eric@anholt.net>, bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Eric Anholt <eric@anholt.net>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Stefan Wahren <wahrenst@gmx.net>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 13 Aug 2019 18:20:42 +0200, Stefan Wahren wrote:
-> Add a new compatible for the BCM2711, which hasn't the clock stretch bug.
-> 
-> Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
-> ---
->  Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
+Inspired by Lori Hikichi's patch for iproc, this adds the full name of
+the devicetree node to the adapter name. With the introduction of
+BCM2711 it's very difficult to distinguish between the multiple instances.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+---
+ drivers/i2c/busses/i2c-bcm2835.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index ab5502f..e01b2b5 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -472,7 +472,8 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 	i2c_set_adapdata(adap, i2c_dev);
+ 	adap->owner = THIS_MODULE;
+ 	adap->class = I2C_CLASS_DEPRECATED;
+-	strlcpy(adap->name, "bcm2835 I2C adapter", sizeof(adap->name));
++	snprintf(adap->name, sizeof(adap->name), "bcm2835 (%s)",
++		 of_node_full_name(pdev->dev.of_node));
+ 	adap->algo = &bcm2835_i2c_algo;
+ 	adap->dev.parent = &pdev->dev;
+ 	adap->dev.of_node = pdev->dev.of_node;
+--
+2.7.4
