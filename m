@@ -1,58 +1,98 @@
-From: Scott Branden <scott.branden@broadcom.com>
-Subject: Re: [PATCH 3/3] i2c: bcm2835: Add full name of devicetree node to
- adapter name
-Date: Tue, 27 Aug 2019 14:10:46 -0700
-Message-ID: <1c42daa2-f7f7-baac-2d44-f9d86848d331@broadcom.com>
-References: <1566925456-5928-1-git-send-email-wahrenst@gmx.net>
- <1566925456-5928-4-git-send-email-wahrenst@gmx.net>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i801_smbus: clear SMBALERT status bit and disable
+ SMBALERT interrupt
+Date: Wed, 28 Aug 2019 15:58:22 +0200
+Message-ID: <20190828155822.7cb13a7b@endymion>
+References: <1565577634-18264-1-git-send-email-lingyan.xu@nokia-sbell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1566925456-5928-4-git-send-email-wahrenst@gmx.net>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Stefan Wahren <wahrenst@gmx.net>, Wolfram Sang <wsa@the-dreams.de>, Eric Anholt <eric@anholt.net>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1565577634-18264-1-git-send-email-lingyan.xu@nokia-sbell.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: lingyxu <lingyan.xu@nokia-sbell.com>
+Cc: Krzysztof Adamski <krzysztof.adamski@nokia.com>, WladislavWiebe <wladislav.wiebe@nokia.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Lingyan,
 
+On Mon, 12 Aug 2019 10:40:34 +0800, lingyxu wrote:
+> From: Lingyan Xu <lingyan.xu@nokia-sbell.com>
+> 
+> In current i801 driver, SMBALERT interrupt is allowed
+> (Slave Command Register bit2 is 0).
+> But these is no handler for SMBALERT interrupt in i801_isr,
+> if there is SMBALERT interrupt asserted and deasserted,
+> i801 will have an irq flood for the related status bit is setted.
+> 
+> So SMBALERT interrupt handler is needed, and also, SMBALERT interrupt
+> will be generated from time to time if slave chip have some fault.
+> So disable SMBALERT interrupt is also needed.
+> 
+> About the solution,
+> please see http://www.farnell.com/datasheets/1581967.pdf
+> Page632 P640 for more.
+> 
+> Signed-off-by: Lingyan Xu <lingyan.xu@nokia-sbell.com>
+> ---
+>  drivers/i2c/busses/i2c-i801.c |    7 ++++++-
+>  1 files changed, 6 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index f295693..033bafe 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -661,9 +661,11 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
+>  	 * Clear irq sources and report transaction result.
+>  	 * ->status must be cleared before the next transaction is started.
+>  	 */
+> +
+> +	outb_p(status, SMBHSTSTS(priv));
+> +
+>  	status &= SMBHSTSTS_INTR | STATUS_ERROR_FLAGS;
+>  	if (status) {
+> -		outb_p(status, SMBHSTSTS(priv));
+>  		priv->status = status;
+>  		wake_up(&priv->waitq);
+>  	}
 
-On 2019-08-27 10:04 a.m., Stefan Wahren wrote:
-> Inspired by Lori Hikichi's patch for iproc, this adds the full name of
-> the devicetree node to the adapter name. With the introduction of
-> BCM2711 it's very difficult to distinguish between the multiple instances.
->
-> Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
-Acked-by: Scott Branden <scott.branden@broadcom.com>
-> =2D--
->   drivers/i2c/busses/i2c-bcm2835.c | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm=
-> 2835.c
-> index ab5502f..e01b2b5 100644
-> =2D-- a/drivers/i2c/busses/i2c-bcm2835.c
-> +++ b/drivers/i2c/busses/i2c-bcm2835.c
-> @@ -472,7 +472,8 @@ static int bcm2835_i2c_probe(struct platform_device *p=
-> dev)
->   	i2c_set_adapdata(adap, i2c_dev);
->   	adap->owner =3D THIS_MODULE;
->   	adap->class =3D I2C_CLASS_DEPRECATED;
-> -	strlcpy(adap->name, "bcm2835 I2C adapter", sizeof(adap->name));
-> +	snprintf(adap->name, sizeof(adap->name), "bcm2835 (%s)",
-> +		 of_node_full_name(pdev->dev.of_node));
->   	adap->algo =3D &bcm2835_i2c_algo;
->   	adap->dev.parent =3D &pdev->dev;
->   	adap->dev.of_node =3D pdev->dev.of_node;
-> =2D-
-> 2.7.4
->
+Looks scary. Writing the whole value of SMBHSTSTS back to itself
+without selecting which bits you write is dangerous. Specifically,
+writing back SMBHSTSTS_BYTE_DONE, SMBHSTSTS_INUSE_STS and
+SMBHSTSTS_HOST_BUSY could have unexpected consequences. I would feel
+much better if you would just explicitly add SMBHSTSTS_SMBALERT_STS to
+the list.
+
+> @@ -1810,6 +1812,9 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>  	/* Default timeout in interrupt mode: 200 ms */
+>  	priv->adapter.timeout = HZ / 5;
+>  
+> +	/* Disable SMBALERT interrupt */
+> +	outb_p(inb_p(SMBSLVCMD(priv)) | BIT(2), SMBSLVCMD(priv));
+
+Please give SMBSLVCMD's BIT(2) a name and define it after
+SMBSLVCMD_HST_NTFY_INTREN.
+
+Also it is mandatory to restore the value of SMBSLVCMD before returning
+the control back to the BIOS. Currently this is only being done when
+the FEATURE_HOST_NOTIFY bit is set because that's the only case where
+we change the value of that register, but if we change it
+unconditionally then it must be saved and restored unconditionally too.
+
+> +
+>  	if (dev->irq == IRQ_NOTCONNECTED)
+>  		priv->features &= ~FEATURE_IRQ;
+>  
+
+That being said, if you see this interrupt flood, it means that at
+least one device on your SMBus would benefit from SMBus Alert being
+supported. The infrastructure is already there as we added support in a
+few I2C bus drivers already. So maybe instead of silencing the
+interrupts, we could add proper SMBus Alert support to the i2c-i801
+driver?
+
+Did you figure out which device is raising the SMBus Alert and why?
+
+-- 
+Jean Delvare
+SUSE L3 Support
