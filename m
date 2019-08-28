@@ -1,98 +1,71 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH] i801_smbus: clear SMBALERT status bit and disable
- SMBALERT interrupt
-Date: Wed, 28 Aug 2019 15:58:22 +0200
-Message-ID: <20190828155822.7cb13a7b@endymion>
-References: <1565577634-18264-1-git-send-email-lingyan.xu@nokia-sbell.com>
+From: Andrew Cooks <acooks@rationali.st>
+Subject: Re: [PATCH v5 0/3] Enable ACPI-defined peripherals on i2c-piix4 SMBus
+Date: Thu, 29 Aug 2019 08:48:51 +1000
+Message-ID: <086642c8-547c-ca95-3475-3ef05c77ada6@rationali.st>
+References: <20190802145109.38dd4045@endymion>
+ <b013c33b-da11-ce5e-08d4-0b24a8575109@metux.net>
+ <db725a3b-7b6e-ac79-ef1c-e601ff45c0f2@rationali.st>
+ <9019cce9-837f-97fc-0f3b-7503b8fc3717@metux.net>
+Reply-To: acooks@rationali.st
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1565577634-18264-1-git-send-email-lingyan.xu@nokia-sbell.com>
+In-Reply-To: <9019cce9-837f-97fc-0f3b-7503b8fc3717@metux.net>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: lingyxu <lingyan.xu@nokia-sbell.com>
-Cc: Krzysztof Adamski <krzysztof.adamski@nokia.com>, WladislavWiebe <wladislav.wiebe@nokia.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Enrico Weigelt, metux IT consult" <lkml@metux.net>, Jean Delvare <jdelvare@suse.de>, Linux I2C <linux-i2c@vger.kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, platypus-sw@opengear.com, "Tobin C . Harding" <me@tobin.cc>, Guenter Roeck <linux@roeck-us.net>, Will Wagner <willw@carallon.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Lingyan,
 
-On Mon, 12 Aug 2019 10:40:34 +0800, lingyxu wrote:
-> From: Lingyan Xu <lingyan.xu@nokia-sbell.com>
-> 
-> In current i801 driver, SMBALERT interrupt is allowed
-> (Slave Command Register bit2 is 0).
-> But these is no handler for SMBALERT interrupt in i801_isr,
-> if there is SMBALERT interrupt asserted and deasserted,
-> i801 will have an irq flood for the related status bit is setted.
-> 
-> So SMBALERT interrupt handler is needed, and also, SMBALERT interrupt
-> will be generated from time to time if slave chip have some fault.
-> So disable SMBALERT interrupt is also needed.
-> 
-> About the solution,
-> please see http://www.farnell.com/datasheets/1581967.pdf
-> Page632 P640 for more.
-> 
-> Signed-off-by: Lingyan Xu <lingyan.xu@nokia-sbell.com>
-> ---
->  drivers/i2c/busses/i2c-i801.c |    7 ++++++-
->  1 files changed, 6 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index f295693..033bafe 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -661,9 +661,11 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
->  	 * Clear irq sources and report transaction result.
->  	 * ->status must be cleared before the next transaction is started.
->  	 */
-> +
-> +	outb_p(status, SMBHSTSTS(priv));
-> +
->  	status &= SMBHSTSTS_INTR | STATUS_ERROR_FLAGS;
->  	if (status) {
-> -		outb_p(status, SMBHSTSTS(priv));
->  		priv->status = status;
->  		wake_up(&priv->waitq);
->  	}
+On 8/20/19 4:30 AM, Enrico Weigelt, metux IT consult wrote:
+> On 11.08.19 04:52, Andrew Cooks wrote:
+>
+> Hi,
+>
+>> My initial work is based on a board that is similar to the APU2, but has additional peripherals connected to the smbus, including a NCT7491 thermal monitor/fan controller and PCA6524 GPIO controller. These are simply peripherals on a board variant, not 'platform' devices, so I didn't want to follow the platform driver approach that the APU2 GPIO driver uses.
+> Why are they not platform devices ?
+>
+> IMHO, a platform device is something not on a bus that can do the
+> probing/enumeration (like eg. pci or usb does).
+>
+> Can these devices be probed directly by the bus they're connected to,
+> or do you have a different definition of the term "platform device" ?
 
-Looks scary. Writing the whole value of SMBHSTSTS back to itself
-without selecting which bits you write is dangerous. Specifically,
-writing back SMBHSTSTS_BYTE_DONE, SMBHSTSTS_INUSE_STS and
-SMBHSTSTS_HOST_BUSY could have unexpected consequences. I would feel
-much better if you would just explicitly add SMBHSTSTS_SMBALERT_STS to
-the list.
+ACPI was created to provide the PNP mechanism for buses that do not support enumeration, like SMBus. SMBus is similar to I2C, and can be routed to expansion cards, like Ethernet NICs. A system with expansion card Foo is not a different platform from a system with expansion card Bar, and you wouldn't necessarily want to support both Foo and Bar in the same platform driver.
 
-> @@ -1810,6 +1812,9 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
->  	/* Default timeout in interrupt mode: 200 ms */
->  	priv->adapter.timeout = HZ / 5;
->  
-> +	/* Disable SMBALERT interrupt */
-> +	outb_p(inb_p(SMBSLVCMD(priv)) | BIT(2), SMBSLVCMD(priv));
+>
+> :O
+>
+>> SMBus (and I2C) peripherals can generally not be enumerated without some firmware support. It is possible to probe for specific devices on the bus (eg sensors-detect) but in general it is not feasible to let every supported device driver probe the bus for its device. ACPI and Devicetree provides the kernel with metadata for the device: type, address, calibrated set points for temperature, etc.
+> Yes, I know. My question was whether these particular devices - if
+> they're in the SoC itself - do need some extra support in BIOS
+> (acpi entries, etc), that's not already in aegesa. Or in other words:
+> do I need to patch my BIOS ?
+>
+> I was assuming these devices are in the SoC itself - correct me if
+> I'm wrong.
 
-Please give SMBSLVCMD's BIT(2) a name and define it after
-SMBSLVCMD_HST_NTFY_INTREN.
+This patch is about adding a mechanism to describe peripherals that are not in the SoC, but attached to the SMBus. I also provided examples of the kinds of devices that need this support (eg. NCT7491).
 
-Also it is mandatory to restore the value of SMBSLVCMD before returning
-the control back to the BIOS. Currently this is only being done when
-the FEATURE_HOST_NOTIFY bit is set because that's the only case where
-we change the value of that register, but if we change it
-unconditionally then it must be saved and restored unconditionally too.
-
-> +
->  	if (dev->irq == IRQ_NOTCONNECTED)
->  		priv->features &= ~FEATURE_IRQ;
->  
-
-That being said, if you see this interrupt flood, it means that at
-least one device on your SMBus would benefit from SMBus Alert being
-supported. The infrastructure is already there as we added support in a
-few I2C bus drivers already. So maybe instead of silencing the
-interrupts, we could add proper SMBus Alert support to the i2c-i801
-driver?
-
-Did you figure out which device is raising the SMBus Alert and why?
-
--- 
-Jean Delvare
-SUSE L3 Support
+>
+>> Since the peripherals are not standard platform devices, they are not described by the ACPI tables provided by Coreboot or AMD, but it's not too difficult to create supplementary device description tables (ACPI) for non-standard devices. These can be added to coreboot, supplied to qemu as additional firmware files (see -acpitable arg), or built into the kernel (see https://www.kernel.org/doc/Documentation/acpi/ssdt-overlays.txt)
+> Oh, I didn't know about SSDT overlays yet. That's interesting.
+>
+> Is it also possible to describe things like leds-gpio or gpio-keyboard ?
+> Could be a nice idea to trim down my apu2 driver to not much more than
+> a piece of configuration (just like we'd do on a DT-based system)
+Yes and maybe. The extra ACPI layer is inconvenient and more complex than a platform driver, as should be evident from the patch history and this discussion.
+>
+>> ACPI may be an ugly abomination, but it's what we're stuck with on x86 and it can only improve when more people get their hands on it.
+> hmm, I'm planning to introduce DT to x86 (also patch up apu'2 coreboot
+> do deliver a DT to the kernel) ... but just lacking time to get my hands
+> dirty on this topic.
+>
+>> You might find it helpful to look at the coreboot source for the APU2 (src/mainboard/pcengines/apu2/gpio_ftns.h)
+> In which version ?
+>
+>
+> --mtx
+>
