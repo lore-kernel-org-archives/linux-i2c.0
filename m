@@ -1,35 +1,77 @@
-From: Max Staudt <max@enpas.org>
-Subject: Re: [PATCH] i2c/busses: Add i2c-icy for I2C on m68k/Amiga
-Date: Thu, 29 Aug 2019 21:17:37 +0200
-Message-ID: <e80a6ccb-ca88-a46f-74c7-ae03ab681977@enpas.org>
-References: <3F017C0B-44D6-4E63-A908-DDAA5586D67C@enpas.org>
- <20190820092739.7213-1-max@enpas.org> <20190829190014.GG3740@ninjato>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] MAINTAINERS: i2c mv64xxx: Update documentation path
+Date: Thu, 29 Aug 2019 22:00:56 +0200
+Message-ID: <20190829200055.GJ3740@ninjato>
+References: <7cd8d12f59bcacd18a78f599b46dac555f7f16c0.camel@perches.com>
+ <20190813060913.14722-1-efremov@linux.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="pWOmaDnDlrCGjNh4"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190829190014.GG3740@ninjato>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20190813060913.14722-1-efremov@linux.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, glaubitz@physik.fu-berlin.de
+To: Denis Efremov <efremov@linux.com>
+Cc: linux-kernel@vger.kernel.org, joe@perches.com, Maxime Ripard <maxime.ripard@bootlin.com>, Gregory CLEMENT <gregory.clement@bootlin.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/29/2019 09:00 PM, Wolfram Sang wrote:
-> Thanks for the changelog; it should go below the '---' line, however.
 
-Thanks if you fixed it up!
+--pWOmaDnDlrCGjNh4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Tue, Aug 13, 2019 at 09:09:13AM +0300, Denis Efremov wrote:
+> Update MAINTAINERS record to reflect the file move
+> from i2c-mv64xxx.txt to marvell,mv64xxx-i2c.yaml.
+>=20
+> Cc: Maxime Ripard <maxime.ripard@bootlin.com>
+> Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
+> Cc: linux-i2c@vger.kernel.org
+> Fixes: f8bbde72ef44 ("dt-bindings: i2c: mv64xxx: Add YAML schemas")
+> Signed-off-by: Denis Efremov <efremov@linux.com>
 
-> Fixed a freshly introduced checkpatch warning for you.
+Looks OK to me, Gregory or Maxime?
 
-Ditto.
+> ---
+>  MAINTAINERS | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 87ac0378186c..590dcebe627f 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -7505,7 +7505,7 @@ I2C MV64XXX MARVELL AND ALLWINNER DRIVER
+>  M:	Gregory CLEMENT <gregory.clement@bootlin.com>
+>  L:	linux-i2c@vger.kernel.org
+>  S:	Maintained
+> -F:	Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> +F:	Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
+>  F:	drivers/i2c/busses/i2c-mv64xxx.c
+> =20
+>  I2C OVER PARALLEL PORT
+> --=20
+> 2.21.0
+>=20
 
+--pWOmaDnDlrCGjNh4
+Content-Type: application/pgp-signature; name="signature.asc"
 
-> But most importantly, applied to for-next, thanks!
+-----BEGIN PGP SIGNATURE-----
 
-Thank you too for taking this, and Geert for the extra reviews.
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1oLvQACgkQFA3kzBSg
+KbbKHQ//Ytf/8lxAuBjEaG7YHrhOJwV+vAWR+ZlFudbv7vvuahzfrsdM/Ed9kzqB
+7cbE6rTyGY79rCdvlQKQJywZTkvHCjSbvFGjoglcAzKqQWVt9x8+dp3VACnvC4ry
+TdCVoAaVS6vAV0zKH9aD7ovzf0nqaIwdA/JJLLUfqT6bqctLkw9v1i/44IeCWc4D
++xOPAkP4aHtaLT/XUOuNFuthE1ex76sjpELEffxWbTTLHdlN9gmzr0+ku21vbUE+
+O68EJrKiLAkzYPAlHOf6oKR3DPx9ikwBPo/QK4Otyq5jNBHm8/5QcE0yaQhSyHkr
+50viZXe7yLxvb6IvAH0b++y6PxntE7ILgEWO8UmLiWQ53AVSzxxN1Cubm2IOmZ7u
+L56XMyRm2opFeS585V768A1T3g9apBn8Ws3borfGWp9CG3/4kVI7PxmB8wOa+w6G
+dYRoNMj+RN8PyNk3R5sOdmRoK5GtTrcoknXEJ/mMCRehvUMappoICOwjFWXuxCs8
+93cN5VgHS82pJivQ3jpD/0KPtYyZp6q+QIPVPbEGYY1nDr4wXGgGooZ9p+sLZifM
+EBAo7zg9IOLjb45V1tvQxEdJ4dkz1M5DRLU1z+mEi69b0/JOuPOVQlIUfmI8C81t
+KATNgVXICYfHhUpO75s0ZAkl1jWR2E3zurboJfJF19oFxnfe7Lk=
+=yb1K
+-----END PGP SIGNATURE-----
 
-
-
-Max
+--pWOmaDnDlrCGjNh4--
