@@ -1,115 +1,80 @@
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
-Subject: [PATCH] [RFC] i2c: imx: make use of format specifier %dE
-Date: Thu, 29 Aug 2019 06:29:05 +0200
-Message-ID: <20190829042905.4850-1-uwe@kleine-koenig.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/3] dt-bindings: i2c: bcm2835: Add brcm,bcm2711 compatible
+Date: Thu, 29 Aug 2019 20:52:52 +0200
+Message-ID: <20190829185251.GD3740@ninjato>
+References: <1566925456-5928-1-git-send-email-wahrenst@gmx.net>
+ <1566925456-5928-2-git-send-email-wahrenst@gmx.net>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Oleksij Rempel <linux@rempel-privat.de>
-Cc: kernel@pengutronix.de, Shawn Guo <shawnguo@kernel.org>, Fabio Estevam <festevam@gmail.com>, NXP Linux Team <linux-imx@nxp.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Petr Mladek <pmladek@suse.com>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@linux-foundation.org>, Jani Nikula <jani.nikula@linux.intel.com>, Enrico Weigelt <lkml@metux.net>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============4400648218800844429=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1566925456-5928-2-git-send-email-wahrenst@gmx.net>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Stefan Wahren <wahrenst@gmx.net>
+Cc: Florian Fainelli <f.fainelli@gmail.com>, Scott Branden <sbranden@broadcom.com>, Ray Jui <rjui@broadcom.com>, Eric Anholt <eric@anholt.net>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-I created a patch that teaches printk et al to emit a symbolic error
-name for an error valued integer[1]. With that applied
 
-	dev_err(&pdev->dev, "can't enable I2C clock, ret=%dE\n", ret);
+--===============4400648218800844429==
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="veXX9dWIonWZEC6h"
+Content-Disposition: inline
 
-emits
 
-	... can't enable I2C clock, ret=EIO
+--veXX9dWIonWZEC6h
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-if ret is -EIO. Petr Mladek (i.e. one of the printk maintainers) had
-concerns if this would be well received and worth the effort. He asked
-to present it to a few subsystems. So for now, this patch converting the
-i2c-imx driver shouldn't be applied yet but it would be great to get
-some feedback about if you think that being able to easily printk (for
-example) "EIO" instead of "-5" is a good idea. Would it help you? Do you
-think it helps your users?
+On Tue, Aug 27, 2019 at 07:04:14PM +0200, Stefan Wahren wrote:
+> Add a new compatible for the BCM2711, which hasn't the clock stretch bug.
+>=20
+> Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+> Reviewed-by: Eric Anholt <eric@anholt.net>
+> Reviewed-by: Rob Herring <robh@kernel.org>
 
-Thanks
-Uwe
+Applied to for-next, thanks!
 
-[1] https://lkml.org/lkml/2019/8/27/1456
----
- drivers/i2c/busses/i2c-imx.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 15f6cde6452f..359e911cb891 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -289,7 +289,7 @@ static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
- 	if (IS_ERR(dma->chan_tx)) {
- 		ret = PTR_ERR(dma->chan_tx);
- 		if (ret != -ENODEV && ret != -EPROBE_DEFER)
--			dev_err(dev, "can't request DMA tx channel (%d)\n", ret);
-+			dev_err(dev, "can't request DMA tx channel (%dE)\n", ret);
- 		goto fail_al;
- 	}
- 
-@@ -300,7 +300,7 @@ static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
- 	dma_sconfig.direction = DMA_MEM_TO_DEV;
- 	ret = dmaengine_slave_config(dma->chan_tx, &dma_sconfig);
- 	if (ret < 0) {
--		dev_err(dev, "can't configure tx channel (%d)\n", ret);
-+		dev_err(dev, "can't configure tx channel (%dE)\n", ret);
- 		goto fail_tx;
- 	}
- 
-@@ -308,7 +308,7 @@ static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
- 	if (IS_ERR(dma->chan_rx)) {
- 		ret = PTR_ERR(dma->chan_rx);
- 		if (ret != -ENODEV && ret != -EPROBE_DEFER)
--			dev_err(dev, "can't request DMA rx channel (%d)\n", ret);
-+			dev_err(dev, "can't request DMA rx channel (%dE)\n", ret);
- 		goto fail_tx;
- 	}
- 
-@@ -319,7 +319,7 @@ static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
- 	dma_sconfig.direction = DMA_DEV_TO_MEM;
- 	ret = dmaengine_slave_config(dma->chan_rx, &dma_sconfig);
- 	if (ret < 0) {
--		dev_err(dev, "can't configure rx channel (%d)\n", ret);
-+		dev_err(dev, "can't configure rx channel (%dE)\n", ret);
- 		goto fail_rx;
- 	}
- 
-@@ -964,7 +964,7 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
- 	pm_runtime_put_autosuspend(i2c_imx->adapter.dev.parent);
- 
- out:
--	dev_dbg(&i2c_imx->adapter.dev, "<%s> exit with: %s: %d\n", __func__,
-+	dev_dbg(&i2c_imx->adapter.dev, "<%s> exit with: %s: %dE\n", __func__,
- 		(result < 0) ? "error" : "success msg",
- 			(result < 0) ? result : num);
- 	return (result < 0) ? result : num;
-@@ -1100,7 +1100,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 
- 	ret = clk_prepare_enable(i2c_imx->clk);
- 	if (ret) {
--		dev_err(&pdev->dev, "can't enable I2C clock, ret=%d\n", ret);
-+		dev_err(&pdev->dev, "can't enable I2C clock, ret=%dE\n", ret);
- 		return ret;
- 	}
- 
-@@ -1108,7 +1108,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, IRQF_SHARED,
- 				pdev->name, i2c_imx);
- 	if (ret) {
--		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
-+		dev_err(&pdev->dev, "can't claim irq %dE\n", irq);
- 		goto clk_disable;
- 	}
- 
-@@ -1230,7 +1230,7 @@ static int __maybe_unused i2c_imx_runtime_resume(struct device *dev)
- 
- 	ret = clk_enable(i2c_imx->clk);
- 	if (ret)
--		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);
-+		dev_err(dev, "can't enable I2C clock, ret=%dE\n", ret);
- 
- 	return ret;
- }
--- 
-2.23.0
+--veXX9dWIonWZEC6h
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1oHwMACgkQFA3kzBSg
+KbZRRg//Ryv7Zq+mHMTNa3cr8ox0/gmPrj0BRADdaDUn/V4haoxNg/ItcG0N94zf
+rBUXZ1IwcGXQ3AiI+5lmEcj+kAVGRPvN1IYqK6MNGEcIRQq8KO9U1xHYesdORiNh
+EQRxyJpjGdxXHSoEduhdHx5CLPTAFScj7xVMBiueVNdJWEXO7RvWIJyAfLQ8uTuG
+HUGikkBmOb8aTLRvP5ltNJWKCjaF53MH8mel25KyykhdN+oYfZhxRkkxVLd1pF39
+mb6olPxLpPPIODm4iLCC88e6hXY8BB08dne9d73vZI3WSgBr2eNYT0M/5ZzNbRbc
+elrzOGUi7aLeRGZDeT6noC/rxEIGSmiKBRdrgOT4oKVvh1SvdkZCEq+TTTodHQ3p
+RPlBcgyrJp6NtvrV/AjmSwyWrhU5wxMfGbH2K0ALmndlCWSt19AWhOF2jNWAbqzC
+sTnbOi4b1oCPW1fSI7hRf7sHu8QB+CAr6plmPFoGdMqxRW8J9LTvNj3xT4Vegf9z
+rCzsucbOn1T0d/R80dnbRAyb5LuYj5hOlZyky1GiN2kqCL0ApQ3FGb4Kcxa700wH
+0WLciVQAZJqqAf6SW0by/DTtp1FrGcY8GuBxogw6UbeQzeRZEnT9U7WEpkekMTce
+zOgMioM3Hw84yQgo5CVDubafVNBQIJ671UCxmwm1prdXI/c61Gw=
+=Wx3G
+-----END PGP SIGNATURE-----
+
+--veXX9dWIonWZEC6h--
+
+
+--===============4400648218800844429==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============4400648218800844429==--
