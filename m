@@ -1,71 +1,115 @@
-From: Andrew Cooks <acooks@rationali.st>
-Subject: Re: [PATCH v5 0/3] Enable ACPI-defined peripherals on i2c-piix4 SMBus
-Date: Thu, 29 Aug 2019 08:48:51 +1000
-Message-ID: <086642c8-547c-ca95-3475-3ef05c77ada6@rationali.st>
-References: <20190802145109.38dd4045@endymion>
- <b013c33b-da11-ce5e-08d4-0b24a8575109@metux.net>
- <db725a3b-7b6e-ac79-ef1c-e601ff45c0f2@rationali.st>
- <9019cce9-837f-97fc-0f3b-7503b8fc3717@metux.net>
-Reply-To: acooks@rationali.st
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
+Subject: [PATCH] [RFC] i2c: imx: make use of format specifier %dE
+Date: Thu, 29 Aug 2019 06:29:05 +0200
+Message-ID: <20190829042905.4850-1-uwe@kleine-koenig.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <9019cce9-837f-97fc-0f3b-7503b8fc3717@metux.net>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Enrico Weigelt, metux IT consult" <lkml@metux.net>, Jean Delvare <jdelvare@suse.de>, Linux I2C <linux-i2c@vger.kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, platypus-sw@opengear.com, "Tobin C . Harding" <me@tobin.cc>, Guenter Roeck <linux@roeck-us.net>, Will Wagner <willw@carallon.com>
+To: Wolfram Sang <wsa@the-dreams.de>, Oleksij Rempel <linux@rempel-privat.de>
+Cc: kernel@pengutronix.de, Shawn Guo <shawnguo@kernel.org>, Fabio Estevam <festevam@gmail.com>, NXP Linux Team <linux-imx@nxp.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Petr Mladek <pmladek@suse.com>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@linux-foundation.org>, Jani Nikula <jani.nikula@linux.intel.com>, Enrico Weigelt <lkml@metux.net>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+I created a patch that teaches printk et al to emit a symbolic error
+name for an error valued integer[1]. With that applied
 
-On 8/20/19 4:30 AM, Enrico Weigelt, metux IT consult wrote:
-> On 11.08.19 04:52, Andrew Cooks wrote:
->
-> Hi,
->
->> My initial work is based on a board that is similar to the APU2, but has additional peripherals connected to the smbus, including a NCT7491 thermal monitor/fan controller and PCA6524 GPIO controller. These are simply peripherals on a board variant, not 'platform' devices, so I didn't want to follow the platform driver approach that the APU2 GPIO driver uses.
-> Why are they not platform devices ?
->
-> IMHO, a platform device is something not on a bus that can do the
-> probing/enumeration (like eg. pci or usb does).
->
-> Can these devices be probed directly by the bus they're connected to,
-> or do you have a different definition of the term "platform device" ?
+	dev_err(&pdev->dev, "can't enable I2C clock, ret=%dE\n", ret);
 
-ACPI was created to provide the PNP mechanism for buses that do not support enumeration, like SMBus. SMBus is similar to I2C, and can be routed to expansion cards, like Ethernet NICs. A system with expansion card Foo is not a different platform from a system with expansion card Bar, and you wouldn't necessarily want to support both Foo and Bar in the same platform driver.
+emits
 
->
-> :O
->
->> SMBus (and I2C) peripherals can generally not be enumerated without some firmware support. It is possible to probe for specific devices on the bus (eg sensors-detect) but in general it is not feasible to let every supported device driver probe the bus for its device. ACPI and Devicetree provides the kernel with metadata for the device: type, address, calibrated set points for temperature, etc.
-> Yes, I know. My question was whether these particular devices - if
-> they're in the SoC itself - do need some extra support in BIOS
-> (acpi entries, etc), that's not already in aegesa. Or in other words:
-> do I need to patch my BIOS ?
->
-> I was assuming these devices are in the SoC itself - correct me if
-> I'm wrong.
+	... can't enable I2C clock, ret=EIO
 
-This patch is about adding a mechanism to describe peripherals that are not in the SoC, but attached to the SMBus. I also provided examples of the kinds of devices that need this support (eg. NCT7491).
+if ret is -EIO. Petr Mladek (i.e. one of the printk maintainers) had
+concerns if this would be well received and worth the effort. He asked
+to present it to a few subsystems. So for now, this patch converting the
+i2c-imx driver shouldn't be applied yet but it would be great to get
+some feedback about if you think that being able to easily printk (for
+example) "EIO" instead of "-5" is a good idea. Would it help you? Do you
+think it helps your users?
 
->
->> Since the peripherals are not standard platform devices, they are not described by the ACPI tables provided by Coreboot or AMD, but it's not too difficult to create supplementary device description tables (ACPI) for non-standard devices. These can be added to coreboot, supplied to qemu as additional firmware files (see -acpitable arg), or built into the kernel (see https://www.kernel.org/doc/Documentation/acpi/ssdt-overlays.txt)
-> Oh, I didn't know about SSDT overlays yet. That's interesting.
->
-> Is it also possible to describe things like leds-gpio or gpio-keyboard ?
-> Could be a nice idea to trim down my apu2 driver to not much more than
-> a piece of configuration (just like we'd do on a DT-based system)
-Yes and maybe. The extra ACPI layer is inconvenient and more complex than a platform driver, as should be evident from the patch history and this discussion.
->
->> ACPI may be an ugly abomination, but it's what we're stuck with on x86 and it can only improve when more people get their hands on it.
-> hmm, I'm planning to introduce DT to x86 (also patch up apu'2 coreboot
-> do deliver a DT to the kernel) ... but just lacking time to get my hands
-> dirty on this topic.
->
->> You might find it helpful to look at the coreboot source for the APU2 (src/mainboard/pcengines/apu2/gpio_ftns.h)
-> In which version ?
->
->
-> --mtx
->
+Thanks
+Uwe
+
+[1] https://lkml.org/lkml/2019/8/27/1456
+---
+ drivers/i2c/busses/i2c-imx.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 15f6cde6452f..359e911cb891 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -289,7 +289,7 @@ static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
+ 	if (IS_ERR(dma->chan_tx)) {
+ 		ret = PTR_ERR(dma->chan_tx);
+ 		if (ret != -ENODEV && ret != -EPROBE_DEFER)
+-			dev_err(dev, "can't request DMA tx channel (%d)\n", ret);
++			dev_err(dev, "can't request DMA tx channel (%dE)\n", ret);
+ 		goto fail_al;
+ 	}
+ 
+@@ -300,7 +300,7 @@ static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
+ 	dma_sconfig.direction = DMA_MEM_TO_DEV;
+ 	ret = dmaengine_slave_config(dma->chan_tx, &dma_sconfig);
+ 	if (ret < 0) {
+-		dev_err(dev, "can't configure tx channel (%d)\n", ret);
++		dev_err(dev, "can't configure tx channel (%dE)\n", ret);
+ 		goto fail_tx;
+ 	}
+ 
+@@ -308,7 +308,7 @@ static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
+ 	if (IS_ERR(dma->chan_rx)) {
+ 		ret = PTR_ERR(dma->chan_rx);
+ 		if (ret != -ENODEV && ret != -EPROBE_DEFER)
+-			dev_err(dev, "can't request DMA rx channel (%d)\n", ret);
++			dev_err(dev, "can't request DMA rx channel (%dE)\n", ret);
+ 		goto fail_tx;
+ 	}
+ 
+@@ -319,7 +319,7 @@ static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
+ 	dma_sconfig.direction = DMA_DEV_TO_MEM;
+ 	ret = dmaengine_slave_config(dma->chan_rx, &dma_sconfig);
+ 	if (ret < 0) {
+-		dev_err(dev, "can't configure rx channel (%d)\n", ret);
++		dev_err(dev, "can't configure rx channel (%dE)\n", ret);
+ 		goto fail_rx;
+ 	}
+ 
+@@ -964,7 +964,7 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
+ 	pm_runtime_put_autosuspend(i2c_imx->adapter.dev.parent);
+ 
+ out:
+-	dev_dbg(&i2c_imx->adapter.dev, "<%s> exit with: %s: %d\n", __func__,
++	dev_dbg(&i2c_imx->adapter.dev, "<%s> exit with: %s: %dE\n", __func__,
+ 		(result < 0) ? "error" : "success msg",
+ 			(result < 0) ? result : num);
+ 	return (result < 0) ? result : num;
+@@ -1100,7 +1100,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
+ 
+ 	ret = clk_prepare_enable(i2c_imx->clk);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "can't enable I2C clock, ret=%d\n", ret);
++		dev_err(&pdev->dev, "can't enable I2C clock, ret=%dE\n", ret);
+ 		return ret;
+ 	}
+ 
+@@ -1108,7 +1108,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
+ 	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, IRQF_SHARED,
+ 				pdev->name, i2c_imx);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
++		dev_err(&pdev->dev, "can't claim irq %dE\n", irq);
+ 		goto clk_disable;
+ 	}
+ 
+@@ -1230,7 +1230,7 @@ static int __maybe_unused i2c_imx_runtime_resume(struct device *dev)
+ 
+ 	ret = clk_enable(i2c_imx->clk);
+ 	if (ret)
+-		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);
++		dev_err(dev, "can't enable I2C clock, ret=%dE\n", ret);
+ 
+ 	return ret;
+ }
+-- 
+2.23.0
