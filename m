@@ -1,77 +1,57 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] MAINTAINERS: i2c mv64xxx: Update documentation path
-Date: Thu, 29 Aug 2019 22:00:56 +0200
-Message-ID: <20190829200055.GJ3740@ninjato>
-References: <7cd8d12f59bcacd18a78f599b46dac555f7f16c0.camel@perches.com>
- <20190813060913.14722-1-efremov@linux.com>
+Subject: Re: [PATCH] i2c: ocores: use request_any_context_irq() to register
+ IRQ handler
+Date: Thu, 29 Aug 2019 22:12:46 +0200
+Message-ID: <20190829201246.GP3740@ninjato>
+References: <20190822132132.16557-1-federico.vaga@cern.ch>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="pWOmaDnDlrCGjNh4"
+        protocol="application/pgp-signature"; boundary="SavPGzlo48F1Gxyz"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190813060913.14722-1-efremov@linux.com>
+In-Reply-To: <20190822132132.16557-1-federico.vaga@cern.ch>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Denis Efremov <efremov@linux.com>
-Cc: linux-kernel@vger.kernel.org, joe@perches.com, Maxime Ripard <maxime.ripard@bootlin.com>, Gregory CLEMENT <gregory.clement@bootlin.com>, linux-i2c@vger.kernel.org
+To: Federico Vaga <federico.vaga@cern.ch>
+Cc: Andrew Lunn <andrew@lunn.ch>, Peter Korsgaard <peter@korsgaard.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---pWOmaDnDlrCGjNh4
+--SavPGzlo48F1Gxyz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 13, 2019 at 09:09:13AM +0300, Denis Efremov wrote:
-> Update MAINTAINERS record to reflect the file move
-> from i2c-mv64xxx.txt to marvell,mv64xxx-i2c.yaml.
+On Thu, Aug 22, 2019 at 03:21:32PM +0200, Federico Vaga wrote:
+> The i2c-ocores device is an HDL component that get instantiated in FPGA.
+> The software stack used to drive an FPGA can be very different, and the
+> i2c-ocore ip-core must work in different context. With respect to this
+> patch the IRQ controller behind this device, and its driver, can have
+> different implementations (nested threads). For this reason, it is safer
+> to use `request_any_context_irq()` to avoid errors at probe time.
 >=20
-> Cc: Maxime Ripard <maxime.ripard@bootlin.com>
-> Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
-> Cc: linux-i2c@vger.kernel.org
-> Fixes: f8bbde72ef44 ("dt-bindings: i2c: mv64xxx: Add YAML schemas")
-> Signed-off-by: Denis Efremov <efremov@linux.com>
+> Signed-off-by: Federico Vaga <federico.vaga@cern.ch>
 
-Looks OK to me, Gregory or Maxime?
+Applied to for-next, thanks!
 
-> ---
->  MAINTAINERS | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 87ac0378186c..590dcebe627f 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -7505,7 +7505,7 @@ I2C MV64XXX MARVELL AND ALLWINNER DRIVER
->  M:	Gregory CLEMENT <gregory.clement@bootlin.com>
->  L:	linux-i2c@vger.kernel.org
->  S:	Maintained
-> -F:	Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-> +F:	Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
->  F:	drivers/i2c/busses/i2c-mv64xxx.c
-> =20
->  I2C OVER PARALLEL PORT
-> --=20
-> 2.21.0
->=20
 
---pWOmaDnDlrCGjNh4
+--SavPGzlo48F1Gxyz
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1oLvQACgkQFA3kzBSg
-KbbKHQ//Ytf/8lxAuBjEaG7YHrhOJwV+vAWR+ZlFudbv7vvuahzfrsdM/Ed9kzqB
-7cbE6rTyGY79rCdvlQKQJywZTkvHCjSbvFGjoglcAzKqQWVt9x8+dp3VACnvC4ry
-TdCVoAaVS6vAV0zKH9aD7ovzf0nqaIwdA/JJLLUfqT6bqctLkw9v1i/44IeCWc4D
-+xOPAkP4aHtaLT/XUOuNFuthE1ex76sjpELEffxWbTTLHdlN9gmzr0+ku21vbUE+
-O68EJrKiLAkzYPAlHOf6oKR3DPx9ikwBPo/QK4Otyq5jNBHm8/5QcE0yaQhSyHkr
-50viZXe7yLxvb6IvAH0b++y6PxntE7ILgEWO8UmLiWQ53AVSzxxN1Cubm2IOmZ7u
-L56XMyRm2opFeS585V768A1T3g9apBn8Ws3borfGWp9CG3/4kVI7PxmB8wOa+w6G
-dYRoNMj+RN8PyNk3R5sOdmRoK5GtTrcoknXEJ/mMCRehvUMappoICOwjFWXuxCs8
-93cN5VgHS82pJivQ3jpD/0KPtYyZp6q+QIPVPbEGYY1nDr4wXGgGooZ9p+sLZifM
-EBAo7zg9IOLjb45V1tvQxEdJ4dkz1M5DRLU1z+mEi69b0/JOuPOVQlIUfmI8C81t
-KATNgVXICYfHhUpO75s0ZAkl1jWR2E3zurboJfJF19oFxnfe7Lk=
-=yb1K
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1oMb0ACgkQFA3kzBSg
+KbaiVhAArWYZe7O8lBaCp2VM5luO9FLbm8BuWRyLAF0RQ/MCM72MJcXcPhol2Fxn
+ADg4h/yR+ut9OrRFH89eLdMTp5dSdZD/eLWtXpyyfSVEICHbgppauSZTGEUUbgjA
+yZ3XyZNSapyvoVN8KE5g6CblG4MuPcajnqGEdIyBPlorUWPUgpTi/y3R2XPllxKG
+VblquMF8/lyFjbA7rcxDy7pf93NciXs3CfP3V6VGz/d3GNaJATmh3ONNjKx3CXMU
+kPQkdniHj+JbbrNwuDG0Gf0u1DEDC3Wj5vfowHb6GNHUaQg0mc8tEmk8uZzc7gvx
+4ql/uUyV0f5NEMGBbvRQNYNfc+oMkWeDlAzJOjAgop62cEXIMqO+uX5MsSeSY85V
+ZFgxoRwovPM1WNN5UH9A63KQ0hABGiMCqiOVFG0BRVmiJCSjGrOHfDPHieEUCPrp
+kVwHastSdePDSXC3cy1tw/c5U1nZfLDIyGYV9eT72/OGfUB3OPKBW7J88qh4VZHD
+nrLuhCgsY7UWr0/crI2rnaxzdnCeyvOGnvkEUP6RqS8suQ4rO0V64Ac/xYrnA21b
+ELDeLpXKm09hJ5ZRc3ckXmtbw1XbsC+grvGKoaCLHmy+BVP73KHEz2hq2cbWkoXt
+bW7l3MAi6jSGA0CIepLMQSPpXmkBGi57wil/gLwKYw4f8cm4L7w=
+=pBYe
 -----END PGP SIGNATURE-----
 
---pWOmaDnDlrCGjNh4--
+--SavPGzlo48F1Gxyz--
