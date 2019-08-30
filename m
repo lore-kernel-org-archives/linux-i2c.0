@@ -1,156 +1,57 @@
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: Re: [PATCH 2/2] rtc: s35390a: convert to devm_i2c_new_dummy_device()
-Date: Thu, 29 Aug 2019 22:58:22 +0200
-Message-ID: <20190829205822.GM21922@piout.net>
-References: <20190820154239.8230-1-wsa+renesas@sang-engineering.com>
- <20190820154239.8230-3-wsa+renesas@sang-engineering.com>
+From: Maxime Ripard <maxime.ripard@bootlin.com>
+Subject: Re: [PATCH] MAINTAINERS: i2c mv64xxx: Update documentation path
+Date: Fri, 30 Aug 2019 10:28:35 +0200
+Message-ID: <20190830082835.rn65ssnvxwywyzkj@flea>
+References: <7cd8d12f59bcacd18a78f599b46dac555f7f16c0.camel@perches.com>
+ <20190813060913.14722-1-efremov@linux.com>
+ <20190829200055.GJ3740@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="dia2uwz2zxeowuxf"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190820154239.8230-3-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190829200055.GJ3740@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, Alessandro Zummo <a.zummo@towertech.it>, linux-rtc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Denis Efremov <efremov@linux.com>, linux-kernel@vger.kernel.org, joe@perches.com, Gregory CLEMENT <gregory.clement@bootlin.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 20/08/2019 17:42:38+0200, Wolfram Sang wrote:
-> I was about to simplify the call to i2c_unregister_device() when I
-> realized that converting to devm_i2c_new_dummy_device() will simplify
-> the driver a lot. So I took this approach.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
-> Build tested only, buildbot is happy, too.
-> 
-> Please apply to your tree.
-> 
 
-Isn't that https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit/?h=rtc-next&id=ca83542cdb5c14dd369de2539bdca2670d89feea
+--dia2uwz2zxeowuxf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->  drivers/rtc/rtc-s35390a.c | 54 ++++++++++-----------------------------
->  1 file changed, 13 insertions(+), 41 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-> index 5826209a3f30..da34cfd70f95 100644
-> --- a/drivers/rtc/rtc-s35390a.c
-> +++ b/drivers/rtc/rtc-s35390a.c
-> @@ -434,37 +434,32 @@ static int s35390a_probe(struct i2c_client *client,
->  	char buf, status1;
->  	struct device *dev = &client->dev;
->  
-> -	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-> -		err = -ENODEV;
-> -		goto exit;
-> -	}
-> +	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
-> +		return -ENODEV;
->  
->  	s35390a = devm_kzalloc(dev, sizeof(struct s35390a), GFP_KERNEL);
-> -	if (!s35390a) {
-> -		err = -ENOMEM;
-> -		goto exit;
-> -	}
-> +	if (!s35390a)
-> +		return -ENOMEM;
->  
->  	s35390a->client[0] = client;
->  	i2c_set_clientdata(client, s35390a);
->  
->  	/* This chip uses multiple addresses, use dummy devices for them */
->  	for (i = 1; i < 8; ++i) {
-> -		s35390a->client[i] = i2c_new_dummy_device(client->adapter,
-> -					client->addr + i);
-> +		s35390a->client[i] = devm_i2c_new_dummy_device(dev,
-> +							       client->adapter,
-> +							       client->addr + i);
->  		if (IS_ERR(s35390a->client[i])) {
->  			dev_err(dev, "Address %02x unavailable\n",
->  				client->addr + i);
-> -			err = PTR_ERR(s35390a->client[i]);
-> -			goto exit_dummy;
-> +			return PTR_ERR(s35390a->client[i]);
->  		}
->  	}
->  
->  	err_read = s35390a_read_status(s35390a, &status1);
->  	if (err_read < 0) {
-> -		err = err_read;
->  		dev_err(dev, "error resetting chip\n");
-> -		goto exit_dummy;
-> +		return err_read;
->  	}
->  
->  	if (status1 & S35390A_FLAG_24H)
-> @@ -478,13 +473,13 @@ static int s35390a_probe(struct i2c_client *client,
->  		err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &buf, 1);
->  		if (err < 0) {
->  			dev_err(dev, "error disabling alarm");
-> -			goto exit_dummy;
-> +			return err;
->  		}
->  	} else {
->  		err = s35390a_disable_test_mode(s35390a);
->  		if (err < 0) {
->  			dev_err(dev, "error disabling test mode\n");
-> -			goto exit_dummy;
-> +			return err;
->  		}
->  	}
->  
-> @@ -493,10 +488,8 @@ static int s35390a_probe(struct i2c_client *client,
->  	s35390a->rtc = devm_rtc_device_register(dev, s35390a_driver.driver.name,
->  						&s35390a_rtc_ops, THIS_MODULE);
->  
-> -	if (IS_ERR(s35390a->rtc)) {
-> -		err = PTR_ERR(s35390a->rtc);
-> -		goto exit_dummy;
-> -	}
-> +	if (IS_ERR(s35390a->rtc))
-> +		return PTR_ERR(s35390a->rtc);
->  
->  	/* supports per-minute alarms only, therefore set uie_unsupported */
->  	s35390a->rtc->uie_unsupported = 1;
-> @@ -505,26 +498,6 @@ static int s35390a_probe(struct i2c_client *client,
->  		rtc_update_irq(s35390a->rtc, 1, RTC_AF);
->  
->  	return 0;
-> -
-> -exit_dummy:
-> -	for (i = 1; i < 8; ++i)
-> -		if (s35390a->client[i])
-> -			i2c_unregister_device(s35390a->client[i]);
-> -
-> -exit:
-> -	return err;
-> -}
-> -
-> -static int s35390a_remove(struct i2c_client *client)
-> -{
-> -	unsigned int i;
-> -	struct s35390a *s35390a = i2c_get_clientdata(client);
-> -
-> -	for (i = 1; i < 8; ++i)
-> -		if (s35390a->client[i])
-> -			i2c_unregister_device(s35390a->client[i]);
-> -
-> -	return 0;
->  }
->  
->  static struct i2c_driver s35390a_driver = {
-> @@ -533,7 +506,6 @@ static struct i2c_driver s35390a_driver = {
->  		.of_match_table = of_match_ptr(s35390a_of_match),
->  	},
->  	.probe		= s35390a_probe,
-> -	.remove		= s35390a_remove,
->  	.id_table	= s35390a_id,
->  };
->  
-> -- 
-> 2.20.1
-> 
+On Thu, Aug 29, 2019 at 10:00:56PM +0200, Wolfram Sang wrote:
+> On Tue, Aug 13, 2019 at 09:09:13AM +0300, Denis Efremov wrote:
+> > Update MAINTAINERS record to reflect the file move
+> > from i2c-mv64xxx.txt to marvell,mv64xxx-i2c.yaml.
+> >
+> > Cc: Maxime Ripard <maxime.ripard@bootlin.com>
+> > Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
+> > Cc: linux-i2c@vger.kernel.org
+> > Fixes: f8bbde72ef44 ("dt-bindings: i2c: mv64xxx: Add YAML schemas")
+> > Signed-off-by: Denis Efremov <efremov@linux.com>
+>
+> Looks OK to me, Gregory or Maxime?
 
--- 
-Alexandre Belloni, Bootlin
+Acked-by: Maxime Ripard <mripard@kernel.org>
+
+Maxime
+
+--
+Maxime Ripard, Bootlin
 Embedded Linux and Kernel engineering
 https://bootlin.com
+
+--dia2uwz2zxeowuxf
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCXWjeMwAKCRDj7w1vZxhR
+xaEnAPoDNLBUnwm9U8F0pEZ0gWj8mkYPw5mDVLtnrTq7Rghp5QEArnHKyRcnf5kB
+dVQkWB6NE3ppv5IQRTG+0UXVEU+JgAo=
+=cm+j
+-----END PGP SIGNATURE-----
+
+--dia2uwz2zxeowuxf--
