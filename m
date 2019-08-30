@@ -1,140 +1,67 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH v2 2/2] rtc: s35390a: convert to devm_i2c_new_dummy_device()
-Date: Fri, 30 Aug 2019 15:31:24 +0200
-Message-ID: <20190830133124.21633-3-wsa+renesas@sang-engineering.com>
-References: <20190830133124.21633-1-wsa+renesas@sang-engineering.com>
+From: Ray Jui <ray.jui@broadcom.com>
+Subject: Re: [PATCH v1 1/1] i2c: iproc: Add i2c repeated start capability
+Date: Fri, 30 Aug 2019 11:35:08 -0700
+Message-ID: <3e70fa7e-de13-4edd-2e17-b7c56e91d220@broadcom.com>
+References: <1565150941-27297-1-git-send-email-rayagonda.kokatanur@broadcom.com>
+ <20190830125626.GC2870@ninjato>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190830133124.21633-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190830125626.GC2870@ninjato>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-rtc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Florian Fainelli <f.fainelli@gmail.com>, Lori Hikichi <lori.hikichi@broadcom.com>, Icarus Chau <icarus.chau@broadcom.com>, Shivaraj Shetty <sshetty1@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
-I was about to simplify the call to i2c_unregister_device() when I
-realized that converting to devm_i2c_new_dummy_device() will simplify
-the driver a lot. So I took this approach.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/rtc/rtc-s35390a.c | 54 ++++++++++-----------------------------
- 1 file changed, 13 insertions(+), 41 deletions(-)
 
-diff --git a/drivers/rtc/rtc-s35390a.c b/drivers/rtc/rtc-s35390a.c
-index d773fd597bd5..da34cfd70f95 100644
---- a/drivers/rtc/rtc-s35390a.c
-+++ b/drivers/rtc/rtc-s35390a.c
-@@ -434,37 +434,32 @@ static int s35390a_probe(struct i2c_client *client,
- 	char buf, status1;
- 	struct device *dev = &client->dev;
- 
--	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
--		err = -ENODEV;
--		goto exit;
--	}
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
-+		return -ENODEV;
- 
- 	s35390a = devm_kzalloc(dev, sizeof(struct s35390a), GFP_KERNEL);
--	if (!s35390a) {
--		err = -ENOMEM;
--		goto exit;
--	}
-+	if (!s35390a)
-+		return -ENOMEM;
- 
- 	s35390a->client[0] = client;
- 	i2c_set_clientdata(client, s35390a);
- 
- 	/* This chip uses multiple addresses, use dummy devices for them */
- 	for (i = 1; i < 8; ++i) {
--		s35390a->client[i] = i2c_new_dummy_device(client->adapter,
--							  client->addr + i);
-+		s35390a->client[i] = devm_i2c_new_dummy_device(dev,
-+							       client->adapter,
-+							       client->addr + i);
- 		if (IS_ERR(s35390a->client[i])) {
- 			dev_err(dev, "Address %02x unavailable\n",
- 				client->addr + i);
--			err = PTR_ERR(s35390a->client[i]);
--			goto exit_dummy;
-+			return PTR_ERR(s35390a->client[i]);
- 		}
- 	}
- 
- 	err_read = s35390a_read_status(s35390a, &status1);
- 	if (err_read < 0) {
--		err = err_read;
- 		dev_err(dev, "error resetting chip\n");
--		goto exit_dummy;
-+		return err_read;
- 	}
- 
- 	if (status1 & S35390A_FLAG_24H)
-@@ -478,13 +473,13 @@ static int s35390a_probe(struct i2c_client *client,
- 		err = s35390a_set_reg(s35390a, S35390A_CMD_STATUS2, &buf, 1);
- 		if (err < 0) {
- 			dev_err(dev, "error disabling alarm");
--			goto exit_dummy;
-+			return err;
- 		}
- 	} else {
- 		err = s35390a_disable_test_mode(s35390a);
- 		if (err < 0) {
- 			dev_err(dev, "error disabling test mode\n");
--			goto exit_dummy;
-+			return err;
- 		}
- 	}
- 
-@@ -493,10 +488,8 @@ static int s35390a_probe(struct i2c_client *client,
- 	s35390a->rtc = devm_rtc_device_register(dev, s35390a_driver.driver.name,
- 						&s35390a_rtc_ops, THIS_MODULE);
- 
--	if (IS_ERR(s35390a->rtc)) {
--		err = PTR_ERR(s35390a->rtc);
--		goto exit_dummy;
--	}
-+	if (IS_ERR(s35390a->rtc))
-+		return PTR_ERR(s35390a->rtc);
- 
- 	/* supports per-minute alarms only, therefore set uie_unsupported */
- 	s35390a->rtc->uie_unsupported = 1;
-@@ -505,26 +498,6 @@ static int s35390a_probe(struct i2c_client *client,
- 		rtc_update_irq(s35390a->rtc, 1, RTC_AF);
- 
- 	return 0;
--
--exit_dummy:
--	for (i = 1; i < 8; ++i)
--		if (s35390a->client[i])
--			i2c_unregister_device(s35390a->client[i]);
--
--exit:
--	return err;
--}
--
--static int s35390a_remove(struct i2c_client *client)
--{
--	unsigned int i;
--	struct s35390a *s35390a = i2c_get_clientdata(client);
--
--	for (i = 1; i < 8; ++i)
--		if (s35390a->client[i])
--			i2c_unregister_device(s35390a->client[i]);
--
--	return 0;
- }
- 
- static struct i2c_driver s35390a_driver = {
-@@ -533,7 +506,6 @@ static struct i2c_driver s35390a_driver = {
- 		.of_match_table = of_match_ptr(s35390a_of_match),
- 	},
- 	.probe		= s35390a_probe,
--	.remove		= s35390a_remove,
- 	.id_table	= s35390a_id,
- };
- 
--- 
-2.20.1
+On 8/30/19 5:56 AM, Wolfram Sang wrote:
+> Hi everyone,
+> 
+>> +/*
+>> + * If 'process_call' is true, then this is a multi-msg transfer that requires
+>> + * a repeated start between the messages.
+>> + * More specifically, it must be a write (reg) followed by a read (data).
+>> + * The i2c quirks are set to enforce this rule.
+>> + */
+> 
+> With all the limitations in place, I wonder if it might be easier to
+> implement an smbus_xfer callback instead? What is left that makes this
+> controller more than SMBus and real I2C?
+> 
+
+Right. But what is the implication of using smbus_xfer instead of 
+master_xfer in our driver?
+
+Does it mean it will break existing functions of the i2c app that our 
+customers developed based on i2cdev (e.g., I2C_RDWR)?
+
+1) Does
+>> +	/* Process the read message if this is process call */
+> 
+> Also, the term "process call" here seriously sounds like SMBus.
+> 
+>> +		addr = msg->addr << 1 | 1;
+> 
+> addr = i2c_8bit_addr_from_msg(msg);
+> 
+>> +		u32 protocol;
+> 
+> Hmm, another SMBus terminology.
+> 
+> 
+>> +	if (num > 2) {
+>> +		dev_err(iproc_i2c->device,
+>> +			"Only support up to 2 messages. Current msg count %d\n",
+>> +			num);
+>> +		return -EOPNOTSUPP;
+>> +	}
+> 
+> With your quirks flags set, the core checks it for you.
+> 
+> Kind regards,
+> 
+>     Wolfram
+> 
