@@ -1,89 +1,58 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: mediatek: disable zero-length transfers for
- mt8183
-Date: Fri, 30 Aug 2019 15:08:42 +0200
-Message-ID: <20190830130842.GG2870@ninjato>
-References: <20190822094516.55130-1-hsinyi@chromium.org>
+Subject: Re: [PATCH 1/2] rtc: max77686: convert to devm_i2c_new_dummy_device()
+Date: Fri, 30 Aug 2019 15:18:30 +0200
+Message-ID: <20190830131830.GH2870@ninjato>
+References: <20190820154239.8230-1-wsa+renesas@sang-engineering.com>
+ <20190820154239.8230-2-wsa+renesas@sang-engineering.com>
+ <20190829205752.GL21922@piout.net>
+ <20190830124554.GB2870@ninjato>
+ <20190830125338.GP21922@piout.net>
+ <20190830130035.GF2870@ninjato>
+ <20190830130603.GQ21922@piout.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="8S1fMsFYqgBC+BN/"
+        protocol="application/pgp-signature"; boundary="+QwZB9vYiNIzNXIj"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190822094516.55130-1-hsinyi@chromium.org>
+In-Reply-To: <20190830130603.GQ21922@piout.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hsin-Yi Wang <hsinyi@chromium.org>
-Cc: Yingjoe Chen <yingjoe.chen@mediatek.com>, Matthias Brugger <matthias.bgg@gmail.com>, Qii Wang <qii.wang@mediatek.com>, Nicolas Boichat <drinkcat@chromium.org>, Jun Gao <jun.gao@mediatek.com>, Thomas Gleixner <tglx@linutronix.de>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, Alexandru M Stan <amstan@chromium.org>
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---8S1fMsFYqgBC+BN/
+--+QwZB9vYiNIzNXIj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 22, 2019 at 05:45:17PM +0800, Hsin-Yi Wang wrote:
-> When doing i2cdetect quick write mode, we would get transfer
-> error ENOMEM, and i2cdetect shows there's no device at the address.
-> Quoting from mt8183 datasheet, the number of transfers to be
-> transferred in one transaction should be set to bigger than 1,
-> so we should forbid zero-length transfer and update functionality.
->=20
-> Incorrect return:
-> localhost ~ # i2cdetect -q -y 0
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-> 00:          -- -- -- -- -- -- -- -- -- -- -- -- --
-> 10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 70: -- -- -- -- -- -- -- --
->=20
-> After this patch:
-> localhost ~ #  i2cdetect -q -y 0
-> Error: Can't use SMBus Quick Write command on this bus
->=20
-> localhost ~ #  i2cdetect -y 0
-> Warning: Can't use SMBus Quick Write command, will skip some addresses
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-> 00:
-> 10:
-> 20:
-> 30: -- -- -- -- -- -- -- --
-> 40:
-> 50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-> 60:
-> 70:
 
-Thanks for providing these test results. Much appreciated. To shorten
-the commit log a little, I removed them before applying, though.
+> > Nope, they should be incremental, aren't they?
+> >=20
+> No, your patches don't apply on top of rtc-next
 
->=20
-> Reported-by: Alexandru M Stan <amstan@chromium.org>
-> Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-
-Applied to for-next, thanks!
+Looks like you edited some whitespaces to match opening parens before
+applying? I'll resend to match these.
 
 
---8S1fMsFYqgBC+BN/
+--+QwZB9vYiNIzNXIj
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1pH9YACgkQFA3kzBSg
-KbbbRhAAlMzupxZHSJTI9Bu7BvMjyJ/TIq0NM6//hPM8wg5Xz3qzcDPVi+MAE5vM
-9f+KrOU3DBE0YwP1q1x1/b+O/iM8nzxNWnkpB1Ipzmy9tc9W1LrFAAE7LLYePmQe
-m0pLyeILNajlw39r+4DVX+5ChWU6gKUyFuDlie8gzwUgC7YoqZDBcsleuHWxPMUc
-TuU+zUCJr9FFMCsHp0IyM3cRmeScXjMSjQ6GswnCeTsYbDZJu7zKKINEBMHh3fGC
-TM8PfFZCz6RdPaSal3gIzc+c6itm6ZucZTGt4IYrIOUMVlPE9d0wS440jKEITRr7
-WkMYJ12oiJEQkIKWMrndFXn7NU2IjhN9WFq/hjgJujxN79MWTwQmSp2+sRwWW1na
-9YcjeiOVKNTdXw/BPAaOv8FyD/6MEbr/UXcHD0ttFd0tlIeXedM/0XnDjYkwFqc7
-fuuOI4W5z0xqp54Y05+legEaio9FhyskgQHyxILwM5penDcF/+7o+qaY5UE3BZ5f
-EFl0wWV+tJHzEzMXkmarFK/QvHuWaY/awbHtVX/YZE+Wzztm4a29b3OX+cjUf8Q1
-eTONETlSj6sZXmiwmgdI3K2qhuYz2pNPp8ZEG7291y0FMi6o4Ejc/IegH5rDN4fb
-eECFCJ1BQyGzvv41KEm4YyZMWE0wTi7BSzAC6QoLc1yzRtZwuCk=
-=prhC
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1pIiYACgkQFA3kzBSg
+Kbb8+w/+KeHiboloZaBCltc5NV0fDqJrg2IAVmShtJSlHmG1CHEo6Hro1TfcvlvI
+d3FkVVAxbfs0c/rA9LhX0yEj4/XuLniDWcXJyGkP3bh+qrS/I71565M4plMZpBQk
+6r+phpCTBvLOpE11ChaL4/fXQz+oSCliqfm81h4rBEkcUaCIbqMCgOe1XMRuKlTj
+IKGI8o/qqREb3tARm/1WB9RUacuL3rzUVwXrBzYokDzkD0Jod+X7UErVjVx+698B
+gEuaC54u/q+ixhLkwot69kQL07/ad/UNlQFh9yU7C3XC2cNXF74d46KTvrLO7tev
+sS3WsFaeVPE/CzQeQS2lN5lWK9K8EG5F+9x85Pb2snOsAFTRCrtkKKMPu1TLBa9R
+uXI6dyQV2hyTzGgCuqJ6FDu/NvVXyuSqNzRmgw9SqwpWYWKglHxxmQo0aj6t5iq2
+jbw/G6RqrNZTXQznx7FMYufW5mkBSV1Jw4/1QnVDV0bzRC84Gn3uIBTjMri1u/lj
+zRr5nxZalvfFP5eBBToxoBY8As4xvFH1PC5+/K4LYAStkqS1Zoq//+xKfK4LIo3a
+hz7zUNxc967DDVTZZohEDiJlytpevoc091df+SER/3L1rfgqNQGH3v1IXnrHS6MV
+5TW8KmvKKxVRMD1i1HxJkJm6CrkWOMiko4jZSTsWu9Js/tnsFX8=
+=QJMY
 -----END PGP SIGNATURE-----
 
---8S1fMsFYqgBC+BN/--
+--+QwZB9vYiNIzNXIj--
