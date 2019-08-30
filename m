@@ -1,61 +1,57 @@
-From: Gregory CLEMENT <gregory.clement@bootlin.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH] MAINTAINERS: i2c mv64xxx: Update documentation path
-Date: Fri, 30 Aug 2019 10:31:03 +0200
-Message-ID: <87a7brxdfc.fsf@FE-laptop>
-References: <7cd8d12f59bcacd18a78f599b46dac555f7f16c0.camel@perches.com> <20190813060913.14722-1-efremov@linux.com> <20190829200055.GJ3740@ninjato>
+Date: Fri, 30 Aug 2019 14:38:24 +0200
+Message-ID: <20190830123824.GA2870@ninjato>
+References: <7cd8d12f59bcacd18a78f599b46dac555f7f16c0.camel@perches.com>
+ <20190813060913.14722-1-efremov@linux.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190829200055.GJ3740@ninjato>
+Content-Disposition: inline
+In-Reply-To: <20190813060913.14722-1-efremov@linux.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Denis Efremov <efremov@linux.com>
-Cc: linux-kernel@vger.kernel.org, joe@perches.com, Maxime Ripard <maxime.ripard@bootlin.com>, linux-i2c@vger.kernel.org
+To: Denis Efremov <efremov@linux.com>
+Cc: linux-kernel@vger.kernel.org, joe@perches.com, Maxime Ripard <maxime.ripard@bootlin.com>, Gregory CLEMENT <gregory.clement@bootlin.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfram Sang <wsa@the-dreams.de> writes:
 
-> On Tue, Aug 13, 2019 at 09:09:13AM +0300, Denis Efremov wrote:
->> Update MAINTAINERS record to reflect the file move
->> from i2c-mv64xxx.txt to marvell,mv64xxx-i2c.yaml.
->> 
->> Cc: Maxime Ripard <maxime.ripard@bootlin.com>
->> Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
->> Cc: linux-i2c@vger.kernel.org
->> Fixes: f8bbde72ef44 ("dt-bindings: i2c: mv64xxx: Add YAML schemas")
->> Signed-off-by: Denis Efremov <efremov@linux.com>
->
-> Looks OK to me, Gregory or Maxime?
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+On Tue, Aug 13, 2019 at 09:09:13AM +0300, Denis Efremov wrote:
+> Update MAINTAINERS record to reflect the file move
+> from i2c-mv64xxx.txt to marvell,mv64xxx-i2c.yaml.
+>=20
+> Cc: Maxime Ripard <maxime.ripard@bootlin.com>
+> Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
+> Cc: linux-i2c@vger.kernel.org
+> Fixes: f8bbde72ef44 ("dt-bindings: i2c: mv64xxx: Add YAML schemas")
+> Signed-off-by: Denis Efremov <efremov@linux.com>
 
-Thanks,
-
-Gregory
+Applied to for-current, thanks!
 
 
->
->> ---
->>  MAINTAINERS | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->> 
->> diff --git a/MAINTAINERS b/MAINTAINERS
->> index 87ac0378186c..590dcebe627f 100644
->> --- a/MAINTAINERS
->> +++ b/MAINTAINERS
->> @@ -7505,7 +7505,7 @@ I2C MV64XXX MARVELL AND ALLWINNER DRIVER
->>  M:	Gregory CLEMENT <gregory.clement@bootlin.com>
->>  L:	linux-i2c@vger.kernel.org
->>  S:	Maintained
->> -F:	Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
->> +F:	Documentation/devicetree/bindings/i2c/marvell,mv64xxx-i2c.yaml
->>  F:	drivers/i2c/busses/i2c-mv64xxx.c
->>  
->>  I2C OVER PARALLEL PORT
->> -- 
->> 2.21.0
->> 
+--dDRMvlgZJXvWKvBx
+Content-Type: application/pgp-signature; name="signature.asc"
 
--- 
-Gregory Clement, Bootlin
-Embedded Linux and Kernel engineering
-http://bootlin.com
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1pGLwACgkQFA3kzBSg
+KbbpVQ/+IH7kcAXue6rPOWOPJdmutU+Eg1LqiWGcV0Fp0IKxRdK3uEVk9rZriZT8
+QgkS+eBpPAF+R4YEmPaUtiCeQIZM32yefBaPxY4PxNb8m02ZNKmMXekaP0cu2Ng5
+XC24aUH73PJfZ/iK0v4BLUA8CwrUi3wWnrLs6cvBEqKpiIDvs1K43WDlaeM5nJIF
+pYRlM3W8GE9Qjh4eIPye9raAqEbEzNyHkyeeeNRSOZlDnoni21hyRBTpr6O6XjSa
+pUzjMQRUSTpA97fmpqQ4s+Hp6DDZ2CLrzFNT+c+9OJX6YzHYkKk7SN0OVEu/Wf36
+fmWySelznaNUtARrvhQLfkIBpjr3QRleNoz9A8YKHClgrFuyCtZc4foPymU0pzhq
+h8na8FuE3g9OAVyyL7BzI8Y9954OKvFjFYlbA62zZjlFuhcZnqeEKpL1US5FRUDX
+SsiZjuhJzF2RbS3HxjUIT7IH+XmLhZgH0YZ4yKCV326BCHUCD0IeZS8ty6JKEUGL
+GBlDcSeWt8LX4DTUv5v6/sbxdDlRIU8jnSP+vN2/CicfIGnVGvHCXC91wQsT+Zzq
+vBio/Mk4H5AaaAKsQcAGRWO/Y1EVplLLHkflsKcGelnIYZflvxi9BRC0DjCHzWcU
+80e0Wi67lOn5det6t2sKDoFtuClMfyL51UU5GPtOU1Gyj/ZCNLg=
+=E8jy
+-----END PGP SIGNATURE-----
+
+--dDRMvlgZJXvWKvBx--
