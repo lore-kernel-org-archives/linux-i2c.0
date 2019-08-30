@@ -1,57 +1,76 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] MAINTAINERS: i2c mv64xxx: Update documentation path
-Date: Fri, 30 Aug 2019 14:38:24 +0200
-Message-ID: <20190830123824.GA2870@ninjato>
-References: <7cd8d12f59bcacd18a78f599b46dac555f7f16c0.camel@perches.com>
- <20190813060913.14722-1-efremov@linux.com>
+Subject: Re: [PATCH 1/2] rtc: max77686: convert to devm_i2c_new_dummy_device()
+Date: Fri, 30 Aug 2019 14:45:54 +0200
+Message-ID: <20190830124554.GB2870@ninjato>
+References: <20190820154239.8230-1-wsa+renesas@sang-engineering.com>
+ <20190820154239.8230-2-wsa+renesas@sang-engineering.com>
+ <20190829205752.GL21922@piout.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
+        protocol="application/pgp-signature"; boundary="yEPQxsgoJgBvi8ip"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190813060913.14722-1-efremov@linux.com>
+In-Reply-To: <20190829205752.GL21922@piout.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Denis Efremov <efremov@linux.com>
-Cc: linux-kernel@vger.kernel.org, joe@perches.com, Maxime Ripard <maxime.ripard@bootlin.com>, Gregory CLEMENT <gregory.clement@bootlin.com>, linux-i2c@vger.kernel.org
+To: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Chanwoo Choi <cw00.choi@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, Alessandro Zummo <a.zummo@towertech.it>, linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---dDRMvlgZJXvWKvBx
+--yEPQxsgoJgBvi8ip
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 13, 2019 at 09:09:13AM +0300, Denis Efremov wrote:
-> Update MAINTAINERS record to reflect the file move
-> from i2c-mv64xxx.txt to marvell,mv64xxx-i2c.yaml.
+On Thu, Aug 29, 2019 at 10:57:52PM +0200, Alexandre Belloni wrote:
+> On 20/08/2019 17:42:37+0200, Wolfram Sang wrote:
+> > I was about to simplify the call to i2c_unregister_device() when I
+> > realized that converting to devm_i2c_new_dummy_device() will simplify
+> > the driver a lot. So I took this approach.
+> >=20
+> > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> > ---
+> > Build tested only, buildbot is happy, too.
+> >=20
+> > Please apply to your tree.
+> >=20
 >=20
-> Cc: Maxime Ripard <maxime.ripard@bootlin.com>
-> Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
-> Cc: linux-i2c@vger.kernel.org
-> Fixes: f8bbde72ef44 ("dt-bindings: i2c: mv64xxx: Add YAML schemas")
-> Signed-off-by: Denis Efremov <efremov@linux.com>
+> I'm confused because I already applied:
+> https://git.kernel.org/pub/scm/linux/kernel/git/abelloni/linux.git/commit=
+/?h=3Drtc-next&id=3D7150710f3084de8d35ce3221eeae2caee8813f92
 
-Applied to for-current, thanks!
+The above was a mass conversion to i2c_new_dummy_device() to make sure
+all in-kernel users use the API returning an ERRPTR. Mass conversion to
+the devm_ variant of the same function was too troublesome.
+
+With another series, I wanted to remove superfluous error checking of
+i2c_unregister_device() because it is NULL-ptr safe, like here:
+
+> > -	if (info->rtc)
+> > -		i2c_unregister_device(info->rtc);
+
+But for these two RTC drivers, I figured moving to devm_* is way easier
+than fixing up the mass conversion result from coccinelle.
 
 
---dDRMvlgZJXvWKvBx
+--yEPQxsgoJgBvi8ip
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1pGLwACgkQFA3kzBSg
-KbbpVQ/+IH7kcAXue6rPOWOPJdmutU+Eg1LqiWGcV0Fp0IKxRdK3uEVk9rZriZT8
-QgkS+eBpPAF+R4YEmPaUtiCeQIZM32yefBaPxY4PxNb8m02ZNKmMXekaP0cu2Ng5
-XC24aUH73PJfZ/iK0v4BLUA8CwrUi3wWnrLs6cvBEqKpiIDvs1K43WDlaeM5nJIF
-pYRlM3W8GE9Qjh4eIPye9raAqEbEzNyHkyeeeNRSOZlDnoni21hyRBTpr6O6XjSa
-pUzjMQRUSTpA97fmpqQ4s+Hp6DDZ2CLrzFNT+c+9OJX6YzHYkKk7SN0OVEu/Wf36
-fmWySelznaNUtARrvhQLfkIBpjr3QRleNoz9A8YKHClgrFuyCtZc4foPymU0pzhq
-h8na8FuE3g9OAVyyL7BzI8Y9954OKvFjFYlbA62zZjlFuhcZnqeEKpL1US5FRUDX
-SsiZjuhJzF2RbS3HxjUIT7IH+XmLhZgH0YZ4yKCV326BCHUCD0IeZS8ty6JKEUGL
-GBlDcSeWt8LX4DTUv5v6/sbxdDlRIU8jnSP+vN2/CicfIGnVGvHCXC91wQsT+Zzq
-vBio/Mk4H5AaaAKsQcAGRWO/Y1EVplLLHkflsKcGelnIYZflvxi9BRC0DjCHzWcU
-80e0Wi67lOn5det6t2sKDoFtuClMfyL51UU5GPtOU1Gyj/ZCNLg=
-=E8jy
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1pGoIACgkQFA3kzBSg
+KbbdMQ//c3MTjmSg7hunKGDkz/mWkGCMB1YysqH/xm8AgkknadF9iWIjFxyuFMuB
+Kt+rNP8b1oaJqoIHZw38IVcUsf0Z+kNjOWEeMGJU327atwSaOX9X4uTnxNoMDgBS
+MiDsuaasGP9JnVeJbn4E4/bKuUUAGPGrz2cF2EvOO2qm55s3k1O4nT7NhrK0/Fla
+Tw8cB4KoDN/+0UjxearL5RAXcbBv8XOPc2d2jrR586O/NFiFUOlsE5JbsGOwPD45
+0X2SAKk4Ctka9jyI9C7yRB21tvLwelLOdHecb/Uh2pvnA+n08Z1PbWSnLa9nXPLa
+RQBqc/0fP0aE/d1pUSIuO0S5tvnHEcJvd8kg3XTzwMUv/hAUT9fFiIXnh5mWyec4
+agu2Yo39gLdlNiwPpvBewkPwrvjXIzdqAciQ9rg+sjDhfn/K0AWaSEQDL+bsp/Nq
+mcqq8rh72t2EChBfdengI0f/Vrr8Js+/snGs9R56kNkHU2e1Q+Fyd9lhvCc6grkh
+FwtL8z7jP2MF9DXS9Ivq9XggYOmey4BAiViu105Y/5C7ZOTWECOm6RUXUCEf/tZa
+PvRpQI3qcyFjbANBhfPb+hoDO1XzzWfw5gLivrwTrGccNwuqAdeY93Mzvxnb7nE3
+wVrQvSpAyEdwdNVvQjy1JnzZvAo6JM+iGnN4pMZoOPtEmaxUVEE=
+=QT51
 -----END PGP SIGNATURE-----
 
---dDRMvlgZJXvWKvBx--
+--yEPQxsgoJgBvi8ip--
