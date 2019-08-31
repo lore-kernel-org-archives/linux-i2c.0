@@ -1,72 +1,113 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v1 1/1] i2c: iproc: Add i2c repeated start capability
-Date: Sat, 31 Aug 2019 11:49:41 +0200
-Message-ID: <20190831094940.GA1138@kunai>
-References: <1565150941-27297-1-git-send-email-rayagonda.kokatanur@broadcom.com>
- <20190830125626.GC2870@ninjato>
- <3e70fa7e-de13-4edd-2e17-b7c56e91d220@broadcom.com>
+Subject: [PULL REQUEST] i2c for 5.3
+Date: Sat, 31 Aug 2019 13:29:51 +0200
+Message-ID: <20190831112948.GA1230@ninjato>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
+        protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <3e70fa7e-de13-4edd-2e17-b7c56e91d220@broadcom.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ray Jui <ray.jui@broadcom.com>
-Cc: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Florian Fainelli <f.fainelli@gmail.com>, Lori Hikichi <lori.hikichi@broadcom.com>, Icarus Chau <icarus.chau@broadcom.com>, Shivaraj Shetty <sshetty1@broadcom.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
 
---AhhlLboLdkugWU4S
+--UugvWAfsgieZRqgk
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi Ray,
+Linus,
 
-> > With all the limitations in place, I wonder if it might be easier to
-> > implement an smbus_xfer callback instead? What is left that makes this
-> > controller more than SMBus and real I2C?
-> >=20
->=20
-> Right. But what is the implication of using smbus_xfer instead of
-> master_xfer in our driver?
->=20
-> Does it mean it will break existing functions of the i2c app that our
-> customers developed based on i2cdev (e.g., I2C_RDWR)?
+I2C has a bunch of driver fixes and a core improvement to make the
+on-going API transition more robust.
 
-If the customers uses I2C_RDWR (and it cannot be mapped to i2c_smbus_*
-calls) then this is an indication that there is some I2C functionality
-left which the HW can provide. I'd be interested which one, though.
+Pleas pull.
 
->=20
-> 1) Does
-
-Maybe you wanted to describe it here and it got accidently cut off?
-
-Regards,
+Thanks,
 
    Wolfram
 
 
---AhhlLboLdkugWU4S
+The following changes since commit a55aa89aab90fae7c815b0551b07be37db359d76:
+
+  Linux 5.3-rc6 (2019-08-25 12:01:23 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to abf4923e97c3abbbd1e59f0e13c7c214c93c6aaa:
+
+  i2c: mediatek: disable zero-length transfers for mt8183 (2019-08-30 15:06:17 +0200)
+
+----------------------------------------------------------------
+Andrew Cooks (1):
+      i2c: piix4: Fix port selection for AMD Family 16h Model 30h
+
+Andy Shevchenko (1):
+      i2c: i801: Avoid memory leak in check_acpi_smo88xx_device()
+
+Denis Efremov (1):
+      MAINTAINERS: i2c mv64xxx: Update documentation path
+
+Hsin-Yi Wang (1):
+      i2c: mediatek: disable zero-length transfers for mt8183
+
+Jarkko Nikula (1):
+      i2c: designware: Synchronize IRQs when unregistering slave client
+
+Lori Hikichi (1):
+      i2c: iproc: Stop advertising support of SMBUS quick cmd
+
+Wolfram Sang (1):
+      i2c: make i2c_unregister_device() ERR_PTR safe
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Geert Uytterhoeven (1):
+      (Rev.) i2c: make i2c_unregister_device() ERR_PTR safe
+
+Jean Delvare (1):
+      (Rev.) i2c: i801: Avoid memory leak in check_acpi_smo88xx_device()
+
+Pali Roh??r (1):
+      (Rev.) i2c: i801: Avoid memory leak in check_acpi_smo88xx_device()
+
+Qii Wang (1):
+      (Rev.) i2c: mediatek: disable zero-length transfers for mt8183
+
+Ray Jui (1):
+      (Rev.) i2c: iproc: Stop advertising support of SMBUS quick cmd
+
+ MAINTAINERS                               |  2 +-
+ drivers/i2c/busses/i2c-bcm-iproc.c        |  5 ++++-
+ drivers/i2c/busses/i2c-designware-slave.c |  1 +
+ drivers/i2c/busses/i2c-i801.c             | 15 ++++++++++++---
+ drivers/i2c/busses/i2c-mt65xx.c           | 11 ++++++++++-
+ drivers/i2c/busses/i2c-piix4.c            | 12 +++++-------
+ drivers/i2c/i2c-core-base.c               |  2 +-
+ 7 files changed, 34 insertions(+), 14 deletions(-)
+
+--UugvWAfsgieZRqgk
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1qQrAACgkQFA3kzBSg
-KbbmbQ/9E9Ts1/5jZMraYl7CNxsXtWMbdSUWQFyuZDJGvO7UvZz9v7O0Aq9ct/MB
-mMb4lMVP4lLM/y1DMpVmoYoqVXyKPXzvMzGzsB0CMCs5e+XCbWKr1yCaDCLv0/Js
-HNbEe7PC1fuNz/YklNtYvHEe1LjSxf81lFWoLDFGPZ4FkSDcbUAZQkUfe/VpcKbc
-VVhYAQucc6GrBoJ12UMRSWSf3diIkR0CBqKhALZXCnrSLx9cXtTuqA0k7UnN9Piv
-qPZs/I20tTu52RCHXTpjnwFpWMLNuswRIoCWcMR6Vl1Ix6v0TB4NiUpMStk4Pw45
-KD6hdZSPBtFM4uQ04M7wbVFR634PF4mQx7wts+VjFXBe6rxEASwpIq3dMtxVFWgs
-GwZ2tyZDQBT/jqdJi2QyUsKw4UW2R7su3D3+/idNTtoT1JkqwAfsFix283Bcbees
-Kmx1W32dzB7p2G0k2vCWmNWx1CI+Mf/K16H0n2ffyD/5t4vCME7kLeIVcqkYNF7l
-i98hRkYVJm3iecvg2iVr5/y6a7T/V248YJl59WTs7ycb3wqZJib5hQDOmMKeZbmS
-DrKSbdHwlistLsHnatTQxOz8vlHG6ufoAXBy+x3PXs1b+HD21Zh94ugVqgoOHoSm
-xqIQaulWFBYVg6xi2y9ZyEPyKo4KEwBBmNFs4eTCPmSgTvKT3lg=
-=mcNR
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1qWicACgkQFA3kzBSg
+KbaIHhAApRXiRuiIjNVd2TUteNcLHLndT0NQXFzePQF5t3Rj6YK+NgtRoZF9hOsm
+PG98zfbePqs8GoeaajMtdAYYzUnYMYfy8PgT3R7+T2mSNDHKcgy1b3N/RP8xbnMC
+RTbkidwpFByCiGjVezAY9c5DUpAGz/WlgWezWfmy7eIWTiUFhYiech8oZ6IRSzas
+2Y8B0THEQGgoUJ3Qnd2xFenviNZ5h+H7jr5ap4DsWz2u0mioRRDGPftosPLtgOCB
+KgmtdJsxMFIsoywQys7voEIlUNA+bjkyEaEjUpaF1liPKOxyXWjqQeIGAAgbb0T4
+p/MgncKeDdh2tkymh7AbSzSkV+2oitaQjBKCOuKjm54ujqVt6XRe8gyY8ElLwe0a
+YM5ytPWm15NiF4mXo3Wf6vRPsra3cnONWojjDKdysRpwLBQ5Rp2zww73fmyUSb5+
+DdlSXyZH+vPLUGX49xz6s5Kj8G8CFr1YVzuEEkoVWNtYztqvKwnL/Q9E46srKY1z
+fURgi0k4y+YTybjh0dc79qBmowbz6fdalX56t3KYv5wkThZ7c4yy/9h6WAIvJGcb
+pdIsuYBwMqVCvl2G9AdgIWbIi72pYrzbC2fvbyO4fniPUhnJfoFrXXfNmuf/npVk
+uI15YkOfH6PGH21Ra9FQInpi2B00F30CMyfPfUuyBDVJicqs5z8=
+=BHUY
 -----END PGP SIGNATURE-----
 
---AhhlLboLdkugWU4S--
+--UugvWAfsgieZRqgk--
