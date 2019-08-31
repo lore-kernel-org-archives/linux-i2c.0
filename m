@@ -1,67 +1,72 @@
-From: Ray Jui <ray.jui@broadcom.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v1 1/1] i2c: iproc: Add i2c repeated start capability
-Date: Fri, 30 Aug 2019 11:35:08 -0700
-Message-ID: <3e70fa7e-de13-4edd-2e17-b7c56e91d220@broadcom.com>
+Date: Sat, 31 Aug 2019 11:49:41 +0200
+Message-ID: <20190831094940.GA1138@kunai>
 References: <1565150941-27297-1-git-send-email-rayagonda.kokatanur@broadcom.com>
  <20190830125626.GC2870@ninjato>
+ <3e70fa7e-de13-4edd-2e17-b7c56e91d220@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190830125626.GC2870@ninjato>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <3e70fa7e-de13-4edd-2e17-b7c56e91d220@broadcom.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Florian Fainelli <f.fainelli@gmail.com>, Lori Hikichi <lori.hikichi@broadcom.com>, Icarus Chau <icarus.chau@broadcom.com>, Shivaraj Shetty <sshetty1@broadcom.com>
+To: Ray Jui <ray.jui@broadcom.com>
+Cc: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Florian Fainelli <f.fainelli@gmail.com>, Lori Hikichi <lori.hikichi@broadcom.com>, Icarus Chau <icarus.chau@broadcom.com>, Shivaraj Shetty <sshetty1@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 8/30/19 5:56 AM, Wolfram Sang wrote:
-> Hi everyone,
-> 
->> +/*
->> + * If 'process_call' is true, then this is a multi-msg transfer that requires
->> + * a repeated start between the messages.
->> + * More specifically, it must be a write (reg) followed by a read (data).
->> + * The i2c quirks are set to enforce this rule.
->> + */
-> 
-> With all the limitations in place, I wonder if it might be easier to
-> implement an smbus_xfer callback instead? What is left that makes this
-> controller more than SMBus and real I2C?
-> 
+Hi Ray,
 
-Right. But what is the implication of using smbus_xfer instead of 
-master_xfer in our driver?
+> > With all the limitations in place, I wonder if it might be easier to
+> > implement an smbus_xfer callback instead? What is left that makes this
+> > controller more than SMBus and real I2C?
+> >=20
+>=20
+> Right. But what is the implication of using smbus_xfer instead of
+> master_xfer in our driver?
+>=20
+> Does it mean it will break existing functions of the i2c app that our
+> customers developed based on i2cdev (e.g., I2C_RDWR)?
 
-Does it mean it will break existing functions of the i2c app that our 
-customers developed based on i2cdev (e.g., I2C_RDWR)?
+If the customers uses I2C_RDWR (and it cannot be mapped to i2c_smbus_*
+calls) then this is an indication that there is some I2C functionality
+left which the HW can provide. I'd be interested which one, though.
 
-1) Does
->> +	/* Process the read message if this is process call */
-> 
-> Also, the term "process call" here seriously sounds like SMBus.
-> 
->> +		addr = msg->addr << 1 | 1;
-> 
-> addr = i2c_8bit_addr_from_msg(msg);
-> 
->> +		u32 protocol;
-> 
-> Hmm, another SMBus terminology.
-> 
-> 
->> +	if (num > 2) {
->> +		dev_err(iproc_i2c->device,
->> +			"Only support up to 2 messages. Current msg count %d\n",
->> +			num);
->> +		return -EOPNOTSUPP;
->> +	}
-> 
-> With your quirks flags set, the core checks it for you.
-> 
-> Kind regards,
-> 
->     Wolfram
-> 
+>=20
+> 1) Does
+
+Maybe you wanted to describe it here and it got accidently cut off?
+
+Regards,
+
+   Wolfram
+
+
+--AhhlLboLdkugWU4S
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1qQrAACgkQFA3kzBSg
+KbbmbQ/9E9Ts1/5jZMraYl7CNxsXtWMbdSUWQFyuZDJGvO7UvZz9v7O0Aq9ct/MB
+mMb4lMVP4lLM/y1DMpVmoYoqVXyKPXzvMzGzsB0CMCs5e+XCbWKr1yCaDCLv0/Js
+HNbEe7PC1fuNz/YklNtYvHEe1LjSxf81lFWoLDFGPZ4FkSDcbUAZQkUfe/VpcKbc
+VVhYAQucc6GrBoJ12UMRSWSf3diIkR0CBqKhALZXCnrSLx9cXtTuqA0k7UnN9Piv
+qPZs/I20tTu52RCHXTpjnwFpWMLNuswRIoCWcMR6Vl1Ix6v0TB4NiUpMStk4Pw45
+KD6hdZSPBtFM4uQ04M7wbVFR634PF4mQx7wts+VjFXBe6rxEASwpIq3dMtxVFWgs
+GwZ2tyZDQBT/jqdJi2QyUsKw4UW2R7su3D3+/idNTtoT1JkqwAfsFix283Bcbees
+Kmx1W32dzB7p2G0k2vCWmNWx1CI+Mf/K16H0n2ffyD/5t4vCME7kLeIVcqkYNF7l
+i98hRkYVJm3iecvg2iVr5/y6a7T/V248YJl59WTs7ycb3wqZJib5hQDOmMKeZbmS
+DrKSbdHwlistLsHnatTQxOz8vlHG6ufoAXBy+x3PXs1b+HD21Zh94ugVqgoOHoSm
+xqIQaulWFBYVg6xi2y9ZyEPyKo4KEwBBmNFs4eTCPmSgTvKT3lg=
+=mcNR
+-----END PGP SIGNATURE-----
+
+--AhhlLboLdkugWU4S--
