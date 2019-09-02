@@ -1,65 +1,55 @@
-From: Oleksij Rempel <o.rempel@pengutronix.de>
-Subject: Re: [PATCH] [RFC] i2c: imx: make use of format specifier %dE
-Date: Mon, 2 Sep 2019 07:58:36 +0200
-Message-ID: <aefbf1c5-d0b7-bb6e-0f97-d65575d549ff@pengutronix.de>
-References: <20190829042905.4850-1-uwe@kleine-koenig.org>
- <20190829203912.GU3740@ninjato>
+From: <Eugen.Hristev@microchip.com>
+Subject: Re: [PATCH v3 5/9] i2c: at91: add support for digital filtering
+Date: Mon, 2 Sep 2019 08:54:06 +0000
+Message-ID: <d461426b-50ac-bf6c-79e0-71e17a63400e@microchip.com>
+References: <1562678049-17581-1-git-send-email-eugen.hristev@microchip.com>
+ <1562678049-17581-6-git-send-email-eugen.hristev@microchip.com>
+ <20190831121308.GB1032@ninjato> <20190831121751.GC1032@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190829203912.GU3740@ninjato>
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190831121751.GC1032@ninjato>
 Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <uwe@kleine-koenig.org>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>, Petr Mladek <pmladek@suse.com>, Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Shawn Guo <shawnguo@kernel.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>, Oleksij Rempel <linux@rempel-privat.de>, Enrico Weigelt <lkml@metux.net>, linux-i2c@vger.kernel.org, kernel@pengutronix.de, Andrew Morton <akpm@linux-foundation.org>, Fabio Estevam <festevam@gmail.com>, linux-arm-kernel@lists.infradead.org, NXP Linux Team <linux-imx@nxp.com>
+Content-ID: <6F1F9E0097244B4784028B912D065ADD@namprd11.prod.outlook.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org, pierre-yves.mordret@st.com, Ludovic.Desroches@microchip.com, robh+dt@kernel.org, linux-i2c@vger.kernel.org, peda@axentia.se, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-CgpPbiAyOS4wOC4xOSAyMjozOSwgV29sZnJhbSBTYW5nIHdyb3RlOgo+IE9uIFRodSwgQXVnIDI5
-LCAyMDE5IGF0IDA2OjI5OjA1QU0gKzAyMDAsIFV3ZSBLbGVpbmUtS8O2bmlnIHdyb3RlOgo+PiBJ
-IGNyZWF0ZWQgYSBwYXRjaCB0aGF0IHRlYWNoZXMgcHJpbnRrIGV0IGFsIHRvIGVtaXQgYSBzeW1i
-b2xpYyBlcnJvcgo+PiBuYW1lIGZvciBhbiBlcnJvciB2YWx1ZWQgaW50ZWdlclsxXS4gV2l0aCB0
-aGF0IGFwcGxpZWQKPj4KPj4gCWRldl9lcnIoJnBkZXYtPmRldiwgImNhbid0IGVuYWJsZSBJMkMg
-Y2xvY2ssIHJldD0lZEVcbiIsIHJldCk7Cj4+Cj4+IGVtaXRzCj4+Cj4+IAkuLi4gY2FuJ3QgZW5h
-YmxlIEkyQyBjbG9jaywgcmV0PUVJTwo+Pgo+PiBpZiByZXQgaXMgLUVJTy4gUGV0ciBNbGFkZWsg
-KGkuZS4gb25lIG9mIHRoZSBwcmludGsgbWFpbnRhaW5lcnMpIGhhZAo+PiBjb25jZXJucyBpZiB0
-aGlzIHdvdWxkIGJlIHdlbGwgcmVjZWl2ZWQgYW5kIHdvcnRoIHRoZSBlZmZvcnQuIEhlIGFza2Vk
-Cj4+IHRvIHByZXNlbnQgaXQgdG8gYSBmZXcgc3Vic3lzdGVtcy4gU28gZm9yIG5vdywgdGhpcyBw
-YXRjaCBjb252ZXJ0aW5nIHRoZQo+PiBpMmMtaW14IGRyaXZlciBzaG91bGRuJ3QgYmUgYXBwbGll
-ZCB5ZXQgYnV0IGl0IHdvdWxkIGJlIGdyZWF0IHRvIGdldAo+PiBzb21lIGZlZWRiYWNrIGFib3V0
-IGlmIHlvdSB0aGluayB0aGF0IGJlaW5nIGFibGUgdG8gZWFzaWx5IHByaW50ayAoZm9yCj4+IGV4
-YW1wbGUpICJFSU8iIGluc3RlYWQgb2YgIi01IiBpcyBhIGdvb2QgaWRlYS4gV291bGQgaXQgaGVs
-cCB5b3U/IERvIHlvdQo+PiB0aGluayBpdCBoZWxwcyB5b3VyIHVzZXJzPwo+IAo+IFllcywgaXQg
-d291bGQgaGVscCBtZS4gQW5kIHVzZXJzLCB0b28sIEkgYW0gcXVpdGUgc3VyZS4gRm9yIG1lLCBp
-ZiBJIG1peAo+IHVwIHR3byBudW1iZXJzIHdoaWxlIGRlYnVnZ2luZywgSSBhbSBodW50aW5nIGdo
-b3N0cyBmb3IgYSB3aGlsZSB1bnRpbCBJCj4gcmVhbGl6ZSBteSBtaXN0YWtlLiBTbzoKPiAKPiBB
-Y2tlZC1ieTogV29sZnJhbSBTYW5nIDx3c2FAdGhlLWRyZWFtcy5kZT4KPiAKPiBJIHRoaW5rIHRo
-ZSBtYWluIGRyYXdiYWNrIGlzIHRoYXQgRVJST1JDT0RFUyBpbiB2c3ByaW50Zi5jIG5vdyBuZWVk
-Cj4gbWFpbnRlbmFuY2UsIGJ1dCBJIHRoaW5rIGl0IGlzIHdvcnRoIHRoZSBlZmZvcnQuIEknZCBi
-ZSBpbnRlcmVzdGVkIGluCj4gdGhlIG92ZXJoZWFkIGluIHNpemUgdGhpcyBjYXVzZXMsIGJ1dCBJ
-IGFsc28gdGhpbmsgaXQgaXMgd29ydGggdGhlCj4gZWZmb3J0LiAoSXQgY291bGQgZXZlbiBiZSBj
-b21waWxlZCBvdXQgaWYgd2UgaGF2ZSBzb21lIGdlbmVyaWMgS2NvbmZpZwo+IHN5bWJvbCBmb3Ig
-c21hbGxlciBrZXJuZWxzKS4KCgpJIGxpa2UgaXQsIGF0IGxlYXN0IGl0IHdpbGwgc2FmZSBtZSBz
-b21lIHRpbWUuCkkgdGVzdGVkIHRoaXMgcGF0Y2ggdG9nZXRoZXIgd2l0aCB0aGUgdnByaW50ZiBw
-YXRjaCwgc28gcmVzdWx0IGxvb2tzIGxpa2U6ClsgICAgMC4yODE4NDNdIGlteC1pMmMgMjFhMDAw
-MC5pMmM6IGNhbid0IGVuYWJsZSBJMkMgY2xvY2ssIHJldD1FSU8KWyAgICAwLjI4MTg5MV0gaW14
-LWkyYzogcHJvYmUgb2YgMjFhMDAwMC5pMmMgZmFpbGVkIHdpdGggZXJyb3IgLTUKClRlc3RlZC1i
-eTogT2xla3NpaiBSZW1wZWwgPG8ucmVtcGVsQHBlbmd1dHJvbml4LmRlPgpTaWduZWQtb2ZmLWJ5
-OiBPbGVrc2lqIFJlbXBlbCA8by5yZW1wZWxAcGVuZ3V0cm9uaXguZGU+CgpLaW5kIHJlZ2FyZHMs
-Ck9sZWtzaWogUmVtcGVsCgotLSAKUGVuZ3V0cm9uaXggZS5LLiAgICAgICAgICAgICAgICAgICAg
-ICAgICAgIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwKSW5kdXN0cmlhbCBMaW51eCBT
-b2x1dGlvbnMgICAgICAgICAgICAgICAgIHwgaHR0cDovL3d3dy5wZW5ndXRyb25peC5kZS8gIHwK
-UGVpbmVyIFN0ci4gNi04LCAzMTEzNyBIaWxkZXNoZWltLCBHZXJtYW55IHwgUGhvbmU6ICs0OS01
-MTIxLTIwNjkxNy0wICAgIHwKQW10c2dlcmljaHQgSGlsZGVzaGVpbSwgSFJBIDI2ODYgICAgICAg
-ICAgIHwgRmF4OiAgICs0OS01MTIxLTIwNjkxNy01NTU1IHwKCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0
-CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFk
-ZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
+
+
+On 31.08.2019 15:17, Wolfram Sang wrote:
+>=20
+>>> +	dev->enable_dig_filt =3D of_property_read_bool(pdev->dev.of_node,
+>>> +						     "i2c-dig-filter");
+>>> +
+>>
+>> What do you think of the idea to introduce 'flags' to struct i2c_timings
+>> and parse the bindings in the core, too? Then you'd have sth like:
+>>
+>> 	if (t->flags & I2C_TIMINGS_ANALOG_FILTER)
+>>
+>> Would that be useful for you?
+>=20
+> Forgot to say, we can also implement this incrementally to make sure
+> your patches land in 5.4 in case you are currently busy with sth else.
+>=20
+
+Hi Wolfram,
+
+Your idea looks good but I would prefer to have it as a separate=20
+enhancement patch, after this series gets in.
+As things are now, this series/patches do just the filtering part. We=20
+can then move all the optional 'flags' as another change.
+So yes, we can do this incrementally.
+
+Thanks !
+Eugen
+
+>=20
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+>=20
