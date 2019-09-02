@@ -1,59 +1,74 @@
-From: <Eugen.Hristev@microchip.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Subject: Re: [PATCH v4 2/9] dt-bindings: i2c: add bindings for i2c analog and
  digital filter
-Date: Mon, 2 Sep 2019 14:15:14 +0000
-Message-ID: <b6528812-65d3-6561-38e7-c0545af900d8@microchip.com>
+Date: Mon, 2 Sep 2019 16:22:51 +0200
+Message-ID: <20190902142251.GC21922@piout.net>
 References: <1567418773-2427-1-git-send-email-eugen.hristev@microchip.com>
  <1567418773-2427-3-git-send-email-eugen.hristev@microchip.com>
  <9a9c209c-2fb8-0a4c-4e0a-b04fefda3360@axentia.se>
+ <b6528812-65d3-6561-38e7-c0545af900d8@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <9a9c209c-2fb8-0a4c-4e0a-b04fefda3360@axentia.se>
-Content-Language: en-US
-Content-ID: <C58BCC47709F1E44BDF4A390A7880894@namprd11.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <b6528812-65d3-6561-38e7-c0545af900d8@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: peda@axentia.se, wsa@the-dreams.de, mark.rutland@arm.com, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, pierre-yves.mordret@st.com, alexandre.belloni@bootlin.com, robh+dt@kernel.org
+To: Eugen.Hristev@microchip.com
+Cc: peda@axentia.se, wsa@the-dreams.de, mark.rutland@arm.com, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, pierre-yves.mordret@st.com, robh+dt@kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-DQoNCk9uIDAyLjA5LjIwMTkgMTM6NDksIFBldGVyIFJvc2luIHdyb3RlOg0KDQo+IE9uIDIwMTkt
-MDktMDIgMTI6MTIsIEV1Z2VuLkhyaXN0ZXZAbWljcm9jaGlwLmNvbSB3cm90ZToNCj4+IEZyb206
-IEV1Z2VuIEhyaXN0ZXYgPGV1Z2VuLmhyaXN0ZXZAbWljcm9jaGlwLmNvbT4NCj4+DQo+PiBTb21l
-IGkyYyBjb250cm9sbGVycyBoYXZlIGEgYnVpbHQtaW4gZGlnaXRhbCBvciBhbmFsb2cgZmlsdGVy
-Lg0KPj4gVGhpcyBpcyBzcGVjaWZpY2FsbHkgcmVxdWlyZWQgZGVwZW5kaW5nIG9uIHRoZSBoYXJk
-d2FyZSBQQ0IvYm9hcmQuDQo+PiBTb21lIGNvbnRyb2xsZXJzIGFsc28gYWxsb3cgc3BlY2lmeWlu
-ZyB0aGUgbWF4aW11bSB3aWR0aCBvZiB0aGUNCj4+IHNwaWtlcyB0aGF0IGNhbiBiZSBmaWx0ZXJl
-ZC4gVGhlIHdpZHRoIGxlbmd0aCBjYW4gYmUgc3BlY2lmaWVkIGluIG5hbm9zZWNvbmRzLg0KPj4N
-Cj4+IFNpZ25lZC1vZmYtYnk6IEV1Z2VuIEhyaXN0ZXYgPGV1Z2VuLmhyaXN0ZXZAbWljcm9jaGlw
-LmNvbT4NCj4+IC0tLQ0KPj4gICBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJj
-L2kyYy50eHQgfCAxMSArKysrKysrKysrKw0KPj4gICAxIGZpbGUgY2hhbmdlZCwgMTEgaW5zZXJ0
-aW9ucygrKQ0KPj4NCj4+IGRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmlu
-ZGluZ3MvaTJjL2kyYy50eHQgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJj
-L2kyYy50eHQNCj4+IGluZGV4IDQ0ZWZhZmQuLjhkYmZmNjcgMTAwNjQ0DQo+PiAtLS0gYS9Eb2N1
-bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy50eHQNCj4+ICsrKyBiL0RvY3Vt
-ZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLnR4dA0KPj4gQEAgLTU1LDYgKzU1
-LDE3IEBAIHdhbnRzIHRvIHN1cHBvcnQgb25lIG9mIHRoZSBiZWxvdyBmZWF0dXJlcywgaXQgc2hv
-dWxkIGFkYXB0IHRoZSBiaW5kaW5ncyBiZWxvdy4NCj4+ICAgCU51bWJlciBvZiBuYW5vc2Vjb25k
-cyB0aGUgU0RBIHNpZ25hbCB0YWtlcyB0byBmYWxsOyB0KGYpIGluIHRoZSBJMkMNCj4+ICAgCXNw
-ZWNpZmljYXRpb24uDQo+PiAgIA0KPj4gKy0gaTJjLWFuYWxvZy1maWx0ZXINCj4+ICsJRW5hYmxl
-IGFuYWxvZyBmaWx0ZXIgZm9yIGkyYyBsaW5lcy4NCj4+ICsNCj4+ICstIGkyYy1kaWdpdGFsLWZp
-bHRlcg0KPj4gKwlFbmFibGUgZGlnaXRhbCBmaWx0ZXIgZm9yIGkyYyBsaW5lcy4NCj4+ICsNCj4+
-ICstIGkyYy1maWx0ZXItd2lkdGgtbnMNCj4+ICsJV2lkdGggb2Ygc3Bpa2VzIHdoaWNoIGNhbiBi
-ZSBmaWx0ZXJlZCBieSBlaXRoZXIgZGlnaXRhbCBvciBhbmFsb2cNCj4+ICsJZmlsdGVycyAoaTJj
-LWFuYWxvZy1maWx0ciBvciBpMmMtZGlnaXRhbC1maWx0cikuIFRoaXMgd2lkdGggaXMgc3BlY2lm
-aWVkDQo+IA0KPiBmaWx0ciAtPiBmaWx0ZXIgKHR3byBpbnN0YW5jZXMpDQo+IA0KPiBXaGF0IGlm
-IHlvdSB3YW50L25lZWQgdG8gaGF2ZSBkaWZmZXJlbnQgYmFuZHdpZHRoIGZvciB0aGUgZGlnaXRh
-bCBhbmQgYW5hbG9nDQo+IGZpbHRlcnM/IEFmdGVyIGFsbCwgdGhpcyBpcyBhIGdlbmVyaWMgYmlu
-ZGluZy4uLg0KDQpIaSBQZXRlciwNCg0KRm9yIG91ciBuZWVkcywgdGhpcyBpcyBlbm91Z2g6IHRo
-ZSBwdXJwb3NlIG9mIHRoZSBmaWx0ZXJzIGlzIHRvIGF2b2lkIA0Kbm9pc2Ugb24gdGhlIGxpbmVz
-LCB0aGUgbm9pc2UgaXMgYXMgYmlnIGFzIGl0IGlzIGZvciB0aGUgZGlnaXRhbCBhbmQgZm9yIA0K
-dGhlIGFuYWxvZyBmaWx0ZXJzLCBzaW5jZSB3ZSB1c2UgYW4gYWJzb2x1dGUgbWVhc3VyZW1lbnQg
-Zm9yIHRoZW0uIFNvIEkgDQpkbyBub3Qga25vdyBob3cgdXNlZnVsIGl0IHdvdWxkIGJlIHRvIG1h
-a2UgYSBkaWZmZXJlbmNlLg0KDQpXb2xmcmFtLCB3aGF0IGRvIHlvdSB0aGluayA/DQoNCkV1Z2Vu
-DQoNCg0KPiANCj4gQ2hlZXJzLA0KPiBQZXRlcg0KPiANCj4+ICsJaW4gbmFub3NlY29uZHMuDQo+
-PiArDQo+PiAgIC0gaW50ZXJydXB0cw0KPj4gICAJaW50ZXJydXB0cyB1c2VkIGJ5IHRoZSBkZXZp
-Y2UuDQo+PiAgIA0KPj4NCj4gDQo+IF9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fDQo+IGxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0DQo+IGxpbnV4LWFy
-bS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZw0KPiBodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9y
-Zy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwNCj4gDQo+IA0K
+Eugen,
+
+On 02/09/2019 14:15:14+0000, Eugen.Hristev@microchip.com wrote:
+> On 02.09.2019 13:49, Peter Rosin wrote:
+> 
+> > On 2019-09-02 12:12, Eugen.Hristev@microchip.com wrote:
+> >> From: Eugen Hristev <eugen.hristev@microchip.com>
+> >>
+> >> Some i2c controllers have a built-in digital or analog filter.
+> >> This is specifically required depending on the hardware PCB/board.
+> >> Some controllers also allow specifying the maximum width of the
+> >> spikes that can be filtered. The width length can be specified in nanoseconds.
+> >>
+> >> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+> >> ---
+> >>   Documentation/devicetree/bindings/i2c/i2c.txt | 11 +++++++++++
+> >>   1 file changed, 11 insertions(+)
+> >>
+> >> diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
+> >> index 44efafd..8dbff67 100644
+> >> --- a/Documentation/devicetree/bindings/i2c/i2c.txt
+> >> +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+> >> @@ -55,6 +55,17 @@ wants to support one of the below features, it should adapt the bindings below.
+> >>   	Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
+> >>   	specification.
+> >>   
+> >> +- i2c-analog-filter
+> >> +	Enable analog filter for i2c lines.
+> >> +
+> >> +- i2c-digital-filter
+> >> +	Enable digital filter for i2c lines.
+> >> +
+> >> +- i2c-filter-width-ns
+> >> +	Width of spikes which can be filtered by either digital or analog
+> >> +	filters (i2c-analog-filtr or i2c-digital-filtr). This width is specified
+> > 
+> > filtr -> filter (two instances)
+> > 
+> > What if you want/need to have different bandwidth for the digital and analog
+> > filters? After all, this is a generic binding...
+> 
+> For our needs, this is enough: the purpose of the filters is to avoid 
+> noise on the lines, the noise is as big as it is for the digital and for 
+> the analog filters, since we use an absolute measurement for them. So I 
+> do not know how useful it would be to make a difference.
+> 
+
+You are adding generic properties so they have to be generic and not
+tied to your particular use case.
+
+
+-- 
+Alexandre Belloni, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
