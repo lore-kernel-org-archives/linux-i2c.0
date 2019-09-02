@@ -1,50 +1,69 @@
 From: <Eugen.Hristev@microchip.com>
-Subject: [PATCH v4 1/9] dt-bindings: i2c: at91: add new compatible
-Date: Mon, 2 Sep 2019 10:11:58 +0000
-Message-ID: <1567418773-2427-2-git-send-email-eugen.hristev@microchip.com>
+Subject: [PATCH v4 3/9] i2c: add support for filter-width-ns optional property
+Date: Mon, 2 Sep 2019 10:12:03 +0000
+Message-ID: <1567418773-2427-4-git-send-email-eugen.hristev@microchip.com>
 References: <1567418773-2427-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1567418773-2427-1-git-send-email-eugen.hristev@microchip.com>
 Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: wsa@the-dreams.de, peda@axentia.se, mark.rutland@arm.com, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, pierre-yves.mordret@st.com, alexandre.belloni@bootlin.com, robh+dt@kernel.org
-Cc: Eugen.Hristev@microchip.com
+Cc: Nicolas.Ferre@microchip.com, Eugen.Hristev@microchip.com
 List-Id: linux-i2c@vger.kernel.org
 
 From: Eugen Hristev <eugen.hristev@microchip.com>
 
-Add compatible for new Microchip SoC, sam9x60
+This optional timing property specifies the width of the spikes on the i2c
+lines (in ns) that can be filtered out by built-in analog or digital filter=
+s
+which are embedded in some i2c controllers.
+Include it in the timings structure and read it as integer property.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-at91.txt | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/i2c/i2c-core-base.c | 2 ++
+ include/linux/i2c.h         | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-index b7cec17..2210f43 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-@@ -3,7 +3,8 @@ I2C for Atmel platforms
- Required properties :
- - compatible : Must be "atmel,at91rm9200-i2c", "atmel,at91sam9261-i2c",
-      "atmel,at91sam9260-i2c", "atmel,at91sam9g20-i2c", "atmel,at91sam9g10-i2c",
--     "atmel,at91sam9x5-i2c", "atmel,sama5d4-i2c" or "atmel,sama5d2-i2c"
-+     "atmel,at91sam9x5-i2c", "atmel,sama5d4-i2c", "atmel,sama5d2-i2c" or
-+     "microchip,sam9x60-i2c"
- - reg: physical base address of the controller and length of memory mapped
-      region.
- - interrupts: interrupt number to the cpu.
--- 
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index f26ed49..804197e 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1658,6 +1658,8 @@ void i2c_parse_fw_timings(struct device *dev, struct =
+i2c_timings *t, bool use_de
+ 		t->sda_fall_ns =3D t->scl_fall_ns;
+=20
+ 	device_property_read_u32(dev, "i2c-sda-hold-time-ns", &t->sda_hold_ns);
++
++	device_property_read_u32(dev, "i2c-filter-width-ns", &t->filter_width_ns)=
+;
+ }
+ EXPORT_SYMBOL_GPL(i2c_parse_fw_timings);
+=20
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index fa5552c..b1e9c39 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -575,6 +575,7 @@ struct i2c_lock_operations {
+  * @scl_int_delay_ns: time IP core additionally needs to setup SCL in ns
+  * @sda_fall_ns: time SDA signal takes to fall in ns; t(f) in the I2C spec=
+ification
+  * @sda_hold_ns: time IP core additionally needs to hold SDA in ns
++ * @filter_width_ns: width in ns of spikes on i2c lines that the IP core c=
+an filter out
+  */
+ struct i2c_timings {
+ 	u32 bus_freq_hz;
+@@ -583,6 +584,7 @@ struct i2c_timings {
+ 	u32 scl_int_delay_ns;
+ 	u32 sda_fall_ns;
+ 	u32 sda_hold_ns;
++	u32 filter_width_ns;
+ };
+=20
+ /**
+--=20
 2.7.4
