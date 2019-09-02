@@ -1,8 +1,8 @@
 From: <Eugen.Hristev@microchip.com>
-Subject: [PATCH v4 8/9] ARM: dts: at91: sama5d2_xplained: add analog and
- digital filter for i2c
-Date: Mon, 2 Sep 2019 10:12:17 +0000
-Message-ID: <1567418773-2427-9-git-send-email-eugen.hristev@microchip.com>
+Subject: [PATCH v4 9/9] ARM: dts: at91: sama5d4_xplained: add digital filter
+ for i2c
+Date: Mon, 2 Sep 2019 10:12:20 +0000
+Message-ID: <1567418773-2427-10-git-send-email-eugen.hristev@microchip.com>
 References: <1567418773-2427-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -17,38 +17,25 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Eugen Hristev <eugen.hristev@microchip.com>
 
-Add property for analog and digital filter for i2c1 and i2c2 nodes
-for sama5d2_xplained
+Add property for digital filter for i2c0 node sama5d4_xplained
 
 Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
 ---
- arch/arm/boot/dts/at91-sama5d2_xplained.dts | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/at91-sama5d4_xplained.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/at91-sama5d2_xplained.dts b/arch/arm/boot/dt=
-s/at91-sama5d2_xplained.dts
-index 808e399..2083585 100644
---- a/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-@@ -334,6 +334,9 @@
- 					pinctrl-names =3D "default";
- 					pinctrl-0 =3D <&pinctrl_flx4_default>;
- 					atmel,fifo-size =3D <16>;
-+					i2c-analog-filter;
-+					i2c-digital-filter;
-+					i2c-filter-width-ns =3D <35>;
- 					status =3D "okay";
- 				};
+diff --git a/arch/arm/boot/dts/at91-sama5d4_xplained.dts b/arch/arm/boot/dt=
+s/at91-sama5d4_xplained.dts
+index fdfc37d..924d949 100644
+--- a/arch/arm/boot/dts/at91-sama5d4_xplained.dts
++++ b/arch/arm/boot/dts/at91-sama5d4_xplained.dts
+@@ -49,6 +49,7 @@
  			};
-@@ -342,6 +345,9 @@
- 				dmas =3D <0>, <0>;
- 				pinctrl-names =3D "default";
- 				pinctrl-0 =3D <&pinctrl_i2c1_default>;
-+				i2c-analog-filter;
-+				i2c-digital-filter;
-+				i2c-filter-width-ns =3D <35>;
- 				status =3D "okay";
 =20
- 				at24@54 {
+ 			i2c0: i2c@f8014000 {
++				i2c-digital-filter;
+ 				status =3D "okay";
+ 			};
+=20
 --=20
 2.7.4
