@@ -1,74 +1,75 @@
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+From: Peter Rosin <peda@axentia.se>
 Subject: Re: [PATCH v4 2/9] dt-bindings: i2c: add bindings for i2c analog and
  digital filter
-Date: Mon, 2 Sep 2019 16:22:51 +0200
-Message-ID: <20190902142251.GC21922@piout.net>
+Date: Mon, 2 Sep 2019 14:40:55 +0000
+Message-ID: <52038b5a-5940-2ac0-b7b4-5677c2fc5fbf@axentia.se>
 References: <1567418773-2427-1-git-send-email-eugen.hristev@microchip.com>
  <1567418773-2427-3-git-send-email-eugen.hristev@microchip.com>
  <9a9c209c-2fb8-0a4c-4e0a-b04fefda3360@axentia.se>
  <b6528812-65d3-6561-38e7-c0545af900d8@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 In-Reply-To: <b6528812-65d3-6561-38e7-c0545af900d8@microchip.com>
+Content-Language: en-US
+Content-ID: <8C56B3A8B13F234BBB6A1FFC3502C322@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eugen.Hristev@microchip.com
-Cc: peda@axentia.se, wsa@the-dreams.de, mark.rutland@arm.com, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, pierre-yves.mordret@st.com, robh+dt@kernel.org
+To: "Eugen.Hristev@microchip.com" <Eugen.Hristev@microchip.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "Ludovic.Desroches@microchip.com" <Ludovic.Desroches@microchip.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "pierre-yves.mordret@st.com" <pierre-yves.mordret@st.com>, "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Eugen,
-
-On 02/09/2019 14:15:14+0000, Eugen.Hristev@microchip.com wrote:
-> On 02.09.2019 13:49, Peter Rosin wrote:
-> 
-> > On 2019-09-02 12:12, Eugen.Hristev@microchip.com wrote:
-> >> From: Eugen Hristev <eugen.hristev@microchip.com>
-> >>
-> >> Some i2c controllers have a built-in digital or analog filter.
-> >> This is specifically required depending on the hardware PCB/board.
-> >> Some controllers also allow specifying the maximum width of the
-> >> spikes that can be filtered. The width length can be specified in nanoseconds.
-> >>
-> >> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-> >> ---
-> >>   Documentation/devicetree/bindings/i2c/i2c.txt | 11 +++++++++++
-> >>   1 file changed, 11 insertions(+)
-> >>
-> >> diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/devicetree/bindings/i2c/i2c.txt
-> >> index 44efafd..8dbff67 100644
-> >> --- a/Documentation/devicetree/bindings/i2c/i2c.txt
-> >> +++ b/Documentation/devicetree/bindings/i2c/i2c.txt
-> >> @@ -55,6 +55,17 @@ wants to support one of the below features, it should adapt the bindings below.
-> >>   	Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
-> >>   	specification.
-> >>   
-> >> +- i2c-analog-filter
-> >> +	Enable analog filter for i2c lines.
-> >> +
-> >> +- i2c-digital-filter
-> >> +	Enable digital filter for i2c lines.
-> >> +
-> >> +- i2c-filter-width-ns
-> >> +	Width of spikes which can be filtered by either digital or analog
-> >> +	filters (i2c-analog-filtr or i2c-digital-filtr). This width is specified
-> > 
-> > filtr -> filter (two instances)
-> > 
-> > What if you want/need to have different bandwidth for the digital and analog
-> > filters? After all, this is a generic binding...
-> 
-> For our needs, this is enough: the purpose of the filters is to avoid 
-> noise on the lines, the noise is as big as it is for the digital and for 
-> the analog filters, since we use an absolute measurement for them. So I 
-> do not know how useful it would be to make a difference.
-> 
-
-You are adding generic properties so they have to be generic and not
-tied to your particular use case.
-
-
--- 
-Alexandre Belloni, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+T24gMjAxOS0wOS0wMiAxNjoxNSwgRXVnZW4uSHJpc3RldkBtaWNyb2NoaXAuY29tIHdyb3RlOg0K
+PiANCj4gDQo+IE9uIDAyLjA5LjIwMTkgMTM6NDksIFBldGVyIFJvc2luIHdyb3RlOg0KPiANCj4+
+IE9uIDIwMTktMDktMDIgMTI6MTIsIEV1Z2VuLkhyaXN0ZXZAbWljcm9jaGlwLmNvbSB3cm90ZToN
+Cj4+PiBGcm9tOiBFdWdlbiBIcmlzdGV2IDxldWdlbi5ocmlzdGV2QG1pY3JvY2hpcC5jb20+DQo+
+Pj4NCj4+PiBTb21lIGkyYyBjb250cm9sbGVycyBoYXZlIGEgYnVpbHQtaW4gZGlnaXRhbCBvciBh
+bmFsb2cgZmlsdGVyLg0KPj4+IFRoaXMgaXMgc3BlY2lmaWNhbGx5IHJlcXVpcmVkIGRlcGVuZGlu
+ZyBvbiB0aGUgaGFyZHdhcmUgUENCL2JvYXJkLg0KPj4+IFNvbWUgY29udHJvbGxlcnMgYWxzbyBh
+bGxvdyBzcGVjaWZ5aW5nIHRoZSBtYXhpbXVtIHdpZHRoIG9mIHRoZQ0KPj4+IHNwaWtlcyB0aGF0
+IGNhbiBiZSBmaWx0ZXJlZC4gVGhlIHdpZHRoIGxlbmd0aCBjYW4gYmUgc3BlY2lmaWVkIGluIG5h
+bm9zZWNvbmRzLg0KPj4+DQo+Pj4gU2lnbmVkLW9mZi1ieTogRXVnZW4gSHJpc3RldiA8ZXVnZW4u
+aHJpc3RldkBtaWNyb2NoaXAuY29tPg0KPj4+IC0tLQ0KPj4+ICAgRG9jdW1lbnRhdGlvbi9kZXZp
+Y2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMudHh0IHwgMTEgKysrKysrKysrKysNCj4+PiAgIDEgZmls
+ZSBjaGFuZ2VkLCAxMSBpbnNlcnRpb25zKCspDQo+Pj4NCj4+PiBkaWZmIC0tZ2l0IGEvRG9jdW1l
+bnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMudHh0IGIvRG9jdW1lbnRhdGlvbi9k
+ZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMudHh0DQo+Pj4gaW5kZXggNDRlZmFmZC4uOGRiZmY2
+NyAxMDA2NDQNCj4+PiAtLS0gYS9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJj
+L2kyYy50eHQNCj4+PiArKysgYi9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJj
+L2kyYy50eHQNCj4+PiBAQCAtNTUsNiArNTUsMTcgQEAgd2FudHMgdG8gc3VwcG9ydCBvbmUgb2Yg
+dGhlIGJlbG93IGZlYXR1cmVzLCBpdCBzaG91bGQgYWRhcHQgdGhlIGJpbmRpbmdzIGJlbG93Lg0K
+Pj4+ICAgCU51bWJlciBvZiBuYW5vc2Vjb25kcyB0aGUgU0RBIHNpZ25hbCB0YWtlcyB0byBmYWxs
+OyB0KGYpIGluIHRoZSBJMkMNCj4+PiAgIAlzcGVjaWZpY2F0aW9uLg0KPj4+ICAgDQo+Pj4gKy0g
+aTJjLWFuYWxvZy1maWx0ZXINCj4+PiArCUVuYWJsZSBhbmFsb2cgZmlsdGVyIGZvciBpMmMgbGlu
+ZXMuDQo+Pj4gKw0KPj4+ICstIGkyYy1kaWdpdGFsLWZpbHRlcg0KPj4+ICsJRW5hYmxlIGRpZ2l0
+YWwgZmlsdGVyIGZvciBpMmMgbGluZXMuDQo+Pj4gKw0KPj4+ICstIGkyYy1maWx0ZXItd2lkdGgt
+bnMNCj4+PiArCVdpZHRoIG9mIHNwaWtlcyB3aGljaCBjYW4gYmUgZmlsdGVyZWQgYnkgZWl0aGVy
+IGRpZ2l0YWwgb3IgYW5hbG9nDQo+Pj4gKwlmaWx0ZXJzIChpMmMtYW5hbG9nLWZpbHRyIG9yIGky
+Yy1kaWdpdGFsLWZpbHRyKS4gVGhpcyB3aWR0aCBpcyBzcGVjaWZpZWQNCj4+DQo+PiBmaWx0ciAt
+PiBmaWx0ZXIgKHR3byBpbnN0YW5jZXMpDQo+Pg0KPj4gV2hhdCBpZiB5b3Ugd2FudC9uZWVkIHRv
+IGhhdmUgZGlmZmVyZW50IGJhbmR3aWR0aCBmb3IgdGhlIGRpZ2l0YWwgYW5kIGFuYWxvZw0KPj4g
+ZmlsdGVycz8gQWZ0ZXIgYWxsLCB0aGlzIGlzIGEgZ2VuZXJpYyBiaW5kaW5nLi4uDQo+IA0KPiBI
+aSBQZXRlciwNCj4gDQo+IEZvciBvdXIgbmVlZHMsIHRoaXMgaXMgZW5vdWdoOiB0aGUgcHVycG9z
+ZSBvZiB0aGUgZmlsdGVycyBpcyB0byBhdm9pZCANCj4gbm9pc2Ugb24gdGhlIGxpbmVzLCB0aGUg
+bm9pc2UgaXMgYXMgYmlnIGFzIGl0IGlzIGZvciB0aGUgZGlnaXRhbCBhbmQgZm9yIA0KPiB0aGUg
+YW5hbG9nIGZpbHRlcnMsIHNpbmNlIHdlIHVzZSBhbiBhYnNvbHV0ZSBtZWFzdXJlbWVudCBmb3Ig
+dGhlbS4gU28gSSANCj4gZG8gbm90IGtub3cgaG93IHVzZWZ1bCBpdCB3b3VsZCBiZSB0byBtYWtl
+IGEgZGlmZmVyZW5jZS4NCkkgdGhpbmsgbXkgZ3JpcGUgaXMgdGhhdCB0aGUgZGVzY3JpcHRpb24g
+YWxzbyBzZWVtcyBub24tZ2VuZXJpYy4gQW5hbG9nDQpmaWx0ZXJzIG5ldmVyIChvaywgdXN1YWxs
+eSwgYnV0IEkgaGF2ZSBhIGhhcmQgdGltZSBzZWVpbmcgaG93IGEgc2ltcGxlDQphbmFsb2cgZmls
+dGVyIGNhbikgd29yayBpbiB0ZXJtcyBvZiBzb21lICJ3aWR0aCBvZiBzcGlrZXMiLiBUaGF0IHBo
+cmFzaW5nDQpzZWVtcyBsaWtlIHNvbWV0aGluZyBpbmhlcmVudCB0byB0cml2aWFsIGRpZ2l0YWwg
+ZmlsdGVycy4gRm9yIGFuYWxvZw0KZmlsdGVycywgc3BlY2lmeWluZyB0aGUgYmFuZHdpZHRoIG9y
+IGN1dC1vZmYgZnJlcXVlbmN5IHNlZW1zIG11Y2ggbW9yZQ0KYXBwcm9wcmlhdGUuIEFuZCBiYW5k
+d2lkdGggd291bGQgd29yayBlcXVhbGx5IHdlbGwgZm9yIGRpZ2l0YWwgZmlsdGVycywNCm1ldGhp
+bmtzLg0KDQpJIGFsc28gdGhpbmsgaXQgc2hvdWxkIGJlIG1lbnRpb25lZCBleHBsaWNpdGx5IHRo
+YXQgdGhpcyBiaW5kaW5nIGlzIGZvcg0KTFAgZmlsdGVycy4gSSBkb24ndCB0aGluayBhbnl0aGlu
+ZyBlbHNlIHdvdWxkIGJlIHVzZWZ1bCwgYnV0IGJldHRlciBzYWZlDQp0aGFuIHNvcnJ5Li4uDQoN
+CkhtbSwgd291bGQgaXQgYmUgZ29vZCBvciBiYWQgdG8gc3BlY2lmeSB0aGUgYmFuZHdpZHRoIHJl
+bGF0aXZlIHRvIHRoZQ0KY3VycmVudCBtYXhpbXVtIGJ1cyBzcGVlZD8NCg0KQ2hlZXJzLA0KUGV0
+ZXINCg0KPiBXb2xmcmFtLCB3aGF0IGRvIHlvdSB0aGluayA/DQo+IA0KPiBFdWdlbg0KPiANCj4g
+DQo+Pg0KPj4gQ2hlZXJzLA0KPj4gUGV0ZXINCj4+DQo+Pj4gKwlpbiBuYW5vc2Vjb25kcy4NCj4+
+PiArDQo+Pj4gICAtIGludGVycnVwdHMNCj4+PiAgIAlpbnRlcnJ1cHRzIHVzZWQgYnkgdGhlIGRl
+dmljZS4NCj4+PiAgIA0KPj4+DQo+Pg0KPj4gX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18NCj4+IGxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0DQo+PiBs
+aW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcNCj4+IGh0dHA6Ly9saXN0cy5pbmZy
+YWRlYWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbA0KPj4NCj4+DQoNCg==
