@@ -1,52 +1,64 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Luca Ceresoli <luca@lucaceresoli.net>
 Subject: Re: [RFC,v2 2/6] i2c: add I2C Address Translator (ATR) support
-Date: Tue, 3 Sep 2019 09:37:20 +0200
-Message-ID: <20190903073719.GA1020@kunai>
+Date: Tue, 3 Sep 2019 10:48:41 +0200
+Message-ID: <8482d1e2-b1d9-3da5-5b1f-b7e492a87368@lucaceresoli.net>
 References: <20190723203723.11730-1-luca@lucaceresoli.net>
- <20190723203723.11730-3-luca@lucaceresoli.net>
- <20190901143101.humomdehy5ee73sk@vino>
- <20bac324-c4d3-270c-5175-0a7f261fd760@lucaceresoli.net>
+ <20190723203723.11730-3-luca@lucaceresoli.net> <20190902204208.GA7253@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20bac324-c4d3-270c-5175-0a7f261fd760@lucaceresoli.net>
+In-Reply-To: <20190902204208.GA7253@kunai>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Luca Ceresoli <luca@lucaceresoli.net>
-Cc: jacopo mondi <jacopo@jmondi.org>, linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Kieran Bingham <kieran.bingham@ideasonboard.com>, Vladimir Zapolskiy <vz@mleia.com>, Peter Rosin <peda@axentia.se>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Kieran Bingham <kieran.bingham@ideasonboard.com>, Jacopo Mondi <jacopo@jmondi.org>, Vladimir Zapolskiy <vz@mleia.com>, Peter Rosin <peda@axentia.se>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On 02/09/19 22:42, Wolfram Sang wrote:
+> Hi Luca,
+> 
+>> + * Topology:
+>> + *
+>> + *                       Slave X @ 0x10
+>> + *               .-----.   |
+>> + *   .-----.     |     |---+---- B
+>> + *   | CPU |--A--| ATR |
+>> + *   `-----'     |     |---+---- C
+>> + *               `-----'   |
+>> + *                       Slave Y @ 0x10
+>> + *
+>> + * Alias table:
+>> + *
+>> + *   Client  Alias
+>> + *   -------------
+>> + *      X    0x20
+>> + *      Y    0x30
+> 
+> Great that you already provided docs for this driver!
+> 
+> One huge drawback for me is the attach/detach callbacks. One year ago, I
+> removed a similar callback from the I2C core ("[PATCH 0/2] i2c: remove
+> deprecated attach_adapter callback") because some drivers did a lot of
+> crazy things there. It took years to remove all that.
 
+Oh dear, I was completely unaware, apologies! :-)
 
-> Adding the ATR features to i2c-mux.c was very tricky and error-prone due
-> to all of this code, that's why I have moved ATR to its own file in RFCv2.
+> What I could imagine here: the adapter (B and C each in the picture
+> above) gets a flag like NEEDS_ATR before registering to the core. The
+> flag means all clients on that bus will have their address translated.
+> The core will figure out a free alias when a device is registered. We
+> can then have an ATR specific callback with the original and translated
+> address as arguments, so one can setup the HW as needed.
 
-I forgot to say that I like this.
+Do you mean moving the alias selection code from i2c-atr.c to the i2c
+core? And the rest of the ATR core too?
 
+> Do you think that would work?
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: application/pgp-signature; name="signature.asc"
+Yes.
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1uGCoACgkQFA3kzBSg
-KbZidw/9EM+Hx6X3hquMtRxGgJV6HJWi8UYyPYgFrwAIYCAt7gtjHWnk1cNizf98
-4DSVtoi6zpMeLx4zM76DZ3P2nnDSDNQ+QwJRYRIoWLs3yWkZ56EPQvCxcc4lhNRW
-+XDgzFLnoVnkn4PJlAjztG7xcVm0u9XfM+8Ion0U9A9E7wIR1ml3XwctccOL0Zd7
-VW2zR+nzhEEH9iV/bCKeKTQXg75YgHyIIUlJm48FuP1mA5uWMqtX9hf5h6ctRZK4
-AYcxw1uLOICIBmbW5WaTOHq0xd3TaE4R0+lI9fcODckq7CVFijl1/odDsmgy/ISU
-24A0v/ulqd6b8XMXq3DyU3hyFmbwbJjWitI0nYQKdpCvF9hNFJ5KR++ko/P2I4s8
-inR7erFYYab2RSo0VKsZLgB4t45jmbQmCQtwKjla9uDcz2lHgG5/JzumGaPYdDEa
-DdQZOM8vz1GxM/3Yf2sCNkE2WJ5S0dT8PvrtsIhkn4Sqd9WiGPDiyjpK9mhdU1ap
-H9aXNKDRl+t4/x0zRe1K1gCydQzRsmLByXzAbs/sq+aKtUHl/obBKt9j6XFHMStG
-hOdIT2mQCys07yZpSK/LApFds0PbYBIB8XQjEsXIzGbSwau0BUJl3Ezwn7seZeer
-1SKdzmZlqUCJTeGdvjz6ef8RWeFRKrtl4srdu6ApbgvYAxGvcVk=
-=RqGE
------END PGP SIGNATURE-----
-
---a8Wt8u1KmwUX3Y2C--
+-- 
+Luca
