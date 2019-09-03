@@ -1,77 +1,110 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: stm32f7: Make structure stm32f7_i2c_algo constant
-Date: Tue, 3 Sep 2019 20:05:52 +0200
-Message-ID: <20190903180552.GI2171@ninjato>
-References: <20190815055857.1944-1-nishkadg.linux@gmail.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH RESEND 2/3] hwmon: w83792d: convert to use devm_i2c_new_dummy_device
+Date: Tue,  3 Sep 2019 20:12:55 +0200
+Message-ID: <20190903181256.13450-3-wsa+renesas@sang-engineering.com>
+References: <20190903181256.13450-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="jQIvE3yXcK9X9HBh"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190815055857.1944-1-nishkadg.linux@gmail.com>
+In-Reply-To: <20190903181256.13450-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Nishka Dasgupta <nishkadg.linux@gmail.com>
-Cc: pierre-yves.mordret@st.com, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+And simplify the error handling.
 
---jQIvE3yXcK9X9HBh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/hwmon/w83792d.c | 32 +++++++++-----------------------
+ 1 file changed, 9 insertions(+), 23 deletions(-)
 
-On Thu, Aug 15, 2019 at 11:28:57AM +0530, Nishka Dasgupta wrote:
-> Static structure stm32f7_i2c_algo, of type i2c_algorithm, is used only
-> when it is assigned to constant field algo of a variable having type
-> i2c_adapter. As stm32f7_i2c_algo is therefore never modified, make it
-> const as well to protect it from unintended modification.
-> Issue found with Coccinelle.
->=20
-> Signed-off-by: Nishka Dasgupta <nishkadg.linux@gmail.com>
-> ---
-
-Are you guys okay with this patch?
-
->  drivers/i2c/busses/i2c-stm32f7.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-st=
-m32f7.c
-> index 266d1c269b83..d36cf08461f7 100644
-> --- a/drivers/i2c/busses/i2c-stm32f7.c
-> +++ b/drivers/i2c/busses/i2c-stm32f7.c
-> @@ -1809,7 +1809,7 @@ static u32 stm32f7_i2c_func(struct i2c_adapter *ada=
-p)
->  		I2C_FUNC_SMBUS_I2C_BLOCK;
->  }
-> =20
-> -static struct i2c_algorithm stm32f7_i2c_algo =3D {
-> +static const struct i2c_algorithm stm32f7_i2c_algo =3D {
->  	.master_xfer =3D stm32f7_i2c_xfer,
->  	.smbus_xfer =3D stm32f7_i2c_smbus_xfer,
->  	.functionality =3D stm32f7_i2c_func,
-> --=20
-> 2.19.1
->=20
-
---jQIvE3yXcK9X9HBh
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1uq4AACgkQFA3kzBSg
-Kbb8bA/7Bzcu4H+4vy+pN5u7/6dvt9U1m+nVCt4vcisCCui7/eCm99H3yyDexyt0
-XfsNaP3kRsliO6VzsxJYKLmKwuoFhmweI+nDH+fTBzVproQhzrlGjcr1N+ZF3uvp
-vYMOCk84pZZ8h7eAeQIxtw8FJKLX+1EOJJcG2w7APhQ+0YoJibSkz5yVasT1arNZ
-t9wOQQki7S2HLK09QRYP1urT7dIbRvkcaFM9HQMBZdcsOCSa3SdnL52YjLTbgA3K
-HAIt1QpAmbHanMgBOEM+FTDWSSWuZyea4t1oGBK21mHksjLP/+cmR8dUiRVkpEcU
-HuJRmRE2STSo0GE8c06fiYIhNPNHUPy7M2B5LmAvEbmj9uEjElbJuzCXmY6sh2ka
-NkQypuukYn9S3EdP6+zPCVgvdB3UxnuxhxX4exQiagOa4TsrXoPv/M85wQjU6h+k
-SebrMybbLsyr57zYG77zUQxQPUGopl3gAmQrXk4C0AGDgGrGZHn5rgOIi0CqkR8Y
-n2bgrd5sG04fLP0XrhFUeQFjXKBVAfAStse3VzHzt0GdXZ3FIbhyqn39982sM2xk
-MhLO4UCcFyc3ebtcqHIZIkM23QwO/FGhSiGmwVci8EPS174rlH7G9hMvXfuMWrgc
-uFx3t0vfZmx62RXhspKEEjsxe+/pGbtGOsJsRsEi4o96NRElfDw=
-=fdQf
------END PGP SIGNATURE-----
-
---jQIvE3yXcK9X9HBh--
+diff --git a/drivers/hwmon/w83792d.c b/drivers/hwmon/w83792d.c
+index da8a6d62aa23..7fc8a1160c8f 100644
+--- a/drivers/hwmon/w83792d.c
++++ b/drivers/hwmon/w83792d.c
+@@ -924,7 +924,7 @@ store_sf2_level(struct device *dev, struct device_attribute *attr,
+ static int
+ w83792d_detect_subclients(struct i2c_client *new_client)
+ {
+-	int i, id, err;
++	int i, id;
+ 	int address = new_client->addr;
+ 	u8 val;
+ 	struct i2c_adapter *adapter = new_client->adapter;
+@@ -938,8 +938,7 @@ w83792d_detect_subclients(struct i2c_client *new_client)
+ 				dev_err(&new_client->dev,
+ 					"invalid subclient address %d; must be 0x48-0x4f\n",
+ 					force_subclients[i]);
+-				err = -ENODEV;
+-				goto ERROR_SC_0;
++				return -ENODEV;
+ 			}
+ 		}
+ 		w83792d_write_value(new_client, W83792D_REG_I2C_SUBADDR,
+@@ -949,28 +948,21 @@ w83792d_detect_subclients(struct i2c_client *new_client)
+ 
+ 	val = w83792d_read_value(new_client, W83792D_REG_I2C_SUBADDR);
+ 	if (!(val & 0x08))
+-		data->lm75[0] = i2c_new_dummy(adapter, 0x48 + (val & 0x7));
++		data->lm75[0] = devm_i2c_new_dummy_device(&new_client->dev, adapter,
++							  0x48 + (val & 0x7));
+ 	if (!(val & 0x80)) {
+-		if ((data->lm75[0] != NULL) &&
++		if (!IS_ERR(data->lm75[0]) &&
+ 			((val & 0x7) == ((val >> 4) & 0x7))) {
+ 			dev_err(&new_client->dev,
+ 				"duplicate addresses 0x%x, use force_subclient\n",
+ 				data->lm75[0]->addr);
+-			err = -ENODEV;
+-			goto ERROR_SC_1;
++			return -ENODEV;
+ 		}
+-		data->lm75[1] = i2c_new_dummy(adapter,
+-					      0x48 + ((val >> 4) & 0x7));
++		data->lm75[1] = devm_i2c_new_dummy_device(&new_client->dev, adapter,
++							  0x48 + ((val >> 4) & 0x7));
+ 	}
+ 
+ 	return 0;
+-
+-/* Undo inits in case of errors */
+-
+-ERROR_SC_1:
+-	i2c_unregister_device(data->lm75[0]);
+-ERROR_SC_0:
+-	return err;
+ }
+ 
+ static SENSOR_DEVICE_ATTR(in0_input, S_IRUGO, show_in, NULL, 0);
+@@ -1396,7 +1388,7 @@ w83792d_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	/* Register sysfs hooks */
+ 	err = sysfs_create_group(&dev->kobj, &w83792d_group);
+ 	if (err)
+-		goto exit_i2c_unregister;
++		return err;
+ 
+ 	/*
+ 	 * Read GPIO enable register to check if pins for fan 4,5 are used as
+@@ -1441,9 +1433,6 @@ w83792d_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	sysfs_remove_group(&dev->kobj, &w83792d_group);
+ 	for (i = 0; i < ARRAY_SIZE(w83792d_group_fan); i++)
+ 		sysfs_remove_group(&dev->kobj, &w83792d_group_fan[i]);
+-exit_i2c_unregister:
+-	i2c_unregister_device(data->lm75[0]);
+-	i2c_unregister_device(data->lm75[1]);
+ 	return err;
+ }
+ 
+@@ -1459,9 +1448,6 @@ w83792d_remove(struct i2c_client *client)
+ 		sysfs_remove_group(&client->dev.kobj,
+ 				   &w83792d_group_fan[i]);
+ 
+-	i2c_unregister_device(data->lm75[0]);
+-	i2c_unregister_device(data->lm75[1]);
+-
+ 	return 0;
+ }
+ 
+-- 
+2.20.1
