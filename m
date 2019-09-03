@@ -1,21 +1,21 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH RESEND 1/3] hwmon: w83791d: convert to use
+Subject: Re: [PATCH RESEND 2/3] hwmon: w83792d: convert to use
  devm_i2c_new_dummy_device
-Date: Tue, 3 Sep 2019 12:44:15 -0700
-Message-ID: <20190903194415.GA32494@roeck-us.net>
+Date: Tue, 3 Sep 2019 12:45:02 -0700
+Message-ID: <20190903194501.GA32299@roeck-us.net>
 References: <20190903181256.13450-1-wsa+renesas@sang-engineering.com>
- <20190903181256.13450-2-wsa+renesas@sang-engineering.com>
+ <20190903181256.13450-3-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190903181256.13450-2-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190903181256.13450-3-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, Marc Hulsman <m.hulsman@tudelft.nl>, Jean Delvare <jdelvare@suse.com>, linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.com>, linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Sep 03, 2019 at 08:12:54PM +0200, Wolfram Sang wrote:
+On Tue, Sep 03, 2019 at 08:12:55PM +0200, Wolfram Sang wrote:
 > And simplify the error handling.
 > 
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
@@ -26,54 +26,53 @@ Thanks,
 Guenter
 
 > ---
->  drivers/hwmon/w83791d.c | 32 +++++++++-----------------------
+>  drivers/hwmon/w83792d.c | 32 +++++++++-----------------------
 >  1 file changed, 9 insertions(+), 23 deletions(-)
 > 
-> diff --git a/drivers/hwmon/w83791d.c b/drivers/hwmon/w83791d.c
-> index 050ad4201691..aad8d4da5802 100644
-> --- a/drivers/hwmon/w83791d.c
-> +++ b/drivers/hwmon/w83791d.c
-> @@ -1260,7 +1260,7 @@ static int w83791d_detect_subclients(struct i2c_client *client)
->  	struct i2c_adapter *adapter = client->adapter;
->  	struct w83791d_data *data = i2c_get_clientdata(client);
->  	int address = client->addr;
+> diff --git a/drivers/hwmon/w83792d.c b/drivers/hwmon/w83792d.c
+> index da8a6d62aa23..7fc8a1160c8f 100644
+> --- a/drivers/hwmon/w83792d.c
+> +++ b/drivers/hwmon/w83792d.c
+> @@ -924,7 +924,7 @@ store_sf2_level(struct device *dev, struct device_attribute *attr,
+>  static int
+>  w83792d_detect_subclients(struct i2c_client *new_client)
+>  {
 > -	int i, id, err;
 > +	int i, id;
+>  	int address = new_client->addr;
 >  	u8 val;
->  
->  	id = i2c_adapter_id(adapter);
-> @@ -1272,8 +1272,7 @@ static int w83791d_detect_subclients(struct i2c_client *client)
->  					"invalid subclient "
->  					"address %d; must be 0x48-0x4f\n",
+>  	struct i2c_adapter *adapter = new_client->adapter;
+> @@ -938,8 +938,7 @@ w83792d_detect_subclients(struct i2c_client *new_client)
+>  				dev_err(&new_client->dev,
+>  					"invalid subclient address %d; must be 0x48-0x4f\n",
 >  					force_subclients[i]);
 > -				err = -ENODEV;
-> -				goto error_sc_0;
+> -				goto ERROR_SC_0;
 > +				return -ENODEV;
 >  			}
 >  		}
->  		w83791d_write(client, W83791D_REG_I2C_SUBADDR,
-> @@ -1283,29 +1282,22 @@ static int w83791d_detect_subclients(struct i2c_client *client)
+>  		w83792d_write_value(new_client, W83792D_REG_I2C_SUBADDR,
+> @@ -949,28 +948,21 @@ w83792d_detect_subclients(struct i2c_client *new_client)
 >  
->  	val = w83791d_read(client, W83791D_REG_I2C_SUBADDR);
+>  	val = w83792d_read_value(new_client, W83792D_REG_I2C_SUBADDR);
 >  	if (!(val & 0x08))
 > -		data->lm75[0] = i2c_new_dummy(adapter, 0x48 + (val & 0x7));
-> +		data->lm75[0] = devm_i2c_new_dummy_device(&client->dev, adapter,
+> +		data->lm75[0] = devm_i2c_new_dummy_device(&new_client->dev, adapter,
 > +							  0x48 + (val & 0x7));
 >  	if (!(val & 0x80)) {
 > -		if ((data->lm75[0] != NULL) &&
 > +		if (!IS_ERR(data->lm75[0]) &&
->  				((val & 0x7) == ((val >> 4) & 0x7))) {
->  			dev_err(&client->dev,
->  				"duplicate addresses 0x%x, "
->  				"use force_subclient\n",
+>  			((val & 0x7) == ((val >> 4) & 0x7))) {
+>  			dev_err(&new_client->dev,
+>  				"duplicate addresses 0x%x, use force_subclient\n",
 >  				data->lm75[0]->addr);
 > -			err = -ENODEV;
-> -			goto error_sc_1;
+> -			goto ERROR_SC_1;
 > +			return -ENODEV;
 >  		}
 > -		data->lm75[1] = i2c_new_dummy(adapter,
 > -					      0x48 + ((val >> 4) & 0x7));
-> +		data->lm75[1] = devm_i2c_new_dummy_device(&client->dev, adapter,
+> +		data->lm75[1] = devm_i2c_new_dummy_device(&new_client->dev, adapter,
 > +							  0x48 + ((val >> 4) & 0x7));
 >  	}
 >  
@@ -81,35 +80,35 @@ Guenter
 > -
 > -/* Undo inits in case of errors */
 > -
-> -error_sc_1:
+> -ERROR_SC_1:
 > -	i2c_unregister_device(data->lm75[0]);
-> -error_sc_0:
+> -ERROR_SC_0:
 > -	return err;
 >  }
 >  
->  
-> @@ -1394,7 +1386,7 @@ static int w83791d_probe(struct i2c_client *client,
+>  static SENSOR_DEVICE_ATTR(in0_input, S_IRUGO, show_in, NULL, 0);
+> @@ -1396,7 +1388,7 @@ w83792d_probe(struct i2c_client *client, const struct i2c_device_id *id)
 >  	/* Register sysfs hooks */
->  	err = sysfs_create_group(&client->dev.kobj, &w83791d_group);
+>  	err = sysfs_create_group(&dev->kobj, &w83792d_group);
 >  	if (err)
-> -		goto error3;
+> -		goto exit_i2c_unregister;
 > +		return err;
 >  
->  	/* Check if pins of fan/pwm 4-5 are in use as GPIO */
->  	has_fanpwm45 = w83791d_read(client, W83791D_REG_GPIO) & 0x10;
-> @@ -1419,9 +1411,6 @@ static int w83791d_probe(struct i2c_client *client,
->  		sysfs_remove_group(&client->dev.kobj, &w83791d_group_fanpwm45);
->  error4:
->  	sysfs_remove_group(&client->dev.kobj, &w83791d_group);
-> -error3:
+>  	/*
+>  	 * Read GPIO enable register to check if pins for fan 4,5 are used as
+> @@ -1441,9 +1433,6 @@ w83792d_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  	sysfs_remove_group(&dev->kobj, &w83792d_group);
+>  	for (i = 0; i < ARRAY_SIZE(w83792d_group_fan); i++)
+>  		sysfs_remove_group(&dev->kobj, &w83792d_group_fan[i]);
+> -exit_i2c_unregister:
 > -	i2c_unregister_device(data->lm75[0]);
 > -	i2c_unregister_device(data->lm75[1]);
 >  	return err;
 >  }
 >  
-> @@ -1432,9 +1421,6 @@ static int w83791d_remove(struct i2c_client *client)
->  	hwmon_device_unregister(data->hwmon_dev);
->  	sysfs_remove_group(&client->dev.kobj, &w83791d_group);
+> @@ -1459,9 +1448,6 @@ w83792d_remove(struct i2c_client *client)
+>  		sysfs_remove_group(&client->dev.kobj,
+>  				   &w83792d_group_fan[i]);
 >  
 > -	i2c_unregister_device(data->lm75[0]);
 > -	i2c_unregister_device(data->lm75[1]);
@@ -117,3 +116,6 @@ Guenter
 >  	return 0;
 >  }
 >  
+> -- 
+> 2.20.1
+> 
