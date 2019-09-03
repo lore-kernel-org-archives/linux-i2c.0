@@ -1,80 +1,77 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: cht-wc: drop check because i2c_unregister_device()
- is NULL safe
-Date: Tue, 3 Sep 2019 19:52:18 +0200
-Message-ID: <20190903175218.GE2171@ninjato>
-References: <20190820153441.7693-1-wsa+renesas@sang-engineering.com>
+Subject: Re: [PATCH] i2c: stm32f7: Make structure stm32f7_i2c_algo constant
+Date: Tue, 3 Sep 2019 20:05:52 +0200
+Message-ID: <20190903180552.GI2171@ninjato>
+References: <20190815055857.1944-1-nishkadg.linux@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="zaRBsRFn0XYhEU69"
+        protocol="application/pgp-signature"; boundary="jQIvE3yXcK9X9HBh"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190820153441.7693-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190815055857.1944-1-nishkadg.linux@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, linux-kernel@vger.kernel.org
+To: Nishka Dasgupta <nishkadg.linux@gmail.com>
+Cc: pierre-yves.mordret@st.com, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---zaRBsRFn0XYhEU69
+--jQIvE3yXcK9X9HBh
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 20, 2019 at 05:34:40PM +0200, Wolfram Sang wrote:
-> No need to check the argument of i2c_unregister_device() because the
-> function itself does it.
+On Thu, Aug 15, 2019 at 11:28:57AM +0530, Nishka Dasgupta wrote:
+> Static structure stm32f7_i2c_algo, of type i2c_algorithm, is used only
+> when it is assigned to constant field algo of a variable having type
+> i2c_adapter. As stm32f7_i2c_algo is therefore never modified, make it
+> const as well to protect it from unintended modification.
+> Issue found with Coccinelle.
 >=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Signed-off-by: Nishka Dasgupta <nishkadg.linux@gmail.com>
 > ---
 
-Hans, are you OK with this change?
+Are you guys okay with this patch?
 
-> Build tested only, buildbot is happy, too.
+>  drivers/i2c/busses/i2c-stm32f7.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >=20
-> Please apply to your tree.
->=20
->  drivers/i2c/busses/i2c-cht-wc.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht=
--wc.c
-> index 66af44bfa67d..3e2608a65c06 100644
-> --- a/drivers/i2c/busses/i2c-cht-wc.c
-> +++ b/drivers/i2c/busses/i2c-cht-wc.c
-> @@ -363,8 +363,7 @@ static int cht_wc_i2c_adap_i2c_remove(struct platform=
-_device *pdev)
->  {
->  	struct cht_wc_i2c_adap *adap =3D platform_get_drvdata(pdev);
+> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-st=
+m32f7.c
+> index 266d1c269b83..d36cf08461f7 100644
+> --- a/drivers/i2c/busses/i2c-stm32f7.c
+> +++ b/drivers/i2c/busses/i2c-stm32f7.c
+> @@ -1809,7 +1809,7 @@ static u32 stm32f7_i2c_func(struct i2c_adapter *ada=
+p)
+>  		I2C_FUNC_SMBUS_I2C_BLOCK;
+>  }
 > =20
-> -	if (adap->client)
-> -		i2c_unregister_device(adap->client);
-> +	i2c_unregister_device(adap->client);
->  	i2c_del_adapter(&adap->adapter);
->  	irq_domain_remove(adap->irq_domain);
-> =20
+> -static struct i2c_algorithm stm32f7_i2c_algo =3D {
+> +static const struct i2c_algorithm stm32f7_i2c_algo =3D {
+>  	.master_xfer =3D stm32f7_i2c_xfer,
+>  	.smbus_xfer =3D stm32f7_i2c_smbus_xfer,
+>  	.functionality =3D stm32f7_i2c_func,
 > --=20
-> 2.20.1
+> 2.19.1
 >=20
 
---zaRBsRFn0XYhEU69
+--jQIvE3yXcK9X9HBh
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1uqFIACgkQFA3kzBSg
-KbYEShAAn8nHT+tj4NkyfQNhwUjViQWeCDdZadCW/I2GsqpDBmOx7e4StF2KhDD6
-Qz1G1zUAiV+wLVgnfengL0a2RZrt/7bMEqA5dDOtzHbV4K5CCziGLGdlS5r3YuLm
-pkkRiET8q2ArMmfFoyWtmRrmIjzFKmBrDO+hwxmurkqWZm7vrjAbSvL7R7GJ2HCR
-gx1NdXCLfRRTEaLZoJlLS3JRIRthWgTUvIbkgcbF+DxUzjcHqHe7EMiWIOEQlOAs
-dlk5p14R+fiNL4K8i8Y2JLS/8iAcmTJHjvMu+BjX2fSUQZB3yAnhwOT7iWqUaYdH
-fgK1s8Me6+/BRjmA3sjOg+0I37aw33C0etNJ5+SxlUiosWRQrMU8aipo4MLgTFfN
-waGi/4KWZkxI3lheqS7rq3FyBPrdkwfURNG03GC4FeKZ7W1IMQLUm+8L0h04u72z
-s8Tf7YusuEvboTnegieKtj2yU3lVGpHW6mvjM5c+76TKQQOw9AxtvpadpF+DXVYg
-Pzbz9pRH2mnQ2nd6VQKSBW3W9aYsjOWUeVbcXiJOFb59KQm5BniyuUY5sgsK/9V5
-aIQb7ElFsFKfxjDIVQg9w0N85bMv3KFebqy44M0htvN68A2653aQjXKk4lO5WO8G
-zMsOoib97DRmWzpqi/3zGiQI/yiXdES+yrT7Uyu0YdxqGO/59vA=
-=dUSq
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1uq4AACgkQFA3kzBSg
+Kbb8bA/7Bzcu4H+4vy+pN5u7/6dvt9U1m+nVCt4vcisCCui7/eCm99H3yyDexyt0
+XfsNaP3kRsliO6VzsxJYKLmKwuoFhmweI+nDH+fTBzVproQhzrlGjcr1N+ZF3uvp
+vYMOCk84pZZ8h7eAeQIxtw8FJKLX+1EOJJcG2w7APhQ+0YoJibSkz5yVasT1arNZ
+t9wOQQki7S2HLK09QRYP1urT7dIbRvkcaFM9HQMBZdcsOCSa3SdnL52YjLTbgA3K
+HAIt1QpAmbHanMgBOEM+FTDWSSWuZyea4t1oGBK21mHksjLP/+cmR8dUiRVkpEcU
+HuJRmRE2STSo0GE8c06fiYIhNPNHUPy7M2B5LmAvEbmj9uEjElbJuzCXmY6sh2ka
+NkQypuukYn9S3EdP6+zPCVgvdB3UxnuxhxX4exQiagOa4TsrXoPv/M85wQjU6h+k
+SebrMybbLsyr57zYG77zUQxQPUGopl3gAmQrXk4C0AGDgGrGZHn5rgOIi0CqkR8Y
+n2bgrd5sG04fLP0XrhFUeQFjXKBVAfAStse3VzHzt0GdXZ3FIbhyqn39982sM2xk
+MhLO4UCcFyc3ebtcqHIZIkM23QwO/FGhSiGmwVci8EPS174rlH7G9hMvXfuMWrgc
+uFx3t0vfZmx62RXhspKEEjsxe+/pGbtGOsJsRsEi4o96NRElfDw=
+=fdQf
 -----END PGP SIGNATURE-----
 
---zaRBsRFn0XYhEU69--
+--jQIvE3yXcK9X9HBh--
