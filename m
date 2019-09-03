@@ -1,89 +1,63 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC,v2 2/6] i2c: add I2C Address Translator (ATR) support
-Date: Tue, 3 Sep 2019 11:06:22 +0200
-Message-ID: <20190903090621.GB1020@kunai>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: Re: [RFC,v2 3/6] media: dt-bindings: add DS90UB954-Q1 video
+ deserializer
+Date: Tue, 3 Sep 2019 11:09:55 +0200
+Message-ID: <63d99d6d-ecdd-7dd8-0dcb-126bfd89b258@lucaceresoli.net>
 References: <20190723203723.11730-1-luca@lucaceresoli.net>
- <20190723203723.11730-3-luca@lucaceresoli.net>
- <20190902204208.GA7253@kunai>
- <8482d1e2-b1d9-3da5-5b1f-b7e492a87368@lucaceresoli.net>
+ <20190723203723.11730-4-luca@lucaceresoli.net> <20190902204841.GB7253@kunai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="v9Ux+11Zm5mwPlX6"
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <8482d1e2-b1d9-3da5-5b1f-b7e492a87368@lucaceresoli.net>
+In-Reply-To: <20190902204841.GB7253@kunai>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Luca Ceresoli <luca@lucaceresoli.net>
+To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Kieran Bingham <kieran.bingham@ideasonboard.com>, Jacopo Mondi <jacopo@jmondi.org>, Vladimir Zapolskiy <vz@mleia.com>, Peter Rosin <peda@axentia.se>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---v9Ux+11Zm5mwPlX6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 02/09/19 22:48, Wolfram Sang wrote:
+> 
+>> + - i2c-alias-pool: list of I2C addresses that are known to be available on the
+>> +                   "local" (SoC-to-deser) I2C bus; they will be picked at
+>> +		   runtime and used as aliases to reach remove I2C chips
+> 
+> After some internal discussion, I have been kinda convinced that it may
+> be better to assume all non-described addresses are free to use and
+> enter the pool.
+> 
+> The problem with the binding above is that you may run out of aliases
+> depending on how many aliases one to-be-attached module needs or how
+> many modules will be attached.
 
+Not if you define enough addresses in the pool. E.g. the DS90UB954
+hardware can have 8 aliases per port, so if you have (n_ports * 8)
+addresses in the pool the problem is solved.
 
-> > One huge drawback for me is the attach/detach callbacks. One year ago, I
-> > removed a similar callback from the I2C core ("[PATCH 0/2] i2c: remove
-> > deprecated attach_adapter callback") because some drivers did a lot of
-> > crazy things there. It took years to remove all that.
->=20
-> Oh dear, I was completely unaware, apologies! :-)
+> And another add-on module with
+> non-repogrammable devices may occupy addresses from the defined pool
+> above.
 
-Oh, no need to apologize. You don't have to research the whole I2C history
-before implementing something. Keeping the big picture is what I happily
-provide.
+You mean a new device on the local (SoC-to-ATR) bus? Well, it could as
+well occupy a non-described address that the ATR has already picked as
+an alias.
 
-> > What I could imagine here: the adapter (B and C each in the picture
-> > above) gets a flag like NEEDS_ATR before registering to the core. The
-> > flag means all clients on that bus will have their address translated.
-> > The core will figure out a free alias when a device is registered. We
-> > can then have an ATR specific callback with the original and translated
-> > address as arguments, so one can setup the HW as needed.
->=20
-> Do you mean moving the alias selection code from i2c-atr.c to the i2c
-> core? And the rest of the ATR core too?
+> I am not perfectly happy with the assumption that all undescribed
+> addresses are automatically free. That also might need DTS updates to
+> describe all clients properly. But this change only needs to be done
+> once, and it will improve the description of the hardware.
 
-I hope for something like this in the I2C core (simplified, naming needs
-to be improved etc.) in i2c_new_device:
+Right, but I still suspect some users won't do their homework and
+discover address conflicts at runtime, maybe months later, in a painful
+way. Also a chip might be undocumented on a given board, so they could
+do their homework and still have problems.
 
-	if (client->adapter->flag & NEEDS_ATR) {
-		i2c_atr_get_alias_address();
-		/* probably a wrapper around a callback */
-		i2c_atr_setup_hw();
-	}
+Despite my comments, I'm not strongly against your proposal. To me it
+doesn't seem to solve any problem, while it does introduce some degree
+of risk. Could you elaborate more on but what benefit it introduces?
 
-with all the i2c_atr_* functions in a seperate file. It would be great
-if that file could be a completely independent module, but if it turns
-out that we need some simple helpers in the core, I am probably OK with
-that, too.
-
-> > Do you think that would work?
->=20
-> Yes.
-
-Cool!
-
-
---v9Ux+11Zm5mwPlX6
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1uLQkACgkQFA3kzBSg
-KbYlUg//QLHDG326il+ci8KTo6kaFt1uzUDGdfsvBHCrmjnaV9lyCqSbinKTaRrU
-LanYdd7SOTNFpTsuxE3FfWCJwAxdOogPD3Eatfu5EWQmTse6AgqHdAOEzNu2NqFW
-DpRfFpXvzYfbaQ2Y+AWqyvUAjE63ddHw0oi9LwS5XPPV0fSwqBQOU8135a6Qj9zd
-Zdp40L4XDpglDOt5jTUKvqyVCLpHGD6Seciw/4oNhsrdK4ZhhaZtC3hj0fSy5AxV
-2/2pkLxcNrEOnZl1q0+inRBZZOphH1VUwzHxS56O6leTlNo1CxLQ/Y71vURqIgwd
-N3WM5FuTCnBoN5bFbTNGegyUsqsgiYzONmDjxcM7lxmE1XTJDw7L6k5m7hwoxLLd
-BmZJAdCnpbQOixbg+iDKUrMkDklhfjXfmhvhWaedvc+y8iKfeUlvd+YVmJygqDgt
-h2FV5OYQdWipo4TsOM+ORcfFFyFtFSziHxOdsEv0EpdVk8R+ROIp9FJldlQRwQZ/
-iiCpEyXXLt0Yw3iq1gG3GE4WFxGgeUty9pECsXmT3BwRQhroUBeuiXR/j2AzpXkE
-Alr5B6hXmPL0iACDHHK/lMn2svKcRQWG51Nno1VR3KOCGiWj9sjM0H6Y4WHmCQcG
-6gB7hUyzLHI9+VuDBLBMVyLHmEtC5yLsPxrFZTDuNL0xBGPp1jo=
-=5VsA
------END PGP SIGNATURE-----
-
---v9Ux+11Zm5mwPlX6--
+Thanks,
+-- 
+Luca
