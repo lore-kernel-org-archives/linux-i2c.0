@@ -1,140 +1,119 @@
-From: Meenakshi Aggarwal <meenakshi.aggarwal@nxp.com>
-Subject: RE: [PATCH] ACPI: support for NXP i2c controller
-Date: Tue, 3 Sep 2019 11:08:06 +0000
-Message-ID: <AM7PR04MB688567ACF4B42510E6492AC78EB90@AM7PR04MB6885.eurprd04.prod.outlook.com>
-References: <20190711102601.20582-1-chuanhua.han@nxp.com>
- <CAJZ5v0hY2sL+XfN_4v07_hjvoxgCAt+Q89+wNg5Pky6XKP-mqA@mail.gmail.com>
- <31e7c1bb-d153-5feb-0b86-946caca5206c@pengutronix.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC,v2 3/6] media: dt-bindings: add DS90UB954-Q1 video
+ deserializer
+Date: Tue, 3 Sep 2019 16:16:40 +0200
+Message-ID: <20190903141640.GA6718@kunai>
+References: <20190723203723.11730-1-luca@lucaceresoli.net>
+ <20190723203723.11730-4-luca@lucaceresoli.net>
+ <20190902204841.GB7253@kunai>
+ <63d99d6d-ecdd-7dd8-0dcb-126bfd89b258@lucaceresoli.net>
+ <20190903093455.GD1020@kunai>
+ <f3640020-0291-f837-8639-c3ba39800ead@lucaceresoli.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <31e7c1bb-d153-5feb-0b86-946caca5206c@pengutronix.de>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <f3640020-0291-f837-8639-c3ba39800ead@lucaceresoli.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Oleksij Rempel <o.rempel@pengutronix.de>, "Rafael J. Wysocki" <rafael@kernel.org>, Chuanhua Han <chuanhua.han@nxp.com>, Wolfram Sang <wsa@the-dreams.de>, Andy Shevchenko <andy.shevchenko@gmail.com>, Biwen Li <biwen.li@nxp.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Leo Li <leoyang.li@nxp.com>, Udit Kumar <udit.kumar@nxp.com>
+To: Luca Ceresoli <luca@lucaceresoli.net>
+Cc: linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Kieran Bingham <kieran.bingham@ideasonboard.com>, Jacopo Mondi <jacopo@jmondi.org>, Vladimir Zapolskiy <vz@mleia.com>, Peter Rosin <peda@axentia.se>
 List-Id: linux-i2c@vger.kernel.org
 
-K2Jpd2VuDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogT2xla3NpaiBS
-ZW1wZWwgPG8ucmVtcGVsQHBlbmd1dHJvbml4LmRlPg0KPiBTZW50OiBUdWVzZGF5LCBTZXB0ZW1i
-ZXIgMywgMjAxOSA0OjIwIFBNDQo+IFRvOiBSYWZhZWwgSi4gV3lzb2NraSA8cmFmYWVsQGtlcm5l
-bC5vcmc+OyBDaHVhbmh1YSBIYW4NCj4gPGNodWFuaHVhLmhhbkBueHAuY29tPjsgV29sZnJhbSBT
-YW5nIDx3c2FAdGhlLWRyZWFtcy5kZT47IEFuZHkNCj4gU2hldmNoZW5rbyA8YW5keS5zaGV2Y2hl
-bmtvQGdtYWlsLmNvbT4NCj4gQ2M6IFJhZmFlbCBKLiBXeXNvY2tpIDxyandAcmp3eXNvY2tpLm5l
-dD47IExlbiBCcm93biA8bGVuYkBrZXJuZWwub3JnPjsNCj4gU2hhd24gR3VvIDxzaGF3bmd1b0Br
-ZXJuZWwub3JnPjsgU2FzY2hhIEhhdWVyIDxzLmhhdWVyQHBlbmd1dHJvbml4LmRlPjsNCj4gQUNQ
-SSBEZXZlbCBNYWxpbmcgTGlzdCA8bGludXgtYWNwaUB2Z2VyLmtlcm5lbC5vcmc+OyBMaW51eCBL
-ZXJuZWwgTWFpbGluZyBMaXN0DQo+IDxsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnPjsgbGlu
-dXgtaTJjIDxsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnPjsgTGludXgNCj4gQVJNIDxsaW51eC1h
-cm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmc+OyBMZW8gTGkgPGxlb3lhbmcubGlAbnhwLmNv
-bT47DQo+IE1lZW5ha3NoaSBBZ2dhcndhbCA8bWVlbmFrc2hpLmFnZ2Fyd2FsQG54cC5jb20+OyBV
-ZGl0IEt1bWFyDQo+IDx1ZGl0Lmt1bWFyQG54cC5jb20+DQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0hd
-IEFDUEk6IHN1cHBvcnQgZm9yIE5YUCBpMmMgY29udHJvbGxlcg0KPiANCj4gT25lIG1vcmUgcXVl
-c3Rpb24sDQo+IA0KPiBPbiAwMi4wOS4xOSAyMjo1NiwgUmFmYWVsIEouIFd5c29ja2kgd3JvdGU6
-DQo+ID4gT24gVGh1LCBKdWwgMTEsIDIwMTkgYXQgMTI6MzUgUE0gQ2h1YW5odWEgSGFuIDxjaHVh
-bmh1YS5oYW5AbnhwLmNvbT4NCj4gd3JvdGU6DQo+ID4+DQo+ID4+IEVuYWJsZSBOWFAgaTJjIGNv
-bnRyb2xsZXIgdG8gYm9vdCB3aXRoIEFDUEkNCj4gPj4NCj4gPj4gU2lnbmVkLW9mZi1ieTogTWVl
-bmFrc2hpIEFnZ2Fyd2FsIDxtZWVuYWtzaGkuYWdnYXJ3YWxAbnhwLmNvbT4NCj4gPj4gU2lnbmVk
-LW9mZi1ieTogVWRpdCBLdW1hciA8dWRpdC5rdW1hckBueHAuY29tPg0KPiA+PiBTaWduZWQtb2Zm
-LWJ5OiBDaHVhbmh1YSBIYW4gPGNodWFuaHVhLmhhbkBueHAuY29tPg0KPiA+DQo+ID4gV29sZnJh
-bSwgYW55IG9iamVjdGlvbnMgdG8gdGhpcyBmcm9tIHRoZSBpMmMgc2lkZT8NCj4gPg0KPiA+PiAt
-LS0NCj4gPj4gICBkcml2ZXJzL2FjcGkvYWNwaV9hcGQuYyAgICAgIHwgIDYgKysrKysrDQo+ID4+
-ICAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pbXguYyB8IDE1ICsrKysrKysrKysrKysrKw0KPiA+
-PiAgIDIgZmlsZXMgY2hhbmdlZCwgMjEgaW5zZXJ0aW9ucygrKQ0KPiA+Pg0KPiA+PiBkaWZmIC0t
-Z2l0IGEvZHJpdmVycy9hY3BpL2FjcGlfYXBkLmMgYi9kcml2ZXJzL2FjcGkvYWNwaV9hcGQuYyBp
-bmRleA0KPiA+PiBmZjQ3MzE3Li5jZjg1NjZjIDEwMDY0NA0KPiA+PiAtLS0gYS9kcml2ZXJzL2Fj
-cGkvYWNwaV9hcGQuYw0KPiA+PiArKysgYi9kcml2ZXJzL2FjcGkvYWNwaV9hcGQuYw0KPiA+PiBA
-QCAtMTY1LDYgKzE2NSwxMSBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IGFwZF9kZXZpY2VfZGVzYw0K
-PiB0aHVuZGVyeDJfaTJjX2Rlc2MgPSB7DQo+ID4+ICAgICAgICAgIC5maXhlZF9jbGtfcmF0ZSA9
-IDEyNTAwMDAwMCwNCj4gPj4gICB9Ow0KPiA+Pg0KPiA+PiArc3RhdGljIGNvbnN0IHN0cnVjdCBh
-cGRfZGV2aWNlX2Rlc2MgbnhwX2kyY19kZXNjID0gew0KPiA+PiArICAgICAgIC5zZXR1cCA9IGFj
-cGlfYXBkX3NldHVwLA0KPiA+PiArICAgICAgIC5maXhlZF9jbGtfcmF0ZSA9IDM1MDAwMDAwMCwN
-Cj4gPj4gK307DQo+IA0KPiBJJ20gbm90IEFDUEkgZXhwZXJ0LCBzbyBuZWVkIGhlcmUgc29tZSBo
-ZWxwIGZvciB1bmRlcnN0YW5kaW5nLiBIZXJlIGlzIEFDUEkNCj4gdGFibGUgZm9yDQo+IE5YUDAw
-MDEgaWQgKGZvdW5kIG9uIHRoZSBpbnRlcm5ldCk6DQo+ICsgIERldmljZShJMkMwKSB7DQo+ICsg
-ICAgTmFtZShfSElELCAiTlhQMDAwMSIpDQo+ICsgICAgTmFtZShfVUlELCAwKQ0KPiArICAgIE5h
-bWUoX0NSUywgUmVzb3VyY2VUZW1wbGF0ZSgpIHsNCj4gKyAgICAgIE1lbW9yeTMyRml4ZWQoUmVh
-ZFdyaXRlLCBJMkMwX0JBU0UsIEkyQ19MRU4pDQo+ICsgICAgICBJbnRlcnJ1cHQoUmVzb3VyY2VD
-b25zdW1lciwgTGV2ZWwsIEFjdGl2ZUhpZ2gsIFNoYXJlZCkgeyBJMkMwX0lUIH0NCj4gKyAgICB9
-KSAvLyBlbmQgb2YgX0NSUyBmb3IgaTJjMCBkZXZpY2UNCj4gKyAgICBOYW1lIChfRFNELCBQYWNr
-YWdlICgpIHsNCj4gKyAgICAgIFRvVVVJRCgiZGFmZmQ4MTQtNmViYS00ZDhjLThhOTEtYmM5YmJm
-NGFhMzAxIiksDQo+ICsgICAgICBQYWNrYWdlICgpIHsNCj4gKyAgICAgICAgIFBhY2thZ2UgKCkg
-eyJjbG9jay1mcmVxdWVuY3kiLCBERUZBVUxUX1BMQVRfRlJFUX0sIC8vVGhpcyBpcw0KPiArIGRl
-dmljZSBzcGVjaWZpYw0KPiBkYXRhLCBOZWVkIHRvIHNlZSBob3cgdG8gcGFzcyBjbGsgc3R1ZmYN
-Cj4gKyAgICAgIH0NCj4gKyAgICB9KQ0KPiANCj4gU2hvdWxkIGtlcm5lbCBzb21lIGhvdyBnZXQg
-cHJvcGVyIGNsb2NrLWZyZXF1ZW5jeSBmcm9tIHRoZSBBQ1BJPyBPciB3ZSBzdGlsbA0KPiBuZWVk
-IHRvIHVzZSBoYXJkIGNvZGVkIC5maXhlZF9jbGtfcmF0ZSBpbiB0aGUga2VybmVsPw0KPiANCj4g
-DQo+ID4+ICAgc3RhdGljIGNvbnN0IHN0cnVjdCBhcGRfZGV2aWNlX2Rlc2MgaGlwMDhfc3BpX2Rl
-c2MgPSB7DQo+ID4+ICAgICAgICAgIC5zZXR1cCA9IGFjcGlfYXBkX3NldHVwLA0KPiA+PiAgICAg
-ICAgICAuZml4ZWRfY2xrX3JhdGUgPSAyNTAwMDAwMDAsDQo+ID4+IEBAIC0yMzgsNiArMjQzLDcg
-QEAgc3RhdGljIGNvbnN0IHN0cnVjdCBhY3BpX2RldmljZV9pZA0KPiBhY3BpX2FwZF9kZXZpY2Vf
-aWRzW10gPSB7DQo+ID4+ICAgICAgICAgIHsgIkhJU0kwMkExIiwgQVBEX0FERFIoaGlwMDdfaTJj
-X2Rlc2MpIH0sDQo+ID4+ICAgICAgICAgIHsgIkhJU0kwMkEyIiwgQVBEX0FERFIoaGlwMDhfaTJj
-X2Rlc2MpIH0sDQo+ID4+ICAgICAgICAgIHsgIkhJU0kwMTczIiwgQVBEX0FERFIoaGlwMDhfc3Bp
-X2Rlc2MpIH0sDQo+ID4+ICsgICAgICAgeyAiTlhQMDAwMSIsIEFQRF9BRERSKG54cF9pMmNfZGVz
-YykgfSwNCj4gPj4gICAjZW5kaWYNCj4gPj4gICAgICAgICAgeyB9DQo+ID4+ICAgfTsNCj4gPj4g
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMgYi9kcml2ZXJzL2kyYy9i
-dXNzZXMvaTJjLWlteC5jDQo+ID4+IGluZGV4IGIxYjhiOTMuLjk5ZjliOTYgMTAwNjQ0DQo+ID4+
-IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtaW14LmMNCj4gPj4gKysrIGIvZHJpdmVycy9p
-MmMvYnVzc2VzL2kyYy1pbXguYw0KPiA+PiBAQCAtNDQsNiArNDQsNyBAQA0KPiA+PiAgICNpbmNs
-dWRlIDxsaW51eC9wbV9ydW50aW1lLmg+DQo+ID4+ICAgI2luY2x1ZGUgPGxpbnV4L3NjaGVkLmg+
-DQo+ID4+ICAgI2luY2x1ZGUgPGxpbnV4L3NsYWIuaD4NCj4gPj4gKyNpbmNsdWRlIDxsaW51eC9h
-Y3BpLmg+DQo+ID4+DQo+ID4+ICAgLyogVGhpcyB3aWxsIGJlIHRoZSBkcml2ZXIgbmFtZSB0aGUg
-a2VybmVsIHJlcG9ydHMgKi8NCj4gPj4gICAjZGVmaW5lIERSSVZFUl9OQU1FICJpbXgtaTJjIg0K
-PiA+PiBAQCAtMjU1LDYgKzI1NiwxMiBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IG9mX2RldmljZV9p
-ZCBpMmNfaW14X2R0X2lkc1tdID0gew0KPiA+PiAgIH07DQo+ID4+ICAgTU9EVUxFX0RFVklDRV9U
-QUJMRShvZiwgaTJjX2lteF9kdF9pZHMpOw0KPiA+Pg0KPiA+PiArc3RhdGljIGNvbnN0IHN0cnVj
-dCBhY3BpX2RldmljZV9pZCBpMmNfaW14X2FjcGlfaWRzW10gPSB7DQo+ID4+ICsgICAgICAgeyJO
-WFAwMDAxIiwgLmRyaXZlcl9kYXRhID0gKGtlcm5lbF91bG9uZ190KSZ2ZjYxMF9pMmNfaHdkYXRh
-fSwNCj4gPj4gKyAgICAgICB7IH0NCj4gPj4gK307DQo+ID4+ICtNT0RVTEVfREVWSUNFX1RBQkxF
-KGFjcGksIGkyY19pbXhfYWNwaV9pZHMpOw0KPiA+PiArDQo+ID4+ICAgc3RhdGljIGlubGluZSBp
-bnQgaXNfaW14MV9pMmMoc3RydWN0IGlteF9pMmNfc3RydWN0ICppMmNfaW14KQ0KPiA+PiAgIHsN
-Cj4gPj4gICAgICAgICAgcmV0dXJuIGkyY19pbXgtPmh3ZGF0YS0+ZGV2dHlwZSA9PSBJTVgxX0ky
-QzsNCj4gPj4gQEAgLTEwNTIsNiArMTA1OSw5IEBAIHN0YXRpYyBpbnQgaTJjX2lteF9wcm9iZShz
-dHJ1Y3QgcGxhdGZvcm1fZGV2aWNlDQo+ICpwZGV2KQ0KPiA+PiAgIHsNCj4gPj4gICAgICAgICAg
-Y29uc3Qgc3RydWN0IG9mX2RldmljZV9pZCAqb2ZfaWQgPSBvZl9tYXRjaF9kZXZpY2UoaTJjX2lt
-eF9kdF9pZHMsDQo+ID4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICZwZGV2LT5kZXYpOw0KPiA+PiArICAgICAgIGNvbnN0IHN0cnVj
-dCBhY3BpX2RldmljZV9pZCAqYWNwaV9pZCA9DQo+ID4+ICsgICAgICAgICAgICAgICAgICAgICAg
-IGFjcGlfbWF0Y2hfZGV2aWNlKGkyY19pbXhfYWNwaV9pZHMsDQo+ID4+ICsgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICZwZGV2LT5kZXYpOw0KPiA+PiAgICAgICAgICBz
-dHJ1Y3QgaW14X2kyY19zdHJ1Y3QgKmkyY19pbXg7DQo+ID4+ICAgICAgICAgIHN0cnVjdCByZXNv
-dXJjZSAqcmVzOw0KPiA+PiAgICAgICAgICBzdHJ1Y3QgaW14aTJjX3BsYXRmb3JtX2RhdGEgKnBk
-YXRhID0gZGV2X2dldF9wbGF0ZGF0YSgmcGRldi0+ZGV2KTsNCj4gPj4gQEAgLTEwNzksNiArMTA4
-OSw5IEBAIHN0YXRpYyBpbnQgaTJjX2lteF9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlDQo+
-ICpwZGV2KQ0KPiA+Pg0KPiA+PiAgICAgICAgICBpZiAob2ZfaWQpDQo+ID4+ICAgICAgICAgICAg
-ICAgICAgaTJjX2lteC0+aHdkYXRhID0gb2ZfaWQtPmRhdGE7DQo+ID4+ICsgICAgICAgZWxzZSBp
-ZiAoYWNwaV9pZCkNCj4gPj4gKyAgICAgICAgICAgICAgIGkyY19pbXgtPmh3ZGF0YSA9IChzdHJ1
-Y3QgaW14X2kyY19od2RhdGEgKikNCj4gPj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICBhY3BpX2lkLT5kcml2ZXJfZGF0YTsNCj4gPj4gICAgICAgICAgZWxzZQ0KPiA+PiAgICAgICAg
-ICAgICAgICAgIGkyY19pbXgtPmh3ZGF0YSA9IChzdHJ1Y3QgaW14X2kyY19od2RhdGEgKikNCj4g
-Pj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcGxhdGZvcm1fZ2V0X2RldmljZV9p
-ZChwZGV2KS0+ZHJpdmVyX2RhdGE7DQo+ID4+IEBAIC0xMDkxLDYgKzExMDQsNyBAQCBzdGF0aWMg
-aW50IGkyY19pbXhfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZQ0KPiAqcGRldikNCj4gPj4g
-ICAgICAgICAgaTJjX2lteC0+YWRhcHRlci5uciAgICAgICAgICAgICA9IHBkZXYtPmlkOw0KPiA+
-PiAgICAgICAgICBpMmNfaW14LT5hZGFwdGVyLmRldi5vZl9ub2RlICAgID0gcGRldi0+ZGV2Lm9m
-X25vZGU7DQo+ID4+ICAgICAgICAgIGkyY19pbXgtPmJhc2UgICAgICAgICAgICAgICAgICAgPSBi
-YXNlOw0KPiA+PiArICAgICAgIEFDUElfQ09NUEFOSU9OX1NFVCgmaTJjX2lteC0+YWRhcHRlci5k
-ZXYsDQo+IEFDUElfQ09NUEFOSU9OKCZwZGV2LT5kZXYpKTsNCj4gPj4NCj4gPj4gICAgICAgICAg
-LyogR2V0IEkyQyBjbG9jayAqLw0KPiA+PiAgICAgICAgICBpMmNfaW14LT5jbGsgPSBkZXZtX2Ns
-a19nZXQoJnBkZXYtPmRldiwgTlVMTCk7DQo+ID4+IEBAIC0xMjUzLDYgKzEyNjcsNyBAQCBzdGF0
-aWMgc3RydWN0IHBsYXRmb3JtX2RyaXZlciBpMmNfaW14X2RyaXZlciA9IHsNCj4gPj4gICAgICAg
-ICAgICAgICAgICAubmFtZSA9IERSSVZFUl9OQU1FLA0KPiA+PiAgICAgICAgICAgICAgICAgIC5w
-bSA9ICZpMmNfaW14X3BtX29wcywNCj4gPj4gICAgICAgICAgICAgICAgICAub2ZfbWF0Y2hfdGFi
-bGUgPSBpMmNfaW14X2R0X2lkcywNCj4gPj4gKyAgICAgICAgICAgICAgIC5hY3BpX21hdGNoX3Rh
-YmxlID0gQUNQSV9QVFIoaTJjX2lteF9hY3BpX2lkcyksDQo+ID4+ICAgICAgICAgIH0sDQo+ID4+
-ICAgICAgICAgIC5pZF90YWJsZSA9IGlteF9pMmNfZGV2dHlwZSwNCj4gPj4gICB9Ow0KPiA+PiAt
-LQ0KPiA+PiAyLjkuNQ0KPiA+Pg0KPiA+DQo+IA0KPiBLaW5kIHJlZ2FyZHMsDQo+IE9sZWtzaWog
-UmVtcGVsDQo+IA0KPiAtLQ0KPiBQZW5ndXRyb25peCBlLksuICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfA0KPiBJbmR1c3RyaWFsIExpbnV4
-IFNvbHV0aW9ucyAgICAgICAgICAgICAgICAgfA0KPiBodHRwczovL2V1cjAxLnNhZmVsaW5rcy5w
-cm90ZWN0aW9uLm91dGxvb2suY29tLz91cmw9aHR0cCUzQSUyRiUyRnd3dy5wZW4NCj4gZ3V0cm9u
-aXguZGUlMkYmYW1wO2RhdGE9MDIlN0MwMSU3Q21lZW5ha3NoaS5hZ2dhcndhbCU0MG54cC5jb20l
-N0MNCj4gNTM4MDFlNTkzZmJjNDc2MDZmMWQwOGQ3MzA1YzgwMjQlN0M2ODZlYTFkM2JjMmI0YzZm
-YTkyY2Q5OWM1YzMwMTYzDQo+IDUlN0MwJTdDMCU3QzYzNzAzMTA0NjE0ODA5MDQ1MyZhbXA7c2Rh
-dGE9UGtTMTlUcGg1bjRnTWNBSmFHM3NLcw0KPiBST2tPbSUyQmhvVXlrR1JkWXkwUFVPYyUzRCZh
-bXA7cmVzZXJ2ZWQ9MCAgfA0KPiBQZWluZXIgU3RyLiA2LTgsIDMxMTM3IEhpbGRlc2hlaW0sIEdl
-cm1hbnkgfCBQaG9uZTogKzQ5LTUxMjEtMjA2OTE3LTAgICAgfA0KPiBBbXRzZ2VyaWNodCBIaWxk
-ZXNoZWltLCBIUkEgMjY4NiAgICAgICAgICAgfCBGYXg6ICAgKzQ5LTUxMjEtMjA2OTE3LTU1NTUg
-fA0K
+
+--3MwIy2ne0vdjdPXF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi Luca,
+
+> Now I got what you mean: the aliases in a pool are reserved to an ATR
+> and not available to another ATR. What about hoisting the pool one level
+> up in DT, to the adapter where the ATRs are connected?
+
+Frankly, it sounds error prone to keep them in sync.
+
+> As I understand it, we are referring to the same use case:
+>=20
+> .---------------.       .-----.   .-------------------.
+> | adapter (SoC) |---+---| ATR |---| remote slave 0x10 |
+> '---------------'   |   '-----'   '-------------------'
+>                     |
+>               .----------.
+>               | device X |
+>               '----------'
+>=20
+> Here device X with hard-coded address 0x20 is plugged in at runtime.
+
+Yes. For the generic case, it doesn't even need to be plugged at
+runtime. A baseboard can have various additional modules with various
+requirements. Hot-plugging (not a favourite topic for I2C) adds to it.
+
+> As you say it, if 0x20 is in the ATR pool we have a problem.
+
+Right.
+
+> But even without an explicit pool, initially 0x20 is unused and the ATR
+> can use it for remote slave 0x10. Then at some point device X is
+> connected, and suddenly 0x20 conflicts.
+
+I haven't considered hot-plugging so far, but you are right here.
+
+> To a limited extend the explicit pool could help if the list of possible
+> addons is known: one can put in the pool only address that will never
+> appear in addons.
+
+And this is why I kinda accepted the all-unoccupied-addresses-are-free
+approach. For a generic solution, the list of possible add-ons is
+unknown and we should expect "the worst".
+
+> Hey, wait, the no-pool solution could have a way to handle this
+> conflict. When device X is connected, the adapter can look for a new
+> alias (0x21), call the i2c_atr_deconfigure_hw() and i2c_atr_setup_hw()
+> callbacks to stop using 0x20 and start using 0x21. Doesn't look very
+> lovely, but may be worth considering.
+
+Thanks for also thinking about the other approach! Everything combining
+I2C and hot-plugging is likely to not be lovely, so this may be OK given
+it really works in practice.
+
+Another note: I was hoping we could keep the number of callbacks to one.
+E.g. if i2c_atr_setup_hw() has the same values for 'address' and 'alias'
+(or one of them is zero), then we unregister an alias, otherwise we
+register. Not sure if this will work out in the end, but only one
+callback is what I'd like to have. (It could be put into the
+i2c_algorithm struct maybe)
+
+
+> Definitely.  And having a list of use cases would help a lot IMO. I had
+> never considered the use case described above, for example.
+
+Yes. I hope to see some new faces in the room giving us their cases.
+
+Kind regards,
+
+   Wolfram
+
+
+--3MwIy2ne0vdjdPXF
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1udcQACgkQFA3kzBSg
+KbZpAg/9Gh9b/97cajkwIM4pDZ/Ydmmg/fCcK5W881WBEIGo+/koAd7kK+tPvGqp
+XXgxCbaDnhVoQ2PmX/gHXajbUAmDV87onHjpH8e48bukT+TYs2kbdXPtCmbfNVkr
+JlNFU2PWVBVjxfNmTZFFnAxHrRLErHoxVtuPklt9Kn3FuWjnt7LqAqIoH0J0MTmf
+I/vpan16szG29cbC2rraahfkidYHjeJuZno63fdnBH/3hcajorY0xknznG9AB74t
+EmCUAMYJUe/9NGTm3I9Xdsa166dx+nW6xmNxxHz6qo7uT9lkUG0iQOk6W/yedVlX
+cJ2P9/2G2Q4d/bnb9AFXBNiI/sYkmOcKjeN9iMpN8aZ6ZI2AeP9M+73zhHE1OXIw
+a7sGFiwyTVY4YWK/FH82HGgCmMwu4YXTDuUxXIfbwSUPDJx1pcICl9UECl/c0WGp
+8NSVrLr/avYRHHU3fB0Hs4kl//DZRX1PcFn9Lqc68zIVwWUb/es1VXoyeUnRBBXv
+oZF9V0rDr/EPBLl7yayABh3Y4fFrBz9WCcLBcrUw46NPZwgDlU0rSYRodcCXQ+It
+SguamGKS7cb1WP21kC+K6UR7WoDtap9Tddx4DwwQpu/SjTs2M24B46E7lVnM2HkF
+pL8LHxSX74qE4a7sqA5kQX6fTY3z1oLOBXM/Z2W1wUnmthQXXmM=
+=1p1g
+-----END PGP SIGNATURE-----
+
+--3MwIy2ne0vdjdPXF--
