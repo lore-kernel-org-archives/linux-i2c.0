@@ -1,53 +1,55 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: cht-wc: drop check because i2c_unregister_device()
- is NULL safe
-Date: Wed, 4 Sep 2019 23:12:03 +0200
-Message-ID: <20190904211203.GB23608@ninjato>
-References: <20190820153441.7693-1-wsa+renesas@sang-engineering.com>
+Subject: Re: [PATCH] i2c: stm32f7: Make structure stm32f7_i2c_algo constant
+Date: Wed, 4 Sep 2019 23:12:39 +0200
+Message-ID: <20190904211239.GC23608@ninjato>
+References: <20190815055857.1944-1-nishkadg.linux@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="aVD9QWMuhilNxW9f"
+        protocol="application/pgp-signature"; boundary="yVhtmJPUSI46BTXb"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190820153441.7693-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20190815055857.1944-1-nishkadg.linux@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, linux-kernel@vger.kernel.org
+To: Nishka Dasgupta <nishkadg.linux@gmail.com>
+Cc: pierre-yves.mordret@st.com, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---aVD9QWMuhilNxW9f
+--yVhtmJPUSI46BTXb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 20, 2019 at 05:34:40PM +0200, Wolfram Sang wrote:
-> No need to check the argument of i2c_unregister_device() because the
-> function itself does it.
+On Thu, Aug 15, 2019 at 11:28:57AM +0530, Nishka Dasgupta wrote:
+> Static structure stm32f7_i2c_algo, of type i2c_algorithm, is used only
+> when it is assigned to constant field algo of a variable having type
+> i2c_adapter. As stm32f7_i2c_algo is therefore never modified, make it
+> const as well to protect it from unintended modification.
+> Issue found with Coccinelle.
 >=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Signed-off-by: Nishka Dasgupta <nishkadg.linux@gmail.com>
 
 Applied to for-next, thanks!
 
 
---aVD9QWMuhilNxW9f
+--yVhtmJPUSI46BTXb
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1wKKMACgkQFA3kzBSg
-KbYBDQ/8C7xWw763amsEzI5uNNh/GKrdnW5DZvBWQTN8XfrC5XZf45XAWdYENpcg
-aJ0PU0Sec+MuTg/QanFx+toiNG/4DjWBY2Aa8PGzWYSWrsXtMIWPyrZqPkVreecH
-5ySkJUnajWfMC442E63YZkUxgdB1GTsC+68QxHA0Imn0GkNrFRQuqwq1ugQ90k6r
-UUYZKRv1DIRmSvON1X3t4A+9HURpUimHGdGmfNDw6T//FnolEWI8QEM+R351H9sq
-jx0bCpe2HU0s4J36R1/kFvgvifxMMQ/qQCzswlkFVh5rkK0yeLWjLH2DVEfMV4rT
-Bb73wEZyCznj+/mdVd6yKDR7jLjWlW5qFbF/SDslkoMrrBIQ5UVtjH+MWEqhfW8a
-S/2ZlSR+fdHG2aWOGFxrquKGKocIEMY587wCtXLc7w0tpyRSYnPN2HJ5zw2utXGC
-b2zjB5pmJC+ri5WUM/O0oSIy6yJF7/lehksEjoJaHk07PBPpZNL/KBvKMrdkVyOQ
-/dkWqJD+R7IwS2Mq8sragO+3HD2HSiRKgVtQFojIu0uoQbSX2U/lYm/9LX34Sdri
-O3H7Fs/W1z9PsI0qDEzVEng79mfqHqA1TcFnKB/FJ5x1e0EM+fHGtrBXAj6nMwN/
-9SBAb3duuF35OuJiA0117kBh/T5iWxrITWtu77289rFRoCPDF1U=
-=+L1D
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1wKMcACgkQFA3kzBSg
+KbZtHRAAhUQXfvaGpBOwnt6QQ5sO9+U8ZeiPYL2IqsqOwOBGhLpWReFjilAKXk2o
+8x/xXEaituqT7t2Z/ECReg5oTMQESJBVj3hnbknunZX7etJGj9pbQGDsV9Ou0lPn
+gm4JjLPiC12KM9xv1si8lTrYQJp5K14stjXHSE4YW8Xu1W4SQ9lJSHpm+SvtfFIv
+6Ddi2F4XIRhx7JYyN/XDW0ABXpJMd4FayJ6G/N+vtd5N2KT9Ee8FdEcjFKD/7Vec
+J050E9XXNBYHBfjtvksGwEYxBHdltnsZlmmTOB4fKvmA7L1PqqoTKi4prhGL3Hum
+BnitzpIhFP1hjIyIHiOCQWGW0CvN7mmlu13vUaGJnvpKkb3vk+HSxGgxVu3kf8Hp
+MXmysO8ZUUOXe8ZLWSCTiqniNtQjlrFujnmYC5CR9q4KLBKZc18ef1GaGoLmHRom
+rYo5B4nMZdWntuyVsPK0UzTDJpt3KEFSHqBqJqmBRJGGiIFV8XdyHSmjt0MWLMqz
+If4rX7JmgShYUnpoCTM10Y/vwDBAEQ2tXqfhH+AfzU/n+bA9f0Hr+Tqy3V+LASxl
+Gp8jQqL34fs7yXc7gswe0t+PSaXM/SVelCTI3M6YIT1IZ2vVLzaowYdIMoTyFLZr
+/g0zgz7p8BHKMxnNxi2bhFXKPo6Ary+Do+H+Lx1xOsgIn/UIiR0=
+=Tqt8
 -----END PGP SIGNATURE-----
 
---aVD9QWMuhilNxW9f--
+--yVhtmJPUSI46BTXb--
