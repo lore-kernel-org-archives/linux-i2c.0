@@ -1,105 +1,64 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [RFC,v2 2/6] i2c: add I2C Address Translator (ATR) support
-Date: Wed, 4 Sep 2019 08:09:01 +0000
-Message-ID: <51dede3c-545b-b66a-5e89-9e889d784eb9@axentia.se>
-References: <20190723203723.11730-1-luca@lucaceresoli.net>
- <20190723203723.11730-3-luca@lucaceresoli.net>
- <20190901143101.humomdehy5ee73sk@vino>
- <20bac324-c4d3-270c-5175-0a7f261fd760@lucaceresoli.net>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] i2c: cht-wc: drop check because i2c_unregister_device()
+ is NULL safe
+Date: Wed, 4 Sep 2019 10:26:30 +0200
+Message-ID: <2e55f3cb-ba88-5404-3b38-585710976ed0@redhat.com>
+References: <20190820153441.7693-1-wsa+renesas@sang-engineering.com>
+ <20190903175218.GE2171@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20bac324-c4d3-270c-5175-0a7f261fd760@lucaceresoli.net>
+In-Reply-To: <20190903175218.GE2171@ninjato>
 Content-Language: en-US
-Content-ID: <9748AB0EB276CA49B9825CBA97465B46@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Luca Ceresoli <luca@lucaceresoli.net>, jacopo mondi <jacopo@jmondi.org>
-Cc: "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Wolfram Sang <wsa@the-dreams.de>, Sakari Ailus <sakari.ailus@linux.intel.com>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Kieran Bingham <kieran.bingham@ideasonboard.com>, Vladimir Zapolskiy <vz@mleia.com>
+To: Wolfram Sang <wsa@the-dreams.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-SGkhDQoNClsgU29ycnkgYWJvdXQgbXkgYWJzZW5jZS4gSSd2ZSBiZWVuIG1lYW5pbmcgdG8gY29t
-bWVudCBvbiB0aGlzIHNlcmllcw0KICBmb3IgYSBsb25nIHRpbWUsIGJ1dCB3b3JrIGFuZCBmYW1p
-bHkga2VlcCBpbnRlcmZlcmluZy4uLiBdDQoNCk9uIDIwMTktMDktMDMgMDk6MzEsIEx1Y2EgQ2Vy
-ZXNvbGkgd3JvdGU6DQo+IEhpIEphY29wbywNCj4gDQo+IHRoYW5rcyBmb3IgeW91ciBmZWVkYmFj
-ay4NCj4gDQo+IE9uIDAxLzA5LzE5IDE2OjMxLCBqYWNvcG8gbW9uZGkgd3JvdGU6DQo+PiBIaSBM
-dWNhLA0KPj4gICAgdGhhbmtzIGZvciBrZWVwIHB1c2hpbmcgdGhpcyBzZXJpZXMhIEkgaG9wZSB3
-ZSBjYW4gdXNlIHBhcnQgb2YgdGhpcw0KPj4gZm9yIHRoZSAobG9uZyB0aW1lKSBvbi1nb2luZyBH
-TVNMIHdvcmsuLi4NCj4+DQo+PiBJIGhvcGUgeW91IHdpbGwgYmUgcGF0aWVudCBlbm91Z2ggdG8g
-cHJvdmlkZSAoYW5vdGhlciA6KSBvdmVydmlldw0KPj4gb2YgdGhpcyB3b3JrIGR1cmluZyB0aGUg
-Qm9GIFdvbGZyYW0gaGFzIG9yZ2FuaXplZCBhdCBMUEMgZm9yIHRoZSBuZXh0DQo+PiB3ZWVrLg0K
-PiANCj4gU3VyZSENCj4gDQo+PiBJbiB0aGUgbWVhbnRpbWUgSSB3b3VsZCBoYXZlIHNvbWUgY29t
-bWVudHMgYWZ0ZXIgaGF2aW5nIGEgcmVhZCBhdCB0aGUNCj4+IHNlcmllcyBhbmQgdHJ5aW5nIHRv
-IGFwcGx5IGl0cyBjb25jZXB0IHRvIEdNU0wNCj4+DQo+PiBPbiBUdWUsIEp1bCAyMywgMjAxOSBh
-dCAxMDozNzoxOVBNICswMjAwLCBMdWNhIENlcmVzb2xpIHdyb3RlOg0KPj4+IEFuIEFUUiBpcyBh
-IGRldmljZSB0aGF0IGxvb2tzIHNpbWlsYXIgdG8gYW4gaTJjLW11eDogaXQgaGFzIGFuIEkyQw0K
-Pj4+IHNsYXZlICJ1cHN0cmVhbSIgcG9ydCBhbmQgTiBtYXN0ZXIgImRvd25zdHJlYW0iIHBvcnRz
-LCBhbmQgZm9yd2FyZHMNCj4+PiB0cmFuc2FjdGlvbnMgZnJvbSB1cHN0cmVhbSB0byB0aGUgYXBw
-cm9wcmlhdGUgZG93bnN0cmVhbSBwb3J0LiBCdXQgaXMNCj4+PiBpcyBkaWZmZXJlbnQgaW4gdGhh
-dCB0aGUgZm9yd2FyZGVkIHRyYW5zYWN0aW9uIGhhcyBhIGRpZmZlcmVudCBzbGF2ZQ0KPj4+IGFk
-ZHJlc3MuIFRoZSBhZGRyZXNzIHVzZWQgb24gdGhlIHVwc3RyZWFtIGJ1cyBpcyBjYWxsZWQgdGhl
-ICJhbGlhcyINCj4+PiBhbmQgaXMgKHBvdGVudGlhbGx5KSBkaWZmZXJlbnQgZnJvbSB0aGUgcGh5
-c2ljYWwgc2xhdmUgYWRkcmVzcyBvZiB0aGUNCj4+PiBkb3duc3RyZWFtIGNoaXAuDQo+Pj4NCj4+
-PiBBZGQgYSBoZWxwZXIgZmlsZSAoanVzdCBsaWtlIGkyYy1tdXguYyBmb3IgYSBtdXggb3Igc3dp
-dGNoKSB0byBhbGxvdw0KPj4+IGltcGxlbWVudGluZyBBVFIgZmVhdHVyZXMgaW4gYSBkZXZpY2Ug
-ZHJpdmVyLiBUaGUgaGVscGVyIHRha2VzIGNhcmUgb3INCj4+PiBhZGFwdGVyIGNyZWF0aW9uL2Rl
-c3RydWN0aW9uIGFuZCB0cmFuc2xhdGVzIGFkZHJlc3NlcyBhdCBlYWNoIHRyYW5zYWN0aW9uLg0K
-Pj4+DQo+Pj4gU2lnbmVkLW9mZi1ieTogTHVjYSBDZXJlc29saSA8bHVjYUBsdWNhY2VyZXNvbGku
-bmV0Pg0KPj4+DQo+Pj4gLS0tDQo+Pj4NCj4+PiBDaGFuZ2VzIFJGQ3YxIC0+IFJGQ3YyOg0KPj4+
-DQo+Pj4gIFJGQ3YxIHdhcyBpbXBsZW1lbnRlZCBpbnNpZGUgaTJjLW11eC5jIGFuZCBhZGRlZCB5
-ZXQgbW9yZSBjb21wbGV4aXR5DQo+Pj4gIHRoZXJlLiBSRkN2MiBjcmVhdGVzIGEgbmV3IGZpbGUg
-b24gaXRzIG93biwgaTJjLWF0ci5jLiBTaW5jZSBtYW55IEFUUg0KPj4+ICBmZWF0dXJlcyBhcmUg
-bm90IGluIGEgTVVYIGFuZCB2aWNlIHZlcnNhLCB0aGUgb3ZlcmxhcHBpbmcgaXMgbG93LiBUaGlz
-IHdhcw0KPj4+ICBhbG1vc3QgYSBjb21wbGV0ZSByZXdyaXRlLCBidXQgZm9yIHRoZSByZWNvcmRz
-IGhlcmUgYXJlIHRoZSBtYWluDQo+Pj4gIGRpZmZlcmVuY2VzIGZyb20gdGhlIG9sZCBpbXBsZW1l
-bnRhdGlvbjoNCj4+DQo+PiBJJ20gbm90IGFuIGkyYyBleHBlcnQsIGJ1dCB0aGlzIGxvb2tzIHZl
-cnkgc2ltaWxhciB0byBtZSB0byBhbg0KPj4gYXVnbWVudGVkIGkyYy1tdXggd2l0aCB0aGUgZm9s
-bG93aW5nIGFkZGl0aW9uYWwgZmVhdHVyZXM6DQo+PiAtIGF1dG9tYXRpYyBzZWxlY3Rpb24gb2Yg
-dGhlIGkyYyBhZGRyZXNzIHRvIHVzZSBmb3IgdGhlIGNoaWxkcmVuDQo+PiAgIGJlaGluZCB0aGUg
-bXV4DQo+PiAtIGF1dG9tYXRpYyB0cmFuc2xhdGlvbiBvZiB0aGUgYWRkcmVzc2VzIHRoZSBsb2dp
-Y2FsIGFsaWFzZXMgdG8NCj4+ICAgdGhlIGFjdHVhbCBwaHlzaWNhbCBhZGRyZXNzZXMgb2YgdGhl
-IHNsYXZlcyAod2l0aCB0aGUgaGVscCBvZiB0aGUNCj4+ICAgZGVzZXJpYWxpemVyIGFkZHJlc3Mg
-dHJhbnNsYXRpb24gZmVhdHVyZSBpbiB0aGlzIGNhc2UpLg0KPiANCj4gQSBub3RhYmxlIGRpZmZl
-cmVuY2UgaW4gdGhlIGhhcmR3YXJlIGlzIHRoYXQgYSBtdXggbmVlZHMgYW4gZXhwbGljaXQNCj4g
-cHJvY2VkdXJlIHRvIHNlbGVjdCBhIHBvcnQuIFRoYXQncyB3aHkgdGhlIHNlbGVjdCgpIG9wIGlz
-IG1hbmRhdG9yeSBmb3INCj4gbXV4ZXMuIFRoZSBBVFIsIGF0IGxlYXN0IGluIHRoZSBEUzkwVUI5
-eHggY2FzZSwgc2VsZWN0cyB0aGUgcG9ydA0KPiBhdXRvbWF0aWNhbGx5IGJhc2VkIG9uIHRoZSBz
-bGF2ZSBhZGRyZXNzLiBTbyBJIGFkZGVkIGFuIG9wdGlvbmFsDQo+IHNlbGVjdCgpIG9wIGluIHRo
-ZSBhdHIsIGJ1dCBJIHN1c3BlY3QgaXQncyB1c2VsZXNzIGZvciAicmVhbCIgQVRScy4NCj4gDQo+
-IE1vcmUgZGlmZmVyZW5jZXMgZGVyaXZlIGZyb20gaG93IExpbnV4IGltcGxlbWVudHMgbXV4ZXMu
-IFRoZSBpMmMtbXV4DQo+IGNvZGUgaGFzIHNldmVyYWwgZmxhZ3MgZm9yIGRpZmZlcmVudCBsb2Nr
-aW5nIHNjaGVtZXMsIGFuZCBpdCBoYXMgYQ0KDQpJdCdzIHR3byBsb2NraW5nIHNjaGVtZXMgaWYg
-eW91IGNvdW50IHRoZW0gY2FyZWZ1bGx5LCBzbyBzZXZlcmFsIGlzDQphIGJpdCBvZiBhbiBleGFn
-Z2VyYXRpb24uIEJ1dCBhZ3JlZWQsIHR3byBpcyBtb3JlIHRoYW4gSSBwcmVmZXIuDQoNCj4gZmFp
-cmx5IGNvbXBsZXggRFQgcGFyc2luZyBzY2hlbWUuIFRoZXNlIGFyZSBtb3N0bHkgYSBoaXN0b3Jp
-Y2FsIGJ1cmRlbi4NCj4gQWRkaW5nIHRoZSBBVFIgZmVhdHVyZXMgdG8gaTJjLW11eC5jIHdhcyB2
-ZXJ5IHRyaWNreSBhbmQgZXJyb3ItcHJvbmUgZHVlDQo+IHRvIGFsbCBvZiB0aGlzIGNvZGUsIHRo
-YXQncyB3aHkgSSBoYXZlIG1vdmVkIEFUUiB0byBpdHMgb3duIGZpbGUgaW4gUkZDdjIuDQoNCkFu
-eXdheSwgdGhlIGxvY2tpbmcgaW4gaTJjLW11eCBtYXkgYmUgY29tcGxleCwgYnV0IGl0IGRvZXMg
-c29sdmUgcmVhbA0KcHJvYmxlbXMuIFRoZSB3YXkgSSByZWFkIHRoaXMgc2VyaWVzLCB0aGVzZSBw
-cm9ibGVtcyBhcmUgbm90IGRlYWx0IHdpdGgNCmFuZCB0aGVyZWZvcmUgdGhlIEFUUiBjb2RlIHdp
-bGwgbm90IGZ1bmN0aW9uIGluIGFsbCBzdXJyb3VuZGluZ3MuDQoNClNvbWUgdGhpbmdzIHRvIHRo
-aW5rIGFib3V0Og0KLSBXaGF0IGhhcHBlbnMgd2hlbiB5b3UgcHV0IGEgbXV4IGJlaGluZCBhbiBB
-VFI/DQotIFdoYXQgaGFwcGVucyB3aGVuIHlvdSBwdXQgYW4gQVRSIGJlaGluZCBhIG11eD8NCi0g
-V2hhdCBoYXBwZW5zIHdoZW4geW91IHB1dCBhbiBBVFIgYmV0d2VlbiB0d28gbXV4ZXM/DQotIERv
-ZXMgaXQgbWFrZSBhIGRpZmZlcmVuY2UgaWYgdGhlIG11eCBpcyBwYXJlbnQtbG9ja2VkIG9yIG11
-eC1sb2NrZWQ/DQotIFdoYXQgaGFwcGVucyBpZiBjbGllbnQgZHJpdmVycyBsb2NrIHRoZSBhZGFw
-dGVyIGluIG9yZGVyIHRvIHNpbGVuY2UgdGhlDQogIGJ1cyBmb3Igc29tZSByZWFzb24gb3IgdG8g
-a2VlcCB0d28geGZlcnMgdG9nZXRoZXIgb3Igc29tZXRoaW5nLCBhbmQNCiAgdGhlbiBkbyB1bmxv
-Y2tlZCB4ZmVycz8NCi0gQ2FuIHlvdSBwdXQgYW4gQVRSIGJlaGluZCBhbm90aGVyIEFUUj8NCmV0
-Yw0KDQpJJ20gbm90IHNheWluZyB0aGF0IHRoZXNlIHRoaW5ncyBtdXN0IGJlIGhhbmRsZWQsIGFu
-ZCBtYXliZSB0aGV5IGFyZQ0KaGFuZGxlZCBhbHJlYWR5LCBhbmQgbWF5YmUgc29tZSBvZiB0aGUg
-Y29tYmluYXRpb25zIGFyZSBub3QgdmFsaWQgYXQNCmFsbC4gQnV0IHRoZSBwb3NzaWJpbGl0aWVz
-IGFuZCBsaW1pdGF0aW9ucyBzaG91bGQgYmUgdW5kZXJzdG9vZC4gQW5kDQpwcmVmZXJhYmx5IGRv
-Y3VtZW50ZWQuDQoNCk15IGd1dCBmZWVsaW5nICh3aXRob3V0IHNwZW5kaW5nIG11Y2ggdGltZSBv
-biBpdCkgaXMgdGhhdCBBVFIgYXMNCmltcGxlbWVudGVkIGluIHRoaXMgc2VyaWVzIGJlaGF2ZSBh
-cHByb3hpbWF0ZWx5IGxpa2UgbXV4LWxvY2tlZCBtdXhlcywNCm1lYW5pbmcgdGhhdCBpdCBpcyBu
-b3Qgb2J2aW91c2x5IHNhZmUgdG8gcHV0IGEgcGFyZW50LWxvY2tlZCBtdXggYmVoaW5kDQphbiBB
-VFIgYW5kIG1ha2luZyBpdCBpbXBvc3NpYmxlIGZvciBjbGllbnQgZGV2aWNlcyBiZWhpbmQgYW4g
-QVRSIHRvIGZvcmNlDQp4ZmVycyB0byBoYXBwZW4gYmFjay10by1iYWNrIGZyb20gdGhlIHJvb3Qg
-YWRhcHRlci4NCg0KQW5kIGZpbmFsbHksIEkgZmVlbCB0aGF0IGl0IGlzIG5vdCB3aXNlIHRvIGlu
-dHJvZHVjZSBhIHRoaXJkIGxvY2tpbmcNCnNjaGVtZSBpbiB0aGUgSTJDIHRvcG9sb2d5LiBJdCdz
-IGJhZCBlbm91Z2ggd2l0aCB0d28uIFdoeSBub3QgbWFrZSB0aGUNCkFUUiBsb2NraW5nIGV4YWN0
-bHkgbWF0Y2ggdGhlIG11eC1sb2NrZWQgc2NoZW1lIHRvIHJlZHVjZSB0aGUgbnVtYmVyDQpvZiBj
-YXNlcyBvbmUgbmVlZHMgdG8gY29uc2lkZXI/IEJ1dCBtYXliZSB0aGF0J3MganVzdCBtZT8NCg0K
-Q2hlZXJzLA0KUGV0ZXINCg==
+Hi,
+
+On 03-09-19 19:52, Wolfram Sang wrote:
+> On Tue, Aug 20, 2019 at 05:34:40PM +0200, Wolfram Sang wrote:
+>> No need to check the argument of i2c_unregister_device() because the
+>> function itself does it.
+>>
+>> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+>> ---
+> 
+> Hans, are you OK with this change?
+
+Yes this is fine by me:
+
+Acked-by: Hans de Goede <hdegoede@redhat.com>
+
+Regards,
+
+Hans
+
+
+> 
+>> Build tested only, buildbot is happy, too.
+>>
+>> Please apply to your tree.
+>>
+>>   drivers/i2c/busses/i2c-cht-wc.c | 3 +--
+>>   1 file changed, 1 insertion(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-wc.c
+>> index 66af44bfa67d..3e2608a65c06 100644
+>> --- a/drivers/i2c/busses/i2c-cht-wc.c
+>> +++ b/drivers/i2c/busses/i2c-cht-wc.c
+>> @@ -363,8 +363,7 @@ static int cht_wc_i2c_adap_i2c_remove(struct platform_device *pdev)
+>>   {
+>>   	struct cht_wc_i2c_adap *adap = platform_get_drvdata(pdev);
+>>   
+>> -	if (adap->client)
+>> -		i2c_unregister_device(adap->client);
+>> +	i2c_unregister_device(adap->client);
+>>   	i2c_del_adapter(&adap->adapter);
+>>   	irq_domain_remove(adap->irq_domain);
+>>   
+>> -- 
+>> 2.20.1
+>>
