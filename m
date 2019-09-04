@@ -1,65 +1,65 @@
-From: Ray Jui <ray.jui@broadcom.com>
-Subject: Re: [PATCH v1 1/1] i2c: iproc: Add i2c repeated start capability
-Date: Tue, 3 Sep 2019 16:11:16 -0700
-Message-ID: <540c4e2d-0dd5-5260-30b2-e1589b279d71@broadcom.com>
-References: <1565150941-27297-1-git-send-email-rayagonda.kokatanur@broadcom.com>
- <20190830125626.GC2870@ninjato>
- <3e70fa7e-de13-4edd-2e17-b7c56e91d220@broadcom.com>
- <20190831094940.GA1138@kunai>
+From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: Re: [PATCH] i2c: stm32f7: Make structure stm32f7_i2c_algo constant
+Date: Wed, 4 Sep 2019 09:47:07 +0200
+Message-ID: <662b171f-37e2-f58e-3e05-41a52737b1f3@st.com>
+References: <20190815055857.1944-1-nishkadg.linux@gmail.com>
+ <20190903180552.GI2171@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190831094940.GA1138@kunai>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190903180552.GI2171@ninjato>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Florian Fainelli <f.fainelli@gmail.com>, Lori Hikichi <lori.hikichi@broadcom.com>, Icarus Chau <icarus.chau@broadcom.com>, Shivaraj Shetty <sshetty1@broadcom.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Nishka Dasgupta <nishkadg.linux@gmail.com>
+Cc: alexandre.torgue@st.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, mcoquelin.stm32@gmail.com, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram
 
+Sorry for the delay.
 
-On 8/31/19 2:49 AM, Wolfram Sang wrote:
-> Hi Ray,
-> 
->>> With all the limitations in place, I wonder if it might be easier to
->>> implement an smbus_xfer callback instead? What is left that makes this
->>> controller more than SMBus and real I2C?
->>>
+Acked-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+
+BR
+
+On 9/3/19 8:05 PM, Wolfram Sang wrote:
+> On Thu, Aug 15, 2019 at 11:28:57AM +0530, Nishka Dasgupta wrote:
+>> Static structure stm32f7_i2c_algo, of type i2c_algorithm, is used only
+>> when it is assigned to constant field algo of a variable having type
+>> i2c_adapter. As stm32f7_i2c_algo is therefore never modified, make it
+>> const as well to protect it from unintended modification.
+>> Issue found with Coccinelle.
 >>
->> Right. But what is the implication of using smbus_xfer instead of
->> master_xfer in our driver?
+>> Signed-off-by: Nishka Dasgupta <nishkadg.linux@gmail.com>
+>> ---
+> 
+> Are you guys okay with this patch?
+> 
+>>  drivers/i2c/busses/i2c-stm32f7.c | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
 >>
->> Does it mean it will break existing functions of the i2c app that our
->> customers developed based on i2cdev (e.g., I2C_RDWR)?
-> 
-> If the customers uses I2C_RDWR (and it cannot be mapped to i2c_smbus_*
-> calls) then this is an indication that there is some I2C functionality
-> left which the HW can provide. I'd be interested which one, though.
-> 
+>> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+>> index 266d1c269b83..d36cf08461f7 100644
+>> --- a/drivers/i2c/busses/i2c-stm32f7.c
+>> +++ b/drivers/i2c/busses/i2c-stm32f7.c
+>> @@ -1809,7 +1809,7 @@ static u32 stm32f7_i2c_func(struct i2c_adapter *adap)
+>>  		I2C_FUNC_SMBUS_I2C_BLOCK;
+>>  }
+>>  
+>> -static struct i2c_algorithm stm32f7_i2c_algo = {
+>> +static const struct i2c_algorithm stm32f7_i2c_algo = {
+>>  	.master_xfer = stm32f7_i2c_xfer,
+>>  	.smbus_xfer = stm32f7_i2c_smbus_xfer,
+>>  	.functionality = stm32f7_i2c_func,
+>> -- 
+>> 2.19.1
 >>
->> 1) Does
-> 
-> Maybe you wanted to describe it here and it got accidently cut off? >
-
-I think you are right that the controller does not seem to support 
-additional I2C features in addition to SMBUS.
-
-However, my concern of switching to the smbus_xfer API is:
-
-1) Some customers might have used I2C_RDWR based API from i2cdev. 
-Changing from master_xfer to smbus_xfer may break the existing 
-applications that are already developed.
-
-2) The sound subsystem I2C regmap based implementation seems to be using 
-i2c_ based API instead of smbus_ based API. Does this mean this will 
-also break most of the audio codec drivers with I2C regmap API based usage?
-
-Thanks,
-
-Ray
-
-> Regards,
-> 
->     Wolfram
-> 
