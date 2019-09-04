@@ -1,80 +1,53 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH 1/2] i2c: qcom-geni: Provide an option to select FIFO
- processing
-Date: Wed, 4 Sep 2019 13:35:48 -0700
-Message-ID: <20190904203548.GC580@tuxbook-pro>
-References: <20190904113613.14997-1-lee.jones@linaro.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: cht-wc: drop check because i2c_unregister_device()
+ is NULL safe
+Date: Wed, 4 Sep 2019 23:12:03 +0200
+Message-ID: <20190904211203.GB23608@ninjato>
+References: <20190820153441.7693-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="aVD9QWMuhilNxW9f"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190904113613.14997-1-lee.jones@linaro.org>
+In-Reply-To: <20190820153441.7693-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: alokc@codeaurora.org, agross@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed 04 Sep 04:36 PDT 2019, Lee Jones wrote:
 
-The subject implies that we select FIFO mode instead of DMA, but that's
-not really true, because with DMA enabled we still fall back to FIFO for
-messages below 32 bytes. 
+--aVD9QWMuhilNxW9f
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-So what this does it to disable DMA, which neither the subject or the DT
-property describes.
+On Tue, Aug 20, 2019 at 05:34:40PM +0200, Wolfram Sang wrote:
+> No need to check the argument of i2c_unregister_device() because the
+> function itself does it.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Also missing is a description of why this is needed.
+Applied to for-next, thanks!
 
-Regards,
-Bjorn
 
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> ---
->  drivers/i2c/busses/i2c-qcom-geni.c | 14 ++++++++++----
->  1 file changed, 10 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-> index a89bfce5388e..dfdbce067827 100644
-> --- a/drivers/i2c/busses/i2c-qcom-geni.c
-> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
-> @@ -353,13 +353,16 @@ static void geni_i2c_tx_fsm_rst(struct geni_i2c_dev *gi2c)
->  static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
->  				u32 m_param)
->  {
-> +	struct device_node *np = gi2c->se.dev->of_node;
->  	dma_addr_t rx_dma;
->  	unsigned long time_left;
-> -	void *dma_buf;
-> +	void *dma_buf = NULL;
->  	struct geni_se *se = &gi2c->se;
->  	size_t len = msg->len;
->  
-> -	dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
-> +	if (!of_property_read_bool(np, "qcom,geni-se-fifo"))
-> +		dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
-> +
->  	if (dma_buf)
->  		geni_se_select_mode(se, GENI_SE_DMA);
->  	else
-> @@ -392,13 +395,16 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
->  static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
->  				u32 m_param)
->  {
-> +	struct device_node *np = gi2c->se.dev->of_node;
->  	dma_addr_t tx_dma;
->  	unsigned long time_left;
-> -	void *dma_buf;
-> +	void *dma_buf = NULL;
->  	struct geni_se *se = &gi2c->se;
->  	size_t len = msg->len;
->  
-> -	dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
-> +	if (!of_property_read_bool(np, "qcom,geni-se-fifo"))
-> +		dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
-> +
->  	if (dma_buf)
->  		geni_se_select_mode(se, GENI_SE_DMA);
->  	else
-> -- 
-> 2.17.1
-> 
+--aVD9QWMuhilNxW9f
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1wKKMACgkQFA3kzBSg
+KbYBDQ/8C7xWw763amsEzI5uNNh/GKrdnW5DZvBWQTN8XfrC5XZf45XAWdYENpcg
+aJ0PU0Sec+MuTg/QanFx+toiNG/4DjWBY2Aa8PGzWYSWrsXtMIWPyrZqPkVreecH
+5ySkJUnajWfMC442E63YZkUxgdB1GTsC+68QxHA0Imn0GkNrFRQuqwq1ugQ90k6r
+UUYZKRv1DIRmSvON1X3t4A+9HURpUimHGdGmfNDw6T//FnolEWI8QEM+R351H9sq
+jx0bCpe2HU0s4J36R1/kFvgvifxMMQ/qQCzswlkFVh5rkK0yeLWjLH2DVEfMV4rT
+Bb73wEZyCznj+/mdVd6yKDR7jLjWlW5qFbF/SDslkoMrrBIQ5UVtjH+MWEqhfW8a
+S/2ZlSR+fdHG2aWOGFxrquKGKocIEMY587wCtXLc7w0tpyRSYnPN2HJ5zw2utXGC
+b2zjB5pmJC+ri5WUM/O0oSIy6yJF7/lehksEjoJaHk07PBPpZNL/KBvKMrdkVyOQ
+/dkWqJD+R7IwS2Mq8sragO+3HD2HSiRKgVtQFojIu0uoQbSX2U/lYm/9LX34Sdri
+O3H7Fs/W1z9PsI0qDEzVEng79mfqHqA1TcFnKB/FJ5x1e0EM+fHGtrBXAj6nMwN/
+9SBAb3duuF35OuJiA0117kBh/T5iWxrITWtu77289rFRoCPDF1U=
+=+L1D
+-----END PGP SIGNATURE-----
+
+--aVD9QWMuhilNxW9f--
