@@ -1,72 +1,103 @@
-From: Saiyam Doshi <saiyamdoshi.in@gmail.com>
-Subject: [PATCH v2] i2c: muxes: pca9541: use BIT() macro
-Date: Thu, 5 Sep 2019 23:34:23 +0530
-Message-ID: <20190905180423.GA7477@SD>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RESEND v3 1/1] i2c: qcom-geni: Provide an option to disable DMA
+ processing
+Date: Thu, 5 Sep 2019 20:20:59 +0200
+Message-ID: <20190905182058.GA5281@kunai>
+References: <20190905144122.5689-1-lee.jones@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <20190905144122.5689-1-lee.jones@linaro.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux@roeck-us.net, peda@axentia.se
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: alokc@codeaurora.org, agross@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, bjorn.andersson@linaro.org, vkoul@kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Use bit mask macro BIT() for definition where appropriate.
 
-Signed-off-by: Saiyam Doshi <saiyamdoshi.in@gmail.com>
----
-Changes in v2:
-* Include linux/bits.h which defines BIT()
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- drivers/i2c/muxes/i2c-mux-pca9541.c | 29 +++++++++++++++--------------
- 1 file changed, 15 insertions(+), 14 deletions(-)
+On Thu, Sep 05, 2019 at 03:41:22PM +0100, Lee Jones wrote:
+> We have a production-level laptop (Lenovo Yoga C630) which is exhibiting
+> a rather horrific bug.  When I2C HID devices are being scanned for at
+> boot-time the QCom Geni based I2C (Serial Engine) attempts to use DMA.
+> When it does, the laptop reboots and the user never sees the OS.
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
-index 50e1fb4aedf5..c9b17a305bb5 100644
---- a/drivers/i2c/muxes/i2c-mux-pca9541.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
-@@ -16,6 +16,7 @@
-  * warranty of any kind, whether express or implied.
-  */
- 
-+#include <linux/bits.h>
- #include <linux/delay.h>
- #include <linux/device.h>
- #include <linux/i2c.h>
-@@ -42,20 +43,20 @@
- #define PCA9541_CONTROL		0x01
- #define PCA9541_ISTAT		0x02
- 
--#define PCA9541_CTL_MYBUS	(1 << 0)
--#define PCA9541_CTL_NMYBUS	(1 << 1)
--#define PCA9541_CTL_BUSON	(1 << 2)
--#define PCA9541_CTL_NBUSON	(1 << 3)
--#define PCA9541_CTL_BUSINIT	(1 << 4)
--#define PCA9541_CTL_TESTON	(1 << 6)
--#define PCA9541_CTL_NTESTON	(1 << 7)
--
--#define PCA9541_ISTAT_INTIN	(1 << 0)
--#define PCA9541_ISTAT_BUSINIT	(1 << 1)
--#define PCA9541_ISTAT_BUSOK	(1 << 2)
--#define PCA9541_ISTAT_BUSLOST	(1 << 3)
--#define PCA9541_ISTAT_MYTEST	(1 << 6)
--#define PCA9541_ISTAT_NMYTEST	(1 << 7)
-+#define PCA9541_CTL_MYBUS	BIT(0)
-+#define PCA9541_CTL_NMYBUS	BIT(1)
-+#define PCA9541_CTL_BUSON	BIT(2)
-+#define PCA9541_CTL_NBUSON	BIT(3)
-+#define PCA9541_CTL_BUSINIT	BIT(4)
-+#define PCA9541_CTL_TESTON	BIT(6)
-+#define PCA9541_CTL_NTESTON	BIT(7)
-+
-+#define PCA9541_ISTAT_INTIN	BIT(0)
-+#define PCA9541_ISTAT_BUSINIT	BIT(1)
-+#define PCA9541_ISTAT_BUSOK	BIT(2)
-+#define PCA9541_ISTAT_BUSLOST	BIT(3)
-+#define PCA9541_ISTAT_MYTEST	BIT(6)
-+#define PCA9541_ISTAT_NMYTEST	BIT(7)
- 
- #define BUSON		(PCA9541_CTL_BUSON | PCA9541_CTL_NBUSON)
- #define MYBUS		(PCA9541_CTL_MYBUS | PCA9541_CTL_NMYBUS)
--- 
-2.20.1
+$subject is still wrong. And a paragraph that you are/were debugging the
+root cause but to no avail so DMA gets disabled for now would be good for a
+hotfix this late in the cycle.
+
+>=20
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>  drivers/i2c/busses/i2c-qcom-geni.c | 12 ++++++++----
+>  1 file changed, 8 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-=
+qcom-geni.c
+> index a89bfce5388e..17abf60c94ae 100644
+> --- a/drivers/i2c/busses/i2c-qcom-geni.c
+> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+> @@ -355,11 +355,13 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev =
+*gi2c, struct i2c_msg *msg,
+>  {
+>  	dma_addr_t rx_dma;
+>  	unsigned long time_left;
+> -	void *dma_buf;
+> +	void *dma_buf =3D NULL;
+>  	struct geni_se *se =3D &gi2c->se;
+>  	size_t len =3D msg->len;
+> =20
+> -	dma_buf =3D i2c_get_dma_safe_msg_buf(msg, 32);
+> +	if (!of_machine_is_compatible("lenovo,yoga-c630"))
+> +		dma_buf =3D i2c_get_dma_safe_msg_buf(msg, 32);
+> +
+>  	if (dma_buf)
+>  		geni_se_select_mode(se, GENI_SE_DMA);
+>  	else
+> @@ -394,11 +396,13 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev =
+*gi2c, struct i2c_msg *msg,
+>  {
+>  	dma_addr_t tx_dma;
+>  	unsigned long time_left;
+> -	void *dma_buf;
+> +	void *dma_buf =3D NULL;
+>  	struct geni_se *se =3D &gi2c->se;
+>  	size_t len =3D msg->len;
+> =20
+> -	dma_buf =3D i2c_get_dma_safe_msg_buf(msg, 32);
+> +	if (!of_machine_is_compatible("lenovo,yoga-c630"))
+> +		dma_buf =3D i2c_get_dma_safe_msg_buf(msg, 32);
+> +
+>  	if (dma_buf)
+>  		geni_se_select_mode(se, GENI_SE_DMA);
+>  	else
+> --=20
+> 2.17.1
+>=20
+
+--zhXaljGHf11kAtnf
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl1xUgcACgkQFA3kzBSg
+KbYXzA/+LjS2mPdsksvarWH8VQNQdqsoNEIn5YCxhi5qXxi0KAdEp5Z3N04ZEOk3
+goSeO/4g2HCWM9myuZ9wunwRgK8ucOiSfkatKYPEKHg8buN9f3QfSlLfENIhtwKc
+yeNOJyakRyJnfzXpFVRmrrTWjJoLTS0ZhNgHFMPbR8cXu1sAW2tnvzYfUVLUBGP4
+w+3ldwl6wzRUvg49x4K4yGmsTJ5NQFPKJnTUUYUJ0IgetTRyGD/3HoEY6k3W12oo
+QenoRNh3MEd/HjG+sQYH1w01/86Oz5L0N5OFQoQtFwCR5fITMP4sjy30dB1/cvyr
+UzXWWfzzRV5Gbz1EodWPOS2dzPj4e8f5TRzKJa86GkPYcm6Fys4ifFWTCD6yxuTe
+A3o2ruGJwaIZ6ALxUAzLfSjbyb3ZKsCJ+JLUeMP7hnTrOI7umYHQKxiAXkC4gL1E
+CzAg3CA0BefETQ0vutbyGemZfq8ThJpFktldowciXZrxo55JoPIW2PNMn9YuLE+h
+7yxkc0NQB2Y1Pzzqyk8dcQrwDOS+4sEiGD2QEgAe7FdMqv181MA7XIH8C05Y/uqV
+gwBYxFuKCc7/dUfKBzHDi5EpWlwGIY7wGTvNzzOwn25+wmUOEidSa3SPuM6ozEnR
+Kc9uu4xw4ZB/1cne5zTkL0BDa14aJt4/lkcWV4TWrs7E6voy05k=
+=Z3pm
+-----END PGP SIGNATURE-----
+
+--zhXaljGHf11kAtnf--
