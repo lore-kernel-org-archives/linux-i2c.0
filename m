@@ -1,48 +1,58 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 2/2] i2c: qcom-geni: Provide an option to disable DMA
- processing
-Date: Thu, 5 Sep 2019 15:34:23 +0100
-Message-ID: <20190905143423.GG26880@dell>
-References: <20190905075213.13260-1-lee.jones@linaro.org>
- <20190905075213.13260-2-lee.jones@linaro.org>
- <20190905091800.GD1157@kunai>
- <20190905092816.GD26880@dell>
- <20190905134338.GF1157@kunai>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Subject: [RESEND v3 1/1] i2c: qcom-geni: Provide an option to disable DMA processing
+Date: Thu,  5 Sep 2019 15:41:22 +0100
+Message-ID: <20190905144122.5689-1-lee.jones@linaro.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190905134338.GF1157@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: alokc@codeaurora.org, agross@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, bjorn.andersson@linaro.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, vkoul@kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+To: alokc@codeaurora.org, agross@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, bjorn.andersson@linaro.org, vkoul@kernel.org, wsa@the-dreams.de
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 05 Sep 2019, Wolfram Sang wrote:
+We have a production-level laptop (Lenovo Yoga C630) which is exhibiting
+a rather horrific bug.  When I2C HID devices are being scanned for at
+boot-time the QCom Geni based I2C (Serial Engine) attempts to use DMA.
+When it does, the laptop reboots and the user never sees the OS.
 
-> On Thu, Sep 05, 2019 at 10:28:16AM +0100, Lee Jones wrote:
-> > On Thu, 05 Sep 2019, Wolfram Sang wrote:
-> > 
-> > > 
-> > > > Fixes: 8bc529b25354 ("soc: qcom: geni: Add support for ACPI")
-> > > 
-> > > Are you sure? From visual inspection, I don't see a correlation between
-> > > this commit and the fix here.
-> > 
-> > This patch should have been part of the commit, or at the very least,
-> > part of the set, alluded to above.  Unfortunately, I was carrying
-> > Bjorn's hack which simply returned early from geni_se_rx_dma_prep()
-> > with an error, so it masked the issue.
-> 
-> I still don't see why this basic ACPI enabling code (not touching DMA
-> but only clocks and pinctrl) causes and additional handling for DMA. Am
-> I overlooking something obvious?
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/i2c/busses/i2c-qcom-geni.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-Please ignore, I'm discussing with another patch in mind.
-
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index a89bfce5388e..17abf60c94ae 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -355,11 +355,13 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ {
+ 	dma_addr_t rx_dma;
+ 	unsigned long time_left;
+-	void *dma_buf;
++	void *dma_buf = NULL;
+ 	struct geni_se *se = &gi2c->se;
+ 	size_t len = msg->len;
+ 
+-	dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
++	if (!of_machine_is_compatible("lenovo,yoga-c630"))
++		dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
++
+ 	if (dma_buf)
+ 		geni_se_select_mode(se, GENI_SE_DMA);
+ 	else
+@@ -394,11 +396,13 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ {
+ 	dma_addr_t tx_dma;
+ 	unsigned long time_left;
+-	void *dma_buf;
++	void *dma_buf = NULL;
+ 	struct geni_se *se = &gi2c->se;
+ 	size_t len = msg->len;
+ 
+-	dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
++	if (!of_machine_is_compatible("lenovo,yoga-c630"))
++		dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
++
+ 	if (dma_buf)
+ 		geni_se_select_mode(se, GENI_SE_DMA);
+ 	else
 -- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.17.1
