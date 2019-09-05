@@ -1,58 +1,76 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [RESEND v3 1/1] i2c: qcom-geni: Provide an option to disable DMA processing
-Date: Thu,  5 Sep 2019 15:41:22 +0100
-Message-ID: <20190905144122.5689-1-lee.jones@linaro.org>
+From: Biwen Li <biwen.li@nxp.com>
+Subject: RE: [PATCH] ACPI: support for NXP i2c controller
+Date: Thu, 5 Sep 2019 15:04:59 +0000
+Message-ID: <DB7PR04MB449006447F52FBA418278E868FBB0@DB7PR04MB4490.eurprd04.prod.outlook.com>
+References: <20190711102601.20582-1-chuanhua.han@nxp.com>
+ <CAJZ5v0hY2sL+XfN_4v07_hjvoxgCAt+Q89+wNg5Pky6XKP-mqA@mail.gmail.com>
+ <CAHp75VfFtMMQhetRFHrx=Ft7OWwyMqLrwP3sPjT6YVtr8xCHoQ@mail.gmail.com>
+ <896b88d4-9d1b-922b-1784-55ef9a1a1830@pengutronix.de>
+ <AM7PR04MB6885DB03C6B96C7932DDA74B8EB90@AM7PR04MB6885.eurprd04.prod.outlook.com>
+ <DB7PR04MB4490E737C00CF9CA173AB2898FBB0@DB7PR04MB4490.eurprd04.prod.outlook.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <DB7PR04MB4490E737C00CF9CA173AB2898FBB0@DB7PR04MB4490.eurprd04.prod.outlook.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: alokc@codeaurora.org, agross@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, bjorn.andersson@linaro.org, vkoul@kernel.org, wsa@the-dreams.de
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
+To: "'andy.shevchenko@gmail.com'" <andy.shevchenko@gmail.com>, "'rafael@kernel.org'" <rafael@kernel.org>, Leo Li <leoyang.li@nxp.com>, Meenakshi Aggarwal <meenakshi.aggarwal@nxp.com>, Udit Kumar <udit.kumar@nxp.com>, "'wsa@the-dreams.de'" <wsa@the-dreams.de>, "'rjw@rjwysocki.net'" <rjw@rjwysocki.net>
+Cc: Chuanhua Han <chuanhua.han@nxp.com>, "'shawnguo@kernel.org'" <shawnguo@kernel.org>, "'s.hauer@pengutronix.de'" <s.hauer@pengutronix.de>, "'linux-acpi@vger.kernel.org'" <linux-acpi@vger.kernel.org>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'linux-i2c@vger.kernel.org'" <linux-i2c@vger.kernel.org>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-We have a production-level laptop (Lenovo Yoga C630) which is exhibiting
-a rather horrific bug.  When I2C HID devices are being scanned for at
-boot-time the QCom Geni based I2C (Serial Engine) attempts to use DMA.
-When it does, the laptop reboots and the user never sees the OS.
-
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/i2c/busses/i2c-qcom-geni.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index a89bfce5388e..17abf60c94ae 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -355,11 +355,13 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- {
- 	dma_addr_t rx_dma;
- 	unsigned long time_left;
--	void *dma_buf;
-+	void *dma_buf = NULL;
- 	struct geni_se *se = &gi2c->se;
- 	size_t len = msg->len;
- 
--	dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
-+	if (!of_machine_is_compatible("lenovo,yoga-c630"))
-+		dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
-+
- 	if (dma_buf)
- 		geni_se_select_mode(se, GENI_SE_DMA);
- 	else
-@@ -394,11 +396,13 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
- {
- 	dma_addr_t tx_dma;
- 	unsigned long time_left;
--	void *dma_buf;
-+	void *dma_buf = NULL;
- 	struct geni_se *se = &gi2c->se;
- 	size_t len = msg->len;
- 
--	dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
-+	if (!of_machine_is_compatible("lenovo,yoga-c630"))
-+		dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
-+
- 	if (dma_buf)
- 		geni_se_select_mode(se, GENI_SE_DMA);
- 	else
--- 
-2.17.1
+PiANCj4gPiBIaSwNCj4gPg0KPiA+IE9uIDAyLjA5LjE5IDIzOjE2LCBBbmR5IFNoZXZjaGVua28g
+d3JvdGU6DQo+ID4gPiBPbiBNb24sIFNlcCAyLCAyMDE5IGF0IDExOjU4IFBNIFJhZmFlbCBKLiBX
+eXNvY2tpDQo+ID4gPiA8cmFmYWVsQGtlcm5lbC5vcmc+DQo+ID4gd3JvdGU6DQo+ID4gPj4NCj4g
+PiA+PiBPbiBUaHUsIEp1bCAxMSwgMjAxOSBhdCAxMjozNSBQTSBDaHVhbmh1YSBIYW4NCj4gPiA+
+PiA8Y2h1YW5odWEuaGFuQG54cC5jb20+DQo+ID4gd3JvdGU6DQo+ID4gPj4+DQo+ID4gPj4+IEVu
+YWJsZSBOWFAgaTJjIGNvbnRyb2xsZXIgdG8gYm9vdCB3aXRoIEFDUEkNCj4gPiA+Pj4NCj4gPiA+
+Pj4gU2lnbmVkLW9mZi1ieTogTWVlbmFrc2hpIEFnZ2Fyd2FsIDxtZWVuYWtzaGkuYWdnYXJ3YWxA
+bnhwLmNvbT4NCj4gPiA+Pj4gU2lnbmVkLW9mZi1ieTogVWRpdCBLdW1hciA8dWRpdC5rdW1hckBu
+eHAuY29tPg0KPiA+ID4+PiBTaWduZWQtb2ZmLWJ5OiBDaHVhbmh1YSBIYW4gPGNodWFuaHVhLmhh
+bkBueHAuY29tPg0KPiA+ID4+DQo+ID4gPj4gV29sZnJhbSwgYW55IG9iamVjdGlvbnMgdG8gdGhp
+cyBmcm9tIHRoZSBpMmMgc2lkZT8NCj4gPiA+DQo+ID4gPiBNYXkgSSBwcm9wb3NlIGFtZW5kbWVu
+dChzKT8NCj4gPiA+DQo+ID4gPj4+IEBAIC00NCw2ICs0NCw3IEBADQo+ID4gPj4+ICAgI2luY2x1
+ZGUgPGxpbnV4L3BtX3J1bnRpbWUuaD4NCj4gPiA+Pj4gICAjaW5jbHVkZSA8bGludXgvc2NoZWQu
+aD4NCj4gPiA+Pj4gICAjaW5jbHVkZSA8bGludXgvc2xhYi5oPg0KPiA+ID4NCj4gPiA+Pj4gKyNp
+bmNsdWRlIDxsaW51eC9hY3BpLmg+DQo+ID4gPg0KPiA+ID4gSWYgaXQncyBrZXB0IGluIG9yZGVy
+LCBiZXR0ZXIgdG8gZ28gd2l0aCBpdC4gKFllcywgaXQgaXMgYXMgSSBoYXZlDQo+ID4gPiBjaGVj
+a2VkKSBIb3dldmVyLCBwcm9wZXJ0eS5oIHNob3VsZCBiZSBpbmNsdWRlZCBpbnN0ZWFkLCBzZWUg
+YmVsb3cuDQpPaywgZ290IGl0LiBJIHdpbGwgZml4IGl0IGluIHYyLg0KPiA+ID4NCj4gPiA+Pj4g
+ICAgICAgICAgY29uc3Qgc3RydWN0IG9mX2RldmljZV9pZCAqb2ZfaWQgPQ0KPiA+IG9mX21hdGNo
+X2RldmljZShpMmNfaW14X2R0X2lkcywNCj4gPiA+Pj4NCj4gPiA+Pj4gJnBkZXYtPmRldik7DQo+
+ID4gPj4+ICsgICAgICAgY29uc3Qgc3RydWN0IGFjcGlfZGV2aWNlX2lkICphY3BpX2lkID0NCj4g
+PiA+Pj4gKyAgICAgICAgICAgICAgICAgICAgICAgYWNwaV9tYXRjaF9kZXZpY2UoaTJjX2lteF9h
+Y3BpX2lkcywNCj4gPiA+Pj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgJnBkZXYtPmRldik7DQo+ID4gPg0KPiA+ID4NCj4gPiA+Pj4gICAgICAgICAgaWYgKG9mX2lk
+KQ0KPiA+ID4+PiAgICAgICAgICAgICAgICAgIGkyY19pbXgtPmh3ZGF0YSA9IG9mX2lkLT5kYXRh
+Ow0KPiA+ID4+PiArICAgICAgIGVsc2UgaWYgKGFjcGlfaWQpDQo+ID4gPj4+ICsgICAgICAgICAg
+ICAgICBpMmNfaW14LT5od2RhdGEgPSAoc3RydWN0IGlteF9pMmNfaHdkYXRhICopDQo+ID4gPj4+
+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYWNwaV9pZC0+ZHJpdmVyX2RhdGE7DQo+
+ID4gPg0KPiA+ID4NCj4gPiA+IFRoZSBhYm92ZSBhbHRvZ2hlciBtYXkgYmUgcmVwbGFjZWQgd2l0
+aA0KPiA+ID4NCj4gPiA+IGNvbnN0IHN0cnVjdCBpbXhfaTJjX2h3ZGF0YSAqbWF0Y2g7DQo+ID4g
+PiAuLi4NCj4gPiA+IG1hdGNoID0gZGV2aWNlX2dldF9tYXRjaF9kYXRhKCZwZGV2LT5kZXYpOw0K
+PiA+ID4gaWYgKG1hdGNoKQ0KPiA+ID4gICBpMmNfaW14LT5od2RhdGEgPSBtYXRjaDsNCj4gPiA+
+IGVsc2UNCj4gPiA+IC4uLg0KPiA+DQpPaywgSSB3aWxsIGNvcnJlY3QgaXQgaW4gdjIuDQo+ID4g
+SW5zdGVhZCBvZiAibWF5IGJlIHJlcGxhY2VkIiwgSSB3b3VsZCBzYXk6IGl0IHNob3VsZCBiZSBy
+ZXBsYWNlZCA6KQ0KPiA+DQo+ID4gPj4+ICsgICAgICAgICAgICAgICAuYWNwaV9tYXRjaF90YWJs
+ZSA9IEFDUElfUFRSKGkyY19pbXhfYWNwaV9pZHMpLA0KPiA+ID4NCj4gPiA+IFNpbmNlIHRoZXJl
+IGlzIG5vICNpZmRlZiBndWFyZCBubyBuZWVkIHRvIHVzZSBBQ1BJX1BUUigpLg0KPiA+ID4NCj4g
+Pg0KPiA+IFdoYXQgaU1YLyhvdGhlciBOWFA/KSBTb0NzIGFyZSB3aXRoIEFDUEkgc3VwcG9ydD8g
+IFdoZXJlIEkgY2FuIGdldA0KPiA+IG9uZT8gSSB3b3VsZCBsaWtlIHRvIGtub3cgbW9yZSBhYm91
+dCBpdC4NCj4gLSBOeHAgaGFzIHZhcmlldHkgU29jcywgaW5jbHVkZSBpLk1YLCBMYXllcnNjYXBl
+LCBldGMuDQo+IC0gWW91IGNhbiBnZXQgb25lIGZyb20gaGVyZQ0KPiBodHRwczovL3d3dy5ueHAu
+Y29tL2Rlc2lnbi9xb3JpcS1kZXZlbG9wZXItcmVzb3VyY2VzL3FvcmlxLWx4MjE2MGEtZGV2ZWxv
+DQo+IHBtZW50LWJvYXJkOkxYMjE2MEEtUkRCDQo+IA0KPiA+DQo+ID4gS2luZCByZWdhcmRzLA0K
+PiA+IE9sZWtzaWogUmVtcGVsDQo+ID4NCj4gPiAtLQ0KPiA+IFBlbmd1dHJvbml4IGUuSy4gICAg
+ICAgICAgICAgICAgICAgICAgICAgICB8DQo+ID4gfA0KPiA+IEluZHVzdHJpYWwgTGludXggU29s
+dXRpb25zICAgICAgICAgICAgICAgICB8DQo+ID4gaHR0cHM6Ly9ldXIwMS5zYWZlbGlua3MucHJv
+dGVjdGlvbi5vdXRsb29rLmNvbS8/dXJsPWh0dHAlM0ElMkYlMkZ3d3cucA0KPiA+IGUNCj4gbmd1
+dHJvbml4LmRlJTJGJmFtcDtkYXRhPTAyJTdDMDElN0NtZWVuYWtzaGkuYWdnYXJ3YWwlNDBueHAu
+Y29tJQ0KPiA+DQo+IDdDNjQwZWIwMTVhOTFmNDk1OWQzYjUwOGQ3MzAzMTY4ZmIlN0M2ODZlYTFk
+M2JjMmI0YzZmYTkyY2Q5OWM1Yw0KPiA+DQo+IDMwMTYzNSU3QzAlN0MwJTdDNjM3MDMwODYxMDc2
+ODc5OTM4JmFtcDtzZGF0YT1zUFd0a1Z0SEhEdm9SUg0KPiA+IFptV0p1aXBDTyUyQkV3RyUyQmN1
+cGdadmNJVjElMkJybEVZJTNEJmFtcDtyZXNlcnZlZD0wICB8DQo+IFBlaW5lciBTdHIuDQo+ID4g
+Ni04LCAzMTEzNyBIaWxkZXNoZWltLCBHZXJtYW55IHwgUGhvbmU6ICs0OS01MTIxLTIwNjkxNy0w
+DQo+ID4gfA0KPiA+IEFtdHNnZXJpY2h0IEhpbGRlc2hlaW0sIEhSQSAyNjg2ICAgICAgICAgICB8
+IEZheDoNCj4gPiArNDktNTEyMS0yMDY5MTctNTU1NSB8DQo=
