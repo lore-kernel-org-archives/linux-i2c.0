@@ -1,35 +1,72 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH] i2c: muxes: pca9541: use BIT() macro
-Date: Thu, 5 Sep 2019 09:53:35 -0700
-Message-ID: <20190905165335.GA23158@roeck-us.net>
-References: <20190905131318.GA21280@SD.eic.com>
- <1d248333-abe9-cff8-ad29-d3b618643dc6@roeck-us.net>
- <20190905154448.GA3378@SD>
+From: Saiyam Doshi <saiyamdoshi.in@gmail.com>
+Subject: [PATCH v2] i2c: muxes: pca9541: use BIT() macro
+Date: Thu, 5 Sep 2019 23:34:23 +0530
+Message-ID: <20190905180423.GA7477@SD>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190905154448.GA3378@SD>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Saiyam Doshi <saiyamdoshi.in@gmail.com>
-Cc: peda@axentia.se, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux@roeck-us.net, peda@axentia.se
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 05, 2019 at 09:15:36PM +0530, Saiyam Doshi wrote:
-> On Thu, Sep 05, 2019 at 06:21:06AM -0700, Guenter Roeck wrote:
-> > linux/bitops.h should be included when using BIT().
-> 
-> It's included from linux/i2c-mux.h and it compiled successfully.
-> But if it's needed I'll update the patch and resend.
-> 
-> Just a question - What is the best practice in such case? Should the 
-> header included explicitly?
-> 
+Use bit mask macro BIT() for definition where appropriate.
 
-process/submit-checklist.rst says, as very first point:
+Signed-off-by: Saiyam Doshi <saiyamdoshi.in@gmail.com>
+---
+Changes in v2:
+* Include linux/bits.h which defines BIT()
 
-1) If you use a facility then #include the file that defines/declares
-   that facility.  Don't depend on other header files pulling in ones
-   that you use.
+ drivers/i2c/muxes/i2c-mux-pca9541.c | 29 +++++++++++++++--------------
+ 1 file changed, 15 insertions(+), 14 deletions(-)
 
-Guenter
+diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+index 50e1fb4aedf5..c9b17a305bb5 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca9541.c
++++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+@@ -16,6 +16,7 @@
+  * warranty of any kind, whether express or implied.
+  */
+ 
++#include <linux/bits.h>
+ #include <linux/delay.h>
+ #include <linux/device.h>
+ #include <linux/i2c.h>
+@@ -42,20 +43,20 @@
+ #define PCA9541_CONTROL		0x01
+ #define PCA9541_ISTAT		0x02
+ 
+-#define PCA9541_CTL_MYBUS	(1 << 0)
+-#define PCA9541_CTL_NMYBUS	(1 << 1)
+-#define PCA9541_CTL_BUSON	(1 << 2)
+-#define PCA9541_CTL_NBUSON	(1 << 3)
+-#define PCA9541_CTL_BUSINIT	(1 << 4)
+-#define PCA9541_CTL_TESTON	(1 << 6)
+-#define PCA9541_CTL_NTESTON	(1 << 7)
+-
+-#define PCA9541_ISTAT_INTIN	(1 << 0)
+-#define PCA9541_ISTAT_BUSINIT	(1 << 1)
+-#define PCA9541_ISTAT_BUSOK	(1 << 2)
+-#define PCA9541_ISTAT_BUSLOST	(1 << 3)
+-#define PCA9541_ISTAT_MYTEST	(1 << 6)
+-#define PCA9541_ISTAT_NMYTEST	(1 << 7)
++#define PCA9541_CTL_MYBUS	BIT(0)
++#define PCA9541_CTL_NMYBUS	BIT(1)
++#define PCA9541_CTL_BUSON	BIT(2)
++#define PCA9541_CTL_NBUSON	BIT(3)
++#define PCA9541_CTL_BUSINIT	BIT(4)
++#define PCA9541_CTL_TESTON	BIT(6)
++#define PCA9541_CTL_NTESTON	BIT(7)
++
++#define PCA9541_ISTAT_INTIN	BIT(0)
++#define PCA9541_ISTAT_BUSINIT	BIT(1)
++#define PCA9541_ISTAT_BUSOK	BIT(2)
++#define PCA9541_ISTAT_BUSLOST	BIT(3)
++#define PCA9541_ISTAT_MYTEST	BIT(6)
++#define PCA9541_ISTAT_NMYTEST	BIT(7)
+ 
+ #define BUSON		(PCA9541_CTL_BUSON | PCA9541_CTL_NBUSON)
+ #define MYBUS		(PCA9541_CTL_MYBUS | PCA9541_CTL_NMYBUS)
+-- 
+2.20.1
