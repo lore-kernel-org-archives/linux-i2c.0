@@ -1,207 +1,129 @@
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
-Subject: [PATCH] i2c: uniphier(-f): remove all dev_dbg()
-Date: Thu,  5 Sep 2019 13:46:48 +0900
-Message-ID: <20190905044648.7632-1-yamada.masahiro@socionext.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 1/2] i2c: qcom-geni: Provide an option to select FIFO
+ processing
+Date: Thu, 5 Sep 2019 08:11:03 +0100
+Message-ID: <20190905071103.GX26880@dell>
+References: <20190904113613.14997-1-lee.jones@linaro.org>
+ <20190904203548.GC580@tuxbook-pro>
+ <20190904212337.GF23608@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190904212337.GF23608@ninjato>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>, alokc@codeaurora.org, agross@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-I have fixed various bugs, and these drivers are (I hope) pretty
-stable now. Remove all dev_dbg() for code clean-up.
+On Wed, 04 Sep 2019, Wolfram Sang wrote:
 
-If I end up with debugging the drivers again, I will locally revert
-this commit. I no longer need the debug code in upstream.
+> On Wed, Sep 04, 2019 at 01:35:48PM -0700, Bjorn Andersson wrote:
+> > On Wed 04 Sep 04:36 PDT 2019, Lee Jones wrote:
+> > 
+> > The subject implies that we select FIFO mode instead of DMA, but that's
+> > not really true, because with DMA enabled we still fall back to FIFO for
+> > messages below 32 bytes. 
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
----
+Do you mean, we fall back to DMA?
 
- drivers/i2c/busses/i2c-uniphier-f.c | 22 +---------------------
- drivers/i2c/busses/i2c-uniphier.c   | 18 +++---------------
- 2 files changed, 4 insertions(+), 36 deletions(-)
+> > So what this does it to disable DMA, which neither the subject or the DT
+> > property describes.
+> > 
+> > Also missing is a description of why this is needed.
+> 
+> Yes.
+> 
+> I am willing to help to get this resolved soonish. However, I have
+> issues with the approach.
+> 
+> It looks like a workaround to me. It would be interesting to hear which
+> I2C client breaks with DMA and if it's driver can't be fixed somehow
+> instead. But even if we agree on a workaround short term, adding a
+> binding for this workaround seems like a no-go to me. We have to live
+> with this binding forever. Sidenote: I could think of a generic
+> 'disable-dma' which could be reused everywhere but we probably won't get
+> that upstream that late in the cycle.
+> 
+> Is there no other way to disable DMA which is local to this driver so we
+> can easily revert the workaround later?
 
-diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
-index fc5354845ffa..4241aac79e7e 100644
---- a/drivers/i2c/busses/i2c-uniphier-f.c
-+++ b/drivers/i2c/busses/i2c-uniphier-f.c
-@@ -108,7 +108,6 @@ static void uniphier_fi2c_fill_txfifo(struct uniphier_fi2c_priv *priv,
- 		if (fifo_space-- <= 0)
- 			break;
- 
--		dev_dbg(&priv->adap.dev, "write data: %02x\n", *priv->buf);
- 		writel(*priv->buf++, priv->membase + UNIPHIER_FI2C_DTTX);
- 		priv->len--;
- 	}
-@@ -124,7 +123,6 @@ static void uniphier_fi2c_drain_rxfifo(struct uniphier_fi2c_priv *priv)
- 			break;
- 
- 		*priv->buf++ = readl(priv->membase + UNIPHIER_FI2C_DTRX);
--		dev_dbg(&priv->adap.dev, "read data: %02x\n", priv->buf[-1]);
- 		priv->len--;
- 	}
- }
-@@ -142,8 +140,6 @@ static void uniphier_fi2c_clear_irqs(struct uniphier_fi2c_priv *priv,
- 
- static void uniphier_fi2c_stop(struct uniphier_fi2c_priv *priv)
- {
--	dev_dbg(&priv->adap.dev, "stop condition\n");
--
- 	priv->enabled_irqs |= UNIPHIER_FI2C_INT_STOP;
- 	uniphier_fi2c_set_irqs(priv);
- 	writel(UNIPHIER_FI2C_CR_MST | UNIPHIER_FI2C_CR_STO,
-@@ -160,21 +156,15 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- 	irq_status = readl(priv->membase + UNIPHIER_FI2C_INT);
- 	irq_status &= priv->enabled_irqs;
- 
--	dev_dbg(&priv->adap.dev,
--		"interrupt: enabled_irqs=%04x, irq_status=%04x\n",
--		priv->enabled_irqs, irq_status);
--
- 	if (irq_status & UNIPHIER_FI2C_INT_STOP)
- 		goto complete;
- 
- 	if (unlikely(irq_status & UNIPHIER_FI2C_INT_AL)) {
--		dev_dbg(&priv->adap.dev, "arbitration lost\n");
- 		priv->error = -EAGAIN;
- 		goto complete;
- 	}
- 
- 	if (unlikely(irq_status & UNIPHIER_FI2C_INT_NA)) {
--		dev_dbg(&priv->adap.dev, "could not get ACK\n");
- 		priv->error = -ENXIO;
- 		if (priv->flags & UNIPHIER_FI2C_RD) {
- 			/*
-@@ -215,18 +205,14 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- 		if (unlikely(priv->flags & UNIPHIER_FI2C_MANUAL_NACK)) {
- 			if (priv->len <= UNIPHIER_FI2C_FIFO_SIZE &&
- 			    !(priv->flags & UNIPHIER_FI2C_BYTE_WISE)) {
--				dev_dbg(&priv->adap.dev,
--					"enable read byte count IRQ\n");
- 				priv->enabled_irqs |= UNIPHIER_FI2C_INT_RB;
- 				uniphier_fi2c_set_irqs(priv);
- 				priv->flags |= UNIPHIER_FI2C_BYTE_WISE;
- 			}
--			if (priv->len <= 1) {
--				dev_dbg(&priv->adap.dev, "set NACK\n");
-+			if (priv->len <= 1)
- 				writel(UNIPHIER_FI2C_CR_MST |
- 				       UNIPHIER_FI2C_CR_NACK,
- 				       priv->membase + UNIPHIER_FI2C_CR);
--			}
- 		}
- 
- 		goto handled;
-@@ -334,10 +320,6 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
- 	bool is_read = msg->flags & I2C_M_RD;
- 	unsigned long time_left, flags;
- 
--	dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, repeat=%d, stop=%d\n",
--		is_read ? "receive" : "transmit", msg->addr, msg->len,
--		repeat, stop);
--
- 	priv->len = msg->len;
- 	priv->buf = msg->buf;
- 	priv->enabled_irqs = UNIPHIER_FI2C_INT_FAULTS;
-@@ -359,7 +341,6 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
- 	else
- 		uniphier_fi2c_tx_init(priv, msg->addr, repeat);
- 
--	dev_dbg(&adap->dev, "start condition\n");
- 	/*
- 	 * For a repeated START condition, writing a slave address to the FIFO
- 	 * kicks the controller. So, the UNIPHIER_FI2C_CR register should be
-@@ -383,7 +364,6 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
- 		uniphier_fi2c_recover(priv);
- 		return -ETIMEDOUT;
- 	}
--	dev_dbg(&adap->dev, "complete\n");
- 
- 	if (unlikely(priv->flags & UNIPHIER_FI2C_DEFER_STOP_COMP)) {
- 		u32 status;
-diff --git a/drivers/i2c/busses/i2c-uniphier.c b/drivers/i2c/busses/i2c-uniphier.c
-index a6d7a3709051..0270090c0360 100644
---- a/drivers/i2c/busses/i2c-uniphier.c
-+++ b/drivers/i2c/busses/i2c-uniphier.c
-@@ -71,7 +71,6 @@ static int uniphier_i2c_xfer_byte(struct i2c_adapter *adap, u32 txdata,
- 	reinit_completion(&priv->comp);
- 
- 	txdata |= UNIPHIER_I2C_DTRM_IRQEN;
--	dev_dbg(&adap->dev, "write data: 0x%04x\n", txdata);
- 	writel(txdata, priv->membase + UNIPHIER_I2C_DTRM);
- 
- 	time_left = wait_for_completion_timeout(&priv->comp, adap->timeout);
-@@ -81,8 +80,6 @@ static int uniphier_i2c_xfer_byte(struct i2c_adapter *adap, u32 txdata,
- 	}
- 
- 	rxdata = readl(priv->membase + UNIPHIER_I2C_DREC);
--	dev_dbg(&adap->dev, "read data: 0x%04x\n", rxdata);
--
- 	if (rxdatap)
- 		*rxdatap = rxdata;
- 
-@@ -98,14 +95,11 @@ static int uniphier_i2c_send_byte(struct i2c_adapter *adap, u32 txdata)
- 	if (ret)
- 		return ret;
- 
--	if (unlikely(rxdata & UNIPHIER_I2C_DREC_LAB)) {
--		dev_dbg(&adap->dev, "arbitration lost\n");
-+	if (unlikely(rxdata & UNIPHIER_I2C_DREC_LAB))
- 		return -EAGAIN;
--	}
--	if (unlikely(rxdata & UNIPHIER_I2C_DREC_LRB)) {
--		dev_dbg(&adap->dev, "could not get ACK\n");
-+
-+	if (unlikely(rxdata & UNIPHIER_I2C_DREC_LRB))
- 		return -ENXIO;
--	}
- 
- 	return 0;
- }
-@@ -115,7 +109,6 @@ static int uniphier_i2c_tx(struct i2c_adapter *adap, u16 addr, u16 len,
- {
- 	int ret;
- 
--	dev_dbg(&adap->dev, "start condition\n");
- 	ret = uniphier_i2c_send_byte(adap, addr << 1 |
- 				     UNIPHIER_I2C_DTRM_STA |
- 				     UNIPHIER_I2C_DTRM_NACK);
-@@ -137,7 +130,6 @@ static int uniphier_i2c_rx(struct i2c_adapter *adap, u16 addr, u16 len,
- {
- 	int ret;
- 
--	dev_dbg(&adap->dev, "start condition\n");
- 	ret = uniphier_i2c_send_byte(adap, addr << 1 |
- 				     UNIPHIER_I2C_DTRM_STA |
- 				     UNIPHIER_I2C_DTRM_NACK |
-@@ -161,7 +153,6 @@ static int uniphier_i2c_rx(struct i2c_adapter *adap, u16 addr, u16 len,
- 
- static int uniphier_i2c_stop(struct i2c_adapter *adap)
- {
--	dev_dbg(&adap->dev, "stop condition\n");
- 	return uniphier_i2c_send_byte(adap, UNIPHIER_I2C_DTRM_STO |
- 				      UNIPHIER_I2C_DTRM_NACK);
- }
-@@ -173,9 +164,6 @@ static int uniphier_i2c_master_xfer_one(struct i2c_adapter *adap,
- 	bool recovery = false;
- 	int ret;
- 
--	dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, stop=%d\n",
--		is_read ? "receive" : "transmit", msg->addr, msg->len, stop);
--
- 	if (is_read)
- 		ret = uniphier_i2c_rx(adap, msg->addr, msg->len, msg->buf);
- 	else
+This is the most local low-impact solution (nomenclature aside).
+
+The beautiful thing about this approach is that, *if* the Geni SE DMA
+ever starts working, we can remove the C code and any old properties
+left in older DTs just become NOOP.  Older kernels with newer DTs
+(less of a priority) *still* won't work, but they don't work now
+anyway.
+
+NB: QCom have also made it pretty clear that DTBs *must* match their
+kernel version.  I know this is controversial amongst DT purists, but
+it's still how QCom operate.
+
+The offending line can be found at [0].  There is no obvious bug to
+fix and this code obviously works well on some of the hardware
+platforms using it.  But on our platform (Lenovo Yoga C630 - QCom
+SMD850) that final command, which initiates the DMA transaction, ends
+up rebooting the machine.
+
+With regards to the nomenclature, my original suggestion was
+'qcom,geni-se-no-dma'.  Would that better suit your request?
+
+[0] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/soc/qcom/qcom-geni-se.c#n644
+
+> > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > > ---
+> > >  drivers/i2c/busses/i2c-qcom-geni.c | 14 ++++++++++----
+> > >  1 file changed, 10 insertions(+), 4 deletions(-)
+> > > 
+> > > diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+> > > index a89bfce5388e..dfdbce067827 100644
+> > > --- a/drivers/i2c/busses/i2c-qcom-geni.c
+> > > +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+> > > @@ -353,13 +353,16 @@ static void geni_i2c_tx_fsm_rst(struct geni_i2c_dev *gi2c)
+> > >  static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+> > >  				u32 m_param)
+> > >  {
+> > > +	struct device_node *np = gi2c->se.dev->of_node;
+> > >  	dma_addr_t rx_dma;
+> > >  	unsigned long time_left;
+> > > -	void *dma_buf;
+> > > +	void *dma_buf = NULL;
+> > >  	struct geni_se *se = &gi2c->se;
+> > >  	size_t len = msg->len;
+> > >  
+> > > -	dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
+> > > +	if (!of_property_read_bool(np, "qcom,geni-se-fifo"))
+> > > +		dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
+> > > +
+> > >  	if (dma_buf)
+> > >  		geni_se_select_mode(se, GENI_SE_DMA);
+> > >  	else
+> > > @@ -392,13 +395,16 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+> > >  static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+> > >  				u32 m_param)
+> > >  {
+> > > +	struct device_node *np = gi2c->se.dev->of_node;
+> > >  	dma_addr_t tx_dma;
+> > >  	unsigned long time_left;
+> > > -	void *dma_buf;
+> > > +	void *dma_buf = NULL;
+> > >  	struct geni_se *se = &gi2c->se;
+> > >  	size_t len = msg->len;
+> > >  
+> > > -	dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
+> > > +	if (!of_property_read_bool(np, "qcom,geni-se-fifo"))
+> > > +		dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
+> > > +
+> > >  	if (dma_buf)
+> > >  		geni_se_select_mode(se, GENI_SE_DMA);
+> > >  	else
+
+
+
 -- 
-2.17.1
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
