@@ -1,138 +1,189 @@
-From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: Re: [RFC,v2 2/6] i2c: add I2C Address Translator (ATR) support
-Date: Mon, 9 Sep 2019 18:48:56 +0100
-Message-ID: <152384b8-c0a8-e6fe-9a1f-52caf00533de@lucaceresoli.net>
-References: <20190723203723.11730-1-luca@lucaceresoli.net>
- <20190723203723.11730-3-luca@lucaceresoli.net>
- <20190901143101.humomdehy5ee73sk@vino>
- <aedad45b-16d6-d189-b045-329727440ca5@mleia.com> <20190909072232.GA990@kunai>
- <8af9a049-06b9-dbe8-827b-5134d20e9435@mleia.com>
+From: Jon Hunter <jonathanh@nvidia.com>
+Subject: [PATCH] i2c: tegra: Move suspend handling to NOIRQ phase
+Date: Tue, 10 Sep 2019 10:29:17 +0100
+Message-ID: <20190910092917.29901-1-jonathanh@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <8af9a049-06b9-dbe8-827b-5134d20e9435@mleia.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Vladimir Zapolskiy <vz@mleia.com>, Wolfram Sang <wsa@the-dreams.de>, jacopo mondi <jacopo@jmondi.org>, Peter Rosin <peda@axentia.se>
-Cc: linux-media@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Kieran Bingham <kieran.bingham@ideasonboard.com>
+To: Wolfram Sang <wsa@the-dreams.de>, Laxman Dewangan <ldewangan@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Vladimir,
+Commit acc8abcb2a9c ("i2c: tegra: Add suspend-resume support") added
+suspend support for the Tegra I2C driver and following this change on
+Tegra30 the following WARNING is seen on entering suspend ...
 
-On 09/09/19 16:10, Vladimir Zapolskiy wrote:
-> Hi Wolfram,
-> 
-> On 09/09/2019 10:22 AM, Wolfram Sang wrote:
->> Hi Vladimir,
->>
->>> I won't attend the LPC, however I would appreciate if you book some
->>
->> A pity. I would have liked to have you in the room. Let's see if we can
->> get enough input from you via mail here.
->>
-> 
-> if it might help, I'll attend the Embedded Recipes and ELCE conferences
-> this year.
-> 
->>> time to review my original / alternative implementation of the TI
->>> DS90Ux9xx I2C bridge device driver.
->>
->> We have only 45 minutes, this will not allow to review specific
->> implementations. I want to give an overview of existing implementations
->> with pros/cons...
->>
-> 
-> Sure! Any shared summary/opinions are greatly welcome.
-> 
->>> The reasons why my driver is better/more flexible/more functional are
->>> discussed earlier, please let me know, if you expect anything else
->>> from me to add, also I would be happy to get a summary of your offline
->>> discussion.
->>
->> ... and I'd appreciate support here from you, like your summary of the
->> back then discussion (from where I can dive deeper if needed).
->>
->> Also, with Luca's new series we discussed some scenarios which can
->> happen WRT to I2C address conflicts. Maybe you could comment on them,
->> too?
-> 
-> I do remember I've commented on the Luca's suggestion of using dynamic
-> I2C addresses from a pool (the introduced "i2c-alias-pool" property).
-> 
-> I have to scrutinize it in Luca's v2, but then it might happen that the
-> userspace won't know to which IC on the remote side it communicates to.
+ WARNING: CPU: 2 PID: 689 at /dvs/git/dirty/git-master_l4t-upstream/kernel/drivers/i2c/i2c-core.h:54 __i2c_transfer+0x35c/0x70c
+ i2c i2c-4: Transfer while suspended
+ Modules linked in: brcmfmac brcmutil
+ CPU: 2 PID: 689 Comm: rtcwake Not tainted 5.3.0-rc7-g089cf7f6ecb2 #1
+ Hardware name: NVIDIA Tegra SoC (Flattened Device Tree)
+ [<c0112264>] (unwind_backtrace) from [<c010ca94>] (show_stack+0x10/0x14)
+ [<c010ca94>] (show_stack) from [<c0a77024>] (dump_stack+0xb4/0xc8)
+ [<c0a77024>] (dump_stack) from [<c0124198>] (__warn+0xe0/0xf8)
+ [<c0124198>] (__warn) from [<c01241f8>] (warn_slowpath_fmt+0x48/0x6c)
+ [<c01241f8>] (warn_slowpath_fmt) from [<c06f6c40>] (__i2c_transfer+0x35c/0x70c)
+ [<c06f6c40>] (__i2c_transfer) from [<c06f7048>] (i2c_transfer+0x58/0xf4)
+ [<c06f7048>] (i2c_transfer) from [<c06f7130>] (i2c_transfer_buffer_flags+0x4c/0x70)
+ [<c06f7130>] (i2c_transfer_buffer_flags) from [<c05bee78>] (regmap_i2c_write+0x14/0x30)
+ [<c05bee78>] (regmap_i2c_write) from [<c05b9cac>] (_regmap_raw_write_impl+0x35c/0x868)
+ [<c05b9cac>] (_regmap_raw_write_impl) from [<c05b984c>] (_regmap_update_bits+0xe4/0xec)
+ [<c05b984c>] (_regmap_update_bits) from [<c05bad04>] (regmap_update_bits_base+0x50/0x74)
+ [<c05bad04>] (regmap_update_bits_base) from [<c04d453c>] (regulator_disable_regmap+0x44/0x54)
+ [<c04d453c>] (regulator_disable_regmap) from [<c04cf9d4>] (_regulator_do_disable+0xf8/0x268)
+ [<c04cf9d4>] (_regulator_do_disable) from [<c04d1694>] (_regulator_disable+0xf4/0x19c)
+ [<c04d1694>] (_regulator_disable) from [<c04d1770>] (regulator_disable+0x34/0x64)
+ [<c04d1770>] (regulator_disable) from [<c04d2310>] (regulator_bulk_disable+0x28/0xb4)
+ [<c04d2310>] (regulator_bulk_disable) from [<c0495cd4>] (tegra_pcie_power_off+0x64/0xa8)
+ [<c0495cd4>] (tegra_pcie_power_off) from [<c0495f74>] (tegra_pcie_pm_suspend+0x25c/0x3f4)
+ [<c0495f74>] (tegra_pcie_pm_suspend) from [<c05af48c>] (dpm_run_callback+0x38/0x1d4)
+ [<c05af48c>] (dpm_run_callback) from [<c05afe30>] (__device_suspend_noirq+0xc0/0x2b8)
+ [<c05afe30>] (__device_suspend_noirq) from [<c05b1c24>] (dpm_noirq_suspend_devices+0x100/0x37c)
+ [<c05b1c24>] (dpm_noirq_suspend_devices) from [<c05b1ebc>] (dpm_suspend_noirq+0x1c/0x48)
+ [<c05b1ebc>] (dpm_suspend_noirq) from [<c017d2c0>] (suspend_devices_and_enter+0x1d0/0xa00)
+ [<c017d2c0>] (suspend_devices_and_enter) from [<c017dd10>] (pm_suspend+0x220/0x74c)
+ [<c017dd10>] (pm_suspend) from [<c017c2c8>] (state_store+0x6c/0xc8)
+ [<c017c2c8>] (state_store) from [<c02ef398>] (kernfs_fop_write+0xe8/0x1c4)
+ [<c02ef398>] (kernfs_fop_write) from [<c0271e38>] (__vfs_write+0x2c/0x1c4)
+ [<c0271e38>] (__vfs_write) from [<c02748dc>] (vfs_write+0xa4/0x184)
+ [<c02748dc>] (vfs_write) from [<c0274b7c>] (ksys_write+0x9c/0xdc)
+ [<c0274b7c>] (ksys_write) from [<c0101000>] (ret_fast_syscall+0x0/0x54)
+ Exception stack(0xe9f21fa8 to 0xe9f21ff0)
+ 1fa0:                   0000006c 004b2438 00000004 004b2438 00000004 00000000
+ 1fc0: 0000006c 004b2438 004b1228 00000004 00000004 00000004 0049e78c 004b1228
+ 1fe0: 00000004 be9809b8 b6f0bc0b b6e96206
 
-I think you suspect this because the assigned alias is
-non-deterministic, so you might end up in writing to the wrong alias.
-Well, this is not possible because the user is not supposed to know the
-alias at all. Let's say you have two identical eeproms on remote port 0,
-with physical addresses 0x50 and 0x51. Then, with my RFCv2 code, you'll
-access them with physical numbers, not the alias:
+The problem is that the Tegra PCIe driver indirectly uses I2C for
+controlling some regulators and the I2C driver is now being suspended
+before the PCIe driver causing the PCIe suspend to fail. The Tegra PCIe
+driver is suspended during the NOIRQ phase and this cannot be changed
+due to other dependencies. Therefore, we also need to move the suspend
+handling for the Tegra I2C driver to the NOIRQ phase as well.
 
-# i2cdetect -l
-i2c-0	i2c   	amba:camera-i2c@0      I2C adapter
-i2c-4	i2c   	i2c-0-atr-0            I2C adapter
-i2c-5	i2c   	i2c-0-atr-1            I2C adapter
-# hexdump /sys/bus/i2c/devices/4-0050/eeprom
-0000000 ffff ffff ffff ffff ffff ffff ffff ffff
-*
-0000100
-# hexdump /sys/bus/i2c/devices/4-0051/eeprom
-0000000 0001 0203 0405 0607 0809 0a0b 0c0d 0e0f
-*
-0000100
-#
+In order to move the I2C suspend handling to the NOIRQ phase we also
+need to avoid calling pm_runtime_get/put() because per commit
+1e2ef05bb8cf ("PM: Limit race conditions between runtime PM and system
+sleep (v2)") these cannot be called early in resume. The function
+tegra_i2c_init(), called during resume, calls pm_runtime_get/put() and
+so move these calls outside of tegra_i2c_init(), so this function can
+be used during the NOIRQ resume phase.
 
-Here i2c-0 is the "local" bus, i2c-4 and i2c-5 are the remote busses on
-ports 0 and 1. As you can see the eeproms are accessed using a name like
-"4-0050", meaning physical slave address 0x50 on bus 4. No alias is needed.
+Fixes: acc8abcb2a9c ("i2c: tegra: Add suspend-resume support")
 
-Should you want to know the alias, perhaps for debugging (it's the
-address you'll see on your logic analyzer), they are shown in the kernel
-log.
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+---
+ drivers/i2c/busses/i2c-tegra.c | 40 +++++++++++++++++++---------------
+ 1 file changed, 22 insertions(+), 18 deletions(-)
 
-Does this reply to your concern?
-
->> As I read the old thread, you have a hardcoded aliases using
->> "ti,i2c-bridge-maps". This means you can't have own DTSI files for e.g.
->> add-on modules, do I get this correctly?
->>
-> 
-> Basically hardcoding of aliases completely resolves the highlighted
-> above problem. Still it is possible to have own DTSI files for the FPD
-> link detachable PCBs, and this is an exceptionally important scenario,
-> however some limitations shall be applied:
-> * dt overlays for "local" derializer/deserializer ICs, it's a generic
->   and universal solution, it is successfully used in the field,
-> * only "compatible" PCBs are supposed to be connected (same set of I2C
->   devices/addresses on every such PCB), this is imperfect for sure,
-> * "ti,i2c-bridge-maps" list is excessive to cover "almost compatible"
->   (in the sense from above) PCBs, some of the missed alias matches
->   just won't instantiate a driver, this is of course also imperfect.
-> 
-> In general nothing critical should happen, if some I2C device on the
-> remote side is simply not probed in runtime, in opposite you can imagine
-> that writing for instance to another EEPROM of two on the remote side
-> could be harmful.
-> 
-> Any technically better solution to the two given approaches (from Luca
-> and from me) is more than appreciated. For non-dynamic/fixed local and
-> remote PCBs the fixed mapping is better, the dynamic case is covered
-> by the dt overlays, why not?
-> 
-> As a side note please do remember that the I2C bridging on Maxim GMSL
-> and TI DS90Ux9xx are different, the former one is a real mux, and the
-> latter one is not, I'm uncertain if it's reasonable to think of a
-> generalized solution which covers both IC series, so likely we
-> have to review the developed solutions for them separately instead
-> of trying to work out a combined one.
-> 
-> --
-> Best wishes,
-> Vladimir
-> 
-
-
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 18f0ceed9f1b..c1683f9338b4 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -713,12 +713,6 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev, bool clk_reinit)
+ 	u32 tsu_thd;
+ 	u8 tlow, thigh;
+ 
+-	err = pm_runtime_get_sync(i2c_dev->dev);
+-	if (err < 0) {
+-		dev_err(i2c_dev->dev, "runtime resume failed %d\n", err);
+-		return err;
+-	}
+-
+ 	reset_control_assert(i2c_dev->rst);
+ 	udelay(2);
+ 	reset_control_deassert(i2c_dev->rst);
+@@ -772,7 +766,7 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev, bool clk_reinit)
+ 		if (err) {
+ 			dev_err(i2c_dev->dev,
+ 				"failed changing clock rate: %d\n", err);
+-			goto err;
++			return err;
+ 		}
+ 	}
+ 
+@@ -787,23 +781,21 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev, bool clk_reinit)
+ 
+ 	err = tegra_i2c_flush_fifos(i2c_dev);
+ 	if (err)
+-		goto err;
++		return err;
+ 
+ 	if (i2c_dev->is_multimaster_mode && i2c_dev->hw->has_slcg_override_reg)
+ 		i2c_writel(i2c_dev, I2C_MST_CORE_CLKEN_OVR, I2C_CLKEN_OVERRIDE);
+ 
+ 	err = tegra_i2c_wait_for_config_load(i2c_dev);
+ 	if (err)
+-		goto err;
++		return err;
+ 
+ 	if (i2c_dev->irq_disabled) {
+ 		i2c_dev->irq_disabled = false;
+ 		enable_irq(i2c_dev->irq);
+ 	}
+ 
+-err:
+-	pm_runtime_put(i2c_dev->dev);
+-	return err;
++	return 0;
+ }
+ 
+ static int tegra_i2c_disable_packet_mode(struct tegra_i2c_dev *i2c_dev)
+@@ -1616,12 +1608,14 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	pm_runtime_enable(&pdev->dev);
+-	if (!pm_runtime_enabled(&pdev->dev)) {
++	if (!pm_runtime_enabled(&pdev->dev))
+ 		ret = tegra_i2c_runtime_resume(&pdev->dev);
+-		if (ret < 0) {
+-			dev_err(&pdev->dev, "runtime resume failed\n");
+-			goto unprepare_div_clk;
+-		}
++	else
++		ret = pm_runtime_get_sync(i2c_dev->dev);
++
++	if (ret < 0) {
++		dev_err(&pdev->dev, "runtime resume failed\n");
++		goto unprepare_div_clk;
+ 	}
+ 
+ 	if (i2c_dev->is_multimaster_mode) {
+@@ -1666,6 +1660,8 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto release_dma;
+ 
++	pm_runtime_put(&pdev->dev);
++
+ 	return 0;
+ 
+ release_dma:
+@@ -1725,17 +1721,25 @@ static int __maybe_unused tegra_i2c_resume(struct device *dev)
+ 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+ 	int err;
+ 
++	err = tegra_i2c_runtime_resume(dev);
++	if (err)
++		return err;
++
+ 	err = tegra_i2c_init(i2c_dev, false);
+ 	if (err)
+ 		return err;
+ 
++	err = tegra_i2c_runtime_suspend(dev);
++	if (err)
++		return err;
++
+ 	i2c_mark_adapter_resumed(&i2c_dev->adapter);
+ 
+ 	return 0;
+ }
+ 
+ static const struct dev_pm_ops tegra_i2c_pm = {
+-	SET_SYSTEM_SLEEP_PM_OPS(tegra_i2c_suspend, tegra_i2c_resume)
++	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(tegra_i2c_suspend, tegra_i2c_resume)
+ 	SET_RUNTIME_PM_OPS(tegra_i2c_runtime_suspend, tegra_i2c_runtime_resume,
+ 			   NULL)
+ };
 -- 
-Luca
+2.17.1
