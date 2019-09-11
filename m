@@ -1,7 +1,8 @@
 From: <Eugen.Hristev@microchip.com>
-Subject: [PATCH v5 4/9] i2c: at91: add new platform support for sam9x60
-Date: Wed, 11 Sep 2019 08:24:25 +0000
-Message-ID: <1568189911-31641-5-git-send-email-eugen.hristev@microchip.com>
+Subject: [PATCH v5 2/9] dt-bindings: i2c: add bindings for i2c analog and
+ digital filter
+Date: Wed, 11 Sep 2019 08:24:20 +0000
+Message-ID: <1568189911-31641-3-git-send-email-eugen.hristev@microchip.com>
 References: <1568189911-31641-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -16,43 +17,51 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Eugen Hristev <eugen.hristev@microchip.com>
 
-Add new platform data support for the sam9x60 SoC
+Some i2c controllers have a built-in digital or analog filter.
+This is specifically required depending on the hardware PCB/board.
+Some controllers also allow specifying the maximum width of the
+spikes that can be filtered for digital filter. The width length can be
+specified in nanoseconds.
+Analog filters can be configured to have a cutoff frequency (low-pass filte=
+r).
+This frequency can be specified in Hz.
+Added an optional property for such types of analog filters.
 
 Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
 ---
- drivers/i2c/busses/i2c-at91-core.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ Documentation/devicetree/bindings/i2c/i2c.txt | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-at91-core.c b/drivers/i2c/busses/i2c-at=
-91-core.c
-index 435c7d7..caf1846 100644
---- a/drivers/i2c/busses/i2c-at91-core.c
-+++ b/drivers/i2c/busses/i2c-at91-core.c
-@@ -148,6 +148,14 @@ static struct at91_twi_pdata sama5d2_config =3D {
- 	.has_hold_field =3D true,
- };
+diff --git a/Documentation/devicetree/bindings/i2c/i2c.txt b/Documentation/=
+devicetree/bindings/i2c/i2c.txt
+index 44efafd..9a53df4 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c.txt
+@@ -55,6 +55,24 @@ wants to support one of the below features, it should ad=
+apt the bindings below.
+ 	Number of nanoseconds the SDA signal takes to fall; t(f) in the I2C
+ 	specification.
 =20
-+static struct at91_twi_pdata sam9x60_config =3D {
-+	.clk_max_div =3D 7,
-+	.clk_offset =3D 4,
-+	.has_unre_flag =3D true,
-+	.has_alt_cmd =3D true,
-+	.has_hold_field =3D true,
-+};
++- i2c-analog-filter
++	Enable analog filter for i2c lines.
 +
- static const struct of_device_id atmel_twi_dt_ids[] =3D {
- 	{
- 		.compatible =3D "atmel,at91rm9200-i2c",
-@@ -174,6 +182,9 @@ static const struct of_device_id atmel_twi_dt_ids[] =3D=
- {
- 		.compatible =3D "atmel,sama5d2-i2c",
- 		.data =3D &sama5d2_config,
- 	}, {
-+		.compatible =3D "microchip,sam9x60-i2c",
-+		.data =3D &sam9x60_config,
-+	}, {
- 		/* sentinel */
- 	}
- };
++- i2c-digital-filter
++	Enable digital filter for i2c lines.
++
++- i2c-digital-filter-width-ns
++	Width of spikes which can be filtered by digital filter
++	(i2c-digital-filter). This width is specified in nanoseconds.
++
++- i2c-analog-filter-cutoff-frequency
++	Frequency that the analog filter (i2c-analog-filter) uses to distinguish
++	which signal to filter. Signal with higher frequency than specified will
++	be filtered out. Only lower frequency will pass (this is applicable to
++	a low-pass analog filter). Typical value should be above the normal
++	i2c bus clock frequency (clock-frequency).
++	Specified in Hz.
++
+ - interrupts
+ 	interrupts used by the device.
+=20
 --=20
 2.7.4
