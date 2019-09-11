@@ -1,87 +1,48 @@
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Subject: [PATCH] i2c: at91: Send bus clear command if SCL or SDA is down
-Date: Wed, 11 Sep 2019 12:58:54 +0300
-Message-ID: <20190911095854.5141-1-codrin.ciubotariu@microchip.com>
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: Re: [BACKPORT 4.14.y 03/18] drm/omap: panel-dsi-cm: fix driver
+Date: Wed, 11 Sep 2019 05:48:55 -0600
+Message-ID: <CANLsYkzE+Qnb4v-WQMy1OYQOdwjXhjPAdD7gWnChmVTQNcxs+A@mail.gmail.com>
+References: <20190905161759.28036-1-mathieu.poirier@linaro.org>
+ <20190905161759.28036-4-mathieu.poirier@linaro.org> <20190910143459.GC3362@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, wsa@the-dreams.de, Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20190910143459.GC3362@kroah.com>
+Sender: stable-owner@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: "# 4 . 7" <stable@vger.kernel.org>, linux-usb@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-pm@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-pci@vger.kernel.org, linux-mtd@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-After a transfer timeout, some faulty I2C slave devices might hold down
-the SCL or the SDA pins. We can generate a bus clear command, hoping that
-the slave might release the pins.
+On Tue, 10 Sep 2019 at 08:35, Greg KH <greg@kroah.com> wrote:
+>
+> On Thu, Sep 05, 2019 at 10:17:44AM -0600, Mathieu Poirier wrote:
+> > From: Tony Lindgren <tony@atomide.com>
+> >
+> > commit e128310ddd379b0fdd21dc41d176c3b3505a0832 upstream
+> >
+> > This adds support for get_timings() and check_timings()
+> > to get the driver working and properly initializes the
+> > timing information from DT.
+> >
+> > Signed-off-by: Tony Lindgren <tony@atomide.com>
+> > Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+> > Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+> > Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+> > ---
+> >  .../gpu/drm/omapdrm/displays/panel-dsi-cm.c   | 56 +++++++++++++++++--
+> >  1 file changed, 51 insertions(+), 5 deletions(-)
+>
+> THis looks like a "new feature", right?  Why is this a stable patch?
 
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
----
- drivers/i2c/busses/i2c-at91-master.c | 20 ++++++++++++++++++++
- drivers/i2c/busses/i2c-at91.h        |  6 +++++-
- 2 files changed, 25 insertions(+), 1 deletion(-)
+I thought it was part of 4.19.y but looking at it again I see that it
+is there as part of the mainline base rather than a backport.
 
-diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
-index a3fcc35ffd3b..5f544a16db96 100644
---- a/drivers/i2c/busses/i2c-at91-master.c
-+++ b/drivers/i2c/busses/i2c-at91-master.c
-@@ -599,6 +599,26 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 		at91_twi_write(dev, AT91_TWI_CR,
- 			       AT91_TWI_THRCLR | AT91_TWI_LOCKCLR);
- 	}
-+
-+	/*
-+	 * After timeout, some faulty I2C slave devices might hold SCL/SDA down;
-+	 * we can send a bus clear command, hoping that the pins will be
-+	 * released
-+	 */
-+	if (!(dev->transfer_status & AT91_TWI_SDA) ||
-+	    !(dev->transfer_status & AT91_TWI_SCL)) {
-+		dev_dbg(dev->dev,
-+			"SDA/SCL are down; sending bus clear command\n");
-+		if (dev->use_alt_cmd) {
-+			unsigned int acr;
-+
-+			acr = at91_twi_read(dev, AT91_TWI_ACR);
-+			acr &= ~AT91_TWI_ACR_DATAL_MASK;
-+			at91_twi_write(dev, AT91_TWI_ACR, acr);
-+		}
-+		at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_CLEAR);
-+	}
-+
- 	return ret;
- }
- 
-diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
-index 499b506f6128..ffb870f3ffc6 100644
---- a/drivers/i2c/busses/i2c-at91.h
-+++ b/drivers/i2c/busses/i2c-at91.h
-@@ -36,6 +36,7 @@
- #define	AT91_TWI_SVDIS		BIT(5)	/* Slave Transfer Disable */
- #define	AT91_TWI_QUICK		BIT(6)	/* SMBus quick command */
- #define	AT91_TWI_SWRST		BIT(7)	/* Software Reset */
-+#define	AT91_TWI_CLEAR		BIT(15) /* Bus clear command */
- #define	AT91_TWI_ACMEN		BIT(16) /* Alternative Command Mode Enable */
- #define	AT91_TWI_ACMDIS		BIT(17) /* Alternative Command Mode Disable */
- #define	AT91_TWI_THRCLR		BIT(24) /* Transmit Holding Register Clear */
-@@ -69,6 +70,8 @@
- #define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
- #define	AT91_TWI_EOSACC		BIT(11)	/* End Of Slave Access */
- #define	AT91_TWI_LOCK		BIT(23) /* TWI Lock due to Frame Errors */
-+#define	AT91_TWI_SCL		BIT(24) /* TWI SCL status */
-+#define	AT91_TWI_SDA		BIT(25) /* TWI SDA status */
- 
- #define	AT91_TWI_INT_MASK \
- 	(AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY | AT91_TWI_NACK \
-@@ -81,7 +84,8 @@
- #define	AT91_TWI_THR		0x0034	/* Transmit Holding Register */
- 
- #define	AT91_TWI_ACR		0x0040	/* Alternative Command Register */
--#define	AT91_TWI_ACR_DATAL(len)	((len) & 0xff)
-+#define	AT91_TWI_ACR_DATAL_MASK	GENMASK(15, 0)
-+#define	AT91_TWI_ACR_DATAL(len)	((len) & AT91_TWI_ACR_DATAL_MASK)
- #define	AT91_TWI_ACR_DIR	BIT(8)
- 
- #define	AT91_TWI_FMR		0x0050	/* FIFO Mode Register */
--- 
-2.20.1
+Please drop.
+
+Thanks,
+Mathieu
+
+>
+> thanks,
+>
+> greg k-h
