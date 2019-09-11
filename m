@@ -1,200 +1,87 @@
-From: <Eugen.Hristev@microchip.com>
-Subject: [PATCH v5 6/9] i2c: at91: add support for advanced digital filtering
-Date: Wed, 11 Sep 2019 08:24:31 +0000
-Message-ID: <1568189911-31641-7-git-send-email-eugen.hristev@microchip.com>
-References: <1568189911-31641-1-git-send-email-eugen.hristev@microchip.com>
+From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Subject: [PATCH] i2c: at91: Send bus clear command if SCL or SDA is down
+Date: Wed, 11 Sep 2019 12:58:54 +0300
+Message-ID: <20190911095854.5141-1-codrin.ciubotariu@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1568189911-31641-1-git-send-email-eugen.hristev@microchip.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, peda@axentia.se, mark.rutland@arm.com, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, alexandre.belloni@bootlin.com, robh+dt@kernel.org
-Cc: Eugen.Hristev@microchip.com, Nicolas.Ferre@microchip.com
+To: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, wsa@the-dreams.de, Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+After a transfer timeout, some faulty I2C slave devices might hold down
+the SCL or the SDA pins. We can generate a bus clear command, hoping that
+the slave might release the pins.
 
-Add new platform data support for advanced digital filtering for i2c.
-The sama5d2 and sam9x60 support this feature.
-This digital filter allows the user to configure the maximum
-width of the spikes that can be filtered.
-
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 ---
- drivers/i2c/busses/i2c-at91-core.c   |  9 +++++++++
- drivers/i2c/busses/i2c-at91-master.c | 30 +++++++++++++++++++++++++++---
- drivers/i2c/busses/i2c-at91.h        |  5 +++++
- 3 files changed, 41 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-at91-master.c | 20 ++++++++++++++++++++
+ drivers/i2c/busses/i2c-at91.h        |  6 +++++-
+ 2 files changed, 25 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-at91-core.c b/drivers/i2c/busses/i2c-at=
-91-core.c
-index e96360f..1f4ee7e 100644
---- a/drivers/i2c/busses/i2c-at91-core.c
-+++ b/drivers/i2c/busses/i2c-at91-core.c
-@@ -69,6 +69,7 @@ static struct at91_twi_pdata at91rm9200_config =3D {
- 	.has_alt_cmd =3D false,
- 	.has_hold_field =3D false,
- 	.has_dig_filtr =3D false,
-+	.has_adv_dig_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata at91sam9261_config =3D {
-@@ -78,6 +79,7 @@ static struct at91_twi_pdata at91sam9261_config =3D {
- 	.has_alt_cmd =3D false,
- 	.has_hold_field =3D false,
- 	.has_dig_filtr =3D false,
-+	.has_adv_dig_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata at91sam9260_config =3D {
-@@ -87,6 +89,7 @@ static struct at91_twi_pdata at91sam9260_config =3D {
- 	.has_alt_cmd =3D false,
- 	.has_hold_field =3D false,
- 	.has_dig_filtr =3D false,
-+	.has_adv_dig_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata at91sam9g20_config =3D {
-@@ -96,6 +99,7 @@ static struct at91_twi_pdata at91sam9g20_config =3D {
- 	.has_alt_cmd =3D false,
- 	.has_hold_field =3D false,
- 	.has_dig_filtr =3D false,
-+	.has_adv_dig_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata at91sam9g10_config =3D {
-@@ -105,6 +109,7 @@ static struct at91_twi_pdata at91sam9g10_config =3D {
- 	.has_alt_cmd =3D false,
- 	.has_hold_field =3D false,
- 	.has_dig_filtr =3D false,
-+	.has_adv_dig_filtr =3D false,
- };
-=20
- static const struct platform_device_id at91_twi_devtypes[] =3D {
-@@ -136,6 +141,7 @@ static struct at91_twi_pdata at91sam9x5_config =3D {
- 	.has_alt_cmd =3D false,
- 	.has_hold_field =3D false,
- 	.has_dig_filtr =3D false,
-+	.has_adv_dig_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata sama5d4_config =3D {
-@@ -145,6 +151,7 @@ static struct at91_twi_pdata sama5d4_config =3D {
- 	.has_alt_cmd =3D false,
- 	.has_hold_field =3D true,
- 	.has_dig_filtr =3D true,
-+	.has_adv_dig_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata sama5d2_config =3D {
-@@ -154,6 +161,7 @@ static struct at91_twi_pdata sama5d2_config =3D {
- 	.has_alt_cmd =3D true,
- 	.has_hold_field =3D true,
- 	.has_dig_filtr =3D true,
-+	.has_adv_dig_filtr =3D true,
- };
-=20
- static struct at91_twi_pdata sam9x60_config =3D {
-@@ -163,6 +171,7 @@ static struct at91_twi_pdata sam9x60_config =3D {
- 	.has_alt_cmd =3D true,
- 	.has_hold_field =3D true,
- 	.has_dig_filtr =3D true,
-+	.has_adv_dig_filtr =3D true,
- };
-=20
- static const struct of_device_id atmel_twi_dt_ids[] =3D {
-diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-=
-at91-master.c
-index df80557..273bd8b 100644
+diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
+index a3fcc35ffd3b..5f544a16db96 100644
 --- a/drivers/i2c/busses/i2c-at91-master.c
 +++ b/drivers/i2c/busses/i2c-at91-master.c
-@@ -43,6 +43,12 @@ void at91_init_twi_bus_master(struct at91_twi_dev *dev)
- 	/* enable digital filter */
- 	if (pdata->has_dig_filtr && dev->enable_dig_filt)
- 		at91_twi_write(dev, AT91_TWI_FILTR, AT91_TWI_FILTR_FILT);
-+
-+	/* enable advanced digital filter */
-+	if (pdata->has_adv_dig_filtr && dev->enable_dig_filt)
-+		at91_twi_write(dev, AT91_TWI_FILTR, AT91_TWI_FILTR_FILT |
-+			       (AT91_TWI_FILTR_THRES(dev->filter_width) &
-+				AT91_TWI_FILTR_THRES_MASK));
- }
-=20
- /*
-@@ -51,7 +57,7 @@ void at91_init_twi_bus_master(struct at91_twi_dev *dev)
-  */
- static void at91_calc_twi_clock(struct at91_twi_dev *dev)
- {
--	int ckdiv, cdiv, div, hold =3D 0;
-+	int ckdiv, cdiv, div, hold =3D 0, filter_width =3D 0;
- 	struct at91_twi_pdata *pdata =3D dev->pdata;
- 	int offset =3D pdata->clk_offset;
- 	int max_ckdiv =3D pdata->clk_max_div;
-@@ -90,11 +96,29 @@ static void at91_calc_twi_clock(struct at91_twi_dev *de=
-v)
- 		}
+@@ -599,6 +599,26 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 		at91_twi_write(dev, AT91_TWI_CR,
+ 			       AT91_TWI_THRCLR | AT91_TWI_LOCKCLR);
  	}
-=20
-+	if (pdata->has_adv_dig_filtr) {
-+		/*
-+		 * filter width =3D 0 to AT91_TWI_FILTR_THRES_MAX
-+		 * peripheral clocks
-+		 */
-+		filter_width =3D DIV_ROUND_UP(t->digital_filter_width_ns
-+				* (clk_get_rate(dev->clk) / 1000), 1000000);
-+		if (filter_width > AT91_TWI_FILTR_THRES_MAX) {
-+			dev_warn(dev->dev,
-+				"Filter threshold set to its maximum value (%d instead of %d)\n",
-+				AT91_TWI_FILTR_THRES_MAX, filter_width);
-+			filter_width =3D AT91_TWI_FILTR_THRES_MAX;
++
++	/*
++	 * After timeout, some faulty I2C slave devices might hold SCL/SDA down;
++	 * we can send a bus clear command, hoping that the pins will be
++	 * released
++	 */
++	if (!(dev->transfer_status & AT91_TWI_SDA) ||
++	    !(dev->transfer_status & AT91_TWI_SCL)) {
++		dev_dbg(dev->dev,
++			"SDA/SCL are down; sending bus clear command\n");
++		if (dev->use_alt_cmd) {
++			unsigned int acr;
++
++			acr = at91_twi_read(dev, AT91_TWI_ACR);
++			acr &= ~AT91_TWI_ACR_DATAL_MASK;
++			at91_twi_write(dev, AT91_TWI_ACR, acr);
 +		}
++		at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_CLEAR);
 +	}
 +
- 	dev->twi_cwgr_reg =3D (ckdiv << 16) | (cdiv << 8) | cdiv
- 			    | AT91_TWI_CWGR_HOLD(hold);
-=20
--	dev_dbg(dev->dev, "cdiv %d ckdiv %d hold %d (%d ns)\n",
--		cdiv, ckdiv, hold, t->sda_hold_ns);
-+	dev->filter_width =3D filter_width;
-+
-+	dev_dbg(dev->dev, "cdiv %d ckdiv %d hold %d (%d ns), filter_width %d (%d =
-ns)\n",
-+		cdiv, ckdiv, hold, t->sda_hold_ns, filter_width,
-+		t->digital_filter_width_ns);
+ 	return ret;
  }
-=20
- static void at91_twi_dma_cleanup(struct at91_twi_dev *dev)
+ 
 diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
-index c75447e..d7cf01e3 100644
+index 499b506f6128..ffb870f3ffc6 100644
 --- a/drivers/i2c/busses/i2c-at91.h
 +++ b/drivers/i2c/busses/i2c-at91.h
-@@ -86,6 +86,9 @@
-=20
- #define AT91_TWI_FILTR		0x0044
- #define AT91_TWI_FILTR_FILT	BIT(0)
-+#define AT91_TWI_FILTR_THRES(v)		((v) << 8)
-+#define AT91_TWI_FILTR_THRES_MAX	7
-+#define AT91_TWI_FILTR_THRES_MASK	GENMASK(10, 8)
-=20
+@@ -36,6 +36,7 @@
+ #define	AT91_TWI_SVDIS		BIT(5)	/* Slave Transfer Disable */
+ #define	AT91_TWI_QUICK		BIT(6)	/* SMBus quick command */
+ #define	AT91_TWI_SWRST		BIT(7)	/* Software Reset */
++#define	AT91_TWI_CLEAR		BIT(15) /* Bus clear command */
+ #define	AT91_TWI_ACMEN		BIT(16) /* Alternative Command Mode Enable */
+ #define	AT91_TWI_ACMDIS		BIT(17) /* Alternative Command Mode Disable */
+ #define	AT91_TWI_THRCLR		BIT(24) /* Transmit Holding Register Clear */
+@@ -69,6 +70,8 @@
+ #define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
+ #define	AT91_TWI_EOSACC		BIT(11)	/* End Of Slave Access */
+ #define	AT91_TWI_LOCK		BIT(23) /* TWI Lock due to Frame Errors */
++#define	AT91_TWI_SCL		BIT(24) /* TWI SCL status */
++#define	AT91_TWI_SDA		BIT(25) /* TWI SDA status */
+ 
+ #define	AT91_TWI_INT_MASK \
+ 	(AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY | AT91_TWI_NACK \
+@@ -81,7 +84,8 @@
+ #define	AT91_TWI_THR		0x0034	/* Transmit Holding Register */
+ 
+ #define	AT91_TWI_ACR		0x0040	/* Alternative Command Register */
+-#define	AT91_TWI_ACR_DATAL(len)	((len) & 0xff)
++#define	AT91_TWI_ACR_DATAL_MASK	GENMASK(15, 0)
++#define	AT91_TWI_ACR_DATAL(len)	((len) & AT91_TWI_ACR_DATAL_MASK)
+ #define	AT91_TWI_ACR_DIR	BIT(8)
+ 
  #define	AT91_TWI_FMR		0x0050	/* FIFO Mode Register */
- #define	AT91_TWI_FMR_TXRDYM(mode)	(((mode) & 0x3) << 0)
-@@ -112,6 +115,7 @@ struct at91_twi_pdata {
- 	bool has_alt_cmd;
- 	bool has_hold_field;
- 	bool has_dig_filtr;
-+	bool has_adv_dig_filtr;
- 	struct at_dma_slave dma_slave;
- };
-=20
-@@ -150,6 +154,7 @@ struct at91_twi_dev {
- 	struct i2c_client *slave;
- #endif
- 	bool enable_dig_filt;
-+	u32 filter_width;
- };
-=20
- unsigned at91_twi_read(struct at91_twi_dev *dev, unsigned reg);
---=20
-2.7.4
+-- 
+2.20.1
