@@ -1,57 +1,94 @@
-From: Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: Re: [BACKPORT 4.14.y 04/18] usb: dwc3: Allow disabling of
- metastability workaround
-Date: Wed, 11 Sep 2019 08:01:40 -0600
-Message-ID: <CANLsYkwkq2fLWsGXHxr2tSBLHdfe4JXgu8ehuD1FOEQeDAPNnA@mail.gmail.com>
-References: <20190905161759.28036-1-mathieu.poirier@linaro.org>
- <20190905161759.28036-5-mathieu.poirier@linaro.org> <20190910143601.GD3362@kroah.com>
+From: Matthias Brugger <matthias.bgg@gmail.com>
+Subject: Re: [PATCH 2/3] i2c: bcm2835: Avoid clk stretch quirk for BCM2711
+Date: Thu, 12 Sep 2019 19:21:02 +0200
+Message-ID: <c43878d8-e7d0-bc13-107b-2b6045692504@gmail.com>
+References: <1566925456-5928-1-git-send-email-wahrenst@gmx.net>
+ <1566925456-5928-3-git-send-email-wahrenst@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190910143601.GD3362@kroah.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: "# 4 . 7" <stable@vger.kernel.org>, linux-usb@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-pm@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-pci@vger.kernel.org, linux-mtd@lists.infradead.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1566925456-5928-3-git-send-email-wahrenst@gmx.net>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Stefan Wahren <wahrenst@gmx.net>, Wolfram Sang <wsa@the-dreams.de>, Eric Anholt <eric@anholt.net>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 10 Sep 2019 at 08:36, Greg KH <greg@kroah.com> wrote:
->
-> On Thu, Sep 05, 2019 at 10:17:45AM -0600, Mathieu Poirier wrote:
-> > From: Roger Quadros <rogerq@ti.com>
-> >
-> > commit 42bf02ec6e420e541af9a47437d0bdf961ca2972 upstream
-> >
-> > Some platforms (e.g. TI's DRA7 USB2 instance) have more trouble
-> > with the metastability workaround as it supports only
-> > a High-Speed PHY and the PHY can enter into an Erratic state [1]
-> > when the controller is set in SuperSpeed mode as part of
-> > the metastability workaround.
-> >
-> > This causes upto 2 seconds delay in enumeration on DRA7's USB2
-> > instance in gadget mode.
-> >
-> > If these platforms can be better off without the workaround,
-> > provide a device tree property to suggest that so the workaround
-> > is avoided.
-> >
-> > [1] Device mode enumeration trace showing PHY Erratic Error.
-> >      irq/90-dwc3-969   [000] d...    52.323145: dwc3_event: event (00000901): Erratic Error [U0]
-> >      irq/90-dwc3-969   [000] d...    52.560646: dwc3_event: event (00000901): Erratic Error [U0]
-> >      irq/90-dwc3-969   [000] d...    52.798144: dwc3_event: event (00000901): Erratic Error [U0]
->
-> Does the DT also need to get updated with this new id for this?  Is that
-> a separate patch somewhere?
 
-The upstream commit is:
 
-b8c9c6fa2002 ARM: dts: dra7: Disable USB metastability workaround for USB2
+On 27/08/2019 19:04, Stefan Wahren wrote:
+> The I2C block on the BCM2711 isn't affected by the clk stretching bug.
+> So there is no need to apply the corresponding quirk.
+> 
+> Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+> Reviewed-by: Eric Anholt <eric@anholt.net>
+> ---
+>  drivers/i2c/busses/i2c-bcm2835.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+> index 67752f7..ab5502f 100644
+> --- a/drivers/i2c/busses/i2c-bcm2835.c
+> +++ b/drivers/i2c/busses/i2c-bcm2835.c
+> @@ -12,6 +12,7 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/io.h>
+>  #include <linux/module.h>
+> +#include <linux/of_device.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/slab.h>
+> 
+> @@ -389,7 +390,7 @@ static const struct i2c_algorithm bcm2835_i2c_algo = {
+>  };
+> 
+>  /*
+> - * This HW was reported to have problems with clock stretching:
+> + * The BCM2835 was reported to have problems with clock stretching:
+>   * http://www.advamation.com/knowhow/raspberrypi/rpi-i2c-bug.html
+>   * https://www.raspberrypi.org/forums/viewtopic.php?p=146272
+>   */
+> @@ -475,7 +476,7 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+>  	adap->algo = &bcm2835_i2c_algo;
+>  	adap->dev.parent = &pdev->dev;
+>  	adap->dev.of_node = pdev->dev.of_node;
+> -	adap->quirks = &bcm2835_i2c_quirks;
+> +	adap->quirks = of_device_get_match_data(&pdev->dev);
+> 
+>  	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
+> 
+> @@ -501,7 +502,8 @@ static int bcm2835_i2c_remove(struct platform_device *pdev)
+>  }
+> 
+>  static const struct of_device_id bcm2835_i2c_of_match[] = {
+> -	{ .compatible = "brcm,bcm2835-i2c" },
+> +	{ .compatible = "brcm,bcm2711-i2c" },
+> +	{ .compatible = "brcm,bcm2835-i2c", .data = &bcm2835_i2c_quirks },
 
-Should I just send the latter or you prefer a resend with both patches?
+RPi4 FW seems to still use bcm2835-i2c as compatible in it's DTB blob. Does this
+break the driver or is this something we can improve by changing the FW blob in
+the future without breaking the driver now?
 
-Thanks,
-Mathieu
+Regards,
+Matthias
 
->
-> thanks,
->
-> greg k-h
+>  	{},
+>  };
+>  MODULE_DEVICE_TABLE(of, bcm2835_i2c_of_match);
+> --
+> 2.7.4
+> 
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> 
