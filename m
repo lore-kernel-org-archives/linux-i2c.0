@@ -1,14 +1,14 @@
 From: Matthias Brugger <matthias.bgg@gmail.com>
-Subject: Re: [PATCH 2/3] i2c: bcm2835: Avoid clk stretch quirk for BCM2711
-Date: Thu, 12 Sep 2019 19:21:02 +0200
-Message-ID: <c43878d8-e7d0-bc13-107b-2b6045692504@gmail.com>
-References: <1566925456-5928-1-git-send-email-wahrenst@gmx.net>
- <1566925456-5928-3-git-send-email-wahrenst@gmx.net>
+Subject: Re: [PATCH V2 05/13] clk: bcm2835: Add BCM2711_CLOCK_EMMC2 support
+Date: Thu, 12 Sep 2019 19:24:32 +0200
+Message-ID: <d89bbc4b-b6bc-0d4e-86d1-6be11876ce00@gmail.com>
+References: <1565713248-4906-1-git-send-email-wahrenst@gmx.net>
+ <1565713248-4906-6-git-send-email-wahrenst@gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1566925456-5928-3-git-send-email-wahrenst@gmx.net>
+In-Reply-To: <1565713248-4906-6-git-send-email-wahrenst@gmx.net>
 Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -19,70 +19,84 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Stefan Wahren <wahrenst@gmx.net>, Wolfram Sang <wsa@the-dreams.de>, Eric Anholt <eric@anholt.net>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Stefan Wahren <wahrenst@gmx.net>, Eric Anholt <eric@anholt.net>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Wolfram Sang <wsa@the-dreams.de>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>
+Cc: devicetree@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-rpi-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 
 
-On 27/08/2019 19:04, Stefan Wahren wrote:
-> The I2C block on the BCM2711 isn't affected by the clk stretching bug.
-> So there is no need to apply the corresponding quirk.
+On 13/08/2019 18:20, Stefan Wahren wrote:
+> The new BCM2711 supports an additional clock for the emmc2 block.
+> So add a new compatible and register this clock only for BCM2711.
 > 
 > Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
-> Reviewed-by: Eric Anholt <eric@anholt.net>
+> Reviewed-by: Matthias Brugger <mbrugger@suse.com>
+> Acked-by: Eric Anholt <eric@anholt.net>
 > ---
->  drivers/i2c/busses/i2c-bcm2835.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+>  drivers/clk/bcm/clk-bcm2835.c | 20 +++++++++++++++++++-
+>  1 file changed, 19 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-> index 67752f7..ab5502f 100644
-> --- a/drivers/i2c/busses/i2c-bcm2835.c
-> +++ b/drivers/i2c/busses/i2c-bcm2835.c
-> @@ -12,6 +12,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/io.h>
->  #include <linux/module.h>
-> +#include <linux/of_device.h>
->  #include <linux/platform_device.h>
->  #include <linux/slab.h>
+> diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
+> index 21cd952..fdf672a 100644
+> --- a/drivers/clk/bcm/clk-bcm2835.c
+> +++ b/drivers/clk/bcm/clk-bcm2835.c
+> @@ -114,6 +114,8 @@
+>  #define CM_AVEODIV		0x1bc
+>  #define CM_EMMCCTL		0x1c0
+>  #define CM_EMMCDIV		0x1c4
+> +#define CM_EMMC2CTL		0x1d0
+> +#define CM_EMMC2DIV		0x1d4
 > 
-> @@ -389,7 +390,7 @@ static const struct i2c_algorithm bcm2835_i2c_algo = {
->  };
+>  /* General bits for the CM_*CTL regs */
+>  # define CM_ENABLE			BIT(4)
+> @@ -290,7 +292,8 @@
+>  #define BCM2835_MAX_FB_RATE	1750000000u
+> 
+>  #define SOC_BCM2835		BIT(0)
+> -#define SOC_ALL			(SOC_BCM2835)
+> +#define SOC_BCM2711		BIT(1)
+> +#define SOC_ALL			(SOC_BCM2835 | SOC_BCM2711)
 > 
 >  /*
-> - * This HW was reported to have problems with clock stretching:
-> + * The BCM2835 was reported to have problems with clock stretching:
->   * http://www.advamation.com/knowhow/raspberrypi/rpi-i2c-bug.html
->   * https://www.raspberrypi.org/forums/viewtopic.php?p=146272
->   */
-> @@ -475,7 +476,7 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
->  	adap->algo = &bcm2835_i2c_algo;
->  	adap->dev.parent = &pdev->dev;
->  	adap->dev.of_node = pdev->dev.of_node;
-> -	adap->quirks = &bcm2835_i2c_quirks;
-> +	adap->quirks = of_device_get_match_data(&pdev->dev);
+>   * Names of clocks used within the driver that need to be replaced
+> @@ -2003,6 +2006,16 @@ static const struct bcm2835_clk_desc clk_desc_array[] = {
+>  		.frac_bits = 8,
+>  		.tcnt_mux = 39),
 > 
->  	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
+> +	/* EMMC2 clock (only available for BCM2711) */
+> +	[BCM2711_CLOCK_EMMC2]	= REGISTER_PER_CLK(
+> +		SOC_BCM2711,
+> +		.name = "emmc2",
+> +		.ctl_reg = CM_EMMC2CTL,
+> +		.div_reg = CM_EMMC2DIV,
+> +		.int_bits = 4,
+> +		.frac_bits = 8,
+> +		.tcnt_mux = 42),
+> +
+>  	/* General purpose (GPIO) clocks */
+>  	[BCM2835_CLOCK_GP0]	= REGISTER_PER_CLK(
+>  		SOC_ALL,
+> @@ -2238,8 +2251,13 @@ static const struct cprman_plat_data cprman_bcm2835_plat_data = {
+>  	.soc = SOC_BCM2835,
+>  };
 > 
-> @@ -501,7 +502,8 @@ static int bcm2835_i2c_remove(struct platform_device *pdev)
->  }
-> 
->  static const struct of_device_id bcm2835_i2c_of_match[] = {
-> -	{ .compatible = "brcm,bcm2835-i2c" },
-> +	{ .compatible = "brcm,bcm2711-i2c" },
-> +	{ .compatible = "brcm,bcm2835-i2c", .data = &bcm2835_i2c_quirks },
+> +static const struct cprman_plat_data cprman_bcm2711_plat_data = {
+> +	.soc = SOC_BCM2711,
+> +};
+> +
+>  static const struct of_device_id bcm2835_clk_of_match[] = {
+>  	{ .compatible = "brcm,bcm2835-cprman", .data = &cprman_bcm2835_plat_data },
+> +	{ .compatible = "brcm,bcm2711-cprman", .data = &cprman_bcm2711_plat_data },
 
-RPi4 FW seems to still use bcm2835-i2c as compatible in it's DTB blob. Does this
-break the driver or is this something we can improve by changing the FW blob in
-the future without breaking the driver now?
+Because the RPi4 FW uses bcm2838-cprman as compatible, we will need to add this
+here as well.
 
 Regards,
 Matthias
 
->  	{},
+>  	{}
 >  };
->  MODULE_DEVICE_TABLE(of, bcm2835_i2c_of_match);
+>  MODULE_DEVICE_TABLE(of, bcm2835_clk_of_match);
 > --
 > 2.7.4
 > 
