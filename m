@@ -1,103 +1,74 @@
-From: Ludovic Desroches <ludovic.desroches@microchip.com>
-Subject: Re: [PATCH v5 0/9] i2c: add support for filters
-Date: Sat, 14 Sep 2019 21:32:08 +0200
-Message-ID: <20190914193208.ranoecmdcstvbapl@sekiro>
-References: <1568189911-31641-1-git-send-email-eugen.hristev@microchip.com>
+From: <Claudiu.Beznea@microchip.com>
+Subject: Re: [PATCH] i2c: at91: Send bus clear command if SCL or SDA is down
+Date: Mon, 16 Sep 2019 05:20:10 +0000
+Message-ID: <1d634b5d-c71b-bc75-0e77-1823db084eab@microchip.com>
+References: <20190911095854.5141-1-codrin.ciubotariu@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1568189911-31641-1-git-send-email-eugen.hristev@microchip.com>
+In-Reply-To: <20190911095854.5141-1-codrin.ciubotariu@microchip.com>
+Content-Language: en-US
+Content-ID: <65345012C46F634D92545244C8ACDE72@namprd11.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eugen Hristev - M18282 <Eugen.Hristev@microchip.com>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, "peda@axentia.se" <peda@axentia.se>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, Nicolas Ferre - M43238 <Nicolas.Ferre@microchip.com>
+To: Codrin.Ciubotariu@microchip.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: Ludovic.Desroches@microchip.com, alexandre.belloni@bootlin.com, wsa@the-dreams.de
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 11, 2019 at 10:24:14AM +0200, Eugen Hristev - M18282 wrote:
-> From: Eugen Hristev <eugen.hristev@microchip.com>
-> 
-> Hello,
-> 
-> This series adds support for analog and digital filters for i2c controllers
-> 
-> This series is based on the series:
-> [PATCH v2 0/9] i2c: at91: filters support for at91 SoCs
-> and later
-> [PATCH v4 0/9] i2c: add support for filters
-> and enhanced to add the bindings for all controllers plus an extra bindings
-> for the width of the spikes in nanoseconds (digital filters) and cut-off
-> frequency (analog filters)
-> 
-> First, bindings are created for
-> 'i2c-analog-filter'
-> 'i2c-digital-filter'
-> 'i2c-digital-filter-width-ns'
-> 'i2c-analog-filter-cutoff-frequency'
-> 
-> The support is added in the i2c core to retrieve filter width/cutoff frequency
-> and add it to the timings structure.
-> Next, the at91 driver is enhanced for supporting digital filter, advanced
-> digital filter (with selectable spike width) and the analog filter.
-> 
-> Finally the device tree for two boards are modified to make use of the
-> new properties.
-> 
-> This series is the result of the comments on the ML in the direction
-> requested: to make the bindings globally available for i2c drivers.
-> 
-> Changes in v5:
-> - renamed i2c-filter-width-ns to i2c-digital-filter-width-ns as this
-> is applicable only to digital filter
-> - created new binding i2c-digital-filter-width-ns for analog filters.
-
-Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
-
-for at91 stuff. You can keep it for the future if needed as long as
-changes mainly concerned the generic binding.
-
-Regards
-
-Ludovic
-
-> 
-> Changes in v4:
-> - renamed i2c-ana-filter to i2c-analog-filter
-> - renamed i2c-dig-filter to i2c-digital-filter
-> 
-> Changes in v3:
-> - made bindings global for i2c controllers and modified accordingly
-> - gave up PADFCDF bit because it's a lack in datasheet
-> - the computation on the width of the spike is based on periph clock as it
-> is done for hold time.
-> 
-> Changes in v2:
-> - added device tree bindings and support for enable-ana-filt and
-> enable-dig-filt
-> - added the new properties to the DT for sama5d4_xplained/sama5d2_xplained
-> 
-> Eugen Hristev (9):
->   dt-bindings: i2c: at91: add new compatible
->   dt-bindings: i2c: add bindings for i2c analog and digital filter
->   i2c: add support for filters optional properties
->   i2c: at91: add new platform support for sam9x60
->   i2c: at91: add support for digital filtering
->   i2c: at91: add support for advanced digital filtering
->   i2c: at91: add support for analog filtering
->   ARM: dts: at91: sama5d2_xplained: add analog and digital filter for
->     i2c
->   ARM: dts: at91: sama5d4_xplained: add digital filter for i2c
-> 
->  Documentation/devicetree/bindings/i2c/i2c-at91.txt |  3 +-
->  Documentation/devicetree/bindings/i2c/i2c.txt      | 18 ++++++++
->  arch/arm/boot/dts/at91-sama5d2_xplained.dts        |  6 +++
->  arch/arm/boot/dts/at91-sama5d4_xplained.dts        |  1 +
->  drivers/i2c/busses/i2c-at91-core.c                 | 38 +++++++++++++++++
->  drivers/i2c/busses/i2c-at91-master.c               | 49 ++++++++++++++++++++--
->  drivers/i2c/busses/i2c-at91.h                      | 13 ++++++
->  drivers/i2c/i2c-core-base.c                        |  6 +++
->  include/linux/i2c.h                                |  6 +++
->  9 files changed, 136 insertions(+), 4 deletions(-)
-> 
-> -- 
-> 2.7.4
-> 
+DQoNCk9uIDExLjA5LjIwMTkgMTI6NTgsIENvZHJpbiBDaXVib3Rhcml1IHdyb3RlOg0KPiBFeHRl
+cm5hbCBFLU1haWwNCj4gDQo+IA0KPiBBZnRlciBhIHRyYW5zZmVyIHRpbWVvdXQsIHNvbWUgZmF1
+bHR5IEkyQyBzbGF2ZSBkZXZpY2VzIG1pZ2h0IGhvbGQgZG93bg0KPiB0aGUgU0NMIG9yIHRoZSBT
+REEgcGlucy4gV2UgY2FuIGdlbmVyYXRlIGEgYnVzIGNsZWFyIGNvbW1hbmQsIGhvcGluZyB0aGF0
+DQo+IHRoZSBzbGF2ZSBtaWdodCByZWxlYXNlIHRoZSBwaW5zLg0KPiANCj4gU2lnbmVkLW9mZi1i
+eTogQ29kcmluIENpdWJvdGFyaXUgPGNvZHJpbi5jaXVib3Rhcml1QG1pY3JvY2hpcC5jb20+DQoN
+ClJldmlld2VkLWJ5OiBDbGF1ZGl1IEJlem5lYSA8Y2xhdWRpdS5iZXpuZWFAbWljcm9jaGlwLmNv
+bT4NCg0KPiAtLS0NCj4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS1tYXN0ZXIuYyB8IDIw
+ICsrKysrKysrKysrKysrKysrKysrDQo+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWF0OTEuaCAg
+ICAgICAgfCAgNiArKysrKy0NCj4gIDIgZmlsZXMgY2hhbmdlZCwgMjUgaW5zZXJ0aW9ucygrKSwg
+MSBkZWxldGlvbigtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMt
+YXQ5MS1tYXN0ZXIuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS1tYXN0ZXIuYw0KPiBp
+bmRleCBhM2ZjYzM1ZmZkM2IuLjVmNTQ0YTE2ZGI5NiAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9p
+MmMvYnVzc2VzL2kyYy1hdDkxLW1hc3Rlci5jDQo+ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9p
+MmMtYXQ5MS1tYXN0ZXIuYw0KPiBAQCAtNTk5LDYgKzU5OSwyNiBAQCBzdGF0aWMgaW50IGF0OTFf
+ZG9fdHdpX3RyYW5zZmVyKHN0cnVjdCBhdDkxX3R3aV9kZXYgKmRldikNCj4gIAkJYXQ5MV90d2lf
+d3JpdGUoZGV2LCBBVDkxX1RXSV9DUiwNCj4gIAkJCSAgICAgICBBVDkxX1RXSV9USFJDTFIgfCBB
+VDkxX1RXSV9MT0NLQ0xSKTsNCj4gIAl9DQo+ICsNCj4gKwkvKg0KPiArCSAqIEFmdGVyIHRpbWVv
+dXQsIHNvbWUgZmF1bHR5IEkyQyBzbGF2ZSBkZXZpY2VzIG1pZ2h0IGhvbGQgU0NML1NEQSBkb3du
+Ow0KPiArCSAqIHdlIGNhbiBzZW5kIGEgYnVzIGNsZWFyIGNvbW1hbmQsIGhvcGluZyB0aGF0IHRo
+ZSBwaW5zIHdpbGwgYmUNCj4gKwkgKiByZWxlYXNlZA0KPiArCSAqLw0KPiArCWlmICghKGRldi0+
+dHJhbnNmZXJfc3RhdHVzICYgQVQ5MV9UV0lfU0RBKSB8fA0KPiArCSAgICAhKGRldi0+dHJhbnNm
+ZXJfc3RhdHVzICYgQVQ5MV9UV0lfU0NMKSkgew0KPiArCQlkZXZfZGJnKGRldi0+ZGV2LA0KPiAr
+CQkJIlNEQS9TQ0wgYXJlIGRvd247IHNlbmRpbmcgYnVzIGNsZWFyIGNvbW1hbmRcbiIpOw0KPiAr
+CQlpZiAoZGV2LT51c2VfYWx0X2NtZCkgew0KPiArCQkJdW5zaWduZWQgaW50IGFjcjsNCj4gKw0K
+PiArCQkJYWNyID0gYXQ5MV90d2lfcmVhZChkZXYsIEFUOTFfVFdJX0FDUik7DQo+ICsJCQlhY3Ig
+Jj0gfkFUOTFfVFdJX0FDUl9EQVRBTF9NQVNLOw0KPiArCQkJYXQ5MV90d2lfd3JpdGUoZGV2LCBB
+VDkxX1RXSV9BQ1IsIGFjcik7DQo+ICsJCX0NCj4gKwkJYXQ5MV90d2lfd3JpdGUoZGV2LCBBVDkx
+X1RXSV9DUiwgQVQ5MV9UV0lfQ0xFQVIpOw0KPiArCX0NCj4gKw0KPiAgCXJldHVybiByZXQ7DQo+
+ICB9DQo+ICANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS5oIGIv
+ZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLmgNCj4gaW5kZXggNDk5YjUwNmY2MTI4Li5mZmI4
+NzBmM2ZmYzYgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS5oDQo+
+ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS5oDQo+IEBAIC0zNiw2ICszNiw3IEBA
+DQo+ICAjZGVmaW5lCUFUOTFfVFdJX1NWRElTCQlCSVQoNSkJLyogU2xhdmUgVHJhbnNmZXIgRGlz
+YWJsZSAqLw0KPiAgI2RlZmluZQlBVDkxX1RXSV9RVUlDSwkJQklUKDYpCS8qIFNNQnVzIHF1aWNr
+IGNvbW1hbmQgKi8NCj4gICNkZWZpbmUJQVQ5MV9UV0lfU1dSU1QJCUJJVCg3KQkvKiBTb2Z0d2Fy
+ZSBSZXNldCAqLw0KPiArI2RlZmluZQlBVDkxX1RXSV9DTEVBUgkJQklUKDE1KSAvKiBCdXMgY2xl
+YXIgY29tbWFuZCAqLw0KPiAgI2RlZmluZQlBVDkxX1RXSV9BQ01FTgkJQklUKDE2KSAvKiBBbHRl
+cm5hdGl2ZSBDb21tYW5kIE1vZGUgRW5hYmxlICovDQo+ICAjZGVmaW5lCUFUOTFfVFdJX0FDTURJ
+UwkJQklUKDE3KSAvKiBBbHRlcm5hdGl2ZSBDb21tYW5kIE1vZGUgRGlzYWJsZSAqLw0KPiAgI2Rl
+ZmluZQlBVDkxX1RXSV9USFJDTFIJCUJJVCgyNCkgLyogVHJhbnNtaXQgSG9sZGluZyBSZWdpc3Rl
+ciBDbGVhciAqLw0KPiBAQCAtNjksNiArNzAsOCBAQA0KPiAgI2RlZmluZQlBVDkxX1RXSV9OQUNL
+CQlCSVQoOCkJLyogTm90IEFja25vd2xlZGdlZCAqLw0KPiAgI2RlZmluZQlBVDkxX1RXSV9FT1NB
+Q0MJCUJJVCgxMSkJLyogRW5kIE9mIFNsYXZlIEFjY2VzcyAqLw0KPiAgI2RlZmluZQlBVDkxX1RX
+SV9MT0NLCQlCSVQoMjMpIC8qIFRXSSBMb2NrIGR1ZSB0byBGcmFtZSBFcnJvcnMgKi8NCj4gKyNk
+ZWZpbmUJQVQ5MV9UV0lfU0NMCQlCSVQoMjQpIC8qIFRXSSBTQ0wgc3RhdHVzICovDQo+ICsjZGVm
+aW5lCUFUOTFfVFdJX1NEQQkJQklUKDI1KSAvKiBUV0kgU0RBIHN0YXR1cyAqLw0KPiAgDQo+ICAj
+ZGVmaW5lCUFUOTFfVFdJX0lOVF9NQVNLIFwNCj4gIAkoQVQ5MV9UV0lfVFhDT01QIHwgQVQ5MV9U
+V0lfUlhSRFkgfCBBVDkxX1RXSV9UWFJEWSB8IEFUOTFfVFdJX05BQ0sgXA0KPiBAQCAtODEsNyAr
+ODQsOCBAQA0KPiAgI2RlZmluZQlBVDkxX1RXSV9USFIJCTB4MDAzNAkvKiBUcmFuc21pdCBIb2xk
+aW5nIFJlZ2lzdGVyICovDQo+ICANCj4gICNkZWZpbmUJQVQ5MV9UV0lfQUNSCQkweDAwNDAJLyog
+QWx0ZXJuYXRpdmUgQ29tbWFuZCBSZWdpc3RlciAqLw0KPiAtI2RlZmluZQlBVDkxX1RXSV9BQ1Jf
+REFUQUwobGVuKQkoKGxlbikgJiAweGZmKQ0KPiArI2RlZmluZQlBVDkxX1RXSV9BQ1JfREFUQUxf
+TUFTSwlHRU5NQVNLKDE1LCAwKQ0KPiArI2RlZmluZQlBVDkxX1RXSV9BQ1JfREFUQUwobGVuKQko
+KGxlbikgJiBBVDkxX1RXSV9BQ1JfREFUQUxfTUFTSykNCj4gICNkZWZpbmUJQVQ5MV9UV0lfQUNS
+X0RJUglCSVQoOCkNCj4gIA0KPiAgI2RlZmluZQlBVDkxX1RXSV9GTVIJCTB4MDA1MAkvKiBGSUZP
+IE1vZGUgUmVnaXN0ZXIgKi8NCj4gDQo=
