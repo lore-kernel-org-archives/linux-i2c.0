@@ -1,50 +1,132 @@
-From: Saiyam Doshi <saiyamdoshi.in@gmail.com>
-Subject: [PATCH 3/3] i2c: qup: Use devm_platform_ioremap_resource helper
-Date: Tue, 17 Sep 2019 00:32:54 +0530
-Message-ID: <20190916190254.GA14207@SD>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v1 2/2] of: Let of_for_each_phandle fallback to
+ non-negative cell_count
+Date: Tue, 17 Sep 2019 11:40:25 +0200
+Message-ID: <CAMuHMdV+pwoAA0zH_vQf2nKqzrgHP8rcMStyJbnuu2qviFC_qg@mail.gmail.com>
+References: <20190824132846.8589-1-u.kleine-koenig@pengutronix.de>
+ <20190824132846.8589-2-u.kleine-koenig@pengutronix.de> <20190913215809.GA11833@bogus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <20190913215809.GA11833@bogus>
 Sender: linux-kernel-owner@vger.kernel.org
-To: agross@kernel.org
-Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Rob Herring <robh@kernel.org>, =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, Will Deacon <will@kernel.org>, Joerg Roedel <joro@8bytes.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux IOMMU <iommu@lists.linux-foundation.org>, linux-mediatek@lists.infradead.org, Sascha Hauer <kernel@pengutronix.de>, Matthias Brugger <matthias.bgg@gmail.com>, Frank Rowand <frowand.list@gmail.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Robin Murphy <robin.murphy@arm.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Use devm_platform_ioremap_resource helper which wraps
-platform_get_resource() and devm_ioremap_resource() together.
+Hi Rob, Uwe,
 
-The semantic patch that makes this report is available
-in scripts/coccinelle/api/devm_platform_ioremap_resource.cocci.
+On Fri, Sep 13, 2019 at 11:58 PM Rob Herring <robh@kernel.org> wrote:
+> On Sat, 24 Aug 2019 15:28:46 +0200, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=          wrote:
+> > Referencing device tree nodes from a property allows to pass arguments.
+> > This is for example used for referencing gpios. This looks as follows:
+> >
+> >       gpio_ctrl: gpio-controller {
+> >               #gpio-cells = <2>
+> >               ...
+> >       }
+> >
+> >       someothernode {
+> >               gpios = <&gpio_ctrl 5 0 &gpio_ctrl 3 0>;
+> >               ...
+> >       }
+> >
+> > To know the number of arguments this must be either fixed, or the
+> > referenced node is checked for a $cells_name (here: "#gpio-cells")
+> > property and with this information the start of the second reference can
+> > be determined.
+> >
+> > Currently regulators are referenced with no additional arguments. To
+> > allow some optional arguments without having to change all referenced
+> > nodes this change introduces a way to specify a default cell_count. So
+> > when a phandle is parsed we check for the $cells_name property and use
+> > it as before if present. If it is not present we fall back to
+> > cells_count if non-negative and only fail if cells_count is smaller than
+> > zero.
+> >
+> > Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-Found using - http://coccinelle.lip6.fr/
+This is now commit e42ee61017f58cd9 ("of: Let of_for_each_phandle fallback
+to non-negative cell_count") in robh/for-next, which causes a lock-up when
+booting a shmobile_defconfig kernel on r8a7791/koelsch:
 
-Signed-off-by: Saiyam Doshi <saiyamdoshi.in@gmail.com>
----
- drivers/i2c/busses/i2c-qup.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+rcu: INFO: rcu_sched self-detected stall on CPU
+rcu:     0-....: (2099 ticks this GP) idle=6fe/1/0x40000002
+softirq=29/29 fqs=1050
+ (t=2100 jiffies g=-1131 q=0)
+NMI backtrace for cpu 0
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted
+5.3.0-rc2-shmobile-00050-ge42ee61017f58cd9 #376
+Hardware name: Generic R-Car Gen2 (Flattened Device Tree)
+[<c010f8ac>] (unwind_backtrace) from [<c010b620>] (show_stack+0x10/0x14)
+[<c010b620>] (show_stack) from [<c073d038>] (dump_stack+0x7c/0x9c)
+[<c073d038>] (dump_stack) from [<c0742e80>] (nmi_cpu_backtrace+0xa0/0xb8)
+[<c0742e80>] (nmi_cpu_backtrace) from [<c0742f1c>]
+(nmi_trigger_cpumask_backtrace+0x84/0x114)
+[<c0742f1c>] (nmi_trigger_cpumask_backtrace) from [<c017d684>]
+(rcu_dump_cpu_stacks+0xac/0xc8)
+[<c017d684>] (rcu_dump_cpu_stacks) from [<c017a598>]
+(rcu_sched_clock_irq+0x2ac/0x6b4)
+[<c017a598>] (rcu_sched_clock_irq) from [<c0183980>]
+(update_process_times+0x30/0x5c)
+[<c0183980>] (update_process_times) from [<c01941a8>]
+(tick_nohz_handler+0xcc/0x120)
+[<c01941a8>] (tick_nohz_handler) from [<c05b1d40>]
+(arch_timer_handler_virt+0x28/0x30)
+[<c05b1d40>] (arch_timer_handler_virt) from [<c016c9e0>]
+(handle_percpu_devid_irq+0xe8/0x21c)
+[<c016c9e0>] (handle_percpu_devid_irq) from [<c0167a8c>]
+(generic_handle_irq+0x18/0x28)
+[<c0167a8c>] (generic_handle_irq) from [<c0167b3c>]
+(__handle_domain_irq+0xa0/0xb4)
+[<c0167b3c>] (__handle_domain_irq) from [<c03673ec>] (gic_handle_irq+0x58/0x90)
+[<c03673ec>] (gic_handle_irq) from [<c0101a8c>] (__irq_svc+0x6c/0x90)
+Exception stack(0xeb08dd30 to 0xeb08dd78)
+dd20:                                     c0cc7514 20000013 00000005 00003b27
+dd40: eb7c4020 c0cc750c 00000051 00000051 20000013 c0c66b08 eb1cdc00 00000018
+dd60: 00000000 eb08dd80 c05c1a38 c0756c00 20000013 ffffffff
+[<c0101a8c>] (__irq_svc) from [<c0756c00>]
+(_raw_spin_unlock_irqrestore+0x1c/0x20)
+[<c0756c00>] (_raw_spin_unlock_irqrestore) from [<c05c1a38>]
+(of_find_node_by_phandle+0xcc/0xf0)
+[<c05c1a38>] (of_find_node_by_phandle) from [<c05c1bb8>]
+(of_phandle_iterator_next+0x68/0x178)
+[<c05c1bb8>] (of_phandle_iterator_next) from [<c05c22bc>]
+(of_count_phandle_with_args+0x5c/0x7c)
+[<c05c22bc>] (of_count_phandle_with_args) from [<c053fc38>]
+(i2c_demux_pinctrl_probe+0x24/0x1fc)
+[<c053fc38>] (i2c_demux_pinctrl_probe) from [<c04463c4>]
+(platform_drv_probe+0x48/0x94)
+[<c04463c4>] (platform_drv_probe) from [<c0444a20>] (really_probe+0x1f0/0x2b8)
+[<c0444a20>] (really_probe) from [<c0444e68>] (driver_probe_device+0x140/0x158)
+[<c0444e68>] (driver_probe_device) from [<c0444ff0>]
+(device_driver_attach+0x44/0x5c)
+[<c0444ff0>] (device_driver_attach) from [<c04450b4>]
+(__driver_attach+0xac/0xb4)
+[<c04450b4>] (__driver_attach) from [<c0443178>] (bus_for_each_dev+0x64/0xa0)
+[<c0443178>] (bus_for_each_dev) from [<c04438a8>] (bus_add_driver+0x148/0x1a8)
+[<c04438a8>] (bus_add_driver) from [<c0445ad0>] (driver_register+0xac/0xf0)
+[<c0445ad0>] (driver_register) from [<c0b010b0>] (do_one_initcall+0xa8/0x1d4)
+[<c0b010b0>] (do_one_initcall) from [<c0b01448>]
+(kernel_init_freeable+0x26c/0x2c8)
+[<c0b01448>] (kernel_init_freeable) from [<c0751c70>] (kernel_init+0x8/0x10c)
+[<c0751c70>] (kernel_init) from [<c01010e8>] (ret_from_fork+0x14/0x2c)
+Exception stack(0xeb08dfb0 to 0xeb08dff8)
+dfa0:                                     00000000 00000000 00000000 00000000
+dfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+dfe0: 00000000 00000000 00000000 00000000 00000013 00000000
 
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index 23c4893512b2..2d21168f81a0 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -1663,7 +1663,6 @@ static int qup_i2c_probe(struct platform_device *pdev)
- 	static const int blk_sizes[] = {4, 16, 32};
- 	struct qup_i2c_dev *qup;
- 	unsigned long one_bit_t;
--	struct resource *res;
- 	u32 io_mode, hw_ver, size;
- 	int ret, fs_div, hs_div;
- 	u32 src_clk_freq = DEFAULT_SRC_CLK;
-@@ -1760,8 +1759,7 @@ static int qup_i2c_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
+Presumably it loops forever, due to a conversion of -1 to unsigned
+somewhere?
 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	qup->base = devm_ioremap_resource(qup->dev, res);
-+	qup->base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(qup->base))
- 		return PTR_ERR(qup->base);
+Gr{oetje,eeting}s,
 
---
-2.20.1
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
