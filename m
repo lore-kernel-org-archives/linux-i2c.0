@@ -1,53 +1,50 @@
-From: Greg KH <gregkh@linuxfoundation.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: linux-next: build failure after merge of the driver-core tree
-Date: Wed, 18 Sep 2019 20:52:57 +0200
-Message-ID: <20190918185257.GC1933777@kroah.com>
-References: <20190918170952.GT2596@sirena.co.uk>
+Date: Wed, 18 Sep 2019 12:03:17 -0700
+Message-ID: <CAHk-=whreYmsU_AQtzDS5gd3yamYJ72gBo+YekYSyJLPQ1Qo-A@mail.gmail.com>
+References: <20190918170952.GT2596@sirena.co.uk> <20190918185257.GC1933777@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20190918170952.GT2596@sirena.co.uk>
+In-Reply-To: <20190918185257.GC1933777@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>, Mark Brown <broonie@kernel.org>
-Cc: Suzuki K Poulose <suzuki.poulose@arm.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Linux Next Mailing List <linux-next@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: Mark Brown <broonie@kernel.org>, Suzuki K Poulose <suzuki.poulose@arm.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Linux Next Mailing List <linux-next@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 18, 2019 at 06:09:52PM +0100, Mark Brown wrote:
-> Hi all,
-> 
-> After merging the driver-core tree, today's linux-next build
-> for arm64 allmodconfig failed like this:
-> 
-> /home/broonie/next/next/drivers/i2c/i2c-core-acpi.c: In function 'i2c_acpi_find_adapter_by_handle':
-> /home/broonie/next/next/drivers/i2c/i2c-core-acpi.c:352:10: error: 'i2c_acpi_find_match_adapter' undeclared (first use in this function); did you mean 'i2c_acpi_find_bus_speed'?
->           i2c_acpi_find_match_adapter);
->           ^~~~~~~~~~~~~~~~~~~~~~~~~~~
->           i2c_acpi_find_bus_speed
-> /home/broonie/next/next/drivers/i2c/i2c-core-acpi.c:352:10: note: each undeclared identifier is reported only once for each function it appears in
-> 
-> Caused by commit
-> 
->   644bf600889554210 ("i2c: Revert incorrect conversion to use generic helper")
-> 
-> In yesterday's -next that function existed but it appears to have been
-> removed in Linus' tree as part of the merge:
-> 
->   4feaab05dc1eda3 ("Merge tag 'leds-for-5.4-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/j.anaszewski/linux-leds")
-> 
-> by the commit
-> 
->   00500147cbd3fc5 ("drivers: Introduce device lookup variants by ACPI_COMPANION device")
-> 
-> (ie, the commit that the failing commit was trying to revert.)  I
-> suspect this is confusion caused by things going into Linus' tree in
-> different orders.  I've fixed this up by re-adding the function.
+On Wed, Sep 18, 2019 at 11:53 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Wed, Sep 18, 2019 at 06:09:52PM +0100, Mark Brown wrote:
+> >
+> > After merging the driver-core tree, today's linux-next build
+> > for arm64 allmodconfig failed like this:
+>
+> Wait, I thought Linus said this fixup was now resolved.  What went
+> wrong?
 
-Wait, I thought Linus said this fixup was now resolved.  What went
-wrong?
+I think this is purely a linux-next build failure.
 
-Linus, should I submit a fix for this?
+I do full allmodconfig builds between each merge I do, and what
+happened is that as part of the LED merge, I removed the
+no-longer-used 'i2c_acpi_find_match_adapter()' to resolve that build
+warning.
 
-thanks,
+Then linux-next presumably merged my tree with the driver-core tree,
+and that re-instated the use of i2c_acpi_find_match_adapter() - which
+was now gone.
 
-greg k-h
+But when *I* merged the driver-core tree, I did the merge fixup
+correctly to actually re-instate not only the use, but also re-instate
+the removed function that now had a use again.
+
+> Linus, should I submit a fix for this?
+
+My tree should be fine, and I really think this is just a temporary
+linux-next effect from the above. I think linux-next only handled the
+actual syntactic conflicts, not the semantic conflict of "function had
+been removed to avoid build error from previous merge, and needed to
+be brought back"
+
+Knock wood.
+
+              Linus
