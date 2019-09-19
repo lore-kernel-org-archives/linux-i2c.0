@@ -1,62 +1,58 @@
-From: kbouhara <kamel.bouhara@bootlin.com>
+From: <Codrin.Ciubotariu@microchip.com>
 Subject: Re: [PATCH] i2c: at91: Send bus clear command if SCL or SDA is down
-Date: Thu, 19 Sep 2019 17:06:18 +0200
-Message-ID: <1ed845e5-3835-f1aa-099a-b67c3bc16076@bootlin.com>
+Date: Thu, 19 Sep 2019 16:25:32 +0000
+Message-ID: <d0820574-e677-d261-ac5c-e29bae600b3b@microchip.com>
 References: <20190911095854.5141-1-codrin.ciubotariu@microchip.com>
+ <1ed845e5-3835-f1aa-099a-b67c3bc16076@bootlin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190911095854.5141-1-codrin.ciubotariu@microchip.com>
+In-Reply-To: <1ed845e5-3835-f1aa-099a-b67c3bc16076@bootlin.com>
 Content-Language: en-US
+Content-ID: <EB34E13450DD284088DEB23122EC935E@namprd11.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, wsa@the-dreams.de
+To: kamel.bouhara@bootlin.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: Ludovic.Desroches@microchip.com, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, wsa@the-dreams.de
 List-Id: linux-i2c@vger.kernel.org
 
-On 9/11/19 11:58 AM, Codrin Ciubotariu wrote:
-> After a transfer timeout, some faulty I2C slave devices might hold down
-> the SCL or the SDA pins. We can generate a bus clear command, hoping that
-> the slave might release the pins.
->
-> Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-> ---
->   drivers/i2c/busses/i2c-at91-master.c | 20 ++++++++++++++++++++
->   drivers/i2c/busses/i2c-at91.h        |  6 +++++-
->   2 files changed, 25 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
-> index a3fcc35ffd3b..5f544a16db96 100644
-> --- a/drivers/i2c/busses/i2c-at91-master.c
-> +++ b/drivers/i2c/busses/i2c-at91-master.c
-> @@ -599,6 +599,26 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
->   		at91_twi_write(dev, AT91_TWI_CR,
->   			       AT91_TWI_THRCLR | AT91_TWI_LOCKCLR);
->   	}
-> +
-> +	/*
-> +	 * After timeout, some faulty I2C slave devices might hold SCL/SDA down;
-> +	 * we can send a bus clear command, hoping that the pins will be
-> +	 * released
-> +	 */
-> +	if (!(dev->transfer_status & AT91_TWI_SDA) ||
-> +	    !(dev->transfer_status & AT91_TWI_SCL)) {
-> +		dev_dbg(dev->dev,
-> +			"SDA/SCL are down; sending bus clear command\n");
-> +		if (dev->use_alt_cmd) {
-> +			unsigned int acr;
-> +
-> +			acr = at91_twi_read(dev, AT91_TWI_ACR);
-> +			acr &= ~AT91_TWI_ACR_DATAL_MASK;
-> +			at91_twi_write(dev, AT91_TWI_ACR, acr);
-> +		}
-> +		at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_CLEAR);
-
-This bit is not documented on SoCs before SAMA5D2/D4, this write 
-shouldn't be done unconditionally.
-
-
--- 
-Kamel Bouhara, Bootlin
-Embedded Linux and kernel engineering
-https://bootlin.com
+T24gMTkuMDkuMjAxOSAxODowNiwga2JvdWhhcmEgd3JvdGU6DQo+IA0KPiBPbiA5LzExLzE5IDEx
+OjU4IEFNLCBDb2RyaW4gQ2l1Ym90YXJpdSB3cm90ZToNCj4+IEFmdGVyIGEgdHJhbnNmZXIgdGlt
+ZW91dCwgc29tZSBmYXVsdHkgSTJDIHNsYXZlIGRldmljZXMgbWlnaHQgaG9sZCBkb3duDQo+PiB0
+aGUgU0NMIG9yIHRoZSBTREEgcGlucy4gV2UgY2FuIGdlbmVyYXRlIGEgYnVzIGNsZWFyIGNvbW1h
+bmQsIGhvcGluZyB0aGF0DQo+PiB0aGUgc2xhdmUgbWlnaHQgcmVsZWFzZSB0aGUgcGlucy4NCj4+
+DQo+PiBTaWduZWQtb2ZmLWJ5OiBDb2RyaW4gQ2l1Ym90YXJpdSA8Y29kcmluLmNpdWJvdGFyaXVA
+bWljcm9jaGlwLmNvbT4NCj4+IC0tLQ0KPj4gwqAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkx
+LW1hc3Rlci5jIHwgMjAgKysrKysrKysrKysrKysrKysrKysNCj4+IMKgIGRyaXZlcnMvaTJjL2J1
+c3Nlcy9pMmMtYXQ5MS5owqDCoMKgwqDCoMKgwqAgfMKgIDYgKysrKystDQo+PiDCoCAyIGZpbGVz
+IGNoYW5nZWQsIDI1IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkNCj4+DQo+PiBkaWZmIC0t
+Z2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLW1hc3Rlci5jIA0KPj4gYi9kcml2ZXJz
+L2kyYy9idXNzZXMvaTJjLWF0OTEtbWFzdGVyLmMNCj4+IGluZGV4IGEzZmNjMzVmZmQzYi4uNWY1
+NDRhMTZkYjk2IDEwMDY0NA0KPj4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLW1h
+c3Rlci5jDQo+PiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWF0OTEtbWFzdGVyLmMNCj4+
+IEBAIC01OTksNiArNTk5LDI2IEBAIHN0YXRpYyBpbnQgYXQ5MV9kb190d2lfdHJhbnNmZXIoc3Ry
+dWN0IA0KPj4gYXQ5MV90d2lfZGV2ICpkZXYpDQo+PiDCoMKgwqDCoMKgwqDCoMKgwqAgYXQ5MV90
+d2lfd3JpdGUoZGV2LCBBVDkxX1RXSV9DUiwNCj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqAgQVQ5MV9UV0lfVEhSQ0xSIHwgQVQ5MV9UV0lfTE9DS0NMUik7DQo+PiDC
+oMKgwqDCoMKgIH0NCj4+ICsNCj4+ICvCoMKgwqAgLyoNCj4+ICvCoMKgwqDCoCAqIEFmdGVyIHRp
+bWVvdXQsIHNvbWUgZmF1bHR5IEkyQyBzbGF2ZSBkZXZpY2VzIG1pZ2h0IGhvbGQgDQo+PiBTQ0wv
+U0RBIGRvd247DQo+PiArwqDCoMKgwqAgKiB3ZSBjYW4gc2VuZCBhIGJ1cyBjbGVhciBjb21tYW5k
+LCBob3BpbmcgdGhhdCB0aGUgcGlucyB3aWxsIGJlDQo+PiArwqDCoMKgwqAgKiByZWxlYXNlZA0K
+Pj4gK8KgwqDCoMKgICovDQo+PiArwqDCoMKgIGlmICghKGRldi0+dHJhbnNmZXJfc3RhdHVzICYg
+QVQ5MV9UV0lfU0RBKSB8fA0KPj4gK8KgwqDCoMKgwqDCoMKgICEoZGV2LT50cmFuc2Zlcl9zdGF0
+dXMgJiBBVDkxX1RXSV9TQ0wpKSB7DQo+PiArwqDCoMKgwqDCoMKgwqAgZGV2X2RiZyhkZXYtPmRl
+diwNCj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICJTREEvU0NMIGFyZSBkb3duOyBzZW5kaW5n
+IGJ1cyBjbGVhciBjb21tYW5kXG4iKTsNCj4+ICvCoMKgwqDCoMKgwqDCoCBpZiAoZGV2LT51c2Vf
+YWx0X2NtZCkgew0KPj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdW5zaWduZWQgaW50IGFjcjsN
+Cj4+ICsNCj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGFjciA9IGF0OTFfdHdpX3JlYWQoZGV2
+LCBBVDkxX1RXSV9BQ1IpOw0KPj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqAgYWNyICY9IH5BVDkx
+X1RXSV9BQ1JfREFUQUxfTUFTSzsNCj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGF0OTFfdHdp
+X3dyaXRlKGRldiwgQVQ5MV9UV0lfQUNSLCBhY3IpOw0KPj4gK8KgwqDCoMKgwqDCoMKgIH0NCj4+
+ICvCoMKgwqDCoMKgwqDCoCBhdDkxX3R3aV93cml0ZShkZXYsIEFUOTFfVFdJX0NSLCBBVDkxX1RX
+SV9DTEVBUik7DQo+IA0KPiBUaGlzIGJpdCBpcyBub3QgZG9jdW1lbnRlZCBvbiBTb0NzIGJlZm9y
+ZSBTQU1BNUQyL0Q0LCB0aGlzIHdyaXRlIA0KPiBzaG91bGRuJ3QgYmUgZG9uZSB1bmNvbmRpdGlv
+bmFsbHkuDQo+IA0KPiANCg0KSW5kZWVkLCB0aGV5IGFyZSBub3QgcHJlc2VudCBvbiBTQU1BNUQ0
+IG9yIGVhcmxpZXIgU29Dcy4gSXQgaXMgc3VwcG9ydGVkIA0Kb24gU0FNQTVEMiB0aG91Z2guIEkg
+d2lsbCBtYWtlIGEgbmV3IHZlcnNpb24gYW5kIGltcGxlbWVudCB0aGUgQ0xFQVIgDQpjb21tYW5k
+IG9ubHkgZm9yIHRoZSBTb0NzIHRoYXQgc3VwcG9ydCBpdC4NCg0KVGhhbmsgeW91IGZvciB5b3Vy
+IHJldmlldy4NCg0KQmVzdCByZWdhcmRzLA0KQ29kcmluDQo=
