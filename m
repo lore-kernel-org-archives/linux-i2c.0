@@ -1,58 +1,65 @@
-From: <Codrin.Ciubotariu@microchip.com>
-Subject: Re: [PATCH] i2c: at91: Send bus clear command if SCL or SDA is down
-Date: Thu, 19 Sep 2019 16:25:32 +0000
-Message-ID: <d0820574-e677-d261-ac5c-e29bae600b3b@microchip.com>
-References: <20190911095854.5141-1-codrin.ciubotariu@microchip.com>
- <1ed845e5-3835-f1aa-099a-b67c3bc16076@bootlin.com>
+From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Subject: Re: [BUG] sun4i: axp209: no atomic i2c transfer handler
+Date: Fri, 20 Sep 2019 16:39:41 +0800
+Message-ID: <CAGb2v65JrZXV9vb6pbCHfJvE3AawBxcWEpQH7C3woxnXpbN7vw@mail.gmail.com>
+References: <20190920083237.GA11657@plaes.org>
+Reply-To: wens-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1ed845e5-3835-f1aa-099a-b67c3bc16076@bootlin.com>
-Content-Language: en-US
-Content-ID: <EB34E13450DD284088DEB23122EC935E@namprd11.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: kamel.bouhara@bootlin.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: Ludovic.Desroches@microchip.com, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, wsa@the-dreams.de
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-sunxi+bncBCMILY6JWQBBBXFASLWAKGQEAUPVXDQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <20190920083237.GA11657-q/aMd4JkU83YtjvyW6yDsg@public.gmane.org>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: Priit Laes <plaes-q/aMd4JkU83YtjvyW6yDsg@public.gmane.org>
+Cc: Maxime Ripard <mripard-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, priit.laes-RQIl3+LPqAc@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMTkuMDkuMjAxOSAxODowNiwga2JvdWhhcmEgd3JvdGU6DQo+IA0KPiBPbiA5LzExLzE5IDEx
-OjU4IEFNLCBDb2RyaW4gQ2l1Ym90YXJpdSB3cm90ZToNCj4+IEFmdGVyIGEgdHJhbnNmZXIgdGlt
-ZW91dCwgc29tZSBmYXVsdHkgSTJDIHNsYXZlIGRldmljZXMgbWlnaHQgaG9sZCBkb3duDQo+PiB0
-aGUgU0NMIG9yIHRoZSBTREEgcGlucy4gV2UgY2FuIGdlbmVyYXRlIGEgYnVzIGNsZWFyIGNvbW1h
-bmQsIGhvcGluZyB0aGF0DQo+PiB0aGUgc2xhdmUgbWlnaHQgcmVsZWFzZSB0aGUgcGlucy4NCj4+
-DQo+PiBTaWduZWQtb2ZmLWJ5OiBDb2RyaW4gQ2l1Ym90YXJpdSA8Y29kcmluLmNpdWJvdGFyaXVA
-bWljcm9jaGlwLmNvbT4NCj4+IC0tLQ0KPj4gwqAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkx
-LW1hc3Rlci5jIHwgMjAgKysrKysrKysrKysrKysrKysrKysNCj4+IMKgIGRyaXZlcnMvaTJjL2J1
-c3Nlcy9pMmMtYXQ5MS5owqDCoMKgwqDCoMKgwqAgfMKgIDYgKysrKystDQo+PiDCoCAyIGZpbGVz
-IGNoYW5nZWQsIDI1IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkNCj4+DQo+PiBkaWZmIC0t
-Z2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLW1hc3Rlci5jIA0KPj4gYi9kcml2ZXJz
-L2kyYy9idXNzZXMvaTJjLWF0OTEtbWFzdGVyLmMNCj4+IGluZGV4IGEzZmNjMzVmZmQzYi4uNWY1
-NDRhMTZkYjk2IDEwMDY0NA0KPj4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLW1h
-c3Rlci5jDQo+PiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWF0OTEtbWFzdGVyLmMNCj4+
-IEBAIC01OTksNiArNTk5LDI2IEBAIHN0YXRpYyBpbnQgYXQ5MV9kb190d2lfdHJhbnNmZXIoc3Ry
-dWN0IA0KPj4gYXQ5MV90d2lfZGV2ICpkZXYpDQo+PiDCoMKgwqDCoMKgwqDCoMKgwqAgYXQ5MV90
-d2lfd3JpdGUoZGV2LCBBVDkxX1RXSV9DUiwNCj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqAgQVQ5MV9UV0lfVEhSQ0xSIHwgQVQ5MV9UV0lfTE9DS0NMUik7DQo+PiDC
-oMKgwqDCoMKgIH0NCj4+ICsNCj4+ICvCoMKgwqAgLyoNCj4+ICvCoMKgwqDCoCAqIEFmdGVyIHRp
-bWVvdXQsIHNvbWUgZmF1bHR5IEkyQyBzbGF2ZSBkZXZpY2VzIG1pZ2h0IGhvbGQgDQo+PiBTQ0wv
-U0RBIGRvd247DQo+PiArwqDCoMKgwqAgKiB3ZSBjYW4gc2VuZCBhIGJ1cyBjbGVhciBjb21tYW5k
-LCBob3BpbmcgdGhhdCB0aGUgcGlucyB3aWxsIGJlDQo+PiArwqDCoMKgwqAgKiByZWxlYXNlZA0K
-Pj4gK8KgwqDCoMKgICovDQo+PiArwqDCoMKgIGlmICghKGRldi0+dHJhbnNmZXJfc3RhdHVzICYg
-QVQ5MV9UV0lfU0RBKSB8fA0KPj4gK8KgwqDCoMKgwqDCoMKgICEoZGV2LT50cmFuc2Zlcl9zdGF0
-dXMgJiBBVDkxX1RXSV9TQ0wpKSB7DQo+PiArwqDCoMKgwqDCoMKgwqAgZGV2X2RiZyhkZXYtPmRl
-diwNCj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICJTREEvU0NMIGFyZSBkb3duOyBzZW5kaW5n
-IGJ1cyBjbGVhciBjb21tYW5kXG4iKTsNCj4+ICvCoMKgwqDCoMKgwqDCoCBpZiAoZGV2LT51c2Vf
-YWx0X2NtZCkgew0KPj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdW5zaWduZWQgaW50IGFjcjsN
-Cj4+ICsNCj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGFjciA9IGF0OTFfdHdpX3JlYWQoZGV2
-LCBBVDkxX1RXSV9BQ1IpOw0KPj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqAgYWNyICY9IH5BVDkx
-X1RXSV9BQ1JfREFUQUxfTUFTSzsNCj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGF0OTFfdHdp
-X3dyaXRlKGRldiwgQVQ5MV9UV0lfQUNSLCBhY3IpOw0KPj4gK8KgwqDCoMKgwqDCoMKgIH0NCj4+
-ICvCoMKgwqDCoMKgwqDCoCBhdDkxX3R3aV93cml0ZShkZXYsIEFUOTFfVFdJX0NSLCBBVDkxX1RX
-SV9DTEVBUik7DQo+IA0KPiBUaGlzIGJpdCBpcyBub3QgZG9jdW1lbnRlZCBvbiBTb0NzIGJlZm9y
-ZSBTQU1BNUQyL0Q0LCB0aGlzIHdyaXRlIA0KPiBzaG91bGRuJ3QgYmUgZG9uZSB1bmNvbmRpdGlv
-bmFsbHkuDQo+IA0KPiANCg0KSW5kZWVkLCB0aGV5IGFyZSBub3QgcHJlc2VudCBvbiBTQU1BNUQ0
-IG9yIGVhcmxpZXIgU29Dcy4gSXQgaXMgc3VwcG9ydGVkIA0Kb24gU0FNQTVEMiB0aG91Z2guIEkg
-d2lsbCBtYWtlIGEgbmV3IHZlcnNpb24gYW5kIGltcGxlbWVudCB0aGUgQ0xFQVIgDQpjb21tYW5k
-IG9ubHkgZm9yIHRoZSBTb0NzIHRoYXQgc3VwcG9ydCBpdC4NCg0KVGhhbmsgeW91IGZvciB5b3Vy
-IHJldmlldy4NCg0KQmVzdCByZWdhcmRzLA0KQ29kcmluDQo=
+On Fri, Sep 20, 2019 at 4:32 PM Priit Laes <plaes-q/aMd4JkU83YtjvyW6yDsg@public.gmane.org> wrote:
+>
+> Heya!
+>
+> I have seen following warning message for few times when shutting down the
+> machine (Olinuxino Lime2-emmc) running the mainline kernel.
+>
+> [snip]
+> WARNING: CPU: 0 PID: 1 at drivers/i2c/i2c-core.h:41 i2c_transfer+0xe8/0xf4
+> No atomic I2C transfer handler for 'i2c-1'
+> Modules linked in: enc28j60
+> CPU: 0 PID: 1 Comm: systemd-shutdow Not tainted 5.3.0-rc8-paf+ #28
+> Hardware name: Allwinner sun7i (A20) Family
+> [<c010ee08>] (unwind_backtrace) from [<c010b5b8>] (show_stack+0x10/0x14)
+> [<c010b5b8>] (show_stack) from [<c06bf2b4>] (dump_stack+0x88/0x9c)
+> [<c06bf2b4>] (dump_stack) from [<c011e044>] (__warn+0xd4/0xf0)
+> [<c011e044>] (__warn) from [<c011dbe4>] (warn_slowpath_fmt+0x48/0x6c)
+> [<c011dbe4>] (warn_slowpath_fmt) from [<c051ce20>] (i2c_transfer+0xe8/0xf4)
+> [<c051ce20>] (i2c_transfer) from [<c051ce78>] (i2c_transfer_buffer_flags+0x4c/0x70)
+> [<c051ce78>] (i2c_transfer_buffer_flags) from [<c046c2a4>] (regmap_i2c_write+0x14/0x30)
+> [<c046c2a4>] (regmap_i2c_write) from [<c0468180>] (_regmap_raw_write_impl+0x588/0x63c)
+> [<c0468180>] (_regmap_raw_write_impl) from [<c0468b50>] (regmap_write+0x3c/0x5c)
+> [<c0468b50>] (regmap_write) from [<c046f554>] (axp20x_power_off+0x2c/0x38)
+> [<c046f554>] (axp20x_power_off) from [<c013e8a4>] (sys_reboot+0x14c/0x1e0)
+> [<c013e8a4>] (sys_reboot) from [<c0101000>] (ret_fast_syscall+0x0/0x54)
+> Exception stack(0xef04ffa8 to 0xef04fff0)
+> ffa0:                   00427954 00000000 fee1dead 28121969 4321fedc 16814300
+> ffc0: 00427954 00000000 00000000 00000058 bec15c78 00000000 bec15c10 004266f8
+> ffe0: 00000058 bec15b6c b6f69d45 b6eeb746
+> [/snip]
+>
+> The enc28j60 module is SPI, so it has nothing to do with the message.
+>
+> Any ideas where to look?
+
+This looks like it's complaining that i2c-1 (i2c-mv64xxx) does not have
+.master_xfer_atomic , which should be used in atomic contexts.
+
+include/linux/i2c.h says:
+
+   @master_xfer_atomic: same as @master_xfer. Yet, only using atomic context
+     so e.g. PMICs can be accessed very late before shutdown. Optional.
+
+ChenYu
