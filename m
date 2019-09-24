@@ -1,71 +1,64 @@
-From: Ray Jui <ray.jui@broadcom.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v1 1/1] i2c: iproc: Add i2c repeated start capability
-Date: Tue, 24 Sep 2019 10:23:12 -0700
-Message-ID: <5ab79d0e-eb54-8fe1-1ca3-e763a17c6426@broadcom.com>
+Date: Tue, 24 Sep 2019 20:57:57 +0200
+Message-ID: <20190924185757.GA1538@kunai>
 References: <1565150941-27297-1-git-send-email-rayagonda.kokatanur@broadcom.com>
  <20190830125626.GC2870@ninjato>
  <3e70fa7e-de13-4edd-2e17-b7c56e91d220@broadcom.com>
  <20190831094940.GA1138@kunai>
  <540c4e2d-0dd5-5260-30b2-e1589b279d71@broadcom.com>
  <20190904213745.GG23608@ninjato>
+ <5ab79d0e-eb54-8fe1-1ca3-e763a17c6426@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190904213745.GG23608@ninjato>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <5ab79d0e-eb54-8fe1-1ca3-e763a17c6426@broadcom.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+To: Ray Jui <ray.jui@broadcom.com>
 Cc: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, bcm-kernel-feedback-list@broadcom.com, Florian Fainelli <f.fainelli@gmail.com>, Lori Hikichi <lori.hikichi@broadcom.com>, Icarus Chau <icarus.chau@broadcom.com>, Shivaraj Shetty <sshetty1@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On 9/4/19 2:37 PM, Wolfram Sang wrote:
-> 
->> I think you are right that the controller does not seem to support
->> additional I2C features in addition to SMBUS.
->>
->> However, my concern of switching to the smbus_xfer API is:
->>
->> 1) Some customers might have used I2C_RDWR based API from i2cdev. Changing
->> from master_xfer to smbus_xfer may break the existing applications that are
->> already developed.
-> 
-> Well, given that you add new quirks in the original patch here, you are
-> kind of breaking it already. Most transfers which are not SMBus-alike
-> transfers would now be rejected. For SMBus-alike transfers which are
-> sent via I2C_RDWR (which is ugly), I have to think about it.
-> 
->> 2) The sound subsystem I2C regmap based implementation seems to be using
->> i2c_ based API instead of smbus_ based API. Does this mean this will also
->> break most of the audio codec drivers with I2C regmap API based usage?
-> 
-> I don't think so. If you check regmap_get_i2c_bus() then it checks the
-> adapter functionality and chooses the best transfer option then. I may
-> be missing something but I would wonder if the sound system does
-> something special and different.
-> 
+--DocE+STaALJfprDB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-We did more investigation on this.
 
-First of all, like you said, there's no concern on regmap based API, the 
-smbus_xfer only based approach should just work.
+> In my opinion, it's probably better to continue to support master_xfer in
+> our driver (with obvious limitations), in order to allow i2ctransfer (or =
+any
+> apps that use I2C RDWR) to continue to work.
+>=20
+> What do you think?
 
-Secondly, for most i2ctools like i2cget, i2cset, i2cdump, there's no 
-concern either, given that they already use I2C_SMBUS based IOCTL.
+Yes, don't break it for users. We should have paid more attention to it
+in the beginning. But, while not ideal, it is not such a big deal to
+keep it like this.
 
-However, for i2ctransfer or any customer applications that use I2C_RDWR 
-IOCTL, i2c_transfer (master_xfer) is the only supported function. And we 
-can confirm we do have at least one customer using i2ctransfer for 
-EEPROM access on their system, e.g.,  i2ctransfer 1 w2@0x50 0x00 0x00 r64.
+Thanks for your investigations!
 
-In my opinion, it's probably better to continue to support master_xfer 
-in our driver (with obvious limitations), in order to allow i2ctransfer 
-(or any apps that use I2C RDWR) to continue to work.
 
-What do you think?
+--DocE+STaALJfprDB
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Regards,
+-----BEGIN PGP SIGNATURE-----
 
-Ray
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl2KZzEACgkQFA3kzBSg
+Kbam+A//dpJL9KQfjH0vct83wG2I23jh0ofw2vQQ0Oz4QCKWS+Vz9dex7nvEiecY
+Pua7zt0evVz6Du44tpAJGpsydjgNJBdEWjZp4rxksVNpyc5SOkF186eEdjjN633L
+LqCpl6TgqyZhVXCs9H1y9WGy47i9xEH4B+gRG3SwEx19Wc47pUnURQrWA/7HGnjF
+7tzEIdZTJKLBU0BzGQqXJ2bo5mf1Vt2eT112G3Uj+yh5/TifFnjGKqv4rGG4uE8W
+pXkOg94Jb0ywSl2YWV8axsAIyNVNzW74lxkvsRoPuZ/qcCdw9n+U8YoXeOKJuJEc
+6BCH4UDC5mf/m88q70UyZwryz2xZtkvS7Df7JU92dbWRgHG5SNAW6cHo3FDKO6km
+uWWqMAidEhBw3t8SXbzhQkjyuxTEGNue/LcX+SYhWEXqSiuNQ4Kudr/imW4B6NAC
+X1G+fUxdyQlEgju1g28Bfh6cSH7DZ0v20k/cy7Pdqa4yPp3LhgUnRkfLdNH1qo2R
+judxCqo824+GiMU5vAQYkA8+ZI5WFPqX8KCEmhqh8qCH++NAnqxmpwmVS4FmvN9X
+5bGDRe71F8Z5UTXKTc+IajEc6Nu0+XUN68rNAlpM/NLD2Q0kRJVHh+bFoWrkwNdf
+ODfzxF5EI/Uz/G4N6pytdB2SFMdTCvSieG/kqk/K1zTVZUWplw8=
+=5VKZ
+-----END PGP SIGNATURE-----
+
+--DocE+STaALJfprDB--
