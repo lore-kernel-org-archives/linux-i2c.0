@@ -1,71 +1,46 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PULL REQUEST] i2c for 5.4
-Date: Thu, 26 Sep 2019 10:41:27 +0200
-Message-ID: <20190926084127.GA1862@kunai>
-References: <20190924193054.GA2215@kunai>
- <CAHk-=wi1WroG_uZ44au_KdEcujkCvcwz+d05EDR_=6vHb8xQaw@mail.gmail.com>
+From: Chris Brandt <chris.brandt@renesas.com>
+Subject: [PATCH v2] i2c: riic: Clear NACK in tend isr
+Date: Thu, 26 Sep 2019 07:19:09 -0500
+Message-ID: <20190926121909.1795-1-chris.brandt@renesas.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wi1WroG_uZ44au_KdEcujkCvcwz+d05EDR_=6vHb8xQaw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Chris Brandt <chris.brandt@renesas.com>, stable@vger.kernel.org, Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>
 List-Id: linux-i2c@vger.kernel.org
 
+The NACKF flag should be cleared in INTRIICNAKI interrupt processing as
+description in HW manual.
 
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This issue shows up quickly when PREEMPT_RT is applied and a device is
+probed that is not plugged in (like a touchscreen controller). The result
+is endless interrupts that halt system boot.
 
-Hi Linus,
+Fixes: 310c18a41450 ("i2c: riic: add driver")
+Cc: stable@vger.kernel.org
+Reported-by: Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
 
-> > - new driver for ICY, an Amiga Zorro card :)
->=20
-> Christ. Will that thing _never_ die?
+---
+v2:
+ * Added Cc for stable
+---
+ drivers/i2c/busses/i2c-riic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Well, a couple of happy users there...
-
-> I don't know what the proper mutt incantation is to make it join the
-> modern world, but I'm sure one exists, and then your emails would get
-> names right too. Even if they are some funky Swedish ones with =C3=A5=C3=
-=A4=C3=B6.
-
-Sorry, my template for pull-requests had bogus header overriding the
-default utf-8 of my config. I fixed it now. Thanks for pointing it out.
-
-> (And no, don't use Latin1 - it may cover Swedish and German etc, but
-> you really want to go with proper utf-8 and be able to handle true
-> complex character sets, not just the Western European ones).
-
-Heh, no need to convince me, I am all for utf-8!
-
-Regards,
-
-   Wolfram
-
-
---EeQfGwPcQSOJBaQU
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl2MebcACgkQFA3kzBSg
-KbbPew/8C5Cg7gXflRpP7sT2XwDafwFNolQzyA1KoTi1TGR6+5p8iQvo8fGy76dr
-/iXIa97HPKpr/QQvdp6hYAG6/DNgByOf5FrbYv+5IQ3zOwOhdAEi6Jz0hZ/SCKTI
-V26eryi6oiDX1SpSY0pFo6mODxP9wAb3vC/omiPEFhNHz4bA+6ljdehWb31c9J/r
-wk+CbKlXoEdB1BhgSfuLpu/wemCBDu1cW3hFoBXRnIlKipHyDIpQukop9jwH+zxg
-lCN32U+LRm+h+6GuMzQ88RjaD7BTIHINijTsgZywrsZlC5sERjCgU9nNVSEhMqfU
-QqY57I3Y+nPC6gh0jt5mE5a8QvOcbTLJ+ClvGiDLq0A0a2x2SWrpkPN1B0HCWxfB
-8W0517CtbH6NgG1o54fbqOtSWhWmiDOu4/4uWM9qwEBvvPwJFROVCIproO4rKde8
-dude8sgYNIK9nuh+u+H/irYcTk9t4xPsiRt2YhC/iWJ/0I8XUQeBN18wC1fk+lP2
-HixvCV42/Y8OwdlWqDHo5WWlnYRKo4xqKSZLzz5BtUri/U84LnDcQNoT/XKtytzM
-33qbZaMm6QMbHBpkz3+kx6NUTXHgzgqSkLP7bmXkGOktErCni7fVKMXMXOwWy9JO
-U0jZoBogEVXTEIZpVLVAYPIPsYLytT3GDFoVr/hhQJ14kSeZtg0=
-=V5uj
------END PGP SIGNATURE-----
-
---EeQfGwPcQSOJBaQU--
+diff --git a/drivers/i2c/busses/i2c-riic.c b/drivers/i2c/busses/i2c-riic.c
+index f31413fd9521..800414886f6b 100644
+--- a/drivers/i2c/busses/i2c-riic.c
++++ b/drivers/i2c/busses/i2c-riic.c
+@@ -202,6 +202,7 @@ static irqreturn_t riic_tend_isr(int irq, void *data)
+ 	if (readb(riic->base + RIIC_ICSR2) & ICSR2_NACKF) {
+ 		/* We got a NACKIE */
+ 		readb(riic->base + RIIC_ICDRR);	/* dummy read */
++		riic_clear_set_bit(riic, ICSR2_NACKF, 0, RIIC_ICSR2);
+ 		riic->err = -ENXIO;
+ 	} else if (riic->bytes_left) {
+ 		return IRQ_NONE;
+-- 
+2.23.0
