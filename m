@@ -1,94 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 1/1] i2c: iproc: Add i2c repeated start capability
-Date: Sat, 28 Sep 2019 20:23:43 +0200
-Message-ID: <20190928181910.GB12219@kunai>
-References: <1569472808-15284-1-git-send-email-rayagonda.kokatanur@broadcom.com>
+Subject: Re: [PATCH v2] i2c: riic: Clear NACK in tend isr
+Date: Sat, 28 Sep 2019 20:24:29 +0200
+Message-ID: <20190928182423.GC12219@kunai>
+References: <20190926121909.1795-1-chris.brandt@renesas.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8185875550141010931=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1569472808-15284-1-git-send-email-rayagonda.kokatanur@broadcom.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Cc: Lori Hikichi <lori.hikichi@broadcom.com>, Shivaraj Shetty <sshetty1@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Ray Jui <rjui@broadcom.com>, linux-kernel@vger.kernel.org, Shreesha Rajashekar <shreesha.rajashekar@broadcom.com>, Icarus Chau <icarus.chau@broadcom.com>, bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, Michael Cheng <ccheng@broadcom.com>, Ray Jui <ray.jui@broadcom.com>, linux-arm-kernel@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="SO98HVl1bnMOfKZd"
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20190926121909.1795-1-chris.brandt@renesas.com>
+Sender: stable-owner@vger.kernel.org
+To: Chris Brandt <chris.brandt@renesas.com>
+Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, stable@vger.kernel.org, Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============8185875550141010931==
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="yLVHuoLXiP9kZBkt"
-Content-Disposition: inline
-
-
---yLVHuoLXiP9kZBkt
+--SO98HVl1bnMOfKZd
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 26, 2019 at 10:10:08AM +0530, Rayagonda Kokatanur wrote:
-> From: Lori Hikichi <lori.hikichi@broadcom.com>
+On Thu, Sep 26, 2019 at 07:19:09AM -0500, Chris Brandt wrote:
+> The NACKF flag should be cleared in INTRIICNAKI interrupt processing as
+> description in HW manual.
 >=20
-> Enable handling of i2c repeated start. The current code
-> handles a multi msg i2c transfer as separate i2c bus
-> transactions. This change will now handle this case
-> using the i2c repeated start protocol. The number of msgs
-> in a transfer is limited to two, and must be a write
-> followed by a read.
+> This issue shows up quickly when PREEMPT_RT is applied and a device is
+> probed that is not plugged in (like a touchscreen controller). The result
+> is endless interrupts that halt system boot.
 >=20
-> Signed-off-by: Lori Hikichi <lori.hikichi@broadcom.com>
-> Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-> Signed-off-by: Icarus Chau <icarus.chau@broadcom.com>
-> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
-> Signed-off-by: Shivaraj Shetty <sshetty1@broadcom.com>
-> ---
-> changes from v1:
->  - Address code review comment from Wolfram Sang
+> Fixes: 310c18a41450 ("i2c: riic: add driver")
+> Cc: stable@vger.kernel.org
+> Reported-by: Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>
+> Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+>=20
 
-No, sorry, this is not a proper changelog. I review so many patches, I
-can't recall what I suggested to do for every patch. Please describe
-what changes you actually made. It is also better when digging through
-mail archives.
+Applied to for-current, thanks!
 
 
---yLVHuoLXiP9kZBkt
+--SO98HVl1bnMOfKZd
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl2PpSwACgkQFA3kzBSg
-KbadWBAAsEsPbvgqUxIfN2/lLOcJlf8l/MNqDio3L5sdrExhkEckEd879vd65rgh
-rw+dKI3vJMG2SDDa32bM0HZrqLLEhOa0aQQr0KFQeO3mPA/drLlz/9djjJOJNeE3
-EorXS2QIIKzWZDXF7MSbQ2d60fXUmKEEwm0K+uHO+bzyrlh7WPeri2k4DNnYRmDn
-uLqggb4V1mmXpZ24npue0GYXJY8hyIWbWtXXHFFJHvBa3ngZIb3n7xrgBsFbCvdN
-u3xjTT/DVgQf/RyVY/Fz7CNBkdqRm4jHTl+4wWC3EsULkV1fsOwS62JQynmfc99u
-AJJYoUGUtaDKAqVdwOfzfnUdQD5v7hkLVZfMKtNZum84+JLXwMC6RdvIhvoaBTSt
-6MpQtFufIcHHovxFUfg9vpU+qZNOpDEaQO6Aw+gzax1zi6qUvgW4TE4Ow8vfvmYP
-xYkERkVaSL7BtyPsLQkRwW3AeT50kA0ZbuzUZf4/0yKBCKmSy4BdA7tin8AbvIQS
-z8+IluQjP2lKJIdZPMEH/R7X8gr+pcHRsaF/Bp/SLcU0+TADW4nCUmLiyxsO9Mba
-Kr0WHFtoITKyHkXgE+cTSFpHQsZPAF2jqacyN6TblPIFYo6RAjJ+KsWaY52gFY4M
-lVjKa3uSSS3hCwwA3gHzr7bMFpghhOTdIipU+zefg00lPxyVYEg=
-=9s1s
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl2PpVcACgkQFA3kzBSg
+KbZtXw/+LLgzjDx2AqGztOvytSm+LJzDaDWx5E1ZHDGJuAnuU167yv4u+4Uxcx9S
+4u3zG7ZlniHvRNu1fKz8/0QcRtiJMnwqupjHFRzf6v3xFluRsNPykYL9YipNgUgZ
+clNCGxJjhEeaqLxHCP9XR2LtZMbiukafQTp+bbaa1YJM4JwPIwGDc5QasdbdP4/0
+C6+KRSRkBhgL+VFtZUL21UwXxUkAem2q/pQtA08/Vrk3Uvu5tcLTJytn+kqOBPvh
+lcvRQ080lapDUVrLzsZqk7fHQvBpxwXAZliaGwmCGtqMDgeCHdyisblXqNFWO1bE
+jTqnm27un/h7SZxVhc1mRUv0uWSHn1V3fGP1yXGWhk1LfSAgJFefck/eZZovXjsh
+KUFR5lxn1y728z++2lI+djH419C0zpTkMWqgZO/0zT8H2Wc6zkC1BGGCxxSJe6Dc
+V2ZHEeZPgaQAngDeAGTU0zIzVYzhHcUUfi6L8JvemkEtYF+7H36aJhgjNyEz4/KT
+SvUOOfT9yg3havUBGkcFf/mFwb2vPe0+AdoNbvOhEN9zFO0GD3DQXPKwxZdHKNuJ
+Ah376vQkTWehzK9XBJl3GlzQKam+6YS6YeZHuhKo2QNEhiZ0e7/We09x99vgkzsX
+46OUdWg4dtMBCdJ4NYcfMdBYb9oeu7+LAB3qAomREPB9KrkCfd4=
+=sGSV
 -----END PGP SIGNATURE-----
 
---yLVHuoLXiP9kZBkt--
-
-
---===============8185875550141010931==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============8185875550141010931==--
+--SO98HVl1bnMOfKZd--
