@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.2 05/42] i2c-cht-wc: Fix lockdep warning
-Date: Sun, 29 Sep 2019 13:32:04 -0400
-Message-ID: <20190929173244.8918-5-sashal@kernel.org>
-References: <20190929173244.8918-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 04/33] i2c-cht-wc: Fix lockdep warning
+Date: Sun, 29 Sep 2019 13:33:52 -0400
+Message-ID: <20190929173424.9361-4-sashal@kernel.org>
+References: <20190929173424.9361-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190929173244.8918-1-sashal@kernel.org>
+In-Reply-To: <20190929173424.9361-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Hans de Goede <hdegoede@redhat.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
@@ -131,10 +131,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 46 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-wc.c
-index 66af44bfa67d5..f6546de66fbc8 100644
+index c4d176f5ed793..f890af67f5017 100644
 --- a/drivers/i2c/busses/i2c-cht-wc.c
 +++ b/drivers/i2c/busses/i2c-cht-wc.c
-@@ -178,6 +178,51 @@ static const struct i2c_algorithm cht_wc_i2c_adap_algo = {
+@@ -187,6 +187,51 @@ static const struct i2c_algorithm cht_wc_i2c_adap_algo = {
  	.smbus_xfer = cht_wc_i2c_adap_smbus_xfer,
  };
  
@@ -186,7 +186,7 @@ index 66af44bfa67d5..f6546de66fbc8 100644
  /**** irqchip for the client connected to the extchgr i2c adapter ****/
  static void cht_wc_i2c_irq_lock(struct irq_data *data)
  {
-@@ -286,6 +331,7 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
+@@ -295,6 +340,7 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
  	adap->adapter.owner = THIS_MODULE;
  	adap->adapter.class = I2C_CLASS_HWMON;
  	adap->adapter.algo = &cht_wc_i2c_adap_algo;
