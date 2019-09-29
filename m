@@ -1,52 +1,103 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i2c-mt65xx: fix NULL ptr dereference
-Date: Sat, 28 Sep 2019 20:33:11 +0200
-Message-ID: <20190928183305.GD12219@kunai>
-References: <20190925203113.6972-1-fparent@baylibre.com>
+Subject: [PULL REQUEST] i2c for 5.4
+Date: Sun, 29 Sep 2019 12:39:54 +0200
+Message-ID: <20190929103950.GA9497@kunai>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="BZaMRJmqxGScZ8Mx"
+        protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20190925203113.6972-1-fparent@baylibre.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Fabien Parent <fparent@baylibre.com>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, matthias.bgg@gmail.com, qii.wang@mediatek.com, drinkcat@chromium.org, hsinyi@chromium.org, tglx@linutronix.de
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
 
---BZaMRJmqxGScZ8Mx
-Content-Type: text/plain; charset=us-ascii
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Linus,
+
+this second pull request from I2C contains:
+
+- make Lenovo Yoga C630 boot now that the dependencies are merged
+- restore BlockProcessCall for i801, accidently removed in this merge
+  window
+- a bugfix for the riic driver
+- an improvement to the slave-eeprom driver which should have been in
+  the first pull request but sadly got lost in the process
+
+And finally, my pull requests should be using utf-8 now.
+
+Please pull.
+
+Thanks,
+
+   Wolfram
 
 
-> -	if (adap->quirks->flags & I2C_AQ_NO_ZERO_LEN)
-> +	if (adap->quirks && adap->quirks->flags & I2C_AQ_NO_ZERO_LEN)
+The following changes since commit aefcf2f4b58155d27340ba5f9ddbe9513da8286d:
 
-Right. Please use i2c_check_quirks(). Otherwise thanks for the catch!
+  Merge branch 'next-lockdown' of git://git.kernel.org/pub/scm/linux/kernel=
+/git/jmorris/linux-security (2019-09-28 08:14:15 -0700)
 
-@Mediatek-people: can we have a dedicated maintainer for this driver to
-better prevent stuff like this from happening again?
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
+
+for you to fetch changes up to 11af27f494086188620e7768e421894af93c126a:
+
+  i2c: slave-eeprom: Add read only mode (2019-09-28 20:44:12 +0200)
+
+----------------------------------------------------------------
+Bj=C3=B6rn Ard=C3=B6 (1):
+      i2c: slave-eeprom: Add read only mode
+
+Chris Brandt (1):
+      i2c: riic: Clear NACK in tend isr
+
+Jarkko Nikula (1):
+      i2c: i801: Bring back Block Process Call support for certain platforms
+
+Lee Jones (1):
+      i2c: qcom-geni: Disable DMA processing on the Lenovo Yoga C630
 
 
---BZaMRJmqxGScZ8Mx
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Alexander Sverdlin (1):
+      (Rev.) i2c: i801: Bring back Block Process Call support for certain p=
+latforms
+
+Bjorn Andersson (1):
+      (Test) i2c: qcom-geni: Disable DMA processing on the Lenovo Yoga C630
+
+ drivers/i2c/busses/i2c-i801.c      |  1 +
+ drivers/i2c/busses/i2c-qcom-geni.c | 12 ++++++++----
+ drivers/i2c/busses/i2c-riic.c      |  1 +
+ drivers/i2c/i2c-slave-eeprom.c     | 14 +++++++++++---
+ 4 files changed, 21 insertions(+), 7 deletions(-)
+
+--a8Wt8u1KmwUX3Y2C
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl2Pp2EACgkQFA3kzBSg
-KbatPxAAr+Gltm2HCrzvvM07L4jnevtGwg05fL/W3Z71RjOwB1XMOX67NwKJn+gC
-3JMaLtB/9VNojTumuxkfnHrtlCc3zQgBNDC/Wf/tQQVgssuAz3TIY40PaxyF3+dP
-AWoh3UW9eM3p16wsqm6kH5SJCaZM3f8wuLYY2CtGOUIpzuTGar/X7DV34s+0BH/G
-eFxrLdwlGeq31UYZlPI6LnfGqa+K9zH+hTlSGe6zHt0QCH0/i1qXkTMJa2MafBgv
-Dl8VXDhBn6tN50JhfXgFbDYXKXV3FWoo8qGI5R4GHyeKOnGI3yszzx9AJq9zWiML
-RVQ8uHFULHbt5IXldaE5VKPlAOBRnKNAjjWB16u3HgmKESieU4XNxAt2ByDX38bO
-ZFVIbkuBzCIhdZxkipVlqYlF5fBLj4+fnqffCGYUYBUfMrSYLrd4FMhuVXaHABQy
-PRyBu+QT6F2dhdW0wGEZE7EBV+XEkOJNzv0b5QQtfLBUYjDED0DEU5XQWaWfR3xm
-KqcVj5XJoWNOpS+T5en8hUYIJNP43INdCoxG/M7oQgvYH28dIPlkIt9/iOo9EBzO
-z9DiI5J+tE1faM6R2cMol4CEmlX49emrGfnuGwxbQi1gMv/YjfFlb5VcYjPF/5Jx
-TTqCBC9wh8ruoyfuOPYnfQmLccm9IR4gnHjvPk0Zwncao5QRdc4=
-=/LoV
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl2QifEACgkQFA3kzBSg
+KbaqMg/+Icc3PCrKjMdaUaIMsJET5J4B1h8YBnCwuix4w29RbJfJsLCmYtMcrtkm
+v6I2QRmKmvihaJ0ffPMthhVQby/6JJq7FP89gGWztt6y2kORrl3iXKVN0x5MhGsu
+vIOx5WTF/Jq4599A9azewt4azydW8/Y3uHms80q7qGH1+tDgf0s9GJBxSe4avlXY
+izgtTnjzJ77bpn2RGxJi8vf/NUfW5UjaY1Y7yKhk1EtKB46nMGRJ9BYBu6otJ9fQ
+naqaLMBfVfigKQfiTHkyeR3g1IwcrRZoHGc//HB8dyTgMJSlYxLi55zg6aYr97/G
+Ewedho7/+thaBuv5iJ2w69LhAve60ny7iwDBBAZC+i+KaSWjru3hL5v6nNig/oU6
+lPjVKZiyOrKBj2LVY++q43+GG3LaadcX3Nz0kVh27jKe1SL0PznJHD6iRfwso6dr
+HRVZIEg+mo19twOiwULK3iZWkmMZ/uCChWRO80EOsEVPEKa+ekExKV0MHICiwr0R
+Oglm4oa94QP0PDLhvwv5CX9UMgK+b85/z15+AQzTsV2mF7Xc7gZ7FdpCL9YgQpSC
+hy8XuWRlVLiZzWTGYLioKLwnI7xl5d9Nk+v506Cd1rl8YTeBjVuxlnRu7lLtmPsh
+3qS62TrXOhlCU6kXb47fhLYmoXxm4bcA9ujerfbhptvQUYfqs7w=
+=kJHR
 -----END PGP SIGNATURE-----
 
---BZaMRJmqxGScZ8Mx--
+--a8Wt8u1KmwUX3Y2C--
