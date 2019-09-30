@@ -1,46 +1,183 @@
-From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Subject: Re: [PATCH v2 1/1] i2c: iproc: Add i2c repeated start capability
-Date: Mon, 30 Sep 2019 12:22:59 +0530
-Message-ID: <CAHO=5PHj1PQUGi3EYBPVNUsRHsEo9WxU6CsvR=9+bP4n6z-cMA@mail.gmail.com>
-References: <1569472808-15284-1-git-send-email-rayagonda.kokatanur@broadcom.com>
- <20190928181910.GB12219@kunai>
+From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Subject: [PATCH v3] i2c: at91: Send bus clear command if SCL or SDA is down
+Date: Mon, 30 Sep 2019 11:10:36 +0300
+Message-ID: <20190930081036.17803-1-codrin.ciubotariu@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190928181910.GB12219@kunai>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, BCM Kernel Feedback <bcm-kernel-feedback-list@broadcom.com>, Michael Cheng <ccheng@broadcom.com>, Shreesha Rajashekar <shreesha.rajashekar@broadcom.com>, Lori Hikichi <lori.hikichi@broadcom.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Icarus Chau <icarus.chau@broadcom.com>, Ray Jui <ray.jui@broadcom.com>, Shivaraj Shetty <sshetty1@broadcom.com>
+To: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, wsa@the-dreams.de, Claudiu.Beznea@microchip.com, Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Sep 28, 2019 at 11:53 PM Wolfram Sang <wsa@the-dreams.de> wrote:
->
-> On Thu, Sep 26, 2019 at 10:10:08AM +0530, Rayagonda Kokatanur wrote:
-> > From: Lori Hikichi <lori.hikichi@broadcom.com>
-> >
-> > Enable handling of i2c repeated start. The current code
-> > handles a multi msg i2c transfer as separate i2c bus
-> > transactions. This change will now handle this case
-> > using the i2c repeated start protocol. The number of msgs
-> > in a transfer is limited to two, and must be a write
-> > followed by a read.
-> >
-> > Signed-off-by: Lori Hikichi <lori.hikichi@broadcom.com>
-> > Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-> > Signed-off-by: Icarus Chau <icarus.chau@broadcom.com>
-> > Signed-off-by: Ray Jui <ray.jui@broadcom.com>
-> > Signed-off-by: Shivaraj Shetty <sshetty1@broadcom.com>
-> > ---
-> > changes from v1:
-> >  - Address code review comment from Wolfram Sang
->
-> No, sorry, this is not a proper changelog. I review so many patches, I
-> can't recall what I suggested to do for every patch. Please describe
-> what changes you actually made. It is also better when digging through
-> mail archives.
->
-Sorry for inconvenience, I updated the changelog and resent the patch.
-I have kept the patch version as v2 only. Hope that is fine.
+After a transfer timeout, some faulty I2C slave devices might hold down
+the SCL or the SDA pins. We can generate a bus clear command, hoping that
+the slave might release the pins.
 
-Best regards,
-Rayagonda
+Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+---
+
+Changes in v3:
+ - fixed kbuild warning;
+
+Changes in v2:
+ - added '.has_clear_cmd' struct member to specify which IPs support the
+   clear command; for now, only SAMA5D2 supports it;
+ - added Ludovic's V1 ack since there were no major changes;
+
+ drivers/i2c/busses/i2c-at91-core.c   |  8 ++++++++
+ drivers/i2c/busses/i2c-at91-master.c | 22 ++++++++++++++++++++++
+ drivers/i2c/busses/i2c-at91.h        |  7 ++++++-
+ 3 files changed, 36 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-at91-core.c b/drivers/i2c/busses/i2c-at91-core.c
+index 435c7d7377a3..cb07489e698f 100644
+--- a/drivers/i2c/busses/i2c-at91-core.c
++++ b/drivers/i2c/busses/i2c-at91-core.c
+@@ -68,6 +68,7 @@ static struct at91_twi_pdata at91rm9200_config = {
+ 	.has_unre_flag = true,
+ 	.has_alt_cmd = false,
+ 	.has_hold_field = false,
++	.has_clear_cmd = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9261_config = {
+@@ -76,6 +77,7 @@ static struct at91_twi_pdata at91sam9261_config = {
+ 	.has_unre_flag = false,
+ 	.has_alt_cmd = false,
+ 	.has_hold_field = false,
++	.has_clear_cmd = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9260_config = {
+@@ -84,6 +86,7 @@ static struct at91_twi_pdata at91sam9260_config = {
+ 	.has_unre_flag = false,
+ 	.has_alt_cmd = false,
+ 	.has_hold_field = false,
++	.has_clear_cmd = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9g20_config = {
+@@ -92,6 +95,7 @@ static struct at91_twi_pdata at91sam9g20_config = {
+ 	.has_unre_flag = false,
+ 	.has_alt_cmd = false,
+ 	.has_hold_field = false,
++	.has_clear_cmd = false,
+ };
+ 
+ static struct at91_twi_pdata at91sam9g10_config = {
+@@ -100,6 +104,7 @@ static struct at91_twi_pdata at91sam9g10_config = {
+ 	.has_unre_flag = false,
+ 	.has_alt_cmd = false,
+ 	.has_hold_field = false,
++	.has_clear_cmd = false,
+ };
+ 
+ static const struct platform_device_id at91_twi_devtypes[] = {
+@@ -130,6 +135,7 @@ static struct at91_twi_pdata at91sam9x5_config = {
+ 	.has_unre_flag = false,
+ 	.has_alt_cmd = false,
+ 	.has_hold_field = false,
++	.has_clear_cmd = false,
+ };
+ 
+ static struct at91_twi_pdata sama5d4_config = {
+@@ -138,6 +144,7 @@ static struct at91_twi_pdata sama5d4_config = {
+ 	.has_unre_flag = false,
+ 	.has_alt_cmd = false,
+ 	.has_hold_field = true,
++	.has_clear_cmd = false,
+ };
+ 
+ static struct at91_twi_pdata sama5d2_config = {
+@@ -146,6 +153,7 @@ static struct at91_twi_pdata sama5d2_config = {
+ 	.has_unre_flag = true,
+ 	.has_alt_cmd = true,
+ 	.has_hold_field = true,
++	.has_clear_cmd = true,
+ };
+ 
+ static const struct of_device_id atmel_twi_dt_ids[] = {
+diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
+index a3fcc35ffd3b..12d4fa946a82 100644
+--- a/drivers/i2c/busses/i2c-at91-master.c
++++ b/drivers/i2c/busses/i2c-at91-master.c
+@@ -440,6 +440,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 	unsigned long time_left;
+ 	bool has_unre_flag = dev->pdata->has_unre_flag;
+ 	bool has_alt_cmd = dev->pdata->has_alt_cmd;
++	bool has_clear_cmd = dev->pdata->has_clear_cmd;
+ 
+ 	/*
+ 	 * WARNING: the TXCOMP bit in the Status Register is NOT a clear on
+@@ -599,6 +600,27 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 		at91_twi_write(dev, AT91_TWI_CR,
+ 			       AT91_TWI_THRCLR | AT91_TWI_LOCKCLR);
+ 	}
++
++	/*
++	 * After timeout, some faulty I2C slave devices might hold SCL/SDA down;
++	 * we can send a bus clear command, hoping that the pins will be
++	 * released
++	 */
++	if (has_clear_cmd &&
++	    (!(dev->transfer_status & AT91_TWI_SDA) ||
++	     !(dev->transfer_status & AT91_TWI_SCL))) {
++		dev_dbg(dev->dev,
++			"SDA/SCL are down; sending bus clear command\n");
++		if (dev->use_alt_cmd) {
++			unsigned int acr;
++
++			acr = at91_twi_read(dev, AT91_TWI_ACR);
++			acr &= ~AT91_TWI_ACR_DATAL_MASK;
++			at91_twi_write(dev, AT91_TWI_ACR, acr);
++		}
++		at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_CLEAR);
++	}
++
+ 	return ret;
+ }
+ 
+diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
+index 499b506f6128..0827c28a84db 100644
+--- a/drivers/i2c/busses/i2c-at91.h
++++ b/drivers/i2c/busses/i2c-at91.h
+@@ -36,6 +36,7 @@
+ #define	AT91_TWI_SVDIS		BIT(5)	/* Slave Transfer Disable */
+ #define	AT91_TWI_QUICK		BIT(6)	/* SMBus quick command */
+ #define	AT91_TWI_SWRST		BIT(7)	/* Software Reset */
++#define	AT91_TWI_CLEAR		BIT(15) /* Bus clear command */
+ #define	AT91_TWI_ACMEN		BIT(16) /* Alternative Command Mode Enable */
+ #define	AT91_TWI_ACMDIS		BIT(17) /* Alternative Command Mode Disable */
+ #define	AT91_TWI_THRCLR		BIT(24) /* Transmit Holding Register Clear */
+@@ -69,6 +70,8 @@
+ #define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
+ #define	AT91_TWI_EOSACC		BIT(11)	/* End Of Slave Access */
+ #define	AT91_TWI_LOCK		BIT(23) /* TWI Lock due to Frame Errors */
++#define	AT91_TWI_SCL		BIT(24) /* TWI SCL status */
++#define	AT91_TWI_SDA		BIT(25) /* TWI SDA status */
+ 
+ #define	AT91_TWI_INT_MASK \
+ 	(AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY | AT91_TWI_NACK \
+@@ -81,7 +84,8 @@
+ #define	AT91_TWI_THR		0x0034	/* Transmit Holding Register */
+ 
+ #define	AT91_TWI_ACR		0x0040	/* Alternative Command Register */
+-#define	AT91_TWI_ACR_DATAL(len)	((len) & 0xff)
++#define	AT91_TWI_ACR_DATAL_MASK	GENMASK(15, 0)
++#define	AT91_TWI_ACR_DATAL(len)	((len) & AT91_TWI_ACR_DATAL_MASK)
+ #define	AT91_TWI_ACR_DIR	BIT(8)
+ 
+ #define	AT91_TWI_FMR		0x0050	/* FIFO Mode Register */
+@@ -108,6 +112,7 @@ struct at91_twi_pdata {
+ 	bool has_unre_flag;
+ 	bool has_alt_cmd;
+ 	bool has_hold_field;
++	bool has_clear_cmd;
+ 	struct at_dma_slave dma_slave;
+ };
+ 
+-- 
+2.20.1
