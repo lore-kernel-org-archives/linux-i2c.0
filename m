@@ -1,62 +1,174 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [EXT] Re: [PATCH] i2c: pca954x: Add property to skip disabling
- PCA954x MUX device
-Date: Mon, 30 Sep 2019 05:16:24 +0000
-Message-ID: <07d85748-0721-39d4-d2be-13eb16b0f1de@axentia.se>
-References: <20190929103638.46038-1-biwen.li@nxp.com>
- <e5f4f0b8-05e0-5c70-84f0-817c83059ae7@axentia.se>
- <DB7PR04MB44907DC45C950DE0829A93688F820@DB7PR04MB4490.eurprd04.prod.outlook.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+Subject: [PATCH v2 1/1] i2c: iproc: Add i2c repeated start capability
+Date: Mon, 30 Sep 2019 12:14:29 +0530
+Message-ID: <1569825869-30640-1-git-send-email-rayagonda.kokatanur@broadcom.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <DB7PR04MB44907DC45C950DE0829A93688F820@DB7PR04MB4490.eurprd04.prod.outlook.com>
-Content-Language: en-US
-Content-ID: <0B1D8956CF8A9340AEC713E571D6F58C@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Biwen Li <biwen.li@nxp.com>, Leo Li <leoyang.li@nxp.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, bcm-kernel-feedback-list@broadcom.com, Wolfram Sang <wsa@the-dreams.de>, Michael Cheng <ccheng@broadcom.com>, Shreesha Rajashekar <shreesha.rajashekar@broadcom.com>, Lori Hikichi <lori.hikichi@broadcom.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>, Icarus Chau <icarus.chau@broadcom.com>, Ray Jui <ray.jui@broadcom.com>, Shivaraj Shetty <sshetty1@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOS0wOS0zMCAwNDo0MywgQml3ZW4gTGkgd3JvdGU6DQo+Pg0KPj4gT24gMjAxOS0wOS0y
-OSAxMjozNiwgQml3ZW4gTGkgd3JvdGU6DQo+Pj4gT24gc29tZSBMYXllcnNjYXBlIGJvYXJkcyBs
-aWtlIExTMjA4NUFSREIgYW5kIExTMjA4OEFSREIsIGlucHV0DQo+Pj4gcHVsbC11cCByZXNpc3Rv
-cnMgb24gUENBOTU0eCBNVVggZGV2aWNlIGFyZSBtaXNzaW5nIG9uIGJvYXJkLCBTbywgaWYNCj4+
-PiBNVVggYXJlIGRpc2FibGVkIGFmdGVyIHBvd2VyZWQtb24sIGlucHV0IGxpbmVzIHdpbGwgZmxv
-YXQgbGVhZGluZyB0bw0KPj4+IGluY29ycmVjdCBmdW5jdGlvbmFsaXR5Lg0KDQpTREEgYW5kIFND
-TCBhcmUgbm90ICJpbnB1dHMiLiBUaGV5IGFyZSBwYXJ0IG9mIGEgYnVzIGFuZCBhcmUgYm90aA0K
-YmlkaXJlY3Rpb25hbCBzaWduYWxzLiBTcGVha2luZyBvZiBpbnB1dCBzaWduYWxzIGluIGFuIEky
-QyBjb250ZXh0DQppcyBhbWJpZ3VvdXMuDQoNCj4+DQo+PiBIaSENCj4+DQo+PiBBcmUgeW91IHNh
-eWluZyB0aGF0IHRoZSBwYXJlbnQgYnVzIG9mIHRoZSBtdXggaXMgcmVseWluZyBvbiBzb21lIHB1
-bGwtdXBzIGluc2lkZQ0KPj4gdGhlIG11eD8NCj4gWWVzLCBhcyBmb2xsb3dzOg0KPiAJCQkJCQkJ
-CQkJCQkJVkNDDQo+IAkJCQkJCQkJCQkJCQktLS0tLS0tDQo+IAkJCQkJCQkJCQkJCQkgIHwtLS0t
-LS0tLS0tLS0tLS0tLS0tDQo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgIHwgICAgICAgICAgICB8DQo+IAkJCQkJCQkJCQkJCQkgIFwgICAgICAg
-ICAgICBcDQo+IAkJCQkJCQkJCQkJCQkgIC8xMEsgcmVzaXN0ZXIgIC8gMTBrIHJlc2lzdGVyDQo+
-IAkJCQkJCQkJCQkJCQkgIFwgICAgICAgICAgICBcDQo+IAkJCQkJCQkJCQkJCQkgIHwgICAgICAg
-ICAgICB8DQo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgIHwgICAgICAgICAgICB8DQo+ICAgIEkyQzFfU0NMICAtLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0gICAgICAgICAgICAgICAgICAgICAgICAgSTJDMV9TQ0wgICAgICAgfCAgICAgICAtLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tDQo+IC0tLS0tLS0tLS0tLS0tLS0tLS0tfFNDTCAgICAgICAgICAg
-fCAgICAgICAgICAgICAgICAgICAgICAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tfFNDTCAgICAgICAgICB8DQo+ICAgIEkyQzFfU0RBICB8ICAgUENBOTU0NyAgIHwgICAg
-ICAgICAgICAgICAgICAgICAgICBJMkMxX1NEQSAgICAgICB8ICAgICAgIHwgICAgUENBOTU0NyAg
-fCAgICAgICAgICANCj4gLS0tLS0tLS0tLS0tLS0tLS0tLS18U0RBICAgICAgICAgICB8ICAgICAg
-ICAgICAgICAgICAgICAgIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS18LS0tLS0tLS0tLS18
-U0RBICAgICAgICAgfA0KPiAgICAgICAgICAgICAgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLQ0KPiAgIC0td3JvbmcgZGVzaWduKG5lZWQgc29mdHdhcmUgZml4IGFzIGFib3Zl
-IG9yIGhhcmR3YXJlIGZpeCktLSAgICAgICAgICAgICAgLS1wcm9wZXIgZGVzaWduLS0NCg0KT2ss
-IGdvdCBpdCAoYnV0IHRoZSAicGljdHVyZSIgZGlkbid0IGhlbHApLg0KDQo+Pg0KPj4+IEhlbmNl
-LCBQQ0E5NTR4IE1VWCBkZXZpY2Ugc2hvdWxkIG5ldmVyIGJlIHR1cm5lZC1vZmYgYWZ0ZXIgcG93
-ZXItb24uDQo+Pj4NCj4+PiBBZGQgcHJvcGVydHkgdG8gc2tpcCBkaXNhYmxpbmcgUENBOTU0eCBN
-VVggZGV2aWNlIGlmIGRldmljZSB0cmVlDQo+Pj4gY29udGFpbnMgImkyYy1tdXgtbmV2ZXItZGlz
-YWJsZSINCj4+PiBmb3IgUENBOTU0eCBkZXZpY2Ugbm9kZS4NCj4+Pg0KPj4+IEVycmF0YSBJRDog
-RS0wMDAxMyBvbiBib2FyZCBMUzIwODVBUkRCIGFuZCBMUzIwODhBUkRCIChCb2FyZCByZXZpc2lv
-bg0KPj4+IGZvdW5kIG9uIFJldi5CLCBSZXYuQyBhbmQgUmV2LkQpDQo+Pg0KPj4gSSB0aGluayB5
-b3Ugc2hvdWxkIGZvbGxvdyB0aGUgZXhhbXBsZSBvZiB0aGUgaTJjLW11eC1ncGlvIGRyaXZlciBh
-bmQgaW1wbGVtZW50DQo+PiB0aGUgaWRsZS1zdGF0ZSBwcm9wZXJ0eSBpbnN0ZWFkLg0KPj4NCj4+
-IFRoYXQgaXMgYSBsb3QgbW9yZSBjb25zaXN0ZW50LCBhc3N1bWluZyBpdCBzb2x2ZXMgdGhlIHBy
-b2JsZW0gYXQgaGFuZD8NCj4gR290IGl0LCB0aGFua3MsIEkgd2lsbCB0cnkgaXQuDQoNCkknbGwg
-d2FpdCBmb3IgdGhhdCBwYXRjaCB0aGVuLCBpbnN0ZWFkIG9mIHNwZW5kaW5nIG1vcmUgZW5lcmd5
-IG9uIHRoZQ0KbmV2ZXItZGlzYWJsZSBhcHByb2FjaC4NCg0KQ2hlZXJzLA0KUGV0ZXINCg==
+From: Lori Hikichi <lori.hikichi@broadcom.com>
+
+Enable handling of i2c repeated start. The current code
+handles a multi msg i2c transfer as separate i2c bus
+transactions. This change will now handle this case
+using the i2c repeated start protocol. The number of msgs
+in a transfer is limited to two, and must be a write
+followed by a read.
+
+Signed-off-by: Lori Hikichi <lori.hikichi@broadcom.com>
+Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+Signed-off-by: Icarus Chau <icarus.chau@broadcom.com>
+Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+Signed-off-by: Shivaraj Shetty <sshetty1@broadcom.com>
+---
+changes from v1:
+ - Address following review comments from Wolfarm Sang,
+   Use i2c_8bit_addr_from_msg() api instead of decoding i2c_msg struct and
+   remove check against number of i2c message as it will be taken care
+   by core using quirks flags. 
+
+ drivers/i2c/busses/i2c-bcm-iproc.c | 63 ++++++++++++++++++++++++++++++--------
+ 1 file changed, 50 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
+index d7fd76b..e478db7 100644
+--- a/drivers/i2c/busses/i2c-bcm-iproc.c
++++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+@@ -81,6 +81,7 @@
+ #define M_CMD_PROTOCOL_MASK          0xf
+ #define M_CMD_PROTOCOL_BLK_WR        0x7
+ #define M_CMD_PROTOCOL_BLK_RD        0x8
++#define M_CMD_PROTOCOL_PROCESS       0xa
+ #define M_CMD_PEC_SHIFT              8
+ #define M_CMD_RD_CNT_SHIFT           0
+ #define M_CMD_RD_CNT_MASK            0xff
+@@ -675,13 +676,20 @@ static int bcm_iproc_i2c_xfer_wait(struct bcm_iproc_i2c_dev *iproc_i2c,
+ 	return 0;
+ }
+ 
+-static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+-					 struct i2c_msg *msg)
++/*
++ * If 'process_call' is true, then this is a multi-msg transfer that requires
++ * a repeated start between the messages.
++ * More specifically, it must be a write (reg) followed by a read (data).
++ * The i2c quirks are set to enforce this rule.
++ */
++static int bcm_iproc_i2c_xfer_internal(struct bcm_iproc_i2c_dev *iproc_i2c,
++					struct i2c_msg *msgs, bool process_call)
+ {
+ 	int i;
+ 	u8 addr;
+ 	u32 val, tmp, val_intr_en;
+ 	unsigned int tx_bytes;
++	struct i2c_msg *msg = &msgs[0];
+ 
+ 	/* check if bus is busy */
+ 	if (!!(iproc_i2c_rd_reg(iproc_i2c,
+@@ -707,14 +715,29 @@ static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+ 			val = msg->buf[i];
+ 
+ 			/* mark the last byte */
+-			if (i == msg->len - 1)
+-				val |= BIT(M_TX_WR_STATUS_SHIFT);
++			if (!process_call && (i == msg->len - 1))
++				val |= 1 << M_TX_WR_STATUS_SHIFT;
+ 
+ 			iproc_i2c_wr_reg(iproc_i2c, M_TX_OFFSET, val);
+ 		}
+ 		iproc_i2c->tx_bytes = tx_bytes;
+ 	}
+ 
++	/* Process the read message if this is process call */
++	if (process_call) {
++		msg++;
++		iproc_i2c->msg = msg;  /* point to second msg */
++
++		/*
++		 * The last byte to be sent out should be a slave
++		 * address with read operation
++		 */
++		addr = i2c_8bit_addr_from_msg(msg);
++		/* mark it the last byte out */
++		val = addr | (1 << M_TX_WR_STATUS_SHIFT);
++		iproc_i2c_wr_reg(iproc_i2c, M_TX_OFFSET, val);
++	}
++
+ 	/* mark as incomplete before starting the transaction */
+ 	if (iproc_i2c->irq)
+ 		reinit_completion(&iproc_i2c->done);
+@@ -733,7 +756,7 @@ static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+ 	 * underrun interrupt, which will be triggerred when the TX FIFO is
+ 	 * empty. When that happens we can then pump more data into the FIFO
+ 	 */
+-	if (!(msg->flags & I2C_M_RD) &&
++	if (!process_call && !(msg->flags & I2C_M_RD) &&
+ 	    msg->len > iproc_i2c->tx_bytes)
+ 		val_intr_en |= BIT(IE_M_TX_UNDERRUN_SHIFT);
+ 
+@@ -743,6 +766,8 @@ static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+ 	 */
+ 	val = BIT(M_CMD_START_BUSY_SHIFT);
+ 	if (msg->flags & I2C_M_RD) {
++		u32 protocol;
++
+ 		iproc_i2c->rx_bytes = 0;
+ 		if (msg->len > M_RX_FIFO_MAX_THLD_VALUE)
+ 			iproc_i2c->thld_bytes = M_RX_FIFO_THLD_VALUE;
+@@ -758,7 +783,10 @@ static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+ 		/* enable the RX threshold interrupt */
+ 		val_intr_en |= BIT(IE_M_RX_THLD_SHIFT);
+ 
+-		val |= (M_CMD_PROTOCOL_BLK_RD << M_CMD_PROTOCOL_SHIFT) |
++		protocol = process_call ?
++				M_CMD_PROTOCOL_PROCESS : M_CMD_PROTOCOL_BLK_RD;
++
++		val |= (protocol << M_CMD_PROTOCOL_SHIFT) |
+ 		       (msg->len << M_CMD_RD_CNT_SHIFT);
+ 	} else {
+ 		val |= (M_CMD_PROTOCOL_BLK_WR << M_CMD_PROTOCOL_SHIFT);
+@@ -774,17 +802,24 @@ static int bcm_iproc_i2c_xfer(struct i2c_adapter *adapter,
+ 			      struct i2c_msg msgs[], int num)
+ {
+ 	struct bcm_iproc_i2c_dev *iproc_i2c = i2c_get_adapdata(adapter);
+-	int ret, i;
++	bool process_call = false;
++	int ret;
+ 
+-	/* go through all messages */
+-	for (i = 0; i < num; i++) {
+-		ret = bcm_iproc_i2c_xfer_single_msg(iproc_i2c, &msgs[i]);
+-		if (ret) {
+-			dev_dbg(iproc_i2c->device, "xfer failed\n");
+-			return ret;
++	if (num == 2) {
++		/* Repeated start, use process call */
++		process_call = true;
++		if (msgs[1].flags & I2C_M_NOSTART) {
++			dev_err(iproc_i2c->device, "Invalid repeated start\n");
++			return -EOPNOTSUPP;
+ 		}
+ 	}
+ 
++	ret = bcm_iproc_i2c_xfer_internal(iproc_i2c, msgs, process_call);
++	if (ret) {
++		dev_dbg(iproc_i2c->device, "xfer failed\n");
++		return ret;
++	}
++
+ 	return num;
+ }
+ 
+@@ -806,6 +841,8 @@ static uint32_t bcm_iproc_i2c_functionality(struct i2c_adapter *adap)
+ };
+ 
+ static struct i2c_adapter_quirks bcm_iproc_i2c_quirks = {
++	.flags = I2C_AQ_COMB_WRITE_THEN_READ,
++	.max_comb_1st_msg_len = M_TX_RX_FIFO_SIZE,
+ 	.max_read_len = M_RX_MAX_READ_LEN,
+ };
+ 
+-- 
+1.9.1
