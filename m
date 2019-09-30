@@ -1,47 +1,50 @@
-From: Fabien Parent <fparent@baylibre.com>
-Subject: [PATCH v2] i2c: i2c-mt65xx: fix NULL ptr dereference
-Date: Mon, 30 Sep 2019 17:28:46 +0200
-Message-ID: <20190930152846.5062-1-fparent@baylibre.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 2/2] dt-bindings: i2c: Aspeed: Add AST2600 compatible
+Date: Mon, 30 Sep 2019 13:59:18 -0500
+Message-ID: <20190930185918.GA18431@bogus>
+References: <1568392510-866-1-git-send-email-eajames@linux.ibm.com>
+ <1568392510-866-3-git-send-email-eajames@linux.ibm.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1568392510-866-3-git-send-email-eajames@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: matthias.bgg@gmail.com, wsa@the-dreams.de, qii.wang@mediatek.com, drinkcat@chromium.org, hsinyi@chromium.org, tglx@linutronix.de, Fabien Parent <fparent@baylibre.com>
+To: Eddie James <eajames@linux.ibm.com>
+Cc: linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, brendanhiggins@google.com, joel@jms.id.au, andrew@aj.id.au, mark.rutland@arm.com, benh@kernel.crashing.org
 List-Id: linux-i2c@vger.kernel.org
 
-Since commit abf4923e97c3 ("i2c: mediatek: disable zero-length transfers
-for mt8183"), there is a NULL pointer dereference for all the SoCs
-that don't have any quirk. mtk_i2c_functionality is not checking that
-the quirks pointer is not NULL before starting to use it.
+On Fri, Sep 13, 2019 at 11:35:10AM -0500, Eddie James wrote:
+> Document the AST2600 I2C bus compatible string.
+> 
+> Signed-off-by: Eddie James <eajames@linux.ibm.com>
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-aspeed.txt | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+> index 8fbd863..b47f6cc 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+> @@ -1,4 +1,4 @@
+> -Device tree configuration for the I2C busses on the AST24XX and AST25XX SoCs.
+> +Device tree configuration for the I2C busses on the AST24XX, AST25XX, and AST26XX SoCs.
 
-This commit add a call to i2c_check_quirks which will check whether
-the quirks pointer is set, and if so will check if the IP has the
-NO_ZERO_LEN quirk.
+Perhaps s/buses/busses/ while you're here.
 
-Fixes: abf4923e97c3 ("i2c: mediatek: disable zero-length transfers for mt8183")
-Signed-off-by: Fabien Parent <fparent@baylibre.com>
----
+Acked-by: Rob Herring <robh@kernel.org>
 
-v2:
-	* use i2c_check_quirks to check the quirks
-
----
- drivers/i2c/busses/i2c-mt65xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 29eae1bf4f86..2152ec5f535c 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -875,7 +875,7 @@ static irqreturn_t mtk_i2c_irq(int irqno, void *dev_id)
- 
- static u32 mtk_i2c_functionality(struct i2c_adapter *adap)
- {
--	if (adap->quirks->flags & I2C_AQ_NO_ZERO_LEN)
-+	if (i2c_check_quirks(adap, I2C_AQ_NO_ZERO_LEN))
- 		return I2C_FUNC_I2C |
- 			(I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
- 	else
--- 
-2.23.0
+>  
+>  Required Properties:
+>  - #address-cells	: should be 1
+> @@ -6,6 +6,7 @@ Required Properties:
+>  - reg			: address offset and range of bus
+>  - compatible		: should be "aspeed,ast2400-i2c-bus"
+>  			  or "aspeed,ast2500-i2c-bus"
+> +			  or "aspeed,ast2600-i2c-bus"
+>  - clocks		: root clock of bus, should reference the APB
+>  			  clock in the second cell
+>  - resets		: phandle to reset controller with the reset number in
+> -- 
+> 1.8.3.1
+> 
