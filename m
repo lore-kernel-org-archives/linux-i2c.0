@@ -1,183 +1,57 @@
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Subject: [PATCH v3] i2c: at91: Send bus clear command if SCL or SDA is down
-Date: Mon, 30 Sep 2019 11:10:36 +0300
-Message-ID: <20190930081036.17803-1-codrin.ciubotariu@microchip.com>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH v5 0/2] at24: convert the binding document to yaml
+Date: Mon, 30 Sep 2019 10:59:55 +0200
+Message-ID: <20190930085957.2779-1-brgl@bgdev.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: ludovic.desroches@microchip.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, wsa@the-dreams.de, Claudiu.Beznea@microchip.com, Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Peter Rosin <peda@axentia.se>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-After a transfer timeout, some faulty I2C slave devices might hold down
-the SCL or the SDA pins. We can generate a bus clear command, hoping that
-the slave might release the pins.
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
----
+The first patch converts the at24 DT binding to yaml. The second adds a new
+compatible special case that's being used undocumented currently.
 
-Changes in v3:
- - fixed kbuild warning;
+v1 -> v2:
+- modified the compatible property: we now list all possible combinations and
+  non-standard types with appropriate fallbacks to be as strict as possible
+- minor changes to other properties: added constraints, converted to enums
+  where applicable and referenced the types from schema
 
-Changes in v2:
- - added '.has_clear_cmd' struct member to specify which IPs support the
-   clear command; for now, only SAMA5D2 supports it;
- - added Ludovic's V1 ack since there were no major changes;
+v2 -> v3:
+(Rob Herring:)
+- Here's my reworking of compatible schema and all the other fixes I
+  found. The inner 'oneOf' is probably a little excessive given the number
+  of lines. All it does is ensure both compatible strings have the same
+  part number.
 
- drivers/i2c/busses/i2c-at91-core.c   |  8 ++++++++
- drivers/i2c/busses/i2c-at91-master.c | 22 ++++++++++++++++++++++
- drivers/i2c/busses/i2c-at91.h        |  7 ++++++-
- 3 files changed, 36 insertions(+), 1 deletion(-)
+v3 -> v4:
+- Add a $nodename definition
+- Turns out the compatible schema is too complex for generating a 'select'
+  schema and only a small subset where getting validated. So we need a
+  custom 'select' schema. This in turn fixes the issue with the nxp,se97b
+  binding.
 
-diff --git a/drivers/i2c/busses/i2c-at91-core.c b/drivers/i2c/busses/i2c-at91-core.c
-index 435c7d7377a3..cb07489e698f 100644
---- a/drivers/i2c/busses/i2c-at91-core.c
-+++ b/drivers/i2c/busses/i2c-at91-core.c
-@@ -68,6 +68,7 @@ static struct at91_twi_pdata at91rm9200_config = {
- 	.has_unre_flag = true,
- 	.has_alt_cmd = false,
- 	.has_hold_field = false,
-+	.has_clear_cmd = false,
- };
- 
- static struct at91_twi_pdata at91sam9261_config = {
-@@ -76,6 +77,7 @@ static struct at91_twi_pdata at91sam9261_config = {
- 	.has_unre_flag = false,
- 	.has_alt_cmd = false,
- 	.has_hold_field = false,
-+	.has_clear_cmd = false,
- };
- 
- static struct at91_twi_pdata at91sam9260_config = {
-@@ -84,6 +86,7 @@ static struct at91_twi_pdata at91sam9260_config = {
- 	.has_unre_flag = false,
- 	.has_alt_cmd = false,
- 	.has_hold_field = false,
-+	.has_clear_cmd = false,
- };
- 
- static struct at91_twi_pdata at91sam9g20_config = {
-@@ -92,6 +95,7 @@ static struct at91_twi_pdata at91sam9g20_config = {
- 	.has_unre_flag = false,
- 	.has_alt_cmd = false,
- 	.has_hold_field = false,
-+	.has_clear_cmd = false,
- };
- 
- static struct at91_twi_pdata at91sam9g10_config = {
-@@ -100,6 +104,7 @@ static struct at91_twi_pdata at91sam9g10_config = {
- 	.has_unre_flag = false,
- 	.has_alt_cmd = false,
- 	.has_hold_field = false,
-+	.has_clear_cmd = false,
- };
- 
- static const struct platform_device_id at91_twi_devtypes[] = {
-@@ -130,6 +135,7 @@ static struct at91_twi_pdata at91sam9x5_config = {
- 	.has_unre_flag = false,
- 	.has_alt_cmd = false,
- 	.has_hold_field = false,
-+	.has_clear_cmd = false,
- };
- 
- static struct at91_twi_pdata sama5d4_config = {
-@@ -138,6 +144,7 @@ static struct at91_twi_pdata sama5d4_config = {
- 	.has_unre_flag = false,
- 	.has_alt_cmd = false,
- 	.has_hold_field = true,
-+	.has_clear_cmd = false,
- };
- 
- static struct at91_twi_pdata sama5d2_config = {
-@@ -146,6 +153,7 @@ static struct at91_twi_pdata sama5d2_config = {
- 	.has_unre_flag = true,
- 	.has_alt_cmd = true,
- 	.has_hold_field = true,
-+	.has_clear_cmd = true,
- };
- 
- static const struct of_device_id atmel_twi_dt_ids[] = {
-diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
-index a3fcc35ffd3b..12d4fa946a82 100644
---- a/drivers/i2c/busses/i2c-at91-master.c
-+++ b/drivers/i2c/busses/i2c-at91-master.c
-@@ -440,6 +440,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 	unsigned long time_left;
- 	bool has_unre_flag = dev->pdata->has_unre_flag;
- 	bool has_alt_cmd = dev->pdata->has_alt_cmd;
-+	bool has_clear_cmd = dev->pdata->has_clear_cmd;
- 
- 	/*
- 	 * WARNING: the TXCOMP bit in the Status Register is NOT a clear on
-@@ -599,6 +600,27 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- 		at91_twi_write(dev, AT91_TWI_CR,
- 			       AT91_TWI_THRCLR | AT91_TWI_LOCKCLR);
- 	}
-+
-+	/*
-+	 * After timeout, some faulty I2C slave devices might hold SCL/SDA down;
-+	 * we can send a bus clear command, hoping that the pins will be
-+	 * released
-+	 */
-+	if (has_clear_cmd &&
-+	    (!(dev->transfer_status & AT91_TWI_SDA) ||
-+	     !(dev->transfer_status & AT91_TWI_SCL))) {
-+		dev_dbg(dev->dev,
-+			"SDA/SCL are down; sending bus clear command\n");
-+		if (dev->use_alt_cmd) {
-+			unsigned int acr;
-+
-+			acr = at91_twi_read(dev, AT91_TWI_ACR);
-+			acr &= ~AT91_TWI_ACR_DATAL_MASK;
-+			at91_twi_write(dev, AT91_TWI_ACR, acr);
-+		}
-+		at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_CLEAR);
-+	}
-+
- 	return ret;
- }
- 
-diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
-index 499b506f6128..0827c28a84db 100644
---- a/drivers/i2c/busses/i2c-at91.h
-+++ b/drivers/i2c/busses/i2c-at91.h
-@@ -36,6 +36,7 @@
- #define	AT91_TWI_SVDIS		BIT(5)	/* Slave Transfer Disable */
- #define	AT91_TWI_QUICK		BIT(6)	/* SMBus quick command */
- #define	AT91_TWI_SWRST		BIT(7)	/* Software Reset */
-+#define	AT91_TWI_CLEAR		BIT(15) /* Bus clear command */
- #define	AT91_TWI_ACMEN		BIT(16) /* Alternative Command Mode Enable */
- #define	AT91_TWI_ACMDIS		BIT(17) /* Alternative Command Mode Disable */
- #define	AT91_TWI_THRCLR		BIT(24) /* Transmit Holding Register Clear */
-@@ -69,6 +70,8 @@
- #define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
- #define	AT91_TWI_EOSACC		BIT(11)	/* End Of Slave Access */
- #define	AT91_TWI_LOCK		BIT(23) /* TWI Lock due to Frame Errors */
-+#define	AT91_TWI_SCL		BIT(24) /* TWI SCL status */
-+#define	AT91_TWI_SDA		BIT(25) /* TWI SDA status */
- 
- #define	AT91_TWI_INT_MASK \
- 	(AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY | AT91_TWI_NACK \
-@@ -81,7 +84,8 @@
- #define	AT91_TWI_THR		0x0034	/* Transmit Holding Register */
- 
- #define	AT91_TWI_ACR		0x0040	/* Alternative Command Register */
--#define	AT91_TWI_ACR_DATAL(len)	((len) & 0xff)
-+#define	AT91_TWI_ACR_DATAL_MASK	GENMASK(15, 0)
-+#define	AT91_TWI_ACR_DATAL(len)	((len) & AT91_TWI_ACR_DATAL_MASK)
- #define	AT91_TWI_ACR_DIR	BIT(8)
- 
- #define	AT91_TWI_FMR		0x0050	/* FIFO Mode Register */
-@@ -108,6 +112,7 @@ struct at91_twi_pdata {
- 	bool has_unre_flag;
- 	bool has_alt_cmd;
- 	bool has_hold_field;
-+	bool has_clear_cmd;
- 	struct at_dma_slave dma_slave;
- };
- 
+v4 -> v5:
+- added a new patch extending the list of special cases of the compatible
+  property
+- added comments explaining the schema for the compatible property
+- dropped redundant information from property descriptions (for instance:
+  there's no need to say "This parameterless property" where it's obvious
+  from the type that the property is a flag)
+
+Bartosz Golaszewski (2):
+  dt-bindings: at24: convert the binding document to yaml
+  dt-bindings: at24: add new compatible
+
+ .../devicetree/bindings/eeprom/at24.txt       |  90 +--------
+ .../devicetree/bindings/eeprom/at24.yaml      | 182 ++++++++++++++++++
+ MAINTAINERS                                   |   2 +-
+ 3 files changed, 184 insertions(+), 90 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/eeprom/at24.yaml
+
 -- 
-2.20.1
+2.23.0
