@@ -1,114 +1,62 @@
-From: Biwen Li <biwen.li@nxp.com>
-Subject: [v2,1/2] i2c: pca954x: Add property to skip disabling PCA954x MUX device
-Date: Mon, 30 Sep 2019 11:25:02 +0800
-Message-ID: <20190930032503.44425-1-biwen.li@nxp.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [EXT] Re: [PATCH] i2c: pca954x: Add property to skip disabling
+ PCA954x MUX device
+Date: Mon, 30 Sep 2019 05:16:24 +0000
+Message-ID: <07d85748-0721-39d4-d2be-13eb16b0f1de@axentia.se>
+References: <20190929103638.46038-1-biwen.li@nxp.com>
+ <e5f4f0b8-05e0-5c70-84f0-817c83059ae7@axentia.se>
+ <DB7PR04MB44907DC45C950DE0829A93688F820@DB7PR04MB4490.eurprd04.prod.outlook.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <DB7PR04MB44907DC45C950DE0829A93688F820@DB7PR04MB4490.eurprd04.prod.outlook.com>
+Content-Language: en-US
+Content-ID: <0B1D8956CF8A9340AEC713E571D6F58C@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: peda@axentia.se, leoyang.li@nxp.com, robh+dt@kernel.org, mark.rutland@arm.com
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Biwen Li <biwen.li@nxp.com>
+To: Biwen Li <biwen.li@nxp.com>, Leo Li <leoyang.li@nxp.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On some Layerscape boards like LS2085ARDB and LS2088ARDB,
-input pull-up resistors on PCA954x MUX device are missing on board,
-So, if MUX are disabled after powered-on, input lines will float
-leading to incorrect functionality.
-
-Hence, PCA954x MUX device should never be turned-off after
-power-on.
-
-Add property to skip disabling PCA954x MUX device
-if device tree contains "i2c-mux-never-disable"
-for PCA954x device node.
-
-Errata ID: E-00013 on board LS2085ARDB and LS2088ARDB
-(The hardware bug found on board revision
-Rev.B, Rev.C and Rev.D)
-
-Signed-off-by: Biwen Li <biwen.li@nxp.com>
----
-Change in v2:
-	- update variable name
-	  disable_mux->never_disable
-
- drivers/i2c/muxes/i2c-mux-pca954x.c | 37 +++++++++++++++++++++++++----
- 1 file changed, 33 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 923aa3a5a3dc..b4647b033163 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -93,6 +93,11 @@ struct pca954x {
- 	struct irq_domain *irq;
- 	unsigned int irq_mask;
- 	raw_spinlock_t lock;
-+	/*
-+	 * never disable value will write to control register of mux
-+	 * to always enable mux
-+	 */
-+	u8 never_disable;
- };
- 
- /* Provide specs for the PCA954x types we know about */
-@@ -258,6 +263,11 @@ static int pca954x_deselect_mux(struct i2c_mux_core *muxc, u32 chan)
- 	struct i2c_client *client = data->client;
- 	s8 idle_state;
- 
-+	if (data->never_disable) {
-+		data->last_chan = data->chip->nchans;
-+		return pca954x_reg_write(muxc->parent, client, data->never_disable);
-+	}
-+
- 	idle_state = READ_ONCE(data->idle_state);
- 	if (idle_state >= 0)
- 		/* Set the mux back to a predetermined channel */
-@@ -462,16 +472,32 @@ static int pca954x_probe(struct i2c_client *client,
- 		}
- 	}
- 
-+	/* Errata ID E-00013 on board LS2088ARDB and LS2088ARDB:
-+	 * The point here is that you must not disable a mux if there
-+	 * are no pullups on the input or you mess up the I2C. This
-+	 * needs to be put into the DTS really as the kernel cannot
-+	 * know this otherwise.
-+	 */
-+
-+	data->never_disable = np &&
-+		of_property_read_bool(np, "i2c-mux-never-disable") &&
-+		data->chip->muxtype == pca954x_ismux ?
-+		data->chip->enable : 0;
-+
- 	/* Write the mux register at addr to verify
- 	 * that the mux is in fact present. This also
- 	 * initializes the mux to disconnected state.
- 	 */
--	if (i2c_smbus_write_byte(client, 0) < 0) {
-+	if (i2c_smbus_write_byte(client, data->never_disable) < 0) {
- 		dev_warn(dev, "probe failed\n");
- 		return -ENODEV;
- 	}
- 
--	data->last_chan = 0;		   /* force the first selection */
-+	if (data->never_disable)
-+		data->last_chan = data->chip->nchans;
-+	else
-+		data->last_chan = 0;               /* force the first selection */
-+
- 	data->idle_state = MUX_IDLE_AS_IS;
- 
- 	idle_disconnect_dt = np &&
-@@ -531,8 +557,11 @@ static int pca954x_resume(struct device *dev)
- 	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
- 	struct pca954x *data = i2c_mux_priv(muxc);
- 
--	data->last_chan = 0;
--	return i2c_smbus_write_byte(client, 0);
-+	if (data->never_disable)
-+		data->last_chan = data->chip->nchans;
-+	else
-+		data->last_chan = 0;
-+	return i2c_smbus_write_byte(client, data->never_disable);
- }
- #endif
- 
--- 
-2.17.1
+T24gMjAxOS0wOS0zMCAwNDo0MywgQml3ZW4gTGkgd3JvdGU6DQo+Pg0KPj4gT24gMjAxOS0wOS0y
+OSAxMjozNiwgQml3ZW4gTGkgd3JvdGU6DQo+Pj4gT24gc29tZSBMYXllcnNjYXBlIGJvYXJkcyBs
+aWtlIExTMjA4NUFSREIgYW5kIExTMjA4OEFSREIsIGlucHV0DQo+Pj4gcHVsbC11cCByZXNpc3Rv
+cnMgb24gUENBOTU0eCBNVVggZGV2aWNlIGFyZSBtaXNzaW5nIG9uIGJvYXJkLCBTbywgaWYNCj4+
+PiBNVVggYXJlIGRpc2FibGVkIGFmdGVyIHBvd2VyZWQtb24sIGlucHV0IGxpbmVzIHdpbGwgZmxv
+YXQgbGVhZGluZyB0bw0KPj4+IGluY29ycmVjdCBmdW5jdGlvbmFsaXR5Lg0KDQpTREEgYW5kIFND
+TCBhcmUgbm90ICJpbnB1dHMiLiBUaGV5IGFyZSBwYXJ0IG9mIGEgYnVzIGFuZCBhcmUgYm90aA0K
+YmlkaXJlY3Rpb25hbCBzaWduYWxzLiBTcGVha2luZyBvZiBpbnB1dCBzaWduYWxzIGluIGFuIEky
+QyBjb250ZXh0DQppcyBhbWJpZ3VvdXMuDQoNCj4+DQo+PiBIaSENCj4+DQo+PiBBcmUgeW91IHNh
+eWluZyB0aGF0IHRoZSBwYXJlbnQgYnVzIG9mIHRoZSBtdXggaXMgcmVseWluZyBvbiBzb21lIHB1
+bGwtdXBzIGluc2lkZQ0KPj4gdGhlIG11eD8NCj4gWWVzLCBhcyBmb2xsb3dzOg0KPiAJCQkJCQkJ
+CQkJCQkJVkNDDQo+IAkJCQkJCQkJCQkJCQktLS0tLS0tDQo+IAkJCQkJCQkJCQkJCQkgIHwtLS0t
+LS0tLS0tLS0tLS0tLS0tDQo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIHwgICAgICAgICAgICB8DQo+IAkJCQkJCQkJCQkJCQkgIFwgICAgICAg
+ICAgICBcDQo+IAkJCQkJCQkJCQkJCQkgIC8xMEsgcmVzaXN0ZXIgIC8gMTBrIHJlc2lzdGVyDQo+
+IAkJCQkJCQkJCQkJCQkgIFwgICAgICAgICAgICBcDQo+IAkJCQkJCQkJCQkJCQkgIHwgICAgICAg
+ICAgICB8DQo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIHwgICAgICAgICAgICB8DQo+ICAgIEkyQzFfU0NMICAtLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0gICAgICAgICAgICAgICAgICAgICAgICAgSTJDMV9TQ0wgICAgICAgfCAgICAgICAtLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tDQo+IC0tLS0tLS0tLS0tLS0tLS0tLS0tfFNDTCAgICAgICAgICAg
+fCAgICAgICAgICAgICAgICAgICAgICAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tfFNDTCAgICAgICAgICB8DQo+ICAgIEkyQzFfU0RBICB8ICAgUENBOTU0NyAgIHwgICAg
+ICAgICAgICAgICAgICAgICAgICBJMkMxX1NEQSAgICAgICB8ICAgICAgIHwgICAgUENBOTU0NyAg
+fCAgICAgICAgICANCj4gLS0tLS0tLS0tLS0tLS0tLS0tLS18U0RBICAgICAgICAgICB8ICAgICAg
+ICAgICAgICAgICAgICAgIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS18LS0tLS0tLS0tLS18
+U0RBICAgICAgICAgfA0KPiAgICAgICAgICAgICAgLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLQ0KPiAgIC0td3JvbmcgZGVzaWduKG5lZWQgc29mdHdhcmUgZml4IGFzIGFib3Zl
+IG9yIGhhcmR3YXJlIGZpeCktLSAgICAgICAgICAgICAgLS1wcm9wZXIgZGVzaWduLS0NCg0KT2ss
+IGdvdCBpdCAoYnV0IHRoZSAicGljdHVyZSIgZGlkbid0IGhlbHApLg0KDQo+Pg0KPj4+IEhlbmNl
+LCBQQ0E5NTR4IE1VWCBkZXZpY2Ugc2hvdWxkIG5ldmVyIGJlIHR1cm5lZC1vZmYgYWZ0ZXIgcG93
+ZXItb24uDQo+Pj4NCj4+PiBBZGQgcHJvcGVydHkgdG8gc2tpcCBkaXNhYmxpbmcgUENBOTU0eCBN
+VVggZGV2aWNlIGlmIGRldmljZSB0cmVlDQo+Pj4gY29udGFpbnMgImkyYy1tdXgtbmV2ZXItZGlz
+YWJsZSINCj4+PiBmb3IgUENBOTU0eCBkZXZpY2Ugbm9kZS4NCj4+Pg0KPj4+IEVycmF0YSBJRDog
+RS0wMDAxMyBvbiBib2FyZCBMUzIwODVBUkRCIGFuZCBMUzIwODhBUkRCIChCb2FyZCByZXZpc2lv
+bg0KPj4+IGZvdW5kIG9uIFJldi5CLCBSZXYuQyBhbmQgUmV2LkQpDQo+Pg0KPj4gSSB0aGluayB5
+b3Ugc2hvdWxkIGZvbGxvdyB0aGUgZXhhbXBsZSBvZiB0aGUgaTJjLW11eC1ncGlvIGRyaXZlciBh
+bmQgaW1wbGVtZW50DQo+PiB0aGUgaWRsZS1zdGF0ZSBwcm9wZXJ0eSBpbnN0ZWFkLg0KPj4NCj4+
+IFRoYXQgaXMgYSBsb3QgbW9yZSBjb25zaXN0ZW50LCBhc3N1bWluZyBpdCBzb2x2ZXMgdGhlIHBy
+b2JsZW0gYXQgaGFuZD8NCj4gR290IGl0LCB0aGFua3MsIEkgd2lsbCB0cnkgaXQuDQoNCkknbGwg
+d2FpdCBmb3IgdGhhdCBwYXRjaCB0aGVuLCBpbnN0ZWFkIG9mIHNwZW5kaW5nIG1vcmUgZW5lcmd5
+IG9uIHRoZQ0KbmV2ZXItZGlzYWJsZSBhcHByb2FjaC4NCg0KQ2hlZXJzLA0KUGV0ZXINCg==
