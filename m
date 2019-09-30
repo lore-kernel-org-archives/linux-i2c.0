@@ -1,50 +1,22 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 2/2] dt-bindings: i2c: Aspeed: Add AST2600 compatible
-Date: Mon, 30 Sep 2019 13:59:18 -0500
-Message-ID: <20190930185918.GA18431@bogus>
-References: <1568392510-866-1-git-send-email-eajames@linux.ibm.com>
- <1568392510-866-3-git-send-email-eajames@linux.ibm.com>
+From: Cengiz Can <cengiz@kernel.wtf>
+Subject: Re: [PATCH v2] i2c: i2c-mt65xx: fix NULL ptr dereference
+Date: Tue, 01 Oct 2019 00:20:50 +0300
+Message-ID: <aa0487c21e1f9f04402f209358b18c75@kernel.wtf>
+References: <20190930152846.5062-1-fparent@baylibre.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1568392510-866-3-git-send-email-eajames@linux.ibm.com>
+In-Reply-To: <20190930152846.5062-1-fparent@baylibre.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eddie James <eajames@linux.ibm.com>
-Cc: linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, brendanhiggins@google.com, joel@jms.id.au, andrew@aj.id.au, mark.rutland@arm.com, benh@kernel.crashing.org
+To: Fabien Parent <fparent@baylibre.com>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, matthias.bgg@gmail.com, wsa@the-dreams.de, qii.wang@mediatek.com, drinkcat@chromium.org, hsinyi@chromium.org, tglx@linutronix.de, linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Sep 13, 2019 at 11:35:10AM -0500, Eddie James wrote:
-> Document the AST2600 I2C bus compatible string.
-> 
-> Signed-off-by: Eddie James <eajames@linux.ibm.com>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-aspeed.txt | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-> index 8fbd863..b47f6cc 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-> @@ -1,4 +1,4 @@
-> -Device tree configuration for the I2C busses on the AST24XX and AST25XX SoCs.
-> +Device tree configuration for the I2C busses on the AST24XX, AST25XX, and AST26XX SoCs.
+On 2019-09-30 18:28, Fabien Parent wrote:
+> Fixes: abf4923e97c3 ("i2c: mediatek: disable zero-length transfers for 
+> mt8183")
+> Signed-off-by: Fabien Parent <fparent@baylibre.com>
 
-Perhaps s/buses/busses/ while you're here.
-
-Acked-by: Rob Herring <robh@kernel.org>
-
->  
->  Required Properties:
->  - #address-cells	: should be 1
-> @@ -6,6 +6,7 @@ Required Properties:
->  - reg			: address offset and range of bus
->  - compatible		: should be "aspeed,ast2400-i2c-bus"
->  			  or "aspeed,ast2500-i2c-bus"
-> +			  or "aspeed,ast2600-i2c-bus"
->  - clocks		: root clock of bus, should reference the APB
->  			  clock in the second cell
->  - resets		: phandle to reset controller with the reset number in
-> -- 
-> 1.8.3.1
-> 
+Reviewed-by: Cengiz Can <cengiz@kernel.wtf>
