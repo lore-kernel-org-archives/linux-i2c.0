@@ -1,41 +1,47 @@
-From: Fabrice Gasnier <fabrice.gasnier@st.com>
-Subject: [PATCH] i2c: i2c-stm32f7: fix first byte to send in slave mode
-Date: Mon, 30 Sep 2019 17:28:01 +0200
-Message-ID: <1569857281-19419-1-git-send-email-fabrice.gasnier@st.com>
+From: Fabien Parent <fparent@baylibre.com>
+Subject: [PATCH v2] i2c: i2c-mt65xx: fix NULL ptr dereference
+Date: Mon, 30 Sep 2019 17:28:46 +0200
+Message-ID: <20190930152846.5062-1-fparent@baylibre.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, pierre-yves.mordret@st.com
-Cc: alain.volmat@st.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
+To: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: matthias.bgg@gmail.com, wsa@the-dreams.de, qii.wang@mediatek.com, drinkcat@chromium.org, hsinyi@chromium.org, tglx@linutronix.de, Fabien Parent <fparent@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The slave-interface documentation [1] states "the bus driver should
-transmit the first byte" upon I2C_SLAVE_READ_REQUESTED slave event:
-- 'val': backend returns first byte to be sent
-The driver currently ignores the 1st byte to send on this event.
+Since commit abf4923e97c3 ("i2c: mediatek: disable zero-length transfers
+for mt8183"), there is a NULL pointer dereference for all the SoCs
+that don't have any quirk. mtk_i2c_functionality is not checking that
+the quirks pointer is not NULL before starting to use it.
 
-Fixes: 60d609f30de2 ("i2c: i2c-stm32f7: Add slave support")
+This commit add a call to i2c_check_quirks which will check whether
+the quirks pointer is set, and if so will check if the IP has the
+NO_ZERO_LEN quirk.
 
-[1] https://www.kernel.org/doc/Documentation/i2c/slave-interface
-
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Fixes: abf4923e97c3 ("i2c: mediatek: disable zero-length transfers for mt8183")
+Signed-off-by: Fabien Parent <fparent@baylibre.com>
 ---
- drivers/i2c/busses/i2c-stm32f7.c | 2 ++
- 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 266d1c2..0af9219 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -1192,6 +1192,8 @@ static void stm32f7_i2c_slave_start(struct stm32f7_i2c_dev *i2c_dev)
- 			STM32F7_I2C_CR1_TXIE;
- 		stm32f7_i2c_set_bits(base + STM32F7_I2C_CR1, mask);
+v2:
+	* use i2c_check_quirks to check the quirks
+
+---
+ drivers/i2c/busses/i2c-mt65xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index 29eae1bf4f86..2152ec5f535c 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -875,7 +875,7 @@ static irqreturn_t mtk_i2c_irq(int irqno, void *dev_id)
  
-+		/* Write 1st data byte */
-+		writel_relaxed(value, base + STM32F7_I2C_TXDR);
- 	} else {
- 		/* Notify i2c slave that new write transfer is starting */
- 		i2c_slave_event(slave, I2C_SLAVE_WRITE_REQUESTED, &value);
+ static u32 mtk_i2c_functionality(struct i2c_adapter *adap)
+ {
+-	if (adap->quirks->flags & I2C_AQ_NO_ZERO_LEN)
++	if (i2c_check_quirks(adap, I2C_AQ_NO_ZERO_LEN))
+ 		return I2C_FUNC_I2C |
+ 			(I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
+ 	else
 -- 
-2.7.4
+2.23.0
