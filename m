@@ -1,35 +1,73 @@
-From: Patrick Williams <alpawi@amazon.com>
-Subject: [PATCH 1/2] i2c: slave-eeprom: initialize empty eeprom properly
-Date: Tue, 1 Oct 2019 11:40:05 -0500
-Message-ID: <20191001164009.21610-1-alpawi@amazon.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 58/71] i2c: qcom-geni: Disable DMA processing on the Lenovo Yoga C630
+Date: Tue,  1 Oct 2019 12:39:08 -0400
+Message-ID: <20191001163922.14735-58-sashal@kernel.org>
+References: <20191001163922.14735-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-Cc: =?UTF-8?q?Bj=C3=B6rn=20Ard=C3=B6?= <bjorn.ardo@axis.com>, Patrick Williams <alpawi@amazon.com>, Patrick Williams <patrick@stwcx.xyz>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Lee Jones <lee.jones@linaro.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The i2c-slave-eeprom driver emulates at24 class eeprom devices,
-which come initialized with all 1s.  Do the same in the software
-emulation.
+From: Lee Jones <lee.jones@linaro.org>
 
-Signed-off-by: Patrick Williams <alpawi@amazon.com>
+[ Upstream commit 127068abe85bf3dee50df51cb039a5a987a4a666 ]
+
+We have a production-level laptop (Lenovo Yoga C630) which is exhibiting
+a rather horrific bug.  When I2C HID devices are being scanned for at
+boot-time the QCom Geni based I2C (Serial Engine) attempts to use DMA.
+When it does, the laptop reboots and the user never sees the OS.
+
+Attempts are being made to debug the reason for the spontaneous reboot.
+No luck so far, hence the requirement for this hot-fix.  This workaround
+will be removed once we have a viable fix.
+
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Tested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-slave-eeprom.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/busses/i2c-qcom-geni.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-eeprom.c
-index db9763cb4dae..efee56106251 100644
---- a/drivers/i2c/i2c-slave-eeprom.c
-+++ b/drivers/i2c/i2c-slave-eeprom.c
-@@ -131,6 +131,8 @@ static int i2c_slave_eeprom_probe(struct i2c_client *client, const struct i2c_de
- 	if (!eeprom)
- 		return -ENOMEM;
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index a89bfce5388ee..17abf60c94aeb 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -355,11 +355,13 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ {
+ 	dma_addr_t rx_dma;
+ 	unsigned long time_left;
+-	void *dma_buf;
++	void *dma_buf = NULL;
+ 	struct geni_se *se = &gi2c->se;
+ 	size_t len = msg->len;
  
-+	memset(eeprom->buffer, 0xFF, size);
+-	dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
++	if (!of_machine_is_compatible("lenovo,yoga-c630"))
++		dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
 +
- 	eeprom->idx_write_cnt = 0;
- 	eeprom->num_address_bytes = flag_addr16 ? 2 : 1;
- 	eeprom->address_mask = size - 1;
+ 	if (dma_buf)
+ 		geni_se_select_mode(se, GENI_SE_DMA);
+ 	else
+@@ -394,11 +396,13 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ {
+ 	dma_addr_t tx_dma;
+ 	unsigned long time_left;
+-	void *dma_buf;
++	void *dma_buf = NULL;
+ 	struct geni_se *se = &gi2c->se;
+ 	size_t len = msg->len;
+ 
+-	dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
++	if (!of_machine_is_compatible("lenovo,yoga-c630"))
++		dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
++
+ 	if (dma_buf)
+ 		geni_se_select_mode(se, GENI_SE_DMA);
+ 	else
 -- 
-2.17.2 (Apple Git-113)
+2.20.1
