@@ -1,13 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 58/71] i2c: qcom-geni: Disable DMA processing on the Lenovo Yoga C630
-Date: Tue,  1 Oct 2019 12:39:08 -0400
-Message-ID: <20191001163922.14735-58-sashal@kernel.org>
-References: <20191001163922.14735-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 51/63] i2c: qcom-geni: Disable DMA processing on the Lenovo Yoga C630
+Date: Tue,  1 Oct 2019 12:41:13 -0400
+Message-ID: <20191001164125.15398-51-sashal@kernel.org>
+References: <20191001164125.15398-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20191001164125.15398-1-sashal@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Lee Jones <lee.jones@linaro.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
@@ -34,10 +34,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index a89bfce5388ee..17abf60c94aeb 100644
+index db075bc0d9525..715ddc5d0eac9 100644
 --- a/drivers/i2c/busses/i2c-qcom-geni.c
 +++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -355,11 +355,13 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+@@ -354,11 +354,13 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
  {
  	dma_addr_t rx_dma;
  	unsigned long time_left;
@@ -53,7 +53,7 @@ index a89bfce5388ee..17abf60c94aeb 100644
  	if (dma_buf)
  		geni_se_select_mode(se, GENI_SE_DMA);
  	else
-@@ -394,11 +396,13 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+@@ -393,11 +395,13 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
  {
  	dma_addr_t tx_dma;
  	unsigned long time_left;
