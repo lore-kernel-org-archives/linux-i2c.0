@@ -1,79 +1,56 @@
-From: Patrick Williams <alpawi@amazon.com>
-Subject: [PATCH 2/2] i2c: pxa: remove unused i2c-slave APIs
-Date: Tue, 1 Oct 2019 11:00:00 -0500
-Message-ID: <20191001160001.2388-3-alpawi@amazon.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 1/2] i2c: pxa: migrate to new i2c_slave APIs
+Date: Tue, 1 Oct 2019 19:29:13 +0300
+Message-ID: <20191001162913.GR32742@smile.fi.intel.com>
 References: <20191001160001.2388-1-alpawi@amazon.com>
+ <20191001160001.2388-2-alpawi@amazon.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191001160001.2388-1-alpawi@amazon.com>
+Content-Disposition: inline
+In-Reply-To: <20191001160001.2388-2-alpawi@amazon.com>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: Patrick Williams <alpawi@amazon.com>, Patrick Williams <patrick@stwcx.xyz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Kate Stewart <kstewart@linuxfoundation.org>, Thomas Gleixner <tglx@linutronix.de>, Enrico Weigelt <info@metux.net>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+To: Patrick Williams <alpawi@amazon.com>
+Cc: Patrick Williams <patrick@stwcx.xyz>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Max Staudt <max@enpas.org>, Juergen Fitschen <jfi@ssv-embedded.de>, Elie Morisse <syniurge@gmail.com>, Ajay Gupta <ajayg@nvidia.com>, Stefan Roese <sr@denx.de>, Florian Fainelli <f.fainelli@gmail.com>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Baolin Wang <baolin.wang@linaro.org>, Paul Cercueil <paul@crapouillou.net>, Enrico Weigelt <info@metux.net>, Allison Randal <allison@lohutok.net>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-With the i2c-pxa driver migrated to the standard i2c-slave
-APIs, the custom APIs and structures are no longer needed
-or used.  Remove them.
 
-Signed-off-by: Patrick Williams <alpawi@amazon.com>
----
- drivers/i2c/busses/i2c-pxa.c          |  1 -
- include/linux/i2c-pxa.h               | 18 ------------------
- include/linux/platform_data/i2c-pxa.h |  4 ----
- 3 files changed, 23 deletions(-)
- delete mode 100644 include/linux/i2c-pxa.h
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index c811646e809f..466e4f681d7a 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -25,7 +25,6 @@
- #include <linux/delay.h>
- #include <linux/errno.h>
- #include <linux/interrupt.h>
--#include <linux/i2c-pxa.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
- #include <linux/platform_device.h>
-diff --git a/include/linux/i2c-pxa.h b/include/linux/i2c-pxa.h
-deleted file mode 100644
-index a897e2b507b6..000000000000
---- a/include/linux/i2c-pxa.h
-+++ /dev/null
-@@ -1,18 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef _LINUX_I2C_ALGO_PXA_H
--#define _LINUX_I2C_ALGO_PXA_H
--
--typedef enum i2c_slave_event_e {
--	I2C_SLAVE_EVENT_START_READ,
--	I2C_SLAVE_EVENT_START_WRITE,
--	I2C_SLAVE_EVENT_STOP
--} i2c_slave_event_t;
--
--struct i2c_slave_client {
--	void *data;
--	void (*event)(void *ptr, i2c_slave_event_t event);
--	int  (*read) (void *ptr);
--	void (*write)(void *ptr, unsigned int val);
--};
--
--#endif /* _LINUX_I2C_ALGO_PXA_H */
-diff --git a/include/linux/platform_data/i2c-pxa.h b/include/linux/platform_data/i2c-pxa.h
-index cb290092599c..6a9b28399b39 100644
---- a/include/linux/platform_data/i2c-pxa.h
-+++ b/include/linux/platform_data/i2c-pxa.h
-@@ -55,11 +55,7 @@
-  */
- #define I2C_ISR_INIT	0x7FF  /* status register init */
- 
--struct i2c_slave_client;
--
- struct i2c_pxa_platform_data {
--	unsigned int		slave_addr;
--	struct i2c_slave_client	*slave;
- 	unsigned int		class;
- 	unsigned int		use_pio :1;
- 	unsigned int		fast_mode :1;
+On Tue, Oct 01, 2019 at 10:59:59AM -0500, Patrick Williams wrote:
+> The i2c subsystem was enhanced circa 2015 to support operating as
+> an i2c-slave device.  Prior to that, the i2c-pxa driver supported
+> an i2c-slave but had its own APIs.  There are no existing in-kernel
+> drivers or platforms that utilize the i2c-pxa APIs.
+> 
+> Migrate the i2c-pxa driver to the general i2c-slave APIs so that
+> existing drivers, such as the i2c-slave-eeprom, can be used.
+> 
+> This has been tested with a Marvell EspressoBin, using i2c-pxa and
+> i2c-slave-eeprom, acting as a slave, and a RaspeberryPi 3, using the
+> at24 driver, acting as a master.
+
+There are quite a few people in the Cc list. I'm not sure they all are
+interested in this. I deliberately dropped few names, sorry, if I was mistaken.
+
+> +		if (isr & ISR_RWM) {
+> +			u8 byte = 0;
+> +
+> +			i2c_slave_event(i2c->slave, I2C_SLAVE_READ_REQUESTED,
+> +					&byte);
+> +			writel(byte, _IDBR(i2c));
+> +		} else {
+> +			i2c_slave_event(i2c->slave, I2C_SLAVE_WRITE_REQUESTED,
+> +					NULL);
+> +		}
+
+Hmm... Perhaps
+
+		u8 byte = 0;
+
+		i2c_slave_event(i2c->slave, I2C_SLAVE_READ_REQUESTED, &byte);
+		if (isr & ISR_RWM)
+			writel(byte, _IDBR(i2c));
+
 -- 
-2.17.2 (Apple Git-113)
+With Best Regards,
+Andy Shevchenko
