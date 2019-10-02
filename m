@@ -1,45 +1,32 @@
-From: Ulrich Hecht <uli@fpond.eu>
-Subject: Re: [PATCH v2] i2c: i2c-mt65xx: fix NULL ptr dereference
-Date: Wed, 2 Oct 2019 10:43:55 +0200 (CEST)
-Message-ID: <1733244772.936156.1570005835848@webmail.strato.com>
-References: <20190930152846.5062-1-fparent@baylibre.com>
+From: Kamel Bouhara <kamel.bouhara@bootlin.com>
+Subject: [PATCH 0/4] i2c bus recovery for Microchip SoCs.
+Date: Wed,  2 Oct 2019 16:46:54 +0200
+Message-ID: <20191002144658.7718-1-kamel.bouhara@bootlin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20190930152846.5062-1-fparent@baylibre.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Fabien Parent <fparent@baylibre.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: drinkcat@chromium.org, wsa@the-dreams.de, hsinyi@chromium.org, matthias.bgg@gmail.com, tglx@linutronix.de, qii.wang@mediatek.com
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicolas Ferre <nicolas.ferre@microchip.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Ludovic Desroches <ludovic.desroches@microchip.com>, linux-arm-kernel@lists.infradead.org
+Cc: devicetree@vger.kernel.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Kamel Bouhara <kamel.bouhara@bootlin.com>
 List-Id: linux-i2c@vger.kernel.org
 
+This patch series introduce the kernel i2c-gpio bus recovery mechanism
+for the Microchip SoCs. Updated the corresponding dts to add i2c
+gpio pinctrl. The bus recovery is configured for the sama5d3/4 xplained
+boards in dts.
 
-> On September 30, 2019 at 5:28 PM Fabien Parent <fparent@baylibre.com> wrote:
-> 
-> 
-> Since commit abf4923e97c3 ("i2c: mediatek: disable zero-length transfers
-> for mt8183"), there is a NULL pointer dereference for all the SoCs
-> that don't have any quirk. mtk_i2c_functionality is not checking that
-> the quirks pointer is not NULL before starting to use it.
-> 
-> This commit add a call to i2c_check_quirks which will check whether
-> the quirks pointer is set, and if so will check if the IP has the
-> NO_ZERO_LEN quirk.
-> 
-> Fixes: abf4923e97c3 ("i2c: mediatek: disable zero-length transfers for mt8183")
-> Signed-off-by: Fabien Parent <fparent@baylibre.com>
+Kamel Bouhara (4):
+  dt-bindings: i2c: at91: document optional bus recovery properties
+  i2c: at91: implement i2c bus recovery
+  ARM: at91/dt: sama5d3: add i2c gpio pinctrl
+  ARM: at91/dt: sama5d4: add i2c gpio pinctrl
 
-Thank you! Tested successfully on Acer R13 Chromebook (mt8173).
+ .../devicetree/bindings/i2c/i2c-at91.txt      | 10 +++
+ arch/arm/boot/dts/sama5d3.dtsi                | 33 +++++++++-
+ arch/arm/boot/dts/sama5d4.dtsi                | 33 +++++++++-
+ drivers/i2c/busses/i2c-at91-master.c          | 63 +++++++++++++++++++
+ drivers/i2c/busses/i2c-at91.h                 |  8 +++
+ 5 files changed, 141 insertions(+), 6 deletions(-)
 
-Tested-by: Ulrich Hecht <uli@fpond.eu>
-
-CU
-Uli
+--
+2.23.0
