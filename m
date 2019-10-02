@@ -1,7 +1,7 @@
 From: Kamel Bouhara <kamel.bouhara@bootlin.com>
-Subject: [PATCH 4/4] ARM: at91/dt: sama5d4: add i2c gpio pinctrl
-Date: Wed,  2 Oct 2019 16:46:58 +0200
-Message-ID: <20191002144658.7718-5-kamel.bouhara@bootlin.com>
+Subject: [PATCH 3/4] ARM: at91/dt: sama5d3: add i2c gpio pinctrl
+Date: Wed,  2 Oct 2019 16:46:57 +0200
+Message-ID: <20191002144658.7718-4-kamel.bouhara@bootlin.com>
 References: <20191002144658.7718-1-kamel.bouhara@bootlin.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,20 +12,20 @@ To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vg
 Cc: devicetree@vger.kernel.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Kamel Bouhara <kamel.bouhara@bootlin.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Add the i2c gpio pinctrls so the i2c bus recovery option can be enabled
+Add the i2c gpio pinctrls to support the i2c bus recovery
 
 Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
 ---
- arch/arm/boot/dts/sama5d4.dtsi | 33 ++++++++++++++++++++++++++++++---
+ arch/arm/boot/dts/sama5d3.dtsi | 33 ++++++++++++++++++++++++++++++---
  1 file changed, 30 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sama5d4.dtsi b/arch/arm/boot/dts/sama5d4.dtsi
-index 6ab27a7b388d..34351baab985 100644
---- a/arch/arm/boot/dts/sama5d4.dtsi
-+++ b/arch/arm/boot/dts/sama5d4.dtsi
-@@ -458,8 +458,11 @@
- 					(AT91_XDMAC_DT_MEM_IF(0) | AT91_XDMAC_DT_PER_IF(1)
- 					| AT91_XDMAC_DT_PERID(3))>;
+diff --git a/arch/arm/boot/dts/sama5d3.dtsi b/arch/arm/boot/dts/sama5d3.dtsi
+index f770aace0efd..faf8907d8d7d 100644
+--- a/arch/arm/boot/dts/sama5d3.dtsi
++++ b/arch/arm/boot/dts/sama5d3.dtsi
+@@ -159,8 +159,11 @@
+ 				dmas = <&dma0 2 AT91_DMA_CFG_PER_ID(7)>,
+ 				       <&dma0 2 AT91_DMA_CFG_PER_ID(8)>;
  				dma-names = "tx", "rx";
 -				pinctrl-names = "default";
 +				pinctrl-names = "default", "gpio";
@@ -35,36 +35,36 @@ index 6ab27a7b388d..34351baab985 100644
 +				scl-gpios = <&pioA 31 GPIO_ACTIVE_HIGH>;
  				#address-cells = <1>;
  				#size-cells = <0>;
- 				clocks = <&pmc PMC_TYPE_PERIPHERAL 32>;
-@@ -477,8 +480,11 @@
- 					(AT91_XDMAC_DT_MEM_IF(0) | AT91_XDMAC_DT_PER_IF(1)
- 					| AT91_XDMAC_DT_PERID(5))>;
+ 				clocks = <&twi0_clk>;
+@@ -174,8 +177,11 @@
+ 				dmas = <&dma0 2 AT91_DMA_CFG_PER_ID(9)>,
+ 				       <&dma0 2 AT91_DMA_CFG_PER_ID(10)>;
  				dma-names = "tx", "rx";
 -				pinctrl-names = "default";
 +				pinctrl-names = "default", "gpio";
  				pinctrl-0 = <&pinctrl_i2c1>;
 +				pinctrl-1 = <&pinctrl_i2c1_gpio>;
-+				sda-gpios = <&pioE 29 GPIO_ACTIVE_HIGH>;
-+				scl-gpios = <&pioE 30 GPIO_ACTIVE_HIGH>;
++				sda-gpios = <&pioC 26 GPIO_ACTIVE_HIGH>;
++				scl-gpios = <&pioC 27 GPIO_ACTIVE_HIGH>;
  				#address-cells = <1>;
  				#size-cells = <0>;
- 				clocks = <&pmc PMC_TYPE_PERIPHERAL 33>;
-@@ -519,8 +525,11 @@
- 					(AT91_XDMAC_DT_MEM_IF(0) | AT91_XDMAC_DT_PER_IF(1)
- 					| AT91_XDMAC_DT_PERID(7))>;
+ 				clocks = <&twi1_clk>;
+@@ -357,8 +363,11 @@
+ 				dmas = <&dma1 2 AT91_DMA_CFG_PER_ID(11)>,
+ 				       <&dma1 2 AT91_DMA_CFG_PER_ID(12)>;
  				dma-names = "tx", "rx";
 -				pinctrl-names = "default";
 +				pinctrl-names = "default", "gpio";
  				pinctrl-0 = <&pinctrl_i2c2>;
 +				pinctrl-1 = <&pinctrl_i2c2_gpio>;
-+				sda-gpios = <&pioB 29 GPIO_ACTIVE_HIGH>;
-+				scl-gpios = <&pioB 30 GPIO_ACTIVE_HIGH>;
++				sda-gpios = <&pioA 18 GPIO_ACTIVE_HIGH>;
++				scl-gpios = <&pioA 19 GPIO_ACTIVE_HIGH>;
  				#address-cells = <1>;
  				#size-cells = <0>;
- 				clocks = <&pmc PMC_TYPE_PERIPHERAL 34>;
-@@ -1122,6 +1131,12 @@
- 							<AT91_PIOA 30 AT91_PERIPH_A AT91_PINCTRL_NONE
- 							 AT91_PIOA 31 AT91_PERIPH_A AT91_PINCTRL_NONE>;
+ 				clocks = <&twi2_clk>;
+@@ -639,6 +648,12 @@
+ 							<AT91_PIOA 30 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PA30 periph A TWD0 pin, conflicts with URXD1, ISI_VSYNC */
+ 							 AT91_PIOA 31 AT91_PERIPH_A AT91_PINCTRL_NONE>;	/* PA31 periph A TWCK0 pin, conflicts with UTXD1, ISI_HSYNC */
  					};
 +
 +					pinctrl_i2c0_gpio: i2c0-gpio {
@@ -75,28 +75,28 @@ index 6ab27a7b388d..34351baab985 100644
  				};
  
  				i2c1 {
-@@ -1130,6 +1145,12 @@
- 							<AT91_PIOE 29 AT91_PERIPH_C AT91_PINCTRL_NONE	/* TWD1, conflicts with UART0 RX and DIBP */
- 							 AT91_PIOE 30 AT91_PERIPH_C AT91_PINCTRL_NONE>;	/* TWCK1, conflicts with UART0 TX and DIBN */
+@@ -647,6 +662,12 @@
+ 							<AT91_PIOC 26 AT91_PERIPH_B AT91_PINCTRL_NONE	/* PC26 periph B TWD1 pin, conflicts with SPI1_NPCS1, ISI_D11 */
+ 							 AT91_PIOC 27 AT91_PERIPH_B AT91_PINCTRL_NONE>;	/* PC27 periph B TWCK1 pin, conflicts with SPI1_NPCS2, ISI_D10 */
  					};
 +
 +					pinctrl_i2c1_gpio: i2c1-gpio {
 +						atmel,pins =
-+							<AT91_PIOE 29 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP
-+							 AT91_PIOE 30 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP>;
++							<AT91_PIOC 26 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP
++							 AT91_PIOC 27 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP>;
 +					};
  				};
  
  				i2c2 {
-@@ -1138,6 +1159,12 @@
- 							<AT91_PIOB 29 AT91_PERIPH_A AT91_PINCTRL_NONE	/* TWD2, conflicts with RD0 and PWML1 */
- 							 AT91_PIOB 30 AT91_PERIPH_A AT91_PINCTRL_NONE>; /* TWCK2, conflicts with RF0 */
+@@ -655,6 +676,12 @@
+ 							<AT91_PIOA 18 AT91_PERIPH_B AT91_PINCTRL_NONE	/* TWD2 pin, conflicts with LCDDAT18, ISI_D2 */
+ 							 AT91_PIOA 19 AT91_PERIPH_B AT91_PINCTRL_NONE>; /* TWCK2 pin, conflicts with LCDDAT19, ISI_D3 */
  					};
 +
 +					pinctrl_i2c2_gpio: i2c2-gpio {
 +						atmel,pins =
-+							<AT91_PIOB 29 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP
-+							 AT91_PIOB 30 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP>;
++							<AT91_PIOA 18 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP
++							 AT91_PIOA 19 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP>;
 +					};
  				};
  
