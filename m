@@ -1,7 +1,7 @@
 From: Kamel Bouhara <kamel.bouhara@bootlin.com>
-Subject: [PATCH 2/4] i2c: at91: implement i2c bus recovery
-Date: Wed,  2 Oct 2019 16:46:56 +0200
-Message-ID: <20191002144658.7718-3-kamel.bouhara@bootlin.com>
+Subject: [PATCH 4/4] ARM: at91/dt: sama5d4: add i2c gpio pinctrl
+Date: Wed,  2 Oct 2019 16:46:58 +0200
+Message-ID: <20191002144658.7718-5-kamel.bouhara@bootlin.com>
 References: <20191002144658.7718-1-kamel.bouhara@bootlin.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,134 +12,94 @@ To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vg
 Cc: devicetree@vger.kernel.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Kamel Bouhara <kamel.bouhara@bootlin.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Implement i2c bus recovery when slaves devices might hold SDA low.
-In this case re-assign SCL/SDA to gpios and issue 9 dummy clock pulses
-until the slave release SDA.
+Add the i2c gpio pinctrls so the i2c bus recovery option can be enabled
 
 Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
 ---
- drivers/i2c/busses/i2c-at91-master.c | 63 ++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-at91.h        |  8 ++++
- 2 files changed, 71 insertions(+)
+ arch/arm/boot/dts/sama5d4.dtsi | 33 ++++++++++++++++++++++++++++++---
+ 1 file changed, 30 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
-index a3fcc35ffd3b..df5bb93f952d 100644
---- a/drivers/i2c/busses/i2c-at91-master.c
-+++ b/drivers/i2c/busses/i2c-at91-master.c
-@@ -18,11 +18,13 @@
- #include <linux/dma-mapping.h>
- #include <linux/dmaengine.h>
- #include <linux/err.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
- #include <linux/io.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-+#include <linux/pinctrl/consumer.h>
- #include <linux/platform_device.h>
- #include <linux/platform_data/dma-atmel.h>
- #include <linux/pm_runtime.h>
-@@ -768,6 +770,63 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
- 	return ret;
- }
+diff --git a/arch/arm/boot/dts/sama5d4.dtsi b/arch/arm/boot/dts/sama5d4.dtsi
+index 6ab27a7b388d..34351baab985 100644
+--- a/arch/arm/boot/dts/sama5d4.dtsi
++++ b/arch/arm/boot/dts/sama5d4.dtsi
+@@ -458,8 +458,11 @@
+ 					(AT91_XDMAC_DT_MEM_IF(0) | AT91_XDMAC_DT_PER_IF(1)
+ 					| AT91_XDMAC_DT_PERID(3))>;
+ 				dma-names = "tx", "rx";
+-				pinctrl-names = "default";
++				pinctrl-names = "default", "gpio";
+ 				pinctrl-0 = <&pinctrl_i2c0>;
++				pinctrl-1 = <&pinctrl_i2c0_gpio>;
++				sda-gpios = <&pioA 30 GPIO_ACTIVE_HIGH>;
++				scl-gpios = <&pioA 31 GPIO_ACTIVE_HIGH>;
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+ 				clocks = <&pmc PMC_TYPE_PERIPHERAL 32>;
+@@ -477,8 +480,11 @@
+ 					(AT91_XDMAC_DT_MEM_IF(0) | AT91_XDMAC_DT_PER_IF(1)
+ 					| AT91_XDMAC_DT_PERID(5))>;
+ 				dma-names = "tx", "rx";
+-				pinctrl-names = "default";
++				pinctrl-names = "default", "gpio";
+ 				pinctrl-0 = <&pinctrl_i2c1>;
++				pinctrl-1 = <&pinctrl_i2c1_gpio>;
++				sda-gpios = <&pioE 29 GPIO_ACTIVE_HIGH>;
++				scl-gpios = <&pioE 30 GPIO_ACTIVE_HIGH>;
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+ 				clocks = <&pmc PMC_TYPE_PERIPHERAL 33>;
+@@ -519,8 +525,11 @@
+ 					(AT91_XDMAC_DT_MEM_IF(0) | AT91_XDMAC_DT_PER_IF(1)
+ 					| AT91_XDMAC_DT_PERID(7))>;
+ 				dma-names = "tx", "rx";
+-				pinctrl-names = "default";
++				pinctrl-names = "default", "gpio";
+ 				pinctrl-0 = <&pinctrl_i2c2>;
++				pinctrl-1 = <&pinctrl_i2c2_gpio>;
++				sda-gpios = <&pioB 29 GPIO_ACTIVE_HIGH>;
++				scl-gpios = <&pioB 30 GPIO_ACTIVE_HIGH>;
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+ 				clocks = <&pmc PMC_TYPE_PERIPHERAL 34>;
+@@ -1122,6 +1131,12 @@
+ 							<AT91_PIOA 30 AT91_PERIPH_A AT91_PINCTRL_NONE
+ 							 AT91_PIOA 31 AT91_PERIPH_A AT91_PINCTRL_NONE>;
+ 					};
++
++					pinctrl_i2c0_gpio: i2c0-gpio {
++						atmel,pins =
++							<AT91_PIOA 30 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP
++							 AT91_PIOA 31 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP>;
++					};
+ 				};
  
-+static void at91_prepare_twi_recovery(struct i2c_adapter *adap)
-+{
-+	struct at91_twi_dev *dev = i2c_get_adapdata(adap);
+ 				i2c1 {
+@@ -1130,6 +1145,12 @@
+ 							<AT91_PIOE 29 AT91_PERIPH_C AT91_PINCTRL_NONE	/* TWD1, conflicts with UART0 RX and DIBP */
+ 							 AT91_PIOE 30 AT91_PERIPH_C AT91_PINCTRL_NONE>;	/* TWCK1, conflicts with UART0 TX and DIBN */
+ 					};
 +
-+	pinctrl_select_state(dev->pinctrl, dev->pinctrl_pins_gpio);
-+}
-+
-+static void at91_unprepare_twi_recovery(struct i2c_adapter *adap)
-+{
-+	struct at91_twi_dev *dev = i2c_get_adapdata(adap);
-+
-+	pinctrl_select_state(dev->pinctrl, dev->pinctrl_pins_default);
-+}
-+
-+static int at91_init_twi_recovery_info(struct platform_device *pdev,
-+				       struct at91_twi_dev *dev)
-+{
-+	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
-+
-+	dev->pinctrl = devm_pinctrl_get(&pdev->dev);
-+	if (!dev->pinctrl || IS_ERR(dev->pinctrl)) {
-+		dev_info(dev->dev, "can't get pinctrl, bus recovery not supported\n");
-+		return PTR_ERR(dev->pinctrl);
-+	}
-+
-+	dev->pinctrl_pins_default = pinctrl_lookup_state(dev->pinctrl,
-+							 PINCTRL_STATE_DEFAULT);
-+	dev->pinctrl_pins_gpio = pinctrl_lookup_state(dev->pinctrl,
-+						      "gpio");
-+	rinfo->sda_gpiod = devm_gpiod_get(&pdev->dev, "sda", GPIOD_IN);
-+	if (PTR_ERR(rinfo->sda_gpiod) == -EPROBE_DEFER)
-+		return -EPROBE_DEFER;
-+
-+	rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl",
-+					  GPIOD_OUT_HIGH_OPEN_DRAIN);
-+	if (PTR_ERR(rinfo->scl_gpiod) == -EPROBE_DEFER)
-+		return -EPROBE_DEFER;
-+
-+	if (IS_ERR(rinfo->sda_gpiod) ||
-+		   IS_ERR(rinfo->scl_gpiod) ||
-+		   IS_ERR(dev->pinctrl_pins_default) ||
-+		   IS_ERR(dev->pinctrl_pins_gpio)) {
-+		dev_info(&pdev->dev, "recovery information incomplete\n");
-+		return -EINVAL;
-+	}
-+
-+	dev_info(&pdev->dev, "using scl%s for recovery\n",
-+		 rinfo->sda_gpiod ? ",sda" : "");
-+
-+	rinfo->prepare_recovery = at91_prepare_twi_recovery;
-+	rinfo->unprepare_recovery = at91_unprepare_twi_recovery;
-+	rinfo->recover_bus = i2c_generic_scl_recovery;
-+	dev->adapter.bus_recovery_info = rinfo;
-+
-+	return 0;
-+}
-+
- int at91_twi_probe_master(struct platform_device *pdev,
- 			  u32 phy_addr, struct at91_twi_dev *dev)
- {
-@@ -795,6 +854,10 @@ int at91_twi_probe_master(struct platform_device *pdev,
++					pinctrl_i2c1_gpio: i2c1-gpio {
++						atmel,pins =
++							<AT91_PIOE 29 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP
++							 AT91_PIOE 30 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP>;
++					};
+ 				};
  
- 	at91_calc_twi_clock(dev);
- 
-+	rc = at91_init_twi_recovery_info(pdev, dev);
-+	if (rc == -EPROBE_DEFER)
-+		return rc;
+ 				i2c2 {
+@@ -1138,6 +1159,12 @@
+ 							<AT91_PIOB 29 AT91_PERIPH_A AT91_PINCTRL_NONE	/* TWD2, conflicts with RD0 and PWML1 */
+ 							 AT91_PIOB 30 AT91_PERIPH_A AT91_PINCTRL_NONE>; /* TWCK2, conflicts with RF0 */
+ 					};
 +
- 	dev->adapter.algo = &at91_twi_algorithm;
- 	dev->adapter.quirks = &at91_twi_quirks;
++					pinctrl_i2c2_gpio: i2c2-gpio {
++						atmel,pins =
++							<AT91_PIOB 29 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP
++							 AT91_PIOB 30 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP>;
++					};
+ 				};
  
-diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
-index 499b506f6128..b89dab55e776 100644
---- a/drivers/i2c/busses/i2c-at91.h
-+++ b/drivers/i2c/busses/i2c-at91.h
-@@ -141,6 +141,10 @@ struct at91_twi_dev {
- 	u32 fifo_size;
- 	struct at91_twi_dma dma;
- 	bool slave_detected;
-+	struct i2c_bus_recovery_info rinfo;
-+	struct pinctrl *pinctrl;
-+	struct pinctrl_state *pinctrl_pins_default;
-+	struct pinctrl_state *pinctrl_pins_gpio;
- #ifdef CONFIG_I2C_AT91_SLAVE_EXPERIMENTAL
- 	unsigned smr;
- 	struct i2c_client *slave;
-@@ -158,6 +162,10 @@ void at91_init_twi_bus_master(struct at91_twi_dev *dev);
- int at91_twi_probe_master(struct platform_device *pdev, u32 phy_addr,
- 			  struct at91_twi_dev *dev);
- 
-+void at91_twi_prepare_recovery(struct i2c_adapter *adap);
-+void at91_twi_unprepare_recovery(struct i2c_adapter *adap);
-+void at91_twi_init_recovery_info(struct at91_twi_dev *dev);
-+
- #ifdef CONFIG_I2C_AT91_SLAVE_EXPERIMENTAL
- void at91_init_twi_bus_slave(struct at91_twi_dev *dev);
- int at91_twi_probe_slave(struct platform_device *pdev, u32 phy_addr,
+ 				isi {
 -- 
 2.23.0
