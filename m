@@ -1,68 +1,50 @@
-From: Patrick Williams <alpawi@amazon.com>
-Subject: [PATCH 2/2] i2c: slave-eeprom: support additional models
-Date: Tue, 1 Oct 2019 11:40:06 -0500
-Message-ID: <20191001164009.21610-2-alpawi@amazon.com>
+From: Bjorn Ardo <bjorn.ardo@axis.com>
+Subject: Re: [PATCH 1/2] i2c: slave-eeprom: initialize empty eeprom properly
+Date: Wed, 2 Oct 2019 08:20:53 +0200
+Message-ID: <150599be-9125-4ab9-e2a6-e792b41910e6@axis.com>
 References: <20191001164009.21610-1-alpawi@amazon.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20191001164009.21610-1-alpawi@amazon.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: =?UTF-8?q?Bj=C3=B6rn=20Ard=C3=B6?= <bjorn.ardo@axis.com>, Patrick Williams <alpawi@amazon.com>, Patrick Williams <patrick@stwcx.xyz>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Patrick Williams <alpawi@amazon.com>
+Cc: =?UTF-8?B?QmrDtnJuIEFyZMO2?= <bjornar@axis.com>, Patrick Williams <patrick@stwcx.xyz>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add support for emulating the following EEPROMs:
-    * 24c01  - 1024 bit
-    * 24c128 - 128k bit
-    * 24c256 - 256k bit
-    * 24c512 - 512k bit
+Hi,
 
-The flag bits in the device id were shifted up 1 bit to make
-room for saving the 24c512's size.  24c512 uses the full 16-bit
-address space of a 2-byte addressable EEPROM.
 
-Signed-off-by: Patrick Williams <alpawi@amazon.com>
----
- drivers/i2c/i2c-slave-eeprom.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+I sent in another patch earlier that added support for specifying a file 
+in devicetree to initilize the eeprom from, corresponding to the case of 
+pre-flashed eeprom. Maybe these two patches should be merged so this 
+initialization is only done if no file is specified?
 
-diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-eeprom.c
-index efee56106251..65419441313b 100644
---- a/drivers/i2c/i2c-slave-eeprom.c
-+++ b/drivers/i2c/i2c-slave-eeprom.c
-@@ -37,9 +37,9 @@ struct eeprom_data {
- 	u8 buffer[];
- };
- 
--#define I2C_SLAVE_BYTELEN GENMASK(15, 0)
--#define I2C_SLAVE_FLAG_ADDR16 BIT(16)
--#define I2C_SLAVE_FLAG_RO BIT(17)
-+#define I2C_SLAVE_BYTELEN GENMASK(16, 0)
-+#define I2C_SLAVE_FLAG_ADDR16 BIT(17)
-+#define I2C_SLAVE_FLAG_RO BIT(18)
- #define I2C_SLAVE_DEVICE_MAGIC(_len, _flags) ((_flags) | (_len))
- 
- static int i2c_slave_eeprom_slave_cb(struct i2c_client *client,
-@@ -171,12 +171,20 @@ static int i2c_slave_eeprom_remove(struct i2c_client *client)
- }
- 
- static const struct i2c_device_id i2c_slave_eeprom_id[] = {
-+	{ "slave-24c01", I2C_SLAVE_DEVICE_MAGIC(1024 / 8,  0) },
-+	{ "slave-24c01ro", I2C_SLAVE_DEVICE_MAGIC(1024 / 8,  I2C_SLAVE_FLAG_RO) },
- 	{ "slave-24c02", I2C_SLAVE_DEVICE_MAGIC(2048 / 8,  0) },
- 	{ "slave-24c02ro", I2C_SLAVE_DEVICE_MAGIC(2048 / 8,  I2C_SLAVE_FLAG_RO) },
- 	{ "slave-24c32", I2C_SLAVE_DEVICE_MAGIC(32768 / 8, I2C_SLAVE_FLAG_ADDR16) },
- 	{ "slave-24c32ro", I2C_SLAVE_DEVICE_MAGIC(32768 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
- 	{ "slave-24c64", I2C_SLAVE_DEVICE_MAGIC(65536 / 8, I2C_SLAVE_FLAG_ADDR16) },
- 	{ "slave-24c64ro", I2C_SLAVE_DEVICE_MAGIC(65536 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
-+	{ "slave-24c128", I2C_SLAVE_DEVICE_MAGIC(131072 / 8, I2C_SLAVE_FLAG_ADDR16) },
-+	{ "slave-24c128ro", I2C_SLAVE_DEVICE_MAGIC(131072 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
-+	{ "slave-24c256", I2C_SLAVE_DEVICE_MAGIC(262144 / 8, I2C_SLAVE_FLAG_ADDR16) },
-+	{ "slave-24c256ro", I2C_SLAVE_DEVICE_MAGIC(262144 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
-+	{ "slave-24c512", I2C_SLAVE_DEVICE_MAGIC(524288 / 8, I2C_SLAVE_FLAG_ADDR16) },
-+	{ "slave-24c512ro", I2C_SLAVE_DEVICE_MAGIC(524288 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(i2c, i2c_slave_eeprom_id);
--- 
-2.17.2 (Apple Git-113)
+
+/BA
+
+On 10/1/19 6:40 PM, Patrick Williams wrote:
+> The i2c-slave-eeprom driver emulates at24 class eeprom devices,
+> which come initialized with all 1s.  Do the same in the software
+> emulation.
+>
+> Signed-off-by: Patrick Williams <alpawi@amazon.com>
+> ---
+>   drivers/i2c/i2c-slave-eeprom.c | 2 ++
+>   1 file changed, 2 insertions(+)
+>
+> diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-eeprom.c
+> index db9763cb4dae..efee56106251 100644
+> --- a/drivers/i2c/i2c-slave-eeprom.c
+> +++ b/drivers/i2c/i2c-slave-eeprom.c
+> @@ -131,6 +131,8 @@ static int i2c_slave_eeprom_probe(struct i2c_client *client, const struct i2c_de
+>   	if (!eeprom)
+>   		return -ENOMEM;
+>   
+> +	memset(eeprom->buffer, 0xFF, size);
+> +
+>   	eeprom->idx_write_cnt = 0;
+>   	eeprom->num_address_bytes = flag_addr16 ? 2 : 1;
+>   	eeprom->address_mask = size - 1;
