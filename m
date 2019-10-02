@@ -1,43 +1,45 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH v6 2/2] dt-bindings: at24: add new compatible
-Date: Wed,  2 Oct 2019 09:20:47 +0200
-Message-ID: <20191002072047.20895-3-brgl@bgdev.pl>
-References: <20191002072047.20895-1-brgl@bgdev.pl>
+From: Ulrich Hecht <uli@fpond.eu>
+Subject: Re: [PATCH v2] i2c: i2c-mt65xx: fix NULL ptr dereference
+Date: Wed, 2 Oct 2019 10:43:55 +0200 (CEST)
+Message-ID: <1733244772.936156.1570005835848@webmail.strato.com>
+References: <20190930152846.5062-1-fparent@baylibre.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191002072047.20895-1-brgl@bgdev.pl>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Peter Rosin <peda@axentia.se>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Rob Herring <robh@kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20190930152846.5062-1-fparent@baylibre.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Fabien Parent <fparent@baylibre.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: drinkcat@chromium.org, wsa@the-dreams.de, hsinyi@chromium.org, matthias.bgg@gmail.com, tglx@linutronix.de, qii.wang@mediatek.com
 List-Id: linux-i2c@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-arch/arm/boot/dts/at91-dvk_som60.dt.yaml uses the compatible string
-'giantec,gt24c32a' for an at24 EEPROM with a fallback to 'atmel,24c32'.
+> On September 30, 2019 at 5:28 PM Fabien Parent <fparent@baylibre.com> wrote:
+> 
+> 
+> Since commit abf4923e97c3 ("i2c: mediatek: disable zero-length transfers
+> for mt8183"), there is a NULL pointer dereference for all the SoCs
+> that don't have any quirk. mtk_i2c_functionality is not checking that
+> the quirks pointer is not NULL before starting to use it.
+> 
+> This commit add a call to i2c_check_quirks which will check whether
+> the quirks pointer is set, and if so will check if the IP has the
+> NO_ZERO_LEN quirk.
+> 
+> Fixes: abf4923e97c3 ("i2c: mediatek: disable zero-length transfers for mt8183")
+> Signed-off-by: Fabien Parent <fparent@baylibre.com>
 
-Add this model as a special case to the binding document.
+Thank you! Tested successfully on Acer R13 Chromebook (mt8173).
 
-Reported-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- Documentation/devicetree/bindings/eeprom/at24.yaml | 3 +++
- 1 file changed, 3 insertions(+)
+Tested-by: Ulrich Hecht <uli@fpond.eu>
 
-diff --git a/Documentation/devicetree/bindings/eeprom/at24.yaml b/Documentation/devicetree/bindings/eeprom/at24.yaml
-index c56f27fde3b3..e8778560d966 100644
---- a/Documentation/devicetree/bindings/eeprom/at24.yaml
-+++ b/Documentation/devicetree/bindings/eeprom/at24.yaml
-@@ -107,6 +107,9 @@ properties:
-       - items:
-           - const: renesas,r1ex24016
-           - const: atmel,24c16
-+      - items:
-+          - const: giantec,gt24c32a
-+          - const: atmel,24c32
-       - items:
-           - const: renesas,r1ex24128
-           - const: atmel,24c128
--- 
-2.23.0
+CU
+Uli
