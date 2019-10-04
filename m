@@ -1,105 +1,27 @@
-From: Kamel Bouhara <kamel.bouhara@bootlin.com>
-Subject: [PATCH 3/4] ARM: at91/dt: sama5d3: add i2c gpio pinctrl
-Date: Wed,  2 Oct 2019 16:46:57 +0200
-Message-ID: <20191002144658.7718-4-kamel.bouhara@bootlin.com>
+From: <Claudiu.Beznea@microchip.com>
+Subject: Re: [PATCH 2/4] i2c: at91: implement i2c bus recovery
+Date: Fri, 4 Oct 2019 09:35:23 +0000
+Message-ID: <08e99a4b-851e-0bee-4c5a-8578b42c283e@microchip.com>
 References: <20191002144658.7718-1-kamel.bouhara@bootlin.com>
+ <20191002144658.7718-3-kamel.bouhara@bootlin.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191002144658.7718-1-kamel.bouhara@bootlin.com>
+In-Reply-To: <20191002144658.7718-3-kamel.bouhara@bootlin.com>
+Content-Language: en-US
+Content-ID: <DA77BC9EC8C40C4A8D647BCD8BE57710@namprd11.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicolas Ferre <nicolas.ferre@microchip.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Ludovic Desroches <ludovic.desroches@microchip.com>, linux-arm-kernel@lists.infradead.org
-Cc: devicetree@vger.kernel.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Kamel Bouhara <kamel.bouhara@bootlin.com>
+To: kamel.bouhara@bootlin.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, Ludovic.Desroches@microchip.com, linux-arm-kernel@lists.infradead.org
+Cc: devicetree@vger.kernel.org, thomas.petazzoni@bootlin.com
 List-Id: linux-i2c@vger.kernel.org
 
-Add the i2c gpio pinctrls to support the i2c bus recovery
-
-Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
----
- arch/arm/boot/dts/sama5d3.dtsi | 33 ++++++++++++++++++++++++++++++---
- 1 file changed, 30 insertions(+), 3 deletions(-)
-
-diff --git a/arch/arm/boot/dts/sama5d3.dtsi b/arch/arm/boot/dts/sama5d3.dtsi
-index f770aace0efd..faf8907d8d7d 100644
---- a/arch/arm/boot/dts/sama5d3.dtsi
-+++ b/arch/arm/boot/dts/sama5d3.dtsi
-@@ -159,8 +159,11 @@
- 				dmas = <&dma0 2 AT91_DMA_CFG_PER_ID(7)>,
- 				       <&dma0 2 AT91_DMA_CFG_PER_ID(8)>;
- 				dma-names = "tx", "rx";
--				pinctrl-names = "default";
-+				pinctrl-names = "default", "gpio";
- 				pinctrl-0 = <&pinctrl_i2c0>;
-+				pinctrl-1 = <&pinctrl_i2c0_gpio>;
-+				sda-gpios = <&pioA 30 GPIO_ACTIVE_HIGH>;
-+				scl-gpios = <&pioA 31 GPIO_ACTIVE_HIGH>;
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				clocks = <&twi0_clk>;
-@@ -174,8 +177,11 @@
- 				dmas = <&dma0 2 AT91_DMA_CFG_PER_ID(9)>,
- 				       <&dma0 2 AT91_DMA_CFG_PER_ID(10)>;
- 				dma-names = "tx", "rx";
--				pinctrl-names = "default";
-+				pinctrl-names = "default", "gpio";
- 				pinctrl-0 = <&pinctrl_i2c1>;
-+				pinctrl-1 = <&pinctrl_i2c1_gpio>;
-+				sda-gpios = <&pioC 26 GPIO_ACTIVE_HIGH>;
-+				scl-gpios = <&pioC 27 GPIO_ACTIVE_HIGH>;
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				clocks = <&twi1_clk>;
-@@ -357,8 +363,11 @@
- 				dmas = <&dma1 2 AT91_DMA_CFG_PER_ID(11)>,
- 				       <&dma1 2 AT91_DMA_CFG_PER_ID(12)>;
- 				dma-names = "tx", "rx";
--				pinctrl-names = "default";
-+				pinctrl-names = "default", "gpio";
- 				pinctrl-0 = <&pinctrl_i2c2>;
-+				pinctrl-1 = <&pinctrl_i2c2_gpio>;
-+				sda-gpios = <&pioA 18 GPIO_ACTIVE_HIGH>;
-+				scl-gpios = <&pioA 19 GPIO_ACTIVE_HIGH>;
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				clocks = <&twi2_clk>;
-@@ -639,6 +648,12 @@
- 							<AT91_PIOA 30 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PA30 periph A TWD0 pin, conflicts with URXD1, ISI_VSYNC */
- 							 AT91_PIOA 31 AT91_PERIPH_A AT91_PINCTRL_NONE>;	/* PA31 periph A TWCK0 pin, conflicts with UTXD1, ISI_HSYNC */
- 					};
-+
-+					pinctrl_i2c0_gpio: i2c0-gpio {
-+						atmel,pins =
-+							<AT91_PIOA 30 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP
-+							 AT91_PIOA 31 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP>;
-+					};
- 				};
- 
- 				i2c1 {
-@@ -647,6 +662,12 @@
- 							<AT91_PIOC 26 AT91_PERIPH_B AT91_PINCTRL_NONE	/* PC26 periph B TWD1 pin, conflicts with SPI1_NPCS1, ISI_D11 */
- 							 AT91_PIOC 27 AT91_PERIPH_B AT91_PINCTRL_NONE>;	/* PC27 periph B TWCK1 pin, conflicts with SPI1_NPCS2, ISI_D10 */
- 					};
-+
-+					pinctrl_i2c1_gpio: i2c1-gpio {
-+						atmel,pins =
-+							<AT91_PIOC 26 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP
-+							 AT91_PIOC 27 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP>;
-+					};
- 				};
- 
- 				i2c2 {
-@@ -655,6 +676,12 @@
- 							<AT91_PIOA 18 AT91_PERIPH_B AT91_PINCTRL_NONE	/* TWD2 pin, conflicts with LCDDAT18, ISI_D2 */
- 							 AT91_PIOA 19 AT91_PERIPH_B AT91_PINCTRL_NONE>; /* TWCK2 pin, conflicts with LCDDAT19, ISI_D3 */
- 					};
-+
-+					pinctrl_i2c2_gpio: i2c2-gpio {
-+						atmel,pins =
-+							<AT91_PIOA 18 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP
-+							 AT91_PIOA 19 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP>;
-+					};
- 				};
- 
- 				isi {
--- 
-2.23.0
+SGkgS2FtZWwsDQoNCk9uIDAyLjEwLjIwMTkgMTc6NDYsIEthbWVsIEJvdWhhcmEgd3JvdGU6DQo+
+ICtzdGF0aWMgaW50IGF0OTFfaW5pdF90d2lfcmVjb3ZlcnlfaW5mbyhzdHJ1Y3QgcGxhdGZvcm1f
+ZGV2aWNlICpwZGV2LA0KPiArCQkJCSAgICAgICBzdHJ1Y3QgYXQ5MV90d2lfZGV2ICpkZXYpDQo+
+ICt7DQo+ICsJc3RydWN0IGkyY19idXNfcmVjb3ZlcnlfaW5mbyAqcmluZm8gPSAmZGV2LT5yaW5m
+bzsNCj4gKw0KPiArCWRldi0+cGluY3RybCA9IGRldm1fcGluY3RybF9nZXQoJnBkZXYtPmRldik7
+DQo+ICsJaWYgKCFkZXYtPnBpbmN0cmwgfHwgSVNfRVJSKGRldi0+cGluY3RybCkpIHsNCg0KWW91
+IG1heSB1c2UgSVNfRVJSX09SX05VTEwoKSBoZXJlLg0KDQo+ICsJCWRldl9pbmZvKGRldi0+ZGV2
+LCAiY2FuJ3QgZ2V0IHBpbmN0cmwsIGJ1cyByZWNvdmVyeSBub3Qgc3VwcG9ydGVkXG4iKTsNCj4g
+KwkJcmV0dXJuIFBUUl9FUlIoZGV2LT5waW5jdHJsKTsNCj4gKwl9DQo+ICsNCg==
