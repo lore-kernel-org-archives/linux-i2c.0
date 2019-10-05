@@ -1,44 +1,34 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-        <u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH 2/4] i2c: at91: implement i2c bus recovery
-Date: Fri, 4 Oct 2019 22:39:33 +0200
-Message-ID: <20191004203933.tfhr6cwbsq2hxrov@pengutronix.de>
-References: <20191002144658.7718-1-kamel.bouhara@bootlin.com>
- <20191002144658.7718-3-kamel.bouhara@bootlin.com>
- <08e99a4b-851e-0bee-4c5a-8578b42c283e@microchip.com>
+From: =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
+Subject: [PATCH 2/2] docs: w1: Fix SPDX-License-Identifier syntax
+Date: Sat,  5 Oct 2019 22:01:23 +0200
+Message-ID: <20191005200126.25809-2-j.neuschaefer@gmx.net>
+References: <20191005200126.25809-1-j.neuschaefer@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <08e99a4b-851e-0bee-4c5a-8578b42c283e@microchip.com>
+In-Reply-To: <20191005200126.25809-1-j.neuschaefer@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Claudiu.Beznea@microchip.com
-Cc: kamel.bouhara@bootlin.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, Ludovic.Desroches@microchip.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, thomas.petazzoni@bootlin.com
+To: linux-doc@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Evgeniy Polyakov <zbr@ioremap.net>, Jonathan Corbet <corbet@lwn.net>, Alexandre Belloni <alexandre.belloni@bootlin.com>, =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>, Jonathan Cameron <Jonathan.Cameron@huawei.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Oct 04, 2019 at 09:35:23AM +0000, Claudiu.Beznea@microchip.com wrote:
-> Hi Kamel,
-> 
-> On 02.10.2019 17:46, Kamel Bouhara wrote:
-> > +static int at91_init_twi_recovery_info(struct platform_device *pdev,
-> > +				       struct at91_twi_dev *dev)
-> > +{
-> > +	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
-> > +
-> > +	dev->pinctrl = devm_pinctrl_get(&pdev->dev);
-> > +	if (!dev->pinctrl || IS_ERR(dev->pinctrl)) {
-> 
-> You may use IS_ERR_OR_NULL() here.
+ReST directives are introduced with two dots.
 
-Can devm_pinctrl_get return NULL? From a quick look, it cannot.
+Signed-off-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
+=2D--
+ Documentation/w1/index.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-rule of thumb: IS_ERR_OR_NULL is wrong as it is a sign of poor return
-value semantics.
+diff --git a/Documentation/w1/index.rst b/Documentation/w1/index.rst
+index 57cba81865e2..156279f17553 100644
+=2D-- a/Documentation/w1/index.rst
++++ b/Documentation/w1/index.rst
+@@ -1,4 +1,4 @@
+-. SPDX-License-Identifier: GPL-2.0
++.. SPDX-License-Identifier: GPL-2.0
 
-Best regards
-Uwe
-
--- 
-Pengutronix e.K.                           | Uwe Kleine-König            |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+ =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+ 1-Wire Subsystem
+=2D-
+2.20.1
