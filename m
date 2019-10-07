@@ -1,67 +1,72 @@
-From: Alain Volmat <alain.volmat@st.com>
-Subject: Re: [PATCH] i2c: i2c-stm32f7: remove warning when compiling with W=1
-Date: Mon, 7 Oct 2019 14:01:20 +0200
-Message-ID: <20191007120120.GB12773@gnbcxd0016.gnb.st.com>
-References: <1570200954-17919-1-git-send-email-alain.volmat@st.com>
- <a5093a73-ba62-ae37-10dc-3434c9da40f7@st.com>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Subject: [PATCH 0/5] i2c: aspeed: Add buffer and DMA modes support
+Date: Mon,  7 Oct 2019 16:13:08 -0700
+Message-ID: <20191007231313.4700-1-jae.hyun.yoo@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <a5093a73-ba62-ae37-10dc-3434c9da40f7@st.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Cc: wsa@the-dreams.de, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, Tao Ren <taoren@fb.com>
+Cc: devicetree@vger.kernel.org, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, linux-aspeed@lists.ozlabs.org, openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Pierre-Yves,
+This patch series adds buffer mode and DMA mode transfer support for the
+Aspeed I2C driver. With this change, default transfer mode will be set to
+buffer mode for better performance, and DMA mode can be selectively used
+depends on platform configuration.
 
-thanks for the comments.
+* Buffer mode
+  AST2400:
+    It has 2 KBytes (256 Bytes x 8 pages) of I2C SRAM buffer pool from
+    0x1e78a800 to 0x1e78afff that can be used for all busses with
+    buffer pool manipulation. To simplify implementation for supporting
+    both AST2400 and AST2500, it assigns each 128 Bytes per bus without
+    using buffer pool manipulation so total 1792 Bytes of I2C SRAM
+    buffer will be used.
 
-On Mon, Oct 07, 2019 at 09:59:22AM +0200, Pierre Yves MORDRET wrote:
-> Hi Alain
-> 
-> Fixes tag is missing in your patch.
-> [ i.e ==> Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver") ]
+  AST2500:
+    It has 16 Bytes of individual I2C SRAM buffer per each bus and its
+    range is from 0x1e78a200 to 0x1e78a2df, so it doesn't have 'buffer
+    page selection' bit field in the Function control register, and
+    neither 'base address pointer' bit field in the Pool buffer control
+    register it has. To simplify implementation for supporting both
+    AST2400 and AST2500, it writes zeros on those register bit fields
+    but it's okay because it does nothing in AST2500.
 
-Okay, will push a v2 for that.
+* DMA mode
+  Only AST2500 and later versions support DMA mode under some limitations:
+    I2C is sharing the DMA H/W with UHCI host controller and MCTP
+    controller. Since those controllers operate with DMA mode only, I2C
+    has to use buffer mode or byte mode instead if one of those
+    controllers is enabled. Also make sure that if SD/eMMC or Port80
+    snoop uses DMA mode instead of PIO or FIFO respectively, I2C can't
+    use DMA mode.
 
-> 
-> Nonetheless patch only consists in removing a comment character ?
+Please review it.
 
-Yes, the comment currently starts in a way of a kernel-doc description
-(https://www.kernel.org/doc/html/latest/doc-guide/kernel-doc.html#function-documentation) leading the compiler to produce the warning since there is no
-function prototype after the comment.
+-Jae
 
-Regards,
-Alain
+Jae Hyun Yoo (5):
+  dt-bindings: i2c: aspeed: add buffer and DMA mode transfer support
+  ARM: dts: aspeed: add I2C buffer mode support
+  i2c: aspeed: fix master pending state handling
+  i2c: aspeed: add buffer mode transfer support
+  i2c: aspeed: add DMA mode transfer support
 
-> 
-> Thanks
-> 
-> On 10/4/19 4:55 PM, Alain Volmat wrote:
-> > Remove the following warning:
-> > 
-> > drivers/i2c/busses/i2c-stm32f7.c:315:
-> > warning: cannot understand function prototype:
-> > 'struct stm32f7_i2c_spec i2c_specs[] =
-> > 
-> > Signed-off-by: Alain Volmat <alain.volmat@st.com>
-> > ---
-> >  drivers/i2c/busses/i2c-stm32f7.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-> > index d36cf08..7aa4a47 100644
-> > --- a/drivers/i2c/busses/i2c-stm32f7.c
-> > +++ b/drivers/i2c/busses/i2c-stm32f7.c
-> > @@ -305,7 +305,7 @@ struct stm32f7_i2c_dev {
-> >  	struct regmap *regmap;
-> >  };
-> >  
-> > -/**
-> > +/*
-> >   * All these values are coming from I2C Specification, Version 6.0, 4th of
-> >   * April 2014.
-> >   *
-> > 
+ .../devicetree/bindings/i2c/i2c-aspeed.txt    |  67 ++-
+ arch/arm/boot/dts/aspeed-g4.dtsi              |  47 +-
+ arch/arm/boot/dts/aspeed-g5.dtsi              |  47 +-
+ drivers/i2c/busses/i2c-aspeed.c               | 513 ++++++++++++++++--
+ 4 files changed, 588 insertions(+), 86 deletions(-)
+
+-- 
+2.23.0
