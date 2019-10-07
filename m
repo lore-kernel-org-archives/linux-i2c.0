@@ -1,51 +1,35 @@
-From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: Re: [PATCH] i2c: i2c-stm32f7: remove warning when compiling with W=1
-Date: Mon, 7 Oct 2019 09:59:22 +0200
-Message-ID: <a5093a73-ba62-ae37-10dc-3434c9da40f7@st.com>
-References: <1570200954-17919-1-git-send-email-alain.volmat@st.com>
+From: <Claudiu.Beznea@microchip.com>
+Subject: Re: [PATCH 2/4] i2c: at91: implement i2c bus recovery
+Date: Mon, 7 Oct 2019 10:17:53 +0000
+Message-ID: <3c3e157e-a2bc-eb6d-b59d-0c7415692206@microchip.com>
+References: <20191002144658.7718-1-kamel.bouhara@bootlin.com>
+ <20191002144658.7718-3-kamel.bouhara@bootlin.com>
+ <08e99a4b-851e-0bee-4c5a-8578b42c283e@microchip.com>
+ <20191004203933.tfhr6cwbsq2hxrov@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1570200954-17919-1-git-send-email-alain.volmat@st.com>
+In-Reply-To: <20191004203933.tfhr6cwbsq2hxrov@pengutronix.de>
 Content-Language: en-US
+Content-ID: <A41E6E2BDD92C54BA28BFAEBA2B63155@namprd11.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alain Volmat <alain.volmat@st.com>, wsa@the-dreams.de
-Cc: alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
+To: u.kleine-koenig@pengutronix.de
+Cc: kamel.bouhara@bootlin.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, Ludovic.Desroches@microchip.com, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, thomas.petazzoni@bootlin.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Alain
-
-Fixes tag is missing in your patch.
-[ i.e ==> Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver") ]
-
-Nonetheless patch only consists in removing a comment character ?
-
-Thanks
-
-On 10/4/19 4:55 PM, Alain Volmat wrote:
-> Remove the following warning:
-> 
-> drivers/i2c/busses/i2c-stm32f7.c:315:
-> warning: cannot understand function prototype:
-> 'struct stm32f7_i2c_spec i2c_specs[] =
-> 
-> Signed-off-by: Alain Volmat <alain.volmat@st.com>
-> ---
->  drivers/i2c/busses/i2c-stm32f7.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-> index d36cf08..7aa4a47 100644
-> --- a/drivers/i2c/busses/i2c-stm32f7.c
-> +++ b/drivers/i2c/busses/i2c-stm32f7.c
-> @@ -305,7 +305,7 @@ struct stm32f7_i2c_dev {
->  	struct regmap *regmap;
->  };
->  
-> -/**
-> +/*
->   * All these values are coming from I2C Specification, Version 6.0, 4th of
->   * April 2014.
->   *
-> 
+DQoNCk9uIDA0LjEwLjIwMTkgMjM6MzksIFV3ZSBLbGVpbmUtS8O2bmlnIHdyb3RlOg0KPiBFeHRl
+cm5hbCBFLU1haWwNCj4gDQo+IA0KPiBPbiBGcmksIE9jdCAwNCwgMjAxOSBhdCAwOTozNToyM0FN
+ICswMDAwLCBDbGF1ZGl1LkJlem5lYUBtaWNyb2NoaXAuY29tIHdyb3RlOg0KPj4gSGkgS2FtZWws
+DQo+Pg0KPj4gT24gMDIuMTAuMjAxOSAxNzo0NiwgS2FtZWwgQm91aGFyYSB3cm90ZToNCj4+PiAr
+c3RhdGljIGludCBhdDkxX2luaXRfdHdpX3JlY292ZXJ5X2luZm8oc3RydWN0IHBsYXRmb3JtX2Rl
+dmljZSAqcGRldiwNCj4+PiArCQkJCSAgICAgICBzdHJ1Y3QgYXQ5MV90d2lfZGV2ICpkZXYpDQo+
+Pj4gK3sNCj4+PiArCXN0cnVjdCBpMmNfYnVzX3JlY292ZXJ5X2luZm8gKnJpbmZvID0gJmRldi0+
+cmluZm87DQo+Pj4gKw0KPj4+ICsJZGV2LT5waW5jdHJsID0gZGV2bV9waW5jdHJsX2dldCgmcGRl
+di0+ZGV2KTsNCj4+PiArCWlmICghZGV2LT5waW5jdHJsIHx8IElTX0VSUihkZXYtPnBpbmN0cmwp
+KSB7DQo+Pg0KPj4gWW91IG1heSB1c2UgSVNfRVJSX09SX05VTEwoKSBoZXJlLg0KPiANCj4gQ2Fu
+IGRldm1fcGluY3RybF9nZXQgcmV0dXJuIE5VTEw/IEZyb20gYSBxdWljayBsb29rLCBpdCBjYW5u
+b3QuDQoNCkxvb2tpbmcgcXVpY2tseSB0aG91Z2ggaXQsIHllcywgaXQgc2VlbXMgaXQgY2FuJ3Qu
+DQoNCj4gDQo+IHJ1bGUgb2YgdGh1bWI6IElTX0VSUl9PUl9OVUxMIGlzIHdyb25nIGFzIGl0IGlz
+IGEgc2lnbiBvZiBwb29yIHJldHVybg0KPiB2YWx1ZSBzZW1hbnRpY3MuDQo+IA0KPiBCZXN0IHJl
+Z2FyZHMNCj4gVXdlDQo+IA0K
