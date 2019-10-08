@@ -1,40 +1,92 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH 3/5] i2c: aspeed: fix master pending state handling
-Date: Tue, 8 Oct 2019 13:31:57 -0700
-Message-ID: <20191008203157.GA184092@google.com>
-References: <20191007231313.4700-1-jae.hyun.yoo@linux.intel.com>
- <20191007231313.4700-4-jae.hyun.yoo@linux.intel.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH RESEND] gpu: drm: bridge: sii9234: convert to devm_i2c_new_dummy_device
+Date: Tue,  8 Oct 2019 22:33:22 +0200
+Message-ID: <20191008203322.3238-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20191007231313.4700-4-jae.hyun.yoo@linux.intel.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-aspeed@lists.ozlabs.org, Andrew Jeffery <andrew@aj.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, openbmc@lists.ozlabs.org, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Tao Ren <taoren@fb.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dri-devel@lists.freedesktop.org
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Andrzej Hajda <a.hajda@samsung.com>, Neil Armstrong <narmstrong@baylibre.com>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, Jonas Karlman <jonas@kwiboo.se>, Jernej Skrabec <jernej.skrabec@siol.net>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 07, 2019 at 04:13:11PM -0700, Jae Hyun Yoo wrote:
-> In case of master pending state, it should not trigger the master
-> command because this H/W is sharing the same data buffer for slave
-> and master operations, so this commit fixes the issue with making
-> the master command triggering happen when the state goes to active
-> state.
+Move from the deprecated i2c_new_dummy() to devm_i2c_new_dummy_device().
+We now get an ERRPTR which we use in error handling and we can skip
+removal of the created devices.
 
-nit: Makes sense, but can you explain what might happen without your
-change?
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
 
-> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Rebased to v5.4-rc2 since last time. One of the last two users of the
+old API, so please apply soon, so I can remove the old interface. Only
+build tested.
 
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+ drivers/gpu/drm/bridge/sii9234.c | 36 +++++++++++---------------------
+ 1 file changed, 12 insertions(+), 24 deletions(-)
 
-Thanks!
+diff --git a/drivers/gpu/drm/bridge/sii9234.c b/drivers/gpu/drm/bridge/sii9234.c
+index 25d4ad8c7ad6..8a6c85693a88 100644
+--- a/drivers/gpu/drm/bridge/sii9234.c
++++ b/drivers/gpu/drm/bridge/sii9234.c
+@@ -841,39 +841,28 @@ static int sii9234_init_resources(struct sii9234 *ctx,
+ 
+ 	ctx->client[I2C_MHL] = client;
+ 
+-	ctx->client[I2C_TPI] = i2c_new_dummy(adapter, I2C_TPI_ADDR);
+-	if (!ctx->client[I2C_TPI]) {
++	ctx->client[I2C_TPI] = devm_i2c_new_dummy_device(&client->dev, adapter,
++							 I2C_TPI_ADDR);
++	if (IS_ERR(ctx->client[I2C_TPI])) {
+ 		dev_err(ctx->dev, "failed to create TPI client\n");
+-		return -ENODEV;
++		return PTR_ERR(ctx->client[I2C_TPI]);
+ 	}
+ 
+-	ctx->client[I2C_HDMI] = i2c_new_dummy(adapter, I2C_HDMI_ADDR);
+-	if (!ctx->client[I2C_HDMI]) {
++	ctx->client[I2C_HDMI] = devm_i2c_new_dummy_device(&client->dev, adapter,
++							  I2C_HDMI_ADDR);
++	if (IS_ERR(ctx->client[I2C_HDMI])) {
+ 		dev_err(ctx->dev, "failed to create HDMI RX client\n");
+-		goto fail_tpi;
++		return PTR_ERR(ctx->client[I2C_HDMI]);
+ 	}
+ 
+-	ctx->client[I2C_CBUS] = i2c_new_dummy(adapter, I2C_CBUS_ADDR);
+-	if (!ctx->client[I2C_CBUS]) {
++	ctx->client[I2C_CBUS] = devm_i2c_new_dummy_device(&client->dev, adapter,
++							  I2C_CBUS_ADDR);
++	if (IS_ERR(ctx->client[I2C_CBUS])) {
+ 		dev_err(ctx->dev, "failed to create CBUS client\n");
+-		goto fail_hdmi;
++		return PTR_ERR(ctx->client[I2C_CBUS]);
+ 	}
+ 
+ 	return 0;
+-
+-fail_hdmi:
+-	i2c_unregister_device(ctx->client[I2C_HDMI]);
+-fail_tpi:
+-	i2c_unregister_device(ctx->client[I2C_TPI]);
+-
+-	return -ENODEV;
+-}
+-
+-static void sii9234_deinit_resources(struct sii9234 *ctx)
+-{
+-	i2c_unregister_device(ctx->client[I2C_CBUS]);
+-	i2c_unregister_device(ctx->client[I2C_HDMI]);
+-	i2c_unregister_device(ctx->client[I2C_TPI]);
+ }
+ 
+ static inline struct sii9234 *bridge_to_sii9234(struct drm_bridge *bridge)
+@@ -950,7 +939,6 @@ static int sii9234_remove(struct i2c_client *client)
+ 
+ 	sii9234_cable_out(ctx);
+ 	drm_bridge_remove(&ctx->bridge);
+-	sii9234_deinit_resources(ctx);
+ 
+ 	return 0;
+ }
+-- 
+2.20.1
