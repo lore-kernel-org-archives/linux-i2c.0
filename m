@@ -1,16 +1,18 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH 4/5] i2c: aspeed: add buffer mode transfer support
-Date: Tue, 8 Oct 2019 16:15:19 -0700
-Message-ID: <CAFd5g4522cSkS_-aJHjc3fqM9nYRjs4DmQx9te3PcPMh8WEMBg@mail.gmail.com>
+From: Tao Ren <taoren@fb.com>
+Subject: Re: [PATCH 3/5] i2c: aspeed: fix master pending state handling
+Date: Tue, 8 Oct 2019 23:15:23 +0000
+Message-ID: <bba604eb-4cca-257e-01d7-b2d9471e6455@fb.com>
 References: <20191007231313.4700-1-jae.hyun.yoo@linux.intel.com>
- <20191007231313.4700-5-jae.hyun.yoo@linux.intel.com>
- <20191008201254.GC155928@google.com>
- <29436b73-3473-d34d-0c7a-6f78ff077002@linux.intel.com>
+ <20191007231313.4700-4-jae.hyun.yoo@linux.intel.com>
+ <422eea61-7cb9-e471-83fb-3f554ff5e079@fb.com>
+ <6f280195-eef7-1fe7-ac42-ad6879ca9838@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <29436b73-3473-d34d-0c7a-6f78ff077002@linux.intel.com>
+In-Reply-To: <6f280195-eef7-1fe7-ac42-ad6879ca9838@linux.intel.com>
+Content-Language: en-US
+Content-ID: <3A8F4C9A7BD2AA4FA7A76F6B3D08D904@namprd15.prod.outlook.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -20,215 +22,62 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree <devicetree@vger.kernel.org>, linux-aspeed@lists.ozlabs.org, Andrew Jeffery <andrew@aj.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Tao Ren <taoren@fb.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
+To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>
+Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Oct 8, 2019 at 2:10 PM Jae Hyun Yoo
-<jae.hyun.yoo@linux.intel.com> wrote:
->
-> Hi Brendan,
->
-> On 10/8/2019 1:12 PM, Brendan Higgins wrote:
-> > On Mon, Oct 07, 2019 at 04:13:12PM -0700, Jae Hyun Yoo wrote:
-> >> Byte mode currently this driver uses makes lots of interrupt call
-> >
-> > nit: Drop "Byte mode".
->
-> 'Byte mode' is one of modes which is described in the datasheet.
->
-> Would it be better if I change it like below?
-> "This driver uses byte mode that makes lots of interrupt call ..."
-
-Yeah, I think that would probably be clearer.
-
-> >> which isn't good for performance and it makes the driver very
-> >> timing sensitive. To improve performance of the driver, this commit
-> >> adds buffer mode transfer support which uses I2C SRAM buffer
-> >> instead of using a single byte buffer.
-> >
-> > nit: Please use imperative mood.
->
-> I used imperative mood in commit title. The commit message is okay as it
-> is.
-
-Hey, that's just what I have been told in the past. I don't actually
-feel strongly about it though. If no one else cares, then it is fine.
-
-> >> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-> >> Tested-by: Tao Ren <taoren@fb.com>
-> >> ---
-> >>   drivers/i2c/busses/i2c-aspeed.c | 297 ++++++++++++++++++++++++++++----
-> >>   1 file changed, 263 insertions(+), 34 deletions(-)
-> >>
-> >> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-> >> index 40f6cf98d32e..37d1a7fa2f87 100644
-> >> --- a/drivers/i2c/busses/i2c-aspeed.c
-> >> +++ b/drivers/i2c/busses/i2c-aspeed.c
-[...]
-> >> @@ -238,6 +260,7 @@ static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
-> >>   {
-> >>      u32 command, irq_handled = 0;
-> >>      struct i2c_client *slave = bus->slave;
-> >> +    int i, len;
-> >>      u8 value;
-> >>
-> >>      if (!slave)
-> >> @@ -260,7 +283,12 @@ static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
-> >>
-> >>      /* Slave was sent something. */
-> >>      if (irq_status & ASPEED_I2CD_INTR_RX_DONE) {
-> >> -            value = readl(bus->base + ASPEED_I2C_BYTE_BUF_REG) >> 8;
-> >> +            if (bus->buf_base &&
-> >> +                bus->slave_state == ASPEED_I2C_SLAVE_WRITE_RECEIVED &&
-> >> +                !(irq_status & ASPEED_I2CD_INTR_NORMAL_STOP))
-> >
-> > I think checking for the buf_base all over the place makes this really
-> > complicated and hard to read.
-> >
-> > It might be better to just split this out and have separate handlers
-> > based on what mode the driver is running in.
->
-> I think you're saying about splitting this irq handler out to:
-> aspeed_i2c_slave_byte_mode_irq()
-> aspeed_i2c_slave_buffer_mode_irq()
-> aspeed_i2c_slave_dma_mode_irq()
->
-> Yes, I can do like that but it will bring us two bad things:
-> 1. It makes big chunks of duplicate code because most of interrupt
->     handling logic is the same.
-> 2. If we are going to change something in irq routine, we need to
->     touch all irq routines if the change is commonly used.
->
-> I think, the way this patch uses is better.
-
-I think there are other alternatives. For example, I think you could
-abstract over the buffer reading mechanism here.
-
-We might have a method on aspeed_i2c_bus called handle_rx_done() or
-something like that which could get called here.
-
-I just really don't want to grow the McCabe's complexity of this
-function much more, it is really too high as it is. Nevertheless, I am
-open to other suggestions on how to improve this function.
-
-> >> +                    value = readb(bus->buf_base);
-> >> +            else
-> >> +                    value = readl(bus->base + ASPEED_I2C_BYTE_BUF_REG) >> 8;
-> >>              /* Handle address frame. */
-> >>              if (bus->slave_state == ASPEED_I2C_SLAVE_START) {
-> >>                      if (value & 0x1)
-> >> @@ -275,6 +303,20 @@ static u32 aspeed_i2c_slave_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
-> >>
-> >>      /* Slave was asked to stop. */
-> >>      if (irq_status & ASPEED_I2CD_INTR_NORMAL_STOP) {
-> >> +            if (bus->slave_state == ASPEED_I2C_SLAVE_WRITE_RECEIVED &&
-> >> +                irq_status & ASPEED_I2CD_INTR_RX_DONE) {
-> >> +                    if (bus->buf_base) {
-> >> +                            len = FIELD_GET(ASPEED_I2CD_BUF_RX_COUNT_MASK,
-> >> +                                            readl(bus->base +
-> >> +                                                  ASPEED_I2C_BUF_CTRL_REG));
-> >
-> > It looks like you have a lot of improvements in here unrelated to adding
-> > support for buffer mode.
-> >
-> > I really appreciate the improvements, but it makes it harder to
-> > understand what buffer features you are adding vs. what
-> > improvments/modernizations you are making.
-> >
-> > Can you split this commit up?
->
-> No, this isn't an improvement. This code will not be executed if
-> transfer mode is byte mode. This is added because data handling pattern
-> is different in buffer mode so the collected data in buffer mode should
-> be sent when it recieves RX_DONE.
-
-Oh sorry about that, I saw the switch to the
-devm_platform_ioremap_resource below and saw all the FIELD_{GET|PREP}
-and assumed that some of them were improvements. If
-devm_platform_ioremap_resource is the only one, that's fine.
-
-Actually, would you mind (in a separate commit), update the existing
-usages to FIELD_{GET|PREP}? It's kind of jarring going back and forth
-between them.
-
-> >> +                            for (i = 0; i < len; i++) {
-> >> +                                    value = readb(bus->buf_base + i);
-> >> +                                    i2c_slave_event(slave,
-> >> +                                                    I2C_SLAVE_WRITE_RECEIVED,
-> >> +                                                    &value);
-> >> +                            }
-> >> +                    }
-> >> +            }
-> >>              irq_handled |= ASPEED_I2CD_INTR_NORMAL_STOP;
-> >>              bus->slave_state = ASPEED_I2C_SLAVE_STOP;
-> >>      }
-[....]
-> >> @@ -990,6 +1180,45 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
-> >>              bus->get_clk_reg_val = (u32 (*)(struct device *, u32))
-> >>                              match->data;
-> >>
-> >> +    /*
-> >> +     * Enable I2C SRAM in case of AST2500.
-> >> +     * SRAM is enabled by default in AST2400 and AST2600.
-> >> +     */
-> >
-> > This probe function is already pretty complicated as it is. Can we move
-> > this to a helper function (especially since it only applies to the
-> > 25xx)?
->
-> Okay, that would be better. I'll add this transfer mode setting logic
-> as a helper function.
->
-> >> +    if (of_device_is_compatible(pdev->dev.of_node,
-> >> +                                "aspeed,ast2500-i2c-bus")) {
-> >> +            struct regmap *gr_regmap = syscon_regmap_lookup_by_compatible("aspeed,ast2500-i2c-gr");
-> >
-> > So this memory is global, right? It is shared by all the busses?
->
-> Yes, this is global register area which can be shared by all busses.
->
-> > If I am reading this right, then I think we need to protect so that only
-> > one bus is accessing this memory at a time.
->
-> It will not be accessed at run time but only at probing time. Since we
-> don't use multi-threaded probing, we don't need to protect it.
-
-What if this is loaded as a module?
-
-Also, it seems as though turning on SRAM should only happen once. Is
-this correct?
-
-> >> +            if (IS_ERR(gr_regmap))
-> >> +                    ret = PTR_ERR(gr_regmap);
-> >> +            else
-> >> +                    ret = regmap_update_bits(gr_regmap,
-> >> +                                             ASPEED_I2CG_GLOBAL_CTRL_REG,
-> >> +                                             ASPEED_I2CG_SRAM_BUFFER_EN,
-> >> +                                             ASPEED_I2CG_SRAM_BUFFER_EN);
-> >> +
-> >> +            if (ret)
-> >> +                    sram_enabled = false;
-> >> +    }
-> >> +
-> >> +    if (sram_enabled) {
-> >> +            struct resource *res = platform_get_resource(pdev,
-> >> +                                                         IORESOURCE_MEM, 1);
-> >> +
-> >> +            if (res && resource_size(res) >= 2)
-> >> +                    bus->buf_base = devm_ioremap_resource(&pdev->dev, res);
-> >> +
-> >> +            if (!IS_ERR_OR_NULL(bus->buf_base)) {
-> >> +                    bus->buf_size = resource_size(res);
-> >> +                    if (of_device_is_compatible(pdev->dev.of_node,
-> >> +                                                "aspeed,ast2400-i2c-bus")) {
-> >> +                            bus->buf_page = ((res->start >> 8) &
-> >> +                                             GENMASK(3, 0)) - 8;
-> >> +                            bus->buf_offset = (res->start >> 2) &
-> >> +                                              ASPEED_I2CD_BUF_OFFSET_MASK;
-> >> +                    }
-> >> +            }
-> >> +    }
-[...]
-
-Cheers
+T24gMTAvOC8xOSAzOjQ1IFBNLCBKYWUgSHl1biBZb28gd3JvdGU6DQo+IEhpIFRhbywNCj4gDQo+
+IE9uIDEwLzgvMjAxOSAzOjAwIFBNLCBUYW8gUmVuIHdyb3RlOg0KPj4gT24gMTAvNy8xOSA0OjEz
+IFBNLCBKYWUgSHl1biBZb28gd3JvdGU6DQo+Pj4gSW4gY2FzZSBvZiBtYXN0ZXIgcGVuZGluZyBz
+dGF0ZSwgaXQgc2hvdWxkIG5vdCB0cmlnZ2VyIHRoZSBtYXN0ZXINCj4+PiBjb21tYW5kIGJlY2F1
+c2UgdGhpcyBIL1cgaXMgc2hhcmluZyB0aGUgc2FtZSBkYXRhIGJ1ZmZlciBmb3Igc2xhdmUNCj4+
+PiBhbmQgbWFzdGVyIG9wZXJhdGlvbnMsIHNvIHRoaXMgY29tbWl0IGZpeGVzIHRoZSBpc3N1ZSB3
+aXRoIG1ha2luZw0KPj4+IHRoZSBtYXN0ZXIgY29tbWFuZCB0cmlnZ2VyaW5nIGhhcHBlbiB3aGVu
+IHRoZSBzdGF0ZSBnb2VzIHRvIGFjdGl2ZQ0KPj4+IHN0YXRlLg0KPj4+DQo+Pj4gU2lnbmVkLW9m
+Zi1ieTogSmFlIEh5dW4gWW9vIDxqYWUuaHl1bi55b29AbGludXguaW50ZWwuY29tPg0KPj4+IC0t
+LQ0KPj4+IMKgIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXNwZWVkLmMgfCA5ICsrKysrLS0tLQ0K
+Pj4+IMKgIDEgZmlsZSBjaGFuZ2VkLCA1IGluc2VydGlvbnMoKyksIDQgZGVsZXRpb25zKC0pDQo+
+Pj4NCj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hc3BlZWQuYyBiL2Ry
+aXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXNwZWVkLmMNCj4+PiBpbmRleCBmYTY2OTUxYjA1ZDAuLjQw
+ZjZjZjk4ZDMyZSAxMDA2NDQNCj4+PiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWFzcGVl
+ZC5jDQo+Pj4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hc3BlZWQuYw0KPj4+IEBAIC0z
+MzYsMTggKzMzNiwxOSBAQCBzdGF0aWMgdm9pZCBhc3BlZWRfaTJjX2RvX3N0YXJ0KHN0cnVjdCBh
+c3BlZWRfaTJjX2J1cyAqYnVzKQ0KPj4+IMKgwqDCoMKgwqAgc3RydWN0IGkyY19tc2cgKm1zZyA9
+ICZidXMtPm1zZ3NbYnVzLT5tc2dzX2luZGV4XTsNCj4+PiDCoMKgwqDCoMKgIHU4IHNsYXZlX2Fk
+ZHIgPSBpMmNfOGJpdF9hZGRyX2Zyb21fbXNnKG1zZyk7DQo+Pj4gwqAgLcKgwqDCoCBidXMtPm1h
+c3Rlcl9zdGF0ZSA9IEFTUEVFRF9JMkNfTUFTVEVSX1NUQVJUOw0KPj4+IC0NCj4+PiDCoCAjaWYg
+SVNfRU5BQkxFRChDT05GSUdfSTJDX1NMQVZFKQ0KPj4+IMKgwqDCoMKgwqAgLyoNCj4+PiDCoMKg
+wqDCoMKgwqAgKiBJZiBpdCdzIHJlcXVlc3RlZCBpbiB0aGUgbWlkZGxlIG9mIGEgc2xhdmUgc2Vz
+c2lvbiwgc2V0IHRoZSBtYXN0ZXINCj4+PiDCoMKgwqDCoMKgwqAgKiBzdGF0ZSB0byAncGVuZGlu
+ZycgdGhlbiBIL1cgd2lsbCBjb250aW51ZSBoYW5kbGluZyB0aGlzIG1hc3Rlcg0KPj4+IMKgwqDC
+oMKgwqDCoCAqIGNvbW1hbmQgd2hlbiB0aGUgYnVzIGNvbWVzIGJhY2sgdG8gdGhlIGlkbGUgc3Rh
+dGUuDQo+Pj4gwqDCoMKgwqDCoMKgICovDQo+Pj4gLcKgwqDCoCBpZiAoYnVzLT5zbGF2ZV9zdGF0
+ZSAhPSBBU1BFRURfSTJDX1NMQVZFX0lOQUNUSVZFKQ0KPj4+ICvCoMKgwqAgaWYgKGJ1cy0+c2xh
+dmVfc3RhdGUgIT0gQVNQRUVEX0kyQ19TTEFWRV9JTkFDVElWRSkgew0KPj4+IMKgwqDCoMKgwqDC
+oMKgwqDCoCBidXMtPm1hc3Rlcl9zdGF0ZSA9IEFTUEVFRF9JMkNfTUFTVEVSX1BFTkRJTkc7DQo+
+Pj4gK8KgwqDCoMKgwqDCoMKgIHJldHVybjsNCj4+PiArwqDCoMKgIH0NCj4+PiDCoCAjZW5kaWYg
+LyogQ09ORklHX0kyQ19TTEFWRSAqLw0KPj4+IMKgICvCoMKgwqAgYnVzLT5tYXN0ZXJfc3RhdGUg
+PSBBU1BFRURfSTJDX01BU1RFUl9TVEFSVDsNCj4+PiDCoMKgwqDCoMKgIGJ1cy0+YnVmX2luZGV4
+ID0gMDsNCj4+PiDCoCDCoMKgwqDCoMKgIGlmIChtc2ctPmZsYWdzICYgSTJDX01fUkQpIHsNCj4+
+PiBAQCAtNDMyLDcgKzQzMyw3IEBAIHN0YXRpYyB1MzIgYXNwZWVkX2kyY19tYXN0ZXJfaXJxKHN0
+cnVjdCBhc3BlZWRfaTJjX2J1cyAqYnVzLCB1MzIgaXJxX3N0YXR1cykNCj4+PiDCoMKgwqDCoMKg
+wqDCoMKgwqAgaWYgKGJ1cy0+c2xhdmVfc3RhdGUgIT0gQVNQRUVEX0kyQ19TTEFWRV9JTkFDVElW
+RSkNCj4+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBnb3RvIG91dF9ub19jb21wbGV0ZTsN
+Cj4+PiDCoCAtwqDCoMKgwqDCoMKgwqAgYnVzLT5tYXN0ZXJfc3RhdGUgPSBBU1BFRURfSTJDX01B
+U1RFUl9TVEFSVDsNCj4+PiArwqDCoMKgwqDCoMKgwqAgYXNwZWVkX2kyY19kb19zdGFydChidXMp
+Ow0KPj4+IMKgwqDCoMKgwqAgfQ0KPj4NCj4+IFNoYWxsIHdlIG1vdmUgdGhlIHJlc3RhcnQtbWFz
+dGVyIGxvZ2ljIGZyb20gbWFzdGVyX2lycSB0byBidXNfaXJxPyBUaGUgcmVhc29uIGJlaW5nOg0K
+Pj4gbWFzdGVyIHRyYW5zYWN0aW9uIGNhbm5vdCBiZSByZXN0YXJ0ZWQgd2hlbiBhc3BlZWQtaTJj
+IGlzIHJ1bm5pbmcgaW4gc2xhdmUgc3RhdGUgYW5kDQo+PiByZWNlaXZlcyBTVE9QIGludGVycnVw
+dCwgYmVjYXVzZSBhc3BlZWRfaTJjX21hc3Rlcl9pcnEgd29uJ3QgYmUgY2FsbGVkIGluIHRoaXMg
+Y2FzZS4NCj4gDQo+IEV2ZW4gaW4gdGhhdCBjYXNlLCBtYXN0ZXIgY2FuIGJlIHJlc3RhcnRlZCBw
+cm9wZXJseSBiZWNhdXNlIHNsYXZlX2lycQ0KPiB3aWxsIGJlIGNhbGxlZCBmaXJzdCBiZWNhdXNl
+IG1hc3RlciBpcyBpbiBNQVNURVJfUEVORElORyBzdGF0ZSwgc28gdGhlDQo+IHNsYXZlX2lycSBo
+YW5kbGVzIHRoZSBTVE9QIGludGVycnVwdCBhcyB3ZWxsLCBhbmQgdGhlbiBtYXN0ZXJfaXJxIHdp
+bGwNCj4gYmUgY2FsbGVkIHdpdGggU0xBVkVfSU5BQ1RJVkUgc3RhdGUgc28gdGhlIGFzcGVlZF9p
+MmNfZG9fc3RhcnQgY2FuIGJlDQo+IGNhbGxlZCBldmVudHVhbGx5Lg0KDQpJIG1lYW4gbWFzdGVy
+X2lycSBjYW5ub3QgYmUgY2FsbGVkIHdoZW4gaXJxX3JlbWFpbmluZyBiZWNvbWVzIDAgYWZ0ZXIg
+c2xhdmVfaXJxLg0KDQoNCkNoZWVycywNCg0KVGFvDQpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51
+eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5v
+cmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
