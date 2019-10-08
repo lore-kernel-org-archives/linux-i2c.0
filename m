@@ -1,13 +1,16 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: [PATCH 3/5] i2c: aspeed: fix master pending state handling
-Date: Mon,  7 Oct 2019 16:13:11 -0700
-Message-ID: <20191007231313.4700-4-jae.hyun.yoo@linux.intel.com>
+From: Brendan Higgins <brendanhiggins@google.com>
+Subject: Re: [PATCH 1/5] dt-bindings: i2c: aspeed: add buffer and DMA mode
+ transfer support
+Date: Tue, 8 Oct 2019 11:12:13 -0700
+Message-ID: <20191008181213.GB155928@google.com>
 References: <20191007231313.4700-1-jae.hyun.yoo@linux.intel.com>
+ <20191007231313.4700-2-jae.hyun.yoo@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20191007231313.4700-1-jae.hyun.yoo@linux.intel.com>
+Content-Disposition: inline
+In-Reply-To: <20191007231313.4700-2-jae.hyun.yoo@linux.intel.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -17,56 +20,57 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, Tao Ren <taoren@fb.com>
-Cc: devicetree@vger.kernel.org, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, linux-aspeed@lists.ozlabs.org, openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-aspeed@lists.ozlabs.org, Andrew Jeffery <andrew@aj.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, openbmc@lists.ozlabs.org, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Tao Ren <taoren@fb.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-In case of master pending state, it should not trigger the master
-command because this H/W is sharing the same data buffer for slave
-and master operations, so this commit fixes the issue with making
-the master command triggering happen when the state goes to active
-state.
+On Mon, Oct 07, 2019 at 04:13:09PM -0700, Jae Hyun Yoo wrote:
+> Append bindings to support buffer mode and DMA mode transfer.
+> 
+> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+> ---
+>  .../devicetree/bindings/i2c/i2c-aspeed.txt    | 67 +++++++++++++++++--
+>  1 file changed, 60 insertions(+), 7 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+> index 8fbd8633a387..e40dcc108307 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+> @@ -3,7 +3,10 @@ Device tree configuration for the I2C busses on the AST24XX and AST25XX SoCs.
+>  Required Properties:
+>  - #address-cells	: should be 1
+>  - #size-cells		: should be 0
+> -- reg			: address offset and range of bus
+> +- reg			: Address offset and range of bus registers.
+> +			  An additional SRAM buffer address offset and range is
+> +			  optional in case of enabling I2C dedicated SRAM for
+> +			  buffer mode transfer support.
 
-Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
----
- drivers/i2c/busses/i2c-aspeed.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+Sorry, I am having trouble parsing this. This seems like the SRAM buffer
+is global to all busses. Can you clarify? I expect I will probably have
+some more questions elsewhere.
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index fa66951b05d0..40f6cf98d32e 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -336,18 +336,19 @@ static void aspeed_i2c_do_start(struct aspeed_i2c_bus *bus)
- 	struct i2c_msg *msg = &bus->msgs[bus->msgs_index];
- 	u8 slave_addr = i2c_8bit_addr_from_msg(msg);
- 
--	bus->master_state = ASPEED_I2C_MASTER_START;
--
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- 	/*
- 	 * If it's requested in the middle of a slave session, set the master
- 	 * state to 'pending' then H/W will continue handling this master
- 	 * command when the bus comes back to the idle state.
- 	 */
--	if (bus->slave_state != ASPEED_I2C_SLAVE_INACTIVE)
-+	if (bus->slave_state != ASPEED_I2C_SLAVE_INACTIVE) {
- 		bus->master_state = ASPEED_I2C_MASTER_PENDING;
-+		return;
-+	}
- #endif /* CONFIG_I2C_SLAVE */
- 
-+	bus->master_state = ASPEED_I2C_MASTER_START;
- 	bus->buf_index = 0;
- 
- 	if (msg->flags & I2C_M_RD) {
-@@ -432,7 +433,7 @@ static u32 aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
- 		if (bus->slave_state != ASPEED_I2C_SLAVE_INACTIVE)
- 			goto out_no_complete;
- 
--		bus->master_state = ASPEED_I2C_MASTER_START;
-+		aspeed_i2c_do_start(bus);
- 	}
- #endif /* CONFIG_I2C_SLAVE */
- 
--- 
-2.23.0
+>  - compatible		: should be "aspeed,ast2400-i2c-bus"
+>  			  or "aspeed,ast2500-i2c-bus"
+>  - clocks		: root clock of bus, should reference the APB
+> @@ -16,6 +19,18 @@ Optional Properties:
+>  - bus-frequency	: frequency of the bus clock in Hz defaults to 100 kHz when not
+>  		  specified
+>  - multi-master	: states that there is another master active on this bus.
+> +- aspeed,dma-buf-size	: size of DMA buffer (from 2 to 4095 in case of AST2500
+> +			  or later versions).
+> +			  Only AST2500 and later versions support DMA mode
+> +			  under some limitations:
+> +			  I2C is sharing the DMA H/W with UHCI host controller
+> +			  and MCTP controller. Since those controllers operate
+> +			  with DMA mode only, I2C has to use buffer mode or byte
+> +			  mode instead if one of those controllers is enabled.
+> +			  Also make sure that if SD/eMMC or Port80 snoop uses
+> +			  DMA mode instead of PIO or FIFO respectively, I2C
+> +			  can't use DMA mode. If both DMA and buffer modes are
+> +			  enabled, DMA mode will be selected.
+
+nit: I think it makes sense to break down the exceptions into a
+bulleted list.
+
+Cheers
