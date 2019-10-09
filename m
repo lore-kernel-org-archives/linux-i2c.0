@@ -1,7 +1,7 @@
 From: Biwen Li <biwen.li@nxp.com>
-Subject: [v2] i2c: imx: support slave mode for imx I2C driver
-Date: Wed,  9 Oct 2019 17:12:09 +0800
-Message-ID: <20191009091209.14350-1-biwen.li@nxp.com>
+Subject: [RESEND v2] i2c: imx: support slave mode for imx I2C driver
+Date: Wed,  9 Oct 2019 18:18:02 +0800
+Message-ID: <20191009101802.19309-1-biwen.li@nxp.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, wsa@the-dreams.de, leoyang.li@nxp.com, aisheng.dong@nxp.com, xiaoning.wang@nxp.com
@@ -19,7 +19,7 @@ Change in v2:
  1 file changed, 166 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index a3b61336fe55..aceb3d97bf5c 100644
+index a3b61336fe55..d9858bc63656 100644
 --- a/drivers/i2c/busses/i2c-imx.c
 +++ b/drivers/i2c/busses/i2c-imx.c
 @@ -203,6 +203,7 @@ struct imx_i2c_struct {
@@ -129,7 +129,7 @@ index a3b61336fe55..aceb3d97bf5c 100644
 +	} else if (status & I2SR_IAAS) { /* Addressed as a slave */
 +		if (status & I2SR_SRW) { /* Master wants to read from us*/
 +			dev_dbg(&i2c_imx->adapter.dev, "read requested");
-+			i2c_slave_event(i2c->slave, I2C_SLAVE_READ_REQUESTED, &value);
++			i2c_slave_event(i2c_imx->slave, I2C_SLAVE_READ_REQUESTED, &value);
 +
 +			/* Slave transmit */
 +			ctl |= I2CR_MTX;
