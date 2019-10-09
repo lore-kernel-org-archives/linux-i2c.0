@@ -1,60 +1,79 @@
 From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [PATCH RESEND] gpu: drm: bridge: analogix-anx78xx: convert to
- i2c_new_dummy_device
-Date: Wed, 9 Oct 2019 11:14:58 +0300
-Message-ID: <20191009081458.GB22998@pendragon.ideasonboard.com>
-References: <20191008203145.3159-1-wsa+renesas@sang-engineering.com>
+Subject: Re: [PATCH RESEND] gpu: drm: bridge: sii9234: convert to
+ devm_i2c_new_dummy_device
+Date: Wed, 9 Oct 2019 11:16:48 +0300
+Message-ID: <20191009081648.GC22998@pendragon.ideasonboard.com>
+References: <20191008203322.3238-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
 Content-Disposition: inline
-In-Reply-To: <20191008203145.3159-1-wsa+renesas@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20191008203322.3238-1-wsa+renesas@sang-engineering.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org, Andrzej Hajda <a.hajda@samsung.com>, Neil Armstrong <narmstrong@baylibre.com>, Jonas Karlman <jonas@kwiboo.se>, Jernej Skrabec <jernej.skrabec@siol.net>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, linux-kernel@vger.kernel.org
+Cc: Jernej Skrabec <jernej.skrabec@siol.net>, Jonas Karlman <jonas@kwiboo.se>, David Airlie <airlied@linux.ie>, Neil Armstrong <narmstrong@baylibre.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-
-Thank you for the patch.
-
-On Tue, Oct 08, 2019 at 10:31:45PM +0200, Wolfram Sang wrote:
-> Move from the deprecated i2c_new_dummy() to i2c_new_dummy_device(). We
-> now get an ERRPTR which we use in error handling.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-
-> ---
-> 
-> Rebased to v5.4-rc2 since last time. One of the last two users of the
-> old API, so please apply soon, so I can remove the old interface. Only
-> build tested.
-> 
->  drivers/gpu/drm/bridge/analogix-anx78xx.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/bridge/analogix-anx78xx.c b/drivers/gpu/drm/bridge/analogix-anx78xx.c
-> index 3c7cc5af735c..be7756280e41 100644
-> --- a/drivers/gpu/drm/bridge/analogix-anx78xx.c
-> +++ b/drivers/gpu/drm/bridge/analogix-anx78xx.c
-> @@ -1350,10 +1350,10 @@ static int anx78xx_i2c_probe(struct i2c_client *client,
->  
->  	/* Map slave addresses of ANX7814 */
->  	for (i = 0; i < I2C_NUM_ADDRESSES; i++) {
-> -		anx78xx->i2c_dummy[i] = i2c_new_dummy(client->adapter,
-> +		anx78xx->i2c_dummy[i] = i2c_new_dummy_device(client->adapter,
->  						anx78xx_i2c_addresses[i] >> 1);
-> -		if (!anx78xx->i2c_dummy[i]) {
-> -			err = -ENOMEM;
-> +		if (IS_ERR(anx78xx->i2c_dummy[i])) {
-> +			err = PTR_ERR(anx78xx->i2c_dummy[i]);
->  			DRM_ERROR("Failed to reserve I2C bus %02x\n",
->  				  anx78xx_i2c_addresses[i]);
->  			goto err_unregister_i2c;
-
--- 
-Regards,
-
-Laurent Pinchart
+SGkgV29sZnJhbSwKClRoYW5rIHlvdSBmb3IgdGhlIHBhdGNoLgoKT24gVHVlLCBPY3QgMDgsIDIw
+MTkgYXQgMTA6MzM6MjJQTSArMDIwMCwgV29sZnJhbSBTYW5nIHdyb3RlOgo+IE1vdmUgZnJvbSB0
+aGUgZGVwcmVjYXRlZCBpMmNfbmV3X2R1bW15KCkgdG8gZGV2bV9pMmNfbmV3X2R1bW15X2Rldmlj
+ZSgpLgo+IFdlIG5vdyBnZXQgYW4gRVJSUFRSIHdoaWNoIHdlIHVzZSBpbiBlcnJvciBoYW5kbGlu
+ZyBhbmQgd2UgY2FuIHNraXAKPiByZW1vdmFsIG9mIHRoZSBjcmVhdGVkIGRldmljZXMuCj4gCj4g
+U2lnbmVkLW9mZi1ieTogV29sZnJhbSBTYW5nIDx3c2ErcmVuZXNhc0BzYW5nLWVuZ2luZWVyaW5n
+LmNvbT4KClJldmlld2VkLWJ5OiBMYXVyZW50IFBpbmNoYXJ0IDxsYXVyZW50LnBpbmNoYXJ0QGlk
+ZWFzb25ib2FyZC5jb20+Cgo+IC0tLQo+IAo+IFJlYmFzZWQgdG8gdjUuNC1yYzIgc2luY2UgbGFz
+dCB0aW1lLiBPbmUgb2YgdGhlIGxhc3QgdHdvIHVzZXJzIG9mIHRoZQo+IG9sZCBBUEksIHNvIHBs
+ZWFzZSBhcHBseSBzb29uLCBzbyBJIGNhbiByZW1vdmUgdGhlIG9sZCBpbnRlcmZhY2UuIE9ubHkK
+PiBidWlsZCB0ZXN0ZWQuCj4gCj4gIGRyaXZlcnMvZ3B1L2RybS9icmlkZ2Uvc2lpOTIzNC5jIHwg
+MzYgKysrKysrKysrKystLS0tLS0tLS0tLS0tLS0tLS0tLS0KPiAgMSBmaWxlIGNoYW5nZWQsIDEy
+IGluc2VydGlvbnMoKyksIDI0IGRlbGV0aW9ucygtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJz
+L2dwdS9kcm0vYnJpZGdlL3NpaTkyMzQuYyBiL2RyaXZlcnMvZ3B1L2RybS9icmlkZ2Uvc2lpOTIz
+NC5jCj4gaW5kZXggMjVkNGFkOGM3YWQ2Li44YTZjODU2OTNhODggMTAwNjQ0Cj4gLS0tIGEvZHJp
+dmVycy9ncHUvZHJtL2JyaWRnZS9zaWk5MjM0LmMKPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vYnJp
+ZGdlL3NpaTkyMzQuYwo+IEBAIC04NDEsMzkgKzg0MSwyOCBAQCBzdGF0aWMgaW50IHNpaTkyMzRf
+aW5pdF9yZXNvdXJjZXMoc3RydWN0IHNpaTkyMzQgKmN0eCwKPiAgCj4gIAljdHgtPmNsaWVudFtJ
+MkNfTUhMXSA9IGNsaWVudDsKPiAgCj4gLQljdHgtPmNsaWVudFtJMkNfVFBJXSA9IGkyY19uZXdf
+ZHVtbXkoYWRhcHRlciwgSTJDX1RQSV9BRERSKTsKPiAtCWlmICghY3R4LT5jbGllbnRbSTJDX1RQ
+SV0pIHsKPiArCWN0eC0+Y2xpZW50W0kyQ19UUEldID0gZGV2bV9pMmNfbmV3X2R1bW15X2Rldmlj
+ZSgmY2xpZW50LT5kZXYsIGFkYXB0ZXIsCj4gKwkJCQkJCQkgSTJDX1RQSV9BRERSKTsKPiArCWlm
+IChJU19FUlIoY3R4LT5jbGllbnRbSTJDX1RQSV0pKSB7Cj4gIAkJZGV2X2VycihjdHgtPmRldiwg
+ImZhaWxlZCB0byBjcmVhdGUgVFBJIGNsaWVudFxuIik7Cj4gLQkJcmV0dXJuIC1FTk9ERVY7Cj4g
+KwkJcmV0dXJuIFBUUl9FUlIoY3R4LT5jbGllbnRbSTJDX1RQSV0pOwo+ICAJfQo+ICAKPiAtCWN0
+eC0+Y2xpZW50W0kyQ19IRE1JXSA9IGkyY19uZXdfZHVtbXkoYWRhcHRlciwgSTJDX0hETUlfQURE
+Uik7Cj4gLQlpZiAoIWN0eC0+Y2xpZW50W0kyQ19IRE1JXSkgewo+ICsJY3R4LT5jbGllbnRbSTJD
+X0hETUldID0gZGV2bV9pMmNfbmV3X2R1bW15X2RldmljZSgmY2xpZW50LT5kZXYsIGFkYXB0ZXIs
+Cj4gKwkJCQkJCQkgIEkyQ19IRE1JX0FERFIpOwo+ICsJaWYgKElTX0VSUihjdHgtPmNsaWVudFtJ
+MkNfSERNSV0pKSB7Cj4gIAkJZGV2X2VycihjdHgtPmRldiwgImZhaWxlZCB0byBjcmVhdGUgSERN
+SSBSWCBjbGllbnRcbiIpOwo+IC0JCWdvdG8gZmFpbF90cGk7Cj4gKwkJcmV0dXJuIFBUUl9FUlIo
+Y3R4LT5jbGllbnRbSTJDX0hETUldKTsKPiAgCX0KPiAgCj4gLQljdHgtPmNsaWVudFtJMkNfQ0JV
+U10gPSBpMmNfbmV3X2R1bW15KGFkYXB0ZXIsIEkyQ19DQlVTX0FERFIpOwo+IC0JaWYgKCFjdHgt
+PmNsaWVudFtJMkNfQ0JVU10pIHsKPiArCWN0eC0+Y2xpZW50W0kyQ19DQlVTXSA9IGRldm1faTJj
+X25ld19kdW1teV9kZXZpY2UoJmNsaWVudC0+ZGV2LCBhZGFwdGVyLAo+ICsJCQkJCQkJICBJMkNf
+Q0JVU19BRERSKTsKPiArCWlmIChJU19FUlIoY3R4LT5jbGllbnRbSTJDX0NCVVNdKSkgewo+ICAJ
+CWRldl9lcnIoY3R4LT5kZXYsICJmYWlsZWQgdG8gY3JlYXRlIENCVVMgY2xpZW50XG4iKTsKPiAt
+CQlnb3RvIGZhaWxfaGRtaTsKPiArCQlyZXR1cm4gUFRSX0VSUihjdHgtPmNsaWVudFtJMkNfQ0JV
+U10pOwo+ICAJfQo+ICAKPiAgCXJldHVybiAwOwo+IC0KPiAtZmFpbF9oZG1pOgo+IC0JaTJjX3Vu
+cmVnaXN0ZXJfZGV2aWNlKGN0eC0+Y2xpZW50W0kyQ19IRE1JXSk7Cj4gLWZhaWxfdHBpOgo+IC0J
+aTJjX3VucmVnaXN0ZXJfZGV2aWNlKGN0eC0+Y2xpZW50W0kyQ19UUEldKTsKPiAtCj4gLQlyZXR1
+cm4gLUVOT0RFVjsKPiAtfQo+IC0KPiAtc3RhdGljIHZvaWQgc2lpOTIzNF9kZWluaXRfcmVzb3Vy
+Y2VzKHN0cnVjdCBzaWk5MjM0ICpjdHgpCj4gLXsKPiAtCWkyY191bnJlZ2lzdGVyX2RldmljZShj
+dHgtPmNsaWVudFtJMkNfQ0JVU10pOwo+IC0JaTJjX3VucmVnaXN0ZXJfZGV2aWNlKGN0eC0+Y2xp
+ZW50W0kyQ19IRE1JXSk7Cj4gLQlpMmNfdW5yZWdpc3Rlcl9kZXZpY2UoY3R4LT5jbGllbnRbSTJD
+X1RQSV0pOwo+ICB9Cj4gIAo+ICBzdGF0aWMgaW5saW5lIHN0cnVjdCBzaWk5MjM0ICpicmlkZ2Vf
+dG9fc2lpOTIzNChzdHJ1Y3QgZHJtX2JyaWRnZSAqYnJpZGdlKQo+IEBAIC05NTAsNyArOTM5LDYg
+QEAgc3RhdGljIGludCBzaWk5MjM0X3JlbW92ZShzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50KQo+
+ICAKPiAgCXNpaTkyMzRfY2FibGVfb3V0KGN0eCk7Cj4gIAlkcm1fYnJpZGdlX3JlbW92ZSgmY3R4
+LT5icmlkZ2UpOwo+IC0Jc2lpOTIzNF9kZWluaXRfcmVzb3VyY2VzKGN0eCk7Cj4gIAo+ICAJcmV0
+dXJuIDA7Cj4gIH0KCi0tIApSZWdhcmRzLAoKTGF1cmVudCBQaW5jaGFydApfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0
+CmRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3Rv
+cC5vcmcvbWFpbG1hbi9saXN0aW5mby9kcmktZGV2ZWw=
