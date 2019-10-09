@@ -1,218 +1,170 @@
-From: =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>
-Subject: Re: [PATCH 2/5] ARM: dts: aspeed: add I2C buffer mode support
-Date: Wed, 9 Oct 2019 15:32:40 +0200
-Message-ID: <6f015065-3a45-878d-86b2-0edf10f1f4cb@kaod.org>
-References: <20191007231313.4700-1-jae.hyun.yoo@linux.intel.com>
- <20191007231313.4700-3-jae.hyun.yoo@linux.intel.com>
+From: Ludovic Desroches <ludovic.desroches@microchip.com>
+Subject: Re: [PATCH 2/4] i2c: at91: implement i2c bus recovery
+Date: Wed, 9 Oct 2019 15:55:00 +0200
+Message-ID: <20191009135500.ufkxcemccwfcfys7@M43218.corp.atmel.com>
+References: <20191002144658.7718-1-kamel.bouhara@bootlin.com>
+ <20191002144658.7718-3-kamel.bouhara@bootlin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20191007231313.4700-3-jae.hyun.yoo@linux.intel.com>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, Tao Ren <taoren@fb.com>
-Cc: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org, linux-aspeed@lists.ozlabs.org
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20191002144658.7718-3-kamel.bouhara@bootlin.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kamel Bouhara <kamel.bouhara@bootlin.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicolas Ferre <nicolas.ferre@microchip.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMDgvMTAvMjAxOSAwMToxMywgSmFlIEh5dW4gWW9vIHdyb3RlOgo+IEJ5dGUgbW9kZSBjdXJy
-ZW50bHkgdGhpcyBkcml2ZXIgdXNlcyBtYWtlcyBsb3RzIG9mIGludGVycnVwdCBjYWxsCj4gd2hp
-Y2ggaXNuJ3QgZ29vZCBmb3IgcGVyZm9ybWFuY2UgYW5kIGl0IG1ha2VzIHRoZSBkcml2ZXIgdmVy
-eQo+IHRpbWluZyBzZW5zaXRpdmUuIFRvIGltcHJvdmUgcGVyZm9ybWFuY2Ugb2YgdGhlIGRyaXZl
-ciwgdGhpcyBjb21taXQKPiBhZGRzIGJ1ZmZlciBtb2RlIHRyYW5zZmVyIHN1cHBvcnQgd2hpY2gg
-dXNlcyBJMkMgU1JBTSBidWZmZXIKPiBpbnN0ZWFkIG9mIHVzaW5nIGEgc2luZ2xlIGJ5dGUgYnVm
-ZmVyLgo+IAo+IEFTVDI0MDA6Cj4gSXQgaGFzIDIgS0J5dGVzICgyNTYgQnl0ZXMgeCA4IHBhZ2Vz
-KSBvZiBJMkMgU1JBTSBidWZmZXIgcG9vbCBmcm9tCj4gMHgxZTc4YTgwMCB0byAweDFlNzhhZmZm
-IHRoYXQgY2FuIGJlIHVzZWQgZm9yIGFsbCBidXNzZXMgd2l0aAo+IGJ1ZmZlciBwb29sIG1hbmlw
-dWxhdGlvbi4gVG8gc2ltcGxpZnkgaW1wbGVtZW50YXRpb24gZm9yIHN1cHBvcnRpbmcKPiBib3Ro
-IEFTVDI0MDAgYW5kIEFTVDI1MDAsIGl0IGFzc2lnbnMgZWFjaCAxMjggQnl0ZXMgcGVyIGJ1cyB3
-aXRob3V0Cj4gdXNpbmcgYnVmZmVyIHBvb2wgbWFuaXB1bGF0aW9uIHNvIHRvdGFsIDE3OTIgQnl0
-ZXMgb2YgSTJDIFNSQU0KPiBidWZmZXIgd2lsbCBiZSB1c2VkLgo+IAo+IEFTVDI1MDA6Cj4gSXQg
-aGFzIDE2IEJ5dGVzIG9mIGluZGl2aWR1YWwgSTJDIFNSQU0gYnVmZmVyIHBlciBlYWNoIGJ1cyBh
-bmQgaXRzCj4gcmFuZ2UgaXMgZnJvbSAweDFlNzhhMjAwIHRvIDB4MWU3OGEyZGYsIHNvIGl0IGRv
-ZXNuJ3QgaGF2ZSAnYnVmZmVyCj4gcGFnZSBzZWxlY3Rpb24nIGJpdCBmaWVsZCBpbiB0aGUgRnVu
-Y3Rpb24gY29udHJvbCByZWdpc3RlciwgYW5kCj4gbmVpdGhlciAnYmFzZSBhZGRyZXNzIHBvaW50
-ZXInIGJpdCBmaWVsZCBpbiB0aGUgUG9vbCBidWZmZXIgY29udHJvbAo+IHJlZ2lzdGVyIGl0IGhh
-cy4gVG8gc2ltcGxpZnkgaW1wbGVtZW50YXRpb24gZm9yIHN1cHBvcnRpbmcgYm90aAo+IEFTVDI0
-MDAgYW5kIEFTVDI1MDAsIGl0IHdyaXRlcyB6ZXJvcyBvbiB0aG9zZSByZWdpc3RlciBiaXQgZmll
-bGRzCj4gYnV0IGl0J3Mgb2theSBiZWNhdXNlIGl0IGRvZXMgbm90aGluZyBpbiBBU1QyNTAwLgo+
-IAo+IFRoaXMgY29tbWl0IGZpeGVzIGFsbCBJMkMgYnVzIG5vZGVzIHRvIHN1cHBvcnQgYnVmZmVy
-IG1vZGUKPiB0cmFuc2Zlci4KPiAKPiBTaWduZWQtb2ZmLWJ5OiBKYWUgSHl1biBZb28gPGphZS5o
-eXVuLnlvb0BsaW51eC5pbnRlbC5jb20+CgoKUmV2aWV3ZWQtYnk6IEPDqWRyaWMgTGUgR29hdGVy
-IDxjbGdAa2FvZC5vcmc+Cgo+IC0tLQo+ICBhcmNoL2FybS9ib290L2R0cy9hc3BlZWQtZzQuZHRz
-aSB8IDQ3ICsrKysrKysrKysrKysrKysrKystLS0tLS0tLS0tLS0tCj4gIGFyY2gvYXJtL2Jvb3Qv
-ZHRzL2FzcGVlZC1nNS5kdHNpIHwgNDcgKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0K
-PiAgMiBmaWxlcyBjaGFuZ2VkLCA1NiBpbnNlcnRpb25zKCspLCAzOCBkZWxldGlvbnMoLSkKPiAK
-PiBkaWZmIC0tZ2l0IGEvYXJjaC9hcm0vYm9vdC9kdHMvYXNwZWVkLWc0LmR0c2kgYi9hcmNoL2Fy
-bS9ib290L2R0cy9hc3BlZWQtZzQuZHRzaQo+IGluZGV4IGRmZmI1OTVkMzBlNC4uZjUxYjAxNmFh
-NzY5IDEwMDY0NAo+IC0tLSBhL2FyY2gvYXJtL2Jvb3QvZHRzL2FzcGVlZC1nNC5kdHNpCj4gKysr
-IGIvYXJjaC9hcm0vYm9vdC9kdHMvYXNwZWVkLWc0LmR0c2kKPiBAQCAtNDIwLDEyICs0MjAsMjEg
-QEAKPiAgfTsKPiAgCj4gICZpMmMgewo+IC0JaTJjX2ljOiBpbnRlcnJ1cHQtY29udHJvbGxlckAw
-IHsKPiAtCQkjaW50ZXJydXB0LWNlbGxzID0gPDE+Owo+IC0JCWNvbXBhdGlibGUgPSAiYXNwZWVk
-LGFzdDI0MDAtaTJjLWljIjsKPiArCWkyY19ncjogaTJjLWdsb2JhbC1yZWdzQDAgewo+ICsJCWNv
-bXBhdGlibGUgPSAiYXNwZWVkLGFzdDI0MDAtaTJjLWdyIiwgInN5c2NvbiI7Cj4gIAkJcmVnID0g
-PDB4MCAweDQwPjsKPiAtCQlpbnRlcnJ1cHRzID0gPDEyPjsKPiAtCQlpbnRlcnJ1cHQtY29udHJv
-bGxlcjsKPiArCj4gKwkJI2FkZHJlc3MtY2VsbHMgPSA8MT47Cj4gKwkJI3NpemUtY2VsbHMgPSA8
-MT47Cj4gKwkJcmFuZ2VzID0gPDB4MCAweDAgMHg0MD47Cj4gKwo+ICsJCWkyY19pYzogaW50ZXJy
-dXB0LWNvbnRyb2xsZXJAMCB7Cj4gKwkJCSNpbnRlcnJ1cHQtY2VsbHMgPSA8MT47Cj4gKwkJCWNv
-bXBhdGlibGUgPSAiYXNwZWVkLGFzdDI0MDAtaTJjLWljIjsKPiArCQkJcmVnID0gPDB4MCAweDQ+
-Owo+ICsJCQlpbnRlcnJ1cHRzID0gPDEyPjsKPiArCQkJaW50ZXJydXB0LWNvbnRyb2xsZXI7Cj4g
-KwkJfTsKPiAgCX07Cj4gIAo+ICAJaTJjMDogaTJjLWJ1c0A0MCB7Cj4gQEAgLTQzMyw3ICs0NDIs
-NyBAQAo+ICAJCSNzaXplLWNlbGxzID0gPDA+Owo+ICAJCSNpbnRlcnJ1cHQtY2VsbHMgPSA8MT47
-Cj4gIAo+IC0JCXJlZyA9IDwweDQwIDB4NDA+Owo+ICsJCXJlZyA9IDwweDQwIDB4NDA+LCA8MHg4
-MDAgMHg4MD47Cj4gIAkJY29tcGF0aWJsZSA9ICJhc3BlZWQsYXN0MjQwMC1pMmMtYnVzIjsKPiAg
-CQljbG9ja3MgPSA8JnN5c2NvbiBBU1BFRURfQ0xLX0FQQj47Cj4gIAkJcmVzZXRzID0gPCZzeXNj
-b24gQVNQRUVEX1JFU0VUX0kyQz47Cj4gQEAgLTQ0OSw3ICs0NTgsNyBAQAo+ICAJCSNzaXplLWNl
-bGxzID0gPDA+Owo+ICAJCSNpbnRlcnJ1cHQtY2VsbHMgPSA8MT47Cj4gIAo+IC0JCXJlZyA9IDww
-eDgwIDB4NDA+Owo+ICsJCXJlZyA9IDwweDgwIDB4NDA+LCA8MHg4ODAgMHg4MD47Cj4gIAkJY29t
-cGF0aWJsZSA9ICJhc3BlZWQsYXN0MjQwMC1pMmMtYnVzIjsKPiAgCQljbG9ja3MgPSA8JnN5c2Nv
-biBBU1BFRURfQ0xLX0FQQj47Cj4gIAkJcmVzZXRzID0gPCZzeXNjb24gQVNQRUVEX1JFU0VUX0ky
-Qz47Cj4gQEAgLTQ2NSw3ICs0NzQsNyBAQAo+ICAJCSNzaXplLWNlbGxzID0gPDA+Owo+ICAJCSNp
-bnRlcnJ1cHQtY2VsbHMgPSA8MT47Cj4gIAo+IC0JCXJlZyA9IDwweGMwIDB4NDA+Owo+ICsJCXJl
-ZyA9IDwweGMwIDB4NDA+LCA8MHg5MDAgMHg4MD47Cj4gIAkJY29tcGF0aWJsZSA9ICJhc3BlZWQs
-YXN0MjQwMC1pMmMtYnVzIjsKPiAgCQljbG9ja3MgPSA8JnN5c2NvbiBBU1BFRURfQ0xLX0FQQj47
-Cj4gIAkJcmVzZXRzID0gPCZzeXNjb24gQVNQRUVEX1JFU0VUX0kyQz47Cj4gQEAgLTQ4Miw3ICs0
-OTEsNyBAQAo+ICAJCSNzaXplLWNlbGxzID0gPDA+Owo+ICAJCSNpbnRlcnJ1cHQtY2VsbHMgPSA8
-MT47Cj4gIAo+IC0JCXJlZyA9IDwweDEwMCAweDQwPjsKPiArCQlyZWcgPSA8MHgxMDAgMHg0MD4s
-IDwweDk4MCAweDgwPjsKPiAgCQljb21wYXRpYmxlID0gImFzcGVlZCxhc3QyNDAwLWkyYy1idXMi
-Owo+ICAJCWNsb2NrcyA9IDwmc3lzY29uIEFTUEVFRF9DTEtfQVBCPjsKPiAgCQlyZXNldHMgPSA8
-JnN5c2NvbiBBU1BFRURfUkVTRVRfSTJDPjsKPiBAQCAtNDk5LDcgKzUwOCw3IEBACj4gIAkJI3Np
-emUtY2VsbHMgPSA8MD47Cj4gIAkJI2ludGVycnVwdC1jZWxscyA9IDwxPjsKPiAgCj4gLQkJcmVn
-ID0gPDB4MTQwIDB4NDA+Owo+ICsJCXJlZyA9IDwweDE0MCAweDQwPiwgPDB4YTAwIDB4ODA+Owo+
-ICAJCWNvbXBhdGlibGUgPSAiYXNwZWVkLGFzdDI0MDAtaTJjLWJ1cyI7Cj4gIAkJY2xvY2tzID0g
-PCZzeXNjb24gQVNQRUVEX0NMS19BUEI+Owo+ICAJCXJlc2V0cyA9IDwmc3lzY29uIEFTUEVFRF9S
-RVNFVF9JMkM+Owo+IEBAIC01MTYsNyArNTI1LDcgQEAKPiAgCQkjc2l6ZS1jZWxscyA9IDwwPjsK
-PiAgCQkjaW50ZXJydXB0LWNlbGxzID0gPDE+Owo+ICAKPiAtCQlyZWcgPSA8MHgxODAgMHg0MD47
-Cj4gKwkJcmVnID0gPDB4MTgwIDB4NDA+LCA8MHhhODAgMHg4MD47Cj4gIAkJY29tcGF0aWJsZSA9
-ICJhc3BlZWQsYXN0MjQwMC1pMmMtYnVzIjsKPiAgCQljbG9ja3MgPSA8JnN5c2NvbiBBU1BFRURf
-Q0xLX0FQQj47Cj4gIAkJcmVzZXRzID0gPCZzeXNjb24gQVNQRUVEX1JFU0VUX0kyQz47Cj4gQEAg
-LTUzMyw3ICs1NDIsNyBAQAo+ICAJCSNzaXplLWNlbGxzID0gPDA+Owo+ICAJCSNpbnRlcnJ1cHQt
-Y2VsbHMgPSA8MT47Cj4gIAo+IC0JCXJlZyA9IDwweDFjMCAweDQwPjsKPiArCQlyZWcgPSA8MHgx
-YzAgMHg0MD4sIDwweGIwMCAweDgwPjsKPiAgCQljb21wYXRpYmxlID0gImFzcGVlZCxhc3QyNDAw
-LWkyYy1idXMiOwo+ICAJCWNsb2NrcyA9IDwmc3lzY29uIEFTUEVFRF9DTEtfQVBCPjsKPiAgCQly
-ZXNldHMgPSA8JnN5c2NvbiBBU1BFRURfUkVTRVRfSTJDPjsKPiBAQCAtNTUwLDcgKzU1OSw3IEBA
-Cj4gIAkJI3NpemUtY2VsbHMgPSA8MD47Cj4gIAkJI2ludGVycnVwdC1jZWxscyA9IDwxPjsKPiAg
-Cj4gLQkJcmVnID0gPDB4MzAwIDB4NDA+Owo+ICsJCXJlZyA9IDwweDMwMCAweDQwPiwgPDB4Yjgw
-IDB4ODA+Owo+ICAJCWNvbXBhdGlibGUgPSAiYXNwZWVkLGFzdDI0MDAtaTJjLWJ1cyI7Cj4gIAkJ
-Y2xvY2tzID0gPCZzeXNjb24gQVNQRUVEX0NMS19BUEI+Owo+ICAJCXJlc2V0cyA9IDwmc3lzY29u
-IEFTUEVFRF9SRVNFVF9JMkM+Owo+IEBAIC01NjcsNyArNTc2LDcgQEAKPiAgCQkjc2l6ZS1jZWxs
-cyA9IDwwPjsKPiAgCQkjaW50ZXJydXB0LWNlbGxzID0gPDE+Owo+ICAKPiAtCQlyZWcgPSA8MHgz
-NDAgMHg0MD47Cj4gKwkJcmVnID0gPDB4MzQwIDB4NDA+LCA8MHhjMDAgMHg4MD47Cj4gIAkJY29t
-cGF0aWJsZSA9ICJhc3BlZWQsYXN0MjQwMC1pMmMtYnVzIjsKPiAgCQljbG9ja3MgPSA8JnN5c2Nv
-biBBU1BFRURfQ0xLX0FQQj47Cj4gIAkJcmVzZXRzID0gPCZzeXNjb24gQVNQRUVEX1JFU0VUX0ky
-Qz47Cj4gQEAgLTU4NCw3ICs1OTMsNyBAQAo+ICAJCSNzaXplLWNlbGxzID0gPDA+Owo+ICAJCSNp
-bnRlcnJ1cHQtY2VsbHMgPSA8MT47Cj4gIAo+IC0JCXJlZyA9IDwweDM4MCAweDQwPjsKPiArCQly
-ZWcgPSA8MHgzODAgMHg0MD4sIDwweGM4MCAweDgwPjsKPiAgCQljb21wYXRpYmxlID0gImFzcGVl
-ZCxhc3QyNDAwLWkyYy1idXMiOwo+ICAJCWNsb2NrcyA9IDwmc3lzY29uIEFTUEVFRF9DTEtfQVBC
-PjsKPiAgCQlyZXNldHMgPSA8JnN5c2NvbiBBU1BFRURfUkVTRVRfSTJDPjsKPiBAQCAtNjAxLDcg
-KzYxMCw3IEBACj4gIAkJI3NpemUtY2VsbHMgPSA8MD47Cj4gIAkJI2ludGVycnVwdC1jZWxscyA9
-IDwxPjsKPiAgCj4gLQkJcmVnID0gPDB4M2MwIDB4NDA+Owo+ICsJCXJlZyA9IDwweDNjMCAweDQw
-PiwgPDB4ZDAwIDB4ODA+Owo+ICAJCWNvbXBhdGlibGUgPSAiYXNwZWVkLGFzdDI0MDAtaTJjLWJ1
-cyI7Cj4gIAkJY2xvY2tzID0gPCZzeXNjb24gQVNQRUVEX0NMS19BUEI+Owo+ICAJCXJlc2V0cyA9
-IDwmc3lzY29uIEFTUEVFRF9SRVNFVF9JMkM+Owo+IEBAIC02MTgsNyArNjI3LDcgQEAKPiAgCQkj
-c2l6ZS1jZWxscyA9IDwwPjsKPiAgCQkjaW50ZXJydXB0LWNlbGxzID0gPDE+Owo+ICAKPiAtCQly
-ZWcgPSA8MHg0MDAgMHg0MD47Cj4gKwkJcmVnID0gPDB4NDAwIDB4NDA+LCA8MHhkODAgMHg4MD47
-Cj4gIAkJY29tcGF0aWJsZSA9ICJhc3BlZWQsYXN0MjQwMC1pMmMtYnVzIjsKPiAgCQljbG9ja3Mg
-PSA8JnN5c2NvbiBBU1BFRURfQ0xLX0FQQj47Cj4gIAkJcmVzZXRzID0gPCZzeXNjb24gQVNQRUVE
-X1JFU0VUX0kyQz47Cj4gQEAgLTYzNSw3ICs2NDQsNyBAQAo+ICAJCSNzaXplLWNlbGxzID0gPDA+
-Owo+ICAJCSNpbnRlcnJ1cHQtY2VsbHMgPSA8MT47Cj4gIAo+IC0JCXJlZyA9IDwweDQ0MCAweDQw
-PjsKPiArCQlyZWcgPSA8MHg0NDAgMHg0MD4sIDwweGUwMCAweDgwPjsKPiAgCQljb21wYXRpYmxl
-ID0gImFzcGVlZCxhc3QyNDAwLWkyYy1idXMiOwo+ICAJCWNsb2NrcyA9IDwmc3lzY29uIEFTUEVF
-RF9DTEtfQVBCPjsKPiAgCQlyZXNldHMgPSA8JnN5c2NvbiBBU1BFRURfUkVTRVRfSTJDPjsKPiBA
-QCAtNjUyLDcgKzY2MSw3IEBACj4gIAkJI3NpemUtY2VsbHMgPSA8MD47Cj4gIAkJI2ludGVycnVw
-dC1jZWxscyA9IDwxPjsKPiAgCj4gLQkJcmVnID0gPDB4NDgwIDB4NDA+Owo+ICsJCXJlZyA9IDww
-eDQ4MCAweDQwPiwgPDB4ZTgwIDB4ODA+Owo+ICAJCWNvbXBhdGlibGUgPSAiYXNwZWVkLGFzdDI0
-MDAtaTJjLWJ1cyI7Cj4gIAkJY2xvY2tzID0gPCZzeXNjb24gQVNQRUVEX0NMS19BUEI+Owo+ICAJ
-CXJlc2V0cyA9IDwmc3lzY29uIEFTUEVFRF9SRVNFVF9JMkM+Owo+IGRpZmYgLS1naXQgYS9hcmNo
-L2FybS9ib290L2R0cy9hc3BlZWQtZzUuZHRzaSBiL2FyY2gvYXJtL2Jvb3QvZHRzL2FzcGVlZC1n
-NS5kdHNpCj4gaW5kZXggZThmZWI4YjY2YTJmLi5jYmMzMWNlM2ZhYjIgMTAwNjQ0Cj4gLS0tIGEv
-YXJjaC9hcm0vYm9vdC9kdHMvYXNwZWVkLWc1LmR0c2kKPiArKysgYi9hcmNoL2FybS9ib290L2R0
-cy9hc3BlZWQtZzUuZHRzaQo+IEBAIC01MTMsMTIgKzUxMywyMSBAQAo+ICB9Owo+ICAKPiAgJmky
-YyB7Cj4gLQlpMmNfaWM6IGludGVycnVwdC1jb250cm9sbGVyQDAgewo+IC0JCSNpbnRlcnJ1cHQt
-Y2VsbHMgPSA8MT47Cj4gLQkJY29tcGF0aWJsZSA9ICJhc3BlZWQsYXN0MjUwMC1pMmMtaWMiOwo+
-ICsJaTJjX2dyOiBpMmMtZ2xvYmFsLXJlZ3NAMCB7Cj4gKwkJY29tcGF0aWJsZSA9ICJhc3BlZWQs
-YXN0MjUwMC1pMmMtZ3IiLCAic3lzY29uIjsKPiAgCQlyZWcgPSA8MHgwIDB4NDA+Owo+IC0JCWlu
-dGVycnVwdHMgPSA8MTI+Owo+IC0JCWludGVycnVwdC1jb250cm9sbGVyOwo+ICsKPiArCQkjYWRk
-cmVzcy1jZWxscyA9IDwxPjsKPiArCQkjc2l6ZS1jZWxscyA9IDwxPjsKPiArCQlyYW5nZXMgPSA8
-MHgwIDB4MCAweDQwPjsKPiArCj4gKwkJaTJjX2ljOiBpbnRlcnJ1cHQtY29udHJvbGxlckAwIHsK
-PiArCQkJI2ludGVycnVwdC1jZWxscyA9IDwxPjsKPiArCQkJY29tcGF0aWJsZSA9ICJhc3BlZWQs
-YXN0MjUwMC1pMmMtaWMiOwo+ICsJCQlyZWcgPSA8MHgwIDB4ND47Cj4gKwkJCWludGVycnVwdHMg
-PSA8MTI+Owo+ICsJCQlpbnRlcnJ1cHQtY29udHJvbGxlcjsKPiArCQl9Owo+ICAJfTsKPiAgCj4g
-IAlpMmMwOiBpMmMtYnVzQDQwIHsKPiBAQCAtNTI2LDcgKzUzNSw3IEBACj4gIAkJI3NpemUtY2Vs
-bHMgPSA8MD47Cj4gIAkJI2ludGVycnVwdC1jZWxscyA9IDwxPjsKPiAgCj4gLQkJcmVnID0gPDB4
-NDAgMHg0MD47Cj4gKwkJcmVnID0gPDB4NDAgMHg0MD4sIDwweDIwMCAweDEwPjsKPiAgCQljb21w
-YXRpYmxlID0gImFzcGVlZCxhc3QyNTAwLWkyYy1idXMiOwo+ICAJCWNsb2NrcyA9IDwmc3lzY29u
-IEFTUEVFRF9DTEtfQVBCPjsKPiAgCQlyZXNldHMgPSA8JnN5c2NvbiBBU1BFRURfUkVTRVRfSTJD
-PjsKPiBAQCAtNTQyLDcgKzU1MSw3IEBACj4gIAkJI3NpemUtY2VsbHMgPSA8MD47Cj4gIAkJI2lu
-dGVycnVwdC1jZWxscyA9IDwxPjsKPiAgCj4gLQkJcmVnID0gPDB4ODAgMHg0MD47Cj4gKwkJcmVn
-ID0gPDB4ODAgMHg0MD4sIDwweDIxMCAweDEwPjsKPiAgCQljb21wYXRpYmxlID0gImFzcGVlZCxh
-c3QyNTAwLWkyYy1idXMiOwo+ICAJCWNsb2NrcyA9IDwmc3lzY29uIEFTUEVFRF9DTEtfQVBCPjsK
-PiAgCQlyZXNldHMgPSA8JnN5c2NvbiBBU1BFRURfUkVTRVRfSTJDPjsKPiBAQCAtNTU4LDcgKzU2
-Nyw3IEBACj4gIAkJI3NpemUtY2VsbHMgPSA8MD47Cj4gIAkJI2ludGVycnVwdC1jZWxscyA9IDwx
-PjsKPiAgCj4gLQkJcmVnID0gPDB4YzAgMHg0MD47Cj4gKwkJcmVnID0gPDB4YzAgMHg0MD4sIDww
-eDIyMCAweDEwPjsKPiAgCQljb21wYXRpYmxlID0gImFzcGVlZCxhc3QyNTAwLWkyYy1idXMiOwo+
-ICAJCWNsb2NrcyA9IDwmc3lzY29uIEFTUEVFRF9DTEtfQVBCPjsKPiAgCQlyZXNldHMgPSA8JnN5
-c2NvbiBBU1BFRURfUkVTRVRfSTJDPjsKPiBAQCAtNTc1LDcgKzU4NCw3IEBACj4gIAkJI3NpemUt
-Y2VsbHMgPSA8MD47Cj4gIAkJI2ludGVycnVwdC1jZWxscyA9IDwxPjsKPiAgCj4gLQkJcmVnID0g
-PDB4MTAwIDB4NDA+Owo+ICsJCXJlZyA9IDwweDEwMCAweDQwPiwgPDB4MjMwIDB4MTA+Owo+ICAJ
-CWNvbXBhdGlibGUgPSAiYXNwZWVkLGFzdDI1MDAtaTJjLWJ1cyI7Cj4gIAkJY2xvY2tzID0gPCZz
-eXNjb24gQVNQRUVEX0NMS19BUEI+Owo+ICAJCXJlc2V0cyA9IDwmc3lzY29uIEFTUEVFRF9SRVNF
-VF9JMkM+Owo+IEBAIC01OTIsNyArNjAxLDcgQEAKPiAgCQkjc2l6ZS1jZWxscyA9IDwwPjsKPiAg
-CQkjaW50ZXJydXB0LWNlbGxzID0gPDE+Owo+ICAKPiAtCQlyZWcgPSA8MHgxNDAgMHg0MD47Cj4g
-KwkJcmVnID0gPDB4MTQwIDB4NDA+LCA8MHgyNDAgMHgxMD47Cj4gIAkJY29tcGF0aWJsZSA9ICJh
-c3BlZWQsYXN0MjUwMC1pMmMtYnVzIjsKPiAgCQljbG9ja3MgPSA8JnN5c2NvbiBBU1BFRURfQ0xL
-X0FQQj47Cj4gIAkJcmVzZXRzID0gPCZzeXNjb24gQVNQRUVEX1JFU0VUX0kyQz47Cj4gQEAgLTYw
-OSw3ICs2MTgsNyBAQAo+ICAJCSNzaXplLWNlbGxzID0gPDA+Owo+ICAJCSNpbnRlcnJ1cHQtY2Vs
-bHMgPSA8MT47Cj4gIAo+IC0JCXJlZyA9IDwweDE4MCAweDQwPjsKPiArCQlyZWcgPSA8MHgxODAg
-MHg0MD4sIDwweDI1MCAweDEwPjsKPiAgCQljb21wYXRpYmxlID0gImFzcGVlZCxhc3QyNTAwLWky
-Yy1idXMiOwo+ICAJCWNsb2NrcyA9IDwmc3lzY29uIEFTUEVFRF9DTEtfQVBCPjsKPiAgCQlyZXNl
-dHMgPSA8JnN5c2NvbiBBU1BFRURfUkVTRVRfSTJDPjsKPiBAQCAtNjI2LDcgKzYzNSw3IEBACj4g
-IAkJI3NpemUtY2VsbHMgPSA8MD47Cj4gIAkJI2ludGVycnVwdC1jZWxscyA9IDwxPjsKPiAgCj4g
-LQkJcmVnID0gPDB4MWMwIDB4NDA+Owo+ICsJCXJlZyA9IDwweDFjMCAweDQwPiwgPDB4MjYwIDB4
-MTA+Owo+ICAJCWNvbXBhdGlibGUgPSAiYXNwZWVkLGFzdDI1MDAtaTJjLWJ1cyI7Cj4gIAkJY2xv
-Y2tzID0gPCZzeXNjb24gQVNQRUVEX0NMS19BUEI+Owo+ICAJCXJlc2V0cyA9IDwmc3lzY29uIEFT
-UEVFRF9SRVNFVF9JMkM+Owo+IEBAIC02NDMsNyArNjUyLDcgQEAKPiAgCQkjc2l6ZS1jZWxscyA9
-IDwwPjsKPiAgCQkjaW50ZXJydXB0LWNlbGxzID0gPDE+Owo+ICAKPiAtCQlyZWcgPSA8MHgzMDAg
-MHg0MD47Cj4gKwkJcmVnID0gPDB4MzAwIDB4NDA+LCA8MHgyNzAgMHgxMD47Cj4gIAkJY29tcGF0
-aWJsZSA9ICJhc3BlZWQsYXN0MjUwMC1pMmMtYnVzIjsKPiAgCQljbG9ja3MgPSA8JnN5c2NvbiBB
-U1BFRURfQ0xLX0FQQj47Cj4gIAkJcmVzZXRzID0gPCZzeXNjb24gQVNQRUVEX1JFU0VUX0kyQz47
-Cj4gQEAgLTY2MCw3ICs2NjksNyBAQAo+ICAJCSNzaXplLWNlbGxzID0gPDA+Owo+ICAJCSNpbnRl
-cnJ1cHQtY2VsbHMgPSA8MT47Cj4gIAo+IC0JCXJlZyA9IDwweDM0MCAweDQwPjsKPiArCQlyZWcg
-PSA8MHgzNDAgMHg0MD4sIDwweDI4MCAweDEwPjsKPiAgCQljb21wYXRpYmxlID0gImFzcGVlZCxh
-c3QyNTAwLWkyYy1idXMiOwo+ICAJCWNsb2NrcyA9IDwmc3lzY29uIEFTUEVFRF9DTEtfQVBCPjsK
-PiAgCQlyZXNldHMgPSA8JnN5c2NvbiBBU1BFRURfUkVTRVRfSTJDPjsKPiBAQCAtNjc3LDcgKzY4
-Niw3IEBACj4gIAkJI3NpemUtY2VsbHMgPSA8MD47Cj4gIAkJI2ludGVycnVwdC1jZWxscyA9IDwx
-PjsKPiAgCj4gLQkJcmVnID0gPDB4MzgwIDB4NDA+Owo+ICsJCXJlZyA9IDwweDM4MCAweDQwPiwg
-PDB4MjkwIDB4MTA+Owo+ICAJCWNvbXBhdGlibGUgPSAiYXNwZWVkLGFzdDI1MDAtaTJjLWJ1cyI7
-Cj4gIAkJY2xvY2tzID0gPCZzeXNjb24gQVNQRUVEX0NMS19BUEI+Owo+ICAJCXJlc2V0cyA9IDwm
-c3lzY29uIEFTUEVFRF9SRVNFVF9JMkM+Owo+IEBAIC02OTQsNyArNzAzLDcgQEAKPiAgCQkjc2l6
-ZS1jZWxscyA9IDwwPjsKPiAgCQkjaW50ZXJydXB0LWNlbGxzID0gPDE+Owo+ICAKPiAtCQlyZWcg
-PSA8MHgzYzAgMHg0MD47Cj4gKwkJcmVnID0gPDB4M2MwIDB4NDA+LCA8MHgyYTAgMHgxMD47Cj4g
-IAkJY29tcGF0aWJsZSA9ICJhc3BlZWQsYXN0MjUwMC1pMmMtYnVzIjsKPiAgCQljbG9ja3MgPSA8
-JnN5c2NvbiBBU1BFRURfQ0xLX0FQQj47Cj4gIAkJcmVzZXRzID0gPCZzeXNjb24gQVNQRUVEX1JF
-U0VUX0kyQz47Cj4gQEAgLTcxMSw3ICs3MjAsNyBAQAo+ICAJCSNzaXplLWNlbGxzID0gPDA+Owo+
-ICAJCSNpbnRlcnJ1cHQtY2VsbHMgPSA8MT47Cj4gIAo+IC0JCXJlZyA9IDwweDQwMCAweDQwPjsK
-PiArCQlyZWcgPSA8MHg0MDAgMHg0MD4sIDwweDJiMCAweDEwPjsKPiAgCQljb21wYXRpYmxlID0g
-ImFzcGVlZCxhc3QyNTAwLWkyYy1idXMiOwo+ICAJCWNsb2NrcyA9IDwmc3lzY29uIEFTUEVFRF9D
-TEtfQVBCPjsKPiAgCQlyZXNldHMgPSA8JnN5c2NvbiBBU1BFRURfUkVTRVRfSTJDPjsKPiBAQCAt
-NzI4LDcgKzczNyw3IEBACj4gIAkJI3NpemUtY2VsbHMgPSA8MD47Cj4gIAkJI2ludGVycnVwdC1j
-ZWxscyA9IDwxPjsKPiAgCj4gLQkJcmVnID0gPDB4NDQwIDB4NDA+Owo+ICsJCXJlZyA9IDwweDQ0
-MCAweDQwPiwgPDB4MmMwIDB4MTA+Owo+ICAJCWNvbXBhdGlibGUgPSAiYXNwZWVkLGFzdDI1MDAt
-aTJjLWJ1cyI7Cj4gIAkJY2xvY2tzID0gPCZzeXNjb24gQVNQRUVEX0NMS19BUEI+Owo+ICAJCXJl
-c2V0cyA9IDwmc3lzY29uIEFTUEVFRF9SRVNFVF9JMkM+Owo+IEBAIC03NDUsNyArNzU0LDcgQEAK
-PiAgCQkjc2l6ZS1jZWxscyA9IDwwPjsKPiAgCQkjaW50ZXJydXB0LWNlbGxzID0gPDE+Owo+ICAK
-PiAtCQlyZWcgPSA8MHg0ODAgMHg0MD47Cj4gKwkJcmVnID0gPDB4NDgwIDB4NDA+LCA8MHgyZDAg
-MHgxMD47Cj4gIAkJY29tcGF0aWJsZSA9ICJhc3BlZWQsYXN0MjUwMC1pMmMtYnVzIjsKPiAgCQlj
-bG9ja3MgPSA8JnN5c2NvbiBBU1BFRURfQ0xLX0FQQj47Cj4gIAkJcmVzZXRzID0gPCZzeXNjb24g
-QVNQRUVEX1JFU0VUX0kyQz47Cj4gCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtl
-cm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxt
-YW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
+On Wed, Oct 02, 2019 at 04:46:56PM +0200, Kamel Bouhara wrote:
+> External E-Mail
+> 
+> 
+> Implement i2c bus recovery when slaves devices might hold SDA low.
+> In this case re-assign SCL/SDA to gpios and issue 9 dummy clock pulses
+> until the slave release SDA.
+> 
+
+Hi Kamel,
+
+Thanks for adding this new feature. As I see patches only for sama5d3 and
+sama5d4, I assume it has not been tested with a sama5d2, isn't it?
+
+I doubt it works with a sama5d2 because of the pinctrl. I also wonder if it can
+work if we add .strict = true to pinmux_ops which is something plan for the
+future...
+
+Are you able to test these points? It would be nice to be aware of
+possible side effects.
+
+Regards
+
+Ludovic
+
+> Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
+> ---
+>  drivers/i2c/busses/i2c-at91-master.c | 63 ++++++++++++++++++++++++++++
+>  drivers/i2c/busses/i2c-at91.h        |  8 ++++
+>  2 files changed, 71 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
+> index a3fcc35ffd3b..df5bb93f952d 100644
+> --- a/drivers/i2c/busses/i2c-at91-master.c
+> +++ b/drivers/i2c/busses/i2c-at91-master.c
+> @@ -18,11 +18,13 @@
+>  #include <linux/dma-mapping.h>
+>  #include <linux/dmaengine.h>
+>  #include <linux/err.h>
+> +#include <linux/gpio/consumer.h>
+>  #include <linux/i2c.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/io.h>
+>  #include <linux/of.h>
+>  #include <linux/of_device.h>
+> +#include <linux/pinctrl/consumer.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/platform_data/dma-atmel.h>
+>  #include <linux/pm_runtime.h>
+> @@ -768,6 +770,63 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
+>  	return ret;
+>  }
+>  
+> +static void at91_prepare_twi_recovery(struct i2c_adapter *adap)
+> +{
+> +	struct at91_twi_dev *dev = i2c_get_adapdata(adap);
+> +
+> +	pinctrl_select_state(dev->pinctrl, dev->pinctrl_pins_gpio);
+> +}
+> +
+> +static void at91_unprepare_twi_recovery(struct i2c_adapter *adap)
+> +{
+> +	struct at91_twi_dev *dev = i2c_get_adapdata(adap);
+> +
+> +	pinctrl_select_state(dev->pinctrl, dev->pinctrl_pins_default);
+> +}
+> +
+> +static int at91_init_twi_recovery_info(struct platform_device *pdev,
+> +				       struct at91_twi_dev *dev)
+> +{
+> +	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
+> +
+> +	dev->pinctrl = devm_pinctrl_get(&pdev->dev);
+> +	if (!dev->pinctrl || IS_ERR(dev->pinctrl)) {
+> +		dev_info(dev->dev, "can't get pinctrl, bus recovery not supported\n");
+> +		return PTR_ERR(dev->pinctrl);
+> +	}
+> +
+> +	dev->pinctrl_pins_default = pinctrl_lookup_state(dev->pinctrl,
+> +							 PINCTRL_STATE_DEFAULT);
+> +	dev->pinctrl_pins_gpio = pinctrl_lookup_state(dev->pinctrl,
+> +						      "gpio");
+> +	rinfo->sda_gpiod = devm_gpiod_get(&pdev->dev, "sda", GPIOD_IN);
+> +	if (PTR_ERR(rinfo->sda_gpiod) == -EPROBE_DEFER)
+> +		return -EPROBE_DEFER;
+> +
+> +	rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl",
+> +					  GPIOD_OUT_HIGH_OPEN_DRAIN);
+> +	if (PTR_ERR(rinfo->scl_gpiod) == -EPROBE_DEFER)
+> +		return -EPROBE_DEFER;
+> +
+> +	if (IS_ERR(rinfo->sda_gpiod) ||
+> +		   IS_ERR(rinfo->scl_gpiod) ||
+> +		   IS_ERR(dev->pinctrl_pins_default) ||
+> +		   IS_ERR(dev->pinctrl_pins_gpio)) {
+> +		dev_info(&pdev->dev, "recovery information incomplete\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	dev_info(&pdev->dev, "using scl%s for recovery\n",
+> +		 rinfo->sda_gpiod ? ",sda" : "");
+> +
+> +	rinfo->prepare_recovery = at91_prepare_twi_recovery;
+> +	rinfo->unprepare_recovery = at91_unprepare_twi_recovery;
+> +	rinfo->recover_bus = i2c_generic_scl_recovery;
+> +	dev->adapter.bus_recovery_info = rinfo;
+> +
+> +	return 0;
+> +}
+> +
+>  int at91_twi_probe_master(struct platform_device *pdev,
+>  			  u32 phy_addr, struct at91_twi_dev *dev)
+>  {
+> @@ -795,6 +854,10 @@ int at91_twi_probe_master(struct platform_device *pdev,
+>  
+>  	at91_calc_twi_clock(dev);
+>  
+> +	rc = at91_init_twi_recovery_info(pdev, dev);
+> +	if (rc == -EPROBE_DEFER)
+> +		return rc;
+> +
+>  	dev->adapter.algo = &at91_twi_algorithm;
+>  	dev->adapter.quirks = &at91_twi_quirks;
+>  
+> diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
+> index 499b506f6128..b89dab55e776 100644
+> --- a/drivers/i2c/busses/i2c-at91.h
+> +++ b/drivers/i2c/busses/i2c-at91.h
+> @@ -141,6 +141,10 @@ struct at91_twi_dev {
+>  	u32 fifo_size;
+>  	struct at91_twi_dma dma;
+>  	bool slave_detected;
+> +	struct i2c_bus_recovery_info rinfo;
+> +	struct pinctrl *pinctrl;
+> +	struct pinctrl_state *pinctrl_pins_default;
+> +	struct pinctrl_state *pinctrl_pins_gpio;
+>  #ifdef CONFIG_I2C_AT91_SLAVE_EXPERIMENTAL
+>  	unsigned smr;
+>  	struct i2c_client *slave;
+> @@ -158,6 +162,10 @@ void at91_init_twi_bus_master(struct at91_twi_dev *dev);
+>  int at91_twi_probe_master(struct platform_device *pdev, u32 phy_addr,
+>  			  struct at91_twi_dev *dev);
+>  
+> +void at91_twi_prepare_recovery(struct i2c_adapter *adap);
+> +void at91_twi_unprepare_recovery(struct i2c_adapter *adap);
+> +void at91_twi_init_recovery_info(struct at91_twi_dev *dev);
+> +
+>  #ifdef CONFIG_I2C_AT91_SLAVE_EXPERIMENTAL
+>  void at91_init_twi_bus_slave(struct at91_twi_dev *dev);
+>  int at91_twi_probe_slave(struct platform_device *pdev, u32 phy_addr,
+> -- 
+> 2.23.0
+> 
+> 
