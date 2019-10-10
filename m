@@ -1,19 +1,15 @@
 From: Tao Ren <taoren@fb.com>
 Subject: Re: [PATCH] i2c: aspeed: fix master pending state handling
-Date: Thu, 10 Oct 2019 23:24:45 +0000
-Message-ID: <dd0c44f7-4e90-998b-e8c7-d272c593f55c@fb.com>
+Date: Thu, 10 Oct 2019 23:29:04 +0000
+Message-ID: <49244d71-cbc3-f2ae-97ac-74b5f68a4816@fb.com>
 References: <20191009212034.20325-1-jae.hyun.yoo@linux.intel.com>
- <3ea1c0d5-47f1-bf8c-6b2d-2ea8d3f93471@fb.com>
- <637d4b8b-5113-b07b-f99f-ce66dbe6948c@linux.intel.com>
- <5ce20a28-21ed-ff0c-9e31-bcac3cd7a5fb@fb.com>
- <69296b93-8fc6-c056-ab9b-ae190dc5eea1@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <69296b93-8fc6-c056-ab9b-ae190dc5eea1@linux.intel.com>
+In-Reply-To: <20191009212034.20325-1-jae.hyun.yoo@linux.intel.com>
 Content-Language: en-US
-Content-ID: <5C6FCE86516E3D44B1BF2CA410337367@namprd15.prod.outlook.com>
+Content-ID: <E79784B537921D40A3923439E52E2764@namprd15.prod.outlook.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -28,62 +24,25 @@ To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, Brendan Higgins <brendanhiggins
 Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMTAvMTAvMTkgNDoxNiBQTSwgSmFlIEh5dW4gWW9vIHdyb3RlOg0KPiBPbiAxMC8xMC8yMDE5
-IDQ6MTEgUE0sIFRhbyBSZW4gd3JvdGU6DQo+PiBPbiAxMC8xMC8xOSAzOjA0IFBNLCBKYWUgSHl1
-biBZb28gd3JvdGU6DQo+Pj4gT24gMTAvMTAvMjAxOSAyOjIwIFBNLCBUYW8gUmVuIHdyb3RlOg0K
-Pj4+PiBPbiAxMC85LzE5IDI6MjAgUE0sIEphZSBIeXVuIFlvbyB3cm90ZToNCj4+PiBbLi4uXQ0K
-Pj4+Pj4gwqDCoMKgwqDCoMKgwqDCoMKgwqAgLyoNCj4+Pj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqAgKiBJZiBhIHBlZXIgbWFzdGVyIHN0YXJ0cyBhIHhmZXIgaW1tZWRpYXRlbHkgYWZ0ZXIgaXQg
-cXVldWVzIGENCj4+Pj4+IC3CoMKgwqDCoMKgwqDCoMKgICogbWFzdGVyIGNvbW1hbmQsIGNoYW5n
-ZSBpdHMgc3RhdGUgdG8gJ3BlbmRpbmcnIHRoZW4gSC9XIHdpbGwNCj4+Pj4+IC3CoMKgwqDCoMKg
-wqDCoMKgICogY29udGludWUgdGhlIHF1ZXVlZCBtYXN0ZXIgeGZlciBqdXN0IGFmdGVyIGNvbXBs
-ZXRpbmcgdGhlDQo+Pj4+PiAtwqDCoMKgwqDCoMKgwqDCoCAqIHNsYXZlIG1vZGUgc2Vzc2lvbi4N
-Cj4+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgICogbWFzdGVyIGNvbW1hbmQsIGNsZWFyIHRoZSBxdWV1
-ZWQgbWFzdGVyIGNvbW1hbmQgYW5kIGNoYW5nZQ0KPj4+Pj4gK8KgwqDCoMKgwqDCoMKgwqAgKiBp
-dHMgc3RhdGUgdG8gJ3BlbmRpbmcnLiBUbyBzaW1wbGlmeSBoYW5kbGluZyBvZiBwZW5kaW5nDQo+
-Pj4+PiArwqDCoMKgwqDCoMKgwqDCoCAqIGNhc2VzLCBpdCB1c2VzIFMvVyBzb2x1dGlvbiBpbnN0
-ZWFkIG9mIEgvVyBjb21tYW5kIHF1ZXVlDQo+Pj4+PiArwqDCoMKgwqDCoMKgwqDCoCAqIGhhbmRs
-aW5nLg0KPj4+Pj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAqLw0KPj4+Pj4gwqDCoMKgwqDCoMKg
-wqDCoMKgwqAgaWYgKHVubGlrZWx5KGlycV9zdGF0dXMgJiBBU1BFRURfSTJDRF9JTlRSX1NMQVZF
-X01BVENIKSkgew0KPj4+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqAgd3JpdGVsKHJlYWRsKGJ1
-cy0+YmFzZSArIEFTUEVFRF9JMkNfQ01EX1JFRykgJg0KPj4+Pj4gK8KgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoCB+QVNQRUVEX0kyQ0RfTUFTVEVSX0NNRFNfTUFTSywNCj4+Pj4+ICvCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgYnVzLT5iYXNlICsgQVNQRUVEX0kyQ19D
-TURfUkVHKTsNCj4+Pj4NCj4+Pj4gU29ycnkgZm9yIHRoZSBsYXRlIGNvbW1lbnRzIChqdXN0IG5v
-dGljZWQgdGhpcyBsaW5lIHdoaWxlIHRlc3RpbmcgdGhlIHBhdGNoKToNCj4+Pj4NCj4+Pj4gSSBh
-c3N1bWUgdGhpcyBsaW5lIGlzIGFpbWVkIGF0IHN0b3BwaW5nIHRoZSBydW5uaW5nIG1hc3RlciBj
-b21tYW5kcywgYnV0IGFzIHBlcg0KPj4+PiBBU1QyNTAwIGRhdGFzaGVldCwgaXQncyBOT1AgdG8g
-d3JpdGUgMCB0byBNQVNURVJfU1RPUC9NQVNURVJfUlgvTUFTVEVSX1RYIGJpdHMuDQo+Pj4+IE1h
-eWJlIGFsbCB3ZSBuZWVkIGlzIHdyaXRpbmcgMSB0byBNQVNURVJfU1RPUCBmaWVsZD8NCj4+Pg0K
-Pj4+IFRoZXJlIGNvdWxkIGJlIHR3byBwZW5kaW5nIGNhc2VzOg0KPj4+IDEuIE1hc3RlciBnb2Vz
-IHRvIHBlbmRpbmcgYmVmb3JlIGl0IHRyaWdnZXJzIGEgY29tbWFuZCBpZiBhIHNsYXZlDQo+Pj4g
-wqDCoMKgIG9wZXJhdGlvbiBpcyBhbHJlYWR5IGluaXRpYXRlZC4NCj4+PiAyLiBNYXN0ZXIgZ29l
-cyB0byBwZW5kaW5nIGFmdGVyIGl0IHRyaWdnZXJlZCBhIGNvbW1hbmQgaWYgYSBwZWVyDQo+Pj4g
-wqDCoMKgIG1hc3RlciBpbW1lZGlhdGVseSBzZW5kcyBzb21ldGhpbmcganVzdCBhZnRlciB0aGUg
-bWFzdGVyIGNvbW1hbmQNCj4+PiDCoMKgwqAgdHJpZ2dlcmluZy4NCj4+Pg0KPj4+IEFib3ZlIGNv
-ZGUgaXMgZm9yIHRoZSBsYXR0ZXIgY2FzZS4gSC9XIGhhbmRsZXMgdGhlIGNhc2UgcHJpb3JpdHkg
-YmFzZWQNCj4+PiBzbyB0aGUgc2xhdmUgZXZlbnQgd2lsbCBiZSBoYW5kbGVkIGZpcnN0LCBhbmQg
-dGhlbiB0aGUgbWFzdGVyIGNvbW1hbmQNCj4+PiB3aWxsIGJlIGhhbmRsZWQgd2hlbiB0aGUgc2xh
-dmUgb3BlcmF0aW9uIGlzIGNvbXBsZXRlZC4gUHJvYmxlbSBpcywNCj4+PiB0aGlzIEgvVyBzaGFy
-ZXMgdGhlIHNhbWUgYnVmZmVyIGZvciBtYXN0ZXIgYW5kIHNsYXZlIG9wZXJhdGlvbnMgc28NCj4+
-PiBpdCdzIHVucmVsaWFibGUuIEFib3ZlIGNvZGUganVzdCByZW1vdmVzIHRoZSBtYXN0ZXIgY29t
-bWFuZCBmcm9tIHRoZQ0KPj4+IGNvbW1hbmQgcmVnaXN0ZXIgdG8gcHJldmVudCB0aGlzIEgvVyBj
-b21tYW5kIGhhbmRsaW5nIG9mIHBlbmRpbmcgZXZlbnRzLg0KPj4+IEluc3RlYWQsIGl0IHJlc3Rh
-cnRzIHRoZSBtYXN0ZXIgY29tbWFuZCB1c2luZyBhIGNhbGwgb2YgYXNwZWVkX2kyY19kb19zdGFy
-dCB3aGVuIHRoZSBzbGF2ZSBvcGVyYXRpb24gaXMgY29tcGxldGVkLg0KPj4NCj4+IFRoYW5rcyBm
-b3IgdGhlIGNsYXJpZnksIEphZS4gSSBtZWFuIGNsZWFyaW5nIHRoZXNlIGJpdHMgaGFzIG5vIGVm
-ZmVjdCB0bw0KPj4gaGFyZHdhcmUgYWNjb3JkaW5nIHRvIGFzcGVlZCBkYXRhc2hlZXQ7IGluIG90
-aGVyIHdvcmQsIG1hc3RlciBjb21tYW5kIGNhbm5vdA0KPj4gYmUgcmVtb3ZlZCBmcm9tIGNvbW1h
-bmQgcmVnaXN0ZXIgYnkgdGhpcyBzdGF0ZW1lbnQuDQo+Pg0KPj4gRm9yIGV4YW1wbGUsIGJlbG93
-IGlzIHRoZSBkZXNjcmlwdGlvbiBmb3IgTUFTVEVSX1NUT1BfQ01EKEkyQ0QxNCwgYml0IDUpOg0K
-Pj4NCj4+IMKgwqAgMDogTk9QDQo+PiDCoMKgIDE6IElzc3VlIE1hc3RlciBTdG9wIENvbW1hbmQN
-Cj4+IMKgwqAgVGhpcyByZWdpc3RlciB3aWxsIGJlIGF1dG9tYXRpY2FsbHkgY2xlYXJlZCBieSBI
-L1cgd2hlbiBTdG9wIENvbW1hbmQgaGFzDQo+PiDCoMKgIGJlZW4gaXNzdWVzLg0KPiANCj4gSXQn
-cyByZW1vdmluZyBiZWZvcmUgSC9XIGZldGNoZXMgdGhlIHRoZSBjb21tYW5kIHNvIHRoZSBwZW5k
-aW5nIGNvbW1hbmQNCj4gaXNuJ3QgY2xlYXJlZCBieSBIL1cgYXQgdGhlIHRpbWluZy4gSWYgd2Ug
-c2VuZCBhIHN0b3AgY29tbWFuZCBhdCBoZXJlLCB0aGUgYnVzIHdpbGwgYmUgbWVzc2VkIHVwLg0K
-DQpJIHNlZS4gSSBkaWRuJ3Qga25vdyB3ZSBjb3VsZCBjbGVhciB0aGUgYml0cyBiZWZvcmUgaGFy
-ZHdhcmUgZmV0Y2hlcyB0aGVtLg0KDQoNCkNoZWVycywNCg0KVGFvDQpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcg
-bGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmlu
-ZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
+On 10/9/19 2:20 PM, Jae Hyun Yoo wrote:
+> In case of master pending state, it should not trigger a master
+> command, otherwise data could be corrupted because this H/W shares
+> the same data buffer for slave and master operations. It also means
+> that H/W command queue handling is unreliable because of the buffer
+> sharing issue. To fix this issue, it clears command queue if a
+> master command is queued in pending state to use S/W solution
+> instead of H/W command queue handling. Also, it refines restarting
+> mechanism of the pending master command.
+> 
+> Fixes: 2e57b7cebb98 ("i2c: aspeed: Add multi-master use case support")
+> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+
+Tested-by: Tao Ren <taoren@fb.com>
+
+Tested the patch on Facebook Minipack BMC (multi-master i2c-0 environment) and
+everything looks good to me.
+
+
+Cheers,
+
+Tao
