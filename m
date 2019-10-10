@@ -1,34 +1,44 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v6 2/2] dt-bindings: at24: add new compatible
-Date: Wed, 9 Oct 2019 18:24:06 -0500
-Message-ID: <20191009232406.GA23532@bogus>
-References: <20191002072047.20895-1-brgl@bgdev.pl>
- <20191002072047.20895-3-brgl@bgdev.pl>
+From: Brendan Higgins <brendanhiggins@google.com>
+Subject: Re: [PATCH] i2c: aspeed: fix master pending state handling
+Date: Wed, 9 Oct 2019 17:32:34 -0700
+Message-ID: <20191010003234.GA12710@google.com>
+References: <20191009212034.20325-1-jae.hyun.yoo@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <20191002072047.20895-3-brgl@bgdev.pl>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Mark Rutland <mark.rutland@arm.com>, Peter Rosin <peda@axentia.se>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Bartosz Golaszewski <bgolaszewski@baylibre.com>
+In-Reply-To: <20191009212034.20325-1-jae.hyun.yoo@linux.intel.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-aspeed@lists.ozlabs.org, Wolfram Sang <wsa@the-dreams.de>, Andrew Jeffery <andrew@aj.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Tao Ren <taoren@fb.com>, linux-arm-kernel@lists.infradead.org, Cedric Le Goater <clg@kaod.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed,  2 Oct 2019 09:20:47 +0200, Bartosz Golaszewski wrote:
-> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+On Wed, Oct 09, 2019 at 02:20:34PM -0700, Jae Hyun Yoo wrote:
+> In case of master pending state, it should not trigger a master
+> command, otherwise data could be corrupted because this H/W shares
+> the same data buffer for slave and master operations. It also means
+> that H/W command queue handling is unreliable because of the buffer
+> sharing issue. To fix this issue, it clears command queue if a
+> master command is queued in pending state to use S/W solution
+> instead of H/W command queue handling. Also, it refines restarting
+> mechanism of the pending master command.
 > 
-> arch/arm/boot/dts/at91-dvk_som60.dt.yaml uses the compatible string
-> 'giantec,gt24c32a' for an at24 EEPROM with a fallback to 'atmel,24c32'.
-> 
-> Add this model as a special case to the binding document.
-> 
-> Reported-by: Rob Herring <robh@kernel.org>
-> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> ---
->  Documentation/devicetree/bindings/eeprom/at24.yaml | 3 +++
->  1 file changed, 3 insertions(+)
-> 
+> Fixes: 2e57b7cebb98 ("i2c: aspeed: Add multi-master use case support")
+> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
 
-Applied, thanks.
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
 
-Rob
+We don't have any multi-master setups, can we get a Tested-by?
+
+Wolfram, since this is a bugfix, can we get this in 5.4?
+
+Thanks!
