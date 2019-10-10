@@ -1,15 +1,15 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+From: Tao Ren <taoren@fb.com>
 Subject: Re: [PATCH] i2c: aspeed: fix master pending state handling
-Date: Thu, 10 Oct 2019 11:22:36 -0700
-Message-ID: <8586205c-1edc-dfc2-3309-11050afbbaf8@linux.intel.com>
+Date: Thu, 10 Oct 2019 21:20:56 +0000
+Message-ID: <3ea1c0d5-47f1-bf8c-6b2d-2ea8d3f93471@fb.com>
 References: <20191009212034.20325-1-jae.hyun.yoo@linux.intel.com>
- <CACPK8XfKCSNsQJa2J2jKZJ7LGZh3zXAOfBYnp5X0w=TH4JfSpQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <CACPK8XfKCSNsQJa2J2jKZJ7LGZh3zXAOfBYnp5X0w=TH4JfSpQ@mail.gmail.com>
+In-Reply-To: <20191009212034.20325-1-jae.hyun.yoo@linux.intel.com>
 Content-Language: en-US
+Content-ID: <A053BE086CCCF6439AB4C13CF4C23ADE@namprd15.prod.outlook.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -19,24 +19,148 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Joel Stanley <joel@jms.id.au>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree <devicetree@vger.kernel.org>, linux-aspeed <linux-aspeed@lists.ozlabs.org>, Wolfram Sang <wsa@the-dreams.de>, Andrew Jeffery <andrew@aj.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, OpenBMC Maillist <openbmc@lists.ozlabs.org>, Brendan Higgins <brendanhiggins@google.com>, Rob Herring <robh+dt@kernel.org>, Cedric Le Goater <clg@kaod.org>, Tao Ren <taoren@fb.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
+To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin
+ Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, Cedric Le Goater <clg@kaod.org>
+Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> Acked-by: Joel Stanley <joel@jms.id.au>
+On 10/9/19 2:20 PM, Jae Hyun Yoo wrote:
+> In case of master pending state, it should not trigger a master
+> command, otherwise data could be corrupted because this H/W shares
+> the same data buffer for slave and master operations. It also means
+> that H/W command queue handling is unreliable because of the buffer
+> sharing issue. To fix this issue, it clears command queue if a
+> master command is queued in pending state to use S/W solution
+> instead of H/W command queue handling. Also, it refines restarting
+> mechanism of the pending master command.
+> 
+> Fixes: 2e57b7cebb98 ("i2c: aspeed: Add multi-master use case support")
+> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+> ---
+>  drivers/i2c/busses/i2c-aspeed.c | 54 +++++++++++++++++++++------------
+>  1 file changed, 34 insertions(+), 20 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+> index fa66951b05d0..7b098ff5f5dd 100644
+> --- a/drivers/i2c/busses/i2c-aspeed.c
+> +++ b/drivers/i2c/busses/i2c-aspeed.c
+> @@ -108,6 +108,12 @@
+>  #define ASPEED_I2CD_S_TX_CMD				BIT(2)
+>  #define ASPEED_I2CD_M_TX_CMD				BIT(1)
+>  #define ASPEED_I2CD_M_START_CMD				BIT(0)
+> +#define ASPEED_I2CD_MASTER_CMDS_MASK					       \
+> +		(ASPEED_I2CD_M_STOP_CMD |				       \
+> +		 ASPEED_I2CD_M_S_RX_CMD_LAST |				       \
+> +		 ASPEED_I2CD_M_RX_CMD |					       \
+> +		 ASPEED_I2CD_M_TX_CMD |					       \
+> +		 ASPEED_I2CD_M_START_CMD)
+>  
+>  /* 0x18 : I2CD Slave Device Address Register   */
+>  #define ASPEED_I2CD_DEV_ADDR_MASK			GENMASK(6, 0)
+> @@ -336,18 +342,19 @@ static void aspeed_i2c_do_start(struct aspeed_i2c_bus *bus)
+>  	struct i2c_msg *msg = &bus->msgs[bus->msgs_index];
+>  	u8 slave_addr = i2c_8bit_addr_from_msg(msg);
+>  
+> -	bus->master_state = ASPEED_I2C_MASTER_START;
+> -
+>  #if IS_ENABLED(CONFIG_I2C_SLAVE)
+>  	/*
+>  	 * If it's requested in the middle of a slave session, set the master
+>  	 * state to 'pending' then H/W will continue handling this master
+>  	 * command when the bus comes back to the idle state.
+>  	 */
+> -	if (bus->slave_state != ASPEED_I2C_SLAVE_INACTIVE)
+> +	if (bus->slave_state != ASPEED_I2C_SLAVE_INACTIVE) {
+>  		bus->master_state = ASPEED_I2C_MASTER_PENDING;
+> +		return;
+> +	}
+>  #endif /* CONFIG_I2C_SLAVE */
+>  
+> +	bus->master_state = ASPEED_I2C_MASTER_START;
+>  	bus->buf_index = 0;
+>  
+>  	if (msg->flags & I2C_M_RD) {
+> @@ -422,20 +429,6 @@ static u32 aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
+>  		}
+>  	}
+>  
+> -#if IS_ENABLED(CONFIG_I2C_SLAVE)
+> -	/*
+> -	 * A pending master command will be started by H/W when the bus comes
+> -	 * back to idle state after completing a slave operation so change the
+> -	 * master state from 'pending' to 'start' at here if slave is inactive.
+> -	 */
+> -	if (bus->master_state == ASPEED_I2C_MASTER_PENDING) {
+> -		if (bus->slave_state != ASPEED_I2C_SLAVE_INACTIVE)
+> -			goto out_no_complete;
+> -
+> -		bus->master_state = ASPEED_I2C_MASTER_START;
+> -	}
+> -#endif /* CONFIG_I2C_SLAVE */
+> -
+>  	/* Master is not currently active, irq was for someone else. */
+>  	if (bus->master_state == ASPEED_I2C_MASTER_INACTIVE ||
+>  	    bus->master_state == ASPEED_I2C_MASTER_PENDING)
+> @@ -462,11 +455,15 @@ static u32 aspeed_i2c_master_irq(struct aspeed_i2c_bus *bus, u32 irq_status)
+>  #if IS_ENABLED(CONFIG_I2C_SLAVE)
+>  		/*
+>  		 * If a peer master starts a xfer immediately after it queues a
+> -		 * master command, change its state to 'pending' then H/W will
+> -		 * continue the queued master xfer just after completing the
+> -		 * slave mode session.
+> +		 * master command, clear the queued master command and change
+> +		 * its state to 'pending'. To simplify handling of pending
+> +		 * cases, it uses S/W solution instead of H/W command queue
+> +		 * handling.
+>  		 */
+>  		if (unlikely(irq_status & ASPEED_I2CD_INTR_SLAVE_MATCH)) {
+> +			writel(readl(bus->base + ASPEED_I2C_CMD_REG) &
+> +				~ASPEED_I2CD_MASTER_CMDS_MASK,
+> +			       bus->base + ASPEED_I2C_CMD_REG);
 
-Thanks!
+Sorry for the late comments (just noticed this line while testing the patch):
 
-> While reviewing I was concerned about the locking in
-> aspeed_i2c_master_xfer. It's a bit hairy, and I am not convinced it is
-> without bugs.
+I assume this line is aimed at stopping the running master commands, but as per
+AST2500 datasheet, it's NOP to write 0 to MASTER_STOP/MASTER_RX/MASTER_TX bits.
+Maybe all we need is writing 1 to MASTER_STOP field?
 
-The locking was already in there in aspeed_i2c_master_xfer but it
-unlocks the protection to make a waiting for a completion. This code
-is after the waiting so I added the locking to protect
-'bus->master_state' variable which can be accessed from driver context
-and from interrupt context.
 
-Thanks,
+Cheers,
 
-Jae
+Tao 
+
+>  			bus->master_state = ASPEED_I2C_MASTER_PENDING;
+>  			dev_dbg(bus->dev,
+>  				"master goes pending due to a slave start\n");
+> @@ -629,6 +626,14 @@ static irqreturn_t aspeed_i2c_bus_irq(int irq, void *dev_id)
+>  			irq_handled |= aspeed_i2c_master_irq(bus,
+>  							     irq_remaining);
+>  	}
+> +
+> +	/*
+> +	 * Start a pending master command at here if a slave operation is
+> +	 * completed.
+> +	 */
+> +	if (bus->master_state == ASPEED_I2C_MASTER_PENDING &&
+> +	    bus->slave_state == ASPEED_I2C_SLAVE_INACTIVE)
+> +		aspeed_i2c_do_start(bus);
+>  #else
+>  	irq_handled = aspeed_i2c_master_irq(bus, irq_remaining);
+>  #endif /* CONFIG_I2C_SLAVE */
+> @@ -691,6 +696,15 @@ static int aspeed_i2c_master_xfer(struct i2c_adapter *adap,
+>  		     ASPEED_I2CD_BUS_BUSY_STS))
+>  			aspeed_i2c_recover_bus(bus);
+>  
+> +		/*
+> +		 * If timed out and the state is still pending, drop the pending
+> +		 * master command.
+> +		 */
+> +		spin_lock_irqsave(&bus->lock, flags);
+> +		if (bus->master_state == ASPEED_I2C_MASTER_PENDING)
+> +			bus->master_state = ASPEED_I2C_MASTER_INACTIVE;
+> +		spin_unlock_irqrestore(&bus->lock, flags);
+> +
+>  		return -ETIMEDOUT;
+>  	}
+>  
+> 
