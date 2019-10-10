@@ -1,15 +1,17 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+From: Tao Ren <taoren@fb.com>
 Subject: Re: [PATCH] i2c: aspeed: fix master pending state handling
-Date: Thu, 10 Oct 2019 15:04:00 -0700
-Message-ID: <637d4b8b-5113-b07b-f99f-ce66dbe6948c@linux.intel.com>
+Date: Thu, 10 Oct 2019 23:11:36 +0000
+Message-ID: <5ce20a28-21ed-ff0c-9e31-bcac3cd7a5fb@fb.com>
 References: <20191009212034.20325-1-jae.hyun.yoo@linux.intel.com>
  <3ea1c0d5-47f1-bf8c-6b2d-2ea8d3f93471@fb.com>
+ <637d4b8b-5113-b07b-f99f-ce66dbe6948c@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <3ea1c0d5-47f1-bf8c-6b2d-2ea8d3f93471@fb.com>
+In-Reply-To: <637d4b8b-5113-b07b-f99f-ce66dbe6948c@linux.intel.com>
 Content-Language: en-US
+Content-ID: <C338BE9931280B43BAD1D95B370EAE61@namprd15.prod.outlook.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -19,50 +21,59 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Tao Ren <taoren@fb.com>, Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, Cedric Le Goater <clg@kaod.org>
+To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin
+ Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, Cedric Le Goater <clg@kaod.org>
 Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/10/2019 2:20 PM, Tao Ren wrote:
-> On 10/9/19 2:20 PM, Jae Hyun Yoo wrote:
-[...]
->>   		/*
->>   		 * If a peer master starts a xfer immediately after it queues a
->> -		 * master command, change its state to 'pending' then H/W will
->> -		 * continue the queued master xfer just after completing the
->> -		 * slave mode session.
->> +		 * master command, clear the queued master command and change
->> +		 * its state to 'pending'. To simplify handling of pending
->> +		 * cases, it uses S/W solution instead of H/W command queue
->> +		 * handling.
->>   		 */
->>   		if (unlikely(irq_status & ASPEED_I2CD_INTR_SLAVE_MATCH)) {
->> +			writel(readl(bus->base + ASPEED_I2C_CMD_REG) &
->> +				~ASPEED_I2CD_MASTER_CMDS_MASK,
->> +			       bus->base + ASPEED_I2C_CMD_REG);
-> 
-> Sorry for the late comments (just noticed this line while testing the patch):
-> 
-> I assume this line is aimed at stopping the running master commands, but as per
-> AST2500 datasheet, it's NOP to write 0 to MASTER_STOP/MASTER_RX/MASTER_TX bits.
-> Maybe all we need is writing 1 to MASTER_STOP field?
-
-There could be two pending cases:
-1. Master goes to pending before it triggers a command if a slave
-    operation is already initiated.
-2. Master goes to pending after it triggered a command if a peer
-    master immediately sends something just after the master command
-    triggering.
-
-Above code is for the latter case. H/W handles the case priority based
-so the slave event will be handled first, and then the master command
-will be handled when the slave operation is completed. Problem is,
-this H/W shares the same buffer for master and slave operations so
-it's unreliable. Above code just removes the master command from the
-command register to prevent this H/W command handling of pending events.
-Instead, it restarts the master command using a call of 
-aspeed_i2c_do_start when the slave operation is completed.
-
-Thanks,
-
-Jae
+T24gMTAvMTAvMTkgMzowNCBQTSwgSmFlIEh5dW4gWW9vIHdyb3RlOg0KPiBPbiAxMC8xMC8yMDE5
+IDI6MjAgUE0sIFRhbyBSZW4gd3JvdGU6DQo+PiBPbiAxMC85LzE5IDI6MjAgUE0sIEphZSBIeXVu
+IFlvbyB3cm90ZToNCj4gWy4uLl0NCj4+PiDCoMKgwqDCoMKgwqDCoMKgwqAgLyoNCj4+PiDCoMKg
+wqDCoMKgwqDCoMKgwqDCoCAqIElmIGEgcGVlciBtYXN0ZXIgc3RhcnRzIGEgeGZlciBpbW1lZGlh
+dGVseSBhZnRlciBpdCBxdWV1ZXMgYQ0KPj4+IC3CoMKgwqDCoMKgwqDCoMKgICogbWFzdGVyIGNv
+bW1hbmQsIGNoYW5nZSBpdHMgc3RhdGUgdG8gJ3BlbmRpbmcnIHRoZW4gSC9XIHdpbGwNCj4+PiAt
+wqDCoMKgwqDCoMKgwqDCoCAqIGNvbnRpbnVlIHRoZSBxdWV1ZWQgbWFzdGVyIHhmZXIganVzdCBh
+ZnRlciBjb21wbGV0aW5nIHRoZQ0KPj4+IC3CoMKgwqDCoMKgwqDCoMKgICogc2xhdmUgbW9kZSBz
+ZXNzaW9uLg0KPj4+ICvCoMKgwqDCoMKgwqDCoMKgICogbWFzdGVyIGNvbW1hbmQsIGNsZWFyIHRo
+ZSBxdWV1ZWQgbWFzdGVyIGNvbW1hbmQgYW5kIGNoYW5nZQ0KPj4+ICvCoMKgwqDCoMKgwqDCoMKg
+ICogaXRzIHN0YXRlIHRvICdwZW5kaW5nJy4gVG8gc2ltcGxpZnkgaGFuZGxpbmcgb2YgcGVuZGlu
+Zw0KPj4+ICvCoMKgwqDCoMKgwqDCoMKgICogY2FzZXMsIGl0IHVzZXMgUy9XIHNvbHV0aW9uIGlu
+c3RlYWQgb2YgSC9XIGNvbW1hbmQgcXVldWUNCj4+PiArwqDCoMKgwqDCoMKgwqDCoCAqIGhhbmRs
+aW5nLg0KPj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgICovDQo+Pj4gwqDCoMKgwqDCoMKgwqDCoMKg
+IGlmICh1bmxpa2VseShpcnFfc3RhdHVzICYgQVNQRUVEX0kyQ0RfSU5UUl9TTEFWRV9NQVRDSCkp
+IHsNCj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB3cml0ZWwocmVhZGwoYnVzLT5iYXNlICsg
+QVNQRUVEX0kyQ19DTURfUkVHKSAmDQo+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oCB+QVNQRUVEX0kyQ0RfTUFTVEVSX0NNRFNfTUFTSywNCj4+PiArwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgIGJ1cy0+YmFzZSArIEFTUEVFRF9JMkNfQ01EX1JFRyk7DQo+Pg0K
+Pj4gU29ycnkgZm9yIHRoZSBsYXRlIGNvbW1lbnRzIChqdXN0IG5vdGljZWQgdGhpcyBsaW5lIHdo
+aWxlIHRlc3RpbmcgdGhlIHBhdGNoKToNCj4+DQo+PiBJIGFzc3VtZSB0aGlzIGxpbmUgaXMgYWlt
+ZWQgYXQgc3RvcHBpbmcgdGhlIHJ1bm5pbmcgbWFzdGVyIGNvbW1hbmRzLCBidXQgYXMgcGVyDQo+
+PiBBU1QyNTAwIGRhdGFzaGVldCwgaXQncyBOT1AgdG8gd3JpdGUgMCB0byBNQVNURVJfU1RPUC9N
+QVNURVJfUlgvTUFTVEVSX1RYIGJpdHMuDQo+PiBNYXliZSBhbGwgd2UgbmVlZCBpcyB3cml0aW5n
+IDEgdG8gTUFTVEVSX1NUT1AgZmllbGQ/DQo+IA0KPiBUaGVyZSBjb3VsZCBiZSB0d28gcGVuZGlu
+ZyBjYXNlczoNCj4gMS4gTWFzdGVyIGdvZXMgdG8gcGVuZGluZyBiZWZvcmUgaXQgdHJpZ2dlcnMg
+YSBjb21tYW5kIGlmIGEgc2xhdmUNCj4gwqDCoCBvcGVyYXRpb24gaXMgYWxyZWFkeSBpbml0aWF0
+ZWQuDQo+IDIuIE1hc3RlciBnb2VzIHRvIHBlbmRpbmcgYWZ0ZXIgaXQgdHJpZ2dlcmVkIGEgY29t
+bWFuZCBpZiBhIHBlZXINCj4gwqDCoCBtYXN0ZXIgaW1tZWRpYXRlbHkgc2VuZHMgc29tZXRoaW5n
+IGp1c3QgYWZ0ZXIgdGhlIG1hc3RlciBjb21tYW5kDQo+IMKgwqAgdHJpZ2dlcmluZy4NCj4gDQo+
+IEFib3ZlIGNvZGUgaXMgZm9yIHRoZSBsYXR0ZXIgY2FzZS4gSC9XIGhhbmRsZXMgdGhlIGNhc2Ug
+cHJpb3JpdHkgYmFzZWQNCj4gc28gdGhlIHNsYXZlIGV2ZW50IHdpbGwgYmUgaGFuZGxlZCBmaXJz
+dCwgYW5kIHRoZW4gdGhlIG1hc3RlciBjb21tYW5kDQo+IHdpbGwgYmUgaGFuZGxlZCB3aGVuIHRo
+ZSBzbGF2ZSBvcGVyYXRpb24gaXMgY29tcGxldGVkLiBQcm9ibGVtIGlzLA0KPiB0aGlzIEgvVyBz
+aGFyZXMgdGhlIHNhbWUgYnVmZmVyIGZvciBtYXN0ZXIgYW5kIHNsYXZlIG9wZXJhdGlvbnMgc28N
+Cj4gaXQncyB1bnJlbGlhYmxlLiBBYm92ZSBjb2RlIGp1c3QgcmVtb3ZlcyB0aGUgbWFzdGVyIGNv
+bW1hbmQgZnJvbSB0aGUNCj4gY29tbWFuZCByZWdpc3RlciB0byBwcmV2ZW50IHRoaXMgSC9XIGNv
+bW1hbmQgaGFuZGxpbmcgb2YgcGVuZGluZyBldmVudHMuDQo+IEluc3RlYWQsIGl0IHJlc3RhcnRz
+IHRoZSBtYXN0ZXIgY29tbWFuZCB1c2luZyBhIGNhbGwgb2YgYXNwZWVkX2kyY19kb19zdGFydCB3
+aGVuIHRoZSBzbGF2ZSBvcGVyYXRpb24gaXMgY29tcGxldGVkLg0KDQpUaGFua3MgZm9yIHRoZSBj
+bGFyaWZ5LCBKYWUuIEkgbWVhbiBjbGVhcmluZyB0aGVzZSBiaXRzIGhhcyBubyBlZmZlY3QgdG8N
+CmhhcmR3YXJlIGFjY29yZGluZyB0byBhc3BlZWQgZGF0YXNoZWV0OyBpbiBvdGhlciB3b3JkLCBt
+YXN0ZXIgY29tbWFuZCBjYW5ub3QNCmJlIHJlbW92ZWQgZnJvbSBjb21tYW5kIHJlZ2lzdGVyIGJ5
+IHRoaXMgc3RhdGVtZW50Lg0KDQpGb3IgZXhhbXBsZSwgYmVsb3cgaXMgdGhlIGRlc2NyaXB0aW9u
+IGZvciBNQVNURVJfU1RPUF9DTUQoSTJDRDE0LCBiaXQgNSk6DQoNCiAgMDogTk9QDQogIDE6IElz
+c3VlIE1hc3RlciBTdG9wIENvbW1hbmQNCiAgVGhpcyByZWdpc3RlciB3aWxsIGJlIGF1dG9tYXRp
+Y2FsbHkgY2xlYXJlZCBieSBIL1cgd2hlbiBTdG9wIENvbW1hbmQgaGFzDQogIGJlZW4gaXNzdWVz
+Lg0KDQoNCkNoZWVycywNCg0KVGFvDQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2Vy
+bmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1h
+bi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
