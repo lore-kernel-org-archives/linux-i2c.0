@@ -1,60 +1,190 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: Re: [PATCH RESEND] gpu: drm: bridge: analogix-anx78xx: convert to
- i2c_new_dummy_device
-Date: Thu, 10 Oct 2019 09:04:50 +0200
-Message-ID: <97111f38-0820-edf5-8316-58fef6b065cf@samsung.com>
-References: <CGME20191008203222epcas4p4a9ab2b8dd10759e61ce9b1ec4547d13f@epcas4p4.samsung.com>
-        <20191008203145.3159-1-wsa+renesas@sang-engineering.com>
+From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+Subject: Re: [PATCH v2 1/1] i2c: iproc: Add i2c repeated start capability
+Date: Thu, 10 Oct 2019 15:02:13 +0530
+Message-ID: <CAHO=5PFSTomeNm4vAKyPmRZXNPBKGT4ck3mB8uOY395uwuVdNg@mail.gmail.com>
+References: <1569825869-30640-1-git-send-email-rayagonda.kokatanur@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191008203145.3159-1-wsa+renesas@sang-engineering.com>
-Content-Language: en-US
+In-Reply-To: <1569825869-30640-1-git-send-email-rayagonda.kokatanur@broadcom.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, dri-devel@lists.freedesktop.org
-Cc: linux-i2c@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, Jonas Karlman <jonas@kwiboo.se>, Jernej Skrabec <jernej.skrabec@siol.net>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, linux-kernel@vger.kernel.org
+To: Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, BCM Kernel Feedback <bcm-kernel-feedback-list@broadcom.com>, Wolfram Sang <wsa@the-dreams.de>, Michael Cheng <ccheng@broadcom.com>, Shreesha Rajashekar <shreesha.rajashekar@broadcom.com>, Lori Hikichi <lori.hikichi@broadcom.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Icarus Chau <icarus.chau@broadcom.com>, Ray Jui <ray.jui@broadcom.com>, Shivaraj Shetty <sshetty1@broadcom.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 08.10.2019 22:31, Wolfram Sang wrote:
-> Move from the deprecated i2c_new_dummy() to i2c_new_dummy_device(). We
-> now get an ERRPTR which we use in error handling.
+Hi Wolfram,
+
+Did you get a chance to review this patch.
+
+Best regards,
+Rayagonda
+
+
+On Mon, Sep 30, 2019 at 12:19 PM Rayagonda Kokatanur
+<rayagonda.kokatanur@broadcom.com> wrote:
 >
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-
-Brian's patch is already applied.
-
-
-Regards
-
-Andrzej
-
-
+> From: Lori Hikichi <lori.hikichi@broadcom.com>
+>
+> Enable handling of i2c repeated start. The current code
+> handles a multi msg i2c transfer as separate i2c bus
+> transactions. This change will now handle this case
+> using the i2c repeated start protocol. The number of msgs
+> in a transfer is limited to two, and must be a write
+> followed by a read.
+>
+> Signed-off-by: Lori Hikichi <lori.hikichi@broadcom.com>
+> Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+> Signed-off-by: Icarus Chau <icarus.chau@broadcom.com>
+> Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+> Signed-off-by: Shivaraj Shetty <sshetty1@broadcom.com>
 > ---
+> changes from v1:
+>  - Address following review comments from Wolfarm Sang,
+>    Use i2c_8bit_addr_from_msg() api instead of decoding i2c_msg struct and
+>    remove check against number of i2c message as it will be taken care
+>    by core using quirks flags.
 >
-> Rebased to v5.4-rc2 since last time. One of the last two users of the
-> old API, so please apply soon, so I can remove the old interface. Only
-> build tested.
+>  drivers/i2c/busses/i2c-bcm-iproc.c | 63 ++++++++++++++++++++++++++++++--------
+>  1 file changed, 50 insertions(+), 13 deletions(-)
 >
->  drivers/gpu/drm/bridge/analogix-anx78xx.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+> diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
+> index d7fd76b..e478db7 100644
+> --- a/drivers/i2c/busses/i2c-bcm-iproc.c
+> +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+> @@ -81,6 +81,7 @@
+>  #define M_CMD_PROTOCOL_MASK          0xf
+>  #define M_CMD_PROTOCOL_BLK_WR        0x7
+>  #define M_CMD_PROTOCOL_BLK_RD        0x8
+> +#define M_CMD_PROTOCOL_PROCESS       0xa
+>  #define M_CMD_PEC_SHIFT              8
+>  #define M_CMD_RD_CNT_SHIFT           0
+>  #define M_CMD_RD_CNT_MASK            0xff
+> @@ -675,13 +676,20 @@ static int bcm_iproc_i2c_xfer_wait(struct bcm_iproc_i2c_dev *iproc_i2c,
+>         return 0;
+>  }
 >
-> diff --git a/drivers/gpu/drm/bridge/analogix-anx78xx.c b/drivers/gpu/drm/bridge/analogix-anx78xx.c
-> index 3c7cc5af735c..be7756280e41 100644
-> --- a/drivers/gpu/drm/bridge/analogix-anx78xx.c
-> +++ b/drivers/gpu/drm/bridge/analogix-anx78xx.c
-> @@ -1350,10 +1350,10 @@ static int anx78xx_i2c_probe(struct i2c_client *client,
->  
->  	/* Map slave addresses of ANX7814 */
->  	for (i = 0; i < I2C_NUM_ADDRESSES; i++) {
-> -		anx78xx->i2c_dummy[i] = i2c_new_dummy(client->adapter,
-> +		anx78xx->i2c_dummy[i] = i2c_new_dummy_device(client->adapter,
->  						anx78xx_i2c_addresses[i] >> 1);
-> -		if (!anx78xx->i2c_dummy[i]) {
-> -			err = -ENOMEM;
-> +		if (IS_ERR(anx78xx->i2c_dummy[i])) {
-> +			err = PTR_ERR(anx78xx->i2c_dummy[i]);
->  			DRM_ERROR("Failed to reserve I2C bus %02x\n",
->  				  anx78xx_i2c_addresses[i]);
->  			goto err_unregister_i2c;
+> -static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+> -                                        struct i2c_msg *msg)
+> +/*
+> + * If 'process_call' is true, then this is a multi-msg transfer that requires
+> + * a repeated start between the messages.
+> + * More specifically, it must be a write (reg) followed by a read (data).
+> + * The i2c quirks are set to enforce this rule.
+> + */
+> +static int bcm_iproc_i2c_xfer_internal(struct bcm_iproc_i2c_dev *iproc_i2c,
+> +                                       struct i2c_msg *msgs, bool process_call)
+>  {
+>         int i;
+>         u8 addr;
+>         u32 val, tmp, val_intr_en;
+>         unsigned int tx_bytes;
+> +       struct i2c_msg *msg = &msgs[0];
+>
+>         /* check if bus is busy */
+>         if (!!(iproc_i2c_rd_reg(iproc_i2c,
+> @@ -707,14 +715,29 @@ static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+>                         val = msg->buf[i];
+>
+>                         /* mark the last byte */
+> -                       if (i == msg->len - 1)
+> -                               val |= BIT(M_TX_WR_STATUS_SHIFT);
+> +                       if (!process_call && (i == msg->len - 1))
+> +                               val |= 1 << M_TX_WR_STATUS_SHIFT;
+>
+>                         iproc_i2c_wr_reg(iproc_i2c, M_TX_OFFSET, val);
+>                 }
+>                 iproc_i2c->tx_bytes = tx_bytes;
+>         }
+>
+> +       /* Process the read message if this is process call */
+> +       if (process_call) {
+> +               msg++;
+> +               iproc_i2c->msg = msg;  /* point to second msg */
+> +
+> +               /*
+> +                * The last byte to be sent out should be a slave
+> +                * address with read operation
+> +                */
+> +               addr = i2c_8bit_addr_from_msg(msg);
+> +               /* mark it the last byte out */
+> +               val = addr | (1 << M_TX_WR_STATUS_SHIFT);
+> +               iproc_i2c_wr_reg(iproc_i2c, M_TX_OFFSET, val);
+> +       }
+> +
+>         /* mark as incomplete before starting the transaction */
+>         if (iproc_i2c->irq)
+>                 reinit_completion(&iproc_i2c->done);
+> @@ -733,7 +756,7 @@ static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+>          * underrun interrupt, which will be triggerred when the TX FIFO is
+>          * empty. When that happens we can then pump more data into the FIFO
+>          */
+> -       if (!(msg->flags & I2C_M_RD) &&
+> +       if (!process_call && !(msg->flags & I2C_M_RD) &&
+>             msg->len > iproc_i2c->tx_bytes)
+>                 val_intr_en |= BIT(IE_M_TX_UNDERRUN_SHIFT);
+>
+> @@ -743,6 +766,8 @@ static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+>          */
+>         val = BIT(M_CMD_START_BUSY_SHIFT);
+>         if (msg->flags & I2C_M_RD) {
+> +               u32 protocol;
+> +
+>                 iproc_i2c->rx_bytes = 0;
+>                 if (msg->len > M_RX_FIFO_MAX_THLD_VALUE)
+>                         iproc_i2c->thld_bytes = M_RX_FIFO_THLD_VALUE;
+> @@ -758,7 +783,10 @@ static int bcm_iproc_i2c_xfer_single_msg(struct bcm_iproc_i2c_dev *iproc_i2c,
+>                 /* enable the RX threshold interrupt */
+>                 val_intr_en |= BIT(IE_M_RX_THLD_SHIFT);
+>
+> -               val |= (M_CMD_PROTOCOL_BLK_RD << M_CMD_PROTOCOL_SHIFT) |
+> +               protocol = process_call ?
+> +                               M_CMD_PROTOCOL_PROCESS : M_CMD_PROTOCOL_BLK_RD;
+> +
+> +               val |= (protocol << M_CMD_PROTOCOL_SHIFT) |
+>                        (msg->len << M_CMD_RD_CNT_SHIFT);
+>         } else {
+>                 val |= (M_CMD_PROTOCOL_BLK_WR << M_CMD_PROTOCOL_SHIFT);
+> @@ -774,17 +802,24 @@ static int bcm_iproc_i2c_xfer(struct i2c_adapter *adapter,
+>                               struct i2c_msg msgs[], int num)
+>  {
+>         struct bcm_iproc_i2c_dev *iproc_i2c = i2c_get_adapdata(adapter);
+> -       int ret, i;
+> +       bool process_call = false;
+> +       int ret;
+>
+> -       /* go through all messages */
+> -       for (i = 0; i < num; i++) {
+> -               ret = bcm_iproc_i2c_xfer_single_msg(iproc_i2c, &msgs[i]);
+> -               if (ret) {
+> -                       dev_dbg(iproc_i2c->device, "xfer failed\n");
+> -                       return ret;
+> +       if (num == 2) {
+> +               /* Repeated start, use process call */
+> +               process_call = true;
+> +               if (msgs[1].flags & I2C_M_NOSTART) {
+> +                       dev_err(iproc_i2c->device, "Invalid repeated start\n");
+> +                       return -EOPNOTSUPP;
+>                 }
+>         }
+>
+> +       ret = bcm_iproc_i2c_xfer_internal(iproc_i2c, msgs, process_call);
+> +       if (ret) {
+> +               dev_dbg(iproc_i2c->device, "xfer failed\n");
+> +               return ret;
+> +       }
+> +
+>         return num;
+>  }
+>
+> @@ -806,6 +841,8 @@ static uint32_t bcm_iproc_i2c_functionality(struct i2c_adapter *adap)
+>  };
+>
+>  static struct i2c_adapter_quirks bcm_iproc_i2c_quirks = {
+> +       .flags = I2C_AQ_COMB_WRITE_THEN_READ,
+> +       .max_comb_1st_msg_len = M_TX_RX_FIFO_SIZE,
+>         .max_read_len = M_RX_MAX_READ_LEN,
+>  };
+>
+> --
+> 1.9.1
+>
