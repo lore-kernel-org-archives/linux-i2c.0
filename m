@@ -1,55 +1,107 @@
-From: Ludovic Desroches <ludovic.desroches@microchip.com>
-Subject: Re: [PATCH 2/4] i2c: at91: implement i2c bus recovery
-Date: Thu, 10 Oct 2019 08:54:09 +0200
-Message-ID: <20191010065408.y7i7aywdztgixv47@M43218.corp.atmel.com>
-References: <20191002144658.7718-1-kamel.bouhara@bootlin.com>
- <20191002144658.7718-3-kamel.bouhara@bootlin.com>
- <20191009135500.ufkxcemccwfcfys7@M43218.corp.atmel.com>
- <20191009140145.GE4254@piout.net>
+From: Andrzej Hajda <a.hajda@samsung.com>
+Subject: Re: [PATCH RESEND] gpu: drm: bridge: sii9234: convert to
+ devm_i2c_new_dummy_device
+Date: Thu, 10 Oct 2019 09:01:32 +0200
+Message-ID: <4887a9f6-8f37-d56b-322b-c04a38b7361e@samsung.com>
+References: <CGME20191008203330epcas2p31dc15af8587d35eba5a03f71418587bd@epcas2p3.samsung.com>
+        <20191008203322.3238-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20191009140145.GE4254@piout.net>
+In-Reply-To: <20191008203322.3238-1-wsa+renesas@sang-engineering.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Kamel Bouhara <kamel.bouhara@bootlin.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicolas Ferre <nicolas.ferre@microchip.com>, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, dri-devel@lists.freedesktop.org
+Cc: linux-i2c@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>, Laurent Pinchart <Laurent.pinchart@ideasonboard.com>, Jonas Karlman <jonas@kwiboo.se>, Jernej Skrabec <jernej.skrabec@siol.net>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 09, 2019 at 04:01:47PM +0200, Alexandre Belloni wrote:
-> 
-> On 09/10/2019 15:55:00+0200, Ludovic Desroches wrote:
-> > On Wed, Oct 02, 2019 at 04:46:56PM +0200, Kamel Bouhara wrote:
-> > > External E-Mail
-> > > 
-> > > 
-> > > Implement i2c bus recovery when slaves devices might hold SDA low.
-> > > In this case re-assign SCL/SDA to gpios and issue 9 dummy clock pulses
-> > > until the slave release SDA.
-> > > 
-> > 
-> > Hi Kamel,
-> > 
-> > Thanks for adding this new feature. As I see patches only for sama5d3 and
-> > sama5d4, I assume it has not been tested with a sama5d2, isn't it?
-> > 
-> 
-> I there a point having it on sama5d2 as the controller already supports
-> this feature?
-> 
+On 08.10.2019 22:33, Wolfram Sang wrote:
+> Move from the deprecated i2c_new_dummy() to devm_i2c_new_dummy_device().
+> We now get an ERRPTR which we use in error handling and we can skip
+> removal of the created devices.
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
 
-Right, I was focused on pinctrl and forget we have this feature
-supported by the IP.
 
-> > I doubt it works with a sama5d2 because of the pinctrl. I also wonder if it can
-> > work if we add .strict = true to pinmux_ops which is something plan for the
-> > future...
-> > 
-> 
-> I don't see why it wouldn't work with strict as this is switching muxing
-> properly instead of using the pins for two functions at the same time.
-> 
+Applied, thx.
 
-Not sure devm_gpiod_get won't fail with strict.
 
-Ludovic
+Rergards
+
+Andrzej
+
+
+>
+> Rebased to v5.4-rc2 since last time. One of the last two users of the
+> old API, so please apply soon, so I can remove the old interface. Only
+> build tested.
+>
+>  drivers/gpu/drm/bridge/sii9234.c | 36 +++++++++++---------------------
+>  1 file changed, 12 insertions(+), 24 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/bridge/sii9234.c b/drivers/gpu/drm/bridge/sii9234.c
+> index 25d4ad8c7ad6..8a6c85693a88 100644
+> --- a/drivers/gpu/drm/bridge/sii9234.c
+> +++ b/drivers/gpu/drm/bridge/sii9234.c
+> @@ -841,39 +841,28 @@ static int sii9234_init_resources(struct sii9234 *ctx,
+>  
+>  	ctx->client[I2C_MHL] = client;
+>  
+> -	ctx->client[I2C_TPI] = i2c_new_dummy(adapter, I2C_TPI_ADDR);
+> -	if (!ctx->client[I2C_TPI]) {
+> +	ctx->client[I2C_TPI] = devm_i2c_new_dummy_device(&client->dev, adapter,
+> +							 I2C_TPI_ADDR);
+> +	if (IS_ERR(ctx->client[I2C_TPI])) {
+>  		dev_err(ctx->dev, "failed to create TPI client\n");
+> -		return -ENODEV;
+> +		return PTR_ERR(ctx->client[I2C_TPI]);
+>  	}
+>  
+> -	ctx->client[I2C_HDMI] = i2c_new_dummy(adapter, I2C_HDMI_ADDR);
+> -	if (!ctx->client[I2C_HDMI]) {
+> +	ctx->client[I2C_HDMI] = devm_i2c_new_dummy_device(&client->dev, adapter,
+> +							  I2C_HDMI_ADDR);
+> +	if (IS_ERR(ctx->client[I2C_HDMI])) {
+>  		dev_err(ctx->dev, "failed to create HDMI RX client\n");
+> -		goto fail_tpi;
+> +		return PTR_ERR(ctx->client[I2C_HDMI]);
+>  	}
+>  
+> -	ctx->client[I2C_CBUS] = i2c_new_dummy(adapter, I2C_CBUS_ADDR);
+> -	if (!ctx->client[I2C_CBUS]) {
+> +	ctx->client[I2C_CBUS] = devm_i2c_new_dummy_device(&client->dev, adapter,
+> +							  I2C_CBUS_ADDR);
+> +	if (IS_ERR(ctx->client[I2C_CBUS])) {
+>  		dev_err(ctx->dev, "failed to create CBUS client\n");
+> -		goto fail_hdmi;
+> +		return PTR_ERR(ctx->client[I2C_CBUS]);
+>  	}
+>  
+>  	return 0;
+> -
+> -fail_hdmi:
+> -	i2c_unregister_device(ctx->client[I2C_HDMI]);
+> -fail_tpi:
+> -	i2c_unregister_device(ctx->client[I2C_TPI]);
+> -
+> -	return -ENODEV;
+> -}
+> -
+> -static void sii9234_deinit_resources(struct sii9234 *ctx)
+> -{
+> -	i2c_unregister_device(ctx->client[I2C_CBUS]);
+> -	i2c_unregister_device(ctx->client[I2C_HDMI]);
+> -	i2c_unregister_device(ctx->client[I2C_TPI]);
+>  }
+>  
+>  static inline struct sii9234 *bridge_to_sii9234(struct drm_bridge *bridge)
+> @@ -950,7 +939,6 @@ static int sii9234_remove(struct i2c_client *client)
+>  
+>  	sii9234_cable_out(ctx);
+>  	drm_bridge_remove(&ctx->bridge);
+> -	sii9234_deinit_resources(ctx);
+>  
+>  	return 0;
+>  }
