@@ -1,80 +1,24 @@
-From: Biwen Li <biwen.li@nxp.com>
-Subject: RE: [EXT] Re: [v2,2/2] dt-bindings: i2c-mux-pca954x: Add optional
- property i2c-mux-never-disable
-Date: Mon, 14 Oct 2019 07:26:08 +0000
-Message-ID: <DB7PR04MB44909C61005D3A498E372C8F8F900@DB7PR04MB4490.eurprd04.prod.outlook.com>
-References: <20190930032503.44425-1-biwen.li@nxp.com>
- <20190930032503.44425-2-biwen.li@nxp.com> <20191011144445.GA2340@bogus>
- <DB7PR04MB44908DE0F57E985ED40C401A8F900@DB7PR04MB4490.eurprd04.prod.outlook.com>
- <DB7PR04MB4490094F26EA412D4D9F5CF98F900@DB7PR04MB4490.eurprd04.prod.outlook.com>
- <1f0c4d52-03d5-2947-f701-a0b5ab46c8e0@axentia.se>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: [PATCH 0/4] Instantiate SPD EEPROMs at boot on x86
+Date: Mon, 14 Oct 2019 11:36:36 +0200
+Message-ID: <20191014113636.57b5ce89@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1f0c4d52-03d5-2947-f701-a0b5ab46c8e0@axentia.se>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Rob Herring <robh@kernel.org>
-Cc: Leo Li <leoyang.li@nxp.com>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: Linux I2C <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-PiANCj4gT24gMjAxOS0xMC0xNCAwNjoxNiwgQml3ZW4gTGkgd3JvdGU6DQo+ID4+DQo+ID4+Pg0K
-PiA+Pj4gT24gTW9uLCBTZXAgMzAsIDIwMTkgYXQgMTE6MjU6MDNBTSArMDgwMCwgQml3ZW4gTGkg
-d3JvdGU6DQo+ID4+Pj4gVGhlIHBhdGNoIGFkZHMgYW4gb3B0aW9uYWwgcHJvcGVydHkgaTJjLW11
-eC1uZXZlci1kaXNhYmxlDQo+ID4+Pj4NCj4gPj4+PiBTaWduZWQtb2ZmLWJ5OiBCaXdlbiBMaSA8
-Yml3ZW4ubGlAbnhwLmNvbT4NCj4gPj4+PiAtLS0NCj4gPj4+PiBDaGFuZ2UgaW4gdjI6DQo+ID4+
-Pj4gICAgICAgLSB1cGRhdGUgZG9jdW1lbnRhdGlvbg0KPiA+Pj4+DQo+ID4+Pj4gIERvY3VtZW50
-YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLW11eC1wY2E5NTR4LnR4dCB8IDEgKw0K
-PiA+Pj4+ICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKykNCj4gPj4+Pg0KPiA+Pj4+IGRp
-ZmYgLS1naXQNCj4gPj4+PiBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMv
-aTJjLW11eC1wY2E5NTR4LnR4dA0KPiA+Pj4+IGIvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2Jp
-bmRpbmdzL2kyYy9pMmMtbXV4LXBjYTk1NHgudHh0DQo+ID4+Pj4gaW5kZXggMzBhYzZhNjBmMDQx
-Li43MWI3M2QwZmRiNjIgMTAwNjQ0DQo+ID4+Pj4gLS0tIGEvRG9jdW1lbnRhdGlvbi9kZXZpY2V0
-cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXV4LXBjYTk1NHgudHh0DQo+ID4+Pj4gKysrIGIvRG9jdW1l
-bnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXV4LXBjYTk1NHgudHh0DQo+ID4+
-Pj4gQEAgLTM0LDYgKzM0LDcgQEAgT3B0aW9uYWwgUHJvcGVydGllczoNCj4gPj4+PiAgICAgIC0g
-Zmlyc3QgY2VsbCBpcyB0aGUgcGluIG51bWJlcg0KPiA+Pj4+ICAgICAgLSBzZWNvbmQgY2VsbCBp
-cyB1c2VkIHRvIHNwZWNpZnkgZmxhZ3MuDQo+ID4+Pj4gICAgICBTZWUgYWxzbw0KPiA+Pj4+IERv
-Y3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pbnRlcnJ1cHQtY29udHJvbGxlci9pbnRl
-cnJ1cHRzLnQNCj4gPj4+PiB4DQo+ID4+Pj4gdA0KPiA+Pj4+ICsgIC0gaTJjLW11eC1uZXZlci1k
-aXNhYmxlOiBhbHdheXMgZm9yY2VzIG11eCB0byBiZSBlbmFibGVkLg0KPiA+Pj4NCj4gPj4+IEVp
-dGhlciBuZWVkcyB0byBoYXZlIGEgdmVuZG9yIHByZWZpeCBvciBiZSBkb2N1bWVudGVkIGFzIGEg
-Y29tbW9uDQo+ID4+PiBwcm9wZXJ0eS4NCj4gPiBJIGNob29zZSB0byBiZSBkb2N1bWVudGVkIGFz
-IGEgY29tbW9uIHByb3BlcnR5Lg0KPiANCj4gQ2FuIHdlIHBsZWFzZSBqdXN0IGRyb3AgdGhlIG5l
-dmVyLWRpc2FibGUgYXBwcm9hY2ggYW5kIGZvY3VzIG9uIGlkbGUtc3RhdGUNCj4gaW5zdGVhZD8N
-Ckkgd2lsbCBmb2N1cyBvbiBpZGxlLXN0YXRlIHByb3BlcnR5LCB0aGFua3MuDQo+IA0KPiA+Pj4N
-Cj4gPj4+IElJUkMsIHdlIGFscmVhZHkgaGF2ZSBhIHByb3BlcnR5IGZvciBtdXggZGVmYXVsdCBz
-dGF0ZSB3aGljaCBzZWVtcw0KPiA+Pj4gbGlrZSB0aGF0IHdvdWxkIGNvdmVyIHRoaXMgdW5sZXNz
-IHlvdSBuZWVkIHRvIGxlYXZlIGl0IGluIGRpZmZlcmVudCBzdGF0ZXMuDQo+ID4+IE9rYXksIHlv
-dSBhcmUgcmlnaHQsIHRoYW5rIHlvdSBzbyBtdWNoLiBJIHdpbGwgdHJ5IGl0IGluIHYzLg0KPiA+
-IERvIHlvdSBtZWFuIHRoYXQgdGhlIHByb3BlcnR5IGlzIGkyYy1tdXgtaWRsZS1kaXNjb25uZWN0
-IGluDQo+IERvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLW11eC1wY2E5
-NTR4LnR4dD8NCj4gPiBJZiBzbywgdGhlIHByb3BlcnR5IGkyYy1tdXgtaWRsZS1kaXNjb25uZWN0
-IGlzIG5vdCBnb29kIGZvciBtZS4NCj4gPiBCZWNhdXNlIGNvbmRpdGlvbiBvZiB0aGUgcHJvcGVy
-dHkgaTJjLW11eC1pZGxlLWRpc2Nvbm5lY3QgaXMgaW4gaWRsZQ0KPiBzdGF0ZShzb21ldGltZXMp
-Lg0KPiA+IEJ1dCBJIG5lZWQgYWx3YXlzIGVuYWJsZSBpMmMgbXVsdGlwbGV4ZXIgaW4gd2hhdGV2
-ZXIgc3RhdGUoYW55dGltZSksIHNvIEkNCj4gYWRkIGEgY29tbW9uIHByb3BlcnR5IGkyYy1tdXgt
-bmV2ZXItZGlzYWJsZS4NCj4gDQo+IE5vLCBJIGRvIG5vdCB0aGluayBhbnkgbmV3IHByb3BlcnR5
-IGlzIG5lZWRlZC4gQUZBSUNULCBpZGxlLXN0YXRlIGZpdHMNCj4gcGVyZmVjdGx5LCBhbmQgSSB3
-aWxsIG5vdCBjb25zaWRlciB0aGlzIGkyYy1tdXgtbmV2ZXItZGlzYWJsZSBhcHByb2FjaCB1bnRp
-bA0KPiBzb21lIGNvbXBlbGxpbmcgcmVhc29uIGlzIHByZXNlbnRlZCB3aHkgaWRsZS1zdGF0ZSBp
-cyBub3QgYXBwcm9wcmlhdGUuIFlvdQ0KPiBwcm9taXNlZCB0byB0YWtlIGEgc3RhYiBhdCBpdCwg
-YW5kIHVudGlsIEkgaGVhciBiYWNrIG9uIHRoYXQsIHRoaXMgc2VyaWVzIGlzIG9uDQo+IGhvbGQu
-IEFzIGluZGljYXRlZCBoZXJlIFsxXS4NCj4gDQo+IFlvdSBuZWVkIHRvIHBhdGNoIHRoZSBkcml2
-ZXIgdG8gbG9vayBhdCB0aGUgaWRsZS1zdGF0ZSBwcm9wZXJ0eSBpbnN0ZWFkIG9mDQo+IGludmVu
-dGluZyBhIG5ldyAoYW5kIGxlc3MgZmxleGlibGUpIHByb3BlcnR5LiBJZiB5b3UgaW1wbGVtZW50
-IGlkbGUtc3RhdGUgZm9yDQo+IHRoaXMgZHJpdmVyIGFuZCBzZXQgdGhlIGlkbGUtc3RhdGUgdG8g
-c29tZSBjaGFubmVsIGluIHRoZSBkdHMsIHRoZSBtdXggd2lsbA0KPiBuZXZlciBkaXNjb25uZWN0
-LiBQcm9ibGVtIHNvbHZlZC4NCj4gUGVyaGFwcyBub3QgeW91ciBmaXJzdCBzb2x1dGlvbiwgYnV0
-IGl0IGRvZXMgc29sdmUgeW91ciBwcm9ibGVtIGFuZCBtYXkNCj4gYWN0dWFsbHkgYmUgdXNlZnVs
-IGZvciBvdGhlciBwdXJwb3NlcyB0aGFuIHlvdXIgYnJva2VuIGhhcmR3YXJlLg0KPiBBbmQgaXQg
-aXMgY29uc2lzdGVudCBhY3Jvc3Mgb3RoZXIgaTJjLW11eGVzLiBJIHNlZSBubyBkb3duc2lkZS4N
-CkdvdCBpdCwgdGhhbmtzLCBJIHdpbGwgdHJ5IGl0Lg0KPiANCj4gQ2hlZXJzLA0KPiBQZXRlcg0K
-PiANCj4gWzFdDQo+IGh0dHBzOi8vZXVyMDEuc2FmZWxpbmtzLnByb3RlY3Rpb24ub3V0bG9vay5j
-b20vP3VybD1odHRwcyUzQSUyRiUyRmxvcmUuaw0KPiBlcm5lbC5vcmclMkZsa21sJTJGMDdkODU3
-NDgtMDcyMS0zOWQ0LWQyYmUtMTNlYjE2YjBmMWRlJTQwYXhlbnRpDQo+IGEuc2UlMkYmYW1wO2Rh
-dGE9MDIlN0MwMSU3Q2Jpd2VuLmxpJTQwbnhwLmNvbSU3QzRmZGVhMDJiNDhiOTQNCj4gZWQxMDMx
-ZjA4ZDc1MDc1MDlhYyU3QzY4NmVhMWQzYmMyYjRjNmZhOTJjZDk5YzVjMzAxNjM1JTdDMCUNCj4g
-N0MwJTdDNjM3MDY2MzM1OTE0MDM4MjUzJmFtcDtzZGF0YT1hWmZ4RGhMUFglMkZTTUZHdVc4cnlN
-DQo+ICUyQmN4UWV0RlVEcGR4eExhJTJCdVVRczdJNCUzRCZhbXA7cmVzZXJ2ZWQ9MA0K
+This is my work to let decode-dimms work out of the box on most x86
+desktop and laptop systems.
+
+[PATCH 1/4] firmware: dmi: Remember the memory type
+[PATCH 2/4] firmware: dmi: Add dmi_memdev_handle
+[PATCH 3/4] i2c: smbus: Add a way to instantiate SPD EEPROMs automatically
+[PATCH 4/4] i2c: i801: Instantiate SPD EEPROMs automatically
+
+-- 
+Jean Delvare
+SUSE L3 Support
