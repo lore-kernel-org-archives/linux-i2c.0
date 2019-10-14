@@ -1,56 +1,72 @@
-From: Biwen Li <biwen.li@nxp.com>
-Subject: RE: [PATCH 1/2] dt-bindings: i2c: replace property
- i2c-mux-idle-disconnect
-Date: Mon, 14 Oct 2019 11:41:48 +0000
-Message-ID: <DB7PR04MB44906CD36066595307E7848C8F900@DB7PR04MB4490.eurprd04.prod.outlook.com>
-References: <20191014112558.3881-1-biwen.li@nxp.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 3/4] i2c: smbus: Add a way to instantiate SPD EEPROMs
+ automatically
+Date: Mon, 14 Oct 2019 16:55:52 +0200
+Message-ID: <20191014165552.1e8ddedc@endymion>
+References: <20191014113950.1f989ba6@endymion>
+        <201910141823.bXxWHSkl%lkp@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191014112558.3881-1-biwen.li@nxp.com>
-Content-Language: en-US
+In-Reply-To: <201910141823.bXxWHSkl%lkp@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Biwen Li <biwen.li@nxp.com>, "peda@axentia.se" <peda@axentia.se>, Leo Li <leoyang.li@nxp.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: kbuild test robot <lkp@intel.com>
+Cc: kbuild-all@lists.01.org, Linux I2C <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Peter, Rob
+On Mon, 14 Oct 2019 18:21:50 +0800, kbuild test robot wrote:
+> Hi Jean,
+> 
+> I love your patch! Perhaps something to improve:
+> 
+> [auto build test WARNING on linus/master]
+> [cannot apply to v5.4-rc3 next-20191011]
+> [if your patch is applied to the wrong git tree, please drop us a note to help
+> improve the system. BTW, we also suggest to use '--base' option to specify the
+> base tree in git format-patch, please see https://stackoverflow.com/a/37406982]
+> 
+> url:    https://github.com/0day-ci/linux/commits/Jean-Delvare/Instantiate-SPD-EEPROMs-at-boot-on-x86/20191014-174252
+> config: sparc64-allmodconfig (attached as .config)
+> compiler: sparc64-linux-gcc (GCC) 7.4.0
+> reproduce:
+>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # save the attached .config to linux build tree
+>         GCC_VERSION=7.4.0 make.cross ARCH=sparc64 
+> 
+> If you fix the issue, kindly add following tag
+> Reported-by: kbuild test robot <lkp@intel.com>
+> 
+> All warnings (new ones prefixed by >>):
+> 
+>    In file included from drivers/i2c/i2c-core-base.c:24:0:
+>    include/linux/i2c-smbus.h: In function 'i2c_register_spd':
+> >> include/linux/i2c-smbus.h:52:9: warning: 'return' with a value, in function returning void  
+>      return 0;
+>             ^
+>    include/linux/i2c-smbus.h:50:13: note: declared here
+>     static void i2c_register_spd(struct i2c_adapter *adap)
+>                 ^~~~~~~~~~~~~~~~
+>    In file included from drivers/i2c/i2c-core-base.c:24:0:
+>    At top level:
+>    include/linux/i2c-smbus.h:50:13: warning: 'i2c_register_spd' defined but not used [-Wunused-function]
+> 
+> vim +/return +52 include/linux/i2c-smbus.h
+> 
+>     46	
+>     47	#if IS_ENABLED(CONFIG_I2C_SMBUS) && IS_ENABLED(CONFIG_DMI)
+>     48	void i2c_register_spd(struct i2c_adapter *adap);
+>     49	#else
+>     50	static void i2c_register_spd(struct i2c_adapter *adap)
+>     51	{
+>   > 52		return 0;  
+>     53	}
+>     54	#endif
+>     55	
 
-This patch is a new method for https://lore.kernel.org/patchwork/patch/1132=
-445/
+Fixed, thanks Elliot.
 
-Best Regards,
-Biwen Li
->=20
-> This replaces property i2c-mux-idle-disconnect with idle-state
->=20
-> Signed-off-by: Biwen Li <biwen.li@nxp.com>
-> ---
->  Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
->=20
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-> b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-> index 30ac6a60f041..f2db517b1635 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-> @@ -25,9 +25,7 @@ Required Properties:
->  Optional Properties:
->=20
->    - reset-gpios: Reference to the GPIO connected to the reset input.
-> -  - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconne=
-ct
-> all
-> -    children in idle state. This is necessary for example, if there are =
-several
-> -    multiplexers on the bus and the devices behind them use same I2C
-> addresses.
-> +  - idle-state: Please refer to
-> Documentation/devicetree/bindings/mux/mux-controller.txt
->    - interrupts: Interrupt mapping for IRQ.
->    - interrupt-controller: Marks the device node as an interrupt controll=
-er.
->    - #interrupt-cells : Should be two.
-> --
-> 2.17.1
+-- 
+Jean Delvare
+SUSE L3 Support
