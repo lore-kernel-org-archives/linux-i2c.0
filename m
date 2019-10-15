@@ -1,46 +1,35 @@
 From: Biwen Li <biwen.li@nxp.com>
-Subject: RE: [EXT] Re: [PATCH 1/2] dt-bindings: i2c: replace property
- i2c-mux-idle-disconnect
-Date: Tue, 15 Oct 2019 03:18:19 +0000
-Message-ID: <DB7PR04MB4490B0E379E3048F043203088F930@DB7PR04MB4490.eurprd04.prod.outlook.com>
-References: <20191014112558.3881-1-biwen.li@nxp.com>
- <4124752f-19a2-e3c1-7887-07ba66a79c29@axentia.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Subject: [v2,1/2] dt-bindings: i2c: add property idle-state
+Date: Tue, 15 Oct 2019 12:48:38 +0800
+Message-ID: <20191015044839.23746-1-biwen.li@nxp.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4124752f-19a2-e3c1-7887-07ba66a79c29@axentia.se>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Leo Li <leoyang.li@nxp.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: peda@axentia.se, leoyang.li@nxp.com, robh+dt@kernel.org, mark.rutland@arm.com
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Biwen Li <biwen.li@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-PiBDYXV0aW9uOiBFWFQgRW1haWwNCj4gDQo+IE9uIDIwMTktMTAtMTQgMTM6MjUsIEJpd2VuIExp
-IHdyb3RlOg0KPiA+IFRoaXMgcmVwbGFjZXMgcHJvcGVydHkgaTJjLW11eC1pZGxlLWRpc2Nvbm5l
-Y3Qgd2l0aCBpZGxlLXN0YXRlDQo+ID4NCj4gPiBTaWduZWQtb2ZmLWJ5OiBCaXdlbiBMaSA8Yml3
-ZW4ubGlAbnhwLmNvbT4NCj4gPiAtLS0NCj4gPiAgRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2Jp
-bmRpbmdzL2kyYy9pMmMtbXV4LXBjYTk1NHgudHh0IHwgNCArLS0tDQo+ID4gIDEgZmlsZSBjaGFu
-Z2VkLCAxIGluc2VydGlvbigrKSwgMyBkZWxldGlvbnMoLSkNCj4gPg0KPiA+IGRpZmYgLS1naXQg
-YS9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgtcGNhOTU0eC50
-eHQNCj4gPiBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLW11eC1w
-Y2E5NTR4LnR4dA0KPiA+IGluZGV4IDMwYWM2YTYwZjA0MS4uZjJkYjUxN2IxNjM1IDEwMDY0NA0K
-PiA+IC0tLSBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLW11eC1w
-Y2E5NTR4LnR4dA0KPiA+ICsrKyBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9p
-MmMvaTJjLW11eC1wY2E5NTR4LnR4dA0KPiA+IEBAIC0yNSw5ICsyNSw3IEBAIFJlcXVpcmVkIFBy
-b3BlcnRpZXM6DQo+ID4gIE9wdGlvbmFsIFByb3BlcnRpZXM6DQo+ID4NCj4gPiAgICAtIHJlc2V0
-LWdwaW9zOiBSZWZlcmVuY2UgdG8gdGhlIEdQSU8gY29ubmVjdGVkIHRvIHRoZSByZXNldCBpbnB1
-dC4NCj4gPiAtICAtIGkyYy1tdXgtaWRsZS1kaXNjb25uZWN0OiBCb29sZWFuOyBpZiBkZWZpbmVk
-LCBmb3JjZXMgbXV4IHRvIGRpc2Nvbm5lY3QNCj4gYWxsDQo+ID4gLSAgICBjaGlsZHJlbiBpbiBp
-ZGxlIHN0YXRlLiBUaGlzIGlzIG5lY2Vzc2FyeSBmb3IgZXhhbXBsZSwgaWYgdGhlcmUgYXJlIHNl
-dmVyYWwNCj4gPiAtICAgIG11bHRpcGxleGVycyBvbiB0aGUgYnVzIGFuZCB0aGUgZGV2aWNlcyBi
-ZWhpbmQgdGhlbSB1c2Ugc2FtZSBJMkMNCj4gYWRkcmVzc2VzLg0KPiA+ICsgIC0gaWRsZS1zdGF0
-ZTogUGxlYXNlIHJlZmVyIHRvDQo+ID4gKyBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGlu
-Z3MvbXV4L211eC1jb250cm9sbGVyLnR4dA0KPiA+ICAgIC0gaW50ZXJydXB0czogSW50ZXJydXB0
-IG1hcHBpbmcgZm9yIElSUS4NCj4gPiAgICAtIGludGVycnVwdC1jb250cm9sbGVyOiBNYXJrcyB0
-aGUgZGV2aWNlIG5vZGUgYXMgYW4gaW50ZXJydXB0IGNvbnRyb2xsZXIuDQo+ID4gICAgLSAjaW50
-ZXJydXB0LWNlbGxzIDogU2hvdWxkIGJlIHR3by4NCj4gPg0KPiANCj4gWW91IGNhbid0IGp1c3Qg
-cmVtb3ZlIGkyYy1tdXgtaWRsZS1kaXNjb25uZWN0LiBJdCBuZWVkcyB0byByZW1haW4sIGFuZCB0
-aGUNCj4gZHJpdmVyIG5lZWRzIHRvIG1haW50YWluIHN1cHBvcnQgZm9yIHRoaXMgaW4gY2FzZSBh
-IG5ldyBrZXJuZWwgaXMgcnVubmluZw0KPiB3aXRoIGFuIG9sZCBkZXZpY2V0cmVlLg0KWW91IGFy
-ZSByaWdodCwgSSB3aWxsIGFkZCBpdCBpbiB2Mi4NCj4gDQo+IENoZWVycywNCj4gUGV0ZXINCg==
+This adds property idle-state
+
+Signed-off-by: Biwen Li <biwen.li@nxp.com>
+---
+Change in v2:
+	- update subject and description
+	- add property idle-state
+
+ Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+index 30ac6a60f041..2c7875d338fb 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+@@ -34,6 +34,7 @@ Optional Properties:
+     - first cell is the pin number
+     - second cell is used to specify flags.
+     See also Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
++  - idle-state: Please refer to Documentation/devicetree/bindings/mux/mux-controller.txt
+ 
+ Example:
+ 
+-- 
+2.17.1
