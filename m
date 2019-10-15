@@ -1,122 +1,54 @@
-From: Biwen Li <biwen.li@nxp.com>
-Subject: [v2,2/2] i2c: mux: pca954x: add property idle-state
-Date: Tue, 15 Oct 2019 12:48:39 +0800
-Message-ID: <20191015044839.23746-2-biwen.li@nxp.com>
-References: <20191015044839.23746-1-biwen.li@nxp.com>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
+Subject: Re: [PATCH] i2c: i2c-stm32f7: fix first byte to send in slave mode
+Date: Tue, 15 Oct 2019 14:19:48 +0200
+Message-ID: <fec77eaa-0d6c-73c1-2e06-9d55dfa0f426@st.com>
+References: <1569857281-19419-1-git-send-email-fabrice.gasnier@st.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191015044839.23746-1-biwen.li@nxp.com>
+In-Reply-To: <1569857281-19419-1-git-send-email-fabrice.gasnier@st.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: peda@axentia.se, leoyang.li@nxp.com, robh+dt@kernel.org, mark.rutland@arm.com
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Biwen Li <biwen.li@nxp.com>
+To: wsa@the-dreams.de, pierre-yves.mordret@st.com
+Cc: alain.volmat@st.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This adds property idle-state
+On 9/30/19 5:28 PM, Fabrice Gasnier wrote:
+> The slave-interface documentation [1] states "the bus driver should
+> transmit the first byte" upon I2C_SLAVE_READ_REQUESTED slave event:
+> - 'val': backend returns first byte to be sent
+> The driver currently ignores the 1st byte to send on this event.
+> 
+> Fixes: 60d609f30de2 ("i2c: i2c-stm32f7: Add slave support")
+> 
+> [1] https://www.kernel.org/doc/Documentation/i2c/slave-interface
+> 
+> Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+> ---
 
-Signed-off-by: Biwen Li <biwen.li@nxp.com>
----
-Change in v2:
-	- update subject and description
-	- add property idle-state
+Hi Wolfram, all,
 
- drivers/i2c/muxes/i2c-mux-pca954x.c | 47 ++++++++++++++++++-----------
- 1 file changed, 30 insertions(+), 17 deletions(-)
+Gentle reminder on this patch.
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 923aa3a5a3dc..8ec586342b92 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -86,7 +86,7 @@ struct pca954x {
- 
- 	u8 last_chan;		/* last register value */
- 	/* MUX_IDLE_AS_IS, MUX_IDLE_DISCONNECT or >= 0 for channel */
--	s8 idle_state;
-+	s32 idle_state;
- 
- 	struct i2c_client *client;
- 
-@@ -256,7 +256,7 @@ static int pca954x_deselect_mux(struct i2c_mux_core *muxc, u32 chan)
- {
- 	struct pca954x *data = i2c_mux_priv(muxc);
- 	struct i2c_client *client = data->client;
--	s8 idle_state;
-+	s32 idle_state;
- 
- 	idle_state = READ_ONCE(data->idle_state);
- 	if (idle_state >= 0)
-@@ -402,6 +402,25 @@ static void pca954x_cleanup(struct i2c_mux_core *muxc)
- 	i2c_mux_del_adapters(muxc);
- }
- 
-+static int pca954x_init(struct i2c_client *client, struct pca954x *data)
-+{
-+	/*
-+	 * Write the mux register at addr to verify
-+	 * that the mux is in fact present. This also
-+	 * initializes the mux to disconnected state.
-+	 */
-+	if (data->idle_state >= 0) {
-+		/* Always enable multiplexer */
-+		if (data->chip->muxtype == pca954x_ismux)
-+			data->last_chan = data->idle_state | data->chip->enable;
-+		else
-+			data->last_chan = 1 << data->idle_state;
-+	} else {
-+		/* Disconnect multiplexer */
-+		data->last_chan = 0; /* force the first selection */
-+	}
-+	return i2c_smbus_write_byte(client, data->last_chan);
-+}
- /*
-  * I2C init/probing/exit functions
-  */
-@@ -411,7 +430,6 @@ static int pca954x_probe(struct i2c_client *client,
- 	struct i2c_adapter *adap = client->adapter;
- 	struct device *dev = &client->dev;
- 	struct device_node *np = dev->of_node;
--	bool idle_disconnect_dt;
- 	struct gpio_desc *gpio;
- 	struct i2c_mux_core *muxc;
- 	struct pca954x *data;
-@@ -462,22 +480,18 @@ static int pca954x_probe(struct i2c_client *client,
- 		}
- 	}
- 
--	/* Write the mux register at addr to verify
--	 * that the mux is in fact present. This also
--	 * initializes the mux to disconnected state.
--	 */
--	if (i2c_smbus_write_byte(client, 0) < 0) {
-+	if (of_property_read_u32(np, "idle-state", &data->idle_state))
-+		data->idle_state = MUX_IDLE_AS_IS;
-+
-+	if (of_property_read_bool(np, "i2c-mux-idle-disconnect"))
-+		data->idle_state = MUX_IDLE_DISCONNECT;
-+
-+	ret = pca954x_init(client, data);
-+	if (ret < 0) {
- 		dev_warn(dev, "probe failed\n");
- 		return -ENODEV;
- 	}
- 
--	data->last_chan = 0;		   /* force the first selection */
--	data->idle_state = MUX_IDLE_AS_IS;
--
--	idle_disconnect_dt = np &&
--		of_property_read_bool(np, "i2c-mux-idle-disconnect");
--	if (idle_disconnect_dt)
--		data->idle_state = MUX_IDLE_DISCONNECT;
- 
- 	ret = pca954x_irq_setup(muxc);
- 	if (ret)
-@@ -531,8 +545,7 @@ static int pca954x_resume(struct device *dev)
- 	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
- 	struct pca954x *data = i2c_mux_priv(muxc);
- 
--	data->last_chan = 0;
--	return i2c_smbus_write_byte(client, 0);
-+	return pca954x_init(client, data);
- }
- #endif
- 
--- 
-2.17.1
+Thanks in advance !
+Best Regards,
+Fabrice
+
+>  drivers/i2c/busses/i2c-stm32f7.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+> index 266d1c2..0af9219 100644
+> --- a/drivers/i2c/busses/i2c-stm32f7.c
+> +++ b/drivers/i2c/busses/i2c-stm32f7.c
+> @@ -1192,6 +1192,8 @@ static void stm32f7_i2c_slave_start(struct stm32f7_i2c_dev *i2c_dev)
+>  			STM32F7_I2C_CR1_TXIE;
+>  		stm32f7_i2c_set_bits(base + STM32F7_I2C_CR1, mask);
+>  
+> +		/* Write 1st data byte */
+> +		writel_relaxed(value, base + STM32F7_I2C_TXDR);
+>  	} else {
+>  		/* Notify i2c slave that new write transfer is starting */
+>  		i2c_slave_event(slave, I2C_SLAVE_WRITE_REQUESTED, &value);
+> 
