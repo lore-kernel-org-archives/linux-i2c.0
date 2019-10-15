@@ -1,84 +1,109 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 4/4] i2c: i801: Instantiate SPD EEPROMs automatically
-Date: Mon, 14 Oct 2019 20:02:52 +0200
-Message-ID: <20191014200252.7cc9c800@endymion>
-References: <20191014114146.08b58f16@endymion>
-        <201910141830.Jm52N2ts%lkp@intel.com>
+From: Biwen Li <biwen.li@nxp.com>
+Subject: RE: [EXT] Re: [PATCH 2/2] i2c: mux: pca954x: replace property
+ i2c-mux-idle-disconnect
+Date: Tue, 15 Oct 2019 03:17:50 +0000
+Message-ID: <DB7PR04MB44906BE3732F777C4DBB67538F930@DB7PR04MB4490.eurprd04.prod.outlook.com>
+References: <20191014112558.3881-1-biwen.li@nxp.com>
+ <20191014112558.3881-2-biwen.li@nxp.com>
+ <f3d1e68e-dfb0-b820-7797-1f0d95fa72dd@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201910141830.Jm52N2ts%lkp@intel.com>
+In-Reply-To: <f3d1e68e-dfb0-b820-7797-1f0d95fa72dd@axentia.se>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: kbuild test robot <lkp@intel.com>
-Cc: kbuild-all@lists.01.org, Linux I2C <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
+To: Peter Rosin <peda@axentia.se>, Leo Li <leoyang.li@nxp.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 14 Oct 2019 18:22:15 +0800, kbuild test robot wrote:
-> Hi Jean,
-> 
-> I love your patch! Yet something to improve:
-> 
-> [auto build test ERROR on linus/master]
-> [cannot apply to v5.4-rc3 next-20191011]
-> [if your patch is applied to the wrong git tree, please drop us a note to help
-> improve the system. BTW, we also suggest to use '--base' option to specify the
-> base tree in git format-patch, please see https://stackoverflow.com/a/37406982]
-> 
-> url:    https://github.com/0day-ci/linux/commits/Jean-Delvare/Instantiate-SPD-EEPROMs-at-boot-on-x86/20191014-174252
-> config: i386-defconfig (attached as .config)
-> compiler: gcc-7 (Debian 7.4.0-13) 7.4.0
-> reproduce:
->         # save the attached .config to linux build tree
->         make ARCH=i386 
-> 
-> If you fix the issue, kindly add following tag
-> Reported-by: kbuild test robot <lkp@intel.com>
-> 
-> All errors (new ones prefixed by >>):
-> 
->    drivers/i2c/busses/i2c-i801.c: In function 'i801_probe_optional_slaves':
-> >> drivers/i2c/busses/i2c-i801.c:1319:11: error: 'struct i801_priv' has no member named 'mux_drvdata'  
->      if (!priv->mux_drvdata)
->               ^~
-> 
-> vim +1319 drivers/i2c/busses/i2c-i801.c
-> 
->   1295	
->   1296	/* Register optional slaves */
->   1297	static void i801_probe_optional_slaves(struct i801_priv *priv)
->   1298	{
->   1299		/* Only register slaves on main SMBus channel */
->   1300		if (priv->features & FEATURE_IDF)
->   1301			return;
->   1302	
->   1303		if (apanel_addr) {
->   1304			struct i2c_board_info info;
->   1305	
->   1306			memset(&info, 0, sizeof(struct i2c_board_info));
->   1307			info.addr = apanel_addr;
->   1308			strlcpy(info.type, "fujitsu_apanel", I2C_NAME_SIZE);
->   1309			i2c_new_device(&priv->adapter, &info);
->   1310		}
->   1311	
->   1312		if (dmi_name_in_vendors("FUJITSU"))
->   1313			dmi_walk(dmi_check_onboard_devices, &priv->adapter);
->   1314	
->   1315		if (is_dell_system_with_lis3lv02d())
->   1316			register_dell_lis3lv02d_i2c_device(priv);
->   1317	
->   1318		/* Instantiate SPD EEPROMs unless the SMBus is multiplexed */
-> > 1319		if (!priv->mux_drvdata)  
->   1320			i2c_register_spd(&priv->adapter);
->   1321	}
->   1322	#else
->   1323	static void __init input_apanel_init(void) {}
->   1324	static void i801_probe_optional_slaves(struct i801_priv *priv) {}
->   1325	#endif	/* CONFIG_X86 && CONFIG_DMI */
->   1326	
-
-Fixed, thanks.
-
--- 
-Jean Delvare
-SUSE L3 Support
+PiANCj4gQ2F1dGlvbjogRVhUIEVtYWlsDQo+IA0KPiBPbiAyMDE5LTEwLTE0IDEzOjI1LCBCaXdl
+biBMaSB3cm90ZToNCj4gPiBUaGlzIHJlcGxhY2VzIHByb3BlcnR5IGkyYy1tdXgtaWRsZS1kaXNj
+b25uZWN0IHdpdGggaWRsZS1zdGF0ZQ0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogQml3ZW4gTGkg
+PGJpd2VuLmxpQG54cC5jb20+DQo+ID4gLS0tDQo+ID4gIGRyaXZlcnMvaTJjL211eGVzL2kyYy1t
+dXgtcGNhOTU0eC5jIHwgNDQNCj4gPiArKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLQ0KPiA+
+ICAxIGZpbGUgY2hhbmdlZCwgMzEgaW5zZXJ0aW9ucygrKSwgMTMgZGVsZXRpb25zKC0pDQo+ID4N
+Cj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvbXV4ZXMvaTJjLW11eC1wY2E5NTR4LmMNCj4g
+PiBiL2RyaXZlcnMvaTJjL211eGVzL2kyYy1tdXgtcGNhOTU0eC5jDQo+ID4gaW5kZXggOTIzYWEz
+YTVhM2RjLi5hMzMwOTI5YzRkNjcgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy9pMmMvbXV4ZXMv
+aTJjLW11eC1wY2E5NTR4LmMNCj4gPiArKysgYi9kcml2ZXJzL2kyYy9tdXhlcy9pMmMtbXV4LXBj
+YTk1NHguYw0KPiA+IEBAIC04Niw3ICs4Niw3IEBAIHN0cnVjdCBwY2E5NTR4IHsNCj4gPg0KPiA+
+ICAgICAgIHU4IGxhc3RfY2hhbjsgICAgICAgICAgIC8qIGxhc3QgcmVnaXN0ZXIgdmFsdWUgKi8N
+Cj4gPiAgICAgICAvKiBNVVhfSURMRV9BU19JUywgTVVYX0lETEVfRElTQ09OTkVDVCBvciA+PSAw
+IGZvciBjaGFubmVsICovDQo+ID4gLSAgICAgczggaWRsZV9zdGF0ZTsNCj4gPiArICAgICBzMzIg
+aWRsZV9zdGF0ZTsNCj4gPg0KPiA+ICAgICAgIHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQ7DQo+
+ID4NCj4gPiBAQCAtMjU2LDcgKzI1Niw3IEBAIHN0YXRpYyBpbnQgcGNhOTU0eF9kZXNlbGVjdF9t
+dXgoc3RydWN0DQo+ID4gaTJjX211eF9jb3JlICptdXhjLCB1MzIgY2hhbikgIHsNCj4gPiAgICAg
+ICBzdHJ1Y3QgcGNhOTU0eCAqZGF0YSA9IGkyY19tdXhfcHJpdihtdXhjKTsNCj4gPiAgICAgICBz
+dHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50ID0gZGF0YS0+Y2xpZW50Ow0KPiA+IC0gICAgIHM4IGlk
+bGVfc3RhdGU7DQo+ID4gKyAgICAgczMyIGlkbGVfc3RhdGU7DQo+ID4NCj4gPiAgICAgICBpZGxl
+X3N0YXRlID0gUkVBRF9PTkNFKGRhdGEtPmlkbGVfc3RhdGUpOw0KPiA+ICAgICAgIGlmIChpZGxl
+X3N0YXRlID49IDApDQo+ID4gQEAgLTQxMSw3ICs0MTEsNiBAQCBzdGF0aWMgaW50IHBjYTk1NHhf
+cHJvYmUoc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCwNCj4gPiAgICAgICBzdHJ1Y3QgaTJjX2Fk
+YXB0ZXIgKmFkYXAgPSBjbGllbnQtPmFkYXB0ZXI7DQo+ID4gICAgICAgc3RydWN0IGRldmljZSAq
+ZGV2ID0gJmNsaWVudC0+ZGV2Ow0KPiA+ICAgICAgIHN0cnVjdCBkZXZpY2Vfbm9kZSAqbnAgPSBk
+ZXYtPm9mX25vZGU7DQo+ID4gLSAgICAgYm9vbCBpZGxlX2Rpc2Nvbm5lY3RfZHQ7DQo+ID4gICAg
+ICAgc3RydWN0IGdwaW9fZGVzYyAqZ3BpbzsNCj4gPiAgICAgICBzdHJ1Y3QgaTJjX211eF9jb3Jl
+ICptdXhjOw0KPiA+ICAgICAgIHN0cnVjdCBwY2E5NTR4ICpkYXRhOw0KPiA+IEBAIC00NjIsMjIg
+KzQ2MSwzMSBAQCBzdGF0aWMgaW50IHBjYTk1NHhfcHJvYmUoc3RydWN0IGkyY19jbGllbnQNCj4g
+KmNsaWVudCwNCj4gPiAgICAgICAgICAgICAgIH0NCj4gPiAgICAgICB9DQo+ID4NCj4gPiArICAg
+ICBpZiAob2ZfcHJvcGVydHlfcmVhZF91MzIobnAsICJpZGxlLXN0YXRlIiwgJmRhdGEtPmlkbGVf
+c3RhdGUpKQ0KPiA+ICsgICAgICAgICAgICAgZGF0YS0+aWRsZV9zdGF0ZSA9IE1VWF9JRExFX0FT
+X0lTOw0KPiA+ICsNCj4gPiAgICAgICAvKiBXcml0ZSB0aGUgbXV4IHJlZ2lzdGVyIGF0IGFkZHIg
+dG8gdmVyaWZ5DQo+ID4gICAgICAgICogdGhhdCB0aGUgbXV4IGlzIGluIGZhY3QgcHJlc2VudC4g
+VGhpcyBhbHNvDQo+ID4gICAgICAgICogaW5pdGlhbGl6ZXMgdGhlIG11eCB0byBkaXNjb25uZWN0
+ZWQgc3RhdGUuDQo+ID4gICAgICAgICovDQo+ID4gLSAgICAgaWYgKGkyY19zbWJ1c193cml0ZV9i
+eXRlKGNsaWVudCwgMCkgPCAwKSB7DQo+ID4gKyAgICAgaWYgKGRhdGEtPmlkbGVfc3RhdGUgPj0g
+MCl7DQo+IA0KPiBTcGFjZSBiZWZvcmUgew0KT2theSwgZ290IGl0LCBJIHdpbGwgYWRkIGl0IGlu
+IHYyLg0KPiANCj4gPiArICAgICAgICAgICAgIGRhdGEtPmxhc3RfY2hhbiA9IGRhdGEtPmlkbGVf
+c3RhdGU7DQo+IA0KPiBkYXRhLT5sYXN0X2NoYW4gc2hvdWxkIGhhdmUgdGhlIGFjdHVhbCByZWdp
+c3RlciB2YWx1ZSwgaS5lLiAodW50ZXN0ZWQpDQpPa2F5LCBnb3QgaXQsIEkgd2lsbCBhZGp1c3Qg
+aXQgaW4gdjIuDQo+IA0KPiAgICAgICAgICAgICAgICAgaWYgKGRhdGEtPmNoaXAtPm11eHR5cGUg
+PT0gcGNhOTU0eF9pc211eCkNCj4gICAgICAgICAgICAgICAgICAgICAgICAgZGF0YS0+bGFzdF9j
+aGFuID0gZGF0YS0+aWRsZV9zdGF0ZSB8DQo+IGRhdGEtPmNoaXAtPmVuYWJsZTsNCj4gICAgICAg
+ICAgICAgICAgIGVsc2UNCj4gICAgICAgICAgICAgICAgICAgICAgICAgZGF0YS0+bGFzdF9jaGFu
+ID0gMSA8PCBkYXRhLT5pZGxlX3N0YXRlOw0KPiANCj4gICAgICAgICAgICAgICAgIHJldCA9IGky
+Y19zbWJ1c193cml0ZV9ieXRlKGNsaWVudCwgZGF0YS0+bGFzdF9jaGFuKTsNCj4gDQo+IEJ1dCBz
+aW5jZSB0aGlzIHJlZ3ZhbCBjYWxjdWxhdGlvbiBpcyBub3cgbmVlZGVkIGluIHRocmVlIHBsYWNl
+cywgaXQgc2hvdWxkIGJlDQo+IG1vdmVkIHRvIGEgaGVscGVyIGZ1bmN0aW9uLg0KWW91IGFyZSBy
+aWdodCwgSSB3aWxsIGFkZCBhIGhlbHBlciBmdW5jdGlvbiBpbiB2Mi4NCj4gDQo+ID4gKyAgICAg
+ICAgICAgICAvKiBBbHdheXMgZW5hYmxlIG11bHRpcGxleGVyICovDQo+ID4gKyAgICAgICAgICAg
+ICByZXQgPSBpMmNfc21idXNfd3JpdGVfYnl0ZShjbGllbnQsIGRhdGEtPmxhc3RfY2hhbiB8DQo+
+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKGRhdGEtPmNoaXAtPm11eHR5cGUgPT0N
+Cj4gcGNhOTU0eF9pc211eCA/DQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGRh
+dGEtPmNoaXAtPmVuYWJsZSA6IDApKTsNCj4gPiArICAgICB9DQo+ID4gKyAgICAgZWxzZXsNCj4g
+DQo+IFNwYWNlIGJlZm9yZSB7DQpHb3QgaXQsIEkgd2lsbCBhZGQgaXQgaW4gdjIuDQo+IA0KPiBO
+YXR1cmFsbHksIHlvdSBoYXZlIHRoZSBleGFjdCBzYW1lIGlzc3VlcyBpbiB0aGUgcGNhOTU0eF9y
+ZXN1bWUgaHVuaywNCj4gYmVsb3cuDQpHb3QgaXQNCj4gDQo+ID4gKyAgICAgICAgICAgICBkYXRh
+LT5sYXN0X2NoYW4gPSAwOyAgICAgICAgICAgICAgIC8qIGZvcmNlIHRoZSBmaXJzdA0KPiBzZWxl
+Y3Rpb24gKi8NCj4gPiArICAgICAgICAgICAgIC8qIERpc2Nvbm5lY3QgbXVsdGlwbGV4ZXIgKi8N
+Cj4gPiArICAgICAgICAgICAgIHJldCA9IGkyY19zbWJ1c193cml0ZV9ieXRlKGNsaWVudCwgZGF0
+YS0+bGFzdF9jaGFuKTsNCj4gPiArICAgICB9DQo+ID4gKw0KPiA+ICsgICAgIGlmIChyZXQgPCAw
+KSB7DQo+ID4gICAgICAgICAgICAgICBkZXZfd2FybihkZXYsICJwcm9iZSBmYWlsZWRcbiIpOw0K
+PiA+ICAgICAgICAgICAgICAgcmV0dXJuIC1FTk9ERVY7DQo+ID4gICAgICAgfQ0KPiA+DQo+ID4g
+LSAgICAgZGF0YS0+bGFzdF9jaGFuID0gMDsgICAgICAgICAgICAgICAvKiBmb3JjZSB0aGUgZmly
+c3Qgc2VsZWN0aW9uICovDQo+ID4gLSAgICAgZGF0YS0+aWRsZV9zdGF0ZSA9IE1VWF9JRExFX0FT
+X0lTOw0KPiA+IC0NCj4gPiAtICAgICBpZGxlX2Rpc2Nvbm5lY3RfZHQgPSBucCAmJg0KPiA+IC0g
+ICAgICAgICAgICAgb2ZfcHJvcGVydHlfcmVhZF9ib29sKG5wLCAiaTJjLW11eC1pZGxlLWRpc2Nv
+bm5lY3QiKTsNCj4gPiAtICAgICBpZiAoaWRsZV9kaXNjb25uZWN0X2R0KQ0KPiA+IC0gICAgICAg
+ICAgICAgZGF0YS0+aWRsZV9zdGF0ZSA9IE1VWF9JRExFX0RJU0NPTk5FQ1Q7DQo+IA0KPiBJbiBj
+YXNlIHRoZSBpZGxlLXN0YXRlIHByb3BlcnR5IGlzIG1pc3NpbmcsIHlvdSBuZWVkIHRvIGZhbGwg
+YmFjayB0byB0aGUgb2xkDQo+IGJlaGF2aW9yIGFuZCBoYW5kbGUgaTJjLW11eC1pZGxlLWRpc2Nv
+bm5lY3QgYXMgYmVmb3JlLg0KT2theSwgZ290IGl0LCBJIHdpbGwgYWRkIGl0IGluIHYyLg0KPiAN
+Cj4gQ2hlZXJzLA0KPiBQZXRlcg0KPiANCj4gPg0KPiA+ICAgICAgIHJldCA9IHBjYTk1NHhfaXJx
+X3NldHVwKG11eGMpOw0KPiA+ICAgICAgIGlmIChyZXQpDQo+ID4gQEAgLTUzMSw4ICs1MzksMTgg
+QEAgc3RhdGljIGludCBwY2E5NTR4X3Jlc3VtZShzdHJ1Y3QgZGV2aWNlICpkZXYpDQo+ID4gICAg
+ICAgc3RydWN0IGkyY19tdXhfY29yZSAqbXV4YyA9IGkyY19nZXRfY2xpZW50ZGF0YShjbGllbnQp
+Ow0KPiA+ICAgICAgIHN0cnVjdCBwY2E5NTR4ICpkYXRhID0gaTJjX211eF9wcml2KG11eGMpOw0K
+PiA+DQo+ID4gLSAgICAgZGF0YS0+bGFzdF9jaGFuID0gMDsNCj4gPiAtICAgICByZXR1cm4gaTJj
+X3NtYnVzX3dyaXRlX2J5dGUoY2xpZW50LCAwKTsNCj4gPiArICAgICBpZiAoZGF0YS0+aWRsZV9z
+dGF0ZSA+PSAwKXsNCj4gPiArICAgICAgICAgICAgIGRhdGEtPmxhc3RfY2hhbiA9IGRhdGEtPmlk
+bGVfc3RhdGU7DQo+ID4gKyAgICAgICAgICAgICAvKiBBbHdheXMgZW5hYmxlIG11bHRpcGxleGVy
+ICovDQo+ID4gKyAgICAgICAgICAgICByZXR1cm4gaTJjX3NtYnVzX3dyaXRlX2J5dGUoY2xpZW50
+LCBkYXRhLT5sYXN0X2NoYW4gfA0KPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgIChk
+YXRhLT5jaGlwLT5tdXh0eXBlID09DQo+IHBjYTk1NHhfaXNtdXggPw0KPiA+ICsgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICBkYXRhLT5jaGlwLT5lbmFibGUgOiAwKSk7DQo+ID4gKyAgICAg
+fQ0KPiA+ICsgICAgIGVsc2V7DQo+ID4gKyAgICAgICAgICAgICBkYXRhLT5sYXN0X2NoYW4gPSAw
+Ow0KPiA+ICsgICAgICAgICAgICAgLyogRGlzY29ubmVjdCBtdWx0aXBsZXhlciAqLw0KPiA+ICsg
+ICAgICAgICAgICAgcmV0dXJuIGkyY19zbWJ1c193cml0ZV9ieXRlKGNsaWVudCwgZGF0YS0+bGFz
+dF9jaGFuKTsNCj4gPiArICAgICB9DQo+ID4gIH0NCj4gPiAgI2VuZGlmDQo+ID4NCj4gPg0KDQo=
