@@ -1,40 +1,49 @@
-From: Biwen Li <biwen.li@nxp.com>
-Subject: [v3,1/2] dt-bindings: i2c: support property idle-state
-Date: Wed, 16 Oct 2019 12:09:19 +0800
-Message-ID: <20191016040920.8511-1-biwen.li@nxp.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: peda@axentia.se, leoyang.li@nxp.com, robh+dt@kernel.org, mark.rutland@arm.com
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Biwen Li <biwen.li@nxp.com>
+From: Brendan Higgins <brendanhiggins@google.com>
+Subject: Re: [PATCH] i2c: aspeed: fix master pending state handling
+Date: Wed, 16 Oct 2019 12:20:28 -0700
+Message-ID: <CAFd5g47NL79YkVi4nJk63-ZbFXAKW+x1xWFoa26zPpY1+QnUrQ@mail.gmail.com>
+References: <20191009212034.20325-1-jae.hyun.yoo@linux.intel.com>
+ <49244d71-cbc3-f2ae-97ac-74b5f68a4816@fb.com>
+ <4ca4083d-23ff-0475-f5fd-ec3745b440b2@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <4ca4083d-23ff-0475-f5fd-ec3745b440b2@linux.intel.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>, Wolfram Sang <wsa@the-dreams.de>, Andrew Jeffery <andrew@aj.id.au>, Tao Ren <taoren@fb.com>, "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Cedric Le Goater <clg@kaod.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This supports property idle-state
+On Thu, Oct 10, 2019 at 4:52 PM Jae Hyun Yoo
+<jae.hyun.yoo@linux.intel.com> wrote:
+>
+> On 10/10/2019 4:29 PM, Tao Ren wrote:
+> > On 10/9/19 2:20 PM, Jae Hyun Yoo wrote:
+> >> In case of master pending state, it should not trigger a master
+> >> command, otherwise data could be corrupted because this H/W shares
+> >> the same data buffer for slave and master operations. It also means
+> >> that H/W command queue handling is unreliable because of the buffer
+> >> sharing issue. To fix this issue, it clears command queue if a
+> >> master command is queued in pending state to use S/W solution
+> >> instead of H/W command queue handling. Also, it refines restarting
+> >> mechanism of the pending master command.
+> >>
+> >> Fixes: 2e57b7cebb98 ("i2c: aspeed: Add multi-master use case support")
+> >> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+> >
+> > Tested-by: Tao Ren <taoren@fb.com>
+> >
+> > Tested the patch on Facebook Minipack BMC (multi-master i2c-0 environment) and
+> > everything looks good to me.
 
-Signed-off-by: Biwen Li <biwen.li@nxp.com>
----
-Change in v3:
-	- update subject and description
-	- add some information for property idle-state
-
-Change in v2:
-	- update subject and description
-	- add property idle-state
-
- Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-index 30ac6a60f041..7abda506b828 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-@@ -25,6 +25,8 @@ Required Properties:
- Optional Properties:
- 
-   - reset-gpios: Reference to the GPIO connected to the reset input.
-+  - idle-state: if present, overrides i2c-mux-idle-disconnect,
-+    Please refer to Documentation/devicetree/bindings/mux/mux-controller.txt
-   - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconnect all
-     children in idle state. This is necessary for example, if there are several
-     multiplexers on the bus and the devices behind them use same I2C addresses.
--- 
-2.17.1
+Looks like we got the necessary tested-bys and reviewed-bys. Can we
+apply this for next?
