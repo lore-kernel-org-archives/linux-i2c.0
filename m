@@ -1,132 +1,55 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [v3,2/2] i2c: mux: pca954x: support property idle-state
-Date: Thu, 17 Oct 2019 15:40:08 +0000
-Message-ID: <6e2fb6b9-4ffe-e6de-744f-a2bfe66a1b6c@axentia.se>
-References: <20191016040920.8511-1-biwen.li@nxp.com>
- <20191016040920.8511-2-biwen.li@nxp.com>
+From: Rob Herring <robh+dt@kernel.org>
+Subject: Re: [v3,1/2] dt-bindings: i2c: support property idle-state
+Date: Thu, 17 Oct 2019 11:45:49 -0500
+Message-ID: <CAL_JsqK_BOSZ=UNP-L7OpuNsFUAqWBhAjCObex+0xtkYp=7c+A@mail.gmail.com>
+References: <20191016040920.8511-1-biwen.li@nxp.com> <bfdb97c1-76f4-52d9-7f02-c62bed8192ce@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191016040920.8511-2-biwen.li@nxp.com>
-Content-Language: en-US
-Content-ID: <41D30080DD7E814495EDEFF2DCC53F84@eurprd02.prod.outlook.com>
+In-Reply-To: <bfdb97c1-76f4-52d9-7f02-c62bed8192ce@axentia.se>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Biwen Li <biwen.li@nxp.com>, "leoyang.li@nxp.com" <leoyang.li@nxp.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: Peter Rosin <peda@axentia.se>
+Cc: Biwen Li <biwen.li@nxp.com>, "leoyang.li@nxp.com" <leoyang.li@nxp.com>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOS0xMC0xNiAwNjowOSwgQml3ZW4gTGkgd3JvdGU6DQo+IFRoaXMgc3VwcG9ydHMgcHJv
-cGVydHkgaWRsZS1zdGF0ZQ0KPiANCj4gU2lnbmVkLW9mZi1ieTogQml3ZW4gTGkgPGJpd2VuLmxp
-QG54cC5jb20+DQo+IC0tLQ0KPiBDaGFuZ2UgaW4gdjM6DQo+IAktIHVwZGF0ZSBzdWJqZWN0IGFu
-ZCBkZXNjcmlwdGlvbg0KPiAJLSBhZGQgYSBoZWxwZXIgZnVuY3Rpb24gcGNhOTU0eF9jYWxjdWxh
-dGVfY2hhbigpDQo+IA0KPiBDaGFuZ2UgaW4gdjI6DQo+IAktIHVwZGF0ZSBzdWJqZWN0IGFuZCBk
-ZXNjcmlwdGlvbg0KPiAJLSBhZGQgcHJvcGVydHkgaWRsZS1zdGF0ZQ0KPiANCj4gIGRyaXZlcnMv
-aTJjL211eGVzL2kyYy1tdXgtcGNhOTU0eC5jIHwgNjQgKysrKysrKysrKysrKysrKysrLS0tLS0t
-LS0tLS0NCj4gIDEgZmlsZSBjaGFuZ2VkLCAzOSBpbnNlcnRpb25zKCspLCAyNSBkZWxldGlvbnMo
-LSkNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9tdXhlcy9pMmMtbXV4LXBjYTk1NHgu
-YyBiL2RyaXZlcnMvaTJjL211eGVzL2kyYy1tdXgtcGNhOTU0eC5jDQo+IGluZGV4IDkyM2FhM2E1
-YTNkYy4uODc3N2Q0MjkyNjljIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL2kyYy9tdXhlcy9pMmMt
-bXV4LXBjYTk1NHguYw0KPiArKysgYi9kcml2ZXJzL2kyYy9tdXhlcy9pMmMtbXV4LXBjYTk1NHgu
-Yw0KPiBAQCAtODYsNyArODYsNyBAQCBzdHJ1Y3QgcGNhOTU0eCB7DQo+ICANCj4gIAl1OCBsYXN0
-X2NoYW47CQkvKiBsYXN0IHJlZ2lzdGVyIHZhbHVlICovDQo+ICAJLyogTVVYX0lETEVfQVNfSVMs
-IE1VWF9JRExFX0RJU0NPTk5FQ1Qgb3IgPj0gMCBmb3IgY2hhbm5lbCAqLw0KPiAtCXM4IGlkbGVf
-c3RhdGU7DQo+ICsJczMyIGlkbGVfc3RhdGU7DQo+ICANCj4gIAlzdHJ1Y3QgaTJjX2NsaWVudCAq
-Y2xpZW50Ow0KPiAgDQo+IEBAIC0yMjksMjIgKzIyOSwyNSBAQCBzdGF0aWMgaW50IHBjYTk1NHhf
-cmVnX3dyaXRlKHN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcCwNCj4gIAkJCQlJMkNfU01CVVNfQllU
-RSwgJmR1bW15KTsNCj4gIH0NCj4gIA0KPiArc3RhdGljIGludCBwY2E5NTR4X2NhbGN1bGF0ZV9j
-aGFuKHN0cnVjdCBwY2E5NTR4ICpkYXRhLCB1MzIgY2hhbikNCg0KU2hvdWxkIHJldHVybiB1OCwg
-YW5kICJjaGFuIiBpcyBub3Qgd2hhdCBpcyBjYWxjdWxhdGVkLiBQZXJoYXBzIG5hbWUNCnRoZSBm
-dW5jdGlvbiBwY2E5NTR4X3JlZ3ZhbD8NCg0KKFllcywgbGFzdF9jaGFuIGlzIGFsc28gY2xlYXJs
-eSBhIGJhZCBuYW1lLCBhbmQgSSBzdXNwZWN0IHlvdSBtYXkgaGF2ZQ0KIGJhc2VkIHRoaXMgbmFt
-ZSBvbiBpdCwgYnV0IGNoYW5naW5nIHRoYXQgaXMgYSBzZXBhcmF0ZSBwYXRjaC4pDQoNCj4gK3sN
-Cj4gKwkvKiB3ZSBtYWtlIHN3aXRjaGVzIGxvb2sgbGlrZSBtdXhlcywgbm90IHN1cmUgaG93IHRv
-IGJlIHNtYXJ0ZXIgKi8NCj4gKwlpZiAoZGF0YS0+Y2hpcC0+bXV4dHlwZSA9PSBwY2E5NTR4X2lz
-bXV4KQ0KPiArCQlyZXR1cm4gY2hhbiB8IGRhdGEtPmNoaXAtPmVuYWJsZTsNCj4gKwllbHNlDQo+
-ICsJCXJldHVybiAxIDw8IGNoYW47DQo+ICt9DQo+ICsNCj4gIHN0YXRpYyBpbnQgcGNhOTU0eF9z
-ZWxlY3RfY2hhbihzdHJ1Y3QgaTJjX211eF9jb3JlICptdXhjLCB1MzIgY2hhbikNCj4gIHsNCj4g
-IAlzdHJ1Y3QgcGNhOTU0eCAqZGF0YSA9IGkyY19tdXhfcHJpdihtdXhjKTsNCj4gIAlzdHJ1Y3Qg
-aTJjX2NsaWVudCAqY2xpZW50ID0gZGF0YS0+Y2xpZW50Ow0KPiAtCWNvbnN0IHN0cnVjdCBjaGlw
-X2Rlc2MgKmNoaXAgPSBkYXRhLT5jaGlwOw0KPiAgCXU4IHJlZ3ZhbDsNCj4gIAlpbnQgcmV0ID0g
-MDsNCj4gIA0KPiAtCS8qIHdlIG1ha2Ugc3dpdGNoZXMgbG9vayBsaWtlIG11eGVzLCBub3Qgc3Vy
-ZSBob3cgdG8gYmUgc21hcnRlciAqLw0KPiAtCWlmIChjaGlwLT5tdXh0eXBlID09IHBjYTk1NHhf
-aXNtdXgpDQo+IC0JCXJlZ3ZhbCA9IGNoYW4gfCBjaGlwLT5lbmFibGU7DQo+IC0JZWxzZQ0KPiAt
-CQlyZWd2YWwgPSAxIDw8IGNoYW47DQo+IC0NCj4gKwlyZWd2YWwgPSBwY2E5NTR4X2NhbGN1bGF0
-ZV9jaGFuKGRhdGEsIGNoYW4pOw0KDQpJIHRoaW5rIEkgd291bGQgaGF2ZSBrZXB0IHRoZSBlbXB0
-eSBsaW5lIGhlcmUuIE5vdCBpbXBvcnRhbnQuLi4NCg0KPiAgCS8qIE9ubHkgc2VsZWN0IHRoZSBj
-aGFubmVsIGlmIGl0cyBkaWZmZXJlbnQgZnJvbSB0aGUgbGFzdCBjaGFubmVsICovDQo+IC0JaWYg
-KGRhdGEtPmxhc3RfY2hhbiAhPSByZWd2YWwpIHsNCj4gKwlpZiAoKGRhdGEtPmxhc3RfY2hhbiAm
-IDB4ZmYpICE9IHJlZ3ZhbCkgew0KDQpUaGUgY2hhbmdlcyBvbiB0aGlzIGxpbmUgYXJlIG5vdCBu
-ZWVkZWQgKGxhc3RfY2hhbiBhbmQgcmVndmFsIGFyZQ0KYm90aCB1OCkgYW5kIGp1c3QgY2x1dHRl
-cnMgdXAgdGhlIGNvZGUuDQoNCj4gIAkJcmV0ID0gcGNhOTU0eF9yZWdfd3JpdGUobXV4Yy0+cGFy
-ZW50LCBjbGllbnQsIHJlZ3ZhbCk7DQo+ICAJCWRhdGEtPmxhc3RfY2hhbiA9IHJldCA8IDAgPyAw
-IDogcmVndmFsOw0KPiAgCX0NCj4gQEAgLTI1Niw3ICsyNTksNyBAQCBzdGF0aWMgaW50IHBjYTk1
-NHhfZGVzZWxlY3RfbXV4KHN0cnVjdCBpMmNfbXV4X2NvcmUgKm11eGMsIHUzMiBjaGFuKQ0KPiAg
-ew0KPiAgCXN0cnVjdCBwY2E5NTR4ICpkYXRhID0gaTJjX211eF9wcml2KG11eGMpOw0KPiAgCXN0
-cnVjdCBpMmNfY2xpZW50ICpjbGllbnQgPSBkYXRhLT5jbGllbnQ7DQo+IC0JczggaWRsZV9zdGF0
-ZTsNCj4gKwlzMzIgaWRsZV9zdGF0ZTsNCj4gIA0KPiAgCWlkbGVfc3RhdGUgPSBSRUFEX09OQ0Uo
-ZGF0YS0+aWRsZV9zdGF0ZSk7DQo+ICAJaWYgKGlkbGVfc3RhdGUgPj0gMCkNCj4gQEAgLTQwMiw2
-ICs0MDUsMjMgQEAgc3RhdGljIHZvaWQgcGNhOTU0eF9jbGVhbnVwKHN0cnVjdCBpMmNfbXV4X2Nv
-cmUgKm11eGMpDQo+ICAJaTJjX211eF9kZWxfYWRhcHRlcnMobXV4Yyk7DQo+ICB9DQo+ICANCj4g
-K3N0YXRpYyBpbnQgcGNhOTU0eF9pbml0KHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQsIHN0cnVj
-dCBwY2E5NTR4ICpkYXRhKQ0KPiArew0KPiArCS8qDQo+ICsJICogV3JpdGUgdGhlIG11eCByZWdp
-c3RlciBhdCBhZGRyIHRvIHZlcmlmeQ0KPiArCSAqIHRoYXQgdGhlIG11eCBpcyBpbiBmYWN0IHBy
-ZXNlbnQuIFRoaXMgYWxzbw0KPiArCSAqIGluaXRpYWxpemVzIHRoZSBtdXggdG8gYSBjaGFubmVs
-DQo+ICsJICogb3IgZGlzY29ubmVjdGVkIHN0YXRlLg0KPiArCSAqLw0KDQpBZ2FpbiwgdGhpcyBj
-b21tZW50IGJlbG9uZ3MgaW4gcGNhOTU0eF9wcm9iZSBiZWZvcmUgdGhlIGNhbGwgdG8gdGhpcyBm
-dW5jdGlvbi4NCkl0IGRvZXMgbm90IGFwcGx5IChhdCBsZWFzdCBub3QgdGhlIGZpcnN0IHNlbnRl
-bmNlKSB3aGVuIHBjYTk1NHhfaW5pdCBpcyBjYWxsZWQNCmZyb20gcGNhOTU0eF9yZXN1bWUuDQoN
-CkhtbW0sIGl0IGNvdWxkIGJlIGFyZ3VlZCB0aGF0IHNwZWNpZnlpbmcgTVVYX0lETEVfQVNfSVMg
-c2hvdWxkIG5vdCB0cmlnZ2VyIGENCmRpc2Nvbm5lY3Qgb24gaW5pdCAoc2luY2UgdGhlIG11eCBp
-cyBhbHdheXMgaWRsZSBhdCBpbml0KSBhbmQgdGhhdCBzb21lIG90aGVyDQptZXRob2Qgc2hvdWxk
-IGJlIHVzZWQgdG8gZGV0ZXJtaW5lIGlmIHRoZSBjaGlwIGlzIHByZXNlbnQuIFRoZSBkaWZmZXJl
-bmNlIGlzDQp0aGF0IHdpdGggdGhlIGlkbGUtc3RhdGUgcHJvcGVydHkgeW91IGNhbiBleHBsaWNp
-dGx5IHJlcXVlc3QgTVVYX0lETEVfQVNfSVMsDQp3aGlsZSB0aGUgb2xkIGNvZGUgb25seSBoYWQg
-c29tZSBkZWZhdWx0IGJlaGF2aW9yIGlmIGkyYy1tdXgtaWRsZS1kaXNjb25uZWN0DQp3YXMgbm90
-IHByZXNlbnQuDQoNClRoZSBlYXN5IHdheSBvdXQgb2YgdGhpcyBpcyB0bywgaW4gdGhlIGJpbmRp
-bmcsIGRvY3VtZW50IHRoZSBzaXR1YXRpb24gYW5kDQpzYXkgdGhhdCAiaWRsZS1zdGF0ZSA9IDxN
-VVhfSURMRV9BU19JUz47IiBpcyBub3Qgc3VwcG9ydGVkIGJ1dCB0aGF0IHNpbWlsYXINCmZ1bmN0
-aW9uYWxpdHkgY2FuIGJlIG9idGFpbmVkIGJ5IGxlYXZpbmcgb3V0IGJvdGggdGhlIGkyYy1tdXgt
-aWRsZS1kaXNjb25uZWN0DQphbmQgaWRsZS1zdGF0ZSBwcm9wZXJ0aWVzLg0KDQo+ICsJaWYgKGRh
-dGEtPmlkbGVfc3RhdGUgPj0gMCkgew0KPiArCQlkYXRhLT5sYXN0X2NoYW4gPSBwY2E5NTR4X2Nh
-bGN1bGF0ZV9jaGFuKGRhdGEsIGRhdGEtPmlkbGVfc3RhdGUpOw0KPiArCX0gZWxzZSB7DQo+ICsJ
-CS8qIERpc2Nvbm5lY3QgbXVsdGlwbGV4ZXIgKi8NCj4gKwkJZGF0YS0+bGFzdF9jaGFuID0gMDsN
-Cj4gKwl9DQo+ICsJcmV0dXJuIGkyY19zbWJ1c193cml0ZV9ieXRlKGNsaWVudCwgZGF0YS0+bGFz
-dF9jaGFuKTsNCj4gK30NCj4gKw0KPiAgLyoNCj4gICAqIEkyQyBpbml0L3Byb2JpbmcvZXhpdCBm
-dW5jdGlvbnMNCj4gICAqLw0KPiBAQCAtNDExLDcgKzQzMSw2IEBAIHN0YXRpYyBpbnQgcGNhOTU0
-eF9wcm9iZShzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50LA0KPiAgCXN0cnVjdCBpMmNfYWRhcHRl
-ciAqYWRhcCA9IGNsaWVudC0+YWRhcHRlcjsNCj4gIAlzdHJ1Y3QgZGV2aWNlICpkZXYgPSAmY2xp
-ZW50LT5kZXY7DQo+ICAJc3RydWN0IGRldmljZV9ub2RlICpucCA9IGRldi0+b2Zfbm9kZTsNCj4g
-LQlib29sIGlkbGVfZGlzY29ubmVjdF9kdDsNCj4gIAlzdHJ1Y3QgZ3Bpb19kZXNjICpncGlvOw0K
-PiAgCXN0cnVjdCBpMmNfbXV4X2NvcmUgKm11eGM7DQo+ICAJc3RydWN0IHBjYTk1NHggKmRhdGE7
-DQo+IEBAIC00NjIsMjIgKzQ4MSwxOCBAQCBzdGF0aWMgaW50IHBjYTk1NHhfcHJvYmUoc3RydWN0
-IGkyY19jbGllbnQgKmNsaWVudCwNCj4gIAkJfQ0KPiAgCX0NCj4gIA0KPiAtCS8qIFdyaXRlIHRo
-ZSBtdXggcmVnaXN0ZXIgYXQgYWRkciB0byB2ZXJpZnkNCj4gLQkgKiB0aGF0IHRoZSBtdXggaXMg
-aW4gZmFjdCBwcmVzZW50LiBUaGlzIGFsc28NCj4gLQkgKiBpbml0aWFsaXplcyB0aGUgbXV4IHRv
-IGRpc2Nvbm5lY3RlZCBzdGF0ZS4NCj4gLQkgKi8NCj4gLQlpZiAoaTJjX3NtYnVzX3dyaXRlX2J5
-dGUoY2xpZW50LCAwKSA8IDApIHsNCj4gKwlkYXRhLT5pZGxlX3N0YXRlID0gTVVYX0lETEVfQVNf
-SVM7DQo+ICsJaWYgKG5wICYmIG9mX3Byb3BlcnR5X3JlYWRfdTMyKG5wLCAiaWRsZS1zdGF0ZSIs
-ICZkYXRhLT5pZGxlX3N0YXRlKSkgew0KPiArCQlpZiAobnAgJiYgb2ZfcHJvcGVydHlfcmVhZF9i
-b29sKG5wLCAiaTJjLW11eC1pZGxlLWRpc2Nvbm5lY3QiKSkNCg0KWW91IGRvIG5vdCBuZWVkIHRv
-IGRvIHRoZSAibnAgJiYiIHBhcnQgZm9yIGJvdGggaWZzLCBzaW5jZSBpdCdzIGFscmVhZHkga25v
-dw0KdGhhdCBucCBpcyBub24tTlVMTCB3aGVuIHlvdSBoaXQgdGhlIHNlY29uZCBpZi4gQnV0LCBp
-dCdzIGEgTk9QIGluIHRoZQ0KZmlyc3QgaWYsIHNpbmNlIG9mX3Byb3BlcnR5X3JlYWRfdTMyIHJl
-dHVybnMgLUVJTlZBTCBpZiBpdCBpcy4gU28sIEkgc3VnZ2VzdA0KDQoJaWYgKG9mX3Byb3BlcnR5
-X3JlYWRfdTMyKG5wLCAiaWRsZS1zdGF0ZSIsICZkYXRhLT5pZGxlX3N0YXRlKSkgew0KCQlpZiAo
-bnAgJiYgb2ZfcHJvcGVydHlfcmVhZF9ib29sKG5wLCAiaTJjLW11eC1pZGxlLWRpc2Nvbm5lY3Qi
-KSkNCg0KQ2hlZXJzLA0KUGV0ZXINCg0KPiArCQkJZGF0YS0+aWRsZV9zdGF0ZSA9IE1VWF9JRExF
-X0RJU0NPTk5FQ1Q7DQo+ICsJfQ0KPiArDQo+ICsJcmV0ID0gcGNhOTU0eF9pbml0KGNsaWVudCwg
-ZGF0YSk7DQo+ICsJaWYgKHJldCA8IDApIHsNCj4gIAkJZGV2X3dhcm4oZGV2LCAicHJvYmUgZmFp
-bGVkXG4iKTsNCj4gIAkJcmV0dXJuIC1FTk9ERVY7DQo+ICAJfQ0KPiAgDQo+IC0JZGF0YS0+bGFz
-dF9jaGFuID0gMDsJCSAgIC8qIGZvcmNlIHRoZSBmaXJzdCBzZWxlY3Rpb24gKi8NCj4gLQlkYXRh
-LT5pZGxlX3N0YXRlID0gTVVYX0lETEVfQVNfSVM7DQo+IC0NCj4gLQlpZGxlX2Rpc2Nvbm5lY3Rf
-ZHQgPSBucCAmJg0KPiAtCQlvZl9wcm9wZXJ0eV9yZWFkX2Jvb2wobnAsICJpMmMtbXV4LWlkbGUt
-ZGlzY29ubmVjdCIpOw0KPiAtCWlmIChpZGxlX2Rpc2Nvbm5lY3RfZHQpDQo+IC0JCWRhdGEtPmlk
-bGVfc3RhdGUgPSBNVVhfSURMRV9ESVNDT05ORUNUOw0KPiAgDQo+ICAJcmV0ID0gcGNhOTU0eF9p
-cnFfc2V0dXAobXV4Yyk7DQo+ICAJaWYgKHJldCkNCj4gQEAgLTUzMSw4ICs1NDYsNyBAQCBzdGF0
-aWMgaW50IHBjYTk1NHhfcmVzdW1lKHN0cnVjdCBkZXZpY2UgKmRldikNCj4gIAlzdHJ1Y3QgaTJj
-X211eF9jb3JlICptdXhjID0gaTJjX2dldF9jbGllbnRkYXRhKGNsaWVudCk7DQo+ICAJc3RydWN0
-IHBjYTk1NHggKmRhdGEgPSBpMmNfbXV4X3ByaXYobXV4Yyk7DQo+ICANCj4gLQlkYXRhLT5sYXN0
-X2NoYW4gPSAwOw0KPiAtCXJldHVybiBpMmNfc21idXNfd3JpdGVfYnl0ZShjbGllbnQsIDApOw0K
-PiArCXJldHVybiBwY2E5NTR4X2luaXQoY2xpZW50LCBkYXRhKTsNCj4gIH0NCj4gICNlbmRpZg0K
-PiAgDQo+IA0KDQo=
+On Thu, Oct 17, 2019 at 10:38 AM Peter Rosin <peda@axentia.se> wrote:
+>
+> On 2019-10-16 06:09, Biwen Li wrote:
+> > This supports property idle-state
+> >
+> > Signed-off-by: Biwen Li <biwen.li@nxp.com>
+> > ---
+> > Change in v3:
+> >       - update subject and description
+> >       - add some information for property idle-state
+> >
+> > Change in v2:
+> >       - update subject and description
+> >       - add property idle-state
+> >
+> >  Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt | 2 ++
+> >  1 file changed, 2 insertions(+)
+> >
+> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+> > index 30ac6a60f041..7abda506b828 100644
+> > --- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+> > +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
+> > @@ -25,6 +25,8 @@ Required Properties:
+> >  Optional Properties:
+> >
+> >    - reset-gpios: Reference to the GPIO connected to the reset input.
+> > +  - idle-state: if present, overrides i2c-mux-idle-disconnect,
+> > +    Please refer to Documentation/devicetree/bindings/mux/mux-controller.txt
+> >    - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconnect all
+> >      children in idle state. This is necessary for example, if there are several
+> >      multiplexers on the bus and the devices behind them use same I2C addresses.
+> >
+>
+> Rob, should i2c-mux-idle-disconnect perhaps be deprecated here? Is that
+> appropriate?
+>
+> idle-state provides a super-set of what i2c-mux-idle-disconnect provides.
+
+Yes, seems like it and it is not too widely used.
+
+Rob
