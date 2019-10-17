@@ -1,50 +1,43 @@
-From: Rob Herring <robh@kernel.org>
+From: Peter Rosin <peda@axentia.se>
 Subject: Re: [v3,1/2] dt-bindings: i2c: support property idle-state
-Date: Thu, 17 Oct 2019 09:54:31 -0500
-Message-ID: <20191017145431.GA30799@bogus>
+Date: Thu, 17 Oct 2019 15:38:14 +0000
+Message-ID: <bfdb97c1-76f4-52d9-7f02-c62bed8192ce@axentia.se>
 References: <20191016040920.8511-1-biwen.li@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 In-Reply-To: <20191016040920.8511-1-biwen.li@nxp.com>
+Content-Language: en-US
+Content-ID: <153486A3B7F4E840A2989986FE309003@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Biwen Li <biwen.li@nxp.com>
-Cc: peda@axentia.se, leoyang.li@nxp.com, mark.rutland@arm.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+To: Biwen Li <biwen.li@nxp.com>, "leoyang.li@nxp.com" <leoyang.li@nxp.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 16, 2019 at 12:09:19PM +0800, Biwen Li wrote:
-> This supports property idle-state
-
-The subject should indicate this is just for pca954x.
-
-> 
-> Signed-off-by: Biwen Li <biwen.li@nxp.com>
-> ---
-> Change in v3:
-> 	- update subject and description
-> 	- add some information for property idle-state
-> 
-> Change in v2:
-> 	- update subject and description
-> 	- add property idle-state
-> 
->  Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-> index 30ac6a60f041..7abda506b828 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-> @@ -25,6 +25,8 @@ Required Properties:
->  Optional Properties:
->  
->    - reset-gpios: Reference to the GPIO connected to the reset input.
-> +  - idle-state: if present, overrides i2c-mux-idle-disconnect,
-> +    Please refer to Documentation/devicetree/bindings/mux/mux-controller.txt
->    - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconnect all
->      children in idle state. This is necessary for example, if there are several
->      multiplexers on the bus and the devices behind them use same I2C addresses.
-> -- 
-> 2.17.1
-> 
+T24gMjAxOS0xMC0xNiAwNjowOSwgQml3ZW4gTGkgd3JvdGU6DQo+IFRoaXMgc3VwcG9ydHMgcHJv
+cGVydHkgaWRsZS1zdGF0ZQ0KPiANCj4gU2lnbmVkLW9mZi1ieTogQml3ZW4gTGkgPGJpd2VuLmxp
+QG54cC5jb20+DQo+IC0tLQ0KPiBDaGFuZ2UgaW4gdjM6DQo+IAktIHVwZGF0ZSBzdWJqZWN0IGFu
+ZCBkZXNjcmlwdGlvbg0KPiAJLSBhZGQgc29tZSBpbmZvcm1hdGlvbiBmb3IgcHJvcGVydHkgaWRs
+ZS1zdGF0ZQ0KPiANCj4gQ2hhbmdlIGluIHYyOg0KPiAJLSB1cGRhdGUgc3ViamVjdCBhbmQgZGVz
+Y3JpcHRpb24NCj4gCS0gYWRkIHByb3BlcnR5IGlkbGUtc3RhdGUNCj4gDQo+ICBEb2N1bWVudGF0
+aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgtcGNhOTU0eC50eHQgfCAyICsrDQo+
+ICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspDQo+IA0KPiBkaWZmIC0tZ2l0IGEvRG9j
+dW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXV4LXBjYTk1NHgudHh0IGIv
+RG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXV4LXBjYTk1NHgudHh0
+DQo+IGluZGV4IDMwYWM2YTYwZjA0MS4uN2FiZGE1MDZiODI4IDEwMDY0NA0KPiAtLS0gYS9Eb2N1
+bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1tdXgtcGNhOTU0eC50eHQNCj4g
+KysrIGIvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL2kyYy9pMmMtbXV4LXBjYTk1
+NHgudHh0DQo+IEBAIC0yNSw2ICsyNSw4IEBAIFJlcXVpcmVkIFByb3BlcnRpZXM6DQo+ICBPcHRp
+b25hbCBQcm9wZXJ0aWVzOg0KPiAgDQo+ICAgIC0gcmVzZXQtZ3Bpb3M6IFJlZmVyZW5jZSB0byB0
+aGUgR1BJTyBjb25uZWN0ZWQgdG8gdGhlIHJlc2V0IGlucHV0Lg0KPiArICAtIGlkbGUtc3RhdGU6
+IGlmIHByZXNlbnQsIG92ZXJyaWRlcyBpMmMtbXV4LWlkbGUtZGlzY29ubmVjdCwNCj4gKyAgICBQ
+bGVhc2UgcmVmZXIgdG8gRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdzL211eC9tdXgt
+Y29udHJvbGxlci50eHQNCj4gICAgLSBpMmMtbXV4LWlkbGUtZGlzY29ubmVjdDogQm9vbGVhbjsg
+aWYgZGVmaW5lZCwgZm9yY2VzIG11eCB0byBkaXNjb25uZWN0IGFsbA0KPiAgICAgIGNoaWxkcmVu
+IGluIGlkbGUgc3RhdGUuIFRoaXMgaXMgbmVjZXNzYXJ5IGZvciBleGFtcGxlLCBpZiB0aGVyZSBh
+cmUgc2V2ZXJhbA0KPiAgICAgIG11bHRpcGxleGVycyBvbiB0aGUgYnVzIGFuZCB0aGUgZGV2aWNl
+cyBiZWhpbmQgdGhlbSB1c2Ugc2FtZSBJMkMgYWRkcmVzc2VzLg0KPiANCg0KUm9iLCBzaG91bGQg
+aTJjLW11eC1pZGxlLWRpc2Nvbm5lY3QgcGVyaGFwcyBiZSBkZXByZWNhdGVkIGhlcmU/IElzIHRo
+YXQNCmFwcHJvcHJpYXRlPw0KDQppZGxlLXN0YXRlIHByb3ZpZGVzIGEgc3VwZXItc2V0IG9mIHdo
+YXQgaTJjLW11eC1pZGxlLWRpc2Nvbm5lY3QgcHJvdmlkZXMuDQoNCkNoZWVycywNClBldGVyDQo=
