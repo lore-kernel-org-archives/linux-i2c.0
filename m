@@ -1,90 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH RESEND v2] i2c: i2c-mt65xx: fix NULL ptr dereference
-Date: Mon, 21 Oct 2019 14:12:38 +0200
-Message-ID: <20191021121238.GD1145@ninjato>
-References: <20191018173213.13282-1-fparent@baylibre.com>
+Subject: Re: [PATCH 1/2] i2c: Aspeed: Add AST2600 compatible
+Date: Mon, 21 Oct 2019 14:23:12 +0200
+Message-ID: <20191021122312.GH1145@ninjato>
+References: <1568392510-866-1-git-send-email-eajames@linux.ibm.com>
+ <1568392510-866-2-git-send-email-eajames@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5162781053311543480=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20191018173213.13282-1-fparent@baylibre.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Fabien Parent <fparent@baylibre.com>
-Cc: Ulrich Hecht <uli@fpond.eu>, drinkcat@chromium.org, qii.wang@mediatek.com, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-i2c@vger.kernel.org, hsinyi@chromium.org, matthias.bgg@gmail.com, Cengiz Can <cengiz@kernel.wtf>, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="MGu/vTNewDGZ7tmp"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1568392510-866-2-git-send-email-eajames@linux.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Eddie James <eajames@linux.ibm.com>
+Cc: linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, brendanhiggins@google.com, joel@jms.id.au, andrew@aj.id.au, robh+dt@kernel.org, mark.rutland@arm.com, benh@kernel.crashing.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============5162781053311543480==
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="Ycz6tD7Th1CMF4v7"
-Content-Disposition: inline
-
-
---Ycz6tD7Th1CMF4v7
+--MGu/vTNewDGZ7tmp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 18, 2019 at 07:32:13PM +0200, Fabien Parent wrote:
-> Since commit abf4923e97c3 ("i2c: mediatek: disable zero-length transfers
-> for mt8183"), there is a NULL pointer dereference for all the SoCs
-> that don't have any quirk. mtk_i2c_functionality is not checking that
-> the quirks pointer is not NULL before starting to use it.
+On Fri, Sep 13, 2019 at 11:35:09AM -0500, Eddie James wrote:
+> The driver default behavior works with the AST2600. We need a new
+> compatible though to make sure the driver doesn't enable AST2400 or
+> AST2500 behavior.
 >=20
-> This commit add a call to i2c_check_quirks which will check whether
-> the quirks pointer is set, and if so will check if the IP has the
-> NO_ZERO_LEN quirk.
->=20
-> Fixes: abf4923e97c3 ("i2c: mediatek: disable zero-length transfers for mt=
-8183")
-> Signed-off-by: Fabien Parent <fparent@baylibre.com>
-> Reviewed-by: Cengiz Can <cengiz@kernel.wtf>
-> Reviewed-by: Hsin-Yi Wang <hsinyi@chromium.org>
-> Tested-by: Ulrich Hecht <uli@fpond.eu>
->=20
+> Signed-off-by: Eddie James <eajames@linux.ibm.com>
 
-Applied to for-current, thanks!
+Applied to for-next, thanks!
 
 
---Ycz6tD7Th1CMF4v7
+--MGu/vTNewDGZ7tmp
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl2toLYACgkQFA3kzBSg
-KbZHYhAAl8PJLRm3n1nm+VexzkwL5Vr5flPI4eZvMIG+4oHfei8QC90cd7qAMaid
-FLmD34xBk+wvW4QUp4VH/UoKm058/2xXE8xPEvVAZdxSVfhpU9tqkOsL4exxvv9A
-ERB4uZvYNbirHWOEv4XgxMSKucnFU+HwcDKqR0JjVWcYfl7jRKoq8lWgiQ0lPSc2
-y87dyYhM6Kp5XU3lGd8WqJbArlxT0h+4IzshXhg7Jh/nbqPIeu+R5jX1ilt1bj/A
-Sk7UCssar8LQ9Xj8kYXWhm7YJZ4mD3DaQ5yvl086mI2QOuAd65MYsU8IiW1/Bq1f
-JzBNSL0nms9CSZwnGL84qa4BC/3PT+MWMTDQYlsKAJAmhz4zkw8JMp2F4uI3KaZd
-p4uX+T5ecjdljvDga5HEsJ9zumJl/U+Hy3jxY+rxLDF+3ZiTVrQa68Hft8S97OI/
-83Q2LikqYYsbUJBXl/6asEdcpitFQwP545w/sSa5wa1kXBwCeCoAbFCxC+s4Sp7H
-aXZQDALTnUeYSLi12K2LYzZ3JZcjr9rPBg5EDNssm3U+SZBC+YESlNIEhGM6HMzX
-ZqHdhYmKM4FRI8F5fQ5ck7NQjq6GKckVIdUQM9q9eb/HdTw2ChgvetaVFO4JcdD+
-WhaIBzgT2gL6ESoLO5gvFya2cV8faV+zrg+SzykofwM99hR4DtU=
-=hHgJ
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl2tozAACgkQFA3kzBSg
+KbYdpBAAnGFjPjHU1RjWdIIjcluWngIiPZ4G1nJ1990ogSV1Q2RKuhVRRP/w2D4B
+3iUiqcFxj86bwQdXxTo+Jesvj9OJw7oHgG8x8aP7cUdSDU2PyB+hhl1kOFj3qKd4
+oLsEDK9yftYvg7VGs56wq7IOM4VkVTEprq7x/2Hf7eIt6t8XEk+YI+op9mjmendq
+6yGM9zspyjGyOwyuTpS6zzcGtJ+pHIOkiV9sju5nvaO0UuhzoMFC35kpLYZbm+rX
+go8RSN/CAgOkeeEBYpeUvKnZLk1Ml/nZ/FdR/YCUDkrvAJjkKqBF3LEuLS6+8iE4
+Un/QFG6OEKLCEQu9KVU4dVovTXGjILK7zpvwPW/gr3U5jeJH4c5xto+agWLA8G3F
+q1UWh6GUq3FV4fEqo0InpazTuEdUcBnIcbPZR/QMWSIoE4CWD2SCQoAHyzk3Jrma
+Seyn0WZEMe2zJfhVQXHidgCbc0gO0NYjPqMQeHYhCnWfhk3pJVfzqKJSLCNsJbBX
+xubXKQu3hgZRGv6vqvPZpRp0ItOYL0lv0TCdTu/f5Maxv0cZ3xzCrU7ZndRcaKtE
+QfhMiXOMjhk5H0VRujNpLN5bHH2RDnGOqW4xeJukteVDidyFLJCQMUkEsVAK1y3p
+FUC3TuW6Oypz7/zx74MgTGZFagWixLFBXz6qzEt0rp+6ANibX/4=
+=a1zx
 -----END PGP SIGNATURE-----
 
---Ycz6tD7Th1CMF4v7--
-
-
---===============5162781053311543480==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============5162781053311543480==--
+--MGu/vTNewDGZ7tmp--
