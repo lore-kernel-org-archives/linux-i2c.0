@@ -1,11 +1,14 @@
 From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: [PATCH i2c-next 0/2] i2c: aspeed: Add H/W timeout support
-Date: Mon, 21 Oct 2019 13:24:12 -0700
-Message-ID: <20191021202414.17484-1-jae.hyun.yoo@linux.intel.com>
+Subject: [PATCH i2c-next 1/2] dt-bindings: i2c: aspeed: add hardware timeout
+ support
+Date: Mon, 21 Oct 2019 13:24:13 -0700
+Message-ID: <20191021202414.17484-2-jae.hyun.yoo@linux.intel.com>
+References: <20191021202414.17484-1-jae.hyun.yoo@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20191021202414.17484-1-jae.hyun.yoo@linux.intel.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -19,21 +22,25 @@ To: Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de
 Cc: devicetree@vger.kernel.org, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, linux-aspeed@lists.ozlabs.org, openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-In case of multi-master environment, if a peer master incorrectly handles
-a bus in the middle of a transaction, I2C hardware hangs in slave state
-and it can't escape from the slave state, so this commit adds slave
-inactive timeout support to recover the bus in the case.
+Append a binding to support hardware timeout feature.
 
-By applying this change, SDA data-low and SCL clock-low timeout feature
-also can be enabled which was disabled previously.
+Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+---
+ Documentation/devicetree/bindings/i2c/i2c-aspeed.txt | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Jae Hyun Yoo (2):
-  dt-bindings: i2c: aspeed: add hardware timeout support
-  i2c: aspeed: add slave inactive timeout support
-
- .../devicetree/bindings/i2c/i2c-aspeed.txt    |  2 +
- drivers/i2c/busses/i2c-aspeed.c               | 82 +++++++++++++++++--
- 2 files changed, 78 insertions(+), 6 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+index b47f6ccb196a..133bfedf4cdd 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+@@ -17,6 +17,8 @@ Optional Properties:
+ - bus-frequency	: frequency of the bus clock in Hz defaults to 100 kHz when not
+ 		  specified
+ - multi-master	: states that there is another master active on this bus.
++- aspeed,hw-timeout-ms	: Hardware timeout in milliseconds. If it's not
++			  specified, the H/W timeout feature will be disabled.
+ 
+ Example:
+ 
 -- 
 2.23.0
