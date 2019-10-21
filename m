@@ -1,151 +1,158 @@
 From: Biwen Li <biwen.li@nxp.com>
-Subject: RE: [EXT] Re: [v3,2/2] i2c: mux: pca954x: support property idle-state
-Date: Mon, 21 Oct 2019 07:40:48 +0000
-Message-ID: <DB7PR04MB44902378FD1E4052F4FB261A8F690@DB7PR04MB4490.eurprd04.prod.outlook.com>
-References: <20191016040920.8511-1-biwen.li@nxp.com>
- <20191016040920.8511-2-biwen.li@nxp.com>
- <6e2fb6b9-4ffe-e6de-744f-a2bfe66a1b6c@axentia.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Subject: [v4,2/2] i2c: mux: pca954x: support property idle-state
+Date: Mon, 21 Oct 2019 16:00:48 +0800
+Message-ID: <20191021080048.47189-2-biwen.li@nxp.com>
+References: <20191021080048.47189-1-biwen.li@nxp.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <6e2fb6b9-4ffe-e6de-744f-a2bfe66a1b6c@axentia.se>
-Content-Language: en-US
+In-Reply-To: <20191021080048.47189-1-biwen.li@nxp.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>, Leo Li <leoyang.li@nxp.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: peda@axentia.se, leoyang.li@nxp.com, robh+dt@kernel.org, mark.rutland@arm.com
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Biwen Li <biwen.li@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-PiBPbiAyMDE5LTEwLTE2IDA2OjA5LCBCaXdlbiBMaSB3cm90ZToNCj4gPiBUaGlzIHN1cHBvcnRz
-IHByb3BlcnR5IGlkbGUtc3RhdGUNCj4gPg0KPiA+IFNpZ25lZC1vZmYtYnk6IEJpd2VuIExpIDxi
-aXdlbi5saUBueHAuY29tPg0KPiA+IC0tLQ0KPiA+IENoYW5nZSBpbiB2MzoNCj4gPiAgICAgICAt
-IHVwZGF0ZSBzdWJqZWN0IGFuZCBkZXNjcmlwdGlvbg0KPiA+ICAgICAgIC0gYWRkIGEgaGVscGVy
-IGZ1bmN0aW9uIHBjYTk1NHhfY2FsY3VsYXRlX2NoYW4oKQ0KPiA+DQo+ID4gQ2hhbmdlIGluIHYy
-Og0KPiA+ICAgICAgIC0gdXBkYXRlIHN1YmplY3QgYW5kIGRlc2NyaXB0aW9uDQo+ID4gICAgICAg
-LSBhZGQgcHJvcGVydHkgaWRsZS1zdGF0ZQ0KPiA+DQo+ID4gIGRyaXZlcnMvaTJjL211eGVzL2ky
-Yy1tdXgtcGNhOTU0eC5jIHwgNjQNCj4gPiArKysrKysrKysrKysrKysrKystLS0tLS0tLS0tLQ0K
-PiA+ICAxIGZpbGUgY2hhbmdlZCwgMzkgaW5zZXJ0aW9ucygrKSwgMjUgZGVsZXRpb25zKC0pDQo+
-ID4NCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvbXV4ZXMvaTJjLW11eC1wY2E5NTR4LmMN
-Cj4gPiBiL2RyaXZlcnMvaTJjL211eGVzL2kyYy1tdXgtcGNhOTU0eC5jDQo+ID4gaW5kZXggOTIz
-YWEzYTVhM2RjLi44Nzc3ZDQyOTI2OWMgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy9pMmMvbXV4
-ZXMvaTJjLW11eC1wY2E5NTR4LmMNCj4gPiArKysgYi9kcml2ZXJzL2kyYy9tdXhlcy9pMmMtbXV4
-LXBjYTk1NHguYw0KPiA+IEBAIC04Niw3ICs4Niw3IEBAIHN0cnVjdCBwY2E5NTR4IHsNCj4gPg0K
-PiA+ICAgICAgIHU4IGxhc3RfY2hhbjsgICAgICAgICAgIC8qIGxhc3QgcmVnaXN0ZXIgdmFsdWUg
-Ki8NCj4gPiAgICAgICAvKiBNVVhfSURMRV9BU19JUywgTVVYX0lETEVfRElTQ09OTkVDVCBvciA+
-PSAwIGZvciBjaGFubmVsICovDQo+ID4gLSAgICAgczggaWRsZV9zdGF0ZTsNCj4gPiArICAgICBz
-MzIgaWRsZV9zdGF0ZTsNCj4gPg0KPiA+ICAgICAgIHN0cnVjdCBpMmNfY2xpZW50ICpjbGllbnQ7
-DQo+ID4NCj4gPiBAQCAtMjI5LDIyICsyMjksMjUgQEAgc3RhdGljIGludCBwY2E5NTR4X3JlZ193
-cml0ZShzdHJ1Y3QgaTJjX2FkYXB0ZXINCj4gKmFkYXAsDQo+ID4gICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgSTJDX1NNQlVTX0JZVEUsICZkdW1teSk7ICB9DQo+ID4NCj4gPiArc3RhdGlj
-IGludCBwY2E5NTR4X2NhbGN1bGF0ZV9jaGFuKHN0cnVjdCBwY2E5NTR4ICpkYXRhLCB1MzIgY2hh
-bikNCj4gDQo+IFNob3VsZCByZXR1cm4gdTgsIGFuZCAiY2hhbiIgaXMgbm90IHdoYXQgaXMgY2Fs
-Y3VsYXRlZC4gUGVyaGFwcyBuYW1lIHRoZQ0KPiBmdW5jdGlvbiBwY2E5NTR4X3JlZ3ZhbD8NCk9r
-YXksIGdvdCBpdCwgSSB3aWxsIGNoYW5nZSBpdCBpbiB2NC4NCj4gDQo+IChZZXMsIGxhc3RfY2hh
-biBpcyBhbHNvIGNsZWFybHkgYSBiYWQgbmFtZSwgYW5kIEkgc3VzcGVjdCB5b3UgbWF5IGhhdmUN
-Cj4gYmFzZWQgdGhpcyBuYW1lIG9uIGl0LCBidXQgY2hhbmdpbmcgdGhhdCBpcyBhIHNlcGFyYXRl
-IHBhdGNoLikNCj4gDQo+ID4gK3sNCj4gPiArICAgICAvKiB3ZSBtYWtlIHN3aXRjaGVzIGxvb2sg
-bGlrZSBtdXhlcywgbm90IHN1cmUgaG93IHRvIGJlIHNtYXJ0ZXIgKi8NCj4gPiArICAgICBpZiAo
-ZGF0YS0+Y2hpcC0+bXV4dHlwZSA9PSBwY2E5NTR4X2lzbXV4KQ0KPiA+ICsgICAgICAgICAgICAg
-cmV0dXJuIGNoYW4gfCBkYXRhLT5jaGlwLT5lbmFibGU7DQo+ID4gKyAgICAgZWxzZQ0KPiA+ICsg
-ICAgICAgICAgICAgcmV0dXJuIDEgPDwgY2hhbjsNCj4gPiArfQ0KPiA+ICsNCj4gPiAgc3RhdGlj
-IGludCBwY2E5NTR4X3NlbGVjdF9jaGFuKHN0cnVjdCBpMmNfbXV4X2NvcmUgKm11eGMsIHUzMiBj
-aGFuKQ0KPiA+IHsNCj4gPiAgICAgICBzdHJ1Y3QgcGNhOTU0eCAqZGF0YSA9IGkyY19tdXhfcHJp
-dihtdXhjKTsNCj4gPiAgICAgICBzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50ID0gZGF0YS0+Y2xp
-ZW50Ow0KPiA+IC0gICAgIGNvbnN0IHN0cnVjdCBjaGlwX2Rlc2MgKmNoaXAgPSBkYXRhLT5jaGlw
-Ow0KPiA+ICAgICAgIHU4IHJlZ3ZhbDsNCj4gPiAgICAgICBpbnQgcmV0ID0gMDsNCj4gPg0KPiA+
-IC0gICAgIC8qIHdlIG1ha2Ugc3dpdGNoZXMgbG9vayBsaWtlIG11eGVzLCBub3Qgc3VyZSBob3cg
-dG8gYmUgc21hcnRlciAqLw0KPiA+IC0gICAgIGlmIChjaGlwLT5tdXh0eXBlID09IHBjYTk1NHhf
-aXNtdXgpDQo+ID4gLSAgICAgICAgICAgICByZWd2YWwgPSBjaGFuIHwgY2hpcC0+ZW5hYmxlOw0K
-PiA+IC0gICAgIGVsc2UNCj4gPiAtICAgICAgICAgICAgIHJlZ3ZhbCA9IDEgPDwgY2hhbjsNCj4g
-PiAtDQo+ID4gKyAgICAgcmVndmFsID0gcGNhOTU0eF9jYWxjdWxhdGVfY2hhbihkYXRhLCBjaGFu
-KTsNCj4gDQo+IEkgdGhpbmsgSSB3b3VsZCBoYXZlIGtlcHQgdGhlIGVtcHR5IGxpbmUgaGVyZS4g
-Tm90IGltcG9ydGFudC4uLg0KPiANCj4gPiAgICAgICAvKiBPbmx5IHNlbGVjdCB0aGUgY2hhbm5l
-bCBpZiBpdHMgZGlmZmVyZW50IGZyb20gdGhlIGxhc3QgY2hhbm5lbCAqLw0KPiA+IC0gICAgIGlm
-IChkYXRhLT5sYXN0X2NoYW4gIT0gcmVndmFsKSB7DQo+ID4gKyAgICAgaWYgKChkYXRhLT5sYXN0
-X2NoYW4gJiAweGZmKSAhPSByZWd2YWwpIHsNCj4gDQo+IFRoZSBjaGFuZ2VzIG9uIHRoaXMgbGlu
-ZSBhcmUgbm90IG5lZWRlZCAobGFzdF9jaGFuIGFuZCByZWd2YWwgYXJlIGJvdGggdTgpDQo+IGFu
-ZCBqdXN0IGNsdXR0ZXJzIHVwIHRoZSBjb2RlLg0KT2theSwgZ290IGl0LCBJIHdpbGwgbm90IGNo
-YW5nZSBpdCBpbiB2NC4NCj4gDQo+ID4gICAgICAgICAgICAgICByZXQgPSBwY2E5NTR4X3JlZ193
-cml0ZShtdXhjLT5wYXJlbnQsIGNsaWVudCwgcmVndmFsKTsNCj4gPiAgICAgICAgICAgICAgIGRh
-dGEtPmxhc3RfY2hhbiA9IHJldCA8IDAgPyAwIDogcmVndmFsOw0KPiA+ICAgICAgIH0NCj4gPiBA
-QCAtMjU2LDcgKzI1OSw3IEBAIHN0YXRpYyBpbnQgcGNhOTU0eF9kZXNlbGVjdF9tdXgoc3RydWN0
-DQo+ID4gaTJjX211eF9jb3JlICptdXhjLCB1MzIgY2hhbikgIHsNCj4gPiAgICAgICBzdHJ1Y3Qg
-cGNhOTU0eCAqZGF0YSA9IGkyY19tdXhfcHJpdihtdXhjKTsNCj4gPiAgICAgICBzdHJ1Y3QgaTJj
-X2NsaWVudCAqY2xpZW50ID0gZGF0YS0+Y2xpZW50Ow0KPiA+IC0gICAgIHM4IGlkbGVfc3RhdGU7
-DQo+ID4gKyAgICAgczMyIGlkbGVfc3RhdGU7DQo+ID4NCj4gPiAgICAgICBpZGxlX3N0YXRlID0g
-UkVBRF9PTkNFKGRhdGEtPmlkbGVfc3RhdGUpOw0KPiA+ICAgICAgIGlmIChpZGxlX3N0YXRlID49
-IDApDQo+ID4gQEAgLTQwMiw2ICs0MDUsMjMgQEAgc3RhdGljIHZvaWQgcGNhOTU0eF9jbGVhbnVw
-KHN0cnVjdA0KPiBpMmNfbXV4X2NvcmUgKm11eGMpDQo+ID4gICAgICAgaTJjX211eF9kZWxfYWRh
-cHRlcnMobXV4Yyk7DQo+ID4gIH0NCj4gPg0KPiA+ICtzdGF0aWMgaW50IHBjYTk1NHhfaW5pdChz
-dHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50LCBzdHJ1Y3QgcGNhOTU0eA0KPiA+ICsqZGF0YSkgew0K
-PiA+ICsgICAgIC8qDQo+ID4gKyAgICAgICogV3JpdGUgdGhlIG11eCByZWdpc3RlciBhdCBhZGRy
-IHRvIHZlcmlmeQ0KPiA+ICsgICAgICAqIHRoYXQgdGhlIG11eCBpcyBpbiBmYWN0IHByZXNlbnQu
-IFRoaXMgYWxzbw0KPiA+ICsgICAgICAqIGluaXRpYWxpemVzIHRoZSBtdXggdG8gYSBjaGFubmVs
-DQo+ID4gKyAgICAgICogb3IgZGlzY29ubmVjdGVkIHN0YXRlLg0KPiA+ICsgICAgICAqLw0KPiAN
-Cj4gQWdhaW4sIHRoaXMgY29tbWVudCBiZWxvbmdzIGluIHBjYTk1NHhfcHJvYmUgYmVmb3JlIHRo
-ZSBjYWxsIHRvIHRoaXMNCj4gZnVuY3Rpb24uDQo+IEl0IGRvZXMgbm90IGFwcGx5IChhdCBsZWFz
-dCBub3QgdGhlIGZpcnN0IHNlbnRlbmNlKSB3aGVuIHBjYTk1NHhfaW5pdCBpcyBjYWxsZWQNCj4g
-ZnJvbSBwY2E5NTR4X3Jlc3VtZS4NCk9rYXksIGdvdCBpdCwgdGhhbmtzLCBJIHdpbGwgbW92ZSBp
-dCBpbiB2NC4NCj4gDQo+IEhtbW0sIGl0IGNvdWxkIGJlIGFyZ3VlZCB0aGF0IHNwZWNpZnlpbmcg
-TVVYX0lETEVfQVNfSVMgc2hvdWxkIG5vdA0KPiB0cmlnZ2VyIGEgZGlzY29ubmVjdCBvbiBpbml0
-IChzaW5jZSB0aGUgbXV4IGlzIGFsd2F5cyBpZGxlIGF0IGluaXQpIGFuZCB0aGF0DQo+IHNvbWUg
-b3RoZXIgbWV0aG9kIHNob3VsZCBiZSB1c2VkIHRvIGRldGVybWluZSBpZiB0aGUgY2hpcCBpcyBw
-cmVzZW50LiBUaGUNCj4gZGlmZmVyZW5jZSBpcyB0aGF0IHdpdGggdGhlIGlkbGUtc3RhdGUgcHJv
-cGVydHkgeW91IGNhbiBleHBsaWNpdGx5IHJlcXVlc3QNCj4gTVVYX0lETEVfQVNfSVMsIHdoaWxl
-IHRoZSBvbGQgY29kZSBvbmx5IGhhZCBzb21lIGRlZmF1bHQgYmVoYXZpb3IgaWYNCj4gaTJjLW11
-eC1pZGxlLWRpc2Nvbm5lY3Qgd2FzIG5vdCBwcmVzZW50Lg0KPiANCj4gVGhlIGVhc3kgd2F5IG91
-dCBvZiB0aGlzIGlzIHRvLCBpbiB0aGUgYmluZGluZywgZG9jdW1lbnQgdGhlIHNpdHVhdGlvbiBh
-bmQgc2F5DQo+IHRoYXQgImlkbGUtc3RhdGUgPSA8TVVYX0lETEVfQVNfSVM+OyIgaXMgbm90IHN1
-cHBvcnRlZCBidXQgdGhhdCBzaW1pbGFyDQo+IGZ1bmN0aW9uYWxpdHkgY2FuIGJlIG9idGFpbmVk
-IGJ5IGxlYXZpbmcgb3V0IGJvdGggdGhlDQo+IGkyYy1tdXgtaWRsZS1kaXNjb25uZWN0IGFuZCBp
-ZGxlLXN0YXRlIHByb3BlcnRpZXMuDQpJIHdpbGwgc3VwcG9ydCBNVVhfSURMRV9BU19JUyBpbiB2
-NC4NCg0KPiANCj4gPiArICAgICBpZiAoZGF0YS0+aWRsZV9zdGF0ZSA+PSAwKSB7DQo+ID4gKyAg
-ICAgICAgICAgICBkYXRhLT5sYXN0X2NoYW4gPSBwY2E5NTR4X2NhbGN1bGF0ZV9jaGFuKGRhdGEs
-DQo+IGRhdGEtPmlkbGVfc3RhdGUpOw0KPiA+ICsgICAgIH0gZWxzZSB7DQo+ID4gKyAgICAgICAg
-ICAgICAvKiBEaXNjb25uZWN0IG11bHRpcGxleGVyICovDQo+ID4gKyAgICAgICAgICAgICBkYXRh
-LT5sYXN0X2NoYW4gPSAwOw0KPiA+ICsgICAgIH0NCj4gPiArICAgICByZXR1cm4gaTJjX3NtYnVz
-X3dyaXRlX2J5dGUoY2xpZW50LCBkYXRhLT5sYXN0X2NoYW4pOyB9DQo+ID4gKw0KPiA+ICAvKg0K
-PiA+ICAgKiBJMkMgaW5pdC9wcm9iaW5nL2V4aXQgZnVuY3Rpb25zDQo+ID4gICAqLw0KPiA+IEBA
-IC00MTEsNyArNDMxLDYgQEAgc3RhdGljIGludCBwY2E5NTR4X3Byb2JlKHN0cnVjdCBpMmNfY2xp
-ZW50ICpjbGllbnQsDQo+ID4gICAgICAgc3RydWN0IGkyY19hZGFwdGVyICphZGFwID0gY2xpZW50
-LT5hZGFwdGVyOw0KPiA+ICAgICAgIHN0cnVjdCBkZXZpY2UgKmRldiA9ICZjbGllbnQtPmRldjsN
-Cj4gPiAgICAgICBzdHJ1Y3QgZGV2aWNlX25vZGUgKm5wID0gZGV2LT5vZl9ub2RlOw0KPiA+IC0g
-ICAgIGJvb2wgaWRsZV9kaXNjb25uZWN0X2R0Ow0KPiA+ICAgICAgIHN0cnVjdCBncGlvX2Rlc2Mg
-KmdwaW87DQo+ID4gICAgICAgc3RydWN0IGkyY19tdXhfY29yZSAqbXV4YzsNCj4gPiAgICAgICBz
-dHJ1Y3QgcGNhOTU0eCAqZGF0YTsNCj4gPiBAQCAtNDYyLDIyICs0ODEsMTggQEAgc3RhdGljIGlu
-dCBwY2E5NTR4X3Byb2JlKHN0cnVjdCBpMmNfY2xpZW50DQo+ICpjbGllbnQsDQo+ID4gICAgICAg
-ICAgICAgICB9DQo+ID4gICAgICAgfQ0KPiA+DQo+ID4gLSAgICAgLyogV3JpdGUgdGhlIG11eCBy
-ZWdpc3RlciBhdCBhZGRyIHRvIHZlcmlmeQ0KPiA+IC0gICAgICAqIHRoYXQgdGhlIG11eCBpcyBp
-biBmYWN0IHByZXNlbnQuIFRoaXMgYWxzbw0KPiA+IC0gICAgICAqIGluaXRpYWxpemVzIHRoZSBt
-dXggdG8gZGlzY29ubmVjdGVkIHN0YXRlLg0KPiA+IC0gICAgICAqLw0KPiA+IC0gICAgIGlmIChp
-MmNfc21idXNfd3JpdGVfYnl0ZShjbGllbnQsIDApIDwgMCkgew0KPiA+ICsgICAgIGRhdGEtPmlk
-bGVfc3RhdGUgPSBNVVhfSURMRV9BU19JUzsNCj4gPiArICAgICBpZiAobnAgJiYgb2ZfcHJvcGVy
-dHlfcmVhZF91MzIobnAsICJpZGxlLXN0YXRlIiwgJmRhdGEtPmlkbGVfc3RhdGUpKQ0KPiB7DQo+
-ID4gKyAgICAgICAgICAgICBpZiAobnAgJiYgb2ZfcHJvcGVydHlfcmVhZF9ib29sKG5wLA0KPiA+
-ICsgImkyYy1tdXgtaWRsZS1kaXNjb25uZWN0IikpDQo+IA0KPiBZb3UgZG8gbm90IG5lZWQgdG8g
-ZG8gdGhlICJucCAmJiIgcGFydCBmb3IgYm90aCBpZnMsIHNpbmNlIGl0J3MgYWxyZWFkeSBrbm93
-DQo+IHRoYXQgbnAgaXMgbm9uLU5VTEwgd2hlbiB5b3UgaGl0IHRoZSBzZWNvbmQgaWYuIEJ1dCwg
-aXQncyBhIE5PUCBpbiB0aGUgZmlyc3QgaWYsDQo+IHNpbmNlIG9mX3Byb3BlcnR5X3JlYWRfdTMy
-IHJldHVybnMgLUVJTlZBTCBpZiBpdCBpcy4gU28sIEkgc3VnZ2VzdA0KPiANCj4gICAgICAgICBp
-ZiAob2ZfcHJvcGVydHlfcmVhZF91MzIobnAsICJpZGxlLXN0YXRlIiwgJmRhdGEtPmlkbGVfc3Rh
-dGUpKSB7DQo+ICAgICAgICAgICAgICAgICBpZiAobnAgJiYgb2ZfcHJvcGVydHlfcmVhZF9ib29s
-KG5wLA0KPiAiaTJjLW11eC1pZGxlLWRpc2Nvbm5lY3QiKSkNCk9rYXksIHRoYW5rcywgSSB3aWxs
-IHJlbW92ZSBpdCBpbiB2NC4NCj4gDQo+IENoZWVycywNCj4gUGV0ZXINCj4gDQo+ID4gKyAgICAg
-ICAgICAgICAgICAgICAgIGRhdGEtPmlkbGVfc3RhdGUgPSBNVVhfSURMRV9ESVNDT05ORUNUOw0K
-PiA+ICsgICAgIH0NCj4gPiArDQo+ID4gKyAgICAgcmV0ID0gcGNhOTU0eF9pbml0KGNsaWVudCwg
-ZGF0YSk7DQo+ID4gKyAgICAgaWYgKHJldCA8IDApIHsNCj4gPiAgICAgICAgICAgICAgIGRldl93
-YXJuKGRldiwgInByb2JlIGZhaWxlZFxuIik7DQo+ID4gICAgICAgICAgICAgICByZXR1cm4gLUVO
-T0RFVjsNCj4gPiAgICAgICB9DQo+ID4NCj4gPiAtICAgICBkYXRhLT5sYXN0X2NoYW4gPSAwOyAg
-ICAgICAgICAgICAgIC8qIGZvcmNlIHRoZSBmaXJzdCBzZWxlY3Rpb24gKi8NCj4gPiAtICAgICBk
-YXRhLT5pZGxlX3N0YXRlID0gTVVYX0lETEVfQVNfSVM7DQo+ID4gLQ0KPiA+IC0gICAgIGlkbGVf
-ZGlzY29ubmVjdF9kdCA9IG5wICYmDQo+ID4gLSAgICAgICAgICAgICBvZl9wcm9wZXJ0eV9yZWFk
-X2Jvb2wobnAsICJpMmMtbXV4LWlkbGUtZGlzY29ubmVjdCIpOw0KPiA+IC0gICAgIGlmIChpZGxl
-X2Rpc2Nvbm5lY3RfZHQpDQo+ID4gLSAgICAgICAgICAgICBkYXRhLT5pZGxlX3N0YXRlID0gTVVY
-X0lETEVfRElTQ09OTkVDVDsNCj4gPg0KPiA+ICAgICAgIHJldCA9IHBjYTk1NHhfaXJxX3NldHVw
-KG11eGMpOw0KPiA+ICAgICAgIGlmIChyZXQpDQo+ID4gQEAgLTUzMSw4ICs1NDYsNyBAQCBzdGF0
-aWMgaW50IHBjYTk1NHhfcmVzdW1lKHN0cnVjdCBkZXZpY2UgKmRldikNCj4gPiAgICAgICBzdHJ1
-Y3QgaTJjX211eF9jb3JlICptdXhjID0gaTJjX2dldF9jbGllbnRkYXRhKGNsaWVudCk7DQo+ID4g
-ICAgICAgc3RydWN0IHBjYTk1NHggKmRhdGEgPSBpMmNfbXV4X3ByaXYobXV4Yyk7DQo+ID4NCj4g
-PiAtICAgICBkYXRhLT5sYXN0X2NoYW4gPSAwOw0KPiA+IC0gICAgIHJldHVybiBpMmNfc21idXNf
-d3JpdGVfYnl0ZShjbGllbnQsIDApOw0KPiA+ICsgICAgIHJldHVybiBwY2E5NTR4X2luaXQoY2xp
-ZW50LCBkYXRhKTsNCj4gPiAgfQ0KPiA+ICAjZW5kaWYNCj4gPg0KPiA+DQoNCg==
+This supports property idle-state
+
+Signed-off-by: Biwen Li <biwen.li@nxp.com>
+---
+Change in v4:
+	- rename function
+	  pca954x_calculate_chan -> pca954x_regval
+
+Change in v3:
+	- update subject and description
+	- add a helper function pca954x_calculate_chan()
+
+Change in v2:
+	- update subject and description
+	- add property idle-state
+
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 59 ++++++++++++++++++-----------
+ 1 file changed, 36 insertions(+), 23 deletions(-)
+
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index 923aa3a5a3dc..e566c4cd8ba5 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -86,7 +86,7 @@ struct pca954x {
+ 
+ 	u8 last_chan;		/* last register value */
+ 	/* MUX_IDLE_AS_IS, MUX_IDLE_DISCONNECT or >= 0 for channel */
+-	s8 idle_state;
++	s32 idle_state;
+ 
+ 	struct i2c_client *client;
+ 
+@@ -229,20 +229,23 @@ static int pca954x_reg_write(struct i2c_adapter *adap,
+ 				I2C_SMBUS_BYTE, &dummy);
+ }
+ 
++static u8 pca954x_regval(struct pca954x *data, u8 chan)
++{
++	/* we make switches look like muxes, not sure how to be smarter */
++	if (data->chip->muxtype == pca954x_ismux)
++		return chan | data->chip->enable;
++	else
++		return 1 << chan;
++}
++
+ static int pca954x_select_chan(struct i2c_mux_core *muxc, u32 chan)
+ {
+ 	struct pca954x *data = i2c_mux_priv(muxc);
+ 	struct i2c_client *client = data->client;
+-	const struct chip_desc *chip = data->chip;
+ 	u8 regval;
+ 	int ret = 0;
+ 
+-	/* we make switches look like muxes, not sure how to be smarter */
+-	if (chip->muxtype == pca954x_ismux)
+-		regval = chan | chip->enable;
+-	else
+-		regval = 1 << chan;
+-
++	regval = pca954x_regval(data, (u8)(chan & 0xff));
+ 	/* Only select the channel if its different from the last channel */
+ 	if (data->last_chan != regval) {
+ 		ret = pca954x_reg_write(muxc->parent, client, regval);
+@@ -256,7 +259,7 @@ static int pca954x_deselect_mux(struct i2c_mux_core *muxc, u32 chan)
+ {
+ 	struct pca954x *data = i2c_mux_priv(muxc);
+ 	struct i2c_client *client = data->client;
+-	s8 idle_state;
++	s32 idle_state;
+ 
+ 	idle_state = READ_ONCE(data->idle_state);
+ 	if (idle_state >= 0)
+@@ -402,6 +405,17 @@ static void pca954x_cleanup(struct i2c_mux_core *muxc)
+ 	i2c_mux_del_adapters(muxc);
+ }
+ 
++static int pca954x_init(struct i2c_client *client, struct pca954x *data)
++{
++	if (data->idle_state >= 0) {
++		data->last_chan = pca954x_regval(data, (u8)(data->idle_state & 0xff));
++	} else {
++		/* Disconnect multiplexer */
++		data->last_chan = 0;
++	}
++	return i2c_smbus_write_byte(client, data->last_chan);
++}
++
+ /*
+  * I2C init/probing/exit functions
+  */
+@@ -411,7 +425,6 @@ static int pca954x_probe(struct i2c_client *client,
+ 	struct i2c_adapter *adap = client->adapter;
+ 	struct device *dev = &client->dev;
+ 	struct device_node *np = dev->of_node;
+-	bool idle_disconnect_dt;
+ 	struct gpio_desc *gpio;
+ 	struct i2c_mux_core *muxc;
+ 	struct pca954x *data;
+@@ -462,23 +475,24 @@ static int pca954x_probe(struct i2c_client *client,
+ 		}
+ 	}
+ 
+-	/* Write the mux register at addr to verify
++	data->idle_state = MUX_IDLE_AS_IS;
++	if (of_property_read_u32(np, "idle-state", &data->idle_state)) {
++		if (np && of_property_read_bool(np, "i2c-mux-idle-disconnect"))
++			data->idle_state = MUX_IDLE_DISCONNECT;
++	}
++
++	/*
++	 * Write the mux register at addr to verify
+ 	 * that the mux is in fact present. This also
+-	 * initializes the mux to disconnected state.
++	 * initializes the mux to a channel
++	 * or disconnected state.
+ 	 */
+-	if (i2c_smbus_write_byte(client, 0) < 0) {
++	ret = pca954x_init(client, data);
++	if (ret < 0) {
+ 		dev_warn(dev, "probe failed\n");
+ 		return -ENODEV;
+ 	}
+ 
+-	data->last_chan = 0;		   /* force the first selection */
+-	data->idle_state = MUX_IDLE_AS_IS;
+-
+-	idle_disconnect_dt = np &&
+-		of_property_read_bool(np, "i2c-mux-idle-disconnect");
+-	if (idle_disconnect_dt)
+-		data->idle_state = MUX_IDLE_DISCONNECT;
+-
+ 	ret = pca954x_irq_setup(muxc);
+ 	if (ret)
+ 		goto fail_cleanup;
+@@ -531,8 +545,7 @@ static int pca954x_resume(struct device *dev)
+ 	struct i2c_mux_core *muxc = i2c_get_clientdata(client);
+ 	struct pca954x *data = i2c_mux_priv(muxc);
+ 
+-	data->last_chan = 0;
+-	return i2c_smbus_write_byte(client, 0);
++	return pca954x_init(client, data);
+ }
+ #endif
+ 
+-- 
+2.17.1
