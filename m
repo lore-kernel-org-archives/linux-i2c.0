@@ -1,121 +1,103 @@
-From: Neil Armstrong <narmstrong@baylibre.com>
-Subject: [PATCH] dt-bindings: i2c: meson: convert to yaml
-Date: Mon, 21 Oct 2019 16:00:53 +0200
-Message-ID: <20191021140053.9525-1-narmstrong@baylibre.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v5 0/9] i2c: add support for filters
+Date: Mon, 21 Oct 2019 16:05:15 +0200
+Message-ID: <20191021140515.GC26782@ninjato>
+References: <1568189911-31641-1-git-send-email-eugen.hristev@microchip.com>
+ <c17182ac-67dd-d11f-5daf-066bf446b969@microchip.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="MnLPg7ZWsaic7Fhd"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <c17182ac-67dd-d11f-5daf-066bf446b969@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: robh+dt@kernel.org
-Cc: devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>, Beniamino Galvani <b.galvani@gmail.com>
+To: Eugen.Hristev@microchip.com
+Cc: peda@axentia.se, mark.rutland@arm.com, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, alexandre.belloni@bootlin.com, robh+dt@kernel.org, Nicolas.Ferre@microchip.com
 List-Id: linux-i2c@vger.kernel.org
 
-Now that we have the DT validation in place, let's convert the device tree
-bindings for the Amlogic I2C Controller over to YAML schemas.
 
-Cc: Beniamino Galvani <b.galvani@gmail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
----
- .../bindings/i2c/amlogic,meson6-i2c.yaml      | 53 +++++++++++++++++++
- .../devicetree/bindings/i2c/i2c-meson.txt     | 30 -----------
- 2 files changed, 53 insertions(+), 30 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/i2c/amlogic,meson6-i2c.yaml
- delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-meson.txt
+--MnLPg7ZWsaic7Fhd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/Documentation/devicetree/bindings/i2c/amlogic,meson6-i2c.yaml b/Documentation/devicetree/bindings/i2c/amlogic,meson6-i2c.yaml
-new file mode 100644
-index 000000000000..49cad273c8e5
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/amlogic,meson6-i2c.yaml
-@@ -0,0 +1,53 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+# Copyright 2019 BayLibre, SAS
-+%YAML 1.2
-+---
-+$id: "http://devicetree.org/schemas/i2c/amlogic,meson6-i2c.yaml#"
-+$schema: "http://devicetree.org/meta-schemas/core.yaml#"
-+
-+title: Amlogic Meson I2C Controller
-+
-+maintainers:
-+  - Neil Armstrong <narmstrong@baylibre.com>
-+  - Beniamino Galvani <b.galvani@gmail.com>
-+
-+allOf:
-+  - $ref: /schemas/i2c/i2c-controller.yaml#
-+
-+properties:
-+  compatible:
-+    enum:
-+      - amlogic,meson6-i2c # Meson6, Meson8 and compatible SoCs
-+      - amlogic,meson-gxbb-i2c # GXBB and compatible SoCs
-+      - amlogic,meson-axg-i2c # AXG and compatible SoCs
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    minItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - clocks
-+
-+examples:
-+  - |
-+    i2c@c8100500 {
-+        compatible = "amlogic,meson6-i2c";
-+        reg = <0xc8100500 0x20>;
-+        interrupts = <92>;
-+        clocks = <&clk81>;
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        eeprom@52 {
-+            compatible = "atmel,24c32";
-+            reg = <0x52>;
-+        };
-+    };
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-meson.txt b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-deleted file mode 100644
-index 13d410de077c..000000000000
---- a/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-+++ /dev/null
-@@ -1,30 +0,0 @@
--Amlogic Meson I2C controller
--
--Required properties:
-- - compatible: must be:
--	"amlogic,meson6-i2c" for Meson8 and compatible SoCs
--	"amlogic,meson-gxbb-i2c" for GXBB and compatible SoCs
--	"amlogic,meson-axg-i2c"for AXG and compatible SoCs
--
-- - reg: physical address and length of the device registers
-- - interrupts: a single interrupt specifier
-- - clocks: clock for the device
-- - #address-cells: should be <1>
-- - #size-cells: should be <0>
--
--For details regarding the following core I2C bindings see also i2c.txt.
--
--Optional properties:
--- clock-frequency: the desired I2C bus clock frequency in Hz; in
--  absence of this property the default value is used (100 kHz).
--
--Examples:
--
--	i2c@c8100500 {
--		compatible = "amlogic,meson6-i2c";
--		reg = <0xc8100500 0x20>;
--		interrupts = <0 92 1>;
--		clocks = <&clk81>;
--		#address-cells = <1>;
--		#size-cells = <0>;
--	};
--- 
-2.22.0
+On Mon, Oct 07, 2019 at 07:53:21AM +0000, Eugen.Hristev@microchip.com wrote:
+>=20
+>=20
+> On 11.09.2019 11:24, Eugen Hristev - M18282 wrote:
+> > From: Eugen Hristev <eugen.hristev@microchip.com>
+> >=20
+> > Hello,
+> >=20
+> > This series adds support for analog and digital filters for i2c control=
+lers
+> >=20
+> > This series is based on the series:
+> > [PATCH v2 0/9] i2c: at91: filters support for at91 SoCs
+> > and later
+> > [PATCH v4 0/9] i2c: add support for filters
+> > and enhanced to add the bindings for all controllers plus an extra bind=
+ings
+> > for the width of the spikes in nanoseconds (digital filters) and cut-off
+> > frequency (analog filters)
+> >=20
+> > First, bindings are created for
+> > 'i2c-analog-filter'
+> > 'i2c-digital-filter'
+> > 'i2c-digital-filter-width-ns'
+> > 'i2c-analog-filter-cutoff-frequency'
+> >=20
+> > The support is added in the i2c core to retrieve filter width/cutoff fr=
+equency
+> > and add it to the timings structure.
+> > Next, the at91 driver is enhanced for supporting digital filter, advanc=
+ed
+> > digital filter (with selectable spike width) and the analog filter.
+> >=20
+> > Finally the device tree for two boards are modified to make use of the
+> > new properties.
+> >=20
+> > This series is the result of the comments on the ML in the direction
+> > requested: to make the bindings globally available for i2c drivers.
+> >=20
+> > Changes in v5:
+> > - renamed i2c-filter-width-ns to i2c-digital-filter-width-ns as this
+> > is applicable only to digital filter
+> > - created new binding i2c-digital-filter-width-ns for analog filters.
+>=20
+> Hello Wolfram and Peter,
+>=20
+> Are you happy with the changes in this version? I haven't heard from you=
+=20
+> since this latest update.
+> I am interested to know if anymore changes are required or maybe we can=
+=20
+> move further with this support.
+
+So, I had a look now and I am happy. I will give Peter one more day to
+comment, otherwise I'll apply it tomorrow.
+
+Thanks for your patience and keeping at it!
+
+
+--MnLPg7ZWsaic7Fhd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl2tuxsACgkQFA3kzBSg
+KbY6GQ//X5UmvTKTkgT+9BdG4luCpqZEKeKetljuT2RVeGL56TJwBRiOYWymfAa+
+U88PvGx1Q9mmI/E4AvzTAsnwjZiqACFw5n4NG+mWfWmd5H2P7ko6PpgVUL7Lk/0S
+zbP658UBLM1LBHjtDI4n1juS6daxP1m2Z43NaaiskaQFBmvWtPRo5mv0jpDdbYi2
+gMQ2Qo1efHoaBm+bdVu6Z8O71QktM5BhqKgAPxV9vWA0etSNqiDMII9qk9SmpSfE
+4JcqmuAOa0fhDzbc+wKaLZoq3Gk3WiOeTImFHEw5wKZJE80guUBWNiJ2Bl96apQT
+E/+M3VuTnS1VWqkS6w0oJ0lA/un8gf+CtYbZblirG05fv7suBSLGuCe2RZvl9pJM
+t/LHClLyZ/yBcYL9eAeMj1tM14II/rWES1go5UxhukZW2c7Eqep4UOPTtYQg4rwO
+EozMsz3sueMFU5l6llkLW1t+tb8DnLlvlzB6wZtNlLQjL8cYMBfZJrdBy9N0wX1n
+nxWhQVIjer4AluEwqpGXJ0bPDrClRr9zgznUzG4ydGRAKSNHLJ01kvvxgQmTPYr6
+PSCbo+4EZWFVMZNCi0DGWQFeRLCsqoN+NsHhyM0z7wAc6TUbuaviB1qpRq7+ALkp
+GktKG3WXzYEsJmEMiU5ZsJRMC/wIRicGcF7GxqJx1VGO6712MXo=
+=4jBB
+-----END PGP SIGNATURE-----
+
+--MnLPg7ZWsaic7Fhd--
