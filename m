@@ -1,103 +1,67 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 0/9] i2c: add support for filters
-Date: Mon, 21 Oct 2019 16:05:15 +0200
-Message-ID: <20191021140515.GC26782@ninjato>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v5 3/9] i2c: add support for filters optional properties
+Date: Mon, 21 Oct 2019 15:20:44 +0000
+Message-ID: <d7172480-0ba3-3412-aebf-353bfe8d6f66@axentia.se>
 References: <1568189911-31641-1-git-send-email-eugen.hristev@microchip.com>
- <c17182ac-67dd-d11f-5daf-066bf446b969@microchip.com>
+ <1568189911-31641-4-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="MnLPg7ZWsaic7Fhd"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <c17182ac-67dd-d11f-5daf-066bf446b969@microchip.com>
+In-Reply-To: <1568189911-31641-4-git-send-email-eugen.hristev@microchip.com>
+Content-Language: en-US
+Content-ID: <6E26C7A80CEE0D4A864CA97F250362B5@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eugen.Hristev@microchip.com
-Cc: peda@axentia.se, mark.rutland@arm.com, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, alexandre.belloni@bootlin.com, robh+dt@kernel.org, Nicolas.Ferre@microchip.com
+To: "Eugen.Hristev@microchip.com" <Eugen.Hristev@microchip.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "Ludovic.Desroches@microchip.com" <Ludovic.Desroches@microchip.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>
+Cc: "Nicolas.Ferre@microchip.com" <Nicolas.Ferre@microchip.com>
 List-Id: linux-i2c@vger.kernel.org
 
-
---MnLPg7ZWsaic7Fhd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Oct 07, 2019 at 07:53:21AM +0000, Eugen.Hristev@microchip.com wrote:
->=20
->=20
-> On 11.09.2019 11:24, Eugen Hristev - M18282 wrote:
-> > From: Eugen Hristev <eugen.hristev@microchip.com>
-> >=20
-> > Hello,
-> >=20
-> > This series adds support for analog and digital filters for i2c control=
-lers
-> >=20
-> > This series is based on the series:
-> > [PATCH v2 0/9] i2c: at91: filters support for at91 SoCs
-> > and later
-> > [PATCH v4 0/9] i2c: add support for filters
-> > and enhanced to add the bindings for all controllers plus an extra bind=
-ings
-> > for the width of the spikes in nanoseconds (digital filters) and cut-off
-> > frequency (analog filters)
-> >=20
-> > First, bindings are created for
-> > 'i2c-analog-filter'
-> > 'i2c-digital-filter'
-> > 'i2c-digital-filter-width-ns'
-> > 'i2c-analog-filter-cutoff-frequency'
-> >=20
-> > The support is added in the i2c core to retrieve filter width/cutoff fr=
-equency
-> > and add it to the timings structure.
-> > Next, the at91 driver is enhanced for supporting digital filter, advanc=
-ed
-> > digital filter (with selectable spike width) and the analog filter.
-> >=20
-> > Finally the device tree for two boards are modified to make use of the
-> > new properties.
-> >=20
-> > This series is the result of the comments on the ML in the direction
-> > requested: to make the bindings globally available for i2c drivers.
-> >=20
-> > Changes in v5:
-> > - renamed i2c-filter-width-ns to i2c-digital-filter-width-ns as this
-> > is applicable only to digital filter
-> > - created new binding i2c-digital-filter-width-ns for analog filters.
->=20
-> Hello Wolfram and Peter,
->=20
-> Are you happy with the changes in this version? I haven't heard from you=
-=20
-> since this latest update.
-> I am interested to know if anymore changes are required or maybe we can=
-=20
-> move further with this support.
-
-So, I had a look now and I am happy. I will give Peter one more day to
-comment, otherwise I'll apply it tomorrow.
-
-Thanks for your patience and keeping at it!
-
-
---MnLPg7ZWsaic7Fhd
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl2tuxsACgkQFA3kzBSg
-KbY6GQ//X5UmvTKTkgT+9BdG4luCpqZEKeKetljuT2RVeGL56TJwBRiOYWymfAa+
-U88PvGx1Q9mmI/E4AvzTAsnwjZiqACFw5n4NG+mWfWmd5H2P7ko6PpgVUL7Lk/0S
-zbP658UBLM1LBHjtDI4n1juS6daxP1m2Z43NaaiskaQFBmvWtPRo5mv0jpDdbYi2
-gMQ2Qo1efHoaBm+bdVu6Z8O71QktM5BhqKgAPxV9vWA0etSNqiDMII9qk9SmpSfE
-4JcqmuAOa0fhDzbc+wKaLZoq3Gk3WiOeTImFHEw5wKZJE80guUBWNiJ2Bl96apQT
-E/+M3VuTnS1VWqkS6w0oJ0lA/un8gf+CtYbZblirG05fv7suBSLGuCe2RZvl9pJM
-t/LHClLyZ/yBcYL9eAeMj1tM14II/rWES1go5UxhukZW2c7Eqep4UOPTtYQg4rwO
-EozMsz3sueMFU5l6llkLW1t+tb8DnLlvlzB6wZtNlLQjL8cYMBfZJrdBy9N0wX1n
-nxWhQVIjer4AluEwqpGXJ0bPDrClRr9zgznUzG4ydGRAKSNHLJ01kvvxgQmTPYr6
-PSCbo+4EZWFVMZNCi0DGWQFeRLCsqoN+NsHhyM0z7wAc6TUbuaviB1qpRq7+ALkp
-GktKG3WXzYEsJmEMiU5ZsJRMC/wIRicGcF7GxqJx1VGO6712MXo=
-=4jBB
------END PGP SIGNATURE-----
-
---MnLPg7ZWsaic7Fhd--
+T24gMjAxOS0wOS0xMSAxMDoyNCwgRXVnZW4uSHJpc3RldkBtaWNyb2NoaXAuY29tIHdyb3RlOg0K
+PiBGcm9tOiBFdWdlbiBIcmlzdGV2IDxldWdlbi5ocmlzdGV2QG1pY3JvY2hpcC5jb20+DQo+IA0K
+PiBpMmMtZGlnaXRhbC1maWx0ZXItd2lkdGgtbnM6DQo+IFRoaXMgb3B0aW9uYWwgdGltaW5nIHBy
+b3BlcnR5IHNwZWNpZmllcyB0aGUgd2lkdGggb2YgdGhlIHNwaWtlcyBvbiB0aGUgaTJjDQo+IGxp
+bmVzIChpbiBucykgdGhhdCBjYW4gYmUgZmlsdGVyZWQgb3V0IGJ5IGJ1aWx0LWluIGRpZ2l0YWwg
+ZmlsdGVycyB3aGljaCBhcmUNCj4gZW1iZWRkZWQgaW4gc29tZSBpMmMgY29udHJvbGxlcnMuDQo+
+IGkyYy1hbmFsb2ctZmlsdGVyLWN1dG9mZi1mcmVxdWVuY3k6DQo+IFRoaXMgb3B0aW9uYWwgdGlt
+aW5nIHByb3BlcnR5IHNwZWNpZmllcyB0aGUgY3V0b2ZmIGZyZXF1ZW5jeSBvZiBhIGxvdy1wYXNz
+DQo+IGFuYWxvZyBmaWx0ZXIgYnVpbHQtaW4gaTJjIGNvbnRyb2xsZXJzLiBUaGlzIGxvdyBwYXNz
+IGZpbHRlciBpcyB1c2VkIHRvIGZpbHRlcg0KPiBvdXQgaGlnaCBmcmVxdWVuY3kgbm9pc2Ugb24g
+dGhlIGkyYyBsaW5lcy4gU3BlY2lmaWVkIGluIEh6Lg0KPiBJbmNsdWRlIHRoZXNlIHByb3BlcnRp
+ZXMgaW4gdGhlIHRpbWluZ3Mgc3RydWN0dXJlIGFuZCByZWFkIHRoZW0gYXMgaW50ZWdlcnMuDQo+
+IA0KPiBTaWduZWQtb2ZmLWJ5OiBFdWdlbiBIcmlzdGV2IDxldWdlbi5ocmlzdGV2QG1pY3JvY2hp
+cC5jb20+DQo+IC0tLQ0KPiAgZHJpdmVycy9pMmMvaTJjLWNvcmUtYmFzZS5jIHwgNiArKysrKysN
+Cj4gIGluY2x1ZGUvbGludXgvaTJjLmggICAgICAgICB8IDYgKysrKysrDQo+ICAyIGZpbGVzIGNo
+YW5nZWQsIDEyIGluc2VydGlvbnMoKykNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9p
+MmMtY29yZS1iYXNlLmMgYi9kcml2ZXJzL2kyYy9pMmMtY29yZS1iYXNlLmMNCj4gaW5kZXggOWM0
+NDBmYS4uYzlmY2IxNiAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9pMmMvaTJjLWNvcmUtYmFzZS5j
+DQo+ICsrKyBiL2RyaXZlcnMvaTJjL2kyYy1jb3JlLWJhc2UuYw0KPiBAQCAtMTY1OCw2ICsxNjU4
+LDEyIEBAIHZvaWQgaTJjX3BhcnNlX2Z3X3RpbWluZ3Moc3RydWN0IGRldmljZSAqZGV2LCBzdHJ1
+Y3QgaTJjX3RpbWluZ3MgKnQsIGJvb2wgdXNlX2RlDQo+ICAJCXQtPnNkYV9mYWxsX25zID0gdC0+
+c2NsX2ZhbGxfbnM7DQo+ICANCj4gIAlkZXZpY2VfcHJvcGVydHlfcmVhZF91MzIoZGV2LCAiaTJj
+LXNkYS1ob2xkLXRpbWUtbnMiLCAmdC0+c2RhX2hvbGRfbnMpOw0KPiArDQo+ICsJZGV2aWNlX3By
+b3BlcnR5X3JlYWRfdTMyKGRldiwgImkyYy1kaWdpdGFsLWZpbHRlci13aWR0aC1ucyIsDQo+ICsJ
+CQkJICZ0LT5kaWdpdGFsX2ZpbHRlcl93aWR0aF9ucyk7DQo+ICsNCj4gKwlkZXZpY2VfcHJvcGVy
+dHlfcmVhZF91MzIoZGV2LCAiaTJjLWFuYWxvZy1maWx0ZXItY3V0b2ZmLWZyZXF1ZW5jeSIsDQo+
+ICsJCQkJICZ0LT5hbmFsb2dfZmlsdGVyX2N1dG9mZl9mcmVxX2h6KTsNCj4gIH0NCj4gIEVYUE9S
+VF9TWU1CT0xfR1BMKGkyY19wYXJzZV9md190aW1pbmdzKTsNCj4gIA0KPiBkaWZmIC0tZ2l0IGEv
+aW5jbHVkZS9saW51eC9pMmMuaCBiL2luY2x1ZGUvbGludXgvaTJjLmgNCj4gaW5kZXggZmE1NTUy
+Yy4uMjZjZTE0MyAxMDA2NDQNCj4gLS0tIGEvaW5jbHVkZS9saW51eC9pMmMuaA0KPiArKysgYi9p
+bmNsdWRlL2xpbnV4L2kyYy5oDQo+IEBAIC01NzUsNiArNTc1LDEwIEBAIHN0cnVjdCBpMmNfbG9j
+a19vcGVyYXRpb25zIHsNCj4gICAqIEBzY2xfaW50X2RlbGF5X25zOiB0aW1lIElQIGNvcmUgYWRk
+aXRpb25hbGx5IG5lZWRzIHRvIHNldHVwIFNDTCBpbiBucw0KPiAgICogQHNkYV9mYWxsX25zOiB0
+aW1lIFNEQSBzaWduYWwgdGFrZXMgdG8gZmFsbCBpbiBuczsgdChmKSBpbiB0aGUgSTJDIHNwZWNp
+ZmljYXRpb24NCj4gICAqIEBzZGFfaG9sZF9uczogdGltZSBJUCBjb3JlIGFkZGl0aW9uYWxseSBu
+ZWVkcyB0byBob2xkIFNEQSBpbiBucw0KPiArICogQGRpZ2l0YWxfZmlsdGVyX3dpZHRoX25zOiB3
+aWR0aCBpbiBucyBvZiBzcGlrZXMgb24gaTJjIGxpbmVzIHRoYXQgdGhlIElQIGNvcmUNCj4gKyAq
+CQkJICAgICBkaWdpdGFsIGZpbHRlciBjYW4gZmlsdGVyIG91dA0KPiArICogQGFuYWxvZ19maWx0
+ZXJfY3V0b2ZmX2ZyZXFfaHo6IHRocmVzaG9sZCBmcmVxdWVuY3kgZm9yIHRoZSBsb3cgcGFzcyBJ
+UCBjb3JlDQo+ICsJCQkgICAgICBhbmFsb2cgZmlsdGVyDQoNClRoZSBpbmRlbnRhdGlvbiBpcyBh
+IGxpdHRsZSBiaXQgZXhjZXNzaXZlIGFuZCBhbHNvIG9mZi4gT3RoZXIgY29tbWVudHMgaW4gdGhl
+DQpmaWxlIGp1c3QgdXNlcyBhIHNpbmdsZSB0YWIgYWZ0ZXIgdGhlIGFzdGVyaXNrIGluIHRoaXMg
+c2NlbmFyaW8uIEFsc28sIHRoZSBsYXN0DQpvZiB0aGUgbmV3IGxpbmVzIGlzIG1pc3NpbmcgdGhh
+dCBsZWFkaW5nIGFzdGVyaXNrLg0KDQpDaGVlcnMsDQpQZXRlcg0KDQo+ICAgKi8NCj4gIHN0cnVj
+dCBpMmNfdGltaW5ncyB7DQo+ICAJdTMyIGJ1c19mcmVxX2h6Ow0KPiBAQCAtNTgzLDYgKzU4Nyw4
+IEBAIHN0cnVjdCBpMmNfdGltaW5ncyB7DQo+ICAJdTMyIHNjbF9pbnRfZGVsYXlfbnM7DQo+ICAJ
+dTMyIHNkYV9mYWxsX25zOw0KPiAgCXUzMiBzZGFfaG9sZF9uczsNCj4gKwl1MzIgZGlnaXRhbF9m
+aWx0ZXJfd2lkdGhfbnM7DQo+ICsJdTMyIGFuYWxvZ19maWx0ZXJfY3V0b2ZmX2ZyZXFfaHo7DQo+
+ICB9Ow0KPiAgDQo+ICAvKioNCj4gDQoNCg==
