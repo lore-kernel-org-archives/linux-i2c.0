@@ -1,16 +1,19 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Peter Rosin <peda@axentia.se>
 Subject: Re: [PATCH i2c-next 1/2] dt-bindings: i2c: aspeed: add hardware
  timeout support
-Date: Tue, 22 Oct 2019 06:56:56 +0200
-Message-ID: <20191022045655.GA975@kunai>
+Date: Tue, 22 Oct 2019 08:45:17 +0000
+Message-ID: <b98827fa-462a-060b-efc7-27fe5d7742ff@axentia.se>
 References: <20191021202414.17484-1-jae.hyun.yoo@linux.intel.com>
  <20191021202414.17484-2-jae.hyun.yoo@linux.intel.com>
  <0a629f7b-b829-c332-27d8-dc825205ff72@axentia.se>
  <7abf933b-cb18-10af-9c1b-163ec65ffae5@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5716356383810352818=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <7abf933b-cb18-10af-9c1b-163ec65ffae5@linux.intel.com>
+Content-Language: en-US
+Content-ID: <7084A791E746C8458A822A468C1DDC13@eurprd02.prod.outlook.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -20,22 +23,62 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>, Andrew Jeffery <andrew@aj.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>, Brendan Higgins <brendanhiggins@google.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Tao Ren <taoren@fb.com>, Peter Rosin <peda@axentia.se>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Cedric Le Goater <clg@kaod.org>
+To: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, Tao Ren <taoren@fb.com>, Cedric Le Goater <clg@kaod.org>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---===============5716356383810352818==
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
-Content-Disposition: inline
-
-
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
+On 2019-10-21 23:57, Jae Hyun Yoo wrote:
+> Hi Peter,
+> 
+> On 10/21/2019 2:05 PM, Peter Rosin wrote:
+>> On 2019-10-21 22:24, Jae Hyun Yoo wrote:
+>>> Append a binding to support hardware timeout feature.
+>>>
+>>> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+>>> ---
+>>>   Documentation/devicetree/bindings/i2c/i2c-aspeed.txt | 2 ++
+>>>   1 file changed, 2 insertions(+)
+>>>
+>>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+>>> index b47f6ccb196a..133bfedf4cdd 100644
+>>> --- a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+>>> +++ b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+>>> @@ -17,6 +17,8 @@ Optional Properties:
+>>>   - bus-frequency	: frequency of the bus clock in Hz defaults to 100 kHz when not
+>>>   		  specified
+>>>   - multi-master	: states that there is another master active on this bus.
+>>> +- aspeed,hw-timeout-ms	: Hardware timeout in milliseconds. If it's not
+>>> +			  specified, the H/W timeout feature will be disabled.
+>>>   
+>>>   Example:
+>>>   
+>>>
+>>
+>> Some SMBus clients support a smbus-timeout-disable binding for disabling
+>> timeouts like this, for cases where the I2C adapter in question on occasion
+>> is unable to keep the pace. Adding that property thus avoids undesired
+>> timeouts when the client is SMBus conformant without it. Your new binding
+>> is the reverse situation, where you want to add a timeout where one is
+>> otherwise missing.
+>>
+>> Anyway, since I2C does not have a specified lowest possible frequency, this
+>> feels like something that is more in the SMBus arena. Should the property
+>> perhaps be a generic property named smbus-timeout-ms, or something like
+>> that?
+> 
+> Well, I tried upstreaming of the generic timeout property a year ago but
+> I agreed that the generic bus timeout property can be set by an ioctl
+> command so it didn't need to be added into device tree at that time. Not
+> sure if any need has come recently but I haven't heard that. This driver
+> still uses the generic timeout property which is provided by i2c core
+> for handling command timeouts, and it's out of scope from this patch
+> series.
+> 
+>> If the above is not wanted or appropriate, then I would personally prefer
+>> aspeed,bus-timeout-ms over aspeed,hw-timeout-ms. To me, hw-timeout-ms sounds
+>> like a (more serious) timeout between the CPU and the I2C peripheral unit
+>> or something like that. But I don't care deeply...
+> 
 > Changes I submitted in this patch set is for a different purpose which
 > is very Aspeed H/W specific, and actually it's a more serious timeout
 > setting indeed. If this H/W is used in multi-master environment, it
@@ -45,43 +88,35 @@ Content-Disposition: inline
 > H/W state machine using the timeout setting to determine the escape
 > condition.
 
-Thanks for the summary. I just wonder on what the timeout value depends.
-Do we really need to put in DT or can we derive it e.g. from the
-compatible value in the driver?
+Are you saying that the aspeed HW is buggy and that this abnormal state
+is self inflicted by the aspeed HW even if other masters on the bus
+behave sanely? Because I didn't quite read it that way at all...
 
+To me, it sounded *exactly* like the state I2C clients end up in when an
+I2C master "dies" and stops communicating in the middle of a transaction.
+I.e. the thing that the SMBus timeout is designed to prevent (and the
+state the I2C nine-clk-recovery sequence addresses). The only twist (that
+I saw) was that the aspeed HW is also a master and that the aspeed master
+driver is completely locked out from the bus while some obnoxious master
+fails to complete its transaction (or whatever it was up to).
 
---WIyZ46R2i8wDzkSu
-Content-Type: application/pgp-signature; name="signature.asc"
+If this can only be triggered when the HW is acting as a slave, and by
+aborted or otherwise funky master activity on the bus, then I wouldn't
+call it an HW issue. Then it would be a bus issue. I.e. something needing
+a bus-timeout instead of a hw-timeout.
 
------BEGIN PGP SIGNATURE-----
+I don't have the specifics, so I can't tell which way it is. I'm just
+reacting to the presented information.
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl2ujBMACgkQFA3kzBSg
-KbYZZg/+ILRBsr6VA2yU97i07DYrhNgIs0GsfqAA3zqC+JhbF/dyORbZWno4fIxZ
-+qHvJ6pTQCR/jWA4aP1kO/NL9EU3nWIICyZHIFJpXBtwrH9mGP1+hlnyrWc2uaZC
-JpOw3AKSYevrQb0RksLu16ZddmlMHO0+Qi2rkhh4LGcsdCiUZRSOEeoaQkiyS3Cy
-hsb1uqiGFQFdq/gFv08rpW2ja7TGS/HMzs8RdXlOI03bL6ORXU9QCV6H2oIBl00v
-9YQYHo9lV5PtRTweCpaN0o+9XLmP1y4A7kHS1lr9YVoRVT67HniEisum3t6UPR2H
-B5Ha1IVzBYuqtoq0vhuiowNVmV9OROoM+alQxhw3g6HPT0K+d5GmD9k6aPNXWCod
-rBT7QTBslplAZJNo6R2tGvh0wIYWU0PMJ+ZSsS9YdigSqMXfd8C1p2R6ZphdyCk7
-dHfEaPa4iuUGYaJWiHFROYni/GhG1EBN3kpUSphG5ETA6Ur16blwXyAZy7oVm5xO
-IsIVfsJYBiV/1O77xE7FUF8gXpIalsLLH7/AXH80JexMqZBpu5hg6N6GhbN7K4rl
-wZBpfCNq9Rvy65BvFL4Vmw2elrZmo9S7vYs907eZ1ZJNWB9TVpqe+z0c9FNMuAKx
-o1ZttPvRuKUhoQTMnQ734eW74vmmrl4IfguSGshRymILa5AaX1Q=
-=INXh
------END PGP SIGNATURE-----
+Cheers,
+Peter
 
---WIyZ46R2i8wDzkSu--
-
-
---===============5716356383810352818==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============5716356383810352818==--
+> Generally, this H/W timeout value is smaller than the generic bus
+> timeout value (I'm using 300ms for the H/W timeout while I'm using 1
+> second for the generic bus timeout) so I think it should be
+> distinguished from the generic bus timeout.
+> 
+> Thanks,
+> 
+> Jae
+> 
