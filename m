@@ -1,95 +1,137 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: Re: [PATCH i2c-next 1/2] dt-bindings: i2c: aspeed: add hardware
- timeout support
-Date: Mon, 21 Oct 2019 14:57:43 -0700
-Message-ID: <7abf933b-cb18-10af-9c1b-163ec65ffae5@linux.intel.com>
-References: <20191021202414.17484-1-jae.hyun.yoo@linux.intel.com>
- <20191021202414.17484-2-jae.hyun.yoo@linux.intel.com>
- <0a629f7b-b829-c332-27d8-dc825205ff72@axentia.se>
+From: Biwen Li <biwen.li@nxp.com>
+Subject: RE: [EXT] Re: [v4,2/2] i2c: mux: pca954x: support property idle-state
+Date: Tue, 22 Oct 2019 03:51:57 +0000
+Message-ID: <DB7PR04MB44906D1B767F0FDE5AE5E3FF8F680@DB7PR04MB4490.eurprd04.prod.outlook.com>
+References: <20191021080048.47189-1-biwen.li@nxp.com>
+ <20191021080048.47189-2-biwen.li@nxp.com>
+ <07b1e1d8-4112-d9b1-2a05-21da09fa020c@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <0a629f7b-b829-c332-27d8-dc825205ff72@axentia.se>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <07b1e1d8-4112-d9b1-2a05-21da09fa020c@axentia.se>
 Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Peter Rosin <peda@axentia.se>, Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, Tao Ren <taoren@fb.com>, Cedric Le Goater <clg@kaod.org>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Rosin <peda@axentia.se>, Leo Li <leoyang.li@nxp.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Peter,
-
-On 10/21/2019 2:05 PM, Peter Rosin wrote:
-> On 2019-10-21 22:24, Jae Hyun Yoo wrote:
->> Append a binding to support hardware timeout feature.
->>
->> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
->> ---
->>   Documentation/devicetree/bindings/i2c/i2c-aspeed.txt | 2 ++
->>   1 file changed, 2 insertions(+)
->>
->> diff --git a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
->> index b47f6ccb196a..133bfedf4cdd 100644
->> --- a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
->> +++ b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
->> @@ -17,6 +17,8 @@ Optional Properties:
->>   - bus-frequency	: frequency of the bus clock in Hz defaults to 100 kHz when not
->>   		  specified
->>   - multi-master	: states that there is another master active on this bus.
->> +- aspeed,hw-timeout-ms	: Hardware timeout in milliseconds. If it's not
->> +			  specified, the H/W timeout feature will be disabled.
->>   
->>   Example:
->>   
->>
-> 
-> Some SMBus clients support a smbus-timeout-disable binding for disabling
-> timeouts like this, for cases where the I2C adapter in question on occasion
-> is unable to keep the pace. Adding that property thus avoids undesired
-> timeouts when the client is SMBus conformant without it. Your new binding
-> is the reverse situation, where you want to add a timeout where one is
-> otherwise missing.
-> 
-> Anyway, since I2C does not have a specified lowest possible frequency, this
-> feels like something that is more in the SMBus arena. Should the property
-> perhaps be a generic property named smbus-timeout-ms, or something like
-> that?
-
-Well, I tried upstreaming of the generic timeout property a year ago but
-I agreed that the generic bus timeout property can be set by an ioctl
-command so it didn't need to be added into device tree at that time. Not
-sure if any need has come recently but I haven't heard that. This driver
-still uses the generic timeout property which is provided by i2c core
-for handling command timeouts, and it's out of scope from this patch
-series.
-
-> If the above is not wanted or appropriate, then I would personally prefer
-> aspeed,bus-timeout-ms over aspeed,hw-timeout-ms. To me, hw-timeout-ms sounds
-> like a (more serious) timeout between the CPU and the I2C peripheral unit
-> or something like that. But I don't care deeply...
-
-Changes I submitted in this patch set is for a different purpose which
-is very Aspeed H/W specific, and actually it's a more serious timeout
-setting indeed. If this H/W is used in multi-master environment, it
-could meet a H/W hang that freezes itself in slave mode and it can't
-escape from the state. To resolve the specific case, this H/W provides
-self-recovery feature which monitors abnormal state of SDA, SCL and its
-H/W state machine using the timeout setting to determine the escape
-condition.
-
-Generally, this H/W timeout value is smaller than the generic bus
-timeout value (I'm using 300ms for the H/W timeout while I'm using 1
-second for the generic bus timeout) so I think it should be
-distinguished from the generic bus timeout.
-
-Thanks,
-
-Jae
+PiBDYXV0aW9uOiBFWFQgRW1haWwNCj4gDQo+IE9uIDIwMTktMTAtMjEgMTA6MDAsIEJpd2VuIExp
+IHdyb3RlOg0KPiA+IFRoaXMgc3VwcG9ydHMgcHJvcGVydHkgaWRsZS1zdGF0ZQ0KPiA+DQo+IA0K
+PiBZb3Ugc2hvdWxkIGV4cGFuZCB0aGlzIGEgbGl0dGxlIGJpdCB0byBleHBsYWluIHRoYXQgaWRs
+ZS1zdGF0ZSwgaWYgcHJlc2VudCwgb3ZlcnJpZGVzDQo+IGkyYy1tdXgtaWRsZS1kaXNjb25uZWN0
+LiBZb3UgY291bGQgYWxzbyBtZW50aW9uIHlvdXIgdXNlIGNhc2Ugd2hlcmUgeW91IG5lZWQNCj4g
+dG8gYXZvaWQgZGlzY29ubmVjdHMgb24gcHJvYmUvcmVzdW1lLg0KT2theSwgZ290IGl0LiBJIHdp
+bGwgYWRkIHNvbWUgaW5mb3JtYXRpb24gaW4gdjUuDQo+IA0KPiA+IFNpZ25lZC1vZmYtYnk6IEJp
+d2VuIExpIDxiaXdlbi5saUBueHAuY29tPg0KPiA+IC0tLQ0KPiA+IENoYW5nZSBpbiB2NDoNCj4g
+PiAgICAgICAtIHJlbmFtZSBmdW5jdGlvbg0KPiA+ICAgICAgICAgcGNhOTU0eF9jYWxjdWxhdGVf
+Y2hhbiAtPiBwY2E5NTR4X3JlZ3ZhbA0KPiA+DQo+ID4gQ2hhbmdlIGluIHYzOg0KPiA+ICAgICAg
+IC0gdXBkYXRlIHN1YmplY3QgYW5kIGRlc2NyaXB0aW9uDQo+ID4gICAgICAgLSBhZGQgYSBoZWxw
+ZXIgZnVuY3Rpb24gcGNhOTU0eF9jYWxjdWxhdGVfY2hhbigpDQo+ID4NCj4gPiBDaGFuZ2UgaW4g
+djI6DQo+ID4gICAgICAgLSB1cGRhdGUgc3ViamVjdCBhbmQgZGVzY3JpcHRpb24NCj4gPiAgICAg
+ICAtIGFkZCBwcm9wZXJ0eSBpZGxlLXN0YXRlDQo+ID4NCj4gPiAgZHJpdmVycy9pMmMvbXV4ZXMv
+aTJjLW11eC1wY2E5NTR4LmMgfCA1OQ0KPiA+ICsrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0t
+DQo+ID4gIDEgZmlsZSBjaGFuZ2VkLCAzNiBpbnNlcnRpb25zKCspLCAyMyBkZWxldGlvbnMoLSkN
+Cj4gPg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9tdXhlcy9pMmMtbXV4LXBjYTk1NHgu
+Yw0KPiA+IGIvZHJpdmVycy9pMmMvbXV4ZXMvaTJjLW11eC1wY2E5NTR4LmMNCj4gPiBpbmRleCA5
+MjNhYTNhNWEzZGMuLmU1NjZjNGNkOGJhNSAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL2kyYy9t
+dXhlcy9pMmMtbXV4LXBjYTk1NHguYw0KPiA+ICsrKyBiL2RyaXZlcnMvaTJjL211eGVzL2kyYy1t
+dXgtcGNhOTU0eC5jDQo+ID4gQEAgLTg2LDcgKzg2LDcgQEAgc3RydWN0IHBjYTk1NHggew0KPiA+
+DQo+ID4gICAgICAgdTggbGFzdF9jaGFuOyAgICAgICAgICAgLyogbGFzdCByZWdpc3RlciB2YWx1
+ZSAqLw0KPiA+ICAgICAgIC8qIE1VWF9JRExFX0FTX0lTLCBNVVhfSURMRV9ESVNDT05ORUNUIG9y
+ID49IDAgZm9yIGNoYW5uZWwgKi8NCj4gPiAtICAgICBzOCBpZGxlX3N0YXRlOw0KPiA+ICsgICAg
+IHMzMiBpZGxlX3N0YXRlOw0KPiA+DQo+ID4gICAgICAgc3RydWN0IGkyY19jbGllbnQgKmNsaWVu
+dDsNCj4gPg0KPiA+IEBAIC0yMjksMjAgKzIyOSwyMyBAQCBzdGF0aWMgaW50IHBjYTk1NHhfcmVn
+X3dyaXRlKHN0cnVjdCBpMmNfYWRhcHRlcg0KPiAqYWRhcCwNCj4gPiAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICBJMkNfU01CVVNfQllURSwgJmR1bW15KTsgIH0NCj4gPg0KPiA+ICtzdGF0
+aWMgdTggcGNhOTU0eF9yZWd2YWwoc3RydWN0IHBjYTk1NHggKmRhdGEsIHU4IGNoYW4pIHsNCj4g
+PiArICAgICAvKiB3ZSBtYWtlIHN3aXRjaGVzIGxvb2sgbGlrZSBtdXhlcywgbm90IHN1cmUgaG93
+IHRvIGJlIHNtYXJ0ZXINCj4gPiArKi8NCj4gDQo+IEkga25vdyB5b3UgYXJlIGp1c3QgbW92aW5n
+IHRoZSBjb21tZW50IGFyb3VuZCwgYnV0IHBsZWFzZSBmaXggdGhlIHNlbnRlbmNlIHRvDQo+IHN0
+YXJ0IHdpdGggYSBjYXBpdGFsIGxldHRlciBhbmQgZW5kIHdpdGggYSBwZXJpb2QuIFNvcnJ5IEkg
+ZGlkbid0IGNhdGNoIHRoaXMgaW4gdjMuDQpPa2F5LCBnb3QgaXQsIEkgd2lsbCBmaXggaXQgaW4g
+djUuDQo+IA0KPiA+ICsgICAgIGlmIChkYXRhLT5jaGlwLT5tdXh0eXBlID09IHBjYTk1NHhfaXNt
+dXgpDQo+ID4gKyAgICAgICAgICAgICByZXR1cm4gY2hhbiB8IGRhdGEtPmNoaXAtPmVuYWJsZTsN
+Cj4gPiArICAgICBlbHNlDQo+ID4gKyAgICAgICAgICAgICByZXR1cm4gMSA8PCBjaGFuOw0KPiA+
+ICt9DQo+ID4gKw0KPiA+ICBzdGF0aWMgaW50IHBjYTk1NHhfc2VsZWN0X2NoYW4oc3RydWN0IGky
+Y19tdXhfY29yZSAqbXV4YywgdTMyIGNoYW4pDQo+ID4gew0KPiA+ICAgICAgIHN0cnVjdCBwY2E5
+NTR4ICpkYXRhID0gaTJjX211eF9wcml2KG11eGMpOw0KPiA+ICAgICAgIHN0cnVjdCBpMmNfY2xp
+ZW50ICpjbGllbnQgPSBkYXRhLT5jbGllbnQ7DQo+ID4gLSAgICAgY29uc3Qgc3RydWN0IGNoaXBf
+ZGVzYyAqY2hpcCA9IGRhdGEtPmNoaXA7DQo+ID4gICAgICAgdTggcmVndmFsOw0KPiA+ICAgICAg
+IGludCByZXQgPSAwOw0KPiA+DQo+ID4gLSAgICAgLyogd2UgbWFrZSBzd2l0Y2hlcyBsb29rIGxp
+a2UgbXV4ZXMsIG5vdCBzdXJlIGhvdyB0byBiZSBzbWFydGVyICovDQo+ID4gLSAgICAgaWYgKGNo
+aXAtPm11eHR5cGUgPT0gcGNhOTU0eF9pc211eCkNCj4gPiAtICAgICAgICAgICAgIHJlZ3ZhbCA9
+IGNoYW4gfCBjaGlwLT5lbmFibGU7DQo+ID4gLSAgICAgZWxzZQ0KPiA+IC0gICAgICAgICAgICAg
+cmVndmFsID0gMSA8PCBjaGFuOw0KPiA+IC0NCj4gPiArICAgICByZWd2YWwgPSBwY2E5NTR4X3Jl
+Z3ZhbChkYXRhLCAodTgpKGNoYW4gJiAweGZmKSk7DQo+IA0KPiBCb3RoIGEgbWFzayBhbmQgYSBj
+YXN0IHRvIGRvIHdoYXQgdGhlIGNvbXBpbGVyIHNob3VsZCBiZSBkb2luZyBhbGwgYnkgaXRzZWxm
+Pw0KPiBJZiB5b3UgbmVlZCB0byBraWxsIGEgd2FybmluZywgb3Igc29tZXRoaW5nLCBwbGVhc2Ug
+ZG8ganVzdCBvbmUgb3IgdGhlbS4gQnV0DQo+IHBlcnNvbmFsbHkgSSBwcmVmZXIgdGhlIHNob3J0
+LCBzd2VldCBhbmQgdW5jbHV0dGVyZWQ6DQpPa2F5LCBnb3QgaXQsIHRoYW5rcy4gSSB3aWxsIGFk
+anVzdCBpdCBpbiB2NS4NCj4gDQo+ICAgICAgICAgcmVndmFsID0gcGNhOTU0eF9yZWd2YWwoZGF0
+YSwgY2hhbik7DQo+IA0KPiA+ICAgICAgIC8qIE9ubHkgc2VsZWN0IHRoZSBjaGFubmVsIGlmIGl0
+cyBkaWZmZXJlbnQgZnJvbSB0aGUgbGFzdCBjaGFubmVsICovDQo+ID4gICAgICAgaWYgKGRhdGEt
+Pmxhc3RfY2hhbiAhPSByZWd2YWwpIHsNCj4gPiAgICAgICAgICAgICAgIHJldCA9IHBjYTk1NHhf
+cmVnX3dyaXRlKG11eGMtPnBhcmVudCwgY2xpZW50LCByZWd2YWwpOw0KPiA+IEBAIC0yNTYsNyAr
+MjU5LDcgQEAgc3RhdGljIGludCBwY2E5NTR4X2Rlc2VsZWN0X211eChzdHJ1Y3QNCj4gPiBpMmNf
+bXV4X2NvcmUgKm11eGMsIHUzMiBjaGFuKSAgew0KPiA+ICAgICAgIHN0cnVjdCBwY2E5NTR4ICpk
+YXRhID0gaTJjX211eF9wcml2KG11eGMpOw0KPiA+ICAgICAgIHN0cnVjdCBpMmNfY2xpZW50ICpj
+bGllbnQgPSBkYXRhLT5jbGllbnQ7DQo+ID4gLSAgICAgczggaWRsZV9zdGF0ZTsNCj4gPiArICAg
+ICBzMzIgaWRsZV9zdGF0ZTsNCj4gPg0KPiA+ICAgICAgIGlkbGVfc3RhdGUgPSBSRUFEX09OQ0Uo
+ZGF0YS0+aWRsZV9zdGF0ZSk7DQo+ID4gICAgICAgaWYgKGlkbGVfc3RhdGUgPj0gMCkNCj4gPiBA
+QCAtNDAyLDYgKzQwNSwxNyBAQCBzdGF0aWMgdm9pZCBwY2E5NTR4X2NsZWFudXAoc3RydWN0IGky
+Y19tdXhfY29yZQ0KPiAqbXV4YykNCj4gPiAgICAgICBpMmNfbXV4X2RlbF9hZGFwdGVycyhtdXhj
+KTsNCj4gPiAgfQ0KPiA+DQo+ID4gK3N0YXRpYyBpbnQgcGNhOTU0eF9pbml0KHN0cnVjdCBpMmNf
+Y2xpZW50ICpjbGllbnQsIHN0cnVjdCBwY2E5NTR4DQo+ID4gKypkYXRhKSB7DQo+ID4gKyAgICAg
+aWYgKGRhdGEtPmlkbGVfc3RhdGUgPj0gMCkgew0KPiA+ICsgICAgICAgICAgICAgZGF0YS0+bGFz
+dF9jaGFuID0gcGNhOTU0eF9yZWd2YWwoZGF0YSwNCj4gPiArKHU4KShkYXRhLT5pZGxlX3N0YXRl
+ICYgMHhmZikpOw0KPiANCj4gRGl0by4NCg0KR290IGl0LCB0aGFua3MuDQo+IA0KPiA+ICsgICAg
+IH0gZWxzZSB7DQo+ID4gKyAgICAgICAgICAgICAvKiBEaXNjb25uZWN0IG11bHRpcGxleGVyICov
+DQo+ID4gKyAgICAgICAgICAgICBkYXRhLT5sYXN0X2NoYW4gPSAwOw0KPiA+ICsgICAgIH0NCj4g
+PiArICAgICByZXR1cm4gaTJjX3NtYnVzX3dyaXRlX2J5dGUoY2xpZW50LCBkYXRhLT5sYXN0X2No
+YW4pOw0KPiANCj4gSGVyZSdzIGFub3RoZXIgdGhpbmcgSSBtaXNzZWQgaW4gdGhlIGVhcmxpZXIg
+aXRlcmF0aW9ucy4gSWYgaTJjX3NtYnVzX3dyaXRlX2J5dGUNCj4gZmFpbHMgaGVyZSwgSSB0aGlu
+ayB5b3Ugc2hvdWxkIHNldCBkYXRhLT5sYXN0X2NoYW4gdG8gemVyby4gRm9yIHRoZSBjYWxsIGZy
+b20gcHJvYmUNCj4gaXQgb2J2aW91c2x5IGRvZXNuJ3QgbWF0dGVyIG11Y2gsIGJ1dCBJIHRoaW5r
+IHRoZSBjYWxsIGR1cmluZyByZXN1bWUgaXMgYmV0dGVyIG9mZg0KPiB3aXRoIHN1Y2ggZXh0cmEg
+cHJlY2F1dGlvbiBpbiBwbGFjZS4NCllvdSBhcmUgcmlnaHQuIEkgd2lsbCBhZGQgZXh0cmEgcHJl
+Y2F1dGlvbiBpbiB2NS4NCj4gDQo+IENoZWVycywNCj4gUGV0ZXINCj4gDQo+ID4gK30NCj4gPiAr
+DQo+ID4gIC8qDQo+ID4gICAqIEkyQyBpbml0L3Byb2JpbmcvZXhpdCBmdW5jdGlvbnMNCj4gPiAg
+ICovDQo+ID4gQEAgLTQxMSw3ICs0MjUsNiBAQCBzdGF0aWMgaW50IHBjYTk1NHhfcHJvYmUoc3Ry
+dWN0IGkyY19jbGllbnQgKmNsaWVudCwNCj4gPiAgICAgICBzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFk
+YXAgPSBjbGllbnQtPmFkYXB0ZXI7DQo+ID4gICAgICAgc3RydWN0IGRldmljZSAqZGV2ID0gJmNs
+aWVudC0+ZGV2Ow0KPiA+ICAgICAgIHN0cnVjdCBkZXZpY2Vfbm9kZSAqbnAgPSBkZXYtPm9mX25v
+ZGU7DQo+ID4gLSAgICAgYm9vbCBpZGxlX2Rpc2Nvbm5lY3RfZHQ7DQo+ID4gICAgICAgc3RydWN0
+IGdwaW9fZGVzYyAqZ3BpbzsNCj4gPiAgICAgICBzdHJ1Y3QgaTJjX211eF9jb3JlICptdXhjOw0K
+PiA+ICAgICAgIHN0cnVjdCBwY2E5NTR4ICpkYXRhOw0KPiA+IEBAIC00NjIsMjMgKzQ3NSwyNCBA
+QCBzdGF0aWMgaW50IHBjYTk1NHhfcHJvYmUoc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCwNCj4g
+PiAgICAgICAgICAgICAgIH0NCj4gPiAgICAgICB9DQo+ID4NCj4gPiAtICAgICAvKiBXcml0ZSB0
+aGUgbXV4IHJlZ2lzdGVyIGF0IGFkZHIgdG8gdmVyaWZ5DQo+ID4gKyAgICAgZGF0YS0+aWRsZV9z
+dGF0ZSA9IE1VWF9JRExFX0FTX0lTOw0KPiA+ICsgICAgIGlmIChvZl9wcm9wZXJ0eV9yZWFkX3Uz
+MihucCwgImlkbGUtc3RhdGUiLCAmZGF0YS0+aWRsZV9zdGF0ZSkpIHsNCj4gPiArICAgICAgICAg
+ICAgIGlmIChucCAmJiBvZl9wcm9wZXJ0eV9yZWFkX2Jvb2wobnAsDQo+ICJpMmMtbXV4LWlkbGUt
+ZGlzY29ubmVjdCIpKQ0KPiA+ICsgICAgICAgICAgICAgICAgICAgICBkYXRhLT5pZGxlX3N0YXRl
+ID0gTVVYX0lETEVfRElTQ09OTkVDVDsNCj4gPiArICAgICB9DQo+ID4gKw0KPiA+ICsgICAgIC8q
+DQo+ID4gKyAgICAgICogV3JpdGUgdGhlIG11eCByZWdpc3RlciBhdCBhZGRyIHRvIHZlcmlmeQ0K
+PiA+ICAgICAgICAqIHRoYXQgdGhlIG11eCBpcyBpbiBmYWN0IHByZXNlbnQuIFRoaXMgYWxzbw0K
+PiA+IC0gICAgICAqIGluaXRpYWxpemVzIHRoZSBtdXggdG8gZGlzY29ubmVjdGVkIHN0YXRlLg0K
+PiA+ICsgICAgICAqIGluaXRpYWxpemVzIHRoZSBtdXggdG8gYSBjaGFubmVsDQo+ID4gKyAgICAg
+ICogb3IgZGlzY29ubmVjdGVkIHN0YXRlLg0KPiA+ICAgICAgICAqLw0KPiA+IC0gICAgIGlmIChp
+MmNfc21idXNfd3JpdGVfYnl0ZShjbGllbnQsIDApIDwgMCkgew0KPiA+ICsgICAgIHJldCA9IHBj
+YTk1NHhfaW5pdChjbGllbnQsIGRhdGEpOw0KPiA+ICsgICAgIGlmIChyZXQgPCAwKSB7DQo+ID4g
+ICAgICAgICAgICAgICBkZXZfd2FybihkZXYsICJwcm9iZSBmYWlsZWRcbiIpOw0KPiA+ICAgICAg
+ICAgICAgICAgcmV0dXJuIC1FTk9ERVY7DQo+ID4gICAgICAgfQ0KPiA+DQo+ID4gLSAgICAgZGF0
+YS0+bGFzdF9jaGFuID0gMDsgICAgICAgICAgICAgICAvKiBmb3JjZSB0aGUgZmlyc3Qgc2VsZWN0
+aW9uICovDQo+ID4gLSAgICAgZGF0YS0+aWRsZV9zdGF0ZSA9IE1VWF9JRExFX0FTX0lTOw0KPiA+
+IC0NCj4gPiAtICAgICBpZGxlX2Rpc2Nvbm5lY3RfZHQgPSBucCAmJg0KPiA+IC0gICAgICAgICAg
+ICAgb2ZfcHJvcGVydHlfcmVhZF9ib29sKG5wLCAiaTJjLW11eC1pZGxlLWRpc2Nvbm5lY3QiKTsN
+Cj4gPiAtICAgICBpZiAoaWRsZV9kaXNjb25uZWN0X2R0KQ0KPiA+IC0gICAgICAgICAgICAgZGF0
+YS0+aWRsZV9zdGF0ZSA9IE1VWF9JRExFX0RJU0NPTk5FQ1Q7DQo+ID4gLQ0KPiA+ICAgICAgIHJl
+dCA9IHBjYTk1NHhfaXJxX3NldHVwKG11eGMpOw0KPiA+ICAgICAgIGlmIChyZXQpDQo+ID4gICAg
+ICAgICAgICAgICBnb3RvIGZhaWxfY2xlYW51cDsNCj4gPiBAQCAtNTMxLDggKzU0NSw3IEBAIHN0
+YXRpYyBpbnQgcGNhOTU0eF9yZXN1bWUoc3RydWN0IGRldmljZSAqZGV2KQ0KPiA+ICAgICAgIHN0
+cnVjdCBpMmNfbXV4X2NvcmUgKm11eGMgPSBpMmNfZ2V0X2NsaWVudGRhdGEoY2xpZW50KTsNCj4g
+PiAgICAgICBzdHJ1Y3QgcGNhOTU0eCAqZGF0YSA9IGkyY19tdXhfcHJpdihtdXhjKTsNCj4gPg0K
+PiA+IC0gICAgIGRhdGEtPmxhc3RfY2hhbiA9IDA7DQo+ID4gLSAgICAgcmV0dXJuIGkyY19zbWJ1
+c193cml0ZV9ieXRlKGNsaWVudCwgMCk7DQo+ID4gKyAgICAgcmV0dXJuIHBjYTk1NHhfaW5pdChj
+bGllbnQsIGRhdGEpOw0KPiA+ICB9DQo+ID4gICNlbmRpZg0KPiA+DQo+ID4NCg0K
