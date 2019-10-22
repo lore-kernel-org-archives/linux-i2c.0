@@ -1,13 +1,18 @@
-From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: Re: [PATCH] i2c: i2c-stm32f7: rework slave_id allocation
-Date: Tue, 22 Oct 2019 15:41:48 +0200
-Message-ID: <7092a0d6-2f6a-fa1f-2999-17418b479c5f@st.com>
-References: <1571144589-3066-1-git-send-email-alain.volmat@st.com>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Subject: Re: [PATCH i2c-next 1/2] dt-bindings: i2c: aspeed: add hardware
+ timeout support
+Date: Tue, 22 Oct 2019 10:09:06 -0700
+Message-ID: <5cd54c07-4e97-9ed9-1427-d46a7133ee53@linux.intel.com>
+References: <20191021202414.17484-1-jae.hyun.yoo@linux.intel.com>
+ <20191021202414.17484-2-jae.hyun.yoo@linux.intel.com>
+ <0a629f7b-b829-c332-27d8-dc825205ff72@axentia.se>
+ <7abf933b-cb18-10af-9c1b-163ec65ffae5@linux.intel.com>
+ <20191022045655.GA975@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1571144589-3066-1-git-send-email-alain.volmat@st.com>
+In-Reply-To: <20191022045655.GA975@kunai>
 Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
@@ -18,45 +23,32 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Alain Volmat <alain.volmat@st.com>, wsa@the-dreams.de, robh+dt@kernel.org
-Cc: mark.rutland@arm.com, devicetree@vger.kernel.org, alexandre.torgue@st.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, mcoquelin.stm32@gmail.com, fabrice.gasnier@st.com, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>, Andrew Jeffery <andrew@aj.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>, Brendan Higgins <brendanhiggins@google.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Tao Ren <taoren@fb.com>, Peter Rosin <peda@axentia.se>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Cedric Le Goater <clg@kaod.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello
-
-Looks good
-
-Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-
-Thx
-Regards
-
-On 10/15/19 3:03 PM, Alain Volmat wrote:
-> The IP can handle two slave addresses. One address can either be
-> 7 bits or 10 bits while the other can only be 7 bits.
-> In order to ensure that a 10 bits address can always be allocated
-> (assuming there is only one 7 bits address already allocated),
-> pick up the 7-bits only address slot in priority when performing a 7-bits
-> address allocation.
+On 10/21/2019 9:56 PM, Wolfram Sang wrote:
 > 
-> Fixes: 60d609f3 ("i2c: i2c-stm32f7: Add slave support")
+>> Changes I submitted in this patch set is for a different purpose which
+>> is very Aspeed H/W specific, and actually it's a more serious timeout
+>> setting indeed. If this H/W is used in multi-master environment, it
+>> could meet a H/W hang that freezes itself in slave mode and it can't
+>> escape from the state. To resolve the specific case, this H/W provides
+>> self-recovery feature which monitors abnormal state of SDA, SCL and its
+>> H/W state machine using the timeout setting to determine the escape
+>> condition.
 > 
-> Signed-off-by: Alain Volmat <alain.volmat@st.com>
-> ---
->  drivers/i2c/busses/i2c-stm32f7.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-> index d36cf08461f7..cfae01b15243 100644
-> --- a/drivers/i2c/busses/i2c-stm32f7.c
-> +++ b/drivers/i2c/busses/i2c-stm32f7.c
-> @@ -1265,7 +1265,7 @@ static int stm32f7_i2c_get_free_slave_id(struct stm32f7_i2c_dev *i2c_dev,
->  	 * slave[0] supports 7-bit and 10-bit slave address
->  	 * slave[1] supports 7-bit slave address only
->  	 */
-> -	for (i = 0; i < STM32F7_I2C_MAX_SLAVE; i++) {
-> +	for (i = STM32F7_I2C_MAX_SLAVE - 1; i >= 0; i--) {
->  		if (i == 1 && (slave->flags & I2C_CLIENT_PEC))
->  			continue;
->  		if (!i2c_dev->slave[i]) {
-> 
+> Thanks for the summary. I just wonder on what the timeout value depends.
+> Do we really need to put in DT or can we derive it e.g. from the
+> compatible value in the driver?
+
+It could be derived from the bus timeout value by computing 'divide by
+x' roughly but it couldn't cover all use cases because this H/W timeout
+value would depends on each environment. There are many factors that
+can affect it such as bus speed, peer-master's bus driving
+characteristic, average transaction period on the bus and so on thus
+it may need fine adjustments through a DT setting, I think.
+
+Thanks,
+
+Jae
