@@ -1,53 +1,92 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v5 0/9] i2c: add support for filters
-Date: Wed, 23 Oct 2019 14:19:44 +0200
-Message-ID: <20191023121944.GA2011@kunai>
-References: <1568189911-31641-1-git-send-email-eugen.hristev@microchip.com>
- <c17182ac-67dd-d11f-5daf-066bf446b969@microchip.com>
- <20191021140515.GC26782@ninjato>
- <f5bd0c1f-9a72-6661-146b-ef5de77e31ff@axentia.se>
- <c1f5c3f0-860e-e86a-5658-49e2100225a9@microchip.com>
+From: <Eugen.Hristev@microchip.com>
+Subject: [PATCH v6 3/9] i2c: add support for filters optional properties
+Date: Wed, 23 Oct 2019 12:40:14 +0000
+Message-ID: <1571834060-31580-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <c1f5c3f0-860e-e86a-5658-49e2100225a9@microchip.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eugen.Hristev@microchip.com
-Cc: peda@axentia.se, mark.rutland@arm.com, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, alexandre.belloni@bootlin.com, robh+dt@kernel.org, Nicolas.Ferre@microchip.com
+To: robh+dt@kernel.org, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, wsa@the-dreams.de, peda@axentia.se, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: Eugen.Hristev@microchip.com
 List-Id: linux-i2c@vger.kernel.org
 
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
---HcAYCG3uE/tztfnV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+i2c-digital-filter-width-ns:
+This optional timing property specifies the width of the spikes on the i2c
+lines (in ns) that can be filtered out by built-in digital filters which ar=
+e
+embedded in some i2c controllers.
+i2c-analog-filter-cutoff-frequency:
+This optional timing property specifies the cutoff frequency of a low-pass
+analog filter built-in i2c controllers. This low pass filter is used to fil=
+ter
+out high frequency noise on the i2c lines. Specified in Hz.
+Include these properties in the timings structure and read them as integers=
+.
 
-> Send another version of the patch with the nit ?
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+---
 
-That would be easiest for me.
+Hello Wolfram,
 
-Thanks!
+I modified the comment as requested.
+I only resent this patch.
+
+Thanks !
+Eugen
 
 
---HcAYCG3uE/tztfnV
-Content-Type: application/pgp-signature; name="signature.asc"
+ drivers/i2c/i2c-core-base.c | 6 ++++++
+ include/linux/i2c.h         | 6 ++++++
+ 2 files changed, 12 insertions(+)
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl2wRVwACgkQFA3kzBSg
-KbY+cg//beA6zQrkT9jDDrRJUPM3LpUWqzeo8RMreuQzJp6Pw1X8BSuxLanDvhT0
-PlKK59ZEhsXHtaXiyw2yVN1h3WILCiWryq81eyw8+ZgLkoQS++cBIdBwB/ZswY4t
-vtHV+9mc82sCVJYEH9UKp75wqEQ41dOTL478itGb89ESJ2R772foKlipQwQ1zzTJ
-gS35TGxdmwuiJ3JCgDs1bkCorwpY4OBjF9H1QTWXqfyoTgRPguBM8NYXmj21Cn+r
-VRFMvpmFlxGsSC35Zx0Fb1Q1QxZNb49TwC1nnNnBhUSkAP9rmrW8SrofbMZ3Dekx
-A3pVvyhzi6IO0sEvbmtbm64tP/nk5Yf4n3DmVbHufOQ/wKWtXWIhsqC/p4BA6TZw
-xB4yJbxsljD+HLbigCjP2KpsonYeBAFG9O0RRqMQG8bp59BnzCvZambx6fadjI6x
-32J9dHsSgfrXsG2ABcQY9+JFqv0SjlHo/5VmtnjV+kExa8jwx+f2YDbqcxr99PR4
-kdfsAWOE28CZowJFKn84jUaabmISqHz9ejUCNvNTeuAC2yxvRqUCzoUpguZnqEgn
-c5y7u8byZWNlOcUNRnCIfen19LmZagkZM9xn48Dtcp8RCBZRZEIeWnIvuaaix7V9
-+kNWRT3uArzuZDD7A+CyefduySTQj1UZkJfzYyYKEL3fLAh4ZxQ=
-=ywNb
------END PGP SIGNATURE-----
-
---HcAYCG3uE/tztfnV--
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 5f6a498..6a5183c 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1656,6 +1656,12 @@ void i2c_parse_fw_timings(struct device *dev, struct=
+ i2c_timings *t, bool use_de
+ 		t->sda_fall_ns =3D t->scl_fall_ns;
+=20
+ 	device_property_read_u32(dev, "i2c-sda-hold-time-ns", &t->sda_hold_ns);
++
++	device_property_read_u32(dev, "i2c-digital-filter-width-ns",
++				 &t->digital_filter_width_ns);
++
++	device_property_read_u32(dev, "i2c-analog-filter-cutoff-frequency",
++				 &t->analog_filter_cutoff_freq_hz);
+ }
+ EXPORT_SYMBOL_GPL(i2c_parse_fw_timings);
+=20
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 1361637..aaf57d9 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -575,6 +575,10 @@ struct i2c_lock_operations {
+  * @scl_int_delay_ns: time IP core additionally needs to setup SCL in ns
+  * @sda_fall_ns: time SDA signal takes to fall in ns; t(f) in the I2C spec=
+ification
+  * @sda_hold_ns: time IP core additionally needs to hold SDA in ns
++ * @digital_filter_width_ns: width in ns of spikes on i2c lines that the I=
+P core
++ *	digital filter can filter out
++ * @analog_filter_cutoff_freq_hz: threshold frequency for the low pass IP =
+core
++ *	analog filter
+  */
+ struct i2c_timings {
+ 	u32 bus_freq_hz;
+@@ -583,6 +587,8 @@ struct i2c_timings {
+ 	u32 scl_int_delay_ns;
+ 	u32 sda_fall_ns;
+ 	u32 sda_hold_ns;
++	u32 digital_filter_width_ns;
++	u32 analog_filter_cutoff_freq_hz;
+ };
+=20
+ /**
+--=20
+2.7.4
