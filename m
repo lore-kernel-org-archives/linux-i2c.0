@@ -1,108 +1,53 @@
-From: <Eugen.Hristev@microchip.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v5 0/9] i2c: add support for filters
-Date: Wed, 23 Oct 2019 11:01:40 +0000
-Message-ID: <c1f5c3f0-860e-e86a-5658-49e2100225a9@microchip.com>
+Date: Wed, 23 Oct 2019 14:19:44 +0200
+Message-ID: <20191023121944.GA2011@kunai>
 References: <1568189911-31641-1-git-send-email-eugen.hristev@microchip.com>
  <c17182ac-67dd-d11f-5daf-066bf446b969@microchip.com>
  <20191021140515.GC26782@ninjato>
  <f5bd0c1f-9a72-6661-146b-ef5de77e31ff@axentia.se>
+ <c1f5c3f0-860e-e86a-5658-49e2100225a9@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <f5bd0c1f-9a72-6661-146b-ef5de77e31ff@axentia.se>
-Content-Language: en-US
-Content-ID: <B3A0FB639092C0468D6D620D672A992D@namprd11.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <c1f5c3f0-860e-e86a-5658-49e2100225a9@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: peda@axentia.se, wsa@the-dreams.de
-Cc: mark.rutland@arm.com, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, alexandre.belloni@bootlin.com, robh+dt@kernel.org, Nicolas.Ferre@microchip.com
+To: Eugen.Hristev@microchip.com
+Cc: peda@axentia.se, mark.rutland@arm.com, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, alexandre.belloni@bootlin.com, robh+dt@kernel.org, Nicolas.Ferre@microchip.com
 List-Id: linux-i2c@vger.kernel.org
 
 
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 21.10.2019 18:23, Peter Rosin wrote:
+> Send another version of the patch with the nit ?
 
->=20
-> On 2019-10-21 16:05, Wolfram Sang wrote:
->> On Mon, Oct 07, 2019 at 07:53:21AM +0000, Eugen.Hristev@microchip.com wr=
-ote:
->>>
->>>
->>> On 11.09.2019 11:24, Eugen Hristev - M18282 wrote:
->>>> From: Eugen Hristev <eugen.hristev@microchip.com>
->>>>
->>>> Hello,
->>>>
->>>> This series adds support for analog and digital filters for i2c contro=
-llers
->>>>
->>>> This series is based on the series:
->>>> [PATCH v2 0/9] i2c: at91: filters support for at91 SoCs
->>>> and later
->>>> [PATCH v4 0/9] i2c: add support for filters
->>>> and enhanced to add the bindings for all controllers plus an extra bin=
-dings
->>>> for the width of the spikes in nanoseconds (digital filters) and cut-o=
-ff
->>>> frequency (analog filters)
->>>>
->>>> First, bindings are created for
->>>> 'i2c-analog-filter'
->>>> 'i2c-digital-filter'
->>>> 'i2c-digital-filter-width-ns'
->>>> 'i2c-analog-filter-cutoff-frequency'
->>>>
->>>> The support is added in the i2c core to retrieve filter width/cutoff f=
-requency
->>>> and add it to the timings structure.
->>>> Next, the at91 driver is enhanced for supporting digital filter, advan=
-ced
->>>> digital filter (with selectable spike width) and the analog filter.
->>>>
->>>> Finally the device tree for two boards are modified to make use of the
->>>> new properties.
->>>>
->>>> This series is the result of the comments on the ML in the direction
->>>> requested: to make the bindings globally available for i2c drivers.
->>>>
->>>> Changes in v5:
->>>> - renamed i2c-filter-width-ns to i2c-digital-filter-width-ns as this
->>>> is applicable only to digital filter
->>>> - created new binding i2c-digital-filter-width-ns for analog filters.
->>>
->>> Hello Wolfram and Peter,
->>>
->>> Are you happy with the changes in this version? I haven't heard from yo=
-u
->>> since this latest update.
->>> I am interested to know if anymore changes are required or maybe we can
->>> move further with this support.
->>
->> So, I had a look now and I am happy. I will give Peter one more day to
->> comment, otherwise I'll apply it tomorrow.
->=20
-> I had another read-through and only found one nit which is in a separate
-> message. You can add
->=20
-> Reviewed-by: Peter Rosin <peda@axentia.se>
->=20
-> for the whole series.
+That would be easiest for me.
 
-Hello Peter and Wolfram,
+Thanks!
 
-Thanks for reviewing.
-Send another version of the patch with the nit ?
-Or how would you like to proceed ?
 
-Thanks,
-Eugen
+--HcAYCG3uE/tztfnV
+Content-Type: application/pgp-signature; name="signature.asc"
 
->=20
-> Cheers,
-> Peter
->=20
->> Thanks for your patience and keeping at it!
->>
->=20
->=20
->=20
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl2wRVwACgkQFA3kzBSg
+KbY+cg//beA6zQrkT9jDDrRJUPM3LpUWqzeo8RMreuQzJp6Pw1X8BSuxLanDvhT0
+PlKK59ZEhsXHtaXiyw2yVN1h3WILCiWryq81eyw8+ZgLkoQS++cBIdBwB/ZswY4t
+vtHV+9mc82sCVJYEH9UKp75wqEQ41dOTL478itGb89ESJ2R772foKlipQwQ1zzTJ
+gS35TGxdmwuiJ3JCgDs1bkCorwpY4OBjF9H1QTWXqfyoTgRPguBM8NYXmj21Cn+r
+VRFMvpmFlxGsSC35Zx0Fb1Q1QxZNb49TwC1nnNnBhUSkAP9rmrW8SrofbMZ3Dekx
+A3pVvyhzi6IO0sEvbmtbm64tP/nk5Yf4n3DmVbHufOQ/wKWtXWIhsqC/p4BA6TZw
+xB4yJbxsljD+HLbigCjP2KpsonYeBAFG9O0RRqMQG8bp59BnzCvZambx6fadjI6x
+32J9dHsSgfrXsG2ABcQY9+JFqv0SjlHo/5VmtnjV+kExa8jwx+f2YDbqcxr99PR4
+kdfsAWOE28CZowJFKn84jUaabmISqHz9ejUCNvNTeuAC2yxvRqUCzoUpguZnqEgn
+c5y7u8byZWNlOcUNRnCIfen19LmZagkZM9xn48Dtcp8RCBZRZEIeWnIvuaaix7V9
++kNWRT3uArzuZDD7A+CyefduySTQj1UZkJfzYyYKEL3fLAh4ZxQ=
+=ywNb
+-----END PGP SIGNATURE-----
+
+--HcAYCG3uE/tztfnV--
