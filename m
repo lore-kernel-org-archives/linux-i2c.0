@@ -1,137 +1,108 @@
-From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Subject: Re: [PATCH i2c-next 1/2] dt-bindings: i2c: aspeed: add hardware
- timeout support
-Date: Tue, 22 Oct 2019 10:44:55 -0700
-Message-ID: <7806ece8-1d7c-7aa8-20af-6f5f964bec64@linux.intel.com>
-References: <20191021202414.17484-1-jae.hyun.yoo@linux.intel.com>
- <20191021202414.17484-2-jae.hyun.yoo@linux.intel.com>
- <0a629f7b-b829-c332-27d8-dc825205ff72@axentia.se>
- <7abf933b-cb18-10af-9c1b-163ec65ffae5@linux.intel.com>
- <b98827fa-462a-060b-efc7-27fe5d7742ff@axentia.se>
+From: <Eugen.Hristev@microchip.com>
+Subject: Re: [PATCH v5 0/9] i2c: add support for filters
+Date: Wed, 23 Oct 2019 11:01:40 +0000
+Message-ID: <c1f5c3f0-860e-e86a-5658-49e2100225a9@microchip.com>
+References: <1568189911-31641-1-git-send-email-eugen.hristev@microchip.com>
+ <c17182ac-67dd-d11f-5daf-066bf446b969@microchip.com>
+ <20191021140515.GC26782@ninjato>
+ <f5bd0c1f-9a72-6661-146b-ef5de77e31ff@axentia.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <b98827fa-462a-060b-efc7-27fe5d7742ff@axentia.se>
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <f5bd0c1f-9a72-6661-146b-ef5de77e31ff@axentia.se>
 Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Peter Rosin <peda@axentia.se>, Brendan Higgins <brendanhiggins@google.com>, Wolfram Sang <wsa@the-dreams.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Andrew Jeffery <andrew@aj.id.au>, Tao Ren <taoren@fb.com>, Cedric Le Goater <clg@kaod.org>
-Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>
+Content-ID: <B3A0FB639092C0468D6D620D672A992D@namprd11.prod.outlook.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: peda@axentia.se, wsa@the-dreams.de
+Cc: mark.rutland@arm.com, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, alexandre.belloni@bootlin.com, robh+dt@kernel.org, Nicolas.Ferre@microchip.com
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/22/2019 1:45 AM, Peter Rosin wrote:
-> On 2019-10-21 23:57, Jae Hyun Yoo wrote:
->> Hi Peter,
->>
->> On 10/21/2019 2:05 PM, Peter Rosin wrote:
->>> On 2019-10-21 22:24, Jae Hyun Yoo wrote:
->>>> Append a binding to support hardware timeout feature.
->>>>
->>>> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
->>>> ---
->>>>    Documentation/devicetree/bindings/i2c/i2c-aspeed.txt | 2 ++
->>>>    1 file changed, 2 insertions(+)
->>>>
->>>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
->>>> index b47f6ccb196a..133bfedf4cdd 100644
->>>> --- a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
->>>> +++ b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
->>>> @@ -17,6 +17,8 @@ Optional Properties:
->>>>    - bus-frequency	: frequency of the bus clock in Hz defaults to 100 kHz when not
->>>>    		  specified
->>>>    - multi-master	: states that there is another master active on this bus.
->>>> +- aspeed,hw-timeout-ms	: Hardware timeout in milliseconds. If it's not
->>>> +			  specified, the H/W timeout feature will be disabled.
->>>>    
->>>>    Example:
->>>>    
->>>>
+
+
+On 21.10.2019 18:23, Peter Rosin wrote:
+
+>=20
+> On 2019-10-21 16:05, Wolfram Sang wrote:
+>> On Mon, Oct 07, 2019 at 07:53:21AM +0000, Eugen.Hristev@microchip.com wr=
+ote:
 >>>
->>> Some SMBus clients support a smbus-timeout-disable binding for disabling
->>> timeouts like this, for cases where the I2C adapter in question on occasion
->>> is unable to keep the pace. Adding that property thus avoids undesired
->>> timeouts when the client is SMBus conformant without it. Your new binding
->>> is the reverse situation, where you want to add a timeout where one is
->>> otherwise missing.
 >>>
->>> Anyway, since I2C does not have a specified lowest possible frequency, this
->>> feels like something that is more in the SMBus arena. Should the property
->>> perhaps be a generic property named smbus-timeout-ms, or something like
->>> that?
+>>> On 11.09.2019 11:24, Eugen Hristev - M18282 wrote:
+>>>> From: Eugen Hristev <eugen.hristev@microchip.com>
+>>>>
+>>>> Hello,
+>>>>
+>>>> This series adds support for analog and digital filters for i2c contro=
+llers
+>>>>
+>>>> This series is based on the series:
+>>>> [PATCH v2 0/9] i2c: at91: filters support for at91 SoCs
+>>>> and later
+>>>> [PATCH v4 0/9] i2c: add support for filters
+>>>> and enhanced to add the bindings for all controllers plus an extra bin=
+dings
+>>>> for the width of the spikes in nanoseconds (digital filters) and cut-o=
+ff
+>>>> frequency (analog filters)
+>>>>
+>>>> First, bindings are created for
+>>>> 'i2c-analog-filter'
+>>>> 'i2c-digital-filter'
+>>>> 'i2c-digital-filter-width-ns'
+>>>> 'i2c-analog-filter-cutoff-frequency'
+>>>>
+>>>> The support is added in the i2c core to retrieve filter width/cutoff f=
+requency
+>>>> and add it to the timings structure.
+>>>> Next, the at91 driver is enhanced for supporting digital filter, advan=
+ced
+>>>> digital filter (with selectable spike width) and the analog filter.
+>>>>
+>>>> Finally the device tree for two boards are modified to make use of the
+>>>> new properties.
+>>>>
+>>>> This series is the result of the comments on the ML in the direction
+>>>> requested: to make the bindings globally available for i2c drivers.
+>>>>
+>>>> Changes in v5:
+>>>> - renamed i2c-filter-width-ns to i2c-digital-filter-width-ns as this
+>>>> is applicable only to digital filter
+>>>> - created new binding i2c-digital-filter-width-ns for analog filters.
+>>>
+>>> Hello Wolfram and Peter,
+>>>
+>>> Are you happy with the changes in this version? I haven't heard from yo=
+u
+>>> since this latest update.
+>>> I am interested to know if anymore changes are required or maybe we can
+>>> move further with this support.
 >>
->> Well, I tried upstreaming of the generic timeout property a year ago but
->> I agreed that the generic bus timeout property can be set by an ioctl
->> command so it didn't need to be added into device tree at that time. Not
->> sure if any need has come recently but I haven't heard that. This driver
->> still uses the generic timeout property which is provided by i2c core
->> for handling command timeouts, and it's out of scope from this patch
->> series.
->>
->>> If the above is not wanted or appropriate, then I would personally prefer
->>> aspeed,bus-timeout-ms over aspeed,hw-timeout-ms. To me, hw-timeout-ms sounds
->>> like a (more serious) timeout between the CPU and the I2C peripheral unit
->>> or something like that. But I don't care deeply...
->>
->> Changes I submitted in this patch set is for a different purpose which
->> is very Aspeed H/W specific, and actually it's a more serious timeout
->> setting indeed. If this H/W is used in multi-master environment, it
->> could meet a H/W hang that freezes itself in slave mode and it can't
->> escape from the state. To resolve the specific case, this H/W provides
->> self-recovery feature which monitors abnormal state of SDA, SCL and its
->> H/W state machine using the timeout setting to determine the escape
->> condition.
-> 
-> Are you saying that the aspeed HW is buggy and that this abnormal state
-> is self inflicted by the aspeed HW even if other masters on the bus
-> behave sanely? Because I didn't quite read it that way at all...
+>> So, I had a look now and I am happy. I will give Peter one more day to
+>> comment, otherwise I'll apply it tomorrow.
+>=20
+> I had another read-through and only found one nit which is in a separate
+> message. You can add
+>=20
+> Reviewed-by: Peter Rosin <peda@axentia.se>
+>=20
+> for the whole series.
 
-I don't think it's an Aspeed HW bug. Actually, this HW can be exposed to
-very severe environments if it is used as a Baseboard Management
-Controller which needs two or more multi-masters on a bus depends on
-HW design. Also, it should expect unknown or buggy device attachment
-on a bus through add-on card slots. Aspeed HW provides HW timeout
-feature to support exceptional cases handling which comes from the
-severe use cases.
+Hello Peter and Wolfram,
 
-> To me, it sounded *exactly* like the state I2C clients end up in when an
-> I2C master "dies" and stops communicating in the middle of a transaction.
-> I.e. the thing that the SMBus timeout is designed to prevent (and the
-> state the I2C nine-clk-recovery sequence addresses). The only twist (that
-> I saw) was that the aspeed HW is also a master and that the aspeed master
-> driver is completely locked out from the bus while some obnoxious master
-> fails to complete its transaction (or whatever it was up to).
-
-If this HW runs on a single-master bus, any master dying issue will be
-cured by recovery logic which this driver already has and the logic uses
-the bus timeout setting you are saying.
-
-This patch set is mainly focusing on a 'slave mode hang' issue on a
-'multi-master' bus which can't be covered by the recovery logic.
-
-> If this can only be triggered when the HW is acting as a slave, and by
-> aborted or otherwise funky master activity on the bus, then I wouldn't
-> call it an HW issue. Then it would be a bus issue. I.e. something needing
-> a bus-timeout instead of a hw-timeout.
-
-Here is an example. In a multi-node BMC system, a peer master can be
-shutdown in the middle of transaction, then this Aspeed HW keeps waiting
-for a next event from the peer master but it can't happen because the
-peer master was already shutdown. If we enable the 'slave inactive
-timeout feature' using the HW timeout setting, the this HW can escape
-from the waiting state. If we don't, this HW hangs forever in the
-waiting state and it's the reason why I implemented this patch set.
-
-The hw-timeout setting needs fine tuning depends on HW environment so
-it should be different from the bus-timeout.
+Thanks for reviewing.
+Send another version of the patch with the nit ?
+Or how would you like to proceed ?
 
 Thanks,
+Eugen
 
-Jae
+>=20
+> Cheers,
+> Peter
+>=20
+>> Thanks for your patience and keeping at it!
+>>
+>=20
+>=20
+>=20
