@@ -1,56 +1,175 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/4] i2c: at91: implement i2c bus recovery
-Date: Thu, 24 Oct 2019 17:07:26 +0200
-Message-ID: <20191024150726.GA1120@kunai>
-References: <20191002144658.7718-1-kamel.bouhara@bootlin.com>
- <20191002144658.7718-3-kamel.bouhara@bootlin.com>
- <20191021202044.GB3607@kunai>
- <724d3470-0561-1b3f-c826-bc16c74a8c0a@bootlin.com>
- <1e70ae35-052b-67cc-27c4-1077c211efd0@microchip.com>
+From: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Subject: Re: [PATCH i2c-next 1/2] dt-bindings: i2c: aspeed: add hardware
+ timeout support
+Date: Thu, 24 Oct 2019 10:27:28 -0700
+Message-ID: <5f883aea-a849-eade-5a91-3ac35d2d6b73@linux.intel.com>
+References: <20191021202414.17484-1-jae.hyun.yoo@linux.intel.com>
+ <20191021202414.17484-2-jae.hyun.yoo@linux.intel.com>
+ <0a629f7b-b829-c332-27d8-dc825205ff72@axentia.se>
+ <7abf933b-cb18-10af-9c1b-163ec65ffae5@linux.intel.com>
+ <b98827fa-462a-060b-efc7-27fe5d7742ff@axentia.se>
+ <7806ece8-1d7c-7aa8-20af-6f5f964bec64@linux.intel.com>
+ <6eba3e62-9215-0c39-258b-7abfb394bc48@axentia.se>
+ <CAFd5g46Zv6E=PcU6=aX65rg2TRY5y3nWB8CYjGJioU_zpfcOUw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1e70ae35-052b-67cc-27c4-1077c211efd0@microchip.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Codrin.Ciubotariu@microchip.com
-Cc: kamel.bouhara@bootlin.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, Ludovic.Desroches@microchip.com, devicetree@vger.kernel.org, thomas.petazzoni@bootlin.com
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CAFd5g46Zv6E=PcU6=aX65rg2TRY5y3nWB8CYjGJioU_zpfcOUw@mail.gmail.com>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Brendan Higgins <brendanhiggins@google.com>, Peter Rosin <peda@axentia.se>
+Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>, Wolfram Sang <wsa@the-dreams.de>, Andrew Jeffery <andrew@aj.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Tao Ren <taoren@fb.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Cedric Le Goater <clg@kaod.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 10/23/2019 5:09 PM, Brendan Higgins wrote:
+> On Wed, Oct 23, 2019 at 2:17 PM Peter Rosin <peda@axentia.se> wrote:
+>>
+>> On 2019-10-22 19:44, Jae Hyun Yoo wrote:
+>>> On 10/22/2019 1:45 AM, Peter Rosin wrote:
+>>>> On 2019-10-21 23:57, Jae Hyun Yoo wrote:
+>>>>> Hi Peter,
+>>>>>
+>>>>> On 10/21/2019 2:05 PM, Peter Rosin wrote:
+>>>>>> On 2019-10-21 22:24, Jae Hyun Yoo wrote:
+>>>>>>> Append a binding to support hardware timeout feature.
+>>>>>>>
+>>>>>>> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+>>>>>>> ---
+>>>>>>>     Documentation/devicetree/bindings/i2c/i2c-aspeed.txt | 2 ++
+>>>>>>>     1 file changed, 2 insertions(+)
+>>>>>>>
+>>>>>>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+>>>>>>> index b47f6ccb196a..133bfedf4cdd 100644
+>>>>>>> --- a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+>>>>>>> +++ b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
+>>>>>>> @@ -17,6 +17,8 @@ Optional Properties:
+>>>>>>>     - bus-frequency        : frequency of the bus clock in Hz defaults to 100 kHz when not
+>>>>>>>                      specified
+>>>>>>>     - multi-master : states that there is another master active on this bus.
+>>>>>>> +- aspeed,hw-timeout-ms   : Hardware timeout in milliseconds. If it's not
+>>>>>>> +                   specified, the H/W timeout feature will be disabled.
+>>>>>>>
+>>>>>>>     Example:
+>>>>>>>
+>>>>>>>
+>>>>>>
+>>>>>> Some SMBus clients support a smbus-timeout-disable binding for disabling
+>>>>>> timeouts like this, for cases where the I2C adapter in question on occasion
+>>>>>> is unable to keep the pace. Adding that property thus avoids undesired
+>>>>>> timeouts when the client is SMBus conformant without it. Your new binding
+>>>>>> is the reverse situation, where you want to add a timeout where one is
+>>>>>> otherwise missing.
+>>>>>>
+>>>>>> Anyway, since I2C does not have a specified lowest possible frequency, this
+>>>>>> feels like something that is more in the SMBus arena. Should the property
+>>>>>> perhaps be a generic property named smbus-timeout-ms, or something like
+>>>>>> that?
+>>>>>
+>>>>> Well, I tried upstreaming of the generic timeout property a year ago but
+>>>>> I agreed that the generic bus timeout property can be set by an ioctl
+>>>>> command so it didn't need to be added into device tree at that time. Not
+>>>>> sure if any need has come recently but I haven't heard that. This driver
+>>>>> still uses the generic timeout property which is provided by i2c core
+>>>>> for handling command timeouts, and it's out of scope from this patch
+>>>>> series.
+>>>>>
+>>>>>> If the above is not wanted or appropriate, then I would personally prefer
+>>>>>> aspeed,bus-timeout-ms over aspeed,hw-timeout-ms. To me, hw-timeout-ms sounds
+>>>>>> like a (more serious) timeout between the CPU and the I2C peripheral unit
+>>>>>> or something like that. But I don't care deeply...
+>>>>>
+>>>>> Changes I submitted in this patch set is for a different purpose which
+>>>>> is very Aspeed H/W specific, and actually it's a more serious timeout
+>>>>> setting indeed. If this H/W is used in multi-master environment, it
+>>>>> could meet a H/W hang that freezes itself in slave mode and it can't
+>>>>> escape from the state. To resolve the specific case, this H/W provides
+>>>>> self-recovery feature which monitors abnormal state of SDA, SCL and its
+>>>>> H/W state machine using the timeout setting to determine the escape
+>>>>> condition.
+>>>>
+>>>> Are you saying that the aspeed HW is buggy and that this abnormal state
+>>>> is self inflicted by the aspeed HW even if other masters on the bus
+>>>> behave sanely? Because I didn't quite read it that way at all...
+>>>
+>>> I don't think it's an Aspeed HW bug. Actually, this HW can be exposed to
+>>> very severe environments if it is used as a Baseboard Management
+>>> Controller which needs two or more multi-masters on a bus depends on
+>>> HW design. Also, it should expect unknown or buggy device attachment
+>>> on a bus through add-on card slots. Aspeed HW provides HW timeout
+>>> feature to support exceptional cases handling which comes from the
+>>> severe use cases.
+>>>
+>>>> To me, it sounded *exactly* like the state I2C clients end up in when an
+>>>> I2C master "dies" and stops communicating in the middle of a transaction.
+>>>> I.e. the thing that the SMBus timeout is designed to prevent (and the
+>>>> state the I2C nine-clk-recovery sequence addresses). The only twist (that
+>>>> I saw) was that the aspeed HW is also a master and that the aspeed master
+>>>> driver is completely locked out from the bus while some obnoxious master
+>>>> fails to complete its transaction (or whatever it was up to).
+>>>
+>>> If this HW runs on a single-master bus, any master dying issue will be
+>>> cured by recovery logic which this driver already has and the logic uses
+>>> the bus timeout setting you are saying.
+>>>
+>>> This patch set is mainly focusing on a 'slave mode hang' issue on a
+>>> 'multi-master' bus which can't be covered by the recovery logic.
+>>>
+>>>> If this can only be triggered when the HW is acting as a slave, and by
+>>>> aborted or otherwise funky master activity on the bus, then I wouldn't
+>>>> call it an HW issue. Then it would be a bus issue. I.e. something needing
+>>>> a bus-timeout instead of a hw-timeout.
+>>>
+>>> Here is an example. In a multi-node BMC system, a peer master can be
+>>> shutdown in the middle of transaction, then this Aspeed HW keeps waiting
+>>> for a next event from the peer master but it can't happen because the
+>>> peer master was already shutdown. If we enable the 'slave inactive
+>>> timeout feature' using the HW timeout setting, the this HW can escape
+>>> from the waiting state. If we don't, this HW hangs forever in the
+>>> waiting state and it's the reason why I implemented this patch set.
+>>>
+>>> The hw-timeout setting needs fine tuning depends on HW environment so
+>>> it should be different from the bus-timeout.
+>>
+>> Yeah, ok, so you're basically confirming everything I said. I do
+>> sense some confusion though, as you come across as a bit
+>> defensive and seem to think that I am against the whole notion of
+>> the patches. And that's not the case at all! My only issue is
+>> with the naming. And I happen to think hw-timeout-ms is a really
+>> bad name. It's way too broad and can mean just about anything.
+>> When I read that, I think of some workaround for broken hardware,
+>> not normal things like the other masters on the bus doing
+>> confusing things. Funky bus activity from remote masters is
+>> simply not an HW issue in my book, at least not an HW issue on
+>> the local side of the bus. It's just something you *must expect*.
+> 
+> Sorry for not jumping in earlier, but I agree with Peter.
+> 
+> I like the name bus-timeout-ms better. It was not immediately clear
+> from reading your commit descriptions what this was all about.
 
---9amGYk9869ThD9tj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Okay, I can change the name if the 'aspeed,hw-timeout-ms' is
+inappropriate but I still doubt using of 'bus-timeout-ms'.
 
+The 'bus-timeout-ms' is being used for some client drivers in hwmon
+subsystem but it's not being used for any adapter driver currently.
+Since adapter drivers also use timeout value which I2C core provides,
+it could make confusion with it if I use 'bus-timeout-ms' for an adapter
+node in DT. Though, I and Wolfram agreed last year that the adapter
+timeout property can't be added into DT because it's purely S/W property
+so using of 'bus-timeout-ms' in DT for H/W property setting of an
+adapter device could be acceptable if we make consensus here.
 
-> So at the beginning of a new transfer, we should check if SDA (or SCL?)=
-=20
-> is low and, if it's true, only then we should try recover the bus.
+Please share your thoughts or suggest a better name for it.
 
-Yes, this is the proper time to do it. Remember, I2C does not define a
-timeout.
+Thanks,
 
-
---9amGYk9869ThD9tj
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl2xvikACgkQFA3kzBSg
-KbY2xw/9FIdBm3lKLqDZpmKjcsD3wcKioeBhtRCD82gnXZgkMqSlbbQQRf8y8ZKe
-KAun1rTcj+rHtvzH20i+alDXQzChwwJAS9ZxORyWPurh0sRTwGDH5z8Bl1Sm8kUp
-6dMDTGNrWwFGV0iQmHzF17n545X7ho/QHlTmpQi23SxS0sOJGPz5D8drDlWS0eBq
-MFrDt9jqeCRV2u68gntAWoMoTHUr5klUizS+p8Jrt3yMIfriH1uPc3VGa5xuuLVI
-al5YrR9bB0zgYZatgoxnZ6Q5KkInb1DkZIZNRmJP+4QoTMo97HHW+ZrsNJUD9mw5
-Uuoh2NTgVGkbuCXRDzVsDOoEEMVM1qmmZxNfeXPtIO6jWbZID8ZaWbsgAfV4SXnQ
-eeeZkH8ZuO19KhSeS6/El283JSMuvl89njtXd7l6/hcY41ndFOkjtjEDs/7Ed7RJ
-SB0dnavo3zYhzyMJ1IjhtIEIc3+cRZRy7HmBxgovyuEYYCF+re6I8HLjvo2/aYuC
-+s7J45zgY/9lqcnJRMz6iL7yIAFyoptYVVq5V065QWCyeKDNmVNBg3XP24ETd879
-060Xp1xPeZQU/Pe6D+j7fzfYDyg94Hi9a7P7TT4ZwatTm8LCObi5g7FCCuq5OQPM
-eY9Z7YHvo7yo4rYM1tqbAoYA0ZUxXj9IxGI8uIr0L3lBjLIJAI0=
-=cVZT
------END PGP SIGNATURE-----
-
---9amGYk9869ThD9tj--
+Jae
