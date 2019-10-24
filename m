@@ -1,47 +1,56 @@
-From: <Codrin.Ciubotariu@microchip.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH 2/4] i2c: at91: implement i2c bus recovery
-Date: Thu, 24 Oct 2019 14:08:21 +0000
-Message-ID: <1e70ae35-052b-67cc-27c4-1077c211efd0@microchip.com>
+Date: Thu, 24 Oct 2019 17:07:26 +0200
+Message-ID: <20191024150726.GA1120@kunai>
 References: <20191002144658.7718-1-kamel.bouhara@bootlin.com>
  <20191002144658.7718-3-kamel.bouhara@bootlin.com>
  <20191021202044.GB3607@kunai>
  <724d3470-0561-1b3f-c826-bc16c74a8c0a@bootlin.com>
+ <1e70ae35-052b-67cc-27c4-1077c211efd0@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <724d3470-0561-1b3f-c826-bc16c74a8c0a@bootlin.com>
-Content-Language: en-US
-Content-ID: <E599F74D1D260C4AA9BDA63474521792@namprd11.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <1e70ae35-052b-67cc-27c4-1077c211efd0@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: kamel.bouhara@bootlin.com, wsa@the-dreams.de
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, Ludovic.Desroches@microchip.com, devicetree@vger.kernel.org, thomas.petazzoni@bootlin.com
+To: Codrin.Ciubotariu@microchip.com
+Cc: kamel.bouhara@bootlin.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, Ludovic.Desroches@microchip.com, devicetree@vger.kernel.org, thomas.petazzoni@bootlin.com
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjIuMTAuMjAxOSAxMDo1OSwgS2FtZWwgQm91aGFyYSB3cm90ZToNCj4gT24gMjEvMTAvMjAx
-OSAyMjoyMCwgV29sZnJhbSBTYW5nIHdyb3RlOg0KPj4gT24gV2VkLCBPY3QgMDIsIDIwMTkgYXQg
-MDQ6NDY6NTZQTSArMDIwMCwgS2FtZWwgQm91aGFyYSB3cm90ZToNCj4+PiBJbXBsZW1lbnQgaTJj
-IGJ1cyByZWNvdmVyeSB3aGVuIHNsYXZlcyBkZXZpY2VzIG1pZ2h0IGhvbGQgU0RBIGxvdy4NCj4+
-PiBJbiB0aGlzIGNhc2UgcmUtYXNzaWduIFNDTC9TREEgdG8gZ3Bpb3MgYW5kIGlzc3VlIDkgZHVt
-bXkgY2xvY2sgcHVsc2VzDQo+Pj4gdW50aWwgdGhlIHNsYXZlIHJlbGVhc2UgU0RBLg0KPj4+DQo+
-Pj4gU2lnbmVkLW9mZi1ieTogS2FtZWwgQm91aGFyYSA8a2FtZWwuYm91aGFyYUBib290bGluLmNv
-bT4NCj4+DQo+PiBTZXR0aW5nIHVwIHRoZSBidXNfcmVjb3ZlcnkgbG9va3MgT0suIEhvd2V2ZXIs
-IEkgZG9uJ3Qgc2VlIGFueSBjYWxsIHRvDQo+PiBpMmNfcmVjb3Zlcl9idXMoKSwgc28gdGhlIGJ1
-c19yZWNvdmVyeSBpcyBuZXZlciB1c2VkLiBEaWQgeW91IHRlc3QgdGhpcw0KPj4gYW5kIHNlZSBh
-biBlZmZlY3Q/DQo+Pg0KPiBJbmRlZWQsIEkgZ3Vlc3MgSSBtZXNzIGl0IHVwIHdoaWxlIGRvaW5n
-IHNvbWUgZ2l0IHN0dWZmLCBpdCBzaG91bGQgYmUgDQo+IGNhbGxlZCBmcm9tIGF0OTFfZG9fdHdp
-X3RyYW5zZmVyKCkgd2hlbiB0aGUgdHJhbnNmZXIgdGltZXMgb3V0Li4uDQo+IEkgYWN0dWFsbHkg
-dGVzdGVkIGl0IGFuZCB2ZXJpZmllZCB0aGUgcmVjb3ZlcnkgaXMgdHJpZ2dlcmVkIGJ5IHB1bGxp
-bmcgDQo+IHRoZSBTQ0wgdG8gdGhlIGdyb3VuZCAuLi4NCj4gDQo+PiBBbHNvLCBJIHRoaW5rIHdl
-IHNob3VsZCBtZXJnZSB0aGlzIHBhdGNoICJbUEFUQ0ggdjNdIGkyYzogYXQ5MTogU2VuZCBidXMN
-Cj4+IGNsZWFyIGNvbW1hbmQgaWYgU0NMIG9yIFNEQSBpcyBkb3duIiBpbnRvIHRoaXMgc2VyaWVz
-LiBUaGUgY3J1Y2lhbCB0aGluZw0KPj4gZm9yIGJvdGggaXMgd2hlbiB0byBhcHBseSB0aGUgcmVj
-b3ZlcnkgKGF0IHRoZSBiZWdpbm5pbmcgb2YgYQ0KPj4gdHJhbnNmZXIhKS4gVGhlIHJlc3QgaXMg
-Imp1c3QiIHRoYXQgc29tZSBIVyBuZWVkcyBhIGJ1c19yZWNvdmVyeV9pbmZvDQo+PiBmb3IgcGlu
-Y3RybC9HUElPIGhhbmRsaW5nIChmcm9tIHRoaXMgcGF0Y2gpLCB3aGlsZSBvdGhlciBIVyBuZWVk
-cyBhDQo+PiBidXNfcmVjb3ZlcnlfaW5mbyB3aXRoIGEgY3VzdG9tIHJlY292ZXJfYnVzIGNhbGxi
-YWNrLg0KPj4NCj4+IE9waW5pb25zPw0KPj4NCj4gSSdtIE9LIHRvIG1lcmdlIHRoZSB0d28gc2Vy
-aWVzLg0KDQpTbyBhdCB0aGUgYmVnaW5uaW5nIG9mIGEgbmV3IHRyYW5zZmVyLCB3ZSBzaG91bGQg
-Y2hlY2sgaWYgU0RBIChvciBTQ0w/KSANCmlzIGxvdyBhbmQsIGlmIGl0J3MgdHJ1ZSwgb25seSB0
-aGVuIHdlIHNob3VsZCB0cnkgcmVjb3ZlciB0aGUgYnVzLg0KDQpLYW1lbCwgbGV0IG1lIGtub3cg
-aWYgSSBjYW4gaGVscCB3aXRoIGFueXRoaW5nLg0KDQpCZXN0IHJlZ2FyZHMsDQpDb2RyaW4NCg0K
+
+--9amGYk9869ThD9tj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> So at the beginning of a new transfer, we should check if SDA (or SCL?)=
+=20
+> is low and, if it's true, only then we should try recover the bus.
+
+Yes, this is the proper time to do it. Remember, I2C does not define a
+timeout.
+
+
+--9amGYk9869ThD9tj
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl2xvikACgkQFA3kzBSg
+KbY2xw/9FIdBm3lKLqDZpmKjcsD3wcKioeBhtRCD82gnXZgkMqSlbbQQRf8y8ZKe
+KAun1rTcj+rHtvzH20i+alDXQzChwwJAS9ZxORyWPurh0sRTwGDH5z8Bl1Sm8kUp
+6dMDTGNrWwFGV0iQmHzF17n545X7ho/QHlTmpQi23SxS0sOJGPz5D8drDlWS0eBq
+MFrDt9jqeCRV2u68gntAWoMoTHUr5klUizS+p8Jrt3yMIfriH1uPc3VGa5xuuLVI
+al5YrR9bB0zgYZatgoxnZ6Q5KkInb1DkZIZNRmJP+4QoTMo97HHW+ZrsNJUD9mw5
+Uuoh2NTgVGkbuCXRDzVsDOoEEMVM1qmmZxNfeXPtIO6jWbZID8ZaWbsgAfV4SXnQ
+eeeZkH8ZuO19KhSeS6/El283JSMuvl89njtXd7l6/hcY41ndFOkjtjEDs/7Ed7RJ
+SB0dnavo3zYhzyMJ1IjhtIEIc3+cRZRy7HmBxgovyuEYYCF+re6I8HLjvo2/aYuC
++s7J45zgY/9lqcnJRMz6iL7yIAFyoptYVVq5V065QWCyeKDNmVNBg3XP24ETd879
+060Xp1xPeZQU/Pe6D+j7fzfYDyg94Hi9a7P7TT4ZwatTm8LCObi5g7FCCuq5OQPM
+eY9Z7YHvo7yo4rYM1tqbAoYA0ZUxXj9IxGI8uIr0L3lBjLIJAI0=
+=cVZT
+-----END PGP SIGNATURE-----
+
+--9amGYk9869ThD9tj--
