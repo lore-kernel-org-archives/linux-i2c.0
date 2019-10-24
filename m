@@ -1,91 +1,47 @@
-From: Alain Volmat <alain.volmat@st.com>
-Subject: [PATCH] i2c: i2c-stm32f7: report dma error during probe
-Date: Thu, 24 Oct 2019 14:52:00 +0200
-Message-ID: <1571921521-8502-1-git-send-email-alain.volmat@st.com>
+From: <Codrin.Ciubotariu@microchip.com>
+Subject: Re: [PATCH 2/4] i2c: at91: implement i2c bus recovery
+Date: Thu, 24 Oct 2019 14:08:21 +0000
+Message-ID: <1e70ae35-052b-67cc-27c4-1077c211efd0@microchip.com>
+References: <20191002144658.7718-1-kamel.bouhara@bootlin.com>
+ <20191002144658.7718-3-kamel.bouhara@bootlin.com>
+ <20191021202044.GB3607@kunai>
+ <724d3470-0561-1b3f-c826-bc16c74a8c0a@bootlin.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <724d3470-0561-1b3f-c826-bc16c74a8c0a@bootlin.com>
+Content-Language: en-US
+Content-ID: <E599F74D1D260C4AA9BDA63474521792@namprd11.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: wsa@the-dreams.de, pierre-yves.mordret@st.com
-Cc: alain.volmat@st.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
+To: kamel.bouhara@bootlin.com, wsa@the-dreams.de
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, Ludovic.Desroches@microchip.com, devicetree@vger.kernel.org, thomas.petazzoni@bootlin.com
 List-Id: linux-i2c@vger.kernel.org
 
-Distinguish between the case where dma information is not provided
-within the DT and the case of an error during the dma init.
-Exit the probe with error in case of an error during dma init.
-
-Fixes: bb8822cbbc53 ("i2c: i2c-stm32: Add generic DMA API")
-
-Signed-off-by: Alain Volmat <alain.volmat@st.com>
----
- drivers/i2c/busses/i2c-stm32.c   | 16 ++++++++--------
- drivers/i2c/busses/i2c-stm32f7.c |  9 +++++++++
- 2 files changed, 17 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-stm32.c b/drivers/i2c/busses/i2c-stm32.c
-index 07d5dfce68d4..1da347e6a358 100644
---- a/drivers/i2c/busses/i2c-stm32.c
-+++ b/drivers/i2c/busses/i2c-stm32.c
-@@ -20,13 +20,13 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
- 
- 	dma = devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
- 	if (!dma)
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
- 
- 	/* Request and configure I2C TX dma channel */
--	dma->chan_tx = dma_request_slave_channel(dev, "tx");
--	if (!dma->chan_tx) {
-+	dma->chan_tx = dma_request_chan(dev, "tx");
-+	if (IS_ERR(dma->chan_tx)) {
- 		dev_dbg(dev, "can't request DMA tx channel\n");
--		ret = -EINVAL;
-+		ret = PTR_ERR(dma->chan_tx);
- 		goto fail_al;
- 	}
- 
-@@ -42,10 +42,10 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
- 	}
- 
- 	/* Request and configure I2C RX dma channel */
--	dma->chan_rx = dma_request_slave_channel(dev, "rx");
--	if (!dma->chan_rx) {
-+	dma->chan_rx = dma_request_chan(dev, "rx");
-+	if (IS_ERR(dma->chan_rx)) {
- 		dev_err(dev, "can't request DMA rx channel\n");
--		ret = -EINVAL;
-+		ret = PTR_ERR(dma->chan_rx);
- 		goto fail_tx;
- 	}
- 
-@@ -75,7 +75,7 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
- 	devm_kfree(dev, dma);
- 	dev_info(dev, "can't use DMA\n");
- 
--	return NULL;
-+	return ERR_PTR(ret);
- }
- 
- void stm32_i2c_dma_free(struct stm32_i2c_dma *dma)
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index d36cf08461f7..cc8ba8f49ae6 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -1950,6 +1950,15 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->dma = stm32_i2c_dma_request(i2c_dev->dev, phy_addr,
- 					     STM32F7_I2C_TXDR,
- 					     STM32F7_I2C_RXDR);
-+	if (PTR_ERR(i2c_dev->dma) == -ENODEV)
-+		i2c_dev->dma = NULL;
-+	else if (IS_ERR(i2c_dev->dma)) {
-+		ret = PTR_ERR(i2c_dev->dma);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(&pdev->dev,
-+				"Failed to request dma error %i\n", ret);
-+		goto clk_free;
-+	}
- 
- 	platform_set_drvdata(pdev, i2c_dev);
- 
--- 
-2.7.4
+T24gMjIuMTAuMjAxOSAxMDo1OSwgS2FtZWwgQm91aGFyYSB3cm90ZToNCj4gT24gMjEvMTAvMjAx
+OSAyMjoyMCwgV29sZnJhbSBTYW5nIHdyb3RlOg0KPj4gT24gV2VkLCBPY3QgMDIsIDIwMTkgYXQg
+MDQ6NDY6NTZQTSArMDIwMCwgS2FtZWwgQm91aGFyYSB3cm90ZToNCj4+PiBJbXBsZW1lbnQgaTJj
+IGJ1cyByZWNvdmVyeSB3aGVuIHNsYXZlcyBkZXZpY2VzIG1pZ2h0IGhvbGQgU0RBIGxvdy4NCj4+
+PiBJbiB0aGlzIGNhc2UgcmUtYXNzaWduIFNDTC9TREEgdG8gZ3Bpb3MgYW5kIGlzc3VlIDkgZHVt
+bXkgY2xvY2sgcHVsc2VzDQo+Pj4gdW50aWwgdGhlIHNsYXZlIHJlbGVhc2UgU0RBLg0KPj4+DQo+
+Pj4gU2lnbmVkLW9mZi1ieTogS2FtZWwgQm91aGFyYSA8a2FtZWwuYm91aGFyYUBib290bGluLmNv
+bT4NCj4+DQo+PiBTZXR0aW5nIHVwIHRoZSBidXNfcmVjb3ZlcnkgbG9va3MgT0suIEhvd2V2ZXIs
+IEkgZG9uJ3Qgc2VlIGFueSBjYWxsIHRvDQo+PiBpMmNfcmVjb3Zlcl9idXMoKSwgc28gdGhlIGJ1
+c19yZWNvdmVyeSBpcyBuZXZlciB1c2VkLiBEaWQgeW91IHRlc3QgdGhpcw0KPj4gYW5kIHNlZSBh
+biBlZmZlY3Q/DQo+Pg0KPiBJbmRlZWQsIEkgZ3Vlc3MgSSBtZXNzIGl0IHVwIHdoaWxlIGRvaW5n
+IHNvbWUgZ2l0IHN0dWZmLCBpdCBzaG91bGQgYmUgDQo+IGNhbGxlZCBmcm9tIGF0OTFfZG9fdHdp
+X3RyYW5zZmVyKCkgd2hlbiB0aGUgdHJhbnNmZXIgdGltZXMgb3V0Li4uDQo+IEkgYWN0dWFsbHkg
+dGVzdGVkIGl0IGFuZCB2ZXJpZmllZCB0aGUgcmVjb3ZlcnkgaXMgdHJpZ2dlcmVkIGJ5IHB1bGxp
+bmcgDQo+IHRoZSBTQ0wgdG8gdGhlIGdyb3VuZCAuLi4NCj4gDQo+PiBBbHNvLCBJIHRoaW5rIHdl
+IHNob3VsZCBtZXJnZSB0aGlzIHBhdGNoICJbUEFUQ0ggdjNdIGkyYzogYXQ5MTogU2VuZCBidXMN
+Cj4+IGNsZWFyIGNvbW1hbmQgaWYgU0NMIG9yIFNEQSBpcyBkb3duIiBpbnRvIHRoaXMgc2VyaWVz
+LiBUaGUgY3J1Y2lhbCB0aGluZw0KPj4gZm9yIGJvdGggaXMgd2hlbiB0byBhcHBseSB0aGUgcmVj
+b3ZlcnkgKGF0IHRoZSBiZWdpbm5pbmcgb2YgYQ0KPj4gdHJhbnNmZXIhKS4gVGhlIHJlc3QgaXMg
+Imp1c3QiIHRoYXQgc29tZSBIVyBuZWVkcyBhIGJ1c19yZWNvdmVyeV9pbmZvDQo+PiBmb3IgcGlu
+Y3RybC9HUElPIGhhbmRsaW5nIChmcm9tIHRoaXMgcGF0Y2gpLCB3aGlsZSBvdGhlciBIVyBuZWVk
+cyBhDQo+PiBidXNfcmVjb3ZlcnlfaW5mbyB3aXRoIGEgY3VzdG9tIHJlY292ZXJfYnVzIGNhbGxi
+YWNrLg0KPj4NCj4+IE9waW5pb25zPw0KPj4NCj4gSSdtIE9LIHRvIG1lcmdlIHRoZSB0d28gc2Vy
+aWVzLg0KDQpTbyBhdCB0aGUgYmVnaW5uaW5nIG9mIGEgbmV3IHRyYW5zZmVyLCB3ZSBzaG91bGQg
+Y2hlY2sgaWYgU0RBIChvciBTQ0w/KSANCmlzIGxvdyBhbmQsIGlmIGl0J3MgdHJ1ZSwgb25seSB0
+aGVuIHdlIHNob3VsZCB0cnkgcmVjb3ZlciB0aGUgYnVzLg0KDQpLYW1lbCwgbGV0IG1lIGtub3cg
+aWYgSSBjYW4gaGVscCB3aXRoIGFueXRoaW5nLg0KDQpCZXN0IHJlZ2FyZHMsDQpDb2RyaW4NCg0K
