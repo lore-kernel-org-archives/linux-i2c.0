@@ -1,55 +1,38 @@
-From: Kamel Bouhara <kamel.bouhara@bootlin.com>
-Subject: [PATCH v2 2/5] dt-bindings: i2c: at91: document optional bus recovery properties
-Date: Thu, 24 Oct 2019 22:12:59 +0200
-Message-ID: <20191024201302.23376-3-kamel.bouhara@bootlin.com>
-References: <20191024201302.23376-1-kamel.bouhara@bootlin.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [v5,1/3] dt-bindings: i2c: support property idle-state
+Date: Thu, 24 Oct 2019 17:53:02 -0500
+Message-ID: <20191024225302.GA16606@bogus>
+References: <20191022041152.3663-1-biwen.li@nxp.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191024201302.23376-1-kamel.bouhara@bootlin.com>
+Content-Disposition: inline
+In-Reply-To: <20191022041152.3663-1-biwen.li@nxp.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Nicolas Ferre <nicolas.ferre@microchip.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Ludovic Desroches <ludovic.desroches@microchip.com>, linux-arm-kernel@lists.infradead.org, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org, Kamel Bouhara <kamel.bouhara@bootlin.com>
+Cc: peda@axentia.se, leoyang.li@nxp.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Biwen Li <biwen.li@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The at91 I2C controller can support bus recovery by re-assigning SCL
-and SDA to gpios. Add the optional pinctrl and gpio properties to do
-so.
+On Tue, 22 Oct 2019 12:11:50 +0800, Biwen Li wrote:
+> This supports property idle-state
+> 
+> Signed-off-by: Biwen Li <biwen.li@nxp.com>
+> ---
+> Change in v5:
+> 	- none
+> 
+> Change in v4:
+> 	- none
+> 
+> Change in v3:
+> 	- update subject and description
+> 	- add some information for property idle-state
+> 
+> Change in v2:
+> 	- update subject and description
+> 	- add property idle-state
+> 
+>  Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
 
-Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
----
- Documentation/devicetree/bindings/i2c/i2c-at91.txt | 10 ++++++++++
- 1 file changed, 10 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-index b7cec17c3daf..8ea2ce5d8610 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-@@ -19,8 +19,13 @@ Optional properties:
-   capable I2C controllers.
- - i2c-sda-hold-time-ns: TWD hold time, only available for "atmel,sama5d4-i2c"
-   and "atmel,sama5d2-i2c".
-+- scl-gpios: specify the gpio related to SCL pin
-+- sda-gpios: specify the gpio related to SDA pin
-+- pinctrl: add extra pinctrl to configure i2c pins to gpio function for i2c
-+  bus recovery, call it "gpio" state
- - Child nodes conforming to i2c bus binding
- 
-+
- Examples :
- 
- i2c0: i2c@fff84000 {
-@@ -55,6 +60,11 @@ i2c0: i2c@f8034600 {
- 	clocks = <&flx0>;
- 	atmel,fifo-size = <16>;
- 	i2c-sda-hold-time-ns = <336>;
-+	pinctrl-names = "default", "gpio";
-+	pinctrl-0 = <&pinctrl_i2c0>;
-+	pinctrl-1 = <&pinctrl_i2c0_gpio>;
-+	sda-gpios = <&pioA 30 GPIO_ACTIVE_HIGH>;
-+	scl-gpios = <&pioA 31 GPIO_ACTIVE_HIGH>;
- 
- 	wm8731: wm8731@1a {
- 		compatible = "wm8731";
--- 
-2.23.0
+Reviewed-by: Rob Herring <robh@kernel.org>
