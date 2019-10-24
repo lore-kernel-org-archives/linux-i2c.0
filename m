@@ -1,156 +1,91 @@
-From: Brendan Higgins <brendanhiggins@google.com>
-Subject: Re: [PATCH i2c-next 1/2] dt-bindings: i2c: aspeed: add hardware
- timeout support
-Date: Wed, 23 Oct 2019 17:09:51 -0700
-Message-ID: <CAFd5g46Zv6E=PcU6=aX65rg2TRY5y3nWB8CYjGJioU_zpfcOUw@mail.gmail.com>
-References: <20191021202414.17484-1-jae.hyun.yoo@linux.intel.com>
- <20191021202414.17484-2-jae.hyun.yoo@linux.intel.com>
- <0a629f7b-b829-c332-27d8-dc825205ff72@axentia.se>
- <7abf933b-cb18-10af-9c1b-163ec65ffae5@linux.intel.com>
- <b98827fa-462a-060b-efc7-27fe5d7742ff@axentia.se>
- <7806ece8-1d7c-7aa8-20af-6f5f964bec64@linux.intel.com>
- <6eba3e62-9215-0c39-258b-7abfb394bc48@axentia.se>
+From: Alain Volmat <alain.volmat@st.com>
+Subject: [PATCH] i2c: i2c-stm32f7: report dma error during probe
+Date: Thu, 24 Oct 2019 14:52:00 +0200
+Message-ID: <1571921521-8502-1-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <6eba3e62-9215-0c39-258b-7abfb394bc48@axentia.se>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Peter Rosin <peda@axentia.se>
-Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>, Wolfram Sang <wsa@the-dreams.de>, Andrew Jeffery <andrew@aj.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Tao Ren <taoren@fb.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Cedric Le Goater <clg@kaod.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: wsa@the-dreams.de, pierre-yves.mordret@st.com
+Cc: alain.volmat@st.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 23, 2019 at 2:17 PM Peter Rosin <peda@axentia.se> wrote:
->
-> On 2019-10-22 19:44, Jae Hyun Yoo wrote:
-> > On 10/22/2019 1:45 AM, Peter Rosin wrote:
-> >> On 2019-10-21 23:57, Jae Hyun Yoo wrote:
-> >>> Hi Peter,
-> >>>
-> >>> On 10/21/2019 2:05 PM, Peter Rosin wrote:
-> >>>> On 2019-10-21 22:24, Jae Hyun Yoo wrote:
-> >>>>> Append a binding to support hardware timeout feature.
-> >>>>>
-> >>>>> Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-> >>>>> ---
-> >>>>>    Documentation/devicetree/bindings/i2c/i2c-aspeed.txt | 2 ++
-> >>>>>    1 file changed, 2 insertions(+)
-> >>>>>
-> >>>>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-> >>>>> index b47f6ccb196a..133bfedf4cdd 100644
-> >>>>> --- a/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-> >>>>> +++ b/Documentation/devicetree/bindings/i2c/i2c-aspeed.txt
-> >>>>> @@ -17,6 +17,8 @@ Optional Properties:
-> >>>>>    - bus-frequency        : frequency of the bus clock in Hz defaults to 100 kHz when not
-> >>>>>                     specified
-> >>>>>    - multi-master : states that there is another master active on this bus.
-> >>>>> +- aspeed,hw-timeout-ms   : Hardware timeout in milliseconds. If it's not
-> >>>>> +                   specified, the H/W timeout feature will be disabled.
-> >>>>>
-> >>>>>    Example:
-> >>>>>
-> >>>>>
-> >>>>
-> >>>> Some SMBus clients support a smbus-timeout-disable binding for disabling
-> >>>> timeouts like this, for cases where the I2C adapter in question on occasion
-> >>>> is unable to keep the pace. Adding that property thus avoids undesired
-> >>>> timeouts when the client is SMBus conformant without it. Your new binding
-> >>>> is the reverse situation, where you want to add a timeout where one is
-> >>>> otherwise missing.
-> >>>>
-> >>>> Anyway, since I2C does not have a specified lowest possible frequency, this
-> >>>> feels like something that is more in the SMBus arena. Should the property
-> >>>> perhaps be a generic property named smbus-timeout-ms, or something like
-> >>>> that?
-> >>>
-> >>> Well, I tried upstreaming of the generic timeout property a year ago but
-> >>> I agreed that the generic bus timeout property can be set by an ioctl
-> >>> command so it didn't need to be added into device tree at that time. Not
-> >>> sure if any need has come recently but I haven't heard that. This driver
-> >>> still uses the generic timeout property which is provided by i2c core
-> >>> for handling command timeouts, and it's out of scope from this patch
-> >>> series.
-> >>>
-> >>>> If the above is not wanted or appropriate, then I would personally prefer
-> >>>> aspeed,bus-timeout-ms over aspeed,hw-timeout-ms. To me, hw-timeout-ms sounds
-> >>>> like a (more serious) timeout between the CPU and the I2C peripheral unit
-> >>>> or something like that. But I don't care deeply...
-> >>>
-> >>> Changes I submitted in this patch set is for a different purpose which
-> >>> is very Aspeed H/W specific, and actually it's a more serious timeout
-> >>> setting indeed. If this H/W is used in multi-master environment, it
-> >>> could meet a H/W hang that freezes itself in slave mode and it can't
-> >>> escape from the state. To resolve the specific case, this H/W provides
-> >>> self-recovery feature which monitors abnormal state of SDA, SCL and its
-> >>> H/W state machine using the timeout setting to determine the escape
-> >>> condition.
-> >>
-> >> Are you saying that the aspeed HW is buggy and that this abnormal state
-> >> is self inflicted by the aspeed HW even if other masters on the bus
-> >> behave sanely? Because I didn't quite read it that way at all...
-> >
-> > I don't think it's an Aspeed HW bug. Actually, this HW can be exposed to
-> > very severe environments if it is used as a Baseboard Management
-> > Controller which needs two or more multi-masters on a bus depends on
-> > HW design. Also, it should expect unknown or buggy device attachment
-> > on a bus through add-on card slots. Aspeed HW provides HW timeout
-> > feature to support exceptional cases handling which comes from the
-> > severe use cases.
-> >
-> >> To me, it sounded *exactly* like the state I2C clients end up in when an
-> >> I2C master "dies" and stops communicating in the middle of a transaction.
-> >> I.e. the thing that the SMBus timeout is designed to prevent (and the
-> >> state the I2C nine-clk-recovery sequence addresses). The only twist (that
-> >> I saw) was that the aspeed HW is also a master and that the aspeed master
-> >> driver is completely locked out from the bus while some obnoxious master
-> >> fails to complete its transaction (or whatever it was up to).
-> >
-> > If this HW runs on a single-master bus, any master dying issue will be
-> > cured by recovery logic which this driver already has and the logic uses
-> > the bus timeout setting you are saying.
-> >
-> > This patch set is mainly focusing on a 'slave mode hang' issue on a
-> > 'multi-master' bus which can't be covered by the recovery logic.
-> >
-> >> If this can only be triggered when the HW is acting as a slave, and by
-> >> aborted or otherwise funky master activity on the bus, then I wouldn't
-> >> call it an HW issue. Then it would be a bus issue. I.e. something needing
-> >> a bus-timeout instead of a hw-timeout.
-> >
-> > Here is an example. In a multi-node BMC system, a peer master can be
-> > shutdown in the middle of transaction, then this Aspeed HW keeps waiting
-> > for a next event from the peer master but it can't happen because the
-> > peer master was already shutdown. If we enable the 'slave inactive
-> > timeout feature' using the HW timeout setting, the this HW can escape
-> > from the waiting state. If we don't, this HW hangs forever in the
-> > waiting state and it's the reason why I implemented this patch set.
-> >
-> > The hw-timeout setting needs fine tuning depends on HW environment so
-> > it should be different from the bus-timeout.
->
-> Yeah, ok, so you're basically confirming everything I said. I do
-> sense some confusion though, as you come across as a bit
-> defensive and seem to think that I am against the whole notion of
-> the patches. And that's not the case at all! My only issue is
-> with the naming. And I happen to think hw-timeout-ms is a really
-> bad name. It's way too broad and can mean just about anything.
-> When I read that, I think of some workaround for broken hardware,
-> not normal things like the other masters on the bus doing
-> confusing things. Funky bus activity from remote masters is
-> simply not an HW issue in my book, at least not an HW issue on
-> the local side of the bus. It's just something you *must expect*.
+Distinguish between the case where dma information is not provided
+within the DT and the case of an error during the dma init.
+Exit the probe with error in case of an error during dma init.
 
-Sorry for not jumping in earlier, but I agree with Peter.
+Fixes: bb8822cbbc53 ("i2c: i2c-stm32: Add generic DMA API")
 
-I like the name bus-timeout-ms better. It was not immediately clear
-from reading your commit descriptions what this was all about.
+Signed-off-by: Alain Volmat <alain.volmat@st.com>
+---
+ drivers/i2c/busses/i2c-stm32.c   | 16 ++++++++--------
+ drivers/i2c/busses/i2c-stm32f7.c |  9 +++++++++
+ 2 files changed, 17 insertions(+), 8 deletions(-)
 
-Cheers!
+diff --git a/drivers/i2c/busses/i2c-stm32.c b/drivers/i2c/busses/i2c-stm32.c
+index 07d5dfce68d4..1da347e6a358 100644
+--- a/drivers/i2c/busses/i2c-stm32.c
++++ b/drivers/i2c/busses/i2c-stm32.c
+@@ -20,13 +20,13 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
+ 
+ 	dma = devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
+ 	if (!dma)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 
+ 	/* Request and configure I2C TX dma channel */
+-	dma->chan_tx = dma_request_slave_channel(dev, "tx");
+-	if (!dma->chan_tx) {
++	dma->chan_tx = dma_request_chan(dev, "tx");
++	if (IS_ERR(dma->chan_tx)) {
+ 		dev_dbg(dev, "can't request DMA tx channel\n");
+-		ret = -EINVAL;
++		ret = PTR_ERR(dma->chan_tx);
+ 		goto fail_al;
+ 	}
+ 
+@@ -42,10 +42,10 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
+ 	}
+ 
+ 	/* Request and configure I2C RX dma channel */
+-	dma->chan_rx = dma_request_slave_channel(dev, "rx");
+-	if (!dma->chan_rx) {
++	dma->chan_rx = dma_request_chan(dev, "rx");
++	if (IS_ERR(dma->chan_rx)) {
+ 		dev_err(dev, "can't request DMA rx channel\n");
+-		ret = -EINVAL;
++		ret = PTR_ERR(dma->chan_rx);
+ 		goto fail_tx;
+ 	}
+ 
+@@ -75,7 +75,7 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
+ 	devm_kfree(dev, dma);
+ 	dev_info(dev, "can't use DMA\n");
+ 
+-	return NULL;
++	return ERR_PTR(ret);
+ }
+ 
+ void stm32_i2c_dma_free(struct stm32_i2c_dma *dma)
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index d36cf08461f7..cc8ba8f49ae6 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -1950,6 +1950,15 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
+ 	i2c_dev->dma = stm32_i2c_dma_request(i2c_dev->dev, phy_addr,
+ 					     STM32F7_I2C_TXDR,
+ 					     STM32F7_I2C_RXDR);
++	if (PTR_ERR(i2c_dev->dma) == -ENODEV)
++		i2c_dev->dma = NULL;
++	else if (IS_ERR(i2c_dev->dma)) {
++		ret = PTR_ERR(i2c_dev->dma);
++		if (ret != -EPROBE_DEFER)
++			dev_err(&pdev->dev,
++				"Failed to request dma error %i\n", ret);
++		goto clk_free;
++	}
+ 
+ 	platform_set_drvdata(pdev, i2c_dev);
+ 
+-- 
+2.7.4
