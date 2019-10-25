@@ -1,19 +1,16 @@
-From: Phil Reid <preid@electromag.com.au>
-Subject: Re: [PATCH 2/4] i2c: at91: implement i2c bus recovery
-Date: Fri, 25 Oct 2019 09:14:00 +0800
-Message-ID: <65d83bb0-9a0c-c6e2-1c58-cb421c69816c@electromag.com.au>
-References: <20191002144658.7718-1-kamel.bouhara@bootlin.com>
- <20191002144658.7718-3-kamel.bouhara@bootlin.com>
- <20191021202044.GB3607@kunai>
- <724d3470-0561-1b3f-c826-bc16c74a8c0a@bootlin.com>
- <1e70ae35-052b-67cc-27c4-1077c211efd0@microchip.com>
- <20191024150726.GA1120@kunai>
+From: Biwen Li <biwen.li@nxp.com>
+Subject: RE: [EXT] Re: [RESEND v2] i2c: imx: support slave mode for imx I2C
+ driver
+Date: Fri, 25 Oct 2019 04:02:11 +0000
+Message-ID: <DB7PR04MB449066A02FB9FD0A795CFAFB8F650@DB7PR04MB4490.eurprd04.prod.outlook.com>
+References: <20191009101802.19309-1-biwen.li@nxp.com>
+ <113865e9-e846-1079-6f58-7fddb245398c@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20191024150726.GA1120@kunai>
-Content-Language: en-AU
+In-Reply-To: <113865e9-e846-1079-6f58-7fddb245398c@pengutronix.de>
+Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -23,24 +20,327 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, Codrin.Ciubotariu@microchip.com
-Cc: kamel.bouhara@bootlin.com, alexandre.belloni@bootlin.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, thomas.petazzoni@bootlin.com, linux-arm-kernel@lists.infradead.org
+To: Oleksij Rempel <o.rempel@pengutronix.de>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, Leo Li <leoyang.li@nxp.com>, Aisheng Dong <aisheng.dong@nxp.com>, Clark Wang <xiaoning.wang@nxp.com>
+Cc: Xiaobo Xie <xiaobo.xie@nxp.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jiafei Pan <jiafei.pan@nxp.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Laurentiu Tudor <laurentiu.tudor@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 24/10/2019 23:07, Wolfram Sang wrote:
 > 
->> So at the beginning of a new transfer, we should check if SDA (or SCL?)
->> is low and, if it's true, only then we should try recover the bus.
+> Hi,
 > 
-> Yes, this is the proper time to do it. Remember, I2C does not define a
-> timeout.
+> I'm trying to test you patch on i.MX6S RIoTBoard. So far I fail to get it
+> working with following setup:
+> 1. register i2c-gpio
+> 2. connect i2c-gpio SCL to i2c-imx SCL pin and i2c-gpio SDA to i2c-imx SDA
+> pin 3. run this command to register i2c slave eeprom on i2c-imx:
+> echo slave-24c02 0x1064 > /sys/bus/i2c/devices/i2c-3/new_device
+> 4. run "i2cdetect 4" on i2c-gpio to detect eeprom on i2c-imx slave.
 > 
-
-FYI: Just a single poll at the start of the transfer, for it being low, will cause problems with multi-master buses.
-Bus recovery should be attempted after a timeout when trying to communicate, even thou i2c doesn't define a timeout.
-
-I'm trying to fix the designware drivers handling of this at the moment.
-
--- 
-Regards
-Phil Reid
+> So far, nothing was detected and even irq counter of i2c-imx didn't
+> increased.
+> 
+> Do I'm missing some thing? Please, help me to test you patch.
+You not miss anything, but the i2c-gpio driver from upstream is not
+workable on imx(I have tested the i2c-gpio driver with oscilloscope
+on imx8mm-evk, I cannot get any signal from the i2c-gpio bus).
+If you want to test the slave mode, please use two real i2c controller on
+one or two boards to test it. And please use my next patch to test it. Thanks.
+> 
+> And, please, do not forget to include me in the next patch round, if you wont
+> to get your patches mainline.
+> 
+> This devicetree i used for testing:
+> #include "imx6dl-riotboard.dts"
+> 
+> / {
+>          i2c_gpio: i2c-gpio {
+>                  compatible = "i2c-gpio";
+>                  #address-cells = <1>;
+>                  #size-cells = <0>;
+>                  pinctrl-names = "default";
+>                  pinctrl-0 = <&pinctrl_i2c_gpio>;
+>                  gpios = <
+>                          &gpio4 27 GPIO_ACTIVE_HIGH /* SDA */
+>                          &gpio4 26 GPIO_ACTIVE_HIGH /* SCL */
+>                  >;
+>                  clock-frequency = <10000>;
+>                  status = "okay";
+>          };
+> };
+> 
+> &iomuxc {
+>          pinctrl-names = "default";
+> 
+>          imx6-riotboard {
+>                  pinctrl_i2c_gpio: i2c-gpiogrp {
+>                          fsl,pins = <
+> 
+> MX6QDL_PAD_DISP0_DAT6__GPIO4_IO27 0x4001b8b1
+> 
+> MX6QDL_PAD_DISP0_DAT5__GPIO4_IO26 0x4001b8b1
+>                          >;
+>                  };
+>          };
+> };
+> 
+> &i2c4 {
+>                  clock-frequency = <10000>;
+> 
+> };
+> 
+> 
+> Regards,
+> Oleksij
+> 
+> On 09.10.19 12:18, Biwen Li wrote:
+> > The patch supports slave mode for imx I2C driver
+> >
+> > Signed-off-by: Biwen Li <biwen.li@nxp.com>
+> > ---
+> > Change in v2:
+> >       - remove MACRO CONFIG_I2C_SLAVE
+> >
+> >   drivers/i2c/busses/i2c-imx.c | 180
+> ++++++++++++++++++++++++++++++++---
+> >   1 file changed, 166 insertions(+), 14 deletions(-)
+> >
+> > diff --git a/drivers/i2c/busses/i2c-imx.c
+> > b/drivers/i2c/busses/i2c-imx.c index a3b61336fe55..d9858bc63656
+> 100644
+> > --- a/drivers/i2c/busses/i2c-imx.c
+> > +++ b/drivers/i2c/busses/i2c-imx.c
+> > @@ -203,6 +203,7 @@ struct imx_i2c_struct {
+> >       struct pinctrl_state *pinctrl_pins_gpio;
+> >
+> >       struct imx_i2c_dma      *dma;
+> > +     struct i2c_client       *slave;
+> >   };
+> >
+> >   static const struct imx_i2c_hwdata imx1_i2c_hwdata = { @@ -588,23
+> > +589,38 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
+> >       imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> >   }
+> >
+> > -static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+> > +/* Clear interrupt flag bit */
+> > +static void i2c_imx_clr_if_bit(struct imx_i2c_struct *i2c_imx)
+> >   {
+> > -     struct imx_i2c_struct *i2c_imx = dev_id;
+> > -     unsigned int temp;
+> > +     unsigned int status;
+> >
+> > -     temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> > -     if (temp & I2SR_IIF) {
+> > -             /* save status register */
+> > -             i2c_imx->i2csr = temp;
+> > -             temp &= ~I2SR_IIF;
+> > -             temp |= (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IIF);
+> > -             imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
+> > -             wake_up(&i2c_imx->queue);
+> > -             return IRQ_HANDLED;
+> > -     }
+> > +     status = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> > +     status &= ~I2SR_IIF;
+> > +     status |= (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IIF);
+> > +     imx_i2c_write_reg(status, i2c_imx, IMX_I2C_I2SR); }
+> >
+> > -     return IRQ_NONE;
+> > +/* Clear arbitration lost bit */
+> > +static void i2c_imx_clr_al_bit(struct imx_i2c_struct *i2c_imx) {
+> > +     unsigned int status;
+> > +
+> > +     status = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> > +     status &= ~I2SR_IAL;
+> > +     imx_i2c_write_reg(status, i2c_imx, IMX_I2C_I2SR); }
+> > +
+> > +static irqreturn_t i2c_imx_master_isr(struct imx_i2c_struct *i2c_imx)
+> > +{
+> > +     unsigned int status;
+> > +
+> > +     /* Save status register */
+> > +     status = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> > +     i2c_imx->i2csr = status | I2SR_IIF;
+> > +
+> > +     wake_up(&i2c_imx->queue);
+> > +
+> > +     return IRQ_HANDLED;
+> >   }
+> >
+> >   static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx, @@
+> > -1048,11 +1064,147 @@ static u32 i2c_imx_func(struct i2c_adapter
+> *adapter)
+> >               | I2C_FUNC_SMBUS_READ_BLOCK_DATA;
+> >   }
+> >
+> > +static void i2c_imx_slave_init(struct imx_i2c_struct *i2c_imx) {
+> > +     unsigned int temp;
+> > +
+> > +     dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+> > +
+> > +     /* Set slave addr. */
+> > +     imx_i2c_write_reg((i2c_imx->slave->addr << 1), i2c_imx,
+> > + IMX_I2C_IADR);
+> > +
+> > +     /* Disable i2c module */
+> > +     temp = i2c_imx->hwdata->i2cr_ien_opcode ^ I2CR_IEN;
+> > +     imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> > +
+> > +     /* Reset status register */
+> > +     imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx,
+> > +                       IMX_I2C_I2SR);
+> > +
+> > +     /* Enable module and enable interrupt from i2c module */
+> > +     temp = i2c_imx->hwdata->i2cr_ien_opcode | I2CR_IIEN;
+> > +     imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> > +
+> > +     /* Wait controller to be stable */
+> > +     usleep_range(50, 150);
+> > +}
+> > +
+> > +static irqreturn_t i2c_imx_slave_isr(struct imx_i2c_struct *i2c_imx)
+> > +{
+> > +     unsigned int status, ctl;
+> > +     u8 value;
+> > +
+> > +     if (!i2c_imx->slave) {
+> > +             dev_err(&i2c_imx->adapter.dev, "cannot deal with slave
+> irq,i2c_imx->slave is null");
+> > +             return IRQ_NONE;
+> > +     }
+> > +
+> > +     status = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> > +     ctl = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> > +     if (status & I2SR_IAL) { /* Arbitration lost */
+> > +             i2c_imx_clr_al_bit(i2c_imx);
+> > +     } else if (status & I2SR_IAAS) { /* Addressed as a slave */
+> > +             if (status & I2SR_SRW) { /* Master wants to read from us*/
+> > +                     dev_dbg(&i2c_imx->adapter.dev, "read
+> requested");
+> > +                     i2c_slave_event(i2c_imx->slave,
+> > + I2C_SLAVE_READ_REQUESTED, &value);
+> > +
+> > +                     /* Slave transmit */
+> > +                     ctl |= I2CR_MTX;
+> > +                     imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
+> > +
+> > +                     /* Send data */
+> > +                     imx_i2c_write_reg(value, i2c_imx, IMX_I2C_I2DR);
+> > +             } else { /* Master wants to write to us */
+> > +                     dev_dbg(&i2c_imx->adapter.dev, "write
+> requested");
+> > +                     i2c_slave_event(i2c_imx->slave,
+> > + I2C_SLAVE_WRITE_REQUESTED, &value);
+> > +
+> > +                     /* Slave receive */
+> > +                     ctl &= ~I2CR_MTX;
+> > +                     imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
+> > +                     /* Dummy read */
+> > +                     imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
+> > +             }
+> > +     } else if (!(ctl & I2CR_MTX)) { /* Receive mode */
+> > +                     if (status & I2SR_IBB) { /* No STOP signal detected
+> */
+> > +                             ctl &= ~I2CR_MTX;
+> > +                             imx_i2c_write_reg(ctl, i2c_imx,
+> > + IMX_I2C_I2CR);
+> > +
+> > +                             value = imx_i2c_read_reg(i2c_imx,
+> IMX_I2C_I2DR);
+> > +                             i2c_slave_event(i2c_imx->slave,
+> I2C_SLAVE_WRITE_RECEIVED, &value);
+> > +                     } else { /* STOP signal is detected */
+> > +                             dev_dbg(&i2c_imx->adapter.dev,
+> > +                                     "STOP signal detected");
+> > +                             i2c_slave_event(i2c_imx->slave,
+> I2C_SLAVE_STOP, &value);
+> > +                     }
+> > +     } else if (!(status & I2SR_RXAK)) {     /* Transmit mode received
+> ACK */
+> > +             ctl |= I2CR_MTX;
+> > +             imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
+> > +
+> > +             i2c_slave_event(i2c_imx->slave,
+> > + I2C_SLAVE_READ_PROCESSED, &value);
+> > +
+> > +             imx_i2c_write_reg(value, i2c_imx, IMX_I2C_I2DR);
+> > +     } else { /* Transmit mode received NAK */
+> > +             ctl &= ~I2CR_MTX;
+> > +             imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
+> > +             imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
+> > +     }
+> > +     return IRQ_HANDLED;
+> > +}
+> > +
+> > +static int i2c_imx_reg_slave(struct i2c_client *client) {
+> > +     struct imx_i2c_struct *i2c_imx =
+> > +i2c_get_adapdata(client->adapter);
+> > +
+> > +     if (i2c_imx->slave)
+> > +             return -EBUSY;
+> > +
+> > +     dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+> > +     i2c_imx->slave = client;
+> > +
+> > +     i2c_imx_slave_init(i2c_imx);
+> > +
+> > +     return 0;
+> > +}
+> > +
+> > +static int i2c_imx_unreg_slave(struct i2c_client *client) {
+> > +     struct imx_i2c_struct *i2c_imx =
+> > +i2c_get_adapdata(client->adapter);
+> > +
+> > +     if (!i2c_imx->slave)
+> > +             return -EINVAL;
+> > +
+> > +     i2c_imx->slave = NULL;
+> > +
+> > +     return 0;
+> > +}
+> > +
+> >   static const struct i2c_algorithm i2c_imx_algo = {
+> >       .master_xfer    = i2c_imx_xfer,
+> >       .functionality  = i2c_imx_func,
+> > +     .reg_slave      = i2c_imx_reg_slave,
+> > +     .unreg_slave    = i2c_imx_unreg_slave,
+> >   };
+> >
+> > +static irqreturn_t i2c_imx_isr(int irq, void *dev_id) {
+> > +     struct imx_i2c_struct *i2c_imx = dev_id;
+> > +     unsigned int status, ctl;
+> > +     irqreturn_t irq_status = IRQ_NONE;
+> > +
+> > +     status = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> > +     ctl = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> > +
+> > +     if (status & I2SR_IIF) {
+> > +             i2c_imx_clr_if_bit(i2c_imx);
+> > +             if (ctl & I2CR_MSTA)
+> > +                     irq_status = i2c_imx_master_isr(i2c_imx);
+> > +             else
+> > +                     irq_status = i2c_imx_slave_isr(i2c_imx);
+> > +     }
+> > +
+> > +     return irq_status;
+> > +}
+> > +
+> >   static int i2c_imx_probe(struct platform_device *pdev)
+> >   {
+> >       struct imx_i2c_struct *i2c_imx;
+> >
+> 
+> Kind regards,
+> Oleksij Rempel
+> 
+> --
+> Pengutronix e.K.                           |
+> |
+> Industrial Linux Solutions                 |
+> https://eur01.safelinks.protection.outlook.com/?url=http%3A%2F%2Fwww.
+> pengutronix.de%2F&amp;data=02%7C01%7Cbiwen.li%40nxp.com%7C9c6ca
+> faaa6674668897208d75091e527%7C686ea1d3bc2b4c6fa92cd99c5c3016
+> 35%7C0%7C0%7C637066459873832484&amp;sdata=oVna%2BRGXEFHUK
+> bLi3t%2BAFA3fhPDtteSpK5X%2B2r9kUhU%3D&amp;reserved=0  |
+> Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0
+> |
+> Amtsgericht Hildesheim, HRA 2686           | Fax:
+> +49-5121-206917-5555 |
