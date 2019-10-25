@@ -1,97 +1,81 @@
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH resend] i2c: core: Use DEVICE_ATTR_RW() helper macros
-Date: Fri, 25 Oct 2019 11:19:50 +0200
-Message-ID: <20191025091950.23563-1-geert+renesas@glider.be>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>
+From: Alain Volmat <alain.volmat@st.com>
+Subject: [PATCH] i2c: i2c-stm32f7: fix & reorder remove & probe error handling
+Date: Fri, 25 Oct 2019 16:04:24 +0200
+Message-ID: <1572012264-31996-1-git-send-email-alain.volmat@st.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: wsa@the-dreams.de, pierre-yves.mordret@st.com
+Cc: alexandre.torgue@st.com, linux-kernel@vger.kernel.org, alain.volmat@st.com, linux-i2c@vger.kernel.org, fabrice.gasnier@st.com, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Convert the i2c core sysfs attributes from DEVICE_ATTR() to
-DEVICE_ATTR_RW(), to reduce boilerplate.
-This requires renaming some functions.
+Add missing dma channels free calls in case of error during probe
+and reorder the remove function so that dma channels are freed after
+the i2c adapter is deleted.
+Overall, reorder the remove function so that probe error handling order
+and remove function order are same.
 
-Although no suitable macro exists for the delete_device attribute,
-rename i2c_sysfs_delete_device() to delete_device_store() for
-consistency.
+Fixes: 7ecc8cfde553 ("i2c: i2c-stm32f7: Add DMA support")
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Alain Volmat <alain.volmat@st.com>
 ---
- drivers/i2c/i2c-core-base.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-stm32f7.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 5f6a4985f2bc8f33..8f6940063c294b9c 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -449,15 +449,15 @@ static void i2c_client_dev_release(struct device *dev)
- }
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index d36cf08461f7..f8ef203dabfc 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -1980,6 +1980,11 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
+ 	pm_runtime_set_suspended(i2c_dev->dev);
+ 	pm_runtime_dont_use_autosuspend(i2c_dev->dev);
  
- static ssize_t
--show_name(struct device *dev, struct device_attribute *attr, char *buf)
-+name_show(struct device *dev, struct device_attribute *attr, char *buf)
++	if (i2c_dev->dma) {
++		stm32_i2c_dma_free(i2c_dev->dma);
++		i2c_dev->dma = NULL;
++	}
++
+ clk_free:
+ 	clk_disable_unprepare(i2c_dev->clk);
+ 
+@@ -1990,21 +1995,21 @@ static int stm32f7_i2c_remove(struct platform_device *pdev)
  {
- 	return sprintf(buf, "%s\n", dev->type == &i2c_client_type ?
- 		       to_i2c_client(dev)->name : to_i2c_adapter(dev)->name);
+ 	struct stm32f7_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
+ 
+-	if (i2c_dev->dma) {
+-		stm32_i2c_dma_free(i2c_dev->dma);
+-		i2c_dev->dma = NULL;
+-	}
+-
+ 	i2c_del_adapter(&i2c_dev->adap);
+ 	pm_runtime_get_sync(i2c_dev->dev);
+ 
+-	clk_disable_unprepare(i2c_dev->clk);
+-
+ 	pm_runtime_put_noidle(i2c_dev->dev);
+ 	pm_runtime_disable(i2c_dev->dev);
+ 	pm_runtime_set_suspended(i2c_dev->dev);
+ 	pm_runtime_dont_use_autosuspend(i2c_dev->dev);
+ 
++	if (i2c_dev->dma) {
++		stm32_i2c_dma_free(i2c_dev->dma);
++		i2c_dev->dma = NULL;
++	}
++
++	clk_disable_unprepare(i2c_dev->clk);
++
+ 	return 0;
  }
--static DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
-+static DEVICE_ATTR_RO(name);
  
- static ssize_t
--show_modalias(struct device *dev, struct device_attribute *attr, char *buf)
-+modalias_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	int len;
-@@ -472,7 +472,7 @@ show_modalias(struct device *dev, struct device_attribute *attr, char *buf)
- 
- 	return sprintf(buf, "%s%s\n", I2C_MODULE_PREFIX, client->name);
- }
--static DEVICE_ATTR(modalias, S_IRUGO, show_modalias, NULL);
-+static DEVICE_ATTR_RO(modalias);
- 
- static struct attribute *i2c_dev_attrs[] = {
- 	&dev_attr_name.attr,
-@@ -1039,8 +1039,8 @@ EXPORT_SYMBOL_GPL(i2c_adapter_depth);
-  * the user to provide incorrect parameters.
-  */
- static ssize_t
--i2c_sysfs_new_device(struct device *dev, struct device_attribute *attr,
--		     const char *buf, size_t count)
-+new_device_store(struct device *dev, struct device_attribute *attr,
-+		 const char *buf, size_t count)
- {
- 	struct i2c_adapter *adap = to_i2c_adapter(dev);
- 	struct i2c_board_info info;
-@@ -1095,7 +1095,7 @@ i2c_sysfs_new_device(struct device *dev, struct device_attribute *attr,
- 
- 	return count;
- }
--static DEVICE_ATTR(new_device, S_IWUSR, NULL, i2c_sysfs_new_device);
-+static DEVICE_ATTR_WO(new_device);
- 
- /*
-  * And of course let the users delete the devices they instantiated, if
-@@ -1107,8 +1107,8 @@ static DEVICE_ATTR(new_device, S_IWUSR, NULL, i2c_sysfs_new_device);
-  * the user to delete the wrong device.
-  */
- static ssize_t
--i2c_sysfs_delete_device(struct device *dev, struct device_attribute *attr,
--			const char *buf, size_t count)
-+delete_device_store(struct device *dev, struct device_attribute *attr,
-+		    const char *buf, size_t count)
- {
- 	struct i2c_adapter *adap = to_i2c_adapter(dev);
- 	struct i2c_client *client, *next;
-@@ -1151,7 +1151,7 @@ i2c_sysfs_delete_device(struct device *dev, struct device_attribute *attr,
- 	return res;
- }
- static DEVICE_ATTR_IGNORE_LOCKDEP(delete_device, S_IWUSR, NULL,
--				   i2c_sysfs_delete_device);
-+				  delete_device_store);
- 
- static struct attribute *i2c_adapter_attrs[] = {
- 	&dev_attr_name.attr,
 -- 
-2.17.1
+2.7.4
