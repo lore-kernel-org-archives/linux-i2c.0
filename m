@@ -1,38 +1,46 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [v5,1/3] dt-bindings: i2c: support property idle-state
-Date: Thu, 24 Oct 2019 17:53:02 -0500
-Message-ID: <20191024225302.GA16606@bogus>
-References: <20191022041152.3663-1-biwen.li@nxp.com>
+From: Phil Reid <preid@electromag.com.au>
+Subject: Re: [PATCH 2/4] i2c: at91: implement i2c bus recovery
+Date: Fri, 25 Oct 2019 09:14:00 +0800
+Message-ID: <65d83bb0-9a0c-c6e2-1c58-cb421c69816c@electromag.com.au>
+References: <20191002144658.7718-1-kamel.bouhara@bootlin.com>
+ <20191002144658.7718-3-kamel.bouhara@bootlin.com>
+ <20191021202044.GB3607@kunai>
+ <724d3470-0561-1b3f-c826-bc16c74a8c0a@bootlin.com>
+ <1e70ae35-052b-67cc-27c4-1077c211efd0@microchip.com>
+ <20191024150726.GA1120@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20191022041152.3663-1-biwen.li@nxp.com>
-Sender: linux-kernel-owner@vger.kernel.org
-Cc: peda@axentia.se, leoyang.li@nxp.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Biwen Li <biwen.li@nxp.com>
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20191024150726.GA1120@kunai>
+Content-Language: en-AU
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, Codrin.Ciubotariu@microchip.com
+Cc: kamel.bouhara@bootlin.com, alexandre.belloni@bootlin.com, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, thomas.petazzoni@bootlin.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 22 Oct 2019 12:11:50 +0800, Biwen Li wrote:
-> This supports property idle-state
+On 24/10/2019 23:07, Wolfram Sang wrote:
 > 
-> Signed-off-by: Biwen Li <biwen.li@nxp.com>
-> ---
-> Change in v5:
-> 	- none
+>> So at the beginning of a new transfer, we should check if SDA (or SCL?)
+>> is low and, if it's true, only then we should try recover the bus.
 > 
-> Change in v4:
-> 	- none
-> 
-> Change in v3:
-> 	- update subject and description
-> 	- add some information for property idle-state
-> 
-> Change in v2:
-> 	- update subject and description
-> 	- add property idle-state
-> 
->  Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt | 2 ++
->  1 file changed, 2 insertions(+)
+> Yes, this is the proper time to do it. Remember, I2C does not define a
+> timeout.
 > 
 
-Reviewed-by: Rob Herring <robh@kernel.org>
+FYI: Just a single poll at the start of the transfer, for it being low, will cause problems with multi-master buses.
+Bus recovery should be attempted after a timeout when trying to communicate, even thou i2c doesn't define a timeout.
+
+I'm trying to fix the designware drivers handling of this at the moment.
+
+-- 
+Regards
+Phil Reid
