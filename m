@@ -1,98 +1,105 @@
-From: Stefan Wahren <wahrenst@gmx.net>
-Subject: [PATCH RFC] i2c: bcm2835: Store pointer to bus clock
-Date: Sat, 26 Oct 2019 14:34:48 +0200
-Message-ID: <1572093288-6223-1-git-send-email-wahrenst@gmx.net>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 5.4
+Date: Sat, 26 Oct 2019 16:36:58 +0200
+Message-ID: <20191026143655.GA5216@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Eric Anholt <eric@anholt.net>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Annaliese McDermond <nh6z@nh6z.net>, bcm-kernel-feedback-list@broadcom.com, Stefan Wahren <wahrenst@gmx.net>, Dave Stevenson <dave.stevenson@raspberrypi.org>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-The commit bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF") introduced
-a NULL pointer dereference on driver unload. It seems that we can't fetch
-the bus clock via devm_clk_get in bcm2835_i2c_remove. As an alternative
-approach store a pointer to the bus clock in the private driver structure.
 
-Fixes: bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF")
-Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
----
- drivers/i2c/busses/i2c-bcm2835.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+--J2SCkAp4GZ/dPZZf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index e01b2b5..5ab901a 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -58,6 +58,7 @@ struct bcm2835_i2c_dev {
- 	struct i2c_adapter adapter;
- 	struct completion completion;
- 	struct i2c_msg *curr_msg;
-+	struct clk *bus_clk;
- 	int num_msgs;
- 	u32 msg_err;
- 	u8 *msg_buf;
-@@ -404,7 +405,6 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 	struct resource *mem, *irq;
- 	int ret;
- 	struct i2c_adapter *adap;
--	struct clk *bus_clk;
- 	struct clk *mclk;
- 	u32 bus_clk_rate;
+Linus,
 
-@@ -427,11 +427,11 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 		return PTR_ERR(mclk);
- 	}
+here are a few driver fixes for the I2C subsystem.
 
--	bus_clk = bcm2835_i2c_register_div(&pdev->dev, mclk, i2c_dev);
-+	i2c_dev->bus_clk = bcm2835_i2c_register_div(&pdev->dev, mclk, i2c_dev);
+Please pull.
 
--	if (IS_ERR(bus_clk)) {
-+	if (IS_ERR(i2c_dev->bus_clk)) {
- 		dev_err(&pdev->dev, "Could not register clock\n");
--		return PTR_ERR(bus_clk);
-+		return PTR_ERR(i2c_dev->bus_clk);
- 	}
+Thanks,
 
- 	ret = of_property_read_u32(pdev->dev.of_node, "clock-frequency",
-@@ -442,13 +442,13 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 		bus_clk_rate = 100000;
- 	}
+   Wolfram
 
--	ret = clk_set_rate_exclusive(bus_clk, bus_clk_rate);
-+	ret = clk_set_rate_exclusive(i2c_dev->bus_clk, bus_clk_rate);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "Could not set clock frequency\n");
- 		return ret;
- 	}
 
--	ret = clk_prepare_enable(bus_clk);
-+	ret = clk_prepare_enable(i2c_dev->bus_clk);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Couldn't prepare clock");
- 		return ret;
-@@ -491,10 +491,9 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- static int bcm2835_i2c_remove(struct platform_device *pdev)
- {
- 	struct bcm2835_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
--	struct clk *bus_clk = devm_clk_get(i2c_dev->dev, "div");
+The following changes since commit 7d194c2100ad2a6dded545887d02754948ca5241:
 
--	clk_rate_exclusive_put(bus_clk);
--	clk_disable_unprepare(bus_clk);
-+	clk_rate_exclusive_put(i2c_dev->bus_clk);
-+	clk_disable_unprepare(i2c_dev->bus_clk);
+  Linux 5.4-rc4 (2019-10-20 15:56:22 -0400)
 
- 	free_irq(i2c_dev->irq, i2c_dev);
- 	i2c_del_adapter(&i2c_dev->adapter);
---
-2.7.4
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current-fixed
+
+for you to fetch changes up to 348e46fbb4cdb2aead79aee1fd8bb25ec5fd25db:
+
+  i2c: stm32f7: remove warning when compiling with W=1 (2019-10-24 20:52:21 +0200)
+
+----------------------------------------------------------------
+Alain Volmat (1):
+      i2c: stm32f7: remove warning when compiling with W=1
+
+Fabien Parent (1):
+      i2c: mt65xx: fix NULL ptr dereference
+
+Fabrice Gasnier (2):
+      i2c: stm32f7: fix first byte to send in slave mode
+      i2c: stm32f7: fix a race in slave mode with arbitration loss irq
+
+Jae Hyun Yoo (1):
+      i2c: aspeed: fix master pending state handling
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Brendan Higgins (1):
+      (Rev.) i2c: aspeed: fix master pending state handling
+
+Cengiz Can (1):
+      (Rev.) i2c: mt65xx: fix NULL ptr dereference
+
+Hsin-Yi Wang (1):
+      (Rev.) i2c: mt65xx: fix NULL ptr dereference
+
+Pierre-Yves MORDRET (3):
+      (Rev.) i2c: stm32f7: remove warning when compiling with W=1
+      (Rev.) i2c: stm32f7: fix a race in slave mode with arbitration loss irq
+      (Rev.) i2c: stm32f7: fix first byte to send in slave mode
+
+Tao Ren (1):
+      (Test) i2c: aspeed: fix master pending state handling
+
+Ulrich Hecht (1):
+      (Test) i2c: mt65xx: fix NULL ptr dereference
+
+ drivers/i2c/busses/i2c-aspeed.c  | 54 +++++++++++++++++++++++++---------------
+ drivers/i2c/busses/i2c-mt65xx.c  |  2 +-
+ drivers/i2c/busses/i2c-stm32f7.c | 21 ++++++++++------
+ 3 files changed, 48 insertions(+), 29 deletions(-)
+
+--J2SCkAp4GZ/dPZZf
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl20WgMACgkQFA3kzBSg
+KbZwPBAAq462lPIS4LKK7pQC8PkwkJNl7wlI1M+fg+ZWT0G89AEv8kuMMqz93NXV
+DtUnKp+e/98TvH28JUOnlhmsmrtoXK6v78HeNX8XKGZ+k0n6vQHSEC06DppfIqem
+VE6MazdLZKUkdtaQrLGiBzWSOAv0nlKqrVGoMZSiTF7R7wRy3ec0XIppLOFwwrpl
+e8I0cdtK1lQToiGCtn9PdhGuv6q9S0gMp2JLc976GQMBF/12HBhC18pmzLG7Ey5p
+anVP7JogyvAGWUnQBgzp0gDEykRFDRpOVrOUqSDgoK551F4ijdraIll770ouiCmB
+ypIGQhW7OMvbDm5c8ndWqiOuQDkfd2SNFW2f3PmyabId4wafdB5jbflgL26nWmek
+1Yxhcm6guAI3ty2eGUT+NitAfUUtcp1b7sRy44IPgWmLSdaZ8YddoKTT/z32ZSh6
+cLwZ+rv7CX5xMhvAzUUhIhhKbmdjqdLZH0L8gnJRoKjkqz5EmX6hxSK17ntTQlDh
+TGkfyDBOqSFnam/BVD1jPgf3aU2qzHwTZZyHW/D0OFQAtmv4I/tflmbdaXQoLYN/
+P69oAbn03S723IrgQq5/FuQmyS7szwPMXAaAPH++6Vl7la02LfebCZF0QjuUPyKo
+GFcYWWsCbAGJCBJMcaOIeK9oTTd2ekXCfop9yZk1flcbpERBgrw=
+=tsxo
+-----END PGP SIGNATURE-----
+
+--J2SCkAp4GZ/dPZZf--
