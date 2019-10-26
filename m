@@ -1,14 +1,11 @@
-From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: Re: [PATCH] i2c: i2c-stm32f7: report dma error during probe
-Date: Fri, 25 Oct 2019 16:12:24 +0200
-Message-ID: <fbb063f9-8f16-00ba-1a5b-deb58c711e26@st.com>
-References: <1571921521-8502-1-git-send-email-alain.volmat@st.com>
+From: Stefan Wahren <wahrenst@gmx.net>
+Subject: [PATCH RFC] i2c: bcm2835: Store pointer to bus clock
+Date: Sat, 26 Oct 2019 14:34:48 +0200
+Message-ID: <1572093288-6223-1-git-send-email-wahrenst@gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1571921521-8502-1-git-send-email-alain.volmat@st.com>
-Content-Language: en-US
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -18,94 +15,84 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Alain Volmat <alain.volmat@st.com>, wsa@the-dreams.de
-Cc: alexandre.torgue@st.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, fabrice.gasnier@st.com, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org
+To: Eric Anholt <eric@anholt.net>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Annaliese McDermond <nh6z@nh6z.net>, bcm-kernel-feedback-list@broadcom.com, Stefan Wahren <wahrenst@gmx.net>, Dave Stevenson <dave.stevenson@raspberrypi.org>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi
+The commit bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF") introduced
+a NULL pointer dereference on driver unload. It seems that we can't fetch
+the bus clock via devm_clk_get in bcm2835_i2c_remove. As an alternative
+approach store a pointer to the bus clock in the private driver structure.
 
-Looks good for me
+Fixes: bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF")
+Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+---
+ drivers/i2c/busses/i2c-bcm2835.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index e01b2b5..5ab901a 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -58,6 +58,7 @@ struct bcm2835_i2c_dev {
+ 	struct i2c_adapter adapter;
+ 	struct completion completion;
+ 	struct i2c_msg *curr_msg;
++	struct clk *bus_clk;
+ 	int num_msgs;
+ 	u32 msg_err;
+ 	u8 *msg_buf;
+@@ -404,7 +405,6 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 	struct resource *mem, *irq;
+ 	int ret;
+ 	struct i2c_adapter *adap;
+-	struct clk *bus_clk;
+ 	struct clk *mclk;
+ 	u32 bus_clk_rate;
 
-Regards
+@@ -427,11 +427,11 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(mclk);
+ 	}
 
-On 10/24/19 2:52 PM, Alain Volmat wrote:
-> Distinguish between the case where dma information is not provided
-> within the DT and the case of an error during the dma init.
-> Exit the probe with error in case of an error during dma init.
-> 
-> Fixes: bb8822cbbc53 ("i2c: i2c-stm32: Add generic DMA API")
-> 
-> Signed-off-by: Alain Volmat <alain.volmat@st.com>
-> ---
->  drivers/i2c/busses/i2c-stm32.c   | 16 ++++++++--------
->  drivers/i2c/busses/i2c-stm32f7.c |  9 +++++++++
->  2 files changed, 17 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-stm32.c b/drivers/i2c/busses/i2c-stm32.c
-> index 07d5dfce68d4..1da347e6a358 100644
-> --- a/drivers/i2c/busses/i2c-stm32.c
-> +++ b/drivers/i2c/busses/i2c-stm32.c
-> @@ -20,13 +20,13 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
->  
->  	dma = devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
->  	if (!dma)
-> -		return NULL;
-> +		return ERR_PTR(-ENOMEM);
->  
->  	/* Request and configure I2C TX dma channel */
-> -	dma->chan_tx = dma_request_slave_channel(dev, "tx");
-> -	if (!dma->chan_tx) {
-> +	dma->chan_tx = dma_request_chan(dev, "tx");
-> +	if (IS_ERR(dma->chan_tx)) {
->  		dev_dbg(dev, "can't request DMA tx channel\n");
-> -		ret = -EINVAL;
-> +		ret = PTR_ERR(dma->chan_tx);
->  		goto fail_al;
->  	}
->  
-> @@ -42,10 +42,10 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
->  	}
->  
->  	/* Request and configure I2C RX dma channel */
-> -	dma->chan_rx = dma_request_slave_channel(dev, "rx");
-> -	if (!dma->chan_rx) {
-> +	dma->chan_rx = dma_request_chan(dev, "rx");
-> +	if (IS_ERR(dma->chan_rx)) {
->  		dev_err(dev, "can't request DMA rx channel\n");
-> -		ret = -EINVAL;
-> +		ret = PTR_ERR(dma->chan_rx);
->  		goto fail_tx;
->  	}
->  
-> @@ -75,7 +75,7 @@ struct stm32_i2c_dma *stm32_i2c_dma_request(struct device *dev,
->  	devm_kfree(dev, dma);
->  	dev_info(dev, "can't use DMA\n");
->  
-> -	return NULL;
-> +	return ERR_PTR(ret);
->  }
->  
->  void stm32_i2c_dma_free(struct stm32_i2c_dma *dma)
-> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-> index d36cf08461f7..cc8ba8f49ae6 100644
-> --- a/drivers/i2c/busses/i2c-stm32f7.c
-> +++ b/drivers/i2c/busses/i2c-stm32f7.c
-> @@ -1950,6 +1950,15 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
->  	i2c_dev->dma = stm32_i2c_dma_request(i2c_dev->dev, phy_addr,
->  					     STM32F7_I2C_TXDR,
->  					     STM32F7_I2C_RXDR);
-> +	if (PTR_ERR(i2c_dev->dma) == -ENODEV)
-> +		i2c_dev->dma = NULL;
-> +	else if (IS_ERR(i2c_dev->dma)) {
-> +		ret = PTR_ERR(i2c_dev->dma);
-> +		if (ret != -EPROBE_DEFER)
-> +			dev_err(&pdev->dev,
-> +				"Failed to request dma error %i\n", ret);
-> +		goto clk_free;
-> +	}
->  
->  	platform_set_drvdata(pdev, i2c_dev);
->  
-> 
+-	bus_clk = bcm2835_i2c_register_div(&pdev->dev, mclk, i2c_dev);
++	i2c_dev->bus_clk = bcm2835_i2c_register_div(&pdev->dev, mclk, i2c_dev);
+
+-	if (IS_ERR(bus_clk)) {
++	if (IS_ERR(i2c_dev->bus_clk)) {
+ 		dev_err(&pdev->dev, "Could not register clock\n");
+-		return PTR_ERR(bus_clk);
++		return PTR_ERR(i2c_dev->bus_clk);
+ 	}
+
+ 	ret = of_property_read_u32(pdev->dev.of_node, "clock-frequency",
+@@ -442,13 +442,13 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ 		bus_clk_rate = 100000;
+ 	}
+
+-	ret = clk_set_rate_exclusive(bus_clk, bus_clk_rate);
++	ret = clk_set_rate_exclusive(i2c_dev->bus_clk, bus_clk_rate);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "Could not set clock frequency\n");
+ 		return ret;
+ 	}
+
+-	ret = clk_prepare_enable(bus_clk);
++	ret = clk_prepare_enable(i2c_dev->bus_clk);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Couldn't prepare clock");
+ 		return ret;
+@@ -491,10 +491,9 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
+ static int bcm2835_i2c_remove(struct platform_device *pdev)
+ {
+ 	struct bcm2835_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
+-	struct clk *bus_clk = devm_clk_get(i2c_dev->dev, "div");
+
+-	clk_rate_exclusive_put(bus_clk);
+-	clk_disable_unprepare(bus_clk);
++	clk_rate_exclusive_put(i2c_dev->bus_clk);
++	clk_disable_unprepare(i2c_dev->bus_clk);
+
+ 	free_irq(i2c_dev->irq, i2c_dev);
+ 	i2c_del_adapter(&i2c_dev->adapter);
+--
+2.7.4
