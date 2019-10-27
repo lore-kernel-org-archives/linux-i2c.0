@@ -1,138 +1,83 @@
-From: Beniamino Galvani <b.galvani@gmail.com>
+From: Neil Armstrong <narmstrong@baylibre.com>
 Subject: Re: [PATCH] dt-bindings: i2c: meson: convert to yaml
-Date: Sun, 27 Oct 2019 11:12:45 +0100
-Message-ID: <20191027101245.GA2194@gmail.com>
+Date: Sun, 27 Oct 2019 12:17:16 +0100
+Message-ID: <ac2dc086-e713-b639-2e8f-f2fb4e58fe3e@baylibre.com>
 References: <20191021140053.9525-1-narmstrong@baylibre.com>
+ <20191024190407.GG1870@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20191021140053.9525-1-narmstrong@baylibre.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Neil Armstrong <narmstrong@baylibre.com>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, robh+dt@kernel.org, linux-i2c@vger.kernel.org, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature";
+ boundary="uSvFfU1J9MhaXlDCiqAbXuvQuHA8h1Ikd"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20191024190407.GG1870@kunai>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: robh+dt@kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Beniamino Galvani <b.galvani@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 21, 2019 at 04:00:53PM +0200, Neil Armstrong wrote:
-> Now that we have the DT validation in place, let's convert the device tree
-> bindings for the Amlogic I2C Controller over to YAML schemas.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--uSvFfU1J9MhaXlDCiqAbXuvQuHA8h1Ikd
+Content-Type: multipart/mixed; boundary="4GHeFe8yu0shO7ojDEjDsZeVgcaLHL52r";
+ protected-headers="v1"
+From: Neil Armstrong <narmstrong@baylibre.com>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: robh+dt@kernel.org, devicetree@vger.kernel.org,
+ linux-i2c@vger.kernel.org, linux-amlogic@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ Beniamino Galvani <b.galvani@gmail.com>
+Message-ID: <ac2dc086-e713-b639-2e8f-f2fb4e58fe3e@baylibre.com>
+Subject: Re: [PATCH] dt-bindings: i2c: meson: convert to yaml
+References: <20191021140053.9525-1-narmstrong@baylibre.com>
+ <20191024190407.GG1870@kunai>
+In-Reply-To: <20191024190407.GG1870@kunai>
 
-Acked-by: Beniamino Galvani <b.galvani@gmail.com>
+--4GHeFe8yu0shO7ojDEjDsZeVgcaLHL52r
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+Hi Wolfram,
+
+On 24/10/2019 21:04, Wolfram Sang wrote:
+>=20
+>> +maintainers:
+>> +  - Neil Armstrong <narmstrong@baylibre.com>
+>> +  - Beniamino Galvani <b.galvani@gmail.com>
+>=20
+> I need an ack from Beniamino for this.
+>=20
+> Also, do you want to maintain only this file or also the driver? The
+> latter would be much appreciated, of course!
+>=20
+I'm taking responsibility for the bindings to make sure the DT is correct=
+,
+but I don't have time to maintain this driver for the moment, sorry,
+
+Neil
 
 
-> Cc: Beniamino Galvani <b.galvani@gmail.com>
-> Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-> ---
->  .../bindings/i2c/amlogic,meson6-i2c.yaml      | 53 +++++++++++++++++++
->  .../devicetree/bindings/i2c/i2c-meson.txt     | 30 -----------
->  2 files changed, 53 insertions(+), 30 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/i2c/amlogic,meson6-i2c.yaml
->  delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-meson.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/amlogic,meson6-i2c.yaml b/Documentation/devicetree/bindings/i2c/amlogic,meson6-i2c.yaml
-> new file mode 100644
-> index 000000000000..49cad273c8e5
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/amlogic,meson6-i2c.yaml
-> @@ -0,0 +1,53 @@
-> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> +# Copyright 2019 BayLibre, SAS
-> +%YAML 1.2
-> +---
-> +$id: "http://devicetree.org/schemas/i2c/amlogic,meson6-i2c.yaml#"
-> +$schema: "http://devicetree.org/meta-schemas/core.yaml#"
-> +
-> +title: Amlogic Meson I2C Controller
-> +
-> +maintainers:
-> +  - Neil Armstrong <narmstrong@baylibre.com>
-> +  - Beniamino Galvani <b.galvani@gmail.com>
-> +
-> +allOf:
-> +  - $ref: /schemas/i2c/i2c-controller.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    enum:
-> +      - amlogic,meson6-i2c # Meson6, Meson8 and compatible SoCs
-> +      - amlogic,meson-gxbb-i2c # GXBB and compatible SoCs
-> +      - amlogic,meson-axg-i2c # AXG and compatible SoCs
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +  clocks:
-> +    minItems: 1
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupts
-> +  - clocks
-> +
-> +examples:
-> +  - |
-> +    i2c@c8100500 {
-> +        compatible = "amlogic,meson6-i2c";
-> +        reg = <0xc8100500 0x20>;
-> +        interrupts = <92>;
-> +        clocks = <&clk81>;
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +
-> +        eeprom@52 {
-> +            compatible = "atmel,24c32";
-> +            reg = <0x52>;
-> +        };
-> +    };
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-meson.txt b/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-> deleted file mode 100644
-> index 13d410de077c..000000000000
-> --- a/Documentation/devicetree/bindings/i2c/i2c-meson.txt
-> +++ /dev/null
-> @@ -1,30 +0,0 @@
-> -Amlogic Meson I2C controller
-> -
-> -Required properties:
-> - - compatible: must be:
-> -	"amlogic,meson6-i2c" for Meson8 and compatible SoCs
-> -	"amlogic,meson-gxbb-i2c" for GXBB and compatible SoCs
-> -	"amlogic,meson-axg-i2c"for AXG and compatible SoCs
-> -
-> - - reg: physical address and length of the device registers
-> - - interrupts: a single interrupt specifier
-> - - clocks: clock for the device
-> - - #address-cells: should be <1>
-> - - #size-cells: should be <0>
-> -
-> -For details regarding the following core I2C bindings see also i2c.txt.
-> -
-> -Optional properties:
-> -- clock-frequency: the desired I2C bus clock frequency in Hz; in
-> -  absence of this property the default value is used (100 kHz).
-> -
-> -Examples:
-> -
-> -	i2c@c8100500 {
-> -		compatible = "amlogic,meson6-i2c";
-> -		reg = <0xc8100500 0x20>;
-> -		interrupts = <0 92 1>;
-> -		clocks = <&clk81>;
-> -		#address-cells = <1>;
-> -		#size-cells = <0>;
-> -	};
-> -- 
-> 2.22.0
-> 
+--4GHeFe8yu0shO7ojDEjDsZeVgcaLHL52r--
+
+--uSvFfU1J9MhaXlDCiqAbXuvQuHA8h1Ikd
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEPVPGJshWBf4d9CyLd9zb2sjISdEFAl21fMEACgkQd9zb2sjI
+SdHjeg//dNqABHtrvn9cnkEQKfPa5BHNeqUbXdQA/5iWTnaE8irETKzq9cJ+VTzv
+GtuU8zgbzRJ8GdVGF/K21UTpWgcT8/Auh9iw1aXt1lffR7+fYc5yw5KfHjUDTxAh
+e0KZF+e93JqHPT0wkHmznJcn5ZcxpIOvd/Cmbko4tkk/KZl1cOhPqBTFwHdHFkvL
+xQqdtvxYbLo5KGz0S/KkRtu4BcBlVifIxNj5erjEqj3cW15uyM1bzziPcIwSn/Vs
+dNBd4P0cV9dM7Si+ECTFK+JT+X3D6kQ5GRTNWf3n0d3mSJbOV+nHUD+2M7CqXDsG
+cJas3nlxsa4G5YDFvcUlW2vgdl1HzC5EZaGp3HzwxJYXazV+7Ik20iyWntDerJ8d
+1E1QfHHkwlnwY5iXYnI6iacRohq2R6d/dP0FYhJ7hRaXoxApecDnFV/s/o12pV0e
+Jb7TMhgO6MqldxIcUKtQKHiRowiyi0z6RBpPUKU1f5bY/dMPQvbhJCVW7vSS5CEW
+W6lKoPOrWojRs1gN+gkddB4NAYMcaR7rGzIiFJugyidysBP0TlYocehFNodmiRDy
+XlWugQTLTN+iBI5JFXAy5O7Q7mjh607LIEUEXAX8S1+ZCc6nCXu4vcJ1l746R/a9
+/Akdf81OhdS/pzfKWbPdu0BY6aYgqMlIm5G0a1MgaMP/1ZmV7K8=
+=Kmas
+-----END PGP SIGNATURE-----
+
+--uSvFfU1J9MhaXlDCiqAbXuvQuHA8h1Ikd--
