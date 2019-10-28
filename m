@@ -1,89 +1,49 @@
-From: Jonathan Cameron <jonathan.cameron@huawei.com>
-Subject: Re: [PATCH][RESEND] New driver for TLV493D-A1B6 I2C chip, input and
- hwmon class device.
-Date: Mon, 28 Oct 2019 13:05:15 +0000
-Message-ID: <20191028130515.00003bb0@huawei.com>
-References: <966f09b8-0936-6d90-2ec8-bcb1b94c81aa@volny.cz>
-        <20191018205637.GS35946@dtor-ws>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+        <u.kleine-koenig@pengutronix.de>
+Subject: Re: [EXT] Re: [RESEND v2] i2c: imx: support slave mode for imx I2C
+ driver
+Date: Mon, 28 Oct 2019 14:41:31 +0100
+Message-ID: <20191028134131.5pq2vaqojx4gpfth@pengutronix.de>
+References: <20191009101802.19309-1-biwen.li@nxp.com>
+ <113865e9-e846-1079-6f58-7fddb245398c@pengutronix.de>
+ <DB7PR04MB449066A02FB9FD0A795CFAFB8F650@DB7PR04MB4490.eurprd04.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191018205637.GS35946@dtor-ws>
+Content-Disposition: inline
+In-Reply-To: <DB7PR04MB449066A02FB9FD0A795CFAFB8F650@DB7PR04MB4490.eurprd04.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jakub Ladman <ladmanj@volny.cz>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-iio@vger.kernel.org
+To: Biwen Li <biwen.li@nxp.com>
+Cc: Oleksij Rempel <o.rempel@pengutronix.de>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "festevam@gmail.com" <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, Leo Li <leoyang.li@nxp.com>, Aisheng Dong <aisheng.dong@nxp.com>, Clark Wang <xiaoning.wang@nxp.com>, Xiaobo Xie <xiaobo.xie@nxp.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jiafei Pan <jiafei.pan@nxp.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Laurentiu Tudor <laurentiu.tudor@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 18 Oct 2019 13:56:37 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+Hello,
 
-> Hi Jakub,
-> 
-> On Fri, Oct 18, 2019 at 10:10:19PM +0200, Jakub Ladman wrote:
-> > Dear maintainers.
+On Fri, Oct 25, 2019 at 04:02:11AM +0000, Biwen Li wrote:
+> > I'm trying to test you patch on i.MX6S RIoTBoard. So far I fail to get it
+> > working with following setup:
+> > 1. register i2c-gpio
+> > 2. connect i2c-gpio SCL to i2c-imx SCL pin and i2c-gpio SDA to i2c-imx SDA
+> > pin 3. run this command to register i2c slave eeprom on i2c-imx:
+> > echo slave-24c02 0x1064 > /sys/bus/i2c/devices/i2c-3/new_device
+> > 4. run "i2cdetect 4" on i2c-gpio to detect eeprom on i2c-imx slave.
 > > 
-> > As a linux-patch newbie i made some mistakes in my first attempt to send
-> > this patch.
-> > This patch contains a new driver for i2c connected chip, Infineon
-> > TLV493D-A1B6.
-> > The chip is 3D hall-effect sensor with thermometer.
+> > So far, nothing was detected and even irq counter of i2c-imx didn't
+> > increased.
 > > 
-> > This particular driver senses magnetic field rotation in X/Y plane with 1
-> > degree resolution and +/- 1 degree error.
-> > 
-> > Input device is created for the angle sensing part.
-> > Hwmon device is created for the thermometer part.
-> > 
-> > Input device axis must be configured by device-tree. There are also optional
-> > parameters regarding absolute/relative mode switching, minimum step in
-> > relative mode, filtering and thermometer calibration.
-> > 
-> > We are using that device as high reliability rotary encoder.  
-> 
-> I wonder if IIO subsystem that support s magnetometers and temperature
-> sensors would not be a better hone for this.
-> 
-> CC-ing Jonathan.
-> 
-Hi Jakub, Dmitry,
+> > Do I'm missing some thing? Please, help me to test you patch.
+> You not miss anything, but the i2c-gpio driver from upstream is not
+> workable on imx(I have tested the i2c-gpio driver with oscilloscope
+> on imx8mm-evk, I cannot get any signal from the i2c-gpio bus).
 
-Sorry for slow reply, was on vacation.
+In general the GPIOs are known to work, so I wonder what the problem is.
+If it relies on being able to read the state of an output it might help
+to set the SION bit on the related pins.
 
-Anyhow, from a quick glance at the datasheet this looks like a fairly standard
-magnetometer, be it one designed for use with an associated magnet, rather than
-intended for use to measure the earths magnetic field (compass type chips).
+Best regards
+Uwe
 
-These devices only become an 'input device' once the relative positioning relative
-to the magnet is known.  We should probably figure out a way to represent that
-in DT etc for devices where it is known.  Whether we then do a bridge to input
-using that info in kernel or pass it all up to userspace to deal with is a
-separate issue, that position information needs to be described first.  My suspicion
-is that it would be hard to handle the maths in kernel, but I've not tried
-working it out!
-
-So this would fit in IIO, even if the eventual 'use case' is classic input
-(I'm guessing a rotary dial).
-
-We have a driver for a part with similar support undergoing revisions at the
-moment:
-
-https://www.azoteq.com/images/stories/pdf/iqs624_datasheet.pdf
-
-There might be other hall effect devices like this in IIO, I can't recall but
-I certainly have one in my todo pile.
-
-+CC linux-iio
-
-Thanks,
-
-Jonathan
-
-
-> Also, your mailer mangled your patch pretty badly, please consider using
-> git send-email next time.
-
-
-> 
-> Thanks.
-> 
+-- 
+Pengutronix e.K.                           | Uwe Kleine-König            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
