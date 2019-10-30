@@ -1,7 +1,7 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 32/38] i2c: stm32f7: fix first byte to send in slave mode
-Date: Wed, 30 Oct 2019 11:54:00 -0400
-Message-ID: <20191030155406.10109-32-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 33/38] i2c: stm32f7: fix a race in slave mode with arbitration loss irq
+Date: Wed, 30 Oct 2019 11:54:01 -0400
+Message-ID: <20191030155406.10109-33-sashal@kernel.org>
 References: <20191030155406.10109-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,14 +14,25 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-[ Upstream commit 02e64276c6dbcc4c5f39844f33d18180832a58f3 ]
+[ Upstream commit 6d6b0d0d5afc8c4c84b08261260ba11dfa5206f2 ]
 
-The slave-interface documentation [1] states "the bus driver should
-transmit the first byte" upon I2C_SLAVE_READ_REQUESTED slave event:
-- 'val': backend returns first byte to be sent
-The driver currently ignores the 1st byte to send on this event.
+When in slave mode, an arbitration loss (ARLO) may be detected before the
+slave had a chance to detect the stop condition (STOPF in ISR).
+This is seen when two master + slave adapters switch their roles. It
+provokes the i2c bus to be stuck, busy as SCL line is stretched.
+- the I2C_SLAVE_STOP event is never generated due to STOPF flag is set but
+  don't generate an irq (race with ARLO irq, STOPIE is masked). STOPF flag
+  remains set until next master xfer (e.g. when STOPIE irq get unmasked).
+  In this case, completion is generated too early: immediately upon new
+  transfer request (then it doesn't send all data).
+- Some data get stuck in TXDR register. As a consequence, the controller
+  stretches the SCL line: the bus gets busy until a future master transfer
+  triggers the bus busy / recovery mechanism (this can take time... and
+  may never happen at all)
 
-[1] https://www.kernel.org/doc/Documentation/i2c/slave-interface
+So choice is to let the STOPF being detected by the slave isr handler,
+to properly handle this stop condition. E.g. don't mask IRQs in error
+handler, when the slave is running.
 
 Fixes: 60d609f30de2 ("i2c: i2c-stm32f7: Add slave support")
 Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
@@ -29,21 +40,43 @@ Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-stm32f7.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/busses/i2c-stm32f7.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index ac9c9486b834c..48521bc8a4d23 100644
+index 48521bc8a4d23..362b23505f214 100644
 --- a/drivers/i2c/busses/i2c-stm32f7.c
 +++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -1177,6 +1177,8 @@ static void stm32f7_i2c_slave_start(struct stm32f7_i2c_dev *i2c_dev)
- 			STM32F7_I2C_CR1_TXIE;
- 		stm32f7_i2c_set_bits(base + STM32F7_I2C_CR1, mask);
+@@ -1488,7 +1488,7 @@ static irqreturn_t stm32f7_i2c_isr_error(int irq, void *data)
+ 	void __iomem *base = i2c_dev->base;
+ 	struct device *dev = i2c_dev->dev;
+ 	struct stm32_i2c_dma *dma = i2c_dev->dma;
+-	u32 mask, status;
++	u32 status;
  
-+		/* Write 1st data byte */
-+		writel_relaxed(value, base + STM32F7_I2C_TXDR);
- 	} else {
- 		/* Notify i2c slave that new write transfer is starting */
- 		i2c_slave_event(slave, I2C_SLAVE_WRITE_REQUESTED, &value);
+ 	status = readl_relaxed(i2c_dev->base + STM32F7_I2C_ISR);
+ 
+@@ -1513,12 +1513,15 @@ static irqreturn_t stm32f7_i2c_isr_error(int irq, void *data)
+ 		f7_msg->result = -EINVAL;
+ 	}
+ 
+-	/* Disable interrupts */
+-	if (stm32f7_i2c_is_slave_registered(i2c_dev))
+-		mask = STM32F7_I2C_XFER_IRQ_MASK;
+-	else
+-		mask = STM32F7_I2C_ALL_IRQ_MASK;
+-	stm32f7_i2c_disable_irq(i2c_dev, mask);
++	if (!i2c_dev->slave_running) {
++		u32 mask;
++		/* Disable interrupts */
++		if (stm32f7_i2c_is_slave_registered(i2c_dev))
++			mask = STM32F7_I2C_XFER_IRQ_MASK;
++		else
++			mask = STM32F7_I2C_ALL_IRQ_MASK;
++		stm32f7_i2c_disable_irq(i2c_dev, mask);
++	}
+ 
+ 	/* Disable dma */
+ 	if (i2c_dev->use_dma) {
 -- 
 2.20.1
