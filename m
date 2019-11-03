@@ -1,46 +1,37 @@
-From: Chuhong Yuan <hslester96@gmail.com>
-Subject: [PATCH v2] i2c: imx-lpi2c: add clk_disable_unprepare calls
-Date: Sat,  2 Nov 2019 14:21:49 +0800
-Message-ID: <20191102062149.3957-1-hslester96@gmail.com>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] i2c: qcom-geni: fix spelling mistake "unepxected" -> "unexpected"
+Date: Sun,  3 Nov 2019 21:22:04 +0000
+Message-ID: <20191103212204.13606-1-colin.king@canonical.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: Dong Aisheng <aisheng.dong@nxp.com>, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, NXP Linux Team <linux-imx@nxp.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>
+To: Alok Chauhan <alokc@codeaurora.org>, Andy Gross <agross@kernel.org>, linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The driver forgets to call clk_disable_unprepare when probe fails
-and remove.
-Add the two calls to fix the problem.
+From: Colin Ian King <colin.king@canonical.com>
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+There is a spelling mistake in an error message string, fix it.
+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 ---
-Changes in v2:
-  - Adjust the call order to make it consistent in probe failure and
-    removal.
+ drivers/i2c/busses/i2c-qcom-geni.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- drivers/i2c/busses/i2c-imx-lpi2c.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index c92b56485fa6..f964693c0901 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -618,6 +618,7 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
- 	return 0;
- 
- rpm_disable:
-+	clk_disable_unprepare(lpi2c_imx->clk);
- 	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
-@@ -630,6 +631,7 @@ static int lpi2c_imx_remove(struct platform_device *pdev)
- 	struct lpi2c_imx_struct *lpi2c_imx = platform_get_drvdata(pdev);
- 
- 	i2c_del_adapter(&lpi2c_imx->adapter);
-+	clk_disable_unprepare(lpi2c_imx->clk);
- 
- 	pm_runtime_disable(&pdev->dev);
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index 17abf60c94ae..387fb5a83471 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -98,7 +98,7 @@ static const struct geni_i2c_err_log gi2c_log[] = {
+ 	[GP_IRQ0] = {-EIO, "Unknown I2C err GP_IRQ0"},
+ 	[NACK] = {-ENXIO, "NACK: slv unresponsive, check its power/reset-ln"},
+ 	[GP_IRQ2] = {-EIO, "Unknown I2C err GP IRQ2"},
+-	[BUS_PROTO] = {-EPROTO, "Bus proto err, noisy/unepxected start/stop"},
++	[BUS_PROTO] = {-EPROTO, "Bus proto err, noisy/unexpected start/stop"},
+ 	[ARB_LOST] = {-EAGAIN, "Bus arbitration lost, clock line undriveable"},
+ 	[GP_IRQ5] = {-EIO, "Unknown I2C err GP IRQ5"},
+ 	[GENI_OVERRUN] = {-EIO, "Cmd overrun, check GENI cmd-state machine"},
 -- 
-2.23.0
+2.20.1
