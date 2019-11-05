@@ -1,33 +1,32 @@
-From: Chuhong Yuan <hslester96@gmail.com>
-Subject: [PATCH] i2c: hix5hd2: add missed clk_disable_unprepare in remove
-Date: Mon,  4 Nov 2019 23:00:48 +0800
-Message-ID: <20191104150049.6366-1-hslester96@gmail.com>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Subject: Re: [PATCH v2] i2c: cadence: try reset when master receive
+ arbitration lost
+Date: Tue, 5 Nov 2019 13:12:22 +0530
+Message-ID: <CAKfKVtEwHcydp=+hNhG91h3qbMoYOPq7jEYjbuAVrWXT53DC3Q@mail.gmail.com>
+References: <20190219012447.5900-1-sxauwsk@163.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20190219012447.5900-1-sxauwsk@163.com>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>
+To: Shikai Wang <sxauwsk@163.com>
+Cc: Michal Simek <michal.simek@xilinx.com>, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The driver forgets to disable and unprepare clk when remove.
-Add a call to clk_disable_unprepare to fix it.
+Hi Shikai,
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
----
- drivers/i2c/busses/i2c-hix5hd2.c | 1 +
- 1 file changed, 1 insertion(+)
+On Tue, Feb 19, 2019 at 8:19 AM Shikai Wang <sxauwsk@163.com> wrote:
+>
+> When the adapter receive arbitration lost error interrupts,
+> cdns_i2c_master_xfer return to the caller directly instead of resetting
+> the adapter which resulted in the adapter being out of control.
+>
+> So when driver detect err_status such as arbitration lost,
+> then try to repair and fix it.
+>
+I am missing the issue that you are facing.
+You are having a multimaster scenario and getting arbitration lost.
 
-diff --git a/drivers/i2c/busses/i2c-hix5hd2.c b/drivers/i2c/busses/i2c-hix5hd2.c
-index 8497c7a95dd4..224f830f77f9 100644
---- a/drivers/i2c/busses/i2c-hix5hd2.c
-+++ b/drivers/i2c/busses/i2c-hix5hd2.c
-@@ -477,6 +477,7 @@ static int hix5hd2_i2c_remove(struct platform_device *pdev)
- 	i2c_del_adapter(&priv->adap);
- 	pm_runtime_disable(priv->dev);
- 	pm_runtime_set_suspended(priv->dev);
-+	clk_disable_unprepare(priv->clk);
- 
- 	return 0;
- }
--- 
-2.23.0
+the current code would attempt a retry did that lead to any issues?
+
+Can you explain the issue that you are facing?
