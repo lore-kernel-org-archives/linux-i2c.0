@@ -1,32 +1,51 @@
-From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Subject: Re: [PATCH v2] i2c: cadence: try reset when master receive
+From: "sxauwsk@163.com" <sxauwsk@163.com>
+Subject: Re: Re: [PATCH v2] i2c: cadence: try reset when master receive
  arbitration lost
-Date: Tue, 5 Nov 2019 13:12:22 +0530
-Message-ID: <CAKfKVtEwHcydp=+hNhG91h3qbMoYOPq7jEYjbuAVrWXT53DC3Q@mail.gmail.com>
-References: <20190219012447.5900-1-sxauwsk@163.com>
+Date: Tue, 5 Nov 2019 16:47:53 +0800
+Message-ID: <2019110516474778997625@163.com>
+References: <20190219012447.5900-1-sxauwsk@163.com>,
+ <CAKfKVtEwHcydp=+hNhG91h3qbMoYOPq7jEYjbuAVrWXT53DC3Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20190219012447.5900-1-sxauwsk@163.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Shikai Wang <sxauwsk@163.com>
-Cc: Michal Simek <michal.simek@xilinx.com>, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, linux-kernel <linux-kernel@vger.kernel.org>, Michal Simek <michal.simek@xilinx.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Shikai,
-
-On Tue, Feb 19, 2019 at 8:19 AM Shikai Wang <sxauwsk@163.com> wrote:
->
-> When the adapter receive arbitration lost error interrupts,
-> cdns_i2c_master_xfer return to the caller directly instead of resetting
-> the adapter which resulted in the adapter being out of control.
->
-> So when driver detect err_status such as arbitration lost,
-> then try to repair and fix it.
->
-I am missing the issue that you are facing.
-You are having a multimaster scenario and getting arbitration lost.
-
-the current code would attempt a retry did that lead to any issues?
-
-Can you explain the issue that you are facing?
+PkhpIFNoaWthaSwKPgo+T24gVHVlLCBGZWIgMTksIDIwMTkgYXQgODoxOSBBTSBTaGlrYWkgV2Fu
+ZyA8c3hhdXdza0AxNjMuY29tPiB3cm90ZToKPj4KPj4gV2hlbiB0aGUgYWRhcHRlciByZWNlaXZl
+IGFyYml0cmF0aW9uIGxvc3QgZXJyb3IgaW50ZXJydXB0cywKPj4gY2Ruc19pMmNfbWFzdGVyX3hm
+ZXIgcmV0dXJuIHRvIHRoZSBjYWxsZXIgZGlyZWN0bHkgaW5zdGVhZCBvZiByZXNldHRpbmcKPj4g
+dGhlIGFkYXB0ZXIgd2hpY2ggcmVzdWx0ZWQgaW4gdGhlIGFkYXB0ZXIgYmVpbmcgb3V0IG9mIGNv
+bnRyb2wuCj4+Cj4+IFNvIHdoZW4gZHJpdmVyIGRldGVjdCBlcnJfc3RhdHVzIHN1Y2ggYXMgYXJi
+aXRyYXRpb24gbG9zdCwKPj4gdGhlbiB0cnkgdG8gcmVwYWlyIGFuZCBmaXggaXQuCj4+Cj5JIGFt
+IG1pc3NpbmcgdGhlIGlzc3VlIHRoYXQgeW91IGFyZSBmYWNpbmcuCj5Zb3UgYXJlIGhhdmluZyBh
+IG11bHRpbWFzdGVyIHNjZW5hcmlvIGFuZCBnZXR0aW5nIGFyYml0cmF0aW9uIGxvc3QuCj4KPnRo
+ZSBjdXJyZW50IGNvZGUgd291bGQgYXR0ZW1wdCBhIHJldHJ5IGRpZCB0aGF0IGxlYWQgdG8gYW55
+IGlzc3Vlcz8KPgo+Q2FuIHlvdSBleHBsYWluIHRoZSBpc3N1ZSB0aGF0IHlvdSBhcmUgZmFjaW5n
+PyAKCk9mIGNvdXJjZSwgwqBUaGUgZm9sbG93aW5nIGRlc2NyaWJlIG15IHNpdHVhdGlvbi4KCklu
+IG15IHByb2R1Y3QsIMKgVG91Y2hzY3JlZW4gY29ubmVjdCB0byB6eW5xLTcwMDAgWEM3WjAxMCBi
+eSBpMmMgYnVzKCBKdXN0IGNvbm5lY3Qgb25seSBvbmUgaTJjLWRldmljZSBvZiB0b3VjaHNjcmVl
+biksIMKgCndoZW4gdXNlciB0YXAgVG91Y2hzY3JlZW4sIFRvdWNoc2NyZWVuIGludGVycnVwdCBz
+ZW5kIHRvIENQVSBhbmQgbm90aWZ5ZWQgaTJjLWRyaXZlciB0byBvYnRhaW4gbG9jYXRpb24gZGF0
+YSBieSBpMmMtYnVzLCDCoAoKd2hlbiBUYXAgdGhlIHNjcmVlbiBmcmVxdWVudGx5LCDCoHNvbWV0
+aW1lcyBDUFUgZ2V0IGludGVycnVwdCBmcm9tIHRvdWNoc2NyZWVuIGFuZCB0cnkgdG8gb2J0YWlu
+IGRhdGEsIMKgdGhlbiBkZXRlY3QgYXJiaXRyYXRpb24gbG9zdCwKQWx0aG91Z2ggaTJjLWRyaXZl
+ciB0cnkgdGhyZWUgdGltZXMsIMKgaXQncyB1c2VsZXNzLgrCoMKgCkFjdHVhbGx5IGkyYyBjbG9j
+ay1saW5lIGFuZCBkYXRhLWxpbmUga2VlcCBoaWdoLCB0aGF0IG1lYW4gaTJjIGJ1cyBmcmVlLgpP
+bmNlIHRoaXMgc2l0dWF0aW9uIG9jY3VyLCBpMmMtY29udHJvbCBkaWQndCB3b3JrIGFueW5heSBi
+dXQgY3B1IHJlY2VpdmUgaW50ZXJycHV0cyBzdGlsbC4KCkkgYW0gc29ycnkgdGhhdCBJIGhhdmUn
+dCBmb3VuZCBhIGdvb2Qgc29sdXRpb24gZm9yIHRoaXMgaXNzdXNlOwpfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcg
+bGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmlu
+ZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
