@@ -1,25 +1,15 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 10/17] media: platform: sti: c8sectpfe: c8sectpfe-dvb: convert
- to use i2c_new_client_device()
-Date: Wed,  6 Nov 2019 22:21:10 +0100
-Message-ID: <20191106212120.27983-11-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 13/17] media: usb: dvb-usb-v2: rtl28xxu: convert to use i2c_new_client_device()
+Date: Wed,  6 Nov 2019 22:21:13 +0100
+Message-ID: <20191106212120.27983-14-wsa+renesas@sang-engineering.com>
 References: <20191106212120.27983-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20191106212120.27983-1-wsa+renesas@sang-engineering.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Patrice Chotard <patrice.chotard@st.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-arm-kernel@lists.infradead.org
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Use the newer API returning an ERRPTR and use the new helper to bail
@@ -27,23 +17,112 @@ out.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/media/platform/sti/c8sectpfe/c8sectpfe-dvb.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/usb/dvb-usb-v2/rtl28xxu.c | 36 ++++++++++++-------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/media/platform/sti/c8sectpfe/c8sectpfe-dvb.c b/drivers/media/platform/sti/c8sectpfe/c8sectpfe-dvb.c
-index a79250a7f812..103872266565 100644
---- a/drivers/media/platform/sti/c8sectpfe/c8sectpfe-dvb.c
-+++ b/drivers/media/platform/sti/c8sectpfe/c8sectpfe-dvb.c
-@@ -170,8 +170,8 @@ int c8sectpfe_frontend_attach(struct dvb_frontend **fe,
+diff --git a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
+index 5016ede7b35f..3a4eb992024a 100644
+--- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
++++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
+@@ -697,8 +697,8 @@ static int rtl2831u_frontend_attach(struct dvb_usb_adapter *adap)
+ 	board_info.addr = 0x10;
+ 	board_info.platform_data = pdata;
+ 	request_module("%s", board_info.type);
+-	client = i2c_new_device(&d->i2c_adap, &board_info);
+-	if (client == NULL || client->dev.driver == NULL) {
++	client = i2c_new_client_device(&d->i2c_adap, &board_info);
++	if (!i2c_client_has_driver(client)) {
+ 		ret = -ENODEV;
+ 		goto err;
+ 	}
+@@ -918,8 +918,8 @@ static int rtl2832u_frontend_attach(struct dvb_usb_adapter *adap)
+ 	board_info.addr = 0x10;
+ 	board_info.platform_data = pdata;
+ 	request_module("%s", board_info.type);
+-	client = i2c_new_device(&d->i2c_adap, &board_info);
+-	if (client == NULL || client->dev.driver == NULL) {
++	client = i2c_new_client_device(&d->i2c_adap, &board_info);
++	if (!i2c_client_has_driver(client)) {
+ 		ret = -ENODEV;
+ 		goto err;
+ 	}
+@@ -960,8 +960,8 @@ static int rtl2832u_frontend_attach(struct dvb_usb_adapter *adap)
+ 			info.addr = 0x18;
+ 			info.platform_data = &mn88472_config;
+ 			request_module(info.type);
+-			client = i2c_new_device(&d->i2c_adap, &info);
+-			if (client == NULL || client->dev.driver == NULL) {
++			client = i2c_new_client_device(&d->i2c_adap, &info);
++			if (!i2c_client_has_driver(client)) {
+ 				dev->slave_demod = SLAVE_DEMOD_NONE;
+ 				goto err_slave_demod_failed;
+ 			}
+@@ -982,8 +982,8 @@ static int rtl2832u_frontend_attach(struct dvb_usb_adapter *adap)
+ 			info.addr = 0x18;
+ 			info.platform_data = &mn88473_config;
+ 			request_module(info.type);
+-			client = i2c_new_device(&d->i2c_adap, &info);
+-			if (client == NULL || client->dev.driver == NULL) {
++			client = i2c_new_client_device(&d->i2c_adap, &info);
++			if (!i2c_client_has_driver(client)) {
+ 				dev->slave_demod = SLAVE_DEMOD_NONE;
+ 				goto err_slave_demod_failed;
+ 			}
+@@ -1025,8 +1025,8 @@ static int rtl2832u_frontend_attach(struct dvb_usb_adapter *adap)
+ 			info.addr = 0x64;
+ 			info.platform_data = &si2168_config;
+ 			request_module(info.type);
+-			client = i2c_new_device(&d->i2c_adap, &info);
+-			if (client == NULL || client->dev.driver == NULL) {
++			client = i2c_new_client_device(&d->i2c_adap, &info);
++			if (!i2c_client_has_driver(client)) {
+ 				dev->slave_demod = SLAVE_DEMOD_NONE;
+ 				goto err_slave_demod_failed;
+ 			}
+@@ -1217,8 +1217,8 @@ static int rtl2832u_tuner_attach(struct dvb_usb_adapter *adap)
+ 			info.platform_data = &e4000_config;
  
- 		/* attach tuner */
- 		request_module("tda18212");
--		client = i2c_new_device(tsin->i2c_adapter, &tda18212_info);
--		if (!client || !client->dev.driver) {
-+		client = i2c_new_client_device(tsin->i2c_adapter, &tda18212_info);
-+		if (!i2c_client_has_driver(client)) {
- 			dvb_frontend_detach(*fe);
- 			return -ENODEV;
- 		}
+ 			request_module(info.type);
+-			client = i2c_new_device(dev->demod_i2c_adapter, &info);
+-			if (client == NULL || client->dev.driver == NULL)
++			client = i2c_new_client_device(dev->demod_i2c_adapter, &info);
++			if (!i2c_client_has_driver(client))
+ 				break;
+ 
+ 			if (!try_module_get(client->dev.driver->owner)) {
+@@ -1240,9 +1240,9 @@ static int rtl2832u_tuner_attach(struct dvb_usb_adapter *adap)
+ 			board_info.addr = 0x56;
+ 			board_info.platform_data = &fc2580_pdata;
+ 			request_module("fc2580");
+-			client = i2c_new_device(dev->demod_i2c_adapter,
++			client = i2c_new_client_device(dev->demod_i2c_adapter,
+ 						&board_info);
+-			if (client == NULL || client->dev.driver == NULL)
++			if (!i2c_client_has_driver(client))
+ 				break;
+ 			if (!try_module_get(client->dev.driver->owner)) {
+ 				i2c_unregister_device(client);
+@@ -1271,8 +1271,8 @@ static int rtl2832u_tuner_attach(struct dvb_usb_adapter *adap)
+ 		board_info.addr = 0x60;
+ 		board_info.platform_data = &tua9001_pdata;
+ 		request_module("tua9001");
+-		client = i2c_new_device(dev->demod_i2c_adapter, &board_info);
+-		if (client == NULL || client->dev.driver == NULL)
++		client = i2c_new_client_device(dev->demod_i2c_adapter, &board_info);
++		if (!i2c_client_has_driver(client))
+ 			break;
+ 		if (!try_module_get(client->dev.driver->owner)) {
+ 			i2c_unregister_device(client);
+@@ -1316,8 +1316,8 @@ static int rtl2832u_tuner_attach(struct dvb_usb_adapter *adap)
+ 			info.addr = 0x60;
+ 			info.platform_data = &si2157_config;
+ 			request_module(info.type);
+-			client = i2c_new_device(&d->i2c_adap, &info);
+-			if (client == NULL || client->dev.driver == NULL)
++			client = i2c_new_client_device(&d->i2c_adap, &info);
++			if (!i2c_client_has_driver(client))
+ 				break;
+ 
+ 			if (!try_module_get(client->dev.driver->owner)) {
 -- 
 2.20.1
