@@ -1,115 +1,87 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 00/17] media: use new API for creating client devices
-Date: Wed,  6 Nov 2019 22:21:00 +0100
-Message-ID: <20191106212120.27983-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 08/17] media: pci: saa7164: saa7164-dvb: convert to use i2c_new_client_device()
+Date: Wed,  6 Nov 2019 22:21:08 +0100
+Message-ID: <20191106212120.27983-9-wsa+renesas@sang-engineering.com>
+References: <20191106212120.27983-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20191106212120.27983-1-wsa+renesas@sang-engineering.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-These media drivers create a new I2C client device with the deprecated
-i2c_new_device() and check afterwards if the client exists and if a
-driver is bound to it.
+Use the newer API returning an ERRPTR and use the new helper to bail
+out.
 
-These series changes the drivers to use the now suggested
-i2c_new_client_device() call and introduces a helper to check if the
-driver is bound. This helper supports (for now) the old and the new API
-and is also more readable.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/media/pci/saa7164/saa7164-dvb.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-The drivers were converted with the following coccinelle script:
-
-@@
-expression client;
-statement S;
-@@
-	client =
--		i2c_new_device
-+		i2c_new_client_device
-			(...);
-	... when != client
-	if (
--		\( !client \| client == NULL \) || \( !client->dev.driver \| client->dev.driver == NULL \)
-+		!i2c_client_has_driver(client)
-			) {
-			S
-		}
-
-The helper has been tested on a Renesas Salvator-XS board (R-Car M3-N).
-The rest was build tested by me. buildbot has this still queued.
-
-Although the first patch is in the I2C realm, I suggest that all patches
-go through the media tree to avoid the dependency. There are no merge
-conflicts with I2C currently and I don't see any coming (famous last
-words).
-
-This series is based on linux-next as of today. It does not depend on
-the i2c_new_probed_device() conversion I sent out earlier today. This
-series can be applied as is.
-
-Looking forward to comments.
-
-Thanks and happy hacking,
-
-   Wolfram
-
-
-Wolfram Sang (17):
-  i2c: add helper to check if a client has a driver attached
-  media: dvb-core: dvbdev: convert to use i2c_new_client_device()
-  media: dvb-frontends: cxd2820r_core: convert to use
-    i2c_new_client_device()
-  media: dvb-frontends: lgdt330x: convert to use i2c_new_client_device()
-  media: dvb-frontends: m88ds3103: convert to use
-    i2c_new_client_device()
-  media: dvb-frontends: ts2020: convert to use i2c_new_client_device()
-  media: pci: cx23885: cx23885-dvb: convert to use
-    i2c_new_client_device()
-  media: pci: saa7164: saa7164-dvb: convert to use
-    i2c_new_client_device()
-  media: pci: smipcie: smipcie-main: convert to use
-    i2c_new_client_device()
-  media: platform: sti: c8sectpfe: c8sectpfe-dvb: convert to use
-    i2c_new_client_device()
-  media: usb: dvb-usb-v2: af9035: convert to use i2c_new_client_device()
-  media: usb: dvb-usb-v2: anysee: convert to use i2c_new_client_device()
-  media: usb: dvb-usb-v2: rtl28xxu: convert to use
-    i2c_new_client_device()
-  media: usb: dvb-usb-v2: zd1301: convert to use i2c_new_client_device()
-  media: usb: dvb-usb: dib0700_devices: convert to use
-    i2c_new_client_device()
-  media: usb: dvb-usb: dw2102: convert to use i2c_new_client_device()
-  media: v4l2-core: v4l2-i2c: convert to use i2c_new_client_device()
-
- drivers/media/dvb-core/dvbdev.c               |   4 +-
- drivers/media/dvb-frontends/cxd2820r_core.c   |   4 +-
- drivers/media/dvb-frontends/lgdt330x.c        |   4 +-
- drivers/media/dvb-frontends/m88ds3103.c       |   4 +-
- drivers/media/dvb-frontends/ts2020.c          |   4 +-
- drivers/media/pci/cx23885/cx23885-dvb.c       | 114 +++++++++---------
- drivers/media/pci/saa7164/saa7164-dvb.c       |  20 +--
- drivers/media/pci/smipcie/smipcie-main.c      |   4 +-
- .../platform/sti/c8sectpfe/c8sectpfe-dvb.c    |   4 +-
- drivers/media/usb/dvb-usb-v2/af9035.c         |   4 +-
- drivers/media/usb/dvb-usb-v2/anysee.c         |   4 +-
- drivers/media/usb/dvb-usb-v2/rtl28xxu.c       |  36 +++---
- drivers/media/usb/dvb-usb-v2/zd1301.c         |   4 +-
- drivers/media/usb/dvb-usb/dib0700_devices.c   |   8 +-
- drivers/media/usb/dvb-usb/dw2102.c            |   8 +-
- drivers/media/v4l2-core/v4l2-i2c.c            |   2 +-
- include/linux/i2c.h                           |   5 +
- 17 files changed, 116 insertions(+), 117 deletions(-)
-
+diff --git a/drivers/media/pci/saa7164/saa7164-dvb.c b/drivers/media/pci/saa7164/saa7164-dvb.c
+index 05ab4734ea67..6a527dbc1daf 100644
+--- a/drivers/media/pci/saa7164/saa7164-dvb.c
++++ b/drivers/media/pci/saa7164/saa7164-dvb.c
+@@ -116,8 +116,8 @@ static int si2157_attach(struct saa7164_port *port, struct i2c_adapter *adapter,
+ 
+ 	request_module(bi.type);
+ 
+-	tuner = i2c_new_device(adapter, &bi);
+-	if (tuner == NULL || tuner->dev.driver == NULL)
++	tuner = i2c_new_client_device(adapter, &bi);
++	if (!i2c_client_has_driver(tuner))
+ 		return -ENODEV;
+ 
+ 	if (!try_module_get(tuner->dev.driver->owner)) {
+@@ -637,9 +637,9 @@ int saa7164_dvb_register(struct saa7164_port *port)
+ 			info.addr = 0xc8 >> 1;
+ 			info.platform_data = &si2168_config;
+ 			request_module(info.type);
+-			client_demod = i2c_new_device(&dev->i2c_bus[2].i2c_adap,
++			client_demod = i2c_new_client_device(&dev->i2c_bus[2].i2c_adap,
+ 						      &info);
+-			if (!client_demod || !client_demod->dev.driver)
++			if (!i2c_client_has_driver(client_demod))
+ 				goto frontend_detach;
+ 
+ 			if (!try_module_get(client_demod->dev.driver->owner)) {
+@@ -657,9 +657,9 @@ int saa7164_dvb_register(struct saa7164_port *port)
+ 			info.addr = 0xc0 >> 1;
+ 			info.platform_data = &si2157_config;
+ 			request_module(info.type);
+-			client_tuner = i2c_new_device(&dev->i2c_bus[0].i2c_adap,
++			client_tuner = i2c_new_client_device(&dev->i2c_bus[0].i2c_adap,
+ 						      &info);
+-			if (!client_tuner || !client_tuner->dev.driver) {
++			if (!i2c_client_has_driver(client_tuner)) {
+ 				module_put(client_demod->dev.driver->owner);
+ 				i2c_unregister_device(client_demod);
+ 				goto frontend_detach;
+@@ -682,9 +682,9 @@ int saa7164_dvb_register(struct saa7164_port *port)
+ 			info.addr = 0xcc >> 1;
+ 			info.platform_data = &si2168_config;
+ 			request_module(info.type);
+-			client_demod = i2c_new_device(&dev->i2c_bus[2].i2c_adap,
++			client_demod = i2c_new_client_device(&dev->i2c_bus[2].i2c_adap,
+ 						      &info);
+-			if (!client_demod || !client_demod->dev.driver)
++			if (!i2c_client_has_driver(client_demod))
+ 				goto frontend_detach;
+ 
+ 			if (!try_module_get(client_demod->dev.driver->owner)) {
+@@ -702,9 +702,9 @@ int saa7164_dvb_register(struct saa7164_port *port)
+ 			info.addr = 0xc0 >> 1;
+ 			info.platform_data = &si2157_config;
+ 			request_module(info.type);
+-			client_tuner = i2c_new_device(&dev->i2c_bus[1].i2c_adap,
++			client_tuner = i2c_new_client_device(&dev->i2c_bus[1].i2c_adap,
+ 						      &info);
+-			if (!client_tuner || !client_tuner->dev.driver) {
++			if (!i2c_client_has_driver(client_tuner)) {
+ 				module_put(client_demod->dev.driver->owner);
+ 				i2c_unregister_device(client_demod);
+ 				goto frontend_detach;
 -- 
 2.20.1
