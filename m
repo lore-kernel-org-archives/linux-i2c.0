@@ -1,15 +1,25 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 08/17] media: pci: saa7164: saa7164-dvb: convert to use i2c_new_client_device()
-Date: Wed,  6 Nov 2019 22:21:08 +0100
-Message-ID: <20191106212120.27983-9-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 10/17] media: platform: sti: c8sectpfe: c8sectpfe-dvb: convert
+ to use i2c_new_client_device()
+Date: Wed,  6 Nov 2019 22:21:10 +0100
+Message-ID: <20191106212120.27983-11-wsa+renesas@sang-engineering.com>
 References: <20191106212120.27983-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <20191106212120.27983-1-wsa+renesas@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: linux-media@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Patrice Chotard <patrice.chotard@st.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
 Use the newer API returning an ERRPTR and use the new helper to bail
@@ -17,71 +27,23 @@ out.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/media/pci/saa7164/saa7164-dvb.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/media/platform/sti/c8sectpfe/c8sectpfe-dvb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/pci/saa7164/saa7164-dvb.c b/drivers/media/pci/saa7164/saa7164-dvb.c
-index 05ab4734ea67..6a527dbc1daf 100644
---- a/drivers/media/pci/saa7164/saa7164-dvb.c
-+++ b/drivers/media/pci/saa7164/saa7164-dvb.c
-@@ -116,8 +116,8 @@ static int si2157_attach(struct saa7164_port *port, struct i2c_adapter *adapter,
+diff --git a/drivers/media/platform/sti/c8sectpfe/c8sectpfe-dvb.c b/drivers/media/platform/sti/c8sectpfe/c8sectpfe-dvb.c
+index a79250a7f812..103872266565 100644
+--- a/drivers/media/platform/sti/c8sectpfe/c8sectpfe-dvb.c
++++ b/drivers/media/platform/sti/c8sectpfe/c8sectpfe-dvb.c
+@@ -170,8 +170,8 @@ int c8sectpfe_frontend_attach(struct dvb_frontend **fe,
  
- 	request_module(bi.type);
- 
--	tuner = i2c_new_device(adapter, &bi);
--	if (tuner == NULL || tuner->dev.driver == NULL)
-+	tuner = i2c_new_client_device(adapter, &bi);
-+	if (!i2c_client_has_driver(tuner))
- 		return -ENODEV;
- 
- 	if (!try_module_get(tuner->dev.driver->owner)) {
-@@ -637,9 +637,9 @@ int saa7164_dvb_register(struct saa7164_port *port)
- 			info.addr = 0xc8 >> 1;
- 			info.platform_data = &si2168_config;
- 			request_module(info.type);
--			client_demod = i2c_new_device(&dev->i2c_bus[2].i2c_adap,
-+			client_demod = i2c_new_client_device(&dev->i2c_bus[2].i2c_adap,
- 						      &info);
--			if (!client_demod || !client_demod->dev.driver)
-+			if (!i2c_client_has_driver(client_demod))
- 				goto frontend_detach;
- 
- 			if (!try_module_get(client_demod->dev.driver->owner)) {
-@@ -657,9 +657,9 @@ int saa7164_dvb_register(struct saa7164_port *port)
- 			info.addr = 0xc0 >> 1;
- 			info.platform_data = &si2157_config;
- 			request_module(info.type);
--			client_tuner = i2c_new_device(&dev->i2c_bus[0].i2c_adap,
-+			client_tuner = i2c_new_client_device(&dev->i2c_bus[0].i2c_adap,
- 						      &info);
--			if (!client_tuner || !client_tuner->dev.driver) {
-+			if (!i2c_client_has_driver(client_tuner)) {
- 				module_put(client_demod->dev.driver->owner);
- 				i2c_unregister_device(client_demod);
- 				goto frontend_detach;
-@@ -682,9 +682,9 @@ int saa7164_dvb_register(struct saa7164_port *port)
- 			info.addr = 0xcc >> 1;
- 			info.platform_data = &si2168_config;
- 			request_module(info.type);
--			client_demod = i2c_new_device(&dev->i2c_bus[2].i2c_adap,
-+			client_demod = i2c_new_client_device(&dev->i2c_bus[2].i2c_adap,
- 						      &info);
--			if (!client_demod || !client_demod->dev.driver)
-+			if (!i2c_client_has_driver(client_demod))
- 				goto frontend_detach;
- 
- 			if (!try_module_get(client_demod->dev.driver->owner)) {
-@@ -702,9 +702,9 @@ int saa7164_dvb_register(struct saa7164_port *port)
- 			info.addr = 0xc0 >> 1;
- 			info.platform_data = &si2157_config;
- 			request_module(info.type);
--			client_tuner = i2c_new_device(&dev->i2c_bus[1].i2c_adap,
-+			client_tuner = i2c_new_client_device(&dev->i2c_bus[1].i2c_adap,
- 						      &info);
--			if (!client_tuner || !client_tuner->dev.driver) {
-+			if (!i2c_client_has_driver(client_tuner)) {
- 				module_put(client_demod->dev.driver->owner);
- 				i2c_unregister_device(client_demod);
- 				goto frontend_detach;
+ 		/* attach tuner */
+ 		request_module("tda18212");
+-		client = i2c_new_device(tsin->i2c_adapter, &tda18212_info);
+-		if (!client || !client->dev.driver) {
++		client = i2c_new_client_device(tsin->i2c_adapter, &tda18212_info);
++		if (!i2c_client_has_driver(client)) {
+ 			dvb_frontend_detach(*fe);
+ 			return -ENODEV;
+ 		}
 -- 
 2.20.1
