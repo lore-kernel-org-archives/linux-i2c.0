@@ -1,57 +1,39 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC PATCH 08/12] media: pci: cx88: convert to
- i2c_new_scanned_device
-Date: Wed, 6 Nov 2019 15:49:30 +0100
-Message-ID: <20191106144930.GA25832@ninjato>
-References: <20191106095033.25182-1-wsa+renesas@sang-engineering.com>
- <20191106095033.25182-9-wsa+renesas@sang-engineering.com>
- <faa29a3b-c939-eec3-355e-8c0ddc873391@xs4all.nl>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH 03/17] media: dvb-frontends: cxd2820r_core: convert to use i2c_new_client_device()
+Date: Wed,  6 Nov 2019 22:21:03 +0100
+Message-ID: <20191106212120.27983-4-wsa+renesas@sang-engineering.com>
+References: <20191106212120.27983-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <faa29a3b-c939-eec3-355e-8c0ddc873391@xs4all.nl>
+In-Reply-To: <20191106212120.27983-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hans Verkuil <hverkuil@xs4all.nl>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-media@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Antti Palosaari <crope@iki.fi>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Use the newer API returning an ERRPTR and use the new helper to bail
+out.
 
---wRRV7LY7NUeQGEoC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/media/dvb-frontends/cxd2820r_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-On Wed, Nov 06, 2019 at 12:18:28PM +0100, Hans Verkuil wrote:
-> On 11/6/19 10:50 AM, Wolfram Sang wrote:
-> > Move from the deprecated i2c_new_probed_device() to the new
-> > i2c_new_scanned_device(). Make use of the new ERRPTR if suitable.
->=20
-> This commit text is a bit out-of-sync with the actual patch.
-
-Ha, true :) Thanks for pointing out (and the other reviews, too, of
-course!)
-
-
---wRRV7LY7NUeQGEoC
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl3C3XIACgkQFA3kzBSg
-KbZirA//X36v9Slo0cUGXuxTQ9RfKip30Dw3SpKsmSvrjs225Zx3qTp+1j9NaTQG
-einz6gUyFGFngP8gMFbUx3eBY+0Y1wWfpF3R76NilUR9aIoCKvahHQznpiNeZZ+Z
-Vqj/fGVB6xPMRLdGlHACHh7XXXmCm4zyQ72Mco0o2YmTQBpoP6LM6YYd1+VgVlXN
-3PrM96cUdTCyxFfeHXXr0XFRW5FB+3sgxSNgIJzC8Rrl1j2bfYD6BXPF1Ov8Tmgo
-fBd9DOIJWG4djlw4zVc3l83zNliEDXlzVQfsyVKgn3U5jXsdiX2fSzFGvb7hR9Nv
-U9z+Ap1DF0rq8jzAlgwso8/IlUnV9SrLml5+P+eA4d8+aBNEifqy63S7svDXp75Q
-4ixqa76r/VLfV/yC8i5ib3NJVjZ7BI+Tq033LrFTujOxJW4O/wXE5XrbtDMXVVik
-q7UVbjkpslXQz+2/cCUtU/z+tSlKjGu4ylKSSi0mPY9Nq92l6XvbQOoL0+icFURM
-tFnLaM5ZIDvhZaO/nLmcwPHMgrbChkneTGkfbfZLUJhzLtmbG5KIOoJ8DAsMx7vD
-svZKcFzxJCpkGrrNBRDMWXFbnb0gx+0WMSPITIgcFp5YGF6BJOHIBe4x032789Li
-IPuhi8lSj+khmz84vFYaqINDdlx4zvO38zaEgxjgDTwPLKYUkXE=
-=p3Ys
------END PGP SIGNATURE-----
-
---wRRV7LY7NUeQGEoC--
+diff --git a/drivers/media/dvb-frontends/cxd2820r_core.c b/drivers/media/dvb-frontends/cxd2820r_core.c
+index d137199e13e6..b1618339eec0 100644
+--- a/drivers/media/dvb-frontends/cxd2820r_core.c
++++ b/drivers/media/dvb-frontends/cxd2820r_core.c
+@@ -530,8 +530,8 @@ struct dvb_frontend *cxd2820r_attach(const struct cxd2820r_config *config,
+ 	strscpy(board_info.type, "cxd2820r", I2C_NAME_SIZE);
+ 	board_info.addr = config->i2c_address;
+ 	board_info.platform_data = &pdata;
+-	client = i2c_new_device(adapter, &board_info);
+-	if (!client || !client->dev.driver)
++	client = i2c_new_client_device(adapter, &board_info);
++	if (!i2c_client_has_driver(client))
+ 		return NULL;
+ 
+ 	return pdata.get_dvb_frontend(client);
+-- 
+2.20.1
