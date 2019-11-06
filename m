@@ -1,22 +1,57 @@
-From: Max Staudt <max@enpas.org>
-Subject: Re: [RFC PATCH 01/12] i2c: replace i2c_new_probed_device with an
- ERR_PTR variant
-Date: Wed, 6 Nov 2019 13:39:36 +0100
-Message-ID: <678c90fb-00f6-6b31-90dd-cde41f730d53@enpas.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC PATCH 08/12] media: pci: cx88: convert to
+ i2c_new_scanned_device
+Date: Wed, 6 Nov 2019 15:49:30 +0100
+Message-ID: <20191106144930.GA25832@ninjato>
 References: <20191106095033.25182-1-wsa+renesas@sang-engineering.com>
- <20191106095033.25182-2-wsa+renesas@sang-engineering.com>
+ <20191106095033.25182-9-wsa+renesas@sang-engineering.com>
+ <faa29a3b-c939-eec3-355e-8c0ddc873391@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191106095033.25182-2-wsa+renesas@sang-engineering.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <faa29a3b-c939-eec3-355e-8c0ddc873391@xs4all.nl>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
+To: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-I'm not an I2C expert, but as far as I can see: This patch looks useful and well done to me.
-Thanks for moving forward on making the interfaces use ERR_PTR instead of NULL.
 
-Max
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Nov 06, 2019 at 12:18:28PM +0100, Hans Verkuil wrote:
+> On 11/6/19 10:50 AM, Wolfram Sang wrote:
+> > Move from the deprecated i2c_new_probed_device() to the new
+> > i2c_new_scanned_device(). Make use of the new ERRPTR if suitable.
+>=20
+> This commit text is a bit out-of-sync with the actual patch.
+
+Ha, true :) Thanks for pointing out (and the other reviews, too, of
+course!)
+
+
+--wRRV7LY7NUeQGEoC
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl3C3XIACgkQFA3kzBSg
+KbZirA//X36v9Slo0cUGXuxTQ9RfKip30Dw3SpKsmSvrjs225Zx3qTp+1j9NaTQG
+einz6gUyFGFngP8gMFbUx3eBY+0Y1wWfpF3R76NilUR9aIoCKvahHQznpiNeZZ+Z
+Vqj/fGVB6xPMRLdGlHACHh7XXXmCm4zyQ72Mco0o2YmTQBpoP6LM6YYd1+VgVlXN
+3PrM96cUdTCyxFfeHXXr0XFRW5FB+3sgxSNgIJzC8Rrl1j2bfYD6BXPF1Ov8Tmgo
+fBd9DOIJWG4djlw4zVc3l83zNliEDXlzVQfsyVKgn3U5jXsdiX2fSzFGvb7hR9Nv
+U9z+Ap1DF0rq8jzAlgwso8/IlUnV9SrLml5+P+eA4d8+aBNEifqy63S7svDXp75Q
+4ixqa76r/VLfV/yC8i5ib3NJVjZ7BI+Tq033LrFTujOxJW4O/wXE5XrbtDMXVVik
+q7UVbjkpslXQz+2/cCUtU/z+tSlKjGu4ylKSSi0mPY9Nq92l6XvbQOoL0+icFURM
+tFnLaM5ZIDvhZaO/nLmcwPHMgrbChkneTGkfbfZLUJhzLtmbG5KIOoJ8DAsMx7vD
+svZKcFzxJCpkGrrNBRDMWXFbnb0gx+0WMSPITIgcFp5YGF6BJOHIBe4x032789Li
+IPuhi8lSj+khmz84vFYaqINDdlx4zvO38zaEgxjgDTwPLKYUkXE=
+=p3Ys
+-----END PGP SIGNATURE-----
+
+--wRRV7LY7NUeQGEoC--
