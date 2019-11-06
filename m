@@ -1,24 +1,26 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [RFC PATCH 09/12] media: pci: bt8xx: convert to
+Subject: Re: [RFC PATCH 11/12] media: pci: ivtv: convert to
  i2c_new_scanned_device
-Date: Wed, 6 Nov 2019 12:19:44 +0100
-Message-ID: <f5b078aa-73c7-993a-7221-98962a13ab23@xs4all.nl>
+Date: Wed, 6 Nov 2019 12:21:47 +0100
+Message-ID: <b1435694-2a22-5f9b-5519-8c42b71f0e8a@xs4all.nl>
 References: <20191106095033.25182-1-wsa+renesas@sang-engineering.com>
- <20191106095033.25182-10-wsa+renesas@sang-engineering.com>
+ <20191106095033.25182-12-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191106095033.25182-10-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20191106095033.25182-12-wsa+renesas@sang-engineering.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andy Walls <awalls@md.metrocast.net>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 On 11/6/19 10:50 AM, Wolfram Sang wrote:
 > Move from the deprecated i2c_new_probed_device() to the new
-> i2c_new_scanned_device(). Make use of the new ERRPTR if suitable.
+> i2c_new_scanned_device(). Make use of the new ERRPTR if suitable. Change
+> the legacy function to simply return void because the retval was never
+> used anywhere.
 > 
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
@@ -32,32 +34,49 @@ Regards,
 > 
 > Build tested only. RFC, please comment and/or ack, but don't apply yet.
 > 
->  drivers/media/pci/bt8xx/bttv-input.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+>  drivers/media/pci/ivtv/ivtv-i2c.c | 6 +++---
+>  drivers/media/pci/ivtv/ivtv-i2c.h | 2 +-
+>  2 files changed, 4 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/media/pci/bt8xx/bttv-input.c b/drivers/media/pci/bt8xx/bttv-input.c
-> index 492bc85c2700..41226f1d0e5b 100644
-> --- a/drivers/media/pci/bt8xx/bttv-input.c
-> +++ b/drivers/media/pci/bt8xx/bttv-input.c
-> @@ -386,7 +386,7 @@ void init_bttv_i2c_ir(struct bttv *btv)
+> diff --git a/drivers/media/pci/ivtv/ivtv-i2c.c b/drivers/media/pci/ivtv/ivtv-i2c.c
+> index 0772d757a389..982045c4eea8 100644
+> --- a/drivers/media/pci/ivtv/ivtv-i2c.c
+> +++ b/drivers/media/pci/ivtv/ivtv-i2c.c
+> @@ -208,12 +208,12 @@ static int ivtv_i2c_new_ir(struct ivtv *itv, u32 hw, const char *type, u8 addr)
+>  	info.platform_data = init_data;
+>  	strscpy(info.type, type, I2C_NAME_SIZE);
 >  
->  	if (btv->init_data.name) {
->  		info.platform_data = &btv->init_data;
-> -		i2c_dev = i2c_new_device(&btv->c.i2c_adap, &info);
-> +		i2c_dev = i2c_new_client_device(&btv->c.i2c_adap, &info);
->  	} else {
->  		/*
->  		 * The external IR receiver is at i2c address 0x34 (0x35 for
-> @@ -396,9 +396,9 @@ void init_bttv_i2c_ir(struct bttv *btv)
->  		 * internal.
->  		 * That's why we probe 0x1a (~0x34) first. CB
->  		 */
-> -		i2c_dev = i2c_new_probed_device(&btv->c.i2c_adap, &info, addr_list, NULL);
-> +		i2c_dev = i2c_new_scanned_device(&btv->c.i2c_adap, &info, addr_list, NULL);
->  	}
-> -	if (NULL == i2c_dev)
-> +	if (IS_ERR(i2c_dev))
->  		return;
+> -	return i2c_new_probed_device(adap, &info, addr_list, NULL) == NULL ?
+> +	return IS_ERR(i2c_new_scanned_device(adap, &info, addr_list, NULL)) ?
+>  	       -1 : 0;
+>  }
 >  
->  #if defined(CONFIG_MODULES) && defined(MODULE)
+>  /* Instantiate the IR receiver device using probing -- undesirable */
+> -struct i2c_client *ivtv_i2c_new_ir_legacy(struct ivtv *itv)
+> +void ivtv_i2c_new_ir_legacy(struct ivtv *itv)
+>  {
+>  	struct i2c_board_info info;
+>  	/*
+> @@ -235,7 +235,7 @@ struct i2c_client *ivtv_i2c_new_ir_legacy(struct ivtv *itv)
+>  
+>  	memset(&info, 0, sizeof(struct i2c_board_info));
+>  	strscpy(info.type, "ir_video", I2C_NAME_SIZE);
+> -	return i2c_new_probed_device(&itv->i2c_adap, &info, addr_list, NULL);
+> +	i2c_new_scanned_device(&itv->i2c_adap, &info, addr_list, NULL);
+>  }
+>  
+>  int ivtv_i2c_register(struct ivtv *itv, unsigned idx)
+> diff --git a/drivers/media/pci/ivtv/ivtv-i2c.h b/drivers/media/pci/ivtv/ivtv-i2c.h
+> index 462f73449a6e..2d9cdaa682c5 100644
+> --- a/drivers/media/pci/ivtv/ivtv-i2c.h
+> +++ b/drivers/media/pci/ivtv/ivtv-i2c.h
+> @@ -9,7 +9,7 @@
+>  #ifndef IVTV_I2C_H
+>  #define IVTV_I2C_H
+>  
+> -struct i2c_client *ivtv_i2c_new_ir_legacy(struct ivtv *itv);
+> +void ivtv_i2c_new_ir_legacy(struct ivtv *itv);
+>  int ivtv_i2c_register(struct ivtv *itv, unsigned idx);
+>  struct v4l2_subdev *ivtv_find_hw(struct ivtv *itv, u32 hw);
+>  
 > 
