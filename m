@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 02/17] media: dvb-core: dvbdev: convert to use i2c_new_client_device()
-Date: Wed,  6 Nov 2019 22:21:02 +0100
-Message-ID: <20191106212120.27983-3-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 01/17] i2c: add helper to check if a client has a driver attached
+Date: Wed,  6 Nov 2019 22:21:01 +0100
+Message-ID: <20191106212120.27983-2-wsa+renesas@sang-engineering.com>
 References: <20191106212120.27983-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,31 +9,32 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20191106212120.27983-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-media@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Use the newer API returning an ERRPTR and use the new helper to bail
-out.
+Factoring out something used in the media subsystem. As an improvement,
+it bails out on both, NULL and ERRPTR.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/media/dvb-core/dvbdev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/i2c.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/media/dvb-core/dvbdev.c b/drivers/media/dvb-core/dvbdev.c
-index 917fe034af37..80b6a71aa33e 100644
---- a/drivers/media/dvb-core/dvbdev.c
-+++ b/drivers/media/dvb-core/dvbdev.c
-@@ -983,8 +983,8 @@ struct i2c_client *dvb_module_probe(const char *module_name,
- 	board_info->addr = addr;
- 	board_info->platform_data = platform_data;
- 	request_module(module_name);
--	client = i2c_new_device(adap, board_info);
--	if (client == NULL || client->dev.driver == NULL) {
-+	client = i2c_new_client_device(adap, board_info);
-+	if (!i2c_client_has_driver(client)) {
- 		kfree(board_info);
- 		return NULL;
- 	}
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index aaf57d9b41db..93b315c9a062 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -850,6 +850,11 @@ extern void i2c_del_driver(struct i2c_driver *driver);
+ #define i2c_add_driver(driver) \
+ 	i2c_register_driver(THIS_MODULE, driver)
+ 
++static inline bool i2c_client_has_driver(struct i2c_client *client)
++{
++	return !IS_ERR_OR_NULL(client) && client->dev.driver;
++}
++
+ extern struct i2c_client *i2c_use_client(struct i2c_client *client);
+ extern void i2c_release_client(struct i2c_client *client);
+ 
 -- 
 2.20.1
