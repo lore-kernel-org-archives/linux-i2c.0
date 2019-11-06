@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 11/17] media: usb: dvb-usb-v2: af9035: convert to use i2c_new_client_device()
-Date: Wed,  6 Nov 2019 22:21:11 +0100
-Message-ID: <20191106212120.27983-12-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 12/17] media: usb: dvb-usb-v2: anysee: convert to use i2c_new_client_device()
+Date: Wed,  6 Nov 2019 22:21:12 +0100
+Message-ID: <20191106212120.27983-13-wsa+renesas@sang-engineering.com>
 References: <20191106212120.27983-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -17,14 +17,14 @@ out.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/media/usb/dvb-usb-v2/af9035.c | 4 ++--
+ drivers/media/usb/dvb-usb-v2/anysee.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/dvb-usb-v2/af9035.c b/drivers/media/usb/dvb-usb-v2/af9035.c
-index 792667ee5ebc..2db286d88fa5 100644
---- a/drivers/media/usb/dvb-usb-v2/af9035.c
-+++ b/drivers/media/usb/dvb-usb-v2/af9035.c
-@@ -208,8 +208,8 @@ static int af9035_add_i2c_dev(struct dvb_usb_device *d, const char *type,
+diff --git a/drivers/media/usb/dvb-usb-v2/anysee.c b/drivers/media/usb/dvb-usb-v2/anysee.c
+index fb6d99dea31a..0514e87405b6 100644
+--- a/drivers/media/usb/dvb-usb-v2/anysee.c
++++ b/drivers/media/usb/dvb-usb-v2/anysee.c
+@@ -649,8 +649,8 @@ static int anysee_add_i2c_dev(struct dvb_usb_device *d, const char *type,
  	request_module("%s", board_info.type);
  
  	/* register I2C device */
