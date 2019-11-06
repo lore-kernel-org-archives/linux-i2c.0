@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 03/17] media: dvb-frontends: cxd2820r_core: convert to use i2c_new_client_device()
-Date: Wed,  6 Nov 2019 22:21:03 +0100
-Message-ID: <20191106212120.27983-4-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 05/17] media: dvb-frontends: m88ds3103: convert to use i2c_new_client_device()
+Date: Wed,  6 Nov 2019 22:21:05 +0100
+Message-ID: <20191106212120.27983-6-wsa+renesas@sang-engineering.com>
 References: <20191106212120.27983-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -17,23 +17,23 @@ out.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/media/dvb-frontends/cxd2820r_core.c | 4 ++--
+ drivers/media/dvb-frontends/m88ds3103.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/cxd2820r_core.c b/drivers/media/dvb-frontends/cxd2820r_core.c
-index d137199e13e6..b1618339eec0 100644
---- a/drivers/media/dvb-frontends/cxd2820r_core.c
-+++ b/drivers/media/dvb-frontends/cxd2820r_core.c
-@@ -530,8 +530,8 @@ struct dvb_frontend *cxd2820r_attach(const struct cxd2820r_config *config,
- 	strscpy(board_info.type, "cxd2820r", I2C_NAME_SIZE);
- 	board_info.addr = config->i2c_address;
+diff --git a/drivers/media/dvb-frontends/m88ds3103.c b/drivers/media/dvb-frontends/m88ds3103.c
+index 3a367a585084..c96f05ff5f2f 100644
+--- a/drivers/media/dvb-frontends/m88ds3103.c
++++ b/drivers/media/dvb-frontends/m88ds3103.c
+@@ -1277,8 +1277,8 @@ struct dvb_frontend *m88ds3103_attach(const struct m88ds3103_config *cfg,
+ 	strscpy(board_info.type, "m88ds3103", I2C_NAME_SIZE);
+ 	board_info.addr = cfg->i2c_addr;
  	board_info.platform_data = &pdata;
--	client = i2c_new_device(adapter, &board_info);
+-	client = i2c_new_device(i2c, &board_info);
 -	if (!client || !client->dev.driver)
-+	client = i2c_new_client_device(adapter, &board_info);
++	client = i2c_new_client_device(i2c, &board_info);
 +	if (!i2c_client_has_driver(client))
  		return NULL;
  
- 	return pdata.get_dvb_frontend(client);
+ 	*tuner_i2c_adapter = pdata.get_i2c_adapter(client);
 -- 
 2.20.1
