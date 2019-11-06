@@ -1,51 +1,174 @@
-From: "sxauwsk@163.com" <sxauwsk@163.com>
-Subject: Re: Re: [PATCH v2] i2c: cadence: try reset when master receive
- arbitration lost
-Date: Tue, 5 Nov 2019 16:47:53 +0800
-Message-ID: <2019110516474778997625@163.com>
-References: <20190219012447.5900-1-sxauwsk@163.com>,
- <CAKfKVtEwHcydp=+hNhG91h3qbMoYOPq7jEYjbuAVrWXT53DC3Q@mail.gmail.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH 01/12] i2c: replace i2c_new_probed_device with an ERR_PTR variant
+Date: Wed,  6 Nov 2019 10:50:19 +0100
+Message-ID: <20191106095033.25182-2-wsa+renesas@sang-engineering.com>
+References: <20191106095033.25182-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, linux-kernel <linux-kernel@vger.kernel.org>, Michal Simek <michal.simek@xilinx.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20191106095033.25182-1-wsa+renesas@sang-engineering.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-PkhpIFNoaWthaSwKPgo+T24gVHVlLCBGZWIgMTksIDIwMTkgYXQgODoxOSBBTSBTaGlrYWkgV2Fu
-ZyA8c3hhdXdza0AxNjMuY29tPiB3cm90ZToKPj4KPj4gV2hlbiB0aGUgYWRhcHRlciByZWNlaXZl
-IGFyYml0cmF0aW9uIGxvc3QgZXJyb3IgaW50ZXJydXB0cywKPj4gY2Ruc19pMmNfbWFzdGVyX3hm
-ZXIgcmV0dXJuIHRvIHRoZSBjYWxsZXIgZGlyZWN0bHkgaW5zdGVhZCBvZiByZXNldHRpbmcKPj4g
-dGhlIGFkYXB0ZXIgd2hpY2ggcmVzdWx0ZWQgaW4gdGhlIGFkYXB0ZXIgYmVpbmcgb3V0IG9mIGNv
-bnRyb2wuCj4+Cj4+IFNvIHdoZW4gZHJpdmVyIGRldGVjdCBlcnJfc3RhdHVzIHN1Y2ggYXMgYXJi
-aXRyYXRpb24gbG9zdCwKPj4gdGhlbiB0cnkgdG8gcmVwYWlyIGFuZCBmaXggaXQuCj4+Cj5JIGFt
-IG1pc3NpbmcgdGhlIGlzc3VlIHRoYXQgeW91IGFyZSBmYWNpbmcuCj5Zb3UgYXJlIGhhdmluZyBh
-IG11bHRpbWFzdGVyIHNjZW5hcmlvIGFuZCBnZXR0aW5nIGFyYml0cmF0aW9uIGxvc3QuCj4KPnRo
-ZSBjdXJyZW50IGNvZGUgd291bGQgYXR0ZW1wdCBhIHJldHJ5IGRpZCB0aGF0IGxlYWQgdG8gYW55
-IGlzc3Vlcz8KPgo+Q2FuIHlvdSBleHBsYWluIHRoZSBpc3N1ZSB0aGF0IHlvdSBhcmUgZmFjaW5n
-PyAKCk9mIGNvdXJjZSwgwqBUaGUgZm9sbG93aW5nIGRlc2NyaWJlIG15IHNpdHVhdGlvbi4KCklu
-IG15IHByb2R1Y3QsIMKgVG91Y2hzY3JlZW4gY29ubmVjdCB0byB6eW5xLTcwMDAgWEM3WjAxMCBi
-eSBpMmMgYnVzKCBKdXN0IGNvbm5lY3Qgb25seSBvbmUgaTJjLWRldmljZSBvZiB0b3VjaHNjcmVl
-biksIMKgCndoZW4gdXNlciB0YXAgVG91Y2hzY3JlZW4sIFRvdWNoc2NyZWVuIGludGVycnVwdCBz
-ZW5kIHRvIENQVSBhbmQgbm90aWZ5ZWQgaTJjLWRyaXZlciB0byBvYnRhaW4gbG9jYXRpb24gZGF0
-YSBieSBpMmMtYnVzLCDCoAoKd2hlbiBUYXAgdGhlIHNjcmVlbiBmcmVxdWVudGx5LCDCoHNvbWV0
-aW1lcyBDUFUgZ2V0IGludGVycnVwdCBmcm9tIHRvdWNoc2NyZWVuIGFuZCB0cnkgdG8gb2J0YWlu
-IGRhdGEsIMKgdGhlbiBkZXRlY3QgYXJiaXRyYXRpb24gbG9zdCwKQWx0aG91Z2ggaTJjLWRyaXZl
-ciB0cnkgdGhyZWUgdGltZXMsIMKgaXQncyB1c2VsZXNzLgrCoMKgCkFjdHVhbGx5IGkyYyBjbG9j
-ay1saW5lIGFuZCBkYXRhLWxpbmUga2VlcCBoaWdoLCB0aGF0IG1lYW4gaTJjIGJ1cyBmcmVlLgpP
-bmNlIHRoaXMgc2l0dWF0aW9uIG9jY3VyLCBpMmMtY29udHJvbCBkaWQndCB3b3JrIGFueW5heSBi
-dXQgY3B1IHJlY2VpdmUgaW50ZXJycHV0cyBzdGlsbC4KCkkgYW0gc29ycnkgdGhhdCBJIGhhdmUn
-dCBmb3VuZCBhIGdvb2Qgc29sdXRpb24gZm9yIHRoaXMgaXNzdXNlOwpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcg
-bGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmlu
-ZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
+In the general move to have i2c_new_*_device functions which return
+ERR_PTR instead of NULL, this patch converts i2c_new_probed_device().
+
+There are only few users, so this patch converts the I2C core and all
+users in one go. The function gets renamed to i2c_new_scanned_device()
+so out-of-tree users will get a build failure to understand they need to
+adapt their error checking code.
+
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ Documentation/i2c/instantiating-devices.rst | 10 ++++-----
+ Documentation/i2c/writing-clients.rst       |  8 +++----
+ drivers/i2c/i2c-core-base.c                 | 25 ++++++++++++++++-----
+ include/linux/i2c.h                         | 12 +++++++---
+ 4 files changed, 37 insertions(+), 18 deletions(-)
+
+diff --git a/Documentation/i2c/instantiating-devices.rst b/Documentation/i2c/instantiating-devices.rst
+index 1238f1fa3382..875ebe9e78e3 100644
+--- a/Documentation/i2c/instantiating-devices.rst
++++ b/Documentation/i2c/instantiating-devices.rst
+@@ -123,7 +123,7 @@ present or not (for example for an optional feature which is not present
+ on cheap variants of a board but you have no way to tell them apart), or
+ it may have different addresses from one board to the next (manufacturer
+ changing its design without notice). In this case, you can call
+-i2c_new_probed_device() instead of i2c_new_device().
++i2c_new_scanned_device() instead of i2c_new_device().
+ 
+ Example (from the nxp OHCI driver)::
+ 
+@@ -139,8 +139,8 @@ Example (from the nxp OHCI driver)::
+ 	i2c_adap = i2c_get_adapter(2);
+ 	memset(&i2c_info, 0, sizeof(struct i2c_board_info));
+ 	strscpy(i2c_info.type, "isp1301_nxp", sizeof(i2c_info.type));
+-	isp1301_i2c_client = i2c_new_probed_device(i2c_adap, &i2c_info,
+-						   normal_i2c, NULL);
++	isp1301_i2c_client = i2c_new_scanned_device(i2c_adap, &i2c_info,
++						    normal_i2c, NULL);
+ 	i2c_put_adapter(i2c_adap);
+ 	(...)
+   }
+@@ -153,14 +153,14 @@ simply gives up.
+ The driver which instantiated the I2C device is responsible for destroying
+ it on cleanup. This is done by calling i2c_unregister_device() on the
+ pointer that was earlier returned by i2c_new_device() or
+-i2c_new_probed_device().
++i2c_new_scanned_device().
+ 
+ 
+ Method 3: Probe an I2C bus for certain devices
+ ----------------------------------------------
+ 
+ Sometimes you do not have enough information about an I2C device, not even
+-to call i2c_new_probed_device(). The typical case is hardware monitoring
++to call i2c_new_scanned_device(). The typical case is hardware monitoring
+ chips on PC mainboards. There are several dozen models, which can live
+ at 25 different addresses. Given the huge number of mainboards out there,
+ it is next to impossible to build an exhaustive list of the hardware
+diff --git a/Documentation/i2c/writing-clients.rst b/Documentation/i2c/writing-clients.rst
+index dddf0a14ab7c..ced309b5e0cc 100644
+--- a/Documentation/i2c/writing-clients.rst
++++ b/Documentation/i2c/writing-clients.rst
+@@ -185,14 +185,14 @@ Sometimes you know that a device is connected to a given I2C bus, but you
+ don't know the exact address it uses.  This happens on TV adapters for
+ example, where the same driver supports dozens of slightly different
+ models, and I2C device addresses change from one model to the next.  In
+-that case, you can use the i2c_new_probed_device() variant, which is
++that case, you can use the i2c_new_scanned_device() variant, which is
+ similar to i2c_new_device(), except that it takes an additional list of
+ possible I2C addresses to probe.  A device is created for the first
+ responsive address in the list.  If you expect more than one device to be
+-present in the address range, simply call i2c_new_probed_device() that
++present in the address range, simply call i2c_new_scanned_device() that
+ many times.
+ 
+-The call to i2c_new_device() or i2c_new_probed_device() typically happens
++The call to i2c_new_device() or i2c_new_scanned_device() typically happens
+ in the I2C bus driver. You may want to save the returned i2c_client
+ reference for later use.
+ 
+@@ -237,7 +237,7 @@ Device Deletion
+ ---------------
+ 
+ Each I2C device which has been created using i2c_new_device() or
+-i2c_new_probed_device() can be unregistered by calling
++i2c_new_scanned_device() can be unregistered by calling
+ i2c_unregister_device().  If you don't call it explicitly, it will be
+ called automatically before the underlying I2C bus itself is removed, as a
+ device can't survive its parent in the device driver model.
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 6a5183cffdfc..380bde2dc23e 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -2277,10 +2277,10 @@ int i2c_probe_func_quick_read(struct i2c_adapter *adap, unsigned short addr)
+ EXPORT_SYMBOL_GPL(i2c_probe_func_quick_read);
+ 
+ struct i2c_client *
+-i2c_new_probed_device(struct i2c_adapter *adap,
+-		      struct i2c_board_info *info,
+-		      unsigned short const *addr_list,
+-		      int (*probe)(struct i2c_adapter *adap, unsigned short addr))
++i2c_new_scanned_device(struct i2c_adapter *adap,
++		       struct i2c_board_info *info,
++		       unsigned short const *addr_list,
++		       int (*probe)(struct i2c_adapter *adap, unsigned short addr))
+ {
+ 	int i;
+ 
+@@ -2310,11 +2310,24 @@ i2c_new_probed_device(struct i2c_adapter *adap,
+ 
+ 	if (addr_list[i] == I2C_CLIENT_END) {
+ 		dev_dbg(&adap->dev, "Probing failed, no device found\n");
+-		return NULL;
++		return ERR_PTR(-ENODEV);
+ 	}
+ 
+ 	info->addr = addr_list[i];
+-	return i2c_new_device(adap, info);
++	return i2c_new_client_device(adap, info);
++}
++EXPORT_SYMBOL_GPL(i2c_new_scanned_device);
++
++struct i2c_client *
++i2c_new_probed_device(struct i2c_adapter *adap,
++		      struct i2c_board_info *info,
++		      unsigned short const *addr_list,
++		      int (*probe)(struct i2c_adapter *adap, unsigned short addr))
++{
++	struct i2c_client *client;
++
++	client = i2c_new_scanned_device(adap, info, addr_list, probe);
++	return IS_ERR(client) ? NULL : client;
+ }
+ EXPORT_SYMBOL_GPL(i2c_new_probed_device);
+ 
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index aaf57d9b41db..df3044513464 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -452,10 +452,16 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
+  * a default probing method is used.
+  */
+ extern struct i2c_client *
++i2c_new_scanned_device(struct i2c_adapter *adap,
++		       struct i2c_board_info *info,
++		       unsigned short const *addr_list,
++		       int (*probe)(struct i2c_adapter *adap, unsigned short addr));
++
++extern struct i2c_client *
+ i2c_new_probed_device(struct i2c_adapter *adap,
+-		      struct i2c_board_info *info,
+-		      unsigned short const *addr_list,
+-		      int (*probe)(struct i2c_adapter *adap, unsigned short addr));
++		       struct i2c_board_info *info,
++		       unsigned short const *addr_list,
++		       int (*probe)(struct i2c_adapter *adap, unsigned short addr));
+ 
+ /* Common custom probe functions */
+ extern int i2c_probe_func_quick_read(struct i2c_adapter *adap, unsigned short addr);
+-- 
+2.20.1
