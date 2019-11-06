@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [RFC PATCH 09/12] media: pci: bt8xx: convert to i2c_new_scanned_device
-Date: Wed,  6 Nov 2019 10:50:27 +0100
-Message-ID: <20191106095033.25182-10-wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH 05/12] video: fbdev: matrox: convert to i2c_new_scanned_device
+Date: Wed,  6 Nov 2019 10:50:23 +0100
+Message-ID: <20191106095033.25182-6-wsa+renesas@sang-engineering.com>
 References: <20191106095033.25182-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,7 +9,7 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20191106095033.25182-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Move from the deprecated i2c_new_probed_device() to the new
@@ -20,33 +20,23 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 Build tested only. RFC, please comment and/or ack, but don't apply yet.
 
- drivers/media/pci/bt8xx/bttv-input.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/video/fbdev/matrox/i2c-matroxfb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/pci/bt8xx/bttv-input.c b/drivers/media/pci/bt8xx/bttv-input.c
-index 492bc85c2700..41226f1d0e5b 100644
---- a/drivers/media/pci/bt8xx/bttv-input.c
-+++ b/drivers/media/pci/bt8xx/bttv-input.c
-@@ -386,7 +386,7 @@ void init_bttv_i2c_ir(struct bttv *btv)
+diff --git a/drivers/video/fbdev/matrox/i2c-matroxfb.c b/drivers/video/fbdev/matrox/i2c-matroxfb.c
+index 34e2659c3189..e2e4705e3fe0 100644
+--- a/drivers/video/fbdev/matrox/i2c-matroxfb.c
++++ b/drivers/video/fbdev/matrox/i2c-matroxfb.c
+@@ -191,8 +191,8 @@ static void* i2c_matroxfb_probe(struct matrox_fb_info* minfo) {
+ 				0x1b, I2C_CLIENT_END
+ 			};
  
- 	if (btv->init_data.name) {
- 		info.platform_data = &btv->init_data;
--		i2c_dev = i2c_new_device(&btv->c.i2c_adap, &info);
-+		i2c_dev = i2c_new_client_device(&btv->c.i2c_adap, &info);
- 	} else {
- 		/*
- 		 * The external IR receiver is at i2c address 0x34 (0x35 for
-@@ -396,9 +396,9 @@ void init_bttv_i2c_ir(struct bttv *btv)
- 		 * internal.
- 		 * That's why we probe 0x1a (~0x34) first. CB
- 		 */
--		i2c_dev = i2c_new_probed_device(&btv->c.i2c_adap, &info, addr_list, NULL);
-+		i2c_dev = i2c_new_scanned_device(&btv->c.i2c_adap, &info, addr_list, NULL);
+-			i2c_new_probed_device(&m2info->maven.adapter,
+-					      &maven_info, addr_list, NULL);
++			i2c_new_scanned_device(&m2info->maven.adapter,
++					       &maven_info, addr_list, NULL);
+ 		}
  	}
--	if (NULL == i2c_dev)
-+	if (IS_ERR(i2c_dev))
- 		return;
- 
- #if defined(CONFIG_MODULES) && defined(MODULE)
+ 	return m2info;
 -- 
 2.20.1
