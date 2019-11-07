@@ -1,40 +1,58 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 01/17] i2c: add helper to check if a client has a driver attached
-Date: Wed,  6 Nov 2019 22:21:01 +0100
-Message-ID: <20191106212120.27983-2-wsa+renesas@sang-engineering.com>
-References: <20191106212120.27983-1-wsa+renesas@sang-engineering.com>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Subject: Re: Re: [PATCH v2] i2c: cadence: try reset when master receive
+ arbitration lost
+Date: Thu, 7 Nov 2019 11:43:07 +0530
+Message-ID: <CAKfKVtH8OvA9Hku8V2CxRkX8hiouLzsEJTTDQWgBtQF8PGXyBQ@mail.gmail.com>
+References: <20190219012447.5900-1-sxauwsk@163.com> <CAKfKVtEwHcydp=+hNhG91h3qbMoYOPq7jEYjbuAVrWXT53DC3Q@mail.gmail.com>
+ <2019110516474778997625@163.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191106212120.27983-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <2019110516474778997625@163.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-media@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
+To: "sxauwsk@163.com" <sxauwsk@163.com>
+Cc: Michal Simek <michal.simek@xilinx.com>, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Factoring out something used in the media subsystem. As an improvement,
-it bails out on both, NULL and ERRPTR.
+Hi Shikai,
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- include/linux/i2c.h | 5 +++++
- 1 file changed, 5 insertions(+)
+On Tue, Nov 5, 2019 at 2:18 PM sxauwsk@163.com <sxauwsk@163.com> wrote:
+>
+> >Hi Shikai,
+> >
+> >On Tue, Feb 19, 2019 at 8:19 AM Shikai Wang <sxauwsk@163.com> wrote:
+> >>
+> >> When the adapter receive arbitration lost error interrupts,
+> >> cdns_i2c_master_xfer return to the caller directly instead of resetting
+> >> the adapter which resulted in the adapter being out of control.
+> >>
+> >> So when driver detect err_status such as arbitration lost,
+> >> then try to repair and fix it.
+> >>
+> >I am missing the issue that you are facing.
+> >You are having a multimaster scenario and getting arbitration lost.
+> >
+> >the current code would attempt a retry did that lead to any issues?
+> >
+> >Can you explain the issue that you are facing?
+>
+> Of cource,  The following describe my situation.
+>
+> In my product,  Touchscreen connect to zynq-7000 XC7Z010 by i2c bus( Just connect only one i2c-device of touchscreen),
+> when user tap Touchscreen, Touchscreen interrupt send to CPU and notifyed i2c-driver to obtain location data by i2c-bus,
 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index aaf57d9b41db..93b315c9a062 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -850,6 +850,11 @@ extern void i2c_del_driver(struct i2c_driver *driver);
- #define i2c_add_driver(driver) \
- 	i2c_register_driver(THIS_MODULE, driver)
- 
-+static inline bool i2c_client_has_driver(struct i2c_client *client)
-+{
-+	return !IS_ERR_OR_NULL(client) && client->dev.driver;
-+}
-+
- extern struct i2c_client *i2c_use_client(struct i2c_client *client);
- extern void i2c_release_client(struct i2c_client *client);
- 
--- 
-2.20.1
+So it is single master single slave.
+>
+> when Tap the screen frequently,  sometimes CPU get interrupt from touchscreen and try to obtain data,  then detect arbitration lost,
+the arbitration lost is surprising in non-multimaster scenario.
+Is there any other master in the configuration that we may not be triggering.
+Or can  you probe the lines?
+
+> Although i2c-driver try three times,  it's useless.
+
+You get bus busy? what is the issue.
+>
+> Actually i2c clock-line and data-line keep high, that mean i2c bus free.
+> Once this situation occur, i2c-control did't work anynay but cpu receive interrputs still.
+>
+> I am sorry that I have't found a good solution for this issuse;
