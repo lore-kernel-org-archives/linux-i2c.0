@@ -1,39 +1,179 @@
-From: Patrice CHOTARD <patrice.chotard@st.com>
-Subject: Re: [PATCH 10/17] media: platform: sti: c8sectpfe: c8sectpfe-dvb:
- convert to use i2c_new_client_device()
-Date: Thu, 7 Nov 2019 09:59:17 +0000
-Message-ID: <e4fd1be9-9406-7701-9864-56981d486f6f@st.com>
-References: <20191106212120.27983-1-wsa+renesas@sang-engineering.com>
- <20191106212120.27983-11-wsa+renesas@sang-engineering.com>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: Re: [RFC PATCH 01/12] i2c: replace i2c_new_probed_device with an
+ ERR_PTR variant
+Date: Thu, 7 Nov 2019 18:31:50 +0100
+Message-ID: <cd25c799-bb10-aa59-8705-b079eff2165e@lucaceresoli.net>
+References: <20191106095033.25182-1-wsa+renesas@sang-engineering.com>
+ <20191106095033.25182-2-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191106212120.27983-11-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20191106095033.25182-2-wsa+renesas@sang-engineering.com>
 Content-Language: en-US
-Content-ID: <CB0A9BA7A9BF554983B74248C1130533@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-SGkNCg0KT24gMTEvNi8xOSAxMDoyMSBQTSwgV29sZnJhbSBTYW5nIHdyb3RlOg0KPiBVc2UgdGhl
-IG5ld2VyIEFQSSByZXR1cm5pbmcgYW4gRVJSUFRSIGFuZCB1c2UgdGhlIG5ldyBoZWxwZXIgdG8g
-YmFpbA0KPiBvdXQuDQo+DQo+IFNpZ25lZC1vZmYtYnk6IFdvbGZyYW0gU2FuZyA8d3NhK3JlbmVz
-YXNAc2FuZy1lbmdpbmVlcmluZy5jb20+DQo+IC0tLQ0KPiAgZHJpdmVycy9tZWRpYS9wbGF0Zm9y
-bS9zdGkvYzhzZWN0cGZlL2M4c2VjdHBmZS1kdmIuYyB8IDQgKystLQ0KPiAgMSBmaWxlIGNoYW5n
-ZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkNCj4NCj4gZGlmZiAtLWdpdCBhL2Ry
-aXZlcnMvbWVkaWEvcGxhdGZvcm0vc3RpL2M4c2VjdHBmZS9jOHNlY3RwZmUtZHZiLmMgYi9kcml2
-ZXJzL21lZGlhL3BsYXRmb3JtL3N0aS9jOHNlY3RwZmUvYzhzZWN0cGZlLWR2Yi5jDQo+IGluZGV4
-IGE3OTI1MGE3ZjgxMi4uMTAzODcyMjY2NTY1IDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL21lZGlh
-L3BsYXRmb3JtL3N0aS9jOHNlY3RwZmUvYzhzZWN0cGZlLWR2Yi5jDQo+ICsrKyBiL2RyaXZlcnMv
-bWVkaWEvcGxhdGZvcm0vc3RpL2M4c2VjdHBmZS9jOHNlY3RwZmUtZHZiLmMNCj4gQEAgLTE3MCw4
-ICsxNzAsOCBAQCBpbnQgYzhzZWN0cGZlX2Zyb250ZW5kX2F0dGFjaChzdHJ1Y3QgZHZiX2Zyb250
-ZW5kICoqZmUsDQo+ICANCj4gIAkJLyogYXR0YWNoIHR1bmVyICovDQo+ICAJCXJlcXVlc3RfbW9k
-dWxlKCJ0ZGExODIxMiIpOw0KPiAtCQljbGllbnQgPSBpMmNfbmV3X2RldmljZSh0c2luLT5pMmNf
-YWRhcHRlciwgJnRkYTE4MjEyX2luZm8pOw0KPiAtCQlpZiAoIWNsaWVudCB8fCAhY2xpZW50LT5k
-ZXYuZHJpdmVyKSB7DQo+ICsJCWNsaWVudCA9IGkyY19uZXdfY2xpZW50X2RldmljZSh0c2luLT5p
-MmNfYWRhcHRlciwgJnRkYTE4MjEyX2luZm8pOw0KPiArCQlpZiAoIWkyY19jbGllbnRfaGFzX2Ry
-aXZlcihjbGllbnQpKSB7DQo+ICAJCQlkdmJfZnJvbnRlbmRfZGV0YWNoKCpmZSk7DQo+ICAJCQly
-ZXR1cm4gLUVOT0RFVjsNCj4gIAkJfQ0KDQpSZXZpZXdlZC1ieTogUGF0cmljZSBDaG90YXJkIDxw
-YXRyaWNlLmNob3RhcmRAc3QuY29tPg0KDQoNClRoYW5rcw0K
+Hi Wolfram,
+
+On 06/11/19 10:50, Wolfram Sang wrote:
+> In the general move to have i2c_new_*_device functions which return
+> ERR_PTR instead of NULL, this patch converts i2c_new_probed_device().
+> 
+> There are only few users, so this patch converts the I2C core and all
+> users in one go. The function gets renamed to i2c_new_scanned_device()
+> so out-of-tree users will get a build failure to understand they need to
+> adapt their error checking code.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  Documentation/i2c/instantiating-devices.rst | 10 ++++-----
+>  Documentation/i2c/writing-clients.rst       |  8 +++----
+>  drivers/i2c/i2c-core-base.c                 | 25 ++++++++++++++++-----
+>  include/linux/i2c.h                         | 12 +++++++---
+>  4 files changed, 37 insertions(+), 18 deletions(-)
+> 
+> diff --git a/Documentation/i2c/instantiating-devices.rst b/Documentation/i2c/instantiating-devices.rst
+> index 1238f1fa3382..875ebe9e78e3 100644
+> --- a/Documentation/i2c/instantiating-devices.rst
+> +++ b/Documentation/i2c/instantiating-devices.rst
+> @@ -123,7 +123,7 @@ present or not (for example for an optional feature which is not present
+>  on cheap variants of a board but you have no way to tell them apart), or
+>  it may have different addresses from one board to the next (manufacturer
+>  changing its design without notice). In this case, you can call
+> -i2c_new_probed_device() instead of i2c_new_device().
+> +i2c_new_scanned_device() instead of i2c_new_device().
+>  
+>  Example (from the nxp OHCI driver)::
+>  
+> @@ -139,8 +139,8 @@ Example (from the nxp OHCI driver)::
+>  	i2c_adap = i2c_get_adapter(2);
+>  	memset(&i2c_info, 0, sizeof(struct i2c_board_info));
+>  	strscpy(i2c_info.type, "isp1301_nxp", sizeof(i2c_info.type));
+> -	isp1301_i2c_client = i2c_new_probed_device(i2c_adap, &i2c_info,
+> -						   normal_i2c, NULL);
+> +	isp1301_i2c_client = i2c_new_scanned_device(i2c_adap, &i2c_info,
+> +						    normal_i2c, NULL);
+>  	i2c_put_adapter(i2c_adap);
+>  	(...)
+>    }
+> @@ -153,14 +153,14 @@ simply gives up.
+>  The driver which instantiated the I2C device is responsible for destroying
+>  it on cleanup. This is done by calling i2c_unregister_device() on the
+>  pointer that was earlier returned by i2c_new_device() or
+> -i2c_new_probed_device().
+> +i2c_new_scanned_device().
+>  
+>  
+>  Method 3: Probe an I2C bus for certain devices
+>  ----------------------------------------------
+>  
+>  Sometimes you do not have enough information about an I2C device, not even
+> -to call i2c_new_probed_device(). The typical case is hardware monitoring
+> +to call i2c_new_scanned_device(). The typical case is hardware monitoring
+>  chips on PC mainboards. There are several dozen models, which can live
+>  at 25 different addresses. Given the huge number of mainboards out there,
+>  it is next to impossible to build an exhaustive list of the hardware
+> diff --git a/Documentation/i2c/writing-clients.rst b/Documentation/i2c/writing-clients.rst
+> index dddf0a14ab7c..ced309b5e0cc 100644
+> --- a/Documentation/i2c/writing-clients.rst
+> +++ b/Documentation/i2c/writing-clients.rst
+> @@ -185,14 +185,14 @@ Sometimes you know that a device is connected to a given I2C bus, but you
+>  don't know the exact address it uses.  This happens on TV adapters for
+>  example, where the same driver supports dozens of slightly different
+>  models, and I2C device addresses change from one model to the next.  In
+> -that case, you can use the i2c_new_probed_device() variant, which is
+> +that case, you can use the i2c_new_scanned_device() variant, which is
+>  similar to i2c_new_device(), except that it takes an additional list of
+>  possible I2C addresses to probe.  A device is created for the first
+>  responsive address in the list.  If you expect more than one device to be
+> -present in the address range, simply call i2c_new_probed_device() that
+> +present in the address range, simply call i2c_new_scanned_device() that
+>  many times.
+>  
+> -The call to i2c_new_device() or i2c_new_probed_device() typically happens
+> +The call to i2c_new_device() or i2c_new_scanned_device() typically happens
+>  in the I2C bus driver. You may want to save the returned i2c_client
+>  reference for later use.
+>  
+> @@ -237,7 +237,7 @@ Device Deletion
+>  ---------------
+>  
+>  Each I2C device which has been created using i2c_new_device() or
+> -i2c_new_probed_device() can be unregistered by calling
+> +i2c_new_scanned_device() can be unregistered by calling
+>  i2c_unregister_device().  If you don't call it explicitly, it will be
+>  called automatically before the underlying I2C bus itself is removed, as a
+>  device can't survive its parent in the device driver model.
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index 6a5183cffdfc..380bde2dc23e 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -2277,10 +2277,10 @@ int i2c_probe_func_quick_read(struct i2c_adapter *adap, unsigned short addr)
+>  EXPORT_SYMBOL_GPL(i2c_probe_func_quick_read);
+>  
+>  struct i2c_client *
+> -i2c_new_probed_device(struct i2c_adapter *adap,
+> -		      struct i2c_board_info *info,
+> -		      unsigned short const *addr_list,
+> -		      int (*probe)(struct i2c_adapter *adap, unsigned short addr))
+> +i2c_new_scanned_device(struct i2c_adapter *adap,
+> +		       struct i2c_board_info *info,
+> +		       unsigned short const *addr_list,
+> +		       int (*probe)(struct i2c_adapter *adap, unsigned short addr))
+>  {
+>  	int i;
+>  
+> @@ -2310,11 +2310,24 @@ i2c_new_probed_device(struct i2c_adapter *adap,
+>  
+>  	if (addr_list[i] == I2C_CLIENT_END) {
+>  		dev_dbg(&adap->dev, "Probing failed, no device found\n");
+> -		return NULL;
+> +		return ERR_PTR(-ENODEV);
+>  	}
+>  
+>  	info->addr = addr_list[i];
+> -	return i2c_new_device(adap, info);
+> +	return i2c_new_client_device(adap, info);
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_new_scanned_device);
+> +
+> +struct i2c_client *
+> +i2c_new_probed_device(struct i2c_adapter *adap,
+> +		      struct i2c_board_info *info,
+> +		      unsigned short const *addr_list,
+> +		      int (*probe)(struct i2c_adapter *adap, unsigned short addr))
+> +{
+> +	struct i2c_client *client;
+> +
+> +	client = i2c_new_scanned_device(adap, info, addr_list, probe);
+> +	return IS_ERR(client) ? NULL : client;
+>  }
+>  EXPORT_SYMBOL_GPL(i2c_new_probed_device);
+>  
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index aaf57d9b41db..df3044513464 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -452,10 +452,16 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
+>   * a default probing method is used.
+>   */
+>  extern struct i2c_client *
+> +i2c_new_scanned_device(struct i2c_adapter *adap,
+> +		       struct i2c_board_info *info,
+> +		       unsigned short const *addr_list,
+> +		       int (*probe)(struct i2c_adapter *adap, unsigned short addr));
+> +
+> +extern struct i2c_client *
+
+I beg your pardon for the newbie question, perhaps a stupid one, kind of
+nitpicking, and not even strictly related to this patch, but what's the
+reason for these functions being declared extern?
+
+For the rest LGTM, I did some grep checks before/after the patchset, ran
+some build tests, and everything looks fine.
+
+-- 
+Luca
