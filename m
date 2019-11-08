@@ -1,150 +1,63 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 095/205] i2c: mediatek: Use DMA safe buffers for i2c transactions
-Date: Fri,  8 Nov 2019 06:36:02 -0500
-Message-ID: <20191108113752.12502-95-sashal@kernel.org>
-References: <20191108113752.12502-1-sashal@kernel.org>
+From: "sxauwsk@163.com" <sxauwsk@163.com>
+Subject: Re: Re: [PATCH v2] i2c: cadence: try reset when master receive
+ arbitration lost
+Date: Fri, 8 Nov 2019 20:25:41 +0800
+Message-ID: <201911082025396282138@163.com>
+References: <20190219012447.5900-1-sxauwsk@163.com>,
+ <CAKfKVtEwHcydp=+hNhG91h3qbMoYOPq7jEYjbuAVrWXT53DC3Q@mail.gmail.com>,
+ <2019110516474778997625@163.com>,
+ <CAKfKVtH8OvA9Hku8V2CxRkX8hiouLzsEJTTDQWgBtQF8PGXyBQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Jun Gao <jun.gao@mediatek.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, linux-kernel <linux-kernel@vger.kernel.org>, Michal Simek <michal.simek@xilinx.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jun Gao <jun.gao@mediatek.com>
-
-[ Upstream commit fc66b39fe36acfd06f716e338de7cd8f9550fad2 ]
-
-DMA mode will always be used in i2c transactions, try to allocate
-a DMA safe buffer if the buf of struct i2c_msg used is not DMA safe.
-
-Signed-off-by: Jun Gao <jun.gao@mediatek.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/busses/i2c-mt65xx.c | 62 +++++++++++++++++++++++++++++----
- 1 file changed, 55 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 1e57f58fcb001..a74ef76705e0c 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -441,6 +441,8 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 	u16 control_reg;
- 	u16 restart_flag = 0;
- 	u32 reg_4g_mode;
-+	u8 *dma_rd_buf = NULL;
-+	u8 *dma_wr_buf = NULL;
- 	dma_addr_t rpaddr = 0;
- 	dma_addr_t wpaddr = 0;
- 	int ret;
-@@ -500,10 +502,18 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 	if (i2c->op == I2C_MASTER_RD) {
- 		writel(I2C_DMA_INT_FLAG_NONE, i2c->pdmabase + OFFSET_INT_FLAG);
- 		writel(I2C_DMA_CON_RX, i2c->pdmabase + OFFSET_CON);
--		rpaddr = dma_map_single(i2c->dev, msgs->buf,
-+
-+		dma_rd_buf = i2c_get_dma_safe_msg_buf(msgs, 0);
-+		if (!dma_rd_buf)
-+			return -ENOMEM;
-+
-+		rpaddr = dma_map_single(i2c->dev, dma_rd_buf,
- 					msgs->len, DMA_FROM_DEVICE);
--		if (dma_mapping_error(i2c->dev, rpaddr))
-+		if (dma_mapping_error(i2c->dev, rpaddr)) {
-+			i2c_put_dma_safe_msg_buf(dma_rd_buf, msgs, false);
-+
- 			return -ENOMEM;
-+		}
- 
- 		if (i2c->dev_comp->support_33bits) {
- 			reg_4g_mode = mtk_i2c_set_4g_mode(rpaddr);
-@@ -515,10 +525,18 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 	} else if (i2c->op == I2C_MASTER_WR) {
- 		writel(I2C_DMA_INT_FLAG_NONE, i2c->pdmabase + OFFSET_INT_FLAG);
- 		writel(I2C_DMA_CON_TX, i2c->pdmabase + OFFSET_CON);
--		wpaddr = dma_map_single(i2c->dev, msgs->buf,
-+
-+		dma_wr_buf = i2c_get_dma_safe_msg_buf(msgs, 0);
-+		if (!dma_wr_buf)
-+			return -ENOMEM;
-+
-+		wpaddr = dma_map_single(i2c->dev, dma_wr_buf,
- 					msgs->len, DMA_TO_DEVICE);
--		if (dma_mapping_error(i2c->dev, wpaddr))
-+		if (dma_mapping_error(i2c->dev, wpaddr)) {
-+			i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, false);
-+
- 			return -ENOMEM;
-+		}
- 
- 		if (i2c->dev_comp->support_33bits) {
- 			reg_4g_mode = mtk_i2c_set_4g_mode(wpaddr);
-@@ -530,16 +548,39 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 	} else {
- 		writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_INT_FLAG);
- 		writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_CON);
--		wpaddr = dma_map_single(i2c->dev, msgs->buf,
-+
-+		dma_wr_buf = i2c_get_dma_safe_msg_buf(msgs, 0);
-+		if (!dma_wr_buf)
-+			return -ENOMEM;
-+
-+		wpaddr = dma_map_single(i2c->dev, dma_wr_buf,
- 					msgs->len, DMA_TO_DEVICE);
--		if (dma_mapping_error(i2c->dev, wpaddr))
-+		if (dma_mapping_error(i2c->dev, wpaddr)) {
-+			i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, false);
-+
- 			return -ENOMEM;
--		rpaddr = dma_map_single(i2c->dev, (msgs + 1)->buf,
-+		}
-+
-+		dma_rd_buf = i2c_get_dma_safe_msg_buf((msgs + 1), 0);
-+		if (!dma_rd_buf) {
-+			dma_unmap_single(i2c->dev, wpaddr,
-+					 msgs->len, DMA_TO_DEVICE);
-+
-+			i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, false);
-+
-+			return -ENOMEM;
-+		}
-+
-+		rpaddr = dma_map_single(i2c->dev, dma_rd_buf,
- 					(msgs + 1)->len,
- 					DMA_FROM_DEVICE);
- 		if (dma_mapping_error(i2c->dev, rpaddr)) {
- 			dma_unmap_single(i2c->dev, wpaddr,
- 					 msgs->len, DMA_TO_DEVICE);
-+
-+			i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, false);
-+			i2c_put_dma_safe_msg_buf(dma_rd_buf, (msgs + 1), false);
-+
- 			return -ENOMEM;
- 		}
- 
-@@ -578,14 +619,21 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 	if (i2c->op == I2C_MASTER_WR) {
- 		dma_unmap_single(i2c->dev, wpaddr,
- 				 msgs->len, DMA_TO_DEVICE);
-+
-+		i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, true);
- 	} else if (i2c->op == I2C_MASTER_RD) {
- 		dma_unmap_single(i2c->dev, rpaddr,
- 				 msgs->len, DMA_FROM_DEVICE);
-+
-+		i2c_put_dma_safe_msg_buf(dma_rd_buf, msgs, true);
- 	} else {
- 		dma_unmap_single(i2c->dev, wpaddr, msgs->len,
- 				 DMA_TO_DEVICE);
- 		dma_unmap_single(i2c->dev, rpaddr, (msgs + 1)->len,
- 				 DMA_FROM_DEVICE);
-+
-+		i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, true);
-+		i2c_put_dma_safe_msg_buf(dma_rd_buf, (msgs + 1), true);
- 	}
- 
- 	if (ret == 0) {
--- 
-2.20.1
+PkhpIFNoaWthaSwKPgo+T24gVHVlLCBOb3YgNSwgMjAxOSBhdCAyOjE4IFBNIHN4YXV3c2tAMTYz
+LmNvbSA8c3hhdXdza0AxNjMuY29tPiB3cm90ZToKPj4KPj4gPkhpIFNoaWthaSwKPj4gPgo+PiA+
+T24gVHVlLCBGZWIgMTksIDIwMTkgYXQgODoxOSBBTSBTaGlrYWkgV2FuZyA8c3hhdXdza0AxNjMu
+Y29tPiB3cm90ZToKPj4gPj4KPj4gPj4gV2hlbiB0aGUgYWRhcHRlciByZWNlaXZlIGFyYml0cmF0
+aW9uIGxvc3QgZXJyb3IgaW50ZXJydXB0cywKPj4gPj4gY2Ruc19pMmNfbWFzdGVyX3hmZXIgcmV0
+dXJuIHRvIHRoZSBjYWxsZXIgZGlyZWN0bHkgaW5zdGVhZCBvZiByZXNldHRpbmcKPj4gPj4gdGhl
+IGFkYXB0ZXIgd2hpY2ggcmVzdWx0ZWQgaW4gdGhlIGFkYXB0ZXIgYmVpbmcgb3V0IG9mIGNvbnRy
+b2wuCj4+ID4+Cj4+ID4+IFNvIHdoZW4gZHJpdmVyIGRldGVjdCBlcnJfc3RhdHVzIHN1Y2ggYXMg
+YXJiaXRyYXRpb24gbG9zdCwKPj4gPj4gdGhlbiB0cnkgdG8gcmVwYWlyIGFuZCBmaXggaXQuCj4+
+ID4+Cj4+ID5JIGFtIG1pc3NpbmcgdGhlIGlzc3VlIHRoYXQgeW91IGFyZSBmYWNpbmcuCj4+ID5Z
+b3UgYXJlIGhhdmluZyBhIG11bHRpbWFzdGVyIHNjZW5hcmlvIGFuZCBnZXR0aW5nIGFyYml0cmF0
+aW9uIGxvc3QuCj4+ID4KPj4gPnRoZSBjdXJyZW50IGNvZGUgd291bGQgYXR0ZW1wdCBhIHJldHJ5
+IGRpZCB0aGF0IGxlYWQgdG8gYW55IGlzc3Vlcz8KPj4gPgo+PiA+Q2FuIHlvdSBleHBsYWluIHRo
+ZSBpc3N1ZSB0aGF0IHlvdSBhcmUgZmFjaW5nPwo+Pgo+PiBPZiBjb3VyY2UswqAgVGhlIGZvbGxv
+d2luZyBkZXNjcmliZSBteSBzaXR1YXRpb24uCj4+Cj4+IEluIG15IHByb2R1Y3QswqAgVG91Y2hz
+Y3JlZW4gY29ubmVjdCB0byB6eW5xLTcwMDAgWEM3WjAxMCBieSBpMmMgYnVzKCBKdXN0IGNvbm5l
+Y3Qgb25seSBvbmUgaTJjLWRldmljZSBvZiB0b3VjaHNjcmVlbiksCj4+IHdoZW4gdXNlciB0YXAg
+VG91Y2hzY3JlZW4sIFRvdWNoc2NyZWVuIGludGVycnVwdCBzZW5kIHRvIENQVSBhbmQgbm90aWZ5
+ZWQgaTJjLWRyaXZlciB0byBvYnRhaW4gbG9jYXRpb24gZGF0YSBieSBpMmMtYnVzLAo+Cj5TbyBp
+dCBpcyBzaW5nbGUgbWFzdGVyIHNpbmdsZSBzbGF2ZS4KPj4KPj4gd2hlbiBUYXAgdGhlIHNjcmVl
+biBmcmVxdWVudGx5LMKgIHNvbWV0aW1lcyBDUFUgZ2V0IGludGVycnVwdCBmcm9tIHRvdWNoc2Ny
+ZWVuIGFuZCB0cnkgdG8gb2J0YWluIGRhdGEswqAgdGhlbiBkZXRlY3QgYXJiaXRyYXRpb24gbG9z
+dCwKPnRoZSBhcmJpdHJhdGlvbiBsb3N0IGlzIHN1cnByaXNpbmcgaW4gbm9uLW11bHRpbWFzdGVy
+IHNjZW5hcmlvLgo+SXMgdGhlcmUgYW55IG90aGVyIG1hc3RlciBpbiB0aGUgY29uZmlndXJhdGlv
+biB0aGF0IHdlIG1heSBub3QgYmUgdHJpZ2dlcmluZy4KPk9yIGNhbsKgIHlvdSBwcm9iZSB0aGUg
+bGluZXM/Cj4KPj4gQWx0aG91Z2ggaTJjLWRyaXZlciB0cnkgdGhyZWUgdGltZXMswqAgaXQncyB1
+c2VsZXNzLgo+Cj5Zb3UgZ2V0IGJ1cyBidXN5PyB3aGF0IGlzIHRoZSBpc3N1ZS4KPj4KPj4gQWN0
+dWFsbHkgaTJjIGNsb2NrLWxpbmUgYW5kIGRhdGEtbGluZSBrZWVwIGhpZ2gsIHRoYXQgbWVhbiBp
+MmMgYnVzIGZyZWUuCj4+IE9uY2UgdGhpcyBzaXR1YXRpb24gb2NjdXIsIGkyYy1jb250cm9sIGRp
+ZCd0IHdvcmsgYW55bmF5IGJ1dCBjcHUgcmVjZWl2ZSBpbnRlcnJwdXRzIHN0aWxsLgo+Pgo+PiBJ
+IGFtIHNvcnJ5IHRoYXQgSSBoYXZlJ3QgZm91bmQgYSBnb29kIHNvbHV0aW9uIGZvciB0aGlzIGlz
+c3VzZTsgCgpZZXMsIMKgSSBjYW4ndCBiZWxpZXZlIHRoYXQsIMKgTWF5YmUgY2F1c2VkIGJ5IHRo
+ZSBoYXJkd2FyZSBlbnZpcm9ubWVudCBvciBhbnkgb3RoZXIgd2VsbC4KQWRkaXRpb25hbGx5IEkg
+aGF2ZSd0IMKgcHJvYmUgdGhpcyBpc3N1ZSByZWNlbnRseS7CoApfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlz
+dApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJh
+ZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
