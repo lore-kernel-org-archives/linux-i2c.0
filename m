@@ -1,42 +1,46 @@
-From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: Re: [RFC PATCH 01/12] i2c: replace i2c_new_probed_device with an
- ERR_PTR variant
-Date: Fri, 8 Nov 2019 09:01:40 +0100
-Message-ID: <9a7efd33-8a7e-1e2e-11f8-64c2ab900a4c@lucaceresoli.net>
-References: <20191106095033.25182-1-wsa+renesas@sang-engineering.com>
- <20191106095033.25182-2-wsa+renesas@sang-engineering.com>
- <cd25c799-bb10-aa59-8705-b079eff2165e@lucaceresoli.net>
- <20191107192236.GA961@kunai>
+From: Wen Yang <wenyang@linux.alibaba.com>
+Subject: [PATCH] i2c: core: fix use after free in of_i2c_notify
+Date: Fri,  8 Nov 2019 16:36:48 +0800
+Message-ID: <20191108083648.56503-1-wenyang@linux.alibaba.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191107192236.GA961@kunai>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: wsa@the-dreams.de
+Cc: zhiche.yy@alibaba-inc.com, xlpang@linux.alibaba.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+We can't use "adap" after it has been freed.
 
-On 07/11/19 20:22, Wolfram Sang wrote:
-> Hi Luca,
-> 
->> I beg your pardon for the newbie question, perhaps a stupid one, kind of
->> nitpicking, and not even strictly related to this patch, but what's the
->> reason for these functions being declared extern?
-> 
-> I did this for consistency reasons. I agree that the 'extern' keyword
-> could need some second thought, yet I think that should be a seperate
-> patchset. And that does not have priority for me, so if someone is
-> interested... :)
+Fixes: 5bf4fa7daea6 ("i2c: break out OF support into separate file")
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
+ drivers/i2c/i2c-core-of.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Ok, got it!
-
-And then:
-Reviewed-by: Luca Ceresoli <luca@lucaceresoli.net>
-
-Bye,
+diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
+index 6f632d54..7eb4199 100644
+--- a/drivers/i2c/i2c-core-of.c
++++ b/drivers/i2c/i2c-core-of.c
+@@ -245,14 +245,14 @@ static int of_i2c_notify(struct notifier_block *nb, unsigned long action,
+ 		}
+ 
+ 		client = of_i2c_register_device(adap, rd->dn);
+-		put_device(&adap->dev);
+-
+ 		if (IS_ERR(client)) {
+ 			dev_err(&adap->dev, "failed to create client for '%pOF'\n",
+ 				 rd->dn);
++			put_device(&adap->dev);
+ 			of_node_clear_flag(rd->dn, OF_POPULATED);
+ 			return notifier_from_errno(PTR_ERR(client));
+ 		}
++		put_device(&adap->dev);
+ 		break;
+ 	case OF_RECONFIG_CHANGE_REMOVE:
+ 		/* already depopulated? */
 -- 
-Luca
+1.8.3.1
