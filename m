@@ -1,34 +1,83 @@
-From: Chuhong Yuan <hslester96@gmail.com>
-Subject: [PATCH] i2c: ismt: Add missed pci_release_region
-Date: Sat,  9 Nov 2019 15:54:35 +0800
-Message-ID: <20191109075435.29871-1-hslester96@gmail.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH] i2c: remove helpers for ref-counting clients
+Date: Sat,  9 Nov 2019 22:26:15 +0100
+Message-ID: <20191109212615.9254-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-i2c@vger.kernel.org
 
-ismt_remove forgets to call pci_release_region when remove.
-Add the call to fix it.
+There are no in-tree users of these helpers anymore, and there
+shouldn't. Most use cases went away once the driver model started to
+refcount for us. There have been users like the media subsystem, but
+they all switched to better refcounting methods meanwhile. Media did
+this in 2008. Last user (IPMI) left 2018. Remove this cruft.
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-ismt.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/i2c-core-base.c | 32 --------------------------------
+ include/linux/i2c.h         |  3 ---
+ 2 files changed, 35 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-index 2f95e25a10f7..c393e629cac3 100644
---- a/drivers/i2c/busses/i2c-ismt.c
-+++ b/drivers/i2c/busses/i2c-ismt.c
-@@ -943,6 +943,8 @@ static void ismt_remove(struct pci_dev *pdev)
- 	struct ismt_priv *priv = pci_get_drvdata(pdev);
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 9c55d24c7a30..5a44a92ed1fb 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1743,38 +1743,6 @@ EXPORT_SYMBOL(i2c_del_driver);
  
- 	i2c_del_adapter(&priv->adapter);
-+
-+	pci_release_region(pdev, SMBBAR);
+ /* ------------------------------------------------------------------------- */
+ 
+-/**
+- * i2c_use_client - increments the reference count of the i2c client structure
+- * @client: the client being referenced
+- *
+- * Each live reference to a client should be refcounted. The driver model does
+- * that automatically as part of driver binding, so that most drivers don't
+- * need to do this explicitly: they hold a reference until they're unbound
+- * from the device.
+- *
+- * A pointer to the client with the incremented reference counter is returned.
+- */
+-struct i2c_client *i2c_use_client(struct i2c_client *client)
+-{
+-	if (client && get_device(&client->dev))
+-		return client;
+-	return NULL;
+-}
+-EXPORT_SYMBOL(i2c_use_client);
+-
+-/**
+- * i2c_release_client - release a use of the i2c client structure
+- * @client: the client being no longer referenced
+- *
+- * Must be called when a user of a client is finished with it.
+- */
+-void i2c_release_client(struct i2c_client *client)
+-{
+-	if (client)
+-		put_device(&client->dev);
+-}
+-EXPORT_SYMBOL(i2c_release_client);
+-
+ struct i2c_cmd_arg {
+ 	unsigned	cmd;
+ 	void		*arg;
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 8f512b992acd..23583f76c6dc 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -861,9 +861,6 @@ static inline bool i2c_client_has_driver(struct i2c_client *client)
+ 	return !IS_ERR_OR_NULL(client) && client->dev.driver;
  }
  
- static struct pci_driver ismt_driver = {
+-extern struct i2c_client *i2c_use_client(struct i2c_client *client);
+-extern void i2c_release_client(struct i2c_client *client);
+-
+ /* call the i2c_client->command() of all attached clients with
+  * the given arguments */
+ extern void i2c_clients_command(struct i2c_adapter *adap,
 -- 
-2.23.0
+2.20.1
