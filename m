@@ -1,174 +1,107 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 056/109] i2c: aspeed: fix invalid clock parameters for very large divisors
-Date: Sat,  9 Nov 2019 21:44:48 -0500
-Message-ID: <20191110024541.31567-56-sashal@kernel.org>
-References: <20191110024541.31567-1-sashal@kernel.org>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH] iio: adc: max9611: Defer probe on POR read
+Date: Sun, 10 Nov 2019 17:15:26 +0000
+Message-ID: <20191110171526.2bd269a9@archlinux>
+References: <20191016102520.124370-1-jacopo+renesas@jmondi.org>
+        <CAMuHMdUH0LrZ6iEuN1aWCTt_-jpgp=EjxubMAVdp11HLL=ayyQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191110024541.31567-1-sashal@kernel.org>
+In-Reply-To: <CAMuHMdUH0LrZ6iEuN1aWCTt_-jpgp=EjxubMAVdp11HLL=ayyQ@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Brendan Higgins <brendanhiggins@google.com>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Jacopo Mondi <jacopo+renesas@jmondi.org>, linux-iio@vger.kernel.org, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux I2C <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Brendan Higgins <brendanhiggins@google.com>
 
-[ Upstream commit 17ccba67109cd0631f206cf49e17986218b47854 ]
+On Thu, 17 Oct 2019 14:55:58 +0200
+Geert Uytterhoeven <geert@linux-m68k.org> wrote:
 
-The function that computes clock parameters from divisors did not
-respect the maximum size of the bitfields that the parameters were
-written to. This fixes the bug.
+> Hi Jacopo,
+> 
+> CC i2c
 
-This bug can be reproduced with (and this fix verified with) the test
-at: https://kunit-review.googlesource.com/c/linux/+/1035/
+Ping. Wolfram, a query in here for you.
 
-Discovered-by-KUnit: https://kunit-review.googlesource.com/c/linux/+/1035/
-Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
-Reviewed-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/busses/i2c-aspeed.c | 65 +++++++++++++++++++++++----------
- 1 file changed, 45 insertions(+), 20 deletions(-)
+Thanks,
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index a074735456bc7..29574b9075fd7 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -135,7 +135,8 @@ struct aspeed_i2c_bus {
- 	/* Synchronizes I/O mem access to base. */
- 	spinlock_t			lock;
- 	struct completion		cmd_complete;
--	u32				(*get_clk_reg_val)(u32 divisor);
-+	u32				(*get_clk_reg_val)(struct device *dev,
-+							   u32 divisor);
- 	unsigned long			parent_clk_frequency;
- 	u32				bus_frequency;
- 	/* Transaction state. */
-@@ -679,16 +680,27 @@ static const struct i2c_algorithm aspeed_i2c_algo = {
- #endif /* CONFIG_I2C_SLAVE */
- };
- 
--static u32 aspeed_i2c_get_clk_reg_val(u32 clk_high_low_max, u32 divisor)
-+static u32 aspeed_i2c_get_clk_reg_val(struct device *dev,
-+				      u32 clk_high_low_mask,
-+				      u32 divisor)
- {
--	u32 base_clk, clk_high, clk_low, tmp;
-+	u32 base_clk_divisor, clk_high_low_max, clk_high, clk_low, tmp;
-+
-+	/*
-+	 * SCL_high and SCL_low represent a value 1 greater than what is stored
-+	 * since a zero divider is meaningless. Thus, the max value each can
-+	 * store is every bit set + 1. Since SCL_high and SCL_low are added
-+	 * together (see below), the max value of both is the max value of one
-+	 * them times two.
-+	 */
-+	clk_high_low_max = (clk_high_low_mask + 1) * 2;
- 
- 	/*
- 	 * The actual clock frequency of SCL is:
- 	 *	SCL_freq = APB_freq / (base_freq * (SCL_high + SCL_low))
- 	 *		 = APB_freq / divisor
- 	 * where base_freq is a programmable clock divider; its value is
--	 *	base_freq = 1 << base_clk
-+	 *	base_freq = 1 << base_clk_divisor
- 	 * SCL_high is the number of base_freq clock cycles that SCL stays high
- 	 * and SCL_low is the number of base_freq clock cycles that SCL stays
- 	 * low for a period of SCL.
-@@ -698,47 +710,59 @@ static u32 aspeed_i2c_get_clk_reg_val(u32 clk_high_low_max, u32 divisor)
- 	 *	SCL_low	 = clk_low + 1
- 	 * Thus,
- 	 *	SCL_freq = APB_freq /
--	 *		((1 << base_clk) * (clk_high + 1 + clk_low + 1))
-+	 *		((1 << base_clk_divisor) * (clk_high + 1 + clk_low + 1))
- 	 * The documentation recommends clk_high >= clk_high_max / 2 and
- 	 * clk_low >= clk_low_max / 2 - 1 when possible; this last constraint
- 	 * gives us the following solution:
- 	 */
--	base_clk = divisor > clk_high_low_max ?
-+	base_clk_divisor = divisor > clk_high_low_max ?
- 			ilog2((divisor - 1) / clk_high_low_max) + 1 : 0;
--	tmp = (divisor + (1 << base_clk) - 1) >> base_clk;
--	clk_low = tmp / 2;
--	clk_high = tmp - clk_low;
- 
--	if (clk_high)
--		clk_high--;
-+	if (base_clk_divisor > ASPEED_I2CD_TIME_BASE_DIVISOR_MASK) {
-+		base_clk_divisor = ASPEED_I2CD_TIME_BASE_DIVISOR_MASK;
-+		clk_low = clk_high_low_mask;
-+		clk_high = clk_high_low_mask;
-+		dev_err(dev,
-+			"clamping clock divider: divider requested, %u, is greater than largest possible divider, %u.\n",
-+			divisor, (1 << base_clk_divisor) * clk_high_low_max);
-+	} else {
-+		tmp = (divisor + (1 << base_clk_divisor) - 1)
-+				>> base_clk_divisor;
-+		clk_low = tmp / 2;
-+		clk_high = tmp - clk_low;
-+
-+		if (clk_high)
-+			clk_high--;
- 
--	if (clk_low)
--		clk_low--;
-+		if (clk_low)
-+			clk_low--;
-+	}
- 
- 
- 	return ((clk_high << ASPEED_I2CD_TIME_SCL_HIGH_SHIFT)
- 		& ASPEED_I2CD_TIME_SCL_HIGH_MASK)
- 			| ((clk_low << ASPEED_I2CD_TIME_SCL_LOW_SHIFT)
- 			   & ASPEED_I2CD_TIME_SCL_LOW_MASK)
--			| (base_clk & ASPEED_I2CD_TIME_BASE_DIVISOR_MASK);
-+			| (base_clk_divisor
-+			   & ASPEED_I2CD_TIME_BASE_DIVISOR_MASK);
- }
- 
--static u32 aspeed_i2c_24xx_get_clk_reg_val(u32 divisor)
-+static u32 aspeed_i2c_24xx_get_clk_reg_val(struct device *dev, u32 divisor)
- {
- 	/*
- 	 * clk_high and clk_low are each 3 bits wide, so each can hold a max
- 	 * value of 8 giving a clk_high_low_max of 16.
- 	 */
--	return aspeed_i2c_get_clk_reg_val(16, divisor);
-+	return aspeed_i2c_get_clk_reg_val(dev, GENMASK(2, 0), divisor);
- }
- 
--static u32 aspeed_i2c_25xx_get_clk_reg_val(u32 divisor)
-+static u32 aspeed_i2c_25xx_get_clk_reg_val(struct device *dev, u32 divisor)
- {
- 	/*
- 	 * clk_high and clk_low are each 4 bits wide, so each can hold a max
- 	 * value of 16 giving a clk_high_low_max of 32.
- 	 */
--	return aspeed_i2c_get_clk_reg_val(32, divisor);
-+	return aspeed_i2c_get_clk_reg_val(dev, GENMASK(3, 0), divisor);
- }
- 
- /* precondition: bus.lock has been acquired. */
-@@ -751,7 +775,7 @@ static int aspeed_i2c_init_clk(struct aspeed_i2c_bus *bus)
- 	clk_reg_val &= (ASPEED_I2CD_TIME_TBUF_MASK |
- 			ASPEED_I2CD_TIME_THDSTA_MASK |
- 			ASPEED_I2CD_TIME_TACST_MASK);
--	clk_reg_val |= bus->get_clk_reg_val(divisor);
-+	clk_reg_val |= bus->get_clk_reg_val(bus->dev, divisor);
- 	writel(clk_reg_val, bus->base + ASPEED_I2C_AC_TIMING_REG1);
- 	writel(ASPEED_NO_TIMEOUT_CTRL, bus->base + ASPEED_I2C_AC_TIMING_REG2);
- 
-@@ -859,7 +883,8 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
- 	if (!match)
- 		bus->get_clk_reg_val = aspeed_i2c_24xx_get_clk_reg_val;
- 	else
--		bus->get_clk_reg_val = (u32 (*)(u32))match->data;
-+		bus->get_clk_reg_val = (u32 (*)(struct device *, u32))
-+				match->data;
- 
- 	/* Initialize the I2C adapter */
- 	spin_lock_init(&bus->lock);
--- 
-2.20.1
+Jonathan
+
+> 
+> On Wed, Oct 16, 2019 at 12:23 PM Jacopo Mondi <jacopo+renesas@jmondi.org> wrote:
+> > The max9611 driver tests communications with the chip by reading the die
+> > temperature during the probe function. If the temperature register
+> > POR (power-on reset) value is returned from the test read, defer probe to
+> > give the chip a bit more time to properly exit from reset.
+> >
+> > Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> > Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>  
+> 
+> Thanks for your patch!
+> 
+> > Geert,
+> >   I've not been able to reproduce the issue on my boards (M3-N
+> > Salvator-XS and M3-W Salvator-X). As you reported the issue you might be
+> > able to reproduce it, could you please test this?  
+> 
+> I can reproduce it on Salvator-XS with R-Car H3 ES2.0.
+> According to my logs, I've seen the issue on all Salvator-X(S) boards,
+> but not with the same frequency.  Probability is highest on H3 ES2.0
+> (ca. 5% of the boots since I first saw the issue), followed by H3 ES1.0,
+> M3-W, and M3-N.
+> 
+> After more investigation, my findings are:
+>   1. I cannot reproduce the issue if the max9611 driver is modular.
+>      Is it related to using max9611 "too soon" after i2c bus init?
+>      How can "i2c bus init" impact a slave device?
+>      Perhaps due to pin configuration, e.g. changing from another pin
+>      function or GPIO to function i2c4?
+>   2. Adding a delay at the top of max9611_init() fixes the issue.
+>      This would explain why the issue is less likely to happy on slower
+>      SoCs like M3-N.
+>   3. Disabling all other i2c slaves on i2c4 in DTS fixes the issue.
+>      Before, max9611 was initialized last, so this moves init earlier,
+>      contradicting theory #1.
+>   4. Just disabling the adv7482 (which registers 11 dummies i2c slaves)
+>      in DTS does not fix the issue.
+> 
+> Unfortunately i2c4 is exposed on a 60-pin Samtec QSH connector only,
+> for which I have no breakout adapter.
+> 
+> Wolfram: do you have any clues?
+> 
+> > Also, I opted for deferring probe instead of arbitrary repeat the
+> > temperature read. What's your opinion?  
+> 
+> While this is probably OK if the max9611 driver is built-in, I'm afraid
+> this may lead to unbounded delays for a reprobe in case the driver
+> is modular.
+> 
+> > --- a/drivers/iio/adc/max9611.c
+> > +++ b/drivers/iio/adc/max9611.c
+> > @@ -80,6 +80,7 @@
+> >   * The complete formula to calculate temperature is:
+> >   *     ((adc_read >> 7) * 1000) / (1 / 480 * 1000)
+> >   */
+> > +#define MAX9611_TEMP_POR               0x8000
+> >  #define MAX9611_TEMP_MAX_POS           0x7f80
+> >  #define MAX9611_TEMP_MAX_NEG           0xff80
+> >  #define MAX9611_TEMP_MIN_NEG           0xd980
+> > @@ -480,8 +481,10 @@ static int max9611_init(struct max9611_dev *max9611)
+> >         if (ret)
+> >                 return ret;
+> >
+> > -       regval &= MAX9611_TEMP_MASK;
+> > +       if (regval == MAX9611_TEMP_POR)
+> > +               return -EPROBE_DEFER;
+> >
+> > +       regval &= MAX9611_TEMP_MASK;
+> >         if ((regval > MAX9611_TEMP_MAX_POS &&
+> >              regval < MAX9611_TEMP_MIN_NEG) ||
+> >              regval > MAX9611_TEMP_MAX_NEG) {  
+> 
+> Gr{oetje,eeting}s,
+> 
+>                         Geert
+> 
