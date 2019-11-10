@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 101/191] i2c: aspeed: fix invalid clock parameters for very large divisors
-Date: Sat,  9 Nov 2019 21:38:43 -0500
-Message-ID: <20191110024013.29782-101-sashal@kernel.org>
-References: <20191110024013.29782-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 056/109] i2c: aspeed: fix invalid clock parameters for very large divisors
+Date: Sat,  9 Nov 2019 21:44:48 -0500
+Message-ID: <20191110024541.31567-56-sashal@kernel.org>
+References: <20191110024541.31567-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
+In-Reply-To: <20191110024541.31567-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Brendan Higgins <brendanhiggins@google.com>, Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
@@ -33,10 +33,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 45 insertions(+), 20 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index a19fbff168617..d9401b5191069 100644
+index a074735456bc7..29574b9075fd7 100644
 --- a/drivers/i2c/busses/i2c-aspeed.c
 +++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -137,7 +137,8 @@ struct aspeed_i2c_bus {
+@@ -135,7 +135,8 @@ struct aspeed_i2c_bus {
  	/* Synchronizes I/O mem access to base. */
  	spinlock_t			lock;
  	struct completion		cmd_complete;
@@ -46,7 +46,7 @@ index a19fbff168617..d9401b5191069 100644
  	unsigned long			parent_clk_frequency;
  	u32				bus_frequency;
  	/* Transaction state. */
-@@ -686,16 +687,27 @@ static const struct i2c_algorithm aspeed_i2c_algo = {
+@@ -679,16 +680,27 @@ static const struct i2c_algorithm aspeed_i2c_algo = {
  #endif /* CONFIG_I2C_SLAVE */
  };
  
@@ -77,7 +77,7 @@ index a19fbff168617..d9401b5191069 100644
  	 * SCL_high is the number of base_freq clock cycles that SCL stays high
  	 * and SCL_low is the number of base_freq clock cycles that SCL stays
  	 * low for a period of SCL.
-@@ -705,47 +717,59 @@ static u32 aspeed_i2c_get_clk_reg_val(u32 clk_high_low_max, u32 divisor)
+@@ -698,47 +710,59 @@ static u32 aspeed_i2c_get_clk_reg_val(u32 clk_high_low_max, u32 divisor)
  	 *	SCL_low	 = clk_low + 1
  	 * Thus,
  	 *	SCL_freq = APB_freq /
@@ -151,7 +151,7 @@ index a19fbff168617..d9401b5191069 100644
  }
  
  /* precondition: bus.lock has been acquired. */
-@@ -758,7 +782,7 @@ static int aspeed_i2c_init_clk(struct aspeed_i2c_bus *bus)
+@@ -751,7 +775,7 @@ static int aspeed_i2c_init_clk(struct aspeed_i2c_bus *bus)
  	clk_reg_val &= (ASPEED_I2CD_TIME_TBUF_MASK |
  			ASPEED_I2CD_TIME_THDSTA_MASK |
  			ASPEED_I2CD_TIME_TACST_MASK);
@@ -160,7 +160,7 @@ index a19fbff168617..d9401b5191069 100644
  	writel(clk_reg_val, bus->base + ASPEED_I2C_AC_TIMING_REG1);
  	writel(ASPEED_NO_TIMEOUT_CTRL, bus->base + ASPEED_I2C_AC_TIMING_REG2);
  
-@@ -874,7 +898,8 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
+@@ -859,7 +883,8 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
  	if (!match)
  		bus->get_clk_reg_val = aspeed_i2c_24xx_get_clk_reg_val;
  	else
