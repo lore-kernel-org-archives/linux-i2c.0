@@ -1,58 +1,55 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i2c-stm32f7: fix & reorder remove & probe error
- handling
-Date: Mon, 11 Nov 2019 20:42:02 +0100
-Message-ID: <20191111194202.GD1608@kunai>
-References: <1572012264-31996-1-git-send-email-alain.volmat@st.com>
+Subject: Re: [PATCH] i2c: i2c-stm32f7: report dma error during probe
+Date: Mon, 11 Nov 2019 20:51:34 +0100
+Message-ID: <20191111195134.GG1608@kunai>
+References: <1571921521-8502-1-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="VV4b6MQE+OnNyhkM"
+        protocol="application/pgp-signature"; boundary="HB4mHL4PVvkpZAgW"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1572012264-31996-1-git-send-email-alain.volmat@st.com>
+In-Reply-To: <1571921521-8502-1-git-send-email-alain.volmat@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Alain Volmat <alain.volmat@st.com>
 Cc: pierre-yves.mordret@st.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---VV4b6MQE+OnNyhkM
+--HB4mHL4PVvkpZAgW
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Oct 25, 2019 at 04:04:24PM +0200, Alain Volmat wrote:
-> Add missing dma channels free calls in case of error during probe
-> and reorder the remove function so that dma channels are freed after
-> the i2c adapter is deleted.
-> Overall, reorder the remove function so that probe error handling order
-> and remove function order are same.
+On Thu, Oct 24, 2019 at 02:52:00PM +0200, Alain Volmat wrote:
+> Distinguish between the case where dma information is not provided
+> within the DT and the case of an error during the dma init.
+> Exit the probe with error in case of an error during dma init.
 >=20
-> Fixes: 7ecc8cfde553 ("i2c: i2c-stm32f7: Add DMA support")
+> Fixes: bb8822cbbc53 ("i2c: i2c-stm32: Add generic DMA API")
 >=20
 > Signed-off-by: Alain Volmat <alain.volmat@st.com>
 
 Applied to for-next, thanks!
 
 
---VV4b6MQE+OnNyhkM
+--HB4mHL4PVvkpZAgW
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl3JuYkACgkQFA3kzBSg
-KbYcnRAAq1jv0t+cBFdjV0cAyRRX0WL1Iv9MAU84u/vxXm3x5WV277AuXXWzofmd
-XqKJsLIq6lSoh20bC+LHePMkmQ+T8oX6C8c4wjmqzls5Uq2St0evOX39JoQa+yFu
-Q+/S1xdhPIjOzqJbwtEw/iVZ3KaHzEsTJEBpQEhH786eiv1vfkUiAKFrJ7KLSEMs
-BUsNPYE/b+EasW9rylAPjoVp6ALXxPU8ScXQq4H8mh7Ifvlp01kx8Vi4ukI0niXQ
-W+VtoiCxEjRTIx9EaeVZAzcbVouvePqp8hB7GP5+ys5s8bXaTnJcSc86Uu5tY9Ax
-0oZ1s1irGqpDz67hb5inyDvC0d0cvhaqNcqW5Ez6tCA4A0sKYETGfRWXMmFIbNTd
-8j8M2Ecq+twpTpwoMwtYMLwkFJvVhizOM7MSYctisgGkhZcLzNVq2CzJ1bEIVk3I
-qSQT4JfDWiVCpt/aUSrxdrzAarpbKIbfKmBtNlXKkOu2g4QTioty1LxntndndIpC
-HHgk7ZuoqnDk2IQdzv7MJiBDVEmAZICPCZ/dESjNnZuQ/W45Iuc28CZiYpDW+mmh
-64zfpSo/jAp9ZVoU0Imp+zKCtuqldEEAScptvP3e06kMuNsZRuShAl1DAudYfFIf
-Y8NeKiE3ex/XEW5c5jLlt7o9oc0ipoOd0CPALRJjXnjyl4DICFE=
-=exY/
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl3Ju8YACgkQFA3kzBSg
+KbZO1g/9Ejg7dTPbsECJT9cFjP1yXrbGjFWabztNPI9cB407mc32FMMHolmR+e7t
+Qar4sss2ieh/Rf+AG13KAk5y8VQ+0ioVReojH968fYVPPOxrx2G58rhOYiZnvz8p
+BWZ6/wJGn66eJtSP7OfdyXKdDuewHrlE0GWx0hHxhEf6clN4bSbKyvcUIEUu3Z0R
+91vC3pIxRY+6uEGSeFSnl+2m+zClqdP8kdAHW0vpNzPjjkJyhLWZTi/So0CN4Ymc
+mL2MEAI6Epl4MADbMqXvSFViGbDeTMfK0WVnxnWIKCivOviWwbvzb7RGf+uF8wzG
+mOX3rWgyHWe6laUDpvsVJ8gqJ7kQbEXAKitU9ERmFAmUSHGwjx69zWM8S4aF7J7m
+sBkXaU7tp1L56wtoiy/v3UoDVMAkYkcTj6pXwsINgvNE44GslOdbHQwdd0p6Elgb
+ivH0H7Sv+mRZU9ZPYot8rG4jKg2hQKS0dpKWo7d5nCmWf0unpRCmKxBSjdi8Kddr
+8Qp4BXyjPm3GhsELW+Cpwz2n7VBcxRfHXW9v8BAng1pqgBkShfpB4zT4sLcltRjj
+3+TfkDPjpqPGjmQRozWvSP5E34HXR7luMWr2TrD/2wxOsBZr6+q0TDOj3Uii6cxx
+ZeKVrXSY1Xgg5tboDZSEYfY1WrsIfUF5NKduYnc21SsUbsQ+z9w=
+=XSn5
 -----END PGP SIGNATURE-----
 
---VV4b6MQE+OnNyhkM--
+--HB4mHL4PVvkpZAgW--
