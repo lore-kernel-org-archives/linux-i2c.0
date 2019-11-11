@@ -1,57 +1,104 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [BACKPORT 4.14.y 04/18] usb: dwc3: Allow disabling of
- metastability workaround
-Date: Mon, 11 Nov 2019 10:16:24 +0100
-Message-ID: <20191111091624.GA4139389@kroah.com>
-References: <20190905161759.28036-1-mathieu.poirier@linaro.org>
- <20190905161759.28036-5-mathieu.poirier@linaro.org>
- <20190910143601.GD3362@kroah.com>
- <CANLsYkwkq2fLWsGXHxr2tSBLHdfe4JXgu8ehuD1FOEQeDAPNnA@mail.gmail.com>
+From: Niklas =?iso-8859-1?Q?S=F6derlund?=
+        <niklas.soderlund@ragnatech.se>
+Subject: Re: [PATCH] i2c: remove helpers for ref-counting clients
+Date: Mon, 11 Nov 2019 11:27:30 +0100
+Message-ID: <20191111102730.GA30651@bigcity.dyn.berto.se>
+References: <20191109212615.9254-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CANLsYkwkq2fLWsGXHxr2tSBLHdfe4JXgu8ehuD1FOEQeDAPNnA@mail.gmail.com>
+In-Reply-To: <20191109212615.9254-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: "# 4 . 7" <stable@vger.kernel.org>, linux-usb@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-pm@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-pci@vger.kernel.org, linux-mtd@lists.infradead.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, linux-renesas-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 11, 2019 at 08:01:40AM -0600, Mathieu Poirier wrote:
-> On Tue, 10 Sep 2019 at 08:36, Greg KH <greg@kroah.com> wrote:
-> >
-> > On Thu, Sep 05, 2019 at 10:17:45AM -0600, Mathieu Poirier wrote:
-> > > From: Roger Quadros <rogerq@ti.com>
-> > >
-> > > commit 42bf02ec6e420e541af9a47437d0bdf961ca2972 upstream
-> > >
-> > > Some platforms (e.g. TI's DRA7 USB2 instance) have more trouble
-> > > with the metastability workaround as it supports only
-> > > a High-Speed PHY and the PHY can enter into an Erratic state [1]
-> > > when the controller is set in SuperSpeed mode as part of
-> > > the metastability workaround.
-> > >
-> > > This causes upto 2 seconds delay in enumeration on DRA7's USB2
-> > > instance in gadget mode.
-> > >
-> > > If these platforms can be better off without the workaround,
-> > > provide a device tree property to suggest that so the workaround
-> > > is avoided.
-> > >
-> > > [1] Device mode enumeration trace showing PHY Erratic Error.
-> > >      irq/90-dwc3-969   [000] d...    52.323145: dwc3_event: event (00000901): Erratic Error [U0]
-> > >      irq/90-dwc3-969   [000] d...    52.560646: dwc3_event: event (00000901): Erratic Error [U0]
-> > >      irq/90-dwc3-969   [000] d...    52.798144: dwc3_event: event (00000901): Erratic Error [U0]
-> >
-> > Does the DT also need to get updated with this new id for this?  Is that
-> > a separate patch somewhere?
-> 
-> The upstream commit is:
-> 
-> b8c9c6fa2002 ARM: dts: dra7: Disable USB metastability workaround for USB2
-> 
-> Should I just send the latter or you prefer a resend with both patches?
+Hi Wolfram,
 
-I've queued this up now, along with the rest of this series, thanks.
+Thanks for your work.
 
-greg k-h
+On 2019-11-09 22:26:15 +0100, Wolfram Sang wrote:
+> There are no in-tree users of these helpers anymore, and there
+> shouldn't. Most use cases went away once the driver model started to
+> refcount for us. There have been users like the media subsystem, but
+> they all switched to better refcounting methods meanwhile. Media did
+> this in 2008. Last user (IPMI) left 2018. Remove this cruft.
+
+Nice to clean out some old stuff :-)
+
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+
+> ---
+>  drivers/i2c/i2c-core-base.c | 32 --------------------------------
+>  include/linux/i2c.h         |  3 ---
+>  2 files changed, 35 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index 9c55d24c7a30..5a44a92ed1fb 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -1743,38 +1743,6 @@ EXPORT_SYMBOL(i2c_del_driver);
+>  
+>  /* ------------------------------------------------------------------------- */
+>  
+> -/**
+> - * i2c_use_client - increments the reference count of the i2c client structure
+> - * @client: the client being referenced
+> - *
+> - * Each live reference to a client should be refcounted. The driver model does
+> - * that automatically as part of driver binding, so that most drivers don't
+> - * need to do this explicitly: they hold a reference until they're unbound
+> - * from the device.
+> - *
+> - * A pointer to the client with the incremented reference counter is returned.
+> - */
+> -struct i2c_client *i2c_use_client(struct i2c_client *client)
+> -{
+> -	if (client && get_device(&client->dev))
+> -		return client;
+> -	return NULL;
+> -}
+> -EXPORT_SYMBOL(i2c_use_client);
+> -
+> -/**
+> - * i2c_release_client - release a use of the i2c client structure
+> - * @client: the client being no longer referenced
+> - *
+> - * Must be called when a user of a client is finished with it.
+> - */
+> -void i2c_release_client(struct i2c_client *client)
+> -{
+> -	if (client)
+> -		put_device(&client->dev);
+> -}
+> -EXPORT_SYMBOL(i2c_release_client);
+> -
+>  struct i2c_cmd_arg {
+>  	unsigned	cmd;
+>  	void		*arg;
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 8f512b992acd..23583f76c6dc 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -861,9 +861,6 @@ static inline bool i2c_client_has_driver(struct i2c_client *client)
+>  	return !IS_ERR_OR_NULL(client) && client->dev.driver;
+>  }
+>  
+> -extern struct i2c_client *i2c_use_client(struct i2c_client *client);
+> -extern void i2c_release_client(struct i2c_client *client);
+> -
+>  /* call the i2c_client->command() of all attached clients with
+>   * the given arguments */
+>  extern void i2c_clients_command(struct i2c_adapter *adap,
+> -- 
+> 2.20.1
+> 
+
+-- 
+Regards,
+Niklas Söderlund
