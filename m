@@ -1,55 +1,93 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i2c-stm32f7: report dma error during probe
-Date: Mon, 11 Nov 2019 20:51:34 +0100
-Message-ID: <20191111195134.GG1608@kunai>
-References: <1571921521-8502-1-git-send-email-alain.volmat@st.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH] i2c: remove helpers for ref-counting clients
+Date: Mon, 11 Nov 2019 20:54:45 +0100
+Message-ID: <20191111205445.5b89a30a@endymion>
+References: <20191109212615.9254-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="HB4mHL4PVvkpZAgW"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1571921521-8502-1-git-send-email-alain.volmat@st.com>
+In-Reply-To: <20191109212615.9254-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alain Volmat <alain.volmat@st.com>
-Cc: pierre-yves.mordret@st.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Sat,  9 Nov 2019 22:26:15 +0100, Wolfram Sang wrote:
+> There are no in-tree users of these helpers anymore, and there
+> shouldn't. Most use cases went away once the driver model started to
+> refcount for us. There have been users like the media subsystem, but
+> they all switched to better refcounting methods meanwhile. Media did
+> this in 2008. Last user (IPMI) left 2018. Remove this cruft.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  drivers/i2c/i2c-core-base.c | 32 --------------------------------
+>  include/linux/i2c.h         |  3 ---
+>  2 files changed, 35 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index 9c55d24c7a30..5a44a92ed1fb 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -1743,38 +1743,6 @@ EXPORT_SYMBOL(i2c_del_driver);
+>  
+>  /* ------------------------------------------------------------------------- */
+>  
+> -/**
+> - * i2c_use_client - increments the reference count of the i2c client structure
+> - * @client: the client being referenced
+> - *
+> - * Each live reference to a client should be refcounted. The driver model does
+> - * that automatically as part of driver binding, so that most drivers don't
+> - * need to do this explicitly: they hold a reference until they're unbound
+> - * from the device.
+> - *
+> - * A pointer to the client with the incremented reference counter is returned.
+> - */
+> -struct i2c_client *i2c_use_client(struct i2c_client *client)
+> -{
+> -	if (client && get_device(&client->dev))
+> -		return client;
+> -	return NULL;
+> -}
+> -EXPORT_SYMBOL(i2c_use_client);
+> -
+> -/**
+> - * i2c_release_client - release a use of the i2c client structure
+> - * @client: the client being no longer referenced
+> - *
+> - * Must be called when a user of a client is finished with it.
+> - */
+> -void i2c_release_client(struct i2c_client *client)
+> -{
+> -	if (client)
+> -		put_device(&client->dev);
+> -}
+> -EXPORT_SYMBOL(i2c_release_client);
+> -
+>  struct i2c_cmd_arg {
+>  	unsigned	cmd;
+>  	void		*arg;
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 8f512b992acd..23583f76c6dc 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -861,9 +861,6 @@ static inline bool i2c_client_has_driver(struct i2c_client *client)
+>  	return !IS_ERR_OR_NULL(client) && client->dev.driver;
+>  }
+>  
+> -extern struct i2c_client *i2c_use_client(struct i2c_client *client);
+> -extern void i2c_release_client(struct i2c_client *client);
+> -
+>  /* call the i2c_client->command() of all attached clients with
+>   * the given arguments */
+>  extern void i2c_clients_command(struct i2c_adapter *adap,
 
---HB4mHL4PVvkpZAgW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sweet!
 
-On Thu, Oct 24, 2019 at 02:52:00PM +0200, Alain Volmat wrote:
-> Distinguish between the case where dma information is not provided
-> within the DT and the case of an error during the dma init.
-> Exit the probe with error in case of an error during dma init.
->=20
-> Fixes: bb8822cbbc53 ("i2c: i2c-stm32: Add generic DMA API")
->=20
-> Signed-off-by: Alain Volmat <alain.volmat@st.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
-Applied to for-next, thanks!
-
-
---HB4mHL4PVvkpZAgW
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl3Ju8YACgkQFA3kzBSg
-KbZO1g/9Ejg7dTPbsECJT9cFjP1yXrbGjFWabztNPI9cB407mc32FMMHolmR+e7t
-Qar4sss2ieh/Rf+AG13KAk5y8VQ+0ioVReojH968fYVPPOxrx2G58rhOYiZnvz8p
-BWZ6/wJGn66eJtSP7OfdyXKdDuewHrlE0GWx0hHxhEf6clN4bSbKyvcUIEUu3Z0R
-91vC3pIxRY+6uEGSeFSnl+2m+zClqdP8kdAHW0vpNzPjjkJyhLWZTi/So0CN4Ymc
-mL2MEAI6Epl4MADbMqXvSFViGbDeTMfK0WVnxnWIKCivOviWwbvzb7RGf+uF8wzG
-mOX3rWgyHWe6laUDpvsVJ8gqJ7kQbEXAKitU9ERmFAmUSHGwjx69zWM8S4aF7J7m
-sBkXaU7tp1L56wtoiy/v3UoDVMAkYkcTj6pXwsINgvNE44GslOdbHQwdd0p6Elgb
-ivH0H7Sv+mRZU9ZPYot8rG4jKg2hQKS0dpKWo7d5nCmWf0unpRCmKxBSjdi8Kddr
-8Qp4BXyjPm3GhsELW+Cpwz2n7VBcxRfHXW9v8BAng1pqgBkShfpB4zT4sLcltRjj
-3+TfkDPjpqPGjmQRozWvSP5E34HXR7luMWr2TrD/2wxOsBZr6+q0TDOj3Uii6cxx
-ZeKVrXSY1Xgg5tboDZSEYfY1WrsIfUF5NKduYnc21SsUbsQ+z9w=
-=XSn5
------END PGP SIGNATURE-----
-
---HB4mHL4PVvkpZAgW--
+-- 
+Jean Delvare
+SUSE L3 Support
