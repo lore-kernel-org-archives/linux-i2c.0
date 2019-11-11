@@ -1,104 +1,86 @@
-From: Niklas =?iso-8859-1?Q?S=F6derlund?=
-        <niklas.soderlund@ragnatech.se>
-Subject: Re: [PATCH] i2c: remove helpers for ref-counting clients
-Date: Mon, 11 Nov 2019 11:27:30 +0100
-Message-ID: <20191111102730.GA30651@bigcity.dyn.berto.se>
-References: <20191109212615.9254-1-wsa+renesas@sang-engineering.com>
+From: Akshu Agrawal <akshu.agrawal@amd.com>
+Subject: [PATCH] i2c: i2c-cros-ec-tunnel: Make the device acpi compatible
+Date: Mon, 11 Nov 2019 21:44:28 +0530
+Message-ID: <20191111161431.26293-1-akshu.agrawal@amd.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20191109212615.9254-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, linux-renesas-soc@vger.kernel.org
+Cc: akshu.agrawal@amd.com, cychiang@chromium.org, rrangel@chromium.org, Benson Leung <bleung@chromium.org>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Guenter Roeck <groeck@chromium.org>, Wolfram Sang <wsa@the-dreams.de>, Mark Brown <broonie@kernel.org>, Neil Armstrong <narmstrong@baylibre.com>, "open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Add ACPI entry and use device_property_read to get fw value
+which is common to both dtsi and acpi.
 
-Thanks for your work.
+Signed-off-by: Akshu Agrawal <akshu.agrawal@amd.com>
+---
+ drivers/i2c/busses/i2c-cros-ec-tunnel.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-On 2019-11-09 22:26:15 +0100, Wolfram Sang wrote:
-> There are no in-tree users of these helpers anymore, and there
-> shouldn't. Most use cases went away once the driver model started to
-> refcount for us. There have been users like the media subsystem, but
-> they all switched to better refcounting methods meanwhile. Media did
-> this in 2008. Last user (IPMI) left 2018. Remove this cruft.
-
-Nice to clean out some old stuff :-)
-
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-
-> ---
->  drivers/i2c/i2c-core-base.c | 32 --------------------------------
->  include/linux/i2c.h         |  3 ---
->  2 files changed, 35 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 9c55d24c7a30..5a44a92ed1fb 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -1743,38 +1743,6 @@ EXPORT_SYMBOL(i2c_del_driver);
->  
->  /* ------------------------------------------------------------------------- */
->  
-> -/**
-> - * i2c_use_client - increments the reference count of the i2c client structure
-> - * @client: the client being referenced
-> - *
-> - * Each live reference to a client should be refcounted. The driver model does
-> - * that automatically as part of driver binding, so that most drivers don't
-> - * need to do this explicitly: they hold a reference until they're unbound
-> - * from the device.
-> - *
-> - * A pointer to the client with the incremented reference counter is returned.
-> - */
-> -struct i2c_client *i2c_use_client(struct i2c_client *client)
-> -{
-> -	if (client && get_device(&client->dev))
-> -		return client;
-> -	return NULL;
-> -}
-> -EXPORT_SYMBOL(i2c_use_client);
-> -
-> -/**
-> - * i2c_release_client - release a use of the i2c client structure
-> - * @client: the client being no longer referenced
-> - *
-> - * Must be called when a user of a client is finished with it.
-> - */
-> -void i2c_release_client(struct i2c_client *client)
-> -{
-> -	if (client)
-> -		put_device(&client->dev);
-> -}
-> -EXPORT_SYMBOL(i2c_release_client);
-> -
->  struct i2c_cmd_arg {
->  	unsigned	cmd;
->  	void		*arg;
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 8f512b992acd..23583f76c6dc 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -861,9 +861,6 @@ static inline bool i2c_client_has_driver(struct i2c_client *client)
->  	return !IS_ERR_OR_NULL(client) && client->dev.driver;
->  }
->  
-> -extern struct i2c_client *i2c_use_client(struct i2c_client *client);
-> -extern void i2c_release_client(struct i2c_client *client);
-> -
->  /* call the i2c_client->command() of all attached clients with
->   * the given arguments */
->  extern void i2c_clients_command(struct i2c_adapter *adap,
-> -- 
-> 2.20.1
-> 
-
+diff --git a/drivers/i2c/busses/i2c-cros-ec-tunnel.c b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+index c551aa96a2e3..958161c71985 100644
+--- a/drivers/i2c/busses/i2c-cros-ec-tunnel.c
++++ b/drivers/i2c/busses/i2c-cros-ec-tunnel.c
+@@ -3,6 +3,7 @@
+ //
+ // Copyright (C) 2013 Google, Inc.
+ 
++#include <linux/acpi.h>
+ #include <linux/module.h>
+ #include <linux/i2c.h>
+ #include <linux/platform_data/cros_ec_commands.h>
+@@ -240,7 +241,6 @@ static const struct i2c_algorithm ec_i2c_algorithm = {
+ 
+ static int ec_i2c_probe(struct platform_device *pdev)
+ {
+-	struct device_node *np = pdev->dev.of_node;
+ 	struct cros_ec_device *ec = dev_get_drvdata(pdev->dev.parent);
+ 	struct device *dev = &pdev->dev;
+ 	struct ec_i2c_device *bus = NULL;
+@@ -256,7 +256,7 @@ static int ec_i2c_probe(struct platform_device *pdev)
+ 	if (bus == NULL)
+ 		return -ENOMEM;
+ 
+-	err = of_property_read_u32(np, "google,remote-bus", &remote_bus);
++	err = device_property_read_u32(dev, "google,remote-bus", &remote_bus);
+ 	if (err) {
+ 		dev_err(dev, "Couldn't read remote-bus property\n");
+ 		return err;
+@@ -271,7 +271,7 @@ static int ec_i2c_probe(struct platform_device *pdev)
+ 	bus->adap.algo = &ec_i2c_algorithm;
+ 	bus->adap.algo_data = bus;
+ 	bus->adap.dev.parent = &pdev->dev;
+-	bus->adap.dev.of_node = np;
++	bus->adap.dev.of_node = pdev->dev.of_node;
+ 	bus->adap.retries = I2C_MAX_RETRIES;
+ 
+ 	err = i2c_add_adapter(&bus->adap);
+@@ -291,19 +291,24 @@ static int ec_i2c_remove(struct platform_device *dev)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_OF
+ static const struct of_device_id cros_ec_i2c_of_match[] = {
+ 	{ .compatible = "google,cros-ec-i2c-tunnel" },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, cros_ec_i2c_of_match);
+-#endif
++
++static const struct acpi_device_id cros_ec_i2c_tunnel_acpi_id[] = {
++	{ "GOOG001A", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, cros_ec_i2c_tunnel_acpi_id);
+ 
+ static struct platform_driver ec_i2c_tunnel_driver = {
+ 	.probe = ec_i2c_probe,
+ 	.remove = ec_i2c_remove,
+ 	.driver = {
+ 		.name = "cros-ec-i2c-tunnel",
++		.acpi_match_table = ACPI_PTR(cros_ec_i2c_tunnel_acpi_id),
+ 		.of_match_table = of_match_ptr(cros_ec_i2c_of_match),
+ 	},
+ };
 -- 
-Regards,
-Niklas Söderlund
+2.17.1
