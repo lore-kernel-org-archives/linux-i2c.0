@@ -1,36 +1,50 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] i2c: remove helpers for ref-counting clients
-Date: Tue, 12 Nov 2019 09:16:35 +0100
-Message-ID: <CAMuHMdU=1KK4j8y9Jqki41YpMqAEkDgA230=ErxNNPpNUzkRiw@mail.gmail.com>
-References: <20191109212615.9254-1-wsa+renesas@sang-engineering.com>
+From: Alain Volmat <alain.volmat@st.com>
+Subject: [PATCH] i2c: i2c-stm32f7: fix 10-bits check in slave free id search
+ loop
+Date: Tue, 12 Nov 2019 09:19:44 +0100
+Message-ID: <1573546784-28182-1-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191109212615.9254-1-wsa+renesas@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jean Delvare <jdelvare@suse.de>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: wsa@the-dreams.de, pierre-yves.mordret@st.com
+Cc: alexandre.torgue@st.com, linux-kernel@vger.kernel.org, alain.volmat@st.com, linux-i2c@vger.kernel.org, fabrice.gasnier@st.com, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Nov 9, 2019 at 10:26 PM Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
-> There are no in-tree users of these helpers anymore, and there
-> shouldn't. Most use cases went away once the driver model started to
-> refcount for us. There have been users like the media subsystem, but
-> they all switched to better refcounting methods meanwhile. Media did
-> this in 2008. Last user (IPMI) left 2018. Remove this cruft.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Fix a typo in the free slave id search loop. Instead of I2C_CLIENT_PEC,
+it should have been I2C_CLIENT_TEN. The slave id 1 can only handle 7-bit
+addresses and thus is not eligible in case of 10-bit addresses.
+As a matter of fact none of the slave id support I2C_CLIENT_PEC, overall
+check is performed at the beginning of the stm32f7_i2c_reg_slave function.
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Fixes: 60d609f30de2 ("i2c: i2c-stm32f7: Add slave support")
 
-Gr{oetje,eeting}s,
+Signed-off-by: Alain Volmat <alain.volmat@st.com>
+---
+ drivers/i2c/busses/i2c-stm32f7.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-                        Geert
-
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index b9a082f64d58..b2634afe066d 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -1268,7 +1268,7 @@ static int stm32f7_i2c_get_free_slave_id(struct stm32f7_i2c_dev *i2c_dev,
+ 	 * slave[1] supports 7-bit slave address only
+ 	 */
+ 	for (i = STM32F7_I2C_MAX_SLAVE - 1; i >= 0; i--) {
+-		if (i == 1 && (slave->flags & I2C_CLIENT_PEC))
++		if (i == 1 && (slave->flags & I2C_CLIENT_TEN))
+ 			continue;
+ 		if (!i2c_dev->slave[i]) {
+ 			*id = i;
 -- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+2.7.4
