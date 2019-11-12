@@ -1,50 +1,106 @@
-From: Alain Volmat <alain.volmat@st.com>
-Subject: [PATCH] i2c: i2c-stm32f7: fix 10-bits check in slave free id search
- loop
-Date: Tue, 12 Nov 2019 09:19:44 +0100
-Message-ID: <1573546784-28182-1-git-send-email-alain.volmat@st.com>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: Re: [PATCH v2] i2c: use void pointers for supplying data for reads
+ and writes
+Date: Tue, 12 Nov 2019 09:45:56 +0100
+Message-ID: <f1bda5eb-b3ad-e7e1-f832-54a62e708d9c@lucaceresoli.net>
+References: <20191112005826.GA96746@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: wsa@the-dreams.de, pierre-yves.mordret@st.com
-Cc: alexandre.torgue@st.com, linux-kernel@vger.kernel.org, alain.volmat@st.com, linux-i2c@vger.kernel.org, fabrice.gasnier@st.com, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20191112005826.GA96746@dtor-ws>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Fix a typo in the free slave id search loop. Instead of I2C_CLIENT_PEC,
-it should have been I2C_CLIENT_TEN. The slave id 1 can only handle 7-bit
-addresses and thus is not eligible in case of 10-bit addresses.
-As a matter of fact none of the slave id support I2C_CLIENT_PEC, overall
-check is performed at the beginning of the stm32f7_i2c_reg_slave function.
+Hi Dmitry,
 
-Fixes: 60d609f30de2 ("i2c: i2c-stm32f7: Add slave support")
+On 12/11/19 01:58, Dmitry Torokhov wrote:
+> There is no need to force users of i2c_master_send()/i2c_master_recv()
+> and other i2c read/write bulk data API to cast everything into u8
+> pointers.  While everything can be considered byte stream, the drivers
+> are usually work with more structured data.
+> 
+> Let's switch the APIs to accept [const] void pointers to cut amount of
+> casting needed.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Signed-off-by: Alain Volmat <alain.volmat@st.com>
----
- drivers/i2c/busses/i2c-stm32f7.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I agree on the principle, but I have a question, see below.
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index b9a082f64d58..b2634afe066d 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -1268,7 +1268,7 @@ static int stm32f7_i2c_get_free_slave_id(struct stm32f7_i2c_dev *i2c_dev,
- 	 * slave[1] supports 7-bit slave address only
- 	 */
- 	for (i = STM32F7_I2C_MAX_SLAVE - 1; i >= 0; i--) {
--		if (i == 1 && (slave->flags & I2C_CLIENT_PEC))
-+		if (i == 1 && (slave->flags & I2C_CLIENT_TEN))
- 			continue;
- 		if (!i2c_dev->slave[i]) {
- 			*id = i;
+[...]
+>  s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+> -					      u8 command, u8 length, u8 *values)
+> +					      u8 command, u8 length, void *values)
+>  {
+>  	u8 i = 0;
+>  	int status;
+> @@ -647,8 +648,7 @@ s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+>  			status = i2c_smbus_read_word_data(client, command + i);
+>  			if (status < 0)
+>  				return status;
+> -			values[i] = status & 0xff;
+> -			values[i + 1] = status >> 8;
+> +			put_unaligned_le16(status, values + i);
+
+The switch to put_unaligned_le16() looks unrelated, is it?
+
+>  			i += 2;
+>  		}
+>  	}
+> @@ -657,7 +657,7 @@ s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+>  		status = i2c_smbus_read_byte_data(client, command + i);
+>  		if (status < 0)
+>  			return status;
+> -		values[i] = status;
+> +		*(u8 *)(values + i) = status;
+
+My preference is to use an u8* helper variable in these cases:
+
+s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client
+*client,
+-			      u8 command, u8 length, u8 *values)
++			      u8 command, u8 length, void *buf)
+ {
++	u8 *bytes = buf;
+@@
+-		values[i] = status;
++		bytes[i] = status;
+
+This clarifies we are accessing the raw bytes, avoids typecasts in the
+middle of code for readability and avoids void pointer math.
+
+PS: look, it's exactly what you do in the max1363.c file below! :)
+
+> diff --git a/drivers/iio/adc/max1363.c b/drivers/iio/adc/max1363.c
+> index 5c2cc61b666e7..48ed76a0e83d4 100644
+> --- a/drivers/iio/adc/max1363.c
+> +++ b/drivers/iio/adc/max1363.c
+> @@ -182,9 +182,9 @@ struct max1363_state {
+>  	struct regulator		*vref;
+>  	u32				vref_uv;
+>  	int				(*send)(const struct i2c_client *client,
+> -						const char *buf, int count);
+> +						const void *buf, int count);
+>  	int				(*recv)(const struct i2c_client *client,
+> -						char *buf, int count);
+> +						void *buf, int count);
+>  };
+>  
+>  #define MAX1363_MODE_SINGLE(_num, _mask) {				\
+> @@ -310,27 +310,29 @@ static const struct max1363_mode
+>  	return NULL;
+>  }
+>  
+> -static int max1363_smbus_send(const struct i2c_client *client, const char *buf,
+> +static int max1363_smbus_send(const struct i2c_client *client, const void *buf,
+>  		int count)
+>  {
+> +	const u8 *data = buf;
+
+Here it is! ^
+
 -- 
-2.7.4
+Luca
