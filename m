@@ -1,65 +1,271 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: pxa: migrate to new i2c_slave APIs
-Date: Mon, 11 Nov 2019 21:10:21 +0100
-Message-ID: <20191111201020.GI1608@kunai>
-References: <20191001160001.2388-1-alpawi@amazon.com>
- <20191001160001.2388-2-alpawi@amazon.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH v2] i2c: use void pointers for supplying data for reads and
+ writes
+Date: Mon, 11 Nov 2019 16:58:26 -0800
+Message-ID: <20191112005826.GA96746@dtor-ws>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="0XMZdl/q8hSSmFeD"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20191001160001.2388-2-alpawi@amazon.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Patrick Williams <alpawi@amazon.com>
-Cc: Patrick Williams <patrick@stwcx.xyz>, Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Max Staudt <max@enpas.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Juergen Fitschen <jfi@ssv-embedded.de>, Elie Morisse <syniurge@gmail.com>, Ajay Gupta <ajayg@nvidia.com>, Stefan Roese <sr@denx.de>, Florian Fainelli <f.fainelli@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, Baolin Wang <baolin.wang@linaro.org>, Paul Cercueil <paul@crapouillou.net>, Thomas Gleixner <tglx@linutronix.de>, Enrico Weigelt <info@metux.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Allison Randal <allison@lohutok.net>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Jonathan Cameron <jic23@kernel.org>, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+There is no need to force users of i2c_master_send()/i2c_master_recv()
+and other i2c read/write bulk data API to cast everything into u8
+pointers.  While everything can be considered byte stream, the drivers
+are usually work with more structured data.
 
---0XMZdl/q8hSSmFeD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Let's switch the APIs to accept [const] void pointers to cut amount of
+casting needed.
 
-On Tue, Oct 01, 2019 at 10:59:59AM -0500, Patrick Williams wrote:
-> The i2c subsystem was enhanced circa 2015 to support operating as
-> an i2c-slave device.  Prior to that, the i2c-pxa driver supported
-> an i2c-slave but had its own APIs.  There are no existing in-kernel
-> drivers or platforms that utilize the i2c-pxa APIs.
->=20
-> Migrate the i2c-pxa driver to the general i2c-slave APIs so that
-> existing drivers, such as the i2c-slave-eeprom, can be used.
->=20
-> This has been tested with a Marvell EspressoBin, using i2c-pxa and
-> i2c-slave-eeprom, acting as a slave, and a RaspeberryPi 3, using the
-> at24 driver, acting as a master.
->=20
-> Signed-off-by: Patrick Williams <alpawi@amazon.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
 
-Awesome! This was so needed but I always wondered if PXA was still
-around...
+Changes in v2:
 
-Applied to for-next, thanks!
+- adjusted max1363 to the new i2c_master_send/recv signatures
+
+I sent the previous version of this patch 04/01/17 and kbuild promptly
+noticed that it broke max1363. And it took me only 2.5 years to get back
+to it ;)
+
+Given that it is only one IIO driver that is affected I hope it can go
+through Wolfram's tree and we do not need to go through staged API
+rollout.
+
+ drivers/i2c/i2c-core-base.c  |  2 +-
+ drivers/i2c/i2c-core-smbus.c | 16 ++++++++--------
+ drivers/iio/adc/max1363.c    | 14 ++++++++------
+ include/linux/i2c.h          | 28 +++++++++++++++-------------
+ 4 files changed, 32 insertions(+), 28 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 6a5183cffdfc3..aeb4201ef55e4 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -2065,7 +2065,7 @@ EXPORT_SYMBOL(i2c_transfer);
+  *
+  * Returns negative errno, or else the number of bytes transferred.
+  */
+-int i2c_transfer_buffer_flags(const struct i2c_client *client, char *buf,
++int i2c_transfer_buffer_flags(const struct i2c_client *client, void *buf,
+ 			      int count, u16 flags)
+ {
+ 	int ret;
+diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
+index 3ac426a8ab5ab..4172f8e647f81 100644
+--- a/drivers/i2c/i2c-core-smbus.c
++++ b/drivers/i2c/i2c-core-smbus.c
+@@ -15,6 +15,7 @@
+ #include <linux/i2c.h>
+ #include <linux/i2c-smbus.h>
+ #include <linux/slab.h>
++#include <asm/unaligned.h>
+ 
+ #include "i2c-core.h"
+ 
+@@ -213,7 +214,7 @@ EXPORT_SYMBOL(i2c_smbus_write_word_data);
+  * mechanism (I2C_M_RECV_LEN) which may not be implemented.
+  */
+ s32 i2c_smbus_read_block_data(const struct i2c_client *client, u8 command,
+-			      u8 *values)
++			      void *values)
+ {
+ 	union i2c_smbus_data data;
+ 	int status;
+@@ -240,7 +241,7 @@ EXPORT_SYMBOL(i2c_smbus_read_block_data);
+  * else zero on success.
+  */
+ s32 i2c_smbus_write_block_data(const struct i2c_client *client, u8 command,
+-			       u8 length, const u8 *values)
++			       u8 length, const void *values)
+ {
+ 	union i2c_smbus_data data;
+ 
+@@ -256,7 +257,7 @@ EXPORT_SYMBOL(i2c_smbus_write_block_data);
+ 
+ /* Returns the number of read bytes */
+ s32 i2c_smbus_read_i2c_block_data(const struct i2c_client *client, u8 command,
+-				  u8 length, u8 *values)
++				  u8 length, void *values)
+ {
+ 	union i2c_smbus_data data;
+ 	int status;
+@@ -276,7 +277,7 @@ s32 i2c_smbus_read_i2c_block_data(const struct i2c_client *client, u8 command,
+ EXPORT_SYMBOL(i2c_smbus_read_i2c_block_data);
+ 
+ s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client, u8 command,
+-				   u8 length, const u8 *values)
++				   u8 length, const void *values)
+ {
+ 	union i2c_smbus_data data;
+ 
+@@ -628,7 +629,7 @@ EXPORT_SYMBOL(__i2c_smbus_xfer);
+  * transfer.
+  */
+ s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+-					      u8 command, u8 length, u8 *values)
++					      u8 command, u8 length, void *values)
+ {
+ 	u8 i = 0;
+ 	int status;
+@@ -647,8 +648,7 @@ s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+ 			status = i2c_smbus_read_word_data(client, command + i);
+ 			if (status < 0)
+ 				return status;
+-			values[i] = status & 0xff;
+-			values[i + 1] = status >> 8;
++			put_unaligned_le16(status, values + i);
+ 			i += 2;
+ 		}
+ 	}
+@@ -657,7 +657,7 @@ s32 i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+ 		status = i2c_smbus_read_byte_data(client, command + i);
+ 		if (status < 0)
+ 			return status;
+-		values[i] = status;
++		*(u8 *)(values + i) = status;
+ 		i++;
+ 	}
+ 
+diff --git a/drivers/iio/adc/max1363.c b/drivers/iio/adc/max1363.c
+index 5c2cc61b666e7..48ed76a0e83d4 100644
+--- a/drivers/iio/adc/max1363.c
++++ b/drivers/iio/adc/max1363.c
+@@ -182,9 +182,9 @@ struct max1363_state {
+ 	struct regulator		*vref;
+ 	u32				vref_uv;
+ 	int				(*send)(const struct i2c_client *client,
+-						const char *buf, int count);
++						const void *buf, int count);
+ 	int				(*recv)(const struct i2c_client *client,
+-						char *buf, int count);
++						void *buf, int count);
+ };
+ 
+ #define MAX1363_MODE_SINGLE(_num, _mask) {				\
+@@ -310,27 +310,29 @@ static const struct max1363_mode
+ 	return NULL;
+ }
+ 
+-static int max1363_smbus_send(const struct i2c_client *client, const char *buf,
++static int max1363_smbus_send(const struct i2c_client *client, const void *buf,
+ 		int count)
+ {
++	const u8 *data = buf;
+ 	int i, err;
+ 
+ 	for (i = err = 0; err == 0 && i < count; ++i)
+-		err = i2c_smbus_write_byte(client, buf[i]);
++		err = i2c_smbus_write_byte(client, data[i]);
+ 
+ 	return err ? err : count;
+ }
+ 
+-static int max1363_smbus_recv(const struct i2c_client *client, char *buf,
++static int max1363_smbus_recv(const struct i2c_client *client, void *buf,
+ 		int count)
+ {
++	u8 *data = buf;
+ 	int i, ret;
+ 
+ 	for (i = 0; i < count; ++i) {
+ 		ret = i2c_smbus_read_byte(client);
+ 		if (ret < 0)
+ 			return ret;
+-		buf[i] = ret;
++		data[i] = ret;
+ 	}
+ 
+ 	return count;
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index aaf57d9b41dbb..64cf92e191aa8 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -51,7 +51,7 @@ struct property_entry;
+  * @count must be be less than 64k since msg.len is u16.
+  */
+ extern int i2c_transfer_buffer_flags(const struct i2c_client *client,
+-				     char *buf, int count, u16 flags);
++				     void *buf, int count, u16 flags);
+ 
+ /**
+  * i2c_master_recv - issue a single I2C message in master receive mode
+@@ -62,7 +62,7 @@ extern int i2c_transfer_buffer_flags(const struct i2c_client *client,
+  * Returns negative errno, or else the number of bytes read.
+  */
+ static inline int i2c_master_recv(const struct i2c_client *client,
+-				  char *buf, int count)
++				  void *buf, int count)
+ {
+ 	return i2c_transfer_buffer_flags(client, buf, count, I2C_M_RD);
+ };
+@@ -77,7 +77,7 @@ static inline int i2c_master_recv(const struct i2c_client *client,
+  * Returns negative errno, or else the number of bytes read.
+  */
+ static inline int i2c_master_recv_dmasafe(const struct i2c_client *client,
+-					  char *buf, int count)
++					  void *buf, int count)
+ {
+ 	return i2c_transfer_buffer_flags(client, buf, count,
+ 					 I2C_M_RD | I2C_M_DMA_SAFE);
+@@ -92,9 +92,10 @@ static inline int i2c_master_recv_dmasafe(const struct i2c_client *client,
+  * Returns negative errno, or else the number of bytes written.
+  */
+ static inline int i2c_master_send(const struct i2c_client *client,
+-				  const char *buf, int count)
++				  const void *buf, int count)
+ {
+-	return i2c_transfer_buffer_flags(client, (char *)buf, count, 0);
++	return i2c_transfer_buffer_flags(client, (void *)buf /* const cast */,
++					 count, 0);
+ };
+ 
+ /**
+@@ -107,10 +108,10 @@ static inline int i2c_master_send(const struct i2c_client *client,
+  * Returns negative errno, or else the number of bytes written.
+  */
+ static inline int i2c_master_send_dmasafe(const struct i2c_client *client,
+-					  const char *buf, int count)
++					  const void *buf, int count)
+ {
+-	return i2c_transfer_buffer_flags(client, (char *)buf, count,
+-					 I2C_M_DMA_SAFE);
++	return i2c_transfer_buffer_flags(client, (void *)buf /* const cast */,
++					 count, I2C_M_DMA_SAFE);
+ };
+ 
+ /* Transfer num messages.
+@@ -166,18 +167,19 @@ i2c_smbus_write_word_swapped(const struct i2c_client *client,
+ 
+ /* Returns the number of read bytes */
+ extern s32 i2c_smbus_read_block_data(const struct i2c_client *client,
+-				     u8 command, u8 *values);
++				     u8 command, void *values);
+ extern s32 i2c_smbus_write_block_data(const struct i2c_client *client,
+-				      u8 command, u8 length, const u8 *values);
++				      u8 command, u8 length,
++				      const void *values);
+ /* Returns the number of read bytes */
+ extern s32 i2c_smbus_read_i2c_block_data(const struct i2c_client *client,
+-					 u8 command, u8 length, u8 *values);
++					 u8 command, u8 length, void *values);
+ extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
+ 					  u8 command, u8 length,
+-					  const u8 *values);
++					  const void *values);
+ extern s32
+ i2c_smbus_read_i2c_block_data_or_emulated(const struct i2c_client *client,
+-					  u8 command, u8 length, u8 *values);
++					  u8 command, u8 length, void *values);
+ int i2c_get_device_id(const struct i2c_client *client,
+ 		      struct i2c_device_identity *id);
+ #endif /* I2C */
+-- 
+2.24.0.rc1.363.gb1bccd3e3d-goog
 
 
---0XMZdl/q8hSSmFeD
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl3JwCwACgkQFA3kzBSg
-KbbwFhAAnRbMIn70NdjtA9xRg78u7JLSD7YqapOMnxNsHCWg+sJnvpqhuRPh5Tp1
-fvYSyKabNafDl6U5B4waKj2BtAfGawdgO6D3C6Wd0ejruHAafmFiqC00CL6G0+7m
-HMDMcmXiYaUWWqWLqzBsm4ZIve6ZT219chFq+QIkEiDV6DGYWJqjS9zZ2ubQ7CBl
-Aa30uaAOk4kdieVY5iVrSVzKVYClOYIHpUPqFIzOIwJZI9Htzo5zmOe3Iqw1Uwy9
-onRbWVax2Rp5KwoYXa75TRyoanh7EemhY/JCdAHukEh/1zfRBV+eNPC5shf0vV21
-sI6rXRGfhKb50DMEdXPOYXmkrhKlzwU0DSZWTjZ4kiGWrwzy8dkeBvZxX0URvQpL
-Dth7F6T4LYgR9vPS3dqpajWukzCho1TD6JItcICetffs17AGDn22NEXYX8l5au8S
-bHdDbWNirgY9/ubuzHqu6EDNgWQFooEAwuFf4CqFGndCl7UXMRMZVzpcMa51+WsD
-mKTzLgA/0fedyJg7UYxkpNfJpJI7BfMhrtkwcepvWx8ZHvl3IElqSsOrBNz0VYWH
-OwQktNTyh954yGpLWLRszNMXrPL/zTZKkYoBh94wveKLGuZ21WgTxwimXFugTuHZ
-9O1E6BSXfNkSZ66mU3KBMtMrnrS/xa9MEBhvkO/E3XhgOB74NeU=
-=COit
------END PGP SIGNATURE-----
-
---0XMZdl/q8hSSmFeD--
+-- 
+Dmitry
