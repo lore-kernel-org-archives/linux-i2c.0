@@ -1,28 +1,33 @@
-From: "Agrawal, Akshu" <aagrawal2@amd.com>
-Subject: Re: [PATCH] i2c: i2c-cros-ec-tunnel: Make the device acpi compatible
-Date: Tue, 12 Nov 2019 12:21:42 +0530
-Message-ID: <f4a5228d-0fcb-c64d-ecde-8dd20c39899f@amd.com>
-References: <20191111161431.26293-1-akshu.agrawal@amd.com>
- <a5f6a3a9-8eb7-58fd-a624-718374c2437f@collabora.com>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: Re: [PATCH] i2c: remove helpers for ref-counting clients
+Date: Tue, 12 Nov 2019 08:59:36 +0100
+Message-ID: <90246cbb-5013-0144-d2a3-ba30b745a86d@lucaceresoli.net>
+References: <20191109212615.9254-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a5f6a3a9-8eb7-58fd-a624-718374c2437f@collabora.com>
+In-Reply-To: <20191109212615.9254-1-wsa+renesas@sang-engineering.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>, Akshu Agrawal <akshu.agrawal@amd.com>
-Cc: cychiang@chromium.org, rrangel@chromium.org, Benson Leung <bleung@chromium.org>, Guenter Roeck <groeck@chromium.org>, Wolfram Sang <wsa@the-dreams.de>, Mark Brown <broonie@kernel.org>, Neil Armstrong <narmstrong@baylibre.com>, "open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Jean Delvare <jdelvare@suse.de>, linux-renesas-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi,
 
-> Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
->
-> Question: Is this supported on older firmwares or is only expected to work on
-> newer ACPI-based devices?
+On 09/11/19 22:26, Wolfram Sang wrote:
+> There are no in-tree users of these helpers anymore, and there
+> shouldn't. Most use cases went away once the driver model started to
+> refcount for us. There have been users like the media subsystem, but
+> they all switched to better refcounting methods meanwhile. Media did
+> this in 2008. Last user (IPMI) left 2018. Remove this cruft.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-This is for new devices and we are yet to push Coreboot patch populating the entry.
+[Tested on older kernel + TI serdes patches]
+Tested-by: Luca Ceresoli <luca@lucaceresoli.net>
+Reviewed-by: Luca Ceresoli <luca@lucaceresoli.net>
 
-Thanks,
-
-Akshu
+-- 
+Luca
