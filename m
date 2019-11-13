@@ -1,52 +1,79 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 118/209] i2c: tegra: use core to detect 'no zero length' quirk
-Date: Tue, 12 Nov 2019 20:48:54 -0500
-Message-ID: <20191113015025.9685-118-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 117/209] i2c: qup: use core to detect 'no zero length' quirk
+Date: Tue, 12 Nov 2019 20:48:53 -0500
+Message-ID: <20191113015025.9685-117-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Jon Hunter <jonathanh@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Andy Gross <andy.gross@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit c96c0f2683804b710531e7b754dcd02b5ded6d4a ]
+[ Upstream commit de82bb431855580ad659bfed3e858bd9dd12efd0 ]
 
 And don't reimplement in the driver.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Acked-by: Jon Hunter <jonathanh@nvidia.com>
+Reviewed-by: Andy Gross <andy.gross@linaro.org>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-tegra.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-qup.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index ef13b6ce9d8de..47d196c026ba6 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -684,9 +684,6 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index c86c3ae1318f2..e09cd0775ae91 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -1088,11 +1088,6 @@ static int qup_i2c_xfer(struct i2c_adapter *adap,
+ 	writel(I2C_MINI_CORE | I2C_N_VAL, qup->base + QUP_CONFIG);
  
- 	tegra_i2c_flush_fifos(i2c_dev);
- 
--	if (msg->len == 0)
--		return -EINVAL;
+ 	for (idx = 0; idx < num; idx++) {
+-		if (msgs[idx].len == 0) {
+-			ret = -EINVAL;
+-			goto out;
+-		}
 -
- 	i2c_dev->msg_buf = msg->buf;
- 	i2c_dev->msg_buf_remaining = msg->len;
- 	i2c_dev->msg_err = I2C_ERR_NONE;
-@@ -831,6 +828,7 @@ static const struct i2c_algorithm tegra_i2c_algo = {
+ 		if (qup_i2c_poll_state_i2c_master(qup)) {
+ 			ret = -EIO;
+ 			goto out;
+@@ -1520,9 +1515,6 @@ qup_i2c_determine_mode_v2(struct qup_i2c_dev *qup,
  
- /* payload size is only 12 bit */
- static const struct i2c_adapter_quirks tegra_i2c_quirks = {
+ 	/* All i2c_msgs should be transferred using either dma or cpu */
+ 	for (idx = 0; idx < num; idx++) {
+-		if (msgs[idx].len == 0)
+-			return -EINVAL;
+-
+ 		if (msgs[idx].flags & I2C_M_RD)
+ 			max_rx_len = max_t(unsigned int, max_rx_len,
+ 					   msgs[idx].len);
+@@ -1636,9 +1628,14 @@ static const struct i2c_algorithm qup_i2c_algo_v2 = {
+  * which limits the possible read to 256 (QUP_READ_LIMIT) bytes.
+  */
+ static const struct i2c_adapter_quirks qup_i2c_quirks = {
 +	.flags = I2C_AQ_NO_ZERO_LEN,
- 	.max_read_len = 4096,
- 	.max_write_len = 4096 - 12,
+ 	.max_read_len = QUP_READ_LIMIT,
  };
+ 
++static const struct i2c_adapter_quirks qup_i2c_quirks_v2 = {
++	.flags = I2C_AQ_NO_ZERO_LEN,
++};
++
+ static void qup_i2c_enable_clocks(struct qup_i2c_dev *qup)
+ {
+ 	clk_prepare_enable(qup->clk);
+@@ -1701,6 +1698,7 @@ static int qup_i2c_probe(struct platform_device *pdev)
+ 		is_qup_v1 = true;
+ 	} else {
+ 		qup->adap.algo = &qup_i2c_algo_v2;
++		qup->adap.quirks = &qup_i2c_quirks_v2;
+ 		is_qup_v1 = false;
+ 		if (acpi_match_device(qup_i2c_acpi_match, qup->dev))
+ 			goto nodma;
 -- 
 2.20.1
