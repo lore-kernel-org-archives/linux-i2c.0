@@ -1,52 +1,63 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 065/115] i2c: brcmstb: Allow enabling the driver on DSL SoCs
-Date: Tue, 12 Nov 2019 20:55:32 -0500
-Message-ID: <20191113015622.11592-65-sashal@kernel.org>
-References: <20191113015622.11592-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 119/209] i2c: zx2967: use core to detect 'no zero length' quirk
+Date: Tue, 12 Nov 2019 20:48:55 -0500
+Message-ID: <20191113015025.9685-119-sashal@kernel.org>
+References: <20191113015025.9685-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Florian Fainelli <f.fainelli@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Shawn Guo <shawnguo@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit e1eba2ea54a2de0e4c58d87270d25706bb77b844 ]
+[ Upstream commit e2115ace4196bcd2126446fb874bcfc90cba79be ]
 
-ARCH_BCM_63XX which is used by ARM-based DSL SoCs from Broadcom uses the
-same controller, make it possible to select the STB driver and update
-the Kconfig and help text a bit.
+And don't reimplement in the driver.
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Acked-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/Kconfig | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-zx2967.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 45a3f3ca29b38..b72a25585d52b 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -429,12 +429,13 @@ config I2C_BCM_KONA
- 	  If you do not need KONA I2C interface, say N.
+diff --git a/drivers/i2c/busses/i2c-zx2967.c b/drivers/i2c/busses/i2c-zx2967.c
+index 48281c1b30c6d..b8f9e020d80e6 100644
+--- a/drivers/i2c/busses/i2c-zx2967.c
++++ b/drivers/i2c/busses/i2c-zx2967.c
+@@ -281,9 +281,6 @@ static int zx2967_i2c_xfer_msg(struct zx2967_i2c *i2c,
+ 	int ret;
+ 	int i;
  
- config I2C_BRCMSTB
--	tristate "BRCM Settop I2C controller"
--	depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
-+	tristate "BRCM Settop/DSL I2C controller"
-+	depends on ARCH_BRCMSTB || BMIPS_GENERIC || ARCH_BCM_63XX || \
-+		   COMPILE_TEST
- 	default y
- 	help
- 	  If you say yes to this option, support will be included for the
--	  I2C interface on the Broadcom Settop SoCs.
-+	  I2C interface on the Broadcom Settop/DSL SoCs.
+-	if (msg->len == 0)
+-		return -EINVAL;
+-
+ 	zx2967_i2c_flush_fifos(i2c);
  
- 	  If you do not need I2C interface, say N.
+ 	i2c->cur_trans = msg->buf;
+@@ -498,6 +495,10 @@ static const struct i2c_algorithm zx2967_i2c_algo = {
+ 	.functionality = zx2967_i2c_func,
+ };
  
++static const struct i2c_adapter_quirks zx2967_i2c_quirks = {
++	.flags = I2C_AQ_NO_ZERO_LEN,
++};
++
+ static const struct of_device_id zx2967_i2c_of_match[] = {
+ 	{ .compatible = "zte,zx296718-i2c", },
+ 	{ },
+@@ -568,6 +569,7 @@ static int zx2967_i2c_probe(struct platform_device *pdev)
+ 	strlcpy(i2c->adap.name, "zx2967 i2c adapter",
+ 		sizeof(i2c->adap.name));
+ 	i2c->adap.algo = &zx2967_i2c_algo;
++	i2c->adap.quirks = &zx2967_i2c_quirks;
+ 	i2c->adap.nr = pdev->id;
+ 	i2c->adap.dev.parent = &pdev->dev;
+ 	i2c->adap.dev.of_node = pdev->dev.of_node;
 -- 
 2.20.1
