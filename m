@@ -1,64 +1,50 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 116/209] i2c: omap: use core to detect 'no zero length' quirk
-Date: Tue, 12 Nov 2019 20:48:52 -0500
-Message-ID: <20191113015025.9685-116-sashal@kernel.org>
-References: <20191113015025.9685-1-sashal@kernel.org>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Subject: [PATCH 1/4] i2c: at91: Use dma_request_chan() directly for channel request
+Date: Wed, 13 Nov 2019 11:22:32 +0200
+Message-ID: <20191113092235.30440-2-peter.ujfalusi@ti.com>
+References: <20191113092235.30440-1-peter.ujfalusi@ti.com>
 Mime-Version: 1.0
+Content-Type: text/plain
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
+In-Reply-To: <20191113092235.30440-1-peter.ujfalusi@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Grygorii Strashko <grygorii.strashko@ti.com>, Tony Lindgren <tony@atomide.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
+To: ludovic.desroches@microchip.com, agross@kernel.org, wsa+renesas@sang-engineering.com, ldewangan@nvidia.com
+Cc: vkoul@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org, digetx@gmail.com, linux-tegra@vger.kernel.org, thierry.reding@gmail.com, jonathanh@nvidia.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, bjorn.andersson@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+dma_request_slave_channel_reason() is:
+#define dma_request_slave_channel_reason(dev, name) \
+	dma_request_chan(dev, name)
 
-[ Upstream commit f37b2bb6ac3e6ebf855d9d4f05cc6932a8e5b463 ]
-
-And don't reimplement in the driver.
-
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
 ---
- drivers/i2c/busses/i2c-omap.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-at91-master.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 2ac86096ddd95..cd9c65f3d404f 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -661,9 +661,6 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
- 	dev_dbg(omap->dev, "addr: 0x%04x, len: %d, flags: 0x%x, stop: %d\n",
- 		msg->addr, msg->len, msg->flags, stop);
+diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
+index 6e0b554dcd4e..7a862e00b475 100644
+--- a/drivers/i2c/busses/i2c-at91-master.c
++++ b/drivers/i2c/busses/i2c-at91-master.c
+@@ -758,14 +758,14 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
+ 	slave_config.dst_maxburst = 1;
+ 	slave_config.device_fc = false;
  
--	if (msg->len == 0)
--		return -EINVAL;
--
- 	omap->receiver = !!(msg->flags & I2C_M_RD);
- 	omap_i2c_resize_fifo(omap, msg->len, omap->receiver);
+-	dma->chan_tx = dma_request_slave_channel_reason(dev->dev, "tx");
++	dma->chan_tx = dma_request_chan(dev->dev, "tx");
+ 	if (IS_ERR(dma->chan_tx)) {
+ 		ret = PTR_ERR(dma->chan_tx);
+ 		dma->chan_tx = NULL;
+ 		goto error;
+ 	}
  
-@@ -1179,6 +1176,10 @@ static const struct i2c_algorithm omap_i2c_algo = {
- 	.functionality	= omap_i2c_func,
- };
- 
-+static const struct i2c_adapter_quirks omap_i2c_quirks = {
-+	.flags = I2C_AQ_NO_ZERO_LEN,
-+};
-+
- #ifdef CONFIG_OF
- static struct omap_i2c_bus_platform_data omap2420_pdata = {
- 	.rev = OMAP_I2C_IP_VERSION_1,
-@@ -1453,6 +1454,7 @@ omap_i2c_probe(struct platform_device *pdev)
- 	adap->class = I2C_CLASS_DEPRECATED;
- 	strlcpy(adap->name, "OMAP I2C adapter", sizeof(adap->name));
- 	adap->algo = &omap_i2c_algo;
-+	adap->quirks = &omap_i2c_quirks;
- 	adap->dev.parent = &pdev->dev;
- 	adap->dev.of_node = pdev->dev.of_node;
- 	adap->bus_recovery_info = &omap_i2c_bus_recovery_info;
+-	dma->chan_rx = dma_request_slave_channel_reason(dev->dev, "rx");
++	dma->chan_rx = dma_request_chan(dev->dev, "rx");
+ 	if (IS_ERR(dma->chan_rx)) {
+ 		ret = PTR_ERR(dma->chan_rx);
+ 		dma->chan_rx = NULL;
 -- 
-2.20.1
+Peter
+
+Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
