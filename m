@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 36/68] i2c: brcmstb: Allow enabling the driver on DSL SoCs
-Date: Tue, 12 Nov 2019 20:59:00 -0500
-Message-ID: <20191113015932.12655-36-sashal@kernel.org>
-References: <20191113015932.12655-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 065/115] i2c: brcmstb: Allow enabling the driver on DSL SoCs
+Date: Tue, 12 Nov 2019 20:55:32 -0500
+Message-ID: <20191113015622.11592-65-sashal@kernel.org>
+References: <20191113015622.11592-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20191113015932.12655-1-sashal@kernel.org>
+In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Florian Fainelli <f.fainelli@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
@@ -28,10 +28,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index d252276feadf6..759c621a860a9 100644
+index 45a3f3ca29b38..b72a25585d52b 100644
 --- a/drivers/i2c/busses/Kconfig
 +++ b/drivers/i2c/busses/Kconfig
-@@ -397,12 +397,13 @@ config I2C_BCM_KONA
+@@ -429,12 +429,13 @@ config I2C_BCM_KONA
  	  If you do not need KONA I2C interface, say N.
  
  config I2C_BRCMSTB
