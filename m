@@ -1,60 +1,103 @@
-From: Jon Hunter <jonathanh@nvidia.com>
-Subject: Re: [PATCH 4/4] i2c: tegra: Use dma_request_chan() directly for
- channel request
-Date: Thu, 14 Nov 2019 07:05:47 +0000
-Message-ID: <f30dcd10-69ea-3bf7-99b2-8d12fc5e4cc0@nvidia.com>
-References: <20191113092235.30440-1-peter.ujfalusi@ti.com>
- <20191113092235.30440-5-peter.ujfalusi@ti.com>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: Re: [PATCH v3 2/3] i2c: smbus: use get/put_unaligned_le16 when
+ working with word data
+Date: Thu, 14 Nov 2019 10:23:32 +0100
+Message-ID: <5f276a2a-4863-c81c-247f-686935b6c571@lucaceresoli.net>
+References: <20191112203132.163306-1-dmitry.torokhov@gmail.com>
+ <20191112203132.163306-3-dmitry.torokhov@gmail.com>
+ <099e8f9c-354a-8756-a79b-e66c72d36aa7@lucaceresoli.net>
+ <20191113193937.GQ13374@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191113092235.30440-5-peter.ujfalusi@ti.com>
+In-Reply-To: <20191113193937.GQ13374@dtor-ws>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Ujfalusi <peter.ujfalusi@ti.com>, ludovic.desroches@microchip.com, agross@kernel.org, wsa+renesas@sang-engineering.com, ldewangan@nvidia.com
-Cc: vkoul@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org, digetx@gmail.com, linux-tegra@vger.kernel.org, thierry.reding@gmail.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, bjorn.andersson@linaro.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.orgi, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Dmitry,
 
-On 13/11/2019 09:22, Peter Ujfalusi wrote:
-> dma_request_slave_channel_reason() is:
-> #define dma_request_slave_channel_reason(dev, name) \
-> 	dma_request_chan(dev, name)
+On 13/11/19 20:39, Dmitry Torokhov wrote:
+> Hi Luca,
 > 
-> Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-> ---
->  drivers/i2c/busses/i2c-tegra.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+> On Wed, Nov 13, 2019 at 10:47:42AM +0100, Luca Ceresoli wrote:
+>> Hi Dmitry,
+>>
+>> On 12/11/19 21:31, Dmitry Torokhov wrote:
+>>> It is potentially more performant, and also shows intent more clearly,
+>>> to use get_unaligned_le16() and put_unaligned_le16() when working with
+>>> word data.
+>>>
+>>> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>>>
+>>> ---
+>>>
+>>> Changes in v3:
+>>> - split put_unaligned_le16 into a separate patch
+>>> - more call sites converted to get/put_unaligned_le16
+>>>
+>>>  drivers/i2c/i2c-core-smbus.c | 12 +++++-------
+>>>  1 file changed, 5 insertions(+), 7 deletions(-)
+>>>
+>>> diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
+>>> index f8708409b4dbc..7b4e2270eeda1 100644
+>>> --- a/drivers/i2c/i2c-core-smbus.c
+>>> +++ b/drivers/i2c/i2c-core-smbus.c
+>>> @@ -15,6 +15,7 @@
+>>>  #include <linux/i2c.h>
+>>>  #include <linux/i2c-smbus.h>
+>>>  #include <linux/slab.h>
+>>> +#include <asm/unaligned.h>
+>>>  
+>>>  #include "i2c-core.h"
+>>>  
+>>> @@ -370,8 +371,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+>>>  			msg[1].len = 2;
+>>>  		else {
+>>>  			msg[0].len = 3;
+>>> -			msgbuf0[1] = data->word & 0xff;
+>>> -			msgbuf0[2] = data->word >> 8;
+>>> +			put_unaligned_le16(data->word, msgbuf0 + 1);
+>>>  		}
+>>>  		break;
+>>>  	case I2C_SMBUS_PROC_CALL:
+>>> @@ -379,8 +379,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+>>>  		read_write = I2C_SMBUS_READ;
+>>>  		msg[0].len = 3;
+>>>  		msg[1].len = 2;
+>>> -		msgbuf0[1] = data->word & 0xff;
+>>> -		msgbuf0[2] = data->word >> 8;
+>>> +		put_unaligned_le16(data->word, msgbuf0 + 1);
+>>>  		break;
+>>>  	case I2C_SMBUS_BLOCK_DATA:
+>>>  		if (read_write == I2C_SMBUS_READ) {
+>>> @@ -487,7 +486,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+>>>  			break;
+>>>  		case I2C_SMBUS_WORD_DATA:
+>>>  		case I2C_SMBUS_PROC_CALL:
+>>> -			data->word = msgbuf1[0] | (msgbuf1[1] << 8);
+>>> +			data->word = get_unaligned_le16(msgbuf1);
+>>
+>> Well, msgbuf1 cannot be unaligned, so it looks like you just need to
+>> convert little endian to host endian. Perhaps __le16_to_cpu(msgbuf1) is
+>> better (and equally or more efficient).
 > 
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-> index c1683f9338b4..a98bf31d0e5c 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -413,7 +413,7 @@ static int tegra_i2c_init_dma(struct tegra_i2c_dev *i2c_dev)
->  		return 0;
->  	}
->  
-> -	chan = dma_request_slave_channel_reason(i2c_dev->dev, "rx");
-> +	chan = dma_request_chan(i2c_dev->dev, "rx");
->  	if (IS_ERR(chan)) {
->  		err = PTR_ERR(chan);
->  		goto err_out;
-> @@ -421,7 +421,7 @@ static int tegra_i2c_init_dma(struct tegra_i2c_dev *i2c_dev)
->  
->  	i2c_dev->rx_dma_chan = chan;
->  
-> -	chan = dma_request_slave_channel_reason(i2c_dev->dev, "tx");
-> +	chan = dma_request_chan(i2c_dev->dev, "tx");
->  	if (IS_ERR(chan)) {
->  		err = PTR_ERR(chan);
->  		goto err_out;
-> 
-Acked-by: Jon Hunter <jonathanh@nvidia.com>
+> Well, msgbuf1 (as is any other variable unless adjusted by special
+> alignment attribute) is naturally aligned for its own data type (which
+> for u8 means it can start at any address), but that does not mean that
+> is is aligned for the purpose of storing word data. In fact, the
+> preceding msgbuf0 variable is 32 + 3 = 35 bytes long, which means that
+> msgbuf1 is starting on an odd address, and is definitely not aligned for
+> word access and using __le16_to_cpu to fetch that word will trap on some
+> architectures.
 
-Cheers!
-Jon
+Uhm, you're obviously right. And I was probably drunk when I wrote the
+opposite! Sorry about that...
 
+Reviewed-by: Luca Ceresoli <luca@lucaceresoli.net>
 
 -- 
-nvpublic
+Luca
