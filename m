@@ -1,103 +1,59 @@
-From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: Re: [PATCH v3 2/3] i2c: smbus: use get/put_unaligned_le16 when
- working with word data
-Date: Thu, 14 Nov 2019 10:23:32 +0100
-Message-ID: <5f276a2a-4863-c81c-247f-686935b6c571@lucaceresoli.net>
-References: <20191112203132.163306-1-dmitry.torokhov@gmail.com>
- <20191112203132.163306-3-dmitry.torokhov@gmail.com>
- <099e8f9c-354a-8756-a79b-e66c72d36aa7@lucaceresoli.net>
- <20191113193937.GQ13374@dtor-ws>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 0/4] i2c: Use dma_request_chan() directly for channel
+ request
+Date: Thu, 14 Nov 2019 21:43:47 +0100
+Message-ID: <20191114204347.GB7213@kunai>
+References: <20191113092235.30440-1-peter.ujfalusi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="oC1+HKm2/end4ao3"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191113193937.GQ13374@dtor-ws>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20191113092235.30440-1-peter.ujfalusi@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-iio@vger.kernel.orgi, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Cc: ludovic.desroches@microchip.com, agross@kernel.org, wsa+renesas@sang-engineering.com, ldewangan@nvidia.com, vkoul@kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org, digetx@gmail.com, linux-tegra@vger.kernel.org, thierry.reding@gmail.com, jonathanh@nvidia.com, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, bjorn.andersson@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Dmitry,
 
-On 13/11/19 20:39, Dmitry Torokhov wrote:
-> Hi Luca,
-> 
-> On Wed, Nov 13, 2019 at 10:47:42AM +0100, Luca Ceresoli wrote:
->> Hi Dmitry,
->>
->> On 12/11/19 21:31, Dmitry Torokhov wrote:
->>> It is potentially more performant, and also shows intent more clearly,
->>> to use get_unaligned_le16() and put_unaligned_le16() when working with
->>> word data.
->>>
->>> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->>>
->>> ---
->>>
->>> Changes in v3:
->>> - split put_unaligned_le16 into a separate patch
->>> - more call sites converted to get/put_unaligned_le16
->>>
->>>  drivers/i2c/i2c-core-smbus.c | 12 +++++-------
->>>  1 file changed, 5 insertions(+), 7 deletions(-)
->>>
->>> diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
->>> index f8708409b4dbc..7b4e2270eeda1 100644
->>> --- a/drivers/i2c/i2c-core-smbus.c
->>> +++ b/drivers/i2c/i2c-core-smbus.c
->>> @@ -15,6 +15,7 @@
->>>  #include <linux/i2c.h>
->>>  #include <linux/i2c-smbus.h>
->>>  #include <linux/slab.h>
->>> +#include <asm/unaligned.h>
->>>  
->>>  #include "i2c-core.h"
->>>  
->>> @@ -370,8 +371,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
->>>  			msg[1].len = 2;
->>>  		else {
->>>  			msg[0].len = 3;
->>> -			msgbuf0[1] = data->word & 0xff;
->>> -			msgbuf0[2] = data->word >> 8;
->>> +			put_unaligned_le16(data->word, msgbuf0 + 1);
->>>  		}
->>>  		break;
->>>  	case I2C_SMBUS_PROC_CALL:
->>> @@ -379,8 +379,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
->>>  		read_write = I2C_SMBUS_READ;
->>>  		msg[0].len = 3;
->>>  		msg[1].len = 2;
->>> -		msgbuf0[1] = data->word & 0xff;
->>> -		msgbuf0[2] = data->word >> 8;
->>> +		put_unaligned_le16(data->word, msgbuf0 + 1);
->>>  		break;
->>>  	case I2C_SMBUS_BLOCK_DATA:
->>>  		if (read_write == I2C_SMBUS_READ) {
->>> @@ -487,7 +486,7 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
->>>  			break;
->>>  		case I2C_SMBUS_WORD_DATA:
->>>  		case I2C_SMBUS_PROC_CALL:
->>> -			data->word = msgbuf1[0] | (msgbuf1[1] << 8);
->>> +			data->word = get_unaligned_le16(msgbuf1);
->>
->> Well, msgbuf1 cannot be unaligned, so it looks like you just need to
->> convert little endian to host endian. Perhaps __le16_to_cpu(msgbuf1) is
->> better (and equally or more efficient).
-> 
-> Well, msgbuf1 (as is any other variable unless adjusted by special
-> alignment attribute) is naturally aligned for its own data type (which
-> for u8 means it can start at any address), but that does not mean that
-> is is aligned for the purpose of storing word data. In fact, the
-> preceding msgbuf0 variable is 32 + 3 = 35 bytes long, which means that
-> msgbuf1 is starting on an odd address, and is definitely not aligned for
-> word access and using __le16_to_cpu to fetch that word will trap on some
-> architectures.
+--oC1+HKm2/end4ao3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Uhm, you're obviously right. And I was probably drunk when I wrote the
-opposite! Sorry about that...
+On Wed, Nov 13, 2019 at 11:22:31AM +0200, Peter Ujfalusi wrote:
+> Hi,
+>=20
+> I'm going through the tree to remove dma_request_slave_channel_reason() a=
+s it
+> is just:
+> #define dma_request_slave_channel_reason(dev, name) \
+> 	dma_request_chan(dev, name)
+>=20
+> Regards,
+> Peter
 
-Reviewed-by: Luca Ceresoli <luca@lucaceresoli.net>
+Applied to for-next, thanks!
 
--- 
-Luca
+
+--oC1+HKm2/end4ao3
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl3NvIMACgkQFA3kzBSg
+KbZ4KhAAqSIoupVPNUTy5EUS3aRgDo8MVkiIW1UWgvqLUQ0Zf1I1wOJg39JEPMg9
+mNEvOCYkNOI7W85SarY869oxjmFsKlXjyMk9791x+8cHwNqtMQ/5WW/8oxaPM4FW
+H936eUEkiqDivyXszx0lUbc/Df3a8nz71vSEyTfltMQ4ypIrOeRYHbvqmd/3lxpK
+YIkVGF2RO76ddQOMJEA7GY1o3CpBJDUDYMiziMuLSgxEdcv+LfiHTE4eqAnSbOFW
+nNkC++LLjSPNUl9OqiZTKT5R+umlMXgdRcTAOLxkOb9bYci6ETiTVtjihcLy86e4
+Zt1DQIZbyxc0bWkYUB0JpKgHfUxk7s7jk6zFMJtBdF5bpOJWSDl3yc6LNHBimeBK
+5AO042p6KsJw6ZCMpuQudrZyAn827OQd0qjffPG74fyj4nA8r1Wa3M+jcy/RnNUp
+tp/2l605JpN47LW4qJ8W23MrcTReoeJTHv/xyKQQxAclfiM7yEN7XvHOmegS/I4k
+4ehvvUvmlIV5CCB712Ci7sGJcafe7AD3aTZ/VL/up2GsakvJ0HrpSSkk3wrqW5ju
+lSf73hxh62sD6o6eZXwt8Jp1FtYCrQKkPCBXXi322d7dgzrQ+8O9T/ffkxGxNYoN
+9V420J1qtUXCWoLB+DUHE+IUPOQ5kSbn3R27WALZ4wxrAI2jfNQ=
+=LdkV
+-----END PGP SIGNATURE-----
+
+--oC1+HKm2/end4ao3--
