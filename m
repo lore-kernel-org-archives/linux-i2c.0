@@ -1,107 +1,57 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 084/150] i2c: uniphier-f: make driver robust against concurrency
-Date: Sat, 16 Nov 2019 10:46:22 -0500
-Message-ID: <20191116154729.9573-84-sashal@kernel.org>
-References: <20191116154729.9573-1-sashal@kernel.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v1] i2c: of: Populate fwnode in of_i2c_get_board_info()
+Date: Sat, 16 Nov 2019 19:19:27 +0100
+Message-ID: <20191116181927.GA1765@kunai>
+References: <20191115045049.261104-1-saravanak@google.com>
+ <20191115053201.GA800105@kroah.com>
+ <20191115091035.GA2227@kunai>
+ <20191116125711.GA451566@kroah.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20191116125711.GA451566@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Saravana Kannan <saravanak@google.com>, kernel-team@android.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit f1fdcbbdf45d9609f3d4063b67e9ea941ba3a58f ]
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This is unlikely to happen, but it is possible for a CPU to enter
-the interrupt handler just after wait_for_completion_timeout() has
-expired. If this happens, the hardware is accessed from multiple
-contexts concurrently.
 
-Disable the IRQ after wait_for_completion_timeout(), and do nothing
-from the handler when the IRQ is disabled.
+> > What would be the advantage? I can also apply it today if you ack it.
+>=20
+> I think it will not build in your tree if you apply it now as this is a
+> new api :)
 
-Fixes: 6a62974b667f ("i2c: uniphier_f: add UniPhier FIFO-builtin I2C driver")
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/i2c/busses/i2c-uniphier-f.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+That's a convincing argument :) Have fun with the patch!
 
-diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
-index bc26ec822e268..b9a0690b4fd73 100644
---- a/drivers/i2c/busses/i2c-uniphier-f.c
-+++ b/drivers/i2c/busses/i2c-uniphier-f.c
-@@ -98,6 +98,7 @@ struct uniphier_fi2c_priv {
- 	unsigned int flags;
- 	unsigned int busy_cnt;
- 	unsigned int clk_cycle;
-+	spinlock_t lock;	/* IRQ synchronization */
- };
- 
- static void uniphier_fi2c_fill_txfifo(struct uniphier_fi2c_priv *priv,
-@@ -162,7 +163,10 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- 	struct uniphier_fi2c_priv *priv = dev_id;
- 	u32 irq_status;
- 
-+	spin_lock(&priv->lock);
-+
- 	irq_status = readl(priv->membase + UNIPHIER_FI2C_INT);
-+	irq_status &= priv->enabled_irqs;
- 
- 	dev_dbg(&priv->adap.dev,
- 		"interrupt: enabled_irqs=%04x, irq_status=%04x\n",
-@@ -230,6 +234,8 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- 		goto handled;
- 	}
- 
-+	spin_unlock(&priv->lock);
-+
- 	return IRQ_NONE;
- 
- data_done:
-@@ -246,6 +252,8 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- handled:
- 	uniphier_fi2c_clear_irqs(priv);
- 
-+	spin_unlock(&priv->lock);
-+
- 	return IRQ_HANDLED;
- }
- 
-@@ -311,7 +319,7 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
- {
- 	struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
- 	bool is_read = msg->flags & I2C_M_RD;
--	unsigned long time_left;
-+	unsigned long time_left, flags;
- 
- 	dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, stop=%d\n",
- 		is_read ? "receive" : "transmit", msg->addr, msg->len, stop);
-@@ -342,6 +350,12 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
- 	       priv->membase + UNIPHIER_FI2C_CR);
- 
- 	time_left = wait_for_completion_timeout(&priv->comp, adap->timeout);
-+
-+	spin_lock_irqsave(&priv->lock, flags);
-+	priv->enabled_irqs = 0;
-+	uniphier_fi2c_set_irqs(priv);
-+	spin_unlock_irqrestore(&priv->lock, flags);
-+
- 	if (!time_left) {
- 		dev_err(&adap->dev, "transaction timeout.\n");
- 		uniphier_fi2c_recover(priv);
-@@ -546,6 +560,7 @@ static int uniphier_fi2c_probe(struct platform_device *pdev)
- 
- 	priv->clk_cycle = clk_rate / bus_speed;
- 	init_completion(&priv->comp);
-+	spin_lock_init(&priv->lock);
- 	priv->adap.owner = THIS_MODULE;
- 	priv->adap.algo = &uniphier_fi2c_algo;
- 	priv->adap.dev.parent = dev;
--- 
-2.20.1
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+
+
+--fdj2RfSjLxBAspz7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIyBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl3QPasACgkQFA3kzBSg
+KbahkQ/3f2JRV7424gIx25doZlB4FhqA7AD5JsVtXrddNJsewD8Fd48/7624UqaB
+f7+4cQ6530aeWhfwhirI+eKarHZ1ybzNX2BjDuzs9sF6LG6Vseuo/1B+b3pOBf6M
+7aJvBoxEnFnYWV4eB9S2LdzCgmojjJJ4Apl1M1S4qnbJgJ4cd6u3RqlcWnVdiGgT
+h0Zl/tFEPAHsxHpWMDTHzuTZ0N1i7ME6PmFq+FLDHArBGib5ZiFyEd/ZQ6a8EOIB
+dV+f/bGhKuscHgqclIiK3Sc4Edbwn1IENz8IXH4/Gu1s0rVZ2QdKACspP/RlTf1F
+YQUG198xxT396oQXT7aEvp4wiM7MZt+d+8YU9GApjpJjUw3GnTwE2UU/hJQN3J4g
+Heizx6zDFctoalTbe9jG/6htdKyvxs+jK0NTafM0uIZVV52/F2x6Ga0KUBQnYs4n
+muBsl+9ct/F9HjGEb2US1WCjQnf+NLPfLoVv96kCEaUp9poV3ic3bG4+i2vvph1v
+i3QGzBLq96QjueeAZc1pzYwbarJI1JcDhVDiN0TW5uSwo8qgsTnc+HKpfk+obErx
+Q+1qWK0dqlcWlYX7OykdUmAc1SBNN0qB6yAATog1vr0m404i74H+jaABZ26OPiP5
+MEezS9E4MZC/1qlK0hShxOciMyGU2u3io/kt2q+yS6UzeKRQcQ==
+=D88R
+-----END PGP SIGNATURE-----
+
+--fdj2RfSjLxBAspz7--
