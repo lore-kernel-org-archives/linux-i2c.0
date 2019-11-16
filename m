@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 234/237] i2c: uniphier-f: fix timeout error after reading 8 bytes
-Date: Sat, 16 Nov 2019 10:41:09 -0500
-Message-ID: <20191116154113.7417-234-sashal@kernel.org>
-References: <20191116154113.7417-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 147/150] i2c: uniphier-f: fix timeout error after reading 8 bytes
+Date: Sat, 16 Nov 2019 10:47:25 -0500
+Message-ID: <20191116154729.9573-147-sashal@kernel.org>
+References: <20191116154729.9573-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
+In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Masahiro Yamada <yamada.masahiro@socionext.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
