@@ -1,53 +1,35 @@
-From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
-Subject: Re: [PATCH] i2c: i2c-stm32f7: fix 10-bits check in slave free id
- search loop
-Date: Mon, 18 Nov 2019 10:56:12 +0100
-Message-ID: <ca718929-a6c6-587c-0a7a-0cfb5a2cfe0d@st.com>
-References: <1573546784-28182-1-git-send-email-alain.volmat@st.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [v5,2/3] i2c: mux: pca954x: support property idle-state
+Date: Mon, 18 Nov 2019 23:03:53 +0000
+Message-ID: <e04c77cc-6c41-8ce3-b584-944eb1595191@axentia.se>
+References: <20191022041152.3663-1-biwen.li@nxp.com>
+ <20191022041152.3663-2-biwen.li@nxp.com>
+ <DB7PR04MB4490B0121FEED3C74A682C248F700@DB7PR04MB4490.eurprd04.prod.outlook.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1573546784-28182-1-git-send-email-alain.volmat@st.com>
+In-Reply-To: <DB7PR04MB4490B0121FEED3C74A682C248F700@DB7PR04MB4490.eurprd04.prod.outlook.com>
 Content-Language: en-US
+Content-ID: <DCE7B144E7759445A7D8937EB99236AE@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alain Volmat <alain.volmat@st.com>, wsa@the-dreams.de
-Cc: alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
+To: Biwen Li <biwen.li@nxp.com>, Leo Li <leoyang.li@nxp.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello
-
-Look good to me
-
-Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-
-Regards
-
-On 11/12/19 9:19 AM, Alain Volmat wrote:
-> Fix a typo in the free slave id search loop. Instead of I2C_CLIENT_PEC,
-> it should have been I2C_CLIENT_TEN. The slave id 1 can only handle 7-bit
-> addresses and thus is not eligible in case of 10-bit addresses.
-> As a matter of fact none of the slave id support I2C_CLIENT_PEC, overall
-> check is performed at the beginning of the stm32f7_i2c_reg_slave function.
-> 
-> Fixes: 60d609f30de2 ("i2c: i2c-stm32f7: Add slave support")
-> 
-> Signed-off-by: Alain Volmat <alain.volmat@st.com>
-> ---
->  drivers/i2c/busses/i2c-stm32f7.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-> index b9a082f64d58..b2634afe066d 100644
-> --- a/drivers/i2c/busses/i2c-stm32f7.c
-> +++ b/drivers/i2c/busses/i2c-stm32f7.c
-> @@ -1268,7 +1268,7 @@ static int stm32f7_i2c_get_free_slave_id(struct stm32f7_i2c_dev *i2c_dev,
->  	 * slave[1] supports 7-bit slave address only
->  	 */
->  	for (i = STM32F7_I2C_MAX_SLAVE - 1; i >= 0; i--) {
-> -		if (i == 1 && (slave->flags & I2C_CLIENT_PEC))
-> +		if (i == 1 && (slave->flags & I2C_CLIENT_TEN))
->  			continue;
->  		if (!i2c_dev->slave[i]) {
->  			*id = i;
-> 
+T24gMjAxOS0xMS0xNSAxMToyMSwgQml3ZW4gTGkgd3JvdGU6DQo+IEhpIFBldGVyLA0KPiANCj4g
+QW55IGNvbW1lbnRzPw0KPiBJZiBubyBjb21tZW50cywgY291bGQgeW91IGdpdmUgbWUgYSByZXZp
+ZXdlZC1ieT8NCg0KSSB3b3VsZCBoYXZlIGxpa2VkIGEgY29tbWVudCBmcm9tIHRoZSBkcml2ZXIg
+bWFpbnRhaW5lciBvciBhIHRlc3RlZC1ieSBmcm9tDQpzb21lb25lIHdpdGggYW5vdGhlciBjYXNl
+IHRoYW4geW91cnMuIEJ1dCBub3cgdGhhdCBJIGNoZWNrIEkgc2VlIHRoYXQgdGhlcmUgLQ0KY29u
+dHJhcnkgdG8gbXkgYXNzdW1wdGlvbiAtIGlzIG5vIG1haW50YWluZXIgbGlzdGVkLiBTbywgSSB0
+aGluayBpdCBsb29rcyBmaW5lLA0KYW5kIEknbSBzdXJlIGl0IGNvbXBpbGVzIGNsZWFubHkgZXRj
+IGlmIEkgdGVzdCB0aGF0LCBidXQgSSBjYW4ndCB0ZXN0IHJ1bnRpbWUNCmJlaGF2aW9yIG15c2Vs
+ZiBzaW5jZSBJIGRvbid0IGhhdmUgdGhlIEhXLiBJIHNob3VsZCBoYXZlIGJlZW4gY2xlYXJlciBh
+Ym91dA0KdGhpcywgYW5kIHNob3VsZCBoYXZlIGRvdWJsZSBjaGVja2VkIHRoZSBtYWludGFpbmVy
+IHN0YXR1cyBpbnN0ZWFkIG9mIHJlbHlpbmcNCm9uIHdoYXQgSSB0aG91Z2h0LiBJIGhhdmUgc2lt
+cGx5IGJlZW4gZXh0cmVtZWx5IGJ1c3kgYW5kIHRoYXQgc2xpcHBlZC4gU29ycnkuDQoNCkJ1dCBJ
+J2xsIHRyeSB0byBzcXVlZXplIHRoaXMgaW50byBsaW51eC1uZXh0IHRvbW9ycm93LCBiZWNhdXNl
+IGlmIGxvb2sgc2FmZSwNCmFuZCBob3BlZnVsbHkgYW55IHByb2JsZW0gd2lsbCBiZWNvbWUgYXBw
+YXJlbnQuDQoNCkdpdmluZyBhIHJldmlld2VkLWJ5IHNlZW1lZCBwb2ludGxlc3MsIHdoZW4gSSdt
+IHRoZSBvbmUgcGlja2luZyBpdCB1cCA6LSkNCg0KQ2hlZXJzLA0KUGV0ZXINCg==
