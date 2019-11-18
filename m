@@ -1,8 +1,7 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH 3/4 v2] i2c: smbus: Add a way to instantiate SPD EEPROMs
- automatically
-Date: Mon, 18 Nov 2019 10:27:41 +0100
-Message-ID: <20191118102741.794187d4@endymion>
+Subject: [PATCH 4/4 v2] i2c: i801: Instantiate SPD EEPROMs automatically
+Date: Mon, 18 Nov 2019 10:28:48 +0100
+Message-ID: <20191118102848.4fdadeb7@endymion>
 References: <20191118102410.78cd8e6e@endymion>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -14,165 +13,35 @@ To: Linux I2C <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 Cc: Wolfram Sang <wsa@the-dreams.de>
 List-Id: linux-i2c@vger.kernel.org
 
-In simple cases we can instantiate SPD EEPROMs on the SMBus
-automatically. Start with just DDR2, DDR3 and DDR4 on x86 for now,
-and only for systems with no more than 4 memory slots. These
-limitations may be lifted later.
+Call the function to instantiate SPD EEPROMs automatically on the
+main SMBus controller.
+
+Multiplexed SMBus systems are excluded for now as they are more
+complex to handle.
 
 Signed-off-by: Jean Delvare <jdelvare@suse.de>
 ---
 Changes since v1:
- * Fixed build warning reported by kbuild test bot
+ * Fixed build error reported by kbuild test robot
 
- drivers/i2c/i2c-smbus.c   |  104 +++++++++++++++++++++++++++++++++++++++++++++-
- include/linux/i2c-smbus.h |    8 +++
- 2 files changed, 110 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-i801.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- linux-5.3.orig/drivers/i2c/i2c-smbus.c	2019-10-14 11:33:20.372781769 +0200
-+++ linux-5.3/drivers/i2c/i2c-smbus.c	2019-10-14 16:42:12.815302881 +0200
-@@ -3,10 +3,11 @@
-  * i2c-smbus.c - SMBus extensions to the I2C protocol
-  *
-  * Copyright (C) 2008 David Brownell
-- * Copyright (C) 2010 Jean Delvare <jdelvare@suse.de>
-+ * Copyright (C) 2010-2019 Jean Delvare <jdelvare@suse.de>
-  */
+--- linux-5.4-rc7.orig/drivers/i2c/busses/i2c-i801.c	2019-11-18 10:21:39.688372006 +0100
++++ linux-5.4-rc7/drivers/i2c/busses/i2c-i801.c	2019-11-18 10:21:41.928402933 +0100
+@@ -1320,6 +1320,12 @@ static void i801_probe_optional_slaves(s
  
- #include <linux/device.h>
-+#include <linux/dmi.h>
- #include <linux/i2c.h>
- #include <linux/i2c-smbus.h>
- #include <linux/interrupt.h>
-@@ -203,6 +204,107 @@ EXPORT_SYMBOL_GPL(i2c_handle_smbus_alert
- 
- module_i2c_driver(smbalert_driver);
- 
-+/*
-+ * SPD is not part of SMBus but we include it here for convenience as the
-+ * target systems are the same.
-+ * Restrictions to automatic SPD instantiation:
-+ *  - Only works if all filled slots have the same memory type
-+ *  - Only works for DDR2, DDR3 and DDR4 for now
-+ *  - Only works on systems with 1 to 4 memory slots
-+ */
-+#if IS_ENABLED(CONFIG_DMI)
-+void i2c_register_spd(struct i2c_adapter *adap)
-+{
-+	int n, slot_count = 0, dimm_count = 0;
-+	u16 handle;
-+	u8 common_mem_type = 0x0, mem_type;
-+	u64 mem_size;
-+	const char *name;
+ 	if (is_dell_system_with_lis3lv02d())
+ 		register_dell_lis3lv02d_i2c_device(priv);
 +
-+	while ((handle = dmi_memdev_handle(slot_count)) != 0xffff) {
-+		slot_count++;
-+
-+		/* Skip empty slots */
-+		mem_size = dmi_memdev_size(handle);
-+		if (!mem_size)
-+			continue;
-+
-+		/* Skip undefined memory type */
-+		mem_type = dmi_memdev_type(handle);
-+		if (mem_type <= 0x02)		/* Invalid, Other, Unknown */
-+			continue;
-+
-+		if (!common_mem_type) {
-+			/* First filled slot */
-+			common_mem_type = mem_type;
-+		} else {
-+			/* Check that all filled slots have the same type */
-+			if (mem_type != common_mem_type) {
-+				dev_warn(&adap->dev,
-+					 "Different memory types mixed, not instantiating SPD\n");
-+				return;
-+			}
-+		}
-+		dimm_count++;
-+	}
-+
-+	/* No useful DMI data, bail out */
-+	if (!dimm_count)
-+		return;
-+
-+	dev_info(&adap->dev, "%d/%d memory slots populated (from DMI)\n",
-+		 dimm_count, slot_count);
-+
-+	if (slot_count > 4) {
-+		dev_warn(&adap->dev,
-+			 "Systems with more than 4 memory slots not supported yet, not instantiating SPD\n");
-+		return;
-+	}
-+
-+	switch (common_mem_type) {
-+	case 0x13:	/* DDR2 */
-+	case 0x18:	/* DDR3 */
-+	case 0x1C:	/* LPDDR2 */
-+	case 0x1D:	/* LPDDR3 */
-+		name = "spd";
-+		break;
-+	case 0x1A:	/* DDR4 */
-+	case 0x1E:	/* LPDDR4 */
-+		name = "ee1004";
-+		break;
-+	default:
-+		dev_info(&adap->dev,
-+			 "Memory type 0x%02x not supported yet, not instantiating SPD\n",
-+			 common_mem_type);
-+		return;
-+	}
-+
-+	/*
-+	 * We don't know in which slots the memory modules are. We could
-+	 * try to guess from the slot names, but that would be rather complex
-+	 * and unreliable, so better probe all possible addresses until we
-+	 * have found all memory modules.
-+	 */
-+	for (n = 0; n < slot_count && dimm_count; n++) {
-+		struct i2c_board_info info;
-+		unsigned short addr_list[2];
-+
-+		memset(&info, 0, sizeof(struct i2c_board_info));
-+		strlcpy(info.type, name, I2C_NAME_SIZE);
-+		addr_list[0] = 0x50 + n;
-+		addr_list[1] = I2C_CLIENT_END;
-+
-+		if (i2c_new_probed_device(adap, &info, addr_list, NULL)) {
-+			dev_info(&adap->dev,
-+				 "Successfully instantiated SPD at 0x%hx\n",
-+				 addr_list[0]);
-+			dimm_count--;
-+		}
-+	}
-+}
-+EXPORT_SYMBOL_GPL(i2c_register_spd);
++	/* Instantiate SPD EEPROMs unless the SMBus is multiplexed */
++#if IS_ENABLED(CONFIG_I2C_MUX_GPIO)
++	if (!priv->mux_drvdata)
 +#endif
-+
- MODULE_AUTHOR("Jean Delvare <jdelvare@suse.de>");
- MODULE_DESCRIPTION("SMBus protocol extensions support");
- MODULE_LICENSE("GPL");
---- linux-5.3.orig/include/linux/i2c-smbus.h	2019-10-14 11:33:20.372781769 +0200
-+++ linux-5.3/include/linux/i2c-smbus.h	2019-10-14 16:44:22.636959738 +0200
-@@ -2,7 +2,7 @@
- /*
-  * i2c-smbus.h - SMBus extensions to the I2C protocol
-  *
-- * Copyright (C) 2010 Jean Delvare <jdelvare@suse.de>
-+ * Copyright (C) 2010-2019 Jean Delvare <jdelvare@suse.de>
-  */
- 
- #ifndef _LINUX_I2C_SMBUS_H
-@@ -44,4 +44,10 @@ static inline int of_i2c_setup_smbus_ale
++		i2c_register_spd(&priv->adapter);
  }
- #endif
- 
-+#if IS_ENABLED(CONFIG_I2C_SMBUS) && IS_ENABLED(CONFIG_DMI)
-+void i2c_register_spd(struct i2c_adapter *adap);
-+#else
-+static inline void i2c_register_spd(struct i2c_adapter *adap) { }
-+#endif
-+
- #endif /* _LINUX_I2C_SMBUS_H */
+ #else
+ static void __init input_apanel_init(void) {}
 
 -- 
 Jean Delvare
