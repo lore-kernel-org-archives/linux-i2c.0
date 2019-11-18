@@ -1,48 +1,53 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: [PATCH 4/4 v2] i2c: i801: Instantiate SPD EEPROMs automatically
-Date: Mon, 18 Nov 2019 10:28:48 +0100
-Message-ID: <20191118102848.4fdadeb7@endymion>
-References: <20191118102410.78cd8e6e@endymion>
+From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: Re: [PATCH] i2c: i2c-stm32f7: fix 10-bits check in slave free id
+ search loop
+Date: Mon, 18 Nov 2019 10:56:12 +0100
+Message-ID: <ca718929-a6c6-587c-0a7a-0cfb5a2cfe0d@st.com>
+References: <1573546784-28182-1-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191118102410.78cd8e6e@endymion>
+In-Reply-To: <1573546784-28182-1-git-send-email-alain.volmat@st.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linux I2C <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>
+To: Alain Volmat <alain.volmat@st.com>, wsa@the-dreams.de
+Cc: alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
 List-Id: linux-i2c@vger.kernel.org
 
-Call the function to instantiate SPD EEPROMs automatically on the
-main SMBus controller.
+Hello
 
-Multiplexed SMBus systems are excluded for now as they are more
-complex to handle.
+Look good to me
 
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
----
-Changes since v1:
- * Fixed build error reported by kbuild test robot
+Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 
- drivers/i2c/busses/i2c-i801.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+Regards
 
---- linux-5.4-rc7.orig/drivers/i2c/busses/i2c-i801.c	2019-11-18 10:21:39.688372006 +0100
-+++ linux-5.4-rc7/drivers/i2c/busses/i2c-i801.c	2019-11-18 10:21:41.928402933 +0100
-@@ -1320,6 +1320,12 @@ static void i801_probe_optional_slaves(s
- 
- 	if (is_dell_system_with_lis3lv02d())
- 		register_dell_lis3lv02d_i2c_device(priv);
-+
-+	/* Instantiate SPD EEPROMs unless the SMBus is multiplexed */
-+#if IS_ENABLED(CONFIG_I2C_MUX_GPIO)
-+	if (!priv->mux_drvdata)
-+#endif
-+		i2c_register_spd(&priv->adapter);
- }
- #else
- static void __init input_apanel_init(void) {}
-
--- 
-Jean Delvare
-SUSE L3 Support
+On 11/12/19 9:19 AM, Alain Volmat wrote:
+> Fix a typo in the free slave id search loop. Instead of I2C_CLIENT_PEC,
+> it should have been I2C_CLIENT_TEN. The slave id 1 can only handle 7-bit
+> addresses and thus is not eligible in case of 10-bit addresses.
+> As a matter of fact none of the slave id support I2C_CLIENT_PEC, overall
+> check is performed at the beginning of the stm32f7_i2c_reg_slave function.
+> 
+> Fixes: 60d609f30de2 ("i2c: i2c-stm32f7: Add slave support")
+> 
+> Signed-off-by: Alain Volmat <alain.volmat@st.com>
+> ---
+>  drivers/i2c/busses/i2c-stm32f7.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+> index b9a082f64d58..b2634afe066d 100644
+> --- a/drivers/i2c/busses/i2c-stm32f7.c
+> +++ b/drivers/i2c/busses/i2c-stm32f7.c
+> @@ -1268,7 +1268,7 @@ static int stm32f7_i2c_get_free_slave_id(struct stm32f7_i2c_dev *i2c_dev,
+>  	 * slave[1] supports 7-bit slave address only
+>  	 */
+>  	for (i = STM32F7_I2C_MAX_SLAVE - 1; i >= 0; i--) {
+> -		if (i == 1 && (slave->flags & I2C_CLIENT_PEC))
+> +		if (i == 1 && (slave->flags & I2C_CLIENT_TEN))
+>  			continue;
+>  		if (!i2c_dev->slave[i]) {
+>  			*id = i;
+> 
