@@ -1,46 +1,69 @@
-From: Lei YU <mine260309@gmail.com>
-Subject: [PATCH v2] docs: i2c: Fix return value of i2c_smbus_xxx functions
-Date: Tue, 19 Nov 2019 19:23:52 +0800
-Message-ID: <1574162632-65848-1-git-send-email-mine260309@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Lei YU <mine260309@gmail.com>
+From: Tali Perry <tali.perry1@gmail.com>
+Subject: [PATCH v5 1/2] dt-bindings: i2c: npcm7xx: * add binding for i2c
+ controller
+Date: Tue, 19 Nov 2019 16:49:29 +0200
+Message-ID: <20191119144930.227241-2-tali.perry1@gmail.com>
+References: <20191119144930.227241-1-tali.perry1@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20191119144930.227241-1-tali.perry1@gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: avifishman70@gmail.com, tmaimon77@gmail.com, venture@google.com, yuenn@google.com, benjaminfair@google.com, robh+dt@kernel.org, mark.rutland@arm.com, tali.perry1@gmail.com, robh@kernel.org, wsa@the-dreams.de, jdelvare@suse.de, jarkko.nikula@linux.intel.com, geert@linux-m68k.org, arnd@arndb.de, max@enpas.org, krzysztof.adamski@nokia.com, syniurge@gmail.com, puwen@hygon.cn, jfi@ssv-embedded.de, sr@denx.de, mchehab+samsung@kernel.org, kdasu.kdev@gmail.com, enric.balletbo@collabora.com, baolin.wang@linaro.org, ludovic.desroches@microchip.com
+Cc: devicetree@vger.kernel.org, openbmc@lists.ozlabs.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-In i2c/dev-interface.rst it said
-
-> All these transactions return -1 on failure
-
-But actually the i2c_smbus_xxx functions return negative error numbers
-on failure, instead of -1.
-
-Fix the document and remove the following sentence.
-
-Signed-off-by: Lei YU <mine260309@gmail.com>
+ dt-bindings: i2c: npcm7xx: * add binding for i2c controller
+Signed-off-by: Tali Perry <tali.perry1@gmail.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 ---
- Documentation/i2c/dev-interface.rst | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ .../devicetree/bindings/i2c/i2c-npcm7xx.txt   | 29 +++++++++++++++++++
+ 1 file changed, 29 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
 
-diff --git a/Documentation/i2c/dev-interface.rst b/Documentation/i2c/dev-interface.rst
-index 69c23a3..f2f2b28 100644
---- a/Documentation/i2c/dev-interface.rst
-+++ b/Documentation/i2c/dev-interface.rst
-@@ -163,11 +163,10 @@ for details) through the following functions::
-   __s32 i2c_smbus_write_block_data(int file, __u8 command, __u8 length,
-                                    __u8 *values);
- 
--All these transactions return -1 on failure; you can read errno to see
--what happened. The 'write' transactions return 0 on success; the
--'read' transactions return the read value, except for read_block, which
--returns the number of values read. The block buffers need not be longer
--than 32 bytes.
-+All these transactions return a negative error number on failure.
-+The 'write' transactions return 0 on success; the 'read' transactions
-+return the read value, except for read_block, which returns the number
-+of values read. The block buffers need not be longer than 32 bytes.
- 
- The above functions are made available by linking against the libi2c library,
- which is provided by the i2c-tools project.  See:
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt b/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
+new file mode 100644
+index 000000000000..0ecae950748b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-npcm7xx.txt
+@@ -0,0 +1,29 @@
++Nuvoton NPCM7XX I2C bus
++
++The NPCM750x includes sixteen I2C bus controllers. All Controllers support
++both master and slave mode. Each controller has two 16 byte HW FIFO for TX and
++RX.
++
++Required properties:
++- compatible      : must be "nuvoton,npcm750-i2c"
++- reg             : Offset and length of the register set for the device.
++- interrupts      : Contain the I2C interrupt with flags for falling edge.
++- clocks          : phandle of I2C reference clock.
++
++Optional:
++- bus-frequency   : Contain the I2C bus frequency,
++			the default I2C bus frequency is 100000.
++- pinctrl-0       : must be <&smbX_pins>, X is module number
++			(on NPCM7XX it's 0 to 15)
++- pinctrl-names   : should be set to "default"
++Example:
++
++	i2c0: i2c@80000 {
++		compatible = "nuvoton,npcm750-i2c";
++		reg = <0x80000 0x1000>;
++		clocks = <&clk NPCM7XX_CLK_APB2>;
++		bus-frequency = <100000>;
++		interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&smb0_pins>;
++	};
 -- 
-2.7.4
+2.22.0
