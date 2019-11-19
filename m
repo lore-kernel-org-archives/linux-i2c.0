@@ -1,23 +1,46 @@
 From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v2] i2c: muxes: pca9541: use BIT() macro
-Date: Tue, 19 Nov 2019 21:15:11 +0000
-Message-ID: <6abe4a56-5707-79b5-8f28-a877a132eca9@axentia.se>
-References: <20190905180423.GA7477@SD> <20191024181354.GA6889@SD>
+Subject: Re: [v5,3/3] arm64: dts: fsl-ls208xa-rdb: fix an errata E-00013
+Date: Tue, 19 Nov 2019 22:00:08 +0000
+Message-ID: <e006f622-08b1-3ae4-ee50-b0af7db93a02@axentia.se>
+References: <20191022041152.3663-1-biwen.li@nxp.com>
+ <20191022041152.3663-3-biwen.li@nxp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191024181354.GA6889@SD>
+In-Reply-To: <20191022041152.3663-3-biwen.li@nxp.com>
 Content-Language: en-US
-Content-ID: <5B76985A6C0A154FB45655C23C95CD97@eurprd02.prod.outlook.com>
+Content-ID: <BE011C63B02E48478844162F976A82D6@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Saiyam Doshi <saiyamdoshi.in@gmail.com>, "linux@roeck-us.net" <linux@roeck-us.net>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Biwen Li <biwen.li@nxp.com>, "leoyang.li@nxp.com" <leoyang.li@nxp.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOS0xMC0yNCAyMDoxNCwgU2FpeWFtIERvc2hpIHdyb3RlOg0KPiBBbnkgdXBkYXRlIC8g
-cmV2aWV3IGNvbW1lbnQgb24gdGhpcz8NCg0KSGkhDQoNClNvcnJ5IGZvciBiZWluZyB1bnJlc3Bv
-bnNpdmUuIEl0J3MgZHVwbGljYXRlIGVmZm9ydC4gVGhlcmUncyBhDQp2aXJ0dWFsbHkgaWRlbnRp
-Y2FsIHByZXZpb3VzIHBhdGNoIHBlbmRpbmcNCg0KaHR0cHM6Ly9wYXRjaHdvcmsub3psYWJzLm9y
-Zy9wYXRjaC8xMDUyNTY2Lw0KDQpUaGF0IHBhdGNoIGhhcyBzb21lIHJldmlld2VkLWJ5IGV0Yywg
-c28gSSdtIGdvaW5nIHdpdGggdGhhdC4NCg0KQ2hlZXJzLA0KUGV0ZXINCg==
+SGkhDQoNClRoaXMgcGF0Y2ggbmVlZHMgYW4gYWNrIGZyb20gdGhlIGFybTY0IGR0cyBtYWludGFp
+bmVycy4gSSBjYW5ub3Qgc25lYWsgaXQNCmluICJiZWhpbmQgdGhlaXIgYmFja3MiLiBTbywgaXQg
+d2lsbCBoYXZlIHRvIHdhaXQuIFNvcnJ5IGZvciBub3Qgbm90aWNpbmcNCmVhcmxpZXIuDQoNCkNo
+ZWVycywNClBldGVyDQoNCk9uIDIwMTktMTAtMjIgMDY6MTEsIEJpd2VuIExpIHdyb3RlOg0KPiBT
+cGVjaWZ5IGEgY2hhbm5lbCB6ZXJvIGluIGlkbGUgc3RhdGUgdG8NCj4gYXZvaWQgZW50ZXJyaW5n
+IHRyaS1zdGF0ZWQgc3RhdGUgZm9yIFBDQTk1NDcuDQo+IEFib3V0IEUtMDAwMTM6DQo+IAktIERl
+c2NyaXB0aW9uOiBJMkMxIGFuZCBJMkMzIGJ1c2VzDQo+IAkgIGFyZSBtaXNzaW5nIHB1bGwtdXAu
+DQo+IAktIEltcGFjdDogV2hlbiB0aGUgUENBOTU0eCBkZXZpY2UgaXMgdHJpLXN0YXRlZCwgdGhl
+IEkyQyBidXMNCj4gCSAgd2lsbCBmbG9hdC4gVGhpcyBtYWtlcyB0aGUgSTJDIGJ1cyBhbmQgaXRz
+IGFzc29jaWF0ZWQNCj4gCSAgZG93bnN0cmVhbSBkZXZpY2VzIGluYWNjZXNzaWJsZS4NCj4gCS0g
+SGFyZHdhcmUgZml4OiBQb3B1bGF0ZSByZXNpc3RvcnMgUjE4OSBhbmQgUjE5MCBmb3IgSTJDMQ0K
+PiAJICBhbmQgcmVzaXN0b3JzIFIyMjggYW5kIFIyMjkgZm9yIEkyQzMuDQo+IAktIFNvZnR3YXJl
+IGZpeDogUmVtb3ZlIHRoZSB0cmktc3RhdGUgb3B0aW9uIGZyb20gdGhlIFBDQTk1NHgNCj4gCSAg
+ZHJpdmVyKFBDQTk1NHggYWx3YXlzIG9uIGVuYWJsZSBzdGF0dXMsIHNwZWNpZnkgYQ0KPiAJICBj
+aGFubmVsIHplcm8gaW4gZHRzIHRvIGZpeCB0aGUgZXJyYXRhIEUtMDAwMTMpLg0KPiANCj4gU2ln
+bmVkLW9mZi1ieTogQml3ZW4gTGkgPGJpd2VuLmxpQG54cC5jb20+DQo+IC0tLQ0KPiBDaGFuZ2Ug
+aW4gdjU6DQo+IAktIHNwZWNpZnkgYSBjaGFubmVsIHplcm8gd2hlbiBwY2E5NTQ3IGluIGlkbGUg
+c3RhdGUuDQo+IA0KPiAgYXJjaC9hcm02NC9ib290L2R0cy9mcmVlc2NhbGUvZnNsLWxzMjA4eGEt
+cmRiLmR0c2kgfCAxICsNCj4gIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKQ0KPiANCj4g
+ZGlmZiAtLWdpdCBhL2FyY2gvYXJtNjQvYm9vdC9kdHMvZnJlZXNjYWxlL2ZzbC1sczIwOHhhLXJk
+Yi5kdHNpIGIvYXJjaC9hcm02NC9ib290L2R0cy9mcmVlc2NhbGUvZnNsLWxzMjA4eGEtcmRiLmR0
+c2kNCj4gaW5kZXggNmZkN2Y2MzA4NWM5Li40MTJmMWJjMGRiNWYgMTAwNjQ0DQo+IC0tLSBhL2Fy
+Y2gvYXJtNjQvYm9vdC9kdHMvZnJlZXNjYWxlL2ZzbC1sczIwOHhhLXJkYi5kdHNpDQo+ICsrKyBi
+L2FyY2gvYXJtNjQvYm9vdC9kdHMvZnJlZXNjYWxlL2ZzbC1sczIwOHhhLXJkYi5kdHNpDQo+IEBA
+IC00OSw2ICs0OSw3IEBADQo+ICAJCXJlZyA9IDwweDc1PjsNCj4gIAkJI2FkZHJlc3MtY2VsbHMg
+PSA8MT47DQo+ICAJCSNzaXplLWNlbGxzID0gPDA+Ow0KPiArCQlpZGxlLXN0YXRlID0gPDA+Ow0K
+PiAgCQlpMmNAMSB7DQo+ICAJCQkjYWRkcmVzcy1jZWxscyA9IDwxPjsNCj4gIAkJCSNzaXplLWNl
+bGxzID0gPDA+Ow0KPiANCg0K
