@@ -1,41 +1,46 @@
-From: Lei YU <mine260309@gmail.com>
-Subject: [PATCH] docs: i2c: Fix return value of i2c_smbus_xxx functions
-Date: Tue, 19 Nov 2019 16:56:18 +0800
-Message-ID: <1574153778-59977-1-git-send-email-mine260309@gmail.com>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH] docs: i2c: Fix return value of i2c_smbus_xxx functions
+Date: Tue, 19 Nov 2019 09:33:02 +0000
+Message-ID: <a1444cbf-3a1d-6f17-97a9-77664a95d304@axentia.se>
+References: <1574153778-59977-1-git-send-email-mine260309@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1574153778-59977-1-git-send-email-mine260309@gmail.com>
+Content-Language: en-US
+Content-ID: <1DFE34F3793D764FA3CF8181BD721021@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Lei YU <mine260309@gmail.com>
+To: Lei YU <mine260309@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-In i2c/dev-interface.rst it said
-
-> All these transactions return -1 on failure
-
-But actually the i2c_smbus_xxx functions return negative error numbers
-on failure, instead of -1.
-
-Fix the document.
-
-Signed-off-by: Lei YU <mine260309@gmail.com>
----
- Documentation/i2c/dev-interface.rst | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/Documentation/i2c/dev-interface.rst b/Documentation/i2c/dev-interface.rst
-index 69c23a3..73b77c3 100644
---- a/Documentation/i2c/dev-interface.rst
-+++ b/Documentation/i2c/dev-interface.rst
-@@ -163,8 +163,8 @@ for details) through the following functions::
-   __s32 i2c_smbus_write_block_data(int file, __u8 command, __u8 length,
-                                    __u8 *values);
- 
--All these transactions return -1 on failure; you can read errno to see
--what happened. The 'write' transactions return 0 on success; the
-+All these transactions return negative value on failure; you can read errno to
-+see what happened. The 'write' transactions return 0 on success; the
- 'read' transactions return the read value, except for read_block, which
- returns the number of values read. The block buffers need not be longer
- than 32 bytes.
--- 
-2.7.4
+T24gMjAxOS0xMS0xOSAwOTo1NiwgTGVpIFlVIHdyb3RlOg0KPiBJbiBpMmMvZGV2LWludGVyZmFj
+ZS5yc3QgaXQgc2FpZA0KPiANCj4+IEFsbCB0aGVzZSB0cmFuc2FjdGlvbnMgcmV0dXJuIC0xIG9u
+IGZhaWx1cmUNCj4gDQo+IEJ1dCBhY3R1YWxseSB0aGUgaTJjX3NtYnVzX3h4eCBmdW5jdGlvbnMg
+cmV0dXJuIG5lZ2F0aXZlIGVycm9yIG51bWJlcnMNCj4gb24gZmFpbHVyZSwgaW5zdGVhZCBvZiAt
+MS4NCj4gDQo+IEZpeCB0aGUgZG9jdW1lbnQuDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBMZWkgWVUg
+PG1pbmUyNjAzMDlAZ21haWwuY29tPg0KPiAtLS0NCj4gIERvY3VtZW50YXRpb24vaTJjL2Rldi1p
+bnRlcmZhY2UucnN0IHwgNCArKy0tDQo+ICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCsp
+LCAyIGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vaTJjL2Rl
+di1pbnRlcmZhY2UucnN0IGIvRG9jdW1lbnRhdGlvbi9pMmMvZGV2LWludGVyZmFjZS5yc3QNCj4g
+aW5kZXggNjljMjNhMy4uNzNiNzdjMyAxMDA2NDQNCj4gLS0tIGEvRG9jdW1lbnRhdGlvbi9pMmMv
+ZGV2LWludGVyZmFjZS5yc3QNCj4gKysrIGIvRG9jdW1lbnRhdGlvbi9pMmMvZGV2LWludGVyZmFj
+ZS5yc3QNCj4gQEAgLTE2Myw4ICsxNjMsOCBAQCBmb3IgZGV0YWlscykgdGhyb3VnaCB0aGUgZm9s
+bG93aW5nIGZ1bmN0aW9uczo6DQo+ICAgIF9fczMyIGkyY19zbWJ1c193cml0ZV9ibG9ja19kYXRh
+KGludCBmaWxlLCBfX3U4IGNvbW1hbmQsIF9fdTggbGVuZ3RoLA0KPiAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICBfX3U4ICp2YWx1ZXMpOw0KPiAgDQo+IC1BbGwgdGhlc2UgdHJh
+bnNhY3Rpb25zIHJldHVybiAtMSBvbiBmYWlsdXJlOyB5b3UgY2FuIHJlYWQgZXJybm8gdG8gc2Vl
+DQo+IC13aGF0IGhhcHBlbmVkLiBUaGUgJ3dyaXRlJyB0cmFuc2FjdGlvbnMgcmV0dXJuIDAgb24g
+c3VjY2VzczsgdGhlDQo+ICtBbGwgdGhlc2UgdHJhbnNhY3Rpb25zIHJldHVybiBuZWdhdGl2ZSB2
+YWx1ZSBvbiBmYWlsdXJlOyB5b3UgY2FuIHJlYWQgZXJybm8gdG8NCj4gK3NlZSB3aGF0IGhhcHBl
+bmVkLiBUaGUgJ3dyaXRlJyB0cmFuc2FjdGlvbnMgcmV0dXJuIDAgb24gc3VjY2VzczsgdGhlDQoN
+CnMvcmV0dXJuIG5lZ2F0aXZlL3JldHVybiBhIG5lZ2F0aXZlLw0KDQpBbmQgdGhlIGxpbmUgaXMg
+bm93IHRvbyBsb25nIGNvbXBhcmVkIHRvIHRoZSByZXN0IG9mIHRoZSB0ZXh0LCBzbyB5b3UNCm5l
+ZWQgdG8gcmV3cmFwIHRoZSBwYXJhZ3JhcGguDQoNCkFuZCB3aHkgZG8geW91IG5lZWQgdG8gZGln
+IGFyb3VuZCBpbiBlcnJubyBpZiB0aGUgbmVnYXRpdmUgZXJybm8gaGFzDQphbHJlYWR5IGJlZW4g
+cmV0dXJuZWQ/DQoNCj4gICdyZWFkJyB0cmFuc2FjdGlvbnMgcmV0dXJuIHRoZSByZWFkIHZhbHVl
+LCBleGNlcHQgZm9yIHJlYWRfYmxvY2ssIHdoaWNoDQo+ICByZXR1cm5zIHRoZSBudW1iZXIgb2Yg
+dmFsdWVzIHJlYWQuIFRoZSBibG9jayBidWZmZXJzIG5lZWQgbm90IGJlIGxvbmdlcg0KPiAgdGhh
+biAzMiBieXRlcy4NCj4gDQoNCkhtbSwgdW5yZWxhdGVkLCBidXQgc2hvdWxkIHRoYXQgcGVyaGFw
+cyBiZSAibXVzdCBub3QiIGluc3RlYWQgb2YgIm5lZWQgbm90Ij8NCg0KQ2hlZXJzLA0KUGV0ZXIN
+Cg==
