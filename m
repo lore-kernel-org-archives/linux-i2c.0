@@ -1,29 +1,46 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] docs: i2c: Fix return value of i2c_smbus_xxx functions
-Date: Tue, 19 Nov 2019 10:24:00 +0000
-Message-ID: <c8aeb189-16da-0585-db6e-ec61a87eafba@axentia.se>
-References: <1574153778-59977-1-git-send-email-mine260309@gmail.com>
- <a1444cbf-3a1d-6f17-97a9-77664a95d304@axentia.se>
- <CAARXrtmHh-7smvGi1_0J81zRfR9iiEG2+DJK2nDi_fThOKggmA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Lei YU <mine260309@gmail.com>
+Subject: [PATCH v2] docs: i2c: Fix return value of i2c_smbus_xxx functions
+Date: Tue, 19 Nov 2019 19:23:52 +0800
+Message-ID: <1574162632-65848-1-git-send-email-mine260309@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAARXrtmHh-7smvGi1_0J81zRfR9iiEG2+DJK2nDi_fThOKggmA@mail.gmail.com>
-Content-Language: en-US
-Content-ID: <9F5053F4363FAC45AD7B7374A1315585@eurprd02.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lei YU <mine260309@gmail.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Lei YU <mine260309@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAxOS0xMS0xOSAxMDo0MywgTGVpIFlVIHdyb3RlOg0KPiBPbiBUdWUsIE5vdiAxOSwgMjAx
-OSBhdCA1OjMzIFBNIFBldGVyIFJvc2luIDxwZWRhQGF4ZW50aWEuc2U+IHdyb3RlOg0KPj4gQW5k
-IHRoZSBsaW5lIGlzIG5vdyB0b28gbG9uZyBjb21wYXJlZCB0byB0aGUgcmVzdCBvZiB0aGUgdGV4
-dCwgc28geW91DQo+PiBuZWVkIHRvIHJld3JhcCB0aGUgcGFyYWdyYXBoLg0KPiANCj4gSW4gdGhp
-cyBwYXRjaCBpdCdzIGF0IGNvbHVtbiA3OCwgdGhhdCBzaG91bGQgYmUgT0suDQoNCk5vLCB0aGF0
-J3Mgbm90IG9rLiBJZiB0aGUgcmVzdA0Kb2YgdGhlIHBhcmFncmFwaCBpcyB3cmFwcGVkIGF0IDcy
-IChvciBzb21ldGhpbmcgc3VjaCksIGEgc2luZ2xlIGxpbmUNCmJyZWFraW5nIHRoYXQgcGF0dGVy
-biB3aWxsIGJlDQpkaXN0dXJiaW5nIHRvIHRoZSByZWFkZXIuIFRoZQ0KZmFjdCB0aGF0IHlvdSBk
-b24ndCBnZXQgc29tZQ0KY2hlY2twYXRjaCB3YXJuaW5nIGhhcyBub3RoaW5nDQp0byBkbyB3aXRo
-IHRoYXQuDQoNCkNoZWVycywNClBldGVyDQo=
+In i2c/dev-interface.rst it said
+
+> All these transactions return -1 on failure
+
+But actually the i2c_smbus_xxx functions return negative error numbers
+on failure, instead of -1.
+
+Fix the document and remove the following sentence.
+
+Signed-off-by: Lei YU <mine260309@gmail.com>
+---
+ Documentation/i2c/dev-interface.rst | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/Documentation/i2c/dev-interface.rst b/Documentation/i2c/dev-interface.rst
+index 69c23a3..f2f2b28 100644
+--- a/Documentation/i2c/dev-interface.rst
++++ b/Documentation/i2c/dev-interface.rst
+@@ -163,11 +163,10 @@ for details) through the following functions::
+   __s32 i2c_smbus_write_block_data(int file, __u8 command, __u8 length,
+                                    __u8 *values);
+ 
+-All these transactions return -1 on failure; you can read errno to see
+-what happened. The 'write' transactions return 0 on success; the
+-'read' transactions return the read value, except for read_block, which
+-returns the number of values read. The block buffers need not be longer
+-than 32 bytes.
++All these transactions return a negative error number on failure.
++The 'write' transactions return 0 on success; the 'read' transactions
++return the read value, except for read_block, which returns the number
++of values read. The block buffers need not be longer than 32 bytes.
+ 
+ The above functions are made available by linking against the libi2c library,
+ which is provided by the i2c-tools project.  See:
+-- 
+2.7.4
