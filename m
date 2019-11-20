@@ -1,7 +1,7 @@
 From: Khouloud Touil <ktouil@baylibre.com>
-Subject: [PATCH 2/4] nvmem: add support for the write-protect pin
-Date: Wed, 20 Nov 2019 15:20:36 +0100
-Message-ID: <20191120142038.30746-3-ktouil@baylibre.com>
+Subject: [PATCH 1/4] dt-bindings: nvmem: new optional property write-protect-gpios
+Date: Wed, 20 Nov 2019 15:20:35 +0100
+Message-ID: <20191120142038.30746-2-ktouil@baylibre.com>
 References: <20191120142038.30746-1-ktouil@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20191120142038.30746-1-ktouil@baylibre.com>
@@ -10,119 +10,50 @@ To: bgolaszewski@baylibre.com, robh+dt@kernel.org, mark.rutland@arm.com, sriniva
 Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linus.walleij@linaro.org, Khouloud Touil <ktouil@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The write-protect pin handling looks like a standard property that
-could benefit other users if available in the core nvmem framework.
+Many nvmem memory chips have a write-protect pin which, when pulled
+high, blocks the write operations.
+
+On some boards, this pin is connected to a GPIO and pulled high by
+default, which forces the user to manually change its state before
+writing.
 
 Instead of modifying all the memory drivers to check this pin, make
 the NVMEM subsystem check if the write-protect GPIO being passed
 through the nvmem_config or defined in the device tree and pull it
 low whenever writing to the memory.
 
-There was a suggestion for introducing the gpiodesc from pdata, but
-as pdata is already removed it could be replaced by adding it to
-nvmem_config.
-
-Reference: https://lists.96boards.org/pipermail/dev/2018-August/001056.html
+Add a new optional property to the device tree binding document, which
+allows to specify the GPIO line to which the write-protect pin is
+connected.
 
 Signed-off-by: Khouloud Touil <ktouil@baylibre.com>
 ---
- drivers/nvmem/core.c           | 20 ++++++++++++++++++--
- drivers/nvmem/nvmem.h          |  2 ++
- include/linux/nvmem-provider.h |  3 +++
- 3 files changed, 23 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/nvmem/nvmem.yaml | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 057d1ff87d5d..ae6c3455eb11 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -15,6 +15,7 @@
- #include <linux/module.h>
- #include <linux/nvmem-consumer.h>
- #include <linux/nvmem-provider.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/of.h>
- #include <linux/slab.h>
- #include "nvmem.h"
-@@ -54,8 +55,14 @@ static int nvmem_reg_read(struct nvmem_device *nvmem, unsigned int offset,
- static int nvmem_reg_write(struct nvmem_device *nvmem, unsigned int offset,
- 			   void *val, size_t bytes)
- {
--	if (nvmem->reg_write)
--		return nvmem->reg_write(nvmem->priv, offset, val, bytes);
-+	int ret;
+diff --git a/Documentation/devicetree/bindings/nvmem/nvmem.yaml b/Documentation/devicetree/bindings/nvmem/nvmem.yaml
+index 1c75a059206c..6724764af794 100644
+--- a/Documentation/devicetree/bindings/nvmem/nvmem.yaml
++++ b/Documentation/devicetree/bindings/nvmem/nvmem.yaml
+@@ -34,6 +34,11 @@ properties:
+     description:
+       Mark the provider as read only.
+ 
++  wp-gpios:
++    description:
++      GPIO to which the write-protect pin of the chip is connected.
++    maxItems: 1
 +
-+	if (nvmem->reg_write) {
-+		gpiod_set_value_cansleep(nvmem->wp_gpio, 0);
-+		ret = nvmem->reg_write(nvmem->priv, offset, val, bytes);
-+		gpiod_set_value_cansleep(nvmem->wp_gpio, 1);
-+		return ret;
-+	}
+ patternProperties:
+   "^.*@[0-9a-f]+$":
+     type: object
+@@ -66,6 +71,7 @@ examples:
+       qfprom: eeprom@700000 {
+           #address-cells = <1>;
+           #size-cells = <1>;
++          wp-gpios = <&gpio1 3 0>;
  
- 	return -EINVAL;
- }
-@@ -365,6 +372,15 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 		kfree(nvmem);
- 		return ERR_PTR(rval);
- 	}
-+	if (config->wp_gpio)
-+		nvmem->wp_gpio = config->wp_gpio;
-+	else
-+		nvmem->wp_gpio = gpiod_get_optional(config->dev,
-+						    "wp",
-+						    GPIOD_OUT_HIGH);
-+	if (IS_ERR(nvmem->wp_gpio))
-+		return PTR_ERR(nvmem->wp_gpio);
-+
+           /* ... */
  
- 	kref_init(&nvmem->refcnt);
- 	INIT_LIST_HEAD(&nvmem->cells);
-diff --git a/drivers/nvmem/nvmem.h b/drivers/nvmem/nvmem.h
-index eb8ed7121fa3..be0d66d75c8a 100644
---- a/drivers/nvmem/nvmem.h
-+++ b/drivers/nvmem/nvmem.h
-@@ -9,6 +9,7 @@
- #include <linux/list.h>
- #include <linux/nvmem-consumer.h>
- #include <linux/nvmem-provider.h>
-+#include <linux/gpio/consumer.h>
- 
- struct nvmem_device {
- 	struct module		*owner;
-@@ -26,6 +27,7 @@ struct nvmem_device {
- 	struct list_head	cells;
- 	nvmem_reg_read_t	reg_read;
- 	nvmem_reg_write_t	reg_write;
-+	struct gpio_desc	*wp_gpio;
- 	void *priv;
- };
- 
-diff --git a/include/linux/nvmem-provider.h b/include/linux/nvmem-provider.h
-index fe051323be0a..6d6f8e5d24c9 100644
---- a/include/linux/nvmem-provider.h
-+++ b/include/linux/nvmem-provider.h
-@@ -11,6 +11,7 @@
- 
- #include <linux/err.h>
- #include <linux/errno.h>
-+#include <linux/gpio/consumer.h>
- 
- struct nvmem_device;
- struct nvmem_cell_info;
-@@ -45,6 +46,7 @@ enum nvmem_type {
-  * @word_size:	Minimum read/write access granularity.
-  * @stride:	Minimum read/write access stride.
-  * @priv:	User context passed to read/write callbacks.
-+ * @wp-gpio:   Write protect pin
-  *
-  * Note: A default "nvmem<id>" name will be assigned to the device if
-  * no name is specified in its configuration. In such case "<id>" is
-@@ -58,6 +60,7 @@ struct nvmem_config {
- 	const char		*name;
- 	int			id;
- 	struct module		*owner;
-+	struct gpio_desc	*wp_gpio;
- 	const struct nvmem_cell_info	*cells;
- 	int			ncells;
- 	enum nvmem_type		type;
 -- 
 2.17.1
