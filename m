@@ -1,79 +1,30 @@
-From: Khouloud Touil <ktouil@baylibre.com>
-Subject: [PATCH 4/4] eeprom: at24: remove the write-protect pin support
-Date: Wed, 20 Nov 2019 15:20:38 +0100
-Message-ID: <20191120142038.30746-5-ktouil@baylibre.com>
-References: <20191120142038.30746-1-ktouil@baylibre.com>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: Re: [PATCH v2 1/5] i2c: mux: pca9541: use the BIT macro
+Date: Wed, 20 Nov 2019 17:20:19 +0100
+Message-ID: <915a1f60-e97a-17d3-d2e0-127a46ca4ba5@lucaceresoli.net>
+References: <20190306231521.29367-1-peda@axentia.se>
+ <20190306231521.29367-2-peda@axentia.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191120142038.30746-1-ktouil@baylibre.com>
+In-Reply-To: <20190306231521.29367-2-peda@axentia.se>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: bgolaszewski@baylibre.com, robh+dt@kernel.org, mark.rutland@arm.com, srinivas.kandagatla@linaro.org, baylibre-upstreaming@groups.io
-Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linus.walleij@linaro.org, Khouloud Touil <ktouil@baylibre.com>
+To: Peter Rosin <peda@axentia.se>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Guenter Roeck <linux@roeck-us.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Ken Chen <chen.kenyy@inventec.com>, Pradeep Srinivasan <pradeeps@cumulusnetworks.com>
 List-Id: linux-i2c@vger.kernel.org
 
-NVMEM framework is an interface for the at24 EEPROMs as well as for
-other drivers, instead of passing the wp-gpios over the different
-drivers each time, it would be better to pass it over the NVMEM
-subsystem once and for all.
+Hi,
 
-Removing the support for the write-protect pin after adding it to the
-NVMEM subsystem.
+On 07/03/19 00:15, Peter Rosin wrote:
+> Because it looks nice!
+> 
+> Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+> Reviewed-by: Vladimir Zapolskiy <vz@mleia.com>
+> Signed-off-by: Peter Rosin <peda@axentia.se>
 
-Signed-off-by: Khouloud Touil <ktouil@baylibre.com>
----
- drivers/misc/eeprom/at24.c | 9 ---------
- 1 file changed, 9 deletions(-)
+Reviewed-by: Luca Ceresoli <luca@lucaceresoli.net>
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 2cccd82a3106..eec2a34b7051 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -22,7 +22,6 @@
- #include <linux/nvmem-provider.h>
- #include <linux/regmap.h>
- #include <linux/pm_runtime.h>
--#include <linux/gpio/consumer.h>
- 
- /* Address pointer is 16 bit. */
- #define AT24_FLAG_ADDR16	BIT(7)
-@@ -89,8 +88,6 @@ struct at24_data {
- 
- 	struct nvmem_device *nvmem;
- 
--	struct gpio_desc *wp_gpio;
--
- 	/*
- 	 * Some chips tie up multiple I2C addresses; dummy devices reserve
- 	 * them for us, and we'll use them with SMBus calls.
-@@ -457,12 +454,10 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- 	 * from this host, but not from other I2C masters.
- 	 */
- 	mutex_lock(&at24->lock);
--	gpiod_set_value_cansleep(at24->wp_gpio, 0);
- 
- 	while (count) {
- 		ret = at24_regmap_write(at24, buf, off, count);
- 		if (ret < 0) {
--			gpiod_set_value_cansleep(at24->wp_gpio, 1);
- 			mutex_unlock(&at24->lock);
- 			pm_runtime_put(dev);
- 			return ret;
-@@ -472,7 +467,6 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- 		count -= ret;
- 	}
- 
--	gpiod_set_value_cansleep(at24->wp_gpio, 1);
- 	mutex_unlock(&at24->lock);
- 
- 	pm_runtime_put(dev);
-@@ -662,9 +656,6 @@ static int at24_probe(struct i2c_client *client)
- 	at24->client[0].client = client;
- 	at24->client[0].regmap = regmap;
- 
--	at24->wp_gpio = devm_gpiod_get_optional(dev, "wp", GPIOD_OUT_HIGH);
--	if (IS_ERR(at24->wp_gpio))
--		return PTR_ERR(at24->wp_gpio);
- 
- 	writable = !(flags & AT24_FLAG_READONLY);
- 	if (writable) {
 -- 
-2.17.1
+Luca
