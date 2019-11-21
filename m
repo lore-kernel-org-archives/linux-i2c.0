@@ -1,30 +1,38 @@
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH] i2c: i2c-core-base: tiny indention cleanup
-Date: Thu, 21 Nov 2019 16:35:41 +0100
-Message-ID: <20191121153541.26402-1-info@metux.net>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2] dt-bindings: i2c: stm32: Migrate i2c-stm32
+ documentation to yaml
+Date: Thu, 21 Nov 2019 13:39:29 -0600
+Message-ID: <20191121193929.GA6676@bogus>
+References: <1574342866-8348-1-git-send-email-alain.volmat@st.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1574342866-8348-1-git-send-email-alain.volmat@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: wsa@the-dreams.de, linux-i2c@vger.kernel.org
+To: Alain Volmat <alain.volmat@st.com>
+Cc: wsa@the-dreams.de, robh+dt@kernel.org, mark.rutland@arm.com, pierre-yves.mordret@st.com, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
----
- drivers/i2c/i2c-core-base.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Thu, 21 Nov 2019 14:27:46 +0100, Alain Volmat wrote:
+> The document was migrated to Yaml format and renamed st,stm32-i2c.yaml
+> 
+> Signed-off-by: Alain Volmat <alain.volmat@st.com>
+> ---
+> v2: remove i2c-scl.*time description, ref (moved into i2c-controller.yaml
+>     push the st,syscfg-fmt into the if compatible st,stm32f7 part
+>     fix the st,syscfg-fmt ref syntax and set minItems/maxItems to 3
+>     make the clock-frequency part common and only keep enum in the st,stm32f4 case
+>     remove unnecesary minItems/maxItems
+>     remove address-cells/size-cells from required fields
+> ---
+>  .../devicetree/bindings/i2c/i2c-stm32.txt          |  65 ----------
+>  .../devicetree/bindings/i2c/st,stm32-i2c.yaml      | 141 +++++++++++++++++++++
+>  2 files changed, 141 insertions(+), 65 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-stm32.txt
+>  create mode 100644 Documentation/devicetree/bindings/i2c/st,stm32-i2c.yaml
+> 
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 5f6a4985f2bc..68be4e89d16a 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -2326,7 +2326,7 @@ struct i2c_adapter *i2c_get_adapter(int nr)
- 	else
- 		adapter = NULL;
- 
-- exit:
-+exit:
- 	mutex_unlock(&core_lock);
- 	return adapter;
- }
--- 
-2.11.0
+Applied, thanks.
+
+Rob
