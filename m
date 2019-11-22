@@ -1,51 +1,110 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 23/25] i2c: core: fix use after free in of_i2c_notify
-Date: Fri, 22 Nov 2019 14:48:56 -0500
-Message-ID: <20191122194859.24508-23-sashal@kernel.org>
-References: <20191122194859.24508-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 19/21] i2c: acpi: Force bus speed to 400KHz if a Silead touchscreen is present
+Date: Fri, 22 Nov 2019 14:49:29 -0500
+Message-ID: <20191122194931.24732-19-sashal@kernel.org>
+References: <20191122194931.24732-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191122194859.24508-1-sashal@kernel.org>
+In-Reply-To: <20191122194931.24732-1-sashal@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Wen Yang <wenyang@linux.alibaba.com>, Wolfram Sang <wsa@the-dreams.de>, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, youling 257 <youling257@gmail.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, stable@kernel.org, Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit a4c2fec16f5e6a5fee4865e6e0e91e2bc2d10f37 ]
+[ Upstream commit 7574c0db2e68c4d0bae9d415a683bdd8b2a761e9 ]
 
-We can't use "adap->dev" after it has been freed.
+Many cheap devices use Silead touchscreen controllers. Testing has shown
+repeatedly that these touchscreen controllers work fine at 400KHz, but for
+unknown reasons do not work properly at 100KHz. This has been seen on
+both ARM and x86 devices using totally different i2c controllers.
 
-Fixes: 5bf4fa7daea6 ("i2c: break out OF support into separate file")
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+On some devices the ACPI tables list another device at the same I2C-bus
+as only being capable of 100KHz, testing has shown that these other
+devices work fine at 400KHz (as can be expected of any recent I2C hw).
+
+This commit makes i2c_acpi_find_bus_speed() always return 400KHz if a
+Silead touchscreen controller is present, fixing the touchscreen not
+working on devices which ACPI tables' wrongly list another device on the
+same bus as only being capable of 100KHz.
+
+Specifically this fixes the touchscreen on the Jumper EZpad 6 m4 not
+working.
+
+Reported-by: youling 257 <youling257@gmail.com>
+Tested-by: youling 257 <youling257@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+[wsa: rewording warning a little]
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Cc: stable@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-core-of.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core-acpi.c | 28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
-index 0f01cdba9d2c6..14d4884996968 100644
---- a/drivers/i2c/i2c-core-of.c
-+++ b/drivers/i2c/i2c-core-of.c
-@@ -253,14 +253,14 @@ static int of_i2c_notify(struct notifier_block *nb, unsigned long action,
- 		}
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 847d9bf6744c2..df9800aaeac71 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -43,6 +43,7 @@ struct i2c_acpi_lookup {
+ 	int index;
+ 	u32 speed;
+ 	u32 min_speed;
++	u32 force_speed;
+ };
  
- 		client = of_i2c_register_device(adap, rd->dn);
--		put_device(&adap->dev);
--
- 		if (IS_ERR(client)) {
- 			dev_err(&adap->dev, "failed to create client for '%pOF'\n",
- 				 rd->dn);
-+			put_device(&adap->dev);
- 			of_node_clear_flag(rd->dn, OF_POPULATED);
- 			return notifier_from_errno(PTR_ERR(client));
- 		}
-+		put_device(&adap->dev);
- 		break;
- 	case OF_RECONFIG_CHANGE_REMOVE:
- 		/* already depopulated? */
+ static int i2c_acpi_fill_info(struct acpi_resource *ares, void *data)
+@@ -240,6 +241,19 @@ i2c_acpi_match_device(const struct acpi_device_id *matches,
+ 	return acpi_match_device(matches, &client->dev);
+ }
+ 
++static const struct acpi_device_id i2c_acpi_force_400khz_device_ids[] = {
++	/*
++	 * These Silead touchscreen controllers only work at 400KHz, for
++	 * some reason they do not work at 100KHz. On some devices the ACPI
++	 * tables list another device at their bus as only being capable
++	 * of 100KHz, testing has shown that these other devices work fine
++	 * at 400KHz (as can be expected of any recent i2c hw) so we force
++	 * the speed of the bus to 400 KHz if a Silead device is present.
++	 */
++	{ "MSSL1680", 0 },
++	{}
++};
++
+ static acpi_status i2c_acpi_lookup_speed(acpi_handle handle, u32 level,
+ 					   void *data, void **return_value)
+ {
+@@ -258,6 +272,9 @@ static acpi_status i2c_acpi_lookup_speed(acpi_handle handle, u32 level,
+ 	if (lookup->speed <= lookup->min_speed)
+ 		lookup->min_speed = lookup->speed;
+ 
++	if (acpi_match_device_ids(adev, i2c_acpi_force_400khz_device_ids) == 0)
++		lookup->force_speed = 400000;
++
+ 	return AE_OK;
+ }
+ 
+@@ -295,7 +312,16 @@ u32 i2c_acpi_find_bus_speed(struct device *dev)
+ 		return 0;
+ 	}
+ 
+-	return lookup.min_speed != UINT_MAX ? lookup.min_speed : 0;
++	if (lookup.force_speed) {
++		if (lookup.force_speed != lookup.min_speed)
++			dev_warn(dev, FW_BUG "DSDT uses known not-working I2C bus speed %d, forcing it to %d\n",
++				 lookup.min_speed, lookup.force_speed);
++		return lookup.force_speed;
++	} else if (lookup.min_speed != UINT_MAX) {
++		return lookup.min_speed;
++	} else {
++		return 0;
++	}
+ }
+ EXPORT_SYMBOL_GPL(i2c_acpi_find_bus_speed);
+ 
 -- 
 2.20.1
