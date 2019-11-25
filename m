@@ -1,32 +1,30 @@
 From: Raul Rangel <rrangel@chromium.org>
-Subject: Re: [PATCH 1/4] i2c: i2c-cros-ec-tunnel: Pass ACPI node to i2c adapter
-Date: Mon, 25 Nov 2019 11:05:41 -0700
-Message-ID: <CAHQZ30AXvNbT54LsYtF=W_xgnY35QByzGYbjaY0xc92O6h+SRA@mail.gmail.com>
-References: <20191121211053.48861-1-rrangel@chromium.org> <20191121140830.1.Iae79baaa31014e8b1d8177bcfbcd41514af724f9@changeid>
- <2dcedacb-8d08-6a58-23af-e834ef9e80fd@collabora.com>
+Subject: Re: [PATCH] i2c: i2c-cros-ec-tunnel: Fix slave device enumeration
+Date: Mon, 25 Nov 2019 11:08:46 -0700
+Message-ID: <CAHQZ30ALpF+2N8ZrA3LxNsh4Umf6x8YzEwTKCPst6LDpYU58Nw@mail.gmail.com>
+References: <20191121090620.75569-1-akshu.agrawal@amd.com> <15b0a142-a62f-1783-fe46-f5654b618f33@collabora.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2dcedacb-8d08-6a58-23af-e834ef9e80fd@collabora.com>
+In-Reply-To: <15b0a142-a62f-1783-fe46-f5654b618f33@collabora.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Akshu Agrawal <Akshu.Agrawal@amd.com>, Guenter Roeck <groeck@chromium.org>, Chanwoo Choi <cw00.choi@samsung.com>, linux-kernel <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>, Benson Leung <bleung@chromium.org>
+Cc: Akshu Agrawal <akshu.agrawal@amd.com>, Benson Leung <bleung@chromium.org>, Guenter Roeck <groeck@chromium.org>, Wolfram Sang <wsa@the-dreams.de>, Neil Armstrong <narmstrong@baylibre.com>, Chanwoo Choi <cw00.choi@samsung.com>, "open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Nov 25, 2019 at 9:06 AM Enric Balletbo i Serra
+On Mon, Nov 25, 2019 at 8:32 AM Enric Balletbo i Serra
 <enric.balletbo@collabora.com> wrote:
 >
-> Hi,
+> Hi Akshu,
 >
-> On 21/11/19 22:10, Raul E Rangel wrote:
-> > The I2C bus needs to share the same ACPI node as the tunnel device so
-> > that the I2C bus can be referenced from ACPI.
+> On 21/11/19 10:06, Akshu Agrawal wrote:
+> > During adding of the adapter the slave device registration
+> > use to fail as the acpi companion field was not populated.
 > >
-> > Signed-off-by: Raul E Rangel <rrangel@chromium.org>
 >
-> Hmm, isn't this change the same as https://lkml.org/lkml/2019/11/21/208 ?
+> I am wondering if this a fix that needs to picked on stable kernels? Which
+> chrome platform are you using?
 >
-We both found the same problem. I wasn't sure if it would be better to
-include it as part of this patch set since it was required for the MFD
-patch, or to reference it. Let's just take Akshu's patch and ignore
-this one.
+It's a fixup of https://lore.kernel.org/patchwork/patch/1151436/ so
+unless that patch has been ported to stable kernels, I wouldn't worry
+about it.
