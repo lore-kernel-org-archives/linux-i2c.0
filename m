@@ -1,58 +1,63 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: i2c-stm32f7: fix 10-bits check in slave free id
- search loop
-Date: Mon, 25 Nov 2019 15:51:10 +0100
-Message-ID: <20191125145110.GB2412@kunai>
-References: <1573546784-28182-1-git-send-email-alain.volmat@st.com>
+Subject: Re: [PATCH v2] i2c: Fix Kconfig indentation
+Date: Mon, 25 Nov 2019 15:58:49 +0100
+Message-ID: <20191125145849.GD2412@kunai>
+References: <1574306363-29424-1-git-send-email-krzk@kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="EuxKj2iCbKjpUGkD"
+        protocol="application/pgp-signature"; boundary="cQXOx3fnlpmgJsTP"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1573546784-28182-1-git-send-email-alain.volmat@st.com>
+In-Reply-To: <1574306363-29424-1-git-send-email-krzk@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alain Volmat <alain.volmat@st.com>
-Cc: pierre-yves.mordret@st.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
+To: Krzysztof Kozlowski <krzk@kernel.org>, Peter Rosin <peda@axentia.se>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---EuxKj2iCbKjpUGkD
+--cQXOx3fnlpmgJsTP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 12, 2019 at 09:19:44AM +0100, Alain Volmat wrote:
-> Fix a typo in the free slave id search loop. Instead of I2C_CLIENT_PEC,
-> it should have been I2C_CLIENT_TEN. The slave id 1 can only handle 7-bit
-> addresses and thus is not eligible in case of 10-bit addresses.
-> As a matter of fact none of the slave id support I2C_CLIENT_PEC, overall
-> check is performed at the beginning of the stm32f7_i2c_reg_slave function.
+On Thu, Nov 21, 2019 at 04:19:23AM +0100, Krzysztof Kozlowski wrote:
+> Adjust indentation from spaces to tab (+optional two spaces) as in
+> coding style with command like:
+> 	$ sed -e 's/^        /\t/' -i */Kconfig
 >=20
-> Fixes: 60d609f30de2 ("i2c: i2c-stm32f7: Add slave support")
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 >=20
-> Signed-off-by: Alain Volmat <alain.volmat@st.com>
+> ---
+>=20
+> Changes since v1:
+> 1. Fix also 7-space and tab+1 space indentation issues.
+> ---
+>  drivers/i2c/busses/Kconfig | 22 +++++++++++-----------
+>  drivers/i2c/muxes/Kconfig  | 18 +++++++++---------
 
-Applied to for-next (i.e. for 5.5.), thanks!
+Peter, I'd like to apply this for 5.5. so we don't have to deal with
+whitespace conflicts during the next cycle. Are you fine with me picking
+it up for muxes?
 
 
---EuxKj2iCbKjpUGkD
+--cQXOx3fnlpmgJsTP
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl3b6l4ACgkQFA3kzBSg
-KbbUUQ//XkHOnT0T9vDE7Y8UovQXc5YR15+7wcv4op1hXnAEnmpmlaTBwWPjHtWB
-QQYri2zbtXiGGY9qrbe1l0fPNdDYJ3U2VpFbYZhpEMfjQoMgFaEykk5GTtkhlDnS
-mOrQaHcQSMAznRqMUHT5LE0AnBDyflctVv85ZNgi2Ri/FXvrzq4CIMQlE6OL3VeT
-Vi4cNJhPYJ2Wa0gdDBAqTiNF+mKN46aRGiIhP+ldQx2YWAwC5id1+ENaw8gQR+jk
-koyxGKQppQ7aHHQvHm+0amaKULeWTG8Gh1K3h2NmwrQt6NxIIJRFKT0XE9FVZvIn
-GKIrTea2r9FJrA+s3js5moVyT0cjBBXKOqWBAoLmm0ULe5y2WHXzz3J/uE2qQFBU
-TAqz8irHuZquvVyvU9YVfFI+Wkoi67oRS1URjLdiAmbOgkOpQgRQzHmHvLWfveZg
-k2Y9QkYfoT0fGzH7CJfBjbWrsCb19Vo7lP6JvY7+yJy7IP5J7Icrosnv5n5o4IhJ
-2pobV+n1ziuZvDOAibeLBsGfXt2qjcFjkGjXeKSudsDuRSf0x0qpdH2l6zGfHKcv
-WdsTM2+Eu8vXrBzhC6/Xj2IrTVcDA/7aONu7QSkPOLV2fo1nEZWfL8Ecm/lvYiXT
-eKTKaGtlJIiLt7VIierHt7/xL3oDaseO7hFbGl5+h60aejhg1ys=
-=SNme
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl3b7CkACgkQFA3kzBSg
+KbYcbxAAlLTnbKDY7JeTE45Y+5GmbWZqpE32VWbcAleUoU12p2NTufGyRB9WMgbh
+TbdF6PEyH590IUjnfwfAG6Xfh5qrF/JaSu4vOgRUxMWxIeBFlK5Lw3DsMSjv5f80
+sTRTNeKA6qXLb4lZ1J2HBsk0tym2n2XROkpRBOOPyT8vxtTwWn66zS/Fnk8rOyG+
+SGOhSwQ/jO+sIDLyZFaNSLssKs0gQE8Roaqv64uT5EZMaFSBlHO2Jb2ErOOZ06fp
+rLiC2jO01O6PLDkZs8wiemPEXvgukdb5ld7C1Qs4ZL11m2aaEzyYoJeFuJyHiP81
+Grl1mhGLSFVXdONGyEa/sW1COVk2106qUNJQ1kuQOy0EKc/8xtqJnPVOrErVDkgF
+govrszAlBPUYAZlV+It3uB206Fn1jQlecDbgsgw+ECRyN7I3P/CCfisbolgQ+C6w
+aa5VLB+0sIGNMw4130Y8eHoXNlAz33tkDuCvCNh6C+gRxL3JQMSOicrM5c0alKyB
+AtoaVG5Vul05v723IXAhojoIt0/fyQo+/1ndAgPNMFNN5PJ6YZWCFvMWkMJ6ob5n
+dQJahJ8/2pV4wrSFraQ2aYg1ej9coJKEvfCbps8YBJUQ4ESvwvHyvR78oNVzkKX7
+HR2cRUQzEd1dQ8adzH62TUujoozrXwwd+HfQ0jUNzt3lVIMp41g=
+=O37+
 -----END PGP SIGNATURE-----
 
---EuxKj2iCbKjpUGkD--
+--cQXOx3fnlpmgJsTP--
