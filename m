@@ -1,70 +1,79 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v2] docs: i2c: Fix return value of i2c_smbus_xxx
- functions
-Date: Tue, 26 Nov 2019 11:52:43 +0100
-Message-ID: <20191126115243.673fc164@endymion>
-References: <1574162632-65848-1-git-send-email-mine260309@gmail.com>
-        <20191125144857.GA2412@kunai>
+From: Marc Zyngier <maz@kernel.org>
+Subject: Re: [PATCH v2] irqchip/aspeed-i2c-ic: Fix irq domain name memory leak
+Date: Tue, 26 Nov 2019 11:32:14 +0000
+Message-ID: <a980578b688ab760697b44dab267ad2c@www.loen.fr>
+References: <20191125202937.23133-1-roy.van.doormaal@prodrive-technologies.com>
+ <20191126074025.5112-1-roy.van.doormaal@prodrive-technologies.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191125144857.GA2412@kunai>
+In-Reply-To: <20191126074025.5112-1-roy.van.doormaal@prodrive-technologies.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Lei YU <mine260309@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Roy van Doormaal <roy.van.doormaal@prodrive-technologies.com>
+Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 25 Nov 2019 15:48:57 +0100, Wolfram Sang wrote:
-> On Tue, Nov 19, 2019 at 07:23:52PM +0800, Lei YU wrote:
-> > In i2c/dev-interface.rst it said
-> >   
-> > > All these transactions return -1 on failure  
-> > 
-> > But actually the i2c_smbus_xxx functions return negative error numbers
-> > on failure, instead of -1.
-> > 
-> > Fix the document and remove the following sentence.
-> > 
-> > Signed-off-by: Lei YU <mine260309@gmail.com>
-> > ---
-> >  Documentation/i2c/dev-interface.rst | 9 ++++-----
-> >  1 file changed, 4 insertions(+), 5 deletions(-)
-> > 
-> > diff --git a/Documentation/i2c/dev-interface.rst b/Documentation/i2c/dev-interface.rst
-> > index 69c23a3..f2f2b28 100644
-> > --- a/Documentation/i2c/dev-interface.rst
-> > +++ b/Documentation/i2c/dev-interface.rst
-> > @@ -163,11 +163,10 @@ for details) through the following functions::
-> >    __s32 i2c_smbus_write_block_data(int file, __u8 command, __u8 length,
-> >                                     __u8 *values);
-> >  
-> > -All these transactions return -1 on failure; you can read errno to see
-> > -what happened. The 'write' transactions return 0 on success; the
-> > -'read' transactions return the read value, except for read_block, which
-> > -returns the number of values read. The block buffers need not be longer
-> > -than 32 bytes.
-> > +All these transactions return a negative error number on failure.
-> > +The 'write' transactions return 0 on success; the 'read' transactions
-> > +return the read value, except for read_block, which returns the number
-> > +of values read. The block buffers need not be longer than 32 bytes.  
-> 
-> I think the correct solution is to remove this paragraph entirely.
-> Because the returned value does not depend on the kernel but on the
-> libi2c version. Check this commit from 2012 in the i2c-tools repo:
-> 
-> 330bba2 ("libi2c: Properly propagate real error codes on read errors")
-> 
-> So, I think we should document it there. Jean, what do you think?
+On 2019-11-26 07:40, Roy van Doormaal wrote:
+> The aspeed irqchip driver overwrites the default irq domain name,
+> but doesn't free the existing domain name.
+> This patch frees the irq domain name before overwriting it.
+>
+> kmemleak trace:
+>
+> unreferenced object 0xb8004c40 (size 64):
+> comm "swapper", pid 0, jiffies 4294937303 (age 747.660s)
+> hex dump (first 32 bytes):
+> 3a 61 68 62 3a 61 70 62 3a 62 75 73 40 31 65 37 :ahb:apb:bus@1e7
+> 38 61 30 30 30 3a 69 6e 74 65 72 72 75 70 74 2d 8a000:interrupt-
+> backtrace:
+> [<086b59b8>] kmemleak_alloc+0xa8/0xc0
+> [<b5a3490c>] __kmalloc_track_caller+0x118/0x1a0
+> [<f59c7ced>] kvasprintf+0x5c/0xc0
+> [<49275eec>] kasprintf+0x30/0x50
+> [<5713064b>] __irq_domain_add+0x184/0x25c
+> [<53c594d0>] aspeed_i2c_ic_of_init+0x9c/0x128
+> [<d8d7017e>] of_irq_init+0x1ec/0x314
+> [<f8405bf1>] irqchip_init+0x1c/0x24
+> [<7ef974b3>] init_IRQ+0x30/0x90
+> [<87a1438f>] start_kernel+0x28c/0x458
+> [< (null)>] (null)
+> [<f0763fdf>] 0xffffffff
+>
+> Signed-off-by: Roy van Doormaal 
+> <roy.van.doormaal@prodrive-technologies.com>
+> ---
+> Changes in v2:
+> - drop irq domain name assignment by the aspeed irqchip driver
 
-I would go further and move half of the document to i2c-tools. i2c-dev
-itself only provides the ioctls. Everything on top of that is in libi2c
-now, so the kernel documentation should point to libi2c and the
-detailed documentation should come with libi2c.
+Which is good, except that the commit message doesn't quite reflect
+what this patch does anymore.
 
-So I guess I should review the whole document now to see what needs to
-be updated, what should stay, and what should move.
+I'll fix it when picking it for -rc1.
+
+Thanks,
+
+         M.
+
+> ---
+>  drivers/irqchip/irq-aspeed-i2c-ic.c | 2 --
+>  1 file changed, 2 deletions(-)
+>
+> diff --git a/drivers/irqchip/irq-aspeed-i2c-ic.c
+> b/drivers/irqchip/irq-aspeed-i2c-ic.c
+> index 8d591c179f81..0bd46f63a3c3 100644
+> --- a/drivers/irqchip/irq-aspeed-i2c-ic.c
+> +++ b/drivers/irqchip/irq-aspeed-i2c-ic.c
+> @@ -92,8 +92,6 @@ static int __init aspeed_i2c_ic_of_init(struct
+> device_node *node,
+>  		goto err_iounmap;
+>  	}
+>
+> -	i2c_ic->irq_domain->name = "aspeed-i2c-domain";
+> -
+>  	irq_set_chained_handler_and_data(i2c_ic->parent_irq,
+>  					 aspeed_i2c_ic_irq_handler, i2c_ic);
 
 -- 
-Jean Delvare
-SUSE L3 Support
+Jazz is not dead. It just smells funny...
