@@ -1,79 +1,117 @@
-From: Marc Zyngier <maz@kernel.org>
-Subject: Re: [PATCH v2] irqchip/aspeed-i2c-ic: Fix irq domain name memory leak
-Date: Tue, 26 Nov 2019 11:32:14 +0000
-Message-ID: <a980578b688ab760697b44dab267ad2c@www.loen.fr>
-References: <20191125202937.23133-1-roy.van.doormaal@prodrive-technologies.com>
- <20191126074025.5112-1-roy.van.doormaal@prodrive-technologies.com>
+From: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Subject: Re: [PATCH v2] i2c: core: Use DEVICE_ATTR_*() helper macros
+Date: Tue, 26 Nov 2019 12:57:33 +0000
+Message-ID: <1abe3b18-2914-c2a6-ce41-169953d3579b@ideasonboard.com>
+References: <20191113152306.13968-1-geert+renesas@glider.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191126074025.5112-1-roy.van.doormaal@prodrive-technologies.com>
+In-Reply-To: <20191113152306.13968-1-geert+renesas@glider.be>
+Content-Language: en-GB
 Sender: linux-kernel-owner@vger.kernel.org
-To: Roy van Doormaal <roy.van.doormaal@prodrive-technologies.com>
-Cc: Brendan Higgins <brendanhiggins@google.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Joel Stanley <joel@jms.id.au>, Thomas Gleixner <tglx@linutronix.de>, Jason Cooper <jason@lakedaemon.net>, Andrew Jeffery <andrew@aj.id.au>, linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org
+To: Geert Uytterhoeven <geert+renesas@glider.be>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2019-11-26 07:40, Roy van Doormaal wrote:
-> The aspeed irqchip driver overwrites the default irq domain name,
-> but doesn't free the existing domain name.
-> This patch frees the irq domain name before overwriting it.
->
-> kmemleak trace:
->
-> unreferenced object 0xb8004c40 (size 64):
-> comm "swapper", pid 0, jiffies 4294937303 (age 747.660s)
-> hex dump (first 32 bytes):
-> 3a 61 68 62 3a 61 70 62 3a 62 75 73 40 31 65 37 :ahb:apb:bus@1e7
-> 38 61 30 30 30 3a 69 6e 74 65 72 72 75 70 74 2d 8a000:interrupt-
-> backtrace:
-> [<086b59b8>] kmemleak_alloc+0xa8/0xc0
-> [<b5a3490c>] __kmalloc_track_caller+0x118/0x1a0
-> [<f59c7ced>] kvasprintf+0x5c/0xc0
-> [<49275eec>] kasprintf+0x30/0x50
-> [<5713064b>] __irq_domain_add+0x184/0x25c
-> [<53c594d0>] aspeed_i2c_ic_of_init+0x9c/0x128
-> [<d8d7017e>] of_irq_init+0x1ec/0x314
-> [<f8405bf1>] irqchip_init+0x1c/0x24
-> [<7ef974b3>] init_IRQ+0x30/0x90
-> [<87a1438f>] start_kernel+0x28c/0x458
-> [< (null)>] (null)
-> [<f0763fdf>] 0xffffffff
->
-> Signed-off-by: Roy van Doormaal 
-> <roy.van.doormaal@prodrive-technologies.com>
-> ---
-> Changes in v2:
-> - drop irq domain name assignment by the aspeed irqchip driver
+Hi Geert,
 
-Which is good, except that the commit message doesn't quite reflect
-what this patch does anymore.
+On 13/11/2019 15:23, Geert Uytterhoeven wrote:
+> Convert the i2c core sysfs attributes from DEVICE_ATTR() to
+> DEVICE_ATTR_*(), to reduce boilerplate.
+> This requires renaming some functions.
 
-I'll fix it when picking it for -rc1.
+Seems a nice cleanup.
 
-Thanks,
 
-         M.
+> Although no suitable macro exists for the delete_device attribute,
+> rename i2c_sysfs_delete_device() to delete_device_store() for
+> consistency.
+> 
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Reviewed-by: Luca Ceresoli <luca@lucaceresoli.net>
+
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+
 
 > ---
->  drivers/irqchip/irq-aspeed-i2c-ic.c | 2 --
->  1 file changed, 2 deletions(-)
->
-> diff --git a/drivers/irqchip/irq-aspeed-i2c-ic.c
-> b/drivers/irqchip/irq-aspeed-i2c-ic.c
-> index 8d591c179f81..0bd46f63a3c3 100644
-> --- a/drivers/irqchip/irq-aspeed-i2c-ic.c
-> +++ b/drivers/irqchip/irq-aspeed-i2c-ic.c
-> @@ -92,8 +92,6 @@ static int __init aspeed_i2c_ic_of_init(struct
-> device_node *node,
->  		goto err_iounmap;
->  	}
->
-> -	i2c_ic->irq_domain->name = "aspeed-i2c-domain";
-> -
->  	irq_set_chained_handler_and_data(i2c_ic->parent_irq,
->  					 aspeed_i2c_ic_irq_handler, i2c_ic);
-
--- 
-Jazz is not dead. It just smells funny...
+> v2:
+>   - s/DEVICE_ATTR_RW/DEVICE_ATTR_*/ in summary and description,
+>   - Add Reviewed-by.
+> ---
+>  drivers/i2c/i2c-core-base.c | 20 ++++++++++----------
+>  1 file changed, 10 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index 6a5183cffdfc3e82..c87bf5bcab3f1349 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -449,15 +449,15 @@ static void i2c_client_dev_release(struct device *dev)
+>  }
+>  
+>  static ssize_t
+> -show_name(struct device *dev, struct device_attribute *attr, char *buf)
+> +name_show(struct device *dev, struct device_attribute *attr, char *buf)
+>  {
+>  	return sprintf(buf, "%s\n", dev->type == &i2c_client_type ?
+>  		       to_i2c_client(dev)->name : to_i2c_adapter(dev)->name);
+>  }
+> -static DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
+> +static DEVICE_ATTR_RO(name);
+>  
+>  static ssize_t
+> -show_modalias(struct device *dev, struct device_attribute *attr, char *buf)
+> +modalias_show(struct device *dev, struct device_attribute *attr, char *buf)
+>  {
+>  	struct i2c_client *client = to_i2c_client(dev);
+>  	int len;
+> @@ -472,7 +472,7 @@ show_modalias(struct device *dev, struct device_attribute *attr, char *buf)
+>  
+>  	return sprintf(buf, "%s%s\n", I2C_MODULE_PREFIX, client->name);
+>  }
+> -static DEVICE_ATTR(modalias, S_IRUGO, show_modalias, NULL);
+> +static DEVICE_ATTR_RO(modalias);
+>  
+>  static struct attribute *i2c_dev_attrs[] = {
+>  	&dev_attr_name.attr,
+> @@ -1039,8 +1039,8 @@ EXPORT_SYMBOL_GPL(i2c_adapter_depth);
+>   * the user to provide incorrect parameters.
+>   */
+>  static ssize_t
+> -i2c_sysfs_new_device(struct device *dev, struct device_attribute *attr,
+> -		     const char *buf, size_t count)
+> +new_device_store(struct device *dev, struct device_attribute *attr,
+> +		 const char *buf, size_t count)
+>  {
+>  	struct i2c_adapter *adap = to_i2c_adapter(dev);
+>  	struct i2c_board_info info;
+> @@ -1095,7 +1095,7 @@ i2c_sysfs_new_device(struct device *dev, struct device_attribute *attr,
+>  
+>  	return count;
+>  }
+> -static DEVICE_ATTR(new_device, S_IWUSR, NULL, i2c_sysfs_new_device);
+> +static DEVICE_ATTR_WO(new_device);
+>  
+>  /*
+>   * And of course let the users delete the devices they instantiated, if
+> @@ -1107,8 +1107,8 @@ static DEVICE_ATTR(new_device, S_IWUSR, NULL, i2c_sysfs_new_device);
+>   * the user to delete the wrong device.
+>   */
+>  static ssize_t
+> -i2c_sysfs_delete_device(struct device *dev, struct device_attribute *attr,
+> -			const char *buf, size_t count)
+> +delete_device_store(struct device *dev, struct device_attribute *attr,
+> +		    const char *buf, size_t count)
+>  {
+>  	struct i2c_adapter *adap = to_i2c_adapter(dev);
+>  	struct i2c_client *client, *next;
+> @@ -1151,7 +1151,7 @@ i2c_sysfs_delete_device(struct device *dev, struct device_attribute *attr,
+>  	return res;
+>  }
+>  static DEVICE_ATTR_IGNORE_LOCKDEP(delete_device, S_IWUSR, NULL,
+> -				   i2c_sysfs_delete_device);
+> +				  delete_device_store);
+>  
+>  static struct attribute *i2c_adapter_attrs[] = {
+>  	&dev_attr_name.attr,
+> 
