@@ -1,7 +1,7 @@
 From: Alain Volmat <alain.volmat@st.com>
-Subject: [PATCH 1/4] ARM: dts: stm32: add i2c4 sleep pinctrl on stm32mp157a-dk1
-Date: Wed, 27 Nov 2019 11:46:13 +0100
-Message-ID: <1574851573-25547-1-git-send-email-alain.volmat@st.com>
+Subject: [PATCH 2/4] ARM: dts: stm32: add i2c4 sleep pinctrl on stm32mp157c-ed1
+Date: Wed, 27 Nov 2019 11:46:20 +0100
+Message-ID: <1574851580-25586-1-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,18 +11,18 @@ Cc: mark.rutland@arm.com, pierre-yves.mordret@st.com, mcoquelin.stm32@gmail.com,
 List-Id: linux-i2c@vger.kernel.org
 
 Add the sleep state pinctrl entry for the i2c4 node
-of the stm32mp157a-dk1 board.
+of the stm32mp157c-ed1 board.
 
 Signed-off-by: Alain Volmat <alain.volmat@st.com>
 ---
- arch/arm/boot/dts/stm32mp157a-dk1.dts | 3 ++-
+ arch/arm/boot/dts/stm32mp157c-ed1.dts | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp157a-dk1.dts b/arch/arm/boot/dts/stm32mp157a-dk1.dts
-index 0615d1c8a6fc..1c827353f22a 100644
---- a/arch/arm/boot/dts/stm32mp157a-dk1.dts
-+++ b/arch/arm/boot/dts/stm32mp157a-dk1.dts
-@@ -199,8 +199,9 @@
+diff --git a/arch/arm/boot/dts/stm32mp157c-ed1.dts b/arch/arm/boot/dts/stm32mp157c-ed1.dts
+index 1d426ea8bdaf..3ab1c64ea1e2 100644
+--- a/arch/arm/boot/dts/stm32mp157c-ed1.dts
++++ b/arch/arm/boot/dts/stm32mp157c-ed1.dts
+@@ -114,8 +114,9 @@
  };
  
  &i2c4 {
