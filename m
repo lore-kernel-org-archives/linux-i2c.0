@@ -1,79 +1,88 @@
-From: Lei YU <mine260309@gmail.com>
-Subject: Re: [PATCH v2] docs: i2c: Fix return value of i2c_smbus_xxx functions
-Date: Wed, 27 Nov 2019 11:00:07 +0800
-Message-ID: <CAARXrtkcr+OALyXW75t9WAifmn1aMPqtVgS7fEb6d_i0F9XdRw@mail.gmail.com>
-References: <1574162632-65848-1-git-send-email-mine260309@gmail.com>
- <20191125144857.GA2412@kunai> <20191126115243.673fc164@endymion>
+From: Peng Ma <peng.ma@nxp.com>
+Subject: [PATCH] i2c: imx: Defer probing if EDMA not available
+Date: Wed, 27 Nov 2019 07:12:09 +0000
+Message-ID: <20191127071136.5240-1-peng.ma@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191126115243.673fc164@endymion>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: "linux@rempel-privat.de" <linux@rempel-privat.de>, "kernel@pengutronix.de" <kernel@pengutronix.de>, "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>
+Cc: "festevam@gmail.com" <festevam@gmail.com>, dl-linux-imx <linux-imx@nxp.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Peng Ma <peng.ma@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Nov 26, 2019 at 6:52 PM Jean Delvare <jdelvare@suse.de> wrote:
->
-> On Mon, 25 Nov 2019 15:48:57 +0100, Wolfram Sang wrote:
-> > On Tue, Nov 19, 2019 at 07:23:52PM +0800, Lei YU wrote:
-> > > In i2c/dev-interface.rst it said
-> > >
-> > > > All these transactions return -1 on failure
-> > >
-> > > But actually the i2c_smbus_xxx functions return negative error numbers
-> > > on failure, instead of -1.
-> > >
-> > > Fix the document and remove the following sentence.
-> > >
-> > > Signed-off-by: Lei YU <mine260309@gmail.com>
-> > > ---
-> > >  Documentation/i2c/dev-interface.rst | 9 ++++-----
-> > >  1 file changed, 4 insertions(+), 5 deletions(-)
-> > >
-> > > diff --git a/Documentation/i2c/dev-interface.rst b/Documentation/i2c/dev-interface.rst
-> > > index 69c23a3..f2f2b28 100644
-> > > --- a/Documentation/i2c/dev-interface.rst
-> > > +++ b/Documentation/i2c/dev-interface.rst
-> > > @@ -163,11 +163,10 @@ for details) through the following functions::
-> > >    __s32 i2c_smbus_write_block_data(int file, __u8 command, __u8 length,
-> > >                                     __u8 *values);
-> > >
-> > > -All these transactions return -1 on failure; you can read errno to see
-> > > -what happened. The 'write' transactions return 0 on success; the
-> > > -'read' transactions return the read value, except for read_block, which
-> > > -returns the number of values read. The block buffers need not be longer
-> > > -than 32 bytes.
-> > > +All these transactions return a negative error number on failure.
-> > > +The 'write' transactions return 0 on success; the 'read' transactions
-> > > +return the read value, except for read_block, which returns the number
-> > > +of values read. The block buffers need not be longer than 32 bytes.
-> >
-> > I think the correct solution is to remove this paragraph entirely.
-> > Because the returned value does not depend on the kernel but on the
-> > libi2c version. Check this commit from 2012 in the i2c-tools repo:
-> >
-> > 330bba2 ("libi2c: Properly propagate real error codes on read errors")
-> >
-> > So, I think we should document it there. Jean, what do you think?
->
-> I would go further and move half of the document to i2c-tools. i2c-dev
-> itself only provides the ioctls. Everything on top of that is in libi2c
-> now, so the kernel documentation should point to libi2c and the
-> detailed documentation should come with libi2c.
+EDMA may be not available or defered due to dependencies on
+other modules, If these scenarios is encountered, we should
+defer probing.
 
-Yeah, I sent the patch to simply fix the "return -1" issue, which is misleading.
-But if the whole paragraph or the whole document is not valid anymore,
-it needs to be fixed.
+Signed-off-by: Peng Ma <peng.ma@nxp.com>
+---
+ drivers/i2c/busses/i2c-imx.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
->
-> So I guess I should review the whole document now to see what needs to
-> be updated, what should stay, and what should move.
-
-Thanks, please help to fix the whole document so that others get the
-correct information :)
-
->
-> --
-> Jean Delvare
-> SUSE L3 Support
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 40111a3..c2b0693 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -369,8 +369,8 @@ static void i2c_imx_reset_regs(struct imx_i2c_struct *i=
+2c_imx)
+ }
+=20
+ /* Functions for DMA support */
+-static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
+-						dma_addr_t phy_addr)
++static int i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
++			       dma_addr_t phy_addr)
+ {
+ 	struct imx_i2c_dma *dma;
+ 	struct dma_slave_config dma_sconfig;
+@@ -379,7 +379,7 @@ static void i2c_imx_dma_request(struct imx_i2c_struct *=
+i2c_imx,
+=20
+ 	dma =3D devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
+ 	if (!dma)
+-		return;
++		return -ENOMEM;
+=20
+ 	dma->chan_tx =3D dma_request_chan(dev, "tx");
+ 	if (IS_ERR(dma->chan_tx)) {
+@@ -424,7 +424,7 @@ static void i2c_imx_dma_request(struct imx_i2c_struct *=
+i2c_imx,
+ 	dev_info(dev, "using %s (tx) and %s (rx) for DMA transfers\n",
+ 		dma_chan_name(dma->chan_tx), dma_chan_name(dma->chan_rx));
+=20
+-	return;
++	return 0;
+=20
+ fail_rx:
+ 	dma_release_channel(dma->chan_rx);
+@@ -432,6 +432,8 @@ static void i2c_imx_dma_request(struct imx_i2c_struct *=
+i2c_imx,
+ 	dma_release_channel(dma->chan_tx);
+ fail_al:
+ 	devm_kfree(dev, dma);
++
++	return ret;
+ }
+=20
+ static void i2c_imx_dma_callback(void *arg)
+@@ -1605,10 +1607,14 @@ static int i2c_imx_probe(struct platform_device *pd=
+ev)
+ 	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
+=20
+ 	/* Init DMA config if supported */
+-	i2c_imx_dma_request(i2c_imx, phy_addr);
++	ret =3D i2c_imx_dma_request(i2c_imx, phy_addr);
++	if (ret =3D=3D -EPROBE_DEFER)
++		goto i2c_adapter_remove;
+=20
+ 	return 0;   /* Return OK */
+=20
++i2c_adapter_remove:
++	i2c_del_adapter(&i2c_imx->adapter);
+ clk_notifier_unregister:
+ 	clk_notifier_unregister(i2c_imx->clk, &i2c_imx->clk_change_nb);
+ rpm_disable:
+--=20
+2.9.5
