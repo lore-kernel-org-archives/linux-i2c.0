@@ -1,12 +1,13 @@
 From: <Eugen.Hristev@microchip.com>
-Subject: [PATCH 1/3] dt-bindings: i2c: at91: cosmetic formatting of compatible
- list
-Date: Mon, 2 Dec 2019 08:56:35 +0000
-Message-ID: <1575276957-5615-1-git-send-email-eugen.hristev@microchip.com>
+Subject: [PATCH 3/3] i2c: at91: remote default value initialization
+Date: Mon, 2 Dec 2019 08:56:41 +0000
+Message-ID: <1575276957-5615-3-git-send-email-eugen.hristev@microchip.com>
+References: <1575276957-5615-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1575276957-5615-1-git-send-email-eugen.hristev@microchip.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: robh+dt@kernel.org, Ludovic.Desroches@microchip.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, peda@axentia.se
@@ -15,40 +16,102 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Eugen Hristev <eugen.hristev@microchip.com>
 
-Format the list of compatibles with one compatible per line.
+Platform data structs are initialized by default with zero values.
+Thus it becomes redundant to initialize them manually to zero (false).
+Remove extra false initialization for field members in structs.
 
-Suggested-by: Peter Rosin <peda@axentia.se>
+Suggested-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
 ---
- Documentation/devicetree/bindings/i2c/i2c-at91.txt | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-at91-core.c | 39 ----------------------------------=
+----
+ 1 file changed, 39 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Documenta=
-tion/devicetree/bindings/i2c/i2c-at91.txt
-index 2210f43..d35cd63 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-@@ -1,10 +1,16 @@
- I2C for Atmel platforms
+diff --git a/drivers/i2c/busses/i2c-at91-core.c b/drivers/i2c/busses/i2c-at=
+91-core.c
+index 5137e62..3da1a8a 100644
+--- a/drivers/i2c/busses/i2c-at91-core.c
++++ b/drivers/i2c/busses/i2c-at91-core.c
+@@ -66,55 +66,26 @@ static struct at91_twi_pdata at91rm9200_config =3D {
+ 	.clk_max_div =3D 5,
+ 	.clk_offset =3D 3,
+ 	.has_unre_flag =3D true,
+-	.has_alt_cmd =3D false,
+-	.has_hold_field =3D false,
+-	.has_dig_filtr =3D false,
+-	.has_adv_dig_filtr =3D false,
+-	.has_ana_filtr =3D false,
+ };
 =20
- Required properties :
--- compatible : Must be "atmel,at91rm9200-i2c", "atmel,at91sam9261-i2c",
--     "atmel,at91sam9260-i2c", "atmel,at91sam9g20-i2c", "atmel,at91sam9g10-=
-i2c",
--     "atmel,at91sam9x5-i2c", "atmel,sama5d4-i2c", "atmel,sama5d2-i2c" or
--     "microchip,sam9x60-i2c"
-+- compatible : Must be one of:
-+	"atmel,at91rm9200-i2c",
-+	"atmel,at91sam9261-i2c",
-+	"atmel,at91sam9260-i2c",
-+	"atmel,at91sam9g20-i2c",
-+	"atmel,at91sam9g10-i2c",
-+	"atmel,at91sam9x5-i2c",
-+	"atmel,sama5d4-i2c",
-+	"atmel,sama5d2-i2c",
-+	"microchip,sam9x60-i2c".
- - reg: physical base address of the controller and length of memory mapped
-      region.
- - interrupts: interrupt number to the cpu.
+ static struct at91_twi_pdata at91sam9261_config =3D {
+ 	.clk_max_div =3D 5,
+ 	.clk_offset =3D 4,
+-	.has_unre_flag =3D false,
+-	.has_alt_cmd =3D false,
+-	.has_hold_field =3D false,
+-	.has_dig_filtr =3D false,
+-	.has_adv_dig_filtr =3D false,
+-	.has_ana_filtr =3D false,
+ };
+=20
+ static struct at91_twi_pdata at91sam9260_config =3D {
+ 	.clk_max_div =3D 7,
+ 	.clk_offset =3D 4,
+-	.has_unre_flag =3D false,
+-	.has_alt_cmd =3D false,
+-	.has_hold_field =3D false,
+-	.has_dig_filtr =3D false,
+-	.has_adv_dig_filtr =3D false,
+-	.has_ana_filtr =3D false,
+ };
+=20
+ static struct at91_twi_pdata at91sam9g20_config =3D {
+ 	.clk_max_div =3D 7,
+ 	.clk_offset =3D 4,
+-	.has_unre_flag =3D false,
+-	.has_alt_cmd =3D false,
+-	.has_hold_field =3D false,
+-	.has_dig_filtr =3D false,
+-	.has_adv_dig_filtr =3D false,
+-	.has_ana_filtr =3D false,
+ };
+=20
+ static struct at91_twi_pdata at91sam9g10_config =3D {
+ 	.clk_max_div =3D 7,
+ 	.clk_offset =3D 4,
+-	.has_unre_flag =3D false,
+-	.has_alt_cmd =3D false,
+-	.has_hold_field =3D false,
+-	.has_dig_filtr =3D false,
+-	.has_adv_dig_filtr =3D false,
+-	.has_ana_filtr =3D false,
+ };
+=20
+ static const struct platform_device_id at91_twi_devtypes[] =3D {
+@@ -142,23 +113,13 @@ static const struct platform_device_id at91_twi_devty=
+pes[] =3D {
+ static struct at91_twi_pdata at91sam9x5_config =3D {
+ 	.clk_max_div =3D 7,
+ 	.clk_offset =3D 4,
+-	.has_unre_flag =3D false,
+-	.has_alt_cmd =3D false,
+-	.has_hold_field =3D false,
+-	.has_dig_filtr =3D false,
+-	.has_adv_dig_filtr =3D false,
+-	.has_ana_filtr =3D false,
+ };
+=20
+ static struct at91_twi_pdata sama5d4_config =3D {
+ 	.clk_max_div =3D 7,
+ 	.clk_offset =3D 4,
+-	.has_unre_flag =3D false,
+-	.has_alt_cmd =3D false,
+ 	.has_hold_field =3D true,
+ 	.has_dig_filtr =3D true,
+-	.has_adv_dig_filtr =3D false,
+-	.has_ana_filtr =3D false,
+ };
+=20
+ static struct at91_twi_pdata sama5d2_config =3D {
 --=20
 2.7.4
