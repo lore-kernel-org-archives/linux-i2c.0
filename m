@@ -1,49 +1,292 @@
-From: <Eugen.Hristev@microchip.com>
-Subject: [PATCH v2 2/3] i2c: at91: fix clk_offset for sam9x60
-Date: Mon, 2 Dec 2019 09:01:17 +0000
-Message-ID: <1575277244-6507-1-git-send-email-eugen.hristev@microchip.com>
-References: <1575276957-5615-2-git-send-email-eugen.hristev@microchip.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Subject: Re: [v5] i2c: imx: support slave mode for imx I2C driver
+Date: Mon, 2 Dec 2019 10:55:09 +0100
+Message-ID: <20191202095509.ynxq2dyri36i2fwk@pengutronix.de>
+References: <20191129090513.2150-1-biwen.li@nxp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1575276957-5615-2-git-send-email-eugen.hristev@microchip.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20191129090513.2150-1-biwen.li@nxp.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: robh+dt@kernel.org, Ludovic.Desroches@microchip.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, peda@axentia.se
-Cc: Codrin.Ciubotariu@microchip.com, Nicolas.Ferre@microchip.com, Eugen.Hristev@microchip.com
+To: Biwen Li <biwen.li@nxp.com>
+Cc: shawnguo@kernel.org, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, wsa@the-dreams.de, leoyang.li@nxp.com, aisheng.dong@nxp.com, xiaoning.wang@nxp.com, o.rempel@pengutronix.de, xiaobo.xie@nxp.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, jiafei.pan@nxp.com, linux-arm-kernel@lists.infradead.org, laurentiu.tudor@nxp.com
 List-Id: linux-i2c@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+Hi,
 
-In SAM9X60 datasheet, FLEX_TWI_CWGR register rescription mentions clock
-offset of 3 cycles (compared to 4 in eg. SAMA5D3).
-This is the same offset as in SAMA5D2.
+Some more comments inline.
 
-Fixes: b00277923743 ("i2c: at91: add new platform support for sam9x60")
-Suggested-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
----
+On Fri, Nov 29, 2019 at 05:05:13PM +0800, Biwen Li wrote:
+> The patch supports slave mode for imx I2C driver
+> 
+> Signed-off-by: Biwen Li <biwen.li@nxp.com>
+> ---
+> Change in v5:
+> 	- fix a bug that cannot determine in what mode(master mode or
+> 	  slave mode)
+> 
+> Change in v4:
+> 	- add MACRO CONFIG_I2C_SLAVE to fix compilation issue
+> 
+> Change in v3:
+> 	- support layerscape and i.mx platform
+> 
+> Change in v2:
+> 	- remove MACRO CONFIG_I2C_SLAVE
+> 
+> 
+>  drivers/i2c/busses/i2c-imx.c | 216 ++++++++++++++++++++++++++++++++---
+>  1 file changed, 198 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index a3b61336fe55..52f70de16900 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -203,6 +203,9 @@ struct imx_i2c_struct {
+>  	struct pinctrl_state *pinctrl_pins_gpio;
+>  
+>  	struct imx_i2c_dma	*dma;
+> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
+> +	struct i2c_client	*slave;
+> +#endif
+>  };
+>  
+>  static const struct imx_i2c_hwdata imx1_i2c_hwdata = {
+> @@ -279,6 +282,14 @@ static inline unsigned char imx_i2c_read_reg(struct imx_i2c_struct *i2c_imx,
+>  	return readb(i2c_imx->base + (reg << i2c_imx->hwdata->regshift));
+>  }
+>  
+> +/* Set up i2c controller register and i2c status register to default value. */
+> +static void i2c_imx_reset_regs(struct imx_i2c_struct *i2c_imx)
+> +{
+> +	imx_i2c_write_reg(i2c_imx->hwdata->i2cr_ien_opcode ^ I2CR_IEN,
+> +			i2c_imx, IMX_I2C_I2CR);
+> +	imx_i2c_write_reg(i2c_imx->hwdata->i2sr_clr_opcode, i2c_imx, IMX_I2C_I2SR);
+> +}
+> +
+>  /* Functions for DMA support */
+>  static void i2c_imx_dma_request(struct imx_i2c_struct *i2c_imx,
+>  						dma_addr_t phy_addr)
+> @@ -588,23 +599,33 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
+>  	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+>  }
+>  
+> -static irqreturn_t i2c_imx_isr(int irq, void *dev_id)
+> +/* Clear interrupt flag bit */
+> +static void i2c_imx_clr_if_bit(unsigned int status, struct imx_i2c_struct *i2c_imx)
+>  {
+> -	struct imx_i2c_struct *i2c_imx = dev_id;
+> -	unsigned int temp;
+> +	status &= ~I2SR_IIF;
+> +	status |= (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IIF);
+> +	imx_i2c_write_reg(status, i2c_imx, IMX_I2C_I2SR);
+> +}
+>  
+> -	temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> -	if (temp & I2SR_IIF) {
+> -		/* save status register */
+> -		i2c_imx->i2csr = temp;
+> -		temp &= ~I2SR_IIF;
+> -		temp |= (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IIF);
+> -		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2SR);
+> -		wake_up(&i2c_imx->queue);
+> -		return IRQ_HANDLED;
+> -	}
+> +/* Clear arbitration lost bit */
+> +static void i2c_imx_clr_al_bit(unsigned int status, struct imx_i2c_struct *i2c_imx)
+> +{
 
-Sorry, wrong subject line. Modified to SAM9X60 .
+Can you please remove some of the really obvious comments? When a
+function is named clr_al_bit, then it doesn't need a comment which says
+that this function really does this. There are more comments like this
+in the patch.
 
+> +	status &= ~I2SR_IAL;
+> +	status |= (i2c_imx->hwdata->i2sr_clr_opcode & I2SR_IAL);
+> +	imx_i2c_write_reg(status, i2c_imx, IMX_I2C_I2SR);
+> +}
+>  
+> -	return IRQ_NONE;
+> +static irqreturn_t i2c_imx_master_isr(struct imx_i2c_struct *i2c_imx)
+> +{
+> +	unsigned int status;
+> +
+> +	/* Save status register */
+> +	status = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> +	i2c_imx->i2csr = status | I2SR_IIF;
 
- drivers/i2c/busses/i2c-at91-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Instead of reading the status register again you could set
+i2c_imx->i2csr in the caller.
 
-diff --git a/drivers/i2c/busses/i2c-at91-core.c b/drivers/i2c/busses/i2c-at=
-91-core.c
-index e13af48..5137e62 100644
---- a/drivers/i2c/busses/i2c-at91-core.c
-+++ b/drivers/i2c/busses/i2c-at91-core.c
-@@ -174,7 +174,7 @@ static struct at91_twi_pdata sama5d2_config =3D {
-=20
- static struct at91_twi_pdata sam9x60_config =3D {
- 	.clk_max_div =3D 7,
--	.clk_offset =3D 4,
-+	.clk_offset =3D 3,
- 	.has_unre_flag =3D true,
- 	.has_alt_cmd =3D true,
- 	.has_hold_field =3D true,
---=20
-2.7.4
+> +
+> +	wake_up(&i2c_imx->queue);
+> +
+> +	return IRQ_HANDLED;
+>  }
+>  
+>  static int i2c_imx_dma_write(struct imx_i2c_struct *i2c_imx,
+> @@ -900,6 +921,13 @@ static int i2c_imx_xfer(struct i2c_adapter *adapter,
+>  
+>  	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+>  
+> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
+> +	if (i2c_imx->slave) {
+> +		dev_err(&i2c_imx->adapter.dev, "Please not do operations of master mode in slave mode");
+> +		return -EBUSY;
+> +	}
+> +#endif
+> +
+>  	result = pm_runtime_get_sync(i2c_imx->adapter.dev.parent);
+>  	if (result < 0)
+>  		goto out;
+> @@ -1048,11 +1076,166 @@ static u32 i2c_imx_func(struct i2c_adapter *adapter)
+>  		| I2C_FUNC_SMBUS_READ_BLOCK_DATA;
+>  }
+>  
+> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
+> +static int i2c_imx_slave_init(struct imx_i2c_struct *i2c_imx)
+> +{
+> +	int temp;
+> +
+> +	/* Resume */
+> +	temp = pm_runtime_get_sync(i2c_imx->adapter.dev.parent);
+> +	if (temp < 0) {
+> +		dev_err(&i2c_imx->adapter.dev, "failed to resume i2c controller");
+> +		return temp;
+> +	}
+> +
+> +	/* Set slave addr. */
+> +	imx_i2c_write_reg((i2c_imx->slave->addr << 1), i2c_imx, IMX_I2C_IADR);
+> +
+> +	i2c_imx_reset_regs(i2c_imx);
+> +
+> +	/* Enable module */
+> +	temp = i2c_imx->hwdata->i2cr_ien_opcode;
+> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> +
+> +	/* Enable interrupt from i2c module */
+> +	temp |= I2CR_IIEN;
+> +	imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+
+Do these have to be two register accesses?
+
+> +
+> +	/* Wait controller to be stable */
+> +	usleep_range(50, 150);
+> +	return 0;
+> +}
+> +
+> +static irqreturn_t i2c_imx_slave_isr(struct imx_i2c_struct *i2c_imx)
+> +{
+> +	unsigned int status, ctl;
+> +	u8 value;
+> +
+> +	if (!i2c_imx->slave) {
+> +		dev_err(&i2c_imx->adapter.dev, "cannot deal with slave irq,i2c_imx->slave is null");
+> +		return IRQ_NONE;
+> +	}
+
+This function is never called with !i2c_imx->slave.
+
+> +
+> +	status = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+> +	ctl = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> +	if (status & I2SR_IAL) { /* Arbitration lost */
+> +		i2c_imx_clr_al_bit(status, i2c_imx);
+> +	} else if (status & I2SR_IAAS) { /* Addressed as a slave */
+> +		if (status & I2SR_SRW) { /* Master wants to read from us*/
+> +			dev_dbg(&i2c_imx->adapter.dev, "read requested");
+> +			i2c_slave_event(i2c_imx->slave, I2C_SLAVE_READ_REQUESTED, &value);
+> +
+> +			/* Slave transmit */
+> +			ctl |= I2CR_MTX;
+> +			imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
+> +
+> +			/* Send data */
+> +			imx_i2c_write_reg(value, i2c_imx, IMX_I2C_I2DR);
+> +		} else { /* Master wants to write to us */
+> +			dev_dbg(&i2c_imx->adapter.dev, "write requested");
+> +			i2c_slave_event(i2c_imx->slave,	I2C_SLAVE_WRITE_REQUESTED, &value);
+> +
+> +			/* Slave receive */
+> +			ctl &= ~I2CR_MTX;
+> +			imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
+> +			/* Dummy read */
+> +			imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
+> +		}
+> +	} else if (!(ctl & I2CR_MTX)) { /* Receive mode */
+> +			if (status & I2SR_IBB) { /* No STOP signal detected */
+> +				ctl &= ~I2CR_MTX;
+> +				imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
+> +
+> +				value = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
+> +				i2c_slave_event(i2c_imx->slave,	I2C_SLAVE_WRITE_RECEIVED, &value);
+> +			} else { /* STOP signal is detected */
+> +				dev_dbg(&i2c_imx->adapter.dev,
+> +					"STOP signal detected");
+> +				i2c_slave_event(i2c_imx->slave, I2C_SLAVE_STOP, &value);
+> +			}
+> +	} else if (!(status & I2SR_RXAK)) {	/* Transmit mode received ACK */
+> +		ctl |= I2CR_MTX;
+> +		imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
+> +
+> +		i2c_slave_event(i2c_imx->slave,	I2C_SLAVE_READ_PROCESSED, &value);
+> +
+> +		imx_i2c_write_reg(value, i2c_imx, IMX_I2C_I2DR);
+> +	} else { /* Transmit mode received NAK */
+> +		ctl &= ~I2CR_MTX;
+> +		imx_i2c_write_reg(ctl, i2c_imx, IMX_I2C_I2CR);
+> +		imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
+> +	}
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int i2c_imx_reg_slave(struct i2c_client *client)
+> +{
+> +	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(client->adapter);
+> +	int ret;
+> +	if (i2c_imx->slave)
+> +		return -EBUSY;
+> +
+> +	i2c_imx->slave = client;
+> +
+> +	ret = i2c_imx_slave_init(i2c_imx);
+> +	if (ret < 0)
+> +		dev_err(&i2c_imx->adapter.dev, "failed to switch to slave mode");
+
+The caller already reports an error. No need to do it here again.
+
+> +
+> +	return ret;
+> +}
+> +
+> +static int i2c_imx_unreg_slave(struct i2c_client *client)
+> +{
+> +	struct imx_i2c_struct *i2c_imx = i2c_get_adapdata(client->adapter);
+> +	int ret;
+> +
+> +	if (!i2c_imx->slave)
+> +		return -EINVAL;
+> +
+> +	/* Reset slave address. */
+> +	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
+> +
+> +	i2c_imx_reset_regs(i2c_imx);
+> +
+> +	i2c_imx->slave = NULL;
+> +
+> +	/* Suspend */
+> +	ret = pm_runtime_put_sync(i2c_imx->adapter.dev.parent);
+> +	if (ret < 0)
+> +		dev_err(&i2c_imx->adapter.dev, "failed to suspend i2c controller");
+
+I doubt this message is useful.
+
+Sascha
+
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
