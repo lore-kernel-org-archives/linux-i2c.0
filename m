@@ -1,124 +1,52 @@
-From: Ludovic Desroches <ludovic.desroches@microchip.com>
-Subject: Re: [PATCH 3/3] i2c: at91: remote default value initialization
-Date: Tue, 3 Dec 2019 08:13:32 +0100
-Message-ID: <20191203071332.zwpmeb65g7e7ckmj@M43218.corp.atmel.com>
-References: <1575276957-5615-1-git-send-email-eugen.hristev@microchip.com>
- <1575276957-5615-3-git-send-email-eugen.hristev@microchip.com>
+From: Biwen Li <biwen.li@nxp.com>
+Subject: RE: [EXT] Re: [v6,1/3] dt-bindings: i2c: support property idle-state
+Date: Tue, 3 Dec 2019 11:11:57 +0000
+Message-ID: <DB7PR04MB4490BD480231CD8EA46C01C08F420@DB7PR04MB4490.eurprd04.prod.outlook.com>
+References: <20191129092222.2706-1-biwen.li@nxp.com>
+ <20191202231544.GA19159@bogus>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1575276957-5615-3-git-send-email-eugen.hristev@microchip.com>
+In-Reply-To: <20191202231544.GA19159@bogus>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eugen Hristev - M18282 <Eugen.Hristev@microchip.com>
-Cc: "robh+dt@kernel.org" <robh+dt@kernel.org>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "peda@axentia.se" <peda@axentia.se>, Codrin Ciubotariu - M19940 <Codrin.Ciubotariu@microchip.com>, Nicolas Ferre - M43238 <Nicolas.Ferre@microchip.com>
+To: Rob Herring <robh@kernel.org>
+Cc: "peda@axentia.se" <peda@axentia.se>, Leo Li <leoyang.li@nxp.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, "mark.rutland@arm.com" <mark.rutland@arm.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 02, 2019 at 09:56:41AM +0100, Eugen Hristev - M18282 wrote:
-> From: Eugen Hristev <eugen.hristev@microchip.com>
-> 
-> Platform data structs are initialized by default with zero values.
-> Thus it becomes redundant to initialize them manually to zero (false).
-> Remove extra false initialization for field members in structs.
-> 
-> Suggested-by: Wolfram Sang <wsa@the-dreams.de>
-> Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-
-Honestly, I prefer an explicit description than saving lines of code, in
-a glance you have all the details, don't need to go back to the
-structure definition.
-
-As it's a personal belief, I won't argue about it.
-Reviewed-by: Ludovic Desroches <ludovic.desroches@microchip.com>
-
-> ---
->  drivers/i2c/busses/i2c-at91-core.c | 39 --------------------------------------
->  1 file changed, 39 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-at91-core.c b/drivers/i2c/busses/i2c-at91-core.c
-> index 5137e62..3da1a8a 100644
-> --- a/drivers/i2c/busses/i2c-at91-core.c
-> +++ b/drivers/i2c/busses/i2c-at91-core.c
-> @@ -66,55 +66,26 @@ static struct at91_twi_pdata at91rm9200_config = {
->  	.clk_max_div = 5,
->  	.clk_offset = 3,
->  	.has_unre_flag = true,
-> -	.has_alt_cmd = false,
-> -	.has_hold_field = false,
-> -	.has_dig_filtr = false,
-> -	.has_adv_dig_filtr = false,
-> -	.has_ana_filtr = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9261_config = {
->  	.clk_max_div = 5,
->  	.clk_offset = 4,
-> -	.has_unre_flag = false,
-> -	.has_alt_cmd = false,
-> -	.has_hold_field = false,
-> -	.has_dig_filtr = false,
-> -	.has_adv_dig_filtr = false,
-> -	.has_ana_filtr = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9260_config = {
->  	.clk_max_div = 7,
->  	.clk_offset = 4,
-> -	.has_unre_flag = false,
-> -	.has_alt_cmd = false,
-> -	.has_hold_field = false,
-> -	.has_dig_filtr = false,
-> -	.has_adv_dig_filtr = false,
-> -	.has_ana_filtr = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9g20_config = {
->  	.clk_max_div = 7,
->  	.clk_offset = 4,
-> -	.has_unre_flag = false,
-> -	.has_alt_cmd = false,
-> -	.has_hold_field = false,
-> -	.has_dig_filtr = false,
-> -	.has_adv_dig_filtr = false,
-> -	.has_ana_filtr = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9g10_config = {
->  	.clk_max_div = 7,
->  	.clk_offset = 4,
-> -	.has_unre_flag = false,
-> -	.has_alt_cmd = false,
-> -	.has_hold_field = false,
-> -	.has_dig_filtr = false,
-> -	.has_adv_dig_filtr = false,
-> -	.has_ana_filtr = false,
->  };
->  
->  static const struct platform_device_id at91_twi_devtypes[] = {
-> @@ -142,23 +113,13 @@ static const struct platform_device_id at91_twi_devtypes[] = {
->  static struct at91_twi_pdata at91sam9x5_config = {
->  	.clk_max_div = 7,
->  	.clk_offset = 4,
-> -	.has_unre_flag = false,
-> -	.has_alt_cmd = false,
-> -	.has_hold_field = false,
-> -	.has_dig_filtr = false,
-> -	.has_adv_dig_filtr = false,
-> -	.has_ana_filtr = false,
->  };
->  
->  static struct at91_twi_pdata sama5d4_config = {
->  	.clk_max_div = 7,
->  	.clk_offset = 4,
-> -	.has_unre_flag = false,
-> -	.has_alt_cmd = false,
->  	.has_hold_field = true,
->  	.has_dig_filtr = true,
-> -	.has_adv_dig_filtr = false,
-> -	.has_ana_filtr = false,
->  };
->  
->  static struct at91_twi_pdata sama5d2_config = {
-> -- 
-> 2.7.4
-> 
+>=20
+> Caution: EXT Email
+>=20
+> On Fri, 29 Nov 2019 17:22:20 +0800, Biwen Li wrote:
+> > This supports property idle-state
+> >
+> > Signed-off-by: Biwen Li <biwen.li@nxp.com>
+> > ---
+> > Change in v6:
+> >       - none
+> >
+> > Change in v5:
+> >       - none
+> >
+> > Change in v4:
+> >       - none
+> >
+> > Change in v3:
+> >       - update subject and description
+> >       - add some information for property idle-state
+> >
+> > Change in v2:
+> >       - update subject and description
+> >       - add property idle-state
+> >
+> >  Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt | 2 ++
+> >  1 file changed, 2 insertions(+)
+> >
+>=20
+> Please add Acked-by/Reviewed-by tags when posting new versions. However,
+> there's no need to repost patches *only* to add the tags. The upstream
+> maintainer will do that for acks received on the version they apply.
+>=20
+> If a tag was not added on purpose, please state why and what changed.
+Okay, got it, thanks.
