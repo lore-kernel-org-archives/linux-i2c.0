@@ -1,65 +1,88 @@
-From: Sascha Hauer <s.hauer@pengutronix.de>
-Subject: Re: [v6] i2c: imx: support slave mode for imx I2C driver
-Date: Fri, 6 Dec 2019 08:38:20 +0100
-Message-ID: <20191206073819.lntjjxpcjm5yrb7y@pengutronix.de>
-References: <20191203114809.21226-1-biwen.li@nxp.com>
- <20191204100005.r56huywxa7h3c6zr@pengutronix.de>
- <9a1a00c1-e9fa-36a1-0e79-3492d9b98d9f@pengutronix.de>
+From: Chuhong Yuan <hslester96@gmail.com>
+Subject: [PATCH] i2c: thunderx: Add missed pci_release_regions
+Date: Fri,  6 Dec 2019 15:53:49 +0800
+Message-ID: <20191206075349.18297-1-hslester96@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <9a1a00c1-e9fa-36a1-0e79-3492d9b98d9f@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: aisheng.dong@nxp.com, Biwen Li <biwen.li@nxp.com>, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de, shawnguo@kernel.org, xiaobo.xie@nxp.com, leoyang.li@nxp.com, xiaoning.wang@nxp.com, linux-imx@nxp.com, kernel@pengutronix.de, jiafei.pan@nxp.com, laurentiu.tudor@nxp.com, festevam@gmail.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+Cc: Jan Glauber <jglauber@cavium.com>, David Daney <david.daney@cavium.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Dec 05, 2019 at 12:43:46PM +0100, Oleksij Rempel wrote:
-> Hi,
-> 
-> On 04.12.19 11:00, Sascha Hauer wrote:
-> > Hi,
-> > 
-> > The patch looks ok to me now, but I still do not like the #ifdeffery
-> > around CONFIG_I2C_SLAVE. With the patch I just sent (You are on Cc:)
-> > we could apply the following on your patch which makes it more readable
-> > and increases compile coverage.
-> > 
-> > Wolfram, Biwen, what do you think?
-> 
-> 
-> RCAR depends on slave:
-> config I2C_RCAR
-> 
->         tristate "Renesas R-Car I2C Controller"
-> 
->         depends on ARCH_RENESAS || COMPILE_TEST
-> 
->         select I2C_SLAVE
-> see:
-> drivers/i2c/busses/i2c-rcar.c
-> 
-> So, I would suggest to do the same in imx.
+The driver forgets to call pci_release_regions() in probe failure
+and remove.
+Add the missed calls to fix it.
 
-I suggested that to v1 of this patch. If we agree though that I2C slave
-support deserves an extra Kconfig option we should also make the drivers
-cope with that situation. Otherwise we would better make I2C slave
-support non optional.
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+---
+ drivers/i2c/busses/i2c-thunderx-pcidrv.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-Sascha
-
+diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
+index 19f8eec38717..31f7e254e99f 100644
+--- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
++++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
+@@ -172,8 +172,10 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
+ 		return ret;
+ 
+ 	i2c->twsi_base = pcim_iomap(pdev, 0, pci_resource_len(pdev, 0));
+-	if (!i2c->twsi_base)
+-		return -EINVAL;
++	if (!i2c->twsi_base) {
++		ret = -EINVAL;
++		goto error_release_regions;
++	}
+ 
+ 	thunder_i2c_clock_enable(dev, i2c);
+ 	ret = device_property_read_u32(dev, "clock-frequency", &i2c->twsi_freq);
+@@ -189,16 +191,16 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
+ 
+ 	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_MSIX);
+ 	if (ret < 0)
+-		goto error;
++		goto error_disable_clock;
+ 
+ 	ret = devm_request_irq(dev, pci_irq_vector(pdev, 0), octeon_i2c_isr, 0,
+ 			       DRV_NAME, i2c);
+ 	if (ret)
+-		goto error;
++		goto error_disable_clock;
+ 
+ 	ret = octeon_i2c_init_lowlevel(i2c);
+ 	if (ret)
+-		goto error;
++		goto error_disable_clock;
+ 
+ 	octeon_i2c_set_clock(i2c);
+ 
+@@ -214,7 +216,7 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
+ 
+ 	ret = i2c_add_adapter(&i2c->adap);
+ 	if (ret)
+-		goto error;
++		goto error_disable_clock;
+ 
+ 	dev_info(i2c->dev, "Probed. Set system clock to %u\n", i2c->sys_freq);
+ 
+@@ -224,8 +226,10 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
+ 
+ 	return 0;
+ 
+-error:
++error_disable_clock:
+ 	thunder_i2c_clock_disable(dev, i2c->clk);
++error_release_regions:
++	pci_release_regions(pdev);
+ 	return ret;
+ }
+ 
+@@ -236,6 +240,7 @@ static void thunder_i2c_remove_pci(struct pci_dev *pdev)
+ 	thunder_i2c_smbus_remove(i2c);
+ 	thunder_i2c_clock_disable(&pdev->dev, i2c->clk);
+ 	i2c_del_adapter(&i2c->adap);
++	pci_release_regions(pdev);
+ }
+ 
+ static const struct pci_device_id thunder_i2c_pci_id_table[] = {
 -- 
-Pengutronix e.K.                           |                             |
-Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
-31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+2.24.0
