@@ -1,88 +1,40 @@
-From: Chuhong Yuan <hslester96@gmail.com>
-Subject: [PATCH] i2c: thunderx: Add missed pci_release_regions
-Date: Fri,  6 Dec 2019 15:53:49 +0800
-Message-ID: <20191206075349.18297-1-hslester96@gmail.com>
+From: <Codrin.Ciubotariu@microchip.com>
+Subject: Re: [PATCH 2/3] i2c: at91: fix clk_offset for sama5d2
+Date: Fri, 6 Dec 2019 16:58:53 +0000
+Message-ID: <8b911756-e1ad-0a49-f553-7d58b2f3c155@microchip.com>
+References: <1575276957-5615-1-git-send-email-eugen.hristev@microchip.com>
+ <1575276957-5615-2-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1575276957-5615-2-git-send-email-eugen.hristev@microchip.com>
+Content-Language: en-US
+Content-ID: <FC865B96EAA9D24DA092B77F09DD1490@namprd11.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: Jan Glauber <jglauber@cavium.com>, David Daney <david.daney@cavium.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>
+To: Eugen.Hristev@microchip.com, robh+dt@kernel.org, Ludovic.Desroches@microchip.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, peda@axentia.se
+Cc: Nicolas.Ferre@microchip.com
 List-Id: linux-i2c@vger.kernel.org
 
-The driver forgets to call pci_release_regions() in probe failure
-and remove.
-Add the missed calls to fix it.
-
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
----
- drivers/i2c/busses/i2c-thunderx-pcidrv.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-index 19f8eec38717..31f7e254e99f 100644
---- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-@@ -172,8 +172,10 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
- 		return ret;
- 
- 	i2c->twsi_base = pcim_iomap(pdev, 0, pci_resource_len(pdev, 0));
--	if (!i2c->twsi_base)
--		return -EINVAL;
-+	if (!i2c->twsi_base) {
-+		ret = -EINVAL;
-+		goto error_release_regions;
-+	}
- 
- 	thunder_i2c_clock_enable(dev, i2c);
- 	ret = device_property_read_u32(dev, "clock-frequency", &i2c->twsi_freq);
-@@ -189,16 +191,16 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
- 
- 	ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_MSIX);
- 	if (ret < 0)
--		goto error;
-+		goto error_disable_clock;
- 
- 	ret = devm_request_irq(dev, pci_irq_vector(pdev, 0), octeon_i2c_isr, 0,
- 			       DRV_NAME, i2c);
- 	if (ret)
--		goto error;
-+		goto error_disable_clock;
- 
- 	ret = octeon_i2c_init_lowlevel(i2c);
- 	if (ret)
--		goto error;
-+		goto error_disable_clock;
- 
- 	octeon_i2c_set_clock(i2c);
- 
-@@ -214,7 +216,7 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
- 
- 	ret = i2c_add_adapter(&i2c->adap);
- 	if (ret)
--		goto error;
-+		goto error_disable_clock;
- 
- 	dev_info(i2c->dev, "Probed. Set system clock to %u\n", i2c->sys_freq);
- 
-@@ -224,8 +226,10 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
- 
- 	return 0;
- 
--error:
-+error_disable_clock:
- 	thunder_i2c_clock_disable(dev, i2c->clk);
-+error_release_regions:
-+	pci_release_regions(pdev);
- 	return ret;
- }
- 
-@@ -236,6 +240,7 @@ static void thunder_i2c_remove_pci(struct pci_dev *pdev)
- 	thunder_i2c_smbus_remove(i2c);
- 	thunder_i2c_clock_disable(&pdev->dev, i2c->clk);
- 	i2c_del_adapter(&i2c->adap);
-+	pci_release_regions(pdev);
- }
- 
- static const struct pci_device_id thunder_i2c_pci_id_table[] = {
--- 
-2.24.0
+T24gMDIuMTIuMjAxOSAxMDo1NiwgRXVnZW4gSHJpc3RldiAtIE0xODI4MiB3cm90ZToNCj4gRnJv
+bTogRXVnZW4gSHJpc3RldiA8ZXVnZW4uaHJpc3RldkBtaWNyb2NoaXAuY29tPg0KPiANCj4gSW4g
+U0FNOVg2MCBkYXRhc2hlZXQsIEZMRVhfVFdJX0NXR1IgcmVnaXN0ZXIgcmVzY3JpcHRpb24gbWVu
+dGlvbnMgY2xvY2sNCj4gb2Zmc2V0IG9mIDMgY3ljbGVzIChjb21wYXJlZCB0byA0IGluIGVnLiBT
+QU1BNUQzKS4NCj4gVGhpcyBpcyB0aGUgc2FtZSBvZmZzZXQgYXMgaW4gU0FNQTVEMi4NCj4gDQo+
+IEZpeGVzOiBiMDAyNzc5MjM3NDMgKCJpMmM6IGF0OTE6IGFkZCBuZXcgcGxhdGZvcm0gc3VwcG9y
+dCBmb3Igc2FtOXg2MCIpDQo+IFN1Z2dlc3RlZC1ieTogQ29kcmluIENpdWJvdGFyaXUgPGNvZHJp
+bi5jaXVib3Rhcml1QG1pY3JvY2hpcC5jb20+DQo+IFNpZ25lZC1vZmYtYnk6IEV1Z2VuIEhyaXN0
+ZXYgPGV1Z2VuLmhyaXN0ZXZAbWljcm9jaGlwLmNvbT4NCg0KUmV2aWV3ZWQtYnk6IENvZHJpbiBD
+aXVib3Rhcml1IDxjb2RyaW4uY2l1Ym90YXJpdUBtaWNyb2NoaXAuY29tPg0KDQpUaGFua3MhDQoN
+CkJlc3QgcmVnYXJkcywNCkNvZHJpbg0KDQo+IC0tLQ0KPiAgIGRyaXZlcnMvaTJjL2J1c3Nlcy9p
+MmMtYXQ5MS1jb3JlLmMgfCAyICstDQo+ICAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCsp
+LCAxIGRlbGV0aW9uKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2ky
+Yy1hdDkxLWNvcmUuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS1jb3JlLmMNCj4gaW5k
+ZXggZTEzYWY0OC4uNTEzN2U2MiAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2ky
+Yy1hdDkxLWNvcmUuYw0KPiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWF0OTEtY29yZS5j
+DQo+IEBAIC0xNzQsNyArMTc0LDcgQEAgc3RhdGljIHN0cnVjdCBhdDkxX3R3aV9wZGF0YSBzYW1h
+NWQyX2NvbmZpZyA9IHsNCj4gICANCj4gICBzdGF0aWMgc3RydWN0IGF0OTFfdHdpX3BkYXRhIHNh
+bTl4NjBfY29uZmlnID0gew0KPiAgIAkuY2xrX21heF9kaXYgPSA3LA0KPiAtCS5jbGtfb2Zmc2V0
+ID0gNCwNCj4gKwkuY2xrX29mZnNldCA9IDMsDQo+ICAgCS5oYXNfdW5yZV9mbGFnID0gdHJ1ZSwN
+Cj4gICAJLmhhc19hbHRfY21kID0gdHJ1ZSwNCj4gICAJLmhhc19ob2xkX2ZpZWxkID0gdHJ1ZSwN
+Cj4gDQoNCg==
