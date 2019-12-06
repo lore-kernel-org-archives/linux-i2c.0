@@ -1,52 +1,65 @@
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: Re: [PATCH] ANDROID: i2c: exynos5: remove default enable in Kconfig
-Date: Thu, 5 Dec 2019 16:29:15 +0100
-Message-ID: <CAJKOXPemBE2AHW4aju+SzvHA-rRCNwYhpHpG8ThsY_W2v1tzoA@mail.gmail.com>
-References: <20191205150500.21762-1-hyunki00.koo@gmail.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Subject: Re: [v6] i2c: imx: support slave mode for imx I2C driver
+Date: Fri, 6 Dec 2019 08:38:20 +0100
+Message-ID: <20191206073819.lntjjxpcjm5yrb7y@pengutronix.de>
+References: <20191203114809.21226-1-biwen.li@nxp.com>
+ <20191204100005.r56huywxa7h3c6zr@pengutronix.de>
+ <9a1a00c1-e9fa-36a1-0e79-3492d9b98d9f@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191205150500.21762-1-hyunki00.koo@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hyunki Koo <hyunki00.koo@gmail.com>
-Cc: wsa@the-dreams.de, Hyunki Koo <hyunki00.koo@samsung.com>, Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Alexandre Belloni <alexandre.belloni@bootlin.com>, Max Staudt <max@enpas.org>, Juergen Fitschen <jfi@ssv-embedded.de>, Elie Morisse <syniurge@gmail.com>, Stefan Roese <sr@denx.de>, Baolin Wang <baolin.wang@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <9a1a00c1-e9fa-36a1-0e79-3492d9b98d9f@pengutronix.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: aisheng.dong@nxp.com, Biwen Li <biwen.li@nxp.com>, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de, shawnguo@kernel.org, xiaobo.xie@nxp.com, leoyang.li@nxp.com, xiaoning.wang@nxp.com, linux-imx@nxp.com, kernel@pengutronix.de, jiafei.pan@nxp.com, laurentiu.tudor@nxp.com, festevam@gmail.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 5 Dec 2019 at 16:05, Hyunki Koo <hyunki00.koo@gmail.com> wrote:
->
-> From: Hyunki Koo <hyunki00.koo@samsung.com>
->
-> There are many exynos device and not all exynos device does not have
-> HSI2C controllers. Thus remove select this by default
->
-> Signed-off-by: Hyunki Koo <hyunki00.koo@samsung.com>
-> ---
->  drivers/i2c/busses/Kconfig | 1 -
->  1 file changed, 1 deletion(-)
+On Thu, Dec 05, 2019 at 12:43:46PM +0100, Oleksij Rempel wrote:
+> Hi,
+> 
+> On 04.12.19 11:00, Sascha Hauer wrote:
+> > Hi,
+> > 
+> > The patch looks ok to me now, but I still do not like the #ifdeffery
+> > around CONFIG_I2C_SLAVE. With the patch I just sent (You are on Cc:)
+> > we could apply the following on your patch which makes it more readable
+> > and increases compile coverage.
+> > 
+> > Wolfram, Biwen, what do you think?
+> 
+> 
+> RCAR depends on slave:
+> config I2C_RCAR
+> 
+>         tristate "Renesas R-Car I2C Controller"
+> 
+>         depends on ARCH_RENESAS || COMPILE_TEST
+> 
+>         select I2C_SLAVE
+> see:
+> drivers/i2c/busses/i2c-rcar.c
+> 
+> So, I would suggest to do the same in imx.
 
-Thanks for the patch but this is not a proper solution because:
-1. Basically you disabled this driver on exynos, multi_v7 and ARMv8 defconfigs.
-2. We provide one kernel for all ARMv7 Exynos and one for all ARMv8
-platforms therefore this driver should be there. Having unnecessary
-driver also does not hurt - it will not match by compatible.
+I suggested that to v1 of this patch. If we agree though that I2C slave
+support deserves an extra Kconfig option we should also make the drivers
+cope with that situation. Otherwise we would better make I2C slave
+support non optional.
 
-So really no.
+Sascha
 
-Best regards,
-Krzysztof
-
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 6a0aa76859f3..3955315f48c7 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -612,7 +612,6 @@ config I2C_EMEV2
->  config I2C_EXYNOS5
->         tristate "Exynos5 high-speed I2C driver"
->         depends on ARCH_EXYNOS && OF
-> -       default y
->         help
->           High-speed I2C controller on Exynos5 based Samsung SoCs.
->
-> --
-> 2.17.1
->
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
