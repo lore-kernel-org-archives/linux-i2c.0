@@ -1,7 +1,7 @@
 From: <Eugen.Hristev@microchip.com>
-Subject: [PATCH v3 3/4] i2c: at91: remote default value initialization
-Date: Mon, 9 Dec 2019 10:20:05 +0000
-Message-ID: <1575886763-19089-3-git-send-email-eugen.hristev@microchip.com>
+Subject: [PATCH v3 2/4] i2c: at91: fix clk_offset for sam9x60
+Date: Mon, 9 Dec 2019 10:20:02 +0000
+Message-ID: <1575886763-19089-2-git-send-email-eugen.hristev@microchip.com>
 References: <1575886763-19089-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -16,103 +16,39 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Eugen Hristev <eugen.hristev@microchip.com>
 
-Platform data structs are initialized by default with zero values.
-Thus it becomes redundant to initialize them manually to zero (false).
-Remove extra false initialization for field members in structs.
+In SAM9X60 datasheet, FLEX_TWI_CWGR register description mentions clock
+offset of 3 cycles (compared to 4 in eg. SAMA5D3).
+This is the same offset as in SAMA5D2.
 
-Suggested-by: Wolfram Sang <wsa@the-dreams.de>
+Fixes: b00277923743 ("i2c: at91: add new platform support for sam9x60")
+Suggested-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Reviewed-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 ---
- drivers/i2c/busses/i2c-at91-core.c | 39 ----------------------------------=
-----
- 1 file changed, 39 deletions(-)
+Changes in v3:
+- fixed typo in commit description
+
+Changes in v2:
+- Sorry, wrong subject line. Modified to SAM9X60 .
+
+
+ drivers/i2c/busses/i2c-at91-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-at91-core.c b/drivers/i2c/busses/i2c-at=
 91-core.c
-index 5137e62..3da1a8a 100644
+index e13af48..5137e62 100644
 --- a/drivers/i2c/busses/i2c-at91-core.c
 +++ b/drivers/i2c/busses/i2c-at91-core.c
-@@ -66,55 +66,26 @@ static struct at91_twi_pdata at91rm9200_config =3D {
- 	.clk_max_div =3D 5,
- 	.clk_offset =3D 3,
+@@ -174,7 +174,7 @@ static struct at91_twi_pdata sama5d2_config =3D {
+=20
+ static struct at91_twi_pdata sam9x60_config =3D {
+ 	.clk_max_div =3D 7,
+-	.clk_offset =3D 4,
++	.clk_offset =3D 3,
  	.has_unre_flag =3D true,
--	.has_alt_cmd =3D false,
--	.has_hold_field =3D false,
--	.has_dig_filtr =3D false,
--	.has_adv_dig_filtr =3D false,
--	.has_ana_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata at91sam9261_config =3D {
- 	.clk_max_div =3D 5,
- 	.clk_offset =3D 4,
--	.has_unre_flag =3D false,
--	.has_alt_cmd =3D false,
--	.has_hold_field =3D false,
--	.has_dig_filtr =3D false,
--	.has_adv_dig_filtr =3D false,
--	.has_ana_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata at91sam9260_config =3D {
- 	.clk_max_div =3D 7,
- 	.clk_offset =3D 4,
--	.has_unre_flag =3D false,
--	.has_alt_cmd =3D false,
--	.has_hold_field =3D false,
--	.has_dig_filtr =3D false,
--	.has_adv_dig_filtr =3D false,
--	.has_ana_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata at91sam9g20_config =3D {
- 	.clk_max_div =3D 7,
- 	.clk_offset =3D 4,
--	.has_unre_flag =3D false,
--	.has_alt_cmd =3D false,
--	.has_hold_field =3D false,
--	.has_dig_filtr =3D false,
--	.has_adv_dig_filtr =3D false,
--	.has_ana_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata at91sam9g10_config =3D {
- 	.clk_max_div =3D 7,
- 	.clk_offset =3D 4,
--	.has_unre_flag =3D false,
--	.has_alt_cmd =3D false,
--	.has_hold_field =3D false,
--	.has_dig_filtr =3D false,
--	.has_adv_dig_filtr =3D false,
--	.has_ana_filtr =3D false,
- };
-=20
- static const struct platform_device_id at91_twi_devtypes[] =3D {
-@@ -142,23 +113,13 @@ static const struct platform_device_id at91_twi_devty=
-pes[] =3D {
- static struct at91_twi_pdata at91sam9x5_config =3D {
- 	.clk_max_div =3D 7,
- 	.clk_offset =3D 4,
--	.has_unre_flag =3D false,
--	.has_alt_cmd =3D false,
--	.has_hold_field =3D false,
--	.has_dig_filtr =3D false,
--	.has_adv_dig_filtr =3D false,
--	.has_ana_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata sama5d4_config =3D {
- 	.clk_max_div =3D 7,
- 	.clk_offset =3D 4,
--	.has_unre_flag =3D false,
--	.has_alt_cmd =3D false,
+ 	.has_alt_cmd =3D true,
  	.has_hold_field =3D true,
- 	.has_dig_filtr =3D true,
--	.has_adv_dig_filtr =3D false,
--	.has_ana_filtr =3D false,
- };
-=20
- static struct at91_twi_pdata sama5d2_config =3D {
 --=20
 2.7.4
