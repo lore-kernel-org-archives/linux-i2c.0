@@ -1,71 +1,127 @@
 From: shubhrajyoti.datta@gmail.com
-Subject: [PATCH 2/4] i2c: cadence: Fix power management order of operations
-Date: Mon,  9 Dec 2019 16:10:50 +0530
-Message-ID: <1575888052-20447-2-git-send-email-shubhrajyoti.datta@gmail.com>
+Subject: [PATCH 3/4] i2c: cadence: Implement save restore
+Date: Mon,  9 Dec 2019 16:10:51 +0530
+Message-ID: <1575888052-20447-3-git-send-email-shubhrajyoti.datta@gmail.com>
 References: <1575888052-20447-1-git-send-email-shubhrajyoti.datta@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1575888052-20447-1-git-send-email-shubhrajyoti.datta@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: michal.simek@xilinx.com, Topi Kuutela <topi.kuutela@gmail.com>, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Cc: michal.simek@xilinx.com, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>, Shubhrajyoti Datta <shubhraj@xilinx.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Topi Kuutela <topi.kuutela@gmail.com>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
 
-E.g. pm_runtime_set_active must be called while the power
-management system is disabled. Fixes extra hanging clk_enable.
+Implement save restore for i2c module.
+Since we have only a couple of registers
+an unconditional restore is done.
 
-Signed-off-by: Topi Kuutela <topi.kuutela@gmail.com>
-Acked-by: Sören Brinkmann <soren.brinkmann@xilinx.com>
+Acked-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Shubhrajyoti Datta <shubhraj@xilinx.com>
 Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
 ---
- drivers/i2c/busses/i2c-cadence.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-cadence.c | 41 ++++++++++++++++++++++++++--------------
+ 1 file changed, 27 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 7b989a2..08427e9 100644
+index 08427e9..8a2983e 100644
 --- a/drivers/i2c/busses/i2c-cadence.c
 +++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -932,10 +932,10 @@ static int cdns_i2c_probe(struct platform_device *pdev)
+@@ -138,6 +138,7 @@
+  * @clk:		Pointer to struct clk
+  * @clk_rate_change_nb:	Notifier block for clock rate changes
+  * @quirks:		flag for broken hold bit usage in r1p10
++ * @ctrl_reg:		Cached value of the control register.
+  */
+ struct cdns_i2c {
+ 	struct device		*dev;
+@@ -158,6 +159,7 @@ struct cdns_i2c {
+ 	struct clk *clk;
+ 	struct notifier_block clk_rate_change_nb;
+ 	u32 quirks;
++	u32 ctrl_reg;
+ };
+ 
+ struct cdns_platform_data {
+@@ -748,12 +750,11 @@ static int cdns_i2c_setclk(unsigned long clk_in, struct cdns_i2c *id)
  	if (ret)
- 		dev_err(&pdev->dev, "Unable to enable clock.\n");
+ 		return ret;
  
--	pm_runtime_enable(id->dev);
- 	pm_runtime_set_autosuspend_delay(id->dev, CNDS_I2C_PM_TIMEOUT);
- 	pm_runtime_use_autosuspend(id->dev);
- 	pm_runtime_set_active(id->dev);
-+	pm_runtime_enable(id->dev);
- 
- 	id->clk_rate_change_nb.notifier_call = cdns_i2c_clk_notifier_cb;
- 	if (clk_notifier_register(id->clk, &id->clk_rate_change_nb))
-@@ -984,8 +984,8 @@ static int cdns_i2c_probe(struct platform_device *pdev)
- 
- err_clk_dis:
- 	clk_disable_unprepare(id->clk);
--	pm_runtime_set_suspended(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
-+	pm_runtime_set_suspended(&pdev->dev);
- 	return ret;
+-	ctrl_reg = cdns_i2c_readreg(CDNS_I2C_CR_OFFSET);
++	ctrl_reg = id->ctrl_reg;
+ 	ctrl_reg &= ~(CDNS_I2C_CR_DIVA_MASK | CDNS_I2C_CR_DIVB_MASK);
+ 	ctrl_reg |= ((div_a << CDNS_I2C_CR_DIVA_SHIFT) |
+ 			(div_b << CDNS_I2C_CR_DIVB_SHIFT));
+-	cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
+-
++	id->ctrl_reg = ctrl_reg;
+ 	return 0;
  }
  
-@@ -1001,10 +1001,13 @@ static int cdns_i2c_remove(struct platform_device *pdev)
- {
- 	struct cdns_i2c *id = platform_get_drvdata(pdev);
+@@ -837,6 +838,26 @@ static int __maybe_unused cdns_i2c_runtime_suspend(struct device *dev)
+ }
  
-+	pm_runtime_disable(&pdev->dev);
-+	pm_runtime_set_suspended(&pdev->dev);
-+	pm_runtime_dont_use_autosuspend(&pdev->dev);
+ /**
++ * cdns_i2c_init -  Controller initialisation
++ * @id:		Device private data structure
++ *
++ * Initialise the i2c controller.
++ *
++ */
++static void cdns_i2c_init(struct cdns_i2c *id)
++{
++	cdns_i2c_writereg(id->ctrl_reg, CDNS_I2C_CR_OFFSET);
++	/*
++	 * Cadence I2C controller has a bug wherein it generates
++	 * invalid read transaction after HW timeout in master receiver mode.
++	 * HW timeout is not used by this driver and the interrupt is disabled.
++	 * But the feature itself cannot be disabled. Hence maximum value
++	 * is written to this register to reduce the chances of error.
++	 */
++	cdns_i2c_writereg(CDNS_I2C_TIMEOUT_MAX, CDNS_I2C_TIME_OUT_OFFSET);
++}
 +
- 	i2c_del_adapter(&id->adap);
- 	clk_notifier_unregister(id->clk, &id->clk_rate_change_nb);
- 	clk_disable_unprepare(id->clk);
--	pm_runtime_disable(&pdev->dev);
++/**
+  * cdns_i2c_runtime_resume - Runtime resume
+  * @dev:	Address of the platform_device structure
+  *
+@@ -854,6 +875,7 @@ static int __maybe_unused cdns_i2c_runtime_resume(struct device *dev)
+ 		dev_err(dev, "Cannot enable clock.\n");
+ 		return ret;
+ 	}
++	cdns_i2c_init(xi2c);
  
  	return 0;
  }
+@@ -947,8 +969,7 @@ static int cdns_i2c_probe(struct platform_device *pdev)
+ 	if (ret || (id->i2c_clk > CDNS_I2C_SPEED_MAX))
+ 		id->i2c_clk = CDNS_I2C_SPEED_DEFAULT;
+ 
+-	cdns_i2c_writereg(CDNS_I2C_CR_ACK_EN | CDNS_I2C_CR_NEA | CDNS_I2C_CR_MS,
+-			  CDNS_I2C_CR_OFFSET);
++	id->ctrl_reg = CDNS_I2C_CR_ACK_EN | CDNS_I2C_CR_NEA | CDNS_I2C_CR_MS;
+ 
+ 	ret = cdns_i2c_setclk(id->input_clk, id);
+ 	if (ret) {
+@@ -963,15 +984,7 @@ static int cdns_i2c_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "cannot get irq %d\n", id->irq);
+ 		goto err_clk_dis;
+ 	}
+-
+-	/*
+-	 * Cadence I2C controller has a bug wherein it generates
+-	 * invalid read transaction after HW timeout in master receiver mode.
+-	 * HW timeout is not used by this driver and the interrupt is disabled.
+-	 * But the feature itself cannot be disabled. Hence maximum value
+-	 * is written to this register to reduce the chances of error.
+-	 */
+-	cdns_i2c_writereg(CDNS_I2C_TIMEOUT_MAX, CDNS_I2C_TIME_OUT_OFFSET);
++	cdns_i2c_init(id);
+ 
+ 	ret = i2c_add_adapter(&id->adap);
+ 	if (ret < 0)
 -- 
 2.1.1
