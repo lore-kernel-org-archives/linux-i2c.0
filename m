@@ -1,7 +1,8 @@
 From: <Eugen.Hristev@microchip.com>
-Subject: [PATCH v3 2/4] i2c: at91: fix clk_offset for sam9x60
-Date: Mon, 9 Dec 2019 10:20:02 +0000
-Message-ID: <1575886763-19089-2-git-send-email-eugen.hristev@microchip.com>
+Subject: [PATCH v3 4/4] dt-bindings: i2c: at91: fix i2c-sda-hold-time-ns
+ documentation for sam9x60
+Date: Mon, 9 Dec 2019 10:20:07 +0000
+Message-ID: <1575886763-19089-4-git-send-email-eugen.hristev@microchip.com>
 References: <1575886763-19089-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
@@ -16,39 +17,37 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Eugen Hristev <eugen.hristev@microchip.com>
 
-In SAM9X60 datasheet, FLEX_TWI_CWGR register description mentions clock
-offset of 3 cycles (compared to 4 in eg. SAMA5D3).
-This is the same offset as in SAMA5D2.
+SAM9X60 also supports i2c-sda-hold-time-ns. Fix the documentation according=
+ly.
 
-Fixes: b00277923743 ("i2c: at91: add new platform support for sam9x60")
-Suggested-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Fixes: 2034e3f4c9a5 ("dt-bindings: i2c: at91: add new compatible")
 Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
-Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 ---
 Changes in v3:
-- fixed typo in commit description
+- new patch
 
-Changes in v2:
-- Sorry, wrong subject line. Modified to SAM9X60 .
+ Documentation/devicetree/bindings/i2c/i2c-at91.txt | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-
- drivers/i2c/busses/i2c-at91-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-at91-core.c b/drivers/i2c/busses/i2c-at=
-91-core.c
-index e13af48..5137e62 100644
---- a/drivers/i2c/busses/i2c-at91-core.c
-+++ b/drivers/i2c/busses/i2c-at91-core.c
-@@ -174,7 +174,7 @@ static struct at91_twi_pdata sama5d2_config =3D {
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Documenta=
+tion/devicetree/bindings/i2c/i2c-at91.txt
+index d35cd63..d4bad86 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+@@ -24,8 +24,10 @@ Optional properties:
+ - dma-names: should contain "tx" and "rx".
+ - atmel,fifo-size: maximum number of data the RX and TX FIFOs can store fo=
+r FIFO
+   capable I2C controllers.
+-- i2c-sda-hold-time-ns: TWD hold time, only available for "atmel,sama5d4-i=
+2c"
+-  and "atmel,sama5d2-i2c".
++- i2c-sda-hold-time-ns: TWD hold time, only available for:
++	"atmel,sama5d4-i2c",
++	"atmel,sama5d2-i2c",
++	"microchip,sam9x60-i2c".
+ - Child nodes conforming to i2c bus binding
 =20
- static struct at91_twi_pdata sam9x60_config =3D {
- 	.clk_max_div =3D 7,
--	.clk_offset =3D 4,
-+	.clk_offset =3D 3,
- 	.has_unre_flag =3D true,
- 	.has_alt_cmd =3D true,
- 	.has_hold_field =3D true,
+ Examples :
 --=20
 2.7.4
