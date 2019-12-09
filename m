@@ -1,12 +1,12 @@
 From: Daniel Mack <daniel@zonque.org>
-Subject: [PATCH 02/10] dt-bindings: i2c: Add documentation for
-	ad242x i2c controllers
-Date: Mon,  9 Dec 2019 19:35:02 +0100
-Message-ID: <20191209183511.3576038-3-daniel@zonque.org>
+Subject: [PATCH 04/10] dt-bindings: clock: Add documentation
+	for AD242x clock providers
+Date: Mon,  9 Dec 2019 19:35:05 +0100
+Message-ID: <20191209183511.3576038-6-daniel@zonque.org>
 References: <20191209183511.3576038-1-daniel@zonque.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <alsa-devel-bounces@alsa-project.org>
 In-Reply-To: <20191209183511.3576038-1-daniel@zonque.org>
 List-Unsubscribe: <https://mailman.alsa-project.org/mailman/options/alsa-devel>,
@@ -22,31 +22,69 @@ To: linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.ker
 Cc: lars@metafoo.de, sboyd@kernel.org, mturquette@baylibre.com, robh+dt@kernel.org, broonie@kernel.org, pascal.huerst@gmail.com, lee.jones@linaro.org, Daniel Mack <daniel@zonque.org>
 List-Id: linux-i2c@vger.kernel.org
 
-VGhpcyBkZXZpY2UgbXVzdCBiZSBwbGFjZWQgYXMgYSBzdWItZGV2aWNlIG9mIGFuIEFEMjQyeCBN
-RkQgbm9kZS4KClNpZ25lZC1vZmYtYnk6IERhbmllbCBNYWNrIDxkYW5pZWxAem9ucXVlLm9yZz4K
-LS0tCiAuLi4vYmluZGluZ3MvaTJjL2FkaSxhZDI0MngtaTJjLnlhbWwgICAgICAgICAgfCAzMSAr
-KysrKysrKysrKysrKysrKysrCiAxIGZpbGUgY2hhbmdlZCwgMzEgaW5zZXJ0aW9ucygrKQogY3Jl
-YXRlIG1vZGUgMTAwNjQ0IERvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvYWRp
-LGFkMjQyeC1pMmMueWFtbAoKZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vZGV2aWNldHJlZS9i
-aW5kaW5ncy9pMmMvYWRpLGFkMjQyeC1pMmMueWFtbCBiL0RvY3VtZW50YXRpb24vZGV2aWNldHJl
-ZS9iaW5kaW5ncy9pMmMvYWRpLGFkMjQyeC1pMmMueWFtbApuZXcgZmlsZSBtb2RlIDEwMDY0NApp
-bmRleCAwMDAwMDAwMDAwMDAuLmRlZDkyZjhhNzkxYgotLS0gL2Rldi9udWxsCisrKyBiL0RvY3Vt
-ZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvYWRpLGFkMjQyeC1pMmMueWFtbApAQCAt
-MCwwICsxLDMxIEBACisjIFNQRFgtTGljZW5zZS1JZGVudGlmaWVyOiAoR1BMLTIuMCBPUiBCU0Qt
-Mi1DbGF1c2UpCislWUFNTCAxLjIKKy0tLQorJGlkOiAiaHR0cDovL2RldmljZXRyZWUub3JnL3Nj
-aGVtYXMvaTJjL2FkaSxhZDI0MngtaTJjLnlhbWwjIgorJHNjaGVtYTogImh0dHA6Ly9kZXZpY2V0
-cmVlLm9yZy9tZXRhLXNjaGVtYXMvY29yZS55YW1sIyIKKwordGl0bGU6IEFuYWxvZyBEZXZpY2Vz
-IEFEMjQyeCBJMkMgY29udHJvbGxlcgorCittYWludGFpbmVyczoKKyAgLSBEYW5pZWwgTWFjayA8
-ZGFuaWVsQHpvbnF1ZS5vcmc+CisKK2FsbE9mOgorICAtICRyZWY6IC9zY2hlbWFzL2kyYy9pMmMt
-Y29udHJvbGxlci55YW1sIworCitkZXNjcmlwdGlvbjogfAorICBUaGlzIG1vZHVsZSBpcyBwYXJ0
-IG9mIHRoZSBBRDI0MnggTUZEIGRldmljZS4gRm9yIG1vcmUgZGV0YWlscyBhbmQgYW4gZXhhbXBs
-ZQorICByZWZlciB0byBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvbWZkL2FkMjQy
-eC55YW1sLgorCitwcm9wZXJ0aWVzOgorICBjb21wYXRpYmxlOgorICAgIGVudW06CisgICAgICAt
-IGFkaSxhZDI0Mjh3LWkyYworCisgIGNsb2NrLWZyZXF1ZW5jeToKKyAgICAkcmVmOiAnL3NjaGVt
-YXMvdHlwZXMueWFtbCMvZGVmaW5pdGlvbnMvdWludDMyJworICAgIGRlZmF1bHQ6IDEwMDAwMAor
-ICAgIGVudW06IFsxMDAwMDAsIDQwMDAwMF0KKyAgICBkZXNjcmlwdGlvbjogU3BlY2lmaWVzIHRo
-ZSBJwrJDIGNsb2NrIGZyZXF1ZW5jeSBpbiBIei4KKworcmVxdWlyZWQ6CisgIC0gY29tcGF0aWJs
-ZQotLSAKMi4yMy4wCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpBbHNhLWRldmVsIG1haWxpbmcgbGlzdApBbHNhLWRldmVsQGFsc2EtcHJvamVjdC5vcmcK
-aHR0cHM6Ly9tYWlsbWFuLmFsc2EtcHJvamVjdC5vcmcvbWFpbG1hbi9saXN0aW5mby9hbHNhLWRl
-dmVsCg==
+This device must be placed as a sub-device of an AD242x MFD node.
+
+Signed-off-by: Daniel Mack <daniel@zonque.org>
+---
+ .../bindings/clock/adi,ad242x-clk.yaml        | 32 +++++++++++++++++++
+ include/dt-bindings/clock/adi,ad242x.h        |  9 ++++++
+ 2 files changed, 41 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/clock/adi,ad242x-clk.yaml
+ create mode 100644 include/dt-bindings/clock/adi,ad242x.h
+
+diff --git a/Documentation/devicetree/bindings/clock/adi,ad242x-clk.yaml b/Documentation/devicetree/bindings/clock/adi,ad242x-clk.yaml
+new file mode 100644
+index 000000000000..f434b3e4928e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/clock/adi,ad242x-clk.yaml
+@@ -0,0 +1,32 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: "http://devicetree.org/schemas/clock/adi,ad242x-clk.yaml#"
++$schema: "http://devicetree.org/meta-schemas/core.yaml#"
++
++title: Analog Devices AD242x clock provider
++
++maintainers:
++  - Daniel Mack <daniel@zonque.org>
++
++description: |
++  This module is part of the AD242x MFD device. For more details and an example
++  refer to Documentation/devicetree/bindings/mfd/ad242x.yaml.
++
++properties:
++  compatible:
++    enum:
++      - adi,ad2428w-clk
++
++  '#clock-cells':
++    const: 1
++
++  clock-output-names:
++    minItems: 2
++    maxItems: 2
++    description: |
++      Array of two strings to use as names for the generated output clocks
++
++required:
++  - compatible
++  - '#clock-cells'
+\ No newline at end of file
+diff --git a/include/dt-bindings/clock/adi,ad242x.h b/include/dt-bindings/clock/adi,ad242x.h
+new file mode 100644
+index 000000000000..307a6cd1f5a6
+--- /dev/null
++++ b/include/dt-bindings/clock/adi,ad242x.h
+@@ -0,0 +1,9 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++
++#ifndef __DT_BINDINGS_AD242X_CLK_H
++#define __DT_BINDINGS_AD242X_CLK_H
++
++#define MAX9485_CLKOUT1        0
++#define MAX9485_CLKOUT2        1
++
++#endif /* __DT_BINDINGS_AD242X_CLK_H */
+-- 
+2.23.0
