@@ -1,40 +1,55 @@
-From: <Codrin.Ciubotariu@microchip.com>
-Subject: Re: [PATCH 2/3] i2c: at91: fix clk_offset for sama5d2
-Date: Fri, 6 Dec 2019 16:58:53 +0000
-Message-ID: <8b911756-e1ad-0a49-f553-7d58b2f3c155@microchip.com>
-References: <1575276957-5615-1-git-send-email-eugen.hristev@microchip.com>
- <1575276957-5615-2-git-send-email-eugen.hristev@microchip.com>
+From: <Eugen.Hristev@microchip.com>
+Subject: [PATCH v3 1/4] dt-bindings: i2c: at91: cosmetic formatting of
+ compatible list
+Date: Mon, 9 Dec 2019 10:19:59 +0000
+Message-ID: <1575886763-19089-1-git-send-email-eugen.hristev@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1575276957-5615-2-git-send-email-eugen.hristev@microchip.com>
 Content-Language: en-US
-Content-ID: <FC865B96EAA9D24DA092B77F09DD1490@namprd11.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eugen.Hristev@microchip.com, robh+dt@kernel.org, Ludovic.Desroches@microchip.com, wsa@the-dreams.de, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, peda@axentia.se
-Cc: Nicolas.Ferre@microchip.com
+To: robh@kernel.org, Ludovic.Desroches@microchip.com, wsa@the-dreams.de
+Cc: peda@axentia.se, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Codrin.Ciubotariu@microchip.com, Eugen.Hristev@microchip.com
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMDIuMTIuMjAxOSAxMDo1NiwgRXVnZW4gSHJpc3RldiAtIE0xODI4MiB3cm90ZToNCj4gRnJv
-bTogRXVnZW4gSHJpc3RldiA8ZXVnZW4uaHJpc3RldkBtaWNyb2NoaXAuY29tPg0KPiANCj4gSW4g
-U0FNOVg2MCBkYXRhc2hlZXQsIEZMRVhfVFdJX0NXR1IgcmVnaXN0ZXIgcmVzY3JpcHRpb24gbWVu
-dGlvbnMgY2xvY2sNCj4gb2Zmc2V0IG9mIDMgY3ljbGVzIChjb21wYXJlZCB0byA0IGluIGVnLiBT
-QU1BNUQzKS4NCj4gVGhpcyBpcyB0aGUgc2FtZSBvZmZzZXQgYXMgaW4gU0FNQTVEMi4NCj4gDQo+
-IEZpeGVzOiBiMDAyNzc5MjM3NDMgKCJpMmM6IGF0OTE6IGFkZCBuZXcgcGxhdGZvcm0gc3VwcG9y
-dCBmb3Igc2FtOXg2MCIpDQo+IFN1Z2dlc3RlZC1ieTogQ29kcmluIENpdWJvdGFyaXUgPGNvZHJp
-bi5jaXVib3Rhcml1QG1pY3JvY2hpcC5jb20+DQo+IFNpZ25lZC1vZmYtYnk6IEV1Z2VuIEhyaXN0
-ZXYgPGV1Z2VuLmhyaXN0ZXZAbWljcm9jaGlwLmNvbT4NCg0KUmV2aWV3ZWQtYnk6IENvZHJpbiBD
-aXVib3Rhcml1IDxjb2RyaW4uY2l1Ym90YXJpdUBtaWNyb2NoaXAuY29tPg0KDQpUaGFua3MhDQoN
-CkJlc3QgcmVnYXJkcywNCkNvZHJpbg0KDQo+IC0tLQ0KPiAgIGRyaXZlcnMvaTJjL2J1c3Nlcy9p
-MmMtYXQ5MS1jb3JlLmMgfCAyICstDQo+ICAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCsp
-LCAxIGRlbGV0aW9uKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2ky
-Yy1hdDkxLWNvcmUuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS1jb3JlLmMNCj4gaW5k
-ZXggZTEzYWY0OC4uNTEzN2U2MiAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2ky
-Yy1hdDkxLWNvcmUuYw0KPiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWF0OTEtY29yZS5j
-DQo+IEBAIC0xNzQsNyArMTc0LDcgQEAgc3RhdGljIHN0cnVjdCBhdDkxX3R3aV9wZGF0YSBzYW1h
-NWQyX2NvbmZpZyA9IHsNCj4gICANCj4gICBzdGF0aWMgc3RydWN0IGF0OTFfdHdpX3BkYXRhIHNh
-bTl4NjBfY29uZmlnID0gew0KPiAgIAkuY2xrX21heF9kaXYgPSA3LA0KPiAtCS5jbGtfb2Zmc2V0
-ID0gNCwNCj4gKwkuY2xrX29mZnNldCA9IDMsDQo+ICAgCS5oYXNfdW5yZV9mbGFnID0gdHJ1ZSwN
-Cj4gICAJLmhhc19hbHRfY21kID0gdHJ1ZSwNCj4gICAJLmhhc19ob2xkX2ZpZWxkID0gdHJ1ZSwN
-Cj4gDQoNCg==
+From: Eugen Hristev <eugen.hristev@microchip.com>
+
+Format the list of compatibles with one compatible per line.
+
+Suggested-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+---
+ Documentation/devicetree/bindings/i2c/i2c-at91.txt | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Documenta=
+tion/devicetree/bindings/i2c/i2c-at91.txt
+index 2210f43..d35cd63 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+@@ -1,10 +1,16 @@
+ I2C for Atmel platforms
+=20
+ Required properties :
+-- compatible : Must be "atmel,at91rm9200-i2c", "atmel,at91sam9261-i2c",
+-     "atmel,at91sam9260-i2c", "atmel,at91sam9g20-i2c", "atmel,at91sam9g10-=
+i2c",
+-     "atmel,at91sam9x5-i2c", "atmel,sama5d4-i2c", "atmel,sama5d2-i2c" or
+-     "microchip,sam9x60-i2c"
++- compatible : Must be one of:
++	"atmel,at91rm9200-i2c",
++	"atmel,at91sam9261-i2c",
++	"atmel,at91sam9260-i2c",
++	"atmel,at91sam9g20-i2c",
++	"atmel,at91sam9g10-i2c",
++	"atmel,at91sam9x5-i2c",
++	"atmel,sama5d4-i2c",
++	"atmel,sama5d2-i2c",
++	"microchip,sam9x60-i2c".
+ - reg: physical base address of the controller and length of memory mapped
+      region.
+ - interrupts: interrupt number to the cpu.
+--=20
+2.7.4
