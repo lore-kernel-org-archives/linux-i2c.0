@@ -1,184 +1,48 @@
-From: shubhrajyoti.datta@gmail.com
-Subject: [PATCH 4/4] i2c: cadence: Recover bus after controller reset
-Date: Mon,  9 Dec 2019 16:10:52 +0530
-Message-ID: <1575888052-20447-4-git-send-email-shubhrajyoti.datta@gmail.com>
-References: <1575888052-20447-1-git-send-email-shubhrajyoti.datta@gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 4/4] platform/chrome: i2c: i2c-cros-ec-tunnel: Convert
+ i2c tunnel to MFD Cell
+Date: Mon, 9 Dec 2019 13:17:45 +0000
+Message-ID: <20191209131745.GM3468@dell>
+References: <20191121211053.48861-1-rrangel@chromium.org>
+ <20191121140830.4.Iddc7dd74f893297cb932e9825d413e7890633b3d@changeid>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1575888052-20447-1-git-send-email-shubhrajyoti.datta@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20191121140830.4.Iddc7dd74f893297cb932e9825d413e7890633b3d@changeid>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: michal.simek@xilinx.com, Chirag Parekh <chiragp@xilinx.com>, Nava kishore Manne <navam@xilinx.com>, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+To: Raul E Rangel <rrangel@chromium.org>
+Cc: enric.balletbo@collabora.com, Wolfram Sang <wsa@the-dreams.de>, Akshu.Agrawal@amd.com, Guenter Roeck <groeck@chromium.org>, Chanwoo Choi <cw00.choi@samsung.com>, linux-kernel@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, Benson Leung <bleung@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Chirag Parekh <chiragp@xilinx.com>
+On Thu, 21 Nov 2019, Raul E Rangel wrote:
 
-This will save from potential lock-up caused when I2c master controller
-resets in the middle of transfer and the slave is holding SDA line to
-transmit more data.
+> If the i2c-cros-ec-tunnel driver is compiled into the kernel, it is
+> possible that i2c-cros-ec-tunnel could be probed before cros_ec_XXX
+> has finished initializing and setting the drvdata. This would cause a
+> NULL pointer panic.
+> 
+> Converting this driver over to an MFD solves the problem and aligns with
+> where the cros_ec is going.
+> 
+> Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+> ---
+> You can now see the device node lives under the mfd device.
+> 
+> $ find /sys/bus/platform/devices/cros-ec-dev.0.auto/cros-ec-i2c-tunnel.12.auto/ -iname firmware_node -exec ls -l '{}' \;
+> /sys/bus/platform/devices/cros-ec-dev.0.auto/cros-ec-i2c-tunnel.12.auto/firmware_node -> ../../../../../../LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:1c/PNP0C09:00/GOOG0004:00/GOOG0012:00
+> /sys/bus/platform/devices/cros-ec-dev.0.auto/cros-ec-i2c-tunnel.12.auto/i2c-9/firmware_node -> ../../../../../../../LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:1c/PNP0C09:00/GOOG0004:00/GOOG0012:00
+> /sys/bus/platform/devices/cros-ec-dev.0.auto/cros-ec-i2c-tunnel.12.auto/i2c-9/i2c-10EC5682:00/firmware_node -> ../../../../../../../../LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:1c/PNP0C09:00/GOOG0004:00/GOOG0012:00/10EC5682:00
+> 
+>  drivers/i2c/busses/i2c-cros-ec-tunnel.c | 36 +++++++++----------------
+>  drivers/mfd/cros_ec_dev.c               | 19 +++++++++++++
 
-Signed-off-by: Chirag Parekh <chiragp@xilinx.com>
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Nava kishore Manne <navam@xilinx.com>
-Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
----
- drivers/i2c/busses/i2c-cadence.c | 101 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 101 insertions(+)
+For my own reference:
+  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
 
-diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-index 8a2983e..e11e986 100644
---- a/drivers/i2c/busses/i2c-cadence.c
-+++ b/drivers/i2c/busses/i2c-cadence.c
-@@ -7,13 +7,16 @@
- 
- #include <linux/clk.h>
- #include <linux/delay.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
- #include <linux/io.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
- #include <linux/of.h>
-+#include <linux/of_gpio.h>
- #include <linux/pm_runtime.h>
-+#include <linux/pinctrl/consumer.h>
- 
- /* Register offsets for the I2C device. */
- #define CDNS_I2C_CR_OFFSET		0x00 /* Control Register, RW */
-@@ -139,6 +142,10 @@
-  * @clk_rate_change_nb:	Notifier block for clock rate changes
-  * @quirks:		flag for broken hold bit usage in r1p10
-  * @ctrl_reg:		Cached value of the control register.
-+ * @rinfo:		Structure holding recovery information.
-+ * @pinctrl:		Pin control state holder.
-+ * @pinctrl_pins_default: Default pin control state.
-+ * @pinctrl_pins_gpio:	GPIO pin control state.
-  */
- struct cdns_i2c {
- 	struct device		*dev;
-@@ -160,6 +167,10 @@ struct cdns_i2c {
- 	struct notifier_block clk_rate_change_nb;
- 	u32 quirks;
- 	u32 ctrl_reg;
-+	struct i2c_bus_recovery_info rinfo;
-+	struct pinctrl *pinctrl;
-+	struct pinctrl_state *pinctrl_pins_default;
-+	struct pinctrl_state *pinctrl_pins_gpio;
- };
- 
- struct cdns_platform_data {
-@@ -544,6 +555,7 @@ static int cdns_i2c_process_msg(struct cdns_i2c *id, struct i2c_msg *msg,
- 	/* Wait for the signal of completion */
- 	time_left = wait_for_completion_timeout(&id->xfer_done, adap->timeout);
- 	if (time_left == 0) {
-+		i2c_recover_bus(adap);
- 		cdns_i2c_master_reset(adap);
- 		dev_err(id->adap.dev.parent,
- 				"timeout waiting on completion\n");
-@@ -880,6 +892,88 @@ static int __maybe_unused cdns_i2c_runtime_resume(struct device *dev)
- 	return 0;
- }
- 
-+/**
-+ * cdns_i2c_prepare_recovery - Withhold recovery state
-+ * @adapter:    Pointer to i2c adapter
-+ *
-+ * This function is called to prepare for recovery.
-+ * It changes the state of pins from SCL/SDA to GPIO.
-+ */
-+static void cdns_i2c_prepare_recovery(struct i2c_adapter *adapter)
-+{
-+	struct cdns_i2c *p_cdns_i2c;
-+
-+	p_cdns_i2c = container_of(adapter, struct cdns_i2c, adap);
-+
-+	/* Setting pin state as gpio */
-+	pinctrl_select_state(p_cdns_i2c->pinctrl,
-+			p_cdns_i2c->pinctrl_pins_gpio);
-+}
-+
-+/**
-+ * cdns_i2c_unprepare_recovery - Release recovery state
-+ * @adapter:    Pointer to i2c adapter
-+ *
-+ * This function is called on exiting recovery. It reverts
-+ * the state of pins from GPIO to SCL/SDA.
-+ */
-+static void cdns_i2c_unprepare_recovery(struct i2c_adapter *adapter)
-+{
-+	struct cdns_i2c *p_cdns_i2c;
-+
-+	p_cdns_i2c = container_of(adapter, struct cdns_i2c, adap);
-+
-+	/* Setting pin state to default(i2c) */
-+	pinctrl_select_state(p_cdns_i2c->pinctrl,
-+			p_cdns_i2c->pinctrl_pins_default);
-+}
-+
-+/**
-+ * cdns_i2c_init_recovery_info  - Initialize I2C bus recovery
-+ * @pid:        Pointer to cdns i2c structure
-+ * @pdev:       Handle to the platform device structure
-+ *
-+ * This function does required initialization for i2c bus
-+ * recovery. It registers three functions for prepare,
-+ * recover and unprepare
-+ *
-+ * Return: 0 on Success, negative error otherwise.
-+ */
-+static int cdns_i2c_init_recovery_info(struct cdns_i2c *pid,
-+		struct platform_device *pdev)
-+{
-+	struct i2c_bus_recovery_info *rinfo = &pid->rinfo;
-+
-+	pid->pinctrl_pins_default = pinctrl_lookup_state(pid->pinctrl,
-+			PINCTRL_STATE_DEFAULT);
-+	pid->pinctrl_pins_gpio = pinctrl_lookup_state(pid->pinctrl, "gpio");
-+
-+	/* Fetches GPIO pins */
-+	rinfo->sda_gpiod = devm_gpiod_get(&pdev->dev, "sda-gpios", 0);
-+	rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl-gpios", 0);
-+
-+	/* if GPIO driver isn't ready yet, deffer probe */
-+	if (PTR_ERR(rinfo->sda_gpiod) == -EPROBE_DEFER ||
-+	    PTR_ERR(rinfo->scl_gpiod) == -EPROBE_DEFER)
-+		return -EPROBE_DEFER;
-+
-+	/* Validates fetched information */
-+	if (IS_ERR(rinfo->sda_gpiod) ||
-+	    IS_ERR(rinfo->scl_gpiod) ||
-+			IS_ERR(pid->pinctrl_pins_default) ||
-+			IS_ERR(pid->pinctrl_pins_gpio)) {
-+		dev_dbg(&pdev->dev, "recovery information incomplete\n");
-+		return 0;
-+	}
-+
-+	rinfo->prepare_recovery     = cdns_i2c_prepare_recovery;
-+	rinfo->unprepare_recovery   = cdns_i2c_unprepare_recovery;
-+	rinfo->recover_bus          = i2c_generic_scl_recovery;
-+	pid->adap.bus_recovery_info = rinfo;
-+
-+	return 0;
-+}
-+
- static const struct dev_pm_ops cdns_i2c_dev_pm_ops = {
- 	SET_RUNTIME_PM_OPS(cdns_i2c_runtime_suspend,
- 			   cdns_i2c_runtime_resume, NULL)
-@@ -926,6 +1020,13 @@ static int cdns_i2c_probe(struct platform_device *pdev)
- 		id->quirks = data->quirks;
- 	}
- 
-+	id->pinctrl = devm_pinctrl_get(&pdev->dev);
-+	if (!IS_ERR(id->pinctrl)) {
-+		ret = cdns_i2c_init_recovery_info(id, pdev);
-+		if (ret)
-+			return ret;
-+	}
-+
- 	r_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	id->membase = devm_ioremap_resource(&pdev->dev, r_mem);
- 	if (IS_ERR(id->membase))
 -- 
-2.1.1
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
