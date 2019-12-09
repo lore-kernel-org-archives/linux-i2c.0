@@ -1,48 +1,54 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 4/4] platform/chrome: i2c: i2c-cros-ec-tunnel: Convert
- i2c tunnel to MFD Cell
-Date: Mon, 9 Dec 2019 13:17:45 +0000
-Message-ID: <20191209131745.GM3468@dell>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: Re: [PATCH 4/4] platform/chrome: i2c: i2c-cros-ec-tunnel: Convert i2c
+ tunnel to MFD Cell
+Date: Mon, 9 Dec 2019 15:41:33 +0100
+Message-ID: <6f6b0ac7-37d8-e2a1-3249-223905c2a5b1@collabora.com>
 References: <20191121211053.48861-1-rrangel@chromium.org>
  <20191121140830.4.Iddc7dd74f893297cb932e9825d413e7890633b3d@changeid>
+ <20191209131745.GM3468@dell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20191121140830.4.Iddc7dd74f893297cb932e9825d413e7890633b3d@changeid>
+In-Reply-To: <20191209131745.GM3468@dell>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Raul E Rangel <rrangel@chromium.org>
-Cc: enric.balletbo@collabora.com, Wolfram Sang <wsa@the-dreams.de>, Akshu.Agrawal@amd.com, Guenter Roeck <groeck@chromium.org>, Chanwoo Choi <cw00.choi@samsung.com>, linux-kernel@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, Benson Leung <bleung@chromium.org>
+To: Lee Jones <lee.jones@linaro.org>, Raul E Rangel <rrangel@chromium.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Akshu.Agrawal@amd.com, Guenter Roeck <groeck@chromium.org>, Chanwoo Choi <cw00.choi@samsung.com>, linux-kernel@vger.kernel.org, Alexandre Belloni <alexandre.belloni@bootlin.com>, linux-i2c@vger.kernel.org, Benson Leung <bleung@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 21 Nov 2019, Raul E Rangel wrote:
+Hi Lee,
 
-> If the i2c-cros-ec-tunnel driver is compiled into the kernel, it is
-> possible that i2c-cros-ec-tunnel could be probed before cros_ec_XXX
-> has finished initializing and setting the drvdata. This would cause a
-> NULL pointer panic.
+On 9/12/19 14:17, Lee Jones wrote:
+> On Thu, 21 Nov 2019, Raul E Rangel wrote:
 > 
-> Converting this driver over to an MFD solves the problem and aligns with
-> where the cros_ec is going.
+>> If the i2c-cros-ec-tunnel driver is compiled into the kernel, it is
+>> possible that i2c-cros-ec-tunnel could be probed before cros_ec_XXX
+>> has finished initializing and setting the drvdata. This would cause a
+>> NULL pointer panic.
+>>
+>> Converting this driver over to an MFD solves the problem and aligns with
+>> where the cros_ec is going.
+>>
+>> Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+>> ---
+>> You can now see the device node lives under the mfd device.
+>>
+>> $ find /sys/bus/platform/devices/cros-ec-dev.0.auto/cros-ec-i2c-tunnel.12.auto/ -iname firmware_node -exec ls -l '{}' \;
+>> /sys/bus/platform/devices/cros-ec-dev.0.auto/cros-ec-i2c-tunnel.12.auto/firmware_node -> ../../../../../../LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:1c/PNP0C09:00/GOOG0004:00/GOOG0012:00
+>> /sys/bus/platform/devices/cros-ec-dev.0.auto/cros-ec-i2c-tunnel.12.auto/i2c-9/firmware_node -> ../../../../../../../LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:1c/PNP0C09:00/GOOG0004:00/GOOG0012:00
+>> /sys/bus/platform/devices/cros-ec-dev.0.auto/cros-ec-i2c-tunnel.12.auto/i2c-9/i2c-10EC5682:00/firmware_node -> ../../../../../../../../LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:1c/PNP0C09:00/GOOG0004:00/GOOG0012:00/10EC5682:00
+>>
+>>  drivers/i2c/busses/i2c-cros-ec-tunnel.c | 36 +++++++++----------------
+>>  drivers/mfd/cros_ec_dev.c               | 19 +++++++++++++
 > 
-> Signed-off-by: Raul E Rangel <rrangel@chromium.org>
-> ---
-> You can now see the device node lives under the mfd device.
+> For my own reference:
+>   Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
 > 
-> $ find /sys/bus/platform/devices/cros-ec-dev.0.auto/cros-ec-i2c-tunnel.12.auto/ -iname firmware_node -exec ls -l '{}' \;
-> /sys/bus/platform/devices/cros-ec-dev.0.auto/cros-ec-i2c-tunnel.12.auto/firmware_node -> ../../../../../../LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:1c/PNP0C09:00/GOOG0004:00/GOOG0012:00
-> /sys/bus/platform/devices/cros-ec-dev.0.auto/cros-ec-i2c-tunnel.12.auto/i2c-9/firmware_node -> ../../../../../../../LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:1c/PNP0C09:00/GOOG0004:00/GOOG0012:00
-> /sys/bus/platform/devices/cros-ec-dev.0.auto/cros-ec-i2c-tunnel.12.auto/i2c-9/i2c-10EC5682:00/firmware_node -> ../../../../../../../../LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:1c/PNP0C09:00/GOOG0004:00/GOOG0012:00/10EC5682:00
-> 
->  drivers/i2c/busses/i2c-cros-ec-tunnel.c | 36 +++++++++----------------
->  drivers/mfd/cros_ec_dev.c               | 19 +++++++++++++
 
-For my own reference:
-  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Note that there is a v2 for this patch and I did some comments [1]
 
--- 
-Lee Jones [李琼斯]
-Linaro Services Technical Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Thanks,
+ Enric
+
+[1] https://patchwork.ozlabs.org/patch/1200560/
