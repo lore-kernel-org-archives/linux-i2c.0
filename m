@@ -1,8 +1,8 @@
 From: Daniel Mack <daniel@zonque.org>
-Subject: [PATCH 04/10] dt-bindings: clock: Add documentation
-	for AD242x clock providers
-Date: Mon,  9 Dec 2019 19:35:05 +0100
-Message-ID: <20191209183511.3576038-6-daniel@zonque.org>
+Subject: [PATCH 05/10] dt-bindings: sound: Add documentation
+	for AD242x codecs
+Date: Mon,  9 Dec 2019 19:35:06 +0100
+Message-ID: <20191209183511.3576038-7-daniel@zonque.org>
 References: <20191209183511.3576038-1-daniel@zonque.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -26,22 +26,20 @@ This device must be placed as a sub-device of an AD242x MFD node.
 
 Signed-off-by: Daniel Mack <daniel@zonque.org>
 ---
- .../bindings/clock/adi,ad242x-clk.yaml        | 32 +++++++++++++++++++
- include/dt-bindings/clock/adi,ad242x.h        |  9 ++++++
- 2 files changed, 41 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/clock/adi,ad242x-clk.yaml
- create mode 100644 include/dt-bindings/clock/adi,ad242x.h
+ .../bindings/sound/adi,ad242x-codec.yaml      | 31 +++++++++++++++++++
+ 1 file changed, 31 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/sound/adi,ad242x-codec.yaml
 
-diff --git a/Documentation/devicetree/bindings/clock/adi,ad242x-clk.yaml b/Documentation/devicetree/bindings/clock/adi,ad242x-clk.yaml
+diff --git a/Documentation/devicetree/bindings/sound/adi,ad242x-codec.yaml b/Documentation/devicetree/bindings/sound/adi,ad242x-codec.yaml
 new file mode 100644
-index 000000000000..f434b3e4928e
+index 000000000000..2cfb6f9fc548
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/clock/adi,ad242x-clk.yaml
-@@ -0,0 +1,32 @@
++++ b/Documentation/devicetree/bindings/sound/adi,ad242x-codec.yaml
+@@ -0,0 +1,31 @@
 +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
 +%YAML 1.2
 +---
-+$id: "http://devicetree.org/schemas/clock/adi,ad242x-clk.yaml#"
++$id: "http://devicetree.org/schemas/sound/adi,ad242x-codec.yaml#"
 +$schema: "http://devicetree.org/meta-schemas/core.yaml#"
 +
 +title: Analog Devices AD242x clock provider
@@ -56,35 +54,19 @@ index 000000000000..f434b3e4928e
 +properties:
 +  compatible:
 +    enum:
-+      - adi,ad2428w-clk
++      - adi,ad2428w-codec
 +
-+  '#clock-cells':
++  '#sound-dai-cells':
 +    const: 1
 +
-+  clock-output-names:
-+    minItems: 2
-+    maxItems: 2
++  adi,pdm-highpass-filter:
++    type: boolean
 +    description: |
-+      Array of two strings to use as names for the generated output clocks
++      Enables highpass filtering for data received through the PDM ports
 +
 +required:
 +  - compatible
-+  - '#clock-cells'
++  - '#sound-dai-cells'
 \ No newline at end of file
-diff --git a/include/dt-bindings/clock/adi,ad242x.h b/include/dt-bindings/clock/adi,ad242x.h
-new file mode 100644
-index 000000000000..307a6cd1f5a6
---- /dev/null
-+++ b/include/dt-bindings/clock/adi,ad242x.h
-@@ -0,0 +1,9 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+#ifndef __DT_BINDINGS_AD242X_CLK_H
-+#define __DT_BINDINGS_AD242X_CLK_H
-+
-+#define MAX9485_CLKOUT1        0
-+#define MAX9485_CLKOUT2        1
-+
-+#endif /* __DT_BINDINGS_AD242X_CLK_H */
 -- 
 2.23.0
