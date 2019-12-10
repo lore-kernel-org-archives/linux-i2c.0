@@ -1,46 +1,50 @@
-From: Jerome Brunet <jbrunet@baylibre.com>
-Subject: Re: [PATCH] arm64: dts: meson-a1: add I2C nodes
-Date: Tue, 10 Dec 2019 11:17:16 +0100
-Message-ID: <1j8snkh4cz.fsf@starbuckisacylon.baylibre.com>
-References: <20191202111253.94872-1-jian.hu@amlogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Khouloud Touil <ktouil@baylibre.com>
+Subject: [PATCH v2 0/4] at24: move write-protect pin handling to nvmem core
+Date: Tue, 10 Dec 2019 16:41:53 +0100
+Message-ID: <20191210154157.21930-1-ktouil@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <20191202111253.94872-1-jian.hu@amlogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jian Hu <jian.hu@amlogic.com>, Neil Armstrong <narmstrong@baylibre.com>
-Cc: Kevin Hilman <khilman@baylibre.com>, Rob Herring <robh@kernel.org>, Martin Blumenstingl <martin.blumenstingl@googlemail.com>, Michael Turquette <mturquette@baylibre.com>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Jianxin Pan <jianxin.pan@amlogic.com>, linux-amlogic@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+To: bgolaszewski@baylibre.com, robh+dt@kernel.org, mark.rutland@arm.com, srinivas.kandagatla@linaro.org, baylibre-upstreaming@groups.io
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linus.walleij@linaro.org, Khouloud Touil <ktouil@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
+The write-protect pin handling looks like a standard property that
+could benefit other users if available in the core nvmem framework.
+    
+Instead of modifying all the drivers to check this pin, make the
+nvmem subsystem check if the write-protect GPIO being passed
+through the nvmem_config or defined in the device tree and pull it
+low whenever writing to the memory.
 
-On Mon 02 Dec 2019 at 12:12, Jian Hu <jian.hu@amlogic.com> wrote:
+This patchset:
 
-> There are four I2C controllers in A1 series,
-> Share the same comptible with AXG.The I2C nodes
-> depend on pinmux and clock controller.
->
-> Signed-off-by: Jian Hu <jian.hu@amlogic.com>
-> ---
->  arch/arm64/boot/dts/amlogic/meson-a1.dtsi | 149 ++++++++++++++++++++++
->  1 file changed, 149 insertions(+)
->
-> diff --git a/arch/arm64/boot/dts/amlogic/meson-a1.dtsi b/arch/arm64/boot/dts/amlogic/meson-a1.dtsi
-> index eab2ecd36aa8..d0a73d953f5e 100644
-> --- a/arch/arm64/boot/dts/amlogic/meson-a1.dtsi
-> +++ b/arch/arm64/boot/dts/amlogic/meson-a1.dtsi
-> @@ -16,6 +16,13 @@
->  	#address-cells = <2>;
->  	#size-cells = <2>;
->  
-> +	aliases {
-> +		i2c0 = &i2c0;
-> +		i2c1 = &i2c1;
-> +		i2c2 = &i2c2;
-> +		i2c3 = &i2c3;
-> +	};
-> +
+- adds support for the write-protect pin split into two parts.
+The first patch modifies modifies the relevant binding document,
+while the second modifies the nvmem code to pull the write-protect
+GPIO low (if present) during write operations.
 
-I wonder if assigning i2c bus alias in the SoC dtsi is such a good idea.
+- removes support for the write-protect pin split into two parts.
+The first patch modifies the relevant binding document to remove
+the wp-gpio, while the second removes the relevant code in the
+at24 driver.
 
-Such aliases are usually assigned as needed by each board design:
-meson-a1-ad401.dts in your case.
+Changes since v1:
+-Add an explenation on how the wp-gpios works
+-keep reference to the wp-gpios in the at24 binding
+
+Khouloud Touil (4):
+  dt-bindings: nvmem: new optional property write-protect-gpios
+  nvmem: add support for the write-protect pin
+  dt-bindings: at24: remove the optional property write-protect-gpios
+  eeprom: at24: remove the write-protect pin support
+
+ .../devicetree/bindings/eeprom/at24.yaml      |  6 +-----
+ .../devicetree/bindings/nvmem/nvmem.yaml      |  9 +++++++++
+ drivers/misc/eeprom/at24.c                    |  9 ---------
+ drivers/nvmem/core.c                          | 19 +++++++++++++++++--
+ drivers/nvmem/nvmem.h                         |  2 ++
+ include/linux/nvmem-provider.h                |  3 +++
+ 6 files changed, 32 insertions(+), 16 deletions(-)
+
+-- 
+2.17.1
