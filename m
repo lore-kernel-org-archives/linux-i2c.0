@@ -1,127 +1,139 @@
-From: Khouloud Touil <ktouil@baylibre.com>
-Subject: [PATCH v2 2/4] nvmem: add support for the write-protect pin
-Date: Tue, 10 Dec 2019 16:41:55 +0100
-Message-ID: <20191210154157.21930-3-ktouil@baylibre.com>
-References: <20191210154157.21930-1-ktouil@baylibre.com>
+From: Kevin Hilman <khilman@baylibre.com>
+Subject: Re: [PATCH] arm64: dts: meson-a1: add I2C nodes
+Date: Tue, 10 Dec 2019 10:15:45 -0800
+Message-ID: <7hblsgqc6m.fsf@baylibre.com>
+References: <20191202111253.94872-1-jian.hu@amlogic.com> <7hsgltqfdx.fsf@baylibre.com> <e90e00e1-c868-ce09-6f79-deb62da72b43@amlogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191210154157.21930-1-ktouil@baylibre.com>
+In-Reply-To: <e90e00e1-c868-ce09-6f79-deb62da72b43@amlogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: bgolaszewski@baylibre.com, robh+dt@kernel.org, mark.rutland@arm.com, srinivas.kandagatla@linaro.org, baylibre-upstreaming@groups.io
-Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linus.walleij@linaro.org, Khouloud Touil <ktouil@baylibre.com>
+To: Jian Hu <jian.hu@amlogic.com>, Jerome Brunet <jbrunet@baylibre.com>, Neil Armstrong <narmstrong@baylibre.com>
+Cc: Rob Herring <robh@kernel.org>, Martin Blumenstingl <martin.blumenstingl@googlemail.com>, Michael Turquette <mturquette@baylibre.com>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Jianxin Pan <jianxin.pan@amlogic.com>, linux-amlogic@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The write-protect pin handling looks like a standard property that
-could benefit other users if available in the core nvmem framework.
+Jian Hu <jian.hu@amlogic.com> writes:
 
-Instead of modifying all the memory drivers to check this pin, make
-the NVMEM subsystem check if the write-protect GPIO being passed
-through the nvmem_config or defined in the device tree and pull it
-low whenever writing to the memory.
+> Hi Kevin
+>
+> Thanks for your review
+>
+> On 2019/12/10 6:54, Kevin Hilman wrote:
+>> Hi Jian,
+>> 
+>> Jian Hu <jian.hu@amlogic.com> writes:
+>> 
+>>> There are four I2C controllers in A1 series,
+>>> Share the same comptible with AXG.The I2C nodes
+>>> depend on pinmux and clock controller.
+>>>
+>>> Signed-off-by: Jian Hu <jian.hu@amlogic.com>
+>>> ---
+>>>   arch/arm64/boot/dts/amlogic/meson-a1.dtsi | 149 ++++++++++++++++++++++
+>>>   1 file changed, 149 insertions(+)
+>>>
+>>> diff --git a/arch/arm64/boot/dts/amlogic/meson-a1.dtsi b/arch/arm64/boot/dts/amlogic/meson-a1.dtsi
+>>> index eab2ecd36aa8..d0a73d953f5e 100644
+>>> --- a/arch/arm64/boot/dts/amlogic/meson-a1.dtsi
+>>> +++ b/arch/arm64/boot/dts/amlogic/meson-a1.dtsi
+>>> @@ -16,6 +16,13 @@
+>>>   	#address-cells = <2>;
+>>>   	#size-cells = <2>;
+>>>   
+>>> +	aliases {
+>>> +		i2c0 = &i2c0;
+>>> +		i2c1 = &i2c1;
+>>> +		i2c2 = &i2c2;
+>>> +		i2c3 = &i2c3;
+>>> +	};
+>>> +
+>>>   	cpus {
+>>>   		#address-cells = <2>;
+>>>   		#size-cells = <0>;
+>>> @@ -117,6 +124,46 @@
+>>>   				};
+>>>   			};
+>>>   
+>>> +			i2c0: i2c@1400 {
+>>> +				compatible = "amlogic,meson-axg-i2c";
+>>> +				reg = <0x0 0x1400 0x0 0x24>;
+>> 
+>> The AXG DT files use 0x20 for the length.  You are using 0x24.  I don't
+>> see any additional registers added to the driver, so this doesn't look right.
+> In fact, For G12 series and A1, the length should be 0x24. A new 
+> register is added, And it is for IRQ handler timeout. If the 
+> transmission is exceeding a limited time, it will abort the 
+> transmission.Now the function is not used, There is completion to deal 
+> the timeout in the driver. I will set the length 0x20 becouse of the new 
+> register is not used.
 
-There was a suggestion for introducing the gpiodesc from pdata, but
-as pdata is already removed it could be replaced by adding it to
-nvmem_config.
+Yes, we can extend it to 0x24 when support for the new register is
+added, because that will mean adding a new compatible string also.
 
-Reference: https://lists.96boards.org/pipermail/dev/2018-August/001056.html
+>> 
+>>> +				interrupts = <GIC_SPI 32 IRQ_TYPE_EDGE_RISING>;
+>>> +				#address-cells = <1>;
+>>> +				#size-cells = <0>;
+>>> +				clocks = <&clkc_periphs CLKID_I2C_M_A>;
+>>> +				status = "disabled";
+>>> +			};
+>>> +
+>>> +			i2c1: i2c@5c00 {
+>>> +				compatible = "amlogic,meson-axg-i2c";
+>>> +				reg = <0x0 0x5c00 0x0 0x24>;
+>>> +				interrupts = <GIC_SPI 68 IRQ_TYPE_EDGE_RISING>;
+>>> +				#address-cells = <1>;
+>>> +				#size-cells = <0>;
+>>> +				clocks = <&clkc_periphs CLKID_I2C_M_B>;
+>>> +				status = "disabled";
+>>> +			};
+>>> +
+>>> +			i2c2: i2c@6800 {
+>>> +				compatible = "amlogic,meson-axg-i2c";
+>>> +				reg = <0x0 0x6800 0x0 0x24>;
+>>> +				interrupts = <GIC_SPI 76 IRQ_TYPE_EDGE_RISING>;
+>>> +				#address-cells = <1>;
+>>> +				#size-cells = <0>;
+>>> +				clocks = <&clkc_periphs CLKID_I2C_M_C>;
+>>> +				status = "disabled";
+>>> +			};
+>>> +
+>>> +			i2c3: i2c@6c00 {
+>>> +				compatible = "amlogic,meson-axg-i2c";
+>>> +				reg = <0x0 0x6c00 0x0 0x24>;
+>>> +				interrupts = <GIC_SPI 78 IRQ_TYPE_EDGE_RISING>;
+>>> +				#address-cells = <1>;
+>>> +				#size-cells = <0>;
+>>> +				clocks = <&clkc_periphs CLKID_I2C_M_D>;
+>>> +				status = "disabled";
+>>> +			};
+>>> +
+>>>   			uart_AO: serial@1c00 {
+>>>   				compatible = "amlogic,meson-gx-uart",
+>>>   					     "amlogic,meson-ao-uart";
+>>> @@ -171,3 +218,105 @@
+>>>   		#clock-cells = <0>;
+>>>   	};
+>>>   };
+>>> +
+>>> +&periphs_pinctrl {
+>>> +	i2c0_f11_pins:i2c0-f11 {
+>>> +		mux {
+>>> +			groups = "i2c0_sck_f11",
+>>> +				"i2c0_sda_f12";
+>>> +			function = "i2c0";
+>>> +			bias-pull-up;
+>>> +			drive-strength-microamp = <3000>;
+>> 
+>> Can you also add some comment to the changelog about the need for
+>> drive-strength compared to AXG.
+>
+> OK, Drive strength function is added for GPIO pins from G12 series.
+> So does A1 series.
 
-Signed-off-by: Khouloud Touil <ktouil@baylibre.com>
----
- drivers/nvmem/core.c           | 19 +++++++++++++++++--
- drivers/nvmem/nvmem.h          |  2 ++
- include/linux/nvmem-provider.h |  3 +++
- 3 files changed, 22 insertions(+), 2 deletions(-)
+Yes, that's what I assumed.  Please add that to the changelog as one of
+the new features in A1 compared to AXG.
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 9f1ee9c766ec..3e1c94c4eee8 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -15,6 +15,7 @@
- #include <linux/module.h>
- #include <linux/nvmem-consumer.h>
- #include <linux/nvmem-provider.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/of.h>
- #include <linux/slab.h>
- #include "nvmem.h"
-@@ -54,8 +55,14 @@ static int nvmem_reg_read(struct nvmem_device *nvmem, unsigned int offset,
- static int nvmem_reg_write(struct nvmem_device *nvmem, unsigned int offset,
- 			   void *val, size_t bytes)
- {
--	if (nvmem->reg_write)
--		return nvmem->reg_write(nvmem->priv, offset, val, bytes);
-+	int ret;
-+
-+	if (nvmem->reg_write) {
-+		gpiod_set_value_cansleep(nvmem->wp_gpio, 0);
-+		ret = nvmem->reg_write(nvmem->priv, offset, val, bytes);
-+		gpiod_set_value_cansleep(nvmem->wp_gpio, 1);
-+		return ret;
-+	}
- 
- 	return -EINVAL;
- }
-@@ -338,6 +345,14 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 		kfree(nvmem);
- 		return ERR_PTR(rval);
- 	}
-+	if (config->wp_gpio)
-+		nvmem->wp_gpio = config->wp_gpio;
-+	else
-+		nvmem->wp_gpio = gpiod_get_optional(config->dev, "wp",
-+						    GPIOD_OUT_HIGH);
-+	if (IS_ERR(nvmem->wp_gpio))
-+		return PTR_ERR(nvmem->wp_gpio);
-+
- 
- 	kref_init(&nvmem->refcnt);
- 	INIT_LIST_HEAD(&nvmem->cells);
-diff --git a/drivers/nvmem/nvmem.h b/drivers/nvmem/nvmem.h
-index eb8ed7121fa3..be0d66d75c8a 100644
---- a/drivers/nvmem/nvmem.h
-+++ b/drivers/nvmem/nvmem.h
-@@ -9,6 +9,7 @@
- #include <linux/list.h>
- #include <linux/nvmem-consumer.h>
- #include <linux/nvmem-provider.h>
-+#include <linux/gpio/consumer.h>
- 
- struct nvmem_device {
- 	struct module		*owner;
-@@ -26,6 +27,7 @@ struct nvmem_device {
- 	struct list_head	cells;
- 	nvmem_reg_read_t	reg_read;
- 	nvmem_reg_write_t	reg_write;
-+	struct gpio_desc	*wp_gpio;
- 	void *priv;
- };
- 
-diff --git a/include/linux/nvmem-provider.h b/include/linux/nvmem-provider.h
-index fe051323be0a..6d6f8e5d24c9 100644
---- a/include/linux/nvmem-provider.h
-+++ b/include/linux/nvmem-provider.h
-@@ -11,6 +11,7 @@
- 
- #include <linux/err.h>
- #include <linux/errno.h>
-+#include <linux/gpio/consumer.h>
- 
- struct nvmem_device;
- struct nvmem_cell_info;
-@@ -45,6 +46,7 @@ enum nvmem_type {
-  * @word_size:	Minimum read/write access granularity.
-  * @stride:	Minimum read/write access stride.
-  * @priv:	User context passed to read/write callbacks.
-+ * @wp-gpio:   Write protect pin
-  *
-  * Note: A default "nvmem<id>" name will be assigned to the device if
-  * no name is specified in its configuration. In such case "<id>" is
-@@ -58,6 +60,7 @@ struct nvmem_config {
- 	const char		*name;
- 	int			id;
- 	struct module		*owner;
-+	struct gpio_desc	*wp_gpio;
- 	const struct nvmem_cell_info	*cells;
- 	int			ncells;
- 	enum nvmem_type		type;
--- 
-2.17.1
+Thanks,
+
+Kevin
