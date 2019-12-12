@@ -1,64 +1,62 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 07/10] i2c: Add driver for AD242x bus controller
-Date: Thu, 12 Dec 2019 17:33:15 +0100
-Message-ID: <20191212163315.GA3932@kunai>
-References: <20191209183511.3576038-1-daniel@zonque.org>
- <20191209183511.3576038-9-daniel@zonque.org>
- <64adf5d7-754a-f1da-aa9b-11579c5a2780@lucaceresoli.net>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: [PATCH v1 3/3] i2c: tegra: Fix suspending in active runtime PM state
+Date: Fri, 13 Dec 2019 02:34:28 +0300
+Message-ID: <20191212233428.14648-4-digetx@gmail.com>
+References: <20191212233428.14648-1-digetx@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="x+6KMIRAuhnl3hBn"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <64adf5d7-754a-f1da-aa9b-11579c5a2780@lucaceresoli.net>
+In-Reply-To: <20191212233428.14648-1-digetx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Luca Ceresoli <luca@lucaceresoli.net>
-Cc: Daniel Mack <daniel@zonque.org>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, devicetree@vger.kernel.org, linux-clk@vger.kernel.org, mturquette@baylibre.com, sboyd@kernel.org, robh+dt@kernel.org, broonie@kernel.org, lee.jones@linaro.org, lars@metafoo.de, pascal.huerst@gmail.com
+To: Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+I noticed that sometime I2C clock is kept enabled during suspend-resume.
+This happens because runtime PM defers dynamic suspension and thus it may
+happen that runtime PM is in active state when system enters into suspend.
+In particular I2C controller that is used for CPU's DVFS is often kept ON
+during suspend because CPU's voltage scaling happens quite often.
 
---x+6KMIRAuhnl3hBn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Note: we marked runtime PM as IRQ-safe during the driver's probe in the
+"Support atomic transfers" patch, thus it's okay to enforce runtime PM
+suspend/resume in the NOIRQ phase which is used for the system-level
+suspend/resume of the driver.
 
-Hi Luca,
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+---
+ drivers/i2c/busses/i2c-tegra.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-thanks for the review!
-
-> good, but I think there's a problem in this function. A "normal"
-> master_xfer function issues a repeated start between one msg and the
-> next one, at least in the typical case where all msgs have the same
-> slave address. Your implementation breaks repeated start. At first sight
-> we might need more complex code here to coalesce all consecutive msgs
-> with the same address into a single i2c_transfer() call.
-
-Note that it is by far the standard case that all messages in a transfer
-have the same client address (99,999%?). But technically, this is not a
-requirement and the repeated start on the bus is totally independent of
-the addresses used. It is just a master wanting to send without being
-interrupted by another master.
-
-   Wolfram
-
-
---x+6KMIRAuhnl3hBn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl3ya8cACgkQFA3kzBSg
-KbZBdQ/6ApPjJEPmloupECtcOPxRdHIBMJSbDi9HpBk6QSvFwtknvv6ybcJHJ3Dc
-2GkbUK4EAcDvvDx4mTqhw7t8JPay3Bu3O13a/wXP5PDb7DeHJ5xDaBsEYVLC9id2
-E1I5aEfdrrxsL1HFUZn86BmmthMuupvelZAyfL7pXDT3AU5oNkPipfKzoiC0EiBP
-MPu2HN8BIX7l1ECvOL9j0pZYCfz00UHA4PtWHwz7zjiCG7RmY3qlm6xw5l6XFeq3
-wbcmTXcLr8OIG/8sw0PMJjJFqHfH9Vlj8aYcRrsgjDEHQbSTKAQ/RTDw9rcmAktW
-/1u6RUea0ckwX6rhKWZSXVktPzCV5LWaywD6lsMGXxhF/0T2tvKRqV6+xIngUY3n
-8KnzpK2i3gvLmP9BYYxa/BM8qiuR4SimZi35lmofttUzXUs/5fgJwxFg2UuJqpPD
-Ex/lyLc1AUbRRp8mDsSMsGg7Ku6WUt5T7OxmVjzvIYPLJ84GlTvZLA4WIskzWFVw
-aZ2+E4YZq35snfMfawdrDmTOOmNOEPfVuT5Cm2ul1HVTprAgF/DVkQHVWPzNtOo9
-xxwPgX9lrN0I+Ek2F1kSJguphMzVjIFRvFCl77TJUQ7qvBEWYDLQs1hBdmXieBxA
-bNZoxeVI6DmFF5qTxkQ3Qh9NUGWkPKuslRF2Fh7dWQIoS9FauJo=
-=Gmcp
------END PGP SIGNATURE-----
-
---x+6KMIRAuhnl3hBn--
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index b3ecdd87e91f..d309a314f4d6 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -1790,9 +1790,14 @@ static int tegra_i2c_remove(struct platform_device *pdev)
+ static int __maybe_unused tegra_i2c_suspend(struct device *dev)
+ {
+ 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
++	int err;
+ 
+ 	i2c_mark_adapter_suspended(&i2c_dev->adapter);
+ 
++	err = pm_runtime_force_suspend(dev);
++	if (err < 0)
++		return err;
++
+ 	return 0;
+ }
+ 
+@@ -1813,6 +1818,10 @@ static int __maybe_unused tegra_i2c_resume(struct device *dev)
+ 	if (err)
+ 		return err;
+ 
++	err = pm_runtime_force_resume(dev);
++	if (err < 0)
++		return err;
++
+ 	i2c_mark_adapter_resumed(&i2c_dev->adapter);
+ 
+ 	return 0;
+-- 
+2.24.0
