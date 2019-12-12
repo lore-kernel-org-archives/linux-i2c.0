@@ -1,13 +1,13 @@
 From: christoph.muellner@theobroma-systems.com
 Subject: [PATCH] i2c: tiny-usb: Correct I2C fault codes.
-Date: Thu, 12 Dec 2019 00:39:05 +0100
-Message-ID: <20191211233905.84056-1-christoph.muellner@theobroma-systems.com>
+Date: Thu, 12 Dec 2019 01:12:50 +0100
+Message-ID: <20191212001251.85344-1-christoph.muellner@theobroma-systems.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Till Harbaum <till@harbaum.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, christoph.muellner@theobroma-systems.com
+Cc: =?UTF-8?q?Christoph=20M=C3=BCllner?= <christoph.muellner@theobroma-systems.com>, Till Harbaum <till@harbaum.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 From: Christoph Müllner <christoph.muellner@theobroma-systems.com>
