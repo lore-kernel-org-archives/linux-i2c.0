@@ -1,72 +1,143 @@
-From: Dmitry Osipenko <digetx@gmail.com>
-Subject: Re: [PATCH v1 3/3] i2c: tegra: Fix suspending in active runtime PM
- state
-Date: Fri, 13 Dec 2019 02:43:41 +0300
-Message-ID: <60d798b5-4cc6-d285-b244-cc5b77aa5a71@gmail.com>
-References: <20191212233428.14648-1-digetx@gmail.com>
- <20191212233428.14648-4-digetx@gmail.com>
+From: Peng Ma <peng.ma@nxp.com>
+Subject: RE: [EXT] Re: [PATCH] i2c: imx: Defer probing if EDMA not available
+Date: Fri, 13 Dec 2019 10:33:51 +0000
+Message-ID: <VI1PR04MB44318D7C92B6A29D04840B0DED540@VI1PR04MB4431.eurprd04.prod.outlook.com>
+References: <20191127071136.5240-1-peng.ma@nxp.com>
+ <20191128100613.GI25745@shell.armlinux.org.uk>
+ <VI1PR04MB4431CF7F051F9439C84F84FAED5A0@VI1PR04MB4431.eurprd04.prod.outlook.com>
+ <20191211104347.GA25745@shell.armlinux.org.uk>
+ <VI1PR04MB44313AA19A4F81BA1AD9BC5CED5A0@VI1PR04MB4431.eurprd04.prod.outlook.com>
+ <20191211114230.GC25745@shell.armlinux.org.uk>
+ <VI1PR04MB4431DF2E270FC45A6CC878A9ED550@VI1PR04MB4431.eurprd04.prod.outlook.com>
+ <20191212105857.GE25745@shell.armlinux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191212233428.14648-4-digetx@gmail.com>
+In-Reply-To: <20191212105857.GE25745@shell.armlinux.org.uk>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Russell King - ARM Linux admin <linux@armlinux.org.uk>
+Cc: "shawnguo@kernel.org" <shawnguo@kernel.org>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux@rempel-privat.de" <linux@rempel-privat.de>, Abel Vesa <abel.vesa@nxp.com>, Aisheng Dong <aisheng.dong@nxp.com>, Anson Huang <anson.huang@nxp.com>, Bogdan Florin Vlad <bogdan.vlad@nxp.com>, BOUGH CHEN <haibo.chen@nxp.com>, Clark Wang <xiaoning.wang@nxp.com>, Daniel Baluta <daniel.baluta@nxp.com>, Fancy Fang <chen.fang@nxp.com>, Han Xu <han.xu@nxp.com>, Horia Geanta <horia.geanta@nxp.com>, Iuliana Prodan <iuliana.prodan@nxp.com>, Jacky Bai <ping.bai@nxp.com>, Joakim Zhang <qiangqing.zhang@nxp.com>, Jun Li <jun.li@nxp.com>, Leo Zhang <leo.zhang@nxp.com>, Leonard Crestez <leonard.crestez@nxp>
 List-Id: linux-i2c@vger.kernel.org
 
-13.12.2019 02:34, Dmitry Osipenko пишет:
-> I noticed that sometime I2C clock is kept enabled during suspend-resume.
-> This happens because runtime PM defers dynamic suspension and thus it may
-> happen that runtime PM is in active state when system enters into suspend.
-> In particular I2C controller that is used for CPU's DVFS is often kept ON
-> during suspend because CPU's voltage scaling happens quite often.
-> 
-> Note: we marked runtime PM as IRQ-safe during the driver's probe in the
-> "Support atomic transfers" patch, thus it's okay to enforce runtime PM
-> suspend/resume in the NOIRQ phase which is used for the system-level
-> suspend/resume of the driver.
-> 
-> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-> ---
->  drivers/i2c/busses/i2c-tegra.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-> index b3ecdd87e91f..d309a314f4d6 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -1790,9 +1790,14 @@ static int tegra_i2c_remove(struct platform_device *pdev)
->  static int __maybe_unused tegra_i2c_suspend(struct device *dev)
->  {
->  	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
-> +	int err;
->  
->  	i2c_mark_adapter_suspended(&i2c_dev->adapter);
->  
-> +	err = pm_runtime_force_suspend(dev);
-> +	if (err < 0)
-> +		return err;
-> +
->  	return 0;
->  }
->  
-> @@ -1813,6 +1818,10 @@ static int __maybe_unused tegra_i2c_resume(struct device *dev)
->  	if (err)
->  		return err;
->  
-> +	err = pm_runtime_force_resume(dev);
-> +	if (err < 0)
-> +		return err;
-> +
->  	i2c_mark_adapter_resumed(&i2c_dev->adapter);
->  
->  	return 0;
-> 
-
-It just occurred to me that this patch needs to marked as fixes for the
-"i2c: tegra: Move suspend handling to NOIRQ phase" patch because it
-broke runtime PM enable-refcount by disabling clock/pinmux on resume
-from suspend. For now I'll wait for the review comments. Please review,
-thanks in advance.
+DQoNCj4tLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPkZyb206IFJ1c3NlbGwgS2luZyAtIEFS
+TSBMaW51eCBhZG1pbiA8bGludXhAYXJtbGludXgub3JnLnVrPg0KPlNlbnQ6IDIwMTnE6jEy1MIx
+MsjVIDE4OjU5DQo+VG86IFBlbmcgTWEgPHBlbmcubWFAbnhwLmNvbT4NCj5DYzogc2hhd25ndW9A
+a2VybmVsLm9yZzsgcy5oYXVlckBwZW5ndXRyb25peC5kZTsNCj5saW51eC1rZXJuZWxAdmdlci5r
+ZXJuZWwub3JnOyBsaW51eEByZW1wZWwtcHJpdmF0LmRlOyBBYmVsIFZlc2ENCj48YWJlbC52ZXNh
+QG54cC5jb20+OyBBaXNoZW5nIERvbmcgPGFpc2hlbmcuZG9uZ0BueHAuY29tPjsgQW5zb24gSHVh
+bmcNCj48YW5zb24uaHVhbmdAbnhwLmNvbT47IEJvZ2RhbiBGbG9yaW4gVmxhZCA8Ym9nZGFuLnZs
+YWRAbnhwLmNvbT47DQo+Qk9VR0ggQ0hFTiA8aGFpYm8uY2hlbkBueHAuY29tPjsgQ2xhcmsgV2Fu
+Zw0KPjx4aWFvbmluZy53YW5nQG54cC5jb20+OyBEYW5pZWwgQmFsdXRhIDxkYW5pZWwuYmFsdXRh
+QG54cC5jb20+OyBGYW5jeQ0KPkZhbmcgPGNoZW4uZmFuZ0BueHAuY29tPjsgSGFuIFh1IDxoYW4u
+eHVAbnhwLmNvbT47IEhvcmlhIEdlYW50YQ0KPjxob3JpYS5nZWFudGFAbnhwLmNvbT47IEl1bGlh
+bmEgUHJvZGFuIDxpdWxpYW5hLnByb2RhbkBueHAuY29tPjsgSmFja3kNCj5CYWkgPHBpbmcuYmFp
+QG54cC5jb20+OyBKb2FraW0gWmhhbmcgPHFpYW5ncWluZy56aGFuZ0BueHAuY29tPjsgSnVuIExp
+DQo+PGp1bi5saUBueHAuY29tPjsgTGVvIFpoYW5nIDxsZW8uemhhbmdAbnhwLmNvbT47IExlb25h
+cmQgQ3Jlc3Rleg0KPjxsZW9uYXJkLmNyZXN0ZXpAbnhwLmNvbT47IE1pcmNlYSBQb3AgPG1pcmNl
+YS5wb3BAbnhwLmNvbT47IE1pcmVsYQ0KPlJhYnVsZWEgPG1pcmVsYS5yYWJ1bGVhQG54cC5jb20+
+OyBQZW5nIEZhbiA8cGVuZy5mYW5AbnhwLmNvbT47IFBldGVyDQo+Q2hlbiA8cGV0ZXIuY2hlbkBu
+eHAuY29tPjsgUmFuamFuaSBWYWlkeWFuYXRoYW4NCj48cmFuamFuaS52YWlkeWFuYXRoYW5Abnhw
+LmNvbT47IFJvYmVydCBDaGlyYXMgPHJvYmVydC5jaGlyYXNAbnhwLmNvbT47DQo+Um9iaW4gR29u
+ZyA8eWliaW4uZ29uZ0BueHAuY29tPjsgU2hlbndlaSBXYW5nDQo+PHNoZW53ZWkud2FuZ0BueHAu
+Y29tPjsgVmlvcmVsIFN1bWFuIDx2aW9yZWwuc3VtYW5AbnhwLmNvbT47IFlpbmcgTGl1DQo+PHZp
+Y3Rvci5saXVAbnhwLmNvbT47IFplbmluZyBXYW5nIDx6ZW5pbmcud2FuZ0BueHAuY29tPjsNCj5r
+ZXJuZWxAcGVuZ3V0cm9uaXguZGU7IGZlc3RldmFtQGdtYWlsLmNvbTsNCj5saW51eC1hcm0ta2Vy
+bmVsQGxpc3RzLmluZnJhZGVhZC5vcmc7IGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmcNCj5TdWJq
+ZWN0OiBSZTogW0VYVF0gUmU6IFtQQVRDSF0gaTJjOiBpbXg6IERlZmVyIHByb2JpbmcgaWYgRURN
+QSBub3QgYXZhaWxhYmxlDQo+DQo+Q2F1dGlvbjogRVhUIEVtYWlsDQo+DQo+T24gVGh1LCBEZWMg
+MTIsIDIwMTkgYXQgMDM6MDk6MzJBTSArMDAwMCwgUGVuZyBNYSB3cm90ZToNCj4+IEhlbGxvIFJ1
+c3NlbGwsDQo+Pg0KPj4gVGhhbmtzIHZlcnkgbXVjaCBmb3IgeW91ciBzdHJpY3QgZ3VpZGFuY2Ug
+YW5kIGNvbW1lbnRzLg0KPj4gSSByZWFsaXplZCBpdCBpcyBoYXJkIHRvIHVzIHRoYXQgd2Ugd2Fu
+dCB0byBpMmMgdXNlZCBlZG1hIHdoZW4gZWRtYQ0KPj4gcHJvYmUgYWZ0ZXIgaTJjIHByb2JlLg0K
+Pg0KPkkgaGF2ZSBubyBwcm9ibGVtIHdpdGggdGhhdCBhaW0uICBJJ20ganVzdCB2ZXJ5IGNvbmNl
+cm5lZCBieSB0aGUgcHJvcG9zZWQNCj5pbXBsZW1lbnRhdGlvbiwgZXNwZWNpYWxseSB3aGVuIGl0
+IGhhcyBhbHJlYWR5IGJlZW4gcHJvdmVuIHRvIGNhdXNlDQo+cmVncmVzc2lvbnMgaW4gdGhlIGtl
+cm5lbC4gSSBzZWVtIHRvIHJlbWVtYmVyIHRoYXQgdGhlIGluZmluaXRlIGxvb3AgY2F1c2VkDQo+
+b3RoZXIgaXNzdWVzLCBzdWNoIGFzIHRoZSBzeXN0ZW0gYmVpbmcgdW5hYmxlIHRvIGNvbXBsZXRl
+IGJvb3RpbmcuDQo+DQo+PiBJIGxvb2sgZm9yd2FyZCB0byBkaXNjdXNzaW5nIHdpdGggeW91IGFz
+IGJlbG93LCBpZiB5b3UgbGlrZS4NCj4+IFRoYW5rcy4NCj4+DQo+PiBZb3Ugc2F5IEkgY291bGQg
+ZG8gdGhpczoNCj4+ICJTbywgaWYgeW91IHdhbnQgdG8gZG8gdGhpcyAoYW5kIHllcywgSSdkIGFs
+c28gZW5jb3VyYWdlIGl0IHRvIGJlDQo+PiBjb25kaXRpb25hbCBvbiBFRE1BIGJlaW5nIGJ1aWx0
+LWluLCBhcyBJMkMgaXMgY29tbW9ubHkgdXNlZCBhcyBhIHdheQ0KPj4gdG8gZ2V0IGF0IFJUQ3Ms
+IHdoaWNoIGFyZSByZWFkIGJlZm9yZSBrZXJuZWwgbW9kdWxlcyBjYW4gYmUgbG9hZGVkKQ0KPj4g
+dGhlbiB5b3UgTVVTVCBtb3ZlDQo+PiBpMmNfaW14X2RtYV9yZXF1ZXN0KCkgYmVmb3JlDQo+PiBp
+MmNfYWRkX251bWJlcmVkX2FkYXB0ZXIoKSB0byBhdm9pZCB0aGUgaW5maW5pdGUgbG9vcC4iDQo+
+Pg0KPj4gRXZlbiBpZiBJIGRvIHRoaXMsIEl0J3MgaGFyZCB0byBhdm9pZCB0aGUgaW5maW5pdGUg
+bG9vcCBvZiBpMmMgcHJvYmUgY2F1c2VkIGJ5DQo+RURNQShidWlsZC1pbikgaW5pdGlhbGl6YXRp
+b24gZmFpbHVyZS4NCj4NCj5JdCBpc24ndCBjbGVhciB3aGF0IHlvdSBtZWFuIGhlcmUuDQo+DQo+
+SWYgRURNQSBmYWlscyB0byBwcm9iZSAoYmVjYXVzZSBmc2xfZWRtYV9wcm9iZSgpIHJldHVybnMg
+YW4gZXJyb3Igb3RoZXIgdGhhbg0KPkVQUk9CRV9ERUZFUikgdGhlbiBvZl9kbWFfZmluZF9jb250
+cm9sbGVyKCkgd2lsbCByZXR1cm4gTlVMTC4gVGhhdCB3aWxsIGJlDQo+cHJvcGFnYXRlZCBkb3du
+IHRocm91Z2ggaTJjX2lteF9kbWFfcmVxdWVzdCgpLiBUaGlzIGlzIG5vIGRpZmZlcmVudCBmcm9t
+IHRoZQ0KPmNhc2Ugd2hlcmUgRURNQSBpcyBidWlsdCBhcyBhIG1vZHVsZS4gSXQgaXMgYWxzbyBu
+byBkaWZmZXJlbnQgZnJvbSB0aGUgY2FzZQ0KPndoZXJlIEVETUEgaGFzbid0IHlldCBiZWVuIHBy
+b2JlZC4NCj4NCkhlbGxvIFJ1c3NlbGwsDQoNClRoZSByZXN1bHQgb2YgbXkgdGVzdCBpcyBub3Qg
+bGlrZSB0aGF0LCBJdCBpcyBzdGlsbCB3aXRoIHByb2JlIGxvb3AsIHRoZSB0ZXN0IGNvbmZpZyBh
+cyBmb2xsb3dzOg0KMS5FRE1BIGJ1aWxkLWluDQoyLnJldHVybiAtRUlOVkFMIHRvcCBvZiBmc2xf
+ZWRtYV9wcm9iZSB3aGVuIGVkbWEgcHJvYmUNCjMuaTJjIHByb2JlIHdpdGggb3JpZ2luYWwgcGF0
+Y2gsIEkgcHV0IHRoZSBpMmNfaW14X2RtYV9yZXF1ZXN0IGluIGZyb250IG9mIGkyY19hZGRfbnVt
+YmVyZWRfYWRhcHRlciBvciB1c2VkIG9yaWdpbmFsIHBhdGNoLg0KDQpJIHNlbmQgeW91IHRoZSBm
+dW5jdGlvbiBvZl9kbWFfcmVxdWVzdF9zbGF2ZV9jaGFubmVsIGNvdWxkIGV4cGxhaW4gaXQgbGFz
+dCBtYWlsLA0KIlJldHVybiAtRVBST0JFX0RFRkVSIiBkZXBlbmRzIG9uOg0KMS4gZWRtYSBub3Qg
+cHJvYmUgb3IgcHJvYmUgZmFpbGVkDQoyLiBUaGVyZSBpcyBlZG1hIG5vZGUgaW4gRFRTIGFuZCBJ
+MkMgd2l0aCBlZG1hIHByb3BlcnR5DQoNCj5JZiBpMmNfaW14X2RtYV9yZXF1ZXN0KCkgaXMgcGxh
+Y2VkIGFmdGVyIGkyY19hZGRfbnVtYmVyZWRfYWRhcHRlcigpLCBhbmQNCj5FUFJPQkVfREVGRVIg
+aXMgcHJvcGFnYXRlZCBvdXQgb2YgaTJjX2lteF9wcm9iZSgpLCB0aGVuIF95ZXNfLCBpdCB3aWxs
+IGNhdXNlDQo+YW4gaW5maW5pdGUgbG9vcCwgYmVjYXVzZSB5b3UgYXJlIHJlcGxpY2F0aW5nIHRo
+ZSBleGFjdCBjb25kaXRpb25zIHRoYXQgY2F1c2VkDQo+dGhlIGF0dGVtcHQgdG8gcHJvcGFnYXRl
+IGkyY19pbXhfZG1hX3JlcXVlc3QoKSdzIHJldHVybiB2YWx1ZSB0byBiZSByZXZlcnRlZA0KPmxh
+c3QgdGltZSAtIHdoaWNoIGJyb3VnaHQgdGhlIGtlcm5lbCB0byBhIGdyaW5kaW5nIGhhbHQuDQo+
+DQo+SWYgaTJjX2lteF9kbWFfcmVxdWVzdCgpIGlzIHBsYWNlZCBiZWZvcmUgaTJjX2FkZF9udW1i
+ZXJlZF9hZGFwdGVyKCksIHRoZW4NCj50aGVyZSBpcyBubyBpbmZpbml0ZSBkZWZlcnJlZCBwcm9i
+aW5nIGxvb3AgLSB5ZXMsIGkyY19pbXhfcHJvYmUoKSB3aWxsIGJlIGNhbGxlZCBhcw0KPmEgcmVz
+dWx0IG9mIG90aGVyIGRyaXZlcnMgc3VjY2Vzc2Z1bGx5IHByb2JpbmcsIGFuZCBlYWNoIHRpbWUg
+aXQgd2lsbCByZXR1cm4NCj5FUFJPQkVfREVGRVIsIGJ1dCB0aGUgX2tleV8gcG9pbnQgaXMgdGhh
+dCB0aGUgYWN0aW9uIG9mIGkyY19pbXhfcHJvYmUoKSB3aWxsDQo+bm90IF9zZWxmIHRyaWdnZXJf
+IHRoZSBkZWZlcnJlZCBwcm9iaW5nIF9hbmRfIHBsYWNlIGl0c2VsZiBvbnRvIHRoZSBkZWZlcnJl
+ZA0KPnByb2JlIGxpc3QuDQo+DQo+UGxlYXNlLCByYXRoZXIgdGhhbiBjb250aW51aW5nIHRvIHNl
+bmQgZW1haWxzIGFyZ3Vpbmcgb3ZlciB0aGlzIHBvaW50LA0KPmludmVzdGlnYXRlIHRoZSBzdGF0
+ZWQgaXNzdWUgd2l0aCBzb21lIHByYWN0aWNhbCB0ZXN0czoNCj4NCj4xLiBNYWtlIGkyY19pbXhf
+cHJvYmUoKSBwcm9wYWdhdGUgaTJjX2lteF9kbWFfcmVxdWVzdCgpJ3MgcmV0dXJuIHZhbHVlLA0K
+PiAgIGFzIGl0IGRpZCBpbiB0aGUgb3JpZ2luYWwgcGF0Y2guDQo+Mi4gQnVpbGQgaTJjLWlteCBp
+bnRvIHRoZSBrZXJuZWwuDQo+My4gQnVpbGQgZWRtYSBhcyBhIG1vZHVsZS4NCj40LiBCdWlsZCBh
+bmQgdGVzdCBib290IHRoZSBrZXJuZWwgYW5kIGNoZWNrIHdoYXQgaGFwcGVucy4NCj41LiBNb3Zl
+IGkyY19pbXhfZG1hX3JlcXVlc3QoKSBiZWZvcmUgaTJjX2FkZF9udW1iZXJlZF9hZGFwdGVyKCkg
+Ni4gQnVpbGQNCj5hbmQgdGVzdCBib290IHRoZSByZXN1bHRpbmcga2VybmVsIGFuZCBub3RlIGFu
+eSBkaWZmZXJlbmNlcy4NCj4NCltQZW5nIE1hXSB0aGUgaTJjIHByb2JlIGxvb3Agc3RpbGwgZXhp
+c3QgYnV0IG5vdCBpbmZpbml0ZSBsb29wIHdpdGggYmVsb3cgY2FzZXM6DQoxOiANCglVc2VkIG9y
+aWdpbmFsIHBhdGNoDQoJQnVpbGQgaTJjLWlteCBpbnRvIHRoZSBrZXJuZWwNCglCdWlsZCBlZG1h
+IGludG8gdGhlIGtlcm5lbA0KMjoNCglVc2VkIG9yaWdpbmFsIHBhdGNoDQoJQnVpbGQgaTJjLWlt
+eCBpbnRvIHRoZSBrZXJuZWwNCglCdWlsZCBlZG1hIGludG8gdGhlIGtlcm5lbA0KCU1vdmUgaTJj
+X2lteF9kbWFfcmVxdWVzdCgpIGJlZm9yZSBpMmNfYWRkX251bWJlcmVkX2FkYXB0ZXIoKQ0KMzoN
+CglVc2VkIG9yaWdpbmFsIHBhdGNoDQoJQnVpbGQgaTJjLWlteCBpbnRvIHRoZSBrZXJuZWwNCglC
+dWlsZCBlZG1hIGFzIGEgbW9kdWxlDQoJTW92ZSBpMmNfaW14X2RtYV9yZXF1ZXN0KCkgYmVmb3Jl
+IGkyY19hZGRfbnVtYmVyZWRfYWRhcHRlcigpDQoNCkkgc2F3IHRoZSBjb21taXQgZThjMjIwZmFj
+NDE1ZDlmNGE5OTRiMGMyODcxYjgzNWZlYWMxZWI0ZSB5b3Ugc2FpZA0KMS4gaTJjX2lteF9wcm9i
+ZSgpIGlzIGNhbGxlZCBhbmQgc3VjY2Vzc2Z1bGx5IHJlZ2lzdGVycyBhbiBJMkMNCiAgIGFkYXB0
+ZXIgdmlhIGkyY19hZGRfbnVtYmVyZWRfYWRhcHRlcigpDQoNCjIuIEFzIGEgcGFydCBvZiBpMmNf
+YWRkX251bWJlcmVkX2FkYXB0ZXIoKSBuZXcgSTJDIHNsYXZlIGRldmljZXMNCiAgIGFyZSBhZGRl
+ZCBmcm9tIERUIHdoaWNoIHJlc3VsdHMgaW4gYSBjYWxsIHRvDQogICBkcml2ZXJfZGVmZXJyZWRf
+cHJvYmVfdHJpZ2dlcigpDQoNCjMuIGkyY19pbXhfcHJvYmUoKSBjb250aW51ZXMgYW5kIGNhbGxz
+IGkyY19pbXhfZG1hX3JlcXVlc3QoKSB3aGljaA0KICAgZHVlIHRvIGxhY2sgb2YgcHJvcGVyIERN
+QSBkcml2ZXIgcmV0dXJucyAtRVBST0JFX0RFRkVSDQoNCjQuIGkyY19pbXhfcHJvYmUoKSBmYWls
+cywgcmVtb3ZlcyBJMkMgYWRhcHRlciBhbmQgcmV0dXJucw0KICAgLUVQUk9CRV9ERUZFUiwgd2hp
+Y2ggcGxhY2VzIGl0IGludG8gZGVmZXJyZWQgcHJvYmUgbGlzdA0KDQo1LiBEZWZlcnJlZCBwcm9i
+ZSB3b3JrIHRyaWdnZXJlZCBpbiAjMiBhYm92ZSBraWNrcyBpbiBhbmQgY2FsbHMNCiAgIGkyY19p
+bXhfcHJvYmUoKSBhZ2FpbiB0aHVzIGJyaW5naW5nIHVzIHRvIHN0ZXAgIzEiDQpDYW4gSSB1bmRl
+cnN0YW5kIDQsIHlvdSBtZWFuIGp1c3QgcmVtb3ZlIEkyQyBhZGFwdGVyIHRoZSBpMmMgc2xhdmUg
+ZGV2aWNlcyBub3QgYmUgcmVtb3ZlZD8gVGhlbiB0aGUgaTJjIHNsYXZlIGRldmljZXMgd2lsbCBw
+cm9iZSB0aGVpciBkcml2ZXJzIHRyaWdnZXJlZCB0aGUgZHJpdmVyX2RlZmVycmVkX3Byb2JlX3Ry
+aWdnZXIoKS4NCklmIHNvLCBNeSB0ZXN0IGlzIG5vdCBsaWtlIHRoaXMsIHdoZW4gdGhlIGkyYyBw
+cm9iZSBmYWlsZWQgdGhlIGkyYyBzbGF2ZSBkZXZpY2VzIHdpbGwgYmUgcmVtb3ZlZCBhbmQgSTJD
+IGFkYXB0ZXIgd2lsbCBiZSByZW1vdmVkIHRvby4NCg0KQmVzdCBSZWdhcmRzLA0KUGVuZw0KPi0t
+DQo+Uk1LJ3MgUGF0Y2ggc3lzdGVtOg0KPmh0dHBzOi8vZXVyMDEuc2FmZWxpbmtzLnByb3RlY3Rp
+b24ub3V0bG9vay5jb20vP3VybD1odHRwcyUzQSUyRiUyRnd3dy5hcg0KPm1saW51eC5vcmcudWsl
+MkZkZXZlbG9wZXIlMkZwYXRjaGVzJTJGJmFtcDtkYXRhPTAyJTdDMDElN0NwZW5nLm1hDQo+JTQw
+bnhwLmNvbSU3Q2E1MzU3MTJlYWJlMzQzYTUxYzJmMDhkNzdlZjI1MGU0JTdDNjg2ZWExZDNiYzJi
+NGM2DQo+ZmE5MmNkOTljNWMzMDE2MzUlN0MwJTdDMCU3QzYzNzExNzQ1MTYyNzM0MTE1NSZhbXA7
+c2RhdGE9JTJGeXoNCj54QUk4JTJGZXpWUndHVGFUNHZZYTNDTWtJTXNhU1lpYUg4RGp2SldVS0El
+M0QmYW1wO3Jlc2VydmVkPTANCj5GVFRDIGJyb2FkYmFuZCBmb3IgMC44bWlsZSBsaW5lIGluIHN1
+YnVyYmlhOiBzeW5jIGF0IDEyLjFNYnBzIGRvd24gNjIya2Jwcw0KPnVwIEFjY29yZGluZyB0byBz
+cGVlZHRlc3QubmV0OiAxMS45TWJwcyBkb3duIDUwMGticHMgdXANCg==
