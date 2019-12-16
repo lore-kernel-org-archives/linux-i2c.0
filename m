@@ -1,30 +1,48 @@
-From: =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20=28Zhou=20Yanjie=29?=
-        <zhouyanjie@wanyeetech.com>
-Subject: [PATCH v2 0/2] Add I2C support for the Ingenic X1000 SoC
-Date: Mon, 16 Dec 2019 18:06:09 +0800
-Message-ID: <1576490771-120353-2-git-send-email-zhouyanjie@wanyeetech.com>
-References: <1576490771-120353-1-git-send-email-zhouyanjie@wanyeetech.com>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: Re: [PATCH v2 4/4] eeprom: at24: remove the write-protect pin support
+Date: Mon, 16 Dec 2019 12:03:42 +0100
+Message-ID: <CAMpxmJWGRskDudwLpzVZKvYb=Gbcxy6s0gCLUUFkgLq-CYEiZg@mail.gmail.com>
+References: <20191210154157.21930-1-ktouil@baylibre.com> <20191210154157.21930-5-ktouil@baylibre.com>
+ <CACRpkdbHLv2R+XvCjCaEgaztUqpmHWCmSAqHABkkstJREkmfVw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1576490771-120353-1-git-send-email-zhouyanjie@wanyeetech.com>
+In-Reply-To: <CACRpkdbHLv2R+XvCjCaEgaztUqpmHWCmSAqHABkkstJREkmfVw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, robh+dt@kernel.org, paul.burton@mips.com, paulburton@kernel.org, mark.rutland@arm.com, paul@crapouillou.net, sernia.zhou@foxmail.com, zhenwenjin@gmail.com, 2374286503@qq.com
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Khouloud Touil <ktouil@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, baylibre-upstreaming@groups.io, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-v1->v2:
-Add code to check device_get_match_data(), if it return a NULL ptr,
-then print an error message and return -ENODEV.
+pon., 16 gru 2019 o 09:13 Linus Walleij <linus.walleij@linaro.org> napisa=
+=C5=82(a):
+>
+> On Tue, Dec 10, 2019 at 4:42 PM Khouloud Touil <ktouil@baylibre.com> wrot=
+e:
+>
+> > NVMEM framework is an interface for the at24 EEPROMs as well as for
+> > other drivers, instead of passing the wp-gpios over the different
+> > drivers each time, it would be better to pass it over the NVMEM
+> > subsystem once and for all.
+> >
+> > Removing the support for the write-protect pin after adding it to the
+> > NVMEM subsystem.
+> >
+> > Signed-off-by: Khouloud Touil <ktouil@baylibre.com>
+>
+> I wonder if this needs to be in the same patch that adds it to
+> the NVMEM subsystem, so as to avoid both code paths being
+> taken between the two patches (bisectability..)
+>
+> However that is not the biggest thing in the universe and I'm
+> no bisectability-perfectionist, so:
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+>
+> Yours,
+> Linus Walleij
 
-周琰杰 (Zhou Yanjie) (2):
-  dt-bindings: I2C: Add X1000 bindings.
-  I2C: JZ4780: Add support for the X1000.
+AFAIK Khouloud tested it and it's bisectable thanks to using the
+optional gpiod_get() variant.
 
- .../devicetree/bindings/i2c/i2c-jz4780.txt         |   4 +-
- drivers/i2c/busses/i2c-jz4780.c                    | 155 +++++++++++++++------
- 2 files changed, 118 insertions(+), 41 deletions(-)
-
--- 
-2.7.4
+Best regards,
+Bartosz Golaszewski
