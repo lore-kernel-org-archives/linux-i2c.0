@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 1/5] media: pci: cx23885: convert to i2c_new_scanned_device
-Date: Mon, 16 Dec 2019 13:29:41 +0100
-Message-ID: <20191216122946.3495-2-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 3/5] media: pci: bt8xx: convert to i2c_new_scanned_device
+Date: Mon, 16 Dec 2019 13:29:43 +0100
+Message-ID: <20191216122946.3495-4-wsa+renesas@sang-engineering.com>
 References: <20191216122946.3495-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -21,23 +21,33 @@ Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
 Build tested only.
 
- drivers/media/pci/cx23885/cx23885-i2c.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/pci/bt8xx/bttv-input.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/pci/cx23885/cx23885-i2c.c b/drivers/media/pci/cx23885/cx23885-i2c.c
-index 4f327ee9659e..f51fad33dc04 100644
---- a/drivers/media/pci/cx23885/cx23885-i2c.c
-+++ b/drivers/media/pci/cx23885/cx23885-i2c.c
-@@ -337,8 +337,8 @@ int cx23885_i2c_register(struct cx23885_i2c *bus)
- 		strscpy(info.type, "ir_video", I2C_NAME_SIZE);
- 		/* Use quick read command for probe, some IR chips don't
- 		 * support writes */
--		i2c_new_probed_device(&bus->i2c_adap, &info, addr_list,
--				      i2c_probe_func_quick_read);
-+		i2c_new_scanned_device(&bus->i2c_adap, &info, addr_list,
-+				       i2c_probe_func_quick_read);
- 	}
+diff --git a/drivers/media/pci/bt8xx/bttv-input.c b/drivers/media/pci/bt8xx/bttv-input.c
+index 492bc85c2700..41226f1d0e5b 100644
+--- a/drivers/media/pci/bt8xx/bttv-input.c
++++ b/drivers/media/pci/bt8xx/bttv-input.c
+@@ -386,7 +386,7 @@ void init_bttv_i2c_ir(struct bttv *btv)
  
- 	return bus->i2c_rc;
+ 	if (btv->init_data.name) {
+ 		info.platform_data = &btv->init_data;
+-		i2c_dev = i2c_new_device(&btv->c.i2c_adap, &info);
++		i2c_dev = i2c_new_client_device(&btv->c.i2c_adap, &info);
+ 	} else {
+ 		/*
+ 		 * The external IR receiver is at i2c address 0x34 (0x35 for
+@@ -396,9 +396,9 @@ void init_bttv_i2c_ir(struct bttv *btv)
+ 		 * internal.
+ 		 * That's why we probe 0x1a (~0x34) first. CB
+ 		 */
+-		i2c_dev = i2c_new_probed_device(&btv->c.i2c_adap, &info, addr_list, NULL);
++		i2c_dev = i2c_new_scanned_device(&btv->c.i2c_adap, &info, addr_list, NULL);
+ 	}
+-	if (NULL == i2c_dev)
++	if (IS_ERR(i2c_dev))
+ 		return;
+ 
+ #if defined(CONFIG_MODULES) && defined(MODULE)
 -- 
 2.20.1
