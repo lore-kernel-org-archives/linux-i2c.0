@@ -1,41 +1,30 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 4/5] media: pci: cx18: convert to i2c_new_scanned_device
-Date: Mon, 16 Dec 2019 13:29:44 +0100
-Message-ID: <20191216122946.3495-5-wsa+renesas@sang-engineering.com>
-References: <20191216122946.3495-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 0/1] platform: replace i2c_new_probed_device with an ERR_PTR variant
+Date: Mon, 16 Dec 2019 13:29:50 +0100
+Message-ID: <20191216122951.3679-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191216122946.3495-1-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Hans Verkuil <hverkuil-cisco@xs4all.nl>, Sean Young <sean@mess.org>, Andy Walls <awalls@md.metrocast.net>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Move from the deprecated i2c_new_probed_device() to the new
-i2c_new_scanned_device(). Make use of the new ERRPTR if suitable.
+In the on-going mission to let i2c_new_* calls return an ERR_PTR instead of
+NULL, here is a series for this subsystem converting i2c_new_probed_device() to
+the newly introduced i2c_new_scanned_device(). Based on v5.5-rc1 and build tested.
+Please apply via your tree.
 
-Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Acked-by: Sean Young <sean@mess.org>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
-Build tested only.
+Thanks,
 
- drivers/media/pci/cx18/cx18-i2c.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+   Wolfram
 
-diff --git a/drivers/media/pci/cx18/cx18-i2c.c b/drivers/media/pci/cx18/cx18-i2c.c
-index 1ef7ccf4a722..a83435245251 100644
---- a/drivers/media/pci/cx18/cx18-i2c.c
-+++ b/drivers/media/pci/cx18/cx18-i2c.c
-@@ -88,7 +88,7 @@ static int cx18_i2c_new_ir(struct cx18 *cx, struct i2c_adapter *adap, u32 hw,
- 		break;
- 	}
- 
--	return i2c_new_probed_device(adap, &info, addr_list, NULL) == NULL ?
-+	return IS_ERR(i2c_new_scanned_device(adap, &info, addr_list, NULL)) ?
- 	       -1 : 0;
- }
- 
+
+Wolfram Sang (1):
+  platform: chrome: convert to i2c_new_scanned_device
+
+ drivers/platform/chrome/chromeos_laptop.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
 -- 
 2.20.1
