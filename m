@@ -1,48 +1,87 @@
-From: =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20=28Zhou=20Yanjie=29?=
-        <zhouyanjie@wanyeetech.com>
-Subject: [PATCH v3 1/2] dt-bindings: I2C: Add X1000 bindings.
-Date: Tue, 17 Dec 2019 16:14:09 +0800
-Message-ID: <1576570450-122556-3-git-send-email-zhouyanjie@wanyeetech.com>
-References: <1576570450-122556-1-git-send-email-zhouyanjie@wanyeetech.com>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: Re: [PATCH 07/10] i2c: Add driver for AD242x bus controller
+Date: Tue, 17 Dec 2019 09:35:39 +0100
+Message-ID: <4f2e1332-eac3-e54d-5de8-b84a76cb1a34@lucaceresoli.net>
+References: <20191209183511.3576038-1-daniel@zonque.org>
+ <20191209183511.3576038-9-daniel@zonque.org>
+ <64adf5d7-754a-f1da-aa9b-11579c5a2780@lucaceresoli.net>
+ <20191212163315.GA3932@kunai>
+ <482316ef-775a-cb7b-015e-e00463503e6b@zonque.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1576570450-122556-1-git-send-email-zhouyanjie@wanyeetech.com>
+In-Reply-To: <482316ef-775a-cb7b-015e-e00463503e6b@zonque.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, robh+dt@kernel.org, paul.burton@mips.com, paulburton@kernel.org, mark.rutland@arm.com, paul@crapouillou.net, sernia.zhou@foxmail.com, zhenwenjin@gmail.com, 2374286503@qq.com
+To: Daniel Mack <daniel@zonque.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, devicetree@vger.kernel.org, linux-clk@vger.kernel.org, mturquette@baylibre.com, sboyd@kernel.org, robh+dt@kernel.org, broonie@kernel.org, lee.jones@linaro.org, lars@metafoo.de, pascal.huerst@gmail.com
 List-Id: linux-i2c@vger.kernel.org
 
-Add the I2C bindings for the X1000 Soc from Ingenic.
+Hi Daniel,
 
-Signed-off-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
----
+On 15/12/19 21:27, Daniel Mack wrote:
+> Hi,
+> 
+> Thanks for the review!
+> 
+> On 12/12/2019 5:33 pm, Wolfram Sang wrote:
+>> Hi Luca,
+>>
+>> thanks for the review!
+>>
+>>> good, but I think there's a problem in this function. A "normal"
+>>> master_xfer function issues a repeated start between one msg and the
+>>> next one, at least in the typical case where all msgs have the same
+>>> slave address. Your implementation breaks repeated start. At first sight
+>>> we might need more complex code here to coalesce all consecutive msgs
+>>> with the same address into a single i2c_transfer() call.
+>>
+>> Note that it is by far the standard case that all messages in a transfer
+>> have the same client address (99,999%?). But technically, this is not a
+>> requirement and the repeated start on the bus is totally independent of
+>> the addresses used. It is just a master wanting to send without being
+>> interrupted by another master.
+> 
+> I'm not quite sure I understand.
+> 
+> Let's assume the following setup. An i2c client (some driver code) is
+> sending a list of messages to the a2b xfer function, which in turn is
+> logically connected to a 'real' i2c bus master that'll put the data on
+> the wire.
+> 
+> The a2b code has to tell the 'master node' the final destination of the
+> payload by programming registers on its primary i2c address, and then
+> forwards the messages to its secondary i2c address. The layout of the
+> messages don't change, and neither do the flags; i2c messages are being
+> sent as i2c messages, except their addresses are changed, a bit like NAT
+> in networking. That procedure is described on page 3-4 of the TRM,
+> "Remote Peripheral I2C Accesses".
+> 
+> The 'real' i2c master that handles the hardware bus is responsible for
+> adding start conditions, and as the messages as such are untouched, I
+> believe it should do the right thing. The code in my xfer functions
+> merely suppresses reprogramming remote addresses by remembering the last
+> one that was used, but that is independent of the start conditions on
+> the wire.
 
-Notes:
-    v1->v2:
-    No change.
-    
-    v2->v3:
-    No change.
+My concern is not about the start condition, it's about the *repeated*
+start condition.
 
- Documentation/devicetree/bindings/i2c/i2c-jz4780.txt | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+The first question is whether the A2B chips can do it. What if the host
+processor sets a slave chip address and then issues two messages
+separated by a repeated start condition? Will the slave transceiver emit
+a repeated start condition too?
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-jz4780.txt b/Documentation/devicetree/bindings/i2c/i2c-jz4780.txt
-index 3738cfb..d229eff 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-jz4780.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-jz4780.txt
-@@ -1,7 +1,9 @@
- * Ingenic JZ4780 I2C Bus controller
- 
- Required properties:
--- compatible: should be "ingenic,jz4780-i2c"
-+- compatible: should be one of the following:
-+  - "ingenic,jz4780-i2c" for the JZ4780
-+  - "ingenic,x1000-i2c" for the X1000
- - reg: Should contain the address & size of the I2C controller registers.
- - interrupts: Should specify the interrupt provided by parent.
- - clocks: Should contain a single clock specifier for the JZ4780 I2C clock.
+If the answer is "yes", then the issue moves to the driver code. A
+master xfer function receives a set of messages that are normally
+emitted with a repeated start between each other. But ad242x_i2c_xfer()
+splits the msgs and calls i2c_transfer_buffer_flags() with one msg at a
+time. i2c_transfer_buffer_flags() then will emit a stop condition.
+
+This is not necessarily a problem, unless multi-master is used, but if
+there are limitations or deviations from the standard they should at
+least be well known and documented.
+
 -- 
-2.7.4
+Luca
