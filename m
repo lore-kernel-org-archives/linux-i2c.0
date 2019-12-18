@@ -1,16 +1,15 @@
 From: Daniel Mack <daniel@zonque.org>
-Subject: Re: [alsa-devel] [PATCH 10/10] ASoC: Add codec component for AD242x
- nodes
-Date: Wed, 18 Dec 2019 10:49:38 +0100
-Message-ID: <35e7e6e7-7c70-785c-bdf3-79089134699e@zonque.org>
+Subject: Re: [alsa-devel] [PATCH 00/10] mfd: Add support for Analog Devices
+ A2B transceiver
+Date: Wed, 18 Dec 2019 10:53:02 +0100
+Message-ID: <22803ea0-0c4a-b096-ec11-5e8f5c27d8d3@zonque.org>
 References: <20191209183511.3576038-1-daniel@zonque.org>
- <20191209183511.3576038-12-daniel@zonque.org>
- <0565e5cd-9a6e-db65-0632-0bc1aa1d79db@linux.intel.com>
+ <cb86a793-014a-1acf-c144-f9014ac0a0ac@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <0565e5cd-9a6e-db65-0632-0bc1aa1d79db@linux.intel.com>
+In-Reply-To: <cb86a793-014a-1acf-c144-f9014ac0a0ac@linux.intel.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, devicetree@vger.kernel.org, linux-clk@vger.kernel.org
@@ -19,51 +18,24 @@ List-Id: linux-i2c@vger.kernel.org
 
 Hi,
 
-On 12/17/19 8:28 PM, Pierre-Louis Bossart wrote:
-> On 12/9/19 12:35 PM, Daniel Mack wrote:
-
->> +    if (!ad242x_node_is_master(priv->node) &&
->> +       ((format & SND_SOC_DAIFMT_MASTER_MASK) !=
->> SND_SOC_DAIFMT_CBM_CFM)) {
->> +        dev_err(component->dev, "slave node must be clock master\n");
->> +        return -EINVAL;
->> +    }
+On 12/17/19 8:29 PM, Pierre-Louis Bossart wrote:
+>> Transceivers can both receive and provide audio, and streams can be
+>> routed from one node to any other, including many others. The tricky
+>> bit is how to expose the audio routing in DT in a sane way.
+>> The way it is implemented here, the slave nodes specify the number of
+>> slots they each consume and generate, and which thereof they forward
+>> from one side to the other. This mimics the internal register
+>> structure and should allow for even exotic setups.
 > 
-> It was my understanding that the master node provides the clock to the
-> bus, so not sure how it could be a clock slave, and conversely how a
-> slave node could provide a clock to the bus?
+> It was my understanding that the A2B bus is bidirectional but with
+> separate time windows allocated for host->device and device->host
+> transmission. The wording seems to hint at device-to-device
+> communication but I wonder if this is really what you meant.
 
-The slave nodes receive the A2B clock from the master node and then
-produce digital audio output that is sent to other components such as
-codecs. Hence, in ASoC terms, they are the clock master.
-
-Likewise, as the master node is receiving its clock from other
-components, it has to be a clock slave in the audio network.
-
-Does that make sense?
-
->> +    switch (params_format(params)) {
->> +    case SNDRV_PCM_FORMAT_S16_LE:
->> +        if (priv->node->tdm_slot_size != 16)
->> +            return -EINVAL;
->> +        break;
->> +    case SNDRV_PCM_FORMAT_S32_LE:
->> +        if (priv->node->tdm_slot_size != 32)
->> +            return -EINVAL;
->> +        break;
->> +    default:
->> +        return -EINVAL;
->> +    }
-> 
-> how does this work for PDM data?
-> 
-> is the PDM data packed into a regular TDM slot?
-
-Yes. But I admit this needs some more testing. We're still working on
-the hardware that uses this. I'll revisit this.
-
-And I'll also add a lot more comments all over the place, as also
-requested by Lee.
+Yes, audio frames can be exchanged between two slave nodes without
+interaction by the master node. I'm not sure what the best way is to
+describe that in DT really, but as the hardware is capable of doing it,
+there must be a way to enable such setups.
 
 
 Thanks,
