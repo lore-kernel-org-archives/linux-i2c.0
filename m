@@ -1,58 +1,59 @@
-From: Khouloud Touil <ktouil@baylibre.com>
-Subject: Re: [PATCH v2 1/4] dt-bindings: nvmem: new optional property write-protect-gpios
-Date: Wed, 18 Dec 2019 12:10:52 +0100
-Message-ID: <CALL1Z1xwd5+HeCWWG5DQ8XMph=v=UmpW+P9vG4Lg_vVvzySjiQ@mail.gmail.com>
-References: <20191210154157.21930-1-ktouil@baylibre.com> <20191210154157.21930-2-ktouil@baylibre.com>
- <CACRpkdZb6OppcdCcaQ9abdkDJMk4escyyEm1TMB75rRxoN5e2A@mail.gmail.com>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: Re: [PATCH 06/10] mfd: Add core driver for AD242x A2B transceivers
+Date: Wed, 18 Dec 2019 12:20:58 +0100
+Message-ID: <e288a6e1-a967-d7cd-72fc-d190819953e3@lucaceresoli.net>
+References: <20191209183511.3576038-1-daniel@zonque.org>
+ <20191209183511.3576038-8-daniel@zonque.org> <20191217133952.GJ18955@dell>
+ <ce6e0b19-ec40-c17b-cee6-05eca52d5df3@zonque.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdZb6OppcdCcaQ9abdkDJMk4escyyEm1TMB75rRxoN5e2A@mail.gmail.com>
+In-Reply-To: <ce6e0b19-ec40-c17b-cee6-05eca52d5df3@zonque.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, baylibre-upstreaming@groups.io, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
+To: Daniel Mack <daniel@zonque.org>, Lee Jones <lee.jones@linaro.org>
+Cc: linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, devicetree@vger.kernel.org, linux-clk@vger.kernel.org, mturquette@baylibre.com, sboyd@kernel.org, robh+dt@kernel.org, broonie@kernel.org, lars@metafoo.de, pascal.huerst@gmail.com
 List-Id: linux-i2c@vger.kernel.org
 
-Le lun. 16 d=C3=A9c. 2019 =C3=A0 09:08, Linus Walleij <linus.walleij@linaro=
-.org> a =C3=A9crit :
->
-> On Tue, Dec 10, 2019 at 4:42 PM Khouloud Touil <ktouil@baylibre.com> wrot=
-e:
->
-> > +  wp-gpios:
-> > +    description:
-> > +      GPIO to which the write-protect pin of the chip is connected.
-> > +      The write-protect GPIO is asserted, when it's driven high
-> > +      (logical '1') to block the write operation. It's deasserted,
-> > +      when it's driven low (logical '0') to allow writing.
-> > +    maxItems: 1
->
-> OK I guess we can't get it less convoluted. This section is consistent.
->
-> >  patternProperties:
-> >    "^.*@[0-9a-f]+$":
-> >      type: object
-> > @@ -66,6 +74,7 @@ examples:
-> >        qfprom: eeprom@700000 {
-> >            #address-cells =3D <1>;
-> >            #size-cells =3D <1>;
-> > +          wp-gpios =3D <&gpio1 3 0>;
->
-> In the example please use the include for GPIO:
->
-> #include <dt-bindings/gpio/gpio.h>
->
-> wp-gpios =3D <&gpio1 3 GPIO_ACTIVE_HIGH>;
->
-> You can just put the #include directive right before the
-> example, it should work fine.
+Hi Daniel,
 
-Yes sure will fix that.
-Thanks for your reviews.
+On 17/12/19 20:24, Daniel Mack wrote:
+>>> +++ b/drivers/mfd/ad242x-bus.c
+>>> @@ -0,0 +1,42 @@
+>>> +// SPDX-License-Identifier: GPL-2.0-only
+>>> +
+>>> +#include <linux/i2c.h>
+>>> +#include <linux/init.h>
+>>> +#include <linux/mfd/ad242x.h>
+>>> +#include <linux/module.h>
+>>> +#include <linux/of.h>
+>>> +
+>>> +static int ad242x_bus_i2c_probe(struct i2c_client *i2c,
+>>> +                const struct i2c_device_id *id)
+>>> +{
+>>> +    dev_set_drvdata(&i2c->dev, i2c);
+>>> +    i2c_set_clientdata(i2c, &i2c->dev);
+>>
+>> Please explain to me what you think is happening here.
+>>
+>>> +    return 0;
+>>> +}
+>>
+>> What does this driver do?  Seems kinda pointless?
+> 
+> As explained in the commit log, these devices expose two addresses on
+> the i2c bus, and each of which exists for a distinct purpose. The
+> primary one is used to access registers on the master node itself, the
+> second one is proxying traffic to remote nodes.
+> 
+> Now, the question is how to support that, and the approach chosen here
+> is to have a dummy driver sitting on the 2nd address, and to reach out
+> to it via a DT phandle from the master node. I don't like that much
+> either, but I'm not aware of a cleaner way to bind two addresses with
+> one driver. If there is any, I'd be happy to change that.
 
-Best regards,
-Khouloud
->
-> Yours,
-> Linus Walleij
+Have a look at i2c_new_dummy_device(), perhaps it is what you need here.
+
+-- 
+Luca
