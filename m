@@ -1,7 +1,7 @@
 From: Khouloud Touil <ktouil@baylibre.com>
-Subject: [PATCH v3 3/4] dt-bindings: at24: remove the optional property write-protect-gpios
-Date: Thu, 19 Dec 2019 12:51:40 +0100
-Message-ID: <20191219115141.24653-4-ktouil@baylibre.com>
+Subject: [PATCH v3 1/4] dt-bindings: nvmem: new optional property write-protect-gpios
+Date: Thu, 19 Dec 2019 12:51:38 +0100
+Message-ID: <20191219115141.24653-2-ktouil@baylibre.com>
 References: <20191219115141.24653-1-ktouil@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20191219115141.24653-1-ktouil@baylibre.com>
@@ -10,42 +10,58 @@ To: bgolaszewski@baylibre.com, robh+dt@kernel.org, mark.rutland@arm.com, sriniva
 Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linus.walleij@linaro.org, Khouloud Touil <ktouil@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-NVMEM framework is an interface for the at24 EEPROMs as well as for
-other drivers, instead of passing the wp-gpios over the different
-drivers each time, it would be better to pass it over the NVMEM
-subsystem once and for all.
+Several memories have a write-protect pin, that when pulled high, it
+blocks the write operation.
 
-Removing the optional property form the device tree binding document.
+On some boards, this pin is connected to a GPIO and pulled high by
+default, which forces the user to manually change its state before
+writing.
+
+Instead of modifying all the memory drivers to check this pin, make
+the NVMEM subsystem check if the write-protect GPIO being passed
+through the nvmem_config or defined in the device tree and pull it
+low whenever writing to the memory.
+
+Add a new optional property to the device tree binding document, which
+allows to specify the GPIO line to which the write-protect pin is
+connected.
 
 Signed-off-by: Khouloud Touil <ktouil@baylibre.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- Documentation/devicetree/bindings/eeprom/at24.yaml | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ Documentation/devicetree/bindings/nvmem/nvmem.yaml | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/eeprom/at24.yaml b/Documentation/devicetree/bindings/eeprom/at24.yaml
-index e8778560d966..75de83708146 100644
---- a/Documentation/devicetree/bindings/eeprom/at24.yaml
-+++ b/Documentation/devicetree/bindings/eeprom/at24.yaml
-@@ -145,10 +145,7 @@ properties:
-       over reads to the next slave address. Please consult the manual of
-       your device.
+diff --git a/Documentation/devicetree/bindings/nvmem/nvmem.yaml b/Documentation/devicetree/bindings/nvmem/nvmem.yaml
+index 1c75a059206c..b43c6c65294e 100644
+--- a/Documentation/devicetree/bindings/nvmem/nvmem.yaml
++++ b/Documentation/devicetree/bindings/nvmem/nvmem.yaml
+@@ -34,6 +34,14 @@ properties:
+     description:
+       Mark the provider as read only.
  
--  wp-gpios:
--    description:
--      GPIO to which the write-protect pin of the chip is connected.
--    maxItems: 1
-+  wp-gpios: true
++  wp-gpios:
++    description:
++      GPIO to which the write-protect pin of the chip is connected.
++      The write-protect GPIO is asserted, when it's driven high
++      (logical '1') to block the write operation. It's deasserted,
++      when it's driven low (logical '0') to allow writing.
++    maxItems: 1
++
+ patternProperties:
+   "^.*@[0-9a-f]+$":
+     type: object
+@@ -63,9 +71,12 @@ patternProperties:
  
-   address-width:
-     allOf:
-@@ -181,7 +178,6 @@ examples:
-           compatible = "microchip,24c32", "atmel,24c32";
-           reg = <0x52>;
-           pagesize = <32>;
--          wp-gpios = <&gpio1 3 0>;
-           num-addresses = <8>;
-       };
-     };
+ examples:
+   - |
++      #include <dt-bindings/gpio/gpio.h>
++
+       qfprom: eeprom@700000 {
+           #address-cells = <1>;
+           #size-cells = <1>;
++          wp-gpios = <&gpio1 3 GPIO_ACTIVE_HIGH>;
+ 
+           /* ... */
+ 
 -- 
 2.17.1
