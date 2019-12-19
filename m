@@ -1,7 +1,7 @@
 From: Khouloud Touil <ktouil@baylibre.com>
-Subject: [PATCH v3 4/4] eeprom: at24: remove the write-protect pin support
-Date: Thu, 19 Dec 2019 12:51:41 +0100
-Message-ID: <20191219115141.24653-5-ktouil@baylibre.com>
+Subject: [PATCH v3 3/4] dt-bindings: at24: remove the optional property write-protect-gpios
+Date: Thu, 19 Dec 2019 12:51:40 +0100
+Message-ID: <20191219115141.24653-4-ktouil@baylibre.com>
 References: <20191219115141.24653-1-ktouil@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20191219115141.24653-1-ktouil@baylibre.com>
@@ -15,66 +15,37 @@ other drivers, instead of passing the wp-gpios over the different
 drivers each time, it would be better to pass it over the NVMEM
 subsystem once and for all.
 
-Removing the support for the write-protect pin after adding it to the
-NVMEM subsystem.
+Removing the optional property form the device tree binding document.
 
 Signed-off-by: Khouloud Touil <ktouil@baylibre.com>
 Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 ---
- drivers/misc/eeprom/at24.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ Documentation/devicetree/bindings/eeprom/at24.yaml | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 0681d5fdd538..8fce49a6d9cd 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -22,7 +22,6 @@
- #include <linux/nvmem-provider.h>
- #include <linux/regmap.h>
- #include <linux/pm_runtime.h>
--#include <linux/gpio/consumer.h>
+diff --git a/Documentation/devicetree/bindings/eeprom/at24.yaml b/Documentation/devicetree/bindings/eeprom/at24.yaml
+index e8778560d966..75de83708146 100644
+--- a/Documentation/devicetree/bindings/eeprom/at24.yaml
++++ b/Documentation/devicetree/bindings/eeprom/at24.yaml
+@@ -145,10 +145,7 @@ properties:
+       over reads to the next slave address. Please consult the manual of
+       your device.
  
- /* Address pointer is 16 bit. */
- #define AT24_FLAG_ADDR16	BIT(7)
-@@ -89,8 +88,6 @@ struct at24_data {
+-  wp-gpios:
+-    description:
+-      GPIO to which the write-protect pin of the chip is connected.
+-    maxItems: 1
++  wp-gpios: true
  
- 	struct nvmem_device *nvmem;
- 
--	struct gpio_desc *wp_gpio;
--
- 	/*
- 	 * Some chips tie up multiple I2C addresses; dummy devices reserve
- 	 * them for us, and we'll use them with SMBus calls.
-@@ -457,12 +454,10 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- 	 * from this host, but not from other I2C masters.
- 	 */
- 	mutex_lock(&at24->lock);
--	gpiod_set_value_cansleep(at24->wp_gpio, 0);
- 
- 	while (count) {
- 		ret = at24_regmap_write(at24, buf, off, count);
- 		if (ret < 0) {
--			gpiod_set_value_cansleep(at24->wp_gpio, 1);
- 			mutex_unlock(&at24->lock);
- 			pm_runtime_put(dev);
- 			return ret;
-@@ -472,7 +467,6 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
- 		count -= ret;
- 	}
- 
--	gpiod_set_value_cansleep(at24->wp_gpio, 1);
- 	mutex_unlock(&at24->lock);
- 
- 	pm_runtime_put(dev);
-@@ -662,9 +656,6 @@ static int at24_probe(struct i2c_client *client)
- 	at24->client[0].client = client;
- 	at24->client[0].regmap = regmap;
- 
--	at24->wp_gpio = devm_gpiod_get_optional(dev, "wp", GPIOD_OUT_HIGH);
--	if (IS_ERR(at24->wp_gpio))
--		return PTR_ERR(at24->wp_gpio);
- 
- 	writable = !(flags & AT24_FLAG_READONLY);
- 	if (writable) {
+   address-width:
+     allOf:
+@@ -181,7 +178,6 @@ examples:
+           compatible = "microchip,24c32", "atmel,24c32";
+           reg = <0x52>;
+           pagesize = <32>;
+-          wp-gpios = <&gpio1 3 0>;
+           num-addresses = <8>;
+       };
+     };
 -- 
 2.17.1
