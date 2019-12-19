@@ -1,35 +1,66 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v3 1/2] dt-bindings: I2C: Add X1000 bindings.
-Date: Wed, 18 Dec 2019 16:18:36 -0600
-Message-ID: <20191218221836.GA24317@bogus>
-References: <1576570450-122556-1-git-send-email-zhouyanjie@wanyeetech.com>
- <1576570450-122556-3-git-send-email-zhouyanjie@wanyeetech.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: Re: [PATCH v2 0/4] at24: move write-protect pin handling to nvmem
+ core
+Date: Thu, 19 Dec 2019 10:51:42 +0000
+Message-ID: <cd9f342c-5576-57f5-c62d-a78c5876a7fd@linaro.org>
+References: <20191210154157.21930-1-ktouil@baylibre.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1576570450-122556-3-git-send-email-zhouyanjie@wanyeetech.com>
+In-Reply-To: <20191210154157.21930-1-ktouil@baylibre.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?5ZGo55Cw5p2wIChaaG91IFlhbmppZSk=?= <zhouyanjie@wanyeetech.com>
-Cc: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, robh+dt@kernel.org, paul.burton@mips.com, paulburton@kernel.org, mark.rutland@arm.com, paul@crapouillou.net, sernia.zhou@foxmail.com, zhenwenjin@gmail.com, 2374286503@qq.com
+To: Khouloud Touil <ktouil@baylibre.com>, bgolaszewski@baylibre.com, robh+dt@kernel.org, mark.rutland@arm.com, baylibre-upstreaming@groups.io
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linus.walleij@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 17 Dec 2019 16:14:09 +0800, =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20=28Zhou=20Yanjie=29?= wrote:
-> Add the I2C bindings for the X1000 Soc from Ingenic.
+
+
+On 10/12/2019 15:41, Khouloud Touil wrote:
+> The write-protect pin handling looks like a standard property that
+> could benefit other users if available in the core nvmem framework.
+>      
+> Instead of modifying all the drivers to check this pin, make the
+> nvmem subsystem check if the write-protect GPIO being passed
+> through the nvmem_config or defined in the device tree and pull it
+> low whenever writing to the memory.
 > 
-> Signed-off-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
-> ---
+> This patchset:
 > 
-> Notes:
->     v1->v2:
->     No change.
->     
->     v2->v3:
->     No change.
+> - adds support for the write-protect pin split into two parts.
+> The first patch modifies modifies the relevant binding document,
+> while the second modifies the nvmem code to pull the write-protect
+> GPIO low (if present) during write operations.
 > 
->  Documentation/devicetree/bindings/i2c/i2c-jz4780.txt | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+> - removes support for the write-protect pin split into two parts.
+> The first patch modifies the relevant binding document to remove
+> the wp-gpio, while the second removes the relevant code in the
+> at24 driver.
+> 
+> Changes since v1:
+> -Add an explenation on how the wp-gpios works
+> -keep reference to the wp-gpios in the at24 binding
+> 
+> Khouloud Touil (4):
+>    dt-bindings: nvmem: new optional property write-protect-gpios
+>    nvmem: add support for the write-protect pin
+>    dt-bindings: at24: remove the optional property write-protect-gpios
+>    eeprom: at24: remove the write-protect pin support
 > 
 
-Acked-by: Rob Herring <robh@kernel.org>
+Thanks Khouloud for this patchset,
+
+I can take this via nvmem tree once we get an ack on dt bindings from DT 
+maintainers.
+
+
+--srini
+>   .../devicetree/bindings/eeprom/at24.yaml      |  6 +-----
+>   .../devicetree/bindings/nvmem/nvmem.yaml      |  9 +++++++++
+>   drivers/misc/eeprom/at24.c                    |  9 ---------
+>   drivers/nvmem/core.c                          | 19 +++++++++++++++++--
+>   drivers/nvmem/nvmem.h                         |  2 ++
+>   include/linux/nvmem-provider.h                |  3 +++
+>   6 files changed, 32 insertions(+), 16 deletions(-)
+> 
