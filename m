@@ -1,86 +1,208 @@
-From: Dmitry Osipenko <digetx@gmail.com>
-Subject: Re: [PATCH v1 3/3] i2c: tegra: Fix suspending in active runtime PM
- state
-Date: Fri, 20 Dec 2019 01:58:36 +0300
-Message-ID: <1ff337b4-b4e9-4f16-44d5-9e89f88dd61f@gmail.com>
-References: <20191212233428.14648-1-digetx@gmail.com>
- <20191212233428.14648-4-digetx@gmail.com> <20191213134746.GA222809@ulmo>
- <3c2b16c0-3e66-d809-b263-f27cf925e203@gmail.com>
- <1ed725c9-361b-c920-d532-dd640c3ca59f@gmail.com>
+From: Jian Hu <jian.hu@amlogic.com>
+Subject: [PATCH v3] arm64: dts: meson-a1: add I2C nodes
+Date: Fri, 20 Dec 2019 17:16:11 +0800
+Message-ID: <20191220091611.36319-1-jian.hu@amlogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1ed725c9-361b-c920-d532-dd640c3ca59f@gmail.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Mikko Perttunen <cyndis@kapsi.fi>
-Cc: Jonathan Hunter <jonathanh@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jerome Brunet <jbrunet@baylibre.com>, Neil Armstrong <narmstrong@baylibre.com>
+Cc: Jian Hu <jian.hu@amlogic.com>, Kevin Hilman <khilman@baylibre.com>, Rob Herring <robh@kernel.org>, Martin Blumenstingl <martin.blumenstingl@googlemail.com>, Michael Turquette <mturquette@baylibre.com>, Wolfram Sang <wsa@the-dreams.de>, Mark Rutland <mark.rutland@arm.com>, Jianxin Pan <jianxin.pan@amlogic.com>, linux-amlogic@lists.infradead.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-13.12.2019 21:01, Dmitry Osipenko пишет:
-> 13.12.2019 17:04, Dmitry Osipenko пишет:
->> 13.12.2019 16:47, Thierry Reding пишет:
->>> On Fri, Dec 13, 2019 at 02:34:28AM +0300, Dmitry Osipenko wrote:
->>>> I noticed that sometime I2C clock is kept enabled during suspend-resume.
->>>> This happens because runtime PM defers dynamic suspension and thus it may
->>>> happen that runtime PM is in active state when system enters into suspend.
->>>> In particular I2C controller that is used for CPU's DVFS is often kept ON
->>>> during suspend because CPU's voltage scaling happens quite often.
->>>>
->>>> Note: we marked runtime PM as IRQ-safe during the driver's probe in the
->>>> "Support atomic transfers" patch, thus it's okay to enforce runtime PM
->>>> suspend/resume in the NOIRQ phase which is used for the system-level
->>>> suspend/resume of the driver.
->>>>
->>>> Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
->>>> ---
->>>>  drivers/i2c/busses/i2c-tegra.c | 9 +++++++++
->>>>  1 file changed, 9 insertions(+)
->>>
->>> I've recently discussed this with Rafael in the context of runtime PM
->>> support in the Tegra DRM driver and my understanding is that you're not
->>> supposed to force runtime PM suspension like this.
->>>
->>> I had meant to send out an alternative patch to fix this, which I've
->>> done now:
->>>
->>> 	http://patchwork.ozlabs.org/patch/1209148/
->>>
->>> That's more in line with what Rafael and I had discussed in the other
->>> thread and should address the issue that you're seeing as well.
->>
->> Well, either me or you are still having some misunderstanding of the
->> runtime PM :) To my knowledge there are a lot of drivers that enforce
->> suspension of the runtime PM during system's suspend, it should be a
->> right thing to do especially in a context of the Tegra I2C driver
->> because we're using asynchronous pm_runtime_put() and thus at the time
->> of system's suspending, the runtime PM could be ON (as I wrote in the
->> commit message) and then Terga's I2C driver manually disables the clock
->> on resume (woopsie).
-> 
-> Actually, looks like it's not the asynchronous pm_runtime_put() is the
-> cause of suspending in active state. I see that only one of three I2C
-> controllers is suspended in the enabled state, maybe some child (I2C
-> client) device keeps it awake, will try to find out.
-> 
->> By invoking pm_runtime_force_suspend() on systems's suspend, the runtime
->> PM executes tegra_i2c_runtime_suspend() if device is in active state. On
->> system resume, pm_runtime_force_resume() either keeps device in a
->> suspended state or resumes it, say if for userspace disabled the runtime
->> PM for the I2C controller.
->>
->> Rafael, could you please clarify whether my patch is doing a wrong thing?
+There are four I2C controllers in A1 series,
+Share the same comptible with AXG. Compared to AXG,
+Drive strength feature is newly added in A1.
 
-[snip]
+Signed-off-by: Jian Hu <jian.hu@amlogic.com>
 
-I'm now thinking that it will be not very worthwhile to spend time on
-trying to understand why runtime PM isn't working as expected here. It
-will be better to simply remove runtime PM from the I2C driver because
-it is used only for clock-gating/pinmuxing and it is a very light
-operation in comparison to I2C transfer performance. Thus it should be
-better to avoid the runtime PM overhead by enabling/disabling the I2C
-clocks before/after the transfer, I think that's what driver did before
-the runtime PM addition.
+---
+This patch depends on A1 clock patchset at [0][3]
 
-Thierry / Jon / Mikko, any objections?
+Changes since v1 at [1]:
+-change reg length to 0x20
+-assign i2c bus alias in dts file
+-add new feature note compared to AXG in changelog
+
+Changes since v2 at [2]:
+-remove the dependence the commit description
+-remove i2c alias in dtsi
+-reorder the i2c nodes
+-reorder the i2c pins
+
+[0] https://lkml.kernel.org/r/20191206074052.15557-1-jian.hu@amlogic.com
+[1] https://lkml.kernel.org/r/20191202111253.94872-1-jian.hu@amlogic.com
+[2] https://lkml.kernel.org/r/20191211032802.83309-1-jian.hu@amlogic.com
+[3] https://lkml.kernel.org/r/20191206074052.15557-1-jian.hu@amlogic.com
+---
+---
+ arch/arm64/boot/dts/amlogic/meson-a1.dtsi | 142 ++++++++++++++++++++++
+ 1 file changed, 142 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/amlogic/meson-a1.dtsi b/arch/arm64/boot/dts/amlogic/meson-a1.dtsi
+index eab2ecd36aa8..1542eeee699d 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-a1.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-a1.dtsi
+@@ -117,6 +117,16 @@
+ 				};
+ 			};
+ 
++			i2c0: i2c@1400 {
++				compatible = "amlogic,meson-axg-i2c";
++				reg = <0x0 0x1400 0x0 0x20>;
++				interrupts = <GIC_SPI 32 IRQ_TYPE_EDGE_RISING>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++				clocks = <&clkc_periphs CLKID_I2C_M_A>;
++				status = "disabled";
++			};
++
+ 			uart_AO: serial@1c00 {
+ 				compatible = "amlogic,meson-gx-uart",
+ 					     "amlogic,meson-ao-uart";
+@@ -136,6 +146,36 @@
+ 				clock-names = "xtal", "pclk", "baud";
+ 				status = "disabled";
+ 			};
++
++			i2c1: i2c@5c00 {
++				compatible = "amlogic,meson-axg-i2c";
++				reg = <0x0 0x5c00 0x0 0x20>;
++				interrupts = <GIC_SPI 68 IRQ_TYPE_EDGE_RISING>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++				clocks = <&clkc_periphs CLKID_I2C_M_B>;
++				status = "disabled";
++			};
++
++			i2c2: i2c@6800 {
++				compatible = "amlogic,meson-axg-i2c";
++				reg = <0x0 0x6800 0x0 0x20>;
++				interrupts = <GIC_SPI 76 IRQ_TYPE_EDGE_RISING>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++				clocks = <&clkc_periphs CLKID_I2C_M_C>;
++				status = "disabled";
++			};
++
++			i2c3: i2c@6c00 {
++				compatible = "amlogic,meson-axg-i2c";
++				reg = <0x0 0x6c00 0x0 0x20>;
++				interrupts = <GIC_SPI 78 IRQ_TYPE_EDGE_RISING>;
++				#address-cells = <1>;
++				#size-cells = <0>;
++				clocks = <&clkc_periphs CLKID_I2C_M_D>;
++				status = "disabled";
++			};
+ 		};
+ 
+ 		gic: interrupt-controller@ff901000 {
+@@ -171,3 +211,105 @@
+ 		#clock-cells = <0>;
+ 	};
+ };
++
++&periphs_pinctrl {
++	i2c0_f9_pins:i2c0-f9 {
++		mux {
++			groups = "i2c0_sck_f9",
++				"i2c0_sda_f10";
++			function = "i2c0";
++			bias-pull-up;
++			drive-strength-microamp = <3000>;
++		};
++	};
++
++	i2c0_f11_pins:i2c0-f11 {
++		mux {
++			groups = "i2c0_sck_f11",
++				"i2c0_sda_f12";
++			function = "i2c0";
++			bias-pull-up;
++			drive-strength-microamp = <3000>;
++		};
++	};
++
++	i2c1_a_pins:i2c1-a {
++		mux {
++			groups = "i2c1_sck_a",
++				"i2c1_sda_a";
++			function = "i2c1";
++			bias-pull-up;
++			drive-strength-microamp = <3000>;
++		};
++	};
++
++	i2c1_x_pins:i2c1-x {
++		mux {
++			groups = "i2c1_sck_x",
++				"i2c1_sda_x";
++			function = "i2c1";
++			bias-pull-up;
++			drive-strength-microamp = <3000>;
++		};
++	};
++
++	i2c2_a4_pins:i2c2-a4 {
++		mux {
++			groups = "i2c2_sck_a4",
++				"i2c2_sda_a5";
++			function = "i2c2";
++			bias-pull-up;
++			drive-strength-microamp = <3000>;
++		};
++	};
++
++	i2c2_a8_pins:i2c2-a8 {
++		mux {
++			groups = "i2c2_sck_a8",
++				"i2c2_sda_a9";
++			function = "i2c2";
++			bias-pull-up;
++			drive-strength-microamp = <3000>;
++		};
++	};
++
++	i2c2_x0_pins:i2c2-x0 {
++		mux {
++			groups = "i2c2_sck_x0",
++				"i2c2_sda_x1";
++			function = "i2c2";
++			bias-pull-up;
++			drive-strength-microamp = <3000>;
++		};
++	};
++
++	i2c2_x15_pins:i2c2-x15 {
++		mux {
++			groups = "i2c2_sck_x15",
++				"i2c2_sda_x16";
++			function = "i2c2";
++			bias-pull-up;
++			drive-strength-microamp = <3000>;
++		};
++	};
++
++	i2c3_f_pins:i2c3-f {
++		mux {
++			groups = "i2c3_sck_f",
++				"i2c3_sda_f";
++			function = "i2c3";
++			bias-pull-up;
++			drive-strength-microamp = <3000>;
++		};
++	};
++
++	i2c3_x_pins:i2c3-x {
++		mux {
++			groups = "i2c3_sck_x",
++				"i2c3_sda_x";
++			function = "i2c3";
++			bias-pull-up;
++			drive-strength-microamp = <3000>;
++		};
++	};
++};
+-- 
+2.24.0
