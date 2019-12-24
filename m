@@ -1,63 +1,64 @@
-From: Radu Nicolae Pirea <radu_nicolae.pirea@upb.ro>
-Subject: Re: [PATCH] i2c: cadence: Added slave support
-Date: Sat, 21 Dec 2019 19:58:50 +0200
-Message-ID: <0a09d9ed5fc5ae6c651491dead5f81bfecdbca4b.camel@upb.ro>
-References: <20191219124120.53754-1-radu_nicolae.pirea@upb.ro>
- <20191219130501.GA958@kunai>
- <6504123809effc310ade02dbb8a63f10db6b6c92.camel@upb.ro>
- <CAKfKVtFqbtovQGQuzgCYzTu4bHOmAOmTz-tZMD89iUkMPc8awA@mail.gmail.com>
+From: Stephen Boyd <sboyd@kernel.org>
+Subject: Re: [PATCH 04/10] dt-bindings: clock: Add documentation for AD242x clock providers
+Date: Mon, 23 Dec 2019 23:32:27 -0800
+Message-ID: <20191224073228.68302206B7@mail.kernel.org>
+References: <20191209183511.3576038-1-daniel@zonque.org> <20191209183511.3576038-6-daniel@zonque.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <CAKfKVtFqbtovQGQuzgCYzTu4bHOmAOmTz-tZMD89iUkMPc8awA@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Michal Simek <michal.simek@xilinx.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Wolfram Sang <wsa@the-dreams.de>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20191209183511.3576038-6-daniel@zonque.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: alsa-devel@alsa-project.org, devicetree@vger.kernel.org, linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: mturquette@baylibre.com, robh+dt@kernel.org, broonie@kernel.org, lee.jones@linaro.org, lars@metafoo.de, pascal.huerst@gmail.com, Daniel Mack <daniel@zonque.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 2019-12-20 at 14:55 +0530, Shubhrajyoti Datta wrote:
-> Hi ,
-> 
-> On Thu, Dec 19, 2019 at 7:00 PM Radu Pirea <radu_nicolae.pirea@upb.ro
-> > wrote:
-> > On Thu, 2019-12-19 at 14:05 +0100, Wolfram Sang wrote:
-> > > > +/**
-> > > > + * enum cdns_i2c_mode - I2C Controller current operating mode
-> > > > + *
-> > > > + * @CDNS_I2C_MODE_SLAVE:       I2C controller operating in
-> > > > slave
-> > > > mode
-> > > > + * @CDNS_I2C_MODE_MASTER:      I2C Controller operating in
-> > > > master
-> > > > mode
-> > > > + */
-> > > 
-> > > Can't the hardware operate as master and slave at the same time?
-> > > 
-> > 
-> > Of course, it can. If the driver has a slave registered wait and
-> > listens and if the subsystem needs to use the controller as master,
-> > the
-> > driver changes the state of the controller to master, sends and
-> > reads
-> > data from the bus and after this change the state of the controller
-> > to
-> > slave.
-> 
-> However that should be done only if no master is talking to the slave
-> right?
+Quoting Daniel Mack (2019-12-09 10:35:05)
+> diff --git a/Documentation/devicetree/bindings/clock/adi,ad242x-clk.yaml =
+b/Documentation/devicetree/bindings/clock/adi,ad242x-clk.yaml
+> new file mode 100644
+> index 000000000000..f434b3e4928e
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/clock/adi,ad242x-clk.yaml
+> @@ -0,0 +1,32 @@
+> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: "http://devicetree.org/schemas/clock/adi,ad242x-clk.yaml#"
+> +$schema: "http://devicetree.org/meta-schemas/core.yaml#"
+> +
+> +title: Analog Devices AD242x clock provider
+> +
+> +maintainers:
+> +  - Daniel Mack <daniel@zonque.org>
+> +
+> +description: |
+> +  This module is part of the AD242x MFD device. For more details and an =
+example
+> +  refer to Documentation/devicetree/bindings/mfd/ad242x.yaml.
 
-Yes. The state of the slave must be IDLE, otherwise
-cdns_i2c_master_xfer will return -EAGAIN.
+I think we usually leave off Documentation/devicetree/ from paths when
+they're inside the bindings directory.
 
-> 
-> > In cdns_i2c_master_xfer is done all the magic.
+> +
+> +properties:
+> +  compatible:
+> +    enum:
+> +      - adi,ad2428w-clk
+> +
+> +  '#clock-cells':
+> +    const: 1
+> +
+> +  clock-output-names:
+> +    minItems: 2
+> +    maxItems: 2
+> +    description: |
+> +      Array of two strings to use as names for the generated output cloc=
+ks
+> +
+> +required:
+> +  - compatible
+> +  - '#clock-cells'
+> \ No newline at end of file
+
+Why no newline at end of file? Is there an example?
