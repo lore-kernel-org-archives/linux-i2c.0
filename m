@@ -1,51 +1,51 @@
 From: Biwen Li <biwen.li@nxp.com>
-Subject: [RESEND v6,1/3] dt-bindings: i2c: support property idle-state
-Date: Wed, 25 Dec 2019 18:36:22 +0800
-Message-ID: <20191225103624.48342-1-biwen.li@nxp.com>
+Subject: [RESEND v6,3/3] arm64: dts: fsl-ls208xa-rdb: fix an errata E-00013
+Date: Wed, 25 Dec 2019 18:36:24 +0800
+Message-ID: <20191225103624.48342-3-biwen.li@nxp.com>
+References: <20191225103624.48342-1-biwen.li@nxp.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20191225103624.48342-1-biwen.li@nxp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: peda@axentia.se, leoyang.li@nxp.com, robh+dt@kernel.org, mark.rutland@arm.com
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Biwen Li <biwen.li@nxp.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This supports property idle-state
+Specify a channel zero in idle state to
+avoid enterring tri-stated state for PCA9547.
+About E-00013:
+	- Description: I2C1 and I2C3 buses
+	  are missing pull-up.
+	- Impact: When the PCA954x device is tri-stated, the I2C bus
+	  will float. This makes the I2C bus and its associated
+	  downstream devices inaccessible.
+	- Hardware fix: Populate resistors R189 and R190 for I2C1
+	  and resistors R228 and R229 for I2C3.
+	- Software fix: Remove the tri-state option from the PCA954x
+	  driver(PCA954x always on enable status, specify a
+	  channel zero in dts to fix the errata E-00013).
 
-Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Biwen Li <biwen.li@nxp.com>
 ---
 Change in v6:
-	- add reviewed-by
+	- none
 
 Change in v5:
-	- none
+	- specify a channel zero when pca9547 in idle state.
 
-Change in v4:
-	- none
+ arch/arm64/boot/dts/freescale/fsl-ls208xa-rdb.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-Change in v3:
-	- update subject and description
-	- add some information for
-  	  property idle-state
-
-Change in v2:
-	- update subject and description
-	- add property idle-state
-
- Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-index 30ac6a60f041..7abda506b828 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt
-@@ -25,6 +25,8 @@ Required Properties:
- Optional Properties:
- 
-   - reset-gpios: Reference to the GPIO connected to the reset input.
-+  - idle-state: if present, overrides i2c-mux-idle-disconnect,
-+    Please refer to Documentation/devicetree/bindings/mux/mux-controller.txt
-   - i2c-mux-idle-disconnect: Boolean; if defined, forces mux to disconnect all
-     children in idle state. This is necessary for example, if there are several
-     multiplexers on the bus and the devices behind them use same I2C addresses.
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa-rdb.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa-rdb.dtsi
+index 6fd7f63085c9..412f1bc0db5f 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls208xa-rdb.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa-rdb.dtsi
+@@ -49,6 +49,7 @@
+ 		reg = <0x75>;
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
++		idle-state = <0>;
+ 		i2c@1 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
 -- 
 2.17.1
