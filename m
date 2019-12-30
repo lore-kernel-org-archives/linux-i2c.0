@@ -1,7 +1,7 @@
 From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 3/5] i2c: highlander: Use proper printk format for iomem pointer
-Date: Mon, 30 Dec 2019 18:27:49 +0100
-Message-ID: <20191230172751.17985-3-krzk@kernel.org>
+Subject: [PATCH 4/5] i2c: stu300: Use proper printk format for iomem pointer
+Date: Mon, 30 Dec 2019 18:27:50 +0100
+Message-ID: <20191230172751.17985-4-krzk@kernel.org>
 References: <20191230172751.17985-1-krzk@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -17,28 +17,27 @@ iomem pointers should be printed with pointer format to hide the
 actual value and fix warnings when compiling on 64-bit platform (e.g. with
 COMPILE_TEST):
 
-    drivers/i2c/busses/i2c-highlander.c: In function ‘highlander_i2c_smbus_xfer’:
-    drivers/i2c/busses/i2c-highlander.c:325:22: warning:
-        format ‘%d’ expects argument of type ‘int’,
-        but argument 3 has type ‘size_t {aka long unsigned int}’ [-Wformat=]
+    drivers/i2c/busses/i2c-stu300.c: In function ‘stu300_wait_while_busy’:
+    drivers/i2c/busses/i2c-stu300.c:446:76: warning:
+        cast from pointer to integer of different size [-Wpointer-to-int-cast]
 
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 ---
- drivers/i2c/busses/i2c-highlander.c | 2 +-
+ drivers/i2c/busses/i2c-stu300.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-highlander.c b/drivers/i2c/busses/i2c-highlander.c
-index abfe3094c047..803dad70e2a7 100644
---- a/drivers/i2c/busses/i2c-highlander.c
-+++ b/drivers/i2c/busses/i2c-highlander.c
-@@ -322,7 +322,7 @@ static int highlander_i2c_smbus_xfer(struct i2c_adapter *adap, u16 addr,
- 		tmp |= (SMMR_MODE0 | SMMR_MODE1);
- 		break;
- 	default:
--		dev_err(dev->dev, "unsupported xfer size %d\n", dev->buf_len);
-+		dev_err(dev->dev, "unsupported xfer size %zu\n", dev->buf_len);
- 		return -EINVAL;
- 	}
+diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
+index 8c3e2d409d63..42e0a53e7fa4 100644
+--- a/drivers/i2c/busses/i2c-stu300.c
++++ b/drivers/i2c/busses/i2c-stu300.c
+@@ -444,7 +444,7 @@ static int stu300_wait_while_busy(struct stu300_dev *dev)
+ 		       "Attempt: %d\n", i+1);
  
+ 		dev_err(&dev->pdev->dev, "base address = "
+-			"0x%08x, reinit hardware\n", (u32) dev->virtbase);
++			"0x%p, reinit hardware\n", dev->virtbase);
+ 
+ 		(void) stu300_init_hw(dev);
+ 	}
 -- 
 2.17.1
