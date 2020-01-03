@@ -1,101 +1,50 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 5/5] i2c: Enable compile testing for some of drivers
-Date: Tue, 31 Dec 2019 10:20:01 +0100
-Message-ID: <CAMuHMdWhz7x8MnGeGv2f-Gb7fBRTp=5qq_Mz55sY7tQNpRogjg@mail.gmail.com>
-References: <20191230172751.17985-1-krzk@kernel.org> <20191230172751.17985-5-krzk@kernel.org>
- <CAMuHMdUXJo3=x32xbfSUXs3O3JHaFpfxt0mHupEb+vzi=5+S4g@mail.gmail.com> <20191231090146.GA6872@pi3>
+From: <Codrin.Ciubotariu@microchip.com>
+Subject: [PATCH v2 0/6] i2c bus recovery for Microchip SoCs
+Date: Fri, 3 Jan 2020 09:49:06 +0000
+Message-ID: <20200103094821.13185-1-codrin.ciubotariu@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20191231090146.GA6872@pi3>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Vladimir Zapolskiy <vz@mleia.com>, Sylvain Lemieux <slemieux.tyco@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Max Staudt <max@enpas.org>, Juergen Fitschen <jfi@ssv-embedded.de>, Elie Morisse <syniurge@gmail.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>
+To: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: kamel.bouhara@bootlin.com, wsa@the-dreams.de, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, Ludovic.Desroches@microchip.com, robh@kernel.org, Codrin.Ciubotariu@microchip.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Krzysztof,
+This patch series introduce the i2c bus recovery mechanism
+for the Microchip SoCs. Some SoCs have hardware support for
+recovery, while for those who don't the i2c-gpio bus recovery
+mechanism is used. Updated the corresponding dts to add i2c
+gpio pinctrl. The bus recovery is configured for the sama5d2/3/4
+xplained and sama5d27 som1 EK boards in dts.
 
-On Tue, Dec 31, 2019 at 10:01 AM Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> On Mon, Dec 30, 2019 at 08:11:03PM +0100, Geert Uytterhoeven wrote:
-> > On Mon, Dec 30, 2019 at 6:28 PM Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> > > Some of the I2C bus drivers can be compile tested to increase build
-> > > coverage.  This requires also:
-> > > 1. Adding dependencies on COMMON_CLK for BCM2835 and Meson I2C
-> > >    controllers,
-> > > 2. Adding 'if' conditional to 'default y' so they will not get enabled
-> > >    by default on all other architectures,
-> > > 3. Limiting few compile test options to supported architectures (which
-> > >    provide the readsX()/writesX() primitives).
-> > >
-> > > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Changes in v2:
+ - integrated the HW CLEAR command patch;
+ - call i2c_recover_bus() after an error occurs, if SDA is down;
+ - added i2c gpio pinctrl in sama5d2 xplained and sama5d27 som1 EK
+   boards;
 
-> > > @@ -611,8 +612,8 @@ config I2C_EMEV2
-> > >
-> > >  config I2C_EXYNOS5
-> > >         tristate "Exynos5 high-speed I2C driver"
-> > > -       depends on ARCH_EXYNOS && OF
-> > > -       default y
-> > > +       depends on (ARCH_EXYNOS && OF) || COMPILE_TEST
-> >
-> > This means it is only useful on DT-based Exynos platforms, but compiles
-> > everywhere?
->
-> Yes. The driver will proble only from DT.
->
-> >
-> > Do you still have support for non-DT Exynos platforms?
-> > ARCH_EXYNOS depends on ARCH_MULTI_V7?
->
-> No, only DT. I think dependency here is a left over from board times and
-> optional OF. Actually many drivers depend on OF and some OF-like ARCH so
-> it could be removed.
->
-> Since driver uses OF, it's rather the choice whether to explicitly
-> mention OF.
 
-So the !OF case is only for compile-testing.  Then it can be simplified to:
+Codrin Ciubotariu (1):
+  i2c: at91: Send bus clear command if SCL is down
 
-    depends on ARCH_EXYNOS || COMPILE_TEST
+Kamel Bouhara (5):
+  dt-bindings: i2c: at91: document optional bus recovery properties
+  i2c: at91: implement i2c bus recovery
+  ARM: at91/dt: sama5d3: add i2c gpio pinctrl
+  ARM: at91/dt: sama5d4: add i2c gpio pinctrl
+  ARM: at91/dt: sama5d2: add i2c gpio pinctrl
 
-> > (and its help text mentions Exynos 4/5 only, no 3?)
->
-> That's correct although it supports also Exynos7 (ARMv8) which is not
-> mentioned. I'll correct it.
+ .../devicetree/bindings/i2c/i2c-at91.txt      |  10 ++
+ arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts     |  33 +++++-
+ arch/arm/boot/dts/at91-sama5d2_xplained.dts   |  33 +++++-
+ arch/arm/boot/dts/sama5d3.dtsi                |  33 +++++-
+ arch/arm/boot/dts/sama5d4.dtsi                |  33 +++++-
+ drivers/i2c/busses/i2c-at91-core.c            |   9 ++
+ drivers/i2c/busses/i2c-at91-master.c          | 101 ++++++++++++++++++
+ drivers/i2c/busses/i2c-at91.h                 |  15 ++-
+ 8 files changed, 254 insertions(+), 13 deletions(-)
 
-Good.
-
-Actually "it" referred to arch/arm/mach-exynos/Kconfig:ARCH_EXYNOS,
-which mentions 4/5 only, while it covers 3/4/5.
-
-> > > @@ -1055,15 +1057,15 @@ config I2C_SYNQUACER
-> > >
-> > >  config I2C_TEGRA
-> > >         tristate "NVIDIA Tegra internal I2C controller"
-> > > -       depends on ARCH_TEGRA
-> > > +       depends on ARCH_TEGRA || (COMPILE_TEST && (ARC || ARM || ARM64 || M68K || RISCV || SUPERH || SPARC))
-> >
-> > Perhaps
-> >
-> >     depends on ARCH_TEGRA || COMPILE_TEST
-> >     depends on ARC || ARM || ARM64 || M68K || RISCV || SUPERH || SPARC
-> > # needs <foo>
-> >
-> > to remember which <foo> feature is needed?
->
-> I can comment on <foo> but such split of archs would be confusing. One
-> would think that driver can work on these platforms, while it is purely
-> for compile testing.  Keeping it together is self-documenting: these
-> weird platform selection was added only for compile testing.
-
-Fair enough.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+--=20
+2.20.1
