@@ -1,50 +1,77 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v2 1/6] dt-bindings: i2c: at91: document optional bus
- recovery  properties
-Date: Fri, 3 Jan 2020 15:29:19 -0700
-Message-ID: <20200103222919.GA32421@bogus>
-References: <20200103094821.13185-1-codrin.ciubotariu@microchip.com>
- <20200103094821.13185-2-codrin.ciubotariu@microchip.com>
+Subject: Re: [PATCH v3 1/4] dt-bindings: nvmem: new optional property
+ write-protect-gpios
+Date: Fri, 3 Jan 2020 16:40:42 -0700
+Message-ID: <20200103234042.GA14976@bogus>
+References: <20191219115141.24653-1-ktouil@baylibre.com>
+ <20191219115141.24653-2-ktouil@baylibre.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200103094821.13185-2-codrin.ciubotariu@microchip.com>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Codrin.Ciubotariu@microchip.com
-Cc: devicetree@vger.kernel.org, alexandre.belloni@bootlin.com, kamel.bouhara@bootlin.com, wsa@the-dreams.de, linux-kernel@vger.kernel.org, Ludovic.Desroches@microchip.com, linux-i2c@vger.kernel.org, robh@kernel.org, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <20191219115141.24653-2-ktouil@baylibre.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Khouloud Touil <ktouil@baylibre.com>
+Cc: bgolaszewski@baylibre.com, mark.rutland@arm.com, srinivas.kandagatla@linaro.org, baylibre-upstreaming@groups.io, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linus.walleij@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 3 Jan 2020 09:49:06 +0000, <Codrin.Ciubotariu@microchip.com> wrote:
+On Thu, Dec 19, 2019 at 12:51:38PM +0100, Khouloud Touil wrote:
+> Several memories have a write-protect pin, that when pulled high, it
+> blocks the write operation.
+
+Subject doesn't match the actual property name.
+
 > 
-> From: Kamel Bouhara <kamel.bouhara@bootlin.com>
+> On some boards, this pin is connected to a GPIO and pulled high by
+> default, which forces the user to manually change its state before
+> writing.
 > 
-> The at91 I2C controller can support bus recovery by re-assigning SCL
-> and SDA to gpios. Add the optional pinctrl and gpio properties to do
-> so.
+> Instead of modifying all the memory drivers to check this pin, make
+> the NVMEM subsystem check if the write-protect GPIO being passed
+> through the nvmem_config or defined in the device tree and pull it
+> low whenever writing to the memory.
 > 
-> Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
+> Add a new optional property to the device tree binding document, which
+> allows to specify the GPIO line to which the write-protect pin is
+> connected.
+> 
+> Signed-off-by: Khouloud Touil <ktouil@baylibre.com>
 > ---
+>  Documentation/devicetree/bindings/nvmem/nvmem.yaml | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
 > 
-> Changes in v2:
->  - none
+> diff --git a/Documentation/devicetree/bindings/nvmem/nvmem.yaml b/Documentation/devicetree/bindings/nvmem/nvmem.yaml
+> index 1c75a059206c..b43c6c65294e 100644
+> --- a/Documentation/devicetree/bindings/nvmem/nvmem.yaml
+> +++ b/Documentation/devicetree/bindings/nvmem/nvmem.yaml
+> @@ -34,6 +34,14 @@ properties:
+>      description:
+>        Mark the provider as read only.
+>  
+> +  wp-gpios:
+> +    description:
+> +      GPIO to which the write-protect pin of the chip is connected.
+> +      The write-protect GPIO is asserted, when it's driven high
+> +      (logical '1') to block the write operation. It's deasserted,
+> +      when it's driven low (logical '0') to allow writing.
+> +    maxItems: 1
+> +
+>  patternProperties:
+>    "^.*@[0-9a-f]+$":
+>      type: object
+> @@ -63,9 +71,12 @@ patternProperties:
+>  
+>  examples:
+>    - |
+> +      #include <dt-bindings/gpio/gpio.h>
+> +
+>        qfprom: eeprom@700000 {
+>            #address-cells = <1>;
+>            #size-cells = <1>;
+> +          wp-gpios = <&gpio1 3 GPIO_ACTIVE_HIGH>;
+>  
+>            /* ... */
+>  
+> -- 
+> 2.17.1
 > 
->  Documentation/devicetree/bindings/i2c/i2c-at91.txt | 10 ++++++++++
->  1 file changed, 10 insertions(+)
-> 
-
-Please add Acked-by/Reviewed-by tags when posting new versions. However,
-there's no need to repost patches *only* to add the tags. The upstream
-maintainer will do that for acks received on the version they apply.
-
-If a tag was not added on purpose, please state why and what changed.
