@@ -1,11 +1,16 @@
-From: Stefan Wahren <wahrenst@gmx.net>
-Subject: [PATCH] i2c: bcm2835: Store pointer to bus clock
-Date: Sat,  4 Jan 2020 16:13:20 +0100
-Message-ID: <1578150800-8284-1-git-send-email-wahrenst@gmx.net>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH v2 4/6] ARM: at91/dt: sama5d3: add i2c gpio pinctrl
+Date: Sat, 4 Jan 2020 22:39:48 +0000
+Message-ID: <e22772f8-9e6d-002d-98d7-414136a32439@axentia.se>
+References: <20200103094821.13185-1-codrin.ciubotariu@microchip.com>
+ <20200103094821.13185-5-codrin.ciubotariu@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20200103094821.13185-5-codrin.ciubotariu@microchip.com>
+Content-Language: en-US
+Content-ID: <FF949416C25CEE4A9F9A12B8347FB46E@eurprd02.prod.outlook.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -15,84 +20,57 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
 Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>
-Cc: bcm-kernel-feedback-list@broadcom.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Stefan Wahren <wahrenst@gmx.net>
+To: "Codrin.Ciubotariu@microchip.com" <Codrin.Ciubotariu@microchip.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "robh@kernel.org" <robh@kernel.org>, "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>, "kamel.bouhara@bootlin.com" <kamel.bouhara@bootlin.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "Ludovic.Desroches@microchip.com" <Ludovic.Desroches@microchip.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The commit bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF") introduced
-a NULL pointer dereference on driver unload. It seems that we can't fetch
-the bus clock via devm_clk_get in bcm2835_i2c_remove. As an alternative
-approach store a pointer to the bus clock in the private driver structure.
+On 2020-01-03 10:49, Codrin.Ciubotariu@microchip.com wrote:
+> From: Kamel Bouhara <kamel.bouhara@bootlin.com>
+> 
+> Add the i2c gpio pinctrls to support the i2c bus recovery
+> 
+> Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
+> ---
+> 
+> Changes in v2:
+>  - none;
+> 
+>  arch/arm/boot/dts/sama5d3.dtsi | 33 ++++++++++++++++++++++++++++++---
+>  1 file changed, 30 insertions(+), 3 deletions(-)
+> 
 
-Fixes: bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF")
-Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
----
- drivers/i2c/busses/i2c-bcm2835.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+*snip*
 
-diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
-index e01b2b5..5ab901a 100644
---- a/drivers/i2c/busses/i2c-bcm2835.c
-+++ b/drivers/i2c/busses/i2c-bcm2835.c
-@@ -58,6 +58,7 @@ struct bcm2835_i2c_dev {
- 	struct i2c_adapter adapter;
- 	struct completion completion;
- 	struct i2c_msg *curr_msg;
-+	struct clk *bus_clk;
- 	int num_msgs;
- 	u32 msg_err;
- 	u8 *msg_buf;
-@@ -404,7 +405,6 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 	struct resource *mem, *irq;
- 	int ret;
- 	struct i2c_adapter *adap;
--	struct clk *bus_clk;
- 	struct clk *mclk;
- 	u32 bus_clk_rate;
+> @@ -639,6 +648,12 @@
+>  							<AT91_PIOA 30 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PA30 periph A TWD0 pin, conflicts with URXD1, ISI_VSYNC */
+>  							 AT91_PIOA 31 AT91_PERIPH_A AT91_PINCTRL_NONE>;	/* PA31 periph A TWCK0 pin, conflicts with UTXD1, ISI_HSYNC */
+>  					};
+> +
+> +					pinctrl_i2c0_gpio: i2c0-gpio {
+> +						atmel,pins =
+> +							<AT91_PIOA 30 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP
+> +							 AT91_PIOA 31 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP>;
+> +					};
 
-@@ -427,11 +427,11 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 		return PTR_ERR(mclk);
- 	}
+I'm curious, but why are pull-ups suddenly needed just because the pins are
+used for GPIO recovery? Why are pull-ups not needed when the pins are used
+by the I2C peripheral device(s)?
 
--	bus_clk = bcm2835_i2c_register_div(&pdev->dev, mclk, i2c_dev);
-+	i2c_dev->bus_clk = bcm2835_i2c_register_div(&pdev->dev, mclk, i2c_dev);
+Given figure 27-2 "I/O Line Control Logic" in my SAMA5D3 datasheet, I see
+no difference as to how and why the pull-ups are applied depending on what
+the current function of the pin is. So, if the I2C bus works w/o pulls, bus
+recovery using GPIO must also work w/o pulls.
 
--	if (IS_ERR(bus_clk)) {
-+	if (IS_ERR(i2c_dev->bus_clk)) {
- 		dev_err(&pdev->dev, "Could not register clock\n");
--		return PTR_ERR(bus_clk);
-+		return PTR_ERR(i2c_dev->bus_clk);
- 	}
+I.e. the device tree requires you to have external pull-ups on the I2C bus
+anyway, so why bother with internal pull-ups for the recovery case?
 
- 	ret = of_property_read_u32(pdev->dev.of_node, "clock-frequency",
-@@ -442,13 +442,13 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- 		bus_clk_rate = 100000;
- 	}
+Changing pull-up settings just for recovery feels like something that will
+inevitably create hard to debug surprises at the least opportune time...
 
--	ret = clk_set_rate_exclusive(bus_clk, bus_clk_rate);
-+	ret = clk_set_rate_exclusive(i2c_dev->bus_clk, bus_clk_rate);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "Could not set clock frequency\n");
- 		return ret;
- 	}
+Or am I missing something?
 
--	ret = clk_prepare_enable(bus_clk);
-+	ret = clk_prepare_enable(i2c_dev->bus_clk);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Couldn't prepare clock");
- 		return ret;
-@@ -491,10 +491,9 @@ static int bcm2835_i2c_probe(struct platform_device *pdev)
- static int bcm2835_i2c_remove(struct platform_device *pdev)
- {
- 	struct bcm2835_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
--	struct clk *bus_clk = devm_clk_get(i2c_dev->dev, "div");
+(I'm focusing on SAMA5D3 since that is what I happen to work with,
+ but the same question appears to apply for SAMA5D2 and SAMA5D4...)
 
--	clk_rate_exclusive_put(bus_clk);
--	clk_disable_unprepare(bus_clk);
-+	clk_rate_exclusive_put(i2c_dev->bus_clk);
-+	clk_disable_unprepare(i2c_dev->bus_clk);
-
- 	free_irq(i2c_dev->irq, i2c_dev);
- 	i2c_del_adapter(&i2c_dev->adapter);
---
-2.7.4
+Cheers,
+Peter
