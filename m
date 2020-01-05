@@ -1,76 +1,76 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH v2 4/6] ARM: at91/dt: sama5d3: add i2c gpio pinctrl
-Date: Sat, 4 Jan 2020 22:39:48 +0000
-Message-ID: <e22772f8-9e6d-002d-98d7-414136a32439@axentia.se>
-References: <20200103094821.13185-1-codrin.ciubotariu@microchip.com>
- <20200103094821.13185-5-codrin.ciubotariu@microchip.com>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: [PATCH 00/26] docs: i2c: rework I2C documentation, part I
+Date: Sun,  5 Jan 2020 23:39:40 +0100
+Message-ID: <20200105224006.10321-1-luca@lucaceresoli.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20200103094821.13185-5-codrin.ciubotariu@microchip.com>
-Content-Language: en-US
-Content-ID: <FF949416C25CEE4A9F9A12B8347FB46E@eurprd02.prod.outlook.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: "Codrin.Ciubotariu@microchip.com" <Codrin.Ciubotariu@microchip.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "robh@kernel.org" <robh@kernel.org>, "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>, "kamel.bouhara@bootlin.com" <kamel.bouhara@bootlin.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "Ludovic.Desroches@microchip.com" <Ludovic.Desroches@microchip.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2020-01-03 10:49, Codrin.Ciubotariu@microchip.com wrote:
-> From: Kamel Bouhara <kamel.bouhara@bootlin.com>
-> 
-> Add the i2c gpio pinctrls to support the i2c bus recovery
-> 
-> Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
-> ---
-> 
-> Changes in v2:
->  - none;
-> 
->  arch/arm/boot/dts/sama5d3.dtsi | 33 ++++++++++++++++++++++++++++++---
->  1 file changed, 30 insertions(+), 3 deletions(-)
-> 
+Hi,
 
-*snip*
+this series is a list of improvements to the I2C documentation.
 
-> @@ -639,6 +648,12 @@
->  							<AT91_PIOA 30 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PA30 periph A TWD0 pin, conflicts with URXD1, ISI_VSYNC */
->  							 AT91_PIOA 31 AT91_PERIPH_A AT91_PINCTRL_NONE>;	/* PA31 periph A TWCK0 pin, conflicts with UTXD1, ISI_HSYNC */
->  					};
-> +
-> +					pinctrl_i2c0_gpio: i2c0-gpio {
-> +						atmel,pins =
-> +							<AT91_PIOA 30 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP
-> +							 AT91_PIOA 31 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP>;
-> +					};
+It started as a simple reordering of index.rst from alphabetical order to a
+logical order. Then it grew to a mixture of various improvements to each
+section. I wanted to rework all the sections in a unique series, but after
+covering about one third of them the number of patches has already grown
+pretty long so I'm sending it in its current state.
 
-I'm curious, but why are pull-ups suddenly needed just because the pins are
-used for GPIO recovery? Why are pull-ups not needed when the pins are used
-by the I2C peripheral device(s)?
+Let's see how this series is received, I will continue to cover the rest of
+the sections later.
 
-Given figure 27-2 "I/O Line Control Logic" in my SAMA5D3 datasheet, I see
-no difference as to how and why the pull-ups are applied depending on what
-the current function of the pin is. So, if the I2C bus works w/o pulls, bus
-recovery using GPIO must also work w/o pulls.
+Each patch is quite self-standing, and most are trivial, so have a good
+reading.
 
-I.e. the device tree requires you to have external pull-ups on the I2C bus
-anyway, so why bother with internal pull-ups for the recovery case?
+Luca
 
-Changing pull-up settings just for recovery feels like something that will
-inevitably create hard to debug surprises at the least opportune time...
+Luca Ceresoli (26):
+  docs: i2c: sort index logically
+  docs: i2c: summary: extend introduction
+  docs: i2c: summary: rewrite the "terminology" section
+  docs: i2c: call it "I2C" consistently
+  docs: i2c: fix typo
+  docs: i2c: replace "I2C-transfer" -> "I2C transfer" consistently
+  docs: i2c: i2c-protocol: fix kernel-doc function syntax
+  docs: i2c: i2c-protocol: properly name start and stop conditions
+  docs: i2c: i2c-protocol: remove unneeded colons from table
+  docs: i2c: i2c-protocol: use proper names for ACK and NACK
+  docs: i2c: smbus: fix link syntax
+  docs: i2c: smbus-protocol: properly name start and stop conditions
+  docs: i2c: smbus-protocol: remove unneeded colons from table
+  docs: i2c: smbus-protocol: use proper names for ACK and NACK
+  docs: i2c: smbus-protocol: enable kernel-doc function syntax
+  docs: i2c: smbus-protocol: fix kernel-doc function syntax
+  docs: i2c: i2c-protocol: fix typo
+  docs: i2c: i2c-protocol: fix punctuation
+  docs: i2c: smbus-protocol: improve I2C Block transactions description
+  docs: i2c: instantiating-devices: fix internal hyperlink
+  docs: i2c: instantiating-devices: rearrange static instatiation
+  docs: i2c: instantiating-devices: use monospace for filenames
+  docs: i2c: old-module-parameters: fix internal hyperlink
+  docs: i2c: old-module-parameters: clarify this is for obsolete kernels
+  docs: i2c: old-module-parameters: use monospace for filenames
+  docs: i2c: rename sections so the overall picture is clearer
 
-Or am I missing something?
+ Documentation/i2c/dev-interface.rst         |   24 +-
+ Documentation/i2c/dma-considerations.rst    |    2 +-
+ Documentation/i2c/i2c-protocol.rst          |   45 +-
+ Documentation/i2c/i2c-topology.rst          |   72 +-
+ Documentation/i2c/i2c.svg                   | 1341 +++++++++++++++++++
+ Documentation/i2c/index.rst                 |   21 +-
+ Documentation/i2c/instantiating-devices.rst |  116 +-
+ Documentation/i2c/old-module-parameters.rst |   30 +-
+ Documentation/i2c/slave-interface.rst       |    4 +-
+ Documentation/i2c/smbus-protocol.rst        |  107 +-
+ Documentation/i2c/summary.rst               |   61 +-
+ Documentation/i2c/writing-clients.rst       |   10 +-
+ 12 files changed, 1611 insertions(+), 222 deletions(-)
+ create mode 100644 Documentation/i2c/i2c.svg
 
-(I'm focusing on SAMA5D3 since that is what I happen to work with,
- but the same question appears to apply for SAMA5D2 and SAMA5D4...)
-
-Cheers,
-Peter
+-- 
+2.24.1
