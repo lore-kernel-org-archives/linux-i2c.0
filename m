@@ -1,7 +1,7 @@
 From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: [PATCH 07/26] docs: i2c: i2c-protocol: fix kernel-doc function syntax
-Date: Sun,  5 Jan 2020 23:49:53 +0100
-Message-ID: <20200105225012.11701-7-luca@lucaceresoli.net>
+Subject: [PATCH 08/26] docs: i2c: i2c-protocol: properly name start and stop conditions
+Date: Sun,  5 Jan 2020 23:49:54 +0100
+Message-ID: <20200105225012.11701-8-luca@lucaceresoli.net>
 References: <20200105224006.10321-1-luca@lucaceresoli.net>
  <20200105225012.11701-1-luca@lucaceresoli.net>
 Mime-Version: 1.0
@@ -13,44 +13,53 @@ To: linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
 Cc: Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This clarifies these are functions and adds a hyperlink to the function
-documentation.
+In I2C there is no such thing as a "start bit" or a "stop bit". Use the
+proper naming: "start condition" and "stop condition".
 
 Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 ---
- Documentation/i2c/i2c-protocol.rst | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ Documentation/i2c/i2c-protocol.rst | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
 diff --git a/Documentation/i2c/i2c-protocol.rst b/Documentation/i2c/i2c-protocol.rst
-index 0222c97f3436..f289d7759a51 100644
+index f289d7759a51..c090003f55ed 100644
 --- a/Documentation/i2c/i2c-protocol.rst
 +++ b/Documentation/i2c/i2c-protocol.rst
-@@ -28,7 +28,7 @@ Count (8 bits): A data byte containing the length of a block operation.
- Simple send transaction
- =======================
+@@ -8,8 +8,8 @@ Key to symbols
+ ==============
  
--This corresponds to i2c_master_send::
-+This corresponds to i2c_master_send()::
+ =============== =============================================================
+-S     (1 bit) : Start bit
+-P     (1 bit) : Stop bit
++S             : Start condition
++P             : Stop condition
+ Rd/Wr (1 bit) : Read/Write bit. Rd equals 1, Wr equals 0.
+ A, NA (1 bit) : Accept and reverse accept bit.
+ Addr  (7 bits): I2C 7 bit address. Note that this can be expanded as usual to
+@@ -46,9 +46,9 @@ Combined transactions
  
-   S Addr Wr [A] Data [A] Data [A] ... [A] Data [A] P
+ This corresponds to i2c_transfer().
  
-@@ -36,7 +36,7 @@ This corresponds to i2c_master_send::
- Simple receive transaction
- ==========================
+-They are just like the above transactions, but instead of a stop bit P
+-a start bit S is sent and the transaction continues. An example of
+-a byte read, followed by a byte write::
++They are just like the above transactions, but instead of a stop
++condition P a start condition S is sent and the transaction continues.
++An example of a byte read, followed by a byte write::
  
--This corresponds to i2c_master_recv::
-+This corresponds to i2c_master_recv()::
+   S Addr Rd [A] [Data] NA S Addr Wr [A] Data [A] P
  
-   S Addr Rd [A] [Data] A [Data] A ... A [Data] NA P
+@@ -77,8 +77,9 @@ I2C_M_NOSTART:
+       S Addr Rd [A] [Data] NA Data [A] P
  
-@@ -44,7 +44,7 @@ This corresponds to i2c_master_recv::
- Combined transactions
- =====================
+     If you set the I2C_M_NOSTART variable for the first partial message,
+-    we do not generate Addr, but we do generate the startbit S. This will
+-    probably confuse all other clients on your bus, so don't try this.
++    we do not generate Addr, but we do generate the start condition S.
++    This will probably confuse all other clients on your bus, so don't
++    try this.
  
--This corresponds to i2c_transfer
-+This corresponds to i2c_transfer().
- 
- They are just like the above transactions, but instead of a stop bit P
- a start bit S is sent and the transaction continues. An example of
+     This is often used to gather transmits from multiple data buffers in
+     system memory into something that appears as a single transfer to the
 -- 
 2.24.1
