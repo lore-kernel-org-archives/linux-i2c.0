@@ -1,81 +1,40 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: bcm2835: Store pointer to bus clock
-Date: Mon, 6 Jan 2020 15:52:34 +0100
-Message-ID: <20200106145234.GK1290@ninjato>
-References: <1578150800-8284-1-git-send-email-wahrenst@gmx.net>
+From: <Codrin.Ciubotariu@microchip.com>
+Subject: Re: [PATCH v2 1/6] dt-bindings: i2c: at91: document optional bus
+ recovery properties
+Date: Mon, 6 Jan 2020 16:34:51 +0000
+Message-ID: <5f7c19f6-014e-d207-d3ab-bb439e1847f8@microchip.com>
+References: <20200103094821.13185-1-codrin.ciubotariu@microchip.com>
+ <20200103094821.13185-2-codrin.ciubotariu@microchip.com>
+ <20200103222919.GA32421@bogus>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4255348068685055134=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1578150800-8284-1-git-send-email-wahrenst@gmx.net>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Stefan Wahren <wahrenst@gmx.net>
-Cc: Florian Fainelli <f.fainelli@gmail.com>, Scott Branden <sbranden@broadcom.com>, Ray Jui <rjui@broadcom.com>, bcm-kernel-feedback-list@broadcom.com, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200103222919.GA32421@bogus>
+Content-Language: en-US
+Content-ID: <0518A744A6BCAA4A8848450F89CE5613@namprd11.prod.outlook.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: robh@kernel.org
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kamel.bouhara@bootlin.com, wsa@the-dreams.de, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, Ludovic.Desroches@microchip.com
 List-Id: linux-i2c@vger.kernel.org
 
-
---===============4255348068685055134==
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="HBg0C3yr6HVa1ZCc"
-Content-Disposition: inline
-
-
---HBg0C3yr6HVa1ZCc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, Jan 04, 2020 at 04:13:20PM +0100, Stefan Wahren wrote:
-> The commit bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF") introduced
-> a NULL pointer dereference on driver unload. It seems that we can't fetch
-> the bus clock via devm_clk_get in bcm2835_i2c_remove. As an alternative
-> approach store a pointer to the bus clock in the private driver structure.
->=20
-> Fixes: bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF")
-> Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
-
-Applied to for-current, thanks!
-
-
---HBg0C3yr6HVa1ZCc
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4TSbIACgkQFA3kzBSg
-KbaxWw//WW0ZnyXB1Lcp1LObsRnDob5upLCtOBfS+j2zAWlFKsQc66oz/3q84bn7
-jwv+pQ7HkLcgDiSy92VdUDvUxeAi/jxP3lg6oIWbuQFMAmw5+aZymPnUZBe/Jh2x
-4/8iQtBLSP8BH9sNbBJrwFkagGCXQbz3crj7nLRMua+/JbAsqLzv7P26IpRHSxQb
-32p5Yf4ktRX1WVta3N/vPC/cH4bNURXm+QfHDO45FeN8BWNyGGoL/G6l4Mik3gYm
-z0s+Xjmq19hVqB9XGeq+k5wlP1yC/TMWCTL2XkiqXmZE3qpl506BU1y7aEfu8n2P
-a2dDsqNg26qQsKh4ZO8dkjCk3uYJOOXYjwqtaBVsZKu5gBNVo8rhkbZlFYOJFVU7
-SCR9hWwwmIHDB58NMeLfoXx53KXnwf+H7ChK9aZmI65fh4IqiFvnioRGr16xRjEs
-I42Mtpf6cNBzLGKXQOILS3glNQ9X42BmC4c7O+TIe4Q/iT3Ssz06BKnEu30d+nM3
-3Guvk1AYKRPch5MwJlguJPOQG0N2lCFajnqyuJyy9mX0225XlT6QamMLSNpbeUnO
-km/mECaTFd0q3uCWuZBs8vjuTuv9O0CNsv4ACpGt/UbzzaPTpi0CvqLJPwTAbNHG
-XLDPWBT8LjymYAqfppwgjSZd/NWXfCpPEiIu/rQg8k7m1nxUAXY=
-=Ixd3
------END PGP SIGNATURE-----
-
---HBg0C3yr6HVa1ZCc--
-
-
---===============4255348068685055134==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============4255348068685055134==--
+T24gMDQuMDEuMjAyMCAwMDoyOSwgUm9iIEhlcnJpbmcgd3JvdGU6DQo+IEVYVEVSTkFMIEVNQUlM
+OiBEbyBub3QgY2xpY2sgbGlua3Mgb3Igb3BlbiBhdHRhY2htZW50cyB1bmxlc3MgeW91IGtub3cg
+dGhlIGNvbnRlbnQgaXMgc2FmZQ0KPiANCj4gT24gRnJpLCAzIEphbiAyMDIwIDA5OjQ5OjA2ICsw
+MDAwLCA8Q29kcmluLkNpdWJvdGFyaXVAbWljcm9jaGlwLmNvbT4gd3JvdGU6DQo+Pg0KPj4gRnJv
+bTogS2FtZWwgQm91aGFyYSA8a2FtZWwuYm91aGFyYUBib290bGluLmNvbT4NCj4+DQo+PiBUaGUg
+YXQ5MSBJMkMgY29udHJvbGxlciBjYW4gc3VwcG9ydCBidXMgcmVjb3ZlcnkgYnkgcmUtYXNzaWdu
+aW5nIFNDTA0KPj4gYW5kIFNEQSB0byBncGlvcy4gQWRkIHRoZSBvcHRpb25hbCBwaW5jdHJsIGFu
+ZCBncGlvIHByb3BlcnRpZXMgdG8gZG8NCj4+IHNvLg0KPj4NCj4+IFNpZ25lZC1vZmYtYnk6IEth
+bWVsIEJvdWhhcmEgPGthbWVsLmJvdWhhcmFAYm9vdGxpbi5jb20+DQo+PiAtLS0NCj4+DQo+PiBD
+aGFuZ2VzIGluIHYyOg0KPj4gICAtIG5vbmUNCj4+DQo+PiAgIERvY3VtZW50YXRpb24vZGV2aWNl
+dHJlZS9iaW5kaW5ncy9pMmMvaTJjLWF0OTEudHh0IHwgMTAgKysrKysrKysrKw0KPj4gICAxIGZp
+bGUgY2hhbmdlZCwgMTAgaW5zZXJ0aW9ucygrKQ0KPj4NCj4gDQo+IFBsZWFzZSBhZGQgQWNrZWQt
+YnkvUmV2aWV3ZWQtYnkgdGFncyB3aGVuIHBvc3RpbmcgbmV3IHZlcnNpb25zLiBIb3dldmVyLA0K
+PiB0aGVyZSdzIG5vIG5lZWQgdG8gcmVwb3N0IHBhdGNoZXMgKm9ubHkqIHRvIGFkZCB0aGUgdGFn
+cy4gVGhlIHVwc3RyZWFtDQo+IG1haW50YWluZXIgd2lsbCBkbyB0aGF0IGZvciBhY2tzIHJlY2Vp
+dmVkIG9uIHRoZSB2ZXJzaW9uIHRoZXkgYXBwbHkuDQo+IA0KPiBJZiBhIHRhZyB3YXMgbm90IGFk
+ZGVkIG9uIHB1cnBvc2UsIHBsZWFzZSBzdGF0ZSB3aHkgYW5kIHdoYXQgY2hhbmdlZC4NCj4gDQoN
+ClNvcnJ5IFJvYiwgSSBmb3Jnb3QgdG8gYWRkIHlvdXIgQWNrZWQtYnkuIFRoZXJlIGlzIG5vdGhp
+bmcgY2hhbmdlZCBpbiANCnRoaXMgdmVyc2lvbi4gSG93IHNob3VsZCBJIHByb2NlZWQsIHNob3Vs
+ZCBJIHJlc2VuZCBpdCB3aXRoIHlvdXIgdGFnPw0KDQpCZXN0IHJlZ2FyZHMsDQpDb2RyaW4=
