@@ -1,47 +1,40 @@
-From: Stephen Boyd <sboyd@kernel.org>
-Subject: Re: [PATCH] treewide: remove redundent IS_ERR() before error code
- check
-Date: Sun, 05 Jan 2020 22:02:45 -0800
-Message-ID: <20200106060246.49A5720848@mail.kernel.org>
-References: <20200106045833.1725-1-masahiroy@kernel.org>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: [PATCH 24/26] docs: i2c: old-module-parameters: clarify this is for obsolete kernels
+Date: Mon,  6 Jan 2020 08:46:39 +0100
+Message-ID: <20200106074639.13763-1-luca@lucaceresoli.net>
+References: <20200105224006.10321-1-luca@lucaceresoli.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20200106045833.1725-1-masahiroy@kernel.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: devicetree@vger.kernel.org, alsa-devel@alsa-project.org, linux-acpi@vger.kernel.org, linux-gpio@vger.kernel.org, netdev@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>, linux-kernel@vger.kernel.org, Julia Lawall <julia.lawall@lip6.fr>, linux-mtd@lists.infradead.org, linux-crypto@vger.kernel.org, linux-clk@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200105224006.10321-1-luca@lucaceresoli.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Quoting Masahiro Yamada (2020-01-05 20:58:33)
-> 'PTR_ERR(p) == -E*' is a stronger condition than IS_ERR(p).
-> Hence, IS_ERR(p) is unneeded.
-> 
-> The semantic patch that generates this commit is as follows:
-> 
-> // <smpl>
-> @@
-> expression ptr;
-> constant error_code;
-> @@
-> -IS_ERR(ptr) && (PTR_ERR(ptr) == - error_code)
-> +PTR_ERR(ptr) == - error_code
-> // </smpl>
-> 
-> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> ---
+This section applies only to code for very old kernels. Avoid people
+reading this unnecessarily.
 
-For
+Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+---
+ Documentation/i2c/old-module-parameters.rst | 5 +++++
+ 1 file changed, 5 insertions(+)
 
->  drivers/clk/clk.c                    | 2 +-
-
-Acked-by: Stephen Boyd <sboyd@kernel.org>
+diff --git a/Documentation/i2c/old-module-parameters.rst b/Documentation/i2c/old-module-parameters.rst
+index 0503d2f0b127..80fb117883fd 100644
+--- a/Documentation/i2c/old-module-parameters.rst
++++ b/Documentation/i2c/old-module-parameters.rst
+@@ -2,6 +2,11 @@
+ I2C device driver binding control from user-space
+ =================================================
+ 
++.. NOTE::
++   Note: this section is only relevant if you are handling some old code
++   found in kernel 2.6. If you work with more recent kernels, you can
++   safely skip this section.
++
+ Up to kernel 2.6.32, many I2C drivers used helper macros provided by
+ <linux/i2c.h> which created standard module parameters to let the user
+ control how the driver would probe I2C buses and attach to devices. These
+-- 
+2.24.1
