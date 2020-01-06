@@ -1,26 +1,32 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH] treewide: remove redundent IS_ERR() before error code check
-Date: Mon, 6 Jan 2020 10:38:05 +0100
-Message-ID: <CAMRc=MeTC8X9wDV7bowEvjPxjUNH8hXSJC79iy9s9W9Yn6Fh8A@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] treewide: remove redundent IS_ERR() before error code
+ check
+Date: Mon, 6 Jan 2020 11:05:58 +0100
+Message-ID: <20200106100558.GA4831@kunai>
 References: <20200106045833.1725-1-masahiroy@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <20200106045833.1725-1-masahiroy@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, devicetree <devicetree@vger.kernel.org>, alsa-devel@alsa-project.org, linux-acpi@vger.kernel.org, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, netdev <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Julia Lawall <julia.lawall@lip6.fr>, "open list:MEMORY TECHNOLOGY..." <linux-mtd@lists.infradead.org>, linux-crypto@vger.kernel.org, linux-clk <linux-clk@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-i2c <linux-i2c@vger.kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Julia Lawall <julia.lawall@lip6.fr>, linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org, linux-crypto@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-pon., 6 sty 2020 o 06:00 Masahiro Yamada <masahiroy@kernel.org> napisa=C5=
-=82(a):
->
+
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Jan 06, 2020 at 01:58:33PM +0900, Masahiro Yamada wrote:
 > 'PTR_ERR(p) =3D=3D -E*' is a stronger condition than IS_ERR(p).
 > Hence, IS_ERR(p) is unneeded.
->
+>=20
 > The semantic patch that generates this commit is as follows:
->
+>=20
 > // <smpl>
 > @@
 > expression ptr;
@@ -29,9 +35,34 @@ pon., 6 sty 2020 o 06:00 Masahiro Yamada <masahiroy@kernel.org> napisa=C5=
 > -IS_ERR(ptr) && (PTR_ERR(ptr) =3D=3D - error_code)
 > +PTR_ERR(ptr) =3D=3D - error_code
 > // </smpl>
->
+>=20
 > Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 
-For GPIO:
+For drivers/i2c:
 
-Acked-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Acked-by: Wolfram Sang <wsa@the-dreams.de>
+
+Thanks!
+
+
+--zhXaljGHf11kAtnf
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4TBoIACgkQFA3kzBSg
+KbYycQ/9HHMMaJuiDZs2ZZyg9Szbt/uDs6lfGNwX2WQjjgoo0FHwIISx26fwUSS0
+sfKb1VukurwS3gKvijHI2Tgo+f8Vb5W76AfDl7l2Pt+/1Fc3udj81ejuq6hrwDtX
+8lb3i4K7U7mReQW1CuGDL2a15XNeUCNSocbEz9r/fSMSCcO7vtYFQdJ1PRCiO40n
+Z9RU/AGK5/6Dm8H6JaPvBbkL4cSaKu0fWTLYwZfm5lUqpj8ERaGKdlz4W/DEy5nw
+/FLsLSoRRKpkrWFzohHUjEplvrX5Xv7//Pl4GHVxH25rPhKgXL7M4bkJUrAOG8Ap
+zRni09tOZTNrB2zkt3dFgDSUXwPHJOM0KLrVyFeze3ZtA/8rDaDxbr7a0lK0Jgi6
+X3+CMoirCftC9W2ub9a9h/IOhLqzFzVoWNN3QsHr4XxLYmE1EvhoIYbCRs3JpVrV
+cgbYECZxZElbp6K6u7sEsETPvGjvHi4gzXBZUwxYpdZyWaUsV+XIzxqQyeQIqkFF
+Yp6Cjmd/cjgLLUMwxL2QaopFPm+Ul+f5AojzQbMP6ScKbrjYfKn8S60q4fwrShk1
+yDlNFlQgdSrn1Dt1PfGllfjLz1bcQ/tsZsmP/ulyPE0Ph9Mv5ixDhEse7mZmOVjm
+8khnVJiGQcIi1CMl8mR8uDU6319aQvxcYWlG84KlF7nXsigrRqA=
+=e1Dd
+-----END PGP SIGNATURE-----
+
+--zhXaljGHf11kAtnf--
