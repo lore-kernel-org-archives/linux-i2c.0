@@ -1,57 +1,81 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 2/2] I2C: JZ4780: Add support for the X1000.
-Date: Mon, 6 Jan 2020 15:47:34 +0100
-Message-ID: <20200106144734.GJ1290@ninjato>
-References: <1576570450-122556-1-git-send-email-zhouyanjie@wanyeetech.com>
- <1576570450-122556-4-git-send-email-zhouyanjie@wanyeetech.com>
+Subject: Re: [PATCH] i2c: bcm2835: Store pointer to bus clock
+Date: Mon, 6 Jan 2020 15:52:34 +0100
+Message-ID: <20200106145234.GK1290@ninjato>
+References: <1578150800-8284-1-git-send-email-wahrenst@gmx.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="7ArrI7P/b+va1vZ8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1576570450-122556-4-git-send-email-zhouyanjie@wanyeetech.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?5ZGo55Cw5p2wIChaaG91IFlhbmppZSk=?= <zhouyanjie@wanyeetech.com>
-Cc: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, robh+dt@kernel.org, paul.burton@mips.com, paulburton@kernel.org, mark.rutland@arm.com, paul@crapouillou.net, sernia.zhou@foxmail.com, zhenwenjin@gmail.com, 2374286503@qq.com
+Content-Type: multipart/mixed; boundary="===============4255348068685055134=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1578150800-8284-1-git-send-email-wahrenst@gmx.net>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Stefan Wahren <wahrenst@gmx.net>
+Cc: Florian Fainelli <f.fainelli@gmail.com>, Scott Branden <sbranden@broadcom.com>, Ray Jui <rjui@broadcom.com>, bcm-kernel-feedback-list@broadcom.com, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---7ArrI7P/b+va1vZ8
-Content-Type: text/plain; charset=utf-8
+--===============4255348068685055134==
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="HBg0C3yr6HVa1ZCc"
+Content-Disposition: inline
+
+
+--HBg0C3yr6HVa1ZCc
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 17, 2019 at 04:14:10PM +0800, =E5=91=A8=E7=90=B0=E6=9D=B0 (Zhou=
- Yanjie) wrote:
-> Add support for probing i2c driver on the X1000 Soc from Ingenic.
-> call the corresponding fifo parameter according to the device
-> model obtained from the devicetree.
+On Sat, Jan 04, 2020 at 04:13:20PM +0100, Stefan Wahren wrote:
+> The commit bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF") introduced
+> a NULL pointer dereference on driver unload. It seems that we can't fetch
+> the bus clock via devm_clk_get in bcm2835_i2c_remove. As an alternative
+> approach store a pointer to the bus clock in the private driver structure.
 >=20
-> Signed-off-by: =E5=91=A8=E7=90=B0=E6=9D=B0 (Zhou Yanjie) <zhouyanjie@wany=
-eetech.com>
-> Acked-by: Paul Cercueil <paul@crapouillou.net>
+> Fixes: bebff81fb8b9 ("i2c: bcm2835: Model Divider in CCF")
+> Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
 
-Applied to for-next, thanks!
+Applied to for-current, thanks!
 
 
---7ArrI7P/b+va1vZ8
+--HBg0C3yr6HVa1ZCc
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4TSIYACgkQFA3kzBSg
-Kbao2g/9Fw00CvW6HoZ3t/gz4atSoANS3Fuifoxz5o1oIkdX5o1deWwRWx9zYHW4
-OdDQQ/gBwY1s2p+GxbdvPmdp/4fPRGl6caoVQUrm30lS/yrtttAD+90xRcDyD8/i
-mb8qKagOYM2vif6eGedidLjK2Jy2ShQCyQJhb41cpk73JjXUpc5jXrdzL+rgU8qg
-TvF28Il7HM+j/XXN4DwxVIsDhPYTWUM0rMlbZ/dacLGTnhp5Gz80uzaeuK2VCFIM
-t61fvI549eaR/m51elIzDrytokR2S4G/Y6URP9BfhPHGbc/BczKaensAHjxjHpWc
-ts0B+tLr16Tlbad4F8qnCk1Upp1O4H/fsq5uGqWcuzeDyNGM5W7RkEHXHiCsSk0q
-FQViD3x8RKt2NU91txAcxfIZzv4zkLnWaRETkSUnpNUiqw9aHr8XNNtTccPUsnsD
-C5PgywSZqok7pTfAeWeOJs+qNwypnrrCfc33rk1TcqsPHl9zgWMiqAZ77+Zf/J9E
-EfmDu8xvf5OG2cTWrXoFkUjN4s0lLsizTsYTovK90MSBBrTFr/zKacPgpSPzqtuX
-VX9Efjf6GHM3n8xk8yuFWaY5b/FPyWpJzTqcqdzLGQOGnZu7AyRlGMrE82nEo2sJ
-fOyKaUs+dxZKCJSPKsLedgo3DVnfYhPwOA5VGJt1EoqhA5V16iw=
-=Gabw
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4TSbIACgkQFA3kzBSg
+KbaxWw//WW0ZnyXB1Lcp1LObsRnDob5upLCtOBfS+j2zAWlFKsQc66oz/3q84bn7
+jwv+pQ7HkLcgDiSy92VdUDvUxeAi/jxP3lg6oIWbuQFMAmw5+aZymPnUZBe/Jh2x
+4/8iQtBLSP8BH9sNbBJrwFkagGCXQbz3crj7nLRMua+/JbAsqLzv7P26IpRHSxQb
+32p5Yf4ktRX1WVta3N/vPC/cH4bNURXm+QfHDO45FeN8BWNyGGoL/G6l4Mik3gYm
+z0s+Xjmq19hVqB9XGeq+k5wlP1yC/TMWCTL2XkiqXmZE3qpl506BU1y7aEfu8n2P
+a2dDsqNg26qQsKh4ZO8dkjCk3uYJOOXYjwqtaBVsZKu5gBNVo8rhkbZlFYOJFVU7
+SCR9hWwwmIHDB58NMeLfoXx53KXnwf+H7ChK9aZmI65fh4IqiFvnioRGr16xRjEs
+I42Mtpf6cNBzLGKXQOILS3glNQ9X42BmC4c7O+TIe4Q/iT3Ssz06BKnEu30d+nM3
+3Guvk1AYKRPch5MwJlguJPOQG0N2lCFajnqyuJyy9mX0225XlT6QamMLSNpbeUnO
+km/mECaTFd0q3uCWuZBs8vjuTuv9O0CNsv4ACpGt/UbzzaPTpi0CvqLJPwTAbNHG
+XLDPWBT8LjymYAqfppwgjSZd/NWXfCpPEiIu/rQg8k7m1nxUAXY=
+=Ixd3
 -----END PGP SIGNATURE-----
 
---7ArrI7P/b+va1vZ8--
+--HBg0C3yr6HVa1ZCc--
+
+
+--===============4255348068685055134==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============4255348068685055134==--
