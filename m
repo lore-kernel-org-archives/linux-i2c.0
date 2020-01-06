@@ -1,81 +1,39 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] docs: i2c: Fix return value of i2c_smbus_xxx functions
-Date: Mon, 6 Jan 2020 14:01:09 +0100
-Message-ID: <20200106130056.GA1290@ninjato>
-References: <1574162632-65848-1-git-send-email-mine260309@gmail.com>
- <20191125144857.GA2412@kunai>
- <20191126115243.673fc164@endymion>
+From: Alain Volmat <alain.volmat@st.com>
+Subject: [PATCH 1/6] ARM: dts: stm32: add i2c4 sleep pinctrl on stm32mp15xx-dkx
+Date: Mon, 6 Jan 2020 14:28:29 +0100
+Message-ID: <1578317314-17197-2-git-send-email-alain.volmat@st.com>
+References: <1578317314-17197-1-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="6sX45UoQRIJXqkqR"
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20191126115243.673fc164@endymion>
+In-Reply-To: <1578317314-17197-1-git-send-email-alain.volmat@st.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>, Luca Ceresoli <luca@lucaceresoli.net>
-Cc: Lei YU <mine260309@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: wsa@the-dreams.de, robh+dt@kernel.org
+Cc: mark.rutland@arm.com, pierre-yves.mordret@st.com, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
 List-Id: linux-i2c@vger.kernel.org
 
+Add the sleep state pinctrl entry for the i2c4 node
+of the stm32mp15xx-dkx.dtsi
 
---6sX45UoQRIJXqkqR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Alain Volmat <alain.volmat@st.com>
+---
+ arch/arm/boot/dts/stm32mp15xx-dkx.dtsi | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-
-> > > -All these transactions return -1 on failure; you can read errno to s=
-ee
-> > > -what happened. The 'write' transactions return 0 on success; the
-> > > -'read' transactions return the read value, except for read_block, wh=
-ich
-> > > -returns the number of values read. The block buffers need not be lon=
-ger
-> > > -than 32 bytes.
-> > > +All these transactions return a negative error number on failure.
-> > > +The 'write' transactions return 0 on success; the 'read' transactions
-> > > +return the read value, except for read_block, which returns the numb=
-er
-> > > +of values read. The block buffers need not be longer than 32 bytes. =
-=20
-> >=20
-> > I think the correct solution is to remove this paragraph entirely.
-> > Because the returned value does not depend on the kernel but on the
-> > libi2c version. Check this commit from 2012 in the i2c-tools repo:
-> >=20
-> > 330bba2 ("libi2c: Properly propagate real error codes on read errors")
-> >=20
-> > So, I think we should document it there. Jean, what do you think?
->=20
-> I would go further and move half of the document to i2c-tools. i2c-dev
-> itself only provides the ioctls. Everything on top of that is in libi2c
-> now, so the kernel documentation should point to libi2c and the
-> detailed documentation should come with libi2c.
->=20
-> So I guess I should review the whole document now to see what needs to
-> be updated, what should stay, and what should move.
-
-Maybe you can collaborate with Luca on this who just revamped a lot of
-the docs? Putting him on CC and marking this patch as 'Deferred'.
-
-
---6sX45UoQRIJXqkqR
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4TL5UACgkQFA3kzBSg
-KbaiNg//cY5iFBrA2+43SMBoEDIkgtFwG+ro0IKYEDqL9pYlSZVkhaFhDpK0J7U7
-tmsZzHlfrSAOr7Biq/QuMXRHvDp6kDTKCCIlUdXXT+GhquYIPDyCkwwt4Oa8nT1O
-666gN0OCI4ZahsEqNm22RD0E5sDLTZlAUz4DNQY94g95hG36sAeJRj2M+tC9pzaa
-4rZp06P+IJ8kqNEFZX13e3z3xsRwAG4wrBWzYrlNWsHkyCblz0svqTHxoAiSN+lX
-Byv569JFAOkPqEgNSPTeI0j4I7A3o1BIM/kAnqgfkfFHGEKW0nPScZtqQMqe+G4w
-zJ9tF3oNfBkpBX+4sfDrpIsPEmzEL2MUHDIQhyfwagf1DWVhcKF4OvM5kXDRf6By
-NBmTkf8eZIwoXTYOqgfBASmsx3cInCcam3aqczp1OxMQdixVqV1Xftdo6p7YCZJV
-v/+cCc1rZu/SODaWz6uh/wWBKceDmL2RJwft2oe8meYAJrtTRS63XHlJALrTF1vJ
-jHrKTjtReKUH36fNxNPn4w/0DMcySWlayk3G6R4vAs1eZte27eeyo0bl9z8uEAHi
-nutigACt9hQpP15kv4gz9ikp8c0sPnlBQ5lLzTvNMBMaJ806kuTQ0dp0UJlR/OR4
-KA5hXOBuvhyNXgoDlW3sehBEKEpOIKoabGBG5V2Meg5CzPFoyeA=
-=Wc1M
------END PGP SIGNATURE-----
-
---6sX45UoQRIJXqkqR--
+diff --git a/arch/arm/boot/dts/stm32mp15xx-dkx.dtsi b/arch/arm/boot/dts/stm32mp15xx-dkx.dtsi
+index f6672e87aef3..7f5fcb2c5b03 100644
+--- a/arch/arm/boot/dts/stm32mp15xx-dkx.dtsi
++++ b/arch/arm/boot/dts/stm32mp15xx-dkx.dtsi
+@@ -216,8 +216,9 @@
+ };
+ 
+ &i2c4 {
+-	pinctrl-names = "default";
++	pinctrl-names = "default", "sleep";
+ 	pinctrl-0 = <&i2c4_pins_a>;
++	pinctrl-1 = <&i2c4_pins_sleep_a>;
+ 	i2c-scl-rising-time-ns = <185>;
+ 	i2c-scl-falling-time-ns = <20>;
+ 	status = "okay";
+-- 
+2.7.4
