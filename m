@@ -1,56 +1,54 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: tiny-usb: Correct I2C fault codes.
-Date: Mon, 6 Jan 2020 15:42:02 +0100
-Message-ID: <20200106144202.GH1290@ninjato>
-References: <20191211233905.84056-1-christoph.muellner@theobroma-systems.com>
+Subject: Re: [PATCH v3 1/2] dt-bindings: I2C: Add X1000 bindings.
+Date: Mon, 6 Jan 2020 15:47:30 +0100
+Message-ID: <20200106144729.GI1290@ninjato>
+References: <1576570450-122556-1-git-send-email-zhouyanjie@wanyeetech.com>
+ <1576570450-122556-3-git-send-email-zhouyanjie@wanyeetech.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="xQR6quUbZ63TTuTU"
+        protocol="application/pgp-signature"; boundary="LG0Ll82vYr46+VA1"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20191211233905.84056-1-christoph.muellner@theobroma-systems.com>
+In-Reply-To: <1576570450-122556-3-git-send-email-zhouyanjie@wanyeetech.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: christoph.muellner@theobroma-systems.com
-Cc: Till Harbaum <till@harbaum.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: =?utf-8?B?5ZGo55Cw5p2wIChaaG91IFlhbmppZSk=?= <zhouyanjie@wanyeetech.com>
+Cc: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, robh+dt@kernel.org, paul.burton@mips.com, paulburton@kernel.org, mark.rutland@arm.com, paul@crapouillou.net, sernia.zhou@foxmail.com, zhenwenjin@gmail.com, 2374286503@qq.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---xQR6quUbZ63TTuTU
+--LG0Ll82vYr46+VA1
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 12, 2019 at 12:39:05AM +0100, christoph.muellner@theobroma-syst=
-ems.com wrote:
-> From: Christoph M=C3=BCllner <christoph.muellner@theobroma-systems.com>
+On Tue, Dec 17, 2019 at 04:14:09PM +0800, =E5=91=A8=E7=90=B0=E6=9D=B0 (Zhou=
+ Yanjie) wrote:
+> Add the I2C bindings for the X1000 Soc from Ingenic.
 >=20
-> This patch changes the I2C fault codes according to the specified
-> values in Documentation/i2c/fault-codes.
->=20
-> Signed-off-by: Christoph M=C3=BCllner <christoph.muellner@theobroma-syste=
-ms.com>
+> Signed-off-by: =E5=91=A8=E7=90=B0=E6=9D=B0 (Zhou Yanjie) <zhouyanjie@wany=
+eetech.com>
 
 Applied to for-next, thanks!
 
 
---xQR6quUbZ63TTuTU
+--LG0Ll82vYr46+VA1
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4TRzoACgkQFA3kzBSg
-KbbL2Q//Qb5v3P7mJ+ddIC3rR3s0ooCZpQheB+HTI7HZlwSp9E29Ij5LrDROZ5jy
-N80qNdMSOdEHxAlyaKJ41ZtJXj9nT+EQryimd+9TXpXcT89n5kdt5h/W068MNCw0
-9LTbCxm6gs6A7zAXMidNhF/xVMtE3/lxNSkiH+DXkmlnBZy6YO0yuaQlSvO8zi9X
-j95W/b25tUJfWDy0qTL5Iu/09ZM1s9H97o1Al+fM0fJ/I8kYOQRQEx8BYigz7xMc
-MK/qSyEMyGHWi1It27yt45wnbiJ+X+LrOx+6VhMF9DAgUs/j/IgBSURCCWU3f4m1
-m/sugJYRPA95UpafdIb0+LAe4O4wP8SgkWm/2/KxYd5Oi2L3vrAALT/pnLowST7N
-weXNWj3WUk61soOwuqYEmsMEghmhkuyzOQwVi3UaWcIGFQA2jeqpWtgoez++hfbG
-girKQ72aJS0Tf0S7sVEzfK8zGQ4vJIiMiHbCEcqwXZyvPLB12blIBaJqv7wmmG4N
-1M7W9VVdBxnZTvliUGnE46Xt1fDUETUUp+d969/fHxReeHQzSJXIzYkpk9ABAfC6
-xY3Y+9mqVrDiX8kxG4igJfyrVIPKuiZPCY5OWyl05n4T1E4CHILMu7gyOkSYBOUR
-1SlEseEbxg7LAY2hySlD3V2dtC5qLY5qvIz49/aBcJzH/1y8Das=
-=ulEv
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4TSIEACgkQFA3kzBSg
+KbZGtg//RNl7RfOle2TwNb8xGpFOYsd1Z0jAXLXoTcJ1Wh1vLsvbThveOqnaO/Db
+vCAru7Z0xNZwuGkty7WnBRdDS3Ztw5HCDHyIO9/69HAggwU1JQW3MiMvj5Xkmcdc
+NKk0CUCTXpZPn04gClHIctizPw0BnPk5i/d+vhVvI3ehpxEwjVH8Dg/s/Ru24la2
+3lXefTX2yJeIs2sEtqs8W5cr2hkyd6XH/7IuoZZ3VHzRUYwF+FDqaQ+DWbuihRay
+X71FACHEfS2+dv80liuNrypWPgynHwXzDsKLh1mjPre90p2MMF3FD7xD5QhdJKpu
+c4E5Jh3Wz3SGQzDrhNKW08zWyDCKD3kOlmmp4zMS+KRib6piVZX03F2QxIu/eLj8
+UA//Xlf5cm3sk/mPA8Qy6ymbs5inlDvnV7N1DdiyQYD+uKAFiGD3dMhetu1ZwLbj
+t/LQ/rFMdCzKMZLuIeU4uYz0yFDqh1Hzku2qkL6mynixE94OQetDLFmHBEb0A6IV
+DYkQ27oig2e6KyyTaiNhhk/gSVbH+73yNbuSXQn17/lpT13eNokduZdSWj+RCX3t
+gCmHynalK/eEr4ooGcJdnVRCHMdhtZUgIiv0tA7DHwi8AOVJBULg/V981ST9agFm
+d8IjxxExrJUNBeWh3GE8S+H6uEt5yWNnceLtlgaY+XaPJCZ1iZE=
+=0Q4c
 -----END PGP SIGNATURE-----
 
---xQR6quUbZ63TTuTU--
+--LG0Ll82vYr46+VA1--
