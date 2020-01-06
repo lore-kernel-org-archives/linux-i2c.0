@@ -1,157 +1,79 @@
-From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: [PATCH 21/26] docs: i2c: instantiating-devices: rearrange static instatiation
-Date: Sun,  5 Jan 2020 23:50:07 +0100
-Message-ID: <20200105225012.11701-21-luca@lucaceresoli.net>
-References: <20200105224006.10321-1-luca@lucaceresoli.net>
- <20200105225012.11701-1-luca@lucaceresoli.net>
+From: Dmitry Osipenko <digetx@gmail.com>
+Subject: [PATCH v3 0/9] NVIDIA Tegra I2C driver fixes and improvements
+Date: Mon,  6 Jan 2020 04:04:14 +0300
+Message-ID: <20200106010423.5890-1-digetx@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200105225012.11701-1-luca@lucaceresoli.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: Luca Ceresoli <luca@lucaceresoli.net>, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
+To: Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Mikko Perttunen <cyndis@kapsi.fi>, Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Among the "static" instantiation methods the "board file" method is
-described first. Move it as last, since it is being replaced by the other
-methods.
+Hello,
 
-Also fix subsubsection heading syntax and remove the "Method 1[abc]"
-prefix as the subsubsection structure clarifies the logical hierarchy.
+This patchset adds support for atomic transfers which are required for
+shutting down machine properly. Secondly, a (not)suspending I2C and some
+other things are fixed/improved by this small series as well. Please review
+and apply, thanks in advance!
 
-Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
----
- Documentation/i2c/instantiating-devices.rst | 98 ++++++++++++---------
- 1 file changed, 54 insertions(+), 44 deletions(-)
+Changelog:
 
-diff --git a/Documentation/i2c/instantiating-devices.rst b/Documentation/i2c/instantiating-devices.rst
-index 5debaafef64d..cbcafb36b417 100644
---- a/Documentation/i2c/instantiating-devices.rst
-+++ b/Documentation/i2c/instantiating-devices.rst
-@@ -9,54 +9,27 @@ reason, the kernel code must instantiate I2C devices explicitly. There are
- several ways to achieve this, depending on the context and requirements.
- 
- 
--Method 1a: Declare the I2C devices by bus number
--------------------------------------------------
-+Method 1: Declare the I2C devices statically
-+--------------------------------------------
- 
- This method is appropriate when the I2C bus is a system bus as is the case
--for many embedded systems. On such systems, each I2C bus has a number
--which is known in advance. It is thus possible to pre-declare the I2C
--devices which live on this bus. This is done with an array of struct
--i2c_board_info which is registered by calling i2c_register_board_info().
-+for many embedded systems. On such systems, each I2C bus has a number which
-+is known in advance. It is thus possible to pre-declare the I2C devices
-+which live on this bus.
- 
--Example (from omap2 h4)::
-+This information is provided to the kernel in a different way on different
-+architectures: device tree, ACPI or board files.
- 
--  static struct i2c_board_info h4_i2c_board_info[] __initdata = {
--	{
--		I2C_BOARD_INFO("isp1301_omap", 0x2d),
--		.irq		= OMAP_GPIO_IRQ(125),
--	},
--	{	/* EEPROM on mainboard */
--		I2C_BOARD_INFO("24c01", 0x52),
--		.platform_data	= &m24c01,
--	},
--	{	/* EEPROM on cpu card */
--		I2C_BOARD_INFO("24c01", 0x57),
--		.platform_data	= &m24c01,
--	},
--  };
--
--  static void __init omap_h4_init(void)
--  {
--	(...)
--	i2c_register_board_info(1, h4_i2c_board_info,
--			ARRAY_SIZE(h4_i2c_board_info));
--	(...)
--  }
--
--The above code declares 3 devices on I2C bus 1, including their respective
--addresses and custom data needed by their drivers. When the I2C bus in
--question is registered, the I2C devices will be instantiated automatically
--by i2c-core.
-+When the I2C bus in question is registered, the I2C devices will be
-+instantiated automatically by i2c-core. The devices will be automatically
-+unbound and destroyed when the I2C bus they sit on goes away (if ever).
- 
--The devices will be automatically unbound and destroyed when the I2C bus
--they sit on goes away (if ever.)
- 
-+Declare the I2C devices via devicetree
-+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- 
--Method 1b: Declare the I2C devices via devicetree
---------------------------------------------------
--
--This method has the same implications as method 1a. The declaration of I2C
--devices is here done via devicetree as subnodes of the master controller.
-+On platforms using devicetree the declaration of I2C devices is done in
-+subnodes of the master controller.
- 
- Example::
- 
-@@ -81,14 +54,51 @@ Here, two devices are attached to the bus using a speed of 100kHz. For
- additional properties which might be needed to set up the device, please refer
- to its devicetree documentation in Documentation/devicetree/bindings/.
- 
--
--Method 1c: Declare the I2C devices via ACPI
---------------------------------------------
-+Declare the I2C devices via ACPI
-+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- 
- ACPI can also describe I2C devices. There is special documentation for this
- which is currently located at :doc:`../firmware-guide/acpi/enumeration` .
- 
- 
-+Declare the I2C devices in board files
-+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+
-+In many embedded architectures devicetree has replaced the old hardware
-+description based on board files, but the latter are still used in old
-+code. Instantiating I2C devices via board files is done with an array of
-+struct i2c_board_info which is registered by calling
-+i2c_register_board_info().
-+
-+Example (from omap2 h4)::
-+
-+  static struct i2c_board_info h4_i2c_board_info[] __initdata = {
-+	{
-+		I2C_BOARD_INFO("isp1301_omap", 0x2d),
-+		.irq		= OMAP_GPIO_IRQ(125),
-+	},
-+	{	/* EEPROM on mainboard */
-+		I2C_BOARD_INFO("24c01", 0x52),
-+		.platform_data	= &m24c01,
-+	},
-+	{	/* EEPROM on cpu card */
-+		I2C_BOARD_INFO("24c01", 0x57),
-+		.platform_data	= &m24c01,
-+	},
-+  };
-+
-+  static void __init omap_h4_init(void)
-+  {
-+	(...)
-+	i2c_register_board_info(1, h4_i2c_board_info,
-+			ARRAY_SIZE(h4_i2c_board_info));
-+	(...)
-+  }
-+
-+The above code declares 3 devices on I2C bus 1, including their respective
-+addresses and custom data needed by their drivers.
-+
-+
- Method 2: Instantiate the devices explicitly
- --------------------------------------------
- 
+v3: The "Prevent interrupt triggering after transfer timeout" and "Support
+    atomic transfers" patches got extra very minor improvements. The
+    completion now is passed directly to tegra_i2c_poll_completion_timeout(),
+    for consistency.
+
+    Added two new patches that firm up DMA transfer handling:
+
+      i2c: tegra: Always terminate DMA transfer
+      i2c: tegra: Check DMA completion status in addition to left time
+
+v2: The series is renamed from "Tegra I2C: Support atomic transfers and
+    correct suspend/resume" to "NVIDIA Tegra I2C driver fixes and
+    improvements" because it now contains some more various changes.
+
+    New patches in v2:
+
+      i2c: tegra: Correct unwinding order on driver's probe error
+      i2c: tegra: Prevent interrupt triggering after transfer timeout
+      i2c: tegra: Use relaxed versions of readl/writel
+
+    The "Rename I2C_PIO_MODE_MAX_LEN to I2C_PIO_MODE_PREFERRED_LEN" got an
+    improved wording for the code's comment to I2C_PIO_MODE_PREFERRED_LEN.
+
+    The "Support atomic transfers" also got some very minor tuning, like
+    s/in_interrupt()/i2c_dev->is_curr_atomic_xfer/ in dvc_writel() that was
+    missed in v1.
+
+v1: The "i2c: tegra: Support atomic transfers" previously was sent out as
+    a separate patch, but later I spotted that suspend/resume doesn't
+    work properly. The "i2c: tegra: Fix suspending in active runtime PM
+    state" patch depends on the atomic patch because there is a need to
+    active IRQ-safe mode for the runtime PM by both patches.
+
+    I fixed a missed doc-comment of the newly added "is_curr_atomic_xfer"
+    structure field and added additional comment that explains why IRQ needs
+    to be disabled for the atomic transfer in the "Support atomic transfers"
+    patch.
+
+    Lastly, I added a minor "i2c: tegra: Rename .." patch that helps to
+    follow driver's code.
+
+Dmitry Osipenko (9):
+  i2c: tegra: Fix suspending in active runtime PM state
+  i2c: tegra: Properly disable runtime PM on driver's probe error
+  i2c: tegra: Prevent interrupt triggering after transfer timeout
+  i2c: tegra: Support atomic transfers
+  i2c: tegra: Rename I2C_PIO_MODE_MAX_LEN to I2C_PIO_MODE_PREFERRED_LEN
+  i2c: tegra: Use relaxed versions of readl/writel
+  clk: tegra: Fix double-free in tegra_clk_init()
+  i2c: tegra: Always terminate DMA transfer
+  i2c: tegra: Check DMA completion status in addition to left time
+
+ drivers/clk/tegra/clk.c        |   4 +-
+ drivers/i2c/busses/i2c-tegra.c | 216 ++++++++++++++++++++++-----------
+ 2 files changed, 147 insertions(+), 73 deletions(-)
+
 -- 
-2.24.1
+2.24.0
