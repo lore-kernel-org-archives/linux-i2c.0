@@ -1,7 +1,7 @@
 From: Khouloud Touil <ktouil@baylibre.com>
-Subject: [PATCH v4 2/5] nvmem: add support for the write-protect pin
-Date: Tue,  7 Jan 2020 10:29:19 +0100
-Message-ID: <20200107092922.18408-3-ktouil@baylibre.com>
+Subject: [PATCH v4 5/5] eeprom: at24: remove the write-protect pin support
+Date: Tue,  7 Jan 2020 10:29:22 +0100
+Message-ID: <20200107092922.18408-6-ktouil@baylibre.com>
 References: <20200107092922.18408-1-ktouil@baylibre.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200107092922.18408-1-ktouil@baylibre.com>
@@ -10,120 +10,71 @@ To: bgolaszewski@baylibre.com, robh+dt@kernel.org, mark.rutland@arm.com, sriniva
 Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linus.walleij@linaro.org, Khouloud Touil <ktouil@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The write-protect pin handling looks like a standard property that
-could benefit other users if available in the core nvmem framework.
+NVMEM framework is an interface for the at24 EEPROMs as well as for
+other drivers, instead of passing the wp-gpios over the different
+drivers each time, it would be better to pass it over the NVMEM
+subsystem once and for all.
 
-Instead of modifying all the memory drivers to check this pin, make
-the NVMEM subsystem check if the write-protect GPIO being passed
-through the nvmem_config or defined in the device tree and pull it
-low whenever writing to the memory.
-
-There was a suggestion for introducing the gpiodesc from pdata, but
-as pdata is already removed it could be replaced by adding it to
-nvmem_config.
-
-Reference: https://lists.96boards.org/pipermail/dev/2018-August/001056.html
+Removing the support for the write-protect pin after adding it to the
+NVMEM subsystem.
 
 Signed-off-by: Khouloud Touil <ktouil@baylibre.com>
 Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Acked-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 ---
- drivers/nvmem/core.c           | 19 +++++++++++++++++--
- drivers/nvmem/nvmem.h          |  2 ++
- include/linux/nvmem-provider.h |  3 +++
- 3 files changed, 22 insertions(+), 2 deletions(-)
+ drivers/misc/eeprom/at24.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 9f1ee9c766ec..3e1c94c4eee8 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -15,6 +15,7 @@
- #include <linux/module.h>
- #include <linux/nvmem-consumer.h>
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 0681d5fdd538..8fce49a6d9cd 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -22,7 +22,6 @@
  #include <linux/nvmem-provider.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/of.h>
- #include <linux/slab.h>
- #include "nvmem.h"
-@@ -54,8 +55,14 @@ static int nvmem_reg_read(struct nvmem_device *nvmem, unsigned int offset,
- static int nvmem_reg_write(struct nvmem_device *nvmem, unsigned int offset,
- 			   void *val, size_t bytes)
- {
--	if (nvmem->reg_write)
--		return nvmem->reg_write(nvmem->priv, offset, val, bytes);
-+	int ret;
-+
-+	if (nvmem->reg_write) {
-+		gpiod_set_value_cansleep(nvmem->wp_gpio, 0);
-+		ret = nvmem->reg_write(nvmem->priv, offset, val, bytes);
-+		gpiod_set_value_cansleep(nvmem->wp_gpio, 1);
-+		return ret;
-+	}
+ #include <linux/regmap.h>
+ #include <linux/pm_runtime.h>
+-#include <linux/gpio/consumer.h>
  
- 	return -EINVAL;
- }
-@@ -338,6 +345,14 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 		kfree(nvmem);
- 		return ERR_PTR(rval);
+ /* Address pointer is 16 bit. */
+ #define AT24_FLAG_ADDR16	BIT(7)
+@@ -89,8 +88,6 @@ struct at24_data {
+ 
+ 	struct nvmem_device *nvmem;
+ 
+-	struct gpio_desc *wp_gpio;
+-
+ 	/*
+ 	 * Some chips tie up multiple I2C addresses; dummy devices reserve
+ 	 * them for us, and we'll use them with SMBus calls.
+@@ -457,12 +454,10 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
+ 	 * from this host, but not from other I2C masters.
+ 	 */
+ 	mutex_lock(&at24->lock);
+-	gpiod_set_value_cansleep(at24->wp_gpio, 0);
+ 
+ 	while (count) {
+ 		ret = at24_regmap_write(at24, buf, off, count);
+ 		if (ret < 0) {
+-			gpiod_set_value_cansleep(at24->wp_gpio, 1);
+ 			mutex_unlock(&at24->lock);
+ 			pm_runtime_put(dev);
+ 			return ret;
+@@ -472,7 +467,6 @@ static int at24_write(void *priv, unsigned int off, void *val, size_t count)
+ 		count -= ret;
  	}
-+	if (config->wp_gpio)
-+		nvmem->wp_gpio = config->wp_gpio;
-+	else
-+		nvmem->wp_gpio = gpiod_get_optional(config->dev, "wp",
-+						    GPIOD_OUT_HIGH);
-+	if (IS_ERR(nvmem->wp_gpio))
-+		return PTR_ERR(nvmem->wp_gpio);
-+
  
- 	kref_init(&nvmem->refcnt);
- 	INIT_LIST_HEAD(&nvmem->cells);
-diff --git a/drivers/nvmem/nvmem.h b/drivers/nvmem/nvmem.h
-index eb8ed7121fa3..be0d66d75c8a 100644
---- a/drivers/nvmem/nvmem.h
-+++ b/drivers/nvmem/nvmem.h
-@@ -9,6 +9,7 @@
- #include <linux/list.h>
- #include <linux/nvmem-consumer.h>
- #include <linux/nvmem-provider.h>
-+#include <linux/gpio/consumer.h>
+-	gpiod_set_value_cansleep(at24->wp_gpio, 1);
+ 	mutex_unlock(&at24->lock);
  
- struct nvmem_device {
- 	struct module		*owner;
-@@ -26,6 +27,7 @@ struct nvmem_device {
- 	struct list_head	cells;
- 	nvmem_reg_read_t	reg_read;
- 	nvmem_reg_write_t	reg_write;
-+	struct gpio_desc	*wp_gpio;
- 	void *priv;
- };
+ 	pm_runtime_put(dev);
+@@ -662,9 +656,6 @@ static int at24_probe(struct i2c_client *client)
+ 	at24->client[0].client = client;
+ 	at24->client[0].regmap = regmap;
  
-diff --git a/include/linux/nvmem-provider.h b/include/linux/nvmem-provider.h
-index fe051323be0a..6d6f8e5d24c9 100644
---- a/include/linux/nvmem-provider.h
-+++ b/include/linux/nvmem-provider.h
-@@ -11,6 +11,7 @@
+-	at24->wp_gpio = devm_gpiod_get_optional(dev, "wp", GPIOD_OUT_HIGH);
+-	if (IS_ERR(at24->wp_gpio))
+-		return PTR_ERR(at24->wp_gpio);
  
- #include <linux/err.h>
- #include <linux/errno.h>
-+#include <linux/gpio/consumer.h>
- 
- struct nvmem_device;
- struct nvmem_cell_info;
-@@ -45,6 +46,7 @@ enum nvmem_type {
-  * @word_size:	Minimum read/write access granularity.
-  * @stride:	Minimum read/write access stride.
-  * @priv:	User context passed to read/write callbacks.
-+ * @wp-gpio:   Write protect pin
-  *
-  * Note: A default "nvmem<id>" name will be assigned to the device if
-  * no name is specified in its configuration. In such case "<id>" is
-@@ -58,6 +60,7 @@ struct nvmem_config {
- 	const char		*name;
- 	int			id;
- 	struct module		*owner;
-+	struct gpio_desc	*wp_gpio;
- 	const struct nvmem_cell_info	*cells;
- 	int			ncells;
- 	enum nvmem_type		type;
+ 	writable = !(flags & AT24_FLAG_READONLY);
+ 	if (writable) {
 -- 
 2.17.1
