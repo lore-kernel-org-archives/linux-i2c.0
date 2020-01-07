@@ -1,61 +1,42 @@
-From: <Codrin.Ciubotariu@microchip.com>
-Subject: Re: [PATCH v2 4/6] ARM: at91/dt: sama5d3: add i2c gpio pinctrl
-Date: Mon, 6 Jan 2020 16:58:39 +0000
-Message-ID: <91f1362e-590d-4592-bc16-5d2393f73199@microchip.com>
-References: <20200103094821.13185-1-codrin.ciubotariu@microchip.com>
- <20200103094821.13185-5-codrin.ciubotariu@microchip.com>
- <e22772f8-9e6d-002d-98d7-414136a32439@axentia.se>
+From: Eric Biggers <ebiggers@kernel.org>
+Subject: Re: [PATCH] treewide: remove redundent IS_ERR() before error code
+ check
+Date: Mon, 6 Jan 2020 21:15:21 -0800
+Message-ID: <20200107051521.GF705@sol.localdomain>
+References: <20200106045833.1725-1-masahiroy@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e22772f8-9e6d-002d-98d7-414136a32439@axentia.se>
-Content-Language: en-US
-Content-ID: <25D5C0D394FFCB4AB26D9D6D5890582B@namprd11.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: peda@axentia.se, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: kamel.bouhara@bootlin.com, wsa@the-dreams.de, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, Ludovic.Desroches@microchip.com, robh@kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200106045833.1725-1-masahiroy@kernel.org>
+Sender: netdev-owner@vger.kernel.org
+To: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Julia Lawall <julia.lawall@lip6.fr>, linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org, linux-crypto@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, devicetree@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMDUuMDEuMjAyMCAwMDozOSwgUGV0ZXIgUm9zaW4gd3JvdGU6DQo+IE9uIDIwMjAtMDEtMDMg
-MTA6NDksIENvZHJpbi5DaXVib3Rhcml1QG1pY3JvY2hpcC5jb20gd3JvdGU6DQo+PiBGcm9tOiBL
-YW1lbCBCb3VoYXJhIDxrYW1lbC5ib3VoYXJhQGJvb3RsaW4uY29tPg0KPj4NCj4+IEFkZCB0aGUg
-aTJjIGdwaW8gcGluY3RybHMgdG8gc3VwcG9ydCB0aGUgaTJjIGJ1cyByZWNvdmVyeQ0KPj4NCj4+
-IFNpZ25lZC1vZmYtYnk6IEthbWVsIEJvdWhhcmEgPGthbWVsLmJvdWhhcmFAYm9vdGxpbi5jb20+
-DQo+PiAtLS0NCj4+DQo+PiBDaGFuZ2VzIGluIHYyOg0KPj4gICAtIG5vbmU7DQo+Pg0KPj4gICBh
-cmNoL2FybS9ib290L2R0cy9zYW1hNWQzLmR0c2kgfCAzMyArKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKystLS0NCj4+ICAgMSBmaWxlIGNoYW5nZWQsIDMwIGluc2VydGlvbnMoKyksIDMgZGVs
-ZXRpb25zKC0pDQo+Pg0KPiANCj4gKnNuaXAqDQo+IA0KPj4gQEAgLTYzOSw2ICs2NDgsMTIgQEAN
-Cj4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICA8QVQ5MV9QSU9BIDMwIEFUOTFfUEVSSVBIX0EgQVQ5MV9QSU5DVFJMX05PTkUgICAvKiBQQTMw
-IHBlcmlwaCBBIFRXRDAgcGluLCBjb25mbGljdHMgd2l0aCBVUlhEMSwgSVNJX1ZTWU5DICovDQo+
-PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-IEFUOTFfUElPQSAzMSBBVDkxX1BFUklQSF9BIEFUOTFfUElOQ1RSTF9OT05FPjsgLyogUEEzMSBw
-ZXJpcGggQSBUV0NLMCBwaW4sIGNvbmZsaWN0cyB3aXRoIFVUWEQxLCBJU0lfSFNZTkMgKi8NCj4+
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIH07DQo+PiArDQo+PiArICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHBpbmN0cmxfaTJjMF9ncGlvOiBpMmMw
-LWdwaW8gew0KPj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-IGF0bWVsLHBpbnMgPQ0KPj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgPEFUOTFfUElPQSAzMCBBVDkxX1BFUklQSF9HUElPIEFUOTFfUElOQ1RS
-TF9QVUxMX1VQDQo+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgQVQ5MV9QSU9BIDMxIEFUOTFfUEVSSVBIX0dQSU8gQVQ5MV9QSU5DVFJMX1BV
-TExfVVA+Ow0KPj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB9Ow0KPiAN
-Cj4gSSdtIGN1cmlvdXMsIGJ1dCB3aHkgYXJlIHB1bGwtdXBzIHN1ZGRlbmx5IG5lZWRlZCBqdXN0
-IGJlY2F1c2UgdGhlIHBpbnMgYXJlDQo+IHVzZWQgZm9yIEdQSU8gcmVjb3Zlcnk/IFdoeSBhcmUg
-cHVsbC11cHMgbm90IG5lZWRlZCB3aGVuIHRoZSBwaW5zIGFyZSB1c2VkDQo+IGJ5IHRoZSBJMkMg
-cGVyaXBoZXJhbCBkZXZpY2Uocyk/DQo+IA0KPiBHaXZlbiBmaWd1cmUgMjctMiAiSS9PIExpbmUg
-Q29udHJvbCBMb2dpYyIgaW4gbXkgU0FNQTVEMyBkYXRhc2hlZXQsIEkgc2VlDQo+IG5vIGRpZmZl
-cmVuY2UgYXMgdG8gaG93IGFuZCB3aHkgdGhlIHB1bGwtdXBzIGFyZSBhcHBsaWVkIGRlcGVuZGlu
-ZyBvbiB3aGF0DQo+IHRoZSBjdXJyZW50IGZ1bmN0aW9uIG9mIHRoZSBwaW4gaXMuIFNvLCBpZiB0
-aGUgSTJDIGJ1cyB3b3JrcyB3L28gcHVsbHMsIGJ1cw0KPiByZWNvdmVyeSB1c2luZyBHUElPIG11
-c3QgYWxzbyB3b3JrIHcvbyBwdWxscy4NCj4gDQo+IEkuZS4gdGhlIGRldmljZSB0cmVlIHJlcXVp
-cmVzIHlvdSB0byBoYXZlIGV4dGVybmFsIHB1bGwtdXBzIG9uIHRoZSBJMkMgYnVzDQo+IGFueXdh
-eSwgc28gd2h5IGJvdGhlciB3aXRoIGludGVybmFsIHB1bGwtdXBzIGZvciB0aGUgcmVjb3Zlcnkg
-Y2FzZT8NCj4gDQo+IENoYW5naW5nIHB1bGwtdXAgc2V0dGluZ3MganVzdCBmb3IgcmVjb3Zlcnkg
-ZmVlbHMgbGlrZSBzb21ldGhpbmcgdGhhdCB3aWxsDQo+IGluZXZpdGFibHkgY3JlYXRlIGhhcmQg
-dG8gZGVidWcgc3VycHJpc2VzIGF0IHRoZSBsZWFzdCBvcHBvcnR1bmUgdGltZS4uLg0KPiANCj4g
-T3IgYW0gSSBtaXNzaW5nIHNvbWV0aGluZz8NCj4gDQo+IChJJ20gZm9jdXNpbmcgb24gU0FNQTVE
-MyBzaW5jZSB0aGF0IGlzIHdoYXQgSSBoYXBwZW4gdG8gd29yayB3aXRoLA0KPiAgIGJ1dCB0aGUg
-c2FtZSBxdWVzdGlvbiBhcHBlYXJzIHRvIGFwcGx5IGZvciBTQU1BNUQyIGFuZCBTQU1BNUQ0Li4u
-KQ0KDQpJIGRvbid0IHRoaW5rIHdlIG5lZWQgdGhlIHB1bGwtdXBzLiBJIHdpbGwgcmVtb3ZlIHRo
-ZW0gaW4gdjMuDQoNClRoYW5rcyBhbmQgYmVzdCByZWdhcmRzLA0KQ29kcmluDQo=
+On Mon, Jan 06, 2020 at 01:58:33PM +0900, Masahiro Yamada wrote:
+> 'PTR_ERR(p) == -E*' is a stronger condition than IS_ERR(p).
+> Hence, IS_ERR(p) is unneeded.
+> 
+> The semantic patch that generates this commit is as follows:
+> 
+> // <smpl>
+> @@
+> expression ptr;
+> constant error_code;
+> @@
+> -IS_ERR(ptr) && (PTR_ERR(ptr) == - error_code)
+> +PTR_ERR(ptr) == - error_code
+> // </smpl>
+> 
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+
+Any reason for not doing instead:
+
+	ptr == ERR_PTR(-error_code)
+
+?  To me it seems weird to use PTR_ERR() on non-error pointers.  I even had to
+double check that it returns a 'long' and not an 'int'.  (If it returned an
+'int', it wouldn't work...)
+
+- Eric
