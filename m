@@ -1,38 +1,38 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v4 1/5] dt-bindings: nvmem: new optional property wp-gpios
-Date: Tue, 7 Jan 2020 10:50:48 +0100
-Message-ID: <CACRpkdZQUzqzHovO6qb7ExGFraTx8ovYgeAaYKADhZPH86hKBw@mail.gmail.com>
-References: <20200107092922.18408-1-ktouil@baylibre.com> <20200107092922.18408-2-ktouil@baylibre.com>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [PATCH] treewide: remove redundent IS_ERR() before error code check
+Date: Tue, 7 Jan 2020 10:52:57 +0100
+Message-ID: <CAJZ5v0jBEq+GiTP8V4ZzQvR9qbSBdEz_P8EZNX7yNZMzTjB86Q@mail.gmail.com>
+References: <20200106045833.1725-1-masahiroy@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200107092922.18408-2-ktouil@baylibre.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Khouloud Touil <ktouil@baylibre.com>
-Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, baylibre-upstreaming@groups.io, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" <devicetree@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200106045833.1725-1-masahiroy@kernel.org>
+Sender: netdev-owner@vger.kernel.org
+To: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Julia Lawall <julia.lawall@lip6.fr>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-clk <linux-clk@vger.kernel.org>, linux-crypto@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c <linux-i2c@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-mtd@lists.infradead.org, netdev <netdev@vger.kernel.org>, "moderated list:SOUND - SOC LAYER / DYNAMIC AUDIO POWER MANAGEM..." <alsa-devel@alsa-project.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jan 7, 2020 at 10:29 AM Khouloud Touil <ktouil@baylibre.com> wrote:
+On Mon, Jan 6, 2020 at 6:11 AM Masahiro Yamada <masahiroy@kernel.org> wrote:
+>
+> 'PTR_ERR(p) == -E*' is a stronger condition than IS_ERR(p).
+> Hence, IS_ERR(p) is unneeded.
+>
+> The semantic patch that generates this commit is as follows:
+>
+> // <smpl>
+> @@
+> expression ptr;
+> constant error_code;
+> @@
+> -IS_ERR(ptr) && (PTR_ERR(ptr) == - error_code)
+> +PTR_ERR(ptr) == - error_code
+> // </smpl>
+>
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> ---
 
-> Several memories have a write-protect pin, that when pulled high, it
-> blocks the write operation.
->
-> On some boards, this pin is connected to a GPIO and pulled high by
-> default, which forces the user to manually change its state before
-> writing.
->
-> Instead of modifying all the memory drivers to check this pin, make
-> the NVMEM subsystem check if the write-protect GPIO being passed
-> through the nvmem_config or defined in the device tree and pull it
-> low whenever writing to the memory.
->
-> Add a new optional property to the device tree binding document, which
-> allows to specify the GPIO line to which the write-protect pin is
-> connected.
->
-> Signed-off-by: Khouloud Touil <ktouil@baylibre.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+for the acpi/scan.c change, but there seems to be a typo in the subject:
 
-Yours,
-Linus Walleij
+s/redundent/redundant/
