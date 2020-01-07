@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 09/12] i2c: i2c-core-base: convert to use i2c_new_client_device()
-Date: Tue,  7 Jan 2020 18:47:43 +0100
-Message-ID: <20200107174748.9616-10-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 12/12] docs: i2c: use the new API in 'writing-clients'
+Date: Tue,  7 Jan 2020 18:47:46 +0100
+Message-ID: <20200107174748.9616-13-wsa+renesas@sang-engineering.com>
 References: <20200107174748.9616-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,53 +12,63 @@ To: linux-i2c@vger.kernel.org
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Move away from the deprecated API and return the shiny new ERRPTR where
-useful.
+i2c_new_device is deprecated, use i2c_new_client_device. Also, align a
+paragraph while here.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
-Build tested only.
+ Documentation/i2c/writing-clients.rst | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
- drivers/i2c/i2c-core-base.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 9f8dcd3f8385..6c2007a015f2 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -824,8 +824,8 @@ EXPORT_SYMBOL_GPL(i2c_new_device);
+diff --git a/Documentation/i2c/writing-clients.rst b/Documentation/i2c/writing-clients.rst
+index ced309b5e0cc..0336909ca01b 100644
+--- a/Documentation/i2c/writing-clients.rst
++++ b/Documentation/i2c/writing-clients.rst
+@@ -175,8 +175,8 @@ Device Creation
+ If you know for a fact that an I2C device is connected to a given I2C bus,
+ you can instantiate that device by simply filling an i2c_board_info
+ structure with the device address and driver name, and calling
+-i2c_new_device().  This will create the device, then the driver core will
+-take care of finding the right driver and will call its probe() method.
++i2c_new_client_device().  This will create the device, then the driver core
++will take care of finding the right driver and will call its probe() method.
+ If a driver supports different device types, you can specify the type you
+ want using the type field.  You can also specify an IRQ and platform data
+ if needed.
+@@ -186,14 +186,14 @@ don't know the exact address it uses.  This happens on TV adapters for
+ example, where the same driver supports dozens of slightly different
+ models, and I2C device addresses change from one model to the next.  In
+ that case, you can use the i2c_new_scanned_device() variant, which is
+-similar to i2c_new_device(), except that it takes an additional list of
+-possible I2C addresses to probe.  A device is created for the first
++similar to i2c_new_client_device(), except that it takes an additional list
++of possible I2C addresses to probe.  A device is created for the first
+ responsive address in the list.  If you expect more than one device to be
+ present in the address range, simply call i2c_new_scanned_device() that
+ many times.
+ 
+-The call to i2c_new_device() or i2c_new_scanned_device() typically happens
+-in the I2C bus driver. You may want to save the returned i2c_client
++The call to i2c_new_client_device() or i2c_new_scanned_device() typically
++happens in the I2C bus driver. You may want to save the returned i2c_client
+ reference for later use.
  
  
- /**
-- * i2c_unregister_device - reverse effect of i2c_new_device()
-- * @client: value returned from i2c_new_device()
-+ * i2c_unregister_device - reverse effect of i2c_new_*_device()
-+ * @client: value returned from i2c_new_*_device()
-  * Context: can sleep
-  */
- void i2c_unregister_device(struct i2c_client *client)
-@@ -1171,9 +1171,8 @@ static void i2c_scan_static_board_info(struct i2c_adapter *adapter)
+@@ -236,11 +236,11 @@ possible.
+ Device Deletion
+ ---------------
  
- 	down_read(&__i2c_board_lock);
- 	list_for_each_entry(devinfo, &__i2c_board_list, list) {
--		if (devinfo->busnum == adapter->nr
--				&& !i2c_new_device(adapter,
--						&devinfo->board_info))
-+		if (devinfo->busnum == adapter->nr &&
-+		    IS_ERR(i2c_new_client_device(adapter, &devinfo->board_info)))
- 			dev_err(&adapter->dev,
- 				"Can't create device at 0x%02x\n",
- 				devinfo->board_info.addr);
-@@ -2160,8 +2159,8 @@ static int i2c_detect_address(struct i2c_client *temp_client,
+-Each I2C device which has been created using i2c_new_device() or
+-i2c_new_scanned_device() can be unregistered by calling
++Each I2C device which has been created using i2c_new_client_device()
++or i2c_new_scanned_device() can be unregistered by calling
+ i2c_unregister_device().  If you don't call it explicitly, it will be
+-called automatically before the underlying I2C bus itself is removed, as a
+-device can't survive its parent in the device driver model.
++called automatically before the underlying I2C bus itself is removed,
++as a device can't survive its parent in the device driver model.
  
- 		dev_dbg(&adapter->dev, "Creating %s at 0x%02x\n",
- 			info.type, info.addr);
--		client = i2c_new_device(adapter, &info);
--		if (client)
-+		client = i2c_new_client_device(adapter, &info);
-+		if (!IS_ERR(client))
- 			list_add_tail(&client->detected, &driver->clients);
- 		else
- 			dev_err(&adapter->dev, "Failed creating %s at 0x%02x\n",
+ 
+ Initializing the driver
 -- 
 2.20.1
