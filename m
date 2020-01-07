@@ -1,7 +1,7 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 11/12] docs: i2c: use the new API in 'instantiating-devices.rst'
-Date: Tue,  7 Jan 2020 18:47:45 +0100
-Message-ID: <20200107174748.9616-12-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 09/12] i2c: i2c-core-base: convert to use i2c_new_client_device()
+Date: Tue,  7 Jan 2020 18:47:43 +0100
+Message-ID: <20200107174748.9616-10-wsa+renesas@sang-engineering.com>
 References: <20200107174748.9616-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,52 +12,53 @@ To: linux-i2c@vger.kernel.org
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-i2c_new_device is deprecated, use i2c_new_client_device.
+Move away from the deprecated API and return the shiny new ERRPTR where
+useful.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- Documentation/i2c/instantiating-devices.rst | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Build tested only.
 
-diff --git a/Documentation/i2c/instantiating-devices.rst b/Documentation/i2c/instantiating-devices.rst
-index 875ebe9e78e3..b7b90b1b82f9 100644
---- a/Documentation/i2c/instantiating-devices.rst
-+++ b/Documentation/i2c/instantiating-devices.rst
-@@ -98,7 +98,7 @@ tuner, a video decoder, an audio decoder, etc. usually connected to the
- main chip by the means of an I2C bus. You won't know the number of the I2C
- bus in advance, so the method 1 described above can't be used. Instead,
- you can instantiate your I2C devices explicitly. This is done by filling
--a struct i2c_board_info and calling i2c_new_device().
-+a struct i2c_board_info and calling i2c_new_client_device().
- 
- Example (from the sfe4001 network driver)::
- 
-@@ -110,7 +110,7 @@ Example (from the sfe4001 network driver)::
-   {
- 	(...)
- 	efx->board_info.hwmon_client =
--		i2c_new_device(&efx->i2c_adap, &sfe4001_hwmon_info);
-+		i2c_new_client_device(&efx->i2c_adap, &sfe4001_hwmon_info);
- 
- 	(...)
-   }
-@@ -123,7 +123,7 @@ present or not (for example for an optional feature which is not present
- on cheap variants of a board but you have no way to tell them apart), or
- it may have different addresses from one board to the next (manufacturer
- changing its design without notice). In this case, you can call
--i2c_new_scanned_device() instead of i2c_new_device().
-+i2c_new_scanned_device() instead of i2c_new_client_device().
- 
- Example (from the nxp OHCI driver)::
- 
-@@ -152,7 +152,7 @@ simply gives up.
- 
- The driver which instantiated the I2C device is responsible for destroying
- it on cleanup. This is done by calling i2c_unregister_device() on the
--pointer that was earlier returned by i2c_new_device() or
-+pointer that was earlier returned by i2c_new_client_device() or
- i2c_new_scanned_device().
+ drivers/i2c/i2c-core-base.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 9f8dcd3f8385..6c2007a015f2 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -824,8 +824,8 @@ EXPORT_SYMBOL_GPL(i2c_new_device);
  
  
+ /**
+- * i2c_unregister_device - reverse effect of i2c_new_device()
+- * @client: value returned from i2c_new_device()
++ * i2c_unregister_device - reverse effect of i2c_new_*_device()
++ * @client: value returned from i2c_new_*_device()
+  * Context: can sleep
+  */
+ void i2c_unregister_device(struct i2c_client *client)
+@@ -1171,9 +1171,8 @@ static void i2c_scan_static_board_info(struct i2c_adapter *adapter)
+ 
+ 	down_read(&__i2c_board_lock);
+ 	list_for_each_entry(devinfo, &__i2c_board_list, list) {
+-		if (devinfo->busnum == adapter->nr
+-				&& !i2c_new_device(adapter,
+-						&devinfo->board_info))
++		if (devinfo->busnum == adapter->nr &&
++		    IS_ERR(i2c_new_client_device(adapter, &devinfo->board_info)))
+ 			dev_err(&adapter->dev,
+ 				"Can't create device at 0x%02x\n",
+ 				devinfo->board_info.addr);
+@@ -2160,8 +2159,8 @@ static int i2c_detect_address(struct i2c_client *temp_client,
+ 
+ 		dev_dbg(&adapter->dev, "Creating %s at 0x%02x\n",
+ 			info.type, info.addr);
+-		client = i2c_new_device(adapter, &info);
+-		if (client)
++		client = i2c_new_client_device(adapter, &info);
++		if (!IS_ERR(client))
+ 			list_add_tail(&client->detected, &driver->clients);
+ 		else
+ 			dev_err(&adapter->dev, "Failed creating %s at 0x%02x\n",
 -- 
 2.20.1
