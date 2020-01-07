@@ -1,43 +1,50 @@
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 06/12] i2c: taos-evm: convert to use i2c_new_client_device()
-Date: Tue,  7 Jan 2020 18:47:40 +0100
-Message-ID: <20200107174748.9616-7-wsa+renesas@sang-engineering.com>
+From: Peter Korsgaard <peter@korsgaard.com>
+Subject: Re: [PATCH 04/12] i2c: ocores: convert to use i2c_new_client_device()
+Date: Tue, 07 Jan 2020 19:32:50 +0100
+Message-ID: <87muazjewd.fsf@dell.be.48ers.dk>
 References: <20200107174748.9616-1-wsa+renesas@sang-engineering.com>
+        <20200107174748.9616-5-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200107174748.9616-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20200107174748.9616-5-wsa+renesas@sang-engineering.com> (Wolfram
+        Sang's message of "Tue, 7 Jan 2020 18:47:38 +0100")
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Move away from the deprecated API and return the shiny new ERRPTR where
-useful.
+>>>>> "Wolfram" == Wolfram Sang <wsa+renesas@sang-engineering.com> writes:
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
-Build tested only.
+ > Move away from the deprecated API and return the shiny new ERRPTR where
+ > useful.
 
- drivers/i2c/busses/i2c-taos-evm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-diff --git a/drivers/i2c/busses/i2c-taos-evm.c b/drivers/i2c/busses/i2c-taos-evm.c
-index 0bff3f3a8779..b4050f5b6746 100644
---- a/drivers/i2c/busses/i2c-taos-evm.c
-+++ b/drivers/i2c/busses/i2c-taos-evm.c
-@@ -49,10 +49,10 @@ static struct i2c_client *taos_instantiate_device(struct i2c_adapter *adapter)
- 	if (!strncmp(adapter->name, "TAOS TSL2550 EVM", 16)) {
- 		dev_info(&adapter->dev, "Instantiating device %s at 0x%02x\n",
- 			tsl2550_info.type, tsl2550_info.addr);
--		return i2c_new_device(adapter, &tsl2550_info);
-+		return i2c_new_client_device(adapter, &tsl2550_info);
- 	}
+I didn't follow the discussion, but I don't see any returns anywhere?
+
+ > ---
+ > Build tested only.
+
+ >  drivers/i2c/busses/i2c-ocores.c | 2 +-
+ >  1 file changed, 1 insertion(+), 1 deletion(-)
+
+ > diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+ > index ca8b3ecfa93d..f5fc75b65a19 100644
+ > --- a/drivers/i2c/busses/i2c-ocores.c
+ > +++ b/drivers/i2c/busses/i2c-ocores.c
+ > @@ -731,7 +731,7 @@ static int ocores_i2c_probe(struct platform_device *pdev)
+ >  	/* add in known devices to the bus */
+ >  	if (pdata) {
+ >  		for (i = 0; i < pdata->num_devices; i++)
+ > -			i2c_new_device(&i2c->adap, pdata->devices + i);
+ > +			i2c_new_client_device(&i2c->adap, pdata->devices + i);
+ >  	}
  
--	return NULL;
-+	return ERR_PTR(-ENODEV);
- }
- 
- static int taos_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+ >  	return 0;
+ > -- 
+ > 2.20.1
+
+
 -- 
-2.20.1
+Bye, Peter Korsgaard
