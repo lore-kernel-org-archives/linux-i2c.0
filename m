@@ -1,23 +1,29 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 06/12] i2c: taos-evm: convert to use
- i2c_new_client_device()
-Date: Wed, 8 Jan 2020 11:58:22 +0100
-Message-ID: <20200108115822.20871d77@endymion>
+From: Michal Simek <michal.simek@xilinx.com>
+Subject: Re: [PATCH 07/12] i2c: xiic: convert to use i2c_new_client_device()
+Date: Wed, 8 Jan 2020 12:39:03 +0100
+Message-ID: <b6feec89-3b3c-e0b4-afb7-5af5c4380d31@xilinx.com>
 References: <20200107174748.9616-1-wsa+renesas@sang-engineering.com>
-        <20200107174748.9616-7-wsa+renesas@sang-engineering.com>
+ <20200107174748.9616-8-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200107174748.9616-7-wsa+renesas@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20200107174748.9616-8-wsa+renesas@sang-engineering.com>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Shubhrajyoti Datta <shubhraj@xilinx.com>
+Cc: "git@Xilinx.com" <git@Xilinx.com>, Michal Simek <michal.simek@xilinx.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-
-On Tue, 7 Jan 2020 18:47:40 +0100, Wolfram Sang wrote:
+On 07. 01. 20 18:47, Wolfram Sang wrote:
 > Move away from the deprecated API and return the shiny new ERRPTR where
 > useful.
 > 
@@ -25,38 +31,27 @@ On Tue, 7 Jan 2020 18:47:40 +0100, Wolfram Sang wrote:
 > ---
 > Build tested only.
 > 
->  drivers/i2c/busses/i2c-taos-evm.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  drivers/i2c/busses/i2c-xiic.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-taos-evm.c b/drivers/i2c/busses/i2c-taos-evm.c
-> index 0bff3f3a8779..b4050f5b6746 100644
-> --- a/drivers/i2c/busses/i2c-taos-evm.c
-> +++ b/drivers/i2c/busses/i2c-taos-evm.c
-> @@ -49,10 +49,10 @@ static struct i2c_client *taos_instantiate_device(struct i2c_adapter *adapter)
->  	if (!strncmp(adapter->name, "TAOS TSL2550 EVM", 16)) {
->  		dev_info(&adapter->dev, "Instantiating device %s at 0x%02x\n",
->  			tsl2550_info.type, tsl2550_info.addr);
-> -		return i2c_new_device(adapter, &tsl2550_info);
-> +		return i2c_new_client_device(adapter, &tsl2550_info);
+> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+> index d8d49f1814c7..61e081b186cc 100644
+> --- a/drivers/i2c/busses/i2c-xiic.c
+> +++ b/drivers/i2c/busses/i2c-xiic.c
+> @@ -806,7 +806,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+>  	if (pdata) {
+>  		/* add in known devices to the bus */
+>  		for (i = 0; i < pdata->num_devices; i++)
+> -			i2c_new_device(&i2c->adap, pdata->devices + i);
+> +			i2c_new_client_device(&i2c->adap, pdata->devices + i);
 >  	}
 >  
-> -	return NULL;
-> +	return ERR_PTR(-ENODEV);
->  }
->  
->  static int taos_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+>  	return 0;
+> 
 
-Looks good to me, although ideally the caller should handle the error
-instead of ignoring it. But that's out of scope for this conversion
-patch, I'll look into submitting an update on top.
+Acked-by: Michal Simek <michal.simek@xilinx.com>
 
-So:
-
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-
-I'll also try to revive my evaluation module to give it some testing.
+Shubhrajyoti: Can you please retest?
 
 Thanks,
--- 
-Jean Delvare
-SUSE L3 Support
+Michal
