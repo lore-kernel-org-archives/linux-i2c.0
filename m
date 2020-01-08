@@ -1,38 +1,24 @@
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: Re: [PATCH] i2c: s3c24xx: allow compile-testing
-Date: Wed, 8 Jan 2020 07:59:22 +0100
-Message-ID: <CAJKOXPfYYyBWED-f67-suWPOzwRjB3VtncnkDPeiTMiankTR8w@mail.gmail.com>
-References: <20200107215406.1632417-1-arnd@arndb.de>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH 08/12] i2c: i2c-core-acpi: convert to use
+ i2c_new_client_device()
+Date: Wed, 8 Jan 2020 12:04:49 +0200
+Message-ID: <20200108100449.GT465886@lahna.fi.intel.com>
+References: <20200107174748.9616-1-wsa+renesas@sang-engineering.com>
+ <20200107174748.9616-9-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200107215406.1632417-1-arnd@arndb.de>
+Content-Disposition: inline
+In-Reply-To: <20200107174748.9616-9-wsa+renesas@sang-engineering.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Florian Fainelli <f.fainelli@gmail.com>, Kishon Vijay Abraham I <kishon@ti.com>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Max Staudt <max@enpas.org>, Juergen Fitschen <jfi@ssv-embedded.de>, Elie Morisse <syniurge@gmail.com>, Stefan Roese <sr@denx.de>, Kamal Dasu <kdasu.kdev@gmail.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 7 Jan 2020 at 22:54, Arnd Bergmann <arnd@arndb.de> wrote:
->
-> The PHY_EXYNOS5250_SATA driver can now be selected on
-> any platform for compile testing, but this results in a Kconfig
-> warning:
->
-> WARNING: unmet direct dependencies detected for I2C_S3C2410
->   Depends on [n]: I2C [=y] && HAS_IOMEM [=y] && HAVE_S3C2410_I2C [=n]
->   Selected by [y]:
->   - PHY_EXYNOS5250_SATA [=y] && (SOC_EXYNOS5250 || COMPILE_TEST [=y]) && HAS_IOMEM [=y] && OF [=y]
->
-> Allow the I2C driver to be compile-tested as well.
->
-> Fixes: 1544133d48c3 ("phy: Enable compile testing for some of drivers")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+On Tue, Jan 07, 2020 at 06:47:42PM +0100, Wolfram Sang wrote:
+> Move away from the deprecated API and return the shiny new ERRPTR where
+> useful.
+> 
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Hi,
-
-I already posted this with my first patchset of compile test addons:
-v2: https://lore.kernel.org/lkml/1578384779-15487-1-git-send-email-krzk@kernel.org/
-v1: https://lore.kernel.org/lkml/20191230172751.17985-5-krzk@kernel.org/
-
-Best regards,
-Krzysztof
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
