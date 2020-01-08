@@ -1,70 +1,38 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 02/10] dt-bindings: i2c: Add documentation for ad242x i2c
- controllers
-Date: Tue, 7 Jan 2020 21:45:59 -0600
-Message-ID: <20200108034559.GA27808@bogus>
-References: <20191209183511.3576038-1-daniel@zonque.org>
- <20191209183511.3576038-3-daniel@zonque.org>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: Re: [PATCH] i2c: s3c24xx: allow compile-testing
+Date: Wed, 8 Jan 2020 07:59:22 +0100
+Message-ID: <CAJKOXPfYYyBWED-f67-suWPOzwRjB3VtncnkDPeiTMiankTR8w@mail.gmail.com>
+References: <20200107215406.1632417-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20191209183511.3576038-3-daniel@zonque.org>
+In-Reply-To: <20200107215406.1632417-1-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Daniel Mack <daniel@zonque.org>
-Cc: linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, alsa-devel@alsa-project.org, devicetree@vger.kernel.org, linux-clk@vger.kernel.org, mturquette@baylibre.com, sboyd@kernel.org, broonie@kernel.org, lee.jones@linaro.org, lars@metafoo.de, pascal.huerst@gmail.com
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Florian Fainelli <f.fainelli@gmail.com>, Kishon Vijay Abraham I <kishon@ti.com>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Max Staudt <max@enpas.org>, Juergen Fitschen <jfi@ssv-embedded.de>, Elie Morisse <syniurge@gmail.com>, Stefan Roese <sr@denx.de>, Kamal Dasu <kdasu.kdev@gmail.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 09, 2019 at 07:35:02PM +0100, Daniel Mack wrote:
-> This device must be placed as a sub-device of an AD242x MFD node.
-> 
-> Signed-off-by: Daniel Mack <daniel@zonque.org>
-> ---
->  .../bindings/i2c/adi,ad242x-i2c.yaml          | 31 +++++++++++++++++++
->  1 file changed, 31 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/adi,ad242x-i2c.yaml
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/adi,ad242x-i2c.yaml b/Documentation/devicetree/bindings/i2c/adi,ad242x-i2c.yaml
-> new file mode 100644
-> index 000000000000..ded92f8a791b
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/adi,ad242x-i2c.yaml
-> @@ -0,0 +1,31 @@
-> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: "http://devicetree.org/schemas/i2c/adi,ad242x-i2c.yaml#"
-> +$schema: "http://devicetree.org/meta-schemas/core.yaml#"
-> +
-> +title: Analog Devices AD242x I2C controller
-> +
-> +maintainers:
-> +  - Daniel Mack <daniel@zonque.org>
-> +
-> +allOf:
-> +  - $ref: /schemas/i2c/i2c-controller.yaml#
-> +
-> +description: |
-> +  This module is part of the AD242x MFD device. For more details and an example
-> +  refer to Documentation/devicetree/bindings/mfd/ad242x.yaml.
-> +
-> +properties:
-> +  compatible:
-> +    enum:
-> +      - adi,ad2428w-i2c
-> +
-> +  clock-frequency:
-> +    $ref: '/schemas/types.yaml#/definitions/uint32'
+On Tue, 7 Jan 2020 at 22:54, Arnd Bergmann <arnd@arndb.de> wrote:
+>
+> The PHY_EXYNOS5250_SATA driver can now be selected on
+> any platform for compile testing, but this results in a Kconfig
+> warning:
+>
+> WARNING: unmet direct dependencies detected for I2C_S3C2410
+>   Depends on [n]: I2C [=y] && HAS_IOMEM [=y] && HAVE_S3C2410_I2C [=n]
+>   Selected by [y]:
+>   - PHY_EXYNOS5250_SATA [=y] && (SOC_EXYNOS5250 || COMPILE_TEST [=y]) && HAS_IOMEM [=y] && OF [=y]
+>
+> Allow the I2C driver to be compile-tested as well.
+>
+> Fixes: 1544133d48c3 ("phy: Enable compile testing for some of drivers")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Can drop as it already has a type.
+Hi,
 
-> +    default: 100000
-> +    enum: [100000, 400000]
-> +    description: Specifies the I²C clock frequency in Hz.
-> +
-> +required:
-> +  - compatible
-> -- 
-> 2.23.0
-> 
+I already posted this with my first patchset of compile test addons:
+v2: https://lore.kernel.org/lkml/1578384779-15487-1-git-send-email-krzk@kernel.org/
+v1: https://lore.kernel.org/lkml/20191230172751.17985-5-krzk@kernel.org/
+
+Best regards,
+Krzysztof
