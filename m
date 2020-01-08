@@ -1,32 +1,39 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v4 3/5] dt-bindings: at24: make wp-gpios a reference to
- the property defined by nvmem
-Date: Wed, 8 Jan 2020 14:54:19 -0600
-Message-ID: <20200108205419.GA16184@bogus>
+Subject: Re: [PATCH v4 1/5] dt-bindings: nvmem: new optional property wp-gpios
+Date: Wed, 8 Jan 2020 14:54:01 -0600
+Message-ID: <20200108205401.GA15674@bogus>
 References: <20200107092922.18408-1-ktouil@baylibre.com>
- <20200107092922.18408-4-ktouil@baylibre.com>
+ <20200107092922.18408-2-ktouil@baylibre.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200107092922.18408-4-ktouil@baylibre.com>
+In-Reply-To: <20200107092922.18408-2-ktouil@baylibre.com>
 Sender: linux-kernel-owner@vger.kernel.org
 Cc: bgolaszewski@baylibre.com, robh+dt@kernel.org, mark.rutland@arm.com, srinivas.kandagatla@linaro.org, baylibre-upstreaming@groups.io, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linus.walleij@linaro.org, Khouloud Touil <ktouil@baylibre.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue,  7 Jan 2020 10:29:20 +0100, Khouloud Touil wrote:
-> NVMEM framework is an interface for the at24 EEPROMs as well as for
-> other drivers, instead of passing the wp-gpios over the different
-> drivers each time, it would be better to pass it over the NVMEM
-> subsystem once and for all.
+On Tue,  7 Jan 2020 10:29:18 +0100, Khouloud Touil wrote:
+> Several memories have a write-protect pin, that when pulled high, it
+> blocks the write operation.
 > 
-> Making wp-gpios a reference to the property defined by nvmem.
+> On some boards, this pin is connected to a GPIO and pulled high by
+> default, which forces the user to manually change its state before
+> writing.
+> 
+> Instead of modifying all the memory drivers to check this pin, make
+> the NVMEM subsystem check if the write-protect GPIO being passed
+> through the nvmem_config or defined in the device tree and pull it
+> low whenever writing to the memory.
+> 
+> Add a new optional property to the device tree binding document, which
+> allows to specify the GPIO line to which the write-protect pin is
+> connected.
 > 
 > Signed-off-by: Khouloud Touil <ktouil@baylibre.com>
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 > ---
->  Documentation/devicetree/bindings/eeprom/at24.yaml | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
+>  Documentation/devicetree/bindings/nvmem/nvmem.yaml | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
 > 
 
 Reviewed-by: Rob Herring <robh@kernel.org>
