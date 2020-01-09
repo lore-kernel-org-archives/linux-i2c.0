@@ -1,40 +1,87 @@
-From: Bartosz Golaszewski <bgolaszewski-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v4 4/5] dt-bindings: at25: add reference for the wp-gpios property
-Date: Thu, 9 Jan 2020 10:47:56 +0100
-Message-ID: <CAMpxmJXffr-S51udNmUyMHz687jAoBKrYspNypfUUqjOD45zxQ@mail.gmail.com>
-References: <20200107092922.18408-1-ktouil@baylibre.com> <20200107092922.18408-5-ktouil@baylibre.com>
- <20200108205447.GA16981@bogus>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 06/12] i2c: taos-evm: convert to use
+ i2c_new_client_device()
+Date: Thu, 9 Jan 2020 09:42:28 +0100
+Message-ID: <20200109094228.2e058653@endymion>
+References: <20200107174748.9616-1-wsa+renesas@sang-engineering.com>
+        <20200107174748.9616-7-wsa+renesas@sang-engineering.com>
+        <20200108115822.20871d77@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20200108205447.GA16981@bogus>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Khouloud Touil <ktouil-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, baylibre-upstreaming-GWfripvEmMdhl2p70BpVqQ@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200108115822.20871d77@endymion>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-=C5=9Br., 8 sty 2020 o 21:54 Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> napisa=C5=82(a):
->
-> On Tue,  7 Jan 2020 10:29:21 +0100, Khouloud Touil wrote:
-> > As the at25 uses the NVMEM subsystem, and the property is now being
-> > handled, adding reference for it in the device tree binding document,
-> > which allows to specify the GPIO line to which the write-protect pin
-> > is connected.
-> >
-> > Signed-off-by: Khouloud Touil <ktouil-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+Hi again Wolfram,
+
+On Wed, 8 Jan 2020 11:58:22 +0100, Jean Delvare wrote:
+> On Tue, 7 Jan 2020 18:47:40 +0100, Wolfram Sang wrote:
+> > Move away from the deprecated API and return the shiny new ERRPTR where
+> > useful.
+> > 
+> > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 > > ---
-> >  Documentation/devicetree/bindings/eeprom/at25.txt | 2 ++
-> >  1 file changed, 2 insertions(+)
-> >
->
-> Reviewed-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> > Build tested only.
+> > 
+> >  drivers/i2c/busses/i2c-taos-evm.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-taos-evm.c b/drivers/i2c/busses/i2c-taos-evm.c
+> > index 0bff3f3a8779..b4050f5b6746 100644
+> > --- a/drivers/i2c/busses/i2c-taos-evm.c
+> > +++ b/drivers/i2c/busses/i2c-taos-evm.c
+> > @@ -49,10 +49,10 @@ static struct i2c_client *taos_instantiate_device(struct i2c_adapter *adapter)
+> >  	if (!strncmp(adapter->name, "TAOS TSL2550 EVM", 16)) {
+> >  		dev_info(&adapter->dev, "Instantiating device %s at 0x%02x\n",
+> >  			tsl2550_info.type, tsl2550_info.addr);
+> > -		return i2c_new_device(adapter, &tsl2550_info);
+> > +		return i2c_new_client_device(adapter, &tsl2550_info);
+> >  	}
+> >  
+> > -	return NULL;
+> > +	return ERR_PTR(-ENODEV);
+> >  }
+> >  
+> >  static int taos_smbus_xfer(struct i2c_adapter *adapter, u16 addr,  
+> 
+> Looks good to me, although ideally the caller should handle the error
+> instead of ignoring it. But that's out of scope for this conversion
+> patch, I'll look into submitting an update on top.
 
-Hi Greg,
+I take that back. taos_instantiate_device() is instantiating an
+optional slave device on the bus. If that fails, the bus is still
+usable, therefore failing the whole registration would be inappropriate.
 
-AT25 patches usually go through the char-misc tree. In this case
-however, the change depends on the other patches in this series. Can
-you ack this and I'll take it through the AT24 tree exceptionally?
+Makes me wonder if return ERR_PTR(-ENODEV) is the right thing to do in
+the fallback case. The i2c-taos-evm driver was designed to support
+multiple TAOS evaluation module types, even though the only one fully
+supported right now is the only one I own (TSL2550). The driver can
+still be used with other modules, just no slave device will be
+instantiated. It can still be done later from user-space.
 
-Best regards,
-Bartosz Golaszewski
+In my opinion -ENODEV should only be used for "I expected a device but
+could not find it". For the case where we simply don't know what slave
+device to instantiate, NULL seems more appropriate, as it's not an
+error.
+
+What do you think? Either way I agree it doesn't make much practical
+difference in the end as i2c_unregister_device() will deal gracefully
+with both.
+
+> So:
+> 
+> Reviewed-by: Jean Delvare <jdelvare@suse.de>
+> 
+> I'll also try to revive my evaluation module to give it some testing.
+
+That I did, and it works fine, as expected :-)
+
+Tested-by: Jean Delvare <jdelvare@suse.de>
+
+-- 
+Jean Delvare
+SUSE L3 Support
