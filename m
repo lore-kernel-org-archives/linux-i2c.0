@@ -1,215 +1,172 @@
-From: Russell King - ARM Linux admin <linux@armlinux.org.uk>
+From: <Codrin.Ciubotariu-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
 Subject: Re: [PATCH v2 3/6] i2c: at91: Send bus clear command if SCL is down
-Date: Thu, 9 Jan 2020 11:05:57 +0000
-Message-ID: <20200109110557.GO25745@shell.armlinux.org.uk>
+Date: Thu, 9 Jan 2020 13:29:04 +0000
+Message-ID: <66cd3857-9ad8-1d1b-0bad-844a37074b6f@microchip.com>
 References: <20200103094821.13185-1-codrin.ciubotariu@microchip.com>
  <20200103094821.13185-4-codrin.ciubotariu@microchip.com>
+ <20200109110557.GO25745@shell.armlinux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200103094821.13185-4-codrin.ciubotariu@microchip.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Codrin.Ciubotariu@microchip.com
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, robh@kernel.org, alexandre.belloni@bootlin.com, kamel.bouhara@bootlin.com, wsa@the-dreams.de, Ludovic.Desroches@microchip.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20200109110557.GO25745-QEMnZ+CodIVURfEZ8mYm6t73F7V6hmMc@public.gmane.org>
+Content-Language: en-US
+Content-ID: <2312E60AD5A02746A6CAC601FD8D5D1A-Hry67jCOGbCcE4WynfumptQqCkab/8FMAL8bYrjMMd8@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, alexandre.belloni-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org, kamel.bouhara-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Ludovic.Desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jan 03, 2020 at 09:49:07AM +0000, Codrin.Ciubotariu@microchip.com wrote:
-> After a transfer timeout, some faulty I2C slave devices might hold down
-> the SCL pin. We can generate a bus clear command, hoping that the slave
-> might release the pins.
-> 
-> Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-> ---
-> 
-> Changes in v2:
->  - use CLEAR command only if SDA is down; update patch subject to
->    reflect this;
-
-Given this change, shouldn't the commit message above be updated?
-
->  - CLEAR command is no longer used for sama5d2, only sam9x60;
-> 
->  drivers/i2c/busses/i2c-at91-core.c   |  9 ++++++++
->  drivers/i2c/busses/i2c-at91-master.c | 32 +++++++++++++++++++++++-----
->  drivers/i2c/busses/i2c-at91.h        |  7 +++++-
->  3 files changed, 42 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-at91-core.c b/drivers/i2c/busses/i2c-at91-core.c
-> index e13af4874976..128eafc05adb 100644
-> --- a/drivers/i2c/busses/i2c-at91-core.c
-> +++ b/drivers/i2c/busses/i2c-at91-core.c
-> @@ -71,6 +71,7 @@ static struct at91_twi_pdata at91rm9200_config = {
->  	.has_dig_filtr = false,
->  	.has_adv_dig_filtr = false,
->  	.has_ana_filtr = false,
-> +	.has_clear_cmd = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9261_config = {
-> @@ -82,6 +83,7 @@ static struct at91_twi_pdata at91sam9261_config = {
->  	.has_dig_filtr = false,
->  	.has_adv_dig_filtr = false,
->  	.has_ana_filtr = false,
-> +	.has_clear_cmd = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9260_config = {
-> @@ -93,6 +95,7 @@ static struct at91_twi_pdata at91sam9260_config = {
->  	.has_dig_filtr = false,
->  	.has_adv_dig_filtr = false,
->  	.has_ana_filtr = false,
-> +	.has_clear_cmd = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9g20_config = {
-> @@ -104,6 +107,7 @@ static struct at91_twi_pdata at91sam9g20_config = {
->  	.has_dig_filtr = false,
->  	.has_adv_dig_filtr = false,
->  	.has_ana_filtr = false,
-> +	.has_clear_cmd = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9g10_config = {
-> @@ -115,6 +119,7 @@ static struct at91_twi_pdata at91sam9g10_config = {
->  	.has_dig_filtr = false,
->  	.has_adv_dig_filtr = false,
->  	.has_ana_filtr = false,
-> +	.has_clear_cmd = false,
->  };
->  
->  static const struct platform_device_id at91_twi_devtypes[] = {
-> @@ -148,6 +153,7 @@ static struct at91_twi_pdata at91sam9x5_config = {
->  	.has_dig_filtr = false,
->  	.has_adv_dig_filtr = false,
->  	.has_ana_filtr = false,
-> +	.has_clear_cmd = false,
->  };
->  
->  static struct at91_twi_pdata sama5d4_config = {
-> @@ -159,6 +165,7 @@ static struct at91_twi_pdata sama5d4_config = {
->  	.has_dig_filtr = true,
->  	.has_adv_dig_filtr = false,
->  	.has_ana_filtr = false,
-> +	.has_clear_cmd = false,
->  };
->  
->  static struct at91_twi_pdata sama5d2_config = {
-> @@ -170,6 +177,7 @@ static struct at91_twi_pdata sama5d2_config = {
->  	.has_dig_filtr = true,
->  	.has_adv_dig_filtr = true,
->  	.has_ana_filtr = true,
-> +	.has_clear_cmd = false,	/* due to errata, CLEAR cmd is not working */
->  };
->  
->  static struct at91_twi_pdata sam9x60_config = {
-> @@ -181,6 +189,7 @@ static struct at91_twi_pdata sam9x60_config = {
->  	.has_dig_filtr = true,
->  	.has_adv_dig_filtr = true,
->  	.has_ana_filtr = true,
-> +	.has_clear_cmd = true,
->  };
->  
->  static const struct of_device_id atmel_twi_dt_ids[] = {
-> diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
-> index c55e8ff35201..8c4f20317847 100644
-> --- a/drivers/i2c/busses/i2c-at91-master.c
-> +++ b/drivers/i2c/busses/i2c-at91-master.c
-> @@ -480,7 +480,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
->  	unsigned long time_left;
->  	bool has_unre_flag = dev->pdata->has_unre_flag;
->  	bool has_alt_cmd = dev->pdata->has_alt_cmd;
-> -	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
-> +	bool has_clear_cmd = dev->pdata->has_clear_cmd;
->  
->  	/*
->  	 * WARNING: the TXCOMP bit in the Status Register is NOT a clear on
-> @@ -641,10 +641,32 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
->  			       AT91_TWI_THRCLR | AT91_TWI_LOCKCLR);
->  	}
->  
-> -	if (rinfo->get_sda && !(rinfo->get_sda(&dev->adapter))) {
-> -		dev_dbg(dev->dev,
-> -			"SDA is down; clear bus using gpio\n");
-> -		i2c_recover_bus(&dev->adapter);
-> +	/*
-> +	 * some faulty I2C slave devices might hold SDA down;
-> +	 * we can send a bus clear command, hoping that the pins will be
-> +	 * released
-> +	 */
-> +	if (has_clear_cmd) {
-> +		if (!(dev->transfer_status & AT91_TWI_SDA)) {
-> +			dev_dbg(dev->dev,
-> +				"SDA is down; sending bus clear command\n");
-> +			if (dev->use_alt_cmd) {
-> +				unsigned int acr;
-> +
-> +				acr = at91_twi_read(dev, AT91_TWI_ACR);
-> +				acr &= ~AT91_TWI_ACR_DATAL_MASK;
-> +				at91_twi_write(dev, AT91_TWI_ACR, acr);
-> +			}
-> +			at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_CLEAR);
-> +		}
-> +	} else {
-> +		struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
-> +
-> +		if (rinfo->get_sda && !(rinfo->get_sda(&dev->adapter))) {
-> +			dev_dbg(dev->dev,
-> +				"SDA is down; clear bus using gpio\n");
-> +			i2c_recover_bus(&dev->adapter);
-> +		}
->  	}
->  
->  	return ret;
-> diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
-> index eb335b71e775..80f77d523346 100644
-> --- a/drivers/i2c/busses/i2c-at91.h
-> +++ b/drivers/i2c/busses/i2c-at91.h
-> @@ -36,6 +36,7 @@
->  #define	AT91_TWI_SVDIS		BIT(5)	/* Slave Transfer Disable */
->  #define	AT91_TWI_QUICK		BIT(6)	/* SMBus quick command */
->  #define	AT91_TWI_SWRST		BIT(7)	/* Software Reset */
-> +#define	AT91_TWI_CLEAR		BIT(15) /* Bus clear command */
->  #define	AT91_TWI_ACMEN		BIT(16) /* Alternative Command Mode Enable */
->  #define	AT91_TWI_ACMDIS		BIT(17) /* Alternative Command Mode Disable */
->  #define	AT91_TWI_THRCLR		BIT(24) /* Transmit Holding Register Clear */
-> @@ -69,6 +70,8 @@
->  #define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
->  #define	AT91_TWI_EOSACC		BIT(11)	/* End Of Slave Access */
->  #define	AT91_TWI_LOCK		BIT(23) /* TWI Lock due to Frame Errors */
-> +#define	AT91_TWI_SCL		BIT(24) /* TWI SCL status */
-> +#define	AT91_TWI_SDA		BIT(25) /* TWI SDA status */
->  
->  #define	AT91_TWI_INT_MASK \
->  	(AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY | AT91_TWI_NACK \
-> @@ -81,7 +84,8 @@
->  #define	AT91_TWI_THR		0x0034	/* Transmit Holding Register */
->  
->  #define	AT91_TWI_ACR		0x0040	/* Alternative Command Register */
-> -#define	AT91_TWI_ACR_DATAL(len)	((len) & 0xff)
-> +#define	AT91_TWI_ACR_DATAL_MASK	GENMASK(15, 0)
-> +#define	AT91_TWI_ACR_DATAL(len)	((len) & AT91_TWI_ACR_DATAL_MASK)
->  #define	AT91_TWI_ACR_DIR	BIT(8)
->  
->  #define AT91_TWI_FILTR		0x0044
-> @@ -118,6 +122,7 @@ struct at91_twi_pdata {
->  	bool has_dig_filtr;
->  	bool has_adv_dig_filtr;
->  	bool has_ana_filtr;
-> +	bool has_clear_cmd;
->  	struct at_dma_slave dma_slave;
->  };
->  
-> -- 
-> 2.20.1
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> 
-
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line in suburbia: sync at 12.1Mbps down 622kbps up
-According to speedtest.net: 11.9Mbps down 500kbps up
+T24gMDkuMDEuMjAyMCAxMzowNSwgUnVzc2VsbCBLaW5nIC0gQVJNIExpbnV4IGFkbWluIHdyb3Rl
+Og0KPiBPbiBGcmksIEphbiAwMywgMjAyMCBhdCAwOTo0OTowN0FNICswMDAwLCBDb2RyaW4uQ2l1
+Ym90YXJpdUBtaWNyb2NoaXAuY29tIHdyb3RlOg0KPj4gQWZ0ZXIgYSB0cmFuc2ZlciB0aW1lb3V0
+LCBzb21lIGZhdWx0eSBJMkMgc2xhdmUgZGV2aWNlcyBtaWdodCBob2xkIGRvd24NCj4+IHRoZSBT
+Q0wgcGluLiBXZSBjYW4gZ2VuZXJhdGUgYSBidXMgY2xlYXIgY29tbWFuZCwgaG9waW5nIHRoYXQg
+dGhlIHNsYXZlDQo+PiBtaWdodCByZWxlYXNlIHRoZSBwaW5zLg0KPj4NCj4+IFNpZ25lZC1vZmYt
+Ynk6IENvZHJpbiBDaXVib3Rhcml1IDxjb2RyaW4uY2l1Ym90YXJpdUBtaWNyb2NoaXAuY29tPg0K
+Pj4gLS0tDQo+Pg0KPj4gQ2hhbmdlcyBpbiB2MjoNCj4+ICAgLSB1c2UgQ0xFQVIgY29tbWFuZCBv
+bmx5IGlmIFNEQSBpcyBkb3duOyB1cGRhdGUgcGF0Y2ggc3ViamVjdCB0bw0KPj4gICAgIHJlZmxl
+Y3QgdGhpczsNCj4gDQo+IEdpdmVuIHRoaXMgY2hhbmdlLCBzaG91bGRuJ3QgdGhlIGNvbW1pdCBt
+ZXNzYWdlIGFib3ZlIGJlIHVwZGF0ZWQ/DQoNCkl0IGxvb2tzIGxpa2UgYm90aCB0aGUgc3ViamVj
+dCBhbmQgdGhlIGNvbW1pdCBtZXNzYWdlIG5lZWQgdG8gYmUgZml4ZWQuLi4NCg0KVGhhbmsgeW91
+IGZvciB5b3VyIHJldmlldy4NCg0KQmVzdCByZWdhcmRzLA0KQ29kcmluDQoNCj4gDQo+PiAgIC0g
+Q0xFQVIgY29tbWFuZCBpcyBubyBsb25nZXIgdXNlZCBmb3Igc2FtYTVkMiwgb25seSBzYW05eDYw
+Ow0KPj4NCj4+ICAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLWNvcmUuYyAgIHwgIDkgKysr
+KysrKysNCj4+ICAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLW1hc3Rlci5jIHwgMzIgKysr
+KysrKysrKysrKysrKysrKysrKystLS0tLQ0KPj4gICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWF0
+OTEuaCAgICAgICAgfCAgNyArKysrKy0NCj4+ICAgMyBmaWxlcyBjaGFuZ2VkLCA0MiBpbnNlcnRp
+b25zKCspLCA2IGRlbGV0aW9ucygtKQ0KPj4NCj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9i
+dXNzZXMvaTJjLWF0OTEtY29yZS5jIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLWNvcmUu
+Yw0KPj4gaW5kZXggZTEzYWY0ODc0OTc2Li4xMjhlYWZjMDVhZGIgMTAwNjQ0DQo+PiAtLS0gYS9k
+cml2ZXJzL2kyYy9idXNzZXMvaTJjLWF0OTEtY29yZS5jDQo+PiArKysgYi9kcml2ZXJzL2kyYy9i
+dXNzZXMvaTJjLWF0OTEtY29yZS5jDQo+PiBAQCAtNzEsNiArNzEsNyBAQCBzdGF0aWMgc3RydWN0
+IGF0OTFfdHdpX3BkYXRhIGF0OTFybTkyMDBfY29uZmlnID0gew0KPj4gICAgICAgIC5oYXNfZGln
+X2ZpbHRyID0gZmFsc2UsDQo+PiAgICAgICAgLmhhc19hZHZfZGlnX2ZpbHRyID0gZmFsc2UsDQo+
+PiAgICAgICAgLmhhc19hbmFfZmlsdHIgPSBmYWxzZSwNCj4+ICsgICAgIC5oYXNfY2xlYXJfY21k
+ID0gZmFsc2UsDQo+PiAgIH07DQo+Pg0KPj4gICBzdGF0aWMgc3RydWN0IGF0OTFfdHdpX3BkYXRh
+IGF0OTFzYW05MjYxX2NvbmZpZyA9IHsNCj4+IEBAIC04Miw2ICs4Myw3IEBAIHN0YXRpYyBzdHJ1
+Y3QgYXQ5MV90d2lfcGRhdGEgYXQ5MXNhbTkyNjFfY29uZmlnID0gew0KPj4gICAgICAgIC5oYXNf
+ZGlnX2ZpbHRyID0gZmFsc2UsDQo+PiAgICAgICAgLmhhc19hZHZfZGlnX2ZpbHRyID0gZmFsc2Us
+DQo+PiAgICAgICAgLmhhc19hbmFfZmlsdHIgPSBmYWxzZSwNCj4+ICsgICAgIC5oYXNfY2xlYXJf
+Y21kID0gZmFsc2UsDQo+PiAgIH07DQo+Pg0KPj4gICBzdGF0aWMgc3RydWN0IGF0OTFfdHdpX3Bk
+YXRhIGF0OTFzYW05MjYwX2NvbmZpZyA9IHsNCj4+IEBAIC05Myw2ICs5NSw3IEBAIHN0YXRpYyBz
+dHJ1Y3QgYXQ5MV90d2lfcGRhdGEgYXQ5MXNhbTkyNjBfY29uZmlnID0gew0KPj4gICAgICAgIC5o
+YXNfZGlnX2ZpbHRyID0gZmFsc2UsDQo+PiAgICAgICAgLmhhc19hZHZfZGlnX2ZpbHRyID0gZmFs
+c2UsDQo+PiAgICAgICAgLmhhc19hbmFfZmlsdHIgPSBmYWxzZSwNCj4+ICsgICAgIC5oYXNfY2xl
+YXJfY21kID0gZmFsc2UsDQo+PiAgIH07DQo+Pg0KPj4gICBzdGF0aWMgc3RydWN0IGF0OTFfdHdp
+X3BkYXRhIGF0OTFzYW05ZzIwX2NvbmZpZyA9IHsNCj4+IEBAIC0xMDQsNiArMTA3LDcgQEAgc3Rh
+dGljIHN0cnVjdCBhdDkxX3R3aV9wZGF0YSBhdDkxc2FtOWcyMF9jb25maWcgPSB7DQo+PiAgICAg
+ICAgLmhhc19kaWdfZmlsdHIgPSBmYWxzZSwNCj4+ICAgICAgICAuaGFzX2Fkdl9kaWdfZmlsdHIg
+PSBmYWxzZSwNCj4+ICAgICAgICAuaGFzX2FuYV9maWx0ciA9IGZhbHNlLA0KPj4gKyAgICAgLmhh
+c19jbGVhcl9jbWQgPSBmYWxzZSwNCj4+ICAgfTsNCj4+DQo+PiAgIHN0YXRpYyBzdHJ1Y3QgYXQ5
+MV90d2lfcGRhdGEgYXQ5MXNhbTlnMTBfY29uZmlnID0gew0KPj4gQEAgLTExNSw2ICsxMTksNyBA
+QCBzdGF0aWMgc3RydWN0IGF0OTFfdHdpX3BkYXRhIGF0OTFzYW05ZzEwX2NvbmZpZyA9IHsNCj4+
+ICAgICAgICAuaGFzX2RpZ19maWx0ciA9IGZhbHNlLA0KPj4gICAgICAgIC5oYXNfYWR2X2RpZ19m
+aWx0ciA9IGZhbHNlLA0KPj4gICAgICAgIC5oYXNfYW5hX2ZpbHRyID0gZmFsc2UsDQo+PiArICAg
+ICAuaGFzX2NsZWFyX2NtZCA9IGZhbHNlLA0KPj4gICB9Ow0KPj4NCj4+ICAgc3RhdGljIGNvbnN0
+IHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2VfaWQgYXQ5MV90d2lfZGV2dHlwZXNbXSA9IHsNCj4+IEBA
+IC0xNDgsNiArMTUzLDcgQEAgc3RhdGljIHN0cnVjdCBhdDkxX3R3aV9wZGF0YSBhdDkxc2FtOXg1
+X2NvbmZpZyA9IHsNCj4+ICAgICAgICAuaGFzX2RpZ19maWx0ciA9IGZhbHNlLA0KPj4gICAgICAg
+IC5oYXNfYWR2X2RpZ19maWx0ciA9IGZhbHNlLA0KPj4gICAgICAgIC5oYXNfYW5hX2ZpbHRyID0g
+ZmFsc2UsDQo+PiArICAgICAuaGFzX2NsZWFyX2NtZCA9IGZhbHNlLA0KPj4gICB9Ow0KPj4NCj4+
+ICAgc3RhdGljIHN0cnVjdCBhdDkxX3R3aV9wZGF0YSBzYW1hNWQ0X2NvbmZpZyA9IHsNCj4+IEBA
+IC0xNTksNiArMTY1LDcgQEAgc3RhdGljIHN0cnVjdCBhdDkxX3R3aV9wZGF0YSBzYW1hNWQ0X2Nv
+bmZpZyA9IHsNCj4+ICAgICAgICAuaGFzX2RpZ19maWx0ciA9IHRydWUsDQo+PiAgICAgICAgLmhh
+c19hZHZfZGlnX2ZpbHRyID0gZmFsc2UsDQo+PiAgICAgICAgLmhhc19hbmFfZmlsdHIgPSBmYWxz
+ZSwNCj4+ICsgICAgIC5oYXNfY2xlYXJfY21kID0gZmFsc2UsDQo+PiAgIH07DQo+Pg0KPj4gICBz
+dGF0aWMgc3RydWN0IGF0OTFfdHdpX3BkYXRhIHNhbWE1ZDJfY29uZmlnID0gew0KPj4gQEAgLTE3
+MCw2ICsxNzcsNyBAQCBzdGF0aWMgc3RydWN0IGF0OTFfdHdpX3BkYXRhIHNhbWE1ZDJfY29uZmln
+ID0gew0KPj4gICAgICAgIC5oYXNfZGlnX2ZpbHRyID0gdHJ1ZSwNCj4+ICAgICAgICAuaGFzX2Fk
+dl9kaWdfZmlsdHIgPSB0cnVlLA0KPj4gICAgICAgIC5oYXNfYW5hX2ZpbHRyID0gdHJ1ZSwNCj4+
+ICsgICAgIC5oYXNfY2xlYXJfY21kID0gZmFsc2UsIC8qIGR1ZSB0byBlcnJhdGEsIENMRUFSIGNt
+ZCBpcyBub3Qgd29ya2luZyAqLw0KPj4gICB9Ow0KPj4NCj4+ICAgc3RhdGljIHN0cnVjdCBhdDkx
+X3R3aV9wZGF0YSBzYW05eDYwX2NvbmZpZyA9IHsNCj4+IEBAIC0xODEsNiArMTg5LDcgQEAgc3Rh
+dGljIHN0cnVjdCBhdDkxX3R3aV9wZGF0YSBzYW05eDYwX2NvbmZpZyA9IHsNCj4+ICAgICAgICAu
+aGFzX2RpZ19maWx0ciA9IHRydWUsDQo+PiAgICAgICAgLmhhc19hZHZfZGlnX2ZpbHRyID0gdHJ1
+ZSwNCj4+ICAgICAgICAuaGFzX2FuYV9maWx0ciA9IHRydWUsDQo+PiArICAgICAuaGFzX2NsZWFy
+X2NtZCA9IHRydWUsDQo+PiAgIH07DQo+Pg0KPj4gICBzdGF0aWMgY29uc3Qgc3RydWN0IG9mX2Rl
+dmljZV9pZCBhdG1lbF90d2lfZHRfaWRzW10gPSB7DQo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9p
+MmMvYnVzc2VzL2kyYy1hdDkxLW1hc3Rlci5jIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkx
+LW1hc3Rlci5jDQo+PiBpbmRleCBjNTVlOGZmMzUyMDEuLjhjNGYyMDMxNzg0NyAxMDA2NDQNCj4+
+IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS1tYXN0ZXIuYw0KPj4gKysrIGIvZHJp
+dmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLW1hc3Rlci5jDQo+PiBAQCAtNDgwLDcgKzQ4MCw3IEBA
+IHN0YXRpYyBpbnQgYXQ5MV9kb190d2lfdHJhbnNmZXIoc3RydWN0IGF0OTFfdHdpX2RldiAqZGV2
+KQ0KPj4gICAgICAgIHVuc2lnbmVkIGxvbmcgdGltZV9sZWZ0Ow0KPj4gICAgICAgIGJvb2wgaGFz
+X3VucmVfZmxhZyA9IGRldi0+cGRhdGEtPmhhc191bnJlX2ZsYWc7DQo+PiAgICAgICAgYm9vbCBo
+YXNfYWx0X2NtZCA9IGRldi0+cGRhdGEtPmhhc19hbHRfY21kOw0KPj4gLSAgICAgc3RydWN0IGky
+Y19idXNfcmVjb3ZlcnlfaW5mbyAqcmluZm8gPSAmZGV2LT5yaW5mbzsNCj4+ICsgICAgIGJvb2wg
+aGFzX2NsZWFyX2NtZCA9IGRldi0+cGRhdGEtPmhhc19jbGVhcl9jbWQ7DQo+Pg0KPj4gICAgICAg
+IC8qDQo+PiAgICAgICAgICogV0FSTklORzogdGhlIFRYQ09NUCBiaXQgaW4gdGhlIFN0YXR1cyBS
+ZWdpc3RlciBpcyBOT1QgYSBjbGVhciBvbg0KPj4gQEAgLTY0MSwxMCArNjQxLDMyIEBAIHN0YXRp
+YyBpbnQgYXQ5MV9kb190d2lfdHJhbnNmZXIoc3RydWN0IGF0OTFfdHdpX2RldiAqZGV2KQ0KPj4g
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQVQ5MV9UV0lfVEhSQ0xSIHwgQVQ5MV9UV0lf
+TE9DS0NMUik7DQo+PiAgICAgICAgfQ0KPj4NCj4+IC0gICAgIGlmIChyaW5mby0+Z2V0X3NkYSAm
+JiAhKHJpbmZvLT5nZXRfc2RhKCZkZXYtPmFkYXB0ZXIpKSkgew0KPj4gLSAgICAgICAgICAgICBk
+ZXZfZGJnKGRldi0+ZGV2LA0KPj4gLSAgICAgICAgICAgICAgICAgICAgICJTREEgaXMgZG93bjsg
+Y2xlYXIgYnVzIHVzaW5nIGdwaW9cbiIpOw0KPj4gLSAgICAgICAgICAgICBpMmNfcmVjb3Zlcl9i
+dXMoJmRldi0+YWRhcHRlcik7DQo+PiArICAgICAvKg0KPj4gKyAgICAgICogc29tZSBmYXVsdHkg
+STJDIHNsYXZlIGRldmljZXMgbWlnaHQgaG9sZCBTREEgZG93bjsNCj4+ICsgICAgICAqIHdlIGNh
+biBzZW5kIGEgYnVzIGNsZWFyIGNvbW1hbmQsIGhvcGluZyB0aGF0IHRoZSBwaW5zIHdpbGwgYmUN
+Cj4+ICsgICAgICAqIHJlbGVhc2VkDQo+PiArICAgICAgKi8NCj4+ICsgICAgIGlmIChoYXNfY2xl
+YXJfY21kKSB7DQo+PiArICAgICAgICAgICAgIGlmICghKGRldi0+dHJhbnNmZXJfc3RhdHVzICYg
+QVQ5MV9UV0lfU0RBKSkgew0KPj4gKyAgICAgICAgICAgICAgICAgICAgIGRldl9kYmcoZGV2LT5k
+ZXYsDQo+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiU0RBIGlzIGRvd247IHNlbmRp
+bmcgYnVzIGNsZWFyIGNvbW1hbmRcbiIpOw0KPj4gKyAgICAgICAgICAgICAgICAgICAgIGlmIChk
+ZXYtPnVzZV9hbHRfY21kKSB7DQo+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICB1bnNp
+Z25lZCBpbnQgYWNyOw0KPj4gKw0KPj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYWNy
+ID0gYXQ5MV90d2lfcmVhZChkZXYsIEFUOTFfVFdJX0FDUik7DQo+PiArICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICBhY3IgJj0gfkFUOTFfVFdJX0FDUl9EQVRBTF9NQVNLOw0KPj4gKyAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgYXQ5MV90d2lfd3JpdGUoZGV2LCBBVDkxX1RXSV9BQ1Is
+IGFjcik7DQo+PiArICAgICAgICAgICAgICAgICAgICAgfQ0KPj4gKyAgICAgICAgICAgICAgICAg
+ICAgIGF0OTFfdHdpX3dyaXRlKGRldiwgQVQ5MV9UV0lfQ1IsIEFUOTFfVFdJX0NMRUFSKTsNCj4+
+ICsgICAgICAgICAgICAgfQ0KPj4gKyAgICAgfSBlbHNlIHsNCj4+ICsgICAgICAgICAgICAgc3Ry
+dWN0IGkyY19idXNfcmVjb3ZlcnlfaW5mbyAqcmluZm8gPSAmZGV2LT5yaW5mbzsNCj4+ICsNCj4+
+ICsgICAgICAgICAgICAgaWYgKHJpbmZvLT5nZXRfc2RhICYmICEocmluZm8tPmdldF9zZGEoJmRl
+di0+YWRhcHRlcikpKSB7DQo+PiArICAgICAgICAgICAgICAgICAgICAgZGV2X2RiZyhkZXYtPmRl
+diwNCj4+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICJTREEgaXMgZG93bjsgY2xlYXIg
+YnVzIHVzaW5nIGdwaW9cbiIpOw0KPj4gKyAgICAgICAgICAgICAgICAgICAgIGkyY19yZWNvdmVy
+X2J1cygmZGV2LT5hZGFwdGVyKTsNCj4+ICsgICAgICAgICAgICAgfQ0KPj4gICAgICAgIH0NCj4+
+DQo+PiAgICAgICAgcmV0dXJuIHJldDsNCj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNz
+ZXMvaTJjLWF0OTEuaCBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS5oDQo+PiBpbmRleCBl
+YjMzNWI3MWU3NzUuLjgwZjc3ZDUyMzM0NiAxMDA2NDQNCj4+IC0tLSBhL2RyaXZlcnMvaTJjL2J1
+c3Nlcy9pMmMtYXQ5MS5oDQo+PiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWF0OTEuaA0K
+Pj4gQEAgLTM2LDYgKzM2LDcgQEANCj4+ICAgI2RlZmluZSAgICAgIEFUOTFfVFdJX1NWRElTICAg
+ICAgICAgIEJJVCg1KSAgLyogU2xhdmUgVHJhbnNmZXIgRGlzYWJsZSAqLw0KPj4gICAjZGVmaW5l
+ICAgICAgQVQ5MV9UV0lfUVVJQ0sgICAgICAgICAgQklUKDYpICAvKiBTTUJ1cyBxdWljayBjb21t
+YW5kICovDQo+PiAgICNkZWZpbmUgICAgICBBVDkxX1RXSV9TV1JTVCAgICAgICAgICBCSVQoNykg
+IC8qIFNvZnR3YXJlIFJlc2V0ICovDQo+PiArI2RlZmluZSAgICAgIEFUOTFfVFdJX0NMRUFSICAg
+ICAgICAgIEJJVCgxNSkgLyogQnVzIGNsZWFyIGNvbW1hbmQgKi8NCj4+ICAgI2RlZmluZSAgICAg
+IEFUOTFfVFdJX0FDTUVOICAgICAgICAgIEJJVCgxNikgLyogQWx0ZXJuYXRpdmUgQ29tbWFuZCBN
+b2RlIEVuYWJsZSAqLw0KPj4gICAjZGVmaW5lICAgICAgQVQ5MV9UV0lfQUNNRElTICAgICAgICAg
+QklUKDE3KSAvKiBBbHRlcm5hdGl2ZSBDb21tYW5kIE1vZGUgRGlzYWJsZSAqLw0KPj4gICAjZGVm
+aW5lICAgICAgQVQ5MV9UV0lfVEhSQ0xSICAgICAgICAgQklUKDI0KSAvKiBUcmFuc21pdCBIb2xk
+aW5nIFJlZ2lzdGVyIENsZWFyICovDQo+PiBAQCAtNjksNiArNzAsOCBAQA0KPj4gICAjZGVmaW5l
+ICAgICAgQVQ5MV9UV0lfTkFDSyAgICAgICAgICAgQklUKDgpICAvKiBOb3QgQWNrbm93bGVkZ2Vk
+ICovDQo+PiAgICNkZWZpbmUgICAgICBBVDkxX1RXSV9FT1NBQ0MgICAgICAgICBCSVQoMTEpIC8q
+IEVuZCBPZiBTbGF2ZSBBY2Nlc3MgKi8NCj4+ICAgI2RlZmluZSAgICAgIEFUOTFfVFdJX0xPQ0sg
+ICAgICAgICAgIEJJVCgyMykgLyogVFdJIExvY2sgZHVlIHRvIEZyYW1lIEVycm9ycyAqLw0KPj4g
+KyNkZWZpbmUgICAgICBBVDkxX1RXSV9TQ0wgICAgICAgICAgICBCSVQoMjQpIC8qIFRXSSBTQ0wg
+c3RhdHVzICovDQo+PiArI2RlZmluZSAgICAgIEFUOTFfVFdJX1NEQSAgICAgICAgICAgIEJJVCgy
+NSkgLyogVFdJIFNEQSBzdGF0dXMgKi8NCj4+DQo+PiAgICNkZWZpbmUgICAgICBBVDkxX1RXSV9J
+TlRfTUFTSyBcDQo+PiAgICAgICAgKEFUOTFfVFdJX1RYQ09NUCB8IEFUOTFfVFdJX1JYUkRZIHwg
+QVQ5MV9UV0lfVFhSRFkgfCBBVDkxX1RXSV9OQUNLIFwNCj4+IEBAIC04MSw3ICs4NCw4IEBADQo+
+PiAgICNkZWZpbmUgICAgICBBVDkxX1RXSV9USFIgICAgICAgICAgICAweDAwMzQgIC8qIFRyYW5z
+bWl0IEhvbGRpbmcgUmVnaXN0ZXIgKi8NCj4+DQo+PiAgICNkZWZpbmUgICAgICBBVDkxX1RXSV9B
+Q1IgICAgICAgICAgICAweDAwNDAgIC8qIEFsdGVybmF0aXZlIENvbW1hbmQgUmVnaXN0ZXIgKi8N
+Cj4+IC0jZGVmaW5lICAgICAgQVQ5MV9UV0lfQUNSX0RBVEFMKGxlbikgKChsZW4pICYgMHhmZikN
+Cj4+ICsjZGVmaW5lICAgICAgQVQ5MV9UV0lfQUNSX0RBVEFMX01BU0sgR0VOTUFTSygxNSwgMCkN
+Cj4+ICsjZGVmaW5lICAgICAgQVQ5MV9UV0lfQUNSX0RBVEFMKGxlbikgKChsZW4pICYgQVQ5MV9U
+V0lfQUNSX0RBVEFMX01BU0spDQo+PiAgICNkZWZpbmUgICAgICBBVDkxX1RXSV9BQ1JfRElSICAg
+ICAgICBCSVQoOCkNCj4+DQo+PiAgICNkZWZpbmUgQVQ5MV9UV0lfRklMVFIgICAgICAgICAgICAg
+ICAweDAwNDQNCj4+IEBAIC0xMTgsNiArMTIyLDcgQEAgc3RydWN0IGF0OTFfdHdpX3BkYXRhIHsN
+Cj4+ICAgICAgICBib29sIGhhc19kaWdfZmlsdHI7DQo+PiAgICAgICAgYm9vbCBoYXNfYWR2X2Rp
+Z19maWx0cjsNCj4+ICAgICAgICBib29sIGhhc19hbmFfZmlsdHI7DQo+PiArICAgICBib29sIGhh
+c19jbGVhcl9jbWQ7DQo+PiAgICAgICAgc3RydWN0IGF0X2RtYV9zbGF2ZSBkbWFfc2xhdmU7DQo+
+PiAgIH07DQo+Pg0KPj4gLS0NCj4+IDIuMjAuMQ0KPj4NCj4+IF9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fDQo+PiBsaW51eC1hcm0ta2VybmVsIG1haWxpbmcg
+bGlzdA0KPj4gbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnDQo+PiBodHRwOi8v
+bGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwNCj4+
+DQo+IA0KPiAtLQ0KPiBSTUsncyBQYXRjaCBzeXN0ZW06IGh0dHBzOi8vd3d3LmFybWxpbnV4Lm9y
+Zy51ay9kZXZlbG9wZXIvcGF0Y2hlcy8NCj4gRlRUQyBicm9hZGJhbmQgZm9yIDAuOG1pbGUgbGlu
+ZSBpbiBzdWJ1cmJpYTogc3luYyBhdCAxMi4xTWJwcyBkb3duIDYyMmticHMgdXANCj4gQWNjb3Jk
+aW5nIHRvIHNwZWVkdGVzdC5uZXQ6IDExLjlNYnBzIGRvd24gNTAwa2JwcyB1cA0KPiANCg==
