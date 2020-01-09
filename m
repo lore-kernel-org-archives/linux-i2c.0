@@ -1,152 +1,215 @@
-From: <Codrin.Ciubotariu@microchip.com>
+From: Russell King - ARM Linux admin <linux@armlinux.org.uk>
 Subject: Re: [PATCH v2 3/6] i2c: at91: Send bus clear command if SCL is down
-Date: Thu, 9 Jan 2020 10:58:22 +0000
-Message-ID: <d2fb2414-5c7f-3bc0-caf5-8927e6a2ccee@microchip.com>
+Date: Thu, 9 Jan 2020 11:05:57 +0000
+Message-ID: <20200109110557.GO25745@shell.armlinux.org.uk>
 References: <20200103094821.13185-1-codrin.ciubotariu@microchip.com>
  <20200103094821.13185-4-codrin.ciubotariu@microchip.com>
- <20200109074729.zare4va5ugbq62f3@M43218.corp.atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200109074729.zare4va5ugbq62f3@M43218.corp.atmel.com>
-Content-Language: en-US
-Content-ID: <D40C8276CAF1624DAE30D3A67E4C4F07@namprd11.prod.outlook.com>
+Content-Disposition: inline
+In-Reply-To: <20200103094821.13185-4-codrin.ciubotariu@microchip.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kamel.bouhara@bootlin.com, wsa@the-dreams.de, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, robh@kernel.org
+To: Codrin.Ciubotariu@microchip.com
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, robh@kernel.org, alexandre.belloni@bootlin.com, kamel.bouhara@bootlin.com, wsa@the-dreams.de, Ludovic.Desroches@microchip.com
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMDkuMDEuMjAyMCAwOTo0NywgTHVkb3ZpYyBEZXNyb2NoZXMgd3JvdGU6DQo+IE9uIEZyaSwg
-SmFuIDAzLCAyMDIwIGF0IDA5OjQ5OjA3QU0gKzAwMDAsIENvZHJpbiBDaXVib3Rhcml1IC0gTTE5
-OTQwIHdyb3RlOg0KPj4gQWZ0ZXIgYSB0cmFuc2ZlciB0aW1lb3V0LCBzb21lIGZhdWx0eSBJMkMg
-c2xhdmUgZGV2aWNlcyBtaWdodCBob2xkIGRvd24NCj4+IHRoZSBTQ0wgcGluLiBXZSBjYW4gZ2Vu
-ZXJhdGUgYSBidXMgY2xlYXIgY29tbWFuZCwgaG9waW5nIHRoYXQgdGhlIHNsYXZlDQo+PiBtaWdo
-dCByZWxlYXNlIHRoZSBwaW5zLg0KPj4NCj4+IFNpZ25lZC1vZmYtYnk6IENvZHJpbiBDaXVib3Rh
-cml1IDxjb2RyaW4uY2l1Ym90YXJpdUBtaWNyb2NoaXAuY29tPg0KPiANCj4gVGhpcyBwYXRjaCBt
-YXkgY29uZmxpY3Qgd2l0aCBhbm90aGVyIG9uZSByZW1vdmluZyB0aGUgZXhwbGljaXQgc2V0IHRv
-DQo+IGZhbHNlLg0KDQpZZXMsIEV1Z2VuJ3MgcGF0Y2hlcyBnb3QgYWNjZXB0ZWQgaW4gdGhlIG1l
-YW50aW1lLiBJIHdpbGwgcmViYXNlIGFuZCANCmFkYXB0IHRvIHRoZSBuZXcgc3R5bGUuDQoNCj4g
-DQo+PiAtLS0NCj4+DQo+PiBDaGFuZ2VzIGluIHYyOg0KPj4gICAtIHVzZSBDTEVBUiBjb21tYW5k
-IG9ubHkgaWYgU0RBIGlzIGRvd247IHVwZGF0ZSBwYXRjaCBzdWJqZWN0IHRvDQo+PiAgICAgcmVm
-bGVjdCB0aGlzOw0KPj4gICAtIENMRUFSIGNvbW1hbmQgaXMgbm8gbG9uZ2VyIHVzZWQgZm9yIHNh
-bWE1ZDIsIG9ubHkgc2FtOXg2MDsNCj4+DQo+PiAgIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5
-MS1jb3JlLmMgICB8ICA5ICsrKysrKysrDQo+PiAgIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5
-MS1tYXN0ZXIuYyB8IDMyICsrKysrKysrKysrKysrKysrKysrKysrLS0tLS0NCj4+ICAgZHJpdmVy
-cy9pMmMvYnVzc2VzL2kyYy1hdDkxLmggICAgICAgIHwgIDcgKysrKystDQo+PiAgIDMgZmlsZXMg
-Y2hhbmdlZCwgNDIgaW5zZXJ0aW9ucygrKSwgNiBkZWxldGlvbnMoLSkNCj4+DQo+PiBkaWZmIC0t
-Z2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLWNvcmUuYyBiL2RyaXZlcnMvaTJjL2J1
-c3Nlcy9pMmMtYXQ5MS1jb3JlLmMNCj4+IGluZGV4IGUxM2FmNDg3NDk3Ni4uMTI4ZWFmYzA1YWRi
-IDEwMDY0NA0KPj4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLWNvcmUuYw0KPj4g
-KysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLWNvcmUuYw0KPj4gQEAgLTcxLDYgKzcx
-LDcgQEAgc3RhdGljIHN0cnVjdCBhdDkxX3R3aV9wZGF0YSBhdDkxcm05MjAwX2NvbmZpZyA9IHsN
-Cj4+ICAgCS5oYXNfZGlnX2ZpbHRyID0gZmFsc2UsDQo+PiAgIAkuaGFzX2Fkdl9kaWdfZmlsdHIg
-PSBmYWxzZSwNCj4+ICAgCS5oYXNfYW5hX2ZpbHRyID0gZmFsc2UsDQo+PiArCS5oYXNfY2xlYXJf
-Y21kID0gZmFsc2UsDQo+PiAgIH07DQo+PiAgIA0KPj4gICBzdGF0aWMgc3RydWN0IGF0OTFfdHdp
-X3BkYXRhIGF0OTFzYW05MjYxX2NvbmZpZyA9IHsNCj4+IEBAIC04Miw2ICs4Myw3IEBAIHN0YXRp
-YyBzdHJ1Y3QgYXQ5MV90d2lfcGRhdGEgYXQ5MXNhbTkyNjFfY29uZmlnID0gew0KPj4gICAJLmhh
-c19kaWdfZmlsdHIgPSBmYWxzZSwNCj4+ICAgCS5oYXNfYWR2X2RpZ19maWx0ciA9IGZhbHNlLA0K
-Pj4gICAJLmhhc19hbmFfZmlsdHIgPSBmYWxzZSwNCj4+ICsJLmhhc19jbGVhcl9jbWQgPSBmYWxz
-ZSwNCj4+ICAgfTsNCj4+ICAgDQo+PiAgIHN0YXRpYyBzdHJ1Y3QgYXQ5MV90d2lfcGRhdGEgYXQ5
-MXNhbTkyNjBfY29uZmlnID0gew0KPj4gQEAgLTkzLDYgKzk1LDcgQEAgc3RhdGljIHN0cnVjdCBh
-dDkxX3R3aV9wZGF0YSBhdDkxc2FtOTI2MF9jb25maWcgPSB7DQo+PiAgIAkuaGFzX2RpZ19maWx0
-ciA9IGZhbHNlLA0KPj4gICAJLmhhc19hZHZfZGlnX2ZpbHRyID0gZmFsc2UsDQo+PiAgIAkuaGFz
-X2FuYV9maWx0ciA9IGZhbHNlLA0KPj4gKwkuaGFzX2NsZWFyX2NtZCA9IGZhbHNlLA0KPj4gICB9
-Ow0KPj4gICANCj4+ICAgc3RhdGljIHN0cnVjdCBhdDkxX3R3aV9wZGF0YSBhdDkxc2FtOWcyMF9j
-b25maWcgPSB7DQo+PiBAQCAtMTA0LDYgKzEwNyw3IEBAIHN0YXRpYyBzdHJ1Y3QgYXQ5MV90d2lf
-cGRhdGEgYXQ5MXNhbTlnMjBfY29uZmlnID0gew0KPj4gICAJLmhhc19kaWdfZmlsdHIgPSBmYWxz
-ZSwNCj4+ICAgCS5oYXNfYWR2X2RpZ19maWx0ciA9IGZhbHNlLA0KPj4gICAJLmhhc19hbmFfZmls
-dHIgPSBmYWxzZSwNCj4+ICsJLmhhc19jbGVhcl9jbWQgPSBmYWxzZSwNCj4+ICAgfTsNCj4+ICAg
-DQo+PiAgIHN0YXRpYyBzdHJ1Y3QgYXQ5MV90d2lfcGRhdGEgYXQ5MXNhbTlnMTBfY29uZmlnID0g
-ew0KPj4gQEAgLTExNSw2ICsxMTksNyBAQCBzdGF0aWMgc3RydWN0IGF0OTFfdHdpX3BkYXRhIGF0
-OTFzYW05ZzEwX2NvbmZpZyA9IHsNCj4+ICAgCS5oYXNfZGlnX2ZpbHRyID0gZmFsc2UsDQo+PiAg
-IAkuaGFzX2Fkdl9kaWdfZmlsdHIgPSBmYWxzZSwNCj4+ICAgCS5oYXNfYW5hX2ZpbHRyID0gZmFs
-c2UsDQo+PiArCS5oYXNfY2xlYXJfY21kID0gZmFsc2UsDQo+PiAgIH07DQo+PiAgIA0KPj4gICBz
-dGF0aWMgY29uc3Qgc3RydWN0IHBsYXRmb3JtX2RldmljZV9pZCBhdDkxX3R3aV9kZXZ0eXBlc1td
-ID0gew0KPj4gQEAgLTE0OCw2ICsxNTMsNyBAQCBzdGF0aWMgc3RydWN0IGF0OTFfdHdpX3BkYXRh
-IGF0OTFzYW05eDVfY29uZmlnID0gew0KPj4gICAJLmhhc19kaWdfZmlsdHIgPSBmYWxzZSwNCj4+
-ICAgCS5oYXNfYWR2X2RpZ19maWx0ciA9IGZhbHNlLA0KPj4gICAJLmhhc19hbmFfZmlsdHIgPSBm
-YWxzZSwNCj4+ICsJLmhhc19jbGVhcl9jbWQgPSBmYWxzZSwNCj4+ICAgfTsNCj4+ICAgDQo+PiAg
-IHN0YXRpYyBzdHJ1Y3QgYXQ5MV90d2lfcGRhdGEgc2FtYTVkNF9jb25maWcgPSB7DQo+PiBAQCAt
-MTU5LDYgKzE2NSw3IEBAIHN0YXRpYyBzdHJ1Y3QgYXQ5MV90d2lfcGRhdGEgc2FtYTVkNF9jb25m
-aWcgPSB7DQo+PiAgIAkuaGFzX2RpZ19maWx0ciA9IHRydWUsDQo+PiAgIAkuaGFzX2Fkdl9kaWdf
-ZmlsdHIgPSBmYWxzZSwNCj4+ICAgCS5oYXNfYW5hX2ZpbHRyID0gZmFsc2UsDQo+PiArCS5oYXNf
-Y2xlYXJfY21kID0gZmFsc2UsDQo+PiAgIH07DQo+PiAgIA0KPj4gICBzdGF0aWMgc3RydWN0IGF0
-OTFfdHdpX3BkYXRhIHNhbWE1ZDJfY29uZmlnID0gew0KPj4gQEAgLTE3MCw2ICsxNzcsNyBAQCBz
-dGF0aWMgc3RydWN0IGF0OTFfdHdpX3BkYXRhIHNhbWE1ZDJfY29uZmlnID0gew0KPj4gICAJLmhh
-c19kaWdfZmlsdHIgPSB0cnVlLA0KPj4gICAJLmhhc19hZHZfZGlnX2ZpbHRyID0gdHJ1ZSwNCj4+
-ICAgCS5oYXNfYW5hX2ZpbHRyID0gdHJ1ZSwNCj4+ICsJLmhhc19jbGVhcl9jbWQgPSBmYWxzZSwJ
-LyogZHVlIHRvIGVycmF0YSwgQ0xFQVIgY21kIGlzIG5vdCB3b3JraW5nICovDQo+IA0KPiBJbiB0
-aGlzIGNhc2UgaXQncyBwcm9iYWJseSB3b3J0aCBrZWVwaW5nIGl0Lg0KDQpZZXMsIEkgYWxzbyB0
-aGluayBpdCdzIHVzZWZ1bCB0byBsZXQgdGhpcyBvbmUuDQoNClRoYW5rcyBhbmQgYmVzdCByZWdh
-cmRzLA0KQ29kcmluDQoNCj4gDQo+IEx1ZG92aWMNCj4gDQo+PiAgIH07DQo+PiAgIA0KPj4gICBz
-dGF0aWMgc3RydWN0IGF0OTFfdHdpX3BkYXRhIHNhbTl4NjBfY29uZmlnID0gew0KPj4gQEAgLTE4
-MSw2ICsxODksNyBAQCBzdGF0aWMgc3RydWN0IGF0OTFfdHdpX3BkYXRhIHNhbTl4NjBfY29uZmln
-ID0gew0KPj4gICAJLmhhc19kaWdfZmlsdHIgPSB0cnVlLA0KPj4gICAJLmhhc19hZHZfZGlnX2Zp
-bHRyID0gdHJ1ZSwNCj4+ICAgCS5oYXNfYW5hX2ZpbHRyID0gdHJ1ZSwNCj4+ICsJLmhhc19jbGVh
-cl9jbWQgPSB0cnVlLA0KPj4gICB9Ow0KPj4gICANCj4+ICAgc3RhdGljIGNvbnN0IHN0cnVjdCBv
-Zl9kZXZpY2VfaWQgYXRtZWxfdHdpX2R0X2lkc1tdID0gew0KPj4gZGlmZiAtLWdpdCBhL2RyaXZl
-cnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS1tYXN0ZXIuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMt
-YXQ5MS1tYXN0ZXIuYw0KPj4gaW5kZXggYzU1ZThmZjM1MjAxLi44YzRmMjAzMTc4NDcgMTAwNjQ0
-DQo+PiAtLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWF0OTEtbWFzdGVyLmMNCj4+ICsrKyBi
-L2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS1tYXN0ZXIuYw0KPj4gQEAgLTQ4MCw3ICs0ODAs
-NyBAQCBzdGF0aWMgaW50IGF0OTFfZG9fdHdpX3RyYW5zZmVyKHN0cnVjdCBhdDkxX3R3aV9kZXYg
-KmRldikNCj4+ICAgCXVuc2lnbmVkIGxvbmcgdGltZV9sZWZ0Ow0KPj4gICAJYm9vbCBoYXNfdW5y
-ZV9mbGFnID0gZGV2LT5wZGF0YS0+aGFzX3VucmVfZmxhZzsNCj4+ICAgCWJvb2wgaGFzX2FsdF9j
-bWQgPSBkZXYtPnBkYXRhLT5oYXNfYWx0X2NtZDsNCj4+IC0Jc3RydWN0IGkyY19idXNfcmVjb3Zl
-cnlfaW5mbyAqcmluZm8gPSAmZGV2LT5yaW5mbzsNCj4+ICsJYm9vbCBoYXNfY2xlYXJfY21kID0g
-ZGV2LT5wZGF0YS0+aGFzX2NsZWFyX2NtZDsNCj4+ICAgDQo+PiAgIAkvKg0KPj4gICAJICogV0FS
-TklORzogdGhlIFRYQ09NUCBiaXQgaW4gdGhlIFN0YXR1cyBSZWdpc3RlciBpcyBOT1QgYSBjbGVh
-ciBvbg0KPj4gQEAgLTY0MSwxMCArNjQxLDMyIEBAIHN0YXRpYyBpbnQgYXQ5MV9kb190d2lfdHJh
-bnNmZXIoc3RydWN0IGF0OTFfdHdpX2RldiAqZGV2KQ0KPj4gICAJCQkgICAgICAgQVQ5MV9UV0lf
-VEhSQ0xSIHwgQVQ5MV9UV0lfTE9DS0NMUik7DQo+PiAgIAl9DQo+PiAgIA0KPj4gLQlpZiAocmlu
-Zm8tPmdldF9zZGEgJiYgIShyaW5mby0+Z2V0X3NkYSgmZGV2LT5hZGFwdGVyKSkpIHsNCj4+IC0J
-CWRldl9kYmcoZGV2LT5kZXYsDQo+PiAtCQkJIlNEQSBpcyBkb3duOyBjbGVhciBidXMgdXNpbmcg
-Z3Bpb1xuIik7DQo+PiAtCQlpMmNfcmVjb3Zlcl9idXMoJmRldi0+YWRhcHRlcik7DQo+PiArCS8q
-DQo+PiArCSAqIHNvbWUgZmF1bHR5IEkyQyBzbGF2ZSBkZXZpY2VzIG1pZ2h0IGhvbGQgU0RBIGRv
-d247DQo+PiArCSAqIHdlIGNhbiBzZW5kIGEgYnVzIGNsZWFyIGNvbW1hbmQsIGhvcGluZyB0aGF0
-IHRoZSBwaW5zIHdpbGwgYmUNCj4+ICsJICogcmVsZWFzZWQNCj4+ICsJICovDQo+PiArCWlmICho
-YXNfY2xlYXJfY21kKSB7DQo+PiArCQlpZiAoIShkZXYtPnRyYW5zZmVyX3N0YXR1cyAmIEFUOTFf
-VFdJX1NEQSkpIHsNCj4+ICsJCQlkZXZfZGJnKGRldi0+ZGV2LA0KPj4gKwkJCQkiU0RBIGlzIGRv
-d247IHNlbmRpbmcgYnVzIGNsZWFyIGNvbW1hbmRcbiIpOw0KPj4gKwkJCWlmIChkZXYtPnVzZV9h
-bHRfY21kKSB7DQo+PiArCQkJCXVuc2lnbmVkIGludCBhY3I7DQo+PiArDQo+PiArCQkJCWFjciA9
-IGF0OTFfdHdpX3JlYWQoZGV2LCBBVDkxX1RXSV9BQ1IpOw0KPj4gKwkJCQlhY3IgJj0gfkFUOTFf
-VFdJX0FDUl9EQVRBTF9NQVNLOw0KPj4gKwkJCQlhdDkxX3R3aV93cml0ZShkZXYsIEFUOTFfVFdJ
-X0FDUiwgYWNyKTsNCj4+ICsJCQl9DQo+PiArCQkJYXQ5MV90d2lfd3JpdGUoZGV2LCBBVDkxX1RX
-SV9DUiwgQVQ5MV9UV0lfQ0xFQVIpOw0KPj4gKwkJfQ0KPj4gKwl9IGVsc2Ugew0KPj4gKwkJc3Ry
-dWN0IGkyY19idXNfcmVjb3ZlcnlfaW5mbyAqcmluZm8gPSAmZGV2LT5yaW5mbzsNCj4+ICsNCj4+
-ICsJCWlmIChyaW5mby0+Z2V0X3NkYSAmJiAhKHJpbmZvLT5nZXRfc2RhKCZkZXYtPmFkYXB0ZXIp
-KSkgew0KPj4gKwkJCWRldl9kYmcoZGV2LT5kZXYsDQo+PiArCQkJCSJTREEgaXMgZG93bjsgY2xl
-YXIgYnVzIHVzaW5nIGdwaW9cbiIpOw0KPj4gKwkJCWkyY19yZWNvdmVyX2J1cygmZGV2LT5hZGFw
-dGVyKTsNCj4+ICsJCX0NCj4+ICAgCX0NCj4+ICAgDQo+PiAgIAlyZXR1cm4gcmV0Ow0KPj4gZGlm
-ZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS5oIGIvZHJpdmVycy9pMmMvYnVz
-c2VzL2kyYy1hdDkxLmgNCj4+IGluZGV4IGViMzM1YjcxZTc3NS4uODBmNzdkNTIzMzQ2IDEwMDY0
-NA0KPj4gLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLmgNCj4+ICsrKyBiL2RyaXZl
-cnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS5oDQo+PiBAQCAtMzYsNiArMzYsNyBAQA0KPj4gICAjZGVm
-aW5lCUFUOTFfVFdJX1NWRElTCQlCSVQoNSkJLyogU2xhdmUgVHJhbnNmZXIgRGlzYWJsZSAqLw0K
-Pj4gICAjZGVmaW5lCUFUOTFfVFdJX1FVSUNLCQlCSVQoNikJLyogU01CdXMgcXVpY2sgY29tbWFu
-ZCAqLw0KPj4gICAjZGVmaW5lCUFUOTFfVFdJX1NXUlNUCQlCSVQoNykJLyogU29mdHdhcmUgUmVz
-ZXQgKi8NCj4+ICsjZGVmaW5lCUFUOTFfVFdJX0NMRUFSCQlCSVQoMTUpIC8qIEJ1cyBjbGVhciBj
-b21tYW5kICovDQo+PiAgICNkZWZpbmUJQVQ5MV9UV0lfQUNNRU4JCUJJVCgxNikgLyogQWx0ZXJu
-YXRpdmUgQ29tbWFuZCBNb2RlIEVuYWJsZSAqLw0KPj4gICAjZGVmaW5lCUFUOTFfVFdJX0FDTURJ
-UwkJQklUKDE3KSAvKiBBbHRlcm5hdGl2ZSBDb21tYW5kIE1vZGUgRGlzYWJsZSAqLw0KPj4gICAj
-ZGVmaW5lCUFUOTFfVFdJX1RIUkNMUgkJQklUKDI0KSAvKiBUcmFuc21pdCBIb2xkaW5nIFJlZ2lz
-dGVyIENsZWFyICovDQo+PiBAQCAtNjksNiArNzAsOCBAQA0KPj4gICAjZGVmaW5lCUFUOTFfVFdJ
-X05BQ0sJCUJJVCg4KQkvKiBOb3QgQWNrbm93bGVkZ2VkICovDQo+PiAgICNkZWZpbmUJQVQ5MV9U
-V0lfRU9TQUNDCQlCSVQoMTEpCS8qIEVuZCBPZiBTbGF2ZSBBY2Nlc3MgKi8NCj4+ICAgI2RlZmlu
-ZQlBVDkxX1RXSV9MT0NLCQlCSVQoMjMpIC8qIFRXSSBMb2NrIGR1ZSB0byBGcmFtZSBFcnJvcnMg
-Ki8NCj4+ICsjZGVmaW5lCUFUOTFfVFdJX1NDTAkJQklUKDI0KSAvKiBUV0kgU0NMIHN0YXR1cyAq
-Lw0KPj4gKyNkZWZpbmUJQVQ5MV9UV0lfU0RBCQlCSVQoMjUpIC8qIFRXSSBTREEgc3RhdHVzICov
-DQo+PiAgIA0KPj4gICAjZGVmaW5lCUFUOTFfVFdJX0lOVF9NQVNLIFwNCj4+ICAgCShBVDkxX1RX
-SV9UWENPTVAgfCBBVDkxX1RXSV9SWFJEWSB8IEFUOTFfVFdJX1RYUkRZIHwgQVQ5MV9UV0lfTkFD
-SyBcDQo+PiBAQCAtODEsNyArODQsOCBAQA0KPj4gICAjZGVmaW5lCUFUOTFfVFdJX1RIUgkJMHgw
-MDM0CS8qIFRyYW5zbWl0IEhvbGRpbmcgUmVnaXN0ZXIgKi8NCj4+ICAgDQo+PiAgICNkZWZpbmUJ
-QVQ5MV9UV0lfQUNSCQkweDAwNDAJLyogQWx0ZXJuYXRpdmUgQ29tbWFuZCBSZWdpc3RlciAqLw0K
-Pj4gLSNkZWZpbmUJQVQ5MV9UV0lfQUNSX0RBVEFMKGxlbikJKChsZW4pICYgMHhmZikNCj4+ICsj
-ZGVmaW5lCUFUOTFfVFdJX0FDUl9EQVRBTF9NQVNLCUdFTk1BU0soMTUsIDApDQo+PiArI2RlZmlu
-ZQlBVDkxX1RXSV9BQ1JfREFUQUwobGVuKQkoKGxlbikgJiBBVDkxX1RXSV9BQ1JfREFUQUxfTUFT
-SykNCj4+ICAgI2RlZmluZQlBVDkxX1RXSV9BQ1JfRElSCUJJVCg4KQ0KPj4gICANCj4+ICAgI2Rl
-ZmluZSBBVDkxX1RXSV9GSUxUUgkJMHgwMDQ0DQo+PiBAQCAtMTE4LDYgKzEyMiw3IEBAIHN0cnVj
-dCBhdDkxX3R3aV9wZGF0YSB7DQo+PiAgIAlib29sIGhhc19kaWdfZmlsdHI7DQo+PiAgIAlib29s
-IGhhc19hZHZfZGlnX2ZpbHRyOw0KPj4gICAJYm9vbCBoYXNfYW5hX2ZpbHRyOw0KPj4gKwlib29s
-IGhhc19jbGVhcl9jbWQ7DQo+PiAgIAlzdHJ1Y3QgYXRfZG1hX3NsYXZlIGRtYV9zbGF2ZTsNCj4+
-ICAgfTsNCj4+ICAgDQo+PiAtLSANCj4+IDIuMjAuMQ0K
+On Fri, Jan 03, 2020 at 09:49:07AM +0000, Codrin.Ciubotariu@microchip.com wrote:
+> After a transfer timeout, some faulty I2C slave devices might hold down
+> the SCL pin. We can generate a bus clear command, hoping that the slave
+> might release the pins.
+> 
+> Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+> ---
+> 
+> Changes in v2:
+>  - use CLEAR command only if SDA is down; update patch subject to
+>    reflect this;
+
+Given this change, shouldn't the commit message above be updated?
+
+>  - CLEAR command is no longer used for sama5d2, only sam9x60;
+> 
+>  drivers/i2c/busses/i2c-at91-core.c   |  9 ++++++++
+>  drivers/i2c/busses/i2c-at91-master.c | 32 +++++++++++++++++++++++-----
+>  drivers/i2c/busses/i2c-at91.h        |  7 +++++-
+>  3 files changed, 42 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-at91-core.c b/drivers/i2c/busses/i2c-at91-core.c
+> index e13af4874976..128eafc05adb 100644
+> --- a/drivers/i2c/busses/i2c-at91-core.c
+> +++ b/drivers/i2c/busses/i2c-at91-core.c
+> @@ -71,6 +71,7 @@ static struct at91_twi_pdata at91rm9200_config = {
+>  	.has_dig_filtr = false,
+>  	.has_adv_dig_filtr = false,
+>  	.has_ana_filtr = false,
+> +	.has_clear_cmd = false,
+>  };
+>  
+>  static struct at91_twi_pdata at91sam9261_config = {
+> @@ -82,6 +83,7 @@ static struct at91_twi_pdata at91sam9261_config = {
+>  	.has_dig_filtr = false,
+>  	.has_adv_dig_filtr = false,
+>  	.has_ana_filtr = false,
+> +	.has_clear_cmd = false,
+>  };
+>  
+>  static struct at91_twi_pdata at91sam9260_config = {
+> @@ -93,6 +95,7 @@ static struct at91_twi_pdata at91sam9260_config = {
+>  	.has_dig_filtr = false,
+>  	.has_adv_dig_filtr = false,
+>  	.has_ana_filtr = false,
+> +	.has_clear_cmd = false,
+>  };
+>  
+>  static struct at91_twi_pdata at91sam9g20_config = {
+> @@ -104,6 +107,7 @@ static struct at91_twi_pdata at91sam9g20_config = {
+>  	.has_dig_filtr = false,
+>  	.has_adv_dig_filtr = false,
+>  	.has_ana_filtr = false,
+> +	.has_clear_cmd = false,
+>  };
+>  
+>  static struct at91_twi_pdata at91sam9g10_config = {
+> @@ -115,6 +119,7 @@ static struct at91_twi_pdata at91sam9g10_config = {
+>  	.has_dig_filtr = false,
+>  	.has_adv_dig_filtr = false,
+>  	.has_ana_filtr = false,
+> +	.has_clear_cmd = false,
+>  };
+>  
+>  static const struct platform_device_id at91_twi_devtypes[] = {
+> @@ -148,6 +153,7 @@ static struct at91_twi_pdata at91sam9x5_config = {
+>  	.has_dig_filtr = false,
+>  	.has_adv_dig_filtr = false,
+>  	.has_ana_filtr = false,
+> +	.has_clear_cmd = false,
+>  };
+>  
+>  static struct at91_twi_pdata sama5d4_config = {
+> @@ -159,6 +165,7 @@ static struct at91_twi_pdata sama5d4_config = {
+>  	.has_dig_filtr = true,
+>  	.has_adv_dig_filtr = false,
+>  	.has_ana_filtr = false,
+> +	.has_clear_cmd = false,
+>  };
+>  
+>  static struct at91_twi_pdata sama5d2_config = {
+> @@ -170,6 +177,7 @@ static struct at91_twi_pdata sama5d2_config = {
+>  	.has_dig_filtr = true,
+>  	.has_adv_dig_filtr = true,
+>  	.has_ana_filtr = true,
+> +	.has_clear_cmd = false,	/* due to errata, CLEAR cmd is not working */
+>  };
+>  
+>  static struct at91_twi_pdata sam9x60_config = {
+> @@ -181,6 +189,7 @@ static struct at91_twi_pdata sam9x60_config = {
+>  	.has_dig_filtr = true,
+>  	.has_adv_dig_filtr = true,
+>  	.has_ana_filtr = true,
+> +	.has_clear_cmd = true,
+>  };
+>  
+>  static const struct of_device_id atmel_twi_dt_ids[] = {
+> diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
+> index c55e8ff35201..8c4f20317847 100644
+> --- a/drivers/i2c/busses/i2c-at91-master.c
+> +++ b/drivers/i2c/busses/i2c-at91-master.c
+> @@ -480,7 +480,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+>  	unsigned long time_left;
+>  	bool has_unre_flag = dev->pdata->has_unre_flag;
+>  	bool has_alt_cmd = dev->pdata->has_alt_cmd;
+> -	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
+> +	bool has_clear_cmd = dev->pdata->has_clear_cmd;
+>  
+>  	/*
+>  	 * WARNING: the TXCOMP bit in the Status Register is NOT a clear on
+> @@ -641,10 +641,32 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+>  			       AT91_TWI_THRCLR | AT91_TWI_LOCKCLR);
+>  	}
+>  
+> -	if (rinfo->get_sda && !(rinfo->get_sda(&dev->adapter))) {
+> -		dev_dbg(dev->dev,
+> -			"SDA is down; clear bus using gpio\n");
+> -		i2c_recover_bus(&dev->adapter);
+> +	/*
+> +	 * some faulty I2C slave devices might hold SDA down;
+> +	 * we can send a bus clear command, hoping that the pins will be
+> +	 * released
+> +	 */
+> +	if (has_clear_cmd) {
+> +		if (!(dev->transfer_status & AT91_TWI_SDA)) {
+> +			dev_dbg(dev->dev,
+> +				"SDA is down; sending bus clear command\n");
+> +			if (dev->use_alt_cmd) {
+> +				unsigned int acr;
+> +
+> +				acr = at91_twi_read(dev, AT91_TWI_ACR);
+> +				acr &= ~AT91_TWI_ACR_DATAL_MASK;
+> +				at91_twi_write(dev, AT91_TWI_ACR, acr);
+> +			}
+> +			at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_CLEAR);
+> +		}
+> +	} else {
+> +		struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
+> +
+> +		if (rinfo->get_sda && !(rinfo->get_sda(&dev->adapter))) {
+> +			dev_dbg(dev->dev,
+> +				"SDA is down; clear bus using gpio\n");
+> +			i2c_recover_bus(&dev->adapter);
+> +		}
+>  	}
+>  
+>  	return ret;
+> diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
+> index eb335b71e775..80f77d523346 100644
+> --- a/drivers/i2c/busses/i2c-at91.h
+> +++ b/drivers/i2c/busses/i2c-at91.h
+> @@ -36,6 +36,7 @@
+>  #define	AT91_TWI_SVDIS		BIT(5)	/* Slave Transfer Disable */
+>  #define	AT91_TWI_QUICK		BIT(6)	/* SMBus quick command */
+>  #define	AT91_TWI_SWRST		BIT(7)	/* Software Reset */
+> +#define	AT91_TWI_CLEAR		BIT(15) /* Bus clear command */
+>  #define	AT91_TWI_ACMEN		BIT(16) /* Alternative Command Mode Enable */
+>  #define	AT91_TWI_ACMDIS		BIT(17) /* Alternative Command Mode Disable */
+>  #define	AT91_TWI_THRCLR		BIT(24) /* Transmit Holding Register Clear */
+> @@ -69,6 +70,8 @@
+>  #define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
+>  #define	AT91_TWI_EOSACC		BIT(11)	/* End Of Slave Access */
+>  #define	AT91_TWI_LOCK		BIT(23) /* TWI Lock due to Frame Errors */
+> +#define	AT91_TWI_SCL		BIT(24) /* TWI SCL status */
+> +#define	AT91_TWI_SDA		BIT(25) /* TWI SDA status */
+>  
+>  #define	AT91_TWI_INT_MASK \
+>  	(AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY | AT91_TWI_NACK \
+> @@ -81,7 +84,8 @@
+>  #define	AT91_TWI_THR		0x0034	/* Transmit Holding Register */
+>  
+>  #define	AT91_TWI_ACR		0x0040	/* Alternative Command Register */
+> -#define	AT91_TWI_ACR_DATAL(len)	((len) & 0xff)
+> +#define	AT91_TWI_ACR_DATAL_MASK	GENMASK(15, 0)
+> +#define	AT91_TWI_ACR_DATAL(len)	((len) & AT91_TWI_ACR_DATAL_MASK)
+>  #define	AT91_TWI_ACR_DIR	BIT(8)
+>  
+>  #define AT91_TWI_FILTR		0x0044
+> @@ -118,6 +122,7 @@ struct at91_twi_pdata {
+>  	bool has_dig_filtr;
+>  	bool has_adv_dig_filtr;
+>  	bool has_ana_filtr;
+> +	bool has_clear_cmd;
+>  	struct at_dma_slave dma_slave;
+>  };
+>  
+> -- 
+> 2.20.1
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> 
+
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTC broadband for 0.8mile line in suburbia: sync at 12.1Mbps down 622kbps up
+According to speedtest.net: 11.9Mbps down 500kbps up
