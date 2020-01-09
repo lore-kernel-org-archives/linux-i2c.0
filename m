@@ -1,172 +1,97 @@
-From: <Codrin.Ciubotariu-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
-Subject: Re: [PATCH v2 3/6] i2c: at91: Send bus clear command if SCL is down
-Date: Thu, 9 Jan 2020 13:29:04 +0000
-Message-ID: <66cd3857-9ad8-1d1b-0bad-844a37074b6f@microchip.com>
-References: <20200103094821.13185-1-codrin.ciubotariu@microchip.com>
- <20200103094821.13185-4-codrin.ciubotariu@microchip.com>
- <20200109110557.GO25745@shell.armlinux.org.uk>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
+Subject: [PATCH v3 2/5] ACPI: Add a convenience function to tell a device is suspended in probe
+Date: Thu,  9 Jan 2020 17:45:26 +0200
+Message-ID: <20200109154529.19484-3-sakari.ailus@linux.intel.com>
+References: <20200109154529.19484-1-sakari.ailus@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20200109110557.GO25745-QEMnZ+CodIVURfEZ8mYm6t73F7V6hmMc@public.gmane.org>
-Content-Language: en-US
-Content-ID: <2312E60AD5A02746A6CAC601FD8D5D1A-Hry67jCOGbCcE4WynfumptQqCkab/8FMAL8bYrjMMd8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, alexandre.belloni-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org, kamel.bouhara-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Ludovic.Desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200109154529.19484-1-sakari.ailus@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael@kernel.org>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMDkuMDEuMjAyMCAxMzowNSwgUnVzc2VsbCBLaW5nIC0gQVJNIExpbnV4IGFkbWluIHdyb3Rl
-Og0KPiBPbiBGcmksIEphbiAwMywgMjAyMCBhdCAwOTo0OTowN0FNICswMDAwLCBDb2RyaW4uQ2l1
-Ym90YXJpdUBtaWNyb2NoaXAuY29tIHdyb3RlOg0KPj4gQWZ0ZXIgYSB0cmFuc2ZlciB0aW1lb3V0
-LCBzb21lIGZhdWx0eSBJMkMgc2xhdmUgZGV2aWNlcyBtaWdodCBob2xkIGRvd24NCj4+IHRoZSBT
-Q0wgcGluLiBXZSBjYW4gZ2VuZXJhdGUgYSBidXMgY2xlYXIgY29tbWFuZCwgaG9waW5nIHRoYXQg
-dGhlIHNsYXZlDQo+PiBtaWdodCByZWxlYXNlIHRoZSBwaW5zLg0KPj4NCj4+IFNpZ25lZC1vZmYt
-Ynk6IENvZHJpbiBDaXVib3Rhcml1IDxjb2RyaW4uY2l1Ym90YXJpdUBtaWNyb2NoaXAuY29tPg0K
-Pj4gLS0tDQo+Pg0KPj4gQ2hhbmdlcyBpbiB2MjoNCj4+ICAgLSB1c2UgQ0xFQVIgY29tbWFuZCBv
-bmx5IGlmIFNEQSBpcyBkb3duOyB1cGRhdGUgcGF0Y2ggc3ViamVjdCB0bw0KPj4gICAgIHJlZmxl
-Y3QgdGhpczsNCj4gDQo+IEdpdmVuIHRoaXMgY2hhbmdlLCBzaG91bGRuJ3QgdGhlIGNvbW1pdCBt
-ZXNzYWdlIGFib3ZlIGJlIHVwZGF0ZWQ/DQoNCkl0IGxvb2tzIGxpa2UgYm90aCB0aGUgc3ViamVj
-dCBhbmQgdGhlIGNvbW1pdCBtZXNzYWdlIG5lZWQgdG8gYmUgZml4ZWQuLi4NCg0KVGhhbmsgeW91
-IGZvciB5b3VyIHJldmlldy4NCg0KQmVzdCByZWdhcmRzLA0KQ29kcmluDQoNCj4gDQo+PiAgIC0g
-Q0xFQVIgY29tbWFuZCBpcyBubyBsb25nZXIgdXNlZCBmb3Igc2FtYTVkMiwgb25seSBzYW05eDYw
-Ow0KPj4NCj4+ICAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLWNvcmUuYyAgIHwgIDkgKysr
-KysrKysNCj4+ICAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLW1hc3Rlci5jIHwgMzIgKysr
-KysrKysrKysrKysrKysrKysrKystLS0tLQ0KPj4gICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWF0
-OTEuaCAgICAgICAgfCAgNyArKysrKy0NCj4+ICAgMyBmaWxlcyBjaGFuZ2VkLCA0MiBpbnNlcnRp
-b25zKCspLCA2IGRlbGV0aW9ucygtKQ0KPj4NCj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9i
-dXNzZXMvaTJjLWF0OTEtY29yZS5jIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLWNvcmUu
-Yw0KPj4gaW5kZXggZTEzYWY0ODc0OTc2Li4xMjhlYWZjMDVhZGIgMTAwNjQ0DQo+PiAtLS0gYS9k
-cml2ZXJzL2kyYy9idXNzZXMvaTJjLWF0OTEtY29yZS5jDQo+PiArKysgYi9kcml2ZXJzL2kyYy9i
-dXNzZXMvaTJjLWF0OTEtY29yZS5jDQo+PiBAQCAtNzEsNiArNzEsNyBAQCBzdGF0aWMgc3RydWN0
-IGF0OTFfdHdpX3BkYXRhIGF0OTFybTkyMDBfY29uZmlnID0gew0KPj4gICAgICAgIC5oYXNfZGln
-X2ZpbHRyID0gZmFsc2UsDQo+PiAgICAgICAgLmhhc19hZHZfZGlnX2ZpbHRyID0gZmFsc2UsDQo+
-PiAgICAgICAgLmhhc19hbmFfZmlsdHIgPSBmYWxzZSwNCj4+ICsgICAgIC5oYXNfY2xlYXJfY21k
-ID0gZmFsc2UsDQo+PiAgIH07DQo+Pg0KPj4gICBzdGF0aWMgc3RydWN0IGF0OTFfdHdpX3BkYXRh
-IGF0OTFzYW05MjYxX2NvbmZpZyA9IHsNCj4+IEBAIC04Miw2ICs4Myw3IEBAIHN0YXRpYyBzdHJ1
-Y3QgYXQ5MV90d2lfcGRhdGEgYXQ5MXNhbTkyNjFfY29uZmlnID0gew0KPj4gICAgICAgIC5oYXNf
-ZGlnX2ZpbHRyID0gZmFsc2UsDQo+PiAgICAgICAgLmhhc19hZHZfZGlnX2ZpbHRyID0gZmFsc2Us
-DQo+PiAgICAgICAgLmhhc19hbmFfZmlsdHIgPSBmYWxzZSwNCj4+ICsgICAgIC5oYXNfY2xlYXJf
-Y21kID0gZmFsc2UsDQo+PiAgIH07DQo+Pg0KPj4gICBzdGF0aWMgc3RydWN0IGF0OTFfdHdpX3Bk
-YXRhIGF0OTFzYW05MjYwX2NvbmZpZyA9IHsNCj4+IEBAIC05Myw2ICs5NSw3IEBAIHN0YXRpYyBz
-dHJ1Y3QgYXQ5MV90d2lfcGRhdGEgYXQ5MXNhbTkyNjBfY29uZmlnID0gew0KPj4gICAgICAgIC5o
-YXNfZGlnX2ZpbHRyID0gZmFsc2UsDQo+PiAgICAgICAgLmhhc19hZHZfZGlnX2ZpbHRyID0gZmFs
-c2UsDQo+PiAgICAgICAgLmhhc19hbmFfZmlsdHIgPSBmYWxzZSwNCj4+ICsgICAgIC5oYXNfY2xl
-YXJfY21kID0gZmFsc2UsDQo+PiAgIH07DQo+Pg0KPj4gICBzdGF0aWMgc3RydWN0IGF0OTFfdHdp
-X3BkYXRhIGF0OTFzYW05ZzIwX2NvbmZpZyA9IHsNCj4+IEBAIC0xMDQsNiArMTA3LDcgQEAgc3Rh
-dGljIHN0cnVjdCBhdDkxX3R3aV9wZGF0YSBhdDkxc2FtOWcyMF9jb25maWcgPSB7DQo+PiAgICAg
-ICAgLmhhc19kaWdfZmlsdHIgPSBmYWxzZSwNCj4+ICAgICAgICAuaGFzX2Fkdl9kaWdfZmlsdHIg
-PSBmYWxzZSwNCj4+ICAgICAgICAuaGFzX2FuYV9maWx0ciA9IGZhbHNlLA0KPj4gKyAgICAgLmhh
-c19jbGVhcl9jbWQgPSBmYWxzZSwNCj4+ICAgfTsNCj4+DQo+PiAgIHN0YXRpYyBzdHJ1Y3QgYXQ5
-MV90d2lfcGRhdGEgYXQ5MXNhbTlnMTBfY29uZmlnID0gew0KPj4gQEAgLTExNSw2ICsxMTksNyBA
-QCBzdGF0aWMgc3RydWN0IGF0OTFfdHdpX3BkYXRhIGF0OTFzYW05ZzEwX2NvbmZpZyA9IHsNCj4+
-ICAgICAgICAuaGFzX2RpZ19maWx0ciA9IGZhbHNlLA0KPj4gICAgICAgIC5oYXNfYWR2X2RpZ19m
-aWx0ciA9IGZhbHNlLA0KPj4gICAgICAgIC5oYXNfYW5hX2ZpbHRyID0gZmFsc2UsDQo+PiArICAg
-ICAuaGFzX2NsZWFyX2NtZCA9IGZhbHNlLA0KPj4gICB9Ow0KPj4NCj4+ICAgc3RhdGljIGNvbnN0
-IHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2VfaWQgYXQ5MV90d2lfZGV2dHlwZXNbXSA9IHsNCj4+IEBA
-IC0xNDgsNiArMTUzLDcgQEAgc3RhdGljIHN0cnVjdCBhdDkxX3R3aV9wZGF0YSBhdDkxc2FtOXg1
-X2NvbmZpZyA9IHsNCj4+ICAgICAgICAuaGFzX2RpZ19maWx0ciA9IGZhbHNlLA0KPj4gICAgICAg
-IC5oYXNfYWR2X2RpZ19maWx0ciA9IGZhbHNlLA0KPj4gICAgICAgIC5oYXNfYW5hX2ZpbHRyID0g
-ZmFsc2UsDQo+PiArICAgICAuaGFzX2NsZWFyX2NtZCA9IGZhbHNlLA0KPj4gICB9Ow0KPj4NCj4+
-ICAgc3RhdGljIHN0cnVjdCBhdDkxX3R3aV9wZGF0YSBzYW1hNWQ0X2NvbmZpZyA9IHsNCj4+IEBA
-IC0xNTksNiArMTY1LDcgQEAgc3RhdGljIHN0cnVjdCBhdDkxX3R3aV9wZGF0YSBzYW1hNWQ0X2Nv
-bmZpZyA9IHsNCj4+ICAgICAgICAuaGFzX2RpZ19maWx0ciA9IHRydWUsDQo+PiAgICAgICAgLmhh
-c19hZHZfZGlnX2ZpbHRyID0gZmFsc2UsDQo+PiAgICAgICAgLmhhc19hbmFfZmlsdHIgPSBmYWxz
-ZSwNCj4+ICsgICAgIC5oYXNfY2xlYXJfY21kID0gZmFsc2UsDQo+PiAgIH07DQo+Pg0KPj4gICBz
-dGF0aWMgc3RydWN0IGF0OTFfdHdpX3BkYXRhIHNhbWE1ZDJfY29uZmlnID0gew0KPj4gQEAgLTE3
-MCw2ICsxNzcsNyBAQCBzdGF0aWMgc3RydWN0IGF0OTFfdHdpX3BkYXRhIHNhbWE1ZDJfY29uZmln
-ID0gew0KPj4gICAgICAgIC5oYXNfZGlnX2ZpbHRyID0gdHJ1ZSwNCj4+ICAgICAgICAuaGFzX2Fk
-dl9kaWdfZmlsdHIgPSB0cnVlLA0KPj4gICAgICAgIC5oYXNfYW5hX2ZpbHRyID0gdHJ1ZSwNCj4+
-ICsgICAgIC5oYXNfY2xlYXJfY21kID0gZmFsc2UsIC8qIGR1ZSB0byBlcnJhdGEsIENMRUFSIGNt
-ZCBpcyBub3Qgd29ya2luZyAqLw0KPj4gICB9Ow0KPj4NCj4+ICAgc3RhdGljIHN0cnVjdCBhdDkx
-X3R3aV9wZGF0YSBzYW05eDYwX2NvbmZpZyA9IHsNCj4+IEBAIC0xODEsNiArMTg5LDcgQEAgc3Rh
-dGljIHN0cnVjdCBhdDkxX3R3aV9wZGF0YSBzYW05eDYwX2NvbmZpZyA9IHsNCj4+ICAgICAgICAu
-aGFzX2RpZ19maWx0ciA9IHRydWUsDQo+PiAgICAgICAgLmhhc19hZHZfZGlnX2ZpbHRyID0gdHJ1
-ZSwNCj4+ICAgICAgICAuaGFzX2FuYV9maWx0ciA9IHRydWUsDQo+PiArICAgICAuaGFzX2NsZWFy
-X2NtZCA9IHRydWUsDQo+PiAgIH07DQo+Pg0KPj4gICBzdGF0aWMgY29uc3Qgc3RydWN0IG9mX2Rl
-dmljZV9pZCBhdG1lbF90d2lfZHRfaWRzW10gPSB7DQo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9p
-MmMvYnVzc2VzL2kyYy1hdDkxLW1hc3Rlci5jIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1hdDkx
-LW1hc3Rlci5jDQo+PiBpbmRleCBjNTVlOGZmMzUyMDEuLjhjNGYyMDMxNzg0NyAxMDA2NDQNCj4+
-IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS1tYXN0ZXIuYw0KPj4gKysrIGIvZHJp
-dmVycy9pMmMvYnVzc2VzL2kyYy1hdDkxLW1hc3Rlci5jDQo+PiBAQCAtNDgwLDcgKzQ4MCw3IEBA
-IHN0YXRpYyBpbnQgYXQ5MV9kb190d2lfdHJhbnNmZXIoc3RydWN0IGF0OTFfdHdpX2RldiAqZGV2
-KQ0KPj4gICAgICAgIHVuc2lnbmVkIGxvbmcgdGltZV9sZWZ0Ow0KPj4gICAgICAgIGJvb2wgaGFz
-X3VucmVfZmxhZyA9IGRldi0+cGRhdGEtPmhhc191bnJlX2ZsYWc7DQo+PiAgICAgICAgYm9vbCBo
-YXNfYWx0X2NtZCA9IGRldi0+cGRhdGEtPmhhc19hbHRfY21kOw0KPj4gLSAgICAgc3RydWN0IGky
-Y19idXNfcmVjb3ZlcnlfaW5mbyAqcmluZm8gPSAmZGV2LT5yaW5mbzsNCj4+ICsgICAgIGJvb2wg
-aGFzX2NsZWFyX2NtZCA9IGRldi0+cGRhdGEtPmhhc19jbGVhcl9jbWQ7DQo+Pg0KPj4gICAgICAg
-IC8qDQo+PiAgICAgICAgICogV0FSTklORzogdGhlIFRYQ09NUCBiaXQgaW4gdGhlIFN0YXR1cyBS
-ZWdpc3RlciBpcyBOT1QgYSBjbGVhciBvbg0KPj4gQEAgLTY0MSwxMCArNjQxLDMyIEBAIHN0YXRp
-YyBpbnQgYXQ5MV9kb190d2lfdHJhbnNmZXIoc3RydWN0IGF0OTFfdHdpX2RldiAqZGV2KQ0KPj4g
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQVQ5MV9UV0lfVEhSQ0xSIHwgQVQ5MV9UV0lf
-TE9DS0NMUik7DQo+PiAgICAgICAgfQ0KPj4NCj4+IC0gICAgIGlmIChyaW5mby0+Z2V0X3NkYSAm
-JiAhKHJpbmZvLT5nZXRfc2RhKCZkZXYtPmFkYXB0ZXIpKSkgew0KPj4gLSAgICAgICAgICAgICBk
-ZXZfZGJnKGRldi0+ZGV2LA0KPj4gLSAgICAgICAgICAgICAgICAgICAgICJTREEgaXMgZG93bjsg
-Y2xlYXIgYnVzIHVzaW5nIGdwaW9cbiIpOw0KPj4gLSAgICAgICAgICAgICBpMmNfcmVjb3Zlcl9i
-dXMoJmRldi0+YWRhcHRlcik7DQo+PiArICAgICAvKg0KPj4gKyAgICAgICogc29tZSBmYXVsdHkg
-STJDIHNsYXZlIGRldmljZXMgbWlnaHQgaG9sZCBTREEgZG93bjsNCj4+ICsgICAgICAqIHdlIGNh
-biBzZW5kIGEgYnVzIGNsZWFyIGNvbW1hbmQsIGhvcGluZyB0aGF0IHRoZSBwaW5zIHdpbGwgYmUN
-Cj4+ICsgICAgICAqIHJlbGVhc2VkDQo+PiArICAgICAgKi8NCj4+ICsgICAgIGlmIChoYXNfY2xl
-YXJfY21kKSB7DQo+PiArICAgICAgICAgICAgIGlmICghKGRldi0+dHJhbnNmZXJfc3RhdHVzICYg
-QVQ5MV9UV0lfU0RBKSkgew0KPj4gKyAgICAgICAgICAgICAgICAgICAgIGRldl9kYmcoZGV2LT5k
-ZXYsDQo+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiU0RBIGlzIGRvd247IHNlbmRp
-bmcgYnVzIGNsZWFyIGNvbW1hbmRcbiIpOw0KPj4gKyAgICAgICAgICAgICAgICAgICAgIGlmIChk
-ZXYtPnVzZV9hbHRfY21kKSB7DQo+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICB1bnNp
-Z25lZCBpbnQgYWNyOw0KPj4gKw0KPj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYWNy
-ID0gYXQ5MV90d2lfcmVhZChkZXYsIEFUOTFfVFdJX0FDUik7DQo+PiArICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICBhY3IgJj0gfkFUOTFfVFdJX0FDUl9EQVRBTF9NQVNLOw0KPj4gKyAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgYXQ5MV90d2lfd3JpdGUoZGV2LCBBVDkxX1RXSV9BQ1Is
-IGFjcik7DQo+PiArICAgICAgICAgICAgICAgICAgICAgfQ0KPj4gKyAgICAgICAgICAgICAgICAg
-ICAgIGF0OTFfdHdpX3dyaXRlKGRldiwgQVQ5MV9UV0lfQ1IsIEFUOTFfVFdJX0NMRUFSKTsNCj4+
-ICsgICAgICAgICAgICAgfQ0KPj4gKyAgICAgfSBlbHNlIHsNCj4+ICsgICAgICAgICAgICAgc3Ry
-dWN0IGkyY19idXNfcmVjb3ZlcnlfaW5mbyAqcmluZm8gPSAmZGV2LT5yaW5mbzsNCj4+ICsNCj4+
-ICsgICAgICAgICAgICAgaWYgKHJpbmZvLT5nZXRfc2RhICYmICEocmluZm8tPmdldF9zZGEoJmRl
-di0+YWRhcHRlcikpKSB7DQo+PiArICAgICAgICAgICAgICAgICAgICAgZGV2X2RiZyhkZXYtPmRl
-diwNCj4+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICJTREEgaXMgZG93bjsgY2xlYXIg
-YnVzIHVzaW5nIGdwaW9cbiIpOw0KPj4gKyAgICAgICAgICAgICAgICAgICAgIGkyY19yZWNvdmVy
-X2J1cygmZGV2LT5hZGFwdGVyKTsNCj4+ICsgICAgICAgICAgICAgfQ0KPj4gICAgICAgIH0NCj4+
-DQo+PiAgICAgICAgcmV0dXJuIHJldDsNCj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNz
-ZXMvaTJjLWF0OTEuaCBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYXQ5MS5oDQo+PiBpbmRleCBl
-YjMzNWI3MWU3NzUuLjgwZjc3ZDUyMzM0NiAxMDA2NDQNCj4+IC0tLSBhL2RyaXZlcnMvaTJjL2J1
-c3Nlcy9pMmMtYXQ5MS5oDQo+PiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWF0OTEuaA0K
-Pj4gQEAgLTM2LDYgKzM2LDcgQEANCj4+ICAgI2RlZmluZSAgICAgIEFUOTFfVFdJX1NWRElTICAg
-ICAgICAgIEJJVCg1KSAgLyogU2xhdmUgVHJhbnNmZXIgRGlzYWJsZSAqLw0KPj4gICAjZGVmaW5l
-ICAgICAgQVQ5MV9UV0lfUVVJQ0sgICAgICAgICAgQklUKDYpICAvKiBTTUJ1cyBxdWljayBjb21t
-YW5kICovDQo+PiAgICNkZWZpbmUgICAgICBBVDkxX1RXSV9TV1JTVCAgICAgICAgICBCSVQoNykg
-IC8qIFNvZnR3YXJlIFJlc2V0ICovDQo+PiArI2RlZmluZSAgICAgIEFUOTFfVFdJX0NMRUFSICAg
-ICAgICAgIEJJVCgxNSkgLyogQnVzIGNsZWFyIGNvbW1hbmQgKi8NCj4+ICAgI2RlZmluZSAgICAg
-IEFUOTFfVFdJX0FDTUVOICAgICAgICAgIEJJVCgxNikgLyogQWx0ZXJuYXRpdmUgQ29tbWFuZCBN
-b2RlIEVuYWJsZSAqLw0KPj4gICAjZGVmaW5lICAgICAgQVQ5MV9UV0lfQUNNRElTICAgICAgICAg
-QklUKDE3KSAvKiBBbHRlcm5hdGl2ZSBDb21tYW5kIE1vZGUgRGlzYWJsZSAqLw0KPj4gICAjZGVm
-aW5lICAgICAgQVQ5MV9UV0lfVEhSQ0xSICAgICAgICAgQklUKDI0KSAvKiBUcmFuc21pdCBIb2xk
-aW5nIFJlZ2lzdGVyIENsZWFyICovDQo+PiBAQCAtNjksNiArNzAsOCBAQA0KPj4gICAjZGVmaW5l
-ICAgICAgQVQ5MV9UV0lfTkFDSyAgICAgICAgICAgQklUKDgpICAvKiBOb3QgQWNrbm93bGVkZ2Vk
-ICovDQo+PiAgICNkZWZpbmUgICAgICBBVDkxX1RXSV9FT1NBQ0MgICAgICAgICBCSVQoMTEpIC8q
-IEVuZCBPZiBTbGF2ZSBBY2Nlc3MgKi8NCj4+ICAgI2RlZmluZSAgICAgIEFUOTFfVFdJX0xPQ0sg
-ICAgICAgICAgIEJJVCgyMykgLyogVFdJIExvY2sgZHVlIHRvIEZyYW1lIEVycm9ycyAqLw0KPj4g
-KyNkZWZpbmUgICAgICBBVDkxX1RXSV9TQ0wgICAgICAgICAgICBCSVQoMjQpIC8qIFRXSSBTQ0wg
-c3RhdHVzICovDQo+PiArI2RlZmluZSAgICAgIEFUOTFfVFdJX1NEQSAgICAgICAgICAgIEJJVCgy
-NSkgLyogVFdJIFNEQSBzdGF0dXMgKi8NCj4+DQo+PiAgICNkZWZpbmUgICAgICBBVDkxX1RXSV9J
-TlRfTUFTSyBcDQo+PiAgICAgICAgKEFUOTFfVFdJX1RYQ09NUCB8IEFUOTFfVFdJX1JYUkRZIHwg
-QVQ5MV9UV0lfVFhSRFkgfCBBVDkxX1RXSV9OQUNLIFwNCj4+IEBAIC04MSw3ICs4NCw4IEBADQo+
-PiAgICNkZWZpbmUgICAgICBBVDkxX1RXSV9USFIgICAgICAgICAgICAweDAwMzQgIC8qIFRyYW5z
-bWl0IEhvbGRpbmcgUmVnaXN0ZXIgKi8NCj4+DQo+PiAgICNkZWZpbmUgICAgICBBVDkxX1RXSV9B
-Q1IgICAgICAgICAgICAweDAwNDAgIC8qIEFsdGVybmF0aXZlIENvbW1hbmQgUmVnaXN0ZXIgKi8N
-Cj4+IC0jZGVmaW5lICAgICAgQVQ5MV9UV0lfQUNSX0RBVEFMKGxlbikgKChsZW4pICYgMHhmZikN
-Cj4+ICsjZGVmaW5lICAgICAgQVQ5MV9UV0lfQUNSX0RBVEFMX01BU0sgR0VOTUFTSygxNSwgMCkN
-Cj4+ICsjZGVmaW5lICAgICAgQVQ5MV9UV0lfQUNSX0RBVEFMKGxlbikgKChsZW4pICYgQVQ5MV9U
-V0lfQUNSX0RBVEFMX01BU0spDQo+PiAgICNkZWZpbmUgICAgICBBVDkxX1RXSV9BQ1JfRElSICAg
-ICAgICBCSVQoOCkNCj4+DQo+PiAgICNkZWZpbmUgQVQ5MV9UV0lfRklMVFIgICAgICAgICAgICAg
-ICAweDAwNDQNCj4+IEBAIC0xMTgsNiArMTIyLDcgQEAgc3RydWN0IGF0OTFfdHdpX3BkYXRhIHsN
-Cj4+ICAgICAgICBib29sIGhhc19kaWdfZmlsdHI7DQo+PiAgICAgICAgYm9vbCBoYXNfYWR2X2Rp
-Z19maWx0cjsNCj4+ICAgICAgICBib29sIGhhc19hbmFfZmlsdHI7DQo+PiArICAgICBib29sIGhh
-c19jbGVhcl9jbWQ7DQo+PiAgICAgICAgc3RydWN0IGF0X2RtYV9zbGF2ZSBkbWFfc2xhdmU7DQo+
-PiAgIH07DQo+Pg0KPj4gLS0NCj4+IDIuMjAuMQ0KPj4NCj4+IF9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fDQo+PiBsaW51eC1hcm0ta2VybmVsIG1haWxpbmcg
-bGlzdA0KPj4gbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnDQo+PiBodHRwOi8v
-bGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwNCj4+
-DQo+IA0KPiAtLQ0KPiBSTUsncyBQYXRjaCBzeXN0ZW06IGh0dHBzOi8vd3d3LmFybWxpbnV4Lm9y
-Zy51ay9kZXZlbG9wZXIvcGF0Y2hlcy8NCj4gRlRUQyBicm9hZGJhbmQgZm9yIDAuOG1pbGUgbGlu
-ZSBpbiBzdWJ1cmJpYTogc3luYyBhdCAxMi4xTWJwcyBkb3duIDYyMmticHMgdXANCj4gQWNjb3Jk
-aW5nIHRvIHNwZWVkdGVzdC5uZXQ6IDExLjlNYnBzIGRvd24gNTAwa2JwcyB1cA0KPiANCg==
+Add a convenience function to tell whether a device is suspended for probe
+or remove, for busses where the custom is that drivers don't need to
+resume devices in probe, or suspend them in their remove handlers.
+
+Returns false on non-ACPI systems.
+
+Suggested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+---
+ drivers/acpi/device_pm.c | 35 +++++++++++++++++++++++++++++++++++
+ include/linux/acpi.h     |  5 +++++
+ 2 files changed, 40 insertions(+)
+
+diff --git a/drivers/acpi/device_pm.c b/drivers/acpi/device_pm.c
+index 5e4a8860a9c0c..87393020276d8 100644
+--- a/drivers/acpi/device_pm.c
++++ b/drivers/acpi/device_pm.c
+@@ -1348,4 +1348,39 @@ int acpi_dev_pm_attach(struct device *dev, bool power_on)
+ 	return 1;
+ }
+ EXPORT_SYMBOL_GPL(acpi_dev_pm_attach);
++
++/**
++ * acpi_dev_low_power_state_probe - Tell if a device is in a low power state
++ *				    during probe
++ * @dev: The device
++ *
++ * Tell whether a given device is in a low power state during the driver's probe
++ * or remove operation.
++ *
++ * Drivers of devices on certain busses such as I²C can generally assume (on
++ * ACPI based systems) that the devices they control are powered on without
++ * driver having to do anything about it. Using struct
++ * device_driver.probe_low_power and "probe-low-power" property, this can be
++ * negated and the driver has full control of the device power management.
++ * Always returns false on non-ACPI based systems. True is returned on ACPI
++ * based systems iff the device is in a low power state during probe or remove.
++ */
++bool acpi_dev_low_power_state_probe(struct device *dev)
++{
++	int power_state;
++	int ret;
++
++	if (!is_acpi_device_node(dev_fwnode(dev)))
++		return false;
++
++	ret = acpi_device_get_power(ACPI_COMPANION(dev), &power_state);
++	if (ret) {
++		dev_warn(dev, "Cannot obtain power state (%d)\n", ret);
++		return false;
++	}
++
++	return power_state != ACPI_STATE_D0;
++}
++EXPORT_SYMBOL_GPL(acpi_dev_low_power_state_probe);
++
+ #endif /* CONFIG_PM */
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index 0f37a7d5fa774..fd00853074e1a 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -926,6 +926,7 @@ int acpi_dev_resume(struct device *dev);
+ int acpi_subsys_runtime_suspend(struct device *dev);
+ int acpi_subsys_runtime_resume(struct device *dev);
+ int acpi_dev_pm_attach(struct device *dev, bool power_on);
++bool acpi_dev_low_power_state_probe(struct device *dev);
+ #else
+ static inline int acpi_dev_runtime_suspend(struct device *dev) { return 0; }
+ static inline int acpi_dev_runtime_resume(struct device *dev) { return 0; }
+@@ -935,6 +936,10 @@ static inline int acpi_dev_pm_attach(struct device *dev, bool power_on)
+ {
+ 	return 0;
+ }
++static inline bool acpi_dev_low_power_state_probe(struct device *dev)
++{
++	return false;
++}
+ #endif
+ 
+ #if defined(CONFIG_ACPI) && defined(CONFIG_PM_SLEEP)
+-- 
+2.20.1
