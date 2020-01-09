@@ -1,7 +1,7 @@
 From: Sakari Ailus <sakari.ailus@linux.intel.com>
-Subject: [PATCH v3 5/5] at24: Support probing while off
-Date: Thu,  9 Jan 2020 17:45:29 +0200
-Message-ID: <20200109154529.19484-6-sakari.ailus@linux.intel.com>
+Subject: [PATCH v3 3/5] ov5670: Support probe whilst the device is in a low power state
+Date: Thu,  9 Jan 2020 17:45:27 +0200
+Message-ID: <20200109154529.19484-4-sakari.ailus@linux.intel.com>
 References: <20200109154529.19484-1-sakari.ailus@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,84 +12,76 @@ To: linux-i2c@vger.kernel.org
 Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael@kernel.org>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
 
-In certain use cases (where the chip is part of a camera module, and the
-camera module is wired together with a camera privacy LED), powering on
-the device during probe is undesirable. Add support for the at24 to
-execute probe while being powered off. For this to happen, a hint in form
-of a device property is required from the firmware.
+Tell ACPI device PM code that the driver supports the device being in a
+low power state when the driver's probe function is entered.
 
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 ---
- drivers/misc/eeprom/at24.c | 31 +++++++++++++++++++++----------
- 1 file changed, 21 insertions(+), 10 deletions(-)
+ drivers/media/i2c/ov5670.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 0681d5fdd538a..41ac65d1e5d41 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -564,6 +564,7 @@ static int at24_probe(struct i2c_client *client)
- 	bool i2c_fn_i2c, i2c_fn_block;
- 	unsigned int i, num_addresses;
- 	struct at24_data *at24;
+diff --git a/drivers/media/i2c/ov5670.c b/drivers/media/i2c/ov5670.c
+index 041fcbb4eebdf..9b10b1c0e1f8f 100644
+--- a/drivers/media/i2c/ov5670.c
++++ b/drivers/media/i2c/ov5670.c
+@@ -2444,6 +2444,7 @@ static int ov5670_probe(struct i2c_client *client)
+ 	struct ov5670 *ov5670;
+ 	const char *err_msg;
+ 	u32 input_clk = 0;
 +	bool low_power;
- 	struct regmap *regmap;
- 	bool writable;
- 	u8 test_byte;
-@@ -701,19 +702,24 @@ static int at24_probe(struct i2c_client *client)
+ 	int ret;
  
- 	i2c_set_clientdata(client, at24);
+ 	device_property_read_u32(&client->dev, "clock-frequency", &input_clk);
+@@ -2460,11 +2461,14 @@ static int ov5670_probe(struct i2c_client *client)
+ 	/* Initialize subdev */
+ 	v4l2_i2c_subdev_init(&ov5670->sd, client, &ov5670_subdev_ops);
  
--	/* enable runtime pm */
--	pm_runtime_set_active(dev);
+-	/* Check module identity */
+-	ret = ov5670_identify_module(ov5670);
+-	if (ret) {
+-		err_msg = "ov5670_identify_module() error";
+-		goto error_print;
 +	low_power = acpi_dev_low_power_state_probe(&client->dev);
-+	if (!low_power)
-+		pm_runtime_set_active(dev);
-+
- 	pm_runtime_enable(dev);
- 
- 	/*
--	 * Perform a one-byte test read to verify that the
--	 * chip is functional.
-+	 * Perform a one-byte test read to verify that the chip is functional,
-+	 * unless powering on the device is to be avoided during probe (i.e.
-+	 * it's powered off right now).
- 	 */
--	err = at24_read(at24, 0, &test_byte, 1);
--	pm_runtime_idle(dev);
--	if (err) {
--		pm_runtime_disable(dev);
--		return -ENODEV;
 +	if (!low_power) {
-+		err = at24_read(at24, 0, &test_byte, 1);
-+		pm_runtime_idle(dev);
-+		if (err) {
-+			pm_runtime_disable(dev);
-+			return -ENODEV;
++		/* Check module identity */
++		ret = ov5670_identify_module(ov5670);
++		if (ret) {
++			err_msg = "ov5670_identify_module() error";
++			goto error_print;
 +		}
  	}
  
- 	if (writable)
-@@ -728,8 +734,12 @@ static int at24_probe(struct i2c_client *client)
+ 	mutex_init(&ov5670->mutex);
+@@ -2501,10 +2505,10 @@ static int ov5670_probe(struct i2c_client *client)
+ 	ov5670->streaming = false;
  
- static int at24_remove(struct i2c_client *client)
- {
-+	bool low_power;
-+
- 	pm_runtime_disable(&client->dev);
--	pm_runtime_set_suspended(&client->dev);
-+	low_power = acpi_dev_low_power_state_probe(&client->dev);
+ 	/*
+-	 * Device is already turned on by i2c-core with ACPI domain PM.
+-	 * Enable runtime PM and turn off the device.
++	 * Don't set the device's state to active if it's in a low power state.
+ 	 */
+-	pm_runtime_set_active(&client->dev);
 +	if (!low_power)
-+		pm_runtime_set_suspended(&client->dev);
++		pm_runtime_set_active(&client->dev);
+ 	pm_runtime_enable(&client->dev);
+ 	pm_runtime_idle(&client->dev);
  
- 	return 0;
- }
-@@ -743,6 +753,7 @@ static struct i2c_driver at24_driver = {
- 	.probe_new = at24_probe,
- 	.remove = at24_remove,
- 	.id_table = at24_ids,
+@@ -2546,7 +2550,7 @@ static const struct dev_pm_ops ov5670_pm_ops = {
+ 
+ #ifdef CONFIG_ACPI
+ static const struct acpi_device_id ov5670_acpi_ids[] = {
+-	{"INT3479"},
++	{ "INT3479" },
+ 	{ /* sentinel */ }
+ };
+ 
+@@ -2561,6 +2565,7 @@ static struct i2c_driver ov5670_i2c_driver = {
+ 	},
+ 	.probe_new = ov5670_probe,
+ 	.remove = ov5670_remove,
 +	.probe_low_power = true,
  };
  
- static int __init at24_init(void)
+ module_i2c_driver(ov5670_i2c_driver);
 -- 
 2.20.1
