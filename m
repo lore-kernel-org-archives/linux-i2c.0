@@ -1,87 +1,57 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 06/12] i2c: taos-evm: convert to use
- i2c_new_client_device()
-Date: Thu, 9 Jan 2020 09:42:28 +0100
-Message-ID: <20200109094228.2e058653@endymion>
-References: <20200107174748.9616-1-wsa+renesas@sang-engineering.com>
-        <20200107174748.9616-7-wsa+renesas@sang-engineering.com>
-        <20200108115822.20871d77@endymion>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: Re: [PATCH v4 0/5] at24: move write-protect pin handling to nvmem core
+Date: Thu, 9 Jan 2020 11:31:18 +0100
+Message-ID: <CAMpxmJVj3DHXFq9D5HUD0j7t=Q7gFNF1eQsg2jUa4PEFrFas4w@mail.gmail.com>
+References: <20200107092922.18408-1-ktouil@baylibre.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200108115822.20871d77@endymion>
+In-Reply-To: <20200107092922.18408-1-ktouil@baylibre.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Khouloud Touil <ktouil@baylibre.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, baylibre-upstreaming@groups.io, LKML <linux-kernel@vger.kernel.org>, linux-devicetree <devicetree@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi again Wolfram,
+wt., 7 sty 2020 o 10:29 Khouloud Touil <ktouil@baylibre.com> napisa=C5=82(a=
+):
+>
+> The write-protect pin handling looks like a standard property that
+> could benefit other users if available in the core nvmem framework.
+>
+> Instead of modifying all the drivers to check this pin, make the
+> nvmem subsystem check if the write-protect GPIO being passed
+> through the nvmem_config or defined in the device tree and pull it
+> low whenever writing to the memory.
+>
+> This patchset:
+>
+> - adds support for the write-protect pin split into two parts.
+> The first patch modifies modifies the relevant binding document,
+> while the second modifies the nvmem code to pull the write-protect
+> GPIO low (if present) during write operations.
+>
+> - removes support for the write-protect pin split into two parts.
+> The first patch modifies the relevant binding document to make the
+> wp-gpio a reference to the property defined by nvmem , while the
+> second removes the relevant code in the at24 driver.
+>
+> - adds reference in the at25 binding document for the wp-gpios property
+> as it uses nvmem subsystem.
+>
+> Changes since v1:
+> -Add an explenation on how the wp-gpios works
+> -Keep reference to the wp-gpios in the at24 binding
+>
+> Changes since v2:
+> -Use the flag GPIO_ACTIVE_HIGH instead of 0
+>
+> Changes since v3:
+> -Keep the example of the wp-gpios in the at25 bindings
+> -Add reference for the wp-gpios property in the at25 binding
 
-On Wed, 8 Jan 2020 11:58:22 +0100, Jean Delvare wrote:
-> On Tue, 7 Jan 2020 18:47:40 +0100, Wolfram Sang wrote:
-> > Move away from the deprecated API and return the shiny new ERRPTR where
-> > useful.
-> > 
-> > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> > ---
-> > Build tested only.
-> > 
-> >  drivers/i2c/busses/i2c-taos-evm.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-taos-evm.c b/drivers/i2c/busses/i2c-taos-evm.c
-> > index 0bff3f3a8779..b4050f5b6746 100644
-> > --- a/drivers/i2c/busses/i2c-taos-evm.c
-> > +++ b/drivers/i2c/busses/i2c-taos-evm.c
-> > @@ -49,10 +49,10 @@ static struct i2c_client *taos_instantiate_device(struct i2c_adapter *adapter)
-> >  	if (!strncmp(adapter->name, "TAOS TSL2550 EVM", 16)) {
-> >  		dev_info(&adapter->dev, "Instantiating device %s at 0x%02x\n",
-> >  			tsl2550_info.type, tsl2550_info.addr);
-> > -		return i2c_new_device(adapter, &tsl2550_info);
-> > +		return i2c_new_client_device(adapter, &tsl2550_info);
-> >  	}
-> >  
-> > -	return NULL;
-> > +	return ERR_PTR(-ENODEV);
-> >  }
-> >  
-> >  static int taos_smbus_xfer(struct i2c_adapter *adapter, u16 addr,  
-> 
-> Looks good to me, although ideally the caller should handle the error
-> instead of ignoring it. But that's out of scope for this conversion
-> patch, I'll look into submitting an update on top.
+I picked up patches 1-3 & 5 into the at24 tree.
 
-I take that back. taos_instantiate_device() is instantiating an
-optional slave device on the bus. If that fails, the bus is still
-usable, therefore failing the whole registration would be inappropriate.
+Patch 4 will need an Ack from Greg.
 
-Makes me wonder if return ERR_PTR(-ENODEV) is the right thing to do in
-the fallback case. The i2c-taos-evm driver was designed to support
-multiple TAOS evaluation module types, even though the only one fully
-supported right now is the only one I own (TSL2550). The driver can
-still be used with other modules, just no slave device will be
-instantiated. It can still be done later from user-space.
-
-In my opinion -ENODEV should only be used for "I expected a device but
-could not find it". For the case where we simply don't know what slave
-device to instantiate, NULL seems more appropriate, as it's not an
-error.
-
-What do you think? Either way I agree it doesn't make much practical
-difference in the end as i2c_unregister_device() will deal gracefully
-with both.
-
-> So:
-> 
-> Reviewed-by: Jean Delvare <jdelvare@suse.de>
-> 
-> I'll also try to revive my evaluation module to give it some testing.
-
-That I did, and it works fine, as expected :-)
-
-Tested-by: Jean Delvare <jdelvare@suse.de>
-
--- 
-Jean Delvare
-SUSE L3 Support
+Bart
