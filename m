@@ -1,210 +1,213 @@
 From: Ludovic Desroches <ludovic.desroches@microchip.com>
-Subject: Re: [PATCH v2 3/6] i2c: at91: Send bus clear command if SCL is down
-Date: Thu, 9 Jan 2020 08:47:29 +0100
-Message-ID: <20200109074729.zare4va5ugbq62f3@M43218.corp.atmel.com>
+Subject: Re: [PATCH v2 2/6] i2c: at91: implement i2c bus recovery
+Date: Thu, 9 Jan 2020 08:48:19 +0100
+Message-ID: <20200109074819.rhlaxg3sgwlng5xm@M43218.corp.atmel.com>
 References: <20200103094821.13185-1-codrin.ciubotariu@microchip.com>
- <20200103094821.13185-4-codrin.ciubotariu@microchip.com>
+ <20200103094821.13185-3-codrin.ciubotariu@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <20200103094821.13185-4-codrin.ciubotariu@microchip.com>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20200103094821.13185-3-codrin.ciubotariu@microchip.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
 To: Codrin Ciubotariu - M19940 <Codrin.Ciubotariu@microchip.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kamel.bouhara@bootlin.com" <kamel.bouhara@bootlin.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, Nicolas Ferre - M43238 <Nicolas.Ferre@microchip.com>, "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>, "robh@kernel.org" <robh@kernel.org>
+Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "alexandre.belloni@bootlin.com" <alexandre.belloni@bootlin.com>, "kamel.bouhara@bootlin.com" <kamel.bouhara@bootlin.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "robh@kernel.org" <robh@kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
 On Fri, Jan 03, 2020 at 09:49:07AM +0000, Codrin Ciubotariu - M19940 wrote:
-> After a transfer timeout, some faulty I2C slave devices might hold down
-> the SCL pin. We can generate a bus clear command, hoping that the slave
-> might release the pins.
+> From: Kamel Bouhara <kamel.bouhara@bootlin.com>
 > 
+> Implement i2c bus recovery when slaves devices might hold SDA low.
+> In this case re-assign SCL/SDA to gpios and issue 9 dummy clock pulses
+> until the slave release SDA.
+> 
+> Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
+> [codrin.ciubotariu@microchip.com: release gpios on error; move i2c_recover_bus]
 > Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-
-This patch may conflict with another one removing the explicit set to
-false.
-
 > ---
 > 
 > Changes in v2:
->  - use CLEAR command only if SDA is down; update patch subject to
->    reflect this;
->  - CLEAR command is no longer used for sama5d2, only sam9x60;
+>  - called i2c_recover_bus() after an error occurs, if SDA is down;
+>  - release gpios if recovery information is incomplete;
 > 
->  drivers/i2c/busses/i2c-at91-core.c   |  9 ++++++++
->  drivers/i2c/busses/i2c-at91-master.c | 32 +++++++++++++++++++++++-----
->  drivers/i2c/busses/i2c-at91.h        |  7 +++++-
->  3 files changed, 42 insertions(+), 6 deletions(-)
+>  drivers/i2c/busses/i2c-at91-master.c | 79 ++++++++++++++++++++++++++++
+>  drivers/i2c/busses/i2c-at91.h        |  8 +++
+>  2 files changed, 87 insertions(+)
 > 
-> diff --git a/drivers/i2c/busses/i2c-at91-core.c b/drivers/i2c/busses/i2c-at91-core.c
-> index e13af4874976..128eafc05adb 100644
-> --- a/drivers/i2c/busses/i2c-at91-core.c
-> +++ b/drivers/i2c/busses/i2c-at91-core.c
-> @@ -71,6 +71,7 @@ static struct at91_twi_pdata at91rm9200_config = {
->  	.has_dig_filtr = false,
->  	.has_adv_dig_filtr = false,
->  	.has_ana_filtr = false,
-> +	.has_clear_cmd = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9261_config = {
-> @@ -82,6 +83,7 @@ static struct at91_twi_pdata at91sam9261_config = {
->  	.has_dig_filtr = false,
->  	.has_adv_dig_filtr = false,
->  	.has_ana_filtr = false,
-> +	.has_clear_cmd = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9260_config = {
-> @@ -93,6 +95,7 @@ static struct at91_twi_pdata at91sam9260_config = {
->  	.has_dig_filtr = false,
->  	.has_adv_dig_filtr = false,
->  	.has_ana_filtr = false,
-> +	.has_clear_cmd = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9g20_config = {
-> @@ -104,6 +107,7 @@ static struct at91_twi_pdata at91sam9g20_config = {
->  	.has_dig_filtr = false,
->  	.has_adv_dig_filtr = false,
->  	.has_ana_filtr = false,
-> +	.has_clear_cmd = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9g10_config = {
-> @@ -115,6 +119,7 @@ static struct at91_twi_pdata at91sam9g10_config = {
->  	.has_dig_filtr = false,
->  	.has_adv_dig_filtr = false,
->  	.has_ana_filtr = false,
-> +	.has_clear_cmd = false,
->  };
->  
->  static const struct platform_device_id at91_twi_devtypes[] = {
-> @@ -148,6 +153,7 @@ static struct at91_twi_pdata at91sam9x5_config = {
->  	.has_dig_filtr = false,
->  	.has_adv_dig_filtr = false,
->  	.has_ana_filtr = false,
-> +	.has_clear_cmd = false,
->  };
->  
->  static struct at91_twi_pdata sama5d4_config = {
-> @@ -159,6 +165,7 @@ static struct at91_twi_pdata sama5d4_config = {
->  	.has_dig_filtr = true,
->  	.has_adv_dig_filtr = false,
->  	.has_ana_filtr = false,
-> +	.has_clear_cmd = false,
->  };
->  
->  static struct at91_twi_pdata sama5d2_config = {
-> @@ -170,6 +177,7 @@ static struct at91_twi_pdata sama5d2_config = {
->  	.has_dig_filtr = true,
->  	.has_adv_dig_filtr = true,
->  	.has_ana_filtr = true,
-> +	.has_clear_cmd = false,	/* due to errata, CLEAR cmd is not working */
-
-In this case it's probably worth keeping it.
-
-Ludovic
-
->  };
->  
->  static struct at91_twi_pdata sam9x60_config = {
-> @@ -181,6 +189,7 @@ static struct at91_twi_pdata sam9x60_config = {
->  	.has_dig_filtr = true,
->  	.has_adv_dig_filtr = true,
->  	.has_ana_filtr = true,
-> +	.has_clear_cmd = true,
->  };
->  
->  static const struct of_device_id atmel_twi_dt_ids[] = {
 > diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
-> index c55e8ff35201..8c4f20317847 100644
+> index 7a862e00b475..c55e8ff35201 100644
 > --- a/drivers/i2c/busses/i2c-at91-master.c
 > +++ b/drivers/i2c/busses/i2c-at91-master.c
-> @@ -480,7 +480,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+> @@ -18,11 +18,13 @@
+>  #include <linux/dma-mapping.h>
+>  #include <linux/dmaengine.h>
+>  #include <linux/err.h>
+> +#include <linux/gpio/consumer.h>
+>  #include <linux/i2c.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/io.h>
+>  #include <linux/of.h>
+>  #include <linux/of_device.h>
+> +#include <linux/pinctrl/consumer.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/platform_data/dma-atmel.h>
+>  #include <linux/pm_runtime.h>
+> @@ -478,6 +480,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
 >  	unsigned long time_left;
 >  	bool has_unre_flag = dev->pdata->has_unre_flag;
 >  	bool has_alt_cmd = dev->pdata->has_alt_cmd;
-> -	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
-> +	bool has_clear_cmd = dev->pdata->has_clear_cmd;
+> +	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
 >  
 >  	/*
 >  	 * WARNING: the TXCOMP bit in the Status Register is NOT a clear on
-> @@ -641,10 +641,32 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+> @@ -637,6 +640,13 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+>  		at91_twi_write(dev, AT91_TWI_CR,
 >  			       AT91_TWI_THRCLR | AT91_TWI_LOCKCLR);
 >  	}
->  
-> -	if (rinfo->get_sda && !(rinfo->get_sda(&dev->adapter))) {
-> -		dev_dbg(dev->dev,
-> -			"SDA is down; clear bus using gpio\n");
-> -		i2c_recover_bus(&dev->adapter);
-> +	/*
-> +	 * some faulty I2C slave devices might hold SDA down;
-> +	 * we can send a bus clear command, hoping that the pins will be
-> +	 * released
-> +	 */
-> +	if (has_clear_cmd) {
-> +		if (!(dev->transfer_status & AT91_TWI_SDA)) {
-> +			dev_dbg(dev->dev,
-> +				"SDA is down; sending bus clear command\n");
-> +			if (dev->use_alt_cmd) {
-> +				unsigned int acr;
 > +
-> +				acr = at91_twi_read(dev, AT91_TWI_ACR);
-> +				acr &= ~AT91_TWI_ACR_DATAL_MASK;
-> +				at91_twi_write(dev, AT91_TWI_ACR, acr);
-> +			}
-> +			at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_CLEAR);
-> +		}
-> +	} else {
-> +		struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
+> +	if (rinfo->get_sda && !(rinfo->get_sda(&dev->adapter))) {
+> +		dev_dbg(dev->dev,
+> +			"SDA is down; clear bus using gpio\n");
+> +		i2c_recover_bus(&dev->adapter);
+> +	}
 > +
-> +		if (rinfo->get_sda && !(rinfo->get_sda(&dev->adapter))) {
-> +			dev_dbg(dev->dev,
-> +				"SDA is down; clear bus using gpio\n");
-> +			i2c_recover_bus(&dev->adapter);
-> +		}
->  	}
->  
 >  	return ret;
+>  }
+>  
+> @@ -806,6 +816,71 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
+>  	return ret;
+>  }
+>  
+> +static void at91_prepare_twi_recovery(struct i2c_adapter *adap)
+> +{
+> +	struct at91_twi_dev *dev = i2c_get_adapdata(adap);
+> +
+> +	pinctrl_select_state(dev->pinctrl, dev->pinctrl_pins_gpio);
+> +}
+> +
+> +static void at91_unprepare_twi_recovery(struct i2c_adapter *adap)
+> +{
+> +	struct at91_twi_dev *dev = i2c_get_adapdata(adap);
+> +
+> +	pinctrl_select_state(dev->pinctrl, dev->pinctrl_pins_default);
+> +}
+> +
+> +static int at91_init_twi_recovery_info(struct platform_device *pdev,
+> +				       struct at91_twi_dev *dev)
+> +{
+> +	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
+> +
+> +	dev->pinctrl = devm_pinctrl_get(&pdev->dev);
+> +	if (!dev->pinctrl || IS_ERR(dev->pinctrl)) {
+> +		dev_info(dev->dev, "can't get pinctrl, bus recovery not supported\n");
+> +		return PTR_ERR(dev->pinctrl);
+> +	}
+> +
+> +	dev->pinctrl_pins_default = pinctrl_lookup_state(dev->pinctrl,
+> +							 PINCTRL_STATE_DEFAULT);
+> +	dev->pinctrl_pins_gpio = pinctrl_lookup_state(dev->pinctrl,
+> +						      "gpio");
+> +	rinfo->sda_gpiod = devm_gpiod_get(&pdev->dev, "sda", GPIOD_IN);
+> +	if (PTR_ERR(rinfo->sda_gpiod) == -EPROBE_DEFER)
+> +		return -EPROBE_DEFER;
+> +
+> +	rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl",
+> +					  GPIOD_OUT_HIGH_OPEN_DRAIN);
+> +	if (PTR_ERR(rinfo->scl_gpiod) == -EPROBE_DEFER)
+> +		return -EPROBE_DEFER;
+> +
+> +	if (IS_ERR(rinfo->sda_gpiod) ||
+> +	    IS_ERR(rinfo->scl_gpiod) ||
+> +	    IS_ERR(dev->pinctrl_pins_default) ||
+> +	    IS_ERR(dev->pinctrl_pins_gpio)) {
+> +		dev_info(&pdev->dev, "recovery information incomplete\n");
+> +		if (!IS_ERR(rinfo->sda_gpiod)) {
+> +			gpiod_put(rinfo->sda_gpiod);
+> +			rinfo->sda_gpiod = NULL;
+> +		}
+> +		if (!IS_ERR(rinfo->scl_gpiod)) {
+> +			gpiod_put(rinfo->scl_gpiod);
+> +			rinfo->scl_gpiod = NULL;
+> +		}
+> +		return -EINVAL;
+> +	}
+> +
+> +	dev_info(&pdev->dev, "using scl%s for recovery\n",
+> +		 rinfo->sda_gpiod ? ",sda" : "");
+
+Is it possible to have scl without sda? From the condition before, if
+there is an error for sda or scl, an error is returned.
+
+> +
+> +	rinfo->prepare_recovery = at91_prepare_twi_recovery;
+> +	rinfo->unprepare_recovery = at91_unprepare_twi_recovery;
+> +	rinfo->recover_bus = i2c_generic_scl_recovery;
+> +	dev->adapter.bus_recovery_info = rinfo;
+> +
+> +	return 0;
+> +}
+> +
+>  int at91_twi_probe_master(struct platform_device *pdev,
+>  			  u32 phy_addr, struct at91_twi_dev *dev)
+>  {
+> @@ -838,6 +913,10 @@ int at91_twi_probe_master(struct platform_device *pdev,
+>  						     "i2c-analog-filter");
+>  	at91_calc_twi_clock(dev);
+>  
+> +	rc = at91_init_twi_recovery_info(pdev, dev);
+> +	if (rc == -EPROBE_DEFER)
+> +		return rc;
+> +
+>  	dev->adapter.algo = &at91_twi_algorithm;
+>  	dev->adapter.quirks = &at91_twi_quirks;
+>  
 > diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
-> index eb335b71e775..80f77d523346 100644
+> index 977a67bc0f88..eb335b71e775 100644
 > --- a/drivers/i2c/busses/i2c-at91.h
 > +++ b/drivers/i2c/busses/i2c-at91.h
-> @@ -36,6 +36,7 @@
->  #define	AT91_TWI_SVDIS		BIT(5)	/* Slave Transfer Disable */
->  #define	AT91_TWI_QUICK		BIT(6)	/* SMBus quick command */
->  #define	AT91_TWI_SWRST		BIT(7)	/* Software Reset */
-> +#define	AT91_TWI_CLEAR		BIT(15) /* Bus clear command */
->  #define	AT91_TWI_ACMEN		BIT(16) /* Alternative Command Mode Enable */
->  #define	AT91_TWI_ACMDIS		BIT(17) /* Alternative Command Mode Disable */
->  #define	AT91_TWI_THRCLR		BIT(24) /* Transmit Holding Register Clear */
-> @@ -69,6 +70,8 @@
->  #define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
->  #define	AT91_TWI_EOSACC		BIT(11)	/* End Of Slave Access */
->  #define	AT91_TWI_LOCK		BIT(23) /* TWI Lock due to Frame Errors */
-> +#define	AT91_TWI_SCL		BIT(24) /* TWI SCL status */
-> +#define	AT91_TWI_SDA		BIT(25) /* TWI SDA status */
+> @@ -151,6 +151,10 @@ struct at91_twi_dev {
+>  	u32 fifo_size;
+>  	struct at91_twi_dma dma;
+>  	bool slave_detected;
+> +	struct i2c_bus_recovery_info rinfo;
+> +	struct pinctrl *pinctrl;
+> +	struct pinctrl_state *pinctrl_pins_default;
+> +	struct pinctrl_state *pinctrl_pins_gpio;
+>  #ifdef CONFIG_I2C_AT91_SLAVE_EXPERIMENTAL
+>  	unsigned smr;
+>  	struct i2c_client *slave;
+> @@ -171,6 +175,10 @@ void at91_init_twi_bus_master(struct at91_twi_dev *dev);
+>  int at91_twi_probe_master(struct platform_device *pdev, u32 phy_addr,
+>  			  struct at91_twi_dev *dev);
 >  
->  #define	AT91_TWI_INT_MASK \
->  	(AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY | AT91_TWI_NACK \
-> @@ -81,7 +84,8 @@
->  #define	AT91_TWI_THR		0x0034	/* Transmit Holding Register */
->  
->  #define	AT91_TWI_ACR		0x0040	/* Alternative Command Register */
-> -#define	AT91_TWI_ACR_DATAL(len)	((len) & 0xff)
-> +#define	AT91_TWI_ACR_DATAL_MASK	GENMASK(15, 0)
-> +#define	AT91_TWI_ACR_DATAL(len)	((len) & AT91_TWI_ACR_DATAL_MASK)
->  #define	AT91_TWI_ACR_DIR	BIT(8)
->  
->  #define AT91_TWI_FILTR		0x0044
-> @@ -118,6 +122,7 @@ struct at91_twi_pdata {
->  	bool has_dig_filtr;
->  	bool has_adv_dig_filtr;
->  	bool has_ana_filtr;
-> +	bool has_clear_cmd;
->  	struct at_dma_slave dma_slave;
->  };
->  
+
+Wrong names here:
+
+> +void at91_twi_prepare_recovery(struct i2c_adapter *adap);
+at91_prepare_twi_recovery
+
+> +void at91_twi_unprepare_recovery(struct i2c_adapter *adap);
+at91_unprepare_twi_recovery
+
+> +void at91_twi_init_recovery_info(struct at91_twi_dev *dev);
+at91_init_twi_recovery_info
+
+Are these declarations still needed?
+
+Ludovic
+
+> +
+>  #ifdef CONFIG_I2C_AT91_SLAVE_EXPERIMENTAL
+>  void at91_init_twi_bus_slave(struct at91_twi_dev *dev);
+>  int at91_twi_probe_slave(struct platform_device *pdev, u32 phy_addr,
 > -- 
 > 2.20.1
