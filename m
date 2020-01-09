@@ -1,65 +1,40 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 02/12] i2c: i801: convert to use i2c_new_client_device()
-Date: Thu, 9 Jan 2020 09:54:58 +0100
-Message-ID: <20200109095458.62499f28@endymion>
-References: <20200107174748.9616-1-wsa+renesas@sang-engineering.com>
-        <20200107174748.9616-3-wsa+renesas@sang-engineering.com>
+From: Bartosz Golaszewski <bgolaszewski-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH v4 4/5] dt-bindings: at25: add reference for the wp-gpios property
+Date: Thu, 9 Jan 2020 10:47:56 +0100
+Message-ID: <CAMpxmJXffr-S51udNmUyMHz687jAoBKrYspNypfUUqjOD45zxQ@mail.gmail.com>
+References: <20200107092922.18408-1-ktouil@baylibre.com> <20200107092922.18408-5-ktouil@baylibre.com>
+ <20200108205447.GA16981@bogus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200107174748.9616-3-wsa+renesas@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20200108205447.GA16981@bogus>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Khouloud Touil <ktouil-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, baylibre-upstreaming-GWfripvEmMdhl2p70BpVqQ@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 7 Jan 2020 18:47:36 +0100, Wolfram Sang wrote:
-> Move away from the deprecated API and return the shiny new ERRPTR where
-> useful.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
-> Build tested only.
-> 
->  drivers/i2c/busses/i2c-i801.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index f5e69fe56532..44db3a91d32d 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -1142,7 +1142,7 @@ static void dmi_check_onboard_device(u8 type, const char *name,
->  		memset(&info, 0, sizeof(struct i2c_board_info));
->  		info.addr = dmi_devices[i].i2c_addr;
->  		strlcpy(info.type, dmi_devices[i].i2c_type, I2C_NAME_SIZE);
-> -		i2c_new_device(adap, &info);
-> +		i2c_new_client_device(adap, &info);
->  		break;
->  	}
->  }
-> @@ -1296,7 +1296,7 @@ static void register_dell_lis3lv02d_i2c_device(struct i801_priv *priv)
->  	memset(&info, 0, sizeof(struct i2c_board_info));
->  	info.addr = dell_lis3lv02d_devices[i].i2c_addr;
->  	strlcpy(info.type, "lis3lv02d", I2C_NAME_SIZE);
-> -	i2c_new_device(&priv->adapter, &info);
-> +	i2c_new_client_device(&priv->adapter, &info);
->  }
->  
->  /* Register optional slaves */
-> @@ -1312,7 +1312,7 @@ static void i801_probe_optional_slaves(struct i801_priv *priv)
->  		memset(&info, 0, sizeof(struct i2c_board_info));
->  		info.addr = apanel_addr;
->  		strlcpy(info.type, "fujitsu_apanel", I2C_NAME_SIZE);
-> -		i2c_new_device(&priv->adapter, &info);
-> +		i2c_new_client_device(&priv->adapter, &info);
->  	}
->  
->  	if (dmi_name_in_vendors("FUJITSU"))
+=C5=9Br., 8 sty 2020 o 21:54 Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> napisa=C5=82(a):
+>
+> On Tue,  7 Jan 2020 10:29:21 +0100, Khouloud Touil wrote:
+> > As the at25 uses the NVMEM subsystem, and the property is now being
+> > handled, adding reference for it in the device tree binding document,
+> > which allows to specify the GPIO line to which the write-protect pin
+> > is connected.
+> >
+> > Signed-off-by: Khouloud Touil <ktouil-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+> > ---
+> >  Documentation/devicetree/bindings/eeprom/at25.txt | 2 ++
+> >  1 file changed, 2 insertions(+)
+> >
+>
+> Reviewed-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Hi Greg,
 
-Thanks,
--- 
-Jean Delvare
-SUSE L3 Support
+AT25 patches usually go through the char-misc tree. In this case
+however, the change depends on the other patches in this series. Can
+you ack this and I'll take it through the AT24 tree exceptionally?
+
+Best regards,
+Bartosz Golaszewski
