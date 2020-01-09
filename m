@@ -1,87 +1,39 @@
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
-Subject: [PATCH v3 3/5] ov5670: Support probe whilst the device is in a low power state
-Date: Thu,  9 Jan 2020 17:45:27 +0200
-Message-ID: <20200109154529.19484-4-sakari.ailus@linux.intel.com>
-References: <20200109154529.19484-1-sakari.ailus@linux.intel.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH v2] docs: i2c: Fix return value of i2c_smbus_xxx
+ functions
+Date: Thu, 9 Jan 2020 17:39:29 +0100
+Message-ID: <20200109173929.1b42e0a6@endymion>
+References: <1574162632-65848-1-git-send-email-mine260309@gmail.com>
+        <20191125144857.GA2412@kunai>
+        <20191126115243.673fc164@endymion>
+        <20200106130056.GA1290@ninjato>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200109154529.19484-1-sakari.ailus@linux.intel.com>
+In-Reply-To: <20200106130056.GA1290@ninjato>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael@kernel.org>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Luca Ceresoli <luca@lucaceresoli.net>, Lei YU <mine260309@gmail.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Tell ACPI device PM code that the driver supports the device being in a
-low power state when the driver's probe function is entered.
+On Mon, 6 Jan 2020 14:01:09 +0100, Wolfram Sang wrote:
+> > I would go further and move half of the document to i2c-tools. i2c-dev
+> > itself only provides the ioctls. Everything on top of that is in libi2c
+> > now, so the kernel documentation should point to libi2c and the
+> > detailed documentation should come with libi2c.
+> > 
+> > So I guess I should review the whole document now to see what needs to
+> > be updated, what should stay, and what should move.  
+> 
+> Maybe you can collaborate with Luca on this who just revamped a lot of
+> the docs? Putting him on CC and marking this patch as 'Deferred'.
 
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
----
- drivers/media/i2c/ov5670.c | 23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+I'm resuming my work on this. Luca, can you point me to your changes to
+Documentation/i2c/dev-interface.rst so that I can adjust my own changes
+to fit on top?
 
-diff --git a/drivers/media/i2c/ov5670.c b/drivers/media/i2c/ov5670.c
-index 041fcbb4eebdf..9b10b1c0e1f8f 100644
---- a/drivers/media/i2c/ov5670.c
-+++ b/drivers/media/i2c/ov5670.c
-@@ -2444,6 +2444,7 @@ static int ov5670_probe(struct i2c_client *client)
- 	struct ov5670 *ov5670;
- 	const char *err_msg;
- 	u32 input_clk = 0;
-+	bool low_power;
- 	int ret;
- 
- 	device_property_read_u32(&client->dev, "clock-frequency", &input_clk);
-@@ -2460,11 +2461,14 @@ static int ov5670_probe(struct i2c_client *client)
- 	/* Initialize subdev */
- 	v4l2_i2c_subdev_init(&ov5670->sd, client, &ov5670_subdev_ops);
- 
--	/* Check module identity */
--	ret = ov5670_identify_module(ov5670);
--	if (ret) {
--		err_msg = "ov5670_identify_module() error";
--		goto error_print;
-+	low_power = acpi_dev_low_power_state_probe(&client->dev);
-+	if (!low_power) {
-+		/* Check module identity */
-+		ret = ov5670_identify_module(ov5670);
-+		if (ret) {
-+			err_msg = "ov5670_identify_module() error";
-+			goto error_print;
-+		}
- 	}
- 
- 	mutex_init(&ov5670->mutex);
-@@ -2501,10 +2505,10 @@ static int ov5670_probe(struct i2c_client *client)
- 	ov5670->streaming = false;
- 
- 	/*
--	 * Device is already turned on by i2c-core with ACPI domain PM.
--	 * Enable runtime PM and turn off the device.
-+	 * Don't set the device's state to active if it's in a low power state.
- 	 */
--	pm_runtime_set_active(&client->dev);
-+	if (!low_power)
-+		pm_runtime_set_active(&client->dev);
- 	pm_runtime_enable(&client->dev);
- 	pm_runtime_idle(&client->dev);
- 
-@@ -2546,7 +2550,7 @@ static const struct dev_pm_ops ov5670_pm_ops = {
- 
- #ifdef CONFIG_ACPI
- static const struct acpi_device_id ov5670_acpi_ids[] = {
--	{"INT3479"},
-+	{ "INT3479" },
- 	{ /* sentinel */ }
- };
- 
-@@ -2561,6 +2565,7 @@ static struct i2c_driver ov5670_i2c_driver = {
- 	},
- 	.probe_new = ov5670_probe,
- 	.remove = ov5670_remove,
-+	.probe_low_power = true,
- };
- 
- module_i2c_driver(ov5670_i2c_driver);
+Thanks,
 -- 
-2.20.1
+Jean Delvare
+SUSE L3 Support
