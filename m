@@ -1,62 +1,61 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 01/12] i2c: cht-wc: convert to use i2c_new_client_device()
-Date: Fri, 10 Jan 2020 00:05:11 +0100
-Message-ID: <6e267f65-5884-c0d1-fecc-9d21ce7336a3@redhat.com>
-References: <20200107174748.9616-1-wsa+renesas@sang-engineering.com>
- <20200107174748.9616-2-wsa+renesas@sang-engineering.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: fix bus recovery stop mode timing
+Date: Fri, 10 Jan 2020 09:01:53 +0100
+Message-ID: <20200110080153.GA1057@ninjato>
+References: <E1igWvB-0001ib-PV@rmk-PC.armlinux.org.uk>
+ <20200109212410.GA3046@ninjato>
+ <20200109214103.GU25745@shell.armlinux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200107174748.9616-2-wsa+renesas@sang-engineering.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:56170 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726401AbgAJIB6 (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Fri, 10 Jan 2020 03:01:58 -0500
+Content-Disposition: inline
+In-Reply-To: <20200109214103.GU25745@shell.armlinux.org.uk>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-
-Hi,
-
-On 07-01-2020 18:47, Wolfram Sang wrote:
-> Move away from the deprecated API and return the shiny new ERRPTR where
-> useful.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com> > ---
-> Build tested only.
-
-I've given this a quick test spin on hw which uses this drivers,
-I've not noticed any regressions:
-
-Tested-by: Hans de Goede <hdegoede@redhat.com>
-
-Also the changes look good to me:
-
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-
-Regards,
-
-Hans
+To: Russell King - ARM Linux admin <linux@armlinux.org.uk>
+Cc: linux-i2c@vger.kernel.org
 
 
-> 
->   drivers/i2c/busses/i2c-cht-wc.c | 6 +++---
->   1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-cht-wc.c b/drivers/i2c/busses/i2c-cht-wc.c
-> index b8fde61bb5d8..35e55feda763 100644
-> --- a/drivers/i2c/busses/i2c-cht-wc.c
-> +++ b/drivers/i2c/busses/i2c-cht-wc.c
-> @@ -388,9 +388,9 @@ static int cht_wc_i2c_adap_i2c_probe(struct platform_device *pdev)
->   	 */
->   	if (acpi_dev_present("INT33FE", NULL, -1)) {
->   		board_info.irq = adap->client_irq;
-> -		adap->client = i2c_new_device(&adap->adapter, &board_info);
-> -		if (!adap->client) {
-> -			ret = -ENOMEM;
-> +		adap->client = i2c_new_client_device(&adap->adapter, &board_info);
-> +		if (IS_ERR(adap->client)) {
-> +			ret = PTR_ERR(adap->client);
->   			goto del_adapter;
->   		}
->   	}
-> 
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> > Applied to for-current with the comment kept, thanks!
+>=20
+> Thanks.  Sorry, I haven't had _any_ time what so ever to do anything
+> further on any of the I2C patches I submitted in December - this is
+> the first day since the weekend that I've actually had much time at
+> the computer, and I've had other stuff to attend to.
+
+No worries, I know that too well. Most important, thanks for the fix,
+great to have it.
+
+
+--BOKacYhQ+x31HxR3
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4YL20ACgkQFA3kzBSg
+KbZUTRAAiB6Pyry71LQZaNpqN7jV6Jfg9xWxBqLXGkRmbD3l/abeisN1zYCLrzbi
+6DTISun7GAH/qpcA6C4UeobPpj1sl3WKY94T2MgID/biAA6C/Gs/y61mjmHrwFxP
+1zdRj2MjrJxCw9SnIKoOMGYEYZHFH8esxK6m9bITZgmhOtsaH4shaR5Bea6MK21a
+OQ+eXaCx8V9bElVgut/kcy0psS3JrK2q16V5lVjfY2QSPkHzqQ37sX3kuWo5bpnY
+yHUcc+KNczl6EL02Nu8TlwcuXIXzFdIUrjQagCg4NQdshOAJMlR9YginsK89sKkF
+sPADuafYwZL+b2bx80Vkyiaowt9sbEdEpaXpQ+Pedl0ZtqgSBwwcX1yX4jaOq5Yk
+kLXJcnjekSYonSteCDOrTJ1KJzaK7ibBovZZ+cj2j5pB5Qz2Az1pbfhnxJEwoo0s
+39/luJRrjpXjMw1x8k9FvbTV9YBQChIdsAyN1aM9EKDZVSU5SB/+ZGUGq4Wx86xy
+fCFneC25U6ngWmib3pevxiGismaNY4s8/yP79CVZWdz99myeTRqh0LsvvyFk+0B8
+gDEIx1eyF8RfNXvA/S5Hi7TVgGV7fwhEq/PI9+Gzcpsyo8G8FPoX4tZbtXJVaoWm
+ycDdePkSgfPhaRxLFhuCm0RwqnAh8htnfDaG5JOvAJtCd/gc36w=
+=ZaWo
+-----END PGP SIGNATURE-----
+
+--BOKacYhQ+x31HxR3--
