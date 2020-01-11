@@ -1,48 +1,94 @@
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH v3 5/5] at24: Support probing while off
-Date: Fri, 10 Jan 2020 12:31:41 +0100
-Message-ID: <CAMRc=MfJgMFDgpb4HmUhj7kioZUgP2zaOiXk0Pw=C7t-GuLagA@mail.gmail.com>
-References: <20200109154529.19484-1-sakari.ailus@linux.intel.com>
- <20200109154529.19484-6-sakari.ailus@linux.intel.com> <CAMRc=MfqRqtW=nMuKFcpLrBHYg7wwPboUEvYpj2sBXM8yWEM_w@mail.gmail.com>
- <20200110112851.GC5440@paasikivi.fi.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PULL REQUEST] i2c for 5.5
+Date: Sat, 11 Jan 2020 21:07:11 +0100
+Message-ID: <20200111200704.GA5308@kunai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20200110112851.GC5440@paasikivi.fi.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Sakari Ailus <sakari.ailus@linux.intel.com>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael@kernel.org>, linux-acpi@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rajmohan Mani <rajmohan.mani@intel.com>, Tomasz Figa <tfiga@chromium.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:47180 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731046AbgAKUHO (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Sat, 11 Jan 2020 15:07:14 -0500
+Content-Disposition: inline
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 
-pt., 10 sty 2020 o 12:28 Sakari Ailus <sakari.ailus@linux.intel.com> napisa=
-=C5=82(a):
->
-> Hi Bartosz,
->
-> On Fri, Jan 10, 2020 at 12:16:14PM +0100, Bartosz Golaszewski wrote:
-> > czw., 9 sty 2020 o 16:44 Sakari Ailus <sakari.ailus@linux.intel.com> na=
-pisa=C5=82(a):
-> > >
-> > > In certain use cases (where the chip is part of a camera module, and =
-the
-> > > camera module is wired together with a camera privacy LED), powering =
-on
-> > > the device during probe is undesirable. Add support for the at24 to
-> > > execute probe while being powered off. For this to happen, a hint in =
-form
-> > > of a device property is required from the firmware.
-> > >
-> > > Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-> >
-> > Why am I not Cc'ed on this patch?
->
-> I'll make sure you'll be cc'd on any future versions of the patch.
->
 
-Thanks. Please make sure this applies on top of my for-next branch[1].
-We've had a couple changes in the driver this cycle.
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Bart
+Linus,
 
-[1] git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git
+=66rom I2C world, here are two driver bugfixes, a documentation fix, and a
+removal of a spec violation for the bus recovery algorithm in the core.
+
+Please pull.
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit c79f46a282390e0f5b306007bf7b11a46d529538:
+
+  Linux 5.5-rc5 (2020-01-05 14:23:27 -0800)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-curre=
+nt
+
+for you to fetch changes up to cf8ce8b80f8bf9669f6ec4e71e16668430febdac:
+
+  i2c: fix bus recovery stop mode timing (2020-01-09 22:21:08 +0100)
+
+----------------------------------------------------------------
+Eugen Hristev (2):
+      i2c: at91: fix clk_offset for sam9x60
+      dt-bindings: i2c: at91: fix i2c-sda-hold-time-ns documentation for sa=
+m9x60
+
+Russell King (1):
+      i2c: fix bus recovery stop mode timing
+
+Stefan Wahren (1):
+      i2c: bcm2835: Store pointer to bus clock
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Codrin Ciubotariu (1):
+      (Rev.) i2c: at91: fix clk_offset for sam9x60
+
+ Documentation/devicetree/bindings/i2c/i2c-at91.txt |  6 ++++--
+ drivers/i2c/busses/i2c-at91-core.c                 |  2 +-
+ drivers/i2c/busses/i2c-bcm2835.c                   | 17 ++++++++---------
+ drivers/i2c/i2c-core-base.c                        | 13 ++++++++++---
+ 4 files changed, 23 insertions(+), 15 deletions(-)
+
+--2oS5YaxWCcQjTEyO
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4aKuMACgkQFA3kzBSg
+KbYAAg/+Ihepsp+HZa8Pjwu8DvfIOAKWINVVXObI/1oftlpqKwnEICzdvLc7/zJt
+enIztwdaxXkPx51hwJXRQlATlAE5GkrBmG++NsM/ltiajFCcXyzYjHF1hwtiOGbS
+ZDbKu7TGHrWZXDCgR3ZpymyvE1dgqXyxSBAJzf/iejTx0wWqdSRq2Bvxo+XsZnww
+ye/zZbY8ToH1+94ruckgksx05yiB0YHXFgwuNapI79jJSgbKHUyVy11Ab6LPGOlu
+5tsov6tmUnpOhiaXeEoDZwrPAsPMpgboui+lzQ9DdCVD0rWTsY3dwBuruRFHcYsp
+bn8WcHEfmYgTMg3/RWxqQDGaZ4MBI+gX2Ld8has6p3/qu55ijgT6seXIDbbr5q2N
+ifDAK5tEoUxVHXN4ZZhY1uVGkaWtmiP/ASmOyLad9kUWMj7IIUsEMfTuBSOum+q6
+IEZB1EpOBN43fq09oyL9KeqeF9+/eL5gNECie8iie8VZ5vPd/fzNDA44iJzUI5Rp
++j8sWu3y6xB6ml1LZS0LiTMAqfVi1y0gKmr/MnoTFb8UILr8k+knhiQPvtaard8m
+cj48SovVgRZ9GaCr8dG4Uc3BLboo8mwPJAFRUTXRPc84h/ed823+n2PzKixkLOZy
+aGl8eZuxH2ZIQufEsheu6ICWBYCHsYyzz7LQPplwpboIERxs47g=
+=nWNm
+-----END PGP SIGNATURE-----
+
+--2oS5YaxWCcQjTEyO--
