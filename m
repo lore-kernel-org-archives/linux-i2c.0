@@ -1,55 +1,46 @@
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH] i2c: iop3xx: Fix memory leak in probe error path
-Date: Mon, 13 Jan 2020 18:29:54 +0100
-Message-ID: <20200113172954.5096-1-krzk@kernel.org>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH 0/3] i2c: for next API conversion, remove parport-light driver
+Date: Mon, 13 Jan 2020 22:06:40 +0100
+Message-ID: <20200113210643.5033-1-wsa+renesas@sang-engineering.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:53302 "EHLO mail.kernel.org"
+Received: from sauhun.de ([88.99.104.3]:42028 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726435AbgAMRaC (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 13 Jan 2020 12:30:02 -0500
+        id S1726086AbgAMVGx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 13 Jan 2020 16:06:53 -0500
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Krzysztof Kozlowski <krzk@kernel.org>
+To: linux-i2c@vger.kernel.org
+Cc: Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-When handling devm_gpiod_get_optional() errors, free the memory already
-allocated.  This fixes Smatch warnings:
+When checking how to convert i2c_setup_smbus_alert() to return ERRPTRs,
+I decided it makes more sense to remove the parport-light driver than to
+convert it. The justifications for its existance do not hold anymore
+IMO. People can/should switch to the parport driver if needed.
 
-    drivers/i2c/busses/i2c-iop3xx.c:437 iop3xx_i2c_probe() warn: possible memory leak of 'new_adapter'
-    drivers/i2c/busses/i2c-iop3xx.c:442 iop3xx_i2c_probe() warn: possible memory leak of 'new_adapter'
+And this led to some other minor updates to the parport driver. Only
+build tested.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
----
- drivers/i2c/busses/i2c-iop3xx.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+Opinions?
 
-diff --git a/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3xx.c
-index 38556381f4ca..2f8b8050a223 100644
---- a/drivers/i2c/busses/i2c-iop3xx.c
-+++ b/drivers/i2c/busses/i2c-iop3xx.c
-@@ -433,13 +433,17 @@ iop3xx_i2c_probe(struct platform_device *pdev)
- 	adapter_data->gpio_scl = devm_gpiod_get_optional(&pdev->dev,
- 							 "scl",
- 							 GPIOD_ASIS);
--	if (IS_ERR(adapter_data->gpio_scl))
--		return PTR_ERR(adapter_data->gpio_scl);
-+	if (IS_ERR(adapter_data->gpio_scl)) {
-+		ret = PTR_ERR(adapter_data->gpio_scl);
-+		goto free_both;
-+	}
- 	adapter_data->gpio_sda = devm_gpiod_get_optional(&pdev->dev,
- 							 "sda",
- 							 GPIOD_ASIS);
--	if (IS_ERR(adapter_data->gpio_sda))
--		return PTR_ERR(adapter_data->gpio_sda);
-+	if (IS_ERR(adapter_data->gpio_sda)) {
-+		ret = PTR_ERR(adapter_data->gpio_sda);
-+		goto free_both;
-+	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (!res) {
+Wolfram Sang (3):
+  i2c: parport-light: remove driver
+  i2c: parport: simplify Kconfig description
+  i2c: parport: move include file into main source
+
+ .../i2c/busses/i2c-parport-light.rst          |  24 --
+ Documentation/i2c/busses/index.rst            |   1 -
+ MAINTAINERS                                   |   2 -
+ drivers/i2c/busses/Kconfig                    |  38 +--
+ drivers/i2c/busses/Makefile                   |   1 -
+ drivers/i2c/busses/i2c-parport-light.c        | 267 ------------------
+ drivers/i2c/busses/i2c-parport.c              | 100 ++++++-
+ drivers/i2c/busses/i2c-parport.h              | 106 -------
+ 8 files changed, 101 insertions(+), 438 deletions(-)
+ delete mode 100644 Documentation/i2c/busses/i2c-parport-light.rst
+ delete mode 100644 drivers/i2c/busses/i2c-parport-light.c
+ delete mode 100644 drivers/i2c/busses/i2c-parport.h
+
 -- 
-2.17.1
+2.20.1
