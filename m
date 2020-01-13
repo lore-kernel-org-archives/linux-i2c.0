@@ -1,46 +1,49 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH 0/3] i2c: for next API conversion, remove parport-light driver
-Date: Mon, 13 Jan 2020 22:06:40 +0100
-Message-ID: <20200113210643.5033-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 2/3] i2c: parport: simplify Kconfig description
+Date: Mon, 13 Jan 2020 22:06:42 +0100
+Message-ID: <20200113210643.5033-3-wsa+renesas@sang-engineering.com>
+References: <20200113210643.5033-1-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:42028 "EHLO pokefinder.org"
+Received: from sauhun.de ([88.99.104.3]:42052 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726086AbgAMVGx (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 13 Jan 2020 16:06:53 -0500
+        id S1726587AbgAMVGy (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 13 Jan 2020 16:06:54 -0500
+In-Reply-To: <20200113210643.5033-1-wsa+renesas@sang-engineering.com>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-When checking how to convert i2c_setup_smbus_alert() to return ERRPTRs,
-I decided it makes more sense to remove the parport-light driver than to
-convert it. The justifications for its existance do not hold anymore
-IMO. People can/should switch to the parport driver if needed.
+The driver is not 'new' anymore, so remove details from the driver it
+surpassed.
 
-And this led to some other minor updates to the parport driver. Only
-build tested.
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/Kconfig | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
-Opinions?
-
-Wolfram Sang (3):
-  i2c: parport-light: remove driver
-  i2c: parport: simplify Kconfig description
-  i2c: parport: move include file into main source
-
- .../i2c/busses/i2c-parport-light.rst          |  24 --
- Documentation/i2c/busses/index.rst            |   1 -
- MAINTAINERS                                   |   2 -
- drivers/i2c/busses/Kconfig                    |  38 +--
- drivers/i2c/busses/Makefile                   |   1 -
- drivers/i2c/busses/i2c-parport-light.c        | 267 ------------------
- drivers/i2c/busses/i2c-parport.c              | 100 ++++++-
- drivers/i2c/busses/i2c-parport.h              | 106 -------
- 8 files changed, 101 insertions(+), 438 deletions(-)
- delete mode 100644 Documentation/i2c/busses/i2c-parport-light.rst
- delete mode 100644 drivers/i2c/busses/i2c-parport-light.c
- delete mode 100644 drivers/i2c/busses/i2c-parport.h
-
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 933f15f0ad67..b2840c5ebf24 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -1202,14 +1202,8 @@ config I2C_PARPORT
+ 	  This supports parallel port I2C adapters such as the ones made by
+ 	  Philips or Velleman, Analog Devices evaluation boards, and more.
+ 	  Basically any adapter using the parallel port as an I2C bus with
+-	  no extra chipset is supported by this driver, or could be.
+-
+-	  This driver is a replacement for (and was inspired by) an older
+-	  driver named i2c-philips-par.  The new driver supports more devices,
+-	  and makes it easier to add support for new devices.
+-
+-	  An adapter type parameter is now mandatory.  Please read the file
+-	  Documentation/i2c/busses/i2c-parport.rst for details.
++	  no extra chipset is supported by this driver, or could be. Please
++	  read the file Documentation/i2c/busses/i2c-parport.rst for details.
+ 
+ 	  This support is also available as a module.  If so, the module
+ 	  will be called i2c-parport.
 -- 
 2.20.1
