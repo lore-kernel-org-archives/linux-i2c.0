@@ -1,48 +1,51 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v4 4/5] dt-bindings: at25: add reference for the wp-gpios
- property
-Date: Tue, 14 Jan 2020 15:42:14 +0100
-Message-ID: <20200114144214.GA1898224@kroah.com>
-References: <20200107092922.18408-1-ktouil@baylibre.com>
- <20200107092922.18408-5-ktouil@baylibre.com>
- <20200108205447.GA16981@bogus>
- <CAMpxmJXffr-S51udNmUyMHz687jAoBKrYspNypfUUqjOD45zxQ@mail.gmail.com>
+From: Bartosz Golaszewski <bgolaszewski-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH v4 4/5] dt-bindings: at25: add reference for the wp-gpios property
+Date: Tue, 14 Jan 2020 16:05:57 +0100
+Message-ID: <CAMpxmJW8edEZw81iQkwDr-Umdb1ibb85s=EshQs4yXRFh5LP=A@mail.gmail.com>
+References: <20200107092922.18408-1-ktouil@baylibre.com> <20200107092922.18408-5-ktouil@baylibre.com>
+ <20200108205447.GA16981@bogus> <CAMpxmJXffr-S51udNmUyMHz687jAoBKrYspNypfUUqjOD45zxQ@mail.gmail.com>
+ <20200114144214.GA1898224@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:52732 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727285AbgANOmR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Tue, 14 Jan 2020 09:42:17 -0500
-Content-Disposition: inline
-In-Reply-To: <CAMpxmJXffr-S51udNmUyMHz687jAoBKrYspNypfUUqjOD45zxQ@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20200114144214.GA1898224-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Khouloud Touil <ktouil-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, baylibre-upstreaming-GWfripvEmMdhl2p70BpVqQ@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Srinivas Kandagatla <srinivas.kandagatla@linaro.org>, Khouloud Touil <ktouil@baylibre.com>, baylibre-upstreaming@groups.io, LKML <linux-kernel@vger.kernel.org>, Rob Herring <robh@kernel.org>, linux-devicetree <devicetree@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>
 
-On Thu, Jan 09, 2020 at 10:47:56AM +0100, Bartosz Golaszewski wrote:
-> śr., 8 sty 2020 o 21:54 Rob Herring <robh@kernel.org> napisał(a):
-> >
-> > On Tue,  7 Jan 2020 10:29:21 +0100, Khouloud Touil wrote:
-> > > As the at25 uses the NVMEM subsystem, and the property is now being
-> > > handled, adding reference for it in the device tree binding document,
-> > > which allows to specify the GPIO line to which the write-protect pin
-> > > is connected.
+wt., 14 sty 2020 o 15:42 Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org> napisa=C5=82(=
+a):
+>
+> On Thu, Jan 09, 2020 at 10:47:56AM +0100, Bartosz Golaszewski wrote:
+> > =C5=9Br., 8 sty 2020 o 21:54 Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> napisa=C5=82=
+(a):
 > > >
-> > > Signed-off-by: Khouloud Touil <ktouil@baylibre.com>
-> > > ---
-> > >  Documentation/devicetree/bindings/eeprom/at25.txt | 2 ++
-> > >  1 file changed, 2 insertions(+)
+> > > On Tue,  7 Jan 2020 10:29:21 +0100, Khouloud Touil wrote:
+> > > > As the at25 uses the NVMEM subsystem, and the property is now being
+> > > > handled, adding reference for it in the device tree binding documen=
+t,
+> > > > which allows to specify the GPIO line to which the write-protect pi=
+n
+> > > > is connected.
+> > > >
+> > > > Signed-off-by: Khouloud Touil <ktouil-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
+> > > > ---
+> > > >  Documentation/devicetree/bindings/eeprom/at25.txt | 2 ++
+> > > >  1 file changed, 2 insertions(+)
+> > > >
 > > >
+> > > Reviewed-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 > >
-> > Reviewed-by: Rob Herring <robh@kernel.org>
-> 
-> Hi Greg,
-> 
-> AT25 patches usually go through the char-misc tree. In this case
-> however, the change depends on the other patches in this series. Can
-> you ack this and I'll take it through the AT24 tree exceptionally?
+> > Hi Greg,
+> >
+> > AT25 patches usually go through the char-misc tree. In this case
+> > however, the change depends on the other patches in this series. Can
+> > you ack this and I'll take it through the AT24 tree exceptionally?
+>
+> Acked-by: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Patch applied with Greg's Ack.
+
+Bart
