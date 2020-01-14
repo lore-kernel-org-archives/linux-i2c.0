@@ -1,42 +1,61 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH] i2c: i801: Fix memory corruption in i801_isr_byte_done()
-Date: Tue, 14 Jan 2020 10:34:06 +0300
-Message-ID: <20200114073406.qaq3hbrhtx76fkes@kili.mountain>
-References: <0000000000009586b2059c13c7e1@google.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH v2 1/4] i2c: pmcmsp: Use proper printk format for resource_size_t
+Date: Tue, 14 Jan 2020 10:06:02 +0100
+Message-ID: <1578992765-1418-1-git-send-email-krzk@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <0000000000009586b2059c13c7e1@google.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>, Daniel Kurtz <djkurtz@chromium.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, syzbot <syzbot+ed71512d469895b5b34e@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:45140 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725860AbgANJGS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Tue, 14 Jan 2020 04:06:18 -0500
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Vladimir Zapolskiy <vz@mleia.com>, Sylvain Lemieux <slemieux.tyco@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Krzysztof Kozlowski <krzk@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Assigning "priv->data[-1] = priv->len;" obviously doesn't make sense.
-What it does is it ends up corrupting the last byte of priv->len so
-priv->len becomes a very high number.
+resource_size_t should be printed with its own size-independent format
+to fix warnings when compiling on 64-bit platform (e.g. with
+COMPILE_TEST):
 
-Reported-by: syzbot+ed71512d469895b5b34e@syzkaller.appspotmail.com
-Fixes: d3ff6ce40031 ("i2c-i801: Enable IRQ for byte_by_byte transactions")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+    drivers/i2c/busses/i2c-pmcmsp.c: In function ‘pmcmsptwi_probe’:
+    drivers/i2c/busses/i2c-pmcmsp.c:276:25: warning:
+        format ‘%x’ expects argument of type ‘unsigned int’,
+        but argument 3 has type ‘resource_size_t {aka long long unsigned int}’ [-Wformat=]
+
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+
 ---
-Untested.
 
- drivers/i2c/busses/i2c-i801.c | 1 -
- 1 file changed, 1 deletion(-)
+Changes since v1:
+1. Use %pap, not %pa[p].
+---
+ drivers/i2c/busses/i2c-pmcmsp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index f5e69fe56532..420d8025901e 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -584,7 +584,6 @@ static void i801_isr_byte_done(struct i801_priv *priv)
- 					"SMBus block read size is %d\n",
- 					priv->len);
- 			}
--			priv->data[-1] = priv->len;
- 		}
- 
- 		/* Read next byte */
+diff --git a/drivers/i2c/busses/i2c-pmcmsp.c b/drivers/i2c/busses/i2c-pmcmsp.c
+index 4fde74eb34a7..9a2acf09f1cf 100644
+--- a/drivers/i2c/busses/i2c-pmcmsp.c
++++ b/drivers/i2c/busses/i2c-pmcmsp.c
+@@ -274,8 +274,8 @@ static int pmcmsptwi_probe(struct platform_device *pldev)
+ 	if (!request_mem_region(res->start, resource_size(res),
+ 				pldev->name)) {
+ 		dev_err(&pldev->dev,
+-			"Unable to get memory/io address region 0x%08x\n",
+-			res->start);
++			"Unable to get memory/io address region %pap\n",
++			&(res->start));
+ 		rc = -EBUSY;
+ 		goto ret_err;
+ 	}
+@@ -285,7 +285,7 @@ static int pmcmsptwi_probe(struct platform_device *pldev)
+ 						resource_size(res));
+ 	if (!pmcmsptwi_data.iobase) {
+ 		dev_err(&pldev->dev,
+-			"Unable to ioremap address 0x%08x\n", res->start);
++			"Unable to ioremap address %pap\n", &(res->start));
+ 		rc = -EIO;
+ 		goto ret_unreserve;
+ 	}
 -- 
-2.11.0
+2.7.4
