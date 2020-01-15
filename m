@@ -1,55 +1,67 @@
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH v3 3/3] i2c: highlander: Use proper printk format for size_t
-Date: Wed, 15 Jan 2020 21:02:50 +0100
-Message-ID: <20200115200250.10849-3-krzk@kernel.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 1/3] i2c: pmcmsp: Use proper printk format for
+ resource_size_t
+Date: Wed, 15 Jan 2020 21:11:22 +0100
+Message-ID: <20200115201122.GD23789@ninjato>
 References: <20200115200250.10849-1-krzk@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="n2Pv11Ogg/Ox8ay5"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:60354 "EHLO mail.kernel.org"
+Received: from sauhun.de ([88.99.104.3]:41234 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726566AbgAOUDS (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 15 Jan 2020 15:03:18 -0500
+        id S1729442AbgAOULY (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 15 Jan 2020 15:11:24 -0500
+Content-Disposition: inline
 In-Reply-To: <20200115200250.10849-1-krzk@kernel.org>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Vladimir Zapolskiy <vz@mleia.com>, Sylvain Lemieux <slemieux.tyco@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Arnd Bergmann <arnd@arndb.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Krzysztof Kozlowski <krzk@kernel.org>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Vladimir Zapolskiy <vz@mleia.com>, Sylvain Lemieux <slemieux.tyco@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Arnd Bergmann <arnd@arndb.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-size_t should be printed with its own format to be 64-bit friendly and
-fix warning when compiling on 64-bit platform (e.g. with COMPILE_TEST):
 
-    drivers/i2c/busses/i2c-highlander.c: In function ‘highlander_i2c_smbus_xfer’:
-    drivers/i2c/busses/i2c-highlander.c:325:22: warning:
-        format ‘%d’ expects argument of type ‘int’,
-        but argument 3 has type ‘size_t {aka long unsigned int}’ [-Wformat=]
+--n2Pv11Ogg/Ox8ay5
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+On Wed, Jan 15, 2020 at 09:02:48PM +0100, Krzysztof Kozlowski wrote:
+> resource_size_t should be printed with its own size-independent format
+> to fix warnings when compiling on 64-bit platform (e.g. with
+> COMPILE_TEST):
+>=20
+>     drivers/i2c/busses/i2c-pmcmsp.c: In function =E2=80=98pmcmsptwi_probe=
+=E2=80=99:
+>     drivers/i2c/busses/i2c-pmcmsp.c:276:25: warning:
+>         format =E2=80=98%x=E2=80=99 expects argument of type =E2=80=98uns=
+igned int=E2=80=99,
+>         but argument 3 has type =E2=80=98resource_size_t {aka long long u=
+nsigned int}=E2=80=99 [-Wformat=3D]
+>=20
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+>=20
 
----
+Applied to for-next, thanks!
 
-Changes since v2:
-1. Rewrite incorrect commit msg.
 
-Changes since v1:
-1. None
----
- drivers/i2c/busses/i2c-highlander.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+--n2Pv11Ogg/Ox8ay5
+Content-Type: application/pgp-signature; name="signature.asc"
 
-diff --git a/drivers/i2c/busses/i2c-highlander.c b/drivers/i2c/busses/i2c-highlander.c
-index abfe3094c047..803dad70e2a7 100644
---- a/drivers/i2c/busses/i2c-highlander.c
-+++ b/drivers/i2c/busses/i2c-highlander.c
-@@ -322,7 +322,7 @@ static int highlander_i2c_smbus_xfer(struct i2c_adapter *adap, u16 addr,
- 		tmp |= (SMMR_MODE0 | SMMR_MODE1);
- 		break;
- 	default:
--		dev_err(dev->dev, "unsupported xfer size %d\n", dev->buf_len);
-+		dev_err(dev->dev, "unsupported xfer size %zu\n", dev->buf_len);
- 		return -EINVAL;
- 	}
- 
--- 
-2.17.1
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4fceUACgkQFA3kzBSg
+Kbaqsw//fd/tBuZAf0ECoBh5tOS9OHNnch60MhHR1/66F+fZJu0d51QyirtYSeXI
+9E+eS4MHn3Eoa7MpuNFG+6P16VaecghOOWNFp9mCqboutGRU0UiF32qicCmYRx7d
+TiMiILh67d8Y9+WcPqRIOtEjjrGWLIqSYXC1nEz7fNEOQ4/5NU1cj73GFjd1Oc4e
+IEjeRYzxg6nnS46q3CT94gFERxTb/x4Z+r5WFMSlkDtOZMpYjlQSplazQyn7eLIZ
+Af/okYkrexFsh5xayYRldbHWUK9pHky1nlj+K8EbnRIoc+imM7q7opOlhWJMnGBT
+0pj+33JTYTIKuKPUtoReM8yvTST63SUpjCC6vZTu+verAZvzXX2dvXfzq55rDknr
+U5c6+/PMUf17A3/XPzWcaBR/00L7B0MoLRVRICAAtLSnXOg1RJW07Xc+ichmgFNU
+05X1eUWWI5pIpZjbpVxLyNk/ta2J4lG76LEW/79/ieU7P7GVcZAFKHloTvHBfNVQ
+PqWxuAAlwdHQl6eG7gwJD4lv53OK0MLVHPXR//XiiKQNIoGxmQUoj4O8oZ4wrspi
+tFB261pBx8FNc5ioqfL3WJh798KX/XEKGBAizj6cRhHC/Y/6WXs6QKk8gqjyDIZK
+uF1TH08xWErH1MxiwUy37wMIzH0rlDFs2JHQGgJd4QDq4qc0lns=
+=QP0H
+-----END PGP SIGNATURE-----
+
+--n2Pv11Ogg/Ox8ay5--
