@@ -1,117 +1,206 @@
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Subject: [PATCH v3 4/6] ARM: at91/dt: sama5d3: add i2c gpio pinctrl
-Date: Wed, 15 Jan 2020 13:54:20 +0200
-Message-ID: <20200115115422.17097-5-codrin.ciubotariu@microchip.com>
-References: <20200115115422.17097-1-codrin.ciubotariu@microchip.com>
+From: Pierre Yves MORDRET <pierre-yves.mordret@st.com>
+Subject: Re: [PATCH 4/6] i2c: i2c-stm32f7: add PM_SLEEP suspend/resume support
+Date: Wed, 15 Jan 2020 10:13:19 +0100
+Message-ID: <5f930987-2a15-3a82-654d-2db8fd528876@st.com>
+References: <1578317314-17197-1-git-send-email-alain.volmat@st.com>
+ <1578317314-17197-5-git-send-email-alain.volmat@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200115115422.17097-1-codrin.ciubotariu@microchip.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: kamel.bouhara@bootlin.com, wsa@the-dreams.de, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, Ludovic.Desroches@microchip.com, robh@kernel.org, peda@axentia.se, linux@armlinux.org.uk, Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:21760 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726472AbgAOJNr (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 15 Jan 2020 04:13:47 -0500
+In-Reply-To: <1578317314-17197-5-git-send-email-alain.volmat@st.com>
+Content-Language: en-US
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Alain Volmat <alain.volmat@st.com>, wsa@the-dreams.de, robh+dt@kernel.org
+Cc: mark.rutland@arm.com, mcoquelin.stm32@gmail.com, alexandre.torgue@st.com, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, fabrice.gasnier@st.com
 
-From: Kamel Bouhara <kamel.bouhara@bootlin.com>
+Hi all,
 
-Add the i2c gpio pinctrls to support the i2c bus recovery
+Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 
-Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
-[codrin.ciubotariu@microchip.com: removed gpio pull-ups]
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
----
+Regards
 
-Changes in v3:
- - removed gpio pull-ups;
-
-Changes in v2:
-  - none;
-
- arch/arm/boot/dts/sama5d3.dtsi | 33 ++++++++++++++++++++++++++++++---
- 1 file changed, 30 insertions(+), 3 deletions(-)
-
-diff --git a/arch/arm/boot/dts/sama5d3.dtsi b/arch/arm/boot/dts/sama5d3.dtsi
-index f770aace0efd..1cea2137decf 100644
---- a/arch/arm/boot/dts/sama5d3.dtsi
-+++ b/arch/arm/boot/dts/sama5d3.dtsi
-@@ -159,8 +159,11 @@
- 				dmas = <&dma0 2 AT91_DMA_CFG_PER_ID(7)>,
- 				       <&dma0 2 AT91_DMA_CFG_PER_ID(8)>;
- 				dma-names = "tx", "rx";
--				pinctrl-names = "default";
-+				pinctrl-names = "default", "gpio";
- 				pinctrl-0 = <&pinctrl_i2c0>;
-+				pinctrl-1 = <&pinctrl_i2c0_gpio>;
-+				sda-gpios = <&pioA 30 GPIO_ACTIVE_HIGH>;
-+				scl-gpios = <&pioA 31 GPIO_ACTIVE_HIGH>;
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				clocks = <&twi0_clk>;
-@@ -174,8 +177,11 @@
- 				dmas = <&dma0 2 AT91_DMA_CFG_PER_ID(9)>,
- 				       <&dma0 2 AT91_DMA_CFG_PER_ID(10)>;
- 				dma-names = "tx", "rx";
--				pinctrl-names = "default";
-+				pinctrl-names = "default", "gpio";
- 				pinctrl-0 = <&pinctrl_i2c1>;
-+				pinctrl-1 = <&pinctrl_i2c1_gpio>;
-+				sda-gpios = <&pioC 26 GPIO_ACTIVE_HIGH>;
-+				scl-gpios = <&pioC 27 GPIO_ACTIVE_HIGH>;
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				clocks = <&twi1_clk>;
-@@ -357,8 +363,11 @@
- 				dmas = <&dma1 2 AT91_DMA_CFG_PER_ID(11)>,
- 				       <&dma1 2 AT91_DMA_CFG_PER_ID(12)>;
- 				dma-names = "tx", "rx";
--				pinctrl-names = "default";
-+				pinctrl-names = "default", "gpio";
- 				pinctrl-0 = <&pinctrl_i2c2>;
-+				pinctrl-1 = <&pinctrl_i2c2_gpio>;
-+				sda-gpios = <&pioA 18 GPIO_ACTIVE_HIGH>;
-+				scl-gpios = <&pioA 19 GPIO_ACTIVE_HIGH>;
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				clocks = <&twi2_clk>;
-@@ -639,6 +648,12 @@
- 							<AT91_PIOA 30 AT91_PERIPH_A AT91_PINCTRL_NONE	/* PA30 periph A TWD0 pin, conflicts with URXD1, ISI_VSYNC */
- 							 AT91_PIOA 31 AT91_PERIPH_A AT91_PINCTRL_NONE>;	/* PA31 periph A TWCK0 pin, conflicts with UTXD1, ISI_HSYNC */
- 					};
-+
-+					pinctrl_i2c0_gpio: i2c0-gpio {
-+						atmel,pins =
-+							<AT91_PIOA 30 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
-+							 AT91_PIOA 31 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+					};
- 				};
- 
- 				i2c1 {
-@@ -647,6 +662,12 @@
- 							<AT91_PIOC 26 AT91_PERIPH_B AT91_PINCTRL_NONE	/* PC26 periph B TWD1 pin, conflicts with SPI1_NPCS1, ISI_D11 */
- 							 AT91_PIOC 27 AT91_PERIPH_B AT91_PINCTRL_NONE>;	/* PC27 periph B TWCK1 pin, conflicts with SPI1_NPCS2, ISI_D10 */
- 					};
-+
-+					pinctrl_i2c1_gpio: i2c1-gpio {
-+						atmel,pins =
-+							<AT91_PIOC 26 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
-+							 AT91_PIOC 27 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+					};
- 				};
- 
- 				i2c2 {
-@@ -655,6 +676,12 @@
- 							<AT91_PIOA 18 AT91_PERIPH_B AT91_PINCTRL_NONE	/* TWD2 pin, conflicts with LCDDAT18, ISI_D2 */
- 							 AT91_PIOA 19 AT91_PERIPH_B AT91_PINCTRL_NONE>; /* TWCK2 pin, conflicts with LCDDAT19, ISI_D3 */
- 					};
-+
-+					pinctrl_i2c2_gpio: i2c2-gpio {
-+						atmel,pins =
-+							<AT91_PIOA 18 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
-+							 AT91_PIOA 19 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+					};
- 				};
- 
- 				isi {
--- 
-2.20.1
+On 1/6/20 2:28 PM, Alain Volmat wrote:
+> Backup/restore I2C registers as part of the suspend/resume
+> handlers. The device is marked as suspended to ensure that
+> transfers are rejected during the suspended period.
+> 
+> Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+> Signed-off-by: Alain Volmat <alain.volmat@st.com>
+> ---
+>  drivers/i2c/busses/i2c-stm32f7.c | 117 +++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 113 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+> index b2634afe066d..5c3e8ac6ad92 100644
+> --- a/drivers/i2c/busses/i2c-stm32f7.c
+> +++ b/drivers/i2c/busses/i2c-stm32f7.c
+> @@ -169,6 +169,24 @@
+>  #define STM32F7_AUTOSUSPEND_DELAY		(HZ / 100)
+>  
+>  /**
+> + * struct stm32f7_i2c_regs - i2c f7 registers backup
+> + * @cr1: Control register 1
+> + * @cr2: Control register 2
+> + * @oar1: Own address 1 register
+> + * @oar2: Own address 2 register
+> + * @pecr: PEC register
+> + * @tmgr: Timing register
+> + */
+> +struct stm32f7_i2c_regs {
+> +	u32 cr1;
+> +	u32 cr2;
+> +	u32 oar1;
+> +	u32 oar2;
+> +	u32 pecr;
+> +	u32 tmgr;
+> +};
+> +
+> +/**
+>   * struct stm32f7_i2c_spec - private i2c specification timing
+>   * @rate: I2C bus speed (Hz)
+>   * @rate_min: 80% of I2C bus speed (Hz)
+> @@ -276,6 +294,7 @@ struct stm32f7_i2c_msg {
+>   * @timing: I2C computed timings
+>   * @slave: list of slave devices registered on the I2C bus
+>   * @slave_running: slave device currently used
+> + * @backup_regs: backup of i2c controller registers (for suspend/resume)
+>   * @slave_dir: transfer direction for the current slave device
+>   * @master_mode: boolean to know in which mode the I2C is running (master or
+>   * slave)
+> @@ -298,6 +317,7 @@ struct stm32f7_i2c_dev {
+>  	struct stm32f7_i2c_timings timing;
+>  	struct i2c_client *slave[STM32F7_I2C_MAX_SLAVE];
+>  	struct i2c_client *slave_running;
+> +	struct stm32f7_i2c_regs backup_regs;
+>  	u32 slave_dir;
+>  	bool master_mode;
+>  	struct stm32_i2c_dma *dma;
+> @@ -2027,8 +2047,7 @@ static int stm32f7_i2c_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> -#ifdef CONFIG_PM
+> -static int stm32f7_i2c_runtime_suspend(struct device *dev)
+> +static int __maybe_unused stm32f7_i2c_runtime_suspend(struct device *dev)
+>  {
+>  	struct stm32f7_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+>  
+> @@ -2038,7 +2057,7 @@ static int stm32f7_i2c_runtime_suspend(struct device *dev)
+>  	return 0;
+>  }
+>  
+> -static int stm32f7_i2c_runtime_resume(struct device *dev)
+> +static int __maybe_unused stm32f7_i2c_runtime_resume(struct device *dev)
+>  {
+>  	struct stm32f7_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+>  	int ret;
+> @@ -2053,11 +2072,101 @@ static int stm32f7_i2c_runtime_resume(struct device *dev)
+>  
+>  	return 0;
+>  }
+> -#endif
+> +
+> +static int __maybe_unused
+> +stm32f7_i2c_regs_backup(struct stm32f7_i2c_dev *i2c_dev)
+> +{
+> +	int ret;
+> +	struct stm32f7_i2c_regs *backup_regs = &i2c_dev->backup_regs;
+> +
+> +	ret = pm_runtime_get_sync(i2c_dev->dev);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	backup_regs->cr1 = readl_relaxed(i2c_dev->base + STM32F7_I2C_CR1);
+> +	backup_regs->cr2 = readl_relaxed(i2c_dev->base + STM32F7_I2C_CR2);
+> +	backup_regs->oar1 = readl_relaxed(i2c_dev->base + STM32F7_I2C_OAR1);
+> +	backup_regs->oar2 = readl_relaxed(i2c_dev->base + STM32F7_I2C_OAR2);
+> +	backup_regs->pecr = readl_relaxed(i2c_dev->base + STM32F7_I2C_PECR);
+> +	backup_regs->tmgr = readl_relaxed(i2c_dev->base + STM32F7_I2C_TIMINGR);
+> +
+> +	pm_runtime_put_sync(i2c_dev->dev);
+> +
+> +	return ret;
+> +}
+> +
+> +static int __maybe_unused
+> +stm32f7_i2c_regs_restore(struct stm32f7_i2c_dev *i2c_dev)
+> +{
+> +	u32 cr1;
+> +	int ret;
+> +	struct stm32f7_i2c_regs *backup_regs = &i2c_dev->backup_regs;
+> +
+> +	ret = pm_runtime_get_sync(i2c_dev->dev);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	cr1 = readl_relaxed(i2c_dev->base + STM32F7_I2C_CR1);
+> +	if (cr1 & STM32F7_I2C_CR1_PE)
+> +		stm32f7_i2c_clr_bits(i2c_dev->base + STM32F7_I2C_CR1,
+> +				     STM32F7_I2C_CR1_PE);
+> +
+> +	writel_relaxed(backup_regs->tmgr, i2c_dev->base + STM32F7_I2C_TIMINGR);
+> +	writel_relaxed(backup_regs->cr1 & ~STM32F7_I2C_CR1_PE,
+> +		       i2c_dev->base + STM32F7_I2C_CR1);
+> +	if (backup_regs->cr1 & STM32F7_I2C_CR1_PE)
+> +		stm32f7_i2c_set_bits(i2c_dev->base + STM32F7_I2C_CR1,
+> +				     STM32F7_I2C_CR1_PE);
+> +	writel_relaxed(backup_regs->cr2, i2c_dev->base + STM32F7_I2C_CR2);
+> +	writel_relaxed(backup_regs->oar1, i2c_dev->base + STM32F7_I2C_OAR1);
+> +	writel_relaxed(backup_regs->oar2, i2c_dev->base + STM32F7_I2C_OAR2);
+> +	writel_relaxed(backup_regs->pecr, i2c_dev->base + STM32F7_I2C_PECR);
+> +
+> +	pm_runtime_put_sync(i2c_dev->dev);
+> +
+> +	return ret;
+> +}
+> +
+> +static int __maybe_unused stm32f7_i2c_suspend(struct device *dev)
+> +{
+> +	struct stm32f7_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+> +	int ret;
+> +
+> +	i2c_mark_adapter_suspended(&i2c_dev->adap);
+> +	ret = stm32f7_i2c_regs_backup(i2c_dev);
+> +	if (ret < 0) {
+> +		i2c_mark_adapter_resumed(&i2c_dev->adap);
+> +		return ret;
+> +	}
+> +
+> +	pinctrl_pm_select_sleep_state(dev);
+> +	pm_runtime_force_suspend(dev);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused stm32f7_i2c_resume(struct device *dev)
+> +{
+> +	struct stm32f7_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+> +	int ret;
+> +
+> +	ret = pm_runtime_force_resume(dev);
+> +	if (ret < 0)
+> +		return ret;
+> +	pinctrl_pm_select_default_state(dev);
+> +
+> +	ret = stm32f7_i2c_regs_restore(i2c_dev);
+> +	if (ret < 0)
+> +		return ret;
+> +	i2c_mark_adapter_resumed(&i2c_dev->adap);
+> +
+> +	return 0;
+> +}
+>  
+>  static const struct dev_pm_ops stm32f7_i2c_pm_ops = {
+>  	SET_RUNTIME_PM_OPS(stm32f7_i2c_runtime_suspend,
+>  			   stm32f7_i2c_runtime_resume, NULL)
+> +	SET_SYSTEM_SLEEP_PM_OPS(stm32f7_i2c_suspend, stm32f7_i2c_resume)
+>  };
+>  
+>  static const struct of_device_id stm32f7_i2c_match[] = {
+> 
