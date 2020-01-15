@@ -1,51 +1,139 @@
-From: Bartosz Golaszewski <bgolaszewski-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v4 4/5] dt-bindings: at25: add reference for the wp-gpios property
-Date: Tue, 14 Jan 2020 16:05:57 +0100
-Message-ID: <CAMpxmJW8edEZw81iQkwDr-Umdb1ibb85s=EshQs4yXRFh5LP=A@mail.gmail.com>
-References: <20200107092922.18408-1-ktouil@baylibre.com> <20200107092922.18408-5-ktouil@baylibre.com>
- <20200108205447.GA16981@bogus> <CAMpxmJXffr-S51udNmUyMHz687jAoBKrYspNypfUUqjOD45zxQ@mail.gmail.com>
- <20200114144214.GA1898224@kroah.com>
+From: syzbot <syzbot+8c8dedc0ba9e03f6c79e@syzkaller.appspotmail.com>
+Subject: KASAN: stack-out-of-bounds Read in i801_isr
+Date: Tue, 14 Jan 2020 22:36:10 -0800
+Message-ID: <0000000000009d6d71059c27ecf1@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20200114144214.GA1898224-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Srinivas Kandagatla <srinivas.kandagatla-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Khouloud Touil <ktouil-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, baylibre-upstreaming-GWfripvEmMdhl2p70BpVqQ@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-io1-f72.google.com ([209.85.166.72]:51603 "EHLO
+        mail-io1-f72.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726018AbgAOGgM (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 15 Jan 2020 01:36:12 -0500
+Received: by mail-io1-f72.google.com with SMTP id t18so9647020iob.18
+        for <linux-i2c@vger.kernel.org>; Tue, 14 Jan 2020 22:36:11 -0800 (PST)
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: jdelvare@suse.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
 
-wt., 14 sty 2020 o 15:42 Greg KH <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org> napisa=C5=82(=
-a):
->
-> On Thu, Jan 09, 2020 at 10:47:56AM +0100, Bartosz Golaszewski wrote:
-> > =C5=9Br., 8 sty 2020 o 21:54 Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> napisa=C5=82=
-(a):
-> > >
-> > > On Tue,  7 Jan 2020 10:29:21 +0100, Khouloud Touil wrote:
-> > > > As the at25 uses the NVMEM subsystem, and the property is now being
-> > > > handled, adding reference for it in the device tree binding documen=
-t,
-> > > > which allows to specify the GPIO line to which the write-protect pi=
-n
-> > > > is connected.
-> > > >
-> > > > Signed-off-by: Khouloud Touil <ktouil-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>
-> > > > ---
-> > > >  Documentation/devicetree/bindings/eeprom/at25.txt | 2 ++
-> > > >  1 file changed, 2 insertions(+)
-> > > >
-> > >
-> > > Reviewed-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> >
-> > Hi Greg,
-> >
-> > AT25 patches usually go through the char-misc tree. In this case
-> > however, the change depends on the other patches in this series. Can
-> > you ack this and I'll take it through the AT24 tree exceptionally?
->
-> Acked-by: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Hello,
 
-Patch applied with Greg's Ack.
+syzbot found the following crash on:
 
-Bart
+HEAD commit:    452424cd Merge branch 'parisc-5.5-3' of git://git.kernel.o..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=17f7ac21e00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=d9290aeb7e6cf1c4
+dashboard link: https://syzkaller.appspot.com/bug?extid=8c8dedc0ba9e03f6c79e
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+userspace arch: i386
+
+Unfortunately, I don't have any reproducer for this crash yet.
+
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+8c8dedc0ba9e03f6c79e@syzkaller.appspotmail.com
+
+==================================================================
+BUG: KASAN: stack-out-of-bounds in i801_isr_byte_done  
+drivers/i2c/busses/i2c-i801.c:603 [inline]
+BUG: KASAN: stack-out-of-bounds in i801_isr  
+drivers/i2c/busses/i2c-i801.c:663 [inline]
+BUG: KASAN: stack-out-of-bounds in i801_isr+0xcb7/0xcf0  
+drivers/i2c/busses/i2c-i801.c:644
+Read of size 1 at addr ffffc9000beb7d38 by task syz-executor.3/2994
+
+CPU: 1 PID: 2994 Comm: syz-executor.3 Not tainted 5.5.0-rc6-syzkaller #0
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS  
+rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+Call Trace:
+  <IRQ>
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x197/0x210 lib/dump_stack.c:118
+  print_address_description.constprop.0.cold+0x5/0x30b mm/kasan/report.c:374
+  __kasan_report.cold+0x1b/0x41 mm/kasan/report.c:506
+  kasan_report+0x12/0x20 mm/kasan/common.c:639
+  __asan_report_load1_noabort+0x14/0x20 mm/kasan/generic_report.c:132
+  i801_isr_byte_done drivers/i2c/busses/i2c-i801.c:603 [inline]
+  i801_isr drivers/i2c/busses/i2c-i801.c:663 [inline]
+  i801_isr+0xcb7/0xcf0 drivers/i2c/busses/i2c-i801.c:644
+  __handle_irq_event_percpu+0x15d/0x970 kernel/irq/handle.c:149
+  handle_irq_event_percpu+0x74/0x160 kernel/irq/handle.c:189
+  handle_irq_event+0xa7/0x134 kernel/irq/handle.c:206
+  handle_fasteoi_irq+0x281/0x670 kernel/irq/chip.c:725
+  generic_handle_irq_desc include/linux/irqdesc.h:156 [inline]
+  do_IRQ+0xde/0x280 arch/x86/kernel/irq.c:250
+  common_interrupt+0xf/0xf arch/x86/entry/entry_64.S:607
+RIP: 0010:ffs arch/x86/include/asm/bitops.h:297 [inline]
+RIP: 0010:__do_softirq+0x227/0x98c kernel/softirq.c:280
+Code: c7 c0 e8 34 93 89 48 c1 e8 03 42 80 3c 30 00 0f 85 b1 06 00 00 48 83  
+3d ce 32 93 01 00 0f 84 d6 05 00 00 fb 66 0f 1f 44 00 00 <b8> ff ff ff ff  
+48 c7 45 c8 00 91 80 89 0f bc 45 d4 83 c0 01 89 45
+RSP: 0018:ffffc900004e8f18 EFLAGS: 00000282 ORIG_RAX: ffffffffffffffdd
+RAX: 1ffffffff132669d RBX: ffff88801eccdf00 RCX: 0000000000000002
+RDX: 0000000000000000 RSI: 0000000000000008 RDI: ffff88801ecce794
+RBP: ffffc900004e8f98 R08: 1ffffffff165e7a6 R09: fffffbfff165e7a7
+R10: fffffbfff165e7a6 R11: ffffffff8b2f3d37 R12: 0000000000000000
+R13: 0000000000000000 R14: dffffc0000000000 R15: 0000000000000000
+  invoke_softirq kernel/softirq.c:373 [inline]
+  irq_exit+0x19b/0x1e0 kernel/softirq.c:413
+  exiting_irq arch/x86/include/asm/apic.h:536 [inline]
+  smp_apic_timer_interrupt+0x1a3/0x610 arch/x86/kernel/apic/apic.c:1137
+  apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:829
+  </IRQ>
+RIP: 0010:arch_local_irq_restore arch/x86/include/asm/paravirt.h:752  
+[inline]
+RIP: 0010:__raw_spin_unlock_irqrestore include/linux/spinlock_api_smp.h:160  
+[inline]
+RIP: 0010:_raw_spin_unlock_irqrestore+0x90/0xe0  
+kernel/locking/spinlock.c:191
+Code: 48 c7 c0 d8 34 93 89 48 ba 00 00 00 00 00 fc ff df 48 c1 e8 03 80 3c  
+10 00 75 39 48 83 3d 7f e0 be 01 00 74 24 48 89 df 57 9d <0f> 1f 44 00 00  
+bf 01 00 00 00 e8 11 36 7c f9 65 8b 05 12 ca 2d 78
+RSP: 0018:ffffc9000c6e7b90 EFLAGS: 00000282 ORIG_RAX: ffffffffffffff13
+RAX: 1ffffffff132669b RBX: 0000000000000282 RCX: 0000000000000006
+RDX: dffffc0000000000 RSI: 0000000000000008 RDI: 0000000000000282
+RBP: ffffc9000c6e7ba0 R08: 1ffffffff165e7a6 R09: fffffbfff165e7a7
+R10: fffffbfff165e7a6 R11: ffffffff8b2f3d37 R12: ffff88802a79d158
+R13: ffff88802a79d150 R14: 0000000000000282 R15: ffff88802a79d158
+  kthread_queue_work+0xa4/0x160 kernel/kthread.c:829
+  kthread_flush_worker+0xca/0x110 kernel/kthread.c:1165
+  loop_unprepare_queue drivers/block/loop.c:894 [inline]
+  __loop_clr_fd+0x5d9/0xd80 drivers/block/loop.c:1157
+  loop_clr_fd drivers/block/loop.c:1237 [inline]
+  lo_ioctl+0x2bd/0x1460 drivers/block/loop.c:1606
+  lo_compat_ioctl+0xb6/0x110 drivers/block/loop.c:1782
+  compat_blkdev_ioctl+0x274/0x1c30 block/compat_ioctl.c:422
+  __do_compat_sys_ioctl fs/compat_ioctl.c:214 [inline]
+  __se_compat_sys_ioctl fs/compat_ioctl.c:142 [inline]
+  __ia32_compat_sys_ioctl+0x233/0x610 fs/compat_ioctl.c:142
+  do_syscall_32_irqs_on arch/x86/entry/common.c:337 [inline]
+  do_fast_syscall_32+0x27b/0xe16 arch/x86/entry/common.c:408
+  entry_SYSENTER_compat+0x70/0x7f arch/x86/entry/entry_64_compat.S:139
+RIP: 0023:0xf7fe2a39
+Code: 00 00 00 89 d3 5b 5e 5f 5d c3 b8 80 96 98 00 eb c4 8b 04 24 c3 8b 1c  
+24 c3 8b 34 24 c3 8b 3c 24 c3 51 52 55 89 e5 0f 34 cd 80 <5d> 5a 59 c3 90  
+90 90 90 eb 0d 90 90 90 90 90 90 90 90 90 90 90 90
+RSP: 002b:00000000f5dddf08 EFLAGS: 00000292 ORIG_RAX: 0000000000000036
+RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 0000000000004c01
+RDX: 0000000000000000 RSI: 000000000812d000 RDI: 0000000000000000
+RBP: 00000000f5dde158 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+
+
+Memory state around the buggy address:
+  ffffc9000beb7c00: f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9
+  ffffc9000beb7c80: f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9
+> ffffc9000beb7d00: f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9
+                                         ^
+  ffffc9000beb7d80: f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9
+  ffffc9000beb7e00: f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9
+==================================================================
+
+
+---
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
