@@ -1,64 +1,35 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: iop3xx: Fix memory leak in probe error path
-Date: Wed, 15 Jan 2020 20:33:14 +0100
-Message-ID: <20200115193314.GA23789@ninjato>
-References: <20200113172954.5096-1-krzk@kernel.org>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: Re: [PATCH v2 1/4] i2c: pmcmsp: Use proper printk format for
+ resource_size_t
+Date: Wed, 15 Jan 2020 20:51:57 +0100
+Message-ID: <20200115195157.GA8661@kozik-lap>
+References: <1578992765-1418-1-git-send-email-krzk@kernel.org>
+ <20200115174553.GI1239@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:40806 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725999AbgAOTdQ (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 15 Jan 2020 14:33:16 -0500
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200113172954.5096-1-krzk@kernel.org>
-Sender: linux-i2c-owner@vger.kernel.org
+In-Reply-To: <20200115174553.GI1239@ninjato>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Vladimir Zapolskiy <vz@mleia.com>, Sylvain Lemieux <slemieux.tyco@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Arnd Bergmann <arnd@arndb.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jean Delvare <jdelvare@suse.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 
+On Wed, Jan 15, 2020 at 06:45:53PM +0100, Wolfram Sang wrote:
+> 
+> > +			"Unable to get memory/io address region %pap\n",
+> > +			&(res->start));
+> 
+> My first thought was "parens not needed"; not because I like being picky
+> but because it doesn't look more readable to me.
+> 
+> checkpatch agrees:
+> 
+> CHECK: Unnecessary parentheses around res->start
+> #30: FILE: drivers/i2c/busses/i2c-pmcmsp.c:278:
+> +			&(res->start));
 
---azLHFNyN32YCQGCU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Indeed... let me send v3.
 
-On Mon, Jan 13, 2020 at 06:29:54PM +0100, Krzysztof Kozlowski wrote:
-> When handling devm_gpiod_get_optional() errors, free the memory already
-> allocated.  This fixes Smatch warnings:
->=20
->     drivers/i2c/busses/i2c-iop3xx.c:437 iop3xx_i2c_probe() warn: possible=
- memory leak of 'new_adapter'
->     drivers/i2c/busses/i2c-iop3xx.c:442 iop3xx_i2c_probe() warn: possible=
- memory leak of 'new_adapter'
->=20
-> Reported-by: kbuild test robot <lkp@intel.com>
-> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-
-Applied to for-current, thanks! Please add a 'Fixes' tag next time,
-added it for you now.
-
-
---azLHFNyN32YCQGCU
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4faPIACgkQFA3kzBSg
-Kbbk2w/+NtYh/9pzq1Cay6U7CbprQKH2/wmfdXJH1ycJteHmo394nhmZh7mvJdrw
-/6aSQTQzibxn7nzttVDC24EB97K+jgoOeGpS4pcePvMV0WX8feDvDeV6NQOkTAxx
-64sbL8nej0ZBKiB6OnxMDkbPq1Su3aQhUWFC1U1COjpGq7VoiEv9TOT/ybtjgr3i
-Wu4eU786wZhYCJvvs/fdfCMTTxk7EGARLxPXKgw/B2RPWnQyla7egPbkUrfUSebr
-PbrJPHNGAqzc1+W6dM61TVW97nT6ORe0fHnII4ysX4NfLBYYIyduYuVBGmzkknm/
-LhmhTdsMix8XJ0AxLLcMMeX4hKvWmwVrfTymW9wJZL/Kj1HDgwCYLmSLYwwLqyVg
-JZsGMGpl6/NvttTWXVQ2UbQlBGyL42MXsWRN1JpgzX4iNnl11C5oVagrVJpP1C2n
-NmofwVqeSk5ufvxyTO8kEduNXPEYPevSeian6eC1FqMT/mjk5MH82AwebpQhLy27
-ROP9F/g4yL7ZHT1h+Bi8NuZ3Aj+57r4c3nXUku0bnH6dCWo1QKOdmxPy8x3BymWt
-+Lskzt2E1OCK/90PWg7CsnRIX06QYs7cVLFNk+xCEwSyJjibJukqFmZu/iD+8qre
-ejGlqZ/mF1igswHCxNwxM3R71LaXDPkNEY0uBwa0jHULPRpAgwI=
-=0i7M
------END PGP SIGNATURE-----
-
---azLHFNyN32YCQGCU--
+Best regards,
+Krzysztof
