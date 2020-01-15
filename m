@@ -1,149 +1,184 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: Re: KASAN: stack-out-of-bounds Read in i801_isr
-Date: Wed, 15 Jan 2020 09:49:26 +0300
-Message-ID: <20200115064925.GG3719@kadam>
-References: <0000000000009d6d71059c27ecf1@google.com>
+From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Subject: [PATCH v3 2/6] i2c: at91: implement i2c bus recovery
+Date: Wed, 15 Jan 2020 13:54:18 +0200
+Message-ID: <20200115115422.17097-3-codrin.ciubotariu@microchip.com>
+References: <20200115115422.17097-1-codrin.ciubotariu@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from userp2120.oracle.com ([156.151.31.85]:38194 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725999AbgAOGt2 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 15 Jan 2020 01:49:28 -0500
-Content-Disposition: inline
-In-Reply-To: <0000000000009d6d71059c27ecf1@google.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org>
+In-Reply-To: <20200115115422.17097-1-codrin.ciubotariu@microchip.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
+To: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: robh@kernel.org, alexandre.belloni@bootlin.com, kamel.bouhara@bootlin.com, wsa@the-dreams.de, linux@armlinux.org.uk, Ludovic.Desroches@microchip.com, Codrin Ciubotariu <codrin.ciubotariu@microchip.com>, peda@axentia.se
 List-Id: linux-i2c@vger.kernel.org
-To: syzbot <syzbot+8c8dedc0ba9e03f6c79e@syzkaller.appspotmail.com>
-Cc: jdelvare@suse.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
 
-#syz dup: KASAN: vmalloc-out-of-bounds Write in i801_isr
+From: Kamel Bouhara <kamel.bouhara@bootlin.com>
 
-On Tue, Jan 14, 2020 at 10:36:10PM -0800, syzbot wrote:
-> Hello,
-> 
-> syzbot found the following crash on:
-> 
-> HEAD commit:    452424cd Merge branch 'parisc-5.5-3' of git://git.kernel.o..
-> git tree:       upstream
-> console output: https://syzkaller.appspot.com/x/log.txt?x=17f7ac21e00000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=d9290aeb7e6cf1c4
-> dashboard link: https://syzkaller.appspot.com/bug?extid=8c8dedc0ba9e03f6c79e
-> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-> userspace arch: i386
-> 
-> Unfortunately, I don't have any reproducer for this crash yet.
-> 
-> IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> Reported-by: syzbot+8c8dedc0ba9e03f6c79e@syzkaller.appspotmail.com
-> 
-> ==================================================================
-> BUG: KASAN: stack-out-of-bounds in i801_isr_byte_done
-> drivers/i2c/busses/i2c-i801.c:603 [inline]
-> BUG: KASAN: stack-out-of-bounds in i801_isr
-> drivers/i2c/busses/i2c-i801.c:663 [inline]
-> BUG: KASAN: stack-out-of-bounds in i801_isr+0xcb7/0xcf0
-> drivers/i2c/busses/i2c-i801.c:644
-> Read of size 1 at addr ffffc9000beb7d38 by task syz-executor.3/2994
-> 
-> CPU: 1 PID: 2994 Comm: syz-executor.3 Not tainted 5.5.0-rc6-syzkaller #0
-> Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS
-> rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-> Call Trace:
->  <IRQ>
->  __dump_stack lib/dump_stack.c:77 [inline]
->  dump_stack+0x197/0x210 lib/dump_stack.c:118
->  print_address_description.constprop.0.cold+0x5/0x30b mm/kasan/report.c:374
->  __kasan_report.cold+0x1b/0x41 mm/kasan/report.c:506
->  kasan_report+0x12/0x20 mm/kasan/common.c:639
->  __asan_report_load1_noabort+0x14/0x20 mm/kasan/generic_report.c:132
->  i801_isr_byte_done drivers/i2c/busses/i2c-i801.c:603 [inline]
->  i801_isr drivers/i2c/busses/i2c-i801.c:663 [inline]
->  i801_isr+0xcb7/0xcf0 drivers/i2c/busses/i2c-i801.c:644
->  __handle_irq_event_percpu+0x15d/0x970 kernel/irq/handle.c:149
->  handle_irq_event_percpu+0x74/0x160 kernel/irq/handle.c:189
->  handle_irq_event+0xa7/0x134 kernel/irq/handle.c:206
->  handle_fasteoi_irq+0x281/0x670 kernel/irq/chip.c:725
->  generic_handle_irq_desc include/linux/irqdesc.h:156 [inline]
->  do_IRQ+0xde/0x280 arch/x86/kernel/irq.c:250
->  common_interrupt+0xf/0xf arch/x86/entry/entry_64.S:607
-> RIP: 0010:ffs arch/x86/include/asm/bitops.h:297 [inline]
-> RIP: 0010:__do_softirq+0x227/0x98c kernel/softirq.c:280
-> Code: c7 c0 e8 34 93 89 48 c1 e8 03 42 80 3c 30 00 0f 85 b1 06 00 00 48 83
-> 3d ce 32 93 01 00 0f 84 d6 05 00 00 fb 66 0f 1f 44 00 00 <b8> ff ff ff ff 48
-> c7 45 c8 00 91 80 89 0f bc 45 d4 83 c0 01 89 45
-> RSP: 0018:ffffc900004e8f18 EFLAGS: 00000282 ORIG_RAX: ffffffffffffffdd
-> RAX: 1ffffffff132669d RBX: ffff88801eccdf00 RCX: 0000000000000002
-> RDX: 0000000000000000 RSI: 0000000000000008 RDI: ffff88801ecce794
-> RBP: ffffc900004e8f98 R08: 1ffffffff165e7a6 R09: fffffbfff165e7a7
-> R10: fffffbfff165e7a6 R11: ffffffff8b2f3d37 R12: 0000000000000000
-> R13: 0000000000000000 R14: dffffc0000000000 R15: 0000000000000000
->  invoke_softirq kernel/softirq.c:373 [inline]
->  irq_exit+0x19b/0x1e0 kernel/softirq.c:413
->  exiting_irq arch/x86/include/asm/apic.h:536 [inline]
->  smp_apic_timer_interrupt+0x1a3/0x610 arch/x86/kernel/apic/apic.c:1137
->  apic_timer_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:829
->  </IRQ>
-> RIP: 0010:arch_local_irq_restore arch/x86/include/asm/paravirt.h:752
-> [inline]
-> RIP: 0010:__raw_spin_unlock_irqrestore include/linux/spinlock_api_smp.h:160
-> [inline]
-> RIP: 0010:_raw_spin_unlock_irqrestore+0x90/0xe0
-> kernel/locking/spinlock.c:191
-> Code: 48 c7 c0 d8 34 93 89 48 ba 00 00 00 00 00 fc ff df 48 c1 e8 03 80 3c
-> 10 00 75 39 48 83 3d 7f e0 be 01 00 74 24 48 89 df 57 9d <0f> 1f 44 00 00 bf
-> 01 00 00 00 e8 11 36 7c f9 65 8b 05 12 ca 2d 78
-> RSP: 0018:ffffc9000c6e7b90 EFLAGS: 00000282 ORIG_RAX: ffffffffffffff13
-> RAX: 1ffffffff132669b RBX: 0000000000000282 RCX: 0000000000000006
-> RDX: dffffc0000000000 RSI: 0000000000000008 RDI: 0000000000000282
-> RBP: ffffc9000c6e7ba0 R08: 1ffffffff165e7a6 R09: fffffbfff165e7a7
-> R10: fffffbfff165e7a6 R11: ffffffff8b2f3d37 R12: ffff88802a79d158
-> R13: ffff88802a79d150 R14: 0000000000000282 R15: ffff88802a79d158
->  kthread_queue_work+0xa4/0x160 kernel/kthread.c:829
->  kthread_flush_worker+0xca/0x110 kernel/kthread.c:1165
->  loop_unprepare_queue drivers/block/loop.c:894 [inline]
->  __loop_clr_fd+0x5d9/0xd80 drivers/block/loop.c:1157
->  loop_clr_fd drivers/block/loop.c:1237 [inline]
->  lo_ioctl+0x2bd/0x1460 drivers/block/loop.c:1606
->  lo_compat_ioctl+0xb6/0x110 drivers/block/loop.c:1782
->  compat_blkdev_ioctl+0x274/0x1c30 block/compat_ioctl.c:422
->  __do_compat_sys_ioctl fs/compat_ioctl.c:214 [inline]
->  __se_compat_sys_ioctl fs/compat_ioctl.c:142 [inline]
->  __ia32_compat_sys_ioctl+0x233/0x610 fs/compat_ioctl.c:142
->  do_syscall_32_irqs_on arch/x86/entry/common.c:337 [inline]
->  do_fast_syscall_32+0x27b/0xe16 arch/x86/entry/common.c:408
->  entry_SYSENTER_compat+0x70/0x7f arch/x86/entry/entry_64_compat.S:139
-> RIP: 0023:0xf7fe2a39
-> Code: 00 00 00 89 d3 5b 5e 5f 5d c3 b8 80 96 98 00 eb c4 8b 04 24 c3 8b 1c
-> 24 c3 8b 34 24 c3 8b 3c 24 c3 51 52 55 89 e5 0f 34 cd 80 <5d> 5a 59 c3 90 90
-> 90 90 eb 0d 90 90 90 90 90 90 90 90 90 90 90 90
-> RSP: 002b:00000000f5dddf08 EFLAGS: 00000292 ORIG_RAX: 0000000000000036
-> RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 0000000000004c01
-> RDX: 0000000000000000 RSI: 000000000812d000 RDI: 0000000000000000
-> RBP: 00000000f5dde158 R08: 0000000000000000 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-> R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
-> 
-> 
-> Memory state around the buggy address:
->  ffffc9000beb7c00: f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9
->  ffffc9000beb7c80: f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9
-> > ffffc9000beb7d00: f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9
->                                         ^
->  ffffc9000beb7d80: f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9
->  ffffc9000beb7e00: f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9 f9
-> ==================================================================
-> 
-> 
-> ---
-> This bug is generated by a bot. It may contain errors.
-> See https://goo.gl/tpsmEJ for more information about syzbot.
-> syzbot engineers can be reached at syzkaller@googlegroups.com.
-> 
-> syzbot will keep track of this bug report. See:
-> https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-> 
-> -- 
-> You received this message because you are subscribed to the Google Groups "syzkaller-bugs" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to syzkaller-bugs+unsubscribe@googlegroups.com.
-> To view this discussion on the web visit https://groups.google.com/d/msgid/syzkaller-bugs/0000000000009d6d71059c27ecf1%40google.com.
+Implement i2c bus recovery when slaves devices might hold SDA low.
+In this case re-assign SCL/SDA to gpios and issue 9 dummy clock pulses
+until the slave release SDA.
+
+Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
+Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+---
+
+Changes in v3:
+ - removed unnecessary condition from info print;
+ - removed unneded declarations;
+
+Changes in v2:
+ - called i2c_recover_bus() after an error occurs, if SDA is down;
+ - release gpios if recovery information is incomplete;
+
+ drivers/i2c/busses/i2c-at91-master.c | 78 ++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-at91.h        |  4 ++
+ 2 files changed, 82 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
+index 7a862e00b475..0aba51a7df32 100644
+--- a/drivers/i2c/busses/i2c-at91-master.c
++++ b/drivers/i2c/busses/i2c-at91-master.c
+@@ -18,11 +18,13 @@
+ #include <linux/dma-mapping.h>
+ #include <linux/dmaengine.h>
+ #include <linux/err.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+ #include <linux/of.h>
+ #include <linux/of_device.h>
++#include <linux/pinctrl/consumer.h>
+ #include <linux/platform_device.h>
+ #include <linux/platform_data/dma-atmel.h>
+ #include <linux/pm_runtime.h>
+@@ -478,6 +480,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 	unsigned long time_left;
+ 	bool has_unre_flag = dev->pdata->has_unre_flag;
+ 	bool has_alt_cmd = dev->pdata->has_alt_cmd;
++	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
+ 
+ 	/*
+ 	 * WARNING: the TXCOMP bit in the Status Register is NOT a clear on
+@@ -637,6 +640,13 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 		at91_twi_write(dev, AT91_TWI_CR,
+ 			       AT91_TWI_THRCLR | AT91_TWI_LOCKCLR);
+ 	}
++
++	if (rinfo->get_sda && !(rinfo->get_sda(&dev->adapter))) {
++		dev_dbg(dev->dev,
++			"SDA is down; clear bus using gpio\n");
++		i2c_recover_bus(&dev->adapter);
++	}
++
+ 	return ret;
+ }
+ 
+@@ -806,6 +816,70 @@ static int at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
+ 	return ret;
+ }
+ 
++static void at91_prepare_twi_recovery(struct i2c_adapter *adap)
++{
++	struct at91_twi_dev *dev = i2c_get_adapdata(adap);
++
++	pinctrl_select_state(dev->pinctrl, dev->pinctrl_pins_gpio);
++}
++
++static void at91_unprepare_twi_recovery(struct i2c_adapter *adap)
++{
++	struct at91_twi_dev *dev = i2c_get_adapdata(adap);
++
++	pinctrl_select_state(dev->pinctrl, dev->pinctrl_pins_default);
++}
++
++static int at91_init_twi_recovery_info(struct platform_device *pdev,
++				       struct at91_twi_dev *dev)
++{
++	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
++
++	dev->pinctrl = devm_pinctrl_get(&pdev->dev);
++	if (!dev->pinctrl || IS_ERR(dev->pinctrl)) {
++		dev_info(dev->dev, "can't get pinctrl, bus recovery not supported\n");
++		return PTR_ERR(dev->pinctrl);
++	}
++
++	dev->pinctrl_pins_default = pinctrl_lookup_state(dev->pinctrl,
++							 PINCTRL_STATE_DEFAULT);
++	dev->pinctrl_pins_gpio = pinctrl_lookup_state(dev->pinctrl,
++						      "gpio");
++	rinfo->sda_gpiod = devm_gpiod_get(&pdev->dev, "sda", GPIOD_IN);
++	if (PTR_ERR(rinfo->sda_gpiod) == -EPROBE_DEFER)
++		return -EPROBE_DEFER;
++
++	rinfo->scl_gpiod = devm_gpiod_get(&pdev->dev, "scl",
++					  GPIOD_OUT_HIGH_OPEN_DRAIN);
++	if (PTR_ERR(rinfo->scl_gpiod) == -EPROBE_DEFER)
++		return -EPROBE_DEFER;
++
++	if (IS_ERR(rinfo->sda_gpiod) ||
++	    IS_ERR(rinfo->scl_gpiod) ||
++	    IS_ERR(dev->pinctrl_pins_default) ||
++	    IS_ERR(dev->pinctrl_pins_gpio)) {
++		dev_info(&pdev->dev, "recovery information incomplete\n");
++		if (!IS_ERR(rinfo->sda_gpiod)) {
++			gpiod_put(rinfo->sda_gpiod);
++			rinfo->sda_gpiod = NULL;
++		}
++		if (!IS_ERR(rinfo->scl_gpiod)) {
++			gpiod_put(rinfo->scl_gpiod);
++			rinfo->scl_gpiod = NULL;
++		}
++		return -EINVAL;
++	}
++
++	dev_info(&pdev->dev, "using scl, sda for recovery\n");
++
++	rinfo->prepare_recovery = at91_prepare_twi_recovery;
++	rinfo->unprepare_recovery = at91_unprepare_twi_recovery;
++	rinfo->recover_bus = i2c_generic_scl_recovery;
++	dev->adapter.bus_recovery_info = rinfo;
++
++	return 0;
++}
++
+ int at91_twi_probe_master(struct platform_device *pdev,
+ 			  u32 phy_addr, struct at91_twi_dev *dev)
+ {
+@@ -838,6 +912,10 @@ int at91_twi_probe_master(struct platform_device *pdev,
+ 						     "i2c-analog-filter");
+ 	at91_calc_twi_clock(dev);
+ 
++	rc = at91_init_twi_recovery_info(pdev, dev);
++	if (rc == -EPROBE_DEFER)
++		return rc;
++
+ 	dev->adapter.algo = &at91_twi_algorithm;
+ 	dev->adapter.quirks = &at91_twi_quirks;
+ 
+diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
+index 977a67bc0f88..f57a6cab96b4 100644
+--- a/drivers/i2c/busses/i2c-at91.h
++++ b/drivers/i2c/busses/i2c-at91.h
+@@ -151,6 +151,10 @@ struct at91_twi_dev {
+ 	u32 fifo_size;
+ 	struct at91_twi_dma dma;
+ 	bool slave_detected;
++	struct i2c_bus_recovery_info rinfo;
++	struct pinctrl *pinctrl;
++	struct pinctrl_state *pinctrl_pins_default;
++	struct pinctrl_state *pinctrl_pins_gpio;
+ #ifdef CONFIG_I2C_AT91_SLAVE_EXPERIMENTAL
+ 	unsigned smr;
+ 	struct i2c_client *slave;
+-- 
+2.20.1
