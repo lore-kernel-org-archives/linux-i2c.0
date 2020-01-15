@@ -1,125 +1,155 @@
 From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Subject: [PATCH v3 5/6] ARM: at91/dt: sama5d4: add i2c gpio pinctrl
-Date: Wed, 15 Jan 2020 13:54:21 +0200
-Message-ID: <20200115115422.17097-6-codrin.ciubotariu@microchip.com>
+Subject: [PATCH v3 3/6] i2c: at91: Send bus clear command if SDA is down
+Date: Wed, 15 Jan 2020 13:54:19 +0200
+Message-ID: <20200115115422.17097-4-codrin.ciubotariu@microchip.com>
 References: <20200115115422.17097-1-codrin.ciubotariu@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from esa4.microchip.iphmx.com ([68.232.154.123]:57165 "EHLO
+        esa4.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730150AbgAOLyw (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 15 Jan 2020 06:54:52 -0500
 In-Reply-To: <20200115115422.17097-1-codrin.ciubotariu@microchip.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane-mx.org@lists.infradead.org
-To: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: robh@kernel.org, alexandre.belloni@bootlin.com, kamel.bouhara@bootlin.com, wsa@the-dreams.de, linux@armlinux.org.uk, Ludovic.Desroches@microchip.com, Codrin Ciubotariu <codrin.ciubotariu@microchip.com>, peda@axentia.se
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: kamel.bouhara@bootlin.com, wsa@the-dreams.de, Nicolas.Ferre@microchip.com, alexandre.belloni@bootlin.com, Ludovic.Desroches@microchip.com, robh@kernel.org, peda@axentia.se, linux@armlinux.org.uk, Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 
-From: Kamel Bouhara <kamel.bouhara@bootlin.com>
+After a transfer timeout, some faulty I2C slave devices might hold down
+the SDA pin. We can generate a bus clear command, hoping that the slave
+might release the pins.
+If the CLEAR command is not supported, we will use gpio recovery, if
+available, to reset the bus.
 
-Add the i2c gpio pinctrls so the i2c bus recovery option can be enabled
-
-Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
-[codrin.ciubotariu@microchip.com: removed gpio pull-ups]
 Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 ---
 
 Changes in v3:
- - removed gpio pull-ups;
+ - rebased on top of i2c/for-next;
+  - remove unnecessary initializations with false;
+ - replaced SCL with SDA in title and commit message;
+ - updated commit message;
 
 Changes in v2:
- - none;
+ - use CLEAR command only if SDA is down; update patch subject to
+   reflect this;
+ - CLEAR command is no longer used for sama5d2, only sam9x60;
 
- arch/arm/boot/dts/sama5d4.dtsi | 33 ++++++++++++++++++++++++++++++---
- 1 file changed, 30 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-at91-core.c   |  2 ++
+ drivers/i2c/busses/i2c-at91-master.c | 32 +++++++++++++++++++++++-----
+ drivers/i2c/busses/i2c-at91.h        |  7 +++++-
+ 3 files changed, 35 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/sama5d4.dtsi b/arch/arm/boot/dts/sama5d4.dtsi
-index 6ab27a7b388d..26ce868096c2 100644
---- a/arch/arm/boot/dts/sama5d4.dtsi
-+++ b/arch/arm/boot/dts/sama5d4.dtsi
-@@ -458,8 +458,11 @@
- 					(AT91_XDMAC_DT_MEM_IF(0) | AT91_XDMAC_DT_PER_IF(1)
- 					| AT91_XDMAC_DT_PERID(3))>;
- 				dma-names = "tx", "rx";
--				pinctrl-names = "default";
-+				pinctrl-names = "default", "gpio";
- 				pinctrl-0 = <&pinctrl_i2c0>;
-+				pinctrl-1 = <&pinctrl_i2c0_gpio>;
-+				sda-gpios = <&pioA 30 GPIO_ACTIVE_HIGH>;
-+				scl-gpios = <&pioA 31 GPIO_ACTIVE_HIGH>;
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				clocks = <&pmc PMC_TYPE_PERIPHERAL 32>;
-@@ -477,8 +480,11 @@
- 					(AT91_XDMAC_DT_MEM_IF(0) | AT91_XDMAC_DT_PER_IF(1)
- 					| AT91_XDMAC_DT_PERID(5))>;
- 				dma-names = "tx", "rx";
--				pinctrl-names = "default";
-+				pinctrl-names = "default", "gpio";
- 				pinctrl-0 = <&pinctrl_i2c1>;
-+				pinctrl-1 = <&pinctrl_i2c1_gpio>;
-+				sda-gpios = <&pioE 29 GPIO_ACTIVE_HIGH>;
-+				scl-gpios = <&pioE 30 GPIO_ACTIVE_HIGH>;
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				clocks = <&pmc PMC_TYPE_PERIPHERAL 33>;
-@@ -519,8 +525,11 @@
- 					(AT91_XDMAC_DT_MEM_IF(0) | AT91_XDMAC_DT_PER_IF(1)
- 					| AT91_XDMAC_DT_PERID(7))>;
- 				dma-names = "tx", "rx";
--				pinctrl-names = "default";
-+				pinctrl-names = "default", "gpio";
- 				pinctrl-0 = <&pinctrl_i2c2>;
-+				pinctrl-1 = <&pinctrl_i2c2_gpio>;
-+				sda-gpios = <&pioB 29 GPIO_ACTIVE_HIGH>;
-+				scl-gpios = <&pioB 30 GPIO_ACTIVE_HIGH>;
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				clocks = <&pmc PMC_TYPE_PERIPHERAL 34>;
-@@ -1122,6 +1131,12 @@
- 							<AT91_PIOA 30 AT91_PERIPH_A AT91_PINCTRL_NONE
- 							 AT91_PIOA 31 AT91_PERIPH_A AT91_PINCTRL_NONE>;
- 					};
-+
-+					pinctrl_i2c0_gpio: i2c0-gpio {
-+						atmel,pins =
-+							<AT91_PIOA 30 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
-+							 AT91_PIOA 31 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+					};
- 				};
+diff --git a/drivers/i2c/busses/i2c-at91-core.c b/drivers/i2c/busses/i2c-at91-core.c
+index 3da1a8acecb5..e14edd236108 100644
+--- a/drivers/i2c/busses/i2c-at91-core.c
++++ b/drivers/i2c/busses/i2c-at91-core.c
+@@ -131,6 +131,7 @@ static struct at91_twi_pdata sama5d2_config = {
+ 	.has_dig_filtr = true,
+ 	.has_adv_dig_filtr = true,
+ 	.has_ana_filtr = true,
++	.has_clear_cmd = false,	/* due to errata, CLEAR cmd is not working */
+ };
  
- 				i2c1 {
-@@ -1130,6 +1145,12 @@
- 							<AT91_PIOE 29 AT91_PERIPH_C AT91_PINCTRL_NONE	/* TWD1, conflicts with UART0 RX and DIBP */
- 							 AT91_PIOE 30 AT91_PERIPH_C AT91_PINCTRL_NONE>;	/* TWCK1, conflicts with UART0 TX and DIBN */
- 					};
-+
-+					pinctrl_i2c1_gpio: i2c1-gpio {
-+						atmel,pins =
-+							<AT91_PIOE 29 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
-+							 AT91_PIOE 30 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+					};
- 				};
+ static struct at91_twi_pdata sam9x60_config = {
+@@ -142,6 +143,7 @@ static struct at91_twi_pdata sam9x60_config = {
+ 	.has_dig_filtr = true,
+ 	.has_adv_dig_filtr = true,
+ 	.has_ana_filtr = true,
++	.has_clear_cmd = true,
+ };
  
- 				i2c2 {
-@@ -1138,6 +1159,12 @@
- 							<AT91_PIOB 29 AT91_PERIPH_A AT91_PINCTRL_NONE	/* TWD2, conflicts with RD0 and PWML1 */
- 							 AT91_PIOB 30 AT91_PERIPH_A AT91_PINCTRL_NONE>; /* TWCK2, conflicts with RF0 */
- 					};
-+
-+					pinctrl_i2c2_gpio: i2c2-gpio {
-+						atmel,pins =
-+							<AT91_PIOB 29 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
-+							 AT91_PIOB 30 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+					};
- 				};
+ static const struct of_device_id atmel_twi_dt_ids[] = {
+diff --git a/drivers/i2c/busses/i2c-at91-master.c b/drivers/i2c/busses/i2c-at91-master.c
+index 0aba51a7df32..bcc05a8fe826 100644
+--- a/drivers/i2c/busses/i2c-at91-master.c
++++ b/drivers/i2c/busses/i2c-at91-master.c
+@@ -480,7 +480,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 	unsigned long time_left;
+ 	bool has_unre_flag = dev->pdata->has_unre_flag;
+ 	bool has_alt_cmd = dev->pdata->has_alt_cmd;
+-	struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
++	bool has_clear_cmd = dev->pdata->has_clear_cmd;
  
- 				isi {
+ 	/*
+ 	 * WARNING: the TXCOMP bit in the Status Register is NOT a clear on
+@@ -641,10 +641,32 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 			       AT91_TWI_THRCLR | AT91_TWI_LOCKCLR);
+ 	}
+ 
+-	if (rinfo->get_sda && !(rinfo->get_sda(&dev->adapter))) {
+-		dev_dbg(dev->dev,
+-			"SDA is down; clear bus using gpio\n");
+-		i2c_recover_bus(&dev->adapter);
++	/*
++	 * some faulty I2C slave devices might hold SDA down;
++	 * we can send a bus clear command, hoping that the pins will be
++	 * released
++	 */
++	if (has_clear_cmd) {
++		if (!(dev->transfer_status & AT91_TWI_SDA)) {
++			dev_dbg(dev->dev,
++				"SDA is down; sending bus clear command\n");
++			if (dev->use_alt_cmd) {
++				unsigned int acr;
++
++				acr = at91_twi_read(dev, AT91_TWI_ACR);
++				acr &= ~AT91_TWI_ACR_DATAL_MASK;
++				at91_twi_write(dev, AT91_TWI_ACR, acr);
++			}
++			at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_CLEAR);
++		}
++	} else {
++		struct i2c_bus_recovery_info *rinfo = &dev->rinfo;
++
++		if (rinfo->get_sda && !(rinfo->get_sda(&dev->adapter))) {
++			dev_dbg(dev->dev,
++				"SDA is down; clear bus using gpio\n");
++			i2c_recover_bus(&dev->adapter);
++		}
+ 	}
+ 
+ 	return ret;
+diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
+index f57a6cab96b4..7e7b4955ca7f 100644
+--- a/drivers/i2c/busses/i2c-at91.h
++++ b/drivers/i2c/busses/i2c-at91.h
+@@ -36,6 +36,7 @@
+ #define	AT91_TWI_SVDIS		BIT(5)	/* Slave Transfer Disable */
+ #define	AT91_TWI_QUICK		BIT(6)	/* SMBus quick command */
+ #define	AT91_TWI_SWRST		BIT(7)	/* Software Reset */
++#define	AT91_TWI_CLEAR		BIT(15) /* Bus clear command */
+ #define	AT91_TWI_ACMEN		BIT(16) /* Alternative Command Mode Enable */
+ #define	AT91_TWI_ACMDIS		BIT(17) /* Alternative Command Mode Disable */
+ #define	AT91_TWI_THRCLR		BIT(24) /* Transmit Holding Register Clear */
+@@ -69,6 +70,8 @@
+ #define	AT91_TWI_NACK		BIT(8)	/* Not Acknowledged */
+ #define	AT91_TWI_EOSACC		BIT(11)	/* End Of Slave Access */
+ #define	AT91_TWI_LOCK		BIT(23) /* TWI Lock due to Frame Errors */
++#define	AT91_TWI_SCL		BIT(24) /* TWI SCL status */
++#define	AT91_TWI_SDA		BIT(25) /* TWI SDA status */
+ 
+ #define	AT91_TWI_INT_MASK \
+ 	(AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY | AT91_TWI_NACK \
+@@ -81,7 +84,8 @@
+ #define	AT91_TWI_THR		0x0034	/* Transmit Holding Register */
+ 
+ #define	AT91_TWI_ACR		0x0040	/* Alternative Command Register */
+-#define	AT91_TWI_ACR_DATAL(len)	((len) & 0xff)
++#define	AT91_TWI_ACR_DATAL_MASK	GENMASK(15, 0)
++#define	AT91_TWI_ACR_DATAL(len)	((len) & AT91_TWI_ACR_DATAL_MASK)
+ #define	AT91_TWI_ACR_DIR	BIT(8)
+ 
+ #define AT91_TWI_FILTR		0x0044
+@@ -118,6 +122,7 @@ struct at91_twi_pdata {
+ 	bool has_dig_filtr;
+ 	bool has_adv_dig_filtr;
+ 	bool has_ana_filtr;
++	bool has_clear_cmd;
+ 	struct at_dma_slave dma_slave;
+ };
+ 
 -- 
 2.20.1
