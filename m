@@ -1,45 +1,75 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 1/3] i2c: parport-light: remove driver
-Date: Wed, 15 Jan 2020 12:04:47 +0100
-Message-ID: <20200115120447.1596a6ce@endymion>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 3/3] i2c: parport: move include file into main source
+Date: Wed, 15 Jan 2020 18:26:19 +0100
+Message-ID: <20200115172618.GA1239@ninjato>
 References: <20200113210643.5033-1-wsa+renesas@sang-engineering.com>
-        <20200113210643.5033-2-wsa+renesas@sang-engineering.com>
+ <20200113210643.5033-4-wsa+renesas@sang-engineering.com>
+ <20200115151743.63e6b02d@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:52934 "EHLO mx2.suse.de"
+Received: from sauhun.de ([88.99.104.3]:38752 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729127AbgAOLEu (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 15 Jan 2020 06:04:50 -0500
-In-Reply-To: <20200113210643.5033-2-wsa+renesas@sang-engineering.com>
+        id S1726778AbgAOR0Y (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Wed, 15 Jan 2020 12:26:24 -0500
+Content-Disposition: inline
+In-Reply-To: <20200115151743.63e6b02d@endymion>
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org
-
-On Mon, 13 Jan 2020 22:06:41 +0100, Wolfram Sang wrote:
-> The justification of a light version of the parport driver was less
-> overhead for embedded systems. Well, today, even if an embedded system
-> still has a parport, it surely can handle the fully-fledged parport
-> driver. Remove it to reduce the maintenance burden.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
->  .../i2c/busses/i2c-parport-light.rst          |  24 --
->  Documentation/i2c/busses/index.rst            |   1 -
->  MAINTAINERS                                   |   2 -
->  drivers/i2c/busses/Kconfig                    |  28 --
->  drivers/i2c/busses/Makefile                   |   1 -
->  drivers/i2c/busses/i2c-parport-light.c        | 267 ------------------
->  6 files changed, 323 deletions(-)
->  delete mode 100644 Documentation/i2c/busses/i2c-parport-light.rst
->  delete mode 100644 drivers/i2c/busses/i2c-parport-light.c
-> (...)
-
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
 
 
--- 
-Jean Delvare
-SUSE L3 Support
+--pWyiEgJYm5f9v55/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> > +module_param(type, int, 0);
+> > +MODULE_PARM_DESC(type,
+> > +	"Type of adapter:\n"
+> > +	" 0 =3D Philips adapter\n"
+> > +	" 1 =3D home brew teletext adapter\n"
+> > +	" 2 =3D Velleman K8000 adapter\n"
+> > +	" 3 =3D ELV adapter\n"
+> > +	" 4 =3D ADM1032 evaluation board\n"
+> > +	" 5 =3D ADM1025, ADM1030 and ADM1031 evaluation boards\n"
+> > +	" 6 =3D Barco LPT->DVI (K5800236) adapter\n"
+> > +	" 7 =3D One For All JP1 parallel port adapter\n"
+> > +	" 8 =3D VCT-jig\n"
+> > +);
+>=20
+> Isn't it considered a better practice to keep the module_param (and
+> MODULE_PARM_DESC) close to the declaration of the variable itself so
+> that correctness can be easily verified and changing the type later
+> would be easier?
+
+I tried it for both module parameters and it looks much better, in deed.
+So, fixed it while applying, thanks for the suggestions!
+
+Applied to for-next!
+
+
+--pWyiEgJYm5f9v55/
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4fSzIACgkQFA3kzBSg
+KbbeUA/9EXPtJq97HunOJULb9s7k6hWbGwavD2JLEeljSvI/2/1NdsMqsN4rJ14y
+2iRhCsOglTDv30KvJ96GHJdkibvLRhzB3ltTZfP53qhObrw9J0UWraJOoPZ0/Hx2
+NDX5X5zEvPBWhyH7IOMqQJZePbIuMl8oVZ9BbzWC0mbG9RP2t0xEcBF7KCn0vgWf
+qoYqoiWvybimT+7L61jv2r5/QyjKhsbZRVhFmBzP+54XksGkSlMerxvHWXS+pXfR
+AuYho9cBxjRixIhkXrxh9BkQrhJ0bSq2z+Pf+EnbOaAf4uxsJ96iqozkHuDNSUKb
+iIw71ZI8IGm2W3YUWB2BuVgKxLEwtLvFq9Y09PINmVXVYQr3BYLr5qsXADoXvPJ2
+utn9GZwZmHOaiPOfK/gsvYn22Qq13VfW3KqUq0U5nwT8QyHo9XfKFsUenj18JUhV
+BuZ26j4N6X1NXewB1z2qsNZ1WmTFLtri9O52UKPRjojqatDKs4C15Ztu63i8Npod
+fYnY6+R4MU/ezXT2GtzKU7JLNAKRw43ybHw4GPqYVEzY9bv6pbP8MFPo2L/OKQ7h
+n7gXYP8VZsKu3XUR3wS8Zq3VzDWLbID/NmTu8dmAeq4WOh8zsYTV7RuzNp2Mmbud
+zVZyEOViGDAgWTkd/xTOpaoEFZ34F7Hru7b1pFrMRYSQN6dhgCI=
+=MeCn
+-----END PGP SIGNATURE-----
+
+--pWyiEgJYm5f9v55/--
