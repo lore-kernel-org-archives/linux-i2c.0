@@ -1,75 +1,52 @@
-From: Luca Ceresoli <luca@lucaceresoli.net>
+From: Peter Rosin <peda@axentia.se>
 Subject: Re: [PATCH 26/26] docs: i2c: rename sections so the overall picture
  is clearer
-Date: Thu, 16 Jan 2020 11:38:19 +0100
-Message-ID: <7809c0c2-1d83-cc95-b258-644ea8315f86@lucaceresoli.net>
+Date: Thu, 16 Jan 2020 13:34:19 +0000
+Message-ID: <4a3a9917-5f20-2ad2-3fcb-5e9e252a2a3d@axentia.se>
 References: <20200105224006.10321-1-luca@lucaceresoli.net>
  <20200106074905.14438-1-luca@lucaceresoli.net>
  <20200116104907.3f2de4d0@endymion>
+ <7809c0c2-1d83-cc95-b258-644ea8315f86@lucaceresoli.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from hostingweb31-40.netsons.net ([89.40.174.40]:35416 "EHLO
-        hostingweb31-40.netsons.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725800AbgAPKiX (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 16 Jan 2020 05:38:23 -0500
-In-Reply-To: <20200116104907.3f2de4d0@endymion>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <7809c0c2-1d83-cc95-b258-644ea8315f86@lucaceresoli.net>
 Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
+Content-ID: <94D8EA0D7FA6F947B6A39B1D514FEC28@eurprd02.prod.outlook.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Luca Ceresoli <luca@lucaceresoli.net>, Jean Delvare <jdelvare@suse.de>
+Cc: "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 
-Hi Jean, Peter,
-
-thanks both for your reviews.
-
-On 16/01/20 10:49, Jean Delvare wrote:
-> On Mon,  6 Jan 2020 08:49:05 +0100, Luca Ceresoli wrote:
->> Some of the section names are not very clear. Reading those names in the
->> index.rst page does not help much in grasping what the content is supposed
->> to be.
->>
->> Rename those sections to clarify their content, especially when reading
->> the index page.
->>
->> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
->> Acked-by: Peter Rosin <peda@axentia.se>
->> ---
->>
->> Note: here checkpatch complains:
->>
->>   WARNING: Missing or malformed SPDX-License-Identifier tag in line 1
->>
->> Thas's because those files have no license line. I would gladly add a
->> proper license line, but what it the correct license here? Should I ask the
->> authors? GPLv2-only as the kernel default?
->>
->> I'd appreciate a guidance here, thanks in advance.
-> 
-> I don't think we need a license for such documentation files, so I
-> would just ignore checkpatch.
-
-That's OK for me.
-
->> diff --git a/Documentation/i2c/summary.rst b/Documentation/i2c/summary.rst
->> index fc69d9567d9d..ae3bbb9fd8f1 100644
->> --- a/Documentation/i2c/summary.rst
->> +++ b/Documentation/i2c/summary.rst
->> @@ -1,6 +1,6 @@
->> -=============
->> -I2C and SMBus
->> -=============
->> +==============================
->> +Introductions to I2C and SMBus
->> +==============================
-> 
-> I would use "Introduction", singular.
-
-Me too! Fix queued for v2.
-
-Peter, I assume I can keep your Acked-by in v2 with this small change.
-
--- 
-Luca
+T24gMjAyMC0wMS0xNiAxMTozOCwgTHVjYSBDZXJlc29saSB3cm90ZToNCj4gSGkgSmVhbiwgUGV0
+ZXIsDQo+IA0KPiB0aGFua3MgYm90aCBmb3IgeW91ciByZXZpZXdzLg0KPiANCj4gT24gMTYvMDEv
+MjAgMTA6NDksIEplYW4gRGVsdmFyZSB3cm90ZToNCj4+IE9uIE1vbiwgIDYgSmFuIDIwMjAgMDg6
+NDk6MDUgKzAxMDAsIEx1Y2EgQ2VyZXNvbGkgd3JvdGU6DQo+Pj4gU29tZSBvZiB0aGUgc2VjdGlv
+biBuYW1lcyBhcmUgbm90IHZlcnkgY2xlYXIuIFJlYWRpbmcgdGhvc2UgbmFtZXMgaW4gdGhlDQo+
+Pj4gaW5kZXgucnN0IHBhZ2UgZG9lcyBub3QgaGVscCBtdWNoIGluIGdyYXNwaW5nIHdoYXQgdGhl
+IGNvbnRlbnQgaXMgc3VwcG9zZWQNCj4+PiB0byBiZS4NCj4+Pg0KPj4+IFJlbmFtZSB0aG9zZSBz
+ZWN0aW9ucyB0byBjbGFyaWZ5IHRoZWlyIGNvbnRlbnQsIGVzcGVjaWFsbHkgd2hlbiByZWFkaW5n
+DQo+Pj4gdGhlIGluZGV4IHBhZ2UuDQo+Pj4NCj4+PiBTaWduZWQtb2ZmLWJ5OiBMdWNhIENlcmVz
+b2xpIDxsdWNhQGx1Y2FjZXJlc29saS5uZXQ+DQo+Pj4gQWNrZWQtYnk6IFBldGVyIFJvc2luIDxw
+ZWRhQGF4ZW50aWEuc2U+DQo+Pj4gLS0tDQo+Pj4NCj4+PiBOb3RlOiBoZXJlIGNoZWNrcGF0Y2gg
+Y29tcGxhaW5zOg0KPj4+DQo+Pj4gICBXQVJOSU5HOiBNaXNzaW5nIG9yIG1hbGZvcm1lZCBTUERY
+LUxpY2Vuc2UtSWRlbnRpZmllciB0YWcgaW4gbGluZSAxDQo+Pj4NCj4+PiBUaGFzJ3MgYmVjYXVz
+ZSB0aG9zZSBmaWxlcyBoYXZlIG5vIGxpY2Vuc2UgbGluZS4gSSB3b3VsZCBnbGFkbHkgYWRkIGEN
+Cj4+PiBwcm9wZXIgbGljZW5zZSBsaW5lLCBidXQgd2hhdCBpdCB0aGUgY29ycmVjdCBsaWNlbnNl
+IGhlcmU/IFNob3VsZCBJIGFzayB0aGUNCj4+PiBhdXRob3JzPyBHUEx2Mi1vbmx5IGFzIHRoZSBr
+ZXJuZWwgZGVmYXVsdD8NCj4+Pg0KPj4+IEknZCBhcHByZWNpYXRlIGEgZ3VpZGFuY2UgaGVyZSwg
+dGhhbmtzIGluIGFkdmFuY2UuDQo+Pg0KPj4gSSBkb24ndCB0aGluayB3ZSBuZWVkIGEgbGljZW5z
+ZSBmb3Igc3VjaCBkb2N1bWVudGF0aW9uIGZpbGVzLCBzbyBJDQo+PiB3b3VsZCBqdXN0IGlnbm9y
+ZSBjaGVja3BhdGNoLg0KPiANCj4gVGhhdCdzIE9LIGZvciBtZS4NCj4gDQo+Pj4gZGlmZiAtLWdp
+dCBhL0RvY3VtZW50YXRpb24vaTJjL3N1bW1hcnkucnN0IGIvRG9jdW1lbnRhdGlvbi9pMmMvc3Vt
+bWFyeS5yc3QNCj4+PiBpbmRleCBmYzY5ZDk1NjdkOWQuLmFlM2JiYjlmZDhmMSAxMDA2NDQNCj4+
+PiAtLS0gYS9Eb2N1bWVudGF0aW9uL2kyYy9zdW1tYXJ5LnJzdA0KPj4+ICsrKyBiL0RvY3VtZW50
+YXRpb24vaTJjL3N1bW1hcnkucnN0DQo+Pj4gQEAgLTEsNiArMSw2IEBADQo+Pj4gLT09PT09PT09
+PT09PT0NCj4+PiAtSTJDIGFuZCBTTUJ1cw0KPj4+IC09PT09PT09PT09PT09DQo+Pj4gKz09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PQ0KPj4+ICtJbnRyb2R1Y3Rpb25zIHRvIEkyQyBhbmQg
+U01CdXMNCj4+PiArPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQo+Pg0KPj4gSSB3b3Vs
+ZCB1c2UgIkludHJvZHVjdGlvbiIsIHNpbmd1bGFyLg0KPiANCj4gTWUgdG9vISBGaXggcXVldWVk
+IGZvciB2Mi4NCj4gDQo+IFBldGVyLCBJIGFzc3VtZSBJIGNhbiBrZWVwIHlvdXIgQWNrZWQtYnkg
+aW4gdjIgd2l0aCB0aGlzIHNtYWxsIGNoYW5nZS4NCg0KVGhhdCdzIGZpbmUuDQoNCkNoZWVycywN
+ClBldGVyDQo=
