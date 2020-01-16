@@ -1,52 +1,50 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 26/26] docs: i2c: rename sections so the overall picture
- is clearer
-Date: Thu, 16 Jan 2020 13:34:19 +0000
-Message-ID: <4a3a9917-5f20-2ad2-3fcb-5e9e252a2a3d@axentia.se>
-References: <20200105224006.10321-1-luca@lucaceresoli.net>
- <20200106074905.14438-1-luca@lucaceresoli.net>
- <20200116104907.3f2de4d0@endymion>
- <7809c0c2-1d83-cc95-b258-644ea8315f86@lucaceresoli.net>
+From: Dmitry Osipenko <digetx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v5 0/8] NVIDIA Tegra I2C driver fixes and improvements
+Date: Thu, 16 Jan 2020 19:38:16 +0300
+Message-ID: <ea7c484b-d8ae-48b9-84ca-db26902f4654@gmail.com>
+References: <20200114013442.28448-1-digetx@gmail.com>
+ <20200115173535.GF1239@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <7809c0c2-1d83-cc95-b258-644ea8315f86@lucaceresoli.net>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20200115173535.GF1239@ninjato>
 Content-Language: en-US
-Content-ID: <94D8EA0D7FA6F947B6A39B1D514FEC28@eurprd02.prod.outlook.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Luca Ceresoli <luca@lucaceresoli.net>, Jean Delvare <jdelvare@suse.de>
-Cc: "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Mikko Perttunen <cyndis-/1wQRMveznE@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-T24gMjAyMC0wMS0xNiAxMTozOCwgTHVjYSBDZXJlc29saSB3cm90ZToNCj4gSGkgSmVhbiwgUGV0
-ZXIsDQo+IA0KPiB0aGFua3MgYm90aCBmb3IgeW91ciByZXZpZXdzLg0KPiANCj4gT24gMTYvMDEv
-MjAgMTA6NDksIEplYW4gRGVsdmFyZSB3cm90ZToNCj4+IE9uIE1vbiwgIDYgSmFuIDIwMjAgMDg6
-NDk6MDUgKzAxMDAsIEx1Y2EgQ2VyZXNvbGkgd3JvdGU6DQo+Pj4gU29tZSBvZiB0aGUgc2VjdGlv
-biBuYW1lcyBhcmUgbm90IHZlcnkgY2xlYXIuIFJlYWRpbmcgdGhvc2UgbmFtZXMgaW4gdGhlDQo+
-Pj4gaW5kZXgucnN0IHBhZ2UgZG9lcyBub3QgaGVscCBtdWNoIGluIGdyYXNwaW5nIHdoYXQgdGhl
-IGNvbnRlbnQgaXMgc3VwcG9zZWQNCj4+PiB0byBiZS4NCj4+Pg0KPj4+IFJlbmFtZSB0aG9zZSBz
-ZWN0aW9ucyB0byBjbGFyaWZ5IHRoZWlyIGNvbnRlbnQsIGVzcGVjaWFsbHkgd2hlbiByZWFkaW5n
-DQo+Pj4gdGhlIGluZGV4IHBhZ2UuDQo+Pj4NCj4+PiBTaWduZWQtb2ZmLWJ5OiBMdWNhIENlcmVz
-b2xpIDxsdWNhQGx1Y2FjZXJlc29saS5uZXQ+DQo+Pj4gQWNrZWQtYnk6IFBldGVyIFJvc2luIDxw
-ZWRhQGF4ZW50aWEuc2U+DQo+Pj4gLS0tDQo+Pj4NCj4+PiBOb3RlOiBoZXJlIGNoZWNrcGF0Y2gg
-Y29tcGxhaW5zOg0KPj4+DQo+Pj4gICBXQVJOSU5HOiBNaXNzaW5nIG9yIG1hbGZvcm1lZCBTUERY
-LUxpY2Vuc2UtSWRlbnRpZmllciB0YWcgaW4gbGluZSAxDQo+Pj4NCj4+PiBUaGFzJ3MgYmVjYXVz
-ZSB0aG9zZSBmaWxlcyBoYXZlIG5vIGxpY2Vuc2UgbGluZS4gSSB3b3VsZCBnbGFkbHkgYWRkIGEN
-Cj4+PiBwcm9wZXIgbGljZW5zZSBsaW5lLCBidXQgd2hhdCBpdCB0aGUgY29ycmVjdCBsaWNlbnNl
-IGhlcmU/IFNob3VsZCBJIGFzayB0aGUNCj4+PiBhdXRob3JzPyBHUEx2Mi1vbmx5IGFzIHRoZSBr
-ZXJuZWwgZGVmYXVsdD8NCj4+Pg0KPj4+IEknZCBhcHByZWNpYXRlIGEgZ3VpZGFuY2UgaGVyZSwg
-dGhhbmtzIGluIGFkdmFuY2UuDQo+Pg0KPj4gSSBkb24ndCB0aGluayB3ZSBuZWVkIGEgbGljZW5z
-ZSBmb3Igc3VjaCBkb2N1bWVudGF0aW9uIGZpbGVzLCBzbyBJDQo+PiB3b3VsZCBqdXN0IGlnbm9y
-ZSBjaGVja3BhdGNoLg0KPiANCj4gVGhhdCdzIE9LIGZvciBtZS4NCj4gDQo+Pj4gZGlmZiAtLWdp
-dCBhL0RvY3VtZW50YXRpb24vaTJjL3N1bW1hcnkucnN0IGIvRG9jdW1lbnRhdGlvbi9pMmMvc3Vt
-bWFyeS5yc3QNCj4+PiBpbmRleCBmYzY5ZDk1NjdkOWQuLmFlM2JiYjlmZDhmMSAxMDA2NDQNCj4+
-PiAtLS0gYS9Eb2N1bWVudGF0aW9uL2kyYy9zdW1tYXJ5LnJzdA0KPj4+ICsrKyBiL0RvY3VtZW50
-YXRpb24vaTJjL3N1bW1hcnkucnN0DQo+Pj4gQEAgLTEsNiArMSw2IEBADQo+Pj4gLT09PT09PT09
-PT09PT0NCj4+PiAtSTJDIGFuZCBTTUJ1cw0KPj4+IC09PT09PT09PT09PT09DQo+Pj4gKz09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PQ0KPj4+ICtJbnRyb2R1Y3Rpb25zIHRvIEkyQyBhbmQg
-U01CdXMNCj4+PiArPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQo+Pg0KPj4gSSB3b3Vs
-ZCB1c2UgIkludHJvZHVjdGlvbiIsIHNpbmd1bGFyLg0KPiANCj4gTWUgdG9vISBGaXggcXVldWVk
-IGZvciB2Mi4NCj4gDQo+IFBldGVyLCBJIGFzc3VtZSBJIGNhbiBrZWVwIHlvdXIgQWNrZWQtYnkg
-aW4gdjIgd2l0aCB0aGlzIHNtYWxsIGNoYW5nZS4NCg0KVGhhdCdzIGZpbmUuDQoNCkNoZWVycywN
-ClBldGVyDQo=
+15.01.2020 20:35, Wolfram Sang пишет:
+> On Tue, Jan 14, 2020 at 04:34:34AM +0300, Dmitry Osipenko wrote:
+>> Hello,
+>>
+>> This patchset adds support for atomic transfers which are required for
+>> shutting down machine properly. Secondly, a (not)suspending I2C and some
+>> other things are fixed/improved by this small series as well. Please review
+>> and apply, thanks in advance!
+>>
+>> Changelog:
+>>
+>> v5: Improved commit message of the "Support atomic transfers" patch,
+>>     thanks to Wolfram Sang.
+>>
+>>     Added explicit stable tags to these patches:
+>>
+>>       i2c: tegra: Fix suspending in active runtime PM state
+>>       i2c: tegra: Properly disable runtime PM on driver's probe error
+> 
+> Patches 1+2 applied to for-current and patches 3-8 applied to for-next,
+> thanks!
+> 
+> Checkpatch spit out some of those:
+> 
+> CHECK: Lines should not end with a '('
+> 
+> I didn't mind. We can fix it incrementally if you want to fix it.
+> 
+
+Thank you very much!
+
+I was aware of those minor warnings, but couldn't instantly see how to
+fix them without making code less readable.
