@@ -1,62 +1,43 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 3/3] i2c: xiic: Fix the clocking across bind unbind
-Date: Wed, 15 Jan 2020 21:14:35 +0100
-Message-ID: <20200115201435.GI23789@ninjato>
-References: <d328af197cc5fec64d203fa45b768571f28a54b2.1578569758.git.shubhrajyoti.datta@xilinx.com>
- <176b8f623a2994019d775dfb5dbb2bdcc3852069.1578569758.git.shubhrajyoti.datta@xilinx.com>
+From: Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v10 0/4] add power control in i2c and at24
+Date: Thu, 16 Jan 2020 10:56:33 +0800
+Message-ID: <20200116025637.3524-1-bibby.hsieh@mediatek.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="mXDO3udm/xYWQeMQ"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:41330 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729026AbgAOUOh (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Wed, 15 Jan 2020 15:14:37 -0500
-Content-Disposition: inline
-In-Reply-To: <176b8f623a2994019d775dfb5dbb2bdcc3852069.1578569758.git.shubhrajyoti.datta@xilinx.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: base64
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Bartosz Golaszewski <bgolaszewski-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: tfiga-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, drinkcat-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, srv_heupstream-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bibby Hsieh <bibby.hsieh-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
-To: shubhrajyoti.datta@gmail.com
-Cc: linux-i2c@vger.kernel.org, michal.simek@xilinx.com, Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
 
-
---mXDO3udm/xYWQeMQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Jan 09, 2020 at 05:08:00PM +0530, shubhrajyoti.datta@gmail.com wrot=
-e:
-> From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
->=20
-> The recommendation is that the set_active should be done
-> with pm runtime disabled.
-> Also fix the remove path for clocking.
->=20
-> Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-
-Applied to for-next, thanks!
-
-
---mXDO3udm/xYWQeMQ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4fcqsACgkQFA3kzBSg
-KbZaWA/9HCviA3N6EK+lNHf93b3HeNLIg+moM/fsDTk0mGilWAwjcW+mWNSAl00Z
-ZHdm8IE4l4SVyhbe2dDITTxWgGERWuY2xXe741PMl3D6gmQjXF2x3e/2VvJhF4yx
-s1iXLQkNRb2acYd9ZGxjFB48GDkdZqpmSFmWQc9mhgMVSSjtNiRvVAHekL3f3Rws
-2/WFYxl2Ap3Dea55jtPte/8PCUZKBMq4se2QrwFtoGQKNggjWt0Z8UAynyRqaLbK
-QWL9w5tGi/TjCzatw89UyhPDGhXKvuLga6ol3IExL+YfFQvxOkhqNmnSDNKnq2LI
-Mwt0qVK0dLn9eGbdwJ+AmdsC4Hsu4oujiczdZTq8y9U6qJbFaMz9uR3JB10eKJ2m
-wjk0lED7GFW3wsAP//oseWGRY1Qqaq0ZYJGrm1poxJMtvIG1jfcH4yeg49kiUsZT
-HQGbNrenFuPqvmizwcTbgehxOzVo4r8f+z4riVjP5TJr+EzqJjNKdSNsKszl1IMi
-v8Xo1kR1l7Br0sM/KyTIzUBJHi3n9ujw9qS7bX2bT9mBPMNb1xY2qrB1XuYmIxu9
-f/4oUX/juST74Oc8laytMKY8NWRRZho3oycFQ4oHOF0Knhi07vpBCxd6w4et4sSv
-cxW2s2eOIeTmRY1Gnsmr5FeILdGb/cZhSlErZ5BaXAFtlvamMFc=
-=yNEh
------END PGP SIGNATURE-----
-
---mXDO3udm/xYWQeMQ--
+QWx0aG91Z2ggaW4gdGhlIG1vc3QgcGxhdGZvcm1zLCB0aGUgcG93ZXIgb2YgZWVwcm9tIGFuZCBp
+MmMgYXJlIGFsd2F5IG9uLA0Kc29tZSBwbGF0Zm9ybXMgZGlzYWJsZSB0aGUgZWVwcm9tIGFuZCBp
+MmMgcG93ZXIgaW4gb3JkZXIgdG8gbWVldCBsb3cgcG93ZXIgcmVxdWVzdC4NClRoaXMgcGF0Y2gg
+YWRkIHRoZSBwbV9ydW50aW1lIG9wcyB0byBjb250cm9sIHBvd2VyIHRvIHN1cHBvcnQgYWxsIHBs
+YXRmb3Jtcy4NCg0KQ2hhbmdlcyBzaW5jZSB2OToNCiAtIGZpeHVwIGJ1aWxkIGVycm9yDQogLSBy
+ZW1vdmUgcmVkdW5kYW50IGNvZGUNCg0KQ2hhbmdlcyBzaW5jZSB2ODoNCiAtIGZpeHVwIHNvbWUg
+d3JvbmcgY29kZQ0KIC0gcmVtb3ZlIHJlZHVuZGFudCBtZXNzYWdlDQoNCkNoYW5nZXMgc2luY2Ug
+djc6DQogLSBhZGQgYmluZGluZyBkZXNjcmliZSBzdXBwbHkgcHJvcGVydHkgaW4gaTJjIGFuZCBh
+dDI0Lg0KIC0gbW92ZSBpMmMgYnVzIHN1cHBseSBjb250cm9sIGluIGkyYy1jb3JlLg0KIC0gcmVi
+YXNlIG9udG8gdjUuNS1yYzENCg0KQ2hhbmdlcyBzaW5jZSB2NjoNCiAtIGFkZCBiYWNrIGVycm9y
+IGNoZWNrIGZvciBkZXZtX3JlZ3VsYXRvcl9idWxrX2dldCgpDQoNCkNoYW5nZXMgc2luY2UgdjU6
+DQogLSByZW1vdmUgaGFzX3N1cHBsaWVzDQoNCkNoYW5nZXMgc2luY2UgdjQ6DQogLSBhZGQgc3lz
+dGVtIHNsZWVwIFBNIG9wcw0KIC0gbW92ZSByZWd1bGF0b3JfYnVsa19kaXNhYmxlIGJlZm9yZSBz
+dXNwZW5kKCkNCiAtIGZpeGVzIGVycm9yIGhhbmRsaW5nDQoNCkNoYW5nZXMgc2luY2UgdjM6DQog
+LSByZW1vdmUgcmVkdW5kYW50IGNhbGxpbmcgZnVuY3Rpb24NCiAtIGNoYW5nZSBTSU1QTEVfREVW
+X1BNX09QUyB0byBTRVRfUlVOVElNRV9QTV9PUFMNCiAtIGNoYW5nZSBzdXBwbHkgbmFtZQ0KDQpD
+aGFuZ2VzIHNpbmNlIHYyOg0KIC0gcmViYXNlIG9udG8gdjUuNC1yYzENCiAtIHBtX3J1bnRpbWVf
+ZGlzYWJsZSBhbmQgcmVndWxhdG9yX2J1bGtfZGlzYWJsZSBhdA0KICAgZXJyIHJldHVybiBpbiBw
+cm9iZSBmdW5jdGlvbg0KDQpDaGFuZ2VzIHNpbmNlIHYxOg0KIC0gcmVtb3ZlIHJlZHVuZGFudCBj
+b2RlDQogLSBmaXh1cCBjb2Rpbmcgc3R5bGUNCg0KQmliYnkgSHNpZWggKDQpOg0KICBkdC1iaW5k
+aW5nOiBlZXByb206IGF0MjQ6IGFkZCB2Y2Mtc3VwcGx5IHByb3BlcnR5DQogIGR0LWJpbmRpbmc6
+IGkyYzogYWRkIGJ1cy1zdXBwbHkgcHJvcGVydHkNCiAgbWlzYzogZWVwcm9tOiBhdDI0OiBzdXBw
+b3J0IHBtX3J1bnRpbWUgY29udHJvbA0KICBpMmM6IGNvcmU6IHN1cHBvcnQgYnVzIHJlZ3VsYXRv
+ciBjb250cm9sbGluZyBpbiBhZGFwdGVyDQoNCiAuLi4vZGV2aWNldHJlZS9iaW5kaW5ncy9lZXBy
+b20vYXQyNC55YW1sICAgICAgfCAgNCArDQogRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRp
+bmdzL2kyYy9pMmMudHh0IHwgIDMgKw0KIGRyaXZlcnMvaTJjL2kyYy1jb3JlLWJhc2UuYyAgICAg
+ICAgICAgICAgICAgICB8IDgxICsrKysrKysrKysrKysrKysrKysNCiBkcml2ZXJzL21pc2MvZWVw
+cm9tL2F0MjQuYyAgICAgICAgICAgICAgICAgICAgfCA0MCArKysrKysrKysNCiBpbmNsdWRlL2xp
+bnV4L2kyYy5oICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMyArDQogNSBmaWxlcyBjaGFu
+Z2VkLCAxMzEgaW5zZXJ0aW9ucygrKQ0KDQotLSANCjIuMTguMA0K
