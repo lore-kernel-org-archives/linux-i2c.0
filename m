@@ -1,86 +1,24 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PULL REQUEST] i2c for 5.5
-Date: Sun, 19 Jan 2020 15:14:09 +0100
-Message-ID: <20200119141343.GA1191@ninjato>
+From: Favor Desmond <contecindy5@gmail.com>
+Subject: HELLO
+Date: Sun, 19 Jan 2020 18:44:37 +0000
+Message-ID: <CAOfCPNxP6Zd30BF2yc=mXgSsiq_K60AW+CVH-5JzXJEsBrwaJA__7113.17401598848$1579459489$gmane$org@mail.gmail.com>
+Reply-To: favordens@email.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:35136 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726860AbgASOOR (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Sun, 19 Jan 2020 09:14:17 -0500
-Content-Disposition: inline
+Received: from mail-il1-f195.google.com ([209.85.166.195]:41089 "EHLO
+        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728898AbgASSoi (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 19 Jan 2020 13:44:38 -0500
+Received: by mail-il1-f195.google.com with SMTP id f10so25481138ils.8
+        for <linux-i2c@vger.kernel.org>; Sun, 19 Jan 2020 10:44:37 -0800 (PST)
 Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 
-
---azLHFNyN32YCQGCU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Linus,
-
-I2C has some more driver bugfixes for 5.5, two RPM fixes and one leak fix.
-
-Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit b3a987b0264d3ddbb24293ebff10eddfc472f653:
-
-  Linux 5.5-rc6 (2020-01-12 16:55:08 -0800)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to e64175776d06a8ceebbfd349d7e66a4a46ca39ef:
-
-  i2c: iop3xx: Fix memory leak in probe error path (2020-01-15 20:31:27 +0100)
-
-----------------------------------------------------------------
-Dmitry Osipenko (2):
-      i2c: tegra: Fix suspending in active runtime PM state
-      i2c: tegra: Properly disable runtime PM on driver's probe error
-
-Krzysztof Kozlowski (1):
-      i2c: iop3xx: Fix memory leak in probe error path
-
-
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Thierry Reding (2):
-      (Test) i2c: tegra: Properly disable runtime PM on driver's probe error
-      (Test) i2c: tegra: Fix suspending in active runtime PM state
-
- drivers/i2c/busses/i2c-iop3xx.c | 12 ++++++++----
- drivers/i2c/busses/i2c-tegra.c  | 38 ++++++++++++++++++++++++++++----------
- 2 files changed, 36 insertions(+), 14 deletions(-)
-
---azLHFNyN32YCQGCU
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAl4kZBMACgkQFA3kzBSg
-KbbfcA//cPVBfn1Z/EkmqobVXOhclIarujUbV2dFcSEYB4J7Q2j4r0nXr0M7YX9y
-Ok1dtO7WvlY1Yvf8NvXQTTvJfffPGbe3ikEWc+HyWYOfOQYEa4Jhficp4BXNE8Dr
-MFxCUeH5iPgeq1SCt/jf829E4TpC8N4pObuhpmAUXBuD2PdPxZUQEsTkgV8QH9/W
-ZxDM7SMg6vl97Y17ETAV678rmLjnqbfT5MXUwrJ8u6TMbBYqkbwBQq5CVFJnwCxV
-gS1lmCr0vwuCeDeNUkToBoUw2HAN9P71B1GJeQZLFZ7KOcbolNe5tlEV6j89UWIy
-bVhhuOjeAT3nDBJu9GTg9rJ0whkkPjDHOznvEjHwPBO1dB55FG0nImG/zmVLbHfg
-JWel19CDFse2YzgsNSta7YlQKHtSIGPF4eG9j89UsMF0LwrYJiq3SXyJdaXDvcIW
-SDRttdaaSP2wD9/3y8kTu80Ed6qeqpFP+SvgsOp5Kfcd9oR15fVLnDpCX0PrGMr8
-y4hB75JOlUIUTYeFZ78xM4e/afd4f7BJuC/WRvaPXJ8hjnslsm2PpOmjscStXVmc
-vC4mfdEa2CX4TSpR6T35CXUoL7ZVCOhc3SvZO3gVK8EdtloyNFxiPwiifxrMbjFp
-Rex4jwa7plOoUUrGSVhBVo/Art2tMWo49LuddGpqSzx9JGGSnZc=
-=Gcrl
------END PGP SIGNATURE-----
-
---azLHFNyN32YCQGCU--
+Hello Dear
+Greetings to you,I am Favor Desmond from Ivory coast currently living
+in  Togo Republic,I would like to know you more, so that i can tell
+you little amount myself and my photo, email address is
+favordens@email.com
+Thanks
+Favor
