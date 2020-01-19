@@ -1,24 +1,24 @@
-From: Favor Desmond <contecindy5@gmail.com>
-Subject: HELLO
-Date: Sun, 19 Jan 2020 18:44:37 +0000
-Message-ID: <CAOfCPNxP6Zd30BF2yc=mXgSsiq_K60AW+CVH-5JzXJEsBrwaJA__7113.17401598848$1579459489$gmane$org@mail.gmail.com>
-Reply-To: favordens@email.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-il1-f195.google.com ([209.85.166.195]:41089 "EHLO
-        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728898AbgASSoi (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sun, 19 Jan 2020 13:44:38 -0500
-Received: by mail-il1-f195.google.com with SMTP id f10so25481138ils.8
-        for <linux-i2c@vger.kernel.org>; Sun, 19 Jan 2020 10:44:37 -0800 (PST)
-Sender: linux-i2c-owner@vger.kernel.org
+From: pr-tracker-bot@kernel.org
+Subject: Re: [PULL REQUEST] i2c for 5.5
+Date: Sun, 19 Jan 2020 20:20:03 +0000
+Message-ID: <157946520336.8493.5607126799780981801.pr-tracker-bot@kernel.org>
+References: <20200119141343.GA1191@ninjato>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200119141343.GA1191@ninjato>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Dear
-Greetings to you,I am Favor Desmond from Ivory coast currently living
-in  Togo Republic,I would like to know you more, so that i can tell
-you little amount myself and my photo, email address is
-favordens@email.com
-Thanks
-Favor
+The pull request you sent on Sun, 19 Jan 2020 15:14:09 +0100:
+
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/5f43644394a96a8bcd8fc29a8bbd9c40b4465b54
+
+Thank you!
+
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
