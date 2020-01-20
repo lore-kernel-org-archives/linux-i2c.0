@@ -1,58 +1,46 @@
-From: Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH 01/12] i2c: pxa: use official address byte helper
-Date: Mon, 20 Jan 2020 17:03:26 +0000
-Message-ID: <c3d57cc4-5ec4-492f-e233-580ac1aba2cd@axentia.se>
-References: <20191215160444.GB25745@shell.armlinux.org.uk>
- <E1igWOT-0005Dp-Sb@rmk-PC.armlinux.org.uk>
+From: kbuild test robot <lkp@intel.com>
+Subject: Re: [PATCH v1 1/1] HID: mcp2221: add usb to i2c-smbus host bridge
+ driver
+Date: Tue, 21 Jan 2020 02:05:39 +0800
+Message-ID: <202001210143.iPz2kWmQ%lkp@intel.com>
+References: <7b81210829dabdc96257084ff5b4cc97f2f2ebec.1579497275.git.gupt21@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mail-eopbgr50103.outbound.protection.outlook.com ([40.107.5.103]:63963
-        "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726885AbgATRDc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 20 Jan 2020 12:03:32 -0500
-In-Reply-To: <E1igWOT-0005Dp-Sb@rmk-PC.armlinux.org.uk>
-Content-Language: en-US
-Content-ID: <7E77B60F11703C4586695C3B57F587F9@eurprd02.prod.outlook.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <7b81210829dabdc96257084ff5b4cc97f2f2ebec.1579497275.git.gupt21@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+Cc: kbuild-all@lists.01.org, jikos@kernel.org, benjamin.tissoires@redhat.com, wsa+renesas@sang-engineering.com, gregkh@linuxfoundation.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rishi Gupta <gupt21@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
-To: Russell King <rmk+kernel@armlinux.org.uk>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-T24gMjAxOS0xMi0xNSAxNzowNSwgUnVzc2VsbCBLaW5nIHdyb3RlOg0KPiBpMmMtcHhhIHdhcyBj
-cmVhdGVkIGJlZm9yZSBpMmNfOGJpdF9hZGRyX2Zyb21fbXNnKCkgd2FzIGltcGxlbWVudGVkLA0K
-PiBhbmQgdXNlZCBpdHMgb3duIGkyY19weGFfYWRkcl9ieXRlKCkgd2hpY2ggaXMgZnVuY3Rpb25h
-bGx5IHRoZSBzYW1lLg0KPiBTYWRseSwgaXQgd2FzIG5ldmVyIHVwZGF0ZWQgdG8gdXNlIHRoaXMg
-bmV3IGhlbHBlci4gU3dpdGNoIGl0IG92ZXIuDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBSdXNzZWxs
-IEtpbmcgPHJtaytrZXJuZWxAYXJtbGludXgub3JnLnVrPg0KPiAtLS0NCj4gIGRyaXZlcnMvaTJj
-L2J1c3Nlcy9pMmMtcHhhLmMgfCAyMSArKysrKysrLS0tLS0tLS0tLS0tLS0NCj4gIDEgZmlsZSBj
-aGFuZ2VkLCA3IGluc2VydGlvbnMoKyksIDE0IGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdp
-dCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtcHhhLmMgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJj
-LXB4YS5jDQo+IGluZGV4IDJjM2MzZDY5MzVjMC4uOTY2MDAwOTIzZThlIDEwMDY0NA0KPiAtLS0g
-YS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLXB4YS5jDQo+ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nl
-cy9pMmMtcHhhLmMNCj4gQEAgLTY3NSwyNSArNjc1LDE4IEBAIHN0YXRpYyB2b2lkIGkyY19weGFf
-c2xhdmVfc3RvcChzdHJ1Y3QgcHhhX2kyYyAqaTJjKQ0KPiAgICogUFhBIEkyQyBNYXN0ZXIgbW9k
-ZQ0KPiAgICovDQo+ICANCj4gLXN0YXRpYyBpbmxpbmUgdW5zaWduZWQgaW50IGkyY19weGFfYWRk
-cl9ieXRlKHN0cnVjdCBpMmNfbXNnICptc2cpDQo+IC17DQo+IC0JdW5zaWduZWQgaW50IGFkZHIg
-PSAobXNnLT5hZGRyICYgMHg3ZikgPDwgMTsNCj4gLQ0KPiAtCWlmIChtc2ctPmZsYWdzICYgSTJD
-X01fUkQpDQo+IC0JCWFkZHIgfD0gMTsNCj4gLQ0KPiAtCXJldHVybiBhZGRyOw0KPiAtfQ0KPiAt
-DQo+ICBzdGF0aWMgaW5saW5lIHZvaWQgaTJjX3B4YV9zdGFydF9tZXNzYWdlKHN0cnVjdCBweGFf
-aTJjICppMmMpDQo+ICB7DQo+ICAJdTMyIGljcjsNCj4gKwl1OCBhZGRyOw0KPiArDQo+ICsJYWRk
-ciA9IGkyY184Yml0X2FkZHJfZnJvbV9tc2coaTJjLT5tc2cpOw0KPiAgDQo+ICAJLyoNCj4gIAkg
-KiBTdGVwIDE6IHRhcmdldCBzbGF2ZSBhZGRyZXNzIGludG8gSURCUg0KPiAgCSAqLw0KPiAtCXdy
-aXRlbChpMmNfcHhhX2FkZHJfYnl0ZShpMmMtPm1zZyksIF9JREJSKGkyYykpOw0KPiAtCWkyYy0+
-cmVxX3NsYXZlX2FkZHIgPSBpMmNfcHhhX2FkZHJfYnl0ZShpMmMtPm1zZyk7DQo+ICsJd3JpdGVs
-KGFkZHIsIF9JREJSKGkyYykpOw0KPiArCWkyYy0+cmVxX3NsYXZlX2FkZHIgPSBhZGRyOw0KDQpZ
-b3UgYXJlIGludHJvZHVjaW5nIGEgdGVtcG9yYXJ5IHZhcmlhYmxlIChhZGRyKSBoZXJlLi4uDQoN
-Cj4gIA0KPiAgCS8qDQo+ICAJICogU3RlcCAyOiBpbml0aWF0ZSB0aGUgd3JpdGUuDQo+IEBAIC0x
-MDA2LDggKzk5OSw4IEBAIHN0YXRpYyB2b2lkIGkyY19weGFfaXJxX3R4ZW1wdHkoc3RydWN0IHB4
-YV9pMmMgKmkyYywgdTMyIGlzcikNCj4gIAkJLyoNCj4gIAkJICogV3JpdGUgdGhlIG5leHQgYWRk
-cmVzcy4NCj4gIAkJICovDQo+IC0JCXdyaXRlbChpMmNfcHhhX2FkZHJfYnl0ZShpMmMtPm1zZyks
-IF9JREJSKGkyYykpOw0KPiAtCQlpMmMtPnJlcV9zbGF2ZV9hZGRyID0gaTJjX3B4YV9hZGRyX2J5
-dGUoaTJjLT5tc2cpOw0KPiArCQl3cml0ZWwoaTJjXzhiaXRfYWRkcl9mcm9tX21zZyhpMmMtPm1z
-ZyksIF9JREJSKGkyYykpOw0KPiArCQlpMmMtPnJlcV9zbGF2ZV9hZGRyID0gaTJjXzhiaXRfYWRk
-cl9mcm9tX21zZyhpMmMtPm1zZyk7DQoNCi4uLmJ1dCBub3QgaGVyZS4gQnV0IGl0IHNlZW1zIGxp
-a2UgdGhlIHNhbWUgcGF0dGVybi4gQW55IHBhcnRpY3VsYXIgcmVhc29uIGZvcg0KdGhhdCBkaWZm
-ZXJlbmNlPw0KDQpDaGVlcnMsDQpQZXRlcg0KDQo+ICANCj4gIAkJLyoNCj4gIAkJICogQW5kIHRy
-aWdnZXIgYSByZXBlYXRlZCBzdGFydCwgYW5kIHNlbmQgdGhlIGJ5dGUuDQo+IA0KDQo=
+Hi Rishi,
+
+Thank you for the patch! Perhaps something to improve:
+
+[auto build test WARNING on linus/master]
+[also build test WARNING on v5.5-rc7 next-20200117]
+[if your patch is applied to the wrong git tree, please drop us a note to help
+improve the system. BTW, we also suggest to use '--base' option to specify the
+base tree in git format-patch, please see https://stackoverflow.com/a/37406982]
+
+url:    https://github.com/0day-ci/linux/commits/Rishi-Gupta/HID-mcp2221-add-usb-to-i2c-smbus-host-bridge-driver/20200120-133043
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git def9d2780727cec3313ed3522d0123158d87224d
+reproduce:
+        # apt-get install sparse
+        # sparse version: v0.6.1-131-g22978b6b-dirty
+        make ARCH=x86_64 allmodconfig
+        make C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__'
+
+If you fix the issue, kindly add following tag
+Reported-by: kbuild test robot <lkp@intel.com>
+
+
+sparse warnings: (new ones prefixed by >>)
+
+>> drivers/hid/hid-mcp2221.c:397:5: sparse: sparse: symbol 'mcp_smbus_xfer' was not declared. Should it be static?
+
+Please review and possibly fold the followup patch.
+
+---
+0-DAY kernel test infrastructure                 Open Source Technology Center
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org Intel Corporation
