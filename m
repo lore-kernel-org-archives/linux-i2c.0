@@ -1,46 +1,58 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 18/26] docs: i2c: i2c-protocol: fix punctuation
-Date: Mon, 20 Jan 2020 16:16:11 +0100
-Message-ID: <20200120161611.217bbbd2@endymion>
-References: <20200105224006.10321-1-luca@lucaceresoli.net>
-        <20200105225012.11701-1-luca@lucaceresoli.net>
-        <20200105225012.11701-18-luca@lucaceresoli.net>
+From: Peter Rosin <peda@axentia.se>
+Subject: Re: [PATCH 01/12] i2c: pxa: use official address byte helper
+Date: Mon, 20 Jan 2020 17:03:26 +0000
+Message-ID: <c3d57cc4-5ec4-492f-e233-580ac1aba2cd@axentia.se>
+References: <20191215160444.GB25745@shell.armlinux.org.uk>
+ <E1igWOT-0005Dp-Sb@rmk-PC.armlinux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20200105225012.11701-18-luca@lucaceresoli.net>
-Sender: linux-doc-owner@vger.kernel.org
-To: Luca Ceresoli <luca@lucaceresoli.net>
-Cc: linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Received: from mail-eopbgr50103.outbound.protection.outlook.com ([40.107.5.103]:63963
+        "EHLO EUR03-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726885AbgATRDc (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
+        Mon, 20 Jan 2020 12:03:32 -0500
+In-Reply-To: <E1igWOT-0005Dp-Sb@rmk-PC.armlinux.org.uk>
+Content-Language: en-US
+Content-ID: <7E77B60F11703C4586695C3B57F587F9@eurprd02.prod.outlook.com>
+Sender: linux-i2c-owner@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
+To: Russell King <rmk+kernel@armlinux.org.uk>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-Same as previous patch, subject line is wrong.
-
-On Sun,  5 Jan 2020 23:50:04 +0100, Luca Ceresoli wrote:
-> Remove misplaced dot before colon.
-> 
-> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
-> ---
->  Documentation/i2c/smbus-protocol.rst | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/i2c/smbus-protocol.rst b/Documentation/i2c/smbus-protocol.rst
-> index de7285de5e93..7350e4b2c2fa 100644
-> --- a/Documentation/i2c/smbus-protocol.rst
-> +++ b/Documentation/i2c/smbus-protocol.rst
-> @@ -146,7 +146,7 @@ Implemented by i2c_smbus_write_word_data()
->  
->  This is the opposite of the Read Word operation. 16 bits
->  of data are written to a device, to the designated register that is
-> -specified through the Comm byte.::
-> +specified through the Comm byte::
->  
->    S Addr Wr [A] Comm [A] DataLow [A] DataHigh [A] P
->  
-
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-
--- 
-Jean Delvare
-SUSE L3 Support
+T24gMjAxOS0xMi0xNSAxNzowNSwgUnVzc2VsbCBLaW5nIHdyb3RlOg0KPiBpMmMtcHhhIHdhcyBj
+cmVhdGVkIGJlZm9yZSBpMmNfOGJpdF9hZGRyX2Zyb21fbXNnKCkgd2FzIGltcGxlbWVudGVkLA0K
+PiBhbmQgdXNlZCBpdHMgb3duIGkyY19weGFfYWRkcl9ieXRlKCkgd2hpY2ggaXMgZnVuY3Rpb25h
+bGx5IHRoZSBzYW1lLg0KPiBTYWRseSwgaXQgd2FzIG5ldmVyIHVwZGF0ZWQgdG8gdXNlIHRoaXMg
+bmV3IGhlbHBlci4gU3dpdGNoIGl0IG92ZXIuDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBSdXNzZWxs
+IEtpbmcgPHJtaytrZXJuZWxAYXJtbGludXgub3JnLnVrPg0KPiAtLS0NCj4gIGRyaXZlcnMvaTJj
+L2J1c3Nlcy9pMmMtcHhhLmMgfCAyMSArKysrKysrLS0tLS0tLS0tLS0tLS0NCj4gIDEgZmlsZSBj
+aGFuZ2VkLCA3IGluc2VydGlvbnMoKyksIDE0IGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdp
+dCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtcHhhLmMgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJj
+LXB4YS5jDQo+IGluZGV4IDJjM2MzZDY5MzVjMC4uOTY2MDAwOTIzZThlIDEwMDY0NA0KPiAtLS0g
+YS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLXB4YS5jDQo+ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nl
+cy9pMmMtcHhhLmMNCj4gQEAgLTY3NSwyNSArNjc1LDE4IEBAIHN0YXRpYyB2b2lkIGkyY19weGFf
+c2xhdmVfc3RvcChzdHJ1Y3QgcHhhX2kyYyAqaTJjKQ0KPiAgICogUFhBIEkyQyBNYXN0ZXIgbW9k
+ZQ0KPiAgICovDQo+ICANCj4gLXN0YXRpYyBpbmxpbmUgdW5zaWduZWQgaW50IGkyY19weGFfYWRk
+cl9ieXRlKHN0cnVjdCBpMmNfbXNnICptc2cpDQo+IC17DQo+IC0JdW5zaWduZWQgaW50IGFkZHIg
+PSAobXNnLT5hZGRyICYgMHg3ZikgPDwgMTsNCj4gLQ0KPiAtCWlmIChtc2ctPmZsYWdzICYgSTJD
+X01fUkQpDQo+IC0JCWFkZHIgfD0gMTsNCj4gLQ0KPiAtCXJldHVybiBhZGRyOw0KPiAtfQ0KPiAt
+DQo+ICBzdGF0aWMgaW5saW5lIHZvaWQgaTJjX3B4YV9zdGFydF9tZXNzYWdlKHN0cnVjdCBweGFf
+aTJjICppMmMpDQo+ICB7DQo+ICAJdTMyIGljcjsNCj4gKwl1OCBhZGRyOw0KPiArDQo+ICsJYWRk
+ciA9IGkyY184Yml0X2FkZHJfZnJvbV9tc2coaTJjLT5tc2cpOw0KPiAgDQo+ICAJLyoNCj4gIAkg
+KiBTdGVwIDE6IHRhcmdldCBzbGF2ZSBhZGRyZXNzIGludG8gSURCUg0KPiAgCSAqLw0KPiAtCXdy
+aXRlbChpMmNfcHhhX2FkZHJfYnl0ZShpMmMtPm1zZyksIF9JREJSKGkyYykpOw0KPiAtCWkyYy0+
+cmVxX3NsYXZlX2FkZHIgPSBpMmNfcHhhX2FkZHJfYnl0ZShpMmMtPm1zZyk7DQo+ICsJd3JpdGVs
+KGFkZHIsIF9JREJSKGkyYykpOw0KPiArCWkyYy0+cmVxX3NsYXZlX2FkZHIgPSBhZGRyOw0KDQpZ
+b3UgYXJlIGludHJvZHVjaW5nIGEgdGVtcG9yYXJ5IHZhcmlhYmxlIChhZGRyKSBoZXJlLi4uDQoN
+Cj4gIA0KPiAgCS8qDQo+ICAJICogU3RlcCAyOiBpbml0aWF0ZSB0aGUgd3JpdGUuDQo+IEBAIC0x
+MDA2LDggKzk5OSw4IEBAIHN0YXRpYyB2b2lkIGkyY19weGFfaXJxX3R4ZW1wdHkoc3RydWN0IHB4
+YV9pMmMgKmkyYywgdTMyIGlzcikNCj4gIAkJLyoNCj4gIAkJICogV3JpdGUgdGhlIG5leHQgYWRk
+cmVzcy4NCj4gIAkJICovDQo+IC0JCXdyaXRlbChpMmNfcHhhX2FkZHJfYnl0ZShpMmMtPm1zZyks
+IF9JREJSKGkyYykpOw0KPiAtCQlpMmMtPnJlcV9zbGF2ZV9hZGRyID0gaTJjX3B4YV9hZGRyX2J5
+dGUoaTJjLT5tc2cpOw0KPiArCQl3cml0ZWwoaTJjXzhiaXRfYWRkcl9mcm9tX21zZyhpMmMtPm1z
+ZyksIF9JREJSKGkyYykpOw0KPiArCQlpMmMtPnJlcV9zbGF2ZV9hZGRyID0gaTJjXzhiaXRfYWRk
+cl9mcm9tX21zZyhpMmMtPm1zZyk7DQoNCi4uLmJ1dCBub3QgaGVyZS4gQnV0IGl0IHNlZW1zIGxp
+a2UgdGhlIHNhbWUgcGF0dGVybi4gQW55IHBhcnRpY3VsYXIgcmVhc29uIGZvcg0KdGhhdCBkaWZm
+ZXJlbmNlPw0KDQpDaGVlcnMsDQpQZXRlcg0KDQo+ICANCj4gIAkJLyoNCj4gIAkJICogQW5kIHRy
+aWdnZXIgYSByZXBlYXRlZCBzdGFydCwgYW5kIHNlbmQgdGhlIGJ5dGUuDQo+IA0KDQo=
