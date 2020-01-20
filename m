@@ -1,24 +1,37 @@
-From: pr-tracker-bot@kernel.org
-Subject: Re: [PULL REQUEST] i2c for 5.5
-Date: Sun, 19 Jan 2020 20:20:03 +0000
-Message-ID: <157946520336.8493.5607126799780981801.pr-tracker-bot@kernel.org>
-References: <20200119141343.GA1191@ninjato>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200119141343.GA1191@ninjato>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>
+From: Rishi Gupta <gupt21@gmail.com>
+Subject: [PATCH v1 0/1] HID: mcp2221: add usb to i2c-smbus host bridge driver
+Date: Mon, 20 Jan 2020 10:57:37 +0530
+Message-ID: <cover.1579497275.git.gupt21@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Sender: linux-input-owner@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com, wsa+renesas@sang-engineering.com
+Cc: gregkh@linuxfoundation.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rishi Gupta <gupt21@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The pull request you sent on Sun, 19 Jan 2020 15:14:09 +0100:
+MCP2221 is a USB HID to I2C/SMbus host bridge device. This
+commit implements i2c and smbus host adapter support. 7-bit
+address and i2c multi-message transaction is also supported.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+Different transactions have been tested with various common
+hardwares, linux driver and user space tools.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/5f43644394a96a8bcd8fc29a8bbd9c40b4465b54
+Host PC communicates with mcp2221a over usb using raw hid protocol.
+Reports are exchanged using interrupt end points. Command and responses
+are mcp2221a specific and documented in datasheet:
+http://ww1.microchip.com/downloads/en/DeviceDoc/20005565B.pdf
 
-Thank you!
+There is only 1 patch in this driver submission.
+
+Rishi Gupta (1):
+  HID: mcp2221: add usb to i2c-smbus host bridge driver
+
+ drivers/hid/Kconfig       |  10 +
+ drivers/hid/Makefile      |   1 +
+ drivers/hid/hid-ids.h     |   1 +
+ drivers/hid/hid-mcp2221.c | 773 ++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-quirks.c  |   3 +
+ 5 files changed, 788 insertions(+)
+ create mode 100644 drivers/hid/hid-mcp2221.c
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+2.7.4
