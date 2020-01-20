@@ -1,89 +1,71 @@
-From: Russell King - ARM Linux admin <linux@armlinux.org.uk>
-Subject: Re: [PATCH 01/12] i2c: pxa: use official address byte helper
-Date: Mon, 20 Jan 2020 19:13:11 +0000
-Message-ID: <20200120191311.GE25745@shell.armlinux.org.uk>
-References: <20191215160444.GB25745@shell.armlinux.org.uk>
- <E1igWOT-0005Dp-Sb@rmk-PC.armlinux.org.uk>
- <c3d57cc4-5ec4-492f-e233-580ac1aba2cd@axentia.se>
+From: Luca Ceresoli <luca@lucaceresoli.net>
+Subject: Re: [PATCH 02/26] docs: i2c: summary: extend introduction
+Date: Mon, 20 Jan 2020 22:54:06 +0100
+Message-ID: <4a772de1-cb81-37bb-4170-9d19d56aaaac@lucaceresoli.net>
+References: <20200105224006.10321-1-luca@lucaceresoli.net>
+ <20200105225012.11701-1-luca@lucaceresoli.net>
+ <20200105225012.11701-2-luca@lucaceresoli.net>
+ <20200120102730.4eb9116b@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from pandora.armlinux.org.uk ([78.32.30.218]:39256 "EHLO
-        pandora.armlinux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726136AbgATTNS (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 20 Jan 2020 14:13:18 -0500
-Content-Disposition: inline
-In-Reply-To: <c3d57cc4-5ec4-492f-e233-580ac1aba2cd@axentia.se>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200120102730.4eb9116b@endymion>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
-To: Peter Rosin <peda@axentia.se>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 
-On Mon, Jan 20, 2020 at 05:03:26PM +0000, Peter Rosin wrote:
-> On 2019-12-15 17:05, Russell King wrote:
-> > i2c-pxa was created before i2c_8bit_addr_from_msg() was implemented,
-> > and used its own i2c_pxa_addr_byte() which is functionally the same.
-> > Sadly, it was never updated to use this new helper. Switch it over.
-> > 
-> > Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-> > ---
-> >  drivers/i2c/busses/i2c-pxa.c | 21 +++++++--------------
-> >  1 file changed, 7 insertions(+), 14 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-> > index 2c3c3d6935c0..966000923e8e 100644
-> > --- a/drivers/i2c/busses/i2c-pxa.c
-> > +++ b/drivers/i2c/busses/i2c-pxa.c
-> > @@ -675,25 +675,18 @@ static void i2c_pxa_slave_stop(struct pxa_i2c *i2c)
-> >   * PXA I2C Master mode
-> >   */
-> >  
-> > -static inline unsigned int i2c_pxa_addr_byte(struct i2c_msg *msg)
-> > -{
-> > -	unsigned int addr = (msg->addr & 0x7f) << 1;
-> > -
-> > -	if (msg->flags & I2C_M_RD)
-> > -		addr |= 1;
-> > -
-> > -	return addr;
-> > -}
-> > -
-> >  static inline void i2c_pxa_start_message(struct pxa_i2c *i2c)
-> >  {
-> >  	u32 icr;
-> > +	u8 addr;
-> > +
-> > +	addr = i2c_8bit_addr_from_msg(i2c->msg);
-> >  
-> >  	/*
-> >  	 * Step 1: target slave address into IDBR
-> >  	 */
-> > -	writel(i2c_pxa_addr_byte(i2c->msg), _IDBR(i2c));
-> > -	i2c->req_slave_addr = i2c_pxa_addr_byte(i2c->msg);
-> > +	writel(addr, _IDBR(i2c));
-> > +	i2c->req_slave_addr = addr;
-> 
-> You are introducing a temporary variable (addr) here...
-> 
-> >  
-> >  	/*
-> >  	 * Step 2: initiate the write.
-> > @@ -1006,8 +999,8 @@ static void i2c_pxa_irq_txempty(struct pxa_i2c *i2c, u32 isr)
-> >  		/*
-> >  		 * Write the next address.
-> >  		 */
-> > -		writel(i2c_pxa_addr_byte(i2c->msg), _IDBR(i2c));
-> > -		i2c->req_slave_addr = i2c_pxa_addr_byte(i2c->msg);
-> > +		writel(i2c_8bit_addr_from_msg(i2c->msg), _IDBR(i2c));
-> > +		i2c->req_slave_addr = i2c_8bit_addr_from_msg(i2c->msg);
-> 
-> ...but not here. But it seems like the same pattern. Any particular reason for
-> that difference?
+Hi Jean,
 
-No real reason.  If I assign i2c->req_slave_addr first, I don't need
-a separate variable...
+On 20/01/20 10:27, Jean Delvare wrote:
+> On Sun,  5 Jan 2020 23:49:48 +0100, Luca Ceresoli wrote:
+>> - state the "official" name (I²C, not I2C, according to the spec) at
+>>    the beginning but keep using the more practical I2C elsewhere
+>>  - mention some known different names
+>>  - add link to the specification document
+> 
+> Indentation is inconsistent.
+
+Weird, this looks OK in my git log and my inbox, wrong on patchwork.
+Perhaps starting an e-mail with a space breaks something? I'll try to
+avoid that in the future.
+
+>> diff --git a/Documentation/i2c/summary.rst b/Documentation/i2c/summary.rst
+>> index 3a24eac17375..b7d3e620155b 100644
+>> --- a/Documentation/i2c/summary.rst
+>> +++ b/Documentation/i2c/summary.rst
+>> @@ -2,12 +2,18 @@
+>>  I2C and SMBus
+>>  =============
+>>  
+>> -I2C (pronounce: I squared C) is a protocol developed by Philips. It is a
+>> -slow two-wire protocol (variable speed, up to 400 kHz), with a high speed
+>> -extension (3.4 MHz).  It provides an inexpensive bus for connecting many
+>> -types of devices with infrequent or low bandwidth communications needs.
+>> -I2C is widely used with embedded systems.  Some systems use variants that
+>> -don't meet branding requirements, and so are not advertised as being I2C.
+>> +I²C (pronounce: I squared C and written I2C in the kernel documentation) is
+>> +a protocol developed by Philips. It is a slow two-wire protocol (variable
+>> +speed, up to 400 kHz), with a high speed extension (3.4 MHz).  It provides
+>> +an inexpensive bus for connecting many types of devices with infrequent or
+>> +low bandwidth communications needs.  I2C is widely used with embedded
+>> +systems.  Some systems use variants that don't meet branding requirements,
+>> +and so are not advertised as being I2C but with different names, e.g. TWI
+>> +(Two Wire Interface), IIC.
+> 
+> Maybe that's just me but "but with different names" sounds strange to
+> me in the sentence construct. Maybe "but come under different names"
+> instead?
+
+What I mean is "...are not advertised as being I2C but [are advertised]
+with different names". Looks equally clear to me, but since it has to be
+clear to readers, I'll take your suggestion for v2.
+
+Thanks for all the review work. I'm not going to reply to each e-mail
+individually, but each of your suggestions will be taken in v2 unless I
+reply differently.
 
 -- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTC broadband for 0.8mile line in suburbia: sync at 12.1Mbps down 622kbps up
-According to speedtest.net: 11.9Mbps down 500kbps up
+Luca
