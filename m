@@ -1,47 +1,55 @@
 From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 14/26] docs: i2c: smbus-protocol: use proper names for
- ACK and NACK
-Date: Mon, 20 Jan 2020 15:26:03 +0100
-Message-ID: <20200120152603.12a81fe1@endymion>
+Subject: Re: [PATCH 15/26] docs: i2c: smbus-protocol: enable kernel-doc
+ function syntax
+Date: Mon, 20 Jan 2020 15:44:44 +0100
+Message-ID: <20200120154444.7c1d3863@endymion>
 References: <20200105224006.10321-1-luca@lucaceresoli.net>
         <20200105225012.11701-1-luca@lucaceresoli.net>
-        <20200105225012.11701-14-luca@lucaceresoli.net>
+        <20200105225012.11701-15-luca@lucaceresoli.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:57652 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726626AbgATO0G (ORCPT <rfc822;linux-i2c@vger.kernel.org>);
-        Mon, 20 Jan 2020 09:26:06 -0500
-In-Reply-To: <20200105225012.11701-14-luca@lucaceresoli.net>
-Sender: linux-i2c-owner@vger.kernel.org
-List-Id: linux-i2c@vger.kernel.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20200105225012.11701-15-luca@lucaceresoli.net>
+Sender: linux-doc-owner@vger.kernel.org
 To: Luca Ceresoli <luca@lucaceresoli.net>
 Cc: linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
+List-Id: linux-i2c@vger.kernel.org
 
-On Sun,  5 Jan 2020 23:50:00 +0100, Luca Ceresoli wrote:
-> Use the proper ACK and NACK naming from the I2C specification instead of
-> "accept" and "reverse accept".
+On Sun,  5 Jan 2020 23:50:01 +0100, Luca Ceresoli wrote:
+> Hyperlinks from function names are not generated in headings. Move them in
+> the plain text so they are rendered as clickable hyerlinks.
+
+typo: hyperlinks
+
+> 
+> While there also remove an unneeded colon in a heading.
 > 
 > Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
 > ---
->  Documentation/i2c/smbus-protocol.rst | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  Documentation/i2c/smbus-protocol.rst | 64 ++++++++++++++++++----------
+>  1 file changed, 42 insertions(+), 22 deletions(-)
 > 
 > diff --git a/Documentation/i2c/smbus-protocol.rst b/Documentation/i2c/smbus-protocol.rst
-> index fbadd4d25ad5..10c4a989982c 100644
+> index 10c4a989982c..997945e90419 100644
 > --- a/Documentation/i2c/smbus-protocol.rst
 > +++ b/Documentation/i2c/smbus-protocol.rst
-> @@ -38,7 +38,7 @@ Key to symbols
->  S               Start condition
->  P               Stop condition
->  Rd/Wr (1 bit)   Read/Write bit. Rd equals 1, Wr equals 0.
-> -A, NA (1 bit)   Accept and reverse accept bit.
-> +A, NA (1 bit)   Acknowledge (ACK) and Not Acknowledge (NACK) bit
->  Addr  (7 bits)  I2C 7 bit address. Note that this can be expanded as usual to
->                  get a 10 bit I2C address.
->  Comm  (8 bits)  Command byte, a data byte which often selects a register on
+> @@ -62,8 +62,10 @@ This sends a single bit to the device, at the place of the Rd/Wr bit::
+>  Functionality flag: I2C_FUNC_SMBUS_QUICK
+>  
+>  
+> -SMBus Receive Byte:  i2c_smbus_read_byte()
+> -==========================================
+> +SMBus Receive Byte
+> +==================
+> +
+> +Implemented by i2c_smbus_read_byte()
+
+In file i2c-protocol.rst, the wording used is:
+
+This corresponds to i2c_transfer().
+
+For consistency, can we settle for "Implemented by foo()" everywhere?
 
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
