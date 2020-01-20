@@ -1,98 +1,71 @@
-From: Luca Ceresoli <luca@lucaceresoli.net>
-Subject: Re: [PATCH 01/26] docs: i2c: sort index logically
-Date: Mon, 20 Jan 2020 10:22:07 +0100
-Message-ID: <e5d3656d-04a1-dd1b-e847-fb063e56a987@lucaceresoli.net>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [PATCH 02/26] docs: i2c: summary: extend introduction
+Date: Mon, 20 Jan 2020 10:27:30 +0100
+Message-ID: <20200120102730.4eb9116b@endymion>
 References: <20200105224006.10321-1-luca@lucaceresoli.net>
- <20200105225012.11701-1-luca@lucaceresoli.net>
- <20200120100850.001e032b@endymion>
+        <20200105225012.11701-1-luca@lucaceresoli.net>
+        <20200105225012.11701-2-luca@lucaceresoli.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200120100850.001e032b@endymion>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20200105225012.11701-2-luca@lucaceresoli.net>
+Sender: linux-doc-owner@vger.kernel.org
+To: Luca Ceresoli <luca@lucaceresoli.net>
 Cc: linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Peter Rosin <peda@axentia.se>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+On Sun,  5 Jan 2020 23:49:48 +0100, Luca Ceresoli wrote:
+> - state the "official" name (I²C, not I2C, according to the spec) at
+>    the beginning but keep using the more practical I2C elsewhere
+>  - mention some known different names
+>  - add link to the specification document
 
-On 20/01/20 10:08, Jean Delvare wrote:
-> Hi Luca,
+Indentation is inconsistent.
+
 > 
-> On Sun,  5 Jan 2020 23:49:47 +0100, Luca Ceresoli wrote:
->> The index page currently lists sections in alphabetical file order without
->> caring about their content. Sort sections based on their content logically,
->> according to the following structure:
->>
->>  * Intro to I2C/SMBus and their usage in Linux: summary, i2c-protocol,
->>    smbus-protocol, instantiating-devices, busses/index, i2c-topology,
->>    muxes/i2c-mux-gpio
->>  * Implementing drivers: writing-clients, dev-interface,
->>    dma-considerations, fault-codes, functionality
->>  * Debugging: gpio-fault-injection, i2c-stub
->>  * Slave I2C: slave-interface, slave-eeprom-backend
->>  * Advanced: ten-bit-addresses
->>  * Obsolete info: upgrading-clients, old-module-parameters
+> Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+> ---
+>  Documentation/i2c/summary.rst | 18 ++++++++++++------
+>  1 file changed, 12 insertions(+), 6 deletions(-)
 > 
-> Good idea. I wonder, would there be a way to materialize these group
-> names in the documentation itself? I found it useful when reviewing the
-> patch, but in the long term it would be even more useful if the end
-> readers would see them too.
+> diff --git a/Documentation/i2c/summary.rst b/Documentation/i2c/summary.rst
+> index 3a24eac17375..b7d3e620155b 100644
+> --- a/Documentation/i2c/summary.rst
+> +++ b/Documentation/i2c/summary.rst
+> @@ -2,12 +2,18 @@
+>  I2C and SMBus
+>  =============
+>  
+> -I2C (pronounce: I squared C) is a protocol developed by Philips. It is a
+> -slow two-wire protocol (variable speed, up to 400 kHz), with a high speed
+> -extension (3.4 MHz).  It provides an inexpensive bus for connecting many
+> -types of devices with infrequent or low bandwidth communications needs.
+> -I2C is widely used with embedded systems.  Some systems use variants that
+> -don't meet branding requirements, and so are not advertised as being I2C.
+> +I²C (pronounce: I squared C and written I2C in the kernel documentation) is
+> +a protocol developed by Philips. It is a slow two-wire protocol (variable
+> +speed, up to 400 kHz), with a high speed extension (3.4 MHz).  It provides
+> +an inexpensive bus for connecting many types of devices with infrequent or
+> +low bandwidth communications needs.  I2C is widely used with embedded
+> +systems.  Some systems use variants that don't meet branding requirements,
+> +and so are not advertised as being I2C but with different names, e.g. TWI
+> +(Two Wire Interface), IIC.
 
-I had the same idea, but didn't find an obvious way to do it with the
-ReST/Sphynx syntax. I have also browsed through a few index pages for
-other subsystems and they all have a flat list too, so for the moment I
-gave up.
+Maybe that's just me but "but with different names" sounds strange to
+me in the sentence construct. Maybe "but come under different names"
+instead?
 
-Anybody has hints on how to do this in a clean way?
+> +
+> +The official I2C specification is the `"I2C-bus specification and user
+> +manual" (UM10204) <https://www.nxp.com/docs/en/user-guide/UM10204.pdf>`_
+> +published by NXP Semiconductors.
+>  
+>  SMBus (System Management Bus) is based on the I2C protocol, and is mostly
+>  a subset of I2C protocols and signaling.  Many I2C devices will work on an
 
->> diff --git a/Documentation/i2c/index.rst b/Documentation/i2c/index.rst
->> index a0fbaf6d0675..bd0ff9d00793 100644
->> --- a/Documentation/i2c/index.rst
->> +++ b/Documentation/i2c/index.rst
->> @@ -7,27 +7,26 @@ I2C/SMBus Subsystem
->>  .. toctree::
->>     :maxdepth: 1
->>  
->> +   summary
->> +   i2c-protocol
->> +   smbus-protocol
->> +   instantiating-devices
->> +   busses/index
->> +   i2c-topology
->> +   muxes/i2c-mux-gpio
->> +   writing-clients
->>     dev-interface
->>     dma-considerations
->>     fault-codes
->>     functionality
->>     gpio-fault-injection
->> -   i2c-protocol
->>     i2c-stub
->> -   i2c-topology
->> -   instantiating-devices
->> -   old-module-parameters
->> -   slave-eeprom-backend
->>     slave-interface
->> -   smbus-protocol
->> -   summary
->> +   slave-eeprom-backend
->>     ten-bit-addresses
->>     upgrading-clients
->> -   writing-clients
->> -
->> -   muxes/i2c-mux-gpio
->> +   old-module-parameters
->>  
->> -   busses/index
->>  
-> 
-> You end up with 2 blank lines in a row here, ideally there should be
-> only one left.
-
-Good catch, thanks, will fix in v2.
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
 -- 
-Luca
+Jean Delvare
+SUSE L3 Support
