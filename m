@@ -1,7 +1,7 @@
 From: Sakari Ailus <sakari.ailus@linux.intel.com>
-Subject: [PATCH v4 1/6] i2c: Allow driver to manage the device's power state during probe
-Date: Tue, 21 Jan 2020 15:41:52 +0200
-Message-ID: <20200121134157.20396-2-sakari.ailus@linux.intel.com>
+Subject: [PATCH v4 3/6] ov5670: Support probe whilst the device is in a low power state
+Date: Tue, 21 Jan 2020 15:41:54 +0200
+Message-ID: <20200121134157.20396-4-sakari.ailus@linux.intel.com>
 References: <20200121134157.20396-1-sakari.ailus@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,84 +12,76 @@ To: linux-i2c@vger.kernel.org
 Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael@kernel.org>, linux-acpi@vger.kernel.org, Bingbu Cao <bingbu.cao@intel.com>, linux-media@vger.kernel.org, Chiranjeevi Rapolu <chiranjeevi.rapolu@intel.com>, Hyungwoo Yang <hyungwoo.yang@intel.com>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, rajmohan.mani@intel.com, Tomasz Figa <tfiga@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Enable drivers to tell ACPI that there's no need to power on a device for
-probe. Drivers should still perform this by themselves if there's a need
-to. In some cases powering on the device during probe is undesirable, and
-this change enables a driver to choose what fits best for it.
+Tell ACPI device PM code that the driver supports the device being in a
+low power state when the driver's probe function is entered.
 
 Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 ---
- drivers/i2c/i2c-core-base.c | 15 ++++++++++++---
- include/linux/i2c.h         |  3 +++
- 2 files changed, 15 insertions(+), 3 deletions(-)
+ drivers/media/i2c/ov5670.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 9f8dcd3f83850..7bf1699c9044d 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -303,6 +303,14 @@ static int i2c_smbus_host_notify_to_irq(const struct i2c_client *client)
- 	return irq > 0 ? irq : -ENXIO;
- }
+diff --git a/drivers/media/i2c/ov5670.c b/drivers/media/i2c/ov5670.c
+index 041fcbb4eebdf..47c7241de15c2 100644
+--- a/drivers/media/i2c/ov5670.c
++++ b/drivers/media/i2c/ov5670.c
+@@ -2444,6 +2444,7 @@ static int ov5670_probe(struct i2c_client *client)
+ 	struct ov5670 *ov5670;
+ 	const char *err_msg;
+ 	u32 input_clk = 0;
++	bool low_power;
+ 	int ret;
  
-+static bool probe_low_power(struct device *dev)
-+{
-+	struct i2c_driver *driver = to_i2c_driver(dev->driver);
-+
-+	return driver->probe_low_power &&
-+		device_property_present(dev, "probe-low-power");
-+}
-+
- static int i2c_device_probe(struct device *dev)
- {
- 	struct i2c_client	*client = i2c_verify_client(dev);
-@@ -375,7 +383,8 @@ static int i2c_device_probe(struct device *dev)
- 	if (status < 0)
- 		goto err_clear_wakeup_irq;
+ 	device_property_read_u32(&client->dev, "clock-frequency", &input_clk);
+@@ -2460,11 +2461,14 @@ static int ov5670_probe(struct i2c_client *client)
+ 	/* Initialize subdev */
+ 	v4l2_i2c_subdev_init(&ov5670->sd, client, &ov5670_subdev_ops);
  
--	status = dev_pm_domain_attach(&client->dev, true);
-+	status = dev_pm_domain_attach(&client->dev,
-+				      !probe_low_power(&client->dev));
- 	if (status)
- 		goto err_clear_wakeup_irq;
- 
-@@ -397,7 +406,7 @@ static int i2c_device_probe(struct device *dev)
- 	return 0;
- 
- err_detach_pm_domain:
--	dev_pm_domain_detach(&client->dev, true);
-+	dev_pm_domain_detach(&client->dev, !probe_low_power(&client->dev));
- err_clear_wakeup_irq:
- 	dev_pm_clear_wake_irq(&client->dev);
- 	device_init_wakeup(&client->dev, false);
-@@ -419,7 +428,7 @@ static int i2c_device_remove(struct device *dev)
- 		status = driver->remove(client);
+-	/* Check module identity */
+-	ret = ov5670_identify_module(ov5670);
+-	if (ret) {
+-		err_msg = "ov5670_identify_module() error";
+-		goto error_print;
++	low_power = acpi_dev_state_low_power(&client->dev);
++	if (!low_power) {
++		/* Check module identity */
++		ret = ov5670_identify_module(ov5670);
++		if (ret) {
++			err_msg = "ov5670_identify_module() error";
++			goto error_print;
++		}
  	}
  
--	dev_pm_domain_detach(&client->dev, true);
-+	dev_pm_domain_detach(&client->dev, !probe_low_power(&client->dev));
+ 	mutex_init(&ov5670->mutex);
+@@ -2501,10 +2505,10 @@ static int ov5670_probe(struct i2c_client *client)
+ 	ov5670->streaming = false;
  
- 	dev_pm_clear_wake_irq(&client->dev);
- 	device_init_wakeup(&client->dev, false);
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 582ef05ec07ed..6d0d6af393c56 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -229,6 +229,8 @@ enum i2c_alert_protocol {
-  * @address_list: The I2C addresses to probe (for detect)
-  * @clients: List of detected clients we created (for i2c-core use only)
-  * @disable_i2c_core_irq_mapping: Tell the i2c-core to not do irq-mapping
-+ * @probe_low_power: Let the driver manage the device's power state
-+ *		     during probe and remove.
-  *
-  * The driver.owner field should be set to the module owner of this driver.
-  * The driver.name field should be set to the name of this driver.
-@@ -289,6 +291,7 @@ struct i2c_driver {
- 	struct list_head clients;
+ 	/*
+-	 * Device is already turned on by i2c-core with ACPI domain PM.
+-	 * Enable runtime PM and turn off the device.
++	 * Don't set the device's state to active if it's in a low power state.
+ 	 */
+-	pm_runtime_set_active(&client->dev);
++	if (!low_power)
++		pm_runtime_set_active(&client->dev);
+ 	pm_runtime_enable(&client->dev);
+ 	pm_runtime_idle(&client->dev);
  
- 	bool disable_i2c_core_irq_mapping;
-+	bool probe_low_power;
+@@ -2546,7 +2550,7 @@ static const struct dev_pm_ops ov5670_pm_ops = {
+ 
+ #ifdef CONFIG_ACPI
+ static const struct acpi_device_id ov5670_acpi_ids[] = {
+-	{"INT3479"},
++	{ "INT3479" },
+ 	{ /* sentinel */ }
  };
- #define to_i2c_driver(d) container_of(d, struct i2c_driver, driver)
  
+@@ -2561,6 +2565,7 @@ static struct i2c_driver ov5670_i2c_driver = {
+ 	},
+ 	.probe_new = ov5670_probe,
+ 	.remove = ov5670_remove,
++	.probe_low_power = true,
+ };
+ 
+ module_i2c_driver(ov5670_i2c_driver);
 -- 
 2.20.1
